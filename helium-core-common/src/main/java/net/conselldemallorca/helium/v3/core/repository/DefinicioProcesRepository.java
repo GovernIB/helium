@@ -34,6 +34,10 @@ public interface DefinicioProcesRepository extends JpaRepository<DefinicioProces
 			String jbpmKey,
 			int versio);
 
+	DefinicioProces findByIdAndEntornId(
+			Long id,
+			Long entornId);
+	
 	List<DefinicioProces> findByEntornAndJbpmKeyOrderByVersioDesc(
 			Entorn entorn,
 			String jbpmKey);
@@ -127,17 +131,18 @@ public interface DefinicioProcesRepository extends JpaRepository<DefinicioProces
 	@Query(	"from DefinicioProces dp " +
 			"where " +
 			"   dp.entorn.id = :entornId " +
-			"	and (dp.expedientTipus.id = :expedientTipusId or (:incloureGlobals = true and dp.expedientTipus is null)) " +
+			"	and (:esNullExpedientTipusId = true or (dp.expedientTipus.id = :expedientTipusId) or (:incloureGlobals = true and dp.expedientTipus is null)) " +
 			"	and (:esNullFiltre = true or lower(dp.jbpmKey) like lower('%'||:filtre||'%')) " +
 			"	and dp.versio = (" +
 			"  		select max(dps.versio) " +
 			"    	from DefinicioProces dps " +
 			"    	where " +
 			"       	dps.entorn.id = :entornId " +
-			"			and (dps.expedientTipus.id = :expedientTipusId or (:incloureGlobals = true and dp.expedientTipus is null)) " +
+			"			and (:esNullExpedientTipusId = true or (dp.expedientTipus.id = :expedientTipusId) or (:incloureGlobals = true and dp.expedientTipus is null)) " +
 			"		    and dps.jbpmKey= dp.jbpmKey) ")
 	Page<DefinicioProces> findByFiltrePaginat(
 			@Param("entornId") Long entornId,
+			@Param("esNullExpedientTipusId") boolean esNullExpedientTipusId,
 			@Param("expedientTipusId") Long expedientTipusId,
 			@Param("incloureGlobals") boolean incloureGlobals,
 			@Param("esNullFiltre") boolean esNullFiltre,
@@ -190,4 +195,27 @@ public interface DefinicioProcesRepository extends JpaRepository<DefinicioProces
 	List<Long> findIdsAmbExpedientTipusIJbpmIds(
 			@Param("expedientTipusId") Long expedientTipusId,
 			@Param("jbpmIds") Collection<String> jbpmIds);
+
+	@Query("from DefinicioProces dp " +
+			"where dp.expedientTipus.id = :expedientTipusId " +
+			"order by dp.etiqueta")
+	List<DefinicioProces> findAmbExpedientTipus(
+			@Param("expedientTipusId") Long expedientTipusId);	
+	
+	@Query(	"from DefinicioProces dp " +
+			"where " +
+			"   dp.entorn.id=:entornId " +
+			"	and ((:isNullExpedientTipusId = true) or ( dp.expedientTipus.id = :expedientTipusId)) " + 
+			"	and dp.versio = (" +
+			"    select " +
+			"        max(dps.versio) " +
+			"    from " +
+			"        DefinicioProces dps " +
+			"    where " +
+			"        dps.entorn.id=:entornId " +
+			"    	and dps.jbpmKey=dp.jbpmKey) ")
+	List<DefinicioProces> findByAll(
+			@Param("entornId") Long entornId,
+			@Param("isNullExpedientTipusId") boolean isNullExpedientTipusId,
+			@Param("expedientTipusId") Long expedientTipusId);
 }

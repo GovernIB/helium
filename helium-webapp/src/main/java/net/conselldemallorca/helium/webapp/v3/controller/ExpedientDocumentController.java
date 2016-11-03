@@ -441,17 +441,6 @@ public class ExpedientDocumentController extends BaseExpedientController {
 			@PathVariable Long expedientId,
 			@PathVariable Long documentId,
 			Model model) {
-<<<<<<< HEAD
-		ArxiuDto arxiu = expedientDocumentService.arxiuFindAmbDocument(
-					expedientId,
-					documentId);
-		model.addAttribute(
-				ArxiuView.MODEL_ATTRIBUTE_FILENAME,
-				arxiu.getNom());
-		model.addAttribute(
-				ArxiuView.MODEL_ATTRIBUTE_DATA,
-				arxiu.getContingut());
-=======
 		try {
 			ArxiuDto arxiu = expedientService.getArxiuPerDocument(
 						expedientId,

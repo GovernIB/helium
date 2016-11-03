@@ -6,7 +6,7 @@ import javax.validation.ConstraintValidatorContext;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import net.conselldemallorca.helium.v3.core.api.dto.AccioDto;
-import net.conselldemallorca.helium.v3.core.api.service.ExpedientTipusService;
+import net.conselldemallorca.helium.v3.core.api.service.AccioService;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientTipusAccioCommand;
 import net.conselldemallorca.helium.webapp.v3.helper.MessageHelper;
 
@@ -19,7 +19,7 @@ public class ExpedientTipusAccioValidator implements ConstraintValidator<Expedie
 
 	private String codiMissatge;
 	@Autowired
-	private ExpedientTipusService expedientTipusService;
+	private AccioService accioService;
 
 	@Override
 	public void initialize(ExpedientTipusAccio anotacio) {
@@ -31,8 +31,9 @@ public class ExpedientTipusAccioValidator implements ConstraintValidator<Expedie
 		boolean valid = true;
 		// Comprova si ja hi ha una variable del tipus d'expedient amb el mateix codi
 		if (accio.getCodi() != null) {
-			AccioDto repetit = expedientTipusService.accioFindAmbCodiPerValidarRepeticio(
+			AccioDto repetit = accioService.findAmbCodi(
 					accio.getExpedientTipusId(),
+					accio.getDefinicioProcesId(),
 					accio.getCodi());
 			if(repetit != null && (accio.getId() == null || !accio.getId().equals(repetit.getId()))) {
 				context.buildConstraintViolationWithTemplate(

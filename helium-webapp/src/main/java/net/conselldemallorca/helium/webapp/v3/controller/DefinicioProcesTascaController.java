@@ -30,6 +30,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDto;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
+import net.conselldemallorca.helium.v3.core.api.service.DocumentService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientTipusService;
 import net.conselldemallorca.helium.webapp.v3.command.DefinicioProcesTascaCommand;
 import net.conselldemallorca.helium.webapp.v3.command.DefinicioProcesTascaDocumentCommand;
@@ -51,6 +52,8 @@ public class DefinicioProcesTascaController extends BaseDefinicioProcesControlle
 	
 	@Autowired
 	ExpedientTipusService expedientTipusService;
+	@Autowired
+	DocumentService documentService;
 	
 	/** Pipella del tasques. */
 	@RequestMapping(value = "/{jbmpKey}/{definicioProcesId}/tasca")
@@ -147,6 +150,8 @@ public class DefinicioProcesTascaController extends BaseDefinicioProcesControlle
 
 		DefinicioProcesTascaVariableCommand command = new DefinicioProcesTascaVariableCommand();
 		command.setTascaId(id);
+		command.setReadFrom(true);
+		command.setWriteTo(true);
 		model.addAttribute("definicioProcesTascaVariableCommand", command);
 		model.addAttribute("variables", obtenirParellesVariables(
 				definicioProcesId,
@@ -487,10 +492,9 @@ public class DefinicioProcesTascaController extends BaseDefinicioProcesControlle
 		List<DocumentDto> documents; 
 		if (definicioProces.getExpedientTipus() != null && definicioProces.getExpedientTipus().isAmbInfoPropia() ){
 			// Obté totes els documents del tipus d'expedient de la definició de procés
-			documents = expedientTipusService.documentFindAllOrdenatsPerCodi(
-					definicioProces.getExpedientTipus().getId());			
+			documents = documentService.findAll(definicioProces.getExpedientTipus().getId(), null);			
 		} else {
-			documents = dissenyService.documentFindAmbDefinicioProces(definicioProcesId);
+			documents = documentService.findAll(null, definicioProcesId);
 		}
 		// Documents de la tasca existents
 		List<DocumentTascaDto> documentsTasca = definicioProcesService.tascaDocumentFindDocumentAmbTascaId(tascaId);
@@ -675,8 +679,8 @@ public class DefinicioProcesTascaController extends BaseDefinicioProcesControlle
 		DefinicioProcesDto definicioProces = definicioProcesService.findById(definicioProcesId);
 		if (definicioProces.getExpedientTipus() != null ){
 			// Obté totes els firmes del tipus d'expedient de la definició de procés
-			List<DocumentDto> firmes = expedientTipusService.documentFindAllOrdenatsPerCodi(
-					definicioProces.getExpedientTipus().getId());
+			List<DocumentDto> firmes = documentService.findAll(
+					definicioProces.getExpedientTipus().getId(), null);
 			
 			// Documents de la tasca existents
 			List<FirmaTascaDto> firmesTasca = definicioProcesService.tascaFirmaFindAmbTascaId(tascaId);

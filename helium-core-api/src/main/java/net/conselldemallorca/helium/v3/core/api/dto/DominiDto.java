@@ -59,8 +59,6 @@ public class DominiDto implements Serializable {
 		this.entorn = entorn;
 	}
 
-
-
 	public Long getId() {
 		return id;
 	}

@@ -9,7 +9,7 @@
 
 <c:set var="idioma"><%=org.springframework.web.servlet.support.RequestContextUtils.getLocale(request).getLanguage()%></c:set>
 <c:set var="titol"><spring:message code="expedient.tipus.campValidacio.llistat.titol" arguments="${camp.etiqueta}"/></c:set>
-<c:set var="baseUrl"><c:url value="/modal/v3/expedientTipus/${expedientTipusId}/variable/${camp.id}/validacio"></c:url></c:set>
+<c:set var="baseUrl"><c:url value="/modal/v3/${basicUrl}/variable/${camp.id}/validacio"></c:url></c:set>
 
 <html>
 <head>
@@ -31,10 +31,10 @@
 		<button type="button" class="btn btn-default" data-modal-cancel="true"><spring:message code="comu.boto.tancar"/></button>
 	</div>
 	
-	<form:form id="validacio-form" cssClass="form-horizontal" action="#" enctype="multipart/form-data" method="post" commandName="expedientTipusValidacioCommand" 
+	<form:form id="validacio-form" cssClass="form-horizontal" action="#" enctype="multipart/form-data" method="post" commandName="validacioCommand" 
 		style='${mostraCreate || mostraUpdate ? "":"display:none;"}'>
 		<div class="inlineLabels">        
-			<input type="hidden" name="id" id="inputValidacioId" value="${expedientTipusValidacioCommand.id}"/>
+			<input type="hidden" name="id" id="inputValidacioId" value="${validacioCommand.id}"/>
 			<hel:inputText required="true" name="expressio" textKey="expedient.tipus.campValidacio.form.camp.expressio" />
 			<hel:inputTextarea required="true" name="missatge" textKey="expedient.tipus.campValidacio.form.camp.missatge" />
 		</div>
@@ -154,7 +154,7 @@
 	function canviarPosicioValidacio( id, pos) {
 	  	// Canvia la ordenació sempre amb ordre ascendent
 		$('#campValidacio').DataTable().order([3, 'asc']);
-		var getUrl = '<c:url value="/v3/expedientTipus/${expedientTipusId}/variable/${camp.id}/validacio/"/>'+id+'/moure/'+pos;
+		var getUrl = '<c:url value="/v3/${basicUrl}/variable/${camp.id}/validacio/"/>'+id+'/moure/'+pos;
 		$.ajax({
 			type: 'GET',
 			url: getUrl,

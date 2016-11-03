@@ -30,16 +30,35 @@ public interface AccioRepository extends JpaRepository<Accio, Long> {
 	public List<Accio> findAmbExpedientTipusAndOcultaFalse(
 			@Param("expedientTipus") ExpedientTipus expedientTipus);
 		
-	Accio findByExpedientTipusAndCodi(ExpedientTipus expedientTipus, String codi);
+	Accio findByDefinicioProcesIdAndCodi(Long definicioProcesId, String codi);
+
+	Accio findByExpedientTipusIdAndCodi(Long expedientTipusId, String codi);
 	
 	@Query(	"from Accio a " +
 			"where " +
-			"   a.expedientTipus.id = :expedientTipusId " +
+			"   (a.expedientTipus.id = :expedientTipusId or a.expedientTipus.id is null) " +
+			"   and (a.definicioProces.id = :definicioProcesId or a.definicioProces.id is null) " +
 			"	and (:esNullFiltre = true or lower(a.codi) like lower('%'||:filtre||'%') or lower(a.nom) like lower('%'||:filtre||'%')) ")
 	Page<Accio> findByFiltrePaginat(
 			@Param("expedientTipusId") Long expedientTipusId,
+			@Param("definicioProcesId") Long definicioProcesId,
 			@Param("esNullFiltre") boolean esNullFiltre,
 			@Param("filtre") String filtre,		
-			Pageable pageable);	
+			Pageable pageable);
 
+	@Query("select a "
+			+ "from Accio a "
+			+ "where a.definicioProces.id = :definicioProcesId "
+			+ "order by a.codi")
+	public List<Accio> findAmbDefinicioProces(@Param("definicioProcesId")Long definicioProcesId);	
+	
+	@Query("select a "
+			+ "from Accio a "
+			+ "where a.expedientTipus.id = :expedientTipusId "
+			+ "order by a.codi")
+	public List<Accio> findAmbExpedientTipus(@Param("expedientTipusId")Long expedientTipusId);	
+
+	public Accio findByCodiAndDefinicioProces(
+			String codi,
+			DefinicioProces definicioProces);
 }

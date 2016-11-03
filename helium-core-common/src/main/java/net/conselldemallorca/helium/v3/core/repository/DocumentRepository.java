@@ -33,8 +33,16 @@ public interface DocumentRepository extends JpaRepository<Document, Long> {
 	@Query(	"select d from " +
 			"    Document d " +
 			"where " +
-			"    d.definicioProces.id=:id")
+			"    d.definicioProces.id=:id " +
+			"order by codi asc")
 	List<Document> findAmbDefinicioProces(@Param("id") Long id);
+
+	@Query(	"select d from " +
+			"    Document d " +
+			"where " +
+			"    d.definicioProces.id=:definicioProcesId " +
+			"and d.codi=:codi")
+	Document findAmbDefinicioProcesICodi(@Param("definicioProcesId") Long definicioProcesId, @Param("codi") String codi);
 
 	@Query(	"select " +
 			"    dt.document, " +
@@ -55,13 +63,17 @@ public interface DocumentRepository extends JpaRepository<Document, Long> {
 	
 	@Query(	"from Document d " +
 			"where " +
-			"   d.expedientTipus.id = :expedientTipusId " +
+			"   (d.expedientTipus.id = :expedientTipusId or d.expedientTipus.id is null) " +
+			"   and (d.definicioProces.id = :definicioProcesId or d.definicioProces.id is null) " +
 			"	and (:esNullFiltre = true or lower(d.codi) like lower('%'||:filtre||'%') or lower(d.nom) like lower('%'||:filtre||'%')) ")
 	public Page<Document> findByFiltrePaginat(
 			@Param("expedientTipusId") Long expedientTipusId,
+			@Param("definicioProcesId") Long definicioProcesId,
 			@Param("esNullFiltre") boolean esNullFiltre,
 			@Param("filtre") String filtre,		
 			Pageable pageable);
 	
-	List<Document> findByExpedientTipusOrderByCodiAsc(ExpedientTipus expedientTipus);
+	public List<Document> findByExpedientTipusIdOrderByCodiAsc(Long expedientTipusId);
+	
+	public List<Document> findByDefinicioProcesIdOrderByCodiAsc(Long definicioProcesId);
 }

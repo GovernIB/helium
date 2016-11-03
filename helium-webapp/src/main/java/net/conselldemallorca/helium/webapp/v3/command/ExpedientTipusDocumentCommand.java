@@ -8,14 +8,15 @@ import javax.validation.constraints.Size;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDocumentDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientTipusDocumentCommand.Creacio;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientTipusDocumentCommand.Modificacio;
 import net.conselldemallorca.helium.webapp.v3.validator.Codi;
 import net.conselldemallorca.helium.webapp.v3.validator.ExpedientTipusDocument;
 
 /**
- * Command per editar la informació de les varialbes dels tipus d'expedient 
+ * Command per editar la informació de les variables dels tipus d'expedient
+ * i de les definicions de procés. 
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
@@ -23,6 +24,7 @@ import net.conselldemallorca.helium.webapp.v3.validator.ExpedientTipusDocument;
 public class ExpedientTipusDocumentCommand {
 	
 	private Long expedientTipusId;
+	private Long definicioProcesId;
 	private Long id;
 	@NotEmpty(groups = {Creacio.class, Modificacio.class})
 	@Size(max = 64, groups = {Creacio.class, Modificacio.class})
@@ -49,6 +51,12 @@ public class ExpedientTipusDocumentCommand {
 	}
 	public void setExpedientTipusId(Long expedientTipusId) {
 		this.expedientTipusId = expedientTipusId;
+	}
+	public Long getDefinicioProcesId() {
+		return definicioProcesId;
+	}
+	public void setDefinicioProcesId(Long definicioProcesId) {
+		this.definicioProcesId = definicioProcesId;
 	}
 	public Long getId() {
 		return id;
@@ -134,8 +142,8 @@ public class ExpedientTipusDocumentCommand {
 	public void setTipusDocPortasignatures(Integer tipusDocPortasignatures) {
 		this.tipusDocPortasignatures = tipusDocPortasignatures;
 	}
-	public static ExpedientTipusDocumentDto asExpedientTipusDocumentDto(ExpedientTipusDocumentCommand command) {
-		ExpedientTipusDocumentDto dto = new ExpedientTipusDocumentDto();
+	public static DocumentDto asDocumentDto(ExpedientTipusDocumentCommand command) {
+		DocumentDto dto = new DocumentDto();
 		dto.setId(command.getId());
 		dto.setCodi(command.getCodi());
 		dto.setNom(command.getNom());

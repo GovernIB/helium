@@ -97,6 +97,26 @@ public class DefinicioProcesDao extends HibernateGenericDao<DefinicioProces, Lon
 				.list();
 	}
 
+	@SuppressWarnings("unchecked")
+	public List<DefinicioProces> findDarreresVersionsAmbExpedientTipus(
+			Long expedientTipusId) {
+		return (List<DefinicioProces>)getSession().createQuery(
+				"from " +
+				"    DefinicioProces dp " +
+				"where " +
+				"    dp.expedientTipus.id=:expedientTipusId " +
+				"and dp.versio = (" +
+				"    select " +
+				"        max(dps.versio) " +
+				"    from " +
+				"        DefinicioProces dps " +
+				"    where " +
+				"        dps.expedientTipus.id=:expedientTipusId " +
+				"    and dps.jbpmKey=dp.jbpmKey) " +
+				"order by dp.jbpmKey")
+				.setLong("expedientTipusId", expedientTipusId)
+				.list();
+	}
 	public DefinicioProces findDarreraVersioAmbEntornIJbpmKey(
 			Long entornId,
 			String jbpmName) {

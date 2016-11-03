@@ -101,7 +101,14 @@ public class TramitacioHandlerException extends HeliumException {
 	}
 	
 	public String getPublicMessage() {
-		return "Error de tramitació en l'execució del Handler. " + ExceptionUtils.getRootCauseMessage(this.getCause());
+		String publicMessage = "Error de tramitació en l'execució del handler";
+		if (className != null && !className.isEmpty()) {
+			publicMessage += " (" + className + ")";
+			if (lineNumber != 0)
+				publicMessage += ", línea " + lineNumber;
+		}
+		publicMessage += ": " + ExceptionUtils.getRootCauseMessage(this);
+		return publicMessage;
 	}
 
 	public Class<?> getClasseHandler() {

@@ -12,22 +12,6 @@ import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
-import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
-import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
-import net.conselldemallorca.helium.v3.core.api.service.AdminService;
-import net.conselldemallorca.helium.v3.core.api.service.DissenyService;
-import net.conselldemallorca.helium.v3.core.api.service.TascaService;
-import net.conselldemallorca.helium.webapp.v3.command.TascaConsultaCommand;
-import net.conselldemallorca.helium.webapp.v3.datatables.DatatablesPagina;
-import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
-import net.conselldemallorca.helium.webapp.v3.helper.ObjectTypeEditorHelper;
-import net.conselldemallorca.helium.webapp.v3.helper.PaginacioHelper;
-import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
-import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper.SessionManager;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,6 +32,23 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 import edu.emory.mathcs.backport.java.util.Arrays;
+import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
+import net.conselldemallorca.helium.v3.core.api.service.AdminService;
+import net.conselldemallorca.helium.v3.core.api.service.DissenyService;
+import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
+import net.conselldemallorca.helium.v3.core.api.service.TascaService;
+import net.conselldemallorca.helium.webapp.v3.command.TascaConsultaCommand;
+import net.conselldemallorca.helium.webapp.v3.datatables.DatatablesPagina;
+import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
+import net.conselldemallorca.helium.webapp.v3.helper.ObjectTypeEditorHelper;
+import net.conselldemallorca.helium.webapp.v3.helper.PaginacioHelper;
+import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
+import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper.SessionManager;
 
 /**
  * Controlador per al llistat de tasques.
@@ -64,7 +65,8 @@ public class TascaLlistatV3Controller extends BaseController {
 	private TascaService tascaService;
 	@Autowired
 	private DissenyService dissenyService;
-
+	@Autowired
+	private ExpedientService expedientService;
 
 
 	@RequestMapping(method = RequestMethod.GET)
@@ -117,10 +119,29 @@ public class TascaLlistatV3Controller extends BaseController {
 			HttpServletRequest request,
 			@PathVariable String tascaId, 
 			@Valid TascaConsultaCommand filtreCommand,
-			BindingResult bindingResult) {
-		filtreCommand.setConsultaTramitacioMassivaTascaId(tascaId);
-		SessionHelper.getSessionManager(request).setFiltreConsultaTasca(filtreCommand);
-		return "v3/tascaLlistat";
+			BindingResult bindingResult,
+			Model model) {
+		try {
+			EntornDto entornActual = (EntornDto) SessionHelper.getAttribute(request, SessionHelper.VARIABLE_ENTORN_ACTUAL_V3);
+			ExpedientTascaDto tasca = tascaService.findAmbIdPerTramitacio(tascaId);
+			filtreCommand.setConsultaTramitacioMassivaTascaId(tasca.getId());
+			ExpedientDto expedient = expedientService.findAmbId(tasca.getExpedientId());
+			filtreCommand.setExpedientTipusId(expedient.getTipus().getId());
+			if (filtreCommand.getExpedientTipusId() != null) {
+				model.addAttribute(
+						"expedientTipus",
+						dissenyService.findExpedientTipusAmbPermisReadUsuariActual(
+								entornActual.getId(),
+								filtreCommand.getExpedientTipusId()));
+			}
+			SessionHelper.getSessionManager(request).setFiltreConsultaTasca(filtreCommand);
+			return "v3/tascaLlistat";
+		} catch (Exception e) {
+			filtreCommand.setConsultaTramitacioMassivaTascaId(null);
+			SessionHelper.getSessionManager(request).setFiltreConsultaTasca(filtreCommand);
+			return "redirect:../../../v3/tasca";
+//			return "v3/tascaLlistat";
+		}
 	}
 
 	@RequestMapping(value = "/filtre", method = RequestMethod.POST)

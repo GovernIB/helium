@@ -435,7 +435,8 @@ public interface Jbpm3HeliumService {
 			int anys,
 			int mesos,
 			int dies,
-			boolean laborable);
+			boolean laborable,
+			String processInstanceId);
 
 	/**
 	 * Calcula la data de fi d'un termini donada la data d'inici.
@@ -452,7 +453,8 @@ public interface Jbpm3HeliumService {
 			int anys,
 			int mesos,
 			int dies,
-			boolean laborable);
+			boolean laborable,
+			String processInstanceId);
 
 	/**
 	 * Inicia un termini donat un interval.

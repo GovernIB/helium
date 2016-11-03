@@ -25,8 +25,8 @@ import org.springframework.web.multipart.commons.CommonsMultipartFile;
 
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
@@ -56,22 +56,31 @@ public class ExpedientTipusDocumentController extends BaseExpedientTipusControll
 		if (!NodecoHelper.isNodeco(request)) {
 			return mostrarInformacioExpedientTipusPerPipelles(request, expedientTipusId, model, "documents");
 		}
+		// Omple el model per a la pestanya
 		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
 		if (entornActual != null) {
 			ExpedientTipusDto expedientTipus = expedientTipusService.findAmbIdPermisDissenyar(
 					entornActual.getId(),
 					expedientTipusId);
 			model.addAttribute("expedientTipus", expedientTipus);
+			model.addAttribute("baseUrl", expedientTipus.getId());
 		}
 		return "v3/expedientTipusDocument";
 	}
+	
 
 	@RequestMapping(value = "/{expedientTipusId}/document/datatable", method = RequestMethod.GET)
 	@ResponseBody
 	DatatablesResponse datatable(HttpServletRequest request, @PathVariable Long expedientTipusId, Model model) {
 		PaginacioParamsDto paginacioParams = DatatablesHelper.getPaginacioDtoFromRequest(request);
-		return DatatablesHelper.getDatatableResponse(request, null, expedientTipusService
-				.documentFindPerDatatable(expedientTipusId, paginacioParams.getFiltre(), paginacioParams));
+		return DatatablesHelper.getDatatableResponse(
+				request, 
+				null, 
+				documentService.findPerDatatable(
+						expedientTipusId,
+						null,
+						paginacioParams.getFiltre(), 
+						paginacioParams));
 	}
 
 	@RequestMapping(value = "/{expedientTipusId}/document/new", method = RequestMethod.GET)
@@ -96,11 +105,12 @@ public class ExpedientTipusDocumentController extends BaseExpedientTipusControll
 				return "v3/expedientTipusDocumentForm";
 			} else {
 				byte[] contingutArxiu = IOUtils.toByteArray(arxiuContingut.getInputStream());
-				ExpedientTipusDocumentDto dto = ExpedientTipusDocumentCommand.asExpedientTipusDocumentDto(command);
+				DocumentDto dto = ExpedientTipusDocumentCommand.asDocumentDto(command);
 				dto.setArxiuContingut(contingutArxiu);
 				
-				expedientTipusService.documentCreate(
+				documentService.create(
 										expedientTipusId,
+										null,
 										dto);
 				
 				MissatgesHelper.success(
@@ -108,11 +118,7 @@ public class ExpedientTipusDocumentController extends BaseExpedientTipusControll
 						getMessage(
 								request, 
 								"expedient.tipus.document.controller.creat"));
-				return modalUrlTancar(false);
-				
-//				return getModalControllerReturnValueSuccess(request,
-//						"redirect:/v3/expedientTipus/" + expedientTipusId + "#documents",
-//						"expedient.tipus.document.controller.creat");
+				return modalUrlTancar(false);				
 			}
 		} catch (Exception ex) {
 			logger.error("No s'ha pogut guardar el document", ex);
@@ -126,7 +132,7 @@ public class ExpedientTipusDocumentController extends BaseExpedientTipusControll
 			@PathVariable Long expedientTipusId, 
 			@PathVariable Long id,
 			Model model) {
-		ExpedientTipusDocumentDto dto = expedientTipusService.documentFindAmbId(id);
+		DocumentDto dto = documentService.findAmbId(id);
 		ExpedientTipusDocumentCommand command = conversioTipusHelper.convertir(dto,
 				ExpedientTipusDocumentCommand.class);
 		command.setExpedientTipusId(expedientTipusId);
@@ -152,7 +158,7 @@ public class ExpedientTipusDocumentController extends BaseExpedientTipusControll
 				omplirModelCamps(request, expedientTipusId, model);
 				return "v3/expedientTipusDocumentForm";
 			} else {
-				ExpedientTipusDocumentDto dto = ExpedientTipusDocumentCommand.asExpedientTipusDocumentDto(command);
+				DocumentDto dto = ExpedientTipusDocumentCommand.asDocumentDto(command);
 				
 				if (arxiuContingut == null && eliminarContingut) {
 					dto.setArxiuContingut(null);
@@ -160,11 +166,11 @@ public class ExpedientTipusDocumentController extends BaseExpedientTipusControll
 					byte[] contingutArxiu = IOUtils.toByteArray(arxiuContingut.getInputStream());
 					dto.setArxiuContingut(contingutArxiu);
 				} else if (arxiuContingut == null && !eliminarContingut) {
-					ExpedientTipusDocumentDto dtoVell = expedientTipusService.documentFindAmbId(id);
+					DocumentDto dtoVell = documentService.findAmbId(id);
 					dto.setArxiuContingut(dtoVell.getArxiuContingut());
 				}
 				
-				expedientTipusService.documentUpdate(dto);
+				documentService.update(dto);
 				
 				MissatgesHelper.success(
 						request, 
@@ -188,7 +194,7 @@ public class ExpedientTipusDocumentController extends BaseExpedientTipusControll
 			Model model) {
 		
 		try {
-			expedientTipusService.documentDelete(id);
+			documentService.delete(id);
 			
 			MissatgesHelper.success(
 					request,
@@ -213,7 +219,7 @@ public class ExpedientTipusDocumentController extends BaseExpedientTipusControll
 			@PathVariable Long expedientTipusId, 
 			@PathVariable Long id,
 			Model model) {
-		ArxiuDto arxiu = expedientTipusService.getArxiuPerDocument(id);
+		ArxiuDto arxiu = documentService.getArxiu(id);
 		if (arxiu != null) {
 			model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_FILENAME, arxiu.getNom());
 			model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_DATA, arxiu.getContingut());
@@ -225,7 +231,7 @@ public class ExpedientTipusDocumentController extends BaseExpedientTipusControll
 			HttpServletRequest request,
 			Long expedientTipusId,
 			Model model) {
-		List<CampDto> camps = expedientTipusService.campFindTipusDataPerExpedientTipus(expedientTipusId);
+		List<CampDto> camps = campService.findTipusData(expedientTipusId, null);
 		List<ParellaCodiValorDto> resposta = new ArrayList<ParellaCodiValorDto>();
 		for (CampDto camp : camps) {
 			resposta.add(new ParellaCodiValorDto(camp.getId().toString(), (camp.getCodi() + "/" + camp.getEtiqueta())));

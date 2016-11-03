@@ -21,6 +21,7 @@ import org.springframework.stereotype.Service;
 import com.codahale.metrics.MetricRegistry;
 
 import net.conselldemallorca.helium.core.common.JbpmVars;
+import net.conselldemallorca.helium.core.helper.ProcesCallbackHelper;
 import net.conselldemallorca.helium.core.helperv26.DocumentHelper;
 import net.conselldemallorca.helium.core.model.dao.AlertaDao;
 import net.conselldemallorca.helium.core.model.dao.CampDao;
@@ -34,6 +35,7 @@ import net.conselldemallorca.helium.core.model.dao.PluginPersonaDao;
 import net.conselldemallorca.helium.core.model.dao.PluginPortasignaturesDao;
 import net.conselldemallorca.helium.core.model.dao.PluginTramitacioDao;
 import net.conselldemallorca.helium.core.model.dao.RegistreDao;
+import net.conselldemallorca.helium.core.model.dao.TerminiIniciatDao;
 import net.conselldemallorca.helium.core.model.dao.UsuariDao;
 import net.conselldemallorca.helium.core.model.dto.DocumentDto;
 import net.conselldemallorca.helium.core.model.dto.PersonaDto;
@@ -47,6 +49,7 @@ import net.conselldemallorca.helium.core.model.hibernate.ExpedientLog.ExpedientL
 import net.conselldemallorca.helium.core.model.hibernate.Portasignatures;
 import net.conselldemallorca.helium.core.model.hibernate.Portasignatures.TipusEstat;
 import net.conselldemallorca.helium.core.model.hibernate.Portasignatures.Transicio;
+import net.conselldemallorca.helium.core.model.hibernate.TerminiIniciat;
 import net.conselldemallorca.helium.core.model.hibernate.Usuari;
 import net.conselldemallorca.helium.core.security.AclServiceDao;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
@@ -78,6 +81,7 @@ public class PluginService {
 	private ExpedientDao expedientDao;
 	private RegistreDao registreDao;
 	private DocumentStoreDao documentStoreDao;
+	private TerminiIniciatDao terminiIniciatDao;
 	private JbpmHelper jbpmDao;
 
 	private DocumentHelper documentHelper;
@@ -94,7 +98,7 @@ public class PluginService {
 	private ServiceUtils serviceUtils;
 	private MessageSource messageSource;
 	private MetricRegistry metricRegistry;
-
+	private ProcesCallbackHelper procesCallbackHelper;
 
 
 	public List<PersonaDto> findPersonaLikeNomSencer(String text) {
@@ -237,7 +241,17 @@ public class PluginService {
 						portasignatures.setMotiuRebuig(motiuRebuig);
 					}
 					pluginPortasignaturesDao.saveOrUpdate(portasignatures);
-					processarDocumentPendentPortasignatures(id, portasignatures);
+					
+					if (!procesCallbackHelper.isDocumentEnProces(portasignatures.getDocumentId())) {
+						procesCallbackHelper.afegirDocument(portasignatures.getDocumentId());
+						try {
+							processarDocumentPendentPortasignatures(id, portasignatures);
+						} finally {
+							if (procesCallbackHelper.isDocumentEnProces(portasignatures.getDocumentId()))
+								procesCallbackHelper.eliminarDocument(portasignatures.getDocumentId());
+						}
+					}
+					
 					return true;
 				} else if (TipusEstat.ESBORRAT.equals(portasignatures.getEstat())) {
 					return true;
@@ -407,6 +421,10 @@ public class PluginService {
 		this.expedientDao = expedientDao;
 	}
 	@Autowired
+	public void setTerminiIniciatDao(TerminiIniciatDao terminiIniciatDao) {
+		this.terminiIniciatDao = terminiIniciatDao;
+	}
+	@Autowired
 	public void setRegistreDao(RegistreDao registreDao) {
 		this.registreDao = registreDao;
 	}
@@ -462,7 +480,10 @@ public class PluginService {
 	public void setMetricRegistry(MetricRegistry metricRegistry) {
 		this.metricRegistry = metricRegistry;
 	}
-
+	@Autowired
+	public void setProcesCallbackHelper(ProcesCallbackHelper procesCallbackHelper) {
+		this.procesCallbackHelper = procesCallbackHelper;
+	}
 
 
 	private boolean processarDocumentPendentPortasignatures(
@@ -501,7 +522,11 @@ public class PluginService {
 						portasignatures.setDataSignalOk(new Date());
 						portasignatures.setEstat(TipusEstat.PROCESSAT);
 						getServiceUtils().expedientIndexLuceneUpdate(
-								jbpmDao.getTokenById(tokenId.toString()).getProcessInstanceId());
+								token.getProcessInstanceId());
+						
+						//Actualitzem l'estat de l'expedient, ja que si tot el procés de firma i de custòdia
+						// ha anat bé, es possible que s'avanci cap al node "fi"
+						verificarFinalitzacioExpedient(token.getProcessInstanceId());
 						resposta = true;
 					} catch (PluginException pex) {
 						errorProcesPsigna(
@@ -715,6 +740,29 @@ public class PluginService {
 			else
 				alerta.setCausa(causa);
 			alertaDao.saveOrUpdate(alerta);
+		}
+	}
+	
+	private void verificarFinalitzacioExpedient(String processInstanceId) {
+		JbpmProcessInstance pi = jbpmDao.getRootProcessInstance(processInstanceId);
+		Expedient expedient = expedientDao.findAmbProcessInstanceId(pi.getId());
+		if (pi.getEnd() != null) {
+			// Actualitzar data de fi de l'expedient
+			expedient.setDataFi(pi.getEnd());
+			// Finalitzar terminis actius
+			List<TerminiIniciat> llistaTerminis = terminiIniciatDao.findAmbProcessInstanceId(pi.getId());
+			if (llistaTerminis != null && !llistaTerminis.isEmpty()) {
+				for (TerminiIniciat terminiIniciat: llistaTerminis) {
+					if (terminiIniciat.getDataInici() != null) {
+						terminiIniciat.setDataCancelacio(new Date());
+						long[] timerIds = terminiIniciat.getTimerIdsArray();
+						for (int i = 0; i < timerIds.length; i++)
+							jbpmDao.suspendTimer(
+									timerIds[i],
+									new Date(Long.MAX_VALUE));
+					}
+				}
+			}
 		}
 	}
 

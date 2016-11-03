@@ -55,6 +55,9 @@ public class DocumentDto implements Serializable {
 	private byte[] signatContingut;
 	private String vistaNom;
 	private byte[] vistaContingut;
+	
+	private String convertirExtensio;
+	private String extensionsPermeses;
 
 	private String processInstanceId;
 	private String contentType;
@@ -69,6 +72,8 @@ public class DocumentDto implements Serializable {
 	private String urlVerificacioCustodia;
 	
 	private ExpedientTipusDto expedientTipus;
+
+	private CampDto campData;
 
 	public String getCodi() {
 		return codi;
@@ -117,6 +122,18 @@ public class DocumentDto implements Serializable {
 	}
 	public void setVistaContingut(byte[] vistaContingut) {
 		this.vistaContingut = vistaContingut;
+	}
+	public String getConvertirExtensio() {
+		return convertirExtensio;
+	}
+	public void setConvertirExtensio(String convertirExtensio) {
+		this.convertirExtensio = convertirExtensio;
+	}
+	public String getExtensionsPermeses() {
+		return extensionsPermeses;
+	}
+	public void setExtensionsPermeses(String extensionsPermeses) {
+		this.extensionsPermeses = extensionsPermeses;
 	}
 	public String getProcessInstanceId() {
 		return processInstanceId;
@@ -374,7 +391,14 @@ public class DocumentDto implements Serializable {
 	public void setSignatRequired(boolean signatRequired) {
 		this.signatRequired = signatRequired;
 	}
+	public CampDto getCampData() {
+		return campData;
+	}
+	public void setCampData(CampDto campData) {
+		this.campData = campData;
+	}
 
 	private static final long serialVersionUID = 774909297938469787L;
+
 
 }

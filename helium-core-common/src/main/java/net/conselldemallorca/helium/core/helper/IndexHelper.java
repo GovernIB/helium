@@ -578,5 +578,4 @@ public class IndexHelper {
 			return valor;
 		}
 	}
-
 }

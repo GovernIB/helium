@@ -183,7 +183,11 @@
 									<c:if test="${not empty param.itemBuit}"><label for="${inputId}0" class="inlineLabel"><input type="checkbox" id="${inputId}" name="${inputName}" value="" onclick="${param.onclick}" onchange="${param.onchange}"<c:if test="${not empty param.disabled}"> disabled="disabled"</c:if>/>${param.itemBuit}</label></c:if>
 									<c:forEach var="item" items="${items}" varStatus="mcStatus">
 										<c:set var="found" value="${false}"/>
-										<c:forEach var="value" items="${status.value}"><c:if test="${value[param.itemValue] == item[param.itemValue]}"><c:set var="found" value="${true}"/></c:if></c:forEach>
+										<c:forEach var="value" items="${status.value}">
+											<c:if test="${fn:contains(value,item[param.itemValue])}">
+												<c:set var="found" value="${true}"/>
+											</c:if>
+										</c:forEach>
 										<label for="${inputId}${mcStatus.index}" class="inlineLabel"><input type="checkbox" id="${inputId}${mcStatus.index}" name="${inputName}" value="${item[param.itemValue]}"<c:if test="${found}"> checked="checked"</c:if> onclick="${param.onclick}" onchange="${param.onchange}"/>${item[param.itemLabel]}</label>
 									</c:forEach>
 								</div>

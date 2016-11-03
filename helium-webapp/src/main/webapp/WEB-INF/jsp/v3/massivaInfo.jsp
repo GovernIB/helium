@@ -385,7 +385,7 @@
 			<div class="form-group">
 				<c:if test="${not empty accions}">
 					<form:form cssClass="form-horizontal form-tasca" id="massivaExecutarAccio" name="massivaExecutarAccio" action="massiva/massivaExecutarAccio" method="post" commandName="execucioAccioCommand" onsubmit="return confirmarExecutarAccio(event)">
-						<hel:inputSelect inline="true" name="accioId" textKey="expedient.massiva.exec_accio" placeholderKey="expedient.massiva.exec_accio" optionItems="${accions}" optionValueAttribute="codi" optionTextAttribute="nom"/>
+						<hel:inputSelect inline="true" name="accioCodi" textKey="expedient.massiva.exec_accio" placeholderKey="expedient.massiva.exec_accio" optionItems="${accions}" optionValueAttribute="codi" optionTextAttribute="nom"/>
 						
 						<button class="btn btn-primary right" type="submit" name="accio" value="executar_accio">
 							<spring:message code='comuns.executar' />

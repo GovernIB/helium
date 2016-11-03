@@ -8,6 +8,13 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import net.conselldemallorca.helium.core.helper.IndexHelper;
 import net.conselldemallorca.helium.core.model.hibernate.ExecucioMassiva.ExecucioMassivaTipus;
 import net.conselldemallorca.helium.core.model.hibernate.ExecucioMassivaExpedient;
@@ -18,13 +25,6 @@ import net.conselldemallorca.helium.v3.core.api.service.ExecucioMassivaService;
 import net.conselldemallorca.helium.v3.core.api.service.TascaProgramadaService;
 import net.conselldemallorca.helium.v3.core.repository.ExecucioMassivaExpedientRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientRepository;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Servei per gestionar els terminis dels expedients
@@ -68,8 +68,11 @@ public class TascaProgramadaServiceImpl implements TascaProgramadaService {
 						execucioMassivaService.executarExecucioMassiva(ome_id);
 					}
 					catch (Exception e) {
-						// si s'ha produit una excepció, deseram l'error a la operació
-						execucioMassivaService.generaInformeError(ome_id, getError(ome_id));
+						// recuperem l'error de la aplicació
+						String errMsg = getError(ome_id);
+						if (errMsg == null || "".equals(errMsg))
+							errMsg = e.getMessage();
+						execucioMassivaService.generaInformeError(ome_id, errMsg);
 					}
 					ExecucioMassivaExpedient ome = execucioMassivaExpedientRepository.findOne(ome_id);
 					if (ome == null)
@@ -95,7 +98,6 @@ public class TascaProgramadaServiceImpl implements TascaProgramadaService {
 		List<Expedient> expedients = expedientRepository.findByReindexarDataNotNullOrderByReindexarDataAsc();
 		for (Expedient expedient: expedients) {
 			try {
-				System.out.println("Reindexant ==> " + expedient.getIdentificador());
 				indexHelper.expedientIndexLuceneUpdate(
 						expedient.getProcessInstanceId(),
 						false,

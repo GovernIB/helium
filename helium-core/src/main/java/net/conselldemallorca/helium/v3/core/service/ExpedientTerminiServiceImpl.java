@@ -19,6 +19,7 @@ import net.conselldemallorca.helium.core.helper.ExpedientHelper;
 import net.conselldemallorca.helium.core.helper.MessageHelper;
 import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
+import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.hibernate.Festiu;
 import net.conselldemallorca.helium.core.model.hibernate.Registre;
 import net.conselldemallorca.helium.core.model.hibernate.Termini;
@@ -420,7 +421,8 @@ public class ExpedientTerminiServiceImpl implements ExpedientTerminiService {
 			int anys,
 			int mesos,
 			int dies,
-			boolean laborable) {
+			boolean laborable,
+			String processInstanceId) {
 		Calendar dataFi = Calendar.getInstance();
 		dataFi.setTime(inici); //inicialitzam la data final amb la data d'inici
 		// Afegim els anys i mesos
@@ -433,13 +435,14 @@ public class ExpedientTerminiServiceImpl implements ExpedientTerminiService {
 			dataFi.add(Calendar.DAY_OF_YEAR, -1);
 		}
 		if (dies > 0) {
+			Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
 			// Depenent de si el termini és laborable o no s'afegiran més o manco dies
 			if (laborable) {
-				sumarDies(dataFi, dies);
+				sumarDies(dataFi, dies, expedient.getTipus());
 			} else {
 				dataFi.add(Calendar.DATE, dies - 1);
 				// Si el darrer dia cau en festiu es passa al dia laborable següent
-				sumarDies(dataFi, 1);
+				sumarDies(dataFi, 1, expedient.getTipus());
 			}
 			// El termini en realitat acaba a les 23:59 del darrer dia
 			dataFi.set(Calendar.HOUR_OF_DAY, 23);
@@ -457,7 +460,8 @@ public class ExpedientTerminiServiceImpl implements ExpedientTerminiService {
 			int anys,
 			int mesos,
 			int dies,
-			boolean laborable) {
+			boolean laborable,
+			String processInstanceId) {
 		Calendar dataInici = Calendar.getInstance();
 		dataInici.setTime(fi); //inicialitzam la data final amb la data d'inici
 		// Afegim els anys i mesos
@@ -470,13 +474,14 @@ public class ExpedientTerminiServiceImpl implements ExpedientTerminiService {
 			dataInici.add(Calendar.DAY_OF_YEAR, -1);
 		}
 		if (dies > 0) {
+			Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
 			// Depenent de si el termini és laborable o no s'afegiran més o manco dies
 			if (laborable) {
-				sumarDies(dataInici, -dies);
+				sumarDies(dataInici, -dies, expedient.getTipus());
 			} else {
 				dataInici.add(Calendar.DATE, -dies + 1);
 				// Si el darrer dia cau en festiu es passa al dia laborable següent
-				sumarDies(dataInici, -1);
+				sumarDies(dataInici, -1, expedient.getTipus());
 			}
 			// El termini en realitat s'inicia a les 00:00h
 			dataInici.set(Calendar.HOUR_OF_DAY, 0);
@@ -489,9 +494,10 @@ public class ExpedientTerminiServiceImpl implements ExpedientTerminiService {
 	
 	private boolean esFestiu(
 			Calendar cal,
-			List<Festiu> festius) {
+			List<Festiu> festius,
+			ExpedientTipus expedientTipus) {
 		int diasem = cal.get(Calendar.DAY_OF_WEEK);
-		for (int nolab: getDiesNoLaborables()) {
+		for (int nolab: getDiesNoLaborables(expedientTipus)) {
 			if (diasem == nolab)
 				return true;
 		}
@@ -502,7 +508,7 @@ public class ExpedientTerminiServiceImpl implements ExpedientTerminiService {
 		return false;
 	}
 
-	private void sumarDies(Calendar cal, int numDies) {
+	private void sumarDies(Calendar cal, int numDies, ExpedientTipus expedientTipus) {
 		int signe = (numDies < 0) ? -1 : 1;
 		int nd = (numDies < 0) ? -numDies : numDies;
 		cal.set(Calendar.HOUR_OF_DAY, 0);
@@ -512,7 +518,7 @@ public class ExpedientTerminiServiceImpl implements ExpedientTerminiService {
 		List<Festiu> festius = festiuRepository.findAll();
 		int diesLabs = 0;
 		while (diesLabs < nd) {
-			if (!esFestiu(cal, festius))
+			if (!esFestiu(cal, festius, expedientTipus))
 				diesLabs ++;
 			cal.add(Calendar.DATE, signe);
 		}
@@ -540,7 +546,8 @@ public class ExpedientTerminiServiceImpl implements ExpedientTerminiService {
 						anys,
 						mesos,
 						dies,
-						termini.isLaborable());
+						termini.isLaborable(),
+						expedient.getProcessInstanceId());
 				terminiIniciat = new TerminiIniciat(
 						termini,
 						anys,
@@ -555,7 +562,8 @@ public class ExpedientTerminiServiceImpl implements ExpedientTerminiService {
 						anys,
 						mesos,
 						dies,
-						termini.isLaborable());
+						termini.isLaborable(),
+						expedient.getProcessInstanceId());
 				terminiIniciat = new TerminiIniciat(
 						termini,
 						anys,
@@ -572,7 +580,8 @@ public class ExpedientTerminiServiceImpl implements ExpedientTerminiService {
 						anys,
 						mesos,
 						dies,
-						termini.isLaborable());
+						termini.isLaborable(),
+						expedient.getProcessInstanceId());
 				terminiIniciat.setDataInici(dataInici);
 				terminiIniciat.setDataFi(data);
 			} else {
@@ -581,7 +590,8 @@ public class ExpedientTerminiServiceImpl implements ExpedientTerminiService {
 						anys,
 						mesos,
 						dies,
-						termini.isLaborable());
+						termini.isLaborable(),
+						expedient.getProcessInstanceId());
 				terminiIniciat.setDataInici(data);
 				terminiIniciat.setDataFi(dataFi);
 			}
@@ -602,9 +612,14 @@ public class ExpedientTerminiServiceImpl implements ExpedientTerminiService {
 		return conversioTipusHelper.convertir(terminiObj, TerminiIniciatDto.class);
 	}
 
-	private int[] getDiesNoLaborables() {
-		String nolabs = GlobalProperties.getInstance().getProperty("app.calendari.nolabs");
-		if (nolabs != null) {
+	private int[] getDiesNoLaborables(ExpedientTipus expedientTipus) {
+		String nolabs = null;
+		if (expedientTipus.getDiesNoLaborables() != null && !expedientTipus.getDiesNoLaborables().isEmpty())
+			nolabs = expedientTipus.getDiesNoLaborables();
+		else
+			nolabs = GlobalProperties.getInstance().getProperty("app.calendari.nolabs");
+			
+		if (nolabs != null && !nolabs.isEmpty()) {
 			String[] dies = nolabs.split(",");
 			int[] resposta = new int[dies.length];
 			for (int i = 0; i < dies.length; i++) {

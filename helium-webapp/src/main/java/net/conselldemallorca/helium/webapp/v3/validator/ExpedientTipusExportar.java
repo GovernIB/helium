@@ -1,6 +1,5 @@
 package net.conselldemallorca.helium.webapp.v3.validator;
 
-import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -10,16 +9,14 @@ import javax.validation.Constraint;
 import javax.validation.Payload;
 
 /**
- * Validador per al manteniment de variales del tipus d'expedient: 
- * - Comprova que el codi no estigui duplicat
+ * Validador per a la comanda d'exportació de dades del tipus d'expedient.
  */
-@Documented
-@Constraint(validatedBy = ExpedientTipusCampValidator.class)
+@Constraint(validatedBy = ExpedientTipusExportarValidator.class)
 @Target({ ElementType.TYPE, ElementType.ANNOTATION_TYPE })
 @Retention(RetentionPolicy.RUNTIME)
-public @interface ExpedientTipusCamp {
+public @interface ExpedientTipusExportar {
 
-	String message() default "expedient.tipus.camp.validacio";
+	String message() default "exportar.validacio";
 
 	Class<?>[] groups() default {};
 

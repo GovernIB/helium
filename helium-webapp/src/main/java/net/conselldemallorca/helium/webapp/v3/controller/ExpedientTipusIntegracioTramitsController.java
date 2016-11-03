@@ -266,18 +266,7 @@ public class ExpedientTipusIntegracioTramitsController extends BaseExpedientTipu
 			TipusMapeig tipus) {
 		List<ParellaCodiValorDto> resposta = new ArrayList<ParellaCodiValorDto>();
 		// Obté totes les variables del tipus d'expedient
-		List<CampDto> variables = expedientTipusService.campFindAllOrdenatsPerCodi(expedientTipusId);
-		// Consulta els camps de la consulta segons el tipus
-//		List<String> camps = expedientTipusService.mapeigFindCodiHeliumAmbTipus(
-//				expedientTipusId,
-//				tipus);
-//		// Lleva les variables que ja pertanyin a algun camp
-//		Iterator<CampDto> it = variables.iterator();
-//		while (it.hasNext()) {
-//			CampDto variable = it.next();
-//			if (camps.contains(variable.getCodi()))
-//					it.remove();
-//		}
+		List<CampDto> variables = campService.findAllOrdenatsPerCodi(expedientTipusId, null);
 		// Crea les parelles de codi i valor
 		for (CampDto variable : variables) {
 			resposta.add(new ParellaCodiValorDto(

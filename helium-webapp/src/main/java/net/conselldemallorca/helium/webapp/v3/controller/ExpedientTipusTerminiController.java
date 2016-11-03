@@ -72,11 +72,13 @@ public class ExpedientTipusTerminiController extends BaseExpedientTipusControlle
 					entornActual.getId(),
 					expedientTipusId);
 			model.addAttribute("expedientTipus", expedientTipus);
+			model.addAttribute("baseUrl", expedientTipus.getId());
 		}
+
 		return "v3/expedientTipusTermini";
 	}
 
-	@RequestMapping(value="/{expedientTipusId}/terminis/datatable", method = RequestMethod.GET)
+	@RequestMapping(value="/{expedientTipusId}/termini/datatable", method = RequestMethod.GET)
 	@ResponseBody
 	DatatablesResponse datatable(
 			HttpServletRequest request,
@@ -86,8 +88,9 @@ public class ExpedientTipusTerminiController extends BaseExpedientTipusControlle
 		return DatatablesHelper.getDatatableResponse(
 				request,
 				null,
-				expedientTipusService.terminiFindPerDatatable(
+				terminiService.findPerDatatable(
 						expedientTipusId,
+						null,
 						paginacioParams.getFiltre(),
 						paginacioParams));		
 	}
@@ -99,7 +102,6 @@ public class ExpedientTipusTerminiController extends BaseExpedientTipusControlle
 			@RequestParam(required = false) Long agrupacioId,
 			Model model) {
 		ExpedientTipusTerminiCommand command = new ExpedientTipusTerminiCommand();
-		model.addAttribute("expedientTipusId", expedientTipusId);
 		model.addAttribute("expedientTipusTerminiCommand", command);
 		return "v3/expedientTipusTerminiForm";
 	}
@@ -116,15 +118,12 @@ public class ExpedientTipusTerminiController extends BaseExpedientTipusControlle
         	return "v3/expedientTipusTerminiForm";
         } else {
         	// Verificar permisos
-    		expedientTipusService.terminiCreate(
+    		terminiService.create(
     				expedientTipusId,
+    				null,
     				conversioTipusHelper.convertir(
     						command,
     						TerminiDto.class));    		
-//			return getModalControllerReturnValueSuccess(
-//					request,
-//					"redirect:/v3/expedientTipus/" + expedientTipusId + "#terminis",
-//					"expedient.tipus.termini.controller.creat");
     		MissatgesHelper.success(
 					request, 
 					getMessage(
@@ -141,7 +140,7 @@ public class ExpedientTipusTerminiController extends BaseExpedientTipusControlle
 			@PathVariable Long expedientTipusId,
 			@PathVariable Long id,
 			Model model) {
-		TerminiDto dto = expedientTipusService.terminiFindAmbId(id);
+		TerminiDto dto = terminiService.findAmbId(id);
 		ExpedientTipusTerminiCommand command = conversioTipusHelper.convertir(
 				dto,
 				ExpedientTipusTerminiCommand.class);
@@ -161,7 +160,7 @@ public class ExpedientTipusTerminiController extends BaseExpedientTipusControlle
         	model.addAttribute("expedientTipusId", expedientTipusId);
         	return "v3/expedientTipusTerminiForm";
         } else {
-        	expedientTipusService.terminiUpdate(
+        	terminiService.update(
         			conversioTipusHelper.convertir(
     						command,
     						TerminiDto.class));
@@ -182,7 +181,7 @@ public class ExpedientTipusTerminiController extends BaseExpedientTipusControlle
 			@PathVariable Long id,
 			Model model) {
 		try {
-			expedientTipusService.terminiDelete(id);
+			terminiService.delete(id);
 			
 			MissatgesHelper.success(
 					request,
@@ -190,21 +189,11 @@ public class ExpedientTipusTerminiController extends BaseExpedientTipusControlle
 							request,
 							"expedient.tipus.termini.controller.eliminat"));
 			return true;
-//			return getModalControllerReturnValueSuccess(
-//					request,
-//					"redirect:/v3/expedientTipus/" + expedientTipusId + "#terminis",
-//					"expedient.tipus.termini.controller.eliminat");
 		} catch (Exception e) {
 			MissatgesHelper.error(
 					request, 
 					getMessage(request, "expedient.tipus.termini.controller.eliminat"));
 			return false;
-//			redirectAttributes.addAttribute("pipellaActiva", "terminis");
-//			return getModalControllerReturnValueError(
-//					request,
-//					"redirect:/v3/expedientTipus/" + expedientTipusId,
-//					null);
 		}
-//		return "v3/expedientTipusTerminiForm";
 	}
 }

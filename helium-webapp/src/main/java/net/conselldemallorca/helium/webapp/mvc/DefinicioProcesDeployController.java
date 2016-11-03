@@ -63,6 +63,9 @@ public class DefinicioProcesDeployController extends BaseController {
 	public static final String TIPUS_EXPORTACIO_JBPM = "JBPM";
 	public static final String TIPUS_EXPORTACIO_DEFPRC = "EXPORTDEFPRC";
 	public static final String TIPUS_EXPORTACIO_TIPEXP = "EXPORTTIPEXP";
+	
+	public static final String JBPM_DESPLEGAR = "JBMP_DESPLEGAR";
+	public static final String JBPM_ACTUALITZAR= "JBPM_ACTUALITZAR";
 
 	private DissenyService dissenyService;
 	private ExpedientService expedientService;
@@ -91,6 +94,13 @@ public class DefinicioProcesDeployController extends BaseController {
 		resposta.add(new ParellaCodiValorDto(TIPUS_EXPORTACIO_TIPEXP, getMessage("txt.exportacio.tipusExpedient") ));
 		return resposta;
 	}
+	@ModelAttribute("accionsJbmp")
+	public List<ParellaCodiValorDto> populateAccioJbpm() {
+		List<ParellaCodiValorDto> resposta = new ArrayList<ParellaCodiValorDto>();
+		resposta.add(new ParellaCodiValorDto(JBPM_DESPLEGAR, getMessage("desplegament.jbpm.accio.desplegar") ));
+		resposta.add(new ParellaCodiValorDto(JBPM_ACTUALITZAR, getMessage("desplegament.jbpm.accio.actualitzar") ));
+		return resposta;
+	}	
 	@ModelAttribute("command")
 	public DeployCommand populateCommand(
 			@RequestParam(value = "expedientTipusId", required = false) Long expedientTipusId) {
@@ -140,47 +150,65 @@ public class DefinicioProcesDeployController extends BaseController {
 			        }
 		        	try {
 		        		if (command.getTipus().equals(TIPUS_EXPORTACIO_JBPM)) {
-		        			DefinicioProces dp = dissenyService.deploy(
-				        			entorn.getId(),
-				        			command.getExpedientTipusId(),
-				        			multipartFile.getOriginalFilename(),
-				        			multipartFile.getBytes(),
-				        			command.getEtiqueta(),
-				        			true);
-				        	missatgeInfo(request, getMessage("info.arxiu.desplegat"));
-//				        	if (command.getExpedientTipusId() != null && command.isActualitzarProcessosActius()) {
-				        	if (command.isActualitzarProcessosActius()) {
-				        		try {
-//					        		expedientService.actualitzarProcessInstancesADarreraVersio(
-//					        				dp.getJbpmKey());
-//					        		missatgeInfo(request, getMessage("info.arxiu.desplegat.actualitzat"));
-					        		
-					        		// Obtenim informació de l'execució massiva
-					    			
-				    				ExecucioMassivaDto dto = new ExecucioMassivaDto();
-				    				dto.setDataInici(new Date());
-				    				dto.setEnviarCorreu(false);
-				    				dto.setParam1(dp.getJbpmKey());
-				    				dto.setParam2(execucioMassivaService.serialize(Integer.valueOf(dp.getVersio())));
-//				    				dto.setExpedientTipusId(command.getExpedientTipusId());
-				    				dto.setTipus(ExecucioMassivaTipus.ACTUALITZAR_VERSIO_DEFPROC);
-				    				List<JbpmProcessInstance> procInstances = expedientService.findProcessInstancesWithProcessDefinitionNameAndEntorn(dp.getJbpmKey(), entorn.getId());
-				    				List<String> pi_ids = new ArrayList<String>();
-//				    				List<Long> exp_ids = new ArrayList<Long>();
-				    				for (JbpmProcessInstance pi: procInstances) {
-				    					pi_ids.add(pi.getId());
-//				    					exp_ids.add(expedientService.findExpedientAmbProcessInstanceId(pi.getId()).getId());
-				    				}
-//				    				dto.setExpedientIds(exp_ids);
-				    				dto.setProcInstIds(pi_ids);
-				    				execucioMassivaService.crearExecucioMassiva(dto);
-				    				
-				    				missatgeInfo(request, getMessage("info.canvi.versio.massiu", new Object[] {pi_ids.size()}));
-				    			} catch (Exception e) {
-				    				missatgeError(request, getMessage("error.no.massiu"));
-				    				logger.error("Error al programar les actualitzacions de versuó de procés", e);
-				    			}
-				        	}
+		        			if (JBPM_DESPLEGAR.equals(command.getAccioJbpm())) {
+			        			DefinicioProces dp = dissenyService.deploy(
+					        			entorn.getId(),
+					        			command.getExpedientTipusId(),
+					        			multipartFile.getOriginalFilename(),
+					        			multipartFile.getBytes(),
+					        			command.getEtiqueta(),
+					        			true);
+					        	missatgeInfo(request, getMessage("info.arxiu.desplegat"));
+//					        	if (command.getExpedientTipusId() != null && command.isActualitzarProcessosActius()) {
+					        	if (command.isActualitzarProcessosActius()) {
+					        		try {
+//						        		expedientService.actualitzarProcessInstancesADarreraVersio(
+//						        				dp.getJbpmKey());
+//						        		missatgeInfo(request, getMessage("info.arxiu.desplegat.actualitzat"));
+						        		
+						        		// Obtenim informació de l'execució massiva
+						    			
+					    				ExecucioMassivaDto dto = new ExecucioMassivaDto();
+					    				dto.setDataInici(new Date());
+					    				dto.setEnviarCorreu(false);
+					    				dto.setParam1(dp.getJbpmKey());
+					    				dto.setParam2(execucioMassivaService.serialize(Integer.valueOf(dp.getVersio())));
+//					    				dto.setExpedientTipusId(command.getExpedientTipusId());
+					    				dto.setTipus(ExecucioMassivaTipus.ACTUALITZAR_VERSIO_DEFPROC);
+					    				List<JbpmProcessInstance> procInstances = expedientService.findProcessInstancesWithProcessDefinitionNameAndEntorn(dp.getJbpmKey(), entorn.getId());
+					    				List<String> pi_ids = new ArrayList<String>();
+//					    				List<Long> exp_ids = new ArrayList<Long>();
+					    				for (JbpmProcessInstance pi: procInstances) {
+					    					pi_ids.add(pi.getId());
+//					    					exp_ids.add(expedientService.findExpedientAmbProcessInstanceId(pi.getId()).getId());
+					    				}
+//					    				dto.setExpedientIds(exp_ids);
+					    				dto.setProcInstIds(pi_ids);
+					    				execucioMassivaService.crearExecucioMassiva(dto);
+					    				
+					    				missatgeInfo(request, getMessage("info.canvi.versio.massiu", new Object[] {pi_ids.size()}));
+					    			} catch (Exception e) {
+					    				missatgeError(request, getMessage("error.no.massiu"));
+					    				logger.error("Error al programar les actualitzacions de versió de procés", e);
+					    			}
+					        	}
+					        } else {
+					        	// Actualització dels handlers per a la darrera versió
+					        	DefinicioProces dp = null;
+					        	try {
+					        		dp = dissenyService.updateHandlers(
+					        				entorn.getId(), 
+					        				multipartFile.getOriginalFilename(),
+					        				multipartFile.getBytes());
+					        		missatgeInfo(request, 
+					        					getMessage("desplegament.jbpm.accio.actualitzar.confirmacio",
+					        							new Object[] {dp.getJbpmKey(), dp.getVersio()}));					        	
+					        	} catch (Exception e) {
+					        		missatgeError(request, getMessage("desplegament.jbpm.accio.actualitzar.excepcio", new Object[] {e.getMessage()}));
+					        	}
+		        				if (dp == null)
+		        					return "redirect:/definicioProces/deploy.html";
+		        			}
 		        		} else if (command.getTipus().equals(TIPUS_EXPORTACIO_DEFPRC)) {
 			        		InputStream is = new ByteArrayInputStream(multipartFile.getBytes());
 					    	ObjectInputStream input = new ObjectInputStream(is);
@@ -248,6 +276,8 @@ public class DefinicioProcesDeployController extends BaseController {
 		private String tipus;
 		private byte[] arxiu;
 		private boolean actualitzarProcessosActius;
+		private String accioJbpm = JBPM_DESPLEGAR;
+		
 		public Long getExpedientTipusId() {
 			return expedientTipusId;
 		}
@@ -277,6 +307,12 @@ public class DefinicioProcesDeployController extends BaseController {
 		}
 		public void setActualitzarProcessosActius(boolean actualitzarProcessosActius) {
 			this.actualitzarProcessosActius = actualitzarProcessosActius;
+		}
+		public String getAccioJbpm() {
+			return accioJbpm;
+		}
+		public void setAccioJbpm(String accioJbpm) {
+			this.accioJbpm = accioJbpm;
 		}
 	}
 

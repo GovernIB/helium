@@ -16,6 +16,7 @@ function actualitzaExps() {
 	var tipExp = $("#expedientTipusId0").val();
 	if (tipImp == "JBPM") { //&& tipExp != "") {
 		$(".actualitza").show();
+		$("#actualitzarProcessosActius0").prop('disabled', $("#accioJbpm0").val() != "JBMP_DESPLEGAR");
 	} else {
 		$(".actualitza").hide();
 	}
@@ -68,10 +69,21 @@ $(document).ready(function(){
 				<c:param name="label"><fmt:message key='comuns.etiqueta' /></c:param>
 			</c:import>
 			<c:import url="../common/formElement.jsp">
+				<c:param name="property" value="accioJbpm"/>
+				<c:param name="type" value="select"/>
+				<c:param name="items" value="accionsJbmp"/>
+				<c:param name="itemLabel" value="valor"/>
+				<c:param name="itemValue" value="codi"/>
+				<c:param name="label"><fmt:message key='desplegament.jbpm.accio' /></c:param>
+				<c:param name="classHolder" value="actualitza"/>
+				<c:param name="onchange" value="actualitzaExps()"/>
+			</c:import>
+			<c:import url="../common/formElement.jsp">
 				<c:param name="property" value="actualitzarProcessosActius"/>
 				<c:param name="type" value="checkbox"/>
 				<c:param name="label"><fmt:message key='defproc.deploy.expedients.actualitzar' /></c:param>
 				<c:param name="classHolder" value="actualitza"/>
+				<c:param name="disabled" value="${command.accioJbpm eq 'JBMP_DESPLEGAR' ? '' : 'disabled'}"/>
 			</c:import>
 			<c:import url="../common/formElement.jsp">
 				<c:param name="type" value="buttons"/>

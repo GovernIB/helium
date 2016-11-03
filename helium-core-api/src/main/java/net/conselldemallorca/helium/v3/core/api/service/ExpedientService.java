@@ -833,4 +833,21 @@ public interface ExpedientService {
 
 	public Long findIdAmbProcessInstanceId(String processInstanceId);
 
+	/** Mètode per consulta els ids de les instàncies de procés per a una definició de procés
+	 * identificada per la seva clau JBPM.
+	 * @param entornId
+	 * @param jbpmKey
+	 * @return
+	 */
+	public List<String> findProcesInstanceIdsAmbEntornAndProcessDefinitionName(
+			Long entornId, 
+			String jbpmKey);
+
+	/** Mètode per consulta els ids de les instàncies de procés per a una definició de procés
+	 * específica per el seu id a la taula de definicions de procés.
+	 * @param definicioProcesId
+	 * @return
+	 */
+	public List<String> findAmbDefinicioProcesId(Long definicioProcesId);
+
 }

@@ -250,6 +250,11 @@ public class ExecucioMassivaService {
 		return resposta;
 	}
 	
+	public boolean existeixenOperacionsPendents(Long definicioPorcesId) {
+		List<ExecucioMassivaExpedient> pendents = execucioMassivaExpedientDao.getExecucioMassivaPendentByDefinicioProces(definicioPorcesId);
+		return (pendents != null && !pendents.isEmpty());
+	}
+	
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public String getJsonExecucionsMassivesByUser(String username, Integer results) {
 		JSONArray ljson = new JSONArray();
@@ -376,6 +381,10 @@ public class ExecucioMassivaService {
 			label = getMessage("expedient.eines.reprendre_tramitacio");
 		} else if (tipus.equals(ExecucioMassivaTipus.REASSIGNAR)){
 			label = getMessage("expedient.eines.reassignar.expedients");
+		} else if (tipus.equals(ExecucioMassivaTipus.PROPAGAR_PLANTILLES)){
+			label = getMessage("expedient.eines.propagar.plantilles", new Object[] {execucioMassiva.getExpedientTipus().getCodi()});
+		} else if (tipus.equals(ExecucioMassivaTipus.PROPAGAR_CONSULTES)){
+			label = getMessage("expedient.eines.propagar.consultes", new Object[] {execucioMassiva.getExpedientTipus().getCodi()});
 		} else {
 			label = tipus.name();
 		}

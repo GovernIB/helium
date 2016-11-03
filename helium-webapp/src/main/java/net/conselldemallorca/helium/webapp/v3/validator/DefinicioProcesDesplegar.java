@@ -1,6 +1,5 @@
 package net.conselldemallorca.helium.webapp.v3.validator;
 
-import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -10,16 +9,14 @@ import javax.validation.Constraint;
 import javax.validation.Payload;
 
 /**
- * Validador per al manteniment d'agrupació de variables del tipus d'expedient:
- * - Comprova que el codi no estigui duplicat
+ * Validador per a la comanda de desplegament d'un .par de la definició de correu.
  */
-@Documented
-@Constraint(validatedBy = ExpedientTipusAgrupacioValidator.class)
+@Constraint(validatedBy = DefinicioProcesDesplegarValidator.class)
 @Target({ ElementType.TYPE, ElementType.ANNOTATION_TYPE })
 @Retention(RetentionPolicy.RUNTIME)
-public @interface ExpedientTipusAgrupacio {
+public @interface DefinicioProcesDesplegar {
 
-	String message() default "expedient.tipus.campAgrupacio.validacio";
+	String message() default "definicio.proces.desplegar.validacio";
 
 	Class<?>[] groups() default {};
 

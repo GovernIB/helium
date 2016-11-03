@@ -6,6 +6,14 @@ package net.conselldemallorca.helium.core.model.service;
 import java.util.Date;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
+import org.springframework.context.NoSuchMessageException;
+import org.springframework.stereotype.Service;
+
 import net.conselldemallorca.helium.core.model.dao.EnumeracioDao;
 import net.conselldemallorca.helium.core.model.dao.PermisDao;
 import net.conselldemallorca.helium.core.model.dao.PersonaDao;
@@ -19,14 +27,6 @@ import net.conselldemallorca.helium.core.model.hibernate.Permis;
 import net.conselldemallorca.helium.core.model.hibernate.Persona;
 import net.conselldemallorca.helium.core.model.hibernate.Usuari;
 import net.conselldemallorca.helium.core.model.update.Versio;
-
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.MessageSource;
-import org.springframework.context.NoSuchMessageException;
-import org.springframework.stereotype.Service;
 
 
 /**

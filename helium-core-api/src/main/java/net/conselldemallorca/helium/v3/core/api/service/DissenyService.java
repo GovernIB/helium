@@ -17,7 +17,9 @@ import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesVersioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DominiDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
+import net.conselldemallorca.helium.v3.core.api.dto.EnumeracioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
@@ -26,6 +28,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
+import net.conselldemallorca.helium.v3.core.api.exportacio.DefinicioProcesExportacio;
 
 
 
@@ -265,4 +268,43 @@ public interface DissenyService {
 			Long entornId,
 			Long expedientTipusId,
 			Long jbpmId) throws NoTrobatException, PermisDenegatException;
+
+	public EnumeracioDto enumeracioFindAmbCodi(
+			Long entornId,
+			String codi);
+
+	public DominiDto dominiFindAmbCodi(
+			Long entornId, 
+			String codiDomini);
+
+	/** Mètode per rebre un arxiu .par i actualitzar els handlers de la darrera versió d'una definició
+	 * de procés existent a l'entorn amb la informació dels handlers continguda a l'arxiu .par.
+	 * @param entornId
+	 * @param nomArxiu Nom per comprovar que acabi amb ar.
+	 * @param contingut Contingut del fitxe d'exportació jbpm que conté entre altra informació els handlers
+	 * per actualitzar.
+	 * @return La definició de procés actualitzada si tot ha anat bé.
+	 */
+	public DefinicioProcesDto updateHandlers(
+			Long entornId, 
+			String nomArxiu, 
+			byte[] contingut);
+
+	/** Obté el contingut d'una exportació donat el nom del fitxer amb la extensió i el contingut del mateix.
+	 * 
+	 * @param fitxer Nom del fitxer. Si acaba amb .*ar o .xml és una exportació JBPM i si acaba en .exp és una
+	 * exportació d'Helium.
+	 * @param contingut
+	 * Contingut del fitxer exportat.
+	 * @return Retorna un objecte de la classe {@link DefinicioProcesExportacio} que s'utilitzarà per a la importació 
+	 * o actualització d'una definició de procés.
+	 */
+	public DefinicioProcesExportacio getDefinicioProcesExportacioFromContingut(
+			String fitxer, 
+			byte[] contingut);
+
+	/** Retorna el nom de les accions JBPM de la definició de procés ordenades alfabèticament. 
+	 * Serveix per tenir una lllista dels noms dels seus handlers. 
+	 */
+	public List<String> findAccionsJbpmOrdenades(Long definicioProcesId);
 }

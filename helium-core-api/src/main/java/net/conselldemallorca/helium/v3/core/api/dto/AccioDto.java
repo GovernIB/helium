@@ -21,7 +21,6 @@ public class AccioDto implements Serializable {
 	private boolean publica;
 	private boolean oculta;
 	private String rols;
-//	private String cron;
 
 	public Long getId() {
 		return id;

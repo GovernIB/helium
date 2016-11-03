@@ -27,7 +27,9 @@ public class ExecucioMassivaDto {
 		REASSIGNAR,
 		BUIDARLOG,
 		REPRENDRE_EXPEDIENT,
-		REPRENDRE
+		REPRENDRE,
+		PROPAGAR_PLANTILLES,
+		PROPAGAR_CONSULTES
 	}
 
 	private Long id;

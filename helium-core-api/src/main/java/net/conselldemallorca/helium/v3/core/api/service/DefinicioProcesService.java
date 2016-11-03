@@ -3,14 +3,20 @@ package net.conselldemallorca.helium.v3.core.api.service;
 import java.util.List;
 
 import net.conselldemallorca.helium.v3.core.api.dto.CampTascaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ConsultaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentTascaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DominiDto;
+import net.conselldemallorca.helium.v3.core.api.dto.EnumeracioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.FirmaTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.TerminiDto;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
+import net.conselldemallorca.helium.v3.core.api.exportacio.DefinicioProcesExportacio;
+import net.conselldemallorca.helium.v3.core.api.exportacio.DefinicioProcesExportacioCommandDto;
 
 /**
  * Servei per al manteniment de definicions de processos.
@@ -43,7 +49,86 @@ public interface DefinicioProcesService {
 	 * @return
 	 */
 	public List<DefinicioProcesDto> findSubDefinicionsProces(Long definicioProcesId);
+	
+	/**
+	 * Retorna la llista de darreres versions de les definicions de procés donat l'identificador de l'entorn
+	 * i l'identificador del tipus d'expedient. Si no s'especifica el tipus d'expedient només es filtra per
+	 * entorn.
+	 * @param entornId
+	 * @param expedientTipusId
+	 * @return
+	 */
+	public List<DefinicioProcesDto> findAll(
+			Long entornId, 
+			Long expedientTipusId);
+	
+	/** 
+	 * Retorna la llista de definicions de procés paginada per la datatable.
+	 * 
+	 * @param entornId
+	 *            Atribut id de l'entorn.
+	 * @param expedientTipusId
+	 *            Atribut id del tipus d'expedient si es volen mostrar només les de un expedient.
+	 * @param incloureGlobals 
+	 * 			  Especifica si incloure les definicions de procés amb expedientTipus null en cas d'especificar
+	 * 				un expedientTipusId.
+	 * @param filtre
+	 *            Text per a filtrar els resultats.
+	 * @param string 
+	 * @param paginacioParams
+	 *            Paràmetres per a la paginació dels resultats.
+	 * @return La pàgina del llistat de definicions de procés.
+	 */
+	public PaginaDto<DefinicioProcesDto> findPerDatatable(
+			Long entornId, 
+			Long expedientTipusId,
+			boolean incloureGlobals, 
+			String filtre, 
+			PaginacioParamsDto paginacioParams);
 
+	/**
+	 * Mètode per crear un objecte d'exportació per al tipus d'expedient amb la informació sol·licitada
+	 * segons l'objecte DTO de la comanda d'exportació.
+	 * @param entornId Id de l'entorn.
+	 * @param Id de la definició de procés de la qual es realitza la exportació.
+	 * @param command Objecte amb la informació que s'ha d'incloure a l'exportació.
+	 * 
+	 * @return Objecte d'exportació serialitzable.
+	 */
+	public DefinicioProcesExportacio exportar(
+			Long entornId, 
+			Long definicioProcesId,
+			DefinicioProcesExportacioCommandDto command);
+
+	
+
+	/** Mètode per importar la informació d'un fitxer d'exportació de definicó de procés cap a una nova definició de
+	 * procés si aquesta no està especificada o una definició de procés existent. La importació es fa de 
+	 * forma selectiva segons la definicioProcesExportacioCommand.
+	 * @param entornId Especifica l'entorn de treball de l'usuari.
+	 * @param definicioProcesId Tipus d'expedient on fer la importació. Si està buit llavors es crea un de nou.
+	 * @param expedientTipusId 
+	 * @param command Llista de codis de la informació a importar.
+	 * @param importacio Objecte desserialitzat amb la informació per a la importació.
+	 * @return Retorna l'expedient tipus creat o modificat.
+	 */
+	public DefinicioProcesDto importar(
+			Long entornId, 
+			Long expedientTipusId, 
+			Long definicioProcesId, 
+			DefinicioProcesExportacioCommandDto command,
+			DefinicioProcesExportacio importacio);
+	
+	/** Mètode per despublicar una definició de procés.
+	 * 
+	 * @param entornId Identificador de l'entorn per comprovar permisos.
+	 * @param definicioProcesId Especifica la definició de procés a despublicar.
+	 * @throws Exception Es llança excepció si no s'ha pogut esborrar amb el motiu com a missatge.
+	 */
+	public void delete(
+			Long entornId,
+			Long definicioProcesId) throws Exception;
+	
 	/** 
 	 * Retorna la llista de tasques de la definició de procés paginada per la datatable.
 	 * 
@@ -64,6 +149,15 @@ public interface DefinicioProcesService {
 			String filtre, 
 			PaginacioParamsDto paginacioParams) throws NoTrobatException;
 
+	/** 
+	 * Retorna la llista de tasques per a una definició de procés.
+	 * 
+	 * @param definicioProcesId
+	 * 
+	 * @return La llista de tasques de la definició de procés.
+	 */
+	public List<TascaDto> tascaFindAll(Long definicioProcesId);
+	
 	/** 
 	 * Retorna la tasca de la definició de procés donat el seu identificador.
 	 * 
@@ -136,7 +230,7 @@ public interface DefinicioProcesService {
 	
 
 	/** 
-	 * Retorna la llista de camps de la tasca del tipus d'expedient paginada per la datatable.
+	 * Retorna la llista de camps de la tasca de la definició de procés paginada per la datatable.
 	 * 
 	 * @param tascaId
 	 * 
@@ -224,7 +318,7 @@ public interface DefinicioProcesService {
 	
 
 	/** 
-	 * Retorna la llista de documents de la tasca del tipus d'expedient paginada per la datatable.
+	 * Retorna la llista de documents de la tasca de la definició de procés paginada per la datatable.
 	 * 
 	 * @param tascaId
 	 * 
@@ -313,7 +407,7 @@ public interface DefinicioProcesService {
 	
 
 	/** 
-	 * Retorna la llista de firmes de la tasca del tipus d'expedient paginada per la datatable.
+	 * Retorna la llista de firmes de la tasca de la definició de procés paginada per la datatable.
 	 * 
 	 * @param tascaId
 	 * 
@@ -354,6 +448,75 @@ public interface DefinicioProcesService {
 	 * @throws NoTrobatException
 	 *             Si no s'ha trobat el registre amb l'id especificat.
 	 */
-	public FirmaTascaDto tascaFirmaFindById(Long firmaTascaId);
+	public FirmaTascaDto tascaFirmaFindById(Long firmaTascaId);	
+	
+	/**
+	 * Retorna una definicio de procés donat el seu id per a dissenyar.
+	 * 
+	 * @param entornId
+	 *            Atribut id de l'entorn.
+	 * @param definicioProcesId
+	 *            Atribut id de la definicio de proces.
+	 * @return Definicio de proces
+	 * @throws NoTrobatException
+	 *             Si no s'ha trobat el registre amb l'id especificat.
+	 * @throws PermisDenegatException
+	 *             Si no es tenen els permisos necessaris.
+	 */
+	public DefinicioProcesDto findAmbIdAndEntorn(
+			Long entornId,
+			Long definicioProcesId) throws NoTrobatException;
 
+	/**
+	 * Retorna els terminis per a una definició de procés.
+	 * 
+	 * @param definicioProcesId
+	 *            Atribut id del tipus d'expedient.
+	 * @return els terminis del tipus d'expedient.
+	 * @throws NoTrobatException
+	 *             Si no s'ha trobat el registre amb l'id especificat.
+	 * @throws PermisDenegatException
+	 *             Si no es tenen els permisos necessaris.
+	 */
+	public List<TerminiDto> terminiFindAll(
+			Long definicioProcesId) throws NoTrobatException, PermisDenegatException;
+
+	/**
+	 * Retorna les enumeracions de l'entorn
+	 * 
+	 * @param entornId
+	 *            Atribut id de l'entorn
+	 * @return les enumeracions de l'entorn
+	 * @throws NoTrobatException
+	 *             Si no s'ha trobat el registre amb l'id especificat.
+	 * @throws PermisDenegatException
+	 *             Si no es tenen els permisos necessaris.
+	 */
+	public List<EnumeracioDto> enumeracioFindByEntorn(Long entornId) throws NoTrobatException, PermisDenegatException;
+
+	/**
+	 * Retorna els dominis de l'entorn
+	 * 
+	 * @param entornId
+	 *            Atribut id de l'entorn
+	 * @return els dominis de l'entorn
+	 * @throws NoTrobatException
+	 *             Si no s'ha trobat el registre amb l'id especificat.
+	 * @throws PermisDenegatException
+	 *             Si no es tenen els permisos necessaris.
+	 */
+	public List<DominiDto> dominiFindByEntorn(Long entornId) throws NoTrobatException, PermisDenegatException;
+
+	/**
+	 * Retorna les consultes per l'entorn
+	 * 
+	 * @param entorndId
+	 *            Atribut id de l'entorn
+	 * @return les consultes de l'entorn
+	 * @throws NoTrobatException
+	 *             Si no s'ha trobat el registre amb l'id especificat.
+	 * @throws PermisDenegatException
+	 *             Si no es tenen els permisos necessaris.
+	 */
+	public List<ConsultaDto> consultaFindByEntorn(Long entornId) throws NoTrobatException, PermisDenegatException;	
 }

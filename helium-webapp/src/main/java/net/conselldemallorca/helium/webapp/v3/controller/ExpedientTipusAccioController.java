@@ -59,6 +59,7 @@ public class ExpedientTipusAccioController extends BaseExpedientTipusController 
 					entornActual.getId(),
 					expedientTipusId);
 			model.addAttribute("expedientTipus", expedientTipus);
+			model.addAttribute("baseUrl", expedientTipus.getId());
 		}
 		return "v3/expedientTipusAccio";
 	}
@@ -73,8 +74,9 @@ public class ExpedientTipusAccioController extends BaseExpedientTipusController 
 		return DatatablesHelper.getDatatableResponse(
 				request,
 				null,
-				expedientTipusService.accioFindPerDatatable(
+				accioService.findPerDatatable(
 						expedientTipusId,
+						null,
 						paginacioParams.getFiltre(),
 						paginacioParams));
 	}	
@@ -112,8 +114,9 @@ public class ExpedientTipusAccioController extends BaseExpedientTipusController 
         	return "v3/expedientTipusAccioForm";
         } else {
         	// Verificar permisos
-    		expedientTipusService.accioCreate(
+        	accioService.create(
     				expedientTipusId,
+    				null,
         			ExpedientTipusAccioCommand.asAccioDto(command));    		
     		MissatgesHelper.success(
 					request, 
@@ -131,7 +134,7 @@ public class ExpedientTipusAccioController extends BaseExpedientTipusController 
 			@PathVariable Long id,
 			Model model) {
 		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
-		AccioDto dto = expedientTipusService.accioFindAmbId(id);
+		AccioDto dto = accioService.findAmbId(id);
 		ExpedientTipusAccioCommand command = conversioTipusHelper.convertir(
 				dto,
 				ExpedientTipusAccioCommand.class);
@@ -160,7 +163,7 @@ public class ExpedientTipusAccioController extends BaseExpedientTipusController 
     						true));
         	return "v3/expedientTipusAccioForm";
         } else {
-        	expedientTipusService.accioUpdate(
+        	accioService.update(
         			ExpedientTipusAccioCommand.asAccioDto(command));
     		MissatgesHelper.success(
 					request, 
@@ -180,7 +183,7 @@ public class ExpedientTipusAccioController extends BaseExpedientTipusController 
 			Model model) {
 		
 		try {
-			expedientTipusService.accioDelete(id);
+			accioService.delete(id);
 			
 			MissatgesHelper.success(
 					request,

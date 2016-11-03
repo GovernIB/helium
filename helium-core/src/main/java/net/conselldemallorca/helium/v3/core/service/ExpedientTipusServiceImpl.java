@@ -4,10 +4,12 @@
 package net.conselldemallorca.helium.v3.core.service;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import javax.annotation.Resource;
@@ -23,6 +25,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import net.conselldemallorca.helium.core.helper.ConversioTipusHelper;
+import net.conselldemallorca.helium.core.helper.DefinicioProcesHelper;
 import net.conselldemallorca.helium.core.helper.DocumentHelperV3;
 import net.conselldemallorca.helium.core.helper.EntornHelper;
 import net.conselldemallorca.helium.core.helper.ExpedientTipusHelper;
@@ -37,9 +40,9 @@ import net.conselldemallorca.helium.core.model.hibernate.CampAgrupacio;
 import net.conselldemallorca.helium.core.model.hibernate.CampRegistre;
 import net.conselldemallorca.helium.core.model.hibernate.Consulta;
 import net.conselldemallorca.helium.core.model.hibernate.ConsultaCamp;
+import net.conselldemallorca.helium.core.model.hibernate.ConsultaCamp.TipusParamConsultaCamp;
 import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
 import net.conselldemallorca.helium.core.model.hibernate.Document;
-import net.conselldemallorca.helium.core.model.hibernate.DocumentTasca;
 import net.conselldemallorca.helium.core.model.hibernate.Domini;
 import net.conselldemallorca.helium.core.model.hibernate.Domini.OrigenCredencials;
 import net.conselldemallorca.helium.core.model.hibernate.Domini.TipusAuthDomini;
@@ -52,26 +55,21 @@ import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.hibernate.MapeigSistra;
 import net.conselldemallorca.helium.core.model.hibernate.Reassignacio;
 import net.conselldemallorca.helium.core.model.hibernate.SequenciaAny;
+import net.conselldemallorca.helium.core.model.hibernate.SequenciaDefaultAny;
 import net.conselldemallorca.helium.core.model.hibernate.Termini;
 import net.conselldemallorca.helium.core.model.hibernate.Validacio;
 import net.conselldemallorca.helium.core.security.ExtendedPermission;
-import net.conselldemallorca.helium.v3.core.api.dto.AccioDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
-import net.conselldemallorca.helium.v3.core.api.dto.CampAgrupacioDto;
-import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
-import net.conselldemallorca.helium.v3.core.api.dto.CampRegistreDto;
+import net.conselldemallorca.helium.core.util.ExpedientCamps;
+import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
 import net.conselldemallorca.helium.v3.core.api.dto.CampTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ConsultaCampDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ConsultaCampDto.TipusConsultaCamp;
 import net.conselldemallorca.helium.v3.core.api.dto.ConsultaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
-import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DominiDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EnumeracioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusEnumeracioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusEnumeracioValorDto;
 import net.conselldemallorca.helium.v3.core.api.dto.MapeigSistraDto;
 import net.conselldemallorca.helium.v3.core.api.dto.MapeigSistraDto.TipusMapeig;
@@ -79,29 +77,50 @@ import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PermisDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ReassignacioDto;
-import net.conselldemallorca.helium.v3.core.api.dto.TerminiDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ValidacioDto;
+import net.conselldemallorca.helium.v3.core.api.dto.SequenciaAnyDto;
+import net.conselldemallorca.helium.v3.core.api.dto.SequenciaDefaultAnyDto;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
 import net.conselldemallorca.helium.v3.core.api.exception.ValidacioException;
+import net.conselldemallorca.helium.v3.core.api.exportacio.AccioExportacio;
+import net.conselldemallorca.helium.v3.core.api.exportacio.AgrupacioExportacio;
+import net.conselldemallorca.helium.v3.core.api.exportacio.CampExportacio;
+import net.conselldemallorca.helium.v3.core.api.exportacio.ConsultaCampExportacio;
+import net.conselldemallorca.helium.v3.core.api.exportacio.ConsultaExportacio;
+import net.conselldemallorca.helium.v3.core.api.exportacio.DefinicioProcesExportacio;
+import net.conselldemallorca.helium.v3.core.api.exportacio.DocumentExportacio;
+import net.conselldemallorca.helium.v3.core.api.exportacio.DominiExportacio;
+import net.conselldemallorca.helium.v3.core.api.exportacio.EnumeracioExportacio;
+import net.conselldemallorca.helium.v3.core.api.exportacio.EnumeracioValorExportacio;
+import net.conselldemallorca.helium.v3.core.api.exportacio.EstatExportacio;
+import net.conselldemallorca.helium.v3.core.api.exportacio.ExpedientTipusExportacio;
+import net.conselldemallorca.helium.v3.core.api.exportacio.ExpedientTipusExportacioCommandDto;
+import net.conselldemallorca.helium.v3.core.api.exportacio.MapeigSistraExportacio;
+import net.conselldemallorca.helium.v3.core.api.exportacio.RegistreMembreExportacio;
+import net.conselldemallorca.helium.v3.core.api.exportacio.TerminiExportacio;
+import net.conselldemallorca.helium.v3.core.api.exportacio.ValidacioExportacio;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientTipusService;
 import net.conselldemallorca.helium.v3.core.repository.AccioRepository;
 import net.conselldemallorca.helium.v3.core.repository.CampAgrupacioRepository;
 import net.conselldemallorca.helium.v3.core.repository.CampRegistreRepository;
 import net.conselldemallorca.helium.v3.core.repository.CampRepository;
+import net.conselldemallorca.helium.v3.core.repository.CampTascaRepository;
 import net.conselldemallorca.helium.v3.core.repository.CampValidacioRepository;
 import net.conselldemallorca.helium.v3.core.repository.ConsultaCampRepository;
 import net.conselldemallorca.helium.v3.core.repository.ConsultaRepository;
 import net.conselldemallorca.helium.v3.core.repository.DefinicioProcesRepository;
 import net.conselldemallorca.helium.v3.core.repository.DocumentRepository;
+import net.conselldemallorca.helium.v3.core.repository.DocumentTascaRepository;
 import net.conselldemallorca.helium.v3.core.repository.DominiRepository;
 import net.conselldemallorca.helium.v3.core.repository.EnumeracioRepository;
 import net.conselldemallorca.helium.v3.core.repository.EnumeracioValorsRepository;
 import net.conselldemallorca.helium.v3.core.repository.EstatRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientTipusRepository;
+import net.conselldemallorca.helium.v3.core.repository.FirmaTascaRepository;
 import net.conselldemallorca.helium.v3.core.repository.MapeigSistraRepository;
 import net.conselldemallorca.helium.v3.core.repository.ReassignacioRepository;
 import net.conselldemallorca.helium.v3.core.repository.SequenciaAnyRepository;
+import net.conselldemallorca.helium.v3.core.repository.TascaRepository;
 import net.conselldemallorca.helium.v3.core.repository.TerminiRepository;
 
 /**
@@ -114,6 +133,8 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 
 	@Resource
 	private EntornHelper entornHelper;
+	@Resource
+	private DefinicioProcesHelper definicioProcesHelper;
 	@Resource
 	private ExpedientTipusRepository expedientTipusRepository;
 	@Resource
@@ -150,7 +171,15 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 	private EstatRepository estatRepository;
 	@Resource
 	private MapeigSistraRepository mapeigSistraRepository;
-	
+	@Resource
+	private TascaRepository tascaRepository;
+	@Resource
+	private CampTascaRepository campTascaRepository;
+	@Resource
+	private DocumentTascaRepository documentTascaRepository;
+	@Resource
+	private FirmaTascaRepository firmaTascaRepository;
+//	
 	@Resource
 	private ExpedientTipusHelper expedientTipusHelper;
 	@Resource
@@ -163,6 +192,8 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 	private DocumentHelperV3 documentHelper;
 	@Resource
 	private MessageHelper messageHelper;
+	@Resource
+	private JbpmHelper jbpmHelper;
 
 	/**
 	 * {@inheritDoc}
@@ -201,6 +232,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		entity.setSeleccionarAny(expedientTipus.isSeleccionarAny());
 		entity.setAmbRetroaccio(expedientTipus.isAmbRetroaccio());
 		entity.setReindexacioAsincrona(expedientTipus.isReindexacioAsincrona());
+		entity.setDiesNoLaborables(expedientTipus.getDiesNoLaborables());
 		if (expedientTipus.isReiniciarCadaAny()) {
 			for (int i = 0; i < sequenciesAny.size(); i++) {
 				SequenciaAny anyEntity = new SequenciaAny(
@@ -252,6 +284,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		entity.setResponsableDefecteCodi(expedientTipus.getResponsableDefecteCodi());
 		entity.setRestringirPerGrup(expedientTipus.isRestringirPerGrup());
 		entity.setSeleccionarAny(expedientTipus.isSeleccionarAny());
+		entity.setDiesNoLaborables(expedientTipus.getDiesNoLaborables());
 		while (entity.getSequenciaAny().size() > 0) {
 			SequenciaAny s = entity.getSequenciaAny().get(entity.getSequenciaAny().firstKey());			
 			entity.getSequenciaAny().remove(s.getAny());
@@ -362,8 +395,853 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		ExpedientTipus entity = expedientTipusRepository.findByEntornAndId(
 				entorn,
 				expedientTipusId);
+		
 		expedientTipusRepository.delete(entity);
 	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@Transactional(readOnly = true)
+	public ExpedientTipusExportacio exportar(
+			Long entornId,
+			Long expedientTipusId,
+			ExpedientTipusExportacioCommandDto command) {
+		logger.debug(
+				"Exportant el tipus d'expedient (" +
+				"entornId=" + entornId + ", " +
+				"expedientTipusId = " + command.getId() + ", " + 
+				"command = " + command + ")");
+		// Control d'accés
+		Entorn entorn = entornHelper.getEntornComprovantPermisos(
+				entornId,
+				true);
+		ExpedientTipus tipus;
+		if (entornHelper.potDissenyarEntorn(entornId)) {
+			// Si te permisos de disseny a damunt l'entorn pot veure tots els tipus
+			tipus = expedientTipusRepository.findByEntornAndId(
+					entorn,
+					command.getId());
+		} else {
+			// Si no te permisos de disseny a damunt l'entorn només es poden veure
+			// els tipus amb permisos de disseny
+			tipus = expedientTipusHelper.getExpedientTipusComprovantPermisos(
+					command.getId(),
+					false,
+					false,
+					false,
+					false,
+					true);
+		}
+		
+		// Construeix l'objecte
+		ExpedientTipusExportacio exportacio = new ExpedientTipusExportacio();
+		// Dades del tipus d'expedient
+		exportacio.setAnyActual(tipus.getAnyActual());
+		exportacio.setCodi(tipus.getCodi());
+		exportacio.setDemanaNumero(tipus.getDemanaNumero());
+		exportacio.setDemanaTitol(tipus.getDemanaTitol());
+		exportacio.setExpressioNumero(tipus.getExpressioNumero());
+		exportacio.setJbpmProcessDefinitionKey(tipus.getJbpmProcessDefinitionKey());
+		exportacio.setNom(tipus.getNom());
+		exportacio.setReiniciarCadaAny(tipus.isReiniciarCadaAny());
+		exportacio.setResponsableDefecteCodi(tipus.getResponsableDefecteCodi());
+		exportacio.setRestringirPerGrup(tipus.isRestringirPerGrup());
+		exportacio.setSeleccionarAny(tipus.isSeleccionarAny());
+		exportacio.setAmbRetroaccio(tipus.isAmbRetroaccio());
+		exportacio.setAmbInfoPropia(tipus.isAmbInfoPropia());
+		exportacio.setReindexacioAsincrona(tipus.isReindexacioAsincrona());
+		exportacio.setSequencia(tipus.getSequencia());
+		exportacio.setSequenciaDefault(tipus.getSequenciaDefault());
+		exportacio.setTeNumero(tipus.getTeNumero());
+		exportacio.setTeTitol(tipus.getTeTitol());
+		exportacio.setTramitacioMassiva(tipus.isTramitacioMassiva());						
+		Map<Integer,SequenciaAnyDto> sequenciaAnyMap = new HashMap<Integer, SequenciaAnyDto>();
+		for (Entry<Integer, SequenciaAny> entry : tipus.getSequenciaAny().entrySet()) {
+			SequenciaAny value = entry.getValue();
+			SequenciaAnyDto valueDto = new SequenciaAnyDto();
+			valueDto.setAny(value.getAny());
+			valueDto.setId(value.getId());
+			valueDto.setSequencia(value.getSequencia());
+			sequenciaAnyMap.put(entry.getKey(), valueDto);
+		}					
+		exportacio.setSequenciaAny(sequenciaAnyMap);
+		Map<Integer,SequenciaDefaultAnyDto> sequenciaAnyDefaultMap = new HashMap<Integer, SequenciaDefaultAnyDto>();
+		for (Entry<Integer, SequenciaDefaultAny> entry : tipus.getSequenciaDefaultAny().entrySet()) {
+			SequenciaDefaultAny value = entry.getValue();
+			SequenciaDefaultAnyDto valueDto = new SequenciaDefaultAnyDto();
+			valueDto.setAny(value.getAny());
+			valueDto.setId(value.getId());
+			valueDto.setSequenciaDefault(value.getSequenciaDefault());							
+			sequenciaAnyDefaultMap.put(entry.getKey(), valueDto);
+		}					    
+		exportacio.setSequenciaDefaultAny(sequenciaAnyDefaultMap);
+		// Integració amb forms
+		if (command.isIntegracioForms()) {
+			exportacio.setFormextUrl(tipus.getFormextUrl());
+			exportacio.setFormextUsuari(tipus.getFormextUsuari());
+			exportacio.setFormextContrasenya(tipus.getFormextContrasenya());
+		}
+		// Integració amb Sistra
+		if (command.isIntegracioSistra()) {
+			exportacio.setSistraTramitCodi(tipus.getSistraTramitCodi());
+			for (MapeigSistra mapeig : tipus.getMapeigSistras())
+				exportacio.getSistraMapejos().add(
+						new MapeigSistraExportacio(
+								mapeig.getCodiHelium(), 
+								mapeig.getCodiSistra(), 
+								MapeigSistraDto.TipusMapeig.valueOf(mapeig.getTipus().toString())));
+		}
+		// Estats
+		if (command.getEstats().size() > 0)
+			for (Estat estat: tipus.getEstats()) 
+				if (command.getEstats().contains(estat.getCodi()))
+					exportacio.getEstats().add(new EstatExportacio(estat.getCodi(), estat.getNom(), estat.getOrdre()));
+		// Variables
+		if (command.getVariables().size() > 0)
+			for (Camp camp : tipus.getCamps()) 
+				if (command.getVariables().contains(camp.getCodi())) {
+					boolean necessitaDadesExternes = 
+							TipusCamp.SELECCIO.equals(camp.getTipus()) 
+							|| TipusCamp.SUGGEST.equals(camp.getTipus());			
+					CampExportacio campExportacio = new CampExportacio(
+		                    camp.getCodi(),
+		                    CampTipusDto.valueOf(camp.getTipus().toString()),
+		                    camp.getEtiqueta(),
+		                    camp.getObservacions(),
+		                    (necessitaDadesExternes) ? camp.getDominiId() : null,
+		                    (necessitaDadesExternes) ? camp.getDominiParams() : null,
+		                    (necessitaDadesExternes) ? camp.getDominiCampText() : null,
+		                    (necessitaDadesExternes) ? camp.getDominiCampValor() : null,
+		                    (necessitaDadesExternes) ? camp.getConsultaParams() : null,
+		                    (necessitaDadesExternes) ? camp.getConsultaCampText() : null,
+		                    (necessitaDadesExternes) ? camp.getConsultaCampValor() : null,
+		                    camp.isMultiple(),
+		                    camp.isOcult(),
+		                    camp.isDominiIntern(),
+		                    camp.isDominiCacheText(),
+		                    (necessitaDadesExternes && camp.getEnumeracio() != null) ? camp.getEnumeracio().getCodi() : null,
+		                    (necessitaDadesExternes && camp.getDomini() != null) ? camp.getDomini().getCodi() : null,
+		                    (necessitaDadesExternes && camp.getConsulta() != null) ? camp.getConsulta().getCodi() : null,
+		                    (camp.getAgrupacio() != null) ? camp.getAgrupacio().getCodi() : null,
+		                    camp.getDefprocJbpmKey(),
+		                    camp.getJbpmAction(),
+		                    camp.getOrdre(),
+		                    camp.isIgnored());
+					exportacio.getCamps().add(campExportacio);
+					// Afegeix les validacions del camp
+					for (Validacio validacio: camp.getValidacions()) {
+						campExportacio.addValidacio(new ValidacioExportacio(
+								validacio.getNom(),
+								validacio.getExpressio(),
+								validacio.getMissatge(),
+								validacio.getOrdre()));
+					}
+					// Afegeix els membres dels camps de tipus registre
+					for (CampRegistre membre: camp.getRegistreMembres()) {
+						campExportacio.addRegistreMembre(new RegistreMembreExportacio(
+								membre.getMembre().getCodi(),
+								membre.isObligatori(),
+								membre.isLlistar(),
+								membre.getOrdre()));
+					}
+				}
+		// Agrupacions
+		if (command.getAgrupacions().size() > 0)
+			for (CampAgrupacio agrupacio: tipus.getAgrupacions()) 
+				if (command.getAgrupacions().contains(agrupacio.getCodi()))
+					exportacio.getAgrupacions().add(new AgrupacioExportacio(
+							agrupacio.getCodi(),
+							agrupacio.getNom(),
+							agrupacio.getDescripcio(),
+							agrupacio.getOrdre()));
+		
+		// Definicions de procés
+		if (command.getDefinicionsProces().size() > 0)
+			for (DefinicioProces definicio: tipus.getDefinicionsProces()) 
+				if (command.getDefinicionsProces().contains(definicio.getJbpmKey()) 
+						&& command.getDefinicionsVersions().get(definicio.getJbpmKey()).equals(definicio.getVersio()))							
+					exportacio.getDefinicions().add(
+								definicioProcesHelper.getExportacio(
+									definicio.getId(),
+									null /* no especifica el filtre per a la exportació. */)
+							);
+		// Enumeracions
+		if (command.getEnumeracions().size() > 0) {
+			EnumeracioExportacio enumeracioExportacio;
+			for (Enumeracio enumeracio : tipus.getEnumeracions())
+				if (command.getEnumeracions().contains(enumeracio.getCodi())) {
+					enumeracioExportacio = new EnumeracioExportacio(
+							enumeracio.getCodi(), 
+							enumeracio.getNom());
+					for (EnumeracioValors enumeracioValor : enumeracio.getEnumeracioValors())
+						enumeracioExportacio.getValors().add(
+								new EnumeracioValorExportacio(
+										enumeracioValor.getCodi(),
+										enumeracioValor.getNom(),
+										enumeracioValor.getOrdre()));
+					exportacio.getEnumeracions().add(enumeracioExportacio);
+				}
+		}
+		// Documents
+		if (command.getDocuments().size() > 0) {
+			DocumentExportacio documentExportacio;
+			for (Document document : tipus.getDocuments())
+				if (command.getDocuments().contains(document.getCodi())) {
+					documentExportacio = new DocumentExportacio(
+							document.getCodi(),
+							document.getNom(),
+							document.getDescripcio(),
+							document.getArxiuContingut(),
+							document.getArxiuNom(),
+							document.isPlantilla());
+					documentExportacio.setCustodiaCodi(document.getCustodiaCodi());
+					documentExportacio.setContentType(document.getContentType());
+					documentExportacio.setTipusDocPortasignatures(document.getTipusDocPortasignatures());
+					documentExportacio.setAdjuntarAuto(document.isAdjuntarAuto());
+					if (document.getCampData() != null)
+						documentExportacio.setCodiCampData(document.getCampData().getCodi());
+					documentExportacio.setConvertirExtensio(document.getConvertirExtensio());
+					documentExportacio.setExtensionsPermeses(document.getExtensionsPermeses());
+					exportacio.getDocuments().add(documentExportacio);
+				}
+		}		
+		// Terminis
+		if (command.getTerminis().size() > 0) {
+			TerminiExportacio terminiExportacio;
+			for (Termini termini : tipus.getTerminis())
+				if (command.getTerminis().contains(termini.getCodi())) {
+					terminiExportacio = new TerminiExportacio(
+							termini.getCodi(),
+							termini.getNom(),
+							termini.getDescripcio(),
+							termini.isDuradaPredefinida(),
+							termini.getAnys(),
+							termini.getMesos(),
+							termini.getDies(),
+							termini.isLaborable(),
+							termini.getDiesPrevisAvis(),
+							termini.isAlertaPrevia(),
+							termini.isAlertaFinal(),
+							termini.isAlertaCompletat(),
+							termini.isManual());
+					exportacio.getTerminis().add(terminiExportacio);
+				}
+		}	
+		// Accions
+		if (command.getAccions().size() > 0) {
+			AccioExportacio accioExportacio;
+			for (Accio accio : tipus.getAccions())
+				if (command.getAccions().contains(accio.getCodi())) {
+					accioExportacio = new AccioExportacio(
+							accio.getCodi(),
+							accio.getNom(),
+							accio.getDescripcio(),
+							accio.getDefprocJbpmKey(),
+							accio.getJbpmAction(),
+							accio.isPublica(),
+							accio.isOculta(),
+							accio.getRols());
+					exportacio.getAccions().add(accioExportacio);
+				}
+		}	
+		// Dominis
+		if (command.getDominis().size() > 0) {
+			DominiExportacio dominiExportacio;
+			for (Domini domini : tipus.getDominis())
+				if (command.getDominis().contains(domini.getCodi())) {
+					dominiExportacio = new DominiExportacio(
+							domini.getCodi(),
+							domini.getNom(),
+							domini.getTipus().toString());
+					dominiExportacio.setDescripcio(domini.getDescripcio());
+					dominiExportacio.setUrl(domini.getUrl());
+					if (domini.getTipusAuth() != null)
+						dominiExportacio.setTipusAuth(DominiDto.TipusAuthDomini.valueOf(domini.getTipusAuth().toString()));
+					if (domini.getOrigenCredencials() != null)
+						dominiExportacio.setOrigenCredencials(DominiDto.OrigenCredencials.valueOf(domini.getOrigenCredencials().toString()));
+					dominiExportacio.setUsuari(domini.getUsuari());
+					dominiExportacio.setContrasenya(domini.getContrasenya());
+					dominiExportacio.setJndiDatasource(domini.getJndiDatasource());
+					dominiExportacio.setSql(domini.getSql());
+					dominiExportacio.setCacheSegons(domini.getCacheSegons());
+					if (domini.getTimeout() != null)
+						dominiExportacio.setTimeout(domini.getTimeout().intValue());
+					exportacio.getDominis().add(dominiExportacio);
+				}
+		}	
+		// Consultes
+		if (command.getConsultes().size() > 0) {
+			ConsultaExportacio consultaExportacio;
+			for (Consulta consulta : tipus.getConsultes())
+				if (command.getConsultes().contains(consulta.getCodi())) {
+					consultaExportacio = new ConsultaExportacio(
+							consulta.getCodi(),
+							consulta.getNom());
+					consultaExportacio.setDescripcio(consulta.getDescripcio());
+					consultaExportacio.setValorsPredefinits(consulta.getValorsPredefinits());
+					consultaExportacio.setExportarActiu(consulta.isExportarActiu());
+					consultaExportacio.setOcultarActiu(consulta.isOcultarActiu());
+					consultaExportacio.setOrdre(consulta.getOrdre());
+					if (consulta.getInformeContingut() != null && consulta.getInformeContingut().length > 0) {
+						consultaExportacio.setInformeNom(consulta.getInformeNom());
+						consultaExportacio.setInformeContingut(consulta.getInformeContingut());
+					}
+					exportacio.getConsultes().add(consultaExportacio);
+					// Camps de la consulta
+					for (ConsultaCamp consultaCamp: consulta.getCamps()) {
+						ConsultaCampExportacio consultaCampExp = new ConsultaCampExportacio(
+								consultaCamp.getCampCodi(),
+								consultaCamp.getDefprocJbpmKey(),
+								ConsultaCampDto.TipusConsultaCamp.valueOf(consultaCamp.getTipus().toString()),
+								consultaCamp.getParamTipus() != null?
+										ConsultaCampDto.TipusParamConsultaCamp.valueOf(consultaCamp.getParamTipus().toString())
+										: null,
+								consultaCamp.getCampDescripcio(),
+								consultaCamp.getOrdre());
+						consultaExportacio.getCamps().add(consultaCampExp);
+					}
+				}
+		}	
+
+		return exportacio;
+	}	
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@Transactional
+	public ExpedientTipusDto importar(
+			Long entornId, 
+			Long expedientTipusId, 
+			ExpedientTipusExportacioCommandDto command,
+			ExpedientTipusExportacio importacio) {
+		logger.debug(
+				"Important un tipus d'expedient (" +
+				"entornId=" + entornId + ", " +
+				"expedientTipusId = " + command.getId() + ", " + 
+				"command = " + command + ", " + 
+				"importacio = " + importacio + ")");
+		// Control d'accés
+		Entorn entorn = entornHelper.getEntornComprovantPermisos(
+				entornId,
+				true);
+		// Dades del tipus d'expedient
+		boolean expedientTipusExisteix = expedientTipusId != null;
+		ExpedientTipus expedientTipus;
+		if (!expedientTipusExisteix) {
+			// Nou tipus d'expedient
+			expedientTipus = new ExpedientTipus();
+			expedientTipus.setEntorn(entorn);
+			expedientTipus.setCodi(command.getCodi());
+			expedientTipus.setNom(importacio.getNom());
+			expedientTipus = expedientTipusRepository.save(expedientTipus);
+		} else			
+			// Recupera el tipus d'expedient existent
+			if (entornHelper.potDissenyarEntorn(entornId)) {
+				// Si te permisos de disseny a damunt l'entorn pot veure tots els tipus
+				expedientTipus = expedientTipusRepository.findByEntornAndId(
+						entorn,
+						command.getId());
+			} else {
+				// Si no te permisos de disseny a damunt l'entorn només es poden veure
+				// els tipus amb permisos de disseny
+				expedientTipus = expedientTipusHelper.getExpedientTipusComprovantPermisos(
+						command.getId(),
+						false,
+						false,
+						false,
+						false,
+						true);
+			}
+		if (!expedientTipusExisteix || command.isDadesBasiques()) {
+			expedientTipus.setAmbInfoPropia(importacio.isAmbInfoPropia());
+			expedientTipus.setTeTitol(importacio.isTeTitol());
+			expedientTipus.setDemanaTitol(importacio.isDemanaTitol());
+			expedientTipus.setTeNumero(importacio.isTeNumero());
+			expedientTipus.setDemanaNumero(importacio.isDemanaNumero());
+			expedientTipus.setExpressioNumero(importacio.getExpressioNumero());
+			expedientTipus.setJbpmProcessDefinitionKey(importacio.getJbpmProcessDefinitionKey());
+			expedientTipus.setReiniciarCadaAny(importacio.isReiniciarCadaAny());
+			expedientTipus.setSequencia(importacio.getSequencia());
+			expedientTipus.setResponsableDefecteCodi(importacio.getResponsableDefecteCodi());
+			expedientTipus.setRestringirPerGrup(importacio.isRestringirPerGrup());
+			expedientTipus.setSeleccionarAny(importacio.isSeleccionarAny());
+			expedientTipus.setAmbRetroaccio(importacio.isAmbRetroaccio());
+			expedientTipus.setReindexacioAsincrona(importacio.isReindexacioAsincrona());
+			expedientTipus.setTramitacioMassiva(importacio.isTramitacioMassiva());
+			if (importacio.isReiniciarCadaAny()) {
+				Collection<SequenciaAnyDto> sequencies = importacio.getSequenciaAny().values();
+				for (SequenciaAnyDto sequencia : sequencies) {
+					SequenciaAny anyexpedientTipus = new SequenciaAny(
+							expedientTipus, 
+							sequencia.getAny(), 
+							sequencia.getSequencia());
+					expedientTipus.getSequenciaAny().put(anyexpedientTipus.getAny(), anyexpedientTipus);
+				}
+			}
+		}
+		// Integració amb formularis externs
+		if (command.isIntegracioForms()) {
+			expedientTipus.setFormextUrl(importacio.getFormextUrl());
+			expedientTipus.setFormextUsuari(importacio.getFormextUsuari());
+			expedientTipus.setFormextContrasenya(importacio.getFormextContrasenya());
+		}
+		// Integració amb Sistra
+		if (command.isIntegracioSistra()) {
+			expedientTipus.setSistraTramitCodi(importacio.getSistraTramitCodi());
+			if (expedientTipusExisteix) {
+				// esborra els mapegos existents
+				for (MapeigSistra mapeig : expedientTipus.getMapeigSistras())
+					mapeigSistraRepository.delete(mapeig);
+				expedientTipus.getMapeigSistras().clear();
+				mapeigSistraRepository.flush();
+			}
+			for (MapeigSistraExportacio mapeig : importacio.getSistraMapejos())
+				expedientTipus.getMapeigSistras().add(
+						new MapeigSistra(
+								expedientTipus,
+								mapeig.getCodiHelium(), 
+								mapeig.getCodiSistra(), 
+								MapeigSistra.TipusMapeig.valueOf(mapeig.getTipus().toString())));
+		}
+		
+		boolean sobreEscriure = command.isSobreEscriure();
+		// Estats
+		Estat estat;
+		if (command.getEstats().size() > 0)
+			for(EstatExportacio estatExportat : importacio.getEstats() )
+				if (command.getEstats().contains(estatExportat.getCodi())){
+					estat = null;
+					if (expedientTipusExisteix) {
+						estat = estatRepository.findByExpedientTipusAndCodi(expedientTipus, estatExportat.getCodi());
+					}
+					if (estat == null || sobreEscriure) {
+						if (estat == null) {
+							estat = new Estat(
+									expedientTipus, 
+									estatExportat.getCodi(), 
+									estatExportat.getNom());
+							expedientTipus.getEstats().add(estat);
+							estatRepository.save(estat);
+						} else {
+							estat.setNom(estatExportat.getNom());
+						}
+						estat.setOrdre(estatExportat.getOrdre());
+					}
+				}
+		
+		// Agrupacions
+		Map<String, CampAgrupacio> agrupacions = new HashMap<String, CampAgrupacio>();
+		CampAgrupacio agrupacio;
+		if (command.getAgrupacions().size() > 0)
+			for(AgrupacioExportacio agrupacioExportat : importacio.getAgrupacions() )
+				if (command.getAgrupacions().contains(agrupacioExportat.getCodi())){
+					agrupacio = null;
+					if (expedientTipusExisteix) {
+						agrupacio = campAgrupacioRepository.findByExpedientTipusIdAndCodi(expedientTipus.getId(), agrupacioExportat.getCodi());
+					}
+					if (agrupacio == null || sobreEscriure) {
+						if (agrupacio == null) {
+							agrupacio = new CampAgrupacio(
+									expedientTipus, 
+									agrupacioExportat.getCodi(), 
+									agrupacioExportat.getNom(),
+									agrupacioExportat.getOrdre());
+							expedientTipus.getAgrupacions().add(agrupacio);
+							campAgrupacioRepository.save(agrupacio);
+						} else {
+							agrupacio.setNom(agrupacioExportat.getNom());
+							agrupacio.setOrdre(agrupacioExportat.getOrdre());
+						}
+						agrupacio.setDescripcio(agrupacioExportat.getDescripcio());
+					}
+					agrupacions.put(agrupacio.getCodi(), agrupacio);
+				}
+
+		// Enumeracions
+		Map<String, Enumeracio> enumeracions = new HashMap<String, Enumeracio>();
+		Enumeracio enumeracio;
+		if (command.getEnumeracions().size() > 0)
+			for(EnumeracioExportacio enumeracioExportat : importacio.getEnumeracions() )
+				if (command.getEnumeracions().contains(enumeracioExportat.getCodi())){
+					enumeracio = null;
+					if (expedientTipusExisteix) {
+						enumeracio = enumeracioRepository.findByExpedientTipusAndCodi(expedientTipus, enumeracioExportat.getCodi());
+					}
+					if (enumeracio == null || sobreEscriure) {
+						if (enumeracio == null) {
+							enumeracio = new Enumeracio(
+									entorn, 
+									enumeracioExportat.getCodi(), 
+									enumeracioExportat.getNom());
+							enumeracio.setExpedientTipus(expedientTipus);
+							expedientTipus.getEnumeracions().add(enumeracio);
+							enumeracioRepository.save(enumeracio);
+						} else {
+							enumeracio.setNom(enumeracioExportat.getNom());
+							// Esborra tots els valors existents
+							for (EnumeracioValors valor : enumeracio.getEnumeracioValors())
+								enumeracioValorsRepository.delete(valor);
+							enumeracio.getEnumeracioValors().clear();
+							enumeracioValorsRepository.flush();
+						}
+						// Afegeix tots els valors
+						for (EnumeracioValorExportacio valorExportat : enumeracioExportat.getValors()) {
+							EnumeracioValors valor = new EnumeracioValors(enumeracio, valorExportat.getCodi(), valorExportat.getNom());
+							valor.setOrdre(valorExportat.getOrdre());
+							enumeracio.getEnumeracioValors().add(valor);
+							enumeracioValorsRepository.save(valor);
+						}
+					}
+					enumeracions.put(enumeracio.getCodi(), enumeracio);
+				}
+		
+		// Dominis
+		Map<String, Domini> dominis = new HashMap<String, Domini>();
+		Domini domini;
+		if (command.getDominis().size() > 0)
+			for(DominiExportacio dominiExportat : importacio.getDominis() )
+				if (command.getDominis().contains(dominiExportat.getCodi())){
+					domini = null;
+					if (expedientTipusExisteix) {
+						domini = dominiRepository.findByExpedientTipusAndCodi(expedientTipus, dominiExportat.getCodi());
+					}
+					if (domini == null || sobreEscriure) {
+						if (domini == null) {
+							domini = new Domini(
+									dominiExportat.getCodi(), 
+									dominiExportat.getNom(),
+									entorn);
+							domini.setExpedientTipus(expedientTipus);
+							expedientTipus.getDominis().add(domini);
+							domini.setTipus(TipusDomini.valueOf(dominiExportat.getTipus().toString()));
+							dominiRepository.save(domini);
+						} else {
+							domini.setNom(dominiExportat.getNom());
+							domini.setTipus(TipusDomini.valueOf(dominiExportat.getTipus().toString()));
+						}
+						domini.setDescripcio(dominiExportat.getDescripcio());
+						domini.setCacheSegons(dominiExportat.getCacheSegons());
+						domini.setTimeout(dominiExportat.getTimeout());
+						// SQL
+						domini.setJndiDatasource(dominiExportat.getJndiDatasource());
+						domini.setSql(dominiExportat.getSql());
+						// WS
+						domini.setUrl(dominiExportat.getUrl());
+						domini.setTipusAuth(dominiExportat.getTipusAuth() != null?
+											 Domini.TipusAuthDomini.valueOf(dominiExportat.getTipusAuth().toString())
+											 : null);
+						domini.setOrigenCredencials(dominiExportat.getOrigenCredencials() != null?
+											Domini.OrigenCredencials.valueOf(dominiExportat.getOrigenCredencials().toString())
+											: null);
+						domini.setUsuari(dominiExportat.getUsuari());
+						domini.setContrasenya(dominiExportat.getContrasenya());
+					}
+					dominis.put(domini.getCodi(), domini);
+				}
+		
+		// Camps
+		Map<String, Camp> camps = new HashMap<String, Camp>();
+		Map<Camp, CampExportacio> registres = new HashMap<Camp, CampExportacio>();
+		Map<Camp, CampExportacio> campsTipusConsulta = new HashMap<Camp, CampExportacio>();
+		Camp camp;
+		if (command.getVariables().size() > 0) {
+			for(CampExportacio campExportat : importacio.getCamps() )
+				if (command.getVariables().contains(campExportat.getCodi())){
+					camp = null;
+					if (expedientTipusExisteix) {
+						camp = campRepository.findByExpedientTipusAndCodi(expedientTipus, campExportat.getCodi());
+					}
+					if (camp == null || sobreEscriure) {
+						if (camp == null) {
+							camp = new Camp(
+									expedientTipus, 
+									campExportat.getCodi(),
+									TipusCamp.valueOf(campExportat.getTipus().toString()),
+									campExportat.getEtiqueta());
+							expedientTipus.getCamps().add(camp);
+							camp = campRepository.save(camp);
+						} else {
+							camp.setTipus(TipusCamp.valueOf(campExportat.getTipus().toString()));
+							camp.setEtiqueta(campExportat.getEtiqueta());
+						}
+						camp.setIgnored(campExportat.isIgnored());
+						camp.setObservacions(campExportat.getObservacions());
+						camp.setDominiId(campExportat.getDominiId());
+						camp.setDominiParams(campExportat.getDominiParams());
+						camp.setDominiCampText(campExportat.getDominiCampText());
+						camp.setDominiCampValor(campExportat.getDominiCampValor());
+						camp.setDominiCacheText(campExportat.isDominiCacheText());
+						camp.setConsultaParams(campExportat.getConsultaParams());
+						camp.setConsultaCampText(campExportat.getConsultaCampText());
+						camp.setConsultaCampValor(campExportat.getConsultaCampValor());
+						camp.setMultiple(campExportat.isMultiple());
+						camp.setOcult(campExportat.isOcult());
+						camp.setDominiIntern(campExportat.isDominiIntern());
+						camp.setDefprocJbpmKey(campExportat.getDefprocJbpmKey());
+						camp.setJbpmAction(campExportat.getJbpmAction());
+						camp.setOrdre(campExportat.getOrdre());
+						
+						// Esborra les validacions existents
+						for (Validacio validacio : camp.getValidacions())
+							campValidacioRepository.delete(validacio);
+						camp.getValidacions().clear();
+						campValidacioRepository.flush();
+						// Afegeix les noves validacions
+						for (ValidacioExportacio validacioExportat : campExportat.getValidacions()) {
+							Validacio validacio = new Validacio(
+									camp, 
+									validacioExportat.getExpressio(), 
+									validacioExportat.getMissatge());
+							validacio.setNom(validacioExportat.getNom());
+							validacio.setOrdre(validacioExportat.getOrdre());
+							campValidacioRepository.save(validacio);
+							camp.getValidacions().add(validacio);
+						}
+						// Agrupació del camp
+						if (campExportat.getAgrupacioCodi() != null && agrupacions.containsKey(campExportat.getAgrupacioCodi()))
+							camp.setAgrupacio(agrupacions.get(campExportat.getAgrupacioCodi()));
+						// Enumeració del camp
+						if (campExportat.getCodiEnumeracio() != null && enumeracions.containsKey(campExportat.getCodiEnumeracio()))
+							camp.setEnumeracio(enumeracions.get(campExportat.getCodiEnumeracio()));
+						// Domini del camp
+						if (campExportat.getCodiDomini() != null && dominis.containsKey(campExportat.getCodiDomini()))
+							camp.setDomini(dominis.get(campExportat.getCodiDomini()));
+						// Guarda els camps de tipus consulta per processar-los després de les consultes
+						if (campExportat.getCodiConsulta() != null)
+							campsTipusConsulta.put(camp, campExportat);
+						// Guarda els registres per processar-los després de tots els camps
+						if (camp.getTipus() == TipusCamp.REGISTRE) {
+							registres.put(camp, campExportat);
+						}						
+					}
+					camps.put(camp.getCodi(), camp);
+				}		
+			// Tracta els registres
+			CampExportacio campExportat;
+			for (Camp registre : registres.keySet()) {
+				// Esborra la relació amb els membres existents
+				if (!registre.getRegistreMembres().isEmpty()) {
+					for (CampRegistre campRegistre : registre.getRegistreMembres()) {
+						campRegistre.getMembre().getRegistrePares().remove(campRegistre);
+						campRegistre.setMembre(null);
+						campRegistre.setRegistre(null);
+						campRegistreRepository.delete(campRegistre);
+					}
+					registre.getRegistreMembres().clear();
+					campRegistreRepository.flush();
+				}
+				// afegeix la informació dels registres
+				campExportat = registres.get(registre);
+				for (RegistreMembreExportacio registreMembre : campExportat.getRegistreMembres()) {
+					CampRegistre campRegistre = new CampRegistre(
+							camps.get(registre.getCodi()),
+							camps.get(registreMembre.getCodi()),
+							registreMembre.getOrdre());
+					campRegistre.setLlistar(registreMembre.isLlistar());
+					campRegistre.setObligatori(registreMembre.isObligatori());
+					registre.getRegistreMembres().add(campRegistre);
+					campRegistreRepository.save(campRegistre);
+				}
+			}
+		}
+		
+		// Documents
+		Map<String, Document> documents = new HashMap<String, Document>();
+		Document document;
+		if (command.getDocuments().size() > 0)
+			for(DocumentExportacio documentExportat : importacio.getDocuments() )
+				if (command.getDocuments().contains(documentExportat.getCodi())){
+					document = null;
+					if (expedientTipusExisteix) {
+						document = documentRepository.findByExpedientTipusAndCodi(expedientTipus, documentExportat.getCodi());
+					}
+					if (document == null || sobreEscriure) {
+						if (document == null) {
+							document = new Document(
+									expedientTipus, 
+									documentExportat.getCodi(), 
+									documentExportat.getNom());
+							expedientTipus.getDocuments().add(document);
+							documentRepository.save(document);
+						} else {
+							document.setNom(documentExportat.getNom());
+						}
+						document.setDescripcio(documentExportat.getDescripcio());
+						document.setArxiuNom(documentExportat.getArxiuNom());
+						document.setArxiuContingut(documentExportat.getArxiuContingut());
+						document.setPlantilla(documentExportat.isPlantilla());
+						document.setCustodiaCodi(documentExportat.getCustodiaCodi());
+						document.setContentType(documentExportat.getContentType());
+						document.setTipusDocPortasignatures(documentExportat.getTipusDocPortasignatures());
+						document.setAdjuntarAuto(documentExportat.isAdjuntarAuto());
+						if (documentExportat.getCodiCampData() != null)
+							document.setCampData(camps.get(documentExportat.getCodiCampData()));
+						document.setConvertirExtensio(documentExportat.getConvertirExtensio());
+						document.setExtensionsPermeses(documentExportat.getExtensionsPermeses());
+					}
+					documents.put(documentExportat.getCodi(), document);
+				}	
+		
+		// Terminis
+		Termini termini;
+		if (command.getTerminis().size() > 0)
+			for(TerminiExportacio terminiExportat : importacio.getTerminis() )
+				if (command.getTerminis().contains(terminiExportat.getCodi())){
+					termini = null;
+					if (expedientTipusExisteix) {
+						termini = terminiRepository.findByExpedientTipusAndCodi(expedientTipus, terminiExportat.getCodi());
+					}
+					if (termini == null || sobreEscriure) {
+						if (termini == null) {
+							termini = new Termini(
+									expedientTipus,
+									terminiExportat.getCodi(),
+									terminiExportat.getNom(),
+									terminiExportat.getAnys(),
+									terminiExportat.getMesos(),
+									terminiExportat.getDies(),
+									terminiExportat.isLaborable());
+							expedientTipus.getTerminis().add(termini);
+							terminiRepository.save(termini);
+						} else {
+							termini.setNom(terminiExportat.getNom());
+							termini.setNom(terminiExportat.getNom());
+							termini.setAnys(terminiExportat.getAnys());
+							termini.setMesos(terminiExportat.getMesos());
+							termini.setDies(terminiExportat.getDies());
+							termini.setLaborable(terminiExportat.isLaborable());
+						}
+						termini.setDuradaPredefinida(terminiExportat.isDuradaPredefinida());
+						termini.setDescripcio(terminiExportat.getDescripcio());
+						termini.setDiesPrevisAvis(terminiExportat.getDiesPrevisAvis());
+						termini.setAlertaPrevia(terminiExportat.isAlertaPrevia());
+						termini.setAlertaFinal(terminiExportat.isAlertaFinal());
+						termini.setAlertaCompletat(terminiExportat.isAlertaCompletat());
+						termini.setManual(terminiExportat.isManual());
+					}
+				}
+
+		// Accions
+		Accio accio;
+		if (command.getAccions().size() > 0)
+			for(AccioExportacio accioExportat : importacio.getAccions() )
+				if (command.getAccions().contains(accioExportat.getCodi())){
+					accio = null;
+					if (expedientTipusExisteix) {
+						accio = accioRepository.findByExpedientTipusIdAndCodi(expedientTipus.getId(), accioExportat.getCodi());
+					}
+					if (accio == null || sobreEscriure) {
+						if (accio == null) {
+							accio = new Accio(
+									expedientTipus, 
+									accioExportat.getCodi(), 
+									accioExportat.getNom(),
+									accioExportat.getDefprocJbpmKey(),
+									accioExportat.getJbpmAction());
+							expedientTipus.getAccions().add(accio);
+							accioRepository.save(accio);
+						} else {
+							accio.setNom(accioExportat.getNom());
+							accio.setJbpmAction(accioExportat.getJbpmAction());
+						}
+						accio.setDescripcio(accioExportat.getDescripcio());
+						accio.setPublica(accioExportat.isPublica());
+						accio.setOculta(accioExportat.isOculta());
+						accio.setRols(accioExportat.getRols());
+					}
+				}
+		
+		// Consultes
+		Map<String, Consulta> consultes = new HashMap<String, Consulta>();
+		Consulta consulta;
+		if (command.getConsultes().size() > 0)
+			for(ConsultaExportacio consultaExportat : importacio.getConsultes() )
+				if (command.getConsultes().contains(consultaExportat.getCodi())) {
+					consulta = null;
+					if (expedientTipusExisteix) {
+						consulta = consultaRepository.findByExpedientTipusAndCodi(expedientTipus, consultaExportat.getCodi());
+					}
+					if (consulta == null || sobreEscriure) {
+						if (consulta == null) {
+							consulta = new Consulta(
+									consultaExportat.getCodi(), 
+									consultaExportat.getNom());
+							consulta.setEntorn(entorn);
+							consulta.setExpedientTipus(expedientTipus);
+							expedientTipus.getConsultes().add(consulta);
+							consultaRepository.save(consulta);
+						} else {
+							consulta.setNom(consultaExportat.getNom());
+							// Esborra els paràmetres existents
+							for (ConsultaCamp consultaCamp : consulta.getCamps())
+								consultaCampRepository.delete(consultaCamp);
+							consulta.getCamps().clear();
+							consultaCampRepository.flush();
+						}
+						consulta.setDescripcio(consultaExportat.getDescripcio());
+						consulta.setValorsPredefinits(consultaExportat.getValorsPredefinits());
+						consulta.setExportarActiu(consultaExportat.isExportarActiu());
+						consulta.setOcultarActiu(consultaExportat.isOcultarActiu());
+						consulta.setOrdre(consultaExportat.getOrdre());	
+						if (consultaExportat.getInformeContingut() != null) {
+							consulta.setInformeNom(consultaExportat.getInformeNom());
+							consulta.setInformeContingut(consultaExportat.getInformeContingut());
+						} else {
+							consulta.setInformeNom(null);
+							consulta.setInformeContingut(null);
+						}
+						// Variables i paràmetres de la consulta
+						for (ConsultaCampExportacio consultaCampExportacio : consultaExportat.getCamps()) {
+							ConsultaCamp consultaCamp = new ConsultaCamp(
+									consultaCampExportacio.getCampCodi(), 
+									ConsultaCamp.TipusConsultaCamp.valueOf(
+											consultaCampExportacio.getTipusConsultaCamp().toString()));
+							consultaCamp.setConsulta(consulta);
+							consultaCamp.setDefprocJbpmKey(consultaCampExportacio.getJbpmKey());
+							consultaCamp.setCampDescripcio(consultaCampExportacio.getCampDescripcio());
+							consultaCamp.setParamTipus(
+									consultaCampExportacio.getTipusParamConsultaCamp() != null?
+									TipusParamConsultaCamp.valueOf(consultaCampExportacio.getTipusParamConsultaCamp().toString())
+									: null);
+							consultaCamp.setOrdre(consultaCampExportacio.getOrdre());
+							consultaCampRepository.save(consultaCamp);
+							consulta.getCamps().add(consultaCamp);
+						}
+					}
+					consultes.put(consulta.getCodi(), consulta);
+				}
+		
+		// Definicions
+		DefinicioProces definicioProces;
+		if (command.getDefinicionsProces().size() > 0)
+			for(DefinicioProcesExportacio definicioExportat : importacio.getDefinicions() )
+				if (command.getDefinicionsProces().contains(definicioExportat.getDefinicioProcesDto().getJbpmKey())){
+					definicioProces = definicioProcesHelper.importar(
+							entornId, 
+							expedientTipus.getId(),
+							definicioExportat,
+							null /* no especifica el filtre per a la importació. */,
+							command.isSobreEscriure());
+					expedientTipus.addDefinicioProces(definicioProces);
+				}
+		
+		// Tracta camps de tipus consulta completant la referència a la consulta
+		CampExportacio campExportat;
+		for (Camp campConsulta : campsTipusConsulta.keySet()) {
+			// afegeix la informació dels registres
+			campExportat = campsTipusConsulta.get(campConsulta);
+			if (consultes.containsKey(campExportat.getCodiConsulta()))
+				campConsulta.setConsulta(consultes.get(campExportat.getCodiConsulta()));
+		}
+
+		return conversioTipusHelper.convertir(
+				expedientTipusRepository.save(expedientTipus),
+				ExpedientTipusDto.class);
+	}	
 
 	/**
 	 * {@inheritDoc}
@@ -770,838 +1648,6 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		}
 		throw new NoTrobatException(PermisDto.class, permisId);
 	}
-
-	// MANTENIMENT DE CAMPS
-	
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	@Transactional
-	public CampDto campCreate(
-			Long expedientTipusId, 
-			CampDto camp) throws PermisDenegatException {
-
-		logger.debug(
-				"Creant nou camp per un tipus d'expedient (" +
-				"expedientTipusId =" + expedientTipusId + ", " +
-				"camp=" + camp + ")");
-		ExpedientTipus expedientTipus = expedientTipusRepository.findOne(expedientTipusId);
-		
-		Camp entity = new Camp();
-		entity.setCodi(camp.getCodi());
-		entity.setTipus(conversioTipusHelper.convertir(camp.getTipus(), Camp.TipusCamp.class));
-		entity.setEtiqueta(camp.getEtiqueta());
-		entity.setObservacions(camp.getObservacions());
-		entity.setMultiple(camp.isMultiple());
-		entity.setOcult(camp.isOcult());
-		entity.setIgnored(camp.isIgnored());
-		CampAgrupacio agrupacio = null;
-		if (camp.getAgrupacio() != null) 
-			agrupacio = campAgrupacioRepository.findOne(camp.getAgrupacio().getId());
-		entity.setAgrupacio(agrupacio);
-		if (agrupacio != null && entity.getOrdre() == null) {
-			// Informa de l'ordre dins de la agrupació
-			entity.setOrdre(
-					campRepository.getNextOrdre(
-							agrupacio.getId()));
-		}		
-		// Camp associat a l'expedient
-		entity.setExpedientTipus(expedientTipus);		
-		
-		// Dades consulta
-		Enumeracio enumeracio = null;
-		if (camp.getEnumeracio() != null) {
-			enumeracio = enumeracioRepository.findOne(camp.getEnumeracio().getId());
-		}
-		entity.setEnumeracio(enumeracio);
-		Domini domini = null;
-		if (camp.getDomini() != null) {
-			domini = dominiRepository.findOne(camp.getDomini().getId());
-		}
-		entity.setDomini(domini);
-		Consulta consulta = null;
-		if (camp.getConsulta() != null) {
-			consulta = consultaRepository.findOne(camp.getConsulta().getId());
-		}
-		entity.setConsulta(consulta);		
-		entity.setDominiIntern(camp.isDominiIntern());
-
-		// Paràmetres del domini
-		entity.setDominiId(camp.getDominiIdentificador());
-		entity.setDominiParams(camp.getDominiParams());
-		entity.setDominiCampValor(camp.getDominiCampValor());
-		entity.setDominiCampText(camp.getDominiCampText());
-		
-		// Paràmetres de la consulta
-		entity.setConsultaParams(camp.getConsultaParams());
-		entity.setConsultaCampValor(camp.getConsultaCampValor());
-		entity.setConsultaCampText(camp.getConsultaCampText());
-		
-		entity.setDominiCacheText(camp.isDominiCacheText());
-
-		return conversioTipusHelper.convertir(
-				campRepository.save(entity),
-				CampDto.class);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	@Transactional
-	public CampDto campUpdate(CampDto camp) throws NoTrobatException, PermisDenegatException {
-		logger.debug(
-				"Modificant el camp del tipus d'expedient existent (" +
-				"camp.id=" + camp.getId() + ", " +
-				"camp =" + camp + ")");
-		Camp entity = campRepository.findOne(camp.getId());
-		entity.setCodi(camp.getCodi());
-		entity.setTipus(conversioTipusHelper.convertir(camp.getTipus(), Camp.TipusCamp.class));
-		entity.setEtiqueta(camp.getEtiqueta());
-		entity.setObservacions(camp.getObservacions());
-		entity.setMultiple(camp.isMultiple());
-		entity.setOcult(camp.isOcult());
-		entity.setIgnored(camp.isIgnored());
-		CampAgrupacio agrupacio = null;
-		if (camp.getAgrupacio() != null) 
-			agrupacio = campAgrupacioRepository.findOne(camp.getAgrupacio().getId());
-		entity.setAgrupacio(agrupacio);
-		if (agrupacio != null && entity.getOrdre() == null) {
-			// Informa de l'ordre dins de la agrupació
-			entity.setOrdre(
-					campRepository.getNextOrdre(
-							agrupacio.getId()));
-		}		
-		
-		// Dades consulta
-		Enumeracio enumeracio = null;
-		if (camp.getEnumeracio() != null) {
-			enumeracio = enumeracioRepository.findOne(camp.getEnumeracio().getId());
-		}
-		entity.setEnumeracio(enumeracio);
-		Domini domini = null;
-		if (camp.getDomini() != null) {
-			domini = dominiRepository.findOne(camp.getDomini().getId());
-		}
-		entity.setDomini(domini);
-		Consulta consulta = null;
-		if (camp.getConsulta() != null) {
-			consulta = consultaRepository.findOne(camp.getConsulta().getId());
-		}
-		entity.setConsulta(consulta);		
-		entity.setDominiIntern(camp.isDominiIntern());
-
-		// Paràmetres del domini
-		entity.setDominiId(camp.getDominiIdentificador());
-		entity.setDominiParams(camp.getDominiParams());
-		entity.setDominiCampValor(camp.getDominiCampValor());
-		entity.setDominiCampText(camp.getDominiCampText());
-		
-		// Paràmetres de la consulta
-		entity.setConsultaParams(camp.getConsultaParams());
-		entity.setConsultaCampValor(camp.getConsultaCampValor());
-		entity.setConsultaCampText(camp.getConsultaCampText());
-		
-		entity.setDominiCacheText(camp.isDominiCacheText());
-		
-		return conversioTipusHelper.convertir(
-				campRepository.save(entity),
-				CampDto.class);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	@Transactional
-	public void campDelete(Long campCampId) throws NoTrobatException, PermisDenegatException {
-		logger.debug(
-				"Esborrant el camp del tipus d'expedient (" +
-				"campId=" + campCampId +  ")");
-		Camp entity = campRepository.findOne(campCampId);
-
-		if (entity != null) {
-			for (CampRegistre campRegistre : entity.getRegistrePares()) {
-				campRegistre.getRegistre().getRegistreMembres().remove(campRegistre);
-				campRegistreRepository.delete(campRegistre);	
-				campRegistreRepository.flush();
-				reordenarCampsRegistre(campRegistre.getRegistre().getId());						
-			}
-			campRepository.delete(entity);	
-			campRepository.flush();
-			if (entity.getAgrupacio() != null) {
-				reordenarCamps(entity.getAgrupacio().getId());
-			}
-		}
-	}
-
-	/** Funció per reasignar el valor d'ordre dins d'una agrupació de variables. */
-	private void reordenarCamps(Long agrupacioId) {
-		List<Camp> camps = campRepository.findByAgrupacioIdOrderByOrdreAsc(agrupacioId);		
-		int i = 0;
-		for (Camp camp: camps)
-			camp.setOrdre(i++);
-	}
-
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public CampDto campFindAmbId(Long id) throws NoTrobatException {
-		logger.debug(
-				"Consultant el camp del tipus d'expedient amb id (" +
-				"campId=" + id +  ")");
-		Camp camp = campRepository.findOne(id);
-		if (camp == null) {
-			throw new NoTrobatException(Camp.class, id);
-		}
-		return conversioTipusHelper.convertir(
-				camp,
-				CampDto.class);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public CampDto campFindAmbCodiPerValidarRepeticio(Long expedientTipusId, String codi) throws NoTrobatException {
-		logger.debug(
-				"Consultant el camp del tipus d'expedient per codi per validar repetició (" +
-				"expedientTipusId=" + expedientTipusId + ", " +
-				"codi = " + codi + ")");
-		ExpedientTipus expedientTipus = expedientTipusRepository.findOne(expedientTipusId);
-		return conversioTipusHelper.convertir(
-				campRepository.findByExpedientTipusAndCodi(expedientTipus, codi),
-				CampDto.class);
-	}	
-		
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	@Transactional(readOnly = true)
-	public PaginaDto<CampDto> campFindPerDatatable(
-			Long expedientTipusId,
-			Long agrupacioId,
-			String filtre,
-			PaginacioParamsDto paginacioParams) {
-		logger.debug(
-				"Consultant els camps per al tipus d'expedient per datatable (" +
-				"entornId=" + expedientTipusId + ", " +
-				"agrupacioId=" + agrupacioId + ", " +
-				"filtre=" + filtre + ")");
-						
-		
-		PaginaDto<CampDto> pagina = paginacioHelper.toPaginaDto(
-				campRepository.findByFiltrePaginat(
-						expedientTipusId,
-						agrupacioId == null,
-						agrupacioId != null ? agrupacioId : 0L,
-						filtre == null || "".equals(filtre), 
-						filtre, 
-						paginacioHelper.toSpringDataPageable(
-								paginacioParams)),
-				CampDto.class);
-		
-		// Omple els comptador de validacions i de membres
-		List<Object[]> countValidacions = campRepository.countValidacions(
-				expedientTipusId,
-				agrupacioId == null,
-				agrupacioId); 
-		List<Object[]> countMembres= campRepository.countMembres(
-				expedientTipusId,
-				agrupacioId == null,
-				agrupacioId); 
-		for (CampDto dto: pagina.getContingut()) {
-			for (Object[] reg: countValidacions) {
-				Long campId = (Long)reg[0];
-				if (campId.equals(dto.getId())) {
-					Integer count = (Integer)reg[1];
-					dto.setValidacioCount(count.intValue());
-					countValidacions.remove(reg);
-					break;
-				}
-			}
-			if (dto.getTipus() == CampTipusDto.REGISTRE) {
-				for (Object[] reg: countMembres) {
-					Long campId = (Long)reg[0];
-					if (campId.equals(dto.getId())) {
-						Integer count = (Integer)reg[1];
-						dto.setCampRegistreCount(count.intValue());
-						countMembres.remove(reg);
-						break;
-					}
-				}
-			}
-		}		
-		
-		return pagina;		
-		
-	}
-	
-	@Override
-	@Transactional
-	public boolean campMourePosicio(
-			Long id, 
-			int posicio) {
-		boolean ret = false;
-		Camp camp = campRepository.findOne(id);
-		if (camp != null && camp.getAgrupacio() != null) {
-			List<Camp> camps = campRepository.findByAgrupacioIdOrderByOrdreAsc(camp.getAgrupacio().getId());
-			if(posicio != camps.indexOf(camp)) {
-				camps.remove(camp);
-				camps.add(posicio, camp);
-				int i = 0;
-				for (Camp c : camps) {
-					c.setOrdre(i++);
-				}
-			}
-		}
-		return ret;
-	}
-	
-	@Transactional(readOnly = true)
-	public List<CampDto> campFindTipusDataPerExpedientTipus(
-			Long expedientTipusId) {
-		logger.debug(
-				"Consultant els camps del tipus data" +
-				" per al tipus d'expedient desplegable");
-		
-		ExpedientTipus expedientTipus = 
-				expedientTipusHelper.getExpedientTipusComprovantPermisos(
-						expedientTipusId, 
-						true);
-		
-		List<Camp> camps = campRepository.findByExpedientTipusAndTipus(expedientTipus, TipusCamp.DATE);
-		
-		return conversioTipusHelper.convertirList(
-				camps, 
-				CampDto.class);
-	}
-
-	@Override
-	@Transactional(readOnly = true)
-	public List<CampDto> campFindAllOrdenatsPerCodi(Long expedientTipusId) {
-		logger.debug(
-				"Consultant tots els camps del tipus expedient per al desplegable " +
-				" de camps del registre (expedientTipusId=" + expedientTipusId + ")");
-		
-		ExpedientTipus expedientTipus = 
-				expedientTipusHelper.getExpedientTipusComprovantPermisos(
-						expedientTipusId, 
-						true);
-		
-		List<Camp> camps = campRepository.findByExpedientTipusOrderByCodiAsc(expedientTipus);
-		
-		return conversioTipusHelper.convertirList(
-				camps, 
-				CampDto.class);
-	}
-
-	// MANTENIMENT D'AGRUPACIONS DE CAMPS
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	@Transactional(readOnly = true)
-	public List<CampAgrupacioDto> agrupacioFindAll(
-			Long expedientTipusId) throws NoTrobatException, PermisDenegatException {
-		List<CampAgrupacio> agrupacions = campAgrupacioRepository.findAmbExpedientTipusOrdenats(expedientTipusId);
-		return conversioTipusHelper.convertirList(
-									agrupacions, 
-									CampAgrupacioDto.class);
-	}
-	
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public CampAgrupacioDto agrupacioFindAmbId(Long id) throws NoTrobatException {
-		logger.debug(
-				"Consultant la agrupacio de camps del tipus d'expedient amb id (" +
-				"campAgrupacioId=" + id +  ")");
-		CampAgrupacio  agrupacio = campAgrupacioRepository.findOne(id);
-		if (agrupacio == null) {
-			throw new NoTrobatException(CampAgrupacio.class, id);
-		}
-		return conversioTipusHelper.convertir(
-				agrupacio,
-				CampAgrupacioDto.class);
-	}
-	
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	@Transactional
-	public CampAgrupacioDto agrupacioCreate(
-			Long expedientTipusId, 
-			CampAgrupacioDto agrupacio) throws PermisDenegatException {
-
-		logger.debug(
-				"Creant nova agrupació de camp per un tipus d'expedient (" +
-				"expedientTipusId =" + expedientTipusId + ", " +
-				"agrupacio=" + agrupacio + ")");
-		ExpedientTipus expedientTipus = expedientTipusRepository.findOne(expedientTipusId);
-		
-		CampAgrupacio entity = new CampAgrupacio();
-		entity.setCodi(agrupacio.getCodi());
-		entity.setNom(agrupacio.getNom());
-		entity.setDescripcio(agrupacio.getDescripcio());
-		entity.setOrdre(campAgrupacioRepository.getNextOrdre(expedientTipusId));
-
-		// Camp associat a l'expedient
-		entity.setExpedientTipus(expedientTipus);
-
-		return conversioTipusHelper.convertir(
-				campAgrupacioRepository.save(entity),
-				CampAgrupacioDto.class);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	@Transactional
-	public CampAgrupacioDto agrupacioUpdate(
-			Long expedientTipusId, 
-			CampAgrupacioDto agrupacio) throws NoTrobatException, PermisDenegatException {
-		logger.debug(
-				"Modificant la agrupacio de camp del tipus d'expedient existent (" +
-				"agrupacio.id=" + agrupacio.getId() + ", " +
-				"agrupacio =" + agrupacio + ")");
-		CampAgrupacio entity = campAgrupacioRepository.findOne(agrupacio.getId());
-		entity.setCodi(agrupacio.getCodi());
-		entity.setNom(agrupacio.getNom());
-		entity.setDescripcio(agrupacio.getDescripcio());
-		
-		return conversioTipusHelper.convertir(
-				campAgrupacioRepository.save(entity),
-				CampAgrupacioDto.class);
-	}
-	
-	@Override
-	@Transactional
-	public boolean agrupacioMourePosicio(
-			Long id, 
-			int posicio) {
-		boolean ret = false;
-		CampAgrupacio agrupacio = campAgrupacioRepository.findOne(id);
-		if (agrupacio != null) {
-			List<CampAgrupacio> agrupacions = campAgrupacioRepository.findAmbExpedientTipusOrdenats(agrupacio.getExpedientTipus().getId());
-			if(posicio != agrupacions.indexOf(agrupacio)) {
-				agrupacions.remove(agrupacio);
-				agrupacions.add(posicio, agrupacio);
-				int i = 0;
-				for (CampAgrupacio c : agrupacions) {
-					c.setOrdre(i++);
-				}
-			}
-		}
-		return ret;
-	}	
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	@Transactional
-	public void agrupacioDelete(Long agrupacioCampId) throws NoTrobatException, PermisDenegatException {
-		logger.debug(
-				"Esborrant la agrupacio de camp del tipus d'expedient (" +
-				"agrupacioCampId=" + agrupacioCampId +  ")");
-		CampAgrupacio entity = campAgrupacioRepository.findOne(agrupacioCampId);
-		if (entity != null) {			
-			for (Camp camp : entity.getCamps()) {
-				camp.setAgrupacio(null);
-				camp.setOrdre(null);
-				campRepository.save(camp);
-			}			
-			campAgrupacioRepository.delete(entity);
-			campAgrupacioRepository.flush();
-		}
-		reordenarAgrupacions(entity.getExpedientTipus().getId());
-	}
-	
-	/** Funció per reasignar el valor d'ordre per a les agrupacions d'un tipus d'expedient */
-	@Transactional
-	private int reordenarAgrupacions(Long expedientTipusId) {
-		ExpedientTipus expedientTipus = expedientTipusRepository.findOne(expedientTipusId);
-		List<CampAgrupacio> campsAgrupacio = expedientTipus.getAgrupacions();
-		int i = 0;
-		for (CampAgrupacio campAgrupacio: campsAgrupacio)
-			campAgrupacio.setOrdre(i++);
-		return campsAgrupacio.size();
-	}
-	
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public CampAgrupacioDto agrupacioFindAmbCodiPerValidarRepeticio(
-								Long expedientTipusId, 
-								String codi) throws NoTrobatException {
-		logger.debug(
-				"Consultant la agrupacio de camps del tipus d'expedient per codi per validar repetició (" +
-				"expedientTipusId=" + expedientTipusId + ", " +
-				"codi = " + codi + ")");
-		ExpedientTipus expedientTipus = expedientTipusRepository.findOne(expedientTipusId);
-		return conversioTipusHelper.convertir(
-				campAgrupacioRepository.findByExpedientTipusAndCodi(expedientTipus, codi),
-				CampAgrupacioDto.class);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	@Transactional(readOnly = true)
-	public PaginaDto<CampAgrupacioDto> agrupacioFindPerDatatable(
-			Long tipusExpedientId,
-			String filtre,
-			PaginacioParamsDto paginacioParams) {
-		logger.debug(
-				"Consultant les agrupacions per al tipus d'expedient per datatable (" +
-				"entornId=" + tipusExpedientId + ", " +
-				"filtre=" + filtre + ")");
-						
-		
-		return paginacioHelper.toPaginaDto(
-				campAgrupacioRepository.findByFiltrePaginat(
-						tipusExpedientId,
-						filtre == null || "".equals(filtre), 
-						filtre, 
-						paginacioHelper.toSpringDataPageable(
-								paginacioParams)),
-				CampAgrupacioDto.class);		
-	}	
-	
-	@Override
-	@Transactional
-	public boolean campAfegirAgrupacio(
-			Long campId, 
-			Long agrupacioId) {
-		boolean ret = false;
-		logger.debug(
-				"Afegint camp de tipus d'expedient a la agrupació (" +
-				"campId=" + campId + ", " +
-				"agrupacioId = " + agrupacioId + ")");
-		Camp camp = campRepository.findOne(campId);
-		CampAgrupacio agrupacio = campAgrupacioRepository.findOne(agrupacioId);
-		if (camp != null && agrupacio != null && camp.getExpedientTipus().getId().equals(agrupacio.getExpedientTipus().getId())) {
-			camp.setAgrupacio(agrupacio);
-			reordenarCamps(agrupacioId);
-			ret = true;
-		}
-		return ret;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	@Transactional
-	public boolean campRemoureAgrupacio(Long campId) {
-		boolean ret = false;
-		logger.debug(
-				"Remoguent el camp de tipus d'expedient de la seva agrupació(" +
-				"campId=" + campId + ")");
-		Camp camp = campRepository.findOne(campId);
-		if (camp != null && camp.getAgrupacio() != null) {
-			Long agrupacioId = camp.getAgrupacio().getId();
-			camp.setAgrupacio(null);
-			camp.setOrdre(null);
-			reordenarCamps(agrupacioId);
-			ret = true;
-		}
-		return ret;
-	}
-	
-	// MANTENIMENT DE VALIDACIONS DE CAMPS DEL TIPUS D'EXPEDIENT
-	
-	@Override
-	@Transactional
-	public ValidacioDto validacioCreate(
-			Long campId, 
-			ValidacioDto validacio) throws PermisDenegatException {
-
-		logger.debug(
-				"Creant nova validacio per un camp de tipus d'expedient (" +
-				"campId =" + campId + ", " +
-				"validacio=" + validacio + ")");
-
-		Validacio entity = new Validacio();
-		entity.setCamp(campRepository.findOne(campId));
-		entity.setExpressio(validacio.getExpressio());
-		entity.setMissatge(validacio.getMissatge());
-		entity.setOrdre(campValidacioRepository.getNextOrdre(campId));
-		
-		return conversioTipusHelper.convertir(
-				campValidacioRepository.save(entity),
-				ValidacioDto.class);
-	}
-
-	@Override
-	@Transactional
-	public ValidacioDto validacioUpdate(ValidacioDto validacio) 
-						throws NoTrobatException, PermisDenegatException {
-		logger.debug(
-				"Modificant la validacio del camp del tipus d'expedient existent (" +
-				"validacio.id=" + validacio.getId() + ", " +
-				"validacio =" + validacio + ")");
-		
-		Validacio entity = campValidacioRepository.findOne(validacio.getId());
-		entity.setExpressio(validacio.getExpressio());
-		entity.setMissatge(validacio.getMissatge());
-		
-		return conversioTipusHelper.convertir(
-				campValidacioRepository.save(entity),
-				ValidacioDto.class);
-	}
-
-	@Override
-	@Transactional
-	public void validacioDelete(Long validacioValidacioId) throws NoTrobatException, PermisDenegatException {
-		logger.debug(
-				"Esborrant la validacio del tipus d'expedient (" +
-				"validacioId=" + validacioValidacioId +  ")");
-		
-		Validacio validacio = campValidacioRepository.findOne(validacioValidacioId);
-		campValidacioRepository.delete(validacio);	
-		campValidacioRepository.flush();
-		
-		reordenarValidacions(validacio.getCamp().getId());
-	}
-
-	/** Funció per reasignar el valor d'ordre dins d'una agrupació de variables. */
-	private void reordenarValidacions(Long campId) {
-		List<Validacio> validacios = campValidacioRepository.findAmbCampOrdenats(campId);		
-		int i = 0;
-		for (Validacio validacio: validacios)
-			validacio.setOrdre(i++);
-	}
-
-	@Override
-	@Transactional
-	public boolean validacioMourePosicio(
-			Long id, 
-			int posicio) {
-		boolean ret = false;
-		Validacio validacio = campValidacioRepository.findOne(id);
-		if (validacio != null) {
-			List<Validacio> validacions = campValidacioRepository.findAmbCampOrdenats(validacio.getCamp().getId());
-			if(posicio != validacions.indexOf(validacio)) {
-				validacions.remove(validacio);
-				validacions.add(posicio, validacio);
-				int i = 0;
-				for (Validacio c : validacions) {
-					c.setOrdre(i++);
-				}
-			}
-		}
-		return ret;
-	}
-
-	@Override
-	public ValidacioDto validacioFindAmbId(Long id) throws NoTrobatException {
-		logger.debug(
-				"Consultant la validacio del camp del tipus d'expedient amb id (" +
-				"validacioId=" + id +  ")");
-		Validacio validacio = campValidacioRepository.findOne(id);
-		if (validacio == null) {
-			throw new NoTrobatException(Validacio.class, id);
-		}
-		return conversioTipusHelper.convertir(
-				validacio,
-				ValidacioDto.class);
-	}
-		
-	@Override
-	@Transactional(readOnly = true)
-	public PaginaDto<ValidacioDto> validacioFindPerDatatable(
-			Long campId,
-			String filtre,
-			PaginacioParamsDto paginacioParams) {
-		logger.debug(
-				"Consultant els validacios per al tipus d'expedient per datatable (" +
-				"entornId=" + campId + ", " +
-				"filtre=" + filtre + ")");
-						
-		
-		return paginacioHelper.toPaginaDto(
-				campValidacioRepository.findByFiltrePaginat(
-						campId,
-						filtre == null || "".equals(filtre), 
-						filtre, 
-						paginacioHelper.toSpringDataPageable(
-								paginacioParams)),
-				ValidacioDto.class);		
-	}	
-	
-	// MANTENIMENT  DE CAMPS DE LES VARIABLES DE TIPUS REGISTRE DEL TIPUS D'EXPEDIENT
-	
-	@Override
-	@Transactional
-	public CampRegistreDto campRegistreCreate(
-			Long campId, 
-			CampRegistreDto campRegistre) throws PermisDenegatException {
-
-		logger.debug(
-				"Creant nou campRegistre per un camp de tipus d'expedient (" +
-				"campId =" + campId + ", " +
-				"campRegistre=" + campRegistre + ")");
-
-		CampRegistre entity = new CampRegistre();
-		entity.setRegistre(campRepository.findOne(campId));
-		entity.setMembre(campRepository.findOne(campRegistre.getMembreId()));
-		entity.setObligatori(campRegistre.isObligatori());
-		entity.setLlistar(campRegistre.isLlistar());
-		entity.setOrdre(campRegistreRepository.getNextOrdre(campId));
-		
-		return conversioTipusHelper.convertir(
-				campRegistreRepository.save(entity),
-				CampRegistreDto.class);
-	}
-
-	@Override
-	@Transactional
-	public CampRegistreDto campRegistreUpdate(CampRegistreDto campRegistre) 
-						throws NoTrobatException, PermisDenegatException {
-		logger.debug(
-				"Modificant el campRegistre del camp del tipus d'expedient existent (" +
-				"campRegistre.id=" + campRegistre.getId() + ", " +
-				"campRegistre =" + campRegistre + ")");
-		
-		CampRegistre entity = campRegistreRepository.findOne(campRegistre.getId());
-
-		entity.setRegistre(campRepository.findOne(campRegistre.getRegistreId()));
-		entity.setMembre(campRepository.findOne(campRegistre.getMembreId()));
-		entity.setObligatori(campRegistre.isObligatori());
-		entity.setLlistar(campRegistre.isLlistar());
-		
-		return conversioTipusHelper.convertir(
-				campRegistreRepository.save(entity),
-				CampRegistreDto.class);
-	}
-
-	@Override
-	@Transactional
-	public void campRegistreDelete(Long campRegistreId) throws NoTrobatException, PermisDenegatException {
-		logger.debug(
-				"Esborrant la campRegistre del tipus d'expedient (" +
-				"campRegistreId=" + campRegistreId +  ")");
-		
-		CampRegistre campRegistre = campRegistreRepository.findOne(campRegistreId);
-		campRegistre.getRegistre().getRegistreMembres().remove(campRegistre);
-		campRegistreRepository.delete(campRegistre);	
-		campRegistreRepository.flush();
-		
-		reordenarCampsRegistre(campRegistre.getRegistre().getId());
-	}
-
-	/** Funció per reasignar el valor d'ordre dins dels camps d'una variable de tipus registre. */
-	private void reordenarCampsRegistre(Long campId) {
-		List<CampRegistre> campRegistres = campRegistreRepository.findAmbCampOrdenats(campId);		
-		int i=-1;
-		for (CampRegistre c : campRegistres) {
-			c.setOrdre(i);
-			campRegistreRepository.saveAndFlush(c);
-			i--;
-		}
-		i = 0;
-		for (CampRegistre c : campRegistres) {
-			c.setOrdre(i);
-			campRegistreRepository.saveAndFlush(c);
-			i++;
-		}
-	}
-
-	@Override
-	@Transactional
-	public boolean campRegistreMourePosicio(
-			Long id, 
-			int posicio) {
-		
-		boolean ret = false;
-		CampRegistre campRegistre = campRegistreRepository.findOne(id);
-		if (campRegistre != null) {
-			List<CampRegistre> campsRegistre = campRegistreRepository.findAmbCampOrdenats(campRegistre.getRegistre().getId());
-			int index = campsRegistre.indexOf(campRegistre);
-			if(posicio != index) {	
-				campRegistre = campsRegistre.get(index);
-				campsRegistre.remove(campRegistre);
-				campsRegistre.add(posicio, campRegistre);
-				int i=-1;
-				for (CampRegistre c : campsRegistre) {
-					c.setOrdre(i);
-					campRegistreRepository.saveAndFlush(c);
-					i--;
-				}
-				i = 0;
-				for (CampRegistre c : campsRegistre) {
-					c.setOrdre(i);
-					campRegistreRepository.saveAndFlush(c);
-					i++;
-				}
-			}
-		}
-		return ret;				
-	}
-
-	@Override
-	@Transactional(readOnly = true)
-	public CampRegistreDto campRegistreFindAmbId(Long id) throws NoTrobatException {
-		logger.debug(
-				"Consultant la campRegistre del camp del tipus d'expedient amb id (" +
-				"campRegistreId=" + id +  ")");
-		CampRegistre camp = campRegistreRepository.findOne(id);
-		if (camp == null) {
-			throw new NoTrobatException(CampRegistre.class, id);
-		}
-		return conversioTipusHelper.convertir(
-				camp,
-				CampRegistreDto.class);
-	}
-
-	@Override
-	@Transactional(readOnly = true)
-	public List<CampDto> campRegistreFindMembresAmbRegistreId(Long registreId) {
-		logger.debug(
-				"Consultant els membres del registre(" +
-				"registreId=" + registreId +  ")");
-		return conversioTipusHelper.convertirList(
-				campRegistreRepository.findMembresAmbRegistreId(registreId),
-				CampDto.class);
-	}
-
-	@Override
-	@Transactional(readOnly = true)
-	public PaginaDto<CampRegistreDto> campRegistreFindPerDatatable(
-			Long campId,
-			String filtre,
-			PaginacioParamsDto paginacioParams) {
-		logger.debug(
-				"Consultant els campRegistres per un camp registre del tipus d'expedient per datatable (" +
-				"entornId=" + campId + ", " +
-				"filtre=" + filtre + ")");
-						
-		Map<String, String> mapeigPropietatsOrdenacio = new HashMap<String, String>();
-		mapeigPropietatsOrdenacio.put("membreCodi", "membre.codi");
-		mapeigPropietatsOrdenacio.put("membreEtiqueta", "membre.etiqueta");
-		mapeigPropietatsOrdenacio.put("membreTipus", "membre.tipus");
-		
-		return paginacioHelper.toPaginaDto(
-				campRegistreRepository.findByFiltrePaginat(
-						campId, 
-						paginacioHelper.toSpringDataPageable(
-								paginacioParams,
-								mapeigPropietatsOrdenacio)),
-				CampRegistreDto.class);		
-	}	
 	
 	// MANTENIMENT D'ENUMERACIONS
 
@@ -1640,302 +1686,6 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 	}
 	
 	/***********************************************/
-	/******************DOCUMENTS********************/
-	/***********************************************/
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	@Transactional(readOnly = true)
-	public PaginaDto<ExpedientTipusDocumentDto> documentFindPerDatatable(
-			Long expedientTipusId,
-			String filtre,
-			PaginacioParamsDto paginacioParams) {
-		logger.debug(
-				"Consultant els documents per al tipus d'expedient per datatable (" +
-				"entornId=" + expedientTipusId + ", " +
-				"filtre=" + filtre + ")");
-				
-		return paginacioHelper.toPaginaDto(
-				documentRepository.findByFiltrePaginat(
-						expedientTipusId,
-						filtre == null || "".equals(filtre),
-						filtre,
-						paginacioHelper.toSpringDataPageable(
-								paginacioParams)),
-						ExpedientTipusDocumentDto.class);
-	}
-	
-	@Override
-	@Transactional
-	public ExpedientTipusDocumentDto documentCreate(
-			Long expedientTipusId, 
-			ExpedientTipusDocumentDto document) {
-
-		logger.debug(
-				"Creant nou document per un tipus d'expedient (" +
-				"expedientTipusId =" + expedientTipusId + ", " +
-				"document=" + document + ")");
-		ExpedientTipus expedientTipus = expedientTipusRepository.findOne(expedientTipusId);
-		
-		Document entity = new Document();
-		entity.setCodi(document.getCodi());
-		entity.setNom(document.getNom());
-		entity.setDescripcio(document.getDescripcio());
-		entity.setPlantilla(document.isPlantilla());
-		entity.setArxiuNom(document.getArxiuNom());
-		entity.setArxiuContingut(document.getArxiuContingut());
-		entity.setConvertirExtensio(document.getConvertirExtensio());
-		entity.setAdjuntarAuto(document.isAdjuntarAuto());
-		if (document.getCampData() != null)
-			entity.setCampData(campRepository.findOne(document.getCampData().getId()));
-		entity.setExtensionsPermeses(document.getExtensionsPermeses());
-		entity.setContentType(document.getContentType());
-		entity.setCustodiaCodi(document.getCustodiaCodi());
-		entity.setTipusDocPortasignatures(document.getTipusDocPortasignatures());
-		
-		// Camp associat a l'expedient
-		entity.setExpedientTipus(expedientTipus);
-
-		return conversioTipusHelper.convertir(
-				documentRepository.save(entity),
-				ExpedientTipusDocumentDto.class);
-	}
-	
-	@Override
-	@Transactional
-	public ExpedientTipusDocumentDto documentFindAmbCodi(Long expedientTipusId, String codi) {
-		logger.debug(
-				"Consultant el document del tipus d'expedient per codi (" +
-				"expedientTipusId=" + expedientTipusId + ", " +
-				"codi = " + codi + ")");
-		ExpedientTipus expedientTipus = expedientTipusRepository.findOne(expedientTipusId);
-		return conversioTipusHelper.convertir(
-				documentRepository.findByExpedientTipusAndCodi(expedientTipus, codi),
-				ExpedientTipusDocumentDto.class);
-	}
-	
-	@Override
-	@Transactional
-	public void documentDelete(Long documentId) {
-		logger.debug(
-				"Esborrant el document del tipus d'expedient (" +
-				"documentId=" + documentId +  ")");
-		Document entity = documentRepository.findOne(documentId);
-
-		if (entity != null) {
-			for (DocumentTasca documentTasca: entity.getTasques()) {
-				documentTasca.getTasca().removeDocument(documentTasca);
-				int i = 0;
-				for (DocumentTasca dt: documentTasca.getTasca().getDocuments())
-					dt.setOrder(i++);
-			}
-		} else {
-			throw new NoTrobatException(Document.class);
-		}
-		documentRepository.delete(entity);	
-	}
-	
-	@Override
-	@Transactional
-	public ExpedientTipusDocumentDto documentFindAmbId(Long id) {
-		logger.debug(
-				"Consultant el document del tipus d'expedient amb id (" +
-				"documentId=" + id +  ")");
-		Document document = documentRepository.findOne(id);
-		if (document == null) {
-			throw new NoTrobatException(Document.class, id);
-		}
-		return conversioTipusHelper.convertir(
-				document,
-				ExpedientTipusDocumentDto.class);
-	}
-	
-	@Override
-	@Transactional
-	public ExpedientTipusDocumentDto documentUpdate(ExpedientTipusDocumentDto document) {
-		logger.debug(
-				"Modificant el document del tipus d'expedient existent (" +
-				"document.id=" + document.getId() + ", " +
-				"document =" + document + ")");
-		Document entity = documentRepository.findOne(document.getId());
-		entity.setCodi(document.getCodi());
-		entity.setNom(document.getNom());
-		entity.setDescripcio(document.getDescripcio());
-		entity.setPlantilla(document.isPlantilla());
-		entity.setArxiuNom(document.getArxiuNom());
-		entity.setArxiuContingut(document.getArxiuContingut());
-		entity.setConvertirExtensio(document.getConvertirExtensio());
-		entity.setAdjuntarAuto(document.isAdjuntarAuto());
-		if (document.getCampData() != null)
-			entity.setCampData(campRepository.findOne(document.getCampData().getId()));
-		else
-			entity.setCampData(null);
-		
-		entity.setExtensionsPermeses(document.getExtensionsPermeses());
-		entity.setContentType(document.getContentType());
-		entity.setCustodiaCodi(document.getCustodiaCodi());
-		entity.setTipusDocPortasignatures(document.getTipusDocPortasignatures());
-
-		return conversioTipusHelper.convertir(
-				documentRepository.save(entity),
-				ExpedientTipusDocumentDto.class);
-	}
-	
-	@Override
-	@Transactional(readOnly = true)
-	public ArxiuDto getArxiuPerDocument(
-			Long id) {
-		logger.debug("obtenint contingut de l'arxiu pel document (" +
-				"id=" + id + ")");
-		
-		Document document = documentRepository.findOne(id);
-		if (document == null) {
-			throw new NoTrobatException(Document.class,id);
-		}
-		
-		ArxiuDto resposta = new ArxiuDto();
-		
-		resposta.setNom(document.getArxiuNom());
-		resposta.setContingut(document.getArxiuContingut());
-		
-		return resposta;
-	}
-	
-	
-	// MANTENIMENT D'ACCIONS
-	
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	@Transactional
-	public AccioDto accioCreate(
-			Long expedientTipusId, 
-			AccioDto accio) throws PermisDenegatException {
-
-		logger.debug(
-				"Creant nova accio per un tipus d'expedient (" +
-				"expedientTipusId =" + expedientTipusId + ", " +
-				"accio=" + accio + ")");
-		ExpedientTipus expedientTipus = expedientTipusRepository.findOne(expedientTipusId);
-		
-		Accio entity = new Accio();
-				
-		entity.setCodi(accio.getCodi());
-		entity.setNom(accio.getNom());
-		entity.setDefprocJbpmKey(accio.getDefprocJbpmKey());
-		entity.setJbpmAction(accio.getJbpmAction());
-		entity.setDescripcio(accio.getDescripcio());
-		entity.setPublica(accio.isPublica());
-		entity.setOculta(accio.isOculta());
-		entity.setRols(accio.getRols());		
-		// Accio associada a l'expedient
-		entity.setExpedientTipus(expedientTipus);		
-
-		return conversioTipusHelper.convertir(
-				accioRepository.save(entity),
-				AccioDto.class);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	@Transactional
-	public AccioDto accioUpdate(AccioDto accio) throws NoTrobatException, PermisDenegatException {
-		logger.debug(
-				"Modificant la accio del tipus d'expedient existent (" +
-				"accio.id=" + accio.getId() + ", " +
-				"accio =" + accio + ")");
-		Accio entity = accioRepository.findOne(accio.getId());
-
-		entity.setCodi(accio.getCodi());
-		entity.setNom(accio.getNom());
-		entity.setDefprocJbpmKey(accio.getDefprocJbpmKey());
-		entity.setJbpmAction(accio.getJbpmAction());
-		entity.setDescripcio(accio.getDescripcio());
-		entity.setPublica(accio.isPublica());
-		entity.setOculta(accio.isOculta());
-		entity.setRols(accio.getRols());		
-				
-		return conversioTipusHelper.convertir(
-				accioRepository.save(entity),
-				AccioDto.class);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	@Transactional
-	public void accioDelete(Long accioAccioId) throws NoTrobatException, PermisDenegatException {
-		logger.debug(
-				"Esborrant la accio del tipus d'expedient (" +
-				"accioId=" + accioAccioId +  ")");
-		Accio entity = accioRepository.findOne(accioAccioId);
-		accioRepository.delete(entity);	
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public AccioDto accioFindAmbId(Long id) throws NoTrobatException {
-		logger.debug(
-				"Consultant la accio del tipus d'expedient amb id (" +
-				"accioId=" + id +  ")");
-		Accio accio = accioRepository.findOne(id);
-		if (accio == null) {
-			throw new NoTrobatException(Accio.class, id);
-		}
-		return conversioTipusHelper.convertir(
-				accio,
-				AccioDto.class);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public AccioDto accioFindAmbCodiPerValidarRepeticio(Long expedientTipusId, String codi) throws NoTrobatException {
-		logger.debug(
-				"Consultant la accio del tipus d'expedient per codi per validar repetició (" +
-				"expedientTipusId=" + expedientTipusId + ", " +
-				"codi = " + codi + ")");
-		ExpedientTipus expedientTipus = expedientTipusRepository.findOne(expedientTipusId);
-		return conversioTipusHelper.convertir(
-				accioRepository.findByExpedientTipusAndCodi(expedientTipus, codi),
-				AccioDto.class);
-	}	
-		
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	@Transactional(readOnly = true)
-	public PaginaDto<AccioDto> accioFindPerDatatable(
-			Long expedientTipusId,
-			String filtre,
-			PaginacioParamsDto paginacioParams) {
-		logger.debug(
-				"Consultant les accions per al tipus d'expedient per datatable (" +
-				"entornId=" + expedientTipusId + ", " +
-				"filtre=" + filtre + ")");
-						
-		
-		PaginaDto<AccioDto> pagina = paginacioHelper.toPaginaDto(
-				accioRepository.findByFiltrePaginat(
-						expedientTipusId,
-						filtre == null || "".equals(filtre), 
-						filtre, 
-						paginacioHelper.toSpringDataPageable(
-								paginacioParams)),
-				AccioDto.class);		
-		return pagina;		
-	}
-
-	/***********************************************/
 	/*****************ENUMERACIONS******************/
 	/***********************************************/
 	/**
@@ -1943,7 +1693,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 	 */
 	@Override
 	@Transactional(readOnly = true)
-	public PaginaDto<ExpedientTipusEnumeracioDto> enumeracioFindPerDatatable(Long expedientTipusId, String filtre,
+	public PaginaDto<EnumeracioDto> enumeracioFindPerDatatable(Long expedientTipusId, String filtre,
 			PaginacioParamsDto paginacioParams) throws NoTrobatException {
 		logger.debug(
 				"Consultant les enumeracions per al tipus d'expedient per datatable (" +
@@ -1956,7 +1706,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 				filtre,
 				paginacioHelper.toSpringDataPageable(paginacioParams));
 		
-		PaginaDto<ExpedientTipusEnumeracioDto> out = paginacioHelper.toPaginaDto(resultats, ExpedientTipusEnumeracioDto.class);
+		PaginaDto<EnumeracioDto> out = paginacioHelper.toPaginaDto(resultats, EnumeracioDto.class);
 		
 		//Recuperam el nombre de valors per cada enumerat
 		if (out!=null) {
@@ -1975,7 +1725,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 	
 	@Override
 	@Transactional
-	public ExpedientTipusEnumeracioDto enumeracioCreate(Long expedientTipusId, Long entornId, ExpedientTipusEnumeracioDto enumeracio)
+	public EnumeracioDto enumeracioCreate(Long expedientTipusId, Long entornId, EnumeracioDto enumeracio)
 			throws PermisDenegatException {
 
 		logger.debug(
@@ -1996,21 +1746,24 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 
 		return conversioTipusHelper.convertir(
 				enumeracioRepository.save(entity),
-				ExpedientTipusEnumeracioDto.class);
+				EnumeracioDto.class);
 	}
 	
 	@Override
 	@Transactional
-	public ExpedientTipusEnumeracioDto enumeracioFindAmbCodi(Long expedientTipusId, String codi)
-			throws NoTrobatException {
+	public EnumeracioDto enumeracioFindAmbCodi(Long expedientTipusId, String codi) {
+		EnumeracioDto ret = null;
 		logger.debug(
 				"Consultant l'enumeració del tipus d'expedient per codi (" +
 				"expedientTipusId=" + expedientTipusId + ", " +
 				"codi = " + codi + ")");
 		ExpedientTipus expedientTipus = expedientTipusRepository.findOne(expedientTipusId);
-		return conversioTipusHelper.convertir(
-				enumeracioRepository.findByExpedientTipusAndCodi(expedientTipus, codi),
-				ExpedientTipusEnumeracioDto.class);
+		Enumeracio enumeracio = enumeracioRepository.findByExpedientTipusAndCodi(expedientTipus, codi);
+		if (enumeracio != null)
+			ret = conversioTipusHelper.convertir(
+					enumeracio,
+					EnumeracioDto.class);
+		return ret;
 	}
 	
 	@Override
@@ -2041,7 +1794,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 	
 	@Override
 	@Transactional
-	public ExpedientTipusEnumeracioDto enumeracioFindAmbId(Long enumeracioId) throws NoTrobatException {
+	public EnumeracioDto enumeracioFindAmbId(Long enumeracioId) throws NoTrobatException {
 		logger.debug(
 				"Consultant l'enumeracio del tipus d'expedient amb id (" +
 				"enumeracioId=" + enumeracioId +  ")");
@@ -2051,12 +1804,12 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		}
 		return conversioTipusHelper.convertir(
 				enumeracio,
-				ExpedientTipusEnumeracioDto.class);
+				EnumeracioDto.class);
 	}
 	
 	@Override
 	@Transactional
-	public ExpedientTipusEnumeracioDto enumeracioUpdate(ExpedientTipusEnumeracioDto enumeracio)
+	public EnumeracioDto enumeracioUpdate(EnumeracioDto enumeracio)
 			throws NoTrobatException, PermisDenegatException {
 		
 		logger.debug(
@@ -2070,7 +1823,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		
 		return conversioTipusHelper.convertir(
 				enumeracioRepository.save(entity),
-				ExpedientTipusEnumeracioDto.class);
+				EnumeracioDto.class);
 	}
 
 	@Override
@@ -2241,65 +1994,20 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 				"definicioProcesId=" + id +  ")");
 		DefinicioProces entity = definicioProcesRepository.findOne(id);
 		definicioProcesRepository.delete(entity);	
-	}	
+	}
 	
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
 	@Transactional(readOnly = true)
-	public PaginaDto<DefinicioProcesDto> definicioProcesFindPerDatatable(
-			Long entornId,
-			Long expedientTipusId,
-			boolean incloureGlobals,
-			String filtre,
-			PaginacioParamsDto paginacioParams) {
-		logger.debug(
-				"Consultant les definicions de processos per al tipus d'expedient per datatable (" +
-				"entornId=" + entornId + ", " +
-				"expedientTipusId=" + expedientTipusId + ", " +
-				"incloureGlobals=" + incloureGlobals + ", " +
-				"filtre=" + filtre + ")");
-		
-		PaginaDto<DefinicioProcesDto> pagina = paginacioHelper.toPaginaDto(
-				definicioProcesRepository.findByFiltrePaginat(
-						entornId,
-						expedientTipusId,
-						incloureGlobals,
-						filtre == null || "".equals(filtre), 
-						filtre, 
-						paginacioHelper.toSpringDataPageable(
-								paginacioParams)),
-				DefinicioProcesDto.class);
-		// Consulta els valors pels comptadors 
-		// List< Object[String jbpmKey, Long count]>
-		List<String> paginaJbpmKeys = new ArrayList<String>();
-		for (DefinicioProcesDto d : pagina.getContingut()) {
-					paginaJbpmKeys.add(d.getJbpmKey());
-		}
-		if (paginaJbpmKeys.size() > 0) {
-			List<Object[]> countVersions = definicioProcesRepository.countVersions(
-					entornId,
-					paginaJbpmKeys); 
-			// Omple els comptadors de tipus de camps
-			String jbpmKey;
-			Long count;
-			List<Object[]> processats = new ArrayList<Object[]>();	// per esborrar la informació processada i reduir la cerca
-			for (DefinicioProcesDto definicio: pagina.getContingut()) {
-				for (Object[] countVersio: countVersions) {
-					jbpmKey = (String) countVersio[0];
-					if (definicio.getJbpmKey().equals(jbpmKey)) {
-						count = (Long) countVersio[1];
-						definicio.setVersioCount(count);
-						processats.add(countVersio);
-					}
-				}
-				countVersions.removeAll(processats);
-				processats.clear();
-			}		
-		}
-		return pagina;
-	}
+	public List<DefinicioProcesDto> definicioFindAll(
+			Long expedientTipusId) throws NoTrobatException, PermisDenegatException {
+		List<DefinicioProces> definicions = definicioProcesRepository.findAmbExpedientTipus(expedientTipusId);
+		return conversioTipusHelper.convertirList(
+									definicions, 
+									DefinicioProcesDto.class);
+	}	
 	
 	/**
 	 * {@inheritDoc}
@@ -2340,137 +2048,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		}
 		return ret;
 	}
-	
-	/***********************************************/
-	/******************TERMINIS*********************/
-	/***********************************************/
-
-	@Override
-	@Transactional(readOnly = true)
-	public TerminiDto terminiFindAmbId(Long terminiId) {
-		logger.debug(
-				"Consultant el termini amb id (" +
-				"terminiId=" + terminiId +  ")");
-		Termini termini = terminiRepository.findOne(terminiId);
-		if (termini == null) {
-			throw new NoTrobatException(Termini.class, terminiId);
-		}
-		return conversioTipusHelper.convertir(
-				termini, 
-				TerminiDto.class);
-	}
-
-	@Override
-	@Transactional
-	public TerminiDto terminiCreate(Long expedientTipusId, TerminiDto dto) {
-		ExpedientTipus expedientTipus =	
-				expedientTipusHelper.getExpedientTipusComprovantPermisos(
-						expedientTipusId, 
-						true,
-						false,
-						false,
-						false,
-						true);
-		Termini termini = new Termini();
-		termini.setCodi(dto.getCodi());
-		termini.setNom(dto.getNom());
-		termini.setDescripcio(dto.getDescripcio());
-		termini.setDuradaPredefinida(dto.isDuradaPredefinida());
-		termini.setAnys(dto.getAnys());
-		termini.setMesos(dto.getMesos());
-		termini.setDies(dto.getDies());
-		termini.setLaborable(dto.isLaborable());
-		termini.setManual(dto.isManual());
-		termini.setDiesPrevisAvis(dto.getDiesPrevisAvis());
-		termini.setAlertaPrevia(dto.isAlertaPrevia());
-		termini.setAlertaFinal(dto.isAlertaFinal());
-		termini.setAlertaCompletat(dto.isAlertaCompletat());
-		termini.setExpedientTipus(expedientTipus);
-		return conversioTipusHelper.convertir(
-				terminiRepository.save(termini),
-				TerminiDto.class);
-	}
-
-	@Override
-	@Transactional
-	public TerminiDto terminiUpdate(TerminiDto dto) {
-		Termini termini = terminiRepository.findOne(dto.getId());
-		if (termini == null) {
-			throw new NoTrobatException(Termini.class, dto.getId());
-		}
 		
-		expedientTipusHelper.getExpedientTipusComprovantPermisos(
-				termini.getExpedientTipus().getId(), 
-				true,
-				false,
-				false,
-				false,
-				true);
-		
-		termini.setCodi(dto.getCodi());
-		termini.setNom(dto.getNom());
-		termini.setDescripcio(dto.getDescripcio());
-		termini.setDuradaPredefinida(dto.isDuradaPredefinida());
-		termini.setAnys(dto.getAnys());
-		termini.setMesos(dto.getMesos());
-		termini.setDies(dto.getDies());
-		termini.setLaborable(dto.isLaborable());
-		termini.setManual(dto.isManual());
-		termini.setDiesPrevisAvis(dto.getDiesPrevisAvis());
-		termini.setAlertaPrevia(dto.isAlertaPrevia());
-		termini.setAlertaFinal(dto.isAlertaFinal());
-		termini.setAlertaCompletat(dto.isAlertaCompletat());
-		
-		return conversioTipusHelper.convertir(
-				terminiRepository.save(termini),
-				TerminiDto.class);
-	}
-
-	@Override
-	@Transactional
-	public void terminiDelete(Long terminiId) throws NoTrobatException, PermisDenegatException {
-		Termini termini = terminiRepository.findOne(terminiId);
-		if (termini == null) {
-			throw new NoTrobatException(Termini.class, terminiId);
-		}
-		
-		expedientTipusHelper.getExpedientTipusComprovantPermisos(
-				termini.getExpedientTipus().getId(), 
-				true,
-				false,
-				false,
-				false,
-				true);
-		
-		terminiRepository.delete(termini);
-	}
-	
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	@Transactional(readOnly = true)
-	public PaginaDto<TerminiDto> terminiFindPerDatatable(
-			Long expedientTipusId,
-			String filtre,
-			PaginacioParamsDto paginacioParams) {
-		logger.debug(
-				"Consultant els terminis per al tipus d'expedient per datatable (" +
-				"entornId=" + expedientTipusId + ", " +
-				"filtre=" + filtre + ")");
-						
-		
-		PaginaDto<TerminiDto> pagina = paginacioHelper.toPaginaDto(
-				terminiRepository.findByFiltrePaginat(
-						expedientTipusId,
-						filtre == null || "".equals(filtre), 
-						filtre, 
-						paginacioHelper.toSpringDataPageable(
-								paginacioParams)),
-				TerminiDto.class);		
-		return pagina;		
-	}
-	
 	/***********************************************/
 	/******************DOMINIS**********************/
 	/***********************************************/
@@ -2507,6 +2085,23 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 				domini, 
 				DominiDto.class);
 	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public DominiDto dominiFindAmbCodi(Long expedientTipusId, String codi) {
+		DominiDto ret = null;
+		logger.debug(
+				"Consultant el domini del tipus d'expedient per codi (" +
+				"expedientTipusId=" + expedientTipusId + ", " +
+				"codi = " + codi + ")");
+		ExpedientTipus expedientTipus = expedientTipusRepository.findOne(expedientTipusId);
+		Domini domini = dominiRepository.findByExpedientTipusAndCodi(expedientTipus, codi);
+		if (domini != null)
+			ret = conversioTipusHelper.convertir(
+					domini,
+					DominiDto.class);
+		return ret;
+	}	
 
 	@Override
 	@Transactional
@@ -2638,25 +2233,6 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		return pagina;		
 	}
 	
-	@Override
-	@Transactional(readOnly = true)
-	public List<DocumentDto> documentFindAllOrdenatsPerCodi(Long expedientTipusId) {
-		logger.debug(
-				"Consultant tots els documents del tipus expedient per al desplegable " +
-				" de documents de la tasca a la definicio de processos (expedientTipusId=" + expedientTipusId + ")");
-		
-		ExpedientTipus expedientTipus = 
-				expedientTipusHelper.getExpedientTipusComprovantPermisos(
-						expedientTipusId, 
-						true);
-		
-		List<Document> documents = documentRepository.findByExpedientTipusOrderByCodiAsc(expedientTipus);
-		
-		return conversioTipusHelper.convertirList(
-				documents, 
-				DocumentDto.class);
-	}	
-	
 	/**
 	 * {@inheritDoc}
 	 */
@@ -2741,6 +2317,18 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 				ReassignacioDto.class);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@Transactional(readOnly = true)
+	public List<ReassignacioDto> reassignacioFindAll(
+			Long expedientTipusId) throws NoTrobatException, PermisDenegatException {
+		List<Reassignacio> reassignacions = reassignacioRepository.findAmbExpedientTipus(expedientTipusId);
+		return conversioTipusHelper.convertirList(
+									reassignacions, 
+									ReassignacioDto.class);
+	}	
 		
 	/**
 	 * {@inheritDoc}
@@ -2940,7 +2528,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 	
 	@Override
 	@Transactional
-	public boolean definicioProcesImportar(
+	public boolean definicioProcesIncorporar(
 			Long expedientTipusId, 
 			Long id,
 			boolean sobreescriure) {
@@ -2958,8 +2546,8 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 			// Propaga les agrupacions
 			Map<String, CampAgrupacio> agrupacions = new HashMap<String, CampAgrupacio>();
 			for (CampAgrupacio agrupacio : definicioProces.getAgrupacions()) {
-				CampAgrupacio nova = campAgrupacioRepository.findByExpedientTipusAndCodi(
-						expedientTipus,
+				CampAgrupacio nova = campAgrupacioRepository.findByExpedientTipusIdAndCodi(
+						expedientTipus.getId(),
 						agrupacio.getCodi());
 				if (nova == null || sobreescriure) {
 					if (nova == null) {
@@ -2979,8 +2567,8 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 			}
 			// Propaga les accions
 			for (Accio accio: definicioProces.getAccions()) {
-				Accio nova = accioRepository.findByExpedientTipusAndCodi(
-						expedientTipus,
+				Accio nova = accioRepository.findByExpedientTipusIdAndCodi(
+						expedientTipus.getId(),
 						accio.getCodi());
 				if (nova == null || sobreescriure) {
 					if (nova == null) {
@@ -3407,18 +2995,13 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 
 		ConsultaCamp entity = new ConsultaCamp();
 		
-		Camp camp = null;
-		if (consultaCamp.getCampId() != null)
-			camp = campRepository.findOne(consultaCamp.getCampId());
-		entity.setCamp(camp);
-		if (consultaCamp.getTipus() == TipusConsultaCamp.PARAM) {
-			entity.setCampCodi(consultaCamp.getCampCodi());
-		} else {
-			entity.setCampCodi(camp.getCodi());
-		}
+		entity.setCampCodi(consultaCamp.getCampCodi());
 		entity.setCampDescripcio(consultaCamp.getCampDescripcio());
 		entity.setConsulta(consultaRepository.findOne(consultaId));
 		entity.setTipus(ConsultaCamp.TipusConsultaCamp.valueOf(consultaCamp.getTipus().toString()));
+
+		entity.setDefprocJbpmKey(consultaCamp.getDefprocJbpmKey());
+		entity.setDefprocVersio(consultaCamp.getDefprocVersio());
 
 		entity.setOrdre(consultaCampRepository.getNextOrdre(
 				consultaId,
@@ -3503,16 +3086,81 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		mapeigPropietatsOrdenacio.put("campTipus", "camp.tipus");
 		mapeigPropietatsOrdenacio.put("campEtiqueta", "camp.etiqueta");
 		
-		return paginacioHelper.toPaginaDto(
+		PaginaDto<ConsultaCampDto> paginaConsultaCamps = paginacioHelper.toPaginaDto(
 				consultaCampRepository.findByFiltrePaginat(
 						consultaId, 
 						ConsultaCamp.TipusConsultaCamp.valueOf(tipus.toString()),
 						paginacioHelper.toSpringDataPageable(
 								paginacioParams,
 								mapeigPropietatsOrdenacio)),
-				ConsultaCampDto.class);		
+				ConsultaCampDto.class);
+		
+		// Completa el contingut de les etiquetes i els tipus
+		for (ConsultaCampDto consultaCamp : paginaConsultaCamps.getContingut()) {
+			if (consultaCamp.getCampCodi().startsWith(ExpedientCamps.EXPEDIENT_PREFIX)) {
+				// camp de l'expedient
+				consultaCamp.setCampTipus(CampTipusDto.STRING);
+				consultaCamp.setCampEtiqueta(this.getEtiquetaCampExpedient(consultaCamp.getCampCodi()));
+			} else if (consultaCamp.getDefprocJbpmKey() != null) {
+				// camp de la definició de procés
+				DefinicioProces definicioProces = definicioProcesRepository.findByJbpmKeyAndVersio(
+						consultaCamp.getDefprocJbpmKey(),
+						consultaCamp.getDefprocVersio());
+				if (definicioProces != null) {
+					Camp camp = campRepository.findByDefinicioProcesAndCodi(
+							definicioProces, 
+							consultaCamp.getCampCodi());
+					if (camp != null) {
+						consultaCamp.setCampTipus(CampTipusDto.valueOf(camp.getTipus().toString()));
+						consultaCamp.setCampEtiqueta(camp.getEtiqueta());
+					}
+				}
+			} else {
+				// camp de l'expedient
+				Consulta consulta = consultaRepository.findOne(consultaId);
+				Camp camp = campRepository.findByExpedientTipusAndCodi(
+						consulta.getExpedientTipus(), 
+						consultaCamp.getCampCodi());
+				if (camp != null) {
+					consultaCamp.setCampTipus(CampTipusDto.valueOf(camp.getTipus().toString()));
+					consultaCamp.setCampEtiqueta(camp.getEtiqueta());
+				}
+			}
+				
+		}
+		return paginaConsultaCamps;		
 	}		
 	
+	/** Transforma el codi del camp de l'expedient pel seu literal corresponent. */
+	private String getEtiquetaCampExpedient(String campCodi) {
+		String etiqueta;
+		if (ExpedientCamps.EXPEDIENT_CAMP_ID.equals(campCodi)) 
+			etiqueta = messageHelper.getMessage("etiqueta.exp.id");
+		else if (ExpedientCamps.EXPEDIENT_CAMP_NUMERO.equals(campCodi)) 
+			etiqueta = messageHelper.getMessage("etiqueta.exp.numero");
+		else if (ExpedientCamps.EXPEDIENT_CAMP_TITOL.equals(campCodi)) 
+			etiqueta = messageHelper.getMessage("etiqueta.exp.titol");
+		else if (ExpedientCamps.EXPEDIENT_CAMP_COMENTARI.equals(campCodi)) 
+			etiqueta = messageHelper.getMessage("etiqueta.exp.comentari");
+		else if (ExpedientCamps.EXPEDIENT_CAMP_INICIADOR.equals(campCodi)) 
+			etiqueta = messageHelper.getMessage("etiqueta.exp.indicador");
+		else if (ExpedientCamps.EXPEDIENT_CAMP_RESPONSABLE.equals(campCodi)) 
+			etiqueta = messageHelper.getMessage("etiqueta.exp.responsable");
+		else if (ExpedientCamps.EXPEDIENT_CAMP_DATA_INICI.equals(campCodi)) 
+			etiqueta = messageHelper.getMessage("etiqueta.exp.data_ini");
+		else if (ExpedientCamps.EXPEDIENT_CAMP_ESTAT.equals(campCodi)) 
+			etiqueta = messageHelper.getMessage("etiqueta.exp.estat");
+		else if (ExpedientCamps.EXPEDIENT_CAMP_GEOREF.equals(campCodi)) 
+			etiqueta = messageHelper.getMessage("comuns.georeferencia.codi");
+		else if (ExpedientCamps.EXPEDIENT_CAMP_GEOX.equals(campCodi)) 
+			etiqueta = messageHelper.getMessage("comuns.georeferencia.coordenadaX");
+		else if (ExpedientCamps.EXPEDIENT_CAMP_GEOY.equals(campCodi)) 
+			etiqueta = messageHelper.getMessage("comuns.georeferencia.coordenadaY");
+		else 
+			etiqueta = campCodi;
+		return etiqueta;
+	}
+
 	@Override
 	@Transactional(readOnly = true)
 	public List<ConsultaCampDto> consultaCampFindCampAmbConsultaIdAndTipus(
@@ -3540,15 +3188,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		
 		ConsultaCamp entity = consultaCampRepository.findOne(consultaCamp.getId());
 
-		Camp camp = null;
-		if (consultaCamp.getCampId() != null)
-			camp = campRepository.findOne(consultaCamp.getCampId());
-		entity.setCamp(camp);
-		if (consultaCamp.getTipus() == TipusConsultaCamp.PARAM) {
-			entity.setCampCodi(consultaCamp.getCampCodi());
-		} else {
-			entity.setCampCodi(camp.getCodi());
-		}
+		entity.setCampCodi(consultaCamp.getCampCodi());
 		entity.setCampDescripcio(consultaCamp.getCampDescripcio());
 		entity.setTipus(ConsultaCamp.TipusConsultaCamp.valueOf(consultaCamp.getTipus().toString()));
 		entity.setParamTipus(entity.getParamTipus());
@@ -3612,10 +3252,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		logger.debug(
 				"Consultant els codis helium dels mapegos segons un tipus de filtre");
 		
-		ExpedientTipus expedientTipus = 
-				expedientTipusHelper.getExpedientTipusComprovantPermisos(
-						expedientTipusId, 
-						true);
+		ExpedientTipus expedientTipus = expedientTipusRepository.findOne(expedientTipusId);
 		List<Object[]> mapejosCount = mapeigSistraRepository.countTipus(
 				expedientTipus);
 		Map<TipusMapeig, Long> recomptes = new HashMap<TipusMapeig, Long>();
@@ -3756,6 +3393,19 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 				mapeigSistraRepository.findByExpedientTipusAndCodiSistra(expedientTipus, codiSistra),
 				MapeigSistraDto.class);
 	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@Transactional(readOnly = true)
+	public List<MapeigSistraDto> mapeigFindAll(
+			Long expedientTipusId) throws NoTrobatException, PermisDenegatException {
+		List<MapeigSistra> mapejosSistra = mapeigSistraRepository.findAmbExpedientTipus(expedientTipusId);
+		return conversioTipusHelper.convertirList(
+				mapejosSistra, 
+				MapeigSistraDto.class);
+	}	
 	
 	private static final Logger logger = LoggerFactory.getLogger(ExpedientServiceImpl.class);
 }

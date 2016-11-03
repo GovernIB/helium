@@ -38,6 +38,7 @@ public class ExpedientTipusDto extends ControlPermisosDto implements Serializabl
 	private boolean ambRetroaccio;
 	private boolean reindexacioAsincrona;
 	private boolean ambInfoPropia;
+	private String diesNoLaborables;
 
 	private EntornDto entorn;
 	private List<EstatDto> estats = new ArrayList<EstatDto>();
@@ -173,6 +174,12 @@ public class ExpedientTipusDto extends ControlPermisosDto implements Serializabl
 	}
 	public void setAmbInfoPropia(boolean ambInfoPropia) {
 		this.ambInfoPropia = ambInfoPropia;
+	}
+	public String getDiesNoLaborables() {
+		return diesNoLaborables;
+	}
+	public void setDiesNoLaborables(String diesNoLaborables) {
+		this.diesNoLaborables = diesNoLaborables;
 	}
 	public EntornDto getEntorn() {
 		return entorn;

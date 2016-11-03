@@ -48,9 +48,8 @@ import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.FormulariExternDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDocumentDto;
-import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
-import net.conselldemallorca.helium.v3.core.api.exception.SistemaExternException;
 import net.conselldemallorca.helium.v3.core.api.exception.SistemaExternConversioDocumentException;
+import net.conselldemallorca.helium.v3.core.api.exception.SistemaExternException;
 import net.conselldemallorca.helium.v3.core.api.exception.TramitacioException;
 import net.conselldemallorca.helium.v3.core.api.exception.TramitacioHandlerException;
 import net.conselldemallorca.helium.v3.core.api.exception.TramitacioValidacioException;
@@ -59,6 +58,7 @@ import net.conselldemallorca.helium.v3.core.api.service.ExecucioMassivaService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientDocumentService;
 import net.conselldemallorca.helium.v3.core.api.service.TascaService;
 import net.conselldemallorca.helium.webapp.mvc.ArxiuView;
+import net.conselldemallorca.helium.webapp.v3.command.TascaConsultaCommand;
 import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.ModalHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.NodecoHelper;
@@ -128,7 +128,7 @@ public class TascaTramitacioController extends BaseTascaController {
 					tascaId,
 					model,
 					"form");
-		} catch (NoTrobatException ex) {
+		} catch (Exception ex) {
 			MissatgesHelper.warning(request, getMessage(request, "expedient.tasca.segon.pla.finalitzada"));
 			if (ModalHelper.isModal(request)) {
 				return modalUrlTancar(false);
@@ -201,6 +201,7 @@ public class TascaTramitacioController extends BaseTascaController {
 				request,
 				tascaId);
 		status.setComplete();
+		
 		return mostrarInformacioTascaPerPipelles(
 				request,
 				tascaId,
@@ -259,6 +260,7 @@ public class TascaTramitacioController extends BaseTascaController {
 		status.setComplete();
 		SessionHelper.setAttribute(request,VARIABLE_COMMAND_TRAMITACIO+tascaId, command);
 		SessionHelper.setAttribute(request,VARIABLE_COMMAND_BINDING_RESULT_TRAMITACIO+tascaId, result);
+		
 		return mostrarInformacioTascaPerPipelles(
 				request,
 				tascaId,
@@ -284,6 +286,13 @@ public class TascaTramitacioController extends BaseTascaController {
 					result.hasErrors() ? "form" : null);
 		}
 		status.setComplete();
+		
+		TascaConsultaCommand filtreCommand = SessionHelper.getSessionManager(request).getFiltreConsultaTasca();
+		if (filtreCommand != null) {
+			filtreCommand.setConsultaTramitacioMassivaTascaId(null);
+			SessionHelper.getSessionManager(request).setFiltreConsultaTasca(filtreCommand);
+		}
+		
 		if (ModalHelper.isModal(request))
 			return modalUrlTancar(false);
 		else
@@ -695,19 +704,24 @@ public class TascaTramitacioController extends BaseTascaController {
 		Set<Long> seleccio = sessionManager.getSeleccioConsultaTasca();
 		if (seleccio == null || seleccio.isEmpty()) {
 			MissatgesHelper.error(request, getMessage(request, "error.no.tasc.selec"));
-			return modalUrlTancar(true);
+			return modalUrlTancar(false);
 		}
 		String tascaId = guardarDatosTramitacionMasiva(request, seleccio, inici, correu);
-
-		return getReturnUrl(request, tascaId, "form");
+		try {
+			ExpedientTascaDto tasca = tascaService.findAmbIdPerTramitacio(tascaId);
+			return getReturnUrl(request, tasca.getId(), "form");
+		} catch(Exception e) {
+			return modalUrlTancar(false);
+		}
 	}
 
 	@RequestMapping(value = "/massivaTramitacioTasca/taula", method = RequestMethod.GET)
 	public String massivaTramitacioTaula(
 			HttpServletRequest request,
 			Model model) {
-		SessionManager sessionManager = SessionHelper.getSessionManager(request);
-		Set<Long> seleccio = sessionManager.getSeleccioConsultaTasca();		
+//		SessionManager sessionManager = SessionHelper.getSessionManager(request);
+//		Set<Long> seleccio = sessionManager.getSeleccioConsultaTasca();		
+		Set<Long> seleccio = getSeleccioConsultaTasca(request);		
 		model.addAttribute("tasques", tascaService.findAmbIds(seleccio));
 		
 		return "v3/import/tasquesMassivaTaula";
@@ -937,7 +951,8 @@ public class TascaTramitacioController extends BaseTascaController {
 				ExecucioMassivaDto dto = new ExecucioMassivaDto();
 				dto.setDataInici((Date) datosTramitacionMasiva.get("inici"));
 				dto.setEnviarCorreu((Boolean) datosTramitacionMasiva.get("correu"));
-				dto.setTascaIds(tascaIds);
+//				dto.setTascaIds(tascaIds);
+				dto.setTascaIds((String[])ArrayUtils.removeElement(tascaIds, tascaId));
 //				dto.setExpedientTipusId(expTipusId);
 				dto.setTipus(ExecucioMassivaTipusDto.EXECUTAR_TASCA);
 				dto.setParam1("Guardar");
@@ -954,6 +969,7 @@ public class TascaTramitacioController extends BaseTascaController {
 				execucioMassivaService.crearExecucioMassiva(dto);
 				MissatgesHelper.success(request, getMessage(request, "info.tasca.massiu.guardar", new Object[] {tascaIds.length}));
 				resposta = true;
+				esborrarSeleccio(request);
 			} catch (Exception ex) {
 				MissatgesHelper.error(request, getMessage(request, "error.no.massiu"));
 				logger.error("No s'ha pogut guardar les dades del formulari massiu en la tasca " + tascaId, ex);
@@ -986,7 +1002,8 @@ public class TascaTramitacioController extends BaseTascaController {
 				ExecucioMassivaDto dto = new ExecucioMassivaDto();
 				dto.setDataInici((Date) datosTramitacionMasiva.get("inici"));
 				dto.setEnviarCorreu((Boolean) datosTramitacionMasiva.get("correu"));
-				dto.setTascaIds(tascaIds);
+//				dto.setTascaIds(tascaIds);
+				dto.setTascaIds((String[])ArrayUtils.removeElement(tascaIds, tascaId));
 //				dto.setExpedientTipusId(expTipusId);
 				dto.setTipus(ExecucioMassivaTipusDto.EXECUTAR_TASCA);
 				dto.setParam1("Validar");
@@ -1005,6 +1022,7 @@ public class TascaTramitacioController extends BaseTascaController {
 				tascaService.validar(tascaId, variables);
 				MissatgesHelper.success(request, getMessage(request, "info.tasca.massiu.validar", new Object[] {tascaIds.length}));
 				resposta = true;
+				esborrarSeleccio(request);
 			} catch (Exception ex) {
 				MissatgesHelper.error(request, getMessage(request, "error.no.massiu"));
 				logger.error("No s'ha pogut validar el formulari massiu en la tasca " + tascaId, ex);
@@ -1116,7 +1134,7 @@ public class TascaTramitacioController extends BaseTascaController {
 				EntornDto entorn = SessionHelper.getSessionManager(request).getEntornActual();
 //				Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
-				tascaService.completar(tascaId, transicioSortida);
+				tascaService.completarMassiu(tascaId, transicioSortida);
 				
 				ExecucioMassivaDto dto = new ExecucioMassivaDto();
 				dto.setDataInici((Date) datosTramitacionMasiva.get("inici"));
@@ -1140,7 +1158,7 @@ public class TascaTramitacioController extends BaseTascaController {
 				
 				MissatgesHelper.success(request, getMessage(request, "info.tasca.massiu.completar", new Object[] {tascaIds.length}));
 				resposta = true;
-				
+				esborrarSeleccio(request);
 			} catch (ValidacioException ex) {
 				MissatgesHelper.error(
 	        			request,

@@ -7,8 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampTipusDto;
-import net.conselldemallorca.helium.v3.core.api.service.ExpedientTipusService;
-import net.conselldemallorca.helium.webapp.v3.command.ExpedientTipusCampCommand;
+import net.conselldemallorca.helium.v3.core.api.service.CampService;
+import net.conselldemallorca.helium.webapp.v3.command.CampCommand;
 import net.conselldemallorca.helium.webapp.v3.helper.MessageHelper;
 
 /**
@@ -18,25 +18,26 @@ import net.conselldemallorca.helium.webapp.v3.helper.MessageHelper;
  * - Comprova que el tipus:
  * 
  */
-public class ExpedientTipusCampValidator implements ConstraintValidator<ExpedientTipusCamp, ExpedientTipusCampCommand>{
+public class CampValidator implements ConstraintValidator<Camp, CampCommand>{
 
 	private String codiMissatge;
 	@Autowired
-	private ExpedientTipusService expedientTipusService;
+	private CampService campService;
 
 	@Override
-	public void initialize(ExpedientTipusCamp anotacio) {
+	public void initialize(Camp anotacio) {
 		codiMissatge = anotacio.message();
 	}
 
 	@Override
-	public boolean isValid(ExpedientTipusCampCommand camp, ConstraintValidatorContext context) {
+	public boolean isValid(CampCommand camp, ConstraintValidatorContext context) {
 		boolean valid = true;
 		// Comprova si ja hi ha una variable del tipus d'expedient amb el mateix codi
 		if (camp.getCodi() != null) {
-			CampDto repetit = expedientTipusService.campFindAmbCodiPerValidarRepeticio(
-					camp.getExpedientTipusId(),
-					camp.getCodi());
+			CampDto repetit = campService.findAmbCodi(
+						camp.getExpedientTipusId(),
+						camp.getDefinicioProcesId(),
+						camp.getCodi());				
 			if(repetit != null && (camp.getId() == null || !camp.getId().equals(repetit.getId()))) {
 				context.buildConstraintViolationWithTemplate(
 						MessageHelper.getInstance().getMessage(this.codiMissatge + ".codi.repetit", null))
@@ -47,11 +48,20 @@ public class ExpedientTipusCampValidator implements ConstraintValidator<Expedien
 		}
 		if (camp.getTipus() != null) {
 				if (camp.getTipus().equals(CampTipusDto.ACCIO)) {
-					context.buildConstraintViolationWithTemplate(
-							"Per al tipus ACCIO és obligatori un nom de handler")
-							.addNode("tipus")
-							.addConstraintViolation();	
-					valid = false;
+					if(camp.getDefprocJbpmKey() == null || "".equals(camp.getDefprocJbpmKey().trim())) {
+						context.buildConstraintViolationWithTemplate(
+								MessageHelper.getInstance().getMessage("NotEmpty", null))
+								.addNode("defprocJbpmKey")
+								.addConstraintViolation();	
+						valid = false;								
+					}
+					if(camp.getJbpmAction() == null || "".equals(camp.getJbpmAction().trim())) {
+						context.buildConstraintViolationWithTemplate(
+								MessageHelper.getInstance().getMessage("NotEmpty", null))
+								.addNode("jbpmAction")
+								.addConstraintViolation();	
+						valid = false;								
+					}
 				}
 				if (camp.getTipus().equals(CampTipusDto.SELECCIO) || camp.getTipus().equals(CampTipusDto.SUGGEST)) {
 					if ((camp.getDominiId() == null 
@@ -102,6 +112,9 @@ public class ExpedientTipusCampValidator implements ConstraintValidator<Expedien
 					}
 				}
 		}
+		if (!valid)
+			context.disableDefaultConstraintViolation();
+		
 		return valid;
 	}
 

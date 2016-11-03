@@ -14,20 +14,21 @@ import net.conselldemallorca.helium.v3.core.api.dto.CampTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ConsultaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DominiDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EnumeracioDto;
-import net.conselldemallorca.helium.webapp.v3.command.ExpedientTipusCampCommand.Creacio;
-import net.conselldemallorca.helium.webapp.v3.command.ExpedientTipusCampCommand.Modificacio;
+import net.conselldemallorca.helium.webapp.v3.command.CampCommand.Creacio;
+import net.conselldemallorca.helium.webapp.v3.command.CampCommand.Modificacio;
 import net.conselldemallorca.helium.webapp.v3.validator.Codi;
-import net.conselldemallorca.helium.webapp.v3.validator.ExpedientTipusCamp;
+import net.conselldemallorca.helium.webapp.v3.validator.Camp;
 
 /**
  * Command per editar la informació de les varialbes dels tipus d'expedient 
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
-@ExpedientTipusCamp(groups = {Creacio.class, Modificacio.class})
-public class ExpedientTipusCampCommand {
+@Camp(groups = {Creacio.class, Modificacio.class})
+public class CampCommand {
 	
 	private Long expedientTipusId;
+	private Long definicioProcesId;
 	private Long id;
 	private Long agrupacioId;
 	@NotEmpty(groups = {Creacio.class, Modificacio.class})
@@ -69,6 +70,14 @@ public class ExpedientTipusCampCommand {
 	private String consultaCampText;
 	@Size(max = 64, groups = {Creacio.class, Modificacio.class})
 	private String consultaCampValor;
+	
+	// Dades de la acció
+	//@NotEmpty(groups = {Creacio.class, Modificacio.class})
+	@Size(max = 255, groups = {Creacio.class, Modificacio.class})
+	private String defprocJbpmKey;
+	//@NotEmpty(groups = {Creacio.class, Modificacio.class})
+	@Size(max = 255, groups = {Creacio.class, Modificacio.class})
+	private String jbpmAction;
 	
 	boolean dominiCacheText;
 
@@ -153,6 +162,12 @@ public class ExpedientTipusCampCommand {
 		this.expedientTipusId = expedientTipusId;
 	}
 	
+	public Long getDefinicioProcesId() {
+		return definicioProcesId;
+	}
+	public void setDefinicioProcesId(Long definicioProcesId) {
+		this.definicioProcesId = definicioProcesId;
+	}
 	public boolean isDominiIntern() {
 		return dominiIntern;
 	}
@@ -201,13 +216,25 @@ public class ExpedientTipusCampCommand {
 	public void setConsultaCampValor(String consultaCampValor) {
 		this.consultaCampValor = consultaCampValor;
 	}
+	public String getDefprocJbpmKey() {
+		return defprocJbpmKey;
+	}
+	public void setDefprocJbpmKey(String defprocJbpmKey) {
+		this.defprocJbpmKey = defprocJbpmKey;
+	}
+	public String getJbpmAction() {
+		return jbpmAction;
+	}
+	public void setJbpmAction(String jbpmAction) {
+		this.jbpmAction = jbpmAction;
+	}
 	public boolean isDominiCacheText() {
 		return dominiCacheText;
 	}
 	public void setDominiCacheText(boolean dominiCacheText) {
 		this.dominiCacheText = dominiCacheText;
 	}
-	public static CampDto asCampDto(ExpedientTipusCampCommand command) {
+	public static CampDto asCampDto(CampCommand command) {
 		CampDto dto = new CampDto();
 		dto.setId(command.getId());
 		if(command.getAgrupacioId() != null) {
@@ -252,6 +279,10 @@ public class ExpedientTipusCampCommand {
 		dto.setConsultaParams(command.getConsultaParams());
 		dto.setConsultaCampText(command.getConsultaCampText());
 		dto.setConsultaCampValor(command.getConsultaCampValor());
+		
+		// Dades de la acció
+		dto.setDefprocJbpmKey(command.getDefprocJbpmKey());
+		dto.setJbpmAction(command.getJbpmAction());
 		
 		dto.setDominiCacheText(command.isDominiCacheText());		
 		

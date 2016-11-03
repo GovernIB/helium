@@ -38,6 +38,7 @@ import org.springmodules.validation.bean.conf.loader.annotation.handler.NotBlank
 import org.springmodules.validation.bean.conf.loader.annotation.handler.NotNull;
 
 import net.conselldemallorca.helium.core.common.ExpedientCamps;
+import net.conselldemallorca.helium.v3.core.api.dto.TerminiDto;
 
 /**
  * Objecte de domini que representa un camp de la definició de procés.
@@ -101,6 +102,8 @@ public class Camp implements Serializable, GenericEntity<Long> {
 	
 	private boolean dominiCacheText;
 	private boolean dominiIntern;
+	@MaxLength(255)
+	private String defprocJbpmKey;
 	@MaxLength(255)
 	private String jbpmAction;
 	private boolean multiple;
@@ -225,6 +228,14 @@ public class Camp implements Serializable, GenericEntity<Long> {
 	}
 	public void setDominiCacheText(boolean dominiCacheText) {
 		this.dominiCacheText = dominiCacheText;
+	}
+
+	@Column(name="defproc_jbpmkey", length=255)
+	public String getDefprocJbpmKey() {
+		return defprocJbpmKey;
+	}
+	public void setDefprocJbpmKey(String defprocJbpmKey) {
+		this.defprocJbpmKey = defprocJbpmKey;
 	}
 
 	@Column(name="jbpm_action", length=255)
@@ -362,7 +373,7 @@ public class Camp implements Serializable, GenericEntity<Long> {
 		getValidacions().remove(validacio);
 	}
 
-	@OneToMany(mappedBy="membre")
+	@OneToMany(mappedBy="membre", cascade = {CascadeType.ALL})
 	public Set<CampRegistre> getRegistrePares() {
 		return this.registrePares;
 	}
@@ -475,7 +486,7 @@ public class Camp implements Serializable, GenericEntity<Long> {
 				} else {
 					String termtxt = (String)valor;
 					String[] parts = termtxt.split("/");
-					Termini t = new Termini();
+					TerminiDto t = new TerminiDto();
 					t.setAnys((parts.length >= 0) ? new Integer(parts[0]).intValue() : 0);
 					t.setMesos((parts.length >= 1) ? new Integer(parts[1]).intValue() : 0);
 					t.setDies((parts.length >= 2) ? new Integer(parts[2]).intValue() : 0);

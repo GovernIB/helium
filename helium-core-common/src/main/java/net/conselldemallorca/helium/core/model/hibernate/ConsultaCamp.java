@@ -64,11 +64,6 @@ public class ConsultaCamp implements Serializable, GenericEntity<Long> {
 
 	@NotNull
 	private Consulta consulta;
-	
-	/** Rerferència a la variable lligada al tipus d'expedient a partir de la versió 3.2 */
-	private Camp camp;
-
-
 
 	public ConsultaCamp() {}
 	public ConsultaCamp(String campCodi, TipusConsultaCamp tipus) {
@@ -153,17 +148,6 @@ public class ConsultaCamp implements Serializable, GenericEntity<Long> {
 		this.consulta = consulta;
 	}
 
-	@ManyToOne
-	@JoinColumn(name="camp_id")
-	@ForeignKey(name="hel_camp_concamp_fk")
-	public Camp getCamp() {
-		return camp;
-	}
-	public void setCamp(Camp camp) {
-		this.camp = camp;
-	}
-
-
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -172,8 +156,6 @@ public class ConsultaCamp implements Serializable, GenericEntity<Long> {
 				+ ((campCodi == null) ? 0 : campCodi.hashCode());
 		result = prime * result
 				+ ((consulta == null) ? 0 : consulta.hashCode());
-		result = prime * result
-				+ ((camp == null) ? 0 : camp.hashCode());
 		result = prime * result
 				+ ((defprocJbpmKey == null) ? 0 : defprocJbpmKey.hashCode());
 		result = prime * result + defprocVersio;
@@ -198,11 +180,6 @@ public class ConsultaCamp implements Serializable, GenericEntity<Long> {
 			if (other.consulta != null)
 				return false;
 		} else if (!consulta.equals(other.consulta))
-			return false;
-		if (camp == null) {
-			if (other.camp != null)
-				return false;
-		} else if (!camp.equals(other.camp))
 			return false;
 		if (defprocJbpmKey == null) {
 			if (other.defprocJbpmKey != null)

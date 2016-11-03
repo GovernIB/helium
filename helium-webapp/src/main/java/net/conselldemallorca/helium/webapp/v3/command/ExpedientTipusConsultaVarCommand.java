@@ -19,9 +19,16 @@ public class ExpedientTipusConsultaVarCommand {
 	@NotNull(groups = {Creacio.class})
 	private Long consultaId;
 	@NotNull(groups = {Creacio.class})
-	private Long campId;
+	private String campCodi;
 	@NotNull(groups = {Creacio.class})
 	private TipusConsultaCamp tipus;
+	/** Indica l'origna de les variables. Si -2 és una propietat de l'expedient, si -1 és una variable del tipus d'expedient,
+	 * si no indica l'id de la definició de procés. */
+	private Long origen; 
+
+	
+	public static final long ORIGEN_EXPEDIENT = -2;
+	public static final long ORIGEN_TIPUS_EXPEDIENT = -1;	
 	
 	public Long getExpedientTipusId() {
 		return expedientTipusId;
@@ -35,11 +42,11 @@ public class ExpedientTipusConsultaVarCommand {
 	public void setConsultaId(Long consultaId) {
 		this.consultaId = consultaId;
 	}
-	public Long getCampId() {
-		return campId;
+	public String getCampCodi() {
+		return campCodi;
 	}
-	public void setCampId(Long campId) {
-		this.campId = campId;
+	public void setCampCodi(String campCodi) {
+		this.campCodi = campCodi;
 	}
 	public TipusConsultaCamp getTipus() {
 		return tipus;
@@ -47,10 +54,16 @@ public class ExpedientTipusConsultaVarCommand {
 	public void setTipus(TipusConsultaCamp tipus) {
 		this.tipus = tipus;
 	}
+	public Long getOrigen() {
+		return origen;
+	}
+	public void setOrigen(Long origen) {
+		this.origen = origen;
+	}
 	public static ConsultaCampDto asConsultaCampDto(ExpedientTipusConsultaVarCommand command) {
 		ConsultaCampDto dto = new ConsultaCampDto();
 		dto.setTipus(command.getTipus());
-		dto.setCampId(command.getCampId());
+		dto.setCampCodi(command.getCampCodi());
 		return dto;
 	}
 	

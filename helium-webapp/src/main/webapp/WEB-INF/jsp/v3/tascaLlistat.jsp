@@ -30,6 +30,7 @@
 <script type="text/javascript">
 	var tascaIdPerAgafar;
 	$(document).ready(function() {
+		window['ambPermisReassignment'] = false;
 		$("#taulaDades").heliumDataTable({
 			ajaxSourceUrl: "<c:url value="/v3/tasca/datatable"/>",
 			localeUrl: "<c:url value="/js/dataTables-locales/dataTables_locale_ca.txt"/>",
@@ -55,6 +56,13 @@
 				}
 				tascaIdPerAgafar = null;
 				filtreActiu();
+				
+				<c:if test="${tascaConsultaCommand.consultaTramitacioMassivaTascaId == null}">
+					if (window['ambPermisReassignment'])
+						$('#btnTramitacio').show();
+					else
+						$('#btnTramitacio').hide();
+				</c:if>
 			}
 		});	
 		$('.date_time').datetimepicker({
@@ -103,8 +111,10 @@
 					.done(function(data) {
 						if(data != undefined && data.permisTaskSupervision){
 							$('#responsableDiv').show();
+							window['ambPermisReassignment'] = true;
 						}else{
 							$('#responsableDiv').hide();
+							window['ambPermisReassignment'] = false;
 						}
 					})
 					.fail(function() {
@@ -115,6 +125,7 @@
 				}
 			});
 			$('#expedientTipusId').select2().on("select2-removed", function(e) {
+				window['ambPermisReassignment'] = false;
 				$('#consultar').trigger('click');
 		    })
 			$('#expedientTipusId').trigger('change');
@@ -124,6 +135,7 @@
 		//ícones d'estat de les tasques en segon pla
 		<c:set var="refrescaSegonPla" value="${globalProperties['app.segonpla.refrescar.auto'] == 'false' ? false : true}"/>
 		<c:set var="refrescaSegonPlaPeriode" value="${globalProperties['app.segonpla.refrescar.auto.periode'] != null ? globalProperties['app.segonpla.refrescar.auto.periode'] : 10}"/>
+		<c:set var="refrescaSegonPlaUrl" value="${tascaConsultaCommand.consultaTramitacioMassivaTascaId != null ? '../../tasca/actualitzaEstatsSegonPla' : 'tasca/actualitzaEstatsSegonPla'}"/>
 		<c:if test="${refrescaSegonPla}">
 			setInterval(refrescaEstatSegonPla, (${refrescaSegonPlaPeriode} * 1000));
 		</c:if>
@@ -136,7 +148,7 @@
 		});
 		if (tasquesSegonPlaIds.length > 0) {
 			$.ajax({
-			    url: "tasca/actualitzaEstatsSegonPla",
+			    url: "${refrescaSegonPlaUrl}",
 			    data: {"tasquesSegonPlaIds": tasquesSegonPlaIds},
 			    type: "POST",
 			    success: function(data) {
@@ -363,7 +375,15 @@
 			</c:otherwise>
 		</c:choose>
 	</form:form>
-	<table id="taulaDades" class="table table-striped table-bordered table-hover" data-rdt-button-template="tableButtonsTemplate" <c:if test="${tascaConsultaCommand.consultaTramitacioMassivaTascaId != null}"> data-rdt-paginable="false"</c:if> data-rdt-seleccionable-columna="0" data-rdt-filtre-form-id="tascaConsultaCommand" data-rdt-seleccionable="true" <c:if test="${not empty preferenciesUsuari.numElementosPagina}">data-rdt-display-length-default="${preferenciesUsuari.numElementosPagina}"</c:if>>
+	<table 
+		id="taulaDades" 
+		class="table table-striped table-bordered table-hover" 
+		data-rdt-button-template="tableButtonsTemplate" 
+		<c:if test="${tascaConsultaCommand.consultaTramitacioMassivaTascaId != null}"> data-rdt-paginable="false"</c:if> 
+		data-rdt-seleccionable-columna="0" 
+		data-rdt-filtre-form-id="tascaConsultaCommand" 
+		data-rdt-seleccionable="true" 
+		<c:if test="${not empty preferenciesUsuari.numElementosPagina}">data-rdt-display-length-default="${preferenciesUsuari.numElementosPagina}"</c:if>>
 		<thead>
 			<tr data-toggle="context" data-target="#context-menu">
 				<th data-rdt-property="id" width="4%" data-rdt-sortable="false" data-rdt-visible="true"></th>
@@ -483,12 +503,14 @@
 					<c:when test="${tascaConsultaCommand.consultaTramitacioMassivaTascaId == null}">
 						<a class="btn btn-default" href="../v3/tasca/seleccioTots" data-rdt-link-ajax="true" title="<spring:message code="expedient.llistat.accio.seleccio.tots"/>"><span class="fa fa-check-square-o"></span></a>
 						<a class="btn btn-default" href="../v3/tasca/seleccioNetejar" data-rdt-link-ajax="true" title="<spring:message code="expedient.llistat.accio.seleccio.netejar"/>"><span class="fa fa-square-o"></span></a>
-						<a href="../v3/tasca/massivaReassignacioTasca" class="btn btn-default" onclick="botoMassiuClick(this)" data-rdt-link-modal="true"><spring:message code="tasca.llistat.reassignacions.massiva"/>&nbsp;<span id="reasignacioMassivaCount" class="badge">&nbsp;</span></a>
+						<a id="botoReassignment" href="../v3/tasca/massivaReassignacioTasca" class="btn btn-default" onclick="botoMassiuClick(this)" data-rdt-link-modal="true"><spring:message code="tasca.llistat.reassignacions.massiva"/>&nbsp;<span id="reasignacioMassivaCount" class="badge">&nbsp;</span></a>
 					</c:when>
 					<c:otherwise>
 						<a class="btn btn-default" href="#" onclick="seleccionarMassivaTodos()" title="<spring:message code="expedient.llistat.accio.seleccio.tots"/>"><span class="fa fa-check-square-o"></span></a>
 						<a class="btn btn-default" href="#" onclick="deseleccionarMassivaTodos()" title="<spring:message code="expedient.llistat.accio.seleccio.netejar"/>"><span class="fa fa-square-o"></span></a>
-						<a href="<c:url value="../../../v3/tasca/massivaReassignacioTasca"/>" class="btn btn-default" onclick="botoMassiuClick(this)" data-rdt-link-modal="true"><spring:message code="tasca.llistat.reassignacions.massiva"/>&nbsp;<span id="reasignacioMassivaCount" class="badge">&nbsp;</span></a>
+						<c:if test="${not empty expedientTipus and expedientTipus.permisReassignment}">
+							<a id="botoReassignment" href="<c:url value="../../../v3/tasca/massivaReassignacioTasca"/>" class="btn btn-default" onclick="botoMassiuClick(this)" data-rdt-link-modal="true"><spring:message code="tasca.llistat.reassignacions.massiva"/>&nbsp;<span id="reasignacioMassivaCount" class="badge">&nbsp;</span></a>
+						</c:if>
 						<a href="<c:url value="../../../v3/tasca/massivaTramitacioTasca"/>" class="btn btn-default" onclick="botoMassiuClick(this)" data-rdt-link-modal="true" data-rdt-link-modal-maximize="true"><spring:message code="expedient.llistat.tramitacio.massiva"/>&nbsp;<span id="tramitacioMassivaCount" class="badge">&nbsp;</span></a>
 					</c:otherwise>
 				</c:choose>	

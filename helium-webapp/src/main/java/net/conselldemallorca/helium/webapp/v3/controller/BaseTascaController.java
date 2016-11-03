@@ -5,6 +5,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -14,6 +15,11 @@ import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
+
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDocumentDto;
@@ -22,11 +28,7 @@ import net.conselldemallorca.helium.v3.core.api.service.TascaService;
 import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.ModalHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.ui.Model;
-import org.springframework.validation.BindingResult;
-import org.springframework.validation.FieldError;
+import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper.SessionManager;
 
 /**
  * Controlador base per al llistat d'expedients.
@@ -180,5 +182,21 @@ public class BaseTascaController extends BaseController {
 			}
 		}
 		return params;
+	}
+	
+	protected Set<Long> getSeleccioConsultaTasca(HttpServletRequest request) {
+		Map<String, Object> dadesTramitacio = getDatosTramitacionMasiva(request);
+		String[] ids = (String[]) dadesTramitacio.get("tasquesTramitar");
+		Set<Long> mySet = new HashSet<Long>();
+		for (String id: ids) {
+			mySet.add(Long.parseLong(id));
+		}
+		return mySet;
+	}
+	
+	protected void esborrarSeleccio(HttpServletRequest request) {
+		SessionManager sessionManager = SessionHelper.getSessionManager(request);
+		Set<Long> ids = sessionManager.getSeleccioConsultaTasca();
+		ids.clear();
 	}
 }

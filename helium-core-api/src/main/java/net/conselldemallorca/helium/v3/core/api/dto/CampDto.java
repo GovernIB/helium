@@ -7,9 +7,7 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 
 /**
  * Objecte de domini que representa un camp de la definició de procés.
@@ -34,7 +32,6 @@ public class CampDto implements Serializable {
 	
 	private DefinicioProcesDto definicioProces;
 	private ExpedientTipusDto expedientTipus;
-	private List<ValidacioDto> validacions = new ArrayList<ValidacioDto>();
 	
 	// Dades consulta
 	private EnumeracioDto enumeracio;
@@ -52,6 +49,10 @@ public class CampDto implements Serializable {
 	private String consultaParams;
 	private String consultaCampText;
 	private String consultaCampValor;
+	
+	// Dades de la acció
+	private String defprocJbpmKey;
+	private String jbpmAction;
 	
 	boolean dominiCacheText;
 
@@ -204,12 +205,6 @@ public class CampDto implements Serializable {
 			return text;
 		}
 	}
-	public List<ValidacioDto> getValidacions() {
-		return validacions;
-	}
-	public void setValidacions(List<ValidacioDto> validacions) {
-		this.validacions = validacions;
-	}
 	public CampAgrupacioDto getAgrupacio() {
 		return agrupacio;
 	}
@@ -299,6 +294,18 @@ public class CampDto implements Serializable {
 	}
 	public void setConsultaCampValor(String consultaCampValor) {
 		this.consultaCampValor = consultaCampValor;
+	}
+	public String getJbpmAction() {
+		return jbpmAction;
+	}
+	public void setJbpmAction(String jbpmAction) {
+		this.jbpmAction = jbpmAction;
+	}
+	public String getDefprocJbpmKey() {
+		return defprocJbpmKey;
+	}
+	public void setDefprocJbpmKey(String defprocJbpmKey) {
+		this.defprocJbpmKey = defprocJbpmKey;
 	}
 	public boolean isDominiCacheText() {
 		return dominiCacheText;

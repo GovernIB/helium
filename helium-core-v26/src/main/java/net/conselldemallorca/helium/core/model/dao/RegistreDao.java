@@ -491,7 +491,6 @@ public class RegistreDao extends HibernateGenericDao<Registre, Long> {
 	public Registre crearRegistreIniciarTermini(
 			Long expedientId,
 			String processInstanceId,
-			String terminiId,
 			String responsableCodi) {
 		Registre registre = new Registre(
 				new Date(),
@@ -506,7 +505,6 @@ public class RegistreDao extends HibernateGenericDao<Registre, Long> {
 	public Registre crearRegistreAturarTermini(
 			Long expedientId,
 			String processInstanceId,
-			String terminiId,
 			String responsableCodi) {
 		Registre registre = new Registre(
 				new Date(),
@@ -521,7 +519,6 @@ public class RegistreDao extends HibernateGenericDao<Registre, Long> {
 	public Registre crearRegistreReprendreTermini(
 			Long expedientId,
 			String processInstanceId,
-			String terminiId,
 			String responsableCodi) {
 		Registre registre = new Registre(
 				new Date(),
@@ -536,7 +533,6 @@ public class RegistreDao extends HibernateGenericDao<Registre, Long> {
 	public Registre crearRegistreCancelarTermini(
 			Long expedientId,
 			String processInstanceId,
-			String terminiId,
 			String responsableCodi) {
 		Registre registre = new Registre(
 				new Date(),
@@ -551,7 +547,6 @@ public class RegistreDao extends HibernateGenericDao<Registre, Long> {
 	public Registre crearRegistreFinalitzarTermini(
 			Long expedientId,
 			String processInstanceId,
-			String terminiId,
 			String responsableCodi) {
 		Registre registre = new Registre(
 				new Date(),

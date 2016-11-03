@@ -284,67 +284,72 @@ public class GraphSession {
 			log.debug("   - Eliminam la definició de procés " + processDefinition.getName() + "(" + processDefinition.getId() + ")");
 			log.debug("   |- Modificam els TaskInstances relacionats amb la definició de procés antiga:");
 //			Set<TaskMgmtDefinition> tmdBorrar = new HashSet<TaskMgmtDefinition>();
-			for (TaskInstance ti : findReferencedDPTaskInstances(processDefinition.getId())) {
-				log.debug("   ||- TasckInstance: " + ti.getName() + "(" + ti.getId() + ")");
-				Task oldTask = ti.getTask();
-				Node oldNode = oldTask.getTaskNode();
-				Task newTask = findReplacementTask(ti.getProcessInstance().getProcessDefinition(), oldNode, oldTask);
-				log.debug("   |||- Actualitzam Task:");
-				log.debug("   ||||- Task antiga: " + oldTask.getName() + "(" + oldTask.getId() + ")");
-				if (newTask != null) {
-					log.debug("   ||||- Task nova: " + newTask.getName() + "(" + newTask.getId() + ")");
-					ti.setTask(newTask);
-					session.save(ti);
-					// Task Managment
-					TaskMgmtDefinition newTmd = newTask.getTaskMgmtDefinition();
-					TaskMgmtDefinition oldTmd = ti.getTaskMgmtInstance().getTaskMgmtDefinition();
-					if (oldTmd.getProcessDefinition().equals(processDefinition)) {
-						log.debug("   |||- Actualitzam TaskMgmtDefinition del TaskMgmtinstance:");
-						log.debug("   ||||- TaskMgmtDefinition Antiga: " + newTmd.getName() + "(" + newTmd.getId() + ")");
-						log.debug("   ||||- TaskMgmtDefinition Nova: " + oldTmd.getName() + "(" + oldTmd.getId() + ")");
-						ti.getTaskMgmtInstance().setTaskMgmtDefinition(newTmd);
-						session.save(ti.getTaskMgmtInstance());
-//						tmdBorrar.add(oldTmd);
+			List<TaskInstance> tasquesOrfesReferides = findReferencedDPTaskInstances(processDefinition.getId()); 
+			if (tasquesOrfesReferides != null && !tasquesOrfesReferides.isEmpty()) {
+				for (TaskInstance ti : tasquesOrfesReferides) {
+					log.debug("   ||- TasckInstance: " + ti.getName() + "(" + ti.getId() + ")");
+					Task oldTask = ti.getTask();
+					Node oldNode = oldTask.getTaskNode();
+					Task newTask = findReplacementTask(ti.getProcessInstance().getProcessDefinition(), oldNode, oldTask);
+					log.debug("   |||- Actualitzam Task:");
+					log.debug("   ||||- Task antiga: " + oldTask.getName() + "(" + oldTask.getId() + ")");
+					if (newTask != null) {
+						log.debug("   ||||- Task nova: " + newTask.getName() + "(" + newTask.getId() + ")");
+						ti.setTask(newTask);
+						session.save(ti);
+						// Task Managment
+						TaskMgmtDefinition newTmd = newTask.getTaskMgmtDefinition();
+						TaskMgmtDefinition oldTmd = ti.getTaskMgmtInstance().getTaskMgmtDefinition();
+						if (oldTmd.getProcessDefinition().equals(processDefinition)) {
+							log.debug("   |||- Actualitzam TaskMgmtDefinition del TaskMgmtinstance:");
+							log.debug("   ||||- TaskMgmtDefinition Antiga: " + newTmd.getName() + "(" + newTmd.getId() + ")");
+							log.debug("   ||||- TaskMgmtDefinition Nova: " + oldTmd.getName() + "(" + oldTmd.getId() + ")");
+							ti.getTaskMgmtInstance().setTaskMgmtDefinition(newTmd);
+							session.save(ti.getTaskMgmtInstance());
+	//						tmdBorrar.add(oldTmd);
+						}
+					} else {
+						log.debug("   ||||- Task nova: NO S'HA TROBAT AQUESTA TASCA EN LA NOVA DEFINICIÓ DE PROCÉS.");
+	//					errors.add(new Object[]{
+	//									DeleteErrorType.TASK, 
+	//									ti.getProcessInstance().getExpedient(),
+	//									ti.getName(), 
+	//									ti.getId()});
+	//					errorsDelete.put(processDefinition.getId(), errors);
+						expedientsError.add(ti.getProcessInstance().getExpedient());
+						errorsDelete.put(processDefinition.getId(), expedientsError);
+						throw new JbpmException("S'han torbat tasques lligades a la definició de procés, que no tenen un substitut en la definició de procés del seu expedient.");
 					}
-				} else {
-					log.debug("   ||||- Task nova: NO S'HA TROBAT AQUESTA TASCA EN LA NOVA DEFINICIÓ DE PROCÉS.");
-//					errors.add(new Object[]{
-//									DeleteErrorType.TASK, 
-//									ti.getProcessInstance().getExpedient(),
-//									ti.getName(), 
-//									ti.getId()});
-//					errorsDelete.put(processDefinition.getId(), errors);
-					expedientsError.add(ti.getProcessInstance().getExpedient());
-					errorsDelete.put(processDefinition.getId(), expedientsError);
-					throw new JbpmException("S'han torbat tasques lligades a la definició de procés, que no tenen un substitut en la definició de procés del seu expedient.");
+					log.debug("   ||| ");
+					log.debug("   || ");
+					log.debug("   | ");
 				}
-				log.debug("   ||| ");
-				log.debug("   || ");
-				log.debug("   | ");
 			}
 						
 			// Canviam el processDefinition dels tasksMgmtInstance dels tasksInstance de la versió que s'intenta esborrar a la de la tasca.
 			log.debug("   |- Modificam els TaskMgmtDefinition:");
-			for (TaskInstance ti : findReferencedTaskInstances(processDefinition.getId())) {
-				log.debug("   ||- TasckInstance: " + ti.getName() + "(" + ti.getId() + ")");
-				TaskMgmtDefinition oldTmd = ti.getTaskMgmtInstance().getTaskMgmtDefinition();
-				TaskMgmtDefinition newTmd = ti.getProcessInstance().getProcessDefinition().getTaskMgmtDefinition();
-				if (oldTmd.getProcessDefinition().equals(processDefinition)) {
-					log.debug("   |||- TaskMgmtDefinition Antiga: " + oldTmd.getName() + "(" + oldTmd.getId() + ")");
-					log.debug("   |||- TaskMgmtDefinition Nova: " + newTmd.getName() + "(" + newTmd.getId() + ")");
-					ti.getTaskMgmtInstance().setTaskMgmtDefinition(newTmd);
-					session.save(ti.getTaskMgmtInstance());
-//					tmdBorrar.add(oldTmd);
+			List<TaskInstance> tasquesOrfesMgmt = findReferencedTaskInstances(processDefinition.getId()); 
+			if (tasquesOrfesMgmt != null && !tasquesOrfesMgmt.isEmpty()) {
+				for (TaskInstance ti : tasquesOrfesMgmt) {
+					log.debug("   ||- TasckInstance: " + ti.getName() + "(" + ti.getId() + ")");
+					TaskMgmtDefinition oldTmd = ti.getTaskMgmtInstance().getTaskMgmtDefinition();
+					TaskMgmtDefinition newTmd = ti.getProcessInstance().getProcessDefinition().getTaskMgmtDefinition();
+					if (oldTmd.getProcessDefinition().equals(processDefinition)) {
+						log.debug("   |||- TaskMgmtDefinition Antiga: " + oldTmd.getName() + "(" + oldTmd.getId() + ")");
+						log.debug("   |||- TaskMgmtDefinition Nova: " + newTmd.getName() + "(" + newTmd.getId() + ")");
+						ti.getTaskMgmtInstance().setTaskMgmtDefinition(newTmd);
+						session.save(ti.getTaskMgmtInstance());
+	//					tmdBorrar.add(oldTmd);
+					}
+	//				tmd.setProcessDefinition(ti.getProcessInstance().getProcessDefinition());
+	//				if (tmd.getStartTask() != null) {
+	//					tmd.setStartTask(ti.getProcessInstance().getProcessDefinition().getTaskMgmtDefinition().getStartTask());
+	//				}
+	//				session.save(tmd);
+					log.debug("   || ");
 				}
-//				tmd.setProcessDefinition(ti.getProcessInstance().getProcessDefinition());
-//				if (tmd.getStartTask() != null) {
-//					tmd.setStartTask(ti.getProcessInstance().getProcessDefinition().getTaskMgmtDefinition().getStartTask());
-//				}
-//				session.save(tmd);
-				log.debug("   || ");
+				log.debug("   | ");
 			}
-			log.debug("   | ");
-			
 //			// Eliminam les StartStates que referencien la DefProc antiga
 //			for (Task task: findReferencingStartStates(processDefinition.getId())) {
 //				task.setStartState(null);
@@ -357,17 +362,20 @@ public class GraphSession {
 //			}
 			List<Long> taskIds = new ArrayList<Long>();
 			log.debug("   |- Dereferenciam les tasques:");
-			for (Task task: findReferencedTask(processDefinition.getId())) {
-				log.debug("   ||- " + task.getName() + "(" + task.getId() + ")");
-				taskIds.add(task.getId());
-				task.setStartState(null);
-				task.setAssignmentDelegation(null);
-				task.setTaskController(null);
-				task.setProcessDefinition(null);
-				session.save(task);
-//				session.delete(task);
+			List<Task> tasques = findReferencedTask(processDefinition.getId());
+			if (tasques != null && !tasques.isEmpty()) {
+				for (Task task: tasques) {
+					log.debug("   ||- " + task.getName() + "(" + task.getId() + ")");
+					taskIds.add(task.getId());
+					task.setStartState(null);
+					task.setAssignmentDelegation(null);
+					task.setTaskController(null);
+					task.setProcessDefinition(null);
+					session.save(task);
+	//				session.delete(task);
+				}
+				log.debug("   | ");
 			}
-			log.debug("   | ");
 			session.flush();
 			
 			// Eliminam les delegacions
@@ -378,80 +386,85 @@ public class GraphSession {
 //			}
 			
 			log.debug("   |- Dereferenciam els jobs:");
-			for (Job job : findReferencedJobs(processDefinition.getId())) {
-				log.debug("   ||- " + job.getId());
-				Action oldAction = (Action)job.getClass().getMethod("getAction").invoke(job);
-				Action newAction = job.getProcessInstance().getProcessDefinition().getAction(oldAction.getName()); 
-				if (newAction != null) {
-					job.getClass().getMethod("setAction", Action.class).invoke(job, newAction);
-					session.save(job);
-				} else {
-					if (job.getRetries() <= 0) {
-						session.delete(job);
+			List<Job> jobs = findReferencedJobs(processDefinition.getId());
+			if (jobs != null && !jobs.isEmpty()) {
+				for (Job job : jobs) {
+					log.debug("   ||- " + job.getId());
+					Action oldAction = (Action)job.getClass().getMethod("getAction").invoke(job);
+					Action newAction = job.getProcessInstance().getProcessDefinition().getAction(oldAction.getName()); 
+					if (newAction != null) {
+						job.getClass().getMethod("setAction", Action.class).invoke(job, newAction);
+						session.save(job);
 					} else {
-//						errors.add(new Object[]{
-//										DeleteErrorType.JOB,
-//										job.getProcessInstance().getExpedient(),
-//										oldAction.toString(),
-//										oldAction.getId(),										
-//										job.getId()});
-//						errorsDelete.put(processDefinition.getId(), errors);
-						expedientsError.add(job.getProcessInstance().getExpedient());
-						errorsDelete.put(processDefinition.getId(), expedientsError);
-					//	throw new JbpmException("S'han torbat jobs lligades a la definició de procés, que no tenen una acció substituta en la definició de procés del seu expedient.");
+						if (job.getRetries() <= 0) {
+							session.delete(job);
+						} else {
+	//						errors.add(new Object[]{
+	//										DeleteErrorType.JOB,
+	//										job.getProcessInstance().getExpedient(),
+	//										oldAction.toString(),
+	//										oldAction.getId(),										
+	//										job.getId()});
+	//						errorsDelete.put(processDefinition.getId(), errors);
+							expedientsError.add(job.getProcessInstance().getExpedient());
+							errorsDelete.put(processDefinition.getId(), expedientsError);
+						//	throw new JbpmException("S'han torbat jobs lligades a la definició de procés, que no tenen una acció substituta en la definició de procés del seu expedient.");
+						}
 					}
+	//				session.delete(action);
+	//				session.flush();
 				}
-//				session.delete(action);
-//				session.flush();
+				log.debug("   | ");
 			}
-			log.debug("   | ");
 			
 			log.debug("   |- Dereferenciam les accions:");
 			//for (Action action : findReferencingDelegatingActions(processDefinition.getId())) {
 			List<Action> accions = findReferencedActions(processDefinition.getId());
-			for (Action action : accions) {
-				action.setActionDelegation(null);
-				session.save(action);
-//				session.delete(action);
-//				session.flush();
-				log.debug("   ||- " + action.getName() + "(" + action.getId() + ")");
-				
-			}
-			
-			log.debug("   | ");
-			
-			log.debug("   |- Dereferenciam les accions del logs:");
-//			if (!processDefinition.getEvents().isEmpty()) {
-				//for (ActionLog al : findReferencingEventActions(processDefinition)) {
-			// Mapa de reemplaç de accions
-			Map<Long, Action> reAccions = new HashMap<Long, Action>();
-			for (ActionLog al : findReferencedActionLogs(accions)) {
-				log.debug("   ||- Log: " + al.getId() + ", Action: " + al.getAction().getId());
-				ProcessDefinition newProcessDefinition = al.getToken().getProcessInstance().getProcessDefinition();
-				Action oldAction = al.getAction();
-				Action newAction = null;
-				if (reAccions.containsKey(oldAction.getId())) {
-					newAction = reAccions.get(oldAction.getId());
-				} else {
-					newAction =	findReplacementEventAction(oldAction, newProcessDefinition);
-					reAccions.put(oldAction.getId(), newAction);
+			if (accions != null && !accions.isEmpty()) {
+				for (Action action : accions) {
+					action.setActionDelegation(null);
+					session.save(action);
+	//				session.delete(action);
+	//				session.flush();
+					log.debug("   ||- " + action.getName() + "(" + action.getId() + ")");
+					
 				}
-				if (newAction != null) {
-					al.setAction(newAction);
-				} else {
-					log.debug("   |||- No s'ha trobat substitut per aquesta acció");
-//					errors.add(new Object[]{
-//									DeleteErrorType.ACTION, 
-//									al.getToken().getProcessInstance().getExpedient(), 
-//									oldAction.toString(), 
-//									oldAction.getId(), 
-//									al.getId()});
-//					errorsDelete.put(processDefinition.getId(), errors);
-					expedientsError.add(al.getToken().getProcessInstance().getExpedient());
-					errorsDelete.put(processDefinition.getId(), expedientsError);
+			
+				log.debug("   | ");
+			
+				log.debug("   |- Dereferenciam les accions del logs:");
+	//			if (!processDefinition.getEvents().isEmpty()) {
+					//for (ActionLog al : findReferencingEventActions(processDefinition)) {
+				// Mapa de reemplaç de accions
+				Map<Long, Action> reAccions = new HashMap<Long, Action>();
+				for (ActionLog al : findReferencedActionLogs(accions)) {
+					log.debug("   ||- Log: " + al.getId() + ", Action: " + al.getAction().getId());
+					ProcessDefinition newProcessDefinition = al.getToken().getProcessInstance().getProcessDefinition();
+					Action oldAction = al.getAction();
+					Action newAction = null;
+					if (reAccions.containsKey(oldAction.getId())) {
+						newAction = reAccions.get(oldAction.getId());
+					} else {
+						newAction =	findReplacementEventAction(oldAction, newProcessDefinition);
+						reAccions.put(oldAction.getId(), newAction);
+					}
+					if (newAction != null) {
+						al.setAction(newAction);
+					} else {
+						log.debug("   |||- No s'ha trobat substitut per aquesta acció");
+	//					errors.add(new Object[]{
+	//									DeleteErrorType.ACTION, 
+	//									al.getToken().getProcessInstance().getExpedient(), 
+	//									oldAction.toString(), 
+	//									oldAction.getId(), 
+	//									al.getId()});
+	//					errorsDelete.put(processDefinition.getId(), errors);
+						expedientsError.add(al.getToken().getProcessInstance().getExpedient());
+						errorsDelete.put(processDefinition.getId(), expedientsError);
+					}
 				}
+				//			}
 			}
-//			}
 			
 			log.debug("   | ");
 			
@@ -459,66 +472,74 @@ public class GraphSession {
 			// Mapa de reemplaç de transicions
 			Map<Long, Transition> reTransicions = new HashMap<Long, Transition>();
 			List<CompositeLog> logs = findReferencedTransitionLogs(processDefinition.getId());
-			for (CompositeLog cl : logs) {
-				TransitionLog tl = null;
-				SignalLog sl = null;
-				Transition oldTransition = null;
-				if (cl instanceof TransitionLog) {
-					tl = (TransitionLog)cl;
-					oldTransition = tl.getTransition();
-				} else {
-					sl = (SignalLog)cl;
-					oldTransition = sl.getTransition();
-				}
-				log.debug("   ||- Log: " + cl.getId() + ", Transition: " + oldTransition.getId());
-				ProcessDefinition newProcessDefinition = cl.getToken().getProcessInstance().getProcessDefinition();
-				
-				Transition newTransition = null;
-				if (reTransicions.containsKey(oldTransition.getId())) {
-					newTransition = reTransicions.get(oldTransition.getId());
-				} else {
-					newTransition = findReplacementTransition(newProcessDefinition, oldTransition);
-					reTransicions.put(oldTransition.getId(), newTransition);
-				}
-				if (newTransition != null) {
-					if (tl != null) {
-						tl.setTransition(newTransition);
-						tl.setSourceNode(newTransition.getFrom());
-						tl.setDestinationNode(newTransition.getTo());
+			if (logs != null && !logs.isEmpty()){
+				for (CompositeLog cl : logs) {
+					TransitionLog tl = null;
+					SignalLog sl = null;
+					Transition oldTransition = null;
+					if (cl instanceof TransitionLog) {
+						tl = (TransitionLog)cl;
+						oldTransition = tl.getTransition();
 					} else {
-						sl.setTransition(newTransition);
+						sl = (SignalLog)cl;
+						oldTransition = sl.getTransition();
 					}
-				} else {
-					log.debug("   |||- No s'ha trobat substitut per aquesta transició");
-//					errors.add(new Object[]{
-//							DeleteErrorType.TRANSITION, 
-//							tl.getToken().getProcessInstance().getExpedient(), 
-//							oldTransition.toString(), 
-//							oldTransition.getId(), 
-//							tl.getId()});
-//					errorsDelete.put(processDefinition.getId(), errors);
-					expedientsError.add(cl.getToken().getProcessInstance().getExpedient());
-					errorsDelete.put(processDefinition.getId(), expedientsError);
+					log.debug("   ||- Log: " + cl.getId() + ", Transition: " + oldTransition.getId());
+					ProcessDefinition newProcessDefinition = cl.getToken().getProcessInstance().getProcessDefinition();
+					
+					Transition newTransition = null;
+					if (reTransicions.containsKey(oldTransition.getId())) {
+						newTransition = reTransicions.get(oldTransition.getId());
+					} else {
+						newTransition = findReplacementTransition(newProcessDefinition, oldTransition);
+						reTransicions.put(oldTransition.getId(), newTransition);
+					}
+					if (newTransition != null) {
+						if (tl != null) {
+							tl.setTransition(newTransition);
+							tl.setSourceNode(newTransition.getFrom());
+							tl.setDestinationNode(newTransition.getTo());
+						} else {
+							sl.setTransition(newTransition);
+						}
+					} else {
+						log.debug("   |||- No s'ha trobat substitut per aquesta transició");
+	//					errors.add(new Object[]{
+	//							DeleteErrorType.TRANSITION, 
+	//							tl.getToken().getProcessInstance().getExpedient(), 
+	//							oldTransition.toString(), 
+	//							oldTransition.getId(), 
+	//							tl.getId()});
+	//					errorsDelete.put(processDefinition.getId(), errors);
+						expedientsError.add(cl.getToken().getProcessInstance().getExpedient());
+						errorsDelete.put(processDefinition.getId(), expedientsError);
+					}
 				}
+				
+				log.debug("   | ");
 			}
-			
-			log.debug("   | ");
 			log.debug("   |- Eliminam els taskControllers:");
-			for (TaskController tc : findReferencedTaskController(processDefinition.getId())) {
-//				tc.setTaskControllerDelegation(null);
-//				session.save(tc);
-				log.debug("   ||- " + tc.getId());
-				session.delete(tc);
-//				session.flush();
+			List<TaskController> taskControllers = findReferencedTaskController(processDefinition.getId());
+			if (taskControllers != null && !taskControllers.isEmpty()) {
+				for (TaskController tc : taskControllers) {
+	//				tc.setTaskControllerDelegation(null);
+	//				session.save(tc);
+					log.debug("   ||- " + tc.getId());
+					session.delete(tc);
+	//				session.flush();
+				}
+				log.debug("   | ");
 			}
-			log.debug("   | ");
 			session.flush();
 			
 			log.debug("   |- Eliminam les delegacions:");
-			for (Delegation delegation : findReferencedDelegations(processDefinition.getId())) {
-				log.debug("   ||- " + delegation.getId());
-				session.delete(delegation);
-				session.flush();
+			List<Delegation> delegacions = findReferencedDelegations(processDefinition.getId());
+			if (delegacions != null && !delegacions.isEmpty()) {
+				for (Delegation delegation : delegacions) {
+					log.debug("   ||- " + delegation.getId());
+					session.delete(delegation);
+					session.flush();
+				}
 			}
 			log.debug("   | ");
 			
@@ -528,9 +549,11 @@ public class GraphSession {
 			
 			// Eliminam els StartStates de les tasques de la definició de procés a esborrar
 			List referencingProcessStates = findReferencingProcessStates(processDefinition);
-			for (Iterator iter = referencingProcessStates.iterator(); iter.hasNext();) {
-				ProcessState processState = (ProcessState) iter.next();
-				processState.setSubProcessDefinition(null);
+			if (referencingProcessStates != null && !referencingProcessStates.isEmpty()) {
+				for (Iterator iter = referencingProcessStates.iterator(); iter.hasNext();) {
+					ProcessState processState = (ProcessState) iter.next();
+					processState.setSubProcessDefinition(null);
+				}
 			}
 //			CODI DE LA FUNCIONALITAT DE BORRAT DE DEFINICIONS DE PROCÉS -- Inici
 			session.flush();
@@ -543,12 +566,14 @@ public class GraphSession {
 			// ---------------------------------------------------------------------------------------------------------------------------
 			// Eliminam les tasques que hagin quedat orfes
 			log.debug("   |- Eliminam les tasques");
-			log.debug("   ||- " + taskIds.toString());
-			session.createQuery(
-					  "delete from org.jbpm.taskmgmt.def.Task t "
-					+ " where t.id in :taskIds")
-			.setParameterList("taskIds", taskIds)
-			.executeUpdate();
+			if (taskIds != null && !taskIds.isEmpty()) {
+				log.debug("   ||- " + taskIds.toString());
+				session.createQuery(
+						  "delete from org.jbpm.taskmgmt.def.Task t "
+						+ " where t.id in :taskIds")
+				.setParameterList("taskIds", taskIds)
+				.executeUpdate();
+			}
 
 			log.debug("   | ");
 			

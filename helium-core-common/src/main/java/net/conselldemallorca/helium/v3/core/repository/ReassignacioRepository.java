@@ -76,6 +76,11 @@ public interface ReassignacioRepository extends JpaRepository<Reassignacio, Long
 			@Param("tipusExpedientId") Long expedientTipusId,
 			@Param("esNullFiltre") boolean esNullFiltre,
 			@Param("filtre") String filtre,		
-			Pageable pageable);	
+			Pageable pageable);
+
+	@Query(	"from Reassignacio r " +
+			"where " +
+			"   r.tipusExpedientId = :expedientTipusId")
+	public List<Reassignacio> findAmbExpedientTipus(@Param("expedientTipusId") Long expedientTipusId);	
 	
 }

@@ -51,8 +51,5 @@ public class EnumeracioExportacio implements Serializable {
 		this.valors = valors;
 	}
 
-
-
 	private static final long serialVersionUID = 1L;
-
 }

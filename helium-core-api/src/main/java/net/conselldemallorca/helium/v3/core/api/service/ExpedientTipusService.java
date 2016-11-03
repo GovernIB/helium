@@ -3,22 +3,14 @@ package net.conselldemallorca.helium.v3.core.api.service;
 import java.util.List;
 import java.util.Map;
 
-import net.conselldemallorca.helium.v3.core.api.dto.AccioDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
-import net.conselldemallorca.helium.v3.core.api.dto.CampAgrupacioDto;
-import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
-import net.conselldemallorca.helium.v3.core.api.dto.CampRegistreDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ConsultaCampDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ConsultaCampDto.TipusConsultaCamp;
 import net.conselldemallorca.helium.v3.core.api.dto.ConsultaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
-import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DominiDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EnumeracioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusEnumeracioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusEnumeracioValorDto;
 import net.conselldemallorca.helium.v3.core.api.dto.MapeigSistraDto;
 import net.conselldemallorca.helium.v3.core.api.dto.MapeigSistraDto.TipusMapeig;
@@ -26,11 +18,11 @@ import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PermisDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ReassignacioDto;
-import net.conselldemallorca.helium.v3.core.api.dto.TerminiDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ValidacioDto;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
-import net.conselldemallorca.helium.v3.core.api.exception.ValidacioException;;
+import net.conselldemallorca.helium.v3.core.api.exception.ValidacioException;
+import net.conselldemallorca.helium.v3.core.api.exportacio.ExpedientTipusExportacio;
+import net.conselldemallorca.helium.v3.core.api.exportacio.ExpedientTipusExportacioCommandDto;;
 
 /**
  * Servei per al manteniment de tipus d'expedient.
@@ -142,6 +134,34 @@ public interface ExpedientTipusService {
 			Long entornId,
 			Long expedientTipusId) throws NoTrobatException, PermisDenegatException;
 
+	
+	/**
+	 * Mètode per crear un objecte d'exportació per al tipus d'expedient amb la informació sol·licitada
+	 * segons l'objecte DTO de la comanda d'exportació.
+	 * @param command Objecte amb la informació que s'ha d'incloure a l'exportació.
+	 * @return Objecte d'exportació serialitzable.
+	 */
+	public ExpedientTipusExportacio exportar(
+			Long entornId,
+			Long expedientTipusId,
+			ExpedientTipusExportacioCommandDto command);
+	
+	/** Mètode per importar la informació d'un fitxer d'exportació de tipus d'expedient cap a un nou tipus
+	 * d'expedient si aquest no està especificat o un tipus d'expedient existent. La importació es fa de 
+	 * forma selectiva segons el expedientTipusExportacioCommand.
+	 * @param entornId Especifica l'entorn de treball de l'usuari.
+	 * @param expedientTipusId Tipus d'expedient on fer la importació. Si està buit llavors es crea un de nou.
+	 * @param command Llista de codis de la informació a importar.
+	 * @param importacio Objecte desserialitzat amb la informació per a la importació.
+	 * @return Retorna l'expedient tipus creat o modificat.
+	 */
+	public ExpedientTipusDto importar(
+			Long entornId, 
+			Long expedientTipusId, 
+			ExpedientTipusExportacioCommandDto command,
+			ExpedientTipusExportacio importacio);	
+
+	
 	/**
 	 * Retorna els tipus d'expedient d'un entorn que es poden consultar.
 	 * 
@@ -344,441 +364,6 @@ public interface ExpedientTipusService {
 			Long permisId) throws NoTrobatException, PermisDenegatException;
 
 	/**
-	 * Retorna les agrupacions per a un tipus d'expedient.
-	 * 
-	 * @param entornId
-	 *            Atribut id de l'entorn.
-	 * @param expedientTipusId
-	 *            Atribut id del tipus d'expedient.
-	 * @return les agrupacions del tipus d'expedient.
-	 * @throws NoTrobatException
-	 *             Si no s'ha trobat el registre amb l'id especificat.
-	 * @throws PermisDenegatException
-	 *             Si no es tenen els permisos necessaris.
-	 */
-	public List<CampAgrupacioDto> agrupacioFindAll(
-			Long expedientTipusId) throws NoTrobatException, PermisDenegatException;
-		
-	/**
-	 * Crea una nova agrupació.
-	 * 
-	 * @param entornId
-	 *            Atribut id de l'entorn.
-	 * @param expedientTipusId
-	 *            Atribut id del tipus d'expedient.
-	 * @param agrupacio
-	 *            La informació de la agrupació a crear.
-	 * @return la agrupació creada.
-	 * @throws PermisDenegatException
-	 *             Si no es tenen els permisos necessaris.
-	 */
-	public CampAgrupacioDto agrupacioCreate(
-			Long expedientTipusId,
-			CampAgrupacioDto agrupacio) throws PermisDenegatException;
-	
-	/**
-	 * Modificació d'una agrupació existent.
-	 * 
-	 * @param entornId
-	 *            Atribut id de l'entorn.
-	 * @param expedientTipusId
-	 *            Atribut id del tipus d'expedient.
-	 * @param agrupacio
-	 *            La informació de la agrupació a modificar.
-	 * @return la agrupació modificada.
-	 * @throws NoTrobatException
-	 *             Si no s'ha trobat el registre amb l'id especificat.
-	 * @throws PermisDenegatException
-	 *             Si no es tenen els permisos necessaris.
-	 */
-	public CampAgrupacioDto agrupacioUpdate(
-			Long expedientTipusId,
-			CampAgrupacioDto agrupacio) throws NoTrobatException, PermisDenegatException;
-	
-	/** Mou la agrupacio id cap a la posició indicada reassignant el valor pel camp ordre.
-	 * 
-	 * @param id
-	 * @param posicio
-	 * @return Retorna true si ha anat bé o false si no té agrupació o la posició no és correcta.
-	 */
-	public boolean agrupacioMourePosicio(Long id, int posicio);
-	
-	/**
-	 * Esborra una entitat.
-	 * 
-	 * @param entornId
-	 *            Atribut id de l'entorn.
-	 * @param agrupacioCampId
-	 *            Atribut id de la agrupació.
-	 * @throws NoTrobatException
-	 *             Si no s'ha trobat el registre amb l'id especificat.
-	 * @throws PermisDenegatException
-	 *             Si no es tenen els permisos necessaris.
-	 */
-	public void agrupacioDelete(
-			Long agrupacioCampId) throws NoTrobatException, PermisDenegatException;
-	
-	/**
-	 * Retorna una agrupació de camps d'un tipus d'expedient donat el seu codi.
-	 * 
-	 * @param tipusExpedientId
-	 * @param codi
-	 *            El codi per a la consulta.
-	 * @return La agrupació de camps del tipus d'expedient o null si no el troba.
-	 */
-	public CampAgrupacioDto agrupacioFindAmbCodiPerValidarRepeticio(
-			Long tipusExpedientId,
-			String codi) throws NoTrobatException;	
-
-	/** 
-	 * Retorna la agrupació de camps del tipus d'expedient donat el seu identificador.
-	 * 
-	 * @param id
-	 * 
-	 * @return La agrupació de camps del tipus d'expedient.
-	 * @throws NoTrobatException
-	 *             Si no s'ha trobat el registre amb l'id especificat.
-	 */
-	public CampAgrupacioDto agrupacioFindAmbId(
-			Long id) throws NoTrobatException;	
-
-	/** 
-	 * Retorna la llista d'agrupacions del tipus d'expedient paginada per la datatable.
-	 * 
-	 * @param expedientTipusId
-	 * 
-	 * @param filtre
-	 *            Text per a filtrar els resultats.
-	 * @param paginacioParams
-	 *            Paràmetres per a la paginació dels resultats.
-	 * @return La pàgina de la llistat d'agrupacions del tipus d'expedients.
-	 * @throws NoTrobatException
-	 *             Si no s'ha trobat el registre amb l'id especificat.
-	 */
-	public PaginaDto<CampAgrupacioDto> agrupacioFindPerDatatable(
-			Long tipusExpedientId,
-			String filtre, 
-			PaginacioParamsDto paginacioParams) throws NoTrobatException;	
-	
-	/**
-	 * Crea un nou camp.
-	 * 
-	 * @param entornId
-	 *            Atribut id de l'entorn.
-	 * @param expedientTipusId
-	 *            Atribut id del tipus d'expedient.
-	 * @param camp
-	 *            La informació del camp a crear.
-	 * @return el camp creat.
-	 * @throws CampDenegatException
-	 *             Si no es tenen els permisos necessaris.
-	 */
-	public CampDto campCreate(
-			Long expedientTipusId,
-			CampDto camp) throws PermisDenegatException;
-	
-	/**
-	 * Modificació d'un camp existent.
-	 * 
-	 * @param entornId
-	 *            Atribut id de l'entorn.
-	 * @param expedientTipusId
-	 *            Atribut id del tipus d'expedient.
-	 * @param camp
-	 *            La informació del camp a modificar.
-	 * @return el camp modificat.
-	 * @throws NoTrobatException
-	 *             Si no s'ha trobat el registre amb l'id especificat.
-	 * @throws CampDenegatException
-	 *             Si no es tenen els permisos necessaris.
-	 */
-	public CampDto campUpdate(
-			CampDto camp) throws NoTrobatException, PermisDenegatException;
-	
-	/**
-	 * Esborra un entitat.
-	 * 
-	 * @param entornId
-	 *            Atribut id de l'entorn.
-	 * @param campCampId
-	 *            Atribut id del camp.
-	 * @throws NoTrobatException
-	 *             Si no s'ha trobat el registre amb l'id especificat.
-	 * @throws CampDenegatException
-	 *             Si no es tenen els permisos necessaris.
-	 */
-	public void campDelete(
-			Long campCampId) throws NoTrobatException, PermisDenegatException;	
-	
-	/** 
-	 * Retorna el camp del tipus d'expedient donat el seu identificador.
-	 * 
-	 * @param id
-	 * 
-	 * @return El camp del tipus d'expedient.
-	 * @throws NoTrobatException
-	 *             Si no s'ha trobat el registre amb l'id especificat.
-	 */
-	public CampDto campFindAmbId(
-			Long id) throws NoTrobatException;	
-	
-	/** 
-	 * Retorna la llista de camps del tipus d'expedient paginada per la datatable.
-	 * 
-	 * @param expedientTipusId
-	 * 
-	 * @param filtre
-	 *            Text per a filtrar els resultats.
-	 * @param paginacioParams
-	 *            Paràmetres per a la paginació dels resultats.
-	 * @return La pàgina del llistat de tipus d'expedients.
-	 * @throws NoTrobatException
-	 *             Si no s'ha trobat el registre amb l'id especificat.
-	 */
-	public PaginaDto<CampDto> campFindPerDatatable(
-			Long expedientTipusId,
-			Long agrupacioId,
-			String filtre, 
-			PaginacioParamsDto paginacioParams) throws NoTrobatException;
-	
-	/** 
-	 * Retorna la llista de camps del tipus d'expedient
-	 * i del tipus data per llistar en un selector.
-	 * 
-	 * @param expedientTipusId
-	 * 
-	 * @return Llistat de camps.
-	 * @throws NoTrobatException
-	 *             Si no s'ha trobat el registre amb l'id especificat.
-	 */
-	public List<CampDto> campFindTipusDataPerExpedientTipus(
-			Long expedientTipusId) throws NoTrobatException;
-	
-	/**
-	 * Retorna un camp d'un tipus d'expedient donat el seu codi.
-	 * 
-	 * @param tipusExpedientId
-	 * @param codi
-	 *            El codi per a la consulta.
-	 * @return El camp del tipus d'expedient o null si no el troba.
-	 */
-	public CampDto campFindAmbCodiPerValidarRepeticio(
-			Long tipusExpedientId,
-			String codi) throws NoTrobatException;
-
-	/**
-	 * Retorna tots els camps d'un tipus d'expedient donat el seu identificador.
-	 * 
-	 * @param tipusExpedientId
-	 * @return Els camps del tipus d'expedient.
-	 */
-	public List<CampDto> campFindAllOrdenatsPerCodi(Long expedientTipusId);
-
-	/**
-	 * Afegeix un camp a una agrupació.
-	 * @param id
-	 * 			Identificador del camp
-	 * @param agrupacioId
-	 * 			Identificador de la agrupació
-	 * @return
-	 * 			Retorna true si ha anat bé o false si no s'ha trobat el camp o la agrupació 
-	 * 			o el seu tipus d'expedient no és el mateix.
-	 */
-	public boolean campAfegirAgrupacio(Long campId, Long agrupacioId);
-
-	/**
-	 * Remou un camp de la seva agrupació.
-	 * 
-	 * @param id
-	 * 			Identificador del camp
-	 * @return
-	 * 			Retorna cert si s'ha remogut correctament o false si no existia el camp o no tenia
-	 * 			agrupació.
-	 */
-	public boolean campRemoureAgrupacio(Long campId);
-
-	/** Mou el camp id cap a la posició indicada reassignant el valor pel camp ordre dins de la agrupació.
-	 * 
-	 * @param id
-	 * @param posicio
-	 * @return Retorna true si ha anat bé o false si no té agrupació o la posició no és correcta.
-	 */
-	public boolean campMourePosicio(Long id, int posicio);
-
-	/**
-	 * Crea una nova validacio.
-	 * 
-	 * @param entornId
-	 *            Atribut id de l'entorn.
-	 * @param campId
-	 *            Atribut id del camp del tipus d'expedient.
-	 * @param validacio
-	 *            La informació de la validacio a crear.
-	 * @return la validacio creada.
-	 * @throws ValidacioDenegatException
-	 *             Si no es tenen els permisos necessaris.
-	 */
-	public ValidacioDto validacioCreate(
-			Long campId,
-			ValidacioDto validacio) throws PermisDenegatException;
-	
-	/**
-	 * Modificació d'una validacio existent.
-	 * 
-	 * @param validacio
-	 *            La informació de la validacio a modificar.
-	 * @return la validacio modificada.
-	 * @throws NoTrobatException
-	 *             Si no s'ha trobat el registre amb l'id especificat.
-	 * @throws PermisDenegatException
-	 *             Si no es tenen els permisos necessaris.
-	 */
-	public ValidacioDto validacioUpdate(
-			ValidacioDto validacio) throws NoTrobatException, PermisDenegatException;
-	
-	/**
-	 * Esborra una validacio.
-	 * 
-	 * @param id
-	 *            Atribut id de la validacio.
-	 * @throws NoTrobatException
-	 *             Si no s'ha trobat el registre amb l'id especificat.
-	 * @throws PermisDenegatException
-	 *             Si no es tenen els permisos necessaris.
-	 */
-	public void validacioDelete(
-			Long id) throws NoTrobatException, PermisDenegatException;	
-	
-	/** 
-	 * Retorna la validacio donat el seu identificador.
-	 * 
-	 * @param id
-	 * 
-	 * @return La validacio de la variable.
-	 * @throws NoTrobatException
-	 *             Si no s'ha trobat el registre amb l'id especificat.
-	 */
-	public ValidacioDto validacioFindAmbId(
-			Long id) throws NoTrobatException;	
-	
-	/** 
-	 * Retorna la llista de validacios de la variable del tipus d'expedient paginada per la datatable.
-	 * 
-	 * @param campId
-	 * 
-	 * @param filtre
-	 *            Text per a filtrar els resultats.
-	 * @param paginacioParams
-	 *            Paràmetres per a la paginació dels resultats.
-	 * @return La pàgina de la llistat de tipus d'expedients.
-	 * @throws NoTrobatException
-	 *             Si no s'ha trobat el registre amb l'id especificat.
-	 */
-	public PaginaDto<ValidacioDto> validacioFindPerDatatable(
-			Long campId,
-			String filtre, 
-			PaginacioParamsDto paginacioParams) throws NoTrobatException;	
-
-	/** Mou la validació id de camp cap a la posició indicada reassignant el valor pel camp ordre.
-	 * 
-	 * @param id
-	 * @param posicio
-	 * @return Retorna true si ha anat bé o false si no té agrupació o la posició no és correcta.
-	 */
-	public boolean validacioMourePosicio(Long id, int posicio);
-	
-	/**
-	 * Crea un nou camp pel registre.
-	 * 
-	 * @param entornId
-	 *            Atribut id de l'entorn.
-	 * @param campId
-	 *            Atribut id del camp del tipus d'expedient.
-	 * @param campRegistre
-	 *            La informació del camp del registre a crear.
-	 * @return el camp del registre creat.
-	 * @throws CampRegistreDenegatException
-	 *             Si no es tenen els permisos necessaris.
-	 */
-	public CampRegistreDto campRegistreCreate(
-			Long campId,
-			CampRegistreDto campRegistre) throws PermisDenegatException;
-	
-	/**
-	 * Modificació d'un camp del registre existent.
-	 * 
-	 * @param campRegistre
-	 *            La informació del camp del registre a modificar.
-	 * @return el camp del registre modificat.
-	 * @throws NoTrobatException
-	 *             Si no s'ha trobat el registre amb l'id especificat.
-	 * @throws PermisDenegatException
-	 *             Si no es tenen els permisos necessaris.
-	 */
-	public CampRegistreDto campRegistreUpdate(
-			CampRegistreDto campRegistre) throws NoTrobatException, PermisDenegatException;
-	
-	/**
-	 * Esborra un camp del registre.
-	 * 
-	 * @param id
-	 *            Atribut id del camp del registre.
-	 * @throws NoTrobatException
-	 *             Si no s'ha trobat el registre amb l'id especificat.
-	 * @throws PermisDenegatException
-	 *             Si no es tenen els permisos necessaris.
-	 */
-	public void campRegistreDelete(
-			Long id) throws NoTrobatException, PermisDenegatException;	
-	
-	/** 
-	 * Retorna el camp del registre donat el seu identificador.
-	 * 
-	 * @param id
-	 * 
-	 * @return La camp del registre.
-	 * @throws NoTrobatException
-	 *             Si no s'ha trobat el registre amb l'id especificat.
-	 */
-	public CampRegistreDto campRegistreFindAmbId(
-			Long id) throws NoTrobatException;	
-	
-	/** 
-	 * Retorna els membres del campRegistre donat l'identificador del registre.
-	 * 
-	 * @param id
-	 * 
-	 * @return La llista de membres.
-	 */
-	public List<CampDto> campRegistreFindMembresAmbRegistreId(Long registreId);
-
-	/** 
-	 * Retorna la llista de camps de la variable de tipus registre del tipus d'expedient paginada per la datatable.
-	 * 
-	 * @param campId
-	 * 
-	 * @param filtre
-	 *            Text per a filtrar els resultats.
-	 * @param paginacioParams
-	 *            Paràmetres per a la paginació dels resultats.
-	 * @return La pàgina de la llistat de tipus d'expedients.
-	 * @throws NoTrobatException
-	 *             Si no s'ha trobat el registre amb l'id especificat.
-	 */
-	public PaginaDto<CampRegistreDto> campRegistreFindPerDatatable(
-			Long campId,
-			String filtre, 
-			PaginacioParamsDto paginacioParams) throws NoTrobatException;	
-
-	/** Mou el camp del registre amb id de camp cap a la posició indicada reassignant el valor pel camp ordre.
-	 * 
-	 * @param id
-	 * @param posicio
-	 * @return Retorna true si ha anat bé o false si no té agrupació o la posició no és correcta.
-	 */
-	public boolean campRegistreMourePosicio(Long id, int posicio);
-
-	/**
 	 * Retorna les enumeracions per a un tipus d'expedient.
 	 * 
 	 * @param expedientTipusId
@@ -816,176 +401,33 @@ public interface ExpedientTipusService {
 	 *             Si no es tenen els permisos necessaris.
 	 */
 	public List<ConsultaDto> consultaFindAll(Long expedientTipusId);
-	
-	
-	/***********************************************/
-	/******************DOCUMENTS********************/
-	/***********************************************/
-	
-	/** 
-	 * Retorna la llista de camps del tipus d'expedient paginada per la datatable.
-	 * 
-	 * @param expedientTipusId
-	 * 
-	 * @param filtre
-	 *            Text per a filtrar els resultats.
-	 * @param paginacioParams
-	 *            Paràmetres per a la paginació dels resultats.
-	 * @return La pàgina del llistat de tipus d'expedients.
-	 * @throws NoTrobatException
-	 *             Si no s'ha trobat el registre amb l'id especificat.
-	 */
-	public PaginaDto<ExpedientTipusDocumentDto> documentFindPerDatatable(
-			Long expedientTipusId,
-			String filtre, 
-			PaginacioParamsDto paginacioParams) throws NoTrobatException;
-	
-	public ExpedientTipusDocumentDto documentCreate(
-			Long expedientTipusId, 
-			ExpedientTipusDocumentDto document) throws PermisDenegatException;
-	
-	public ExpedientTipusDocumentDto documentFindAmbCodi(
-			Long expedientTipusId, 
-			String codi) throws NoTrobatException;
-
-	/**
-	 * Retorna tots els documents d'un tipus d'expedient donat el seu identificador.
-	 * 
-	 * @param tipusExpedientId
-	 * @return Els documents del tipus d'expedient.
-	 */
-	public List<DocumentDto> documentFindAllOrdenatsPerCodi(Long expedientTipusId);		
-
-	public void documentDelete(
-			Long documentId) throws NoTrobatException, PermisDenegatException;
-	
-	public ExpedientTipusDocumentDto documentFindAmbId(
-			Long documentId) throws NoTrobatException;
-	
-	public ExpedientTipusDocumentDto documentUpdate(
-			ExpedientTipusDocumentDto document) throws NoTrobatException, PermisDenegatException;
-		
-	public ArxiuDto getArxiuPerDocument(
-			Long id) throws NoTrobatException;
-	
-	/**
-	 * Crea una nova accio.
-	 * 
-	 * @param entornId
-	 *            Atribut id de l'entorn.
-	 * @param expedientTipusId
-	 *            Atribut id del tipus d'expedient.
-	 * @param accio
-	 *            La informació de la accio a crear.
-	 * @return la accio creada.
-	 * @throws AccioDenegatException
-	 *             Si no es tenen els permisos necessaris.
-	 */
-	public AccioDto accioCreate(
-			Long expedientTipusId,
-			AccioDto accio) throws PermisDenegatException;
-	
-	/**
-	 * Modificació d'una accio existent.
-	 * 
-	 * @param entornId
-	 *            Atribut id de l'entorn.
-	 * @param expedientTipusId
-	 *            Atribut id del tipus d'expedient.
-	 * @param accio
-	 *            La informació de la accio a modificar.
-	 * @return la accio modificat.
-	 * @throws NoTrobatException
-	 *             Si no s'ha trobat el registre amb l'id especificat.
-	 * @throws AccioDenegatException
-	 *             Si no es tenen els permisos necessaris.
-	 */
-	public AccioDto accioUpdate(
-			AccioDto accio) throws NoTrobatException, PermisDenegatException;
-	
-	/**
-	 * Esborra un entitat.
-	 * 
-	 * @param entornId
-	 *            Atribut id de l'entorn.
-	 * @param accioId
-	 *            Atribut id de la accio.
-	 * @throws NoTrobatException
-	 *             Si no s'ha trobat el registre amb l'id especificat.
-	 * @throws AccioDenegatException
-	 *             Si no es tenen els permisos necessaris.
-	 */
-	public void accioDelete(
-			Long accioId) throws NoTrobatException, PermisDenegatException;	
-	
-	/** 
-	 * Retorna la accio del tipus d'expedient donat el seu identificador.
-	 * 
-	 * @param id
-	 * 
-	 * @return La accio del tipus d'expedient.
-	 * @throws NoTrobatException
-	 *             Si no s'ha trobat el registre amb l'id especificat.
-	 */
-	public AccioDto accioFindAmbId(
-			Long id) throws NoTrobatException;	
-	
-	/** 
-	 * Retorna la llista d'accions del tipus d'expedient paginada per la datatable.
-	 * 
-	 * @param expedientTipusId
-	 * 
-	 * @param filtre
-	 *            Text per a filtrar els resultats.
-	 * @param paginacioParams
-	 *            Paràmetres per a la paginació dels resultats.
-	 * @return La pàgina del llistat de tipus d'expedients.
-	 * @throws NoTrobatException
-	 *             Si no s'ha trobat el registre amb l'id especificat.
-	 */
-	public PaginaDto<AccioDto> accioFindPerDatatable(
-			Long expedientTipusId,
-			String filtre, 
-			PaginacioParamsDto paginacioParams) throws NoTrobatException;	
-	
-	/**
-	 * Retorna una accio d'un tipus d'expedient donat el seu codi.
-	 * 
-	 * @param tipusExpedientId
-	 * @param codi
-	 *            El codi per a la consulta.
-	 * @return La accio del tipus d'expedient o null si no el troba.
-	 */
-	public AccioDto accioFindAmbCodiPerValidarRepeticio(
-			Long tipusExpedientId,
-			String codi) throws NoTrobatException;	
 
 	/***********************************************/
 	/*****************ENUMERACIONS******************/
 	/***********************************************/
 
-	public PaginaDto<ExpedientTipusEnumeracioDto> enumeracioFindPerDatatable(
+	public PaginaDto<EnumeracioDto> enumeracioFindPerDatatable(
 			Long expedientTipusId,
 			String filtre, 
 			PaginacioParamsDto paginacioParams) throws NoTrobatException;
 	
-	public ExpedientTipusEnumeracioDto enumeracioCreate(
+	public EnumeracioDto enumeracioCreate(
 			Long expedientTipusId, 
 			Long entornId,
-			ExpedientTipusEnumeracioDto enumeracio) throws PermisDenegatException;
+			EnumeracioDto enumeracio) throws PermisDenegatException;
 	
-	public ExpedientTipusEnumeracioDto enumeracioFindAmbCodi(
+	public EnumeracioDto enumeracioFindAmbCodi(
 			Long expedientTipusId,
-			String codi) throws NoTrobatException;
+			String codi);
 	
 	public void enumeracioDelete(
 			Long enumeracioId) throws NoTrobatException, PermisDenegatException;
 	
-	public ExpedientTipusEnumeracioDto enumeracioFindAmbId(
+	public EnumeracioDto enumeracioFindAmbId(
 			Long enumeracioId) throws NoTrobatException;
 	
-	public ExpedientTipusEnumeracioDto enumeracioUpdate(
-			ExpedientTipusEnumeracioDto enumeracio) throws NoTrobatException, PermisDenegatException;
+	public EnumeracioDto enumeracioUpdate(
+			EnumeracioDto enumeracio) throws NoTrobatException, PermisDenegatException;
 	
 	/***********************************************/
 	/***************VALORS ENUMERACIO***************/
@@ -1020,27 +462,6 @@ public interface ExpedientTipusService {
 			ExpedientTipusEnumeracioValorDto enumeracio) throws NoTrobatException, PermisDenegatException;
 	
 	public boolean enumeracioValorMourer(Long valorId, int posicio) throws NoTrobatException;
-
-
-	/** 
-	 * Retorna la llista de definicions de procés del tipus d'expedient paginada per la datatable.
-	 * 
-	 * @param entornId
-	 * @param expedientTipusId
-	 * @param incloureGlobals 
-	 * 
-	 * @param filtre
-	 *            Text per a filtrar els resultats.
-	 * @param paginacioParams
-	 *            Paràmetres per a la paginació dels resultats.
-	 * @return La pàgina del llistat de tipus d'expedients.
-	 */
-	public PaginaDto<DefinicioProcesDto> definicioProcesFindPerDatatable(
-			Long entornId, 
-			Long expedientTipusId,
-			boolean incloureGlobals,
-			String filtre, 
-			PaginacioParamsDto paginacioParams);
 	
 	/** 
 	 * Retorna la llista de codis de definicions de procés per poder seleccionar
@@ -1056,6 +477,21 @@ public interface ExpedientTipusService {
 			Long expedientTipusId,
 			boolean incloureGlobals);	
 
+	/**
+	 * Retorna les definicions de procés per a un tipus d'expedient.
+	 * 
+	 * @param expedientTipusId
+	 *            Atribut id del tipus d'expedient.
+	 * @return les definicions de procés del tipus d'expedient.
+	 * @throws NoTrobatException
+	 *             Si no s'ha trobat el registre amb l'id especificat.
+	 * @throws PermisDenegatException
+	 *             Si no es tenen els permisos necessaris.
+	 */
+	public List<DefinicioProcesDto> definicioFindAll(
+			Long expedientTipusId) throws NoTrobatException, PermisDenegatException;
+	
+	
 	/**
 	 * Esborra una entitat.
 	 * 
@@ -1083,7 +519,7 @@ public interface ExpedientTipusService {
 			Long id);
 	
 	/**
-	 * Importa al tipus d'expedient la informació de la definició de procés
+	 * Incorpora al tipus d'expedient la informació de la definició de procés
 	 * com són:
 	 * - Agrupacions
 	 * - Variables amb les validacions
@@ -1096,74 +532,12 @@ public interface ExpedientTipusService {
 	 * @param id Identificador del tipus d'expedient.
 	 * @param sobreescriure Indica si les variables se sobreesciuran al tipus d'expedient o es deixaran sense sobreescriure.
 	 */
-	public boolean definicioProcesImportar(
+	public boolean definicioProcesIncorporar(
 			Long expedientTipusId, 
 			Long id, 
 			boolean sobreescriure);
 	
-	/***********************************************/
-	/*******************TERMINIS********************/
-	/***********************************************/
 
-	/** 
-	 * Retorna el termini del tipus d'expedient donat el seu identificador.
-	 * 
-	 * @param terminiId
-	 * 
-	 * @return El termini del tipus d'expedient.
-	 * @throws NoTrobatException
-	 *             Si no s'ha trobat el registre amb l'id especificat.
-	 */
-	public TerminiDto terminiFindAmbId(Long terminiId);
-
-	/**
-	 * Crea un nou termini.
-	 * 
-	 * @param entornId	Atribut id de l'entorn.
-	 * @param expedientTipusId	Atribut id del tipus d'expedient.
-	 * @param termini	La informació del camp a crear.
-	 * @return el termini creat.
-	 */
-	public TerminiDto terminiCreate(Long expedientTipusId, TerminiDto termini);
-	
-	/**
-	 * Modificació d'un termini existent.
-	 * 
-	 * @param entornId	Atribut id de l'entorn.
-	 * @param expedientTipusId	Atribut id del tipus d'expedient.
-	 * @param trmini	La informació del termini a modificar.
-	 * @return el termini modificat.
-	 * @throws NoTrobatException	Si no s'ha trobat el registre amb l'id especificat.
-	 * @throws CampDenegatException	Si no es tenen els permisos necessaris.
-	 */
-	public TerminiDto terminiUpdate(TerminiDto termini);
-	
-	/** 
-	 * Retorna la llista de terminis del tipus d'expedient paginada per la datatable.
-	 * 
-	 * @param expedientTipusId
-	 * 
-	 * @param filtre
-	 *            Text per a filtrar els resultats.
-	 * @param paginacioParams
-	 *            Paràmetres per a la paginació dels resultats.
-	 * @return La pàgina del llistat de tipus d'expedients.
-	 * @throws NoTrobatException
-	 *             Si no s'ha trobat el registre amb l'id especificat.
-	 */
-	public PaginaDto<TerminiDto> terminiFindPerDatatable(
-			Long expedientTipusId,
-			String filtre, 
-			PaginacioParamsDto paginacioParams) throws NoTrobatException;		
-	/**
-	 * Esborra un termini.
-	 * 
-	 * @param entornId	Atribut id de l'entorn.
-	 * @param terminiId	Atribut id del termini.
-	 * @throws NoTrobatException	Si no s'ha trobat el registre amb l'id especificat.
-	 * @throws CampDenegatException	Si no es tenen els permisos necessaris.
-	 */
-	public void terminiDelete(Long terminiId) throws NoTrobatException, PermisDenegatException;
 	/***********************************************/
 	/*******************DOMINIS*********************/
 	/***********************************************/
@@ -1191,6 +565,10 @@ public interface ExpedientTipusService {
 	 */
 	public DominiDto dominiFindAmbId(Long dominiId);
 
+	public DominiDto dominiFindAmbCodi(
+			Long expedientTipusId,
+			String codi);
+	
 	/**
 	 * Crea un nou domini.
 	 * 
@@ -1303,6 +681,19 @@ public interface ExpedientTipusService {
 	public ReassignacioDto reassignacioFindAmbId(
 			Long id) throws NoTrobatException;	
 	
+	/**
+	 * Retorna les reassignacions per a un tipus d'expedient.
+	 * 
+	 * @param expedientTipusId
+	 *            Atribut id del tipus d'expedient.
+	 * @return les reassignacions del tipus d'expedient.
+	 * @throws NoTrobatException
+	 *             Si no s'ha trobat el registre amb l'id especificat.
+	 * @throws PermisDenegatException
+	 *             Si no es tenen els permisos necessaris.
+	 */
+	public List<ReassignacioDto> reassignacioFindAll(
+			Long expedientTipusId) throws NoTrobatException, PermisDenegatException;
 	/** 
 	 * Retorna la llista d'reassignacions del tipus d'expedient paginada per la datatable.
 	 * 
@@ -1701,4 +1092,19 @@ public interface ExpedientTipusService {
 	public MapeigSistraDto mapeigFindAmbCodiSistraPerValidarRepeticio(
 			Long expedientTipusId, 
 			String codiSistra);
+	
+	/**
+	 * Retorna els mapejos de sistra per a un tipus d'expedient.
+	 * 
+	 * @param expedientTipusId
+	 *            Atribut id del tipus d'expedient.
+	 * @return els mapejos del tipus d'expedient.
+	 * @throws NoTrobatException
+	 *             Si no s'ha trobat el registre amb l'id especificat.
+	 * @throws PermisDenegatException
+	 *             Si no es tenen els permisos necessaris.
+	 */
+	public List<MapeigSistraDto> mapeigFindAll(
+			Long expedientTipusId) throws NoTrobatException, PermisDenegatException;
+
 }

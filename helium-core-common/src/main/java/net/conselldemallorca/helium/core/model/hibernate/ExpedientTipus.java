@@ -86,7 +86,8 @@ public class ExpedientTipus implements Serializable, GenericEntity<Long> {
 	 */
 	private boolean ambInfoPropia;
 	
-
+	private String diesNoLaborables;
+	
 	@MaxLength(64)
 	private String sistraTramitCodi;
 	@MaxLength(2048)
@@ -306,7 +307,13 @@ public class ExpedientTipus implements Serializable, GenericEntity<Long> {
 	public void setReindexacioAsincrona(boolean reindexacioAsincrona) {
 		this.reindexacioAsincrona = reindexacioAsincrona;
 	}
-	
+	@Column(name="dies_no_labs")
+	public String getDiesNoLaborables() {
+		return diesNoLaborables;
+	}
+	public void setDiesNoLaborables(String diesNoLaborables) {
+		this.diesNoLaborables = diesNoLaborables;
+	}
 	@Column(name="sistra_codtra", length=64, unique=true)
 	public String getSistraTramitCodi() {
 		return sistraTramitCodi;
@@ -373,7 +380,7 @@ public class ExpedientTipus implements Serializable, GenericEntity<Long> {
 		this.entorn = entorn;
 	}
 
-	@OneToMany(mappedBy="expedientTipus", fetch=FetchType.EAGER)
+	@OneToMany(mappedBy="expedientTipus", fetch=FetchType.EAGER, cascade={CascadeType.ALL})
 	@OrderBy("ordre asc")
 	@Fetch(value = FetchMode.SUBSELECT)
 	public List<Estat> getEstats() {
@@ -432,7 +439,7 @@ public class ExpedientTipus implements Serializable, GenericEntity<Long> {
 		getDefinicionsProces().remove(definicioProces);
 	}
 
-	@OneToMany(mappedBy="expedientTipus", fetch=FetchType.EAGER)
+	@OneToMany(mappedBy="expedientTipus", fetch=FetchType.EAGER, cascade={CascadeType.ALL})
 	@Fetch(value = FetchMode.SUBSELECT)
 	@OrderBy("ordre asc")
 	public Set<Consulta> getConsultes() {

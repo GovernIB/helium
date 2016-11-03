@@ -47,6 +47,7 @@ public class ExpedientTipusCommand {
 	private boolean seleccionarAny;
 	private boolean ambRetroaccio;
 	private boolean reindexacioAsincrona;
+	private String diesNoLaborables;
 
 	private List<String> sequenciesAny = new ArrayList<String>();
 	private List<String> sequenciesValor = new ArrayList<String>();
@@ -165,6 +166,12 @@ public class ExpedientTipusCommand {
 	}
 	public void setReindexacioAsincrona(boolean reindexacioAsincrona) {
 		this.reindexacioAsincrona = reindexacioAsincrona;
+	}
+	public String getDiesNoLaborables() {
+		return diesNoLaborables;
+	}
+	public void setDiesNoLaborables(String diesNoLaborables) {
+		this.diesNoLaborables = diesNoLaborables;
 	}
 	public List<String> getSequenciesAny() {
 		return sequenciesAny;

@@ -291,32 +291,35 @@
 			var row = "";
 			if (expedient.estat == "ESTAT_CANCELAT"){
 				estat = "<span class='fa fa-check-circle'></span><label style='padding-left: 10px'><spring:message code='expedient.termini.estat.cancelat'/></label>";
-			} else if (expedient.estat == "ESTAT_ERROR" && expedient.error != undefined && expedient.error != ""){
-				if (execucio.tipus == 'ELIMINAR_VERSIO_DEFPROC') {
-// 					estat = expedient.error.replace(/\\/g, '');
-					var error_tractat = expedient.error.replace(/\\/g, '');
-					var split_error = error_tractat.split("####exp_afectats");
-					var texte_error = split_error[0];
-					var text_expedients = "";
-					if (split_error[1] != undefined) {
-						var dades_error = split_error[1].split("###");
-						var dpId= dades_error[1];
-						if (dades_error[2] != undefined) {
-							var expedients_error = dades_error[2].split("&&&");
-							expedients_error.shift();
-							if (expedients_error.length > 0) {
-								text_expedients = '<div id="eliminacio_' + expedient.id + '"><br><br>Expedients relacionats:<br>';
-								$.each(expedients_error, function(key, exp) {
-									var exp_split = exp.split("@"); 
-			                        text_expedients += '<div class="lin-exp"><span class="pull-left bexpborrarlog" data-id="' + exp_split[1] + '" data-expedienttipus="' + execucio.expedientTipusId + '"><strong>' + exp_split[0] + '</strong></span></div><br>';
-			                    });
-								text_expedients += '<br><div class="pull-right"><button class="btn btn-default bexpborrartotslogs" data-dpid="' + dpId + '" data-exmid="' + expedient.id + '" data-expedienttipus="' + execucio.expedientTipusId + '">Programar borrat de logs dels expedients afectats i eliminar definició de procés</button></div></div>'
+			} else if (expedient.estat == "ESTAT_ERROR"){
+				if( expedient.error != undefined && expedient.error != ""){
+					if (execucio.tipus == 'ELIMINAR_VERSIO_DEFPROC') {
+						var error_tractat = expedient.error.replace(/\\/g, '');
+						var split_error = error_tractat.split("####exp_afectats");
+						var texte_error = split_error[0];
+						var text_expedients = "";
+						if (split_error[1] != undefined) {
+							var dades_error = split_error[1].split("###");
+							var dpId= dades_error[1];
+							if (dades_error[2] != undefined) {
+								var expedients_error = dades_error[2].split("&&&");
+								expedients_error.shift();
+								if (expedients_error.length > 0) {
+									text_expedients = '<div id="eliminacio_' + expedient.id + '"><br><br>Expedients relacionats:<br>';
+									$.each(expedients_error, function(key, exp) {
+										var exp_split = exp.split("@"); 
+				                        text_expedients += '<div class="lin-exp"><span class="pull-left bexpborrarlog" data-id="' + exp_split[1] + '" data-expedienttipus="' + execucio.expedientTipusId + '"><strong>' + exp_split[0] + '</strong></span></div><br>';
+				                    });
+									text_expedients += '<br><div class="pull-right"><button class="btn btn-default bexpborrartotslogs" data-dpid="' + dpId + '" data-exmid="' + expedient.id + '" data-expedienttipus="' + execucio.expedientTipusId + '">Programar borrat de logs dels expedients afectats i eliminar definició de procés</button></div></div>'
+								}
 							}
 						}
+						estat = texte_error + text_expedients;
+					} else {
+						estat = "<span class='fa fa-exclamation-circle'></span><label class='msg-error' data-msg-error='" + expedient.error + "' style='cursor: pointer;padding-left: 10px'><spring:message code='expedient.termini.estat.error'/></label>";					
 					}
-					estat = texte_error + text_expedients;
 				} else {
-					estat = "<span class='fa fa-exclamation-circle'></span><label class='msg-error' data-msg-error='" + expedient.error + "' style='cursor: pointer;padding-left: 10px'><spring:message code='expedient.termini.estat.error'/></label>";					
+					estat = "<span class='fa fa-exclamation-circle'></span><label class='msg-error' data-msg-error='<spring:message code="expedient.tramitacio.massiva.error.desconegut"/>' style='cursor: pointer;padding-left: 10px'><spring:message code='expedient.termini.estat.error'/></label>";					
 				}
 			} else if (expedient.estat == "ESTAT_FINALITZAT"){
 				estat = "<span class='fa fa-check-circle'></span><label style='padding-left: 10px'><spring:message code='expedient.termini.estat.finalizat'/></label>";
@@ -326,8 +329,6 @@
 					estat += "<i class='fa fa-times' onclick=\"cancelarExpedientMassiveAct('execucionsMassives/cancelExpedientMassiveAct','" + expedient.id + "')\" style='padding-left: 10px; cursor: pointer' title=\"<spring:message code='expedient.termini.estat.cancelat'/>\" alt=\"<spring:message code='expedient.termini.estat.cancelat'/>\"> </i>";
 				}
 				estat += "</label>";
-			} else {
-				estat = "<span class='fa fa-clock-o'></span><label style='padding-left: 10px'><spring:message code='expedient.termini.estat.process'/></label>";
 			}
 			
 			if (actualizar) {				
@@ -459,6 +460,8 @@
 								})
 					        }
 				   		});
+					} else {
+						$("#massiva_contens").html('<div class="well"><span class="fa fa-info-circle"></span> No hi ha execucions massives a mostrar</div>');	
 					}
 				}
 			})
@@ -498,70 +501,6 @@
 			});
 			bindButtons();
 		}
-		
-		/*function refreshExecucionsMassives() {
-			$.ajax({
-				url: nivell + "/refreshBarsExpedientMassive",
-				dataType: 'json',
-				data: {results: numResults},
-				async: false,
-				success: function(data) {
-					var length = data.length;
-					var execucio = null;
-					if (length > 0) {
-						// Actualitzam barres de progrés
-						for (var i = 0; i < length; i++) {
-							execucio = data[i];
-							createBar("pbar_" + execucio.id, execucio.executades);
-						}
-						
-						for (var i = 0; i < length; i++) {
-							execucio = data[i];
-							var exps =  execucio.total;
-							var content = "";
-							// Afegim noves execucions
-							if ($("#mass_" + execucio.id).length == 0) {
-								content +=	'<div class="panel-group"><div class="panel panel-default">';
-								content += createTit(execucio);
-								content +=	'<div id="collapse_' + execucio.id + '" class="panel-collapse collapse">';
-								
-								if (exps > 0) {
-									content += 
-										'<table class="table table-striped table-bordered dataTable" id="massexpt_' + execucio.id + '">' +
-											'<thead>' +
-												'<tr>' +
-													'<th class="massiu-expedient"><spring:message code="expedient.llistat.expedient"/></th>' +
-													'<th class="massiu-estat"><spring:message code="expedient.consulta.estat"/></th>' +
-												'</tr>' +
-											'</thead>' +
-										'<tbody>';
-									content += '</tbody></table>';
-								}
-								content += '</div></div>';
-								$("#accordio_massiva").prepend(content);
-								createBar("pbar_" + execucio.id, execucio.executades);
-								
-							    $("#accordio_massiva .panel-heading").click(function() {
-							    	$(this).find(".icona-collapse").toggleClass('fa-chevron-down');
-							    	$(this).find(".icona-collapse").toggleClass('fa-chevron-up');
-						   		});
-							    
-							    $(document).ready(function(){					 
-									$(".msg-error").bind({
-									   mousemove : changeTooltipPosition,
-									   mouseenter : showTooltip
-									});
-								});
-							}
-						}
-					}
-				}
-			})
-			.fail(function( jqxhr, textStatus, error ) {
-				var err = textStatus + ', ' + error;
-				console.log( "Request Failed: " + err);
-			})
-		}*/
 	</script>
 </head>
 <body>	

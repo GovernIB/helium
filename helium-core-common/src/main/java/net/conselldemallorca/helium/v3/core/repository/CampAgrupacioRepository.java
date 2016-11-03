@@ -12,6 +12,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import net.conselldemallorca.helium.core.model.hibernate.CampAgrupacio;
+import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 
 /**
@@ -27,7 +28,6 @@ public interface CampAgrupacioRepository extends JpaRepository<CampAgrupacio, Lo
 			"    ca.definicioProces.id=:definicioProcesId " +
 			"order by " +
 			"    ordre")
-	
 	List<CampAgrupacio> findAmbDefinicioProcesOrdenats(
 			@Param("definicioProcesId") Long definicioProcesId);
 
@@ -37,7 +37,6 @@ public interface CampAgrupacioRepository extends JpaRepository<CampAgrupacio, Lo
 			"    ca.expedientTipus.id=:expedientTipusId " +
 			"order by " +
 			"    ordre")
-	
 	List<CampAgrupacio> findAmbExpedientTipusOrdenats(
 			@Param("expedientTipusId") Long expedientTipusId);
 
@@ -69,20 +68,25 @@ public interface CampAgrupacioRepository extends JpaRepository<CampAgrupacio, Lo
 	@Query(	"select coalesce( max( ca.ordre), -1) + 1 " +
 			"from CampAgrupacio ca " +
 			"where " +
-			"    ca.expedientTipus.id = :expedientTipusId " )
-	Integer getNextOrdre(@Param("expedientTipusId") Long expedientTipusId);
+			"   (ca.expedientTipus.id = :expedientTipusId or ca.expedientTipus.id is null) " +
+			"   and (ca.definicioProces.id = :definicioProcesId or ca.definicioProces.id is null)")
+	Integer getNextOrdre(@Param("expedientTipusId") Long expedientTipusId,
+						 @Param("definicioProcesId") Long definicioProcesId);
 
 	/** Per trobar codis repetits. */
-	CampAgrupacio findByExpedientTipusAndCodi(ExpedientTipus expedientTipus, String codi);	
+	CampAgrupacio findByExpedientTipusIdAndCodi(Long expedientTipusId, String codi);	
+	CampAgrupacio findByDefinicioProcesIdAndCodi(Long definicioProcesId, String codi);	
 		
 	@Query(	"from CampAgrupacio a " +
 			"where " +
-			"   a.expedientTipus.id = :expedientTipusId " +
+			"   (a.expedientTipus.id = :expedientTipusId or a.expedientTipus.id is null) " +
+			"   and (a.definicioProces.id = :definicioProcesId or a.definicioProces.id is null) " +
 			"	and (:esNullFiltre = true " +
 			"			or lower(a.codi) like lower('%'||:filtre||'%') " +
 			"			or lower(a.nom) like lower('%'||:filtre||'%')) ")
 	Page<CampAgrupacio> findByFiltrePaginat(
-			@Param("expedientTipusId") Long tipusExpedientId,
+			@Param("expedientTipusId") Long expedientTipusId,
+			@Param("definicioProcesId") Long definicioProcesId,
 			@Param("esNullFiltre") boolean esNullFiltre,
 			@Param("filtre") String filtre,		
 			Pageable pageable);	

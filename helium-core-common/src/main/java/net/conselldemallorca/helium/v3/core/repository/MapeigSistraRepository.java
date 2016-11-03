@@ -54,5 +54,11 @@ public interface MapeigSistraRepository extends JpaRepository<MapeigSistra, Long
 
 	MapeigSistra findByExpedientTipusAndCodiHelium(ExpedientTipus expedientTipus, String codiHelium);
 
-	MapeigSistra findByExpedientTipusAndCodiSistra(ExpedientTipus expedientTipus, String codiSistra);	
+	MapeigSistra findByExpedientTipusAndCodiSistra(ExpedientTipus expedientTipus, String codiSistra);
+
+	@Query(	"from MapeigSistra m " +
+			"where " +
+			"   m.expedientTipus.id = :expedientTipusId")
+	List<MapeigSistra> findAmbExpedientTipus(
+			@Param("expedientTipusId") Long expedientTipusId);
 }

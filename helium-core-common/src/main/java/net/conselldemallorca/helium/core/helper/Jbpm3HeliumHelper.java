@@ -759,14 +759,21 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 			int anys,
 			int mesos,
 			int dies,
-			boolean laborable) {
+			boolean laborable,
+			String processInstanceId) {
 		logger.debug("Calculant data d'inici de termini a partir d'una data de fi (" +
 				"fi=" + fi + ", " +
 				"anys=" + anys + ", " +
 				"mesos=" + mesos + ", " +
 				"dies=" + dies + ", " +
 				"laborable=" + laborable + ")");
-		return terminiHelper.getDataIniciTermini(fi, anys, mesos, dies, laborable);
+		return terminiHelper.getDataIniciTermini(
+				fi, 
+				anys, 
+				mesos, 
+				dies, 
+				laborable,
+				processInstanceId);
 	}
 
 	@Override
@@ -775,14 +782,15 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 			int anys,
 			int mesos,
 			int dies,
-			boolean laborable) {
+			boolean laborable,
+			String processInstanceId) {
 		logger.debug("Calculant data de fi de termini a partir d'una data d'inici (" +
 				"inici=" + inici + ", " +
 				"anys=" + anys + ", " +
 				"mesos=" + mesos + ", " +
 				"dies=" + dies + ", " +
 				"laborable=" + laborable + ")");
-		return terminiHelper.getDataFiTermini(inici, anys, mesos, dies, laborable);
+		return terminiHelper.getDataFiTermini(inici, anys, mesos, dies, laborable, processInstanceId);
 	}
 
 	@Override
@@ -815,7 +823,8 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 				anys,
 				mesos,
 				dies,
-				esDataFi);
+				esDataFi,
+				false);
 		
 	}
 
@@ -840,7 +849,8 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 				termini.getId(),
 				processInstanceId,
 				data,
-				esDataFi);
+				esDataFi,
+				false);
 	}
 
 	@Override
@@ -853,7 +863,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 		TerminiIniciat termini = terminiHelper.findTerminiIniciatById(terminiIniciatId);
 		if (termini == null)
 			throw new NoTrobatException(TerminiIniciat.class, terminiIniciatId);
-		terminiHelper.cancelar(terminiIniciatId, data);
+		terminiHelper.cancelar(terminiIniciatId, data, false);
 	}
 
 	@Override
@@ -866,7 +876,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 		TerminiIniciat termini = terminiHelper.findTerminiIniciatById(terminiIniciatId);
 		if (termini == null)
 			throw new NoTrobatException(TerminiIniciat.class, terminiIniciatId);
-		terminiHelper.pausar(terminiIniciatId, data);
+		terminiHelper.pausar(terminiIniciatId, data, false);
 	}
 
 	@Override
@@ -879,7 +889,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 		TerminiIniciat termini = terminiHelper.findTerminiIniciatById(terminiIniciatId);
 		if (termini == null)
 			throw new NoTrobatException(TerminiIniciat.class, terminiIniciatId);
-		terminiHelper.continuar(terminiIniciatId, data);
+		terminiHelper.continuar(terminiIniciatId, data, false);
 	}
 
 	@Override
@@ -1059,7 +1069,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 		return documentHelper.getArxiuPerDocumentStoreId(
 				documentStoreId,
 				false,
-				true);
+				false);
 	}
 
 	@Override

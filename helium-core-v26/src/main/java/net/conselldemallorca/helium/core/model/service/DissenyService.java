@@ -15,8 +15,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
+import org.jbpm.graph.def.ProcessDefinition;
 import org.jbpm.graph.exe.ProcessInstanceExpedient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
@@ -110,6 +112,7 @@ import net.conselldemallorca.helium.core.security.AclServiceDao;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessDefinition;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmTask;
+import net.conselldemallorca.helium.v3.core.api.service.ExpedientService.FiltreAnulat;
 
 
 /**
@@ -278,7 +281,61 @@ public class DissenyService {
 			}
 		}
 	}
+	
+	/** Mètode per rebre un arxiu .par i actualitzar els handlers de la darrera versió d'una definició
+	 * de procés existent a l'entorn amb la informació dels handlers continguda a l'arxiu .par.
+	 * @param entornId
+	 * @param nomArxiu Nom per comprovar que acabi amb ar.
+	 * @param contingut Contingut del fitxe d'exportació jbpm que conté entre altra informació els handlers
+	 * per actualitzar.
+	 * @return La definició de procés actualitzada si tot ha anat bé.
+	 */
+	@CacheEvict(value = "consultaCache", allEntries=true)
+	public DefinicioProces updateHandlers(
+			Long entornId, 
+			String nomArxiu,
+			byte[] contingut) {
+		// Comprova el nom de l'arxiu
+		if (! nomArxiu.endsWith("ar")) {
+			throw new RuntimeException(
+					getServiceUtils().getMessage("desplegament.jbpm.accio.actualitzar.error.arxiuNom", new Object[] {nomArxiu}));
+		}
+		// Obrir el .par i comprovar que és correcte
+		// Thanks to George Mournos who helped to improve this:
+		ZipInputStream zipInputStream = new ZipInputStream(new ByteArrayInputStream(contingut));
+		ProcessDefinition processDefinition;
+		try {
+			processDefinition = ProcessDefinition.parseParZipInputStream(zipInputStream);
+		} catch (Exception e) {
+			throw new DeploymentException(
+					getServiceUtils().getMessage("desplegament.jbpm.accio.actualitzar.error.parse"));		
+		}
+		JbpmProcessDefinition jbpmProcessDefinition = new JbpmProcessDefinition(processDefinition);
+    	// Recuperar la darrera versió de la definició de procés
+		DefinicioProces darrera = definicioProcesDao.findDarreraVersioAmbEntornIJbpmKey(
+				entornId,
+				jbpmProcessDefinition.getKey());
+		if (darrera == null)
+			throw new DeploymentException(
+					getServiceUtils().getMessage("desplegament.jbpm.accio.actualitzar.error.jbpmKey", new Object[] {jbpmProcessDefinition.getKey()}));
+		
+		// Construeix la llista de handlers a partir del contingut del fitxer .par que acabin amb .class
+		@SuppressWarnings("unchecked")
+		Map<String, byte[]> bytesMap = jbpmProcessDefinition.getProcessDefinition().getFileDefinition().getBytesMap();
+		Map<String, byte[]> handlers = new HashMap<String, byte[]>();
+		for (String nom : bytesMap.keySet()) 
+			if (nom.endsWith(".class")) {
+				handlers.put(nom, bytesMap.get(nom));
+			}
+		// Actualitza els handlers de la darrera versió de la definició de procés
+		jbpmDao.updateHandlers(
+				Long.parseLong(darrera.getJbpmId()), 
+				handlers);
+		
+		return darrera;
 
+	}
+	
 	public DefinicioProcesDto getById(
 			Long id,
 			boolean ambTascaInicial) {
@@ -1404,6 +1461,7 @@ public class DissenyService {
 		dto.setSeleccionarAny(expedientTipus.isSeleccionarAny());
 		dto.setAmbRetroaccio(expedientTipus.isAmbRetroaccio());
 		dto.setReindexacioAsincrona(expedientTipus.isReindexacioAsincrona());
+		dto.setDiesNoLaborables(expedientTipus.getDiesNoLaborables());
 		dto.setResponsableDefecteCodi(expedientTipus.getResponsableDefecteCodi());
 		dto.setSistraTramitCodi(expedientTipus.getSistraTramitCodi());
 		dto.setFormextUrl(expedientTipus.getFormextUrl());
@@ -1550,6 +1608,7 @@ public class DissenyService {
 		expedientTipus.setSeleccionarAny(exportacio.isSeleccionarAny());
 		expedientTipus.setAmbRetroaccio(exportacio.isAmbRetroaccio());
 		expedientTipus.setReindexacioAsincrona(exportacio.isReindexacioAsincrona());
+		expedientTipus.setDiesNoLaborables(exportacio.getDiesNoLaborables());
 		expedientTipus.setResponsableDefecteCodi(exportacio.getResponsableDefecteCodi());
 		expedientTipus.setSistraTramitCodi(exportacio.getSistraTramitCodi());
 		expedientTipus.setJbpmProcessDefinitionKey(exportacio.getJbpmProcessDefinitionKey());
@@ -2411,42 +2470,46 @@ public class DissenyService {
 	private DefinicioProcesDto toDto(
 			DefinicioProces definicioProces,
 			boolean ambTascaInicial) {
-		DefinicioProcesDto dto = new DefinicioProcesDto();
-		dto.setId(definicioProces.getId());
-		dto.setJbpmId(definicioProces.getJbpmId());
-		dto.setJbpmKey(definicioProces.getJbpmKey());
-		dto.setVersio(definicioProces.getVersio());
-		dto.setEtiqueta(definicioProces.getEtiqueta());
-		dto.setDataCreacio(definicioProces.getDataCreacio());
-		dto.setEntorn(definicioProces.getEntorn());
-		dto.setExpedientTipus(definicioProces.getExpedientTipus());
-		JbpmProcessDefinition jpd = jbpmDao.getProcessDefinition(definicioProces.getJbpmId());
-		if (jpd != null)
-			dto.setJbpmName(jpd.getName());
-		else
-			dto.setJbpmName("[" + definicioProces.getJbpmKey() + "]");
-
-		List<DefinicioProces> mateixaKeyIEntorn = definicioProcesDao.findAmbEntornIJbpmKey(
-				definicioProces.getEntorn().getId(),
-				definicioProces.getJbpmKey());
-		dto.setIdsWithSameKey(new Long[mateixaKeyIEntorn.size()]);
-		dto.setIdsMostrarWithSameKey(new String[mateixaKeyIEntorn.size()]);
-		dto.setJbpmIdsWithSameKey(new String[mateixaKeyIEntorn.size()]);
-		for (int i = 0; i < mateixaKeyIEntorn.size(); i++) {
-			dto.getIdsWithSameKey()[i] = mateixaKeyIEntorn.get(i).getId();
-			dto.getIdsMostrarWithSameKey()[i] = mateixaKeyIEntorn.get(i).getIdPerMostrar();
-			dto.getJbpmIdsWithSameKey()[i] = mateixaKeyIEntorn.get(i).getJbpmId();
-		}
-		if (ambTascaInicial) {
-			dto.setHasStartTask(hasStartTask(definicioProces));
-			dto.setStartTaskName(jbpmDao.getStartTaskName(definicioProces.getJbpmId()));
-			dto.setHasStartTaskWithSameKey(new Boolean[mateixaKeyIEntorn.size()]);
+		if (definicioProces != null) {
+			DefinicioProcesDto dto = new DefinicioProcesDto();
+			dto.setId(definicioProces.getId());
+			dto.setJbpmId(definicioProces.getJbpmId());
+			dto.setJbpmKey(definicioProces.getJbpmKey());
+			dto.setVersio(definicioProces.getVersio());
+			dto.setEtiqueta(definicioProces.getEtiqueta());
+			dto.setDataCreacio(definicioProces.getDataCreacio());
+			dto.setEntorn(definicioProces.getEntorn());
+			dto.setExpedientTipus(definicioProces.getExpedientTipus());
+			JbpmProcessDefinition jpd = jbpmDao.getProcessDefinition(definicioProces.getJbpmId());
+			if (jpd != null)
+				dto.setJbpmName(jpd.getName());
+			else
+				dto.setJbpmName("[" + definicioProces.getJbpmKey() + "]");
+	
+			List<DefinicioProces> mateixaKeyIEntorn = definicioProcesDao.findAmbEntornIJbpmKey(
+					definicioProces.getEntorn().getId(),
+					definicioProces.getJbpmKey());
+			dto.setIdsWithSameKey(new Long[mateixaKeyIEntorn.size()]);
+			dto.setIdsMostrarWithSameKey(new String[mateixaKeyIEntorn.size()]);
+			dto.setJbpmIdsWithSameKey(new String[mateixaKeyIEntorn.size()]);
 			for (int i = 0; i < mateixaKeyIEntorn.size(); i++) {
-				dto.getHasStartTaskWithSameKey()[i] = new Boolean(
-						hasStartTask(mateixaKeyIEntorn.get(i)));
+				dto.getIdsWithSameKey()[i] = mateixaKeyIEntorn.get(i).getId();
+				dto.getIdsMostrarWithSameKey()[i] = mateixaKeyIEntorn.get(i).getIdPerMostrar();
+				dto.getJbpmIdsWithSameKey()[i] = mateixaKeyIEntorn.get(i).getJbpmId();
 			}
+			if (ambTascaInicial) {
+				dto.setHasStartTask(hasStartTask(definicioProces));
+				dto.setStartTaskName(jbpmDao.getStartTaskName(definicioProces.getJbpmId()));
+				dto.setHasStartTaskWithSameKey(new Boolean[mateixaKeyIEntorn.size()]);
+				for (int i = 0; i < mateixaKeyIEntorn.size(); i++) {
+					dto.getHasStartTaskWithSameKey()[i] = new Boolean(
+							hasStartTask(mateixaKeyIEntorn.get(i)));
+				}
+			}
+			return dto;
+		} else {
+			return null;
 		}
-		return dto;
 	}
 	private boolean hasStartTask(DefinicioProces definicioProces) {
 		Long definicioProcesId = definicioProces.getId();
@@ -4114,6 +4177,53 @@ public class DissenyService {
 		}
 		return resposta;
 	}
-	
+
+	/** Actualitza les plantilles dels documents de les definicions de procés que tinguin
+	 * expedients actius amb la informació dels documents plantilla de la darrera versió 
+	 * de la definició de procés.
+	 */
+	public void propagarPlantilles(
+			Long entornId,
+			Long expedientTipusId) {		
+
+		List<Document> documentsPlantilles = new ArrayList<Document>();
+		int expedientsActiusCount;
+		//	per cada darrera versió de la definició de procés del tipus d'expedient
+		for (DefinicioProces definicioDarrera : definicioProcesDao.findDarreresVersionsAmbExpedientTipus(expedientTipusId)) {
+			// Mira si hi ha documents amb plantilles
+			documentsPlantilles.clear();
+			for (Document document : definicioDarrera.getDocuments())
+				if (document.isPlantilla())
+					documentsPlantilles.add(document);
+			if (documentsPlantilles.size() > 0) {
+				// Propaga els documents per a totes les versions anteriors
+				for (DefinicioProces definicioAnterior :  definicioProcesDao.findAmbEntornExpedientTipusIJbpmKey(
+																entornId, 
+																expedientTipusId, 
+																definicioDarrera.getJbpmKey())) {
+					// comprova que sigui una versió anterior
+					if (definicioAnterior.getVersio() < definicioDarrera.getVersio()) {
+						// Comprova que tingui expedients actius
+						expedientsActiusCount = expedientDao.countAmbEntornConsultaGeneral(
+								entornId, null, null, null, null, expedientTipusId, null, null, true, false, null, null, null, FiltreAnulat.ACTIUS, null);
+						if (expedientsActiusCount > 0 ) {
+							for ( Document documentPlantilla : documentsPlantilles) {
+								Document document = documentDao.findAmbDefinicioProcesICodi(
+										definicioAnterior.getId(),
+										documentPlantilla.getCodi());
+								// Comprova si existeix
+								if (document != null && document.isPlantilla())  {
+										document.setArxiuContingut(documentPlantilla.getArxiuContingut());
+										document.setPlantilla(true);
+										documentDao.saveOrUpdate(document);
+										documentDao.flush();
+								}							
+							}						
+						}
+					}
+				}
+			}
+		}		
+	}
 	
 }

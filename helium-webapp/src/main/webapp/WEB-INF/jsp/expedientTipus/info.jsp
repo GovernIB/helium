@@ -52,6 +52,7 @@ function confirmar(e) {
 		<dt>Reindexa asíncronament?</dt><dd><c:choose><c:when test="${expedientTipus.reindexacioAsincrona}">Si</c:when><c:otherwise>No</c:otherwise></c:choose></dd>
 		<c:if test="${not empty expedientTipus.responsableDefecteCodi}"><dt>Responsable per defecte</dt><dd>${responsableDefecte.nomSencer}</dd></c:if>
 		<c:if test="${not empty definicioProcesInicial}"><dt>Definició de procés inicial</dt><dd>${definicioProcesInicial.jbpmName}</dd></c:if>
+		<c:if test="${not empty expedientTipus.diesNoLaborables}"><dt>Dies no laborables</dt><dd>${expedientTipus.diesNoLaborables}</dd></c:if>
 	</dl>
 	<div style="clear: both"></div>
 	<br/>
@@ -86,6 +87,18 @@ function confirmar(e) {
 		<form style="display: inline;" action="<c:url value="/expedientTipus/exportar.html"/>" method="post" style="display: inline">
 			<input type="hidden" name="expedientTipusId" value="${expedientTipus.id}"/>
 			<button type="submit" class="submitButton"><fmt:message key='defproc.info.exportar_versio' /></button>
+		</form>
+		<form style="display: inline;" action="<c:url value="/expedientTipus/propagarPlantilles.html"/>" method="post" style="display: inline">
+			<input type="hidden" name="expedientTipusId" value="${expedientTipus.id}"/>
+			<button type="submit" class="submitButton" title="<fmt:message key='exptipus.info.propagar.plantilles.info' />">
+				<fmt:message key='exptipus.info.propagar.plantilles' />
+			</button>
+		</form>
+		<form style="display: inline;" action="<c:url value="/expedientTipus/propagarConsultes.html"/>" method="post" style="display: inline">
+			<input type="hidden" name="expedientTipusId" value="${expedientTipus.id}"/>
+			<button type="submit" class="submitButton" title="<fmt:message key='exptipus.info.propagar.consultes.info' />">
+				<fmt:message key='exptipus.info.propagar.consultes' />
+			</button>
 		</form>
 	</div>
  

@@ -74,6 +74,10 @@ public class ConversioTipusHelper {
 						target.setExpedientTipus(mapperFacade.map(
 								source.getExpedientTipus(), 
 								ExpedientTipusDto.class));
+						if (source.getCampData() != null)
+							target.setCampData(mapperFacade.map(
+									source.getCampData(), 
+									CampDto.class));
 						return target;
 					}
 		});
@@ -127,6 +131,10 @@ public class ConversioTipusHelper {
 						target.setConsultaParams(source.getConsultaParams());
 						target.setConsultaCampValor(source.getConsultaCampValor());
 						target.setConsultaCampText(source.getConsultaCampText());
+						
+						// Dades accio
+						target.setDefprocJbpmKey(source.getDefprocJbpmKey());
+						target.setJbpmAction(source.getJbpmAction());
 						
 						target.setDominiCacheText(source.isDominiCacheText());
 						
@@ -191,6 +199,7 @@ public class ConversioTipusHelper {
 								ConsultaDto consulte = new ConsultaDto();
 								consulte.setId(consulta.getId());
 								consulte.setNom(consulta.getNom());
+								consulte.setCodi(consulta.getCodi());
 								target.getConsultes().add(consulte);
 							}
 						}
@@ -203,6 +212,7 @@ public class ConversioTipusHelper {
 						target.setAmbRetroaccio(source.isAmbRetroaccio());
 						target.setAmbInfoPropia(source.isAmbInfoPropia());
 						target.setReindexacioAsincrona(source.isReindexacioAsincrona());
+						target.setDiesNoLaborables(source.getDiesNoLaborables());
 						target.setSequencia(source.getSequencia());
 						target.setSequenciaDefault(source.getSequenciaDefault());
 						target.setTeNumero(source.getTeNumero());
@@ -260,6 +270,7 @@ public class ConversioTipusHelper {
 						target.setAmbRetroaccio(source.isAmbRetroaccio());
 						target.setAmbInfoPropia(source.isAmbInfoPropia());
 						target.setReindexacioAsincrona(source.isReindexacioAsincrona());
+						target.setDiesNoLaborables(source.getDiesNoLaborables());
 						target.setSequencia(source.getSequencia());
 						target.setSequenciaDefault(source.getSequenciaDefault());
 						target.setTeNumero(source.isTeNumero());
@@ -326,11 +337,8 @@ public class ConversioTipusHelper {
 						target.setCampDescripcio(source.getCampDescripcio());
 						if (source.getParamTipus() != null)
 							target.setParamTipus(ConsultaCampDto.TipusParamConsultaCamp.valueOf(source.getParamTipus().toString()));
-						if (source.getCamp() != null) {
-							target.setCampId(source.getCamp().getId());
-							target.setCampTipus(CampTipusDto.valueOf(source.getCamp().getTipus().toString()));
-							target.setCampEtiqueta(source.getCamp().getEtiqueta());
-						}
+						target.setDefprocJbpmKey(source.getDefprocJbpmKey());
+						target.setDefprocVersio(source.getDefprocVersio());
 						target.setOrdre(source.getOrdre());
 						return target;
 					}

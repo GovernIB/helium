@@ -5,8 +5,10 @@ package net.conselldemallorca.helium.webapp.v3.controller;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -25,10 +27,13 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
+import net.conselldemallorca.helium.core.util.ExpedientCamps;
+import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ConsultaCampDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ConsultaCampDto.TipusConsultaCamp;
 import net.conselldemallorca.helium.v3.core.api.dto.ConsultaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
@@ -287,18 +292,26 @@ public class ExpedientTipusConsultaController extends BaseExpedientTipusControll
 			@PathVariable Long consultaId,
 			Model model,
 			TipusConsultaCamp tipus) {
+		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
 		model.addAttribute("expedientTipusId", expedientTipusId);
 		model.addAttribute("consulta", expedientTipusService.consultaFindAmbId(consultaId));
 		model.addAttribute("tipus", tipus);
+		List<DefinicioProcesDto> definicions = definicioProcesService.findAll(
+					entornActual.getId(),
+					null /*null per incloure les globals*/);
+		model.addAttribute("definicionsProces", definicions);
 
 		ExpedientTipusConsultaVarCommand command = new ExpedientTipusConsultaVarCommand();
 		command.setExpedientTipusId(expedientTipusId);
 		command.setConsultaId(consultaId);
 		command.setTipus(tipus);
+		command.setOrigen(ExpedientTipusConsultaVarCommand.ORIGEN_EXPEDIENT);
 		model.addAttribute("expedientTipusConsultaVarCommand", command);
 		model.addAttribute("variables", obtenirParellesVariables(
+				request,
 				expedientTipusId,
 				consultaId,
+				command.getOrigen(),
 				command.getTipus()));
 
 		return "v3/expedientTipusConsultaVar";
@@ -337,15 +350,23 @@ public class ExpedientTipusConsultaController extends BaseExpedientTipusControll
     		model.addAttribute("consulta", expedientTipusService.consultaFindAmbId(consultaId));
     		model.addAttribute("tipus", command.getTipus());
     		model.addAttribute("variables", obtenirParellesVariables(
+    				request,
     				expedientTipusId,
     				consultaId,
+    				command.getOrigen(),
     				command.getTipus()));
         	return "v3/expedientTipusConsultaVar";
         } else {
-        	// Verificar permisos
+        	ConsultaCampDto commandDto = ExpedientTipusConsultaVarCommand.asConsultaCampDto(command);
+        	if (command.getOrigen() >= 0) {
+        		// Completa les dades de la definicó de procés
+        		DefinicioProcesDto definicioProces = definicioProcesService.findById(command.getOrigen());
+        		commandDto.setDefprocJbpmKey(definicioProces.getJbpmKey());
+        		commandDto.setDefprocVersio(definicioProces.getVersio());
+        	}
     		expedientTipusService.consultaCampCreate(
     				consultaId,
-    				ExpedientTipusConsultaVarCommand.asConsultaCampDto(command));    		
+    				commandDto);    		
 			MissatgesHelper.success(
 					request,
 					getMessage(
@@ -412,9 +433,10 @@ public class ExpedientTipusConsultaController extends BaseExpedientTipusControll
 			HttpServletRequest request,
 			@PathVariable Long expedientTipusId,
 			@PathVariable Long consultaId,
+			@RequestParam Long origen,
 			@RequestParam TipusConsultaCamp tipus,
 			Model model) {
-		return obtenirParellesVariables(expedientTipusId, consultaId, tipus);
+		return obtenirParellesVariables(request, expedientTipusId, consultaId, origen, tipus);
 	}	
 			
 	/**
@@ -426,32 +448,80 @@ public class ExpedientTipusConsultaController extends BaseExpedientTipusControll
 	 * @return
 	 */
 	private List<ParellaCodiValorDto> obtenirParellesVariables(
+			HttpServletRequest request,
 			Long expedientTipusId,
 			Long consultaId,
+			Long origen,
 			TipusConsultaCamp tipus) {
 		List<ParellaCodiValorDto> resposta = new ArrayList<ParellaCodiValorDto>();
-		// Obté totes les variables del tipus d'expedient
-		List<CampDto> variables = expedientTipusService.campFindAllOrdenatsPerCodi(expedientTipusId);
-		// Consulta els camps de la consulta segons el tipus
-		List<ConsultaCampDto> camps = expedientTipusService.consultaCampFindCampAmbConsultaIdAndTipus(
-				consultaId,
-				tipus);
-		// Lleva les variables que ja pertanyin a algun camp
-		Iterator<CampDto> it = variables.iterator();
-		while (it.hasNext()) {
-			CampDto variable = it.next();
-			for (ConsultaCampDto camp : camps) {
-				if (variable.getId().equals(camp.getCampId())) {
-					it.remove();
-					break;
+		if (origen == ExpedientTipusConsultaVarCommand.ORIGEN_EXPEDIENT) {
+			// Variables del tipus d'expedient
+			resposta.add(new ParellaCodiValorDto(
+					ExpedientCamps.EXPEDIENT_CAMP_ID, 
+					getMessage(request, "etiqueta.exp.id")));
+			resposta.add(new ParellaCodiValorDto(
+					ExpedientCamps.EXPEDIENT_CAMP_NUMERO, 
+					getMessage(request, "etiqueta.exp.numero")));
+			resposta.add(new ParellaCodiValorDto(
+					ExpedientCamps.EXPEDIENT_CAMP_TITOL, 
+					getMessage(request, "etiqueta.exp.titol")));
+			resposta.add(new ParellaCodiValorDto(
+					ExpedientCamps.EXPEDIENT_CAMP_DATA_INICI, 
+					getMessage(request, "etiqueta.exp.data_ini")));
+			resposta.add(new ParellaCodiValorDto(
+					ExpedientCamps.EXPEDIENT_CAMP_ESTAT, 
+					getMessage(request, "etiqueta.exp.estat")));
+			
+			boolean isGeorefActiu = "true".equalsIgnoreCase(GlobalProperties.getInstance().getProperty("app.georef.actiu"));
+			boolean isGeorefAmbReferencia = "ref".equalsIgnoreCase(GlobalProperties.getInstance().getProperty("app.georef.tipus"));
+			
+			if (isGeorefActiu)
+				if (isGeorefAmbReferencia)
+					resposta.add(new ParellaCodiValorDto(
+							ExpedientCamps.EXPEDIENT_CAMP_GEOREF, 
+							getMessage(request, "comuns.georeferencia.codi")));
+				else {
+					resposta.add(new ParellaCodiValorDto(
+							ExpedientCamps.EXPEDIENT_CAMP_GEOX, 
+							getMessage(request, "comuns.georeferencia.coordenadaX")));
+					resposta.add(new ParellaCodiValorDto(
+							ExpedientCamps.EXPEDIENT_CAMP_GEOY, 
+							getMessage(request, "comuns.georeferencia.coordenadaY")));
 				}
+		} else if (origen == ExpedientTipusConsultaVarCommand.ORIGEN_TIPUS_EXPEDIENT){
+			// Variables del tipus d'expedient
+			// Obté totes les variables del tipus d'expedient
+			List<CampDto> variables = campService.findAllOrdenatsPerCodi(expedientTipusId, null);
+			// Crea les parelles de codi i valor
+			for (CampDto variable : variables) {
+				resposta.add(new ParellaCodiValorDto(
+						variable.getCodi(), 
+						variable.getCodi() + " / " + variable.getEtiqueta()));
+			}
+		} else {
+			// Variables de la definició de procés
+			// Obté totes les variables del tipus d'expedient
+			List<CampDto> variables = campService.findAllOrdenatsPerCodi(origen, null);
+			// Crea les parelles de codi i valor
+			for (CampDto variable : variables) {
+				resposta.add(new ParellaCodiValorDto(
+						variable.getCodi(), 
+						variable.getCodi() + " / " + variable.getEtiqueta()));
 			}
 		}
-		// Crea les parelles de codi i valor
-		for (CampDto variable : variables) {
-			resposta.add(new ParellaCodiValorDto(
-					variable.getId().toString(), 
-					variable.getCodi() + " / " + variable.getEtiqueta()));
+		// Consulta els camps existents de la consulta segons el tipus
+		Set<String> campsExistents = new HashSet<String>();
+		for (ConsultaCampDto consultaCamp : expedientTipusService.consultaCampFindCampAmbConsultaIdAndTipus(
+				consultaId,
+				tipus))
+			campsExistents.add(consultaCamp.getCampCodi());
+		// Lleva les variables que coincideixin amb algun codi ja utilitzat. Si es volen utilitzar variables amb
+		// el mateix codi i de diferent origen s'haurà de modificar
+		Iterator<ParellaCodiValorDto> it = resposta.iterator();
+		while (it.hasNext()) {
+			ParellaCodiValorDto parellaCodiValor = it.next();
+			if (campsExistents.contains(parellaCodiValor.getCodi())) 
+				it.remove();
 		}
 		return resposta;
 	}		
