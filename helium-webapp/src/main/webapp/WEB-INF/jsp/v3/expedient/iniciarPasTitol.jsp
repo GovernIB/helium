@@ -85,9 +85,7 @@
 			<div style="min-height: 120px;"></div>
 		</c:if>
 		<div id="modal-botons">
-			<button type="button" class="modal-tancar btn btn-default" name="submit" value="cancel">
-				<spring:message code='comuns.cancelar' />
-			</button>			
+			<button type="button" class="btn btn-default" data-modal-cancel="true"><spring:message code='comuns.cancelar' /></button>		
 			<button type="submit" id="iniciar" name="accio" class="btn btn-primary" value="iniciar">
 				<spring:message code='comuns.iniciar' />
 			</button>

@@ -238,6 +238,9 @@
 						.removeAttr('checked')
 						.removeAttr('selected');
 						$(':input.select2-offscreen', '#' + filtreFormId).not(':disabled').select2("val", "", true);
+						
+						//netejam l'estat dels botons del filtre
+						$(':button.filtre-button', '#' + filtreFormId).removeClass("active");
 					}
 					$.ajax({
 						type: "POST",

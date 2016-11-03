@@ -92,7 +92,7 @@
 														</c:if>
 													</c:if>
 													<c:if test="${tasca.open and not tasca.suspended and not tasca.agafada and not empty tasca.responsables and tasca.assignadaUsuariActual}">
-														<li><a data-rdt-link-ajax=true data-rdt-link-callback="refrescarPanell(${expedient.id},${tasca.id},true);" href="<c:url value="${modalPrefix}../v3/expedient/${expedient.id}/tasca/${tasca.id}/agafar"/>" class="icon tasca-accio-agafar" data-tasca-id="${tasca.id}" data-rdt-link-confirm="<spring:message code="expedient.tasca.confirmacio.agafar"/>" ><span class="fa fa-chain"></span>&nbsp;<spring:message code="tasca.llistat.accio.agafar"/></a></li>
+														<li><a data-rdt-link-ajax=true data-rdt-link-callback="refrescarPanell(${expedient.id},${tasca.id},true);" href="<c:url value="${modalPrefix}../v3/expedient/${expedient.id}/tasca/${tasca.id}/agafar"/>" class="icon tasca-accio-agafar" data-tasca-id="${tasca.id}"><span class="fa fa-chain"></span>&nbsp;<spring:message code="tasca.llistat.accio.agafar"/></a></li>
 													</c:if>
 													<c:if test="${tasca.open and not tasca.suspended and tasca.agafada and (tasca.assignadaUsuariActual or expedient.permisReassignment)}">
 														<li><a data-rdt-link-ajax=true data-rdt-link-callback="refrescarPanell(${expedient.id},${tasca.id},false);" href="<c:url value="${modalPrefix}../v3/expedient/${expedient.id}/tasca/${tasca.id}/alliberar"/>" class="icon tasca-accio-alliberar" data-tasca-id="${tasca.id}" data-rdt-link-confirm="<spring:message code="expedient.tasca.confirmacio.alliberar"/>"><span class="fa fa-chain-broken"></span> <spring:message code="tasca.llistat.accio.alliberar"/></a></li>

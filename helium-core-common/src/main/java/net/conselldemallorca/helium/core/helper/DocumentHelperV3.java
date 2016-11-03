@@ -212,6 +212,7 @@ public class DocumentHelperV3 {
 				String urlComprovacioSignatura = null;
 			    if (ambSegellSignatura)
 			    	urlComprovacioSignatura = getUrlComprovacioSignatura(documentStoreId);
+				
 			    getPdfUtils().estampar(
 				      arxiuNomOriginal,
 				      arxiuOrigenContingut,

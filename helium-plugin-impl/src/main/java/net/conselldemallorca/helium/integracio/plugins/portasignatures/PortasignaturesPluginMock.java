@@ -1,8 +1,12 @@
 package net.conselldemallorca.helium.integracio.plugins.portasignatures;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+
+import org.apache.commons.io.FileUtils;
 
 /**
  * Implementació Mock del plugin de portasignatures.
@@ -32,6 +36,12 @@ public class PortasignaturesPluginMock implements PortasignaturesPlugin {
 			String remitent,
 			String importancia,
 			Date dataLimit) throws PortasignaturesPluginException {
+		
+		try {
+			FileUtils.writeByteArrayToFile(new File("C:\\DOCUMENTS_REVISIO\\" + document.getArxiuNom()), document.getArxiuContingut());
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 		return new Integer(new Long(System.currentTimeMillis()).intValue());
 	}
 
