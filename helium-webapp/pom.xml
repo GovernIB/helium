@@ -338,6 +338,31 @@
 		    <artifactId>jackson-databind</artifactId>
 		    <version>2.7.5</version>
 		</dependency>
+		<dependency>
+			<groupId>org.fundaciobit.plugins</groupId>
+			<artifactId>plugins-api</artifactId>
+			<version>1.0.0</version>
+		</dependency>
+		<dependency>
+			<groupId>org.fundaciobit.plugins</groupId>
+			<artifactId>plugin-signatureweb-api</artifactId>
+			<version>2.0.0</version>
+		</dependency>
+		<dependency>
+			<groupId>org.fundaciobit.plugins</groupId>
+			<artifactId>plugin-signatureweb-portafib</artifactId>
+			<version>2.0.0</version>
+		</dependency>
+		<dependency>
+			<groupId>org.fundaciobit.plugins</groupId>
+			<artifactId>plugin-signatureweb-miniappletinclient</artifactId>
+			<version>2.0.0</version>
+		</dependency>
+		<dependency>
+			<groupId>org.fundaciobit.plugins</groupId>
+			<artifactId>plugin-signatureweb-miniappletinserver</artifactId>
+			<version>2.0.0</version>
+		</dependency>
 	</dependencies>
 	<profiles>
 		<profile>
@@ -721,4 +746,11 @@
 		</plugins>
 		<finalName>helium</finalName>
 	</build>
+	<repositories>
+		<repository>
+			<id>github-governib-maven-repos</id>
+			<name>GitHub GovernIB Maven Repository</name>
+			<url>http://GovernIB.github.io/maven/maven/</url>
+		</repository>
+	</repositories>
 </project>

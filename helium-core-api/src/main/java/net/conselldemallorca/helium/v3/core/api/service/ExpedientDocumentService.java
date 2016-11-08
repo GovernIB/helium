@@ -9,6 +9,7 @@ import java.util.List;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PortasignaturesDto;
+import net.conselldemallorca.helium.v3.core.api.dto.RespostaValidacioSignaturaDto;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
 import net.conselldemallorca.helium.v3.core.api.exception.SistemaExternException;
@@ -255,6 +256,8 @@ public interface ExpedientDocumentService {
 			String tascaId,
 			Long documentId,
 			String arxiuNom) throws NoTrobatException, PermisDenegatException;
+
+	public List<RespostaValidacioSignaturaDto> verificarSignatura(Long documentStoreId);
 
 	/*
 	public List<DocumentDto> dissenyFindAmbDefinicioProces(

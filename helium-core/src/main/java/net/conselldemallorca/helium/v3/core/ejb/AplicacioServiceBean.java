@@ -14,6 +14,8 @@ import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.UsuariPreferenciesDto;
+import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
+import net.conselldemallorca.helium.v3.core.api.exception.SistemaExternException;
 import net.conselldemallorca.helium.v3.core.api.service.AplicacioService;
 
 /**
@@ -53,6 +55,15 @@ public class AplicacioServiceBean implements AplicacioService {
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public List<PersonaDto> findPersonaLikeNomSencer(String text) {
 		return delegate.findPersonaLikeNomSencer(text);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public PersonaDto findPersonaActual() throws NoTrobatException, SistemaExternException {
+		return delegate.findPersonaActual();
 	}
 
 }

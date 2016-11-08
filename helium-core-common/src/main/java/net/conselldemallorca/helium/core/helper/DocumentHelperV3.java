@@ -936,7 +936,11 @@ public class DocumentHelperV3 {
 		Long documentStoreId = getDocumentStoreIdPerToken(token);		
 		if (documentStoreId != null) {
 			DocumentStore documentStore = documentStoreRepository.findById(documentStoreId);
-			dto = getDocumentSenseContingut(documentStoreId);			
+			//dto = getDocumentSenseContingut(documentStoreId);
+			dto = getDocumentVista(
+					documentStoreId, 
+					true, 
+					true);			
 			boolean custodiat = false;
 			if (pluginHelper.custodiaIsPluginActiu()) {
 				String nomArxiu = getNomArxiuAmbExtensio(

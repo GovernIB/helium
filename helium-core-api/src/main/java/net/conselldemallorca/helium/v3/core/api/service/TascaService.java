@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Set;
 
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.FormulariExternDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
@@ -415,13 +416,15 @@ public interface TascaService {
 			String tascaId,
 			String documentCodi);
 	
+	public DocumentDto getDocumentPerDocumentCodi(String tascaId, String documentCodi);
+	
 	public TascaDocumentDto findDocument(String tascaId, Long docId);
 
 	public Long guardarDocumentTasca(Long entornId, String taskInstanceId, String documentCodi, Date documentData, String arxiuNom, byte[] arxiuContingut, String user);
 
 	public void esborrarDocument(String taskInstanceId, String documentCodi, String user);
 
-	public boolean signarDocumentTascaAmbToken(Long docId, String token, String tascaId, byte[] signatura) throws Exception;
+	public boolean signarDocumentTascaAmbToken(Long docId, String tascaId, String token, byte[] signatura) throws Exception;
 
 	public List<TascaDocumentDto> findDocumentsSignar(String id);
 
@@ -460,4 +463,5 @@ public interface TascaService {
 	public List<String[]> getMissatgesExecucioSegonPla(String tascaSegonPlaId);
 	
 	public void updateVariable(Long expedientId, String taskId, String codiVariable, Object valor) throws NotFoundException, IllegalStateException;
+
 }

@@ -40,6 +40,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PortasignaturesDto;
+import net.conselldemallorca.helium.v3.core.api.dto.RespostaValidacioSignaturaDto;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientDocumentService;
@@ -608,6 +609,18 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 		return document.isExtensioPermesa(
 				getExtensio(arxiuNom));
 	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@Transactional(readOnly = true)
+	public List<RespostaValidacioSignaturaDto> verificarSignatura(Long documentStoreId) {
+		DocumentStore documentStore = documentStoreRepository.findById(documentStoreId);
+		if (documentStore == null)
+			throw new NoTrobatException(DocumentStore.class, documentStoreId);
+		return documentHelper.getRespostasValidacioSignatura(documentStore);
+	}
 
 
 	/*@Override
@@ -799,6 +812,4 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 	}
 
 	private static final Logger logger = LoggerFactory.getLogger(ExpedientDocumentServiceImpl.class);
-
-
 }

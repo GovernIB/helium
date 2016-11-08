@@ -1657,10 +1657,10 @@ public class PluginHelper {
 		IntegracioParametreDto[] parametres = new IntegracioParametreDto[] {
 				new IntegracioParametreDto(
 						"document",
-						document.length + " bytes"),
+						(document != null ? document.length : 0) + " bytes"),
 				new IntegracioParametreDto(
 						"signatura",
-						signatura.length + " bytes"),
+						(signatura != null ? signatura.length : 0) + " bytes"),
 				new IntegracioParametreDto(
 						"obtenirDadesCertificat",
 						new Boolean(obtenirDadesCertificat).toString())
