@@ -59,6 +59,7 @@ import org.jbpm.util.Clock;
 /**
  * process instance extension for managing tasks on a process instance.
  */
+@SuppressWarnings({"rawtypes", "unchecked"})
 public class TaskMgmtInstance extends ModuleInstance
 {
 

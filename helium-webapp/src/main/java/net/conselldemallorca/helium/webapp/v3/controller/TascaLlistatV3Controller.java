@@ -350,40 +350,6 @@ public class TascaLlistatV3Controller extends BaseController {
 			filtreCommand.setExpedientTipusId(expedientTipusActual.getId());
 		return filtreCommand;
 	}
-	
-	@RequestMapping(value = "/seleccioAgafar")
-	@ResponseBody
-	public Set<Long> seleccioAgafar(HttpServletRequest request) {
-		SessionManager sessionManager = SessionHelper.getSessionManager(request);
-		Set<Long> ids = sessionManager.getSeleccioConsultaTasca();
-		Set<Long> idsAgafats = new HashSet<Long>();
-		if (ids == null || ids.isEmpty()) {
-			MissatgesHelper.error(request, getMessage(request, "error.no.tasc.selec"));
-		} else {
-			Set<Long> idsError = new HashSet<Long>();
-			for (Long tascaId : ids) {
-				try {
-					tascaService.agafar(tascaId.toString());
-					idsAgafats.add(tascaId);
-				} catch (Exception ex) {
-					idsError.add(tascaId);
-				}
-			}
-			if (idsAgafats.size() > 0)
-				MissatgesHelper.success(request, getMessage(request, "tasca.llistat.agafar.seleccionats.success", new Object[] {idsAgafats.size(), ids.size()} ));
-			if (idsError.size() > 0)
-				for(ExpedientTascaDto tascaError : tascaService.findAmbIds(idsError))
-					MissatgesHelper.error(request, getMessage(
-														request, 
-														"tasca.llistat.agafar.seleccionats.error", 
-														new Object[] {
-																tascaError.getTitol(),
-																tascaError.getExpedientIdentificador()} ));
-			// Neteja la selecció
-			sessionManager.getSeleccioConsultaTasca().clear();
-		}		
-		return idsAgafats;
-	}
 
 	protected static final Log logger = LogFactory.getLog(TascaLlistatV3Controller.class);
 

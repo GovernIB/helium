@@ -13,7 +13,7 @@ import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.Restrictions;
 import org.springframework.stereotype.Component;
 
-import net.conselldemallorca.helium.core.common.ExpedientIniciantDto;
+import net.conselldemallorca.helium.core.common.ThreadLocalInfo;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService.FiltreAnulat;
 
@@ -110,7 +110,7 @@ public class ExpedientDao extends HibernateGenericDao<Expedient, Long> {
 		if (expedients.size() > 0) {
 			return expedients.get(0);
 		} else {
-			Expedient expedientIniciant = ExpedientIniciantDto.getExpedient();
+			Expedient expedientIniciant = ThreadLocalInfo.getExpedient();
 			if (expedientIniciant != null && expedientIniciant.getProcessInstanceId().equals(processInstanceId))
 				return expedientIniciant;
 		}

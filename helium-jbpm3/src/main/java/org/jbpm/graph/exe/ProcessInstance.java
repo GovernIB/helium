@@ -50,6 +50,8 @@ import org.jbpm.taskmgmt.exe.TaskMgmtInstance;
 import org.jbpm.util.Clock;
 import org.jbpm.util.EqualsUtil;
 
+import net.conselldemallorca.helium.jbpm3.integracio.Jbpm3HeliumBridge;
+
 /**
  * is one execution of a {@link org.jbpm.graph.def.ProcessDefinition}. To create a new process execution of a process
  * definition, just use the {@link #ProcessInstance(ProcessDefinition)}.
@@ -347,6 +349,15 @@ public class ProcessInstance implements Identifiable, Serializable
     {
       // mark this process instance as ended
       end = Clock.getCurrentTime();
+      
+      // /////////////////////////////
+      // Afegeix aquesta instància de procés a la llista per a verificar la seva
+      // finalització.
+      // Si no ho feim així quan es finalitza una instància de procés des d'un altre
+      // executionContext l'expedient no es queda amb estat finalitzat.
+      // /////////////////////////////
+      Jbpm3HeliumBridge.getInstanceService().afegirInstanciaProcesPerVerificarFinalitzacio(
+    		  new Long(id).toString());
 
       // fire the process-end event
       ExecutionContext executionContext = new ExecutionContext(rootToken);

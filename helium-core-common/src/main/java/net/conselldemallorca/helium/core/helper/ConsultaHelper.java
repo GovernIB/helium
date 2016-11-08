@@ -203,26 +203,12 @@ public class ConsultaHelper {
 				}
 				DadaIndexadaDto dadaIndexada = dadesExpedient.get(dadaIndexadaClau);
 				if (camp.getEnumeracio() != null && camp.getDefinicioProces() != null) {
-					String text;
-					if (dadaIndexada.isMultiple()) {
-						List<String> valorsMostrar = new ArrayList<String>();
-						for (String valorIndex : dadaIndexada.getValorIndexMultiple()) {
-							text = variableHelper.getTextPerCamp(
-									camp, 
-									valorIndex, 
-									null, 
-									expedient.getProcessInstanceId());
-							valorsMostrar.add(text);
-						}
-						dadaIndexada.setValorMostrarMultiple(valorsMostrar);
-					} else {
-						text = variableHelper.getTextPerCamp(
-								camp,
-								dadaIndexada.getValorIndex(),
-								null,
-								expedient.getProcessInstanceId());	
-						dadaIndexada.setValorMostrar(text);
-					}
+					String text = variableHelper.getTextPerCamp(
+							camp,
+							dadaIndexada.getValorIndex(),
+							null,
+							expedient.getProcessInstanceId());	
+					dadaIndexada.setValorMostrar(text);
 				} 
 			} else { 
 				if (!dadesExpedient.containsKey(camp.getCodi())) {

@@ -20,9 +20,24 @@ import java.util.UUID;
 
 import javax.annotation.Resource;
 
-import net.conselldemallorca.helium.core.common.ExpedientIniciantDto;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.dom4j.Element;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
+import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.acls.model.Permission;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Service;
+
+import com.codahale.metrics.MetricRegistry;
+
 import net.conselldemallorca.helium.core.common.JbpmVars;
+import net.conselldemallorca.helium.core.common.ThreadLocalInfo;
 import net.conselldemallorca.helium.core.extern.domini.FilaResultat;
+import net.conselldemallorca.helium.core.helper.ExpedientHelper;
 import net.conselldemallorca.helium.core.helperv26.DocumentHelper;
 import net.conselldemallorca.helium.core.helperv26.MesuresTemporalsHelper;
 import net.conselldemallorca.helium.core.model.dao.AccioDao;
@@ -112,20 +127,6 @@ import net.conselldemallorca.helium.v3.core.api.exception.TramitacioException;
 import net.conselldemallorca.helium.v3.core.api.exception.TramitacioHandlerException;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService.FiltreAnulat;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.dom4j.Element;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.MessageSource;
-import org.springframework.security.access.annotation.Secured;
-import org.springframework.security.acls.model.Permission;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Service;
-
-import com.codahale.metrics.MetricRegistry;
-
 /**
  * 
  * @author Limit Tecnologies <limit@limit.es>
@@ -166,6 +167,7 @@ public class ExpedientService {
 
 	private DocumentHelper documentHelper;
 	private ExpedientLogHelper expedientLogHelper;
+	private ExpedientHelper expedientHelper;
 
 	private ServiceUtils serviceUtils;
 
@@ -351,7 +353,7 @@ public class ExpedientService {
 			mesuresTemporalsHelper.mesuraIniciar("Iniciar", "expedient", expedientTipus.getNom(), null, "Iniciar instancia de proces");
 			
 			// Inicia l'instància de procés jBPM
-			ExpedientIniciantDto.setExpedient(expedient);
+			ThreadLocalInfo.setExpedient(expedient);
 			DefinicioProces definicioProces = null;
 			if (definicioProcesId != null) {
 				definicioProces = definicioProcesDao.getById(definicioProcesId, false);
@@ -556,7 +558,7 @@ public class ExpedientService {
 		
 		if (!executatEnHandler) {
 			if (expedient == null)
-				expedient = ExpedientIniciantDto.getExpedient();
+				expedient = ThreadLocalInfo.getExpedient();
 			
 			ExpedientLog elog = expedientLogHelper.afegirLogExpedientPerExpedient(
 				id,
@@ -1982,11 +1984,16 @@ public class ExpedientService {
 		// 			PermisTipusEnumDto.ADMINISTRATION);
 		// }
 		
+		ThreadLocalInfo.clearProcessInstanceFinalitzatIds();
 		Set<String> outputVars = new HashSet<String>();
 		if (outputVar != null)
 			outputVars.add(outputVar);
 		Map<String, Object> output =  jbpmHelper.evaluateScript(processInstanceId, script, outputVars);
-		verificarFinalitzacioExpedient(processInstanceId);
+		if (expedient == null) {
+			JbpmProcessInstance rootProcessInstance = jbpmHelper.getRootProcessInstance(processInstanceId);
+			expedient = expedientDao.findAmbProcessInstanceId(rootProcessInstance.getId());
+		}
+		expedientHelper.verificarFinalitzacioExpedient(expedient);
 		getServiceUtils().expedientIndexLuceneUpdate(processInstanceId);
 		expedientLogHelper.afegirLogExpedientPerProces(
 				processInstanceId,
@@ -2096,6 +2103,7 @@ public class ExpedientService {
 				processInstance.getId(),
 				ExpedientLogAccioTipus.EXPEDIENT_ACCIO,
 				accio.getJbpmAction());
+		ThreadLocalInfo.clearProcessInstanceFinalitzatIds();
 		try {
 			jbpmHelper.executeActionInstanciaProces(
 					processInstanceId,
@@ -2137,7 +2145,11 @@ public class ExpedientService {
 					"Error al executa l'acció '" + accio.getCodi(), 
 					ex);
 		}
-		verificarFinalitzacioExpedient(processInstanceId);
+		if (expedient == null) {
+			JbpmProcessInstance rootProcessInstance = jbpmHelper.getRootProcessInstance(processInstanceId);
+			expedient = expedientDao.findAmbProcessInstanceId(rootProcessInstance.getId());
+		}
+		expedientHelper.verificarFinalitzacioExpedient(expedient);
 		getServiceUtils().expedientIndexLuceneUpdate(processInstanceId);
 		if (MesuresTemporalsHelper.isActiu())
 			mesuresTemporalsHelper.mesuraCalcular("Executar ACCIO" + accio.getNom(), "expedient", expedient.getTipus().getNom());
@@ -2621,6 +2633,10 @@ public class ExpedientService {
 		this.expedientLogHelper = expedientLogHelper;
 	}
 	@Autowired
+	public void setExpedientHelper(ExpedientHelper expedientHelper) {
+		this.expedientHelper = expedientHelper;
+	}
+	@Autowired
 	public void setDocumentHelper(DocumentHelper documentHelper) {
 		this.documentHelper = documentHelper;
 	}
@@ -2923,7 +2939,7 @@ public class ExpedientService {
 		return (identitySource.equalsIgnoreCase("helium"));
 	}
 
-	private void verificarFinalitzacioExpedient(String processInstanceId) {
+	/*private void verificarFinalitzacioExpedient(String processInstanceId) {
 		JbpmProcessInstance pi = jbpmHelper.getRootProcessInstance(processInstanceId);
 		Expedient expedient = expedientDao.findAmbProcessInstanceId(pi.getId());
 		if (pi.getEnd() != null) {
@@ -2941,7 +2957,7 @@ public class ExpedientService {
 				}
 			}
 		}
-	}
+	}*/
 
 	private Object optimitzarValorPerConsultesDomini(
 			String processInstanceId,

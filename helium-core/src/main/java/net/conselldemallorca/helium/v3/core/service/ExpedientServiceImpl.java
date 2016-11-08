@@ -35,8 +35,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import net.conselldemallorca.helium.core.common.ExpedientCamps;
-import net.conselldemallorca.helium.core.common.ExpedientIniciantDto;
 import net.conselldemallorca.helium.core.common.JbpmVars;
+import net.conselldemallorca.helium.core.common.ThreadLocalInfo;
 import net.conselldemallorca.helium.core.helper.ConsultaHelper;
 import net.conselldemallorca.helium.core.helper.ConversioTipusHelper;
 import net.conselldemallorca.helium.core.helper.DocumentHelperV3;
@@ -416,7 +416,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 			mesuresTemporalsHelper.mesuraIniciar("Iniciar", "expedient", expedientTipus.getNom(), null, "Iniciar instancia de proces");
 			
 			// Inicia l'instància de procés jBPM
-			ExpedientIniciantDto.setExpedient(expedient);
+			ThreadLocalInfo.setExpedient(expedient);
 			DefinicioProces definicioProces = null;
 			if (definicioProcesId != null) {
 				definicioProces = definicioProcesRepository.findById(definicioProcesId);
@@ -514,7 +514,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 			mesuresTemporalsHelper.mesuraCalcular("Iniciar", "expedient", expedientTipus.getNom(), null, "Crear registre i convertir expedient");
 			mesuresTemporalsHelper.mesuraCalcular("Iniciar", "expedient", expedientTipus.getNom());
 
-			ExpedientIniciantDto.setExpedient(null);
+			ThreadLocalInfo.setExpedient(null);
 			logger.debug("textBloqueigIniciExpedient: " + textBloqueigIniciExpedient);
 			return dto;
 		} catch (ExecucioHandlerException ex) {
@@ -1259,12 +1259,12 @@ public class ExpedientServiceImpl implements ExpedientService {
 			Expedient expedient = expedientRepository.findOne(expedientId);
 			if (expedient == null)
 				throw new NoTrobatException(Expedient.class, expedientId);
-			
 			mesuresTemporalsHelper.mesuraIniciar("Executar ACCIO" + accio.getNom(), "expedient", expedient.getTipus().getNom());
 			expedientLoggerHelper.afegirLogExpedientPerProces(
 					processInstanceId,
 					ExpedientLogAccioTipus.EXPEDIENT_ACCIO,
 					accio.getJbpmAction());
+			ThreadLocalInfo.clearProcessInstanceFinalitzatIds();
 			try {
 				jbpmHelper.executeActionInstanciaProces(
 						processInstanceId,
@@ -1292,7 +1292,8 @@ public class ExpedientServiceImpl implements ExpedientService {
 						"Error al executa l'acció '" + accio.getCodi() + "'", 
 						ex);
 			}
-			verificarFinalitzacioExpedient(processInstanceId, expedient);
+			expedientHelper.verificarFinalitzacioExpedient(
+					expedient);
 			indexHelper.expedientIndexLuceneUpdate(processInstanceId);
 			mesuresTemporalsHelper.mesuraCalcular("Executar ACCIO" + accio.getNom(), "expedient", expedient.getTipus().getNom());
 		} else {
@@ -1950,12 +1951,12 @@ public class ExpedientServiceImpl implements ExpedientService {
 				false,
 				true);
 		expedientHelper.comprovarInstanciaProces(expedient, processInstanceId);
-		JbpmProcessInstance pi = jbpmHelper.getProcessInstance(processInstanceId);
 		if (MesuresTemporalsHelper.isActiu()) {
 			mesuresTemporalsHelper.mesuraIniciar("Executar SCRIPT", "expedient", expedient.getTipus().getNom());
 		}
+		ThreadLocalInfo.clearProcessInstanceFinalitzatIds();
 		jbpmHelper.evaluateScript(processInstanceId, script, new HashSet<String>());
-		verificarFinalitzacioExpedient(expedient, pi);
+		expedientHelper.verificarFinalitzacioExpedient(expedient);
 		indexHelper.expedientIndexLuceneUpdate(processInstanceId);
 		expedientLoggerHelper.afegirLogExpedientPerProces(
 				processInstanceId,
@@ -3385,24 +3386,6 @@ public class ExpedientServiceImpl implements ExpedientService {
 				Registre.Accio.MODIFICAR);
 		registre.setMissatge("Esborrar variable '" + varName + "'");
 	}
-	
-	private void verificarFinalitzacioExpedient(Expedient expedient, JbpmProcessInstance pi) {
-		if (pi.getEnd() != null) {
-			// Actualitzar data de fi de l'expedient
-			expedient.setDataFi(pi.getEnd());
-			// Finalitzar terminis actius
-			for (TerminiIniciat terminiIniciat: terminiIniciatRepository.findByProcessInstanceId(pi.getId())) {
-				if (terminiIniciat.getDataInici() != null) {
-					terminiIniciat.setDataCancelacio(new Date());
-					long[] timerIds = terminiIniciat.getTimerIdsArray();
-					for (int i = 0; i < timerIds.length; i++)
-						jbpmHelper.suspendTimer(
-								timerIds[i],
-								new Date(Long.MAX_VALUE));
-				}
-			}
-		}
-	}
 
 	private void afegirValorsPredefinits(
 			Consulta consulta,
@@ -3550,7 +3533,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 		return permesa;
 	}
 
-	private void verificarFinalitzacioExpedient(
+	/*private void verificarFinalitzacioExpedient(
 			String processInstanceId,
 			Expedient expedient) {
 		JbpmProcessInstance pi = jbpmHelper.getRootProcessInstance(processInstanceId);
@@ -3569,7 +3552,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 				}
 			}
 		}
-	}
+	}*/
 	
 
 	@Override

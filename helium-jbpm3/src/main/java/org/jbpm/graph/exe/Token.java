@@ -54,14 +54,12 @@ import org.jbpm.taskmgmt.exe.TaskMgmtInstance;
 import org.jbpm.util.Clock;
 import org.jbpm.util.EqualsUtil;
 
-import net.conselldemallorca.helium.jbpm3.integracio.Jbpm3HeliumBridge;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
-
 /**
  * represents one path of execution and maintains a pointer to a node in the
  * {@link org.jbpm.graph.def.ProcessDefinition}. Most common way to get a hold of the token objects is with
  * {@link ProcessInstance#getRootToken()} or {@link org.jbpm.graph.exe.ProcessInstance#findToken(String)}.
  */
+@SuppressWarnings({"rawtypes", "unchecked", "deprecation"})
 public class Token implements Identifiable, Serializable
 {
 

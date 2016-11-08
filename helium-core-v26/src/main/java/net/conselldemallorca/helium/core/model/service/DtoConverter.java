@@ -752,26 +752,12 @@ public class DtoConverter {
 					String dadaIndexadaClau = camp.getDefinicioProces().getJbpmKey() + "/" + camp.getCodi();
 					DadaIndexadaDto dadaIndexada = dadesExpedient.get(dadaIndexadaClau);
 					if (dadaIndexada != null) {
-						String text;
-						if (dadaIndexada.isMultiple()) {
-							List<String> valorMostrarMultiple = new ArrayList<String>();
-							for(String valorIndex : dadaIndexada.getValorIndexMultiple()) {
-								text = getCampText(
-										null,
-										null,
-										camp,
-										valorIndex);
-								valorMostrarMultiple.add(text);
-							}
-							dadaIndexada.setValorMostrarMultiple(valorMostrarMultiple);
-						} else {
-							text = getCampText(
-									null,
-									null,
-									camp,
-									dadaIndexada.getValorIndex());
-							dadaIndexada.setValorMostrar(text);
-						}
+						String text = getCampText(
+								null,
+								null,
+								camp,
+								dadaIndexada.getValorIndex());
+						dadaIndexada.setValorMostrar(text);
 					}
 				}
 			}

@@ -506,23 +506,15 @@
 					<c:when test="${tascaConsultaCommand.consultaTramitacioMassivaTascaId == null}">
 						<a class="btn btn-default" href="../v3/tasca/seleccioTots" data-rdt-link-ajax="true" title="<spring:message code="expedient.llistat.accio.seleccio.tots"/>"><span class="fa fa-check-square-o"></span></a>
 						<a class="btn btn-default" href="../v3/tasca/seleccioNetejar" data-rdt-link-ajax="true" title="<spring:message code="expedient.llistat.accio.seleccio.netejar"/>"><span class="fa fa-square-o"></span></a>
-						<button class="btn btn-default" data-toggle="dropdown"><span class="fa fa-cog"></span>&nbsp;<spring:message code="comu.boto.accions"/>&nbsp;<span id="reasignacioMassivaCount" class="badge">&nbsp;&nbsp;</span>&nbsp;<span class="caret"></span></button>
-						<ul class="dropdown-menu">
-							<li><a id="botoReassignment" href="../v3/tasca/massivaReassignacioTasca" onclick="botoMassiuClick(this)" data-rdt-link-modal="true"><spring:message code="tasca.llistat.reassignacions.massiva"/></a></li>
-							<li><a id="botoAgafar" href="<c:url value="../v3/tasca/seleccioAgafar"/>" data-rdt-link-ajax="true"><spring:message code="tasca.llistat.agafar.seleccionats"/></a></li>
-						</ul>
+						<a id="botoReassignment" href="../v3/tasca/massivaReassignacioTasca" class="btn btn-default" onclick="botoMassiuClick(this)" data-rdt-link-modal="true"><spring:message code="tasca.llistat.reassignacions.massiva"/>&nbsp;<span id="reasignacioMassivaCount" class="badge">&nbsp;</span></a>
 					</c:when>
 					<c:otherwise>
 						<a class="btn btn-default" href="#" onclick="seleccionarMassivaTodos()" title="<spring:message code="expedient.llistat.accio.seleccio.tots"/>"><span class="fa fa-check-square-o"></span></a>
 						<a class="btn btn-default" href="#" onclick="deseleccionarMassivaTodos()" title="<spring:message code="expedient.llistat.accio.seleccio.netejar"/>"><span class="fa fa-square-o"></span></a>
-						<button class="btn btn-default" data-toggle="dropdown"><span class="fa fa-cog"></span>&nbsp;<spring:message code="comu.boto.accions"/>&nbsp;<span id="reasignacioMassivaCount" class="badge">&nbsp;&nbsp;</span>&nbsp;<span class="caret"></span></button>
-						<ul class="dropdown-menu">
-							<c:if test="${not empty expedientTipus and expedientTipus.permisReassignment}">
-								<li><a id="botoReassignment" href="<c:url value="../../../v3/tasca/massivaReassignacioTasca"/>" onclick="botoMassiuClick(this)" data-rdt-link-modal="true"><spring:message code="tasca.llistat.reassignacions.massiva"/></a></li>
-							</c:if>
-							<li><a href="<c:url value="../../../v3/tasca/massivaTramitacioTasca"/>" onclick="botoMassiuClick(this)" data-rdt-link-modal="true" data-rdt-link-modal-maximize="true"><spring:message code="expedient.llistat.tramitacio.massiva"/>&nbsp;<span id="tramitacioMassivaCount" class="badge">&nbsp;</span></a></li>
-							<li><a id="botoAgafar" href="<c:url value="../v3/tasca/seleccioAgafar"/>" data-rdt-link-ajax="true"><spring:message code="tasca.llistat.agafar.seleccionats"/></a></li>
-						</ul>
+						<c:if test="${not empty expedientTipus and expedientTipus.permisReassignment}">
+							<a id="botoReassignment" href="<c:url value="../../../v3/tasca/massivaReassignacioTasca"/>" class="btn btn-default" onclick="botoMassiuClick(this)" data-rdt-link-modal="true"><spring:message code="tasca.llistat.reassignacions.massiva"/>&nbsp;<span id="reasignacioMassivaCount" class="badge">&nbsp;</span></a>
+						</c:if>
+						<a href="<c:url value="../../../v3/tasca/massivaTramitacioTasca"/>" class="btn btn-default" onclick="botoMassiuClick(this)" data-rdt-link-modal="true" data-rdt-link-modal-maximize="true"><spring:message code="expedient.llistat.tramitacio.massiva"/>&nbsp;<span id="tramitacioMassivaCount" class="badge">&nbsp;</span></a>
 					</c:otherwise>
 				</c:choose>	
 			</div>

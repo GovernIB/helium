@@ -12,7 +12,18 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
-import net.conselldemallorca.helium.core.common.ExpedientIniciantDto;
+import org.apache.commons.lang.StringUtils;
+import org.jbpm.graph.exe.ProcessInstanceExpedient;
+import org.jbpm.jpdl.el.ELException;
+import org.jbpm.jpdl.el.ExpressionEvaluator;
+import org.jbpm.jpdl.el.VariableResolver;
+import org.jbpm.jpdl.el.impl.ExpressionEvaluatorImpl;
+import org.springframework.security.acls.model.Permission;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Component;
+
+import net.conselldemallorca.helium.core.common.ThreadLocalInfo;
 import net.conselldemallorca.helium.core.helperv26.LuceneHelper;
 import net.conselldemallorca.helium.core.helperv26.MesuresTemporalsHelper;
 import net.conselldemallorca.helium.core.model.hibernate.Alerta;
@@ -30,6 +41,7 @@ import net.conselldemallorca.helium.core.model.hibernate.ExpedientLog.LogInfo;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.hibernate.SequenciaAny;
 import net.conselldemallorca.helium.core.model.hibernate.SequenciaDefaultAny;
+import net.conselldemallorca.helium.core.model.hibernate.TerminiIniciat;
 import net.conselldemallorca.helium.core.security.ExtendedPermission;
 import net.conselldemallorca.helium.core.util.ExpedientCamps;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
@@ -47,17 +59,7 @@ import net.conselldemallorca.helium.v3.core.repository.AlertaRepository;
 import net.conselldemallorca.helium.v3.core.repository.DefinicioProcesRepository;
 import net.conselldemallorca.helium.v3.core.repository.EstatRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientRepository;
-
-import org.apache.commons.lang.StringUtils;
-import org.jbpm.graph.exe.ProcessInstanceExpedient;
-import org.jbpm.jpdl.el.ELException;
-import org.jbpm.jpdl.el.ExpressionEvaluator;
-import org.jbpm.jpdl.el.VariableResolver;
-import org.jbpm.jpdl.el.impl.ExpressionEvaluatorImpl;
-import org.springframework.security.acls.model.Permission;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Component;
+import net.conselldemallorca.helium.v3.core.repository.TerminiIniciatRepository;
 
 /**
  * Helper per a gestionar els expedients.
@@ -73,6 +75,10 @@ public class ExpedientHelper {
 	private ExpedientRepository expedientRepository;
 	@Resource
 	private EstatRepository estatRepository;
+	@Resource
+	private AlertaRepository alertaRepository;
+	@Resource
+	private TerminiIniciatRepository terminiIniciatRepository;
 
 	@Resource(name = "permisosHelperV3")
 	private PermisosHelper permisosHelper;
@@ -92,8 +98,6 @@ public class ExpedientHelper {
 	private ConversioTipusHelper conversioTipusHelper;
 	@Resource
 	private MesuresTemporalsHelper mesuresTemporalsHelper;
-	@Resource
-	private AlertaRepository alertaRepository;
 
 
 
@@ -669,7 +673,7 @@ public class ExpedientHelper {
 		if (piexp != null)
 			expedient = expedientRepository.findOne(piexp.getId());
 		if (expedient == null) {
-			Expedient expedientIniciant = ExpedientIniciantDto.getExpedient();
+			Expedient expedientIniciant = ThreadLocalInfo.getExpedient();
 			if (expedientIniciant != null && expedientIniciant.getProcessInstanceId().equals(processInstanceId)) {
 				expedient = expedientIniciant;
 			} else {
@@ -778,7 +782,7 @@ public class ExpedientHelper {
 				expedientTipus.isReiniciarCadaAny(),
 				false);
 	}
-	
+
 	public String getNumeroExpedientDefaultActual(
 			ExpedientTipus expedientTipus,
 			int any,
@@ -792,6 +796,16 @@ public class ExpedientHelper {
 				any,
 				expedientTipus.isReiniciarCadaAny(),
 				true);
+	}
+
+	public void verificarFinalitzacioExpedient(
+			Expedient expedient) {
+		verificarFinalitzacioProcessInstance(expedient.getProcessInstanceId());
+		List<String> processInstanceFinalitzatIds = ThreadLocalInfo.getProcessInstanceFinalitzatIds();
+		for (String processInstanceId: processInstanceFinalitzatIds) {
+			verificarFinalitzacioProcessInstance(processInstanceId);
+		}
+		ThreadLocalInfo.clearProcessInstanceFinalitzatIds();
 	}
 
 
@@ -930,8 +944,32 @@ public class ExpedientHelper {
 			}
 		}
 	}
+
 	private String getNumexpDefaultExpression() {
 		return GlobalProperties.getInstance().getProperty("app.numexp.expression");
+	}
+
+	private void verificarFinalitzacioProcessInstance(
+			String processInstanceId) {
+		JbpmProcessInstance processInstance = jbpmHelper.getRootProcessInstance(processInstanceId);
+		if (processInstance.getEnd() != null) {
+			// Actualitzar data de fi de l'expedient
+			Expedient expedient = expedientRepository.findByProcessInstanceId(processInstanceId);
+			if (expedient != null) {
+				expedient.setDataFi(processInstance.getEnd());
+			}
+			// Finalitzar terminis actius
+			for (TerminiIniciat terminiIniciat: terminiIniciatRepository.findByProcessInstanceId(processInstance.getId())) {
+				if (terminiIniciat.getDataInici() != null) {
+					terminiIniciat.setDataCancelacio(new Date());
+					long[] timerIds = terminiIniciat.getTimerIdsArray();
+					for (int i = 0; i < timerIds.length; i++)
+						jbpmHelper.suspendTimer(
+								timerIds[i],
+								new Date(Long.MAX_VALUE));
+				}
+			}
+		}
 	}
 
 }

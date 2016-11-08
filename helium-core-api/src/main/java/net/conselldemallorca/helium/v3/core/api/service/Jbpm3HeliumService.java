@@ -1094,4 +1094,12 @@ public interface Jbpm3HeliumService {
 	 */
 	public boolean isTascaEnSegonPla(Long taskId);
 
+	/**
+	 * Afegeix una instància de procés per a verificar la seva finalització.
+	 * 
+	 * @param processInstanceId
+	 */
+	public void afegirInstanciaProcesPerVerificarFinalitzacio(
+			String processInstanceId);
+
 }

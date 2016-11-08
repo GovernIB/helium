@@ -33,6 +33,7 @@ import com.codahale.metrics.Counter;
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer;
 
+import net.conselldemallorca.helium.core.common.ThreadLocalInfo;
 import net.conselldemallorca.helium.core.helper.DocumentHelperV3;
 import net.conselldemallorca.helium.core.helper.EntornHelper;
 import net.conselldemallorca.helium.core.helper.ExpedientHelper;
@@ -72,7 +73,6 @@ import net.conselldemallorca.helium.core.security.ExtendedPermission;
 import net.conselldemallorca.helium.jbpm3.integracio.DelegationInfo;
 import net.conselldemallorca.helium.jbpm3.integracio.ExecucioHandlerException;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
-import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessInstance;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmTask;
 import net.conselldemallorca.helium.jbpm3.integracio.LlistatIds;
 import net.conselldemallorca.helium.jbpm3.integracio.ResultatConsultaPaginadaJbpm;
@@ -1268,6 +1268,7 @@ public class TascaServiceImpl implements TascaService {
 						expedient.getEntorn().getCodi(),
 						expedient.getTipus().getCodi()));
 		countTipexp.inc();
+		ThreadLocalInfo.clearProcessInstanceFinalitzatIds();
 		try {
 			ExpedientLog expedientLog = expedientLoggerHelper.afegirLogExpedientPerTasca(
 					tascaId,
@@ -1296,12 +1297,10 @@ public class TascaServiceImpl implements TascaService {
 					tascaHelper.deleteDelegationInfo(taskOriginal);
 				}
 			}
-			
-			JbpmProcessInstance pi = jbpmHelper.getRootProcessInstance(expedientLog.getExpedient().getProcessInstanceId());		
 			actualitzarTerminisIAlertes(tascaId, expedientLog.getExpedient());
-			verificarFinalitzacioExpedient(expedientLog.getExpedient(), pi);
+			expedientHelper.verificarFinalitzacioExpedient(
+					expedientLog.getExpedient());
 			indexHelper.expedientIndexLuceneUpdate(expedientLog.getExpedient().getProcessInstanceId());
-			
 			Tasca tasca = tascaRepository.findByJbpmNameAndDefinicioProcesJbpmId(
 					task.getTaskName(),
 					task.getProcessDefinitionId());
@@ -1622,26 +1621,6 @@ public class TascaServiceImpl implements TascaService {
 				expedientTipus,
 				true);
 		return dto;
-	}
-
-	private void verificarFinalitzacioExpedient(
-			Expedient expedient,
-			JbpmProcessInstance pi) {
-		if (pi.getEnd() != null) {
-			// Actualitzar data de fi de l'expedient
-			expedient.setDataFi(pi.getEnd());
-			// Finalitzar terminis actius
-			for (TerminiIniciat terminiIniciat: terminiIniciatRepository.findByProcessInstanceId(pi.getId())) {
-				if (terminiIniciat.getDataInici() != null) {
-					terminiIniciat.setDataCancelacio(new Date());
-					long[] timerIds = terminiIniciat.getTimerIdsArray();
-					for (int i = 0; i < timerIds.length; i++)
-						jbpmHelper.suspendTimer(
-								timerIds[i],
-								new Date(Long.MAX_VALUE));
-				}
-			}
-		}
 	}
 
 	@Transactional
