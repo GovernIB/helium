@@ -114,7 +114,7 @@ public class ExpedientTerminiV3Controller extends BaseExpedientController {
 			Model model) {
 		boolean response = false; 
 		try {			
-			terminiService.iniciar(terminiId,expedientId,new Date(),true);
+			terminiService.iniciar(terminiId,expedientId,new Date(),false);
 			MissatgesHelper.success(request, getMessage(request, "info.termini.iniciat"));
 			response = true;
 		} catch (Exception ex) {

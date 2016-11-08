@@ -427,11 +427,11 @@ function refrescaEstatSegonPla() {
 				<div class="row">
 					<div class="col-md-6">
 						<div class="btn-group">
-							<button id="nomesTasquesPersonalsCheck" data-path="nomesTasquesPersonals" title="<spring:message code="expedient.llistat.filtre.camp.personals"/>" class="btn btn-default<c:if test="${expedientConsultaCommand.nomesTasquesPersonals}"> active</c:if>" data-toggle="button"><span class="fa fa-user"></span></button>
-							<button id="nomesTasquesGrupCheck" data-path="nomesTasquesGrup" title="<spring:message code="expedient.llistat.filtre.camp.grup"/>" class="btn btn-default<c:if test="${expedientConsultaCommand.nomesTasquesGrup}"> active</c:if>" data-toggle="button"><span class="fa fa-users"></span></button>
+							<button id="nomesTasquesPersonalsCheck" data-path="nomesTasquesPersonals" title="<spring:message code="expedient.llistat.filtre.camp.personals"/>" class="btn btn-default filtre-button<c:if test="${expedientConsultaCommand.nomesTasquesPersonals}"> active</c:if>" data-toggle="button"><span class="fa fa-user"></span></button>
+							<button id="nomesTasquesGrupCheck" data-path="nomesTasquesGrup" title="<spring:message code="expedient.llistat.filtre.camp.grup"/>" class="btn btn-default filtre-button<c:if test="${expedientConsultaCommand.nomesTasquesGrup}"> active</c:if>" data-toggle="button"><span class="fa fa-users"></span></button>
 						</div>
-						<button id="nomesErrorsCheck" data-path="nomesErrors" title="<spring:message code="expedient.llistat.filtre.camp.errors"/>" class="btn btn-default<c:if test="${expedientConsultaCommand.nomesErrors}"> active</c:if>" data-toggle="button"><span class="fa fa-exclamation-triangle"></span></button>
-						<button id="nomesAlertesCheck" data-path="nomesAlertes" title="<spring:message code="expedient.llistat.filtre.camp.alertes"/>" class="btn btn-default<c:if test="${expedientConsultaCommand.nomesAlertes}"> active</c:if>" data-toggle="button"><span class="fa  fa-envelope"></span></button>
+						<button id="nomesErrorsCheck" data-path="nomesErrors" title="<spring:message code="expedient.llistat.filtre.camp.errors"/>" class="btn btn-default filtre-button<c:if test="${expedientConsultaCommand.nomesErrors}"> active</c:if>" data-toggle="button"><span class="fa fa-exclamation-triangle"></span></button>
+						<button id="nomesAlertesCheck" data-path="nomesAlertes" title="<spring:message code="expedient.llistat.filtre.camp.alertes"/>" class="btn btn-default filtre-button<c:if test="${expedientConsultaCommand.nomesAlertes}"> active</c:if>" data-toggle="button"><span class="fa  fa-envelope"></span></button>
 					</div>
 					<div class="col-md-6">
 						<div class="pull-right">

@@ -80,7 +80,7 @@
 						</c:if>
 					</c:if>
 					<c:if test="${tasca.open and not tasca.suspended and not tasca.agafada and not empty tasca.responsables and tasca.assignadaUsuariActual}">
-						<li><a data-rdt-link-callback="agafar(${procesId},${tasca.id});" data-rdt-link-ajax=true class="icon" data-rdt-link-confirm="<spring:message code="expedient.tasca.confirmacio.agafar"/>" href="<c:url value="../../v3/expedient/${expedient.id}/tasca/${tasca.id}/agafar"/>"><span class="fa fa-chain"></span>&nbsp;<spring:message code="tasca.llistat.accio.agafar"/></a></li>
+						<li><a data-rdt-link-callback="agafar(${procesId},${tasca.id});" data-rdt-link-ajax=true class="icon" href="<c:url value="../../v3/expedient/${expedient.id}/tasca/${tasca.id}/agafar"/>"><span class="fa fa-chain"></span>&nbsp;<spring:message code="tasca.llistat.accio.agafar"/></a></li>
 					</c:if>
 					<c:if test="${tasca.open and not tasca.suspended and tasca.agafada and tasca.assignee == dadesPersona.codi}">
 						<li><a data-rdt-link-ajax=true data-rdt-link-callback="alliberar(${procesId},${tasca.id});" href="<c:url value="../../v3/expedient/${expedient.id}/tasca/${tasca.id}/alliberar"/>" class="icon" data-rdt-link-confirm="<spring:message code="expedient.tasca.confirmacio.alliberar"/>"><span class="fa fa-chain-broken"></span> <spring:message code="tasca.llistat.accio.alliberar"/></a></li>

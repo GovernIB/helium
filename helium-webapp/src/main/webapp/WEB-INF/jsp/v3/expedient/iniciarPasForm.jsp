@@ -193,9 +193,7 @@
 		
 		<div id="modal-botons">
 		
-			<button type="submit" name="submit" value="cancel" class="botons-iniciar modal-tancar btn btn-default">
-				<spring:message code='comuns.cancelar' />
-			</button>			
+			<button type="button" class="btn btn-default" data-modal-cancel="true"><spring:message code='comuns.cancelar' /></button>
 			<button type="submit" id="iniciar" name="accio" value="iniciar" class="botons-iniciar btn btn-primary">
 				<spring:message code='comuns.iniciar' />
 			</button>
