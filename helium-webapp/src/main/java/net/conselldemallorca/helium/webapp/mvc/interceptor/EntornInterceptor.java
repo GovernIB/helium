@@ -17,7 +17,7 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.ModelAndViewDefiningException;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
-import net.conselldemallorca.helium.core.common.ExpedientIniciantDto;
+import net.conselldemallorca.helium.core.common.ThreadLocalInfo;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 import net.conselldemallorca.helium.core.model.service.AlertaService;
 import net.conselldemallorca.helium.core.util.EntornActual;
@@ -129,7 +129,7 @@ public class EntornInterceptor extends HandlerInterceptorAdapter {
 				}
 			}
 			// Inicialitza la variable ThreadLocal de l'expedient que s'està iniciant
-			ExpedientIniciantDto.setExpedient(null);
+			ThreadLocalInfo.setExpedient(null);
 			if (entornActual != null) {
 				// Actualitza si hi ha expedients per iniciar
 				List<ExpedientTipusDto> tipusCrear = expedientTipusService.findAmbEntornPermisCrear(
@@ -198,7 +198,7 @@ public class EntornInterceptor extends HandlerInterceptorAdapter {
 			Object handler,
 			Exception ex) {
 		EntornActual.setEntornId(null);
-		ExpedientIniciantDto.setExpedient(null);
+		ThreadLocalInfo.setExpedient(null);
 	}
 
 

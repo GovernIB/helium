@@ -21,7 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.codahale.metrics.MetricRegistry;
 
-import net.conselldemallorca.helium.core.common.ExpedientIniciantDto;
+import net.conselldemallorca.helium.core.common.ThreadLocalInfo;
 import net.conselldemallorca.helium.core.extern.domini.FilaResultat;
 import net.conselldemallorca.helium.core.extern.domini.ParellaCodiValor;
 import net.conselldemallorca.helium.core.helper.TascaSegonPlaHelper.InfoSegonPla;
@@ -217,7 +217,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 	public ExpedientDto getExpedientIniciant() {
 		logger.debug("Obtenint expedient en fase d'inici");
 		return conversioTipusHelper.convertir(
-				ExpedientIniciantDto.getExpedient(),
+				ThreadLocalInfo.getExpedient(),
 				ExpedientDto.class);
 	}
 
@@ -1928,6 +1928,13 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 		
 		return result;
 	}
+
+	@Override
+	public void afegirInstanciaProcesPerVerificarFinalitzacio(String processInstanceId) {
+		ThreadLocalInfo.addProcessInstanceFinalitzatIds(processInstanceId);
+	}
+
+
 
 	private Expedient getExpedientDonatProcessInstanceId(
 			String processInstanceId) {

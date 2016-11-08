@@ -41,7 +41,7 @@ import org.springmodules.lucene.index.support.LuceneIndexSupport;
 import org.springmodules.lucene.search.core.HitExtractor;
 import org.springmodules.lucene.search.core.LuceneSearchTemplate;
 
-import net.conselldemallorca.helium.core.common.ExpedientIniciantDto;
+import net.conselldemallorca.helium.core.common.ThreadLocalInfo;
 import net.conselldemallorca.helium.core.model.hibernate.Camp;
 import net.conselldemallorca.helium.core.model.hibernate.Camp.TipusCamp;
 import net.conselldemallorca.helium.core.model.hibernate.CampRegistre;
@@ -171,7 +171,7 @@ public class LuceneHelper extends LuceneIndexSupport {
 		// al reindexar des dels handlers de modificar dades de l'expedient
 		boolean indexarExpedient = true;
 		if (comprovarIniciant) {
-			Expedient expedientIniciant = ExpedientIniciantDto.getExpedient();
+			Expedient expedientIniciant = ThreadLocalInfo.getExpedient();
 			logger.debug("Creant expedient a l'index Lucene: mirant si indexar (" +
 					"id=" + expedient.getId() + ", " +
 					"expedientIniciant=" + expedientIniciant + ", " +

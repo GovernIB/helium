@@ -319,4 +319,7 @@ public interface ExpedientRepository extends JpaRepository<Expedient, Long> {
 			"from Expedient e " +
 			"where e.processInstanceId = :processInstanceId")
 	Long findIdByProcessInstanceId(@Param("processInstanceId") String processInstanceId);
+
+	Expedient findByProcessInstanceId(String processInstanceId);
+
 }

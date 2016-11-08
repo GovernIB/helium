@@ -21,6 +21,8 @@ import org.springframework.stereotype.Service;
 import com.codahale.metrics.MetricRegistry;
 
 import net.conselldemallorca.helium.core.common.JbpmVars;
+import net.conselldemallorca.helium.core.common.ThreadLocalInfo;
+import net.conselldemallorca.helium.core.helper.ExpedientHelper;
 import net.conselldemallorca.helium.core.helper.ProcesCallbackHelper;
 import net.conselldemallorca.helium.core.helperv26.DocumentHelper;
 import net.conselldemallorca.helium.core.model.dao.AlertaDao;
@@ -35,7 +37,6 @@ import net.conselldemallorca.helium.core.model.dao.PluginPersonaDao;
 import net.conselldemallorca.helium.core.model.dao.PluginPortasignaturesDao;
 import net.conselldemallorca.helium.core.model.dao.PluginTramitacioDao;
 import net.conselldemallorca.helium.core.model.dao.RegistreDao;
-import net.conselldemallorca.helium.core.model.dao.TerminiIniciatDao;
 import net.conselldemallorca.helium.core.model.dao.UsuariDao;
 import net.conselldemallorca.helium.core.model.dto.DocumentDto;
 import net.conselldemallorca.helium.core.model.dto.PersonaDto;
@@ -49,7 +50,6 @@ import net.conselldemallorca.helium.core.model.hibernate.ExpedientLog.ExpedientL
 import net.conselldemallorca.helium.core.model.hibernate.Portasignatures;
 import net.conselldemallorca.helium.core.model.hibernate.Portasignatures.TipusEstat;
 import net.conselldemallorca.helium.core.model.hibernate.Portasignatures.Transicio;
-import net.conselldemallorca.helium.core.model.hibernate.TerminiIniciat;
 import net.conselldemallorca.helium.core.model.hibernate.Usuari;
 import net.conselldemallorca.helium.core.security.AclServiceDao;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
@@ -81,10 +81,10 @@ public class PluginService {
 	private ExpedientDao expedientDao;
 	private RegistreDao registreDao;
 	private DocumentStoreDao documentStoreDao;
-	private TerminiIniciatDao terminiIniciatDao;
 	private JbpmHelper jbpmDao;
 
 	private DocumentHelper documentHelper;
+	private ExpedientHelper expedientHelper;
 	private ExpedientLogHelper expedientLogHelper;
 
 	private DefinicioProcesDao definicioProcesDao;
@@ -421,10 +421,6 @@ public class PluginService {
 		this.expedientDao = expedientDao;
 	}
 	@Autowired
-	public void setTerminiIniciatDao(TerminiIniciatDao terminiIniciatDao) {
-		this.terminiIniciatDao = terminiIniciatDao;
-	}
-	@Autowired
 	public void setRegistreDao(RegistreDao registreDao) {
 		this.registreDao = registreDao;
 	}
@@ -439,6 +435,10 @@ public class PluginService {
 	@Autowired
 	public void setExpedientLogHelper(ExpedientLogHelper expedientLogHelper) {
 		this.expedientLogHelper = expedientLogHelper;
+	}
+	@Autowired
+	public void setExpedientHelper(ExpedientHelper expedientHelper) {
+		this.expedientHelper = expedientHelper;
 	}
 	@Autowired
 	public void setJbpmHelper(JbpmHelper jbpmDao) {
@@ -502,6 +502,7 @@ public class PluginService {
 					(TipusEstat.ERROR.equals(portasignatures.getEstat()) && Transicio.SIGNAT.equals(portasignatures.getTransition()))) {
 					// Processa els documents signats
 					try {
+						ThreadLocalInfo.clearProcessInstanceFinalitzatIds();
 						expedientLogHelper.afegirLogExpedientPerProces(
 								token.getProcessInstanceId(),
 								ExpedientLogAccioTipus.PROCES_DOCUMENT_SIGNAR,
@@ -526,7 +527,11 @@ public class PluginService {
 						
 						//Actualitzem l'estat de l'expedient, ja que si tot el procés de firma i de custòdia
 						// ha anat bé, es possible que s'avanci cap al node "fi"
-						verificarFinalitzacioExpedient(token.getProcessInstanceId());
+						JbpmProcessInstance rootProcessInstance = jbpmDao.getRootProcessInstance(
+								token.getProcessInstanceId());
+						Expedient expedient = expedientDao.findAmbProcessInstanceId(rootProcessInstance.getId());
+						expedientHelper.verificarFinalitzacioExpedient(
+								expedient);
 						resposta = true;
 					} catch (PluginException pex) {
 						errorProcesPsigna(
@@ -743,7 +748,7 @@ public class PluginService {
 		}
 	}
 	
-	private void verificarFinalitzacioExpedient(String processInstanceId) {
+	/*private void verificarFinalitzacioExpedient(String processInstanceId) {
 		JbpmProcessInstance pi = jbpmDao.getRootProcessInstance(processInstanceId);
 		Expedient expedient = expedientDao.findAmbProcessInstanceId(pi.getId());
 		if (pi.getEnd() != null) {
@@ -764,7 +769,7 @@ public class PluginService {
 				}
 			}
 		}
-	}
+	}*/
 
 	/*private void enviarCorreuErrorPsigna(
 			String subject,

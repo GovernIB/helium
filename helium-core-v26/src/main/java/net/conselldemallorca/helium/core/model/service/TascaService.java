@@ -27,7 +27,9 @@ import com.codahale.metrics.Timer;
 import com.codahale.metrics.annotation.Timed;
 
 import net.conselldemallorca.helium.core.common.JbpmVars;
+import net.conselldemallorca.helium.core.common.ThreadLocalInfo;
 import net.conselldemallorca.helium.core.extern.domini.FilaResultat;
+import net.conselldemallorca.helium.core.helper.ExpedientHelper;
 import net.conselldemallorca.helium.core.helperv26.MesuresTemporalsHelper;
 import net.conselldemallorca.helium.core.model.dao.AlertaDao;
 import net.conselldemallorca.helium.core.model.dao.CampDao;
@@ -113,6 +115,7 @@ public class TascaService {
 	private MessageSource messageSource;
 
 	private ServiceUtils serviceUtils;
+	private ExpedientHelper expedientHelper;
 	private ExpedientLogHelper expedientLogHelper;
 
 	private Map<String, Map<String, Object>> dadesFormulariExternInicial;
@@ -1463,6 +1466,7 @@ public class TascaService {
 						expedient.getTipus().getCodi()));
 		countTipexp.inc();
 		try {
+			ThreadLocalInfo.clearProcessInstanceFinalitzatIds();
 			//mesuresTemporalsHelper.mesuraIniciar("Completar tasca", "tasques", expedient.getTipus().getNom(), task.getTaskName());
 			//mesuresTemporalsHelper.mesuraIniciar("Completar tasca", "tasques", expedient.getTipus().getNom(), task.getTaskName(), "LOG");
 			expedientLogHelper.afegirLogExpedientPerTasca(
@@ -1502,7 +1506,7 @@ public class TascaService {
 			actualitzarTerminisIAlertes(taskId, expedient);
 			//mesuresTemporalsHelper.mesuraCalcular("Completar tasca", "tasques", expedient.getTipus().getNom(), task.getTaskName(), "Actualitzar alertes");
 			//mesuresTemporalsHelper.mesuraIniciar("Completar tasca", "tasques", expedient.getTipus().getNom(), task.getTaskName(), "Actualitzar data fi");
-			verificarFinalitzacioExpedient(expedient);
+			expedientHelper.verificarFinalitzacioExpedient(expedient);
 			//mesuresTemporalsHelper.mesuraCalcular("Completar tasca", "tasques", expedient.getTipus().getNom(), task.getTaskName(), "Actualitzar data fi");
 			//mesuresTemporalsHelper.mesuraIniciar("Completar tasca", "tasques", expedient.getTipus().getNom(), task.getTaskName(), "Update lucene");
 			getServiceUtils().expedientIndexLuceneUpdate(
@@ -1866,6 +1870,10 @@ public class TascaService {
 	@Autowired
 	public void setExpedientLogHelper(ExpedientLogHelper expedientLogHelper) {
 		this.expedientLogHelper = expedientLogHelper;
+	}
+	@Autowired
+	public void setExpedientHelper(ExpedientHelper expedientHelper) {
+		this.expedientHelper = expedientHelper;
 	}
 
 
@@ -2460,7 +2468,7 @@ public class TascaService {
 			antiga.setDataEliminacio(new Date());
 	}
 
-	private void verificarFinalitzacioExpedient(
+	/*private void verificarFinalitzacioExpedient(
 			Expedient expedient) {
 		JbpmProcessInstance pi = jbpmDao.getProcessInstance(expedient.getProcessInstanceId());
 		if (pi.getEnd() != null) {
@@ -2478,7 +2486,7 @@ public class TascaService {
 				}
 			}
 		}
-	}
+	}*/
 
 	private ServiceUtils getServiceUtils() {
 		if (serviceUtils == null) {

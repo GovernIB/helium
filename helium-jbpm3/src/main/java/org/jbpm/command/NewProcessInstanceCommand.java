@@ -38,6 +38,7 @@ import org.jbpm.graph.exe.ProcessInstance;
  * 
  * @author Jim Rigsbee, Tom Baeyens, Bernd Ruecker
  */
+@SuppressWarnings("rawtypes")
 public class NewProcessInstanceCommand extends AbstractBaseCommand {
 
 	private static final long serialVersionUID = 1L;

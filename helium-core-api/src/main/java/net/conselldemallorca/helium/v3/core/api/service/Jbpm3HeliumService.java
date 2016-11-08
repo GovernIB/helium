@@ -1028,33 +1028,6 @@ public interface Jbpm3HeliumService {
 	 */
 	public void desfinalitzarExpedient(String processInstanceId) throws Exception;
 
-//	/**
-//	 * Obté la propera operació a realitzar massivament
-//	 * 
-//	 * @param ultimaExecucioMassiva
-//	 * @return
-//	 */
-//	public OperacioMassivaDto getExecucionsMassivesActiva(Long ultimaExecucioMassiva) throws Exception;
-//
-//	/**
-//	 * Executa la operació massiva
-//	 * 
-//	 * @param operacioMassiva
-//	 * @throws Exception 
-//	 */
-//	public void executarExecucioMassiva(OperacioMassivaDto operacioMassiva) throws Exception;
-//
-//	/**
-//	 * @param operacioMassiva
-//	 * @param e
-//	 */
-//	public void generaInformeError(OperacioMassivaDto operacioMassiva, Exception e);
-//
-//	/**
-//	 * @param operacioMassiva
-//	 */
-//	public void actualitzaUltimaOperacio(OperacioMassivaDto operacioMassiva);
-
 	/**
 	 * Retorna una referència al registre de mètriques
 	 * 
@@ -1101,5 +1074,13 @@ public interface Jbpm3HeliumService {
 	 * @return
 	 */
 	public List<DefinicioProcesDto> findSubDefinicionsProces(Long definicioProcesId);
+
+	/**
+	 * Afegeix una instància de procés per a verificar la seva finalització.
+	 * 
+	 * @param processInstanceId
+	 */
+	public void afegirInstanciaProcesPerVerificarFinalitzacio(
+			String processInstanceId);
 
 }
