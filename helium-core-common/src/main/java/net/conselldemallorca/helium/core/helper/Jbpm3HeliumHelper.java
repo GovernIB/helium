@@ -62,7 +62,6 @@ import net.conselldemallorca.helium.v3.core.api.dto.CarrecDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentDissenyDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
-import net.conselldemallorca.helium.v3.core.api.dto.DocumentEnviamentEstatEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DominiRespostaColumnaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DominiRespostaFilaDto;
@@ -72,6 +71,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDadaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.FestiuDto;
+import net.conselldemallorca.helium.v3.core.api.dto.NotificacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ReassignacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ReferenciaRDSJustificanteDto;
@@ -1290,7 +1290,8 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 	@Override
 	public RegistreIdDto notificacioCrear(
 			RegistreNotificacioDto notificacio,
-			Long expedientId) {
+			Long expedientId,
+			boolean crearExpedient) {
 		Expedient expedient = expedientRepository.findOne(expedientId);
 		if (expedient == null)
 			throw new NoTrobatException(Expedient.class, expedientId);
@@ -1306,6 +1307,10 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 		dadesInteressat.setNomAmbCognoms(notificacio.getInteressatNomAmbCognoms());
 		dadesInteressat.setMunicipiCodi(notificacio.getInteressatMunicipiCodi());
 		dadesInteressat.setMunicipiNom(notificacio.getInteressatMunicipiNom());
+		dadesInteressat.setProvinciaCodi(notificacio.getInteressatProvinciaCodi());
+		dadesInteressat.setProvinciaNom(notificacio.getInteressatProvinciaNom());
+		dadesInteressat.setPaisCodi(notificacio.getInteressatPaisCodi());
+		dadesInteressat.setPaisNom(notificacio.getInteressatPaisNom());
 		dadesInteressat.setNif(notificacio.getInteressatNif());
 		registreNotificacio.setDadesInteressat(dadesInteressat);
 		DadesExpedient dadesExpedient = new DadesExpedient();
@@ -1355,7 +1360,8 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 		try {
 			RespostaAnotacioRegistre respostaPlugin = pluginHelper.tramitacioRegistrarNotificacio(
 				registreNotificacio,
-				expedient);
+				expedient,
+				crearExpedient);
 		
 			if (respostaPlugin.isOk()) {
 				RegistreIdDto resposta = new RegistreIdDto();
@@ -1367,19 +1373,18 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 				resposta.setReferenciaRDSJustificante(referenciaRDSJustificante);			
 				return resposta;
 			} else {
-	//			throw new SistemaExternException(
-	//					expedient.getEntorn().getId(),
-	//					expedient.getEntorn().getCodi(), 
-	//					expedient.getEntorn().getNom(), 
-	//					expedient.getId(), 
-	//					expedient.getTitol(), 
-	//					expedient.getNumero(), 
-	//					expedient.getTipus().getId(), 
-	//					expedient.getTipus().getCodi(), 
-	//					expedient.getTipus().getNom(), 
-	//					"(Registre data de justificant)", 
-	//					"[" + respostaPlugin.getErrorCodi() + "]: " + respostaPlugin.getErrorDescripcio());
-				System.out.println("No ha estat possible crear la notificació eletrònica per l'expedient " + expedient.getTitol() + ". Ha estat denegada.");
+				throw new SistemaExternException(
+						expedient.getEntorn().getId(),
+						expedient.getEntorn().getCodi(), 
+						expedient.getEntorn().getNom(), 
+						expedient.getId(), 
+						expedient.getTitol(), 
+						expedient.getNumero(), 
+						expedient.getTipus().getId(), 
+						expedient.getTipus().getCodi(), 
+						expedient.getTipus().getNom(), 
+						"(Registre data de justificant)", 
+						"[" + respostaPlugin.getErrorCodi() + "]: " + respostaPlugin.getErrorDescripcio());
 			}
 		} catch (Exception e) {
 			System.out.println("No ha estat possible crear la notificació eletrònica per l'expedient " + expedient.getTitol() + 
@@ -1437,11 +1442,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 	@Override
 	public void notificacioGuardar(
 			ExpedientDto expedient,
-			DocumentEnviamentEstatEnumDto estat,
-			String registreNumero,
-			String assumpte,
-			Date dataEnviament,
-			Date dataRecepcio) {
+			NotificacioDto notificacio) {
 //		logger.debug("Guardant una notificació de l'expedient (" +
 //				"expedientId=" + expedientId + ", " +
 //				"numero=" + numero + ", " +
@@ -1450,11 +1451,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 //				"RDSCodigo=" + RDSCodigo + ")");
 		notificacioElectronicaHelper.create(
 				expedient,
-				estat,
-				registreNumero,
-				assumpte,
-				dataEnviament,
-				dataRecepcio);
+				notificacio);
 	}
 
 	@Override

@@ -350,7 +350,8 @@ public interface HeliumApi {
 	 */
 	public RespostaRegistre registreNotificacio(
 			DadesRegistreNotificacio dadesNotificacio,
-			List<String> documentsNotificacio);
+			List<String> documentsNotificacio,
+			boolean crearExpedient);
 	/**
 	 * Obté la el justificant de recepció d'una notificació telemàtica
 	 * 

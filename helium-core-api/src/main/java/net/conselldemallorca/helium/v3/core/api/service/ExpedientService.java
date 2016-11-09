@@ -10,6 +10,8 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.SortedSet;
 
+import org.springframework.security.acls.model.NotFoundException;
+
 import net.conselldemallorca.helium.v3.core.api.dto.AccioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.AlertaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
@@ -28,6 +30,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.ExpedientLogDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.InstanciaProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.MostrarAnulatsDto;
+import net.conselldemallorca.helium.v3.core.api.dto.NotificacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
@@ -39,8 +42,6 @@ import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException
 import net.conselldemallorca.helium.v3.core.api.exception.SistemaExternException;
 import net.conselldemallorca.helium.v3.core.api.exception.TramitacioException;
 import net.conselldemallorca.helium.v3.core.api.exception.ValidacioException;
-
-import org.springframework.security.acls.model.NotFoundException;
 
 
 /**
@@ -1089,5 +1090,10 @@ public interface ExpedientService {
 	public List<PortasignaturesDto> findDocumentsPendentsPortasignatures(String processInstanceId);
 
 	public Long findIdAmbProcessInstanceId(String processInstanceId);
+	
+	public List<NotificacioDto> findNotificacionsPerExpedientId(Long expedientId) throws NoTrobatException;
+	
+	public NotificacioDto findNotificacioPerId(Long notificacioId) throws NoTrobatException;
 
+	public void notificacioReprocessar(Long notificacioId) throws NoTrobatException;
 }

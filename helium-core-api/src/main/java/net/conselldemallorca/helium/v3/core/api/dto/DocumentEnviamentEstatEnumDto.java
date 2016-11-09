@@ -11,12 +11,8 @@ package net.conselldemallorca.helium.v3.core.api.dto;
  * @author Limit Tecnologies <limit@limit.es>
  */
 public enum DocumentEnviamentEstatEnumDto {
-	PENDENT,
-	ENVIAT_OK,
-	ENVIAT_ERROR,
+	ENVIAT,
 	PROCESSAT_OK,
 	PROCESSAT_REBUTJAT,
-	PROCESSAT_ERROR,
-	PUBLICAT,
-	CANCELAT
+	PROCESSAT_ERROR
 }

@@ -591,7 +591,8 @@ public class HeliumApiImpl implements HeliumApi {
 	@Override
 	public RespostaRegistre registreNotificacio(
 			DadesRegistreNotificacio dadesNotificacio,
-			List<String> documentsNotificacio) {
+			List<String> documentsNotificacio,
+			boolean crearExpedient) {
 		RegistreNotificacioDto notificacio = new RegistreNotificacioDto();
 		notificacio.setExpedientIdentificador(dadesNotificacio.getExpedientIdentificador());
 		notificacio.setExpedientClau(dadesNotificacio.getExpedientClau());
@@ -650,7 +651,7 @@ public class HeliumApiImpl implements HeliumApi {
 		notificacio.setAnnexos(annexos);
 		try {
 			Long expedientId = executionContext.getProcessInstance().getExpedient().getId();
-			RegistreIdDto anotacioId = Jbpm3HeliumBridge.getInstanceService().notificacioCrear(notificacio,expedientId);
+			RegistreIdDto anotacioId = Jbpm3HeliumBridge.getInstanceService().notificacioCrear(notificacio,expedientId,crearExpedient);
 			RespostaRegistre resposta = new RespostaRegistre();
 			resposta.setNumero(anotacioId.getNumero());
 			resposta.setData(anotacioId.getData());

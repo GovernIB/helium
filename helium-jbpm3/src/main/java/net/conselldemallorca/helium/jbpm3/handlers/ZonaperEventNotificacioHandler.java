@@ -7,6 +7,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import org.jbpm.JbpmException;
@@ -19,8 +20,13 @@ import net.conselldemallorca.helium.jbpm3.handlers.tipus.DocumentInfo;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.RespostaRegistre;
 import net.conselldemallorca.helium.jbpm3.integracio.Jbpm3HeliumBridge;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentEnviamentEstatEnumDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DocumentNotificacioDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DocumentNotificacioTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
+import net.conselldemallorca.helium.v3.core.api.dto.InteressatDocumentTipusEnumDto;
+import net.conselldemallorca.helium.v3.core.api.dto.InteressatIdiomaEnumDto;
+import net.conselldemallorca.helium.v3.core.api.dto.NotificacioDto;
 
 /**
  * Handler per a interactuar amb el registre de sortida.
@@ -84,6 +90,8 @@ public class ZonaperEventNotificacioHandler extends BasicActionHandler implement
 	private String varDocumentIdiomaExtracte;
 	private String document;
 	private String varDocument;
+	private String annexos;
+	private String varAnnexos;
 	private String varNumeroRegistre;
 	private String varNumeroAnyRegistre;
 	private String varDataRegistre;
@@ -111,6 +119,9 @@ public class ZonaperEventNotificacioHandler extends BasicActionHandler implement
 	private String notificacioSubsanacioTramitDescripcio;
 	private String varNotificacioSubsanacioTramitDescripcio;
 	
+	private boolean notificacioCrearExpedient;
+	private String varNotificacioCrearExpedient;
+	
 	public void execute(ExecutionContext executionContext) throws Exception {		
 		ExpedientDto expedient = getExpedientActual(executionContext);
 		ExpedientTipusDto expedientTipus = expedient.getTipus();
@@ -124,9 +135,13 @@ public class ZonaperEventNotificacioHandler extends BasicActionHandler implement
 					+ "personal.");
 		
 		DadesRegistreNotificacio anotacio = new DadesRegistreNotificacio();
+		anotacio.setData(new Date());
 		
 		String identificador = expedient.getNumeroIdentificador();
+		
 		String clau = new Long(System.currentTimeMillis()).toString();
+		if (expedient.getTramitExpedientClau() != null && !expedient.getTramitExpedientClau().isEmpty())
+			clau = expedient.getTramitExpedientClau();
 		
 		anotacio.setExpedientIdentificador(identificador);
 		anotacio.setExpedientClau(clau);
@@ -149,19 +164,23 @@ public class ZonaperEventNotificacioHandler extends BasicActionHandler implement
 				representatNif,
 				varRepresentatNif));
 		
+		
+		String interessatNom = (String)getValorOVariable(
+				executionContext,
+				representatNom,
+				varRepresentatNom);
+		String interessatLlinatge1 = (String)getValorOVariable(
+				executionContext,
+				representatLlin1,
+				varRepresentatLlin1);
+		String interessatLlinatge2 = (String)getValorOVariable(
+				executionContext,
+				representatLlin2,
+				varRepresentatLlin2);
 		anotacio.setInteressatNomAmbCognoms(
-				(String)getValorOVariable(
-						executionContext,
-						representatNom,
-						varRepresentatNom) + " " +
-				(String)getValorOVariable(
-						executionContext,
-						representatLlin1,
-						varRepresentatLlin1) + " " +
-				(String)getValorOVariable(
-						executionContext,
-						representatLlin2,
-						varRepresentatLlin2));
+				interessatNom + " " +
+				interessatLlinatge1 + " " +
+				interessatLlinatge2);
 		
 		anotacio.setInteressatEntitatCodi(
 				(String)getValorOVariable(
@@ -218,9 +237,11 @@ public class ZonaperEventNotificacioHandler extends BasicActionHandler implement
 		anotacio.setNotificacioJustificantRecepcio(true);
 		
 		
-		
+		/*
+		 * DOCUMENT I ANNEXOS
+		 */
 		DocumentInfo documentInfo = null;
-		List<DocumentInfo> annexos = new ArrayList<DocumentInfo>();
+		List<DocumentInfo> annexos_notificacio = new ArrayList<DocumentInfo>();
 		String doc = (String)getValorOVariable(
 				executionContext,
 				document,
@@ -229,13 +250,34 @@ public class ZonaperEventNotificacioHandler extends BasicActionHandler implement
 			documentInfo = getDocumentInfo(executionContext, doc, true);
 			if (documentInfo != null) {
 				anotacio.setAnotacioAssumpte(expedient.getIdentificador() + ": " + documentInfo.getTitol());
-				annexos.add(documentInfo);
+				annexos_notificacio.add(documentInfo);
 			} else {
 				throw new JbpmException("No existia ningún documento con documentCodi: " + varDocument + ".");
 			}
 		}
 		
 		
+		List<Long> anxs = null;
+		List<DocumentInfo> annexos_expedient = new ArrayList<DocumentInfo>();
+		String anxsCodis = (String)getValorOVariable(
+				executionContext, 
+				annexos,
+				varAnnexos);
+		if (anxsCodis != null) {
+			anxs = new ArrayList<Long>();
+			String[] codis = anxsCodis.split(",");
+			for (String codi: codis) {
+				DocumentInfo annexInfo = getDocumentInfo(executionContext, codi, true);
+				if (annexInfo != null) {
+					annexos_expedient.add(annexInfo);
+				} else {
+					throw new JbpmException("No existia cap annex amb documentCodi: " + codi + ".");
+				}
+			}
+		}
+		annexos_notificacio.addAll(annexos_expedient);
+		
+		//////////////
 		
 		/*
 		 * SEGMENT PER A TITOLS I TEXTES
@@ -294,6 +336,12 @@ public class ZonaperEventNotificacioHandler extends BasicActionHandler implement
 		//////////////////////////////////////////////////////////////////////
 		
 		
+		boolean crearExpedient = (Boolean)getValorOVariable(
+				executionContext,
+				notificacioCrearExpedient,
+				varNotificacioCrearExpedient);
+		anotacio.setNotificacioCrearExpedient(crearExpedient);
+		
 		
 		if (varNotificacioSubsanacioTramitIdentificador != null && !varNotificacioSubsanacioTramitIdentificador.isEmpty()) {
 			anotacio.setNotificacioSubsanacioTramitIdentificador(
@@ -315,21 +363,64 @@ public class ZonaperEventNotificacioHandler extends BasicActionHandler implement
 							varNotificacioSubsanacioTramitDescripcio));
 		}
 		
-		RespostaRegistre resposta = registreNotificacio(executionContext,anotacio,annexos);
+		RespostaRegistre resposta = registreNotificacio(executionContext,anotacio,annexos_notificacio);
 		if (resposta != null) {			
+			
+			NotificacioDto notificacio = new NotificacioDto();
+			notificacio.setEstat(DocumentEnviamentEstatEnumDto.ENVIAT);
+			notificacio.setAssumpte(anotacio.getAnotacioAssumpte());
+			notificacio.setRegistreNumero(resposta.getNumero());
+			notificacio.setDataEnviament(anotacio.getData());
+			notificacio.setDataRecepcio(resposta.getData());
+			
+			DocumentNotificacioDto documentNotificacio = new DocumentNotificacioDto();
+			documentNotificacio.setId(documentInfo.getId());
+			notificacio.setDocument(documentNotificacio);
+			
+			for (DocumentInfo annex_exp: annexos_expedient) {
+				DocumentNotificacioDto documentAnnex = new DocumentNotificacioDto();
+				documentAnnex.setId(annex_exp.getId());
+				notificacio.getAnnexos().add(documentAnnex);
+			}
+			
+			notificacio.setTipus(DocumentNotificacioTipusEnumDto.ELECTRONICA);
+			notificacio.setInteressatDocumentTipus(InteressatDocumentTipusEnumDto.NIF); //pendent definir form
+			notificacio.setInteressatDocumentNum(anotacio.getInteressatNif());
+			notificacio.setInteressatNom(interessatNom);
+			notificacio.setInteressatLlinatge1(interessatLlinatge1);
+			notificacio.setInteressatLlinatge2(interessatLlinatge2);
+			notificacio.setInteressatPaisCodi(anotacio.getInteressatPaisCodi());
+			notificacio.setInteressatProvinciaCodi(anotacio.getInteressatProvinciaCodi());
+			notificacio.setInteressatMunicipiCodi(anotacio.getInteressatMunicipiCodi());
+			notificacio.setInteressatEmail(""); //pendent definir form
+			notificacio.setUnitatAdministrativa(anotacio.getExpedientUnitatAdministrativa());
+			notificacio.setOrganCodi(anotacio.getOrganCodi());
+			notificacio.setOficinaCodi(anotacio.getOficinaCodi());
+			notificacio.setAvisTitol(anotacio.getNotificacioAvisTitol());
+			notificacio.setAvisText(anotacio.getNotificacioAvisText());
+			notificacio.setAvisTextSms(anotacio.getNotificacioAvisTextSms());
+			notificacio.setOficiTitol(anotacio.getNotificacioOficiTitol());
+			notificacio.setOficiText(anotacio.getNotificacioOficiText());
+			notificacio.setIdioma(InteressatIdiomaEnumDto.valueOf(anotacio.getAnotacioIdiomaCodi().toUpperCase()));
+			notificacio.setEnviamentData(null);
+			notificacio.setEnviamentCount(1);
+			notificacio.setEnviamentError(false);
+			notificacio.setEnviamentErrorDescripcio(null);
+			notificacio.setProcessamentData(null); //pendent definir
+			notificacio.setProcessamentCount(0);
+			notificacio.setProcessamentError(false);
+			notificacio.setProcessamentErrorDescripcio(null);
+			notificacio.setRdsCodi(resposta.getReferenciaRDSJustificante().getCodigo());
+			notificacio.setRdsClau(resposta.getReferenciaRDSJustificante().getClave());
 			
 			Jbpm3HeliumBridge.getInstanceService().notificacioGuardar(
 					expedient, 
-					DocumentEnviamentEstatEnumDto.ENVIAT_OK, 
-					resposta.getNumero(),
-					anotacio.getAnotacioAssumpte(), 
-					anotacio.getData(), 
-					resposta.getData());
+					notificacio);
 			List<String> parametres = new ArrayList<String>();
 			
 			DadesNotificacioElectronica dadesNotificacioElectronica = new DadesNotificacioElectronica();
 			dadesNotificacioElectronica.setAnotacio(anotacio);
-			dadesNotificacioElectronica.setAnnexos(annexos);			
+			dadesNotificacioElectronica.setAnnexos(annexos_notificacio);			
 			parametres.add(toString(dadesNotificacioElectronica));
 			
 			guardarParametresPerRetrocedir(executionContext,parametres);
@@ -624,5 +715,17 @@ public class ZonaperEventNotificacioHandler extends BasicActionHandler implement
 	}
 	public void setVarDestinatariNomPais(String varDestinatariNomPais) {
 		this.varDestinatariNomPais = varDestinatariNomPais;
+	}
+	public void setAnnexos(String annexos) {
+		this.annexos = annexos;
+	}
+	public void setVarAnnexos(String varAnnexos) {
+		this.varAnnexos = varAnnexos;
+	}
+	public void setNotificacioCrearExpedient(boolean notificacioCrearExpedient) {
+		this.notificacioCrearExpedient = notificacioCrearExpedient;
+	}
+	public void setVarNotificacioCrearExpedient(String varNotificacioCrearExpedient) {
+		this.varNotificacioCrearExpedient = varNotificacioCrearExpedient;
 	}
 }

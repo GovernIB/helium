@@ -16,7 +16,6 @@ import net.conselldemallorca.helium.v3.core.api.dto.CarrecDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentDissenyDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
-import net.conselldemallorca.helium.v3.core.api.dto.DocumentEnviamentEstatEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DominiRespostaFilaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
@@ -25,6 +24,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDadaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.FestiuDto;
+import net.conselldemallorca.helium.v3.core.api.dto.NotificacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ReassignacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RegistreAnotacioDto;
@@ -753,16 +753,12 @@ public interface Jbpm3HeliumService {
 	 */
 	public RegistreIdDto notificacioCrear(
 			RegistreNotificacioDto notificacio,
-			Long expedientId) throws SistemaExternException, NoTrobatException;
+			Long expedientId,
+			boolean crearExpedient) throws SistemaExternException, NoTrobatException;
 
 	public void notificacioGuardar(
 			ExpedientDto expedient,
-			DocumentEnviamentEstatEnumDto estat,
-			String registreNumero,
-			String assumpte,
-			Date dataEnviament,
-			Date dataRecepcio
-			);
+			NotificacioDto notificacio);
 
 	public boolean notificacioEsborrar(
 			String numero,

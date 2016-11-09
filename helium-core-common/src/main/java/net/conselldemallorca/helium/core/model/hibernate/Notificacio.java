@@ -26,7 +26,6 @@ import javax.persistence.TableGenerator;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.UniqueConstraint;
-import javax.persistence.Version;
 
 import org.hibernate.annotations.ForeignKey;
 
@@ -51,7 +50,7 @@ uniqueConstraints = {
 				"tipus",
 				"inter_doctip",
 				"inter_docnum"})})
-public class Nofiticacio implements Serializable, GenericEntity<Long> {
+public class Notificacio implements Serializable, GenericEntity<Long> {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.TABLE, generator="gen_notificacio")
@@ -76,6 +75,7 @@ public class Nofiticacio implements Serializable, GenericEntity<Long> {
 	@JoinColumn(name = "document_store_id")
 	@ForeignKey(name = "hel_document_notif_fk")
 	private DocumentStore document;
+	
 	@ManyToMany(
 			cascade = CascadeType.ALL,
 			fetch = FetchType.LAZY)
@@ -150,9 +150,12 @@ public class Nofiticacio implements Serializable, GenericEntity<Long> {
 	private boolean processamentError;
 	@Column(name = "proces_error_desc", length = 2048)
 	private String processamentErrorDescripcio;
-	@Version
-	private long version = 0;
-	
+	@Column(name = "rds_codi")
+	private Long rdsCodi;
+	@Column(name = "rds_clau", length = 255)
+	private String rdsClau;
+	@Column(name = "error_notificacio", length = 1024)
+	private String error;
 	
 
 //	
@@ -457,6 +460,26 @@ public class Nofiticacio implements Serializable, GenericEntity<Long> {
 	}
 	public void setProcessamentErrorDescripcio(String processamentErrorDescripcio) {
 		this.processamentErrorDescripcio = processamentErrorDescripcio;
+	}
+
+	public Long getRdsCodi() {
+		return rdsCodi;
+	}
+	public void setRdsCodi(Long rdsCodi) {
+		this.rdsCodi = rdsCodi;
+	}
+	public String getRdsClau() {
+		return rdsClau;
+	}
+	public void setRdsClau(String rdsClau) {
+		this.rdsClau = rdsClau;
+	}
+	
+	public String getError() {
+		return error;
+	}
+	public void setError(String error) {
+		this.error = error;
 	}
 
 	private static final long serialVersionUID = 1L;

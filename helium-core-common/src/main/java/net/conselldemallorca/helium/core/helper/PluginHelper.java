@@ -444,7 +444,8 @@ public class PluginHelper {
 
 	public RespostaAnotacioRegistre tramitacioRegistrarNotificacio(
 			RegistreNotificacio registreNotificacio,
-			Expedient expedient) {
+			Expedient expedient,
+			boolean crearExpedient) {
 		IntegracioParametreDto[] parametres = new IntegracioParametreDto[] {
 				new IntegracioParametreDto(
 						"expedientIdentificador",
@@ -466,11 +467,13 @@ public class PluginHelper {
 						registreNotificacio.getDadesNotificacio().getAssumpte())
 		};
 		
+		
 		try {
-			if (expedient.getTramitExpedientIdentificador() == null || 
+			if ((expedient.getTramitExpedientIdentificador() == null || 
 				expedient.getTramitExpedientIdentificador().isEmpty() || 
 				expedient.getTramitExpedientClau() == null || 
-				expedient.getTramitExpedientClau().isEmpty()) {
+				expedient.getTramitExpedientClau().isEmpty()) &&
+				crearExpedient) {
 					crearExpedientPerNotificacio(registreNotificacio, expedient, parametres);
 					expedient.setTramitExpedientIdentificador(registreNotificacio.getDadesExpedient().getIdentificador());
 					expedient.setTramitExpedientClau(registreNotificacio.getDadesExpedient().getClau());
@@ -478,14 +481,28 @@ public class PluginHelper {
 					System.out.println("###===> Expedient creat en zona personal:");
 					System.out.println("###===> Identificador: " + expedient.getTramitExpedientIdentificador());
 					System.out.println("###===> Clau: " + expedient.getTramitExpedientClau());
-			} else {
-				System.out.println("###===> L'expedient ja existeix en la zona personal");
-				registreNotificacio.getDadesExpedient().setIdentificador(expedient.getTramitExpedientIdentificador());
-				registreNotificacio.getDadesExpedient().setClau(expedient.getTramitExpedientClau());
 			}
-			
 		} catch (TramitacioPluginException ex) {
-			System.out.println("###===> ERROR creant l'expedient a la zona personal");
+			String errorDescripcio = "No s'han pogut crear l'expedient a la zona persoanl (" +
+					"expedientIdentificador=" + registreNotificacio.getDadesExpedient().getIdentificador() + ", " +
+					"expedientClau=" + registreNotificacio.getDadesExpedient().getClau() + ", " +
+					"oficinaOrganCodi=" + registreNotificacio.getDadesOficina().getOrganCodi() + ", " +
+					"oficinaCodi=" + registreNotificacio.getDadesOficina().getOficinaCodi() + ")";
+			logger.error(
+					errorDescripcio,
+					ex);
+			throw SistemaExternException.tractarSistemaExternException(
+					expedient.getEntorn().getId(),
+					expedient.getEntorn().getCodi(), 
+					expedient.getEntorn().getNom(), 
+					expedient.getId(), 
+					expedient.getTitol(), 
+					expedient.getNumero(), 
+					expedient.getTipus().getId(), 
+					expedient.getTipus().getCodi(), 
+					expedient.getTipus().getNom(), 
+					"(SISTRA. Creació d'expedient a la zona personal: " + errorDescripcio + ")", 
+					ex);
 		}
 		
 		long t0 = System.currentTimeMillis();
@@ -500,28 +517,27 @@ public class PluginHelper {
 					parametres);
 			
 		} catch (TramitacioPluginException ex) {
-			System.out.println("###===> ERROR enviant la notificacio electrònica");
-//			String errorDescripcio = "No s'han pogut registrar la notificació (" +
-//					"expedientIdentificador=" + registreNotificacio.getDadesExpedient().getIdentificador() + ", " +
-//					"expedientClau=" + registreNotificacio.getDadesExpedient().getClau() + ", " +
-//					"oficinaOrganCodi=" + registreNotificacio.getDadesOficina().getOrganCodi() + ", " +
-//					"oficinaCodi=" + registreNotificacio.getDadesOficina().getOficinaCodi() + ")";
-//			logger.error(
-//					errorDescripcio,
-//					ex);
-//			
-//			throw SistemaExternException.tractarSistemaExternException(
-//					expedient.getEntorn().getId(),
-//					expedient.getEntorn().getCodi(), 
-//					expedient.getEntorn().getNom(), 
-//					expedient.getId(), 
-//					expedient.getTitol(), 
-//					expedient.getNumero(), 
-//					expedient.getTipus().getId(), 
-//					expedient.getTipus().getCodi(), 
-//					expedient.getTipus().getNom(), 
-//					"(SISTRA. Registrar notificació: " + errorDescripcio + ")", 
-//					ex);
+			String errorDescripcio = "No s'han pogut registrar la notificació (" +
+					"expedientIdentificador=" + registreNotificacio.getDadesExpedient().getIdentificador() + ", " +
+					"expedientClau=" + registreNotificacio.getDadesExpedient().getClau() + ", " +
+					"oficinaOrganCodi=" + registreNotificacio.getDadesOficina().getOrganCodi() + ", " +
+					"oficinaCodi=" + registreNotificacio.getDadesOficina().getOficinaCodi() + ")";
+			logger.error(
+					errorDescripcio,
+					ex);
+			
+			throw SistemaExternException.tractarSistemaExternException(
+					expedient.getEntorn().getId(),
+					expedient.getEntorn().getCodi(), 
+					expedient.getEntorn().getNom(), 
+					expedient.getId(), 
+					expedient.getTitol(), 
+					expedient.getNumero(), 
+					expedient.getTipus().getId(), 
+					expedient.getTipus().getCodi(), 
+					expedient.getTipus().getNom(), 
+					"(SISTRA. Registrar notificació: " + errorDescripcio + ")", 
+					ex);
 		}
 		return resposta;
 	}

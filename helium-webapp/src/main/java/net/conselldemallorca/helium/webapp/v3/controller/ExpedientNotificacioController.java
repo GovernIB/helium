@@ -6,7 +6,6 @@ package net.conselldemallorca.helium.webapp.v3.controller;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -28,6 +27,7 @@ import org.springframework.web.multipart.support.ByteArrayMultipartFileEditor;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NotificacioDto;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
+import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.ObjectTypeEditorHelper;
 
 /**
@@ -43,19 +43,65 @@ public class ExpedientNotificacioController extends BaseExpedientController {
 	private ExpedientService expedientService;
 
 	@RequestMapping(value = "/{expedientId}/notificacions", method = RequestMethod.GET)
-	public String terminis(
+	public String notificacions(
 			HttpServletRequest request,
 			@PathVariable Long expedientId,
 			Model model) {		
 		ExpedientDto expedient = expedientService.findAmbId(expedientId);
-		List<NotificacioDto> notificacions = new ArrayList<NotificacioDto>();
+		List<NotificacioDto> notificacions = expedientService.findNotificacionsPerExpedientId(expedient.getId());
 		
 		model.addAttribute("expedient",expedient);
-		model.addAttribute("tokens",notificacions);
+		model.addAttribute("notificacions",notificacions);
 		
 		return "v3/expedientNotificacio";
 	}
 	
+	@RequestMapping(value = "/{expedientId}/notificacio/{notificacioId}/info", method = RequestMethod.GET)
+	public String notificacioInfo(
+			HttpServletRequest request,
+			@PathVariable Long expedientId,
+			@PathVariable Long notificacioId,
+			Model model) {		
+		ExpedientDto expedient = expedientService.findAmbId(expedientId);
+		NotificacioDto notificacio = expedientService.findNotificacioPerId(notificacioId);
+		
+		model.addAttribute("expedient",expedient);
+		model.addAttribute("notificacio",notificacio);
+		
+		return "v3/notificacioInfo";
+	}
+	
+	@RequestMapping(value = "/{expedientId}/notificacio/{notificacioId}/error", method = RequestMethod.GET)
+	public String notificacioError(
+			HttpServletRequest request,
+			@PathVariable Long expedientId,
+			@PathVariable Long notificacioId,
+			Model model) {		
+		expedientService.findAmbId(expedientId);
+		NotificacioDto notificacio = expedientService.findNotificacioPerId(notificacioId);
+		
+		model.addAttribute("notificacio",notificacio);
+		
+		return "v3/notificacioError";
+	}
+	
+	@RequestMapping(value = "/{expedientId}/notificacio/{notificacioId}/processar", method = RequestMethod.GET)
+	public String notificacioProcessar(
+			HttpServletRequest request,
+			@PathVariable Long expedientId,
+			@PathVariable Long notificacioId,
+			Model model) {		
+		expedientService.findAmbId(expedientId);
+		expedientService.notificacioReprocessar(notificacioId);
+		MissatgesHelper.success(
+				request,
+				getMessage(
+						request,
+						"expedient.notificacio.reprocessada"));
+		
+		model.addAttribute("pipellaActiva", "notificacions");
+		return "redirect:/v3/expedient/" + expedientId;
+	}
 	
 	@InitBinder
 	public void initBinder(WebDataBinder binder) {

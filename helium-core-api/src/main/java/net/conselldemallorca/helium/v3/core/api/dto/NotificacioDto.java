@@ -4,7 +4,9 @@
 package net.conselldemallorca.helium.v3.core.api.dto;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 
 /**
@@ -52,6 +54,11 @@ public class NotificacioDto implements Serializable {
 	private Integer processamentCount;
 	private boolean processamentError;
 	private String processamentErrorDescripcio;
+	private Long rdsCodi;
+	private String rdsClau;
+	private DocumentNotificacioDto document;
+	private List<DocumentNotificacioDto> annexos = new ArrayList<DocumentNotificacioDto>();
+	private String error;
 	
 	private static final long serialVersionUID = 1715501096089688125L;
 
@@ -341,6 +348,46 @@ public class NotificacioDto implements Serializable {
 
 	public void setProcessamentErrorDescripcio(String processamentErrorDescripcio) {
 		this.processamentErrorDescripcio = processamentErrorDescripcio;
+	}
+
+	public Long getRdsCodi() {
+		return rdsCodi;
+	}
+
+	public void setRdsCodi(Long rdsCodi) {
+		this.rdsCodi = rdsCodi;
+	}
+
+	public String getRdsClau() {
+		return rdsClau;
+	}
+
+	public void setRdsClau(String rdsClau) {
+		this.rdsClau = rdsClau;
+	}
+
+	public DocumentNotificacioDto getDocument() {
+		return document;
+	}
+
+	public void setDocument(DocumentNotificacioDto document) {
+		this.document = document;
+	}
+
+	public List<DocumentNotificacioDto> getAnnexos() {
+		return annexos;
+	}
+
+	public void setAnnexos(List<DocumentNotificacioDto> annexos) {
+		this.annexos = annexos;
+	}
+
+	public String getError() {
+		return error;
+	}
+
+	public void setError(String error) {
+		this.error = error;
 	}
 
 }

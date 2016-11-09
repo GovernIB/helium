@@ -6,7 +6,7 @@ package net.conselldemallorca.helium.core.model.dao;
 import java.util.Date;
 import java.util.List;
 
-import net.conselldemallorca.helium.core.model.hibernate.Nofiticacio;
+import net.conselldemallorca.helium.core.model.hibernate.Notificacio;
 
 import org.hibernate.criterion.Restrictions;
 import org.springframework.stereotype.Component;
@@ -17,14 +17,14 @@ import org.springframework.stereotype.Component;
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Component
-public class NotificacioDao extends HibernateGenericDao<Nofiticacio, Long> {
+public class NotificacioDao extends HibernateGenericDao<Notificacio, Long> {
 
 	public NotificacioDao() {
-		super(Nofiticacio.class);
+		super(Notificacio.class);
 	}
 
-	public Nofiticacio create(Long expedientId, String numero, Date data, String RDSClave, Long RDSCodigo) {
-		Nofiticacio notifElectronica = new Nofiticacio();
+	public Notificacio create(Long expedientId, String numero, Date data, String RDSClave, Long RDSCodigo) {
+		Notificacio notifElectronica = new Notificacio();
 //		notifElectronica.setNumero(numero);
 //		notifElectronica.setDataEnviament(data);
 //		notifElectronica.setRdsClave(RDSClave);
@@ -34,7 +34,7 @@ public class NotificacioDao extends HibernateGenericDao<Nofiticacio, Long> {
 	}
 
 	public boolean delete(String numero, String clave, Long codigo) {
-		List<Nofiticacio> llistat = findByCriteria(
+		List<Notificacio> llistat = findByCriteria(
 				Restrictions.eq("numero", numero),
 				Restrictions.eq("RDSCodi", codigo),
 				Restrictions.eq("RDSClave", clave));
