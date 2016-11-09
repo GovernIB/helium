@@ -11,27 +11,36 @@
 <head>
 	<title><spring:message code='expedient.iniciar.iniciar_expedient' />: ${expedientTipus.nom}</title>
 	<meta name="capsaleraTipus" content="llistat"/>
+	<hel:modalHead/>
 	<script type="text/javascript" src="<c:url value="/js/jquery/jquery.keyfilter-1.8.js"/>"></script>
 	<script type="text/javascript" src="<c:url value="/js/jquery.price_format.1.8.min.js"/>"></script>
-	<link href="<c:url value="/css/datepicker.css"/>" rel="stylesheet">
-	<script src="<c:url value="/js/bootstrap-datepicker.js"/>"></script>
-	<script src="<c:url value="/js/locales/bootstrap-datepicker.ca.js"/>"></script>
 	<script type="text/javascript" src="<c:url value="/js/jquery/jquery.maskedinput.js"/>"></script>
 	<link href="<c:url value="/css/select2.css"/>" rel="stylesheet"/>
 	<link href="<c:url value="/css/select2-bootstrap.css"/>" rel="stylesheet"/>
 	<script src="<c:url value="/js/select2.min.js"/>"></script>
 	<script src="<c:url value="/js/select2-locales/select2_locale_${idioma}.js"/>"></script>
-	<script src="<c:url value="/js/helium3Tasca.js"/>"></script>
 	<script src="<c:url value="/js/helium.modal.js"/>"></script>
+	<link href="<c:url value="/css/tascaForm.css"/>" rel="stylesheet"/>
+	
+	<script src="<c:url value="/js/moment.js"/>"></script>
+	<script src="<c:url value="/js/moment-with-locales.min.js"/>"></script>
+	<script src="<c:url value="/js/bootstrap-datetimepicker.js"/>"></script>
+	<link href="<c:url value="/css/bootstrap-datetimepicker.min.css"/>" rel="stylesheet">
+
 	<script src="//code.jquery.com/ui/1.11.3/jquery-ui.js"></script>
 	<link rel="stylesheet" href="//code.jquery.com/ui/1.11.3/themes/smoothness/jquery-ui.css">
 	<script src="https://www.java.com/js/deployJava.js"></script>
-	<hel:modalHead/>
-	<link href="<c:url value="/css/tascaForm.css"/>" rel="stylesheet"/>
+
+	<link href="<c:url value="/css/datepicker.css"/>" rel="stylesheet">
+	<script src="<c:url value="/js/bootstrap-datepicker.js"/>"></script>
+	<script src="<c:url value="/js/locales/bootstrap-datepicker.ca.js"/>"></script>
+
 	<c:if test="${not empty tasca.tascaFormExternCodi}">
 		<script type="text/javascript" src="<c:url value="/dwr/interface/formulariExternDwrService.js"/>"></script>
 		<script type="text/javascript" src="<c:url value="/dwr/engine.js"/>"></script>
 	</c:if>
+	<script src="<c:url value="/js/helium3Tasca.js"/>"></script>
+
 	
 	<style>
 		.reproForm {
