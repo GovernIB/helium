@@ -47,6 +47,7 @@ import net.conselldemallorca.helium.core.helper.ExpedientRegistreHelper;
 import net.conselldemallorca.helium.core.helper.ExpedientTipusHelper;
 import net.conselldemallorca.helium.core.helper.IndexHelper;
 import net.conselldemallorca.helium.core.helper.MessageHelper;
+import net.conselldemallorca.helium.core.helper.NotificacioHelper;
 import net.conselldemallorca.helium.core.helper.PaginacioHelper;
 import net.conselldemallorca.helium.core.helper.PermisosHelper;
 import net.conselldemallorca.helium.core.helper.PermisosHelper.ObjectIdentifierExtractor;
@@ -74,6 +75,7 @@ import net.conselldemallorca.helium.core.model.hibernate.ExpedientLog;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientLog.ExpedientLogAccioTipus;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientLog.ExpedientLogEstat;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
+import net.conselldemallorca.helium.core.model.hibernate.Notificacio;
 import net.conselldemallorca.helium.core.model.hibernate.Portasignatures;
 import net.conselldemallorca.helium.core.model.hibernate.Portasignatures.TipusEstat;
 import net.conselldemallorca.helium.core.model.hibernate.Portasignatures.Transicio;
@@ -99,6 +101,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.DadesDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DocumentNotificacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientConsultaDissenyDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDadaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDocumentDto;
@@ -111,6 +114,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.ExpedientLogDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.InstanciaProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.MostrarAnulatsDto;
+import net.conselldemallorca.helium.v3.core.api.dto.NotificacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto.OrdreDireccioDto;
@@ -140,6 +144,7 @@ import net.conselldemallorca.helium.v3.core.repository.ExpedientHeliumRepository
 import net.conselldemallorca.helium.v3.core.repository.ExpedientLoggerRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientTipusRepository;
+import net.conselldemallorca.helium.v3.core.repository.NotificacioRepository;
 import net.conselldemallorca.helium.v3.core.repository.PortasignaturesRepository;
 import net.conselldemallorca.helium.v3.core.repository.RegistreRepository;
 import net.conselldemallorca.helium.v3.core.repository.TerminiIniciatRepository;
@@ -192,6 +197,8 @@ public class ExpedientServiceImpl implements ExpedientService {
 	private ExecucioMassivaExpedientRepository execucioMassivaExpedientRepository;
 	@Resource
 	private PortasignaturesRepository portasignaturesRepository;
+	@Resource
+	private NotificacioRepository notificacioRepository;
 
 	@Resource
 	private ExpedientHelper expedientHelper;
@@ -231,8 +238,8 @@ public class ExpedientServiceImpl implements ExpedientService {
 	private ExpedientLoggerHelper expedientLoggerHelper;
 	@Resource
 	private IndexHelper indexHelper;
-//	@Resource
-//	private MetricRegistry metricRegistry;
+	@Resource
+	private NotificacioHelper notificacioHelper;
 
 
 
@@ -3594,6 +3601,64 @@ public class ExpedientServiceImpl implements ExpedientService {
 			resposta.add(dto);
 		}
 		return resposta;
+	}
+	
+	
+	/*
+	 * Notificacions d'expedient
+	 */
+	@Override
+	@Transactional(readOnly = true)
+	public List<NotificacioDto> findNotificacionsPerExpedientId(Long expedientId) {
+		List<NotificacioDto> notificacions =  conversioTipusHelper.convertirList(
+				notificacioHelper.findNotificacionsPerExpedientId(expedientId), 
+				NotificacioDto.class);
+		
+		for (NotificacioDto notificacio: notificacions) {
+			ExpedientDocumentDto document = documentHelper.findDocumentPerDocumentStoreId(
+					notificacio.getDocument().getProcessInstanceId(), 
+					notificacio.getDocument().getId());
+			notificacio.getDocument().setDocumentNom(document.getDocumentNom());
+		}
+		
+		return notificacions;
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public NotificacioDto findNotificacioPerId(Long notificacioId) {
+		NotificacioDto notificacio =  conversioTipusHelper.convertir(notificacioRepository.findOne(notificacioId), NotificacioDto.class);
+		
+		if (notificacio.getDocument() != null) {
+			ExpedientDocumentDto document = documentHelper.findDocumentPerDocumentStoreId(
+					notificacio.getDocument().getProcessInstanceId(), 
+					notificacio.getDocument().getId());
+			notificacio.getDocument().setDocumentNom(document.getDocumentNom());
+			notificacio.getDocument().setArxiuExtensio(document.getArxiuExtensio());
+			notificacio.getDocument().setDataCreacio(document.getDataCreacio());
+			notificacio.getDocument().setDataDocument(document.getDataDocument());
+		}
+		
+		if (notificacio.getAnnexos() != null) {
+			for(DocumentNotificacioDto annex: notificacio.getAnnexos()) {
+				ExpedientDocumentDto document = documentHelper.findDocumentPerDocumentStoreId(
+						annex.getProcessInstanceId(), 
+						annex.getId());
+				annex.setDocumentNom(document.getDocumentNom());
+				annex.setArxiuExtensio(document.getArxiuExtensio());
+				annex.setDataCreacio(document.getDataCreacio());
+				annex.setDataDocument(document.getDataDocument());
+			}
+		}
+		
+		return notificacio;
+	}
+	
+	@Override
+	@Transactional
+	public void notificacioReprocessar(Long notificacioId) {
+		Notificacio notificacio = notificacioRepository.findOne(notificacioId);
+		notificacioHelper.obtenirJustificantNotificacio(notificacio);
 	}
 
 	private static final Logger logger = LoggerFactory.getLogger(ExpedientServiceImpl.class);

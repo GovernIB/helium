@@ -28,6 +28,7 @@ public class PublicarExpedientRequest {
 	protected String avisosSMS;
 	protected String avisosEmail;
 	protected List<Event> events;
+	protected String codiProcediment;
 
 	public String getExpedientIdentificador() {
 		return expedientIdentificador;
@@ -106,6 +107,12 @@ public class PublicarExpedientRequest {
 	}
 	public void setAvisosEmail(String avisosEmail) {
 		this.avisosEmail = avisosEmail;
+	}
+	public String getCodiProcediment() {
+		return codiProcediment;
+	}
+	public void setCodiProcediment(String codiProcediment) {
+		this.codiProcediment = codiProcediment;
 	}
 	public List<Event> getEvents() {
 		return events;

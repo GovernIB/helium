@@ -8,6 +8,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Caching;
+import org.springframework.context.MessageSource;
+import org.springframework.context.NoSuchMessageException;
+import org.springframework.security.access.annotation.Secured;
+import org.springframework.stereotype.Service;
+
 import net.conselldemallorca.helium.core.model.dao.AreaDao;
 import net.conselldemallorca.helium.core.model.dao.AreaTipusDao;
 import net.conselldemallorca.helium.core.model.dao.CarrecDao;
@@ -43,14 +51,6 @@ import net.conselldemallorca.helium.core.model.hibernate.Estat;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.hibernate.MapeigSistra;
 import net.conselldemallorca.helium.core.model.hibernate.Persona;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Caching;
-import org.springframework.context.MessageSource;
-import org.springframework.context.NoSuchMessageException;
-import org.springframework.security.access.annotation.Secured;
-import org.springframework.stereotype.Service;
 
 
 /**
@@ -284,6 +284,16 @@ public class EntornService {
 			dto.setAmbRetroaccio(expedientTipus.isAmbRetroaccio());
 			dto.setReindexacioAsincrona(expedientTipus.isReindexacioAsincrona());
 			dto.setDiesNoLaborables(expedientTipus.getDiesNoLaborables());
+			dto.setNotificacionsActivades(expedientTipus.isNotificacionsActivades());
+			dto.setNotificacioOrganCodi(expedientTipus.getNotificacioOrganCodi());
+			dto.setNotificacioOficinaCodi(expedientTipus.getNotificacioOficinaCodi());
+			dto.setNotificacioUnitatAdministrativa(expedientTipus.getNotificacioUnitatAdministrativa());
+			dto.setNotificacioCodiProcediment(expedientTipus.getNotificacioCodiProcediment());
+			dto.setNotificacioAvisTitol(expedientTipus.getNotificacioAvisTitol());
+			dto.setNotificacioAvisText(expedientTipus.getNotificacioAvisText());
+			dto.setNotificacioAvisTextSms(expedientTipus.getNotificacioAvisTextSms());
+			dto.setNotificacioOficiTitol(expedientTipus.getNotificacioOficiTitol());
+			dto.setNotificacioOficiText(expedientTipus.getNotificacioOficiText());
 			dto.setResponsableDefecteCodi(expedientTipus.getResponsableDefecteCodi());
 			dto.setSistraTramitCodi(expedientTipus.getSistraTramitCodi());
 			/*dto.setSistraTramitMapeigCamps(expedientTipus.getSistraTramitMapeigCamps());
@@ -482,6 +492,16 @@ public class EntornService {
 			nou.setAmbRetroaccio(expedientTipus.isAmbRetroaccio());
 			nou.setReindexacioAsincrona(expedientTipus.isReindexacioAsincrona());
 			nou.setDiesNoLaborables(expedientTipus.getDiesNoLaborables());
+			nou.setNotificacionsActivades(expedientTipus.isNotificacionsActivades());
+			nou.setNotificacioOrganCodi(expedientTipus.getNotificacioOrganCodi());
+			nou.setNotificacioOficinaCodi(expedientTipus.getNotificacioOficinaCodi());
+			nou.setNotificacioUnitatAdministrativa(expedientTipus.getNotificacioUnitatAdministrativa());
+			nou.setNotificacioCodiProcediment(expedientTipus.getNotificacioCodiProcediment());
+			nou.setNotificacioAvisTitol(expedientTipus.getNotificacioAvisTitol());
+			nou.setNotificacioAvisText(expedientTipus.getNotificacioAvisText());
+			nou.setNotificacioAvisTextSms(expedientTipus.getNotificacioAvisTextSms());
+			nou.setNotificacioOficiTitol(expedientTipus.getNotificacioOficiTitol());
+			nou.setNotificacioOficiText(expedientTipus.getNotificacioOficiText());
 			nou.setResponsableDefecteCodi(expedientTipus.getResponsableDefecteCodi());
 			nou.setSistraTramitCodi(expedientTipus.getSistraTramitCodi());
 			/*nou.setSistraTramitMapeigCamps(expedientTipus.getSistraTramitMapeigCamps());

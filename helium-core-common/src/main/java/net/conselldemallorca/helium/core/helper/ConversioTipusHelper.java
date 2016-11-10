@@ -11,6 +11,8 @@ import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
+import org.springframework.stereotype.Component;
+
 import ma.glasnost.orika.CustomConverter;
 import ma.glasnost.orika.MapperFacade;
 import ma.glasnost.orika.MapperFactory;
@@ -35,8 +37,6 @@ import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.SequenciaAnyDto;
 import net.conselldemallorca.helium.v3.core.api.dto.SequenciaDefaultAnyDto;
-
-import org.springframework.stereotype.Component;
 
 /**
  * Helper per a convertir entre diferents formats de documents.
@@ -147,6 +147,16 @@ public class ConversioTipusHelper {
 						target.setAmbRetroaccio(source.isAmbRetroaccio());
 						target.setReindexacioAsincrona(source.isReindexacioAsincrona());
 						target.setDiesNoLaborables(source.getDiesNoLaborables());
+						target.setNotificacionsActivades(source.isNotificacionsActivades());
+						target.setNotificacioOrganCodi(source.getNotificacioOrganCodi());
+						target.setNotificacioOficinaCodi(source.getNotificacioOficinaCodi());
+						target.setNotificacioUnitatAdministrativa(source.getNotificacioUnitatAdministrativa());
+						target.setNotificacioCodiProcediment(source.getNotificacioCodiProcediment());
+						target.setNotificacioAvisTitol(source.getNotificacioAvisTitol());
+						target.setNotificacioAvisText(source.getNotificacioAvisText());
+						target.setNotificacioAvisTextSms(source.getNotificacioAvisTextSms());
+						target.setNotificacioOficiTitol(source.getNotificacioOficiTitol());
+						target.setNotificacioOficiText(source.getNotificacioOficiText());
 						target.setSequencia(source.getSequencia());
 						target.setSequenciaDefault(source.getSequenciaDefault());
 						target.setTeNumero(source.getTeNumero());
@@ -197,6 +207,16 @@ public class ConversioTipusHelper {
 						target.setAmbRetroaccio(source.isAmbRetroaccio());
 						target.setReindexacioAsincrona(source.isReindexacioAsincrona());
 						target.setDiesNoLaborables(source.getDiesNoLaborables());
+						target.setNotificacionsActivades(source.isNotificacionsActivades());
+						target.setNotificacioOrganCodi(source.getNotificacioOrganCodi());
+						target.setNotificacioOficinaCodi(source.getNotificacioOficinaCodi());
+						target.setNotificacioUnitatAdministrativa(source.getNotificacioUnitatAdministrativa());
+						target.setNotificacioCodiProcediment(source.getNotificacioCodiProcediment());
+						target.setNotificacioAvisTitol(source.getNotificacioAvisTitol());
+						target.setNotificacioAvisText(source.getNotificacioAvisText());
+						target.setNotificacioAvisTextSms(source.getNotificacioAvisTextSms());
+						target.setNotificacioOficiTitol(source.getNotificacioOficiTitol());
+						target.setNotificacioOficiText(source.getNotificacioOficiText());
 						target.setSequencia(source.getSequencia());
 						target.setSequenciaDefault(source.getSequenciaDefault());
 						target.setTeNumero(source.isTeNumero());

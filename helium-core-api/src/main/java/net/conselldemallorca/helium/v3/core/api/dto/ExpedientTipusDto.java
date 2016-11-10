@@ -11,6 +11,8 @@ import java.util.Map;
 import java.util.TreeMap;
 
 
+
+
 /**
  * DTO amb informació d'un tipus d'expedient.
  * 
@@ -37,8 +39,17 @@ public class ExpedientTipusDto extends ControlPermisosDto implements Serializabl
 	private boolean seleccionarAny;
 	private boolean ambRetroaccio;
 	private boolean reindexacioAsincrona;
-	
 	private String diesNoLaborables;
+	private boolean notificacionsActivades;
+	private String notificacioOrganCodi;
+	private String notificacioOficinaCodi;
+	private String notificacioUnitatAdministrativa;
+	private String notificacioCodiProcediment;
+	private String notificacioAvisTitol;
+	private String notificacioAvisText;
+	private String notificacioAvisTextSms;
+	private String notificacioOficiTitol;
+	private String notificacioOficiText;
 
 	private EntornDto entorn;
 	private List<EstatDto> estats = new ArrayList<EstatDto>();
@@ -169,6 +180,66 @@ public class ExpedientTipusDto extends ControlPermisosDto implements Serializabl
 	}
 	public void setDiesNoLaborables(String diesNoLaborables) {
 		this.diesNoLaborables = diesNoLaborables;
+	}
+	public boolean isNotificacionsActivades() {
+		return notificacionsActivades;
+	}
+	public void setNotificacionsActivades(boolean notificacionsActivades) {
+		this.notificacionsActivades = notificacionsActivades;
+	}
+	public String getNotificacioOrganCodi() {
+		return notificacioOrganCodi;
+	}
+	public void setNotificacioOrganCodi(String notificacioOrganCodi) {
+		this.notificacioOrganCodi = notificacioOrganCodi;
+	}
+	public String getNotificacioOficinaCodi() {
+		return notificacioOficinaCodi;
+	}
+	public void setNotificacioOficinaCodi(String notificacioOficinaCodi) {
+		this.notificacioOficinaCodi = notificacioOficinaCodi;
+	}
+	public String getNotificacioUnitatAdministrativa() {
+		return notificacioUnitatAdministrativa;
+	}
+	public void setNotificacioUnitatAdministrativa(String notificacioUnitatAdministrativa) {
+		this.notificacioUnitatAdministrativa = notificacioUnitatAdministrativa;
+	}
+	public String getNotificacioCodiProcediment() {
+		return notificacioCodiProcediment;
+	}
+	public void setNotificacioCodiProcediment(String notificacioCodiProcediment) {
+		this.notificacioCodiProcediment = notificacioCodiProcediment;
+	}
+	public String getNotificacioAvisTitol() {
+		return notificacioAvisTitol;
+	}
+	public void setNotificacioAvisTitol(String notificacioAvisTitol) {
+		this.notificacioAvisTitol = notificacioAvisTitol;
+	}
+	public String getNotificacioAvisText() {
+		return notificacioAvisText;
+	}
+	public void setNotificacioAvisText(String notificacioAvisText) {
+		this.notificacioAvisText = notificacioAvisText;
+	}
+	public String getNotificacioAvisTextSms() {
+		return notificacioAvisTextSms;
+	}
+	public void setNotificacioAvisTextSms(String notificacioAvisTextSms) {
+		this.notificacioAvisTextSms = notificacioAvisTextSms;
+	}
+	public String getNotificacioOficiTitol() {
+		return notificacioOficiTitol;
+	}
+	public void setNotificacioOficiTitol(String notificacioOficiTitol) {
+		this.notificacioOficiTitol = notificacioOficiTitol;
+	}
+	public String getNotificacioOficiText() {
+		return notificacioOficiText;
+	}
+	public void setNotificacioOficiText(String notificacioOficiText) {
+		this.notificacioOficiText = notificacioOficiText;
 	}
 	public EntornDto getEntorn() {
 		return entorn;

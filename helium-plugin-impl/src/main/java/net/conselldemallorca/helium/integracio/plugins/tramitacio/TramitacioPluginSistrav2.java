@@ -74,6 +74,7 @@ public class TramitacioPluginSistrav2 implements TramitacioPlugin {
 			expediente.setIdioma(request.getIdioma());
 			expediente.setDescripcion(request.getDescripcio());
 			expediente.setAutenticado(request.isAutenticat());
+			
 			/*
 			- Amb delegat
 			BANTEL			HELIUM			ZONAPER
@@ -126,6 +127,18 @@ public class TramitacioPluginSistrav2 implements TramitacioPlugin {
 							new QName("avisoSMS"),
 							String.class,
 							request.getAvisosSMS()));
+			configuracionAvisos.setHabilitarAvisos(
+					new JAXBElement<Boolean>(
+							new QName("habilitarAvisos"),
+							Boolean.class,
+							request.isAvisosHabilitat()));
+			expediente.setIdentificadorProcedimiento(
+					new JAXBElement<String>(
+							new QName("identificadorProcedimiento"),
+							String.class,
+							request.getCodiProcediment()));
+			
+			
 			expediente.setConfiguracionAvisos(
 					new JAXBElement<ConfiguracionAvisosExpediente>(
 							new QName("configuracionAvisos"),
@@ -166,7 +179,7 @@ public class TramitacioPluginSistrav2 implements TramitacioPlugin {
 			try {
 				AcuseRecibo acuseRecibo = getRegtelClient().obtenerAcuseRecibo(numeroRegistre);
 				resposta.setErrorCodi(RespostaAnotacioRegistre.ERROR_CODI_OK);
-				if (acuseRecibo.getFechaAcuseRecibo() != null) {
+				if (acuseRecibo != null && acuseRecibo.getFechaAcuseRecibo() != null) {
 					resposta.setData(acuseRecibo.getFechaAcuseRecibo().toGregorianCalendar().getTime());
 				}
 			} catch (BackofficeFacadeException ex) {
@@ -361,6 +374,7 @@ public class TramitacioPluginSistrav2 implements TramitacioPlugin {
 									new QName("nombreLocalidad"),
 									String.class,
 									registreNotificacio.getDadesInteressat().getMunicipiNom()));
+				
 				datosRegistroSalida.setDatosInteresado(datosInteresado);
 			}
 			if (registreNotificacio.getDadesRepresentat() != null) {
@@ -489,21 +503,7 @@ public class TramitacioPluginSistrav2 implements TramitacioPlugin {
 			try {
 				crearZonaPers(registreNotificacio.getDadesInteressat().getNif(), registreNotificacio.getDadesInteressat().getNomAmbCognoms());
 				ResultadoRegistro resultado = null;
-//				if (false)
-					resultado = getRegtelClient().registroSalida(datosRegistroSalida);
-//				else {
-//					// -- Pruebas
-//					resultado = new ResultadoRegistro();
-//					resultado.setNumeroRegistro("123456789");
-//					es.caib.regtel.ws.v2.model.referenciards.ReferenciaRDS ref = new es.caib.regtel.ws.v2.model.referenciards.ReferenciaRDS();
-//					ref.setCodigo(789L);
-//					ref.setClave("456789");
-//					resultado.setReferenciaRDSJustificante(ref);	
-//					GregorianCalendar gregorianCalendar = new GregorianCalendar();
-//					gregorianCalendar.setTime(new Date(System.currentTimeMillis()));
-//					XMLGregorianCalendar xmlGrogerianCalendar = DatatypeFactory.newInstance().newXMLGregorianCalendar(gregorianCalendar);
-//					resultado.setFechaRegistro(xmlGrogerianCalendar);
-//				}
+				resultado = getRegtelClient().registroSalida(datosRegistroSalida);
 				
 				resposta.setErrorCodi(RespostaAnotacioRegistre.ERROR_CODI_OK);
 				resposta.setNumero(
@@ -826,9 +826,9 @@ public class TramitacioPluginSistrav2 implements TramitacioPlugin {
 	}
 	
 	private BackofficeFacade getRegtelClient() {
-		String url = GlobalProperties.getInstance().getProperty("app.registre.plugin.url");
-		String userName = GlobalProperties.getInstance().getProperty("app.registre.plugin.username");
-		String password = GlobalProperties.getInstance().getProperty("app.registre.plugin.password");
+		String url = GlobalProperties.getInstance().getProperty("app.tramitacio.plugin.sistra.client.regtel.url");
+		String userName = GlobalProperties.getInstance().getProperty("app.tramitacio.plugin.sistra.client.regtel.username");
+		String password = GlobalProperties.getInstance().getProperty("app.tramitacio.plugin.sistra.client.regtel.password");
 		Object wsClientProxy = WsClientUtils.getWsClientProxy(
 				BackofficeFacade.class,
 				url,
