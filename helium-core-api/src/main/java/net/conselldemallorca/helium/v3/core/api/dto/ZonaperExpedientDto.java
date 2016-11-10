@@ -28,6 +28,7 @@ public class ZonaperExpedientDto {
 	protected String avisosSMS;
 	protected String avisosEmail;
 	protected List<ZonaperEventDto> events;
+	protected String codiProcediment;
 
 	public String getExpedientIdentificador() {
 		return expedientIdentificador;
@@ -124,6 +125,12 @@ public class ZonaperExpedientDto {
 	}
 	public void setRepresentatApe2(String representatApe2) {
 		this.representatApe2 = representatApe2;
+	}
+	public String getCodiProcediment() {
+		return codiProcediment;
+	}
+	public void setCodiProcediment(String codiProcediment) {
+		this.codiProcediment = codiProcediment;
 	}
 	@Override
 	public String toString() {

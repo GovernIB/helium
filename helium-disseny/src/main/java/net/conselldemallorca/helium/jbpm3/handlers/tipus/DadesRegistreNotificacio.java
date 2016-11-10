@@ -51,6 +51,7 @@ public class DadesRegistreNotificacio implements Serializable{
 	private int notificacioSubsanacioTramitVersio;
 	private String notificacioSubsanacioTramitDescripcio;
 	private Map<String, String> notificacioSubsanacioParametres;
+	private boolean notificacioCrearExpedient;
 
 
 
@@ -250,6 +251,12 @@ public class DadesRegistreNotificacio implements Serializable{
 	public void setNotificacioSubsanacioParametres(
 			Map<String, String> notificacioSubsanacioParametres) {
 		this.notificacioSubsanacioParametres = notificacioSubsanacioParametres;
+	}
+	public boolean isNotificacioCrearExpedient() {
+		return notificacioCrearExpedient;
+	}
+	public void setNotificacioCrearExpedient(boolean notificacioCrearExpedient) {
+		this.notificacioCrearExpedient = notificacioCrearExpedient;
 	}
 
 }
