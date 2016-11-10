@@ -233,6 +233,17 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		entity.setAmbRetroaccio(expedientTipus.isAmbRetroaccio());
 		entity.setReindexacioAsincrona(expedientTipus.isReindexacioAsincrona());
 		entity.setDiesNoLaborables(expedientTipus.getDiesNoLaborables());
+		entity.setNotificacionsActivades(expedientTipus.isNotificacionsActivades());
+		entity.setNotificacioOrganCodi(expedientTipus.getNotificacioOrganCodi());
+		entity.setNotificacioOficinaCodi(expedientTipus.getNotificacioOficinaCodi());
+		entity.setNotificacioUnitatAdministrativa(expedientTipus.getNotificacioUnitatAdministrativa());
+		entity.setNotificacioCodiProcediment(expedientTipus.getNotificacioCodiProcediment());
+		entity.setNotificacioAvisTitol(expedientTipus.getNotificacioAvisTitol());
+		entity.setNotificacioAvisText(expedientTipus.getNotificacioAvisText());
+		entity.setNotificacioAvisTextSms(expedientTipus.getNotificacioAvisTextSms());
+		entity.setNotificacioOficiTitol(expedientTipus.getNotificacioOficiTitol());
+		entity.setNotificacioOficiText(expedientTipus.getNotificacioOficiText());
+		
 		if (expedientTipus.isReiniciarCadaAny()) {
 			for (int i = 0; i < sequenciesAny.size(); i++) {
 				SequenciaAny anyEntity = new SequenciaAny(
@@ -285,6 +296,16 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		entity.setRestringirPerGrup(expedientTipus.isRestringirPerGrup());
 		entity.setSeleccionarAny(expedientTipus.isSeleccionarAny());
 		entity.setDiesNoLaborables(expedientTipus.getDiesNoLaborables());
+		entity.setNotificacionsActivades(expedientTipus.isNotificacionsActivades());
+		entity.setNotificacioOrganCodi(expedientTipus.getNotificacioOrganCodi());
+		entity.setNotificacioOficinaCodi(expedientTipus.getNotificacioOficinaCodi());
+		entity.setNotificacioUnitatAdministrativa(expedientTipus.getNotificacioUnitatAdministrativa());
+		entity.setNotificacioCodiProcediment(expedientTipus.getNotificacioCodiProcediment());
+		entity.setNotificacioAvisTitol(expedientTipus.getNotificacioAvisTitol());
+		entity.setNotificacioAvisText(expedientTipus.getNotificacioAvisText());
+		entity.setNotificacioAvisTextSms(expedientTipus.getNotificacioAvisTextSms());
+		entity.setNotificacioOficiTitol(expedientTipus.getNotificacioOficiTitol());
+		entity.setNotificacioOficiText(expedientTipus.getNotificacioOficiText());
 		while (entity.getSequenciaAny().size() > 0) {
 			SequenciaAny s = entity.getSequenciaAny().get(entity.getSequenciaAny().firstKey());			
 			entity.getSequenciaAny().remove(s.getAny());

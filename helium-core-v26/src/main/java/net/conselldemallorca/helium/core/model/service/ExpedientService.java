@@ -56,7 +56,7 @@ import net.conselldemallorca.helium.core.model.dao.ExpedientDao;
 import net.conselldemallorca.helium.core.model.dao.ExpedientLogDao;
 import net.conselldemallorca.helium.core.model.dao.ExpedientTipusDao;
 import net.conselldemallorca.helium.core.model.dao.LuceneDao;
-import net.conselldemallorca.helium.core.model.dao.NotifElectronicaDao;
+import net.conselldemallorca.helium.core.model.dao.NotificacioDao;
 import net.conselldemallorca.helium.core.model.dao.PluginCustodiaDao;
 import net.conselldemallorca.helium.core.model.dao.PluginGestioDocumentalDao;
 import net.conselldemallorca.helium.core.model.dao.PluginGisDao;
@@ -147,7 +147,7 @@ public class ExpedientService {
 	private PluginCustodiaDao pluginCustodiaDao;
 	private RegistreDao registreDao;
 	private AccioDao accioDao;
-	private NotifElectronicaDao notifElectronicaDao;
+	private NotificacioDao notifElectronicaDao;
 	private TerminiIniciatDao terminiIniciatDao;
 	private PluginGestioDocumentalDao pluginGestioDocumentalDao;
 	private PluginPortasignaturesDao pluginPortasignaturesDao;
@@ -2586,7 +2586,7 @@ public class ExpedientService {
 		this.accioDao = accioDao;
 	}
 	@Autowired
-	public void setNotifElectronicaDao(NotifElectronicaDao notifElectronicaDao) {
+	public void setNotifElectronicaDao(NotificacioDao notifElectronicaDao) {
 		this.notifElectronicaDao = notifElectronicaDao;
 	}	
 	@Autowired

@@ -16,15 +16,19 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import net.conselldemallorca.helium.core.helper.IndexHelper;
+import net.conselldemallorca.helium.core.helper.NotificacioHelper;
 import net.conselldemallorca.helium.core.model.hibernate.ExecucioMassiva.ExecucioMassivaTipus;
 import net.conselldemallorca.helium.core.model.hibernate.ExecucioMassivaExpedient;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
+import net.conselldemallorca.helium.core.model.hibernate.Notificacio;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
+import net.conselldemallorca.helium.v3.core.api.dto.DocumentEnviamentEstatEnumDto;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.service.ExecucioMassivaService;
 import net.conselldemallorca.helium.v3.core.api.service.TascaProgramadaService;
 import net.conselldemallorca.helium.v3.core.repository.ExecucioMassivaExpedientRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientRepository;
+import net.conselldemallorca.helium.v3.core.repository.NotificacioRepository;
 
 /**
  * Servei per gestionar els terminis dels expedients
@@ -36,15 +40,16 @@ public class TascaProgramadaServiceImpl implements TascaProgramadaService {
 	
 	@Resource
 	private ExecucioMassivaExpedientRepository execucioMassivaExpedientRepository;
-	
 	@Resource
 	private ExpedientRepository expedientRepository;
-	
+	@Resource
+	private NotificacioRepository notificacioRepository;
 	@Autowired
 	private ExecucioMassivaService execucioMassivaService;
-	
 	@Resource
 	private IndexHelper indexHelper;
+	@Resource
+	private NotificacioHelper notificacioHelper;
 	
 	private static Map<Long, String> errorsMassiva = new HashMap<Long, String>();
 	
@@ -115,6 +120,21 @@ public class TascaProgramadaServiceImpl implements TascaProgramadaService {
 	}
 
 	/**************************/
+	
+	/*** ACTUALITZAR ESTAT NOTIFICACIONS ***/
+	@Override
+	@Transactional
+	@Scheduled(fixedDelayString = "${app.notificacions.comprovar.estat}")
+	public void actualitzarEstatNotificacions() {
+		List<Notificacio> notificacionsPendentsRevisar = notificacioRepository.findByEstatOrderByDataEnviamentAsc(DocumentEnviamentEstatEnumDto.ENVIAT);
+		for (Notificacio notificacio: notificacionsPendentsRevisar) {
+			notificacioHelper.obtenirJustificantNotificacio(notificacio);
+		}
+	}
+
+	/**************************/
+	
+	
 	
 	public static void saveError(Long operacioMassivaId, Throwable error, ExecucioMassivaTipus tipus) {
 		if (tipus != ExecucioMassivaTipus.ELIMINAR_VERSIO_DEFPROC) {

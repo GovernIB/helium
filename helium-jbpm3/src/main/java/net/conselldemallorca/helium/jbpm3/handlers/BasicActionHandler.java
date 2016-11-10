@@ -474,7 +474,7 @@ public abstract class BasicActionHandler extends AbstractHeliumActionHandler imp
 			annexos.add(annex);
 		}
 		notificacio.setAnnexos(annexos);
-		RegistreIdDto anotacioId = Jbpm3HeliumBridge.getInstanceService().notificacioCrear(notificacio, getExpedient(executionContext).getId());
+		RegistreIdDto anotacioId = Jbpm3HeliumBridge.getInstanceService().notificacioCrear(notificacio, getExpedient(executionContext).getId(), dadesNotificacio.isNotificacioCrearExpedient());
 		RespostaRegistre resposta = new RespostaRegistre();
 		resposta.setNumero(anotacioId.getNumero());
 		resposta.setData(anotacioId.getData());

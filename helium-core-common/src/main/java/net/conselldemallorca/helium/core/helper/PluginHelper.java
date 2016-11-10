@@ -11,6 +11,13 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
+import org.springframework.stereotype.Component;
+
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.model.hibernate.Portasignatures;
 import net.conselldemallorca.helium.core.model.hibernate.Portasignatures.TipusEstat;
@@ -71,14 +78,8 @@ import net.conselldemallorca.helium.v3.core.api.dto.ZonaperEventDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ZonaperExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.exception.SistemaExternException;
+import net.conselldemallorca.helium.v3.core.repository.ExpedientRepository;
 import net.conselldemallorca.helium.v3.core.repository.PortasignaturesRepository;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.Cache;
-import org.springframework.cache.CacheManager;
-import org.springframework.stereotype.Component;
 
 /**
  * Helper per a accedir a la funcionalitat dels plugins.
@@ -92,6 +93,8 @@ public class PluginHelper {
 
 	@Resource
 	private PortasignaturesRepository portasignaturesRepository;
+	@Resource
+	private ExpedientRepository expedientRepository;
 	@Resource
 	private ConversioTipusHelper conversioTipusHelper;
 	@Autowired
@@ -441,7 +444,8 @@ public class PluginHelper {
 
 	public RespostaAnotacioRegistre tramitacioRegistrarNotificacio(
 			RegistreNotificacio registreNotificacio,
-			Expedient expedient) {
+			Expedient expedient,
+			boolean crearExpedient) {
 		IntegracioParametreDto[] parametres = new IntegracioParametreDto[] {
 				new IntegracioParametreDto(
 						"expedientIdentificador",
@@ -462,16 +466,56 @@ public class PluginHelper {
 						"assumpte",
 						registreNotificacio.getDadesNotificacio().getAssumpte())
 		};
-		long t0 = System.currentTimeMillis();
+		
+		
 		try {
-			RespostaAnotacioRegistre resposta = getTramitacioPlugin().registrarNotificacio(registreNotificacio);
+			if ((expedient.getTramitExpedientIdentificador() == null || 
+				expedient.getTramitExpedientIdentificador().isEmpty() || 
+				expedient.getTramitExpedientClau() == null || 
+				expedient.getTramitExpedientClau().isEmpty()) &&
+				crearExpedient) {
+					crearExpedientPerNotificacio(registreNotificacio, expedient, parametres);
+					expedient.setTramitExpedientIdentificador(registreNotificacio.getDadesExpedient().getIdentificador());
+					expedient.setTramitExpedientClau(registreNotificacio.getDadesExpedient().getClau());
+					expedientRepository.saveAndFlush(expedient);
+					System.out.println("###===> Expedient creat en zona personal:");
+					System.out.println("###===> Identificador: " + expedient.getTramitExpedientIdentificador());
+					System.out.println("###===> Clau: " + expedient.getTramitExpedientClau());
+			}
+		} catch (TramitacioPluginException ex) {
+			String errorDescripcio = "No s'han pogut crear l'expedient a la zona persoanl (" +
+					"expedientIdentificador=" + registreNotificacio.getDadesExpedient().getIdentificador() + ", " +
+					"expedientClau=" + registreNotificacio.getDadesExpedient().getClau() + ", " +
+					"oficinaOrganCodi=" + registreNotificacio.getDadesOficina().getOrganCodi() + ", " +
+					"oficinaCodi=" + registreNotificacio.getDadesOficina().getOficinaCodi() + ")";
+			logger.error(
+					errorDescripcio,
+					ex);
+			throw SistemaExternException.tractarSistemaExternException(
+					expedient.getEntorn().getId(),
+					expedient.getEntorn().getCodi(), 
+					expedient.getEntorn().getNom(), 
+					expedient.getId(), 
+					expedient.getTitol(), 
+					expedient.getNumero(), 
+					expedient.getTipus().getId(), 
+					expedient.getTipus().getCodi(), 
+					expedient.getTipus().getNom(), 
+					"(SISTRA. Creació d'expedient a la zona personal: " + errorDescripcio + ")", 
+					ex);
+		}
+		
+		long t0 = System.currentTimeMillis();
+		RespostaAnotacioRegistre resposta = null;
+		try {
+			resposta = getTramitacioPlugin().registrarNotificacio(registreNotificacio);
 			monitorIntegracioHelper.addAccioOk(
 					MonitorIntegracioHelper.INTCODI_SISTRA,
 					"Registrar notificació",
 					IntegracioAccioTipusEnumDto.ENVIAMENT,
 					System.currentTimeMillis() - t0,
 					parametres);
-			return resposta;
+			
 		} catch (TramitacioPluginException ex) {
 			String errorDescripcio = "No s'han pogut registrar la notificació (" +
 					"expedientIdentificador=" + registreNotificacio.getDadesExpedient().getIdentificador() + ", " +
@@ -495,6 +539,40 @@ public class PluginHelper {
 					"(SISTRA. Registrar notificació: " + errorDescripcio + ")", 
 					ex);
 		}
+		return resposta;
+	}
+	
+	private void crearExpedientPerNotificacio(RegistreNotificacio registreNotificacio, Expedient expedient, IntegracioParametreDto[] parametres) throws TramitacioPluginException {
+		ZonaperExpedientDto zonaperExpedient = new ZonaperExpedientDto();
+		
+		zonaperExpedient.setExpedientIdentificador(registreNotificacio.getDadesExpedient().getIdentificador());
+		zonaperExpedient.setExpedientClau(registreNotificacio.getDadesExpedient().getClau());
+		zonaperExpedient.setIdioma(registreNotificacio.getDadesNotificacio().getIdiomaCodi());
+		zonaperExpedient.setUnitatAdministrativa(Long.parseLong(registreNotificacio.getDadesExpedient().getUnitatAdministrativa()));
+		zonaperExpedient.setTramitNumero(expedient.getNumeroEntradaSistra());
+		zonaperExpedient.setAutenticat(registreNotificacio.getDadesInteressat().isAutenticat());
+		zonaperExpedient.setRepresentantNif(registreNotificacio.getDadesInteressat().getNif());
+		zonaperExpedient.setRepresentatNif(registreNotificacio.getDadesInteressat().getNif());
+		zonaperExpedient.setRepresentatNom(registreNotificacio.getDadesInteressat().getNomAmbCognoms());
+		zonaperExpedient.setAvisosHabilitat(true);
+		zonaperExpedient.setAvisosEmail(expedient.getAvisosEmail());
+		zonaperExpedient.setAvisosSMS(expedient.getAvisosMobil());
+		zonaperExpedient.setDescripcio(expedient.getTitol());
+		zonaperExpedient.setCodiProcediment(expedient.getTipus().getNotificacioCodiProcediment());
+		
+		
+		PublicarExpedientRequest request = conversioTipusHelper.convertir(
+				zonaperExpedient,
+				PublicarExpedientRequest.class);
+		
+		long t0 = System.currentTimeMillis();
+		getTramitacioPlugin().publicarExpedient(request);
+		monitorIntegracioHelper.addAccioOk(
+				MonitorIntegracioHelper.INTCODI_SISTRA,
+				"Creació d'expedient",
+				IntegracioAccioTipusEnumDto.ENVIAMENT,
+				System.currentTimeMillis() - t0,
+				parametres);
 	}
 
 	public RespostaJustificantRecepcio tramitacioObtenirJustificant(

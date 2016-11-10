@@ -35,6 +35,7 @@ import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.exportacio.DefinicioProcesExportacio;
 import net.conselldemallorca.helium.v3.core.api.service.DissenyService;
 
+
 /**
  * Servei que proporciona la funcionalitat de disseny d'expedients.
  * 

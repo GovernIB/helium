@@ -335,8 +335,7 @@
 										<li><a data-rdt-link-confirm="<spring:message code="expedient.eines.confirm_reprendre_tramitacio"/>" href="<c:url value="../../v3/expedient/${expedientId}/reprendre"/>"><span class="fa fa-play"></span>&nbsp;<spring:message code="expedient.info.accio.reprendre"/></a></li>
 									</c:otherwise>
 								</c:choose>
-							</c:if>
-							<c:if test="${expedient.permisWrite or expedient.permisAdministration}">
+								
 								<c:choose>
 									<c:when test="${not expedient.anulat}">
 										<li><a data-rdt-link-modal="true" href="<c:url value="../../v3/expedient/${expedientId}/anular"/>"><span class="fa fa-times"></span>&nbsp;<spring:message code="expedient.info.accio.anular"/></a></li>
@@ -422,6 +421,9 @@
 				<c:if test="${numAccions > 0}">
 					<li id="pipella-accions"><a href="#contingut-accions" role="tab" data-toggle="tab"><spring:message code="expedient.info.pipella.accions"/></a></li>
 				</c:if>
+				<c:if test="${expedient.tipus.notificacionsActivades}">
+					<li id="pipella-notificacions"><a href="#contingut-notificacions" role="tab" data-toggle="tab"><spring:message code="expedient.info.pipella.notificacions"/></a></li>
+				</c:if>
 			</ul>
 			<div class="tab-content">
 				<div id="contingut-dades" class="tab-pane" data-href="<c:url value="/nodeco/v3/expedient/${expedient.id}/dada"/>">
@@ -451,6 +453,11 @@
 				</c:if>
 				<c:if test="${numAccions > 0}">
 					<div id="contingut-accions" class="tab-pane" data-href="<c:url value="/nodeco/v3/expedient/${expedient.id}/accio"/>">
+						<div class="contingut-carregant"><span class="fa fa-circle-o-notch fa-spin fa-3x"></span></div>
+					</div>
+				</c:if>
+				<c:if test="${expedient.tipus.notificacionsActivades}">
+					<div id="contingut-notificacions" class="tab-pane" data-href="<c:url value="/nodeco/v3/expedient/${expedient.id}/notificacions"/>">
 						<div class="contingut-carregant"><span class="fa fa-circle-o-notch fa-spin fa-3x"></span></div>
 					</div>
 				</c:if>

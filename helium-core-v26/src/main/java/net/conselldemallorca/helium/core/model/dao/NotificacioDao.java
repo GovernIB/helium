@@ -6,7 +6,7 @@ package net.conselldemallorca.helium.core.model.dao;
 import java.util.Date;
 import java.util.List;
 
-import net.conselldemallorca.helium.core.model.hibernate.NotifElectronica;
+import net.conselldemallorca.helium.core.model.hibernate.Notificacio;
 
 import org.hibernate.criterion.Restrictions;
 import org.springframework.stereotype.Component;
@@ -17,24 +17,24 @@ import org.springframework.stereotype.Component;
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Component
-public class NotifElectronicaDao extends HibernateGenericDao<NotifElectronica, Long> {
+public class NotificacioDao extends HibernateGenericDao<Notificacio, Long> {
 
-	public NotifElectronicaDao() {
-		super(NotifElectronica.class);
+	public NotificacioDao() {
+		super(Notificacio.class);
 	}
 
-	public NotifElectronica create(Long expedientId, String numero, Date data, String RDSClave, Long RDSCodigo) {
-		NotifElectronica notifElectronica = new NotifElectronica();
-		notifElectronica.setNumero(numero);
-		notifElectronica.setData(data);
-		notifElectronica.setRdsClave(RDSClave);
-		notifElectronica.setRdsCodi(RDSCodigo);
-		notifElectronica.setExpedientId(expedientId);
+	public Notificacio create(Long expedientId, String numero, Date data, String RDSClave, Long RDSCodigo) {
+		Notificacio notifElectronica = new Notificacio();
+//		notifElectronica.setNumero(numero);
+//		notifElectronica.setDataEnviament(data);
+//		notifElectronica.setRdsClave(RDSClave);
+//		notifElectronica.setRdsCodi(RDSCodigo);
+//		notifElectronica.setExpedientId(expedientId);
 		return saveOrUpdate(notifElectronica);
 	}
 
 	public boolean delete(String numero, String clave, Long codigo) {
-		List<NotifElectronica> llistat = findByCriteria(
+		List<Notificacio> llistat = findByCriteria(
 				Restrictions.eq("numero", numero),
 				Restrictions.eq("RDSCodi", codigo),
 				Restrictions.eq("RDSClave", clave));

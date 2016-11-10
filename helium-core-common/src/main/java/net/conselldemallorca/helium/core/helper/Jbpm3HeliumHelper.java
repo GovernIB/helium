@@ -72,6 +72,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDadaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.FestiuDto;
+import net.conselldemallorca.helium.v3.core.api.dto.NotificacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ReassignacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ReferenciaRDSJustificanteDto;
@@ -178,7 +179,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 	@Resource
 	private MailHelper mailHelper;
 	@Resource
-	private NotificacioElectronicaHelper notificacioElectronicaHelper;
+	private NotificacioHelper notificacioElectronicaHelper;
 
 	@Resource
 	private ConversioTipusHelper conversioTipusHelper;
@@ -1328,7 +1329,8 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 	@Override
 	public RegistreIdDto notificacioCrear(
 			RegistreNotificacioDto notificacio,
-			Long expedientId) {
+			Long expedientId,
+			boolean crearExpedient) {
 		Expedient expedient = expedientRepository.findOne(expedientId);
 		if (expedient == null)
 			throw new NoTrobatException(Expedient.class, expedientId);
@@ -1344,6 +1346,10 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 		dadesInteressat.setNomAmbCognoms(notificacio.getInteressatNomAmbCognoms());
 		dadesInteressat.setMunicipiCodi(notificacio.getInteressatMunicipiCodi());
 		dadesInteressat.setMunicipiNom(notificacio.getInteressatMunicipiNom());
+		dadesInteressat.setProvinciaCodi(notificacio.getInteressatProvinciaCodi());
+		dadesInteressat.setProvinciaNom(notificacio.getInteressatProvinciaNom());
+		dadesInteressat.setPaisCodi(notificacio.getInteressatPaisCodi());
+		dadesInteressat.setPaisNom(notificacio.getInteressatPaisNom());
 		dadesInteressat.setNif(notificacio.getInteressatNif());
 		registreNotificacio.setDadesInteressat(dadesInteressat);
 		DadesExpedient dadesExpedient = new DadesExpedient();
@@ -1389,32 +1395,41 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 			}
 			registreNotificacio.setDocuments(documents);
 		}
-		RespostaAnotacioRegistre respostaPlugin = pluginHelper.tramitacioRegistrarNotificacio(
+		
+		try {
+			RespostaAnotacioRegistre respostaPlugin = pluginHelper.tramitacioRegistrarNotificacio(
 				registreNotificacio,
-				expedient);
-		if (respostaPlugin.isOk()) {
-			RegistreIdDto resposta = new RegistreIdDto();
-			resposta.setNumero(respostaPlugin.getNumero());
-			resposta.setData(respostaPlugin.getData());
-			ReferenciaRDSJustificanteDto referenciaRDSJustificante = new ReferenciaRDSJustificanteDto();
-			referenciaRDSJustificante.setClave(respostaPlugin.getReferenciaRDSJustificante().getClave());
-			referenciaRDSJustificante.setCodigo(respostaPlugin.getReferenciaRDSJustificante().getCodigo());
-			resposta.setReferenciaRDSJustificante(referenciaRDSJustificante);			
-			return resposta;
-		} else {
-			throw new SistemaExternException(
-					expedient.getEntorn().getId(),
-					expedient.getEntorn().getCodi(), 
-					expedient.getEntorn().getNom(), 
-					expedient.getId(), 
-					expedient.getTitol(), 
-					expedient.getNumero(), 
-					expedient.getTipus().getId(), 
-					expedient.getTipus().getCodi(), 
-					expedient.getTipus().getNom(), 
-					"(Registre data de justificant)", 
-					"[" + respostaPlugin.getErrorCodi() + "]: " + respostaPlugin.getErrorDescripcio());
+				expedient,
+				crearExpedient);
+		
+			if (respostaPlugin.isOk()) {
+				RegistreIdDto resposta = new RegistreIdDto();
+				resposta.setNumero(respostaPlugin.getNumero());
+				resposta.setData(respostaPlugin.getData());
+				ReferenciaRDSJustificanteDto referenciaRDSJustificante = new ReferenciaRDSJustificanteDto();
+				referenciaRDSJustificante.setClave(respostaPlugin.getReferenciaRDSJustificante().getClave());
+				referenciaRDSJustificante.setCodigo(respostaPlugin.getReferenciaRDSJustificante().getCodigo());
+				resposta.setReferenciaRDSJustificante(referenciaRDSJustificante);			
+				return resposta;
+			} else {
+				throw new SistemaExternException(
+						expedient.getEntorn().getId(),
+						expedient.getEntorn().getCodi(), 
+						expedient.getEntorn().getNom(), 
+						expedient.getId(), 
+						expedient.getTitol(), 
+						expedient.getNumero(), 
+						expedient.getTipus().getId(), 
+						expedient.getTipus().getCodi(), 
+						expedient.getTipus().getNom(), 
+						"(Registre data de justificant)", 
+						"[" + respostaPlugin.getErrorCodi() + "]: " + respostaPlugin.getErrorDescripcio());
+			}
+		} catch (Exception e) {
+			System.out.println("No ha estat possible crear la notificació eletrònica per l'expedient " + expedient.getTitol() + 
+					", per un error en l'enviament de les dades");
 		}
+		return null;
 	}
 
 	@Override
@@ -1465,23 +1480,17 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 
 	@Override
 	public void notificacioGuardar(
-			Long expedientId,
-			String numero,
-			Date data,
-			String RDSClave,
-			Long RDSCodigo) {
-		logger.debug("Guardant una notificació de l'expedient (" +
-				"expedientId=" + expedientId + ", " +
-				"numero=" + numero + ", " +
-				"data=" + data + ", " +
-				"RDSClave=" + RDSClave + ", " +
-				"RDSCodigo=" + RDSCodigo + ")");
+			ExpedientDto expedient,
+			NotificacioDto notificacio) {
+//		logger.debug("Guardant una notificació de l'expedient (" +
+//				"expedientId=" + expedientId + ", " +
+//				"numero=" + numero + ", " +
+//				"data=" + data + ", " +
+//				"RDSClave=" + RDSClave + ", " +
+//				"RDSCodigo=" + RDSCodigo + ")");
 		notificacioElectronicaHelper.create(
-				expedientId,
-				numero,
-				data,
-				RDSClave,
-				RDSCodigo);
+				expedient,
+				notificacio);
 	}
 
 	@Override

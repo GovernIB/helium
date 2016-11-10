@@ -23,6 +23,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto.IniciadorTipusD
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.InstanciaProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.MostrarAnulatsDto;
+import net.conselldemallorca.helium.v3.core.api.dto.NotificacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
@@ -832,6 +833,10 @@ public interface ExpedientService {
 	public boolean existsExpedientAmbEntornTipusINumero(Long entornId, Long expedientTipusId, String numero);
 
 	public Long findIdAmbProcessInstanceId(String processInstanceId);
+	
+	public List<NotificacioDto> findNotificacionsPerExpedientId(Long expedientId) throws NoTrobatException;
+	
+	public NotificacioDto findNotificacioPerId(Long notificacioId) throws NoTrobatException;
 
 	/** Mètode per consulta els ids de les instàncies de procés per a una definició de procés
 	 * identificada per la seva clau JBPM.
@@ -850,4 +855,5 @@ public interface ExpedientService {
 	 */
 	public List<String> findAmbDefinicioProcesId(Long definicioProcesId);
 
+	public void notificacioReprocessar(Long notificacioId) throws NoTrobatException;
 }
