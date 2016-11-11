@@ -159,7 +159,8 @@
 		    		var rDesde = rutaOrdenacio.indexOf("valor/")+6;
 		    		var rHasta = rutaOrdenacio.indexOf("/update");
 		        	var id= rutaOrdenacio.substring(rDesde, rHasta);
-		        	canviarPosicioValidacio(id,pos);
+		        	if (pos != filaMovem)
+		        		canviarPosicioValidacio(id,pos);
 		    	},
 		    	onDragStart: function(table, row) {
 		    			filaMovem = row.rowIndex-1;

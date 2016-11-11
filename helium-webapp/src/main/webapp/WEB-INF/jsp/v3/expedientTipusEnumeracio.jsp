@@ -30,6 +30,11 @@
 					<th data-col-name="numValors" data-visible="false"/>
 					<th data-col-name="codi" width="20%"><spring:message code="expedient.tipus.enumeracio.llistat.columna.codi"/></th>
 					<th data-col-name="nom"><spring:message code="expedient.tipus.enumeracio.llistat.columna.titol"/></th>
+					<th data-col-name="numValors" data-template="#cellValorsTemplate" data-orderable="false" width="13%">
+						<script id="cellValorsTemplate" type="text/x-jsrender">
+							<a data-toggle="modal" data-callback="callbackModalEnumerats()" href="${expedientTipus.id}/enumeracio/{{:id}}/valors" class="btn btn-default"><span class="fa fa-bars"></span>&nbsp;<spring:message code="expedient.tipus.enumeracio.llistat.boto.valors"/>&nbsp;<span class="badge">{{:numValors}}</span></a>
+						</script>
+					</th>
 					<th data-col-name="id" data-template="#cellEnumTemplate" data-orderable="false" width="10%">
 						<script id="cellEnumTemplate" type="text/x-jsrender">
 							<div class="dropdown">
@@ -37,7 +42,6 @@
 								<ul class="dropdown-menu">
 									<li><a data-toggle="modal" data-callback="callbackModalEnumerats()" href="${expedientTipus.id}/enumeracio/{{:id}}/update"><span class="fa fa-pencil"></span>&nbsp;<spring:message code="comu.boto.modificar"/></a></li>
 									<li><a href="${expedientTipus.id}/enumeracio/{{:id}}/delete" data-toggle="ajax" data-confirm="<spring:message code="expedient.tipus.enumeracio.llistat.confirm.esborra"/>"><span class="fa fa-trash-o"></span>&nbsp;<spring:message code="comu.boto.esborrar"/></a></li>
-									<li><a data-toggle="modal" data-callback="callbackModalEnumerats()" href="${expedientTipus.id}/enumeracio/{{:id}}/valors"><span class="fa fa-bars"></span>&nbsp;<spring:message code="expedient.tipus.enumeracio.llistat.boto.valors"/>&nbsp;({{:numValors}})</a></li>
 								</ul>
 							</div>
 						</script>

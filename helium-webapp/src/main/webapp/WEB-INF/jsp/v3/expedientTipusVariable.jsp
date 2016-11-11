@@ -16,12 +16,20 @@
 
 <c:choose>
 	<c:when test="${not empty expedientTipus || not empty definicioProcesId}">
+		
 		<c:if test="${not empty expedientTipus && empty definicioProcesId && !expedientTipus.ambInfoPropia}">
 			<div class="alert alert-warning">
 				<span class="fa fa-exclamation-triangle"></span>
 				<spring:message code="expedient.tipus.ambInfoPropia.avis" arguments="${ambInfoPropiaText}"></spring:message>
 			</div>
 		</c:if>
+		<c:if test="${not empty definicioProces && not empty definicioProces.expedientTipus && definicioProces.expedientTipus.ambInfoPropia}">
+			<div class="alert alert-warning">
+				<span class="fa fa-exclamation-triangle"></span>
+				<spring:message code="definicio.proces.ambInfoPropia.avis" arguments="${ambInfoPropiaText}"></spring:message>
+			</div>
+		</c:if>
+		
 		<form class="well">
 			<div class="row">
 				<div class="col-sm-10">
@@ -195,7 +203,8 @@ $(document).ready(function() {
 		    	onDrop: function(table, row) {	        	
 		        	var pos = row.rowIndex - 1;
 		        	var id= obtenirId(pos);
-		        	canviarPosicioVariable(id,pos);
+		        	if (pos != filaMovem)
+		        		canviarPosicioVariable(id,pos);
 		    	},
 		    	onDragStart: function(table, row) {
 		    			filaMovem = row.rowIndex-1;

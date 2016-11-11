@@ -501,7 +501,7 @@ public class ExpedientTipusConsultaController extends BaseExpedientTipusControll
 		} else {
 			// Variables de la definició de procés
 			// Obté totes les variables del tipus d'expedient
-			List<CampDto> variables = campService.findAllOrdenatsPerCodi(origen, null);
+			List<CampDto> variables = campService.findAllOrdenatsPerCodi(null, origen);
 			// Crea les parelles de codi i valor
 			for (CampDto variable : variables) {
 				resposta.add(new ParellaCodiValorDto(

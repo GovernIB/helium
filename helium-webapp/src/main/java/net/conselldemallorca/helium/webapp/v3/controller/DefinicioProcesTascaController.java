@@ -677,31 +677,36 @@ public class DefinicioProcesTascaController extends BaseDefinicioProcesControlle
 			Long tascaId) {
 		List<ParellaCodiValorDto> resposta = new ArrayList<ParellaCodiValorDto>();
 		DefinicioProcesDto definicioProces = definicioProcesService.findById(definicioProcesId);
-		if (definicioProces.getExpedientTipus() != null ){
-			// Obté totes els firmes del tipus d'expedient de la definició de procés
-			List<DocumentDto> firmes = documentService.findAll(
+		List<DocumentDto> documents;
+		if (definicioProces.getExpedientTipus() != null 
+				&& definicioProces.getExpedientTipus().isAmbInfoPropia()){
+			// Obté totes els documents del tipus d'expedient de la definició de procés
+			documents = documentService.findAll(
 					definicioProces.getExpedientTipus().getId(), null);
-			
-			// Documents de la tasca existents
-			List<FirmaTascaDto> firmesTasca = definicioProcesService.tascaFirmaFindAmbTascaId(tascaId);
-			// Lleva les firmes que ja pertanyin a algun firma
-			Iterator<DocumentDto> it = firmes.iterator();
-			while (it.hasNext()) {
-				DocumentDto firma = it.next();
-				for (FirmaTascaDto firmaTasca : firmesTasca) {
-					if (firma.getId().equals(firmaTasca.getDocument().getId())) {
-						it.remove();
-						break;
-					}
+		} else {
+			// Obté totes els documents de la definició de procés
+			documents = documentService.findAll(
+								null, definicioProcesId);
+		}
+		// Documents de la tasca existents
+		List<FirmaTascaDto> firmesTasca = definicioProcesService.tascaFirmaFindAmbTascaId(tascaId);
+		// Lleva les firmes que ja pertanyin a algun firma
+		Iterator<DocumentDto> it = documents.iterator();
+		while (it.hasNext()) {
+			DocumentDto firma = it.next();
+			for (FirmaTascaDto firmaTasca : firmesTasca) {
+				if (firma.getId().equals(firmaTasca.getDocument().getId())) {
+					it.remove();
+					break;
 				}
 			}
-			// Crea les parelles de codi i valor
-			for (DocumentDto firma : firmes) {
-				resposta.add(new ParellaCodiValorDto(
-						firma.getId().toString(), 
-						firma.getCodi() + " / " + firma.getNom()));
-			}			
 		}
+		// Crea les parelles de codi i valor
+		for (DocumentDto firma : documents) {
+			resposta.add(new ParellaCodiValorDto(
+					firma.getId().toString(), 
+					firma.getCodi() + " / " + firma.getNom()));
+		}			
 		return resposta;
 	}	
 	

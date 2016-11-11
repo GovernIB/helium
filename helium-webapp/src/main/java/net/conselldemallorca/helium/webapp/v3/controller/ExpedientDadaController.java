@@ -495,9 +495,10 @@ public class ExpedientDadaController extends BaseExpedientController {
 						expedientId,
 						instanciaProces.getId(),
 						ambOcults);
-				for(List<ExpedientDadaDto> list: dadesInstancia.values()){
-					contadorTotals += list.size();
-				}
+				if (dadesInstancia != null)
+					for(List<ExpedientDadaDto> list: dadesInstancia.values()){
+						contadorTotals += list.size();
+					}
 			}
 			dades.put(instanciaProces, dadesInstancia);
 			totalsPerProces.put(instanciaProces, contadorTotals);

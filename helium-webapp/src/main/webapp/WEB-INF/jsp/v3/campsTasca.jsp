@@ -185,7 +185,7 @@
 
 <%-- VARIABLES MULTIPLES ----------------------------------------------------------------------------%>
 <%---------------------------------------------------------------------------------------------------%>
-			<c:if test="${(dada.campMultiple and isRegistre) or isMultiple}">
+			<c:if test="${not tasca.validada and ((dada.campMultiple and isRegistre) or isMultiple)}">
 					<button  
 						class="btn btn_eliminar fa fa-times" 
 						type="button" 

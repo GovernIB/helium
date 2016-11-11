@@ -92,7 +92,8 @@ $(document).ready(function() {
 	    	onDrop: function(table, row) {	        	
 	        	var pos = row.rowIndex - 1;
 	        	var id= obtenirId(pos);
-	        	canviarPosicioConsulta(id,pos);
+	        	if (pos != filaMovem)
+		        	canviarPosicioConsulta(id,pos);
 	    	},
 	    	onDragStart: function(table, row) {
 	    			filaMovem = row.rowIndex-1;

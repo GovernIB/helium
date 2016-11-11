@@ -6,6 +6,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +24,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import net.conselldemallorca.helium.core.helper.DefinicioProcesHelper;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesExpedientDto.IdAmbEtiqueta;
@@ -67,9 +69,11 @@ public class DefinicioProcesController extends BaseDefinicioProcesController {
 	@Autowired
 	private ExpedientService expedientService;
 	@Autowired
-	private ConversioTipusHelper conversioTipusHelper;
-	@Autowired
 	private ExecucioMassivaService execucioMassivaService;
+	@Resource
+	private ConversioTipusHelper conversioTipusHelper;
+	@Resource
+	private DefinicioProcesHelper definicioProcesHelper;
 	
 	/** Accés al llistat de definicions de procés de l'entorn des del menú de disseny. */
 	@RequestMapping(method = RequestMethod.GET)
@@ -589,11 +593,18 @@ public class DefinicioProcesController extends BaseDefinicioProcesController {
         	boolean error = false;
         	try {
         		if (ACCIO_JBPM.JBPM_DESPLEGAR.equals(command.getAccio())) {
+        			// Recupera la informació del contingut del fitxer
         			DefinicioProcesExportacio exportacio = 
         					dissenyService.getDefinicioProcesExportacioFromContingut(
             					command.getFile().getOriginalFilename(),
         						command.getFile().getBytes()
         					);
+        			// Guarda la darrera per copiar dades
+        			DefinicioProcesDto darreraDefinicioProces = 
+        					definicioProcesService.findByEntornIdAndJbpmKey(
+        							entornActual.getId(), 
+        							exportacio.getDefinicioProcesDto().getJbpmKey());
+        			// Realitza la importació com a una nova versió
         			exportacio.getDefinicioProcesDto().setEtiqueta(command.getEtiqueta());
         			DefinicioProcesDto definicioProces = definicioProcesService.importar(
             				command.getEntornId(), 
@@ -601,6 +612,11 @@ public class DefinicioProcesController extends BaseDefinicioProcesController {
             				command.getId(),
             				null, 	// DefinicioProcesExportacioCommandDto
             				exportacio);
+        			// Copia les dades de la darrera versió a la nova
+        			if (darreraDefinicioProces != null)
+	        			definicioProcesHelper.copiarDefinicioProces(
+	        					darreraDefinicioProces.getId(),
+	        					definicioProces.getId());
             		MissatgesHelper.success(request, getMessage( request, "definicio.proces.desplegar.form.success"));
             		if (command.isActualitzarExpedientsActius()) {
             				// Programació de la tasca d'actualització d'expedients actius
@@ -699,6 +715,8 @@ public class DefinicioProcesController extends BaseDefinicioProcesController {
 						&& definicioProces.getEntorn().getId().equals(entornActual.getId()))
 					model.addAttribute("definicioProces", definicioProces);
 			}
+			// Select dels tipus d'expedient de l'entorn
+			model.addAttribute("expedientsTipus", expedientTipusService.findAmbEntornPermisDissenyar(entornActual.getId()));
 		}
 		
 		// Select de les accions jbpm

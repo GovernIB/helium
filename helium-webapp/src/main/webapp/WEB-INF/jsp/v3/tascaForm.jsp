@@ -62,7 +62,7 @@
 				<c:choose>
 					<c:when test="${dada.campMultiple}">
 						<c:set var="campErrorsMultiple"><form:errors path="${dada.varCodi}"/></c:set>
-						<div class="multiple<c:if test="${not empty campErrorsMultiple}"> has-error</c:if>">	
+						<div class="multiple form-group<c:if test="${not empty campErrorsMultiple}"> has-error</c:if>">	
 							<label for="${dada.varCodi}" class="control-label col-xs-3<c:if test="${dada.required}"> obligatori</c:if>">${dada.campEtiqueta}</label>
 							<c:forEach var="membre" items="${command[dada.varCodi]}" varStatus="varStatusCab">
 								<c:set var="inline" value="${true}"/>

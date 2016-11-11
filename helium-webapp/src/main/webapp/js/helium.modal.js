@@ -264,7 +264,8 @@
 								if (callback)
 									executeCallbackFunction(data);
 							},
-							error: modalAjaxErrorFunction
+							error: modalAjaxErrorFunction,
+							complete: $(this).tooltip('hide')
 					    });
 						return false;
 					} else if (modal) {

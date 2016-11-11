@@ -22,6 +22,12 @@
 				<spring:message code="expedient.tipus.ambInfoPropia.avis" arguments="${ambInfoPropiaText}"></spring:message>
 			</div>
 		</c:if>
+		<c:if test="${not empty definicioProces && not empty definicioProces.expedientTipus && definicioProces.expedientTipus.ambInfoPropia}">
+			<div class="alert alert-warning">
+				<span class="fa fa-exclamation-triangle"></span>
+				<spring:message code="definicio.proces.ambInfoPropia.avis" arguments="${ambInfoPropiaText}"></spring:message>
+			</div>
+		</c:if>
 
 		<table	id="expedientTipusDocument"
 				data-toggle="datatable"

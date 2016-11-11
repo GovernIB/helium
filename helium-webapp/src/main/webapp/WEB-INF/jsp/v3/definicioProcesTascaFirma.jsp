@@ -100,7 +100,8 @@
 		    	onDrop: function(table, row) {	        	
 		        	var pos = row.rowIndex - 1;
 		        	var id= obtenirId(pos);
-		        	canviarPosicioTascaFirma(id,pos);
+		        	if (pos != filaMovem)
+			        	canviarPosicioTascaFirma(id,pos);
 		    	},
 		    	onDragStart: function(table, row) {
 		    			filaMovem = row.rowIndex-1;

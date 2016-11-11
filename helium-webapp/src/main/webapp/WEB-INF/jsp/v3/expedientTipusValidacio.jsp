@@ -105,7 +105,8 @@
 		    	onDrop: function(table, row) {	        	
 		        	var pos = row.rowIndex - 1;
 		        	var id= obtenirId(pos);
-		        	canviarPosicioValidacio(id,pos);
+		        	if (pos != filaMovem)
+		        		canviarPosicioValidacio(id,pos);
 		    	},
 		    	onDragStart: function(table, row) {
 		    			filaMovem = row.rowIndex-1;

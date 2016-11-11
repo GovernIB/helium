@@ -59,7 +59,8 @@
 		    	onDrop: function(table, row) {	        	
 		        	var pos = row.rowIndex - 1;
 		        	var id= obtenirId(pos);
-		        	canviarPosicioAgrupacio(id,pos);
+		        	if (pos != filaMovem)
+		        		canviarPosicioAgrupacio(id,pos);
 		    	},
 		    	onDragStart: function(table, row) {
 		    			filaMovem = row.rowIndex-1;

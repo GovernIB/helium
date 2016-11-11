@@ -58,13 +58,15 @@ $(document).ready(function() {
 		// Posa la taula com a ordenable
 		$("#expedientTipusEstat").tableDnD({
 	    	onDragClass: "drag",
-	    	onDrop: function(table, row) {	        	
+	    	onDrop: function(table, row) {	     
 	    		var pos = row.rowIndex - 1;
-	    		var rutaOrdenacio = $("a", row)[0].href;
-	    		var rDesde = rutaOrdenacio.indexOf("estat/")+6;
-	    		var rHasta = rutaOrdenacio.indexOf("/update");
-	        	var id= rutaOrdenacio.substring(rDesde, rHasta);
-	        	canviarPosicioEstat(id,pos);
+	    		if (pos != filaMovem) {
+		    		var rutaOrdenacio = $("a", row)[0].href;
+		    		var rDesde = rutaOrdenacio.indexOf("estat/")+6;
+		    		var rHasta = rutaOrdenacio.indexOf("/update");
+		        	var id= rutaOrdenacio.substring(rDesde, rHasta);
+		        	canviarPosicioEstat(id,pos);
+	    		}
 	    	},
 	    	onDragStart: function(table, row) {
 	    			filaMovem = row.rowIndex-1;
