@@ -17,7 +17,7 @@
 	<c:when test="${not empty expedientTipus}">
 
 		<form:form cssClass="form-horizontal" enctype="multipart/form-data" method="post" commandName="expedientTipusIntegracioTramitsCommand">
-			<div style="height: 400px">        
+			<div>        
 				<input type="hidden" id="id" name="id" value="${expedientTipusIntegracioTramitsCommand.id}"/>
 				<hel:inputCheckbox name="actiu" textKey="expedient.tipus.integracio.tramits.activar"/>
 				<div id="inputs_integracioTramits" style="display:${expedientTipusIntegracioTramitsCommand.actiu? 'inline' : 'none'}">
@@ -53,8 +53,24 @@
 							</a>
 						</div>				
 					</div>					
-					
 				</div>
+				
+				
+				<hel:inputCheckbox name="notificacionsActivades" textKey="expedient.tipus.integracio.tramits.notificacions.activar"/>
+				<div id="inputs_integracioNotificacios" style="display:${expedientTipusIntegracioTramitsCommand.notificacionsActivades? 'inline' : 'none'}">
+					<hel:inputText required="true" name="notificacioOrganCodi" textKey="expedient.tipus.integracio.notificacio.organCodi" />
+					<hel:inputText required="true" name="notificacioOficinaCodi" textKey="expedient.tipus.integracio.notificacio.oficinaCodi" />
+					<hel:inputText required="true" name="notificacioUnitatAdministrativa" textKey="expedient.tipus.integracio.notificacio.unitatAdministrativa" />
+					<hel:inputText required="true" name="notificacioCodiProcediment" textKey="expedient.tipus.integracio.notificacio.codiProcediment" />
+					<hel:inputText required="false" name="notificacioAvisTitol" textKey="expedient.tipus.integracio.notificacio.avisTitol" />
+					<hel:inputTextarea required="false" name="notificacioAvisText" textKey="expedient.tipus.integracio.notificacio.avisText" />
+					<hel:inputText required="false" name="notificacioAvisTextSms" textKey="expedient.tipus.integracio.notificacio.avisSmsText" />
+					<hel:inputText required="false" name="notificacioOficiTitol" textKey="expedient.tipus.integracio.notificacio.oficiTitol" />
+					<hel:inputTextarea required="false" name="notificacioOficiText" textKey="expedient.tipus.integracio.notificacio.oficiText" />
+				</div>
+				
+				
+				
 			</div>
 			
 			<div id="modal-botons" class="well" style="text-align: right;">
@@ -83,7 +99,14 @@ $(document).ready(function() {
 		} else {
 			$('#inputs_integracioTramits').hide();
 		}
-	})
+	});
+	$('#notificacionsActivades', '#expedientTipusIntegracioTramitsCommand').change(function() {
+		if ($(this).is(':checked')) {
+			$('#inputs_integracioNotificacios').show();
+		} else {
+			$('#inputs_integracioNotificacios').hide();
+		}
+	});
 	$('#expedientTipusIntegracioTramitsCommand').submit(function(e){
 		$('#accioGuardarProcessant').show();
 		$(this).webutilNetejarErrorsCamps();

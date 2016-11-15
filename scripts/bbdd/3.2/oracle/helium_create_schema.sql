@@ -169,14 +169,16 @@ CREATE TABLE HEL_CAMP_REGISTRE
 
 CREATE TABLE HEL_CAMP_TASCA
 (
-  ID        NUMBER(19)                          NOT NULL,
-  ORDRE     NUMBER(10),
-  RF        NUMBER(1),
-  RO        NUMBER(1),
-  RQ        NUMBER(1),
-  WT        NUMBER(1),
-  CAMP_ID   NUMBER(19)                          NOT NULL,
-  TASCA_ID  NUMBER(19)                          NOT NULL
+  ID        	NUMBER(19)                          NOT NULL,
+  ORDRE     	NUMBER(10),
+  RF        	NUMBER(1),
+  RO        	NUMBER(1),
+  RQ        	NUMBER(1),
+  WT        	NUMBER(1),
+  CAMP_ID   	NUMBER(19)                          NOT NULL,
+  TASCA_ID  	NUMBER(19)                          NOT NULL,
+  AMPLE_COLS 	NUMBER(10) 		DEFAULT 12,
+  BUIT_COLS 	NUMBER(10) 		DEFAULT 0
 );
 
 
@@ -235,7 +237,9 @@ CREATE TABLE HEL_CONSULTA_CAMP
   DEFPROC_VERSIO   NUMBER(10),
   ORDRE            NUMBER(10)                   NOT NULL,
   TIPUS            NUMBER(10)                   NOT NULL,
-  CONSULTA_ID      NUMBER(19)                   NOT NULL
+  CONSULTA_ID      NUMBER(19)                   NOT NULL,
+  AMPLE_COLS 	   NUMBER(10) 	DEFAULT 12,
+  BUIT_COLS 	   NUMBER(10) 	DEFAULT 0
 );
 
 

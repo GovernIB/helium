@@ -44,6 +44,8 @@ public class CampTasca implements Serializable, GenericEntity<Long> {
 	private boolean required;
 	private boolean readOnly;
 	private int order;
+	private int ampleCols;
+	private int buitCols;
 
 	@NotNull
 	private Camp camp;
@@ -60,7 +62,9 @@ public class CampTasca implements Serializable, GenericEntity<Long> {
 			boolean writeTo,
 			boolean required,
 			boolean readOnly,
-			int order) {
+			int order,
+			int ampleCols,
+			int buitCols) {
 		this.tasca = tasca;
 		this.camp = camp;
 		this.readFrom = readFrom;
@@ -68,6 +72,8 @@ public class CampTasca implements Serializable, GenericEntity<Long> {
 		this.required = required;
 		this.readOnly = readOnly;
 		this.order = order;
+		this.ampleCols = ampleCols;
+		this.buitCols = buitCols;
 	}
 
 	@Id
@@ -120,7 +126,20 @@ public class CampTasca implements Serializable, GenericEntity<Long> {
 	public void setOrder(int order) {
 		this.order = order;
 	}
-
+	@Column(name="ample_cols")
+	public int getAmpleCols() {
+		return ampleCols;
+	}
+	public void setAmpleCols(int ampleCols) {
+		this.ampleCols = ampleCols;
+	}
+	@Column(name="buit_cols")
+	public int getBuitCols() {
+		return buitCols;
+	}
+	public void setBuitCols(int buitCols) {
+		this.buitCols = buitCols;
+	}
 	@ManyToOne(optional=false, fetch=FetchType.EAGER)
 	@JoinColumn(name="camp_id")
 	@ForeignKey(name="hel_camp_camptasca_fk")

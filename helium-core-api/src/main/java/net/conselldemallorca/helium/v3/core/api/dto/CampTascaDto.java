@@ -17,6 +17,8 @@ public class CampTascaDto implements Serializable {
 	private boolean required;
 	private boolean readOnly;
 	private int order;
+	private int ampleCols;
+	private int buitCols;
 
 	private CampDto camp;
 
@@ -56,6 +58,18 @@ public class CampTascaDto implements Serializable {
 	public void setOrder(int order) {
 		this.order = order;
 	}
+	public int getAmpleCols() {
+		return ampleCols;
+	}
+	public void setAmpleCols(int ampleCols) {
+		this.ampleCols = ampleCols;
+	}
+	public int getBuitCols() {
+		return buitCols;
+	}
+	public void setBuitCols(int buitCols) {
+		this.buitCols = buitCols;
+	}
 	public CampDto getCamp() {
 		return camp;
 	}
@@ -72,13 +86,17 @@ public class CampTascaDto implements Serializable {
 			boolean writeTo,
 			boolean required,
 			boolean readOnly,
-			int order) {
+			int order,
+			int ampleCols,
+			int buitCols) {
 		this.camp = camp;
 		this.readFrom = readFrom;
 		this.writeTo = writeTo;
 		this.required = required;
 		this.readOnly = readOnly;
 		this.order = order;
+		this.ampleCols = ampleCols;
+		this.buitCols = buitCols;
 	}
 
 	@Override

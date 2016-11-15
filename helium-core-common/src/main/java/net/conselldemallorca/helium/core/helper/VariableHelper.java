@@ -282,7 +282,9 @@ public class VariableHelper {
 							campTasca.isReadOnly(),
 							campTasca.isReadFrom(),
 							campTasca.isWriteTo(),
-							campTasca.isRequired()));
+							campTasca.isRequired(),
+							campTasca.getAmpleCols(),
+							campTasca.getBuitCols()));
 		}
 		return resposta;
 	}
@@ -335,7 +337,9 @@ public class VariableHelper {
 							campTasca.isReadOnly(),
 							campTasca.isReadFrom(),
 							campTasca.isWriteTo(),
-							campTasca.isRequired()));
+							campTasca.isRequired(),
+							campTasca.getAmpleCols(),
+							campTasca.getBuitCols()));
 		}
 		mesuresTemporalsHelper.mesuraCalcular("Tasca DADES v3", "tasques", tipusExp, task.getTaskName(), "2");
 		mesuresTemporalsHelper.mesuraCalcular("Tasca DADES v3", "tasques", tipusExp, task.getTaskName());
@@ -386,7 +390,9 @@ public class VariableHelper {
 							campTasca.isReadOnly(),
 							campTasca.isReadFrom(),
 							campTasca.isWriteTo(),
-							campTasca.isRequired());
+							campTasca.isRequired(),
+							campTasca.getAmpleCols(),
+							campTasca.getBuitCols());
 		} else {
 			return null;
 		}
@@ -577,7 +583,9 @@ public class VariableHelper {
 			boolean readOnly,
 			boolean readFrom,
 			boolean writeTo,
-			boolean required) {
+			boolean required,
+			int ampleCols,
+			int buitCols) {
 		TascaDadaDto tascaDadaDto = new TascaDadaDto();
 		tascaDadaDto.setVarCodi(expedientDadaDto.getVarCodi());
 		tascaDadaDto.setVarValor(expedientDadaDto.getVarValor());
@@ -592,6 +600,8 @@ public class VariableHelper {
 			tascaDadaDto.setReadFrom(readFrom);
 			tascaDadaDto.setWriteTo(writeTo);
 			tascaDadaDto.setRequired(required);
+			tascaDadaDto.setAmpleCols(ampleCols);
+			tascaDadaDto.setBuitCols(buitCols);
 		}
 		tascaDadaDto.setText(expedientDadaDto.getText());
 		tascaDadaDto.setError(expedientDadaDto.getError());
@@ -607,7 +617,9 @@ public class VariableHelper {
 						readOnly,
 						readFrom,
 						writeTo,
-						required);
+						required,
+						ampleCols,
+						buitCols);
 				// Si es un campo readonly quitamos la validación de los campos requeridos que contenga
 				tascaDada.setRequired(readOnly ? false : dto.isRequired());
 				multipleDades.add(tascaDada);
@@ -631,7 +643,9 @@ public class VariableHelper {
 						false,
 						false,
 						false,
-						registreCamp.isObligatori());
+						registreCamp.isObligatori(),
+						12,
+						0);
 				// Si es un campo readonly quitamos la validación de los campos requeridos que contenga
 				tascaDada.setRequired(readOnly ? false : dto.isRequired());
 				registreDades.add(tascaDada);

@@ -33,6 +33,8 @@ public class ConsultaCampDto implements Serializable {
 	private int defprocVersio = -1;
 	private TipusConsultaCamp tipus;
 	private int ordre;
+	private int ampleCols;
+	private int buitCols;
 	private TipusParamConsultaCamp paramTipus;
 
 	private CampTipusDto campTipus;
@@ -98,6 +100,18 @@ public class ConsultaCampDto implements Serializable {
 		this.ordre = ordre;
 	}
 	
+	public int getAmpleCols() {
+		return ampleCols;
+	}
+	public void setAmpleCols(int ampleCols) {
+		this.ampleCols = ampleCols;
+	}
+	public int getBuitCols() {
+		return buitCols;
+	}
+	public void setBuitCols(int buitCols) {
+		this.buitCols = buitCols;
+	}
 	/** Retorna la combinacio "codi / etiqueta" si no comença amb el prefix de l'expedient. */
 	public String getCodiEtiqueta() {
 		if (campCodi.startsWith(ExpedientCamps.EXPEDIENT_PREFIX))

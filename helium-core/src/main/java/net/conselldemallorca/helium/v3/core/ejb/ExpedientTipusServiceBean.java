@@ -91,17 +91,6 @@ public class ExpedientTipusServiceBean implements ExpedientTipusService {
 				contrasenya);
 	}
 
-	@Override
-	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public ExpedientTipusDto updateIntegracioTramits(
-			Long entornId, 
-			Long expedientTipusId, 
-			String tramitCodi) {
-		return delegate.updateIntegracioTramits(
-				entornId, 
-				expedientTipusId, 
-				tramitCodi);
-	}
 	
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
@@ -666,5 +655,44 @@ public class ExpedientTipusServiceBean implements ExpedientTipusService {
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public List<MapeigSistraDto> mapeigFindAll(Long expedientTipusId) throws NoTrobatException, PermisDenegatException {
 		return delegate.mapeigFindAll(expedientTipusId);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public void consultaCampCols(Long id, String propietat, int valor)
+			throws NoTrobatException, PermisDenegatException {
+		delegate.consultaCampCols(id, propietat, valor);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public ExpedientTipusDto updateIntegracioTramits(
+			Long entornId, 
+			Long expedientTipusId, 
+			String tramitCodi,
+			boolean notificacionsActivades, 
+			String notificacioOrganCodi, 
+			String notificacioOficinaCodi,
+			String notificacioUnitatAdministrativa, 
+			String notificacioCodiProcediment, 
+			String notificacioAvisTitol,
+			String notificacioAvisText,
+			String notificacioAvisTextSms, 
+			String notificacioOficiTitol,
+			String notificacioOficiText) {
+		return delegate.updateIntegracioTramits(
+				entornId, 
+				expedientTipusId, 
+				tramitCodi, 
+				notificacionsActivades, 
+				notificacioOrganCodi, 
+				notificacioOficinaCodi, 
+				notificacioUnitatAdministrativa, 
+				notificacioCodiProcediment, 
+				notificacioAvisTitol, 
+				notificacioAvisText, 
+				notificacioAvisTextSms, 
+				notificacioOficiTitol, 
+				notificacioOficiText);
 	}
 }

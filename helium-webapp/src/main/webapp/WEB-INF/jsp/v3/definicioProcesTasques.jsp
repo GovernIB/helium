@@ -32,7 +32,7 @@
 					<th data-col-name="nom"><spring:message code="definicio.proces.tasca.llistat.columna.titol"/></th>
 					<th data-col-name="campsCount" data-template="#cellFirmesTemplate" data-orderable="false" width="13%">
 						<script id="cellFirmesTemplate" type="text/x-jsrender">
-							<a href="${jbpmKey}/${definicioProcesId}/tasca/{{:id}}/variable" data-toggle="modal" data-callback="callbackModalTasques()" class="btn btn-default"><spring:message code="definicio.proces.tasca.llistat.accio.variables"/>&nbsp;<span class="badge">{{:campsCount}}</span></a>
+							<a href="${jbpmKey}/${definicioProcesId}/tasca/{{:id}}/variable" data-maximized="true" data-toggle="modal" data-callback="callbackModalTasques()" class="btn btn-default"><spring:message code="definicio.proces.tasca.llistat.accio.variables"/>&nbsp;<span class="badge">{{:campsCount}}</span></a>
 						</script>
 					</th>
 					<th data-col-name="documentsCount" data-template="#cellDocumentsTemplate" data-orderable="false" width="13%">

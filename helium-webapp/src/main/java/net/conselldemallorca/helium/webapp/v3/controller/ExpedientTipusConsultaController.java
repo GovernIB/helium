@@ -220,6 +220,20 @@ public class ExpedientTipusConsultaController extends BaseExpedientTipusControll
 		}
 	}
 	
+	@RequestMapping(value = "/{expedientTipusId}/consulta/{consultaId}/var/{id}/{propietat}")
+	@ResponseBody
+	public boolean cols(
+			HttpServletRequest request,
+			@PathVariable Long expedientTipusId,
+			@PathVariable Long id,
+			@PathVariable String propietat,
+			@RequestParam int valor) {
+		
+		expedientTipusService.consultaCampCols(id, propietat, valor);
+		
+		return true;
+	}
+	
 	/**
 	 * Mètode Ajax per moure una consulta de posició dins del tipus d'expedient.
 	 * @param request

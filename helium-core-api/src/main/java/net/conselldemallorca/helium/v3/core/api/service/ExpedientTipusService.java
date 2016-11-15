@@ -102,9 +102,6 @@ public interface ExpedientTipusService {
 	/** Modifica les dades del tipus d'expedient referents amb la integració amb els tràmits de 
 	 * Sistra.
 	 * 
-	 * @param entornId
-	 * @param expedientTipusId
-	 * @param tramitCodi
 	 * 
 	 * @return El tipus d'expedient modificat.
 	 * 
@@ -116,7 +113,17 @@ public interface ExpedientTipusService {
 	public ExpedientTipusDto updateIntegracioTramits(
 			Long entornId, 
 			Long expedientTipusId, 
-			String tramitCodi);
+			String tramitCodi,
+			boolean notificacionsActivades,
+			String notificacioOrganCodi,
+			String notificacioOficinaCodi,
+			String notificacioUnitatAdministrativa,
+			String notificacioCodiProcediment,
+			String notificacioAvisTitol,
+			String notificacioAvisText,
+			String notificacioAvisTextSms,
+			String notificacioOficiTitol,
+			String notificacioOficiText);
 
 	/**
 	 * Esborra una entitat.
@@ -937,6 +944,21 @@ public interface ExpedientTipusService {
 	public void consultaCampDelete(
 			Long id) throws NoTrobatException, PermisDenegatException;	
 	
+	/**
+	 * Canvia el valor de l'ample i el buit de les variables
+	 * que estan com a filtre de les consultes per tipus
+	 * 
+	 * @param id
+	 *            Atribut id del camp de la consulta.
+	 * @throws NoTrobatException
+	 *             Si no s'ha trobat el registre amb l'id especificat.
+	 * @throws PermisDenegatException
+	 *             Si no es tenen els permisos necessaris.
+	 */
+	public void consultaCampCols(
+			Long id, 
+			String propietat, 
+			int valor) throws NoTrobatException, PermisDenegatException;	
 
 	/** 
 	 * Retorna la llista de camps de la consulta del tipus d'expedient paginada per la datatable.

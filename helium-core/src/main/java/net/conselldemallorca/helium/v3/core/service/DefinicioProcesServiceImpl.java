@@ -436,6 +436,8 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 		entity.setWriteTo(tascaCamp.isWriteTo());
 		entity.setRequired(tascaCamp.isRequired());
 		entity.setReadOnly(tascaCamp.isReadOnly());
+		entity.setAmpleCols(12);
+		entity.setBuitCols(0);
 		entity.setTasca(tascaRepository.findOne(tascaId));
 		entity.setCamp(campRepository.findOne(tascaCamp.getCamp().getId()));
 		
@@ -443,6 +445,8 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 				campTascaRepository.save(entity),
 				CampTascaDto.class);
 	}
+	
+	
 
 	@Override
 	@Transactional
@@ -551,6 +555,8 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 		entity.setWriteTo(tascaCamp.isWriteTo());
 		entity.setRequired(tascaCamp.isRequired());
 		entity.setReadOnly(tascaCamp.isReadOnly());
+		
+		definirAmpleBuit(entity, tascaCamp);
 		
 		return conversioTipusHelper.convertir(
 				campTascaRepository.save(entity),
@@ -976,5 +982,33 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 									TerminiDto.class);
 	}	
 	
+	private void definirAmpleBuit(CampTasca entity, CampTascaDto tascaCamp) {
+		int ample = tascaCamp.getAmpleCols();
+		int buit = tascaCamp.getBuitCols();
+		
+		if (ample > 12)
+			ample = 12;
+		else if (ample <= 0)
+			ample = 1;
+			
+		if (buit > 12)
+			buit = 12;
+		else if (buit < -12)
+			buit = -12;
+		
+		int absAmple = Math.abs(ample);
+		int absBuit = Math.abs(buit);
+		int totalCols = absAmple + absBuit;
+		if (totalCols > 12) {
+			int diff = totalCols - 12;
+			if (buit >= 0)
+				buit -= diff;
+			else
+				buit += diff;
+		}
+		
+		entity.setAmpleCols(ample);
+		entity.setBuitCols(buit);
+	}
 	private static final Logger logger = LoggerFactory.getLogger(DefinicioProcesServiceImpl.class);
 }

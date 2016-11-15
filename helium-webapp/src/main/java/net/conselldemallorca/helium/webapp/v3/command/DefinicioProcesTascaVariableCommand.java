@@ -23,6 +23,8 @@ public class DefinicioProcesTascaVariableCommand {
 	private boolean writeTo;
 	private boolean required;
 	private boolean readOnly;
+	private int ampleCols;
+	private int buitCols;
 	
 	public Long getTascaId() {
 		return TascaId;
@@ -61,6 +63,18 @@ public class DefinicioProcesTascaVariableCommand {
 		this.readOnly = readOnly;
 	}
 	
+	public int getAmpleCols() {
+		return ampleCols;
+	}
+	public void setAmpleCols(int ampleCols) {
+		this.ampleCols = ampleCols;
+	}
+	public int getBuitCols() {
+		return buitCols;
+	}
+	public void setBuitCols(int buitCols) {
+		this.buitCols = buitCols;
+	}
 	public static CampTascaDto asCampTascaDto(DefinicioProcesTascaVariableCommand command) {
 		CampTascaDto dto = new CampTascaDto();
 		CampDto camp = new CampDto();
@@ -70,6 +84,8 @@ public class DefinicioProcesTascaVariableCommand {
 		dto.setWriteTo(command.isWriteTo());
 		dto.setRequired(command.isRequired());
 		dto.setReadOnly(command.isReadOnly());
+		dto.setAmpleCols(command.getAmpleCols());
+		dto.setBuitCols(command.getBuitCols());
 		return dto;
 	}	
 	public interface Creacio {}

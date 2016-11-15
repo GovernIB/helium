@@ -1097,7 +1097,9 @@ public class DefinicioProcesHelper {
 							camp.isWriteTo(),
 							camp.isRequired(),
 							camp.isReadOnly(),
-							camp.getOrder());
+							camp.getOrder(),
+							camp.getAmpleCols(),
+							camp.getBuitCols());
 					tascaDesti.addCamp(nouCamp);
 				}
 				// Copia els documents de la tasca

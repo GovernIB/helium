@@ -74,10 +74,21 @@ public class ExpedientTipusIntegracioTramitsController extends BaseExpedientTipu
 				command.setActiu(true);
 			} else {
 				command.setActiu(false);
-			}			
+			}
+			
+			command.setNotificacionsActivades(expedientTipus.isNotificacionsActivades());
+			command.setNotificacioOrganCodi(expedientTipus.getNotificacioOrganCodi());
+			command.setNotificacioOficinaCodi(expedientTipus.getNotificacioOficinaCodi());
+			command.setNotificacioUnitatAdministrativa(expedientTipus.getNotificacioUnitatAdministrativa());
+			command.setNotificacioCodiProcediment(expedientTipus.getNotificacioCodiProcediment());
+			command.setNotificacioAvisTitol(expedientTipus.getNotificacioAvisTitol());
+			command.setNotificacioAvisText(expedientTipus.getNotificacioAvisText());
+			command.setNotificacioAvisTextSms(expedientTipus.getNotificacioAvisTextSms());
+			command.setNotificacioOficiTitol(expedientTipus.getNotificacioOficiTitol());
+			command.setNotificacioOficiText(expedientTipus.getNotificacioOficiText());
+			
 			model.addAttribute("expedientTipusIntegracioTramitsCommand", command);
 
-			
 			model.addAttribute("tipusMapeigVariable", TipusMapeig.Variable);
 			model.addAttribute("tipusMapeigDocument", TipusMapeig.Document);
 			model.addAttribute("tipusMapeigAdjunt", TipusMapeig.Adjunt);
@@ -115,12 +126,32 @@ public class ExpedientTipusIntegracioTramitsController extends BaseExpedientTipu
 	        		expedientTipusService.updateIntegracioTramits(
 	        				entornActual.getId(),
 	        				expedientTipusId,
-	        				command.getTramitCodi());
+	        				command.getTramitCodi(),
+	        				command.isNotificacionsActivades(),
+	        				command.getNotificacioOrganCodi(),
+	        				command.getNotificacioOficinaCodi(),
+	        				command.getNotificacioUnitatAdministrativa(),
+	        				command.getNotificacioCodiProcediment(),
+	        				command.getNotificacioAvisTitol(),
+	        				command.getNotificacioAvisText(),
+	        				command.getNotificacioAvisTextSms(),
+	        				command.getNotificacioOficiTitol(),
+	        				command.getNotificacioOficiText());
 	        	else
 	        		expedientTipusService.updateIntegracioTramits(
 	        				entornActual.getId(),
 	        				expedientTipusId,
-	        				null);
+	        				null,
+	        				command.isNotificacionsActivades(),
+	        				command.getNotificacioOrganCodi(),
+	        				command.getNotificacioOficinaCodi(),
+	        				command.getNotificacioUnitatAdministrativa(),
+	        				command.getNotificacioCodiProcediment(),
+	        				command.getNotificacioAvisTitol(),
+	        				command.getNotificacioAvisText(),
+	        				command.getNotificacioAvisTextSms(),
+	        				command.getNotificacioOficiTitol(),
+	        				command.getNotificacioOficiText());
 		        MissatgesHelper.success(
 						request, 
 						getMessage(

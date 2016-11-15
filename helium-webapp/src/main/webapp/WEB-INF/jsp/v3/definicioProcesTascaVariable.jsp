@@ -121,7 +121,25 @@
 						</div>
 						</script>
 					</th>
+					
 					<th data-col-name="order" data-visible="false"><spring:message code="definicio.proces.tasca.variable.columna.ordre"/></th>
+					
+					<th data-col-name="ampleCols" data-template="#celldefinicioProcesTascaVariableAmpleColsTemplate">
+						<spring:message code="definicio.proces.tasca.variable.columna.ampleCols"/>
+						<script id="celldefinicioProcesTascaVariableAmpleColsTemplate" type="text/x-jsrender">
+							<div class="form-group">
+            					<input id="ampleCols_{{:id}}" data-variableid="{{:id}}" data-propietat="ampleCols" type="number" class="form-control" name="name" value="{{:ampleCols}}" style="width:100%;"/>
+							</div>
+						</script>
+					</th>
+					<th data-col-name="buitCols" data-template="#celldefinicioProcesTascaVariableBuitColsTemplate">
+						<spring:message code="definicio.proces.tasca.variable.columna.buitCols"/>
+						<script id="celldefinicioProcesTascaVariableBuitColsTemplate" type="text/x-jsrender">
+							<div class="form-group">
+            					<input id="buitCols_{{:id}}" data-variableid="{{:id}}" data-propietat="buitCols" type="number" class="form-control" name="name" value="{{:buitCols}}" style="width:100%;"/>
+							</div>
+						</script>
+					</th>
 					<th data-col-name="id" width="100px" data-template="#cellTascaVariableDeleteTemplate" data-orderable="false" width="10%">
 						<script id="cellTascaVariableDeleteTemplate" type="text/x-jsrender">
 							<a href="${baseUrl}/{{:id}}/delete" class="btn btn-default ajax-delete" data-confirm="<spring:message code="definicio.proces.tasca.variable.confirmacio.esborrar"/>"><span class="fa fa-trash-o"></span>&nbsp;<spring:message code="comu.boto.esborrar"/></a>
@@ -160,9 +178,13 @@
 		    }, function() {
 		        $(this.cells[0]).removeClass('showDragHandle');
 		    });	
-		    // Si es modifica un checbox mostra el botó d'actualitzar
+		    // Si es modifica un checbox, s'actualitza el registre
 		    $("input[type=checkbox]", this).change(function() {
 		    	updateCheckbox(this);
+		    });
+		 	// Si es modifica un camp numèric, s'actualitza el registre
+		    $("input[type=number]", this).change(function() {
+		    	updateNumeric(this);
 		    });
 		    // botons d'esborrar
 			$(".ajax-delete", this).click(function(e) {
@@ -217,6 +239,74 @@
 				$(spin).remove();
 				$(checkbox).show();
 				
+			}
+		});
+	}
+	/* Defineix l'ample de columnes i el buit per tal que no es passin de mida */
+	function definirAmpleBuit(ample, buit) {
+		ample = parseInt(ample);
+		buit = parseInt(buit);
+		var absAmple = Math.abs(ample);
+		var absBuit = Math.abs(buit);
+		var totalCols = absAmple + absBuit;
+		if (totalCols > 12) {
+			var diff = totalCols - 12;
+			if (buit >= 0)
+				buit -= diff;
+			else
+				buit += diff;
+		}
+		return buit;
+	}
+	
+	/* Actualitza un valor numèric del camp de la tasca. */
+	function updateNumeric(input) {
+		var variableId = $(input).data('variableid');
+		var propietat = $(input).data('propietat');
+		var getUrl = '<c:url value="/v3/definicioProces/${jbpmKey}/${definicioProcesId}/tasca/${tasca.id}/variable/"/>'+variableId+'/'+propietat;
+		var spin = $("#accioUpdateProcessant")
+			.clone()
+			.show()
+			.insertAfter(input);
+		
+		var valor = $(input).val();
+		if (propietat == 'ampleCols') {
+			if (valor == undefined || valor == '' || valor > 12)
+				valor = 12;
+			else if (valor <= 0) 
+				valor = 1;
+			
+			$("#buitCols_" + variableId).val(definirAmpleBuit(valor, $("#buitCols_" + variableId).val()));
+		} else {
+			if (valor == undefined || valor == '')
+				valor = 0;
+			else if (valor > 12) 
+				valor = 12;
+			else if (valor < -12)
+				valor = -12;
+			
+			valor = definirAmpleBuit($("#ampleCols_" + variableId).val(), valor);
+			
+		}
+		
+		$(input).hide();
+		$.ajax({
+			type: 'POST',
+			url: getUrl,
+			data: {
+				valor : valor
+			},
+			async: true,
+			success: function(result) {
+				$(input).val(valor);
+			},
+			error: function(error) {
+				console.log('Error:'+error);
+			},
+			complete: function() {
+				webutilRefreshMissatges();
+				$(spin).remove();
+				$(input).show();
 			}
 		});
 	}

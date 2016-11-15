@@ -116,7 +116,6 @@ $(document).ready(function() {
 		});		    	
 		// Botó per marcar com a inicial una definicó de procés
 		$("#expedientTipusDefinicioProces a.btn-inicial").click(function(e) {
-			debugger;
 			var getUrl = $(this).attr('href');
 			var jbpmKey = $(this).data('jbpmkey');
 			$.ajax({
@@ -124,7 +123,6 @@ $(document).ready(function() {
 				url: getUrl,
 				async: true,
 				success: function(result) {
-					debugger;
 					if (result) {
 						jbpmProcessDefinitionKey = jbpmKey;
 						refrescaTaula();

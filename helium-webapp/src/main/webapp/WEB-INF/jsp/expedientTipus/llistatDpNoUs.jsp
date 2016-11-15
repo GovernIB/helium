@@ -44,7 +44,6 @@ $(document).ready(function() {
 			}
 		})
 		.fail(function( jqxhr, textStatus, error ) {
-			debugger;
 			var err = textStatus + ', ' + error;
 			console.log( "Request Failed: " + err);
 			btn.remove();
@@ -68,7 +67,6 @@ $(document).ready(function() {
 // 			dataType: 'json',
 // 			data: {expedientsId: JSON.stringify(expsId), expedientTipusId: "${expedientTipusId}"},
 // 			success: function(data){
-// 				debugger;
 // 				btn.remove();
 // 				for (var i = 0; i < data.resultats.length; i++) {
 // 					var entry = data.resultats[i];

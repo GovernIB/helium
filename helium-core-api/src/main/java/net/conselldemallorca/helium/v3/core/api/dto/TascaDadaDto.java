@@ -42,6 +42,8 @@ public class TascaDadaDto {
 	private boolean readFrom;
 	private boolean writeTo;
 	private boolean required;
+	private int ampleCols;
+	private int buitCols;
 
 	private boolean llistar;  // Si s'ha de llistar dins camp tipus registre
 	
@@ -139,6 +141,22 @@ public class TascaDadaDto {
 	public void setRequired(boolean required) {
 		this.required = required;
 	}
+	public int getAmpleCols() {
+		return ampleCols;
+	}
+
+	public void setAmpleCols(int ampleCols) {
+		this.ampleCols = ampleCols;
+	}
+
+	public int getBuitCols() {
+		return buitCols;
+	}
+
+	public void setBuitCols(int buitCols) {
+		this.buitCols = buitCols;
+	}
+
 	public String getText() {
 		return text;
 	}
@@ -201,6 +219,8 @@ public class TascaDadaDto {
 		dada.setWriteTo(writeTo);
 		dada.setRequired(required);
 		dada.setRegistreDades(registreDades);
+		dada.setAmpleCols(ampleCols);
+		dada.setBuitCols(buitCols);
 		resposta.add(dada);
 		return resposta;
 	}

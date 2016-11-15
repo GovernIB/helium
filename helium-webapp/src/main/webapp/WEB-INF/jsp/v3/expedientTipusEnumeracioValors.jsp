@@ -153,7 +153,6 @@
 			$("#campValidacio").tableDnD({
 		    	onDragClass: "drag",
 		    	onDrop: function(table, row) {	        	
-		    		debugger;
 		    		var pos = row.rowIndex - 1;
 		    		var rutaOrdenacio = $("a", row)[0].href;
 		    		var rDesde = rutaOrdenacio.indexOf("valor/")+6;
@@ -224,7 +223,6 @@
 	
 	function canviarPosicioValidacio( id, pos) {
 	  	// Canvia la ordenació sempre amb ordre ascendent
-	  	debugger;
 		$('#campValidacio').DataTable().order([3, 'asc']);
 		var getUrl = '<c:url value="/v3/expedientTipus/${expedientTipusId}/enumeracio/${enumeracio.id}/valor/"/>'+id+'/moure/'+pos;
 		$.ajax({

@@ -163,14 +163,16 @@ CREATE TABLE HEL_CAMP_REGISTRE
 
 CREATE TABLE HEL_CAMP_TASCA
 (
-  ID        BIGINT                          NOT NULL,
-  ORDRE     BIGINT,
-  RF        BOOLEAN,
-  RO        BOOLEAN,
-  RQ        BOOLEAN,
-  WT        BOOLEAN,
-  CAMP_ID   BIGINT                          NOT NULL,
-  TASCA_ID  BIGINT                          NOT NULL
+  ID        	BIGINT                          NOT NULL,
+  ORDRE     	BIGINT,
+  RF        	BOOLEAN,
+  RO        	BOOLEAN,
+  RQ        	BOOLEAN,
+  WT        	BOOLEAN,
+  CAMP_ID   	BIGINT                          NOT NULL,
+  TASCA_ID  	BIGINT                          NOT NULL,
+  AMPLE_COLS 	BIGINT 		DEFAULT 12,
+  BUIT_COLS 	BIGINT 		DEFAULT 0
 );
 
 
@@ -229,7 +231,9 @@ CREATE TABLE HEL_CONSULTA_CAMP
   DEFPROC_VERSIO   BIGINT,
   ORDRE            BIGINT                   NOT NULL,
   TIPUS            BIGINT                   NOT NULL,
-  CONSULTA_ID      BIGINT                   NOT NULL
+  CONSULTA_ID      BIGINT                   NOT NULL,
+  AMPLE_COLS 	   BIGINT	DEFAULT 12,
+  BUIT_COLS 	   BIGINT	DEFAULT 0
 );
 
 

@@ -61,6 +61,8 @@ public class ConsultaCamp implements Serializable, GenericEntity<Long> {
 	private TipusConsultaCamp tipus;
 	private TipusParamConsultaCamp paramTipus;
 	private int ordre;
+	private int ampleCols;
+	private int buitCols;
 
 	@NotNull
 	private Consulta consulta;
@@ -138,6 +140,21 @@ public class ConsultaCamp implements Serializable, GenericEntity<Long> {
 		this.ordre = ordre;
 	}
 
+	@Column(name="ample_cols")
+	public int getAmpleCols() {
+		return ampleCols;
+	}
+	public void setAmpleCols(int ampleCols) {
+		this.ampleCols = ampleCols;
+	}
+	
+	@Column(name="buit_cols")
+	public int getBuitCols() {
+		return buitCols;
+	}
+	public void setBuitCols(int buitCols) {
+		this.buitCols = buitCols;
+	}
 	@ManyToOne(optional=false)
 	@JoinColumn(name="consulta_id")
 	@ForeignKey(name="hel_consulta_concamp_fk")

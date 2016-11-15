@@ -494,7 +494,9 @@ public class DissenyService {
 					writeTo,
 					required,
 					readOnly,
-					campTascaDao.getNextOrder(tascaId));
+					campTascaDao.getNextOrder(tascaId),
+					12,
+					0);
 			return campTascaDao.saveOrUpdate(campTasca);
 		}
 	}
@@ -2785,7 +2787,9 @@ public class DissenyService {
 								camp.isWriteTo(),
 								camp.isRequired(),
 								camp.isReadOnly(),
-								camp.getOrder());
+								camp.getOrder(),
+								camp.getAmpleCols(),
+								camp.getBuitCols());
 						nova.addCamp(nouCamp);
 					}
 					// Copia els documents de la tasca
@@ -3100,7 +3104,9 @@ public class DissenyService {
 									campTasca.isWriteTo(),
 									campTasca.isRequired(),
 									campTasca.isReadOnly(),
-									campTasca.getOrder());
+									campTasca.getOrder(),
+									12,
+									0);
 							campTascaDao.saveOrUpdate(nouct);
 							nova.addCamp(nouct);
 						}

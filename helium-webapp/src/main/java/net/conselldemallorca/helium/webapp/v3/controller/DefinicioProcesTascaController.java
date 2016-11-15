@@ -152,6 +152,8 @@ public class DefinicioProcesTascaController extends BaseDefinicioProcesControlle
 		command.setTascaId(id);
 		command.setReadFrom(true);
 		command.setWriteTo(true);
+		command.setAmpleCols(12);
+		command.setBuitCols(0);
 		model.addAttribute("definicioProcesTascaVariableCommand", command);
 		model.addAttribute("variables", obtenirParellesVariables(
 				definicioProcesId,
@@ -219,17 +221,21 @@ public class DefinicioProcesTascaController extends BaseDefinicioProcesControlle
 			@PathVariable Long tascaId,
 			@PathVariable Long campTascaId,
 			@PathVariable String propietat,
-			@RequestParam boolean valor) {
+			@RequestParam Object valor) {
 		
 		CampTascaDto campTasca = definicioProcesService.tascaCampFindById(campTascaId);
 		if ("readFrom".equals(propietat)) {
-			campTasca.setReadFrom(valor);
+			campTasca.setReadFrom(Boolean.parseBoolean(valor.toString()));
 		} else if ("writeTo".equals(propietat)) {
-			campTasca.setWriteTo(valor);
+			campTasca.setWriteTo(Boolean.parseBoolean(valor.toString()));
 		} else if ("required".equals(propietat)) {
-			campTasca.setRequired(valor);
+			campTasca.setRequired(Boolean.parseBoolean(valor.toString()));
 		} else if ("readOnly".equals(propietat)) {
-			campTasca.setReadOnly(valor);
+			campTasca.setReadOnly(Boolean.parseBoolean(valor.toString()));
+		} else if ("ampleCols".equals(propietat)) {
+			campTasca.setAmpleCols(Integer.parseInt(valor.toString()));
+		} else if ("buitCols".equals(propietat)) {
+			campTasca.setBuitCols(Integer.parseInt(valor.toString()));
 		}
 		definicioProcesService.tascaCampUpdate(campTasca);
 		

@@ -65,6 +65,11 @@
 		#canviar_consulta {margin-top: 5px;}
 		.col-md-1.btn-group {width: 4.333%;}
 		.col-md-6.btn-group {width: 53.5%;}
+		.like-cols {
+			 float: left;
+			 padding-left: 0px;
+			 margin-bottom: 6px;	
+		}
 	</style>
 <script>
 $(document).ready(function() {	
@@ -148,12 +153,48 @@ $(document).ready(function() {
 	<form:form method="post" action="" cssClass="well form-horizontal form-tasca" commandName="expedientConsultaCommand">
 		<form:hidden path="consultaId"/>
 		<div class="control-group fila_reducida">
+		
+			<c:set var="ampleLabel">120px</c:set>
+			<c:set var="ampleInput">calc(100% - ${ampleLabel})</c:set>
+			<c:set var="comptadorCols">0</c:set>
+			<div class="row">
 			<c:forEach var="camp" items="${campsFiltre}">
 				<c:set var="campActual" value="${camp}" scope="request"/>
 				<c:set var="readonly" value="${false}" scope="request"/>
 				<c:set var="required" value="${false}" scope="request"/>
-				<c:import url="campsFiltre.jsp"/>
+				
+				
+				<c:set var="ampleCols">${camp.ampleCols}</c:set>
+				<c:set var="buitCols">${camp.buitCols}</c:set>
+				<c:set var="buitAbsCols">${buitCols < 0 ? -buitCols : buitCols}</c:set>
+				<c:set var="ampleBuit">${buitAbsCols + ampleCols}</c:set>
+				
+				<c:set var="comptadorCols">${comptadorCols + ampleBuit}</c:set>
+				
+				<c:if test="${comptadorCols > 12}">
+					<c:set var="comptadorCols">${comptadorCols - 12}</c:set>
+					
+					<!--tanquem row i la tornem a obrir per a la següent fila-->
+					</div>
+					<div class="row">
+					<!------------------------->
+				</c:if>
+				
+				<!-- si tenim el buit menor que 0, l'offset va al davant del camp -->
+				<c:if test="${buitCols < 0}">
+					<div class="col-md-${buitAbsCols}"></div>
+				</c:if>
+				
+				<div class="col-md-${ampleCols}">
+					<%@ include file="campsFiltre.jsp" %>
+				</div>
+				
+				<!-- si el buit es major que 0, l'offset va després del camp -->
+				<c:if test="${buitCols > 0}">
+					<div class="col-md-${buitAbsCols}"></div>
+				</c:if>
 			</c:forEach>
+			</div>
 		</div>		
 		<div class="row">
 			<div class="col-md-12">

@@ -84,6 +84,8 @@ public class ConsultaHelper {
 			if (definicioProces != null) {
 				tascaDadaDto.setDefinicioProcesKey(definicioProces.getJbpmKey());
 			}
+			tascaDadaDto.setAmpleCols(camp.getAmpleCols());
+			tascaDadaDto.setBuitCols(camp.getBuitCols());
 			resposta.add(tascaDadaDto);
 		}
 		return resposta;

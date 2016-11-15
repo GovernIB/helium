@@ -153,6 +153,8 @@ public class ConversioTipusHelper {
 						target.setRequired(source.isRequired());
 						target.setReadOnly(source.isReadOnly());
 						target.setOrder(source.getOrder());
+						target.setAmpleCols(source.getAmpleCols());
+						target.setBuitCols(source.getBuitCols());
 						if (source.getCamp() != null) {
 							target.setCamp(convertir(source.getCamp(), CampDto.class));
 						}
@@ -360,6 +362,8 @@ public class ConversioTipusHelper {
 						target.setDefprocJbpmKey(source.getDefprocJbpmKey());
 						target.setDefprocVersio(source.getDefprocVersio());
 						target.setOrdre(source.getOrdre());
+						target.setAmpleCols(source.getAmpleCols());
+						target.setBuitCols(source.getBuitCols());
 						return target;
 					}
 		});		

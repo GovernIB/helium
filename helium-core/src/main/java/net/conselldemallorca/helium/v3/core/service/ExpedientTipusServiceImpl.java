@@ -375,7 +375,17 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 	public ExpedientTipusDto updateIntegracioTramits(
 			Long entornId, 
 			Long expedientTipusId, 
-			String tramitCodi) {
+			String tramitCodi,
+			boolean notificacionsActivades,
+			String notificacioOrganCodi,
+			String notificacioOficinaCodi,
+			String notificacioUnitatAdministrativa,
+			String notificacioCodiProcediment,
+			String notificacioAvisTitol,
+			String notificacioAvisText,
+			String notificacioAvisTextSms,
+			String notificacioOficiTitol,
+			String notificacioOficiText) {
 		logger.debug(
 				"Modificant tipus d'expedient amb dades d'integracio amb tramits de Sistra (" +
 				"entornId=" + entornId + ", " +
@@ -391,6 +401,16 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 				entorn,
 				expedientTipusId);
 		entity.setSistraTramitCodi(tramitCodi);
+		entity.setNotificacionsActivades(notificacionsActivades);
+		entity.setNotificacioOrganCodi(notificacioOrganCodi);
+		entity.setNotificacioOficinaCodi(notificacioOficinaCodi);
+		entity.setNotificacioUnitatAdministrativa(notificacioUnitatAdministrativa);
+		entity.setNotificacioCodiProcediment(notificacioCodiProcediment);
+		entity.setNotificacioAvisTitol(notificacioAvisTitol);
+    	entity.setNotificacioAvisText(notificacioAvisText);
+    	entity.setNotificacioAvisTextSms(notificacioAvisTextSms);
+    	entity.setNotificacioOficiTitol(notificacioOficiTitol);
+    	entity.setNotificacioOficiText(notificacioOficiText);
 
 		return conversioTipusHelper.convertir(
 				expedientTipusRepository.save(entity),
@@ -3047,6 +3067,25 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		consultaCampRepository.flush();
 		reordenarCampsConsulta(consultaCamp.getConsulta().getId(), consultaCamp.getTipus());
 	}
+	
+	@Override
+	@Transactional
+	public void consultaCampCols(Long consultaCampId, String propietat, int valor) throws NoTrobatException, PermisDenegatException {
+		logger.debug(
+				"Canviant ample de columnes de filtre de la consultaCamp del tipus d'expedient (" +
+				"consultaCampId=" + consultaCampId +  ")");
+		
+		ConsultaCamp consultaCamp = consultaCampRepository.findOne(consultaCampId);
+		if ("ampleCols".equals(propietat)) {
+			consultaCamp.setAmpleCols(valor);
+		} else if ("buitCols".equals(propietat)) {
+			consultaCamp.setBuitCols(valor);
+		}
+		
+		definirAmpleBuit(consultaCamp);
+		
+		consultaCampRepository.saveAndFlush(consultaCamp);
+	}
 
 	/** Funció per reasignar el valor d'ordre dins dels camps d'una consulta de tipus registre. */
 	private void reordenarCampsConsulta(
@@ -3427,6 +3466,35 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 				mapejosSistra, 
 				MapeigSistraDto.class);
 	}	
+	
+	private void definirAmpleBuit(ConsultaCamp consultaCamp) {
+		int ample = consultaCamp.getAmpleCols();
+		int buit = consultaCamp.getBuitCols();
+		
+		if (ample > 12)
+			ample = 12;
+		else if (ample <= 0)
+			ample = 1;
+			
+		if (buit > 12)
+			buit = 12;
+		else if (buit < -12)
+			buit = -12;
+		
+		int absAmple = Math.abs(ample);
+		int absBuit = Math.abs(buit);
+		int totalCols = absAmple + absBuit;
+		if (totalCols > 12) {
+			int diff = totalCols - 12;
+			if (buit >= 0)
+				buit -= diff;
+			else
+				buit += diff;
+		}
+		
+		consultaCamp.setAmpleCols(ample);
+		consultaCamp.setBuitCols(buit);
+	}
 	
 	private static final Logger logger = LoggerFactory.getLogger(ExpedientServiceImpl.class);
 }

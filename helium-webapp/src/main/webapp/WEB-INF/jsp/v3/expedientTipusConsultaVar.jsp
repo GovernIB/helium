@@ -97,6 +97,22 @@
 						</script>
 					</th>
 					<th data-col-name="ordre"><spring:message code="expedient.tipus.consulta.vars.llistat.columna.ordre"/></th>
+					<th data-col-name="ampleCols" data-template="#cellConsultaVarAmpleColsTemplate">
+						<spring:message code="expedient.tipus.consulta.vars.llistat.columna.ampleCols"/>
+						<script id="cellConsultaVarAmpleColsTemplate" type="text/x-jsrender">
+							<div class="form-group">
+            					<input id="ampleCols_{{:id}}" data-variableid="{{:id}}" data-propietat="ampleCols" type="number" class="form-control" name="name" value="{{:ampleCols}}" style="width:100%;"/>
+							</div>
+						</script>
+					</th>
+					<th data-col-name="buitCols" data-template="#cellConsultaVarBuitColsTemplate">
+						<spring:message code="expedient.tipus.consulta.vars.llistat.columna.buitCols"/>
+						<script id="cellConsultaVarBuitColsTemplate" type="text/x-jsrender">
+							<div class="form-group">
+            					<input id="buitCols_{{:id}}" data-variableid="{{:id}}" data-propietat="buitCols" type="number" class="form-control" name="name" value="{{:buitCols}}" style="width:100%;"/>
+							</div>
+						</script>
+					</th>
 					<th data-col-name="id" width="100px" data-template="#cellConsultaVarTemplate" data-orderable="false" width="10%">
 						<script id="cellConsultaVarTemplate" type="text/x-jsrender">
 							<a href="${baseUrl}/{{:id}}/delete" class="btn btn-default ajax-delete" data-confirm="<spring:message code="expedient.tipus.consulta.vars.llistat.confirmacio.esborrar"/>"><span class="fa fa-trash-o"></span>&nbsp;<spring:message code="expedient.llistat.accio.esborrar"/></a>
@@ -105,6 +121,9 @@
 				</tr>
 			</thead>
 		</table>
+		<span id="accioUpdateProcessant" style="display: none;">
+			<span class="fa fa-spinner fa-spin fa-fw" title="<spring:message code="comu.processant"/>"></span><span class="sr-only">&hellip;</span>
+		</span>
 	</div>
 	
 	<script type="text/javascript">
@@ -154,7 +173,11 @@
 				});
 				e.stopImmediatePropagation();
 				return false;				
-			});		    
+			});	
+			// Si es modifica un camp numèric, s'actualitza el registre
+		    $("input[type=number]", this).change(function() {
+		    	updateNumeric(this);
+		    });
 		  });		
 		// Quan es canvia la selecció de l'origen s'actualitzen les variables
 		$('#origen').change(function() {
@@ -163,6 +186,74 @@
 		});
 	});
 
+	/* Defineix l'ample de columnes i el buit per tal que no es passin de mida */
+	function definirAmpleBuit(ample, buit) {
+		ample = parseInt(ample);
+		buit = parseInt(buit);
+		var absAmple = Math.abs(ample);
+		var absBuit = Math.abs(buit);
+		var totalCols = absAmple + absBuit;
+		if (totalCols > 12) {
+			var diff = totalCols - 12;
+			if (buit >= 0)
+				buit -= diff;
+			else
+				buit += diff;
+		}
+		return buit;
+	}
+	
+	/* Actualitza un valor numèric del camp de la tasca. */
+	function updateNumeric(input) {
+		var variableId = $(input).data('variableid');
+		var propietat = $(input).data('propietat');
+		var getUrl = '<c:url value="/v3/expedientTipus/${expedientTipusId}/consulta/${consulta.id}/var/"/>'+variableId+'/'+propietat;
+		var spin = $("#accioUpdateProcessant")
+			.clone()
+			.show()
+			.insertAfter(input);
+		
+		var valor = $(input).val();
+		if (propietat == 'ampleCols') {
+			if (valor == undefined || valor == '' || valor > 12)
+				valor = 12;
+			else if (valor <= 0) 
+				valor = 1;
+			
+			$("#buitCols_" + variableId).val(definirAmpleBuit(valor, $("#buitCols_" + variableId).val()));
+		} else {
+			if (valor == undefined || valor == '')
+				valor = 0;
+			else if (valor > 12) 
+				valor = 12;
+			else if (valor < -12)
+				valor = -12;
+			
+			valor = definirAmpleBuit($("#ampleCols_" + variableId).val(), valor);
+			
+		}
+		
+		$(input).hide();
+		$.ajax({
+			type: 'POST',
+			url: getUrl,
+			data: {
+				valor : valor
+			},
+			async: true,
+			success: function(result) {
+				$(input).val(valor);
+			},
+			error: function(error) {
+				console.log('Error:'+error);
+			},
+			complete: function() {
+				webutilRefreshMissatges();
+				$(spin).remove();
+				$(input).show();
+			}
+		});
+	}
 	
 	function canviarPosicioConsultaVar( id, pos) {
 	  	// Canvia la ordenació sempre amb ordre ascendent

@@ -30,7 +30,7 @@ th label {
 	width: 100%;
 }
 .input-group-multiple {
-	padding-left: 15px;
+	padding-left: 0px;
 	padding-right: 0px;}
 .form-group li > .select2-container {
 	width: 100%;
@@ -216,4 +216,8 @@ div.tab-content {
 }
 .ui-dialog { 
 	z-index: 1400 !important ;
+}
+.like-cols {
+	 float: left;
+	 padding-left: 16px;	
 }

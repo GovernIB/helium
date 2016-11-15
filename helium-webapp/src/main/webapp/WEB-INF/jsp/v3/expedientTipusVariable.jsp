@@ -141,7 +141,6 @@ $(document).ready(function() {
 				}
 			},
 			error: function(e) {
-				debugger;
 				var msg = 'Error esborrant la agrupació'; 
 				alert(msg);
 				console.log(msg+': '+e);
