@@ -26,7 +26,8 @@
 	.signarTramitacio .select2-container a {margin-left: 0px;}
 	.signarTramitacio .select2-container {width: 100% !important;}
 	.signarTramitacio .ctrlHolder {padding-bottom: 10px;}
-	.modal-botons-firma {padding-top: 25px; padding-bottom: 10px; text-align: right;}
+	.modal-botons-firma {padding-top: 15px; padding-bottom: 10px; margin-bottom: 15px; text-align: right;}
+	.modal-botons-firma button {margin-left: 5px;}
 </style>
 <c:if test="${not tasca.documentsComplet}">
 	<div class="alert alert-warning">	
@@ -81,13 +82,38 @@
 							<c:if test="${!bloquejarEdicioTasca}">
 								<div id="firmar${document.id}">
 									<c:if test="${not document.signat}">
-										<div class="modal-botons-firma">
-											<c:if test="${numPluginsPassarela > 0}">
-												<button type="button" class="btn btn-default" data-toggle="modal" data-target="#modalPassarela${document.id}"><spring:message code="tasca.signa.signar.passarela"/></button>
-											</c:if>
-											<button type="button" class="btn btn-default" data-toggle="modal" data-target="#modalApplet${document.id}"><spring:message code="tasca.signa.signar.applet"/></button>
-										</div>
+										
+										<c:choose>
+											<c:when test="${numPluginsPassarela > 0}"><c:set var="stils" value="uniForm hide"/></c:when>
+											<c:otherwise><c:set var="stils" value="uniForm"/></c:otherwise>
+										</c:choose>
+										<form:form id="form${document.id}" action="${globalProperties['app.base.url']}/modal/v3/tasca/${tasca.id}/signarAmbToken" cssClass="${stils}" method="POST" onsubmit="return false;">
+											<input type="hidden" id="docId${document.id}" name="docId" value="${document.id}"/>
+											<input type="hidden" id="taskId${document.id}" name="taskId" value="${tasca.id}"/>
+											<input type="hidden" id="token${document.id}" name="token" value="${document.tokenSignatura}"/>
 											
+											<div class="form-group">
+												<label class="control-label col-xs-4" id="lcerts${document.id}" for="certs${document.id}"><spring:message code="tasca.signa.camp.cert"/></label>
+												<div class="col-xs-10">
+									            	<select id="certs${document.id}" name="certs">
+														<option value=""><spring:message code="expedient.document.signat.carregant"/></option>
+													</select>
+										       </div>
+								        	</div>
+								        	
+											<div class="form-group">
+												<label class="control-label col-xs-4" for="passwd${document.id}"><spring:message code="tasca.signa.camp.passwd"/></label>
+												<div class="col-xs-10">
+									           		<input type="password" id="passwd${document.id}" name="passwd" class="form-control"/>
+												</div>
+								        	</div>
+								        	
+											<div class="modal-botons-firma">
+												<button id="modal-botons${document.id} boto-applet" class="hide pull-right btn btn-primary right" onclick="signarCaib('${document.tokenSignatura}', this.form, '1');"><spring:message code="tasca.signa.signar"/></button>
+												<button id="applet-tancar${document.id}" class="pull-right btn btn-default right" data-formid="form${document.id}" data-botonsid="botons${document.id}"><spring:message code="comu.boto.tancar"/></button>
+											</div>
+										</form:form>
+										
 										<!-- Modal Passarel·la -->
 										<div id="modalPassarela${document.id}" class="modal fade" role="dialog">
   											<div class="modal-dialog modal-lg">
@@ -104,82 +130,50 @@
     											<script type="text/javascript">
     												$('#dismiss, #modalPassarela${document.id} button.close').click(function() {
     													window.location.href = '<c:url value="/modal/v3/tasca/${tasca.id}/signatura"/>';
-    													//$('#passIframe')[0].src = "${tasca.id}/document/${document.documentStoreId}/firmaPassarela";
     												});
     											</script>
   											</div>
 										</div>
-										<!-- Modal Applet -->
-										<div id="modalApplet${document.id}" class="modal fade" role="dialog">
-  											<div class="modal-dialog modal-lg">
-
-											    <!-- Modal content-->
-											    <div class="modal-content">
-      												<div class="modal-header">
-        												<button type="button" class="close" data-dismiss="modal">&times;</button>
-        												<h4 class="modal-title"><spring:message code="tasca.signa.signar.applet"/></h4>
-      												</div>
-      												<form:form id="form${document.id}" action="${globalProperties['app.base.url']}/modal/v3/tasca/${tasca.id}/signarAmbToken" cssClass="uniForm" method="POST" onsubmit="return false;">
-	      												<div class="modal-body">
-	      													<div id="contingut-alertes-applet${document.id}"></div>
-																<input type="hidden" id="docId${document.id}" name="docId" value="${document.id}"/>
-																<input type="hidden" id="taskId${document.id}" name="taskId" value="${tasca.id}"/>
-																<input type="hidden" id="token${document.id}" name="token" value="${document.tokenSignatura}"/>
-																
-																<div class="form-group">
-																	<label class="control-label col-xs-4" id="lcerts${document.id}" for="certs${document.id}"><spring:message code="tasca.signa.camp.cert"/></label>
-																	<div class="col-xs-10">
-														            	<select id="certs${document.id}" name="certs">
-																			<option value=""><spring:message code="expedient.document.signat.carregant"/></option>
-																		</select>
-															       </div>
-													        	</div>
-													        	
-																<div class="form-group">
-																	<label class="control-label col-xs-4" for="passwd${document.id}"><spring:message code="tasca.signa.camp.passwd"/></label>
-																	<div class="col-xs-10">
-														           		<input type="password" id="passwd${document.id}" name="passwd" class="form-control"/>
-																	</div>
-													        	</div>
-	      												</div>
-	      												<div class="modal-footer">
-	        												<button type="button" id="dismissap" class="btn btn-default" data-dismiss="modal"><spring:message code="comu.boto.tancar"/></button>
-	        												<div id="modal-botons${document.id}" class="modal-botons">
-																<button class="hide pull-right btn right" onclick="signarCaib('${document.id}', '${document.tokenSignatura}', this.form, '1');"><spring:message code="tasca.signa.signar.applet"/></button>
-															</div>
-	      												</div>
-      												</form:form>
-    											</div>
-												<script type="text/javascript">
-												// <![CDATA[
-													$(document).ready( function() {
-														$("#iconos${document.id}").load('<c:url value="/nodeco/v3/tasca/${tasca.id}/icones/${document.id}"/>');// Comprobar fichero
-														
-														$(document).on('show.bs.modal', '#modalApplet${document.id}', function (event) {
-															obtenirCertificats('${document.id}');
-													    	$.get("${sourceUrl}?token=${document.tokenSignatura}")
-																.done(function(data) {})
-																.fail(function(xhr, status, error) {
-																	$('#contingut-alertes-applet${document.id}').append(
-																		"<div id='errors' class='alert alert-danger'>" +
-																			"<button class='close' data-dismiss='alert'>×</button>" +
-																			"<p><spring:message code='tasca.signa.alert.no.document'/>: " + xhr.responseText.match(/.*<h1.*>([\s\S]*)<\/h1>.*/) + "</p>" +
-																		"</div>");
-																$("#modal-botons${document.id}").addClass('hide');
-															});
-														});
-														$('#dismissap, #modalApplet${document.id} button.close').click(function() {
-	    													window.location.href = '<c:url value="/modal/v3/tasca/${tasca.id}/signatura"/>';
-	    												});
-													});
-												//]]>
-												</script>
-  											</div>
-										</div>
-
+										
+										<c:if test="${numPluginsPassarela > 0}">
+											<div id="botons${document.id}" class="modal-botons-firma">
+												<button type="button" class="btn btn-default" data-toggle="modal" data-target="#modalPassarela${document.id}"><spring:message code="tasca.signa.signar.passarela"/></button>
+												<button type="button" class="btn btn-default applet" data-formid="form${document.id}" id="bapplet${document.id}"><spring:message code="tasca.signa.signar.applet"/></button>
+											</div>
+										</c:if>
 									</c:if>
 								</div>
 							</c:if>
+
+							<script type="text/javascript">
+								$(document).ready( function() {
+									$("#iconos${document.id}").load('<c:url value="/nodeco/v3/tasca/${tasca.id}/icones/${document.id}"/>');// Comprobar fichero
+									
+									$.get("${sourceUrl}?token=${document.tokenSignatura}")
+									.done(function(data) {})
+									.fail(function(xhr, status, error) {
+										$('#contingut-alertes').append(
+												"<div id='errors' class='alert alert-danger'>" +
+													"<button class='close' data-dismiss='alert'>×</button>" +
+													"<p><spring:message code='tasca.signa.alert.no.document'/>: " + xhr.responseText.match(/.*<h1.*>([\s\S]*)<\/h1>.*/) + "</p>" +
+												"</div>");
+										$("#modal-botons${document.id}").addClass('hide');
+									});
+									
+									$('#dismissap').click(function() {
+										window.location.href = '<c:url value="/modal/v3/tasca/${tasca.id}/signatura"/>';
+									});
+									$('#bapplet${document.id}').click(function() {
+										$("#" + $(this).data("formid")).removeClass('hide');
+										$(this).parent().addClass("hide");
+									});
+									$("#applet-tancar${document.id}").click(function() {
+										$("#" + $(this).data("formid")).addClass('hide');
+										$("#" + $(this).data("botonsid")).removeClass('hide');
+									});
+								});
+							</script>
+
 						</c:when>
 						<c:otherwise>
 							</h4>
@@ -196,6 +190,21 @@
 
 <script type="text/javascript">
 $(document).ready(function() {
+	docWriteWrapper($('#applet'), function () {
+		var attributes = {
+				id: 'signaturaApplet',
+				code: 'net.conselldemallorca.helium.applet.signatura.SignaturaCaibApplet',
+				archive: '<c:url value="/signatura/caib/helium-applet.jar"/>',
+				width: 1,
+				height: 1};
+		if (typeof(deployJava) != "undefined") {
+			deployJava.runApplet(
+					attributes,
+					{},
+					'1.5');
+			obtenirCertificats();
+		} 
+	});
 	
 	$(document).on('show.bs.modal', '.modal', function (event) {
         var zIndex = 1040 + (10 * $('.modal:visible').length);
@@ -211,21 +220,21 @@ $(document).ready(function() {
 		alertesRefreshUrl: "<c:url value="/nodeco/v3/missatges"/>"
 	});
 
-	docWriteWrapper($('#applet'), function () {
-		var attributes = {
-				id: 'signaturaApplet',
-				code: 'net.conselldemallorca.helium.applet.signatura.SignaturaCaibApplet',
-				archive: '<c:url value="/signatura/caib/helium-applet.jar"/>',
-				width: 1,
-				height: 1};
-		if (typeof(deployJava) != "undefined") {
-			deployJava.runApplet(
-					attributes,
-					{},
-					'1.5');
-			//obtenirCertificats();
-		} 
-	});
+// 	docWriteWrapper($('#applet'), function () {
+// 		var attributes = {
+// 				id: 'signaturaApplet',
+// 				code: 'net.conselldemallorca.helium.applet.signatura.SignaturaCaibApplet',
+// 				archive: '<c:url value="/signatura/caib/helium-applet.jar"/>',
+// 				width: 1,
+// 				height: 1};
+// 		if (typeof(deployJava) != "undefined") {
+// 			deployJava.runApplet(
+// 					attributes,
+// 					{},
+// 					'1.5');
+// 			//obtenirCertificats();
+// 		} 
+// 	});
 });
 
 function docWriteWrapper(jq, func) {
@@ -238,7 +247,7 @@ function docWriteWrapper(jq, func) {
     jq.html(content);
 }
 
-function obtenirCertificats(id) {
+function obtenirCertificats() {
 	
 	try {
 		if (typeof(signaturaApplet) != "undefined") {
@@ -246,42 +255,41 @@ function obtenirCertificats(id) {
 				var certs = signaturaApplet.findCertificats(1);
 				if (!certs) {
 					alert("<spring:message code='tasca.signa.alert.certerr'/>");
-					$(".modal-botons button").hide();
+					$(".boto-applet").hide();
 				} else {
-					$('select[name=certs' + id +']').empty();
+					$('select[name=certs]').empty();
 					if (certs.length == 0) {
-						$('select[name=certs' + id +']').append($('<option>', { 
+						$('select[name=certs]').append($('<option>', { 
 					        value: -1,
 					        text : "<spring:message code='tasca.signa.alert.nocert'/>" 
 					    }));
-						$("#modal-botons" + id + " button").hide();
+						$(".boto-applet").hide();
 					} else {
 						$.each(certs, function (i, item) {
-							$('select[name=certs' + id +']').append($('<option>', { 
+							$('select[name=certs]').append($('<option>', { 
 						        value: item,
 						        text : item 
 						    }));
 						});
-						$("#modal-botons" + id + " button").removeClass('hide');
+						$(".boto-applet").removeClass('hide');
 					}
-					$('select[name=certs' + id +']').select2({
+					$('select[name=certs]').select2({
 						width:'resolve',
 					    allowClear: true,
 					    minimumResultsForSearch: 10
 					});
 				}
 		 	} else {
-		 		setTimeout("obtenirCertificats(" + id +")", 1000);
+		 		setTimeout("obtenirCertificats()", 1000);
 		 	}
 		} else {
-	 		setTimeout("obtenirCertificats(" + id +")", 1000);
+	 		setTimeout("obtenirCertificats()", 1000);
 	 	}
 	} catch (e) {
-		setTimeout("obtenirCertificats(" + id +")", 1000);
+		setTimeout("obtenirCertificats()", 1000);
 	}
 }
-function signarCaib(id, token, form, contentType) {
-	alert("Signar");
+function signarCaib(token, form, contentType) {
 	var cert = form.certs.value;
 	if (cert == null || cert.length == 0) {
 		alert("<spring:message code='tasca.signa.alert.nosel'/>");
@@ -293,7 +301,7 @@ function signarCaib(id, token, form, contentType) {
 					form.passwd.value,
 					contentType);
 			if (signaturaB64 == null) {
-			$('#contingut-alertes-applet' + id).append(
+			$('#contingut-alertes').append(
 					"<div id='errors' class='alert alert-danger'>" +
 						"<button class='close' data-dismiss='alert'>×</button>" +
 						"<p><spring:message code='tasca.signa.alert.error'/></p>" +
@@ -301,12 +309,12 @@ function signarCaib(id, token, form, contentType) {
 			} else {
 				if (signaturaB64.length > 0) {
 					for (var i = 0; i < signaturaB64.length; i++) {
-						form.append( '<input type="hidden" id="data'+i+'" name="data" value="'+signaturaB64[i]+'"/>' );
+						$(form).append( '<input type="hidden" id="data'+i+'" name="data" value="'+signaturaB64[i]+'"/>' );
 					}
 					$(form).removeAttr('onsubmit');
 					$(form).submit();
 				} else {
-					$('#contingut-alertes-applet' + id).append(
+					$('#contingut-alertes').append(
 							"<div id='errors' class='alert alert-danger'>" +
 								"<button class='close' data-dismiss='alert'>×</button>" +
 								"<p><spring:message code='tasca.signa.alert.no.document.signar'/>: ${sourceUrl}?token=" + token + "</p>" +
@@ -314,7 +322,7 @@ function signarCaib(id, token, form, contentType) {
 				}
 			}
 		} catch (e) {
-			$('#contingut-alertes-applet' + id).append(
+			$('#contingut-alertes').append(
 					"<div id='errors' class='alert alert-danger'>" +
 						"<button class='close' data-dismiss='alert'>×</button>" +
 						"<p>" + e +"</p>" +
