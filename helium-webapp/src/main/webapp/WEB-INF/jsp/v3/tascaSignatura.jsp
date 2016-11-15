@@ -109,7 +109,7 @@
 								        	</div>
 								        	
 											<div class="modal-botons-firma">
-												<button id="modal-botons${document.id} boto-applet" class="hide pull-right btn btn-primary right" onclick="signarCaib('${document.tokenSignatura}', this.form, '1');"><spring:message code="tasca.signa.signar"/></button>
+												<button id="modal-botons${document.id}" class="hide pull-right btn btn-primary right boto-applet" onclick="signarCaib('${document.tokenSignatura}', this.form, '1');"><spring:message code="tasca.signa.signar"/></button>
 												<c:if test="${numPluginsPassarela > 0}">
 													<button id="applet-tancar${document.id}" class="pull-right btn btn-default right" data-formid="form${document.id}" data-botonsid="botons${document.id}"><spring:message code="comu.boto.tancar"/></button>
 												</c:if>
@@ -236,6 +236,7 @@ function docWriteWrapper(jq, func) {
 function obtenirCertificats() {
 	
 	try {
+		debugger;
 		if (typeof(signaturaApplet) != "undefined") {
 		 	if (typeof(signaturaApplet.findCertificats) != "undefined") {
 				var certs = signaturaApplet.findCertificats(1);
