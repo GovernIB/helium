@@ -24,9 +24,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.multipart.support.ByteArrayMultipartFileEditor;
 
+import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NotificacioDto;
+import net.conselldemallorca.helium.v3.core.api.exception.SistemaExternException;
+import net.conselldemallorca.helium.v3.core.api.service.ExpedientDocumentService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
+import net.conselldemallorca.helium.webapp.mvc.ArxiuView;
 import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.ObjectTypeEditorHelper;
 
@@ -41,6 +45,8 @@ public class ExpedientNotificacioController extends BaseExpedientController {
 
 	@Autowired
 	private ExpedientService expedientService;
+	@Autowired
+	private ExpedientDocumentService expedientDocumentService;
 
 	@RequestMapping(value = "/{expedientId}/notificacions", method = RequestMethod.GET)
 	public String notificacions(
@@ -101,6 +107,30 @@ public class ExpedientNotificacioController extends BaseExpedientController {
 		
 		model.addAttribute("pipellaActiva", "notificacions");
 		return "redirect:/v3/expedient/" + expedientId;
+	}
+	
+	@RequestMapping(value="/{expedientId}/notificacio/{notificacioId}/proces/{processInstanceId}/document/{documentStoreId}/descarregar")
+	public String desacarregar(
+			HttpServletRequest request,
+			@PathVariable Long expedientId,
+			@PathVariable Long notificacioId,
+			@PathVariable String processInstanceId,
+			@PathVariable Long documentStoreId,
+			Model model) {
+		try {
+			ArxiuDto arxiu = expedientDocumentService.arxiuFindAmbDocument(
+					expedientId,
+					processInstanceId,
+					documentStoreId);
+			if (arxiu != null) {
+				model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_FILENAME, arxiu.getNom());
+				model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_DATA, arxiu.getContingut());
+			}
+		} catch (SistemaExternException e) {
+			MissatgesHelper.error(request, e.getPublicMessage());
+ 			modalUrlTancar(true);
+		}
+		return "arxiuView";
 	}
 	
 	@InitBinder
