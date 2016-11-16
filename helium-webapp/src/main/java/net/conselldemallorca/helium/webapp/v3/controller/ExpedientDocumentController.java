@@ -463,8 +463,10 @@ public class ExpedientDocumentController extends BaseExpedientController {
 			model.addAttribute(
 					ArxiuView.MODEL_ATTRIBUTE_DATA,
 					arxiu.getContingut());
-		} catch (SistemaExternConversioDocumentException e) {
+		} catch (SistemaExternException e) {
 			MissatgesHelper.error(request, e.getPublicMessage());
+			model.addAttribute("pipellaActiva", "documents");
+			return "redirect:/v3/expedient/" + expedientId;
 		}
 		return "arxiuView";
 	}

@@ -236,7 +236,6 @@ function docWriteWrapper(jq, func) {
 function obtenirCertificats() {
 	
 	try {
-		debugger;
 		if (typeof(signaturaApplet) != "undefined") {
 		 	if (typeof(signaturaApplet.findCertificats) != "undefined") {
 				var certs = signaturaApplet.findCertificats(1);

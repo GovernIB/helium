@@ -247,7 +247,7 @@
 								<thead>
 									<tr>
 										<td class="left" style="max-width: 60px;">
-											<a href="<c:url value="/v3/expedient/${expedientId}/document/${notificacio.document.id}/descarregar"/>">
+											<a href="<c:url value="/v3/expedient/${expedientId}/notificacio/${notificacio.id}/document/${notificacio.document.id}/descarregar"/>">
 												<span class="fa fa-file fa-4x" title="Descarregar document"></span>
 												<span class="extensionIcon">
 													${fn:toUpperCase(notificacio.document.arxiuExtensio)}
@@ -297,7 +297,7 @@
 								<thead>
 									<tr>
 										<td class="left" style="max-width: 60px;">
-											<a href="<c:url value="/v3/expedient/${expedientId}/document/${annex.id}/descarregar"/>">
+											<a href="<c:url value="/v3/expedient/${expedientId}/notificacio/${notificacio.id}/document/${annex.id}/descarregar"/>">
 												<span class="fa fa-file fa-4x" title="Descarregar document"></span>
 												<span class="extensionIcon">
 													${fn:toUpperCase(annex.arxiuExtensio)}
