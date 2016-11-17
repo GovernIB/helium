@@ -159,6 +159,12 @@ public class PluginHelper {
 		}
 	}
 	
+	public Portasignatures findPortasignaturesInfo(String processInstanceId, Long documentStoreId) {		
+		Portasignatures psigna = portasignaturesRepository.findByProcessInstanceIdAndDocumentStoreId(processInstanceId, documentStoreId);
+		return psigna;
+	}
+	
+	
 	public List<Portasignatures> findPendentsPortasignaturesPerProcessInstanceId(String processInstanceId) {		
 		List<Portasignatures> psignas = portasignaturesRepository.findPendentsPerProcessInstanceId(processInstanceId);
 		Iterator<Portasignatures> it = psignas.iterator();

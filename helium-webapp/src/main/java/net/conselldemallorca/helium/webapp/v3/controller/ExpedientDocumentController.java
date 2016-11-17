@@ -41,8 +41,8 @@ import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.InstanciaProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PortasignaturesDto;
-import net.conselldemallorca.helium.v3.core.api.exception.SistemaExternException;
 import net.conselldemallorca.helium.v3.core.api.exception.SistemaExternConversioDocumentException;
+import net.conselldemallorca.helium.v3.core.api.exception.SistemaExternException;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
 import net.conselldemallorca.helium.webapp.mvc.ArxiuView;
 import net.conselldemallorca.helium.webapp.v3.command.DocumentExpedientCommand;
@@ -469,6 +469,23 @@ public class ExpedientDocumentController extends BaseExpedientController {
 			return "redirect:/v3/expedient/" + expedientId;
 		}
 		return "arxiuView";
+	}
+	
+	/*
+	 * retorna un JSON de amb la info del document
+	 */
+	@RequestMapping(
+			value="/{expedientId}/proces/{processInstanceId}/document/{documentStoreId}/psignainfo", 
+			method = RequestMethod.GET)
+	@ResponseBody
+	public Object psignaInfo(
+			HttpServletRequest request,
+			@PathVariable Long expedientId,
+			@PathVariable String processInstanceId,
+			@PathVariable Long documentStoreId) {
+		Object psignaInfo = expedientService.findPortasignaturesInfo(expedientId, processInstanceId, documentStoreId);
+		
+		return psignaInfo;
 	}
 
 	public class DocumentModificarValidator implements Validator {

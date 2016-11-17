@@ -875,4 +875,11 @@ public class ExpedientServiceBean implements ExpedientService {
 		delegate.notificacioReprocessar(notificacioId);
 	}
 
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public Object findPortasignaturesInfo(Long expedientId, String processInstanceId, Long documentStoreId)
+			throws NoTrobatException {
+		return delegate.findPortasignaturesInfo(expedientId, processInstanceId, documentStoreId);
+	}
+
 }

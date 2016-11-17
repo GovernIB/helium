@@ -1088,6 +1088,8 @@ public interface ExpedientService {
 	public Long findDocumentStorePerInstanciaProcesAndDocumentCodi(String processInstanceId, String documentCodi);
 
 	public List<PortasignaturesDto> findDocumentsPendentsPortasignatures(String processInstanceId);
+	
+	public Object findPortasignaturesInfo(Long expedientId, String processInstanceId, Long documentStoreId) throws NoTrobatException;
 
 	public Long findIdAmbProcessInstanceId(String processInstanceId);
 	
