@@ -3,12 +3,14 @@
  */
 package net.conselldemallorca.helium.v3.core.service;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 import javax.annotation.Resource;
 
+import org.json.simple.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.acls.model.Permission;
@@ -622,6 +624,56 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 		return documentHelper.getRespostasValidacioSignatura(documentStore);
 	}
 
+	
+	@SuppressWarnings("unchecked")
+	@Override
+	@Transactional(readOnly = true)
+	public Object findPortasignaturesInfo(Long expedientId, String processInstanceId, Long documentStoreId) {
+		expedientHelper.getExpedientComprovantPermisos(
+				expedientId,
+				true,
+				false,
+				false,
+				false);
+		
+		Portasignatures portasignatures = pluginHelper.findPortasignaturesInfo(processInstanceId, documentStoreId);
+		
+		SimpleDateFormat dt = new SimpleDateFormat("dd-MM-yyyy hh:mm:ss");
+		
+		JSONObject resposta = new JSONObject();
+		resposta.put("id", portasignatures.getId());
+		resposta.put("documentId", portasignatures.getDocumentId());
+		resposta.put("tokenId", portasignatures.getTokenId());
+		resposta.put("dataEnviat", dt.format(portasignatures.getDataEnviat()));
+		resposta.put("estat", portasignatures.getEstat());
+		resposta.put("transicio", portasignatures.getTransition().toString());
+		resposta.put("documentStoreId", portasignatures.getDocumentStoreId());
+		resposta.put("motiuRebuig", portasignatures.getMotiuRebuig());
+		resposta.put("transicioOK", portasignatures.getTransicioOK());
+		resposta.put("transicioKO", portasignatures.getTransicioKO());
+		resposta.put("dataProcessamentPrimer", dt.format(portasignatures.getDataProcessamentPrimer()));
+		resposta.put("dataProcessamentDarrer", dt.format(portasignatures.getDataProcessamentDarrer()));
+		resposta.put("dataSignatRebutjat", dt.format(portasignatures.getDataSignatRebutjat()));
+		resposta.put("dataCustodiaIntent", dt.format(portasignatures.getDataCustodiaIntent()));
+		resposta.put("dataCustodiaOk", dt.format(portasignatures.getDataCustodiaOk()));
+		resposta.put("dataSignalIntent", dt.format(portasignatures.getDataSignalIntent()));
+		resposta.put("dataSignalOk", dt.format(portasignatures.getDataSignalOk()));
+		resposta.put("processInstanceId", portasignatures.getProcessInstanceId());
+		resposta.put("errorProcessant", portasignatures.getErrorCallbackProcessant());
+		
+		if (TipusEstat.ERROR.equals(portasignatures.getEstat())) 
+			resposta.put("error", true);
+		else
+			resposta.put("error", false);
+		
+		if (TipusEstat.PENDENT.equals(portasignatures.getEstat())) 
+			resposta.put("pendent", true);
+		else
+			resposta.put("pendent", false);
+		
+		return resposta;
+	}
+	
 
 	/*@Override
 	@Transactional(readOnly = true)

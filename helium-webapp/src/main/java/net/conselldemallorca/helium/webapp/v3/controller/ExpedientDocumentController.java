@@ -398,6 +398,23 @@ public class ExpedientDocumentController extends BaseExpedientController {
 			throw new ServletException(ex);
 	    }
 	}
+	
+	/*
+	 * retorna un JSON de amb la info del document
+	 */
+	@RequestMapping(
+			value="/{expedientId}/proces/{processInstanceId}/document/{documentStoreId}/psignainfo", 
+			method = RequestMethod.GET)
+	@ResponseBody
+	public Object psignaInfo(
+			HttpServletRequest request,
+			@PathVariable Long expedientId,
+			@PathVariable String processInstanceId,
+			@PathVariable Long documentStoreId) {
+		Object psignaInfo = expedientDocumentService.findPortasignaturesInfo(expedientId, processInstanceId, documentStoreId);
+		
+		return psignaInfo;
+	}
 
 	/*@RequestMapping(value = "/document/arxiuMostrar")
 	public String arxiuMostrar(

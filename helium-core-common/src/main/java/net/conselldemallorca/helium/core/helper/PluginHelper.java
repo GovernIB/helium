@@ -1782,7 +1782,10 @@ public class PluginHelper {
 		}
 	}
 
-
+	public Portasignatures findPortasignaturesInfo(String processInstanceId, Long documentStoreId) {		
+		Portasignatures psigna = portasignaturesRepository.findByProcessInstanceIdAndDocumentStoreId(processInstanceId, documentStoreId);
+		return psigna;
+	}
 
 	private TramitDto toTramitDto(DadesTramit dadesTramit) {
 		TramitDto dto = conversioTipusHelper.convertir(

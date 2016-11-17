@@ -177,4 +177,11 @@ public class ExpedientDocumentServiceBean implements ExpedientDocumentService {
 		return delegate.verificarSignatura(documentStoreId);
 	}
 
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public Object findPortasignaturesInfo(Long expedientId, String processInstanceId, Long documentStoreId)
+			throws NoTrobatException {
+		return delegate.findPortasignaturesInfo(expedientId, processInstanceId, documentStoreId);
+	}
+
 }

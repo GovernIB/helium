@@ -258,6 +258,8 @@ public interface ExpedientDocumentService {
 			String arxiuNom) throws NoTrobatException, PermisDenegatException;
 
 	public List<RespostaValidacioSignaturaDto> verificarSignatura(Long documentStoreId);
+	
+	public Object findPortasignaturesInfo(Long expedientId, String processInstanceId, Long documentStoreId) throws NoTrobatException;
 
 	/*
 	public List<DocumentDto> dissenyFindAmbDefinicioProces(
