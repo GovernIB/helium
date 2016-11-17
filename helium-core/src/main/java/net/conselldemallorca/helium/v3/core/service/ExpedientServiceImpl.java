@@ -3624,20 +3624,22 @@ public class ExpedientServiceImpl implements ExpedientService {
 		resposta.put("id", portasignatures.getId());
 		resposta.put("documentId", portasignatures.getDocumentId());
 		resposta.put("tokenId", portasignatures.getTokenId());
-		resposta.put("dataEnviat", dt.format(portasignatures.getDataEnviat()));
 		resposta.put("estat", portasignatures.getEstat());
-		resposta.put("transicio", portasignatures.getTransition().toString());
+		resposta.put("transicio", portasignatures.getTransition() != null ? portasignatures.getTransition().toString() : null);
 		resposta.put("documentStoreId", portasignatures.getDocumentStoreId());
 		resposta.put("motiuRebuig", portasignatures.getMotiuRebuig());
 		resposta.put("transicioOK", portasignatures.getTransicioOK());
 		resposta.put("transicioKO", portasignatures.getTransicioKO());
-		resposta.put("dataProcessamentPrimer", dt.format(portasignatures.getDataProcessamentPrimer()));
-		resposta.put("dataProcessamentDarrer", dt.format(portasignatures.getDataProcessamentDarrer()));
-		resposta.put("dataSignatRebutjat", dt.format(portasignatures.getDataSignatRebutjat()));
-		resposta.put("dataCustodiaIntent", dt.format(portasignatures.getDataCustodiaIntent()));
-		resposta.put("dataCustodiaOk", dt.format(portasignatures.getDataCustodiaOk()));
-		resposta.put("dataSignalIntent", dt.format(portasignatures.getDataSignalIntent()));
-		resposta.put("dataSignalOk", dt.format(portasignatures.getDataSignalOk()));
+		
+		resposta.put("dataEnviat", portasignatures.getDataEnviat() != null ? dt.format(portasignatures.getDataEnviat()) : null);
+		resposta.put("dataProcessamentPrimer", portasignatures.getDataProcessamentPrimer() != null ? dt.format(portasignatures.getDataProcessamentPrimer()) : null);
+		resposta.put("dataProcessamentDarrer", portasignatures.getDataProcessamentDarrer() != null ? dt.format(portasignatures.getDataProcessamentDarrer()) : null);
+		resposta.put("dataSignatRebutjat", portasignatures.getDataSignatRebutjat() != null ? dt.format(portasignatures.getDataSignatRebutjat()) : null);
+		resposta.put("dataCustodiaIntent", portasignatures.getDataCustodiaIntent() != null ? dt.format(portasignatures.getDataCustodiaIntent()) : null);
+		resposta.put("dataCustodiaOk", portasignatures.getDataCustodiaOk() != null ? dt.format(portasignatures.getDataCustodiaOk()) : null);
+		resposta.put("dataSignalIntent", portasignatures.getDataSignalIntent() != null ? dt.format(portasignatures.getDataSignalIntent()) : null);
+		resposta.put("dataSignalOk", portasignatures.getDataSignalOk() != null ? dt.format(portasignatures.getDataSignalOk()) : null);
+		
 		resposta.put("processInstanceId", portasignatures.getProcessInstanceId());
 		resposta.put("errorProcessant", portasignatures.getErrorCallbackProcessant());
 		
