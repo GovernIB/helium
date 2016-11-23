@@ -882,4 +882,11 @@ public class ExpedientServiceBean implements ExpedientService {
 		return delegate.findPortasignaturesInfo(expedientId, processInstanceId, documentStoreId);
 	}
 
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public void crearDocumentInstanciaProces(Long expedientId, String processInstanceId, String documentCodi,
+			String nomArxiu, byte[] arxiu, Date data) throws NoTrobatException {
+		delegate.crearDocumentInstanciaProces(expedientId, processInstanceId, documentCodi, nomArxiu, arxiu, data);
+	}
+
 }

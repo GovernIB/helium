@@ -47,6 +47,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.ConsultaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesVersioDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
@@ -60,6 +61,7 @@ import net.conselldemallorca.helium.v3.core.repository.CampRepository;
 import net.conselldemallorca.helium.v3.core.repository.CampTascaRepository;
 import net.conselldemallorca.helium.v3.core.repository.ConsultaRepository;
 import net.conselldemallorca.helium.v3.core.repository.DefinicioProcesRepository;
+import net.conselldemallorca.helium.v3.core.repository.DocumentRepository;
 import net.conselldemallorca.helium.v3.core.repository.EntornRepository;
 import net.conselldemallorca.helium.v3.core.repository.EstatRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientTipusRepository;
@@ -92,6 +94,8 @@ public class DissenyServiceImpl implements DissenyService {
 	private MesuresTemporalsHelper mesuresTemporalsHelper;
 	@Resource
 	private CampRepository campRepository;
+	@Resource
+	private DocumentRepository documentRepository;
 	@Resource
 	private ExpedientTipusRepository expedientTipusRepository;
 	@Resource
@@ -575,6 +579,17 @@ public class DissenyServiceImpl implements DissenyService {
 			throw new NoTrobatException(DefinicioProces.class, definicioProcesId);
 		
 		return conversioTipusHelper.convertirList(campRepository.findByDefinicioProcesOrderByCodiAsc(definicioProces), CampDto.class);
+	}
+	
+	@Transactional(readOnly=true)
+	@Override
+	public List<DocumentDto> findDocumentsAmbDefinicioProcesOrdenatsPerCodi(Long definicioProcesId) {
+		DefinicioProces definicioProces = definicioProcesRepository.findOne(definicioProcesId);
+		
+		if (definicioProces == null)
+			throw new NoTrobatException(DefinicioProces.class, definicioProcesId);
+		
+		return conversioTipusHelper.convertirList(documentRepository.findByDefinicioProcesOrderByCodiAsc(definicioProces), DocumentDto.class);
 	}
 
 	@Transactional(readOnly=true)

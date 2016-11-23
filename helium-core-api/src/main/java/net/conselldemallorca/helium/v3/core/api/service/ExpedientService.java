@@ -1022,6 +1022,8 @@ public interface ExpedientService {
 	public ArxiuDto arxiuDocumentPerMostrar(String token);
 
 	public void crearModificarDocument(Long expedientId, String processInstanceId, Long documentStoreId, String nom, String nomArxiu, Long docId, byte[] arxiu, Date data) throws NoTrobatException;
+	
+	public void crearDocumentInstanciaProces(Long expedientId, String processInstanceId, String documentCodi, String nomArxiu, byte[] arxiu, Date data) throws NoTrobatException;
 
 	public ArxiuDto generarDocumentAmbPlantillaProces(
 			Long expedientId,

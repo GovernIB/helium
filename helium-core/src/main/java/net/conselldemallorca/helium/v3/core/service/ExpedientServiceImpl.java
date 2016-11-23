@@ -846,6 +846,51 @@ public class ExpedientServiceImpl implements ExpedientService {
 					nomArxiu);
 		}
 	}
+	
+	@Override
+	@Transactional
+	public void crearDocumentInstanciaProces(Long expedientId, String processInstanceId, String documentCodi, String nomArxiu, byte[] arxiu, Date data) {
+		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
+				expedientId,
+				false,
+				false,
+				false,
+				false,
+				false,
+				false,
+				true);
+		
+		expedientLoggerHelper.afegirLogExpedientPerProces(
+				processInstanceId,
+				ExpedientLogAccioTipus.PROCES_DOCUMENT_AFEGIR,
+				documentCodi);
+		
+//		JbpmProcessDefinition jpd = jbpmHelper.findProcessDefinitionWithProcessInstanceId(processInstanceId);
+//		DefinicioProces definicioProces = definicioProcesRepository.findByJbpmId(jpd.getId());
+//		Document document = documentRepository.findByDefinicioProcesAndCodi(
+//				definicioProces,
+//				documentCodi);
+		
+		documentHelper.actualitzarDocument(
+				null, 
+				processInstanceId, 
+				documentCodi, 
+				null, 
+				data, 
+				nomArxiu, 
+				arxiu, 
+				false);
+		
+		indexHelper.expedientIndexLuceneUpdate(processInstanceId);
+
+		String user = SecurityContextHolder.getContext().getAuthentication().getName();
+		expedientRegistreHelper.crearRegistreCrearDocumentInstanciaProces(
+				expedient.getId(),
+				processInstanceId,
+				user,
+				documentCodi,
+				nomArxiu);
+	}
 
 	@Override
 	@Transactional(readOnly = true)
