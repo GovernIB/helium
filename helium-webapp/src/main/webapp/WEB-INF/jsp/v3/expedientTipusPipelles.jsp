@@ -203,7 +203,7 @@
 					<li id="pipella-estats"><a href="#contingut-estats" role="tab" data-toggle="tab"><spring:message code="expedient.tipus.pipelles.pipella.estats"/></a></li>
 					<li id="pipella-variables"><a href="#contingut-variables" role="tab" data-toggle="tab"><spring:message code="expedient.tipus.pipelles.pipella.variables"/></a></li>
 					<li id="pipella-definicions-proces"><a href="#contingut-definicions-proces" role="tab" data-toggle="tab"><spring:message code="expedient.tipus.pipelles.pipella.definicions.proces"/></a></li>
-					<li id="pipella-integracio-tramits"><a href="#contingut-integracio-tramits" role="tab" data-toggle="tab"><spring:message code="expedient.tipus.pipelles.pipella.integracio.tramits"/></a></li>
+					<li id="pipella-integracio-tramits"><a href="#contingut-integracio-tramits" role="tab" data-toggle="tab"><spring:message code="expedient.tipus.pipelles.pipella.integracio.sistra"/></a></li>
 					<li id="pipella-integracio-forms"><a href="#contingut-integracio-forms" role="tab" data-toggle="tab"><spring:message code="expedient.tipus.pipelles.pipella.integracio.forms"/></a></li>
 					<li id="pipella-enumeracions"><a href="#contingut-enumeracions" role="tab" data-toggle="tab"><spring:message code="expedient.tipus.pipelles.pipella.enumeracions"/></a></li>
 					<li id="pipella-documents"><a href="#contingut-documents" role="tab" data-toggle="tab"><spring:message code="expedient.tipus.pipelles.pipella.documents"/></a></li>

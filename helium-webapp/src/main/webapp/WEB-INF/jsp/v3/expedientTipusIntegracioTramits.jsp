@@ -55,6 +55,7 @@
 					</div>					
 				</div>
 				
+				<hr>
 				
 				<hel:inputCheckbox name="notificacionsActivades" textKey="expedient.tipus.integracio.tramits.notificacions.activar"/>
 				<div id="inputs_integracioNotificacios" style="display:${expedientTipusIntegracioTramitsCommand.notificacionsActivades? 'inline' : 'none'}">
