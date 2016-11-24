@@ -78,6 +78,8 @@ public class ConversioTipusHelper {
 							target.setCampData(mapperFacade.map(
 									source.getCampData(), 
 									CampDto.class));
+						target.setConvertirExtensio(source.getConvertirExtensio());
+						target.setAdjuntarAuto(source.isAdjuntarAuto());
 						return target;
 					}
 		});

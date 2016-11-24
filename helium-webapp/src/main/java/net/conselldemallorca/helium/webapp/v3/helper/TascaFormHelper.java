@@ -867,7 +867,7 @@ public class TascaFormHelper {
 	private static String obtenirValorTermini(String[] termini) {
 		String anys = termini[0] == null ? "0" : termini[0];
 		String mesos = termini[1] == null ? "0" : termini[1];
-		String dies = termini[2] == null ? "" : termini[2];
+		String dies = termini[2] == null ? "0" : termini[2];
 		
 		return anys + "/" + mesos + "/" + dies;
 	}
