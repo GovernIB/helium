@@ -3,6 +3,8 @@
  */
 package net.conselldemallorca.helium.webapp.v3.controller;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,17 +23,19 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
+import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
-import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientTipusEstatCommand;
+import net.conselldemallorca.helium.webapp.v3.command.ImportarDadesCommand;
 import net.conselldemallorca.helium.webapp.v3.helper.ConversioTipusHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.DatatablesHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.DatatablesHelper.DatatablesResponse;
 import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.NodecoHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
+import net.conselldemallorca.helium.webapp.v3.validator.CodiValidator;
 
 /**
  * Controlador per a la pipella de variables del tipus d'expedient.
@@ -55,7 +59,7 @@ public class ExpedientTipusEstatController extends BaseExpedientTipusController 
 	}
 	
 	@RequestMapping(value = "/{expedientTipusId}/estats")
-	public String documents(
+	public String estats(
 			HttpServletRequest request,
 			@PathVariable Long expedientTipusId,
 			Model model) {
@@ -121,10 +125,6 @@ public class ExpedientTipusEstatController extends BaseExpedientTipusController 
     				conversioTipusHelper.convertir(
     						command,
     						EstatDto.class));    		
-//			return getModalControllerReturnValueSuccess(
-//					request,
-//					"redirect:/v3/expedientTipus/" + expedientTipusId + "#estats",
-//					"expedient.tipus.estat.controller.creat");
     		MissatgesHelper.success(
 					request, 
 					getMessage(
@@ -190,22 +190,16 @@ public class ExpedientTipusEstatController extends BaseExpedientTipusController 
 							request,
 							"expedient.tipus.estat.controller.eliminat"));
 			return true;
-//			return getModalControllerReturnValueSuccess(
-//					request,
-//					"redirect:/v3/expedientTipus/" + expedientTipusId + "#estats",
-//					"expedient.tipus.estat.controller.eliminat");
 		} catch (Exception e) {
+			e.printStackTrace();
 			MissatgesHelper.error(
 					request, 
-					getMessage(request, "expedient.tipus.estat.controller.eliminat"));
+					getMessage(
+							request, 
+							"expedient.tipus.estat.controller.eliminat.no",
+							new Object[] {e.getLocalizedMessage()}));
 			return false;
-//			redirectAttributes.addAttribute("pipellaActiva", "estats");
-//			return getModalControllerReturnValueError(
-//					request,
-//					"redirect:/v3/expedientTipus/" + expedientTipusId,
-//					null);
 		}
-//		return "v3/expedientTipusEstatForm";
 	}
 	
 	@RequestMapping(value = "/{expedientTipusId}/estat/{estatId}/moure/{posicio}", method = RequestMethod.GET)
@@ -218,4 +212,92 @@ public class ExpedientTipusEstatController extends BaseExpedientTipusController 
 			Model model) {
 		return expedientTipusService.estatMoure(estatId, posicio);
 	}
+	
+	/** Mètode per obrir un formulari d'importació de dades d'estats. */
+	@RequestMapping(value = "/{expedientTipusId}/estat/importar", method = RequestMethod.GET)
+	public String importar(
+			HttpServletRequest request,
+			@PathVariable Long expedientTipusId,
+			Model model) {
+		model.addAttribute("expedientTipusId", expedientTipusId);
+		model.addAttribute("importarDadesCommand", new ImportarDadesCommand());
+		return "v3/expedientTipusEstatImportarForm";
+	}	
+	
+	@RequestMapping(value = "/{expedientTipusId}/estat/importar", method = RequestMethod.POST)
+	public String importarPost(
+			HttpServletRequest request,
+			@PathVariable Long expedientTipusId,
+			@RequestParam ImportarDadesCommand command,
+			BindingResult bindingResult,
+			Model model) {
+		if (command.getMultipartFile().getSize() == 0) {
+			bindingResult.rejectValue("multipartFile", "expedient.tipus.estat.importar.controller.validacio.multipartFile.buit");
+		}
+        if (bindingResult.hasErrors()) {
+        	model.addAttribute("importarDadesCommand", command);
+        	return "v3/expedientTipusEstatImportarForm";
+        } else {
+
+			int insercions = 0;
+			int actualitzacions = 0;
+        	try{
+    			if (command.isEliminarValorsAntics()) {
+    				for (EstatDto estat : expedientTipusService.estatFindAll(expedientTipusId))
+    					expedientTipusService.estatDelete(estat.getId());
+    			}
+    			BufferedReader br = new BufferedReader(new InputStreamReader(command.getMultipartFile().getInputStream()));
+    			String linia = br.readLine();
+    			EstatDto estat = new EstatDto();
+    			String codi;
+    			String nom;
+    			while (linia != null) {
+    				String[] columnes = linia.contains(";") ? linia.split(";") : linia.split(",");
+    				if (columnes.length > 1) {
+    					codi = columnes[0];
+    					// Comprova que el codi sigui vàlid
+    					if (! CodiValidator.isValid(codi)) {
+    		        		MissatgesHelper.error(
+    		        				request,
+    		        				getMessage(
+    		        						request, 
+    		        						"expedient.tipus.estat.importar.controller.error.codi",
+    		        						new Object[]{codi}));
+    					} else {
+    						// Completa la inserció o actualització
+        					nom = columnes[1];
+        					estat = expedientTipusService.estatFindAmbCodi(expedientTipusId, codi);
+        					if (estat == null) {
+        						estat = new EstatDto();
+        						estat.setCodi(codi);
+        						estat.setNom(nom);
+        						expedientTipusService.estatCreate(expedientTipusId, estat);
+        						insercions++;
+        					} else {
+        						estat.setNom(nom);
+        						expedientTipusService.estatUpdate(estat);
+        						actualitzacions++;
+        					}
+    					}
+    				}
+    				linia = br.readLine();
+    			}
+        	} catch(Exception e) {
+        		e.printStackTrace();
+        		MissatgesHelper.error(
+        				request,
+        				getMessage(
+        						request, 
+        						"expedient.tipus.estat.importar.controller.error",
+        						new Object[]{e.getLocalizedMessage()}));
+        	}
+    		MissatgesHelper.success(
+					request, 
+					getMessage(
+							request, 
+							"expedient.tipus.estat.importar.controller.success",
+							new Object[] {insercions, actualitzacions}));        		
+			return modalUrlTancar(false);	
+        }
+	}	
 }

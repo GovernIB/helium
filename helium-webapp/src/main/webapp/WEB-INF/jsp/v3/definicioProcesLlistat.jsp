@@ -47,7 +47,7 @@
 							<ul class="dropdown-menu pull-right">
 								<li><a href="definicioProces/{{:jbpmKey}}" class="consultar-expedient"><span class="fa fa-folder-open"></span>&nbsp;<spring:message code="definicio.proces.llistat.accio.dissenyar"/></a></li>
 								<li><a data-toggle="modal" href="definicioProces/{{:jbpmKey}}/exportar"><span class="fa fa-sign-out"></span>&nbsp;<spring:message code="comu.filtre.exportar"/></a></li>
-								<li><a data-toggle="modal" href="definicioProces/importar?definicioProcesId={{:id}}"><span class="fa fa-sign-in"></span>&nbsp;<spring:message code="comu.filtre.importar"/></a></li>
+								<li><a data-toggle="modal" href="definicioProces/importar?definicioProcesId={{:id}}"><span class="fa fa-sign-in"></span>&nbsp;<spring:message code="comu.importar"/></a></li>
 								<li><a href="definicioProces/{{:jbpmKey}}/delete" data-toggle="ajax" data-confirm="<spring:message code="definicio.proces.llistat.confirmacio.esborrar"/>"><span class="fa fa-trash-o"></span>&nbsp;<spring:message code="definicio.proces.llistat.accio.esborrar"/></a></li>
 							</ul>
 						</div>
@@ -60,7 +60,7 @@
 
 	<script id="tableDefinicioProcesButtonsTemplate" type="text/x-jsrender">
 			<div class="botons-titol text-right">
-				<a class="btn btn-default" href="definicioProces/importar" data-toggle="modal"><span class="fa fa-sign-in"></span>&nbsp;<spring:message code="comu.filtre.importar"/></a>
+				<a class="btn btn-default" href="definicioProces/importar" data-toggle="modal"><span class="fa fa-sign-in"></span>&nbsp;<spring:message code="comu.importar"/></a>
 				<a class="btn btn-default" href="definicioProces/desplegar" data-toggle="modal" data-callback="callbackModaldefinicionsProces()"><span class="fa fa-download"></span>&nbsp;<spring:message code="comu.filtre.desplegar"/></a>
 			</div>
 		</script>
