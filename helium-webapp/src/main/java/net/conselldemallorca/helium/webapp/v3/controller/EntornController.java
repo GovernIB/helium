@@ -24,6 +24,7 @@ import net.conselldemallorca.helium.webapp.v3.command.PermisCommand;
 import net.conselldemallorca.helium.webapp.v3.helper.ConversioTipusHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.DatatablesHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.DatatablesHelper.DatatablesResponse;
+import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
 
 /**
  * Controlador per al manteniment d'entorns.
@@ -214,11 +215,13 @@ public class EntornController extends BaseController {
     				conversioTipusHelper.convertir(
     						command,
     						PermisDto.class));
-			return getModalControllerReturnValueSuccess(
-					request,
-					"redirect:/v3/entorn/" + entornId + "/permis",
-					"entorn.controller.permis.actualitzat");
-        }
+			MissatgesHelper.success(
+					request, 
+					getMessage(
+							request, 
+							"entorn.controller.permis.actualitzat"));
+			return modalUrlTancar(false);
+		}
 	}
 
 	@RequestMapping(value = "/{entornId}/permis/{permisId}/delete")

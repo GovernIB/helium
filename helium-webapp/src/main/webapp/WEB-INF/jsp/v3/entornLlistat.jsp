@@ -8,6 +8,7 @@
 <head>
 	<title><spring:message code="entorn.llistat.titol"/></title>
 	<meta name="title" content="<spring:message code="entorn.llistat.titol"/>"/>
+	<meta name="screen" content="entorns">
 	<meta name="title-icon-class" content="fa fa-cubes"/>
 	<script src="<c:url value="/webjars/datatables.net/1.10.10/js/jquery.dataTables.min.js"/>"></script>
 	<script src="<c:url value="/webjars/datatables.net-bs/1.10.10/js/dataTables.bootstrap.min.js"/>"></script>
@@ -29,7 +30,9 @@
 			data-info-type="search"
 			data-ordering="true"
 			data-default-order="1"
-			class="table table-striped table-bordered">
+			data-rowhref-template="#rowhrefTemplate"
+			data-rowhref-toggle="modal" 
+			class="table table-striped table-bordered table-hover">
 		<thead>
 			<tr>
 				<th data-col-name="codi" width="20%"><spring:message code="entorn.llistat.columna.codi"/></th>
@@ -53,5 +56,6 @@
 			</tr>
 		</thead>
 	</table>
+	<script id="rowhrefTemplate" type="text/x-jsrender">entorn/{{:id}}/update</script>
 </body>
 </html>

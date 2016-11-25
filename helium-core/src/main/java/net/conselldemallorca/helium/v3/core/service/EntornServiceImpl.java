@@ -78,7 +78,6 @@ public class EntornServiceImpl implements EntornService {
 			EntornDto entorn) {
 		logger.debug("Modificant entorn (entorn=" + entorn + ")");
 		Entorn entity = comprovarEntorn(entorn.getId());
-		entity.setCodi(entorn.getCodi());
 		entity.setNom(entorn.getNom());
 		entity.setDescripcio(entorn.getDescripcio());
 		return conversioTipusHelper.convertir(

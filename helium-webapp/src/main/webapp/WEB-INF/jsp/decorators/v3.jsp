@@ -178,7 +178,6 @@
 							<div class="btn-group" >
 								<button class="btn btn-primary dropdown-toggle" data-toggle="dropdown"><spring:message code="comuns.disseny"/> <span class="caret"></span></button>
 								<ul class="dropdown-menu">
-									<c:if test="${dadesPersona.admin}"><li><a target="_BLANK" href="<c:url value="/definicioProces/deploy.html"/>"><spring:message code='decorators.entorn.despl_arxiu' /></a></li></c:if>
 									<li><a href="<c:url value="/v3/definicioProces"/>"><spring:message code='decorators.entorn.defs_proces' /></a></li>
 									<li><a href="<c:url value="/v3/expedientTipus"/>"><spring:message code='decorator.menu.disseny.tipus.expedient' /></a></li>
 									<li><a href="<c:url value="/v3/consulta"/>"><spring:message code='decorator.menu.consultes' /></a></li>
@@ -199,7 +198,7 @@
 									<li><a data-toggle="modal" data-maximized="true" href="<c:url value="/v3/monitorDomini"/>"><spring:message code='decorator.menu.administracio.monitor.domini' /></a></li>
 									<li><a data-toggle="modal" href="<c:url value="/modal/v3/tasca/pendentsCompletar"/>"><spring:message code='decorator.menu.administracio.tasques.execucio' /></a></li>
 									<li><a data-toggle="modal" data-maximized="true" href="<c:url value="/modal/v3/execucionsMassives/admin"/>"><spring:message code='comuns.massiu' /></a></li>
-									<c:if test="${dadesPersona.admin}"><li><a target="_BLANK" href="<c:url value="/entorn/llistat.html"/>"><spring:message code='decorators.superior.entorns' /></a></li></c:if>
+									<c:if test="${dadesPersona.admin}"><li><a href="<c:url value="/v3/entorn"/>"><spring:message code='decorators.superior.entorns' /></a></li></c:if>
 									<c:if test="${globalProperties['app.jbpm.identity.source'] == 'jbpm'}">
 										<c:if test="${dadesPersona.admin}"><li><a target="_BLANK" href="<c:url value="/carrec/jbpmConfigurats.html"/>"><spring:message code='comuns.carrecs' /></a></li></c:if>
 										<c:if test="${dadesPersona.admin}"><li><a target="_BLANK" href="<c:url value="/area/jbpmConfigurats.html"/>"><spring:message code='comuns.arees' /></a></li></c:if>
