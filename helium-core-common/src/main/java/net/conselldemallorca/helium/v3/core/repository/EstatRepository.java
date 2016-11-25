@@ -34,6 +34,11 @@ public interface EstatRepository extends JpaRepository<Estat, Long> {
 			ExpedientTipus expedientTipus,
 			Long id);
 
+	public Estat findByExpedientTipusIdAndCodi(
+			Long expedientTipusId,
+			String codi);
+
+
 	public Estat findById(Long id);
 
 	public List<Estat> findByExpedientTipusId(Long expedientTipusId, Pageable springDataPageable);
@@ -53,5 +58,7 @@ public interface EstatRepository extends JpaRepository<Estat, Long> {
 			@Param("esNullFiltre") boolean esNullFiltre,
 			@Param("filtre") String filtre,		
 			Pageable pageable);
+
+	public List<Estat> findByExpedientTipusId(Long expedientTipusId);
 		
 }

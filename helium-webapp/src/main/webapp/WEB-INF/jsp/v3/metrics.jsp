@@ -380,7 +380,7 @@
 			<div class="pull-right">
 <!-- 				<input type="hidden" name="consultaRealitzada" value="true"/> -->
 				<input type="file" id="files" name="files" style="display:none;"/>
-				<button id="importar" type="button" name="accio" value="importar" class="btn btn-default"><spring:message code="comu.filtre.importar"/></button>
+				<button id="importar" type="button" name="accio" value="importar" class="btn btn-default"><spring:message code="comu.importar"/></button>
 				<button id="exportar" type="button" name="accio" value="exportar" class="btn btn-default"><spring:message code="comu.filtre.exportar"/></button>
 				<button id="netejar" type="button" name="accio" value="netejar" class="btn btn-default"><spring:message code="comu.filtre.netejar"/></button>
 				<button id="consultar" type="button" name="accio" value="consultar" class="btn btn-primary"><span class="fa fa-filter"></span>&nbsp;<spring:message code="comu.filtre.filtrar"/></button>

@@ -76,14 +76,14 @@
 		<div id="modal-botons" class="well">
 			<button id="btnCancelar_imp" name="submit" value="cancel" class="btn btn-default"><spring:message code="comu.boto.cancelar"/></button>
 			<button id="btnCreate_imp" class="btn btn-primary right" type="submit" name="accio" value="crear">
-				<span class="fa fa-plus"></span> <spring:message code='enumeracio.valors.importar' />
+				<span class="fa fa-sign-in"></span> <spring:message code='enumeracio.valors.importar' />
 			</button>
 		</div>
 	</form:form>
 	
 	<div class="botons-titol text-right">
 		<button id="btnNew" class="btn btn-default" style='${mostraCreate || mostraUpdate ? "display:none;" : ""}'><span class="fa fa-plus"></span>&nbsp;<spring:message code="expedient.tipus.enumeracio.valors.form.titol.nou"/></button>
-		<button id="btnImp" class="btn btn-info"    style='${mostraCreate || mostraUpdate ? "display:none;" : ""}'><span class="fa fa-file-text"></span>&nbsp;<spring:message code="enumeracio.valors.import_dades"/></button>
+		<button id="btnImp" class="btn btn-info"    style='${mostraCreate || mostraUpdate ? "display:none;" : ""}'><span class="fa fa-sign-in"></span>&nbsp;<spring:message code="comu.boto.importar.dades"/></button>
 	</div>	
 	<div style="height: 500px;">
 		<table	id="campValidacio"

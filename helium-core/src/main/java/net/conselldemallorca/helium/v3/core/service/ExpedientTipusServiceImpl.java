@@ -2417,6 +2417,18 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 				estats, 
 				EstatDto.class);
 	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public List<EstatDto> estatFindAll(Long expedientTipusId) throws NoTrobatException, PermisDenegatException {
+		// Recupera el tipus d'expedient
+		ExpedientTipus expedientTipus = expedientTipusHelper.getExpedientTipusComprovantPermisos(
+				expedientTipusId, 
+				true);
+		return conversioTipusHelper.convertirList(
+				estatRepository.findByExpedientTipusOrderByOrdreAsc(expedientTipus), 
+				EstatDto.class);
+	}
 
 	@Override
 	@Transactional(readOnly = true)
@@ -2429,6 +2441,26 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 			throw new NoTrobatException(Estat.class, estatId);
 		}
 		return conversioTipusHelper.convertir(
+				estat, 
+				EstatDto.class);
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public EstatDto estatFindAmbCodi(
+			Long expedientTipusId, 
+			String codi) {
+		logger.debug(
+				"Consultant l'estat amb codi(" +
+				"expedientTipusId=" + expedientTipusId +  
+				",codi=" + codi + ")");
+		Estat estat = estatRepository.findByExpedientTipusIdAndCodi(
+				expedientTipusId, 
+				codi);
+		if (estat == null)
+			return null;
+		else
+			return conversioTipusHelper.convertir(
 				estat, 
 				EstatDto.class);
 	}
@@ -2485,23 +2517,16 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		if (estat == null) {
 			throw new NoTrobatException(Estat.class, estatId);
 		}
-		
-		List<Estat> estats = estatRepository.findByExpedientTipusOrderByOrdreAsc(
-				expedientTipusHelper.getExpedientTipusComprovantPermisos(
-						estat.getExpedientTipus().getId(), 
-						true,
-						false,
-						false,
-						false,
-						true));
+		ExpedientTipus expedientTipus = expedientTipusRepository.findById(estat.getExpedientTipus().getId());
+		expedientTipus.getEstats().remove(estat);
+		// Esborra
+		estatRepository.delete(estat);
+		estatRepository.flush();
+		// Reordena els estats
+		List<Estat> estats = estatRepository.findByExpedientTipusOrderByOrdreAsc(expedientTipus);		
 		int i = 0;
-		for (Estat e: estats) {
-			if (estatId.equals(e.getId())) {
-				estatRepository.delete(e);	
-			} else {
-				e.setOrdre(i++);
-			}		
-		}
+		for (Estat e: estats)
+			e.setOrdre(i++);
 	}
 	
 	/**

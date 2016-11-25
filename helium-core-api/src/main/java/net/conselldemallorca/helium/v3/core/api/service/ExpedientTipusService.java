@@ -735,6 +735,16 @@ public interface ExpedientTipusService {
 			Long expedientTipusId,
 			PaginacioParamsDto paginacioParams) throws NoTrobatException, PermisDenegatException;
 
+	/**
+	 * Retorna els estats per a un tipus d'expedient.
+	 * 
+	 * @param expedientTipusId
+	 * @return
+	 * @throws NoTrobatException
+	 * @throws PermisDenegatException
+	 */
+	public List<EstatDto> estatFindAll(Long expedientTipusId) throws PermisDenegatException;
+	
 	/** 
 	 * Retorna el estat del tipus d'expedient donat el seu identificador.
 	 * 
@@ -746,6 +756,9 @@ public interface ExpedientTipusService {
 	 */
 	public EstatDto estatFindAmbId(Long estatId);
 
+	
+	public EstatDto estatFindAmbCodi(Long expedientTipusId, String codi);
+	
 	/**
 	 * Crea un nou estat.
 	 * 
@@ -1128,5 +1141,7 @@ public interface ExpedientTipusService {
 	 */
 	public List<MapeigSistraDto> mapeigFindAll(
 			Long expedientTipusId) throws NoTrobatException, PermisDenegatException;
+
+
 
 }

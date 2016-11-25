@@ -47,5 +47,15 @@ public class CodiValidator implements ConstraintValidator<Codi, String>{
 		}
 		return valid;
 	}
+	
+	public static boolean isValid(String codi) {
+		boolean valid = true;		
+		if (codi.matches("^[A-Z]{1}[a-z]{1}.*")	// Que no comenci amb una majúscula seguida de minúscula 
+				|| codi.contains(".")			// Que no contingui punts
+				|| codi.contains(" ")) {
+			valid = false;
+		}
+		return valid;
+	}
 
 }

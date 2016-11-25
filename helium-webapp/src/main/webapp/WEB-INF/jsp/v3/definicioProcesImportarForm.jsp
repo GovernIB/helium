@@ -311,7 +311,7 @@
 				<spring:message code="comu.boto.cancelar"/>
 			</button>
 			<button id="importarButton" type="submit" class="btn btn-success right">
-				<span class="fa fa-sign-in"></span> <spring:message code="comu.filtre.importar"/>
+				<span class="fa fa-sign-in"></span> <spring:message code="comu.importar"/>
 				<span class="importar processant" style="visibility:hidden;">
 					<span class="fa fa-spinner fa-spin fa-fw" title="<spring:message code="comu.processant"/>..."></span><span class="sr-only">&hellip;</span>
 				</span>			

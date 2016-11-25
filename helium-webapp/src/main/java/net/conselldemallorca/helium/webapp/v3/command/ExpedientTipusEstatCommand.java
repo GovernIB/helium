@@ -5,11 +5,14 @@ import javax.validation.constraints.Size;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.springmodules.validation.bean.conf.loader.annotation.handler.NotNull;
 
+import net.conselldemallorca.helium.webapp.v3.validator.Codi;
+
 public class ExpedientTipusEstatCommand {
 
 	private Long id;
 	@NotEmpty(groups = {Creacio.class, Modificacio.class})
 	@Size(max = 64, groups = {Creacio.class, Modificacio.class})
+	@Codi(groups = {Creacio.class, Modificacio.class})
 	private String codi;
 	@NotEmpty
 	@Size(max = 255, groups = {Creacio.class, Modificacio.class})
