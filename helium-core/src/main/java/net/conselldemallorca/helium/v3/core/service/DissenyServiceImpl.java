@@ -1015,6 +1015,17 @@ public class DissenyServiceImpl implements DissenyService {
 				
 		return exportacio;
 	}
+	
+	@Transactional(readOnly=true)
+ 	@Override
+ 	public List<DocumentDto> findDocumentsAmbDefinicioProcesOrdenatsPerCodi(Long definicioProcesId) {
+ 		DefinicioProces definicioProces = definicioProcesRepository.findOne(definicioProcesId);
+ 		
+ 		if (definicioProces == null)
+ 			throw new NoTrobatException(DefinicioProces.class, definicioProcesId);
+ 		
+ 		return conversioTipusHelper.convertirList(documentRepository.findByDefinicioProcesOrderByCodiAsc(definicioProces), DocumentDto.class);
+ 	}
 
 	private static final Logger logger = LoggerFactory.getLogger(ExpedientServiceImpl.class);
 }

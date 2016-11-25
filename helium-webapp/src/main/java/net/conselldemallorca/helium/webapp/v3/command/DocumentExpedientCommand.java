@@ -12,6 +12,8 @@ import java.util.Date;
  */
 public class DocumentExpedientCommand {
 
+	private String documentCodi;
+	
 	private Long docId;
 	private Date data;
 	private String nomArxiu;
@@ -57,4 +59,12 @@ public class DocumentExpedientCommand {
 	public void setNomArxiu(String nomArxiu) {
 		this.nomArxiu = nomArxiu;
 	}
+	
+	public String getDocumentCodi() {
+ 		return documentCodi;
+ 	}
+
+ 	public void setDocumentCodi(String documentCodi) {
+ 		this.documentCodi = documentCodi;
+ 	}
 }

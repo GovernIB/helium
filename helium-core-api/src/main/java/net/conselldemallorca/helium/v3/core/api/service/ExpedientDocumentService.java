@@ -277,4 +277,6 @@ public interface ExpedientDocumentService {
 			String processInstanceId,
 			String documentCodi);*/
 
+	public void crearDocumentInstanciaProces(Long expedientId, String processInstanceId, String documentCodi, String nomArxiu, byte[] arxiu, Date data) throws NoTrobatException;
+
 }

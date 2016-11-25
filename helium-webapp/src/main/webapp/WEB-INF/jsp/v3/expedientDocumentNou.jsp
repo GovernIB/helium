@@ -6,7 +6,7 @@
 <c:set var="idioma"><%=org.springframework.web.servlet.support.RequestContextUtils.getLocale(request).getLanguage()%></c:set>
 <html>
 <head>
-	<title><spring:message code="expedient.document.adjuntar"/></title>
+	<title><spring:message code="expedient.document.afegir"/></title>
 	<hel:modalHead/>
 	<script type="text/javascript" src="<c:url value="/js/jquery/jquery.keyfilter-1.8.js"/>"></script>
 	<script type="text/javascript" src="<c:url value="/js/jquery.price_format.1.8.min.js"/>"></script>
@@ -32,7 +32,30 @@
 <body>		
 	<form:form cssClass="form-horizontal form-tasca" action="new" enctype="multipart/form-data" method="post" commandName="documentExpedientCommand">
 		<div class="inlineLabels">
-			<hel:inputText required="true" name="nom" textKey="expedient.document.titol" placeholderKey="expedient.document.titol"/>
+			<input type="hidden" id="processInstanceId" name="processInstanceId" value="${processInstanceId}"/>
+			
+			<div id="selDocument" class="form-group">
+				<label class="control-label col-xs-5 obligatori" for="documentCodi">Document</label>
+				<div id="elDocument_controls" class="col-xs-7">
+					<form:select path="documentCodi" cssClass="form-control" id="documentCodi">
+						<optgroup label="<spring:message code='expedient.document.adjuntar.document'/>">
+							<option value="##adjuntar_arxiu##"><spring:message code="expedient.document.adjuntar.document"/></option>
+						</optgroup>
+						<optgroup label="<spring:message code='expedient.nou.document.existent'/>">
+							<c:forEach var="opt" items="${documentsNoUtilitzats}">
+								<form:option value="${opt.codi}">${opt.documentNom}</form:option>
+							</c:forEach>
+						</optgroup>
+					</form:select>
+					<c:if test="${not empty campErrors}"><p class="help-block"><span class="fa fa-exclamation-triangle"></span>&nbsp;<form:errors path="documentCodi"/></p></c:if>
+				</div>
+			</div>
+			
+			<hr>
+			
+			<div id="titolArxiu">
+				<hel:inputText required="true" name="nom" textKey="expedient.document.titol" placeholderKey="expedient.document.titol"/>
+			</div>
 			<div class="form-group">
 				<label class="control-label col-xs-4 obligatori" for="nom"><spring:message code='expedient.document.arxiu' /></label>
 		        <div class="col-xs-8 arxiu">
@@ -47,41 +70,52 @@
 				</div>
 			</div>
         
-			<script type="text/javascript">
-				// <![CDATA[
-				$(document).on('change', '.btn-file :file', function() {
-					var input = $(this),
-					numFiles = input.get(0).files ? input.get(0).files.length : 1,
-					label = input.val().replace(/\\/g, '/').replace(/.*\//, '');
-					input.trigger('fileselect', [numFiles, label]);
-				});
-				
-				$(document).ready( function() {
-					$('.btn-file :file').on('fileselect', function(event, numFiles, label) {
-						var input = $(this).parents('.input-group').find(':text'),
-						log = numFiles > 1 ? numFiles + ' files selected' : label;
-						if( input.length ) {
-							input.val(log);
-						} else {
-							if( log )
-								alert(log);
-						}
-					});
-					$('#nomArxiu').on('click', function() {
-						$('input[name=arxiu]').click();
-					});
-				}); 
-				// ]]>
-			</script>
+			
 			
 			<hel:inputDate required="true" name="data" textKey="expedient.document.data" placeholder="dd/mm/aaaa"/>
 		</div>
 		<div id="modal-botons" class="well">
 			<button type="button" class="btn btn-default modal-tancar" name="submit" value="cancel"><spring:message code="comu.boto.cancelar"/></button>
 			<button class="btn btn-primary right" type="submit" name="accio" value="document_adjuntar">
-				<spring:message code='comuns.adjuntar' />
+				<spring:message code='comuns.afegir' />
 			</button>
 		</div>
 	</form:form>
+	
+	<script type="text/javascript">
+		// <![CDATA[
+		$(document).on('change', '.btn-file :file', function() {
+			var input = $(this),
+			numFiles = input.get(0).files ? input.get(0).files.length : 1,
+			label = input.val().replace(/\\/g, '/').replace(/.*\//, '');
+			input.trigger('fileselect', [numFiles, label]);
+		});
+		
+		$(document).ready( function() {
+			$('.btn-file :file').on('fileselect', function(event, numFiles, label) {
+				var input = $(this).parents('.input-group').find(':text'),
+				log = numFiles > 1 ? numFiles + ' files selected' : label;
+				if( input.length ) {
+					input.val(log);
+				} else {
+					if( log )
+						alert(log);
+				}
+			});
+			$('#nomArxiu').on('click', function() {
+				$('input[name=arxiu]').click();
+			});
+			
+			$('#documentCodi').on('click', function() {
+				var valor = $(this).val();
+				if (valor == '##adjuntar_arxiu##') {
+					$("#titolArxiu").show();
+				} else {
+					$("#titolArxiu").hide();
+				}
+			});
+		}); 
+		// ]]>
+	</script>
 </body>
 </html>

@@ -307,4 +307,7 @@ public interface DissenyService {
 	 * Serveix per tenir una lllista dels noms dels seus handlers. 
 	 */
 	public List<String> findAccionsJbpmOrdenades(Long definicioProcesId);
+	
+	
+	public List<DocumentDto> findDocumentsAmbDefinicioProcesOrdenatsPerCodi(Long definicioProcesId) throws NoTrobatException;
 }

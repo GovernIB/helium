@@ -368,7 +368,7 @@
 		<profile>
 			<id>tomcat</id>
 			<activation>
-				<activeByDefault>false</activeByDefault>
+				<activeByDefault>true</activeByDefault>
 			</activation>
 			<properties>
 				<application.context>application-context-tomcat.xml</application.context>
@@ -484,7 +484,7 @@
 		<profile>
 			<id>jboss</id>
 			<activation>
-				<activeByDefault>true</activeByDefault>
+				<activeByDefault>false</activeByDefault>
 			</activation>
 			<properties>
 				<application.context>application-context-jboss.xml</application.context>

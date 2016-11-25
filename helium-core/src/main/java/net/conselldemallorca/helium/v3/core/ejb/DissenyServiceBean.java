@@ -324,4 +324,11 @@ public class DissenyServiceBean implements DissenyService {
 	public DefinicioProcesExportacio getDefinicioProcesExportacioFromContingut(String fitxer, byte[] contingut) {
 		return delegate.getDefinicioProcesExportacioFromContingut(fitxer, contingut);
 	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public List<DocumentDto> findDocumentsAmbDefinicioProcesOrdenatsPerCodi(Long definicioProcesId)
+			throws NoTrobatException {
+		return delegate.findDocumentsAmbDefinicioProcesOrdenatsPerCodi(definicioProcesId);
+	}
 }
