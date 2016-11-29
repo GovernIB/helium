@@ -2,7 +2,6 @@ package net.conselldemallorca.helium.jbpm3.handlers;
 
 import java.util.List;
 
-import org.jbpm.graph.def.ActionHandler;
 import org.jbpm.graph.exe.ExecutionContext;
 
 /**
@@ -12,7 +11,7 @@ import org.jbpm.graph.exe.ExecutionContext;
  */
 
 @SuppressWarnings("serial")
-public class ZonaperEventNotificacioHandler implements ActionHandler,  RegistreSortidaHandlerInterface, AccioExternaRetrocedirHandler  {
+public class ZonaperEventNotificacioHandler extends BasicActionHandler implements RegistreSortidaHandlerInterface, AccioExternaRetrocedirHandler  {
 
 	public ZonaperEventNotificacioHandler() {}
 	public void setOficina(String oficina) {}
