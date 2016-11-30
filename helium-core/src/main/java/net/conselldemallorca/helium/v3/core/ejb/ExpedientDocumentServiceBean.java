@@ -191,4 +191,14 @@ public class ExpedientDocumentServiceBean implements ExpedientDocumentService {
 		delegate.crearDocumentInstanciaProces(expedientId, processInstanceId, documentCodi, nomArxiu, arxiu, data);
 	}
 
+	@Override
+	public ArxiuDto arxiuDocumentPerSignar(String token) throws NoTrobatException {
+		return delegate.arxiuDocumentPerSignar(token);
+	}
+
+	@Override
+	public ArxiuDto arxiuDocumentPerMostrar(String token) throws NoTrobatException {
+		return delegate.arxiuDocumentPerMostrar(token);
+	}
+
 }

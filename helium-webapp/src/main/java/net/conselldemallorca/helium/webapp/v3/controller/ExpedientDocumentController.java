@@ -62,7 +62,7 @@ public class ExpedientDocumentController extends BaseExpedientController {
 
 	@Autowired
 	private ExpedientDocumentService expedientDocumentService;
-
+	
 
 
 	@RequestMapping(value = "/{expedientId}/document", method = RequestMethod.GET)
@@ -427,14 +427,14 @@ public class ExpedientDocumentController extends BaseExpedientController {
 		return psignaInfo;
 	}
 
-	/*@RequestMapping(value = "/document/arxiuMostrar")
+	@RequestMapping(value = "/document/arxiuMostrar")
 	public String arxiuMostrar(
 		HttpServletRequest request,
 		@RequestParam(value = "token", required = true) String token,
 		ModelMap model) {
 		ArxiuDto arxiu = null;
 		if (token != null)
-			arxiu = expedientDocumentService.arxiuPerMostrar(token);
+			arxiu = expedientDocumentService.arxiuDocumentPerMostrar(token);
 		if (arxiu != null) {
 			model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_FILENAME, arxiu.getNom());
 			model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_DATA, arxiu.getContingut());
@@ -450,7 +450,7 @@ public class ExpedientDocumentController extends BaseExpedientController {
 		ArxiuDto arxiu = null;
 		if (token != null)
 			try {
-				arxiu = expedientDocumentService.arxiuPerSignar(token);
+				arxiu = expedientDocumentService.arxiuDocumentPerSignar(token);
 			} catch (SistemaExternException ex) {
 				logger.error("Error al obtenir el document a partir del token '" + token + "'", ex);
 				MissatgesHelper.error(request,ex.getPublicMessage());
@@ -465,7 +465,7 @@ public class ExpedientDocumentController extends BaseExpedientController {
 		return "arxiuView";
 	}
 
-	@RequestMapping(value = "/{expedientId}/document/{documentId}/descarregar", method = RequestMethod.GET)
+	/*@RequestMapping(value = "/{expedientId}/document/{documentId}/descarregar", method = RequestMethod.GET)
 	public String documentDescarregar(
 			HttpServletRequest request,
 			@PathVariable Long expedientId,
@@ -484,7 +484,6 @@ public class ExpedientDocumentController extends BaseExpedientController {
 		} catch (SistemaExternConversioDocumentException e) {
 			MissatgesHelper.error(request, e.getPublicMessage());
 		}
->>>>>>> refs/heads/task_891-Millora_missatges_OF
 		return "arxiuView";
 	}*/
 

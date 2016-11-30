@@ -72,7 +72,7 @@
 							<c:if test="${document.registrat}">
 								<a 	data-rdt-link-modal="true" 
 									class="icon registre" 
-									href="<c:url value='/modal/v3/expedient/${expedientId}/verificarRegistre/${document.documentStoreId}/${document.documentCodi}'/>">
+									href="<c:url value='/modal/v3/expedient/${expedientId}/proces/${document.processInstanceId}/document/${document.documentStoreId}/registre/verificar'/>">
 									<span class="fa fa-book" title="<spring:message code='expedient.document.registrat' />"></span>
 								</a>
 							</c:if>

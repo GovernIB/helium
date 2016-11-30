@@ -799,6 +799,7 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 				false,
 				false);
 	}
+	*/
 
 	@Override
 	@Transactional(readOnly = true)
@@ -831,7 +832,7 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 		return new ArxiuDto(dto.getVistaNom(), dto.getVistaContingut());
 	}
 
-
+/*
 	@Override
 	public boolean isExtensioDocumentPermesa(String nomArxiu) {
 		return (new Document()).isExtensioPermesa(getExtension(nomArxiu));
