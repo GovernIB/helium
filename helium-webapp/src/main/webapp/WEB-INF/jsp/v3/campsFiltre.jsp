@@ -9,7 +9,7 @@
 <c:set var="campErrors"><form:errors path="${campPath}"/></c:set>
 
 <div class="form-group<c:if test="${not empty campErrors}"> has-error</c:if>">
-	<label for="${campPath}" class="control-label" style="width: ${ampleLabel}; float: left;">${campActual.campEtiqueta}</label>	
+	<label for="${campPath}" class="control-label" style="width: ${ampleLabel}; float: left; padding-right: 11px;">${campActual.campEtiqueta}</label>	
 	<div class="controls form-group <c:if test='${not inline}'> like-cols</c:if>" <c:if test='${not inline}'> style="width: ${ampleInput};"</c:if>>
 		<c:choose>
 			<c:when test="${campActual.campTipus == 'STRING'}">

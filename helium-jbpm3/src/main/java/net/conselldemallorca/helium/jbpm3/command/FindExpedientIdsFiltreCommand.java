@@ -261,6 +261,8 @@ public class FindExpedientIdsFiltreCommand extends AbstractBaseCommand {
 				} else if ("estat".equals(sort)) {
 					sortColumns.add("case when pie.dataFi is null then 0 else 1 end");
 					sortColumns.add("pie.estatId nulls first");
+				} else {
+					sortColumns.add("pie.dataInici");
 				}
 				boolean sortFirst = true;
 				for (String sortColumn: sortColumns) {

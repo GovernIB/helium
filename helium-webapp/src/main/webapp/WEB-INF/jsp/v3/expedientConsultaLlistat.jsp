@@ -154,7 +154,7 @@ $(document).ready(function() {
 		<form:hidden path="consultaId"/>
 		<div class="control-group fila_reducida">
 		
-			<c:set var="ampleLabel">120px</c:set>
+			<c:set var="ampleLabel">130px</c:set>
 			<c:set var="ampleInput">calc(100% - ${ampleLabel})</c:set>
 			<c:set var="comptadorCols">0</c:set>
 			<div class="row">
