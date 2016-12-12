@@ -535,11 +535,13 @@ public class PassarelaFirmaHelper {
 	private String getAbsoluteControllerBase(
 			HttpServletRequest request,
 			String webContext) {
-		return	request.getScheme() + "://" +
-				request.getServerName() + ":" +
-				request.getServerPort() +
-				request.getContextPath() +
-				webContext;
+//		return	request.getScheme() + "://" +
+//				request.getServerName() + ":" +
+//				request.getServerPort() +
+//				request.getContextPath() +
+//				webContext;
+		
+		return (String)GlobalProperties.getInstance().get("app.base.url");
 	}
 
 	public String getArxiuMimeType(String nomArxiu) {
