@@ -565,6 +565,7 @@ public class TascaServiceImpl implements TascaService {
 		return documentHelper.hasDocumentsPerInstanciaTasca(task);
 	}
 
+	@Transactional(readOnly = true)
 	public ArxiuDto getArxiuPerDocumentCodi(
 			String tascaId,
 			String documentCodi) {
