@@ -541,7 +541,7 @@ public class PassarelaFirmaHelper {
 //				request.getContextPath() +
 //				webContext;
 		
-		return (String)GlobalProperties.getInstance().get("app.base.url");
+		return (String)GlobalProperties.getInstance().get("app.base.url") + webContext;
 	}
 
 	public String getArxiuMimeType(String nomArxiu) {
