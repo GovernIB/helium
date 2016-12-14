@@ -532,6 +532,9 @@ public class DocumentHelperV3 {
 			Document document,
 			Long documentStoreId) {
 		ExpedientDocumentDto dto = new ExpedientDocumentDto();
+		dto.setDocumentId(document.getId());
+		dto.setDocumentCodi(document.getCodi());
+		dto.setDocumentNom(document.getNom());
 		dto.setId(documentStoreId);
 		DocumentStore documentStore = documentStoreRepository.findOne(documentStoreId);
 		if (documentStore != null) {
@@ -540,9 +543,6 @@ public class DocumentHelperV3 {
 			dto.setDataDocument(documentStore.getDataDocument());
 			dto.setArxiuNom(calcularArxiuNom(documentStore, false));
 			dto.setProcessInstanceId(documentStore.getProcessInstanceId());
-			dto.setDocumentId(document.getId());
-			dto.setDocumentCodi(document.getCodi());
-			dto.setDocumentNom(document.getNom());
 			dto.setSignat(documentStore.isSignat());
 			if (documentStore.isSignat()) {
 				// TODO
