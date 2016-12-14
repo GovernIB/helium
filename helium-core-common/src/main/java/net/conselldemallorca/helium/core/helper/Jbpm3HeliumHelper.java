@@ -1367,7 +1367,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 			registreNotificacio.setDocuments(documents);
 		}
 		
-//		try {
+		try {
 			RespostaAnotacioRegistre respostaPlugin = pluginHelper.tramitacioRegistrarNotificacio(
 				registreNotificacio,
 				expedient,
@@ -1396,11 +1396,11 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 						"(Registre data de justificant)", 
 						"[" + respostaPlugin.getErrorCodi() + "]: " + respostaPlugin.getErrorDescripcio());
 			}
-//		} catch (Exception e) {
-//			System.out.println("No ha estat possible crear la notificació eletrònica per l'expedient " + expedient.getTitol() + 
-//					", per un error en l'enviament de les dades");
-//		}
-//		return null;
+		} catch (Exception e) {
+			logger.error("No ha estat possible crear la notificació eletrònica per l'expedient " + expedient.getTitol() + 
+					", per un error en l'enviament de les dades", e);;
+		}
+		return null;
 	}
 
 	@Override
