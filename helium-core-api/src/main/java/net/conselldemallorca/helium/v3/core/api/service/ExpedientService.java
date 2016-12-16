@@ -22,6 +22,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto.EstatTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto.IniciadorTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.InstanciaProcesDto;
+import net.conselldemallorca.helium.v3.core.api.dto.IntegracioParametreDto;
 import net.conselldemallorca.helium.v3.core.api.dto.MostrarAnulatsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NotificacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
@@ -856,4 +857,6 @@ public interface ExpedientService {
 	public List<String> findAmbDefinicioProcesId(Long definicioProcesId);
 
 	public void notificacioReprocessar(Long notificacioId) throws NoTrobatException;
+	
+	public void actualitzaExpedientFromZonaPersonal(Long expedientId, String expedientTramitIdentificador, String expedientTramitClau, IntegracioParametreDto[] parametres, long t0)  throws NoTrobatException;
 }

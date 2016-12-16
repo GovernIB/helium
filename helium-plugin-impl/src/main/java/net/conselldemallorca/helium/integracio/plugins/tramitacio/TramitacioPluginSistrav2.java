@@ -385,8 +385,13 @@ public class TramitacioPluginSistrav2 implements TramitacioPlugin {
 			}
 			if (registreNotificacio.getDadesExpedient() != null) {
 				DatosExpediente datosExpediente = new DatosExpediente();
-				if (registreNotificacio.getDadesExpedient().getUnitatAdministrativa() != null)
+				if (registreNotificacio.getDadesExpedient().getUnitatAdministrativa() != null) {
+					try {
 					datosExpediente.setUnidadAdministrativa(Long.parseLong(registreNotificacio.getDadesExpedient().getUnitatAdministrativa()));
+					} catch (NumberFormatException ex) {
+						throw new TramitacioPluginException("La unitat administrativa ha de ser un valor numèric", ex);
+					}
+				}
 				datosExpediente.setIdentificadorExpediente(
 						registreNotificacio.getDadesExpedient().getIdentificador());
 				datosExpediente.setClaveExpediente(

@@ -262,4 +262,16 @@ public class ZonaperEventNotificacioHandler extends BasicActionHandler
 
 	public void setVarNotificacioCrearExpedient(String varNotificacioCrearExpedient) {
 	}
+	
+	public void setRepresentatEmail(String representatEmail) {
+	}
+
+	public void setVarRepresentatEmail(String varRepresentatEmail) {
+	}
+
+	public void setRepresentatMobil(String representatMobil) {
+	}
+
+	public void setVarRepresentatMobil(String varRepresentatMobil) {
+	}
 }

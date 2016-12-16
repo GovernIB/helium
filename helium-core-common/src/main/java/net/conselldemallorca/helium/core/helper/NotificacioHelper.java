@@ -76,8 +76,18 @@ public class NotificacioHelper {
 	public void obtenirJustificantNotificacio(Notificacio notificacio) {
 		try {
 			RespostaJustificantRecepcio resposta = pluginHelper.tramitacioObtenirJustificant(notificacio.getRegistreNumero());
-			if (resposta != null && resposta.getData() != null)
-				notificacio.setEstat(DocumentEnviamentEstatEnumDto.PROCESSAT_OK);
+			if (resposta != null && resposta.isOk()) {
+				if (resposta.getData() != null) {
+					notificacio.setEstat(DocumentEnviamentEstatEnumDto.PROCESSAT_OK);
+				} else {
+					notificacio.setEstat(DocumentEnviamentEstatEnumDto.ENVIAT);
+				}
+				notificacio.setDataRecepcio(resposta.getData());
+				notificacio.setError(null);
+			} else {
+				notificacio.setError(resposta.getErrorDescripcio());
+				notificacio.setEstat(DocumentEnviamentEstatEnumDto.PROCESSAT_ERROR);
+			}
 		} catch (Exception ex) {
 			logger.error(
 					"Error actualitzant estat notificacio " + notificacio.getRegistreNumero(),

@@ -44,6 +44,10 @@ public class ZonaperEventNotificacioHandler extends BasicActionHandler implement
 	private String varRepresentatLlin1;
 	private String representatLlin2;
 	private String varRepresentatLlin2;
+	private String representatEmail;
+	private String varRepresentatEmail;
+	private String representatMobil;
+	private String varRepresentatMobil;
 	private String oficina;
 	private String varOficina;
 	private String oficinaFisica;
@@ -126,18 +130,21 @@ public class ZonaperEventNotificacioHandler extends BasicActionHandler implement
 		ExpedientDto expedient = getExpedientActual(executionContext);
 		ExpedientTipusDto expedientTipus = expedient.getTipus();
 		
-		expedient.setTramitExpedientIdentificador(expedient.getIdentificador());
-		if (expedient.getTramitExpedientIdentificador() == null)
-			throw new JbpmException(
-					  "El expediente " + expedient.getIdentificador() + " no tiene número de sistra asociado."
-					+ "Una notificación tiene que generarse dentro de un expediente, por tanto un paso "
-					+ "previo a generar una notificación es haber publicado el expediente en la zona "
-					+ "personal.");
+		if (expedient.getTramitExpedientIdentificador() == null || expedient.getTramitExpedientIdentificador().isEmpty()) {
+			expedient.setTramitExpedientIdentificador(expedient.getId().toString());
+			if (expedient.getTramitExpedientIdentificador() == null)
+				throw new JbpmException(
+						  "El expediente " + expedient.getIdentificador() + " no tiene número de sistra asociado."
+						+ "Una notificación tiene que generarse dentro de un expediente, por tanto un paso "
+						+ "previo a generar una notificación es haber publicado el expediente en la zona "
+						+ "personal.");
+		}
 		
 		DadesRegistreNotificacio anotacio = new DadesRegistreNotificacio();
 		anotacio.setData(new Date());
 		
-		String identificador = expedient.getNumeroIdentificador();
+		// CANVI. Ara l'identificador de l'expedient a SISTRA serà l'ID interna de l'expedient d'Helium
+		String identificador = expedient.getId().toString();
 		
 		String clau = new Long(System.currentTimeMillis()).toString();
 		if (expedient.getTramitExpedientClau() != null && !expedient.getTramitExpedientClau().isEmpty())
@@ -181,6 +188,18 @@ public class ZonaperEventNotificacioHandler extends BasicActionHandler implement
 				interessatNom + " " +
 				interessatLlinatge1 + " " +
 				interessatLlinatge2);
+		
+		String interessatEmail = (String)getValorOVariable(
+				executionContext,
+				representatEmail,
+				varRepresentatEmail);
+		String interessatMobil = (String)getValorOVariable(
+				executionContext,
+				representatMobil,
+				varRepresentatMobil);
+		
+		anotacio.setInteressatEmail((interessatEmail != null && !interessatEmail.isEmpty()) ? interessatEmail : expedient.getAvisosEmail());
+		anotacio.setInteressatMobil((interessatMobil != null && !interessatMobil.isEmpty()) ? interessatMobil : expedient.getAvisosMobil());
 		
 		anotacio.setInteressatEntitatCodi(
 				(String)getValorOVariable(
@@ -370,8 +389,8 @@ public class ZonaperEventNotificacioHandler extends BasicActionHandler implement
 			notificacio.setEstat(DocumentEnviamentEstatEnumDto.ENVIAT);
 			notificacio.setAssumpte(anotacio.getAnotacioAssumpte());
 			notificacio.setRegistreNumero(resposta.getNumero());
-			notificacio.setDataEnviament(anotacio.getData());
-			notificacio.setDataRecepcio(resposta.getData());
+			notificacio.setDataEnviament(resposta.getData());
+			notificacio.setDataRecepcio(null);
 			
 			DocumentNotificacioDto documentNotificacio = new DocumentNotificacioDto();
 			documentNotificacio.setId(documentInfo.getId());
@@ -392,7 +411,7 @@ public class ZonaperEventNotificacioHandler extends BasicActionHandler implement
 			notificacio.setInteressatPaisCodi(anotacio.getInteressatPaisCodi());
 			notificacio.setInteressatProvinciaCodi(anotacio.getInteressatProvinciaCodi());
 			notificacio.setInteressatMunicipiCodi(anotacio.getInteressatMunicipiCodi());
-			notificacio.setInteressatEmail(""); //pendent definir form
+			notificacio.setInteressatEmail(anotacio.getInteressatEmail());
 			notificacio.setUnitatAdministrativa(anotacio.getExpedientUnitatAdministrativa());
 			notificacio.setOrganCodi(anotacio.getOrganCodi());
 			notificacio.setOficinaCodi(anotacio.getOficinaCodi());
@@ -727,5 +746,21 @@ public class ZonaperEventNotificacioHandler extends BasicActionHandler implement
 	}
 	public void setVarNotificacioCrearExpedient(String varNotificacioCrearExpedient) {
 		this.varNotificacioCrearExpedient = varNotificacioCrearExpedient;
+	}
+
+	public void setRepresentatEmail(String representatEmail) {
+		this.representatEmail = representatEmail;
+	}
+
+	public void setVarRepresentatEmail(String varRepresentatEmail) {
+		this.varRepresentatEmail = varRepresentatEmail;
+	}
+
+	public void setRepresentatMobil(String representatMobil) {
+		this.representatMobil = representatMobil;
+	}
+
+	public void setVarRepresentatMobil(String varRepresentatMobil) {
+		this.varRepresentatMobil = varRepresentatMobil;
 	}
 }

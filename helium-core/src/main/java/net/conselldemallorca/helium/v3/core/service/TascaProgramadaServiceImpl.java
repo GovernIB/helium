@@ -23,6 +23,7 @@ import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.model.hibernate.Notificacio;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentEnviamentEstatEnumDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DocumentNotificacioTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.service.ExecucioMassivaService;
 import net.conselldemallorca.helium.v3.core.api.service.TascaProgramadaService;
@@ -126,7 +127,7 @@ public class TascaProgramadaServiceImpl implements TascaProgramadaService {
 	@Transactional
 	@Scheduled(fixedDelayString = "${app.notificacions.comprovar.estat}")
 	public void actualitzarEstatNotificacions() {
-		List<Notificacio> notificacionsPendentsRevisar = notificacioRepository.findByEstatOrderByDataEnviamentAsc(DocumentEnviamentEstatEnumDto.ENVIAT);
+		List<Notificacio> notificacionsPendentsRevisar = notificacioRepository.findByEstatAndTipusOrderByDataEnviamentAsc(DocumentEnviamentEstatEnumDto.ENVIAT, DocumentNotificacioTipusEnumDto.ELECTRONICA);
 		for (Notificacio notificacio: notificacionsPendentsRevisar) {
 			notificacioHelper.obtenirJustificantNotificacio(notificacio);
 		}

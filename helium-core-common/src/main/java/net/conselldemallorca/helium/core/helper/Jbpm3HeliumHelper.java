@@ -1351,6 +1351,8 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 		dadesInteressat.setPaisCodi(notificacio.getInteressatPaisCodi());
 		dadesInteressat.setPaisNom(notificacio.getInteressatPaisNom());
 		dadesInteressat.setNif(notificacio.getInteressatNif());
+		dadesInteressat.setEmail(notificacio.getInteressatEmail());
+		dadesInteressat.setMobil(notificacio.getInteressatMobil());
 		registreNotificacio.setDadesInteressat(dadesInteressat);
 		DadesExpedient dadesExpedient = new DadesExpedient();
 		dadesExpedient.setIdentificador(notificacio.getExpedientIdentificador());
@@ -1396,40 +1398,34 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 			registreNotificacio.setDocuments(documents);
 		}
 		
-		try {
-			RespostaAnotacioRegistre respostaPlugin = pluginHelper.tramitacioRegistrarNotificacio(
-				registreNotificacio,
-				expedient,
-				crearExpedient);
-		
-			if (respostaPlugin.isOk()) {
-				RegistreIdDto resposta = new RegistreIdDto();
-				resposta.setNumero(respostaPlugin.getNumero());
-				resposta.setData(respostaPlugin.getData());
-				ReferenciaRDSJustificanteDto referenciaRDSJustificante = new ReferenciaRDSJustificanteDto();
-				referenciaRDSJustificante.setClave(respostaPlugin.getReferenciaRDSJustificante().getClave());
-				referenciaRDSJustificante.setCodigo(respostaPlugin.getReferenciaRDSJustificante().getCodigo());
-				resposta.setReferenciaRDSJustificante(referenciaRDSJustificante);			
-				return resposta;
-			} else {
-				throw new SistemaExternException(
-						expedient.getEntorn().getId(),
-						expedient.getEntorn().getCodi(), 
-						expedient.getEntorn().getNom(), 
-						expedient.getId(), 
-						expedient.getTitol(), 
-						expedient.getNumero(), 
-						expedient.getTipus().getId(), 
-						expedient.getTipus().getCodi(), 
-						expedient.getTipus().getNom(), 
-						"(Registre data de justificant)", 
-						"[" + respostaPlugin.getErrorCodi() + "]: " + respostaPlugin.getErrorDescripcio());
-			}
-		} catch (Exception e) {
-			logger.error("No ha estat possible crear la notificació eletrònica per l'expedient " + expedient.getTitol() + 
-					", per un error en l'enviament de les dades", e);;
+		RespostaAnotacioRegistre respostaPlugin = pluginHelper.tramitacioRegistrarNotificacio(
+			registreNotificacio,
+			expedient,
+			crearExpedient);
+	
+		if (respostaPlugin.isOk()) {
+			RegistreIdDto resposta = new RegistreIdDto();
+			resposta.setNumero(respostaPlugin.getNumero());
+			resposta.setData(respostaPlugin.getData());
+			ReferenciaRDSJustificanteDto referenciaRDSJustificante = new ReferenciaRDSJustificanteDto();
+			referenciaRDSJustificante.setClave(respostaPlugin.getReferenciaRDSJustificante().getClave());
+			referenciaRDSJustificante.setCodigo(respostaPlugin.getReferenciaRDSJustificante().getCodigo());
+			resposta.setReferenciaRDSJustificante(referenciaRDSJustificante);			
+			return resposta;
+		} else {
+			throw new SistemaExternException(
+					expedient.getEntorn().getId(),
+					expedient.getEntorn().getCodi(), 
+					expedient.getEntorn().getNom(), 
+					expedient.getId(), 
+					expedient.getTitol(), 
+					expedient.getNumero(), 
+					expedient.getTipus().getId(), 
+					expedient.getTipus().getCodi(), 
+					expedient.getTipus().getNom(), 
+					"(Registre data de justificant)", 
+					"[" + respostaPlugin.getErrorCodi() + "]: " + respostaPlugin.getErrorDescripcio());
 		}
-		return null;
 	}
 
 	@Override

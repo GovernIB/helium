@@ -28,6 +28,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import net.conselldemallorca.helium.core.common.ExpedientCamps;
@@ -43,6 +44,7 @@ import net.conselldemallorca.helium.core.helper.ExpedientRegistreHelper;
 import net.conselldemallorca.helium.core.helper.ExpedientTipusHelper;
 import net.conselldemallorca.helium.core.helper.IndexHelper;
 import net.conselldemallorca.helium.core.helper.MessageHelper;
+import net.conselldemallorca.helium.core.helper.MonitorIntegracioHelper;
 import net.conselldemallorca.helium.core.helper.NotificacioHelper;
 import net.conselldemallorca.helium.core.helper.PaginacioHelper;
 import net.conselldemallorca.helium.core.helper.PermisosHelper;
@@ -100,6 +102,8 @@ import net.conselldemallorca.helium.v3.core.api.dto.ExpedientErrorDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientErrorDto.ErrorTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.InstanciaProcesDto;
+import net.conselldemallorca.helium.v3.core.api.dto.IntegracioAccioTipusEnumDto;
+import net.conselldemallorca.helium.v3.core.api.dto.IntegracioParametreDto;
 import net.conselldemallorca.helium.v3.core.api.dto.MostrarAnulatsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NotificacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
@@ -212,8 +216,6 @@ public class ExpedientServiceImpl implements ExpedientService {
 	private ConversioTipusHelper conversioTipusHelper;
 	@Resource
 	private LuceneHelper luceneHelper;
-//	@Resource
-//	private MongoDBHelper mongoDBHelper;
 	@Resource(name="permisosHelperV3")
 	private PermisosHelper permisosHelper;
 	@Resource
@@ -226,6 +228,8 @@ public class ExpedientServiceImpl implements ExpedientService {
 	private IndexHelper indexHelper;
 	@Resource
 	private NotificacioHelper notificacioHelper;
+	@Resource
+	private MonitorIntegracioHelper monitorIntegracioHelper;
 
 
 
@@ -2691,6 +2695,34 @@ public class ExpedientServiceImpl implements ExpedientService {
 			processInstancesIds.add(processInstance.getId());
 		return processInstancesIds;
 	}
+	
+	/***MÈTODE CRIDAT DES DEL PLUGINHELPER PER A GUARDAR 
+	 * AQUESTES DADES EN UNA TRANSACCIÓ A PART*****/
+	@Override
+	@Transactional(propagation = Propagation.REQUIRES_NEW)
+	public void actualitzaExpedientFromZonaPersonal(Long expedientId, String expedientTramitIdentificador, String expedientTramitClau, IntegracioParametreDto[] parametres, long t0) {
+		monitorIntegracioHelper.addAccioOk(
+				MonitorIntegracioHelper.INTCODI_SISTRA,
+				"Creació d'expedient",
+				IntegracioAccioTipusEnumDto.ENVIAMENT,
+				System.currentTimeMillis() - t0,
+				parametres);
+		
+		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
+				expedientId,
+				true,
+				false,
+				false,
+				false);
+		
+		expedient.setTramitExpedientIdentificador(expedientTramitIdentificador);
+		expedient.setTramitExpedientClau(expedientTramitClau);
+		expedientRepository.save(expedient);
+		System.out.println("###===> Expedient creat en zona personal:");
+		System.out.println("###===> Identificador: " + expedient.getTramitExpedientIdentificador());
+		System.out.println("###===> Clau: " + expedient.getTramitExpedientClau());
+	}
+	/**************/
 	
 	private static final Logger logger = LoggerFactory.getLogger(ExpedientServiceImpl.class);
 }

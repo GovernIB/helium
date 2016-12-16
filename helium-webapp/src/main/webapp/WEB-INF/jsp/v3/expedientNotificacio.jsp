@@ -21,7 +21,7 @@
 			<tbody>
 				<c:forEach items="${notificacions}" var="notificacio">
 					<tr>
-						<td><fmt:formatDate value="${notificacio.dataRecepcio}" pattern="dd/MM/yyyy HH:mm:ss"></fmt:formatDate></td>
+						<td><fmt:formatDate value="${notificacio.dataEnviament}" pattern="dd/MM/yyyy HH:mm:ss"></fmt:formatDate></td>
 					    <td>${notificacio.assumpte}</td>
 						<td>
 							<c:choose>

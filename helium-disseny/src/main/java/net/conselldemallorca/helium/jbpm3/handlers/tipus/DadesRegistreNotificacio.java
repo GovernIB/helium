@@ -33,6 +33,9 @@ public class DadesRegistreNotificacio implements Serializable{
 	private String interessatProvinciaNom;
 	private String interessatMunicipiCodi;
 	private String interessatMunicipiNom;
+	private String interessatEmail;
+	private String interessatMobil;
+	
 	private String representatNif;
 	private String representatNomAmbCognoms;
 	private String expedientIdentificador;
@@ -257,6 +260,18 @@ public class DadesRegistreNotificacio implements Serializable{
 	}
 	public void setNotificacioCrearExpedient(boolean notificacioCrearExpedient) {
 		this.notificacioCrearExpedient = notificacioCrearExpedient;
+	}
+	public String getInteressatEmail() {
+		return interessatEmail;
+	}
+	public void setInteressatEmail(String interessatEmail) {
+		this.interessatEmail = interessatEmail;
+	}
+	public String getInteressatMobil() {
+		return interessatMobil;
+	}
+	public void setInteressatMobil(String interessatMobil) {
+		this.interessatMobil = interessatMobil;
 	}
 
 }

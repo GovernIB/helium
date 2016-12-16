@@ -20,6 +20,8 @@ public class DadesInteressat {
 	private String provinciaNom;
 	private String municipiCodi;
 	private String municipiNom;
+	private String email;
+	private String mobil;
 
 	public String getEntitatCodi() {
 		return entitatCodi;
@@ -80,6 +82,18 @@ public class DadesInteressat {
 	}
 	public void setMunicipiNom(String municipiNom) {
 		this.municipiNom = municipiNom;
+	}
+	public String getEmail() {
+		return email;
+	}
+	public void setEmail(String email) {
+		this.email = email;
+	}
+	public String getMobil() {
+		return mobil;
+	}
+	public void setMobil(String mobil) {
+		this.mobil = mobil;
 	}
 
 }

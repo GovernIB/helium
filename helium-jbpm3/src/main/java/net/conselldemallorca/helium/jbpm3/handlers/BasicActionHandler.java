@@ -418,7 +418,7 @@ public abstract class BasicActionHandler extends AbstractHeliumActionHandler imp
 	public RespostaRegistre registreNotificacio(
 			ExecutionContext executionContext,
 			DadesRegistreNotificacio dadesNotificacio,
-			List<DocumentInfo> documentsNotificacio) throws JbpmException{
+			List<DocumentInfo> documentsNotificacio) throws JbpmException {
 		RegistreNotificacioDto notificacio = new RegistreNotificacioDto();
 		notificacio.setExpedientIdentificador(dadesNotificacio.getExpedientIdentificador());
 		notificacio.setExpedientClau(dadesNotificacio.getExpedientClau());
@@ -439,6 +439,8 @@ public abstract class BasicActionHandler extends AbstractHeliumActionHandler imp
 			notificacio.setRepresentatNif(dadesNotificacio.getRepresentatNif());
 			notificacio.setRepresentatNomAmbCognoms(dadesNotificacio.getRepresentatNomAmbCognoms());
 		}
+		notificacio.setInteressatEmail(dadesNotificacio.getInteressatEmail());
+		notificacio.setInteressatMobil(dadesNotificacio.getInteressatMobil());
 		notificacio.setAssumpteIdiomaCodi(dadesNotificacio.getAnotacioIdiomaCodi());
 		notificacio.setAssumpteTipus(dadesNotificacio.getAnotacioTipusAssumpte());
 		notificacio.setAssumpteExtracte(dadesNotificacio.getAnotacioAssumpte());

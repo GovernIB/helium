@@ -11,6 +11,6 @@ package net.conselldemallorca.helium.v3.core.api.dto;
  */
 public enum DocumentNotificacioTipusEnumDto {
 	ELECTRONICA,
-	MANUAL
-	//CORREOS
+	MANUAL,
+	SICER
 }

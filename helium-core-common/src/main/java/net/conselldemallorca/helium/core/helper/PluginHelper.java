@@ -78,6 +78,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.ZonaperEventDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ZonaperExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.exception.SistemaExternException;
+import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientRepository;
 import net.conselldemallorca.helium.v3.core.repository.PortasignaturesRepository;
 
@@ -101,6 +102,8 @@ public class PluginHelper {
 	private CacheManager cacheManager;
 	@Autowired
 	private MonitorIntegracioHelper monitorIntegracioHelper;
+	@Autowired
+	private ExpedientService expedientService;
 
 	private PersonesPlugin personesPlugin;
 	private boolean personesPluginEvaluat = false;
@@ -475,14 +478,8 @@ public class PluginHelper {
 				expedient.getTramitExpedientClau().isEmpty()) &&
 				crearExpedient) {
 					crearExpedientPerNotificacio(registreNotificacio, expedient, parametres);
-					expedient.setTramitExpedientIdentificador(registreNotificacio.getDadesExpedient().getIdentificador());
-					expedient.setTramitExpedientClau(registreNotificacio.getDadesExpedient().getClau());
-					expedientRepository.saveAndFlush(expedient);
-					System.out.println("###===> Expedient creat en zona personal:");
-					System.out.println("###===> Identificador: " + expedient.getTramitExpedientIdentificador());
-					System.out.println("###===> Clau: " + expedient.getTramitExpedientClau());
 			}
-		} catch (TramitacioPluginException ex) {
+		} catch (Exception ex) {
 			String errorDescripcio = "No s'han pogut crear l'expedient a la zona persoanl (" +
 					"expedientIdentificador=" + registreNotificacio.getDadesExpedient().getIdentificador() + ", " +
 					"expedientClau=" + registreNotificacio.getDadesExpedient().getClau() + ", " +
@@ -542,24 +539,29 @@ public class PluginHelper {
 		return resposta;
 	}
 	
-	private void crearExpedientPerNotificacio(RegistreNotificacio registreNotificacio, Expedient expedient, IntegracioParametreDto[] parametres) throws TramitacioPluginException {
+	private void crearExpedientPerNotificacio(RegistreNotificacio registreNotificacio, Expedient expedient, IntegracioParametreDto[] parametres) throws Exception {
 		ZonaperExpedientDto zonaperExpedient = new ZonaperExpedientDto();
 		
 		zonaperExpedient.setExpedientIdentificador(registreNotificacio.getDadesExpedient().getIdentificador());
 		zonaperExpedient.setExpedientClau(registreNotificacio.getDadesExpedient().getClau());
 		zonaperExpedient.setIdioma(registreNotificacio.getDadesNotificacio().getIdiomaCodi());
-		zonaperExpedient.setUnitatAdministrativa(Long.parseLong(registreNotificacio.getDadesExpedient().getUnitatAdministrativa()));
+		
+		try {
+			zonaperExpedient.setUnitatAdministrativa(Long.parseLong(registreNotificacio.getDadesExpedient().getUnitatAdministrativa()));
+		} catch (NumberFormatException e) {
+			throw new NumberFormatException("La unitat administrativa ha de ser un valor numèric");
+		}
+		
 		zonaperExpedient.setTramitNumero(expedient.getNumeroEntradaSistra());
 		zonaperExpedient.setAutenticat(registreNotificacio.getDadesInteressat().isAutenticat());
 		zonaperExpedient.setRepresentantNif(registreNotificacio.getDadesInteressat().getNif());
 		zonaperExpedient.setRepresentatNif(registreNotificacio.getDadesInteressat().getNif());
 		zonaperExpedient.setRepresentatNom(registreNotificacio.getDadesInteressat().getNomAmbCognoms());
 		zonaperExpedient.setAvisosHabilitat(true);
-		zonaperExpedient.setAvisosEmail(expedient.getAvisosEmail());
-		zonaperExpedient.setAvisosSMS(expedient.getAvisosMobil());
+		zonaperExpedient.setAvisosEmail(registreNotificacio.getDadesInteressat().getEmail());
+		zonaperExpedient.setAvisosSMS(registreNotificacio.getDadesInteressat().getMobil());
 		zonaperExpedient.setDescripcio(expedient.getTitol());
 		zonaperExpedient.setCodiProcediment(expedient.getTipus().getNotificacioCodiProcediment());
-		
 		
 		PublicarExpedientRequest request = conversioTipusHelper.convertir(
 				zonaperExpedient,
@@ -567,12 +569,13 @@ public class PluginHelper {
 		
 		long t0 = System.currentTimeMillis();
 		getTramitacioPlugin().publicarExpedient(request);
-		monitorIntegracioHelper.addAccioOk(
-				MonitorIntegracioHelper.INTCODI_SISTRA,
-				"Creació d'expedient",
-				IntegracioAccioTipusEnumDto.ENVIAMENT,
-				System.currentTimeMillis() - t0,
-				parametres);
+		
+		expedientService.actualitzaExpedientFromZonaPersonal(
+				expedient.getId(), 
+				registreNotificacio.getDadesExpedient().getIdentificador(), 
+				registreNotificacio.getDadesExpedient().getClau(), 
+				parametres, 
+				t0);
 	}
 
 	public RespostaJustificantRecepcio tramitacioObtenirJustificant(
