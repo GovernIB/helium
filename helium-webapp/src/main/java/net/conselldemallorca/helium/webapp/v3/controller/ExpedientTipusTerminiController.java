@@ -4,7 +4,9 @@
 package net.conselldemallorca.helium.webapp.v3.controller;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -84,7 +86,13 @@ public class ExpedientTipusTerminiController extends BaseExpedientTipusControlle
 			HttpServletRequest request,
 			@PathVariable Long expedientTipusId,
 			Model model) {
-		PaginacioParamsDto paginacioParams = DatatablesHelper.getPaginacioDtoFromRequest(request);
+		Map<String, String[]> mapeigFiltres = new HashMap<String, String[]>();
+		mapeigFiltres.put("durada", new String[] {"anys", "mesos", "dies"});
+		PaginacioParamsDto paginacioParams = 
+				DatatablesHelper.getPaginacioDtoFromRequest(
+						request,
+						null,
+						mapeigFiltres);
 		return DatatablesHelper.getDatatableResponse(
 				request,
 				null,

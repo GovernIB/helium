@@ -2913,6 +2913,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 				"Esborrant la consulta del tipus d'expedient (" +
 				"consultaId=" + consultaConsultaId +  ")");
 		Consulta entity = consultaRepository.findOne(consultaConsultaId);
+		entity.getExpedientTipus().getConsultes().remove(entity);
 		consultaRepository.delete(entity);	
 		consultaRepository.flush();
 		reordenarConsultes(entity.getExpedientTipus().getId());		

@@ -43,14 +43,21 @@
 					<th data-col-name="id" data-visible="false"/>
 					<th data-col-name="codi" width="20%"><spring:message code="expedient.tipus.document.llistat.columna.codi"/></th>
 					<th data-col-name="nom"><spring:message code="expedient.tipus.document.llistat.columna.nom"/></th>
+					<th data-col-name="plantilla" data-template="#plantillaTemplate">
+					<spring:message code="expedient.tipus.document.llistat.columna.plantilla"/>
+						<script id="plantillaTemplate" type="text/x-jsrender">
+							{{if plantilla != null }}
+								<spring:message code="comu.check"></spring:message>
+							{{/if}}
+						</script>
+					</th>
 					<th data-col-name="arxiuNom" data-template="#arxiuTemplate">
 					<spring:message code="expedient.tipus.document.llistat.columna.arxiu"/>
 						<script id="arxiuTemplate" type="text/x-jsrender">
 							{{if arxiuNom != null }}
-								<spring:message code="comu.check"></spring:message>
-								{{if plantilla }}
-									<span class="label label-info" title="plantilla">P</span>
-								{{/if}}
+								<div align="center">
+									<a href="${baseUrl}/document/{{:id}}/download" class="nounderline deco-none" style="color: inherit;" ><span class="fa fa-file" title="<spring:message code="expedient.tipus.document.llistat.accio.descarregar"/>"></span></a>
+								</div>
 							{{/if}}
 						</script>
 					</th>
@@ -59,10 +66,10 @@
 							<div class="dropdown">
 								<button class="btn btn-primary" data-toggle="dropdown"><span class="fa fa-cog"></span>&nbsp;<spring:message code="comu.boto.accions"/>&nbsp;<span class="caret"></span></button>
 								<ul class="dropdown-menu">
-									{{if arxiuNom != null }}
-										<li><a href="${baseUrl}/document/{{:id}}/download" ><span class="fa fa-file"></span>&nbsp;Descarregar</a></li>
-									{{/if}}
 									<li><a data-toggle="modal" data-callback="callbackModalDocuments()" href="${baseUrl}/document/{{:id}}/update"><span class="fa fa-pencil"></span>&nbsp;<spring:message code="expedient.tipus.info.accio.modificar"/></a></li>
+									{{if arxiuNom != null }}
+										<li><a href="${baseUrl}/document/{{:id}}/download" ><span class="fa fa-file"></span>&nbsp;<spring:message code="expedient.tipus.document.llistat.accio.descarregar"/></a></li>
+									{{/if}}
 									<li><a href="${baseUrl}/document/{{:id}}/delete" data-toggle="ajax" data-confirm="<spring:message code="expedient.tipus.document.llistat.confirmacio.esborrar"/>"><span class="fa fa-trash-o"></span>&nbsp;<spring:message code="expedient.llistat.accio.esborrar"/></a></li>
 								</ul>
 							</div>
@@ -72,6 +79,7 @@
 				</tr>
 			</thead>
 		</table>
+
 		<script id="tableButtonsDocumentTemplate" type="text/x-jsrender">
 			<div class="botons-titol text-right">
 				<a id="nou_camp" class="btn btn-default" href="${baseUrl}/document/new" data-toggle="modal" data-callback="callbackModalDocuments()" data-datatable-id="expedientTipusDomini"><span class="fa fa-plus"></span>&nbsp;<spring:message code="expedient.tipus.document.llistat.accio.nova"/></a>

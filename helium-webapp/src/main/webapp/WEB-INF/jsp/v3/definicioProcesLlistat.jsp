@@ -21,14 +21,15 @@
 </head>
 <body>
 	<div class="text-right" data-toggle="botons-titol">
+		<a class="btn btn-default" href="definicioProces/importar" data-toggle="modal"><span class="fa fa-sign-in"></span>&nbsp;<spring:message code="comu.importar"/></a>
+		<a class="btn btn-default" href="definicioProces/desplegar" data-toggle="modal" data-callback="callbackModaldefinicionsProces()"><span class="fa fa-download"></span>&nbsp;<spring:message code="comu.filtre.desplegar"/></a>
 	</div>
 	<table	id="definicioProces"
 			data-toggle="datatable"
 			data-url="definicioProces/datatable"
 			data-paging-enabled="true"
-			data-info-type="search+button"
+			data-info-type="search"
 			data-ordering="true"
-			data-botons-template="#tableDefinicioProcesButtonsTemplate"
 			data-default-order="1"
 			data-rowhref-template="#rowhrefTemplate"
 			class="table table-striped table-bordered table-hover">
@@ -58,17 +59,11 @@
 	</table>
 	<script id="rowhrefTemplate" type="text/x-jsrender">definicioProces/{{:jbpmKey}}</script>	
 
-	<script id="tableDefinicioProcesButtonsTemplate" type="text/x-jsrender">
-			<div class="botons-titol text-right">
-				<a class="btn btn-default" href="definicioProces/importar" data-toggle="modal"><span class="fa fa-sign-in"></span>&nbsp;<spring:message code="comu.importar"/></a>
-				<a class="btn btn-default" href="definicioProces/desplegar" data-toggle="modal" data-callback="callbackModaldefinicionsProces()"><span class="fa fa-download"></span>&nbsp;<spring:message code="comu.filtre.desplegar"/></a>
-			</div>
-		</script>
-
 	<script>
 		function callbackModaldefinicionsProces() {
-			webutilRefreshMissatges();
-			refrescaTaula();
+			//webutilRefreshMissatges();
+			//refrescaTaula();
+			location.reload();
 		}
 	</script>
 

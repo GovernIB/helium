@@ -73,6 +73,9 @@ public class Consulta implements Serializable, GenericEntity<Long> {
 	private ExpedientTipus expedientTipus;
 
 	private Set<ConsultaCamp> camps = new HashSet<ConsultaCamp>();
+	
+	/** Camps de tipus consulta relacionats amb aquesta consulta. */
+	private Set<Camp> campsConsulta = new HashSet<Camp>();
 
 	private String formatExport;
 
@@ -219,7 +222,7 @@ public class Consulta implements Serializable, GenericEntity<Long> {
 		this.expedientTipus = expedientTipus;
 	}
 
-	@OneToMany(mappedBy="consulta", cascade={CascadeType.ALL})
+	@OneToMany(mappedBy="consulta", cascade={CascadeType.ALL}, fetch=FetchType.LAZY)
 	public Set<ConsultaCamp> getCamps() {
 		return this.camps;
 	}
@@ -232,6 +235,15 @@ public class Consulta implements Serializable, GenericEntity<Long> {
 	public void removeCamp(ConsultaCamp camp) {
 		getCamps().remove(camp);
 	}
+	
+	@OneToMany(mappedBy="consulta", cascade={CascadeType.ALL}, fetch=FetchType.LAZY)
+	public Set<Camp> getCampsConsulta() {
+		return this.campsConsulta;
+	}
+	public void setCampsConsulta(Set<Camp> campsConsulta) {
+		this.campsConsulta= campsConsulta;
+	}	
+
 
 	@Override
 	public int hashCode() {

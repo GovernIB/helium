@@ -42,7 +42,7 @@
 		<div id="modal-botons" class="well">
 			<button type="button" class="btn btn-default" data-modal-cancel="true"><spring:message code="comu.boto.cancelar"/></button>
 			<c:choose>
-				<c:when test="${empty expedientTipusAgrupacioagrupacioCommand.id}">
+				<c:when test="${empty agrupacioCommand.id}">
 					<button class="btn btn-primary right" type="submit" name="accio" value="crear">
 						<span class="fa fa-plus"></span> <spring:message code='comu.boto.crear' />
 					</button>

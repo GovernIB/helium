@@ -80,9 +80,6 @@
 			</button>
 			<button id="desplegarButton" type="submit" class="btn btn-success right">
 				<span class="fa fa-download"></span> <spring:message code="comu.filtre.desplegar"/>
-				<span class="desplegar processant" style="visibility:hidden;">
-					<span class="fa fa-spinner fa-spin fa-fw" title="<spring:message code="comu.processant"/>..."></span><span class="sr-only">&hellip;</span>
-				</span>			
 			</button>
 		</div>
 	</form:form>

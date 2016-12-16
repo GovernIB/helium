@@ -20,6 +20,8 @@ public class CampTascaExportacio implements Serializable {
 	private boolean required;
 	private boolean readOnly;
 	private int order;
+	private int ampleCols;
+	private int buitCols;
 	/** Indica si el camp està lligat al tipus d'expedient.*/
 	private boolean tipusExpedient;
 
@@ -32,6 +34,8 @@ public class CampTascaExportacio implements Serializable {
 			boolean required,
 			boolean readOnly,
 			int order,
+			int ampleCols,
+			int buitCols,
 			boolean tipusExpedient) {
 		this.campCodi = campCodi;
 		this.readFrom = readFrom;
@@ -39,6 +43,8 @@ public class CampTascaExportacio implements Serializable {
 		this.required = required;
 		this.readOnly = readOnly;
 		this.order = order;
+		this.ampleCols = ampleCols;
+		this.buitCols = buitCols;
 		this.tipusExpedient = tipusExpedient;
 	}
 
@@ -78,6 +84,22 @@ public class CampTascaExportacio implements Serializable {
 	public void setOrder(int order) {
 		this.order = order;
 	}
+	public int getAmpleCols() {
+		return ampleCols;
+	}
+
+	public void setAmpleCols(int ampleCols) {
+		this.ampleCols = ampleCols;
+	}
+
+	public int getBuitCols() {
+		return buitCols;
+	}
+
+	public void setBuitCols(int buitCols) {
+		this.buitCols = buitCols;
+	}
+
 	public boolean isTipusExpedient() {
 		return tipusExpedient;
 	}

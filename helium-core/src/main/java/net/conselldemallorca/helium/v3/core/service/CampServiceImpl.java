@@ -3,6 +3,7 @@
  */
 package net.conselldemallorca.helium.v3.core.service;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -20,22 +21,27 @@ import net.conselldemallorca.helium.core.model.hibernate.Camp;
 import net.conselldemallorca.helium.core.model.hibernate.Camp.TipusCamp;
 import net.conselldemallorca.helium.core.model.hibernate.CampAgrupacio;
 import net.conselldemallorca.helium.core.model.hibernate.CampRegistre;
+import net.conselldemallorca.helium.core.model.hibernate.CampTasca;
 import net.conselldemallorca.helium.core.model.hibernate.Consulta;
+import net.conselldemallorca.helium.core.model.hibernate.ConsultaCamp;
 import net.conselldemallorca.helium.core.model.hibernate.Domini;
 import net.conselldemallorca.helium.core.model.hibernate.Enumeracio;
-import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
+import net.conselldemallorca.helium.core.model.hibernate.Tasca;
 import net.conselldemallorca.helium.v3.core.api.dto.CampAgrupacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampRegistreDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampTipusDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ConsultaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
+import net.conselldemallorca.helium.v3.core.api.dto.TascaDto;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
 import net.conselldemallorca.helium.v3.core.api.service.CampService;
 import net.conselldemallorca.helium.v3.core.repository.CampAgrupacioRepository;
 import net.conselldemallorca.helium.v3.core.repository.CampRegistreRepository;
 import net.conselldemallorca.helium.v3.core.repository.CampRepository;
+import net.conselldemallorca.helium.v3.core.repository.ConsultaCampRepository;
 import net.conselldemallorca.helium.v3.core.repository.ConsultaRepository;
 import net.conselldemallorca.helium.v3.core.repository.DefinicioProcesRepository;
 import net.conselldemallorca.helium.v3.core.repository.DominiRepository;
@@ -65,6 +71,8 @@ public class CampServiceImpl implements CampService {
 	private DominiRepository dominiRepository;
 	@Resource
 	private ConsultaRepository consultaRepository;
+	@Resource
+	private ConsultaCampRepository consultaCampRepository;
 
 	@Resource
 	private ConversioTipusHelper conversioTipusHelper;
@@ -473,7 +481,7 @@ public class CampServiceImpl implements CampService {
 		entity.setCodi(agrupacio.getCodi());
 		entity.setNom(agrupacio.getNom());
 		entity.setDescripcio(agrupacio.getDescripcio());
-		entity.setOrdre(campAgrupacioRepository.getNextOrdre(expedientTipusId, null));
+		entity.setOrdre(campAgrupacioRepository.getNextOrdre(expedientTipusId, definicioProcesId));
 
 		if (expedientTipusId != null)
 			entity.setExpedientTipus(expedientTipusRepository.findOne(expedientTipusId));
@@ -514,7 +522,9 @@ public class CampServiceImpl implements CampService {
 		boolean ret = false;
 		CampAgrupacio agrupacio = campAgrupacioRepository.findOne(id);
 		if (agrupacio != null) {
-			List<CampAgrupacio> agrupacions = campAgrupacioRepository.findAmbExpedientTipusOrdenats(agrupacio.getExpedientTipus().getId());
+			List<CampAgrupacio> agrupacions = agrupacio.getExpedientTipus() != null
+					? campAgrupacioRepository.findAmbExpedientTipusOrdenats(agrupacio.getExpedientTipus().getId())
+					: campAgrupacioRepository.findAmbDefinicioProcesOrdenats(agrupacio.getDefinicioProces().getId());
 			if(posicio != agrupacions.indexOf(agrupacio)) {
 				agrupacions.remove(agrupacio);
 				agrupacions.add(posicio, agrupacio);
@@ -546,14 +556,19 @@ public class CampServiceImpl implements CampService {
 			campAgrupacioRepository.delete(entity);
 			campAgrupacioRepository.flush();
 		}
-		reordenarAgrupacions(entity.getExpedientTipus().getId());
+		reordenarAgrupacions(
+				entity.getExpedientTipus() != null? entity.getExpedientTipus().getId() : null,
+				entity.getDefinicioProces() != null? entity.getDefinicioProces().getId() : null);
 	}
 	
-	/** Funció per reasignar el valor d'ordre per a les agrupacions d'un tipus d'expedient */
+	/** Funció per reasignar el valor d'ordre per a les agrupacions d'un tipus d'expedient o definició de procés*/
 	@Transactional
-	private int reordenarAgrupacions(Long expedientTipusId) {
-		ExpedientTipus expedientTipus = expedientTipusRepository.findOne(expedientTipusId);
-		List<CampAgrupacio> campsAgrupacio = expedientTipus.getAgrupacions();
+	private int reordenarAgrupacions(
+			Long expedientTipusId, 
+			Long definicioProcesId) {
+		List<CampAgrupacio> campsAgrupacio = expedientTipusId != null
+				? expedientTipusRepository.findOne(expedientTipusId).getAgrupacions()
+				: definicioProcesRepository.findOne(definicioProcesId).getAgrupacions();						
 		int i = 0;
 		for (CampAgrupacio campAgrupacio: campsAgrupacio)
 			campAgrupacio.setOrdre(i++);
@@ -630,7 +645,7 @@ public class CampServiceImpl implements CampService {
 				"agrupacioId = " + agrupacioId + ")");
 		Camp camp = campRepository.findOne(campId);
 		CampAgrupacio agrupacio = campAgrupacioRepository.findOne(agrupacioId);
-		if (camp != null && agrupacio != null && camp.getExpedientTipus().getId().equals(agrupacio.getExpedientTipus().getId())) {
+		if (camp != null && agrupacio != null) {
 			camp.setAgrupacio(agrupacio);
 			reordenarCamps(agrupacioId);
 			ret = true;
@@ -841,6 +856,63 @@ public class CampServiceImpl implements CampService {
 					TipusCamp.DATE);
 		return conversioTipusHelper.convertirList(
 				camps, 
+				CampDto.class);
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public List<TascaDto> findTasquesPerCamp(Long campId) {
+		logger.debug(
+				"Consultant les tasques pel camp (" +
+				"campId =" + campId +")");
+		
+		Camp camp = campRepository.findOne(campId);
+		List<Tasca> tasques = new ArrayList<Tasca>();
+		for (CampTasca campTasca : camp.getCampsTasca())
+			tasques.add(campTasca.getTasca());
+		
+		return conversioTipusHelper.convertirList(
+				tasques, 
+				TascaDto.class);
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public List<ConsultaDto> findConsultesPerCamp(Long campId) {
+		logger.debug(
+				"Consultant les consultes pel camp (" +
+				"campId =" + campId +")");
+		
+		Camp camp = campRepository.findOne(campId);
+		List<ConsultaCamp> consultaCamps = consultaCampRepository.findPerCamp(
+				camp.getCodi(),
+				camp.getDefinicioProces() != null ? camp.getDefinicioProces().getJbpmKey() : null,
+				camp.getDefinicioProces() != null ? camp.getDefinicioProces().getVersio() : -1);
+		
+		Map<String, Consulta> mapConsultes = new HashMap<String, Consulta>();
+		for (ConsultaCamp cc : consultaCamps )
+			if (!mapConsultes.containsKey(cc.getConsulta().getCodi()))
+				mapConsultes.put(cc.getConsulta().getCodi(), cc.getConsulta());
+		
+		return conversioTipusHelper.convertirList(
+				new ArrayList<Consulta>(mapConsultes.values()), 
+				ConsultaDto.class);
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public List<CampDto> findRegistresPerCamp(Long campId) {
+		logger.debug(
+				"Consultant els registres pel camp (" +
+				"campId =" + campId +")");
+		
+		Camp camp = campRepository.findOne(campId);
+		List<Camp> registres = new ArrayList<Camp>();
+		for (CampRegistre campRegistre : camp.getRegistrePares())
+			registres.add(campRegistre.getRegistre());
+		
+		return conversioTipusHelper.convertirList(
+				registres, 
 				CampDto.class);
 	}
 }

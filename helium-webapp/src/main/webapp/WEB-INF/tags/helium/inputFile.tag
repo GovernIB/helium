@@ -37,7 +37,7 @@
 	            <div class="input-group" id ="${campPath}Group">
 	            	<form:input path="${fileName}" cssClass="form-control" />
 	                <c:choose>
-						<c:when test="${fileExists}">
+						<c:when test="${not fileExists}">
 			                <span class="input-group-btn">
 			                    <span class="btn btn-default btn-file">
 			                        <spring:message code='comu.arxiu' />&hellip; <input type="file" id="${campPath}_multipartFile" name="${campPath}_multipartFile">
@@ -60,18 +60,6 @@
 						</c:otherwise>
 					</c:choose>
 	            </div>
-				<!--  /* 
-				xxx
-				<div class="fileinput fileinput-new input-group" data-provides="fileinput">
-					<div class="form-control" data-trigger="fileinput">
-					<i class="glyphicon glyphicon-file fileinput-exists"></i> 
-					<span class="fileinput-filename">filename</span></div>
-					<span class="input-group-addon btn btn-default btn-file" style="width:auto"><span class="fileinput-new">Seleccionar</span><span class="fileinput-exists">Canviar</span>
-					<input type="file" id="${campPath}" name="${campPath}"></span>
-					<a href="#" class="input-group-addon btn btn-default fileinput-exists" style="width:auto" data-dismiss="fileinput">Netejar</a>
-				</div>
-				xxx
-				*/ -->
 				<c:if test="${not empty campErrors}"><p class="help-block"><span class="fa fa-exclamation-triangle"></span>&nbsp;<form:errors path="${campPath}"/></p></c:if>
 			</div>
 		</div>

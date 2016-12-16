@@ -42,7 +42,7 @@
 	 			textKey="expedient.tipus.consulta.form.informe"
 	 			fileName="informeNom"
 	 			fileUrl="/v3/expedientTipus/${expedientTipusConsultaCommand.expedientTipusId}/consulta/${expedientTipusConsultaCommand.id}/download"
-	 			fileExists="${empty expedientTipusConsultaCommand.informeContingut}" /> 			
+	 			fileExists="${not empty expedientTipusConsultaCommand.informeContingut}" /> 			
 			<hel:inputSelect required="true" name="formatExport" textKey="expedient.tipus.consulta.form.format" placeholderKey="expedient.tipus.consulta.form.format" optionItems="${formats}"/>
 			<hel:inputTextarea name="valorsPredefinits" textKey="expedient.tipus.consulta.form.valorsPredefinits" />
 			<hel:inputCheckbox name="exportarActiu" textKey="expedient.tipus.consulta.form.exportarActiu" />

@@ -143,6 +143,38 @@ public class TerminiServiceImpl implements TerminiService {
 	 */
 	@Override
 	@Transactional(readOnly = true)
+	public TerminiDto findAmbCodi(
+			Long expedientTipusId, 
+			Long definicioProcesId, 
+			String codi) {
+		logger.debug(
+				"Consultant el termini amb codi (" +
+				"expedientTipusId=" + expedientTipusId + ", " + 
+				"definicioProcesId=" + definicioProcesId + ", " + 
+				"codi=" + codi +  ")");
+		Termini termini = null;
+		TerminiDto ret = null;
+		if (expedientTipusId != null)
+			termini = terminiRepository.findByExpedientTipusAndCodi(
+					expedientTipusRepository.findOne(expedientTipusId), 
+					codi);
+		else if (definicioProcesId != null)
+			termini = terminiRepository.findByDefinicioProcesAndCodi(
+					definicioProcesRepository.findById(definicioProcesId), 
+					codi);
+		if (termini != null)
+			ret = conversioTipusHelper.convertir(
+					termini,
+					TerminiDto.class);
+		return ret;
+
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@Transactional(readOnly = true)
 	public List<TerminiDto> findAll(
 			Long expedientTipusId, 
 			Long definicioProcesId) throws NoTrobatException, PermisDenegatException {
@@ -201,14 +233,14 @@ public class TerminiServiceImpl implements TerminiService {
 		if (termini == null) {
 			throw new NoTrobatException(Termini.class, dto.getId());
 		}
-		
-		expedientTipusHelper.getExpedientTipusComprovantPermisos(
-				termini.getExpedientTipus().getId(), 
-				true,
-				false,
-				false,
-				false,
-				true);
+		if (termini.getExpedientTipus() != null)			
+			expedientTipusHelper.getExpedientTipusComprovantPermisos(
+					termini.getExpedientTipus().getId(), 
+					true,
+					false,
+					false,
+					false,
+					true);
 		
 		termini.setCodi(dto.getCodi());
 		termini.setNom(dto.getNom());

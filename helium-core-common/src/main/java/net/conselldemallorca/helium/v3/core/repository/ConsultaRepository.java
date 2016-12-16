@@ -87,6 +87,6 @@ public interface ConsultaRepository extends JpaRepository<Consulta, Long> {
 			"from ConsultaCamp c " +
 			"where c.consulta.id in (:consultaIds) " +
 			"group by c.consulta.id, c.tipus")
-	List<Object[]> countCamps( @Param("consultaIds") List<Long> consultaIds);	
+	List<Object[]> countCamps( @Param("consultaIds") List<Long> consultaIds);
 	
 }

@@ -12,8 +12,10 @@ import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 import net.conselldemallorca.helium.v3.core.api.dto.CampAgrupacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampRegistreDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ConsultaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
+import net.conselldemallorca.helium.v3.core.api.dto.TascaDto;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
 import net.conselldemallorca.helium.v3.core.api.service.CampService;
@@ -192,6 +194,24 @@ public class CampServiceBean implements CampService {
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public boolean registreMourePosicio(Long id, int posicio) {
 		return delegate.registreMourePosicio(id, posicio);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public List<TascaDto> findTasquesPerCamp(Long campId) {
+		return delegate.findTasquesPerCamp(campId);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public List<ConsultaDto> findConsultesPerCamp(Long campId) {
+		return delegate.findConsultesPerCamp(campId);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public List<CampDto> findRegistresPerCamp(Long campId) {
+		return delegate.findRegistresPerCamp(campId);
 	}
 
 }

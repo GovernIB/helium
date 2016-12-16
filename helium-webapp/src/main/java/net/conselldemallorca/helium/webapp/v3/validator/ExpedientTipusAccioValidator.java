@@ -43,6 +43,8 @@ public class ExpedientTipusAccioValidator implements ConstraintValidator<Expedie
 				valid = false;
 			}
 		}
+		if (!valid)
+			context.disableDefaultConstraintViolation();
 		return valid;
 	}
 

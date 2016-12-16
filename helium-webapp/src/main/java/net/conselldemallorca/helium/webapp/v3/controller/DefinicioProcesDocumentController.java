@@ -109,7 +109,7 @@ public class DefinicioProcesDocumentController extends BaseDefinicioProcesContro
 	public String nouPost(
 			HttpServletRequest request, 
 			@PathVariable String jbmpKey, @PathVariable Long definicioProcesId,
-			@RequestParam(value = "arxiuContingut", required = false) final CommonsMultipartFile arxiuContingut,
+			@RequestParam(value = "arxiuContingut_multipartFile", required = false) final CommonsMultipartFile arxiuContingut,
 			@Validated(ExpedientTipusDocumentCommand.Creacio.class) ExpedientTipusDocumentCommand command,
 			BindingResult bindingResult, Model model) {
 		try {
@@ -153,8 +153,6 @@ public class DefinicioProcesDocumentController extends BaseDefinicioProcesContro
 		command.setCampId(dto.getCampData() != null ? dto.getCampData().getId() : null);
 		model.addAttribute("expedientTipusDocumentCommand", command);
 		omplirModelCamps(request, definicioProcesId, model);
-		model.addAttribute("arxiuContingut", dto.getArxiuContingut());
-		
 		return "v3/expedientTipusDocumentForm";
 	}
 
@@ -163,8 +161,8 @@ public class DefinicioProcesDocumentController extends BaseDefinicioProcesContro
 			HttpServletRequest request, 
 			@PathVariable String jbmpKey, @PathVariable Long definicioProcesId, 
 			@PathVariable Long id,
-			@RequestParam(value = "arxiuContingut", required = false) final CommonsMultipartFile arxiuContingut,
-			@RequestParam(value = "eliminarContingut", required = false) final boolean eliminarContingut,
+			@RequestParam(value = "arxiuContingut_multipartFile", required = false) final CommonsMultipartFile arxiuContingut,
+			@RequestParam(value = "arxiuContingut_deleted", required = false) final boolean eliminarContingut,
 			@Validated(ExpedientTipusDocumentCommand.Modificacio.class) ExpedientTipusDocumentCommand command,
 			BindingResult bindingResult, Model model) {
 		try {
@@ -172,19 +170,18 @@ public class DefinicioProcesDocumentController extends BaseDefinicioProcesContro
 				omplirModelCamps(request, definicioProcesId, model);
 				return "v3/expedientTipusDocumentForm";
 			} else {
-				DocumentDto dto = ExpedientTipusDocumentCommand.asDocumentDto(command);
-				
-				if (arxiuContingut == null && eliminarContingut) {
-					dto.setArxiuContingut(null);
-				} else if (arxiuContingut != null) {
-					byte[] contingutArxiu = IOUtils.toByteArray(arxiuContingut.getInputStream());
-					dto.setArxiuContingut(contingutArxiu);
-				} else if (arxiuContingut == null && !eliminarContingut) {
-					DocumentDto dtoVell = documentService.findAmbId(id);
-					dto.setArxiuContingut(dtoVell.getArxiuContingut());
-				}
-				
-				documentService.update(dto);
+	        	boolean actualitzarContingut = false;
+	        	if (eliminarContingut) {
+	        		command.setArxiuContingut(null);
+	        		actualitzarContingut = true;
+	        	}
+	        	if (arxiuContingut != null && arxiuContingut.getSize() > 0) {
+					command.setArxiuContingut(IOUtils.toByteArray(arxiuContingut.getInputStream()));
+					actualitzarContingut = true;
+				}								
+				documentService.update(
+						ExpedientTipusDocumentCommand.asDocumentDto(command),
+						actualitzarContingut);
 				
 				MissatgesHelper.success(
 						request, 
@@ -230,7 +227,8 @@ public class DefinicioProcesDocumentController extends BaseDefinicioProcesContro
 	@RequestMapping(value="/{jbmpKey}/{definicioProcesId}/document/{id}/download", method = RequestMethod.GET)
 	public String documentDesacarregar(
 			HttpServletRequest request, 
-			@PathVariable String jbmpKey, @PathVariable Long definicioProcesId, 
+			@PathVariable String jbmpKey, 
+			@PathVariable Long definicioProcesId, 
 			@PathVariable Long id,
 			Model model) {
 		ArxiuDto arxiu = documentService.getArxiu(id);

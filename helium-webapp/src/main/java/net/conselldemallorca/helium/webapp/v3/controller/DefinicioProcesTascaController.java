@@ -497,7 +497,7 @@ public class DefinicioProcesTascaController extends BaseDefinicioProcesControlle
 		DefinicioProcesDto definicioProces = definicioProcesService.findById(definicioProcesId);
 		List<DocumentDto> documents; 
 		if (definicioProces.getExpedientTipus() != null && definicioProces.getExpedientTipus().isAmbInfoPropia() ){
-			// Obté totes els documents del tipus d'expedient de la definició de procés
+			// Obté tots els documents del tipus d'expedient de la definició de procés
 			documents = documentService.findAll(definicioProces.getExpedientTipus().getId(), null);			
 		} else {
 			documents = documentService.findAll(null, definicioProcesId);

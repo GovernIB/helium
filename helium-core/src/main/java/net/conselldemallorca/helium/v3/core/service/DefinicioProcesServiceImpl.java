@@ -26,6 +26,7 @@ import net.conselldemallorca.helium.core.model.hibernate.DocumentTasca;
 import net.conselldemallorca.helium.core.model.hibernate.Domini;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 import net.conselldemallorca.helium.core.model.hibernate.Enumeracio;
+import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.hibernate.FirmaTasca;
 import net.conselldemallorca.helium.core.model.hibernate.Tasca;
 import net.conselldemallorca.helium.core.model.hibernate.Termini;
@@ -59,6 +60,7 @@ import net.conselldemallorca.helium.v3.core.repository.DocumentRepository;
 import net.conselldemallorca.helium.v3.core.repository.DocumentTascaRepository;
 import net.conselldemallorca.helium.v3.core.repository.DominiRepository;
 import net.conselldemallorca.helium.v3.core.repository.EnumeracioRepository;
+import net.conselldemallorca.helium.v3.core.repository.ExpedientTipusRepository;
 import net.conselldemallorca.helium.v3.core.repository.FirmaTascaRepository;
 import net.conselldemallorca.helium.v3.core.repository.TascaRepository;
 import net.conselldemallorca.helium.v3.core.repository.TerminiRepository;
@@ -101,6 +103,8 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 	private CampRegistreRepository campRegistreRepository;
 	@Autowired
 	protected Jbpm3HeliumService jbpm3HeliumService;
+	@Autowired
+	private ExpedientTipusRepository expedientTipusRepository;
 
 	@Resource
 	private DefinicioProcesHelper definicioProcesHelper;
@@ -329,6 +333,14 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 		DefinicioProces definicioProces = definicioProcesRepository.findById(definicioProcesId);
 		jbpmHelper.esborrarDesplegament(
 				definicioProces.getJbpmId());
+		// Si era la definició de procés inicial del tipus d'expedient actualitza el tipus d'expedient
+		if (definicioProces.getExpedientTipus() != null
+				&& definicioProces.getJbpmKey().equals(definicioProces.getExpedientTipus().getJbpmProcessDefinitionKey())) {
+			ExpedientTipus expedientTipus = expedientTipusRepository.findOne(definicioProces.getExpedientTipus().getId());
+			expedientTipus.setJbpmProcessDefinitionKey(null);
+			expedientTipusRepository.save(expedientTipus);
+		}
+
 		definicioProcesRepository.delete(definicioProces);
 	}
 
@@ -374,6 +386,21 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 				tascaRepository.findByDefinicioProcesIdOrderByNomAsc(
 						definicioProcesId), 
 				TascaDto.class);
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@Transactional(readOnly = true)
+	public DefinicioProcesDto tascaFindDefinicioProcesDeTasca(Long tascaId) {
+		logger.debug(
+				"Consultant la definicio de proces d'una tasca (" +
+				"tascaId=" + tascaId + ")");
+								
+		return conversioTipusHelper.convertir(
+				tascaRepository.findOne(tascaId).getDefinicioProces(), 
+				DefinicioProcesDto.class);
 	}
 
 	@Override

@@ -100,5 +100,14 @@ public interface TerminiService {
 			Long expedientTipusId,
 			Long definicioProcesId,
 			String filtre, 
-			PaginacioParamsDto paginacioParams) throws NoTrobatException;		
+			PaginacioParamsDto paginacioParams) throws NoTrobatException;
+
+	/** Cerca el termini per codi per a la definicio de proces o el tipus d'expedient per validar la repeticio.
+	 * 
+	 * @param expedientTipusId
+	 * @param definicioProcesId
+	 * @param codi
+	 * @return
+	 */
+	public TerminiDto findAmbCodi(Long expedientTipusId, Long definicioProcesId, String codi);		
 }

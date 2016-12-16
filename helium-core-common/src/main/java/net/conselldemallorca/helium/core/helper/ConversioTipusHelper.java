@@ -80,6 +80,10 @@ public class ConversioTipusHelper {
 									CampDto.class));
 						target.setConvertirExtensio(source.getConvertirExtensio());
 						target.setAdjuntarAuto(source.isAdjuntarAuto());
+						target.setExtensionsPermeses(source.getExtensionsPermeses());
+						target.setContentType(source.getContentType());
+						target.setCustodiaCodi(source.getCustodiaCodi());
+						target.setTipusDocPortasignatures(source.getTipusDocPortasignatures());
 						return target;
 					}
 		});

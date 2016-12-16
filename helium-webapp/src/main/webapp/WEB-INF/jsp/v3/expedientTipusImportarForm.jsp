@@ -92,7 +92,8 @@
 					$('p.help-block').remove();
 					// Adequa el botó de submit posat el el parent per webutil.modal.js
 					window.parent.$('button[type="submit"]').attr('disabled', 'disabled');
-					window.parent.$('.importar.processant').css('visibility', 'visible');
+					window.parent.$('#importarIcon').hide();
+					window.parent.$('#importarProcessant').show();
 					// Completa les dades del formulari amb el contingut del fitxer per enviar dins del commmand
 					var formData = new FormData($form[0]);
 		            formData.append('file', $('#file')[0].files[0]);		            
@@ -129,7 +130,8 @@
 				           	},
 							complete: function(){
 								window.parent.$('button[type="submit"]').removeAttr('disabled');
-								window.parent.$('.importar.processant').css('visibility', 'hidden');
+								window.parent.$('#importarProcessant').hide();
+								window.parent.$('#importarIcon').show();
 								$('progress').hide();
 								$('#carregant').hide();
 								$('#carregarButton').show();
@@ -310,10 +312,11 @@
 				<spring:message code="comu.boto.cancelar"/>
 			</button>
 			<button id="importarButton" type="submit" class="btn btn-success right">
-				<span class="fa fa-sign-in"></span> <spring:message code="comu.importar"/>
-				<span class="importar processant" style="visibility:hidden;">
+				<span id="importarProcessant" style="display:none;">
 					<span class="fa fa-spinner fa-spin fa-fw" title="<spring:message code="comu.processant"/>..."></span><span class="sr-only">&hellip;</span>
 				</span>			
+				<span id="importarIcon" class="fa fa-sign-in fa-fw"></span> 
+				<spring:message code="comu.importar"/>
 			</button>
 		</div>
 	</form:form>

@@ -50,7 +50,7 @@ import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
  */
 @Controller
 @RequestMapping("/v3/expedientTipus")
-public class ExpedientTipusVariableController extends BaseExpedientTipusController {
+public class ExpedientTipusVariableController extends BaseVariableController {
 
 	@Autowired
 	private ConversioTipusHelper conversioTipusHelper;
@@ -248,10 +248,11 @@ public class ExpedientTipusVariableController extends BaseExpedientTipusControll
 			@PathVariable Long id,
 			Model model) {
 		
-		// Valida que la variable no s'utilitzi en cap registre o consulta
+		if (!validaEsborratCamp(request, id))
+			return false;		
 		try {
+			// Esborra la variable
 			campService.delete(id);
-			
 			MissatgesHelper.success(
 					request,
 					getMessage(
@@ -446,9 +447,7 @@ public class ExpedientTipusVariableController extends BaseExpedientTipusControll
 			@PathVariable Long campId,
 			Model model) {
 		
-		model.addAttribute("basicUrl", "expedientTipus/" + expedientTipusId);
-		model.addAttribute("expedientTipusId", expedientTipusId);
-		model.addAttribute("camp", campService.findAmbId(campId));
+		omplirModelValidacionsForm(expedientTipusId, campId, model);
 
 		ValidacioCommand command = new ValidacioCommand();
 		command.setExpedientTipusId(expedientTipusId);
@@ -486,6 +485,7 @@ public class ExpedientTipusVariableController extends BaseExpedientTipusControll
 			Model model) {
 		model.addAttribute("camp", campService.findAmbId(campId));
         if (bindingResult.hasErrors()) {
+    		omplirModelValidacionsForm(expedientTipusId, campId, model);
         	model.addAttribute("mostraCreate", true);
         	return "v3/expedientTipusValidacio";
         } else {
@@ -515,6 +515,7 @@ public class ExpedientTipusVariableController extends BaseExpedientTipusControll
 			Model model) {
 		model.addAttribute("camp", campService.findAmbId(campId));
         if (bindingResult.hasErrors()) {
+    		omplirModelValidacionsForm(expedientTipusId, campId, model);
         	model.addAttribute("mostraUpdate", true);
         	return "v3/expedientTipusValidacio";
         } else {
@@ -580,6 +581,16 @@ public class ExpedientTipusVariableController extends BaseExpedientTipusControll
 		
 		return validacioService.validacioMourePosicio(id, posicio);
 	}	
+	
+	private void omplirModelValidacionsForm(
+			Long expedientTipusId,
+			Long campId,
+			Model model) {
+		model.addAttribute("basicUrl", "expedientTipus/" + expedientTipusId);
+		model.addAttribute("expedientTipusId", expedientTipusId);
+		model.addAttribute("camp", campService.findAmbId(campId));
+	}
+	
 	private void omplirModelVariablesPestanya(
 			HttpServletRequest request,
 			Long expedientTipusId,
@@ -643,8 +654,7 @@ public class ExpedientTipusVariableController extends BaseExpedientTipusControll
 			@PathVariable Long campId,
 			Model model) {
 		
-		model.addAttribute("expedientTipusId", expedientTipusId);
-		model.addAttribute("camp", campService.findAmbId(campId));
+		omplirModelCampsRegistreForm(expedientTipusId, campId, model);
 
 		ExpedientTipusCampRegistreCommand command = new ExpedientTipusCampRegistreCommand();
 		command.setExpedientTipusId(expedientTipusId);
@@ -684,8 +694,7 @@ public class ExpedientTipusVariableController extends BaseExpedientTipusControll
 			BindingResult bindingResult,
 			Model model) {
         if (bindingResult.hasErrors()) {
-    		model.addAttribute("expedientTipusId", expedientTipusId);
-    		model.addAttribute("camp", campService.findAmbId(campId));
+        	omplirModelCampsRegistreForm(expedientTipusId, campId, model);
     		model.addAttribute("variables", obtenirParellesCampRegistre(
     				expedientTipusId,
     				campId, 
@@ -719,8 +728,7 @@ public class ExpedientTipusVariableController extends BaseExpedientTipusControll
 			Model model) {
 		model.addAttribute("camp", campService.findAmbId(campId));
         if (bindingResult.hasErrors()) {
-    		model.addAttribute("expedientTipusId", expedientTipusId);
-    		model.addAttribute("camp", campService.findAmbId(campId));
+        	omplirModelCampsRegistreForm(expedientTipusId, campId, model);
     		model.addAttribute("variables", obtenirParellesCampRegistre(
     				expedientTipusId,
     				campId, 
@@ -802,6 +810,16 @@ public class ExpedientTipusVariableController extends BaseExpedientTipusControll
 			Model model) {
 		return obtenirParellesCampRegistre(expedientTipusId, campId, membreId);
 	}	
+	
+	private void omplirModelCampsRegistreForm(
+			Long expedientTipusId,
+			Long campId,
+			Model model) {
+		model.addAttribute("basicUrl", "expedientTipus/" + expedientTipusId);
+		model.addAttribute("expedientTipusId", expedientTipusId);
+		model.addAttribute("camp", campService.findAmbId(campId));
+	}
+	
 	private void omplirModelAgrupacions(
 			HttpServletRequest request,
 			Long expedientTipusId,

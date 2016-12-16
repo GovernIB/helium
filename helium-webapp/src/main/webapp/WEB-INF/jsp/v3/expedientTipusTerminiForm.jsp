@@ -81,7 +81,7 @@
 			<input type="hidden" name="id" value="${expedientTipusTerminiCommand.id}"/>
 			<hel:inputText required="true" name="codi" textKey="comuns.codi" />
 			<hel:inputText required="true" name="nom" textKey="comuns.nom" />
-			<hel:inputText required="true" name="descripcio" textKey="comuns.descripcio" />
+			<hel:inputText name="descripcio" textKey="comuns.descripcio" />
 			<hel:inputCheckbox name="duradaPredefinida" textKey="defproc.termform.durada_predef" comment="defproc.termform.si_no_esta"/>
 			
 			<%-- Termini - Inici --%>
@@ -116,7 +116,7 @@
 			
 			<hel:inputCheckbox name="laborable" textKey="defproc.termform.dies_lab" />
 			<hel:inputCheckbox name="manual" textKey="defproc.termform.permet_ctrl" />
-			<hel:inputText required="true" name="diesPrevisAvis" textKey="defproc.termform.dies_previs" comment="defproc.termform.es_generara"/>
+			<hel:inputText name="diesPrevisAvis" textKey="defproc.termform.dies_previs" comment="defproc.termform.es_generara"/>
 			<hel:inputCheckbox name="alertaPrevia" textKey="defproc.termform.gen_alert_previa" />
 			<hel:inputCheckbox name="alertaFinal" textKey="defproc.termform.gen_alert_final" />
 			<hel:inputCheckbox name="alertaCompletat" textKey="defproc.termform.gen_alert_complet" />

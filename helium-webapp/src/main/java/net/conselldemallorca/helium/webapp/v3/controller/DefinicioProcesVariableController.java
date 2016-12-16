@@ -1,6 +1,7 @@
 package net.conselldemallorca.helium.webapp.v3.controller;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import net.conselldemallorca.helium.v3.core.api.dto.CampAgrupacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
+import net.conselldemallorca.helium.v3.core.api.dto.CampRegistreDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
@@ -31,6 +33,7 @@ import net.conselldemallorca.helium.v3.core.api.service.ExpedientTipusService;
 import net.conselldemallorca.helium.v3.core.api.service.ValidacioService;
 import net.conselldemallorca.helium.webapp.v3.command.AgrupacioCommand;
 import net.conselldemallorca.helium.webapp.v3.command.CampCommand;
+import net.conselldemallorca.helium.webapp.v3.command.ExpedientTipusCampRegistreCommand;
 import net.conselldemallorca.helium.webapp.v3.command.ValidacioCommand;
 import net.conselldemallorca.helium.webapp.v3.helper.ConversioTipusHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.DatatablesHelper;
@@ -46,7 +49,7 @@ import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
  */
 @Controller(value = "definicioProcesVariableControllerV3")
 @RequestMapping("/v3/definicioProces")
-public class DefinicioProcesVariableController extends BaseDefinicioProcesController {
+public class DefinicioProcesVariableController extends BaseVariableController {
 
 	@Autowired
 	protected CampService campService;
@@ -257,10 +260,11 @@ public class DefinicioProcesVariableController extends BaseDefinicioProcesContro
 			@PathVariable Long id,
 			Model model) {
 		
-		// Valida que la variable no s'utilitzi en cap registre o consulta
+		if (!validaEsborratCamp(request, id))
+			return false;		
 		try {
+			// Esborra la variable
 			campService.delete(id);
-			
 			MissatgesHelper.success(
 					request,
 					getMessage(
@@ -283,14 +287,12 @@ public class DefinicioProcesVariableController extends BaseDefinicioProcesContro
 	@RequestMapping(value = "/{jbmpKey}/{definicioProcesId}/variable/{campId}/validacio", method = RequestMethod.GET)
 	public String validacions(
 			HttpServletRequest request,
-			@PathVariable String jbmpKey,
+			@PathVariable String jbpmKey,
 			@PathVariable Long definicioProcesId,
 			@PathVariable Long campId,
 			Model model) {
 		
-		model.addAttribute("basicUrl", ("definicioProces" + "/" + jbmpKey + "/" + definicioProcesId.toString()));
-		model.addAttribute("definicioProcesId", definicioProcesId);
-		model.addAttribute("camp", campService.findAmbId(campId));
+		omplirModelValidacionsForm(jbpmKey, definicioProcesId, campId, model);
 
 		ValidacioCommand command = new ValidacioCommand();
 		command.setDefinicioProcesId(definicioProcesId);
@@ -322,7 +324,7 @@ public class DefinicioProcesVariableController extends BaseDefinicioProcesContro
 	@RequestMapping(value = "/{jbmpKey}/{definicioProcesId}/variable/{campId}/validacio/new", method = RequestMethod.POST)
 	public String validacioNovaPost(
 			HttpServletRequest request,
-			@PathVariable String jbmpKey,
+			@PathVariable String jbpmKey,
 			@PathVariable Long definicioProcesId,
 			@PathVariable Long campId,
 			@Validated(ValidacioCommand.Creacio.class) ValidacioCommand command,
@@ -330,6 +332,7 @@ public class DefinicioProcesVariableController extends BaseDefinicioProcesContro
 			Model model) {
 		model.addAttribute("camp", campService.findAmbId(campId));
         if (bindingResult.hasErrors()) {
+    		omplirModelValidacionsForm(jbpmKey, definicioProcesId, campId, model);
         	model.addAttribute("mostraCreate", true);
         	return "v3/expedientTipusValidacio";
         } else {
@@ -344,14 +347,14 @@ public class DefinicioProcesVariableController extends BaseDefinicioProcesContro
 					getMessage(
 							request,
 							"expedient.tipus.campValidacio.controller.creat"));
-        	return validacions(request, jbmpKey, definicioProcesId, campId, model);
+        	return validacions(request, jbpmKey, definicioProcesId, campId, model);
         }
 	}	
 	
 	@RequestMapping(value = "/{jbmpKey}/{definicioProcesId}/variable/{campId}/validacio/{id}/update", method = RequestMethod.POST)
 	public String validacioModificarPost(
 			HttpServletRequest request,
-			@PathVariable String jbmpKey,
+			@PathVariable String jbpmKey,
 			@PathVariable Long definicioProcesId,
 			@PathVariable Long campId,
 			@PathVariable Long id,
@@ -360,6 +363,7 @@ public class DefinicioProcesVariableController extends BaseDefinicioProcesContro
 			Model model) {
 		model.addAttribute("camp", campService.findAmbId(campId));
         if (bindingResult.hasErrors()) {
+    		omplirModelValidacionsForm(jbpmKey, definicioProcesId, campId, model);
         	model.addAttribute("mostraUpdate", true);
         	return "v3/expedientTipusValidacio";
         } else {
@@ -372,7 +376,7 @@ public class DefinicioProcesVariableController extends BaseDefinicioProcesContro
 					getMessage(
 							request,
 							"expedient.tipus.campValidacio.controller.modificat"));
-			return validacions(request, jbmpKey, definicioProcesId, campId, model);
+			return validacions(request, jbpmKey, definicioProcesId, campId, model);
         }
 	}
 
@@ -487,6 +491,16 @@ public class DefinicioProcesVariableController extends BaseDefinicioProcesContro
 		return resposta;
 	}
 
+	private void omplirModelValidacionsForm(
+			String jbpmKey,
+			Long definicioProcesId,
+			Long campId,
+			Model model) {
+		model.addAttribute("basicUrl", ("definicioProces" + "/" + jbpmKey + "/" + definicioProcesId.toString()));
+		model.addAttribute("definicioProcesId", definicioProcesId);
+		model.addAttribute("camp", campService.findAmbId(campId));
+	}
+	
 	// Mètodes pel manteniment d'agrupacions
 
 	/** Obre una modal amb un llistat per reordenar les agrupacions. */
@@ -642,5 +656,232 @@ public class DefinicioProcesVariableController extends BaseDefinicioProcesContro
 		return campService.agrupacioMourePosicio(id, posicio);
 	}
 
+	// Mètodes pel manteniment dels camps de variables de tipus registre
+	
+	@RequestMapping(value = "/{jbmpKey}/{definicioProcesId}/variable/{campId}/campRegistre", method = RequestMethod.GET)
+	public String campsRegistre(
+			HttpServletRequest request,
+			@PathVariable String jbmpKey,
+			@PathVariable Long definicioProcesId,
+			@PathVariable Long campId,
+			Model model) {
+		
+		omplirModelCampsRegistreForm(jbmpKey, definicioProcesId, campId, model);
+		
+		ExpedientTipusCampRegistreCommand command = new ExpedientTipusCampRegistreCommand();
+		command.setDefinicioProcesId(definicioProcesId);
+		command.setRegistreId(campId);
+		command.setObligatori(true);
+		command.setLlistar(true);
+		model.addAttribute("expedientTipusCampRegistreCommand", command);
+		model.addAttribute("variables", new ArrayList<ParellaCodiValorDto>());		
+
+		return "v3/expedientTipusCampRegistre";
+	}	
+	
+	@RequestMapping(value="/{jbmpKey}/{definicioProcesId}/variable/{campId}/campRegistre/datatable", method = RequestMethod.GET)
+	@ResponseBody
+	DatatablesResponse campRegistreDatatable(
+			HttpServletRequest request,
+			@PathVariable String jbmpKey,
+			@PathVariable Long definicioProcesId,
+			@PathVariable Long campId,
+			Model model) {
+		PaginacioParamsDto paginacioParams = DatatablesHelper.getPaginacioDtoFromRequest(request);
+		return DatatablesHelper.getDatatableResponse(
+				request,
+				null,
+				campService.registreFindPerDatatable(
+						campId,
+						paginacioParams.getFiltre(),
+						paginacioParams),
+				"id");
+	}		
+	
+	@RequestMapping(value = "/{jbmpKey}/{definicioProcesId}/variable/{campId}/campRegistre/new", method = RequestMethod.POST)
+	public String campRegistreNouPost(
+			HttpServletRequest request,
+			@PathVariable String jbmpKey,
+			@PathVariable Long definicioProcesId,
+			@PathVariable Long campId,
+			@Validated(ExpedientTipusCampRegistreCommand.Creacio.class) ExpedientTipusCampRegistreCommand command,
+			BindingResult bindingResult,
+			Model model) {
+        if (bindingResult.hasErrors()) {
+    		omplirModelCampsRegistreForm(jbmpKey, definicioProcesId, campId, model);
+    		model.addAttribute("variables", obtenirParellesCampRegistre(
+    				definicioProcesId,
+    				campId, 
+    				null));		
+        	model.addAttribute("mostraCreate", true);
+        	return "v3/expedientTipusCampRegistre";
+        } else {
+        	// Verificar permisos
+    		campService.registreCreate(
+    				campId,
+    				conversioTipusHelper.convertir(
+    						command,
+    						CampRegistreDto.class));    		
+			MissatgesHelper.success(
+					request,
+					getMessage(
+							request,
+							"expedient.tipus.campRegistre.controller.creat"));
+        	return campsRegistre(request, jbmpKey, definicioProcesId, campId, model);
+        }
+	}	
+	
+	@RequestMapping(value = "/{jbmpKey}/{definicioProcesId}/variable/{campId}/campRegistre/{id}/update", method = RequestMethod.POST)
+	public String campRegistreModificarPost(
+			HttpServletRequest request,
+			@PathVariable String jbmpKey,
+			@PathVariable Long definicioProcesId,
+			@PathVariable Long campId,
+			@PathVariable Long id,
+			@Validated(ExpedientTipusCampRegistreCommand.Modificacio.class) ExpedientTipusCampRegistreCommand command,
+			BindingResult bindingResult,
+			Model model) {
+		model.addAttribute("camp", campService.findAmbId(campId));
+        if (bindingResult.hasErrors()) {
+    		omplirModelCampsRegistreForm(jbmpKey, definicioProcesId, campId, model);
+    		model.addAttribute("variables", obtenirParellesCampRegistre(
+    				definicioProcesId,
+    				campId, 
+    				command.getMembreId()));		
+        	model.addAttribute("mostraUpdate", true);
+        	return "v3/expedientTipusCampRegistre";
+        } else {
+        	campService.registreUpdate(
+        			conversioTipusHelper.convertir(
+    						command,
+    						CampRegistreDto.class));
+			MissatgesHelper.success(
+					request,
+					getMessage(
+							request,
+							"expedient.tipus.campRegistre.controller.modificat"));
+        	return campsRegistre(request, jbmpKey, definicioProcesId, campId, model);
+        }
+	}
+
+	@RequestMapping(value = "/{jbmpKey}/{definicioProcesId}/variable/{campId}/campRegistre/{id}/delete", method = RequestMethod.GET)
+	@ResponseBody
+	public boolean campRegistreDelete(
+			HttpServletRequest request,
+			@PathVariable String jbmpKey,
+			@PathVariable Long definicioProcesId,
+			@PathVariable Long campId,
+			@PathVariable Long id,
+			Model model) {
+				
+		try {
+			campService.registreDelete(id);
+			
+			MissatgesHelper.success(
+					request,
+					getMessage(
+							request,
+							"expedient.tipus.campRegistre.controller.eliminar.success"));			
+			return true;
+		} catch(Exception e) {
+			MissatgesHelper.error(
+					request,
+					getMessage(
+							request,
+							"expedient.tipus.campRegistre.controller.eliminar.error"));
+			logger.error("S'ha produit un error al intentar eliminar el camp registre amb id '" + id + "' de la defincio de proces amb id '" + definicioProcesId + "'", e);
+			return false;
+		}
+	}
+	
+	/**
+	 * Mètode Ajax per moure una validació d'una variable de posició dins la seva agrupació.
+	 * @param request
+	 * @param expedientTipusId
+	 * @param id
+	 * @param posicio
+	 * @param model
+	 * @return
+	 */
+	@RequestMapping(value = "/{jbmpKey}/{definicioProcesId}/variable/{campId}/campRegistre/{id}/moure/{posicio}")
+	@ResponseBody
+	public boolean campRegistreMourePosicio(
+			HttpServletRequest request,
+			@PathVariable String jbmpKey,
+			@PathVariable Long definicioProcesId,
+			@PathVariable Long campId,
+			@PathVariable Long id,
+			@PathVariable int posicio) {
+		
+		return campService.registreMourePosicio(id, posicio);
+	}	
+	
+	/** Mètode per obtenir les possibles variables per al select a l'edició d'un registre via ajax. */
+	@RequestMapping(value = "/{jbmpKey}/{definicioProcesId}/variable/{campId}/campRegistre/select", method = RequestMethod.GET)
+	@ResponseBody
+	public List<ParellaCodiValorDto> campRegistreSelect(
+			HttpServletRequest request,
+			@PathVariable String jbmpKey,
+			@PathVariable Long definicioProcesId,
+			@PathVariable Long campId,
+			@RequestParam Long membreId,
+			Model model) {
+		return obtenirParellesCampRegistre(definicioProcesId, campId, membreId);
+	}	
+	
+	
+	private void omplirModelCampsRegistreForm(
+			String jbpmKey,
+			Long definicioProcesId,
+			Long campId,
+			Model model) {
+		model.addAttribute("basicUrl", ("definicioProces" + "/" + jbpmKey + "/" + definicioProcesId.toString()));
+		model.addAttribute("definicioProcesId", definicioProcesId);
+		model.addAttribute("camp", campService.findAmbId(campId));
+	}
+
+		
+	/**
+	 * Retorna les parelles de codi i valor per als registres. Treu els que ja estan seleccionats
+	 * i les variables de tipus registre. A més, si està marcat filtrar també
+	 * treu la variable del propi registre.
+	 * @param expedientTipusId
+	 * @param registreId
+	 * @param filtrar
+	 * @return
+	 */
+	private List<ParellaCodiValorDto> obtenirParellesCampRegistre(
+			@PathVariable Long definicioProcesId,
+			Long registreId,
+			Long membreId) {
+		List<ParellaCodiValorDto> resposta = new ArrayList<ParellaCodiValorDto>();
+		// Obté totes les variables del tipus d'expedient
+		List<CampDto> variables = campService.findAllOrdenatsPerCodi(null, definicioProcesId);
+		// Consulta els camps del registre
+		List<CampDto> camps = campService.registreFindMembresAmbRegistreId(registreId);
+		Iterator<CampDto> it = variables.iterator();
+		while (it.hasNext()) {
+			CampDto camp = it.next();
+			if ((registreId.equals(camp.getId())) // Treu el propi registre
+				|| CampTipusDto.REGISTRE.equals(camp.getTipus()) ) {// Treu les variables tipus registre
+				it.remove();
+			} else if (membreId == null || !membreId.equals(camp.getId())) {
+				// Treu els que ja pertanyen al registre a no ser que sigui el que conicideix amb memberId per als updates
+				for (CampDto campRegistre : camps) {
+					if (campRegistre.getId().equals(camp.getId())) {
+						it.remove();
+						break;
+					}
+				}
+			}
+		}		
+		for (CampDto variable : variables) {
+			resposta.add(new ParellaCodiValorDto(
+					variable.getId().toString(), 
+					variable.getCodi() + " / " + variable.getEtiqueta()));
+		}
+		return resposta;
+	}	
+	
 	private static final Log logger = LogFactory.getLog(DefinicioProcesVariableController.class);
 }

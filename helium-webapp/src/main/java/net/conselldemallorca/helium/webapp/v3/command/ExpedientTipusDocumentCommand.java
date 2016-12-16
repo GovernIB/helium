@@ -35,7 +35,7 @@ public class ExpedientTipusDocumentCommand {
 	@Size(max = 255, groups = {Creacio.class, Modificacio.class})
 	private String descripcio;
 	private String arxiuNom;
-//	private byte[] arxiuContingut;
+	private byte[] arxiuContingut;
 	private boolean plantilla;
 	private String convertirExtensio;
 	private boolean adjuntarAuto;
@@ -88,12 +88,12 @@ public class ExpedientTipusDocumentCommand {
 	public void setArxiuNom(String arxiuNom) {
 		this.arxiuNom = arxiuNom;
 	}
-//	public byte[] getArxiuContingut() {
-//		return arxiuContingut;
-//	}
-//	public void setArxiuContingut(byte[] arxiuContingut) {
-//		this.arxiuContingut = arxiuContingut;
-//	}
+public byte[] getArxiuContingut() {
+		return arxiuContingut;
+	}
+	public void setArxiuContingut(byte[] arxiuContingut) {
+		this.arxiuContingut = arxiuContingut;
+	}
 	public boolean isPlantilla() {
 		return plantilla;
 	}
@@ -149,6 +149,7 @@ public class ExpedientTipusDocumentCommand {
 		dto.setNom(command.getNom());
 		dto.setDescripcio(command.getDescripcio());
 		dto.setArxiuNom(command.getArxiuNom());
+		dto.setArxiuContingut(command.getArxiuContingut());
 		dto.setPlantilla(command.isPlantilla());
 		dto.setConvertirExtensio(command.getConvertirExtensio());
 		dto.setAdjuntarAuto(command.isAdjuntarAuto());

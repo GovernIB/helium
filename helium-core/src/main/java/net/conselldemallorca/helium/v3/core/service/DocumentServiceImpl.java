@@ -133,10 +133,12 @@ public class DocumentServiceImpl implements DocumentService {
 			document = documentRepository.findByDefinicioProcesAndCodi(
 											definicioProcesRepository.findOne(definicioProcesId), 
 											codi);
-		if (document != null)
-		ret = conversioTipusHelper.convertir(
-				document,
-				DocumentDto.class);
+		if (document != null) {
+			ret = conversioTipusHelper.convertir(
+					document,
+					DocumentDto.class);
+			ret.setArxiuContingut(document.getArxiuContingut());
+		}
 		return ret;
 	}
 	
@@ -171,25 +173,30 @@ public class DocumentServiceImpl implements DocumentService {
 		if (document == null) {
 			throw new NoTrobatException(Document.class, id);
 		}
-		return conversioTipusHelper.convertir(
+		DocumentDto ret = conversioTipusHelper.convertir(
 				document,
 				DocumentDto.class);
+		ret.setArxiuContingut(document.getArxiuContingut());
+		
+		return ret;
 	}
 	
 	@Override
 	@Transactional
-	public DocumentDto update(DocumentDto document) {
+	public DocumentDto update(DocumentDto document, boolean actualitzarContingut) {
 		logger.debug(
 				"Modificant el document del tipus d'expedient existent (" +
 				"document.id=" + document.getId() + ", " +
-				"document =" + document + ")");
+				"document =" + document + ", " +
+				"actualitzarContingut=" + actualitzarContingut + ")");
 		Document entity = documentRepository.findOne(document.getId());
 		entity.setCodi(document.getCodi());
 		entity.setNom(document.getNom());
 		entity.setDescripcio(document.getDescripcio());
 		entity.setPlantilla(document.isPlantilla());
 		entity.setArxiuNom(document.getArxiuNom());
-		entity.setArxiuContingut(document.getArxiuContingut());
+		if (actualitzarContingut)
+			entity.setArxiuContingut(document.getArxiuContingut());
 		entity.setConvertirExtensio(document.getConvertirExtensio());
 		entity.setAdjuntarAuto(document.isAdjuntarAuto());
 		if (document.getCampData() != null)
@@ -231,22 +238,17 @@ public class DocumentServiceImpl implements DocumentService {
 	 * {@inheritDoc}
 	 */
 	@Override
-	@Transactional(readOnly = true)
 	public List<DocumentDto> findAll(
 			Long expedientTipusId,
 			Long definicioProcesId) {
 		logger.debug("Consultant tots els documents (" +
 				"expedientTipusId =" + expedientTipusId + ", " +
 				"definicioProcesId =" + definicioProcesId + ")");
-		
-		List<Document> documents;
-		if (expedientTipusId != null)
-			documents = documentRepository.findByExpedientTipusIdOrderByCodiAsc(expedientTipusId);
-		else
-			documents = documentRepository.findByDefinicioProcesIdOrderByCodiAsc(definicioProcesId);
-		
+						
 		return conversioTipusHelper.convertirList(
-				documents, 
+				expedientTipusId != null ?
+						documentRepository.findByExpedientTipusIdOrderByCodiAsc(expedientTipusId)
+						: documentRepository.findByDefinicioProcesIdOrderByCodiAsc(definicioProcesId), 
 				DocumentDto.class);
 	}		
 	

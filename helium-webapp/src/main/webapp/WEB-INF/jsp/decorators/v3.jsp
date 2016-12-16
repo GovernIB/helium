@@ -180,7 +180,6 @@
 								<ul class="dropdown-menu">
 									<li><a href="<c:url value="/v3/definicioProces"/>"><spring:message code='decorators.entorn.defs_proces' /></a></li>
 									<li><a href="<c:url value="/v3/expedientTipus"/>"><spring:message code='decorator.menu.disseny.tipus.expedient' /></a></li>
-									<li><a href="<c:url value="/v3/consulta"/>"><spring:message code='decorator.menu.consultes' /></a></li>
 									<li role="separator" class="divider"></li>
 									<li><a target="_BLANK" href="<c:url value="/expedientTipus/llistat.html"/>">Disseny antic</a></li>
 								</ul>
@@ -239,7 +238,7 @@
 			<c:if test="${not empty decoratorMetaTitle}">
 				<div class="panel-heading">
 					<div class="row">
-						<div class="col-md-10">
+						<div class="col-md-10" id="capcalera-titol">
 							<h2>
 								<div>
 									<c:if test="${not empty metaTitleIconClass}"><span class="${metaTitleIconClass}"></span></c:if>
@@ -252,7 +251,7 @@
 								</div>
 							</h2>
 						</div>
-						<div class="col-md-2">
+						<div class="col-md-2" id="capcalera-botons">
 							<c:if test="${not empty screen && screen=='expedients'}">
 								<c:if test="${not empty expedientTipusAccessiblesAmbConsultesActives}">
 									<div id="btnConsultes" class="btn-group pull-right" >

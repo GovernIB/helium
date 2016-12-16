@@ -123,6 +123,7 @@ public class ExpedientTipusDominiController extends BaseExpedientTipusController
 			@RequestParam(required = false) Long agrupacioId,
 			Model model) {
 		ExpedientTipusDominiCommand command = new ExpedientTipusDominiCommand();
+		command.setExpedientTipusId(expedientTipusId);
 		model.addAttribute("expedientTipusId", expedientTipusId);
 		model.addAttribute("expedientTipusDominiCommand", command);
 		return "v3/expedientTipusDominiForm";
@@ -165,6 +166,7 @@ public class ExpedientTipusDominiController extends BaseExpedientTipusController
 		ExpedientTipusDominiCommand command = conversioTipusHelper.convertir(
 				dto,
 				ExpedientTipusDominiCommand.class);
+		command.setExpedientTipusId(expedientTipusId);
 		model.addAttribute("expedientTipusDominiCommand", command);
 		model.addAttribute("expedientTipusId", expedientTipusId);
 		return "v3/expedientTipusDominiForm";

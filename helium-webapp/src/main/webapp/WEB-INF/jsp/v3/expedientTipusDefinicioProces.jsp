@@ -27,6 +27,7 @@
 				data-ordering="true"
 				data-botons-template="#tableExpedientTipusDefinicioProcesButtonsTemplate"
 				data-default-order="1"
+				data-rowhref-template="#rowhrefTemplate"
 				class="table table-striped table-bordered table-hover">
 			<thead>
 				<tr>
@@ -54,7 +55,7 @@
 								<li><a data-toggle="modal" data-callback="callbackModaldefinicionsProces()" href="${expedientTipus.id}/definicionsProces/{{:id}}/incorporar"><span class="fa fa-download"></span>&nbsp;<spring:message code="expedient.tipus.definicioProces.llistat.definicioProces.incorporar"/></a></li>
 								<li><a data-toggle="modal" href="../definicioProces/{{:jbpmKey}}/exportar"><span class="fa fa-sign-out"></span>&nbsp;<spring:message code="comu.filtre.exportar"/></a></li>
 								<li><a data-toggle="modal" href="../definicioProces/importar?definicioProcesId={{:id}}"><span class="fa fa-sign-in"></span>&nbsp;<spring:message code="comu.importar"/></a></li>
-								<li><a class="btn-delete" href="../definicioProces/{{:jbpmKey}}/delete" data-toggle="ajax" data-confirm="<spring:message code="expedient.tipus.definicioProces.llistat.definicioProces.esborrar.confirmacio"/>"><span class="fa fa-trash-o"></span>&nbsp;<spring:message code="expedient.tipus.definicioProces.llistat.definicioProces.esborrar"/></a></li>
+								<li><a class="btn-delete" href="../definicioProces/{{:jbpmKey}}/delete" data-confirm="<spring:message code="expedient.tipus.definicioProces.llistat.definicioProces.esborrar.confirmacio"/>"><span class="fa fa-trash-o"></span>&nbsp;<spring:message code="expedient.tipus.definicioProces.llistat.definicioProces.esborrar"/></a></li>
 							</ul>
 						</div>
 						</script>
@@ -62,6 +63,7 @@
 				</tr>
 			</thead>
 		</table>
+		<script id="rowhrefTemplate" type="text/x-jsrender">../definicioProces/{{:jbpmKey}}</script>
 		<script id="tableExpedientTipusDefinicioProcesButtonsTemplate" type="text/x-jsrender">
 			<div class="botons-titol text-right">
 				<a class="btn btn-default" data-toggle="modal" data-callback="callbackModaldefinicionsProces()" data-datatable-id="expedientTipusDefinicioProces" href="../definicioProces/importar?expedientTipusId=${expedientTipus.id}">
@@ -120,7 +122,6 @@ $(document).ready(function() {
 			e.stopImmediatePropagation();
 			return false;
 		});
-
 		// Botó per incorporar la informació de la definició de procés
 		$("#expedientTipusDefinicioProces a.btn-incorporar").click(function(e) {
 			var $a = $(this);
@@ -135,6 +136,30 @@ $(document).ready(function() {
 				complete: function() {
 					webutilRefreshMissatges();
 					$a.closest('div .dropdown').removeClass('open');
+				}
+			});
+			e.stopImmediatePropagation();
+			return false;
+		});
+		// Botó per esborrar la darrera versió de la definició de procés amb un timeout de 20 segons
+		// <li><a class="btn-delete" href="../definicioProces/{{:jbpmKey}}/delete" data-toggle="ajax" data-confirm="<spring:message code="expedient.tipus.definicioProces.llistat.definicioProces.esborrar.confirmacio"/>"><span class="fa fa-trash-o"></span>&nbsp;<spring:message code="expedient.tipus.definicioProces.llistat.definicioProces.esborrar"/></a></li>
+		$("#expedientTipusDefinicioProces a.btn-delete").click(function(e) {
+			var getUrl = $(this).attr('href');
+			$.ajax({
+				type: 'GET',
+				url: getUrl,
+				async: true,
+				timeout: 60000,
+				success: function(result) {
+					if (result) {
+						refrescaTaula();
+					}
+				},
+				error: function(error) {
+					console.log('Error:'+error);
+				},
+				complete: function() {
+					webutilRefreshMissatges();
 				}
 			});
 			e.stopImmediatePropagation();

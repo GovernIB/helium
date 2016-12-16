@@ -74,7 +74,17 @@ public interface DocumentRepository extends JpaRepository<Document, Long> {
 			@Param("filtre") String filtre,		
 			Pageable pageable);
 	
-	public List<Document> findByExpedientTipusIdOrderByCodiAsc(Long expedientTipusId);
+	@Query(	"select d from " +
+			"    Document d " +
+			"where " +
+			"    d.expedientTipus.id=:expedientTipusId " +
+			"order by codi asc")
+	public List<Document> findByExpedientTipusIdOrderByCodiAsc(@Param("expedientTipusId") Long expedientTipusId);
 	
-	public List<Document> findByDefinicioProcesIdOrderByCodiAsc(Long definicioProcesId);
+	@Query(	"select d from " +
+			"    Document d " +
+			"where " +
+			"    d.definicioProces.id=:definicioProcesId " +
+			"order by codi asc")
+	public List<Document> findByDefinicioProcesIdOrderByCodiAsc(@Param("definicioProcesId") Long definicioProcesId);
 }

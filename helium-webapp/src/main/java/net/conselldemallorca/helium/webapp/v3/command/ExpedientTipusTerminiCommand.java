@@ -4,13 +4,22 @@ import javax.validation.constraints.Size;
 
 import org.hibernate.validator.constraints.NotEmpty;
 
+import net.conselldemallorca.helium.webapp.v3.command.ExpedientTipusTerminiCommand.Creacio;
+import net.conselldemallorca.helium.webapp.v3.command.ExpedientTipusTerminiCommand.Modificacio;
+import net.conselldemallorca.helium.webapp.v3.validator.Codi;
+import net.conselldemallorca.helium.webapp.v3.validator.ExpedientTipusTermini;
+
+@ExpedientTipusTermini(groups = {Creacio.class, Modificacio.class})
 public class ExpedientTipusTerminiCommand {
 
+	private Long expedientTipusId;
+	private Long definicioProcesId;
 	private Long id;
 	@NotEmpty(groups = {Creacio.class, Modificacio.class})
 	@Size(max = 64, groups = {Creacio.class, Modificacio.class})
+	@Codi(groups = {Creacio.class, Modificacio.class})
 	private String codi;
-	@NotEmpty
+	@NotEmpty(groups = {Creacio.class, Modificacio.class})
 	@Size(max = 255, groups = {Creacio.class, Modificacio.class})
 	private String nom;
 	@Size(max = 255, groups = {Creacio.class, Modificacio.class})
@@ -26,6 +35,18 @@ public class ExpedientTipusTerminiCommand {
 	private boolean alertaFinal;
 	private boolean alertaCompletat;
 
+	public Long getExpedientTipusId() {
+		return expedientTipusId;
+	}
+	public void setExpedientTipusId(Long expedientTipusId) {
+		this.expedientTipusId = expedientTipusId;
+	}
+	public Long getDefinicioProcesId() {
+		return definicioProcesId;
+	}
+	public void setDefinicioProcesId(Long definicioProcesId) {
+		this.definicioProcesId = definicioProcesId;
+	}
 	public Long getId() {
 		return id;
 	}

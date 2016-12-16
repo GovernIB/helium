@@ -68,7 +68,7 @@ public interface DocumentService {
 			Long documentId) throws NoTrobatException;
 	
 	public DocumentDto update(
-			DocumentDto document) throws NoTrobatException, PermisDenegatException;
+			DocumentDto document, boolean actualitzarContingut) throws NoTrobatException, PermisDenegatException;
 		
 	public ArxiuDto getArxiu(
 			Long documentId) throws NoTrobatException;

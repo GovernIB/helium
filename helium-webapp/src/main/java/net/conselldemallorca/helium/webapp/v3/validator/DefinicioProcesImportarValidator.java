@@ -247,11 +247,12 @@ public class DefinicioProcesImportarValidator implements ConstraintValidator<Def
 					if (camp.getCodiConsulta() != null) {
 						// Comprova la consulta
 						ConsultaDto consulta = null;
-						for (ConsultaDto c : expedientTipus.getConsultes())
-							if (c.getCodi().equals(camp.getCodiConsulta())) {
-								consulta = c;
-								break;
-							}
+						if (expedientTipus != null)
+							for (ConsultaDto c : expedientTipus.getConsultes())
+								if (c.getCodi().equals(camp.getCodiConsulta())) {
+									consulta = c;
+									break;
+								}
 						if (consulta == null) {
 							context.buildConstraintViolationWithTemplate(
 									MessageHelper.getInstance().getMessage(

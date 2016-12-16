@@ -131,6 +131,8 @@ public class DefinicioProcesAccioController extends BaseDefinicioProcesControlle
 		ExpedientTipusAccioCommand command = conversioTipusHelper.convertir(
 				dto,
 				ExpedientTipusAccioCommand.class);
+		command.setDefinicioProcesId(definicioProcesId);
+		command.setDefprocJbpmKey(jbmpKey);
 		model.addAttribute("expedientTipusAccioCommand", command);
 		model.addAttribute("handlers", dissenyService.findAccionsJbpmOrdenades(definicioProcesId));
 		return "v3/expedientTipusAccioForm";

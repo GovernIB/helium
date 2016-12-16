@@ -167,11 +167,10 @@ $(document).ajaxError(function(event, jqxhr, ajaxSettings, thrownError) {
 	$.fn.webutilBotonsTitol = function() {
 		var $heading = $('.panel-heading', $(this).closest('.panel'))
 		if ($heading) {
-			$(this).css('position', 'relative');
-			$(this).css('height', '0');
-			var headingOffset = $heading.offset();
-			var thisOffset = $(this).offset();
-			$(this).css('top', (headingOffset.top - thisOffset.top + 13) + "px");
+			$(this).css('float', 'right');
+			$(this).css('width', '1000px');
+			$(this).css('margin-top', '3px');
+			$(this).appendTo($heading.find('#capcalera-botons'));
 		}
 	}
 	$.fn.webutilBotonsTitolEval = function() {

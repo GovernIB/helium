@@ -5,8 +5,10 @@ import java.util.List;
 import net.conselldemallorca.helium.v3.core.api.dto.CampAgrupacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampRegistreDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ConsultaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
+import net.conselldemallorca.helium.v3.core.api.dto.TascaDto;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;;
 
@@ -388,4 +390,25 @@ public interface CampService {
 	 * @return Retorna true si ha anat bé o false si no té agrupació o la posició no és correcta.
 	 */
 	public boolean registreMourePosicio(Long id, int posicio);
+	
+	/** Retorna la llista de tasques de la definició de procés que continguin el camp.
+	 * 
+	 * @param campId
+	 * @return
+	 */
+	public List<TascaDto> findTasquesPerCamp(Long campId);
+
+	/** Retorna la llista de consultes que continguin el camp.
+	 * 
+	 * @param campId
+	 * @return
+	 */
+	public List<ConsultaDto> findConsultesPerCamp(Long campId);
+
+	/** Retorna la llista de registres que continguin el camp.
+	 * 
+	 * @param campId
+	 * @return
+	 */
+	public List<CampDto> findRegistresPerCamp(Long campId);
 }

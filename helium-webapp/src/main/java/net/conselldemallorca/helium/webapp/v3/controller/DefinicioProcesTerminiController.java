@@ -102,6 +102,7 @@ public class DefinicioProcesTerminiController extends BaseDefinicioProcesControl
 			@RequestParam(required = false) Long agrupacioId,
 			Model model) {
 		ExpedientTipusTerminiCommand command = new ExpedientTipusTerminiCommand();
+		command.setDefinicioProcesId(definicioProcesId);
 		model.addAttribute("expedientTipusTerminiCommand", command);
 		return "v3/expedientTipusTerminiForm";
 	}
@@ -145,6 +146,7 @@ public class DefinicioProcesTerminiController extends BaseDefinicioProcesControl
 		ExpedientTipusTerminiCommand command = conversioTipusHelper.convertir(
 				dto,
 				ExpedientTipusTerminiCommand.class);
+		command.setDefinicioProcesId(definicioProcesId);
 		model.addAttribute("expedientTipusTerminiCommand", command);
 		return "v3/expedientTipusTerminiForm";
 	}

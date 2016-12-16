@@ -3,23 +3,32 @@ package net.conselldemallorca.helium.webapp.v3.command;
 import javax.validation.constraints.Size;
 
 import org.hibernate.validator.constraints.NotEmpty;
-import org.springmodules.validation.bean.conf.loader.annotation.handler.NotNull;
 
+import net.conselldemallorca.helium.webapp.v3.command.ExpedientTipusEstatCommand.Creacio;
+import net.conselldemallorca.helium.webapp.v3.command.ExpedientTipusEstatCommand.Modificacio;
 import net.conselldemallorca.helium.webapp.v3.validator.Codi;
+import net.conselldemallorca.helium.webapp.v3.validator.ExpedientTipusEstat;
 
+@ExpedientTipusEstat(groups = {Creacio.class, Modificacio.class})
 public class ExpedientTipusEstatCommand {
 
+	private Long expedientTipusId;
 	private Long id;
 	@NotEmpty(groups = {Creacio.class, Modificacio.class})
 	@Size(max = 64, groups = {Creacio.class, Modificacio.class})
 	@Codi(groups = {Creacio.class, Modificacio.class})
 	private String codi;
-	@NotEmpty
+	@NotEmpty(groups = {Creacio.class, Modificacio.class})
 	@Size(max = 255, groups = {Creacio.class, Modificacio.class})
 	private String nom;
-	@NotNull
 	private int ordre;
 
+	public Long getExpedientTipusId() {
+		return expedientTipusId;
+	}
+	public void setExpedientTipusId(Long expedientTipusId) {
+		this.expedientTipusId = expedientTipusId;
+	}
 	public Long getId() {
 		return id;
 	}

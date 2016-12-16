@@ -170,6 +170,8 @@ public interface DefinicioProcesService {
 	public TascaDto tascaFindAmbId(
 			Long id) throws NoTrobatException;
 	
+	/** Recupera la informació de la definició de procés d'una tasca donat el seu id. */
+	public DefinicioProcesDto tascaFindDefinicioProcesDeTasca(Long tascaId);	
 	
 	/**
 	 * Modificació d'una tasca existent.
@@ -518,5 +520,5 @@ public interface DefinicioProcesService {
 	 * @throws PermisDenegatException
 	 *             Si no es tenen els permisos necessaris.
 	 */
-	public List<ConsultaDto> consultaFindByEntorn(Long entornId) throws NoTrobatException, PermisDenegatException;	
+	public List<ConsultaDto> consultaFindByEntorn(Long entornId) throws NoTrobatException, PermisDenegatException;
 }

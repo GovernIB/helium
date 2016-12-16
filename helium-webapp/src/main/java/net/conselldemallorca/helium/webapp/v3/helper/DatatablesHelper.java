@@ -39,7 +39,7 @@ public class DatatablesHelper {
 			HttpServletRequest request) {
 		return getPaginacioDtoFromRequest(request, null, null);
 	}
-	private static PaginacioParamsDto getPaginacioDtoFromRequest(
+	public static PaginacioParamsDto getPaginacioDtoFromRequest(
 			HttpServletRequest request,
 			Map<String, String[]> mapeigFiltres,
 			Map<String, String[]> mapeigOrdenacions) {

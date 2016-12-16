@@ -51,7 +51,9 @@
 						</c:if>										
 						<c:if test="${not empty definicioProces.expedientTipus}">
 							<dt><spring:message code="definicio.proces.detall.camp.tipus.expedient"></spring:message></dt>
-							<dd><a href="../expedientTipus/${definicioProces.expedientTipus.id}">${definicioProces.expedientTipus.nom}</a></dd>
+							<dd><a href="../expedientTipus/${definicioProces.expedientTipus.id}">
+									${definicioProces.expedientTipus.codi} - ${definicioProces.expedientTipus.nom}
+								</a></dd>
 						</c:if>										
 						<dt><spring:message code="definicio.proces.detall.camp.dataCreacio"/></dt>
 						<dd><fmt:formatDate value="${definicioProces.dataCreacio}" pattern="dd/MM/yyyy HH:mm"/></dd>

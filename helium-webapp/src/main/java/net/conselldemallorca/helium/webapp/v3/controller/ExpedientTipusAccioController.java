@@ -138,6 +138,7 @@ public class ExpedientTipusAccioController extends BaseExpedientTipusController 
 		ExpedientTipusAccioCommand command = conversioTipusHelper.convertir(
 				dto,
 				ExpedientTipusAccioCommand.class);
+		command.setExpedientTipusId(expedientTipusId);
 		model.addAttribute("expedientTipusAccioCommand", command);
 		model.addAttribute("definicionsProces", 
 				expedientTipusService.definicioProcesFindJbjmKey(

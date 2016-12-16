@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.commons.CommonsMultipartFile;
 
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
@@ -96,7 +97,7 @@ public class ExpedientTipusDocumentController extends BaseExpedientTipusControll
 	public String nouPost(
 			HttpServletRequest request, 
 			@PathVariable Long expedientTipusId,
-			@RequestParam(value = "arxiuContingut", required = false) final CommonsMultipartFile arxiuContingut,
+			@RequestParam(value = "arxiuContingut_multipartFile", required = false) final CommonsMultipartFile arxiuContingut,
 			@Validated(ExpedientTipusDocumentCommand.Creacio.class) ExpedientTipusDocumentCommand command,
 			BindingResult bindingResult, Model model) {
 		try {
@@ -138,9 +139,7 @@ public class ExpedientTipusDocumentController extends BaseExpedientTipusControll
 		command.setExpedientTipusId(expedientTipusId);
 		command.setCampId(dto.getCampData() != null ? dto.getCampData().getId() : null);
 		model.addAttribute("expedientTipusDocumentCommand", command);
-		omplirModelCamps(request, expedientTipusId, model);
-		model.addAttribute("arxiuContingut", dto.getArxiuContingut());
-		
+		omplirModelCamps(request, expedientTipusId, model);		
 		return "v3/expedientTipusDocumentForm";
 	}
 
@@ -149,28 +148,27 @@ public class ExpedientTipusDocumentController extends BaseExpedientTipusControll
 			HttpServletRequest request, 
 			@PathVariable Long expedientTipusId, 
 			@PathVariable Long id,
-			@RequestParam(value = "arxiuContingut", required = false) final CommonsMultipartFile arxiuContingut,
-			@RequestParam(value = "eliminarContingut", required = false) final boolean eliminarContingut,
+			@RequestParam(value = "arxiuContingut_multipartFile", required = false) final MultipartFile arxiuContingut,
+			@RequestParam(value = "arxiuContingut_deleted", required = false) final boolean eliminarContingut,
 			@Validated(ExpedientTipusDocumentCommand.Modificacio.class) ExpedientTipusDocumentCommand command,
 			BindingResult bindingResult, Model model) {
 		try {
 			if (bindingResult.hasErrors()) {
 				omplirModelCamps(request, expedientTipusId, model);
 				return "v3/expedientTipusDocumentForm";
-			} else {
-				DocumentDto dto = ExpedientTipusDocumentCommand.asDocumentDto(command);
-				
-				if (arxiuContingut == null && eliminarContingut) {
-					dto.setArxiuContingut(null);
-				} else if (arxiuContingut != null) {
-					byte[] contingutArxiu = IOUtils.toByteArray(arxiuContingut.getInputStream());
-					dto.setArxiuContingut(contingutArxiu);
-				} else if (arxiuContingut == null && !eliminarContingut) {
-					DocumentDto dtoVell = documentService.findAmbId(id);
-					dto.setArxiuContingut(dtoVell.getArxiuContingut());
-				}
-				
-				documentService.update(dto);
+			} else {				
+	        	boolean actualitzarContingut = false;
+	        	if (eliminarContingut) {
+	        		command.setArxiuContingut(null);
+	        		actualitzarContingut = true;
+	        	}
+	        	if (arxiuContingut != null && arxiuContingut.getSize() > 0) {
+					command.setArxiuContingut(IOUtils.toByteArray(arxiuContingut.getInputStream()));
+					actualitzarContingut = true;
+				}				
+				documentService.update(
+						ExpedientTipusDocumentCommand.asDocumentDto(command),
+						actualitzarContingut);
 				
 				MissatgesHelper.success(
 						request, 

@@ -18,6 +18,7 @@ import net.conselldemallorca.helium.webapp.v3.validator.Agrupacio;
 public class ExpedientTipusCampRegistreCommand {
 	
 	private Long expedientTipusId;
+	private Long definicioProcesId;
 	private Long registreId;
 	private Long id;
 	@NotNull(groups = {Creacio.class, Modificacio.class})
@@ -30,6 +31,12 @@ public class ExpedientTipusCampRegistreCommand {
 	}
 	public void setExpedientTipusId(Long expedientTipusId) {
 		this.expedientTipusId = expedientTipusId;
+	}
+	public Long getDefinicioProcesId() {
+		return definicioProcesId;
+	}
+	public void setDefinicioProcesId(Long definicioProcesId) {
+		this.definicioProcesId = definicioProcesId;
 	}
 	public Long getRegistreId() {
 		return registreId;

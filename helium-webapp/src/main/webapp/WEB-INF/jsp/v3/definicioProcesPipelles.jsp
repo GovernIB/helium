@@ -8,11 +8,19 @@
 <%@ taglib tagdir="/WEB-INF/tags/helium" prefix="hel"%>
 <c:set var="idioma"><%=org.springframework.web.servlet.support.RequestContextUtils.getLocale(request).getLanguage()%></c:set>
 
+<c:set var="expedientTipusCodi">
+	<c:choose>
+		<c:when test="${definicioProces.expedientTipus != null}">
+			[${definicioProces.expedientTipus.codi}]</c:when>
+		<c:otherwise></c:otherwise>
+	</c:choose>
+</c:set>
+
 <html>
 <head>
 	<title><spring:message code="definicio.proces.pipelles.titol"/></title>
 	<meta name="title" content="<spring:message code="definicio.proces.pipelles.titol"/>"/>
-	<meta name="subtitle" content="${fn:escapeXml(definicioProces.jbpmKey)}"/>
+	<meta name="subtitle" content="${fn:escapeXml(definicioProces.jbpmKey)} ${fn:escapeXml(expedientTipusCodi)}"/>
 	<meta name="title-icon-class" content="fa fa-folder-open"/>
 	<script src="<c:url value="/webjars/datatables.net/1.10.10/js/jquery.dataTables.min.js"/>"></script>
 	<script src="<c:url value="/webjars/datatables.net-bs/1.10.10/js/dataTables.bootstrap.min.js"/>"></script>

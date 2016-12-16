@@ -39,6 +39,16 @@ public class TerminiServiceBean implements TerminiService {
 	
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public TerminiDto findAmbCodi(
+			Long expedientTipusId, 
+			Long definicioProcesId, 
+			String codi) {
+		return delegate.findAmbCodi(expedientTipusId, definicioProcesId, codi);
+	}
+
+	
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public List<TerminiDto> findAll(
 			Long expedientTipusId,
 			Long definicioProcesId) throws NoTrobatException, PermisDenegatException {

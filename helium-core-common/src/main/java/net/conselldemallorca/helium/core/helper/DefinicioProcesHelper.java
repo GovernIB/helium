@@ -495,7 +495,9 @@ public class DefinicioProcesHelper {
 						// Camps de la tasca
 						for (CampTascaExportacio campExportat : tascaExportat.getCamps()) {
 							CampTasca campTasca = new CampTasca();
-							campTasca.setOrder(campExportat.getOrder());		
+							campTasca.setOrder(campExportat.getOrder());	
+							campTasca.setAmpleCols(campExportat.getAmpleCols());
+							campTasca.setBuitCols(campExportat.getBuitCols());
 							campTasca.setReadFrom(campExportat.isReadFrom());
 							campTasca.setWriteTo(campExportat.isWriteTo());
 							campTasca.setRequired(campExportat.isRequired());
@@ -543,6 +545,13 @@ public class DefinicioProcesHelper {
 						}
 					}
 				}
+		// Si el tipus d'expedient no tenia cap definició de procés inicial llavors la marca com inicial
+		if (expedientTipus != null
+				&& expedientTipus.getJbpmProcessDefinitionKey() == null
+				&& definicio != null) {
+			expedientTipus.setJbpmProcessDefinitionKey(definicio.getJbpmKey());
+			expedientTipusRepository.save(expedientTipus);
+		}		
 		return definicio;
 	}
 	
@@ -789,6 +798,8 @@ public class DefinicioProcesHelper {
 									camp.isRequired(),
 									camp.isReadOnly(),
 									camp.getOrder(),
+									camp.getAmpleCols(),
+									camp.getBuitCols(),
 									camp.getCamp().getExpedientTipus() != null));
 					}
 					// Afegeix els documents de la tasca
@@ -1129,6 +1140,7 @@ public class DefinicioProcesHelper {
 							validacio.getMissatge());
 					tascaDesti.addValidacio(novaValidacio);
 				}
+				tascaRepository.save(tascaDesti);
 			}
 		}		
 	}

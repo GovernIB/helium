@@ -28,71 +28,39 @@
 	<script src="<c:url value="/js/select2.min.js"/>"></script>
 	<script src="<c:url value="/js/select2-locales/select2_locale_${idioma}.js"/>"></script>	
 	<script src="<c:url value="/js/helium.modal.js"/>"></script>
-	
-	<style type="text/css">
-		.btn-file {position: relative; overflow: hidden;}
-		.btn-file-mid {position: relative; overflow: hidden; border-radius: 0px;background-color: #eee;}
-		.btn-file input[type=file] {position: absolute; top: 0; right: 0; min-width: 100%; min-height: 100%; font-size: 100px; text-align: right; filter: alpha(opacity = 0); opacity: 0; outline: none; background: white; cursor: inherit; display: block;}
-		.no-left-radius{border-top-left-radius: 0px; border-top-right-radius: 4px; border-bottom-right-radius: 4px; border-bottom-left-radius: 0px;}
-	</style>
 </head>
 <body>		
 	<form:form cssClass="form-horizontal" action="${formAction}" enctype="multipart/form-data" method="post" commandName="expedientTipusDocumentCommand">
-		<div>
-					
+		<div>			
 			<input type="hidden" name="id" value="${expedientTipusDocumentCommand.id}"/>
 			<input type="hidden" name="eliminarContingut" id="eliminarContingut" value="false"/>
 			<hel:inputText required="true" name="codi" textKey="expedient.tipus.document.form.camp.codi" />
 			<hel:inputText required="true" name="nom" textKey="expedient.tipus.document.form.camp.nom" />
 			<hel:inputTextarea name="descripcio" textKey="expedient.tipus.document.form.camp.descripcio" />
-			
-					<div class="form-group">
-						<label class="control-label col-xs-4" for="arxiuNom"><spring:message code='expedient.tipus.document.form.camp.arxiu' /></label>
-				        <div class="col-xs-8 arxiu">
-				            <div class="input-group" id ="arxiuGrup">
-				            	<form:input path="arxiuNom" cssClass="form-control" />
-				                <c:choose>
-									<c:when test="${empty arxiuContingut}">
-						                <span class="input-group-btn">
-						                    <span class="btn btn-default btn-file">
-						                        <spring:message code='expedient.tipus.document.form.camp.arxiu' />… <input type="file" id="arxiuContingut" name="arxiuContingut">
-						                    </span>
-						                </span>
-						            </c:when>
-									<c:otherwise>
-										<span class="input-group-btn" id="btnTrash" title="Eliminar document">
-											<span id="esborrarContingut" class="btn btn-default btn-file-mid">
-												<span class="fa fa-trash"></span>
-											</span>
-										</span>
-										<span class="input-group-btn" id="btnDownload" title="Descarregar">
-											<a href="<c:url value="/v3/expedientTipus/${expedientTipusDocumentCommand.expedientTipusId}/document/${expedientTipusDocumentCommand.id}/download" />" >
-												<span class="btn btn-default btn-file no-left-radius">
-													<span class="fa fa-file"></span>
-												</span>
-											</a>
-										</span>
-									</c:otherwise>
-								</c:choose>
-				            </div>
-						</div>
-					</div>
-				
-			
-			
-
-<%-- 			<hel:inputFile name="arxiuContingut" required="false" textKey="expedient.tipus.document.form.camp.arxiu" /> --%>
-			
-			
+			<!-- Resol la url de descàrrega per tipus d'expedient o definicions de procés -->
+			<c:choose>
+				<c:when test="${not empty expedientTipusDocumentCommand.definicioProcesId}">
+					<c:set var="arxiuUrl">/v3/definicioProces/${jbmpKey}/${expedientTipusDocumentCommand.definicioProcesId}/document/${expedientTipusDocumentCommand.id}/download</c:set>
+				</c:when>
+				<c:otherwise>
+					<c:set var="arxiuUrl">/v3/expedientTipus/${expedientTipusDocumentCommand.expedientTipusId}/document/${expedientTipusDocumentCommand.id}/download</c:set>
+				</c:otherwise>
+			</c:choose>
+ 			<hel:inputFile 
+	 			name="arxiuContingut" 
+	 			required="false" 
+	 			textKey="expedient.tipus.document.form.camp.arxiu"
+	 			fileName="arxiuNom"
+	 			fileUrl="${arxiuUrl}"
+	 			fileExists="${not empty expedientTipusDocumentCommand.arxiuContingut}" /> 			
 			<hel:inputCheckbox name="plantilla" textKey="expedient.tipus.document.form.camp.plantilla" />
-			
 			<hel:inputText name="convertirExtensio" textKey="expedient.tipus.document.form.camp.gen_ext" />
 			<hel:inputCheckbox name="adjuntarAuto" textKey="expedient.tipus.document.form.camp.adj_auto" />
 			<hel:inputSelect name="campId" textKey="expedient.tipus.document.form.camp.camp_data" required="false" emptyOption="true" placeholderKey="expedient.tipus.document.form.camp.camp_data.buit" optionItems="${camps}" optionValueAttribute="codi" optionTextAttribute="valor"/>
-			<hel:inputText name="extensionsPermeses" textKey="expedient.tipus.document.form.camp.ext_perm" />
-			<hel:inputText name="contentType" textKey="expedient.tipus.document.form.camp.ctype" />
-			<hel:inputText name="custodiaCodi" textKey="expedient.tipus.document.form.camp.codi_custodia" />
-			<hel:inputText name="tipusDocPortasignatures" textKey="expedient.tipus.document.form.camp.tipus_doc" />
+			<hel:inputText name="extensionsPermeses" textKey="expedient.tipus.document.form.camp.ext_perm" comment="expedient.tipus.document.form.camp.ext_perm.comment"/>
+			<hel:inputText name="contentType" textKey="expedient.tipus.document.form.camp.ctype" comment="expedient.tipus.document.form.camp.ctype.comment" />
+			<hel:inputText name="custodiaCodi" textKey="expedient.tipus.document.form.camp.codi_custodia" comment="expedient.tipus.document.form.camp.codi_custodia.comment" />
+			<hel:inputText name="tipusDocPortasignatures" textKey="expedient.tipus.document.form.camp.tipus_doc" comment="expedient.tipus.document.form.camp.tipus_doc.comment" />
 			
 		</div>
 		
@@ -115,50 +83,8 @@
 
 	</form:form>
 	<script type="text/javascript">
-		// <![CDATA[
-        $(document).on('change', '.btn-file :file', function() {
-			var input = $(this),
-			numFiles = input.get(0).files ? input.get(0).files.length : 1,
-			label = input.val().replace(/\\/g, '/').replace(/.*\//, '');
-			input.trigger('fileselect', [numFiles, label]);
-		});
-		
+		// <![CDATA[		
 		$(document).ready( function() {
-			$('.btn-file :file').on('fileselect', function(event, numFiles, label) {
-				var input = $(this).parents('.input-group').find(':text'),
-				log = numFiles > 1 ? numFiles + ' files selected' : label;
-				if( input.length ) {
-					input.val(log);
-				} else {
-					if( log )
-						alert(log);
-				}
-			});
-			$('#arxiuNom').on('click', function() {
-				$('input[name=arxiuContingut]').click();
-			});
-			$('#esborrarContingut').on('click', function() {
-				$('#eliminarContingut').val(true);
-				$('#arxiuNom').val('');
-				$('#btnTrash').remove();
-				$('#btnDownload').remove();
-				$('#arxiuGrup').append('<span class="input-group-btn">' +
-	                    '<span class="btn btn-default btn-file">' +
-                        '<spring:message code='expedient.tipus.document.form.camp.arxiu' />… <input type="file" id="arxiuContingut" name="arxiuContingut">' +
-                    '</span>' +
-                '</span>');
-				
-				$('.btn-file :file').on('fileselect', function(event, numFiles, label) {
-					var input = $(this).parents('.input-group').find(':text'),
-					log = numFiles > 1 ? numFiles + ' files selected' : label;
-					if( input.length ) {
-						input.val(log);
-					} else {
-						if( log )
-							alert(log);
-					}
-				});
-			});
 		}); 
 		// ]]>
 	</script>	
