@@ -5,9 +5,11 @@ import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -558,22 +560,19 @@ public class ExpedientDocumentController extends BaseExpedientController {
 	
 	private List<DocumentDto> getDocumentsNoUtilitzats(Long expedientId, String procesId) {
 		InstanciaProcesDto instanciaProces = expedientService.getInstanciaProcesById(procesId);
-		List<DocumentDto> documentsNoUtilitzats = new ArrayList<DocumentDto>();
 		List<DocumentDto> documents = dissenyService.findDocumentsAmbDefinicioProcesOrdenatsPerCodi(instanciaProces.getDefinicioProces().getId());
 		List<ExpedientDocumentDto> documentsInstancia = expedientService.findDocumentsPerInstanciaProces(expedientId, procesId);
-		if (documentsInstancia != null) {
-			int i = 0;
-			for(DocumentDto document: documents) {
-				if (document.getCodi() != null) {
-					while (i < (documentsInstancia.size() - 1) && document.getCodi().compareToIgnoreCase(documentsInstancia.get(i).getDocumentCodi()) > 0)
-						i++;
-					if (documentsInstancia.isEmpty() || !document.getCodi().equals(documentsInstancia.get(i).getDocumentCodi())) {
-						documentsNoUtilitzats.add(document);
-					} else if (i < (documentsInstancia.size() - 1)){
-						i++;
-					}
-				}
-			}
+		if (documentsInstancia != null && documentsInstancia.size() > 0) {
+			List<DocumentDto> documentsNoUtilitzats = new ArrayList<DocumentDto>();
+			// Posa els codis dels documents utilitzats en un Set
+			Set<String> codisDocumentsExistents = new HashSet<String>();
+			for (ExpedientDocumentDto documentExpedient : documentsInstancia)
+				if (documentExpedient.getDocumentCodi() != null)
+					codisDocumentsExistents.add(documentExpedient.getDocumentCodi());
+			// Mira quins documents no s'han utilitzat i els retorna
+			for(DocumentDto document: documents) 
+				if (!codisDocumentsExistents.contains(document.getCodi()))
+					documentsNoUtilitzats.add(document);
 			return documentsNoUtilitzats;
 		} else {
 			return documents;
