@@ -600,8 +600,8 @@ public class VariableHelper {
 			tascaDadaDto.setReadFrom(readFrom);
 			tascaDadaDto.setWriteTo(writeTo);
 			tascaDadaDto.setRequired(required);
-			tascaDadaDto.setAmpleCols(ampleCols);
-			tascaDadaDto.setBuitCols(buitCols);
+			tascaDadaDto.setAmpleCols((ampleCols == 0 && buitCols == 0) ? 12 : ampleCols);
+			tascaDadaDto.setBuitCols((ampleCols == 0 && buitCols == 0) ? 0 : buitCols);
 		}
 		tascaDadaDto.setText(expedientDadaDto.getText());
 		tascaDadaDto.setError(expedientDadaDto.getError());
