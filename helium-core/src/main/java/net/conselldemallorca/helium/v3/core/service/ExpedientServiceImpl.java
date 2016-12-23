@@ -3574,7 +3574,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 			}
 		}
 		
-		if (permesa && accio.getRols() != null) {
+		if (permesa && accio.getRols() != null && !accio.getRols().isEmpty()) {
 			permesa = false;
 			for (String rol: accio.getRols().split(",")) {
 				if (isUserInRole(auth, rol)) {
