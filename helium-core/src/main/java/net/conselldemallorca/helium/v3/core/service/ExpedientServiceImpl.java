@@ -640,6 +640,10 @@ public class ExpedientServiceImpl implements ExpedientService {
 				true,
 				false);
 		
+		for (Notificacio notificacio: notificacioRepository.findByExpedientOrderByDataEnviamentDesc(expedient)) {
+			notificacioRepository.delete(notificacio);
+		}
+		
 		List<JbpmProcessInstance> processInstancesTree = jbpmHelper.getProcessInstanceTree(expedient.getProcessInstanceId());
 		for (JbpmProcessInstance pi: processInstancesTree){
 			for (TerminiIniciat ti: terminiIniciatRepository.findByProcessInstanceId(pi.getId()))
@@ -667,6 +671,8 @@ public class ExpedientServiceImpl implements ExpedientService {
 		for (ExecucioMassivaExpedient eme: execucioMassivaExpedientRepository.getExecucioMassivaByExpedient(id)) {
 			execucioMassivaExpedientRepository.delete(eme);
 		}
+		
+		
 		expedientRepository.delete(expedient);
 		luceneHelper.deleteExpedient(expedient);
 
