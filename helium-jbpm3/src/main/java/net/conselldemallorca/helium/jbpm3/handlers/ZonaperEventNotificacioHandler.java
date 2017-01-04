@@ -301,56 +301,51 @@ public class ZonaperEventNotificacioHandler extends BasicActionHandler implement
 		/*
 		 * SEGMENT PER A TITOLS I TEXTES
 		 */
-		String valorOficiTitol = null;
-		if (expedientTipus.getNotificacioOficiTitol() != null && !expedientTipus.getNotificacioOficiTitol().isEmpty())
+		String valorOficiTitol = (String)getValorOVariable(
+				executionContext,
+				notificacioOficiTitol,
+				varNotificacioOficiTitol);
+		if ((valorOficiTitol == null || valorOficiTitol.isEmpty()) && expedientTipus.getNotificacioOficiTitol() != null && !expedientTipus.getNotificacioOficiTitol().isEmpty())
 			valorOficiTitol = expedientTipus.getNotificacioOficiTitol();
-		else
-			valorOficiTitol = (String)getValorOVariable(
-					executionContext,
-					notificacioOficiTitol,
-					varNotificacioOficiTitol);
+		
 		anotacio.setNotificacioOficiTitol(valorOficiTitol);
 		
 		
-		String valorOficiText = null;
-		if (expedientTipus.getNotificacioOficiText() != null && !expedientTipus.getNotificacioOficiText().isEmpty())
+		String valorOficiText = (String)getValorOVariable(
+				executionContext,
+				notificacioOficiText,
+				varNotificacioOficiText);
+		if ((valorOficiText == null || valorOficiText.isEmpty()) && expedientTipus.getNotificacioOficiText() != null && !expedientTipus.getNotificacioOficiText().isEmpty())
 			valorOficiText = expedientTipus.getNotificacioOficiText();
-		else
-			valorOficiText = (String)getValorOVariable(
-					executionContext,
-					notificacioOficiText,
-					varNotificacioOficiText);
+		
 		anotacio.setNotificacioOficiText(valorOficiText);
 		
 		
-		String valorAvisTitol = null;
-		if (expedientTipus.getNotificacioAvisTitol() != null && !expedientTipus.getNotificacioAvisTitol().isEmpty())
+		String valorAvisTitol = (String)getValorOVariable(
+				executionContext,
+				avisTitol,
+				varAvisTitol);
+		if ((valorAvisTitol == null || valorAvisTitol.isEmpty()) && expedientTipus.getNotificacioAvisTitol() != null && !expedientTipus.getNotificacioAvisTitol().isEmpty())
 			valorAvisTitol = expedientTipus.getNotificacioAvisTitol();
-		else
-			valorAvisTitol = (String)getValorOVariable(
-					executionContext,
-					avisTitol,
-					varAvisTitol);
+		
 		anotacio.setNotificacioAvisTitol(valorAvisTitol);
 		
-		String valorAvisText = null;
-		if (expedientTipus.getNotificacioAvisText() != null && !expedientTipus.getNotificacioAvisText().isEmpty())
+		String valorAvisText = (String)getValorOVariable(
+				executionContext,
+				avisText,
+				varAvisText);
+		if ((valorAvisText == null || valorAvisText.isEmpty()) && expedientTipus.getNotificacioAvisText() != null && !expedientTipus.getNotificacioAvisText().isEmpty())
 			valorAvisText = expedientTipus.getNotificacioAvisText();
-		else
-			valorAvisText = (String)getValorOVariable(
-					executionContext,
-					avisText,
-					varAvisText);
+		
 		anotacio.setNotificacioAvisText(valorAvisText);
 		
-		String valorAvisTextSms = null;
-		if (expedientTipus.getNotificacioAvisTextSms() != null && !expedientTipus.getNotificacioAvisTextSms().isEmpty())
+		String valorAvisTextSms = (String)getValorOVariable(
+				executionContext,
+				avisTextSms,
+				varAvisTextSms);
+		if ((valorAvisTextSms == null || valorAvisTextSms.isEmpty()) && expedientTipus.getNotificacioAvisTextSms() != null && !expedientTipus.getNotificacioAvisTextSms().isEmpty())
 			valorAvisTextSms = expedientTipus.getNotificacioAvisTextSms();
-		else
-			valorAvisTextSms = (String)getValorOVariable(
-					executionContext,
-					avisTextSms,
-					varAvisTextSms);
+		
 		anotacio.setNotificacioAvisTextSms(valorAvisTextSms);
 		//////////////////////////////////////////////////////////////////////
 		
