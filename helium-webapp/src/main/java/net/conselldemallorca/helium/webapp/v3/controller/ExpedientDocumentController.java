@@ -39,6 +39,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.support.SessionStatus;
 import org.springframework.web.multipart.commons.CommonsMultipartFile;
 
+import net.conselldemallorca.helium.core.model.service.PluginService;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDocumentDto;
@@ -64,6 +65,9 @@ public class ExpedientDocumentController extends BaseExpedientController {
 
 	@Autowired
 	private ExpedientDocumentService expedientDocumentService;
+	// TODO: eliminar la referencia al core 2.6 i passar el mètode processarDocumentPendentPortasignatures al pluginHelper
+	@Autowired
+	private PluginService pluginService;
 	
 
 
@@ -427,6 +431,27 @@ public class ExpedientDocumentController extends BaseExpedientController {
 		Object psignaInfo = expedientDocumentService.findPortasignaturesInfo(expedientId, processInstanceId, documentStoreId);
 		
 		return psignaInfo;
+	}
+
+	/** Mètode per reintentar el processament del document que s'envia al porta signatures. */
+	@RequestMapping(
+			value="/{expedientId}/proces/{processInstanceId}/document/{documentStoreId}/psignaReintentar", 
+			method = RequestMethod.GET)
+	public String documentPsignaReintentar(
+			HttpServletRequest request,
+			@PathVariable Long expedientId,
+			@PathVariable String processInstanceId,
+			@PathVariable Long documentStoreId,
+			@RequestParam(value = "psignaId", required = true) Integer psignaId,
+			Model model) {
+		
+		// TODO: eliminar la referencia al core 2.6 i passar el mètode processarDocumentPendentPortasignatures al pluginHelper
+		if (pluginService.processarDocumentPendentPortasignatures(psignaId))
+			MissatgesHelper.success(request, getMessage(request, "expedient.psigna.reintentar.ok"));
+		else
+			MissatgesHelper.error(request, getMessage(request, "expedient.psigna.reintentar.error"));
+
+		return "redirect:/v3/expedient/" + expedientId;
 	}
 
 	@RequestMapping(value = "/document/arxiuMostrar")

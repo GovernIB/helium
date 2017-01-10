@@ -120,7 +120,7 @@
 															</a>
 															<c:if test="${psignaPendentActual.error}">
 																<c:if test="${expedient.permisDocManagement}">
-																	<form id="form_psigna_${document.id}" action="<c:url value='/expedient/documentPsignaReintentar.html'/>">
+																	<form id="form_psigna_${document.id}" action="<c:url value='../../v3/expedient/${expedientId}/proces/${document.processInstanceId}/document/${document.id}/psignaReintentar'/>">
 																		<input type="hidden" name="id" value="${document.processInstanceId}"/>
 																		<input type="hidden" name="psignaId" value="${psignaPendentActual.documentId}"/>
 																	</form>
