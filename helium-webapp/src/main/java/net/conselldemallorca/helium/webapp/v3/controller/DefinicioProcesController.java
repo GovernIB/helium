@@ -25,6 +25,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import net.conselldemallorca.helium.core.helper.DefinicioProcesHelper;
+import net.conselldemallorca.helium.core.helper.EntornHelper;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesExpedientDto.IdAmbEtiqueta;
@@ -74,12 +75,16 @@ public class DefinicioProcesController extends BaseDefinicioProcesController {
 	private ConversioTipusHelper conversioTipusHelper;
 	@Resource
 	private DefinicioProcesHelper definicioProcesHelper;
+	@Resource
+	private EntornHelper entornHelper;
 	
 	/** Accés al llistat de definicions de procés de l'entorn des del menú de disseny. */
 	@RequestMapping(method = RequestMethod.GET)
 	public String llistat(
 			HttpServletRequest request,
 			Model model) {
+		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
+		model.addAttribute("potDissenyarEntorn", entornHelper.potDissenyarEntorn(entornActual.getId()));
 		return "v3/definicioProcesLlistat";
 	}
 	
@@ -699,9 +704,10 @@ public class DefinicioProcesController extends BaseDefinicioProcesController {
 		// Per indicar a la pàgina si s'ha pogut fer una importació del fitxer.
 		model.addAttribute("command", command);
 		
-		
+		boolean potDissenyarEntorn = false;
 		if (entornActual != null) {
 			model.addAttribute("entorn", entornActual);
+			potDissenyarEntorn = entornHelper.potDissenyarEntorn(entornActual.getId());
 			command.setEntornId(entornActual.getId());
 			if (command.getExpedientTipusId() != null) {
 				ExpedientTipusDto expedientTipus = expedientTipusService.findAmbIdPermisDissenyar(
@@ -718,6 +724,7 @@ public class DefinicioProcesController extends BaseDefinicioProcesController {
 			// Select dels tipus d'expedient de l'entorn
 			model.addAttribute("expedientsTipus", expedientTipusService.findAmbEntornPermisDissenyar(entornActual.getId()));
 		}
+		model.addAttribute("potDissenyarEntorn", potDissenyarEntorn);
 		
 		// Select de les accions jbpm
 		List<ParellaCodiValorDto> accions = new ArrayList<ParellaCodiValorDto>();
