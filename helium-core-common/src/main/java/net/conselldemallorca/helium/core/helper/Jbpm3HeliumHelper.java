@@ -1398,10 +1398,22 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 			registreNotificacio.setDocuments(documents);
 		}
 		
+		logger.info("###===> INICIANT MÈTODES PER A REGISTRAR NOTIFICACIÓ.");
+		
 		RespostaAnotacioRegistre respostaPlugin = pluginHelper.tramitacioRegistrarNotificacio(
 			registreNotificacio,
 			expedient,
 			crearExpedient);
+		
+		logger.info("###===> Resposta registre notificacio plugin: ");
+		logger.info("###========> Numero: " + respostaPlugin.getNumero());
+		logger.info("###========> Data: " + respostaPlugin.getData());
+		
+		if (respostaPlugin.getReferenciaRDSJustificante() != null) {
+			logger.info("###========> Just.Codi: " + respostaPlugin.getReferenciaRDSJustificante().getCodigo());
+			logger.info("###========> Just.Clau: " + respostaPlugin.getReferenciaRDSJustificante().getClave());
+		}
+		
 	
 		if (respostaPlugin.isOk()) {
 			RegistreIdDto resposta = new RegistreIdDto();

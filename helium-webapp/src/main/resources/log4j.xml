@@ -15,6 +15,12 @@
 	<logger name="org.displaytag">
 		<level value="ERROR"/>
 	</logger>
+	<logger name="org.springframework.orm.jpa">
+		<level value="DEBUG"/>
+	</logger>
+	<logger name="org.springframework.transaction">
+		<level value="DEBUG"/>
+	</logger>
 	<root>
 		<level value="INFO"/>
 		<appender-ref ref="console"/>

@@ -165,7 +165,7 @@ public class TramitacioPluginSistrav2 implements TramitacioPlugin {
 				}
 			}
 			getZonaperClient().altaExpediente(expediente);
-			logger.info("Nou expedient creat a la zona personal del ciutadà " + request.getRepresentatNif() + ": [" + request.getExpedientIdentificador() + ", " + request.getExpedientClau() + "]");
+			logger.info("###===> Nou expedient creat a la zona personal del ciutadà " + request.getRepresentatNif() + ": [" + request.getExpedientIdentificador() + ", " + request.getExpedientClau() + "]");
 		} catch (Exception ex) {
 			logger.error("Error al crear expedient a la zona personal: " + request, ex);
 			throw new TramitacioPluginException("Error al crear expedient a la zona personal", ex);
@@ -506,9 +506,14 @@ public class TramitacioPluginSistrav2 implements TramitacioPlugin {
 								documentos));
 			}
 			try {
+				logger.info("###===> Notificacio. Comprovar zona personal");
 				crearZonaPers(registreNotificacio.getDadesInteressat().getNif(), registreNotificacio.getDadesInteressat().getNomAmbCognoms());
 				ResultadoRegistro resultado = null;
+				
+				logger.info("###===> Cridem al servei per registrar notificació");
 				resultado = getRegtelClient().registroSalida(datosRegistroSalida);
+
+				logger.info("###===> S'ha cridat al servei correctament");
 				
 				resposta.setErrorCodi(RespostaAnotacioRegistre.ERROR_CODI_OK);
 				resposta.setNumero(

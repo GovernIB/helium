@@ -2462,7 +2462,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 							ExtendedPermission.ADMINISTRATION},
 					auth);
 		}
-		if (permesa && accio.getRols() != null) {
+		if (permesa && accio.getRols() != null && !accio.getRols().isEmpty()) {
 			permesa = false;
 			for (String rol: accio.getRols().split(",")) {
 				if (isUserInRole(auth, rol)) {
@@ -2707,12 +2707,17 @@ public class ExpedientServiceImpl implements ExpedientService {
 	@Override
 	@Transactional(propagation = Propagation.REQUIRES_NEW)
 	public void actualitzaExpedientFromZonaPersonal(Long expedientId, String expedientTramitIdentificador, String expedientTramitClau, IntegracioParametreDto[] parametres, long t0) {
+
+		logger.info("###===> NOVA TRANSACCIO. Dins metode per actualitzar expedient");
+		
 		monitorIntegracioHelper.addAccioOk(
 				MonitorIntegracioHelper.INTCODI_SISTRA,
 				"Creació d'expedient",
 				IntegracioAccioTipusEnumDto.ENVIAMENT,
 				System.currentTimeMillis() - t0,
 				parametres);
+		
+		logger.info("###===> Registrant accio en monitor d'integracions");
 		
 		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
 				expedientId,
@@ -2721,12 +2726,15 @@ public class ExpedientServiceImpl implements ExpedientService {
 				false,
 				false);
 		
+		logger.info("###===> Obtenim expedient per ID");
+		
 		expedient.setTramitExpedientIdentificador(expedientTramitIdentificador);
 		expedient.setTramitExpedientClau(expedientTramitClau);
 		expedientRepository.save(expedient);
-		System.out.println("###===> Expedient creat en zona personal:");
-		System.out.println("###===> Identificador: " + expedient.getTramitExpedientIdentificador());
-		System.out.println("###===> Clau: " + expedient.getTramitExpedientClau());
+		
+		logger.info("###===> Expedient creat en zona personal:");
+		logger.info("###===> Identificador: " + expedient.getTramitExpedientIdentificador());
+		logger.info("###===> Clau: " + expedient.getTramitExpedientClau());
 	}
 	/**************/
 	

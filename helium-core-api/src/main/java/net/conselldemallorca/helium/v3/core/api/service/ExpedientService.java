@@ -858,5 +858,5 @@ public interface ExpedientService {
 
 	public void notificacioReprocessar(Long notificacioId) throws NoTrobatException;
 	
-	public void actualitzaExpedientFromZonaPersonal(Long expedientId, String expedientTramitIdentificador, String expedientTramitClau, IntegracioParametreDto[] parametres, long t0)  throws NoTrobatException;
+	public void actualitzaExpedientFromZonaPersonal(Long expedientId, String expedientTramitIdentificador, String expedientTramitClau, IntegracioParametreDto[] parametres, long t0)  throws NoTrobatException, PermisDenegatException;
 }

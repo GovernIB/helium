@@ -472,12 +472,22 @@ public class PluginHelper {
 		
 		
 		try {
+			logger.info("###===> Entrem en apartat relacionat amb expedients ");
+			logger.info("###===> Comprovant si s'ha de crear l'expedient amb expedient.tramitExpedientIdentificador " + expedient.getTramitExpedientIdentificador() + 
+						", expedient.tramitExpedientClau " + expedient.getTramitExpedientClau());
 			if ((expedient.getTramitExpedientIdentificador() == null || 
 				expedient.getTramitExpedientIdentificador().isEmpty() || 
 				expedient.getTramitExpedientClau() == null || 
 				expedient.getTramitExpedientClau().isEmpty()) &&
 				crearExpedient) {
+					logger.info("###===> Serà necessari crear expedient en la zona personal. ");
 					crearExpedientPerNotificacio(registreNotificacio, expedient, parametres);
+					logger.info("###===> Finalitzat apartat relacionat amb expedients ");
+					logger.info("###===> Recuperem de nou l'expedient per a comprovar ID i Clau de tramitació..");
+					
+					Expedient expedientComprovacio = expedientRepository.findOne(expedient.getId());
+					logger.info("###===> Identificador Comprovació: " + expedientComprovacio.getTramitExpedientIdentificador());
+					logger.info("###===> Clau comprovació: " + expedientComprovacio.getTramitExpedientClau());
 			}
 		} catch (Exception ex) {
 			String errorDescripcio = "No s'han pogut crear l'expedient a la zona persoanl (" +
@@ -505,7 +515,9 @@ public class PluginHelper {
 		long t0 = System.currentTimeMillis();
 		RespostaAnotacioRegistre resposta = null;
 		try {
+			logger.info("###===> Entrem en apartat relacionat amb notificacions ");
 			resposta = getTramitacioPlugin().registrarNotificacio(registreNotificacio);
+			
 			monitorIntegracioHelper.addAccioOk(
 					MonitorIntegracioHelper.INTCODI_SISTRA,
 					"Registrar notificació",
@@ -540,6 +552,8 @@ public class PluginHelper {
 	}
 	
 	private void crearExpedientPerNotificacio(RegistreNotificacio registreNotificacio, Expedient expedient, IntegracioParametreDto[] parametres) throws Exception {
+		logger.info("###===> Preparem l'expedient a crear a la zona personal");
+		
 		ZonaperExpedientDto zonaperExpedient = new ZonaperExpedientDto();
 		
 		zonaperExpedient.setExpedientIdentificador(registreNotificacio.getDadesExpedient().getIdentificador());
@@ -567,15 +581,21 @@ public class PluginHelper {
 				zonaperExpedient,
 				PublicarExpedientRequest.class);
 		
+		logger.info("###===> Cridem al plugin per crear l'expedient a la zona personal");
+		
 		long t0 = System.currentTimeMillis();
 		getTramitacioPlugin().publicarExpedient(request);
 		
+		
+		logger.info("###===> Cridant al mètode per guardar ID i Clau de tramitacio en Expedient Helium");
 		expedientService.actualitzaExpedientFromZonaPersonal(
 				expedient.getId(), 
 				registreNotificacio.getDadesExpedient().getIdentificador(), 
 				registreNotificacio.getDadesExpedient().getClau(), 
 				parametres, 
 				t0);
+		
+		logger.info("###===> S'ha cridat al mètode per acutaltizar expedient Helium correctament.");
 	}
 
 	public RespostaJustificantRecepcio tramitacioObtenirJustificant(
