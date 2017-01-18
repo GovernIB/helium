@@ -38,7 +38,8 @@ public class ExpedientTipusMapeigValidator implements ConstraintValidator<Expedi
 				// codi repetit
 				MapeigSistraDto repetit = expedientTipusService.mapeigFindAmbCodiSistraPerValidarRepeticio(
 				mapeig.getExpedientTipusId(),
-				mapeig.getCodiSistra());
+				mapeig.getCodiSistra(),
+				mapeig.getTramitSistraId());
 				if(repetit != null && (mapeig.getId() == null || !mapeig.getId().equals(repetit.getId()))) {
 					context.buildConstraintViolationWithTemplate(
 							MessageHelper.getInstance().getMessage(this.codiMissatge + ".codi.sistra.repetit", null))
@@ -60,7 +61,8 @@ public class ExpedientTipusMapeigValidator implements ConstraintValidator<Expedi
 				// codi helium repetit
 				MapeigSistraDto repetit = expedientTipusService.mapeigFindAmbCodiHeliumPerValidarRepeticio(
 						mapeig.getExpedientTipusId(),
-						mapeig.getCodiHelium());
+						mapeig.getCodiHelium(),
+						mapeig.getTramitSistraId());
 				if(repetit != null && (mapeig.getId() == null || !mapeig.getId().equals(repetit.getId()))) {
 					context.buildConstraintViolationWithTemplate(
 							MessageHelper.getInstance().getMessage(this.codiMissatge + ".codi.helium.repetit", null))

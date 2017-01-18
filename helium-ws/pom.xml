@@ -80,6 +80,11 @@
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
+			<groupId>net.conselldemallorca</groupId>
+			<artifactId>helium-core</artifactId>
+			<version>${helium.version}</version>
+		</dependency>
+		<dependency>
             <groupId>javax.persistence</groupId>
             <artifactId>persistence-api</artifactId>
             <version>1.0</version>

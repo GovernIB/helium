@@ -254,6 +254,8 @@
 						<dt><spring:message code="expedient.info.camp.titol"/></dt>
 						<dd>${expedient.titol}</dd>
 					</c:if>
+					<dt><spring:message code="expedient.info.camp.identificador"/></dt>
+					<dd>${expedient.id}</dd>
 					<dt><spring:message code="expedient.info.camp.tipus"/></dt>
 					<dd>${expedient.tipus.nom}</dd>
 					<dt><spring:message code="expedient.info.camp.data.inici"/></dt>

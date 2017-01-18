@@ -18,6 +18,7 @@ public class MapeigSistraExportacio implements Serializable {
 	private String codiHelium;
 	private String codiSistra;
 	private TipusMapeig tipus;
+//	private TramitSistraExportacio tramitSistra;
 
 
 	public MapeigSistraExportacio() {}
@@ -51,6 +52,13 @@ public class MapeigSistraExportacio implements Serializable {
 	public void setTipus(TipusMapeig tipus) {
 		this.tipus = tipus;
 	}
+//	public TramitSistraExportacio getTramitSistra() {
+//		return tramitSistra;
+//	}
+//	public void setTramitSistra(TramitSistraExportacio tramitSistra) {
+//		this.tramitSistra = tramitSistra;
+//	}
+
 
 	private static final long serialVersionUID = 1L;
 

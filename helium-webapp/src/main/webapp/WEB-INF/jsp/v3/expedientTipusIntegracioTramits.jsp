@@ -12,6 +12,89 @@
 
 <script type="text/javascript" src="<c:url value="/js/jquery/jquery.tablednd.js"/>"></script>
 
+<c:url var="urlDatatable" value="/v3/expedientTipus/${expedientTipus.id}/integracioTramits/datatable"/>
+
+<c:choose>
+	<c:when test="${not empty expedientTipus}">
+
+		<table	id="expedientTipusTramits"
+				data-toggle="datatable"
+				data-url="${urlDatatable}"
+				data-paging-enabled="true"
+				data-info-type="search+button"
+				data-botons-template="#tableButtonsTramitsTemplate"
+				class="table table-striped table-bordered table-hover">
+			<thead>
+				<tr>
+					<th data-col-name="id" data-visible="false"/>
+					<th data-col-name="sistraTramitCodi" width="20%" data-orderable="true"><spring:message code="expedient.tipus.integracio.tramits.tramitCodi"/></th>
+					<th data-col-name="tipus" data-template="#cellExpedientTipusTramitTipus">
+						<spring:message code="expedient.tipus.integracio.tramits.tipus.operacio"/>
+						<script id="cellExpedientTipusTramitTipus" type="text/x-jsrender">
+						{{if tipus=="INICIAR_EXPEDIENT" }}
+							<spring:message code="expedient.tipus.integracio.tramits.tipus.INICIAR_EXPEDIENT"></spring:message>
+						{{/if}}
+						{{if tipus=="EXECUTAR_ACCIO" }}
+							<spring:message code="expedient.tipus.integracio.tramits.tipus.EXECUTAR_ACCIO"></spring:message>
+						{{/if}}
+						</script>
+					</th>
+					<th data-col-name="accio" data-template="#cellTramitAccio" data-orderable="true"><spring:message code="expedient.tipus.integracio.tramits.titol.accio"/>
+						<script id="cellTramitAccio" type="text/x-jsrender">
+						{{if accio!=null}}
+							{{:accio.nom}}
+						{{/if}}
+						</script>
+					</th>
+					<th data-col-name="numVariables" data-template="#cellTramitVariablesTemplate" data-orderable="false" width="13%">
+						<script id="cellTramitVariablesTemplate" type="text/x-jsrender">
+							<a data-toggle="modal" data-callback="callbackModalEnumerats()" href="${expedientTipus.id}/integracioTramits/{{:id}}/mapeig/${tipusMapeigVariable}" class="btn btn-default"><spring:message code="expedient.tipus.integracio.tramits.variables"/>&nbsp;<span class="badge">{{:numVariables}}</span></a>
+						</script>
+					</th>
+					<th data-col-name="numDocuments" data-template="#cellTramitDocumentsTemplate" data-orderable="false" width="13%">
+						<script id="cellTramitDocumentsTemplate" type="text/x-jsrender">
+							<a data-toggle="modal" data-callback="callbackModalEnumerats()" href="${expedientTipus.id}/integracioTramits/{{:id}}/mapeig/${tipusMapeigDocument}" class="btn btn-default"><spring:message code="expedient.tipus.integracio.tramits.documents"/>&nbsp;<span class="badge">{{:numDocuments}}</span></a>
+						</script>
+					</th>
+					<th data-col-name="numAdjunts" data-template="#cellTramitAdjuntsTemplate" data-orderable="false" width="13%">
+						<script id="cellTramitAdjuntsTemplate" type="text/x-jsrender">
+							<a data-toggle="modal" data-callback="callbackModalEnumerats()" href="${expedientTipus.id}/integracioTramits/{{:id}}/mapeig/${tipusMapeigAdjunt}" class="btn btn-default"><spring:message code="expedient.tipus.integracio.tramits.adjunts"/>&nbsp;<span class="badge">{{:numAdjunts}}</span></a>
+						</script>
+					</th>
+					
+					
+					<th data-col-name="id" data-template="#cellTramitsTemplate" data-orderable="false" width="10%">
+						<script id="cellTramitsTemplate" type="text/x-jsrender">
+						<div class="dropdown">
+							<button class="btn btn-primary" data-toggle="dropdown"><span class="fa fa-cog"></span>&nbsp;<spring:message code="comu.boto.accions"/>&nbsp;<span class="caret"></span></button>
+							<ul class="dropdown-menu">
+								<li><a data-toggle="modal" data-callback="callbackModalTramits()" href="${expedientTipus.id}/integracioTramit/{{:id}}/update"><span class="fa fa-pencil"></span>&nbsp;<spring:message code="expedient.tipus.info.accio.modificar"/></a></li>
+								<li><a href="${expedientTipus.id}/integracioTramit/{{:id}}/delete" data-toggle="ajax" data-confirm="<spring:message code="expedient.tipus.integracio.tramits.confirmacio.esborrar"/>"><span class="fa fa-trash-o"></span>&nbsp;<spring:message code="expedient.llistat.accio.esborrar"/></a></li>
+							</ul>
+						</div>
+					</script>
+					</th>
+				</tr>
+			</thead>
+		</table>
+		<script id="tableButtonsTramitsTemplate" type="text/x-jsrender">
+			<div class="botons-titol text-right">
+				<a id="nou_tramit" class="btn btn-default" href="${expedientTipus.id}/integracioTramit/new" data-toggle="modal" data-callback="callbackModalTramits()" data-datatable-id="expedientTipusTramits"><span class="fa fa-plus"></span>&nbsp;<spring:message code="expedient.tipus.integracio.tramits.titol.nou"/></a>
+			</div>
+		</script>
+		<script id="rowhrefTemplate" type="text/x-jsrender">${expedientTipus.id}/integracioTramit/update/{{:id}}</script>
+				
+	</c:when>
+	<c:otherwise>
+		<div class="well well-small"><spring:message code='expedient.dada.expedient.cap'/></div>
+	</c:otherwise>
+</c:choose>
+
+
+
+
+
+
 
 <c:choose>
 	<c:when test="${not empty expedientTipus}">
@@ -22,7 +105,7 @@
 				<hel:inputCheckbox name="actiu" textKey="expedient.tipus.integracio.tramits.activar"/>
 				<div id="inputs_integracioTramits" style="display:${expedientTipusIntegracioTramitsCommand.actiu? 'inline' : 'none'}">
 					<hel:inputText required="true" name="tramitCodi" textKey="expedient.tipus.integracio.tramits.tramitCodi" />
-					<!-- Botons per obrir els formularis dels mapejos -->
+					Botons per obrir els formularis dels mapejos
 					<div class="form-group">
 						<label class="control-label col-xs-4" for="mapeigVariables">
 							<spring:message code="expedient.tipus.integracio.tramits.mapeig.variables"></spring:message>
@@ -31,7 +114,7 @@
 							<a id="mapeigVariables" href="${expedientTipus.id}/integracioTramits/mapeig/${tipusMapeigVariable}" data-toggle="modal" data-callback="callbackModalMapeig()" class="btn btn-default">
 								<spring:message code="expedient.tipus.integracio.tramits.variables"/>&nbsp;<span class="badge">${variablesCount}</span>
 							</a>
-						</div>				
+						</div>
 					</div>		
 					<div class="form-group">
 						<label class="control-label col-xs-4" for="mapeigDocuments">
@@ -92,7 +175,8 @@
 </c:choose>
 
 <script type="text/javascript">
-// <![CDATA[            
+// <![CDATA[    
+            
 $(document).ready(function() {
 	$('#actiu', '#expedientTipusIntegracioTramitsCommand').change(function() {
 		if ($(this).is(':checked')) {
@@ -131,6 +215,15 @@ $(document).ready(function() {
 		return false;
 	})
 });
+
+function refrescaTaula() {
+	$('#expedientTipusTramits').webutilDatatable('refresh');
+}
+
+function callbackModalTramits() {
+	webutilRefreshMissatges();
+	refrescaTaula();
+}
 
 function callbackModalMapeig() {
 	webutilRefreshMissatges();

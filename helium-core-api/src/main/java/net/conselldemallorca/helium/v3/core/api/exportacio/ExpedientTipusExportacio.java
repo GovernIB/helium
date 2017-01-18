@@ -51,6 +51,7 @@ public class ExpedientTipusExportacio implements Serializable {
 	// Integració amb tràmits Sistra
 	private String sistraTramitCodi;
 	private List<MapeigSistraExportacio> sistraMapejos = new ArrayList<MapeigSistraExportacio>();
+	private List<TramitSistraExportacio> tramistsSistra = new ArrayList<TramitSistraExportacio>();
 	
 	
 	private List<EstatExportacio> estats = new ArrayList<EstatExportacio>();
@@ -226,6 +227,12 @@ public class ExpedientTipusExportacio implements Serializable {
 	}
 	public void setSistraMapejos(List<MapeigSistraExportacio> sistraMapejos) {
 		this.sistraMapejos = sistraMapejos;
+	}
+	public List<TramitSistraExportacio> getTramistsSistra() {
+		return tramistsSistra;
+	}
+	public void setTramistsSistra(List<TramitSistraExportacio> tramistsSistra) {
+		this.tramistsSistra = tramistsSistra;
 	}
 	public List<EstatExportacio> getEstats() {
 		return estats;

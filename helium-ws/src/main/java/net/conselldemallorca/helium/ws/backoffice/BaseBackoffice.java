@@ -18,6 +18,15 @@ import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathFactory;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+
+import net.conselldemallorca.helium.core.helper.ConversioTipusHelper;
+import net.conselldemallorca.helium.core.helper.ExpedientHelper;
 import net.conselldemallorca.helium.core.model.dto.DadesDocumentDto;
 import net.conselldemallorca.helium.core.model.dto.DefinicioProcesDto;
 import net.conselldemallorca.helium.core.model.dto.ExpedientDto;
@@ -26,25 +35,24 @@ import net.conselldemallorca.helium.core.model.hibernate.Camp;
 import net.conselldemallorca.helium.core.model.hibernate.Camp.TipusCamp;
 import net.conselldemallorca.helium.core.model.hibernate.CampTasca;
 import net.conselldemallorca.helium.core.model.hibernate.Document;
+import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient.IniciadorTipus;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.hibernate.MapeigSistra;
+import net.conselldemallorca.helium.core.model.hibernate.TramitSistra;
 import net.conselldemallorca.helium.core.model.service.DissenyService;
-import net.conselldemallorca.helium.core.model.service.ExpedientService;
 import net.conselldemallorca.helium.core.util.EntornActual;
 import net.conselldemallorca.helium.integracio.plugins.tramitacio.AutenticacioTipus;
 import net.conselldemallorca.helium.integracio.plugins.tramitacio.DadesTramit;
 import net.conselldemallorca.helium.integracio.plugins.tramitacio.DadesVistaDocument;
 import net.conselldemallorca.helium.integracio.plugins.tramitacio.DocumentTelematic;
 import net.conselldemallorca.helium.integracio.plugins.tramitacio.DocumentTramit;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
+import net.conselldemallorca.helium.v3.core.api.dto.TramitSistraDto;
+import net.conselldemallorca.helium.v3.core.api.dto.TramitSistraEnumDto;
+import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
+import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
+import net.conselldemallorca.helium.v3.core.api.service.ExpedientTipusService;
 
 /**
  * Mètodes base per a les diferents implementacions de backoffices
@@ -53,64 +61,159 @@ import org.w3c.dom.NodeList;
  */
 public abstract class BaseBackoffice {
 
-	private ExpedientService expedientService;
+	private net.conselldemallorca.helium.core.model.service.ExpedientService expedientService;
 	private DissenyService dissenyService;
+	
+	@Autowired
+	private ExpedientTipusService expedientTipusService;
+	@Autowired
+	private ExpedientService expedientV3Service;
+	@Autowired
+	private ExpedientHelper expedientHelper;
+	@Autowired
+	private ConversioTipusHelper conversioTipusHelper;
+	
+	
+//	public int processarTramit(DadesTramit tramit) throws Exception {
+//		List<ExpedientTipus> candidats = dissenyService.findExpedientTipusAmbSistraTramitCodi(tramit.getIdentificador());
+//		for (ExpedientTipus expedientTipus: candidats) {
+//			String expedientTitol = null;
+//			if (expedientTipus.getTeTitol())
+//				expedientTitol = tramit.getNumero();
+//			/*String expedientNumero = null;
+//			if (expedientTipus.getTeNumero())
+//				expedientNumero = expedientService.getNumeroExpedientActual(
+//						expedientTipus.getEntorn().getId(),
+//						expedientTipus.getId());*/
+//			EntornActual.setEntornId(expedientTipus.getEntorn().getId());
+//			ExpedientDto expedientNou = expedientService.iniciar(
+//					expedientTipus.getEntorn().getId(),
+//					null,
+//					expedientTipus.getId(),
+//					null,
+//					null,
+//					null, // expedientNumero
+//					expedientTitol,
+//					tramit.getRegistreNumero(),
+//					tramit.getRegistreData(),
+//					new Long(tramit.getUnitatAdministrativa()),
+//					tramit.getIdioma(),
+//					!AutenticacioTipus.ANONIMA.equals(tramit.getAutenticacioTipus()),
+//					tramit.getTramitadorNif(),
+//					tramit.getTramitadorNom(),
+//					tramit.getInteressatNif(),
+//					tramit.getInteressatNom(),
+//					tramit.getRepresentantNif(),
+//					tramit.getRepresentantNom(),
+//					tramit.isAvisosHabilitats(),
+//					tramit.getAvisosEmail(),
+//					tramit.getAvisosSms(),
+//					tramit.isNotificacioTelematicaHabilitada(),
+//					getDadesInicials(expedientTipus, tramit),
+//					null,
+//					IniciadorTipus.SISTRA,
+//					Expedient.crearIniciadorCodiPerSistra(
+//							tramit.getNumero(),
+//							new Long(tramit.getClauAcces()).toString()),
+//					null,
+//					getDocumentsInicials(expedientTipus, tramit),
+//					getDocumentsAdjunts(expedientTipus, tramit));
+//			logger.info("S'ha creat un expedient del tipus " + expedientTipus.getCodi() + ": " + expedientNou.getIdentificador());
+//		}
+//		return candidats.size();
+//	}
 
 
-
+	
 	public int processarTramit(DadesTramit tramit) throws Exception {
-		List<ExpedientTipus> candidats = dissenyService.findExpedientTipusAmbSistraTramitCodi(tramit.getIdentificador());
-		for (ExpedientTipus expedientTipus: candidats) {
-			String expedientTitol = null;
-			if (expedientTipus.getTeTitol())
-				expedientTitol = tramit.getNumero();
-			/*String expedientNumero = null;
-			if (expedientTipus.getTeNumero())
-				expedientNumero = expedientService.getNumeroExpedientActual(
-						expedientTipus.getEntorn().getId(),
-						expedientTipus.getId());*/
-			EntornActual.setEntornId(expedientTipus.getEntorn().getId());
-			ExpedientDto expedientNou = expedientService.iniciar(
-					expedientTipus.getEntorn().getId(),
-					null,
-					expedientTipus.getId(),
-					null,
-					null,
-					null, // expedientNumero
-					expedientTitol,
-					tramit.getRegistreNumero(),
-					tramit.getRegistreData(),
-					new Long(tramit.getUnitatAdministrativa()),
-					tramit.getIdioma(),
-					!AutenticacioTipus.ANONIMA.equals(tramit.getAutenticacioTipus()),
-					tramit.getTramitadorNif(),
-					tramit.getTramitadorNom(),
-					tramit.getInteressatNif(),
-					tramit.getInteressatNom(),
-					tramit.getRepresentantNif(),
-					tramit.getRepresentantNom(),
-					tramit.isAvisosHabilitats(),
-					tramit.getAvisosEmail(),
-					tramit.getAvisosSms(),
-					tramit.isNotificacioTelematicaHabilitada(),
-					getDadesInicials(expedientTipus, tramit),
-					null,
-					IniciadorTipus.SISTRA,
-					Expedient.crearIniciadorCodiPerSistra(
-							tramit.getNumero(),
-							new Long(tramit.getClauAcces()).toString()),
-					null,
-					getDocumentsInicials(expedientTipus, tramit),
-					getDocumentsAdjunts(expedientTipus, tramit));
-			logger.info("S'ha creat un expedient del tipus " + expedientTipus.getCodi() + ": " + expedientNou.getIdentificador());
+		List<TramitSistraDto> tramitsSistra = expedientTipusService.tramitSistraFindAmbSistraTramitCodi(tramit.getIdentificador());
+		for (TramitSistra tramitSistra: conversioTipusHelper.convertirList(tramitsSistra, TramitSistra.class)) {
+			if (tramitSistra.getTipus() == TramitSistraEnumDto.INICIAR_EXPEDIENT) {
+				crearExpedientPerTramit(tramit, tramitSistra.getExpedientTipus());
+			} else if (tramitSistra.getTipus() == TramitSistraEnumDto.EXECUTAR_ACCIO) {
+				executarAccioPerTramit(tramit, tramitSistra);
+			}
+			
 		}
-		return candidats.size();
+		return tramitsSistra.size();
 	}
-
-
+	
+	private void executarAccioPerTramit(DadesTramit tramit, TramitSistra tramitSistra) {
+		Long expedientId = null;
+		
+		try {
+			Object valorSistraIdExpedient = valorVariableSistra(
+					tramit,
+					null,
+					tramitSistra.getCodiVarIdentificadorExpedient());
+			expedientId = new Long(valorSistraIdExpedient.toString());
+		} catch (Exception ex) {
+			logger.error("Error llegint dades del document de SISTRA", ex);
+		}
+		
+		if (expedientId != null) {
+			Entorn entorn = tramitSistra.getExpedientTipus().getEntorn();
+			Expedient expedient = expedientHelper.findAmbEntornIId(entorn.getId(), expedientId);
+			
+			if (expedient == null)
+				throw new NoTrobatException(Expedient.class, expedientId);
+			
+			if (tramitSistra.getAccio() != null)
+				expedientV3Service.accioExecutar(expedient.getId(), expedient.getProcessInstanceId(), tramitSistra.getAccio().getId());
+//				expedientService.executarAccio(expedient.getProcessInstanceId(), tramitSistra.getAccio().getCodi());
+			
+			
+		}
+	}
+	
+	private void crearExpedientPerTramit(DadesTramit tramit, ExpedientTipus expedientTipus) {
+		String expedientTitol = null;
+		if (expedientTipus.getTeTitol())
+			expedientTitol = tramit.getNumero();
+		/*String expedientNumero = null;
+		if (expedientTipus.getTeNumero())
+			expedientNumero = expedientService.getNumeroExpedientActual(
+					expedientTipus.getEntorn().getId(),
+					expedientTipus.getId());*/
+		EntornActual.setEntornId(expedientTipus.getEntorn().getId());
+		ExpedientDto expedientNou = expedientService.iniciar(
+				expedientTipus.getEntorn().getId(),
+				null,
+				expedientTipus.getId(),
+				null,
+				null,
+				null, // expedientNumero
+				expedientTitol,
+				tramit.getRegistreNumero(),
+				tramit.getRegistreData(),
+				new Long(tramit.getUnitatAdministrativa()),
+				tramit.getIdioma(),
+				!AutenticacioTipus.ANONIMA.equals(tramit.getAutenticacioTipus()),
+				tramit.getTramitadorNif(),
+				tramit.getTramitadorNom(),
+				tramit.getInteressatNif(),
+				tramit.getInteressatNom(),
+				tramit.getRepresentantNif(),
+				tramit.getRepresentantNom(),
+				tramit.isAvisosHabilitats(),
+				tramit.getAvisosEmail(),
+				tramit.getAvisosSms(),
+				tramit.isNotificacioTelematicaHabilitada(),
+				getDadesInicials(expedientTipus, tramit),
+				null,
+				IniciadorTipus.SISTRA,
+				Expedient.crearIniciadorCodiPerSistra(
+						tramit.getNumero(),
+						new Long(tramit.getClauAcces()).toString()),
+				null,
+				getDocumentsInicials(expedientTipus, tramit),
+				getDocumentsAdjunts(expedientTipus, tramit));
+		logger.info("S'ha creat un expedient del tipus " + expedientTipus.getCodi() + ": " + expedientNou.getIdentificador());
+	}
+	
 
 	@Autowired
-	public void setExpedientService(ExpedientService expedientService) {
+	public void setExpedientService(net.conselldemallorca.helium.core.model.service.ExpedientService expedientService) {
 		this.expedientService = expedientService;
 	}
 	@Autowired
@@ -130,37 +233,7 @@ public abstract class BaseBackoffice {
 	private Map<String, Object> getDadesInicials(
 			ExpedientTipus expedientTipus,
 			DadesTramit tramit) {
-		/*if (expedientTipus.getSistraTramitMapeigCamps() == null)
-			return null; 
-		Map<String, Object> resposta = new HashMap<String, Object>();
-		List<CampTasca> campsTasca = getCampsStartTask(expedientTipus);
-		String[] parts = expedientTipus.getSistraTramitMapeigCamps().split(";");
-		for (int i = 0; i < parts.length; i++) {
-			String[] parella = parts[i].split(":");
-			if (parella.length > 1) {
-				String varSistra = parella[0];
-				String varHelium = parella[1];
-				Camp campHelium = null;
-				for (CampTasca campTasca: campsTasca) {
-					if (campTasca.getCamp().getCodi().equalsIgnoreCase(varHelium)) {
-						campHelium = campTasca.getCamp();
-						break;
-					}
-				}
-				try {
-					if (campHelium != null) {
-						resposta.put(
-								varHelium,
-								valorVariableHelium(
-										valorVariableSistra(tramit, varSistra),
-										campHelium));
-					}
-				} catch (Exception ex) {
-					logger.error("Error llegint dades del document de SISTRA", ex);
-				}
-			}
-		}
-		return resposta;*/
+		
 		List<MapeigSistra> mapeigsSistra = dissenyService.findMapeigSistraVariablesAmbExpedientTipus(expedientTipus.getId());
 		if (mapeigsSistra.size() == 0)
 			return null;

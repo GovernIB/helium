@@ -18,6 +18,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PermisDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ReassignacioDto;
+import net.conselldemallorca.helium.v3.core.api.dto.TramitSistraDto;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
 import net.conselldemallorca.helium.v3.core.api.exception.ValidacioException;
@@ -1041,6 +1042,13 @@ public interface ExpedientTipusService {
 	 * @return Retorna un Map segons el tipus i el recompte.
 	 */
 	public Map<TipusMapeig, Long> mapeigCountsByTipus(Long expedientTipusId);
+	
+	/** Compta les variables, documents i adjunts per a un tipus d'expedient i tramit sistra. 
+	 * @param expedientTipusId 
+	 * @param tramitSistraId 
+	 * @return Retorna un Map segons el tipus i el recompte.
+	 */
+	public Map<TipusMapeig, Long> mapeigCountsByTipusAndTramitSistra(Long expedientTipusId, Long tramitSistraId);
 
 	/** 
 	 * Retorna la llista de mapejos de la integració amb Sistra del tipus 
@@ -1052,6 +1060,7 @@ public interface ExpedientTipusService {
 	 */
 	public PaginaDto<MapeigSistraDto> mapeigFindPerDatatable(
 			Long expedientTipusId, 
+			Long tramitSistraId, 
 			TipusMapeig tipus, 
 			PaginacioParamsDto paginacioParams);
 
@@ -1070,6 +1079,7 @@ public interface ExpedientTipusService {
 	 */
 	public MapeigSistraDto mapeigCreate(
 			Long expedientTipusId,
+			Long tramitSistraId,
 			MapeigSistraDto mapeig) throws PermisDenegatException;
 	
 
@@ -1114,19 +1124,22 @@ public interface ExpedientTipusService {
 	 */
 	public MapeigSistraDto mapeigFindAmbCodiHeliumPerValidarRepeticio(
 			Long expedientTipusId, 
-			String codiHelium);		
+			String codiHelium,
+			Long tramitSistraId);		
 	
 	/**
 	 * Retorna una mapeig d'un tipus d'expedient donat el seu codi Sistra.
 	 * 
 	 * @param tipusExpedientId
 	 * @param codiSistra
+	 * @param tramitSistraId
 	 *            El codi per a la consulta.
 	 * @return La accio del tipus d'expedient o null si no el troba.
 	 */
 	public MapeigSistraDto mapeigFindAmbCodiSistraPerValidarRepeticio(
 			Long expedientTipusId, 
-			String codiSistra);
+			String codiSistra,
+			Long tramitSistraId);
 	
 	/**
 	 * Retorna els mapejos de sistra per a un tipus d'expedient.
@@ -1143,5 +1156,116 @@ public interface ExpedientTipusService {
 			Long expedientTipusId) throws NoTrobatException, PermisDenegatException;
 
 
-
+	/**
+	 * Retorna una llista de tramits de sistra configurats per aquest tipus d'expedient
+	 * 
+	 * @param entornId
+	 *            Atribut id de l'entorn.
+	 * @param expedientTipusId
+	 *            Atribut id del tipus d'expedient.
+	 * @return Llista de tramits sistra
+	 * @throws NoTrobatException
+	 *             Si no s'ha trobat el registre amb l'id especificat.
+	 * @throws PermisDenegatException
+	 *             Si no es tenen els permisos necessaris.
+	 */
+	public List<TramitSistraDto> consultaTramitsSistra(
+			Long expedientTipusId) throws NoTrobatException, PermisDenegatException;
+	
+	
+	/** 
+	 * Retorna la llista de tramits de sistra del tipus d'expedient paginada per la datatable.
+	 * 
+	 * @param expedientTipusId
+	 * 
+	 * @param filtre
+	 *            Text per a filtrar els resultats.
+	 * @param paginacioParams
+	 *            Paràmetres per a la paginació dels resultats.
+	 * @return La pàgina del llistat de tipus d'expedients.
+	 * @throws NoTrobatException
+	 *             Si no s'ha trobat el registre amb l'id especificat.
+	 * @throws PermisDenegatException
+	 *             Si no es tenen els permisos necessaris.
+	 */
+	public PaginaDto<TramitSistraDto> tramitSistraFindPerDatatable(
+			Long expedientTipusId,
+			String filtre,
+			PaginacioParamsDto paginacioParams) throws NoTrobatException, PermisDenegatException;
+	
+	/**
+	 * Crea un nou tramit de sistra per al tipus d'expedient, a priori, amb els
+	 * mapejos buits
+	 * 
+	 * @param expedientTipusId
+	 *            Atribut id del camp del tipus d'expedient.
+	 * @param tramitSistra
+	 *            La informació del tramit sistra
+	 * @return el tràmit creat.
+	 * @throws NoTrobatException
+	 *             Si no s'ha trobat el registre amb l'id especificat.
+	 * @throws PermisDenegatException
+	 *             Si no es tenen els permisos necessaris.
+	 */
+	public TramitSistraDto tramitSistraCreate(
+			Long expedientTipusId,
+			TramitSistraDto mapeig) throws NoTrobatException, PermisDenegatException;
+	
+	/**
+	 * Actualitza un tramit sistra
+	 * 
+	 * @param expedientTipusId
+	 *            Atribut id del camp del tipus d'expedient.
+	 * @param tramitSistra
+	 *            La informació del tramit sistra
+	 * @return el tràmit modificat.
+	 * @throws NoTrobatException
+	 *             Si no s'ha trobat el registre amb l'id especificat.
+	 * @throws PermisDenegatException
+	 *             Si no es tenen els permisos necessaris.
+	 */
+	public TramitSistraDto tramitSistraUpdate(
+			Long expedientTipusId,
+			TramitSistraDto tramitSistra) throws NoTrobatException, PermisDenegatException;
+	
+	/**
+	 * Elimina un tramit sistra
+	 * 
+	 * @param expedientTipusId
+	 *            Atribut id del camp del tipus d'expedient.
+	 * @param tramitSistra
+	 *            La informació del tramit sistra
+	 * @throws NoTrobatException
+	 *             Si no s'ha trobat el registre amb l'id especificat.
+	 * @throws PermisDenegatException
+	 *             Si no es tenen els permisos necessaris.
+	 * @throws ValidacioException
+	 *             Si es produeixien errors de validació
+	 */
+	public void tramitSistraDelete(Long expedientTipusId, Long tramitSistraId) throws NoTrobatException, PermisDenegatException, ValidacioException;
+	
+	/**
+	 * Troba un únic tramit de sistra per la seva ID
+	 * 
+	 * @param tramitSistraId
+	 *            Atribut id del tràmit de sistra.
+	 *
+	 * @return el tràmit trobat.
+	 * @throws NoTrobatException
+	 *             Si no s'ha trobat el registre amb l'id especificat.
+	 */
+	public TramitSistraDto tramitSistraFindAmbId(Long tramitSistraId) throws NoTrobatException;
+	
+	/**
+	 * Trobar llista de tramits sistra que coincidesquin amb els codi sistra 
+	 * suministrat
+	 * 
+	 * @param sistraTramitCodi
+	 *            Atribut codi del tràmit de sistra.
+	 *
+	 * @return els tràmits trobats.
+	 * @throws NoTrobatException
+	 *             Si no s'ha trobat el registre
+	 */
+	public List<TramitSistraDto> tramitSistraFindAmbSistraTramitCodi(String sistraTramitCodi) throws NoTrobatException;
 }

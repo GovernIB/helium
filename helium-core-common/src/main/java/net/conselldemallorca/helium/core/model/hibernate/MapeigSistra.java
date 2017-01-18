@@ -32,7 +32,7 @@ import org.springmodules.validation.bean.conf.loader.annotation.handler.NotNull;
 @Entity
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 @Table(	name="hel_map_sistra",
-		uniqueConstraints={@UniqueConstraint(columnNames={"codiHelium", "expedient_tipus_id"})})
+		uniqueConstraints={@UniqueConstraint(columnNames={"codiHelium", "expedient_tipus_id", "tramit_sistra_id"})})
 @org.hibernate.annotations.Table(
 		appliesTo = "hel_map_sistra", 
 		indexes = @Index(name = "hel_map_sistra_exptip_i", columnNames = {"expedient_tipus_id"}))
@@ -56,11 +56,20 @@ public class MapeigSistra implements Serializable, GenericEntity<Long> {
 
 	@NotNull
 	private ExpedientTipus expedientTipus;
+	
+	private TramitSistra tramitSistra;
 
 
 	public MapeigSistra() {}
 	public MapeigSistra(ExpedientTipus expedientTipus, String codiHelium, String codiSistra, TipusMapeig tipus) {
 		this.expedientTipus = expedientTipus;
+		this.codiHelium = codiHelium;
+		this.codiSistra = codiSistra;
+		this.tipus = tipus;
+	}
+	public MapeigSistra(ExpedientTipus expedientTipus, TramitSistra tramitSistra, String codiHelium, String codiSistra, TipusMapeig tipus) {
+		this.expedientTipus = expedientTipus;
+		this.tramitSistra = tramitSistra;
 		this.codiHelium = codiHelium;
 		this.codiSistra = codiSistra;
 		this.tipus = tipus;
@@ -120,7 +129,15 @@ public class MapeigSistra implements Serializable, GenericEntity<Long> {
 	}
 
 
-
+	@ManyToOne(optional=true)
+	@JoinColumn(name="tramit_sistra_id")
+	@ForeignKey(name="hel_trasistra_map_sistra_fk")
+	public TramitSistra getTramitSistra() {
+		return tramitSistra;
+	}
+	public void setTramitSistra(TramitSistra tramitSistra) {
+		this.tramitSistra = tramitSistra;
+	}
 	@Override
 	public int hashCode() {
 		final int prime = 31;

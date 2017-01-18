@@ -9,7 +9,7 @@
 
 <c:set var="idioma"><%=org.springframework.web.servlet.support.RequestContextUtils.getLocale(request).getLanguage()%></c:set>
 <c:set var="titol"><spring:message code="expedient.tipus.integracio.tramits.mapeig.llistat.titol.${tipus}"/></c:set>
-<c:set var="baseUrl"><c:url value="/modal/v3/expedientTipus/${expedientTipusId}/integracioTramits/mapeig/${tipus}"></c:url></c:set>
+<c:set var="baseUrl"><c:url value="/modal/v3/expedientTipus/${expedientTipusId}/integracioTramits/${tramitSistraId}/mapeig/${tipus}"></c:url></c:set>
 
 <html>
 <head>

@@ -57,6 +57,7 @@ import net.conselldemallorca.helium.core.model.hibernate.Reassignacio;
 import net.conselldemallorca.helium.core.model.hibernate.SequenciaAny;
 import net.conselldemallorca.helium.core.model.hibernate.SequenciaDefaultAny;
 import net.conselldemallorca.helium.core.model.hibernate.Termini;
+import net.conselldemallorca.helium.core.model.hibernate.TramitSistra;
 import net.conselldemallorca.helium.core.model.hibernate.Validacio;
 import net.conselldemallorca.helium.core.security.ExtendedPermission;
 import net.conselldemallorca.helium.core.util.ExpedientCamps;
@@ -79,6 +80,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.PermisDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ReassignacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.SequenciaAnyDto;
 import net.conselldemallorca.helium.v3.core.api.dto.SequenciaDefaultAnyDto;
+import net.conselldemallorca.helium.v3.core.api.dto.TramitSistraDto;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
 import net.conselldemallorca.helium.v3.core.api.exception.ValidacioException;
@@ -98,6 +100,7 @@ import net.conselldemallorca.helium.v3.core.api.exportacio.ExpedientTipusExporta
 import net.conselldemallorca.helium.v3.core.api.exportacio.MapeigSistraExportacio;
 import net.conselldemallorca.helium.v3.core.api.exportacio.RegistreMembreExportacio;
 import net.conselldemallorca.helium.v3.core.api.exportacio.TerminiExportacio;
+import net.conselldemallorca.helium.v3.core.api.exportacio.TramitSistraExportacio;
 import net.conselldemallorca.helium.v3.core.api.exportacio.ValidacioExportacio;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientTipusService;
 import net.conselldemallorca.helium.v3.core.repository.AccioRepository;
@@ -122,6 +125,7 @@ import net.conselldemallorca.helium.v3.core.repository.ReassignacioRepository;
 import net.conselldemallorca.helium.v3.core.repository.SequenciaAnyRepository;
 import net.conselldemallorca.helium.v3.core.repository.TascaRepository;
 import net.conselldemallorca.helium.v3.core.repository.TerminiRepository;
+import net.conselldemallorca.helium.v3.core.repository.TramitSistraRepository;
 
 /**
  * Implementació del servei per a gestionar tipus d'expedients.
@@ -179,6 +183,8 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 	private DocumentTascaRepository documentTascaRepository;
 	@Resource
 	private FirmaTascaRepository firmaTascaRepository;
+	@Resource
+	private TramitSistraRepository tramitSistraRepository;
 //	
 	@Resource
 	private ExpedientTipusHelper expedientTipusHelper;
@@ -490,13 +496,45 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		}
 		// Integració amb Sistra
 		if (command.isIntegracioSistra()) {
-			exportacio.setSistraTramitCodi(tipus.getSistraTramitCodi());
-			for (MapeigSistra mapeig : tipus.getMapeigSistras())
-				exportacio.getSistraMapejos().add(
-						new MapeigSistraExportacio(
-								mapeig.getCodiHelium(), 
-								mapeig.getCodiSistra(), 
-								MapeigSistraDto.TipusMapeig.valueOf(mapeig.getTipus().toString())));
+			/*** fragment antic ***/
+//			exportacio.setSistraTramitCodi(tipus.getSistraTramitCodi());
+//			for (MapeigSistra mapeig : tipus.getMapeigSistras())
+//				exportacio.getSistraMapejos().add(
+//						new MapeigSistraExportacio(
+//								mapeig.getCodiHelium(), 
+//								mapeig.getCodiSistra(), 
+//								MapeigSistraDto.TipusMapeig.valueOf(mapeig.getTipus().toString())));
+			/*****************************/
+			
+			for (TramitSistra tramitSistra: tipus.getTramitsSistra()) {
+				List<MapeigSistraExportacio> mapeigsSistraExportacio = new ArrayList<MapeigSistraExportacio>();
+				AccioExportacio accioExportacio = null;
+				if (tramitSistra.getAccio() != null)
+					accioExportacio = new AccioExportacio(
+							tramitSistra.getAccio().getCodi(), 
+							tramitSistra.getAccio().getNom(), 
+							tramitSistra.getAccio().getDescripcio(), 
+							tramitSistra.getAccio().getDefprocJbpmKey(), 
+							tramitSistra.getAccio().getJbpmAction(), 
+							tramitSistra.getAccio().isPublica(), 
+							tramitSistra.getAccio().isOculta(), 
+							tramitSistra.getAccio().getRols());
+				
+				for (MapeigSistra mapeig : tramitSistra.getMapeigSistras())
+					mapeigsSistraExportacio.add(
+							new MapeigSistraExportacio(
+									mapeig.getCodiHelium(), 
+									mapeig.getCodiSistra(), 
+									MapeigSistraDto.TipusMapeig.valueOf(mapeig.getTipus().toString())));
+				
+				exportacio.getTramistsSistra().add(
+						new TramitSistraExportacio(
+								tramitSistra.getSistraTramitCodi(),
+								tramitSistra.getTipus(),
+								tramitSistra.getCodiVarIdentificadorExpedient(),
+								accioExportacio,
+								mapeigsSistraExportacio));
+			}
 		}
 		// Estats
 		if (command.getEstats().size() > 0)
@@ -788,24 +826,6 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 			expedientTipus.setFormextUrl(importacio.getFormextUrl());
 			expedientTipus.setFormextUsuari(importacio.getFormextUsuari());
 			expedientTipus.setFormextContrasenya(importacio.getFormextContrasenya());
-		}
-		// Integració amb Sistra
-		if (command.isIntegracioSistra()) {
-			expedientTipus.setSistraTramitCodi(importacio.getSistraTramitCodi());
-			if (expedientTipusExisteix) {
-				// esborra els mapegos existents
-				for (MapeigSistra mapeig : expedientTipus.getMapeigSistras())
-					mapeigSistraRepository.delete(mapeig);
-				expedientTipus.getMapeigSistras().clear();
-				mapeigSistraRepository.flush();
-			}
-			for (MapeigSistraExportacio mapeig : importacio.getSistraMapejos())
-				expedientTipus.getMapeigSistras().add(
-						new MapeigSistra(
-								expedientTipus,
-								mapeig.getCodiHelium(), 
-								mapeig.getCodiSistra(), 
-								MapeigSistra.TipusMapeig.valueOf(mapeig.getTipus().toString())));
 		}
 		
 		boolean sobreEscriure = command.isSobreEscriure();
@@ -1154,6 +1174,47 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 						accio.setRols(accioExportat.getRols());
 					}
 				}
+		
+		// Integració amb Sistra
+		if (command.isIntegracioSistra()) {
+			
+			if (expedientTipusExisteix) {
+				// esborra els tramits existents
+				for (TramitSistra tramitSistra : expedientTipus.getTramitsSistra())
+					tramitSistraRepository.delete(tramitSistra);
+				expedientTipus.getTramitsSistra().clear();
+				tramitSistraRepository.flush();
+			}
+			
+			
+			
+			for (TramitSistraExportacio tramitSistra : importacio.getTramistsSistra()) {
+				
+				Accio accioTramit = null;
+				if (tramitSistra.getAccio() != null)
+					accioTramit = accioRepository.findByExpedientTipusIdAndCodi(expedientTipus.getId(), tramitSistra.getAccio().getCodi());
+				
+				TramitSistra entity = new TramitSistra(
+						tramitSistra.getSistraTramitCodi(), 
+						tramitSistra.getTipus(), 
+						tramitSistra.getCodiVarIdentificadorExpedient(), 
+						accioTramit, 
+						new ArrayList<MapeigSistra>(), 
+						expedientTipus);
+				
+				for (MapeigSistraExportacio mapeig : tramitSistra.getMapeigSistras())				
+					entity.getMapeigSistras().add(
+							new MapeigSistra(
+									expedientTipus,
+									entity,
+									mapeig.getCodiHelium(), 
+									mapeig.getCodiSistra(), 
+									MapeigSistra.TipusMapeig.valueOf(mapeig.getTipus().toString())));
+				
+				expedientTipus.getTramitsSistra().add(entity);
+			}
+			
+		}
 		
 		// Consultes
 		Map<String, Consulta> consultes = new HashMap<String, Consulta>();
@@ -3214,9 +3275,38 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		return recomptes;
 	}	
 	
+	
+	@Override
+	@Transactional(readOnly = true)
+	public Map<TipusMapeig, Long> mapeigCountsByTipusAndTramitSistra(Long expedientTipusId, Long tramitSistraId) {
+		logger.debug(
+				"Consultant els codis helium dels mapegos segons un tipus de filtre");
+		
+		ExpedientTipus expedientTipus = expedientTipusRepository.findOne(expedientTipusId);
+		TramitSistra tramitSistra = tramitSistraRepository.findOne(tramitSistraId);
+		List<Object[]> mapejosCount = mapeigSistraRepository.countTipusAndTramit(
+				expedientTipus,
+				tramitSistra);
+		Map<TipusMapeig, Long> recomptes = new HashMap<TipusMapeig, Long>();
+		MapeigSistra.TipusMapeig tipus;
+		Long count;
+		for (Object[] mc : mapejosCount) {
+			tipus = (MapeigSistra.TipusMapeig) mc[0];
+			count = (Long) mc[1];
+			recomptes.put(TipusMapeig.valueOf(tipus.toString()), count);
+		}
+		// Assegura que el valor hi sigui en el resultat del recompte
+		for (TipusMapeig t : TipusMapeig.values())
+			if (! recomptes.containsKey(t))
+				recomptes.put(t, 0L);
+
+		return recomptes;
+	}	
+	
 	@Override
 	public PaginaDto<MapeigSistraDto> mapeigFindPerDatatable(
 			Long expedientTipusId, 
+			Long tramitSistraId, 
 			TipusMapeig tipus, 
 			PaginacioParamsDto paginacioParams) {
 		logger.debug(
@@ -3227,6 +3317,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		return paginacioHelper.toPaginaDto(
 				mapeigSistraRepository.findByFiltrePaginat(
 						expedientTipusId, 
+						tramitSistraId, 
 						MapeigSistra.TipusMapeig.valueOf(tipus.toString()),
 						paginacioHelper.toSpringDataPageable(
 								paginacioParams)),
@@ -3240,6 +3331,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 	@Transactional
 	public MapeigSistraDto mapeigCreate(
 			Long expedientTipusId, 
+			Long tramitSistraId, 
 			MapeigSistraDto mapeig) throws PermisDenegatException {
 
 		logger.debug(
@@ -3248,7 +3340,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 				"mapeig=" + mapeig + ")");
 		
 		ExpedientTipus expedientTipus = expedientTipusRepository.findOne(expedientTipusId);
-		
+		TramitSistra tramitSistra = tramitSistraRepository.findOne(tramitSistraId);
 		MapeigSistra entity = new MapeigSistra();
 				
 		entity.setCodiSistra(mapeig.getCodiSistra());
@@ -3257,8 +3349,10 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		else
 			entity.setCodiHelium(mapeig.getCodiHelium());
 		entity.setTipus(MapeigSistra.TipusMapeig.valueOf(mapeig.getTipus().toString()));
-		// MapeigSistra associat a l'expedient
+		
+		// MapeigSistra associat al tramit
 		entity.setExpedientTipus(expedientTipus);		
+		entity.setTramitSistra(tramitSistra);
 
 		return conversioTipusHelper.convertir(
 				mapeigSistraRepository.save(entity),
@@ -3308,14 +3402,16 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 	@Transactional(readOnly = true)
 	public MapeigSistraDto mapeigFindAmbCodiHeliumPerValidarRepeticio(
 			Long expedientTipusId, 
-			String codiHelium) {
+			String codiHelium,
+			Long tramitSistraId) {
 		logger.debug(
 				"Consultant el mapeig del tipus d'expedient per codi helium per validar repetició (" +
 				"expedientTipusId=" + expedientTipusId + ", " +
 				"codiHelium = " + codiHelium + ")");
 		ExpedientTipus expedientTipus = expedientTipusRepository.findOne(expedientTipusId);
+		TramitSistra tramitSistra = tramitSistraRepository.findOne(tramitSistraId);
 		return conversioTipusHelper.convertir(
-				mapeigSistraRepository.findByExpedientTipusAndCodiHelium(expedientTipus, codiHelium),
+				mapeigSistraRepository.findByExpedientTipusAndCodiHeliumAndTramitSistra(expedientTipus, codiHelium, tramitSistra),
 				MapeigSistraDto.class);
 	}
 
@@ -3326,14 +3422,16 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 	@Transactional(readOnly = true)
 	public MapeigSistraDto mapeigFindAmbCodiSistraPerValidarRepeticio(
 			Long expedientTipusId, 
-			String codiSistra) {
+			String codiSistra,
+			Long tramitSistraId) {
 		logger.debug(
 				"Consultant el mapeig del tipus d'expedient per codi sistra per validar repetició (" +
 				"expedientTipusId=" + expedientTipusId + ", " +
 				"codiSistra = " + codiSistra + ")");
 		ExpedientTipus expedientTipus = expedientTipusRepository.findOne(expedientTipusId);
+		TramitSistra tramitSistra = tramitSistraRepository.findOne(tramitSistraId);
 		return conversioTipusHelper.convertir(
-				mapeigSistraRepository.findByExpedientTipusAndCodiSistra(expedientTipus, codiSistra),
+				mapeigSistraRepository.findByExpedientTipusAndCodiSistraAndTramitSistra(expedientTipus, codiSistra, tramitSistra),
 				MapeigSistraDto.class);
 	}
 	
@@ -3349,6 +3447,145 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 				mapejosSistra, 
 				MapeigSistraDto.class);
 	}	
+	
+	@Override
+	@Transactional(readOnly = true)
+	public List<TramitSistraDto> consultaTramitsSistra(
+			Long expedientTipusId) {
+		return null;
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public PaginaDto<TramitSistraDto> tramitSistraFindPerDatatable(
+			Long expedientTipusId,
+			String filtre,
+			PaginacioParamsDto paginacioParams) {
+		logger.debug(
+				"Consultant els tramits de sistra del tipus d'expedient per datatable (" +
+				"entornId=" + expedientTipusId + ", " +
+				"filtre=" + filtre + ")");
+						
+		
+		PaginaDto<TramitSistraDto> pagina = paginacioHelper.toPaginaDto(
+				tramitSistraRepository.findByFiltrePaginat(
+						expedientTipusId,
+						filtre == null || "".equals(filtre), 
+						filtre, 
+						paginacioHelper.toSpringDataPageable(
+								paginacioParams)),
+				TramitSistraDto.class);		
+		
+		
+		
+		for (TramitSistraDto tramit: pagina.getContingut()) {
+			Map<TipusMapeig, Long> recomptes = mapeigCountsByTipusAndTramitSistra(expedientTipusId, tramit.getId());
+			tramit.setNumVariables(recomptes.get(TipusMapeig.Variable));
+			tramit.setNumDocuments(recomptes.get(TipusMapeig.Document));
+			tramit.setNumAdjunts(recomptes.get(TipusMapeig.Adjunt));
+		}
+		
+		return pagina;		
+	}
+	
+	@Override
+	@Transactional
+	public TramitSistraDto tramitSistraCreate(
+			Long expedientTipusId,
+			TramitSistraDto tramitSistraDto) {
+		
+		expedientTipusHelper.getExpedientTipusComprovantPermisos(
+				expedientTipusId, 
+				false,
+				true);
+		
+		TramitSistra tramitSistra = conversioTipusHelper.convertir(tramitSistraDto, TramitSistra.class);
+		return conversioTipusHelper.convertir(
+				tramitSistraRepository.save(tramitSistra),
+				TramitSistraDto.class);
+	}
+	
+	@Override
+	@Transactional
+	public TramitSistraDto tramitSistraUpdate(
+			Long expedientTipusId, 
+			TramitSistraDto tramitSistra) {
+		
+		logger.debug(
+				"Modificant el tramit sistra del tipus d'expedient existent (" +
+				"tramitSistra.id=" + tramitSistra.getId() + ", " +
+				"tramitSistra =" + tramitSistra + ")");
+		
+		expedientTipusHelper.getExpedientTipusComprovantPermisos(
+				expedientTipusId, 
+				false,
+				true);
+		
+		TramitSistra entity = tramitSistraRepository.findOne(tramitSistra.getId());
+		
+		entity.setSistraTramitCodi(tramitSistra.getSistraTramitCodi());
+		entity.setTipus(tramitSistra.getTipus());
+		entity.setCodiVarIdentificadorExpedient(tramitSistra.getCodiVarIdentificadorExpedient());
+		
+		if (tramitSistra.getAccio() != null)
+			entity.setAccio(accioRepository.findOne(tramitSistra.getAccio().getId()));
+		else
+			entity.setAccio(null);
+		
+		return conversioTipusHelper.convertir(
+				tramitSistraRepository.save(entity),
+				TramitSistraDto.class);
+	}
+	
+	@Override
+	@Transactional
+	public void tramitSistraDelete(Long expedientTipusId, Long tramitSistraId) {
+		
+		logger.debug(
+				"Esborrant el tramit sistra del tipus d'expedient (" +
+				"tramitSistraId=" + tramitSistraId +  ")");
+		
+		expedientTipusHelper.getExpedientTipusComprovantPermisos(
+				expedientTipusId, 
+				false,
+				true);
+		
+		TramitSistra entity = tramitSistraRepository.findOne(tramitSistraId);
+
+		tramitSistraRepository.delete(entity);
+		tramitSistraRepository.flush();
+	}
+	
+	
+	@Override
+	@Transactional(readOnly=true)
+	public TramitSistraDto tramitSistraFindAmbId(Long tramitSistraId) throws NoTrobatException {
+		logger.debug(
+				"Consultant el tràmit de sistra amb id (" +
+				"tramitSistraId=" + tramitSistraId +  ")");
+		TramitSistra tramitSistra = tramitSistraRepository.findOne(tramitSistraId);
+		if (tramitSistra == null) {
+			throw new NoTrobatException(TramitSistra.class, tramitSistraId);
+		}
+		return conversioTipusHelper.convertir(
+				tramitSistra,
+				TramitSistraDto.class);
+	}
+	
+	@Override
+	@Transactional(readOnly=true)
+	public List<TramitSistraDto> tramitSistraFindAmbSistraTramitCodi(String sistraTramitCodi) {
+		logger.debug(
+				"Consultant els tràmits amb el codi (" +
+				"sistraTramitCodi=" + sistraTramitCodi +  ")");
+		List<TramitSistra> tramitsSistra = tramitSistraRepository.findBySistraTramitCodi(sistraTramitCodi);
+		if (tramitsSistra == null || tramitsSistra.isEmpty()) {
+			throw new NoTrobatException(TramitSistra.class, sistraTramitCodi);
+		}
+		return conversioTipusHelper.convertirList(
+				tramitsSistra,
+				TramitSistraDto.class);
+	}
 	
 	private void definirAmpleBuit(ConsultaCamp consultaCamp) {
 		int ample = consultaCamp.getAmpleCols();

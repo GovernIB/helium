@@ -21,6 +21,8 @@ public class ExpedientTipusIntegracioTramitsMapeigCommand {
 	
 	@NotNull(groups = {Creacio.class, Modificacio.class})
 	private Long expedientTipusId;
+	@NotNull(groups = {Creacio.class, Modificacio.class})
+	private Long tramitSistraId;
 	private Long id;
 	private String codiHelium;
 	private String codiSistra;
@@ -32,6 +34,12 @@ public class ExpedientTipusIntegracioTramitsMapeigCommand {
 	}
 	public void setExpedientTipusId(Long expedientTipusId) {
 		this.expedientTipusId = expedientTipusId;
+	}
+	public Long getTramitSistraId() {
+		return tramitSistraId;
+	}
+	public void setTramitSistraId(Long tramitSistraId) {
+		this.tramitSistraId = tramitSistraId;
 	}
 	public Long getId() {
 		return id;

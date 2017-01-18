@@ -28,6 +28,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PermisDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ReassignacioDto;
+import net.conselldemallorca.helium.v3.core.api.dto.TramitSistraDto;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
 import net.conselldemallorca.helium.v3.core.api.exception.ValidacioException;
@@ -629,15 +630,15 @@ public class ExpedientTipusServiceBean implements ExpedientTipusService {
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public PaginaDto<MapeigSistraDto> mapeigFindPerDatatable(Long expedientTipusId, TipusMapeig tipus,
+	public PaginaDto<MapeigSistraDto> mapeigFindPerDatatable(Long expedientTipusId, Long tramitSistraId, TipusMapeig tipus,
 			PaginacioParamsDto paginacioParams) {
-		return delegate.mapeigFindPerDatatable(expedientTipusId, tipus, paginacioParams);
+		return delegate.mapeigFindPerDatatable(expedientTipusId, tramitSistraId, tipus, paginacioParams);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public MapeigSistraDto mapeigCreate(Long expedientTipusId, MapeigSistraDto mapeig) throws PermisDenegatException {
-		return delegate.mapeigCreate(expedientTipusId, mapeig);
+	public MapeigSistraDto mapeigCreate(Long expedientTipusId, Long tramitSistraId, MapeigSistraDto mapeig) throws PermisDenegatException {
+		return delegate.mapeigCreate(expedientTipusId, tramitSistraId, mapeig);
 	}
 
 	@Override
@@ -654,14 +655,14 @@ public class ExpedientTipusServiceBean implements ExpedientTipusService {
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public MapeigSistraDto mapeigFindAmbCodiHeliumPerValidarRepeticio(Long expedientTipusId, String codiHelium) {
-		return delegate.mapeigFindAmbCodiHeliumPerValidarRepeticio(expedientTipusId, codiHelium);
+	public MapeigSistraDto mapeigFindAmbCodiHeliumPerValidarRepeticio(Long expedientTipusId, String codiHelium, Long tramitSistraId) {
+		return delegate.mapeigFindAmbCodiHeliumPerValidarRepeticio(expedientTipusId, codiHelium, tramitSistraId);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public MapeigSistraDto mapeigFindAmbCodiSistraPerValidarRepeticio(Long expedientTipusId, String codiSistra) {
-		return delegate.mapeigFindAmbCodiSistraPerValidarRepeticio(expedientTipusId, codiSistra);
+	public MapeigSistraDto mapeigFindAmbCodiSistraPerValidarRepeticio(Long expedientTipusId, String codiSistra, Long tramitSistraId) {
+		return delegate.mapeigFindAmbCodiSistraPerValidarRepeticio(expedientTipusId, codiSistra, tramitSistraId);
 	}
 
 	@Override
@@ -707,5 +708,58 @@ public class ExpedientTipusServiceBean implements ExpedientTipusService {
 				notificacioAvisTextSms, 
 				notificacioOficiTitol, 
 				notificacioOficiText);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public List<TramitSistraDto> consultaTramitsSistra(Long expedientTipusId)
+			throws NoTrobatException, PermisDenegatException {
+		return delegate.consultaTramitsSistra(expedientTipusId);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public PaginaDto<TramitSistraDto> tramitSistraFindPerDatatable(Long expedientTipusId, String filtre,
+			PaginacioParamsDto paginacioParams) throws NoTrobatException, PermisDenegatException {
+		return delegate.tramitSistraFindPerDatatable(expedientTipusId, filtre, paginacioParams);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public TramitSistraDto tramitSistraCreate(Long expedientTipusId, TramitSistraDto mapeig)
+			throws NoTrobatException, PermisDenegatException {
+		return delegate.tramitSistraCreate(expedientTipusId, mapeig);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public Map<TipusMapeig, Long> mapeigCountsByTipusAndTramitSistra(Long expedientTipusId, Long tramitSistraId) {
+		return delegate.mapeigCountsByTipusAndTramitSistra(expedientTipusId, tramitSistraId);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public TramitSistraDto tramitSistraFindAmbId(Long tramitSistraId) throws NoTrobatException {
+		return delegate.tramitSistraFindAmbId(tramitSistraId);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public TramitSistraDto tramitSistraUpdate(Long expedientTipusId, TramitSistraDto tramitSistra)
+			throws NoTrobatException, PermisDenegatException {
+		return delegate.tramitSistraUpdate(expedientTipusId, tramitSistra);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public void tramitSistraDelete(Long expedientTipusId, Long tramitSistraId)
+			throws NoTrobatException, PermisDenegatException, ValidacioException {
+		delegate.tramitSistraDelete(expedientTipusId, tramitSistraId);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public List<TramitSistraDto> tramitSistraFindAmbSistraTramitCodi(String sistraTramitCodi) throws NoTrobatException {
+		return delegate.tramitSistraFindAmbSistraTramitCodi(sistraTramitCodi);
 	}
 }

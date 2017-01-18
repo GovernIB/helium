@@ -14,6 +14,7 @@ import org.springframework.data.repository.query.Param;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.hibernate.MapeigSistra;
 import net.conselldemallorca.helium.core.model.hibernate.MapeigSistra.TipusMapeig;
+import net.conselldemallorca.helium.core.model.hibernate.TramitSistra;
 
 /**
  * Mètodes per administrar la informació relativa als mapejos de variables, documents i adjunts
@@ -42,19 +43,36 @@ public interface MapeigSistraRepository extends JpaRepository<MapeigSistra, Long
 			"where m.expedientTipus = :expedientTipus " +
 			"group by m.tipus ")
 	List<Object[]> countTipus( @Param("expedientTipus") ExpedientTipus expedientTipus);
+	
+	@Query(	"select m.tipus, count(*) " +
+			"from MapeigSistra m " +
+			"where m.expedientTipus = :expedientTipus " +
+			" and m.tramitSistra = :tramitSistra " +
+			"group by m.tipus ")
+	List<Object[]> countTipusAndTramit(
+			@Param("expedientTipus") ExpedientTipus expedientTipus,
+			@Param("tramitSistra") TramitSistra tramitSistra);
 
 	@Query(	"from MapeigSistra m " +
 			"where " +
 			"   m.expedientTipus.id = :expedientTipusId " +
+			"   and m.tramitSistra.id = :tramitSistraId " +
 			"   and m.tipus = :tipus ")
 	Page<MapeigSistra> findByFiltrePaginat(
 			@Param("expedientTipusId") Long expedientTipusId,
+			@Param("tramitSistraId") Long tramitSistraId,
 			@Param("tipus") TipusMapeig tipus,
 			Pageable pageable);
 
 	MapeigSistra findByExpedientTipusAndCodiHelium(ExpedientTipus expedientTipus, String codiHelium);
+	
+	MapeigSistra findByExpedientTipusAndCodiHeliumAndTramitSistra(ExpedientTipus expedientTipus, String codiHelium, TramitSistra tramitSistra);
 
 	MapeigSistra findByExpedientTipusAndCodiSistra(ExpedientTipus expedientTipus, String codiSistra);
+	
+	MapeigSistra findByExpedientTipusAndCodiSistraAndTramitSistra(ExpedientTipus expedientTipus, String codiSistra, TramitSistra tramitSistra);
+	
+	List<MapeigSistra> findByExpedientTipusAndTramitSistra(ExpedientTipus expedientTipus, TramitSistra tramitSistra);
 
 	@Query(	"from MapeigSistra m " +
 			"where " +

@@ -23,6 +23,7 @@ public class MapeigSistraDto implements Serializable {
 	private String codiSistra;
 	private TipusMapeig tipus;
 	private ExpedientTipusDto expedientTipus;
+	private TramitSistraDto tramitSistra;
 
 
 	public MapeigSistraDto() {}
@@ -62,6 +63,12 @@ public class MapeigSistraDto implements Serializable {
 	}
 	public void setExpedientTipus(ExpedientTipusDto expedientTipus) {
 		this.expedientTipus = expedientTipus;
+	}
+	public TramitSistraDto getTramitSistra() {
+		return tramitSistra;
+	}
+	public void setTramitSistra(TramitSistraDto tramitSistra) {
+		this.tramitSistra = tramitSistra;
 	}
 	@Override
 	public int hashCode() {

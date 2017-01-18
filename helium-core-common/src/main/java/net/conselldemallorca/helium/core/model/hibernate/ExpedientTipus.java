@@ -134,6 +134,7 @@ public class ExpedientTipus implements Serializable, GenericEntity<Long> {
 	private Set<Consulta> consultes = new HashSet<Consulta>();
 	private Set<Domini> dominis = new HashSet<Domini>();
 	private Set<Enumeracio> enumeracions = new HashSet<Enumeracio>();
+	private List<TramitSistra> tramitsSistra = new ArrayList<TramitSistra>();
 
 	private SortedMap<Integer, SequenciaAny> sequenciaAny = new TreeMap<Integer, SequenciaAny>();
 	private SortedMap<Integer, SequenciaDefaultAny> sequenciaDefaultAny = new TreeMap<Integer, SequenciaDefaultAny>();
@@ -496,7 +497,22 @@ public class ExpedientTipus implements Serializable, GenericEntity<Long> {
 	public void removeEstat(Estat estat) {
 		getEstats().remove(estat);
 	}
-
+	
+	@OneToMany(mappedBy="expedientTipus", fetch=FetchType.EAGER, cascade={CascadeType.ALL})
+	@Fetch(value = FetchMode.SUBSELECT)
+	public List<TramitSistra> getTramitsSistra() {
+		return this.tramitsSistra;
+	}
+	public void setTramitsSistra(List<TramitSistra> tramitsSistra) {
+		this.tramitsSistra = tramitsSistra;
+	}
+	public void addTramitSistra(TramitSistra tramitSistra) {
+		getTramitsSistra().add(tramitSistra);
+	}
+	public void removeTramitSistra(TramitSistra tramitSistra) {
+		getTramitsSistra().remove(tramitSistra);
+	}
+	
 	@OneToMany(mappedBy="expedientTipus", cascade={CascadeType.ALL})
 	@OrderBy("codiHelium asc")
 	public List<MapeigSistra> getMapeigSistras() {

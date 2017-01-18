@@ -10,6 +10,7 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -19,17 +20,24 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import net.conselldemallorca.helium.v3.core.api.dto.AccioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.MapeigSistraDto.TipusMapeig;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
+import net.conselldemallorca.helium.v3.core.api.dto.TramitSistraDto;
+import net.conselldemallorca.helium.v3.core.api.dto.TramitSistraEnumDto;
 import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
+import net.conselldemallorca.helium.v3.core.api.exception.ValidacioException;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientTipusIntegracioTramitsCommand;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientTipusIntegracioTramitsMapeigCommand;
+import net.conselldemallorca.helium.webapp.v3.command.ExpedientTipusIntegracioTramitsSistraCommand;
 import net.conselldemallorca.helium.webapp.v3.helper.AjaxHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.AjaxHelper.AjaxFormResponse;
+import net.conselldemallorca.helium.webapp.v3.helper.ConversioTipusHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.DatatablesHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.DatatablesHelper.DatatablesResponse;
 import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
@@ -47,7 +55,10 @@ import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
 @Controller
 @RequestMapping("/v3/expedientTipus")
 public class ExpedientTipusIntegracioTramitsController extends BaseExpedientTipusController {
-
+	
+	@Autowired
+	private ConversioTipusHelper conversioTipusHelper;
+	
 	@RequestMapping(value = "/{expedientTipusId}/integracioTramits")
 	public String tramits(
 			HttpServletRequest request,
@@ -100,6 +111,22 @@ public class ExpedientTipusIntegracioTramitsController extends BaseExpedientTipu
 		}
 		
 		return "v3/expedientTipusIntegracioTramits";
+	}
+	
+	@RequestMapping(value="/{expedientTipusId}/integracioTramits/datatable", method = RequestMethod.GET)
+	@ResponseBody
+	DatatablesResponse datatableTramits(
+			HttpServletRequest request,
+			@PathVariable Long expedientTipusId,
+			Model model) {
+		PaginacioParamsDto paginacioParams = DatatablesHelper.getPaginacioDtoFromRequest(request);
+		return DatatablesHelper.getDatatableResponse(
+				request,
+				null,
+				expedientTipusService.tramitSistraFindPerDatatable(
+						expedientTipusId,
+						paginacioParams.getFiltre(),
+						paginacioParams));		
 	}
 	
 	@RequestMapping(value = "/{expedientTipusId}/integracioTramits", method = RequestMethod.POST)
@@ -166,16 +193,19 @@ public class ExpedientTipusIntegracioTramitsController extends BaseExpedientTipu
 	// Mètodes pel manteniment mapejos amb variables, documents i adjunts
 
 	/** Modal per veure els camps de la consulta de tipus filtre. */
-	@RequestMapping(value = "/{expedientTipusId}/integracioTramits/mapeig/{tipus}", method = RequestMethod.GET)
+	@RequestMapping(value = "/{expedientTipusId}/integracioTramits/{tramitSistraId}/mapeig/{tipus}", method = RequestMethod.GET)
 	public String mapeig(
 			HttpServletRequest request,
 			@PathVariable Long expedientTipusId,
+			@PathVariable Long tramitSistraId,
 			@PathVariable TipusMapeig tipus,
 			Model model) {
 		model.addAttribute("expedientTipusId", expedientTipusId);
+		model.addAttribute("tramitSistraId", tramitSistraId);
 		model.addAttribute("tipus", tipus);
 		ExpedientTipusIntegracioTramitsMapeigCommand command = new ExpedientTipusIntegracioTramitsMapeigCommand();
 		command.setExpedientTipusId(expedientTipusId);
+		command.setTramitSistraId(tramitSistraId);
 		command.setTipus(tipus);
 		model.addAttribute("expedientTipusIntegracioTramitsMapeigCommand", command);
 		if (tipus != TipusMapeig.Adjunt) 
@@ -186,11 +216,12 @@ public class ExpedientTipusIntegracioTramitsController extends BaseExpedientTipu
 		return "v3/expedientTipusIntegracioTramitsMapeig";
 	}
 	
-	@RequestMapping(value = "/{expedientTipusId}/integracioTramits/mapeig/{tipus}/datatable", method = RequestMethod.GET)
+	@RequestMapping(value = "/{expedientTipusId}/integracioTramits/{tramitSistraId}/mapeig/{tipus}/datatable", method = RequestMethod.GET)
 	@ResponseBody
 	DatatablesResponse mapeigDatatable(
 			HttpServletRequest request,
 			@PathVariable Long expedientTipusId,
+			@PathVariable Long tramitSistraId,
 			@PathVariable TipusMapeig tipus,
 			Model model) {
 		PaginacioParamsDto paginacioParams = DatatablesHelper.getPaginacioDtoFromRequest(request);
@@ -199,21 +230,24 @@ public class ExpedientTipusIntegracioTramitsController extends BaseExpedientTipu
 				null,
 				expedientTipusService.mapeigFindPerDatatable(
 						expedientTipusId,
+						tramitSistraId,
 						tipus,
 						paginacioParams),
 				"id");
 	}	
 	
-	@RequestMapping(value = "/{expedientTipusId}/integracioTramits/mapeig/{tipus}/new", method = RequestMethod.POST)
+	@RequestMapping(value = "/{expedientTipusId}/integracioTramits/{tramitSistraId}/mapeig/{tipus}/new", method = RequestMethod.POST)
 	public String mapeigNouPost(
 			HttpServletRequest request,
 			@PathVariable Long expedientTipusId,
+			@PathVariable Long tramitSistraId,
 			@PathVariable TipusMapeig tipus,
 			@Validated(ExpedientTipusIntegracioTramitsMapeigCommand.Creacio.class) ExpedientTipusIntegracioTramitsMapeigCommand command,
 			BindingResult bindingResult,
 			Model model) {
         if (bindingResult.hasErrors()) {
     		model.addAttribute("expedientTipusId", expedientTipusId);
+    		model.addAttribute("tramitSistraId", tramitSistraId);
     		model.addAttribute("tipus", tipus);
     		if (tipus != TipusMapeig.Adjunt) 
     			model.addAttribute("variables", obtenirParellesVariables(
@@ -226,20 +260,22 @@ public class ExpedientTipusIntegracioTramitsController extends BaseExpedientTipu
         	// Verificar permisos
     		expedientTipusService.mapeigCreate(
     				expedientTipusId,
+    				tramitSistraId,
     				ExpedientTipusIntegracioTramitsMapeigCommand.asMapeigSistraDto(command));    		
 			MissatgesHelper.success(
 					request,
 					getMessage(
 							request,
 							"expedient.tipus.integracio.tramits.mapeig.controller.creat"));
-        	return mapeig(request, expedientTipusId, tipus, model);
+        	return mapeig(request, expedientTipusId, tramitSistraId, tipus, model);
         }
 	}	
 	
-	@RequestMapping(value = "/{expedientTipusId}/integracioTramits/mapeig/{tipus}/{id}/update", method = RequestMethod.POST)
+	@RequestMapping(value = "/{expedientTipusId}/integracioTramits/{tramitSistraId}/mapeig/{tipus}/{id}/update", method = RequestMethod.POST)
 	public String mapeigModificarPost(
 			HttpServletRequest request,
 			@PathVariable Long expedientTipusId,
+			@PathVariable Long tramitSistraId,
 			@PathVariable TipusMapeig tipus,
 			@PathVariable Long id,
 			@Validated(ExpedientTipusIntegracioTramitsMapeigCommand.Modificacio.class) ExpedientTipusIntegracioTramitsMapeigCommand command,
@@ -247,6 +283,7 @@ public class ExpedientTipusIntegracioTramitsController extends BaseExpedientTipu
 			Model model) {
 	    if (bindingResult.hasErrors()) {
     		model.addAttribute("expedientTipusId", expedientTipusId);
+    		model.addAttribute("tramitSistraId", tramitSistraId);
     		model.addAttribute("tipus", tipus);
     		if (tipus != TipusMapeig.Adjunt) 
     			model.addAttribute("variables", obtenirParellesVariables(
@@ -262,15 +299,16 @@ public class ExpedientTipusIntegracioTramitsController extends BaseExpedientTipu
 					getMessage(
 							request,
 							"expedient.tipus.campRegistre.controller.modificat"));
-        	return mapeig(request, expedientTipusId, tipus, model);
+        	return mapeig(request, expedientTipusId, tramitSistraId, tipus, model);
         }
 	}	
 
-	@RequestMapping(value = "/{expedientTipusId}/integracioTramits/mapeig/{tipus}/{id}/delete", method = RequestMethod.GET)
+	@RequestMapping(value = "/{expedientTipusId}/integracioTramits/{tramitSistraId}/mapeig/{tipus}/{id}/delete", method = RequestMethod.GET)
 	@ResponseBody
 	public boolean mapeigDelete(
 			HttpServletRequest request,
 			@PathVariable Long expedientTipusId,
+			@PathVariable Long tramitSistraId,
 			@PathVariable TipusMapeig tipus,
 			@PathVariable Long id,
 			Model model) {
@@ -283,6 +321,123 @@ public class ExpedientTipusIntegracioTramitsController extends BaseExpedientTipu
 						"expedient.tipus.integracio.tramits.mapeig.controller.eliminar.success"));			
 		return true;
 	}	
+	
+	
+	@RequestMapping(value = "/{expedientTipusId}/integracioTramit/new", method = RequestMethod.GET)
+	public String nou(
+			HttpServletRequest request,
+			@PathVariable Long expedientTipusId,
+			Model model) {
+		ExpedientTipusIntegracioTramitsSistraCommand command = new ExpedientTipusIntegracioTramitsSistraCommand();
+		command.setExpedientTipusId(expedientTipusId);
+		
+		this.omplirModelVariableForm(
+				request, 
+				expedientTipusId, 
+				model);
+		
+		model.addAttribute("expedientTipusId", expedientTipusId);
+		model.addAttribute("expedientTipusIntegracioTramitsSistraCommand", command);
+		
+		return "v3/expedientTipusTramitSistraForm";
+	}
+	
+	@RequestMapping(value = "/{expedientTipusId}/integracioTramit/new", method = RequestMethod.POST)
+	public String nouPost(
+			HttpServletRequest request,
+			@PathVariable Long expedientTipusId,
+			@Validated(ExpedientTipusIntegracioTramitsSistraCommand.Creacio.class) ExpedientTipusIntegracioTramitsSistraCommand command,
+			BindingResult bindingResult,
+			Model model) {
+        if (bindingResult.hasErrors()) {
+        	model.addAttribute("expedientTipusId", expedientTipusId);
+        	this.omplirModelVariableForm(
+        			request, 
+        			expedientTipusId, 
+        			model);
+        	return "v3/expedientTipusTramitSistraForm";
+        } else {
+        	// Verificar permisos
+    		expedientTipusService.tramitSistraCreate(
+    				expedientTipusId,
+    				ExpedientTipusIntegracioTramitsSistraCommand.asTramitSistraDto(command));    		
+    		MissatgesHelper.success(
+					request, 
+					getMessage(
+							request, 
+							"expedient.tipus.integracio.tramits.creat"));
+			return modalUrlTancar(false);	
+			
+        }
+	}
+	
+	@RequestMapping(value = "/{expedientTipusId}/integracioTramit/{id}/update", method = RequestMethod.GET)
+	public String modificar(
+			HttpServletRequest request, 
+			@PathVariable Long expedientTipusId, 
+			@PathVariable Long id,
+			Model model) {
+		TramitSistraDto dto = expedientTipusService.tramitSistraFindAmbId(id);
+		ExpedientTipusIntegracioTramitsSistraCommand command = conversioTipusHelper.convertir(dto, ExpedientTipusIntegracioTramitsSistraCommand.class);
+		
+		this.omplirModelVariableForm(
+				request, 
+				expedientTipusId, 
+				model);
+		
+		model.addAttribute("expedientTipusId", expedientTipusId);
+		model.addAttribute("expedientTipusIntegracioTramitsSistraCommand", command);
+		
+		return "v3/expedientTipusTramitSistraForm";
+	}
+
+	@RequestMapping(value = "/{expedientTipusId}/integracioTramit/{id}/update", method = RequestMethod.POST)
+	public String modificarPost(
+			HttpServletRequest request, 
+			@PathVariable Long expedientTipusId, 
+			@PathVariable Long id,
+			@Validated(ExpedientTipusIntegracioTramitsSistraCommand.Modificacio.class) ExpedientTipusIntegracioTramitsSistraCommand command,
+			BindingResult bindingResult, Model model) {
+		
+		if (bindingResult.hasErrors()) {
+	        	model.addAttribute("expedientTipusId", expedientTipusId);
+        	this.omplirModelVariableForm(
+        			request,
+        			expedientTipusId,
+        			model);
+        	return "v3/expedientTipusTramitSistraForm";
+        } else {
+        	TramitSistraDto dto = ExpedientTipusIntegracioTramitsSistraCommand.asTramitSistraDto(command);
+			expedientTipusService.tramitSistraUpdate(expedientTipusId, dto);
+			
+    		MissatgesHelper.success(
+					request, 
+					getMessage(
+							request, 
+							"expedient.tipus.integracio.tramits.modificat"));
+			return modalUrlTancar(false);
+			
+        }
+	}
+	
+	@RequestMapping(value = "/{expedientTipusId}/integracioTramit/{id}/delete", method = RequestMethod.GET)
+	@ResponseBody
+	public boolean delete(
+			HttpServletRequest request, 
+			@PathVariable Long expedientTipusId,
+			@PathVariable Long id,
+			Model model) {
+
+		try {
+			expedientTipusService.tramitSistraDelete(expedientTipusId, id);
+			MissatgesHelper.success(request, getMessage(request, "expedient.tipus.integracio.tramits.eliminat"));
+			return true;
+		}catch (ValidacioException ex) {
+			MissatgesHelper.error(request, ex.getMessage());
+			return false;
+		}
+	}
+	
 	/**
 	 * Retorna les parelles codi i valor per a les possibles variables per als mapejos de variables
 	 * i documents.
@@ -306,4 +461,26 @@ public class ExpedientTipusIntegracioTramitsController extends BaseExpedientTipu
 		}
 		return resposta;
 	}		
+	
+	private void omplirModelVariableForm(
+			HttpServletRequest request,
+			Long expedientTipusId,
+			Model model) {
+		// Tipus d'operaicó
+		List<ParellaCodiValorDto> tipusOperacio = new ArrayList<ParellaCodiValorDto>();
+		for (TramitSistraEnumDto operacioTipus : TramitSistraEnumDto.values()) {
+			tipusOperacio.add(
+					new ParellaCodiValorDto(operacioTipus.toString(), 
+					getMessage(
+							request, 
+							"expedient.tipus.integracio.tramits.tipus." + operacioTipus)));
+		}
+		model.addAttribute("tipusOperacio",tipusOperacio);
+		
+		DefinicioProcesExpedientDto definicioProces = dissenyService.getDefinicioProcesByTipusExpedientById(expedientTipusId);
+		List<AccioDto> accions = accioService.findAll(expedientTipusId, definicioProces.getId());
+		model.addAttribute("accions", accions);
+	}
+	
+//	private static final Log logger = LogFactory.getLog(ExpedientTipusIntegracioTramitsController.class);
 }
