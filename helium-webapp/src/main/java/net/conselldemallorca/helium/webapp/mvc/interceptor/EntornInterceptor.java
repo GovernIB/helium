@@ -132,8 +132,9 @@ public class EntornInterceptor extends HandlerInterceptorAdapter {
 			ThreadLocalInfo.setExpedient(null);
 			if (entornActual != null) {
 				// Actualitza si hi ha expedients per iniciar
+				//TODO: si es llença un permisDenegatException hauria de poder redirigir la pàgina a l'inici per escollir un altre entorn si n'hi ha
 				List<ExpedientTipusDto> tipusCrear = expedientTipusService.findAmbEntornPermisCrear(
-						entornActual.getId());
+							entornActual.getId());
 				SessionHelper.setAttribute(
 						request,
 						SessionHelper.VARIABLE_HIHA_TRAMITS_INICIABLES,

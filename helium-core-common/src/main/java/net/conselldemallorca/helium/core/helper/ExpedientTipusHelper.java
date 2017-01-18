@@ -42,28 +42,39 @@ public class ExpedientTipusHelper {
 	private JbpmHelper jbpmHelper;
 	@Resource(name = "permisosHelperV3")
 	private PermisosHelper permisosHelper;
+	
+	@Resource
+	private EntornHelper entornHelper;
 
 
 
-	public ExpedientTipus getExpedientTipusComprovantPermisos(
-			Long id,
-			boolean comprovarPermisRead) {
+	/** Consulta el tipus d'expedient comprovant el permís de lectura. */
+	public ExpedientTipus getExpedientTipusComprovantPermisLectura(Long id) {
 		return getExpedientTipusComprovantPermisos(
 				id,
-				comprovarPermisRead,
-				false,
-				false,
-				false,
+				true,
 				false);
 	}
-
+	
+	/** Consulta el tipus d'expedient comprovant el permís de disseny. */
+	public ExpedientTipus getExpedientTipusComprovantPermisDisseny(Long id) {
+		return getExpedientTipusComprovantPermisos(
+				id,
+				false,
+				true);
+	}
+	
+	/** Mètode per comprovar d'un sol cop diferents permisos sobre el tipus d'expedient
+	 * 
+	 * @param id Identificador del tipus d'expedient.
+	 * @param comprovarPermisRead
+	 * @param comprovarPermisDisseny
+	 * @return
+	 */
 	public ExpedientTipus getExpedientTipusComprovantPermisos(
 			Long id,
 			boolean comprovarPermisRead,
-			boolean comprovarPermisWrite,
-			boolean comprovarPermisCreate,
-			boolean comprovarPermisDelete,
-			boolean comprovarPermisDisseny) {
+			boolean comprovarPermisDisseny) {		
 		ExpedientTipus expedientTipus = expedientTipusRepository.findOne(id);
 		if (expedientTipus == null) {
 			throw new NoTrobatException(ExpedientTipus.class,id);
@@ -86,102 +97,29 @@ public class ExpedientTipusHelper {
 						permisos);
 			}
 		}
-		if (comprovarPermisWrite) {
-			permisos = new Permission[] {
-					ExtendedPermission.WRITE,
-					ExtendedPermission.ADMINISTRATION};
-			if (!permisosHelper.isGrantedAny(
-					id,
-					ExpedientTipus.class,
-					permisos,
-					auth)) {
-				throw new PermisDenegatException(
-						id,
-						ExpedientTipus.class,
-						permisos);
-			}
-		}
-		if (comprovarPermisCreate) {
-			permisos = new Permission[] {
-					ExtendedPermission.CREATE,
-					ExtendedPermission.ADMINISTRATION};
-			if (!permisosHelper.isGrantedAny(
-					id,
-					ExpedientTipus.class,
-					permisos,
-					auth)) {
-				throw new PermisDenegatException(
-						id,
-						ExpedientTipus.class,
-						permisos);
-			}
-		}
-		if (comprovarPermisDelete) {
-			permisos = new Permission[] {
-					ExtendedPermission.DELETE,
-					ExtendedPermission.ADMINISTRATION};
-			if (!permisosHelper.isGrantedAny(
-					id,
-					ExpedientTipus.class,
-					permisos,
-					auth)) {
-				throw new PermisDenegatException(
-						id,
-						ExpedientTipus.class,
-						permisos);
-			}
-		}
 		if (comprovarPermisDisseny) {
-			permisos = new Permission[] {
-					ExtendedPermission.DESIGN_ADMIN,
-					ExtendedPermission.DESIGN_DELEG,
-					ExtendedPermission.ADMINISTRATION};
-			if (!permisosHelper.isGrantedAny(
-					id,
-					ExpedientTipus.class,
-					permisos,
-					auth)) {
-				throw new PermisDenegatException(
+			// Primer comprova el permís de disseny sobre l'entorn
+			if (!entornHelper.potDissenyarEntorn(expedientTipus.getEntorn().getId())) {
+				// Comprova el permís de disseny sobre el tipus d'expedient
+				permisos = new Permission[] {
+						ExtendedPermission.DESIGN_ADMIN,
+						ExtendedPermission.DESIGN_DELEG,
+						ExtendedPermission.ADMINISTRATION};
+				if (!permisosHelper.isGrantedAny(
 						id,
 						ExpedientTipus.class,
-						permisos);
-			}
+						permisos,
+						auth)) {
+					throw new PermisDenegatException(
+							id,
+							ExpedientTipus.class,
+							permisos);
+				}
+			}			
 		}
 		return expedientTipus;
 	}
-
-	public void comprovarPermisDissenyEntornITipusExpedient(
-			Long entornId,
-			Long expedientTipusId) {
-		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-		boolean tePermis = false;
-		if (permisosHelper.isGrantedAny(
-				entornId,
-				Entorn.class,
-				new Permission[] {
-						ExtendedPermission.DESIGN,
-						ExtendedPermission.ADMINISTRATION},
-				auth)) {
-			tePermis = true;
-		}
-		if (!tePermis && permisosHelper.isGrantedAny(
-				expedientTipusId,
-				ExpedientTipus.class,
-				new Permission[] {
-						ExtendedPermission.DESIGN,
-						ExtendedPermission.MANAGE,
-						ExtendedPermission.ADMINISTRATION},
-				auth)) {
-			tePermis = true;
-		}
-		if (!tePermis) {
-			throw new PermisDenegatException(
-					expedientTipusId,
-					ExpedientTipus.class,
-					new Permission[] {ExtendedPermission.DESIGN});
-		}
-	}
-
+	
 	public ExpedientTipus getExpedientTipusComprovantPermisReassignar(Long id) {
 		ExpedientTipus expedientTipus = expedientTipusRepository.findOne(id);
 		if (expedientTipus == null) {

@@ -722,12 +722,8 @@ public class DissenyServiceImpl implements DissenyService {
 				"Consultant definicions de procés no utilitzades del tipus d'expedient (" +
 				"entornId=" + entornId + ", " +
 				"expedientTipusId=" + expedientTipusId + ")");
-		entornHelper.getEntornComprovantPermisos(
-				entornId,
-				true);
-		expedientTipusHelper.comprovarPermisDissenyEntornITipusExpedient(
-				entornId,
-				expedientTipusId);
+
+		expedientTipusHelper.getExpedientTipusComprovantPermisDisseny(expedientTipusId);
 		
 		List<String> noUtilitzades = jbpmHelper.findDefinicionsProcesIdNoUtilitzadesByExpedientTipusId(expedientTipusId);
 		if (noUtilitzades != null && !noUtilitzades.isEmpty()) {
@@ -749,13 +745,8 @@ public class DissenyServiceImpl implements DissenyService {
 			Long entornId,
 			Long expedientTipusId) {
 		
-		entornHelper.getEntornComprovantPermisos(
-				entornId,
-				true);
-		expedientTipusHelper.comprovarPermisDissenyEntornITipusExpedient(
-				entornId,
-				expedientTipusId);
-		
+		expedientTipusHelper.getExpedientTipusComprovantPermisDisseny(expedientTipusId);
+				
 		List<String> noUtilitzades = jbpmHelper.findDefinicionsProcesIdNoUtilitzadesByExpedientTipusId(expedientTipusId);
 		List<Long> result = new ArrayList<Long>();
 		if (noUtilitzades != null && !noUtilitzades.isEmpty()) {
@@ -777,13 +768,9 @@ public class DissenyServiceImpl implements DissenyService {
 				"Consultant definicions de procés no utilitzades del tipus d'expedient (" +
 				"entornId=" + entornId + ", " +
 				"expedientTipusId=" + expedientTipusId + ")");
-		entornHelper.getEntornComprovantPermisos(
-				entornId,
-				true);
-		expedientTipusHelper.comprovarPermisDissenyEntornITipusExpedient(
-				entornId,
-				expedientTipusId);
 		
+		expedientTipusHelper.getExpedientTipusComprovantPermisDisseny(expedientTipusId);
+				
 		ExpedientTipusDto expedientTipus = conversioTipusHelper.convertir(
 				expedientTipusRepository.findOne(
 						expedientTipusId), 
@@ -822,13 +809,9 @@ public class DissenyServiceImpl implements DissenyService {
 			Long entornId,
 			Long expedientTipusId,
 			Long jbpmId) {
-		entornHelper.getEntornComprovantPermisos(
-				entornId,
-				true);
-		expedientTipusHelper.comprovarPermisDissenyEntornITipusExpedient(
-				entornId,
-				expedientTipusId);
 		
+		expedientTipusHelper.getExpedientTipusComprovantPermisDisseny(expedientTipusId);
+				
 		List<ProcessInstanceExpedient> afectats = jbpmHelper.findExpedientsAfectatsPerDefinicionsProcesNoUtilitzada(
 				expedientTipusId,
 				jbpmId);

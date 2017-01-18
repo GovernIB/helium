@@ -275,9 +275,8 @@ public class TascaServiceImpl implements TascaService {
 			// Comprova l'accés al tipus d'expedient
 			ExpedientTipus expedientTipus = null;
 			if (expedientTipusId != null) {
-				expedientTipus = expedientTipusHelper.getExpedientTipusComprovantPermisos(
-						expedientTipusId,
-						true);
+				expedientTipus = expedientTipusHelper.getExpedientTipusComprovantPermisLectura(
+						expedientTipusId);
 			}
 			// Si no hi ha tipexp seleccionat o no es te permis SUPERVISION
 			// a damunt el tipexp es filtra per l'usuari actual.
@@ -408,9 +407,8 @@ public class TascaServiceImpl implements TascaService {
 		try {
 			// Comprova l'accés al tipus d'expedient
 			if (expedientTipusId != null) {
-				expedientTipusHelper.getExpedientTipusComprovantPermisos(
-						expedientTipusId,
-						true);
+				expedientTipusHelper.getExpedientTipusComprovantPermisLectura(
+						expedientTipusId);
 			}
 			// Si no hi ha tipexp seleccionat o no es te permis SUPERVISION
 			// a damunt el tipexp es filtra per l'usuari actual.

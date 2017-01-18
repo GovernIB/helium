@@ -792,9 +792,8 @@ public class ExpedientServiceImpl implements ExpedientService {
 		// Comprova l'accés al tipus d'expedient
 		ExpedientTipus expedientTipus = null;
 		if (expedientTipusId != null) {
-			expedientTipus = expedientTipusHelper.getExpedientTipusComprovantPermisos(
-					expedientTipusId,
-					true);
+			expedientTipus = expedientTipusHelper.getExpedientTipusComprovantPermisDisseny(
+					expedientTipusId);
 		}
 		// Comprova l'accés a l'estat
 		Estat estat = null;
@@ -912,9 +911,8 @@ public class ExpedientServiceImpl implements ExpedientService {
 		// Comprova l'accés al tipus d'expedient
 		ExpedientTipus expedientTipus = null;
 		if (expedientTipusId != null) {
-			expedientTipus = expedientTipusHelper.getExpedientTipusComprovantPermisos(
-					expedientTipusId,
-					true);
+			expedientTipus = expedientTipusHelper.getExpedientTipusComprovantPermisLectura(
+					expedientTipusId);
 		}
 		// Comprova l'accés a l'estat
 		Estat estat = null;
@@ -2165,9 +2163,8 @@ public class ExpedientServiceImpl implements ExpedientService {
 				consulta.getEntorn().getId(),
 				true);
 		// Comprova l'accés al tipus d'expedient
-		ExpedientTipus expedientTipus = expedientTipusHelper.getExpedientTipusComprovantPermisos(
-					consulta.getExpedientTipus().getId(),
-					true);
+		ExpedientTipus expedientTipus = expedientTipusHelper.getExpedientTipusComprovantPermisLectura(
+					consulta.getExpedientTipus().getId());
 		// Obte la llista d'expedients permesos
 		List<Long> expedientIdsPermesos;
 		if (expedientIdsSeleccio != null && !expedientIdsSeleccio.isEmpty()) {
@@ -2307,9 +2304,8 @@ public class ExpedientServiceImpl implements ExpedientService {
 				consulta.getEntorn().getId(),
 				true);
 		// Comprova l'accés al tipus d'expedient
-		ExpedientTipus expedientTipus = expedientTipusHelper.getExpedientTipusComprovantPermisos(
-					consulta.getExpedientTipus().getId(),
-					true);
+		ExpedientTipus expedientTipus = expedientTipusHelper.getExpedientTipusComprovantPermisLectura(
+					consulta.getExpedientTipus().getId());
 		// Obte la llista d'expedients permesos segons els filtres
 		List<Long> tipusPermesosIds = expedientTipusHelper.findIdsAmbPermisRead(entorn);
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();

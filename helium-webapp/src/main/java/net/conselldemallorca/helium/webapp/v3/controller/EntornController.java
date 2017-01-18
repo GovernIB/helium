@@ -220,7 +220,7 @@ public class EntornController extends BaseController {
 					getMessage(
 							request, 
 							"entorn.controller.permis.actualitzat"));
-			return modalUrlTancar(false);
+			return modalUrlTancar();
 		}
 	}
 

@@ -295,6 +295,7 @@ public class ExpedientTerminiServiceImpl implements ExpedientTerminiService {
 				expedientId,
 				new Permission[] {
 						ExtendedPermission.TERM_MANAGE,
+						ExtendedPermission.READ,
 						ExtendedPermission.ADMINISTRATION});
 		expedientHelper.comprovarInstanciaProces(
 				expedient,
@@ -327,6 +328,7 @@ public class ExpedientTerminiServiceImpl implements ExpedientTerminiService {
 				expedientId,
 				new Permission[] {
 						ExtendedPermission.TERM_MANAGE,
+						ExtendedPermission.READ,
 						ExtendedPermission.ADMINISTRATION});
 		expedientHelper.comprovarInstanciaProces(
 				expedient,

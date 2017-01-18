@@ -26,6 +26,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
 import net.conselldemallorca.helium.v3.core.api.service.DefinicioProcesService;
 import net.conselldemallorca.helium.v3.core.api.service.DissenyService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientTipusService;
+import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.ObjectTypeEditorHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
 
@@ -72,13 +73,19 @@ public class BaseDissenyController extends BaseController {
 			String jbmpKey,
 			Model model,
 			String pipellaActiva) {
-		
+				
 		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
 		DefinicioProcesDto definicioProces = null;
 		if (entornActual != null) {
 			definicioProces = definicioProcesService.findByEntornIdAndJbpmKey(
 					entornActual.getId(),
 					jbmpKey);
+			
+			// Comprova si pot dissenyar la definició de procés
+			if (!potDissenyarDefinicioProces(request, definicioProces)) {
+					MissatgesHelper.error(request, getMessage(request, "error.permisos.disseny.defproc"));
+					return "redirect:/";
+			}
 			model.addAttribute("definicioProces", definicioProces);
 			// Select de les versions
 			if (definicioProces != null) {
@@ -91,16 +98,19 @@ public class BaseDissenyController extends BaseController {
 				}
 				model.addAttribute("versions", versions);
 			}
+
+			if (pipellaActiva != null)
+				model.addAttribute("pipellaActiva", pipellaActiva);
+			else if (request.getParameter("pipellaActiva") != null)
+				model.addAttribute("pipellaActiva", request.getParameter("pipellaActiva"));
+			else
+				model.addAttribute("pipellaActiva", "detall");		
+					
+			return "v3/definicioProcesPipelles";
+			
+		} else {
+			return "redirect:/";
 		}
-		
-		if (pipellaActiva != null)
-			model.addAttribute("pipellaActiva", pipellaActiva);
-		else if (request.getParameter("pipellaActiva") != null)
-			model.addAttribute("pipellaActiva", request.getParameter("pipellaActiva"));
-		else
-			model.addAttribute("pipellaActiva", "detall");		
-				
-		return "v3/definicioProcesPipelles";
 	}
 	
 	@InitBinder
@@ -127,4 +137,17 @@ public class BaseDissenyController extends BaseController {
 				Object.class,
 				new ObjectTypeEditorHelper());
 	}		
+	
+	private boolean potDissenyarDefinicioProces(
+			HttpServletRequest request,
+			DefinicioProcesDto definicioProces) {
+		
+		boolean ret = true;
+		if (!SessionHelper.getSessionManager(request).getPotDissenyarEntorn())
+			if (definicioProces.getExpedientTipus() == null 
+			|| !SessionHelper.getSessionManager(request).getPotDissenyarExpedientTipus()) {
+				ret = false;
+			}
+		return ret;
+	}
 }

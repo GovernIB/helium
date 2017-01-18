@@ -211,13 +211,8 @@ public class TerminiServiceImpl implements TerminiService {
 		
 		if (expedientTipusId != null)
 			termini.setExpedientTipus(
-					expedientTipusHelper.getExpedientTipusComprovantPermisos(
-												expedientTipusId, 
-												true,
-												false,
-												false,
-												false,
-												true));
+					expedientTipusHelper.getExpedientTipusComprovantPermisDisseny(
+												expedientTipusId));
 		if (definicioProcesId != null)
 			termini.setDefinicioProces(definicioProcesRepository.findOne(definicioProcesId));
 		
@@ -234,13 +229,8 @@ public class TerminiServiceImpl implements TerminiService {
 			throw new NoTrobatException(Termini.class, dto.getId());
 		}
 		if (termini.getExpedientTipus() != null)			
-			expedientTipusHelper.getExpedientTipusComprovantPermisos(
-					termini.getExpedientTipus().getId(), 
-					true,
-					false,
-					false,
-					false,
-					true);
+			expedientTipusHelper.getExpedientTipusComprovantPermisDisseny(
+					termini.getExpedientTipus().getId());
 		
 		termini.setCodi(dto.getCodi());
 		termini.setNom(dto.getNom());
@@ -269,13 +259,8 @@ public class TerminiServiceImpl implements TerminiService {
 			throw new NoTrobatException(Termini.class, terminiId);
 		}
 		
-		expedientTipusHelper.getExpedientTipusComprovantPermisos(
-				termini.getExpedientTipus().getId(), 
-				true,
-				false,
-				false,
-				false,
-				true);
+		expedientTipusHelper.getExpedientTipusComprovantPermisDisseny(
+				termini.getExpedientTipus().getId());
 		
 		terminiRepository.delete(termini);
 	}

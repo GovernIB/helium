@@ -274,15 +274,9 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 				"expedientTipus=" + expedientTipus + ", " +
 				"sequenciesAny=" + sequenciesAny + ", " +
 				"sequenciesValor=" + sequenciesValor + ")");
-		Entorn entorn = entornHelper.getEntornComprovantPermisos(
-				entornId,
-				true);
-		expedientTipusHelper.comprovarPermisDissenyEntornITipusExpedient(
-				entornId,
-				expedientTipus.getId());
-		ExpedientTipus entity = expedientTipusRepository.findByEntornAndId(
-				entorn,
-				expedientTipus.getId());
+		
+		ExpedientTipus entity = expedientTipusHelper.getExpedientTipusComprovantPermisDisseny(expedientTipus.getId());
+		
 		entity.setNom(expedientTipus.getNom());
 		entity.setAmbInfoPropia(expedientTipus.isAmbInfoPropia());
 		entity.setTeTitol(expedientTipus.isTeTitol());
@@ -349,15 +343,9 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 				"url=" + url + ", " +
 				"usuari=" + usuari + ", " +
 				"contrasenya=" + contrasenya + ")");
-		Entorn entorn = entornHelper.getEntornComprovantPermisos(
-				entornId,
-				true);
-		expedientTipusHelper.comprovarPermisDissenyEntornITipusExpedient(
-				entornId,
-				expedientTipusId);
-		ExpedientTipus entity = expedientTipusRepository.findByEntornAndId(
-				entorn,
-				expedientTipusId);
+		
+		ExpedientTipus entity = expedientTipusHelper.getExpedientTipusComprovantPermisDisseny(expedientTipusId);
+		
 		entity.setFormextUrl(url);
 		entity.setFormextUsuari(usuari);
 		entity.setFormextContrasenya(contrasenya);
@@ -391,15 +379,9 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 				"entornId=" + entornId + ", " +
 				"expedientTipus=" + expedientTipusId + ", " +
 				"tramitCodi=" + tramitCodi + ")");
-		Entorn entorn = entornHelper.getEntornComprovantPermisos(
-				entornId,
-				true);
-		expedientTipusHelper.comprovarPermisDissenyEntornITipusExpedient(
-				entornId,
-				expedientTipusId);
-		ExpedientTipus entity = expedientTipusRepository.findByEntornAndId(
-				entorn,
-				expedientTipusId);
+		
+		ExpedientTipus entity = expedientTipusHelper.getExpedientTipusComprovantPermisDisseny(expedientTipusId);
+
 		entity.setSistraTramitCodi(tramitCodi);
 		entity.setNotificacionsActivades(notificacionsActivades);
 		entity.setNotificacioOrganCodi(notificacioOrganCodi);
@@ -455,26 +437,8 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 				"expedientTipusId = " + command.getId() + ", " + 
 				"command = " + command + ")");
 		// Control d'accés
-		Entorn entorn = entornHelper.getEntornComprovantPermisos(
-				entornId,
-				true);
-		ExpedientTipus tipus;
-		if (entornHelper.potDissenyarEntorn(entornId)) {
-			// Si te permisos de disseny a damunt l'entorn pot veure tots els tipus
-			tipus = expedientTipusRepository.findByEntornAndId(
-					entorn,
+		ExpedientTipus tipus = expedientTipusHelper.getExpedientTipusComprovantPermisDisseny(
 					command.getId());
-		} else {
-			// Si no te permisos de disseny a damunt l'entorn només es poden veure
-			// els tipus amb permisos de disseny
-			tipus = expedientTipusHelper.getExpedientTipusComprovantPermisos(
-					command.getId(),
-					false,
-					false,
-					false,
-					false,
-					true);
-		}
 		
 		// Construeix l'objecte
 		ExpedientTipusExportacio exportacio = new ExpedientTipusExportacio();
@@ -789,13 +753,8 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 			} else {
 				// Si no te permisos de disseny a damunt l'entorn només es poden veure
 				// els tipus amb permisos de disseny
-				expedientTipus = expedientTipusHelper.getExpedientTipusComprovantPermisos(
-						command.getId(),
-						false,
-						false,
-						false,
-						false,
-						true);
+				expedientTipus = expedientTipusHelper.getExpedientTipusComprovantPermisDisseny(
+						command.getId());
 			}
 		if (!expedientTipusExisteix || command.isDadesBasiques()) {
 			expedientTipus.setAmbInfoPropia(importacio.isAmbInfoPropia());
@@ -1310,8 +1269,8 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 					},
 					ExpedientTipus.class,
 					new Permission[] {
-							ExtendedPermission.DESIGN_ADMIN,
-							ExtendedPermission.DESIGN_DELEG,
+							ExtendedPermission.READ,
+							ExtendedPermission.WRITE,
 							ExtendedPermission.ADMINISTRATION},
 					auth);
 		}
@@ -1332,26 +1291,8 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 				"Consultant tipus d'expedient amb id i amb permisos de consulta (" +
 				"entornId=" + entornId + ", " +
 				"expedientTipusId = " + expedientTipusId + ")");
-		Entorn entorn = entornHelper.getEntornComprovantPermisos(
-				entornId,
-				true);
-		ExpedientTipus tipus;
-		if (entornHelper.potDissenyarEntorn(entornId)) {
-			// Si te permisos de disseny a damunt l'entorn pot veure tots els tipus
-			tipus = expedientTipusRepository.findByEntornAndId(
-					entorn,
-					expedientTipusId);
-		} else {
-			// Si no te permisos de disseny a damunt l'entorn només es poden veure
-			// els tipus amb permisos de disseny
-			tipus = expedientTipusHelper.getExpedientTipusComprovantPermisos(
-					expedientTipusId,
-					false,
-					false,
-					false,
-					false,
-					true);
-		}
+		ExpedientTipus tipus = expedientTipusHelper.getExpedientTipusComprovantPermisDisseny(
+				expedientTipusId);
 		return conversioTipusHelper.convertir(
 				tipus,
 				ExpedientTipusDto.class);
@@ -1405,25 +1346,8 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 				"Consultant tipus d'expedient amb id i amb permisos de disseny (" +
 				"entornId=" + entornId + ", " +
 				"expedientTipusId = " + expedientTipusId + ")");
-		ExpedientTipus tipus;
-		if (entornHelper.potDissenyarEntorn(entornId)) {
-			// Si te permisos de disseny a damunt l'entorn pot veure tots els tipus
-			tipus = expedientTipusRepository.findByEntornAndId(
-					entornHelper.getEntornComprovantPermisos(
-							entornId,
-							true),
-					expedientTipusId);
-		} else {
-			// Si no te permisos de disseny a damunt l'entorn només es poden veure
-			// els tipus amb permisos de disseny
-			tipus = expedientTipusHelper.getExpedientTipusComprovantPermisos(
-					expedientTipusId,
-					false,
-					false,
-					false,
-					false,
-					true);
-		}
+		ExpedientTipus tipus = expedientTipusHelper.getExpedientTipusComprovantPermisDisseny(
+				expedientTipusId);
 		return conversioTipusHelper.convertir(
 				tipus,
 				ExpedientTipusDto.class);
@@ -1476,26 +1400,8 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 				"Consultant tipus d'expedient amb id i amb permis de creació (" +
 				"entornId=" + entornId + ", " +
 				"expedientTipusId = " + expedientTipusId + ")");
-		Entorn entorn = entornHelper.getEntornComprovantPermisos(
-				entornId,
-				true);
-		ExpedientTipus tipus;
-		if (entornHelper.potDissenyarEntorn(entornId)) {
-			// Si te permisos de disseny a damunt l'entorn pot veure tots els tipus
-			tipus = expedientTipusRepository.findByEntornAndId(
-					entorn,
-					expedientTipusId);
-		} else {
-			// Si no te permisos de disseny a damunt l'entorn només es poden veure
-			// els tipus amb permisos de disseny
-			tipus = expedientTipusHelper.getExpedientTipusComprovantPermisos(
-					expedientTipusId,
-					false,
-					false,
-					true,
-					false,
-					false);
-		}
+		ExpedientTipus tipus = expedientTipusHelper.getExpedientTipusComprovantPermisDisseny(
+				expedientTipusId);
 		return conversioTipusHelper.convertir(
 				tipus,
 				ExpedientTipusDto.class);
@@ -1548,8 +1454,8 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 						id,
 						ExpedientTipus.class,
 						new Permission[] {
-								ExtendedPermission.DESIGN,
-								ExtendedPermission.MANAGE,
+								ExtendedPermission.DESIGN_ADMIN,
+								ExtendedPermission.DESIGN_DELEG,
 								ExtendedPermission.ADMINISTRATION},
 						auth)) {
 					it.remove();
@@ -1598,12 +1504,9 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 				"entornId=" + entornId + ", " +
 				"expedientTipusId=" + expedientTipusId + ", " +
 				"permis=" + permis + ")");
-		entornHelper.getEntornComprovantPermisos(
-				entornId,
-				true);
-		expedientTipusHelper.comprovarPermisDissenyEntornITipusExpedient(
-				entornId,
-				expedientTipusId);
+
+		expedientTipusHelper.getExpedientTipusComprovantPermisDisseny(expedientTipusId);
+		
 		permisosHelper.updatePermis(
 				expedientTipusId,
 				ExpedientTipus.class,
@@ -1624,12 +1527,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 				"entornId=" + entornId + ", " +
 				"expedientTipusId=" + expedientTipusId + ", " +
 				"permisId=" + permisId + ")");
-		entornHelper.getEntornComprovantPermisos(
-				entornId,
-				true);
-		expedientTipusHelper.comprovarPermisDissenyEntornITipusExpedient(
-				entornId,
-				expedientTipusId);
+		expedientTipusHelper.getExpedientTipusComprovantPermisDisseny(expedientTipusId);
 		permisosHelper.deletePermis(
 				expedientTipusId,
 				ExpedientTipus.class,
@@ -1648,12 +1546,9 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 				"Consultant permisos del tipus d'expedient (" +
 				"entornId=" + entornId + ", " +
 				"expedientTipusId=" + expedientTipusId + ")");
-		entornHelper.getEntornComprovantPermisos(
-				entornId,
-				true);
-		expedientTipusHelper.comprovarPermisDissenyEntornITipusExpedient(
-				entornId,
-				expedientTipusId);
+		
+		expedientTipusHelper.getExpedientTipusComprovantPermisDisseny(expedientTipusId);
+		
 		return permisosHelper.findPermisos(
 				expedientTipusId,
 				ExpedientTipus.class);
@@ -1673,12 +1568,9 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 				"entornId=" + entornId + ", " +
 				"expedientTipusId=" + expedientTipusId + ", " +
 				"permisId=" + permisId + ")");
-		entornHelper.getEntornComprovantPermisos(
-				entornId,
-				true);
-		expedientTipusHelper.comprovarPermisDissenyEntornITipusExpedient(
-				entornId,
-				expedientTipusId);
+
+		expedientTipusHelper.getExpedientTipusComprovantPermisDisseny(expedientTipusId);
+		
 		List<PermisDto> permisos = permisosHelper.findPermisos(
 				expedientTipusId,
 				ExpedientTipus.class);
@@ -2099,9 +1991,8 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 	public List<DominiDto> dominiFindAll(Long expedientTipusId, PaginacioParamsDto paginacioParams) throws NoTrobatException, PermisDenegatException {
 		// Recupera el tipus d'expedient
 //		ExpedientTipus expedientTipus =	
-				expedientTipusHelper.getExpedientTipusComprovantPermisos(
-						expedientTipusId, 
-						true);
+				expedientTipusHelper.getExpedientTipusComprovantPermisLectura(
+						expedientTipusId);
 		List<Domini> dominis = null;
 		// Recupera la informació dels terminis de l'expedient
 		dominis = dominiRepository.findByExpedientTipusId(
@@ -2147,14 +2038,8 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 	@Override
 	@Transactional
 	public DominiDto dominiCreate(Long expedientTipusId, DominiDto dto) {
-		ExpedientTipus expedientTipus =	
-				expedientTipusHelper.getExpedientTipusComprovantPermisos(
-						expedientTipusId, 
-						true,
-						false,
-						false,
-						false,
-						true);
+		ExpedientTipus expedientTipus = expedientTipusHelper.getExpedientTipusComprovantPermisDisseny(
+						expedientTipusId);
 		
 		Domini domini = new Domini();
 		domini.setCodi(dto.getCodi());
@@ -2189,13 +2074,8 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 			throw new NoTrobatException(Domini.class, dto.getId());
 		}
 		
-		expedientTipusHelper.getExpedientTipusComprovantPermisos(
-				domini.getExpedientTipus().getId(), 
-				true,
-				false,
-				false,
-				false,
-				true);
+		expedientTipusHelper.getExpedientTipusComprovantPermisDisseny(
+				domini.getExpedientTipus().getId());
 		
 		domini.setCodi(dto.getCodi());
 		domini.setNom(dto.getNom());
@@ -2228,13 +2108,8 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 			throw new NoTrobatException(Domini.class, dominiId);
 		}
 		
-		expedientTipusHelper.getExpedientTipusComprovantPermisos(
-				domini.getExpedientTipus().getId(), 
-				true,
-				false,
-				false,
-				false,
-				true);
+		expedientTipusHelper.getExpedientTipusComprovantPermisDisseny(
+				domini.getExpedientTipus().getId());
 		
 		if (domini.getExpedientTipus() != null) {
 			domini.getExpedientTipus().removeDomini(domini);
@@ -2405,9 +2280,8 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 	@Transactional(readOnly = true)
 	public List<EstatDto> estatFindAll(Long expedientTipusId, PaginacioParamsDto paginacioParams) throws NoTrobatException, PermisDenegatException {
 		// Recupera el tipus d'expedient
-		expedientTipusHelper.getExpedientTipusComprovantPermisos(
-				expedientTipusId, 
-				true);
+		expedientTipusHelper.getExpedientTipusComprovantPermisDisseny(
+				expedientTipusId);
 		List<Estat> estats = null;
 		// Recupera la informació dels terminis de l'expedient
 		estats = estatRepository.findByExpedientTipusId(
@@ -2422,9 +2296,8 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 	@Transactional(readOnly = true)
 	public List<EstatDto> estatFindAll(Long expedientTipusId) throws NoTrobatException, PermisDenegatException {
 		// Recupera el tipus d'expedient
-		ExpedientTipus expedientTipus = expedientTipusHelper.getExpedientTipusComprovantPermisos(
-				expedientTipusId, 
-				true);
+		ExpedientTipus expedientTipus = expedientTipusHelper.getExpedientTipusComprovantPermisDisseny(
+				expedientTipusId);
 		return conversioTipusHelper.convertirList(
 				estatRepository.findByExpedientTipusOrderByOrdreAsc(expedientTipus), 
 				EstatDto.class);
@@ -2468,13 +2341,8 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 	@Override
 	@Transactional
 	public EstatDto estatCreate(Long expedientTipusId, EstatDto dto) {
-		ExpedientTipus expedientTipus = expedientTipusHelper.getExpedientTipusComprovantPermisos(
-				expedientTipusId, 
-				true,
-				false,
-				false,
-				false,
-				true);
+		ExpedientTipus expedientTipus = expedientTipusHelper.getExpedientTipusComprovantPermisDisseny(
+				expedientTipusId);
 		Estat estat = new Estat();
 		estat.setExpedientTipus(expedientTipus);
 		estat.setCodi(dto.getCodi());
@@ -2494,13 +2362,8 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 			throw new NoTrobatException(Estat.class, dto.getId());
 		}
 		
-		expedientTipusHelper.getExpedientTipusComprovantPermisos(
-				estat.getExpedientTipus().getId(), 
-				true,
-				false,
-				false,
-				false,
-				true);
+		expedientTipusHelper.getExpedientTipusComprovantPermisDisseny(
+				estat.getExpedientTipus().getId());
 		
 		estat.setCodi(dto.getCodi());
 		estat.setNom(dto.getNom());
@@ -2569,13 +2432,8 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		}
 		
 		List<Estat> estats = estatRepository.findByExpedientTipusOrderByOrdreAsc(
-				expedientTipusHelper.getExpedientTipusComprovantPermisos(
-						estat.getExpedientTipus().getId(), 
-						true,
-						false,
-						false,
-						false,
-						true));
+				expedientTipusHelper.getExpedientTipusComprovantPermisDisseny(
+						estat.getExpedientTipus().getId()));
 		if(posicio != estats.indexOf(estat)) {
 			estats.remove(estat);
 			estats.add(posicio, estat);
@@ -3319,9 +3177,8 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 				"Consultant els codis helium dels mapegos segons un tipus de filtre");
 		
 		ExpedientTipus expedientTipus = 
-				expedientTipusHelper.getExpedientTipusComprovantPermisos(
-						expedientTipusId, 
-						true);
+				expedientTipusHelper.getExpedientTipusComprovantPermisDisseny(
+						expedientTipusId);
 		List<String> codisHelium = mapeigSistraRepository.findCodiHeliumByExpedientTipusAndTipus(
 				expedientTipus, 
 				MapeigSistra.TipusMapeig.valueOf(tipus.toString()));

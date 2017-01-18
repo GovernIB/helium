@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
@@ -32,6 +33,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 import edu.emory.mathcs.backport.java.util.Arrays;
+import net.conselldemallorca.helium.core.helper.ExpedientTipusHelper;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
@@ -67,6 +69,9 @@ public class TascaLlistatV3Controller extends BaseController {
 	private DissenyService dissenyService;
 	@Autowired
 	private ExpedientService expedientService;
+	
+	@Resource
+	private ExpedientTipusHelper expedientTipusHelper;
 
 
 	@RequestMapping(method = RequestMethod.GET)
@@ -85,9 +90,10 @@ public class TascaLlistatV3Controller extends BaseController {
 		if (filtreCommand.getExpedientTipusId() != null) {
 			model.addAttribute(
 					"expedientTipus",
-					dissenyService.findExpedientTipusAmbPermisReadUsuariActual(
+					expedientTipusHelper.getExpedientTipusComprovantPermisLectura(filtreCommand.getExpedientTipusId())
+					/*dissenyService.findExpedientTipusAmbPermisReadUsuariActual(
 							entornActual.getId(),
-							filtreCommand.getExpedientTipusId()));
+							filtreCommand.getExpedientTipusId())*/);
 		}
 		return "v3/tascaLlistat";
 	}

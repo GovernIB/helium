@@ -55,6 +55,7 @@ import net.conselldemallorca.helium.webapp.v3.helper.DatatablesHelper.Datatables
 import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.NodecoHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
+import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper.SessionManager;
 
 /**
  * Controlador per al manteniment de les definicions de procés. Controla les pipelles del
@@ -83,9 +84,14 @@ public class DefinicioProcesController extends BaseDefinicioProcesController {
 	public String llistat(
 			HttpServletRequest request,
 			Model model) {
-		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
-		model.addAttribute("potDissenyarEntorn", entornHelper.potDissenyarEntorn(entornActual.getId()));
-		return "v3/definicioProcesLlistat";
+		if (SessionHelper.getSessionManager(request).getPotDissenyarEntorn()) {
+			EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
+			
+			model.addAttribute("potDissenyarEntorn", entornHelper.potDissenyarEntorn(entornActual.getId()));
+			return "v3/definicioProcesLlistat";
+		} else {
+			return "redirect:/v3";
+		}
 	}
 	
 	@RequestMapping(value="/datatable", method = RequestMethod.GET)

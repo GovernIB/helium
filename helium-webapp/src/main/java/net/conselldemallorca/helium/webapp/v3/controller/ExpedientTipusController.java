@@ -167,13 +167,8 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 			potEscriure = true;
 		} else {
 			try {
-				expedientTipusHelper.getExpedientTipusComprovantPermisos(
-						expedientTipusId, 
-						false, 
-						true,  // comprovarPermisWrite 
-						false, 
-						false, 
-						false);
+				expedientTipusHelper.getExpedientTipusComprovantPermisDisseny(
+						expedientTipusId);
 				potEscriure = true;
 			} catch (Exception e){
 				potEscriure = false;
@@ -186,13 +181,8 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 			potEsborrar = true;
 		} else {
 			try {
-				expedientTipusHelper.getExpedientTipusComprovantPermisos(
-																expedientTipusId, 
-																false, 
-																false,   
-																false, 
-																true,	// comprovarPermisDelete 
-																false);
+				expedientTipusHelper.getExpedientTipusComprovantPermisDisseny(
+						expedientTipusId);
 				potEsborrar = true;
 			} catch (Exception e){
 				potEsborrar = false;

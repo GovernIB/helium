@@ -21,8 +21,10 @@
 </head>
 <body>
 	<div class="text-right" data-toggle="botons-titol">
-		<a class="btn btn-default" href="expedientTipus/importar" data-toggle="modal"><span class="fa fa-sign-in"></span>&nbsp;<spring:message code="comu.importar"/></a>
-		<a class="btn btn-default" href="expedientTipus/new" data-toggle="modal"><span class="fa fa-plus"></span>&nbsp;<spring:message code="expedient.tipus.llistat.accio.nou"/></a>
+		<c:if test="${potDissenyarEntorn}">
+			<a class="btn btn-default" href="expedientTipus/importar" data-toggle="modal"><span class="fa fa-sign-in"></span>&nbsp;<spring:message code="comu.importar"/></a>
+			<a class="btn btn-default" href="expedientTipus/new" data-toggle="modal"><span class="fa fa-plus"></span>&nbsp;<spring:message code="expedient.tipus.llistat.accio.nou"/></a>
+		</c:if>
 	</div>
 	<table	id="expedientTipus"
 			data-toggle="datatable"
