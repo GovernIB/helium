@@ -43,7 +43,8 @@ public class ExpedientDocumentServiceBean implements ExpedientDocumentService {
 			String titol,
 			String arxiuNom,
 			byte[] arxiuContingut,
-			Date data) {
+			Date data,
+			boolean tramitSistra) {
 		delegate.createOrUpdate(
 				expedientId,
 				processInstanceId,
@@ -52,7 +53,8 @@ public class ExpedientDocumentServiceBean implements ExpedientDocumentService {
 				titol,
 				arxiuNom,
 				arxiuContingut,
-				data);
+				data,
+				tramitSistra);
 	}
 
 	@Override
@@ -71,10 +73,12 @@ public class ExpedientDocumentServiceBean implements ExpedientDocumentService {
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public List<ExpedientDocumentDto> findAmbInstanciaProces(
 			Long expedientId,
-			String processInstanceId) {
+			String processInstanceId,
+			boolean tramitSistra) {
 		return delegate.findAmbInstanciaProces(
 				expedientId,
-				processInstanceId);
+				processInstanceId,
+				tramitSistra);
 	}
 
 	@Override

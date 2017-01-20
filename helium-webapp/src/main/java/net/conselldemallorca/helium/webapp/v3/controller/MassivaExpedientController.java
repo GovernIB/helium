@@ -509,7 +509,8 @@ public class MassivaExpedientController extends BaseExpedientController {
 
 				List<ExpedientDadaDto> expedientDades = expedientDadaService.findAmbInstanciaProces(
 						expedient.getId(),
-						processInstanceId);
+						processInstanceId,
+						false);
 				List<TascaDadaDto> tascaDades = new ArrayList<TascaDadaDto>();
 				for (ExpedientDadaDto expedientDada: expedientDades) {
 					if (expedientDada.getVarCodi().equals(varCodi)) {

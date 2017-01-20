@@ -1548,15 +1548,37 @@ public class ExpedientServiceImpl implements ExpedientService {
 		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
 				expedientId,
 				new Permission[] {
-						ExtendedPermission.TERM_MANAGE,
+						ExtendedPermission.READ,
 						ExtendedPermission.ADMINISTRATION});
 		expedientHelper.comprovarInstanciaProces(
 				expedient,
 				processInstanceId);
+		executarAccio(expedient, processInstanceId, accioId, true);
+	}
+	
+	@Override
+	@Transactional
+	public void accioExecutarFromWs(
+			Long expedientId,
+			String processInstanceId,
+			Long accioId) {
+		logger.debug("Executant l'acció a dins una instància de procés (" +
+				"expedientId" + expedientId + ", " +
+				"processInstanceId" + processInstanceId + ", " +
+				"accioId=" + accioId + ")");
+		Expedient expedient = expedientRepository.findOne(expedientId);
+		
+		expedientHelper.comprovarInstanciaProces(
+				expedient,
+				processInstanceId);
+		executarAccio(expedient, processInstanceId, accioId, false);
+	}
+	
+	private void executarAccio(Expedient expedient, String processInstanceId, Long accioId, boolean comprovarPermisExecutar) {
 		Accio accio = accioRepository.findOne(accioId);
 		if (accio == null)
 			throw new NoTrobatException(Accio.class, accioId);
-		if (permetreExecutarAccioExpedient(accio, expedient)) {
+		if (!comprovarPermisExecutar || permetreExecutarAccioExpedient(accio, expedient)) {
 			mesuresTemporalsHelper.mesuraIniciar("Executar ACCIO" + accio.getNom(), "expedient", expedient.getTipus().getNom());
 			expedientLoggerHelper.afegirLogExpedientPerProces(
 					processInstanceId,
@@ -1594,7 +1616,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 			mesuresTemporalsHelper.mesuraCalcular("Executar ACCIO" + accio.getNom(), "expedient", expedient.getTipus().getNom());
 		} else {
 			throw new PermisDenegatException(
-					expedientId, 
+					expedient.getId(), 
 					Expedient.class, 
 					new Permission[]{ExtendedPermission.WRITE},
 					null);

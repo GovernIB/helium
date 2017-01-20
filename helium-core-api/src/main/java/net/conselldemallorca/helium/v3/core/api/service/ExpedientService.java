@@ -619,6 +619,24 @@ public interface ExpedientService {
 			Long expedientId,
 			String processInstanceId,
 			Long accioId) throws NoTrobatException, TramitacioException, PermisDenegatException;
+	
+	/**
+	 * Executa una acció d'una instància de procés des dels WS d'Helium.
+	 * 
+	 * @param expedientId
+	 *            Atribut id de l'expedient que es vol actualitzar.
+	 * @param processInstanceId
+	 *            Atribut id de la instància de procés que es vol actualitzar.
+	 * @return la llista d'accions visibles
+	 * @throws NoTrobatException
+	 *             Si no s'ha trobat cap expedient amb l'id especificat.
+	 * @throws TramitacioException
+	 *             Si s'ha produit algun error executant el handler jBPM.
+	 */
+	public void accioExecutarFromWs(
+			Long expedientId,
+			String processInstanceId,
+			Long accioId) throws NoTrobatException, TramitacioException;
 
 
 	/**

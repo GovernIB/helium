@@ -50,6 +50,7 @@ import net.conselldemallorca.helium.v3.core.repository.CampRepository;
 import net.conselldemallorca.helium.v3.core.repository.DefinicioProcesRepository;
 import net.conselldemallorca.helium.v3.core.repository.DocumentRepository;
 import net.conselldemallorca.helium.v3.core.repository.DocumentStoreRepository;
+import net.conselldemallorca.helium.v3.core.repository.ExpedientRepository;
 import net.conselldemallorca.helium.v3.core.repository.RegistreRepository;
 
 
@@ -71,6 +72,8 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 	private DocumentRepository documentRepository;
 	@Resource
 	private DocumentStoreRepository documentStoreRepository;
+	@Resource
+	private ExpedientRepository expedientRepository;
 
 	@Resource
 	private PluginHelper pluginHelper;
@@ -106,7 +109,8 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 			String titol,
 			String arxiuNom,
 			byte[] arxiuContingut,
-			Date data) {
+			Date data,
+			boolean tramitSistra) {
 		logger.debug("Creant o modificant document de la instància de procés (" +
 				"expedientId=" + expedientId + ", " +
 				"processInstanceId=" + processInstanceId + ", " +
@@ -116,11 +120,18 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 				"arxiuNom=" + arxiuNom + ", " +
 				"arxiuContingut.length=" + ((arxiuContingut != null) ? arxiuContingut.length : "<null>") + ", " +
 				"data=" + data + ")");
-		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
+		
+		Expedient expedient;
+		
+		if (tramitSistra)
+			expedient = expedientRepository.findOne(expedientId);
+		else
+			expedient = expedientHelper.getExpedientComprovantPermisos(
 				expedientId,
 				new Permission[] {
 						ExtendedPermission.DOC_MANAGE,
 						ExtendedPermission.ADMINISTRATION});
+		
 		expedientHelper.comprovarInstanciaProces(
 				expedient,
 				processInstanceId);
@@ -276,16 +287,24 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 	@Transactional(readOnly = true)
 	public List<ExpedientDocumentDto> findAmbInstanciaProces(
 			Long expedientId,
-			String processInstanceId) {
+			String processInstanceId,
+			boolean tramitSistra) {
 		logger.debug("Consulta els documents de la instància de procés (" +
 				"expedientId=" + expedientId + ", " +
 				"processInstanceId=" + processInstanceId + ")");
-		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
+		
+		Expedient expedient;
+		
+		if (tramitSistra)
+			expedient = expedientRepository.findOne(expedientId);
+		else
+			expedient = expedientHelper.getExpedientComprovantPermisos(
 				expedientId,
 				true,
 				false,
 				false,
 				false);
+		
 		expedientHelper.comprovarInstanciaProces(
 				expedient,
 				processInstanceId);

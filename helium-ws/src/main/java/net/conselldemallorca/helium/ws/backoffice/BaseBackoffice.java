@@ -40,6 +40,7 @@ import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient.IniciadorTipus;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.hibernate.MapeigSistra;
+import net.conselldemallorca.helium.core.model.hibernate.MapeigSistra.TipusMapeig;
 import net.conselldemallorca.helium.core.model.hibernate.TramitSistra;
 import net.conselldemallorca.helium.core.model.service.DissenyService;
 import net.conselldemallorca.helium.core.util.EntornActual;
@@ -48,9 +49,13 @@ import net.conselldemallorca.helium.integracio.plugins.tramitacio.DadesTramit;
 import net.conselldemallorca.helium.integracio.plugins.tramitacio.DadesVistaDocument;
 import net.conselldemallorca.helium.integracio.plugins.tramitacio.DocumentTelematic;
 import net.conselldemallorca.helium.integracio.plugins.tramitacio.DocumentTramit;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDadaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TramitSistraDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TramitSistraEnumDto;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
+import net.conselldemallorca.helium.v3.core.api.service.ExpedientDadaService;
+import net.conselldemallorca.helium.v3.core.api.service.ExpedientDocumentService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientTipusService;
 
@@ -67,69 +72,21 @@ public abstract class BaseBackoffice {
 	@Autowired
 	private ExpedientTipusService expedientTipusService;
 	@Autowired
+	private ExpedientDadaService expedientDadaService;
+	@Autowired
+	private ExpedientDocumentService expedientDocumentService;
+	@Autowired
 	private ExpedientService expedientV3Service;
 	@Autowired
 	private ExpedientHelper expedientHelper;
 	@Autowired
 	private ConversioTipusHelper conversioTipusHelper;
 	
-	
-//	public int processarTramit(DadesTramit tramit) throws Exception {
-//		List<ExpedientTipus> candidats = dissenyService.findExpedientTipusAmbSistraTramitCodi(tramit.getIdentificador());
-//		for (ExpedientTipus expedientTipus: candidats) {
-//			String expedientTitol = null;
-//			if (expedientTipus.getTeTitol())
-//				expedientTitol = tramit.getNumero();
-//			/*String expedientNumero = null;
-//			if (expedientTipus.getTeNumero())
-//				expedientNumero = expedientService.getNumeroExpedientActual(
-//						expedientTipus.getEntorn().getId(),
-//						expedientTipus.getId());*/
-//			EntornActual.setEntornId(expedientTipus.getEntorn().getId());
-//			ExpedientDto expedientNou = expedientService.iniciar(
-//					expedientTipus.getEntorn().getId(),
-//					null,
-//					expedientTipus.getId(),
-//					null,
-//					null,
-//					null, // expedientNumero
-//					expedientTitol,
-//					tramit.getRegistreNumero(),
-//					tramit.getRegistreData(),
-//					new Long(tramit.getUnitatAdministrativa()),
-//					tramit.getIdioma(),
-//					!AutenticacioTipus.ANONIMA.equals(tramit.getAutenticacioTipus()),
-//					tramit.getTramitadorNif(),
-//					tramit.getTramitadorNom(),
-//					tramit.getInteressatNif(),
-//					tramit.getInteressatNom(),
-//					tramit.getRepresentantNif(),
-//					tramit.getRepresentantNom(),
-//					tramit.isAvisosHabilitats(),
-//					tramit.getAvisosEmail(),
-//					tramit.getAvisosSms(),
-//					tramit.isNotificacioTelematicaHabilitada(),
-//					getDadesInicials(expedientTipus, tramit),
-//					null,
-//					IniciadorTipus.SISTRA,
-//					Expedient.crearIniciadorCodiPerSistra(
-//							tramit.getNumero(),
-//							new Long(tramit.getClauAcces()).toString()),
-//					null,
-//					getDocumentsInicials(expedientTipus, tramit),
-//					getDocumentsAdjunts(expedientTipus, tramit));
-//			logger.info("S'ha creat un expedient del tipus " + expedientTipus.getCodi() + ": " + expedientNou.getIdentificador());
-//		}
-//		return candidats.size();
-//	}
-
-
-	
 	public int processarTramit(DadesTramit tramit) throws Exception {
 		List<TramitSistraDto> tramitsSistra = expedientTipusService.tramitSistraFindAmbSistraTramitCodi(tramit.getIdentificador());
 		for (TramitSistra tramitSistra: conversioTipusHelper.convertirList(tramitsSistra, TramitSistra.class)) {
 			if (tramitSistra.getTipus() == TramitSistraEnumDto.INICIAR_EXPEDIENT) {
-				crearExpedientPerTramit(tramit, tramitSistra.getExpedientTipus());
+				crearExpedientPerTramit(tramit, tramitSistra);
 			} else if (tramitSistra.getTipus() == TramitSistraEnumDto.EXECUTAR_ACCIO) {
 				executarAccioPerTramit(tramit, tramitSistra);
 			}
@@ -158,23 +115,23 @@ public abstract class BaseBackoffice {
 			if (expedient == null)
 				throw new NoTrobatException(Expedient.class, expedientId);
 			
-			if (tramitSistra.getAccio() != null)
-				expedientV3Service.accioExecutar(expedient.getId(), expedient.getProcessInstanceId(), tramitSistra.getAccio().getId());
-//				expedientService.executarAccio(expedient.getProcessInstanceId(), tramitSistra.getAccio().getCodi());
+			//actualitzem variables, documents i adjunts
+			updateDadesActuals(expedient, tramit, tramitSistra);
+			updateDocumentsActuals(expedient, tramit, tramitSistra);
 			
+			//executem l'acció
+			if (tramitSistra.getAccio() != null)
+				expedientV3Service.accioExecutarFromWs(expedient.getId(), expedient.getProcessInstanceId(), tramitSistra.getAccio().getId());
 			
 		}
 	}
 	
-	private void crearExpedientPerTramit(DadesTramit tramit, ExpedientTipus expedientTipus) {
+	private void crearExpedientPerTramit(DadesTramit tramit, TramitSistra tramitSistra) {
 		String expedientTitol = null;
+		ExpedientTipus expedientTipus = tramitSistra.getExpedientTipus();
 		if (expedientTipus.getTeTitol())
 			expedientTitol = tramit.getNumero();
-		/*String expedientNumero = null;
-		if (expedientTipus.getTeNumero())
-			expedientNumero = expedientService.getNumeroExpedientActual(
-					expedientTipus.getEntorn().getId(),
-					expedientTipus.getId());*/
+		
 		EntornActual.setEntornId(expedientTipus.getEntorn().getId());
 		ExpedientDto expedientNou = expedientService.iniciar(
 				expedientTipus.getEntorn().getId(),
@@ -199,15 +156,15 @@ public abstract class BaseBackoffice {
 				tramit.getAvisosEmail(),
 				tramit.getAvisosSms(),
 				tramit.isNotificacioTelematicaHabilitada(),
-				getDadesInicials(expedientTipus, tramit),
+				getDadesInicials(tramit, tramitSistra),
 				null,
 				IniciadorTipus.SISTRA,
 				Expedient.crearIniciadorCodiPerSistra(
 						tramit.getNumero(),
 						new Long(tramit.getClauAcces()).toString()),
 				null,
-				getDocumentsInicials(expedientTipus, tramit),
-				getDocumentsAdjunts(expedientTipus, tramit));
+				getDocumentsInicials(tramit, tramitSistra),
+				getDocumentsAdjunts(tramit, tramitSistra));
 		logger.info("S'ha creat un expedient del tipus " + expedientTipus.getCodi() + ": " + expedientNou.getIdentificador());
 	}
 	
@@ -221,26 +178,23 @@ public abstract class BaseBackoffice {
 		this.dissenyService = dissenyService;
 	}
 
-
-
 	protected abstract DadesVistaDocument getVistaDocumentTramit(
 			long referenciaCodi,
 			String referenciaClau,
 			String plantillaTipus,
 			String idioma);
 
-
 	private Map<String, Object> getDadesInicials(
-			ExpedientTipus expedientTipus,
-			DadesTramit tramit) {
+			DadesTramit tramit,
+			TramitSistra tramitSistra) {
 		
-		List<MapeigSistra> mapeigsSistra = dissenyService.findMapeigSistraVariablesAmbExpedientTipus(expedientTipus.getId());
+		List<MapeigSistra> mapeigsSistra = mapeigsPerTipus(tramitSistra.getMapeigSistras(), TipusMapeig.Variable);
 		if (mapeigsSistra.size() == 0)
 			return null;
 		
 		boolean trobat = false;
 		Map<String, Object> resposta = new HashMap<String, Object>();
-		List<CampTasca> campsTasca = getCampsStartTask(expedientTipus);
+		List<CampTasca> campsTasca = getCampsStartTask(tramitSistra.getExpedientTipus());
 		
 		for (MapeigSistra mapeig : mapeigsSistra){
 			trobat = true;
@@ -277,44 +231,16 @@ public abstract class BaseBackoffice {
 	}
 
 	private Map<String, DadesDocumentDto> getDocumentsInicials(
-			ExpedientTipus expedientTipus,
-			DadesTramit tramit) {
-		/*if (expedientTipus.getSistraTramitMapeigDocuments() == null)
-			return null;
-		Map<String, DadesDocumentDto> resposta = new HashMap<String, DadesDocumentDto>();
-		List<Document> documents = getDocuments(expedientTipus);
-		String[] parts = expedientTipus.getSistraTramitMapeigDocuments().split(";");
-		for (int i = 0; i < parts.length; i++) {
-			String[] parella = parts[i].split(":");
-			if (parella.length > 1) {
-				String varSistra = parella[0];
-				String varHelium = parella[1];
-				Document docHelium = null;
-				for (Document document: documents) {
-					if (document.getCodi().equalsIgnoreCase(varHelium)) {
-						docHelium = document;
-						break;
-					}
-				}
-				try {
-					if (docHelium != null)
-						resposta.put(
-								varHelium,
-								documentSistra(tramit, varSistra, docHelium));
-				} catch (Exception ex) {
-					logger.error("Error llegint dades del document de SISTRA", ex);
-				}
-			}
-		}
-		return resposta;*/
+			DadesTramit tramit,
+			TramitSistra tramitSistra) {
 		
-		List<MapeigSistra> mapeigsSistra = dissenyService.findMapeigSistraDocumentsAmbExpedientTipus(expedientTipus.getId());
+		List<MapeigSistra> mapeigsSistra = mapeigsPerTipus(tramitSistra.getMapeigSistras(), TipusMapeig.Document);
 		if (mapeigsSistra.size() == 0)
 			return null;
 		
 		boolean trobat = false;
 		Map<String, DadesDocumentDto> resposta = new HashMap<String, DadesDocumentDto>();
-		List<Document> documents = getDocuments(expedientTipus);
+		List<Document> documents = getDocuments(tramitSistra.getExpedientTipus());
 		
 		for (MapeigSistra mapeig : mapeigsSistra){
 			trobat = true;
@@ -345,23 +271,10 @@ public abstract class BaseBackoffice {
 	}
 
 	private List<DadesDocumentDto> getDocumentsAdjunts(
-			ExpedientTipus expedientTipus,
-			DadesTramit tramit) {
-		/*if (expedientTipus.getSistraTramitMapeigAdjunts() == null)
-			return null;
-		List<DadesDocumentDto> resposta = new ArrayList<DadesDocumentDto>();
-		String[] parts = expedientTipus.getSistraTramitMapeigAdjunts().split(";");
-		for (int i = 0; i < parts.length; i++) {
-			String varSistra = parts[i];
-			try {
-				resposta.addAll(documentsSistraAdjunts(tramit, varSistra));
-			} catch (Exception ex) {
-				logger.error("Error llegint dades del document de SISTRA", ex);
-			}
-		}
-		return resposta;*/
+			DadesTramit tramit,
+			TramitSistra tramitSistra) {
 		
-		List<MapeigSistra> mapeigsSistra = dissenyService.findMapeigSistraAdjuntsAmbExpedientTipus(expedientTipus.getId());
+		List<MapeigSistra> mapeigsSistra = mapeigsPerTipus(tramitSistra.getMapeigSistras(), TipusMapeig.Adjunt);
 		if (mapeigsSistra.size() == 0)
 			return null;
 		
@@ -384,7 +297,84 @@ public abstract class BaseBackoffice {
 		else
 			return null;
 	}
-
+	
+	private void updateDadesActuals(
+			Expedient expedient,
+			DadesTramit tramit,
+			TramitSistra tramitSistra) {
+		
+		List<MapeigSistra> mapeigsSistra = mapeigsPerTipus(tramitSistra.getMapeigSistras(), TipusMapeig.Variable);
+		if (mapeigsSistra.size() > 0) {
+			
+			List<ExpedientDadaDto> dadesExpedient = expedientDadaService.findAmbInstanciaProces(expedient.getId(), expedient.getProcessInstanceId(), true);
+			
+			for (MapeigSistra mapeig : mapeigsSistra) {
+				ExpedientDadaDto dadaHelium = null;
+				for (ExpedientDadaDto dadaExpedient: dadesExpedient) {
+					if (dadaExpedient.getVarCodi().equalsIgnoreCase(mapeig.getCodiHelium())) {
+						dadaHelium = dadaExpedient;
+						break;
+					}
+				}
+				try {
+					if (dadaHelium != null) {
+						Object valorSistra = valorVariableSistra(
+								tramit,
+								mapeig.getCodiHelium(),
+								mapeig.getCodiSistra());
+						
+						expedientDadaService.update(expedient.getId(), expedient.getProcessInstanceId(), dadaHelium.getVarCodi(), valorSistra, true);
+					}
+				} catch (Exception ex) {
+					logger.error("Error llegint dades del document de SISTRA", ex);
+				}
+			}
+		}
+	}
+	
+	private void updateDocumentsActuals(
+			Expedient expedient,
+			DadesTramit tramit,
+			TramitSistra tramitSistra) {
+		
+		List<MapeigSistra> mapeigsSistra = mapeigsPerTipus(tramitSistra.getMapeigSistras(), TipusMapeig.Document);
+		mapeigsSistra.addAll(mapeigsPerTipus(tramitSistra.getMapeigSistras(), TipusMapeig.Adjunt));
+		
+		if (mapeigsSistra.size() > 0) {
+			
+			List<ExpedientDocumentDto> documentsExpedient = expedientDocumentService.findAmbInstanciaProces(expedient.getId(), expedient.getProcessInstanceId(), true);
+			
+			for (MapeigSistra mapeig : mapeigsSistra) {
+				ExpedientDocumentDto docHelium = null;
+				for (ExpedientDocumentDto documentExpedient : documentsExpedient){
+					if (documentExpedient.getDocumentCodi().equalsIgnoreCase(mapeig.getCodiHelium())){
+						docHelium = documentExpedient;
+						break;
+					}
+				}
+				try {
+					if (docHelium != null) {
+						DadesDocumentDto document = documentSistra(tramit, mapeig.getCodiSistra(), null);
+						if (document != null) {
+							expedientDocumentService.createOrUpdate(
+									expedient.getId(), 
+									expedient.getProcessInstanceId(), 
+									docHelium.getDocumentId(), 
+									docHelium.getId(), 
+									document.getTitol(), 
+									document.getArxiuNom(), 
+									document.getArxiuContingut(), 
+									document.getData(),
+									true);
+						}
+					}
+				} catch (Exception ex) {
+					logger.error("Error llegint dades del document de SISTRA", ex);
+				}
+			}
+		}
+	}
+	
 	private Object valorVariableSistra(
 			DadesTramit tramit,
 			String varHelium,
@@ -456,8 +446,10 @@ public abstract class BaseBackoffice {
 		for (DocumentTramit document: tramit.getDocuments()) {
 			if (varSistra.equalsIgnoreCase(document.getIdentificador()) && document.getDocumentTelematic() != null) {
 				resposta = new DadesDocumentDto();
-				resposta.setIdDocument(varHelium.getId());
-				resposta.setCodi(varHelium.getCodi());
+				if (varHelium != null) {
+					resposta.setIdDocument(varHelium.getId());
+					resposta.setCodi(varHelium.getCodi());
+				}
 				resposta.setData(tramit.getData());
 				DocumentTelematic documentTelematic = document.getDocumentTelematic();
 				if (documentTelematic.getEstructurat() != null && documentTelematic.getEstructurat().booleanValue()) {
@@ -586,6 +578,16 @@ public abstract class BaseBackoffice {
 		DefinicioProcesDto definicioProces = dissenyService.findDarreraAmbExpedientTipus(expedientTipus.getId());
 		return dissenyService.findDocumentsAmbDefinicioProces(definicioProces.getId());
 	}
+	
+	private List<MapeigSistra> mapeigsPerTipus(List<MapeigSistra> mapeigsSistra, TipusMapeig tipus) {
+		List<MapeigSistra> mapeigsRetorn = new ArrayList<MapeigSistra>();
+		for (MapeigSistra mapeig: mapeigsSistra) {
+			if (mapeig.getTipus() == tipus)
+				mapeigsRetorn.add(mapeig);
+		}
+		
+		return mapeigsRetorn;
+	}
+	
 	private static final Log logger = LogFactory.getLog(BaseBackoffice.class);
-
 }

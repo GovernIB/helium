@@ -69,8 +69,6 @@ public class ExpedientDocumentController extends BaseExpedientController {
 	@Autowired
 	private PluginService pluginService;
 	
-
-
 	@RequestMapping(value = "/{expedientId}/document", method = RequestMethod.GET)
 	public String document(
 			HttpServletRequest request,
@@ -89,7 +87,8 @@ public class ExpedientDocumentController extends BaseExpedientController {
 			if (instanciaProces.getId().equals(expedient.getProcessInstanceId())) {
 				documentsInstancia = expedientDocumentService.findAmbInstanciaProces(
 						expedientId,
-						instanciaProces.getId());
+						instanciaProces.getId(),
+						false);
 			}
 			documents.put(instanciaProces, documentsInstancia);
 		}
@@ -117,7 +116,8 @@ public class ExpedientDocumentController extends BaseExpedientController {
 		InstanciaProcesDto instanciaProces = expedientService.getInstanciaProcesById(processInstanceId);
 		List<ExpedientDocumentDto> documentsProces = expedientDocumentService.findAmbInstanciaProces(
 				expedientId,
-				processInstanceId);
+				processInstanceId,
+				false);
 		Map<InstanciaProcesDto, List<ExpedientDocumentDto>> documents = new LinkedHashMap<InstanciaProcesDto, List<ExpedientDocumentDto>>();
 		List<PortasignaturesDto> portasignaturesPendent = expedientDocumentService.portasignaturesFindPendents(
 				expedientId,
@@ -181,7 +181,8 @@ public class ExpedientDocumentController extends BaseExpedientController {
 						command.getNom(),
 						command.getNomArxiu(),
 						command.getContingut(),
-						command.getData());
+						command.getData(),
+						false);
 			else
 				expedientDocumentService.crearDocumentInstanciaProces(expedientId, processInstanceId, command.getDocumentCodi(), command.getNomArxiu(), command.getContingut(), command.getData());
 			
@@ -263,7 +264,8 @@ public class ExpedientDocumentController extends BaseExpedientController {
 					command.getNom(),
 					command.getNomArxiu(),
 					command.getContingut(),
-					command.getData());
+					command.getData(),
+					false);
 			MissatgesHelper.success(request, getMessage(request, "info.document.guardat"));
         } catch (Exception ex) {
 			logger.error("No s'ha pogut guardar el document: expedientId: " + expedientId + " : documentStoreId : " + documentStoreId, ex);
@@ -558,7 +560,7 @@ public class ExpedientDocumentController extends BaseExpedientController {
 	private List<DocumentDto> getDocumentsNoUtilitzats(Long expedientId, String procesId) {
 		InstanciaProcesDto instanciaProces = expedientService.getInstanciaProcesById(procesId);
 		List<DocumentDto> documents = dissenyService.findDocumentsAmbDefinicioProcesOrdenatsPerCodi(instanciaProces.getDefinicioProces().getId());
-		List<ExpedientDocumentDto> documentsInstancia = expedientDocumentService.findAmbInstanciaProces(expedientId, procesId);
+		List<ExpedientDocumentDto> documentsInstancia = expedientDocumentService.findAmbInstanciaProces(expedientId, procesId, false);
 		if (documentsInstancia != null && documentsInstancia.size() > 0) {
 			List<DocumentDto> documentsNoUtilitzats = new ArrayList<DocumentDto>();
 			// Posa els codis dels documents utilitzats en un Set

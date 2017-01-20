@@ -54,7 +54,8 @@ public interface ExpedientDocumentService {
 			String titol,
 			String arxiuNom,
 			byte[] arxiuContingut,
-			Date data) throws NoTrobatException, PermisDenegatException;
+			Date data,
+			boolean tramitSistra) throws NoTrobatException, PermisDenegatException;
 
 	/**
 	 * Esborra un document d'una instància de procés.
@@ -94,7 +95,8 @@ public interface ExpedientDocumentService {
 	 */
 	public List<ExpedientDocumentDto> findAmbInstanciaProces(
 			Long expedientId,
-			String processInstanceId) throws NoTrobatException, PermisDenegatException;
+			String processInstanceId,
+			boolean tramitSistra) throws NoTrobatException, PermisDenegatException;
 
 	/**
 	 * Retorna un document d'una instància de procés de

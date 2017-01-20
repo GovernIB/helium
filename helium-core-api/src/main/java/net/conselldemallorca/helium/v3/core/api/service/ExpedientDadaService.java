@@ -63,7 +63,8 @@ public interface ExpedientDadaService {
 			Long expedientId,
 			String processInstanceId,
 			String varCodi,
-			Object varValor) throws NoTrobatException, PermisDenegatException;
+			Object varValor,
+			boolean tramitSistra) throws NoTrobatException, PermisDenegatException;
 
 	/**
 	 * Esborra una variable de la instància de procés.
@@ -120,7 +121,8 @@ public interface ExpedientDadaService {
 	 */
 	public List<ExpedientDadaDto> findAmbInstanciaProces(
 			Long expedientId,
-			String processInstanceId) throws NoTrobatException, PermisDenegatException;
+			String processInstanceId,
+			boolean tramitSistra) throws NoTrobatException, PermisDenegatException;
 
 	/**
 	 * Retorna la llista d'agrupacions de dades d'una instància

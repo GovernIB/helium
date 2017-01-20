@@ -1396,7 +1396,7 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 			Object[] params = (Object[])deserialize(ome.getExecucioMassiva().getParam2());
 			String idPI = exp.getProcessInstanceId();
 			if (idPI != null) {
-				expedientDadaService.update(exp.getId(), idPI, var, params[2]);
+				expedientDadaService.update(exp.getId(), idPI, var, params[2], false);
 			} else {
 				tascaService.updateVariable(exp.getId(), (String)params[1], var, params[2]);
 			}
@@ -1476,7 +1476,8 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 								doc.getDocumentNom(),
 								doc.getArxiuNom(),
 								null,
-								data);
+								data,
+								false);
 					} else if (doc.isSignat()) {
 						throw new Exception("Document signat: no es pot modificar");
 					} else if (doc.isRegistrat()) {
@@ -1496,7 +1497,8 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 							nom,
 							fileName,
 							contingut,
-							data);
+							data,
+							false);
 					mesuresTemporalsHelper.mesuraCalcular("Adjuntar document", "massiva", exp.getTipus().getNom());
 				// Modificar document
 				} else {
@@ -1510,7 +1512,8 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 								nom,
 								fileName,
 								contingut,
-								data);
+								data,
+								false);
 					} else if (doc.isSignat()) {
 						throw new Exception("Document signat: no es pot modificar");
 					} else if (doc.isRegistrat()) {

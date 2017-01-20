@@ -266,7 +266,8 @@ public class ExpedientDadaController extends BaseExpedientController {
 					expedientId,
 					procesId,
 					varCodi,
-					variables.get(varCodi));
+					variables.get(varCodi),
+					false);
 			MissatgesHelper.success(request, getMessage(request, "info.dada.proces.modificada") );
 		} catch (PermisDenegatException ex) {
 			MissatgesHelper.error(request, getMessage(request, "expedient.info.permis.no") );
@@ -521,7 +522,8 @@ public class ExpedientDadaController extends BaseExpedientController {
 //		List<CampDto> camps = expedientDadaService.findCampsDisponiblesOrdenatsPerCodi(expedientId, procesInstanceId);
 		List<ExpedientDadaDto> dadesInstancia = expedientDadaService.findAmbInstanciaProces(
 				expedientId,
-				procesInstanceId);
+				procesInstanceId,
+				false);
 		if (dadesInstancia != null) {
 			Collections.sort(
 				dadesInstancia, 
@@ -557,7 +559,8 @@ public class ExpedientDadaController extends BaseExpedientController {
 		// Obtenim les dades de la definició de procés
 		List<ExpedientDadaDto> dadesInstancia = expedientDadaService.findAmbInstanciaProces(
 				expedientId,
-				instaciaProcesId);
+				instaciaProcesId,
+				false);
 		if (dadesInstancia == null || dadesInstancia.isEmpty())
 			return null;
 		

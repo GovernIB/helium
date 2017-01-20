@@ -51,12 +51,14 @@ public class ExpedientDadaServiceBean implements ExpedientDadaService {
 			Long expedientId,
 			String processInstanceId,
 			String varCodi,
-			Object varValor) {
+			Object varValor,
+			boolean tramitSistra) {
 		delegate.update(
 				expedientId,
 				processInstanceId,
 				varCodi,
-				varValor);
+				varValor,
+				tramitSistra);
 	}
 
 	@Override
@@ -87,10 +89,12 @@ public class ExpedientDadaServiceBean implements ExpedientDadaService {
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public List<ExpedientDadaDto> findAmbInstanciaProces(
 			Long expedientId,
-			String processInstanceId) {
+			String processInstanceId,
+			boolean tramitSistra) {
 		return delegate.findAmbInstanciaProces(
 				expedientId,
-				processInstanceId);
+				processInstanceId,
+				tramitSistra);
 	}
 
 	@Override

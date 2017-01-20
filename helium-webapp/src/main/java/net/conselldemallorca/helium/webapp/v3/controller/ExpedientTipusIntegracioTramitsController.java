@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import net.conselldemallorca.helium.v3.core.api.dto.AccioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesExpedientDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.MapeigSistraDto.TipusMapeig;
@@ -200,6 +201,12 @@ public class ExpedientTipusIntegracioTramitsController extends BaseExpedientTipu
 			@PathVariable Long tramitSistraId,
 			@PathVariable TipusMapeig tipus,
 			Model model) {
+		
+		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
+		ExpedientTipusDto expedientTipus = expedientTipusService.findAmbIdPermisDissenyar(
+					entornActual.getId(),
+					expedientTipusId);
+		
 		model.addAttribute("expedientTipusId", expedientTipusId);
 		model.addAttribute("tramitSistraId", tramitSistraId);
 		model.addAttribute("tipus", tipus);
@@ -208,10 +215,13 @@ public class ExpedientTipusIntegracioTramitsController extends BaseExpedientTipu
 		command.setTramitSistraId(tramitSistraId);
 		command.setTipus(tipus);
 		model.addAttribute("expedientTipusIntegracioTramitsMapeigCommand", command);
-		if (tipus != TipusMapeig.Adjunt) 
+		if (tipus == TipusMapeig.Variable) { 
 			model.addAttribute("variables", obtenirParellesVariables(
-					expedientTipusId,
-					command.getTipus()));
+					expedientTipus));
+		} else if (tipus == TipusMapeig.Document) {
+			model.addAttribute("variables", obtenirParellesDocuments(
+					expedientTipus));
+		}
 
 		return "v3/expedientTipusIntegracioTramitsMapeig";
 	}
@@ -246,13 +256,21 @@ public class ExpedientTipusIntegracioTramitsController extends BaseExpedientTipu
 			BindingResult bindingResult,
 			Model model) {
         if (bindingResult.hasErrors()) {
+        	EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
+    		ExpedientTipusDto expedientTipus = expedientTipusService.findAmbIdPermisDissenyar(
+    					entornActual.getId(),
+    					expedientTipusId);
+        	
     		model.addAttribute("expedientTipusId", expedientTipusId);
     		model.addAttribute("tramitSistraId", tramitSistraId);
     		model.addAttribute("tipus", tipus);
-    		if (tipus != TipusMapeig.Adjunt) 
+    		if (tipus == TipusMapeig.Variable) { 
     			model.addAttribute("variables", obtenirParellesVariables(
-    				expedientTipusId,
-    				command.getTipus()));
+    					expedientTipus));
+    		} else if (tipus == TipusMapeig.Document) {
+    			model.addAttribute("variables", obtenirParellesDocuments(
+    					expedientTipus));
+    		}
         	model.addAttribute("mostraCreate", true);
         	
         	return "v3/expedientTipusIntegracioTramitsMapeig";
@@ -282,13 +300,21 @@ public class ExpedientTipusIntegracioTramitsController extends BaseExpedientTipu
 			BindingResult bindingResult,
 			Model model) {
 	    if (bindingResult.hasErrors()) {
+	    	EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
+			ExpedientTipusDto expedientTipus = expedientTipusService.findAmbIdPermisDissenyar(
+						entornActual.getId(),
+						expedientTipusId);
+	    	
     		model.addAttribute("expedientTipusId", expedientTipusId);
     		model.addAttribute("tramitSistraId", tramitSistraId);
     		model.addAttribute("tipus", tipus);
-    		if (tipus != TipusMapeig.Adjunt) 
+    		if (tipus == TipusMapeig.Variable) { 
     			model.addAttribute("variables", obtenirParellesVariables(
-    				expedientTipusId,
-    				command.getTipus()));
+    					expedientTipus));
+    		} else if (tipus == TipusMapeig.Document) {
+    			model.addAttribute("variables", obtenirParellesDocuments(
+    					expedientTipus));
+    		}
         	model.addAttribute("mostraUpdate", true);
         	return "v3/expedientTipusIntegracioTramitsMapeig";
         } else {
@@ -379,6 +405,7 @@ public class ExpedientTipusIntegracioTramitsController extends BaseExpedientTipu
 			Model model) {
 		TramitSistraDto dto = expedientTipusService.tramitSistraFindAmbId(id);
 		ExpedientTipusIntegracioTramitsSistraCommand command = conversioTipusHelper.convertir(dto, ExpedientTipusIntegracioTramitsSistraCommand.class);
+		command.setAccioId(dto.getAccio().getId());
 		
 		this.omplirModelVariableForm(
 				request, 
@@ -448,11 +475,19 @@ public class ExpedientTipusIntegracioTramitsController extends BaseExpedientTipu
 	 * @return
 	 */
 	private List<ParellaCodiValorDto> obtenirParellesVariables(
-			Long expedientTipusId,
-			TipusMapeig tipus) {
+			ExpedientTipusDto expedientTipus) {
 		List<ParellaCodiValorDto> resposta = new ArrayList<ParellaCodiValorDto>();
 		// Obté totes les variables del tipus d'expedient
-		List<CampDto> variables = campService.findAllOrdenatsPerCodi(expedientTipusId, null);
+		List<CampDto> variables;
+		
+		if (expedientTipus.isAmbInfoPropia()) {
+			variables = campService.findAllOrdenatsPerCodi(expedientTipus.getId(), null);
+		} else {
+			DefinicioProcesExpedientDto dpdto = dissenyService.getDefinicioProcesByTipusExpedientById(expedientTipus.getId());
+			variables = campService.findAllOrdenatsPerCodi(null, dpdto.getId());
+		}
+		
+		
 		// Crea les parelles de codi i valor
 		for (CampDto variable : variables) {
 			resposta.add(new ParellaCodiValorDto(
@@ -460,7 +495,30 @@ public class ExpedientTipusIntegracioTramitsController extends BaseExpedientTipu
 					variable.getCodi()));
 		}
 		return resposta;
-	}		
+	}	
+	
+	private List<ParellaCodiValorDto> obtenirParellesDocuments(
+			ExpedientTipusDto expedientTipus) {
+		List<ParellaCodiValorDto> resposta = new ArrayList<ParellaCodiValorDto>();
+		// Obté totes les variables del tipus d'expedient
+		
+		List<DocumentDto> documents; 
+		
+		if (expedientTipus.isAmbInfoPropia()) {
+			documents = documentService.findAll(expedientTipus.getId(), null);
+		} else {
+			DefinicioProcesExpedientDto dpdto = dissenyService.getDefinicioProcesByTipusExpedientById(expedientTipus.getId());
+			documents = documentService.findAll(null, dpdto.getId());
+		}
+		
+		// Crea les parelles de codi i valor
+		for (DocumentDto document : documents) {
+			resposta.add(new ParellaCodiValorDto(
+					document.getCodi() + " / " + document.getNom(),
+					document.getCodi()));
+		}
+		return resposta;
+	}
 	
 	private void omplirModelVariableForm(
 			HttpServletRequest request,

@@ -36,6 +36,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RespostaValidacioSignaturaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
+import net.conselldemallorca.helium.v3.core.api.exception.TramitacioException;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
 
 /**
@@ -616,6 +617,13 @@ public class ExpedientServiceBean implements ExpedientService {
 	public void actualitzaExpedientFromZonaPersonal(Long expedientId, String expedientTramitIdentificador,
 			String expedientTramitClau, IntegracioParametreDto[] parametres, long t0) throws NoTrobatException {
 		delegate.actualitzaExpedientFromZonaPersonal(expedientId, expedientTramitIdentificador, expedientTramitClau, parametres, t0);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public void accioExecutarFromWs(Long expedientId, String processInstanceId, Long accioId)
+			throws NoTrobatException, TramitacioException {
+		delegate.accioExecutarFromWs(expedientId, processInstanceId, accioId);
 	}
 
 }

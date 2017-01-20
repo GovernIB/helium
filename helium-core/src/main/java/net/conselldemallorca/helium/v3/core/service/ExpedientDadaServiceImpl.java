@@ -42,6 +42,7 @@ import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientDadaService;
 import net.conselldemallorca.helium.v3.core.repository.CampRepository;
 import net.conselldemallorca.helium.v3.core.repository.DefinicioProcesRepository;
+import net.conselldemallorca.helium.v3.core.repository.ExpedientRepository;
 import net.conselldemallorca.helium.v3.core.repository.RegistreRepository;
 
 
@@ -59,6 +60,8 @@ public class ExpedientDadaServiceImpl implements ExpedientDadaService {
 	private DefinicioProcesRepository definicioProcesRepository;
 	@Resource
 	private RegistreRepository registreRepository;
+	@Resource
+	private ExpedientRepository expedientRepository;
 
 	@Resource
 	private ExpedientHelper expedientHelper;
@@ -122,13 +125,20 @@ public class ExpedientDadaServiceImpl implements ExpedientDadaService {
 			Long expedientId,
 			String processInstanceId,
 			String varCodi,
-			Object varValor) {
+			Object varValor,
+			boolean tramitSistra) {
 		logger.debug("Modificant dada de la instància de procés (" +
 				"expedientId=" + expedientId + ", " +
 				"processInstanceId=" + processInstanceId + ", " +
 				"varCodi=" + varCodi + ", " +
 				"varValor=" + varValor + ")");
-		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
+		
+		Expedient expedient;
+		
+		if (tramitSistra)
+			expedient = expedientRepository.findOne(expedientId);
+		else
+			expedient = expedientHelper.getExpedientComprovantPermisos(
 				expedientId,
 				new Permission[] {
 						ExtendedPermission.DATA_MANAGE,
@@ -216,16 +226,24 @@ public class ExpedientDadaServiceImpl implements ExpedientDadaService {
 	@Transactional(readOnly = true)
 	public List<ExpedientDadaDto> findAmbInstanciaProces(
 			Long expedientId,
-			String processInstanceId) {
+			String processInstanceId,
+			boolean tramitSistra) {
 		logger.debug("Consultant les variables de la instància de procés (" +
 				"expedientId=" + expedientId + ", " +
 				"processInstanceId=" + processInstanceId + ")");
-		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
+		
+		Expedient expedient;
+		
+		if (tramitSistra)
+			expedient = expedientRepository.findOne(expedientId);
+		else
+			expedient = expedientHelper.getExpedientComprovantPermisos(
 				expedientId,
 				true,
 				false,
 				false,
 				false);
+		
 		if (processInstanceId == null) {
 			return variableHelper.findDadesPerInstanciaProces(
 					expedient.getProcessInstanceId(), 
