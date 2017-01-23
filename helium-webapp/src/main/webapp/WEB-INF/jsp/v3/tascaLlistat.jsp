@@ -57,12 +57,20 @@
 				tascaIdPerAgafar = null;
 				filtreActiu();
 				
-				<c:if test="${tascaConsultaCommand.consultaTramitacioMassivaTascaId == null}">
-					if (window['ambPermisReassignment'])
-						$('#btnTramitacio').show();
-					else
-						$('#btnTramitacio').hide();
-				</c:if>
+				if ( $('#expedientTipusId').val() == "") {
+					$('#botoReassignment').addClass('disabled');
+					$('#liReassignment').attr('title', "<spring:message code='expedient.llistat.accio.reassignar.expedient.tipus.buit'/>");
+				} else {
+					if (window['ambPermisReassignment']) {
+						$('#botoReassignment').removeClass('disabled');
+						$('#liReassignment').attr('title', '');
+					}
+					else {
+						$('#botoReassignment').addClass('disabled');
+						$('#liReassignment').attr('title', "<spring:message code='expedient.llistat.accio.reassignar.sense.permis'/>");
+					}
+				}
+				
 			}
 		});	
 		$('.date_time').datetimepicker({
@@ -86,6 +94,8 @@
 		});
 		<c:if test="${entornId != null}">
 			$('#expedientTipusId').on('change', function() {
+				// Neteja la selecció de tasques
+				$('#botoNetejarSeleccio').trigger('click');
 				var tipus = $(this).val();
 				$('#tasca').select2('val', '', true);
 				$('#tasca option[value!=""]').remove();
@@ -93,18 +103,23 @@
 				var entornId = ${entornId};
 				if ($(this).val())
 					value = $(this).val();
-				//tasques per expedientTipus
-				$.get('tasca/tasques/${entornId}/' + value)				
-				.done(function(data) {
-					for (var i = 0; i < data.length; i++) {
-						$('#tasca').append('<option value="' + data[i].codi + '">' + data[i].valor + '</option>');
-					}
-					//Es fa el submit del formulari per cercar automàticament per tipus de d'expedient
+				if (value < 0) {
+					// Neteja de la selecció
 					$('#consultar').trigger('click');
-				})
-				.fail(function() {
-					alert("<spring:message code="expedient.llistat.tasca.ajax.error"/>");
-				});
+				} else {
+					//tasques per expedientTipus
+					$.get('tasca/tasques/${entornId}/' + value)				
+					.done(function(data) {
+						for (var i = 0; i < data.length; i++) {
+							$('#tasca').append('<option value="' + data[i].codi + '">' + data[i].valor + '</option>');
+						}
+						//Es fa el submit del formulari per cercar automàticament per tipus de d'expedient
+						$('#consultar').trigger('click');
+					})
+					.fail(function() {
+						alert("<spring:message code="expedient.llistat.tasca.ajax.error"/>");
+					});
+				}
 				//permisos d'expedientTipus
 				if (value != undefined && value != "-1"){
 					$.get('tasca/expedientTipusAmbPermis/${entornId}/' + value)				
@@ -126,7 +141,6 @@
 			});
 			$('#expedientTipusId').select2().on("select2-removed", function(e) {
 				window['ambPermisReassignment'] = false;
-				$('#consultar').trigger('click');
 		    })
 			$('#expedientTipusId').trigger('change');
 		</c:if>
@@ -505,23 +519,21 @@
 				<c:choose>
 					<c:when test="${tascaConsultaCommand.consultaTramitacioMassivaTascaId == null}">
 						<a class="btn btn-default" href="../v3/tasca/seleccioTots" data-rdt-link-ajax="true" title="<spring:message code="expedient.llistat.accio.seleccio.tots"/>"><span class="fa fa-check-square-o"></span></a>
-						<a class="btn btn-default" href="../v3/tasca/seleccioNetejar" data-rdt-link-ajax="true" title="<spring:message code="expedient.llistat.accio.seleccio.netejar"/>"><span class="fa fa-square-o"></span></a>
+						<a id="botoNetejarSeleccio" class="btn btn-default" href="../v3/tasca/seleccioNetejar" data-rdt-link-ajax="true" title="<spring:message code="expedient.llistat.accio.seleccio.netejar"/>"><span class="fa fa-square-o"></span></a>
 						<button class="btn btn-default" data-toggle="dropdown"><span class="fa fa-cog"></span>&nbsp;<spring:message code="comu.boto.accions"/>&nbsp;<span id="reasignacioMassivaCount" class="badge">&nbsp;&nbsp;</span>&nbsp;<span class="caret"></span></button>
   						<ul class="dropdown-menu">
-  							<li><a id="botoReassignment" href="../v3/tasca/massivaReassignacioTasca" onclick="botoMassiuClick(this)" data-rdt-link-modal="true"><spring:message code="tasca.llistat.reassignacions.massiva"/></a></li>
+  							<li id="liReassignment"><a id="botoReassignment" class="btn" href="../v3/tasca/massivaReassignacioTasca" onclick="botoMassiuClick(this)" data-rdt-link-modal="true"><spring:message code="tasca.llistat.reassignacions.massiva"/></a></li>
   							<li><a id="botoAgafar" href="<c:url value="../v3/tasca/seleccioAgafar"/>" data-rdt-link-ajax="true"><spring:message code="tasca.llistat.agafar.seleccionats"/></a></li>
   						</ul>
 					</c:when>
 					<c:otherwise>
 						<a class="btn btn-default" href="#" onclick="seleccionarMassivaTodos()" title="<spring:message code="expedient.llistat.accio.seleccio.tots"/>"><span class="fa fa-check-square-o"></span></a>
-						<a class="btn btn-default" href="#" onclick="deseleccionarMassivaTodos()" title="<spring:message code="expedient.llistat.accio.seleccio.netejar"/>"><span class="fa fa-square-o"></span></a>
+						<a id="botoNetejarSeleccio" class="btn btn-default" href="#" onclick="deseleccionarMassivaTodos()" title="<spring:message code="expedient.llistat.accio.seleccio.netejar"/>"><span class="fa fa-square-o"></span></a>
 						<button class="btn btn-default" data-toggle="dropdown"><span class="fa fa-cog"></span>&nbsp;<spring:message code="comu.boto.accions"/>&nbsp;<span id="reasignacioMassivaCount" class="badge">&nbsp;&nbsp;</span>&nbsp;<span class="caret"></span></button>
  						<ul class="dropdown-menu">
- 							<c:if test="${not empty expedientTipus and expedientTipus.permisReassignment}">
- 								<li><a id="botoReassignment" href="<c:url value="../../../v3/tasca/massivaReassignacioTasca"/>" onclick="botoMassiuClick(this)" data-rdt-link-modal="true"><spring:message code="tasca.llistat.reassignacions.massiva"/></a></li>
- 							</c:if>
+							<li id="liReassignment"><a id="botoReassignment" class="btn" href="<c:url value="../../../v3/tasca/massivaReassignacioTasca"/>" onclick="botoMassiuClick(this)" data-rdt-link-modal="true"><spring:message code="tasca.llistat.reassignacions.massiva"/></a></li>
  							<li><a href="<c:url value="../../../v3/tasca/massivaTramitacioTasca"/>" onclick="botoMassiuClick(this)" data-rdt-link-modal="true" data-rdt-link-modal-maximize="true"><spring:message code="expedient.llistat.tramitacio.massiva"/>&nbsp;<span id="tramitacioMassivaCount" class="badge">&nbsp;</span></a></li>
- 							<li><a id="botoAgafar" href="<c:url value="../v3/tasca/seleccioAgafar"/>" data-rdt-link-ajax="true"><spring:message code="tasca.llistat.agafar.seleccionats"/></a></li>
+ 							<li><a id="botoAgafar" href="<c:url value="../../../v3/tasca/seleccioAgafar"/>" data-rdt-link-ajax="true"><spring:message code="tasca.llistat.agafar.seleccionats"/></a></li>
  						</ul>
 					</c:otherwise>
 				</c:choose>	
