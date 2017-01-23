@@ -369,7 +369,6 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 	public ExpedientTipusDto updateIntegracioTramits(
 			Long entornId, 
 			Long expedientTipusId, 
-			String tramitCodi,
 			boolean notificacionsActivades,
 			String notificacioOrganCodi,
 			String notificacioOficinaCodi,
@@ -383,12 +382,10 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		logger.debug(
 				"Modificant tipus d'expedient amb dades d'integracio amb tramits de Sistra (" +
 				"entornId=" + entornId + ", " +
-				"expedientTipus=" + expedientTipusId + ", " +
-				"tramitCodi=" + tramitCodi + ")");
+				"expedientTipus=" + expedientTipusId + ")");
 		
 		ExpedientTipus entity = expedientTipusHelper.getExpedientTipusComprovantPermisDisseny(expedientTipusId);
 
-		entity.setSistraTramitCodi(tramitCodi);
 		entity.setNotificacionsActivades(notificacionsActivades);
 		entity.setNotificacioOrganCodi(notificacioOrganCodi);
 		entity.setNotificacioOficinaCodi(notificacioOficinaCodi);

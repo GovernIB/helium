@@ -81,12 +81,12 @@ public class ExpedientTipusIntegracioTramitsController extends BaseExpedientTipu
 			
 			ExpedientTipusIntegracioTramitsCommand command = new ExpedientTipusIntegracioTramitsCommand();			
 			command.setId(expedientTipusId);
-			if (expedientTipus.getSistraTramitCodi() != null) {
-				command.setTramitCodi(expedientTipus.getSistraTramitCodi());
-				command.setActiu(true);
-			} else {
-				command.setActiu(false);
-			}
+//			if (expedientTipus.getSistraTramitCodi() != null) {
+//				command.setTramitCodi(expedientTipus.getSistraTramitCodi());
+//				command.setActiu(true);
+//			} else {
+//				command.setActiu(false);
+//			}
 			
 			command.setNotificacionsActivades(expedientTipus.isNotificacionsActivades());
 			command.setNotificacioOrganCodi(expedientTipus.getNotificacioOrganCodi());
@@ -143,43 +143,22 @@ public class ExpedientTipusIntegracioTramitsController extends BaseExpedientTipu
 		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
 		
 		if (entornActual != null) {
-			// Comprova que la url estigui informada si està activat
-			if (command.isActiu() && (command.getTramitCodi() == null || "".equals(command.getTramitCodi().trim()))) {
-				bindingResult.rejectValue("tramitCodi", "NotEmpty");
-			}
 	        if (bindingResult.hasErrors()) {
 	        	response = AjaxHelper.generarAjaxFormErrors(command, bindingResult);
 	        } else {
-	        	if (command.isActiu())
-	        		expedientTipusService.updateIntegracioTramits(
-	        				entornActual.getId(),
-	        				expedientTipusId,
-	        				command.getTramitCodi(),
-	        				command.isNotificacionsActivades(),
-	        				command.getNotificacioOrganCodi(),
-	        				command.getNotificacioOficinaCodi(),
-	        				command.getNotificacioUnitatAdministrativa(),
-	        				command.getNotificacioCodiProcediment(),
-	        				command.getNotificacioAvisTitol(),
-	        				command.getNotificacioAvisText(),
-	        				command.getNotificacioAvisTextSms(),
-	        				command.getNotificacioOficiTitol(),
-	        				command.getNotificacioOficiText());
-	        	else
-	        		expedientTipusService.updateIntegracioTramits(
-	        				entornActual.getId(),
-	        				expedientTipusId,
-	        				null,
-	        				command.isNotificacionsActivades(),
-	        				command.getNotificacioOrganCodi(),
-	        				command.getNotificacioOficinaCodi(),
-	        				command.getNotificacioUnitatAdministrativa(),
-	        				command.getNotificacioCodiProcediment(),
-	        				command.getNotificacioAvisTitol(),
-	        				command.getNotificacioAvisText(),
-	        				command.getNotificacioAvisTextSms(),
-	        				command.getNotificacioOficiTitol(),
-	        				command.getNotificacioOficiText());
+        		expedientTipusService.updateIntegracioTramits(
+        				entornActual.getId(),
+        				expedientTipusId,
+        				command.isNotificacionsActivades(),
+        				command.getNotificacioOrganCodi(),
+        				command.getNotificacioOficinaCodi(),
+        				command.getNotificacioUnitatAdministrativa(),
+        				command.getNotificacioCodiProcediment(),
+        				command.getNotificacioAvisTitol(),
+        				command.getNotificacioAvisText(),
+        				command.getNotificacioAvisTextSms(),
+        				command.getNotificacioOficiTitol(),
+        				command.getNotificacioOficiText());
 		        MissatgesHelper.success(
 						request, 
 						getMessage(

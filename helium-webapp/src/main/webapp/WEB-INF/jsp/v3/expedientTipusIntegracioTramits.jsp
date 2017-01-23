@@ -84,61 +84,11 @@
 		</script>
 		<script id="rowhrefTemplate" type="text/x-jsrender">${expedientTipus.id}/integracioTramit/update/{{:id}}</script>
 				
-	</c:when>
-	<c:otherwise>
-		<div class="well well-small"><spring:message code='expedient.dada.expedient.cap'/></div>
-	</c:otherwise>
-</c:choose>
-
-
-
-
-
-
-
-<c:choose>
-	<c:when test="${not empty expedientTipus}">
-
+		<hr>
+		
 		<form:form cssClass="form-horizontal" enctype="multipart/form-data" method="post" commandName="expedientTipusIntegracioTramitsCommand">
 			<div>        
 				<input type="hidden" id="id" name="id" value="${expedientTipusIntegracioTramitsCommand.id}"/>
-				<hel:inputCheckbox name="actiu" textKey="expedient.tipus.integracio.tramits.activar"/>
-				<div id="inputs_integracioTramits" style="display:${expedientTipusIntegracioTramitsCommand.actiu? 'inline' : 'none'}">
-					<hel:inputText required="true" name="tramitCodi" textKey="expedient.tipus.integracio.tramits.tramitCodi" />
-					Botons per obrir els formularis dels mapejos
-					<div class="form-group">
-						<label class="control-label col-xs-4" for="mapeigVariables">
-							<spring:message code="expedient.tipus.integracio.tramits.mapeig.variables"></spring:message>
-						</label>
-						<div class="col-xs-8">
-							<a id="mapeigVariables" href="${expedientTipus.id}/integracioTramits/mapeig/${tipusMapeigVariable}" data-toggle="modal" data-callback="callbackModalMapeig()" class="btn btn-default">
-								<spring:message code="expedient.tipus.integracio.tramits.variables"/>&nbsp;<span class="badge">${variablesCount}</span>
-							</a>
-						</div>
-					</div>		
-					<div class="form-group">
-						<label class="control-label col-xs-4" for="mapeigDocuments">
-							<spring:message code="expedient.tipus.integracio.tramits.mapeig.documents"></spring:message>
-						</label>
-						<div class="col-xs-8">
-							<a id="mapeigDocuments" href="${expedientTipus.id}/integracioTramits/mapeig/${tipusMapeigDocument}" data-toggle="modal" data-callback="callbackModalMapeig()" class="btn btn-default">
-								<spring:message code="expedient.tipus.integracio.tramits.documents"/>&nbsp;<span class="badge">${documentsCount}</span>
-							</a>
-						</div>				
-					</div>					
-					<div class="form-group">
-						<label class="control-label col-xs-4" for="mapeigAdjunts">
-							<spring:message code="expedient.tipus.integracio.tramits.mapeig.adjunts"></spring:message>
-						</label>
-						<div class="col-xs-8">
-							<a id="mapeigAdjunts" href="${expedientTipus.id}/integracioTramits/mapeig/${tipusMapeigAdjunt}" data-toggle="modal" data-callback="callbackModalMapeig()" class="btn btn-default">
-								<spring:message code="expedient.tipus.integracio.tramits.adjunts"/>&nbsp;<span class="badge">${adjuntsCount}</span>
-							</a>
-						</div>				
-					</div>					
-				</div>
-				
-				<hr>
 				
 				<hel:inputCheckbox name="notificacionsActivades" textKey="expedient.tipus.integracio.tramits.notificacions.activar"/>
 				<div id="inputs_integracioNotificacios" style="display:${expedientTipusIntegracioTramitsCommand.notificacionsActivades? 'inline' : 'none'}">
@@ -167,7 +117,7 @@
 			</div>
 				
 		</form:form>
-
+				
 	</c:when>
 	<c:otherwise>
 		<div class="well well-small"><spring:message code='expedient.dada.expedient.cap'/></div>
@@ -178,13 +128,6 @@
 // <![CDATA[    
             
 $(document).ready(function() {
-	$('#actiu', '#expedientTipusIntegracioTramitsCommand').change(function() {
-		if ($(this).is(':checked')) {
-			$('#inputs_integracioTramits').show();
-		} else {
-			$('#inputs_integracioTramits').hide();
-		}
-	});
 	$('#notificacionsActivades', '#expedientTipusIntegracioTramitsCommand').change(function() {
 		if ($(this).is(':checked')) {
 			$('#inputs_integracioNotificacios').show();

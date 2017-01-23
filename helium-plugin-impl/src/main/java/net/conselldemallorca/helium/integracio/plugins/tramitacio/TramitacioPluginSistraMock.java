@@ -71,9 +71,29 @@ public class TramitacioPluginSistraMock implements TramitacioPlugin {
 			docModificar.setDocumentTelematic(docTelModificar);
 			/////////////////////////
 			
+			
+			//document adjunt
+			File fileAdjunt = new File("C:/Feina/tramitdocs/adjunt.pdf");
+			byte[] bytesArray3 = new byte[(int) fileAdjunt.length()];
+			FileInputStream fis3 = new FileInputStream(fileAdjunt);
+			fis3.read(bytesArray3); //read file into bytes[]
+			fis3.close();
+			
+			DocumentTelematic docTelAdjunt = new DocumentTelematic();
+			docTelAdjunt.setArxiuExtensio("pdf");
+			docTelAdjunt.setArxiuContingut(bytesArray3);
+			docTelAdjunt.setArxiuNom("adjunt");
+			
+			DocumentTramit docAdjuntat = new DocumentTramit();
+			docAdjuntat.setInstanciaNumero(1);
+			docAdjuntat.setIdentificador("SISTRAADJUNT");
+			docAdjuntat.setDocumentTelematic(docTelAdjunt);
+			/////////////////////////
+			
 			List<DocumentTramit> documentsTramit = new ArrayList<DocumentTramit>();
 			documentsTramit.add(documentTramit);
 			documentsTramit.add(docModificar);
+			documentsTramit.add(docAdjuntat);
 			
 			dadesTramit.setDocuments(documentsTramit);
 			

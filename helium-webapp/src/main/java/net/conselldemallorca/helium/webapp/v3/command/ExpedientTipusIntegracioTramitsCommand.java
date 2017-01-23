@@ -15,9 +15,9 @@ public class ExpedientTipusIntegracioTramitsCommand {
 
 	@NotNull(groups = {Modificacio.class})
 	private Long id;
-	private boolean actiu;
-	@Size(max = 64, groups = {Modificacio.class})
-	private String tramitCodi;
+//	private boolean actiu;
+//	@Size(max = 64, groups = {Modificacio.class})
+//	private String tramitCodi;
 	
 	private boolean notificacionsActivades;
 	@NotNull(groups = {Modificacio.class})
@@ -48,18 +48,6 @@ public class ExpedientTipusIntegracioTramitsCommand {
 	}
 	public void setId(Long id) {
 		this.id = id;
-	}
-	public boolean isActiu() {
-		return actiu;
-	}
-	public void setActiu(boolean actiu) {
-		this.actiu = actiu;
-	}
-	public String getTramitCodi() {
-		return tramitCodi;
-	}
-	public void setTramitCodi(String tramitCodi) {
-		this.tramitCodi = tramitCodi;
 	}
 	
 	public boolean isNotificacionsActivades() {

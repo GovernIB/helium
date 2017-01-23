@@ -683,7 +683,6 @@ public class ExpedientTipusServiceBean implements ExpedientTipusService {
 	public ExpedientTipusDto updateIntegracioTramits(
 			Long entornId, 
 			Long expedientTipusId, 
-			String tramitCodi,
 			boolean notificacionsActivades, 
 			String notificacioOrganCodi, 
 			String notificacioOficinaCodi,
@@ -697,7 +696,6 @@ public class ExpedientTipusServiceBean implements ExpedientTipusService {
 		return delegate.updateIntegracioTramits(
 				entornId, 
 				expedientTipusId, 
-				tramitCodi, 
 				notificacionsActivades, 
 				notificacioOrganCodi, 
 				notificacioOficinaCodi, 

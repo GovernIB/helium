@@ -118,6 +118,7 @@ public abstract class BaseBackoffice {
 			//actualitzem variables, documents i adjunts
 			updateDadesActuals(expedient, tramit, tramitSistra);
 			updateDocumentsActuals(expedient, tramit, tramitSistra);
+			afegirAdjunts(expedient, tramit, tramitSistra);
 			
 			//executem l'acció
 			if (tramitSistra.getAccio() != null)
@@ -338,7 +339,6 @@ public abstract class BaseBackoffice {
 			TramitSistra tramitSistra) {
 		
 		List<MapeigSistra> mapeigsSistra = mapeigsPerTipus(tramitSistra.getMapeigSistras(), TipusMapeig.Document);
-		mapeigsSistra.addAll(mapeigsPerTipus(tramitSistra.getMapeigSistras(), TipusMapeig.Adjunt));
 		
 		if (mapeigsSistra.size() > 0) {
 			
@@ -347,7 +347,7 @@ public abstract class BaseBackoffice {
 			for (MapeigSistra mapeig : mapeigsSistra) {
 				ExpedientDocumentDto docHelium = null;
 				for (ExpedientDocumentDto documentExpedient : documentsExpedient){
-					if (documentExpedient.getDocumentCodi().equalsIgnoreCase(mapeig.getCodiHelium())){
+					if (!documentExpedient.isAdjunt() && documentExpedient.getDocumentCodi().equalsIgnoreCase(mapeig.getCodiHelium())){
 						docHelium = documentExpedient;
 						break;
 					}
@@ -367,6 +367,37 @@ public abstract class BaseBackoffice {
 									document.getData(),
 									true);
 						}
+					}
+				} catch (Exception ex) {
+					logger.error("Error llegint dades del document de SISTRA", ex);
+				}
+			}
+		}
+	}
+	
+	private void afegirAdjunts(
+			Expedient expedient,
+			DadesTramit tramit,
+			TramitSistra tramitSistra) {
+		
+		List<MapeigSistra> mapeigsSistra = mapeigsPerTipus(tramitSistra.getMapeigSistras(), TipusMapeig.Adjunt);
+		
+		if (mapeigsSistra.size() > 0) {
+			
+			for (MapeigSistra mapeig : mapeigsSistra) {
+				try {
+					DadesDocumentDto document = documentSistra(tramit, mapeig.getCodiSistra(), null);
+					if (document != null) {
+						expedientDocumentService.createOrUpdate(
+								expedient.getId(), 
+								expedient.getProcessInstanceId(), 
+								null,
+								null,
+								document.getTitol(), 
+								document.getArxiuNom(), 
+								document.getArxiuContingut(), 
+								document.getData(),
+								true);
 					}
 				} catch (Exception ex) {
 					logger.error("Error llegint dades del document de SISTRA", ex);

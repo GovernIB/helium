@@ -114,7 +114,6 @@ public interface ExpedientTipusService {
 	public ExpedientTipusDto updateIntegracioTramits(
 			Long entornId, 
 			Long expedientTipusId, 
-			String tramitCodi,
 			boolean notificacionsActivades,
 			String notificacioOrganCodi,
 			String notificacioOficinaCodi,
