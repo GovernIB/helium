@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
@@ -33,7 +32,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 import edu.emory.mathcs.backport.java.util.Arrays;
-import net.conselldemallorca.helium.core.helper.ExpedientTipusHelper;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
@@ -43,6 +41,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
 import net.conselldemallorca.helium.v3.core.api.service.AdminService;
 import net.conselldemallorca.helium.v3.core.api.service.DissenyService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
+import net.conselldemallorca.helium.v3.core.api.service.ExpedientTipusService;
 import net.conselldemallorca.helium.v3.core.api.service.TascaService;
 import net.conselldemallorca.helium.webapp.v3.command.TascaConsultaCommand;
 import net.conselldemallorca.helium.webapp.v3.datatables.DatatablesPagina;
@@ -69,10 +68,8 @@ public class TascaLlistatV3Controller extends BaseController {
 	private DissenyService dissenyService;
 	@Autowired
 	private ExpedientService expedientService;
-	
-	@Resource
-	private ExpedientTipusHelper expedientTipusHelper;
-
+	@Autowired
+	private ExpedientTipusService expedientTipusService;
 
 	@RequestMapping(method = RequestMethod.GET)
 	public String get(
@@ -90,10 +87,7 @@ public class TascaLlistatV3Controller extends BaseController {
 		if (filtreCommand.getExpedientTipusId() != null) {
 			model.addAttribute(
 					"expedientTipus",
-					expedientTipusHelper.getExpedientTipusComprovantPermisLectura(filtreCommand.getExpedientTipusId())
-					/*dissenyService.findExpedientTipusAmbPermisReadUsuariActual(
-							entornActual.getId(),
-							filtreCommand.getExpedientTipusId())*/);
+					expedientTipusService.findAmbIdPermisConsultar(entornActual.getId(), filtreCommand.getExpedientTipusId()));
 		}
 		return "v3/tascaLlistat";
 	}

@@ -1270,7 +1270,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 					ExpedientTipus.class,
 					new Permission[] {
 							ExtendedPermission.READ,
-							ExtendedPermission.WRITE,
+							ExtendedPermission.SUPERVISION,
 							ExtendedPermission.ADMINISTRATION},
 					auth);
 		}
@@ -1291,7 +1291,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 				"Consultant tipus d'expedient amb id i amb permisos de consulta (" +
 				"entornId=" + entornId + ", " +
 				"expedientTipusId = " + expedientTipusId + ")");
-		ExpedientTipus tipus = expedientTipusHelper.getExpedientTipusComprovantPermisDisseny(
+		ExpedientTipus tipus = expedientTipusHelper.getExpedientTipusComprovantPermisLectura(
 				expedientTipusId);
 		return conversioTipusHelper.convertir(
 				tipus,
