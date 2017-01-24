@@ -95,29 +95,29 @@ public class Notificacio implements Serializable, GenericEntity<Long> {
 	private String registreNumero;
 	@Column(name = "inter_doctip")
 	private InteressatDocumentTipusEnumDto interessatDocumentTipus;
-	@Column(name = "inter_docnum", length = 17)
+	@Column(name = "inter_docnum", length = 100)
 	private String interessatDocumentNum;
-	@Column(name = "inter_nom", length = 30)
+	@Column(name = "inter_nom", length = 100)
 	private String interessatNom;
-	@Column(name = "inter_lling1", length = 30)
+	@Column(name = "inter_lling1", length = 100)
 	private String interessatLlinatge1;
-	@Column(name = "inter_lling2", length = 30)
+	@Column(name = "inter_lling2", length = 100)
 	private String interessatLlinatge2;
-	@Column(name = "inter_paicod", length = 4)
+	@Column(name = "inter_paicod", length = 100)
 	private String interessatPaisCodi;
-	@Column(name = "inter_prvcod", length = 2)
+	@Column(name = "inter_prvcod", length = 100)
 	private String interessatProvinciaCodi;
-	@Column(name = "inter_muncod", length = 5)
+	@Column(name = "inter_muncod", length = 100)
 	private String interessatMunicipiCodi;
 	@Column(name = "inter_email", length = 160)
 	private String interessatEmail;
 	@Column(name = "inter_repres")
 	private boolean interessatRepresentant;
-	@Column(name = "unitat_adm", length = 9)
+	@Column(name = "unitat_adm", length = 100)
 	private String unitatAdministrativa;
-	@Column(name = "organ_codi", length = 9)
+	@Column(name = "organ_codi", length = 100)
 	private String organCodi;
-	@Column(name = "oficina_codi", length = 4)
+	@Column(name = "oficina_codi", length = 100)
 	private String oficinaCodi;
 	@Column(name = "avis_titol", length = 256)
 	private String avisTitol;
@@ -129,7 +129,7 @@ public class Notificacio implements Serializable, GenericEntity<Long> {
 	private String oficiTitol;
 	@Column(name = "ofici_text", length = 1024)
 	private String oficiText;
-	@Column(name = "idioma", length = 2)
+	@Column(name = "idioma", length = 32)
 	@Enumerated(EnumType.STRING)
 	private InteressatIdiomaEnumDto idioma;
 	@Column(name = "enviam_data")

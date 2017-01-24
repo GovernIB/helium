@@ -89,13 +89,13 @@ public class ExpedientTipus implements Serializable, GenericEntity<Long> {
 	private String diesNoLaborables;
 	
 	private boolean notificacionsActivades;
-	@MaxLength(9)
+	@MaxLength(100)
 	private String notificacioOrganCodi;
-	@MaxLength(4)
+	@MaxLength(100)
 	private String notificacioOficinaCodi;
-	@MaxLength(9)
+	@MaxLength(100)
 	private String notificacioUnitatAdministrativa;
-	@MaxLength(30)
+	@MaxLength(100)
 	private String notificacioCodiProcediment;
 	@MaxLength(256)
 	private String notificacioAvisTitol;
@@ -343,7 +343,7 @@ public class ExpedientTipus implements Serializable, GenericEntity<Long> {
 		this.notificacionsActivades = notificacionsActivades;
 	}
 	
-	@Column(name="notificacio_organcodi", length = 9)
+	@Column(name="notificacio_organcodi", length = 100)
 	public String getNotificacioOrganCodi() {
 		return notificacioOrganCodi;
 	}
@@ -351,7 +351,7 @@ public class ExpedientTipus implements Serializable, GenericEntity<Long> {
 		this.notificacioOrganCodi = notificacioOrganCodi;
 	}
 	
-	@Column(name="notificacio_oficinacodi", length = 4)
+	@Column(name="notificacio_oficinacodi", length = 100)
 	public String getNotificacioOficinaCodi() {
 		return notificacioOficinaCodi;
 	}
@@ -359,7 +359,7 @@ public class ExpedientTipus implements Serializable, GenericEntity<Long> {
 		this.notificacioOficinaCodi = notificacioOficinaCodi;
 	}
 	
-	@Column(name="notificacio_unitatadmin", length = 9)
+	@Column(name="notificacio_unitatadmin", length = 100)
 	public String getNotificacioUnitatAdministrativa() {
 		return notificacioUnitatAdministrativa;
 	}
@@ -367,7 +367,7 @@ public class ExpedientTipus implements Serializable, GenericEntity<Long> {
 		this.notificacioUnitatAdministrativa = notificacioUnitatAdministrativa;
 	}
 	
-	@Column(name="notificacio_codproc", length = 30)
+	@Column(name="notificacio_codproc", length = 100)
 	public String getNotificacioCodiProcediment() {
 		return notificacioCodiProcediment;
 	}

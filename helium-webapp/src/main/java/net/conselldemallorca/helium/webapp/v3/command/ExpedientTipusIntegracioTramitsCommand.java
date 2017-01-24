@@ -21,16 +21,16 @@ public class ExpedientTipusIntegracioTramitsCommand {
 	
 	private boolean notificacionsActivades;
 	@NotNull(groups = {Modificacio.class})
-	@Size(max = 9, groups = {Modificacio.class})
+	@Size(max = 100, groups = {Modificacio.class})
 	private String notificacioOrganCodi;
 	@NotNull(groups = {Modificacio.class})
-	@Size(max = 4, groups = {Modificacio.class})
+	@Size(max = 100, groups = {Modificacio.class})
 	private String notificacioOficinaCodi;
 	@NotNull(groups = {Modificacio.class})
-	@Size(max = 9, groups = {Modificacio.class})
+	@Size(max = 100, groups = {Modificacio.class})
 	private String notificacioUnitatAdministrativa;
 	@NotNull(groups = {Modificacio.class})
-	@Size(max = 30, groups = {Modificacio.class})
+	@Size(max = 100, groups = {Modificacio.class})
 	private String notificacioCodiProcediment;
 	@Size(max = 256, groups = {Modificacio.class})
 	private String notificacioAvisTitol;
