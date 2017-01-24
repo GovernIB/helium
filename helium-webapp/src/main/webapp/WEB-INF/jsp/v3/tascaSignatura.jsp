@@ -21,7 +21,6 @@
 	.signarTramitacio form {padding-top: 25px;}
 	.signarTramitacio .col-xs-4 {width: 20%;}
 	.signarTramitacio .col-xs-10 {width: 80%;padding-right: 0px;}		
-	.signarTramitacio .iconos {display: inline;}
 	.signarTramitacio .inlineLabels a {margin-left: 10px;}
 	.signarTramitacio .select2-container a {margin-left: 0px;}
 	.signarTramitacio .select2-container {width: 100% !important;}
@@ -77,7 +76,6 @@
 								</a>
 							</c:if>
 							
-							<div id="iconos${document.id}" class="iconos"></div>							
 							</h4>
 							<c:if test="${!bloquejarEdicioTasca}">
 								<div id="firmar${document.id}">
@@ -87,9 +85,12 @@
 											<c:otherwise><c:set var="stils" value="uniForm"/></c:otherwise>
 										</c:choose>
 										<form:form id="form${document.id}" action="${globalProperties['app.base.url']}/modal/v3/tasca/${tasca.id}/signarAmbToken" cssClass="${stils}" method="POST" onsubmit="return false;">
-											<input type="hidden" id="docId${document.id}" name="docId" value="${document.id}"/>
-											<input type="hidden" id="taskId${document.id}" name="taskId" value="${tasca.id}"/>
-											<input type="hidden" id="token${document.id}" name="token" value="${document.tokenSignatura}"/>
+											<input type="text" id="docId${document.id}" name="docId" value="${document.id}"/>
+											<input type="text" id="taskId${document.id}" name="taskId" value="${tasca.id}"/>
+											<input type="text" id="token${document.id}" name="token" value="${document.tokenSignatura}"/>
+											
+											<input type="text" id="data0'" name="data" value="safs234j2io4j234jo"/>
+											<input type="submit" value="Submit">
 											
 											<div class="form-group">
 												<label class="control-label col-xs-4" id="lcerts${document.id}" for="certs${document.id}"><spring:message code="tasca.signa.camp.cert"/></label>
@@ -149,7 +150,6 @@
 							
 							<script type="text/javascript">
 								$(document).ready( function() {
-									$("#iconos${document.id}").load('<c:url value="/nodeco/v3/tasca/${tasca.id}/icones/${document.id}"/>');// Comprobar fichero
 									
 									$.get("${sourceUrl}?token=${document.tokenSignatura}")
 									.done(function(data) {})
@@ -192,11 +192,10 @@
 
 <script type="text/javascript">
 $(document).ready(function() {
-	
 	docWriteWrapper($('#applet'), function () {
 		var attributes = {
 				id: 'signaturaApplet',
-				code: 'net.conselldemallorca.helium.applet.signatura.SignaturaCaibApplet',
+				code: 'net.conselldemallorca.helium.applet.signatura.SignaturaMockApplet',
 				archive: '<c:url value="/signatura/caib/helium-applet.jar"/>',
 				width: 1,
 				height: 1};

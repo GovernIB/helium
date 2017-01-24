@@ -937,17 +937,6 @@ public class TascaTramitacioController extends BaseTascaController {
 		return "v3/import/tasquesMassivaTaula";
 	}
 
-	@RequestMapping(value = "/{tascaId}/icones/{docId}", method = RequestMethod.GET)
-	public String icones(
-			HttpServletRequest request,
-			@PathVariable String tascaId,
-			@PathVariable Long docId,
-			Model model) {
-		model.addAttribute("document", tascaService.findDocument(tascaId, docId));
-		model.addAttribute("tasca", tascaService.findAmbIdPerTramitacio(tascaId));
-		return "v3/expedientTascaTramitacioSignarIcones";
-	}
-
 	@InitBinder
 	public void initBinder(WebDataBinder binder) {
 		binder.registerCustomEditor(
