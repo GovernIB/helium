@@ -201,6 +201,16 @@ public interface DissenyService {
 	public List<CampDto> findCampsOrdenatsPerCodi(
 			Long expedientTipusId,
 			Long definicioProcesId);
+	
+	/** Retorna la llista de documents definits al tius d'expedient si està informat i està cofigurat amb informació pròpia o 
+	 * la llista de documents de la definició de procés si està informat. El resultat està ordentat per codi.
+	 * @param expedientTipusId
+	 * @param definicioProcesId
+	 * @return
+	 */
+	public List<DocumentDto> findDocumentsOrdenatsPerCodi(
+			Long expedientTipusId,
+			Long definicioProcesId);
 
 	/** Retorna la informació de disseny d'una definició de procés donat l'identificador de l'entorn i l'id de
 	 * la definició de procés. */

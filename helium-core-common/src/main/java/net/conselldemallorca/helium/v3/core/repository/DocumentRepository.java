@@ -27,6 +27,7 @@ public interface DocumentRepository extends JpaRepository<Document, Long> {
 	List<Document> findByDefinicioProces(DefinicioProces definicioProces);
 	List<Document> findByExpedientTipus(ExpedientTipus expedientTipus);
 	List<Document> findByDefinicioProcesOrderByCodiAsc(DefinicioProces definicioProces);
+	List<Document> findByExpedientTipusOrderByCodiAsc(ExpedientTipus expedientTipus);
 	
 	Document findByDefinicioProcesAndCodi(DefinicioProces definicioProces, String codi);
 	Document findByExpedientTipusAndCodi(ExpedientTipus expedientTipus, String codi);

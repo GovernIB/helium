@@ -661,6 +661,34 @@ public class DissenyServiceImpl implements DissenyService {
 			camps = new ArrayList<Camp>();
 		return conversioTipusHelper.convertirList(camps, CampDto.class);
 	}	
+	
+	@Override
+	@Transactional(readOnly=true)
+	public List<DocumentDto> findDocumentsOrdenatsPerCodi(
+			Long expedientTipusId,
+			Long definicioProcesId) {
+		
+		ExpedientTipus expedientTipus = null;
+		DefinicioProces definicioProces = null;
+		if (expedientTipusId != null) {
+			expedientTipus = expedientTipusRepository.findOne(expedientTipusId);
+			if (expedientTipus == null)
+				throw new NoTrobatException(ExpedientTipus.class, expedientTipusId);
+		}
+		if (definicioProcesId != null) {
+			definicioProces = definicioProcesRepository.findOne(definicioProcesId);
+			if (definicioProces == null)
+				throw new NoTrobatException(DefinicioProces.class, definicioProcesId);
+		}
+		List<Document> documents;
+		if (expedientTipus != null && expedientTipus.isAmbInfoPropia()) {
+			documents = documentRepository.findByExpedientTipusOrderByCodiAsc(expedientTipus);
+		} else if (definicioProces != null) {
+			documents = documentRepository.findByDefinicioProcesOrderByCodiAsc(definicioProces);
+		} else 
+			documents = new ArrayList<Document>();
+		return conversioTipusHelper.convertirList(documents, DocumentDto.class);
+	}	
 
 	@Override
 	@Transactional(readOnly=true)

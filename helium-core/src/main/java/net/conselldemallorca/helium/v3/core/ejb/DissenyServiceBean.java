@@ -331,4 +331,10 @@ public class DissenyServiceBean implements DissenyService {
 			throws NoTrobatException {
 		return delegate.findDocumentsAmbDefinicioProcesOrdenatsPerCodi(definicioProcesId);
 	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public List<DocumentDto> findDocumentsOrdenatsPerCodi(Long expedientTipusId, Long definicioProcesId) {
+		return delegate.findDocumentsOrdenatsPerCodi(expedientTipusId, definicioProcesId);
+	}
 }

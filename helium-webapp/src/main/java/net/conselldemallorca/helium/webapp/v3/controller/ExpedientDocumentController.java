@@ -557,7 +557,12 @@ public class ExpedientDocumentController extends BaseExpedientController {
 	
 	private List<DocumentDto> getDocumentsNoUtilitzats(Long expedientId, String procesId) {
 		InstanciaProcesDto instanciaProces = expedientService.getInstanciaProcesById(procesId);
-		List<DocumentDto> documents = dissenyService.findDocumentsAmbDefinicioProcesOrdenatsPerCodi(instanciaProces.getDefinicioProces().getId());
+		ExpedientDto expedient = expedientService.findAmbId(expedientId);
+		
+		List<DocumentDto> documents = dissenyService.findDocumentsOrdenatsPerCodi(
+				expedient.getTipus().getId(),
+				instanciaProces.getDefinicioProces().getId());
+		
 		List<ExpedientDocumentDto> documentsInstancia = expedientDocumentService.findAmbInstanciaProces(expedientId, procesId);
 		if (documentsInstancia != null && documentsInstancia.size() > 0) {
 			List<DocumentDto> documentsNoUtilitzats = new ArrayList<DocumentDto>();
