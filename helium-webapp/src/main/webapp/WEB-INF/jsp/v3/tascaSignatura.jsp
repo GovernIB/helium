@@ -85,12 +85,9 @@
 											<c:otherwise><c:set var="stils" value="uniForm"/></c:otherwise>
 										</c:choose>
 										<form:form id="form${document.id}" action="${globalProperties['app.base.url']}/modal/v3/tasca/${tasca.id}/signarAmbToken" cssClass="${stils}" method="POST" onsubmit="return false;">
-											<input type="text" id="docId${document.id}" name="docId" value="${document.id}"/>
-											<input type="text" id="taskId${document.id}" name="taskId" value="${tasca.id}"/>
-											<input type="text" id="token${document.id}" name="token" value="${document.tokenSignatura}"/>
-											
-											<input type="text" id="data0'" name="data" value="safs234j2io4j234jo"/>
-											<input type="submit" value="Submit">
+											<input type="hidden" id="docId${document.id}" name="docId" value="${document.id}"/>
+											<input type="hidden" id="taskId${document.id}" name="taskId" value="${tasca.id}"/>
+											<input type="hidden" id="token${document.id}" name="token" value="${document.tokenSignatura}"/>
 											
 											<div class="form-group">
 												<label class="control-label col-xs-4" id="lcerts${document.id}" for="certs${document.id}"><spring:message code="tasca.signa.camp.cert"/></label>

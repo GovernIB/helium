@@ -76,21 +76,34 @@ public class BaseTascaController extends BaseController {
 		
 		model.addAttribute("nomesLectura", nomesLectura);		
 		
-		model.addAttribute(
-				"hasFormulari",
-				tascaService.hasFormulari(tascaId));
-		model.addAttribute(
-				"hasDocuments",
-				tascaService.hasDocuments(tascaId));
-		model.addAttribute(
-				"hasSignatures",
-				tascaService.hasSignatures(tascaId));
+		String pipellaPerDefecte = null;
+		if (tascaService.hasFormulari(tascaId)) {
+			model.addAttribute(
+					"hasFormulari",
+					true);
+			pipellaPerDefecte = "form";
+		}
+		if (tascaService.hasDocuments(tascaId)) {
+			model.addAttribute(
+					"hasDocuments",
+					true);
+			if (pipellaPerDefecte == null || ( tasca.isValidada() && ! tasca.isDocumentsComplet()))
+				pipellaPerDefecte = "document";
+		}
+		if (tascaService.hasSignatures(tascaId)) {
+			model.addAttribute(
+					"hasSignatures",
+					true);
+			if (pipellaPerDefecte == null || ( tasca.isValidada() && tasca.isDocumentsComplet() && ! tasca.isSignaturesComplet()))
+				pipellaPerDefecte = "signatura";
+		}
 		if (pipellaActiva != null)
 			model.addAttribute("pipellaActiva", pipellaActiva);
 		else if (request.getParameter("pipellaActiva") != null)
 			model.addAttribute("pipellaActiva", request.getParameter("pipellaActiva").substring("pipella-".length()));
-		else
-			model.addAttribute("pipellaActiva", "form");
+		else {
+			model.addAttribute("pipellaActiva", pipellaPerDefecte != null ? pipellaPerDefecte : "form");
+		}
 		model.addAttribute("isModal", ModalHelper.isModal(request));
 		
 		Map<String, Object> datosTramitacionMasiva = getDatosTramitacionMasiva(request);

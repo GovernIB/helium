@@ -139,12 +139,12 @@ public class TascaTramitacioController extends BaseTascaController {
 			MissatgesHelper.warning(request, getMessage(request, "expedient.tasca.segon.pla.bloquejada"));
 		}
 		
-		try {
+		try {			
 			return mostrarInformacioTascaPerPipelles(
 					request,
 					tascaId,
 					model,
-					"form");
+					null);
 		} catch (Exception ex) {
 			MissatgesHelper.warning(request, getMessage(request, "expedient.tasca.segon.pla.finalitzada"));
 			if (ModalHelper.isModal(request)) {
