@@ -30,6 +30,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.TascaDto;
 import net.conselldemallorca.helium.v3.core.api.service.CampService;
 import net.conselldemallorca.helium.v3.core.api.service.DefinicioProcesService;
 import net.conselldemallorca.helium.v3.core.api.service.DocumentService;
+import net.conselldemallorca.helium.v3.core.api.service.EnumeracioService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientTipusService;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientTipusExportarCommand;
 import net.conselldemallorca.helium.webapp.v3.helper.MessageHelper;
@@ -48,6 +49,8 @@ public class ExpedientTipusExportarValidator implements ConstraintValidator<Expe
 	protected CampService campService;
 	@Autowired
 	DocumentService documentService;
+	@Autowired
+	private EnumeracioService enumeracioService;
 	
 	@Override
 	public void initialize(ExpedientTipusExportar anotacio) {
@@ -65,9 +68,9 @@ public class ExpedientTipusExportarValidator implements ConstraintValidator<Expe
 			
 			// Conjunt d'enumeracions i dominis del tipus d'expedient per comprovar si les dependències són globals
 			// O no s'han escollit
-			Set<String> enumeracions = new HashSet<String>();
-			for (EnumeracioDto e : expedientTipusService.enumeracioFindAll(command.getId()))
-				enumeracions.add(e.getCodi());
+			Set<String> enumeracionsGlobals = new HashSet<String>();
+			for (EnumeracioDto e : enumeracioService.findAmbEntorn(command.getEntornId()))
+				enumeracionsGlobals.add(e.getCodi());
 			Set<String> dominis = new HashSet<String>();
 			for (DominiDto d : expedientTipusService.dominiFindAll(command.getId()))
 				dominis.add(d.getCodi());
@@ -129,7 +132,7 @@ public class ExpedientTipusExportarValidator implements ConstraintValidator<Expe
 					// Comprova les dependències del camp de tipus seleció
 					if (camp.getEnumeracio() != null)
 						if (!command.getEnumeracions().contains(camp.getEnumeracio().getCodi())
-								&& enumeracions.contains(camp.getEnumeracio().getCodi()) ) {
+								&& !enumeracionsGlobals.contains(camp.getEnumeracio().getCodi()) ) {
 							context.buildConstraintViolationWithTemplate(
 									MessageHelper.getInstance().getMessage(
 											this.codiMissatge + ".variable.seleccio.enumeracio", 

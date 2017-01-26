@@ -629,7 +629,7 @@ public class ExpedientTipusVariableController extends BaseVariableController {
 				model);
 		
 		// Enumeracions
-		model.addAttribute("enumeracions", expedientTipusService.enumeracioFindAll(expedientTipusId));
+		model.addAttribute("enumeracions", expedientTipusService.enumeracioFindAll(expedientTipusId, true));
 		
 		// Dominis
 		model.addAttribute("dominis", expedientTipusService.dominiFindAll(expedientTipusId));

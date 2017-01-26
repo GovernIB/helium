@@ -9,6 +9,7 @@ import net.conselldemallorca.helium.v3.core.api.service.CampService;
 import net.conselldemallorca.helium.v3.core.api.service.DefinicioProcesService;
 import net.conselldemallorca.helium.v3.core.api.service.DissenyService;
 import net.conselldemallorca.helium.v3.core.api.service.DocumentService;
+import net.conselldemallorca.helium.v3.core.api.service.EnumeracioService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientTipusService;
 import net.conselldemallorca.helium.v3.core.api.service.TerminiService;

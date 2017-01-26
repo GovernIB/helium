@@ -24,6 +24,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EnumeracioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusEnumeracioValorDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
+import net.conselldemallorca.helium.v3.core.api.service.EnumeracioService;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientTipusEnumeracioValorCommand;
 import net.conselldemallorca.helium.webapp.v3.helper.ConversioTipusHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.DatatablesHelper;
@@ -40,6 +41,9 @@ import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
 @RequestMapping("/v3/expedientTipus")
 public class ExpedientTipusEnumeracioValorController extends BaseExpedientTipusController {
 	
+	@Autowired
+	protected EnumeracioService enumeracioService;
+
 	@Autowired
 	private ConversioTipusHelper conversioTipusHelper;	
 	
@@ -66,7 +70,12 @@ public class ExpedientTipusEnumeracioValorController extends BaseExpedientTipusC
 			@PathVariable Long enumeracioId,
 			Model model) {
 		PaginacioParamsDto paginacioParams = DatatablesHelper.getPaginacioDtoFromRequest(request);
-		return DatatablesHelper.getDatatableResponse(request, null, expedientTipusService.enumeracioValorsFindPerDatatable(expedientTipusId, enumeracioId, paginacioParams.getFiltre(), paginacioParams));
+		return DatatablesHelper.getDatatableResponse(
+				request, 
+				null, 
+				enumeracioService.valorFindPerDatatable(
+						enumeracioId, 
+						paginacioParams.getFiltre(), paginacioParams));
 	}
 	
 	@RequestMapping(value = "/{expedientTipusId}/enumeracio/{enumeracioId}/valor/{id}/moure/{posicio}", method = RequestMethod.GET)
@@ -78,7 +87,7 @@ public class ExpedientTipusEnumeracioValorController extends BaseExpedientTipusC
 			@PathVariable Long id,
 			@PathVariable int posicio,
 			Model model) {
-		return expedientTipusService.enumeracioValorMourer(id, posicio);
+		return enumeracioService.valorMoure(id, posicio);
 	}
 
 	@RequestMapping(value = "/{expedientTipusId}/enumeracio/{enumeracioId}/valor/{id}/update", method = RequestMethod.GET)
@@ -88,7 +97,7 @@ public class ExpedientTipusEnumeracioValorController extends BaseExpedientTipusC
 			@PathVariable Long enumeracioId,
 			@PathVariable Long id,
 			Model model) {
-		ExpedientTipusEnumeracioValorDto dto = expedientTipusService.enumeracioValorFindAmbId(id);
+		ExpedientTipusEnumeracioValorDto dto = enumeracioService.valorFindAmbId(id);
 		ExpedientTipusEnumeracioValorCommand command = conversioTipusHelper.convertir(dto, ExpedientTipusEnumeracioValorCommand.class);
 		ompleDadesModel(request, expedientTipusId, enumeracioId, model, false);		
 		model.addAttribute("expedientTipusEnumeracioValorCommand", command);
@@ -115,10 +124,10 @@ public class ExpedientTipusEnumeracioValorController extends BaseExpedientTipusC
 			ExpedientTipusEnumeracioValorDto dto = ExpedientTipusEnumeracioValorCommand.asExpedientTipusEnumeracioValorDto(command);
 			
 			//Conservam l´ordre anteriro
-			ExpedientTipusEnumeracioValorDto dto_antic = expedientTipusService.enumeracioValorFindAmbId(id);
+			ExpedientTipusEnumeracioValorDto dto_antic = enumeracioService.valorFindAmbId(id);
 			dto.setOrdre(dto_antic.getOrdre());
 			
-			expedientTipusService.enumeracioValorUpdate(dto);
+			enumeracioService.valorUpdate(dto);
 			
 			ompleDadesModel(request, expedientTipusId, enumeracioId, model, true);
 			
@@ -140,7 +149,7 @@ public class ExpedientTipusEnumeracioValorController extends BaseExpedientTipusC
 			@PathVariable Long id,
 			Model model) {
 		try {
-			expedientTipusService.enumeracioValorDelete(id);
+			enumeracioService.valorDelete(id);
 			
 			MissatgesHelper.success(
 					request,
@@ -178,7 +187,7 @@ public class ExpedientTipusEnumeracioValorController extends BaseExpedientTipusC
 			ExpedientTipusEnumeracioValorDto dto = ExpedientTipusEnumeracioValorCommand.asExpedientTipusEnumeracioValorDto(command);
 			EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
 			
-			expedientTipusService.enumeracioValorsCreate(expedientTipusId, enumeracioId, entornActual.getId(), dto);
+			enumeracioService.valorsCreate(expedientTipusId, enumeracioId, entornActual.getId(), dto);
 			
 			MissatgesHelper.success(
 					request,
@@ -212,7 +221,7 @@ public class ExpedientTipusEnumeracioValorController extends BaseExpedientTipusC
 			} else {
 				
 				if (eliminarValorsAntics != null && eliminarValorsAntics) {
-					expedientTipusService.enumeracioDeleteAllByEnumeracio(enumeracioId);
+					enumeracioService.enumeracioDeleteAllByEnumeracio(enumeracioId);
 				}
 				
 				BufferedReader br = new BufferedReader(new InputStreamReader(multipartFile.getInputStream()));
@@ -229,7 +238,7 @@ public class ExpedientTipusEnumeracioValorController extends BaseExpedientTipusC
 			        	}
 			        	enumeracioValors.setCodi(codi);
 			        	enumeracioValors.setNom(columnes[1]);
-			        	expedientTipusService.enumeracioValorsCreate(expedientTipusId, enumeracioId, entornActual.getId(), enumeracioValors);
+			        	enumeracioService.valorsCreate(expedientTipusId, enumeracioId, entornActual.getId(), enumeracioValors);
 					}
 					linia = br.readLine();
 				}
@@ -264,7 +273,7 @@ public class ExpedientTipusEnumeracioValorController extends BaseExpedientTipusC
 			ExpedientTipusDto expedientTipus = expedientTipusService.findAmbIdPermisDissenyar(entornActual.getId(),	expedientTipusId);
 			model.addAttribute("expedientTipus", expedientTipus);
 			
-			EnumeracioDto enumeracio = expedientTipusService.enumeracioFindAmbId(enumeracioId);
+			EnumeracioDto enumeracio = enumeracioService.findAmbId(enumeracioId);
 			model.addAttribute("enumeracio", enumeracio);
 			
 			if (ficaCommand) {

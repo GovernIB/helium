@@ -49,7 +49,6 @@ import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
 import net.conselldemallorca.helium.core.model.hibernate.Document;
 import net.conselldemallorca.helium.core.model.hibernate.Domini;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
-import net.conselldemallorca.helium.core.model.hibernate.Enumeracio;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.hibernate.Tasca;
 import net.conselldemallorca.helium.core.security.ExtendedPermission;
@@ -65,7 +64,6 @@ import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesVersioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DominiDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
-import net.conselldemallorca.helium.v3.core.api.dto.EnumeracioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
@@ -908,23 +906,6 @@ public class DissenyServiceImpl implements DissenyService {
 		return pagina;
 	}
 	//////////////////////
-
-	@Override
-	@Transactional(readOnly = true)
-	public EnumeracioDto enumeracioFindAmbCodi(Long entornId, String codi) {
-		EnumeracioDto ret = null;
-		logger.debug(
-				"Consultant l'enumeració per codi (" +
-				"entornId=" + entornId + ", " +
-				"codi = " + codi + ")");
-		Entorn entorn = entornRepository.findOne(entornId);
-		Enumeracio enumeracio = enumeracioRepository.findByEntornAndCodi(entorn, codi);
-		if (enumeracio != null)
-			ret = conversioTipusHelper.convertir(
-					enumeracio,
-					EnumeracioDto.class);
-		return ret; 
-	}
 	
 	@Override
 	@Transactional(readOnly = true)

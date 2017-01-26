@@ -34,6 +34,7 @@ import net.conselldemallorca.helium.v3.core.api.service.CampService;
 import net.conselldemallorca.helium.v3.core.api.service.DefinicioProcesService;
 import net.conselldemallorca.helium.v3.core.api.service.DissenyService;
 import net.conselldemallorca.helium.v3.core.api.service.DocumentService;
+import net.conselldemallorca.helium.v3.core.api.service.EnumeracioService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientTipusService;
 import net.conselldemallorca.helium.webapp.v3.command.DefinicioProcesExportarCommand;
 import net.conselldemallorca.helium.webapp.v3.helper.MessageHelper;
@@ -73,6 +74,8 @@ public class DefinicioProcesImportarValidator implements ConstraintValidator<Def
 	DocumentService documentService;
 	@Autowired
 	DissenyService dissenyService;
+	@Autowired
+	EnumeracioService enumeracioService;
 	@Autowired
 	private HttpServletRequest request;
 	
@@ -229,10 +232,16 @@ public class DefinicioProcesImportarValidator implements ConstraintValidator<Def
 						EnumeracioDto enumeracio = null;
 						if (expedientTipus != null)
 							// Busca primer dins del tipus d'expedient
-							enumeracio = expedientTipusService.enumeracioFindAmbCodi(expedientTipus.getId(), camp.getCodiEnumeracio());
+							enumeracio = enumeracioService.findAmbCodi(
+									entornActual.getId(),
+									expedientTipus.getId(), 
+									camp.getCodiEnumeracio());
 						if (enumeracio == null)
 							// Si no el troba busca a l'entorn
-							enumeracio = dissenyService.enumeracioFindAmbCodi(entornActual.getId(), camp.getCodiEnumeracio());
+							enumeracio = enumeracioService.findAmbCodi(
+									entornActual.getId(), 
+									null, 
+									camp.getCodiEnumeracio());
 						if (enumeracio == null) {
 							// enumeracio no trobada
 							context.buildConstraintViolationWithTemplate(

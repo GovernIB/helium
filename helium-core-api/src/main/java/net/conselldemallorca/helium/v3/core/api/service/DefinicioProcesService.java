@@ -7,7 +7,6 @@ import net.conselldemallorca.helium.v3.core.api.dto.ConsultaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DominiDto;
-import net.conselldemallorca.helium.v3.core.api.dto.EnumeracioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.FirmaTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
@@ -482,19 +481,6 @@ public interface DefinicioProcesService {
 	 */
 	public List<TerminiDto> terminiFindAll(
 			Long definicioProcesId) throws NoTrobatException, PermisDenegatException;
-
-	/**
-	 * Retorna les enumeracions de l'entorn
-	 * 
-	 * @param entornId
-	 *            Atribut id de l'entorn
-	 * @return les enumeracions de l'entorn
-	 * @throws NoTrobatException
-	 *             Si no s'ha trobat el registre amb l'id especificat.
-	 * @throws PermisDenegatException
-	 *             Si no es tenen els permisos necessaris.
-	 */
-	public List<EnumeracioDto> enumeracioFindByEntorn(Long entornId) throws NoTrobatException, PermisDenegatException;
 
 	/**
 	 * Retorna els dominis de l'entorn

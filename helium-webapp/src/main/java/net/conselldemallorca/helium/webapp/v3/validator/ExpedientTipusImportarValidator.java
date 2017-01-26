@@ -39,6 +39,7 @@ import net.conselldemallorca.helium.v3.core.api.exportacio.RegistreMembreExporta
 import net.conselldemallorca.helium.v3.core.api.exportacio.TascaExportacio;
 import net.conselldemallorca.helium.v3.core.api.service.DefinicioProcesService;
 import net.conselldemallorca.helium.v3.core.api.service.DissenyService;
+import net.conselldemallorca.helium.v3.core.api.service.EnumeracioService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientTipusService;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientTipusExportarCommand;
 import net.conselldemallorca.helium.webapp.v3.helper.MessageHelper;
@@ -57,6 +58,8 @@ public class ExpedientTipusImportarValidator implements ConstraintValidator<Expe
 	DissenyService dissenyService;
 	@Autowired
 	DefinicioProcesService definicioProcesService;
+	@Autowired
+	EnumeracioService enumeracioService;
 	@Autowired
 	private HttpServletRequest request;
 	
@@ -119,6 +122,13 @@ public class ExpedientTipusImportarValidator implements ConstraintValidator<Expe
     			expedientTipus = expedientTipusService.findAmbIdPermisDissenyar(
     					entornActual.getId(),
     					command.getId());
+    		
+    		// Conjunt d'enumeracions i dominis del tipus d'expedient per comprovar si les dependències són globals
+    		// O no s'han escollit
+    		Set<String> enumeracionsGlobals = new HashSet<String>();
+    		for (EnumeracioDto e : enumeracioService.findAmbEntorn(entornActual.getId()))
+    			enumeracionsGlobals.add(e.getCodi());
+
     		// Si l'expedient destí està configurat amb info propia llavors haurà de tenir els camps i 
     		// els documents definits per a les tasques de les definicions de procés.
     		boolean isAmbInfoPropia = expedientTipus != null && expedientTipus.isAmbInfoPropia();
@@ -194,7 +204,8 @@ public class ExpedientTipusImportarValidator implements ConstraintValidator<Expe
 				}  else if (camp.getTipus() == CampTipusDto.SELECCIO) {
 					// Comprova les dependències del camp de tipus seleció
 					if (camp.getCodiEnumeracio() != null && !"".equals(camp.getCodiEnumeracio().trim()))
-						if (!command.getEnumeracions().contains(camp.getCodiEnumeracio())) {
+						if (!command.getEnumeracions().contains(camp.getCodiEnumeracio())
+								&& !enumeracionsGlobals.contains(camp.getCodiEnumeracio())) {
 							context.buildConstraintViolationWithTemplate(
 									MessageHelper.getInstance().getMessage(
 											this.codiMissatge + ".variable.seleccio.enumeracio", 
@@ -400,13 +411,15 @@ public class ExpedientTipusImportarValidator implements ConstraintValidator<Expe
 						EnumeracioDto e = null;
 						if (expedientTipus != null)
 							// Primer busca dins el tipus d'expedient
-							e = expedientTipusService.enumeracioFindAmbCodi(
+							e = enumeracioService.findAmbCodi(
+									entornActual.getId(),
 									expedientTipus.getId(), 
 									campExportacio.getCodiEnumeracio());
 						if (e == null)
 							// Si no el troba cerca dins de l'entorn
-							e = dissenyService.enumeracioFindAmbCodi(
+							e = enumeracioService.findAmbCodi(
 									entornActual.getId(), 
+									null, 
 									campExportacio.getCodiEnumeracio());
 						if (e == null) {
 							context.buildConstraintViolationWithTemplate(

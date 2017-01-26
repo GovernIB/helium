@@ -19,6 +19,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EnumeracioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.exception.ValidacioException;
+import net.conselldemallorca.helium.v3.core.api.service.EnumeracioService;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientTipusEnumeracioCommand;
 import net.conselldemallorca.helium.webapp.v3.helper.ConversioTipusHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.DatatablesHelper;
@@ -35,6 +36,9 @@ import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
 @Controller(value = "expedientTipusEnumeracioControllerV3")
 @RequestMapping("/v3/expedientTipus")
 public class ExpedientTipusEnumeracioController extends BaseExpedientTipusController {
+
+	@Autowired
+	protected EnumeracioService enumeracioService;
 
 	@Autowired
 	private ConversioTipusHelper conversioTipusHelper;
@@ -58,9 +62,15 @@ public class ExpedientTipusEnumeracioController extends BaseExpedientTipusContro
 	@RequestMapping(value = "/{expedientTipusId}/enumeracio/datatable", method = RequestMethod.GET)
 	@ResponseBody
 	DatatablesResponse datatable(HttpServletRequest request, @PathVariable Long expedientTipusId, Model model) {
+		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
 		PaginacioParamsDto paginacioParams = DatatablesHelper.getPaginacioDtoFromRequest(request);
-		return DatatablesHelper.getDatatableResponse(request, null, expedientTipusService
-				.enumeracioFindPerDatatable(expedientTipusId, paginacioParams.getFiltre(), paginacioParams));
+		return DatatablesHelper.getDatatableResponse(request, null, enumeracioService
+				.findPerDatatable(
+						entornActual.getId(),
+						expedientTipusId, 
+						false, // incloure globals
+						paginacioParams.getFiltre(), 
+						paginacioParams));
 	}
 
 	@RequestMapping(value = "/{expedientTipusId}/enumeracio/new", method = RequestMethod.GET)
@@ -85,7 +95,7 @@ public class ExpedientTipusEnumeracioController extends BaseExpedientTipusContro
 				EnumeracioDto dto = ExpedientTipusEnumeracioCommand.asEnumeracioDto(command);
 				EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
 				
-				expedientTipusService.enumeracioCreate(expedientTipusId, entornActual.getId(), dto);
+				enumeracioService.create(entornActual.getId(), expedientTipusId, dto);
 				
 	    		MissatgesHelper.success(
 						request, 
@@ -106,7 +116,7 @@ public class ExpedientTipusEnumeracioController extends BaseExpedientTipusContro
 			@PathVariable Long expedientTipusId, 
 			@PathVariable Long id,
 			Model model) {
-		EnumeracioDto dto = expedientTipusService.enumeracioFindAmbId(id);
+		EnumeracioDto dto = enumeracioService.findAmbId(id);
 		ExpedientTipusEnumeracioCommand command = conversioTipusHelper.convertir(dto, ExpedientTipusEnumeracioCommand.class);
 		model.addAttribute("expedientTipusEnumeracioCommand", command);
 		return "v3/expedientTipusEnumeracioForm";
@@ -124,7 +134,7 @@ public class ExpedientTipusEnumeracioController extends BaseExpedientTipusContro
 				return "v3/expedientTipusEnumeracioForm";
 			} else {
 				EnumeracioDto dto = ExpedientTipusEnumeracioCommand.asEnumeracioDto(command);
-				expedientTipusService.enumeracioUpdate(dto);
+				enumeracioService.update(dto);
 				
 	    		MissatgesHelper.success(
 						request, 
@@ -145,7 +155,7 @@ public class ExpedientTipusEnumeracioController extends BaseExpedientTipusContro
 			Model model) {
 
 		try {
-			expedientTipusService.enumeracioDelete(id);
+			enumeracioService.delete(id);
 			MissatgesHelper.success(request, getMessage(request, "expedient.tipus.enumeracio.controller.eliminat"));
 			return true;
 		}catch (ValidacioException ex) {
@@ -154,5 +164,5 @@ public class ExpedientTipusEnumeracioController extends BaseExpedientTipusContro
 		}
 	}
 	
-	private static final Log logger = LogFactory.getLog(ExpedientTipusDocumentController.class);
+	private static final Log logger = LogFactory.getLog(ExpedientTipusEnumeracioController.class);
 }

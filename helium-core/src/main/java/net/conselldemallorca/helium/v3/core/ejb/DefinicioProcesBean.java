@@ -17,7 +17,6 @@ import net.conselldemallorca.helium.v3.core.api.dto.ConsultaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DominiDto;
-import net.conselldemallorca.helium.v3.core.api.dto.EnumeracioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.FirmaTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
@@ -276,12 +275,6 @@ public class DefinicioProcesBean implements DefinicioProcesService {
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public DefinicioProcesDto findAmbIdAndEntorn(Long entornId, Long definicioProcesId) throws NoTrobatException {
 		return delegate.findAmbIdAndEntorn(entornId, definicioProcesId);
-	}
-
-	@Override
-	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public List<EnumeracioDto> enumeracioFindByEntorn(Long entornId) throws NoTrobatException, PermisDenegatException {
-		return delegate.enumeracioFindByEntorn(entornId);
 	}
 
 	@Override

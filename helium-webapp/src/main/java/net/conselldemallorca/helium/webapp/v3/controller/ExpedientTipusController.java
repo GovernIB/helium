@@ -398,7 +398,7 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 		model.addAttribute("definicions", definicions);		
 		model.addAttribute("definicionsVersions", versionsMap);
 		model.addAttribute("darreresVersions", darreresVersionsMap);
-		model.addAttribute("enumeracions", expedientTipusService.enumeracioFindAll(expedientTipusId));
+		model.addAttribute("enumeracions", expedientTipusService.enumeracioFindAll(expedientTipusId, false));
 		model.addAttribute("documents", documentService.findAll(expedientTipusId, null));
 		model.addAttribute("terminis", terminiService.findAll(expedientTipusId, null));
 		model.addAttribute("accions", accioService.findAll(expedientTipusId, null));

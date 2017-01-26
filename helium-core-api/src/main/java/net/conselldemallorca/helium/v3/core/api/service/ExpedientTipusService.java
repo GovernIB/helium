@@ -11,7 +11,6 @@ import net.conselldemallorca.helium.v3.core.api.dto.DominiDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EnumeracioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusEnumeracioValorDto;
 import net.conselldemallorca.helium.v3.core.api.dto.MapeigSistraDto;
 import net.conselldemallorca.helium.v3.core.api.dto.MapeigSistraDto.TipusMapeig;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
@@ -20,7 +19,6 @@ import net.conselldemallorca.helium.v3.core.api.dto.PermisDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ReassignacioDto;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
-import net.conselldemallorca.helium.v3.core.api.exception.ValidacioException;
 import net.conselldemallorca.helium.v3.core.api.exportacio.ExpedientTipusExportacio;
 import net.conselldemallorca.helium.v3.core.api.exportacio.ExpedientTipusExportacioCommandDto;;
 
@@ -381,7 +379,9 @@ public interface ExpedientTipusService {
 	 * @throws PermisDenegatException
 	 *             Si no es tenen els permisos necessaris.
 	 */
-	public List<EnumeracioDto> enumeracioFindAll(Long expedientTipusId);
+	public List<EnumeracioDto> enumeracioFindAll(
+			Long expedientTipusId,
+			boolean incloureGlobals);
 
 	/**
 	 * Retorna els dominis per a un tipus d'expedient.
@@ -408,67 +408,6 @@ public interface ExpedientTipusService {
 	 *             Si no es tenen els permisos necessaris.
 	 */
 	public List<ConsultaDto> consultaFindAll(Long expedientTipusId);
-
-	/***********************************************/
-	/*****************ENUMERACIONS******************/
-	/***********************************************/
-
-	public PaginaDto<EnumeracioDto> enumeracioFindPerDatatable(
-			Long expedientTipusId,
-			String filtre, 
-			PaginacioParamsDto paginacioParams) throws NoTrobatException;
-	
-	public EnumeracioDto enumeracioCreate(
-			Long expedientTipusId, 
-			Long entornId,
-			EnumeracioDto enumeracio) throws PermisDenegatException;
-	
-	public EnumeracioDto enumeracioFindAmbCodi(
-			Long expedientTipusId,
-			String codi);
-	
-	public void enumeracioDelete(
-			Long enumeracioId) throws NoTrobatException, PermisDenegatException;
-	
-	public EnumeracioDto enumeracioFindAmbId(
-			Long enumeracioId) throws NoTrobatException;
-	
-	public EnumeracioDto enumeracioUpdate(
-			EnumeracioDto enumeracio) throws NoTrobatException, PermisDenegatException;
-	
-	/***********************************************/
-	/***************VALORS ENUMERACIO***************/
-	/***********************************************/
-
-	public PaginaDto<ExpedientTipusEnumeracioValorDto> enumeracioValorsFindPerDatatable(
-			Long expedientTipusId,
-			Long enumeracioId,
-			String filtre, 
-			PaginacioParamsDto paginacioParams) throws NoTrobatException;
-	
-	public ExpedientTipusEnumeracioValorDto enumeracioValorsCreate(
-			Long expedientTipusId, 
-			Long enumeracioId,
-			Long entornId,
-			ExpedientTipusEnumeracioValorDto enumeracio) throws PermisDenegatException;
-	
-	public void enumeracioValorDelete(
-			Long valorId) throws NoTrobatException, PermisDenegatException;
-	
-	public void enumeracioDeleteAllByEnumeracio(Long enumeracioId) throws NoTrobatException, PermisDenegatException, ValidacioException;
-	
-	public ExpedientTipusEnumeracioValorDto enumeracioValorFindAmbCodi(
-			Long expedientTipusId,
-			Long enumeracioId,
-			String codi) throws NoTrobatException;	
-	
-	public ExpedientTipusEnumeracioValorDto enumeracioValorFindAmbId(
-			Long valorId) throws NoTrobatException;
-	
-	public ExpedientTipusEnumeracioValorDto enumeracioValorUpdate(
-			ExpedientTipusEnumeracioValorDto enumeracio) throws NoTrobatException, PermisDenegatException;
-	
-	public boolean enumeracioValorMourer(Long valorId, int posicio) throws NoTrobatException;
 	
 	/** 
 	 * Retorna la llista de codis de definicions de procés per poder seleccionar

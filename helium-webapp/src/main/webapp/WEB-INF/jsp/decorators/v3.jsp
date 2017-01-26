@@ -180,6 +180,7 @@
 								<ul class="dropdown-menu">
 									<c:if test="${potDissenyarEntorn}">
 										<li><a href="<c:url value="/v3/definicioProces"/>"><spring:message code='decorators.entorn.defs_proces' /></a></li>
+										<li><a href="<c:url value="/v3/enumeracio"/>"><spring:message code='decorators.entorn.enumeracions' /></a></li>
 									</c:if>
 									<li><a href="<c:url value="/v3/expedientTipus"/>"><spring:message code='decorator.menu.disseny.tipus.expedient' /></a></li>
 									<li role="separator" class="divider"></li>

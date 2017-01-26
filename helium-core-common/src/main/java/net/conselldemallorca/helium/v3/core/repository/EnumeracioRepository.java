@@ -34,7 +34,7 @@ public interface EnumeracioRepository extends JpaRepository<Enumeracio, Long> {
 			String codi);
 	
 	List<Enumeracio> findByEntorn(Entorn entorn);
-
+	
 	@Query(	"from " +
 			"    Enumeracio enu " +
 			"where " +
@@ -56,13 +56,27 @@ public interface EnumeracioRepository extends JpaRepository<Enumeracio, Long> {
 
 	@Query(	"from Enumeracio e " +
 			"where " +
-			"   e.expedientTipus.id = :expedientTipusId " +
+			"   e.entorn.id = :entornId " +
+			"	and ((e.expedientTipus.id = :expedientTipusId) or (e.expedientTipus is null and (:esNullExpedientTipusId = true or :incloureGlobals = true))) " +
 			"	and (:esNullFiltre = true or lower(e.codi) like lower('%'||:filtre||'%') or lower(e.nom) like lower('%'||:filtre||'%')) ")
 	public Page<Enumeracio> findByFiltrePaginat(
+			@Param("entornId") Long entornId,
+			@Param("esNullExpedientTipusId") boolean esNullExpedientTipusId,
 			@Param("expedientTipusId") Long expedientTipusId,
+			@Param("incloureGlobals") boolean incloureGlobals,
 			@Param("esNullFiltre") boolean esNullFiltre,
 			@Param("filtre") String filtre,		
 			Pageable pageable);
 	
 	public Enumeracio findByExpedientTipusAndCodi(ExpedientTipus expedientTipus, String codi);
+
+	/** Troba les enumeracions per a un tipus d'expedient i també les globals de l'entorn i les ordena per nom.*/
+	@Query(	"from Enumeracio e " +
+			"where " +
+			"   e.entorn.id = (select entorn.id from ExpedientTipus ex where ex.id = :expedientTipusId) " +
+			"	and ((e.expedientTipus.id = :expedientTipusId) or (e.expedientTipus is null )) " +
+			"order by " +
+			"	nom")
+	List<Enumeracio> findAmbExpedientTipusIGlobals(
+			@Param("expedientTipusId") Long expedientTipusId);
 }

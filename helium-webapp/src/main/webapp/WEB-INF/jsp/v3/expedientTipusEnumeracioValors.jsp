@@ -9,7 +9,15 @@
 
 <c:set var="idioma"><%=org.springframework.web.servlet.support.RequestContextUtils.getLocale(request).getLanguage()%></c:set>
 <c:set var="titol"><spring:message code="expedient.tipus.enumeracio.form.titol.llistat"/>${enumeracio.nom}</c:set>
-<c:set var="baseUrl"><c:url value="/modal/v3/expedientTipus/${expedientTipusId}/enumeracio/${enumeracio.id}/valor"></c:url></c:set>
+<c:choose>
+  <c:when test="${expedientTipusId != null}">
+  	<c:set var="baseUrl"><c:url value="/modal/v3/expedientTipus/${expedientTipusId}/enumeracio/${enumeracio.id}/valor"></c:url></c:set>
+  </c:when>
+  <c:otherwise>
+  	<c:set var="baseUrl"><c:url value="/modal/v3/enumeracio/${enumeracio.id}/valor"></c:url></c:set>
+  </c:otherwise>
+</c:choose>
+
 
 <html>
 <head>
@@ -224,7 +232,7 @@
 	function canviarPosicioValidacio( id, pos) {
 	  	// Canvia la ordenació sempre amb ordre ascendent
 		$('#campValidacio').DataTable().order([3, 'asc']);
-		var getUrl = '<c:url value="/v3/expedientTipus/${expedientTipusId}/enumeracio/${enumeracio.id}/valor/"/>'+id+'/moure/'+pos;
+		var getUrl = '<c:url value="${baseUrl}"/>/'+id+'/moure/'+pos;
 		$.ajax({
 			type: 'GET',
 			url: getUrl,
