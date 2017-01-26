@@ -647,7 +647,7 @@ public class VariableHelper {
 						12,
 						0);
 				// Si es un campo readonly quitamos la validación de los campos requeridos que contenga
-				tascaDada.setRequired(readOnly ? false : dto.isRequired());
+				//tascaDada.setRequired(readOnly ? false : dto.isRequired());
 				registreDades.add(tascaDada);
 			}
 			tascaDadaDto.setRegistreDades(registreDades);

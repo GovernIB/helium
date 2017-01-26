@@ -93,7 +93,7 @@ public class TascaFormValidatorHelper implements Validator {
 				if (validarObligatoris && camp.isRequired()) {
 					if (camp.getCampTipus().equals(CampTipusDto.REGISTRE)) {
 						Object valorRegistre = PropertyUtils.getSimpleProperty(command, camp.getVarCodi());
-						if (valorRegistre == null || registreEmpty(camp, valorRegistre, errors))
+						if (valorRegistre == null || registreInvalid(camp, valorRegistre, errors))
 							errors.rejectValue(camp.getVarCodi(), "not.blank");
 						else {
 							Object[] registres = null;
@@ -193,8 +193,26 @@ public class TascaFormValidatorHelper implements Validator {
 			return null;
 		}
 	}
-	private static boolean registreEmpty(TascaDadaDto camp, Object registre, Errors errors) throws Exception {
-		boolean empty = true;
+	
+	/** Comprova si el valor del camp del registre és un valor buit, */ 
+	private boolean isCampRegistreEmpty(Object oValor) {
+		boolean empty = false;
+		if (oValor == null) {
+			empty = true;
+		} else {
+			if (oValor instanceof String[]) {
+				String[] oValor_arr = (String[])oValor;
+				empty = (oValor_arr.length < 3 || (oValor_arr[0].equalsIgnoreCase("0") && oValor_arr[1].equalsIgnoreCase("0") && (oValor_arr[2].equalsIgnoreCase("0") || oValor_arr[2] == null)));
+			} else if (oValor instanceof String) {
+				empty = "".equals( ((String) oValor).trim());
+			}
+		}
+		return empty;
+	}
+	
+	/** Valid el registre i retorna true si el registre és inválid. És invàlid si té algun camp obligatori buit. */
+	private boolean registreInvalid(TascaDadaDto camp, Object registre, Errors errors) throws Exception {
+		boolean invalid = false;
 		// Registre
 		if (registre != null) {
 			if  (camp.isCampMultiple()) {
@@ -202,35 +220,27 @@ public class TascaFormValidatorHelper implements Validator {
 				Object[] registres = (Object[])registre;
 				for (Object reg: registres) {
 					for (TascaDadaDto campRegistre : registreDades) {
-						Object oValor = PropertyUtils.getProperty(reg, campRegistre.getVarCodi());
-						if (oValor != null) {
-							if (oValor instanceof String[]) {
-								String[] oValor_arr = (String[])oValor;
-								empty = (oValor_arr.length < 3 || (oValor_arr[0].equalsIgnoreCase("0") && oValor_arr[1].equalsIgnoreCase("0") && (oValor_arr[2].equalsIgnoreCase("0") || oValor_arr[2] == null)));
-							} else {
-								empty = false;
-							}
-							if (!empty) return false;
+						if (campRegistre.isRequired()) {
+							if (isCampRegistreEmpty(PropertyUtils.getProperty(reg, campRegistre.getVarCodi())))
+								invalid = true;
+							if (invalid) 
+								return true;
 						}
 					}
 				}
 			} else {
 				List<TascaDadaDto> registreDades = camp.getRegistreDades();
 				for (TascaDadaDto campRegistre : registreDades) {
-					Object oValor = PropertyUtils.getProperty(registre, campRegistre.getVarCodi());
-					if (oValor != null) {
-						if (oValor instanceof String[]) {
-							String[] oValor_arr = (String[])oValor;
-							empty = (oValor_arr.length < 3 || (oValor_arr[0].equalsIgnoreCase("0") && oValor_arr[1].equalsIgnoreCase("0") && (oValor_arr[2].equalsIgnoreCase("0") || oValor_arr[2] == null)));
-						} else {
-							empty = false;
-						}
-						if (!empty) break;
+					if (campRegistre.isRequired()) {
+						if (isCampRegistreEmpty(PropertyUtils.getProperty(registre, campRegistre.getVarCodi())))
+							invalid = true;
+						if (invalid) 
+							return true;
 					}
 				}
-			}
+			}				
 		}
-		return empty;
+		return false;
 	}
 
 	private void comprovaCamp(TascaDadaDto camp, Object command, Errors errors) throws Exception {
