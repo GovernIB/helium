@@ -373,6 +373,8 @@ public interface ExpedientTipusService {
 	 * 
 	 * @param expedientTipusId
 	 *            Atribut id del tipus d'expedient.
+	 * @param incloureGlobals
+	 * 			  Indica si incloure les enumeracions globals de l'entorn.
 	 * @return les enumeracions del tipus d'expedient.
 	 * @throws NoTrobatException
 	 *             Si no s'ha trobat el registre amb l'id especificat.
@@ -388,13 +390,17 @@ public interface ExpedientTipusService {
 	 * 
 	 * @param expedientTipusId
 	 *            Atribut id del tipus d'expedient.
+	 * @param incloureGlobals
+	 * 			  Indica si incloure els dominis globals de l'entorn.
 	 * @return els dominis del tipus d'expedient.
 	 * @throws NoTrobatException
 	 *             Si no s'ha trobat el registre amb l'id especificat.
 	 * @throws PermisDenegatException
 	 *             Si no es tenen els permisos necessaris.
 	 */
-	public List<DominiDto> dominiFindAll(Long expedientTipusId);
+	public List<DominiDto> dominiFindAll(
+			Long expedientTipusId,
+			boolean incloureGlobals);
 
 	/**
 	 * Retorna les consultes per a un tipus d'expedient.

@@ -461,7 +461,7 @@ public class DefinicioProcesVariableController extends BaseVariableController {
 		if (definicioProces.getExpedientTipus() != null) {
 			Long expedientTipusId = definicioProces.getExpedientTipus().getId();
 			model.addAttribute("enumeracions", expedientTipusService.enumeracioFindAll(expedientTipusId, true));
-			model.addAttribute("dominis", expedientTipusService.dominiFindAll(expedientTipusId));
+			model.addAttribute("dominis", expedientTipusService.dominiFindAll(expedientTipusId, true));
 			model.addAttribute("consultes", expedientTipusService.consultaFindAll(expedientTipusId));
 		} else {
 			model.addAttribute("enumeracions", enumeracioService.findAmbEntorn(entornId));

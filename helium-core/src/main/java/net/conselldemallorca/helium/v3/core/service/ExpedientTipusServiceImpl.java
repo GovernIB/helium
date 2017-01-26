@@ -1602,10 +1602,16 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 	@Override
 	@Transactional(readOnly = true)
 	public List<DominiDto> dominiFindAll(
-			Long expedientTipusId) throws NoTrobatException, PermisDenegatException {
-		List<Domini> dominins = dominiRepository.findAmbExpedientTipus(expedientTipusId);
+			Long expedientTipusId,
+			boolean incloureGlobals) throws NoTrobatException, PermisDenegatException {
+		List<Domini> dominis;
+		if (!incloureGlobals)
+			dominis = dominiRepository.findAmbExpedientTipus(expedientTipusId);
+		else
+			dominis = dominiRepository.findAmbExpedientTipusIGlobals(expedientTipusId);
+		
 		return conversioTipusHelper.convertirList(
-									dominins, 
+									dominis, 
 									DominiDto.class);
 	}
 

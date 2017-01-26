@@ -56,4 +56,14 @@ public interface DominiRepository extends JpaRepository<Domini, Long> {
 			@Param("filtre") String filtre,		
 			Pageable pageable);
 
+	/** Troba les enumeracions per a un tipus d'expedient i també les globals de l'entorn i les ordena per nom.*/
+	@Query(	"from Domini d " +
+			"where " +
+			"   d.entorn.id = (select entorn.id from ExpedientTipus ex where ex.id = :expedientTipusId) " +
+			"	and ((d.expedientTipus.id = :expedientTipusId) or (d.expedientTipus is null )) " +
+			"order by " +
+			"	nom")
+	List<Domini> findAmbExpedientTipusIGlobals(
+			@Param("expedientTipusId") Long expedientTipusId);
+	
 }

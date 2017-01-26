@@ -71,9 +71,9 @@ public class ExpedientTipusExportarValidator implements ConstraintValidator<Expe
 			Set<String> enumeracionsGlobals = new HashSet<String>();
 			for (EnumeracioDto e : enumeracioService.findAmbEntorn(command.getEntornId()))
 				enumeracionsGlobals.add(e.getCodi());
-			Set<String> dominis = new HashSet<String>();
-			for (DominiDto d : expedientTipusService.dominiFindAll(command.getId()))
-				dominis.add(d.getCodi());
+			Set<String> dominisGlobals = new HashSet<String>();
+			for (DominiDto d : definicioProcesService.dominiFindByEntorn(expedientTipus.getEntorn().getId()))
+				dominisGlobals.add(d.getCodi());
 			
 			// Definició de procés inicial
 			if (expedientTipus.getJbpmProcessDefinitionKey() != null
@@ -143,7 +143,7 @@ public class ExpedientTipusExportarValidator implements ConstraintValidator<Expe
 						}
 					if (camp.getDomini() != null)
 						if (!command.getDominis().contains(camp.getDomini().getCodi())
-								&& dominis.contains(camp.getDomini().getCodi())) {
+								&& !dominisGlobals.contains(camp.getDomini().getCodi())) {
 							context.buildConstraintViolationWithTemplate(
 									MessageHelper.getInstance().getMessage(
 											this.codiMissatge + ".variable.seleccio.domini", 
