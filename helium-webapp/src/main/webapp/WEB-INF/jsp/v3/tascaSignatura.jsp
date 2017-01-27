@@ -50,6 +50,7 @@
 <c:forEach var="document" items="${signatures}">
 	<div class="signarTramitacio well well-small">
 		<div class="form-horizontal form-tasca">
+			<span class="hide">numPluginsPassarela: ${numPluginsPassarela}</span>
 			<div class="inlineLabels">
 				<h4 class="titol-missatge">
 					<label class="control-label col-xs-1 <c:if test="${document.required}">obligatori</c:if>">${document.documentNom}</label>
