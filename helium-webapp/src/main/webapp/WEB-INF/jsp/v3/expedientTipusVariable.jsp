@@ -58,6 +58,8 @@
 				data-info-type="search+button"
 				data-ordering="true"
 				data-default-order="3"
+				data-rowhref-toggle="modal"
+				data-rowhref-template="#rowhrefTemplateVariables" 
 				data-botons-template="#tableButtonsVariableTemplate"
 				class="table table-striped table-bordered table-hover">
 			<thead>
@@ -112,6 +114,9 @@
 				</tr>
 			</thead>
 		</table>
+
+		<script id="rowhrefTemplateVariables" type="text/x-jsrender">${baseUrl}/variable/{{:id}}/update</script>	
+
 		<script id="tableButtonsVariableTemplate" type="text/x-jsrender">
 			<div class="botons-titol text-right">
 				<a id="nou_camp" class="btn btn-default" href="${baseUrl}/variable/new" data-toggle="modal" data-callback="callbackModalVariables()" data-datatable-id="expedientTipusVariable"><span class="fa fa-plus"></span>&nbsp;<spring:message code="expedient.tipus.camp.llistat.accio.nova"/></a>
@@ -126,7 +131,7 @@
 <script type="text/javascript">
 // <![CDATA[            
 $(document).ready(function() {
-		
+
 	// Botons de modificar i eliminar agrupacions
 	$('#agrupacioDelete').click(function(e) {
 		var getUrl = $(this).attr('href');
@@ -195,15 +200,19 @@ $(document).ready(function() {
 				}
 			});			
 		}
+				
 		if ($('#agrupacions').val() != "") {
 			// Posa la taula com a ordenable
 			$("#expedientTipusVariable").tableDnD({
 		    	onDragClass: "drag",
-		    	onDrop: function(table, row) {	        	
+		    	onDrop: function(table, row) {	      
 		        	var pos = row.rowIndex - 1;
 		        	var id= obtenirId(pos);
-		        	if (pos != filaMovem)
+		        	if (pos != filaMovem) {
 		        		canviarPosicioVariable(id,pos);
+		    			$('tr').off('click');
+		    			$('td').off('click');
+		        	}
 		    	},
 		    	onDragStart: function(table, row) {
 		    			filaMovem = row.rowIndex-1;

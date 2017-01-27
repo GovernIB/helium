@@ -39,6 +39,8 @@
 				data-info-type="search+button"
 				data-ordering="true"
 				data-default-order="1"
+				data-rowhref-toggle="modal"
+				data-rowhref-template="#rowhrefTemplateAccions" 
 				data-botons-template="#tableButtonsAccionsTemplate"
 				class="table table-striped table-bordered table-hover">
 			<thead>
@@ -65,6 +67,9 @@
 				</tr>
 			</thead>
 		</table>
+
+		<script id="rowhrefTemplateAccions" type="text/x-jsrender">${baseUrl}/accio/{{:id}}/update</script>	
+
 		<script id="tableButtonsAccionsTemplate" type="text/x-jsrender">
 			<div class="botons-titol text-right">
 				<a id="nova_accio" class="btn btn-default" href="${baseUrl}/accio/new" data-toggle="modal" data-callback="callbackModalAccions()" data-datatable-id="expedientTipusAccio"><span class="fa fa-plus"></span>&nbsp;<spring:message code="expedient.tipus.accio.llistat.accio.nova"/></a>

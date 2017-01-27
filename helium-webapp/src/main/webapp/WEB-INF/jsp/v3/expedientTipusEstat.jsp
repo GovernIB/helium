@@ -20,6 +20,8 @@
 				data-url="${urlDatatable}"
 				data-paging-enabled="true"
 				data-info-type="search+button"
+				data-rowhref-toggle="modal"
+				data-rowhref-template="#rowhrefTemplateAccions" 
 				data-botons-template="#tableButtonsEstatTemplate"
 				class="table table-striped table-bordered table-hover">
 			<thead>
@@ -47,7 +49,7 @@
 				<a id="importar_dades" class="btn btn-info" href="${expedientTipus.id}/estat/importar" data-toggle="modal" data-callback="callbackModalEstats()" data-datatable-id="expedientTipusEstat"><span class="fa fa-sign-in"></span>&nbsp;<spring:message code="comu.boto.importar.dades"/></a>
 			</div>
 		</script>
-		<script id="rowhrefTemplate" type="text/x-jsrender">${expedientTipus.id}/estat/update/{{:id}}</script>
+		<script id="rowhrefTemplateAccions" type="text/x-jsrender">${expedientTipus.id}/estat/{{:id}}/update</script>
 				
 	</c:when>
 	<c:otherwise>
@@ -62,13 +64,12 @@ $(document).ready(function() {
 	    	onDragClass: "drag",
 	    	onDrop: function(table, row) {	     
 	    		var pos = row.rowIndex - 1;
-	    		if (pos != filaMovem) {
-		    		var rutaOrdenacio = $("a", row)[0].href;
-		    		var rDesde = rutaOrdenacio.indexOf("estat/")+6;
-		    		var rHasta = rutaOrdenacio.indexOf("/update");
-		        	var id= rutaOrdenacio.substring(rDesde, rHasta);
-		        	canviarPosicioEstat(id,pos);
-	    		}
+	        	var id= obtenirId(pos);
+	        	if (pos != filaMovem) {
+	        		canviarPosicioEstat(id,pos);
+	    			$('tr').off('click');
+	    			$('td').off('click');
+	        	}
 	    	},
 	    	onDragStart: function(table, row) {
 	    			filaMovem = row.rowIndex-1;
@@ -108,4 +109,22 @@ function canviarPosicioEstat(id, pos) {
 		}
 	});	
 }
+
+function obtenirId(pos){
+	if(filaMovem==pos){
+		var fila = filaMovem + 1;
+	}
+	else{
+	
+		if( filaMovem < pos){	//baixam elements
+			var fila = filaMovem + (pos-filaMovem)+1;
+		}else{					//pujam elements
+			var fila = filaMovem - (filaMovem-pos)+1;
+		}
+	}
+	id = $("#expedientTipusEstat tr:eq("+fila+")").attr("id");	
+	id2 = id.split("_");
+	return id2[1] ;
+}
+
 </script>

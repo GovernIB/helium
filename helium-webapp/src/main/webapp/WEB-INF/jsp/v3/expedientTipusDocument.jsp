@@ -36,6 +36,8 @@
 				data-info-type="search+button"
 				data-ordering="true"
 				data-default-order="1"
+				data-rowhref-toggle="modal"
+				data-rowhref-template="#rowhrefTemplateDocuments" 
 				data-botons-template="#tableButtonsDocumentTemplate"
 				class="table table-striped table-bordered table-hover">
 			<thead>
@@ -79,6 +81,8 @@
 				</tr>
 			</thead>
 		</table>
+
+		<script id="rowhrefTemplateDocuments" type="text/x-jsrender">${baseUrl}/document/{{:id}}/update</script>	
 
 		<script id="tableButtonsDocumentTemplate" type="text/x-jsrender">
 			<div class="botons-titol text-right">

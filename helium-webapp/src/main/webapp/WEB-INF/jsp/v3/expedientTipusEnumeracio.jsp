@@ -22,6 +22,8 @@
 				data-info-type="search+button"
 				data-ordering="true"
 				data-default-order="2"
+				data-rowhref-toggle="modal"
+				data-rowhref-template="#rowhrefTemplateEnumeracions" 
 				data-botons-template="#tableButtonsEnumeracioTemplate"
 				class="table table-striped table-bordered table-hover">
 			<thead>
@@ -49,6 +51,9 @@
 				</tr>
 			</thead>
 		</table>
+
+		<script id="rowhrefTemplateEnumeracions" type="text/x-jsrender">${expedientTipus.id}/enumeracio/{{:id}}/update</script>	
+
 		<script id="tableButtonsEnumeracioTemplate" type="text/x-jsrender">
 			<div class="botons-titol text-right">
 				<a id="nou_camp" class="btn btn-default" href="${expedientTipus.id}/enumeracio/new" data-toggle="modal" data-callback="callbackModalEnumerats()" data-datatable-id="expedientEnumeracio"><span class="fa fa-plus"></span>&nbsp;<spring:message code="expedient.tipus.enumeracio.llistat.accio.nova"/></a>

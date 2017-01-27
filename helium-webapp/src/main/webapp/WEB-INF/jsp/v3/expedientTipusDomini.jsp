@@ -21,6 +21,8 @@
 				data-info-type="search+button"
 				data-ordering="true"
 				data-default-order="1"
+				data-rowhref-toggle="modal"
+				data-rowhref-template="#rowhrefTemplateDominis" 
 				data-botons-template="#tableButtonsDominiTemplate"
 				class="table table-striped table-bordered table-hover">
 			<thead>
@@ -57,7 +59,7 @@
 				<a id="nou_camp" class="btn btn-default" href="${expedientTipus.id}/domini/new" data-toggle="modal" data-callback="callbackModalDominis()" data-datatable-id="expedientTipusDomini"><span class="fa fa-plus"></span>&nbsp;<spring:message code="expedient.tipus.domini.nou"/></a>
 			</div>
 		</script>
-		<script id="rowhrefTemplate" type="text/x-jsrender">${expedientTipus.id}/domini/update/{{:id}}</script>
+		<script id="rowhrefTemplateDominis" type="text/x-jsrender">${expedientTipus.id}/domini/{{:id}}/update</script>
 	</c:when>
 	<c:otherwise>
 		<div class="well well-small"><spring:message code='expedient.dada.expedient.cap'/></div>

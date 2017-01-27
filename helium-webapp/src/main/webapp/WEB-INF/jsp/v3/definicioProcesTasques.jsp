@@ -24,6 +24,8 @@
 				data-info-type="search"
 				data-ordering="true"
 				data-default-order="1"
+				data-rowhref-toggle="modal"
+				data-rowhref-template="#rowhrefTemplateTasques" 
 				class="table table-striped table-bordered table-hover">
 			<thead>
 				<tr>
@@ -53,7 +55,7 @@
 				</tr>
 			</thead>
 		</table>
-		<script id="rowhrefTemplate" type="text/x-jsrender">${jbpmKey}/${definicioProcesId}/tasca/{{:id}}/update</script>
+		<script id="rowhrefTemplateTasques" type="text/x-jsrender">${jbpmKey}/${definicioProcesId}/tasca/{{:id}}/update</script>
 	</c:when>
 	<c:otherwise>
 		<div class="well well-small"><spring:message code='definicio.proces.detall.cap'/></div>

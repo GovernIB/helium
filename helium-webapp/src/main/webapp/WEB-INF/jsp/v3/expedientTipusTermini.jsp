@@ -34,6 +34,8 @@
 				data-info-type="search+button"
 				data-ordering="true"
 				data-default-order="1"
+				data-rowhref-toggle="modal"
+				data-rowhref-template="#rowhrefTemplateTerminis" 
 				data-botons-template="#tableButtonsTerminiTemplate"
 				class="table table-striped table-bordered table-hover">
 			<thead>
@@ -56,6 +58,9 @@
 				</tr>
 			</thead>
 		</table>
+
+		<script id="rowhrefTemplateTerminis" type="text/x-jsrender">${baseUrl}/termini/{{:id}}/update</script>	
+
 		<script id="tableButtonsTerminiTemplate" type="text/x-jsrender">
 			<div class="botons-titol text-right">
 				<a id="nou_camp" class="btn btn-default" href="${baseUrl}/termini/new" data-toggle="modal" data-callback="callbackModalTerminis()" data-datatable-id="expedientTipusTermini"><span class="fa fa-plus"></span>&nbsp;<spring:message code="defproc.termllist.nou_term"/></a>

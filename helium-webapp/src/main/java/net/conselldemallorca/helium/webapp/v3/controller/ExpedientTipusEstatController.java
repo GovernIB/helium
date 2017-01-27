@@ -93,7 +93,8 @@ public class ExpedientTipusEstatController extends BaseExpedientTipusController 
 				expedientTipusService.estatFindPerDatatable(
 						expedientTipusId,
 						paginacioParams.getFiltre(),
-						paginacioParams));		
+						paginacioParams),
+				"id");		
 	}
 	
 	@RequestMapping(value = "/{expedientTipusId}/estat/new", method = RequestMethod.GET)

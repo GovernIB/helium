@@ -24,6 +24,8 @@
 				data-info-type="search+button"
 				data-ordering="true"
 				data-default-order="8"
+				data-rowhref-toggle="modal"
+				data-rowhref-template="#rowhrefTemplateConsultes" 
 				data-botons-template="#tableButtonsConsultaTemplate"
 				class="table table-striped table-bordered table-hover">
 			<thead>
@@ -70,6 +72,9 @@
 				</tr>
 			</thead>
 		</table>
+
+		<script id="rowhrefTemplateConsultes" type="text/x-jsrender">${expedientTipus.id}/consulta/{{:id}}/update</script>	
+
 		<script id="tableButtonsConsultaTemplate" type="text/x-jsrender">
 			<div class="botons-titol text-right">
 				<a id="nou_camp" class="btn btn-default" href="${expedientTipus.id}/consulta/new" data-toggle="modal" data-callback="callbackModalConsultes()" data-datatable-id="expedientTipusConsulta"><span class="fa fa-plus"></span>&nbsp;<spring:message code="expedient.tipus.consulta.llistat.accio.nova"/></a>
@@ -92,8 +97,11 @@ $(document).ready(function() {
 	    	onDrop: function(table, row) {	        	
 	        	var pos = row.rowIndex - 1;
 	        	var id= obtenirId(pos);
-	        	if (pos != filaMovem)
+	        	if (pos != filaMovem) {
 		        	canviarPosicioConsulta(id,pos);
+	    			$('tr').off('click');
+	    			$('td').off('click');
+	        	}
 	    	},
 	    	onDragStart: function(table, row) {
 	    			filaMovem = row.rowIndex-1;

@@ -25,6 +25,8 @@
 				data-info-type="search+button"
 				data-ordering="true"
 				data-default-order="1"
+				data-rowhref-toggle="modal"
+				data-rowhref-template="#rowhrefTemplateRedireccions" 
 				data-botons-template="#tableButtonsRedireccionsTemplate"
 				class="table table-striped table-bordered table-hover">
 			<thead>
@@ -48,6 +50,7 @@
 				</tr>
 			</thead>
 		</table>
+		<script id="rowhrefTemplateRedireccions" type="text/x-jsrender">${expedientTipus.id}/redireccio/{{:id}}/update</script>
 		<script id="tableButtonsRedireccionsTemplate" type="text/x-jsrender">
 			<div class="botons-titol text-right">
 				<a id="nova_redireccio" class="btn btn-default" href="${expedientTipus.id}/redireccio/new" data-toggle="modal" data-callback="callbackModalRedireccions()" data-datatable-id="expedientTipusRedireccio"><span class="fa fa-plus"></span>&nbsp;<spring:message code="expedient.tipus.redireccio.llistat.accio.nova"/></a>
