@@ -21,7 +21,6 @@
 	.signarTramitacio form {padding-top: 25px;}
 	.signarTramitacio .col-xs-4 {width: 20%;}
 	.signarTramitacio .col-xs-10 {width: 80%;padding-right: 0px;}		
-	.signarTramitacio .iconos {display: inline;}
 	.signarTramitacio .inlineLabels a {margin-left: 10px;}
 	.signarTramitacio .select2-container a {margin-left: 0px;}
 	.signarTramitacio .select2-container {width: 100% !important;}
@@ -77,7 +76,6 @@
 								</a>
 							</c:if>
 							
-							<div id="iconos${document.id}" class="iconos"></div>							
 							</h4>
 							<c:if test="${!bloquejarEdicioTasca}">
 								<div id="firmar${document.id}">
@@ -149,7 +147,6 @@
 
 							<script type="text/javascript">
 								$(document).ready( function() {
-									$("#iconos${document.id}").load('<c:url value="/nodeco/v3/tasca/${tasca.id}/icones/${document.id}"/>');// Comprobar fichero
 									
 									$.get("${sourceUrl}?token=${document.tokenSignatura}")
 									.done(function(data) {})

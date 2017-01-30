@@ -613,11 +613,8 @@ public class TascaTramitacioController extends BaseTascaController {
 		passarelaFirmaHelper.closeSignaturesSet(
 				request,
 				signaturesSet);
-//		return getModalControllerReturnValueSuccess(
-//				request, 
-//				"redirect:/contingut/" + documentId,
-//				null);
-		return "v3/tascaSignatura";
+		//TODO: La passarel·la redirigeix tota la pàgina, com a mínim així es mostren els menús de navegació sense posar modal davant
+        return "redirect:/v3/tasca/" + tascaId + "/signatura"; 
 	}
 	
 	@RequestMapping(value = "/{tascaId}/verificarSignatura/{documentStoreId}/{documentCodi}", method = RequestMethod.GET)
