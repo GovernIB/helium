@@ -193,7 +193,7 @@ $(document).ready(function() {
 	docWriteWrapper($('#applet'), function () {
 		var attributes = {
 				id: 'signaturaApplet',
-				code: 'net.conselldemallorca.helium.applet.signatura.SignaturaMockApplet',
+				code: 'net.conselldemallorca.helium.applet.signatura.SignaturaCaibApplet',
 				archive: '<c:url value="/signatura/caib/helium-applet.jar"/>',
 				width: 1,
 				height: 1};
