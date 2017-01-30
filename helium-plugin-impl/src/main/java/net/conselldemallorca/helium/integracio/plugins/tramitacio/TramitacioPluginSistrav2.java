@@ -24,9 +24,11 @@ import es.caib.regtel.ws.v2.model.acuserecibo.AcuseRecibo;
 import es.caib.regtel.ws.v2.model.aviso.Aviso;
 import es.caib.regtel.ws.v2.model.datosexpediente.DatosExpediente;
 import es.caib.regtel.ws.v2.model.datosinteresado.DatosInteresado;
+import es.caib.regtel.ws.v2.model.datosinteresado.IdentificacionInteresadoDesglosada;
 import es.caib.regtel.ws.v2.model.datosnotificacion.DatosNotificacion;
 import es.caib.regtel.ws.v2.model.datosregistrosalida.DatosRegistroSalida;
 import es.caib.regtel.ws.v2.model.datosrepresentado.DatosRepresentado;
+import es.caib.regtel.ws.v2.model.datosrepresentado.IdentificacionRepresentadoDesglosada;
 import es.caib.regtel.ws.v2.model.detalleacuserecibo.DetalleAcuseRecibo;
 import es.caib.regtel.ws.v2.model.detalleacuserecibo.DetalleAviso;
 import es.caib.regtel.ws.v2.model.documento.Documento;
@@ -154,16 +156,9 @@ public class TramitacioPluginSistrav2 implements TramitacioPlugin {
 								EventosExpediente.class,
 								eventosExpediente));
 			}
-			if (!getZonaperClient().existeZonaPersonalUsuario(request.getRepresentatNif()) && !getZonaperClient().existeZonaPersonalUsuario(request.getRepresentatNif().toUpperCase())) {
-				if (getZonaperClient().altaZonaPersonalUsuario(
-						request.getRepresentatNif().toUpperCase(), 
-						request.getRepresentatNom() == null ? "" : request.getRepresentatNom(), 
-						null, 
-						null) == null) {
-					logger.error("Error al crear la zona personal: " + request.getRepresentantNif());
-					throw new TramitacioPluginException("Error al crear la zona personal: " + request.getRepresentantNif());
-				}
-			}
+			
+			crearZonaPers(request.getRepresentatNif(), request.getRepresentatNom(), request.getRepresentatApe1(), request.getRepresentatApe2());
+			
 			getZonaperClient().altaExpediente(expediente);
 			logger.info("###===> Nou expedient creat a la zona personal del ciutadà " + request.getRepresentatNif() + ": [" + request.getExpedientIdentificador() + ", " + request.getExpedientClau() + "]");
 		} catch (Exception ex) {
@@ -252,16 +247,9 @@ public class TramitacioPluginSistrav2 implements TramitacioPlugin {
 		try {
 			Event event = request.getEvent();
 			if (event != null) {
-				if (!getZonaperClient().existeZonaPersonalUsuario(request.getRepresentatNif()) && !getZonaperClient().existeZonaPersonalUsuario(request.getRepresentatNif().toUpperCase())) {
-					if (getZonaperClient().altaZonaPersonalUsuario(
-							request.getRepresentatNif().toUpperCase(), 
-							request.getRepresentatNom() == null ? "" : request.getRepresentatNom(), 
-							request.getRepresentatApe1(), 
-							request.getRepresentatApe2()) == null) {
-						logger.error("Error al crear la zona personal: " + request.getRepresentatNif());
-						throw new TramitacioPluginException("Error al crear la zona personal: " + request.getRepresentatNif());
-					}
-				}
+				
+				crearZonaPers(request.getRepresentatNif(), request.getRepresentatNom(), request.getRepresentatApe1(), request.getRepresentatApe2());
+				
 				getZonaperClient().altaEventoExpediente(
 						request.getUnitatAdministrativa(),
 						request.getExpedientIdentificador(),
@@ -334,8 +322,19 @@ public class TramitacioPluginSistrav2 implements TramitacioPlugin {
 								new QName("autenticado"),
 								Boolean.class,
 								new Boolean(registreNotificacio.getDadesInteressat().isAutenticat())));
+				
+				IdentificacionInteresadoDesglosada interessatDadesDesglosat = new IdentificacionInteresadoDesglosada();
+				interessatDadesDesglosat.setNombre(registreNotificacio.getDadesInteressat().getNom());
+				interessatDadesDesglosat.setApellido1(registreNotificacio.getDadesInteressat().getCognom1());
+				interessatDadesDesglosat.setApellido2(registreNotificacio.getDadesInteressat().getCognom2());
+				
 				datosInteresado.setNombreApellidos(
-						registreNotificacio.getDadesInteressat().getNomAmbCognoms());
+						interessatDadesDesglosat.getNombre() + " " +
+						interessatDadesDesglosat.getApellido1() + " " +
+						interessatDadesDesglosat.getApellido2());
+				
+				datosInteresado.setNombreApellidosDesglosado(interessatDadesDesglosat);
+				
 				datosInteresado.setNif(
 						registreNotificacio.getDadesInteressat().getNif());
 				if (registreNotificacio.getDadesInteressat().getPaisCodi() != null)
@@ -379,8 +378,21 @@ public class TramitacioPluginSistrav2 implements TramitacioPlugin {
 			}
 			if (registreNotificacio.getDadesRepresentat() != null) {
 				DatosRepresentado datosRepresentado = new DatosRepresentado();
+				
 				datosRepresentado.setNif(registreNotificacio.getDadesRepresentat().getNif());
-				datosRepresentado.setNombreApellidos(registreNotificacio.getDadesRepresentat().getNomAmbCognoms());
+				
+				IdentificacionRepresentadoDesglosada representatInfoDesglosada = new IdentificacionRepresentadoDesglosada();
+				representatInfoDesglosada.setNombre(registreNotificacio.getDadesInteressat().getNom());
+				representatInfoDesglosada.setApellido1(registreNotificacio.getDadesRepresentat().getCognom1());
+				representatInfoDesglosada.setApellido2(registreNotificacio.getDadesRepresentat().getCognom2());
+				
+				datosRepresentado.setNombreApellidos(
+						representatInfoDesglosada.getNombre() + " " +
+						representatInfoDesglosada.getNombre() + " " +
+						representatInfoDesglosada.getNombre());
+				
+				datosRepresentado.setNombreApellidosDesglosado(representatInfoDesglosada);
+				
 				datosRegistroSalida.setDatosRepresentado(datosRepresentado);
 			}
 			if (registreNotificacio.getDadesExpedient() != null) {
@@ -507,7 +519,16 @@ public class TramitacioPluginSistrav2 implements TramitacioPlugin {
 			}
 			try {
 				logger.info("###===> Notificacio. Comprovar zona personal");
-				crearZonaPers(registreNotificacio.getDadesInteressat().getNif(), registreNotificacio.getDadesInteressat().getNomAmbCognoms());
+				if (registreNotificacio.getDadesInteressat().getNom() != null)
+					crearZonaPers(
+							registreNotificacio.getDadesInteressat().getNif(), 
+							registreNotificacio.getDadesInteressat().getNom(),
+							registreNotificacio.getDadesInteressat().getCognom1(),
+							registreNotificacio.getDadesInteressat().getCognom2());
+				else
+					crearZonaPers(
+							registreNotificacio.getDadesInteressat().getNif(), 
+							registreNotificacio.getDadesInteressat().getNomAmbCognoms());
 				ResultadoRegistro resultado = null;
 				
 				logger.info("###===> Cridem al servei per registrar notificació");
@@ -537,12 +558,16 @@ public class TramitacioPluginSistrav2 implements TramitacioPlugin {
 	}
 
 	private void crearZonaPers(String nif, String nom) throws es.caib.zonaper.ws.v2.services.BackofficeFacadeException, TramitacioPluginException {
+		crearZonaPers(nif, nom, null, null);
+	}
+	
+	private void crearZonaPers(String nif, String nom, String cognom1, String cognom2) throws es.caib.zonaper.ws.v2.services.BackofficeFacadeException, TramitacioPluginException {
 		if (!getZonaperClient().existeZonaPersonalUsuario(nif) && !getZonaperClient().existeZonaPersonalUsuario(nif.toUpperCase())) {
 			if (getZonaperClient().altaZonaPersonalUsuario(
 					nif.toUpperCase(), 
 					nom == null ? "" : nom, 
-					null, 
-					null) == null) {
+					cognom1, 
+					cognom2) == null) {
 				logger.error("registrarNotificacio >> Error al crear la zona personal: " + nif);
 				throw new TramitacioPluginException("registrarNotificacio >> Error al crear la zona personal: " + nif);
 			}

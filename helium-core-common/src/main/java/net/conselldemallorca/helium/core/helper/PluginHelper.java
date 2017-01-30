@@ -464,6 +464,15 @@ public class PluginHelper {
 						registreNotificacio.getDadesInteressat().getNif()),
 				new IntegracioParametreDto(
 						"interessatNom",
+						registreNotificacio.getDadesInteressat().getNom()),
+				new IntegracioParametreDto(
+						"interessatCognom1",
+						registreNotificacio.getDadesInteressat().getCognom1()),
+				new IntegracioParametreDto(
+						"interessatCognom2",
+						registreNotificacio.getDadesInteressat().getCognom2()),
+				new IntegracioParametreDto(
+						"interessatNomAmbCognoms",
 						registreNotificacio.getDadesInteressat().getNomAmbCognoms()),
 				new IntegracioParametreDto(
 						"assumpte",
@@ -570,7 +579,14 @@ public class PluginHelper {
 		zonaperExpedient.setAutenticat(registreNotificacio.getDadesInteressat().isAutenticat());
 		zonaperExpedient.setRepresentantNif(registreNotificacio.getDadesInteressat().getNif());
 		zonaperExpedient.setRepresentatNif(registreNotificacio.getDadesInteressat().getNif());
-		zonaperExpedient.setRepresentatNom(registreNotificacio.getDadesInteressat().getNomAmbCognoms());
+		
+		zonaperExpedient.setRepresentatNom(
+				registreNotificacio.getDadesInteressat().getNom() != null ? 
+						registreNotificacio.getDadesInteressat().getNom() : 
+						registreNotificacio.getDadesInteressat().getNomAmbCognoms());
+		zonaperExpedient.setRepresentatApe1(registreNotificacio.getDadesInteressat().getCognom1());
+		zonaperExpedient.setRepresentatApe2(registreNotificacio.getDadesInteressat().getCognom2());
+		
 		zonaperExpedient.setAvisosHabilitat(true);
 		zonaperExpedient.setAvisosEmail(registreNotificacio.getDadesInteressat().getEmail());
 		zonaperExpedient.setAvisosSMS(registreNotificacio.getDadesInteressat().getMobil());

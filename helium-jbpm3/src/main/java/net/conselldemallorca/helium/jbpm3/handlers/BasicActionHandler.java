@@ -429,6 +429,9 @@ public abstract class BasicActionHandler extends AbstractHeliumActionHandler imp
 		notificacio.setInteressatAutenticat(dadesNotificacio.isInteressatAutenticat());
 		notificacio.setInteressatNif(dadesNotificacio.getInteressatNif());
 		notificacio.setInteressatNomAmbCognoms(dadesNotificacio.getInteressatNomAmbCognoms());
+		notificacio.setInteressatNom(dadesNotificacio.getInteressatNom());
+		notificacio.setInteressatCognom1(dadesNotificacio.getInteressatCognom1());
+		notificacio.setInteressatCognom2(dadesNotificacio.getInteressatCognom2());
 		notificacio.setInteressatPaisCodi(dadesNotificacio.getInteressatPaisCodi());
 		notificacio.setInteressatPaisNom(dadesNotificacio.getInteressatPaisNom());
 		notificacio.setInteressatProvinciaCodi(dadesNotificacio.getInteressatProvinciaCodi());
@@ -438,6 +441,9 @@ public abstract class BasicActionHandler extends AbstractHeliumActionHandler imp
 		if (dadesNotificacio.getRepresentatNif() != null || dadesNotificacio.getRepresentatNomAmbCognoms() != null) {
 			notificacio.setRepresentatNif(dadesNotificacio.getRepresentatNif());
 			notificacio.setRepresentatNomAmbCognoms(dadesNotificacio.getRepresentatNomAmbCognoms());
+			notificacio.setRepresentatNom(dadesNotificacio.getRepresentatNom());
+			notificacio.setRepresentatCognom1(dadesNotificacio.getRepresentatCognom1());
+			notificacio.setRepresentatCognom2(dadesNotificacio.getRepresentatCognom2());
 		}
 		notificacio.setInteressatEmail(dadesNotificacio.getInteressatEmail());
 		notificacio.setInteressatMobil(dadesNotificacio.getInteressatMobil());

@@ -27,6 +27,9 @@ public class DadesRegistreNotificacio implements Serializable{
 	private String interessatEntitatCodi;
 	private String interessatNif;
 	private String interessatNomAmbCognoms;
+	private String interessatNom;
+	private String interessatCognom1;
+	private String interessatCognom2;
 	private String interessatPaisCodi;
 	private String interessatPaisNom;
 	private String interessatProvinciaCodi;
@@ -38,6 +41,9 @@ public class DadesRegistreNotificacio implements Serializable{
 	
 	private String representatNif;
 	private String representatNomAmbCognoms;
+	private String representatNom;
+	private String representatCognom1;
+	private String representatCognom2;
 	private String expedientIdentificador;
 	private String expedientClau;
 	private String expedientUnitatAdministrativa;
@@ -106,6 +112,24 @@ public class DadesRegistreNotificacio implements Serializable{
 	public void setInteressatNomAmbCognoms(String interessatNomAmbCognoms) {
 		this.interessatNomAmbCognoms = interessatNomAmbCognoms;
 	}
+	public String getInteressatNom() {
+		return interessatNom;
+	}
+	public void setInteressatNom(String interessatNom) {
+		this.interessatNom = interessatNom;
+	}
+	public String getInteressatCognom1() {
+		return interessatCognom1;
+	}
+	public void setInteressatCognom1(String interessatCognom1) {
+		this.interessatCognom1 = interessatCognom1;
+	}
+	public String getInteressatCognom2() {
+		return interessatCognom2;
+	}
+	public void setInteressatCognom2(String interessatCognom2) {
+		this.interessatCognom2 = interessatCognom2;
+	}
 	public String getInteressatPaisCodi() {
 		return interessatPaisCodi;
 	}
@@ -153,6 +177,24 @@ public class DadesRegistreNotificacio implements Serializable{
 	}
 	public void setRepresentatNomAmbCognoms(String representatNomAmbCognoms) {
 		this.representatNomAmbCognoms = representatNomAmbCognoms;
+	}
+	public String getRepresentatNom() {
+		return representatNom;
+	}
+	public void setRepresentatNom(String representatNom) {
+		this.representatNom = representatNom;
+	}
+	public String getRepresentatCognom1() {
+		return representatCognom1;
+	}
+	public void setRepresentatCognom1(String representatCognom1) {
+		this.representatCognom1 = representatCognom1;
+	}
+	public String getRepresentatCognom2() {
+		return representatCognom2;
+	}
+	public void setRepresentatCognom2(String representatCognom2) {
+		this.representatCognom2 = representatCognom2;
 	}
 	public String getExpedientIdentificador() {
 		return expedientIdentificador;

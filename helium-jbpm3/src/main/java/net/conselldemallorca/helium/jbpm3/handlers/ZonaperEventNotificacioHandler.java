@@ -189,6 +189,10 @@ public class ZonaperEventNotificacioHandler extends BasicActionHandler implement
 				interessatLlinatge1 + " " +
 				interessatLlinatge2);
 		
+		anotacio.setInteressatNom(interessatNom);
+		anotacio.setInteressatCognom1(interessatLlinatge1);
+		anotacio.setInteressatCognom2(interessatLlinatge2);
+		
 		String interessatEmail = (String)getValorOVariable(
 				executionContext,
 				representatEmail,

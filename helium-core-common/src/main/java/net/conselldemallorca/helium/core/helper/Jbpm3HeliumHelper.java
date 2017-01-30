@@ -1344,6 +1344,9 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 		dadesInteressat.setAutenticat(true);
 		dadesInteressat.setEntitatCodi(notificacio.getEntitatCodi());
 		dadesInteressat.setNomAmbCognoms(notificacio.getInteressatNomAmbCognoms());
+		dadesInteressat.setNom(notificacio.getInteressatNom());
+		dadesInteressat.setCognom1(notificacio.getInteressatCognom1());
+		dadesInteressat.setCognom2(notificacio.getInteressatCognom2());
 		dadesInteressat.setMunicipiCodi(notificacio.getInteressatMunicipiCodi());
 		dadesInteressat.setMunicipiNom(notificacio.getInteressatMunicipiNom());
 		dadesInteressat.setProvinciaCodi(notificacio.getInteressatProvinciaCodi());
