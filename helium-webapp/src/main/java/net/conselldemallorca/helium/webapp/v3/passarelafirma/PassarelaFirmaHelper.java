@@ -430,14 +430,16 @@ public class PassarelaFirmaHelper {
 	private static final String PROPERTIES_BASE = "app.plugin.passarelafirma.";
 	private List<PassarelaFirmaPlugin> getAllPluginsFromProperties() {
 		if (plugins == null) {
+			log.info("Carregant plugins de passarel.la de firma...");
 			plugins = new ArrayList<PassarelaFirmaPlugin>();
 			String idsStr = GlobalProperties.getInstance().getProperty(PROPERTIES_BASE + "ids");
+			log.info("Identificadors de plugins: " + idsStr);
 			if (idsStr != null && !idsStr.isEmpty()) {
 				String[] ids = idsStr.split(",");
 				for (String id: ids) {
 					String base = PROPERTIES_BASE + id + ".";
 					String nom = GlobalProperties.getInstance().getProperty(base + "nom");
-					log.debug("Plugin a carregar NOM[" + base + "nom" + "]: " + nom);
+					log.info("Plugin a carregar NOM[" + base + "nom" + "]: " + nom);
 					String classe = GlobalProperties.getInstance().getProperty(base + "class");
 					if (classe != null) {
 						String descripcioCurta = GlobalProperties.getInstance().getProperty(base + "desc");
@@ -452,11 +454,11 @@ public class PassarelaFirmaHelper {
 										value);
 							}
 						}
-						log.debug(" -------------  PLUGIN " + id + "------------------");
-						log.debug("nom: " + nom);
-						log.debug("descripcioCurta: " + descripcioCurta);
-						log.debug("classe: " + classe);
-						log.debug("properties: " + pluginPropertiesProcessat);
+						log.info(" -------------  PLUGIN " + id + "------------------");
+						log.info("nom: " + nom);
+						log.info("descripcioCurta: " + descripcioCurta);
+						log.info("classe: " + classe);
+						log.info("properties: " + pluginPropertiesProcessat);
 						plugins.add(
 								new PassarelaFirmaPlugin(
 										new Long(id),
@@ -465,8 +467,8 @@ public class PassarelaFirmaHelper {
 										classe,
 										pluginPropertiesProcessat));
 					} else {
-						log.debug(" -------------  PLUGIN " + id + "------------------");
-						log.debug("el plugin no té una classe configurada.");
+						log.info(" -------------  PLUGIN " + id + "------------------");
+						log.info("el plugin no té una classe configurada.");
 					}
 				}
 			}
@@ -535,13 +537,13 @@ public class PassarelaFirmaHelper {
 	private String getAbsoluteControllerBase(
 			HttpServletRequest request,
 			String webContext) {
-//		return	request.getScheme() + "://" +
-//				request.getServerName() + ":" +
-//				request.getServerPort() +
-//				request.getContextPath() +
-//				webContext;
+		return	request.getScheme() + "://" +
+				request.getServerName() + ":" +
+				request.getServerPort() +
+				request.getContextPath() +
+				webContext;
 		
-		return (String)GlobalProperties.getInstance().get("app.base.url") + webContext;
+//		return (String)GlobalProperties.getInstance().get("app.base.url") + webContext;
 	}
 
 	public String getArxiuMimeType(String nomArxiu) {
