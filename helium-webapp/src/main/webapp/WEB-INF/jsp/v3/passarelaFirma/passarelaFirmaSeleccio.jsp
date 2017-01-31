@@ -2,6 +2,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%@ taglib uri="http://www.springframework.org/tags" prefix="spring"%>
 <%@ taglib uri="http://www.springframework.org/tags/form" prefix="form" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <%@ taglib tagdir="/WEB-INF/tags/helium" prefix="hel"%>
 
 <style>
@@ -20,7 +21,7 @@
 --%>
 		<c:url value='/v3/firmapassarela/showsignaturemodule' var="urlpass"/>
 		<div class="modal-body" style="height: 300px;">
-			<c:if test="${plugins != null && plugins.size > 0}">
+			<c:if test="${not empty plugins and fn:length(plugins) gt 0}">
 				<div class="well" style="max-width: 400px; margin: 0 auto 10px;">
 					<c:forEach items="${plugins}" var="plugin">
 						<a href="${urlpass}/${plugin.pluginId}/${signaturesSetId}" class="btn btn-large btn-block btn-primary btn-plugin">
