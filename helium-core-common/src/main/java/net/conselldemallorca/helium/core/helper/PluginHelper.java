@@ -78,7 +78,6 @@ import net.conselldemallorca.helium.v3.core.api.dto.ZonaperEventDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ZonaperExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.exception.SistemaExternException;
-import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientRepository;
 import net.conselldemallorca.helium.v3.core.repository.PortasignaturesRepository;
 
@@ -102,8 +101,6 @@ public class PluginHelper {
 	private CacheManager cacheManager;
 	@Autowired
 	private MonitorIntegracioHelper monitorIntegracioHelper;
-	@Autowired
-	private ExpedientService expedientService;
 
 	private PersonesPlugin personesPlugin;
 	private boolean personesPluginEvaluat = false;
@@ -482,21 +479,11 @@ public class PluginHelper {
 		
 		try {
 			logger.info("###===> Entrem en apartat relacionat amb expedients ");
-			logger.info("###===> Comprovant si s'ha de crear l'expedient amb expedient.tramitExpedientIdentificador " + expedient.getTramitExpedientIdentificador() + 
-						", expedient.tramitExpedientClau " + expedient.getTramitExpedientClau());
-			if ((expedient.getTramitExpedientIdentificador() == null || 
-				expedient.getTramitExpedientIdentificador().isEmpty() || 
-				expedient.getTramitExpedientClau() == null || 
-				expedient.getTramitExpedientClau().isEmpty()) &&
-				crearExpedient) {
-					logger.info("###===> Serà necessari crear expedient en la zona personal. ");
+			logger.info("###===> Comprovant si existeix expedient en la zona personal de l'interessat");
+			if (!getTramitacioPlugin().existeixExpedient(
+					new Long(registreNotificacio.getDadesExpedient().getUnitatAdministrativa()),
+					registreNotificacio.getDadesExpedient().getIdentificador())) {
 					crearExpedientPerNotificacio(registreNotificacio, expedient, parametres);
-					logger.info("###===> Finalitzat apartat relacionat amb expedients ");
-					logger.info("###===> Recuperem de nou l'expedient per a comprovar ID i Clau de tramitació..");
-					
-					Expedient expedientComprovacio = expedientRepository.findOne(expedient.getId());
-					logger.info("###===> Identificador Comprovació: " + expedientComprovacio.getTramitExpedientIdentificador());
-					logger.info("###===> Clau comprovació: " + expedientComprovacio.getTramitExpedientClau());
 			}
 		} catch (Exception ex) {
 			String errorDescripcio = "No s'han pogut crear l'expedient a la zona persoanl (" +
@@ -599,17 +586,11 @@ public class PluginHelper {
 		
 		logger.info("###===> Cridem al plugin per crear l'expedient a la zona personal");
 		
-		long t0 = System.currentTimeMillis();
 		getTramitacioPlugin().publicarExpedient(request);
 		
-		
-		logger.info("###===> Cridant al mètode per guardar ID i Clau de tramitacio en Expedient Helium");
-		expedientService.actualitzaExpedientFromZonaPersonal(
-				expedient.getId(), 
-				registreNotificacio.getDadesExpedient().getIdentificador(), 
-				registreNotificacio.getDadesExpedient().getClau(), 
-				parametres, 
-				t0);
+		expedient.setTramitExpedientIdentificador(registreNotificacio.getDadesExpedient().getIdentificador());
+		expedient.setTramitExpedientClau(registreNotificacio.getDadesExpedient().getClau());
+		expedientRepository.save(expedient);
 		
 		logger.info("###===> S'ha cridat al mètode per acutaltizar expedient Helium correctament.");
 	}

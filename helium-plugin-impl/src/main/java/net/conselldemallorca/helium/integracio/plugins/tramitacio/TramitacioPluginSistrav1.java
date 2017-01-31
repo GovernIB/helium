@@ -41,6 +41,13 @@ import es.caib.zonaper.ws.v1.model.expediente.Expediente;
  * @author Limit Tecnologies
  */
 public class TramitacioPluginSistrav1 implements TramitacioPlugin {
+	
+	@Override
+	public boolean existeixExpedient(Long unidadAdministrativa, String identificadorExpediente)
+			throws TramitacioPluginException {
+		// TODO Auto-generated method stub
+		return false;
+	}
 
 	public void publicarExpedient(
 			PublicarExpedientRequest request) throws TramitacioPluginException {

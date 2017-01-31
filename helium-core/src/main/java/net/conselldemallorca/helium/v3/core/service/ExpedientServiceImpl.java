@@ -28,7 +28,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import net.conselldemallorca.helium.core.common.ExpedientCamps;
@@ -102,8 +101,6 @@ import net.conselldemallorca.helium.v3.core.api.dto.ExpedientErrorDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientErrorDto.ErrorTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.InstanciaProcesDto;
-import net.conselldemallorca.helium.v3.core.api.dto.IntegracioAccioTipusEnumDto;
-import net.conselldemallorca.helium.v3.core.api.dto.IntegracioParametreDto;
 import net.conselldemallorca.helium.v3.core.api.dto.MostrarAnulatsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NotificacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
@@ -2697,42 +2694,6 @@ public class ExpedientServiceImpl implements ExpedientService {
 			processInstancesIds.add(processInstance.getId());
 		return processInstancesIds;
 	}
-	
-	/***MÈTODE CRIDAT DES DEL PLUGINHELPER PER A GUARDAR 
-	 * AQUESTES DADES EN UNA TRANSACCIÓ A PART*****/
-	@Override
-	@Transactional(propagation = Propagation.REQUIRES_NEW)
-	public void actualitzaExpedientFromZonaPersonal(Long expedientId, String expedientTramitIdentificador, String expedientTramitClau, IntegracioParametreDto[] parametres, long t0) {
-
-		logger.info("###===> NOVA TRANSACCIO. Dins metode per actualitzar expedient");
-		
-		monitorIntegracioHelper.addAccioOk(
-				MonitorIntegracioHelper.INTCODI_SISTRA,
-				"Creació d'expedient",
-				IntegracioAccioTipusEnumDto.ENVIAMENT,
-				System.currentTimeMillis() - t0,
-				parametres);
-		
-		logger.info("###===> Registrant accio en monitor d'integracions");
-		
-		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
-				expedientId,
-				true,
-				false,
-				false,
-				false);
-		
-		logger.info("###===> Obtenim expedient per ID");
-		
-		expedient.setTramitExpedientIdentificador(expedientTramitIdentificador);
-		expedient.setTramitExpedientClau(expedientTramitClau);
-		expedientRepository.save(expedient);
-		
-		logger.info("###===> Expedient creat en zona personal:");
-		logger.info("###===> Identificador: " + expedient.getTramitExpedientIdentificador());
-		logger.info("###===> Clau: " + expedient.getTramitExpedientClau());
-	}
-	/**************/
 	
 	private static final Logger logger = LoggerFactory.getLogger(ExpedientServiceImpl.class);
 }

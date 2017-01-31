@@ -146,7 +146,7 @@ public class ZonaperEventNotificacioHandler extends BasicActionHandler implement
 		// CANVI. Ara l'identificador de l'expedient a SISTRA serà l'ID interna de l'expedient d'Helium
 		String identificador = expedient.getId().toString();
 		
-		String clau = new Long(System.currentTimeMillis()).toString();
+		String clau = "KEY###" + expedient.getTramitExpedientIdentificador() + "###KEY";
 		if (expedient.getTramitExpedientClau() != null && !expedient.getTramitExpedientClau().isEmpty())
 			clau = expedient.getTramitExpedientClau();
 		

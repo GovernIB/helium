@@ -529,4 +529,11 @@ public class TramitacioPluginSistraSelenium implements TramitacioPlugin {
 
 	private static final Log logger = LogFactory.getLog(TramitacioPluginSistrav3.class);
 
+	@Override
+	public boolean existeixExpedient(Long unidadAdministrativa, String identificadorExpediente)
+			throws TramitacioPluginException {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
 }
