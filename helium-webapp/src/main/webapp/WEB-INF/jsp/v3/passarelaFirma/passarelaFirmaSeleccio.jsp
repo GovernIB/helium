@@ -20,14 +20,16 @@
 --%>
 		<c:url value='/v3/firmapassarela/showsignaturemodule' var="urlpass"/>
 		<div class="modal-body" style="height: 300px;">
-			<div class="well" style="max-width: 400px; margin: 0 auto 10px;">
-				<c:forEach items="${plugins}" var="plugin">
-					<a href="${urlpass}/${plugin.pluginId}/${signaturesSetId}" class="btn btn-large btn-block btn-primary btn-plugin">
-						<b>${plugin.nom}</b><br />
-						<small><i>${plugin.descripcioCurta}</i></small>
-					</a>
-				</c:forEach>
-			</div>
+			<c:if test="${plugins != null && plugins.size > 0}">
+				<div class="well" style="max-width: 400px; margin: 0 auto 10px;">
+					<c:forEach items="${plugins}" var="plugin">
+						<a href="${urlpass}/${plugin.pluginId}/${signaturesSetId}" class="btn btn-large btn-block btn-primary btn-plugin">
+							<b>${plugin.nom}</b><br />
+							<small><i>${plugin.descripcioCurta}</i></small>
+						</a>
+					</c:forEach>
+				</div>
+			</c:if>
 		</div>
 		<div class="modal-footer">
 			<button type="button" class="btn btn-default dismiss" data-dismiss="modal"><spring:message code="comu.boto.tancar"/></button>

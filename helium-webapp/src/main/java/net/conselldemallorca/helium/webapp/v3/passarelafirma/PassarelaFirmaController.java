@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.view.RedirectView;
 
+import net.conselldemallorca.helium.webapp.v3.controller.BaseController;
 import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
 
 /**
@@ -25,7 +26,7 @@ import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
  */
 @Controller
 @RequestMapping(value = PassarelaFirmaHelper.CONTEXTWEB)
-public class PassarelaFirmaController {
+public class PassarelaFirmaController extends BaseController {
 
 	public static final boolean stepSelectionWhenOnlyOnePlugin = true;
 
@@ -40,38 +41,42 @@ public class PassarelaFirmaController {
 			HttpServletResponse response,
 			@PathVariable("signaturesSetId") String signaturesSetId,
 			Model model) throws Exception {
-		List<PassarelaFirmaPlugin> pluginsFiltered = passarelaFirmaHelper.getAllPlugins(
+		try {
+			List<PassarelaFirmaPlugin> pluginsFiltered = passarelaFirmaHelper.getAllPlugins(
 				request,
 				signaturesSetId);
-		// Si només hi ha un mòdul de firma llavors anar a firmar directament
-		if (stepSelectionWhenOnlyOnePlugin) {
-			if (pluginsFiltered.size() == 1) {
-				PassarelaFirmaPlugin modul = pluginsFiltered.get(0);
-				long pluginID = modul.getPluginId();
-				return "redirect:" +
-						PassarelaFirmaHelper.CONTEXTWEB + "/showsignaturemodule/" +
-						pluginID + "/" + signaturesSetId;
+			// Si només hi ha un mòdul de firma llavors anar a firmar directament
+			if (stepSelectionWhenOnlyOnePlugin) {
+				if (pluginsFiltered.size() == 1) {
+					PassarelaFirmaPlugin modul = pluginsFiltered.get(0);
+					long pluginID = modul.getPluginId();
+					return "redirect:" +
+							PassarelaFirmaHelper.CONTEXTWEB + "/showsignaturemodule/" +
+							pluginID + "/" + signaturesSetId;
+				}
 			}
-		}
-		PassarelaFirmaConfig pfss = passarelaFirmaHelper.getSignaturesSet(
-				request,
-				signaturesSetId);
-		// Si cap modul compleix llavors mostrar missatge
-		if (pluginsFiltered.size() == 0) {
-			String msg = "No existeix cap mòdul de firma que passi els filtres";
-			if (pfss == null) {
+			// Si hi ha més d'un mòdul de firma llavors els mostra llistats
+			PassarelaFirmaConfig pfss = passarelaFirmaHelper.getSignaturesSet(
+					request,
+					signaturesSetId);
+			// Si cap modul compleix llavors mostrar missatge
+			if (pluginsFiltered.size() == 0) {
+				String msg = getMessage(request, "passarelafirma.controller.error.filtres");
 				MissatgesHelper.error(request, msg);
+				if (pfss != null) {
+					StatusSignaturesSet sss = pfss.getStatusSignaturesSet();
+					sss.setErrorMsg(msg);
+					sss.setErrorException(null);
+					sss.setStatus(StatusSignaturesSet.STATUS_FINAL_ERROR);
+				}
 			} else {
-				StatusSignaturesSet sss = pfss.getStatusSignaturesSet();
-				sss.setErrorMsg(msg);
-				sss.setErrorException(null);
-				sss.setStatus(StatusSignaturesSet.STATUS_FINAL_ERROR);
+				model.addAttribute("documentId", pfss.getDocumentId());
+				model.addAttribute("signaturesSetId", signaturesSetId);
+				model.addAttribute("plugins", pluginsFiltered);
 			}
-			return "redirect:" + pfss.getUrlFinal();
+		} catch(Exception e) {
+			MissatgesHelper.error(request, e.getMessage());
 		}
-		model.addAttribute("documentId", pfss.getDocumentId());
-		model.addAttribute("signaturesSetId", signaturesSetId);
-		model.addAttribute("plugins", pluginsFiltered);
 		return "v3/passarelaFirma/passarelaFirmaSeleccio";
 	}
 
@@ -85,9 +90,18 @@ public class PassarelaFirmaController {
 				request,
 				signaturesSetID);
 		pfss.setPluginId(pluginId);
-		String urlToPluginWebPage = passarelaFirmaHelper.signDocuments(
-				request,
-				signaturesSetID);
+		String urlToPluginWebPage;
+		try {
+			urlToPluginWebPage = passarelaFirmaHelper.signDocuments(
+					request,
+					signaturesSetID);
+		} catch (Throwable e) {
+			e.printStackTrace();
+			urlToPluginWebPage = ESQUEMA_PREFIX + PassarelaFirmaHelper.CONTEXTWEB + "/selectsignmodule/" + signaturesSetID;
+			MissatgesHelper.error(
+					request,
+					getMessage(request, "error.signatura", new Object[] {e.getLocalizedMessage()}));
+		}
 		return new RedirectView(urlToPluginWebPage, false);
 	}
 
