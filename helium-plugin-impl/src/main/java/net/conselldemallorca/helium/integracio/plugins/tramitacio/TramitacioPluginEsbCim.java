@@ -283,4 +283,11 @@ public class TramitacioPluginEsbCim implements TramitacioPlugin {
 
 	private static final Log logger = LogFactory.getLog(TramitacioPluginEsbCim.class);
 
+	@Override
+	public boolean existeixExpedient(Long unidadAdministrativa, String identificadorExpediente)
+			throws TramitacioPluginException {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
 }

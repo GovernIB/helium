@@ -14,6 +14,8 @@ import net.conselldemallorca.helium.integracio.plugins.registre.RespostaJustific
  * @author Limit Tecnologies <limit@limit.es>
  */
 public interface TramitacioPlugin {
+	
+	public boolean existeixExpedient(Long unidadAdministrativa, String identificadorExpediente) throws TramitacioPluginException;
 
 	public void publicarExpedient(PublicarExpedientRequest request) throws TramitacioPluginException;
 

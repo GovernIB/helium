@@ -66,6 +66,21 @@ import net.conselldemallorca.helium.integracio.plugins.registre.TramitSubsanacio
  */
 public class TramitacioPluginSistrav2 implements TramitacioPlugin {
 
+	@Override
+	public boolean existeixExpedient(Long unidadAdministrativa, String identificadorExpediente) throws TramitacioPluginException {
+		try {
+			return getZonaperClient().existeExpediente(unidadAdministrativa, identificadorExpediente);
+		} catch (Exception ex) {
+			logger.error("Error al comprovar exitència d'expedient en zona personal. Unitat administrativa: " + unidadAdministrativa + 
+					", Identificador Expedient: " + identificadorExpediente, 
+					ex);
+			throw new TramitacioPluginException("Error al comprovar exitència d'expedient en zona personal. Unitat administrativa: " + unidadAdministrativa + 
+					", Identificador Expedient: " + identificadorExpediente, 
+					ex);
+		}
+	}
+	
+	@Override
 	public void publicarExpedient(
 			PublicarExpedientRequest request) throws TramitacioPluginException {
 		try {

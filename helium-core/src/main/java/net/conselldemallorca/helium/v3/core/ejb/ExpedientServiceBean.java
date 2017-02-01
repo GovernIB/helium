@@ -27,7 +27,6 @@ import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto.EstatTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto.IniciadorTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.InstanciaProcesDto;
-import net.conselldemallorca.helium.v3.core.api.dto.IntegracioParametreDto;
 import net.conselldemallorca.helium.v3.core.api.dto.MostrarAnulatsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NotificacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
@@ -610,12 +609,4 @@ public class ExpedientServiceBean implements ExpedientService {
 	public void notificacioReprocessar(Long notificacioId) throws NoTrobatException {
 		delegate.notificacioReprocessar(notificacioId);
 	}
-
-	@Override
-	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public void actualitzaExpedientFromZonaPersonal(Long expedientId, String expedientTramitIdentificador,
-			String expedientTramitClau, IntegracioParametreDto[] parametres, long t0) throws NoTrobatException {
-		delegate.actualitzaExpedientFromZonaPersonal(expedientId, expedientTramitIdentificador, expedientTramitClau, parametres, t0);
-	}
-
 }
