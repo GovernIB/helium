@@ -498,9 +498,11 @@ public class TascaTramitacioController extends BaseTascaController {
 			model.addAttribute("documentCodi", documentCodi);
 			return "v3/passarelaFirma/passarelaFirmaForm";
 		}
-		ArxiuDto arxiuPerFirmar = tascaService.getArxiuPerDocumentCodi(
-				tascaId,
-				documentCodi);
+		DocumentDto documentDto = tascaService.getDocumentPerDocumentCodi(tascaId, documentCodi);
+        ArxiuDto arxiuPerFirmar = new ArxiuDto();
+        arxiuPerFirmar.setNom(documentDto.getDocumentNom());
+        arxiuPerFirmar.setContingut(documentDto.getVistaContingut());
+        
 		PersonaDto usuariActual = aplicacioService.findPersonaActual();
 		String modalStr = (ModalHelper.isModal(request)) ? "/modal" : "";
 		
