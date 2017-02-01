@@ -98,6 +98,7 @@ public class TaskInstance extends VariableContainer implements Identifiable,
 	protected Date iniciFinalitzacio;
 	protected String errorFinalitzacio;
 	protected String selectedOutcome;
+	protected String rols;
 	//
 	
 	//flag titol actualitzat
@@ -806,6 +807,14 @@ public class TaskInstance extends VariableContainer implements Identifiable,
 
 	public void setSelectedOutcome(String selectedOutcome) {
 		this.selectedOutcome = selectedOutcome;
+	}
+
+	public String getRols() {
+		return rols;
+	}
+
+	public void setRols(String rols) {
+		this.rols = rols;
 	}
 
 	private static final Log log = LogFactory.getLog(TaskInstance.class);

@@ -34,7 +34,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -48,6 +47,7 @@ import net.conselldemallorca.helium.core.helper.DissenyHelper;
 import net.conselldemallorca.helium.core.helper.DocumentHelperV3;
 import net.conselldemallorca.helium.core.helper.EntornHelper;
 import net.conselldemallorca.helium.core.helper.ExpedientHelper;
+import net.conselldemallorca.helium.core.helper.ExpedientTipusHelper;
 import net.conselldemallorca.helium.core.helper.IndexHelper;
 import net.conselldemallorca.helium.core.helper.MailHelper;
 import net.conselldemallorca.helium.core.helper.MessageHelper;
@@ -81,8 +81,6 @@ import net.conselldemallorca.helium.v3.core.api.dto.ExecucioMassivaDto.ExecucioM
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.InstanciaProcesDto;
-import net.conselldemallorca.helium.v3.core.api.dto.PermisDto;
-import net.conselldemallorca.helium.v3.core.api.dto.PrincipalTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.exception.ExecucioMassivaException;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
@@ -164,6 +162,8 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 	private MailHelper mailHelper;
 	@Resource
 	private EntornHelper entornHelper;
+	@Resource
+	private ExpedientTipusHelper expedientTipusHelper;
 	@Resource
 	private IndexHelper indexHelper;
 	@Resource(name = "permisosHelperV3") 
@@ -277,7 +277,7 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 			
 			if (expedients || (dto.getDefProcIds() != null && dto.getDefProcIds().length > 0)) {
 				
-				execucioMassiva.setRols(getRols(auth, expedientTipus));
+				execucioMassiva.setRols(expedientTipusHelper.getRolsTipusExpedient(auth, expedientTipus));
 				
 //				logger.info(">> EXEC:MASS - Parametres: ");
 //				logger.info(">>>>> usuari:  " + execucioMassiva.getUsuari());
@@ -295,51 +295,6 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 			} else 
 				throw new ValidacioException("S'ha intentat crear una execució massiva sense assignar expedients.");
 		}
-	}
-	
-	private String getRols(Authentication auth, ExpedientTipus expedientTipus) {
-
-		String rols = "";
-		// Rols usuari
-		List<String> rolsUsuari = new ArrayList<String>();
-		if (auth != null && auth.getAuthorities() != null) {
-			for (GrantedAuthority gauth : auth.getAuthorities()) {
-				rolsUsuari.add(gauth.getAuthority());
-			}
-		}
-		// Rols tipus expedient
-		List<String> rolsTipusExpedient = new ArrayList<String>();
-		rolsTipusExpedient.add("ROLE_ADMIN");
-		rolsTipusExpedient.add("ROLE_USER");
-		rolsTipusExpedient.add("ROLE_WS");
-		if (expedientTipus != null) {
-			List<PermisDto> permisos = permisosHelper.findPermisos(
-					expedientTipus.getId(),
-					ExpedientTipus.class);
-			if (permisos != null)
-				for (PermisDto permis: permisos) {
-					if (PrincipalTipusEnumDto.ROL.equals(permis.getPrincipalTipus()))
-						rolsTipusExpedient.add(permis.getPrincipalNom());
-				}
-		}
-		rolsUsuari.retainAll(rolsTipusExpedient);
-		
-		for (String rol : rolsUsuari) {
-			rols += rol + ",";
-		}
-		if (rols.length() > 0) {
-			rols = rols.substring(0, rols.length() - 1);
-			logger.info(">>> EXECUCIÓ MASSIVA - ROLS Reals: " + rols);
-			if (rols.length() > 2000) {
-				rols = rols.substring(0, 2000);
-				rols = rols.substring(0, rols.lastIndexOf(","));
-			}
-		} else {
-			rols = null;
-		}
-		
-		logger.info(">>> EXECUCIÓ MASSIVA - ROLS Finals: " + rols);
-		return rols;
 	}
 	
 	@Transactional

@@ -32,6 +32,7 @@
     <property name="errorFinalitzacio" column="ERRORFINALITZACIO_" />
     <property name="titolActualitzat" column="TITOLACTUALITZAT_" />
     <property name="selectedOutcome" column="SELECTEDOUTCOME_" />
+    <property name="rols" column="ROLS_" />
     
     <many-to-one name="task"
                  column="TASK_"

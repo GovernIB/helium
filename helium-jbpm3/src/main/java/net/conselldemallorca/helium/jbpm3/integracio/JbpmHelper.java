@@ -616,9 +616,9 @@ public class JbpmHelper {
 	}
 	
 	//Marcar tasca pendent de finalitzar en segón pla
-	public void marcarFinalitzar(String taskId, Date marcadaFinalitzar, String outcome) {
+	public void marcarFinalitzar(String taskId, Date marcadaFinalitzar, String outcome, String rols) {
 		final long id = Long.parseLong(taskId);
-		MarcarFinalitzarCommand command = new MarcarFinalitzarCommand(id, marcadaFinalitzar, outcome);
+		MarcarFinalitzarCommand command = new MarcarFinalitzarCommand(id, marcadaFinalitzar, outcome, rols);
 		commandService.execute(command);
 	}
 

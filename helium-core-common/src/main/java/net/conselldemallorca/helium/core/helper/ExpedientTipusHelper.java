@@ -11,6 +11,7 @@ import javax.annotation.Resource;
 import org.jbpm.graph.exe.ProcessInstanceExpedient;
 import org.springframework.security.acls.model.Permission;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
@@ -20,6 +21,8 @@ import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.security.ExtendedPermission;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmTask;
+import net.conselldemallorca.helium.v3.core.api.dto.PermisDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PrincipalTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientRepository;
@@ -211,6 +214,49 @@ public class ExpedientTipusHelper {
 			ids.add(t.getId());
 		}
 		return ids;
+	}
+	
+	public String getRolsTipusExpedient(Authentication auth, ExpedientTipus expedientTipus) {
+
+		String rols = "";
+		// Rols usuari
+		List<String> rolsUsuari = new ArrayList<String>();
+		if (auth != null && auth.getAuthorities() != null) {
+			for (GrantedAuthority gauth : auth.getAuthorities()) {
+				rolsUsuari.add(gauth.getAuthority());
+			}
+		}
+		// Rols tipus expedient
+		List<String> rolsTipusExpedient = new ArrayList<String>();
+		rolsTipusExpedient.add("ROLE_ADMIN");
+		rolsTipusExpedient.add("ROLE_USER");
+		rolsTipusExpedient.add("ROLE_WS");
+		if (expedientTipus != null) {
+			List<PermisDto> permisos = permisosHelper.findPermisos(
+					expedientTipus.getId(),
+					ExpedientTipus.class);
+			if (permisos != null)
+				for (PermisDto permis: permisos) {
+					if (PrincipalTipusEnumDto.ROL.equals(permis.getPrincipalTipus()))
+						rolsTipusExpedient.add(permis.getPrincipalNom());
+				}
+		}
+		rolsUsuari.retainAll(rolsTipusExpedient);
+		
+		for (String rol : rolsUsuari) {
+			rols += rol + ",";
+		}
+		if (rols.length() > 0) {
+			rols = rols.substring(0, rols.length() - 1);
+			if (rols.length() > 2000) {
+				rols = rols.substring(0, 2000);
+				rols = rols.substring(0, rols.lastIndexOf(","));
+			}
+		} else {
+			rols = null;
+		}
+		
+		return rols;
 	}
 
 }

@@ -20,15 +20,18 @@ public class MarcarFinalitzarCommand extends AbstractBaseCommand {
 	private long id;
 	private Date marcadaFinalitzar;
 	private String outcome;
+	private String rols;
 
 	public MarcarFinalitzarCommand(
 			long id,
 			Date marcadaFinalitzar,
-			String outcome) {
+			String outcome,
+			String rols) {
 		super();
 		this.id = id;
 		this.marcadaFinalitzar = marcadaFinalitzar;
 		this.outcome = outcome;
+		this.rols = rols;
 	}
 
 	public Object execute(JbpmContext jbpmContext) throws Exception {
@@ -37,6 +40,7 @@ public class MarcarFinalitzarCommand extends AbstractBaseCommand {
 		ti.setIniciFinalitzacio(null);
 		ti.setErrorFinalitzacio(null);
 		ti.setSelectedOutcome(this.outcome);
+		ti.setRols(this.rols);
 		return null;
 	}
 
@@ -60,6 +64,14 @@ public class MarcarFinalitzarCommand extends AbstractBaseCommand {
 
 	public void setOutcome(String outcome) {
 		this.outcome = outcome;
+	}
+
+	public String getRols() {
+		return rols;
+	}
+
+	public void setRols(String rols) {
+		this.rols = rols;
 	}
 
 	@Override

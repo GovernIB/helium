@@ -25,6 +25,8 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.acls.model.Permission;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -1136,8 +1138,14 @@ public class TascaServiceImpl implements TascaService {
 		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(task.getProcessInstanceId());
 		if (tasca.isFinalitzacioSegonPla()) {
 			//cridar command per a marcar la tasca per a finalitzar en segón pla
+			
+			//data de marca de finalització
 			Date marcadaFinalitzar = new Date();
-			jbpmHelper.marcarFinalitzar(tascaId, marcadaFinalitzar, outcome);
+			
+			//recollim els rols del tipus de l'expedient
+			String rols = expedientTipusHelper.getRolsTipusExpedient(auth, expedient.getTipus());
+			
+			jbpmHelper.marcarFinalitzar(tascaId, marcadaFinalitzar, outcome, rols);
 			checkFinalitzarSegonPla(tascaId, marcadaFinalitzar);
 			
 			expedientLoggerHelper.afegirLogExpedientPerTasca(
@@ -1505,8 +1513,12 @@ public class TascaServiceImpl implements TascaService {
                 }
             };
            
-            Authentication authentication =  new UsernamePasswordAuthenticationToken(principal, null);
-            SecurityContextHolder.getContext().setAuthentication(authentication);
+            Authentication authentication =  new UsernamePasswordAuthenticationToken (
+            		principal,
+					"N/A",
+					getAuthenticationRoles(task.getTask().getRols()));
+			
+	        SecurityContextHolder.getContext().setAuthentication(authentication);
         }
        
         jbpmHelper.marcarIniciFinalitzacioSegonPla(tascaId, iniciFinalitzacio);
@@ -1670,6 +1682,16 @@ public class TascaServiceImpl implements TascaService {
 		List<Alerta> antigues = alertaRepository.findActivesAmbTerminiIniciatId(terminiIniciat.getId());
 		for (Alerta antiga: antigues)
 			antiga.setDataEliminacio(new Date());
+	}
+	
+	private List<GrantedAuthority> getAuthenticationRoles(String rols) {
+		List<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
+		if (rols != null && !rols.isEmpty()) {
+			for (String rol: rols.split(",")) {
+				authorities.add(new SimpleGrantedAuthority(rol));
+			}
+		}
+		return authorities;
 	}
 
 	private static final Logger logger = LoggerFactory.getLogger(TascaServiceImpl.class);
