@@ -30,6 +30,7 @@
 			data-paging-enabled="true"
 			data-ordering="false"
 			data-default-order="1"
+			data-ajax-request-type="POST"
 			class="table table-striped table-bordered table-hover">
 		<thead>
 			<tr>

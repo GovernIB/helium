@@ -20,7 +20,8 @@
 			campsAddicionals: false,
 			ordering: true,
 			defaultDir: 'asc',
-			bootstrapRowCols: 12
+			bootstrapRowCols: 12,
+			ajaxRequestType: "GET"	// posar post per evitar problemes de llargada en la url de petició
 		}
 		var $element = $(element), element = element;
 		var $taula = $element;
@@ -72,6 +73,7 @@
 			else
 				domPrefix = '<"row"<"col-md-' + colMd50p + '"i><"col-md-' + colMd50p + '"<"botons">>>';
 			var language = window.navigator.userLanguage || window.navigator.language;
+			var ajaxRequestType = plugin.settings.ajaxRequestType;
 			var dataTableOptions = {
 				language: {
 					url: webutilContextPath() + '/js/datatables/i18n/datatables.' + language + '.json'
@@ -82,7 +84,7 @@
 				searching: plugin.settings.searchEnabled,
 				ajax: {
 					url: getBaseUrl() + '/datatable',
-					type: 'GET',
+					type: ajaxRequestType,
 					data: function(data) {
 						for (var key in plugin.serverParams) {
 							data[key] = plugin.serverParams[key];

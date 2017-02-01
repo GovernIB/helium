@@ -563,7 +563,7 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 		return "v3/expedientTipusPermis";
 	}
 	
-	@RequestMapping(value = "/{id}/permis/datatable", method = RequestMethod.GET)
+	@RequestMapping(value = "/{id}/permis/datatable")
 	@ResponseBody
 	DatatablesResponse permisDatatable(
 			HttpServletRequest request,
