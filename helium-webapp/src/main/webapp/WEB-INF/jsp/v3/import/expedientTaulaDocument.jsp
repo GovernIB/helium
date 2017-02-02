@@ -196,7 +196,7 @@
 							<li class="list-group-item"><strong><spring:message code="common.icones.doc.psigna.data.proces.darrer"/></strong><span class="pull-right"><fmt:formatDate value="${psignaPendentActual.dataProcessamentDarrer}" pattern="dd/MM/yyyy HH:mm"/></span></li>
 						</c:if>
 					</ul>
-					<c:if test="${psignaPendentActual.error}">
+					<c:if test="${psignaPendentActual.error && not empty psignaPendentActual.errorProcessant}">
 						<div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
 							<div class="panel panel-default">
 								<div class="panel-heading" role="tab" id="headingOne">
@@ -216,7 +216,7 @@
 					</c:if>
 				</div>
 				<div class="modal-footer">
-					<c:if test="${psignaPendentActual.error}">
+					<c:if test="${psignaPendentActual.error && psignaPendentActual.estat != 'PROCESSAT'}">
 						<c:if test="${expedient.permisDocManagement}">
 							<button type="button" class="btn btn-primary"  onclick="reprocessar(${document.id})">
 								<i class="fa fa-file-text-o"></i> <spring:message code="common.icones.doc.psigna.reintentar"/>

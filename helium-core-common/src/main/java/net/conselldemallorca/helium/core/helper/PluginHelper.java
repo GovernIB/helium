@@ -21,6 +21,7 @@ import org.springframework.stereotype.Component;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.model.hibernate.Portasignatures;
 import net.conselldemallorca.helium.core.model.hibernate.Portasignatures.TipusEstat;
+import net.conselldemallorca.helium.core.model.hibernate.Portasignatures.Transicio;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.integracio.plugins.custodia.CustodiaPlugin;
 import net.conselldemallorca.helium.integracio.plugins.custodia.CustodiaPluginException;
@@ -167,7 +168,8 @@ public class PluginHelper {
 			if (	!TipusEstat.PENDENT.equals(psigna.getEstat()) &&
 					!TipusEstat.SIGNAT.equals(psigna.getEstat()) &&
 					!TipusEstat.REBUTJAT.equals(psigna.getEstat()) &&
-					!TipusEstat.ERROR.equals(psigna.getEstat())) {
+					!TipusEstat.ERROR.equals(psigna.getEstat()) &&
+					!(TipusEstat.PROCESSAT.equals(psigna.getEstat()) && Transicio.REBUTJAT.equals(psigna.getTransition()))) {
 				it.remove();
 			}
 		}

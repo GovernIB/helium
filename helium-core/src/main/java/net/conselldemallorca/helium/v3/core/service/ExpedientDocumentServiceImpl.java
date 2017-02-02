@@ -414,6 +414,9 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 				else
 					dto.setEstat(TipusEstat.REBUTJAT.toString());
 				dto.setError(true);
+			} else if (TipusEstat.PROCESSAT.equals(pendent.getEstat()) && Transicio.REBUTJAT.equals(pendent.getTransition())) {
+				 dto.setEstat(TipusEstat.PROCESSAT.toString());
+				 dto.setError(true);
 			} else {
 				dto.setEstat(pendent.getEstat().toString());
 				dto.setError(false);
