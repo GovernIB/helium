@@ -281,51 +281,8 @@ public class ExpedientTipusServiceBean implements ExpedientTipusService {
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public List<DominiDto> dominiFindAll(Long expedientTipusId, PaginacioParamsDto paginacioParams)
-			throws NoTrobatException, PermisDenegatException {
-		return delegate.dominiFindAll(expedientTipusId, paginacioParams);
-	}
-
-	@Override
-	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public List<DominiDto> dominiFindAll(Long expedientTipusId, boolean incloureGlobals) {
 		return delegate.dominiFindAll(expedientTipusId, incloureGlobals);
-	}
-
-	@Override
-	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public DominiDto dominiFindAmbCodi(Long expedientTipusId, String codi) {
-		return delegate.dominiFindAmbCodi(expedientTipusId, codi);
-	}
-	@Override
-	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public DominiDto dominiFindAmbId(Long dominiId) {
-		return delegate.dominiFindAmbId(dominiId);
-	}
-
-	@Override
-	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public DominiDto dominiCreate(Long expedientTipusId, DominiDto termini) {
-		return delegate.dominiCreate(expedientTipusId, termini);
-	}
-
-	@Override
-	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public DominiDto dominiUpdate(DominiDto domini) {
-		return delegate.dominiUpdate(domini);
-	}
-
-	@Override
-	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public PaginaDto<DominiDto> dominiFindPerDatatable(Long expedientTipusId, String filtre,
-			PaginacioParamsDto paginacioParams) throws NoTrobatException {
-		return delegate.dominiFindPerDatatable(expedientTipusId, filtre, paginacioParams);
-	}
-
-	@Override
-	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public void dominiDelete(Long dominiId) throws NoTrobatException, PermisDenegatException {
-		delegate.dominiDelete(dominiId);
 	}
 
 	@Override

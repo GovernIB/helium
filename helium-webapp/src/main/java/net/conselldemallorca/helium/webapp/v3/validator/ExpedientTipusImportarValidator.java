@@ -39,6 +39,7 @@ import net.conselldemallorca.helium.v3.core.api.exportacio.RegistreMembreExporta
 import net.conselldemallorca.helium.v3.core.api.exportacio.TascaExportacio;
 import net.conselldemallorca.helium.v3.core.api.service.DefinicioProcesService;
 import net.conselldemallorca.helium.v3.core.api.service.DissenyService;
+import net.conselldemallorca.helium.v3.core.api.service.DominiService;
 import net.conselldemallorca.helium.v3.core.api.service.EnumeracioService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientTipusService;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientTipusExportarCommand;
@@ -60,6 +61,8 @@ public class ExpedientTipusImportarValidator implements ConstraintValidator<Expe
 	DefinicioProcesService definicioProcesService;
 	@Autowired
 	EnumeracioService enumeracioService;
+	@Autowired
+	DominiService dominiService;
 	@Autowired
 	private HttpServletRequest request;
 	
@@ -126,7 +129,7 @@ public class ExpedientTipusImportarValidator implements ConstraintValidator<Expe
     		// Conjunt d'enumeracions i dominis del tipus d'expedient per comprovar si les dependències són globals
     		// O no s'han escollit
     		Set<String> enumeracionsGlobals = new HashSet<String>();
-    		for (EnumeracioDto e : enumeracioService.findAmbEntorn(entornActual.getId()))
+    		for (EnumeracioDto e : enumeracioService.findGlobals(entornActual.getId()))
     			enumeracionsGlobals.add(e.getCodi());
 
     		// Si l'expedient destí està configurat amb info propia llavors haurà de tenir els camps i 
@@ -385,7 +388,8 @@ public class ExpedientTipusImportarValidator implements ConstraintValidator<Expe
 						DominiDto d = null;
 						if (expedientTipus != null)
 							// Primer busca dins el tipus d'expedient
-							d = expedientTipusService.dominiFindAmbCodi(
+							d = dominiService.findAmbCodi(
+									entornActual.getId(),
 									expedientTipus.getId(), 
 									campExportacio.getCodiDomini());
 						if (d == null)

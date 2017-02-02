@@ -74,8 +74,8 @@ public class EnumeracioServiceBean implements EnumeracioService {
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public List<EnumeracioDto> findAmbEntorn(Long entornId) throws NoTrobatException, PermisDenegatException {
-		return delegate.findAmbEntorn(entornId);
+	public List<EnumeracioDto> findGlobals(Long entornId) throws NoTrobatException, PermisDenegatException {
+		return delegate.findGlobals(entornId);
 	}
 
 	@Override

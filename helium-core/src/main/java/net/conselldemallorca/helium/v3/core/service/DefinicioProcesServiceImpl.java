@@ -23,7 +23,6 @@ import net.conselldemallorca.helium.core.model.hibernate.CampTasca;
 import net.conselldemallorca.helium.core.model.hibernate.Consulta;
 import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
 import net.conselldemallorca.helium.core.model.hibernate.DocumentTasca;
-import net.conselldemallorca.helium.core.model.hibernate.Domini;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.hibernate.FirmaTasca;
@@ -35,7 +34,6 @@ import net.conselldemallorca.helium.v3.core.api.dto.CampTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ConsultaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentTascaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.DominiDto;
 import net.conselldemallorca.helium.v3.core.api.dto.FirmaTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
@@ -926,21 +924,6 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 		return conversioTipusHelper.convertir(
 				definicioProces,
 				DefinicioProcesDto.class);
-	}
-	
-	// MANTENIMENT DE DOMINIS
-
-	@Override
-	@Transactional(readOnly = true)
-	public List<DominiDto> dominiFindByEntorn(
-			Long entornId) {
-		Entorn entorn = entornHelper.getEntornComprovantPermisos(
-				entornId,
-				true);
-		List<Domini> dominins = dominiRepository.findByEntorn(entorn);
-		return conversioTipusHelper.convertirList(
-									dominins, 
-									DominiDto.class);
 	}
 
 	// MANTENIMENT DE CONSULTES

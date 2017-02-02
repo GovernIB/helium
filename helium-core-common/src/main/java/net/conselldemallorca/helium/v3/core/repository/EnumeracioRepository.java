@@ -33,7 +33,13 @@ public interface EnumeracioRepository extends JpaRepository<Enumeracio, Long> {
 			Entorn entorn,
 			String codi);
 	
-	List<Enumeracio> findByEntorn(Entorn entorn);
+	
+	@Query(	"from " +
+			"    Enumeracio e " +
+			"where " +
+			"    e.entorn.id = :entornId " +
+			"and e.expedientTipus is null ")
+	List<Enumeracio> findGlobals(@Param("entornId") Long entornId);
 	
 	@Query(	"from " +
 			"    Enumeracio enu " +

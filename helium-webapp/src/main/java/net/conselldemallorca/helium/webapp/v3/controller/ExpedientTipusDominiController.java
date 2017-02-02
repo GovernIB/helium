@@ -30,6 +30,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
+import net.conselldemallorca.helium.v3.core.api.service.DominiService;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientTipusDominiCommand;
 import net.conselldemallorca.helium.webapp.v3.helper.ConversioTipusHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.DatatablesHelper;
@@ -46,6 +47,9 @@ import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
 @Controller
 @RequestMapping("/v3/expedientTipus")
 public class ExpedientTipusDominiController extends BaseExpedientTipusController {
+
+	@Autowired
+	protected DominiService dominiService;
 
 	@Autowired
 	private ConversioTipusHelper conversioTipusHelper;
@@ -106,12 +110,15 @@ public class ExpedientTipusDominiController extends BaseExpedientTipusController
 			HttpServletRequest request,
 			@PathVariable Long expedientTipusId,
 			Model model) {
+		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
 		PaginacioParamsDto paginacioParams = DatatablesHelper.getPaginacioDtoFromRequest(request);
 		return DatatablesHelper.getDatatableResponse(
 				request,
 				null,
-				expedientTipusService.dominiFindPerDatatable(
+				dominiService.findPerDatatable(
+						entornActual.getId(),
 						expedientTipusId,
+						false, // incloure globals
 						paginacioParams.getFiltre(),
 						paginacioParams));		
 	}
@@ -141,7 +148,9 @@ public class ExpedientTipusDominiController extends BaseExpedientTipusController
         	return "v3/expedientTipusDominiForm";
         } else {
         	// Verificar permisos
-    		expedientTipusService.dominiCreate(
+        	EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
+        	dominiService.create(
+        			entornActual.getId(),
     				expedientTipusId,
     				conversioTipusHelper.convertir(
     						command,
@@ -162,7 +171,7 @@ public class ExpedientTipusDominiController extends BaseExpedientTipusController
 			@PathVariable Long expedientTipusId,
 			@PathVariable Long id,
 			Model model) {
-		DominiDto dto = expedientTipusService.dominiFindAmbId(id);
+		DominiDto dto = dominiService.findAmbId(id);
 		ExpedientTipusDominiCommand command = conversioTipusHelper.convertir(
 				dto,
 				ExpedientTipusDominiCommand.class);
@@ -183,7 +192,7 @@ public class ExpedientTipusDominiController extends BaseExpedientTipusController
         	model.addAttribute("expedientTipusId", expedientTipusId);
         	return "v3/expedientTipusDominiForm";
         } else {
-        	expedientTipusService.dominiUpdate(
+        	dominiService.update(
         			conversioTipusHelper.convertir(
     						command,
     						DominiDto.class));
@@ -204,7 +213,7 @@ public class ExpedientTipusDominiController extends BaseExpedientTipusController
 			@PathVariable Long id,
 			Model model) {
 		try {
-			expedientTipusService.dominiDelete(id);
+			dominiService.delete(id);
 			
 			MissatgesHelper.success(
 					request,

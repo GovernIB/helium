@@ -100,6 +100,10 @@
 // <![CDATA[
             
 $(document).ready(function() {
+	$('#expedientTipusDocument').on('draw.dt', function() {
+		// Refresca els missatges
+		webutilRefreshMissatges();		
+	});
 });
 
 function refrescaTaulaDocuments() {
@@ -107,7 +111,6 @@ function refrescaTaulaDocuments() {
 }
 
 function callbackModalDocuments() {
-	webutilRefreshMissatges();
 	refrescaTaulaDocuments();
 }
 

@@ -29,6 +29,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ValidacioDto;
 import net.conselldemallorca.helium.v3.core.api.service.CampService;
+import net.conselldemallorca.helium.v3.core.api.service.DominiService;
 import net.conselldemallorca.helium.v3.core.api.service.EnumeracioService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientTipusService;
 import net.conselldemallorca.helium.v3.core.api.service.ValidacioService;
@@ -60,6 +61,8 @@ public class DefinicioProcesVariableController extends BaseVariableController {
 	protected ExpedientTipusService expedientTipusService;
 	@Autowired
 	protected EnumeracioService enumeracioService;
+	@Autowired
+	protected DominiService dominiService;
 	@Autowired
 	private ValidacioService validacioService;
 
@@ -464,8 +467,8 @@ public class DefinicioProcesVariableController extends BaseVariableController {
 			model.addAttribute("dominis", expedientTipusService.dominiFindAll(expedientTipusId, true));
 			model.addAttribute("consultes", expedientTipusService.consultaFindAll(expedientTipusId));
 		} else {
-			model.addAttribute("enumeracions", enumeracioService.findAmbEntorn(entornId));
-			model.addAttribute("dominis", definicioProcesService.dominiFindByEntorn(entornId));
+			model.addAttribute("enumeracions", enumeracioService.findGlobals(entornId));
+			model.addAttribute("dominis", dominiService.findGlobals(entornId));
 			model.addAttribute("consultes", definicioProcesService.consultaFindByEntorn(entornId));
 		}
 	}

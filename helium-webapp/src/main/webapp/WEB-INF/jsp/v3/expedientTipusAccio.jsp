@@ -84,10 +84,13 @@
 <script type="text/javascript">
 // <![CDATA[            
 $(document).ready(function() {
+	$('#expedientTipusAccio').on('draw.dt', function() {
+		// Refresca els missatges
+		webutilRefreshMissatges();		
+	});
 });
 
 function callbackModalAccions() {
-	webutilRefreshMissatges();
 	refrescaTaula();
 }
 

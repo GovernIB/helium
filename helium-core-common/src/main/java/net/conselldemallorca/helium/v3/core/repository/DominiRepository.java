@@ -31,7 +31,7 @@ public interface DominiRepository extends JpaRepository<Domini, Long> {
 	Domini findByEntornAndCodi(
 			Entorn entorn,
 			String codi);
-
+	
 	List<Domini> findByEntorn(
 			Entorn entorn);
 
@@ -48,10 +48,14 @@ public interface DominiRepository extends JpaRepository<Domini, Long> {
 
 	@Query(	"from Domini d " +
 			"where " +
-			"   d.expedientTipus.id = :expedientTipusId " +
+			"   d.entorn.id = :entornId " +
+			"	and ((d.expedientTipus.id = :expedientTipusId) or (d.expedientTipus is null and (:esNullExpedientTipusId = true or :incloureGlobals = true))) " +
 			"	and (:esNullFiltre = true or lower(d.codi) like lower('%'||:filtre||'%') or lower(d.nom) like lower('%'||:filtre||'%')) ")
 	Page<Domini> findByFiltrePaginat(
+			@Param("entornId") Long entornId,
+			@Param("esNullExpedientTipusId") boolean esNullExpedientTipusId,
 			@Param("expedientTipusId") Long expedientTipusId,
+			@Param("incloureGlobals") boolean incloureGlobals,
 			@Param("esNullFiltre") boolean esNullFiltre,
 			@Param("filtre") String filtre,		
 			Pageable pageable);
@@ -66,4 +70,23 @@ public interface DominiRepository extends JpaRepository<Domini, Long> {
 	List<Domini> findAmbExpedientTipusIGlobals(
 			@Param("expedientTipusId") Long expedientTipusId);
 	
+	/** Troba per entorn i codi global amb expedient tipus null. */
+	@Query(	"from " +
+			"    Domini d " +
+			"where " +
+			"    d.entorn = :entorn " +
+			"and d.codi = :codi " +
+			"and d.expedientTipus is null ")
+	Domini findByEntornAndCodiAndExpedientTipusNull(
+			@Param("entorn") Entorn entorn,
+			@Param("codi") String codi);
+	
+	/** Troba per entorn i codi global amb expedient tipus null. */
+	@Query(	"from " +
+			"    Domini d " +
+			"where " +
+			"    d.entorn.id = :dominiId " +
+			"and d.expedientTipus is null ")
+	List<Domini> findGlobals(
+			@Param("dominiId") Long dominiId);
 }

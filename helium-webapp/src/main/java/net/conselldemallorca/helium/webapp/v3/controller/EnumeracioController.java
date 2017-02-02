@@ -127,7 +127,6 @@ public class EnumeracioController extends BaseDissenyController {
 							getMessage(
 									request, 
 									"expedient.tipus.enumeracio.controller.creat"));
-					return modalUrlTancar(false);
 				}
 			} catch (Exception ex) {
 				MissatgesHelper.error(request, 
@@ -140,8 +139,8 @@ public class EnumeracioController extends BaseDissenyController {
 		    }
 		} else {
 			MissatgesHelper.error(request, getMessage(request, "error.permis.disseny.entorn"));
-			return modalUrlTancar(false);
 		}
+		return modalUrlTancar(true);
 	}	
 	
 	@RequestMapping(value = "/{id}/update", method = RequestMethod.GET)
@@ -180,7 +179,6 @@ public class EnumeracioController extends BaseDissenyController {
 							getMessage(
 									request, 
 									"expedient.tipus.enumeracio.controller.modificat"));
-					return modalUrlTancar(false);
 				}
 			} catch (Exception ex) {
 				MissatgesHelper.error(request, 
@@ -195,6 +193,7 @@ public class EnumeracioController extends BaseDissenyController {
 			MissatgesHelper.error(request, getMessage(request, "error.permis.disseny.entorn"));
 			return "redirect:/v3";
 		}		
+		return modalUrlTancar(true);
 	}	
 
 	

@@ -36,7 +36,16 @@ public interface EnumeracioService {
 	public void delete(
 			Long enumeracioId) throws NoTrobatException, PermisDenegatException;
 
-	public List<EnumeracioDto> findAmbEntorn(
+	/** Consulta les enumeracions globals no lligades a cap expedient.
+	 * @param entornId
+	 *            Atribut id de l'entorn
+	 * @return Les enumeracions globals de l'entorn
+	 * @throws NoTrobatException
+	 *             Si no s'ha trobat el registre amb l'id especificat.
+	 * @throws PermisDenegatException
+	 *             Si no es tenen els permisos necessaris.
+	 */
+	public List<EnumeracioDto> findGlobals(
 			Long entornId) throws NoTrobatException;
 	
 	public EnumeracioDto findAmbId(

@@ -140,7 +140,6 @@ $(document).ready(function() {
 			url: getUrl,
 			async: true,
 			success: function(result) {
-				webutilRefreshMissatges();
 				if (result) {
 					refrescarAgrupacions();
 				}
@@ -178,7 +177,7 @@ $(document).ready(function() {
 	});	
 	// Amaga la columna d'ordre
 	$('#expedientTipusVariable').DataTable().column(2).visible(false);
-
+	
 	// Quan es repinta la taula actualitza els enllaços
 	$('#expedientTipusVariable').on('draw.dt', function() {
 		// Afegeix les opcions per a agrupar de les agrupacions existents
@@ -226,6 +225,8 @@ $(document).ready(function() {
 		  	// Canvia la ordenació
 			$('#expedientTipusVariable').DataTable().order([2, 'asc']);
 		}
+		// Refresca els missatges
+		webutilRefreshMissatges();
 	  });		
 });
 
@@ -297,12 +298,10 @@ function refrescarAgrupacions() {
 }
 
 function callbackModalVariables() {
-	webutilRefreshMissatges();
 	refrescaTaula();
 }
 
 function callbackModalAgrupacions() {
-	webutilRefreshMissatges();
 	refrescarAgrupacions();
 }
 

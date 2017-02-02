@@ -65,10 +65,13 @@
 <script type="text/javascript">
 // <![CDATA[            
 $(document).ready(function() {
+	$('#definicioProcesTasques').on('draw.dt', function() {
+		// Refresca els missatges
+		webutilRefreshMissatges();		
+	});
 });
 
 function callbackModalTasques() {
-	webutilRefreshMissatges();
 	refrescaTaula();
 }
 

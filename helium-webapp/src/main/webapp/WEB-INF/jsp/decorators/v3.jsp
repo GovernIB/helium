@@ -178,11 +178,12 @@
 							<div class="btn-group" >
 								<button class="btn btn-primary dropdown-toggle" data-toggle="dropdown"><spring:message code="comuns.disseny"/> <span class="caret"></span></button>
 								<ul class="dropdown-menu">
+									<li><a href="<c:url value="/v3/expedientTipus"/>"><spring:message code='decorator.menu.disseny.tipus.expedient' /></a></li>
 									<c:if test="${potDissenyarEntorn}">
 										<li><a href="<c:url value="/v3/definicioProces"/>"><spring:message code='decorators.entorn.defs_proces' /></a></li>
 										<li><a href="<c:url value="/v3/enumeracio"/>"><spring:message code='decorators.entorn.enumeracions' /></a></li>
+										<li><a href="<c:url value="/v3/domini"/>"><spring:message code='decorators.entorn.dominis' /></a></li>
 									</c:if>
-									<li><a href="<c:url value="/v3/expedientTipus"/>"><spring:message code='decorator.menu.disseny.tipus.expedient' /></a></li>
 									<li role="separator" class="divider"></li>
 									<li><a target="_BLANK" href="<c:url value="/expedientTipus/llistat.html"/>">Disseny antic</a></li>
 								</ul>

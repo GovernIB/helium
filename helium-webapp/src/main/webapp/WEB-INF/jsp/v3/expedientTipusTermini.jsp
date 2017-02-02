@@ -74,10 +74,13 @@
 </c:choose>
 <script>
 $(document).ready(function() {
+	$('#expedientTipusTermini').on('draw.dt', function() {
+		// Refresca els missatges
+		webutilRefreshMissatges();		
+	});
 });
 
 function callbackModalTerminis() {
-	webutilRefreshMissatges();
 	refrescaTaula();
 }
 

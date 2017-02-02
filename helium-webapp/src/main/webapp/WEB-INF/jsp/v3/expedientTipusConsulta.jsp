@@ -36,17 +36,17 @@
 					<th data-col-name="nom"><spring:message code="expedient.tipus.consulta.llistat.columna.titol"/></th>
 					<th data-col-name="varsFiltreCount" data-template="#cellVarsFiltreTemplate" data-orderable="false" width="13%">
 						<script id="cellVarsFiltreTemplate" type="text/x-jsrender">
-							<a href="${expedientTipus.id}/consulta/{{:id}}/varFiltre" data-toggle="modal" data-callback="callbackModalConsultes()" class="btn btn-default"><spring:message code="expedient.tipus.consulta.llistat.accio.variables.filtre"/>&nbsp;<span class="badge">{{:varsFiltreCount}}</span></a>
+							<a href="${expedientTipus.id}/consulta/{{:id}}/varFiltre" data-toggle="modal" class="btn btn-default"><spring:message code="expedient.tipus.consulta.llistat.accio.variables.filtre"/>&nbsp;<span class="badge">{{:varsFiltreCount}}</span></a>
 						</script>
 					</th>
 					<th data-col-name="varsInformeCount" data-template="#cellVarsInformeTemplate" data-orderable="false" width="13%">
 						<script id="cellVarsInformeTemplate" type="text/x-jsrender">
-							<a href="${expedientTipus.id}/consulta/{{:id}}/varInforme" data-toggle="modal" data-callback="callbackModalConsultes()" class="btn btn-default"><spring:message code="expedient.tipus.consulta.llistat.accio.variables.informe"/>&nbsp;<span class="badge">{{:varsInformeCount}}</span></a>
+							<a href="${expedientTipus.id}/consulta/{{:id}}/varInforme" data-toggle="modal" class="btn btn-default"><spring:message code="expedient.tipus.consulta.llistat.accio.variables.informe"/>&nbsp;<span class="badge">{{:varsInformeCount}}</span></a>
 						</script>
 					</th>
 					<th data-col-name="parametresCount" data-template="#cellParametresTemplate" data-orderable="false" width="13%">
 						<script id="cellParametresTemplate" type="text/x-jsrender">
-							<a href="${expedientTipus.id}/consulta/{{:id}}/parametre" data-toggle="modal" data-callback="callbackModalConsultes()" class="btn btn-default"><spring:message code="expedient.tipus.consulta.llistat.accio.parametres"/>&nbsp;<span class="badge">{{:parametresCount}}</span></a>
+							<a href="${expedientTipus.id}/consulta/{{:id}}/parametre" data-toggle="modal" class="btn btn-default"><spring:message code="expedient.tipus.consulta.llistat.accio.parametres"/>&nbsp;<span class="badge">{{:parametresCount}}</span></a>
 					</script>
 					</th>
 					<th data-col-name="ocultarActiu" data-template="#cellExpedientTipusConsultaActiuTemplate">
@@ -63,7 +63,7 @@
 						<div class="dropdown">
 							<button class="btn btn-primary" data-toggle="dropdown"><span class="fa fa-cog"></span>&nbsp;<spring:message code="comu.boto.accions"/>&nbsp;<span class="caret"></span></button>
 							<ul class="dropdown-menu">
-								<li><a data-toggle="modal" data-callback="callbackModalConsultes()" href="${expedientTipus.id}/consulta/{{:id}}/update"><span class="fa fa-pencil"></span>&nbsp;<spring:message code="expedient.tipus.info.accio.modificar"/></a></li>
+								<li><a data-toggle="modal" href="${expedientTipus.id}/consulta/{{:id}}/update"><span class="fa fa-pencil"></span>&nbsp;<spring:message code="expedient.tipus.info.accio.modificar"/></a></li>
 								<li><a href="${expedientTipus.id}/consulta/{{:id}}/delete" data-toggle="ajax" data-confirm="<spring:message code="expedient.tipus.consulta.llistat.confirmacio.esborrar"/>"><span class="fa fa-trash-o"></span>&nbsp;<spring:message code="expedient.llistat.accio.esborrar"/></a></li>
 							</ul>
 						</div>
@@ -77,7 +77,7 @@
 
 		<script id="tableButtonsConsultaTemplate" type="text/x-jsrender">
 			<div class="botons-titol text-right">
-				<a id="nou_camp" class="btn btn-default" href="${expedientTipus.id}/consulta/new" data-toggle="modal" data-callback="callbackModalConsultes()" data-datatable-id="expedientTipusConsulta"><span class="fa fa-plus"></span>&nbsp;<spring:message code="expedient.tipus.consulta.llistat.accio.nova"/></a>
+				<a id="nou_camp" class="btn btn-default" href="${expedientTipus.id}/consulta/new" data-toggle="modal" data-datatable-id="expedientTipusConsulta"><span class="fa fa-plus"></span>&nbsp;<spring:message code="expedient.tipus.consulta.llistat.accio.nova"/></a>
 			</div>
 		</script>
 	</c:when>
@@ -112,17 +112,9 @@ $(document).ready(function() {
 	    }, function() {
 	        $(this.cells[0]).removeClass('showDragHandle');
 	    });	
+		webutilRefreshMissatges();
 	  });
 });
-
-function callbackModalConsultes() {
-	webutilRefreshMissatges();
-	refrescaTaula();
-}
-
-function refrescaTaula() {
-	$('#expedientTipusRedireccio').webutilDatatable('refresh');
-}
 
 function canviarPosicioConsulta( id, pos) {
   	// Canvia la ordenació sempre amb ordre ascendent

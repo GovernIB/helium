@@ -65,10 +65,13 @@
 <script type="text/javascript">
 // <![CDATA[            
 $(document).ready(function() {
+	$('#expedientTipusRedireccio').on('draw.dt', function() {
+		// Refresca els missatges
+		webutilRefreshMissatges();		
+	});
 });
 
 function callbackModalRedireccions() {
-	webutilRefreshMissatges();
 	refrescaTaula();
 }
 

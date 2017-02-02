@@ -30,6 +30,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.TascaDto;
 import net.conselldemallorca.helium.v3.core.api.service.CampService;
 import net.conselldemallorca.helium.v3.core.api.service.DefinicioProcesService;
 import net.conselldemallorca.helium.v3.core.api.service.DocumentService;
+import net.conselldemallorca.helium.v3.core.api.service.DominiService;
 import net.conselldemallorca.helium.v3.core.api.service.EnumeracioService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientTipusService;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientTipusExportarCommand;
@@ -51,6 +52,8 @@ public class ExpedientTipusExportarValidator implements ConstraintValidator<Expe
 	DocumentService documentService;
 	@Autowired
 	private EnumeracioService enumeracioService;
+	@Autowired
+	private DominiService dominiService;
 	
 	@Override
 	public void initialize(ExpedientTipusExportar anotacio) {
@@ -69,10 +72,10 @@ public class ExpedientTipusExportarValidator implements ConstraintValidator<Expe
 			// Conjunt d'enumeracions i dominis del tipus d'expedient per comprovar si les dependències són globals
 			// O no s'han escollit
 			Set<String> enumeracionsGlobals = new HashSet<String>();
-			for (EnumeracioDto e : enumeracioService.findAmbEntorn(command.getEntornId()))
+			for (EnumeracioDto e : enumeracioService.findGlobals(command.getEntornId()))
 				enumeracionsGlobals.add(e.getCodi());
 			Set<String> dominisGlobals = new HashSet<String>();
-			for (DominiDto d : definicioProcesService.dominiFindByEntorn(expedientTipus.getEntorn().getId()))
+			for (DominiDto d : dominiService.findGlobals(expedientTipus.getEntorn().getId()))
 				dominisGlobals.add(d.getCodi());
 			
 			// Definició de procés inicial

@@ -34,6 +34,7 @@ import net.conselldemallorca.helium.v3.core.api.service.CampService;
 import net.conselldemallorca.helium.v3.core.api.service.DefinicioProcesService;
 import net.conselldemallorca.helium.v3.core.api.service.DissenyService;
 import net.conselldemallorca.helium.v3.core.api.service.DocumentService;
+import net.conselldemallorca.helium.v3.core.api.service.DominiService;
 import net.conselldemallorca.helium.v3.core.api.service.EnumeracioService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientTipusService;
 import net.conselldemallorca.helium.webapp.v3.command.DefinicioProcesExportarCommand;
@@ -76,6 +77,8 @@ public class DefinicioProcesImportarValidator implements ConstraintValidator<Def
 	DissenyService dissenyService;
 	@Autowired
 	EnumeracioService enumeracioService;
+	@Autowired
+	DominiService dominiService;
 	@Autowired
 	private HttpServletRequest request;
 	
@@ -277,7 +280,10 @@ public class DefinicioProcesImportarValidator implements ConstraintValidator<Def
 						DominiDto domini = null;
 						if (expedientTipus != null)
 							// Busca primer dins del tipus d'expedient
-							domini = expedientTipusService.dominiFindAmbCodi(expedientTipus.getId(), camp.getCodiDomini());
+							domini = dominiService.findAmbCodi(
+									entornActual.getId(),
+									expedientTipus.getId(), 
+									camp.getCodiDomini());
 						if (domini == null)
 							// Si no el troba busca a l'entorn
 							domini = dissenyService.dominiFindAmbCodi(entornActual.getId(), camp.getCodiDomini());

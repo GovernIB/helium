@@ -70,6 +70,10 @@
 // <![CDATA[
             
 $(document).ready(function() {
+	$('#expedientEnumeracio').on('draw.dt', function() {
+		// Refresca els missatges
+		webutilRefreshMissatges();		
+	});
 });
 
 function refrescaTaula() {
@@ -77,7 +81,6 @@ function refrescaTaula() {
 }
 
 function callbackModalEnumerats() {
-	webutilRefreshMissatges();
 	refrescaTaula();
 }
 // ]]>

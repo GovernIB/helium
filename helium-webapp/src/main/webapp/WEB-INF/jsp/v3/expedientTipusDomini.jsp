@@ -67,10 +67,13 @@
 </c:choose>
 <script>
 $(document).ready(function() {
+	$('#expedientTipusDomini').on('draw.dt', function() {
+		// Refresca els missatges
+		webutilRefreshMissatges();		
+	});
 });
 
 function callbackModalDominis() {
-	webutilRefreshMissatges();
 	refrescaTaula();
 }
 

@@ -80,11 +80,12 @@ $(document).ready(function() {
 	    }, function() {
 	        $(this.cells[0]).removeClass('showDragHandle');
 	    });
+		// Refresca els missatges
+		webutilRefreshMissatges();
 	});
 });
 
 function callbackModalEstats() {
-	webutilRefreshMissatges();
 	refrescaTaula();
 }
 

@@ -35,7 +35,7 @@ import net.conselldemallorca.helium.v3.core.repository.EnumeracioValorsRepositor
 import net.conselldemallorca.helium.v3.core.repository.ExpedientTipusRepository;
 
 /**
- * Implementació del servei per a gestionar tipus d'expedients.
+ * Implementació del servei per a gestionar enumeracions.
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
@@ -113,10 +113,10 @@ public class EnumeracioServiceImpl implements EnumeracioService {
 			throws PermisDenegatException {
 
 		logger.debug(
-				"Creant nova enumeracio per un tipus d'expedient (" +
+				"Creant nova enumeracio (" +
 				"expedientTipusId =" + expedientTipusId + ", " +
 				"entornId =" + entornId + ", " +
-				"document=" + enumeracio + ")");
+				"enumeracio=" + enumeracio + ")");
 		
 		Entorn entorn = entornHelper.getEntornComprovantPermisos(entornId, true, true);
 		ExpedientTipus expedientTipus = null;
@@ -143,7 +143,7 @@ public class EnumeracioServiceImpl implements EnumeracioService {
 			String codi) {
 		EnumeracioDto ret = null;
 		logger.debug(
-				"Consultant l'enumeració del tipus d'expedient per codi (" +
+				"Consultant l'enumeració per codi (" +
 				"entornId=" + entornId + ", " +  
 				"expedientTipusId=" + expedientTipusId + ", " +
 				"codi = " + codi + ")");
@@ -168,7 +168,7 @@ public class EnumeracioServiceImpl implements EnumeracioService {
 	public void delete(Long enumeracioId) throws NoTrobatException, PermisDenegatException, ValidacioException {
 		
 		logger.debug(
-				"Esborrant l'enumeració del tipus d'expedient (" +
+				"Esborrant l'enumeració (" +
 				"enumeracioId=" + enumeracioId +  ")");
 		
 		Enumeracio entity = enumeracioRepository.findOne(enumeracioId);
@@ -191,12 +191,12 @@ public class EnumeracioServiceImpl implements EnumeracioService {
 
 	@Override
 	@Transactional
-	public List<EnumeracioDto> findAmbEntorn(Long entornId) throws NoTrobatException {
+	public List<EnumeracioDto> findGlobals(Long entornId) throws NoTrobatException {
 		logger.debug(
-				"Consultant les enumeracions per entorn (" +
+				"Consultant les enumeracions globals per entorn (" +
 				"entornId=" + entornId +  ")");
 		return conversioTipusHelper.convertirList(
-				enumeracioRepository.findByEntorn(entornRepository.findOne(entornId)),
+				enumeracioRepository.findGlobals(entornId),
 				EnumeracioDto.class);
 	}
 	
@@ -204,7 +204,7 @@ public class EnumeracioServiceImpl implements EnumeracioService {
 	@Transactional
 	public EnumeracioDto findAmbId(Long enumeracioId) throws NoTrobatException {
 		logger.debug(
-				"Consultant l'enumeracio del tipus d'expedient amb id (" +
+				"Consultant l'enumeracio amb id (" +
 				"enumeracioId=" + enumeracioId +  ")");
 		Enumeracio enumeracio = enumeracioRepository.findOne(enumeracioId);
 		if (enumeracio == null) {
@@ -221,7 +221,7 @@ public class EnumeracioServiceImpl implements EnumeracioService {
 			throws NoTrobatException, PermisDenegatException {
 		
 		logger.debug(
-				"Modificant l'enumeració del tipus d'expedient existent (" +
+				"Modificant l'enumeració existent (" +
 				"enumeracio.id=" + enumeracio.getId() + ", " +
 				"enumeracio =" + enumeracio + ")");
 		
@@ -242,7 +242,7 @@ public class EnumeracioServiceImpl implements EnumeracioService {
 			PaginacioParamsDto paginacioParams) throws NoTrobatException {
 		
 		logger.debug(
-				"Consultant els valors de enumeracio per al tipus d'expedient per datatable (" +
+				"Consultant els valors de enumeracio per datatable (" +
 				"enumeracioId=" + enumeracioId + ", " +
 				"filtre=" + filtre + ")");
 		
@@ -263,7 +263,7 @@ public class EnumeracioServiceImpl implements EnumeracioService {
 			Long entornId, ExpedientTipusEnumeracioValorDto enumeracio) throws PermisDenegatException {
 
 		logger.debug(
-				"Creant nou valor de enumeracio per un tipus d'expedient (" +
+				"Creant nou valor de enumeracio (" +
 				"expedientTipusId =" + expedientTipusId + ", " +
 				"enumeracioId =" + enumeracioId + ", " +
 				"entornId =" + entornId + ", " +
@@ -296,7 +296,7 @@ public class EnumeracioServiceImpl implements EnumeracioService {
 	@Transactional
 	public ExpedientTipusEnumeracioValorDto valorFindAmbId(Long valorId) throws NoTrobatException {
 		logger.debug(
-				"Consultant el valor de l'enumeracio del tipus d'expedient amb id (" +
+				"Consultant el valor de l'enumeracio amb id (" +
 				"valorId=" + valorId +  ")");
 		EnumeracioValors valor = enumeracioValorsRepository.findOne(valorId);
 		if (valor == null) {
@@ -313,7 +313,7 @@ public class EnumeracioServiceImpl implements EnumeracioService {
 			throws NoTrobatException, PermisDenegatException {
 
 		logger.debug(
-				"Modificant el valor de l'enumeració del tipus d'expedient existent (" +
+				"Modificant el valor de l'enumeració existent (" +
 				"enumeracioValor.id=" + enumeracioValor.getId() + ", " +
 				"enumeracioValor =" + enumeracioValor + ")");
 		
@@ -332,7 +332,7 @@ public class EnumeracioServiceImpl implements EnumeracioService {
 	public void enumeracioDeleteAllByEnumeracio(Long enumeracioId) throws NoTrobatException, PermisDenegatException, ValidacioException {
 		
 		logger.debug(
-				"Esborrant els valors de l'enumeració del tipus d'expedient (" +
+				"Esborrant els valors de l'enumeració (" +
 				"enumeracioId=" + enumeracioId +  ")");
 		
 		Enumeracio entity = enumeracioRepository.findOne(enumeracioId);
@@ -356,7 +356,7 @@ public class EnumeracioServiceImpl implements EnumeracioService {
 			String codi) throws NoTrobatException {
 
 		logger.debug(
-				"Consultant el valor de l'enumeració del tipus d'expedient per codi (" +
+				"Consultant el valor de l'enumeració per codi (" +
 				"expedientTipusId=" + expedientTipusId + ", " +
 				"enumeracioId=" + enumeracioId + ", " +
 				"codi = " + codi + ")");
