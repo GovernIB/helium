@@ -24,8 +24,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import net.conselldemallorca.helium.core.helper.DefinicioProcesHelper;
-import net.conselldemallorca.helium.core.helper.EntornHelper;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesExpedientDto.IdAmbEtiqueta;
@@ -55,7 +53,6 @@ import net.conselldemallorca.helium.webapp.v3.helper.DatatablesHelper.Datatables
 import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.NodecoHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
-import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper.SessionManager;
 
 /**
  * Controlador per al manteniment de les definicions de procés. Controla les pipelles del
@@ -74,10 +71,6 @@ public class DefinicioProcesController extends BaseDefinicioProcesController {
 	private ExecucioMassivaService execucioMassivaService;
 	@Resource
 	private ConversioTipusHelper conversioTipusHelper;
-	@Resource
-	private DefinicioProcesHelper definicioProcesHelper;
-	@Resource
-	private EntornHelper entornHelper;
 	
 	/** Accés al llistat de definicions de procés de l'entorn des del menú de disseny. */
 	@RequestMapping(method = RequestMethod.GET)
@@ -85,9 +78,6 @@ public class DefinicioProcesController extends BaseDefinicioProcesController {
 			HttpServletRequest request,
 			Model model) {
 		if (SessionHelper.getSessionManager(request).getPotDissenyarEntorn()) {
-			EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
-			
-			model.addAttribute("potDissenyarEntorn", entornHelper.potDissenyarEntorn(entornActual.getId()));
 			return "v3/definicioProcesLlistat";
 		} else {
 			return "redirect:/v3";
@@ -625,7 +615,7 @@ public class DefinicioProcesController extends BaseDefinicioProcesController {
             				exportacio);
         			// Copia les dades de la darrera versió a la nova
         			if (darreraDefinicioProces != null)
-	        			definicioProcesHelper.copiarDefinicioProces(
+        				definicioProcesService.copiarDefinicioProces(
 	        					darreraDefinicioProces.getId(),
 	        					definicioProces.getId());
             		MissatgesHelper.success(request, getMessage( request, "definicio.proces.desplegar.form.success"));
@@ -710,10 +700,8 @@ public class DefinicioProcesController extends BaseDefinicioProcesController {
 		// Per indicar a la pàgina si s'ha pogut fer una importació del fitxer.
 		model.addAttribute("command", command);
 		
-		boolean potDissenyarEntorn = false;
 		if (entornActual != null) {
 			model.addAttribute("entorn", entornActual);
-			potDissenyarEntorn = entornHelper.potDissenyarEntorn(entornActual.getId());
 			command.setEntornId(entornActual.getId());
 			if (command.getExpedientTipusId() != null) {
 				ExpedientTipusDto expedientTipus = expedientTipusService.findAmbIdPermisDissenyar(
@@ -730,7 +718,6 @@ public class DefinicioProcesController extends BaseDefinicioProcesController {
 			// Select dels tipus d'expedient de l'entorn
 			model.addAttribute("expedientsTipus", expedientTipusService.findAmbEntornPermisDissenyar(entornActual.getId()));
 		}
-		model.addAttribute("potDissenyarEntorn", potDissenyarEntorn);
 		
 		// Select de les accions jbpm
 		List<ParellaCodiValorDto> accions = new ArrayList<ParellaCodiValorDto>();

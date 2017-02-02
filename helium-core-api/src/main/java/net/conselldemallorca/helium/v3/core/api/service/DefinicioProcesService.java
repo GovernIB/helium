@@ -493,4 +493,13 @@ public interface DefinicioProcesService {
 	 *             Si no es tenen els permisos necessaris.
 	 */
 	public List<ConsultaDto> consultaFindByEntorn(Long entornId) throws NoTrobatException, PermisDenegatException;
+
+	/** Copia la informació de la definició de procés origen cap a la definició de procés
+	 * destí.
+	 * @param origenId
+	 * @param destiId
+	 */
+	public void copiarDefinicioProces(
+			Long origenId, 
+			Long destiId);
 }

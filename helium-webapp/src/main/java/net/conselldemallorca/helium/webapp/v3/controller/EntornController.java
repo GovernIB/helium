@@ -41,7 +41,6 @@ public class EntornController extends BaseController {
 	private ConversioTipusHelper conversioTipusHelper;
 
 
-
 	@RequestMapping(method = RequestMethod.GET)
 	public String llistat(
 			HttpServletRequest request,
@@ -215,7 +214,8 @@ public class EntornController extends BaseController {
     				conversioTipusHelper.convertir(
     						command,
     						PermisDto.class));
-			MissatgesHelper.success(
+    		    		
+    		MissatgesHelper.success(
 					request, 
 					getMessage(
 							request, 
@@ -230,9 +230,11 @@ public class EntornController extends BaseController {
 			@PathVariable Long entornId,
 			@PathVariable Long permisId,
 			Model model) {
+		
 		entornService.permisDelete(
 				entornId,
 				permisId);
+		
 		model.addAttribute(
 				"entorn",
 				entornService.findOne(

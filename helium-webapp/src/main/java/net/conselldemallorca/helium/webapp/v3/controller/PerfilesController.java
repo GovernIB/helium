@@ -20,10 +20,10 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import net.conselldemallorca.helium.core.model.dto.ParellaCodiValorDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ConsultaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto.Sexe;
 import net.conselldemallorca.helium.v3.core.api.dto.UsuariPreferenciesDto;

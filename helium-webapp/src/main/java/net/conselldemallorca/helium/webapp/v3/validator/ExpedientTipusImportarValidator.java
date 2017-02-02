@@ -15,7 +15,6 @@ import javax.validation.ConstraintValidatorContext;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
-import net.conselldemallorca.helium.core.util.ExpedientCamps;
 import net.conselldemallorca.helium.v3.core.api.dto.CampTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ConsultaCampDto.TipusConsultaCamp;
 import net.conselldemallorca.helium.v3.core.api.dto.ConsultaDto;
@@ -23,6 +22,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DominiDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EnumeracioDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientCamps;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.MapeigSistraDto.TipusMapeig;
 import net.conselldemallorca.helium.v3.core.api.exportacio.CampExportacio;

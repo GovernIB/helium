@@ -23,7 +23,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
-import net.conselldemallorca.helium.core.helper.EntornHelper;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EnumeracioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusEnumeracioValorDto;
@@ -50,8 +49,6 @@ public class EnumeracioController extends BaseDissenyController {
 	private EnumeracioService enumeracioService;
 	@Resource
 	private ConversioTipusHelper conversioTipusHelper;
-	@Resource
-	private EntornHelper entornHelper;
 	
 	/** Accés al llistat d'enumeracions de l'entorn des del menú de disseny. */
 	@RequestMapping(method = RequestMethod.GET)
@@ -59,10 +56,6 @@ public class EnumeracioController extends BaseDissenyController {
 			HttpServletRequest request,
 			Model model) {
 		if (SessionHelper.getSessionManager(request).getPotDissenyarEntorn()) {
-			EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
-			
-			model.addAttribute("potDissenyarEntorn", entornHelper.potDissenyarEntorn(entornActual.getId()));
-			
 			return "v3/enumeracioLlistat";
 		} else {
 			MissatgesHelper.error(request, getMessage(request, "error.permis.disseny.entorn"));

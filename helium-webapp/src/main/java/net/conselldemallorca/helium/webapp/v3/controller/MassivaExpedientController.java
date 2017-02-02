@@ -40,7 +40,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.support.SessionStatus;
 import org.springframework.web.multipart.support.ByteArrayMultipartFileEditor;
 
-import net.conselldemallorca.helium.core.model.dto.ParellaCodiValorDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampTipusDto;
@@ -52,6 +51,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.ExecucioMassivaDto.ExecucioM
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDadaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.InstanciaProcesDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
 import net.conselldemallorca.helium.v3.core.api.dto.SeleccioOpcioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;

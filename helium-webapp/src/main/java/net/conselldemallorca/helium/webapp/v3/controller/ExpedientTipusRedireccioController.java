@@ -4,10 +4,8 @@
 package net.conselldemallorca.helium.webapp.v3.controller;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
@@ -26,14 +24,14 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import net.conselldemallorca.helium.core.extern.domini.FilaResultat;
-import net.conselldemallorca.helium.core.helper.DominiHelper;
+import net.conselldemallorca.helium.core.model.dto.ParellaCodiValorDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PermisDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PrincipalTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ReassignacioDto;
+import net.conselldemallorca.helium.core.extern.domini.ParellaCodiValor;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientTipusRedireccioCommand;
 import net.conselldemallorca.helium.webapp.v3.helper.ConversioTipusHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.DatatablesHelper;
@@ -53,8 +51,6 @@ public class ExpedientTipusRedireccioController extends BaseExpedientTipusContro
 
 	@Autowired
 	private ConversioTipusHelper conversioTipusHelper;
-	@Autowired 
-	private DominiHelper dominiHeper;
 
 	@RequestMapping(value = "/{expedientTipusId}/redireccions")
 	public String redireccions(
@@ -204,7 +200,7 @@ public class ExpedientTipusRedireccioController extends BaseExpedientTipusContro
 				entornActual.getId(),
 				expedientTipusId);
 		List<ParellaCodiValorDto> resposta = new ArrayList<ParellaCodiValorDto>();
-		Map<String, Object> parametres;
+		List<ParellaCodiValor> parametres;
 		SortedSet<String> codis = new TreeSet<String>();
 		String codi;
 		for (PermisDto permis : permisos) {
@@ -215,13 +211,24 @@ public class ExpedientTipusRedireccioController extends BaseExpedientTipusContro
 					codis.add(codi);
 			} else {
 				// rol
-				parametres = new HashMap<String, Object>();
-				parametres.put("rol", permis.getPrincipalNom());
-				List<FilaResultat> files = dominiHeper.usuarisPerRol(parametres);
-				for (FilaResultat fila : files) {					
-					codi = fila.getColumnes().get(0).getValor().toString();
-					if (!codis.contains(codi))
-						codis.add(codi);
+				parametres = new ArrayList<ParellaCodiValor>();
+				parametres.add(new ParellaCodiValor("rol", permis.getPrincipalNom()));
+				List<FilaResultat> files;
+				try {
+					files = dissenyService.consultaDominiIntern("USUARIS_PER_ROL", parametres);
+					for (FilaResultat fila : files) {					
+						codi = fila.getColumnes().get(0).getValor().toString();
+						if (!codis.contains(codi))
+							codis.add(codi);
+					}
+				} catch (Exception e) {
+					String errMsg = getMessage(
+							request, 
+							"expedient.tipus.redireccio.controller.usuaris.error",
+							new Object[] {e.getLocalizedMessage()});
+					MissatgesHelper.error(request, errMsg);
+					e.printStackTrace();
+					logger.error("errMsg");
 				}
 			}
 		}

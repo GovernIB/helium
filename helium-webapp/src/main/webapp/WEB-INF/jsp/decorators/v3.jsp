@@ -174,7 +174,7 @@
 					<div class="btn-group navbar-btn navbar-right">		
 						<a class="btn btn-primary" href="<c:url value="/v3/expedient"/>"><spring:message code="decorator.menu.expedients"/></a>
 						<a class="btn btn-primary" href="<c:url value="/v3/tasca"/>"><spring:message code="decorator.menu.tasques"/></a>
-						<c:if test="${potDissenyarExpedientTipus}">
+						<c:if test="${potDissenyarEntorn}">
 							<div class="btn-group" >
 								<button class="btn btn-primary dropdown-toggle" data-toggle="dropdown"><spring:message code="comuns.disseny"/> <span class="caret"></span></button>
 								<ul class="dropdown-menu">

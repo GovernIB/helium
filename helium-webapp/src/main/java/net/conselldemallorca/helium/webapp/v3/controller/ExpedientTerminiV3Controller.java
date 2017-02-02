@@ -34,9 +34,9 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.support.SessionStatus;
 import org.springframework.web.multipart.support.ByteArrayMultipartFileEditor;
 
-import net.conselldemallorca.helium.core.model.dto.ParellaCodiValorDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.InstanciaProcesDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TerminiDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TerminiIniciatDto;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;

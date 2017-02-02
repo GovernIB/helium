@@ -197,6 +197,7 @@ public class EntornServiceImpl implements EntornService {
 				entornId,
 				Entorn.class,
 				permis);
+   		usuariActualHelper.netejarCacheUsuari(permis.getPrincipalNom());
 	}
 
 	/**
@@ -212,10 +213,12 @@ public class EntornServiceImpl implements EntornService {
 				"entornId=" + entornId + ", " +
 				"permisId=" + permisId + ")");
 		comprovarEntorn(entornId);
+		PermisDto permisDto = permisFindById(entornId, permisId);
 		permisosHelper.deletePermis(
 				entornId,
 				Entorn.class,
 				permisId);
+		usuariActualHelper.netejarCacheUsuari(permisDto.getPrincipalNom());
 	}
 
 	/**

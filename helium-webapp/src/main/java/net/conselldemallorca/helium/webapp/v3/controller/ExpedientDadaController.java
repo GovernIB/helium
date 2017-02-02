@@ -40,12 +40,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.support.SessionStatus;
 
-import net.conselldemallorca.helium.core.model.dto.ParellaCodiValorDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampAgrupacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDadaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.InstanciaProcesDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
 import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientDadaService;

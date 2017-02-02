@@ -10,7 +10,6 @@ import javax.validation.ConstraintValidatorContext;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
-import net.conselldemallorca.helium.core.util.ExpedientCamps;
 import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampTipusDto;
@@ -22,6 +21,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DominiDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EnumeracioDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientCamps;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.FirmaTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.MapeigSistraDto;
@@ -65,7 +65,7 @@ public class ExpedientTipusExportarValidator implements ConstraintValidator<Expe
 		boolean valid = true;
 		
 		if (command.getId() != null) {
-			ExpedientTipusDto expedientTipus = expedientTipusService.findAmbIdPermisConsultar(
+			ExpedientTipusDto expedientTipus = expedientTipusService.findAmbIdPermisDissenyar(
 					command.getEntornId(), 
 					command.getId());
 			

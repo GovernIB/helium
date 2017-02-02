@@ -25,25 +25,6 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 
-import net.conselldemallorca.helium.core.model.dto.ParellaCodiValorDto;
-import net.conselldemallorca.helium.report.FieldValue;
-import net.conselldemallorca.helium.v3.core.api.dto.CampTipusDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ConsultaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.DadaIndexadaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientCamps;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientConsultaDissenyDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
-import net.conselldemallorca.helium.v3.core.api.dto.MostrarAnulatsDto;
-import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
-import net.conselldemallorca.helium.webapp.mvc.JasperReportsView;
-import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
-import net.conselldemallorca.helium.webapp.v3.helper.ObjectTypeEditorHelper;
-import net.conselldemallorca.helium.webapp.v3.helper.PaginacioHelper;
-import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
-import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper.SessionManager;
-import net.conselldemallorca.helium.webapp.v3.helper.TascaFormHelper;
-
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
@@ -71,6 +52,25 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+
+import net.conselldemallorca.helium.report.FieldValue;
+import net.conselldemallorca.helium.v3.core.api.dto.CampTipusDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ConsultaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DadaIndexadaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientCamps;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientConsultaDissenyDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
+import net.conselldemallorca.helium.v3.core.api.dto.MostrarAnulatsDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
+import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
+import net.conselldemallorca.helium.webapp.mvc.JasperReportsView;
+import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
+import net.conselldemallorca.helium.webapp.v3.helper.ObjectTypeEditorHelper;
+import net.conselldemallorca.helium.webapp.v3.helper.PaginacioHelper;
+import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
+import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper.SessionManager;
+import net.conselldemallorca.helium.webapp.v3.helper.TascaFormHelper;
 
 /**
  * Controlador per al llistat d'expedients.

@@ -511,7 +511,6 @@ public class ExpedientServiceImpl implements ExpedientService {
 			mesuresTemporalsHelper.mesuraCalcular("Iniciar", "expedient", expedientTipus.getNom(), null, "Crear registre i convertir expedient");
 			mesuresTemporalsHelper.mesuraCalcular("Iniciar", "expedient", expedientTipus.getNom());
 
-			ThreadLocalInfo.setExpedient(null);
 			logger.debug("textBloqueigIniciExpedient: " + textBloqueigIniciExpedient);
 			return dto;
 		} catch (ExecucioHandlerException ex) {
@@ -538,6 +537,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 			throw new TramitacioValidacioException("Error de validació en Handler", ex);
 		} finally {
 			textBloqueigIniciExpedient = null;
+			ThreadLocalInfo.setExpedient(null);
 		}
 	}
 

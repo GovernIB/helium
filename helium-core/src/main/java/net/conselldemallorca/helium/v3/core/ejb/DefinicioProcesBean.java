@@ -281,4 +281,10 @@ public class DefinicioProcesBean implements DefinicioProcesService {
 	public List<ConsultaDto> consultaFindByEntorn(Long entornId) throws NoTrobatException, PermisDenegatException {
 		return delegate.consultaFindByEntorn(entornId);
 	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public void copiarDefinicioProces(Long origenId, Long destiId) {
+		delegate.copiarDefinicioProces(origenId, destiId);
+	}
 }

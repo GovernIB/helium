@@ -2,14 +2,12 @@ package net.conselldemallorca.helium.webapp.v3.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
-import net.conselldemallorca.helium.core.helper.ExpedientTipusHelper;
 import net.conselldemallorca.helium.v3.core.api.service.AccioService;
 import net.conselldemallorca.helium.v3.core.api.service.AplicacioService;
 import net.conselldemallorca.helium.v3.core.api.service.CampService;
 import net.conselldemallorca.helium.v3.core.api.service.DefinicioProcesService;
 import net.conselldemallorca.helium.v3.core.api.service.DissenyService;
 import net.conselldemallorca.helium.v3.core.api.service.DocumentService;
-import net.conselldemallorca.helium.v3.core.api.service.EnumeracioService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientTipusService;
 import net.conselldemallorca.helium.v3.core.api.service.TerminiService;
@@ -39,6 +37,4 @@ public class BaseExpedientTipusController extends BaseDissenyController {
 	protected AccioService accioService;
 	@Autowired
 	protected TerminiService terminiService;
-	@Autowired
-	protected ExpedientTipusHelper expedientTipusHelper;
 }

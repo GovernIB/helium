@@ -18,7 +18,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import net.conselldemallorca.helium.core.helper.EntornHelper;
 import net.conselldemallorca.helium.v3.core.api.dto.DominiDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
@@ -43,8 +42,6 @@ public class DominiController extends BaseDissenyController {
 	private DominiService dominiService;
 	@Resource
 	private ConversioTipusHelper conversioTipusHelper;
-	@Resource
-	private EntornHelper entornHelper;
 	
 	/** Accés al llistat de dominins de l'entorn des del menú de disseny. */
 	@RequestMapping(method = RequestMethod.GET)
@@ -52,10 +49,6 @@ public class DominiController extends BaseDissenyController {
 			HttpServletRequest request,
 			Model model) {
 		if (SessionHelper.getSessionManager(request).getPotDissenyarEntorn()) {
-			EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
-			
-			model.addAttribute("potDissenyarEntorn", entornHelper.potDissenyarEntorn(entornActual.getId()));
-			
 			return "v3/dominiLlistat";
 		} else {
 			MissatgesHelper.error(request, getMessage(request, "error.permis.disseny.entorn"));

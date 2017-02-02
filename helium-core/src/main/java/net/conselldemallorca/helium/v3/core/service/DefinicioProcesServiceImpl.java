@@ -339,6 +339,14 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 
 		definicioProcesRepository.delete(definicioProces);
 	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void copiarDefinicioProces(Long origenId, Long destiId) {
+		definicioProcesHelper.copiarDefinicioProces(origenId, destiId);
+	}
 
 	/**
 	 * {@inheritDoc}
