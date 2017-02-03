@@ -149,9 +149,15 @@ public class IndexHelper {
 //	mètode per a marcar les reindexacions en segon pla si es el cas
 	public void expedientIndexLuceneUpdate(
 			String processInstanceId) {
+		expedientIndexLuceneUpdate(processInstanceId, false);
+	}
+	
+	public void expedientIndexLuceneUpdate(
+			String processInstanceId,
+			boolean isExecucioMassiva) {
 		
 		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
-		if (expedient.getTipus().isReindexacioAsincrona()) {
+		if (expedient.getTipus().isReindexacioAsincrona() && !isExecucioMassiva) {
 			if (expedient.getReindexarData() == null) {
 				expedient.setReindexarData(new Date());
 				expedientRepository.save(expedient);

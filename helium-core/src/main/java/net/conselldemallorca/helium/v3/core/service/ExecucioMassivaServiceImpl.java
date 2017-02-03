@@ -1511,7 +1511,7 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 		Expedient exp = ome.getExpedient();
 		try {
 			ome.setDataInici(new Date());
-			indexHelper.expedientIndexLuceneUpdate(exp.getProcessInstanceId());
+			indexHelper.expedientIndexLuceneUpdate(exp.getProcessInstanceId(), true);
 //			expedientService.luceneReindexarExpedient(exp.getId());
 			ome.setEstat(ExecucioMassivaEstat.ESTAT_FINALITZAT);
 			ome.setDataFi(new Date());
