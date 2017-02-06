@@ -113,12 +113,24 @@
 												<c:if test="${not empty psignaPendentActual}">
 													<c:choose>
 														<c:when test="${psignaPendentActual.error}">
+														
+														
+															<c:choose>
+ 															<c:when test="${psignaPendentActual.estat != 'PROCESSAT'}">
+ 																<c:set var="missatgeIconaError" value="expedient.document.pendent.psigna.error"/>
+ 															</c:when>
+ 															<c:otherwise>
+ 																<c:set var="missatgeIconaError" value="expedient.document.rebutjat.psigna.error"/>
+ 															</c:otherwise>
+ 															</c:choose>
+														
+														
 															<a 	data-psigna = "${document.id}"
 																class="icon fa fa-exclamation-triangle fa-2x psigna-info" 
 																style="cursor:pointer"
-																title="<spring:message code='expedient.document.pendent.psigna.error'/>">
+																title="<spring:message code='${missatgeIconaError}'/>">
 															</a>
-															<c:if test="${psignaPendentActual.error}">
+															<c:if test="${psignaPendentActual.error && psignaPendentActual.estat != 'PROCESSAT'}">
 																<c:if test="${expedient.permisDocManagement}">
 																	<form id="form_psigna_${document.id}" action="<c:url value='../../v3/expedient/${expedientId}/proces/${document.processInstanceId}/document/${document.id}/psignaReintentar'/>">
 																		<input type="hidden" name="id" value="${document.processInstanceId}"/>
@@ -185,7 +197,22 @@
 					<ul class="list-group">
 					  	<li class="list-group-item"><strong><spring:message code="common.icones.doc.psigna.id"/></strong><span class="pull-right">${psignaPendentActual.documentId}</span></li>
 					  	<li class="list-group-item"><strong><spring:message code="common.icones.doc.psigna.data.enviat"/></strong><span class="pull-right"><fmt:formatDate value="${psignaPendentActual.dataEnviat}" pattern="dd/MM/yyyy HH:mm"/></span></li>
-					  	<li class="list-group-item"><strong><spring:message code="common.icones.doc.psigna.estat"/></strong><span class="pull-right">${psignaPendentActual.estat}</span></li>
+					  	
+					  	<li class="list-group-item">
+ 					  		<strong><spring:message code="common.icones.doc.psigna.estat"/></strong>
+ 					  		
+ 					  		<c:choose>
+ 							<c:when test="${psignaPendentActual.estat == 'PROCESSAT' && psignaPendentActual.error}">
+ 								<span class="pull-right">REBUTJAT</span>
+ 							</c:when>
+ 							<c:otherwise>
+ 								<span class="pull-right">${psignaPendentActual.estat}</span>
+ 							</c:otherwise>
+ 							</c:choose>
+ 					  		
+ 					  	</li>
+					  	
+						
 						<c:if test="${not empty psignaPendentActual.motiuRebuig}">
 							<li class="list-group-item"><strong><spring:message code="common.icones.doc.psigna.motiu.rebuig"/></strong><span class="pull-right">${psignaPendentActual.motiuRebuig}</span></li>
 						</c:if>

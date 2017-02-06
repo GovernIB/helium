@@ -101,13 +101,25 @@ public class TascaProgramadaServiceImpl implements TascaProgramadaService {
 	@Transactional
 	@Scheduled(fixedDelayString = "${app.reindexacio.asincrona.periode}")
 	public void comprovarReindexacioAsincrona() {
+		logger.debug("###===> Entrant en la REINDEXACIÓ ASÍNCRONA <===###");
 		List<Expedient> expedients = expedientRepository.findByReindexarDataNotNullOrderByReindexarDataAsc();
+		
+
+ 		if (expedients != null && expedients.size() > 0)
+ 			logger.debug("###===> Es reindexaran " + expedients.size() + " expedients...");
+ 		else
+ 			logger.debug("###===> No hi ha expedients per a reidexar...");
+		
+		
 		for (Expedient expedient: expedients) {
 			try {
+				logger.debug("###===> Reindexant expedient " + expedient.getId());
 				indexHelper.expedientIndexLuceneUpdate(
 						expedient.getProcessInstanceId(),
 						false,
 						null);
+				
+				logger.debug("###===> S'ha reindexat correctament l'expedient " + expedient.getId());
 			} catch (Exception ex) {
 				logger.error(
 						"Error reindexant l'expedient " + expedient.getIdentificador(),
@@ -116,8 +128,10 @@ public class TascaProgramadaServiceImpl implements TascaProgramadaService {
 			} finally {
 				expedient.setReindexarData(null);
 				expedientRepository.save(expedient);
+				logger.debug("###===> Fi de reindexació de l'expedient " + expedient.getId());
 			}
 		}
+		logger.debug("###===> Fi de procés de REINDEXACIÓ ASÍNCRONA <===###");
 	}
 
 	/**************************/
