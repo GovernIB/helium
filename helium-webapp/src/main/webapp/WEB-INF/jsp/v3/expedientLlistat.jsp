@@ -457,7 +457,7 @@ function refrescaEstatSegonPla() {
 					<spring:message code="expedient.llistat.columna.expedient"/>
 					<script id="cellReindexacioTemplate" type="text/x-jsrender">
 					{{:identificador}}
-					{{if tipus.reindexacioAsincrona && reindexarData != null }}
+					{{if reindexarData != null && reindexarData != ''}}
 						<div class="pull-right">
 							<span class="fa fa-refresh" title="<spring:message code="expedient.consulta.reindexacio.asincrona"/>"></span>
 						</div>

@@ -278,6 +278,7 @@ public class IndexHelper {
 				contextIndexarEntorn.stop();
 				contextIndexarTipExp.stop();
 			}
+			expedient.setReindexarData(null);
 		}
 		expedient.setReindexarError(false);
 		expedientRepository.saveAndFlush(expedient);

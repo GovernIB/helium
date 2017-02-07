@@ -15,6 +15,10 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.codahale.metrics.Counter;
+import com.codahale.metrics.MetricRegistry;
+import com.codahale.metrics.Timer;
+
 import net.conselldemallorca.helium.core.helper.IndexHelper;
 import net.conselldemallorca.helium.core.helper.NotificacioHelper;
 import net.conselldemallorca.helium.core.model.hibernate.ExecucioMassiva.ExecucioMassivaTipus;
@@ -26,6 +30,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.DocumentEnviamentEstatEnumDt
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.service.ExecucioMassivaService;
 import net.conselldemallorca.helium.v3.core.api.service.TascaProgramadaService;
+import net.conselldemallorca.helium.v3.core.api.service.TascaService;
 import net.conselldemallorca.helium.v3.core.repository.ExecucioMassivaExpedientRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientRepository;
 import net.conselldemallorca.helium.v3.core.repository.NotificacioRepository;
@@ -50,6 +55,8 @@ public class TascaProgramadaServiceImpl implements TascaProgramadaService {
 	private IndexHelper indexHelper;
 	@Resource
 	private NotificacioHelper notificacioHelper;
+	@Resource
+	private MetricRegistry metricRegistry;
 	
 	private static Map<Long, String> errorsMassiva = new HashMap<Long, String>();
 	
@@ -98,23 +105,48 @@ public class TascaProgramadaServiceImpl implements TascaProgramadaService {
 	/*** REINDEXACIO ASÍNCRONA ***/
 	@Override
 	@Transactional
-	@Scheduled(fixedDelayString = "${app.reindexacio.asincrona.periode}")
+	@Scheduled(fixedDelay=15000)
 	public void comprovarReindexacioAsincrona() {
 		logger.debug("###===> Entrant en la REINDEXACIÓ ASÍNCRONA <===###");
-		List<Expedient> expedients = expedientRepository.findByReindexarDataNotNullOrderByReindexarDataAsc();
+		Counter countMetodeAsincronTotal = metricRegistry.counter(MetricRegistry.name(TascaService.class, "reindexacio.asincrona.metode.count"));
+		countMetodeAsincronTotal.inc();
 		
+		List<Expedient> expedients = expedientRepository.findByReindexarDataNotNullOrderByReindexarDataAsc();
 		if (expedients != null && expedients.size() > 0)
 			logger.debug("###===> Es reindexaran " + expedients.size() + " expedients...");
 		else
 			logger.debug("###===> No hi ha expedients per a reidexar...");
 		
 		for (Expedient expedient: expedients) {
+			
+			Timer.Context contextTotal = null;
+			Timer.Context contextEntorn = null;
+			Timer.Context contextTipexp = null;
+			
 			try {
 				logger.debug("###===> Reindexant expedient " + expedient.getId());
+				
+				final Timer timerTotal = metricRegistry.timer(MetricRegistry.name(TascaService.class, "reindexacio.asincrona.expedient"));
+				final Timer timerEntorn = metricRegistry.timer(MetricRegistry.name(TascaService.class, "reindexacio.asincrona.expedient", expedient.getEntorn().getCodi()));
+				final Timer timerTipexp = metricRegistry.timer(MetricRegistry.name(TascaService.class, "reindexacio.asincrona.expedient", expedient.getEntorn().getCodi(), expedient.getTipus().getCodi()));
+				
+				Counter countTotal = metricRegistry.counter(MetricRegistry.name(TascaService.class, "reindexacio.asincrona.expedient.count"));
+				Counter countEntorn = metricRegistry.counter(MetricRegistry.name(TascaService.class, "reindexacio.asincrona.expedient.count", expedient.getEntorn().getCodi()));
+				Counter countTipexp = metricRegistry.counter(MetricRegistry.name(TascaService.class, "reindexacio.asincrona.expedient.count", expedient.getEntorn().getCodi(), expedient.getTipus().getCodi()));
+			
+				countTotal.inc();
+				countEntorn.inc();
+				countTipexp.inc();
+				
+				contextTotal = timerTotal.time();
+				contextEntorn = timerEntorn.time();
+				contextTipexp = timerTipexp.time();
+				
 				indexHelper.expedientIndexLuceneUpdate(
 						expedient.getProcessInstanceId(),
 						false,
 						null);
+				
 				logger.debug("###===> S'ha reindexat correctament l'expedient " + expedient.getId());
 			} catch (Exception ex) {
 				logger.error(
@@ -124,9 +156,15 @@ public class TascaProgramadaServiceImpl implements TascaProgramadaService {
 			} finally {
 				expedient.setReindexarData(null);
 				expedientRepository.save(expedient);
+				
+				contextTotal.stop();
+				contextEntorn.stop();
+				contextTipexp.stop();
+				
 				logger.debug("###===> Fi de reindexació de l'expedient " + expedient.getId());
 			}
 		}
+		
 		logger.debug("###===> Fi de procés de REINDEXACIÓ ASÍNCRONA <===###");
 	}
 
@@ -163,5 +201,6 @@ public class TascaProgramadaServiceImpl implements TascaProgramadaService {
 		return error;
 	}
 	
-	private static final Log logger = LogFactory.getLog(TascaProgramadaService.class);
+	private static final Log logger = LogFactory.getLog(TascaProgramadaServiceImpl.class);
+	
 }
