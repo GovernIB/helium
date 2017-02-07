@@ -614,8 +614,8 @@ public class TascaTramitacioController extends BaseTascaController {
 				request,
 				signaturesSet);
 		//TODO: La passarel·la redirigeix tota la pàgina, com a mínim així es mostren els menús de navegació sense posar modal davant
-        return "redirect:/v3/tasca/" + tascaId + "/signatura";
-//		return "v3/tascaSignatura";
+//        return "redirect:/v3/tasca/" + tascaId + "/signatura";
+		return "v3/tascaSignatura";
 	}
 	
 	@RequestMapping(value = "/{tascaId}/verificarSignatura/{documentStoreId}/{documentCodi}", method = RequestMethod.GET)
