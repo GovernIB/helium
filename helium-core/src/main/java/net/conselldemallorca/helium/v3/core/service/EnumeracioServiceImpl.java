@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import net.conselldemallorca.helium.core.helper.ConversioTipusHelper;
 import net.conselldemallorca.helium.core.helper.EntornHelper;
+import net.conselldemallorca.helium.core.helper.ExpedientTipusHelper;
 import net.conselldemallorca.helium.core.helper.MessageHelper;
 import net.conselldemallorca.helium.core.helper.PaginacioHelper;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
@@ -53,6 +54,8 @@ public class EnumeracioServiceImpl implements EnumeracioService {
 	@Resource
 	private EnumeracioValorsRepository enumeracioValorsRepository;	
 
+	@Resource
+	private ExpedientTipusHelper expedientTipusHelper;
 	@Resource
 	private ConversioTipusHelper conversioTipusHelper;
 	@Resource
@@ -118,10 +121,13 @@ public class EnumeracioServiceImpl implements EnumeracioService {
 				"entornId =" + entornId + ", " +
 				"enumeracio=" + enumeracio + ")");
 		
-		Entorn entorn = entornHelper.getEntornComprovantPermisos(entornId, true, true);
+		Entorn entorn = entornHelper.getEntornComprovantPermisos(
+				entornId, 
+				true, 
+				expedientTipusId == null);
 		ExpedientTipus expedientTipus = null;
 		if (expedientTipusId != null)
-			expedientTipus = expedientTipusRepository.findOne(expedientTipusId);
+			expedientTipus = expedientTipusHelper.getExpedientTipusComprovantPermisDissenyDelegat(expedientTipusId);
 		
 		Enumeracio entity = new Enumeracio();
 		entity.setCodi(enumeracio.getCodi());
@@ -172,6 +178,11 @@ public class EnumeracioServiceImpl implements EnumeracioService {
 				"enumeracioId=" + enumeracioId +  ")");
 		
 		Enumeracio entity = enumeracioRepository.findOne(enumeracioId);
+
+		if (entity.getExpedientTipus() != null)
+			expedientTipusHelper.getExpedientTipusComprovantPermisDissenyDelegat(entity.getExpedientTipus().getId());
+		else
+			entornHelper.getEntornComprovantPermisos(entity.getEntorn().getId(), true, true);
 
 		if (entity.getCamps()!=null && entity.getCamps().size()>0) {
 			throw new ValidacioException(messageHelper.getMessage("expedient.tipus.enumeracio.controller.eliminat.us"));
@@ -226,6 +237,12 @@ public class EnumeracioServiceImpl implements EnumeracioService {
 				"enumeracio =" + enumeracio + ")");
 		
 		Enumeracio entity = enumeracioRepository.findOne(enumeracio.getId());
+		
+		if (entity.getExpedientTipus() != null)
+			expedientTipusHelper.getExpedientTipusComprovantPermisDissenyDelegat(entity.getExpedientTipus().getId());
+		else
+			entornHelper.getEntornComprovantPermisos(entity.getEntorn().getId(), true, true);
+		
 		entity.setCodi(enumeracio.getCodi());
 		entity.setNom(enumeracio.getNom());
 		
@@ -268,12 +285,15 @@ public class EnumeracioServiceImpl implements EnumeracioService {
 				"enumeracioId =" + enumeracioId + ", " +
 				"entornId =" + entornId + ", " +
 				"document=" + enumeracio + ")");
-		
-		//Es llançará un PermisDenegatException si escau
-		entornHelper.getEntornComprovantPermisos(entornId, true, true);
-		
+				
 		Enumeracio enumer = enumeracioRepository.findOne(enumeracioId);
 		
+		//Es llançará un PermisDenegatException si escau
+		if (expedientTipusId != null)
+			expedientTipusHelper.getExpedientTipusComprovantPermisDissenyDelegat(expedientTipusId);
+		else
+			entornHelper.getEntornComprovantPermisos(entornId, true, true);
+
 		EnumeracioValors entity = new EnumeracioValors();
 		entity.setCodi(enumeracio.getCodi());
 		entity.setNom(enumeracio.getNom());
@@ -288,6 +308,16 @@ public class EnumeracioServiceImpl implements EnumeracioService {
 	@Override
 	@Transactional
 	public void valorDelete(Long valorId) throws NoTrobatException, PermisDenegatException {
+		EnumeracioValors valor = enumeracioValorsRepository.findOne(valorId);
+		if (valor == null)
+			throw new NoTrobatException(EnumeracioValors.class, valorId);
+				
+		//Es llançará un PermisDenegatException si escau
+		if (valor.getEnumeracio().getExpedientTipus() != null)
+			expedientTipusHelper.getExpedientTipusComprovantPermisDissenyDelegat(valor.getEnumeracio().getExpedientTipus().getId());
+		else
+			entornHelper.getEntornComprovantPermisos(valor.getEnumeracio().getEntorn().getId(), true, true);
+
 		enumeracioValorsRepository.delete(valorId);
 		enumeracioValorsRepository.flush();
 	}
@@ -318,6 +348,15 @@ public class EnumeracioServiceImpl implements EnumeracioService {
 				"enumeracioValor =" + enumeracioValor + ")");
 		
 		EnumeracioValors entity = enumeracioValorsRepository.findOne(enumeracioValor.getId());
+		if (entity == null)
+			throw new NoTrobatException(EnumeracioValors.class, enumeracioValor.getId());
+				
+		//Es llançará un PermisDenegatException si escau
+		if (entity.getEnumeracio().getExpedientTipus() != null)
+			expedientTipusHelper.getExpedientTipusComprovantPermisDissenyDelegat(entity.getEnumeracio().getExpedientTipus().getId());
+		else
+			entornHelper.getEntornComprovantPermisos(entity.getEnumeracio().getEntorn().getId(), true, true);
+		
 		entity.setCodi(enumeracioValor.getCodi());
 		entity.setNom(enumeracioValor.getNom());
 		entity.setOrdre(enumeracioValor.getOrdre());
@@ -336,7 +375,15 @@ public class EnumeracioServiceImpl implements EnumeracioService {
 				"enumeracioId=" + enumeracioId +  ")");
 		
 		Enumeracio entity = enumeracioRepository.findOne(enumeracioId);
-
+		if (entity == null)
+			throw new NoTrobatException(Enumeracio.class, enumeracioId);
+				
+		//Es llançará un PermisDenegatException si escau
+		if (entity.getExpedientTipus() != null)
+			expedientTipusHelper.getExpedientTipusComprovantPermisDissenyDelegat(entity.getExpedientTipus().getId());
+		else
+			entornHelper.getEntornComprovantPermisos(entity.getEntorn().getId(), true, true);
+		
 		if (entity.getCamps()!=null && entity.getCamps().size()>0) {
 			throw new ValidacioException(messageHelper.getMessage("expedient.tipus.enumeracio.controller.eliminat.us"));
 		}
@@ -376,7 +423,16 @@ public class EnumeracioServiceImpl implements EnumeracioService {
 				"valorId=" + valorId + ", " +
 				"posicio=" + posicio + ")");
 		boolean ret = false;
-		EnumeracioValors camp = enumeracioValorsRepository.findOne(valorId);
+		EnumeracioValors camp = enumeracioValorsRepository.findOne(valorId);		
+		if (camp == null)
+			throw new NoTrobatException(EnumeracioValors.class, valorId);
+				
+		//Es llançará un PermisDenegatException si escau
+		if (camp.getEnumeracio().getExpedientTipus() != null)
+			expedientTipusHelper.getExpedientTipusComprovantPermisDissenyDelegat(camp.getEnumeracio().getExpedientTipus().getId());
+		else
+			entornHelper.getEntornComprovantPermisos(camp.getEnumeracio().getEntorn().getId(), true, true);
+
 		if (camp != null && camp.getEnumeracio() != null) {
 			List<EnumeracioValors> camps = enumeracioValorsRepository.findByEnumeracioIdOrderByOrdreAsc(camp.getEnumeracio().getId());
 			if(posicio != camps.indexOf(camp)) {

@@ -270,7 +270,7 @@ public class ExpedientTipusEnumeracioValorController extends BaseExpedientTipusC
 		
 		if (entornActual != null) {
 			
-			ExpedientTipusDto expedientTipus = expedientTipusService.findAmbIdPermisDissenyar(entornActual.getId(),	expedientTipusId);
+			ExpedientTipusDto expedientTipus = expedientTipusService.findAmbIdPermisDissenyarDelegat(entornActual.getId(),	expedientTipusId);
 			model.addAttribute("expedientTipus", expedientTipus);
 			
 			EnumeracioDto enumeracio = enumeracioService.findAmbId(enumeracioId);

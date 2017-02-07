@@ -6,6 +6,15 @@
 <%@ taglib uri="http://www.springframework.org/tags/form" prefix="form"%>
 <%@ taglib tagdir="/WEB-INF/tags/helium" prefix="hel"%>
 
+<c:set var="potDissenyarExpedientTipusAdmin" value="${potAdministrarEntorn 
+														or potDissenyarEntorn 
+														or expedientTipus.permisAdministration 
+														or expedientTipus.permisDesignAdmin}"/>
+<c:set var="potDissenyarExpedientTipusDelegat" value="${potAdministrarEntorn 
+														or potDissenyarEntorn 
+														or expedientTipus.permisDesignAdmin 
+														or expedientTipus.permisAdministration 
+														or expedientTipus.permisDesignDeleg}"/>
 
 <script src="<c:url value="/js/webutil.common.js"/>"></script>
 <script src="<c:url value="/js/webutil.modal.js"/>"></script>
@@ -32,7 +41,6 @@
 		margin-top: 1em;
 	}
 </style>
-
 <c:choose>
 	<c:when test="${not empty expedientTipus}">		
 		<form class="well">
@@ -65,23 +73,21 @@
 							<dd>${definicioProcesInicial.jbpmKey}</dd>
 						</c:if>
 					</dl>
-					<c:if test="${potEscriure or potEsborrar}">
+					<c:if test="${potDissenyarExpedientTipusDelegat}">
 						<div id="expedientTipus-info-accio" class="dropdown">
 							<a class="btn btn-primary dropdown-toggle" data-toggle="dropdown" href="<c:url value="/v3/expedientTipus/${expedientTipus.id}}/imatgeProces"/>"><span class="fa fa-cog"></span>&nbsp;<spring:message code="comu.boto.eines"/>&nbsp;<span class="caret"></span></a>
 							<ul class="dropdown-menu">
-								<c:if test="${potEscriure}">
+								<c:if test="${ potDissenyarExpedientTipusAdmin }">
 									<li><a data-toggle="modal" href="<c:url value="/v3/expedientTipus/${expedientTipus.id}/update"/>"><span class="fa fa-pencil"></span>&nbsp;<spring:message code="expedient.tipus.info.accio.modificar"/></a></li>
-								</c:if>
-								<li><a data-toggle="modal" href="<c:url value="/v3/expedientTipus/${expedientTipus.id}/exportar"/>"><span class="fa fa-sign-out"></span>&nbsp;<spring:message code="comu.filtre.exportar"/></a></li>
-								<c:if test="${potEscriure}">
+									<li><a data-toggle="modal" href="<c:url value="/v3/expedientTipus/${expedientTipus.id}/exportar"/>"><span class="fa fa-sign-out"></span>&nbsp;<spring:message code="comu.filtre.exportar"/></a></li>
 									<li><a data-toggle="modal" href="<c:url value="/v3/expedientTipus/importar?expedientTipusId=${expedientTipus.id}"/>"><span class="fa fa-sign-in"></span>&nbsp;<spring:message code="comu.importar"/></a></li>
+								</c:if>
+								<c:if test="${ potDissenyarExpedientTipusDelegat}">
 									<li><a href="<c:url value="/v3/expedientTipus/${expedientTipus.id}/propagarPlantilles"/>" title="<spring:message code="exptipus.info.propagar.plantilles.info"/>" ><span class="fa fa-cog"></span>&nbsp;<spring:message code="exptipus.info.propagar.plantilles"/></a></li>
 									<li><a href="<c:url value="/v3/expedientTipus/${expedientTipus.id}/propagarConsultes"/>" title="<spring:message code="exptipus.info.propagar.consultes.info"/>" ><span class="fa fa-cog"></span>&nbsp;<spring:message code="exptipus.info.propagar.consultes"/></a></li>
 								</c:if>
-								<c:if test="${potEscriure and potEsborrar}">
+								<c:if test="${potDissenyarEntorn or potAdministrarEntorn}">
 									<li class="divider"></li>
-								</c:if>
-								<c:if test="${potEsborrar}">
 									<li><a href="<c:url value="/v3/expedientTipus/${expedientTipus.id}/delete"/>" data-confirm="<spring:message code="expedient.tipus.llistat.confirmacio.esborrar"/>"><span class="fa fa-trash-o"></span>&nbsp;<spring:message code="expedient.llistat.accio.esborrar"/></a></li>
 								</c:if>
 							</ul>

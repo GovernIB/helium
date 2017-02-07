@@ -6,6 +6,10 @@
 <%@ taglib uri="http://www.springframework.org/tags/form" prefix="form"%>
 <%@ taglib tagdir="/WEB-INF/tags/helium" prefix="hel"%>
 
+<c:set var="potDissenyarExpedientTipusAdmin" value="${potAdministrarEntorn 
+														or potDissenyarEntorn 
+														or expedientTipus.permisAdministration 
+														or expedientTipus.permisDesignAdmin}"/>
 
 <script src="<c:url value="/js/webutil.common.js"/>"></script>
 <script src="<c:url value="/js/webutil.datatable.js"/>"></script>
@@ -51,11 +55,13 @@
 							<button class="btn btn-primary" data-toggle="dropdown"><span class="fa fa-cog"></span>&nbsp;<spring:message code="comu.boto.accions"/>&nbsp;<span class="caret"></span></button>
 							<ul class="dropdown-menu">
 								<li><a href="../definicioProces/{{:jbpmKey}}" class="consultar-expedient"><span class="fa fa-folder-open"></span>&nbsp;<spring:message code="expedient.tipus.definicioProces.llistat.definicioProces.dissenyar"/></a></li>
-								<li><a class="btn-inicial" data-jbpmkey="{{:jbpmKey}}" href="${expedientTipus.id}/definicionsProces/{{:id}}/inicial"><span class="fa fa-flag-checkered"></span>&nbsp;<spring:message code="expedient.tipus.definicioProces.llistat.definicioProces.inicial"/></a></li>
-								<li><a data-toggle="modal" data-callback="callbackModaldefinicionsProces()" href="${expedientTipus.id}/definicionsProces/{{:id}}/incorporar"><span class="fa fa-download"></span>&nbsp;<spring:message code="expedient.tipus.definicioProces.llistat.definicioProces.incorporar"/></a></li>
-								<li><a data-toggle="modal" href="../definicioProces/{{:jbpmKey}}/exportar"><span class="fa fa-sign-out"></span>&nbsp;<spring:message code="comu.filtre.exportar"/></a></li>
-								<li><a data-toggle="modal" href="../definicioProces/importar?definicioProcesId={{:id}}"><span class="fa fa-sign-in"></span>&nbsp;<spring:message code="comu.importar"/></a></li>
-								<li><a class="btn-delete" href="../definicioProces/{{:jbpmKey}}/delete" data-confirm="<spring:message code="expedient.tipus.definicioProces.llistat.definicioProces.esborrar.confirmacio"/>"><span class="fa fa-trash-o"></span>&nbsp;<spring:message code="expedient.tipus.definicioProces.llistat.definicioProces.esborrar"/></a></li>
+								{{if ${potDissenyarExpedientTipusAdmin} }}
+									<li><a class="btn-inicial" data-jbpmkey="{{:jbpmKey}}" href="${expedientTipus.id}/definicionsProces/{{:id}}/inicial"><span class="fa fa-flag-checkered"></span>&nbsp;<spring:message code="expedient.tipus.definicioProces.llistat.definicioProces.inicial"/></a></li>
+									<li><a data-toggle="modal" data-callback="callbackModaldefinicionsProces()" href="${expedientTipus.id}/definicionsProces/{{:id}}/incorporar"><span class="fa fa-download"></span>&nbsp;<spring:message code="expedient.tipus.definicioProces.llistat.definicioProces.incorporar"/></a></li>
+									<li><a data-toggle="modal" href="../definicioProces/{{:jbpmKey}}/exportar"><span class="fa fa-sign-out"></span>&nbsp;<spring:message code="comu.filtre.exportar"/></a></li>
+									<li><a data-toggle="modal" href="../definicioProces/importar?definicioProcesId={{:id}}"><span class="fa fa-sign-in"></span>&nbsp;<spring:message code="comu.importar"/></a></li>
+									<li><a class="btn-delete" href="../definicioProces/{{:jbpmKey}}/delete" data-confirm="<spring:message code="expedient.tipus.definicioProces.llistat.definicioProces.esborrar.confirmacio"/>"><span class="fa fa-trash-o"></span>&nbsp;<spring:message code="expedient.tipus.definicioProces.llistat.definicioProces.esborrar"/></a></li>
+								{{/if}}
 							</ul>
 						</div>
 						</script>
@@ -65,12 +71,14 @@
 		</table>
 		<script id="rowhrefTemplate" type="text/x-jsrender">../definicioProces/{{:jbpmKey}}</script>
 		<script id="tableExpedientTipusDefinicioProcesButtonsTemplate" type="text/x-jsrender">
-			<div class="botons-titol text-right">
-				<a class="btn btn-default" data-toggle="modal" data-callback="callbackModaldefinicionsProces()" data-datatable-id="expedientTipusDefinicioProces" href="../definicioProces/importar?expedientTipusId=${expedientTipus.id}">
-					<span class="fa fa-sign-in"></span> <spring:message code="comu.importar"/></a>
-				<a class="btn btn-default" href="../definicioProces/desplegar?expedientTipusId=${expedientTipus.id}" data-toggle="modal" data-callback="callbackModaldefinicionsProces()">
-					<span class="fa fa-download"></span>&nbsp;<spring:message code="comu.filtre.desplegar"/></a>
-			</div>
+			{{if ${potDissenyarExpedientTipusAdmin} }}
+				<div class="botons-titol text-right">
+					<a class="btn btn-default" data-toggle="modal" data-callback="callbackModaldefinicionsProces()" data-datatable-id="expedientTipusDefinicioProces" href="../definicioProces/importar?expedientTipusId=${expedientTipus.id}">
+						<span class="fa fa-sign-in"></span> <spring:message code="comu.importar"/></a>
+					<a class="btn btn-default" href="../definicioProces/desplegar?expedientTipusId=${expedientTipus.id}" data-toggle="modal" data-callback="callbackModaldefinicionsProces()">
+						<span class="fa fa-download"></span>&nbsp;<spring:message code="comu.filtre.desplegar"/></a>
+				</div>
+			{{/if}}
 		</script>
 	</c:when>
 	<c:otherwise>

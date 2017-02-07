@@ -17,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 import net.conselldemallorca.helium.core.helper.ConversioTipusHelper;
 import net.conselldemallorca.helium.core.helper.DefinicioProcesHelper;
 import net.conselldemallorca.helium.core.helper.EntornHelper;
+import net.conselldemallorca.helium.core.helper.ExpedientTipusHelper;
 import net.conselldemallorca.helium.core.helper.PaginacioHelper;
 import net.conselldemallorca.helium.core.model.hibernate.Camp;
 import net.conselldemallorca.helium.core.model.hibernate.CampTasca;
@@ -28,6 +29,7 @@ import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.hibernate.FirmaTasca;
 import net.conselldemallorca.helium.core.model.hibernate.Tasca;
 import net.conselldemallorca.helium.core.model.hibernate.Termini;
+import net.conselldemallorca.helium.core.util.EntornActual;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
 import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampTascaDto;
@@ -107,6 +109,8 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 	@Resource
 	private EntornHelper entornHelper;
 	@Resource
+	private ExpedientTipusHelper expedientTipusHelper;
+	@Resource
 	private JbpmHelper jbpmHelper;
 	@Resource
 	private ConversioTipusHelper conversioTipusHelper;
@@ -142,12 +146,22 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 				"Consultant darrera versió definicio proces amb entornId i jbpmKey (" +
 				"entornId=" + entornId + ", " +
 				"jbmpKey = " + jbpmKey + ")");
+
 		Entorn entorn = entornHelper.getEntornComprovantPermisos(
 				entornId,
 				true);
+		
 		DefinicioProces definicioProces = definicioProcesRepository.findDarreraVersioByEntornAndJbpmKey(
 				entorn, 
 				jbpmKey);
+		
+		// Comprova l'accés
+		if (definicioProces.getExpedientTipus() != null)			
+			expedientTipusHelper.getExpedientTipusComprovantPermisDissenyDelegat(
+					definicioProces.getExpedientTipus().getId());
+		else
+			entornHelper.getEntornComprovantPermisos(EntornActual.getEntornId(), true, true);
+
 		return conversioTipusHelper.convertir(
 				definicioProces,
 				DefinicioProcesDto.class);
@@ -322,11 +336,14 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 				"Esborrant una definicio de proces (" +
 				"entornId=" + entornId + ", " +
 				"definicioProcesId = " + definicioProcesId + ")");
-		// Control d'accés
-		entornHelper.getEntornComprovantPermisos(
-				entornId,
-				true);
 		DefinicioProces definicioProces = definicioProcesRepository.findById(definicioProcesId);
+		// Control d'accés
+		if (definicioProces.getExpedientTipus() != null)			
+			expedientTipusHelper.getExpedientTipusComprovantPermisDisseny(
+					definicioProces.getExpedientTipus().getId());
+		else
+			entornHelper.getEntornComprovantPermisos(EntornActual.getEntornId(), true, true);
+
 		jbpmHelper.esborrarDesplegament(
 				definicioProces.getJbpmId());
 		// Si era la definició de procés inicial del tipus d'expedient actualitza el tipus d'expedient
@@ -336,7 +353,6 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 			expedientTipus.setJbpmProcessDefinitionKey(null);
 			expedientTipusRepository.save(expedientTipus);
 		}
-
 		definicioProcesRepository.delete(definicioProces);
 	}
 	

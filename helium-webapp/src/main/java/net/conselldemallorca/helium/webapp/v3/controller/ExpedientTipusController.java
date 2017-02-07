@@ -146,7 +146,7 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 		
 		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
 		if (entornActual != null) {
-			ExpedientTipusDto expedientTipus = expedientTipusService.findAmbIdPermisDissenyar(
+			ExpedientTipusDto expedientTipus = expedientTipusService.findAmbIdPermisDissenyarDelegat(
 					entornActual.getId(),
 					expedientTipusId);
 			model.addAttribute("expedientTipus", expedientTipus);
@@ -161,32 +161,6 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 					"definicioProcesInicial",
 					dissenyService.findDarreraDefinicioProcesForExpedientTipus(expedientTipusId));
 		}
-		// Permisos per a les accions
-		boolean potEscriure;
-		if (entornActual.isPermisDesign()) {
-			potEscriure = true;
-		} else {
-			try {
-				expedientTipusService.findAmbIdPermisDissenyar(entornActual.getId(), expedientTipusId);
-				potEscriure = true;
-			} catch (Exception e){
-				potEscriure = false;
-			}
-		}
-		model.addAttribute("potEscriure", potEscriure);
-		
-		boolean potEsborrar;
-		if (entornActual.isPermisDesign()) {
-			potEsborrar = true;
-		} else {
-			try {
-				expedientTipusService.findAmbIdPermisDissenyar(entornActual.getId(), expedientTipusId);
-				potEsborrar = true;
-			} catch (Exception e){
-				potEsborrar = false;
-			}
-		}		
-		model.addAttribute("potEsborrar", potEsborrar);
 	}
 	
 	@RequestMapping(value = "/new", method = RequestMethod.GET)
@@ -553,6 +527,7 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 			@PathVariable Long id,
 			Model model) {
 		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
+
 		model.addAttribute(
 				"expedientTipus",
 				expedientTipusService.findAmbIdPermisDissenyar(

@@ -55,19 +55,17 @@
 		</div>
 		<div class="row">
 			<div class="col-sm-3"><hel:inputCheckbox name="taskAssign" textKey="permis.TASK_ASSIGN" labelSize="8"/></div>
-			<div class="col-sm-3"><hel:inputCheckbox name="taskAssign" textKey="permis.TASK_ASSIGN" labelSize="8"/></div>
 			<div class="col-sm-3"><hel:inputCheckbox name="logRead" textKey="permis.LOG_READ" labelSize="8"/></div>
 			<div class="col-sm-3"><hel:inputCheckbox name="logManage" textKey="permis.LOG_MANAGE" labelSize="8"/></div>
-			
+			<div class="col-sm-3"><hel:inputCheckbox name="tokenRead" textKey="permis.TOKEN_READ" labelSize="8"/></div>
 		</div>
 		<div class="row">
-			<div class="col-sm-3"><hel:inputCheckbox name="tokenRead" textKey="permis.TOKEN_READ" labelSize="8"/></div>
 			<div class="col-sm-3"><hel:inputCheckbox name="tokenManage" textKey="permis.TOKEN_MANAGE" labelSize="8"/></div>
 			<div class="col-sm-3"><hel:inputCheckbox name="designAdmin" textKey="permis.DESIGN_ADMIN" labelSize="8"/></div>
 			<div class="col-sm-3"><hel:inputCheckbox name="designDeleg" textKey="permis.DESIGN_DELEG" labelSize="8"/></div>
+			<div class="col-sm-3"><hel:inputCheckbox name="scriptExe" textKey="permis.SCRIPT_EXE" labelSize="8"/></div>
 		</div>
 		<div class="row">
-			<div class="col-sm-3"><hel:inputCheckbox name="scriptExe" textKey="permis.SCRIPT_EXE" labelSize="8"/></div>
 			<div class="col-sm-3"><hel:inputCheckbox name="undoEnd" textKey="permis.UNDO_END" labelSize="8"/></div>
 			<div class="col-sm-3"><hel:inputCheckbox name="defprocUpdate" textKey="permis.DEFPROC_UPDATE" labelSize="8"/></div>
 		</div>

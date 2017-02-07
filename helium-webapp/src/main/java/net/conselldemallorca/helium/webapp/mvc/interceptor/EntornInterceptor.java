@@ -226,6 +226,10 @@ public class EntornInterceptor extends HandlerInterceptorAdapter {
 				request,
 				SessionHelper.VARIABLE_PERMIS_ENTORN_DESIGN,
 				entorn.isPermisDesign());
+		SessionHelper.setAttribute(
+				request, 
+				SessionHelper.VARIABLE_PERMIS_ENTORN_ADMIN, 
+				entorn.isPermisAdministration());
 		// Guarda l'entorn actual
 		EntornActual.setEntornId(entorn.getId());
 		// Al canviar d'entorn hem de reconfigurar algunes variables de sessió

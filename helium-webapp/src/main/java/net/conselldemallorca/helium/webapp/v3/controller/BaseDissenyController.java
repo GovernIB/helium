@@ -59,7 +59,7 @@ public class BaseDissenyController extends BaseController {
 		
 		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
 		if (entornActual != null) {
-			ExpedientTipusDto expedientTipus = expedientTipusService.findAmbIdPermisDissenyar(
+			ExpedientTipusDto expedientTipus = expedientTipusService.findAmbIdPermisDissenyarDelegat(
 					entornActual.getId(),
 					expedientTipusId);
 			model.addAttribute("expedientTipus", expedientTipus);
@@ -75,6 +75,7 @@ public class BaseDissenyController extends BaseController {
 			String pipellaActiva) {
 				
 		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
+
 		DefinicioProcesDto definicioProces = null;
 		if (entornActual != null) {
 			definicioProces = definicioProcesService.findByEntornIdAndJbpmKey(
@@ -86,7 +87,15 @@ public class BaseDissenyController extends BaseController {
 					MissatgesHelper.error(request, getMessage(request, "error.permisos.disseny.defproc"));
 					return "redirect:/";
 			}
+			// Recupera el tipus d'expedient amb els permisos
+			if (definicioProces.getExpedientTipus() != null)
+				definicioProces.setExpedientTipus(
+						expedientTipusService.findAmbIdPermisDissenyarDelegat(
+								entornActual.getId(),
+								definicioProces.getExpedientTipus().getId()));
+			
 			model.addAttribute("definicioProces", definicioProces);
+			
 			// Select de les versions
 			if (definicioProces != null) {
 				DefinicioProcesExpedientDto d = dissenyService.getDefinicioProcesByEntorIdAndProcesId(

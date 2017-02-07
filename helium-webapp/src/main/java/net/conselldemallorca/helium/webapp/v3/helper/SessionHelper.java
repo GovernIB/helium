@@ -32,6 +32,7 @@ public class SessionHelper {
 	public static final String VARIABLE_EXPTIP_ACCESSIBLES_AMB_CONSULTES_ACTIVES = "expedientTipusAccessiblesAmbConsultesActives";
 	public static final String VARIABLE_PERMIS_EXPTIP_DISSENY = "potDissenyarExpedientTipus";
 	public static final String VARIABLE_PERMIS_ENTORN_DESIGN = "potDissenyarEntorn";
+	public static final String VARIABLE_PERMIS_ENTORN_ADMIN = "potAdministrarEntorn";
 	public static final String VARIABLE_HIHA_TRAMITS_INICIABLES = "hiHaTramitsPerIniciar";
 
 	public static final String VARIABLE_FILTRE_CONSULTA_GENERAL = "filtreConsultaGeneral";
@@ -146,6 +147,17 @@ public class SessionHelper {
 					request,
 					VARIABLE_PERMIS_ENTORN_DESIGN,
 					potDissenyarEntorn);
+		}
+		public Boolean getPotAdministrarEntorn() {
+			return (Boolean)getAttribute(
+					request,
+					VARIABLE_PERMIS_ENTORN_DESIGN);
+		}
+		public void setPotAdministrarEntorn(Boolean potAdministrarEntorn) {
+			setAttribute(
+					request,
+					VARIABLE_PERMIS_ENTORN_ADMIN,
+					potAdministrarEntorn);
 		}
 		public Boolean getHiHaTramitsPerIniciar() {
 			return (Boolean)getAttribute(

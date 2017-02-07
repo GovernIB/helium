@@ -7,7 +7,17 @@
 <%@ taglib uri="http://www.springframework.org/security/tags" prefix="security"%>
 <%@ taglib tagdir="/WEB-INF/tags/helium" prefix="hel"%>
 <c:set var="idioma"><%=org.springframework.web.servlet.support.RequestContextUtils.getLocale(request).getLanguage()%></c:set>
+<c:set var="potDissenyarDefinicioProcesAdmin" value="${potAdministrarEntorn 
+														or potDissenyarEntorn 
+														or definicioProces.expedientTipus.permisAdministration 
+														or definicioProces.expedientTipus.permisDesignAdmin}"/>
+<c:set var="potDissenyarDefinicioProcesDeleg" value="${potAdministrarEntorn 
+														or potDissenyarEntorn 
+														or definicioProces.expedientTipus.permisAdministration 
+														or definicioProces.expedientTipus.permisDesignAdmin
+														or definicioProces.expedientTipus.permisDesignDeleg}"/>
 
+<h1>potDissenyarExpedientTipusAdmin: ${potDissenyarExpedientTipusAdmin }</h1>
 <c:set var="expedientTipusCodi">
 	<c:choose>
 		<c:when test="${definicioProces.expedientTipus != null}">
@@ -200,8 +210,9 @@
 	
 </head>
 <body>
+														
 <c:choose>
-	<c:when test="${not empty definicioProces}">		
+	<c:when test="${not empty definicioProces and potDissenyarDefinicioProcesDeleg}">		
 
 		<form class="well" style="padding-top: 10px; padding-bottom:10px;">
 			<div class="row">
@@ -209,14 +220,16 @@
 					<hel:inputSelect required="false" emptyOption="false" name="versions" textKey="definicio.proces.pipelles.definicio.proces.actual" optionItems="${versions}" optionValueAttribute="codi" optionTextAttribute="valor"/>
 				</div>
 				<div class="col-sm-2 text-right">
-					<div id="versioAccions" class="dropdown" style="margin-right: -10px;">
-						<button class="btn btn-primary" data-toggle="dropdown"><span class="fa fa-cog"></span>&nbsp;<spring:message code="comu.boto.accions"/>&nbsp;<span class="caret"></span></button>
-						<ul class="dropdown-menu">
-							<li><a id="accioExportar" data-toggle="modal" data-modal-id="accioExportarDiv" href="../definicioProces/${definicioProces.jbpmKey}/exportar?definicioProcesId=${definicioProces.id}"><span class="fa fa-sign-out"></span>&nbsp;<spring:message code="comu.filtre.exportar"/></a></li>
-							<li><a id="accioImportar" data-toggle="modal" data-modal-id="accioImportarDiv" href="../definicioProces/importar?definicioProcesId=${definicioProces.id}"><span class="fa fa-sign-in"></span>&nbsp;<spring:message code="comu.importar"/></a></li>
-							<li><a id="accioEsborrar" href="../definicioProces/${definicioProces.jbpmKey}/${definicioProces.id}/delete" data-rdt-link-ajax="true" data-confirm="<spring:message code="definicio.proces.pipelles.confirmacio.esborrar"/>"><span class="fa fa-trash-o"></span>&nbsp;<spring:message code="comu.boto.esborrar"/></a></li>
-						</ul>
-					</div>
+					<c:if test="${potDissenyarDefinicioProcesAdmin}">
+						<div id="versioAccions" class="dropdown" style="margin-right: -10px;">
+							<button class="btn btn-primary" data-toggle="dropdown"><span class="fa fa-cog"></span>&nbsp;<spring:message code="comu.boto.accions"/>&nbsp;<span class="caret"></span></button>
+							<ul class="dropdown-menu">
+								<li><a id="accioExportar" data-toggle="modal" data-modal-id="accioExportarDiv" href="../definicioProces/${definicioProces.jbpmKey}/exportar?definicioProcesId=${definicioProces.id}"><span class="fa fa-sign-out"></span>&nbsp;<spring:message code="comu.filtre.exportar"/></a></li>
+								<li><a id="accioImportar" data-toggle="modal" data-modal-id="accioImportarDiv" href="../definicioProces/importar?definicioProcesId=${definicioProces.id}"><span class="fa fa-sign-in"></span>&nbsp;<spring:message code="comu.importar"/></a></li>
+								<li><a id="accioEsborrar" href="../definicioProces/${definicioProces.jbpmKey}/${definicioProces.id}/delete" data-rdt-link-ajax="true" data-confirm="<spring:message code="definicio.proces.pipelles.confirmacio.esborrar"/>"><span class="fa fa-trash-o"></span>&nbsp;<spring:message code="comu.boto.esborrar"/></a></li>
+							</ul>
+						</div>
+					</c:if>
 				</div>
 			</div>
 		</form>
@@ -228,12 +241,16 @@
   			<div class="wrapper">
 				<ul class="nav nav-tabs pipelles" role="tablist">
 					<li id="pipella-detall"><a href="#contingut-detall" role="tab" data-toggle="tab"><spring:message code="definicio.proces.pipelles.pipella.detalls"/></a></li>
-					<li id="pipella-tasques"><a href="#contingut-tasques" role="tab" data-toggle="tab"><spring:message code="definicio.proces.pipelles.pipella.tasques"/></a></li>
-					<li id="pipella-variables"><a href="#contingut-variables" role="tab" data-toggle="tab"><spring:message code="definicio.proces.pipelles.pipella.variables"/></a></li>
+					<c:if test="${potDissenyarDefinicioProcesAdmin}">
+						<li id="pipella-tasques"><a href="#contingut-tasques" role="tab" data-toggle="tab"><spring:message code="definicio.proces.pipelles.pipella.tasques"/></a></li>
+						<li id="pipella-variables"><a href="#contingut-variables" role="tab" data-toggle="tab"><spring:message code="definicio.proces.pipelles.pipella.variables"/></a></li>
+					</c:if>
 					<li id="pipella-documents"><a href="#contingut-documents" role="tab" data-toggle="tab"><spring:message code="definicio.proces.pipelles.pipella.documents"/></a></li>
-					<li id="pipella-terminis"><a href="#contingut-terminis" role="tab" data-toggle="tab"><spring:message code="definicio.proces.pipelles.pipella.terminis"/></a></li>
-					<li id="pipella-accions"><a href="#contingut-accions" role="tab" data-toggle="tab"><spring:message code="definicio.proces.pipelles.pipella.accions"/></a></li>
-					<li id="pipella-recursos"><a href="#contingut-recursos" role="tab" data-toggle="tab"><spring:message code="definicio.proces.pipelles.pipella.recursos"/></a></li>
+					<c:if test="${potDissenyarDefinicioProcesAdmin}">
+						<li id="pipella-terminis"><a href="#contingut-terminis" role="tab" data-toggle="tab"><spring:message code="definicio.proces.pipelles.pipella.terminis"/></a></li>
+						<li id="pipella-accions"><a href="#contingut-accions" role="tab" data-toggle="tab"><spring:message code="definicio.proces.pipelles.pipella.accions"/></a></li>
+						<li id="pipella-recursos"><a href="#contingut-recursos" role="tab" data-toggle="tab"><spring:message code="definicio.proces.pipelles.pipella.recursos"/></a></li>
+					</c:if>
 				</ul>
 			</div>
 			<div class="tab-content">

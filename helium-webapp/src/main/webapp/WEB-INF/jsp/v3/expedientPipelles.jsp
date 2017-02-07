@@ -308,7 +308,7 @@
 								<form method="POST" class="formRelacioDelete" id="${expedientId}_formRelacioDelete" action="${expedientId}/relacioDelete" >
 									<input type="hidden" id="expedientIdOrigen" name="expedientIdOrigen" value="${expedientId}"/>
 									<input type="hidden" id="expedientIdDesti" name="expedientIdDesti" value="${expedientRelacionat.id}"/>
-									<c:if test="${expedient.permisWrite}"><span class="fa fa-trash-o edita" style="cursor: pointer" onclick="return confirmarEsborrarRelacio(event, '${expedientId}')"></span></c:if>
+									<c:if test="${expedient.permisRelate}"><span class="fa fa-trash-o edita" style="cursor: pointer" onclick="return confirmarEsborrarRelacio(event, '${expedientId}')"></span></c:if>
 								</form>
 							</li>
 						</c:forEach>
@@ -322,20 +322,30 @@
 						</c:forEach>
 					</ul>
 				</c:if>
-				<c:if test="${expedient.permisWrite}">
+				<c:if test="${expedient.permisWrite 
+							|| expedient.permisStop 
+							|| expedient.permisCancel 
+							|| expedient.permisDelete
+							|| expedient.permisRelate
+							|| expedient.permisScriptExe
+							|| expedient.permisUndoEnd
+							|| expedient.permisLogManage }">
 					<div id="expedient-info-accio" class="dropdown">
 						<a class="btn btn-primary dropdown-toggle" data-toggle="dropdown" href="<c:url value="/v3/expedient/${expedientId}/imatgeProces"/>"><span class="fa fa-cog"></span>&nbsp;<spring:message code="comu.boto.eines"/>&nbsp;<span class="caret"></span></a>
 						<ul class="dropdown-menu">
-							<c:if test="${expedient.permisWrite or expedient.permisAdministration}">
+
+							<c:if test="${expedient.permisStop}">
 								<c:choose>
 									<c:when test="${not expedient.aturat}">
-										<li><a data-rdt-link-modal="true" href="<c:url value="../../v3/expedient/${expedientId}/aturar"/>"><span class="fa fa-pause"></span>&nbsp;<spring:message code="expedient.info.accio.aturar"/></a></li>
+											<li><a data-rdt-link-modal="true" href="<c:url value="../../v3/expedient/${expedientId}/aturar"/>"><span class="fa fa-pause"></span>&nbsp;<spring:message code="expedient.info.accio.aturar"/></a></li>
 									</c:when>
 									<c:otherwise>
 										<li><a data-rdt-link-confirm="<spring:message code="expedient.eines.confirm_reprendre_tramitacio"/>" href="<c:url value="../../v3/expedient/${expedientId}/reprendre"/>"><span class="fa fa-play"></span>&nbsp;<spring:message code="expedient.info.accio.reprendre"/></a></li>
 									</c:otherwise>
 								</c:choose>
-								
+							</c:if>								
+							
+							<c:if test="${expedient.permisCancel}">
 								<c:choose>
 									<c:when test="${not expedient.anulat}">
 										<li><a data-rdt-link-modal="true" href="<c:url value="../../v3/expedient/${expedientId}/anular"/>"><span class="fa fa-times"></span>&nbsp;<spring:message code="expedient.info.accio.anular"/></a></li>
@@ -344,11 +354,14 @@
 										<li><a data-rdt-link-confirm="<spring:message code="expedient.consulta.confirm.desanular"/>" href="<c:url value="../../v3/expedient/${expedientId}/activar"/>"><span class="fa fa-check"></span>&nbsp;<spring:message code="expedient.info.accio.activar"/></a></li>
 									</c:otherwise>
 								</c:choose>
-							</c:if>
+							</c:if>								
+
 							<c:if test="${expedient.permisDelete}">
 								<li><a href="<c:url value="../../v3/expedient/${expedientId}/delete"/>" data-rdt-link-confirm="<spring:message code="expedient.llistat.confirmacio.esborrar"/>"><span class="fa fa-trash-o"></span>&nbsp;<spring:message code="expedient.llistat.accio.esborrar"/></a></li>
 							</c:if>
+							
 							<li class="divider"></li>
+							
 							<c:if test="${expedient.permisWrite}">
 								<li><a data-rdt-link-modal="true" href="<c:url value="../../v3/expedient/${expedientId}/modificar"/>"><span class="fa fa-pencil"></span>&nbsp;<spring:message code="expedient.info.accio.modificar"/></a></li>
 							</c:if>

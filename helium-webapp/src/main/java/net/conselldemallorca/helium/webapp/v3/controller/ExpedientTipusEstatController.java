@@ -72,7 +72,7 @@ public class ExpedientTipusEstatController extends BaseExpedientTipusController 
 		}
 		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
 		if (entornActual != null) {
-			ExpedientTipusDto expedientTipus = expedientTipusService.findAmbIdPermisDissenyar(
+			ExpedientTipusDto expedientTipus = expedientTipusService.findAmbIdPermisDissenyarDelegat(
 					entornActual.getId(),
 					expedientTipusId);
 			model.addAttribute("expedientTipus", expedientTipus);
@@ -104,6 +104,7 @@ public class ExpedientTipusEstatController extends BaseExpedientTipusController 
 			@RequestParam(required = false) Long agrupacioId,
 			Model model) {
 		ExpedientTipusEstatCommand command = new ExpedientTipusEstatCommand();
+		
 		command.setExpedientTipusId(expedientTipusId);
 		
 		model.addAttribute("expedientTipusId", expedientTipusId);

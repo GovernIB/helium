@@ -140,7 +140,7 @@ public class ExpedientTipusServiceBean implements ExpedientTipusService {
 			Long entornId) throws NoTrobatException {
 		return findAmbEntornPermisDissenyar(entornId);
 	}
-
+	
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public ExpedientTipusDto findAmbIdPermisDissenyar(
@@ -150,22 +150,22 @@ public class ExpedientTipusServiceBean implements ExpedientTipusService {
 				entornId,
 				expedientTipusId);
 	}
+	
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public ExpedientTipusDto findAmbIdPermisDissenyarDelegat(
+			Long entornId,
+			Long expedientTipusId) throws NoTrobatException, PermisDenegatException {
+		return findAmbIdPermisDissenyarDelegat(
+				entornId,
+				expedientTipusId);
+	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public List<ExpedientTipusDto> findAmbEntornPermisCrear(
 			Long entornId) throws NoTrobatException {
 		return findAmbEntornPermisCrear(entornId);
-	}
-
-	@Override
-	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public ExpedientTipusDto findAmbIdPermisCrear(
-			Long entornId,
-			Long expedientTipusId) {
-		return delegate.findAmbIdPermisCrear(
-				entornId,
-				expedientTipusId);
 	}
 
 	@Override

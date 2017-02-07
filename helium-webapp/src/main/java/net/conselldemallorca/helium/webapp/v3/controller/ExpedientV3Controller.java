@@ -264,12 +264,12 @@ public class ExpedientV3Controller extends BaseExpedientController {
 			@PathVariable Long expedientId) {
 		try {
 			ExpedientDto expedient = expedientService.findAmbId(expedientId);
-			if (expedient.isPermisAdministration()) {
+			if (expedient.isPermisLogManage()) {
 				expedientRegistreService.registreBuidarLog(
 						expedient.getId());
 				MissatgesHelper.success(request, getMessage(request, "info.expedient.buidatlog"));
 			} else {
-				MissatgesHelper.error(request, getMessage(request, "error.permisos.modificar.expedient"));
+				MissatgesHelper.error(request, getMessage(request, "error.permisos.buidar.logs"));
 			}
 		} catch (Exception ex) {
 			MissatgesHelper.error(request, getMessage(request, "error.buidarlog.expedient") + ": " + ex.getLocalizedMessage());

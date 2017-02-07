@@ -49,115 +49,119 @@ public class ExpedientTipusHelper {
 	@Resource
 	private EntornHelper entornHelper;
 
-
-
 	/** Consulta el tipus d'expedient comprovant el permís de lectura. */
 	public ExpedientTipus getExpedientTipusComprovantPermisLectura(Long id) {
 		return getExpedientTipusComprovantPermisos(
 				id,
-				true,
-				false);
+				null,
+				new Permission[] {
+						ExtendedPermission.READ,
+						ExtendedPermission.SUPERVISION,
+						ExtendedPermission.ADMINISTRATION});
 	}
 	
-	/** Consulta el tipus d'expedient comprovant el permís de disseny. */
+	/** Consulta el tipus d'expedient comprovant el permís de disseny sobre el tipus d'expedient. */
 	public ExpedientTipus getExpedientTipusComprovantPermisDisseny(Long id) {
 		return getExpedientTipusComprovantPermisos(
-				id,
-				false,
-				true);
+				id, 
+				new Permission[] {
+						ExtendedPermission.DESIGN,
+						ExtendedPermission.ADMINISTRATION
+				},
+				new Permission[]{
+						ExtendedPermission.DESIGN_ADMIN,
+						ExtendedPermission.ADMINISTRATION	
+				});
 	}
 	
-	/** Mètode per comprovar d'un sol cop diferents permisos sobre el tipus d'expedient
-	 * 
-	 * @param id Identificador del tipus d'expedient.
-	 * @param comprovarPermisRead
-	 * @param comprovarPermisDisseny
+	/** Consulta el tipus d'expedient comprovant el permís de disseny delegat sobre el tipus d'expedient. S'és
+	 * administrador delegat si es té permís delegat, permís de disseny administrador sobre el tipus d'expedient o 
+	 * administrador del tipus d'expedient. */
+	public ExpedientTipus getExpedientTipusComprovantPermisDissenyDelegat(Long id) {
+		return getExpedientTipusComprovantPermisos(
+				id, 
+				new Permission[] {
+						ExtendedPermission.DESIGN,
+						ExtendedPermission.ADMINISTRATION
+				},
+				new Permission[]{
+						ExtendedPermission.DESIGN_DELEG,
+						ExtendedPermission.DESIGN_ADMIN,
+						ExtendedPermission.ADMINISTRATION	
+				});
+	}
+	
+	public ExpedientTipus getExpedientTipusComprovantPermisReassignar(Long id) {
+		return getExpedientTipusComprovantPermisos(
+				id, 
+				null,
+				new Permission[] {
+						ExtendedPermission.REASSIGNMENT,
+						ExtendedPermission.ADMINISTRATION});
+	}
+	
+	public ExpedientTipus getExpedientTipusComprovantPermisSupervisio(Long id) {
+		return getExpedientTipusComprovantPermisos(
+				id,
+				null,
+				new Permission[] {
+						ExtendedPermission.SUPERVISION,
+						ExtendedPermission.TASK_SUPERV,
+						ExtendedPermission.ADMINISTRATION});
+	}
+	
+	/** Mètode genèric per obtenir el tipus d'expedient comprovant els permisos. Quan es compleix
+	 * algun permís es retorna el tipus d'expedient, si no es llença una excepció de permisos.
+	 * @param id
+	 * @param permisos
 	 * @return
 	 */
 	public ExpedientTipus getExpedientTipusComprovantPermisos(
 			Long id,
-			boolean comprovarPermisRead,
-			boolean comprovarPermisDisseny) {		
+			Permission[] permisosEntorn,
+			Permission[] permisosTipusExpedient) {
 		ExpedientTipus expedientTipus = expedientTipusRepository.findOne(id);
 		if (expedientTipus == null) {
 			throw new NoTrobatException(ExpedientTipus.class,id);
 		}
-		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-		Permission[] permisos = null;
-		if (comprovarPermisRead) {
-			permisos = new Permission[] {
-					ExtendedPermission.READ,
-					ExtendedPermission.SUPERVISION,
-					ExtendedPermission.ADMINISTRATION};
-			if (!permisosHelper.isGrantedAny(
+
+		// Comprova els permisos contra el tipus d'expedient
+		if (! comprovarPermisos(
+				expedientTipus,
+				permisosEntorn,
+				permisosTipusExpedient))
+			throw new PermisDenegatException(
 					id,
 					ExpedientTipus.class,
-					permisos,
-					auth)) {
-				throw new PermisDenegatException(
-						id,
-						ExpedientTipus.class,
-						permisos);
-			}
-		}
-		if (comprovarPermisDisseny) {
-			// Primer comprova el permís de disseny sobre l'entorn
-			if (!entornHelper.potDissenyarEntorn(expedientTipus.getEntorn().getId())) {
-				// Comprova el permís de disseny sobre el tipus d'expedient
-				permisos = new Permission[] {
-						ExtendedPermission.DESIGN_ADMIN,
-						ExtendedPermission.DESIGN_DELEG,
-						ExtendedPermission.ADMINISTRATION};
-				if (!permisosHelper.isGrantedAny(
-						id,
-						ExpedientTipus.class,
-						permisos,
-						auth)) {
-					throw new PermisDenegatException(
-							id,
-							ExpedientTipus.class,
-							permisos);
-				}
-			}			
-		}
+					permisosTipusExpedient);
 		return expedientTipus;
 	}
 	
-	public ExpedientTipus getExpedientTipusComprovantPermisReassignar(Long id) {
-		ExpedientTipus expedientTipus = expedientTipusRepository.findOne(id);
-		if (expedientTipus == null) {
-			throw new NoTrobatException(ExpedientTipus.class,id);
-		}
-		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-		if (!permisosHelper.isGrantedAny(
-				id,
-				ExpedientTipus.class,
-				new Permission[] {
-					ExtendedPermission.REASSIGNMENT,
-					ExtendedPermission.ADMINISTRATION},
-				auth)) {
-			return null;
-		}
+	public boolean comprovarPermisos(
+			ExpedientTipus expedientTipus,
+			Permission[] permisosEntorn,
+			Permission[] permisosTipusExpedient) {
 		
-		return expedientTipus;
-	}
-	public ExpedientTipus getExpedientTipusComprovantPermisSupervisio(Long id) {
-		ExpedientTipus expedientTipus = expedientTipusRepository.findOne(id);
-		if (expedientTipus == null) {
-			throw new NoTrobatException(ExpedientTipus.class,id);
-		}
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-		if (!permisosHelper.isGrantedAny(
-				id,
-				ExpedientTipus.class,
-				new Permission[] {
-					ExtendedPermission.SUPERVISION,
-					ExtendedPermission.ADMINISTRATION},
-				auth)) {
-			return null;
-		}
+
+		boolean permes = false;
 		
-		return expedientTipus;
+		if (permisosEntorn != null && permisosEntorn.length > 0) {
+			if (permisosHelper.isGrantedAny(
+					expedientTipus.getEntorn().getId(), 
+					Entorn.class, 
+					permisosEntorn, 
+					auth))
+				permes = true;
+			else
+				// Comprova els permisos contra el tipus d'expedient
+				permes = permisosHelper.isGrantedAny(
+						expedientTipus.getId(),
+						ExpedientTipus.class,
+						permisosTipusExpedient,
+						auth);
+		}		
+		return permes;
 	}
 	
 	public ExpedientTipus findAmbTaskId(

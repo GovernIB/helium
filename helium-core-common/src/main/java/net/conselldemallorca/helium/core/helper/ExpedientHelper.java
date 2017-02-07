@@ -18,6 +18,7 @@ import org.jbpm.jpdl.el.ELException;
 import org.jbpm.jpdl.el.ExpressionEvaluator;
 import org.jbpm.jpdl.el.VariableResolver;
 import org.jbpm.jpdl.el.impl.ExpressionEvaluatorImpl;
+import org.springframework.security.acls.domain.BasePermission;
 import org.springframework.security.acls.model.Permission;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -179,10 +180,11 @@ public class ExpedientHelper {
 		if (!permisosHelper.isGrantedAny(
 				entorn.getId(),
 				Entorn.class,
-				permisos,
+				new Permission[] {
+						BasePermission.READ},
 				auth)) {
 			throw new PermisDenegatException(
-					id,
+					entorn.getId(),
 					Entorn.class,
 					permisos);
 		}
@@ -735,6 +737,13 @@ public class ExpedientHelper {
 				expedientsTipus,
 				ExpedientTipus.class);
 	}
+	
+	public void omplirPermisosExpedientTipus(ExpedientTipusDto expedientTipus) {
+		List<ExpedientTipusDto> expedientsTipus = new ArrayList<ExpedientTipusDto>();
+		expedientsTipus.add(expedientTipus);
+		omplirPermisosExpedientsTipus(expedientsTipus);
+	}
+
 	public void omplirPermisosExpedients(List<ExpedientDto> expedients) {
 		List<Long> expedientTipusIds = new ArrayList<Long>();
 		for (ExpedientDto expedient: expedients) {

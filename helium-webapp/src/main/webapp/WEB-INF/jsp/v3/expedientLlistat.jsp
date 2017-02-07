@@ -517,6 +517,8 @@ function refrescaEstatSegonPla() {
 				<th data-rdt-property="permisRead" data-rdt-visible="false"></th>
 				<th data-rdt-property="permisWrite" data-rdt-visible="false"></th>
 				<th data-rdt-property="permisDelete" data-rdt-visible="false"></th>
+				<th data-rdt-property="permisStop" data-rdt-visible="false"></th>
+				<th data-rdt-property="permisCancel" data-rdt-visible="false"></th>
 				<th data-rdt-property="errorDesc" data-rdt-visible="false"></th>	
 				<th data-rdt-property="errorFull" data-rdt-visible="false"></th>
 				<th data-rdt-property="errorsIntegracions" data-rdt-visible="false"></th>
@@ -529,10 +531,10 @@ function refrescaEstatSegonPla() {
 							<button class="btn btn-primary" data-toggle="dropdown"><span class="fa fa-cog"></span>&nbsp;<spring:message code="comu.boto.accions"/>&nbsp;<span class="caret"></span></button>
 							<ul class="dropdown-menu">
 								<li><a href="expedient/{{:id}}" class="consultar-expedient"><span class="fa fa-folder-open"></span>&nbsp;<spring:message code="expedient.llistat.accio.consultar"/></a></li>
-								{{if !aturat && (permisWrite || permisAdministration)}}<li><a href="../v3/expedient/{{:id}}/aturar" data-rdt-link-modal="true"><span class="fa fa-pause"></span>&nbsp;<spring:message code="expedient.llistat.accio.aturar"/></a></li>{{/if}}
-								{{if aturat && (permisWrite || permisAdministration)}}<li><a href="../v3/expedient/{{:id}}/reprendre" data-rdt-link-callback="recarregarTaula(taulaDades);" data-rdt-link-ajax="true" data-rdt-link-confirm="<spring:message code="expedient.eines.confirm_reprendre_tramitacio"/>"><span class="fa fa-play"></span>&nbsp;<spring:message code="expedient.llistat.accio.reprendre"/></a></li>{{/if}}
-								{{if !anulat && (permisWrite || permisAdministration)}}<li><a href="../v3/expedient/{{:id}}/anular" data-rdt-link-modal="true"><span class="fa fa-times"></span>&nbsp;<spring:message code="expedient.llistat.accio.anular"/></a></li>{{/if}}
-								{{if anulat && (permisWrite || permisAdministration)}}<li><a href="../v3/expedient/{{:id}}/activar" data-rdt-link-callback="recarregarTaula(taulaDades);" data-rdt-link-ajax="true" data-rdt-link-confirm="<spring:message code="expedient.consulta.confirm.desanular"/>"><span class="fa fa-check"></span>&nbsp;<spring:message code="expedient.llistat.accio.activar"/></a></li>{{/if}}
+								{{if !aturat && (permisStop)}}<li><a href="../v3/expedient/{{:id}}/aturar" data-rdt-link-modal="true"><span class="fa fa-pause"></span>&nbsp;<spring:message code="expedient.llistat.accio.aturar"/></a></li>{{/if}}
+								{{if aturat && (permisStop)}}<li><a href="../v3/expedient/{{:id}}/reprendre" data-rdt-link-callback="recarregarTaula(taulaDades);" data-rdt-link-ajax="true" data-rdt-link-confirm="<spring:message code="expedient.eines.confirm_reprendre_tramitacio"/>"><span class="fa fa-play"></span>&nbsp;<spring:message code="expedient.llistat.accio.reprendre"/></a></li>{{/if}}
+								{{if !anulat && (permisCancel)}}<li><a href="../v3/expedient/{{:id}}/anular" data-rdt-link-modal="true"><span class="fa fa-times"></span>&nbsp;<spring:message code="expedient.llistat.accio.anular"/></a></li>{{/if}}
+								{{if anulat && (permisCancel)}}<li><a href="../v3/expedient/{{:id}}/activar" data-rdt-link-callback="recarregarTaula(taulaDades);" data-rdt-link-ajax="true" data-rdt-link-confirm="<spring:message code="expedient.consulta.confirm.desanular"/>"><span class="fa fa-check"></span>&nbsp;<spring:message code="expedient.llistat.accio.activar"/></a></li>{{/if}}
 								{{if permisDelete}}<li><a href="../v3/expedient/{{:id}}/delete" data-rdt-link-ajax="true" data-rdt-link-callback="recarregarTaula(taulaDades);" data-rdt-link-confirm="<spring:message code="expedient.llistat.confirmacio.esborrar"/>"><span class="fa fa-trash-o"></span>&nbsp;<spring:message code="expedient.llistat.accio.esborrar"/></a></li>{{/if}}
 							</ul>
 						</div>
