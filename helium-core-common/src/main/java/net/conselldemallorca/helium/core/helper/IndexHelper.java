@@ -436,6 +436,7 @@ public class IndexHelper {
 //			contextMongoTotal.stop();
 //			contextMongoEntorn.stop();
 //			contextMongoTipExp.stop();
+			expedient.setReindexarData(null);
 		}
 		expedient.setReindexarError(false);
 		expedientRepository.saveAndFlush(expedient);

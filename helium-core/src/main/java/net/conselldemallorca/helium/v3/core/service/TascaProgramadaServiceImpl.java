@@ -108,31 +108,19 @@ public class TascaProgramadaServiceImpl implements TascaProgramadaService {
 	@Override
 	@Scheduled(fixedDelay=15000)
 	public void comprovarReindexacioAsincrona() {
-		logger.debug("###===> Entrant en la REINDEXACIÓ ASÍNCRONA <===###");
 		Counter countMetodeAsincronTotal = metricRegistry.counter(MetricRegistry.name(TascaProgramadaService.class, "reindexacio.asincrona.metode.count"));
 		countMetodeAsincronTotal.inc();
 		
 		List<Long> expedientIds = expedientRepository.findAmbDataReindexacio();
-		if (expedientIds != null && expedientIds.size() > 0)
-			logger.debug("###===> Es reindexaran " + expedientIds.size() + " expedients...");
-		else
-			logger.debug("###===> No hi ha expedients per a reidexar...");
 		
 		for (Long expedientId: expedientIds) {
-//			System.out.println(TransactionSynchronizationManager.getCurrentTransactionName() + ": " + (TransactionSynchronizationManager.isActualTransactionActive() ? "Activa" : "No activa"));
 			tascaProgramadaHelper.reindexarExpedient(expedientId);
-//			System.out.println(TransactionSynchronizationManager.getCurrentTransactionName() + ": " + (TransactionSynchronizationManager.isActualTransactionActive() ? "Activa" : "No activa"));
-//			System.out.println("---");
-//			System.out.println("---");
 		}
-		
-		logger.debug("###===> Fi de procés de REINDEXACIÓ ASÍNCRONA <===###");
 	}
 	
 	@Override
 	@Transactional
 	public void reindexarExpedient (Long expedientId) {
-//		System.out.println(TransactionSynchronizationManager.getCurrentTransactionName() + ": " + (TransactionSynchronizationManager.isActualTransactionActive() ? "Activa" : "No activa"));
 		
 		Expedient expedient = expedientRepository.findOne(expedientId);
 		if (expedient == null)
@@ -143,7 +131,6 @@ public class TascaProgramadaServiceImpl implements TascaProgramadaService {
 		Timer.Context contextTipexp = null;
 		
 		try {
-			logger.debug("###===> Reindexant expedient " + expedient.getId());
 			
 			final Timer timerTotal = metricRegistry.timer(MetricRegistry.name(TascaProgramadaService.class, "reindexacio.asincrona.expedient"));
 			final Timer timerEntorn = metricRegistry.timer(MetricRegistry.name(TascaProgramadaService.class, "reindexacio.asincrona.expedient", expedient.getEntorn().getCodi()));
@@ -166,7 +153,6 @@ public class TascaProgramadaServiceImpl implements TascaProgramadaService {
 					false,
 					null);
 			
-			logger.debug("###===> S'ha reindexat correctament l'expedient " + expedient.getId());
 		} catch (Exception ex) {
 			logger.error(
 					"Error reindexant l'expedient " + expedient.getIdentificador(),
@@ -179,8 +165,6 @@ public class TascaProgramadaServiceImpl implements TascaProgramadaService {
 			contextTotal.stop();
 			contextEntorn.stop();
 			contextTipexp.stop();
-			
-			logger.debug("###===> Fi de reindexació de l'expedient " + expedient.getId());
 		}
 	}
 
