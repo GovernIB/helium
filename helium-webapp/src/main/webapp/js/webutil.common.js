@@ -36,6 +36,13 @@ function webutilUrlAmbPrefix(url, prefix) {
 	return absolutePath.substring(0, webutilContextPath().length) + '/' + prefixSenseBarra + absolutePath.substring(webutilContextPath().length);
 }
 
+/** Retorna true si ha estat l'usuari que ha apretat la tecla ESC o 
+ * ha navegat cap a una altra pàgina.
+ */
+function userAborted(xhr) {
+	return !xhr.getAllResponseHeaders();
+}
+
 $(document).ajaxError(function(event, jqxhr, ajaxSettings, thrownError) {
 	var message = "Error AJAX: [" + jqxhr.status + "] " + thrownError;
 	/*var statusErrorMap = {
@@ -59,7 +66,12 @@ $(document).ajaxError(function(event, jqxhr, ajaxSettings, thrownError) {
 	} else {
 		message = "Unknown Error: (" + jqxhr.status + ", " + thrownError + ")";
 	}*/
-	alert(message);
+	if (!userAborted(jqxhr))
+		alert(message);
+	else
+		console.warn(message + ": User cancels request");
+
+	
 });
 
 (function($) {

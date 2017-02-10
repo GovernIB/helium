@@ -107,9 +107,12 @@
 			if ($(this).attr("data-rdt-paginable")) {
 				paginacioActiva = ($(this).data("rdt-paginable") == 'true');
 			}
-			var ajaxErrorFunction = function (jqXHR, exception) {
+			var ajaxErrorFunction = function ( jqXHR, exception) {
 				if (jqXHR.status === 0) {
-	                alert('Not connected.\n Verify network.');
+					if (!userAborted(jqXHR))
+						alert.error('Not connected. Verify network.');
+					else
+						console.warn("Datatables: User cancels request");
 	            } else if (jqXHR.status == 404) {
 	                alert('Requested page not found [404].');
 	            } else if (jqXHR.status == 500) {
@@ -119,7 +122,7 @@
 	            } else if (exception === 'timeout') {
 	                alert('Timeout error.');
 	            } else if (exception === 'abort') {
-	                alert('Ajax request aborted.');
+	            	console.error('Ajax request aborted.');
 	            } else {
 	                alert('Unknown error:\n' + jqXHR.responseText);
 	            }
@@ -516,4 +519,11 @@ function datatableExecuteFunctionByName(functionName, context /*, args */) {
 	if (context[func] === undefined)
 		return false;
 	return context[func].apply(this, args);
+}
+
+/** Retorna true si ha estat l'usuari que ha apretat la tecla ESC o 
+ * ha navegat cap a una altra pàgina.
+ */
+function userAborted(xhr) {
+	return !xhr.getAllResponseHeaders();
 }
