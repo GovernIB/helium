@@ -29,12 +29,19 @@ public interface ExpedientRepository extends JpaRepository<Expedient, Long> {
 
 	List<Expedient> findByIdIn(Collection<Long> id);
 
-	List<Expedient> findByReindexarDataNotNullOrderByReindexarDataAsc();
-
 	Expedient findByEntornIdAndTipusIdAndNumero(
 			Long entornId,
 			Long tipusId,
 			String numero);
+	
+	
+	@Query(	"select e.id " +
+			 "from Expedient e " +
+			 "where " +
+			 "   e.reindexarData is not null " +
+			 "   order by e.reindexarData asc ")
+	List<Long> findAmbDataReindexacio();
+	
 	
 	@Query(	"select e " +
 			"from Expedient e " +

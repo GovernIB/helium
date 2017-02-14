@@ -15,8 +15,13 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.codahale.metrics.Counter;
+import com.codahale.metrics.MetricRegistry;
+import com.codahale.metrics.Timer;
+
 import net.conselldemallorca.helium.core.helper.IndexHelper;
 import net.conselldemallorca.helium.core.helper.NotificacioHelper;
+import net.conselldemallorca.helium.core.helper.TascaProgramadaHelper;
 import net.conselldemallorca.helium.core.model.hibernate.ExecucioMassiva.ExecucioMassivaTipus;
 import net.conselldemallorca.helium.core.model.hibernate.ExecucioMassivaExpedient;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
@@ -51,6 +56,10 @@ public class TascaProgramadaServiceImpl implements TascaProgramadaService {
 	private IndexHelper indexHelper;
 	@Resource
 	private NotificacioHelper notificacioHelper;
+	@Resource
+	private TascaProgramadaHelper tascaProgramadaHelper;
+	@Resource
+  	private MetricRegistry metricRegistry;
 	
 	private static Map<Long, String> errorsMassiva = new HashMap<Long, String>();
 	
@@ -98,55 +107,90 @@ public class TascaProgramadaServiceImpl implements TascaProgramadaService {
 	
 	/*** REINDEXACIO ASÍNCRONA ***/
 	@Override
-	@Transactional
-	@Scheduled(fixedDelayString = "${app.reindexacio.asincrona.periode}")
+	@Scheduled(fixedDelay=15000)
 	public void comprovarReindexacioAsincrona() {
-		logger.debug("###===> Entrant en la REINDEXACIÓ ASÍNCRONA <===###");
-		List<Expedient> expedients = expedientRepository.findByReindexarDataNotNullOrderByReindexarDataAsc();
+		Counter countMetodeAsincronTotal = metricRegistry.counter(MetricRegistry.name(TascaProgramadaService.class, "reindexacio.asincrona.metode.count"));
+		countMetodeAsincronTotal.inc();
 		
-
- 		if (expedients != null && expedients.size() > 0)
- 			logger.debug("###===> Es reindexaran " + expedients.size() + " expedients...");
- 		else
- 			logger.debug("###===> No hi ha expedients per a reidexar...");
+		List<Long> expedientIds = expedientRepository.findAmbDataReindexacio();
 		
-		
-		for (Expedient expedient: expedients) {
-			try {
-				logger.debug("###===> Reindexant expedient " + expedient.getId());
-				indexHelper.expedientIndexLuceneUpdate(
-						expedient.getProcessInstanceId(),
-						false,
-						null);
-				
-				logger.debug("###===> S'ha reindexat correctament l'expedient " + expedient.getId());
-			} catch (Exception ex) {
-				logger.error(
-						"Error reindexant l'expedient " + expedient.getIdentificador(),
-						ex);
-				expedient.setReindexarError(true);
-			} finally {
-				expedient.setReindexarData(null);
-				expedientRepository.save(expedient);
-				logger.debug("###===> Fi de reindexació de l'expedient " + expedient.getId());
-			}
+		for (Long expedientId: expedientIds) {
+			tascaProgramadaHelper.reindexarExpedient(expedientId);
 		}
-		logger.debug("###===> Fi de procés de REINDEXACIÓ ASÍNCRONA <===###");
+	}
+	
+	@Override
+	@Transactional
+	public void reindexarExpedient (Long expedientId) {
+		
+		Expedient expedient = expedientRepository.findOne(expedientId);
+		if (expedient == null)
+			throw new NoTrobatException(Expedient.class, expedientId);
+		
+		Timer.Context contextTotal = null;
+		Timer.Context contextEntorn = null;
+		Timer.Context contextTipexp = null;
+		
+		try {
+			
+			final Timer timerTotal = metricRegistry.timer(MetricRegistry.name(TascaProgramadaService.class, "reindexacio.asincrona.expedient"));
+			final Timer timerEntorn = metricRegistry.timer(MetricRegistry.name(TascaProgramadaService.class, "reindexacio.asincrona.expedient", expedient.getEntorn().getCodi()));
+			final Timer timerTipexp = metricRegistry.timer(MetricRegistry.name(TascaProgramadaService.class, "reindexacio.asincrona.expedient", expedient.getEntorn().getCodi(), expedient.getTipus().getCodi()));
+			
+			Counter countTotal = metricRegistry.counter(MetricRegistry.name(TascaProgramadaService.class, "reindexacio.asincrona.expedient.count"));
+			Counter countEntorn = metricRegistry.counter(MetricRegistry.name(TascaProgramadaService.class, "reindexacio.asincrona.expedient.count", expedient.getEntorn().getCodi()));
+			Counter countTipexp = metricRegistry.counter(MetricRegistry.name(TascaProgramadaService.class, "reindexacio.asincrona.expedient.count", expedient.getEntorn().getCodi(), expedient.getTipus().getCodi()));
+		
+			countTotal.inc();
+			countEntorn.inc();
+			countTipexp.inc();
+			
+			contextTotal = timerTotal.time();
+			contextEntorn = timerEntorn.time();
+			contextTipexp = timerTipexp.time();
+			
+			indexHelper.expedientIndexLuceneUpdate(
+					expedient.getProcessInstanceId(),
+					false,
+					null);
+			
+		} catch (Exception ex) {
+			logger.error(
+					"Error reindexant l'expedient " + expedient.getIdentificador(),
+					ex);
+			expedient.setReindexarError(true);
+		} finally {
+			expedient.setReindexarData(null);
+			expedientRepository.save(expedient);
+			
+			contextTotal.stop();
+			contextEntorn.stop();
+			contextTipexp.stop();
+		}
 	}
 
 	/**************************/
 	
 	/*** ACTUALITZAR ESTAT NOTIFICACIONS ***/
 	@Override
-	@Transactional
 	@Scheduled(fixedDelayString = "${app.notificacions.comprovar.estat}")
-	public void actualitzarEstatNotificacions() {
+	public void comprovarEstatNotificacions() {
 		List<Notificacio> notificacionsPendentsRevisar = notificacioRepository.findByEstatAndTipusOrderByDataEnviamentAsc(DocumentEnviamentEstatEnumDto.ENVIAT, DocumentNotificacioTipusEnumDto.ELECTRONICA);
 		for (Notificacio notificacio: notificacionsPendentsRevisar) {
-			notificacioHelper.obtenirJustificantNotificacio(notificacio);
+			tascaProgramadaHelper.actualitzarEstatNotificacions(notificacio.getId());
 		}
 	}
 
+	
+	@Override
+	@Transactional
+	public void actualitzarEstatNotificacions(Long notificacioId) {
+		Notificacio notificacio = notificacioRepository.findOne(notificacioId);
+		if (notificacio == null)
+			throw new NoTrobatException(Notificacio.class, notificacioId);
+		
+		notificacioHelper.obtenirJustificantNotificacio(notificacio);
+	}
 	/**************************/
 	
 	

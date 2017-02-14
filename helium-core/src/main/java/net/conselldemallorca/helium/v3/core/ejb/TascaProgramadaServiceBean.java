@@ -31,8 +31,19 @@ public class TascaProgramadaServiceBean implements TascaProgramadaService {
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public void actualitzarEstatNotificacions() throws NoTrobatException {
-		delegate.actualitzarEstatNotificacions();
+	public void actualitzarEstatNotificacions(Long notificacioId) throws NoTrobatException {
+		delegate.actualitzarEstatNotificacions(notificacioId);
 	}
 
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public void reindexarExpedient(Long expedientId) throws NoTrobatException {
+		delegate.reindexarExpedient(expedientId);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public void comprovarEstatNotificacions() throws NoTrobatException {
+		delegate.comprovarEstatNotificacions();
+	}
 }
