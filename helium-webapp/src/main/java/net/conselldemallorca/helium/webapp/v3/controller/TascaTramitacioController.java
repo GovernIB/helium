@@ -477,41 +477,21 @@ public class TascaTramitacioController extends BaseTascaController {
 			@PathVariable String tascaId,
 			@PathVariable Long documentId,
 			Model model) throws IOException {
-		PassarelaFirmaEnviarCommand command = new PassarelaFirmaEnviarCommand();
 		TascaDocumentDto doc = tascaService.findDocument(tascaId, documentId);
-		command.setDocumentId(documentId.toString());
-		model.addAttribute("passarelaFirmaEnviarCommand", command);
-		model.addAttribute("tascaId", tascaId);
-		model.addAttribute("documentCodi", doc.getDocumentCodi());
-		return "v3/passarelaFirma/passarelaFirmaForm";
-	}
-	@RequestMapping(value = "/{tascaId}/document/{documentCodi}/firmaPassarela", method = RequestMethod.POST)
-	public String firmaPassarelaPost(
-			HttpServletRequest request,
-			@PathVariable String tascaId,
-			@PathVariable String documentCodi,
-			@Valid PassarelaFirmaEnviarCommand command,
-			BindingResult bindingResult,
-			Model model) throws IOException {
-		if (bindingResult.hasErrors()) {
-			model.addAttribute("tascaId", tascaId);
-			model.addAttribute("documentCodi", documentCodi);
-			return "v3/passarelaFirma/passarelaFirmaForm";
-		}
+		String documentCodi = doc.getDocumentCodi();
 		DocumentDto documentDto = tascaService.getDocumentPerDocumentCodi(tascaId, documentCodi);
-        ArxiuDto arxiuPerFirmar = expedientService.arxiuDocumentPerSignar(
-                documentDto.getTokenSignatura());
-        
+		ArxiuDto arxiuPerFirmar = expedientService.arxiuDocumentPerSignar(
+				documentDto.getTokenSignatura());
 		PersonaDto usuariActual = aplicacioService.findPersonaActual();
 		String modalStr = (ModalHelper.isModal(request)) ? "/modal" : "";
 		
 		String procesFirmaUrl = passarelaFirmaHelper.iniciarProcesDeFirma(
 				request,
 				arxiuPerFirmar,
-				command.getDocumentId(),
+				documentId.toString(),
 				usuariActual.getDni(),
-				command.getMotiu(),
-				command.getLloc(),
+				"Firma",
+				"Illes Balears",
 				usuariActual.getEmail(),
 				LocaleContextHolder.getLocale().getLanguage(),
 				modalStr + "/v3/tasca/" + tascaId + "/document/" + documentCodi + "/firmaPassarelaFinal",
@@ -615,8 +595,10 @@ public class TascaTramitacioController extends BaseTascaController {
 				request,
 				signaturesSet);
 		//TODO: La passarel·la redirigeix tota la pàgina, com a mínim així es mostren els menús de navegació sense posar modal davant
+
 //        return "redirect:/v3/tasca/" + tascaId + "/signatura";
-		return "v3/tascaSignatura";
+//		return "v3/tascaSignatura";
+		return "v3/passarelaFirma/passarelaFiFirma";
 	}
 	
 	@RequestMapping(value = "/{tascaId}/verificarSignatura/{documentStoreId}/{documentCodi}", method = RequestMethod.GET)
