@@ -455,26 +455,35 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
     		this.omplirModelFormulariImportacio(entornActual.getId(), command.getId(), importacio, model);
         	return "v3/expedientTipusImportarOpcions";
         } else {
-        	ExpedientTipusDto expedientTipus = expedientTipusService.importar(
-        			entornActual.getId(),
-        			command.getId(), 
-        			conversioTipusHelper.convertir(
-							command, 
-							ExpedientTipusExportacioCommandDto.class),
-        			importacio);
-        	
-    		MissatgesHelper.success(
-					request, 
-					getMessage(
-							request, 
-							"expedient.tipus.importar.form.success"));
-    		// Indica que la importació ha finalitzat per no haver de processar més codi
-    		model.addAttribute("importacioFinalitzada", true);
-        	if (command.getId() != null) 
-	    		return modalUrlTancar();
-        	else {        		
-        		// retorna la redirecció
-        		model.addAttribute("redireccioUrl",  request.getContextPath() + "/v3/expedientTipus/" + expedientTipus.getId());
+        	try {
+	        	ExpedientTipusDto expedientTipus = expedientTipusService.importar(
+	        			entornActual.getId(),
+	        			command.getId(), 
+	        			conversioTipusHelper.convertir(
+								command, 
+								ExpedientTipusExportacioCommandDto.class),
+	        			importacio);
+	    		MissatgesHelper.success(
+						request, 
+						getMessage(
+								request, 
+								"expedient.tipus.importar.form.success"));
+	    		// Indica que la importació ha finalitzat per no haver de processar més codi
+	    		model.addAttribute("importacioFinalitzada", true);
+	        	if (command.getId() != null) 
+		    		return modalUrlTancar();
+	        	else {        		
+	        		// retorna la redirecció
+	        		model.addAttribute("redireccioUrl",  request.getContextPath() + "/v3/expedientTipus/" + expedientTipus.getId());
+	            	return "v3/expedientTipusImportarOpcions";
+	        	}
+        	} catch (Exception e) {
+        		MissatgesHelper.error(request, 
+        							getMessage(request,
+        										"expedient.tipus.importar.form.error.importacio",
+        										new Object[] {e.getLocalizedMessage()}));
+        		model.addAttribute("command", command);	    		
+        		this.omplirModelFormulariImportacio(entornActual.getId(), command.getId(), importacio, model);
             	return "v3/expedientTipusImportarOpcions";
         	}
         }
