@@ -155,16 +155,20 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 				entorn, 
 				jbpmKey);
 		
-		// Comprova l'accés
-		if (definicioProces.getExpedientTipus() != null)			
-			expedientTipusHelper.getExpedientTipusComprovantPermisDissenyDelegat(
-					definicioProces.getExpedientTipus().getId());
-		else
-			entornHelper.getEntornComprovantPermisos(EntornActual.getEntornId(), true, true);
+		DefinicioProcesDto dto = null;
+		if (definicioProces != null) {
+			// Comprova l'accés
+			if (definicioProces.getExpedientTipus() != null)			
+				expedientTipusHelper.getExpedientTipusComprovantPermisDissenyDelegat(
+						definicioProces.getExpedientTipus().getId());
+			else
+				entornHelper.getEntornComprovantPermisos(EntornActual.getEntornId(), true, true);
 
-		return conversioTipusHelper.convertir(
-				definicioProces,
-				DefinicioProcesDto.class);
+			dto = conversioTipusHelper.convertir(
+					definicioProces,
+					DefinicioProcesDto.class);
+		}
+		return dto;
 	}
 
 	/**
