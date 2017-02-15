@@ -1055,9 +1055,9 @@ public class DocumentHelperV3 {
 					}
 					// Calculam l'extensió del document final de la vista
 					String extensioActual = null;
-					int indexPunt = arxiuOrigenNom.indexOf(".");
+					int indexPunt = arxiuOrigenNom.lastIndexOf('.');
 					if (indexPunt != -1)
-						extensioActual = arxiuOrigenNom.substring(0, indexPunt);
+						extensioActual = arxiuOrigenNom.substring(indexPunt + 1);
 					String extensioDesti = extensioActual;
 					if (perSignar && isActiuConversioSignatura()) {
 						extensioDesti = getExtensioArxiuSignat();
