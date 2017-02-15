@@ -113,7 +113,7 @@
   												</c:if>
 											</div>
 										</form:form>
-											
+										
 										<!-- Modal Passarel·la -->
 										<div id="modalPassarela${document.id}" class="modal fade" role="dialog">
   											<div class="modal-dialog modal-lg">
@@ -137,43 +137,13 @@
 										
 										<c:if test="${numPluginsPassarela > 0}">
 											<div id="botons${document.id}" class="modal-botons-firma">
-												<button type="button" class="btn btn-default" data-toggle="modal" data-target="#modalPassarela${document.id}"><spring:message code="tasca.signa.signar.passarela"/></button>
-												<button type="button" class="btn btn-default applet" data-formid="form${document.id}" id="bapplet${document.id}"><spring:message code="tasca.signa.signar.applet"/></button>
+												<button type="button" onclick="finestraFirma=window.open('<c:url value="/modal/v3/tasca/${tasca.id}/document/${document.id}/firmaPassarela"/>', 'Firma passarel.la', 'location=0,status=0,scrollbars=0,resizable=0,directories=0,toolbar=0,titlebar=0,width=800,height=450,top=200,left=200');" class="btn btn-default"><spring:message code="tasca.signa.signar.passarela"/></button>
 											</div>
 										</c:if>
-
 									</c:if>
 								</div>
 							</c:if>
-							
-							<script type="text/javascript">
-								$(document).ready( function() {
-									
-									$.get("${sourceUrl}?token=${document.tokenSignatura}")
-									.done(function(data) {})
-									.fail(function(xhr, status, error) {
-										$('#contingut-alertes').append(
-												"<div id='errors' class='alert alert-danger'>" +
-													"<button class='close' data-dismiss='alert'>×</button>" +
-													"<p><spring:message code='tasca.signa.alert.no.document'/>: " + xhr.responseText.match(/.*<h1.*>([\s\S]*)<\/h1>.*/) + "</p>" +
-												"</div>");
-										$("#modal-botons${document.id}").addClass('hide');
-									});
-									
-									$('#dismissap').click(function() {
-										window.location.href = '<c:url value="/modal/v3/tasca/${tasca.id}/signatura"/>';
-									});
-									$('#bapplet${document.id}').click(function() {
-										$("#" + $(this).data("formid")).removeClass('hide');
-										$(this).parent().addClass("hide");
-									});
-									$("#applet-tancar${document.id}").click(function() {
-										$("#" + $(this).data("formid")).addClass('hide');
-										$("#" + $(this).data("botonsid")).removeClass('hide');
-									});
-								});
-							</script>
-							
+														
 						</c:when>
 						<c:otherwise>
 							</h4>
@@ -184,27 +154,19 @@
 		</div>
 	</div>
 </c:forEach>
-<div id="applet"></div>
 
 <!-- Scripts per a signatura amb applet -->
 
 <script type="text/javascript">
+
+var finestraFirma;
+
+function refreshSignatures() {
+	finestraFirma.close();
+	window.location.href = '<c:url value="/modal/v3/tasca/${tasca.id}/signatura"/>';
+}
+
 $(document).ready(function() {
-	docWriteWrapper($('#applet'), function () {
-		var attributes = {
-				id: 'signaturaApplet',
-				code: 'net.conselldemallorca.helium.applet.signatura.SignaturaCaibApplet',
-				archive: '<c:url value="/signatura/caib/helium-applet.jar"/>',
-				width: 1,
-				height: 1};
-		if (typeof(deployJava) != "undefined") {
-			deployJava.runApplet(
-					attributes,
-					{},
-					'1.5');
-			obtenirCertificats();
-		} 
-	});
 	
 	$(document).on('show.bs.modal', '.modal', function (event) {
         var zIndex = 1040 + (10 * $('.modal:visible').length);
@@ -219,100 +181,7 @@ $(document).ready(function() {
 		refrescarPagina: false,
 		alertesRefreshUrl: "<c:url value="/nodeco/v3/missatges"/>"
 	});
-
 });
 
-function docWriteWrapper(jq, func) {
-    var oldwrite = document.write, content = '';
-    document.write = function(text) {
-        content += text;
-    }
-    func();
-    document.write = oldwrite;
-    jq.html(content);
-}
 
-function obtenirCertificats() {
-	
-	try {
-		if (typeof(signaturaApplet) != "undefined") {
-		 	if (typeof(signaturaApplet.findCertificats) != "undefined") {
-				var certs = signaturaApplet.findCertificats(1);
-				if (!certs) {
-					alert("<spring:message code='tasca.signa.alert.certerr'/>");
-					$(".boto-applet").hide();
-				} else {
-					$('select[name=certs]').empty();
-					if (certs.length == 0) {
-						$('select[name=certs]').append($('<option>', { 
-					        value: -1,
-					        text : "<spring:message code='tasca.signa.alert.nocert'/>" 
-					    }));
-						$(".boto-applet").hide();
-					} else {
-						$.each(certs, function (i, item) {
-							$('select[name=certs]').append($('<option>', { 
-						        value: item,
-						        text : item 
-						    }));
-						});
-						$(".boto-applet").removeClass('hide');
-					}
-					$('select[name=certs]').select2({
-						width:'resolve',
-					    allowClear: true,
-					    minimumResultsForSearch: 10
-					});
-				}
-		 	} else {
-		 		setTimeout("obtenirCertificats()", 1000);
-		 	}
-		} else {
-			setTimeout("obtenirCertificats()", 1000);
-	 	}
-	} catch (e) {
-		setTimeout("obtenirCertificats()", 1000);
-	}
-}
-function signarCaib(token, form, contentType) {
-	var cert = form.certs.value;
-	if (cert == null || cert.length == 0) {
-		alert("<spring:message code='tasca.signa.alert.nosel'/>");
-	} else {
-		try {
-			var signaturaB64 = signaturaApplet.signaturaPdf(
-					"${sourceUrl}?token=" + token,
-					cert,
-					form.passwd.value,
-					contentType);
-			if (signaturaB64 == null) {
-				$('#contingut-alertes').append(
-					"<div id='errors' class='alert alert-danger'>" +
-						"<button class='close' data-dismiss='alert'>×</button>" +
-						"<p><spring:message code='tasca.signa.alert.error'/></p>" +
-					"</div>");
-			} else {
-				if (signaturaB64.length > 0) {
-					for (var i = 0; i < signaturaB64.length; i++) {
-						$(form).append( '<input type="hidden" id="data'+i+'" name="data" value="'+signaturaB64[i]+'"/>' );
-					}
-					$(form).removeAttr('onsubmit');
-					$(form).submit();
-				} else {
-					$('#contingut-alertes').append(
-							"<div id='errors' class='alert alert-danger'>" +
-								"<button class='close' data-dismiss='alert'>×</button>" +
-								"<p><spring:message code='tasca.signa.alert.no.document.signar'/>: ${sourceUrl}?token=" + token + "</p>" +
-							"</div>");
-				}
-			}
-		} catch (e) {
-			$('#contingut-alertes').append(
-					"<div id='errors' class='alert alert-danger'>" +
-						"<button class='close' data-dismiss='alert'>×</button>" +
-						"<p>" + e +"</p>" +
-					"</div>");
-		}
-	}
-}
 </script>

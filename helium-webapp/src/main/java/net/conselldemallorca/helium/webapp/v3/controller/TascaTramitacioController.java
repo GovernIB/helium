@@ -456,48 +456,14 @@ public class TascaTramitacioController extends BaseTascaController {
 		return "v3/tascaSignatura";
 	}
 
-//	@RequestMapping(value = "/{tascaId}/document/{documentCodi}/firmaPassarela", method = RequestMethod.GET)
-//	public String firmaPassarelaGet(
-//			HttpServletRequest request,
-//			@PathVariable String tascaId,
-//			@PathVariable String documentCodi,
-//			Model model) {
-////		ArxiuDto arxiu = expedientService.arxiuDocumentPerSignar(token);
-////		ArxiuDto arxiu = tascaService.getArxiuPerDocumentCodi(
-////				tascaId,
-////				documentCodi);
-////		model.addAttribute("document", arxiu);
-//		model.addAttribute("documentCodi", documentCodi);
-//		model.addAttribute(new PassarelaFirmaEnviarCommand());
-//		return "v3/passarelaFirma/passarelaFirmaForm";
-//	}
 	@RequestMapping(value = "/{tascaId}/document/{documentId}/firmaPassarela", method = RequestMethod.GET)
 	public String firmaPassarelaGet(
 			HttpServletRequest request,
 			@PathVariable String tascaId,
 			@PathVariable Long documentId,
 			Model model) throws IOException {
-		PassarelaFirmaEnviarCommand command = new PassarelaFirmaEnviarCommand();
 		TascaDocumentDto doc = tascaService.findDocument(tascaId, documentId);
-		command.setDocumentId(documentId.toString());
-		model.addAttribute("passarelaFirmaEnviarCommand", command);
-		model.addAttribute("tascaId", tascaId);
-		model.addAttribute("documentCodi", doc.getDocumentCodi());
-		return "v3/passarelaFirma/passarelaFirmaForm";
-	}
-	@RequestMapping(value = "/{tascaId}/document/{documentCodi}/firmaPassarela", method = RequestMethod.POST)
-	public String firmaPassarelaPost(
-			HttpServletRequest request,
-			@PathVariable String tascaId,
-			@PathVariable String documentCodi,
-			@Valid PassarelaFirmaEnviarCommand command,
-			BindingResult bindingResult,
-			Model model) throws IOException {
-		if (bindingResult.hasErrors()) {
-			model.addAttribute("tascaId", tascaId);
-			model.addAttribute("documentCodi", documentCodi);
-			return "v3/passarelaFirma/passarelaFirmaForm";
-		}
+		String documentCodi = doc.getDocumentCodi();
 		DocumentDto documentDto = tascaService.getDocumentPerDocumentCodi(tascaId, documentCodi);
         ArxiuDto arxiuPerFirmar = expedientDocumentService.arxiuDocumentPerSignar(
         		documentDto.getTokenSignatura()); 
@@ -508,10 +474,10 @@ public class TascaTramitacioController extends BaseTascaController {
 		String procesFirmaUrl = passarelaFirmaHelper.iniciarProcesDeFirma(
 				request,
 				arxiuPerFirmar,
-				command.getDocumentId(),
+				documentId.toString(),
 				usuariActual.getDni(),
-				command.getMotiu(),
-				command.getLloc(),
+				"Firma",
+				"Illes Balears",
 				usuariActual.getEmail(),
 				LocaleContextHolder.getLocale().getLanguage(),
 				modalStr + "/v3/tasca/" + tascaId + "/document/" + documentCodi + "/firmaPassarelaFinal",
@@ -534,12 +500,7 @@ public class TascaTramitacioController extends BaseTascaController {
 		case StatusSignaturesSet.STATUS_FINAL_OK:
 			FileInfoSignature firmaInfo = signaturesSet.getFileInfoSignatureArray()[0];
 			StatusSignature firmaStatus = firmaInfo.getStatusSignature();
-			
-			// TODO: BORRAR - Codi per proves!!
-//				firmaStatus.setStatus(2);
-//				firmaStatus.setSignedData(new java.io.File("/home/sion/fitxer.txt"));
-			// Fi
-						
+									
 			if (firmaStatus.getStatus() == StatusSignature.STATUS_FINAL_OK) {
 				if (firmaStatus.getSignedData() == null || !firmaStatus.getSignedData().exists()) {
 					firmaStatus.setStatus(StatusSignature.STATUS_FINAL_ERROR);
@@ -614,7 +575,7 @@ public class TascaTramitacioController extends BaseTascaController {
 		passarelaFirmaHelper.closeSignaturesSet(
 				request,
 				signaturesSet);
-		return "v3/tascaSignatura";
+		return "v3/passarelaFirma/passarelaFiFirma";
 	}
 	
 	@RequestMapping(value = "/{tascaId}/verificarSignatura/{documentStoreId}/{documentCodi}", method = RequestMethod.GET)
