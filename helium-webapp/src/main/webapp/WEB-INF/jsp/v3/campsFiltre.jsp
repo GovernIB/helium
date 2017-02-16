@@ -8,19 +8,15 @@
 <c:set var="campPath" value="${campActual.varCodi}"/>
 <c:set var="campErrors"><form:errors path="${campPath}"/></c:set>
 
-<div class="form-group<c:if test="${not empty campErrors}"> has-error</c:if>">
-	<label for="${campPath}" class="control-label" style="width: ${ampleLabel}; float: left; padding-right: 11px;">${campActual.campEtiqueta}</label>	
-	<div class="controls form-group <c:if test='${not inline}'> like-cols</c:if>" <c:if test='${not inline}'> style="width: ${ampleInput};"</c:if>>
+<div class="form-group<c:if test="${not empty campErrors}"> has-error</c:if>" style="margin-left: 0px !important;">
+	<label for="${campPath}" class="control-label top-label">${campActual.campEtiqueta}</label>	
+	<div class="controls consulta-tipus-controls">
 		<c:choose>
 			<c:when test="${campActual.campTipus == 'STRING'}">
-				<div class="form-group">
 					<form:input path="${campPath}" cssClass="form-control" id="${campPath}" data-required="false" />
-				</div>
 			</c:when>
 			<c:when test="${campActual.campTipus == 'TEXTAREA'}">
-				<div class="form-group">
 					<form:textarea path="${campPath}" cssClass="form-control" id="${campPath}" data-required="false" />
-				</div>
 			</c:when>
 			<c:when test="${campActual.campTipus == 'INTEGER'}">
 				<div class="col-xs-6">
@@ -99,7 +95,6 @@
 				</c:choose>
 			</c:when>
 			<c:when test="${campActual.campTipus == 'TERMINI'}">
-				<div class="form-group">
 					<div class="col-xs-4 tercpre">
 						<label class="control-label col-xs-4" for="${campPath}_anys"><spring:message code="common.camptasca.anys"/></label>
 						<div class="col-xs-8">
@@ -118,7 +113,6 @@
 	 						<hel:inputText inline="true" name="${campPath}.dies" textKey="common.camptasca.dies" placeholderKey="common.camptasca.dies"/>
 	 					</div>
 	 				</div>
-	 			</div>
  				<script type="text/javascript">
 					$(document).ready(function() {
 						$("#${campPath}_anys").select2({
@@ -135,11 +129,9 @@
 				</script>
 			</c:when>			
 			<c:when test="${campActual.campTipus == 'SUGGEST'}">
-				<div class="form-group">
 					<c:set var="urlConsultaInicial" value="domini/consulta/inicial/${campActual.campId}"/>
 					<c:set var="urlConsultaLlistat" value="domini/consulta/${campActual.campId}"/>
 					<hel:inputSuggest inline="true" name="${campPath}" urlConsultaInicial="${urlConsultaInicial}" urlConsultaLlistat="${urlConsultaLlistat}" placeholder="${campActual.campEtiqueta}" text="${campActual.campEtiqueta}"/>
-				</div>
 			</c:when>
 			<c:otherwise>
 				¿¿¿No contemplada???

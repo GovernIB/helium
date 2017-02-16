@@ -70,6 +70,14 @@
 			 padding-left: 0px;
 			 margin-bottom: 6px;	
 		}
+		.top-label {
+			padding-right: 11px; 
+			text-align: left !important; 
+			margin-bottom:4px !important;
+		}
+		.form-group .consulta-tipus-controls .form-group {
+			margin-left: 0px !important;
+		}
 	</style>
 <script>
 $(document).ready(function() {	
@@ -154,7 +162,7 @@ $(document).ready(function() {
 		<form:hidden path="consultaId"/>
 		<div class="control-group fila_reducida">
 		
-			<c:set var="ampleLabel">130px</c:set>
+			<c:set var="ampleLabel">135px</c:set>
 			<c:set var="ampleInput">calc(100% - ${ampleLabel})</c:set>
 			<c:set var="comptadorCols">0</c:set>
 			<div class="row">
