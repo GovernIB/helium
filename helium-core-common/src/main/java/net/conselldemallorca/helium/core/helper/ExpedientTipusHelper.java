@@ -146,14 +146,15 @@ public class ExpedientTipusHelper {
 
 		boolean permes = false;
 		
-		if (permisosEntorn != null && permisosEntorn.length > 0) {
-			if (permisosHelper.isGrantedAny(
-					expedientTipus.getEntorn().getId(), 
-					Entorn.class, 
-					permisosEntorn, 
-					auth))
+		if (permisosEntorn != null 
+				&& permisosEntorn.length > 0 
+				&& permisosHelper.isGrantedAny(
+						expedientTipus.getEntorn().getId(), 
+						Entorn.class, 
+						permisosEntorn, 
+						auth)) {
 				permes = true;
-			else
+		} else {
 				// Comprova els permisos contra el tipus d'expedient
 				permes = permisosHelper.isGrantedAny(
 						expedientTipus.getId(),
