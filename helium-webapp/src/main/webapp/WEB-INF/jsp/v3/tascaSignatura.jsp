@@ -85,34 +85,6 @@
 											<c:when test="${numPluginsPassarela > 0}"><c:set var="stils" value="uniForm hide"/></c:when>
 											<c:otherwise><c:set var="stils" value="uniForm"/></c:otherwise>
 										</c:choose>
-										<form:form id="form${document.id}" action="${globalProperties['app.base.url']}/modal/v3/tasca/${tasca.id}/signarAmbToken" cssClass="${stils}" method="POST" onsubmit="return false;">
-											<input type="hidden" id="docId${document.id}" name="docId" value="${document.id}"/>
-											<input type="hidden" id="taskId${document.id}" name="taskId" value="${tasca.id}"/>
-											<input type="hidden" id="token${document.id}" name="token" value="${document.tokenSignatura}"/>
-											
-											<div class="form-group">
-												<label class="control-label col-xs-4" id="lcerts${document.id}" for="certs${document.id}"><spring:message code="tasca.signa.camp.cert"/></label>
-												<div class="col-xs-10">
-									            	<select id="certs${document.id}" name="certs">
-														<option value=""><spring:message code="expedient.document.signat.carregant"/></option>
-													</select>
-										       </div>
-								        	</div>
-								        	
-											<div class="form-group">
-												<label class="control-label col-xs-4" for="passwd${document.id}"><spring:message code="tasca.signa.camp.passwd"/></label>
-												<div class="col-xs-10">
-									           		<input type="password" id="passwd${document.id}" name="passwd" class="form-control"/>
-												</div>
-								        	</div>
-								        	
-											<div class="modal-botons-firma">
-												<button id="modal-botons${document.id}" class="hide pull-right btn btn-primary right boto-applet" onclick="signarCaib('${document.tokenSignatura}', this.form, '1');"><spring:message code="tasca.signa.signar"/></button>
-  												<c:if test="${numPluginsPassarela > 0}">
-  													<button id="applet-tancar${document.id}" class="pull-right btn btn-default right" data-formid="form${document.id}" data-botonsid="botons${document.id}"><spring:message code="comu.boto.tancar"/></button>
-  												</c:if>
-											</div>
-										</form:form>
 										
 										<!-- Modal Passarel·la -->
 										<div id="modalPassarela${document.id}" class="modal fade" role="dialog">
@@ -138,6 +110,11 @@
 										<c:if test="${numPluginsPassarela > 0}">
 											<div id="botons${document.id}" class="modal-botons-firma">
 												<button type="button" onclick="finestraFirma=window.open('<c:url value="/modal/v3/tasca/${tasca.id}/document/${document.id}/firmaPassarela"/>', 'Firma passarel.la', 'location=0,status=0,scrollbars=0,resizable=0,directories=0,toolbar=0,titlebar=0,width=800,height=450,top=200,left=200');" class="btn btn-default"><spring:message code="tasca.signa.signar.passarela"/></button>
+											</div>
+										</c:if>
+										<c:if test="${numPluginsPassarela == 0}">
+											<div class="alert alert-warning">
+												<span class="fa fa-warning"/> No hi ha plugins de passarel·la de firma disponibles per signar
 											</div>
 										</c:if>
 									</c:if>
