@@ -31,6 +31,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import net.conselldemallorca.helium.core.helper.EntornHelper;
 import net.conselldemallorca.helium.v3.core.api.dto.ConsultaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
@@ -82,7 +83,8 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 	private DissenyService dissenyService;
 	@Autowired
 	private ConversioTipusHelper conversioTipusHelper;
-
+	@Autowired
+	private EntornHelper entornHelper;
 
 
 	@RequestMapping(method = RequestMethod.GET)
@@ -167,6 +169,8 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 	public String nou(
 			HttpServletRequest request,
 			Model model) {
+		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
+		model.addAttribute("potDissenyar", entornHelper.potDissenyarEntorn(entornActual.getId()));
 		model.addAttribute("expedientTipusCommand", new ExpedientTipusCommand());
 		return "v3/expedientTipusForm";
 	}
@@ -176,10 +180,11 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 			@Validated(Creacio.class) ExpedientTipusCommand command,
 			BindingResult bindingResult,
 			Model model) {
+		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
         if (bindingResult.hasErrors()) {
+        	model.addAttribute("potDissenyar", entornHelper.potDissenyarEntorn(entornActual.getId()));
         	return "v3/expedientTipusForm";
         } else {
-    		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
     		// Transforma els llistats d'anys i valors 
     		List<Integer> sequenciesAny = new ArrayList<Integer>();
     		List<Long> sequenciesValor = new ArrayList<Long>();
@@ -218,6 +223,7 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 			command.getSequenciesAny().add(any.getAny().toString());
 			command.getSequenciesValor().add(any.getSequencia().toString());
 		}
+		model.addAttribute("potDissenyar", entornHelper.potDissenyarEntorn(entornActual.getId()));
 		model.addAttribute("expedientTipusCommand", command);
 		return "v3/expedientTipusForm";
 	}
@@ -228,10 +234,11 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 			@Validated(Modificacio.class) ExpedientTipusCommand command,
 			BindingResult bindingResult,
 			Model model) {
+		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
         if (bindingResult.hasErrors()) {
+        	model.addAttribute("potDissenyar", entornHelper.potDissenyarEntorn(entornActual.getId()));
         	return "v3/expedientTipusForm";
         } else {
-    		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
     		// Transforma els llistats d'anys i valors 
     		List<Integer> sequenciesAny = new ArrayList<Integer>();
     		List<Long> sequenciesValor = new ArrayList<Long>();
