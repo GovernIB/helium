@@ -28,4 +28,5 @@ public class ImportarDadesCommand {
 		this.multipartFile = multipartFile;
 	}
 	
+	public interface Importar {}
 }

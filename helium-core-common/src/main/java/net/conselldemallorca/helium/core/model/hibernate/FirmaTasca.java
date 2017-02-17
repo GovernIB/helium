@@ -89,7 +89,7 @@ public class FirmaTasca implements Serializable, GenericEntity<Long> {
 		this.order = order;
 	}
 
-	@ManyToOne(optional=false)
+	@ManyToOne(optional=false, fetch=FetchType.EAGER)
 	@JoinColumn(name="document_id")
 	@ForeignKey(name="hel_document_firtasca_fk")
 	public Document getDocument() {

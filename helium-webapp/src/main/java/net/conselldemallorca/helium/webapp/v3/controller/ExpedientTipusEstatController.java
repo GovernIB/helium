@@ -11,10 +11,13 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.propertyeditors.StringTrimmerEditor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.WebDataBinder;
+import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -226,7 +229,7 @@ public class ExpedientTipusEstatController extends BaseExpedientTipusController 
 			@PathVariable Long expedientTipusId,
 			Model model) {
 		model.addAttribute("expedientTipusId", expedientTipusId);
-		model.addAttribute("importarDadesCommand", new ImportarDadesCommand());
+		model.addAttribute(new ImportarDadesCommand());
 		return "v3/expedientTipusEstatImportarForm";
 	}	
 	
@@ -234,10 +237,10 @@ public class ExpedientTipusEstatController extends BaseExpedientTipusController 
 	public String importarPost(
 			HttpServletRequest request,
 			@PathVariable Long expedientTipusId,
-			@RequestParam ImportarDadesCommand command,
+			@Validated(ImportarDadesCommand.Importar.class) ImportarDadesCommand command,
 			BindingResult bindingResult,
 			Model model) {
-		if (command.getMultipartFile().getSize() == 0) {
+		if (command.getMultipartFile() == null || command.getMultipartFile().getSize() == 0) {
 			bindingResult.rejectValue("multipartFile", "expedient.tipus.estat.importar.controller.validacio.multipartFile.buit");
 		}
         if (bindingResult.hasErrors()) {
@@ -247,7 +250,7 @@ public class ExpedientTipusEstatController extends BaseExpedientTipusController 
 
 			int insercions = 0;
 			int actualitzacions = 0;
-        	try{
+        	try {
     			if (command.isEliminarValorsAntics()) {
     				for (EstatDto estat : expedientTipusService.estatFindAll(expedientTipusId))
     					expedientTipusService.estatDelete(estat.getId());
@@ -306,4 +309,9 @@ public class ExpedientTipusEstatController extends BaseExpedientTipusController 
 			return modalUrlTancar(false);	
         }
 	}	
+
+	@InitBinder
+	public void initBinder(WebDataBinder binder) {
+	    binder.registerCustomEditor(String.class, new StringTrimmerEditor(true));
+	}
 }

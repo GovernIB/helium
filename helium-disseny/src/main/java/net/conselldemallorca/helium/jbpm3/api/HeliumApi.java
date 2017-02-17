@@ -181,7 +181,7 @@ public interface HeliumApi {
 	public void setVariableInstanciaTasca(String varCodi, Object varValor) throws HeliumHandlerException;
 	
 	/**
-	 * Obté el text que es mostra a Helium d'una variable de jBPM de la instància de procés
+	 * Obté el valor d'una variable de jBPM de la instància de procés
 	 * 
 	 * @param varCodi Codi de la variable a llegir
 	 * @return El valor de la variable. Null en cas que no existeixi la variable.
