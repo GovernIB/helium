@@ -318,12 +318,14 @@ public class CampServiceImpl implements CampService {
 	public PaginaDto<CampDto> findPerDatatable(
 			Long expedientTipusId, 
 			Long definicioProcesId, 
+			boolean totes,
 			Long agrupacioId,
 			String filtre,
 			PaginacioParamsDto paginacioParams) {
 		logger.debug(
 				"Consultant els camps per al tipus d'expedient per datatable (" +
 				"expedientTipusId =" + expedientTipusId + ", " +
+				"totes =" + totes + ", " +
 				"definicioProcesId =" + definicioProcesId + ", " +
 				"agrupacioId=" + agrupacioId + ", " +
 				"filtre=" + filtre + ")");
@@ -332,6 +334,7 @@ public class CampServiceImpl implements CampService {
 		PaginaDto<CampDto> pagina = paginacioHelper.toPaginaDto(
 				campRepository.findByFiltrePaginat(
 						expedientTipusId,
+						totes,
 						definicioProcesId,
 						agrupacioId == null,
 						agrupacioId != null ? agrupacioId : 0L,

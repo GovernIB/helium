@@ -15,12 +15,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.propertyeditors.CustomBooleanEditor;
 import org.springframework.beans.propertyeditors.CustomDateEditor;
 import org.springframework.beans.propertyeditors.CustomNumberEditor;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.InitBinder;
 
+import net.conselldemallorca.helium.v3.core.api.dto.CampAgrupacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ConsultaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDto;
 import net.conselldemallorca.helium.v3.core.api.service.CampService;
 import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
@@ -32,6 +35,9 @@ import net.conselldemallorca.helium.webapp.v3.helper.ObjectTypeEditorHelper;
  * 
  */
 public class BaseVariableController extends BaseDissenyController {
+	
+	public final Long AGRUPACIO_TOTES = -2L;	
+	public final Long AGRUPACIO_SENSE = -1L;	
 	
 	@Autowired
 	protected CampService campService;	
@@ -121,6 +127,35 @@ public class BaseVariableController extends BaseDissenyController {
 			}
 		return str.toString();
 	}	
+	
+	protected void omplirModelAgrupacions(
+			HttpServletRequest request,
+			Long expedientTipusId,
+			Long definicioProcesId,
+			Model model) {
+		model.addAttribute("agrupacions", obtenirParellesAgrupacions(request, expedientTipusId, definicioProcesId));		
+	}
+	
+	/** Obté la llista de parelles codi-valor per les possibles agrupacions. A més també afegeix a l'inici
+	 * les opcions de totes les variables (-2) o sensa grupació (-1).
+	 * @param request
+	 * @param expedientTipusId
+	 * @return
+	 */
+	protected List<ParellaCodiValorDto> obtenirParellesAgrupacions(
+			HttpServletRequest request, 
+			Long expedientTipusId,
+			Long definicioProcesId) {
+		List<CampAgrupacioDto> agrupacions = campService.agrupacioFindAll(expedientTipusId, definicioProcesId);
+		List<ParellaCodiValorDto> resposta = new ArrayList<ParellaCodiValorDto>();
+		resposta.add(new ParellaCodiValorDto(AGRUPACIO_TOTES.toString(), "[ " + getMessage(request, "expedient.tipus.camp.llistat.agrupacio.opcio.totes") + " ]"));
+		resposta.add(new ParellaCodiValorDto(AGRUPACIO_SENSE.toString(), "[ " + getMessage(request, "expedient.tipus.camp.llistat.agrupacio.opcio.sense") + " ]"));
+		for (CampAgrupacioDto agrupacio : agrupacions) {
+			resposta.add(new ParellaCodiValorDto(agrupacio.getId().toString(), agrupacio.getNom()));
+		}
+		return resposta;
+	}
+	
 	
 	@InitBinder
 	public void initBinder(WebDataBinder binder) {

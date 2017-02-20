@@ -86,8 +86,10 @@ public interface CampService {
 	 * 
 	 * @param expedientTipusId
 	 *            Atribut id del tipus d'expedient.
+	 * @param totes
+	 * 			  Indica si llistat totes les variables tinguin o no agrupació.
 	 * @param definicioProcesId
-	 *            Atribut id de la definició de procés.
+	 *            Atribut id de la definició de procés. Si és null llavors es llistaran les que no tinguin agrupació.
 	 * @param filtre
 	 *            Text per a filtrar els resultats.
 	 * @param paginacioParams
@@ -99,6 +101,7 @@ public interface CampService {
 	public PaginaDto<CampDto> findPerDatatable(
 			Long expedientTipusId,
 			Long definicioProcesId,
+			boolean totes,
 			Long agrupacioId,
 			String filtre, 
 			PaginacioParamsDto paginacioParams) throws NoTrobatException;

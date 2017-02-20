@@ -76,6 +76,15 @@ public class ExpedientTipusVariableController extends BaseVariableController {
 		return "v3/expedientTipusVariable";
 	}
 	
+	/** Retorna les dades de les variables pel datatables de variables. Es pot filtrar per agrupació
+	 * amb la particularitat que si la agrupacioId és -2 llavors s'han de mostrar totes les variables i
+	 * si és -1 s'han de mostrar les variables sense agrupació.
+	 * @param request
+	 * @param expedientTipusId
+	 * @param agrupacioId
+	 * @param model
+	 * @return
+	 */
 	@RequestMapping(value="/{expedientTipusId}/variable/datatable", method = RequestMethod.GET)
 	@ResponseBody
 	DatatablesResponse datatable(
@@ -84,13 +93,16 @@ public class ExpedientTipusVariableController extends BaseVariableController {
 			@RequestParam(required = false) Long agrupacioId,
 			Model model) {
 		PaginacioParamsDto paginacioParams = DatatablesHelper.getPaginacioDtoFromRequest(request);
+		if (agrupacioId == null)
+			agrupacioId = AGRUPACIO_TOTES;
 		return DatatablesHelper.getDatatableResponse(
 				request,
 				null,
 				campService.findPerDatatable(
 						expedientTipusId,
 						null,
-						agrupacioId,
+						agrupacioId == AGRUPACIO_TOTES,
+						agrupacioId >= 0L ? agrupacioId : null,
 						paginacioParams.getFiltre(),
 						paginacioParams),
 				"id");
@@ -292,7 +304,7 @@ public class ExpedientTipusVariableController extends BaseVariableController {
 			HttpServletRequest request,
 			@PathVariable Long expedientTipusId,
 			Model model) {
-		return obtenirParellesAgrupacions(expedientTipusId);
+		return obtenirParellesAgrupacions(request, expedientTipusId, null);
 	}
 
 	/** Obre una modal amb un llistat per reordenar les agrupacions. */
@@ -606,6 +618,7 @@ public class ExpedientTipusVariableController extends BaseVariableController {
 		this.omplirModelAgrupacions(
 				request, 
 				expedientTipusId, 
+				null,
 				model);
 	}
 	
@@ -625,7 +638,8 @@ public class ExpedientTipusVariableController extends BaseVariableController {
 		// Agrupacions
 		this.omplirModelAgrupacions(
 				request, 
-				expedientTipusId, 
+				expedientTipusId,
+				null,
 				model);
 		
 		// Enumeracions
@@ -818,22 +832,6 @@ public class ExpedientTipusVariableController extends BaseVariableController {
 		model.addAttribute("basicUrl", "expedientTipus/" + expedientTipusId);
 		model.addAttribute("expedientTipusId", expedientTipusId);
 		model.addAttribute("camp", campService.findAmbId(campId));
-	}
-	
-	private void omplirModelAgrupacions(
-			HttpServletRequest request,
-			Long expedientTipusId,
-			Model model) {
-		model.addAttribute("agrupacions", obtenirParellesAgrupacions(expedientTipusId));		
-	}
-	
-	private List<ParellaCodiValorDto> obtenirParellesAgrupacions(Long expedientTipusId) {
-		List<CampAgrupacioDto> agrupacions = campService.agrupacioFindAll(expedientTipusId, null);
-		List<ParellaCodiValorDto> resposta = new ArrayList<ParellaCodiValorDto>();
-		for (CampAgrupacioDto agrupacio : agrupacions) {
-			resposta.add(new ParellaCodiValorDto(agrupacio.getId().toString(), agrupacio.getNom()));
-		}
-		return resposta;
 	}
 		
 	/**

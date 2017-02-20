@@ -94,13 +94,16 @@ public class DefinicioProcesVariableController extends BaseVariableController {
 			@RequestParam(required = false) Long agrupacioId, 
 			Model model) {
 		PaginacioParamsDto paginacioParams = DatatablesHelper.getPaginacioDtoFromRequest(request);
+		if (agrupacioId == null)
+			agrupacioId = AGRUPACIO_TOTES;
 		return DatatablesHelper.getDatatableResponse(
 				request, 
 				null,
 				campService.findPerDatatable(
 						null, 
 						definicioProcesId, 
-						agrupacioId,
+						agrupacioId == AGRUPACIO_TOTES,
+						agrupacioId >= 0L ? agrupacioId : null,
 						paginacioParams.getFiltre(), 
 						paginacioParams),
 				"id");
@@ -454,6 +457,7 @@ public class DefinicioProcesVariableController extends BaseVariableController {
 		// Agrupacions
 		this.omplirModelAgrupacions(
 				request, 
+				null,
 				definicioProcesId, 
 				model);
 		
@@ -481,20 +485,7 @@ public class DefinicioProcesVariableController extends BaseVariableController {
 			model.addAttribute("definicioProces", definicioProces);
 			model.addAttribute("baseUrl", (definicioProces.getJbpmKey() + "/" + definicioProces.getId().toString()));
 		}
-		this.omplirModelAgrupacions(request, definicioProcesId, model);
-	}
-
-	private void omplirModelAgrupacions(HttpServletRequest request, Long definicioProcesId, Model model) {
-		model.addAttribute("agrupacions", obtenirParellesAgrupacions(definicioProcesId));
-	}
-
-	private List<ParellaCodiValorDto> obtenirParellesAgrupacions(Long definicioProcesId) {
-		List<CampAgrupacioDto> agrupacions = campService.agrupacioFindAll(null, definicioProcesId);
-		List<ParellaCodiValorDto> resposta = new ArrayList<ParellaCodiValorDto>();
-		for (CampAgrupacioDto agrupacio : agrupacions) {
-			resposta.add(new ParellaCodiValorDto(agrupacio.getId().toString(), agrupacio.getNom()));
-		}
-		return resposta;
+		this.omplirModelAgrupacions(request, null, definicioProcesId, model);
 	}
 
 	private void omplirModelValidacionsForm(
@@ -531,7 +522,7 @@ public class DefinicioProcesVariableController extends BaseVariableController {
 			@PathVariable String jbpmKey,
 			@PathVariable Long definicioProcesId,
 			Model model) {
-		return obtenirParellesAgrupacions(definicioProcesId);
+		return obtenirParellesAgrupacions(request, null, definicioProcesId);
 	}
 
 	/** Obre una modal amb un llistat per reordenar les agrupacions. */

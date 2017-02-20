@@ -33,7 +33,7 @@
 		<form class="well">
 			<div class="row">
 				<div class="col-sm-10">
-					<hel:inputSelect required="false" emptyOption="true" name="agrupacions" textKey="expedient.tipus.camp.llistat.agrupacio.seleccionada" placeholderKey="expedient.tipus.camp.llistat.agrupacio.seleccionada.placeholder" optionItems="${agrupacions}" optionValueAttribute="codi" optionTextAttribute="valor"/>
+					<hel:inputSelect required="false" emptyOption="false" name="agrupacions" textKey="expedient.tipus.camp.llistat.agrupacio.seleccionada" optionItems="${agrupacions}" optionValueAttribute="codi" optionTextAttribute="valor"/>
 				</div>
 				<div class="col-sm-2 text-right">
 					<div id="agrupacionsAccions" class="dropdown" style="margin-right: -10px;">
@@ -158,7 +158,7 @@ $(document).ready(function() {
 	// Canvi en la selecció de les agrupacions
 	$('#agrupacions').change(function() {
 		var agrupacioId = $(this).val();
-		if (agrupacioId != "") {
+		if (agrupacioId >= 0 ) {
 			$('#nou_camp').attr('href', '${baseUrl}/variable/new?agrupacioId=' + agrupacioId);
 			$('#agrupacioUpdate').attr('href', '${baseUrl}/agrupacio/' + agrupacioId + '/update');
 			$('#agrupacioDelete').attr('href', '${baseUrl}/agrupacio/' + agrupacioId + '/delete');
@@ -181,13 +181,13 @@ $(document).ready(function() {
 	// Quan es repinta la taula actualitza els enllaços
 	$('#expedientTipusVariable').on('draw.dt', function() {
 		// Afegeix les opcions per a agrupar de les agrupacions existents
-		if ($("#agrupacions").val() == "") {
+		if ($("#agrupacions").val() <  0) {
 			$("tr", this).each(function(){
 				if ($(this).find("#accioAgrupacions").length > 0) {	
 					var campId = $(this).attr('id').replace('row_','');
 					$agrupacions = $(this).find("#accioAgrupacions");
 					$("#agrupacions option").each(function(){
-						if ($(this).val() != "")
+						if ($(this).val() > 0)
 							$agrupacions.append("<a href='${baseUrl}/variable/"+campId+"/agrupar/"+$(this).val()+"' data-toggle='ajax'>"+$(this).text()+"</a>");
 					});
 				}
@@ -200,7 +200,7 @@ $(document).ready(function() {
 			});			
 		}
 				
-		if ($('#agrupacions').val() != "") {
+		if ($('#agrupacions').val() >= 0) {
 			// Posa la taula com a ordenable
 			$("#expedientTipusVariable").tableDnD({
 		    	onDragClass: "drag",
@@ -265,11 +265,7 @@ function obtenirId(pos){
 
 function refrescaTaula() {
 	var agrupacioId = $("#agrupacions").val();
-	if (agrupacioId != "" && agrupacioId != null) {
-		$('#expedientTipusVariable').webutilDatatable('refresh-url', '${baseUrl}/variable/datatable?agrupacioId='+agrupacioId);		
-	} else {
-		$('#expedientTipusVariable').webutilDatatable('refresh-url', '${baseUrl}/variable/datatable');
-	}
+	$('#expedientTipusVariable').webutilDatatable('refresh-url', '${baseUrl}/variable/datatable?agrupacioId='+agrupacioId);		
 }
 
 function refrescarAgrupacions() {
