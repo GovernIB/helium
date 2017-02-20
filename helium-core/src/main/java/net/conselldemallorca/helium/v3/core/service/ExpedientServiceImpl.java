@@ -1542,14 +1542,9 @@ public class ExpedientServiceImpl implements ExpedientService {
 				"expedientId" + expedientId + ", " +
 				"processInstanceId" + processInstanceId + ", " +
 				"accioId=" + accioId + ")");
-		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
-				expedientId,
-				new Permission[] {
-						ExtendedPermission.TERM_MANAGE,
-						ExtendedPermission.ADMINISTRATION});
-		expedientHelper.comprovarInstanciaProces(
-				expedient,
-				processInstanceId);
+		
+		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
+		
 		Accio accio = accioRepository.findOne(accioId);
 		if (accio == null)
 			throw new NoTrobatException(Accio.class, accioId);
@@ -2445,8 +2440,20 @@ public class ExpedientServiceImpl implements ExpedientService {
 			Accio accio,
 			Expedient expedient) {
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-		boolean permesa = true;
-		if (!accio.isPublica()) {
+		boolean permesa = false;
+	
+		if (accio.getRols() == null || accio.getRols().isEmpty()) {
+			permesa = true;
+		} else {
+			for (String rol: accio.getRols().split(",")) {
+				if (isUserInRole(auth, rol)) {
+					permesa = true;
+					break;
+				}
+			}
+		}
+		
+		if (permesa && !accio.isPublica()) { 
 			permesa = permisosHelper.isGrantedAny(
 					expedient.getTipus().getId(),
 					ExpedientTipus.class,
@@ -2455,17 +2462,34 @@ public class ExpedientServiceImpl implements ExpedientService {
 							ExtendedPermission.ADMINISTRATION},
 					auth);
 		}
-		if (permesa && accio.getRols() != null && !accio.getRols().isEmpty()) {
-			permesa = false;
-			for (String rol: accio.getRols().split(",")) {
-				if (isUserInRole(auth, rol)) {
-					permesa = true;
-					break;
-				}
-			}
-		}
 		return permesa;
 	}
+	
+//	private boolean permetreExecutarAccioExpedient(
+//			Accio accio,
+//			Expedient expedient) {
+//		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+//		boolean permesa = true;
+//		if (!accio.isPublica()) {
+//			permesa = permisosHelper.isGrantedAny(
+//					expedient.getTipus().getId(),
+//					ExpedientTipus.class,
+//					new Permission[] {
+//							ExtendedPermission.WRITE,
+//							ExtendedPermission.ADMINISTRATION},
+//					auth);
+//		}
+//		if (permesa && accio.getRols() != null && !accio.getRols().isEmpty()) {
+//			permesa = false;
+//			for (String rol: accio.getRols().split(",")) {
+//				if (isUserInRole(auth, rol)) {
+//					permesa = true;
+//					break;
+//				}
+//			}
+//		}
+//		return permesa;
+//	}
 
 	private void afegirValorsPredefinits(
 			Consulta consulta,
