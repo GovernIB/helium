@@ -502,4 +502,12 @@ public interface DefinicioProcesService {
 	public void copiarDefinicioProces(
 			Long origenId, 
 			Long destiId);
+	
+	/** Consulta el nom de la tasca inicial de la definició de procés.
+	 * 
+	 * @param definicioProcesId
+	 * @return
+	 */
+	public String consultarStartTaskName(Long definicioProcesId);
+
 }

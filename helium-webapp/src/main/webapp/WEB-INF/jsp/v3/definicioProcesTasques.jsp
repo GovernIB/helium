@@ -32,6 +32,16 @@
 					<th data-col-name="id" data-visible="false"/>
 					<th data-col-name="jbpmName" width="20%"><spring:message code="definicio.proces.tasca.llistat.columna.codi"/></th>
 					<th data-col-name="nom"><spring:message code="definicio.proces.tasca.llistat.columna.titol"/></th>
+					<th data-col-name="inicial" width="20px" data-template="#cellDefinicioProcesInicialTemplate">
+					<spring:message code="definicio.proces.tasca.llistat.columna.inicial"/>
+						<script id="cellDefinicioProcesInicialTemplate" type="text/x-jsrender">
+						{{if inicial }}
+							<div style="text-align: center;">
+								<spring:message code="comu.check"></spring:message>
+							</div>
+						{{/if}}
+						</script>
+					</th>
 					<th data-col-name="campsCount" data-template="#cellFirmesTemplate" data-orderable="false" width="13%">
 						<script id="cellFirmesTemplate" type="text/x-jsrender">
 							<a href="${jbpmKey}/${definicioProcesId}/tasca/{{:id}}/variable" data-maximized="true" data-toggle="modal" data-callback="callbackModalTasques()" class="btn btn-default"><spring:message code="definicio.proces.tasca.llistat.accio.variables"/>&nbsp;<span class="badge">{{:campsCount}}</span></a>

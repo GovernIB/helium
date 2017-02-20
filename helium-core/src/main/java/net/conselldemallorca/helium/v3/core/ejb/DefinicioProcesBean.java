@@ -287,4 +287,10 @@ public class DefinicioProcesBean implements DefinicioProcesService {
 	public void copiarDefinicioProces(Long origenId, Long destiId) {
 		delegate.copiarDefinicioProces(origenId, destiId);
 	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public String consultarStartTaskName(Long definicioProcesId) {
+		return delegate.consultarStartTaskName(definicioProcesId);
+	}
 }

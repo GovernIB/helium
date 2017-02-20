@@ -36,6 +36,9 @@ public class TascaDto {
 	private List<DocumentTascaDto> documents = new ArrayList<DocumentTascaDto>();
 	private List<FirmaTascaDto> firmes = new ArrayList<FirmaTascaDto>();
 	
+	/** Atribut que indica si la tasca és inicial. S'ha de fixar manualment aquest valor a les cerques. */
+	private boolean inicial;
+	
 	public Long getId() {
 		return id;
 	}
@@ -135,5 +138,11 @@ public class TascaDto {
 	}
 	public int getFirmesCount() {
 		return firmes.size();
+	}
+	public boolean isInicial() {
+		return inicial;
+	}
+	public void setInicial(boolean inicial) {
+		this.inicial = inicial;
 	}
 }

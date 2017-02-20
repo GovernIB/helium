@@ -111,9 +111,14 @@ public class CampServiceBean implements CampService {
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public PaginaDto<CampDto> findPerDatatable(Long expedientTipusId, Long definicioProcesId, Long agrupacioId,
-			String filtre, PaginacioParamsDto paginacioParams) throws NoTrobatException {
-		return delegate.findPerDatatable(expedientTipusId, definicioProcesId, agrupacioId, filtre, paginacioParams);
+	public PaginaDto<CampDto> findPerDatatable(
+			Long expedientTipusId, 
+			Long definicioProcesId,
+			boolean totes,
+			Long agrupacioId,
+			String filtre, 
+			PaginacioParamsDto paginacioParams) throws NoTrobatException {
+		return delegate.findPerDatatable(expedientTipusId, definicioProcesId, totes, agrupacioId, filtre, paginacioParams);
 	}
 
 	@Override

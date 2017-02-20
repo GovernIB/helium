@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampTascaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.CampTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentTascaDto;
@@ -322,6 +323,18 @@ public class DefinicioProcesTascaController extends BaseDefinicioProcesControlle
 					it.remove();
 					break;
 				}
+			}
+		}
+		// Si és la tasca inicial treu les variables de tipus acció
+		String startTaskName = definicioProcesService.consultarStartTaskName(definicioProces.getId());
+		TascaDto tasca = definicioProcesService.tascaFindAmbId(tascaId);
+		if (startTaskName != null && tasca.getNom().equals(startTaskName)) {
+			it = variables.iterator();
+			CampDto camp;
+			while (it.hasNext()) {
+				camp = it.next();
+				if (camp.getTipus().equals(CampTipusDto.ACCIO))
+					it.remove();
 			}
 		}
 		// Crea les parelles de codi i valor

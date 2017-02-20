@@ -373,6 +373,22 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 	 */
 	@Override
 	@Transactional(readOnly = true)
+	public String consultarStartTaskName(Long definicioProcesId) {
+		logger.debug(
+				"Consultant el nom de la tasca inicial de la definició de procés (" +
+				"definicioProcesId = " + definicioProcesId + ")");
+
+		DefinicioProces definicioProces = definicioProcesRepository.findById(definicioProcesId);
+		if (definicioProces == null)
+			throw new NoTrobatException(DefinicioProces.class, definicioProcesId);
+		return jbpmHelper.getStartTaskName(definicioProces.getJbpmId());		
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@Transactional(readOnly = true)
 	public PaginaDto<TascaDto> tascaFindPerDatatable(
 			Long entornId, 
 			Long definicioProcesId, 
@@ -392,6 +408,17 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 						paginacioHelper.toSpringDataPageable(
 								paginacioParams)),
 				TascaDto.class);
+		
+		// Marca la tasca com a incicial
+		DefinicioProces definicioProces = definicioProcesRepository.findOne(definicioProcesId);		
+		String startTaskName = jbpmHelper.getStartTaskName(definicioProces.getJbpmId());
+		if (startTaskName != null)
+			for (TascaDto tasca : pagina.getContingut())
+				if(tasca.getNom().equals(startTaskName)) {
+					tasca.setInicial(true);
+					break;
+				}			
+
 		return pagina;		
 	}
 	
