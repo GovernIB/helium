@@ -181,6 +181,7 @@ public class ExpedientHelper {
 				entorn.getId(),
 				Entorn.class,
 				new Permission[] {
+						BasePermission.ADMINISTRATION,
 						BasePermission.READ},
 				auth)) {
 			throw new PermisDenegatException(
