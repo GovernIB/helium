@@ -37,6 +37,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.MostrarAnulatsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
+import net.conselldemallorca.helium.v3.core.api.service.ExpedientTipusService;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientConsultaCommand;
 import net.conselldemallorca.helium.webapp.v3.datatables.DatatablesPagina;
 import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
@@ -55,6 +56,8 @@ public class ExpedientLlistatController extends BaseExpedientController {
 
 	@Autowired
 	private ExpedientService expedientService;
+	@Autowired
+	private ExpedientTipusService expedientTipusService;
 
 	@RequestMapping(method = RequestMethod.GET)
 	public String get(
@@ -273,11 +276,6 @@ public class ExpedientLlistatController extends BaseExpedientController {
 		ExpedientConsultaCommand filtreCommand = SessionHelper.getSessionManager(request).getFiltreConsultaGeneral();
 		if (filtreCommand == null) {
 			filtreCommand = new ExpedientConsultaCommand();
-//			UsuariPreferenciesDto preferenciesUsuari = SessionHelper.getSessionManager(request).getPreferenciesUsuari();
-//			boolean nomesPendents = false;
-//			if (preferenciesUsuari != null)
-//				nomesPendents = preferenciesUsuari.isFiltroTareasActivas();
-//			filtreCommand.setNomesPendents(nomesPendents);	
 			filtreCommand.setConsultaRealitzada(true);
 			SessionHelper.getSessionManager(request).setFiltreConsultaGeneral(filtreCommand);
 		}
@@ -285,6 +283,14 @@ public class ExpedientLlistatController extends BaseExpedientController {
 		if (expedientTipusActual != null) {
 			filtreCommand.setExpedientTipusId(expedientTipusActual.getId());
 		}
+		if (filtreCommand.getExpedientTipusId() != null)
+			// comprova l'accès de lectura al tipus d'expedient o si existeix
+			try {
+				EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
+				expedientTipusService.findAmbIdPermisConsultar(entornActual.getId(), filtreCommand.getExpedientTipusId());
+			} catch(Exception e) {
+				filtreCommand.setExpedientTipusId(null);
+			}
 		return filtreCommand;
 	}
 

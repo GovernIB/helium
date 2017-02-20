@@ -84,11 +84,13 @@ public class TascaLlistatV3Controller extends BaseController {
 		} else {
 			model.addAttribute("entornId", entornActual.getId());
 		}
-		if (filtreCommand.getExpedientTipusId() != null) {
-			model.addAttribute(
-					"expedientTipus",
-					expedientTipusService.findAmbIdPermisConsultar(entornActual.getId(), filtreCommand.getExpedientTipusId()));
-		}
+		if (filtreCommand.getExpedientTipusId() != null)
+			// comprova l'accès de lectura al tipus d'expedient o si existeix
+			try {
+				expedientTipusService.findAmbIdPermisConsultar(entornActual.getId(), filtreCommand.getExpedientTipusId());
+			} catch(Exception e) {
+				filtreCommand.setExpedientTipusId(null);
+			}
 		return "v3/tascaLlistat";
 	}
 
