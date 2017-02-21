@@ -47,6 +47,8 @@ import org.jbpm.taskmgmt.log.TaskCreateLog;
 import org.jbpm.taskmgmt.log.TaskEndLog;
 import org.jbpm.taskmgmt.log.TaskLog;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
+import org.springframework.context.NoSuchMessageException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
@@ -77,7 +79,7 @@ import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessInstance;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmTask;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmToken;
-
+import net.conselldemallorca.helium.core.model.exception.NotFoundException;
 /**
  * Helper per a gestionar els logs dels expedients
  * 
@@ -99,6 +101,7 @@ public class ExpedientLogHelper {
 	private DefinicioProcesDao definicioProcesDao;
 	private EstatDao estatDao;
 	private MesuresTemporalsHelper mesuresTemporalsHelper;
+	private MessageSource messageSource;
 
 	public ExpedientLog afegirLogExpedientPerTasca(
 			String taskInstanceId,
@@ -882,9 +885,15 @@ public class ExpedientLogHelper {
 	public void setMesuresTemporalsHelper(MesuresTemporalsHelper mesuresTemporalsHelper) {
 		this.mesuresTemporalsHelper = mesuresTemporalsHelper;
 	}
+	@Autowired
+	public void setMessageSource(MessageSource messageSource) {
+		this.messageSource = messageSource;
+	}
 
 	private Expedient getExpedientPerProcessInstanceId(String processInstanceId) {
 		JbpmProcessInstance pi = jbpmDao.getRootProcessInstance(processInstanceId);
+		if (pi == null) 
+			throw new NotFoundException( getMessage("error.expedientLogHelper.noExisteix.processInstance", new Object[]{processInstanceId}) );
 		return expedientDao.findAmbProcessInstanceId(pi.getId());
 	}
 
@@ -1507,6 +1516,21 @@ public class ExpedientLogHelper {
 		}
 	}
 
+	protected String getMessage(String key, Object[] vars) {
+		try {
+			return messageSource.getMessage(
+					key,
+					vars,
+					null);
+		} catch (NoSuchMessageException ex) {
+			return "???" + key + "???";
+		}
+	}
+
+	protected String getMessage(String key) {
+		return getMessage(key, null);
+	}
+	
 	private static final Log logger = LogFactory.getLog(ExpedientLogHelper.class);
 
 }
