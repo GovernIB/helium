@@ -32,7 +32,7 @@
 					<th data-col-name="id" data-visible="false"/>
 					<th data-col-name="jbpmName" width="20%"><spring:message code="definicio.proces.tasca.llistat.columna.codi"/></th>
 					<th data-col-name="nom"><spring:message code="definicio.proces.tasca.llistat.columna.titol"/></th>
-					<th data-col-name="inicial" width="20px" data-template="#cellDefinicioProcesInicialTemplate">
+					<th data-col-name="inicial" width="20px" data-orderable="false" data-template="#cellDefinicioProcesInicialTemplate">
 					<spring:message code="definicio.proces.tasca.llistat.columna.inicial"/>
 						<script id="cellDefinicioProcesInicialTemplate" type="text/x-jsrender">
 						{{if inicial }}
