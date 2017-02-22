@@ -48,7 +48,7 @@ public class CampValidator implements ConstraintValidator<Camp, CampCommand>{
 		}
 		if (camp.getTipus() != null) {
 				if (camp.getTipus().equals(CampTipusDto.ACCIO)) {
-					if(camp.getDefprocJbpmKey() == null || "".equals(camp.getDefprocJbpmKey().trim())) {
+					if (camp.getDefinicioProcesId() == null &&  (camp.getDefprocJbpmKey() == null || "".equals(camp.getDefprocJbpmKey().trim()))) {
 						context.buildConstraintViolationWithTemplate(
 								MessageHelper.getInstance().getMessage("NotEmpty", null))
 								.addNode("defprocJbpmKey")

@@ -67,8 +67,14 @@
 		
 		<fieldset id="dadesAccio" class="dades accio" style="display:none;">
 			<legend><spring:message code="expedient.tipus.camp.form.fieldset.accio"></spring:message></legend>
-			<hel:inputSelect required="true" name="defprocJbpmKey" textKey="expedient.tipus.camp.form.camp.defprocJbpmKey" emptyOption="true" placeholderKey="expedient.tipus.camp.form.camp.defprocJbpmKey.placeholder" optionItems="${definicionsProces}" />
-			<hel:inputText required="true" name="jbpmAction" textKey="expedient.tipus.camp.form.camp.jbpmAction" />
+			<c:if test="${empty campCommand.definicioProcesId}">
+				<hel:inputSelect required="true" name="defprocJbpmKey" textKey="expedient.tipus.accio.form.accio.defprocJbpmKey" emptyOption="true" placeholderKey="expedient.tipus.accio.form.accio.defprocJbpmKey.placeholder" optionItems="${definicionsProces}" />
+				<hel:inputText required="true" name="jbpmAction" textKey="expedient.tipus.accio.form.accio.jbpmAction" />
+			</c:if>
+			<c:if test="${not empty campCommand.definicioProcesId}">
+				<input type="hidden" name="defprocJbpmKey" value="${expedientTipusAccioCommand.defprocJbpmKey}" />
+				<hel:inputSelect emptyOption="true" required="true" name="jbpmAction" textKey="expedient.tipus.accio.form.accio.jbpmAction" optionItems="${handlers}" placeholderKey="expedient.tipus.camp.form.camp.jbpmAction.placeholder"/>
+			</c:if>
 		</fieldset>
 		
 		<div id="modal-botons" class="well">

@@ -171,10 +171,12 @@ public class DefinicioProcesVariableController extends BaseVariableController {
 		CampCommand command = conversioTipusHelper.convertir(
 				dto,
 				CampCommand.class);
+		command.setDefinicioProcesId(definicioProcesId);
 		command.setAgrupacioId(dto.getAgrupacio() != null? dto.getAgrupacio().getId() : null);
 		command.setEnumeracioId(dto.getEnumeracio() != null? dto.getEnumeracio().getId() : null);
 		command.setDominiId(dto.getDomini() != null? dto.getDomini().getId() : null);
 		command.setConsultaId(dto.getConsulta() != null? dto.getConsulta().getId() : null);
+		command.setJbpmAction(dto.getJbpmAction());
 		
 		model.addAttribute("campCommand", command);
 		this.omplirModelVariableForm(
@@ -475,6 +477,8 @@ public class DefinicioProcesVariableController extends BaseVariableController {
 			model.addAttribute("dominis", dominiService.findGlobals(entornId));
 			model.addAttribute("consultes", definicioProcesService.consultaFindByEntorn(entornId));
 		}
+		// Handlers
+		model.addAttribute("handlers", dissenyService.findAccionsJbpmOrdenades(definicioProcesId));
 	}
 
 	private void omplirModelVariablesPestanya(HttpServletRequest request, Long definicioProcesId, Model model) {
