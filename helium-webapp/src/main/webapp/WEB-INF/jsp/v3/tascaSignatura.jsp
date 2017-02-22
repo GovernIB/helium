@@ -86,27 +86,6 @@
 											<c:otherwise><c:set var="stils" value="uniForm"/></c:otherwise>
 										</c:choose>
 										
-										<!-- Modal Passarel·la -->
-										<div id="modalPassarela${document.id}" class="modal fade" role="dialog">
-  											<div class="modal-dialog modal-lg">
-
-											    <!-- Modal content-->
-											    <div class="modal-content">
-      												<div class="modal-header">
-        												<button type="button" class="close" data-dismiss="modal">&times;</button>
-        												<h4 class="modal-title"><spring:message code="tasca.signa.signar.passarela"/></h4>
-      												</div>
-													<iframe id="passIframe" src="<c:url value="/modal/v3/tasca/${tasca.id}/document/${document.id}/firmaPassarela"/>" height="380px" width="100%" style="border: 0;"></iframe>
-													<button type="button" id="dismiss" class="btn btn-default hide" data-dismiss="modal"><spring:message code="comu.boto.tancar"/></button>
-    											</div>
-    											<script type="text/javascript">
-    												$('#dismiss, #modalPassarela${document.id} button.close').click(function() {
-    													window.location.href = '<c:url value="/modal/v3/tasca/${tasca.id}/signatura"/>';
-    												});
-    											</script>
-  											</div>
-										</div>
-										
 										<c:if test="${numPluginsPassarela > 0}">
 											<div id="botons${document.id}" class="modal-botons-firma">
 												<button type="button" onclick="finestraFirma=window.open('<c:url value="/modal/v3/tasca/${tasca.id}/document/${document.id}/firmaPassarela"/>', 'Firma passarel.la', 'location=0,status=0,scrollbars=0,resizable=0,directories=0,toolbar=0,titlebar=0,width=800,height=450,top=200,left=200');" class="btn btn-default"><spring:message code="tasca.signa.signar.passarela"/></button>

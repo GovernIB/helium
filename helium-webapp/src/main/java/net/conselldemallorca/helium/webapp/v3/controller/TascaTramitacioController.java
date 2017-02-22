@@ -462,27 +462,37 @@ public class TascaTramitacioController extends BaseTascaController {
 			@PathVariable String tascaId,
 			@PathVariable Long documentId,
 			Model model) throws IOException {
-		TascaDocumentDto doc = tascaService.findDocument(tascaId, documentId);
-		String documentCodi = doc.getDocumentCodi();
-		DocumentDto documentDto = tascaService.getDocumentPerDocumentCodi(tascaId, documentCodi);
-        ArxiuDto arxiuPerFirmar = expedientDocumentService.arxiuDocumentPerSignar(
-        		documentDto.getTokenSignatura()); 
-        		        
-		PersonaDto usuariActual = aplicacioService.findPersonaActual();
-		String modalStr = (ModalHelper.isModal(request)) ? "/modal" : "";
-		
-		String procesFirmaUrl = passarelaFirmaHelper.iniciarProcesDeFirma(
-				request,
-				arxiuPerFirmar,
-				documentId.toString(),
-				usuariActual.getDni(),
-				"Firma",
-				"Illes Balears",
-				usuariActual.getEmail(),
-				LocaleContextHolder.getLocale().getLanguage(),
-				modalStr + "/v3/tasca/" + tascaId + "/document/" + documentCodi + "/firmaPassarelaFinal",
-				false);
-		return "redirect:" + procesFirmaUrl;
+		try {
+			TascaDocumentDto doc = tascaService.findDocument(tascaId, documentId);
+			String documentCodi = doc.getDocumentCodi();
+			DocumentDto documentDto = tascaService.getDocumentPerDocumentCodi(tascaId, documentCodi);
+	        ArxiuDto arxiuPerFirmar = expedientDocumentService.arxiuDocumentPerSignar(
+	        		documentDto.getTokenSignatura()); 
+	        		        
+			PersonaDto usuariActual = aplicacioService.findPersonaActual();
+			String modalStr = (ModalHelper.isModal(request)) ? "/modal" : "";
+			
+			String procesFirmaUrl = passarelaFirmaHelper.iniciarProcesDeFirma(
+					request,
+					arxiuPerFirmar,
+					documentId.toString(),
+					usuariActual.getDni(),
+					"Firma",
+					"Illes Balears",
+					usuariActual.getEmail(),
+					LocaleContextHolder.getLocale().getLanguage(),
+					modalStr + "/v3/tasca/" + tascaId + "/document/" + documentCodi + "/firmaPassarelaFinal",
+					false);
+			return "redirect:" + procesFirmaUrl;
+		} catch (Exception e) {
+			MissatgesHelper.error(
+					request,
+					getMessage(
+							request, 
+							"document.controller.firma.passarela.inici.error",
+							new Object[] {e.getLocalizedMessage()}));			
+			return "v3/passarelaFirma/passarelaFiFirma";
+		}
 	}
 	
 	@RequestMapping(value = "/{tascaId}/document/{documentCodi}/firmaPassarelaFinal")
