@@ -37,6 +37,7 @@
 	  	background-position: right 7px;
 	  	padding-right: 15px;
 	}
+	.var_dades.var_registre {overflow: auto}
  	#grup-default-dades label.obligatori {background-position: right 7px;padding-right: 15px;} 
 </style>
 
