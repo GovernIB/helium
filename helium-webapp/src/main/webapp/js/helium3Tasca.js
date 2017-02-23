@@ -400,20 +400,24 @@ $(function() {
 			async: false,
 			timeout: 20000,
 			success: function (data) {
-				var dialogWidth = parseInt(data.width);
-				var dialogHeight = parseInt(data.height);
-				$('<iframe id="formExtern" src="' + data.url + '"/>').dialog({
-					title: 'Formulari extern',
-	                autoOpen: true,
-	                modal: true,
-	                autoResize: false,
-	                width: dialogWidth,
-	                height: dialogHeight,
-	                close: function() {
-	                	window.location.href = window.location.href;
-	                	//document.location.reload();
-					}
-	            }).width(dialogWidth - 24);
+				if (data.error != null) {
+					alert(data.error);
+				} else {
+					var dialogWidth = parseInt(data.width);
+					var dialogHeight = parseInt(data.height);
+					$('<iframe id="formExtern" src="' + data.url + '"/>').dialog({
+						title: 'Formulari extern',
+		                autoOpen: true,
+		                modal: true,
+		                autoResize: false,
+		                width: dialogWidth,
+		                height: dialogHeight,
+		                close: function() {
+		                	window.location.href = window.location.href;
+		                	//document.location.reload();
+						}
+		            }).width(dialogWidth - 24);
+				}
 			},
 			error: modalAjaxErrorFunction
 	    });

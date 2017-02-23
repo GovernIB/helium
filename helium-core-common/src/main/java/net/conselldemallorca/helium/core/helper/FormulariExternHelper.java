@@ -10,6 +10,8 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -43,12 +45,15 @@ public class FormulariExternHelper {
 	private FormulariExternRepository formulariExternRepository;
 	@Autowired
 	private WsClientHelper wsClientHelper;
-	
+	@Resource
+	private MessageHelper messageHelper;
+
 	public FormulariExternDto iniciar(
 		String taskId,
 		Tasca tasca,
 		ExpedientTipus expedientTipus,
 		boolean tascaIniciExpedient) {
+		FormulariExternDto dto = new FormulariExternDto();
 		String url;
 		String username = null;
 		String password = null;
@@ -67,22 +72,34 @@ public class FormulariExternHelper {
 					"app.forms.service.password");
 		}
 		
-		IniciFormulari clientWs = wsClientHelper.getIniciFormulariService(
-				url,
-				WsClientAuth.NONE,
-				username,
-				password);
-		RespostaIniciFormulari resposta = clientWs.iniciFormulari(
-				tasca.getFormExtern(),
-				taskId,
-				(!tascaIniciExpedient) ? getVariablesPerIniciFormulari(taskId) : null);
-		
-		
 //		RespostaIniciFormulari resposta = new RespostaIniciFormulari();
 //		resposta.setFormulariId(taskId);
 //		resposta.setUrl("http://oficina.limit.es");
 //		resposta.setWidth(800);
 //		resposta.setHeight(600);
+
+		RespostaIniciFormulari resposta = null;
+		try {
+			IniciFormulari clientWs = wsClientHelper.getIniciFormulariService(
+					url,
+					WsClientAuth.NONE,
+					username,
+					password);
+			resposta = clientWs.iniciFormulari(
+					tasca.getFormExtern(),
+					taskId,
+					(!tascaIniciExpedient) ? getVariablesPerIniciFormulari(taskId) : null);
+		
+		} catch (Exception e) {
+			logger.error("Error iniciant el formulari extern ( " +
+					"taskId=" + taskId  +
+					", tascaId=" + tasca.getId()  +
+					", expedientTipusId=" + expedientTipus.getId()  +
+					", tascaIniciExpedient=" + tascaIniciExpedient  + ")");
+			e.printStackTrace();
+			dto.setError(messageHelper.getMessage("error.tascaService.formExtern.inici", new Object[] {getRootCause(e)}));
+			return dto;
+		}
 		
 		FormulariExtern fext = formulariExternRepository.findByFormulariId(resposta.getFormulariId());
 		if (fext == null) {
@@ -99,12 +116,20 @@ public class FormulariExternHelper {
 			if (resposta.getHeight() != -1)
 				fext.setFormHeight(resposta.getHeight());
 		}
-		FormulariExternDto dto = new FormulariExternDto();
 		dto.setFormulariId(resposta.getFormulariId());
 		dto.setUrl(resposta.getUrl());
 		dto.setWidth(resposta.getWidth());
 		dto.setHeight(resposta.getHeight());
 		return dto;
+	}
+
+
+	/** Troba el missatge de la causa inicial de la excepció. */
+	private String getRootCause(Throwable t) {
+		Throwable cause = t;
+		while (cause.getCause() != null)
+			cause = cause.getCause();
+		return cause.getLocalizedMessage();
 	}
 
 
@@ -122,4 +147,5 @@ public class FormulariExternHelper {
 		return varsForm;
 	}
 
+	private static final Logger logger = LoggerFactory.getLogger(TascaHelper.class);
 }

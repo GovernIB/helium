@@ -16,6 +16,7 @@ public class FormulariExternDto implements Serializable {
 	private String url;
 	private int width;
 	private int height;
+	private String error;
 
 	public String getFormulariId() {
 		return formulariId;
@@ -41,5 +42,10 @@ public class FormulariExternDto implements Serializable {
 	public void setHeight(int height) {
 		this.height = height;
 	}
-
+	public String getError() {
+		return error;
+	}
+	public void setError(String error) {
+		this.error = error;
+	}
 }
