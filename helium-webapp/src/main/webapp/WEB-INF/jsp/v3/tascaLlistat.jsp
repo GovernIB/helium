@@ -142,7 +142,7 @@
 			$('#expedientTipusId').select2().on("select2-removed", function(e) {
 				window['ambPermisReassignment'] = false;
 		    })
-			$('#expedientTipusId').trigger('change');
+// 			$('#expedientTipusId').trigger('change');
 		</c:if>
 
 		//Per defecte, si no s'especifica al fitxer de properties

@@ -12,6 +12,7 @@ import org.jbpm.JbpmContext;
 import org.jbpm.command.AbstractBaseCommand;
 import org.jbpm.taskmgmt.exe.TaskInstance;
 
+import net.conselldemallorca.helium.jbpm3.integracio.Jbpm3HeliumBridge;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmTask;
 import net.conselldemallorca.helium.jbpm3.integracio.ResultatConsultaPaginadaJbpm;
 
@@ -91,9 +92,8 @@ public class FindJbpmTasksFiltreCommand extends AbstractBaseCommand {
 		this.asc = asc;
 		this.nomesCount = nomesCount;
 	}
-
-	@SuppressWarnings("unchecked")
-	public Object execute(JbpmContext jbpmContext) throws Exception {
+	
+	private StringBuilder consulta1 (boolean desactivarOptimitzarLlistatTasques) {
 		StringBuilder taskQuerySb = new StringBuilder();
 		if (actorId != null) {
 			taskQuerySb.append(
@@ -101,7 +101,10 @@ public class FindJbpmTasksFiltreCommand extends AbstractBaseCommand {
 					"    org.jbpm.taskmgmt.exe.TaskInstance ti left join ti.pooledActors pa " +
 					"where ");
 			if (mostrarAssignadesUsuari && mostrarAssignadesGrup) {
-				taskQuerySb.append("((ti.actorId is not null and ti.actorId = :actorId) or (ti.actorId is null and pa.actorId = :actorId)) ");
+				if (desactivarOptimitzarLlistatTasques)
+					taskQuerySb.append("((ti.actorId is not null and ti.actorId = :actorId) or (ti.actorId is null and pa.actorId = :actorId)) ");
+				else
+					taskQuerySb.append("((ti.actorId is not null and ti.actorId = :actorId)) ");
 			} else if (mostrarAssignadesUsuari && !mostrarAssignadesGrup) {
 				taskQuerySb.append("ti.actorId is not null and ti.actorId = :actorId ");
 			} else if (!mostrarAssignadesUsuari && mostrarAssignadesGrup) {
@@ -172,6 +175,101 @@ public class FindJbpmTasksFiltreCommand extends AbstractBaseCommand {
 		if (prioritat != null) {
 			taskQuerySb.append("and ti.priority = :prioritat ");
 		}
+		
+		return taskQuerySb;
+	}
+	
+	private StringBuilder consulta2 () {
+		StringBuilder taskQuerySb = new StringBuilder();
+		if (actorId != null) {
+			taskQuerySb.append(
+					"from " +
+					"    org.jbpm.taskmgmt.exe.TaskInstance ti left join ti.pooledActors pa " +
+					"where ");
+			if (mostrarAssignadesUsuari && mostrarAssignadesGrup) {
+				taskQuerySb.append("((ti.actorId is null and pa.actorId = :actorId)) ");
+			} else if (mostrarAssignadesUsuari && !mostrarAssignadesGrup) {
+				taskQuerySb.append("ti.actorId is not null and ti.actorId = :actorId ");
+			} else if (!mostrarAssignadesUsuari && mostrarAssignadesGrup) {
+				taskQuerySb.append("ti.actorId is null and pa.actorId = :actorId ");
+			} else {
+				taskQuerySb.append("ti.id is not null ");
+			}
+		} else {
+			taskQuerySb.append(
+					"from " +
+					"    org.jbpm.taskmgmt.exe.TaskInstance ti " +
+					"where ");
+			if (mostrarAssignadesUsuari && mostrarAssignadesGrup) {
+				taskQuerySb.append("((ti.actorId is not null) or (ti.actorId is null and exists elements(ti.pooledActors))) ");
+			} else if (mostrarAssignadesUsuari && !mostrarAssignadesGrup) {
+				taskQuerySb.append("ti.actorId is not null ");
+			} else if (!mostrarAssignadesUsuari && mostrarAssignadesGrup) {
+				taskQuerySb.append("ti.actorId is null and exists elements(ti.pooledActors) ");
+			} else {
+				taskQuerySb.append("ti.id is not null ");
+			}
+		}
+		if (nomesPendents) {
+			taskQuerySb.append("and ti.isSuspended = false and ti.isOpen = true ");
+		}
+		if (taskName != null && !taskName.isEmpty()) {
+			taskQuerySb.append("and ti.task.name = :taskName ");
+		}
+		if (titol != null && !titol.isEmpty()) {
+			taskQuerySb.append("and upper(ti.description) like '%@#@TITOL@#@%'||:titol||'%@#@ENTORNID@#@%' ");
+		}
+		if (expedientId != null) {
+			taskQuerySb.append("and ti.processInstance.expedient.id = :expedientId ");
+		}
+		if (expedientTitol != null && !expedientTitol.isEmpty()) {
+			taskQuerySb.append(
+					"and (upper(case " +
+					"     when (ti.processInstance.expedient.numero is not null and ti.processInstance.expedient.titol is not null) then ('['||ti.processInstance.expedient.numero||'] ' || ti.processInstance.expedient.titol) " +
+					"     when (ti.processInstance.expedient.numero is not null and ti.processInstance.expedient.titol is null) then ti.processInstance.expedient.numero " +
+					"     when (ti.processInstance.expedient.numero is null and ti.processInstance.expedient.titol is not null) then ti.processInstance.expedient.titol " +
+					"     else ti.processInstance.expedient.numeroDefault end) like upper(:expedientTitol))");
+		}
+		if (expedientNumero != null && !expedientNumero.isEmpty()) {
+			taskQuerySb.append(
+					"and (upper(case " +
+					"    when (ti.processInstance.expedient.numero is not null AND ti.processInstance.expedient.titol is not null) then ('['||ti.processInstance.expedient.numero||']') " +
+					"    when (ti.processInstance.expedient.numero is not null AND ti.processInstance.expedient.titol is null) then ti.processInstance.expedient.numero " +
+					"    else ti.processInstance.expedient.numeroDefault END) like upper(:expedientNumero))");
+		}
+		if (entornId != null) {
+			taskQuerySb.append("and ti.processInstance.expedient.entorn.id = :entornId ");
+		}
+		if (expedientTipusId != null) {
+			taskQuerySb.append("and ti.processInstance.expedient.tipus.id = :expedientTipusId ");
+		}
+		if (dataCreacioInici != null) {
+			taskQuerySb.append("and ti.create >= :dataCreacioInici ");
+		}
+		if (dataCreacioFi != null) {
+			taskQuerySb.append("and ti.create <= :dataCreacioFi ");
+		}
+		if (dataLimitInici != null) {
+			taskQuerySb.append("and ti.dueDate >= :dataLimitInici ");
+		}
+		if (dataLimitFi != null) {
+			taskQuerySb.append("and ti.dueDate <= :dataLimitFi ");
+		}
+		if (prioritat != null) {
+			taskQuerySb.append("and ti.priority = :prioritat ");
+		}
+		
+		return taskQuerySb;
+	}
+
+	@SuppressWarnings("unchecked")
+	public Object execute(JbpmContext jbpmContext) throws Exception {
+		
+		String desactivarOptimitzacioLlistatTascaString = (String)Jbpm3HeliumBridge.getInstanceService().getHeliumProperty("app.llistat.tasques.optimitzacio.desactivada");
+		boolean desactivarOptimitzarLlistatTasques = "true".equalsIgnoreCase(desactivarOptimitzacioLlistatTascaString);
+		
+		StringBuilder taskQuerySb = consulta1(desactivarOptimitzarLlistatTasques);
+		
 		Query queryCount = jbpmContext.getSession().createQuery(
 				"select count(distinct ti.id) " + taskQuerySb.toString());
 		setQueryParams(
@@ -192,9 +290,40 @@ public class FindJbpmTasksFiltreCommand extends AbstractBaseCommand {
 				0,
 				-1);
 		int count = ((Long)queryCount.uniqueResult()).intValue();
+		
+		StringBuilder taskQuerySb2 = null;
+		if (actorId != null && mostrarAssignadesUsuari && mostrarAssignadesGrup && !desactivarOptimitzarLlistatTasques) {
+			taskQuerySb2 = consulta2();
+			Query queryCount2 = jbpmContext.getSession().createQuery(
+					"select count(distinct ti.id) " + taskQuerySb2.toString());
+			setQueryParams(
+					queryCount2,
+					entornId,
+					actorId,
+					taskName,
+					titol,
+					expedientId,
+					expedientTitol,
+					expedientNumero,
+					expedientTipusId,
+					dataCreacioInici,
+					dataCreacioFi,
+					prioritat,
+					dataLimitInici,
+					dataLimitFi,
+					0,
+					-1);
+			count += ((Long)queryCount2.uniqueResult()).intValue();
+		}
+		
 		if (!nomesCount) {
 			taskQuerySb.insert(0, "select ti from org.jbpm.taskmgmt.exe.TaskInstance ti where ti.id in (select distinct ti.id ");
 			taskQuerySb.append(") ");
+			
+			//afegim les ids del segon subconjunt si aquest subconjunt existeix
+			if (taskQuerySb2 != null && !taskQuerySb2.toString().isEmpty())
+				taskQuerySb.append(" or ti.id in (select distinct ti.id " + taskQuerySb2.toString() + ")");
+			
 			List<String> sortColumns = new ArrayList<String>();
 			if (sort != null) {
 				/*sorts:
