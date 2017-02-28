@@ -105,7 +105,9 @@
 					value = $(this).val();
 				if (value < 0) {
 					// Neteja de la selecció
-					$('#consultar').trigger('click');
+					setTimeout(function() {
+						$('#consultar').trigger('click');
+					}, 500);
 				} else {
 					//tasques per expedientTipus
 					$.get('tasca/tasques/${entornId}/' + value)				
@@ -142,7 +144,7 @@
 			$('#expedientTipusId').select2().on("select2-removed", function(e) {
 				window['ambPermisReassignment'] = false;
 		    })
-// 			$('#expedientTipusId').trigger('change');
+			$('#expedientTipusId').trigger('change');
 		</c:if>
 
 		//Per defecte, si no s'especifica al fitxer de properties
