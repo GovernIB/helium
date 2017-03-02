@@ -41,7 +41,7 @@
 		.form-group {padding-right: 	15px;margin-left: 	10px !important;margin-bottom:	15px;}
 		.form-group input, .form-group textarea {width: 100%;}		
 		.form-group li > .select2-container {width: 100%;padding-right: 20px;}		
-		.form-group .select2-container {width: calc(100% + 14px);}
+		.form-group .select2-container {width: calc(100% + 0px) !important;}
 		.condensed {margin-bottom: 0px;}
 		.form-group.registre {padding-right: 1px;}
 		.col-xs-9 {width: 82.5%}
@@ -190,16 +190,16 @@ $(document).ready(function() {
 				
 				<!-- si tenim el buit menor que 0, l'offset va al davant del camp -->
 				<c:if test="${buitCols < 0}">
-					<div class="col-md-${buitAbsCols}"></div>
+					<div class="col-xs-${buitAbsCols}"></div>
 				</c:if>
 				
-				<div class="col-md-${ampleCols}">
+				<div class="col-xs-${ampleCols}">
 					<%@ include file="campsFiltre.jsp" %>
 				</div>
 				
 				<!-- si el buit es major que 0, l'offset va després del camp -->
 				<c:if test="${buitCols > 0}">
-					<div class="col-md-${buitAbsCols}"></div>
+					<div class="col-xs-${buitAbsCols}"></div>
 				</c:if>
 			</c:forEach>
 			</div>

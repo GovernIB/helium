@@ -77,10 +77,10 @@
 		
 		<!-- si tenim el buit menor que 0, l'offset va al davant del camp -->
 		<c:if test="${buitCols < 0}">
-			<div class="col-md-${buitAbsCols}"></div>
+			<div class="col-xs-${buitAbsCols}"></div>
 		</c:if>
 		
-		<div class="col-md-${ampleCols}">
+		<div class="col-xs-${ampleCols}">
 			<c:set var="inline" value="${false}"/>
 			<c:set var="isRegistre" value="${false}"/>
 			<c:set var="isMultiple" value="${false}"/>
@@ -143,7 +143,7 @@
 		
 		<!-- si el buit es major que 0, l'offset va després del camp -->
 		<c:if test="${buitCols > 0}">
-			<div class="col-md-${buitAbsCols}"></div>
+			<div class="col-xs-${buitAbsCols}"></div>
 		</c:if>
 	</c:forEach>
 	</div>
