@@ -18,6 +18,8 @@ import com.codahale.metrics.Counter;
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer;
 
+import net.conselldemallorca.helium.core.api.WProcessInstance;
+import net.conselldemallorca.helium.core.api.WorkflowEngineApi;
 import net.conselldemallorca.helium.core.model.dao.CampDao;
 import net.conselldemallorca.helium.core.model.dao.ConsultaCampDao;
 import net.conselldemallorca.helium.core.model.dao.DefinicioProcesDao;
@@ -36,8 +38,6 @@ import net.conselldemallorca.helium.core.model.hibernate.GenericEntity;
 import net.conselldemallorca.helium.core.security.AclServiceDao;
 import net.conselldemallorca.helium.core.util.ExpedientCamps;
 import net.conselldemallorca.helium.jbpm3.integracio.DominiCodiDescripcio;
-import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
-import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessInstance;
 import net.conselldemallorca.helium.jbpm3.integracio.Registre;
 
 /**
@@ -53,7 +53,7 @@ public class ServiceUtils {
 	private ConsultaCampDao consultaCampDao;
 	private LuceneDao luceneDao;
 	private DtoConverter dtoConverter;
-	private JbpmHelper jbpmHelper;
+	private WorkflowEngineApi workflowEngineApi;
 	private AclServiceDao aclServiceDao;
 	private MessageSource messageSource;
 	private MetricRegistry metricRegistry;
@@ -67,7 +67,7 @@ public class ServiceUtils {
 			ConsultaCampDao consultaCampDao,
 			LuceneDao luceneDao,
 			DtoConverter dtoConverter,
-			JbpmHelper jbpmHelper,
+			WorkflowEngineApi workflowEngineApi,
 			AclServiceDao aclServiceDao,
 			MessageSource messageSource,
 			MetricRegistry metricRegistry) {
@@ -77,7 +77,7 @@ public class ServiceUtils {
 		this.consultaCampDao = consultaCampDao;
 		this.luceneDao = luceneDao;
 		this.dtoConverter = dtoConverter;
-		this.jbpmHelper = jbpmHelper;
+		this.workflowEngineApi = workflowEngineApi;
 		this.aclServiceDao = aclServiceDao;
 		this.messageSource = messageSource;
 		this.metricRegistry = metricRegistry;
@@ -89,7 +89,7 @@ public class ServiceUtils {
 	 * Mètodes per a la reindexació d'expedients
 	 */
 	public void expedientIndexLuceneCreate(String processInstanceId) {
-		JbpmProcessInstance rootProcessInstance = jbpmHelper.getRootProcessInstance(processInstanceId);
+		WProcessInstance rootProcessInstance = workflowEngineApi.getRootProcessInstance(processInstanceId);
 		Expedient expedient = expedientDao.findAmbProcessInstanceId(rootProcessInstance.getId());
 		Map<String, Set<Camp>> mapCamps = getMapCamps(expedient.getProcessInstanceId());
 		Map<String, Map<String, Object>> mapValors = getMapValors(expedient.getProcessInstanceId());
@@ -155,7 +155,7 @@ public class ServiceUtils {
 			countTipexp.inc();
 		}
 		try {
-			JbpmProcessInstance rootProcessInstance = jbpmHelper.getRootProcessInstance(processInstanceId);
+			WProcessInstance rootProcessInstance = workflowEngineApi.getRootProcessInstance(processInstanceId);
 			Expedient expedient = expedientDao.findAmbProcessInstanceId(rootProcessInstance.getId());
 			Map<String, Set<Camp>> mapCamps = getMapCamps(rootProcessInstance.getId());
 			Map<String, Map<String, Object>> mapValors = getMapValors(rootProcessInstance.getId());
@@ -175,7 +175,7 @@ public class ServiceUtils {
 		}
 	}
 	public void expedientIndexLuceneRecrear(String processInstanceId) {
-		JbpmProcessInstance rootProcessInstance = jbpmHelper.getRootProcessInstance(processInstanceId);
+		WProcessInstance rootProcessInstance = workflowEngineApi.getRootProcessInstance(processInstanceId);
 		Expedient expedient = expedientDao.findAmbProcessInstanceId(rootProcessInstance.getId());
 		luceneDao.deleteExpedient(expedient);
 		Map<String, Set<Camp>> mapCamps = getMapCamps(rootProcessInstance.getId());
@@ -190,12 +190,12 @@ public class ServiceUtils {
 				false);
 	}
 	public void expedientIndexLuceneDelete(String processInstanceId) {
-		JbpmProcessInstance rootProcessInstance = jbpmHelper.getRootProcessInstance(processInstanceId);
+		WProcessInstance rootProcessInstance = workflowEngineApi.getRootProcessInstance(processInstanceId);
 		Expedient expedient = expedientDao.findAmbProcessInstanceId(rootProcessInstance.getId());
 		luceneDao.deleteExpedient(expedient);
 	}
 	public List<Map<String, DadaIndexadaDto>> expedientIndexLucenGetDades(String processInstanceId) {
-		JbpmProcessInstance rootProcessInstance = jbpmHelper.getRootProcessInstance(processInstanceId);
+		WProcessInstance rootProcessInstance = workflowEngineApi.getRootProcessInstance(processInstanceId);
 		Expedient expedient = expedientDao.findAmbProcessInstanceId(rootProcessInstance.getId());
 		List<Camp> informeCamps = new ArrayList<Camp>();
 		Map<String, Set<Camp>> camps = getMapCamps(rootProcessInstance.getId());
@@ -385,12 +385,12 @@ public class ServiceUtils {
 	public Object getVariableJbpmTascaValor(
 			String taskId,
 			String varCodi) {
-		Object valor = jbpmHelper.getTaskInstanceVariable(taskId, varCodi);
+		Object valor = workflowEngineApi.getTaskInstanceVariable(taskId, varCodi);
 		return valorVariableJbpmRevisat(valor);
 	}
 	public Map<String, Object> getVariablesJbpmTascaValor(
 			String taskId) {
-		Map<String, Object> valors = jbpmHelper.getTaskInstanceVariables(taskId);
+		Map<String, Object> valors = workflowEngineApi.getTaskInstanceVariables(taskId);
 		Map<String, Object> valorsRevisats = new HashMap<String, Object>();
 		for (String varCodi: valors.keySet()) {
 			Object valor = valors.get(varCodi);
@@ -401,7 +401,7 @@ public class ServiceUtils {
 	public Object getVariableJbpmProcesValor(
 			String processInstanceId,
 			String varCodi) {
-		Object valor = jbpmHelper.getProcessInstanceVariable(processInstanceId, varCodi);
+		Object valor = workflowEngineApi.getProcessInstanceVariable(processInstanceId, varCodi);
 		if (valor instanceof DominiCodiDescripcio) {
 			return ((DominiCodiDescripcio)valor).getCodi();
 		} else {
@@ -410,7 +410,7 @@ public class ServiceUtils {
 	}
 	public Map<String, Object> getVariablesJbpmProcesValor(
 			String processInstanceId) {
-		Map<String, Object> valors = jbpmHelper.getProcessInstanceVariables(processInstanceId);
+		Map<String, Object> valors = workflowEngineApi.getProcessInstanceVariables(processInstanceId);
 		Map<String, Object> valorsRevisats = new HashMap<String, Object>();
 		if (valors != null) {
 			for (String varCodi: valors.keySet()) {
@@ -434,8 +434,8 @@ public class ServiceUtils {
 	 */
 	public boolean isExpedientFinalitzat(Expedient expedient) {
 		if (expedient.getProcessInstanceId() != null) {
-			JbpmProcessInstance processInstance = jbpmHelper.getProcessInstance(expedient.getProcessInstanceId());
-			return processInstance.getEnd() != null;
+			WProcessInstance processInstance = workflowEngineApi.getProcessInstance(expedient.getProcessInstanceId());
+			return processInstance.getEndTime() != null;
 		}
 		return false;
 	}
@@ -444,8 +444,8 @@ public class ServiceUtils {
 
 	private Map<String, DefinicioProces> getMapDefinicionsProces(String processInstanceId) {
 		Map<String, DefinicioProces> resposta = new HashMap<String, DefinicioProces>();
-		List<JbpmProcessInstance> tree = jbpmHelper.getProcessInstanceTree(processInstanceId);
-		for (JbpmProcessInstance pi: tree)
+		List<WProcessInstance> tree = workflowEngineApi.getProcessInstanceTree(processInstanceId);
+		for (WProcessInstance pi: tree)
 			resposta.put(
 					pi.getId(),
 					definicioProcesDao.findAmbJbpmId(pi.getProcessDefinitionId()));
@@ -453,8 +453,8 @@ public class ServiceUtils {
 	}
 	private Map<String, Set<Camp>> getMapCamps(String processInstanceId) {
 		Map<String, Set<Camp>> resposta = new HashMap<String, Set<Camp>>();
-		List<JbpmProcessInstance> tree = jbpmHelper.getProcessInstanceTree(processInstanceId);
-		for (JbpmProcessInstance pi: tree) {
+		List<WProcessInstance> tree = workflowEngineApi.getProcessInstanceTree(processInstanceId);
+		for (WProcessInstance pi: tree) {
 			resposta.put(
 					pi.getId(),
 					definicioProcesDao.findAmbJbpmId(pi.getProcessDefinitionId()).getCamps());
@@ -463,8 +463,8 @@ public class ServiceUtils {
 	}
 	private Map<String, Map<String, Object>> getMapValors(String processInstanceId) {
 		Map<String, Map<String, Object>> resposta = new HashMap<String, Map<String, Object>>();
-		List<JbpmProcessInstance> tree = jbpmHelper.getProcessInstanceTree(processInstanceId);
-		for (JbpmProcessInstance pi: tree)
+		List<WProcessInstance> tree = workflowEngineApi.getProcessInstanceTree(processInstanceId);
+		for (WProcessInstance pi: tree)
 			resposta.put(
 					pi.getId(),
 					getVariablesJbpmProcesValor(pi.getId()));

@@ -11,6 +11,16 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.jbpm.JbpmException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.acls.model.Permission;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.ModelMap;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+
 import net.conselldemallorca.helium.core.model.dto.ExpedientDto;
 import net.conselldemallorca.helium.core.model.dto.ExpedientLogDto;
 import net.conselldemallorca.helium.core.model.dto.InstanciaProcesDto;
@@ -24,21 +34,12 @@ import net.conselldemallorca.helium.core.model.service.PermissionService;
 import net.conselldemallorca.helium.core.model.service.PluginService;
 import net.conselldemallorca.helium.core.model.service.TerminiService;
 import net.conselldemallorca.helium.core.security.ExtendedPermission;
+import net.conselldemallorca.helium.v3.core.api.dto.InformacioRetroaccioDto;
 import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
 import net.conselldemallorca.helium.v3.core.api.exception.TramitacioException;
 import net.conselldemallorca.helium.v3.core.api.exception.TramitacioHandlerException;
 import net.conselldemallorca.helium.v3.core.api.service.AdminService;
 import net.conselldemallorca.helium.webapp.mvc.util.BaseController;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.jbpm.JbpmException;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.acls.model.Permission;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.ModelMap;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 
 
 
@@ -559,7 +560,7 @@ public class ExpedientController extends BaseController {
 				model.addAttribute(
 						"instanciaProces",
 						expedientService.getInstanciaProcesById(id, false, false, false));
-				List<ExpedientLogDto> logs = expedientService.findLogsRetroceditsOrdenatsPerData(logId);
+				List<InformacioRetroaccioDto> logs = expedientService.findLogsRetroceditsOrdenatsPerData(logId);
 				model.addAttribute("logs", logs);
 				model.addAttribute(
 						"tasques",

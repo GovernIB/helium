@@ -19,6 +19,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import net.conselldemallorca.helium.core.api.WDeployment;
+import net.conselldemallorca.helium.core.api.WProcessDefinition;
+import net.conselldemallorca.helium.core.api.WorkflowEngineApi;
 import net.conselldemallorca.helium.core.model.hibernate.Accio;
 import net.conselldemallorca.helium.core.model.hibernate.Camp;
 import net.conselldemallorca.helium.core.model.hibernate.Camp.TipusCamp;
@@ -37,8 +40,6 @@ import net.conselldemallorca.helium.core.model.hibernate.Tasca;
 import net.conselldemallorca.helium.core.model.hibernate.Tasca.TipusTasca;
 import net.conselldemallorca.helium.core.model.hibernate.Termini;
 import net.conselldemallorca.helium.core.model.hibernate.Validacio;
-import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
-import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessDefinition;
 import net.conselldemallorca.helium.v3.core.api.dto.CampTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDto;
@@ -117,7 +118,7 @@ public class DefinicioProcesHelper {
 	@Resource
 	private MessageHelper messageHelper;
 	@Resource
-	private JbpmHelper jbpmHelper;
+	private WorkflowEngineApi workflowEngineApi;
 	@Resource
 	private EntornHelper entornHelper;
 	
@@ -180,27 +181,29 @@ public class DefinicioProcesHelper {
 									"exportar.validacio.definicio.desplegada.entorn", 
 									new Object[]{definicio.getJbpmKey()}));
 				}
-			JbpmProcessDefinition dpd = jbpmHelper.desplegar(
+			WDeployment dpd = workflowEngineApi.desplegar(
 					importacio.getNomDeploy(), 
 					importacio.getContingutDeploy());
-			if (dpd != null) {
+			if (dpd != null && dpd.getProcessDefinitions() != null && !dpd.getProcessDefinitions().isEmpty()) {
+				// En el cas de importació de definició de procés, només es desplega 1 definició de procés
+				WProcessDefinition wpd = dpd.getProcessDefinitions().get(0);
 				// Crea la nova definició de procés
 				definicio = new DefinicioProces(
-						dpd.getId(),
-						dpd.getKey(),
-						dpd.getVersion(),
+						wpd.getId(),
+						wpd.getKey(),
+						wpd.getVersion(),
 						entorn);
 				definicio.setExpedientTipus(expedientTipus);
 				definicio = definicioProcesRepository.saveAndFlush(definicio);
 				// Crea les tasques publicades
-				for (String nomTasca: jbpmHelper.getTaskNamesFromDeployedProcessDefinition(dpd)) {
+				for (String nomTasca: workflowEngineApi.getTaskNamesFromDeployedProcessDefinition(dpd, wpd.getId())) {
 					Tasca tasca = new Tasca(
 							definicio,
 							nomTasca,
 							nomTasca,
 							TipusTasca.ESTAT);
 					String prefixRecursBo = "forms/" + nomTasca;
-					for (String resourceName: jbpmHelper.getResourceNames(dpd.getId())) {
+					for (String resourceName: workflowEngineApi.getResourceNames(dpd.getId())) {
 						if (resourceName.startsWith(prefixRecursBo)) {
 							tasca.setTipus(TipusTasca.FORM);
 							tasca.setRecursForm(nomTasca);
@@ -743,14 +746,14 @@ public class DefinicioProcesHelper {
 						definicio, 
 						DefinicioProcesDto.class));
 		exportacio.setNomDeploy("export.par");
-		Set<String> resourceNames = jbpmHelper.getResourceNames(definicio.getJbpmId());
+		Set<String> resourceNames = workflowEngineApi.getResourceNames(definicio.getJbpmId());
 		if (resourceNames != null && resourceNames.size() > 0) {
 			try {
 				ByteArrayOutputStream baos = new ByteArrayOutputStream();
 				ZipOutputStream zos = new ZipOutputStream(baos);
 				byte[] data = new byte[1024];
 				for (String resource: resourceNames) {
-					byte[] bytes = jbpmHelper.getResourceBytes(
+					byte[] bytes = workflowEngineApi.getResourceBytes(
 							definicio.getJbpmId(), 
 							resource);
 					if (bytes != null) {

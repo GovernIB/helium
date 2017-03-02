@@ -13,8 +13,8 @@ import org.jbpm.command.AbstractBaseCommand;
 import org.jbpm.taskmgmt.exe.TaskInstance;
 
 import net.conselldemallorca.helium.jbpm3.integracio.Jbpm3HeliumBridge;
+import net.conselldemallorca.helium.core.api.ResultatConsultaPaginada;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmTask;
-import net.conselldemallorca.helium.jbpm3.integracio.ResultatConsultaPaginadaJbpm;
 
 /**
  * Command per a trobar els logs associats a una instància de procés
@@ -381,11 +381,11 @@ public class FindJbpmTasksFiltreCommand extends AbstractBaseCommand {
 			for (TaskInstance task: resultat) {
 				tasks.add(new JbpmTask(task));
 			}
-			return new ResultatConsultaPaginadaJbpm<JbpmTask>(
+			return new ResultatConsultaPaginada<JbpmTask>(
 					count,
 					tasks);
 		} else {
-			return new ResultatConsultaPaginadaJbpm<JbpmTask>(count);
+			return new ResultatConsultaPaginada<JbpmTask>(count);
 		}
 	}
 

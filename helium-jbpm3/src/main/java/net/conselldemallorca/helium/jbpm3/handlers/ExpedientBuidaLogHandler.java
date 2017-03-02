@@ -25,7 +25,7 @@ public class ExpedientBuidaLogHandler extends AbstractHeliumActionHandler implem
 		ExpedientDto expedient = getExpedientActual(executionContext);
 		logger.debug("Buidant logs de l'expedient (exp=" + expedient.getIdentificacioPerLogs() + ")");
 		try {
-			Jbpm3HeliumBridge.getInstanceService().expedientBuidaLogs(
+			Jbpm3HeliumBridge.getInstanceService().expedientEliminaInformacioRetroaccio(
 					getProcessInstanceId(executionContext));
 		} catch (Exception ex) {
 			throw new JbpmException("Error al buidar els logs de l'expedient", ex);

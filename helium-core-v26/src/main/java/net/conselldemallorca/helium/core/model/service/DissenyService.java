@@ -27,6 +27,9 @@ import org.springframework.stereotype.Service;
 
 import com.codahale.metrics.MetricRegistry;
 
+import net.conselldemallorca.helium.core.api.WDeployment;
+import net.conselldemallorca.helium.core.api.WProcessDefinition;
+import net.conselldemallorca.helium.core.api.WTaskInstance;
 import net.conselldemallorca.helium.core.extern.domini.FilaResultat;
 import net.conselldemallorca.helium.core.helper.DominiHelper;
 import net.conselldemallorca.helium.core.model.dao.AccioDao;
@@ -111,7 +114,6 @@ import net.conselldemallorca.helium.core.model.hibernate.Validacio;
 import net.conselldemallorca.helium.core.security.AclServiceDao;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessDefinition;
-import net.conselldemallorca.helium.jbpm3.integracio.JbpmTask;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService.FiltreAnulat;
 
 
@@ -151,7 +153,7 @@ public class DissenyService {
 	private ExecucioMassivaDao execucioMassivaDao;
 
 	private DtoConverter dtoConverter;
-	private JbpmHelper jbpmDao;
+	private JbpmHelper jbpmHelper;
 	private LuceneDao luceneDao;
 	private AclServiceDao aclServiceDao;
 	private MessageSource messageSource;
@@ -162,68 +164,73 @@ public class DissenyService {
 	private Map<Long, Boolean> hasStartTask = new HashMap<Long, Boolean>();
 
 	@CacheEvict(value = "consultaCache", allEntries=true)
-	public DefinicioProces deploy(
+	public List<DefinicioProces> deploy(
 			Long entornId,
 			Long expedientTipusId,
 			String nomArxiu,
 			byte[] contingut,
 			String etiqueta,
 			boolean copiarDades) {
-		JbpmProcessDefinition dpd = jbpmDao.desplegar(nomArxiu, contingut);
-		if (dpd != null) {
-			DefinicioProces darrera = definicioProcesDao.findDarreraVersioAmbEntornIJbpmKey(
-					entornId,
-					dpd.getKey());
-			if (darrera != null) {
-				if ((darrera.getExpedientTipus() != null && expedientTipusId == null)) {
-					throw new DeploymentException(
-							getServiceUtils().getMessage("error.dissenyService.defprocDesplTipusExp", new Object[]{darrera.getExpedientTipus().getNom()}));
-				}
-				if (darrera.getExpedientTipus() == null && expedientTipusId != null) {
-					throw new DeploymentException(
-							getServiceUtils().getMessage("error.dissenyService.defprocDesplEntorn"));
-				}
-				if (darrera.getExpedientTipus() != null && expedientTipusId != null) {
-					if (expedientTipusId.longValue() != darrera.getExpedientTipus().getId().longValue()) {
-						throw new DeploymentException("Aquesta definició de procés ja està desplegada a dins el tipus d'expedient \"" + darrera.getExpedientTipus().getNom() + "\"");
+		WDeployment dpd = jbpmHelper.desplegar(nomArxiu, contingut);
+		if (dpd != null && dpd.getProcessDefinitions() != null && !dpd.getProcessDefinitions().isEmpty()) {
+			List<DefinicioProces> definicionsProces = new ArrayList<DefinicioProces>();
+			for (WProcessDefinition wpd: dpd.getProcessDefinitions()) {
+				DefinicioProces darrera = definicioProcesDao.findDarreraVersioAmbEntornIJbpmKey(
+						entornId,
+						wpd.getKey());
+				if (darrera != null) {
+					if ((darrera.getExpedientTipus() != null && expedientTipusId == null)) {
+						throw new DeploymentException(
+								getServiceUtils().getMessage("error.dissenyService.defprocDesplTipusExp", new Object[]{darrera.getExpedientTipus().getNom()}));
+					}
+					if (darrera.getExpedientTipus() == null && expedientTipusId != null) {
+						throw new DeploymentException(
+								getServiceUtils().getMessage("error.dissenyService.defprocDesplEntorn"));
+					}
+					if (darrera.getExpedientTipus() != null && expedientTipusId != null) {
+						if (expedientTipusId.longValue() != darrera.getExpedientTipus().getId().longValue()) {
+							throw new DeploymentException("Aquesta definició de procés ja està desplegada a dins el tipus d'expedient \"" + darrera.getExpedientTipus().getNom() + "\"");
+						}
 					}
 				}
-			}
-			Entorn entorn = entornDao.getById(entornId, false);
-			// Crea la nova definició de procés
-			DefinicioProces definicioProces = new DefinicioProces(
-					dpd.getId(),
-					dpd.getKey(),
-					dpd.getVersion(),
-					entorn);
-			if (etiqueta != null || etiqueta !="")
-				definicioProces.setEtiqueta(etiqueta);
-			if (expedientTipusId != null)
-				definicioProces.setExpedientTipus(expedientTipusDao.getById(expedientTipusId, false));
-			definicioProcesDao.saveOrUpdate(definicioProces);
-			// Crea les tasques de la definició de procés
-			for (String nomTasca: jbpmDao.getTaskNamesFromDeployedProcessDefinition(dpd)) {
-				Tasca tasca = new Tasca(
-						definicioProces,
-						nomTasca,
-						nomTasca,
-						TipusTasca.ESTAT);
-				String recursForm = getRecursFormPerTasca(dpd.getId(), nomTasca);
-				if (recursForm != null) {
-					tasca.setTipus(TipusTasca.FORM);
-					tasca.setRecursForm(recursForm);
+				Entorn entorn = entornDao.getById(entornId, false);
+				// Crea la nova definició de procés
+				DefinicioProces definicioProces = new DefinicioProces(
+						wpd.getId(),
+						wpd.getKey(),
+						wpd.getVersion(),
+						entorn);
+				if (etiqueta != null || etiqueta !="")
+					definicioProces.setEtiqueta(etiqueta);
+				if (expedientTipusId != null)
+					definicioProces.setExpedientTipus(expedientTipusDao.getById(expedientTipusId, false));
+				definicioProcesDao.saveOrUpdate(definicioProces);
+				// Crea les tasques de la definició de procés
+				for (String nomTasca: jbpmHelper.getTaskNamesFromDeployedProcessDefinition(dpd, wpd.getId())) {
+					Tasca tasca = new Tasca(
+							definicioProces,
+							nomTasca,
+							nomTasca,
+							TipusTasca.ESTAT);
+					String recursForm = getRecursFormPerTasca(dpd.getId(), nomTasca);
+					if (recursForm != null) {
+						tasca.setTipus(TipusTasca.FORM);
+						tasca.setRecursForm(recursForm);
+					}
+					definicioProces.addTasca(tasca);
 				}
-				definicioProces.addTasca(tasca);
-			}
-			// Mira si ha de copiar les dades de la darrera versió
-			if (copiarDades) {
-				if (darrera != null) {
-					copiarDadesDefinicioProces(
-							darrera,
-							definicioProces);
+				// Mira si ha de copiar les dades de la darrera versió
+				if (copiarDades) {
+					if (darrera != null) {
+						copiarDadesDefinicioProces(
+								darrera,
+								definicioProces);
+					}
 				}
+				definicionsProces.add(definicioProces);
 			}
-			return definicioProces;
+			
+			return definicionsProces;
 		} else {
 			throw new DeploymentException(
 					getServiceUtils().getMessage("error.dissenyService.noConte"));
@@ -238,7 +245,7 @@ public class DissenyService {
 		if (expedientTipusId == null) {
 			if (comprovarEntorn(entornId, definicioProcesId)) {
 				DefinicioProces definicioProces = definicioProcesDao.getById(definicioProcesId, false);
-				jbpmDao.esborrarDesplegament(definicioProces.getJbpmId());
+				jbpmHelper.esborrarDesplegament(definicioProces.getJbpmId());
 				for (Document doc: definicioProces.getDocuments())
 					documentDao.delete(doc.getId());
 				for (Termini termini: definicioProces.getTerminis())
@@ -251,7 +258,7 @@ public class DissenyService {
 		} else {
 			if (comprovarExpedientTipus(expedientTipusId, definicioProcesId)) {
 				DefinicioProces definicioProces = definicioProcesDao.getById(definicioProcesId, false);
-				jbpmDao.esborrarDesplegament(definicioProces.getJbpmId());
+				jbpmHelper.esborrarDesplegament(definicioProces.getJbpmId());
 				for (Document doc: definicioProces.getDocuments())
 					documentDao.delete(doc.getId());
 				for (Termini termini: definicioProces.getTerminis())
@@ -269,7 +276,7 @@ public class DissenyService {
 		for (Long definicioProcesId : dfBorrar) {
 			if (comprovarEntorn(entornId, definicioProcesId)) {
 				DefinicioProces definicioProces = definicioProcesDao.getById(definicioProcesId, false);
-				jbpmDao.esborrarDesplegament(definicioProces.getJbpmId());
+				jbpmHelper.esborrarDesplegament(definicioProces.getJbpmId());
 				for (Document doc: definicioProces.getDocuments())
 					documentDao.delete(doc.getId());
 				for (Termini termini: definicioProces.getTerminis())
@@ -328,7 +335,7 @@ public class DissenyService {
 				handlers.put(nom, bytesMap.get(nom));
 			}
 		// Actualitza els handlers de la darrera versió de la definició de procés
-		jbpmDao.updateHandlers(
+		jbpmHelper.updateDeploymentActions(
 				Long.parseLong(darrera.getJbpmId()), 
 				handlers);
 		
@@ -380,8 +387,8 @@ public class DissenyService {
 	public List<DefinicioProcesDto> findSubDefinicionsProces(Long id) {
 		List<DefinicioProcesDto> resposta = new ArrayList<DefinicioProcesDto>();
 		DefinicioProces definicioProces = definicioProcesDao.getById(id, false);
-		List<JbpmProcessDefinition> subpds = jbpmDao.getSubProcessDefinitions(definicioProces.getJbpmId());
-		for (JbpmProcessDefinition jbpmProcessDefinition: subpds) {
+		List<WProcessDefinition> subpds = jbpmHelper.getSubProcessDefinitions(null, definicioProces.getJbpmId());
+		for (WProcessDefinition jbpmProcessDefinition: subpds) {
 			resposta.add(toDto(definicioProcesDao.findAmbJbpmId(jbpmProcessDefinition.getId()), false));
 		}
 		return resposta;
@@ -962,13 +969,13 @@ public class DissenyService {
 
 	public Set<String> findDeploymentResources(Long definicioProcesId) {
 		DefinicioProces definicioProces = definicioProcesDao.getById(definicioProcesId, false);
-		return jbpmDao.getResourceNames(definicioProces.getJbpmId());
+		return jbpmHelper.getResourceNames(definicioProces.getJbpmId());
 	}
 	public byte[] getDeploymentResource(
 			Long definicioProcesId,
 			String resourceName) {
 		DefinicioProces definicioProces = definicioProcesDao.getById(definicioProcesId, false);
-		return jbpmDao.getResourceBytes(
+		return jbpmHelper.getResourceBytes(
 				definicioProces.getJbpmId(),
 				resourceName);
 	}
@@ -1398,18 +1405,18 @@ public class DissenyService {
 		// Afegeix el deploy pel jBPM
 		DefinicioProces definicioProces = definicioProcesDao.getById(definicioProcesId, false);
 		definicioProcesExportacio.setNomDeploy("export.par");
-		Set<String> resourceNames = jbpmDao.getResourceNames(definicioProces.getJbpmId());
+		Set<String> resourceNames = jbpmHelper.getResourceNames(definicioProces.getJbpmId());
 		if (resourceNames != null && resourceNames.size() > 0) {
 			try {
 				ByteArrayOutputStream baos = new ByteArrayOutputStream();
 				ZipOutputStream zos = new ZipOutputStream(baos);
 				byte[] data = new byte[1024];
 				for (String resource: resourceNames) {
-					byte[] bytes = jbpmDao.getResourceBytes(
+					byte[] bytes = jbpmHelper.getResourceBytes(
 							definicioProces.getJbpmId(),
 							resource);
 					if (bytes != null) {
-						InputStream is = new ByteArrayInputStream(jbpmDao.getResourceBytes(
+						InputStream is = new ByteArrayInputStream(jbpmHelper.getResourceBytes(
 								definicioProces.getJbpmId(),
 								resource));
 						zos.putNextEntry(new ZipEntry(resource));
@@ -1436,13 +1443,16 @@ public class DissenyService {
 			Long expedientTipusId,
 			DefinicioProcesExportacio exportacio,
 			String etiqueta) {
-		DefinicioProces definicioProces = deploy(
+		// La exportació únicament inclourà 1 definició de procés
+		List<DefinicioProces> definicionsProces = deploy(
 			entornId,
 			expedientTipusId,
 			exportacio.getNomDeploy(),
 			exportacio.getContingutDeploy(),
 			etiqueta,
 			false);
+		// Només importam una definició de procés
+		DefinicioProces definicioProces = definicionsProces.get(0);
 		importacio(
 				entornId,
 				expedientTipusId,
@@ -1561,7 +1571,7 @@ public class DissenyService {
 			if (	definicioProces.getExpedientTipus() != null &&
 					definicioProces.getExpedientTipus().getId().equals(expedientTipus.getId())) {
 				afegirJbpmKeyProcesAmbSubprocessos(
-						jbpmDao.getProcessDefinition(definicioProces.getJbpmId()),
+						jbpmHelper.getProcessDefinition(null, definicioProces.getJbpmId()),
 						jbpmKeyOrdenats);
 			}
 		}
@@ -1957,7 +1967,7 @@ public class DissenyService {
 	}	
 
 	public DefinicioProcesDto findDefinicioProcesAmbProcessInstanceId(String processInstanceId) {
-		String processDefinitionId = jbpmDao.getProcessInstance(processInstanceId).getProcessDefinitionId();
+		String processDefinitionId = jbpmHelper.getProcessInstance(processInstanceId).getProcessDefinitionId();
 		return toDto(definicioProcesDao.findAmbJbpmId(processDefinitionId), false);
 	}
 
@@ -2011,10 +2021,10 @@ public class DissenyService {
 		} else {
 			DefinicioProces dp = null;
 			if (taskId != null) {
-				JbpmTask task = jbpmDao.getTaskById(taskId);
+				WTaskInstance task = jbpmHelper.getTaskById(taskId);
 				dp = definicioProcesDao.findAmbJbpmId(task.getProcessDefinitionId());
 			} else {
-				JbpmProcessDefinition jpd = jbpmDao.findProcessDefinitionWithProcessInstanceId(processInstanceId);
+				WProcessDefinition jpd = jbpmHelper.findProcessDefinitionWithProcessInstanceId(processInstanceId);
 				dp = definicioProcesDao.findAmbJbpmId(jpd.getId());
 			}
 			return dtoConverter.getResultatConsultaDomini(
@@ -2351,7 +2361,7 @@ public class DissenyService {
 	}
 	public List<String> findAccionsJbpmOrdenades(Long id) {
 		DefinicioProces definicioProces = definicioProcesDao.getById(id, false);
-		List<String> accions = jbpmDao.listActions(definicioProces.getJbpmId());
+		List<String> accions = jbpmHelper.listActions(definicioProces.getJbpmId());
 		Collections.sort(accions);
 		return accions;
 	}
@@ -2459,8 +2469,8 @@ public class DissenyService {
 		this.dtoConverter = dtoConverter;
 	}
 	@Autowired
-	public void setJbpmDao(JbpmHelper jbpmDao) {
-		this.jbpmDao = jbpmDao;
+	public void setJbpmHelper(JbpmHelper jbpmHelper) {
+		this.jbpmHelper = jbpmHelper;
 	}
 	@Autowired
 	public void setLuceneDao(LuceneDao luceneDao) {
@@ -2502,7 +2512,7 @@ public class DissenyService {
 			dto.setDataCreacio(definicioProces.getDataCreacio());
 			dto.setEntorn(definicioProces.getEntorn());
 			dto.setExpedientTipus(definicioProces.getExpedientTipus());
-			JbpmProcessDefinition jpd = jbpmDao.getProcessDefinition(definicioProces.getJbpmId());
+			WProcessDefinition jpd = jbpmHelper.getProcessDefinition(null, definicioProces.getJbpmId());
 			if (jpd != null)
 				dto.setJbpmName(jpd.getName());
 			else
@@ -2521,7 +2531,7 @@ public class DissenyService {
 			}
 			if (ambTascaInicial) {
 				dto.setHasStartTask(hasStartTask(definicioProces));
-				dto.setStartTaskName(jbpmDao.getStartTaskName(definicioProces.getJbpmId()));
+				dto.setStartTaskName(jbpmHelper.getStartTaskName(definicioProces.getJbpmId()));
 				dto.setHasStartTaskWithSameKey(new Boolean[mateixaKeyIEntorn.size()]);
 				for (int i = 0; i < mateixaKeyIEntorn.size(); i++) {
 					dto.getHasStartTaskWithSameKey()[i] = new Boolean(
@@ -2538,7 +2548,7 @@ public class DissenyService {
 		Boolean result = hasStartTask.get(definicioProcesId);
 		if (result == null) {
 			result = new Boolean(false);
-			String startTaskName = jbpmDao.getStartTaskName(
+			String startTaskName = jbpmHelper.getStartTaskName(
 					definicioProces.getJbpmId());
 			if (startTaskName != null) {
 				Tasca tasca = tascaDao.findAmbActivityNameIProcessDefinitionId(
@@ -3212,7 +3222,7 @@ public class DissenyService {
 
 	private String getRecursFormPerTasca(String jbpmId, String nomTasca) {
 		String prefixRecursBo = "forms/" + nomTasca;
-		for (String resourceName: jbpmDao.getResourceNames(jbpmId)) {
+		for (String resourceName: jbpmHelper.getResourceNames(jbpmId)) {
 			if (resourceName.startsWith(prefixRecursBo))
 				return resourceName;
 		}
@@ -3222,7 +3232,7 @@ public class DissenyService {
 	public List<DefinicioProcesDto> getSubprocessosByProces(String jbpmPdId) {
 		List<DefinicioProcesDto> subprocessos = new ArrayList<DefinicioProcesDto>();
 		List<String> ids = new ArrayList<String>(); 
-		afegirJbpmIdProcesAmbSubprocessos(jbpmDao.getProcessDefinition(jbpmPdId), ids, false);
+		afegirJbpmIdProcesAmbSubprocessos(jbpmHelper.getProcessDefinition(null, jbpmPdId), ids, false);
 		
 		for(String id: ids){
 			subprocessos.add(findDefinicioProcesAmbJbpmId(id));
@@ -3230,13 +3240,13 @@ public class DissenyService {
 		return subprocessos;
 	}
 	private void afegirJbpmIdProcesAmbSubprocessos(
-			JbpmProcessDefinition jpd,
+			WProcessDefinition jpd,
 			List<String> jbpmIds, 
 			Boolean incloure) {
 		if (jpd != null) {
-			List<JbpmProcessDefinition> subPds = jbpmDao.getSubProcessDefinitions(jpd.getId());
+			List<WProcessDefinition> subPds = jbpmHelper.getSubProcessDefinitions(null, jpd.getId());
 			if (subPds != null) {
-				for (JbpmProcessDefinition subPd: subPds) {
+				for (WProcessDefinition subPd: subPds) {
 					afegirJbpmIdProcesAmbSubprocessos(subPd, jbpmIds, true);
 					if (!jbpmIds.contains(subPd.getId()))
 						jbpmIds.add(subPd.getId());
@@ -3247,16 +3257,16 @@ public class DissenyService {
 		}
 	}
 	private DefinicioProcesDto findDefinicioProcesAmbJbpmId(String jbpmId) {
-		String processDefinitionId = jbpmDao.getProcessDefinition(jbpmId).getId();
+		String processDefinitionId = jbpmHelper.getProcessDefinition(null, jbpmId).getId();
 		return toDto(definicioProcesDao.findAmbJbpmId(processDefinitionId), false);
 	}
 
 	private void afegirJbpmKeyProcesAmbSubprocessos(
-			JbpmProcessDefinition jpd,
+			WProcessDefinition jpd,
 			List<String> jbpmKeys) {
-		List<JbpmProcessDefinition> subPds = jbpmDao.getSubProcessDefinitions(jpd.getId());
+		List<WProcessDefinition> subPds = jbpmHelper.getSubProcessDefinitions(null, jpd.getId());
 		if (subPds != null) {
-			for (JbpmProcessDefinition subPd: subPds) {
+			for (WProcessDefinition subPd: subPds) {
 				if (!jbpmKeys.contains(subPd.getKey())) {
 					jbpmKeys.add(subPd.getKey());
 					afegirJbpmKeyProcesAmbSubprocessos(subPd, jbpmKeys);
@@ -3271,13 +3281,13 @@ public class DissenyService {
 	public List<DefinicioProcesDto> findDefinicionsProcesAmbExpedientTipus(ExpedientTipus expedientTipus) {
 		
 		List<DefinicioProcesDto> llista = new ArrayList<DefinicioProcesDto>();
-		JbpmProcessDefinition jpd = null;
+		WProcessDefinition jpd = null;
 		List<String> jbpmKeys = new ArrayList<String>();
 		
 		List<DefinicioProcesDto> defsProces = findDarreresAmbExpedientTipusEntorn(expedientTipus.getEntorn().getId(), expedientTipus.getId(), true);
 		for (DefinicioProcesDto definicioProces: defsProces) {
 			if (definicioProces.getJbpmKey().equals(expedientTipus.getJbpmProcessDefinitionKey())) {
-				jpd = jbpmDao.getProcessDefinition(definicioProces.getJbpmId());
+				jpd = jbpmHelper.getProcessDefinition(null, definicioProces.getJbpmId());
 				break;
 			}
 		}
@@ -3340,7 +3350,7 @@ public class DissenyService {
 					consultaCampDao,
 					luceneDao,
 					dtoConverter,
-					jbpmDao,
+					jbpmHelper,
 					aclServiceDao,
 					messageSource,
 					metricRegistry);
@@ -4158,7 +4168,7 @@ public class DissenyService {
 	
 	public List<DefinicioProcesDto> findDefinicionsProcesNoUtilitzadesEntorn(Long entornId) {
 		List<DefinicioProcesDto> resposta = new ArrayList<DefinicioProcesDto>();
-		List<String> noUtilitzades = jbpmDao.findDefinicionsProcesIdNoUtilitzadesByEntorn(entornId);
+		List<String> noUtilitzades = jbpmHelper.findDefinicionsProcesIdNoUtilitzadesByEntorn(entornId);
 		if (noUtilitzades != null && !noUtilitzades.isEmpty()) {
 			List<DefinicioProces> definicionsProces = definicioProcesDao.findAmbEntornIJbpmIds(entornId, noUtilitzades);
 			for (DefinicioProces definicioProces: definicionsProces) {
@@ -4170,7 +4180,7 @@ public class DissenyService {
 	
 	public List<DefinicioProcesDto> findDefinicionsProcesNoUtilitzadesExpedientTipus(Long expedientTipusId) {
 		List<DefinicioProcesDto> resposta = new ArrayList<DefinicioProcesDto>();
-		List<String> noUtilitzades = jbpmDao.findDefinicionsProcesIdNoUtilitzadesByExpedientTipusId(expedientTipusId);
+		List<String> noUtilitzades = jbpmHelper.findDefinicionsProcesIdNoUtilitzadesByExpedientTipusId(expedientTipusId);
 		if (noUtilitzades != null && !noUtilitzades.isEmpty()) {
 			List<DefinicioProces> definicionsProces = definicioProcesDao.findAmbExpedientTipusIJbpmIds(expedientTipusId, noUtilitzades);
 			for (DefinicioProces definicioProces: definicionsProces) {
@@ -4185,7 +4195,7 @@ public class DissenyService {
 			Long processDefinitionId) {
 		List<ExpedientDto> resposta = new ArrayList<ExpedientDto>();
 		ExpedientTipus tipus = expedientTipusDao.getById(expedientTipusId, false);
-		List<ProcessInstanceExpedient> afectats = jbpmDao.findExpedientsAfectatsPerDefinicionsProcesNoUtilitzada(
+		List<ProcessInstanceExpedient> afectats = jbpmHelper.findProcessInstanceExpedientsAfectatsPerDefinicionsProcesNoUtilitzada(
 				expedientTipusId,
 				processDefinitionId);
 		

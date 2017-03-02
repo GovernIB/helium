@@ -16,6 +16,11 @@ import org.springframework.context.NoSuchMessageException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import net.conselldemallorca.helium.core.api.WProcessInstance;
+import net.conselldemallorca.helium.core.api.WTaskInstance;
+import net.conselldemallorca.helium.core.api.WorkflowEngineApi;
+import net.conselldemallorca.helium.core.api.WorkflowRetroaccioApi;
+import net.conselldemallorca.helium.core.api.WorkflowRetroaccioApi.ExpedientRetroaccioTipus;
 import net.conselldemallorca.helium.core.common.JbpmVars;
 import net.conselldemallorca.helium.core.helperv26.DocumentHelper;
 import net.conselldemallorca.helium.core.model.dao.DefinicioProcesDao;
@@ -35,12 +40,8 @@ import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
 import net.conselldemallorca.helium.core.model.hibernate.Document;
 import net.conselldemallorca.helium.core.model.hibernate.DocumentStore;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
-import net.conselldemallorca.helium.core.model.hibernate.ExpedientLog.ExpedientLogAccioTipus;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.core.util.OpenOfficeUtils;
-import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
-import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessInstance;
-import net.conselldemallorca.helium.jbpm3.integracio.JbpmTask;
 
 
 /**
@@ -57,10 +58,10 @@ public class DocumentService {
 	private PlantillaDocumentDao plantillaDocumentDao;
 	private DocumentStoreDao documentStoreDao;
 	private RegistreDao registreDao;
-	private JbpmHelper jbpmDao;
+	private WorkflowEngineApi workflowEngineApi;
+	private WorkflowRetroaccioApi workflowRetroaccioApi;
 	private DtoConverter dtoConverter;
 	private DocumentHelper documentHelper;
-	private ExpedientLogHelper expedientLogHelper;
 
 	private MessageSource messageSource;
 	private OpenOfficeUtils openOfficeUtils;
@@ -83,24 +84,24 @@ public class DocumentService {
 			String arxiuNom,
 			byte[] arxiuContingut,
 			String user) {
-		JbpmTask task = jbpmDao.getTaskById(taskInstanceId);
+		WTaskInstance task = workflowEngineApi.getTaskById(taskInstanceId);
 		DocumentStore documentStore = documentHelper.getDocumentStore(
 				taskInstanceId,
 				task.getProcessInstanceId(),
 				documentCodi);
 		Expedient expedient = expedientDao.findAmbProcessInstanceId(
-				jbpmDao.getRootProcessInstance(task.getProcessInstanceId()).getId());
+				workflowEngineApi.getRootProcessInstance(task.getProcessInstanceId()).getId());
 		boolean creat = (documentStore == null);
 		
 		if (creat) {
-			expedientLogHelper.afegirLogExpedientPerTasca(
+			workflowRetroaccioApi.afegirInformacioRetroaccioPerProces(
 					taskInstanceId,
-					ExpedientLogAccioTipus.TASCA_DOCUMENT_AFEGIR,
+					ExpedientRetroaccioTipus.TASCA_DOCUMENT_AFEGIR,
 					documentCodi);
 		} else {
-			expedientLogHelper.afegirLogExpedientPerTasca(
+			workflowRetroaccioApi.afegirInformacioRetroaccioPerProces(
 					taskInstanceId,
-					ExpedientLogAccioTipus.TASCA_DOCUMENT_MODIFICAR,
+					ExpedientRetroaccioTipus.TASCA_DOCUMENT_MODIFICAR,
 					documentCodi);
 		}
 		
@@ -166,19 +167,19 @@ public class DocumentService {
 				processInstanceId,
 				documentCodi);
 		Expedient expedient = expedientDao.findAmbProcessInstanceId(
-				jbpmDao.getRootProcessInstance(processInstanceId).getId());
+				workflowEngineApi.getRootProcessInstance(processInstanceId).getId());
 		boolean creat = (documentStore == null);
 		
 		if (!isAdjunt) {
 			if (creat) {
-				expedientLogHelper.afegirLogExpedientPerProces(
+				workflowRetroaccioApi.afegirInformacioRetroaccioPerProces(
 						processInstanceId,
-						ExpedientLogAccioTipus.PROCES_DOCUMENT_AFEGIR,
+						ExpedientRetroaccioTipus.PROCES_DOCUMENT_AFEGIR,
 						documentCodi);
 			} else {
-				expedientLogHelper.afegirLogExpedientPerProces(
+				workflowRetroaccioApi.afegirInformacioRetroaccioPerProces(
 						processInstanceId,
-						ExpedientLogAccioTipus.PROCES_DOCUMENT_MODIFICAR,
+						ExpedientRetroaccioTipus.PROCES_DOCUMENT_MODIFICAR,
 						documentCodi);
 			}
 		}
@@ -240,9 +241,9 @@ public class DocumentService {
 			String arxiuNom,
 			byte[] arxiuContingut,
 			String user) {
-		expedientLogHelper.afegirLogExpedientPerProces(
+		workflowRetroaccioApi.afegirInformacioRetroaccioPerProces(
 				processInstanceId,
-				ExpedientLogAccioTipus.PROCES_DOCUMENT_ADJUNTAR,
+				ExpedientRetroaccioTipus.PROCES_DOCUMENT_ADJUNTAR,
 				adjuntTitol);
 		String documentCodi = (adjuntId == null) ? new Long(new Date().getTime()).toString() : adjuntId;
 		return guardarDocumentProces(
@@ -283,21 +284,21 @@ public class DocumentService {
 			String user) {
 		String piid = processInstanceId;
 		if (piid == null && taskInstanceId != null) {
-			JbpmTask task = jbpmDao.getTaskById(taskInstanceId);
+			WTaskInstance task = workflowEngineApi.getTaskById(taskInstanceId);
 			piid = task.getProcessInstanceId();
 		}
 		Expedient expedient = expedientDao.findAmbProcessInstanceId(
-				jbpmDao.getRootProcessInstance(piid).getId());
+				workflowEngineApi.getRootProcessInstance(piid).getId());
 		
 		if (taskInstanceId != null) {
-			expedientLogHelper.afegirLogExpedientPerTasca(
+			workflowRetroaccioApi.afegirInformacioRetroaccioPerProces(
 					taskInstanceId,
-					ExpedientLogAccioTipus.TASCA_DOCUMENT_ESBORRAR,
+					ExpedientRetroaccioTipus.TASCA_DOCUMENT_ESBORRAR,
 					documentCodi);
 		} else {
-			expedientLogHelper.afegirLogExpedientPerProces(
+			workflowRetroaccioApi.afegirInformacioRetroaccioPerProces(
 					piid,
-					ExpedientLogAccioTipus.PROCES_DOCUMENT_ESBORRAR,
+					ExpedientRetroaccioTipus.PROCES_DOCUMENT_ESBORRAR,
 					documentCodi);
 		}
 		
@@ -328,11 +329,11 @@ public class DocumentService {
 			String adjuntId,
 			String adjuntTitol) {
 		Expedient expedient = expedientDao.findAmbProcessInstanceId(
-				jbpmDao.getRootProcessInstance(processInstanceId).getId());
+				workflowEngineApi.getRootProcessInstance(processInstanceId).getId());
 		
-		expedientLogHelper.afegirLogExpedientPerProces(
+		workflowRetroaccioApi.afegirInformacioRetroaccioPerProces(
 				processInstanceId,
-				ExpedientLogAccioTipus.PROCES_DOCUMENT_ESBORRAR,
+				ExpedientRetroaccioTipus.PROCES_DOCUMENT_ESBORRAR,
 				adjuntTitol);
 		
 		documentHelper.esborrarDocumentAdjunt(
@@ -421,7 +422,7 @@ public class DocumentService {
 		boolean signat = documentHelper.signarDocumentTascaAmbToken(token, signatura);
 		if (signat) {
 			DocumentDto dto = documentHelper.getDocumentOriginalPerToken(token, false);
-			JbpmProcessInstance rootProcessInstance = jbpmDao.getRootProcessInstance(dto.getProcessInstanceId());
+			WProcessInstance rootProcessInstance = workflowEngineApi.getRootProcessInstance(dto.getProcessInstanceId());
 			Expedient expedient = expedientDao.findAmbProcessInstanceId(rootProcessInstance.getId());
 			registreDao.crearRegistreSignarDocument(
 					expedient.getId(),
@@ -488,8 +489,8 @@ public class DocumentService {
 			Map<String, Object> model = new HashMap<String, Object>();
 			String responsableCodi;
 			if (taskInstanceId != null) {
-				JbpmTask task = jbpmDao.getTaskById(taskInstanceId);
-				JbpmProcessInstance rootProcessInstance = jbpmDao.getRootProcessInstance(task.getProcessInstanceId());
+				WTaskInstance task = workflowEngineApi.getTaskById(taskInstanceId);
+				WProcessInstance rootProcessInstance = workflowEngineApi.getRootProcessInstance(task.getProcessInstanceId());
 				expedient = dtoConverter.toExpedientDto(
 						expedientDao.findAmbProcessInstanceId(rootProcessInstance.getId()),
 						false);
@@ -518,9 +519,9 @@ public class DocumentService {
 						true);
 				model.putAll(instanciaProces.getVarsComText());
 				model.putAll(tasca.getVarsComText());
-				responsableCodi = task.getAssignee();
+				responsableCodi = task.getActorId();
 			} else {
-				JbpmProcessInstance rootProcessInstance = jbpmDao.getRootProcessInstance(processInstanceId);
+				WProcessInstance rootProcessInstance = workflowEngineApi.getRootProcessInstance(processInstanceId);
 				expedient = dtoConverter.toExpedientDto(
 						expedientDao.findAmbProcessInstanceId(rootProcessInstance.getId()),
 						false);
@@ -583,7 +584,7 @@ public class DocumentService {
 			String taskInstanceId,
 			String documentCodi,
 			String extensio) {
-		JbpmTask task = jbpmDao.getTaskById(taskInstanceId);
+		WTaskInstance task = workflowEngineApi.getTaskById(taskInstanceId);
 		DefinicioProces definicioProces = definicioProcesDao.findAmbJbpmId(
 				task.getProcessDefinitionId());
 		Document document = documentDao.findAmbDefinicioProcesICodi(
@@ -628,8 +629,8 @@ public class DocumentService {
 		this.registreDao = registreDao;
 	}
 	@Autowired
-	public void setJbpmHelper(JbpmHelper jbpmDao) {
-		this.jbpmDao = jbpmDao;
+	public void setWorkflowEngineApi(WorkflowEngineApi workflowEngineApi) {
+		this.workflowEngineApi = workflowEngineApi;
 	}
 	@Autowired
 	public void setDtoConverter(DtoConverter dtoConverter) {
@@ -640,8 +641,8 @@ public class DocumentService {
 		this.documentHelper = documentHelper;
 	}
 	@Autowired
-	public void setExpedientLogHelper(ExpedientLogHelper expedientLogHelper) {
-		this.expedientLogHelper = expedientLogHelper;
+	public void setWorkflowRetroaccioApi(WorkflowRetroaccioApi workflowRetroaccioApi) {
+		this.workflowRetroaccioApi = workflowRetroaccioApi;
 	}
 	@Autowired
 	public void setMessageSource(MessageSource messageSource) {

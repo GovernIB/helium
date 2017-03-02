@@ -1,7 +1,7 @@
 /**
  * 
  */
-package net.conselldemallorca.helium.jbpm3.integracio;
+package net.conselldemallorca.helium.core.api;
 
 import java.io.Serializable;
 import java.util.Date;
@@ -19,7 +19,8 @@ public class DelegationInfo implements Serializable {
 	private Date end;
 	private String comment;
 	private boolean supervised;
-
+	private String usuariDelegador;
+	private String usuariDelegat;
 
 
 	public String getSourceTaskId() {
@@ -57,6 +58,18 @@ public class DelegationInfo implements Serializable {
 	}
 	public void setSupervised(boolean supervised) {
 		this.supervised = supervised;
+	}
+	public String getUsuariDelegador() {
+		return usuariDelegador;
+	}
+	public void setUsuariDelegador(String usuariDelegador) {
+		this.usuariDelegador = usuariDelegador;
+	}
+	public String getUsuariDelegat() {
+		return usuariDelegat;
+	}
+	public void setUsuariDelegat(String usuariDelegat) {
+		this.usuariDelegat = usuariDelegat;
 	}
 
 	private static final long serialVersionUID = 774909297938469787L;

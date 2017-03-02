@@ -13,7 +13,6 @@ import java.util.Map;
 import javax.annotation.Resource;
 
 import org.apache.commons.lang.StringUtils;
-import org.jbpm.graph.exe.ProcessInstanceExpedient;
 import org.jbpm.jpdl.el.ELException;
 import org.jbpm.jpdl.el.ExpressionEvaluator;
 import org.jbpm.jpdl.el.VariableResolver;
@@ -24,6 +23,13 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
+import net.conselldemallorca.helium.core.api.WProcessInstance;
+import net.conselldemallorca.helium.core.api.WToken;
+import net.conselldemallorca.helium.core.api.WorkflowEngineApi;
+import net.conselldemallorca.helium.core.api.WorkflowRetroaccioApi;
+import net.conselldemallorca.helium.core.api.WorkflowRetroaccioApi.ExpedientRetroaccioEstat;
+import net.conselldemallorca.helium.core.api.WorkflowRetroaccioApi.ExpedientRetroaccioTipus;
+import net.conselldemallorca.helium.core.api.WorkflowRetroaccioApi.RetroaccioInfo;
 import net.conselldemallorca.helium.core.common.ThreadLocalInfo;
 import net.conselldemallorca.helium.core.helperv26.LuceneHelper;
 import net.conselldemallorca.helium.core.helperv26.MesuresTemporalsHelper;
@@ -35,10 +41,6 @@ import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 import net.conselldemallorca.helium.core.model.hibernate.Estat;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient.IniciadorTipus;
-import net.conselldemallorca.helium.core.model.hibernate.ExpedientLog;
-import net.conselldemallorca.helium.core.model.hibernate.ExpedientLog.ExpedientLogAccioTipus;
-import net.conselldemallorca.helium.core.model.hibernate.ExpedientLog.ExpedientLogEstat;
-import net.conselldemallorca.helium.core.model.hibernate.ExpedientLog.LogInfo;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.hibernate.SequenciaAny;
 import net.conselldemallorca.helium.core.model.hibernate.SequenciaDefaultAny;
@@ -46,9 +48,7 @@ import net.conselldemallorca.helium.core.model.hibernate.TerminiIniciat;
 import net.conselldemallorca.helium.core.security.ExtendedPermission;
 import net.conselldemallorca.helium.core.util.ExpedientCamps;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
-import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessInstance;
-import net.conselldemallorca.helium.jbpm3.integracio.JbpmToken;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
@@ -86,11 +86,11 @@ public class ExpedientHelper {
 	@Resource(name = "permisosHelperV3")
 	private PermisosHelper permisosHelper;
 	@Resource
-	private JbpmHelper jbpmHelper;
+	private WorkflowEngineApi workflowEngineApi;
+	@Resource
+	private WorkflowRetroaccioApi workflowRetroaccioApi;
 	@Resource
 	private ExpedientRegistreHelper expedientRegistreHelper;
-	@Resource
-	private ExpedientLoggerHelper expedientLoggerHelper;
 	@Resource
 	private PluginHelper pluginHelper;
 	@Resource
@@ -386,65 +386,65 @@ public class ExpedientHelper {
 			boolean execucioDinsHandler) {
 		boolean ambRetroaccio = expedient.isAmbRetroaccio();
 		if (!execucioDinsHandler) {
-			ExpedientLog elog = expedientLoggerHelper.afegirLogExpedientPerExpedient(
+			workflowRetroaccioApi.afegirInformacioRetroaccioPerExpedient(
 				expedient.getId(),
-				ExpedientLogAccioTipus.EXPEDIENT_MODIFICAR,
-				null);
-			elog.setEstat(ExpedientLogEstat.IGNORAR);
+				ExpedientRetroaccioTipus.EXPEDIENT_MODIFICAR,
+				null,
+				ExpedientRetroaccioEstat.IGNORAR);
 		}
 		// Numero
 		if (expedient.getTipus().getTeNumero()) {
 			if (!StringUtils.equals(expedient.getNumero(), numero)) {
-				expedientLoggerHelper.afegirProcessLogInfoExpedient(
+				workflowRetroaccioApi.afegirInformacioRetroaccioPerExpedient(
 						ambRetroaccio,
 						expedient.getProcessInstanceId(), 
-						LogInfo.NUMERO + "#@#" + expedient.getNumero());
+						RetroaccioInfo.NUMERO + "#@#" + expedient.getNumero());
 				expedient.setNumero(numero);
 			}
 		}
 		// Titol
 		if (expedient.getTipus().getTeTitol()) {
 			if (!StringUtils.equals(expedient.getTitol(), titol)) {
-				expedientLoggerHelper.afegirProcessLogInfoExpedient(
+				workflowRetroaccioApi.afegirInformacioRetroaccioPerExpedient(
 						ambRetroaccio,
 						expedient.getProcessInstanceId(), 
-						LogInfo.TITOL + "#@#" + expedient.getTitol());
+						RetroaccioInfo.TITOL + "#@#" + expedient.getTitol());
 				expedient.setTitol(titol);
 			}
 		}
 		// Responsable
 		if (!StringUtils.equals(expedient.getResponsableCodi(), responsableCodi)) {
-			expedientLoggerHelper.afegirProcessLogInfoExpedient(
+			workflowRetroaccioApi.afegirInformacioRetroaccioPerExpedient(
 					ambRetroaccio,
 					expedient.getProcessInstanceId(), 
-					LogInfo.RESPONSABLE + "#@#" + expedient.getResponsableCodi());
+					RetroaccioInfo.RESPONSABLE + "#@#" + expedient.getResponsableCodi());
 			expedient.setResponsableCodi(responsableCodi);
 		}
 		// Data d'inici
 		if (expedient.getDataInici() != dataInici) {
 			SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
 			String inici = sdf.format(dataInici);
-			expedientLoggerHelper.afegirProcessLogInfoExpedient(
+			workflowRetroaccioApi.afegirInformacioRetroaccioPerExpedient(
 					ambRetroaccio,
 					expedient.getProcessInstanceId(), 
-					LogInfo.INICI + "#@#" + inici);
+					RetroaccioInfo.INICI + "#@#" + inici);
 			expedient.setDataInici(dataInici);
 		}
 		// Comentari
 		if (!StringUtils.equals(expedient.getComentari(), comentari)) {
-			expedientLoggerHelper.afegirProcessLogInfoExpedient(
+			workflowRetroaccioApi.afegirInformacioRetroaccioPerExpedient(
 					ambRetroaccio,
 					expedient.getProcessInstanceId(), 
-					LogInfo.COMENTARI + "#@#" + expedient.getComentari());
+					RetroaccioInfo.COMENTARI + "#@#" + expedient.getComentari());
 			expedient.setComentari(comentari);
 		}
 		// Estat
 		if (estatId != null) {
 			if (expedient.getEstat() == null || !expedient.getEstat().getId().equals(estatId)) {
-				expedientLoggerHelper.afegirProcessLogInfoExpedient(
+				workflowRetroaccioApi.afegirInformacioRetroaccioPerExpedient(
 						ambRetroaccio,
 						expedient.getProcessInstanceId(), 
-						LogInfo.ESTAT + "#@#" + "---");
+						RetroaccioInfo.ESTAT + "#@#" + "---");
 				Estat estat = estatRepository.findByExpedientTipusAndId(
 						expedient.getTipus(),
 						estatId);
@@ -453,41 +453,41 @@ public class ExpedientHelper {
 				expedient.setEstat(estat);
 			}
 		} else if (expedient.getEstat() != null) {
-			expedientLoggerHelper.afegirProcessLogInfoExpedient(
+			workflowRetroaccioApi.afegirInformacioRetroaccioPerExpedient(
 					ambRetroaccio,
 					expedient.getProcessInstanceId(), 
-					LogInfo.ESTAT + "#@#" + expedient.getEstat().getId());
+					RetroaccioInfo.ESTAT + "#@#" + expedient.getEstat().getId());
 			expedient.setEstat(null);
 		}
 		// Geoposició
 		if (expedient.getGeoPosX() != geoPosX) {
-			expedientLoggerHelper.afegirProcessLogInfoExpedient(
+			workflowRetroaccioApi.afegirInformacioRetroaccioPerExpedient(
 					ambRetroaccio,
 					expedient.getProcessInstanceId(), 
-					LogInfo.GEOPOSICIOX + "#@#" + expedient.getGeoPosX());
+					RetroaccioInfo.GEOPOSICIOX + "#@#" + expedient.getGeoPosX());
 			expedient.setGeoPosX(geoPosX);
 		}
 		if (expedient.getGeoPosY() != geoPosY) {
-			expedientLoggerHelper.afegirProcessLogInfoExpedient(
+			workflowRetroaccioApi.afegirInformacioRetroaccioPerExpedient(
 					ambRetroaccio,
 					expedient.getProcessInstanceId(), 
-					LogInfo.GEOPOSICIOY + "#@#" + expedient.getGeoPosY());
+					RetroaccioInfo.GEOPOSICIOY + "#@#" + expedient.getGeoPosY());
 			expedient.setGeoPosY(geoPosY);
 		}
 		// Georeferencia
 		if (!StringUtils.equals(expedient.getGeoReferencia(), geoReferencia)) {
-			expedientLoggerHelper.afegirProcessLogInfoExpedient(
+			workflowRetroaccioApi.afegirInformacioRetroaccioPerExpedient(
 					ambRetroaccio,
 					expedient.getProcessInstanceId(), 
-					LogInfo.GEOREFERENCIA + "#@#" + expedient.getGeoReferencia());
+					RetroaccioInfo.GEOREFERENCIA + "#@#" + expedient.getGeoReferencia());
 			expedient.setGeoReferencia(geoReferencia);
 		}
 		// Grup
 		if (!StringUtils.equals(expedient.getGrupCodi(), grupCodi)) {
-			expedientLoggerHelper.afegirProcessLogInfoExpedient(
+			workflowRetroaccioApi.afegirInformacioRetroaccioPerExpedient(
 					ambRetroaccio,
 					expedient.getProcessInstanceId(), 
-					LogInfo.GRUP + "#@#" + expedient.getGrupCodi());
+					RetroaccioInfo.GRUP + "#@#" + expedient.getGrupCodi());
 			expedient.setGrupCodi(grupCodi);
 		}
 		luceneHelper.updateExpedientCapsalera(
@@ -556,18 +556,18 @@ public class ExpedientHelper {
 				"Aturar",
 				"expedient",
 				expedient.getTipus().getNom());
-		ExpedientLog expedientLog = expedientLoggerHelper.afegirLogExpedientPerExpedient(
+		workflowRetroaccioApi.afegirInformacioRetroaccioPerExpedient(
 				expedient.getId(),
-				ExpedientLogAccioTipus.EXPEDIENT_ATURAR,
-				motiu);
-		expedientLog.setEstat(ExpedientLogEstat.IGNORAR);
-		List<JbpmProcessInstance> processInstancesTree = jbpmHelper.getProcessInstanceTree(
+				ExpedientRetroaccioTipus.EXPEDIENT_ATURAR,
+				motiu,
+				ExpedientRetroaccioEstat.IGNORAR);
+		List<WProcessInstance> processInstancesTree = workflowEngineApi.getProcessInstanceTree(
 				expedient.getProcessInstanceId());
 		String[] ids = new String[processInstancesTree.size()];
 		int i = 0;
-		for (JbpmProcessInstance pi: processInstancesTree)
+		for (WProcessInstance pi: processInstancesTree)
 			ids[i++] = pi.getId();
-		jbpmHelper.suspendProcessInstances(ids);
+		workflowEngineApi.suspendProcessInstances(ids);
 		expedient.setInfoAturat(motiu);
 		expedientRegistreHelper.crearRegistreAturarExpedient(
 				expedient.getId(),
@@ -585,18 +585,18 @@ public class ExpedientHelper {
 				"Reprendre",
 				"expedient",
 				expedient.getTipus().getNom());
-		ExpedientLog expedientLog = expedientLoggerHelper.afegirLogExpedientPerExpedient(
+		workflowRetroaccioApi.afegirInformacioRetroaccioPerExpedient(
 				expedient.getId(),
-				ExpedientLogAccioTipus.EXPEDIENT_REPRENDRE,
-				null);
-		expedientLog.setEstat(ExpedientLogEstat.IGNORAR);
-		List<JbpmProcessInstance> processInstancesTree = jbpmHelper.getProcessInstanceTree(
+				ExpedientRetroaccioTipus.EXPEDIENT_REPRENDRE,
+				null,
+				ExpedientRetroaccioEstat.IGNORAR);
+		List<WProcessInstance> processInstancesTree = workflowEngineApi.getProcessInstanceTree(
 				expedient.getProcessInstanceId());
 		String[] ids = new String[processInstancesTree.size()];
 		int i = 0;
-		for (JbpmProcessInstance pi: processInstancesTree)
+		for (WProcessInstance pi: processInstancesTree)
 			ids[i++] = pi.getId();
-		jbpmHelper.resumeProcessInstances(ids);
+		workflowEngineApi.resumeProcessInstances(ids);
 		expedient.setInfoAturat(null);
 		expedientRegistreHelper.crearRegistreReprendreExpedient(
 				expedient.getId(),
@@ -610,11 +610,11 @@ public class ExpedientHelper {
 	public void relacioCrear(
 			Expedient origen,
 			Expedient desti) {
-		ExpedientLog expedientLog = expedientLoggerHelper.afegirLogExpedientPerExpedient(
+		workflowRetroaccioApi.afegirInformacioRetroaccioPerExpedient(
 				origen.getId(),
-				ExpedientLogAccioTipus.EXPEDIENT_RELACIO_AFEGIR,
-				desti.getId().toString());
-		expedientLog.setEstat(ExpedientLogEstat.IGNORAR);
+				ExpedientRetroaccioTipus.EXPEDIENT_RELACIO_AFEGIR,
+				desti.getId().toString(),
+				ExpedientRetroaccioEstat.IGNORAR);
 		boolean existeix = false;
 		for (Expedient relacionat: origen.getRelacionsOrigen()) {
 			if (relacionat.getId().longValue() == desti.getId().longValue()) {
@@ -639,11 +639,11 @@ public class ExpedientHelper {
 			String tokenId,
 			String nodeName,
 			boolean cancelTasks) {
-		JbpmToken token = jbpmHelper.getTokenById(tokenId);
+		WToken token = workflowEngineApi.getTokenById(tokenId);
 		String nodeNameVell = token.getNodeName();
-		ProcessInstanceExpedient piexp = jbpmHelper.expedientFindByProcessInstanceId(
+		ExpedientDto piexp = workflowEngineApi.expedientFindByProcessInstanceId(
 				token.getProcessInstanceId());
-		jbpmHelper.tokenRedirect(
+		workflowEngineApi.tokenRedirect(
 				new Long(tokenId).longValue(),
 				nodeName,
 				cancelTasks,
@@ -658,17 +658,16 @@ public class ExpedientHelper {
 				nodeName);
 	}
 
-	public ProcessInstanceExpedient comprovarInstanciaProces(
+	public void comprovarInstanciaProces(
 			Expedient expedient,
 			String processInstanceId) {
-		ProcessInstanceExpedient piexp = jbpmHelper.expedientFindByProcessInstanceId(
+		ExpedientDto piexp = workflowEngineApi.expedientFindByProcessInstanceId(
 				processInstanceId);
 		if (piexp.getId() != expedient.getId().longValue()) {
 			throw new NoTrobatException(
 					JbpmProcessInstance.class,
 					new Long(processInstanceId));
 		}
-		return piexp;
 	}
 
 	public Expedient findAmbEntornIId(Long entornId, Long id) {
@@ -677,7 +676,7 @@ public class ExpedientHelper {
 	
 	public Expedient findExpedientByProcessInstanceId(String processInstanceId) {
 		Expedient expedient = null;
-		ProcessInstanceExpedient piexp = jbpmHelper.expedientFindByProcessInstanceId(
+		ExpedientDto piexp = workflowEngineApi.expedientFindByProcessInstanceId(
 				processInstanceId);
 		if (piexp != null)
 			expedient = expedientRepository.findOne(piexp.getId());
@@ -693,7 +692,7 @@ public class ExpedientHelper {
 	}
 	public DefinicioProces findDefinicioProcesByProcessInstanceId(
 			String processInstanceId) {
-		String processDefinitionId = jbpmHelper.getProcessInstance(processInstanceId).getProcessDefinitionId();
+		String processDefinitionId = workflowEngineApi.getProcessInstance(processInstanceId).getProcessDefinitionId();
 		DefinicioProces definicioProces = definicioProcesRepository.findByJbpmId(processDefinitionId);
 		if (definicioProces == null) {
 			throw new NoTrobatException(
@@ -834,9 +833,9 @@ public class ExpedientHelper {
 	public List<InstanciaProcesDto> getArbreInstanciesProces(
 			String processInstanceId) {
 		List<InstanciaProcesDto> resposta = new ArrayList<InstanciaProcesDto>();
-		JbpmProcessInstance rootProcessInstance = jbpmHelper.getRootProcessInstance(processInstanceId);
-		List<JbpmProcessInstance> piTree = jbpmHelper.getProcessInstanceTree(rootProcessInstance.getId());
-		for (JbpmProcessInstance jpi: piTree) {
+		WProcessInstance rootProcessInstance = workflowEngineApi.getRootProcessInstance(processInstanceId);
+		List<WProcessInstance> piTree = workflowEngineApi.getProcessInstanceTree(rootProcessInstance.getId());
+		for (WProcessInstance jpi: piTree) {
 			resposta.add(getInstanciaProcesById(jpi.getId()));
 		}
 		return resposta;
@@ -844,7 +843,7 @@ public class ExpedientHelper {
 	public InstanciaProcesDto getInstanciaProcesById(String processInstanceId) {
 		InstanciaProcesDto dto = new InstanciaProcesDto();
 		dto.setId(processInstanceId);
-		JbpmProcessInstance pi = jbpmHelper.getProcessInstance(processInstanceId);
+		WProcessInstance pi = workflowEngineApi.getProcessInstance(processInstanceId);
 		if (pi.getProcessInstance() == null)
 			return null;
 		dto.setInstanciaProcesPareId(pi.getParentProcessInstanceId());
@@ -997,12 +996,12 @@ public class ExpedientHelper {
 
 	private void verificarFinalitzacioProcessInstance(
 			String processInstanceId) {
-		JbpmProcessInstance processInstance = jbpmHelper.getRootProcessInstance(processInstanceId);
-		if (processInstance.getEnd() != null) {
+		WProcessInstance processInstance = workflowEngineApi.getRootProcessInstance(processInstanceId);
+		if (processInstance.getEndTime() != null) {
 			// Actualitzar data de fi de l'expedient
 			Expedient expedient = expedientRepository.findByProcessInstanceId(processInstanceId);
 			if (expedient != null) {
-				expedient.setDataFi(processInstance.getEnd());
+				expedient.setDataFi(processInstance.getEndTime());
 			}
 			// Finalitzar terminis actius
 			for (TerminiIniciat terminiIniciat: terminiIniciatRepository.findByProcessInstanceId(processInstance.getId())) {
@@ -1010,7 +1009,7 @@ public class ExpedientHelper {
 					terminiIniciat.setDataCancelacio(new Date());
 					long[] timerIds = terminiIniciat.getTimerIdsArray();
 					for (int i = 0; i < timerIds.length; i++)
-						jbpmHelper.suspendTimer(
+						workflowEngineApi.suspendTimer(
 								timerIds[i],
 								new Date(Long.MAX_VALUE));
 				}

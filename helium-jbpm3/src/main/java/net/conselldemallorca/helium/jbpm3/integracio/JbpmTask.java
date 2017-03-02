@@ -13,13 +13,15 @@ import org.jbpm.taskmgmt.def.Swimlane;
 import org.jbpm.taskmgmt.exe.PooledActor;
 import org.jbpm.taskmgmt.exe.TaskInstance;
 
+import net.conselldemallorca.helium.core.api.WTaskInstance;
+
 
 /**
  * Una instància de tasca multiversió
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
-public class JbpmTask {
+public class JbpmTask implements WTaskInstance {
 
 	private static final String DESCRIPTION_FIELD_SEPARATOR = "@#@";
 
@@ -29,15 +31,19 @@ public class JbpmTask {
 		this.taskInstance = taskInstance;
 	}
 
-	public TaskInstance getTask() {
+	public TaskInstance getTaskInstance() {
 		return taskInstance;
 	}
-	public void setTask(TaskInstance taskInstance) {
+	public void setTaskInstance(TaskInstance taskInstance) {
 		this.taskInstance = taskInstance;
 	}
 
 	public String getId() {
 		return new Long(taskInstance.getId()).toString();
+	}
+	
+	public Long getTaskInstanceId() {
+		return taskInstance.getId();
 	}
 
 	public String getProcessInstanceId() {
@@ -46,6 +52,12 @@ public class JbpmTask {
 
 	public String getProcessDefinitionId() {
 		return new Long(taskInstance.getProcessInstance().getProcessDefinition().getId()).toString();
+	}
+
+	public Long getExpedientId() {
+		if (taskInstance.getProcessInstance().getExpedient() == null)
+			return null;
+		return taskInstance.getProcessInstance().getExpedient().getId();
 	}
 
 	public String getTaskName() {
@@ -64,7 +76,7 @@ public class JbpmTask {
 			return taskInstance.getDescription();
 		}
 	}
-	public String getAssignee() {
+	public String getActorId() {
 		return taskInstance.getActorId();
 	}
 	public Set<String> getPooledActors() {
@@ -111,7 +123,7 @@ public class JbpmTask {
 	public boolean isAgafada() {
 		boolean resultado = false;
 		try {
-			if (getAssignee() != null) {
+			if (getActorId() != null) {
 				// Tenía un grupo asignado
 				boolean conGrupoAsignado = getPooledActorsExpression() != null && getPooledActorsExpression().length() > 0;
 				// Se le reasignó posteriormente un grupo
@@ -140,20 +152,27 @@ public class JbpmTask {
 		return resultado;
 	}
 
-	public void setCacheActiu() {
+	public String getSelectedOutcome() {
+		return taskInstance.getSelectedOutcome();
+	}
+	
+	
+
+	// CACHE
+	private void setCacheActiu() {
 		setFieldFromDescription("cache", "true");
 	}
-	public void setCacheInactiu() {
-		setFieldFromDescription("cache", "false");
-	}
-	public boolean isCacheActiu() {
+//	private void setCacheInactiu() {
+//		setFieldFromDescription("cache", "false");
+//	}
+	private boolean isCacheActiu() {
 		return "true".equalsIgnoreCase(getFieldFromDescription("cache"));
 	}
 
-	public String getDescriptionWithFields() {
+	private String getDescriptionWithFields() {
 		return taskInstance.getDescription();
 	}
-	public String getFieldFromDescription(String name) {
+	private String getFieldFromDescription(String name) {
 		String text = getDescriptionWithFields();
 		if (text == null)
 			return null;
@@ -166,7 +185,7 @@ public class JbpmTask {
 			return null;
 		}
 	}
-	public void setFieldFromDescription(String name, String value) {
+	private void setFieldFromDescription(String name, String value) {
 		String currentFieldValue = getFieldFromDescription(name);
 		if (currentFieldValue != null) {
 			String currentFieldText = DESCRIPTION_FIELD_SEPARATOR + name + DESCRIPTION_FIELD_SEPARATOR + currentFieldValue;
@@ -180,5 +199,92 @@ public class JbpmTask {
 			taskInstance.setDescription(newFieldText + getDescriptionWithFields());
 		}
 	}
+
+	@Override
+	public String getTitol() {
+		if (isCacheActiu())
+			return getFieldFromDescription("titol");
+		else
+			return getTaskName();
+	}
+	
+	@Override
+	public void setTitol(String titol) {
+		setFieldFromDescription(
+				"titol",
+				titol);
+	}
+
+	@Override
+	public Long getEntornId() {
+		String sEntornId = getFieldFromDescription("entornId");
+		if (sEntornId != null)
+			return new Long(sEntornId);
+		else
+			return null;
+	}
+
+	@Override
+	public void setEntornId(Long entornId) {
+		setFieldFromDescription(
+				"entornId",
+				entornId.toString());
+	}
+
+	@Override
+	public Boolean getTramitacioMassiva() {
+		String sTramitacioMassiva = getFieldFromDescription("tramitacioMassiva");
+		if (sTramitacioMassiva != null)
+			return new Boolean(sTramitacioMassiva);
+		else
+			return null;
+	}
+
+	@Override
+	public void setTramitacioMassiva(Boolean tramitacioMassiva) {
+		setFieldFromDescription(
+				"tramitacioMassiva",
+				tramitacioMassiva.toString());	
+	}
+
+	@Override
+	public String getDefinicioProcesKey() {
+		return getFieldFromDescription("definicioProcesJbpmKey");
+	}
+
+	@Override
+	public void setDefinicioProcesKey(String definicioProcesKey) {
+		setFieldFromDescription(
+				"definicioProcesJbpmKey",
+				definicioProcesKey);		
+	}
+
+	@Override
+	public String getInfoTasca() {
+		return getDescriptionWithFields();
+	}
+	
+	@Override
+	public String getRols() {
+		return taskInstance.getRols();
+	}
+	
+//	@Override
+//	public void setInfoTasca(
+//			String titol,
+//			String descripcio) {
+//		taskInstance.setName(titol);
+//		taskInstance.setDescription(descripcio);
+//	}
+
+//	@Override
+//	public boolean hasInfoTasca() {
+//		return isCacheActiu();
+//	}
+//
+//	@Override
+//	public void cleanInfoTasca() {
+//		setCacheInactiu();
+//	}
 
 }

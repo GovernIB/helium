@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import net.conselldemallorca.helium.core.api.WorkflowEngineApi;
 import net.conselldemallorca.helium.core.helper.ConversioTipusHelper;
 import net.conselldemallorca.helium.core.helper.DefinicioProcesHelper;
 import net.conselldemallorca.helium.core.helper.EntornHelper;
@@ -30,7 +31,6 @@ import net.conselldemallorca.helium.core.model.hibernate.FirmaTasca;
 import net.conselldemallorca.helium.core.model.hibernate.Tasca;
 import net.conselldemallorca.helium.core.model.hibernate.Termini;
 import net.conselldemallorca.helium.core.util.EntornActual;
-import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
 import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ConsultaDto;
@@ -111,11 +111,11 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 	@Resource
 	private ExpedientTipusHelper expedientTipusHelper;
 	@Resource
-	private JbpmHelper jbpmHelper;
-	@Resource
 	private ConversioTipusHelper conversioTipusHelper;
 	@Resource
 	private PaginacioHelper paginacioHelper;
+	@Resource
+	private WorkflowEngineApi workflowEngineApi;
 
 	/**
 	 * {@inheritDoc}
@@ -348,8 +348,7 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 		else
 			entornHelper.getEntornComprovantPermisos(EntornActual.getEntornId(), true, true);
 
-		jbpmHelper.esborrarDesplegament(
-				definicioProces.getJbpmId());
+		workflowEngineApi.esborrarDesplegament(definicioProces.getJbpmId());
 		// Si era la definició de procés inicial del tipus d'expedient actualitza el tipus d'expedient
 		if (definicioProces.getExpedientTipus() != null
 				&& definicioProces.getJbpmKey().equals(definicioProces.getExpedientTipus().getJbpmProcessDefinitionKey())) {
@@ -381,7 +380,7 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 		DefinicioProces definicioProces = definicioProcesRepository.findById(definicioProcesId);
 		if (definicioProces == null)
 			throw new NoTrobatException(DefinicioProces.class, definicioProcesId);
-		return jbpmHelper.getStartTaskName(definicioProces.getJbpmId());		
+		return workflowEngineApi.getStartTaskName(definicioProces.getJbpmId());		
 	}
 	
 	/**
@@ -411,7 +410,7 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 		
 		// Marca la tasca com a incicial
 		DefinicioProces definicioProces = definicioProcesRepository.findOne(definicioProcesId);		
-		String startTaskName = jbpmHelper.getStartTaskName(definicioProces.getJbpmId());
+		String startTaskName = workflowEngineApi.getStartTaskName(definicioProces.getJbpmId());
 		if (startTaskName != null)
 			for (TascaDto tasca : pagina.getContingut())
 				if(tasca.getNom().equals(startTaskName)) {

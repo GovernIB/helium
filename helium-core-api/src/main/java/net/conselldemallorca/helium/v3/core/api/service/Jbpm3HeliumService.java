@@ -362,7 +362,7 @@ public interface Jbpm3HeliumService {
 	 * @throws ProcessInstanceNotFoundException
 	 * @throws ExpedientNotFoundException
 	 */
-	public void expedientBuidaLogs(
+	public void expedientEliminaInformacioRetroaccio(
 			String processInstanceId) throws NoTrobatException;
 
 	/**

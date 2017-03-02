@@ -8,8 +8,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.SortedSet;
 
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientLogDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.InformacioRetroaccioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.InstanciaProcesDto;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
@@ -36,7 +36,7 @@ public interface ExpedientRegistreService {
 	 * @throws PermisDenegatException
 	 *             Si no es tenen els permisos adequats.
 	 */
-	public SortedSet<Entry<InstanciaProcesDto, List<ExpedientLogDto>>> registreFindLogsOrdenatsPerData(
+	public SortedSet<Entry<InstanciaProcesDto, List<InformacioRetroaccioDto>>> findInformacioRetroaccioExpedientOrdenatPerData(
 			Long expedientId,
 			boolean detall) throws NoTrobatException, PermisDenegatException;
 
@@ -51,7 +51,7 @@ public interface ExpedientRegistreService {
 	 * @throws PermisDenegatException
 	 *             Si no es tenen els permisos adequats.
 	 */
-	public Map<String, ExpedientTascaDto> registreFindTasquesPerLogExpedient(
+	public Map<String, ExpedientTascaDto> findTasquesExpedientPerRetroaccio(
 			Long expedientId) throws NoTrobatException, PermisDenegatException;
 
 	/**
@@ -60,8 +60,8 @@ public interface ExpedientRegistreService {
 	 * 
 	 * @param expedientId
 	 *            Atribut id de l'expedient.
-	 * @param logId
-	 *            Atribut id del log d'expedient.
+	 * @param historicId
+	 *            Atribut id de la informació de retroaccio d'expedient.
 	 * @param retrocedirPerTasques
 	 *            Indica si el retrocés es per tasques.
 	 * @throws NoTrobatException
@@ -69,9 +69,9 @@ public interface ExpedientRegistreService {
 	 * @throws PermisDenegatException
 	 *             Si no es tenen els permisos adequats.
 	 */
-	public void registreRetrocedir(
+	public void executaRetroaccio(
 			Long expedientId,
-			Long logId,
+			Long informacioRetroaccioId,
 			boolean retrocedirPerTasques) throws NoTrobatException, PermisDenegatException;
 
 	/**
@@ -84,7 +84,7 @@ public interface ExpedientRegistreService {
 	 * @throws PermisDenegatException
 	 *             Si no es tenen els permisos adequats.
 	 */
-	public void registreBuidarLog(
+	public void eliminaInformacioRetroaccio(
 			Long expedientId) throws NoTrobatException, PermisDenegatException;
 
 	/**
@@ -100,9 +100,9 @@ public interface ExpedientRegistreService {
 	 * @throws PermisDenegatException
 	 *             Si no es tenen els permisos adequats.
 	 */
-	public List<ExpedientLogDto> registreFindLogsTascaOrdenatsPerData(
+	public List<InformacioRetroaccioDto> findInformacioRetroaccioTascaOrdenatPerData(
 			Long expedientId,
-			Long logId) throws NoTrobatException, PermisDenegatException;
+			Long informacioRetroaccioId) throws NoTrobatException, PermisDenegatException;
 
 	/**
 	 * Obté els logs associats a una acció de retrocés ordenats per data.
@@ -117,9 +117,9 @@ public interface ExpedientRegistreService {
 	 * @throws PermisDenegatException
 	 *             Si no es tenen els permisos adequats.
 	 */
-	public List<ExpedientLogDto> registreFindLogsRetroceditsOrdenatsPerData(
+	public List<InformacioRetroaccioDto> findInformacioRetroaccioAccioRetrocesOrdenatsPerData(
 			Long expedientId,
-			Long logId) throws NoTrobatException, PermisDenegatException;
+			Long informacioRetroaccioId) throws NoTrobatException, PermisDenegatException;
 
 	/**
 	 * Retorna la informació d'un registre de log de l'expedient.
@@ -134,8 +134,7 @@ public interface ExpedientRegistreService {
 	 * @throws PermisDenegatException
 	 *             Si no es tenen els permisos adequats.
 	 */
-	public ExpedientLogDto registreFindLogById(
-			//Long expedientId,
-			Long logId) throws NoTrobatException, PermisDenegatException;
+	public InformacioRetroaccioDto findInformacioRetroaccioById(
+			Long informacioRetroaccioId) throws NoTrobatException, PermisDenegatException;
 
 }
