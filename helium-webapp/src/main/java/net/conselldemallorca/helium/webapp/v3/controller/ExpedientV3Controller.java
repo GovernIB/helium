@@ -123,6 +123,24 @@ public class ExpedientV3Controller extends BaseExpedientController {
 		return "redirect:/v3/expedient/" + expedientId;
 	}
 	
+	@RequestMapping(value = "/{expedientId}/finalitzar", method = RequestMethod.GET)
+	public String finalitzar(
+			HttpServletRequest request,
+			@PathVariable Long expedientId, 
+			Model model) {
+		try {
+			expedientService.finalitzar(expedientId);
+			MissatgesHelper.success(
+					request,
+					getMessage(
+							request,
+							"info.expedient.finalitzat"));
+		} catch (Exception ex) {
+			MissatgesHelper.error(request, getMessage(request, "error.finalitzat.expedient") + ". " + ex.getMessage());
+		}
+		return "redirect:/v3/expedient/" + expedientId;
+	}
+	
 	@RequestMapping(value = "/{expedientId}/alertes", method = RequestMethod.GET)
 	public String alertes(
 			HttpServletRequest request,

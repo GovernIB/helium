@@ -460,6 +460,19 @@ public interface ExpedientService {
 	 */
 	public void desfinalitzar(
 			Long id) throws NoTrobatException, PermisDenegatException;
+	
+	/**
+	 * Finalitza un expedient.
+	 * 
+	 * @param id
+	 *            Atribut id de l'expedient.
+	 * @throws NoTrobatException
+	 *             Si no s'ha trobat cap expedient amb l'id especificat.
+	 * @throws PermisDenegatException
+	 *             Si no es tenen els permisos adequats.
+	 */
+	public void finalitzar(
+			Long id) throws NoTrobatException, PermisDenegatException;
 
 	/**
 	 * Crea una relació entre dos expedients.

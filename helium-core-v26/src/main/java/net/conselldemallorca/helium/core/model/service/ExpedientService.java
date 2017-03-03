@@ -1816,7 +1816,7 @@ public class ExpedientService {
 		mesuresTemporalsHelper.mesuraIniciar("Finalitzar", "expedient", expedient.getTipus().getNom());
 		ExpedientLog expedientLog = expedientLogHelper.afegirLogExpedientPerExpedient(
 				expedient.getId(),
-				ExpedientLogAccioTipus.EXPEDIENT_FINALIZTAR,
+				ExpedientLogAccioTipus.EXPEDIENT_FINALITZAR,
 				null);
 		expedientLog.setEstat(ExpedientLogEstat.IGNORAR);
 

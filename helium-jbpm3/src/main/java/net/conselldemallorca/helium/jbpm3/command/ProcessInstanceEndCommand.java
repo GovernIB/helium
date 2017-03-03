@@ -18,15 +18,17 @@ public class ProcessInstanceEndCommand extends AbstractGetObjectBaseCommand {
 
 	private static final long serialVersionUID = -1908847549444051495L;
 	private long id;
+	private Date dataFinalitzacio;
 
-	public ProcessInstanceEndCommand(long id){
+	public ProcessInstanceEndCommand(long id, Date dataFinalitzacio){
 		super();
 		this.id = id;
+		this.dataFinalitzacio = dataFinalitzacio;
 	}
 
 	public Object execute(JbpmContext jbpmContext) throws Exception {
 		ProcessInstance processInstance = jbpmContext.getProcessInstance(id);
-		processInstance.setEnd(new Date());
+		processInstance.setEnd(dataFinalitzacio);
 		return null;
 	}
 

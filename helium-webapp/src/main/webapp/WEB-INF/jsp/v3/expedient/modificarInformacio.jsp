@@ -56,7 +56,7 @@
 			<hel:inputTextarea name="comentari" textKey="expedient.editar.comentari" placeholderKey="expedient.editar.comentari"/>
 		</div>
 		<div class="control-group fila_reducida">
-			<hel:inputSelect name="estatId" textKey="expedient.consulta.select.estat" placeholderKey="expedient.consulta.select.estat" optionItems="${estats}" optionValueAttribute="id" optionTextAttribute="nom"/>
+			<hel:inputSelect name="estatId" textKey="expedient.consulta.select.estat" emptyOption="true" placeholderKey="expedient.consulta.select.estat" optionItems="${estats}" optionValueAttribute="id" optionTextAttribute="nom"/>
 		</div>
 		<div class="control-group fila_reducida">
 			<c:choose>

@@ -579,6 +579,18 @@ public class ExpedientServiceImpl implements ExpedientService {
 				false,
 				false);
 		
+		if (estatId == -1) {
+			estatId = expedient.getEstat() != null ? expedient.getEstat().getId() : null;
+			Date dataFinalitzacio = new Date();
+			jbpmHelper.finalitzarExpedient(expedient.getProcessInstanceId(), dataFinalitzacio);
+			expedient.setDataFi(dataFinalitzacio);
+			
+			expedientLoggerHelper.afegirLogExpedientPerExpedient(
+					expedient.getId(),
+					ExpedientLogAccioTipus.EXPEDIENT_FINALITZAR,
+					null);
+		}
+		
 		expedientHelper.update(
 				expedient,
 				numero,
@@ -1264,6 +1276,32 @@ public class ExpedientServiceImpl implements ExpedientService {
 		expedientRegistreHelper.crearRegistreReprendreExpedient(
 				expedient.getId(),
 				(expedient.getResponsableCodi() != null) ? expedient.getResponsableCodi() : SecurityContextHolder.getContext().getAuthentication().getName());
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@Transactional
+	public void finalitzar(Long id) {
+		logger.debug("Finalitzar l'expedient (id=" + id + ")");
+		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
+				id,
+				new Permission[] {
+						ExtendedPermission.WRITE,
+						ExtendedPermission.ADMINISTRATION});
+		expedientLoggerHelper.afegirLogExpedientPerExpedient(
+				expedient.getId(),
+				ExpedientLogAccioTipus.EXPEDIENT_FINALITZAR,
+				null);
+//		expedientLog.setEstat(ExpedientLogEstat.IGNORAR);
+		logger.debug("Finalització de l'expedient (id=" + id + ")");
+		Date dataFinalitzacio = new Date();
+		jbpmHelper.finalitzarExpedient(expedient.getProcessInstanceId(), dataFinalitzacio);
+		expedient.setDataFi(dataFinalitzacio);
+//		expedientRegistreHelper.crearRegistreReprendreExpedient(
+//				expedient.getId(),
+//				(expedient.getResponsableCodi() != null) ? expedient.getResponsableCodi() : SecurityContextHolder.getContext().getAuthentication().getName());
 	}
 
 	/**
