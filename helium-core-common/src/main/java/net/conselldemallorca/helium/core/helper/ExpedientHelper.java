@@ -665,7 +665,7 @@ public class ExpedientHelper {
 				processInstanceId);
 		if (piexp.getId() != expedient.getId().longValue()) {
 			throw new NoTrobatException(
-					JbpmProcessInstance.class,
+					ExpedientDto.class,
 					new Long(processInstanceId));
 		}
 	}

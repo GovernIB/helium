@@ -10,9 +10,7 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
-import org.hibernate.Hibernate;
-import org.jbpm.graph.exe.ProcessInstanceExpedient;
-import org.slf4j.Logger;
+import org.hibernate.Hibernate;import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -57,8 +55,6 @@ import net.conselldemallorca.helium.integracio.plugins.registre.RegistreNotifica
 import net.conselldemallorca.helium.integracio.plugins.registre.RespostaAnotacioRegistre;
 import net.conselldemallorca.helium.integracio.plugins.registre.RespostaJustificantDetallRecepcio;
 import net.conselldemallorca.helium.integracio.plugins.registre.RespostaJustificantRecepcio;
-import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessInstance;
-import net.conselldemallorca.helium.jbpm3.integracio.JbpmTask;
 import net.conselldemallorca.helium.v3.core.api.dto.AreaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampTascaDto;
@@ -633,7 +629,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 		logger.debug("Buidant logs expedient (processInstanceId=" + processInstanceId + ")");
 		ExpedientDto piexp = workflowEngineApi.expedientFindByProcessInstanceId(processInstanceId);
 		if (piexp == null)
-			throw new NoTrobatException(ProcessInstanceExpedient.class, processInstanceId);
+			throw new NoTrobatException(ExpedientDto.class, processInstanceId);
 		workflowRetroaccioApi.eliminaInformacioRetroaccio(piexp.getProcessInstanceId());
 	}
 
@@ -1009,7 +1005,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 				"taskInstanceId=" + taskInstanceId + ")");
 		WTaskInstance task = workflowEngineApi.getTaskById(new Long(taskInstanceId).toString());
 		if (task == null)
-			throw new NoTrobatException(JbpmTask.class, taskInstanceId);
+			throw new NoTrobatException(WTaskInstance.class, taskInstanceId);
 		DefinicioProces definicioProces = definicioProcesRepository.findByJbpmId(
 				task.getProcessDefinitionId());
 		if (definicioProces == null)
@@ -1030,7 +1026,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 		logger.debug("Consultant els documents de la tasca (taskInstanceId=" + taskInstanceId + ")");
 		WTaskInstance task = workflowEngineApi.getTaskById(new Long(taskInstanceId).toString());
 		if (task == null)
-			throw new NoTrobatException(JbpmTask.class, taskInstanceId);
+			throw new NoTrobatException(WTaskInstance.class, taskInstanceId);
 		DefinicioProces definicioProces = definicioProcesRepository.findByJbpmId(
 				task.getProcessDefinitionId());
 		if (definicioProces == null)
@@ -1969,7 +1965,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 			String processInstanceId) {
 		WProcessInstance processInstance = workflowEngineApi.getProcessInstance(processInstanceId);
 		if (processInstance == null)
-			throw new NoTrobatException(JbpmProcessInstance.class, processInstanceId);
+			throw new NoTrobatException(WProcessInstance.class, processInstanceId);
 		
 		return definicioProcesRepository.findByJbpmId(
 				processInstance.getProcessDefinitionId());
@@ -1979,7 +1975,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 			String processInstanceId) {
 		WProcessInstance processInstance = workflowEngineApi.getRootProcessInstance(processInstanceId);
 		if (processInstance == null)
-			throw new NoTrobatException(JbpmProcessInstance.class, processInstanceId);
+			throw new NoTrobatException(WProcessInstance.class, processInstanceId);
 		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
 		return expedient.getEntorn();
 	}

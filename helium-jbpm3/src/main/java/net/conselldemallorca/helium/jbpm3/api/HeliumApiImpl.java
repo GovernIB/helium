@@ -11,6 +11,7 @@ import org.jbpm.graph.exe.ExecutionContext;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
+import net.conselldemallorca.helium.core.extern.domini.DominiCodiDescripcio;
 import net.conselldemallorca.helium.jbpm3.handlers.exception.HeliumHandlerException;
 import net.conselldemallorca.helium.jbpm3.handlers.exception.ValidationException;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.ActionInfo;
@@ -36,7 +37,6 @@ import net.conselldemallorca.helium.jbpm3.handlers.tipus.TokenInfo;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.TransitionInfo;
 import net.conselldemallorca.helium.jbpm3.helper.ConversioTipusHelper;
 import net.conselldemallorca.helium.jbpm3.helper.ConversioTipusInfoHelper;
-import net.conselldemallorca.helium.jbpm3.integracio.DominiCodiDescripcio;
 import net.conselldemallorca.helium.jbpm3.integracio.Jbpm3HeliumBridge;
 import net.conselldemallorca.helium.jbpm3.integracio.Termini;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
