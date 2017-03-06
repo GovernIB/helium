@@ -58,6 +58,7 @@ import org.springframework.stereotype.Component;
 import net.conselldemallorca.helium.core.api.WProcessInstance;
 import net.conselldemallorca.helium.core.api.WTaskInstance;
 import net.conselldemallorca.helium.core.api.WToken;
+import net.conselldemallorca.helium.core.api.WorkflowEngineApi;
 import net.conselldemallorca.helium.core.api.WorkflowRetroaccioApi;
 import net.conselldemallorca.helium.core.common.JbpmVars;
 import net.conselldemallorca.helium.core.helperv26.MesuresTemporalsHelper;
@@ -71,7 +72,7 @@ import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientLog;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.hibernate.Tasca;
-import net.conselldemallorca.helium.jbpm3.handlers.BasicActionHandler;
+import net.conselldemallorca.helium.core.api.WActionHandler;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmTask;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmToken;
@@ -542,7 +543,7 @@ public class RetroaccioHelper implements WorkflowRetroaccioApi {
 			Map<Long, String> paramsAccio = new HashMap<Long, String>();
 			for (LogObjectDto logo: LogObjectDtos) {
 				if (logo.getTipus() == LogObjectDto.LOG_OBJECT_ACTION) {
-					String varName = BasicActionHandler.PARAMS_RETROCEDIR_VARIABLE_PREFIX + new Long(logo.getObjectId());
+					String varName = WActionHandler.PARAMS_RETROCEDIR_VARIABLE_PREFIX + new Long(logo.getObjectId());
 					String params = (String)jbpmHelper.getProcessInstanceVariable(
 							new Long(logo.getProcessInstanceId()).toString(),
 							varName);
@@ -855,7 +856,7 @@ public class RetroaccioHelper implements WorkflowRetroaccioApi {
 					String paramsStr = paramsAccio.get(new Long(logo.getObjectId()));
 					if (paramsStr != null) {
 						params = new ArrayList<String>();
-						String[] parts = paramsStr.split(BasicActionHandler.PARAMS_RETROCEDIR_SEPARADOR);
+						String[] parts = paramsStr.split(WActionHandler.PARAMS_RETROCEDIR_SEPARADOR);
 						for (String part: parts) {
 							if (part.length() > 0)
 								params.add(part);
