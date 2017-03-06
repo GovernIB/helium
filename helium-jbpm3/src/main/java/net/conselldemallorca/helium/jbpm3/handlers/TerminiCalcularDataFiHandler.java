@@ -9,8 +9,8 @@ import java.util.Date;
 import org.jbpm.JbpmException;
 import org.jbpm.graph.exe.ExecutionContext;
 
+import net.conselldemallorca.helium.core.api.Termini;
 import net.conselldemallorca.helium.jbpm3.integracio.Jbpm3HeliumBridge;
-import net.conselldemallorca.helium.jbpm3.integracio.Termini;
 import net.conselldemallorca.helium.v3.core.api.dto.TerminiDto;
 
 /**

@@ -38,7 +38,7 @@ import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.model.hibernate.GenericEntity;
 import net.conselldemallorca.helium.core.security.AclServiceDao;
 import net.conselldemallorca.helium.core.util.ExpedientCamps;
-import net.conselldemallorca.helium.jbpm3.integracio.Registre;
+import net.conselldemallorca.helium.core.api.Registre;
 
 /**
  * Utilitats comunes pels serveis

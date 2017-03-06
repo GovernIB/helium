@@ -13,10 +13,6 @@ import java.util.Map;
 import javax.annotation.Resource;
 
 import org.apache.commons.lang.StringUtils;
-import org.jbpm.jpdl.el.ELException;
-import org.jbpm.jpdl.el.ExpressionEvaluator;
-import org.jbpm.jpdl.el.VariableResolver;
-import org.jbpm.jpdl.el.impl.ExpressionEvaluatorImpl;
 import org.springframework.security.acls.domain.BasePermission;
 import org.springframework.security.acls.model.Permission;
 import org.springframework.security.core.Authentication;
@@ -48,7 +44,6 @@ import net.conselldemallorca.helium.core.model.hibernate.TerminiIniciat;
 import net.conselldemallorca.helium.core.security.ExtendedPermission;
 import net.conselldemallorca.helium.core.util.ExpedientCamps;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
-import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessInstance;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
@@ -896,17 +891,10 @@ public class ExpedientHelper {
 				context.put("tipexp_cod", expedientTipus.getCodi());
 				context.put("any", any);
 				context.put("seq", seq);
-				ExpressionEvaluator evaluator = new ExpressionEvaluatorImpl();
-				String resultat = (String)evaluator.evaluate(
-						expressio,
+				String resultat = (String) workflowEngineApi.evaluateExpression(
+						expressio, 
 						String.class,
-						new VariableResolver() {
-							public Object resolveVariable(String name)
-									throws ELException {
-								return context.get(name);
-							}
-						},
-						null);
+						context);
 				return resultat;
 			} catch (Exception ex) {
 				return "#invalid expression#";

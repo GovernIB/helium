@@ -13,7 +13,6 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.jbpm.JbpmException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.acls.model.Permission;
 import org.springframework.stereotype.Controller;
@@ -682,7 +681,7 @@ public class ExpedientController extends BaseController {
 				} else {
 					expedientService.retrocedirFinsLog(logId, false);
 				}
-			}catch (JbpmException ex ) {
+			}catch (Exception ex ) {
 				Long entornId = entorn.getId();
 				String numeroExpedient = id;
 				missatgeError(request, getMessage("error.executar.retroces") + ": "+ ex.getCause().getMessage());

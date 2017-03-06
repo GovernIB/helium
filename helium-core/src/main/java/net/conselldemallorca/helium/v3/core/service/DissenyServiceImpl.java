@@ -16,7 +16,6 @@ import java.util.zip.ZipInputStream;
 
 import javax.annotation.Resource;
 
-import org.jbpm.graph.def.ProcessDefinition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cache.annotation.Cacheable;
@@ -53,8 +52,6 @@ import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.hibernate.Tasca;
 import net.conselldemallorca.helium.core.security.ExtendedPermission;
-import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessDefinition;
-import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessInstance;
 import net.conselldemallorca.helium.v3.core.api.dto.AreaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ConsultaDto;
@@ -210,7 +207,7 @@ public class DissenyServiceImpl implements DissenyService {
 	public DefinicioProcesVersioDto getByVersionsInstanciaProcesById(String processInstanceId) {
 		WProcessInstance pi = workflowEngineApi.getProcessInstance(processInstanceId);
 		if (pi == null)
-			throw new NoTrobatException(JbpmProcessInstance.class, processInstanceId);
+			throw new NoTrobatException(WProcessInstance.class, processInstanceId);
 		
 		DefinicioProces definicioProces = definicioProcesRepository.findByJbpmId(pi.getProcessDefinitionId());
 		if (definicioProces == null)
@@ -934,25 +931,23 @@ public class DissenyServiceImpl implements DissenyService {
 		// Obrir el .par i comprovar que és correcte
 		// Thanks to George Mournos who helped to improve this:
 		ZipInputStream zipInputStream = new ZipInputStream(new ByteArrayInputStream(contingut));
-		ProcessDefinition processDefinition;
+		WProcessDefinition processDefinition; 
 		try {
-			processDefinition = ProcessDefinition.parseParZipInputStream(zipInputStream);
+			processDefinition = workflowEngineApi.parse(zipInputStream);
 		} catch (Exception e) {
 			throw new DeploymentException(
 					messageHelper.getMessage("definicio.proces.actualitzar.error.parse"));		
 		}
-		JbpmProcessDefinition jbpmProcessDefinition = new JbpmProcessDefinition(processDefinition);
     	// Recuperar la darrera versió de la definició de procés
 		DefinicioProces darrera = definicioProcesRepository.findDarreraVersioAmbEntornIJbpmKey(
 				entornId,
-				jbpmProcessDefinition.getKey());
+				processDefinition.getKey());
 		if (darrera == null)
 			throw new DeploymentException(
-					messageHelper.getMessage("definicio.proces.actualitzar.error.jbpmKey", new Object[] {jbpmProcessDefinition.getKey()}));
+					messageHelper.getMessage("definicio.proces.actualitzar.error.jbpmKey", new Object[] {processDefinition.getKey()}));
 		
 		// Construeix la llista de handlers a partir del contingut del fitxer .par que acabin amb .class
-		@SuppressWarnings("unchecked")
-		Map<String, byte[]> bytesMap = jbpmProcessDefinition.getProcessDefinition().getFileDefinition().getBytesMap();
+		Map<String, byte[]> bytesMap = processDefinition.getFiles();
 		Map<String, byte[]> handlers = new HashMap<String, byte[]>();
 		for (String nom : bytesMap.keySet()) 
 			if (nom.endsWith(".class")) {
@@ -984,19 +979,18 @@ public class DissenyServiceImpl implements DissenyService {
 		// Obrir el .par i comprovar que és correcte
 		// Thanks to George Mournos who helped to improve this:
 		ZipInputStream zipInputStream = new ZipInputStream(new ByteArrayInputStream(contingut));
-		ProcessDefinition processDefinition;
+		WProcessDefinition processDefinition; 
 		try {
-			processDefinition = ProcessDefinition.parseParZipInputStream(zipInputStream);
+			processDefinition = workflowEngineApi.parse(zipInputStream);
 		} catch (Exception e) {
 			throw new DeploymentException(
 					messageHelper.getMessage("definicio.proces.actualitzar.error.parse"));		
 		}
 		exportacio.setNomDeploy(fitxer);
 		exportacio.setContingutDeploy(contingut);
-		JbpmProcessDefinition jbpmProcessDefinition = new JbpmProcessDefinition(processDefinition);
 		DefinicioProcesDto dto = new DefinicioProcesDto();
-		dto.setJbpmKey(jbpmProcessDefinition.getKey());
-		dto.setJbpmName(jbpmProcessDefinition.getName());
+		dto.setJbpmKey(processDefinition.getKey());
+		dto.setJbpmName(processDefinition.getName());
 		exportacio.setDefinicioProcesDto(dto);
 				
 		return exportacio;

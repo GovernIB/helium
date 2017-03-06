@@ -5,6 +5,8 @@ package net.conselldemallorca.helium.jbpm3.integracio;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.zip.ZipInputStream;
 
 import org.jbpm.graph.def.ProcessDefinition;
 
@@ -71,6 +73,20 @@ public class JbpmProcessDefinition implements WProcessDefinition, WDeployment {
 		List pdl = new ArrayList();
 		pdl.add(processDefinition);
 		return pdl;
+	}
+
+	@Override
+	public WProcessDefinition parse(ZipInputStream zipInputStream ) throws Exception {
+		ProcessDefinition processDefinition = ProcessDefinition.parseParZipInputStream(zipInputStream);
+		JbpmProcessDefinition result = new JbpmProcessDefinition(processDefinition);
+		return result;
+	}
+
+
+	@Override
+	@SuppressWarnings("unchecked")
+	public Map<String, byte[]> getFiles() {
+		return this.getProcessDefinition().getFileDefinition().getBytesMap();
 	}
 
 }

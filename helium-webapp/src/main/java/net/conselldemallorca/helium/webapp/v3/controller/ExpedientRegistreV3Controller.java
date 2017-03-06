@@ -5,7 +5,6 @@ package net.conselldemallorca.helium.webapp.v3.controller;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.jbpm.JbpmException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -85,7 +84,7 @@ public class ExpedientRegistreV3Controller extends BaseExpedientController {
 					tipus_retroces == null || tipus_retroces != 0);
 			MissatgesHelper.success(request, getMessage(request, "expedient.registre.correcte"));
 			response = true;
-		} catch (JbpmException ex ) {
+		} catch (Exception ex ) {
 			MissatgesHelper.error(request, getMessage(request, "error.executar.retroces") + ": "+ ex.getCause().getMessage());
 			logger.error(" NUMEROEXPEDIENT:"+expedientId+" No s'ha pogut executar el retrocés", ex);
 		}

@@ -364,8 +364,8 @@ public class TascaFormUtil {
 						}
 					} else {
 						Object valorCamp = (valors != null) ? valors.get(campCodiValors) : null;
-						if (valorCamp instanceof net.conselldemallorca.helium.jbpm3.integracio.Termini) {
-							valorCamp = net.conselldemallorca.helium.jbpm3.integracio.Termini.valueFromTermini((net.conselldemallorca.helium.jbpm3.integracio.Termini) valorCamp);
+						if (valorCamp instanceof net.conselldemallorca.helium.core.api.Termini) {
+							valorCamp = net.conselldemallorca.helium.core.api.Termini.valueFromTermini((net.conselldemallorca.helium.core.api.Termini) valorCamp);
 						} 
 						PropertyUtils.setSimpleProperty(
 								command,

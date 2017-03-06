@@ -5,6 +5,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.zip.ZipInputStream;
 
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
@@ -789,6 +790,21 @@ public interface WorkflowEngineApi {
 			Long expedientTipusId,
 			Long processDefinitionId);
 	
+	// Avaluació d'expressions
+	
+	/** Avalua una expressió amb uns valors de variables en el contexte.
+	 * 
+	 * @param expression
+	 * @param expectedClass
+	 * @param context
+	 * @return
+	 */
+	@SuppressWarnings("rawtypes")
+	public Object evaluateExpression( 
+			String expression,
+			Class expectedClass,
+			Map<String, Object> context); 
+	
 	// Retroacció
 //	public Map<Token, List<ProcessLog>> getProcessInstanceLogs(String processInstanceId);
 //	public long addProcessInstanceMessageLog(String processInstanceId, String message);
@@ -808,5 +824,13 @@ public interface WorkflowEngineApi {
 //	public void deleteProcessInstanceTreeLogs(String rootProcessInstanceId);
 //	public void setTaskInstanceActorId(String taskInstanceId, String actorId);
 //	public void setTaskInstancePooledActors(String taskInstanceId, String[] pooledActors);
-	
+
+	/** Mètode per obtenir una definició de procés a partir del contingut comprimit del mateix.
+	 * 
+	 * @param zipInputStream
+	 * @return
+	 * @throws Exception
+	 */
+	public WProcessDefinition parse(ZipInputStream zipInputStream ) throws Exception;
+
 }

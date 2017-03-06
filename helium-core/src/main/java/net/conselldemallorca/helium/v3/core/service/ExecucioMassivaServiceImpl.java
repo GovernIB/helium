@@ -22,8 +22,6 @@ import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.jbpm.db.GraphSession;
-import org.jbpm.graph.exe.ProcessInstanceExpedient;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONValue;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -1178,16 +1176,17 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 								  (ex.getCause() instanceof DataIntegrityViolationException || "ConstraintViolationException".equalsIgnoreCase(ex.getCause().getClass().getSimpleName())) ? getErrorMsg(ex.getCause()) : 
 									  getErrorMsg(ex.getCause().getCause());
 								  
-					Long processInstanceId = Long.parseLong(definicioProces.getJbpmId());
+//					Long processInstanceId = Long.parseLong(definicioProces.getJbpmId());
 								  
 					if (msg.contains("HELIUM.FK_TASKINST_TASK"))
 						msg = messageHelper.getMessage("error.defpro.eliminar.constraint.taskinstance");
 					if (msg.contains("HELIUM.FK_JOB_ACTION"))
 						msg = messageHelper.getMessage("error.defpro.eliminar.constraint.job");
 					if (msg.contains("HELIUM.FK_LOG_")) {
-						if (GraphSession.errorsDelete.containsKey(processInstanceId))
-							msg = messageHelper.getMessage("error.defpro.eliminar.constraint.log");
-						else
+//						A la 3.2 ja no s'utilitza el GraphSession per manejar definicions de procés					
+//						if (GraphSession.errorsDelete.containsKey(processInstanceId))
+//							msg = messageHelper.getMessage("error.defpro.eliminar.constraint.log");
+//						else
 							msg = messageHelper.getMessage("error.defpro.eliminar.constraint.log_no_exp");
 					}
 					if (msg.contains("HELIUM.FK_SWL_ASSDEL") || msg.contains("HELIUM.FK_SWIMLANEINST_SL"))
@@ -1195,16 +1194,16 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 					if (msg.contains("HELIUM.FK_TRANS_PROCDEF"))
 						msg = messageHelper.getMessage("error.defpro.eliminar.constraint.procdef");
 					
-					
-					if (GraphSession.errorsDelete.containsKey(processInstanceId)){
-						
-						msg += "####exp_afectats###" + definicioProces.getId().toString() + "###";
-						for (ProcessInstanceExpedient expedient: GraphSession.errorsDelete.get(processInstanceId)) {
-							msg += "&&&" + (expedient.getIdentificador().equals("[null] null") ? expedient.getNumeroDefault() : expedient.getIdentificador()) + "@" + expedient.getId();
-						}
-						
-						GraphSession.errorsDelete.remove(processInstanceId);
-					}
+//					A la 3.2 ja no s'utilitza el GraphSession per manejar definicions de procés					
+//					if (GraphSession.errorsDelete.containsKey(processInstanceId)){
+//						
+//						msg += "####exp_afectats###" + definicioProces.getId().toString() + "###";
+//						for (ProcessInstanceExpedient expedient: GraphSession.errorsDelete.get(processInstanceId)) {
+//							msg += "&&&" + (expedient.getIdentificador().equals("[null] null") ? expedient.getNumeroDefault() : expedient.getIdentificador()) + "@" + expedient.getId();
+//						}
+//						
+//						GraphSession.errorsDelete.remove(processInstanceId);
+//					}
 					
 					throw new Exception(messageHelper.getMessage("error.defpro.eliminar.constraint", new Object[] {definicioProces.getIdPerMostrar(), ""}) + ": " + msg);
 					

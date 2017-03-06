@@ -79,8 +79,7 @@ import net.conselldemallorca.helium.core.model.hibernate.Registre;
 import net.conselldemallorca.helium.core.model.hibernate.Termini;
 import net.conselldemallorca.helium.core.model.hibernate.TerminiIniciat;
 import net.conselldemallorca.helium.core.security.ExtendedPermission;
-import net.conselldemallorca.helium.jbpm3.handlers.exception.ValidationException;
-import net.conselldemallorca.helium.jbpm3.integracio.ExecucioHandlerException;
+import net.conselldemallorca.helium.v3.core.api.exception.ExecucioHandlerException;
 import net.conselldemallorca.helium.v3.core.api.dto.AccioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.AlertaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
@@ -530,7 +529,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 					ex.getLineNumber(),
 					"", 
 					ex.getCause());
-		} catch (ValidationException ex) {
+		} catch (TramitacioValidacioException ex) {
 			throw new TramitacioValidacioException("Error de validació en Handler", ex);
 		} finally {
 			textBloqueigIniciExpedient = null;

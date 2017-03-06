@@ -11,13 +11,13 @@
         <dependent-module archiveName="helium-core-common-3.2.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/helium-core-common/helium-core-common">
             <dependency-type>uses</dependency-type>
         </dependent-module>
+        <dependent-module archiveName="helium-core-api-3.2.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/helium-core-api/helium-core-api">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
         <dependent-module archiveName="helium-jbpm3-3.2.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/helium-jbpm3/helium-jbpm3">
             <dependency-type>uses</dependency-type>
         </dependent-module>
         <dependent-module archiveName="helium-disseny-3.2.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/helium-disseny/helium-disseny">
-            <dependency-type>uses</dependency-type>
-        </dependent-module>
-        <dependent-module archiveName="helium-core-api-3.2.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/helium-core-api/helium-core-api">
             <dependency-type>uses</dependency-type>
         </dependent-module>
         <dependent-module archiveName="helium-core-3.2.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/helium-core/helium-core">
@@ -33,6 +33,9 @@
             <dependency-type>uses</dependency-type>
         </dependent-module>
         <dependent-module archiveName="helium-plugin-impl-3.2.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/helium-plugin-impl/helium-plugin-impl">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="helium-hibernate-entitymanager-3.2.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/helium-hibernate-entitymanager/helium-hibernate-entitymanager">
             <dependency-type>uses</dependency-type>
         </dependent-module>
         <property name="java-output-path" value="/helium-webapp/target/classes"/>

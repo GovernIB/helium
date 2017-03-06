@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
 import org.jbpm.JbpmException;
@@ -125,6 +126,11 @@ import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto.OrdreDireccioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto.OrdreDto;
+import net.conselldemallorca.helium.v3.core.api.exception.ExecucioHandlerException;
+import org.jbpm.jpdl.el.ELException;
+import org.jbpm.jpdl.el.ExpressionEvaluator;
+import org.jbpm.jpdl.el.VariableResolver;
+import org.jbpm.jpdl.el.impl.ExpressionEvaluatorImpl;
 
 /**
  * Dao per a l'accés a la funcionalitat de jBPM3
@@ -2076,6 +2082,33 @@ public class JbpmHelper implements WorkflowEngineApi {
 			tipus.setTeNumero(piet.isTeNumero());
 		}
 		return tipus;
+	}
+
+	@Override
+	@SuppressWarnings("rawtypes")
+	public Object evaluateExpression(
+			String expression, 
+			Class expectedClass,
+			final Map<String, Object> context) {
+		
+		ExpressionEvaluator evaluator = new ExpressionEvaluatorImpl();
+		Object resultat = evaluator.evaluate(
+				expression,
+				expectedClass,
+				new VariableResolver() {
+					public Object resolveVariable(String name)
+							throws ELException {
+						return context.get(name);
+					}
+				},
+				null);
+		
+		return resultat;
+	}
+
+	@Override
+	public WProcessDefinition parse(ZipInputStream zipInputStream) throws Exception {
+		return new JbpmProcessDefinition(null).parse(zipInputStream);
 	}
 	
 }
