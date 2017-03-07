@@ -70,7 +70,10 @@
 						$('#liReassignment').attr('title', "<spring:message code='expedient.llistat.accio.reassignar.sense.permis'/>");
 					}
 				}
-				
+				if ( $('#nomesTasquesMeves').val() == 'true') 
+					$('#nomesTasquesMevesCheck').addClass('active');
+				else 
+					$('#nomesTasquesMevesCheck').removeClass('active');
 			}
 		});	
 		$('.date_time').datetimepicker({
@@ -92,6 +95,9 @@
 			$(this).blur();
 			$("button#consultar", $formulari).click();
 		});
+		$("#netejar").click(function() {
+			$('#nomesTasquesMeves').val(true);
+		})
 		<c:if test="${entornId != null}">
 			$('#expedientTipusId').on('change', function() {
 				// Neteja la selecció de tasques
@@ -247,6 +253,8 @@
 			filtre = true;
 		if ($("#nomesTasquesGrupCheck").hasClass("active"))
 			filtre = true;
+		if ($("#nomesTasquesMevesCheck").hasClass("active"))
+			filtre = true;
 		if ($("#titol").val() != "")
 			filtre = true;
 		if ($("#expedient").val() != "")
@@ -376,7 +384,7 @@
 							<div class="col-md-6 btn-group">
 								<button id="nomesTasquesPersonalsCheck" data-path="nomesTasquesPersonals" title="<spring:message code="tasca.llistat.filtre.camp.personals"/>" class="btn btn-default filtre-button<c:if test="${tascaConsultaCommand.nomesTasquesPersonals}"> active</c:if>" data-toggle="button"><span class="fa fa-user"></span></button>
 								<button id="nomesTasquesGrupCheck" data-path="nomesTasquesGrup" title="<spring:message code="tasca.llistat.filtre.camp.grup"/>" class="btn btn-default filtre-button<c:if test="${tascaConsultaCommand.nomesTasquesGrup}"> active</c:if>" data-toggle="button"><span class="fa fa-users"></span></button>
-								<button id="nomesTasquesMevesCheck" data-path="nomesTasquesMeves" title="<spring:message code="expedient.llistat.filtre.camp.meves"/>" class="btn btn-default filtre-button<c:if test="${expedientConsultaCommand.nomesTasquesMeves}"> active</c:if>" data-toggle="button"><span class="fa fa-map-marker"></span></button>
+								<button id="nomesTasquesMevesCheck" data-path="nomesTasquesMeves" title="<spring:message code="expedient.llistat.filtre.camp.meves"/>" class="btn btn-default filtre-button<c:if test="${tascaConsultaCommand.nomesTasquesMeves}"> active</c:if>" data-toggle="button"><span class="fa fa-map-marker"></span></button>
 							</div>
 							<div class="col-md-6">
 								<div class="pull-right">
