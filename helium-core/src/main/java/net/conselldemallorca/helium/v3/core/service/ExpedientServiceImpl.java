@@ -789,7 +789,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 		// Comprova l'accés al tipus d'expedient
 		ExpedientTipus expedientTipus = null;
 		if (expedientTipusId != null) {
-			expedientTipus = expedientTipusHelper.getExpedientTipusComprovantPermisDisseny(
+			expedientTipus = expedientTipusHelper.getExpedientTipusComprovantPermisLectura(
 					expedientTipusId);
 		}
 		// Comprova l'accés a l'estat
