@@ -397,6 +397,7 @@ public class PermisosHelper {
 				classePermisos,
 				new Permission[] {
 						ExtendedPermission.TASK_SUPERV,
+						ExtendedPermission.SUPERVISION,
 						ExtendedPermission.ADMINISTRATION});
 		List<Long> idsAmbPermisTaskAssign = filtrarIdsPermisos(
 				ids,
@@ -404,6 +405,7 @@ public class PermisosHelper {
 				classePermisos,
 				new Permission[] {
 						ExtendedPermission.TASK_ASSIGN,
+						ExtendedPermission.REASSIGNMENT,
 						ExtendedPermission.ADMINISTRATION});
 		List<Long> idsAmbPermisLogRead = filtrarIdsPermisos(
 				ids,
@@ -418,6 +420,7 @@ public class PermisosHelper {
 				classePermisos,
 				new Permission[] {
 						ExtendedPermission.LOG_MANAGE,
+						ExtendedPermission.SUPERVISION,
 						ExtendedPermission.ADMINISTRATION});
 		List<Long> idsAmbPermisTokenRead = filtrarIdsPermisos(
 				ids,
@@ -425,6 +428,7 @@ public class PermisosHelper {
 				classePermisos,
 				new Permission[] {
 						ExtendedPermission.TOKEN_READ,
+						ExtendedPermission.SUPERVISION,
 						ExtendedPermission.ADMINISTRATION});
 		List<Long> idsAmbPermisTokenManage = filtrarIdsPermisos(
 				ids,
@@ -432,6 +436,7 @@ public class PermisosHelper {
 				classePermisos,
 				new Permission[] {
 						ExtendedPermission.TOKEN_MANAGE,
+						ExtendedPermission.SUPERVISION,
 						ExtendedPermission.ADMINISTRATION});
 		List<Long> idsAmbPermisDesignAdmin = filtrarIdsPermisos(
 				ids,
