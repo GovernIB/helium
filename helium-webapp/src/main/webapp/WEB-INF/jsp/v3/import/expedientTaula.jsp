@@ -138,7 +138,7 @@
 							<c:when test="${fn:endsWith(dada['class'].name, 'TerminiDto')}">								
 								<%@ include file="expedientTaulaTermini.jsp" %>
 							</c:when>
-							<c:when test="${fn:endsWith(dada['class'].name, 'ExpedientLogDto')}">								
+							<c:when test="${fn:endsWith(dada['class'].name, 'InformacioRetroaccioDto')}">								
 								<%@ include file="expedientTaulaLog.jsp" %>
 							</c:when>
 							<c:when test="${fn:endsWith(dada['class'].name, 'ExpedientTascaDto')}">								
