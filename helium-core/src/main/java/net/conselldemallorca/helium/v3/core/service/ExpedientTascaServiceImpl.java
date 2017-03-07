@@ -81,6 +81,7 @@ public class ExpedientTascaServiceImpl implements ExpedientTascaService {
 				expedient,
 				new Permission[] {
 						ExtendedPermission.TASK_SUPERV,
+						ExtendedPermission.SUPERVISION,
 						ExtendedPermission.ADMINISTRATION});
 		List<ExpedientTascaDto> tasques = tascaHelper.findTasquesPerExpedientPerInstanciaProces(
 				expedient,
@@ -119,6 +120,7 @@ public class ExpedientTascaServiceImpl implements ExpedientTascaService {
 				expedient,
 				new Permission[] {
 						ExtendedPermission.TASK_SUPERV,
+						ExtendedPermission.SUPERVISION,
 						ExtendedPermission.ADMINISTRATION});
 		List<ExpedientTascaDto> resposta = new ArrayList<ExpedientTascaDto>();
 		for (JbpmProcessInstance jpi: jbpmHelper.getProcessInstanceTree(expedient.getProcessInstanceId())) {

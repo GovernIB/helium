@@ -1083,10 +1083,8 @@ public class ExpedientServiceImpl implements ExpedientService {
 					expedient.getTipus().getId(),
 					ExpedientTipus.class,
 					new Permission[] {
-						ExtendedPermission.REASSIGNMENT,
 						ExtendedPermission.SUPERVISION,
 						ExtendedPermission.TASK_SUPERV,
-						ExtendedPermission.TASK_ASSIGN,
 						ExtendedPermission.ADMINISTRATION},
 					auth);
 		List<ExpedientTascaDto> resposta = new ArrayList<ExpedientTascaDto>();
