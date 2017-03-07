@@ -181,6 +181,7 @@ public class ExpedientRegistreServiceImpl implements ExpedientRegistreService {
 				expedientId,
 				new Permission[] {
 						ExtendedPermission.LOG_MANAGE,
+						ExtendedPermission.SUPERVISION,
 						ExtendedPermission.ADMINISTRATION});
 		ExpedientLog log = expedientLogRepository.findById(logId);
 		mesuresTemporalsHelper.mesuraIniciar("Retrocedir" + (retrocedirPerTasques ? " per tasques" : ""), "expedient", log.getExpedient().getTipus().getNom());
@@ -210,6 +211,7 @@ public class ExpedientRegistreServiceImpl implements ExpedientRegistreService {
 				expedientId,
 				new Permission[] {
 						ExtendedPermission.LOG_MANAGE,
+						ExtendedPermission.SUPERVISION,
 						ExtendedPermission.ADMINISTRATION});
 		jbpmHelper.deleteProcessInstanceTreeLogs(expedient.getProcessInstanceId());
 	}

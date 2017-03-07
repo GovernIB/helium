@@ -70,6 +70,7 @@ public class ExpedientTokenServiceImpl implements ExpedientTokenService {
 				expedientId,
 				new Permission[] {
 						ExtendedPermission.TOKEN_READ,
+						ExtendedPermission.SUPERVISION,
 						ExtendedPermission.ADMINISTRATION});
 		if (expedient != null){
 			Map<String, JbpmToken> tokens = jbpmHelper.getAllTokens(processInstanceId);
@@ -107,6 +108,7 @@ public class ExpedientTokenServiceImpl implements ExpedientTokenService {
 				expedientId,
 				new Permission[] {
 						ExtendedPermission.TOKEN_MANAGE,
+						ExtendedPermission.SUPERVISION,
 						ExtendedPermission.ADMINISTRATION});
 		if( expedient!= null)
 			return jbpmHelper.tokenActivar(tokenId, activar);
@@ -131,6 +133,7 @@ public class ExpedientTokenServiceImpl implements ExpedientTokenService {
 				expedientId,
 				new Permission[] {
 						ExtendedPermission.TOKEN_MANAGE,
+						ExtendedPermission.SUPERVISION,
 						ExtendedPermission.ADMINISTRATION});
 		if( expedient!= null)
 			return jbpmHelper.findArrivingNodeNames(tokenId);
@@ -155,6 +158,7 @@ public class ExpedientTokenServiceImpl implements ExpedientTokenService {
 				expedientId,
 				new Permission[] {
 						ExtendedPermission.TOKEN_MANAGE,
+						ExtendedPermission.SUPERVISION,
 						ExtendedPermission.ADMINISTRATION});
 		if( expedient != null)
 			return conversioTipusHelper.convertir(jbpmHelper.getTokenById(tokenId), TokenDto.class);
@@ -183,6 +187,7 @@ public class ExpedientTokenServiceImpl implements ExpedientTokenService {
 				expedientId,
 				new Permission[] {
 						ExtendedPermission.TOKEN_MANAGE,
+						ExtendedPermission.SUPERVISION,
 						ExtendedPermission.ADMINISTRATION});
 		if( expedient != null){
 			JbpmToken token = jbpmHelper.getTokenById(tokenId);
