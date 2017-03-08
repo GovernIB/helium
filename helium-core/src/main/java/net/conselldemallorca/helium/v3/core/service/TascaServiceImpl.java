@@ -282,7 +282,7 @@ public class TascaServiceImpl implements TascaService {
 			}
 			// Si no hi ha tipexp seleccionat o no es te permis SUPERVISION
 			// a damunt el tipexp es filtra per l'usuari actual.
-			if (nomesTasquesMeves || expedientTipusId == null || expedientTipusHelper.getExpedientTipusComprovantPermisSupervisio(expedientTipusId) == null) {
+			if (nomesTasquesMeves || expedientTipusId == null || !expedientTipusHelper.comprovarPermisSupervisio(expedientTipusId)) {
 				responsable = SecurityContextHolder.getContext().getAuthentication().getName();
 			}
 			// Obté la llista de tipus d'expedient permesos
@@ -414,7 +414,7 @@ public class TascaServiceImpl implements TascaService {
 			}
 			// Si no hi ha tipexp seleccionat o no es te permis SUPERVISION
 			// a damunt el tipexp es filtra per l'usuari actual.
-			if (nomesTasquesMeves || expedientTipusId == null || expedientTipusHelper.getExpedientTipusComprovantPermisSupervisio(expedientTipusId) == null) {
+			if (nomesTasquesMeves || expedientTipusId == null || !expedientTipusHelper.comprovarPermisSupervisio(expedientTipusId)) {
 				responsable = SecurityContextHolder.getContext().getAuthentication().getName();
 			}
 			if (tramitacioMassivaTascaId != null) {

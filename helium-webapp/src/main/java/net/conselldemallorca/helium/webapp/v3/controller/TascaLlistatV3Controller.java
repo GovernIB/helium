@@ -91,6 +91,8 @@ public class TascaLlistatV3Controller extends BaseController {
 			} catch(Exception e) {
 				filtreCommand.setExpedientTipusId(null);
 			}
+		else 
+			filtreCommand.setNomesTasquesMeves(true);
 		return "v3/tascaLlistat";
 	}
 

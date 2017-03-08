@@ -137,6 +137,22 @@ public class ExpedientTipusHelper {
 		return expedientTipus;
 	}
 	
+	public boolean comprovarPermisSupervisio(Long expedientTipusId) {
+		ExpedientTipus expedientTipus = expedientTipusRepository.findOne(expedientTipusId);
+		if (expedientTipus == null) {
+			throw new NoTrobatException(ExpedientTipus.class, expedientTipusId);
+		}
+		
+		return comprovarPermisos(
+				expedientTipus, 
+				null,
+				new Permission[] {
+						ExtendedPermission.SUPERVISION,
+						ExtendedPermission.TASK_SUPERV,
+						ExtendedPermission.ADMINISTRATION});
+		
+	}
+	
 	public boolean comprovarPermisos(
 			ExpedientTipus expedientTipus,
 			Permission[] permisosEntorn,
