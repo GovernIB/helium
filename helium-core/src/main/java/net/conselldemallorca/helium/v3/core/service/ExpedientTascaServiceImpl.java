@@ -249,6 +249,7 @@ public class ExpedientTascaServiceImpl implements ExpedientTascaService {
 				new Permission[] {
 						ExtendedPermission.TASK_MANAGE,
 						ExtendedPermission.TASK_ASSIGN,
+						ExtendedPermission.REASSIGNMENT,
 						ExtendedPermission.ADMINISTRATION});
 		tascaHelper.comprovarTascaPertanyExpedient(
 				tascaId,

@@ -69,6 +69,17 @@
 			<div class="col-sm-3"><hel:inputCheckbox name="undoEnd" textKey="permis.UNDO_END" labelSize="8"/></div>
 			<div class="col-sm-3"><hel:inputCheckbox name="defprocUpdate" textKey="permis.DEFPROC_UPDATE" labelSize="8"/></div>
 		</div>
+		<hr/>
+		
+		<div class="alert alert-warning alert-dismissible fade in" role="alert">
+			<strong><spring:message code="expedient.tipus.permis.permisos.descatalogats"/></strong>
+		</div>
+		<div class="row">
+			<div class="col-sm-3"><hel:inputCheckbox name="design" textKey="permis.DESIGN" labelSize="8"/></div>
+			<div class="col-sm-3"><hel:inputCheckbox name="supervision" textKey="permis.SUPERVISION" labelSize="8"/></div>
+			<div class="col-sm-3"><hel:inputCheckbox name="manage" textKey="permis.MANAGE" labelSize="8"/></div>
+			<div class="col-sm-3"><hel:inputCheckbox name="reassignment" textKey="permis.REASSIGNMENT" labelSize="8"/></div>
+		</div>
 		<div id="modal-botons">
 			<button type="submit" class="btn btn-success"><span class="fa fa-save"></span>&nbsp;<spring:message code="comu.boto.guardar"/></button>
 			<a href="<c:url value="/v3/expedientTipus/${expedientTipus.id}/permis"/>" class="btn btn-default" data-modal-cancel="true"><spring:message code="comu.boto.cancelar"/></a>
