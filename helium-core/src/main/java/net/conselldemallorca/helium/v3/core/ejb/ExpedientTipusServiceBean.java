@@ -569,4 +569,10 @@ public class ExpedientTipusServiceBean implements ExpedientTipusService {
 				notificacioOficiTitol, 
 				notificacioOficiText);
 	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public ExpedientTipusDto updateIntegracioSicer(Long entornId, Long expedientTipusId, ExpedientTipusDto command) {
+		return delegate.updateIntegracioSicer(entornId, expedientTipusId, command);
+	}
 }

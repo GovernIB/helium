@@ -52,6 +52,7 @@ public class ExpedientTipusExportarCommand {
 	private Map<String, Integer> definicionsVersions;
 	private boolean integracioSistra;
 	private boolean integracioForms;
+	private boolean integracioSicer;
 	private List<String> enumeracions;
 	private List<String> documents;
 	private List<String> terminis;
@@ -161,6 +162,14 @@ public class ExpedientTipusExportarCommand {
 	public void setIntegracioForms(boolean integracioForms) {
 		this.integracioForms = integracioForms;
 	}
+	public boolean isIntegracioSicer() {
+		return integracioSicer;
+	}
+
+	public void setIntegracioSicer(boolean integracioSicer) {
+		this.integracioSicer = integracioSicer;
+	}
+
 	public List<String> getEnumeracions() {
 		return enumeracions;
 	}

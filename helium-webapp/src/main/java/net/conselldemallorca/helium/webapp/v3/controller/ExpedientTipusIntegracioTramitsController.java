@@ -58,7 +58,7 @@ public class ExpedientTipusIntegracioTramitsController extends BaseExpedientTipu
 					request,
 					expedientTipusId,
 					model,
-					"consultes");
+					"integracio-tramits");
 		}
 		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
 		if (entornActual != null) {

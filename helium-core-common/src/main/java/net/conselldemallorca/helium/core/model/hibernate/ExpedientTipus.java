@@ -88,6 +88,7 @@ public class ExpedientTipus implements Serializable, GenericEntity<Long> {
 	
 	private String diesNoLaborables;
 	
+	//Notificacions electròniques
 	private boolean notificacionsActivades;
 	@MaxLength(100)
 	private String notificacioOrganCodi;
@@ -107,6 +108,26 @@ public class ExpedientTipus implements Serializable, GenericEntity<Long> {
 	private String notificacioOficiTitol;
 	@MaxLength(1024)
 	private String notificacioOficiText;
+	
+	//Notificacions SICER
+	private boolean sicerIntegracioActiva;
+	@MaxLength(2)
+	private String sicerProducteCodi;
+	@MaxLength(8)
+	private String sicerClientCodi;
+	@MaxLength(7)
+	private String sicerPuntAdmissioCodi;
+	@MaxLength(50)
+	private String sicerNomLlinatges;
+	@MaxLength(50)
+	private String sicerDireccio;
+	@MaxLength(40)
+	private String sicerPoblacio;
+	@MaxLength(5)
+	private String sicerCodiPostal;
+	private String sicerSftpUser;
+	private String sicerSftpPassword;
+	
 
 	@MaxLength(64)
 	private String sistraTramitCodi;
@@ -414,6 +435,88 @@ public class ExpedientTipus implements Serializable, GenericEntity<Long> {
 	public void setNotificacioOficiText(String notificacioOficiText) {
 		this.notificacioOficiText = notificacioOficiText;
 	}
+	
+	//notificacions SICER
+	@Column(name="SICER_INTEGRACIO_ACTIVA")
+	public boolean isSicerIntegracioActiva() {
+		return sicerIntegracioActiva;
+	}
+	public void setSicerIntegracioActiva(boolean sicerIntegracioActiva) {
+		this.sicerIntegracioActiva = sicerIntegracioActiva;
+	}
+	
+	@Column(name="SICER_PRODUCTE_CODI", length = 2)
+	public String getSicerProducteCodi() {
+		return sicerProducteCodi;
+	}
+	public void setSicerProducteCodi(String sicerProducteCodi) {
+		this.sicerProducteCodi = sicerProducteCodi;
+	}
+	
+	@Column(name="SICER_CLIENT_CODI", length = 8)
+	public String getSicerClientCodi() {
+		return sicerClientCodi;
+	}
+	public void setSicerClientCodi(String sicerClientCodi) {
+		this.sicerClientCodi = sicerClientCodi;
+	}
+	
+	@Column(name="SICER_PUNTADM_CODI", length = 7)
+	public String getSicerPuntAdmissioCodi() {
+		return sicerPuntAdmissioCodi;
+	}
+	public void setSicerPuntAdmissioCodi(String sicerPuntAdmissioCodi) {
+		this.sicerPuntAdmissioCodi = sicerPuntAdmissioCodi;
+	}
+	
+	@Column(name="SICER_NOM_LLIN", length = 50)
+	public String getSicerNomLlinatges() {
+		return sicerNomLlinatges;
+	}
+	public void setSicerNomLlinatges(String sicerNomLlinatges) {
+		this.sicerNomLlinatges = sicerNomLlinatges;
+	}
+	
+	@Column(name="SICER_DIRECCIO", length = 50)
+	public String getSicerDireccio() {
+		return sicerDireccio;
+	}
+	public void setSicerDireccio(String sicerDireccio) {
+		this.sicerDireccio = sicerDireccio;
+	}
+	
+	@Column(name="SICER_POBLACIO", length = 40)
+	public String getSicerPoblacio() {
+		return sicerPoblacio;
+	}
+	public void setSicerPoblacio(String sicerPoblacio) {
+		this.sicerPoblacio = sicerPoblacio;
+	}
+	
+	@Column(name="SICER_CP", length = 5)
+	public String getSicerCodiPostal() {
+		return sicerCodiPostal;
+	}
+	public void setSicerCodiPostal(String sicerCodiPostal) {
+		this.sicerCodiPostal = sicerCodiPostal;
+	}
+	
+	@Column(name="SICER_SFTP_USER", length = 50)
+	public String getSicerSftpUser() {
+		return sicerSftpUser;
+	}
+	public void setSicerSftpUser(String sicerSftpUser) {
+		this.sicerSftpUser = sicerSftpUser;
+	}
+	
+	@Column(name="SICER_SFTP_PASSWORD", length = 50)
+	public String getSicerSftpPassword() {
+		return sicerSftpPassword;
+	}
+	public void setSicerSftpPassword(String sicerSftpPassword) {
+		this.sicerSftpPassword = sicerSftpPassword;
+	}
+	
 	
 	@Column(name="sistra_codtra", length=64, unique=true)
 	public String getSistraTramitCodi() {

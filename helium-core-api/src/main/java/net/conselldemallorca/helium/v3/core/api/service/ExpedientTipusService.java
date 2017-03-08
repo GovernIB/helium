@@ -123,6 +123,24 @@ public interface ExpedientTipusService {
 			String notificacioOficiTitol,
 			String notificacioOficiText);
 
+	/** Modifica les dades del tipus d'expedient referents a la integració amb SICER
+	 * 
+	 * @param entornId
+	 * @param expedientTipusId
+	 * @param command
+	 * 
+	 * @return El tipus d'expedient modificat.
+	 * 
+	 * @throws NoTrobatException
+	 *             Si no s'ha trobat el registre amb l'id especificat.
+	 * @throws PermisDenegatException
+	 *             Si no es tenen els permisos necessaris.
+	 */
+	public ExpedientTipusDto updateIntegracioSicer(
+			Long entornId, 
+			Long expedientTipusId, 
+			ExpedientTipusDto command);
+	
 	/**
 	 * Esborra una entitat.
 	 * 

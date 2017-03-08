@@ -92,6 +92,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.DadesDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentNotificacioDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DocumentNotificacioTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientConsultaDissenyDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
@@ -2634,9 +2635,9 @@ public class ExpedientServiceImpl implements ExpedientService {
 	 */
 	@Override
 	@Transactional(readOnly = true)
-	public List<NotificacioDto> findNotificacionsPerExpedientId(Long expedientId) {
+	public List<NotificacioDto> findNotificacionsPerExpedientId(Long expedientId, DocumentNotificacioTipusEnumDto tipus) {
 		List<NotificacioDto> notificacions =  conversioTipusHelper.convertirList(
-				notificacioHelper.findNotificacionsPerExpedientId(expedientId), 
+				notificacioHelper.findNotificacionsPerExpedientIdITipus(expedientId, tipus), 
 				NotificacioDto.class);
 		
 		for (NotificacioDto notificacio: notificacions) {

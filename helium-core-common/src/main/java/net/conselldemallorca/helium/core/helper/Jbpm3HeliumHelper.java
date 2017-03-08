@@ -63,6 +63,9 @@ import net.conselldemallorca.helium.v3.core.api.dto.CarrecDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentDissenyDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DocumentEnviamentEstatEnumDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DocumentNotificacioDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DocumentNotificacioTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DominiRespostaColumnaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DominiRespostaFilaDto;
@@ -1571,6 +1574,44 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 				processInstanceId,
 				transicioOK,
 				transicioKO);
+	}
+	
+	@Override
+	public void crearNotificacioSicerPendent(
+			List<Long> documentsId,
+			ExpedientDto expedient,
+			Long processInstanceId) {
+		List<DocumentDto> documents = null;
+		if (documentsId != null) {
+			documents = new ArrayList<DocumentDto>();
+			for (Long docId: documentsId) {
+				DocumentDto docDto = documentHelper.getDocumentVista(
+						docId,
+						false,
+						false);
+				if (docDto != null){
+					documents.add(docDto);
+				}
+			}
+		}
+		
+		for (DocumentDto document: documents) {
+			NotificacioDto notificacio = new NotificacioDto();
+			notificacio.setTipus(DocumentNotificacioTipusEnumDto.SICER);
+			notificacio.setEstat(DocumentEnviamentEstatEnumDto.PENDENT);
+			Date ara = new Date();
+			notificacio.setDataCreacio(ara);
+			notificacio.setDataEnviament(ara);
+			notificacio.setAssumpte(expedient.getIdentificador() + ": SICER " + document.getDocumentNom());
+			
+			DocumentNotificacioDto documentNotificacio = new DocumentNotificacioDto();
+			documentNotificacio.setId(document.getId());
+			notificacio.setDocument(documentNotificacio);
+			
+			notificacioElectronicaHelper.create(
+					expedient,
+					notificacio);
+		}
 	}
 
 	@Override

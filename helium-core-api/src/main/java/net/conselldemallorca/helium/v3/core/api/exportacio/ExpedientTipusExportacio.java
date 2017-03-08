@@ -52,6 +52,29 @@ public class ExpedientTipusExportacio implements Serializable {
 	private String sistraTramitCodi;
 	private List<MapeigSistraExportacio> sistraMapejos = new ArrayList<MapeigSistraExportacio>();
 	
+	//Notificacions electròniques
+	private boolean notificacionsActivades;
+	private String notificacioOrganCodi;
+	private String notificacioOficinaCodi;
+	private String notificacioUnitatAdministrativa;
+	private String notificacioCodiProcediment;
+	private String notificacioAvisTitol;
+	private String notificacioAvisText;
+	private String notificacioAvisTextSms;
+	private String notificacioOficiTitol;
+	private String notificacioOficiText;
+	
+	//Integracio amb SICER
+	private boolean sicerIntegracioActiva;
+	private String sicerProducteCodi;
+	private String sicerClientCodi;
+	private String sicerPuntAdmissioCodi;
+	private String sicerNomLlinatges;
+	private String sicerDireccio;
+	private String sicerPoblacio;
+	private String sicerCodiPostal;
+	private String sicerSftpUser;
+	private String sicerSftpPassword;
 	
 	private List<EstatExportacio> estats = new ArrayList<EstatExportacio>();
 	private List<CampExportacio> camps = new ArrayList<CampExportacio>();
@@ -289,6 +312,128 @@ public class ExpedientTipusExportacio implements Serializable {
 	}
 	public void setConsultes(List<ConsultaExportacio> consultes) {
 		this.consultes = consultes;
+	}
+
+	public boolean isNotificacionsActivades() {
+		return notificacionsActivades;
+	}
+	public void setNotificacionsActivades(boolean notificacionsActivades) {
+		this.notificacionsActivades = notificacionsActivades;
+	}
+	public String getNotificacioOrganCodi() {
+		return notificacioOrganCodi;
+	}
+	public void setNotificacioOrganCodi(String notificacioOrganCodi) {
+		this.notificacioOrganCodi = notificacioOrganCodi;
+	}
+	public String getNotificacioOficinaCodi() {
+		return notificacioOficinaCodi;
+	}
+	public void setNotificacioOficinaCodi(String notificacioOficinaCodi) {
+		this.notificacioOficinaCodi = notificacioOficinaCodi;
+	}
+	public String getNotificacioUnitatAdministrativa() {
+		return notificacioUnitatAdministrativa;
+	}
+	public void setNotificacioUnitatAdministrativa(String notificacioUnitatAdministrativa) {
+		this.notificacioUnitatAdministrativa = notificacioUnitatAdministrativa;
+	}
+	public String getNotificacioCodiProcediment() {
+		return notificacioCodiProcediment;
+	}
+	public void setNotificacioCodiProcediment(String notificacioCodiProcediment) {
+		this.notificacioCodiProcediment = notificacioCodiProcediment;
+	}
+	public String getNotificacioAvisTitol() {
+		return notificacioAvisTitol;
+	}
+	public void setNotificacioAvisTitol(String notificacioAvisTitol) {
+		this.notificacioAvisTitol = notificacioAvisTitol;
+	}
+	public String getNotificacioAvisText() {
+		return notificacioAvisText;
+	}
+	public void setNotificacioAvisText(String notificacioAvisText) {
+		this.notificacioAvisText = notificacioAvisText;
+	}
+	public String getNotificacioAvisTextSms() {
+		return notificacioAvisTextSms;
+	}
+	public void setNotificacioAvisTextSms(String notificacioAvisTextSms) {
+		this.notificacioAvisTextSms = notificacioAvisTextSms;
+	}
+	public String getNotificacioOficiTitol() {
+		return notificacioOficiTitol;
+	}
+	public void setNotificacioOficiTitol(String notificacioOficiTitol) {
+		this.notificacioOficiTitol = notificacioOficiTitol;
+	}
+	public String getNotificacioOficiText() {
+		return notificacioOficiText;
+	}
+	public void setNotificacioOficiText(String notificacioOficiText) {
+		this.notificacioOficiText = notificacioOficiText;
+	}
+
+	public boolean isSicerIntegracioActiva() {
+		return sicerIntegracioActiva;
+	}
+	public void setSicerIntegracioActiva(boolean sicerIntegracioActiva) {
+		this.sicerIntegracioActiva = sicerIntegracioActiva;
+	}
+	public String getSicerProducteCodi() {
+		return sicerProducteCodi;
+	}
+	public void setSicerProducteCodi(String sicerProducteCodi) {
+		this.sicerProducteCodi = sicerProducteCodi;
+	}
+	public String getSicerClientCodi() {
+		return sicerClientCodi;
+	}
+	public void setSicerClientCodi(String sicerClientCodi) {
+		this.sicerClientCodi = sicerClientCodi;
+	}
+	public String getSicerPuntAdmissioCodi() {
+		return sicerPuntAdmissioCodi;
+	}
+	public void setSicerPuntAdmissioCodi(String sicerPuntAdmissioCodi) {
+		this.sicerPuntAdmissioCodi = sicerPuntAdmissioCodi;
+	}
+	public String getSicerNomLlinatges() {
+		return sicerNomLlinatges;
+	}
+	public void setSicerNomLlinatges(String sicerNomLlinatges) {
+		this.sicerNomLlinatges = sicerNomLlinatges;
+	}
+	public String getSicerDireccio() {
+		return sicerDireccio;
+	}
+	public void setSicerDireccio(String sicerDireccio) {
+		this.sicerDireccio = sicerDireccio;
+	}
+	public String getSicerPoblacio() {
+		return sicerPoblacio;
+	}
+	public void setSicerPoblacio(String sicerPoblacio) {
+		this.sicerPoblacio = sicerPoblacio;
+	}
+	public String getSicerCodiPostal() {
+		return sicerCodiPostal;
+	}
+	public void setSicerCodiPostal(String sicerCodiPostal) {
+		this.sicerCodiPostal = sicerCodiPostal;
+	}
+	public String getSicerSftpUser() {
+		return sicerSftpUser;
+	}
+	public void setSicerSftpUser(String sicerSftpUser) {
+		this.sicerSftpUser = sicerSftpUser;
+	}
+	public String getSicerSftpPassword() {
+		return sicerSftpPassword;
+	}
+	public void setSicerSftpPassword(String sicerSftpPassword) {
+		this.sicerSftpPassword = sicerSftpPassword;
 	}
 
 	private static final long serialVersionUID = 4423574853273245620L;

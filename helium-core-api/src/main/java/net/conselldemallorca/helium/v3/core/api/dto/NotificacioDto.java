@@ -22,6 +22,7 @@ public class NotificacioDto implements Serializable {
 	private DocumentEnviamentEstatEnumDto estat;
 	private String assumpte;
 	private Date dataEnviament;
+	private Date dataCreacio;
 	private String observacions;
 	
 	private DocumentNotificacioTipusEnumDto tipus;
@@ -59,6 +60,7 @@ public class NotificacioDto implements Serializable {
 	private DocumentNotificacioDto document;
 	private List<DocumentNotificacioDto> annexos = new ArrayList<DocumentNotificacioDto>();
 	private String error;
+	private RemesaDto remesa;
 	
 	private static final long serialVersionUID = 1715501096089688125L;
 
@@ -100,6 +102,13 @@ public class NotificacioDto implements Serializable {
 
 	public void setDataEnviament(Date dataEnviament) {
 		this.dataEnviament = dataEnviament;
+	}
+	
+	public Date getDataCreacio() {
+		return dataCreacio;
+	}
+	public void setDataCreacio(Date dataCreacio) {
+		this.dataCreacio = dataCreacio;
 	}
 
 	public String getObservacions() {
@@ -388,6 +397,14 @@ public class NotificacioDto implements Serializable {
 
 	public void setError(String error) {
 		this.error = error;
+	}
+
+	public RemesaDto getRemesa() {
+		return remesa;
+	}
+
+	public void setRemesa(RemesaDto remesa) {
+		this.remesa = remesa;
 	}
 
 }

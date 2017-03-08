@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.model.hibernate.Notificacio;
+import net.conselldemallorca.helium.core.model.hibernate.Remesa;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentEnviamentEstatEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentNotificacioTipusEnumDto;
 
@@ -23,4 +24,6 @@ public interface NotificacioRepository extends JpaRepository<Notificacio, Long> 
 	List<Notificacio> findByExpedientAndTipusOrderByDataEnviamentDesc(Expedient expedient,  DocumentNotificacioTipusEnumDto tipus);
 	List<Notificacio> findByEstatAndTipusOrderByDataEnviamentAsc(DocumentEnviamentEstatEnumDto estat,  DocumentNotificacioTipusEnumDto tipus);
 	Notificacio findByRegistreNumeroAndRdsCodiAndRdsClau(String registreNumero, Long rdsCodi, String rdsClau);
+	List<Notificacio> findByRemesa(Remesa remesa);
+	Notificacio findByRemesaAndRegistreNumero(Remesa remesa, String registreNumero);
 }

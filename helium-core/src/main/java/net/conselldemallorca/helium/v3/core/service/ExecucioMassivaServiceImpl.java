@@ -51,6 +51,7 @@ import net.conselldemallorca.helium.core.helper.ExpedientTipusHelper;
 import net.conselldemallorca.helium.core.helper.IndexHelper;
 import net.conselldemallorca.helium.core.helper.MailHelper;
 import net.conselldemallorca.helium.core.helper.MessageHelper;
+import net.conselldemallorca.helium.core.helper.NotificacioHelper;
 import net.conselldemallorca.helium.core.helper.PermisosHelper;
 import net.conselldemallorca.helium.core.helper.PluginHelper;
 import net.conselldemallorca.helium.core.helper.TascaHelper;
@@ -104,6 +105,7 @@ import net.conselldemallorca.helium.v3.core.repository.ExecucioMassivaRepository
 import net.conselldemallorca.helium.v3.core.repository.ExpedientRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientTipusRepository;
 import net.conselldemallorca.helium.v3.core.repository.PersonaRepository;
+import net.conselldemallorca.helium.v3.core.repository.RemesaRepository;
 
 /**
  * Servei per a gestionar la tramitació massiva d'expedients.
@@ -139,6 +141,8 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 	@Resource
 	private AccioRepository accioRepository;
 	@Resource
+	private RemesaRepository remesaRepository;
+	@Resource
 	private ExpedientHelper expedientHelper;
 	@Resource
 	private TerminiHelper terminiHelper;
@@ -146,6 +150,8 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 	private JbpmHelper jbpmHelper;
 	@Resource
 	private TascaHelper tascaHelper;
+	@Resource
+	private NotificacioHelper notificacioHelper;
 	@Resource
 	private MessageHelper messageHelper;
 	@Resource
@@ -181,7 +187,6 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 	private ExpedientTascaService expedientTascaService;
 	@Autowired
 	private ExpedientRegistreService expedientRegistreService;
-
 
 
 	@Transactional
@@ -823,6 +828,10 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 				mesuresTemporalsHelper.mesuraIniciar("desfer fi process instance", "massiva", expedient_s);
 				reprendreExpedient(ome);
 				mesuresTemporalsHelper.mesuraCalcular("desfer fi process instance", "massiva", expedient_s);
+			} else if (tipus == ExecucioMassivaTipus.NOTIFICACIO_SICER){
+				mesuresTemporalsHelper.mesuraIniciar("desfer fi process instance", "massiva", expedient_s);
+				notificacioSicer(exm, expedientTipus);
+				mesuresTemporalsHelper.mesuraCalcular("desfer fi process instance", "massiva", expedient_s);
 			} else if (tipus == ExecucioMassivaTipus.REPRENDRE){
 				mesuresTemporalsHelper.mesuraIniciar("reprendre tramitació process instance", "massiva", expedient_s);
 				reprendreTramitacio(ome);
@@ -878,7 +887,7 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 		if (ome == null)
 			throw new NoTrobatException(ExecucioMassivaExpedient.class, ome_id);
 		
-		if (ome.getExecucioMassiva().getExpedients().size() == ome.getOrdre() + 1) {
+		if (ome.getExecucioMassiva().getExpedients().size() == ome.getOrdre() + 1 || ome.getExecucioMassiva().getTipus() == ExecucioMassivaTipus.NOTIFICACIO_SICER) {
 			try {
 				ExecucioMassiva em = ome.getExecucioMassiva();
 				em.setDataFi(new Date());
@@ -1511,7 +1520,31 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 			throw ex;
 		}
 	}
-
+	
+	private void notificacioSicer(ExecucioMassiva exe, ExpedientTipus expedientTipus) throws Exception {
+		
+		String codiRemesa = exe.getParam1();
+		
+		Object param2 = deserialize(exe.getParam2());
+		Date dataEmisio = (Date)((Object[])param2)[0];
+		Date dataPrevistaDeposit = (Date)((Object[])param2)[1];
+		
+		List<Long> expedientIds = new ArrayList<Long>();
+		for (ExecucioMassivaExpedient ome: exe.getExpedients()) {
+			ome.setDataInici(new Date());
+			expedientIds.add(ome.getExpedient().getId());
+		}
+		
+		notificacioHelper.enviarRemesa(codiRemesa, dataEmisio, dataPrevistaDeposit, expedientTipus.getId(), expedientIds);
+		
+		for (ExecucioMassivaExpedient ome: exe.getExpedients()) {
+			ome.setEstat(ExecucioMassivaEstat.ESTAT_FINALITZAT);
+			ome.setDataFi(new Date());
+			execucioMassivaExpedientRepository.save(ome);
+		}
+		
+	}
+	
 	private void reprendreTramitacio(ExecucioMassivaExpedient ome) throws Exception {
 		Expedient exp = ome.getExpedient();
 		try {

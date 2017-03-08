@@ -810,6 +810,19 @@ public interface Jbpm3HeliumService {
 			String transicioOK,
 			String transicioKO) throws SistemaExternException;
 	
+	
+	/**
+	 * 
+	 * @param documentId
+	 * @param annexosId
+	 * @param expedientId
+	 * @param processInstanceId
+	 */
+	public void crearNotificacioSicerPendent(
+			List<Long> documentsId,
+			ExpedientDto expedient,
+			Long processInstanceId) throws NoTrobatException;
+	
 	/**
 	 * 
 	 * @param documentsId

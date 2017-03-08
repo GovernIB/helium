@@ -10,7 +10,7 @@
 <head>
 	<title>
 		<spring:message code="expedient.notificacio.error"/>:
-		${notificacio.registreNumero}
+		${notificacio.assumpte}
 	</title>
 	<hel:modalHead/>
 </head>

@@ -195,6 +195,7 @@
 			<div id="panel_integracions" class="taula panel-body collapse">
 				<hel:inputCheckbox name="integracioSistra" textKey="expedient.tipus.exportar.form.integracions.sistra" labelSize="6"/>
 				<hel:inputCheckbox name="integracioForms" textKey="expedient.tipus.exportar.form.integracions.forms" labelSize="6"/>
+				<hel:inputCheckbox name="integracioSicer" textKey="expedient.tipus.pipelles.pipella.integracio.sicer" labelSize="6"/>
 			</div>
 		</div>
 		

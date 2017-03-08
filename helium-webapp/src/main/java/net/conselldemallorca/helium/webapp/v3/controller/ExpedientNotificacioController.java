@@ -25,11 +25,13 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.multipart.support.ByteArrayMultipartFileEditor;
 
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DocumentNotificacioTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NotificacioDto;
 import net.conselldemallorca.helium.v3.core.api.exception.SistemaExternException;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientDocumentService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
+import net.conselldemallorca.helium.v3.core.api.service.NotificacioService;
 import net.conselldemallorca.helium.webapp.mvc.ArxiuView;
 import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.ObjectTypeEditorHelper;
@@ -47,6 +49,8 @@ public class ExpedientNotificacioController extends BaseExpedientController {
 	private ExpedientService expedientService;
 	@Autowired
 	private ExpedientDocumentService expedientDocumentService;
+	@Autowired
+	private NotificacioService notificacioService;
 
 	@RequestMapping(value = "/{expedientId}/notificacions", method = RequestMethod.GET)
 	public String notificacions(
@@ -54,10 +58,12 @@ public class ExpedientNotificacioController extends BaseExpedientController {
 			@PathVariable Long expedientId,
 			Model model) {		
 		ExpedientDto expedient = expedientService.findAmbId(expedientId);
-		List<NotificacioDto> notificacions = expedientService.findNotificacionsPerExpedientId(expedient.getId());
+		List<NotificacioDto> notificacionsSistra = expedientService.findNotificacionsPerExpedientId(expedient.getId(), DocumentNotificacioTipusEnumDto.ELECTRONICA);
+		List<NotificacioDto> notificacionsSicer = expedientService.findNotificacionsPerExpedientId(expedient.getId(), DocumentNotificacioTipusEnumDto.SICER);
 		
 		model.addAttribute("expedient",expedient);
-		model.addAttribute("notificacions",notificacions);
+		model.addAttribute("notificacionsSistra",notificacionsSistra);
+		model.addAttribute("notificacionsSicer",notificacionsSicer);
 		
 		return "v3/expedientNotificacio";
 	}
@@ -131,6 +137,60 @@ public class ExpedientNotificacioController extends BaseExpedientController {
  			modalUrlTancar(true);
 		}
 		return "arxiuView";
+	}
+	
+	@RequestMapping(value = "/{expedientId}/notificacio/{notificacioId}/remesa/{remesaId}/reenviar", method = RequestMethod.GET)
+	public String notificacioSicerReenviar(
+			HttpServletRequest request,
+			@PathVariable Long expedientId,
+			@PathVariable Long notificacioId,
+			@PathVariable Long remesaId,
+			Model model) {
+		ExpedientDto expedient = expedientService.findAmbId(expedientId);
+		try {
+			notificacioService.reenviarRemesa(remesaId, expedient.getTipus().getId());
+			MissatgesHelper.success(
+					request,
+					getMessage(
+							request,
+							"expedient.notificacio.sicer.reenviada"));
+		} catch (Exception e) {
+			MissatgesHelper.error(
+					request,
+					getMessage(
+							request,
+							"expedient.notificacio.sicer.reenviada.error"));
+		}
+		
+		model.addAttribute("pipellaActiva", "notificacions");
+		return "redirect:/v3/expedient/" + expedientId;
+	}
+	
+	@RequestMapping(value = "/{expedientId}/notificacio/{notificacioId}/remesa/{remesaId}/refrescar", method = RequestMethod.GET)
+	public String notificacioSicerRefrescar(
+			HttpServletRequest request,
+			@PathVariable Long expedientId,
+			@PathVariable Long notificacioId,
+			@PathVariable Long remesaId,
+			Model model) {
+		expedientService.findAmbId(expedientId);
+		try {
+			notificacioService.refrescarRemesa(remesaId);
+			MissatgesHelper.success(
+					request,
+					getMessage(
+							request,
+							"expedient.notificacio.sicer.refrescada"));
+		} catch (Exception e) {
+			MissatgesHelper.error(
+					request,
+					getMessage(
+							request,
+							"expedient.notificacio.sicer.refrescada.error"));
+		}
+		
+		model.addAttribute("pipellaActiva", "notificacions");
+		return "redirect:/v3/expedient/" + expedientId;
 	}
 	
 	@InitBinder

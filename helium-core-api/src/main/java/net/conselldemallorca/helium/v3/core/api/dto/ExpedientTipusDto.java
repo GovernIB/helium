@@ -51,6 +51,17 @@ public class ExpedientTipusDto extends ControlPermisosDto implements Serializabl
 	private String notificacioAvisTextSms;
 	private String notificacioOficiTitol;
 	private String notificacioOficiText;
+	
+	private boolean sicerIntegracioActiva;
+	private String sicerProducteCodi;
+	private String sicerClientCodi;
+	private String sicerPuntAdmissioCodi;
+	private String sicerNomLlinatges;
+	private String sicerDireccio;
+	private String sicerPoblacio;
+	private String sicerCodiPostal;
+	private String sicerSftpUser;
+	private String sicerSftpPassword;
 
 	private EntornDto entorn;
 	private List<EstatDto> estats = new ArrayList<EstatDto>();
@@ -252,6 +263,66 @@ public class ExpedientTipusDto extends ControlPermisosDto implements Serializabl
 	}
 	public void setNotificacioOficiText(String notificacioOficiText) {
 		this.notificacioOficiText = notificacioOficiText;
+	}
+	public boolean isSicerIntegracioActiva() {
+		return sicerIntegracioActiva;
+	}
+	public void setSicerIntegracioActiva(boolean sicerIntegracioActiva) {
+		this.sicerIntegracioActiva = sicerIntegracioActiva;
+	}
+	public String getSicerProducteCodi() {
+		return sicerProducteCodi;
+	}
+	public void setSicerProducteCodi(String sicerProducteCodi) {
+		this.sicerProducteCodi = sicerProducteCodi;
+	}
+	public String getSicerClientCodi() {
+		return sicerClientCodi;
+	}
+	public void setSicerClientCodi(String sicerClientCodi) {
+		this.sicerClientCodi = sicerClientCodi;
+	}
+	public String getSicerPuntAdmissioCodi() {
+		return sicerPuntAdmissioCodi;
+	}
+	public void setSicerPuntAdmissioCodi(String sicerPuntAdmissioCodi) {
+		this.sicerPuntAdmissioCodi = sicerPuntAdmissioCodi;
+	}
+	public String getSicerNomLlinatges() {
+		return sicerNomLlinatges;
+	}
+	public void setSicerNomLlinatges(String sicerNomLlinatges) {
+		this.sicerNomLlinatges = sicerNomLlinatges;
+	}
+	public String getSicerDireccio() {
+		return sicerDireccio;
+	}
+	public void setSicerDireccio(String sicerDireccio) {
+		this.sicerDireccio = sicerDireccio;
+	}
+	public String getSicerPoblacio() {
+		return sicerPoblacio;
+	}
+	public void setSicerPoblacio(String sicerPoblacio) {
+		this.sicerPoblacio = sicerPoblacio;
+	}
+	public String getSicerCodiPostal() {
+		return sicerCodiPostal;
+	}
+	public void setSicerCodiPostal(String sicerCodiPostal) {
+		this.sicerCodiPostal = sicerCodiPostal;
+	}
+	public String getSicerSftpUser() {
+		return sicerSftpUser;
+	}
+	public void setSicerSftpUser(String sicerSftpUser) {
+		this.sicerSftpUser = sicerSftpUser;
+	}
+	public String getSicerSftpPassword() {
+		return sicerSftpPassword;
+	}
+	public void setSicerSftpPassword(String sicerSftpPassword) {
+		this.sicerSftpPassword = sicerSftpPassword;
 	}
 	public EntornDto getEntorn() {
 		return entorn;

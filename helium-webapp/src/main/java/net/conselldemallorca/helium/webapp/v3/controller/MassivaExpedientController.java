@@ -66,6 +66,7 @@ import net.conselldemallorca.helium.webapp.v3.command.CanviVersioProcesCommand;
 import net.conselldemallorca.helium.webapp.v3.command.DocumentExpedientCommand;
 import net.conselldemallorca.helium.webapp.v3.command.ExecucioAccioCommand;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientEinesAturarCommand;
+import net.conselldemallorca.helium.webapp.v3.command.ExpedientEinesNotificacioSicerCommand;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientEinesReassignarCommand;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientEinesScriptCommand;
 import net.conselldemallorca.helium.webapp.v3.command.ModificarVariablesCommand;
@@ -166,6 +167,7 @@ public class MassivaExpedientController extends BaseExpedientController {
 			model.addAttribute(new ModificarVariablesCommand());
 			model.addAttribute(new DocumentExpedientCommand());
 			model.addAttribute(new ExpedientEinesReassignarCommand());
+			model.addAttribute(new ExpedientEinesNotificacioSicerCommand());
 			model.addAttribute(
 					"accions",
 					expedientService.accioFindVisiblesAmbProcessInstanceId(
@@ -202,6 +204,7 @@ public class MassivaExpedientController extends BaseExpedientController {
 			Collections.sort(documents, new ComparadorDocument());
 			model.addAttribute("documents", documents);
 			model.addAttribute("permisAdministrador", expedient.isPermisAdministration());
+			model.addAttribute("permisSicer", expedient.getTipus().isSicerIntegracioActiva());
 			return "v3/massivaInfo";
 		}
 	}
@@ -246,6 +249,19 @@ public class MassivaExpedientController extends BaseExpedientController {
 			@RequestParam(value = "accio", required = true) String accio,
 			Model model) {
 		return massivaPost(request, inici, correu, null, accio, null, null, model, null, null);
+	}
+	
+	@RequestMapping(value="notificacioSicer", method = RequestMethod.POST)
+	public String notificacioSicer(
+			HttpServletRequest request,
+			@RequestParam(value = "inici", required = false) String inici,
+			@RequestParam(value = "correu", required = false) boolean correu,
+			@ModelAttribute ExpedientEinesNotificacioSicerCommand command, 
+			@RequestParam(value = "accio", required = true) String accio,
+			BindingResult result, 
+			SessionStatus status, 
+			Model model) {		
+		return massivaPost(request, inici, correu, command, accio, result, status, model, null, null);
 	}
 
 	@RequestMapping(value="massivaExecutarAccio", method = RequestMethod.POST)
@@ -351,6 +367,24 @@ public class MassivaExpedientController extends BaseExpedientController {
 				dto.setTipus(ExecucioMassivaTipusDto.REPRENDRE_EXPEDIENT);
 				execucioMassivaService.crearExecucioMassiva(dto);
 				MissatgesHelper.success(request, getMessage(request, "info.accio.massiu.reprendre_expedient", new Object[] {listIds.size()}));
+			} else if ("notificacioSicer".equals(accio)) {
+				new ExpedientEinesNotificacioSicerValidator().validate(command, result);
+				if (result.hasErrors()) {
+					model.addAttribute("expedientEinesNotificacioSicerCommand", command);
+					MissatgesHelper.error(request, getMessage(request, "error.crear.remesa"));
+				} else {
+					dto.setTipus(ExecucioMassivaTipusDto.NOTIFICACIO_SICER);
+					dto.setParam1(((ExpedientEinesNotificacioSicerCommand) command).getCodiRemesa());
+					
+					Object[] params = new Object[2];
+					params[0] = ((ExpedientEinesNotificacioSicerCommand) command).getDataEmisio();
+					params[1] = ((ExpedientEinesNotificacioSicerCommand) command).getDataPrevistaDeposit();
+					dto.setParam2(execucioMassivaService.serialize(params));
+					
+					execucioMassivaService.crearExecucioMassiva(dto);		
+					MissatgesHelper.success(request, getMessage(request, "info.expedient.massiu.sicer", new Object[] {listIds.size()}));
+					model.addAttribute("expedientEinesNotificacioSicerCommand", command);
+				}
 			} else if ("executar".equals(accio)) {
 				new ExpedientScriptValidator().validate(command, result);
 				if (result.hasErrors()) {
@@ -802,6 +836,18 @@ public class MassivaExpedientController extends BaseExpedientController {
 		}
 		public void validate(Object target, Errors errors) {
 			ValidationUtils.rejectIfEmpty(errors, "motiu", "not.blank");
+		}
+	}
+	
+	private class ExpedientEinesNotificacioSicerValidator implements Validator {
+		@SuppressWarnings({ "unchecked", "rawtypes" })
+		public boolean supports(Class clazz) {
+			return clazz.isAssignableFrom(ExpedientEinesNotificacioSicerCommand.class);
+		}
+		public void validate(Object target, Errors errors) {
+			ValidationUtils.rejectIfEmpty(errors, "codiRemesa", "not.blank");
+			ValidationUtils.rejectIfEmpty(errors, "dataEmisio", "not.blank");
+			ValidationUtils.rejectIfEmpty(errors, "dataPrevistaDeposit", "not.blank");
 		}
 	}
 	

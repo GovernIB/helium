@@ -10,4 +10,5 @@ public interface TascaProgramadaService {
 	public void reindexarExpedient (Long expedientId) throws NoTrobatException;
 	public void comprovarEstatNotificacions() throws NoTrobatException;
 	public void actualitzarEstatNotificacions(Long notificacioId) throws NoTrobatException;
+	public void actualitzarEstatNotificacionsSicer() throws NoTrobatException;
 }

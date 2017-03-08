@@ -231,6 +231,18 @@ public class ConversioTipusHelper {
 						target.setNotificacioAvisTextSms(source.getNotificacioAvisTextSms());
 						target.setNotificacioOficiTitol(source.getNotificacioOficiTitol());
 						target.setNotificacioOficiText(source.getNotificacioOficiText());
+						
+						target.setSicerIntegracioActiva(source.isSicerIntegracioActiva());
+						target.setSicerProducteCodi(source.getSicerProducteCodi());
+						target.setSicerClientCodi(source.getSicerClientCodi());
+						target.setSicerPuntAdmissioCodi(source.getSicerPuntAdmissioCodi());
+						target.setSicerNomLlinatges(source.getSicerNomLlinatges());
+						target.setSicerDireccio(source.getSicerDireccio());
+						target.setSicerPoblacio(source.getSicerPoblacio());
+						target.setSicerCodiPostal(source.getSicerCodiPostal());
+						target.setSicerSftpUser(source.getSicerSftpUser());
+						target.setSicerSftpPassword(source.getSicerSftpPassword());
+						
 						target.setSequencia(source.getSequencia());
 						target.setSequenciaDefault(source.getSequenciaDefault());
 						target.setTeNumero(source.getTeNumero());
@@ -299,6 +311,16 @@ public class ConversioTipusHelper {
 						target.setNotificacioAvisTextSms(source.getNotificacioAvisTextSms());
 						target.setNotificacioOficiTitol(source.getNotificacioOficiTitol());
 						target.setNotificacioOficiText(source.getNotificacioOficiText());
+						target.setSicerIntegracioActiva(source.isSicerIntegracioActiva());
+						target.setSicerProducteCodi(source.getSicerProducteCodi());
+						target.setSicerClientCodi(source.getSicerClientCodi());
+						target.setSicerPuntAdmissioCodi(source.getSicerPuntAdmissioCodi());
+						target.setSicerNomLlinatges(source.getSicerNomLlinatges());
+						target.setSicerDireccio(source.getSicerDireccio());
+						target.setSicerPoblacio(source.getSicerPoblacio());
+						target.setSicerCodiPostal(source.getSicerCodiPostal());
+						target.setSicerSftpUser(source.getSicerSftpUser());
+						target.setSicerSftpPassword(source.getSicerSftpPassword());
 						target.setSequencia(source.getSequencia());
 						target.setSequenciaDefault(source.getSequenciaDefault());
 						target.setTeNumero(source.isTeNumero());

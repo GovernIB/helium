@@ -26,6 +26,7 @@ import net.conselldemallorca.helium.core.model.hibernate.ExecucioMassiva.Execuci
 import net.conselldemallorca.helium.core.model.hibernate.ExecucioMassivaExpedient;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.model.hibernate.Notificacio;
+import net.conselldemallorca.helium.core.model.hibernate.Remesa;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentEnviamentEstatEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentNotificacioTipusEnumDto;
@@ -35,6 +36,7 @@ import net.conselldemallorca.helium.v3.core.api.service.TascaProgramadaService;
 import net.conselldemallorca.helium.v3.core.repository.ExecucioMassivaExpedientRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientRepository;
 import net.conselldemallorca.helium.v3.core.repository.NotificacioRepository;
+import net.conselldemallorca.helium.v3.core.repository.RemesaRepository;
 
 /**
  * Servei per gestionar els terminis dels expedients
@@ -50,6 +52,8 @@ public class TascaProgramadaServiceImpl implements TascaProgramadaService {
 	private ExpedientRepository expedientRepository;
 	@Resource
 	private NotificacioRepository notificacioRepository;
+	@Resource
+	private RemesaRepository remesaRepository;
 	@Autowired
 	private ExecucioMassivaService execucioMassivaService;
 	@Resource
@@ -193,7 +197,24 @@ public class TascaProgramadaServiceImpl implements TascaProgramadaService {
 	}
 	/**************************/
 	
-	
+	/*** ACTUALITZAR ESTAT NOTIFICACIONS SICER ***/
+	@Override
+	@Transactional
+	@Scheduled(fixedDelayString = "${app.sicer.comprovar.estat.interval}")
+	public void actualitzarEstatNotificacionsSicer() {
+		List<Remesa> remesesPendentsValidar = remesaRepository.findByEstat(DocumentEnviamentEstatEnumDto.ENVIAT);
+		List<Remesa> remesesPendentsEntregar = remesaRepository.findByEstat(DocumentEnviamentEstatEnumDto.VALIDAT);
+		
+		for (Remesa remesaEnviada: remesesPendentsValidar) {
+			notificacioHelper.comprovarRemesaEnviada(remesaEnviada);
+		}
+		
+		for (Remesa remesaValidada: remesesPendentsEntregar) {
+			notificacioHelper.comprovarRemesaValidada(remesaValidada);
+		}
+	}
+
+	/**************************/
 	
 	public static void saveError(Long operacioMassivaId, Throwable error, ExecucioMassivaTipus tipus) {
 		if (tipus != ExecucioMassivaTipus.ELIMINAR_VERSIO_DEFPROC) {

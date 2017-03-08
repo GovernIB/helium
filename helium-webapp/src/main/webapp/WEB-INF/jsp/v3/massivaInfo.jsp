@@ -94,6 +94,12 @@
 			if (e.stopPropagation) e.stopPropagation();
 			return confirm("<spring:message code='expedient.eines.confirm_reprendre_expedients' />");
 		}
+		function confirmarNotificacioSicer(e) {
+			var e = e || window.event;
+			e.cancelBubble = true;
+			if (e.stopPropagation) e.stopPropagation();
+			return confirm("<spring:message code='expedient.eines.confirm_notificacio_sicer' />");
+		}
 		$(document).ready(function(){
 			$('.date_time').datetimepicker({
 				locale: moment.locale('${idioma}'),
@@ -254,6 +260,9 @@
 							<option value="documentModificarMas"><spring:message code='expedient.massiva.documents' /></option>
 							<option value="buidarlogMas"><spring:message code='expedient.eines.buidarlog.expedients' /></option>
 							<option value="reprendreExpedientMas"><spring:message code='expedient.eines.reprendre_expedients' /></option>
+							<c:if test="${permisSicer}">
+								<option value="notificacioSicer"><spring:message code='expedient.eines.notificacio_sicer' /></option>
+							</c:if>
 						</select>
 						<script>
 							$(document).ready(function() {
@@ -419,6 +428,24 @@
 				<form:form cssClass="form-horizontal form-tasca" id="buidarlogMas" name="buidarlogMas" action="massiva/buidarlogMas" method="post" onsubmit="return confirmarBuidarLog(event)">
 					<button class="btn btn-primary right" type="submit" name="accio" value="buidarlog">
 						<spring:message code='comuns.buidarlog' />
+					</button>
+				</form:form>
+			</div>
+		</div>
+	</div>
+	
+	<div class="opcionMasiva control-group right">
+		<div class="label-titol">
+			<label class="control-label"><spring:message code='expedient.eines.notificacio_sicer' /></label>
+			<div class="form-group">
+				<form:form cssClass="form-horizontal form-tasca" id="notificacioSicer" name="notificacioSicer" action="massiva/notificacioSicer" method="post" commandName="expedientEinesNotificacioSicerCommand" onsubmit="return confirmarNotificacioSicer(event)">
+					
+					<hel:inputText name="codiRemesa" textKey="expedient.eines.remesa.codi" placeholderKey="expedient.eines.remesa.codi"/>
+					<hel:inputDate name="dataEmisio" textKey="expedient.eines.remesa.data_emisio" placeholder="dd/mm/aaaa"/>
+					<hel:inputDate name="dataPrevistaDeposit" textKey="expedient.eines.remesa.data_prevista_deposit" placeholder="dd/mm/aaaa"/>
+					
+					<button class="btn btn-primary right" type="submit" name="accio" value="notificacioSicer">
+						<spring:message code='comuns.notificar' />
 					</button>
 				</form:form>
 			</div>

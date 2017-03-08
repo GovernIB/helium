@@ -242,6 +242,17 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		entity.setNotificacioOficiTitol(expedientTipus.getNotificacioOficiTitol());
 		entity.setNotificacioOficiText(expedientTipus.getNotificacioOficiText());
 		
+		entity.setSicerIntegracioActiva(expedientTipus.isSicerIntegracioActiva());
+		entity.setSicerProducteCodi(expedientTipus.getSicerProducteCodi());
+		entity.setSicerClientCodi(expedientTipus.getSicerClientCodi());
+		entity.setSicerPuntAdmissioCodi(expedientTipus.getSicerPuntAdmissioCodi());
+		entity.setSicerNomLlinatges(expedientTipus.getSicerNomLlinatges());
+		entity.setSicerDireccio(expedientTipus.getSicerDireccio());
+		entity.setSicerPoblacio(expedientTipus.getSicerPoblacio());
+		entity.setSicerCodiPostal(expedientTipus.getSicerCodiPostal());
+		entity.setSicerSftpUser(expedientTipus.getSicerSftpUser());
+		entity.setSicerSftpPassword(expedientTipus.getSicerSftpPassword());
+		
 		if (expedientTipus.isReiniciarCadaAny()) {
 			for (int i = 0; i < sequenciesAny.size(); i++) {
 				SequenciaAny anyEntity = new SequenciaAny(
@@ -298,6 +309,18 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		entity.setNotificacioAvisTextSms(expedientTipus.getNotificacioAvisTextSms());
 		entity.setNotificacioOficiTitol(expedientTipus.getNotificacioOficiTitol());
 		entity.setNotificacioOficiText(expedientTipus.getNotificacioOficiText());
+		
+		entity.setSicerIntegracioActiva(expedientTipus.isSicerIntegracioActiva());
+		entity.setSicerProducteCodi(expedientTipus.getSicerProducteCodi());
+		entity.setSicerClientCodi(expedientTipus.getSicerClientCodi());
+		entity.setSicerPuntAdmissioCodi(expedientTipus.getSicerPuntAdmissioCodi());
+		entity.setSicerNomLlinatges(expedientTipus.getSicerNomLlinatges());
+		entity.setSicerDireccio(expedientTipus.getSicerDireccio());
+		entity.setSicerPoblacio(expedientTipus.getSicerPoblacio());
+		entity.setSicerCodiPostal(expedientTipus.getSicerCodiPostal());
+		entity.setSicerSftpUser(expedientTipus.getSicerSftpUser());
+		entity.setSicerSftpPassword(expedientTipus.getSicerSftpPassword());
+		
 		while (entity.getSequenciaAny().size() > 0) {
 			SequenciaAny s = entity.getSequenciaAny().get(entity.getSequenciaAny().firstKey());			
 			entity.getSequenciaAny().remove(s.getAny());
@@ -396,6 +419,35 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 				expedientTipusRepository.save(entity),
 				ExpedientTipusDto.class);	
 	}	
+	
+	@Override
+	@Transactional
+	public ExpedientTipusDto updateIntegracioSicer(
+			Long entornId, 
+			Long expedientTipusId, 
+			ExpedientTipusDto command) {
+		logger.debug(
+				"Modificant tipus d'expedient amb dades d'integracio amb SICER (" +
+				"entornId=" + entornId + ", " +
+				"expedientTipus=" + expedientTipusId + ")");
+		
+		ExpedientTipus entity = expedientTipusHelper.getExpedientTipusComprovantPermisDisseny(expedientTipusId);
+		
+		entity.setSicerIntegracioActiva(command.isSicerIntegracioActiva());
+		entity.setSicerProducteCodi(command.getSicerProducteCodi());
+		entity.setSicerClientCodi(command.getSicerClientCodi());
+		entity.setSicerPuntAdmissioCodi(command.getSicerPuntAdmissioCodi());
+		entity.setSicerNomLlinatges(command.getSicerNomLlinatges());
+		entity.setSicerDireccio(command.getSicerDireccio());
+		entity.setSicerPoblacio(command.getSicerPoblacio());
+		entity.setSicerCodiPostal(command.getSicerCodiPostal());
+		entity.setSicerSftpUser(command.getSicerSftpUser());
+		entity.setSicerSftpPassword(command.getSicerSftpPassword());
+		
+		return conversioTipusHelper.convertir(
+				expedientTipusRepository.save(entity),
+				ExpedientTipusDto.class);	
+	}
 
 	/**
 	 * {@inheritDoc}
@@ -493,7 +545,34 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 								mapeig.getCodiHelium(), 
 								mapeig.getCodiSistra(), 
 								MapeigSistraDto.TipusMapeig.valueOf(mapeig.getTipus().toString())));
+			
+			exportacio.setNotificacionsActivades(tipus.isNotificacionsActivades());
+			exportacio.setNotificacioOrganCodi(tipus.getNotificacioOrganCodi());
+			exportacio.setNotificacioOficinaCodi(tipus.getNotificacioOficinaCodi());
+			exportacio.setNotificacioUnitatAdministrativa(tipus.getNotificacioUnitatAdministrativa());
+			exportacio.setNotificacioCodiProcediment(tipus.getNotificacioCodiProcediment());
+			exportacio.setNotificacioAvisTitol(tipus.getNotificacioAvisTitol());
+			exportacio.setNotificacioAvisText(tipus.getNotificacioAvisText());
+			exportacio.setNotificacioAvisTextSms(tipus.getNotificacioAvisTextSms());
+			exportacio.setNotificacioOficiTitol(tipus.getNotificacioOficiTitol());
+			exportacio.setNotificacioOficiText(tipus.getNotificacioOficiText());
 		}
+		
+		// Integració amb SICER
+		if (command.isIntegracioSicer()) {
+			exportacio.setSicerIntegracioActiva(tipus.isSicerIntegracioActiva());
+			exportacio.setSicerProducteCodi(tipus.getSicerProducteCodi());
+			exportacio.setSicerClientCodi(tipus.getSicerClientCodi());
+			exportacio.setSicerPuntAdmissioCodi(tipus.getSicerPuntAdmissioCodi());
+			exportacio.setSicerNomLlinatges(tipus.getSicerNomLlinatges());
+			exportacio.setSicerDireccio(tipus.getSicerDireccio());
+			exportacio.setSicerPoblacio(tipus.getSicerPoblacio());
+			exportacio.setSicerCodiPostal(tipus.getSicerCodiPostal());
+			exportacio.setSicerSftpUser(tipus.getSicerSftpUser());
+			exportacio.setSicerSftpPassword(tipus.getSicerSftpPassword());
+		}
+		
+		
 		// Estats
 		if (command.getEstats().size() > 0)
 			for (Estat estat: tipus.getEstats()) 
@@ -802,7 +881,33 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 								mapeig.getCodiHelium(), 
 								mapeig.getCodiSistra(), 
 								MapeigSistra.TipusMapeig.valueOf(mapeig.getTipus().toString())));
+			
+			expedientTipus.setNotificacionsActivades(importacio.isNotificacionsActivades());
+			expedientTipus.setNotificacioOrganCodi(importacio.getNotificacioOrganCodi());
+			expedientTipus.setNotificacioOficinaCodi(importacio.getNotificacioOficinaCodi());
+			expedientTipus.setNotificacioUnitatAdministrativa(importacio.getNotificacioUnitatAdministrativa());
+			expedientTipus.setNotificacioCodiProcediment(importacio.getNotificacioCodiProcediment());
+			expedientTipus.setNotificacioAvisTitol(importacio.getNotificacioAvisTitol());
+			expedientTipus.setNotificacioAvisText(importacio.getNotificacioAvisText());
+			expedientTipus.setNotificacioAvisTextSms(importacio.getNotificacioAvisTextSms());
+			expedientTipus.setNotificacioOficiTitol(importacio.getNotificacioOficiTitol());
+			expedientTipus.setNotificacioOficiText(importacio.getNotificacioOficiText());
 		}
+		
+		// Integració amb SICER
+		if (command.isIntegracioSicer()) {
+			expedientTipus.setSicerIntegracioActiva(importacio.isSicerIntegracioActiva());
+			expedientTipus.setSicerProducteCodi(importacio.getSicerProducteCodi());
+			expedientTipus.setSicerClientCodi(importacio.getSicerClientCodi());
+			expedientTipus.setSicerPuntAdmissioCodi(importacio.getSicerPuntAdmissioCodi());
+			expedientTipus.setSicerNomLlinatges(importacio.getSicerNomLlinatges());
+			expedientTipus.setSicerDireccio(importacio.getSicerDireccio());
+			expedientTipus.setSicerPoblacio(importacio.getSicerPoblacio());
+			expedientTipus.setSicerCodiPostal(importacio.getSicerCodiPostal());
+			expedientTipus.setSicerSftpUser(importacio.getSicerSftpUser());
+			expedientTipus.setSicerSftpPassword(importacio.getSicerSftpPassword());
+		}
+		
 		
 		boolean sobreEscriure = command.isSobreEscriure();
 		// Estats

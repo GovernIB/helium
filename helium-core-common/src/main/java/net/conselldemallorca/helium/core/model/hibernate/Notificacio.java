@@ -69,6 +69,9 @@ public class Notificacio implements Serializable, GenericEntity<Long> {
 	@Column(name = "data_enviament", nullable = false)
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date dataEnviament;
+	@Column(name = "data_creacio", nullable = false)
+	@Temporal(TemporalType.TIMESTAMP)
+	private Date dataCreacio;
 	@Column(name = "observacions", length = 256)
 	private String observacions;
 	@ManyToOne(optional = false, fetch = FetchType.EAGER)
@@ -156,6 +159,10 @@ public class Notificacio implements Serializable, GenericEntity<Long> {
 	private String rdsClau;
 	@Column(name = "error_notificacio", length = 1024)
 	private String error;
+	@ManyToOne(fetch = FetchType.EAGER)
+	@JoinColumn(name = "remesa_id")
+	@ForeignKey(name = "hel_remesa_notif_fk")
+	private Remesa remesa;
 	
 
 //	
@@ -196,6 +203,13 @@ public class Notificacio implements Serializable, GenericEntity<Long> {
 	}
 	public void setDataEnviament(Date dataEnviament) {
 		this.dataEnviament = dataEnviament;
+	}
+	
+	public Date getDataCreacio() {
+		return dataCreacio;
+	}
+	public void setDataCreacio(Date dataCreacio) {
+		this.dataCreacio = dataCreacio;
 	}
 
 	
@@ -480,6 +494,13 @@ public class Notificacio implements Serializable, GenericEntity<Long> {
 	}
 	public void setError(String error) {
 		this.error = error;
+	}
+
+	public Remesa getRemesa() {
+		return remesa;
+	}
+	public void setRemesa(Remesa remesa) {
+		this.remesa = remesa;
 	}
 
 	private static final long serialVersionUID = 1L;

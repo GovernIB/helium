@@ -61,7 +61,8 @@ public class ExecucioMassiva implements Serializable, GenericEntity<Long> {
 		REPRENDRE_EXPEDIENT,
 		REPRENDRE,
 		PROPAGAR_PLANTILLES,
-		PROPAGAR_CONSULTES
+		PROPAGAR_CONSULTES,
+		NOTIFICACIO_SICER
 	}
 
 	private Long id;
