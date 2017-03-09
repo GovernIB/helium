@@ -35,9 +35,11 @@ public class SftpClientHelper {
 		SFTPHOST = properties.getProperty("app.sicer.sftp.host");
         SFTPPORT = Integer.parseInt(properties.getProperty("app.sicer.sftp.port"));
         SFTPUSER = properties.getProperty("app.sicer.sftp.user");
-        SFTPPASS = properties.getProperty("app.sicer.sftp.password");
+//        SFTPPASS = properties.getProperty("app.sicer.sftp.password");
         
-		return openSftpConnection();
+        String privateKeyPath = properties.getProperty("app.sicer.sftp.private.key");
+        
+		return openSftpConnectionWithPrivateKey(privateKeyPath);
 	}
 	
 	public void closeConnection() {
@@ -49,12 +51,15 @@ public class SftpClientHelper {
         System.out.println("Host Session disconnected.");
 	}
 	
-	private ChannelSftp openSftpConnection() throws Exception {
+	private ChannelSftp openSftpConnectionWithPrivateKey(String privateKeyPath) throws Exception {
         System.out.println("preparing the host information for sftp.");
         try {
             JSch jsch = new JSch();
+            
+            jsch.addIdentity(privateKeyPath);
+
             session = jsch.getSession(SFTPUSER, SFTPHOST, SFTPPORT);
-            session.setPassword(SFTPPASS);
+//            session.setPassword(SFTPPASS);
             java.util.Properties config = new java.util.Properties();
             config.put("StrictHostKeyChecking", "no");
             session.setConfig(config);

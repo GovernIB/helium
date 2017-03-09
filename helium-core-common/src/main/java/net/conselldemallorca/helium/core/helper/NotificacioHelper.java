@@ -405,7 +405,7 @@ public class NotificacioHelper {
 	
 	
 	private void enviamentFitxerSftpSicer(File fitxer) throws Exception {
-        String SFTPWORKINGDIR = "/home/limit/sftp-proves";
+        String SFTPWORKINGDIR = "/";
 
         try {
         	ChannelSftp channelSftp = sftpClientHelper.openSicerSftpConnection();
