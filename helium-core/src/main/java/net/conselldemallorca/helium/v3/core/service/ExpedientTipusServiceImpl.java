@@ -1265,7 +1265,6 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 				ExpedientTipus.class,
 				new Permission[] {
 						ExtendedPermission.READ,
-						ExtendedPermission.SUPERVISION,
 						ExtendedPermission.ADMINISTRATION},
 				auth);
 		return conversioTipusHelper.convertirList(

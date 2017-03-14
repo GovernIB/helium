@@ -207,3 +207,12 @@
 </script>
 </c:otherwise>
 </c:choose>
+<script type="text/javascript">
+	$(document).ready(function() {
+		// Treu els botons d'accions per a les tasques on no hi hagi cap opció
+		$('table#table-tasques-pendents-${expedient.id} .columna-accio-tasca').find('.btn-group').each(function() {
+			if ( $(this).find('li').length == 0)
+				$(this).remove();
+		})
+	});
+</script>

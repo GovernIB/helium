@@ -108,6 +108,10 @@
 					});
 					var position = $(".dropdown-menu.dropdown-menu-context").position();					
 					$(".dropdown-menu.dropdown-menu-context").css({top: position.top-180});
+					// Treu els botons d'accions per a les tasques on no hi hagi cap opció
+					if ($('#dropdown-menu-${tasca.id}').find('li').length == 0) {
+						$('#dropdown-menu-${tasca.id}').closest('.btn-group').remove();
+					}
 				</script>
 			</div>
 		</td>
