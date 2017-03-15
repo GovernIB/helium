@@ -42,7 +42,13 @@
 	<form:form id="validacio-form" cssClass="form-horizontal" action="#" enctype="multipart/form-data" method="post" commandName="expedientTipusEnumeracioValorCommand" style='${mostraCreate || mostraUpdate ? "":"display:none;"}'>
 		<div class="inlineLabels">        
 			<input type="hidden" name="id" id="inputValidacioId" value="${expedientTipusEnumeracioValorCommand.id}"/>
-			<hel:inputText required="true" name="codi" textKey="expedient.tipus.enumeracio.valors.form.camp.codi" />
+			<c:if test="${expedientTipus.permisDesignAdmin}">
+				<hel:inputText required="true" name="codi" textKey="expedient.tipus.enumeracio.valors.form.camp.codi" />
+			</c:if>
+			<c:if test="${!expedientTipus.permisDesignAdmin}">
+				<input type="hidden" name="codi" value="${expedientTipusEnumeracioValorCommand.codi}"/>
+				<hel:inputText required="false" disabled="true" name="codi" textKey="expedient.tipus.enumeracio.valors.form.camp.codi" />
+			</c:if>
 			<hel:inputText required="true" name="nom"  textKey="expedient.tipus.enumeracio.valors.form.camp.nom" />
 		</div>
 
@@ -80,7 +86,6 @@
 				</div>
 			</div>
 		</div>
-		
 		<div id="modal-botons" class="well">
 			<button id="btnCancelar_imp" name="submit" value="cancel" class="btn btn-default"><spring:message code="comu.boto.cancelar"/></button>
 			<button id="btnCreate_imp" class="btn btn-primary right" type="submit" name="accio" value="crear">
@@ -89,10 +94,13 @@
 		</div>
 	</form:form>
 	
-	<div class="botons-titol text-right">
-		<button id="btnNew" class="btn btn-default" style='${mostraCreate || mostraUpdate ? "display:none;" : ""}'><span class="fa fa-plus"></span>&nbsp;<spring:message code="expedient.tipus.enumeracio.valors.form.titol.nou"/></button>
-		<button id="btnImp" class="btn btn-info"    style='${mostraCreate || mostraUpdate ? "display:none;" : ""}'><span class="fa fa-sign-in"></span>&nbsp;<spring:message code="comu.boto.importar.dades"/></button>
-	</div>	
+	<c:if test="${expedientTipus.permisDesignAdmin}">
+		<div class="botons-titol text-right">
+			<button id="btnNew" class="btn btn-default" style='${mostraCreate || mostraUpdate ? "display:none;" : ""}'><span class="fa fa-plus"></span>&nbsp;<spring:message code="expedient.tipus.enumeracio.valors.form.titol.nou"/></button>
+			<button id="btnImp" class="btn btn-info"    style='${mostraCreate || mostraUpdate ? "display:none;" : ""}'><span class="fa fa-sign-in"></span>&nbsp;<spring:message code="comu.boto.importar.dades"/></button>
+		</div>	
+	</c:if>
+	
 	<div style="height: 500px;">
 		<table	id="campValidacio"
 				data-toggle="datatable"
@@ -113,7 +121,9 @@
 							<button class="btn btn-primary" data-toggle="dropdown"><span class="fa fa-cog"></span>&nbsp;<spring:message code="comu.boto.accions"/>&nbsp;<span class="caret"></span></button>
 							<ul class="dropdown-menu">
 								<li><a href="${baseUrl}/{{:id}}/update" class="validacioUpdate" data-validacioid="{{:id}}"><span class="fa fa-pencil"></span>&nbsp;<spring:message code="expedient.tipus.info.accio.modificar"/></a></li>
-								<li><a href="${baseUrl}/{{:id}}/delete" data-confirm="<spring:message code="expedient.tipus.enumeracio.valors.llistat.confirm.esborra"/>"><span class="fa fa-trash-o"></span>&nbsp;<spring:message code="expedient.llistat.accio.esborrar"/></a></li>
+								<c:if test="${expedientTipus.permisDesignAdmin}">
+									<li><a href="${baseUrl}/{{:id}}/delete" data-confirm="<spring:message code="expedient.tipus.enumeracio.valors.llistat.confirm.esborra"/>"><span class="fa fa-trash-o"></span>&nbsp;<spring:message code="expedient.llistat.accio.esborrar"/></a></li>
+								</c:if>
 							</ul>
 						</div>
 					</script>

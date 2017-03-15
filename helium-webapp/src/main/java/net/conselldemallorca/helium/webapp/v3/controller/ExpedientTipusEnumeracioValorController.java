@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
+import net.conselldemallorca.helium.core.model.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EnumeracioDto;
@@ -54,9 +55,6 @@ public class ExpedientTipusEnumeracioValorController extends BaseExpedientTipusC
 			@PathVariable Long enumeracioId,
 			Model model) {
 		
-//		if (!NodecoHelper.isNodeco(request)) {
-//			return mostrarInformacioExpedientTipusPerPipelles(request, expedientTipusId, model, "enumeracions");
-//		}
 		ompleDadesModel(request, expedientTipusId, enumeracioId, model, true);
 
 		return "v3/expedientTipusEnumeracioValors";
@@ -120,10 +118,9 @@ public class ExpedientTipusEnumeracioValorController extends BaseExpedientTipusC
 			model.addAttribute("mostraUpdate", true);
 			return "v3/expedientTipusEnumeracioValors";
 		} else {		
-		
 			ExpedientTipusEnumeracioValorDto dto = ExpedientTipusEnumeracioValorCommand.asExpedientTipusEnumeracioValorDto(command);
 			
-			//Conservam l´ordre anteriro
+			//Conservam l´ordre anterior
 			ExpedientTipusEnumeracioValorDto dto_antic = enumeracioService.valorFindAmbId(id);
 			dto.setOrdre(dto_antic.getOrdre());
 			

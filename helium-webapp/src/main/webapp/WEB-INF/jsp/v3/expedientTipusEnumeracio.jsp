@@ -23,7 +23,9 @@
 				data-ordering="true"
 				data-default-order="2"
 				data-rowhref-toggle="modal"
-				data-rowhref-template="#rowhrefTemplateEnumeracions" 
+				<c:if test="${expedientTipus.permisDesignAdmin}">
+					data-rowhref-template="#rowhrefTemplateEnumeracions"
+				</c:if> 
 				data-botons-template="#tableButtonsEnumeracioTemplate"
 				class="table table-striped table-bordered table-hover">
 			<thead>
@@ -37,17 +39,19 @@
 							<a data-toggle="modal" data-callback="callbackModalEnumerats()" href="${expedientTipus.id}/enumeracio/{{:id}}/valors" class="btn btn-default"><span class="fa fa-bars"></span>&nbsp;<spring:message code="expedient.tipus.enumeracio.llistat.boto.valors"/>&nbsp;<span class="badge">{{:numValors}}</span></a>
 						</script>
 					</th>
-					<th data-col-name="id" data-template="#cellEnumTemplate" data-orderable="false" width="10%">
-						<script id="cellEnumTemplate" type="text/x-jsrender">
-							<div class="dropdown">
-								<button class="btn btn-primary" data-toggle="dropdown"><span class="fa fa-cog"></span>&nbsp;<spring:message code="comu.boto.accions"/>&nbsp;<span class="caret"></span></button>
-								<ul class="dropdown-menu">
-									<li><a data-toggle="modal" data-callback="callbackModalEnumerats()" href="${expedientTipus.id}/enumeracio/{{:id}}/update"><span class="fa fa-pencil"></span>&nbsp;<spring:message code="comu.boto.modificar"/></a></li>
-									<li><a href="${expedientTipus.id}/enumeracio/{{:id}}/delete" data-toggle="ajax" data-confirm="<spring:message code="expedient.tipus.enumeracio.llistat.confirm.esborra"/>"><span class="fa fa-trash-o"></span>&nbsp;<spring:message code="comu.boto.esborrar"/></a></li>
-								</ul>
-							</div>
-						</script>
-					</th>
+					<c:if test="${expedientTipus.permisDesignAdmin}">
+						<th data-col-name="id" data-template="#cellEnumTemplate" data-orderable="false" width="10%">
+							<script id="cellEnumTemplate" type="text/x-jsrender">
+								<div class="dropdown">
+									<button class="btn btn-primary" data-toggle="dropdown"><span class="fa fa-cog"></span>&nbsp;<spring:message code="comu.boto.accions"/>&nbsp;<span class="caret"></span></button>
+									<ul class="dropdown-menu">
+									<li><a data-toggle="modal" href="${expedientTipus.id}/enumeracio/{{:id}}/update"><span class="fa fa-pencil"></span>&nbsp;<spring:message code="comu.boto.modificar"/></a></li>
+										<li><a href="${expedientTipus.id}/enumeracio/{{:id}}/delete" data-toggle="ajax" data-confirm="<spring:message code="expedient.tipus.enumeracio.llistat.confirm.esborra"/>"><span class="fa fa-trash-o"></span>&nbsp;<spring:message code="comu.boto.esborrar"/></a></li>
+									</ul>
+								</div>
+							</script>
+						</th>
+					</c:if>
 				</tr>
 			</thead>
 		</table>
@@ -55,9 +59,11 @@
 		<script id="rowhrefTemplateEnumeracions" type="text/x-jsrender">${expedientTipus.id}/enumeracio/{{:id}}/update</script>	
 
 		<script id="tableButtonsEnumeracioTemplate" type="text/x-jsrender">
-			<div class="botons-titol text-right">
-				<a id="nou_camp" class="btn btn-default" href="${expedientTipus.id}/enumeracio/new" data-toggle="modal" data-callback="callbackModalEnumerats()" data-datatable-id="expedientEnumeracio"><span class="fa fa-plus"></span>&nbsp;<spring:message code="expedient.tipus.enumeracio.llistat.accio.nova"/></a>
-			</div>
+			<c:if test="${expedientTipus.permisDesignAdmin}">
+				<div class="botons-titol text-right">
+					<a id="nou_camp" data-callback="callbackModalEnumerats()" class="btn btn-default" href="${expedientTipus.id}/enumeracio/new" data-toggle="modal" data-datatable-id="expedientEnumeracio"><span class="fa fa-plus"></span>&nbsp;<spring:message code="expedient.tipus.enumeracio.llistat.accio.nova"/></a>
+				</div>
+			</c:if>
 		</script>
 		
 	</c:when>
@@ -70,10 +76,6 @@
 // <![CDATA[
             
 $(document).ready(function() {
-	$('#expedientEnumeracio').on('draw.dt', function() {
-		// Refresca els missatges
-		webutilRefreshMissatges();		
-	});
 });
 
 function refrescaTaula() {
@@ -82,6 +84,8 @@ function refrescaTaula() {
 
 function callbackModalEnumerats() {
 	refrescaTaula();
+	// Refresca els missatges
+	webutilRefreshMissatges();
 }
 // ]]>
 </script>	

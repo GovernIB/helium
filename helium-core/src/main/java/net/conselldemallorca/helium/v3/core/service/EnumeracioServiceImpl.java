@@ -127,7 +127,7 @@ public class EnumeracioServiceImpl implements EnumeracioService {
 				expedientTipusId == null);
 		ExpedientTipus expedientTipus = null;
 		if (expedientTipusId != null)
-			expedientTipus = expedientTipusHelper.getExpedientTipusComprovantPermisDissenyDelegat(expedientTipusId);
+			expedientTipus = expedientTipusHelper.getExpedientTipusComprovantPermisDisseny(expedientTipusId);
 		
 		Enumeracio entity = new Enumeracio();
 		entity.setCodi(enumeracio.getCodi());
@@ -180,7 +180,7 @@ public class EnumeracioServiceImpl implements EnumeracioService {
 		Enumeracio entity = enumeracioRepository.findOne(enumeracioId);
 
 		if (entity.getExpedientTipus() != null)
-			expedientTipusHelper.getExpedientTipusComprovantPermisDissenyDelegat(entity.getExpedientTipus().getId());
+			expedientTipusHelper.getExpedientTipusComprovantPermisDisseny(entity.getExpedientTipus().getId());
 		else
 			entornHelper.getEntornComprovantPermisos(entity.getEntorn().getId(), true, true);
 
@@ -239,7 +239,7 @@ public class EnumeracioServiceImpl implements EnumeracioService {
 		Enumeracio entity = enumeracioRepository.findOne(enumeracio.getId());
 		
 		if (entity.getExpedientTipus() != null)
-			expedientTipusHelper.getExpedientTipusComprovantPermisDissenyDelegat(entity.getExpedientTipus().getId());
+			expedientTipusHelper.getExpedientTipusComprovantPermisDisseny(entity.getExpedientTipus().getId());
 		else
 			entornHelper.getEntornComprovantPermisos(entity.getEntorn().getId(), true, true);
 		
@@ -290,7 +290,7 @@ public class EnumeracioServiceImpl implements EnumeracioService {
 		
 		//Es llançará un PermisDenegatException si escau
 		if (expedientTipusId != null)
-			expedientTipusHelper.getExpedientTipusComprovantPermisDissenyDelegat(expedientTipusId);
+			expedientTipusHelper.getExpedientTipusComprovantPermisDisseny(expedientTipusId);
 		else
 			entornHelper.getEntornComprovantPermisos(entornId, true, true);
 
@@ -352,12 +352,17 @@ public class EnumeracioServiceImpl implements EnumeracioService {
 			throw new NoTrobatException(EnumeracioValors.class, enumeracioValor.getId());
 				
 		//Es llançará un PermisDenegatException si escau
+		Long expedientTipusId = entity.getEnumeracio().getExpedientTipus().getId();
 		if (entity.getEnumeracio().getExpedientTipus() != null)
-			expedientTipusHelper.getExpedientTipusComprovantPermisDissenyDelegat(entity.getEnumeracio().getExpedientTipus().getId());
+			expedientTipusHelper.getExpedientTipusComprovantPermisDissenyDelegat(expedientTipusId);
 		else
 			entornHelper.getEntornComprovantPermisos(entity.getEnumeracio().getEntorn().getId(), true, true);
 		
-		entity.setCodi(enumeracioValor.getCodi());
+		// Si no pot dissenyar el tipus d'expedient no pot canviar el codi i es llença una excepció
+		if(entity.getCodi().compareTo(enumeracioValor.getCodi()) != 0) {
+			expedientTipusHelper.getExpedientTipusComprovantPermisDisseny(expedientTipusId);
+			entity.setCodi(enumeracioValor.getCodi());
+		}
 		entity.setNom(enumeracioValor.getNom());
 		entity.setOrdre(enumeracioValor.getOrdre());
 		
@@ -380,7 +385,7 @@ public class EnumeracioServiceImpl implements EnumeracioService {
 				
 		//Es llançará un PermisDenegatException si escau
 		if (entity.getExpedientTipus() != null)
-			expedientTipusHelper.getExpedientTipusComprovantPermisDissenyDelegat(entity.getExpedientTipus().getId());
+			expedientTipusHelper.getExpedientTipusComprovantPermisDisseny(entity.getExpedientTipus().getId());
 		else
 			entornHelper.getEntornComprovantPermisos(entity.getEntorn().getId(), true, true);
 		

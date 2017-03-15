@@ -15,10 +15,9 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EnumeracioDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
-import net.conselldemallorca.helium.v3.core.api.exception.ValidacioException;
 import net.conselldemallorca.helium.v3.core.api.service.EnumeracioService;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientTipusEnumeracioCommand;
 import net.conselldemallorca.helium.webapp.v3.helper.ConversioTipusHelper;
@@ -106,6 +105,12 @@ public class ExpedientTipusEnumeracioController extends BaseExpedientTipusContro
 			}
 		} catch (Exception ex) {
 			logger.error("No s'ha pogut guardar l'enumeració", ex);
+    		MissatgesHelper.error(
+					request, 
+					getMessage(
+							request, 
+							"expedient.tipus.enumeracio.controller.creat.error",
+							new Object[] {ex.getLocalizedMessage()}));
 			return "v3/expedientTipusEnumeracioForm";
 	    }
 	}
@@ -145,6 +150,12 @@ public class ExpedientTipusEnumeracioController extends BaseExpedientTipusContro
 			}
 		} catch (Exception ex) {
 			logger.error("No s'ha pogut guardar l'enumerat: " + id, ex);
+    		MissatgesHelper.error(
+					request, 
+					getMessage(
+							request, 
+							"expedient.tipus.enumeracio.controller.modificat.error",
+							new Object[] {ex.getLocalizedMessage()}));
 			return "v3/expedientTipusEnumeracioForm";
 	    }
 	}
@@ -158,8 +169,13 @@ public class ExpedientTipusEnumeracioController extends BaseExpedientTipusContro
 			enumeracioService.delete(id);
 			MissatgesHelper.success(request, getMessage(request, "expedient.tipus.enumeracio.controller.eliminat"));
 			return true;
-		}catch (ValidacioException ex) {
-			MissatgesHelper.error(request, ex.getMessage());
+		}catch (Exception ex) {
+    		MissatgesHelper.error(
+					request, 
+					getMessage(
+							request, 
+							"expedient.tipus.enumeracio.controller.eliminat.error",
+							new Object[] {ex.getLocalizedMessage()}));
 			return false;
 		}
 	}

@@ -21,7 +21,7 @@ public class PermisDenegatException extends RuntimeException {
 	
 	public PermisDenegatException(Object objectId, Class<?> objectType,
 			Permission[] permisosRequerits) {
-		super();
+		super(getPermissionMessage(objectId, objectType, permisosRequerits));
 		this.objectId = objectId;
 		this.objectType = objectType;
 		this.permisosRequerits = permisosRequerits;
