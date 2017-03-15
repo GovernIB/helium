@@ -443,6 +443,7 @@ public class PermisosHelper {
 				oie,
 				classePermisos,
 				new Permission[] {
+						ExtendedPermission.DESIGN, // permís antic
 						ExtendedPermission.DESIGN_ADMIN,
 						ExtendedPermission.ADMINISTRATION});
 		List<Long> idsAmbPermisDesignDeleg = filtrarIdsPermisos(
@@ -450,7 +451,9 @@ public class PermisosHelper {
 				oie,
 				classePermisos,
 				new Permission[] {
+						ExtendedPermission.DESIGN, // permís antic
 						ExtendedPermission.DESIGN_DELEG,
+						ExtendedPermission.DESIGN_ADMIN,
 						ExtendedPermission.ADMINISTRATION});
 		List<Long> idsAmbPermisScriptExe = filtrarIdsPermisos(
 				ids,

@@ -69,6 +69,7 @@ public class ExpedientTipusHelper {
 						ExtendedPermission.ADMINISTRATION
 				},
 				new Permission[]{
+						ExtendedPermission.DESIGN, // permís antic
 						ExtendedPermission.DESIGN_ADMIN,
 						ExtendedPermission.ADMINISTRATION	
 				});
@@ -85,6 +86,7 @@ public class ExpedientTipusHelper {
 						ExtendedPermission.ADMINISTRATION
 				},
 				new Permission[]{
+						ExtendedPermission.DESIGN, // permís antic
 						ExtendedPermission.DESIGN_DELEG,
 						ExtendedPermission.DESIGN_ADMIN,
 						ExtendedPermission.ADMINISTRATION	

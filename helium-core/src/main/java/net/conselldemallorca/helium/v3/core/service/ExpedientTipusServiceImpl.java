@@ -1317,6 +1317,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 					},
 					ExpedientTipus.class,
 					new Permission[] {
+							ExtendedPermission.DESIGN, // permís antic
 							ExtendedPermission.DESIGN_ADMIN,
 							ExtendedPermission.DESIGN_DELEG,
 							ExtendedPermission.ADMINISTRATION},
@@ -1465,6 +1466,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 						id,
 						ExpedientTipus.class,
 						new Permission[] {
+								ExtendedPermission.DESIGN, // permís antic
 								ExtendedPermission.DESIGN_ADMIN,
 								ExtendedPermission.DESIGN_DELEG,
 								ExtendedPermission.ADMINISTRATION},
