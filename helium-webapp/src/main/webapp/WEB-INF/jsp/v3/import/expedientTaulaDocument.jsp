@@ -195,18 +195,18 @@
 				</div>
 				<div class="modal-body">
 					<ul class="list-group">
-					  	<li class="list-group-item"><strong><spring:message code="common.icones.doc.psigna.id"/></strong><span class="pull-right">${psignaPendentActual.documentId}</span></li>
-					  	<li class="list-group-item"><strong><spring:message code="common.icones.doc.psigna.data.enviat"/></strong><span class="pull-right"><fmt:formatDate value="${psignaPendentActual.dataEnviat}" pattern="dd/MM/yyyy HH:mm"/></span></li>
+					  	<li class="list-group-item"><strong><spring:message code="common.icones.doc.psigna.id"/></strong><span class="pull-right" id="psignaDocumentId">${psignaPendentActual.documentId}</span></li>
+					  	<li class="list-group-item"><strong><spring:message code="common.icones.doc.psigna.data.enviat"/></strong><span class="pull-right" id="psignaDataEnviat"><fmt:formatDate value="${psignaPendentActual.dataEnviat}" pattern="dd/MM/yyyy HH:mm"/></span></li>
 					  	
 					  	<li class="list-group-item">
  					  		<strong><spring:message code="common.icones.doc.psigna.estat"/></strong>
  					  		
  					  		<c:choose>
  							<c:when test="${psignaPendentActual.estat == 'PROCESSAT' && psignaPendentActual.error}">
- 								<span class="pull-right">REBUTJAT</span>
+ 								<span class="pull-right" id="psignaEstat">REBUTJAT</span>
  							</c:when>
  							<c:otherwise>
- 								<span class="pull-right">${psignaPendentActual.estat}</span>
+ 								<span class="pull-right" id="psignaEstat">${psignaPendentActual.estat}</span>
  							</c:otherwise>
  							</c:choose>
  					  		
@@ -250,7 +250,7 @@
 							</button>
 						</c:if>
 					</c:if>
-					<button type="button" class="btn btn-default" data-dismiss="modal"><spring:message code="comu.boto.tancar"/></button>
+					<button type="button" class="btn btn-default" data-dismiss="modal" id="psignaTancar"><spring:message code="comu.boto.tancar"/></button>
 				</div>
 			</div>
 		</div>

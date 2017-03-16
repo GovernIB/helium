@@ -270,7 +270,7 @@
 														<c:if test="${not empty notificacio.document.dataCreacio}">
 															<tr>
 																<td>
-																	<spring:message code='expedient.document.adjuntat' /> <fmt:formatDate value="${notificacio.document.dataCreacio}" pattern="dd/MM/yyyy hh:mm"/>
+																	<spring:message code='expedient.document.adjuntat' /> <fmt:formatDate value="${notificacio.document.dataCreacio}" pattern="dd/MM/yyyy HH:mm"/>
 																</td>
 															</tr>
 														</c:if>

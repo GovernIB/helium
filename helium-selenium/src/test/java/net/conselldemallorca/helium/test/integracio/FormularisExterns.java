@@ -1,232 +1,267 @@
 package net.conselldemallorca.helium.test.integracio;
 
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
-import net.conselldemallorca.helium.test.util.BaseTest;
-import net.conselldemallorca.helium.ws.formulari.GuardarFormulari;
-import net.conselldemallorca.helium.ws.formulari.ParellaCodiValor;
+import java.io.File;
 
+import org.apache.catalina.LifecycleState;
+import org.apache.catalina.core.StandardContext;
+import org.apache.catalina.deploy.ApplicationParameter;
+import org.apache.catalina.startup.Tomcat;
+import org.apache.commons.io.FileUtils;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
 import org.openqa.selenium.By;
+import org.openqa.selenium.WebElement;
 
+import net.conselldemallorca.helium.test.BaseExpedientTest;
+import net.consellemallorca.helium.util.ScreenShotOnFailure;
+
+/** Tests per probar el servei d'integració de formularis externs. S'accedeix a l'entorn
+ * de test i es crea i configura un expedient de prova per provar formularis externs.
+ *
+ */
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
-public class FormularisExterns extends BaseTest {
-
-							//EXP.10.4 - Integracions
-								//EXP.10.4.1 - Formularis externs
-									//EXP.10.4.1.1 - Desenvolupament aplicacio externa. (Instalació de WS extern per simular que l´aplicació helium reb els parametres)
-									//EXP.10.4.1.2 - Execució de formularis externs
-									//EXP.10.4.1.3 - Comprovació importació de dades de formularis
+public class FormularisExterns extends BaseExpedientTest {
 	
-	/**
-	 *   A C T I V A R   A   T R U E   L A   P R O P I E D A D:   app.selenium.ws.integracion del archivo helium.properties del modulo helium-webapp
+	private static Tomcat mTomcat;
+
+	@Rule
+    public ScreenShotOnFailure failure = new ScreenShotOnFailure();
+		
+	private static final String SELENIUM_FORMEXT_TITOL = "Selenium formext";
+
+	@BeforeClass
+	public static void setUpBeforeClass() throws Exception {
+		BaseExpedientTest.setUpBeforeClass();
+		// Arrenca el tomcat amb la aplicació de proves
+		if (propietats.getPropertyBool("app.forms.embedded", false)) {
+			String mWorkingDir = propietats.getProperty("app.forms.embedded.dir");
+			// Inicia el tomcat
+			mTomcat = new Tomcat();
+			mTomcat.setPort(propietats.getPropertyInt("app.forms.embedded.port", 9080));
+			mTomcat.setBaseDir(mWorkingDir);
+			mTomcat.getHost().setAppBase(mWorkingDir);
+			mTomcat.getHost().setAutoDeploy(true);
+			mTomcat.getHost().setDeployOnStartup(true);
+
+			// Fa el deploy de la aplicació war
+			String applicationId = propietats.getProperty("app.forms.embedded.applicationid");
+			String contextPath = "/" + applicationId;
+			File webApp = new File(mWorkingDir, applicationId);
+			File oldWebApp = new File(webApp.getAbsolutePath());
+			FileUtils.deleteDirectory(oldWebApp);
+			StandardContext ctx = (StandardContext) mTomcat.addWebapp(mTomcat.getHost(), contextPath, webApp.getAbsolutePath());
+			// Configura el context
+		    ApplicationParameter p = new ApplicationParameter();
+		    p.setName("app.base.url");
+		    p.setValue(propietats.getBaseUrl());
+		    ctx.addApplicationParameter(p);
+
+		    // Inicia el tomcat
+			mTomcat.start();
+		}
+	}
+	  
+	@AfterClass
+	public static void tearDownAfterClass() throws Exception {
+		BaseExpedientTest.tearDownAfterClass();
+		  if (mTomcat.getServer() != null
+		            && mTomcat.getServer().getState() != LifecycleState.DESTROYED) {
+		        if (mTomcat.getServer().getState() != LifecycleState.STOPPED) {
+		              mTomcat.stop();
+		        }
+		        mTomcat.destroy();
+		    }
+	}
+	
+	@Before
+	public void setUp() throws Exception {
+		super.setUp();
+		// Configura la rule de captura de pantalles en cas d'error
+		failure.setScreenshotHelper(screenshotHelper);		
+		failure.setDriver(driver);				
+		// Obre el navegador en la pàgina inicial i a l'entorn de test
+		carregarPaginaIncial();
+		navegarEntornTest();
+	}
+	
+	/** Comprova que el tipus d'expedient es pot configurar bé i posa la configuració
+	 * correcta per integrar amb la aplicació de test de helium-selenium-webapp.
+	 * - Accedeix al tipus d'expedient de test
+	 * - Accedeix a la pestanya d'integració amb forms.
+	 * - Desmarca la opció i guarda.
+	 * - Marca la opció, omple els camps i guarda.
 	 */
-	
-	String entorn		= carregarPropietat("tipexp.integracio.forms.ext.entorn.nom", "Nom de l'entorn de proves no configurat al fitxer de properties");
-	String titolEntorn	= carregarPropietat("tipexp.integracio.forms.ext.entorn.titol", "Titol de l'entorn de proves no configurat al fitxer de properties");
-	
-	String usuari		= carregarPropietat("test.base.usuari.configuracio", "Usuari configuració de l'entorn de proves no configurat al fitxer de properties");
-	String usuariDis	= carregarPropietat("test.base.usuari.disseny", "Usuari configuració de l'entorn de proves no configurat al fitxer de properties");
-
-	String nomTipusExp	= carregarPropietat("tipexp.deploy.info.tipus.expedient.nom", "Nom del tipus d'expedient de proves no configurat al fitxer de properties");
-	String codTipusExp	= carregarPropietat("tipexp.deploy.info.tipus.expedient.codi", "Codi del tipus d'expedient de proves no configurat al fitxer de properties");
-	
-	String pathExport	= carregarPropietatPath("tipexp.deploy.arxiu.path", "Ruta de l´arxiu del tipus d´expedient exportat no configurat al fitxer de properties");
-	String nomDefProc	= "Cons1";
-	
-	// XPATHS
-	String linkAccesInfoDefProc		= "//*[@id='registre']/tbody/tr[contains(td/a, '"+nomDefProc+"')]/td/a[contains(@href, '/definicioProces/info.html')]";
-	String pestanyaTasquesDefProc  	= "//*[@id='tabnav']/li/a[contains(@href, '/definicioProces/tascaLlistat.html')]";
-	String botoModificarTasca		= "//*[@id='command']/div[@class='buttonHolder']/button[text() = 'Modificar']";
-	
-	String botoConsultarExpLlistat = "//*[@id='command']/div/div[@class='buttonHolder']/button[text() = 'Consultar']";
-	String linkAccedirExpedient = "//*[@id='registre']/tbody/tr[1]/td/a[contains(@href, '/tasca/personaLlistat.html')]";
-	String linkAccedirTasca = "//*[@id='registre']/tbody/tr/td[1]/a";
-	
-	String botoObrirFormExtern = "//*[@id='content']/form/button";
-	
-	String enllaçTipusExpLlistat = "//*[@id='registre']/tbody/tr/td[1]/a[contains(@href, '/expedientTipus/info.html')]";
-	String pestanyaDefProcExpedient = "//*[@id='tabnav']/li/a[contains(@href, '/expedientTipus/definicioProcesLlistat.html')]";
-	String botoMarcaProcesInicial = "//*[@id='registre']/tbody/tr/td/form[contains(@action, '/expedientTipus/definicioProcesInicial.html')]/button[contains(text(), 'inicial')]";
-
-	String iframeFormExt = "//*[@id='formExtern']";
-	String urlFormExt = carregarPropietat("test.url.ws.inici.formulari", "URL de WS de formularis externs no configurat al fitxer de properties");
-	String urlFormExt2 = carregarPropietat("test.url.ws.formulari.extern", "URL de WS de formularis externs no configurat al fitxer de properties");
-	String idFormExt = "command";
-	String botoGuardarDadesIntegracio = "//*[@id='command']/div[@class='buttonHolder']/button[text() = 'Guardar']";
-	
-	String aspaTancarDialogForm = "/html/body/div[8]/div[1]/a";//"/html/body/div[contains(@class, 'ui-dialog')]/div[@class='ui-dialog-titlebar']/a";	
-
-	String variableResultatRetornFormulari = "//*[@id='command']/div/div/label[text() = 'Variable Boolean']";
-
 	@Test
-	public void a0_inicialitzacio() {
-		carregarUrlConfiguracio();
-		crearEntorn(entorn, titolEntorn);
-		assignarPermisosEntorn(entorn, usuari, "DESIGN", "ORGANIZATION", "READ", "ADMINISTRATION");
-		assignarPermisosEntorn(entorn, usuariDis, "DESIGN", "ORGANIZATION", "READ", "ADMINISTRATION");
-		seleccionarEntorn(titolEntorn);
-		crearTipusExpedient(nomTipusExp, codTipusExp);
-		importarDadesTipExp(codTipusExp, pathExport);
-		assignarPermisosTipusExpedient(codTipusExp, usuari,    "DESIGN","CREATE","SUPERVISION","WRITE","MANAGE","DELETE","READ","ADMINISTRATION");
-		assignarPermisosTipusExpedient(codTipusExp, usuariDis, "DESIGN","CREATE","SUPERVISION","WRITE","MANAGE","DELETE","READ","ADMINISTRATION");
-		//Desmarcam de l´expedient alguns checks restrictius per poder-los consultar al llistat
-		accedirInformacioExpedient(codTipusExp);
-		if (driver.findElement(By.id("restringirPerGrup0")).isSelected()) {
-			driver.findElement(By.id("restringirPerGrup0")).click();
-		}
-		driver.findElement(By.xpath("//*[@id='command']/div[@class='buttonHolder']/button[text() = 'Modificar']")).click();
-	}
-	
+	public void a0_ConfiguracioTipusExpedient() {
+		
+		// Navega a la pestanya de integració amb forms
+		navegarTipusExpedient("pipella-integracio-forms");
+		// Desmarca actiu
+		existeixElementAssert(By.id("actiu"), "No existeix la casella actiu");
+		WebElement actiu = driver.findElement(By.id("actiu"));
+		if (actiu.isSelected())
+			actiu.click();
+		// Guarda
+		driver.findElement(By.cssSelector(".btn.btn-primary.right")).click();
+		existeixElementAssert(By.className("alert-success"), "Error guardant formularis externs");
+		// Omple
+		if (!actiu.isSelected())
+			actiu.click();
+		existeixElementAssert(By.id("url"));
+		existeixElementAssert(By.id("usuari"));
+		existeixElementAssert(By.id("contrasenya"));
+		String[] forms = propietats.getIntegracioFormsPropietats();
+		driver.findElement(By.id("url")).clear();
+		driver.findElement(By.id("url")).sendKeys(forms[0]);
+		if (forms[1] != null)
+			driver.findElement(By.id("usuari")).sendKeys(forms[1]);
+		else
+			driver.findElement(By.id("usuari")).clear();
+		if (forms[2] != null)
+			driver.findElement(By.id("contrasenya")).sendKeys(forms[2]);
+		else
+			driver.findElement(By.id("contrasenya")).clear();		
+		// Tanca el missatge que ha anat bé
+		if (existeixElement(By.cssSelector("#contingut-alertes.close-alertes")))
+			driver.findElement(By.cssSelector("#contingut-alertes.close-alertes")).click();
+		// Guarda
+		driver.findElement(By.cssSelector(".btn.btn-primary.right")).click();
+		// Verifica que s'ha guardat correctament
+		existeixElementAssert(By.cssSelector("#contingut-alertes div.alert-success"), "Error guardant formularis externs");
+	}	
+		
+	/** Comprova que el tipus d'expedient es pot configurar bé i posa la configuració
+	 * correcta per integrar amb la aplicació de test de helium-selenium-webapp.
+	 * - Navega a la definició de procés de test.
+	 * - Navega fins la tasca de formularis externs.
+	 * - Configura el formulari extern i guarda els canvis.
+	 */
 	@Test
-	public void b1_preparar_tasca_defproc() {
-		
-		carregarUrlDisseny();
-		seleccionarEntorn(titolEntorn);
-		
-		//Modificam la URL de servei de integracio amb forms del tipus d´expedient per la prova
-		actions.moveToElement(driver.findElement(By.id("menuDisseny")));
-		actions.build().perform();
-		actions.moveToElement(driver.findElement(By.xpath("//a[contains(@href, '/expedientTipus/llistat.html')]")));
-		actions.click();
-		actions.build().perform();
-		
-		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[contains(td[1],'Expedient Importat')]")).click();
-		
-		driver.findElement(By.xpath("//a[contains(@href, '/helium/expedientTipus/formext.html')]")).click();
-		
-		driver.findElement(By.id("url0")).clear();
-		driver.findElement(By.id("url0")).sendKeys(urlFormExt);
-		driver.findElement(By.id("usuari0")).clear();
-		driver.findElement(By.id("contrasenya0")).clear();
-		
-		screenshotHelper.saveScreenshot("integracions/formsExterns/b1_0_prepara_tipexp-dades_servei.png");
-		
-		driver.findElement(By.xpath(botoGuardarDadesIntegracio)).click();
-
-		//Modificam la tasca 1 per afegirli un formulari extern
-		accedirPestanyaTasquesDefProc();
-		
-		screenshotHelper.saveScreenshot("integracions/formsExterns/b1_1_prepara_tasca-llistat_inicial.png");
-		
-		driver.findElement(By.xpath(linkAccedirTasca)).click();
-		
-		driver.findElement(By.id("recursForm0")).sendKeys(urlFormExt);
-		driver.findElement(By.id("formExtern0")).sendKeys(idFormExt);
-		
-		screenshotHelper.saveScreenshot("integracions/formsExterns/b1_2_prepara_tasca-modifica_tasca.png");
-		
-		driver.findElement(By.xpath(botoModificarTasca)).click();
-		
-		screenshotHelper.saveScreenshot("integracions/formsExterns/b1_3_prepara_tasca-resultat_modificacio.png");
-		
-		//Assignam la def de proces com a proces inicial
-		accedirDissenyTipusExpedient();
-		
-		driver.findElement(By.xpath(enllaçTipusExpLlistat)).click();
-		
-		driver.findElement(By.xpath(pestanyaDefProcExpedient)).click();
-		
-		driver.findElement(By.xpath(botoMarcaProcesInicial)).click();
-		
-		screenshotHelper.saveScreenshot("integracions/formsExterns/b1_4_prepara_tasca-assignar_proces_inicial.png");
-	}
+	public void a1_ConfiguracioDefinicioProces() {
+		// Navega a la pestanya de integració amb forms
+		navegarDefinicioProces("pipella-tasques");
+		// Cerca el caixetí de filtre del datatable
+		existeixElementAssert(By.id("definicioProcesTasques_filter"), "No existeix el filtre de tipus d'expedient");
+		// Filtra pel títol de l'expedient
+		driver.findElement(By.cssSelector("#definicioProcesTasques_filter .input-sm")).sendKeys("formext");
+		existeixElementAssert(By.cssSelector(".btn.btn-default .fa-pencil"), "No hi ha resultats a la taula tasques de la definicio de proces");
+		waitPaginaCarregada();
+		// Troba el botó de modificar
+		WebElement botoModificar = null;
+		String urlModificacio = null;
+		for (WebElement boto : driver.findElements(By.cssSelector("a.btn.btn-default")))
+			if (boto.getText().contains("Modificar")) {
+				botoModificar = boto;
+				urlModificacio = boto.getAttribute("href").replace(propietats.getTestBaseUrl(), "");
+				break;
+			}
+		assertNotNull("No s'ha pogut trobar el botó per modificar la tasca", botoModificar);
+		// Clica sobre el botó de modificar
+		botoModificar.click();
+		// Espera que es carregui la pàgina de l'expedient
+		modalObertaAssert(urlModificacio);
+		// Passa a la modal
+		vesAModal(urlModificacio);
+		assertTrue("El valor codi difereix de formext", "formext".equals(existeixElementAssert(By.id("jbpmName")).getAttribute("value")));
+		// Omple el valor del camp
+		driver.findElement(By.id("formExtern")).clear();
+		driver.findElement(By.id("formExtern")).sendKeys("formExt");
+		// Guarda els canvis
+		driver.findElement(By.cssSelector("form")).submit();
+		tornaAPare();
+		waitPaginaCarregada();
+		existeixElementAssert(By.className("alert-success"), "Error guardant la tasca de la definició de procés");
+	}		
 	
+	/** Un cop configurat el tipus d'expedient i la definició de procés prova de crear un nou expedient.
+	 * - Crea un nou expedient de test de funcionalitats amb la opció de formularis externs.
+	 * - Inicia la tasca i obre el formulari extern
+	 * - Guarda les dades i comprova que les dades es guarden.
+	 */
 	@Test
-	public void c1_provar_tasca_form_ext() {
-
-		carregarUrlDisseny();
-		
-		seleccionarEntorn(titolEntorn);
-
-		iniciarExpediente(codTipusExp, "1", "Prova integracio formularis externs");
-		
-		screenshotHelper.saveScreenshot("integracions/formsExterns/c1_1_provar_formulari_extern-iniciar_expedient.png");
-		try{
-			consultarTareas(null, null, null, false);
-		}catch (Exception ex) {}
-		
-		screenshotHelper.saveScreenshot("integracions/formsExterns/c1_2_provar_formulari_extern-llistat_tasques.png");
-		
-		driver.findElement(By.xpath(linkAccedirTasca)).click();
-		
-		screenshotHelper.saveScreenshot("integracions/formsExterns/c1_3_provar_formulari_extern-accedir_tasca.png");
-		
-		driver.findElement(By.xpath(botoObrirFormExtern)).click();
-
-		try {Thread.sleep(5000);}catch(Exception ex){};
-		
-		screenshotHelper.saveScreenshot("integracions/formsExterns/c1_4_provar_formulari_extern-obrir_form_extern.png");
-		
-		existeixElementAssert(iframeFormExt, "No s´ha obert l'iframe amb el formulari extern.");
-
-		String URL_actual = driver.getCurrentUrl();
-		String idTasca = URL_actual.substring(URL_actual.indexOf("id=")+3, URL_actual.length());		
-		
-		//Abans de tancar el formulari, guardam les dades com ho faria el WS de la aplicacio externa
-		guardarFormulariExtern(idTasca);
-
-		//Tancam el formulari
-		driver.findElement(By.xpath(aspaTancarDialogForm)).click();
-		
-		//Comprovam que han aparegut les variables de la resposta a la cridada a guardarFormulariExtern()
-		existeixElementAssert(variableResultatRetornFormulari, "No s´ha trobat la variable de retorn del formulari extern.");
-		
-		screenshotHelper.saveScreenshot("integracions/formsExterns/c1_5_provar_formulari_extern-resultat_retorn_ws.png");
+	public void a2_CreacioExpedientFormularisExterns() {
+		// Si ja existeix l'esborra
+		esborrarExpedient(SELENIUM_FORMEXT_TITOL);
+		// Crea l'expedient amb la opció de formularis externsl porta signatures
+		crearExpedient(SELENIUM_FORMEXT_TITOL, "formext");
 	}
 	
+	/** Comprova que es pot accedir a l'expedient, a la tramitació de la tasca, al formulari extern i que
+	 * es guarden les dades correctament
+	 */
 	@Test
-	public void z_limpiar() throws InterruptedException {
+	public void a3_InicarFormulariExtern() throws Exception {
+		// Navega a la pestanya de tasques
+		navegarExpedient(SELENIUM_FORMEXT_TITOL, "tasques");
 		
-		carregarUrlConfiguracio();
-		
-		seleccionarEntorn(titolEntorn);
-		
-		eliminarExpedient(null, null, nomTipusExp);
-		
-		eliminarConsultaTipus("codCons");
-		
-		// Eliminar la def de proceso
-		eliminarDefinicioProces(nomDefProc);
-		
-		// Eliminar el tipo de expediente
-		eliminarTipusExpedient(codTipusExp);
-		
-		eliminarEntorn(entorn);
-		
-		screenshotHelper.saveScreenshot("TasquesDadesTasca/finalizar_expedient/1.png");	
+		// Cerca la fila amb la tasca del formext
+		WebElement taulaTasques = existeixElementAssert(By.id("tasques-pendents-meves"), "No existeix la taula de tasques");
+		String tascaId = null;
+		for (WebElement tr : taulaTasques.findElements(By.cssSelector("tr")))
+			if (tr.getText().contains("formext")) {
+				// Prem sobre la opció del menú
+				WebElement btnGroup = tr.findElement(By.cssSelector(".btn-group"));
+				btnGroup.click();
+				// Troba l'enllaç de tramitar la tasca
+				for (WebElement a : btnGroup.findElements(By.cssSelector("a")))
+					if (a.findElements(By.cssSelector(".fa.fa-folder-open")).size() > 0) {
+						// Guarda la url de la modal
+						tascaId = a.getAttribute("id").replace("tramitar-tasca-", "");
+						// Obre la modal de la tasca
+						a.click();
+						break;
+					}
+				break;
+			}
+		// Comprova que s'ha trobat la url de la modal
+		assertNotNull(tascaId, "No s'ha pogut obrir correctament la tramitació de la tasca");
+		// Passa a la finestra modal de tramitació de la tasca
+		modalObertaAssert(tascaId);
+		vesAModal(tascaId);
+		// Prem el botó del formulari extern
+		WebElement obrirFormularisExternsBtn = existeixElementAssert(By.id("boto-formext"), "No existix el botó per obrir els formularis externs");
+		waitPaginaCarregada();
+		obrirFormularisExternsBtn.click();
+		// Passa al formulari extern amb part de la ruta que retorna el WS d'inici del formulari extern
+		WebElement formulariExtern = existeixElementAssert(By.cssSelector("div.ui-dialog"), "No existeix la finestra amb el contingut del formulari extern");
+		vesAModal("integracio/formulari");
+		// Informa els valors dels camps del formulari extern
+		// valor_0 corresponent a la variable var_txt1
+		existeixElementAssert(By.id("valor_0")).clear();
+		driver.findElement(By.id("valor_0")).sendKeys("valor txt");
+		// Accepta el formulari extern
+		driver.findElement(By.cssSelector("button[type='submit']")).click();
+		tornaAPare();
+		waitPaginaCarregada();
+		// Torna a la modal de tramitació de la tasca i tanca el formulari extern
+		vesAModal(tascaId);
+		formulariExtern.findElement(By.cssSelector(".ui-icon-closethick")).click();
+		waitPaginaCarregada();
+		// Comprova que el valor es troba en els camps de la tasca
+		System.out.println("Valor: " + existeixElementAssert(By.id("var_txt1")).getAttribute("value"));
+		assertTrue(	"El valor de la variable var_txt1 no s'ha fixat correctament",
+					"valor txt".equals(existeixElementAssert(By.id("var_txt1")).getAttribute("value"))); 
+		// torna fora de la modal i prem finalitzar la tramitació de la tasca
+		tornaAPare();
+		existeixElementAssert(By.id("tasca-boto-completar-Finalitzar")).click();
+		// Accepta l'avís de finalització de la tasca
+		if (isAlertPresent()) {
+			acceptarAlerta();
+		}		
 	}
 	
-	// **********************************************
-	// F U N C I O N S   P R I V A D E S
-	// **********************************************
-	
-	private void accedirPestanyaTasquesDefProc() {
-		accedirPantallaDissenyDefProc();
-		driver.findElement(By.xpath(linkAccesInfoDefProc)).click();
-		driver.findElement(By.xpath(pestanyaTasquesDefProc)).click();
-	}
-	
-	private void accedirDissenyTipusExpedient() {
-		actions.moveToElement(driver.findElement(By.id("menuDisseny")));
-		actions.build().perform();
-		actions.moveToElement(driver.findElement(By.xpath("//a[contains(@href, '/expedientTipus/llistat.html')]")));
-		actions.click();
-		actions.build().perform();
-	}
-	
-	private void guardarFormulariExtern (String codTasca) {
-		try {
-			List<ParellaCodiValor> valors = new ArrayList<ParellaCodiValor>();
-			valors.add(new ParellaCodiValor("import", new BigDecimal("100")));
-			GuardarFormulari gf = (GuardarFormulari)net.conselldemallorca.helium.test.integracio.utils.WsClientUtils.getWsClientProxy(GuardarFormulari.class, urlFormExt2, null,	null, "NONE", false, true, false);
-			gf.guardar(codTasca, valors);
-		}catch (Exception ex) {
-			ex.printStackTrace();
-		}
-	}
+	/** Esborra l'expedient creat de formularis externs*/
+	@Test
+	public void a4_EsborrarExpedientFormularisExterns() {
+		if (propietats.isEsborrarExpedientTest())
+			esborrarExpedient(SELENIUM_FORMEXT_TITOL);
+	}	
 }

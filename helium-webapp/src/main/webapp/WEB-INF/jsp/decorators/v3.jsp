@@ -122,8 +122,8 @@
 				<div class="nav navbar-nav navbar-right">
 					<ul class="list-inline pull-right ul-menu">
 						<li class="dropdown big-size">
-							<c:if test="${fn:length(entorns) gt 1}"><a href="#" data-toggle="dropdown"></c:if>
-							<span class="fa fa-cubes"></span> <span data-toggle="tooltip" data-placement="bottom" title="${entornActual.nom}" class="text-limit w475" >${entornActual.nom}</span>
+							<c:if test="${fn:length(entorns) gt 1}"><a id="menuEntorns" href="#" data-toggle="dropdown"></c:if>
+							<span class="fa fa-cubes"></span> <span id="entornActualNom" data-toggle="tooltip" data-placement="bottom" title="${entornActual.nom}" class="text-limit w475" >${entornActual.nom}</span>
 							<c:if test="${fn:length(entorns) gt 1}"><b class="caret caret-white"></b></a></c:if>
 							<ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
 								<c:forEach var="entorn" items="${entorns}">
@@ -172,17 +172,17 @@
 					</ul>
 					<div class="clearfix"></div>
 					<div class="btn-group navbar-btn navbar-right">		
-						<a class="btn btn-primary" href="<c:url value="/v3/expedient"/>"><spring:message code="decorator.menu.expedients"/></a>
-						<a class="btn btn-primary" href="<c:url value="/v3/tasca"/>"><spring:message code="decorator.menu.tasques"/></a>
+						<a id="menuExpedients" class="btn btn-primary" href="<c:url value="/v3/expedient"/>"><spring:message code="decorator.menu.expedients"/></a>
+						<a id="menuTasques" class="btn btn-primary" href="<c:url value="/v3/tasca"/>"><spring:message code="decorator.menu.tasques"/></a>
 						<c:if test="${potDissenyarEntorn or potDissenyarExpedientTipus}">
-							<div class="btn-group" >
+							<div id="menuDisseny" class="btn-group" >
 								<button class="btn btn-primary dropdown-toggle" data-toggle="dropdown"><spring:message code="comuns.disseny"/> <span class="caret"></span></button>
 								<ul class="dropdown-menu">
 									<c:if test="${potDissenyarEntorn or potDissenyarExpedientTipus}">
-										<li><a href="<c:url value="/v3/expedientTipus"/>"><spring:message code='decorator.menu.disseny.tipus.expedient' /></a></li>
+										<li><a id="menuTipusExpedient" href="<c:url value="/v3/expedientTipus"/>"><spring:message code='decorator.menu.disseny.tipus.expedient' /></a></li>
 									</c:if>
 									<c:if test="${potDissenyarEntorn}">
-										<li><a href="<c:url value="/v3/definicioProces"/>"><spring:message code='decorators.entorn.defs_proces' /></a></li>
+										<li><a id="menuDefinicioProces" href="<c:url value="/v3/definicioProces"/>"><spring:message code='decorators.entorn.defs_proces' /></a></li>
 										<li><a href="<c:url value="/v3/enumeracio"/>"><spring:message code='decorators.entorn.enumeracions' /></a></li>
 										<li><a href="<c:url value="/v3/domini"/>"><spring:message code='decorators.entorn.dominis' /></a></li>
 									</c:if>
@@ -192,7 +192,7 @@
 							</div>
 						</c:if>
 						<c:if test="${dadesPersona.admin}">
-							<div class="btn-group">
+							<div id="menuDisseny" class="btn-group">
 								<button class="btn btn-primary dropdown-toggle" data-toggle="dropdown"><spring:message code="decorator.menu.administracio"/> <span class="caret"></span></button>
 								<ul class="dropdown-menu" id="mesures">
 									<c:if test="${globalProperties['app.expedient.monitor']}">

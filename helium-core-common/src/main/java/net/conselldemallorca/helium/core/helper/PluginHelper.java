@@ -2276,6 +2276,7 @@ public class PluginHelper {
 				try {
 					Class<?> clazz = Class.forName(pluginClass);
 					custodiaPlugin = (CustodiaPlugin)clazz.newInstance();
+					custodiaPluginEvaluat = true;
 				} catch (Exception ex) {
 					throw SistemaExternException.tractarSistemaExternException(
 							null,

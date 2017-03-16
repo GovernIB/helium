@@ -1,22 +1,29 @@
 package net.conselldemallorca.helium.integracio.plugins.portasignatures;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import org.apache.commons.io.FileUtils;
 
 /**
  * Implementació Mock del plugin de portasignatures.
+ * Per simular que guarda el contingut crea el fitxer amb el contingut al directori temporal
+ * on s'estigui executant helium.
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
 public class PortasignaturesPluginMock implements PortasignaturesPlugin {
-
+	
+	private static String tempDir = System.getProperty("java.io.tmpdir") + File.separator + "portasignaturesPluginMoch";
 	/**
-	 * Puja un document al Portasignatures.
+	 * Puja un document al Portasignatures i el guarda en memòria.
 	 * 
 	 * @param persona
 	 * @param documentDto
@@ -37,12 +44,38 @@ public class PortasignaturesPluginMock implements PortasignaturesPlugin {
 			String importancia,
 			Date dataLimit) throws PortasignaturesPluginException {
 		
-		try {
-			FileUtils.writeByteArrayToFile(new File("C:\\DOCUMENTS_REVISIO\\" + document.getArxiuNom()), document.getArxiuContingut());
-		} catch (IOException e) {
+		// Calcula un nou id pel document dins custòdia
+		Integer newDocumentId = new Integer(new Long(System.currentTimeMillis()).intValue());
+		
+		// Ruta al directori pel fitxer
+		File path = new File(tempDir);
+		path.mkdirs();
+		// Ruta destí a la carpeta selenium del directori temporal
+		String filePath = tempDir + File.separator + newDocumentId.toString();		
+		// Escriu el contingut a l'arxiu
+		InputStream stream = null;
+        OutputStream resStreamOut = null;
+        try {
+        	stream = new ByteArrayInputStream(document.getArxiuContingut());
+            int readBytes;
+	        byte[] buffer = new byte[4096];
+            resStreamOut = new FileOutputStream(filePath);
+            while ((readBytes = stream.read(buffer)) > 0) {
+                resStreamOut.write(buffer, 0, readBytes);
+            }
+		} catch (Exception e) {
 			e.printStackTrace();
+		} finally {
+        	try {
+        		if (stream != null)
+        			stream.close();
+        		if (resStreamOut != null)
+        			resStreamOut.close();
+        	} catch(Exception e) {
+        		e.printStackTrace();
+        	}
 		}
-		return new Integer(new Long(System.currentTimeMillis()).intValue());
+		return newDocumentId;
 	}
 
 	/**
@@ -56,17 +89,27 @@ public class PortasignaturesPluginMock implements PortasignaturesPlugin {
 	 */
 	public List<byte[]> obtenirSignaturesDocument(
 			Integer documentId) throws PortasignaturesPluginException {
-		byte[] array1 = new byte[50];
-//		byte[] array2 = new byte[50];
 		List<byte[]> result = new ArrayList<byte[]>();
-		result.add(array1);
-//		result.add(array2);
+		String filePath = tempDir + File.separator + documentId.toString();
+		File file = new File(filePath);
+		if (file.exists()) 
+			try {
+				result.add(Files.readAllBytes(file.toPath()));
+			} catch (IOException e) {
+				e.printStackTrace();
+				System.out.println("Error llegint el contingut del document pel portasignaturesPuginMock amb documentId " + documentId);
+			}
 		return result;
 	}
 	
 	public void deleteDocuments (
 			List<Integer> documents) throws PortasignaturesPluginException {
-		
+		for (Integer documentId : documents) {
+			String filePath = tempDir + File.separator + documentId.toString();
+			File file = new File(filePath);
+			if (file.exists())
+				file.delete();
+		}
 	}
 
 }

@@ -19,13 +19,13 @@
 <body>
 	<h4 class="titol-missatge">
 		<div class="form-info">
-			<label><spring:message code="common.icon.oficina"/>:</label>&nbsp;${document.registreOficinaNom}
+			<label><spring:message code="common.icon.oficina"/>:</label>&nbsp;<span id="registreOficinaNom">${document.registreOficinaNom}</span>
 			<br/><br/>
-			<label><spring:message code="common.icon.data"/>:</label>&nbsp;<fmt:formatDate value="${document.registreData}" pattern="dd/MM/yyyy HH:mm"/>
+			<label><spring:message code="common.icon.data"/>:</label>&nbsp;<span id="registreData"><fmt:formatDate value="${document.registreData}" pattern="dd/MM/yyyy HH:mm"/></span>
 			<br/><br/>
-			<label><spring:message code="comuns.tipus"/>:</label>&nbsp;<c:choose><c:when test="${document.registreEntrada}"><spring:message code="common.icon.entrada"/></c:when><c:otherwise><spring:message code="common.icon.sortida"/></c:otherwise></c:choose>
+			<label><spring:message code="comuns.tipus"/>:</label>&nbsp;<span id="registreEntrada"><c:choose><c:when test="${document.registreEntrada}"><spring:message code="common.icon.entrada"/></c:when><c:otherwise><spring:message code="common.icon.sortida"/></c:otherwise></c:choose></span>
 			<br/><br/>
-			<label><spring:message code="common.icon.numero"/>:</label>&nbsp;${document.registreNumero}
+			<label><spring:message code="common.icon.numero"/>:</label>&nbsp;<span id="registreNumero">${document.registreNumero}</span>
 		</div>			
 	</h4>
 	<div id="modal-botons" class="well">

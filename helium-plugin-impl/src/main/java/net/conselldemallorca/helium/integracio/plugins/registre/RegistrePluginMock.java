@@ -78,8 +78,7 @@ public class RegistrePluginMock implements RegistrePlugin{
 
 	public String obtenirNomOficina(String oficinaCodi)
 			throws RegistrePluginException {
-		// TODO Auto-generated method stub  NOT IMPLEMENTED
-		return null;
+		return oficinaCodi + " Nom";
 	}
 	
 	/*private String convertirIdioma(String iso6391) {
