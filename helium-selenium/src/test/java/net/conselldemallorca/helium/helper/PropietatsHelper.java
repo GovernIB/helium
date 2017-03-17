@@ -71,7 +71,12 @@ public class PropietatsHelper {
 	
 	/** Llegeix el codi de l'usuari de proves. */
 	public String getUsuariTestCodi() {
-		return carregarPropietat("test.usuari.codi", "Codi de l'entorn de proves");		
+		return carregarPropietat("test.usuari.codi", "Codi de l'usuari de proves");		
+	}
+
+	/** Llegeix el password de l'usuari de proves. */
+	public String getUsuariTestPassword() {
+		return carregarPropietat("test.usuari.password", "Password de l'usuari de proves");		
 	}
 
 	/** Llegeix el codi de l'entorn de proves. */

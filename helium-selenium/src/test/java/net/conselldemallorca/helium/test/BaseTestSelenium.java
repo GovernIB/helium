@@ -567,7 +567,8 @@ public class BaseTestSelenium extends BaseTest{
 	protected void carregarPaginaIncial() {
 		driver.get(propietats.getTestBaseUrl() + "/index.html");
 		boolean seycon = propietats.getPropertyBool("test.base.url.inici.seycon", false);
-		if (seycon) {
+		if (seycon
+				&& existeixElement(By.xpath("//*[@id='j_username']"))) {
 			String user = propietats.getProperty("test.usuari.codi");
 			String pass = propietats.getProperty("test.usuari.password");
 			driver.findElement(By.xpath("//*[@id='j_username']")).sendKeys(user);
