@@ -63,7 +63,7 @@ public class IntegracioFormulariExternController {
 		mv.addObject("formIdValue", formIdValue);
 		IntegracioFormPeticio peticio =	IntegracioFormUtil.getInstance().getPeticio(formId);
 		mv.addObject("peticio", peticio);
-		mv.addObject("endPointAddress", propietats.getHeliumUrl() + "/ws/FormulariExtern");
+		mv.addObject("endPointAddress", endPointAddress);
 		
 		List<ParellaCodiValor> valors = new ArrayList<ParellaCodiValor>();
 		for( int i = 0; i < Math.min(codi.length, valor.length); i++)

@@ -122,4 +122,13 @@ public class PropietatsHelper {
 	public boolean isEsborrarExpedientTest() {
 		return getPropertyBool("test.expedient.esborrar", true);
 	}
+
+	/** Propietat on es troba el fitxer truststore.jdk per poder fer crides via WS per https. */
+	public String getTrustStoreFilePath() {
+		String trustStoreFilePath = getProperty("test.truststore", "");
+		if ("".equals(trustStoreFilePath))
+			trustStoreFilePath = null;
+		return trustStoreFilePath;
+		
+	}
 }

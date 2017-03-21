@@ -39,6 +39,11 @@ public class TramitacioExterna extends BaseTest {
 	@Before
 	public void setUp() throws Exception {
 		// No importa obrir el navegador
+		// Carrega el magatzem de certificats de confiança
+		String trustStoreFilePath = propietats.getTrustStoreFilePath();
+		if(trustStoreFilePath == null)
+			trustStoreFilePath = getTrustStoreFilePath();
+		System.setProperty("javax.net.ssl.trustStore", trustStoreFilePath);
 	}
 	
 	@After

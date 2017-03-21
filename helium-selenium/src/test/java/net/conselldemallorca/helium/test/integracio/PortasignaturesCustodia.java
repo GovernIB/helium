@@ -69,6 +69,13 @@ public class PortasignaturesCustodia extends BaseExpedientTest {
 	@Before
 	public void setUp() throws Exception {
 		super.setUp();
+		
+		// Carrega el magatzem de certificats de confiança
+		String trustStoreFilePath = propietats.getTrustStoreFilePath();
+		if(trustStoreFilePath == null)
+			trustStoreFilePath = getTrustStoreFilePath();
+		System.setProperty("javax.net.ssl.trustStore", trustStoreFilePath);
+
 		// Configura la rule de captura de pantalles en cas d'error
 		failure.setDriver(driver);		
 		failure.setScreenshotHelper(screenshotHelper);		
