@@ -112,17 +112,17 @@ public class Registre extends BaseExpedientTest {
 		modalObertaAssert(tascaId);
 		vesAModal(tascaId);
 		existeixElementAssert(By.id("registre_oficina"));
+		waitPaginaCarregada();
 		
 		// Torna fora de la modal i prem Validar les dades que ja estan introduïdes
 		tornaAPare();
 		existeixElementAssert(By.id("tasca-boto-validar")).click();
-		existeixElementAssert(By.id(botoFinalitzarId));
 		waitPaginaCarregada();
+		vesAModal(tascaId);
+		existeixElementAssert(By.cssSelector(".alert-success"), "La tasca no s'ha validat correctament");
 		
 		// Entra de nou a la modal i navega a la pestanya de documents
-		vesAModal(tascaId);
 		existeixElementAssert(By.id("pipella-document")).click();
-		waitPaginaCarregada();
 		
 		// Selecciona un document
 		existeixElementAssert(By.id("documentsForm")).findElement(By.cssSelector("input[name='arxiu']")).sendKeys(
