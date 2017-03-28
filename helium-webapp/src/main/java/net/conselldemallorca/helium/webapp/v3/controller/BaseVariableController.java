@@ -119,8 +119,7 @@ public class BaseVariableController extends BaseDissenyController {
 					// crida el .getCodi sobre l'objecte
 					str.append(o.getClass().getDeclaredMethod(method).invoke(o).toString());
 				} catch (Exception e) {
-					logger.error("Error consultant el \"getCodi\" de l'objecte " + o);
-					e.printStackTrace();
+					logger.error("Error consultant el \"getCodi\" de l'objecte " + o, e);
 				}
 				if (i++ < N)
 					str.append(", ");

@@ -863,7 +863,7 @@ public class ExpedientConsultaDissenyController extends BaseController {
 			zis.close();
 
 		} catch (IOException ex) {
-			ex.printStackTrace();
+			logger.error(ex);
 		}
 		return docs;
 	}

@@ -96,7 +96,6 @@ public class FormulariExternHelper {
 					", tascaId=" + tasca.getId()  +
 					", expedientTipusId=" + expedientTipus.getId()  +
 					", tascaIniciExpedient=" + tascaIniciExpedient  + ")");
-			e.printStackTrace();
 			dto.setError(messageHelper.getMessage("error.tascaService.formExtern.inici", new Object[] {getRootCause(e)}));
 			return dto;
 		}

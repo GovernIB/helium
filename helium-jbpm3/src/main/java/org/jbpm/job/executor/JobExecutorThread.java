@@ -334,7 +334,7 @@ public class JobExecutorThread extends Thread {
 	
 	protected void saveJobException(Job job, Throwable exception) {
 		StringWriter out = new StringWriter();
-		exception.printStackTrace(new PrintWriter(out));
+		logger.error(new PrintWriter(out));
 		job.setException(out.toString());
 	}
 
@@ -418,5 +418,7 @@ public class JobExecutorThread extends Thread {
 			interrupt();      
 		}
 	}
+	
+	private static final Log logger = LogFactory.getLog(JobExecutorThread.class);
 }
 

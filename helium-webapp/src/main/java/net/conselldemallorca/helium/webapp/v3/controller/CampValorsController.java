@@ -333,7 +333,7 @@ public class CampValorsController extends BaseExpedientController {
 		try {
 			valorFinal = URLDecoder.decode(splitValor[splitValor.length - 1],"UTF-8");
 		} catch (UnsupportedEncodingException e) {
-			e.printStackTrace();
+			logger.error(e.getMessage());
 		}
 		return valorFinal;
 	}

@@ -198,7 +198,7 @@ public class TascaProgramadaServiceImpl implements TascaProgramadaService {
 	public static void saveError(Long operacioMassivaId, Throwable error, ExecucioMassivaTipus tipus) {
 		if (tipus != ExecucioMassivaTipus.ELIMINAR_VERSIO_DEFPROC) {
 			StringWriter out = new StringWriter();
-			error.printStackTrace(new PrintWriter(out));
+			logger.error(new PrintWriter(out));
 			errorsMassiva.put(operacioMassivaId, out.toString());
 		} else {
 			errorsMassiva.put(operacioMassivaId, error.getMessage());

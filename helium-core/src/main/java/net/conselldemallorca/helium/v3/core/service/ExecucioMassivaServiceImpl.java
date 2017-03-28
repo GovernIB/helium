@@ -5,7 +5,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.PrintWriter;
 import java.io.Serializable;
 import java.io.StringWriter;
 import java.text.SimpleDateFormat;
@@ -385,7 +384,6 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 						nomSencer = pluginHelper.personaFindAmbCodi(execucio.getUsuari()).getNomSencer();
 					} catch (Exception e) {
 						logger.error(e);
-						e.printStackTrace();
 					}
 					mjson.put("usuari", nomSencer);
 					ljson.add(mjson);
@@ -406,10 +404,8 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 				obj = ois.readObject();
 			} catch (IOException e) {
 				logger.error(e);
-				e.printStackTrace();
 			} catch (ClassNotFoundException e) {
 				logger.error(e);
-				e.printStackTrace();
 			}
 		}
 		return obj;
@@ -428,7 +424,6 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 				bos.close();
 			} catch (IOException e) {
 				logger.error(e);
-				e.printStackTrace();
 			}
 			bytes = bos.toByteArray();
 		}
@@ -1245,7 +1240,7 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 	
 	private String getErrorMsg(Throwable ex) {
 		StringWriter errors = new StringWriter();
-		ex.printStackTrace(new PrintWriter(errors));
+		logger.error(ex);
 		String errorFull = errors.toString();	
 		errorFull = errorFull.replace("'", "&#8217;").replace("\"", "&#8220;").replace("\n", "<br>").replace("\t", "&nbsp;&nbsp;&nbsp;&nbsp;");
 		errorFull = StringEscapeUtils.escapeJavaScript(errorFull);

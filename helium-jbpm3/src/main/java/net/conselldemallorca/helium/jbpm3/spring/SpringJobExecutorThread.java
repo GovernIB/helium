@@ -214,7 +214,7 @@ public class SpringJobExecutorThread extends JobExecutorThread {
 	
 	private String saveJobError(Long jobId, Throwable ex, String errorDesc) {
 		StringWriter errors = new StringWriter();
-		ex.printStackTrace(new PrintWriter(errors));
+		logger.error(new PrintWriter(errors));
 		String errorFull = errors.toString();	
 		errorFull = errorFull.replace("'", "&#8217;").replace("\"", "&#8220;").replace("\n", "<br>").replace("\t", "&nbsp;&nbsp;&nbsp;&nbsp;");
 		errorFull = StringEscapeUtils.escapeJavaScript(errorFull);

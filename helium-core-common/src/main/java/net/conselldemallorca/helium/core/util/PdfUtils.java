@@ -6,6 +6,9 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import com.lowagie.text.Chunk;
 import com.lowagie.text.Element;
 import com.lowagie.text.Font;
@@ -293,7 +296,7 @@ public class PdfUtils {
 			fos.close();
 			fin.close();
 		} catch (Exception ex) {
-			ex.printStackTrace();
+			logger.error(ex);
 		}
 	}
 
@@ -330,4 +333,5 @@ public class PdfUtils {
 		return false;
 	}
 
+	private static final Log logger = LogFactory.getLog(PdfUtils.class);
 }

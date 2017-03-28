@@ -714,7 +714,7 @@ public class PluginService {
 		if (ex.getCause() == null) {
 			StringWriter sw = new StringWriter();
 		    PrintWriter pw = new PrintWriter(sw);
-		    ex.printStackTrace(pw);
+		    logger.error(pw);
 		    return sw.toString();
 		} else {
 			return getMissageFinalCadenaExcepcions(ex.getCause());

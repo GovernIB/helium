@@ -413,7 +413,6 @@ public class ExpedientTipusController extends BaseController {
 	
 //	private String getErrorMsg(Throwable ex) {
 //		StringWriter errors = new StringWriter();
-//		ex.printStackTrace(new PrintWriter(errors));
 //		String errorFull = errors.toString();	
 //		errorFull = errorFull.replace("'", "&#8217;").replace("\"", "&#8220;").replace("\n", "<br>").replace("\t", "&nbsp;&nbsp;&nbsp;&nbsp;");
 //		errorFull = StringEscapeUtils.escapeJavaScript(errorFull);

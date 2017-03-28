@@ -7,11 +7,7 @@
 
 package net.conselldemallorca.helium.ws.callback;
 
-import java.io.PrintWriter;
 import java.io.StringWriter;
-
-import net.conselldemallorca.helium.core.model.service.PluginService;
-import net.conselldemallorca.helium.core.model.service.ServiceProxy;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -20,6 +16,8 @@ import es.indra.www.portafirmasmcgdws.mcgdws.AttributesState;
 import es.indra.www.portafirmasmcgdws.mcgdws.CallbackRequest;
 import es.indra.www.portafirmasmcgdws.mcgdws.CallbackResponse;
 import es.indra.www.portafirmasmcgdws.mcgdws.LogMessage;
+import net.conselldemallorca.helium.core.model.service.PluginService;
+import net.conselldemallorca.helium.core.model.service.ServiceProxy;
 
 /**
  * Implementació amb Axis del servei per processar automàticament els canvis
@@ -86,8 +84,6 @@ public class MCGDwsImpl implements es.indra.www.portafirmasmcgdws.mcgdws.MCGDws 
 			logMessage.setSeverity("High");
 			logMessage.setTitle(e.getMessage());
 			StringWriter sw = new StringWriter();
-			PrintWriter pw = new PrintWriter(sw);
-			e.printStackTrace(pw);
 			logMessage.setDescription(sw.toString());
 			callbackResponse.setLogMessages(new LogMessage[] { logMessage });
 			callbackResponse.set_return((double) -1);

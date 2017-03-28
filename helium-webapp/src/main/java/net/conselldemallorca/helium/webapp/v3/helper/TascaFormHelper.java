@@ -787,7 +787,7 @@ public class TascaFormHelper {
 				return varIncloure ? linia : null;
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error(e);
 		}
 		return null;
 	}

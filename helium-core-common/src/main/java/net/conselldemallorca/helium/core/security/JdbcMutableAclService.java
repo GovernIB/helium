@@ -20,8 +20,8 @@ import java.util.List;
 
 import javax.sql.DataSource;
 
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.UrlResource;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.security.acls.domain.AccessControlEntryImpl;
@@ -101,10 +101,7 @@ public class JdbcMutableAclService extends JdbcAclService implements MutableAclS
         insertEntry = "insert into " + TableNames.TABLE_ENTRY + " (acl_object_identity, ace_order, sid, mask, granting, audit_success, audit_failure) values (?, ?, ?, ?, ?, ?, ?)";        
         
         try {
-			Resource resource = new UrlResource(System.getProperty("es.caib.helium.properties.path"));
-			GlobalProperties gp = new GlobalProperties(resource);
-	        String dialecteBBDD = gp.getProperty("app.hibernate.dialect");
-	        
+	        String dialecteBBDD = GlobalProperties.getInstance().getProperty("app.hibernate.dialect");
 	        if (dialecteBBDD != null && dialecteBBDD.indexOf("Postgre") != -1) {
 	            classIdentityQuery = "SELECT currval(pg_get_serial_sequence('" + TableNames.TABLE_CLASS + "', 'id'))";
 	            sidIdentityQuery = "SELECT currval(pg_get_serial_sequence('" + TableNames.TABLE_SID + "', 'id'))";
@@ -114,7 +111,7 @@ public class JdbcMutableAclService extends JdbcAclService implements MutableAclS
 	            insertEntry = "insert into " + TableNames.TABLE_ENTRY + " (id, acl_object_identity, ace_order, sid, mask, granting, audit_success, audit_failure) values (nextval(pg_get_serial_sequence('" + TableNames.TABLE_ENTRY + "', 'id')), ?, ?, ?, ?, ?, ?, ?)";
 	        }
         }catch (Exception ex) {
-        	ex.printStackTrace();
+        	logger.error(ex);
         }
     }
 
@@ -464,4 +461,6 @@ public class JdbcMutableAclService extends JdbcAclService implements MutableAclS
     public void setForeignKeysInDatabase(boolean foreignKeysInDatabase) {
         this.foreignKeysInDatabase = foreignKeysInDatabase;
     }
+    
+    private static final Log logger = LogFactory.getLog(JdbcMutableAclService.class);
 }

@@ -413,7 +413,7 @@ public class ExpedientInformeController extends BaseExpedientController {
 			zis.close();
 
 		} catch (IOException ex) {
-			ex.printStackTrace();
+			logger.error(ex.getMessage());
 		}
 		return docs;
 	}

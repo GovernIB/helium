@@ -163,9 +163,9 @@ public class HttpServletRequestWrapperFilter implements Filter {
 			DataSource dataSource = (DataSource)initialContext.lookup(dsJndiName);
 			connection = dataSource.getConnection();
 		} catch (NamingException e) {
-			e.printStackTrace();
+			logger.error(e);
 		} catch (SQLException e) {
-			e.printStackTrace();
+			logger.error(e);
 		}
 		return connection;
 	}

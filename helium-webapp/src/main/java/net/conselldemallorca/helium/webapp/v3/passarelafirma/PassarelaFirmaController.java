@@ -96,7 +96,7 @@ public class PassarelaFirmaController extends BaseController {
 					request,
 					signaturesSetID);
 		} catch (Throwable e) {
-			e.printStackTrace();
+			log.error(e.getMessage());
 			urlToPluginWebPage = ESQUEMA_PREFIX + PassarelaFirmaHelper.CONTEXTWEB + "/selectsignmodule/" + signaturesSetID;
 			MissatgesHelper.error(
 					request,

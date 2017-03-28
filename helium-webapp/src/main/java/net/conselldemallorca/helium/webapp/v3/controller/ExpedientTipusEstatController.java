@@ -10,6 +10,8 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.propertyeditors.StringTrimmerEditor;
 import org.springframework.stereotype.Controller;
@@ -200,7 +202,7 @@ public class ExpedientTipusEstatController extends BaseExpedientTipusController 
 							"expedient.tipus.estat.controller.eliminat"));
 			return true;
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error(e);
 			MissatgesHelper.error(
 					request, 
 					getMessage(
@@ -292,7 +294,7 @@ public class ExpedientTipusEstatController extends BaseExpedientTipusController 
     				linia = br.readLine();
     			}
         	} catch(Exception e) {
-        		e.printStackTrace();
+        		logger.error(e);
         		MissatgesHelper.error(
         				request,
         				getMessage(
@@ -314,4 +316,6 @@ public class ExpedientTipusEstatController extends BaseExpedientTipusController 
 	public void initBinder(WebDataBinder binder) {
 	    binder.registerCustomEditor(String.class, new StringTrimmerEditor(true));
 	}
+	
+	private static final Log logger = LogFactory.getLog(ExpedientTipusEstatController.class);
 }

@@ -220,7 +220,7 @@ public class ExpedientDadaController extends BaseExpedientController {
 					model);
 			model.addAttribute("modificarVariableCommand", command);
 		} catch (UnsupportedEncodingException e) {
-			e.printStackTrace();
+			logger.error(e);
 		}
 		
 		return "v3/expedientDadaModificar";

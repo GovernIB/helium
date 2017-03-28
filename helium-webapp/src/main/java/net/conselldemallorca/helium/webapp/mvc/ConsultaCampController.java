@@ -306,7 +306,7 @@ public class ConsultaCampController extends BaseController {
 						byteArray);
 				return "arxiuView";
 			} catch (Exception e) {
-				e.printStackTrace();
+				logger.error(e);
 				return "redirect:/consulta/llistat.html";
 			}
 		} else {

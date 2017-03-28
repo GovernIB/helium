@@ -17,6 +17,8 @@ import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.v3.core.api.dto.PermisDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PrincipalTipusEnumDto;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.security.acls.domain.BasePermission;
 import org.springframework.security.acls.domain.GrantedAuthoritySid;
 import org.springframework.security.acls.domain.ObjectIdentityImpl;
@@ -289,7 +291,7 @@ public class PermisosHelper {
 		try {
 			acl = (MutableAcl)aclService.readAclById(oid);
 		} catch (NotFoundException nfex) {
-			nfex.printStackTrace();
+			logger.error(nfex);
 			acl = aclService.createAcl(oid);
 		}
 		for (Permission permission: permissions) {
@@ -434,9 +436,9 @@ public class PermisosHelper {
 		return resposta;
 	}
 
-
-
 	public interface ObjectIdentifierExtractor<T> {
 		public Long getObjectIdentifier(T object);
 	}
+	
+	private static final Log logger = LogFactory.getLog(PermisosHelper.class);
 }
