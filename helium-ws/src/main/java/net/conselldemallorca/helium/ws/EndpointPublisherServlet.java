@@ -35,7 +35,6 @@ public class EndpointPublisherServlet extends HttpServlet {
 		ApplicationContext context = WebApplicationContextUtils.getWebApplicationContext(servletConfig.getServletContext());
 		Bus bus = cxfServlet.getBus();
 		BusFactory.setDefaultBus(bus); 
-
 		String user = GlobalProperties.getInstance().getProperty("app.bantel.avisos.username");
 		String pass = GlobalProperties.getInstance().getProperty("app.bantel.avisos.password");
 		String auth = GlobalProperties.getInstance().getProperty("app.bantel.avisos.auth");
@@ -120,6 +119,46 @@ public class EndpointPublisherServlet extends HttpServlet {
 				auth != null ? auth : "",
 				"true".equalsIgnoreCase(ts) ? true : false,
 				"true".equalsIgnoreCase(log) ? true : false);
+		String selenium = GlobalProperties.getInstance().getProperty("app.selenium.ws.integracion");
+		if (selenium != null && "true".equals(selenium)) {
+			user = GlobalProperties.getInstance().getProperty("app.tramitacio.servei.username");
+			pass = GlobalProperties.getInstance().getProperty("app.tramitacio.servei.password");
+			auth = GlobalProperties.getInstance().getProperty("app.tramitacio.servei.auth");
+			ts = GlobalProperties.getInstance().getProperty("app.tramitacio.servei.generate.timestamp");
+			log = GlobalProperties.getInstance().getProperty("app.tramitacio.servei.log.calls");
+			WsServerUtils.publish(
+					"/portafirmas",
+					context.getBean("cwsService"),
+					user != null ? user : "",
+					pass != null ? pass : "",
+					auth != null ? auth : "",
+					"true".equalsIgnoreCase(ts) ? true : false,
+					"true".equalsIgnoreCase(log) ? true : false);
+			WsServerUtils.publish(
+					"/CustodiaDocumentos",
+					context.getBean("custodiaService"),
+					user != null ? user : "",
+					pass != null ? pass : "",
+					auth != null ? auth : "",
+					"true".equalsIgnoreCase(ts) ? true : false,
+					"true".equalsIgnoreCase(log) ? true : false);
+			WsServerUtils.publish(
+					"/IniciFormulari",
+					context.getBean("formsService"),
+					user != null ? user : "",
+					pass != null ? pass : "",
+					auth != null ? auth : "",
+					"true".equalsIgnoreCase(ts) ? true : false,
+					"true".equalsIgnoreCase(log) ? true : false);
+			WsServerUtils.publish(
+					"/NotificacioEntradaV3",
+					context.getBean("bantelV3Backoffice"),
+					user != null ? user : "",
+					pass != null ? pass : "",
+					auth != null ? auth : "",
+					"true".equalsIgnoreCase(ts) ? true : false,
+					"true".equalsIgnoreCase(log) ? true : false);			
+		}
     }
 
 }

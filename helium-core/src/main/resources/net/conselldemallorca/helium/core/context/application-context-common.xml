@@ -127,9 +127,9 @@
 	<bean id="serviceProxy" class="net.conselldemallorca.helium.core.model.service.ServiceProxy" factory-method="getInstance"/>
 <!-- 	<bean id="daoProxy" class="net.conselldemallorca.helium.core.model.dao.DaoProxy" factory-method="getInstance"/> -->
 
-	<bean id="globalProperties" class="net.conselldemallorca.helium.core.util.GlobalProperties">
+	<!--bean id="globalProperties" class="net.conselldemallorca.helium.core.util.GlobalProperties">
 		<constructor-arg value="${es.caib.helium.properties.path}"/>
-	</bean>
+	</bean-->
 
 	<bean id="mailSender" class="org.springframework.mail.javamail.JavaMailSenderImpl">
 		<property name="session">

@@ -89,11 +89,6 @@
 		<load-on-startup>3</load-on-startup>
 	</servlet>
 	<servlet>
-		<servlet-name>EndpointPublisherServletIntegraciones</servlet-name>
-		<servlet-class>net.conselldemallorca.helium.wsintegraciones.EndpointPublisherServlet</servlet-class>
-		<load-on-startup>4</load-on-startup>
-	</servlet>
-	<servlet>
 		<servlet-name>AxisServlet</servlet-name>
 		<servlet-class>org.apache.axis.transport.http.AxisServlet</servlet-class>
 	</servlet>
@@ -117,7 +112,7 @@
 	<!-- login-config.begin -->
 	<login-config>
 		<auth-method>BASIC</auth-method>
-		<realm-name>@@web.realm.name@@</realm-name>
+		<realm-name>Ajuntament d'Inca</realm-name>
 	</login-config>
 	<!-- login-config.end -->
 

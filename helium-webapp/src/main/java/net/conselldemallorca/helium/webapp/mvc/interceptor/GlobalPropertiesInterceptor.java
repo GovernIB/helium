@@ -6,10 +6,9 @@ package net.conselldemallorca.helium.webapp.mvc.interceptor;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import net.conselldemallorca.helium.core.util.GlobalProperties;
-
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
+
+import net.conselldemallorca.helium.core.util.GlobalProperties;
 
 /**
  * Interceptor per guardar les propietats globals per a cada petició
@@ -20,10 +19,6 @@ public class GlobalPropertiesInterceptor extends HandlerInterceptorAdapter {
 
 	public static final String VARIABLE_REQUEST_GLOBAL_PROPERTIES = "globalProperties";
 
-	private GlobalProperties globalProperties;
-
-
-
 	public boolean preHandle(
 			HttpServletRequest request,
 			HttpServletResponse response,
@@ -31,16 +26,9 @@ public class GlobalPropertiesInterceptor extends HandlerInterceptorAdapter {
 		if (request.getUserPrincipal() != null) {
 			request.setAttribute(
 					VARIABLE_REQUEST_GLOBAL_PROPERTIES,
-					globalProperties);
+					GlobalProperties.getInstance());
 		}
 		return true;
-	}
-
-
-
-	@Autowired
-	public void setGlobalProperties(GlobalProperties globalProperties) {
-		this.globalProperties = globalProperties;
 	}
 
 }
