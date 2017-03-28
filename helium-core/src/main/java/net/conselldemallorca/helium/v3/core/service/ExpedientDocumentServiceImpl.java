@@ -682,13 +682,9 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 	public void crearDocumentInstanciaProces(Long expedientId, String processInstanceId, String documentCodi, String nomArxiu, byte[] arxiu, Date data) {
 		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
 				expedientId,
-				false,
-				false,
-				false,
-				false,
-				false,
-				false,
-				true);
+				new Permission[] {
+						ExtendedPermission.DOC_MANAGE,
+						ExtendedPermission.ADMINISTRATION});
 		
 		expedientLoggerHelper.afegirLogExpedientPerProces(
 				processInstanceId,
