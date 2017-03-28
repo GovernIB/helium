@@ -34,6 +34,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.jbpm.JbpmConfiguration;
 import org.jbpm.JbpmException;
 import org.jbpm.calendar.BusinessCalendar;
@@ -564,9 +566,8 @@ public class TaskMgmtInstance extends ModuleInstance
       swimlaneInstances.size();
       swimlaneInstances.put(swimlaneInstance.getName(), swimlaneInstance);
     }
-    catch (Exception e)
-    {
-      e.printStackTrace();
+    catch (Exception e) {
+      logger.error(e);
     }
     return swimlaneInstance;
   }
@@ -683,4 +684,6 @@ public class TaskMgmtInstance extends ModuleInstance
       }
     }
   }
+  
+  private static final Log logger = LogFactory.getLog(TaskMgmtInstance.class);
 }

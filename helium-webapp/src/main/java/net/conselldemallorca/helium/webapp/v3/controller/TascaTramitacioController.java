@@ -544,7 +544,6 @@ public class TascaTramitacioController extends BaseTascaController {
 								request, 
 								"document.controller.firma.passarela.final.error.validacio");
 						StringWriter errors = new StringWriter();
-						e.printStackTrace(new PrintWriter(errors));
 						message += errors.toString();
 						MissatgesHelper.error(
 								request,

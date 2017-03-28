@@ -342,7 +342,7 @@ public class DocumentHelper {
 				}
 				return dto;
 			} catch (Exception e) {
-				e.printStackTrace();
+				logger.error(e);
 			}
 		} 
 		return null;
@@ -361,7 +361,7 @@ public class DocumentHelper {
 						false);
 				return dto;
 			} catch (Exception e) {
-				e.printStackTrace();
+				logger.error(e);
 			}			
 		} 
 		return null;
@@ -395,7 +395,7 @@ public class DocumentHelper {
 						false,
 						false);
 			} catch (Exception e) {
-				e.printStackTrace();
+				logger.error(e);
 			}
 		} 
 		return null;

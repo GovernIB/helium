@@ -227,8 +227,7 @@ public class ExpedientTipusRedireccioController extends BaseExpedientTipusContro
 							"expedient.tipus.redireccio.controller.usuaris.error",
 							new Object[] {e.getLocalizedMessage()});
 					MissatgesHelper.error(request, errMsg);
-					e.printStackTrace();
-					logger.error("errMsg");
+					logger.error(e);
 				}
 			}
 		}

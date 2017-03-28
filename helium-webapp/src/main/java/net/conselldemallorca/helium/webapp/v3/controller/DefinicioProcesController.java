@@ -9,6 +9,8 @@ import java.util.Set;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.propertyeditors.StringTrimmerEditor;
 import org.springframework.stereotype.Controller;
@@ -121,8 +123,7 @@ public class DefinicioProcesController extends BaseDefinicioProcesController {
 			
 			success = this.deleteDefinicioProces(entornActual.getId(), request, definicioProces);
 		} catch (Exception e) {
-			System.err.println("Error : (" + e.getClass() + ") " + e.getLocalizedMessage());
-			e.printStackTrace();
+			logger.error("Error : (" + e.getClass() + ") " + e.getLocalizedMessage());
 			MissatgesHelper.error(request, getMessage(request, "definicio.proces.delete.error", new Object[] {e.getLocalizedMessage()}));
 		}
 		return success;
@@ -152,8 +153,7 @@ public class DefinicioProcesController extends BaseDefinicioProcesController {
 				return "redirect:/v3/definicioProces";
 			
 		} catch (Exception e) {
-			System.err.println("Error : (" + e.getClass() + ") " + e.getLocalizedMessage());
-			e.printStackTrace();
+			logger.error("Error : (" + e.getClass() + ") " + e.getLocalizedMessage());
 			MissatgesHelper.error(request, getMessage(request, "definicio.proces.delete.error", new Object[] {e.getLocalizedMessage()}));
 		}
 		// Retorna a la pàgina de pipelles		
@@ -635,8 +635,7 @@ public class DefinicioProcesController extends BaseDefinicioProcesController {
 		        				execucioMassivaService.crearExecucioMassiva(dto);
 		        				MissatgesHelper.success(request, getMessage(request, "info.canvi.versio.massiu", new Object[] {dto.getProcInstIds().size()}));
 		        			} catch(Exception e) {
-		        				System.err.println("Error : (" + e.getClass() + ") " + e.getLocalizedMessage());
-		        				e.printStackTrace(System.err);
+		        				logger.error("Error : (" + e.getClass() + ") " + e.getLocalizedMessage());
 		        				MissatgesHelper.error(
 		        						request,
 		        						getMessage(
@@ -662,8 +661,7 @@ public class DefinicioProcesController extends BaseDefinicioProcesController {
                 								definicioProces.getVersio()
                 						}));
         			} catch (Exception e) {
-        				System.err.println("Error : (" + e.getClass() + ") " + e.getLocalizedMessage());
-        				e.printStackTrace(System.err);
+        				logger.error("Error : (" + e.getClass() + ") " + e.getLocalizedMessage());
         				MissatgesHelper.error(
         						request,
         						getMessage(
@@ -674,8 +672,7 @@ public class DefinicioProcesController extends BaseDefinicioProcesController {
         			}
             	}
         	} catch (Exception e) {
-        		System.err.println("Error: (" + e.getClass() + ") " + e.getLocalizedMessage() );
-        		e.printStackTrace(System.err);
+        		logger.error("Error: (" + e.getClass() + ") " + e.getLocalizedMessage() );
         		MissatgesHelper.error(request, 
         				getMessage(
         						request, 
@@ -735,4 +732,6 @@ public class DefinicioProcesController extends BaseDefinicioProcesController {
 	public void initBinder(WebDataBinder binder) {
 	    binder.registerCustomEditor(String.class, new StringTrimmerEditor(true));
 	}
+	
+	private static final Log logger = LogFactory.getLog(DefinicioProcesController.class);
 }

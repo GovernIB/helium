@@ -1311,7 +1311,7 @@ public class ExecucioMassivaService {
 		eme.setEstat(ExecucioMassivaEstat.ESTAT_ERROR);
 		
 		StringWriter out = new StringWriter();
-		exception.printStackTrace(new PrintWriter(out));
+		logger.error(new PrintWriter(out));
 		eme.setError(out.toString());
 		execucioMassivaExpedientDao.saveOrUpdate(eme);
 	}
