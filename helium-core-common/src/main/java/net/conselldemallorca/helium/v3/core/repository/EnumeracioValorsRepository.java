@@ -44,4 +44,11 @@ public interface EnumeracioValorsRepository extends JpaRepository<EnumeracioValo
 	public Enumeracio findByEnumeracioAndCodi(Enumeracio enumeracio, String codi);
 	
 	public List<EnumeracioValors> findByEnumeracioIdOrderByOrdreAsc(Long enumeracioId);
+
+	/** Consulta el següent valor per a ordre dels valors de la enumeració. */
+	@Query(	"select coalesce( max( e.ordre), -1) + 1 " +
+			"from EnumeracioValors e " +
+			"where " +
+			"    e.enumeracio.id = :enumeracioId " )
+	Integer getNextOrdre(@Param("enumeracioId") Long enumeracioId);
 }

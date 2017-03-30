@@ -18,6 +18,7 @@ import net.conselldemallorca.helium.core.helper.EntornHelper;
 import net.conselldemallorca.helium.core.helper.ExpedientTipusHelper;
 import net.conselldemallorca.helium.core.helper.MessageHelper;
 import net.conselldemallorca.helium.core.helper.PaginacioHelper;
+import net.conselldemallorca.helium.core.model.hibernate.ConsultaCamp;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 import net.conselldemallorca.helium.core.model.hibernate.Enumeracio;
 import net.conselldemallorca.helium.core.model.hibernate.EnumeracioValors;
@@ -297,7 +298,7 @@ public class EnumeracioServiceImpl implements EnumeracioService {
 		EnumeracioValors entity = new EnumeracioValors();
 		entity.setCodi(enumeracio.getCodi());
 		entity.setNom(enumeracio.getNom());
-		entity.setOrdre(enumeracio.getOrdre());
+		entity.setOrdre(enumeracioValorsRepository.getNextOrdre(enumeracioId));
 		entity.setEnumeracio(enumer);
 
 		return conversioTipusHelper.convertir(
@@ -312,6 +313,7 @@ public class EnumeracioServiceImpl implements EnumeracioService {
 		if (valor == null)
 			throw new NoTrobatException(EnumeracioValors.class, valorId);
 				
+		Long enumeracioId = valor.getEnumeracio().getId();
 		//Es llançará un PermisDenegatException si escau
 		if (valor.getEnumeracio().getExpedientTipus() != null)
 			expedientTipusHelper.getExpedientTipusComprovantPermisDissenyDelegat(valor.getEnumeracio().getExpedientTipus().getId());
@@ -320,7 +322,21 @@ public class EnumeracioServiceImpl implements EnumeracioService {
 
 		enumeracioValorsRepository.delete(valorId);
 		enumeracioValorsRepository.flush();
+		reordenarValorsEnumeracio(enumeracioId);
 	}
+	
+	/** Funció per reasignar el valor d'ordre dins dels valors d'una enumeració. */
+	private void reordenarValorsEnumeracio(
+			Long enumeracioId) {
+		List<EnumeracioValors> consultaCamps = enumeracioValorsRepository.findByEnumeracioOrdenat(
+				enumeracioId);		
+		int i = 0;
+		for (EnumeracioValors e : consultaCamps) {
+			e.setOrdre(i);
+			enumeracioValorsRepository.saveAndFlush(e);
+			i++;
+		}
+	}	
 
 	@Override
 	@Transactional
