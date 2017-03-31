@@ -102,36 +102,40 @@ public class TramitacioServiceImpl implements TramitacioService {
 			}
 		}
 		try {
-			ExpedientDto expedient = expedientService.iniciar(
-					e.getId(),
-					null,
-					et.getId(),
-					null,
-					null,
-					numero,
-					titol,
-					null,
-					null,
-					null,
-					null,
-					false,
-					null,
-					null,
-					null,
-					null,
-					null,
-					null,
-					false,
-					null,
-					null,
-					false,
-					variables,
-					null,
-					IniciadorTipus.INTERN,
-					null,
-					null,
-					null,
-					null);
+			// Cridada sincronitzada al mètode transaccional
+			ExpedientDto expedient;
+			synchronized (ExpedientService.getObjecteSincronitzacio(et.getId())) {
+				expedient = expedientService.iniciar(
+						e.getId(),
+						null,
+						et.getId(),
+						null,
+						null,
+						numero,
+						titol,
+						null,
+						null,
+						null,
+						null,
+						false,
+						null,
+						null,
+						null,
+						null,
+						null,
+						null,
+						false,
+						null,
+						null,
+						false,
+						variables,
+						null,
+						IniciadorTipus.INTERN,
+						null,
+						null,
+						null,
+						null);
+			}
 			return expedient.getProcessInstanceId();
 		} catch (Exception ex) {
 			logger.error("No s'han pogut iniciar l'expedient", ex);
