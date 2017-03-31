@@ -70,39 +70,43 @@ public abstract class BaseBackoffice {
 						expedientTipus.getEntorn().getId(),
 						expedientTipus.getId());*/
 			EntornActual.setEntornId(expedientTipus.getEntorn().getId());
-			ExpedientDto expedientNou = expedientService.iniciar(
-					expedientTipus.getEntorn().getId(),
-					null,
-					expedientTipus.getId(),
-					null,
-					null,
-					null, // expedientNumero
-					expedientTitol,
-					tramit.getRegistreNumero(),
-					tramit.getRegistreData(),
-					new Long(tramit.getUnitatAdministrativa()),
-					tramit.getIdioma(),
-					!AutenticacioTipus.ANONIMA.equals(tramit.getAutenticacioTipus()),
-					tramit.getTramitadorNif(),
-					tramit.getTramitadorNom(),
-					tramit.getInteressatNif(),
-					tramit.getInteressatNom(),
-					tramit.getRepresentantNif(),
-					tramit.getRepresentantNom(),
-					tramit.isAvisosHabilitats(),
-					tramit.getAvisosEmail(),
-					tramit.getAvisosSms(),
-					tramit.isNotificacioTelematicaHabilitada(),
-					getDadesInicials(expedientTipus, tramit),
-					null,
-					IniciadorTipus.SISTRA,
-					Expedient.crearIniciadorCodiPerSistra(
-							tramit.getNumero(),
-							new Long(tramit.getClauAcces()).toString()),
-					null,
-					getDocumentsInicials(expedientTipus, tramit),
-					getDocumentsAdjunts(expedientTipus, tramit));
-			logger.info("S'ha creat un expedient del tipus " + expedientTipus.getCodi() + ": " + expedientNou.getIdentificador());
+			// Cridada sincronitzada al mètode transaccional
+			synchronized (ExpedientService.getObjecteSincronitzacio(expedientTipus.getId())) 
+			{
+				ExpedientDto expedientNou = expedientService.iniciar(
+						expedientTipus.getEntorn().getId(),
+						null,
+						expedientTipus.getId(),
+						null,
+						null,
+						null, // expedientNumero
+						expedientTitol,
+						tramit.getRegistreNumero(),
+						tramit.getRegistreData(),
+						new Long(tramit.getUnitatAdministrativa()),
+						tramit.getIdioma(),
+						!AutenticacioTipus.ANONIMA.equals(tramit.getAutenticacioTipus()),
+						tramit.getTramitadorNif(),
+						tramit.getTramitadorNom(),
+						tramit.getInteressatNif(),
+						tramit.getInteressatNom(),
+						tramit.getRepresentantNif(),
+						tramit.getRepresentantNom(),
+						tramit.isAvisosHabilitats(),
+						tramit.getAvisosEmail(),
+						tramit.getAvisosSms(),
+						tramit.isNotificacioTelematicaHabilitada(),
+						getDadesInicials(expedientTipus, tramit),
+						null,
+						IniciadorTipus.SISTRA,
+						Expedient.crearIniciadorCodiPerSistra(
+								tramit.getNumero(),
+								new Long(tramit.getClauAcces()).toString()),
+						null,
+						getDocumentsInicials(expedientTipus, tramit),
+						getDocumentsAdjunts(expedientTipus, tramit));
+				logger.info("S'ha creat un expedient del tipus " + expedientTipus.getCodi() + ": " + expedientNou.getIdentificador());
+			}
 		}
 		return candidats.size();
 	}

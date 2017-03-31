@@ -112,7 +112,7 @@
 	<!-- login-config.begin -->
 	<login-config>
 		<auth-method>BASIC</auth-method>
-		<realm-name>Ajuntament d'Inca</realm-name>
+		<realm-name>@@web.realm.name@@</realm-name>
 	</login-config>
 	<!-- login-config.end -->
 

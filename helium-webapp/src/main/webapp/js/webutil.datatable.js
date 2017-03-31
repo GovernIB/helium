@@ -72,7 +72,7 @@
 				domPrefix = '<"row"<"col-md-' + colMd33p + '"i><"col-md-' + colMd66p + '"<"botons fright"><"fright"f>>>';
 			else
 				domPrefix = '<"row"<"col-md-' + colMd50p + '"i><"col-md-' + colMd50p + '"<"botons">>>';
-			var language = window.navigator.userLanguage || window.navigator.language;
+			var language = solveLanguage();
 			var ajaxRequestType = plugin.settings.ajaxRequestType;
 			var dataTableOptions = {
 				language: {
@@ -1031,7 +1031,7 @@
 		// Inicialització del plugin
         plugin.init();
 	}
-
+	
 	$.fn.webutilDatatable = function(options, param1) {
 		var pluginName = 'webutilDatatable';
         return this.each(function() {
@@ -1059,5 +1059,21 @@
 			$(this).webutilDatatable();
 		});
 	});
-
+	
 }(jQuery));
+
+/** Determina el llenguatge utilitzat. Els possibles són:
+ * <ul>
+ * 	<li>es: castellà</li>
+ * 	<li>ca: català, per defecte</li>
+ *</ul>
+ * @returns
+ */
+function solveLanguage(){ 
+	language = window.navigator.userLanguage || window.navigator.language;
+	if (language != null && language.indexOf('es') !== -1)
+			language = 'es';
+		else 
+			language = 'ca'
+	return language;
+} 
