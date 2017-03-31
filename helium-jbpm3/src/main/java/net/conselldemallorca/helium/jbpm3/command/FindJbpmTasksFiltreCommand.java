@@ -93,12 +93,19 @@ public class FindJbpmTasksFiltreCommand extends AbstractBaseCommand {
 		this.nomesCount = nomesCount;
 	}
 	
+	private String triaTaula ()  {
+		if (nomesPendents)
+			return "MvTaskInstance";
+		else
+			return "TaskInstance";
+	}
+	
 	private StringBuilder consulta1 (boolean desactivarOptimitzarLlistatTasques) {
 		StringBuilder taskQuerySb = new StringBuilder();
 		if (actorId != null) {
 			taskQuerySb.append(
 					"from " +
-					"    org.jbpm.taskmgmt.exe.TaskInstance ti left join ti.pooledActors pa " +
+					"    org.jbpm.taskmgmt.exe." + triaTaula() + " ti left join ti.pooledActors pa " +
 					"where ");
 			if (mostrarAssignadesUsuari && mostrarAssignadesGrup) {
 				if (desactivarOptimitzarLlistatTasques)
@@ -115,7 +122,7 @@ public class FindJbpmTasksFiltreCommand extends AbstractBaseCommand {
 		} else {
 			taskQuerySb.append(
 					"from " +
-					"    org.jbpm.taskmgmt.exe.TaskInstance ti " +
+					"    org.jbpm.taskmgmt.exe." + triaTaula() + " ti " +
 					"where ");
 			if (mostrarAssignadesUsuari && mostrarAssignadesGrup) {
 				taskQuerySb.append("((ti.actorId is not null) or (ti.actorId is null and exists elements(ti.pooledActors))) ");
@@ -184,7 +191,7 @@ public class FindJbpmTasksFiltreCommand extends AbstractBaseCommand {
 		if (actorId != null) {
 			taskQuerySb.append(
 					"from " +
-					"    org.jbpm.taskmgmt.exe.TaskInstance ti left join ti.pooledActors pa " +
+					"    org.jbpm.taskmgmt.exe." + triaTaula() + " ti left join ti.pooledActors pa " +
 					"where ");
 			if (mostrarAssignadesUsuari && mostrarAssignadesGrup) {
 				taskQuerySb.append("((ti.actorId is null and pa.actorId = :actorId)) ");
@@ -198,7 +205,7 @@ public class FindJbpmTasksFiltreCommand extends AbstractBaseCommand {
 		} else {
 			taskQuerySb.append(
 					"from " +
-					"    org.jbpm.taskmgmt.exe.TaskInstance ti " +
+					"    org.jbpm.taskmgmt.exe." + triaTaula() + " ti " +
 					"where ");
 			if (mostrarAssignadesUsuari && mostrarAssignadesGrup) {
 				taskQuerySb.append("((ti.actorId is not null) or (ti.actorId is null and exists elements(ti.pooledActors))) ");
@@ -317,12 +324,12 @@ public class FindJbpmTasksFiltreCommand extends AbstractBaseCommand {
 		}
 		
 		if (!nomesCount) {
-			taskQuerySb.insert(0, "select ti from org.jbpm.taskmgmt.exe.TaskInstance ti where ti.id in (select distinct ti.id ");
+			taskQuerySb.insert(0, "select tki from org.jbpm.taskmgmt.exe.TaskInstance tki where tki.id in (select distinct ti.id ");
 			taskQuerySb.append(") ");
 			
 			//afegim les ids del segon subconjunt si aquest subconjunt existeix
 			if (taskQuerySb2 != null && !taskQuerySb2.toString().isEmpty())
-				taskQuerySb.append(" or ti.id in (select distinct ti.id " + taskQuerySb2.toString() + ")");
+				taskQuerySb.append(" or tki.id in (select distinct ti.id " + taskQuerySb2.toString() + ")");
 			
 			List<String> sortColumns = new ArrayList<String>();
 			if (sort != null) {
@@ -336,18 +343,18 @@ public class FindJbpmTasksFiltreCommand extends AbstractBaseCommand {
 				// Per defecte: dataCreacio desc
 				taskQuerySb.append("order by ");
 				if ("titol".equals(sort)) {
-					sortColumns.add("ti.description");
+					sortColumns.add("tki.description");
 				} else if ("expedientTitol".equals(sort)) {
-					sortColumns.add("ti.processInstance.expedient.numero");
-					sortColumns.add("ti.processInstance.expedient.titol");
+					sortColumns.add("tki.processInstance.expedient.numero");
+					sortColumns.add("tki.processInstance.expedient.titol");
 				} else if ("expedientTipusNom".equals(sort)) {
-					sortColumns.add("ti.processInstance.expedient.tipus.nom");
+					sortColumns.add("tki.processInstance.expedient.tipus.nom");
 				} else if ("dataCreacio".equals(sort)) {
-					sortColumns.add("ti.create");
+					sortColumns.add("tki.create");
 				} else if ("prioritat".equals(sort)) {
-					sortColumns.add("ti.priority");
+					sortColumns.add("tki.priority");
 				} else if ("dataLimit".equals(sort)) {
-					sortColumns.add("ti.dueDate");
+					sortColumns.add("tki.dueDate");
 				}
 				boolean sortFirst = true;
 				for (String sortColumn: sortColumns) {

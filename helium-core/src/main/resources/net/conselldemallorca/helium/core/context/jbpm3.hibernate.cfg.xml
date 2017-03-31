@@ -116,6 +116,7 @@
    <!-- taskmgmt.exe mapping files -->
    <mapping resource="org/jbpm/taskmgmt/exe/TaskMgmtInstance.hbm.xml"/>
    <mapping resource="org/jbpm/taskmgmt/exe/TaskInstance.hbm.xml"/>
+   <mapping resource="org/jbpm/taskmgmt/exe/MvTaskInstance.hbm.xml"/>
    <mapping resource="org/jbpm/taskmgmt/exe/PooledActor.hbm.xml"/>
    <mapping resource="org/jbpm/taskmgmt/exe/SwimlaneInstance.hbm.xml"/>
 
