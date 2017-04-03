@@ -131,6 +131,9 @@ public class ExpedientTipusImportarValidator implements ConstraintValidator<Expe
     		Set<String> enumeracionsGlobals = new HashSet<String>();
     		for (EnumeracioDto e : enumeracioService.findGlobals(entornActual.getId()))
     			enumeracionsGlobals.add(e.getCodi());
+    		Set<String> dominisGlobals = new HashSet<String>();
+    		for (DominiDto d : dominiService.findGlobals(entornActual.getId()))
+    			dominisGlobals.add(d.getCodi());
 
     		// Si l'expedient destí està configurat amb info propia llavors haurà de tenir els camps i 
     		// els documents definits per a les tasques de les definicions de procés.
@@ -218,7 +221,8 @@ public class ExpedientTipusImportarValidator implements ConstraintValidator<Expe
 							valid = false;
 						}
 					if (camp.getCodiDomini() != null)
-						if (!command.getDominis().contains(camp.getCodiDomini())) {
+						if (!command.getDominis().contains(camp.getCodiDomini())
+								&& !dominisGlobals.contains(camp.getCodiDomini())) {
 							context.buildConstraintViolationWithTemplate(
 									MessageHelper.getInstance().getMessage(
 											this.codiMissatge + ".variable.seleccio.domini", 

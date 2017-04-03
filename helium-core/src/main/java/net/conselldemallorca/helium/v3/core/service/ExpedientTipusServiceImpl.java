@@ -859,6 +859,9 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 
 		// Enumeracions
 		Map<String, Enumeracio> enumeracions = new HashMap<String, Enumeracio>();
+		// Inicialitza amb les enumeracions a nivell d'entorn
+		for (Enumeracio e : enumeracioRepository.findGlobals(entorn.getId()))
+			enumeracions.put(e.getCodi(), e);
 		Enumeracio enumeracio;
 		if (command.getEnumeracions().size() > 0)
 			for(EnumeracioExportacio enumeracioExportat : importacio.getEnumeracions() )
@@ -897,6 +900,9 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		
 		// Dominis
 		Map<String, Domini> dominis = new HashMap<String, Domini>();
+		// Inicialitza amb els dominis a nivell d'entorn
+		for (Domini d : dominiRepository.findGlobals(entorn.getId()))
+			dominis.put(d.getCodi(), d);
 		Domini domini;
 		if (command.getDominis().size() > 0)
 			for(DominiExportacio dominiExportat : importacio.getDominis() )
