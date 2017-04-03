@@ -107,6 +107,7 @@
 			if ($(this).attr("data-rdt-paginable")) {
 				paginacioActiva = ($(this).data("rdt-paginable") == 'true');
 			}
+			var reduirParametres = $(this).data("rdt-reduir-parametres");
 			var ajaxErrorFunction = function ( jqXHR, exception) {
 				if (jqXHR.status === 0) {
 					if (!userAborted(jqXHR))
@@ -483,6 +484,8 @@
 				dataTableParams.sAjaxSource = settings.ajaxSourceUrl;
 				var ajaxRequestType = settings.ajaxRequestType;
 				dataTableParams.fnServerData = function (sSource, aoData, fnCallback, oSettings) {
+					if (reduirParametres)
+						aoData = aoData.filter(checkParametreNecessari);
 					for (var i = 0; i < aProps.length; i++) {
 						aoData.push({"name": "aProp_" + i, "value": aProps[i]});
 					}
@@ -504,6 +507,22 @@
 		});
 	};
 }(jQuery));
+
+function checkParametreNecessari(parametre) {
+	var necessari = true;
+	if (parametre.name != null && 
+			(
+				parametre.name.startsWith("bRegex_")
+				|| parametre.name.startsWith("sSearch_")
+				|| parametre.name.startsWith("bSortable_") 
+				|| parametre.name.startsWith("bSearchable_")
+			)
+		)
+	{
+		necessari = false;		
+	}
+	return necessari	
+}
 
 function datatableExecuteFunctionByName(functionName, context /*, args */) {
 	var argsarr = [].slice.call(arguments).splice(2);
