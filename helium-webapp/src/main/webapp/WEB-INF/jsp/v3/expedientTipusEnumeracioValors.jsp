@@ -9,6 +9,9 @@
 
 <c:set var="idioma"><%=org.springframework.web.servlet.support.RequestContextUtils.getLocale(request).getLanguage()%></c:set>
 <c:set var="titol"><spring:message code="expedient.tipus.enumeracio.form.titol.llistat"/>${enumeracio.nom}</c:set>
+
+<c:set var="permisDisseny" value="${(expedientTipusId != null and expedientTipus.permisDesignAdmin) or (expedientTipusId == null and potDissenyarEntorn)}" />
+
 <c:choose>
   <c:when test="${expedientTipusId != null}">
   	<c:set var="baseUrl"><c:url value="/modal/v3/expedientTipus/${expedientTipusId}/enumeracio/${enumeracio.id}/valor"></c:url></c:set>
@@ -42,10 +45,10 @@
 	<form:form id="validacio-form" cssClass="form-horizontal" action="#" enctype="multipart/form-data" method="post" commandName="expedientTipusEnumeracioValorCommand" style='${mostraCreate || mostraUpdate ? "":"display:none;"}'>
 		<div class="inlineLabels">        
 			<input type="hidden" name="id" id="inputValidacioId" value="${expedientTipusEnumeracioValorCommand.id}"/>
-			<c:if test="${expedientTipus.permisDesignAdmin}">
+			<c:if test="${permisDisseny}">
 				<hel:inputText required="true" name="codi" textKey="expedient.tipus.enumeracio.valors.form.camp.codi" />
 			</c:if>
-			<c:if test="${!expedientTipus.permisDesignAdmin}">
+			<c:if test="${!permisDisseny}">
 				<input type="hidden" name="codi" value="${expedientTipusEnumeracioValorCommand.codi}"/>
 				<hel:inputText required="false" disabled="true" name="codi" textKey="expedient.tipus.enumeracio.valors.form.camp.codi" />
 			</c:if>
@@ -65,7 +68,6 @@
 	</form:form>
 	
 	<form:form id="importar-form" cssClass="form-horizontal" action="#" enctype="multipart/form-data" style='${mostraCreate || mostraUpdate ? "":"display:none;"}'>
-	
 		<input type="hidden" name="id" value="${enumeracio.id}"/>
 	
 		<div class="inlineLabels">
@@ -94,7 +96,7 @@
 		</div>
 	</form:form>
 	
-	<c:if test="${expedientTipus.permisDesignAdmin}">
+	<c:if test="${permisDisseny}">
 		<div class="botons-titol text-right">
 			<button id="btnNew" class="btn btn-default" style='${mostraCreate || mostraUpdate ? "display:none;" : ""}'><span class="fa fa-plus"></span>&nbsp;<spring:message code="expedient.tipus.enumeracio.valors.form.titol.nou"/></button>
 			<button id="btnImp" class="btn btn-info"    style='${mostraCreate || mostraUpdate ? "display:none;" : ""}'><span class="fa fa-sign-in"></span>&nbsp;<spring:message code="comu.boto.importar.dades"/></button>
@@ -121,7 +123,7 @@
 							<button class="btn btn-primary" data-toggle="dropdown"><span class="fa fa-cog"></span>&nbsp;<spring:message code="comu.boto.accions"/>&nbsp;<span class="caret"></span></button>
 							<ul class="dropdown-menu">
 								<li><a href="${baseUrl}/{{:id}}/update" class="validacioUpdate" data-validacioid="{{:id}}"><span class="fa fa-pencil"></span>&nbsp;<spring:message code="expedient.tipus.info.accio.modificar"/></a></li>
-								<c:if test="${expedientTipus.permisDesignAdmin}">
+								<c:if test="${permisDisseny}">
 									<li><a href="${baseUrl}/{{:id}}/delete" data-confirm="<spring:message code="expedient.tipus.enumeracio.valors.llistat.confirm.esborra"/>"><span class="fa fa-trash-o"></span>&nbsp;<spring:message code="expedient.llistat.accio.esborrar"/></a></li>
 								</c:if>
 							</ul>
