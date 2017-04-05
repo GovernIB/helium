@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.TreeSet;
 
 import javax.annotation.Resource;
 
@@ -23,9 +24,12 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import net.conselldemallorca.helium.core.extern.domini.FilaResultat;
+import net.conselldemallorca.helium.core.extern.domini.ParellaCodiValor;
 import net.conselldemallorca.helium.core.helper.ConversioTipusHelper;
 import net.conselldemallorca.helium.core.helper.DefinicioProcesHelper;
 import net.conselldemallorca.helium.core.helper.DocumentHelperV3;
+import net.conselldemallorca.helium.core.helper.DominiHelper;
 import net.conselldemallorca.helium.core.helper.EntornHelper;
 import net.conselldemallorca.helium.core.helper.ExpedientHelper;
 import net.conselldemallorca.helium.core.helper.ExpedientTipusHelper;
@@ -51,6 +55,7 @@ import net.conselldemallorca.helium.core.model.hibernate.EnumeracioValors;
 import net.conselldemallorca.helium.core.model.hibernate.Estat;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.hibernate.MapeigSistra;
+import net.conselldemallorca.helium.core.model.hibernate.Persona;
 import net.conselldemallorca.helium.core.model.hibernate.Reassignacio;
 import net.conselldemallorca.helium.core.model.hibernate.SequenciaAny;
 import net.conselldemallorca.helium.core.model.hibernate.SequenciaDefaultAny;
@@ -73,6 +78,8 @@ import net.conselldemallorca.helium.v3.core.api.dto.MapeigSistraDto.TipusMapeig;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PermisDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PrincipalTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ReassignacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.SequenciaAnyDto;
 import net.conselldemallorca.helium.v3.core.api.dto.SequenciaDefaultAnyDto;
@@ -114,6 +121,7 @@ import net.conselldemallorca.helium.v3.core.repository.EstatRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientTipusRepository;
 import net.conselldemallorca.helium.v3.core.repository.FirmaTascaRepository;
 import net.conselldemallorca.helium.v3.core.repository.MapeigSistraRepository;
+import net.conselldemallorca.helium.v3.core.repository.PersonaRepository;
 import net.conselldemallorca.helium.v3.core.repository.ReassignacioRepository;
 import net.conselldemallorca.helium.v3.core.repository.SequenciaAnyRepository;
 import net.conselldemallorca.helium.v3.core.repository.TascaRepository;
@@ -175,6 +183,8 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 	private DocumentTascaRepository documentTascaRepository;
 	@Resource
 	private FirmaTascaRepository firmaTascaRepository;
+	@Resource
+	private PersonaRepository personaRepository;
 
 	@Resource
 	private ExpedientHelper expedientHelper;
@@ -192,6 +202,8 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 	private MessageHelper messageHelper;
 	@Resource
 	private JbpmHelper jbpmHelper;
+	@Resource
+	private DominiHelper dominiHelper;
 
 	/**
 	 * {@inheritDoc}
@@ -2961,6 +2973,62 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		consultaCamp.setAmpleCols(ample);
 		consultaCamp.setBuitCols(buit);
 	}
+	
+	/**
+	 * {@inheritDoc}
+	 * @throws Exception 
+	 */
+	@Override
+	@Transactional(readOnly = true)
+	public List<PersonaDto> personaFindAll(
+			Long entornId,
+			Long expedientTipusId) throws Exception {
+		logger.debug(
+				"Consultant persones amb permis del tipus d'expedient (" +
+				"entornId=" + entornId + ", " +
+				"expedientTipusId=" + expedientTipusId + ")");
+		
+		expedientTipusHelper.getExpedientTipusComprovantPermisLectura(
+				expedientTipusId);
+		
+		// Recupera tots els codis d'usuaris a partir dels permisos
+		List<PermisDto> permisos = permisosHelper.findPermisos(
+				expedientTipusId,
+				ExpedientTipus.class);
+		Set<String> codis = new TreeSet<String>();
+		String codi;
+		List<ParellaCodiValor> parametres;
+		for (PermisDto permis : permisos) {
+			if (permis.getPrincipalTipus() == PrincipalTipusEnumDto.USUARI) {
+				// usuari
+				codi = permis.getPrincipalNom();
+				if (!codis.contains(codi))
+					codis.add(codi);
+			} else {
+				// rol
+				parametres = new ArrayList<ParellaCodiValor>();
+				parametres.add(new ParellaCodiValor("rol", permis.getPrincipalNom()));
+				List<FilaResultat> files;
+
+				files = dominiHelper.consultaDominiIntern(
+						"USUARIS_PER_ROL",
+						parametres);
+				for (FilaResultat fila : files) {					
+					codi = fila.getColumnes().get(0).getValor().toString();
+					if (!codis.contains(codi))
+						codis.add(codi);
+				}
+			}
+		}
+		
+		// Consulta les dades de les persones a partir dels codis d'usuari
+		List<Persona> persones = personaRepository.findByCodis(codis);
+		
+		return conversioTipusHelper.convertirList(
+				persones,
+				PersonaDto.class);
+	}
+
 	
 	private static final Logger logger = LoggerFactory.getLogger(ExpedientServiceImpl.class);
 }

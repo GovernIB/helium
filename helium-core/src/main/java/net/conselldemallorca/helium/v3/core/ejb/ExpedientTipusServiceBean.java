@@ -26,6 +26,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.MapeigSistraDto.TipusMapeig;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PermisDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ReassignacioDto;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
@@ -568,5 +569,11 @@ public class ExpedientTipusServiceBean implements ExpedientTipusService {
 				notificacioAvisTextSms, 
 				notificacioOficiTitol, 
 				notificacioOficiText);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public List<PersonaDto> personaFindAll(Long entornId, Long expedientTipusId) throws Exception {
+		return delegate.personaFindAll(entornId, expedientTipusId);
 	}
 }

@@ -16,6 +16,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.MapeigSistraDto.TipusMapeig;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PermisDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ReassignacioDto;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
@@ -1006,6 +1007,23 @@ public interface ExpedientTipusService {
 	public List<MapeigSistraDto> mapeigFindAll(
 			Long expedientTipusId) throws NoTrobatException, PermisDenegatException;
 
+	
+	/**
+	 * Retorna la llista de persones amb permisos pel tipus d'expedient ordenades per codi.
+	 * 
+	 * @param entornId
+	 *            Atribut id de l'entorn.
+	 * @param expedientTipusId
+	 *            Atribut id del tipus d'expedient.
+	 * @return La llista de persones amb permís pel tipus d'expedient.
+	 * @throws NoTrobatException
+	 *             Si no s'ha trobat el tipus d'expedient.
+	 * @throws PermisDenegatException
+	 *             Si no es tenen els permisos necessaris per llegir l'entorn o l'expedient.
+	 */
+	public List<PersonaDto> personaFindAll(
+			Long entornId,
+			Long expedientTipusId) throws Exception;
 
 
 }

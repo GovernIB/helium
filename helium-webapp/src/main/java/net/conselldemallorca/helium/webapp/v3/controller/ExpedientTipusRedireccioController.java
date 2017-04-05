@@ -4,10 +4,7 @@
 package net.conselldemallorca.helium.webapp.v3.controller;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
-import java.util.SortedSet;
-import java.util.TreeSet;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -23,15 +20,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import net.conselldemallorca.helium.core.extern.domini.FilaResultat;
 import net.conselldemallorca.helium.core.model.dto.ParellaCodiValorDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
-import net.conselldemallorca.helium.v3.core.api.dto.PermisDto;
-import net.conselldemallorca.helium.v3.core.api.dto.PrincipalTipusEnumDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ReassignacioDto;
-import net.conselldemallorca.helium.core.extern.domini.ParellaCodiValor;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientTipusRedireccioCommand;
 import net.conselldemallorca.helium.webapp.v3.helper.ConversioTipusHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.DatatablesHelper;
@@ -195,46 +189,21 @@ public class ExpedientTipusRedireccioController extends BaseExpedientTipusContro
 			HttpServletRequest request,
 			Long expedientTipusId,
 			Model model) {
-		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();		
-		List<PermisDto> permisos = expedientTipusService.permisFindAll(
-				entornActual.getId(),
-				expedientTipusId);
+		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
 		List<ParellaCodiValorDto> resposta = new ArrayList<ParellaCodiValorDto>();
-		List<ParellaCodiValor> parametres;
-		SortedSet<String> codis = new TreeSet<String>();
-		String codi;
-		for (PermisDto permis : permisos) {
-			if (permis.getPrincipalTipus() == PrincipalTipusEnumDto.USUARI) {
-				// usuari
-				codi = permis.getPrincipalNom();
-				if (!codis.contains(codi))
-					codis.add(codi);
-			} else {
-				// rol
-				parametres = new ArrayList<ParellaCodiValor>();
-				parametres.add(new ParellaCodiValor("rol", permis.getPrincipalNom()));
-				List<FilaResultat> files;
-				try {
-					files = dissenyService.consultaDominiIntern("USUARIS_PER_ROL", parametres);
-					for (FilaResultat fila : files) {					
-						codi = fila.getColumnes().get(0).getValor().toString();
-						if (!codis.contains(codi))
-							codis.add(codi);
-					}
-				} catch (Exception e) {
-					String errMsg = getMessage(
-							request, 
-							"expedient.tipus.redireccio.controller.usuaris.error",
-							new Object[] {e.getLocalizedMessage()});
-					MissatgesHelper.error(request, errMsg);
-					logger.error(e);
-				}
+
+		try {
+			for (PersonaDto p : expedientTipusService.personaFindAll(entornActual.getId(), expedientTipusId)) {
+				resposta.add(new ParellaCodiValorDto(p.getCodi(), p.getNomSencer()));
 			}
+		} catch (Exception e) {
+    		MissatgesHelper.error(
+					request, 
+					getMessage(
+							request, 
+							"expedient.tipus.redireccio.controller.getPersones.error",
+							new Object[] {e.getMessage()}));
 		}
-		Iterator<String> iter =	codis.iterator();
-		while (iter.hasNext())
-			resposta.add(new ParellaCodiValorDto(iter.next()));
-		
 		model.addAttribute("persones", resposta);		
 	}
 
