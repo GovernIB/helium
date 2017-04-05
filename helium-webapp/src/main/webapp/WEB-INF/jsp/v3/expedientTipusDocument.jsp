@@ -48,7 +48,7 @@
 					<th data-col-name="plantilla" data-template="#plantillaTemplate">
 					<spring:message code="expedient.tipus.document.llistat.columna.plantilla"/>
 						<script id="plantillaTemplate" type="text/x-jsrender">
-							{{if plantilla != null }}
+							{{if plantilla }}
 								<spring:message code="comu.check"></spring:message>
 							{{/if}}
 						</script>
