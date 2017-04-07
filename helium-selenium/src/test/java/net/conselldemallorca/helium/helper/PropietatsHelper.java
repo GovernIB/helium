@@ -59,6 +59,11 @@ public class PropietatsHelper {
 		return carregarPropietat("test.base.url", "Url base per a tests");
 	}
 
+	/** Llegeix si l'entorn de test és dev o test. */
+	public String getEntorn() {
+		return carregarPropietat("entorn", "Perfil de test dev/test");
+	}
+
 	/** Llegeix el codi de l'entorn de proves. */
 	public String getEntornTestCodi() {
 		return carregarPropietat("test.entorn.codi", "Codi de l'entorn de proves");
@@ -129,6 +134,11 @@ public class PropietatsHelper {
 		if ("".equals(trustStoreFilePath))
 			trustStoreFilePath = null;
 		return trustStoreFilePath;
+		
+	}
+
+	public void setPerfilTest(String activeProfile) {
+		// TODO Auto-generated method stub
 		
 	}
 }

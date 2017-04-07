@@ -123,14 +123,20 @@ public class BaseTestSelenium extends BaseTest{
 			driverConfig("IE");
 		} else { //"firefox":
 			FirefoxProfile fp = new FirefoxProfile();
+			fp.setPreference( "intl.accept_languages","ca");
 			fp.setAcceptUntrustedCertificates( true );
 			fp.setPreference( "security.enable_java", true ); 
-			fp.setPreference( "plugin.state.java", 2 );
-			fp.setPreference( "intl.accept_languages","ca");
 //			plugin.state.java = 0 --> never activate
 //			plugin.state.java = 1 --> ask to activate
 //			plugin.state.java = 2 --> always activate
-			String binari = propietats.getProperty("webdriver.firefox.binary");
+			fp.setPreference( "plugin.state.java", 2 );
+			
+			fp.setPreference("plugin.default.state", 2);
+		    //fp.setPreference("plugin.state.java", 2);
+		    //fp.setPreference("security.enable_java", true);
+		    //fp.setPreference("browser.helperApps.alwaysAsk.force", false);
+			
+			String binari = propietats.getProperty("webdriver.firefox.binary");			
 			if (binari != null) {
 				File pathToBinary = new File(binari);
 				FirefoxBinary ffBinary = new FirefoxBinary(pathToBinary);
