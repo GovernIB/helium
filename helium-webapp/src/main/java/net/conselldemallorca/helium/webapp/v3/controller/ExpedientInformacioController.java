@@ -58,7 +58,7 @@ public class ExpedientInformacioController extends BaseExpedientController {
 		model.addAttribute("expedient", expedient);
 		List<EstatDto> estats = dissenyService.findEstatByExpedientTipus(expedient.getTipus().getId());
 //		estats.add(0, new EstatDto(0L, "0", getMessage(request, "expedient.consulta.iniciat")));
-//		estats.add(new EstatDto(-1L, "-1", getMessage(request, "expedient.consulta.finalitzat")));
+		estats.add(new EstatDto(-1L, "-1", getMessage(request, "expedient.consulta.finalitzat")));
 		model.addAttribute("estats", estats);
 		model.addAttribute(getCommandModificar(expedient));
 		return "v3/expedient/modificarInformacio";
@@ -73,6 +73,11 @@ public class ExpedientInformacioController extends BaseExpedientController {
 			Model model) {
 		new ExpedientEditarValidator().validate(command, bindingResult);
 		if (bindingResult.hasErrors()) {
+			ExpedientDto expedient = expedientService.findAmbId(expedientId);
+			model.addAttribute("expedient", expedient);
+			List<EstatDto> estats = dissenyService.findEstatByExpedientTipus(expedient.getTipus().getId());
+			estats.add(new EstatDto(-1L, "-1", getMessage(request, "expedient.consulta.finalitzat")));
+			model.addAttribute("estats", estats);
 			return "v3/expedient/modificar";
 		}
 		expedientService.update(

@@ -89,6 +89,7 @@ import net.conselldemallorca.helium.jbpm3.command.HasStartBetweenLogsCommand;
 import net.conselldemallorca.helium.jbpm3.command.ListActionsCommand;
 import net.conselldemallorca.helium.jbpm3.command.MarcarFinalitzarCommand;
 import net.conselldemallorca.helium.jbpm3.command.MarcarIniciFinalitzacioSegonPlaCommand;
+import net.conselldemallorca.helium.jbpm3.command.ProcessInstanceEndCommand;
 import net.conselldemallorca.helium.jbpm3.command.ReassignTaskInstanceCommand;
 import net.conselldemallorca.helium.jbpm3.command.ReleaseTaskInstanceCommand;
 import net.conselldemallorca.helium.jbpm3.command.ResumeProcessInstanceTimerCommand;
@@ -1892,6 +1893,16 @@ public class JbpmHelper {
 		revertProcessInstanceEnd(rootProcessInstance.getProcessInstance().getId());
 		
 		//adminService.mesuraCalcular("jBPM reprendreExpedient", "jbpmDao");
+	}
+	
+	public void finalitzarExpedient(String processInstanceId, Date dataFinalitzacio){
+		JbpmProcessInstance rootProcessInstance = getRootProcessInstance(processInstanceId);
+		Long rootProcessInstanceId = rootProcessInstance.getProcessInstance().getId();
+		ProcessInstanceEndCommand command = new ProcessInstanceEndCommand(rootProcessInstanceId, dataFinalitzacio);
+		executeCommandWithAutoSave(
+				command,
+				rootProcessInstanceId,
+				AddToAutoSaveCommand.TIPUS_INSTANCIA_PROCES);
 	}
 
 	/** Actualitza els recursos .class de la definició de procés indicada amb els recursos

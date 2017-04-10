@@ -361,7 +361,9 @@
 							</c:if>
 							
 							<li class="divider"></li>
-							
+							<c:if test="${expedient.permisWrite}">
+								<li><a data-rdt-link-confirm="<spring:message code="expedient.eines.finalitzar"/>" href="<c:url value="../../v3/expedient/${expedientId}/finalitzar"/>"><span class="fa fa-power-off"></span>&nbsp;<spring:message code="expedient.info.accio.finalitzar"/></a></li>
+							</c:if>
 							<c:if test="${expedient.permisWrite}">
 								<li><a data-rdt-link-modal="true" href="<c:url value="../../v3/expedient/${expedientId}/modificar"/>"><span class="fa fa-pencil"></span>&nbsp;<spring:message code="expedient.info.accio.modificar"/></a></li>
 							</c:if>

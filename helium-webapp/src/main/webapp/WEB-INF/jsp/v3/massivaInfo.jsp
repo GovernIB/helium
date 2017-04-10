@@ -94,6 +94,12 @@
 			if (e.stopPropagation) e.stopPropagation();
 			return confirm("<spring:message code='expedient.eines.confirm_reprendre_expedients' />");
 		}
+		function confirmarFinalitzarExpedient(e) {
+			var e = e || window.event;
+			e.cancelBubble = true;
+			if (e.stopPropagation) e.stopPropagation();
+			return confirm("<spring:message code='expedient.eines.confirm_finalitzar_expedients' />");
+		}
 		$(document).ready(function(){
 			$('.date_time').datetimepicker({
 				locale: moment.locale('${idioma}'),
@@ -254,6 +260,7 @@
 							<option value="documentModificarMas"><spring:message code='expedient.massiva.documents' /></option>
 							<option value="buidarlogMas"><spring:message code='expedient.eines.buidarlog.expedients' /></option>
 							<option value="reprendreExpedientMas"><spring:message code='expedient.eines.reprendre_expedients' /></option>
+							<option value="finalitzarExpedientMas"><spring:message code='expedient.eines.finalitzar_expedients' /></option>
 						</select>
 						<script>
 							$(document).ready(function() {
@@ -432,6 +439,19 @@
 				<form:form cssClass="form-horizontal form-tasca" id="reprendreExpedientMas" name="reprendreExpedientMas" action="massiva/reprendreExpedientMas" method="post" onsubmit="return confirmarReprendreExpedient(event)">
 					<button class="btn btn-primary right" type="submit" name="accio" value="reprendreExpedient">
 						<spring:message code='comuns.reprendre' />
+					</button>
+				</form:form>
+			</div>
+		</div>
+	</div>
+	
+	<div class="opcionMasiva control-group right">
+		<div class="label-titol">
+			<label class="control-label"><spring:message code='expedient.eines.finalitzar_expedients' /></label>
+			<div class="form-group">
+				<form:form cssClass="form-horizontal form-tasca" id="finalitzarExpedientMas" name="finalitzarExpedientMas" action="massiva/finalitzarExpedientMas" method="post" onsubmit="return confirmarFinalitzarExpedient(event)">
+					<button class="btn btn-primary right" type="submit" name="accio" value="finalitzarExpedient">
+						<spring:message code='comuns.finalitzar' />
 					</button>
 				</form:form>
 			</div>
