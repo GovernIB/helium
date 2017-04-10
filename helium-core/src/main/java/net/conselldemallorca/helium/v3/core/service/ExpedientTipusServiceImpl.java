@@ -36,6 +36,7 @@ import net.conselldemallorca.helium.core.helper.ExpedientTipusHelper;
 import net.conselldemallorca.helium.core.helper.MessageHelper;
 import net.conselldemallorca.helium.core.helper.PaginacioHelper;
 import net.conselldemallorca.helium.core.helper.PermisosHelper;
+import net.conselldemallorca.helium.core.helper.PluginHelper;
 import net.conselldemallorca.helium.core.helper.PermisosHelper.ObjectIdentifierExtractor;
 import net.conselldemallorca.helium.core.model.hibernate.Accio;
 import net.conselldemallorca.helium.core.model.hibernate.Camp;
@@ -55,7 +56,6 @@ import net.conselldemallorca.helium.core.model.hibernate.EnumeracioValors;
 import net.conselldemallorca.helium.core.model.hibernate.Estat;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.hibernate.MapeigSistra;
-import net.conselldemallorca.helium.core.model.hibernate.Persona;
 import net.conselldemallorca.helium.core.model.hibernate.Reassignacio;
 import net.conselldemallorca.helium.core.model.hibernate.SequenciaAny;
 import net.conselldemallorca.helium.core.model.hibernate.SequenciaDefaultAny;
@@ -204,6 +204,8 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 	private JbpmHelper jbpmHelper;
 	@Resource
 	private DominiHelper dominiHelper;
+	@Resource
+	private PluginHelper pluginHelper;
 
 	/**
 	 * {@inheritDoc}
@@ -3022,11 +3024,11 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		}
 		
 		// Consulta les dades de les persones a partir dels codis d'usuari
-		List<Persona> persones = personaRepository.findByCodis(codis);
+		List<PersonaDto> persones = new ArrayList<PersonaDto>();
+		for (String c : codis)
+			persones.add(pluginHelper.personaFindAmbCodi(c));
 		
-		return conversioTipusHelper.convertirList(
-				persones,
-				PersonaDto.class);
+		return persones;
 	}
 
 	
