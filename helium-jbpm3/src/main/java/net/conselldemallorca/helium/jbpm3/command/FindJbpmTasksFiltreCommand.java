@@ -93,8 +93,8 @@ public class FindJbpmTasksFiltreCommand extends AbstractBaseCommand {
 		this.nomesCount = nomesCount;
 	}
 	
-	private String triaTaula ()  {
-		if (nomesPendents)
+	private String triaTaula (boolean desactivarOptimitzarLlistatTasques)  {
+		if (nomesPendents && !desactivarOptimitzarLlistatTasques)
 			return "MvTaskInstance";
 		else
 			return "TaskInstance";
@@ -105,7 +105,7 @@ public class FindJbpmTasksFiltreCommand extends AbstractBaseCommand {
 		if (actorId != null) {
 			taskQuerySb.append(
 					"from " +
-					"    org.jbpm.taskmgmt.exe." + triaTaula() + " ti left join ti.pooledActors pa " +
+					"    org.jbpm.taskmgmt.exe." + triaTaula(desactivarOptimitzarLlistatTasques) + " ti left join ti.pooledActors pa " +
 					"where ");
 			if (mostrarAssignadesUsuari && mostrarAssignadesGrup) {
 				if (desactivarOptimitzarLlistatTasques)
@@ -122,7 +122,7 @@ public class FindJbpmTasksFiltreCommand extends AbstractBaseCommand {
 		} else {
 			taskQuerySb.append(
 					"from " +
-					"    org.jbpm.taskmgmt.exe." + triaTaula() + " ti " +
+					"    org.jbpm.taskmgmt.exe." + triaTaula(desactivarOptimitzarLlistatTasques) + " ti " +
 					"where ");
 			if (mostrarAssignadesUsuari && mostrarAssignadesGrup) {
 				taskQuerySb.append("((ti.actorId is not null) or (ti.actorId is null and exists elements(ti.pooledActors))) ");
@@ -186,12 +186,12 @@ public class FindJbpmTasksFiltreCommand extends AbstractBaseCommand {
 		return taskQuerySb;
 	}
 	
-	private StringBuilder consulta2 () {
+	private StringBuilder consulta2 (boolean desactivarOptimitzarLlistatTasques) {
 		StringBuilder taskQuerySb = new StringBuilder();
 		if (actorId != null) {
 			taskQuerySb.append(
 					"from " +
-					"    org.jbpm.taskmgmt.exe." + triaTaula() + " ti left join ti.pooledActors pa " +
+					"    org.jbpm.taskmgmt.exe." + triaTaula(desactivarOptimitzarLlistatTasques) + " ti left join ti.pooledActors pa " +
 					"where ");
 			if (mostrarAssignadesUsuari && mostrarAssignadesGrup) {
 				taskQuerySb.append("((ti.actorId is null and pa.actorId = :actorId)) ");
@@ -205,7 +205,7 @@ public class FindJbpmTasksFiltreCommand extends AbstractBaseCommand {
 		} else {
 			taskQuerySb.append(
 					"from " +
-					"    org.jbpm.taskmgmt.exe." + triaTaula() + " ti " +
+					"    org.jbpm.taskmgmt.exe." + triaTaula(desactivarOptimitzarLlistatTasques) + " ti " +
 					"where ");
 			if (mostrarAssignadesUsuari && mostrarAssignadesGrup) {
 				taskQuerySb.append("((ti.actorId is not null) or (ti.actorId is null and exists elements(ti.pooledActors))) ");
@@ -300,7 +300,7 @@ public class FindJbpmTasksFiltreCommand extends AbstractBaseCommand {
 		
 		StringBuilder taskQuerySb2 = null;
 		if (actorId != null && mostrarAssignadesUsuari && mostrarAssignadesGrup && !desactivarOptimitzarLlistatTasques) {
-			taskQuerySb2 = consulta2();
+			taskQuerySb2 = consulta2(desactivarOptimitzarLlistatTasques);
 			Query queryCount2 = jbpmContext.getSession().createQuery(
 					"select count(distinct ti.id) " + taskQuerySb2.toString());
 			setQueryParams(
