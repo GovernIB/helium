@@ -2990,7 +2990,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 				"entornId=" + entornId + ", " +
 				"expedientTipusId=" + expedientTipusId + ")");
 		
-		expedientTipusHelper.getExpedientTipusComprovantPermisLectura(
+		expedientTipusHelper.getExpedientTipusComprovantPermisDisseny(
 				expedientTipusId);
 		
 		// Recupera tots els codis d'usuaris a partir dels permisos

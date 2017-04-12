@@ -30,6 +30,8 @@ public class ExpedientTipusRedireccioValidator implements ConstraintValidator<Ex
 					.addConstraintViolation();	
 			valid = false;
 		}
+		if (!valid)
+			context.disableDefaultConstraintViolation();
 		return valid;
 	}
 

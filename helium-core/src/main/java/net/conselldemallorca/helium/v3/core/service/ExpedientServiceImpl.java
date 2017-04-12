@@ -373,7 +373,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 				false,
 				false);
 		
-		if (estatId == -1) {
+		if (estatId != null && estatId == -1) {
 			estatId = expedient.getEstat() != null ? expedient.getEstat().getId() : null;
 			Date dataFinalitzacio = new Date();
 			jbpmHelper.finalitzarExpedient(expedient.getProcessInstanceId(), dataFinalitzacio);
