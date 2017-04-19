@@ -80,6 +80,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.ExecucioMassivaDto.ExecucioM
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.InstanciaProcesDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.exception.ExecucioMassivaException;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
@@ -928,15 +929,20 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 					// Correu
 					List<String> emailAddresses = new ArrayList<String>();
 					
-					Persona persona = personaRepository.findByCodi(ome.getExecucioMassiva().getUsuari());
-					emailAddresses.add(persona.getEmail());
+					if (pluginHelper.personaIsPluginActiu()) {
+						PersonaDto persona = pluginHelper.personaFindAmbCodi(ome.getExecucioMassiva().getUsuari());
+						emailAddresses.add(persona.getEmail());
+					} else {
+						Persona persona = personaRepository.findByCodi(ome.getExecucioMassiva().getUsuari());
+						emailAddresses.add(persona.getEmail());
+					}
 	
 					mailHelper.send(
 							GlobalProperties.getInstance().getProperty("app.correu.remitent"), 
 							emailAddresses, 
 							null,
 							null,
-							"Execució massiva",
+							"Execució massiva: " + ome.getExecucioMassiva().getTipus(),
 							"L'execució massiva ha finalitzat.");
 				}
 			} catch (Exception ex) {
