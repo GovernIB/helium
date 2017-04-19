@@ -193,15 +193,18 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 	@Transactional(readOnly = true)
 	public List<DefinicioProcesDto> findAll(
 			Long entornId, 
-			Long expedientTipusId) {
+			Long expedientTipusId, 
+			boolean incloureGlobals) {
 		logger.debug(
 				"Consultant la llista de definicions de processos (" +
 				"entornId = " + entornId + ", " + 
-				"expedientTipusId = " + expedientTipusId + ")");
+				"expedientTipusId = " + expedientTipusId + ", " + 
+				"incloureGlobals = " + incloureGlobals + ")");
 		List<DefinicioProces> definicions = definicioProcesRepository.findByAll(
 				entornId, 
 				expedientTipusId == null,
-				expedientTipusId);
+				expedientTipusId,
+				incloureGlobals);
 		return conversioTipusHelper.convertirList(
 									definicions, 
 									DefinicioProcesDto.class);

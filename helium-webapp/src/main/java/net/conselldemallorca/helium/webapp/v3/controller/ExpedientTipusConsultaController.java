@@ -312,7 +312,9 @@ public class ExpedientTipusConsultaController extends BaseExpedientTipusControll
 		model.addAttribute("tipus", tipus);
 		List<DefinicioProcesDto> definicions = definicioProcesService.findAll(
 					entornActual.getId(),
-					null /*null per incloure les globals*/);
+					expedientTipusId,
+					true); //incloureGlobals
+		
 		model.addAttribute("definicionsProces", definicions);
 
 		ExpedientTipusConsultaVarCommand command = new ExpedientTipusConsultaVarCommand();

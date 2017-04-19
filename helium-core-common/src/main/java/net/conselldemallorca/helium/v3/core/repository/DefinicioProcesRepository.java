@@ -205,7 +205,7 @@ public interface DefinicioProcesRepository extends JpaRepository<DefinicioProces
 	@Query(	"from DefinicioProces dp " +
 			"where " +
 			"   dp.entorn.id=:entornId " +
-			"	and ((:isNullExpedientTipusId = true) or ( dp.expedientTipus.id = :expedientTipusId)) " + 
+			"	and ((:isNullExpedientTipusId = true) or ( dp.expedientTipus.id = :expedientTipusId) or (:incloureGlobals = true and dp.expedientTipus is null)) " + 
 			"	and dp.versio = (" +
 			"    select " +
 			"        max(dps.versio) " +
@@ -217,5 +217,6 @@ public interface DefinicioProcesRepository extends JpaRepository<DefinicioProces
 	List<DefinicioProces> findByAll(
 			@Param("entornId") Long entornId,
 			@Param("isNullExpedientTipusId") boolean isNullExpedientTipusId,
-			@Param("expedientTipusId") Long expedientTipusId);
+			@Param("expedientTipusId") Long expedientTipusId,
+			@Param("incloureGlobals") boolean incloureGlobals);
 }

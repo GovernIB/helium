@@ -979,7 +979,7 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 		dto.setEnviarCorreu(false);
 		// Passa les id's de les darreres definicions de procés del tipus d'expedient
 		List<Long> definicioProcesIds = new ArrayList<Long>();
-		for (DefinicioProcesDto darreraVersio : definicioProcesService.findAll(entornActual.getId(), expedientTipusId))
+		for (DefinicioProcesDto darreraVersio : definicioProcesService.findAll(entornActual.getId(), expedientTipusId, false))
 			definicioProcesIds.add(darreraVersio.getId());
 		if (definicioProcesIds.isEmpty()) {
 			MissatgesHelper.error(request, getMessage(request, "exptipus.info.propagar.plantilles.error.cap"));

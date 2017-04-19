@@ -53,8 +53,8 @@ public class DefinicioProcesBean implements DefinicioProcesService {
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public List<DefinicioProcesDto> findAll(Long entornId, Long expedientTipusId) {
-		return delegate.findAll(entornId, expedientTipusId);
+	public List<DefinicioProcesDto> findAll(Long entornId, Long expedientTipusId, boolean incloureGlobals) {
+		return delegate.findAll(entornId, expedientTipusId, incloureGlobals);
 	}
 	
 	@Override

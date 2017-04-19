@@ -54,11 +54,15 @@ public interface DefinicioProcesService {
 	 * entorn.
 	 * @param entornId
 	 * @param expedientTipusId
+	 * @param incloureGlobals 
+	 * 			  Especifica si incloure les definicions de procés amb expedientTipus null en cas d'especificar
+	 * 				un expedientTipusId.
 	 * @return
 	 */
 	public List<DefinicioProcesDto> findAll(
 			Long entornId, 
-			Long expedientTipusId);
+			Long expedientTipusId,
+			boolean incloureGlobals);
 	
 	/** 
 	 * Retorna la llista de definicions de procés paginada per la datatable.
