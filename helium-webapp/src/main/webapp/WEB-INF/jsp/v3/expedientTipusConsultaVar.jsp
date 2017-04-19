@@ -35,33 +35,33 @@
 		<button type="button" class="btn btn-default" data-modal-cancel="true"><spring:message code="comu.boto.tancar"/></button>
 	</div>
 	
-	<form:form id="consulta-var-form" cssClass="well" action="${baseUrl}/new" enctype="multipart/form-data" method="post" commandName="expedientTipusConsultaVarCommand">
+	<form:form id="consulta-var-form" cssClass="form-horizontal" action="${baseUrl}/new" enctype="multipart/form-data" method="post" commandName="expedientTipusConsultaVarCommand">
 				<input type="hidden" name="expedientTipusId" id="inputExpedientTipusId" value="${expedientTipusConsultaVarCommand.expedientTipusId}"/>
 				<input type="hidden" name="consultaId" id="inputConsultaId" value="${expedientTipusConsultaVarCommand.consultaId}"/>
 				<input type="hidden" name="tipus" id="inputTipus" value="${expedientTipusConsultaVarCommand.tipus}"/>
-		<div class="row">
-			<div class="col-sm-10">			
-				<div class="form-group">
-					<label class="control-label col-xs-4" for="origen">Origen</label>
-					<div class="controls col-xs-8">
-						<select title="Variable" tabindex="-1" id="origen" name="origen" class="form-control select2-offscreen">
-							<option value="-2"><spring:message code="expedient.tipus.consulta.vars.origen.expedient"/></option>
-							<option value="-1"><spring:message code="expedient.tipus.consulta.vars.origen.tipus.expedient"/></option>
-							<optgroup label="<spring:message code='expedient.tipus.consulta.vars.origen.definicions.proces'/>">
-								<c:forEach items="${definicionsProces}" var="definicioProces">
-									<option value="${definicioProces.id}">${definicioProces.jbpmKey} v.${definicioProces.versio}</option>
-								</c:forEach>									
-							</optgroup>
-						</select>
+		<div class="well well-sm"  >
+			<div class="row">
+				<div class="col-sm-5">
+					<div class="form-group">
+						<label class="control-label col-xs-3 obligatori" for="origen">Origen</label>
+						<div class="controls col-xs-9">
+							<select title="Variable" id="origen" name="origen" class="form-control select2-offscreen">
+								<option value="-2" ${expedientTipusConsultaVarCommand.origen == -2? "selected='selected'" : ""}><spring:message code="expedient.tipus.consulta.vars.origen.expedient"/></option>
+								<option value="-1" ${expedientTipusConsultaVarCommand.origen == -1? "selected='selected'" : ""}><spring:message code="expedient.tipus.consulta.vars.origen.tipus.expedient"/></option>
+								<optgroup label="<spring:message code='expedient.tipus.consulta.vars.origen.definicions.proces'/>">
+									<c:forEach items="${definicionsProces}" var="definicioProces">
+										<option value="${definicioProces.id}" ${expedientTipusConsultaVarCommand.origen == definicioProces.id? "selected='selected'" : ""} >${definicioProces.jbpmKey} v.${definicioProces.versio}</option>
+									</c:forEach>									
+								</optgroup>
+							</select>
+						</div>
 					</div>
 				</div>
+				<div class="col-sm-7">
+					<hel:inputSelect required="true" name="campCodi" multiple="true" textKey="expedient.tipus.consulta.vars.form.variable" placeholderKey="expedient.tipus.consulta.vars.form.variable.placeholder" optionItems="${variables}" optionValueAttribute="codi" optionTextAttribute="valor" labelSize="2"/>
+				</div>
 			</div>
-		</div>
-		<div class="row">
-			<div class="col-sm-10">
-				<hel:inputSelect required="true" emptyOption="true" name="campCodi" textKey="expedient.tipus.consulta.vars.form.variable" placeholderKey="expedient.tipus.consulta.vars.form.variable.placeholder" optionItems="${variables}" optionValueAttribute="codi" optionTextAttribute="valor"/>
-			</div>
-			<div class="col-sm-2 right" id="modal-botons">
+			<div id="modal-botons" style="text-align:right">
 				<button id="btnCreate" class="btn btn-primary right" type="submit" name="accio" value="crear">
 					<span class="fa fa-plus"></span> <spring:message code='expedient.tipus.consulta.vars.llistat.accio.afegir' />
 				</button>
@@ -303,7 +303,6 @@
 				$("#campCodi option").each(function(){
 				    $(this).remove();
 				});
-				$("#campCodi").append($("<option/>"));
 				for (i = 0; i < data.length; i++) {
 					$("#campCodi").append($("<option/>", {value: data[i].codi, text: data[i].valor}));
 				}

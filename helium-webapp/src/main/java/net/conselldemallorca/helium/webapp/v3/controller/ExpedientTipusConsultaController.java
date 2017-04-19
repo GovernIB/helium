@@ -16,10 +16,13 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.propertyeditors.StringTrimmerEditor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.WebDataBinder;
+import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -285,7 +288,7 @@ public class ExpedientTipusConsultaController extends BaseExpedientTipusControll
 			@PathVariable Long expedientTipusId,
 			@PathVariable Long consultaId,
 			Model model) {
-		return this.variables(request, expedientTipusId, consultaId, model, TipusConsultaCamp.FILTRE);
+		return this.variables(request, expedientTipusId, consultaId, model, TipusConsultaCamp.FILTRE, null);
 	}
 
 	/** Modal per veure els camps de la consulta de tipus informe. */
@@ -296,7 +299,7 @@ public class ExpedientTipusConsultaController extends BaseExpedientTipusControll
 			@PathVariable Long consultaId,
 			Model model) {
 		
-		return this.variables(request, expedientTipusId, consultaId, model, TipusConsultaCamp.INFORME);
+		return this.variables(request, expedientTipusId, consultaId, model, TipusConsultaCamp.INFORME, null);
 	}
 	
 	/** Mètode privat comú per veure els camps de la consulta per tipus. */
@@ -305,33 +308,53 @@ public class ExpedientTipusConsultaController extends BaseExpedientTipusControll
 			@PathVariable Long expedientTipusId,
 			@PathVariable Long consultaId,
 			Model model,
-			TipusConsultaCamp tipus) {
-		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
-		model.addAttribute("expedientTipusId", expedientTipusId);
-		model.addAttribute("consulta", expedientTipusService.consultaFindAmbId(consultaId));
-		model.addAttribute("tipus", tipus);
-		List<DefinicioProcesDto> definicions = definicioProcesService.findAll(
-					entornActual.getId(),
-					expedientTipusId,
-					true); //incloureGlobals
-		
-		model.addAttribute("definicionsProces", definicions);
+			TipusConsultaCamp tipus,
+			Long origen) {
 
 		ExpedientTipusConsultaVarCommand command = new ExpedientTipusConsultaVarCommand();
 		command.setExpedientTipusId(expedientTipusId);
 		command.setConsultaId(consultaId);
 		command.setTipus(tipus);
-		command.setOrigen(ExpedientTipusConsultaVarCommand.ORIGEN_EXPEDIENT);
+		if (origen != null)
+			command.setOrigen(origen);
+		else
+			command.setOrigen(ExpedientTipusConsultaVarCommand.ORIGEN_EXPEDIENT);
 		model.addAttribute("expedientTipusConsultaVarCommand", command);
-		model.addAttribute("variables", obtenirParellesVariables(
+
+		omplirModelVariables(
 				request,
-				expedientTipusId,
-				consultaId,
-				command.getOrigen(),
-				command.getTipus()));
+				command,
+				model);
 
 		return "v3/expedientTipusConsultaVar";
 	}	
+	
+	/** Mètode privat per omplir el model pel formulari de variables. */
+	private void omplirModelVariables(
+			HttpServletRequest request, 
+			ExpedientTipusConsultaVarCommand command,
+			Model model) {
+
+		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
+		
+		List<DefinicioProcesDto> definicions = definicioProcesService.findAll(
+				entornActual.getId(),
+				command.getExpedientTipusId(),
+				true); //incloureGlobals
+	
+		model.addAttribute("definicionsProces", definicions);
+
+		model.addAttribute("expedientTipusId", command.getExpedientTipusId());
+		model.addAttribute("consulta", expedientTipusService.consultaFindAmbId(command.getConsultaId()));
+		model.addAttribute("tipus", command.getTipus());
+
+		model.addAttribute("variables", obtenirParellesVariables(
+				request,
+				command.getExpedientTipusId(),
+				command.getConsultaId(),
+				command.getOrigen(),
+				command.getTipus()));
+	}
 	
 	@RequestMapping(value="/{expedientTipusId}/consulta/{consultaId}/var/datatable", method = RequestMethod.GET)
 	@ResponseBody
@@ -362,33 +385,46 @@ public class ExpedientTipusConsultaController extends BaseExpedientTipusControll
 			BindingResult bindingResult,
 			Model model) {
         if (bindingResult.hasErrors()) {
-    		model.addAttribute("expedientTipusId", expedientTipusId);
-    		model.addAttribute("consulta", expedientTipusService.consultaFindAmbId(consultaId));
-    		model.addAttribute("tipus", command.getTipus());
-    		model.addAttribute("variables", obtenirParellesVariables(
+    		omplirModelVariables(
     				request,
-    				expedientTipusId,
-    				consultaId,
-    				command.getOrigen(),
-    				command.getTipus()));
+    				command,
+    				model);
         	return "v3/expedientTipusConsultaVar";
         } else {
-        	ConsultaCampDto commandDto = ExpedientTipusConsultaVarCommand.asConsultaCampDto(command);
+        	List<ConsultaCampDto> commandDtos = ExpedientTipusConsultaVarCommand.asConsultaCampDto(command);
         	if (command.getOrigen() >= 0) {
-        		// Completa les dades de la definicó de procés
         		DefinicioProcesDto definicioProces = definicioProcesService.findById(command.getOrigen());
-        		commandDto.setDefprocJbpmKey(definicioProces.getJbpmKey());
-        		commandDto.setDefprocVersio(definicioProces.getVersio());
+        		// Completa les dades de la definicó de procés
+        		for (ConsultaCampDto commandDto : commandDtos) {
+	        		commandDto.setDefprocJbpmKey(definicioProces.getJbpmKey());
+	        		commandDto.setDefprocVersio(definicioProces.getVersio());
+        		}
         	}
-    		expedientTipusService.consultaCampCreate(
-    				consultaId,
-    				commandDto);    		
-			MissatgesHelper.success(
-					request,
-					getMessage(
-							request,
-							"expedient.tipus.consulta.vars.controller.creat"));
-        	return variables(request, expedientTipusId, consultaId, model, command.getTipus());
+        	// Crea les variables i les afegeix
+        	int nSuccess = 0;
+    		for (ConsultaCampDto commandDto : commandDtos) {
+    			try {
+	        		expedientTipusService.consultaCampCreate(
+	        				consultaId,
+	        				commandDto);
+	        		nSuccess++;
+    			} catch (Exception e) {
+    				MissatgesHelper.error(
+    						request, 
+    						getMessage(
+    								request,
+    								"expedient.tipus.consulta.vars.controller.crear.error",
+    								new Object[] {commandDto.getCampCodi(), e.getLocalizedMessage()}));
+    			}
+    		}
+    		if (nSuccess > 0)
+				MissatgesHelper.success(
+						request,
+						getMessage(
+								request,
+								"expedient.tipus.consulta.vars.controller.creat",
+								new Object [] {nSuccess}));
+        	return variables(request, expedientTipusId, consultaId, model, command.getTipus(), command.getOrigen());
         }
 	}	
 
@@ -666,5 +702,11 @@ public class ExpedientTipusConsultaController extends BaseExpedientTipusControll
 			return false;
 		}
 	}	
+	
+	@InitBinder
+	public void initBinder(WebDataBinder binder) {
+	    binder.registerCustomEditor(String.class, new StringTrimmerEditor(true));
+	}
+	
 	private static final Log logger = LogFactory.getLog(ExpedientTipusConsultaController.class);
 }
