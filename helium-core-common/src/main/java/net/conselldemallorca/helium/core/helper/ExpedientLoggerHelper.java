@@ -57,6 +57,7 @@ import net.conselldemallorca.helium.core.model.hibernate.Camp;
 import net.conselldemallorca.helium.core.model.hibernate.Camp.TipusCamp;
 import net.conselldemallorca.helium.core.model.hibernate.CampTasca;
 import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
+import net.conselldemallorca.helium.core.model.hibernate.Document;
 import net.conselldemallorca.helium.core.model.hibernate.DocumentTasca;
 import net.conselldemallorca.helium.core.model.hibernate.Estat;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
@@ -75,6 +76,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.LogObjectDto;
 import net.conselldemallorca.helium.v3.core.repository.CampRepository;
 import net.conselldemallorca.helium.v3.core.repository.CampTascaRepository;
 import net.conselldemallorca.helium.v3.core.repository.DefinicioProcesRepository;
+import net.conselldemallorca.helium.v3.core.repository.DocumentRepository;
 import net.conselldemallorca.helium.v3.core.repository.EstatRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientLoggerRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientRepository;
@@ -116,6 +118,8 @@ public class ExpedientLoggerHelper {
 	private ExpedientHelper expedientHelper;
 	@Resource
 	private ExpedientRegistreHelper expedientRegistreHelper;
+	@Resource
+	private DocumentRepository documentRepository;
 
 
 
@@ -262,23 +266,45 @@ public class ExpedientLoggerHelper {
 				// No sé molt bé el motiu
 				// El següent if els descarta
 				if(variableInstance.getProcessInstance()!=null){
+					
+					// Cerca informació si la variable jbpm correspon a un document o una camp ignorat
 					String codi = variableInstance.getName();
 					DefinicioProces pDef = definicioProcesRepository.findByJbpmId(String.valueOf(variableInstance.getProcessInstance().getProcessDefinition().getId()));
-					Camp camp = null;
 					Expedient expedient = expedientRepository.findOne(
 							variableInstance.getProcessInstance().getExpedient().getId());
 					ExpedientTipus expedientTipus = expedient != null ? expedient.getTipus() : null;
-					if (expedientTipus != null && expedientTipus.isAmbInfoPropia()) {
-						camp = campRepository.findByExpedientTipusAndCodi(
-								expedientTipus, 
-								codi);
+					Camp camp = null;
+					if(codi.startsWith(JbpmVars.PREFIX_DOCUMENT)) {
+						// Document
+						codi = codi.substring((JbpmVars.PREFIX_DOCUMENT).length());
+						// Cerca el document per veure si està marcat per ignorar
+						Document document = null;
+						if (expedientTipus != null && expedientTipus.isAmbInfoPropia()) {
+							document = documentRepository.findByExpedientTipusAndCodi(
+									expedientTipus, 
+									codi);
+						} else {
+							document = documentRepository.findByDefinicioProcesAndCodi(
+									pDef,
+									codi);		
+						}
+						if(document != null){
+							ignored = document.isIgnored();
+						}
 					} else {
-						camp = campRepository.findByDefinicioProcesAndCodi(
-								pDef,
-								codi);		
-					}
-					if(camp != null){
-						ignored = camp.isIgnored();
+						// Variable
+						if (expedientTipus != null && expedientTipus.isAmbInfoPropia()) {
+							camp = campRepository.findByExpedientTipusAndCodi(
+									expedientTipus, 
+									codi);
+						} else {
+							camp = campRepository.findByDefinicioProcesAndCodi(
+									pDef,
+									codi);		
+						}
+						if(camp != null){
+							ignored = camp.isIgnored();
+						}						
 					}
 					if (!ignored) {
 						if (variableInstance.getName() != null || variableInstance.getValue() != null) {

@@ -44,7 +44,7 @@ public class ExpedientTipusDocumentCommand {
 	private String contentType;
 	private String custodiaCodi;
 	private Integer tipusDocPortasignatures;
-	
+	private boolean ignored;
 	
 	public Long getExpedientTipusId() {
 		return expedientTipusId;
@@ -142,6 +142,12 @@ public byte[] getArxiuContingut() {
 	public void setTipusDocPortasignatures(Integer tipusDocPortasignatures) {
 		this.tipusDocPortasignatures = tipusDocPortasignatures;
 	}
+	public boolean isIgnored() {
+		return ignored;
+	}
+	public void setIgnored(boolean ignored) {
+		this.ignored = ignored;
+	}
 	public static DocumentDto asDocumentDto(ExpedientTipusDocumentCommand command) {
 		DocumentDto dto = new DocumentDto();
 		dto.setId(command.getId());
@@ -164,6 +170,7 @@ public byte[] getArxiuContingut() {
 		dto.setContentType(command.getContentType());
 		dto.setCustodiaCodi(command.getCustodiaCodi());
 		dto.setTipusDocPortasignatures(command.getTipusDocPortasignatures());
+		dto.setIgnored(command.isIgnored());
 		
 		return dto;
 	}

@@ -384,6 +384,7 @@ public class DefinicioProcesHelper {
 							document.setCampData(camps.get(documentExportat.getCodiCampData()));
 						document.setConvertirExtensio(documentExportat.getConvertirExtensio());
 						document.setExtensionsPermeses(documentExportat.getExtensionsPermeses());
+						document.setIgnored(documentExportat.isIgnored());
 					}
 					documents.put(documentExportat.getCodi(), document);
 				}	
@@ -910,6 +911,7 @@ public class DefinicioProcesHelper {
 						documentExportacio.setCodiCampData(document.getCampData().getCodi());
 					documentExportacio.setConvertirExtensio(document.getConvertirExtensio());
 					documentExportacio.setExtensionsPermeses(document.getExtensionsPermeses());
+					documentExportacio.setIgnored(document.isIgnored());
 					exportacio.getDocuments().add(documentExportacio);
 				}
 		}		
@@ -1058,6 +1060,7 @@ public class DefinicioProcesHelper {
 			nou.setTipusDocPortasignatures(document.getTipusDocPortasignatures());
 			nou.setAdjuntarAuto(document.isAdjuntarAuto());
 			nou.setConvertirExtensio(document.getConvertirExtensio());
+			nou.setIgnored(document.isIgnored());
 			if (document.getCampData() != null)
 				nou.setCampData(camps.get(document.getCampData().getCodi()));
 			documentRepository.save(nou);

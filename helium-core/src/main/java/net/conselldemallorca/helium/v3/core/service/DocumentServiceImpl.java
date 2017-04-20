@@ -101,6 +101,7 @@ public class DocumentServiceImpl implements DocumentService {
 		entity.setContentType(document.getContentType());
 		entity.setCustodiaCodi(document.getCustodiaCodi());
 		entity.setTipusDocPortasignatures(document.getTipusDocPortasignatures());
+		entity.setIgnored(document.isIgnored());
 		
 		if (expedientTipusId != null)
 			entity.setExpedientTipus(expedientTipusRepository.findOne(expedientTipusId));
@@ -203,7 +204,8 @@ public class DocumentServiceImpl implements DocumentService {
 			entity.setCampData(campRepository.findOne(document.getCampData().getId()));
 		else
 			entity.setCampData(null);
-		
+		entity.setIgnored(document.isIgnored());
+
 		entity.setExtensionsPermeses(document.getExtensionsPermeses());
 		entity.setContentType(document.getContentType());
 		entity.setCustodiaCodi(document.getCustodiaCodi());

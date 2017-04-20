@@ -25,6 +25,7 @@ public class DocumentExportacio implements Serializable {
 	private boolean adjuntarAuto;
 	private String convertirExtensio;
 	private String extensionsPermeses;
+	private boolean ignored;
 	
 	public DocumentExportacio(
 			String codi,
@@ -143,6 +144,14 @@ public class DocumentExportacio implements Serializable {
 
 	public void setExtensionsPermeses(String extensionsPermeses) {
 		this.extensionsPermeses = extensionsPermeses;
+	}
+
+	public boolean isIgnored() {
+		return ignored;
+	}
+
+	public void setIgnored(boolean ignored) {
+		this.ignored = ignored;
 	}
 
 	private static final long serialVersionUID = 1L;

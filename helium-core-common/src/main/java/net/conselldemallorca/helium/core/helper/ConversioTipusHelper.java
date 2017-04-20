@@ -84,6 +84,7 @@ public class ConversioTipusHelper {
 						target.setContentType(source.getContentType());
 						target.setCustodiaCodi(source.getCustodiaCodi());
 						target.setTipusDocPortasignatures(source.getTipusDocPortasignatures());
+						target.setIgnored(source.isIgnored());
 						return target;
 					}
 		});

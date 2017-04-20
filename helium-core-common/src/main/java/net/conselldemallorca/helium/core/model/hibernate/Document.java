@@ -78,6 +78,10 @@ public class Document implements Serializable, GenericEntity<Long> {
 	private Set<DocumentTasca> tasques = new HashSet<DocumentTasca>();
 	private Set<FirmaTasca> firmes = new HashSet<FirmaTasca>();
 
+	/** Indica si permetre o no la retroacció. Si isIgnored = true llavors no es realitzarà la retroacció i no s'esborrarà
+	 * el contingut del document. */
+	private boolean ignored;
+
 
 
 	public Document() {}
@@ -259,6 +263,14 @@ public class Document implements Serializable, GenericEntity<Long> {
 		getFirmes().remove(firma);
 	}
 
+	@Column(name="ignored")
+	public boolean isIgnored() {
+		return ignored;
+	}
+	public void setIgnored(boolean ignored) {
+		this.ignored = ignored;
+	}
+	
 	@Transient
 	public String getCodiNom() {
 		return codi + "/" + nom;

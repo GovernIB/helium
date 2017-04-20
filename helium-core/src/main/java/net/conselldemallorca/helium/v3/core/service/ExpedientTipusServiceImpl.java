@@ -619,6 +619,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 						documentExportacio.setCodiCampData(document.getCampData().getCodi());
 					documentExportacio.setConvertirExtensio(document.getConvertirExtensio());
 					documentExportacio.setExtensionsPermeses(document.getExtensionsPermeses());
+					documentExportacio.setIgnored(document.isIgnored());
 					exportacio.getDocuments().add(documentExportacio);
 				}
 		}		
@@ -1098,6 +1099,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 							document.setCampData(camps.get(documentExportat.getCodiCampData()));
 						document.setConvertirExtensio(documentExportat.getConvertirExtensio());
 						document.setExtensionsPermeses(documentExportat.getExtensionsPermeses());
+						document.setIgnored(documentExportat.isIgnored());
 					}
 					documents.put(documentExportat.getCodi(), document);
 				}	
@@ -2253,6 +2255,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 						nou.setCampData(camps.get(document.getCampData().getCodi()));
 					nou.setConvertirExtensio(document.getConvertirExtensio());
 					nou.setExtensionsPermeses(document.getExtensionsPermeses());
+					nou.setIgnored(document.isIgnored());
 					documents.put(nou.getCodi(), nou);
 				}				
 			}

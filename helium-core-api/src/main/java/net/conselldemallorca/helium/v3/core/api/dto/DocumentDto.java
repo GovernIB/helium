@@ -74,6 +74,11 @@ public class DocumentDto implements Serializable {
 	private ExpedientTipusDto expedientTipus;
 
 	private CampDto campData;
+	
+	/** Indica si permetre o no la retroacció. Si isIgnored = true llavors no es realitzarà la retroacció i no s'esborrarà
+	 * el contingut del document. */
+	private boolean ignored;
+
 
 	public String getCodi() {
 		return codi;
@@ -397,7 +402,12 @@ public class DocumentDto implements Serializable {
 	public void setCampData(CampDto campData) {
 		this.campData = campData;
 	}
-
+	public boolean isIgnored() {
+		return ignored;
+	}
+	public void setIgnored(boolean ignored) {
+		this.ignored = ignored;
+	}
 	private static final long serialVersionUID = 774909297938469787L;
 
 
