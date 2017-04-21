@@ -14,29 +14,6 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
-import net.conselldemallorca.helium.core.model.dto.DefinicioProcesDto;
-import net.conselldemallorca.helium.core.model.dto.ExecucioMassivaDto;
-import net.conselldemallorca.helium.core.model.dto.PaginaLlistatDto;
-import net.conselldemallorca.helium.core.model.dto.PersonaDto;
-import net.conselldemallorca.helium.core.model.dto.TascaDto;
-import net.conselldemallorca.helium.core.model.dto.TascaLlistatDto;
-import net.conselldemallorca.helium.core.model.hibernate.Area;
-import net.conselldemallorca.helium.core.model.hibernate.Entorn;
-import net.conselldemallorca.helium.core.model.hibernate.ExecucioMassiva.ExecucioMassivaTipus;
-import net.conselldemallorca.helium.core.model.hibernate.Expedient;
-import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
-import net.conselldemallorca.helium.core.model.hibernate.Tasca;
-import net.conselldemallorca.helium.core.model.service.DissenyService;
-import net.conselldemallorca.helium.core.model.service.ExecucioMassivaService;
-import net.conselldemallorca.helium.core.model.service.OrganitzacioService;
-import net.conselldemallorca.helium.core.model.service.PermissionService;
-import net.conselldemallorca.helium.core.model.service.PluginService;
-import net.conselldemallorca.helium.core.model.service.TascaService;
-import net.conselldemallorca.helium.core.security.ExtendedPermission;
-import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper.MostrarTasquesDto;
-import net.conselldemallorca.helium.webapp.mvc.util.BaseController;
-import net.conselldemallorca.helium.webapp.mvc.util.PaginatedList;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.displaytag.properties.SortOrderEnum;
@@ -56,6 +33,29 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.support.SessionStatus;
+
+import net.conselldemallorca.helium.core.api.WorkflowEngineApi.MostrarTasquesDto;
+import net.conselldemallorca.helium.core.model.dto.DefinicioProcesDto;
+import net.conselldemallorca.helium.core.model.dto.ExecucioMassivaDto;
+import net.conselldemallorca.helium.core.model.dto.PaginaLlistatDto;
+import net.conselldemallorca.helium.core.model.dto.PersonaDto;
+import net.conselldemallorca.helium.core.model.dto.TascaDto;
+import net.conselldemallorca.helium.core.model.dto.TascaLlistatDto;
+import net.conselldemallorca.helium.core.model.hibernate.Area;
+import net.conselldemallorca.helium.core.model.hibernate.Entorn;
+import net.conselldemallorca.helium.core.model.hibernate.ExecucioMassiva.ExecucioMassivaTipus;
+import net.conselldemallorca.helium.core.model.hibernate.Expedient;
+import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
+import net.conselldemallorca.helium.core.model.hibernate.Tasca;
+import net.conselldemallorca.helium.core.model.service.DissenyService;
+import net.conselldemallorca.helium.core.model.service.ExecucioMassivaService;
+import net.conselldemallorca.helium.core.model.service.OrganitzacioService;
+import net.conselldemallorca.helium.core.model.service.PermissionService;
+import net.conselldemallorca.helium.core.model.service.PluginService;
+import net.conselldemallorca.helium.core.model.service.TascaService;
+import net.conselldemallorca.helium.core.security.ExtendedPermission;
+import net.conselldemallorca.helium.webapp.mvc.util.BaseController;
+import net.conselldemallorca.helium.webapp.mvc.util.PaginatedList;
 
 /**
  * Controlador per a mostrar els llistats de tasques pendents

@@ -1,7 +1,7 @@
 /**
  * 
  */
-package net.conselldemallorca.helium.jbpm3.integracio;
+package net.conselldemallorca.helium.v3.core.api.exception;
 
 /**
  * Excepció que indica problemes en l'execució d'un handler jBPM

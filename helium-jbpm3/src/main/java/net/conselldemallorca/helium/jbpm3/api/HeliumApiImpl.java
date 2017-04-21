@@ -11,8 +11,9 @@ import org.jbpm.graph.exe.ExecutionContext;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
+import net.conselldemallorca.helium.core.api.Termini;
+import net.conselldemallorca.helium.core.extern.domini.DominiCodiDescripcio;
 import net.conselldemallorca.helium.jbpm3.handlers.exception.HeliumHandlerException;
-import net.conselldemallorca.helium.jbpm3.handlers.exception.ValidationException;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.ActionInfo;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.DadesRegistreEntrada;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.DadesRegistreNotificacio;
@@ -36,9 +37,7 @@ import net.conselldemallorca.helium.jbpm3.handlers.tipus.TokenInfo;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.TransitionInfo;
 import net.conselldemallorca.helium.jbpm3.helper.ConversioTipusHelper;
 import net.conselldemallorca.helium.jbpm3.helper.ConversioTipusInfoHelper;
-import net.conselldemallorca.helium.jbpm3.integracio.DominiCodiDescripcio;
 import net.conselldemallorca.helium.jbpm3.integracio.Jbpm3HeliumBridge;
-import net.conselldemallorca.helium.jbpm3.integracio.Termini;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DominiRespostaColumnaDto;
@@ -53,6 +52,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.RegistreIdDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RegistreNotificacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
+import net.conselldemallorca.helium.v3.core.api.exception.TramitacioValidacioException;
 
 public class HeliumApiImpl implements HeliumApi {
 
@@ -290,7 +290,7 @@ public class HeliumApiImpl implements HeliumApi {
 		if (!isTaskInstanceExecution()) {
 			throw new HeliumHandlerException("No taskInstance execution context.");
 		}
-		throw new ValidationException(error);
+		throw new TramitacioValidacioException(error);
 	}
 	
 	@Override

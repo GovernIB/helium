@@ -10,6 +10,9 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import net.conselldemallorca.helium.core.api.Termini;
+import net.conselldemallorca.helium.core.api.WActionHandler;
+import net.conselldemallorca.helium.core.extern.domini.DominiCodiDescripcio;
 import net.conselldemallorca.helium.jbpm3.handlers.exception.ValidationException;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.DadesRegistreEntrada;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.DadesRegistreNotificacio;
@@ -23,9 +26,7 @@ import net.conselldemallorca.helium.jbpm3.handlers.tipus.ReferenciaRDSJustifican
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.RespostaRegistre;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.Tramit;
 import net.conselldemallorca.helium.jbpm3.helper.ConversioTipusHelper;
-import net.conselldemallorca.helium.jbpm3.integracio.DominiCodiDescripcio;
 import net.conselldemallorca.helium.jbpm3.integracio.Jbpm3HeliumBridge;
-import net.conselldemallorca.helium.jbpm3.integracio.Termini;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentDissenyDto;
@@ -58,10 +59,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
-public abstract class BasicActionHandler extends AbstractHeliumActionHandler implements ActionHandler {
-
-	public static final String PARAMS_RETROCEDIR_VARIABLE_PREFIX = "H3l1um#params.retroces.";
-	public static final String PARAMS_RETROCEDIR_SEPARADOR = "#@#";
+public abstract class BasicActionHandler extends AbstractHeliumActionHandler implements ActionHandler, WActionHandler {
 
 	public abstract void execute(ExecutionContext executionContext) throws Exception;
 

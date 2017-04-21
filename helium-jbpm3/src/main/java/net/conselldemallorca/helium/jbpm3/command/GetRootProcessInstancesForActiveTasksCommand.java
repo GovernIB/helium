@@ -10,15 +10,15 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper.MostrarTasquesDto;
-import net.conselldemallorca.helium.jbpm3.integracio.LlistatIds;
-import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto.OrdreDireccioDto;
-import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto.OrdreDto;
-
 import org.hibernate.Query;
 import org.jbpm.JbpmContext;
 import org.jbpm.command.AbstractGetObjectBaseCommand;
 import org.jbpm.command.Command;
+
+import net.conselldemallorca.helium.core.api.LlistatIds;
+import net.conselldemallorca.helium.core.api.WorkflowEngineApi.MostrarTasquesDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto.OrdreDireccioDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto.OrdreDto;
 
 /**
  * Command per obtenir la llista de tasques personals 

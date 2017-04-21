@@ -10,9 +10,7 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
-import org.hibernate.Hibernate;
-import org.jbpm.graph.exe.ProcessInstanceExpedient;
-import org.slf4j.Logger;
+import org.hibernate.Hibernate;import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -21,6 +19,11 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.codahale.metrics.MetricRegistry;
 
+import net.conselldemallorca.helium.core.api.WProcessDefinition;
+import net.conselldemallorca.helium.core.api.WProcessInstance;
+import net.conselldemallorca.helium.core.api.WTaskInstance;
+import net.conselldemallorca.helium.core.api.WorkflowEngineApi;
+import net.conselldemallorca.helium.core.api.WorkflowRetroaccioApi;
 import net.conselldemallorca.helium.core.common.ThreadLocalInfo;
 import net.conselldemallorca.helium.core.extern.domini.FilaResultat;
 import net.conselldemallorca.helium.core.extern.domini.ParellaCodiValor;
@@ -52,10 +55,6 @@ import net.conselldemallorca.helium.integracio.plugins.registre.RegistreNotifica
 import net.conselldemallorca.helium.integracio.plugins.registre.RespostaAnotacioRegistre;
 import net.conselldemallorca.helium.integracio.plugins.registre.RespostaJustificantDetallRecepcio;
 import net.conselldemallorca.helium.integracio.plugins.registre.RespostaJustificantRecepcio;
-import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
-import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessDefinition;
-import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessInstance;
-import net.conselldemallorca.helium.jbpm3.integracio.JbpmTask;
 import net.conselldemallorca.helium.v3.core.api.dto.AreaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampTascaDto;
@@ -167,7 +166,9 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 	@Resource
 	private DominiHelper dominiHelper;
 	@Resource
-	private JbpmHelper jbpmHelper;
+	private WorkflowEngineApi workflowEngineApi;
+	@Resource 
+	private WorkflowRetroaccioApi workflowRetroaccioApi;
 	@Resource
 	private VariableHelper variableHelper;	
 	@Resource
@@ -623,13 +624,13 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 	}
 
 	@Override
-	public void expedientBuidaLogs(
+	public void expedientEliminaInformacioRetroaccio(
 			String processInstanceId) {
 		logger.debug("Buidant logs expedient (processInstanceId=" + processInstanceId + ")");
-		ProcessInstanceExpedient piexp = jbpmHelper.expedientFindByProcessInstanceId(processInstanceId);
+		ExpedientDto piexp = workflowEngineApi.expedientFindByProcessInstanceId(processInstanceId);
 		if (piexp == null)
-			throw new NoTrobatException(ProcessInstanceExpedient.class, processInstanceId);
-		jbpmHelper.deleteProcessInstanceTreeLogs(piexp.getProcessInstanceId());
+			throw new NoTrobatException(ExpedientDto.class, processInstanceId);
+		workflowRetroaccioApi.eliminaInformacioRetroaccio(piexp.getProcessInstanceId());
 	}
 
 	@Override
@@ -1002,9 +1003,9 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 			long taskInstanceId) {
 		logger.debug("Consultant els camps del formulari de la tasca (" +
 				"taskInstanceId=" + taskInstanceId + ")");
-		JbpmTask task = jbpmHelper.getTaskById(new Long(taskInstanceId).toString());
+		WTaskInstance task = workflowEngineApi.getTaskById(new Long(taskInstanceId).toString());
 		if (task == null)
-			throw new NoTrobatException(JbpmTask.class, taskInstanceId);
+			throw new NoTrobatException(WTaskInstance.class, taskInstanceId);
 		DefinicioProces definicioProces = definicioProcesRepository.findByJbpmId(
 				task.getProcessDefinitionId());
 		if (definicioProces == null)
@@ -1023,9 +1024,9 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 	public List<DocumentTascaDto> findDocumentsPerTaskInstance(
 			long taskInstanceId) {
 		logger.debug("Consultant els documents de la tasca (taskInstanceId=" + taskInstanceId + ")");
-		JbpmTask task = jbpmHelper.getTaskById(new Long(taskInstanceId).toString());
+		WTaskInstance task = workflowEngineApi.getTaskById(new Long(taskInstanceId).toString());
 		if (task == null)
-			throw new NoTrobatException(JbpmTask.class, taskInstanceId);
+			throw new NoTrobatException(WTaskInstance.class, taskInstanceId);
 		DefinicioProces definicioProces = definicioProcesRepository.findByJbpmId(
 				task.getProcessDefinitionId());
 		if (definicioProces == null)
@@ -1101,7 +1102,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 	public void desfinalitzarExpedient(String processInstanceId) throws Exception{
 		logger.debug("reprendreExpedient (" +
 				"processInstanceId=" + processInstanceId + ")");
-		jbpmHelper.desfinalitzarExpedient(processInstanceId);
+		workflowEngineApi.desfinalitzarExpedient(processInstanceId);
 	}
 	
 	@Override
@@ -1110,7 +1111,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 				"tokenId=" + tokenId + ", " +
 				"activar=" + activar + ")");
 		try {
-			return jbpmHelper.tokenActivar(tokenId, activar);
+			return workflowEngineApi.tokenActivar(tokenId, activar);
 		} catch (Exception ex) {
 			return false;
 		} 
@@ -1729,7 +1730,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 		if (camp == null)
 			throw new NoTrobatException(Camp.class, varCodi);
 		ExpedientDadaDto resposta = new ExpedientDadaDto();
-		Object valor = jbpmHelper.getProcessInstanceVariable(
+		Object valor = workflowEngineApi.getProcessInstanceVariable(
 				processInstanceId,
 				varCodi);
 		resposta.setText(
@@ -1767,7 +1768,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 		if (camp == null)
 			throw new NoTrobatException(Camp.class,varCodi);
 		TascaDadaDto resposta = new TascaDadaDto();
-		Object valor = jbpmHelper.getTaskInstanceVariable(
+		Object valor = workflowEngineApi.getTaskInstanceVariable(
 				taskInstanceId,
 				varCodi);
 		resposta.setText(
@@ -1884,7 +1885,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 			String errorFull) {
 		logger.error("JOB (" + jobId + "): Actualitzant error de l'expedient");
 //		if (jobId != null)
-//			jbpmHelper.retryJob(jobId);
+//			workflowEngineApi.retryJob(jobId);
 		Expedient expedient = expedientRepository.findOne(expedientId);
 		expedient.setErrorDesc(errorDesc);
 		expedient.setErrorFull(errorFull);
@@ -1925,7 +1926,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 
 	@Override
 	public Long getTaskInstanceIdByTokenId(Long tokenId) {
-		return jbpmHelper.getTaskInstanceIdByTokenId(tokenId);
+		return workflowEngineApi.getTaskInstanceIdByExecutionTokenId(tokenId);
 	}
 	
 	@Override
@@ -1962,9 +1963,9 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 	}
 	private DefinicioProces getDefinicioProcesDonatProcessInstanceId(
 			String processInstanceId) {
-		JbpmProcessInstance processInstance = jbpmHelper.getProcessInstance(processInstanceId);
+		WProcessInstance processInstance = workflowEngineApi.getProcessInstance(processInstanceId);
 		if (processInstance == null)
-			throw new NoTrobatException(JbpmProcessInstance.class, processInstanceId);
+			throw new NoTrobatException(WProcessInstance.class, processInstanceId);
 		
 		return definicioProcesRepository.findByJbpmId(
 				processInstance.getProcessDefinitionId());
@@ -1972,9 +1973,9 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 
 	private Entorn getEntornDonatProcessInstanceId(
 			String processInstanceId) {
-		JbpmProcessInstance processInstance = jbpmHelper.getRootProcessInstance(processInstanceId);
+		WProcessInstance processInstance = workflowEngineApi.getRootProcessInstance(processInstanceId);
 		if (processInstance == null)
-			throw new NoTrobatException(JbpmProcessInstance.class, processInstanceId);
+			throw new NoTrobatException(WProcessInstance.class, processInstanceId);
 		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
 		return expedient.getEntorn();
 	}
@@ -1986,7 +1987,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 	public List<DefinicioProcesDto> findSubDefinicionsProces(Long definicioProcesId) {
 		List<DefinicioProcesDto> resposta = new ArrayList<DefinicioProcesDto>();
 		DefinicioProces definicioProces = definicioProcesRepository.findById(definicioProcesId);
-		for (JbpmProcessDefinition pd : jbpmHelper.getSubProcessDefinitions(definicioProces.getJbpmId())) {
+		for (WProcessDefinition pd : workflowEngineApi.getSubProcessDefinitions(null, definicioProces.getJbpmId())) {
 			resposta.add(conversioTipusHelper.convertir(
 					definicioProcesRepository.findByJbpmId(pd.getId()),
 					DefinicioProcesDto.class));

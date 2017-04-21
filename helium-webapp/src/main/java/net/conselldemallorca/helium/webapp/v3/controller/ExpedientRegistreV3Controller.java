@@ -5,7 +5,6 @@ package net.conselldemallorca.helium.webapp.v3.controller;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.jbpm.JbpmException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,7 +48,7 @@ public class ExpedientRegistreV3Controller extends BaseExpedientController {
 		boolean detall = tipus_retroces != null && tipus_retroces == 0;
 		model.addAttribute(
 				"tasques",
-				expedientRegistreService.registreFindTasquesPerLogExpedient(
+				expedientRegistreService.findTasquesExpedientPerRetroaccio(
 						expedientId));
 		model.addAttribute(
 				"inicialProcesInstanceId",
@@ -62,7 +61,7 @@ public class ExpedientRegistreV3Controller extends BaseExpedientController {
 				expedient);
 		model.addAttribute(
 				"logs",
-				expedientRegistreService.registreFindLogsOrdenatsPerData(
+				expedientRegistreService.findInformacioRetroaccioExpedientOrdenatPerData(
 						expedient.getId(),
 						detall));
 		return "v3/expedientLog";
@@ -79,13 +78,13 @@ public class ExpedientRegistreV3Controller extends BaseExpedientController {
 			Model model) {
 		boolean response = false;
 		try {
-			expedientRegistreService.registreRetrocedir(
+			expedientRegistreService.executaRetroaccio(
 					expedientId,
 					logId,
 					tipus_retroces == null || tipus_retroces != 0);
 			MissatgesHelper.success(request, getMessage(request, "expedient.registre.correcte"));
 			response = true;
-		} catch (JbpmException ex ) {
+		} catch (Exception ex ) {
 			MissatgesHelper.error(request, getMessage(request, "error.executar.retroces") + ": "+ ex.getCause().getMessage());
 			logger.error(" NUMEROEXPEDIENT:"+expedientId+" No s'ha pogut executar el retrocés", ex);
 		}
@@ -101,12 +100,12 @@ public class ExpedientRegistreV3Controller extends BaseExpedientController {
 			ModelMap model) {
 		model.addAttribute(
 				"logs",
-				expedientRegistreService.registreFindLogsRetroceditsOrdenatsPerData(
+				expedientRegistreService.findInformacioRetroaccioAccioRetrocesOrdenatsPerData(
 						expedientId,
 						logId));
 		model.addAttribute(
 				"tasques",
-				expedientRegistreService.registreFindTasquesPerLogExpedient(
+				expedientRegistreService.findTasquesExpedientPerRetroaccio(
 						expedientId));
 		return "v3/expedient/logRetrocedit";
 	}
@@ -119,12 +118,12 @@ public class ExpedientRegistreV3Controller extends BaseExpedientController {
 			ModelMap model) {
 		model.addAttribute(
 				"logs",
-				expedientRegistreService.registreFindLogsTascaOrdenatsPerData(
+				expedientRegistreService.findInformacioRetroaccioTascaOrdenatPerData(
 						expedientId,
 						targetId));
 		model.addAttribute(
 				"tasques",
-				expedientRegistreService.registreFindTasquesPerLogExpedient(
+				expedientRegistreService.findTasquesExpedientPerRetroaccio(
 						expedientId));
 		return "v3/expedient/logRetrocedit";
 	}
@@ -136,7 +135,7 @@ public class ExpedientRegistreV3Controller extends BaseExpedientController {
 			ModelMap model) {
 		model.addAttribute(
 				"log",
-				expedientRegistreService.registreFindLogById(
+				expedientRegistreService.findInformacioRetroaccioById(
 						logId));
 		return "v3/expedient/logScript";
 	}

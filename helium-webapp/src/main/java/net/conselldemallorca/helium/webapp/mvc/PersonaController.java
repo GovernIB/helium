@@ -15,7 +15,7 @@ import net.conselldemallorca.helium.core.model.hibernate.Permis;
 import net.conselldemallorca.helium.core.model.hibernate.Persona;
 import net.conselldemallorca.helium.core.model.service.PersonaService;
 import net.conselldemallorca.helium.core.model.service.PluginService;
-import net.conselldemallorca.helium.jbpm3.handlers.tipus.ParellaCodiValor;
+import net.conselldemallorca.helium.core.extern.domini.ParellaCodiValor;
 import net.conselldemallorca.helium.webapp.mvc.util.BaseController;
 
 import org.apache.commons.logging.Log;

@@ -12,7 +12,7 @@ import org.hibernate.Query;
 import org.jbpm.JbpmContext;
 import org.jbpm.command.AbstractBaseCommand;
 
-import net.conselldemallorca.helium.jbpm3.integracio.ResultatConsultaPaginadaJbpm;
+import net.conselldemallorca.helium.core.api.ResultatConsultaPaginada;
 
 /**
  * Command per a trobar els logs associats a una instància de procés
@@ -109,7 +109,7 @@ public class FindExpedientIdsFiltreCommand extends AbstractBaseCommand {
 	@SuppressWarnings("unchecked")
 	public Object execute(JbpmContext jbpmContext) throws Exception {
 		if (tipusIdPermesos.isEmpty()) {
-			return new ResultatConsultaPaginadaJbpm<Long>(0);
+			return new ResultatConsultaPaginada<Long>(0);
 		}
 		StringBuilder expedientQuerySb = new StringBuilder();
 		expedientQuerySb.append(
@@ -310,17 +310,17 @@ public class FindExpedientIdsFiltreCommand extends AbstractBaseCommand {
 				for (Object[] fila: resultat) {
 					ids.add((Long)fila[0]);
 				}
-				return new ResultatConsultaPaginadaJbpm<Long>(
+				return new ResultatConsultaPaginada<Long>(
 						count,
 						ids);
 			} else {
-				return new ResultatConsultaPaginadaJbpm<Long>(
+				return new ResultatConsultaPaginada<Long>(
 						count,
 						(List<Long>)queryIds.list());
 			}
 			
 		} else {
-			return new ResultatConsultaPaginadaJbpm<Long>(count);
+			return new ResultatConsultaPaginada<Long>(count);
 		}
 	}
 

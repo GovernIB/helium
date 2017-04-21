@@ -1,4 +1,4 @@
-package net.conselldemallorca.helium.jbpm3.integracio;
+package net.conselldemallorca.helium.core.api;
 
 import java.util.List;
 

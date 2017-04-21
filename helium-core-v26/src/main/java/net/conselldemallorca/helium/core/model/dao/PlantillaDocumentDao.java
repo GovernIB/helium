@@ -36,7 +36,9 @@ import freemarker.template.TemplateMethodModel;
 import freemarker.template.TemplateMethodModelEx;
 import freemarker.template.TemplateModel;
 import freemarker.template.TemplateModelException;
+import net.conselldemallorca.helium.core.api.WorkflowEngineApi;
 import net.conselldemallorca.helium.core.common.JbpmVars;
+import net.conselldemallorca.helium.core.extern.domini.DominiCodiDescripcio;
 import net.conselldemallorca.helium.core.extern.domini.FilaResultat;
 import net.conselldemallorca.helium.core.helper.DominiHelper;
 import net.conselldemallorca.helium.core.helperv26.DocumentHelper;
@@ -57,8 +59,6 @@ import net.conselldemallorca.helium.core.model.hibernate.Persona;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.core.util.NombreEnCastella;
 import net.conselldemallorca.helium.core.util.NombreEnCatala;
-import net.conselldemallorca.helium.jbpm3.integracio.DominiCodiDescripcio;
-import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
 import net.sf.jooreports.templates.DocumentTemplate;
 import net.sf.jooreports.templates.DocumentTemplateFactory;
 
@@ -75,7 +75,7 @@ public class PlantillaDocumentDao {
 	private CarrecJbpmIdDao carrecJbpmIdDao;
 	private AreaDao areaDao;
 	private AreaJbpmIdDao areaJbpmIdDao;
-	private JbpmHelper jbpmHelper;
+	private WorkflowEngineApi workflowEngineApi;
 	private DominiDao dominiDao;
 	private DominiHelper dominiHelper;
 	private DocumentStoreDao documentStoreDao;
@@ -158,8 +158,8 @@ public class PlantillaDocumentDao {
 		this.areaJbpmIdDao = areaJbpmIdDao;
 	}
 	@Autowired
-	public void setjbpmHelper(JbpmHelper jbpmHelper) {
-		this.jbpmHelper = jbpmHelper;
+	public void setWorkflowEngineApi(WorkflowEngineApi workflowEngineApi) {
+		this.workflowEngineApi = workflowEngineApi;
 	}
 	@Autowired
 	public void setDominiDao(DominiDao dominiDao) {
@@ -210,9 +210,9 @@ public class PlantillaDocumentDao {
 								String codi = (String)arg0;
 								Object valor = null;
 								if (taskId != null)
-									valor = jbpmHelper.getTaskInstanceVariable(taskId, codi);
+									valor = workflowEngineApi.getTaskInstanceVariable(taskId, codi);
 								if (valor == null)
-									valor = jbpmHelper.getProcessInstanceVariable(processInstanceId, codi);
+									valor = workflowEngineApi.getProcessInstanceVariable(processInstanceId, codi);
 								if (valor == null)
 									return new SimpleScalar(null);
 								if (valor instanceof Object[])

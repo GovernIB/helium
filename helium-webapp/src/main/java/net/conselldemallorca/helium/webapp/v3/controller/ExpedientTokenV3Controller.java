@@ -8,17 +8,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
-
-import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
-import net.conselldemallorca.helium.v3.core.api.dto.InstanciaProcesDto;
-import net.conselldemallorca.helium.v3.core.api.dto.TokenDto;
-import net.conselldemallorca.helium.v3.core.api.service.ExpedientTokenService;
-import net.conselldemallorca.helium.webapp.v3.command.TokenExpedientCommand;
-import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
-import net.conselldemallorca.helium.webapp.v3.helper.ObjectTypeEditorHelper;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,6 +31,14 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.support.SessionStatus;
 
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
+import net.conselldemallorca.helium.v3.core.api.dto.InstanciaProcesDto;
+import net.conselldemallorca.helium.v3.core.api.dto.TokenDto;
+import net.conselldemallorca.helium.v3.core.api.service.ExpedientTokenService;
+import net.conselldemallorca.helium.webapp.v3.command.TokenExpedientCommand;
+import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
+import net.conselldemallorca.helium.webapp.v3.helper.ObjectTypeEditorHelper;
+
 /**
  * Controlador per a la pàgina d'informació de l'expedient.
  * 
@@ -52,8 +50,6 @@ public class ExpedientTokenV3Controller extends BaseExpedientController {
 
 	@Autowired
 	private ExpedientTokenService expedientTokenService;
-	@Resource
-	private JbpmHelper jbpmHelper;
 
 
 

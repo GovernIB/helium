@@ -20,6 +20,11 @@ import org.springframework.stereotype.Service;
 
 import com.codahale.metrics.MetricRegistry;
 
+import net.conselldemallorca.helium.core.api.WProcessInstance;
+import net.conselldemallorca.helium.core.api.WToken;
+import net.conselldemallorca.helium.core.api.WorkflowEngineApi;
+import net.conselldemallorca.helium.core.api.WorkflowRetroaccioApi;
+import net.conselldemallorca.helium.core.api.WorkflowRetroaccioApi.ExpedientRetroaccioTipus;
 import net.conselldemallorca.helium.core.common.JbpmVars;
 import net.conselldemallorca.helium.core.common.ThreadLocalInfo;
 import net.conselldemallorca.helium.core.helper.ExpedientHelper;
@@ -46,7 +51,6 @@ import net.conselldemallorca.helium.core.model.exception.PluginException;
 import net.conselldemallorca.helium.core.model.hibernate.Alerta;
 import net.conselldemallorca.helium.core.model.hibernate.DocumentStore;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
-import net.conselldemallorca.helium.core.model.hibernate.ExpedientLog.ExpedientLogAccioTipus;
 import net.conselldemallorca.helium.core.model.hibernate.Portasignatures;
 import net.conselldemallorca.helium.core.model.hibernate.Portasignatures.TipusEstat;
 import net.conselldemallorca.helium.core.model.hibernate.Portasignatures.Transicio;
@@ -60,9 +64,6 @@ import net.conselldemallorca.helium.integracio.plugins.tramitacio.ObtenirVistaDo
 import net.conselldemallorca.helium.integracio.plugins.tramitacio.PublicarEventRequest;
 import net.conselldemallorca.helium.integracio.plugins.tramitacio.PublicarExpedientRequest;
 import net.conselldemallorca.helium.integracio.plugins.tramitacio.ResultatProcesTramitRequest;
-import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
-import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessInstance;
-import net.conselldemallorca.helium.jbpm3.integracio.JbpmToken;
 
 
 /**
@@ -81,12 +82,11 @@ public class PluginService {
 	private ExpedientDao expedientDao;
 	private RegistreDao registreDao;
 	private DocumentStoreDao documentStoreDao;
-	private JbpmHelper jbpmDao;
+	private WorkflowEngineApi workflowEngineApi;
+	private WorkflowRetroaccioApi workflowRetroaccioApi;
 
 	private DocumentHelper documentHelper;
 	private ExpedientHelper expedientHelper;
-	private ExpedientLogHelper expedientLogHelper;
-
 	private DefinicioProcesDao definicioProcesDao;
 	private CampDao campDao;
 	private ConsultaCampDao consultaCampDao;
@@ -276,102 +276,6 @@ public class PluginService {
 				pluginPortasignaturesDao.findByDocument(id));
 	}
 
-	/*public Double processarDocumentSignatPortasignatures(Integer id) {
-		Double resposta = -1D;
-		Portasignatures portasignatures = pluginPortasignaturesDao.findByDocument(id);
-		if (portasignatures != null) {
-			Date ara = new Date();
-			if (portasignatures.getDataCallbackPrimer() == null)
-				portasignatures.setDataCallbackPrimer(ara);
-			portasignatures.setDataCallbackDarrer(ara);
-			Long tokenId = portasignatures.getTokenId();
-			JbpmToken token = jbpmDao.getTokenById(tokenId.toString());
-			DocumentStore documentStore = documentStoreDao.getById(portasignatures.getDocumentStoreId(), false);
-			if (documentStore != null) {
-				if (!TipusEstat.PENDENT.equals(portasignatures.getEstat())) {
-					logger.warn("El document rebut al callback (id=" + id + ") no està en estat PENDENT (estat=" + portasignatures.getEstat() + ")");
-					String nodeName = token.getNodeName();
-					String nodeClass = token.getNodeClass();
-					logger.info("El document rebut al callback (id=" + id + ") té el token en el node (name=" + nodeName + ", class=" + nodeClass + ")");
-					enviarCorreuErrorPsigna(
-							"El document rebut al callback (id=" + id + ") no està en estat PENDENT",
-							"L'estat actual és: " + portasignatures.getEstat(),
-							null);
-				}
-				try {
-					expedientLogHelper.afegirLogExpedientPerProces(
-							token.getProcessInstanceId(),
-							ExpedientLogAccioTipus.PROCES_DOCUMENT_SIGNAR,
-							new Boolean(true).toString());
-						afegirDocumentCustodia(
-								portasignatures.getDocumentId(),
-								portasignatures.getDocumentStoreId());
-					portasignatures.setEstat(TipusEstat.SIGNAT);
-					portasignatures.setTransition(Transicio.SIGNAT);
-					jbpmDao.signalToken(
-							tokenId.longValue(),
-							portasignatures.getTransicioOK());
-					getServiceUtils().expedientIndexLuceneUpdate(
-							jbpmDao.getTokenById(tokenId.toString()).getProcessInstanceId());
-					resposta = 1D;
-				} catch (PluginException pex) {
-					portasignatures.setErrorCallbackProcessant(getMissageFinalCadenaExcepcions(pex));
-					logger.error("Error al processar el document pel callback (id=" + id + "): " + getMissageFinalCadenaExcepcions(pex), pex);
-					enviarCorreuErrorPsigna(
-							"Error al processar el document pel callback (id=" + id + ")",
-							"S'ha produit un error al custodiar el document:",
-							pex);
-				} catch (Exception ex) {
-					portasignatures.setErrorCallbackProcessant(getMissageFinalCadenaExcepcions(ex));
-					logger.error("Error al processar el document pel callback (id=" + id + ")", ex);
-					enviarCorreuErrorPsigna(
-							"Error al processar el document pel callback (id=" + id + ")",
-							"S'ha produit un error:",
-							ex);
-				}
-				pluginPortasignaturesDao.saveOrUpdate(portasignatures);
-			} else {
-				logger.error("El document rebut al callback (id=" + id + ") fa referència a un documentStore inexistent (id=" + portasignatures.getDocumentStoreId() + ")");
-				enviarCorreuErrorPsigna(
-						"El document rebut al callback (id=" + id + ") fa referència a un documentStore inexistent (id=" + portasignatures.getDocumentStoreId() + ")",
-						"",
-						null);
-			}
-		} else {
-			logger.error("El document rebut al callback (id=" + id + ") no s'ha trobat entre els documents enviats al portasignatures");
-			enviarCorreuErrorPsigna(
-					"El document rebut al callback (id=" + id + ") no s'ha trobat entre els documents enviats al portasignatures",
-					"",
-					null);
-		}
-		return resposta;
-	}
-	public Double processarDocumentRebutjatPortasignatures(Integer id, String motiuRebuig) {
-		Double resposta = -1D;
-		Portasignatures portasignatures = pluginPortasignaturesDao.findByDocument(id);
-		if (portasignatures != null) {
-			Long tokenId = portasignatures.getTokenId();
-			JbpmToken token = jbpmDao.getTokenById(tokenId.toString());
-			expedientLogHelper.afegirLogExpedientPerProces(
-					token.getProcessInstanceId(),
-					ExpedientLogAccioTipus.PROCES_DOCUMENT_SIGNAR,
-					new Boolean(false).toString());
-			portasignatures.setEstat(TipusEstat.REBUTJAT);
-			portasignatures.setTransition(Transicio.REBUTJAT);
-			portasignatures.setMotiuRebuig(motiuRebuig);
-			pluginPortasignaturesDao.saveOrUpdate(portasignatures);
-			jbpmDao.signalToken(
-					tokenId.longValue(),
-					portasignatures.getTransicioKO());
-			getServiceUtils().expedientIndexLuceneUpdate(
-					token.getProcessInstanceId());
-			resposta = 1D;
-		} else {
-			logger.error("El document rebut al callback (id=" + id + ") no s'ha trobat en els documents pendents pel portasignatures");
-		}
-		return resposta;
-	}*/
-
 	public void publicarExpedient(
 			PublicarExpedientRequest request) {
 		pluginTramitacioDao.publicarExpedient(request);
@@ -433,16 +337,16 @@ public class PluginService {
 		this.documentHelper = documentHelper;
 	}
 	@Autowired
-	public void setExpedientLogHelper(ExpedientLogHelper expedientLogHelper) {
-		this.expedientLogHelper = expedientLogHelper;
+	public void setWorkflowEngineApi(WorkflowEngineApi workflowEngineApi) {
+		this.workflowEngineApi = workflowEngineApi;
 	}
 	@Autowired
 	public void setExpedientHelper(ExpedientHelper expedientHelper) {
 		this.expedientHelper = expedientHelper;
 	}
 	@Autowired
-	public void setJbpmHelper(JbpmHelper jbpmDao) {
-		this.jbpmDao = jbpmDao;
+	public void setWorkflowRetroaccioApi(WorkflowRetroaccioApi workflowRetroaccioApi) {
+		this.workflowRetroaccioApi = workflowRetroaccioApi;
 	}
 	@Autowired
 	public void setDefinicioProcesDao(DefinicioProcesDao definicioProcesDao) {
@@ -495,7 +399,7 @@ public class PluginService {
 				portasignatures.setDataProcessamentPrimer(new Date());
 			portasignatures.setDataProcessamentDarrer(new Date());
 			Long tokenId = portasignatures.getTokenId();
-			JbpmToken token = jbpmDao.getTokenById(tokenId.toString());
+			WToken token = workflowEngineApi.getTokenById(tokenId.toString());
 			DocumentStore documentStore = documentStoreDao.getById(portasignatures.getDocumentStoreId(), false);
 			if (documentStore != null) {
 				if (TipusEstat.SIGNAT.equals(portasignatures.getEstat()) ||
@@ -503,9 +407,9 @@ public class PluginService {
 					// Processa els documents signats
 					try {
 						ThreadLocalInfo.clearProcessInstanceFinalitzatIds();
-						expedientLogHelper.afegirLogExpedientPerProces(
+						workflowRetroaccioApi.afegirInformacioRetroaccioPerProces(
 								token.getProcessInstanceId(),
-								ExpedientLogAccioTipus.PROCES_DOCUMENT_SIGNAR,
+								ExpedientRetroaccioTipus.PROCES_DOCUMENT_SIGNAR,
 								new Boolean(true).toString());
 						if (documentStore.getReferenciaCustodia() == null) {
 							if (portasignatures.getDataCustodiaIntent() == null)
@@ -517,7 +421,7 @@ public class PluginService {
 						}
 						if (portasignatures.getDataSignalIntent() == null)
 							portasignatures.setDataSignalIntent(new Date());
-						jbpmDao.signalToken(
+						workflowEngineApi.signalToken(
 								tokenId.longValue(),
 								portasignatures.getTransicioOK());
 						portasignatures.setDataSignalOk(new Date());
@@ -527,8 +431,7 @@ public class PluginService {
 						
 						//Actualitzem l'estat de l'expedient, ja que si tot el procés de firma i de custòdia
 						// ha anat bé, es possible que s'avanci cap al node "fi"
-						JbpmProcessInstance rootProcessInstance = jbpmDao.getRootProcessInstance(
-								token.getProcessInstanceId());
+						WProcessInstance rootProcessInstance = workflowEngineApi.getRootProcessInstance(token.getProcessInstanceId());
 						Expedient expedient = expedientDao.findAmbProcessInstanceId(rootProcessInstance.getId());
 						expedientHelper.verificarFinalitzacioExpedient(
 								expedient);
@@ -549,11 +452,11 @@ public class PluginService {
 						(TipusEstat.ERROR.equals(portasignatures.getEstat()) && Transicio.REBUTJAT.equals(portasignatures.getTransition()))) {
 					// Processa els documents rebujats
 					try {
-						expedientLogHelper.afegirLogExpedientPerProces(
+						workflowRetroaccioApi.afegirInformacioRetroaccioPerProces(
 								token.getProcessInstanceId(),
-								ExpedientLogAccioTipus.PROCES_DOCUMENT_SIGNAR,
+								ExpedientRetroaccioTipus.PROCES_DOCUMENT_SIGNAR,
 								new Boolean(false).toString());
-						jbpmDao.signalToken(
+						workflowEngineApi.signalToken(
 								tokenId.longValue(),
 								portasignatures.getTransicioKO());
 						portasignatures.setEstat(TipusEstat.PROCESSAT);
@@ -597,7 +500,7 @@ public class PluginService {
 		Long documentStoreId = documentStore.getId();
 		DocumentDto document = documentHelper.getDocumentSenseContingut(documentStoreId);
 		if (document != null) {
-			JbpmProcessInstance rootProcessInstance = jbpmDao.getRootProcessInstance(documentStore.getProcessInstanceId());
+			WProcessInstance rootProcessInstance = workflowEngineApi.getRootProcessInstance(documentStore.getProcessInstanceId());
 			Expedient expedient = expedientDao.findAmbProcessInstanceId(rootProcessInstance.getId());
 			String varDocumentCodi = documentStore.getJbpmVariable().substring(JbpmVars.PREFIX_DOCUMENT.length());
 			List<byte[]> signatures = obtenirSignaturesDelPortasignatures(documentId);
@@ -693,7 +596,7 @@ public class PluginService {
 					consultaCampDao,
 					luceneDao,
 					dtoConverter,
-					jbpmDao,
+					workflowEngineApi,
 					aclServiceDao,
 					messageSource,
 					metricRegistry);
@@ -749,11 +652,11 @@ public class PluginService {
 	}
 	
 	/*private void verificarFinalitzacioExpedient(String processInstanceId) {
-		JbpmProcessInstance pi = jbpmDao.getRootProcessInstance(processInstanceId);
+		WProcessInstance pi = workflowEngineApi.getRootProcessInstance(processInstanceId);
 		Expedient expedient = expedientDao.findAmbProcessInstanceId(pi.getId());
-		if (pi.getEnd() != null) {
+		if (pi.getEndTime() != null) {
 			// Actualitzar data de fi de l'expedient
-			expedient.setDataFi(pi.getEnd());
+			expedient.setDataFi(pi.getEndTime());
 			// Finalitzar terminis actius
 			List<TerminiIniciat> llistaTerminis = terminiIniciatDao.findAmbProcessInstanceId(pi.getId());
 			if (llistaTerminis != null && !llistaTerminis.isEmpty()) {
@@ -762,7 +665,7 @@ public class PluginService {
 						terminiIniciat.setDataCancelacio(new Date());
 						long[] timerIds = terminiIniciat.getTimerIdsArray();
 						for (int i = 0; i < timerIds.length; i++)
-							jbpmDao.suspendTimer(
+							workflowEngineApi.suspendTimer(
 									timerIds[i],
 									new Date(Long.MAX_VALUE));
 					}

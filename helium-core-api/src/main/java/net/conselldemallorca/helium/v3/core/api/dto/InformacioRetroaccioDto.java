@@ -11,7 +11,7 @@ import java.util.Date;
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
-public class ExpedientLogDto {
+public class InformacioRetroaccioDto {
 
 	private Long id;
 	private Date data;

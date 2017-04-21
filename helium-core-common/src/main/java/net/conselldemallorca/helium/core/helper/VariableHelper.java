@@ -17,8 +17,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
+import net.conselldemallorca.helium.core.api.WActionHandler;
+import net.conselldemallorca.helium.core.api.WTaskInstance;
+import net.conselldemallorca.helium.core.api.WorkflowEngineApi;
 import net.conselldemallorca.helium.core.common.ExpedientCamps;
 import net.conselldemallorca.helium.core.common.JbpmVars;
+import net.conselldemallorca.helium.core.extern.domini.DominiCodiDescripcio;
 import net.conselldemallorca.helium.core.extern.domini.FilaResultat;
 import net.conselldemallorca.helium.core.extern.domini.ParellaCodiValor;
 import net.conselldemallorca.helium.core.helperv26.MesuresTemporalsHelper;
@@ -37,10 +41,6 @@ import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.hibernate.Tasca;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
-import net.conselldemallorca.helium.jbpm3.handlers.BasicActionHandler;
-import net.conselldemallorca.helium.jbpm3.integracio.DominiCodiDescripcio;
-import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
-import net.conselldemallorca.helium.jbpm3.integracio.JbpmTask;
 import net.conselldemallorca.helium.v3.core.api.dto.CampTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDadaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
@@ -80,7 +80,7 @@ public class VariableHelper {
 	@Resource(name="expedientServiceV3")
 	private ExpedientService expedientService;
 	@Resource
-	private JbpmHelper jbpmHelper;
+	private WorkflowEngineApi workflowEngineApi;
 	@Resource
 	private MesuresTemporalsHelper mesuresTemporalsHelper;
 	@Resource
@@ -91,12 +91,12 @@ public class VariableHelper {
 	public Object getVariableJbpmTascaValor(
 			String taskId,
 			String varCodi) {
-		Object valor = jbpmHelper.getTaskInstanceVariable(taskId, varCodi);
+		Object valor = workflowEngineApi.getTaskInstanceVariable(taskId, varCodi);
 		return valorVariableJbpmRevisat(valor);
 	}
 	public Map<String, Object> getVariablesJbpmTascaValor(
 			String taskId) {
-		Map<String, Object> valors = jbpmHelper.getTaskInstanceVariables(taskId);
+		Map<String, Object> valors = workflowEngineApi.getTaskInstanceVariables(taskId);
 		Map<String, Object> valorsRevisats = new HashMap<String, Object>();
 		for (String varCodi: valors.keySet()) {
 			Object valor = valors.get(varCodi);
@@ -107,12 +107,12 @@ public class VariableHelper {
 	public Object getVariableJbpmProcesValor(
 			String processInstanceId,
 			String varCodi) {
-		Object valor = jbpmHelper.getProcessInstanceVariable(processInstanceId, varCodi);
+		Object valor = workflowEngineApi.getProcessInstanceVariable(processInstanceId, varCodi);
 		return valorVariableJbpmRevisat(valor);
 	}
 	public Map<String, Object> getVariablesJbpmProcesValor(
 			String processInstanceId) {
-		Map<String, Object> valors = jbpmHelper.getProcessInstanceVariables(processInstanceId);
+		Map<String, Object> valors = workflowEngineApi.getProcessInstanceVariables(processInstanceId);
 		Map<String, Object> valorsRevisats = new HashMap<String, Object>();
 		if (valors != null) {
 			for (String varCodi: valors.keySet()) {
@@ -171,7 +171,7 @@ public class VariableHelper {
 		mesuresTemporalsHelper.mesuraCalcular("Expedient DADES v3", "expedient", tipusExp, null, "0");
 		mesuresTemporalsHelper.mesuraIniciar("Expedient DADES v3", "expedient", tipusExp, null, "1");
 		List<ExpedientDadaDto> resposta = new ArrayList<ExpedientDadaDto>();
-		Map<String, Object> varsInstanciaProces = jbpmHelper.getProcessInstanceVariables(
+		Map<String, Object> varsInstanciaProces = workflowEngineApi.getProcessInstanceVariables(
 				processInstanceId);
 		mesuresTemporalsHelper.mesuraCalcular("Expedient DADES v3", "expedient", tipusExp, null, "1");
 		if (varsInstanciaProces != null) {
@@ -233,7 +233,7 @@ public class VariableHelper {
 					definicioProces,
 					variableCodi);
 		
-		Object valor = jbpmHelper.getProcessInstanceVariable(
+		Object valor = workflowEngineApi.getProcessInstanceVariable(
 				processInstanceId,
 				variableCodi);
 		boolean varAmbContingut = valor != null;
@@ -290,7 +290,7 @@ public class VariableHelper {
 	}
 
 	public List<TascaDadaDto> findDadesPerInstanciaTasca(
-			JbpmTask task) {
+			WTaskInstance task) {
 		String tipusExp = null;
 		if (MesuresTemporalsHelper.isActiu()) {
 			Expedient exp = expedientHelper.findExpedientByProcessInstanceId(task.getProcessInstanceId());
@@ -313,7 +313,7 @@ public class VariableHelper {
 		mesuresTemporalsHelper.mesuraCalcular("Tasca DADES v3", "tasques", tipusExp, task.getTaskName(), "0");
 		mesuresTemporalsHelper.mesuraIniciar("Tasca DADES v3", "tasques", tipusExp, task.getTaskName(), "1");
 		List<TascaDadaDto> resposta = new ArrayList<TascaDadaDto>();
-		Map<String, Object> varsInstanciaTasca = jbpmHelper.getTaskInstanceVariables(
+		Map<String, Object> varsInstanciaTasca = workflowEngineApi.getTaskInstanceVariables(
 				task.getId());
 		mesuresTemporalsHelper.mesuraCalcular("Tasca DADES v3", "tasques", tipusExp, task.getTaskName(), "1");
 		mesuresTemporalsHelper.mesuraIniciar("Tasca DADES v3", "tasques", tipusExp, task.getTaskName(), "2");
@@ -347,7 +347,7 @@ public class VariableHelper {
 	}
 
 	public TascaDadaDto findDadaPerInstanciaTasca(
-			JbpmTask task,
+			WTaskInstance task,
 			String variableCodi) {
 		DefinicioProces definicioProces = definicioProcesRepository.findByJbpmId(
 				task.getProcessDefinitionId());
@@ -363,11 +363,11 @@ public class VariableHelper {
 		} else {
 			return null;
 		}
-		Object valor = jbpmHelper.getTaskInstanceVariable(
+		Object valor = workflowEngineApi.getTaskInstanceVariable(
 				task.getId(),
 				variableCodi);
 		if (valor == null) {
-			valor = jbpmHelper.getProcessInstanceVariable(
+			valor = workflowEngineApi.getProcessInstanceVariable(
 					task.getProcessInstanceId(),
 					variableCodi);
 		}
@@ -543,7 +543,7 @@ public class VariableHelper {
 				value = (String)GlobalProperties.getInstance().get(campCodi.substring(1));
 			} else if (campCodi.startsWith("#{")) {
 				if (processInstanceId != null) {
-					value = jbpmHelper.evaluateExpression(
+					value = workflowEngineApi.evaluateExpression(
 							taskInstanceId,
 							processInstanceId,
 							campCodi,
@@ -757,9 +757,9 @@ public class VariableHelper {
 	public Object getDescripcioVariable(String taskId, String processInstanceId, String codi) {
 		Object valor = null;
 		if (taskId != null)
-			valor = jbpmHelper.getTaskInstanceVariable(taskId, JbpmVars.PREFIX_VAR_DESCRIPCIO + codi);
+			valor = workflowEngineApi.getTaskInstanceVariable(taskId, JbpmVars.PREFIX_VAR_DESCRIPCIO + codi);
 		if (valor == null)
-			valor = jbpmHelper.getProcessInstanceVariable(processInstanceId, JbpmVars.PREFIX_VAR_DESCRIPCIO + codi);
+			valor = workflowEngineApi.getProcessInstanceVariable(processInstanceId, JbpmVars.PREFIX_VAR_DESCRIPCIO + codi);
 		return valor;
 	}
 
@@ -898,7 +898,7 @@ public class VariableHelper {
 						codi.startsWith(JbpmVars.PREFIX_SIGNATURA) ||
 						codi.startsWith(JbpmVars.PREFIX_ADJUNT) ||
 						codi.startsWith(JbpmVars.PREFIX_VAR_DESCRIPCIO) ||
-						codi.startsWith(BasicActionHandler.PARAMS_RETROCEDIR_VARIABLE_PREFIX))
+						codi.startsWith(WActionHandler.PARAMS_RETROCEDIR_VARIABLE_PREFIX))
 					codisEsborrar.add(codi);
 			}
 			for (String codi: codisEsborrar)

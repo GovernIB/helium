@@ -12,8 +12,6 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import net.conselldemallorca.helium.core.model.hibernate.CampAgrupacio;
-import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
-import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 
 /**
  * Dao pels objectes de tipus CampAgrupacio

@@ -283,7 +283,7 @@ public class ExpedientV3Controller extends BaseExpedientController {
 		try {
 			ExpedientDto expedient = expedientService.findAmbId(expedientId);
 			if (expedient.isPermisLogManage()) {
-				expedientRegistreService.registreBuidarLog(
+				expedientRegistreService.eliminaInformacioRetroaccio(
 						expedient.getId());
 				MissatgesHelper.success(request, getMessage(request, "info.expedient.buidatlog"));
 			} else {

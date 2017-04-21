@@ -31,7 +31,7 @@ public class TerminiVariableGuardarHandler extends AbstractHeliumActionHandler i
 		Integer m = getValorOVariableInteger(executionContext, mesos, varMesos);
 		Integer d = getValorOVariableInteger(executionContext, dies, varDies);
 		if (a != null && m != null && d != null) {
-			net.conselldemallorca.helium.jbpm3.integracio.Termini termini = new net.conselldemallorca.helium.jbpm3.integracio.Termini();
+			net.conselldemallorca.helium.core.api.Termini termini = new net.conselldemallorca.helium.core.api.Termini();
 			termini.setAnys(a.intValue());
 			termini.setMesos(m.intValue());
 			termini.setDies(d.intValue());

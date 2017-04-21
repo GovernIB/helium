@@ -17,6 +17,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import net.conselldemallorca.helium.core.helper.TerminiHelper;
+import net.conselldemallorca.helium.core.api.WProcessInstance;
+import net.conselldemallorca.helium.core.api.WTaskInstance;
+import net.conselldemallorca.helium.core.api.WorkflowEngineApi;
 import net.conselldemallorca.helium.core.model.dao.AlertaDao;
 import net.conselldemallorca.helium.core.model.dao.ExpedientDao;
 import net.conselldemallorca.helium.core.model.dao.FestiuDao;
@@ -28,9 +31,6 @@ import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.model.hibernate.Festiu;
 import net.conselldemallorca.helium.core.model.hibernate.TerminiIniciat;
 import net.conselldemallorca.helium.core.model.hibernate.TerminiIniciat.TerminiIniciatEstat;
-import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
-import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessInstance;
-import net.conselldemallorca.helium.jbpm3.integracio.JbpmTask;
 import net.conselldemallorca.helium.v3.core.api.dto.TerminiIniciatDto;
 
 
@@ -47,7 +47,7 @@ public class TerminiService {
 	private RegistreDao registreDao;
 	private ExpedientDao expedientDao;
 	private AlertaDao alertaDao;
-	private JbpmHelper jbpmDao;
+	private WorkflowEngineApi workflowEngineApi;
 	private MessageSource messageSource;
 	private TerminiHelper terminiHelper;
 
@@ -165,9 +165,9 @@ public class TerminiService {
 		for (TerminiIniciat terminiIniciat: iniciatsActiusAlertesFinals) {
 			if (terminiIniciat.getTaskInstanceId() != null && terminiIniciat.getEstat() == TerminiIniciatEstat.CADUCAT) {
 				esborrarAlertesAntigues(terminiIniciat);
-				JbpmTask task = jbpmDao.getTaskById(terminiIniciat.getTaskInstanceId());
-				if (task.getAssignee() != null) {
-					crearAlertaAmbTerminiAssociat(terminiIniciat, task.getAssignee(), getExpedientPerTask(task));
+				WTaskInstance task = workflowEngineApi.getTaskById(terminiIniciat.getTaskInstanceId());
+				if (task.getActorId() != null) {
+					crearAlertaAmbTerminiAssociat(terminiIniciat, task.getActorId(), getExpedientPerTask(task));
 				} else {
 					for (String actor: task.getPooledActors())
 						crearAlertaAmbTerminiAssociat(terminiIniciat, actor, getExpedientPerTask(task));
@@ -189,9 +189,9 @@ public class TerminiService {
 		
 		for (TerminiIniciat terminiIniciat: iniciatsActiusAlertesPrevies) {
 			if (terminiIniciat.getTaskInstanceId() != null && terminiIniciat.getEstat() == TerminiIniciatEstat.AVIS) {
-				JbpmTask task = jbpmDao.getTaskById(terminiIniciat.getTaskInstanceId());
-				if (task.getAssignee() != null) {
-					crearAlertaAmbTerminiAssociat(terminiIniciat, task.getAssignee(), getExpedientPerTask(task));
+				WTaskInstance task = workflowEngineApi.getTaskById(terminiIniciat.getTaskInstanceId());
+				if (task.getActorId() != null) {
+					crearAlertaAmbTerminiAssociat(terminiIniciat, task.getActorId(), getExpedientPerTask(task));
 				} else {
 					for (String actor: task.getPooledActors())
 						crearAlertaAmbTerminiAssociat(terminiIniciat, actor, getExpedientPerTask(task));
@@ -280,8 +280,8 @@ public class TerminiService {
 		this.alertaDao = alertaDao;
 	}
 	@Autowired
-	public void setJbpmHelper(JbpmHelper jbpmDao) {
-		this.jbpmDao = jbpmDao;
+	public void setWorkflowEngineApi(WorkflowEngineApi workflowEngineApi) {
+		this.workflowEngineApi = workflowEngineApi;
 	}
 	@Autowired
 	public void setMessageSource(MessageSource messageSource) {
@@ -314,7 +314,7 @@ public class TerminiService {
 	}
 
 	private Expedient getExpedientForProcessInstanceId(String processInstanceId) {
-		JbpmProcessInstance pi = jbpmDao.getRootProcessInstance(processInstanceId);
+		WProcessInstance pi = workflowEngineApi.getRootProcessInstance(processInstanceId);
 		if (pi == null) {
 			return null;
 		}
@@ -324,20 +324,20 @@ public class TerminiService {
 	private void suspendTimers(TerminiIniciat terminiIniciat) {
 		long[] timerIds = terminiIniciat.getTimerIdsArray();
 		for (int i = 0; i < timerIds.length; i++)
-			jbpmDao.suspendTimer(
+			workflowEngineApi.suspendTimer(
 					timerIds[i],
 					new Date(Long.MAX_VALUE));
 	}
 	private void resumeTimers(TerminiIniciat terminiIniciat) {
 		long[] timerIds = terminiIniciat.getTimerIdsArray();
 		for (int i = 0; i < timerIds.length; i++)
-			jbpmDao.resumeTimer(
+			workflowEngineApi.resumeTimer(
 					timerIds[i],
 					terminiIniciat.getDataFi());
 	}
 
-	private Expedient getExpedientPerTask(JbpmTask task) {
-		JbpmProcessInstance rootProcessInstance = jbpmDao.getRootProcessInstance(task.getProcessInstanceId());
+	private Expedient getExpedientPerTask(WTaskInstance task) {
+		WProcessInstance rootProcessInstance = workflowEngineApi.getRootProcessInstance(task.getProcessInstanceId());
 		return expedientDao.findAmbProcessInstanceId(rootProcessInstance.getId());
 	}
 	private void crearAlertaAmbTerminiAssociat(

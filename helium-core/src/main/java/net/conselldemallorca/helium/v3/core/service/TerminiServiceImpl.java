@@ -21,7 +21,6 @@ import net.conselldemallorca.helium.core.helper.MessageHelper;
 import net.conselldemallorca.helium.core.helper.PaginacioHelper;
 import net.conselldemallorca.helium.core.helper.PermisosHelper;
 import net.conselldemallorca.helium.core.model.hibernate.Termini;
-import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TerminiDto;
@@ -120,8 +119,6 @@ public class TerminiServiceImpl implements TerminiService {
 	private DocumentHelperV3 documentHelper;
 	@Resource
 	private MessageHelper messageHelper;
-	@Resource
-	private JbpmHelper jbpmHelper;
 
 	@Override
 	@Transactional(readOnly = true)

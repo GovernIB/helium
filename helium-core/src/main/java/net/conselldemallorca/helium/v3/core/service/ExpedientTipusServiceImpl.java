@@ -63,7 +63,6 @@ import net.conselldemallorca.helium.core.model.hibernate.Termini;
 import net.conselldemallorca.helium.core.model.hibernate.Validacio;
 import net.conselldemallorca.helium.core.security.ExtendedPermission;
 import net.conselldemallorca.helium.core.util.ExpedientCamps;
-import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
 import net.conselldemallorca.helium.v3.core.api.dto.CampTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ConsultaCampDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ConsultaCampDto.TipusConsultaCamp;
@@ -200,8 +199,6 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 	private DocumentHelperV3 documentHelper;
 	@Resource
 	private MessageHelper messageHelper;
-	@Resource
-	private JbpmHelper jbpmHelper;
 	@Resource
 	private DominiHelper dominiHelper;
 	@Resource

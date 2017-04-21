@@ -33,6 +33,8 @@ import com.codahale.metrics.Counter;
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer;
 
+import net.conselldemallorca.helium.core.api.WTaskInstance;
+import net.conselldemallorca.helium.core.api.WorkflowEngineApi;
 import net.conselldemallorca.helium.core.extern.domini.DominiHelium;
 import net.conselldemallorca.helium.core.extern.domini.FilaResultat;
 import net.conselldemallorca.helium.core.extern.domini.ParellaCodiValor;
@@ -52,8 +54,6 @@ import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.hibernate.Permis;
 import net.conselldemallorca.helium.core.model.hibernate.Usuari;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
-import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
-import net.conselldemallorca.helium.jbpm3.integracio.JbpmTask;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDadaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.IntegracioAccioTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.IntegracioParametreDto;
@@ -99,7 +99,7 @@ public class DominiHelper {
 	@Resource
 	private VariableHelper variableHelper;
 	@Resource
-	private JbpmHelper jbpmHelper;
+	private WorkflowEngineApi workflowEngineApi;
 	@Resource
 	private EntornRepository entornRepository;
 	@Resource
@@ -742,7 +742,7 @@ public class DominiHelper {
 		Camp camp = null;
 		List<String[]> registresText = new ArrayList<String[]>();
 		if (taskInstanceId != null) {
-			JbpmTask task = jbpmHelper.getTaskById(taskInstanceId);
+			WTaskInstance task = workflowEngineApi.getTaskById(taskInstanceId);
 			TascaDadaDto dada = variableHelper.findDadaPerInstanciaTasca(task, variable); 
 			
 			camp = campRepository.findOne(dada.getCampId());

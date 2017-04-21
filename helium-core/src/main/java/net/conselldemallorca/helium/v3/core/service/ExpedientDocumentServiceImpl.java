@@ -18,10 +18,12 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import net.conselldemallorca.helium.core.api.WTaskInstance;
+import net.conselldemallorca.helium.core.api.WorkflowRetroaccioApi;
+import net.conselldemallorca.helium.core.api.WorkflowRetroaccioApi.ExpedientRetroaccioTipus;
 import net.conselldemallorca.helium.core.helper.ConversioTipusHelper;
 import net.conselldemallorca.helium.core.helper.DocumentHelperV3;
 import net.conselldemallorca.helium.core.helper.ExpedientHelper;
-import net.conselldemallorca.helium.core.helper.ExpedientLoggerHelper;
 import net.conselldemallorca.helium.core.helper.ExpedientRegistreHelper;
 import net.conselldemallorca.helium.core.helper.IndexHelper;
 import net.conselldemallorca.helium.core.helper.PluginHelper;
@@ -30,14 +32,11 @@ import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
 import net.conselldemallorca.helium.core.model.hibernate.Document;
 import net.conselldemallorca.helium.core.model.hibernate.DocumentStore;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
-import net.conselldemallorca.helium.core.model.hibernate.ExpedientLog.ExpedientLogAccioTipus;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.hibernate.Portasignatures;
 import net.conselldemallorca.helium.core.model.hibernate.Portasignatures.TipusEstat;
 import net.conselldemallorca.helium.core.model.hibernate.Portasignatures.Transicio;
 import net.conselldemallorca.helium.core.security.ExtendedPermission;
-import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
-import net.conselldemallorca.helium.jbpm3.integracio.JbpmTask;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDocumentDto;
@@ -73,6 +72,9 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 	private DocumentStoreRepository documentStoreRepository;
 
 	@Resource
+	WorkflowRetroaccioApi workflowRetroaccioApi;
+	
+	@Resource
 	private PluginHelper pluginHelper;
 	@Resource
 	private ExpedientHelper expedientHelper;
@@ -81,13 +83,9 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 	@Resource
 	private TascaHelper tascaHelper;
 	@Resource
-	private JbpmHelper jbpmHelper;
-	@Resource
 	private IndexHelper indexHelper;
 	@Resource
 	private ConversioTipusHelper conversioTipusHelper;
-	@Resource
-	private ExpedientLoggerHelper expedientLoggerHelper;
 	@Resource
 	private ExpedientRegistreHelper expedientRegistreHelper;
 
@@ -162,19 +160,19 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 			arxiuNom = documentStore.getArxiuNom();
 		}
 		if (document != null && document.isAdjunt()) {
-			expedientLoggerHelper.afegirLogExpedientPerProces(
+			workflowRetroaccioApi.afegirInformacioRetroaccioPerProces(
 					processInstanceId,
-					ExpedientLogAccioTipus.PROCES_DOCUMENT_ADJUNTAR,
+					ExpedientRetroaccioTipus.PROCES_DOCUMENT_ADJUNTAR,
 					codi);			
 		} else if (creat) {
-				expedientLoggerHelper.afegirLogExpedientPerProces(
+			workflowRetroaccioApi.afegirInformacioRetroaccioPerProces(
 						processInstanceId,
-						ExpedientLogAccioTipus.PROCES_DOCUMENT_AFEGIR,
+						ExpedientRetroaccioTipus.PROCES_DOCUMENT_AFEGIR,
 						codi);
 		} else {
-			expedientLoggerHelper.afegirLogExpedientPerProces(
+			workflowRetroaccioApi.afegirInformacioRetroaccioPerProces(
 					processInstanceId,
-					ExpedientLogAccioTipus.PROCES_DOCUMENT_MODIFICAR,
+					ExpedientRetroaccioTipus.PROCES_DOCUMENT_MODIFICAR,
 					codi);
 		}
 		if (documentStoreId != null && adjunt) {
@@ -535,7 +533,7 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 		logger.debug("Generant document de la tasca amb plantilla (" +
 				"taskInstanceId=" + taskInstanceId + ", " +
 				"documentCodi=" + documentCodi + ")");
-		JbpmTask task = tascaHelper.getTascaComprovacionsTramitacio(
+		WTaskInstance task = tascaHelper.getTascaComprovacionsTramitacio(
 				taskInstanceId,
 				true,
 				true);
@@ -588,7 +586,7 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 				"tascaId=" + tascaId + ", " +
 				"documentId=" + documentId + ", " +
 				"arxiuNom=" + arxiuNom + ")");
-		JbpmTask task = tascaHelper.getTascaComprovacionsTramitacio(
+		WTaskInstance task = tascaHelper.getTascaComprovacionsTramitacio(
 				tascaId,
 				true,
 				true);
@@ -685,10 +683,9 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 				new Permission[] {
 						ExtendedPermission.DOC_MANAGE,
 						ExtendedPermission.ADMINISTRATION});
-		
-		expedientLoggerHelper.afegirLogExpedientPerProces(
+		workflowRetroaccioApi.afegirInformacioRetroaccioPerProces(
 				processInstanceId,
-				ExpedientLogAccioTipus.PROCES_DOCUMENT_AFEGIR,
+				ExpedientRetroaccioTipus.PROCES_DOCUMENT_AFEGIR,
 				documentCodi);
 		
 //		JbpmProcessDefinition jpd = jbpmHelper.findProcessDefinitionWithProcessInstanceId(processInstanceId);

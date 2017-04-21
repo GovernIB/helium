@@ -1,4 +1,4 @@
-package net.conselldemallorca.helium.jbpm3.integracio;
+package net.conselldemallorca.helium.core.api;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,17 +9,17 @@ import java.util.List;
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
-public class ResultatConsultaPaginadaJbpm<T> {
+public class ResultatConsultaPaginada<T> {
 
 	private int count;
 	private List<T> llista;
 
-	public ResultatConsultaPaginadaJbpm(int count) {
+	public ResultatConsultaPaginada(int count) {
 		super();
 		this.count = count;
 		this.llista = new ArrayList<T>();
 	}
-	public ResultatConsultaPaginadaJbpm(int count, List<T> llista) {
+	public ResultatConsultaPaginada(int count, List<T> llista) {
 		super();
 		this.count = count;
 		this.llista = llista;

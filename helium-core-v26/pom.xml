@@ -295,6 +295,11 @@
 			<artifactId>helium-core-common</artifactId>
 			<version>${helium.version}</version>
 		</dependency>
+		<dependency>
+			<groupId>net.conselldemallorca</groupId>
+			<artifactId>helium-jbpm3</artifactId>
+			<version>${helium.version}</version>
+		</dependency>
 	</dependencies>
 	<repositories>
 		<repository>

@@ -6,8 +6,8 @@ package net.conselldemallorca.helium.jbpm3.handlers;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import net.conselldemallorca.helium.core.extern.domini.DominiCodiDescripcio;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.DocumentInfo;
-import net.conselldemallorca.helium.jbpm3.integracio.DominiCodiDescripcio;
 import net.conselldemallorca.helium.jbpm3.integracio.Jbpm3HeliumBridge;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;

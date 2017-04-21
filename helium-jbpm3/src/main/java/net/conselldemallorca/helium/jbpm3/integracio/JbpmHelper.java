@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
 import org.jbpm.JbpmException;
@@ -37,6 +38,7 @@ import org.jbpm.graph.def.ProcessDefinition;
 import org.jbpm.graph.def.Transition;
 import org.jbpm.graph.exe.ProcessInstance;
 import org.jbpm.graph.exe.ProcessInstanceExpedient;
+import org.jbpm.graph.exe.ProcessInstanceExpedientTipus;
 import org.jbpm.graph.exe.Token;
 import org.jbpm.job.Timer;
 import org.jbpm.logging.log.ProcessLog;
@@ -45,6 +47,16 @@ import org.jbpm.taskmgmt.exe.TaskInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import net.conselldemallorca.helium.core.api.DelegationInfo;
+import net.conselldemallorca.helium.core.api.LlistatIds;
+import net.conselldemallorca.helium.core.api.ResultatCompleteTask;
+import net.conselldemallorca.helium.core.api.ResultatConsultaPaginada;
+import net.conselldemallorca.helium.core.api.WDeployment;
+import net.conselldemallorca.helium.core.api.WProcessDefinition;
+import net.conselldemallorca.helium.core.api.WProcessInstance;
+import net.conselldemallorca.helium.core.api.WTaskInstance;
+import net.conselldemallorca.helium.core.api.WToken;
+import net.conselldemallorca.helium.core.api.WorkflowEngineApi;
 import net.conselldemallorca.helium.jbpm3.command.AddProcessInstanceMessageLogCommand;
 import net.conselldemallorca.helium.jbpm3.command.AddTaskInstanceMessageLogCommand;
 import net.conselldemallorca.helium.jbpm3.command.AddToAutoSaveCommand;
@@ -110,9 +122,16 @@ import net.conselldemallorca.helium.jbpm3.command.TakeTaskInstanceCommand;
 import net.conselldemallorca.helium.jbpm3.command.TokenActivarCommand;
 import net.conselldemallorca.helium.jbpm3.command.TokenRedirectCommand;
 import net.conselldemallorca.helium.jbpm3.command.UpdateHandlersCommand;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto.OrdreDireccioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto.OrdreDto;
+import net.conselldemallorca.helium.v3.core.api.exception.ExecucioHandlerException;
+import org.jbpm.jpdl.el.ELException;
+import org.jbpm.jpdl.el.ExpressionEvaluator;
+import org.jbpm.jpdl.el.VariableResolver;
+import org.jbpm.jpdl.el.impl.ExpressionEvaluatorImpl;
 
 /**
  * Dao per a l'accés a la funcionalitat de jBPM3
@@ -120,56 +139,122 @@ import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto.OrdreDto;
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Component
-public class JbpmHelper {
+public class JbpmHelper implements WorkflowEngineApi {
 
 	private CommandService commandService;
 
-	public enum MostrarTasquesDto {
-		MOSTRAR_TASQUES_TOTS,
-		MOSTRAR_TASQUES_NOMES_GROUPS,
-		MOSTRAR_TASQUES_NOMES_PERSONALS
+	@Override
+	public WDeployment desplegar(
+			String nomArxiu,
+			byte[] contingut) {
+		//adminService.mesuraIniciar("jBPM desplegar", "jbpmDao");
+		JbpmProcessDefinition resposta = null;
+		DeployProcessCommand command;
+		if (nomArxiu.endsWith(".xml")) {
+			try {
+				command = new DeployProcessCommand(new String(contingut));
+				ByteArrayOutputStream baos = new ByteArrayOutputStream();
+				ZipOutputStream zos = new ZipOutputStream(baos);
+				byte[] data = new byte[1024];
+				InputStream is = new ByteArrayInputStream(contingut);
+				zos.putNextEntry(new ZipEntry("processdefinition.xml"));
+				int count;
+				while ((count = is.read(data, 0, 1024)) != -1)
+					zos.write(data, 0, count);
+		        zos.closeEntry();
+				zos.close();
+				command = new DeployProcessCommand(baos.toByteArray());
+			} catch (Exception ex) {
+				//adminService.mesuraCalcular("jBPM desplegar", "jbpmDao");
+				throw new RuntimeException("No s'ha pogut deplegar l'arxiu", ex);
+			}
+		} else if (nomArxiu.endsWith("ar")) {
+			command = new DeployProcessCommand(contingut);
+		} else {
+			//adminService.mesuraCalcular("jBPM desplegar", "jbpmDao");
+			throw new RuntimeException("Arxiu amb extensió no suportada " + nomArxiu + ". Només es suporten les extensions .xml i .*ar");
+		}
+		ProcessDefinition processDefinition = (ProcessDefinition)commandService.execute(command);
+		resposta = new JbpmProcessDefinition(processDefinition);
+		//adminService.mesuraCalcular("jBPM desplegar", "jbpmDao");
+		return resposta;
+	}
+	
+	@Override
+	public WDeployment getDesplegament(String processDefinitionId) {
+		return (WDeployment)getProcessDefinition(null, processDefinitionId);
+	}
+	
+	@Override
+	public void esborrarDesplegament(String jbpmId) {
+		//adminService.mesuraIniciar("jBPM esborrarDesplegament", "jbpmDao");
+		DeleteProcessDefinitionCommand command = new DeleteProcessDefinitionCommand();
+		command.setId(Long.parseLong(jbpmId));
+		commandService.execute(command);
+		//adminService.mesuraCalcular("jBPM esborrarDesplegament", "jbpmDao");
 	}
 
-	public ResultatConsultaPaginadaJbpm<JbpmTask> tascaFindByFiltrePaginat(
-			Long entornId,
-			String actorId,
-			String taskName,
-			String titol,
-			Long expedientId,
-			String expedientTitol,
-			String expedientNumero,
-			Long expedientTipusId,
-			Date dataCreacioInici,
-			Date dataCreacioFi,
-			Integer prioritat,
-			Date dataLimitInici,
-			Date dataLimitFi,
-			boolean mostrarAssignadesUsuari,
-			boolean mostrarAssignadesGrup,
-			boolean nomesPendents,
-			PaginacioParamsDto paginacioParams) {
-		return tascaFindByFiltrePaginat(
-				entornId,
-				actorId,
-				taskName,
-				titol,
-				expedientId,
-				expedientTitol,
-				expedientNumero,
-				expedientTipusId,
-				dataCreacioInici,
-				dataCreacioFi,
-				prioritat,
-				dataLimitInici,
-				dataLimitFi,
-				mostrarAssignadesUsuari,
-				mostrarAssignadesGrup,
-				nomesPendents,
-				paginacioParams,
-				false);
-	}
 	@SuppressWarnings("unchecked")
-	public ResultatConsultaPaginadaJbpm<JbpmTask> tascaFindByFiltrePaginat(
+	@Override
+	public Set<String> getResourceNames(String jbpmId) {
+		//adminService.mesuraIniciar("jBPM getResourceNames", "jbpmDao");
+		Set<String> resources = null;
+		final long pdid = Long.parseLong(jbpmId);
+		GetProcessDefinitionByIdCommand command = new GetProcessDefinitionByIdCommand(pdid);
+		ProcessDefinition processDefinition = (ProcessDefinition)commandService.execute(command);
+		if (processDefinition != null) {
+			FileDefinition fd = processDefinition.getFileDefinition();
+			if (fd != null)
+				resources = fd.getBytesMap().keySet();
+			else
+				resources = new HashSet<String>();
+		} else {
+			resources = new HashSet<String>();
+		}
+		//adminService.mesuraCalcular("jBPM getResourceNames", "jbpmDao");
+		return resources;
+	}
+
+	@Override
+	public byte[] getResourceBytes(String jbpmId, String resourceName) {
+		//adminService.mesuraIniciar("jBPM getResourceBytes", "jbpmDao");
+		final long pdid = Long.parseLong(jbpmId);
+		GetProcessDefinitionByIdCommand command = new GetProcessDefinitionByIdCommand(pdid);
+		ProcessDefinition processDefinition = (ProcessDefinition)commandService.execute(command);
+		byte[] bytes = processDefinition.getFileDefinition().getBytes(resourceName);
+		//adminService.mesuraCalcular("jBPM getResourceBytes", "jbpmDao");
+		return bytes;
+	}
+	
+	/** Actualitza els recursos .class de la definició de procés indicada amb els recursos
+	 * continguts en el jbpmProcessDefinition.
+	 * @param jbpmId Identifica la definició de procés a actualtizar.
+	 * @param jbpmProcessDefinition Conté la informació amb què actualitzar els handlers.
+	 */
+	@Override
+	public void updateDeploymentActions (
+			Long jbpmId, 
+			Map<String, byte[]> handlers) {
+		// Omple que command que substitueix els handlers existents
+		UpdateHandlersCommand command = new UpdateHandlersCommand(
+				jbpmId,
+				handlers);
+		commandService.execute(command);
+	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	@SuppressWarnings("unchecked")
+	@Override
+	public ResultatConsultaPaginada<WTaskInstance> tascaFindByFiltrePaginat(
 			Long entornId,
 			String actorId,
 			String taskName,
@@ -227,11 +312,12 @@ public class JbpmHelper {
 				ordre,
 				asc,
 				nomesCount);
-		return (ResultatConsultaPaginadaJbpm<JbpmTask>)commandService.execute(command);
+		return (ResultatConsultaPaginada<WTaskInstance>)commandService.execute(command);
 	}
 
 	@SuppressWarnings("unchecked")
-	public ResultatConsultaPaginadaJbpm<Long> expedientFindByFiltre(
+	@Override
+	public ResultatConsultaPaginada<Long> expedientFindByFiltre(
 			Long entornId,
 			String actorId,
 			Collection<Long> tipusIdPermesos,
@@ -299,10 +385,27 @@ public class JbpmHelper {
 				ordre,
 				asc,
 				nomesCount);
-		return (ResultatConsultaPaginadaJbpm<Long>)commandService.execute(command);
+		return (ResultatConsultaPaginada<Long>)commandService.execute(command);
 	}
 
-	public ProcessInstanceExpedient expedientFindByProcessInstanceId(
+	@Override
+	public ExpedientDto expedientFindByProcessInstanceId(
+			String processInstanceId) {
+		GetProcessInstanceCommand command = new GetProcessInstanceCommand(
+				Long.parseLong(processInstanceId));
+		ProcessInstance processInstance = (ProcessInstance)commandService.execute(command);
+		ProcessInstanceExpedient pie = processInstance.getExpedient();
+		
+		ExpedientDto expedient =  null;
+		if (pie != null) {
+				expedient = processInstanceExpedientToDto(pie);
+				expedient.setTipus(processInstanceExpedientTipusToDto(pie.getTipus()));
+		}
+
+		return expedient;
+	}
+
+	public ProcessInstanceExpedient processInstanceExpedientFindByProcessInstanceId(
 			String processInstanceId) {
 		GetProcessInstanceCommand command = new GetProcessInstanceCommand(
 				Long.parseLong(processInstanceId));
@@ -310,49 +413,11 @@ public class JbpmHelper {
 		return processInstance.getExpedient();
 	}
 
-
-
-	public JbpmProcessDefinition desplegar(
-			String nomArxiu,
-			byte[] contingut) {
-		//adminService.mesuraIniciar("jBPM desplegar", "jbpmDao");
-		JbpmProcessDefinition resposta = null;
-		DeployProcessCommand command;
-		if (nomArxiu.endsWith(".xml")) {
-			try {
-				command = new DeployProcessCommand(new String(contingut));
-				ByteArrayOutputStream baos = new ByteArrayOutputStream();
-				ZipOutputStream zos = new ZipOutputStream(baos);
-				byte[] data = new byte[1024];
-				InputStream is = new ByteArrayInputStream(contingut);
-				zos.putNextEntry(new ZipEntry("processdefinition.xml"));
-				int count;
-				while ((count = is.read(data, 0, 1024)) != -1)
-					zos.write(data, 0, count);
-		        zos.closeEntry();
-				zos.close();
-				command = new DeployProcessCommand(baos.toByteArray());
-			} catch (Exception ex) {
-				//adminService.mesuraCalcular("jBPM desplegar", "jbpmDao");
-				throw new RuntimeException("No s'ha pogut deplegar l'arxiu", ex);
-			}
-		} else if (nomArxiu.endsWith("ar")) {
-			command = new DeployProcessCommand(contingut);
-		} else {
-			//adminService.mesuraCalcular("jBPM desplegar", "jbpmDao");
-			throw new RuntimeException("Arxiu amb extensió no suportada " + nomArxiu + ". Només es suporten les extensions .xml i .*ar");
-		}
-		ProcessDefinition processDefinition = (ProcessDefinition)commandService.execute(command);
-		resposta = new JbpmProcessDefinition(processDefinition);
-		//adminService.mesuraCalcular("jBPM desplegar", "jbpmDao");
-		return resposta;
-	}
-
-	
-	public JbpmProcessDefinition getProcessDefinition(String jbpmId) {
+	@Override
+	public WProcessDefinition getProcessDefinition(String deploymentId, String processDefinitionId) {
 		//adminService.mesuraIniciar("jBPM getProcessDefinition", "jbpmDao");
 		JbpmProcessDefinition resposta = null;
-		final long pdid = Long.parseLong(jbpmId);
+		final long pdid = Long.parseLong(processDefinitionId);
 		GetProcessDefinitionByIdCommand command = new GetProcessDefinitionByIdCommand(pdid);
 		ProcessDefinition processDefinition = (ProcessDefinition)commandService.execute(command);
 		if (processDefinition != null)
@@ -361,12 +426,12 @@ public class JbpmHelper {
 		return resposta;
 	}
 
-	
 	@SuppressWarnings("unchecked")
-	public List<JbpmProcessDefinition> getSubProcessDefinitions(String jbpmId) {
+	@Override
+	public List<WProcessDefinition> getSubProcessDefinitions(String deploymentId, String processDefinitionId) {
 		//adminService.mesuraIniciar("jBPM getSubProcessDefinitions", "jbpmDao");
-		List<JbpmProcessDefinition> resposta = new ArrayList<JbpmProcessDefinition>();
-		final long pdid = Long.parseLong(jbpmId);
+		List<WProcessDefinition> resposta = new ArrayList<WProcessDefinition>();
+		final long pdid = Long.parseLong(processDefinitionId);
 		GetSubProcessDefinitionsCommand command = new GetSubProcessDefinitionsCommand(pdid);
 		for (ProcessDefinition pd: (List<ProcessDefinition>)commandService.execute(command)) {
 			resposta.add(new JbpmProcessDefinition(pd));
@@ -375,7 +440,7 @@ public class JbpmHelper {
 		return resposta;
 	}
 
-	
+	@Override
 	public JbpmProcessInstance getProcessInstance(String processInstanceId) {
 		//adminService.mesuraIniciar("jBPM getProcessInstance", "jbpmDao");
 		JbpmProcessInstance resposta = null;
@@ -386,7 +451,7 @@ public class JbpmHelper {
 		return resposta;
 	}
 
-	
+	@Override
 	public String getStartTaskName(String jbpmId) {
 		//adminService.mesuraIniciar("jBPM getStartTaskName", "jbpmDao");
 		String resposta = null;
@@ -402,12 +467,13 @@ public class JbpmHelper {
 		return resposta;
 	}
 
-	
 	@SuppressWarnings("unchecked")
-	public List<String> getTaskNamesFromDeployedProcessDefinition(JbpmProcessDefinition dpd) {
+	@Override
+	public List<String> getTaskNamesFromDeployedProcessDefinition(WDeployment dpd, String processDefinitionId) {
 		//adminService.mesuraIniciar("jBPM getTaskNamesFromDeployedProcessDefinition", "jbpmDao");
 		List<String> taskNames = new ArrayList<String>();
-		ProcessDefinition pd = dpd.getProcessDefinition();
+		// En el JBPM3 un desplegament únicament pot contenir una definició de procés
+		ProcessDefinition pd = (ProcessDefinition)dpd.getProcessDefinitions().get(0);
 		Map<String,Object> tasks = pd.getTaskMgmtDefinition().getTasks();
 		if (tasks != null) {
 			taskNames.addAll(tasks.keySet());
@@ -418,52 +484,12 @@ public class JbpmHelper {
 		if (startTask != null && !taskNames.contains(startTask.getName())) {
 			taskNames.add(startTask.getName());
 		}
+		
 		//adminService.mesuraCalcular("jBPM getTaskNamesFromDeployedProcessDefinition", "jbpmDao");
 		return taskNames;
 	}
 
-	
-	public void esborrarDesplegament(String jbpmId) {
-		//adminService.mesuraIniciar("jBPM esborrarDesplegament", "jbpmDao");
-		DeleteProcessDefinitionCommand command = new DeleteProcessDefinitionCommand();
-		command.setId(Long.parseLong(jbpmId));
-		commandService.execute(command);
-		//adminService.mesuraCalcular("jBPM esborrarDesplegament", "jbpmDao");
-	}
-
-	
-	@SuppressWarnings("unchecked")
-	public Set<String> getResourceNames(String jbpmId) {
-		//adminService.mesuraIniciar("jBPM getResourceNames", "jbpmDao");
-		Set<String> resources = null;
-		final long pdid = Long.parseLong(jbpmId);
-		GetProcessDefinitionByIdCommand command = new GetProcessDefinitionByIdCommand(pdid);
-		ProcessDefinition processDefinition = (ProcessDefinition)commandService.execute(command);
-		if (processDefinition != null) {
-			FileDefinition fd = processDefinition.getFileDefinition();
-			if (fd != null)
-				resources = fd.getBytesMap().keySet();
-			else
-				resources = new HashSet<String>();
-		} else {
-			resources = new HashSet<String>();
-		}
-		//adminService.mesuraCalcular("jBPM getResourceNames", "jbpmDao");
-		return resources;
-	}
-
-	
-	public byte[] getResourceBytes(String jbpmId, String resourceName) {
-		//adminService.mesuraIniciar("jBPM getResourceBytes", "jbpmDao");
-		final long pdid = Long.parseLong(jbpmId);
-		GetProcessDefinitionByIdCommand command = new GetProcessDefinitionByIdCommand(pdid);
-		ProcessDefinition processDefinition = (ProcessDefinition)commandService.execute(command);
-		byte[] bytes = processDefinition.getFileDefinition().getBytes(resourceName);
-		//adminService.mesuraCalcular("jBPM getResourceBytes", "jbpmDao");
-		return bytes;
-	}
-
-	
+	@Override
 	public JbpmProcessInstance startProcessInstanceById(
 			String actorId,
 			String processDefinitionId,
@@ -481,7 +507,7 @@ public class JbpmHelper {
 		return resultat;
 	}
 	
-	
+	@Override
 	public void signalProcessInstance(
 			String processInstanceId,
 			String transitionName) {
@@ -497,8 +523,8 @@ public class JbpmHelper {
 		//adminService.mesuraCalcular("jBPM signalProcessInstance", "jbpmDao");
 	}
 	
-	
-	public JbpmProcessInstance getRootProcessInstance(
+	@Override
+	public WProcessInstance getRootProcessInstance(
 			String processInstanceId) {
 		GetProcessInstanceCommand command = new GetProcessInstanceCommand(
 				Long.parseLong(processInstanceId));
@@ -527,12 +553,12 @@ public class JbpmHelper {
 		}
 	}
 	
-	
 	@SuppressWarnings("unchecked")
-	public List<JbpmProcessInstance> getProcessInstanceTree(
+	@Override
+	public List<WProcessInstance> getProcessInstanceTree(
 			String rootProcessInstanceId) {
 		//adminService.mesuraIniciar("jBPM getProcessInstanceTree", "jbpmDao");
-		List<JbpmProcessInstance> resposta = new ArrayList<JbpmProcessInstance>();
+		List<WProcessInstance> resposta = new ArrayList<WProcessInstance>();
 		final long id = Long.parseLong(rootProcessInstanceId);
 		GetProcessInstancesTreeCommand command = new GetProcessInstancesTreeCommand(id);
 		for (ProcessInstance pd: (List<ProcessInstance>)commandService.execute(command)) {
@@ -542,6 +568,7 @@ public class JbpmHelper {
 		return resposta;
 	}
 	
+	@Override
 	public void deleteProcessInstance(
 			String processInstanceId) {
 		//adminService.mesuraIniciar("jBPM deleteProcessInstance", "jbpmDao");
@@ -556,7 +583,6 @@ public class JbpmHelper {
 		commandService.execute(autoSaveCommand);*/
 	}
 
-	
 	public void suspendProcessInstance(
 			String processInstanceId) {
 		//adminService.mesuraIniciar("jBPM suspendProcessInstance", "jbpmDao");
@@ -564,7 +590,7 @@ public class JbpmHelper {
 		//adminService.mesuraCalcular("jBPM suspendProcessInstance", "jbpmDao");
 	}
 	
-	
+	@Override
 	public void suspendProcessInstances(
 			String[] processInstanceIds) {
 		//adminService.mesuraIniciar("jBPM suspendProcessInstances", "jbpmDao");
@@ -579,7 +605,6 @@ public class JbpmHelper {
 		//adminService.mesuraCalcular("jBPM suspendProcessInstances", "jbpmDao");
 	}
 	
-	
 	public void resumeProcessInstance(
 			String processInstanceId) {
 		//adminService.mesuraIniciar("jBPM resumeProcessInstance", "jbpmDao");
@@ -587,7 +612,7 @@ public class JbpmHelper {
 		//adminService.mesuraCalcular("jBPM resumeProcessInstance", "jbpmDao");
 	}
 	
-	
+	@Override
 	public void resumeProcessInstances(
 			String[] processInstanceIds) {
 		//adminService.mesuraIniciar("jBPM resumeProcessInstances", "jbpmDao");
@@ -602,7 +627,6 @@ public class JbpmHelper {
 		//adminService.mesuraCalcular("jBPM resumeProcessInstances", "jbpmDao");
 	}
 	
-	
 	public void describeProcessInstance(
 			String processInstanceId,
 			String description) {
@@ -616,6 +640,7 @@ public class JbpmHelper {
 		//adminService.mesuraCalcular("jBPM describeProcessInstance", "jbpmDao");
 	}
 	
+	@Override
 	//Marcar tasca pendent de finalitzar en segón pla
 	public void marcarFinalitzar(String taskId, Date marcadaFinalitzar, String outcome, String rols) {
 		final long id = Long.parseLong(taskId);
@@ -623,6 +648,7 @@ public class JbpmHelper {
 		commandService.execute(command);
 	}
 
+	@Override
 	//Marcar tasca marcada en segon pla com "en execució"
 	public void marcarIniciFinalitzacioSegonPla(String taskId, Date iniciFinalitzacio) {
 		final long id = Long.parseLong(taskId);
@@ -630,6 +656,7 @@ public class JbpmHelper {
 		commandService.execute(command);
 	}
 	
+	@Override
 	//Guardar l'error de finalitzacio a BBDD
 	public void guardarErrorFinalitzacio(String taskId, String errorFinalitzacio) {
 		final long id = Long.parseLong(taskId);
@@ -642,10 +669,11 @@ public class JbpmHelper {
 		commandService.execute(command);
 	}
 	
+	@Override
 	@SuppressWarnings("unchecked")
-	public List<JbpmProcessInstance> findProcessInstancesWithProcessDefinitionId(String processDefinitionId) {
+	public List<WProcessInstance> findProcessInstancesWithProcessDefinitionId(String processDefinitionId) {
 		//adminService.mesuraIniciar("jBPM findProcessInstancesWithProcessDefinitionId", "jbpmDao");
-		List<JbpmProcessInstance> resultat = new ArrayList<JbpmProcessInstance>();
+		List<WProcessInstance> resultat = new ArrayList<WProcessInstance>();
 		final long id = Long.parseLong(processDefinitionId);
 		GetProcessInstancesCommand command = new GetProcessInstancesCommand();
 		command.setProcessInstanceId(id); // Això està bé, el command agafa setProcessInstanceId com si fos setProcessDefinitionId
@@ -656,11 +684,11 @@ public class JbpmHelper {
 		return resultat;
 	}
 
-	
+	@Override
 	@SuppressWarnings("unchecked")
-	public List<JbpmProcessInstance> findProcessInstancesWithProcessDefinitionName(String processName) {
+	public List<WProcessInstance> findProcessInstancesWithProcessDefinitionName(String processName) {
 		//adminService.mesuraIniciar("jBPM findProcessInstancesWithProcessDefinitionName", "jbpmDao");
-		List<JbpmProcessInstance> resultat = new ArrayList<JbpmProcessInstance>();
+		List<WProcessInstance> resultat = new ArrayList<WProcessInstance>();
 		GetProcessInstancesCommand command = new GetProcessInstancesCommand();
 		command.setProcessDefinitionName(processName);
 		for (ProcessInstance pd: (List<ProcessInstance>)commandService.execute(command)) {
@@ -670,10 +698,11 @@ public class JbpmHelper {
 		return resultat;
 	}
 	
+	@Override
 	@SuppressWarnings("unchecked")
-	public List<JbpmProcessInstance> findProcessInstancesWithProcessDefinitionNameAndEntorn(String processName, Long entornId) {
+	public List<WProcessInstance> findProcessInstancesWithProcessDefinitionNameAndEntorn(String processName, Long entornId) {
 		//adminService.mesuraIniciar("jBPM findProcessInstancesWithProcessDefinitionNameAndEntorn", "jbpmDao");
-		List<JbpmProcessInstance> resultat = new ArrayList<JbpmProcessInstance>();
+		List<WProcessInstance> resultat = new ArrayList<WProcessInstance>();
 		GetProcessInstancesEntornCommand command = new GetProcessInstancesEntornCommand();
 		command.setProcessDefinitionName(processName);
 		command.setEntornId(entornId);
@@ -684,7 +713,7 @@ public class JbpmHelper {
 		return resultat;
 	}
 
-	
+	@Override
 	public JbpmProcessDefinition findProcessDefinitionWithProcessInstanceId(String processInstanceId) {
 		//adminService.mesuraIniciar("jBPM findProcessDefinitionWithProcessInstanceId", "jbpmDao");
 		JbpmProcessDefinition resultat = null;
@@ -704,10 +733,10 @@ public class JbpmHelper {
 		return (List<Object[]>)commandService.execute(command);
 	}
 
-	
-	public JbpmTask getTaskById(String taskId) {
+	@Override
+	public WTaskInstance getTaskById(String taskId) {
 		//adminService.mesuraIniciar("jBPM getTaskById", "jbpmDao");
-		JbpmTask resposta = null;
+		WTaskInstance resposta = null;
 		final long id = Long.parseLong(taskId);
 		GetTaskInstanceCommand command = new GetTaskInstanceCommand(id);
 		TaskInstance ti = (TaskInstance)commandService.execute(command);
@@ -717,7 +746,7 @@ public class JbpmHelper {
 		return resposta;
 	}
 
-	
+	@Override
 	public List<String> findStartTaskOutcomes(String jbpmId, String taskName) {
 		//adminService.mesuraIniciar("jBPM findStartTaskOutcomes", "jbpmDao");
 		List<String> resultat = new ArrayList<String>();
@@ -733,7 +762,7 @@ public class JbpmHelper {
 		return resultat;
 	}
 	
-	
+	@Override
 	public List<String> findTaskInstanceOutcomes(String taskInstanceId) {
 		//adminService.mesuraIniciar("jBPM findTaskInstanceOutcomes", "jbpmDao");
 		List<String> resultat = new ArrayList<String>();
@@ -749,7 +778,7 @@ public class JbpmHelper {
 		return resultat;
 	}
 	
-	
+	@Override
 	public void takeTaskInstance(String taskId, String actorId) {
 		//adminService.mesuraIniciar("jBPM takeTaskInstance", "jbpmDao");
 		final long id = Long.parseLong(taskId);
@@ -761,7 +790,7 @@ public class JbpmHelper {
 		//adminService.mesuraCalcular("jBPM takeTaskInstance", "jbpmDao");
 	}
 	
-	
+	@Override
 	public void releaseTaskInstance(String taskId) {
 		//adminService.mesuraIniciar("jBPM releaseTaskInstance", "jbpmDao");
 		final long id = Long.parseLong(taskId);
@@ -773,10 +802,36 @@ public class JbpmHelper {
 		//adminService.mesuraCalcular("jBPM releaseTaskInstance", "jbpmDao");
 	}
 	
+	// DELEGAR TASCA --------------------------------------------------------
+	@Override
+	public void delegateTaskInstance(
+			WTaskInstance task, 
+			String actorId,
+			String comentari,
+			boolean supervisada) {
+		
+		WTaskInstance delegada = cloneTaskInstance(
+				task.getId(),
+				actorId,
+				getTaskInstanceVariables(task.getId()));
+		
+		createDelegationInfo(
+				task,
+				task,
+				delegada,
+				comentari,
+				supervisada);
+		createDelegationInfo(
+				delegada,
+				task,
+				delegada,
+				comentari,
+				supervisada);
+	}
 	
-	public JbpmTask cloneTaskInstance(String taskId, String actorId, Map<String, Object> variables) {
+	private WTaskInstance cloneTaskInstance(String taskId, String actorId, Map<String, Object> variables) {
 		//adminService.mesuraIniciar("jBPM cloneTaskInstance", "jbpmDao");
-		JbpmTask resposta = null;
+		WTaskInstance resposta = null;
 		final long id = Long.parseLong(taskId);
 		CloneTaskInstanceCommand command = new CloneTaskInstanceCommand(
 				id,
@@ -787,11 +842,101 @@ public class JbpmHelper {
 		//adminService.mesuraCalcular("jBPM cloneTaskInstance", "jbpmDao");
 		return resposta;
 	}
+	private void createDelegationInfo(
+			WTaskInstance task,
+			WTaskInstance original,
+			WTaskInstance delegada,
+			String comentari,
+			boolean supervisada) {
+		DelegationInfo info = new DelegationInfo();
+		info.setSourceTaskId(original.getId());
+		info.setTargetTaskId(delegada.getId());
+		info.setStart(new Date());
+		info.setComment(comentari);
+		info.setSupervised(supervisada);
+		info.setUsuariDelegador(original.getActorId());
+		info.setUsuariDelegat(delegada.getActorId());
+		setTaskInstanceVariable(
+				task.getId(), 
+				VAR_TASCA_DELEGACIO,
+				info);
+	}
+	private void deleteDelegationInfo(WTaskInstance task) {
+		deleteTaskInstanceVariable(
+				task.getId(),
+				VAR_TASCA_DELEGACIO);
+	}
 	
+	@Override
+	public DelegationInfo getDelegationTaskInstanceInfo(
+			String taskId,
+			boolean includeActors) {
+		DelegationInfo delegationInfo = (DelegationInfo)getTaskInstanceVariable(
+				taskId,
+				VAR_TASCA_DELEGACIO);
+		
+		if (includeActors) {
+			if (delegationInfo.getUsuariDelegador() == null) {
+				delegationInfo.setUsuariDelegador(getTaskById(delegationInfo.getSourceTaskId()).getActorId());
+			}
+			if (delegationInfo.getUsuariDelegat() == null) {
+				delegationInfo.setUsuariDelegat(getTaskById(delegationInfo.getTargetTaskId()).getActorId());
+			}
+		}
+		return delegationInfo;
+	}
 	
-	public JbpmTask startTaskInstance(String taskId) {
+	@Override
+	public void cancelDelegationTaskInstance(WTaskInstance task) {
+		DelegationInfo delegationInfo = getDelegationTaskInstanceInfo(task.getId(), false);
+		if (delegationInfo == null || !task.getId().equals(delegationInfo.getSourceTaskId())) {
+			throw new IllegalStateException();
+		}
+		// Cancelar la tasca delegada
+		cancelTaskInstance(delegationInfo.getTargetTaskId());
+		// Esborram la delegació
+		deleteDelegationInfo(task);
+	}
+	
+	// Fi DELEGAR TASCA -----------------------------------------------------
+	
+	@Override
+	public ResultatCompleteTask completeTaskInstance(
+			WTaskInstance task,
+			String outcome) {
+		ResultatCompleteTask resposta = new ResultatCompleteTask();
+		resposta.setCompletat(false);
+		resposta.setSupervisat(false);
+		
+		startTaskInstance(task.getId());
+		endTaskInstance(task.getId(), outcome);
+		resposta.setCompletat(true);
+		// Accions per a una tasca delegada
+		DelegationInfo delegationInfo = getDelegationTaskInstanceInfo(task.getId(), false);
+		if (delegationInfo != null) {
+			if (!task.getId().equals(delegationInfo.getSourceTaskId())) {
+				// Copia les variables de la tasca delegada a la original
+				setTaskInstanceVariables(
+						delegationInfo.getSourceTaskId(),
+						getTaskInstanceVariables(task.getId()),
+						false);
+				WTaskInstance taskOriginal = getTaskById(delegationInfo.getSourceTaskId());
+				if (!delegationInfo.isSupervised()) {
+					// Si no es supervisada també finalitza la tasca original
+//					completar(entornId, taskOriginal.getId(), false, null, outcome);
+					resposta.setSupervisat(true);
+					resposta.setTascaDelegadaId(taskOriginal.getId());
+				}
+				deleteDelegationInfo(taskOriginal);
+			}
+		}
+		return resposta;
+	}
+	
+	@Override
+	public WTaskInstance startTaskInstance(String taskId) {
 		//adminService.mesuraIniciar("jBPM startTaskInstance", "jbpmDao");
-		JbpmTask resposta = null;
+		WTaskInstance resposta = null;
 		final long id = Long.parseLong(taskId);
 		StartTaskInstanceCommand command = new StartTaskInstanceCommand(id);
 		resposta = new JbpmTask((TaskInstance)executeCommandWithAutoSave(
@@ -802,10 +947,10 @@ public class JbpmHelper {
 		return resposta;
 	}
 	
-	
-	public JbpmTask cancelTaskInstance(String taskId) {
+	@Override
+	public WTaskInstance cancelTaskInstance(String taskId) {
 		//adminService.mesuraIniciar("jBPM cancelTaskInstance", "jbpmDao");
-		JbpmTask resposta = null;
+		WTaskInstance resposta = null;
 		final long id = Long.parseLong(taskId);
 		CancelTaskInstanceCommand command = new CancelTaskInstanceCommand(id);
 		resposta = new JbpmTask((TaskInstance)executeCommandWithAutoSave(
@@ -816,10 +961,10 @@ public class JbpmHelper {
 		return resposta;
 	}
 	
-	
-	public JbpmTask suspendTaskInstance(String taskId) {
+	@Override
+	public WTaskInstance suspendTaskInstance(String taskId) {
 		//adminService.mesuraIniciar("jBPM suspendTaskInstance", "jbpmDao");
-		JbpmTask resposta = null;
+		WTaskInstance resposta = null;
 		final long id = Long.parseLong(taskId);
 		SuspendTaskInstanceCommand command = new SuspendTaskInstanceCommand(id);
 		resposta = new JbpmTask((TaskInstance)executeCommandWithAutoSave(
@@ -830,10 +975,10 @@ public class JbpmHelper {
 		return resposta;
 	}
 	
-	
-	public JbpmTask resumeTaskInstance(String taskId) {
+	@Override
+	public WTaskInstance resumeTaskInstance(String taskId) {
 		//adminService.mesuraIniciar("jBPM resumeTaskInstance", "jbpmDao");
-		JbpmTask resposta = null;
+		WTaskInstance resposta = null;
 		final long id = Long.parseLong(taskId);
 		ResumeTaskInstanceCommand command = new ResumeTaskInstanceCommand(id);
 		resposta = new JbpmTask((TaskInstance)executeCommandWithAutoSave(
@@ -844,18 +989,17 @@ public class JbpmHelper {
 		return resposta;
 	}
 	
-	
-	public JbpmTask reassignTaskInstance(String taskId, String expression) {
+	public WTaskInstance reassignTaskInstance(String taskId, String expression) {
 		//adminService.mesuraIniciar("jBPM reassignTaskInstance", "jbpmDao");
-		JbpmTask resposta = reassignTaskInstance(taskId, expression, null);
+		WTaskInstance resposta = reassignTaskInstance(taskId, expression, null);
 		//adminService.mesuraCalcular("jBPM reassignTaskInstance", "jbpmDao");
 		return resposta;
 	}
 	
-	
-	public JbpmTask reassignTaskInstance(String taskId, String expression, Long entornId) {
+	@Override
+	public WTaskInstance reassignTaskInstance(String taskId, String expression, Long entornId) {
 		//adminService.mesuraIniciar("jBPM reassignTaskInstance entorn", "jbpmDao");
-		JbpmTask resposta = null;
+		WTaskInstance resposta = null;
 		final long id = Long.parseLong(taskId);
 		ReassignTaskInstanceCommand command = new ReassignTaskInstanceCommand(id);
 		command.setExpression(expression);
@@ -868,42 +1012,16 @@ public class JbpmHelper {
 		return resposta;
 	}
 	
-	
-	public void setTaskInstanceActorId(String taskInstanceId, String actorId) {
-		//adminService.mesuraIniciar("jBPM setTaskInstanceActorId", "jbpmDao");
-		final long id = Long.parseLong(taskInstanceId);
-		ReassignTaskInstanceCommand command = new ReassignTaskInstanceCommand(id);
-		command.setActorId(actorId);
-		executeCommandWithAutoSave(
-				command,
-				id,
-				AddToAutoSaveCommand.TIPUS_INSTANCIA_TASCA);
-		//adminService.mesuraCalcular("jBPM setTaskInstanceActorId", "jbpmDao");
-	}
-	
-	
-	public void setTaskInstancePooledActors(String taskInstanceId, String[] pooledActors) {
-		//adminService.mesuraIniciar("jBPM setTaskInstancePooledActors", "jbpmDao");
-		final long id = Long.parseLong(taskInstanceId);
-		ReassignTaskInstanceCommand command = new ReassignTaskInstanceCommand(id);
-		command.setPooledActors(pooledActors);
-		executeCommandWithAutoSave(
-				command,
-				id,
-				AddToAutoSaveCommand.TIPUS_INSTANCIA_TASCA);
-		//adminService.mesuraCalcular("jBPM setTaskInstancePooledActors", "jbpmDao");
-	}
-	
-	
-	public void setTaskInstanceVariable(String taskId, String codi, Object valor) {
+	@Override
+	public void setTaskInstanceVariable(String taskId, String varName, Object valor) {
 		//adminService.mesuraIniciar("jBPM setTaskInstanceVariable", "jbpmDao");
 		Map<String, Object> vars = new HashMap<String, Object>();
-		vars.put(codi, valor);
+		vars.put(varName, valor);
 		setTaskInstanceVariables(taskId, vars, false);
 		//adminService.mesuraCalcular("jBPM setTaskInstanceVariable", "jbpmDao");
 	}
 	
-	
+	@Override
 	public void setTaskInstanceVariables(
 			String taskId,
 			Map<String, Object> variables,
@@ -922,7 +1040,7 @@ public class JbpmHelper {
 		//adminService.mesuraCalcular("jBPM setTaskInstanceVariables", "jbpmDao");
 	}
 	
-	
+	@Override
 	public Object getTaskInstanceVariable(String taskId, String varName) {
 		//adminService.mesuraIniciar("jBPM getTaskInstanceVariable", "jbpmDao");
 		Object resultat = null;
@@ -947,7 +1065,7 @@ public class JbpmHelper {
 		return resultat;
 	}
 	
-	
+	@Override
 	public void deleteTaskInstanceVariable(String taskId, String varName) {
 		//adminService.mesuraIniciar("jBPM deleteTaskInstanceVariable", "jbpmDao");
 		//setTaskInstanceVariable(taskId, varName, null);
@@ -963,8 +1081,7 @@ public class JbpmHelper {
 		//adminService.mesuraCalcular("jBPM deleteTaskInstanceVariable", "jbpmDao");
 	}
 	
-	
-	public void endTaskInstance(String taskId, String outcome) {
+	private void endTaskInstance(String taskId, String outcome) {
 		//adminService.mesuraIniciar("jBPM endTaskInstance", "jbpmDao");
 		final long id = Long.parseLong(taskId);
 		TaskInstanceEndCommand command = new TaskInstanceEndCommand(id, outcome);
@@ -975,8 +1092,8 @@ public class JbpmHelper {
 		//adminService.mesuraCalcular("jBPM endTaskInstance", "jbpmDao");
 	}
 	
-	
-	public void describeTaskInstance(String taskId, String titol, String description) {
+	@Override
+	public void updateTaskInstanceInfoCache(String taskId, String titol, String description) {
 		//adminService.mesuraIniciar("jBPM describeTaskInstance", "jbpmDao");
 		final long id = Long.parseLong(taskId);
 		DescribeTaskInstanceCommand command = new DescribeTaskInstanceCommand(
@@ -990,10 +1107,10 @@ public class JbpmHelper {
 		//adminService.mesuraCalcular("jBPM describeTaskInstance", "jbpmDao");
 	}
 	
-	
-	public List<JbpmTask> findTaskInstancesForProcessInstance(String processInstanceId) {
+	@Override
+	public List<WTaskInstance> findTaskInstancesByProcessInstanceId(String processInstanceId) {
 		//adminService.mesuraIniciar("jBPM findTaskInstancesForProcessInstance", "jbpmDao");
-		List<JbpmTask> resultat = new ArrayList<JbpmTask>();
+		List<WTaskInstance> resultat = new ArrayList<WTaskInstance>();
 		final long id = Long.parseLong(processInstanceId);
 		GetProcessInstanceCommand command = new GetProcessInstanceCommand();
 		command.setProcessInstanceId(id);
@@ -1004,7 +1121,7 @@ public class JbpmHelper {
 		return resultat;
 	}
 	
-	
+	@Override
 	@SuppressWarnings("unchecked")
 	public Map<String, Object> getProcessInstanceVariables(String processInstanceId) {
 		//adminService.mesuraIniciar("jBPM getProcessInstanceVariables", "jbpmDao");
@@ -1018,7 +1135,7 @@ public class JbpmHelper {
 		return resultat;
 	}
 	
-	
+	@Override
 	public Object getProcessInstanceVariable(String processInstanceId, String varName) {
 		//adminService.mesuraIniciar("jBPM getProcessInstanceVariable", "jbpmDao");
 		Object resultat = null;
@@ -1031,7 +1148,7 @@ public class JbpmHelper {
 		return resultat;
 	}
 	
-	
+	@Override
 	public void setProcessInstanceVariable(
 			String processInstanceId,
 			String varName,
@@ -1048,7 +1165,7 @@ public class JbpmHelper {
 		//adminService.mesuraCalcular("jBPM setProcessInstanceVariable", "jbpmDao");
 	}
 	
-	
+	@Override
 	public void deleteProcessInstanceVariable(String processInstanceId, String varName) {
 		//adminService.mesuraIniciar("jBPM deleteProcessInstanceVariable", "jbpmDao");
 		//setProcessInstanceVariable(processInstanceId, varName, null);
@@ -1061,20 +1178,20 @@ public class JbpmHelper {
 		//adminService.mesuraCalcular("jBPM deleteProcessInstanceVariable", "jbpmDao");
 	}
 	
-	
-	public JbpmToken getTokenById(String tokenId) {
+	@Override
+	public WToken getTokenById(String tokenId) {
 		//adminService.mesuraIniciar("jBPM getTokenById", "jbpmDao");
 		final long id = Long.parseLong(tokenId);
 		GetTokenByIdCommand command = new GetTokenByIdCommand(id);
-		JbpmToken resultat = new JbpmToken((Token)commandService.execute(command));
+		WToken resultat = new JbpmToken((Token)commandService.execute(command));
 		//adminService.mesuraCalcular("jBPM getTokenById", "jbpmDao");
 		return resultat;
 	}
 	
-	
-	public Map<String, JbpmToken> getActiveTokens(String processInstanceId) {
+	@Override
+	public Map<String, WToken> getActiveTokens(String processInstanceId) {
 		//adminService.mesuraIniciar("jBPM getActiveTokens", "jbpmDao");
-		Map<String, JbpmToken> resposta = new HashMap<String, JbpmToken>();
+		Map<String, WToken> resposta = new HashMap<String, WToken>();
 		final long id = Long.parseLong(processInstanceId);
 		GetProcessInstanceCommand command = new GetProcessInstanceCommand(id);
 		ProcessInstance processInstance = (ProcessInstance)commandService.execute(command);
@@ -1105,9 +1222,10 @@ public class JbpmHelper {
 		return activeTokens;
 	}
 	
-	public Map<String, JbpmToken> getAllTokens(String processInstanceId) {
+	@Override
+	public Map<String, WToken> getAllTokens(String processInstanceId) {
 		//adminService.mesuraIniciar("jBPM getAllTokens", "jbpmDao");
-		Map<String, JbpmToken> resposta = new HashMap<String, JbpmToken>();
+		Map<String, WToken> resposta = new HashMap<String, WToken>();
 		final long id = Long.parseLong(processInstanceId);
 		GetProcessInstanceCommand command = new GetProcessInstanceCommand(id);
 		ProcessInstance processInstance = (ProcessInstance)commandService.execute(command);
@@ -1119,7 +1237,7 @@ public class JbpmHelper {
 		return resposta;
 	}
 	
-	private void getTokenAndChildren(Token root, Map<String,JbpmToken> resposta){
+	private void getTokenAndChildren(Token root, Map<String, WToken> resposta){
 		Map<String, Token> childTokens = root.getChildren();
 		for (String tokenName: childTokens.keySet()) {
 			JbpmToken child = new JbpmToken(childTokens.get(tokenName));
@@ -1145,7 +1263,7 @@ public class JbpmHelper {
 //	    }
 //	}
 	
-	
+	@Override
 	@SuppressWarnings("unchecked")
 	public List<String> findArrivingNodeNames(String tokenId) {
 		//adminService.mesuraIniciar("jBPM findArrivingNodeNames", "jbpmDao");
@@ -1156,7 +1274,7 @@ public class JbpmHelper {
 		return resultat;
 	}
 	
-	
+	@Override
 	public void tokenRedirect(
 			long tokenId,
 			String nodeName,
@@ -1175,7 +1293,7 @@ public class JbpmHelper {
 		//adminService.mesuraCalcular("jBPM tokenRedirect", "jbpmDao");
 	}
 
-
+	@Override
 	public boolean tokenActivar(long tokenId, boolean activar) {
 		//adminService.mesuraIniciar("jBPM tokenActivar", "jbpmDao");		
 		try {
@@ -1192,7 +1310,7 @@ public class JbpmHelper {
 		}
 	}
 
-	
+	@Override
 	@SuppressWarnings("unchecked")
 	public Map<String, Object> evaluateScript(
 			String processInstanceId,
@@ -1215,7 +1333,7 @@ public class JbpmHelper {
 		return resultat;
 	}
 	
-	
+	@Override
 	public Object evaluateExpression(
 			String taskInstanceInstanceId,
 			String processInstanceId,
@@ -1238,7 +1356,7 @@ public class JbpmHelper {
 		return resultat;
 	}
 	
-	
+	@Override
 	@SuppressWarnings("unchecked")
 	public List<String> listActions(String jbpmId) {
 		//adminService.mesuraIniciar("jBPM listActions", "jbpmDao");
@@ -1249,7 +1367,7 @@ public class JbpmHelper {
 		return llista;
 	}
 	
-	
+	@Override
 	public void executeActionInstanciaProces(
 			String processInstanceId,
 			String actionName) {
@@ -1265,7 +1383,7 @@ public class JbpmHelper {
 		//adminService.mesuraCalcular("jBPM executeActionInstanciaProces", "jbpmDao");
 	}
 	
-	
+	@Override
 	public void executeActionInstanciaTasca(
 			String taskInstanceId,
 			String actionName) {
@@ -1282,7 +1400,7 @@ public class JbpmHelper {
 		//adminService.mesuraCalcular("jBPM executeActionInstanciaTasca", "jbpmDao");
 	}
 	
-	
+	@Override
 	public void retrocedirAccio(
 			String processInstanceId,
 			String actionName,
@@ -1301,7 +1419,7 @@ public class JbpmHelper {
 		//adminService.mesuraCalcular("jBPM retrocedirAccio", "jbpmDao");
 	}
 	
-	
+	@Override
 	public void changeProcessInstanceVersion(
 			String processInstanceId,
 			int newVersion) {
@@ -1317,7 +1435,7 @@ public class JbpmHelper {
 		//adminService.mesuraCalcular("jBPM changeProcessInstanceVersion", "jbpmDao");
 	}
 	
-	
+	@Override
 	public void signalToken(
 			long tokenId,
 			String transitionName) {
@@ -1330,7 +1448,6 @@ public class JbpmHelper {
 		//adminService.mesuraCalcular("jBPM signalToken", "jbpmDao");
 	}
 	
-	
 	@SuppressWarnings("unchecked")
 	public List<Timer> findTimersWithProcessInstanceId(
 			String processInstanceId) {
@@ -1342,7 +1459,7 @@ public class JbpmHelper {
 		return llista;
 	}
 	
-	
+	@Override
 	public void suspendTimer(
 			long timerId,
 			Date dueDate) {
@@ -1353,7 +1470,7 @@ public class JbpmHelper {
 		//adminService.mesuraCalcular("jBPM suspendTimer", "jbpmDao");
 	}
 	
-	
+	@Override
 	public void resumeTimer(
 			long timerId,
 			Date dueDate) {
@@ -1364,177 +1481,15 @@ public class JbpmHelper {
 		//adminService.mesuraCalcular("jBPM resumeTimer", "jbpmDao");
 	}
 	
-	
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public Map<Token, List<ProcessLog>> getProcessInstanceLogs(String processInstanceId) {
-		//adminService.mesuraIniciar("jBPM getProcessInstanceLogs", "jbpmDao");
-		final long id = Long.parseLong(processInstanceId);
-		FindProcessInstanceLogsCommand command = new FindProcessInstanceLogsCommand(id);
-		Map resultat = (Map)commandService.execute(command);
-		//adminService.mesuraCalcular("jBPM getProcessInstanceLogs", "jbpmDao");
-		return resultat;
-	}
-	
-	
-	public long addProcessInstanceMessageLog(String processInstanceId, String message) {
-		//adminService.mesuraIniciar("jBPM addProcessInstanceMessageLog", "jbpmDao");
-		final long id = Long.parseLong(processInstanceId);
-		AddProcessInstanceMessageLogCommand command = new AddProcessInstanceMessageLogCommand(id, message);
-		long resultat = ((Long)commandService.execute(command)).longValue();
-		//adminService.mesuraCalcular("jBPM addProcessInstanceMessageLog", "jbpmDao");
-		return resultat;
-	}
-	
-	
-	public long addTaskInstanceMessageLog(String taskInstanceId, String message) {
-		//adminService.mesuraIniciar("jBPM addTaskInstanceMessageLog", "jbpmDao");
-		final long id = Long.parseLong(taskInstanceId);
-		AddTaskInstanceMessageLogCommand command = new AddTaskInstanceMessageLogCommand(id, message);
-		long resultat = ((Long)commandService.execute(command)).longValue();
-		//adminService.mesuraCalcular("jBPM addTaskInstanceMessageLog", "jbpmDao");
-		return resultat;
-	}
-	
-	
-	public Long getVariableIdFromVariableLog(long variableLogId) {
-		//adminService.mesuraIniciar("jBPM getVariableIdFromVariableLog", "jbpmDao");
-		GetVariableIdFromVariableLogCommand command = new GetVariableIdFromVariableLogCommand(variableLogId);
-		Long resultat = (Long)commandService.execute(command);
-		//adminService.mesuraCalcular("jBPM getVariableIdFromVariableLog", "jbpmDao");
-		return resultat;
-	}
-	
-	
-	public Long getTaskIdFromVariableLog(long variableLogId) {
-		//adminService.mesuraIniciar("jBPM getTaskIdFromVariableLog", "jbpmDao");
-		GetTaskIdFromVariableLogCommand command = new GetTaskIdFromVariableLogCommand(variableLogId);
-		Long resultat = (Long)commandService.execute(command);
-		//adminService.mesuraCalcular("jBPM getTaskIdFromVariableLog", "jbpmDao");
-		return resultat;
-	}
-	
-	
-	public void cancelProcessInstance(long id) {
-		//adminService.mesuraIniciar("jBPM cancelProcessInstance", "jbpmDao");
-		CancelProcessInstanceCommand command = new CancelProcessInstanceCommand(id);
-		executeCommandWithAutoSave(
-				command,
-				id,
-				AddToAutoSaveCommand.TIPUS_INSTANCIA_PROCES);
-		//adminService.mesuraCalcular("jBPM cancelProcessInstance", "jbpmDao");
-	}
-	
-	
-	public void revertProcessInstanceEnd(long id) {
-		//adminService.mesuraIniciar("jBPM revertProcessInstanceEnd", "jbpmDao");
-		RevertProcessInstanceEndCommand command = new RevertProcessInstanceEndCommand(id);
-		executeCommandWithAutoSave(
-				command,
-				id,
-				AddToAutoSaveCommand.TIPUS_INSTANCIA_PROCES);
-		//adminService.mesuraCalcular("jBPM revertProcessInstanceEnd", "jbpmDao");
-	}
-	
-	
-	public void cancelToken(long id) {
-		//adminService.mesuraIniciar("jBPM cancelToken", "jbpmDao");
-		CancelTokenCommand command = new CancelTokenCommand(id);
-		executeCommandWithAutoSave(
-				command,
-				id,
-				AddToAutoSaveCommand.TIPUS_TOKEN);
-		//adminService.mesuraCalcular("jBPM cancelToken", "jbpmDao");
-	}
-	
-	
-	public void revertTokenEnd(long id) {
-		//adminService.mesuraIniciar("jBPM revertTokenEnd", "jbpmDao");
-		JbpmToken jtoken = getTokenById(String.valueOf(id));
-		RevertTokenEndCommand command = new RevertTokenEndCommand(jtoken);
-		executeCommandWithAutoSave(
-				command,
-				id,
-				AddToAutoSaveCommand.TIPUS_TOKEN);
-//		this.sessionFactory.getCurrentSession().refresh(jtoken.getToken());
-		jtoken.getToken().setAbleToReactivateParent(true);
-		//adminService.mesuraCalcular("jBPM revertTokenEnd", "jbpmDao");
-	}
-	
-	
-	public JbpmTask findEquivalentTaskInstance(long tokenId, long taskInstanceId) {
-		//adminService.mesuraIniciar("jBPM findEquivalentTaskInstance", "jbpmDao");
-		GetTaskInstanceCommand commandGetTask = new GetTaskInstanceCommand(taskInstanceId);
-		TaskInstance ti = (TaskInstance)commandService.execute(commandGetTask);
-		FindTaskInstanceForTokenAndTaskCommand command = new FindTaskInstanceForTokenAndTaskCommand(tokenId, ti.getTask().getName());
-		JbpmTask resultat = new JbpmTask((TaskInstance)commandService.execute(command));
-		//adminService.mesuraCalcular("jBPM findEquivalentTaskInstance", "jbpmDao");
-		return resultat;
-	}
-	
-	
-	public boolean isProcessStateNodeJoinOrFork(long processInstanceId, String nodeName) {
-		//adminService.mesuraIniciar("jBPM isProcessStateNodeJoinOrFork", "jbpmDao");
-		GetProcessInstanceCommand command = new GetProcessInstanceCommand(processInstanceId);
-		ProcessInstance pi = (ProcessInstance)commandService.execute(command);
-		Node node = pi.getProcessDefinition().getNode(nodeName);
-		String nodeClassName = node.toString();
-		NodeType nodeType = node.getNodeType();
-		//adminService.mesuraCalcular("jBPM isProcessStateNodeJoinOrFork", "jbpmDao");
 		
-		return (nodeClassName.startsWith("ProcessState") || nodeType == NodeType.Fork || nodeType == NodeType.Join);
-	}
-	
-	
-	public boolean isJoinNode(long processInstanceId, String nodeName) {
-		//adminService.mesuraIniciar("jBPM isJoinNode", "jbpmDao");
-		GetProcessInstanceCommand command = new GetProcessInstanceCommand(processInstanceId);
-		ProcessInstance pi = (ProcessInstance)commandService.execute(command);
-		NodeType nodeType = null;
-		try {
-			nodeType = pi.getProcessDefinition().getNode(nodeName).getNodeType();
-		} catch (Exception ex) {
-			return false;
-		} finally {
-			//adminService.mesuraCalcular("jBPM isJoinNode", "jbpmDao");	
-		}
-		
-		return nodeType == NodeType.Join;
-	}
-	
-	
-	public ProcessLog getProcessLogById(Long id){
-		//adminService.mesuraIniciar("jBPM getProcessLogById", "jbpmDao");
-		GetProcessLogByIdCommand command = new GetProcessLogByIdCommand(id.longValue());
-		ProcessLog log = (ProcessLog)commandService.execute(command);
-		//adminService.mesuraCalcular("jBPM getProcessLogById", "jbpmDao");
-		return log;
-	}
-	
-	
-	public Node getNodeByName(long processInstanceId, String nodeName) {
-		//adminService.mesuraIniciar("jBPM getNodeByName", "jbpmDao");
-		GetProcessInstanceCommand command = new GetProcessInstanceCommand(processInstanceId);
-		ProcessInstance pi = (ProcessInstance)commandService.execute(command);
-		Node node = pi.getProcessDefinition().getNode(nodeName);
-		//adminService.mesuraCalcular("jBPM getNodeByName", "jbpmDao");
-		return node;
-	}
-	
-	
-	public boolean hasStartBetweenLogs(long begin, long end, long taskInstanceId) {
-		//adminService.mesuraIniciar("jBPM hasStartBetweenLogs", "jbpmDao");
-		HasStartBetweenLogsCommand command = new HasStartBetweenLogsCommand(begin, end, taskInstanceId);
-		Boolean hasStart = (Boolean)commandService.execute(command);
-		//adminService.mesuraCalcular("jBPM hasStartBetweenLogs", "jbpmDao");
-		return hasStart.booleanValue();
-	}	
 
 	@Autowired
 	public void setCommandService(CommandService commandService) {
 		this.commandService = commandService;
 	}
 
-	public LlistatIds findListTasks( // 3.0
+	@Override
+	public LlistatIds tascaIdFindByFiltrePaginat( // 3.0
 			String responsable,
 			String tasca,
 			String tascaSel,
@@ -1572,87 +1527,6 @@ public class JbpmHelper {
 		return llistat;
 	}
 	
-	public LlistatIds findListTasks( // 2.6
-			String usuariBo, 
-			String tascaSel,
-			String titol,
-			List<Long> idsPIExpedients, 
-			Date dataCreacioInici, 
-			Date dataCreacioFi, 
-			Integer prioritat, 
-			Date dataLimitInici, 
-			Date dataLimitFi, 
-			int firstRow, 
-			int maxResults, 
-			String sort, 
-			boolean asc,
-			MostrarTasquesDto mostrarTasques) {
-		//adminService.mesuraIniciar("jBPM findListTasks", "jbpmDao");
-		GetRootProcessInstancesForActiveTasksCommand command = new GetRootProcessInstancesForActiveTasksCommand(
-				usuariBo, 
-				null, 
-				tascaSel, 
-				idsPIExpedients, 
-				dataCreacioInici, 
-				dataCreacioFi, 
-				prioritat, 
-				dataLimitInici, 
-				dataLimitFi, 
-				sort, 
-				asc, 
-				mostrarTasques);
-		command.setFirstRow(firstRow);
-		command.setMaxResults(maxResults);
-		command.setTitol(titol);
-		LlistatIds llistat = (LlistatIds)commandService.execute(command);
-		//adminService.mesuraCalcular("jBPM findListTasks", "jbpmDao");
-		return llistat;
-	}	
-	
-	public LlistatIds findListPersonalTasks( // 2.6
-			String usuariBo, 
-			String tasca, 
-			List<Long> idsPIExpedients, 
-			Date dataCreacioInici, 
-			Date dataCreacioFi, 
-			Integer prioritat, 
-			Date dataLimitInici, 
-			Date dataLimitFi, 
-			int firstRow, 
-			int maxResults, 
-			String sort, 
-			boolean asc) {
-		//adminService.mesuraIniciar("jBPM findListPersonalTasks", "jbpmDao");
-		GetRootProcessInstancesForActiveTasksCommand command = new GetRootProcessInstancesForActiveTasksCommand(usuariBo, tasca, null, idsPIExpedients, dataCreacioInici, dataCreacioFi, prioritat, dataLimitInici, dataLimitFi, sort, asc, false);
-		command.setFirstRow(firstRow);
-		command.setMaxResults(maxResults);
-		LlistatIds llistat = (LlistatIds)commandService.execute(command);
-		//adminService.mesuraCalcular("jBPM findListPersonalTasks", "jbpmDao");
-		return llistat;
-	}
-	
-	public LlistatIds findListGroupTasks( // 2.6
-			String usuariBo, 
-			String tasca, 
-			List<Long> idsPIExpedients, 
-			Date dataCreacioInici, 
-			Date dataCreacioFi, 
-			Integer prioritat, 
-			Date dataLimitInici, 
-			Date dataLimitFi, 
-			int firstRow, 
-			int maxResults, 
-			String sort, 
-			boolean asc) {
-		//adminService.mesuraIniciar("jBPM findListGroupTasks", "jbpmDao");
-		GetRootProcessInstancesForActiveTasksCommand command = new GetRootProcessInstancesForActiveTasksCommand(usuariBo, tasca, null, idsPIExpedients, dataCreacioInici, dataCreacioFi, prioritat, dataLimitInici, dataLimitFi, sort, asc, true);
-		command.setFirstRow(firstRow);
-		command.setMaxResults(maxResults);
-		LlistatIds llistat = (LlistatIds)commandService.execute(command);
-		//adminService.mesuraCalcular("jBPM findListGroupTasks", "jbpmDao");
-		return llistat;
-	}
-	
 	public LlistatIds findListIdsTasks( // 2.6
 			String actorId,
 			List<Long> idsPIExpedients) {
@@ -1661,11 +1535,12 @@ public class JbpmHelper {
 		return resultado;
 	}
 	
+	@Override
 	@SuppressWarnings("unchecked")
-	public List<JbpmTask> findTasks( // 3.0 i 2.6
+	public List<WTaskInstance> findTasks( // 3.0 i 2.6
 			List<Long> ids) {
 		//adminService.mesuraIniciar("jBPM findTasks ids", "jbpmDao");
-		List<JbpmTask> resultat = new ArrayList<JbpmTask>();
+		List<WTaskInstance> resultat = new ArrayList<WTaskInstance>();
 		GetTaskListCommand command = new GetTaskListCommand(ids);
 		for (TaskInstance ti: (List<TaskInstance>)commandService.execute(command)) {
 			resultat.add(new JbpmTask(ti));
@@ -1674,17 +1549,18 @@ public class JbpmHelper {
 		return resultat;
 	}
 	
-	public Long getTaskInstanceIdByTokenId(Long tokenId) {
+	@Override
+	public Long getTaskInstanceIdByExecutionTokenId(Long tokenId) {
 		FindTaskInstanceIdForTokenIdCommand command = new FindTaskInstanceIdForTokenIdCommand(tokenId);
 		return (Long)commandService.execute(command);
 	}
 	
 	@SuppressWarnings("unchecked")
-	public List<JbpmTask> findPersonalTasks( // 2.6
+	public List<WTaskInstance> findPersonalTasks( // 2.6
 			List<Long> ids,
 			String usuariBo) {
 		//adminService.mesuraIniciar("jBPM findPersonalTasks ids", "jbpmDao");
-		List<JbpmTask> resultat = new ArrayList<JbpmTask>();
+		List<WTaskInstance> resultat = new ArrayList<WTaskInstance>();
 		GetPersonalTaskListCommand command = new GetPersonalTaskListCommand(usuariBo, ids);
 		for (TaskInstance ti : (List<TaskInstance>)commandService.execute(command))
 			resultat.add(new JbpmTask(ti));
@@ -1704,11 +1580,11 @@ public class JbpmHelper {
 	}	
 	
 	@SuppressWarnings("unchecked")
-	public List<JbpmTask> findGroupTasks( // 2.6
+	public List<WTaskInstance> findGroupTasks( // 2.6
 			List<Long> ids,
 			String usuariBo) {
 		//adminService.mesuraIniciar("jBPM findGroupTasks ids", "jbpmDao");
-		List<JbpmTask> resultat = new ArrayList<JbpmTask>();
+		List<WTaskInstance> resultat = new ArrayList<WTaskInstance>();
 		GetGroupTaskListCommand command = new GetGroupTaskListCommand(usuariBo, ids);
 		for (TaskInstance ti : (List<TaskInstance>)commandService.execute(command))
 			resultat.add(new JbpmTask(ti));
@@ -1716,12 +1592,12 @@ public class JbpmHelper {
 		return resultat;
 	}
 	
-	
+	@Override
 	@SuppressWarnings("unchecked")
-	public List<JbpmTask> findPersonalTasks( // 2.6
+	public List<WTaskInstance> findPersonalTasks( // 2.6
 			String usuariBo) {
 		//adminService.mesuraIniciar("jBPM findPersonalTasks", "jbpmDao");
-		List<JbpmTask> resultat = new ArrayList<JbpmTask>();
+		List<WTaskInstance> resultat = new ArrayList<WTaskInstance>();
 		GetPersonalTaskListCommand command = new GetPersonalTaskListCommand(usuariBo);
 		for (TaskInstance ti : (List<TaskInstance>)commandService.execute(command))
 			resultat.add(new JbpmTask(ti));
@@ -1739,7 +1615,6 @@ public class JbpmHelper {
 		return resultado;
 	}
 	
-	
 	public LlistatIds findListIdsGroupTasks( // 2.6
 			String actorId,
 			List<Long> idsPIExpedients) {
@@ -1750,12 +1625,11 @@ public class JbpmHelper {
 		return resultado;
 	}
 	
-	
 	@SuppressWarnings("unchecked")
-	public List<JbpmTask> findGroupTasks( // 2.6
+	public List<WTaskInstance> findGroupTasks( // 2.6
 			String actorId) {
 		//adminService.mesuraIniciar("jBPM findGroupTasks", "jbpmDao");
-		List<JbpmTask> resultat = new ArrayList<JbpmTask>();
+		List<WTaskInstance> resultat = new ArrayList<WTaskInstance>();
 		
 		GetGroupTaskListCommand command = new GetGroupTaskListCommand(actorId);
 		for (TaskInstance ti : (List<TaskInstance>)commandService.execute(command))
@@ -1764,8 +1638,9 @@ public class JbpmHelper {
 		return resultat;
 	}
 
+	@Override
 	@SuppressWarnings("unchecked")
-	public List<String> findRootProcessInstancesWithTasksCommand( // 3.0
+	public List<String> findRootProcessInstances( // 3.0
 			String actorId,
 			List<String> processInstanceIds,
 			boolean nomesMeves,
@@ -1801,23 +1676,12 @@ public class JbpmHelper {
 		return idsDiferents;
 	}
 
-	@SuppressWarnings("unchecked")
-	public void deleteProcessInstanceTreeLogs(String rootProcessInstanceId) {
-		//adminService.mesuraIniciar("jBPM deleteProcessInstanceTreeLogs", "jbpmDao");
-		final long id = Long.parseLong(rootProcessInstanceId);
-		GetProcessInstancesTreeCommand command = new GetProcessInstancesTreeCommand(id);
-		for (ProcessInstance pd: (List<ProcessInstance>)commandService.execute(command)) {
-			DeleteProcessInstanceLogsCommand deleteCommand = new DeleteProcessInstanceLogsCommand(pd);
-			commandService.execute(deleteCommand);
-		}
-		//adminService.mesuraCalcular("jBPM deleteProcessInstanceTreeLogs", "jbpmDao");
-	}
-	
 	public void retryJob(Long jobId) {
 		RetryJobCommand command = new RetryJobCommand(jobId);
 		commandService.execute(command);
 	}
 	
+	@Override
 	@SuppressWarnings("unchecked")
 	public List<String> findDefinicionsProcesIdNoUtilitzadesByEntorn(Long entornId) {
 		List<String> resultat = new ArrayList<String>();
@@ -1829,6 +1693,7 @@ public class JbpmHelper {
 		return resultat;
 	}
 	
+	@Override
 	@SuppressWarnings("unchecked")
 	public List<String> findDefinicionsProcesIdNoUtilitzadesByExpedientTipusId(Long expedientTipusId) {
 		List<String> resultat = new ArrayList<String>();
@@ -1840,25 +1705,40 @@ public class JbpmHelper {
 		return resultat;
 	}
 	
+	@Override
+	public List<ExpedientDto> findExpedientsAfectatsPerDefinicionsProcesNoUtilitzada(
+			Long expedientTipusId,
+			Long processDefinitionId) {
+		List<ProcessInstanceExpedient> processInstanceExpedients = this.findProcessInstanceExpedientsAfectatsPerDefinicionsProcesNoUtilitzada(
+				expedientTipusId,
+				processDefinitionId);
+		List<ExpedientDto> expedientsDto = new ArrayList<ExpedientDto>();
+		for (ProcessInstanceExpedient pie : processInstanceExpedients) {
+			expedientsDto.add(processInstanceExpedientToDto(pie));
+		}
+		return expedientsDto;
+	}
+
 	@SuppressWarnings("unchecked")
-	public List<ProcessInstanceExpedient> findExpedientsAfectatsPerDefinicionsProcesNoUtilitzada(
+	public List<ProcessInstanceExpedient> findProcessInstanceExpedientsAfectatsPerDefinicionsProcesNoUtilitzada(
 			Long expedientTipusId,
 			Long processDefinitionId) {
 		GetExpedientsAfectatsListCommand command = new GetExpedientsAfectatsListCommand(expedientTipusId, processDefinitionId);
 		return (List<ProcessInstanceExpedient>)commandService.execute(command);
 	}
-
+	
+	@Override
 	public void desfinalitzarExpedient(String processInstanceId){
 		//adminService.mesuraIniciar("jBPM reprendreExpedient", "jbpmDao");
 		
 		// Recuperamos el token EndState más reciente
-		JbpmProcessInstance rootProcessInstance = getRootProcessInstance(processInstanceId);
-		List<JbpmProcessInstance> lista = getProcessInstanceTree(String.valueOf(rootProcessInstance.getProcessInstance().getId()));
+		WProcessInstance rootProcessInstance = getRootProcessInstance(processInstanceId);
+		List<WProcessInstance> lista = getProcessInstanceTree(String.valueOf(((ProcessInstance)rootProcessInstance.getProcessInstance()).getId()));
 		Token token = null;
-		for (JbpmProcessInstance pi : lista) {
-			Map<String, JbpmToken> tokens = getAllTokens(String.valueOf(pi.getProcessInstance().getId()));
+		for (WProcessInstance pi : lista) {
+			Map<String, WToken> tokens = getAllTokens(String.valueOf(((ProcessInstance)pi.getProcessInstance()).getId()));
 			for (String tokenName: tokens.keySet()) {
-				Token tokenTmp = tokens.get(tokenName).getToken();
+				Token tokenTmp = (Token) tokens.get(tokenName).getToken();
 				if (!NodeType.EndState.equals(tokenTmp.getNode().getNodeType())) {
 					if(tokenTmp.hasParent()) {
 						tokenTmp = tokenTmp.getParent();
@@ -1880,7 +1760,7 @@ public class JbpmHelper {
 				
 		// Activamos recursivamente
 		while (token != null) {
-			JbpmToken jtoken = getTokenById(String.valueOf(token.getId()));
+			JbpmToken jtoken = (JbpmToken) getTokenById(String.valueOf(token.getId()));
 			RevertTokenEndCommand command = new RevertTokenEndCommand(jtoken);
 			executeCommandWithAutoSave(
 					command,
@@ -1890,36 +1770,215 @@ public class JbpmHelper {
 		}
 		
 		// Activamos la instancia de proceso
-		revertProcessInstanceEnd(rootProcessInstance.getProcessInstance().getId());
+		revertProcessInstanceEnd(((ProcessInstance)rootProcessInstance.getProcessInstance()).getId());
 		
 		//adminService.mesuraCalcular("jBPM reprendreExpedient", "jbpmDao");
 	}
 	
+	@Override
 	public void finalitzarExpedient(String processInstanceId, Date dataFinalitzacio){
-		JbpmProcessInstance rootProcessInstance = getRootProcessInstance(processInstanceId);
-		Long rootProcessInstanceId = rootProcessInstance.getProcessInstance().getId();
+		WProcessInstance rootProcessInstance = getRootProcessInstance(processInstanceId);
+		Long rootProcessInstanceId = Long.valueOf(rootProcessInstance.getId());
 		ProcessInstanceEndCommand command = new ProcessInstanceEndCommand(rootProcessInstanceId, dataFinalitzacio);
 		executeCommandWithAutoSave(
 				command,
 				rootProcessInstanceId,
 				AddToAutoSaveCommand.TIPUS_INSTANCIA_PROCES);
 	}
-
-	/** Actualitza els recursos .class de la definició de procés indicada amb els recursos
-	 * continguts en el jbpmProcessDefinition.
-	 * @param jbpmId Identifica la definició de procés a actualtizar.
-	 * @param jbpmProcessDefinition Conté la informació amb què actualitzar els handlers.
-	 */
-	public void updateHandlers (
-			Long jbpmId, 
-			Map<String, byte[]> handlers) {
-		// Omple que command que substitueix els handlers existents
-		UpdateHandlersCommand command = new UpdateHandlersCommand(
-				jbpmId,
-				handlers);
-		commandService.execute(command);
+	
+	public void setTaskInstanceActorId(String taskInstanceId, String actorId) {
+		//adminService.mesuraIniciar("jBPM setTaskInstanceActorId", "jbpmDao");
+		final long id = Long.parseLong(taskInstanceId);
+		ReassignTaskInstanceCommand command = new ReassignTaskInstanceCommand(id);
+		command.setActorId(actorId);
+		executeCommandWithAutoSave(
+				command,
+				id,
+				AddToAutoSaveCommand.TIPUS_INSTANCIA_TASCA);
+		//adminService.mesuraCalcular("jBPM setTaskInstanceActorId", "jbpmDao");
 	}
 	
+	public void setTaskInstancePooledActors(String taskInstanceId, String[] pooledActors) {
+		//adminService.mesuraIniciar("jBPM setTaskInstancePooledActors", "jbpmDao");
+		final long id = Long.parseLong(taskInstanceId);
+		ReassignTaskInstanceCommand command = new ReassignTaskInstanceCommand(id);
+		command.setPooledActors(pooledActors);
+		executeCommandWithAutoSave(
+				command,
+				id,
+				AddToAutoSaveCommand.TIPUS_INSTANCIA_TASCA);
+		//adminService.mesuraCalcular("jBPM setTaskInstancePooledActors", "jbpmDao");
+	}
+	
+	// RETROACCIÓ -- INICI --------------------------------------------------------------------
+	
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public Map<Token, List<ProcessLog>> getProcessInstanceLogs(String processInstanceId) {
+		//adminService.mesuraIniciar("jBPM getProcessInstanceLogs", "jbpmDao");
+		final long id = Long.parseLong(processInstanceId);
+		FindProcessInstanceLogsCommand command = new FindProcessInstanceLogsCommand(id);
+		Map resultat = (Map)commandService.execute(command);
+		//adminService.mesuraCalcular("jBPM getProcessInstanceLogs", "jbpmDao");
+		return resultat;
+	}
+	
+	public long addProcessInstanceMessageLog(String processInstanceId, String message) {
+		//adminService.mesuraIniciar("jBPM addProcessInstanceMessageLog", "jbpmDao");
+		final long id = Long.parseLong(processInstanceId);
+		AddProcessInstanceMessageLogCommand command = new AddProcessInstanceMessageLogCommand(id, message);
+		long resultat = ((Long)commandService.execute(command)).longValue();
+		//adminService.mesuraCalcular("jBPM addProcessInstanceMessageLog", "jbpmDao");
+		return resultat;
+	}
+	
+	public long addTaskInstanceMessageLog(String taskInstanceId, String message) {
+		//adminService.mesuraIniciar("jBPM addTaskInstanceMessageLog", "jbpmDao");
+		final long id = Long.parseLong(taskInstanceId);
+		AddTaskInstanceMessageLogCommand command = new AddTaskInstanceMessageLogCommand(id, message);
+		long resultat = ((Long)commandService.execute(command)).longValue();
+		//adminService.mesuraCalcular("jBPM addTaskInstanceMessageLog", "jbpmDao");
+		return resultat;
+	}
+	
+	public Long getVariableIdFromVariableLog(long variableLogId) {
+		//adminService.mesuraIniciar("jBPM getVariableIdFromVariableLog", "jbpmDao");
+		GetVariableIdFromVariableLogCommand command = new GetVariableIdFromVariableLogCommand(variableLogId);
+		Long resultat = (Long)commandService.execute(command);
+		//adminService.mesuraCalcular("jBPM getVariableIdFromVariableLog", "jbpmDao");
+		return resultat;
+	}
+	
+	public Long getTaskIdFromVariableLog(long variableLogId) {
+		//adminService.mesuraIniciar("jBPM getTaskIdFromVariableLog", "jbpmDao");
+		GetTaskIdFromVariableLogCommand command = new GetTaskIdFromVariableLogCommand(variableLogId);
+		Long resultat = (Long)commandService.execute(command);
+		//adminService.mesuraCalcular("jBPM getTaskIdFromVariableLog", "jbpmDao");
+		return resultat;
+	}
+	
+	public void cancelProcessInstance(long id) {
+		//adminService.mesuraIniciar("jBPM cancelProcessInstance", "jbpmDao");
+		CancelProcessInstanceCommand command = new CancelProcessInstanceCommand(id);
+		executeCommandWithAutoSave(
+				command,
+				id,
+				AddToAutoSaveCommand.TIPUS_INSTANCIA_PROCES);
+		//adminService.mesuraCalcular("jBPM cancelProcessInstance", "jbpmDao");
+	}
+	
+	public void revertProcessInstanceEnd(long id) {
+		//adminService.mesuraIniciar("jBPM revertProcessInstanceEnd", "jbpmDao");
+		RevertProcessInstanceEndCommand command = new RevertProcessInstanceEndCommand(id);
+		executeCommandWithAutoSave(
+				command,
+				id,
+				AddToAutoSaveCommand.TIPUS_INSTANCIA_PROCES);
+		//adminService.mesuraCalcular("jBPM revertProcessInstanceEnd", "jbpmDao");
+	}
+	
+	public void cancelToken(long id) {
+		//adminService.mesuraIniciar("jBPM cancelToken", "jbpmDao");
+		CancelTokenCommand command = new CancelTokenCommand(id);
+		executeCommandWithAutoSave(
+				command,
+				id,
+				AddToAutoSaveCommand.TIPUS_TOKEN);
+		//adminService.mesuraCalcular("jBPM cancelToken", "jbpmDao");
+	}
+	
+	public void revertTokenEnd(long id) {
+		//adminService.mesuraIniciar("jBPM revertTokenEnd", "jbpmDao");
+		JbpmToken jtoken = (JbpmToken) getTokenById(String.valueOf(id));
+		RevertTokenEndCommand command = new RevertTokenEndCommand(jtoken);
+		executeCommandWithAutoSave(
+				command,
+				id,
+				AddToAutoSaveCommand.TIPUS_TOKEN);
+//		this.sessionFactory.getCurrentSession().refresh(jtoken.getToken());
+		jtoken.getToken().setAbleToReactivateParent(true);
+		//adminService.mesuraCalcular("jBPM revertTokenEnd", "jbpmDao");
+	}
+	
+	public WTaskInstance findEquivalentTaskInstance(long tokenId, long taskInstanceId) {
+		//adminService.mesuraIniciar("jBPM findEquivalentTaskInstance", "jbpmDao");
+		GetTaskInstanceCommand commandGetTask = new GetTaskInstanceCommand(taskInstanceId);
+		TaskInstance ti = (TaskInstance)commandService.execute(commandGetTask);
+		FindTaskInstanceForTokenAndTaskCommand command = new FindTaskInstanceForTokenAndTaskCommand(tokenId, ti.getTask().getName());
+		WTaskInstance resultat = new JbpmTask((TaskInstance)commandService.execute(command));
+		//adminService.mesuraCalcular("jBPM findEquivalentTaskInstance", "jbpmDao");
+		return resultat;
+	}
+	
+	public boolean isProcessStateNodeJoinOrFork(long processInstanceId, String nodeName) {
+		//adminService.mesuraIniciar("jBPM isProcessStateNodeJoinOrFork", "jbpmDao");
+		GetProcessInstanceCommand command = new GetProcessInstanceCommand(processInstanceId);
+		ProcessInstance pi = (ProcessInstance)commandService.execute(command);
+		Node node = pi.getProcessDefinition().getNode(nodeName);
+		String nodeClassName = node.toString();
+		NodeType nodeType = node.getNodeType();
+		//adminService.mesuraCalcular("jBPM isProcessStateNodeJoinOrFork", "jbpmDao");
+		
+		return (nodeClassName.startsWith("ProcessState") || nodeType == NodeType.Fork || nodeType == NodeType.Join);
+	}
+	
+	public boolean isJoinNode(long processInstanceId, String nodeName) {
+		//adminService.mesuraIniciar("jBPM isJoinNode", "jbpmDao");
+		GetProcessInstanceCommand command = new GetProcessInstanceCommand(processInstanceId);
+		ProcessInstance pi = (ProcessInstance)commandService.execute(command);
+		NodeType nodeType = null;
+		try {
+			nodeType = pi.getProcessDefinition().getNode(nodeName).getNodeType();
+		} catch (Exception ex) {
+			return false;
+		} finally {
+			//adminService.mesuraCalcular("jBPM isJoinNode", "jbpmDao");	
+		}
+		
+		return nodeType == NodeType.Join;
+	}
+	
+	public ProcessLog getProcessLogById(Long id){
+		//adminService.mesuraIniciar("jBPM getProcessLogById", "jbpmDao");
+		GetProcessLogByIdCommand command = new GetProcessLogByIdCommand(id.longValue());
+		ProcessLog log = (ProcessLog)commandService.execute(command);
+		//adminService.mesuraCalcular("jBPM getProcessLogById", "jbpmDao");
+		return log;
+	}
+	
+	public Node getNodeByName(long processInstanceId, String nodeName) {
+		//adminService.mesuraIniciar("jBPM getNodeByName", "jbpmDao");
+		GetProcessInstanceCommand command = new GetProcessInstanceCommand(processInstanceId);
+		ProcessInstance pi = (ProcessInstance)commandService.execute(command);
+		Node node = pi.getProcessDefinition().getNode(nodeName);
+		//adminService.mesuraCalcular("jBPM getNodeByName", "jbpmDao");
+		return node;
+	}
+	
+	public boolean hasStartBetweenLogs(long begin, long end, long taskInstanceId) {
+		//adminService.mesuraIniciar("jBPM hasStartBetweenLogs", "jbpmDao");
+		HasStartBetweenLogsCommand command = new HasStartBetweenLogsCommand(begin, end, taskInstanceId);
+		Boolean hasStart = (Boolean)commandService.execute(command);
+		//adminService.mesuraCalcular("jBPM hasStartBetweenLogs", "jbpmDao");
+		return hasStart.booleanValue();
+	}
+	
+	@SuppressWarnings("unchecked")
+	public void deleteProcessInstanceTreeLogs(String rootProcessInstanceId) {
+		//adminService.mesuraIniciar("jBPM deleteProcessInstanceTreeLogs", "jbpmDao");
+		final long id = Long.parseLong(rootProcessInstanceId);
+		GetProcessInstancesTreeCommand command = new GetProcessInstancesTreeCommand(id);
+		for (ProcessInstance pd: (List<ProcessInstance>)commandService.execute(command)) {
+			DeleteProcessInstanceLogsCommand deleteCommand = new DeleteProcessInstanceLogsCommand(pd);
+			commandService.execute(deleteCommand);
+		}
+		//adminService.mesuraCalcular("jBPM deleteProcessInstanceTreeLogs", "jbpmDao");
+	}
+	
+	// RETROACCIÓ -- FI ---------------------------------------------------------------
+	
+	
+	
+
 	private Object executeCommandWithAutoSave(
 			Command command,
 			long id,
@@ -2001,4 +2060,67 @@ public class JbpmHelper {
 		}
 		return ex;
 	}
+	
+	/** Mètode privat per transformar una instancia de procés d'expedient en un dto d'expedient.
+	 * 
+	 * @param pie
+	 * @return
+	 */
+	private ExpedientDto processInstanceExpedientToDto(ProcessInstanceExpedient pie) {
+		ExpedientDto exp = new ExpedientDto();
+		exp.setId(pie.getId());
+		exp.setTitol(pie.getTitol());
+		exp.setNumero(pie.getNumero());
+		exp.setNumeroDefault(pie.getNumeroDefault());
+		exp.setDataInici(pie.getDataInici());
+		exp.setDataFi(pie.getDataFi());
+		exp.setProcessInstanceId(pie.getProcessInstanceId());
+		return exp;
+	}
+
+	/** Mètode privat per transformar una instancia de procés de tipus d'expedient a un dto de tipus d'expedient
+	 * 
+	 * @param piet
+	 * @return
+	 */
+	private ExpedientTipusDto processInstanceExpedientTipusToDto(ProcessInstanceExpedientTipus piet) {
+		ExpedientTipusDto tipus = null;
+		if (piet != null) {
+			tipus = new ExpedientTipusDto();
+			tipus.setId(piet.getId());
+			tipus.setCodi(piet.getCodi());
+			tipus.setNom(piet.getNom());
+			tipus.setTeTitol(piet.isTeTitol());
+			tipus.setTeNumero(piet.isTeNumero());
+		}
+		return tipus;
+	}
+
+	@Override
+	@SuppressWarnings("rawtypes")
+	public Object evaluateExpression(
+			String expression, 
+			Class expectedClass,
+			final Map<String, Object> context) {
+		
+		ExpressionEvaluator evaluator = new ExpressionEvaluatorImpl();
+		Object resultat = evaluator.evaluate(
+				expression,
+				expectedClass,
+				new VariableResolver() {
+					public Object resolveVariable(String name)
+							throws ELException {
+						return context.get(name);
+					}
+				},
+				null);
+		
+		return resultat;
+	}
+
+	@Override
+	public WProcessDefinition parse(ZipInputStream zipInputStream) throws Exception {
+		return new JbpmProcessDefinition(null).parse(zipInputStream);
+	}
+	
 }

@@ -1,7 +1,7 @@
 /**
  * 
  */
-package net.conselldemallorca.helium.jbpm3.integracio;
+package net.conselldemallorca.helium.core.extern.domini;
 
 import java.io.Serializable;
 

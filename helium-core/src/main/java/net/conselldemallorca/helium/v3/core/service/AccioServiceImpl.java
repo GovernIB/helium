@@ -21,7 +21,6 @@ import net.conselldemallorca.helium.core.helper.MessageHelper;
 import net.conselldemallorca.helium.core.helper.PaginacioHelper;
 import net.conselldemallorca.helium.core.helper.PermisosHelper;
 import net.conselldemallorca.helium.core.model.hibernate.Accio;
-import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
 import net.conselldemallorca.helium.v3.core.api.dto.AccioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
@@ -120,8 +119,6 @@ public class AccioServiceImpl implements AccioService {
 	private DocumentHelperV3 documentHelper;
 	@Resource
 	private MessageHelper messageHelper;
-	@Resource
-	private JbpmHelper jbpmHelper;
 
 	/**
 	 * {@inheritDoc}

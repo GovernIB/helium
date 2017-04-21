@@ -21,8 +21,6 @@ import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.jbpm.db.GraphSession;
-import org.jbpm.graph.exe.ProcessInstanceExpedient;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONValue;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,6 +40,8 @@ import com.codahale.metrics.Counter;
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer;
 
+import net.conselldemallorca.helium.core.api.WTaskInstance;
+import net.conselldemallorca.helium.core.api.WorkflowEngineApi;
 import net.conselldemallorca.helium.core.helper.DissenyHelper;
 import net.conselldemallorca.helium.core.helper.DocumentHelperV3;
 import net.conselldemallorca.helium.core.helper.EntornHelper;
@@ -73,11 +73,10 @@ import net.conselldemallorca.helium.core.model.hibernate.Persona;
 import net.conselldemallorca.helium.core.model.hibernate.Termini;
 import net.conselldemallorca.helium.core.util.EntornActual;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
-import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
-import net.conselldemallorca.helium.jbpm3.integracio.JbpmTask;
 import net.conselldemallorca.helium.v3.core.api.dto.ExecucioMassivaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExecucioMassivaDto.ExecucioMassivaTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDocumentDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.InstanciaProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
@@ -143,7 +142,7 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 	@Resource
 	private TerminiHelper terminiHelper;
 	@Resource
-	private JbpmHelper jbpmHelper;
+	private WorkflowEngineApi workflowEngineApi;
 	@Resource
 	private TascaHelper tascaHelper;
 	@Resource
@@ -234,7 +233,7 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 				}
 			} else if (dto.getTascaIds() != null) {
 				for (String tascaId: dto.getTascaIds()) {
-					JbpmTask task = tascaHelper.getTascaComprovacionsTramitacio(
+					WTaskInstance task = tascaHelper.getTascaComprovacionsTramitacio(
 							tascaId,
 							false,
 							false);
@@ -449,12 +448,13 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 		if (!expedients.isEmpty()) {
 			ExecucioMassivaExpedient em = expedients.get(0);
 			if (em.getTascaId() != null) {
-				JbpmTask task = jbpmHelper.getTaskById(em.getTascaId());					
+				WTaskInstance task = workflowEngineApi.getTaskById(em.getTascaId());					
 				if (task != null){
-					if (task.isCacheActiu())
-						tasca = task.getFieldFromDescription("titol");
-					else
-						tasca = task.getTaskName();
+					tasca = task.getTitol();
+//					if (task.isCacheActiu())
+//					tasca = task.getFieldFromDescription("titol");
+//				else
+//					tasca = task.getTaskName();
 				}
 			}
 			for (ExecucioMassivaExpedient expedient: expedients) {
@@ -1183,16 +1183,17 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 								  (ex.getCause() instanceof DataIntegrityViolationException || "ConstraintViolationException".equalsIgnoreCase(ex.getCause().getClass().getSimpleName())) ? getErrorMsg(ex.getCause()) : 
 									  getErrorMsg(ex.getCause().getCause());
 								  
-					Long processInstanceId = Long.parseLong(definicioProces.getJbpmId());
+//					Long processInstanceId = Long.parseLong(definicioProces.getJbpmId());
 								  
 					if (msg.contains("HELIUM.FK_TASKINST_TASK"))
 						msg = messageHelper.getMessage("error.defpro.eliminar.constraint.taskinstance");
 					if (msg.contains("HELIUM.FK_JOB_ACTION"))
 						msg = messageHelper.getMessage("error.defpro.eliminar.constraint.job");
 					if (msg.contains("HELIUM.FK_LOG_")) {
-						if (GraphSession.errorsDelete.containsKey(processInstanceId))
-							msg = messageHelper.getMessage("error.defpro.eliminar.constraint.log");
-						else
+//						A la 3.2 ja no s'utilitza el GraphSession per manejar definicions de procés					
+//						if (GraphSession.errorsDelete.containsKey(processInstanceId))
+//							msg = messageHelper.getMessage("error.defpro.eliminar.constraint.log");
+//						else
 							msg = messageHelper.getMessage("error.defpro.eliminar.constraint.log_no_exp");
 					}
 					if (msg.contains("HELIUM.FK_SWL_ASSDEL") || msg.contains("HELIUM.FK_SWIMLANEINST_SL"))
@@ -1200,16 +1201,16 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 					if (msg.contains("HELIUM.FK_TRANS_PROCDEF"))
 						msg = messageHelper.getMessage("error.defpro.eliminar.constraint.procdef");
 					
-					
-					if (GraphSession.errorsDelete.containsKey(processInstanceId)){
-						
-						msg += "####exp_afectats###" + definicioProces.getId().toString() + "###";
-						for (ProcessInstanceExpedient expedient: GraphSession.errorsDelete.get(processInstanceId)) {
-							msg += "&&&" + (expedient.getIdentificador().equals("[null] null") ? expedient.getNumeroDefault() : expedient.getIdentificador()) + "@" + expedient.getId();
-						}
-						
-						GraphSession.errorsDelete.remove(processInstanceId);
-					}
+//					A la 3.2 ja no s'utilitza el GraphSession per manejar definicions de procés					
+//					if (GraphSession.errorsDelete.containsKey(processInstanceId)){
+//						
+//						msg += "####exp_afectats###" + definicioProces.getId().toString() + "###";
+//						for (ProcessInstanceExpedient expedient: GraphSession.errorsDelete.get(processInstanceId)) {
+//							msg += "&&&" + (expedient.getIdentificador().equals("[null] null") ? expedient.getNumeroDefault() : expedient.getIdentificador()) + "@" + expedient.getId();
+//						}
+//						
+//						GraphSession.errorsDelete.remove(processInstanceId);
+//					}
 					
 					throw new Exception(messageHelper.getMessage("error.defpro.eliminar.constraint", new Object[] {definicioProces.getIdPerMostrar(), ""}) + ": " + msg);
 					
@@ -1226,7 +1227,7 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 			Long expedientTipusId,
 			DefinicioProces definicioProces) {
 		if (expedientTipusId == null) {
-			jbpmHelper.esborrarDesplegament(definicioProces.getJbpmId());
+			workflowEngineApi.esborrarDesplegament(definicioProces.getJbpmId());
 			for (Document doc: definicioProces.getDocuments())
 				documentRepository.delete(doc.getId());
 			for (Termini termini: definicioProces.getTerminis())
@@ -1234,7 +1235,7 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 			definicioProcesRepository.delete(definicioProces);
 		} else {
 			if (comprovarExpedientTipus(expedientTipusId, definicioProces.getId())) {
-				jbpmHelper.esborrarDesplegament(definicioProces.getJbpmId());
+				workflowEngineApi.esborrarDesplegament(definicioProces.getJbpmId());
 				for (Document doc: definicioProces.getDocuments()) {
 					documentRepository.delete(doc);
 				}
@@ -1551,7 +1552,7 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 		Expedient exp = ome.getExpedient();
 		try {
 			ome.setDataInici(new Date());
-			expedientRegistreService.registreBuidarLog(
+			expedientRegistreService.eliminaInformacioRetroaccio(
 					exp.getId());
 			ome.setEstat(ExecucioMassivaEstat.ESTAT_FINALITZAT);
 			ome.setDataFi(new Date());
@@ -1566,9 +1567,9 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 		String tascaId = ome.getTascaId();
 		try {
 			ome.setDataInici(new Date());
-			JbpmTask tasca = tascaHelper.getTascaComprovacionsTramitacio(tascaId, false, false);
+			WTaskInstance tasca = tascaHelper.getTascaComprovacionsTramitacio(tascaId, false, false);
 			if (tasca != null && tasca.isOpen()) {
-				ProcessInstanceExpedient piexp = jbpmHelper.expedientFindByProcessInstanceId(
+				ExpedientDto piexp = workflowEngineApi.expedientFindByProcessInstanceId(
 						tasca.getProcessInstanceId());
 				expedientTascaService.reassignar(
 						piexp.getId(),

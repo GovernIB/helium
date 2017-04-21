@@ -14,6 +14,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import net.conselldemallorca.helium.core.api.WorkflowEngineApi;
 import net.conselldemallorca.helium.core.helper.ConversioTipusHelper;
 import net.conselldemallorca.helium.core.helper.ExpedientHelper;
 import net.conselldemallorca.helium.core.helper.MessageHelper;
@@ -26,7 +27,6 @@ import net.conselldemallorca.helium.core.model.hibernate.Termini;
 import net.conselldemallorca.helium.core.model.hibernate.TerminiIniciat;
 import net.conselldemallorca.helium.core.security.ExtendedPermission;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
-import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
 import net.conselldemallorca.helium.v3.core.api.dto.FestiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TerminiDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TerminiIniciatDto;
@@ -61,7 +61,7 @@ public class ExpedientTerminiServiceImpl implements ExpedientTerminiService {
 	@Resource
 	private ExpedientRepository expedientRepository;
 	@Resource
-	private JbpmHelper jbpmHelper;
+	private WorkflowEngineApi workflowEngineApi;
 	@Resource
 	private ConversioTipusHelper conversioTipusHelper;
 	@Resource
@@ -634,12 +634,12 @@ public class ExpedientTerminiServiceImpl implements ExpedientTerminiService {
 
 	private void suspendTimers(TerminiIniciat terminiIniciat) {
 		for (long timerId : terminiIniciat.getTimerIdsArray())
-			jbpmHelper.suspendTimer(timerId, new Date(Long.MAX_VALUE));
+			workflowEngineApi.suspendTimer(timerId, new Date(Long.MAX_VALUE));
 
 	}
 	private void resumeTimers(TerminiIniciat terminiIniciat) {
 		for (long timerId : terminiIniciat.getTimerIdsArray())
-			jbpmHelper.resumeTimer(timerId, terminiIniciat.getDataFi());
+			workflowEngineApi.resumeTimer(timerId, terminiIniciat.getDataFi());
 	}
 
 	private Registre crearRegistreTermini(

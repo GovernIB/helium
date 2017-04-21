@@ -12,7 +12,7 @@ import javax.servlet.http.HttpServletRequest;
 import net.conselldemallorca.helium.core.model.dto.PersonaDto;
 import net.conselldemallorca.helium.core.model.hibernate.Persona;
 import net.conselldemallorca.helium.core.model.service.PersonaService;
-import net.conselldemallorca.helium.jbpm3.handlers.tipus.ParellaCodiValor;
+import net.conselldemallorca.helium.core.extern.domini.ParellaCodiValor;
 import net.conselldemallorca.helium.webapp.mvc.interceptor.PersonaInterceptor;
 import net.conselldemallorca.helium.webapp.mvc.util.BaseController;
 

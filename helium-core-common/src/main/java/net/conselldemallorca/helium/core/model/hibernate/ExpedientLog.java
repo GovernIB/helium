@@ -24,6 +24,9 @@ import org.springmodules.validation.bean.conf.loader.annotation.handler.MaxLengt
 import org.springmodules.validation.bean.conf.loader.annotation.handler.NotBlank;
 import org.springmodules.validation.bean.conf.loader.annotation.handler.NotNull;
 
+import net.conselldemallorca.helium.core.api.WorkflowRetroaccioApi.ExpedientRetroaccioEstat;
+import net.conselldemallorca.helium.core.api.WorkflowRetroaccioApi.ExpedientRetroaccioTipus;
+
 /**
  * Objecte de domini que representa una entrada de log d'un expedient.
  * 
@@ -35,62 +38,6 @@ public class ExpedientLog implements Serializable, GenericEntity<Long> {
 
 	private static int MAX_PARAMETERS_LENGTH = 2048;
 	
-	public enum ExpedientLogAccioTipus {
-		PROCES_VARIABLE_CREAR,			// 0
-		PROCES_VARIABLE_MODIFICAR,
-		PROCES_VARIABLE_ESBORRAR,
-		PROCES_DOCUMENT_AFEGIR,
-		PROCES_DOCUMENT_MODIFICAR,
-		PROCES_DOCUMENT_ESBORRAR,		// 5
-		PROCES_DOCUMENT_ADJUNTAR,
-		PROCES_SCRIPT_EXECUTAR,
-		PROCES_ACTUALITZAR,
-		TASCA_REASSIGNAR,
-		TASCA_FORM_GUARDAR,				// 10
-		TASCA_FORM_VALIDAR,
-		TASCA_FORM_RESTAURAR,
-		TASCA_ACCIO_EXECUTAR,
-		TASCA_DOCUMENT_AFEGIR,
-		TASCA_DOCUMENT_MODIFICAR,		// 15
-		TASCA_DOCUMENT_ESBORRAR,
-		TASCA_DOCUMENT_SIGNAR,
-		TASCA_COMPLETAR,
-		TASCA_SUSPENDRE,
-		TASCA_CONTINUAR,				// 20
-		TASCA_CANCELAR,
-		TASCA_MARCAR_FINALITZAR,
-		EXPEDIENT_INICIAR,
-		EXPEDIENT_MODIFICAR,
-		EXPEDIENT_ATURAR,
-		EXPEDIENT_REPRENDRE,			// 25
-		EXPEDIENT_RELACIO_AFEGIR,
-		EXPEDIENT_RELACIO_ESBORRAR,
-		EXPEDIENT_ACCIO,
-		EXPEDIENT_RETROCEDIR,
-		PROCES_DOCUMENT_SIGNAR,			// 30
-		EXPEDIENT_RETROCEDIR_TASQUES,
-		PROCES_LLAMAR_SUBPROCES,
-		EXPEDIENT_FINALITZAR,
-		EXPEDIENT_DESFINALITZAR}
-
-	public enum ExpedientLogEstat {
-		NORMAL,
-		RETROCEDIT,
-		IGNORAR,
-		BLOCAR,
-		RETROCEDIT_TASQUES}
-	
-	public enum LogInfo {
-		NUMERO,
-		TITOL,
-		RESPONSABLE,
-		INICI,
-		COMENTARI,
-		ESTAT,
-		GEOPOSICIOX,
-		GEOPOSICIOY,
-		GEOREFERENCIA,
-		GRUP}
 
 	private Long id;
 	@NotBlank
@@ -105,9 +52,9 @@ public class ExpedientLog implements Serializable, GenericEntity<Long> {
 	private Long jbpmLogId;
 	private Long processInstanceId;
 	@NotNull
-	private ExpedientLogEstat estat = ExpedientLogEstat.NORMAL;
+	private ExpedientRetroaccioEstat estat = ExpedientRetroaccioEstat.NORMAL;
 	@NotNull
-	private ExpedientLogAccioTipus accioTipus;
+	private ExpedientRetroaccioTipus accioTipus;
 
 	@NotNull
 	private Expedient expedient;
@@ -118,7 +65,7 @@ public class ExpedientLog implements Serializable, GenericEntity<Long> {
 			Expedient expedient,
 			String usuari,
 			String targetId,
-			ExpedientLogAccioTipus accioTipus) {
+			ExpedientRetroaccioTipus accioTipus) {
 		this.expedient = expedient;
 		this.usuari = usuari;
 		this.targetId = targetId;
@@ -193,18 +140,18 @@ public class ExpedientLog implements Serializable, GenericEntity<Long> {
 	}
 
 	@Column(name="estat", nullable=false)
-	public ExpedientLogEstat getEstat() {
+	public ExpedientRetroaccioEstat getEstat() {
 		return estat;
 	}
-	public void setEstat(ExpedientLogEstat estat) {
+	public void setEstat(ExpedientRetroaccioEstat estat) {
 		this.estat = estat;
 	}
 
 	@Column(name="accio_tipus", nullable=false)
-	public ExpedientLogAccioTipus getAccioTipus() {
+	public ExpedientRetroaccioTipus getAccioTipus() {
 		return accioTipus;
 	}
-	public void setAccioTipus(ExpedientLogAccioTipus accioTipus) {
+	public void setAccioTipus(ExpedientRetroaccioTipus accioTipus) {
 		this.accioTipus = accioTipus;
 	}
 
@@ -228,47 +175,47 @@ public class ExpedientLog implements Serializable, GenericEntity<Long> {
 	
 	@Transient
 	public boolean isTargetTasca() {
-		return	accioTipus.equals(ExpedientLogAccioTipus.TASCA_REASSIGNAR) ||
-				accioTipus.equals(ExpedientLogAccioTipus.TASCA_FORM_GUARDAR) ||
-				accioTipus.equals(ExpedientLogAccioTipus.TASCA_FORM_VALIDAR) ||
-				accioTipus.equals(ExpedientLogAccioTipus.TASCA_FORM_RESTAURAR) ||
-				accioTipus.equals(ExpedientLogAccioTipus.TASCA_DOCUMENT_AFEGIR) ||
-				accioTipus.equals(ExpedientLogAccioTipus.TASCA_DOCUMENT_MODIFICAR) ||
-				accioTipus.equals(ExpedientLogAccioTipus.TASCA_DOCUMENT_ESBORRAR) ||
-				accioTipus.equals(ExpedientLogAccioTipus.TASCA_DOCUMENT_SIGNAR) ||
-				accioTipus.equals(ExpedientLogAccioTipus.TASCA_COMPLETAR) ||
-				accioTipus.equals(ExpedientLogAccioTipus.TASCA_SUSPENDRE) ||
-				accioTipus.equals(ExpedientLogAccioTipus.TASCA_CONTINUAR) ||
-				accioTipus.equals(ExpedientLogAccioTipus.TASCA_CANCELAR) ||
-				accioTipus.equals(ExpedientLogAccioTipus.TASCA_ACCIO_EXECUTAR) ||
-				accioTipus.equals(ExpedientLogAccioTipus.TASCA_MARCAR_FINALITZAR);
+		return	accioTipus.equals(ExpedientRetroaccioTipus.TASCA_REASSIGNAR) ||
+				accioTipus.equals(ExpedientRetroaccioTipus.TASCA_FORM_GUARDAR) ||
+				accioTipus.equals(ExpedientRetroaccioTipus.TASCA_FORM_VALIDAR) ||
+				accioTipus.equals(ExpedientRetroaccioTipus.TASCA_FORM_RESTAURAR) ||
+				accioTipus.equals(ExpedientRetroaccioTipus.TASCA_DOCUMENT_AFEGIR) ||
+				accioTipus.equals(ExpedientRetroaccioTipus.TASCA_DOCUMENT_MODIFICAR) ||
+				accioTipus.equals(ExpedientRetroaccioTipus.TASCA_DOCUMENT_ESBORRAR) ||
+				accioTipus.equals(ExpedientRetroaccioTipus.TASCA_DOCUMENT_SIGNAR) ||
+				accioTipus.equals(ExpedientRetroaccioTipus.TASCA_COMPLETAR) ||
+				accioTipus.equals(ExpedientRetroaccioTipus.TASCA_SUSPENDRE) ||
+				accioTipus.equals(ExpedientRetroaccioTipus.TASCA_CONTINUAR) ||
+				accioTipus.equals(ExpedientRetroaccioTipus.TASCA_CANCELAR) ||
+				accioTipus.equals(ExpedientRetroaccioTipus.TASCA_ACCIO_EXECUTAR) ||
+				accioTipus.equals(ExpedientRetroaccioTipus.TASCA_MARCAR_FINALITZAR);
 	}
 	@Transient
 	public boolean isTargetProces() {
-		return	accioTipus.equals(ExpedientLogAccioTipus.PROCES_VARIABLE_CREAR) ||
-				accioTipus.equals(ExpedientLogAccioTipus.PROCES_VARIABLE_MODIFICAR) ||
-				accioTipus.equals(ExpedientLogAccioTipus.PROCES_VARIABLE_ESBORRAR) ||
-				accioTipus.equals(ExpedientLogAccioTipus.PROCES_DOCUMENT_AFEGIR) ||
-				accioTipus.equals(ExpedientLogAccioTipus.PROCES_DOCUMENT_MODIFICAR) ||
-				accioTipus.equals(ExpedientLogAccioTipus.PROCES_DOCUMENT_ESBORRAR) ||
-				accioTipus.equals(ExpedientLogAccioTipus.PROCES_DOCUMENT_ADJUNTAR) ||
-				accioTipus.equals(ExpedientLogAccioTipus.PROCES_DOCUMENT_SIGNAR) ||
-				accioTipus.equals(ExpedientLogAccioTipus.PROCES_SCRIPT_EXECUTAR) ||
-				accioTipus.equals(ExpedientLogAccioTipus.PROCES_ACTUALITZAR);
+		return	accioTipus.equals(ExpedientRetroaccioTipus.PROCES_VARIABLE_CREAR) ||
+				accioTipus.equals(ExpedientRetroaccioTipus.PROCES_VARIABLE_MODIFICAR) ||
+				accioTipus.equals(ExpedientRetroaccioTipus.PROCES_VARIABLE_ESBORRAR) ||
+				accioTipus.equals(ExpedientRetroaccioTipus.PROCES_DOCUMENT_AFEGIR) ||
+				accioTipus.equals(ExpedientRetroaccioTipus.PROCES_DOCUMENT_MODIFICAR) ||
+				accioTipus.equals(ExpedientRetroaccioTipus.PROCES_DOCUMENT_ESBORRAR) ||
+				accioTipus.equals(ExpedientRetroaccioTipus.PROCES_DOCUMENT_ADJUNTAR) ||
+				accioTipus.equals(ExpedientRetroaccioTipus.PROCES_DOCUMENT_SIGNAR) ||
+				accioTipus.equals(ExpedientRetroaccioTipus.PROCES_SCRIPT_EXECUTAR) ||
+				accioTipus.equals(ExpedientRetroaccioTipus.PROCES_ACTUALITZAR);
 	}
 	@Transient
 	public boolean isTargetExpedient() {
-		return	accioTipus.equals(ExpedientLogAccioTipus.EXPEDIENT_INICIAR) ||
-				accioTipus.equals(ExpedientLogAccioTipus.EXPEDIENT_MODIFICAR) ||
-				accioTipus.equals(ExpedientLogAccioTipus.EXPEDIENT_ATURAR) ||
-				accioTipus.equals(ExpedientLogAccioTipus.EXPEDIENT_REPRENDRE) ||
-				accioTipus.equals(ExpedientLogAccioTipus.EXPEDIENT_RELACIO_AFEGIR) ||
-				accioTipus.equals(ExpedientLogAccioTipus.EXPEDIENT_RELACIO_ESBORRAR) ||
-				accioTipus.equals(ExpedientLogAccioTipus.EXPEDIENT_ACCIO) ||
-				accioTipus.equals(ExpedientLogAccioTipus.EXPEDIENT_RETROCEDIR) ||
-				accioTipus.equals(ExpedientLogAccioTipus.EXPEDIENT_FINALITZAR) ||
-				accioTipus.equals(ExpedientLogAccioTipus.EXPEDIENT_DESFINALITZAR) ||
-				accioTipus.equals(ExpedientLogAccioTipus.EXPEDIENT_RETROCEDIR_TASQUES);
+		return	accioTipus.equals(ExpedientRetroaccioTipus.EXPEDIENT_INICIAR) ||
+				accioTipus.equals(ExpedientRetroaccioTipus.EXPEDIENT_MODIFICAR) ||
+				accioTipus.equals(ExpedientRetroaccioTipus.EXPEDIENT_ATURAR) ||
+				accioTipus.equals(ExpedientRetroaccioTipus.EXPEDIENT_REPRENDRE) ||
+				accioTipus.equals(ExpedientRetroaccioTipus.EXPEDIENT_RELACIO_AFEGIR) ||
+				accioTipus.equals(ExpedientRetroaccioTipus.EXPEDIENT_RELACIO_ESBORRAR) ||
+				accioTipus.equals(ExpedientRetroaccioTipus.EXPEDIENT_ACCIO) ||
+				accioTipus.equals(ExpedientRetroaccioTipus.EXPEDIENT_RETROCEDIR) ||
+				accioTipus.equals(ExpedientRetroaccioTipus.EXPEDIENT_FINALITZAR) ||
+				accioTipus.equals(ExpedientRetroaccioTipus.EXPEDIENT_DESFINALITZAR) ||
+				accioTipus.equals(ExpedientRetroaccioTipus.EXPEDIENT_RETROCEDIR_TASQUES);
 	}
 
 	@Override
