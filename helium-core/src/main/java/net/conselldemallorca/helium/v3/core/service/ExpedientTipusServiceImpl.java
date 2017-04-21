@@ -2142,6 +2142,8 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 					nou.setOcult(camp.isOcult());
 					nou.setDominiIntern(camp.isDominiIntern());
 					nou.setJbpmAction(camp.getJbpmAction());
+					if (camp.getTipus() == TipusCamp.ACCIO && camp.getDefinicioProces() != null)
+						nou.setDefprocJbpmKey(camp.getDefinicioProces().getJbpmKey());
 					nou.setOrdre(camp.getOrdre());
 					
 					if (camp.getEnumeracio() != null && camp.getEnumeracio().getCodi() != null) {
