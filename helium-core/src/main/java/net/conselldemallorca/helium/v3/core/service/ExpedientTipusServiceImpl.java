@@ -2163,7 +2163,8 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 									expedientTipus.getEnumeracions().add(enumeracio);
 								}
 								enumeracio.setNom(camp.getEnumeracio().getNom());
-							}											
+							}										
+							nou.setEnumeracio(enumeracio);
 						}else{
 							nou.setEnumeracio(enumeracioEntorn);
 						}						
