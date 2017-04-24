@@ -2148,22 +2148,22 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 						Enumeracio enumeracioEntorn = enumeracioRepository.findByEntornAndCodiAndExpedientTipusNull(
 								entorn, 
 								camp.getEnumeracio().getCodi());
-						if (enumeracioEntorn != null){
-							nou.setEnumeracio(enumeracioEntorn);
-						} else {
+						if(enumeracioEntorn==null){
 							Enumeracio enumeracio = enumeracioRepository.findByEntornAndExpedientTipusAndCodi(
 									entorn, 
 									expedientTipus, 
 									camp.getEnumeracio().getCodi());
-							if (enumeracio != null) {
-								nou.setEnumeracio(enumeracio);
-							} else {
-								throw new ExportException(
-										messageHelper.getMessage(
-												"expedient.tipus.definicioProces.llistat.definicioProces.incorporar.error.enumeracio",
-												new Object[] {camp.getEnumeracio().getCodi(), camp.getCodi(), camp.getEtiqueta()}
-										));
-							}
+							if (enumeracio == null || sobreescriure) {
+								if (enumeracio == null) {
+									enumeracio = new Enumeracio();
+									enumeracio.setEntorn(entorn);
+									expedientTipus.getEnumeracions().add(enumeracio);
+								}
+								enumeracio.setNom(camp.getEnumeracio().getNom());
+							}										
+							nou.setEnumeracio(enumeracio);
+						}else{
+							nou.setEnumeracio(enumeracioEntorn);
 						}						
 					}
 					// Propaga les validacions del camp
