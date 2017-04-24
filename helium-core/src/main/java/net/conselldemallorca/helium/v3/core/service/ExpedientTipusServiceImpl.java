@@ -36,8 +36,8 @@ import net.conselldemallorca.helium.core.helper.ExpedientTipusHelper;
 import net.conselldemallorca.helium.core.helper.MessageHelper;
 import net.conselldemallorca.helium.core.helper.PaginacioHelper;
 import net.conselldemallorca.helium.core.helper.PermisosHelper;
-import net.conselldemallorca.helium.core.helper.PluginHelper;
 import net.conselldemallorca.helium.core.helper.PermisosHelper.ObjectIdentifierExtractor;
+import net.conselldemallorca.helium.core.helper.PluginHelper;
 import net.conselldemallorca.helium.core.model.hibernate.Accio;
 import net.conselldemallorca.helium.core.model.hibernate.Camp;
 import net.conselldemallorca.helium.core.model.hibernate.Camp.TipusCamp;
@@ -83,6 +83,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.PrincipalTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ReassignacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.SequenciaAnyDto;
 import net.conselldemallorca.helium.v3.core.api.dto.SequenciaDefaultAnyDto;
+import net.conselldemallorca.helium.v3.core.api.exception.ExportException;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
 import net.conselldemallorca.helium.v3.core.api.exportacio.AccioExportacio;
@@ -2051,16 +2052,15 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 	
 	@Override
 	@Transactional
-	public boolean definicioProcesIncorporar(
+	public void definicioProcesIncorporar(
 			Long expedientTipusId, 
 			Long id,
-			boolean sobreescriure) {
+			boolean sobreescriure) throws ExportException {
 		logger.debug(
 				"Importació la informació de la definicio de proces al tipus d'expedient(" +
 				"expedientTipusId=" + expedientTipusId +  ", " + 
 				"definicioProcesId=" + id +  ", " + 
 				"sobreescriure=" + sobreescriure + ")");
-		boolean ret = false;
 		ExpedientTipus expedientTipus = expedientTipusHelper.getExpedientTipusComprovantPermisDisseny(expedientTipusId);
 		Entorn entorn = expedientTipus.getEntorn();
 		DefinicioProces definicioProces = definicioProcesRepository.findOne(id);
@@ -2151,22 +2151,22 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 						Enumeracio enumeracioEntorn = enumeracioRepository.findByEntornAndCodiAndExpedientTipusNull(
 								entorn, 
 								camp.getEnumeracio().getCodi());
-						if(enumeracioEntorn==null){
+						if (enumeracioEntorn != null){
+							nou.setEnumeracio(enumeracioEntorn);
+						} else {
 							Enumeracio enumeracio = enumeracioRepository.findByEntornAndExpedientTipusAndCodi(
 									entorn, 
 									expedientTipus, 
 									camp.getEnumeracio().getCodi());
-							if (enumeracio == null || sobreescriure) {
-								if (enumeracio == null) {
-									enumeracio = new Enumeracio();
-									enumeracio.setEntorn(entorn);
-									expedientTipus.getEnumeracions().add(enumeracio);
-								}
-								enumeracio.setNom(camp.getEnumeracio().getNom());
-							}										
-							nou.setEnumeracio(enumeracio);
-						}else{
-							nou.setEnumeracio(enumeracioEntorn);
+							if (enumeracio != null) {
+								nou.setEnumeracio(enumeracio);
+							} else {
+								throw new ExportException(
+										messageHelper.getMessage(
+												"expedient.tipus.definicioProces.llistat.definicioProces.incorporar.error.enumeracio",
+												new Object[] {camp.getEnumeracio().getCodi(), camp.getCodi(), camp.getEtiqueta()}
+										));
+							}
 						}						
 					}
 					// Propaga les validacions del camp
@@ -2187,21 +2187,26 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 				}
 				camps.put(nou.getCodi(), nou);				
 				if (camp.getDomini() != null &&  !camp.isDominiIntern()) {
-					// Propaga el domini referenciat 
-					Domini domini = dominiRepository.findByExpedientTipusAndCodi(
-							expedientTipus,
+					// Propaga el domini referenciat pel camp
+					Domini dominiEntorn = dominiRepository.findByEntornAndCodiAndExpedientTipusNull(
+							entorn, 
 							camp.getDomini().getCodi());
-					if (domini != null) {
-						nou.setDomini(domini);
+					if (dominiEntorn != null) {
+						nou.setDomini(dominiEntorn);
 					} else {
-						domini = new Domini();
-						domini.setCodi(camp.getDomini().getCodi());
-						domini.setEntorn(entorn);
-						domini.setNom(camp.getDomini().getNom());
-						domini.setTipus(camp.getDomini().getTipus());
-						domini.setExpedientTipus(expedientTipus);
-						expedientTipus.getDominis().add(domini);
-					}
+						Domini domini = dominiRepository.findByExpedientTipusAndCodi(
+								expedientTipus,
+								camp.getDomini().getCodi());
+						if (domini != null) {
+							nou.setDomini(domini);
+						} else {
+							throw new ExportException(
+									messageHelper.getMessage(
+											"expedient.tipus.definicioProces.llistat.definicioProces.incorporar.error.domini",
+											new Object[] {camp.getDomini().getCodi(), camp.getCodi(), camp.getEtiqueta()}
+									));
+						}
+					}						
 				}
 				if (camp.getAgrupacio() != null)
 					nou.setAgrupacio(agrupacions.get(camp.getAgrupacio().getCodi()));
@@ -2293,9 +2298,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 					nou.setManual(termini.isManual());
 				}	
 			}
-			ret = true;
 		}
-		return ret;
 	}	
 	
 	/**

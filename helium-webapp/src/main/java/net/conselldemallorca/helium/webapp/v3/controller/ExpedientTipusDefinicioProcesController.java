@@ -26,6 +26,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
+import net.conselldemallorca.helium.v3.core.api.exception.ExportException;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientTipusDefinicioProcesIncorporarCommand;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientTipusDefinicioProcesIncorporarCommand.Incorporar;
 import net.conselldemallorca.helium.webapp.v3.helper.DatatablesHelper;
@@ -148,21 +149,25 @@ public class ExpedientTipusDefinicioProcesController extends BaseExpedientTipusC
         } else {
         	if (command.getDefinicioProcesId() == null)
         		command.setDefinicioProcesId(id);
-        	if (expedientTipusService.definicioProcesIncorporar(
-        			expedientTipusId, 
-        			command.getDefinicioProcesId(),
-        			command.isSobreescriure()))
-	    		MissatgesHelper.success(
-						request, 
-						getMessage(
-								request, 
-								"expedient.tipus.definicioProces.llistat.definicioProces.incorporar.correcte"));
-        	else
+        	try {
+            	expedientTipusService.definicioProcesIncorporar(
+            			expedientTipusId, 
+            			command.getDefinicioProcesId(),
+            			command.isSobreescriure());
+    	    		MissatgesHelper.success(
+    						request, 
+    						getMessage(
+    								request, 
+    								"expedient.tipus.definicioProces.llistat.definicioProces.incorporar.correcte"));
+        		
+        	} catch (ExportException e) {
 	    		MissatgesHelper.error(
 						request, 
 						getMessage(
 								request, 
-								"expedient.tipus.definicioProces.llistat.definicioProces.incorporar.error"));
+								"expedient.tipus.definicioProces.llistat.definicioProces.incorporar.error",
+								new Object[] {e.getLocalizedMessage()}));
+        	}
 			return modalUrlTancar(false);
 			
         }

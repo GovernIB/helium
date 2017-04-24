@@ -28,6 +28,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PermisDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ReassignacioDto;
+import net.conselldemallorca.helium.v3.core.api.exception.ExportException;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
 import net.conselldemallorca.helium.v3.core.api.exportacio.ExpedientTipusExportacio;
@@ -276,8 +277,8 @@ public class ExpedientTipusServiceBean implements ExpedientTipusService {
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public boolean definicioProcesIncorporar(Long expedientTipusId, Long id, boolean sobreescriure) {
-		return delegate.definicioProcesIncorporar(expedientTipusId, id, sobreescriure);
+	public void definicioProcesIncorporar(Long expedientTipusId, Long id, boolean sobreescriure) throws ExportException {
+		delegate.definicioProcesIncorporar(expedientTipusId, id, sobreescriure);
 	}
 
 	@Override
