@@ -13,6 +13,7 @@ import java.util.Date;
 public class RespostaAnotacioRegistre extends RespostaBase {
 
 	private String numero;
+	private String numeroRegistroFormateado;
 	private Date data;
 	private ReferenciaRDSJustificante referenciaRDSJustificante;
 	
@@ -21,6 +22,12 @@ public class RespostaAnotacioRegistre extends RespostaBase {
 	}
 	public void setNumero(String numero) {
 		this.numero = numero;
+	}
+	public String getNumeroRegistroFormateado() {
+		return numeroRegistroFormateado;
+	}
+	public void setNumeroRegistroFormateado(String numeroRegistroFormateado) {
+		this.numeroRegistroFormateado = numeroRegistroFormateado;
 	}
 	public Date getData() {
 		return data;

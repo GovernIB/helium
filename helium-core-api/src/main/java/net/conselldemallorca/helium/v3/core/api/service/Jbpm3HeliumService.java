@@ -42,6 +42,7 @@ import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.exception.SistemaExternException;
 import net.conselldemallorca.helium.v3.core.api.exception.TramitacioException;
 import net.conselldemallorca.helium.v3.core.api.exception.ValidacioException;
+import net.conselldemallorca.helium.v3.core.api.registre.RegistreAnotacio;
 
 
 /**
@@ -706,6 +707,12 @@ public interface Jbpm3HeliumService {
 	 * @return
 	 */
 	public boolean isRegistreActiu();
+	
+	/**
+	 * 
+	 * @return
+	 */
+	public boolean isRegistreRegWeb3Actiu();
 
 	/**
 	 * 
@@ -726,6 +733,16 @@ public interface Jbpm3HeliumService {
 	public RegistreIdDto registreAnotacioSortida(
 			RegistreAnotacioDto anotacio,
 			Long expedientId) throws SistemaExternException, NoTrobatException;
+	
+	/**
+	 * 
+	 * @param anotacio
+	 * @return
+	 * @throws PluginException
+	 */
+	public RegistreIdDto registreAnotacioSortida(
+			RegistreAnotacio anotacio,
+			Long expedientId) throws SistemaExternException, NoTrobatException;
 
 	/**
 	 * 
@@ -745,6 +762,20 @@ public interface Jbpm3HeliumService {
 	 */
 	public String registreObtenirOficinaNom(
 			String oficinaCodi,
+			Long expedientId) throws SistemaExternException, NoTrobatException;
+	
+	/**
+	 * 
+	 * @param numRegistre
+	 * @param usuariCodi
+	 * @param entitatCodi
+	 * @return
+	 * @throws PluginException
+	 */
+	public String registreObtenirOficinaNom(
+			String numRegistre,
+			String usuariCodi,
+			String entitatCodi,
 			Long expedientId) throws SistemaExternException, NoTrobatException;
 
 	/**

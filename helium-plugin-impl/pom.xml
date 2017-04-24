@@ -12,6 +12,16 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
+	
+	<repositories>
+        <!-- Requerim RIPEA, PluginsIB(ScanWeb) i Dir3CAIB -->
+	    <repository>
+	      <id>maven-repos</id>
+	      <name>GitHub GovernIB Maven Repository</name>
+	      <url>http://GovernIB.github.io/maven/maven/</url>
+	    </repository>
+    </repositories>
+	
 	<dependencies>
 		<dependency>
 			<groupId>es.caib</groupId>
@@ -109,6 +119,12 @@
 			<artifactId>axis</artifactId>
 			<version>1.4</version>
 			<type>jar</type>
+			<exclusions>
+				<exclusion>
+					<artifactId>axis-wsdl4j</artifactId>
+					<groupId>axis</groupId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.security</groupId>
@@ -202,6 +218,27 @@
 			<artifactId>helium-core-common</artifactId>
 			<version>${helium.version}</version>
 		</dependency>
+		
+		<dependency>
+            <groupId>es.caib.regweb3</groupId>
+            <artifactId>regweb3-utils</artifactId>
+            <version>3.0.8</version>
+            <scope>compile</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>es.caib.regweb3</groupId>
+            <artifactId>regweb3-ws-api</artifactId>
+            <version>3.0.8</version>
+            <scope>compile</scope>
+        </dependency>
+        
+		<dependency>
+		    <groupId>wsdl4j</groupId>
+		    <artifactId>wsdl4j</artifactId>
+		    <version>1.6.2</version>
+		</dependency>
+        
 	</dependencies>
 	<build>
 		<plugins>

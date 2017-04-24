@@ -71,6 +71,12 @@
 			<version>1.4</version>
 			<type>jar</type>
 			<scope>compile</scope>
+			<exclusions>
+				<exclusion>
+					<artifactId>axis-wsdl4j</artifactId>
+					<groupId>axis</groupId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>net.conselldemallorca</groupId>

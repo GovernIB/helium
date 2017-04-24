@@ -187,6 +187,12 @@
 			<artifactId>axis</artifactId>
 			<version>1.4</version>
 			<type>jar</type>
+			<exclusions>
+				<exclusion>
+					<artifactId>axis-wsdl4j</artifactId>
+					<groupId>axis</groupId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<!--dependency>
 			<groupId>jaxen</groupId>
