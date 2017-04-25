@@ -568,6 +568,14 @@ public class DissenyServiceImpl implements DissenyService {
 
 	@Transactional(readOnly=true)
 	@Override
+	public List<ExpedientTipusDto> findExpedientTipusAmbSistraTramitCodi(String tramitCodi) {
+		return conversioTipusHelper.convertirList(
+						expedientTipusRepository.findBySistraTramitCodi(tramitCodi), 
+						ExpedientTipusDto.class);
+	}
+	
+	@Transactional(readOnly=true)
+	@Override
 	public List<ParellaCodiValorDto> findTasquesAmbEntornIExpedientTipusPerSeleccio(
 			Long entornId,
 			Long expedientTipusId) {

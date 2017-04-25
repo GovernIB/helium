@@ -7,14 +7,6 @@ import java.util.List;
 
 import javax.jws.WebService;
 
-import net.conselldemallorca.helium.core.model.service.ServiceProxy;
-import net.conselldemallorca.helium.integracio.plugins.tramitacio.DadesTramit;
-import net.conselldemallorca.helium.integracio.plugins.tramitacio.DadesVistaDocument;
-import net.conselldemallorca.helium.integracio.plugins.tramitacio.ObtenirDadesTramitRequest;
-import net.conselldemallorca.helium.integracio.plugins.tramitacio.ObtenirVistaDocumentRequest;
-import net.conselldemallorca.helium.integracio.plugins.tramitacio.ResultatProcesTipus;
-import net.conselldemallorca.helium.integracio.plugins.tramitacio.ResultatProcesTramitRequest;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -22,6 +14,12 @@ import es.caib.bantel.ws.v1.model.referenciaentrada.ReferenciaEntrada;
 import es.caib.bantel.ws.v1.model.referenciaentrada.ReferenciasEntrada;
 import es.caib.bantel.ws.v1.services.BantelFacade;
 import es.caib.bantel.ws.v1.services.BantelFacadeException;
+import net.conselldemallorca.helium.integracio.plugins.tramitacio.DadesVistaDocument;
+import net.conselldemallorca.helium.integracio.plugins.tramitacio.ObtenirDadesTramitRequest;
+import net.conselldemallorca.helium.integracio.plugins.tramitacio.ObtenirVistaDocumentRequest;
+import net.conselldemallorca.helium.integracio.plugins.tramitacio.ResultatProcesTipus;
+import net.conselldemallorca.helium.integracio.plugins.tramitacio.ResultatProcesTramitRequest;
+import net.conselldemallorca.helium.v3.core.api.dto.TramitDto;
 
 /**
  * Backoffice per a gestionar les entrades de BANTEL
@@ -30,7 +28,7 @@ import es.caib.bantel.ws.v1.services.BantelFacadeException;
  */
 @WebService(endpointInterface = "es.caib.bantel.ws.v1.services.BantelFacade")
 public class BantelV1Backoffice extends BaseBackoffice implements BantelFacade {
-
+	
 	public void avisoEntradas(ReferenciasEntrada numeroEntradas)
 			throws BantelFacadeException {
 		List<ReferenciaEntrada> entrades = numeroEntradas.getReferenciaEntrada();
@@ -41,7 +39,7 @@ public class BantelV1Backoffice extends BaseBackoffice implements BantelFacade {
 			logger.info("Petició de processament tramit " + request);
 			boolean error = false;
 			try {
-				DadesTramit dadesTramit = ServiceProxy.getInstance().getPluginService().obtenirDadesTramit(request);
+				TramitDto dadesTramit = pluginHelper.tramitacioObtenirDadesTramit(referenciaEntrada.getNumeroEntrada(), referenciaEntrada.getClaveAcceso());
 				int numExpedients = processarTramit(dadesTramit);
 				logger.info("El tramit " + request + " ha creat " + numExpedients + " expedients");
 			} catch (Exception ex) {
@@ -57,7 +55,7 @@ public class BantelV1Backoffice extends BaseBackoffice implements BantelFacade {
 				else
 					requestResultat.setResultatProces(ResultatProcesTipus.ERROR);
 				logger.info("Comunicant el resultat de processar el tràmit " + request + ": " + requestResultat.getResultatProces());
-				ServiceProxy.getInstance().getPluginService().comunicarResultatProcesTramit(requestResultat);
+				pluginHelper.tramitacioComunicarResultatProcesTramit(requestResultat);
 			} catch (Exception ex) {
 				logger.error("Error a l'hora de comunicar el resultat de processar el tramit " + request, ex);
 			}
@@ -75,7 +73,7 @@ public class BantelV1Backoffice extends BaseBackoffice implements BantelFacade {
 		request.setPlantillaTipus(plantillaTipus);
 		request.setIdioma(idioma);
 		try {
-			return ServiceProxy.getInstance().getPluginService().obtenirVistaDocument(request);
+			return pluginHelper.tramitacioObtenirVistaDocument(request);
 		} catch (Exception ex) {
 			return null;
 		}

@@ -18,6 +18,14 @@ import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 import org.springframework.stereotype.Component;
 
+import net.conselldemallorca.helium.core.api.WProcessInstance;
+import net.conselldemallorca.helium.core.api.WToken;
+import net.conselldemallorca.helium.core.api.WorkflowEngineApi;
+import net.conselldemallorca.helium.core.api.WorkflowRetroaccioApi;
+import net.conselldemallorca.helium.core.api.WorkflowRetroaccioApi.ExpedientRetroaccioTipus;
+import net.conselldemallorca.helium.core.common.ThreadLocalInfo;
+import net.conselldemallorca.helium.core.model.exception.PluginException;
+import net.conselldemallorca.helium.core.model.hibernate.DocumentStore;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.model.hibernate.Portasignatures;
 import net.conselldemallorca.helium.core.model.hibernate.Portasignatures.TipusEstat;
@@ -54,11 +62,14 @@ import net.conselldemallorca.helium.integracio.plugins.signatura.RespostaValidac
 import net.conselldemallorca.helium.integracio.plugins.signatura.SignaturaPlugin;
 import net.conselldemallorca.helium.integracio.plugins.signatura.SignaturaPluginException;
 import net.conselldemallorca.helium.integracio.plugins.tramitacio.DadesTramit;
+import net.conselldemallorca.helium.integracio.plugins.tramitacio.DadesVistaDocument;
 import net.conselldemallorca.helium.integracio.plugins.tramitacio.DocumentTramit;
 import net.conselldemallorca.helium.integracio.plugins.tramitacio.Event;
 import net.conselldemallorca.helium.integracio.plugins.tramitacio.ObtenirDadesTramitRequest;
+import net.conselldemallorca.helium.integracio.plugins.tramitacio.ObtenirVistaDocumentRequest;
 import net.conselldemallorca.helium.integracio.plugins.tramitacio.PublicarEventRequest;
 import net.conselldemallorca.helium.integracio.plugins.tramitacio.PublicarExpedientRequest;
+import net.conselldemallorca.helium.integracio.plugins.tramitacio.ResultatProcesTramitRequest;
 import net.conselldemallorca.helium.integracio.plugins.tramitacio.Signatura;
 import net.conselldemallorca.helium.integracio.plugins.tramitacio.TramitacioPlugin;
 import net.conselldemallorca.helium.integracio.plugins.tramitacio.TramitacioPluginException;
@@ -102,6 +113,13 @@ public class PluginHelper {
 	private CacheManager cacheManager;
 	@Autowired
 	private MonitorIntegracioHelper monitorIntegracioHelper;
+	@Autowired
+	private ProcesCallbackHelper procesCallbackHelper;
+	@Autowired
+	private WorkflowEngineApi workflowEngineApi;
+	@Autowired
+	private WorkflowRetroaccioApi workflowRetroaccioApi;
+
 
 	private PersonesPlugin personesPlugin;
 	private boolean personesPluginEvaluat = false;
@@ -597,6 +615,51 @@ public class PluginHelper {
 		logger.info("###===> S'ha cridat al mètode per acutaltizar expedient Helium correctament.");
 	}
 
+	public void tramitacioComunicarResultatProcesTramit(ResultatProcesTramitRequest resultat) {
+		long t0 = System.currentTimeMillis();
+		IntegracioParametreDto[] parametres = new IntegracioParametreDto[] {
+				new IntegracioParametreDto(
+						"resultat",
+						resultat)
+		};
+		try {
+			getTramitacioPlugin().comunicarResultatProcesTramit(resultat);
+			monitorIntegracioHelper.addAccioOk(
+					MonitorIntegracioHelper.INTCODI_SISTRA,
+					"Obtenir dades del tràmit",
+					IntegracioAccioTipusEnumDto.ENVIAMENT,
+					System.currentTimeMillis() - t0,
+					parametres);
+		} catch (TramitacioPluginException ex) {
+			String errorDescripcio = "No s'ha pogut comunicar el resultat del procés del tramit(" +
+					"resultat=" + resultat + ")";
+			monitorIntegracioHelper.addAccioError(
+					MonitorIntegracioHelper.INTCODI_SISTRA,
+					"Comunicar resultat del tràmit",
+					IntegracioAccioTipusEnumDto.ENVIAMENT,
+					System.currentTimeMillis() - t0,
+					errorDescripcio,
+					ex,
+					parametres);
+			logger.error(
+					errorDescripcio,
+					ex);
+			throw SistemaExternException.tractarSistemaExternException(
+					null,
+					null, 
+					null, 
+					null, 
+					null, 
+					null, 
+					null, 
+					null, 
+					null, 
+					"(SISTRA. Tramitació: " + errorDescripcio + ")", 
+					ex);
+		}		
+	}
+
+
 	public RespostaJustificantRecepcio tramitacioObtenirJustificant(
 			String registreNumero) {
 		long t0 = System.currentTimeMillis();
@@ -683,6 +746,52 @@ public class PluginHelper {
 					null, 
 					null, 
 					"(SISTRA. Obtenir justificant detall: " + errorDescripcio + ")", 
+					ex);
+		}
+	}
+	
+	
+	public DadesVistaDocument tramitacioObtenirVistaDocument(
+			ObtenirVistaDocumentRequest request) {
+		long t0 = System.currentTimeMillis();
+		try {
+			DadesVistaDocument resposta = getTramitacioPlugin().obtenirVistaDocument(request);
+			monitorIntegracioHelper.addAccioOk(
+					MonitorIntegracioHelper.INTCODI_SISTRA,
+					"Obtenir vista document",
+					IntegracioAccioTipusEnumDto.RECEPCIO,
+					System.currentTimeMillis() - t0,
+					new IntegracioParametreDto(
+							"request",
+							request));
+			return resposta;
+		} catch (Exception ex) {
+			String errorDescripcio = "No s'han pogut obtenir la vista del document (" +
+					"request=" + request + ")";
+			monitorIntegracioHelper.addAccioError(
+					MonitorIntegracioHelper.INTCODI_SISTRA,
+					"Obtenir vista document",
+					IntegracioAccioTipusEnumDto.RECEPCIO,
+					System.currentTimeMillis() - t0,
+					errorDescripcio,
+					ex,
+					new IntegracioParametreDto(
+							"request",
+							request));
+			logger.error(
+					errorDescripcio,
+					ex);
+			throw SistemaExternException.tractarSistemaExternException(
+					null,
+					null, 
+					null, 
+					null, 
+					null, 
+					null, 
+					null, 
+					null, 
+					null, 
+					"(SISTRA. Obtenir vista document: " + errorDescripcio + ")", 
 					ex);
 		}
 	}
@@ -1450,7 +1559,167 @@ public class PluginHelper {
 					ex);
 		}
 	}
+	
+	/** Cridada al WS de callback del portasignatures. Processa la petició i marca el document com a signat 
+	 * o rebutjat.
+	 * @param id
+	 * @param rebujat
+	 * @param motiuRebuig
+	 * @return
+	 */
+	public boolean portasignaturesProcessarDocumentCallback(
+			Integer id,
+			boolean rebujat,
+			String motiuRebuig) {
 
+		boolean success = false;
+		try {
+			Portasignatures portasignatures = portasignaturesRepository.findByDocumentId(id);
+			if (portasignatures != null) {
+				if (TipusEstat.PENDENT.equals(portasignatures.getEstat())) {
+					portasignatures.setDataSignatRebutjat(new Date());
+					if (!rebujat) {
+						portasignatures.setEstat(TipusEstat.SIGNAT);
+						portasignatures.setTransition(Transicio.SIGNAT);
+					} else {
+						portasignatures.setEstat(TipusEstat.REBUTJAT);
+						portasignatures.setTransition(Transicio.REBUTJAT);
+						portasignatures.setMotiuRebuig(motiuRebuig);
+					}
+					portasignaturesRepository.saveAndFlush(portasignatures);
+					
+					if (!procesCallbackHelper.isDocumentEnProces(portasignatures.getDocumentId())) {
+						procesCallbackHelper.afegirDocument(portasignatures.getDocumentId());
+						try {
+							processarDocumentPendentPortasignatures(id, portasignatures);
+						} finally {
+							if (procesCallbackHelper.isDocumentEnProces(portasignatures.getDocumentId()))
+								procesCallbackHelper.eliminarDocument(portasignatures.getDocumentId());
+						}
+					}
+					success = true;
+				} else if (TipusEstat.ESBORRAT.equals(portasignatures.getEstat())) {
+					success = true;
+				} else if (TipusEstat.PROCESSAT.equals(portasignatures.getEstat())) {
+					success = true;
+				} else {
+					logger.error("El document rebut al callback (id=" + id + ") no està pendent del callback, el seu estat és " + portasignatures.getEstat());
+				}
+			} else {
+				logger.error("El document rebut al callback (id=" + id + ") no s'ha trobat entre els documents enviats al portasignatures");
+			}
+		} catch (Exception ex) {
+			logger.error("El document rebut al callback (id=" + id + ") ha produit una excepció al ser processat: " + ex.getMessage());
+			logger.debug("El document rebut al callback (id=" + id + ") ha produit una excepció al ser processat", ex);
+		}
+		return success;
+	}
+
+	private boolean processarDocumentPendentPortasignatures(
+			Integer id,
+			Portasignatures portasignatures) {
+		boolean resposta = false;
+		if (portasignatures != null) {
+			if (portasignatures.getDataProcessamentPrimer() == null)
+				portasignatures.setDataProcessamentPrimer(new Date());
+			portasignatures.setDataProcessamentDarrer(new Date());
+			Long tokenId = portasignatures.getTokenId();
+			WToken token = workflowEngineApi.getTokenById(tokenId.toString());
+			DocumentStore documentStore = documentStoreDao.getById(portasignatures.getDocumentStoreId(), false);
+			if (documentStore != null) {
+				if (TipusEstat.SIGNAT.equals(portasignatures.getEstat()) ||
+					(TipusEstat.ERROR.equals(portasignatures.getEstat()) && Transicio.SIGNAT.equals(portasignatures.getTransition()))) {
+					// Processa els documents signats
+					try {
+						ThreadLocalInfo.clearProcessInstanceFinalitzatIds();
+						workflowRetroaccioApi.afegirInformacioRetroaccioPerProces(
+								token.getProcessInstanceId(),
+								ExpedientRetroaccioTipus.PROCES_DOCUMENT_SIGNAR,
+								new Boolean(true).toString());
+						if (documentStore.getReferenciaCustodia() == null) {
+							if (portasignatures.getDataCustodiaIntent() == null)
+								portasignatures.setDataCustodiaIntent(new Date());
+							afegirDocumentCustodia(
+									portasignatures.getDocumentId(),
+									documentStore);
+							portasignatures.setDataCustodiaOk(new Date());
+						}
+						if (portasignatures.getDataSignalIntent() == null)
+							portasignatures.setDataSignalIntent(new Date());
+						workflowEngineApi.signalToken(
+								tokenId.longValue(),
+								portasignatures.getTransicioOK());
+						portasignatures.setDataSignalOk(new Date());
+						portasignatures.setEstat(TipusEstat.PROCESSAT);
+						getServiceUtils().expedientIndexLuceneUpdate(
+								token.getProcessInstanceId());
+						
+						//Actualitzem l'estat de l'expedient, ja que si tot el procés de firma i de custòdia
+						// ha anat bé, es possible que s'avanci cap al node "fi"
+						WProcessInstance rootProcessInstance = workflowEngineApi.getRootProcessInstance(token.getProcessInstanceId());
+						Expedient expedient = expedientDao.findAmbProcessInstanceId(rootProcessInstance.getId());
+						expedientHelper.verificarFinalitzacioExpedient(
+								expedient);
+						resposta = true;
+					} catch (PluginException pex) {
+						errorProcesPsigna(
+								portasignatures,
+								getMissageFinalCadenaExcepcions(pex));
+						logger.error("Error al processar el document firmat pel callback (id=" + portasignatures.getDocumentId() + "): " + getMissageFinalCadenaExcepcions(pex), pex);
+					} catch (Exception ex) {
+						errorProcesPsigna(
+								portasignatures,
+								getMissageFinalCadenaExcepcions(ex));
+						logger.error("Error al processar el document firmat pel callback (id=" + portasignatures.getDocumentId() + ")", ex);
+					}
+					pluginPortasignaturesDao.saveOrUpdate(portasignatures);
+				} else if (TipusEstat.REBUTJAT.equals(portasignatures.getEstat()) ||
+						(TipusEstat.ERROR.equals(portasignatures.getEstat()) && Transicio.REBUTJAT.equals(portasignatures.getTransition()))) {
+					// Processa els documents rebujats
+					try {
+						workflowRetroaccioApi.afegirInformacioRetroaccioPerProces(
+								token.getProcessInstanceId(),
+								ExpedientRetroaccioTipus.PROCES_DOCUMENT_SIGNAR,
+								new Boolean(false).toString());
+						workflowEngineApi.signalToken(
+								tokenId.longValue(),
+								portasignatures.getTransicioKO());
+						portasignatures.setEstat(TipusEstat.PROCESSAT);
+						getServiceUtils().expedientIndexLuceneUpdate(
+								token.getProcessInstanceId());
+						resposta = true;
+					} catch (Exception ex) {
+						errorProcesPsigna(
+								portasignatures,
+								getMissageFinalCadenaExcepcions(ex));
+						logger.error("Error al processar el document rebutjat pel callback (id=" + portasignatures.getDocumentId() + ")", ex);
+					}
+					pluginPortasignaturesDao.saveOrUpdate(portasignatures);
+				} else {
+					String error = "El document de portasignatures (id=" + portasignatures.getDocumentId() + ") no està pendent de processar, està en estat " + portasignatures.getEstat().toString();
+					errorProcesPsigna(
+							portasignatures,
+							error);
+					logger.error(error);
+				}
+			} else {
+				String error = "El document rebut al callback (id=" + portasignatures.getDocumentId() + ") fa referència a un documentStore inexistent (id=" + portasignatures.getDocumentStoreId() + ")";
+				errorProcesPsigna(
+						portasignatures,
+						error);
+				logger.error(error);
+			}
+			List<Portasignatures> ambErrors = pluginPortasignaturesDao.findAmbErrorsPerExpedientId(portasignatures.getExpedient().getId());
+			if (ambErrors.size() > 0)
+				portasignatures.getExpedient().setErrorsIntegracions(true);
+			else
+				portasignatures.getExpedient().setErrorsIntegracions(false);
+		} else {
+			logger.error("El document de portasignatures (id=" + id + ") no s'ha trobat");
+		}
+		return resposta;
+	}
+	
 	public String custodiaAfegirSignatura(
 			Long documentId,
 			String gesdocId,

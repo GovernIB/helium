@@ -60,5 +60,7 @@ public interface ExpedientTipusRepository extends JpaRepository<ExpedientTipus, 
 			@Param("esNullFiltre") boolean esNullFiltre,
 			@Param("filtre") String filtre,		
 			Pageable pageable);
+	
+	List<ExpedientTipus> findBySistraTramitCodi(String tramitCodi);
 
 }

@@ -152,6 +152,12 @@ public class DissenyServiceBean implements DissenyService {
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public List<ExpedientTipusDto> findExpedientTipusAmbSistraTramitCodi(String tramitcodi) {
+		return delegate.findExpedientTipusAmbSistraTramitCodi(tramitcodi);
+	}
+	
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public List<ExpedientTipusDto> findExpedientTipusAmbEntorn(EntornDto entornId) {
 		return delegate.findExpedientTipusAmbEntorn(entornId);
 	}

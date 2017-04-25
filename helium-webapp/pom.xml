@@ -234,12 +234,7 @@
 		</dependency>
 		<dependency>
 			<groupId>net.conselldemallorca</groupId>
-			<artifactId>helium-core-v26</artifactId>
-			<version>${helium.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>net.conselldemallorca</groupId>
-			<artifactId>helium-core</artifactId>
+			<artifactId>helium-core-api</artifactId>
 			<version>${helium.version}</version>
 		</dependency>
 		<dependency>
@@ -247,11 +242,6 @@
 			<artifactId>helium-ws</artifactId>
 			<version>${helium.version}</version>
 		</dependency>
-		<!--dependency>
-			<groupId>net.conselldemallorca</groupId>
-			<artifactId>helium-selenium-integraciones</artifactId>
-			<version>${helium.version}</version>
-		</dependency-->
 		<dependency>
 			<groupId>net.conselldemallorca</groupId>
 			<artifactId>helium-plugin-api</artifactId>
@@ -368,7 +358,7 @@
 		<profile>
 			<id>tomcat</id>
 			<activation>
-				<activeByDefault>false</activeByDefault>
+				<activeByDefault>true</activeByDefault>
 			</activation>
 			<properties>
 				<application.context>application-context-tomcat.xml</application.context>
@@ -412,11 +402,6 @@
 							<groupId>org.slf4j</groupId>
 						</exclusion>
 					</exclusions>
-				</dependency>
-				<dependency>
-					<groupId>net.conselldemallorca</groupId>
-					<artifactId>helium-core</artifactId>
-					<version>${helium.version}</version>
 				</dependency>
 				<dependency>
 					<groupId>net.conselldemallorca</groupId>
@@ -484,7 +469,7 @@
 		<profile>
 			<id>jboss</id>
 			<activation>
-				<activeByDefault>true</activeByDefault>
+				<activeByDefault>false</activeByDefault>
 			</activation>
 			<properties>
 				<application.context>application-context-jboss.xml</application.context>

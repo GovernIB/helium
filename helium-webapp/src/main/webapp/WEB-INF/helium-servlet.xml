@@ -23,7 +23,7 @@
 	
 	<!-- resources.mapping.webjar.jboss.beginmvc:resources mapping="/webjars/**" location="/META-INF/resources/webjars/"/resources.mapping.webjar.jboss.end -->
 	<!-- resources.mapping.webjar.tomcat.beginmvc:resources mapping="/webjars/**" location="classpath:/META-INF/resources/webjars/"/resources.mapping.webjar.tomcat.end -->
-	<!-- resources.mapping.webjar.begin -->	<mvc:resources mapping="/webjars/**" location="/META-INF/resources/webjars/"/> <!-- resources.mapping.webjar.end -->
+	<!-- resources.mapping.webjar.begin -->	<mvc:resources mapping="/webjars/**" location="classpath:/META-INF/resources/webjars/"/> <!-- resources.mapping.webjar.end -->
 
 	<!--mvc:resources mapping="/**/*.png" location="/" cache-period="86400"/>
 	<mvc:resources mapping="/**/*.jpg" location="/" cache-period="86400"/>

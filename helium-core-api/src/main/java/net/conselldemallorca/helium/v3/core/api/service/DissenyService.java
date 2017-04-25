@@ -174,6 +174,9 @@ public interface DissenyService {
 	public DefinicioProcesDto findDarreraDefinicioProcesForExpedientTipus(Long expedientTipusId) throws NoTrobatException;
 
 	public List<ExpedientTipusDto> findExpedientTipusAmbEntorn(EntornDto entorn) throws NoTrobatException;
+	
+	/** Troba els possibles tipus d'expedient segons el codi del tramit Sistra. */
+	public List<ExpedientTipusDto> findExpedientTipusAmbSistraTramitCodi(String tramitCodi);
 
 	/**
 	 * Consulta les tasques disponibles per entorn i expedient tipus per emplenar
