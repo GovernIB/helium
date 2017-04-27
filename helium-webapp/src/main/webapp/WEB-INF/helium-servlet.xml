@@ -35,6 +35,7 @@
 	<mvc:annotation-driven/>
 	<mvc:default-servlet-handler/>
 
+
 	<mvc:interceptors>
 	
 		<mvc:interceptor>
@@ -45,8 +46,6 @@
 			<mvc:exclude-mapping path="/img/**"/>
 			<mvc:exclude-mapping path="/extensions/**"/>
 			<mvc:exclude-mapping path="/webjars/**"/>
-			<mvc:exclude-mapping path="/**/datatable/**"/>
-			<mvc:exclude-mapping path="/**/selection/**"/>
 			<bean class="net.conselldemallorca.helium.webapp.mvc.interceptor.PersonaInterceptor"/>
 		</mvc:interceptor>
 		
@@ -58,8 +57,6 @@
 			<mvc:exclude-mapping path="/img/**"/>
 			<mvc:exclude-mapping path="/extensions/**"/>
 			<mvc:exclude-mapping path="/webjars/**"/>
-			<mvc:exclude-mapping path="/**/datatable/**"/>
-			<mvc:exclude-mapping path="/**/selection/**"/>
 			<bean class="net.conselldemallorca.helium.webapp.mvc.interceptor.EntornInterceptor"/>
 		</mvc:interceptor>
 		
@@ -73,8 +70,6 @@
 			<mvc:exclude-mapping path="/img/**"/>
 			<mvc:exclude-mapping path="/extensions/**"/>
 			<mvc:exclude-mapping path="/webjars/**"/>
-			<mvc:exclude-mapping path="/**/datatable/**"/>
-			<mvc:exclude-mapping path="/**/selection/**"/>
 			<bean class="net.conselldemallorca.helium.webapp.mvc.interceptor.GlobalPropertiesInterceptor"/>
 		</mvc:interceptor>
 		
@@ -86,8 +81,6 @@
 			<mvc:exclude-mapping path="/img/**"/>
 			<mvc:exclude-mapping path="/extensions/**"/>
 			<mvc:exclude-mapping path="/webjars/**"/>
-			<mvc:exclude-mapping path="/**/datatable/**"/>
-			<mvc:exclude-mapping path="/**/selection/**"/>
 			<bean class="net.conselldemallorca.helium.webapp.mvc.interceptor.VersioInterceptor"/>
 		</mvc:interceptor>
 		
@@ -99,8 +92,6 @@
 			<mvc:exclude-mapping path="/img/**"/>
 			<mvc:exclude-mapping path="/extensions/**"/>
 			<mvc:exclude-mapping path="/webjars/**"/>
-			<mvc:exclude-mapping path="/**/datatable/**"/>
-			<mvc:exclude-mapping path="/**/selection/**"/>
 			<bean class="net.conselldemallorca.helium.webapp.v3.interceptor.NodecoInterceptor"/>
 		</mvc:interceptor>
 		
@@ -112,8 +103,6 @@
 			<mvc:exclude-mapping path="/img/**"/>
 			<mvc:exclude-mapping path="/extensions/**"/>
 			<mvc:exclude-mapping path="/webjars/**"/>
-			<mvc:exclude-mapping path="/**/datatable/**"/>
-			<mvc:exclude-mapping path="/**/selection/**"/>
 			<bean class="net.conselldemallorca.helium.webapp.v3.interceptor.ModalInterceptor"/>
 		</mvc:interceptor>
 		
@@ -125,8 +114,6 @@
 			<mvc:exclude-mapping path="/img/**"/>
 			<mvc:exclude-mapping path="/extensions/**"/>
 			<mvc:exclude-mapping path="/webjars/**"/>
-			<mvc:exclude-mapping path="/**/datatable/**"/>
-			<mvc:exclude-mapping path="/**/selection/**"/>
 			<bean class="net.conselldemallorca.helium.webapp.v3.interceptor.AjaxInterceptor"/>
 		</mvc:interceptor>
 			
@@ -138,8 +125,6 @@
 			<mvc:exclude-mapping path="/img/**"/>
 			<mvc:exclude-mapping path="/extensions/**"/>
 			<mvc:exclude-mapping path="/webjars/**"/>
-			<mvc:exclude-mapping path="/**/datatable/**"/>
-			<mvc:exclude-mapping path="/**/selection/**"/>
 			<bean class="org.springframework.orm.jpa.support.OpenEntityManagerInViewInterceptor"/>
 		</mvc:interceptor>
 		
@@ -151,12 +136,10 @@
 			<mvc:exclude-mapping path="/img/**"/>
 			<mvc:exclude-mapping path="/extensions/**"/>
 			<mvc:exclude-mapping path="/webjars/**"/>
-			<mvc:exclude-mapping path="/**/datatable/**"/>
-			<mvc:exclude-mapping path="/**/selection/**"/>
 			<bean id="localeChangeInterceptor" class="net.conselldemallorca.helium.webapp.mvc.interceptor.IdiomaInterceptor" />
 		</mvc:interceptor>
 	</mvc:interceptors>
-
+	
 	<bean id="beanNameViewResolver" class="org.springframework.web.servlet.view.BeanNameViewResolver">
 		<property name="order" value="0"/>
 	</bean>
