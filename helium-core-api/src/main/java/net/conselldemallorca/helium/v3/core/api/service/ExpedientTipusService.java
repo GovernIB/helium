@@ -18,6 +18,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PermisDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ReassignacioDto;
+import net.conselldemallorca.helium.v3.core.api.exception.ExportException;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
 import net.conselldemallorca.helium.v3.core.api.exportacio.ExpedientTipusExportacio;
@@ -485,11 +486,12 @@ public interface ExpedientTipusService {
 	 * @param expedientTipusId
 	 * @param id Identificador del tipus d'expedient.
 	 * @param sobreescriure Indica si les variables se sobreesciuran al tipus d'expedient o es deixaran sense sobreescriure.
+	 * @throws Llença una excepció si no s'ha pogut acomplir alguna dependència o ha succeït algun error.
 	 */
-	public boolean definicioProcesIncorporar(
+	public void definicioProcesIncorporar(
 			Long expedientTipusId, 
 			Long id, 
-			boolean sobreescriure);
+			boolean sobreescriure) throws ExportException;
 	
 	/**
 	 * Crea una nova reassignacio.
