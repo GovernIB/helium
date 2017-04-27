@@ -131,14 +131,7 @@ public class EntornInterceptor extends HandlerInterceptorAdapter {
 			// Inicialitza la variable ThreadLocal de l'expedient que s'està iniciant
 			ThreadLocalInfo.setExpedient(null);
 			if (entornActual != null) {
-				// Actualitza si hi ha expedients per iniciar
-				//TODO: si es llença un permisDenegatException hauria de poder redirigir la pàgina a l'inici per escollir un altre entorn si n'hi ha
-				List<ExpedientTipusDto> tipusCrear = expedientTipusService.findAmbEntornPermisCrear(
-							entornActual.getId());
-				SessionHelper.setAttribute(
-						request,
-						SessionHelper.VARIABLE_HIHA_TRAMITS_INICIABLES,
-						new Boolean(tipusCrear.size() > 0));
+				
 				// Indica si hi ha alertes no llegides
 				Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 				int alertesNoLlegides = alertaService.countActivesAmbEntornIUsuari(entornActual.getId(), auth.getName(), AlertaService.ALERTAS_NO_LLEGIDES);
@@ -248,6 +241,16 @@ public class EntornInterceptor extends HandlerInterceptorAdapter {
 				SessionHelper.VARIABLE_EXPTIP_ACCESSIBLES,
 				expedientTipusService.findAmbEntornPermisConsultar(
 						entorn.getId()));
+		
+		// Actualitza si hi ha expedients per iniciar
+		List<ExpedientTipusDto> tipusCrear = expedientTipusService.findAmbEntornPermisCrear(
+				entorn.getId());
+		SessionHelper.setAttribute(
+				request,
+				SessionHelper.VARIABLE_HIHA_TRAMITS_INICIABLES,
+				new Boolean(tipusCrear.size() > 0));
+		
+		
 		// Eliminam expedient actual
 		SessionHelper.removeAttribute(
 				request,
@@ -267,7 +270,12 @@ public class EntornInterceptor extends HandlerInterceptorAdapter {
 	private boolean isRequestResource(HttpServletRequest request) {
 		String uri = request.getRequestURI();
 		String root = request.getContextPath();
-		if (uri.contains(root + "/img/") || uri.contains(root + "/css/") || uri.contains(root + "/js/"))
+		if (
+				uri.contains(root + "/img/") || 
+				uri.contains(root + "/css/") || 
+				uri.contains(root + "/js/") || 
+				uri.contains("/datatable") || 
+				uri.contains("/selection"))
 			return true;
 		return false;
 	}
