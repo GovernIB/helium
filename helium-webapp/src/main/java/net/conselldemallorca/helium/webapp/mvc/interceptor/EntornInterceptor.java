@@ -39,6 +39,8 @@ public class EntornInterceptor extends HandlerInterceptorAdapter {
 
 	public static final String VARIABLE_REQUEST_CANVI_ENTORN = "entornCanviarAmbId";
 	public static final String VARIABLE_REQUEST_CANVI_EXPTIP = "expedientTipusCanviarAmbId";
+	
+	// ELIMINAR DE LA INTERFÍCIE 26
 	public static final String VARIABLE_REQUEST_ALERTES_NOLLEGIDES = "hiHaAlertesNollegides";
 
 	@Resource(name="entornServiceV3")
@@ -132,10 +134,15 @@ public class EntornInterceptor extends HandlerInterceptorAdapter {
 			ThreadLocalInfo.setExpedient(null);
 			if (entornActual != null) {
 				
-				// Indica si hi ha alertes no llegides
-				Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-				int alertesNoLlegides = alertaService.countActivesAmbEntornIUsuari(entornActual.getId(), auth.getName(), AlertaService.ALERTAS_NO_LLEGIDES);
-				request.setAttribute(VARIABLE_REQUEST_ALERTES_NOLLEGIDES, alertesNoLlegides > 0);
+				// Indica si hi ha alertes no llegides 
+				// ELIMINAR DE LA INTERFÍCIE 26
+				if (!request.getRequestURI().contains("/v3")) {
+					Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+					int alertesNoLlegides = alertaService.countActivesAmbEntornIUsuari(entornActual.getId(), auth.getName(), AlertaService.ALERTAS_NO_LLEGIDES);
+					request.setAttribute(VARIABLE_REQUEST_ALERTES_NOLLEGIDES, alertesNoLlegides > 0);
+				}
+				/////////////////////////////////
+				
 				// Refresca el tipus d'expedient actual
 				@SuppressWarnings("unchecked")
 				List<ExpedientTipusDto> accessibles = (List<ExpedientTipusDto>)SessionHelper.getAttribute(
