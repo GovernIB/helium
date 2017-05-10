@@ -927,7 +927,7 @@ public class TascaServiceImpl implements TascaService {
 		
 		String arxiuNomAntic = (documentStore != null) ? documentStore.getArxiuNom() : null;
 		Long documentStoreId;
-		if (documentStore.getId() != null)
+		if (documentStore != null)
 			documentStoreId = documentStore.getId();
 		else
 			documentStoreId = documentHelper.actualitzarDocument(
