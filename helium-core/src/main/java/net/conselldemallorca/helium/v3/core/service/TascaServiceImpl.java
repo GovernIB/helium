@@ -926,15 +926,19 @@ public class TascaServiceImpl implements TascaService {
 		}
 		
 		String arxiuNomAntic = (documentStore != null) ? documentStore.getArxiuNom() : null;
-		Long documentStoreId = documentHelper.actualitzarDocument(
-				taskInstanceId,
-				task.getProcessInstanceId(),
-				documentCodi,
-				null,
-				documentData,
-				arxiuNom,
-				arxiuContingut,
-				false);
+		Long documentStoreId;
+		if (documentStore.getId() != null)
+			documentStoreId = documentStore.getId();
+		else
+			documentStoreId = documentHelper.actualitzarDocument(
+					taskInstanceId,
+					task.getProcessInstanceId(),
+					documentCodi,
+					null,
+					documentData,
+					arxiuNom,
+					arxiuContingut,
+					false);
 		// Registra l'acció
 		if (user == null) {
 			user = SecurityContextHolder.getContext().getAuthentication().getName();
