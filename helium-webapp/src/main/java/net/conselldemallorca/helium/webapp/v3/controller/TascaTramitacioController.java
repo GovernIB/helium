@@ -2,7 +2,6 @@ package net.conselldemallorca.helium.webapp.v3.controller;
 
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
@@ -643,7 +642,7 @@ public class TascaTramitacioController extends BaseTascaController {
 						doc.getDocumentCodi(),
 						nomArxiu,
 						contingutArxiu,
-						(data == null) ? new Date() : data).toString();
+						(data == null) ? new Date() : data);
 			}
 		} catch (Exception ex) {
 			MissatgesHelper.error(request, getMessage(request, "error.guardar.document") + ": " + ex.getLocalizedMessage());
@@ -1566,11 +1565,23 @@ public class TascaTramitacioController extends BaseTascaController {
 				params[0] = entorn.getId();
 				params[1] = documentCodi;
 				params[2] = (data == null) ? new Date() : data;
+				// Genera el document per a la tasca
 				generat = expedientDocumentService.generarAmbPlantillaPerTasca(
 						tascaId,
 						documentCodi);
-				params[3] = generat.getContingut();
-				params[4] = generat.getNom();
+				// Si és null vol dir que s'ha auto ajuntat i s'ha de fer per la resta de tasques
+				if (generat == null) {
+					if (tascaIds != null && tascaIds.length > 0)
+						// Genera el document plantilla per a la resta de tasques
+						for (String t : tascaIds)
+							if (t.compareToIgnoreCase(tascaId) != 0)
+								expedientDocumentService.generarAmbPlantillaPerTasca(
+										t,
+										documentCodi);
+				} else {
+					params[3] = generat.getContingut();
+					params[4] = generat.getNom();
+				}
 //				params[5] = auth.getCredentials();
 //				List<String> rols = new ArrayList<String>();
 //				for (GrantedAuthority gauth : auth.getAuthorities()) {
