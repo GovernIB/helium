@@ -138,7 +138,7 @@
 </tr>
 <script type="text/javascript">
 	$(document).ready(function() {
-		$('tr.tasques-pendents .dropdown-menu a').heliumEvalLink({
+		$('tr#tasques-pendents-${expedient.id}.tasques-pendents .dropdown-menu a').heliumEvalLink({
 			refrescarAlertes: true,
 			refrescarPagina: false,
 			dataTable: $("#taulaDades"),
