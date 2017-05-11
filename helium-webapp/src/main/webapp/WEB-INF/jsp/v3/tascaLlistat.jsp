@@ -242,20 +242,6 @@
 				'href',
 				$(element).attr('href') + "?massiva=${tascaConsultaCommand.consultaTramitacioMassivaTascaId != null}&inici="+$('#inici').val()+"&correu="+$('#correu').is(':checked'));
 	}
-	function seleccionarMassivaTodos() {
-		var numColumna = $("#taulaDades").data("rdt-seleccionable-columna");
-		if ($('#taulaDades').find('th:eq('+numColumna+')').find('input[type=checkbox]')[0].checked) {
-			$('#taulaDades').find('th:eq('+numColumna+')').find('input[type=checkbox]')[0].checked = false;
-		}
-		$('#taulaDades').find('th:eq('+numColumna+')').find('input[type=checkbox]')[0].click();
-	}
-	function deseleccionarMassivaTodos() {
-		var numColumna = $("#taulaDades").data("rdt-seleccionable-columna");
-		if (!$('#taulaDades').find('th:eq('+numColumna+')').find('input[type=checkbox]')[0].checked) {
-			$('#taulaDades').find('th:eq('+numColumna+')').find('input[type=checkbox]')[0].checked = true;
-		}
-		$('#taulaDades').find('th:eq('+numColumna+')').find('input[type=checkbox]')[0].click();
-	}
 	function filtreActiu() {
 		var filtre = false;
 		// Comprovam els inputs del formulari de filtre
@@ -554,8 +540,8 @@
   						</ul>
 					</c:when>
 					<c:otherwise>
-						<a class="btn btn-default" href="#" onclick="seleccionarMassivaTodos()" title="<spring:message code="expedient.llistat.accio.seleccio.tots"/>"><span class="fa fa-check-square-o"></span></a>
-						<a id="botoNetejarSeleccio" class="btn btn-default" href="#" onclick="deseleccionarMassivaTodos()" title="<spring:message code="expedient.llistat.accio.seleccio.netejar"/>"><span class="fa fa-square-o"></span></a>
+						<a class="btn btn-default" href="../../../v3/tasca/seleccioTots" data-rdt-link-ajax="true" title="<spring:message code="expedient.llistat.accio.seleccio.tots"/>"><span class="fa fa-check-square-o"></span></a>
+						<a id="botoNetejarSeleccio" class="btn btn-default" href="../../../v3/tasca/seleccioNetejar" data-rdt-link-ajax="true" title="<spring:message code="expedient.llistat.accio.seleccio.netejar"/>"><span class="fa fa-square-o"></span></a>
 						<button class="btn btn-default" data-toggle="dropdown"><span class="fa fa-cog"></span>&nbsp;<spring:message code="comu.boto.accions"/>&nbsp;<span id="reasignacioMassivaCount" class="badge">&nbsp;&nbsp;</span>&nbsp;<span class="caret"></span></button>
  						<ul class="dropdown-menu">
 							<li id="liReassignment"><a id="botoReassignment" class="btn" href="<c:url value="../../../v3/tasca/massivaReassignacioTasca"/>" onclick="botoMassiuClick(this)" data-rdt-link-modal="true"><spring:message code="tasca.llistat.reassignacions.massiva"/></a></li>
