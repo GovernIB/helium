@@ -71,6 +71,7 @@ import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 import net.conselldemallorca.helium.core.model.hibernate.EnumeracioValors;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
+import net.conselldemallorca.helium.core.model.hibernate.FormulariExtern;
 import net.conselldemallorca.helium.core.model.hibernate.Registre;
 import net.conselldemallorca.helium.core.model.hibernate.Tasca;
 import net.conselldemallorca.helium.core.model.hibernate.TerminiIniciat;
@@ -102,6 +103,7 @@ import net.conselldemallorca.helium.v3.core.repository.EnumeracioValorsRepositor
 import net.conselldemallorca.helium.v3.core.repository.ExpedientHeliumRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientTipusRepository;
+import net.conselldemallorca.helium.v3.core.repository.FormulariExternRepository;
 import net.conselldemallorca.helium.v3.core.repository.RegistreRepository;
 import net.conselldemallorca.helium.v3.core.repository.TascaRepository;
 import net.conselldemallorca.helium.v3.core.repository.TerminiIniciatRepository;
@@ -138,6 +140,8 @@ public class TascaServiceImpl implements TascaService {
 	private AlertaRepository alertaRepository;
 	@Resource
 	private DocumentRepository documentRepository;
+	@Resource
+	private FormulariExternRepository formulariExternRepository;
 
 	@Resource
 	private WorkflowEngineApi workflowEngineApi;
@@ -175,6 +179,8 @@ public class TascaServiceImpl implements TascaService {
 	@Autowired
 	private MetricRegistry metricRegistry;
 
+	/** Map per guardar les dades del formulari extern inicial quan el codi comença per TIE_. */
+	private Map<String, Map<String, Object>> dadesFormulariExternInicial;
 
 
 	@Override
@@ -1618,10 +1624,15 @@ public class TascaServiceImpl implements TascaService {
 		return result;
 	}
 	
+	@Override
 	public FormulariExternDto formulariExternObrirTascaInicial(
 			String tascaIniciId,
 			Long expedientTipusId,
 			Long definicioProcesId) {
+		logger.debug("Obrint la tasca inicial del formulari extern (" +
+				"tascaIniciId=" + tascaIniciId + ", " +
+				"expedientTipusId=" + expedientTipusId + ", " +
+				"definicioProcesId=" + definicioProcesId + ")");
 		ExpedientTipus expedientTipus = expedientTipusRepository.findById(expedientTipusId);
 		DefinicioProces definicioProces = null;
 		if (definicioProcesId != null) {
@@ -1643,6 +1654,48 @@ public class TascaServiceImpl implements TascaService {
 				true);
 		return dto;
 	}
+	
+	@Override
+	@Transactional
+	public void formulariExternGuardar(String formulariId, Map<String, Object> variables) {
+		logger.debug("Guardant les dades pel formulari extern (" +
+				"formulariId=" + formulariId + ", " +
+				"variables=" + variables + ")");
+		FormulariExtern formExtern = formulariExternRepository.findByFormulariId(formulariId);
+		if (formExtern != null) {
+			if (formulariId.startsWith("TIE_")) {
+				if (dadesFormulariExternInicial == null)
+					dadesFormulariExternInicial = new HashMap<String, Map<String, Object>>();
+				dadesFormulariExternInicial.put(formulariId, variables);
+			} else {
+				Map<String, Object> valors = new HashMap<String, Object>();
+				WTaskInstance task = workflowEngineApi.getTaskById(formExtern.getTaskId());
+				Tasca tasca = tascaRepository.findByJbpmNameAndDefinicioProcesJbpmId(
+						task.getTaskName(),
+						task.getProcessDefinitionId());
+				for (CampTasca camp: tasca.getCamps()) {
+					if (!camp.isReadOnly()) {
+						String codi = camp.getCamp().getCodi();
+						if (variables.keySet().contains(codi))
+							valors.put(codi, variables.get(codi));
+					}
+				}
+				validar(formExtern.getTaskId(),
+						valors);
+			}
+			formExtern.setDataRecepcioDades(new Date());
+			logger.info("Les dades del formulari amb id " + formulariId + " han estat guardades");
+		} else {
+			logger.warn("No s'ha trobat cap tasca amb l'id de formulari " + formulariId);
+		}
+	}
+
+	@Override
+	public Map<String, Object> formulariExternInicialObtenirValors(String formulariId) {
+		if (dadesFormulariExternInicial == null)
+			return null;
+		return dadesFormulariExternInicial.remove(formulariId);
+	}		
 
 	@Transactional
 	private void actualitzarTerminisIAlertes(
@@ -1698,5 +1751,5 @@ public class TascaServiceImpl implements TascaService {
 	}
 
 	private static final Logger logger = LoggerFactory.getLogger(TascaServiceImpl.class);
-
 }
+
