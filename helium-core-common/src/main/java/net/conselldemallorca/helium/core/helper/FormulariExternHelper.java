@@ -72,11 +72,12 @@ public class FormulariExternHelper {
 					"app.forms.service.password");
 		}
 		
-//		RespostaIniciFormulari resposta = new RespostaIniciFormulari();
-//		resposta.setFormulariId(taskId);
-//		resposta.setUrl("http://oficina.limit.es");
-//		resposta.setWidth(800);
-//		resposta.setHeight(600);
+		// Codi per simular una url de resposta de formulari extern
+		//RespostaIniciFormulari resposta = new RespostaIniciFormulari();
+		//resposta.setFormulariId(taskId);
+		//resposta.setUrl("http://oficina.limit.es");
+		//resposta.setWidth(800);
+		//resposta.setHeight(600);
 
 		RespostaIniciFormulari resposta = null;
 		try {

@@ -395,6 +395,11 @@ public interface TascaService {
 			Long expedientTipusId,
 			Long definicioProcesId);
 
+	/** Guarda les dades pel formulari extern. */
+	void formulariExternGuardar(String formulariId, Map<String, Object> variables);
+
+	public Map<String, Object> formulariExternInicialObtenirValors(String formulariId);
+
 	public List<TascaDadaDto> findDadesPerTascaDto(ExpedientTascaDto tasca);
 	
 	public List<ExpedientTascaDto> findAmbIds(Set<Long> ids);
