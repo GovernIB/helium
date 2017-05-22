@@ -58,6 +58,7 @@
 				data-info-type="search+button"
 				data-ordering="true"
 				data-default-order="3"
+				data-length-menu='[[10,25,50,-1],["10","25","50","<spring:message code="comu.totes"/>"]]'
 				data-rowhref-toggle="modal"
 				data-rowhref-template="#rowhrefTemplateVariables" 
 				data-botons-template="#tableButtonsVariableTemplate"
@@ -131,6 +132,9 @@
 <script type="text/javascript">
 // <![CDATA[            
 $(document).ready(function() {
+
+	// Posa el text "Totes" pel botó de selecció de totes les variables
+	$('#expedientTipusVariable_length button[value="-1"]').text('<spring:message code="comu.totes"/>');
 
 	// Botons de modificar i eliminar agrupacions
 	$('#agrupacioDelete').click(function(e) {
