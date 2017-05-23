@@ -117,43 +117,27 @@ public class ExpedientTipusIntegracioTramitsController extends BaseExpedientTipu
 		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
 		
 		if (entornActual != null) {
-			// Comprova que la url estigui informada si està activat
-			if (command.isActiu() && (command.getTramitCodi() == null || "".equals(command.getTramitCodi().trim()))) {
-				bindingResult.rejectValue("tramitCodi", "NotEmpty");
-			}
+			// Validació en el controlador
+			this.validarCommand(command, bindingResult);
 	        if (bindingResult.hasErrors()) {
 	        	response = AjaxHelper.generarAjaxFormErrors(command, bindingResult);
 	        } else {
-	        	if (command.isActiu())
-	        		expedientTipusService.updateIntegracioTramits(
-	        				entornActual.getId(),
-	        				expedientTipusId,
-	        				command.getTramitCodi(),
-	        				command.isNotificacionsActivades(),
-	        				command.getNotificacioOrganCodi(),
-	        				command.getNotificacioOficinaCodi(),
-	        				command.getNotificacioUnitatAdministrativa(),
-	        				command.getNotificacioCodiProcediment(),
-	        				command.getNotificacioAvisTitol(),
-	        				command.getNotificacioAvisText(),
-	        				command.getNotificacioAvisTextSms(),
-	        				command.getNotificacioOficiTitol(),
-	        				command.getNotificacioOficiText());
-	        	else
-	        		expedientTipusService.updateIntegracioTramits(
-	        				entornActual.getId(),
-	        				expedientTipusId,
-	        				null,
-	        				command.isNotificacionsActivades(),
-	        				command.getNotificacioOrganCodi(),
-	        				command.getNotificacioOficinaCodi(),
-	        				command.getNotificacioUnitatAdministrativa(),
-	        				command.getNotificacioCodiProcediment(),
-	        				command.getNotificacioAvisTitol(),
-	        				command.getNotificacioAvisText(),
-	        				command.getNotificacioAvisTextSms(),
-	        				command.getNotificacioOficiTitol(),
-	        				command.getNotificacioOficiText());
+        		expedientTipusService.updateIntegracioTramits(
+        				entornActual.getId(),
+        				expedientTipusId,
+        				command.isActiu() ? 
+        						command.getTramitCodi() 
+        						: null,
+        				command.isNotificacionsActivades(),
+        				command.getNotificacioOrganCodi(),
+        				command.getNotificacioOficinaCodi(),
+        				command.getNotificacioUnitatAdministrativa(),
+        				command.getNotificacioCodiProcediment(),
+        				command.getNotificacioAvisTitol(),
+        				command.getNotificacioAvisText(),
+        				command.getNotificacioAvisTextSms(),
+        				command.getNotificacioOficiTitol(),
+        				command.getNotificacioOficiText());
 		        MissatgesHelper.success(
 						request, 
 						getMessage(
@@ -164,8 +148,46 @@ public class ExpedientTipusIntegracioTramitsController extends BaseExpedientTipu
     	return response;
 	}	
 	
-	
+
+	/** Per comprovar si un text és null o buit */
+	private boolean isNullOrEmpty(String str) {
+		return str == null? true : "".equals(str.trim());
+	}
+
+	/** Valida els camps del command depenent de les opcions que estiguin actives. 
+	 * @param bindingResult */
+	private void validarCommand(ExpedientTipusIntegracioTramitsCommand command, BindingResult bindingResult) {
+		// Comprova que la url estigui informada si està activat
+		if (command.isActiu()) {
+			if (isNullOrEmpty(command.getTramitCodi())){
+				// tramitCodi
+				if (isNullOrEmpty(command.getNotificacioOrganCodi())) {
+					bindingResult.rejectValue("tramitCodi", "NotEmpty");
+				}				
+			}
+		}
+		if (command.isNotificacionsActivades()) {
+			// notificacioOrganCodi
+			if (isNullOrEmpty(command.getNotificacioOrganCodi())) {
+				bindingResult.rejectValue("notificacioOrganCodi", "NotEmpty");
+			}				
+			// notificacioOficinaCodi
+			if (isNullOrEmpty(command.getNotificacioOficinaCodi())) {
+				bindingResult.rejectValue("notificacioOficinaCodi", "NotEmpty");
+			}				
+			// notificacioUnitatAdministrativa
+			if (isNullOrEmpty(command.getNotificacioUnitatAdministrativa())) {
+				bindingResult.rejectValue("notificacioUnitatAdministrativa", "NotEmpty");
+			}				
+			// notificacioCodiProcediment
+			if (isNullOrEmpty(command.getNotificacioCodiProcediment())) {
+				bindingResult.rejectValue("notificacioCodiProcediment", "NotEmpty");
+			}				
+		}
+	}
+
 	// Mètodes pel manteniment mapejos amb variables, documents i adjunts
+
 
 	/** Modal per veure els camps de la consulta de tipus filtre. */
 	@RequestMapping(value = "/{expedientTipusId}/integracioTramits/mapeig/{tipus}", method = RequestMethod.GET)
