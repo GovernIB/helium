@@ -20,6 +20,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.MapeigSistraDto.TipusMapeig;
@@ -180,6 +182,7 @@ public class ExpedientTipusIntegracioTramitsController extends BaseExpedientTipu
 		model.addAttribute("expedientTipusIntegracioTramitsMapeigCommand", command);
 		if (tipus != TipusMapeig.Adjunt) 
 			model.addAttribute("variables", obtenirParellesVariables(
+					SessionHelper.getSessionManager(request).getEntornActual().getId(),
 					expedientTipusId,
 					command.getTipus()));
 
@@ -217,6 +220,7 @@ public class ExpedientTipusIntegracioTramitsController extends BaseExpedientTipu
     		model.addAttribute("tipus", tipus);
     		if (tipus != TipusMapeig.Adjunt) 
     			model.addAttribute("variables", obtenirParellesVariables(
+   					SessionHelper.getSessionManager(request).getEntornActual().getId(),
     				expedientTipusId,
     				command.getTipus()));
         	model.addAttribute("mostraCreate", true);
@@ -250,6 +254,7 @@ public class ExpedientTipusIntegracioTramitsController extends BaseExpedientTipu
     		model.addAttribute("tipus", tipus);
     		if (tipus != TipusMapeig.Adjunt) 
     			model.addAttribute("variables", obtenirParellesVariables(
+   					SessionHelper.getSessionManager(request).getEntornActual().getId(),
     				expedientTipusId,
     				command.getTipus()));
         	model.addAttribute("mostraUpdate", true);
@@ -293,16 +298,55 @@ public class ExpedientTipusIntegracioTramitsController extends BaseExpedientTipu
 	 * @return
 	 */
 	private List<ParellaCodiValorDto> obtenirParellesVariables(
+			Long entornId,
 			Long expedientTipusId,
 			TipusMapeig tipus) {
 		List<ParellaCodiValorDto> resposta = new ArrayList<ParellaCodiValorDto>();
-		// Obté totes les variables del tipus d'expedient
-		List<CampDto> variables = campService.findAllOrdenatsPerCodi(expedientTipusId, null);
-		// Crea les parelles de codi i valor
-		for (CampDto variable : variables) {
-			resposta.add(new ParellaCodiValorDto(
-					variable.getCodi() + " / " + variable.getEtiqueta(),
-					variable.getCodi()));
+		ExpedientTipusDto expedientTipus = expedientTipusService.findAmbIdPermisDissenyar(
+				entornId, 
+				expedientTipusId);
+		DefinicioProcesDto definicioProces = null;
+		if (!expedientTipus.isAmbInfoPropia() && expedientTipus.getJbpmProcessDefinitionKey() != null)
+			definicioProces = definicioProcesService.findByEntornIdAndJbpmKey(entornId, expedientTipus.getJbpmProcessDefinitionKey());
+		
+		if (tipus.equals(TipusMapeig.Variable)) {
+			// Variables
+			List<CampDto> variables;
+			if (expedientTipus.isAmbInfoPropia())
+				// Obté totes les variables del tipus d'expedient
+				variables = campService.findAllOrdenatsPerCodi(expedientTipusId, null);
+			else {
+				if (definicioProces != null)
+					// Obté les variables de la definició de procés del tipus d'expedient
+					variables = campService.findAllOrdenatsPerCodi(null, definicioProces.getId());	
+				else 
+					variables = new ArrayList<CampDto>();
+			}
+			// Crea les parelles de codi i valor
+			for (CampDto variable : variables) {
+				resposta.add(new ParellaCodiValorDto(
+						variable.getCodi() + " / " + variable.getEtiqueta(),
+						variable.getCodi()));
+			}
+		} else if (tipus.equals(TipusMapeig.Document)) {
+			// Documents
+			List<DocumentDto> documents;
+			if (expedientTipus.isAmbInfoPropia())
+				// Obté totes els documents del tipus d'expedient
+				documents = documentService.findAll(expedientTipusId, null);
+			else {
+				if (definicioProces != null)
+					// Obté els documents de la definició de procés del tipus d'expedient
+					documents = documentService.findAll(null, definicioProces.getId());	
+				else 
+					documents = new ArrayList<DocumentDto>();
+			}
+			// Crea les parelles de codi i valor
+			for (DocumentDto document : documents) {
+				resposta.add(new ParellaCodiValorDto(
+						document.getCodi() + " / " + document.getNom(),
+						document.getCodi()));
+			}			
 		}
 		return resposta;
 	}		
