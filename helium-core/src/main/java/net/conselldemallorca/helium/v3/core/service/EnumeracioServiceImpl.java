@@ -159,7 +159,7 @@ public class EnumeracioServiceImpl implements EnumeracioService {
 					expedientTipusRepository.findOne(expedientTipusId), 
 					codi);
 		else
-			enumeracio = enumeracioRepository.findByEntornAndCodiAndExpedientTipusNull(
+			enumeracio = enumeracioRepository.findByEntornAndCodi(
 					entornRepository.findOne(entornId), 
 					codi);
 		if (enumeracio != null)

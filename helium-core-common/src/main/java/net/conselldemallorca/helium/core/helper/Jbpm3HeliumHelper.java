@@ -983,7 +983,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 				"processInstanceId=" + processInstanceId + ", " +
 				"enumeracioCodi=" + enumeracioCodi + ")");
 		Expedient expedient = getExpedientDonatProcessInstanceId(processInstanceId);
-		Enumeracio enumeracio = enumeracioRepository.findByEntornAndCodiAndExpedientTipusNull(
+		Enumeracio enumeracio = enumeracioRepository.findByEntornAndCodi(
 				expedient.getEntorn(),
 				enumeracioCodi);
 		if (enumeracio == null) {

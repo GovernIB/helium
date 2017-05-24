@@ -2145,7 +2145,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 					
 					if (camp.getEnumeracio() != null && camp.getEnumeracio().getCodi() != null) {
 						// Propaga la enumeració referenciada pel camp
-						Enumeracio enumeracioEntorn = enumeracioRepository.findByEntornAndCodiAndExpedientTipusNull(
+						Enumeracio enumeracioEntorn = enumeracioRepository.findByEntornAndCodi(
 								entorn, 
 								camp.getEnumeracio().getCodi());
 						if (enumeracioEntorn != null){
