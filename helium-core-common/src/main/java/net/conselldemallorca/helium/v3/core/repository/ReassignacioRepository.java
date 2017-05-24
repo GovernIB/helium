@@ -23,16 +23,7 @@ import net.conselldemallorca.helium.core.model.hibernate.Reassignacio;
  */
 public interface ReassignacioRepository extends JpaRepository<Reassignacio, Long> {
 
-	@Query(	"from " +
-			"    Reassignacio re " +
-			"where " +
-			"    re.usuariOrigen = :usuariOrigen " +
-			"and re.dataInici <= :ara " +
-			"and re.dataFi >= :ara")
-	public Reassignacio findActivesByUsuariOrigenAndData(
-			@Param("usuariOrigen") String usuariOrigen,
-			@Param("ara") Date ara);
-
+	//TODO: probablement no s'utlitzi, esborrar per a la 4.0
 	@Query(	"from " +
 			"    Reassignacio re " +
 			"where " +
@@ -44,30 +35,30 @@ public interface ReassignacioRepository extends JpaRepository<Reassignacio, Long
 	@Query(	"from " +
 			"    Reassignacio re " +
 			"where " +
-			"    re.tipusExpedientId = :tipusExpedientId " +
-			"and re.dataFi >= :dataFi " +
-			"and re.dataCancelacio is null")
-	public List<Reassignacio> findLlistaActius(
-			@Param("tipusExpedientId") Long tipusExpedientId, 
-			@Param("dataFi") Date dataFi);
-
-	@Query("select re from Reassignacio re where re.id = :id AND re.dataFi >= :dataFi AND re.dataCancelacio is null")
-	public List<Reassignacio> findLlistaActiusModificacio(
-			@Param("id") Long id, 
-			@Param("dataFi") Date dataFi);
-
-	@Query(	"from " +
-			"    Reassignacio re " +
-			"where " +
 			"    re.usuariOrigen = :usuariOrigen " +
 			"and re.dataInici <= :dataInici " +
 			"and re.dataFi >= :dataFi " +
-			"and re.dataCancelacio is null")
+			"and re.dataCancelacio is null " + 
+			"and re.tipusExpedientId is null ")
 	public Reassignacio findByUsuari(
 			@Param("usuariOrigen") String usuariOrigen, 
 			@Param("dataFi") Date dataFi, 
 			@Param("dataInici") Date dataInici);
 
+	@Query(	"from " +
+			"    Reassignacio re " +
+			"where " +
+			"    re.usuariOrigen = :usuariOrigen " +
+			"and re.tipusExpedientId = :expedientTipusId " +
+			"and re.dataInici <= :dataInici " +
+			"and re.dataFi >= :dataFi " +
+			"and re.dataCancelacio is null ")
+	public Reassignacio findByUsuariAndTipusExpedientId(
+			@Param("usuariOrigen") String usuariOrigen, 
+			@Param("expedientTipusId") Long expedientTipusId, 
+			@Param("dataFi") Date dataFi, 
+			@Param("dataInici") Date dataInici);
+	
 	@Query(	"from Reassignacio r " +
 			"where " +
 			"   r.tipusExpedientId = :tipusExpedientId " +
@@ -76,11 +67,5 @@ public interface ReassignacioRepository extends JpaRepository<Reassignacio, Long
 			@Param("tipusExpedientId") Long expedientTipusId,
 			@Param("esNullFiltre") boolean esNullFiltre,
 			@Param("filtre") String filtre,		
-			Pageable pageable);
-
-	@Query(	"from Reassignacio r " +
-			"where " +
-			"   r.tipusExpedientId = :expedientTipusId")
-	public List<Reassignacio> findAmbExpedientTipus(@Param("expedientTipusId") Long expedientTipusId);	
-	
+			Pageable pageable);	
 }

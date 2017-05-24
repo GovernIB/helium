@@ -371,13 +371,6 @@ public class ExpedientTipusServiceBean implements ExpedientTipusService {
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public List<ReassignacioDto> reassignacioFindAll(Long expedientTipusId)
-			throws NoTrobatException, PermisDenegatException {
-		return delegate.reassignacioFindAll(expedientTipusId);
-	}
-
-	@Override
-	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public PaginaDto<ReassignacioDto> reassignacioFindPerDatatable(
 			Long expedientTipusId,			
 			String filtre,

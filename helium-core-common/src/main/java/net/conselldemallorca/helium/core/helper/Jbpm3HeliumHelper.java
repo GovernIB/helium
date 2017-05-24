@@ -37,6 +37,7 @@ import net.conselldemallorca.helium.core.model.hibernate.Enumeracio;
 import net.conselldemallorca.helium.core.model.hibernate.Estat;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
+import net.conselldemallorca.helium.core.model.hibernate.Reassignacio;
 import net.conselldemallorca.helium.core.model.hibernate.Tasca;
 import net.conselldemallorca.helium.core.model.hibernate.Termini;
 import net.conselldemallorca.helium.core.model.hibernate.TerminiIniciat;
@@ -367,15 +368,32 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 
 	@Override
 	public ReassignacioDto findReassignacioActivaPerUsuariOrigen(
+			String processInstanceId,
 			String usuariCodi) {
 		logger.debug("Obtenint reassignació activa per a l'usuari ("
+				+ "processInstanceId=" + processInstanceId + ", "
 				+ "usuariCodi=" + usuariCodi + ")");
 		Date ara = new Date();
+		
+		Reassignacio reassignacio = null;
+		// Cerca primer pel tipus d'expedient
+		if (processInstanceId != null && !"".equals(processInstanceId.trim())) {
+			Long expedientTipusId = expedientRepository.findByProcessInstanceId(processInstanceId).getTipus().getId();
+			reassignacio = reassignacioRepository.findByUsuariAndTipusExpedientId(
+					usuariCodi, 
+					expedientTipusId, 
+					ara, 
+					ara);
+		}
+		// Si no es troba cerca una redirecció global
+		if (reassignacio == null) {
+			reassignacio = reassignacioRepository.findByUsuari(
+					usuariCodi, 
+					ara, 
+					ara);
+		}
 		return conversioTipusHelper.convertir(
-				reassignacioRepository.findByUsuari(
-						usuariCodi,
-						ara,
-						ara),
+				reassignacio,
 				ReassignacioDto.class);
 	}
 

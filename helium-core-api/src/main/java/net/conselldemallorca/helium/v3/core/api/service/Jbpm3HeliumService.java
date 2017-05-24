@@ -207,7 +207,7 @@ public interface Jbpm3HeliumService {
 	 * @param usuariCodi
 	 * @return
 	 */
-	public ReassignacioDto findReassignacioActivaPerUsuariOrigen(String usuariCodi);
+	public ReassignacioDto findReassignacioActivaPerUsuariOrigen(String processInstanceId, String usuariCodi);
 
 	/**
 	 * Crea una alerta.
