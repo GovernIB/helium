@@ -555,19 +555,6 @@ public interface ExpedientTipusService {
 	public ReassignacioDto reassignacioFindAmbId(
 			Long id) throws NoTrobatException;	
 	
-	/**
-	 * Retorna les reassignacions per a un tipus d'expedient.
-	 * 
-	 * @param expedientTipusId
-	 *            Atribut id del tipus d'expedient.
-	 * @return les reassignacions del tipus d'expedient.
-	 * @throws NoTrobatException
-	 *             Si no s'ha trobat el registre amb l'id especificat.
-	 * @throws PermisDenegatException
-	 *             Si no es tenen els permisos necessaris.
-	 */
-	public List<ReassignacioDto> reassignacioFindAll(
-			Long expedientTipusId) throws NoTrobatException, PermisDenegatException;
 	/** 
 	 * Retorna la llista d'reassignacions del tipus d'expedient paginada per la datatable.
 	 * 

@@ -32,7 +32,7 @@ import org.springframework.web.bind.support.SessionStatus;
 
 /**
  * Controlador per la reassignació de tasques entre usuaris.
- * 
+ * TODO: Probablement no s'utilitza, esborrar per la 4.0
  * @author Limit Tecnologies <limit@limit.es>
  */
 

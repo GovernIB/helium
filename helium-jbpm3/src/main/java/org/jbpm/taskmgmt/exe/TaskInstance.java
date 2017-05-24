@@ -308,10 +308,12 @@ public class TaskInstance extends VariableContainer implements Identifiable,
 		// do the actual assignment
 		this.previousActorId = this.actorId;
 		this.actorId = actorId;
-		
 		String actor = actorId;
 		if (!ignorarReassignacio) {
-			ReassignacioDto reassignacio = Jbpm3HeliumBridge.getInstanceService().findReassignacioActivaPerUsuariOrigen(actor);
+			String processInstanceId = null;
+			if (this.getContextInstance() != null && this.getContextInstance().getProcessInstance() != null)
+				processInstanceId = String.valueOf(this.getContextInstance().getProcessInstance().getId());
+			ReassignacioDto reassignacio = Jbpm3HeliumBridge.getInstanceService().findReassignacioActivaPerUsuariOrigen(processInstanceId, actor);
   	  		if (reassignacio != null) {
   	  			actor = reassignacio.getUsuariDesti();
   	  			this.actorId = actor;

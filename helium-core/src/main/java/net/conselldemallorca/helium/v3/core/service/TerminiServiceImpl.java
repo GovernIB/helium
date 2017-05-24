@@ -45,7 +45,6 @@ import net.conselldemallorca.helium.v3.core.repository.EstatRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientTipusRepository;
 import net.conselldemallorca.helium.v3.core.repository.FirmaTascaRepository;
 import net.conselldemallorca.helium.v3.core.repository.MapeigSistraRepository;
-import net.conselldemallorca.helium.v3.core.repository.ReassignacioRepository;
 import net.conselldemallorca.helium.v3.core.repository.SequenciaAnyRepository;
 import net.conselldemallorca.helium.v3.core.repository.TascaRepository;
 import net.conselldemallorca.helium.v3.core.repository.TerminiRepository;
@@ -80,8 +79,6 @@ public class TerminiServiceImpl implements TerminiService {
 	private EnumeracioValorsRepository enumeracioValorsRepository;	
 	@Resource
 	private DominiRepository dominiRepository;
-	@Resource
-	private ReassignacioRepository reassignacioRepository;
 	@Resource
 	private DocumentRepository documentRepository;
 	@Resource

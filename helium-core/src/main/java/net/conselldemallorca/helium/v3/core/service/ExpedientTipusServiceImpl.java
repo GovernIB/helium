@@ -1822,19 +1822,6 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 				reassignacio,
 				ReassignacioDto.class);
 	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	@Transactional(readOnly = true)
-	public List<ReassignacioDto> reassignacioFindAll(
-			Long expedientTipusId) throws NoTrobatException, PermisDenegatException {
-		List<Reassignacio> reassignacions = reassignacioRepository.findAmbExpedientTipus(expedientTipusId);
-		return conversioTipusHelper.convertirList(
-									reassignacions, 
-									ReassignacioDto.class);
-	}	
 		
 	/**
 	 * {@inheritDoc}
