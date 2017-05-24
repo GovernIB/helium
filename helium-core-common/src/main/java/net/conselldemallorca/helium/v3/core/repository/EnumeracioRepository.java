@@ -27,12 +27,7 @@ public interface EnumeracioRepository extends JpaRepository<Enumeracio, Long> {
 	Enumeracio findByEntornAndExpedientTipusAndCodi(
 			Entorn entorn,
 			ExpedientTipus expedientTipus,
-			String codi);
-
-	Enumeracio findByEntornAndCodi(
-			Entorn entorn,
-			String codi);
-	
+			String codi);	
 	
 	@Query(	"from " +
 			"    Enumeracio e " +
@@ -47,7 +42,7 @@ public interface EnumeracioRepository extends JpaRepository<Enumeracio, Long> {
 			"    enu.entorn = :entorn " +
 			"and enu.codi = :codi " +
 			"and enu.expedientTipus is null ")
-	Enumeracio findByEntornAndCodiAndExpedientTipusNull(
+	Enumeracio findByEntornAndCodi(
 			@Param("entorn") Entorn entorn,
 			@Param("codi") String codi);
 	

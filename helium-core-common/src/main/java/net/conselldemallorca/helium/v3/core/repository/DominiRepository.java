@@ -28,9 +28,15 @@ public interface DominiRepository extends JpaRepository<Domini, Long> {
 			ExpedientTipus expedientTipus,
 			String codi);
 
+	@Query(	"from " +
+			"    Domini d " +
+			"where " +
+			"    d.entorn = :entorn " +
+			"and d.codi = :codi " +
+			"and d.expedientTipus is null ")
 	Domini findByEntornAndCodi(
-			Entorn entorn,
-			String codi);
+			@Param("entorn") Entorn entorn,
+			@Param("codi") String codi);
 	
 	List<Domini> findByEntorn(
 			Entorn entorn);
