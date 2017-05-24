@@ -595,6 +595,7 @@ public class ExpedientHelper {
 				"expedient",
 				expedient.getTipus().getNom());
 	}
+	
 	public void reprendre(
 			Expedient expedient,
 			String usuari) {
@@ -624,6 +625,38 @@ public class ExpedientHelper {
 				expedient.getTipus().getNom());
 	}
 
+	@Transactional
+	public void desfinalitzar(
+			Expedient expedient,
+			String usuari) {
+		mesuresTemporalsHelper.mesuraIniciar(
+				"Desfinalitzar",
+				"expedient",
+				expedient.getTipus().getNom());
+		
+		 workflowRetroaccioApi.afegirInformacioRetroaccioPerExpedient(
+				expedient.getId(),
+				ExpedientRetroaccioTipus.EXPEDIENT_DESFINALITZAR,
+				null);
+		
+		 workflowRetroaccioApi.afegirInformacioRetroaccioPerExpedient(
+					expedient.getId(),
+					ExpedientRetroaccioTipus.EXPEDIENT_DESFINALITZAR,
+					null,
+					ExpedientRetroaccioEstat.IGNORAR);
+		logger.debug("Desfer finalització de l'expedient (id=" + expedient.getId() + ")");		
+		workflowEngineApi.desfinalitzarExpedient(expedient.getProcessInstanceId());
+		expedient.setDataFi(null);
+		expedientRegistreHelper.crearRegistreReprendreExpedient(
+				expedient.getId(),
+				(expedient.getResponsableCodi() != null) ? expedient.getResponsableCodi() : SecurityContextHolder.getContext().getAuthentication().getName());
+
+		mesuresTemporalsHelper.mesuraCalcular(
+				"Desfinalitzar",
+				"expedient",
+				expedient.getTipus().getNom());
+	}
+	
 	public void relacioCrear(
 			Expedient origen,
 			Expedient desti) {

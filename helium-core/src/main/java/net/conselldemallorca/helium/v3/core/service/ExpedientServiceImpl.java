@@ -76,7 +76,6 @@ import net.conselldemallorca.helium.core.model.hibernate.Registre;
 import net.conselldemallorca.helium.core.model.hibernate.Termini;
 import net.conselldemallorca.helium.core.model.hibernate.TerminiIniciat;
 import net.conselldemallorca.helium.core.security.ExtendedPermission;
-import net.conselldemallorca.helium.v3.core.api.exception.ExecucioHandlerException;
 import net.conselldemallorca.helium.v3.core.api.dto.AccioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.AlertaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
@@ -104,6 +103,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto.OrdreDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RespostaValidacioSignaturaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
+import net.conselldemallorca.helium.v3.core.api.exception.ExecucioHandlerException;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
 import net.conselldemallorca.helium.v3.core.api.exception.TramitacioException;
@@ -150,8 +150,6 @@ public class ExpedientServiceImpl implements ExpedientService {
 	private EstatRepository estatRepository;
 	@Resource
 	private ConsultaRepository consultaRepository;
-//	@Resource
-//	private ExpedientLoggerRepository expedientLogRepository;
 	@Resource
 	private CampRepository campRepository;
 	@Resource
@@ -1050,23 +1048,16 @@ public class ExpedientServiceImpl implements ExpedientService {
 	@Override
 	@Transactional
 	public void desfinalitzar(Long id) {
-		logger.debug("Reprenent l'expedient (id=" + id + ")");
+		logger.debug("Desfinalitzant l'expedient (id=" + id + ")");
 		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
 				id,
 				new Permission[] {
 						ExtendedPermission.UNDO_END,
 						ExtendedPermission.ADMINISTRATION});
-		workflowRetroaccioApi.afegirInformacioRetroaccioPerExpedient(
-				expedient.getId(),
-				ExpedientRetroaccioTipus.EXPEDIENT_DESFINALITZAR,
-				null,
-				ExpedientRetroaccioEstat.IGNORAR);
-		logger.debug("Desfer finalització de l'expedient (id=" + id + ")");
-		workflowEngineApi.desfinalitzarExpedient(expedient.getProcessInstanceId());
-		expedient.setDataFi(null);
-		expedientRegistreHelper.crearRegistreReprendreExpedient(
-				expedient.getId(),
-				(expedient.getResponsableCodi() != null) ? expedient.getResponsableCodi() : SecurityContextHolder.getContext().getAuthentication().getName());
+		// Desfinalitza
+		expedientHelper.desfinalitzar(
+				expedient, 
+				null);
 	}
 	
 	/**
