@@ -1054,23 +1054,16 @@ public class ExpedientServiceImpl implements ExpedientService {
 	@Override
 	@Transactional
 	public void desfinalitzar(Long id) {
-		logger.debug("Reprenent l'expedient (id=" + id + ")");
+		logger.debug("Desfinalitzant l'expedient (id=" + id + ")");
 		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
 				id,
 				new Permission[] {
 						ExtendedPermission.UNDO_END,
 						ExtendedPermission.ADMINISTRATION});
-		ExpedientLog expedientLog = expedientLoggerHelper.afegirLogExpedientPerExpedient(
-				expedient.getId(),
-				ExpedientLogAccioTipus.EXPEDIENT_DESFINALITZAR,
+		// Desfinalitza
+		expedientHelper.desfinalitzar(
+				expedient, 
 				null);
-		expedientLog.setEstat(ExpedientLogEstat.IGNORAR);
-		logger.debug("Desfer finalització de l'expedient (id=" + id + ")");
-		jbpmHelper.desfinalitzarExpedient(expedient.getProcessInstanceId());
-		expedient.setDataFi(null);
-		expedientRegistreHelper.crearRegistreReprendreExpedient(
-				expedient.getId(),
-				(expedient.getResponsableCodi() != null) ? expedient.getResponsableCodi() : SecurityContextHolder.getContext().getAuthentication().getName());
 	}
 	
 	/**

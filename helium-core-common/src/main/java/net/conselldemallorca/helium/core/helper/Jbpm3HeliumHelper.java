@@ -1100,9 +1100,11 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 
 	@Override
 	public void desfinalitzarExpedient(String processInstanceId) throws Exception{
-		logger.debug("reprendreExpedient (" +
-				"processInstanceId=" + processInstanceId + ")");
-		jbpmHelper.desfinalitzarExpedient(processInstanceId);
+		logger.debug("Desfinalitzant expedient(processInstanceId=" + processInstanceId + ")");
+		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
+		expedientHelper.desfinalitzar(
+				expedient,
+				null);
 	}
 	
 	@Override
