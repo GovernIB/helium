@@ -23,15 +23,6 @@ import net.conselldemallorca.helium.core.model.hibernate.Reassignacio;
  */
 public interface ReassignacioRepository extends JpaRepository<Reassignacio, Long> {
 
-	//TODO: probablement no s'utlitzi, esborrar per a la 4.0
-	@Query(	"from " +
-			"    Reassignacio re " +
-			"where " +
-			"    re.dataFi >= :dataFi " +
-			"and re.dataCancelacio is null")
-	public List<Reassignacio> findLlistaActius(
-			@Param("dataFi") Date dataFi);
-
 	@Query(	"from " +
 			"    Reassignacio re " +
 			"where " +

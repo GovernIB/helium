@@ -141,9 +141,6 @@ public interface AdminService {
 	public void updatePerfil(UsuariPreferenciesDto preferencies);
 	public void updatePersona(PersonaDto persona);
 
-	//TODO: probablement no s'utilitza, esborrar per la 4.0
-	public abstract List<ReassignacioDto> llistaReassignacions();
-
 	public abstract void createReassignacio(String usuariOrigen, String usuariDesti, Date dataInici, Date dataFi, Date dataCancelacio, Long tipusExpedientId);
 
 	public abstract void updateReassignacio(Long id, String usuariOrigen, String usuariDesti, Date dataInici, Date dataFi, Date dataCancelacio, Long tipusExpedientId);

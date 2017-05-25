@@ -364,13 +364,7 @@ public class AdminServiceImpl implements AdminService {
 		persona.setSexe(personaDto.getSexe().equals(Sexe.SEXE_HOME) ? Persona.Sexe.SEXE_HOME : Persona.Sexe.SEXE_DONA);
 		personaRepository.save(persona);
 	}
-	
-	@Transactional(readOnly = true)
-	@Override
-	public List<ReassignacioDto> llistaReassignacions() {
-		return conversioTipusHelper.convertirList(reassignacioRepository.findLlistaActius(Calendar.getInstance().getTime()), ReassignacioDto.class);
-	}
-	
+		
 	@Transactional
 	@Override
 	public void createReassignacio(
