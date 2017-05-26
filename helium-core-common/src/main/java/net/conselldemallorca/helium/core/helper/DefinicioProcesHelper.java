@@ -629,7 +629,8 @@ public class DefinicioProcesHelper {
 							codiEnumeracio}));
 	}
 	
-	/** Troba el camp per al camp tasca segons si el tipus d'expedient està configurat amb info pròpia.
+	/** Troba el camp per al camp tasca segons si el tipus d'expedient està configurat amb info pròpia i si el camp tenia origen en la
+	 * definició de procés o en el tipus d'expedient.
 	 * @param campTasca
 	 * @param codiCamp
 	 * @param expedientTipus
@@ -649,6 +650,9 @@ public class DefinicioProcesHelper {
 		} else {
 			// Camp de la definició de procés
 			camp = campRepository.findByDefinicioProcesAndCodi(definicio, codiCamp);
+			// Si no el troba a la definició de procés i l'expedient té info pròpia llavors ho prova al tipus d'expedient
+			if (camp == null && expedientTipus != null && expedientTipus.isAmbInfoPropia())
+				camp = campRepository.findByExpedientTipusAndCodi(expedientTipus, codiCamp);
 		}
 		if (camp != null)
 			campTasca.setCamp(camp);
@@ -681,6 +685,9 @@ public class DefinicioProcesHelper {
 		} else {
 			// Camp de la definició de procés
 			document = documentRepository.findByDefinicioProcesAndCodi(definicio, codiDocument);
+			// Si no el troba a la definició de procés i l'expedient té info pròpia llavors ho prova al tipus d'expedient
+			if (document == null && expedientTipus != null && expedientTipus.isAmbInfoPropia())
+				document = documentRepository.findByExpedientTipusAndCodi(expedientTipus, codiDocument);
 		}
 		if (document != null)
 			documentTasca.setDocument(document);
@@ -713,6 +720,9 @@ public class DefinicioProcesHelper {
 		} else {
 			// Camp de la definició de procés
 			document = documentRepository.findByDefinicioProcesAndCodi(definicio, codiDocument);
+			// Si no el troba a la definició de procés i l'expedient té info pròpia llavors ho prova al tipus d'expedient
+			if (document == null && expedientTipus != null && expedientTipus.isAmbInfoPropia())
+				document = documentRepository.findByExpedientTipusAndCodi(expedientTipus, codiDocument);
 		}
 		if (document != null)
 			firmaTasca.setDocument(document);

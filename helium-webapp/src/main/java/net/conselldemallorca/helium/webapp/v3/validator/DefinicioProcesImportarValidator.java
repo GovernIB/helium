@@ -330,31 +330,41 @@ public class DefinicioProcesImportarValidator implements ConstraintValidator<Def
 				TascaExportacio tasca;
 				for (String tascaJbpmName : command.getTasques()) {
 					tasca = tasquesMap.get(tascaJbpmName);
-					// Variables de la tasca
+					// Variables de la tasca: poden estar lligades a les del TE o les de la DP
+					CampDto campDto;
 					for (CampTascaExportacio tascaCamp : tasca.getCamps()) {
-						CampDto campDto = null;
-						if (isAmbInfoPropia) {
-							// Comprova que el camp estigui al tipus d'expedient
-							campDto = campService.findAmbCodi(
-									expedientTipus.getId(),
-									null,
-									tascaCamp.getCampCodi());
-							if (campDto == null) {
-								context.buildConstraintViolationWithTemplate(
-										MessageHelper.getInstance().getMessage(
-												this.codiMissatge + ".tasca.variable.expedientTipus", 
-												new Object[] {	tasca.getJbpmName(), 
-														tascaCamp.getCampCodi()}))
-								.addNode("tasques")
-								.addConstraintViolation();
-								valid = false;
+						campDto = null;
+						if (tascaCamp.isTipusExpedient()) {
+							// Comprova que el tipus expeident destí la tingui
+							if (isAmbInfoPropia) {
+								// Comprova que el camp estigui al tipus d'expedient
+								campDto = campService.findAmbCodi(
+										expedientTipus.getId(),
+										null,
+										tascaCamp.getCampCodi());
+								if (campDto == null) {
+									context.buildConstraintViolationWithTemplate(
+											MessageHelper.getInstance().getMessage(
+													this.codiMissatge + ".tasca.variable.expedientTipus", 
+													new Object[] {	tasca.getJbpmName(), 
+															tascaCamp.getCampCodi()}))
+									.addNode("tasques")
+									.addConstraintViolation();
+									valid = false;
+								}
 							}
 						} else {
-							// comprova que estigui exportat o que existeixi en la def proc destí
+							// Commprova que estigui exportada o en la DP destí
 							if (! command.getVariables().contains(tascaCamp.getCampCodi())) {
 								// comprova que el camp existeixi en la definició de procés destí
 								if (command.getId() != null)
 									campDto = campService.findAmbCodi(null, command.getId(), tascaCamp.getCampCodi());
+								// com a darrera opció, si no es troba i el TE té infor pròpia la cerca al TE
+								if (campDto == null && isAmbInfoPropia)
+									campDto = campService.findAmbCodi(
+											expedientTipus.getId(),
+											null,
+											tascaCamp.getCampCodi());
 								if (campDto == null) {
 									context.buildConstraintViolationWithTemplate(
 											MessageHelper.getInstance().getMessage(
