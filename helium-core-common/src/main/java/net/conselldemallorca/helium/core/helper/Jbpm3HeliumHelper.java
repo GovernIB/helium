@@ -861,9 +861,20 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 				"data=" + data + ", " +
 				"esDataFi=" + esDataFi + ")");
 		DefinicioProces definicioProces = getDefinicioProcesDonatProcessInstanceId(processInstanceId);
-		Termini termini = terminiHelper.findAmbDefinicioProcesICodi(
-				definicioProces,
-				terminiCodi);
+		ExpedientTipus expedientTipus = definicioProces.getExpedientTipus() != null? 
+											definicioProces.getExpedientTipus() 
+											: null;
+
+		Termini termini = null;
+		if (expedientTipus != null && expedientTipus.isAmbInfoPropia()) {
+			termini = terminiHelper.findAmbExpedientTipusICodi(
+					expedientTipus, 
+					terminiCodi);
+		} else {
+			termini = terminiHelper.findAmbDefinicioProcesICodi(
+					definicioProces,
+					terminiCodi);
+		}				
 		if (termini == null)
 			throw new NoTrobatException(Termini.class, terminiCodi);
 		terminiHelper.iniciar(

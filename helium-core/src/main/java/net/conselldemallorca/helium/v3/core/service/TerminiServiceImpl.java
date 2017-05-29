@@ -253,8 +253,18 @@ public class TerminiServiceImpl implements TerminiService {
 			throw new NoTrobatException(Termini.class, terminiId);
 		}
 		
-		expedientTipusHelper.getExpedientTipusComprovantPermisDisseny(
-				termini.getExpedientTipus().getId());
+		Long expedientTipusId;
+		if (termini.getExpedientTipus() != null) {
+			expedientTipusId = termini.getExpedientTipus().getId();
+		} else  {
+			if (termini.getDefinicioProces().getExpedientTipus() != null) 
+				expedientTipusId = termini.getDefinicioProces().getExpedientTipus().getId();
+			else 
+				expedientTipusId = null;
+		}
+		if (expedientTipusId != null)
+			expedientTipusHelper.getExpedientTipusComprovantPermisDisseny(
+					expedientTipusId);
 		
 		terminiRepository.delete(termini);
 	}
