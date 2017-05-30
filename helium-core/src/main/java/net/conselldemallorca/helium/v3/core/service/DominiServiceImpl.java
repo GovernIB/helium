@@ -156,7 +156,7 @@ public class DominiServiceImpl implements DominiService {
 					expedientTipusRepository.findOne(expedientTipusId), 
 					codi);
 		else
-			domini = dominiRepository.findByEntornAndCodiAndExpedientTipusNull(
+			domini = dominiRepository.findByEntornAndCodi(
 					entornRepository.findOne(entornId), 
 					codi);
 		if (domini != null)

@@ -936,9 +936,15 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 				"dominiId=" + dominiId + ", " +
 				"parametres=" + parametres + ")");
 		Expedient expedient = getExpedientDonatProcessInstanceId(processInstanceId);
-		Domini domini = dominiRepository.findByEntornAndCodi(
-				expedient.getEntorn(),
+		// Primer el cerca al tipus d'expedient
+		Domini domini = dominiRepository.findByExpedientTipusAndCodi(
+				expedient.getTipus(),
 				dominiCodi);
+		// Si no el troba el busca a l'entorn
+		if (domini == null)
+			domini = dominiRepository.findByEntornAndCodi(
+					expedient.getEntorn(),
+					dominiCodi);
 		if (domini == null)
 			throw new NoTrobatException(Domini.class, dominiCodi);
 		List<FilaResultat> files = dominiHelper.consultar(

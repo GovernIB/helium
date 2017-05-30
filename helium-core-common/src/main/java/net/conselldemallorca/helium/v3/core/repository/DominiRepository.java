@@ -28,6 +28,7 @@ public interface DominiRepository extends JpaRepository<Domini, Long> {
 			ExpedientTipus expedientTipus,
 			String codi);
 
+	/** Troba el domini global per entorn i codi amb expedient tipus null. */
 	@Query(	"from " +
 			"    Domini d " +
 			"where " +
@@ -76,16 +77,6 @@ public interface DominiRepository extends JpaRepository<Domini, Long> {
 	List<Domini> findAmbExpedientTipusIGlobals(
 			@Param("expedientTipusId") Long expedientTipusId);
 	
-	/** Troba per entorn i codi global amb expedient tipus null. */
-	@Query(	"from " +
-			"    Domini d " +
-			"where " +
-			"    d.entorn = :entorn " +
-			"and d.codi = :codi " +
-			"and d.expedientTipus is null ")
-	Domini findByEntornAndCodiAndExpedientTipusNull(
-			@Param("entorn") Entorn entorn,
-			@Param("codi") String codi);
 	
 	/** Troba per entorn i codi global amb expedient tipus null. */
 	@Query(	"from " +
