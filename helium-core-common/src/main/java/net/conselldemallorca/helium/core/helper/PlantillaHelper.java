@@ -29,6 +29,7 @@ import net.conselldemallorca.helium.core.model.hibernate.DocumentStore;
 import net.conselldemallorca.helium.core.model.hibernate.Domini;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
+import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.hibernate.Persona;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.core.util.NombreEnCastella;
@@ -160,6 +161,7 @@ public class PlantillaHelper {
 						model);
 				afegirFuncionsAlModel(
 						expedient.getEntorn(),
+						expedient.getTipus(),
 						taskInstanceId,
 						processInstanceId,
 						model);
@@ -304,6 +306,7 @@ public class PlantillaHelper {
 	@SuppressWarnings("rawtypes")
 	private void afegirFuncionsAlModel(
 			final Entorn entorn,
+			final ExpedientTipus expedientTipus,
 			final String taskId,
 			final String processInstanceId,
 			Map<String, Object> model) {
@@ -635,7 +638,11 @@ public class PlantillaHelper {
 							String arg1 = "";
 							if ((arg0 != null) && (arg0 instanceof String)) {
 								String codi = (String)arg0;
-								Domini domini = dominiRepository.findByEntornAndCodi(
+								Domini domini = dominiRepository.findByExpedientTipusAndCodi(
+										expedientTipus, 
+										codi);
+								if (domini == null)
+									domini = dominiRepository.findByEntornAndCodi(
 										entorn,
 										codi);
 								if (domini != null) {

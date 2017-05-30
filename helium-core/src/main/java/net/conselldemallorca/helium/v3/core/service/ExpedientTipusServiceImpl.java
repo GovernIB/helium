@@ -2175,7 +2175,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 				camps.put(nou.getCodi(), nou);				
 				if (camp.getDomini() != null &&  !camp.isDominiIntern()) {
 					// Propaga el domini referenciat pel camp
-					Domini dominiEntorn = dominiRepository.findByEntornAndCodiAndExpedientTipusNull(
+					Domini dominiEntorn = dominiRepository.findByEntornAndCodi(
 							entorn, 
 							camp.getDomini().getCodi());
 					if (dominiEntorn != null) {
