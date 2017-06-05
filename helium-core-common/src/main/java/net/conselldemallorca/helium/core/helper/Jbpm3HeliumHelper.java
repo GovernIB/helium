@@ -379,12 +379,14 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 		Reassignacio reassignacio = null;
 		// Cerca primer pel tipus d'expedient
 		if (processInstanceId != null && !"".equals(processInstanceId.trim())) {
-			Long expedientTipusId = expedientRepository.findByProcessInstanceId(processInstanceId).getTipus().getId();
-			reassignacio = reassignacioRepository.findByUsuariAndTipusExpedientId(
-					usuariCodi, 
-					expedientTipusId, 
-					ara, 
-					ara);
+			Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
+			if (expedient != null) {
+				reassignacio = reassignacioRepository.findByUsuariAndTipusExpedientId(
+						usuariCodi, 
+						expedient.getTipus().getId(), 
+						ara, 
+						ara);
+			}
 		}
 		// Si no es troba cerca una redirecció global
 		if (reassignacio == null) {
