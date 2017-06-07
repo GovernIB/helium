@@ -2240,6 +2240,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 						nou.setNom(document.getNom());
 					}
 					nou.setDescripcio(document.getDescripcio());
+					nou.setArxiuNom(document.getArxiuNom());
 					nou.setArxiuContingut(document.getArxiuContingut());
 					nou.setPlantilla(document.isPlantilla());
 					nou.setCustodiaCodi(document.getCustodiaCodi());
