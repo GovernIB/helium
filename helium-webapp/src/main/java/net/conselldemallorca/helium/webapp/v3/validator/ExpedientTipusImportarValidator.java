@@ -252,7 +252,7 @@ public class ExpedientTipusImportarValidator implements ConstraintValidator<Expe
 						&& !command.getVariables().contains(mapeig.getCodiHelium())) {
 						context.buildConstraintViolationWithTemplate(
 								MessageHelper.getInstance().getMessage(
-										this.codiMissatge + ".mapeigSistra", 
+										this.codiMissatge + ".mapeigSistra.variable", 
 										new Object[] {mapeig.getCodiHelium(), mapeig.getCodiSistra()}))
 						.addNode("integracioSistra")
 						.addConstraintViolation();

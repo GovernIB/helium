@@ -67,7 +67,16 @@
 						<dd><spring:message code="comu.${expedientTipus.reindexacioAsincrona}"></spring:message></dd>
 						<c:if test="${not empty expedientTipus.responsableDefecteCodi}">
 							<dt><spring:message code="expedient.tipus.info.camp.reponsable.defecte"></spring:message></dt>
-							<dd>${responsableDefecte.nomSencer}</dd></c:if>
+							<dd>
+								${responsableDefecte.nomSencer != null ? responsableDefecte.nomSencer : responsableDefecte.codi}
+								<c:if test="${errorResonsableNoTrobat}">
+									<p class="help-block has-error" style="color: rgb(169, 68, 66)">
+										<span class="fa fa-exclamation-triangle"></span> 
+										<spring:message code="expedient.tipus.info.camp.reponsable.defecte.error"></spring:message>
+									</p>
+								</c:if>
+							</dd>
+						</c:if>
 						<c:if test="${not empty definicioProcesInicial}">
 							<dt><spring:message code="expedient.tipus.info.camp.definicio.proces.inicial"/></dt>
 							<dd>${definicioProcesInicial.jbpmKey}</dd>
@@ -106,7 +115,7 @@
 // <![CDATA[            
 
 $(document).ready(function() {	
-
+	
 	var jbpmProcessDefinitionKey = "${expedientTipus.jbpmProcessDefinitionKey}";
 	
 	$('#expedientTipusDefinicioProces').on('draw.dt', function() {

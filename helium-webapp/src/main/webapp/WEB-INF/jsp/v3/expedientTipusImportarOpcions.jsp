@@ -21,6 +21,14 @@
 					<spring:message code="expedient.tipus.importar.form.avis.codi.diferent" arguments="${exportacio.codi},${exportacio.nom}"></spring:message>
 				</p>
 			</c:if>
+
+			<c:if test="${avisResonsableNoTrobat}">
+				<p class="help-block" style="color: #8a6d3b">
+					<span class="fa fa-exclamation-triangle"></span> 
+					<spring:message code="expedient.tipus.importar.form.avis.responsable.no.trobat" arguments="${exportacio.responsableDefecteCodi}"></spring:message>
+				</p>
+			</c:if>
+
 			
 			<c:if test="${empty command.id}">
 				<hel:inputText name="codi" textKey="expedient.tipus.importar.form.camp.codi" required="true" labelSize="2"/> 	

@@ -40,7 +40,9 @@ import net.conselldemallorca.helium.v3.core.api.dto.ExecucioMassivaDto.ExecucioM
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PermisDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.SequenciaAnyDto;
+import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.exportacio.DefinicioProcesExportacio;
 import net.conselldemallorca.helium.v3.core.api.exportacio.ExpedientTipusExportacio;
 import net.conselldemallorca.helium.v3.core.api.exportacio.ExpedientTipusExportacioCommandDto;
@@ -153,11 +155,21 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 					expedientTipusId);
 			model.addAttribute("expedientTipus", expedientTipus);
 			// Responsable per defecte
-			if (expedientTipus.getResponsableDefecteCodi() != null) {
+			String responsableCodi = expedientTipus.getResponsableDefecteCodi();
+			if (responsableCodi != null) {
+				PersonaDto responsable = null;
+				try {
+					responsable = aplicacioService.findPersonaAmbCodi(
+							responsableCodi);
+				} catch (NoTrobatException nte) {
+					responsable = new PersonaDto();
+					responsable.setCodi(responsableCodi);
+					responsable.setNom(responsableCodi);
+					model.addAttribute("errorResonsableNoTrobat", true); 
+				}
 				model.addAttribute(
 						"responsableDefecte",
-						aplicacioService.findPersonaAmbCodi(
-								expedientTipus.getResponsableDefecteCodi()));
+						responsable);
 			}
 			model.addAttribute(
 					"definicioProcesInicial",
@@ -519,6 +531,21 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 		model.addAttribute("fitxerImportat", exportacio != null);
 		
 		if (exportacio != null) {
+			// Comprova si existeix el responsable per defecte
+			String responsableCodi = exportacio.getResponsableDefecteCodi();
+			if (responsableCodi != null) {				
+				// Responsable per defecte
+				if (responsableCodi != null) {
+					try {
+						aplicacioService.findPersonaAmbCodi(
+								responsableCodi);
+					} catch (NoTrobatException nte) {
+						model.addAttribute("exportacio", exportacio);
+						model.addAttribute("avisResonsableNoTrobat", true); 
+					}
+				}
+			}
+			
 			model.addAttribute("estats", exportacio.getEstats());
 			model.addAttribute("variables", exportacio.getCamps());
 			model.addAttribute("agrupacions", exportacio.getAgrupacions());
