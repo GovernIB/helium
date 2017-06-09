@@ -78,7 +78,7 @@ public class ExpedientInformacioController extends BaseExpedientController {
 			List<EstatDto> estats = dissenyService.findEstatByExpedientTipus(expedient.getTipus().getId());
 			estats.add(new EstatDto(-1L, "-1", getMessage(request, "expedient.consulta.finalitzat")));
 			model.addAttribute("estats", estats);
-			return "v3/expedient/modificar";
+			return "v3/expedient/modificarInformacio";
 		}
 		expedientService.update(
 				command.getExpedientId(),

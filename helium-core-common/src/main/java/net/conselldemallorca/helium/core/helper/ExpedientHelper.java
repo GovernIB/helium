@@ -443,8 +443,8 @@ public class ExpedientHelper {
 			expedient.setResponsableCodi(responsableCodi);
 		}
 		// Data d'inici
-		if (expedient.getDataInici() != dataInici) {
-			SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+		SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+		if ( !sdf.format(expedient.getDataInici()).equals(sdf.format(dataInici)) ) {
 			String inici = sdf.format(dataInici);
 			expedientLoggerHelper.afegirProcessLogInfoExpedient(
 					ambRetroaccio,
