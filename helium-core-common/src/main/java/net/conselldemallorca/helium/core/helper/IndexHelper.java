@@ -571,6 +571,7 @@ public class IndexHelper {
 							camp,
 							valor,
 							null,
+							null, 
 							processInstanceId);
 					textDominis.put(
 							camp.getCodi() + "@" + valor.toString(),

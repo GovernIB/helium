@@ -35,7 +35,8 @@ function desplegableInitSeleccio(url, element, callback) {
 	if (registreCampId) {
 		ajaxData = {
             	registreCampId: registreCampId,
-            	registreIndex: registreIndex
+            	registreIndex: registreIndex,
+            	valor: $(element).val()
             };
 	}
 	if ($(element).val()) {
@@ -71,8 +72,8 @@ function initSuggest(element) {
 	        }
 	    },
 	    initSelection: function(element, callback) {
-	    	var ajaxUrl = encodeURI(input.data("urlconsultainicial") + "/" + $(element).val());
-	    	desplegableInitSeleccio(ajaxUrl, element, callback);
+	    	var ajaxUrl = input.data("urlconsultainicial") + "/" + encodeURIComponent($(element).val());
+	    	desplegableInitSeleccio(input.data("urlconsultainicial"), element, callback);
 	    },
 	}).on('change', function() {
 		var campName = $(this).attr('name');
@@ -83,9 +84,13 @@ function initSuggest(element) {
 		});
 	});
 }
+
 var opcionsSeleccio = [];
 function initSeleccio(element) {
 	var input = $(element);
+	// Relaciona el canvi de camps al refres del camp selecció
+	bindCampsParams(input);
+	// Carrega l'element
 	input.select2({
 		width: '100%',
 		placeholder: input.data("placeholder"),
@@ -128,25 +133,9 @@ function initSeleccio(element) {
 			}
 			return {results: opcionsSeleccio[input.attr('id')]};
 		},
-		/*ajax: {
-	        url: function(value) {
-	        	return input.data("urlconsultallistat");
-	        },
-	        dataType: 'json',
-	        data: function () {
-	        	return desplegableObtenirParams(input);
-	        },
-	        results: function(data) {
-	        	var results = [];
-	        	for (var i = 0; i < data.length; i++) {
-	        		results.push({id: data[i].codi, text: data[i].nom});
-	        	}
-	            return {results: results};
-	        }
-	    },*/
 	    initSelection: function (element, callback) {
-	    	var ajaxUrl = encodeURI(input.data("urlconsultainicial") + "/" + $(element).val());
-	    	desplegableInitSeleccio(ajaxUrl, element, callback);
+	    	var ajaxUrl = input.data("urlconsultainicial") + "/" + encodeURIComponent($(element).val());
+	    	desplegableInitSeleccio(input.data("urlconsultainicial"), element, callback);
 	    },
 	}).on('change', function () {
 		var regPrefix = '';
@@ -170,6 +159,72 @@ function initSeleccio(element) {
 				}
 			}
 		});
+	});
+}
+
+/** Fa que quan algun dels camps paràmetres canviï es refresquin les opcions de la selecció. */
+function bindCampsParams(element) {
+	var input = $(element);
+	var regPrefix = '';
+	if (input.attr('id').indexOf('.') != -1) 
+		regPrefix = input.attr('id').substring(0, input.attr('id').indexOf('.'));
+	var campParams;
+	if ($(input).data('campparams'))
+		campParams = $(input).data('campparams').split(',');
+	$('input', input.parents('form')).each(function() {
+		// Si és un camp dels paràmetres
+		var inputName = $(this).attr('name');
+		if ( inputName && ~ inputName.indexOf(regPrefix) ) {
+			 if (regPrefix != '')
+				 inputName = inputName.replace(regPrefix+'.','');
+			 if( $.inArray(inputName, campParams) != -1)  {
+					$(this).change(function(){
+						refreshSeleccio(element);
+					});
+			 }
+		}
+	});	
+	
+}
+
+/** Funció per refrescar la selecció i les opcions.*/
+function refreshSeleccio(element) {
+	var input = $(element);
+	input.removeClass('open');
+	var vActual = input.val();
+	$.ajax({
+		success: function(data) {
+		},
+		error: function(data) {
+			var select2 = input.data('select2');
+			$(input).parents().closest(".form-group").addClass('has-error');
+			if($(input).parents().closest(".form-group").find('.help-block.sistema-extern').length == 0) {
+				$(input).parents().closest(".controls").append('<p class="help-block sistema-extern"><span class="fa fa-exclamation-triangle"></span>&nbsp;' + data.responseText + '</p>');
+			}
+			input.select2("close");
+		},
+		type: 'GET',
+		async: true,
+		url: input.data("urlconsultallistat"),
+		data: desplegableObtenirParams(input),
+		dataType: 'json',
+		success: function(data) {
+			resposta = [];
+			for (i = 0; i < data.length; i++) {
+				resposta[i] = {
+					id: data[i].codi,
+					text: data[i].nom
+				};
+			}
+			opcionsSeleccio[input.attr('id')] = resposta;
+			input.data('select2-refresh', 'false');
+			var select2 = input.data('select2');
+			if (select2.opened()) {
+				input.select2("close");
+				input.select2("open");
+			}
+			input.val(vActual).change();
+		}
 	});
 }
 

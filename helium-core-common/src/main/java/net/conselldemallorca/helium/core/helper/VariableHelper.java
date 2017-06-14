@@ -190,6 +190,7 @@ public class VariableHelper {
 							var,
 							varsInstanciaProces.get(var),
 							null,
+							null,
 							processInstanceId,
 							false);
 					resposta.add(dto);
@@ -197,6 +198,7 @@ public class VariableHelper {
 					ExpedientDadaDto dto = getDadaPerVariableJbpm(
 							camp,
 							var,
+							null,
 							null,
 							null,
 							processInstanceId,
@@ -248,12 +250,14 @@ public class VariableHelper {
 					variableCodi,
 					valor,
 					null,
+					null,
 					processInstanceId,
 					false);
 		} else if (incloureVariablesBuides) {
 			dto = getDadaPerVariableJbpm(
 					camp,
 					variableCodi,
+					null,
 					null,
 					null,
 					processInstanceId,
@@ -271,6 +275,7 @@ public class VariableHelper {
 			ExpedientDadaDto expedientDadaDto = getDadaPerVariableJbpm(
 					camp,
 					camp.getCodi(),
+					null,
 					null,
 					tasca.getId(),
 					null,
@@ -327,6 +332,7 @@ public class VariableHelper {
 					camp,
 					camp.getCodi(),
 					varValor,
+					null,
 					task.getId(),
 					task.getProcessInstanceId(),
 					false);
@@ -381,6 +387,7 @@ public class VariableHelper {
 					camp,
 					variableCodi,
 					valor,
+					null,
 					task.getId(),
 					task.getProcessInstanceId(),
 					false);
@@ -401,6 +408,7 @@ public class VariableHelper {
 	public String getTextPerCamp(
 			Camp camp,
 			Object valor,
+			Map<String, Object> valorsAddicionals,
 			String taskInstanceId,
 			String processInstanceId) {
 		if (valor == null)
@@ -411,7 +419,7 @@ public class VariableHelper {
 			ParellaCodiValorDto parella = getTextPerCampAmbValor(
 					camp,
 					valor,
-					null,
+					valorsAddicionals,
 					taskInstanceId,
 					processInstanceId);
 			
@@ -767,6 +775,7 @@ public class VariableHelper {
 			Camp camp,
 			String varCodi,
 			Object varValor,
+			Map<String, Object> valorsAddicionals,
 			String taskInstanceId,
 			String processInstanceId,
 			boolean forsarSimple) {
@@ -800,7 +809,17 @@ public class VariableHelper {
 					if (TipusCamp.REGISTRE.equals(camp.getTipus())) {
 						List<ExpedientDadaDto> registreDades = new ArrayList<ExpedientDadaDto>();
 						Object[] valorsRegistres = (Object[])varValor;
+						// Construeix el map per als valors addicionals dels parámetres del domini
+						Map<String, Object> valorsAddicionalsConsulta = new HashMap<String, Object>();
+						for (int j = 0; j < camp.getRegistreMembres().size(); j++) {
+							if (j < Array.getLength(valorsRegistres)) {
+								valorsAddicionalsConsulta.put(
+										camp.getRegistreMembres().get(j).getMembre().getCodi(),
+										Array.get(valorsRegistres, j));
+							}
+						}
 						int index = 0;
+						// Consulta el valor per cada dada del registre
 						for (CampRegistre campRegistre: camp.getRegistreMembres()) {							
 							Object valorsRegistre = null;
 							if (valorsRegistres != null && valorsRegistres.length>index) {
@@ -810,6 +829,7 @@ public class VariableHelper {
 									campRegistre.getMembre(),
 									campRegistre.getMembre().getCodi(),
 									valorsRegistre,
+									valorsAddicionalsConsulta,
 									taskInstanceId,
 									processInstanceId,
 									false);
@@ -826,6 +846,7 @@ public class VariableHelper {
 									getTextPerCamp(
 											camp,
 											varValor,
+											valorsAddicionals,
 											taskInstanceId,
 											processInstanceId));
 							if (dto.getText() == null || dto.getText().isEmpty()) {
@@ -852,6 +873,7 @@ public class VariableHelper {
 									camp,
 									varCodi,
 									valor,
+									null,
 									taskInstanceId,
 									processInstanceId,
 									true);
@@ -862,6 +884,7 @@ public class VariableHelper {
 								camp,
 								varCodi,
 								null,
+								null,
 								taskInstanceId,
 								processInstanceId,
 								true);
@@ -869,7 +892,23 @@ public class VariableHelper {
 					}
 					dto.setMultipleDades(multipleDades);
 				}
-			} catch (Exception ex) {
+				if (camp.getDominiParams() != null) {
+					String dominiParams = camp.getDominiParams();
+					String[] pairs = dominiParams.split(";");
+					List<String> paramCampCodis = new ArrayList<String>();
+					for (String pair: pairs) {
+						String[] parts = pair.split(":");
+						if (parts.length >= 2) {
+							String campCodi = parts[1];
+							if (!campCodi.startsWith("@") && !campCodi.startsWith("#{")) {
+								paramCampCodis.add(campCodi);
+							}
+						}
+					}
+					dto.setCampParams(
+							paramCampCodis.toArray(
+									new String[paramCampCodis.size()]));
+				}			} catch (Exception ex) {
 				logger.error("Error al processar dada de l'expedient (processInstanceId=" + processInstanceId + ", variable=" + varCodi + ")", ex);
 				StringBuilder sb = new StringBuilder();
 				getClassAsString(sb, varValor);
@@ -988,6 +1027,8 @@ public class VariableHelper {
 					((DominiCodiDescripcio)valor).getCodi(),
 					((DominiCodiDescripcio)valor).getDescripcio());
 		}
+		
+		ParellaCodiValorDto resultat = null;
 		List<ParellaCodiValorDto> lista = getPossiblesValorsCamp(
 				camp,
 				null,
@@ -997,9 +1038,13 @@ public class VariableHelper {
 				taskInstanceId,
 				processInstanceId);
 		if (!lista.isEmpty()) {
-			return lista.get(0);
+			// Cerca el valor resultant
+			for (ParellaCodiValorDto parellaCodiValor : lista){
+				if (parellaCodiValor.getCodi().equals(valor.toString()))
+					resultat = parellaCodiValor;
+			}
 		}
-		return null;
+		return resultat;
 	}
 
 	private static final Logger logger = LoggerFactory.getLogger(VariableHelper.class);

@@ -213,6 +213,7 @@ public class ConsultaHelper {
 									camp, 
 									valorIndex, 
 									null, 
+									null, 
 									expedient.getProcessInstanceId());
 							valorsMostrar.add(text);
 						}
@@ -221,7 +222,8 @@ public class ConsultaHelper {
 						text = variableHelper.getTextPerCamp(
 								camp,
 								dadaIndexada.getValorIndex(),
-								null,
+								null, 
+								null, 
 								expedient.getProcessInstanceId());	
 						dadaIndexada.setValorMostrar(text);
 					}

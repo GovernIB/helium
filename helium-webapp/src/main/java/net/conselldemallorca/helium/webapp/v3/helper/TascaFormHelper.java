@@ -267,6 +267,7 @@ public class TascaFormHelper {
 		tascaDto.setCampEtiqueta(expedientDadaDto.getCampEtiqueta());
 		tascaDto.setCampMultiple(expedientDadaDto.isCampMultiple());
 		tascaDto.setCampOcult(expedientDadaDto.isCampOcult());
+		tascaDto.setCampParams(expedientDadaDto.getCampParams());
 		tascaDto.setRequired(expedientDadaDto.isRequired());
 		tascaDto.setText(expedientDadaDto.getText());
 		tascaDto.setError(expedientDadaDto.getError());
