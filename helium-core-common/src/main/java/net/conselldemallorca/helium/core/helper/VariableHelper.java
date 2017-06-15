@@ -811,13 +811,14 @@ public class VariableHelper {
 						Object[] valorsRegistres = (Object[])varValor;
 						// Construeix el map per als valors addicionals dels parámetres del domini
 						Map<String, Object> valorsAddicionalsConsulta = new HashMap<String, Object>();
-						for (int j = 0; j < camp.getRegistreMembres().size(); j++) {
-							if (j < Array.getLength(valorsRegistres)) {
-								valorsAddicionalsConsulta.put(
-										camp.getRegistreMembres().get(j).getMembre().getCodi(),
-										Array.get(valorsRegistres, j));
+						if (valorsRegistres != null)
+							for (int j = 0; j < camp.getRegistreMembres().size(); j++) {
+								if (j < Array.getLength(valorsRegistres)) {
+									valorsAddicionalsConsulta.put(
+											camp.getRegistreMembres().get(j).getMembre().getCodi(),
+											Array.get(valorsRegistres, j));
+								}
 							}
-						}
 						int index = 0;
 						// Consulta el valor per cada dada del registre
 						for (CampRegistre campRegistre: camp.getRegistreMembres()) {							
