@@ -512,9 +512,11 @@ public class ExpedientHelper {
 					LogInfo.GRUP + "#@#" + expedient.getGrupCodi());
 			expedient.setGrupCodi(grupCodi);
 		}
-		luceneHelper.updateExpedientCapsalera(
-				expedient,
-				isFinalitzat(expedient));
+		// Reindexació a lucene. Pot ser síncrona o asíncrona depenent del tipus d'expedient
+		indexHelper.expedientIndexLuceneUpdate(
+				expedient.getProcessInstanceId(), 
+				false);
+		
 		// TODO
 		/*String informacioNova = getInformacioExpedient(expedient);
 		registreDao.crearRegistreModificarExpedient(
