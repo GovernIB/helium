@@ -377,7 +377,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 				ids[i++] = pi.getId();
 			
 			Date dataFinalitzacio = new Date();
-			workflowEngineApi.finalitzarExpedient(expedient.getProcessInstanceId(), dataFinalitzacio);
+			workflowEngineApi.finalitzarExpedient(ids, dataFinalitzacio);
 			expedient.setDataFi(dataFinalitzacio);
 						
 			workflowRetroaccioApi.afegirInformacioRetroaccioPerExpedient(
@@ -1078,8 +1078,8 @@ public class ExpedientServiceImpl implements ExpedientService {
 				id,
 				new Permission[] {
 						ExtendedPermission.WRITE,
-						ExtendedPermission.ADMINISTRATION});		
-		
+						ExtendedPermission.ADMINISTRATION});
+
 		workflowRetroaccioApi.afegirInformacioRetroaccioPerExpedient(
 				expedient.getId(),
 				ExpedientRetroaccioTipus.EXPEDIENT_FINALITZAR,
@@ -1092,7 +1092,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 			ids[i++] = pi.getId();
 		
 		Date dataFinalitzacio = new Date();
-		workflowEngineApi.finalitzarExpedient(expedient.getProcessInstanceId(), dataFinalitzacio);
+		workflowEngineApi.finalitzarExpedient(ids, dataFinalitzacio);
 		expedient.setDataFi(dataFinalitzacio);
 		
 		crearRegistreExpedient(

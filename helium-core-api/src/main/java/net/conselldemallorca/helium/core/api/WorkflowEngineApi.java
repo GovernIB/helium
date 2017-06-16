@@ -778,8 +778,8 @@ public interface WorkflowEngineApi {
 	public void desfinalitzarExpedient(String processInstanceId);
 		
 	/** Mètode per finalitzar l'expedient. */
-	public void finalitzarExpedient(String processInstanceId, 
-			Date dataFinalitzacio);
+	public void finalitzarExpedient(String[] processInstanceIds, Date dataFinalitzacio);
+
 	
 	// Tasques en segón pla 
 	public void marcarFinalitzar(String taskId, Date marcadaFinalitzar, String outcome, String rols);

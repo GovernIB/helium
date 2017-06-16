@@ -1776,16 +1776,6 @@ public class JbpmHelper implements WorkflowEngineApi {
 	}
 	
 	@Override
-	public void finalitzarExpedient(String processInstanceId, Date dataFinalitzacio){
-		WProcessInstance rootProcessInstance = getRootProcessInstance(processInstanceId);
-		Long rootProcessInstanceId = Long.valueOf(rootProcessInstance.getId());
-		long[] ids = {rootProcessInstanceId};
-		ProcessInstanceEndCommand command = new ProcessInstanceEndCommand(ids, dataFinalitzacio);
-		executeCommandWithAutoSave(
-				command,
-				ids,
-				AddToAutoSaveCommand.TIPUS_INSTANCIA_PROCES);
-	}
 	public void finalitzarExpedient(String[] processInstanceIds, Date dataFinalitzacio){
 		long[] ids = new long[processInstanceIds.length];
 		for (int i = 0; i < processInstanceIds.length; i++)
@@ -1796,7 +1786,7 @@ public class JbpmHelper implements WorkflowEngineApi {
 				ids,
 				AddToAutoSaveCommand.TIPUS_INSTANCIA_PROCES);
 	}
-	
+		
 	public void setTaskInstanceActorId(String taskInstanceId, String actorId) {
 		//adminService.mesuraIniciar("jBPM setTaskInstanceActorId", "jbpmDao");
 		final long id = Long.parseLong(taskInstanceId);
