@@ -1895,13 +1895,14 @@ public class JbpmHelper {
 		//adminService.mesuraCalcular("jBPM reprendreExpedient", "jbpmDao");
 	}
 	
-	public void finalitzarExpedient(String processInstanceId, Date dataFinalitzacio){
-		JbpmProcessInstance rootProcessInstance = getRootProcessInstance(processInstanceId);
-		Long rootProcessInstanceId = rootProcessInstance.getProcessInstance().getId();
-		ProcessInstanceEndCommand command = new ProcessInstanceEndCommand(rootProcessInstanceId, dataFinalitzacio);
+	public void finalitzarExpedient(String[] processInstanceIds, Date dataFinalitzacio){
+		long[] ids = new long[processInstanceIds.length];
+		for (int i = 0; i < processInstanceIds.length; i++)
+			ids[i] = Long.parseLong(processInstanceIds[i]);
+		ProcessInstanceEndCommand command = new ProcessInstanceEndCommand(ids, dataFinalitzacio);
 		executeCommandWithAutoSave(
 				command,
-				rootProcessInstanceId,
+				ids,
 				AddToAutoSaveCommand.TIPUS_INSTANCIA_PROCES);
 	}
 
