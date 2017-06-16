@@ -369,6 +369,13 @@ public class ExpedientServiceImpl implements ExpedientService {
 		
 		if (estatId != null && estatId == -1) {
 			estatId = expedient.getEstat() != null ? expedient.getEstat().getId() : null;
+
+			List<WProcessInstance> processInstancesTree = workflowEngineApi.getProcessInstanceTree(expedient.getProcessInstanceId());
+			String[] ids = new String[processInstancesTree.size()];
+			int i = 0;
+			for (WProcessInstance pi: processInstancesTree)
+				ids[i++] = pi.getId();
+			
 			Date dataFinalitzacio = new Date();
 			workflowEngineApi.finalitzarExpedient(expedient.getProcessInstanceId(), dataFinalitzacio);
 			expedient.setDataFi(dataFinalitzacio);
@@ -1077,15 +1084,23 @@ public class ExpedientServiceImpl implements ExpedientService {
 				expedient.getId(),
 				ExpedientRetroaccioTipus.EXPEDIENT_FINALITZAR,
 				null);
-//		expedientLog.setEstat(ExpedientLogEstat.IGNORAR);
-		logger.debug("Finalització de l'expedient (id=" + id + ")");
+		
+		List<WProcessInstance> processInstancesTree = workflowEngineApi.getProcessInstanceTree(expedient.getProcessInstanceId());
+		String[] ids = new String[processInstancesTree.size()];
+		int i = 0;
+		for (WProcessInstance pi: processInstancesTree)
+			ids[i++] = pi.getId();
+		
 		Date dataFinalitzacio = new Date();
 		workflowEngineApi.finalitzarExpedient(expedient.getProcessInstanceId(), dataFinalitzacio);
 		expedient.setDataFi(dataFinalitzacio);
-//		expedientRegistreHelper.crearRegistreReprendreExpedient(
-//				expedient.getId(),
-//				(expedient.getResponsableCodi() != null) ? expedient.getResponsableCodi() : SecurityContextHolder.getContext().getAuthentication().getName());
+		
+		crearRegistreExpedient(
+				expedient.getId(),
+				SecurityContextHolder.getContext().getAuthentication().getName(),
+				Registre.Accio.FINALITZAR);
 	}
+	
 
 	/**
 	 * {@inheritDoc}

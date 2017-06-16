@@ -41,6 +41,10 @@ import org.jbpm.graph.exe.ProcessInstanceExpedient;
 import org.jbpm.graph.exe.ProcessInstanceExpedientTipus;
 import org.jbpm.graph.exe.Token;
 import org.jbpm.job.Timer;
+import org.jbpm.jpdl.el.ELException;
+import org.jbpm.jpdl.el.ExpressionEvaluator;
+import org.jbpm.jpdl.el.VariableResolver;
+import org.jbpm.jpdl.el.impl.ExpressionEvaluatorImpl;
 import org.jbpm.logging.log.ProcessLog;
 import org.jbpm.taskmgmt.def.Task;
 import org.jbpm.taskmgmt.exe.TaskInstance;
@@ -128,10 +132,6 @@ import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto.OrdreDireccioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto.OrdreDto;
 import net.conselldemallorca.helium.v3.core.api.exception.ExecucioHandlerException;
-import org.jbpm.jpdl.el.ELException;
-import org.jbpm.jpdl.el.ExpressionEvaluator;
-import org.jbpm.jpdl.el.VariableResolver;
-import org.jbpm.jpdl.el.impl.ExpressionEvaluatorImpl;
 
 /**
  * Dao per a l'accés a la funcionalitat de jBPM3
@@ -1779,10 +1779,21 @@ public class JbpmHelper implements WorkflowEngineApi {
 	public void finalitzarExpedient(String processInstanceId, Date dataFinalitzacio){
 		WProcessInstance rootProcessInstance = getRootProcessInstance(processInstanceId);
 		Long rootProcessInstanceId = Long.valueOf(rootProcessInstance.getId());
-		ProcessInstanceEndCommand command = new ProcessInstanceEndCommand(rootProcessInstanceId, dataFinalitzacio);
+		long[] ids = {rootProcessInstanceId};
+		ProcessInstanceEndCommand command = new ProcessInstanceEndCommand(ids, dataFinalitzacio);
 		executeCommandWithAutoSave(
 				command,
-				rootProcessInstanceId,
+				ids,
+				AddToAutoSaveCommand.TIPUS_INSTANCIA_PROCES);
+	}
+	public void finalitzarExpedient(String[] processInstanceIds, Date dataFinalitzacio){
+		long[] ids = new long[processInstanceIds.length];
+		for (int i = 0; i < processInstanceIds.length; i++)
+			ids[i] = Long.parseLong(processInstanceIds[i]);
+		ProcessInstanceEndCommand command = new ProcessInstanceEndCommand(ids, dataFinalitzacio);
+		executeCommandWithAutoSave(
+				command,
+				ids,
 				AddToAutoSaveCommand.TIPUS_INSTANCIA_PROCES);
 	}
 	
