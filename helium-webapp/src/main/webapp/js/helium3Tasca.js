@@ -38,6 +38,10 @@ function desplegableInitSeleccio(url, element, callback) {
             	registreIndex: registreIndex,
             	valor: $(element).val()
             };
+	} else {
+		ajaxData = {
+            	valor: $(element).val()				
+		};
 	}
 	if ($(element).val()) {
 		$.ajax(url, {
@@ -72,7 +76,6 @@ function initSuggest(element) {
 	        }
 	    },
 	    initSelection: function(element, callback) {
-	    	var ajaxUrl = input.data("urlconsultainicial") + "/" + encodeURIComponent($(element).val());
 	    	desplegableInitSeleccio(input.data("urlconsultainicial"), element, callback);
 	    },
 	}).on('change', function() {
@@ -134,7 +137,6 @@ function initSeleccio(element) {
 			return {results: opcionsSeleccio[input.attr('id')]};
 		},
 	    initSelection: function (element, callback) {
-	    	var ajaxUrl = input.data("urlconsultainicial") + "/" + encodeURIComponent($(element).val());
 	    	desplegableInitSeleccio(input.data("urlconsultainicial"), element, callback);
 	    },
 	}).on('change', function () {
