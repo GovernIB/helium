@@ -44,6 +44,9 @@ import net.conselldemallorca.helium.webapp.v3.helper.ObjectTypeEditorHelper;
 @RequestMapping("/v3/expedient")
 public class ExpedientInformacioController extends BaseExpedientController {
 
+	/** Constant per indicar l'id de l'estat finalitzat. */
+	private static final Long ESTAT_FINALITZAT_ID = -1L;
+	
 	@Autowired
 	private ExpedientService expedientService;
 	@Autowired
@@ -58,7 +61,7 @@ public class ExpedientInformacioController extends BaseExpedientController {
 		model.addAttribute("expedient", expedient);
 		List<EstatDto> estats = dissenyService.findEstatByExpedientTipus(expedient.getTipus().getId());
 //		estats.add(0, new EstatDto(0L, "0", getMessage(request, "expedient.consulta.iniciat")));
-		estats.add(new EstatDto(-1L, "-1", getMessage(request, "expedient.consulta.finalitzat")));
+		estats.add(new EstatDto(ESTAT_FINALITZAT_ID, "-1", getMessage(request, "expedient.consulta.finalitzat")));
 		model.addAttribute("estats", estats);
 		model.addAttribute(getCommandModificar(expedient));
 		return "v3/expedient/modificarInformacio";
@@ -76,7 +79,7 @@ public class ExpedientInformacioController extends BaseExpedientController {
 			ExpedientDto expedient = expedientService.findAmbId(expedientId);
 			model.addAttribute("expedient", expedient);
 			List<EstatDto> estats = dissenyService.findEstatByExpedientTipus(expedient.getTipus().getId());
-			estats.add(new EstatDto(-1L, "-1", getMessage(request, "expedient.consulta.finalitzat")));
+			estats.add(new EstatDto(ESTAT_FINALITZAT_ID, "-1", getMessage(request, "expedient.consulta.finalitzat")));
 			model.addAttribute("estats", estats);
 			return "v3/expedient/modificarInformacio";
 		}
@@ -115,6 +118,11 @@ public class ExpedientInformacioController extends BaseExpedientController {
 			if (expedient.getTipus().isTeNumero())
 				ValidationUtils.rejectIfEmpty(errors, "numero", "not.blank");
 			ValidationUtils.rejectIfEmpty(errors, "dataInici", "not.blank");
+			// No es pot modificar l'estat finalitzat d'un estat amb data de fi
+			if (expedient.getDataFi() != null && command.getEstatId() == null ) {
+				errors.rejectValue("estatId", "expedient.info.validacio.estat.finalitzat");
+				command.setEstatId(ESTAT_FINALITZAT_ID);
+			}
 		}
 	}	
 
@@ -136,6 +144,10 @@ public class ExpedientInformacioController extends BaseExpedientController {
 		if (personaResponsable != null) {
 			expedientEditarCommand.setResponsableCodi(personaResponsable.getCodi());
 			expedientEditarCommand.setResponsableNomSencer(personaResponsable.getNomSencer());
+		}
+		// Estat finalitzat
+		if (expedient.getEstat() == null && expedient.getDataFi() != null) {
+			expedientEditarCommand.setEstatId(ESTAT_FINALITZAT_ID);
 		}
 		return expedientEditarCommand;
 	}

@@ -390,6 +390,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 					expedient.getId(),
 					ExpedientLogAccioTipus.EXPEDIENT_FINALITZAR,
 					null);
+			estatId = null;
 		}
 		
 		expedientHelper.update(
