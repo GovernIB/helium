@@ -15,18 +15,17 @@ import javax.annotation.Resource;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.security.acls.model.Permission;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
 import edu.emory.mathcs.backport.java.util.Collections;
 import net.conselldemallorca.helium.core.api.DelegationInfo;
-import net.conselldemallorca.helium.core.api.ResultatConsultaPaginada;
 import net.conselldemallorca.helium.core.api.WProcessInstance;
 import net.conselldemallorca.helium.core.api.WTaskInstance;
 import net.conselldemallorca.helium.core.api.WorkflowEngineApi;
 import net.conselldemallorca.helium.core.common.JbpmVars;
+import net.conselldemallorca.helium.core.extern.domini.DominiCodiDescripcio;
 import net.conselldemallorca.helium.core.helper.TascaSegonPlaHelper.InfoSegonPla;
 import net.conselldemallorca.helium.core.model.hibernate.Camp;
 import net.conselldemallorca.helium.core.model.hibernate.Camp.TipusCamp;
@@ -37,12 +36,8 @@ import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.hibernate.FirmaTasca;
 import net.conselldemallorca.helium.core.model.hibernate.Tasca;
-import net.conselldemallorca.helium.core.security.ExtendedPermission;
-import net.conselldemallorca.helium.core.extern.domini.DominiCodiDescripcio;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDadaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
-import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto.OrdreDireccioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
@@ -283,55 +278,6 @@ public class TascaHelper {
 		return task;
 	}
 
-	public List<ExpedientTascaDto> findTasquesPerExpedient(
-			Expedient expedient,
-			boolean perTramitacio,
-			boolean ambPermisos) {
-		List<ExpedientTascaDto> resposta = new ArrayList<ExpedientTascaDto>();
-		// Si l'usuari te permis de supervisio mostra totes les tasques de
-		// l'expedient de qualsevol usuari
-		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-		boolean isPermisSupervision = permisosHelper.isGrantedAny(
-				expedient.getTipus().getId(),
-				ExpedientTipus.class,
-				new Permission[] {
-					ExtendedPermission.SUPERVISION,
-					ExtendedPermission.ADMINISTRATION},
-				auth);
-		PaginacioParamsDto paginacioParams = new PaginacioParamsDto();
-		paginacioParams.setPaginaNum(0);
-		paginacioParams.setPaginaTamany(-1);
-		paginacioParams.afegirOrdre("dataCreacio", OrdreDireccioDto.DESCENDENT);
-		ResultatConsultaPaginada<WTaskInstance> tasks = workflowEngineApi.tascaFindByFiltrePaginat(
-				expedient.getEntorn().getId(),
-				(isPermisSupervision) ? null : auth.getName(),
-				null,
-				null,
-				expedient.getId(),
-				null,
-				null,
-				null,
-				null,
-				null,
-				null,
-				null,
-				null,
-				true,
-				true,
-				false,
-				paginacioParams,
-				false);
-		for (WTaskInstance task: tasks.getLlista()) {
-			resposta.add(
-					toExpedientTascaDto(
-							task,
-							expedient,
-							perTramitacio,
-							ambPermisos));
-		}
-		return resposta;
-	}
-
 	private List<String> getCampsExpressioTitol(String expressio) {
 		List<String> resposta = new ArrayList<String>();
 		String[] parts = expressio.split("\\$\\{");
@@ -471,10 +417,19 @@ public class TascaHelper {
 		return resposta;
 	}
 
+	/**
+	 * Retorna les tasques de l'expedient per instància de procés.
+	 * @param expedient
+	 * @param processInstanceId
+	 * @param completed Inclou o no les tasques completades
+	 * @param mostrarDeOtrosUsuarios Mostra o no les dels altres usuaris
+	 * @return
+	 */
 	public List<ExpedientTascaDto> findTasquesPerExpedientPerInstanciaProces(
 			Expedient expedient,
 			String processInstanceId,
 			boolean completed,
+			boolean notCompleted,
 			boolean mostrarDeOtrosUsuarios) {
 		List<ExpedientTascaDto> resposta = new ArrayList<ExpedientTascaDto>();
 		List<WTaskInstance> tasks = workflowEngineApi.findTaskInstancesByProcessInstanceId(processInstanceId);
@@ -484,7 +439,8 @@ public class TascaHelper {
 					expedient,
 					true,
 					false);
-			if ((tasca.isCompleted() == completed) && (mostrarDeOtrosUsuarios || tasca.isAssignadaUsuariActual())) {
+			if (((completed && tasca.isCompleted()) || (notCompleted && !tasca.isCompleted()))
+					&& (mostrarDeOtrosUsuarios || tasca.isAssignadaUsuariActual())) {
 				resposta.add(tasca);
 			}
 		}
