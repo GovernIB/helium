@@ -80,17 +80,12 @@ $(document).ready(function() {
 	    }, function() {
 	        $(this.cells[0]).removeClass('showDragHandle');
 	    });
-		// Refresca els missatges
-		webutilRefreshMissatges();
 	});
 });
 
 function callbackModalEstats() {
-	refrescaTaula();
-}
-
-function refrescaTaula() {
-	$('#expedientTipusEstat').webutilDatatable('refresh');
+	// Refresca els missatges
+	webutilRefreshMissatges();
 }
 
 function canviarPosicioEstat(id, pos) {

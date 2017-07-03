@@ -384,6 +384,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 					expedient.getId(),
 					ExpedientRetroaccioTipus.EXPEDIENT_FINALITZAR,
 					null);
+			estatId = null;
 		}
 		
 		expedientHelper.update(
