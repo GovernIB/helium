@@ -192,7 +192,7 @@
 							</div>
 						</c:if>
 						<c:if test="${dadesPersona.admin}">
-							<div id="menuDisseny" class="btn-group">
+							<div id="menuAdministracio" class="btn-group">
 								<button class="btn btn-primary dropdown-toggle" data-toggle="dropdown"><spring:message code="decorator.menu.administracio"/> <span class="caret"></span></button>
 								<ul class="dropdown-menu" id="mesures">
 									<c:if test="${globalProperties['app.expedient.monitor']}">
@@ -209,6 +209,7 @@
 										<c:if test="${dadesPersona.admin}"><li><a target="_BLANK" href="<c:url value="/area/jbpmConfigurats.html"/>"><spring:message code='comuns.arees' /></a></li></c:if>
 									</c:if>
 									<c:if test="${dadesPersona.admin}"><li><a data-toggle="modal" data-maximized="true" href="<c:url value="/modal/v3/configuracio/festius"/>"><spring:message code='decorators.superior.festius' /></a></li></c:if>
+									<li><a data-toggle="modal" href="<c:url value="/modal/v3/configuracio/parametres"/>"><spring:message code='decorators.superior.parametres' /></a></li>
 								</ul>
 								<script type="text/javascript">
 									$('#mesures a').heliumEvalLink({

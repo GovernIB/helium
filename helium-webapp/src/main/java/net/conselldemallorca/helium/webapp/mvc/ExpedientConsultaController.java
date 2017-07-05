@@ -151,6 +151,11 @@ public class ExpedientConsultaController extends BaseController {
 			@RequestParam(value = "dir", required = false) String dir,
 			HttpSession session,
 			ModelMap model) {
+
+		// Si la redirecció està habilitada redirecciona cap a la nova interfície
+		if (isRedireccionar())
+			return "redirect:/v3/expedient";
+
 		Entorn entorn = getEntornActiu(request);
 		if (entorn != null) {
 			ExpedientConsultaGeneralCommand command = (ExpedientConsultaGeneralCommand)session.getAttribute(VARIABLE_SESSIO_COMMAND);
