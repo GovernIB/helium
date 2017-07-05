@@ -29,6 +29,7 @@ import net.conselldemallorca.helium.core.model.dto.ExpedientDto;
 import net.conselldemallorca.helium.core.model.dto.InstanciaProcesDto;
 import net.conselldemallorca.helium.core.model.dto.TascaDto;
 import net.conselldemallorca.helium.core.model.dto.TascaLlistatDto;
+import net.conselldemallorca.helium.core.model.exception.NotFoundException;
 import net.conselldemallorca.helium.core.model.hibernate.Camp;
 import net.conselldemallorca.helium.core.model.hibernate.Camp.TipusCamp;
 import net.conselldemallorca.helium.core.model.hibernate.Document;
@@ -841,6 +842,9 @@ public class TramitacioServiceImpl implements TramitacioService {
 						varCodi,
 						valor);
 			}
+		} catch (NotFoundException ex) {
+			logger.error("No s'ha pogut guardar la variable al procés: " + ex.getMessage());
+			throw new TramitacioException("No s'ha pogut guardar la variable al procés: " + ex.getMessage());
 		} catch (Exception ex) {
 			logger.error("No s'ha pogut guardar la variable al procés", ex);
 			throw new TramitacioException("No s'ha pogut guardar la variable al procés: " + ex.getMessage());
