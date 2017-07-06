@@ -83,6 +83,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.PrincipalTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ReassignacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.SequenciaAnyDto;
 import net.conselldemallorca.helium.v3.core.api.dto.SequenciaDefaultAnyDto;
+import net.conselldemallorca.helium.v3.core.api.exception.DeploymentException;
 import net.conselldemallorca.helium.v3.core.api.exception.ExportException;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
@@ -520,7 +521,10 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 				if (command.getVariables().contains(camp.getCodi())) {
 					boolean necessitaDadesExternes = 
 							TipusCamp.SELECCIO.equals(camp.getTipus()) 
-							|| TipusCamp.SUGGEST.equals(camp.getTipus());			
+							|| TipusCamp.SUGGEST.equals(camp.getTipus());	
+					boolean necessitaDadesExternesEntorn = 
+							(camp.getDomini() != null && camp.getDomini().getExpedientTipus() == null)
+							|| (camp.getEnumeracio() != null && camp.getEnumeracio().getExpedientTipus() == null);
 					CampExportacio campExportacio = new CampExportacio(
 		                    camp.getCodi(),
 		                    CampTipusDto.valueOf(camp.getTipus().toString()),
@@ -544,7 +548,8 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		                    camp.getDefprocJbpmKey(),
 		                    camp.getJbpmAction(),
 		                    camp.getOrdre(),
-		                    camp.isIgnored());
+		                    camp.isIgnored(),
+		                    necessitaDadesExternesEntorn);
 					exportacio.getCamps().add(campExportacio);
 					// Afegeix les validacions del camp
 					for (Validacio validacio: camp.getValidacions()) {
@@ -875,17 +880,19 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 
 		// Enumeracions
 		Map<String, Enumeracio> enumeracions = new HashMap<String, Enumeracio>();
+		// Inicialitza amb les enumeracions a nivell de tipus d'expedient
+		if (expedientTipusExisteix)
+			for (Enumeracio e : enumeracioRepository.findAmbExpedientTipus(expedientTipusId))
+				enumeracions.put(e.getCodi(), e);
 		// Inicialitza amb les enumeracions a nivell d'entorn
+		Map<String, Enumeracio> enumeracionsEntorn = new HashMap<String, Enumeracio>();
 		for (Enumeracio e : enumeracioRepository.findGlobals(entorn.getId()))
-			enumeracions.put(e.getCodi(), e);
+			enumeracionsEntorn.put(e.getCodi(), e);
 		Enumeracio enumeracio;
 		if (command.getEnumeracions().size() > 0)
 			for(EnumeracioExportacio enumeracioExportat : importacio.getEnumeracions() )
 				if (command.getEnumeracions().contains(enumeracioExportat.getCodi())){
-					enumeracio = null;
-					if (expedientTipusExisteix) {
-						enumeracio = enumeracioRepository.findByExpedientTipusAndCodi(expedientTipus, enumeracioExportat.getCodi());
-					}
+					enumeracio = enumeracions.get(enumeracioExportat.getCodi());
 					if (enumeracio == null || sobreEscriure) {
 						if (enumeracio == null) {
 							enumeracio = new Enumeracio(
@@ -895,6 +902,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 							enumeracio.setExpedientTipus(expedientTipus);
 							expedientTipus.getEnumeracions().add(enumeracio);
 							enumeracioRepository.save(enumeracio);
+							enumeracions.put(enumeracio.getCodi(), enumeracio);
 						} else {
 							enumeracio.setNom(enumeracioExportat.getNom());
 							// Esborra tots els valors existents
@@ -911,22 +919,23 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 							enumeracioValorsRepository.save(valor);
 						}
 					}
-					enumeracions.put(enumeracio.getCodi(), enumeracio);
 				}
 		
 		// Dominis
 		Map<String, Domini> dominis = new HashMap<String, Domini>();
+		// Inicialitza amb els dominis a nivell de tipus d'expedient
+		if (expedientTipusExisteix)
+			for (Domini d : dominiRepository.findAmbExpedientTipus(expedientTipusId))
+				dominis.put(d.getCodi(), d);
 		// Inicialitza amb els dominis a nivell d'entorn
+		Map<String, Domini> dominisEntorn = new HashMap<String, Domini>();
 		for (Domini d : dominiRepository.findGlobals(entorn.getId()))
-			dominis.put(d.getCodi(), d);
+			dominisEntorn.put(d.getCodi(), d);
 		Domini domini;
 		if (command.getDominis().size() > 0)
 			for(DominiExportacio dominiExportat : importacio.getDominis() )
 				if (command.getDominis().contains(dominiExportat.getCodi())){
-					domini = null;
-					if (expedientTipusExisteix) {
-						domini = dominiRepository.findByExpedientTipusAndCodi(expedientTipus, dominiExportat.getCodi());
-					}
+					domini = dominis.get(dominiExportat.getCodi());
 					if (domini == null || sobreEscriure) {
 						if (domini == null) {
 							domini = new Domini(
@@ -937,6 +946,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 							expedientTipus.getDominis().add(domini);
 							domini.setTipus(TipusDomini.valueOf(dominiExportat.getTipus().toString()));
 							dominiRepository.save(domini);
+							dominis.put(domini.getCodi(), domini);
 						} else {
 							domini.setNom(dominiExportat.getNom());
 							domini.setTipus(TipusDomini.valueOf(dominiExportat.getTipus().toString()));
@@ -958,7 +968,6 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 						domini.setUsuari(dominiExportat.getUsuari());
 						domini.setContrasenya(dominiExportat.getContrasenya());
 					}
-					dominis.put(domini.getCodi(), domini);
 				}
 		
 		// Camps
@@ -1023,11 +1032,43 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 						if (campExportat.getAgrupacioCodi() != null && agrupacions.containsKey(campExportat.getAgrupacioCodi()))
 							camp.setAgrupacio(agrupacions.get(campExportat.getAgrupacioCodi()));
 						// Enumeració del camp
-						if (campExportat.getCodiEnumeracio() != null && enumeracions.containsKey(campExportat.getCodiEnumeracio()))
-							camp.setEnumeracio(enumeracions.get(campExportat.getCodiEnumeracio()));
+						if (campExportat.getCodiEnumeracio() != null) {
+							enumeracio = null;
+							if (campExportat.isDependenciaEntorn()) {
+								// Enumeració de l'entorn
+								enumeracio = enumeracionsEntorn.get(campExportat.getCodiEnumeracio());
+							} else {
+								// Enumeració TE o importades
+								enumeracio = enumeracions.get(campExportat.getCodiEnumeracio());
+							}
+							if (enumeracio == null)
+								throw new DeploymentException(
+										messageHelper.getMessage(
+											"exportar.validacio.variable.seleccio.enumeracio." + (campExportat.isDependenciaEntorn() ? "entorn" : "tipexp"), 
+											new Object[]{
+													camp.getCodi(),
+													campExportat.getCodiEnumeracio()}));
+							camp.setEnumeracio(enumeracio);
+						}
 						// Domini del camp
-						if (campExportat.getCodiDomini() != null && dominis.containsKey(campExportat.getCodiDomini()))
-							camp.setDomini(dominis.get(campExportat.getCodiDomini()));
+						if (campExportat.getCodiDomini() != null) {
+							domini = null;
+							if (campExportat.isDependenciaEntorn()) {
+								// Domini de l'entorn
+								domini = dominisEntorn.get(campExportat.getCodiDomini());
+							} else {
+								// Domini TE o importats
+								domini = dominis.get(campExportat.getCodiDomini());
+							}
+							if (domini == null)
+								throw new DeploymentException(
+										messageHelper.getMessage(
+											"exportar.validacio.variable.seleccio.domini." + (campExportat.isDependenciaEntorn() ? "entorn" : "tipexp"), 
+											new Object[]{
+													camp.getCodi(),
+													campExportat.getCodiDomini()}));
+							camp.setDomini(domini);
+						}
 						// Guarda els camps de tipus consulta per processar-los després de les consultes
 						if (campExportat.getCodiConsulta() != null)
 							campsTipusConsulta.put(camp, campExportat);

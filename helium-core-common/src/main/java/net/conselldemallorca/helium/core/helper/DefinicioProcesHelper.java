@@ -309,10 +309,10 @@ public class DefinicioProcesHelper {
 							camp.setAgrupacio(agrupacions.get(campExportat.getAgrupacioCodi()));
 						// Enumeració del camp
 						if (campExportat.getCodiEnumeracio() != null)
-							this.relacionarCampEnumeracio(camp, campExportat.getCodiEnumeracio(), entorn, expedientTipus);
+							this.relacionarCampEnumeracio(camp, campExportat.getCodiEnumeracio(), campExportat.isDependenciaEntorn(), entorn, expedientTipus);
 						// Domini del camp
 						if (campExportat.getCodiDomini() != null)
-							this.relacionarCampDomini(camp, campExportat.getCodiDomini(), entorn, expedientTipus);
+							this.relacionarCampDomini(camp, campExportat.getCodiDomini(), campExportat.isDependenciaEntorn(), entorn, expedientTipus);
 						// Guarda els camps de tipus consulta per processar-los després de les consultes
 						if (campExportat.getCodiConsulta() != null)
 							campsTipusConsulta.put(camp, campExportat);
@@ -560,70 +560,76 @@ public class DefinicioProcesHelper {
 	 * no el troba llença una excepció de no trobat.
 	 * @param camp
 	 * @param codiDomini
+	 * @param dependenciaEntorn 
 	 * @param entorn
 	 * @param expedientTipus
 	 */
 	private void relacionarCampDomini(
 			Camp camp, 
 			String codiDomini, 
+			boolean dependenciaEntorn,
 			Entorn entorn, 
 			ExpedientTipus expedientTipus) throws DeploymentException {
 		
 		Domini domini = null;
-		if (expedientTipus != null)
-			for (Domini d : expedientTipus.getDominis())
-				if (d.getCodi().equals(codiDomini)) {
-					domini = d;
-					break;
-				}
-		if (domini == null) {
-			// cerca a l'entorn
+		if (dependenciaEntorn) {
+			// Domini a nivell d'entor
 			domini = dominiRepository.findByEntornAndCodi(entorn, codiDomini);	
+		} else {
+			// Domini a nivell de TE
+			if (expedientTipus != null)
+				for (Domini d : expedientTipus.getDominis())
+					if (d.getCodi().equals(codiDomini)) {
+						domini = d;
+						break;
+					}
 		}
-		if (domini != null)
-			camp.setDomini(domini);
-		else
+		if (domini == null)
 			throw new DeploymentException(
 					messageHelper.getMessage(
-					"exportar.validacio.variable.seleccio.domini", 
+					"exportar.validacio.variable.seleccio.domini." + (dependenciaEntorn ? "entorn" : "tipexp"), 
 					new Object[]{
 							camp.getCodi(),
 							codiDomini}));
+		camp.setDomini(domini);
 	}
 
 	/** Troba la enumeració per codi dins del tius d'expedient o l'entorn i el relaciona amb el camp. Si 
 	 * no el troba llença una excepció de no trobat.
 	 * @param camp
 	 * @param codiEnumeracio
+	 * @param dependenciaEntorn 
 	 * @param entorn
 	 * @param expedientTipus
 	 */
 	private void relacionarCampEnumeracio(
 			Camp camp, 
 			String codiEnumeracio, 
+			boolean dependenciaEntorn, 
 			Entorn entorn,
 			ExpedientTipus expedientTipus) throws DeploymentException {
 
 		Enumeracio enumeracio = null;
-		if (expedientTipus != null)
-			for (Enumeracio e : expedientTipus.getEnumeracions())
-				if (e.getCodi().equals(codiEnumeracio)) {
-					enumeracio = e;
-					break;
-				}
-		if (enumeracio == null) {
-			// cerca a l'entorn
+		if (dependenciaEntorn) {
+			// Enumeració a nivell d'entor
 			enumeracio = enumeracioRepository.findByEntornAndCodi(entorn, codiEnumeracio);	
+		} else {
+			// Enumeració a nivell de TE
+			if (expedientTipus != null)
+				for (Enumeracio e : expedientTipus.getEnumeracions())
+					if (e.getCodi().equals(codiEnumeracio)) {
+						enumeracio = e;
+						break;
+					}
 		}
-		if (enumeracio != null)
-			camp.setEnumeracio(enumeracio);
-		else
+		if (enumeracio == null)
 			throw new DeploymentException(
 					messageHelper.getMessage(
-					"exportar.validacio.variable.seleccio.enumeracio", 
+					"exportar.validacio.variable.seleccio.enumeracio." + (dependenciaEntorn ? "entorn" : "tipexp"), 
 					new Object[]{
 							camp.getCodi(),
 							codiEnumeracio}));
+		camp.setEnumeracio(enumeracio);
 	}
 	
 	/** Troba el camp per al camp tasca segons si el tipus d'expedient està configurat amb info pròpia i si el camp tenia origen en la
@@ -850,6 +856,9 @@ public class DefinicioProcesHelper {
 					boolean necessitaDadesExternes = 
 							TipusCamp.SELECCIO.equals(camp.getTipus()) 
 							|| TipusCamp.SUGGEST.equals(camp.getTipus());			
+					boolean necessitaDadesExternesEntorn = 
+							(camp.getDomini() != null && camp.getDomini().getExpedientTipus() == null)
+							|| (camp.getEnumeracio() != null && camp.getEnumeracio().getExpedientTipus() == null);
 					CampExportacio campExportacio = new CampExportacio(
 		                    camp.getCodi(),
 		                    CampTipusDto.valueOf(camp.getTipus().toString()),
@@ -873,7 +882,8 @@ public class DefinicioProcesHelper {
 		                    camp.getDefprocJbpmKey(),
 		                    camp.getJbpmAction(),
 		                    camp.getOrdre(),
-		                    camp.isIgnored());
+		                    camp.isIgnored(),
+		                    necessitaDadesExternesEntorn);
 					exportacio.getCamps().add(campExportacio);
 					// Afegeix les validacions del camp
 					for (Validacio validacio: camp.getValidacions()) {
