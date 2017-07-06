@@ -71,12 +71,12 @@ public class ExpedientTipusExportarValidator implements ConstraintValidator<Expe
 			
 			// Conjunt d'enumeracions i dominis del tipus d'expedient per comprovar si les dependències són globals
 			// O no s'han escollit
-			Set<String> enumeracionsGlobals = new HashSet<String>();
+			Set<Long> enumeracionsGlobalsIds = new HashSet<Long>();
 			for (EnumeracioDto e : enumeracioService.findGlobals(command.getEntornId()))
-				enumeracionsGlobals.add(e.getCodi());
-			Set<String> dominisGlobals = new HashSet<String>();
+				enumeracionsGlobalsIds.add(e.getId());
+			Set<Long> dominisGlobalsIds = new HashSet<Long>();
 			for (DominiDto d : dominiService.findGlobals(expedientTipus.getEntorn().getId()))
-				dominisGlobals.add(d.getCodi());
+				dominisGlobalsIds.add(d.getId());
 			
 			// Definició de procés inicial
 			if (expedientTipus.getJbpmProcessDefinitionKey() != null
@@ -135,10 +135,10 @@ public class ExpedientTipusExportarValidator implements ConstraintValidator<Expe
 					// Comprova les dependències del camp de tipus seleció
 					if (camp.getEnumeracio() != null)
 						if (!command.getEnumeracions().contains(camp.getEnumeracio().getCodi())
-								&& !enumeracionsGlobals.contains(camp.getEnumeracio().getCodi()) ) {
+								&& !enumeracionsGlobalsIds.contains(camp.getEnumeracio().getId()) ) {
 							context.buildConstraintViolationWithTemplate(
 									MessageHelper.getInstance().getMessage(
-											this.codiMissatge + ".variable.seleccio.enumeracio", 
+											this.codiMissatge + ".variable.seleccio.enumeracio.tipexp", 
 											new Object[] {camp.getCodi(), camp.getEnumeracio().getCodi()}))
 							.addNode("variables")
 							.addConstraintViolation();
@@ -146,10 +146,10 @@ public class ExpedientTipusExportarValidator implements ConstraintValidator<Expe
 						}
 					if (camp.getDomini() != null)
 						if (!command.getDominis().contains(camp.getDomini().getCodi())
-								&& !dominisGlobals.contains(camp.getDomini().getCodi())) {
+								&& !dominisGlobalsIds.contains(camp.getDomini().getId())) {
 							context.buildConstraintViolationWithTemplate(
 									MessageHelper.getInstance().getMessage(
-											this.codiMissatge + ".variable.seleccio.domini", 
+											this.codiMissatge + ".variable.seleccio.domini.tipexp", 
 											new Object[] {camp.getCodi(), camp.getDomini().getCodi()}))
 							.addNode("variables")
 							.addConstraintViolation();

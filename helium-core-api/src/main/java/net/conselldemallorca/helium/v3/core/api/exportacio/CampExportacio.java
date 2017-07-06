@@ -44,6 +44,8 @@ public class CampExportacio implements Serializable {
 	private Set<ValidacioExportacio> validacions = new HashSet<ValidacioExportacio>();
 	private Set<RegistreMembreExportacio> registreMembres = new HashSet<RegistreMembreExportacio>();
 	private boolean isIgnored;
+	/** Indica si el domini o la selecció són de l'entorn.*/
+	private boolean dependenciaEntorn;
 	
 	
 	public CampExportacio(
@@ -69,7 +71,8 @@ public class CampExportacio implements Serializable {
 			String defprocJbpmKey,
 			String jbpmAction,
 			Integer ordre,
-			boolean isIgnored) {
+			boolean isIgnored,
+			boolean dependenciaEntorn) {
 		this.codi = codi;
 		this.tipus = tipus;
 		this.etiqueta = etiqueta;
@@ -93,6 +96,7 @@ public class CampExportacio implements Serializable {
 		this.jbpmAction = jbpmAction;
 		this.ordre = ordre;
 		this.isIgnored = isIgnored;
+		this.dependenciaEntorn = dependenciaEntorn;
 	}
 
 	public String getCodi() {
@@ -270,6 +274,13 @@ public class CampExportacio implements Serializable {
 			agrupacio.setCodi(this.agrupacioCodi);
 		}
 		return agrupacio;
+	}
+
+	public boolean isDependenciaEntorn() {
+		return dependenciaEntorn;
+	}
+	public void setDependenciaEntorn(boolean dependenciaEntorn) {
+		this.dependenciaEntorn = dependenciaEntorn;
 	}
 
 

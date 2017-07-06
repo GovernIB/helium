@@ -231,25 +231,27 @@ public class DefinicioProcesImportarValidator implements ConstraintValidator<Def
 				} else if (camp.getTipus() == CampTipusDto.SELECCIO) {
 					// Comprova les dependències del camp de tipus seleció
 					if (camp.getCodiEnumeracio() != null && !"".equals(camp.getCodiEnumeracio().trim())) {
-						// Comprova la enumeració
+						// Comprova l'enumeració
 						EnumeracioDto enumeracio = null;
-						if (expedientTipus != null)
-							// Busca primer dins del tipus d'expedient
-							enumeracio = enumeracioService.findAmbCodi(
-									entornActual.getId(),
-									expedientTipus.getId(), 
-									camp.getCodiEnumeracio());
-						if (enumeracio == null)
-							// Si no el troba busca a l'entorn
+						if (camp.isDependenciaEntorn()) {
+							// Enumeració entorn
 							enumeracio = enumeracioService.findAmbCodi(
 									entornActual.getId(), 
 									null, 
 									camp.getCodiEnumeracio());
+						} else {
+							// TE
+							if (expedientTipus != null)
+								enumeracio = enumeracioService.findAmbCodi(
+										entornActual.getId(),
+										expedientTipus.getId(), 
+										camp.getCodiEnumeracio());
+						}
 						if (enumeracio == null) {
 							// enumeracio no trobada
 							context.buildConstraintViolationWithTemplate(
 									MessageHelper.getInstance().getMessage(
-											this.codiMissatge + ".variable.seleccio.enumeracio", 
+											this.codiMissatge + ".variable.seleccio.enumeracio." + (camp.isDependenciaEntorn() ? "entorn" : "tipexp"), 
 											new Object[] {camp.getCodi(), camp.getCodiEnumeracio()}))
 							.addNode("variables")
 							.addConstraintViolation();
@@ -278,19 +280,21 @@ public class DefinicioProcesImportarValidator implements ConstraintValidator<Def
 					if (camp.getCodiDomini() != null) {
 						// Comprova el domini
 						DominiDto domini = null;
-						if (expedientTipus != null)
-							// Busca primer dins del tipus d'expedient
-							domini = dominiService.findAmbCodi(
-									entornActual.getId(),
-									expedientTipus.getId(), 
-									camp.getCodiDomini());
-						if (domini == null)
-							// Si no el troba busca a l'entorn
+						if (camp.isDependenciaEntorn()) {
+							// Entorn
 							domini = dissenyService.dominiFindAmbCodi(entornActual.getId(), camp.getCodiDomini());
+						} else {
+							// TE
+							if (expedientTipus != null)
+								domini = dominiService.findAmbCodi(
+										entornActual.getId(),
+										expedientTipus.getId(), 
+										camp.getCodiDomini());
+						}
 						if (domini == null) {
 							context.buildConstraintViolationWithTemplate(
 									MessageHelper.getInstance().getMessage(
-											this.codiMissatge + ".variable.seleccio.domini", 
+											this.codiMissatge + ".variable.seleccio.domini." + (camp.isDependenciaEntorn() ? "entorn" : "tipexp"), 
 											new Object[] {camp.getCodi(), camp.getCodiDomini()}))
 							.addNode("variables")
 							.addConstraintViolation();
