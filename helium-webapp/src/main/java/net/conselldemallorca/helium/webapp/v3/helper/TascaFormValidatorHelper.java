@@ -297,7 +297,8 @@ public class TascaFormValidatorHelper implements Validator {
 		for (TascaDadaDto camp: tascaDadas) {
 			this.getValidadorPerCamp(
 					camp, 
-					null,
+					null,	// Registre del camp
+					null,	// índex dada múltiple
 					command, 
 					beanValidationConfiguration);
 		}
@@ -318,24 +319,43 @@ public class TascaFormValidatorHelper implements Validator {
 	private void getValidadorPerCamp(
 			TascaDadaDto camp,
 			TascaDadaDto registre,
+			Integer indexMultiple,
 			Object command, 
 			DefaultBeanValidationConfiguration beanValidationConfiguration) {
 		
 		if (camp.getCampTipus() == CampTipusDto.REGISTRE) {
-			for (TascaDadaDto registreDada : camp.getRegistreDades()) {
-				// Crida aquest mètode sobre els camps del registre passant el registre com a paràmetre
-				this.getValidadorPerCamp(
-						registreDada, //
-						camp, // registre
-						command, 
-						beanValidationConfiguration);
-			}
+			if (camp.getRegistreDades() != null) {
+				for (TascaDadaDto registreDada : camp.getRegistreDades()) {
+					// Crida aquest mètode sobre els camps del registre passant el registre com a paràmetre
+					this.getValidadorPerCamp(
+							registreDada, //
+							camp, // registre
+							indexMultiple,
+							command, 
+							beanValidationConfiguration);
+				}				
+			} else if (camp.isCampMultiple()) {
+				Integer index = 0;
+				for (TascaDadaDto registreDada : camp.getMultipleDades()) {
+					// Crida la validació per cada dada múltiple
+					this.getValidadorPerCamp(
+							registreDada, //
+							camp, // registre
+							index++,
+							command, 
+							beanValidationConfiguration);
+				}
+			}				
 		}
 
 		// Comprovoa les validacions del camp
 		if (camp.getValidacions() != null) {
 			// Si és un camp d'un registre llavors el codi de la variable estarà compost [registre codi].[variable codi]
-			String codiVariable = (registre != null? registre.getVarCodi() + "." : "") + camp.getVarCodi();
+			String codiVariable =
+					(registre != null? registre.getVarCodi() : "")
+					+ (indexMultiple != null? "["+indexMultiple+"]" : "")
+					+ (registre != null? "." : "") 
+					+ camp.getVarCodi();
 			
 			for (ValidacioDto validacio: camp.getValidacions()) {
 				// Si és una validació dins d'un registre llavors corregeix la ruta "var_nom is BLANK" -> "registre_nom.var_nom is BLANK"
