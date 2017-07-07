@@ -361,7 +361,9 @@ public class TerminiService {
 					new Date(),
 					responsable,
 					prioritat,
-					terminiIniciat.getTermini().getDefinicioProces().getEntorn());
+					terminiIniciat.getTermini().getDefinicioProces() != null ?
+							terminiIniciat.getTermini().getDefinicioProces().getEntorn()
+							:terminiIniciat.getTermini().getExpedientTipus().getEntorn());
 			alerta.setExpedient(expedient);
 			alerta.setTerminiIniciat(terminiIniciat);
 			alertaDao.saveOrUpdate(alerta);

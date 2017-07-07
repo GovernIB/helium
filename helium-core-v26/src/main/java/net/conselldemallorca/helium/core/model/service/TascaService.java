@@ -2457,7 +2457,9 @@ public class TascaService {
 				new Date(),
 				destinatari,
 				Alerta.AlertaPrioritat.NORMAL,
-				terminiIniciat.getTermini().getDefinicioProces().getEntorn());
+				terminiIniciat.getTermini().getDefinicioProces() != null ?
+						terminiIniciat.getTermini().getDefinicioProces().getEntorn()
+						: terminiIniciat.getTermini().getExpedientTipus().getEntorn());
 		alerta.setExpedient(expedient);
 		alerta.setTerminiIniciat(terminiIniciat);
 		alertaDao.saveOrUpdate(alerta);
