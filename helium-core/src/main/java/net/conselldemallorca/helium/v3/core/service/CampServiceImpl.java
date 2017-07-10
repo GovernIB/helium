@@ -334,8 +334,8 @@ public class CampServiceImpl implements CampService {
 		PaginaDto<CampDto> pagina = paginacioHelper.toPaginaDto(
 				campRepository.findByFiltrePaginat(
 						expedientTipusId,
-						totes,
 						definicioProcesId,
+						totes,
 						agrupacioId == null,
 						agrupacioId != null ? agrupacioId : 0L,
 						filtre == null || "".equals(filtre), 
@@ -348,11 +348,13 @@ public class CampServiceImpl implements CampService {
 		List<Object[]> countValidacions = campRepository.countValidacions(
 				expedientTipusId,
 				definicioProcesId,
+				totes,
 				agrupacioId == null,
 				agrupacioId); 
 		List<Object[]> countMembres= campRepository.countMembres(
 				expedientTipusId,
 				definicioProcesId,
+				totes,
 				agrupacioId == null,
 				agrupacioId); 
 		for (CampDto dto: pagina.getContingut()) {
