@@ -45,8 +45,8 @@ public interface CampRepository extends JpaRepository<Camp, Long> {
 			"	and (:esNullFiltre = true or lower(c.codi) like lower('%'||:filtre||'%') or lower(c.etiqueta) like lower('%'||:filtre||'%')) ")
 	Page<Camp> findByFiltrePaginat(
 			@Param("expedientTipusId") Long expedientTipusId,
-			@Param("totes") boolean totes,
 			@Param("definicioProcesId") Long definicioProcesId,
+			@Param("totes") boolean totes,
 			@Param("esNullAgrupacioId") boolean esNullAgrupacioId,
 			@Param("agrupacioId") Long agrupacioId,		
 			@Param("esNullFiltre") boolean esNullFiltre,
@@ -82,11 +82,12 @@ public interface CampRepository extends JpaRepository<Camp, Long> {
 			"where " +
 			"   (c.expedientTipus.id = :expedientTipusId or c.expedientTipus.id is null) " +
 			"   and (c.definicioProces.id = :definicioProcesId or c.definicioProces.id is null) " +
-			"	and ((:esNullAgrupacioId = true and c.agrupacio.id = null) or (:esNullAgrupacioId = false and c.agrupacio.id = :agrupacioId)) " +
+			"	and ((:totes = true) or (:esNullAgrupacioId = true and c.agrupacio.id = null) or (:esNullAgrupacioId = false and c.agrupacio.id = :agrupacioId)) " +
 			"group by id ")
 	List<Object[]> countValidacions(
 			@Param("expedientTipusId") Long expedientTipusId,
 			@Param("definicioProcesId") Long definicioProcesId,
+			@Param("totes") boolean totes,
 			@Param("esNullAgrupacioId") boolean esNullAgrupacioId, 
 			@Param("agrupacioId") Long agrupacioId);
 
@@ -100,11 +101,12 @@ public interface CampRepository extends JpaRepository<Camp, Long> {
 			"   (c.expedientTipus.id = :expedientTipusId or c.expedientTipus.id is null) " +
 			"   and (c.definicioProces.id = :definicioProcesId or c.definicioProces.id is null) " +
 			"   and c.tipus = net.conselldemallorca.helium.core.model.hibernate.Camp$TipusCamp.REGISTRE " +
-			"	and ((:esNullAgrupacioId = true and c.agrupacio.id = null) or (:esNullAgrupacioId = false and c.agrupacio.id = :agrupacioId)) " +
+			"	and ((:totes = true) or (:esNullAgrupacioId = true and c.agrupacio.id = null) or (:esNullAgrupacioId = false and c.agrupacio.id = :agrupacioId)) " +
 			"group by id ")
 	List<Object[]> countMembres(
 			@Param("expedientTipusId") Long expedientTipusId, 
 			@Param("definicioProcesId") Long definicioProcesId,
+			@Param("totes") boolean totes,
 			@Param("esNullAgrupacioId") boolean esNullAgrupacioId, 
 			@Param("agrupacioId") Long agrupacioId);
 }
