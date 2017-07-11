@@ -275,7 +275,27 @@ public class ExpedientDadaController extends BaseExpedientController {
 			logger.error("S'ha produit un error al intentar modificar la variable '" + varCodi + "' de l'expedient amb id '" + expedientId + "' (proces: " + procesId + ")", ex);
 		}
 		return modalUrlTancar(false);
-	}
+	}	
+	
+	/** Cas en que s'edita una dada de tipus acció i es prem sobre l'acció*/
+	@RequestMapping(value = "/{expedientId}/proces/{procesId}/dada/{varCodi}/update/accio", method = RequestMethod.POST)
+	public String dadaEditarAccio(
+			HttpServletRequest request,
+			@PathVariable Long expedientId,
+			@PathVariable String procesId,
+			@PathVariable String varCodi,
+			@RequestParam(value = "accioCamp", required = true) String accioCamp,
+			@Valid @ModelAttribute("modificarVariableCommand") Object command, 
+			BindingResult result, 
+			SessionStatus status, 
+			Model model) {
+
+		this.executarDadaAccio(request, expedientId, procesId, varCodi, accioCamp);
+		
+		// Redirigeix al formulari després d'executar l'acció
+		model.asMap().clear();
+		return "redirect:/modal/v3/expedient/" + expedientId + "/proces/" + procesId + "/dada/" + varCodi + "/update";
+	}		
 
 	@ModelAttribute("listTerminis")
 	public List<ParellaCodiValorDto> valors12(HttpServletRequest request) {
@@ -449,6 +469,27 @@ public class ExpedientDadaController extends BaseExpedientController {
 		return modalUrlTancar(false);
 	}
 
+	/** Cas en que es prem el botó acció en el cas que hi hagi una variable acció. */
+	@RequestMapping(value = "/{expedientId}/proces/{procesId}/dada/{varCodi}/new/accio")
+	public String novaDadaAmbCodiPostAccio(
+			HttpServletRequest request,
+			@PathVariable Long expedientId,
+			@PathVariable String procesId,
+			@PathVariable String varCodi,
+			@RequestParam(value = "accioCamp", required = true) String accioCamp,
+			@Valid @ModelAttribute("addVariableCommand") Object command, 
+			BindingResult result, 
+			SessionStatus status, 
+			Model model) {
+		
+		this.executarDadaAccio(request, expedientId, procesId, varCodi, accioCamp);
+
+		// Redirigeix al formulari després d'executar l'acció
+		model.asMap().clear();
+		return "redirect:/modal/v3/expedient/" + expedientId + "/proces/" + procesId + "/dada/" + varCodi + "/new";
+	}
+
+	
 	@InitBinder
 	public void initBinder(WebDataBinder binder) {
 		binder.registerCustomEditor(
@@ -615,6 +656,43 @@ public class ExpedientDadaController extends BaseExpedientController {
 		dadesProces.put(magrupacions.get(agrupacioId), dadesAgrupacio);
 		return dadesProces;
 	}
+	
+	/** Mètode privat per executar una acció relacionada amb una variable tipus ACCIO.
+	 * 
+	 * @param request
+	 * @param expedientId
+	 * @param procesId
+	 * @param varCodi
+	 * @param accioCamp
+	 */
+	private void executarDadaAccio(
+			HttpServletRequest request,
+			Long expedientId,
+			String procesId,
+			String varCodi,
+			String accioCamp) {
+		try {
+			InstanciaProcesDto instanciaProces = expedientService.getInstanciaProcesById(procesId);
+			expedientService.executarCampAccio(
+					expedientId,
+					instanciaProces.getId(),
+					accioCamp);
+			MissatgesHelper.success(request, getMessage(request, "info.accio.executat"));
+		} catch (PermisDenegatException ex) {
+			String errMsg = getMessage(request, "error.executar.accio.camp", new Object[] {accioCamp, varCodi, expedientId});
+			MissatgesHelper.error(
+	    			request,
+	    			errMsg + ": " + getMessage(request, "error.permisos.modificar.expedient"));
+			logger.error(errMsg + ": "+ ex.getLocalizedMessage(), ex);
+		} catch (Exception ex) {
+			String errMsg = getMessage(request, "error.executar.accio.camp", new Object[] {accioCamp, varCodi, expedientId});
+			MissatgesHelper.error(
+	    			request,
+	    			errMsg + ": " + ex.getMessage());
+			logger.error(errMsg + ": "+ ex.getLocalizedMessage(), ex);
+		}
+		
+	}	
 
 	private static final Log logger = LogFactory.getLog(ExpedientDadaController.class);
 
