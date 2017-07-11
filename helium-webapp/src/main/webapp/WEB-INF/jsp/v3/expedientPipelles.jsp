@@ -168,6 +168,7 @@
 						    		iconContent = '<i class="fa fa-check-circle-o fa-lg"></i>';
 						    		//refrescam el datatable
 						    		carregaTab("#contingut-tasques");
+						    		refrescarEstatExpedient();
 							    }				    	
 							} else {
 								iconContent = '<i class="fa fa-check-circle-o fa-lg"></i>';
@@ -237,6 +238,30 @@
 		if (e.stopPropagation) e.stopPropagation();
 		return confirm("<spring:message code='expedient.accio.buidarlog.confirmacio' />");
 	}
+	/** Refresca l'estat i la data de fi de l'expedient quan hi ha accions sobre les tasques. */
+	function refrescarEstatExpedient() {
+		var getUrl = '<c:url value="/v3/expedient/${expedientId}/consultaEstat"/>';
+		$.ajax({
+			type: 'GET',
+			url: getUrl,
+			async: true,
+			success: function(data) {
+				// dataFi
+				if (data.dataFi != null) {
+					$('#expedientDataFi').show();
+				} else {
+					$('#expedientDataFi').hide();
+				}
+				$('#expedientDataFi').find('dd').html(data.dataFi);
+				// estat
+				$('#expedientEstat').html(data.estat);
+			},
+			error: function(e) {
+				console.log("Error refrescant l'estat de l'expedient: " + e);
+			}
+		});
+	}
+
 </script>
 </head>
 <body>
@@ -258,12 +283,12 @@
 					<dd>${expedient.tipus.nom}</dd>
 					<dt><spring:message code="expedient.info.camp.data.inici"/></dt>
 					<dd><fmt:formatDate value="${expedient.dataInici}" pattern="dd/MM/yyyy HH:mm"/></dd>
-					<c:if test="${not empty expedient.dataFi}">
+					<block id="expedientDataFi" style="${not empty expedient.dataFi ? 'display:block' : 'display:none'}">
 						<dt><spring:message code="expedient.info.camp.data.fi"/></dt>
 						<dd><fmt:formatDate value="${expedient.dataFi}" pattern="dd/MM/yyyy HH:mm"/></dd>
-					</c:if>
+					</block>
 					<dt><spring:message code="expedient.info.camp.estat"/></dt>
-					<dd>
+					<dd id="expedientEstat">
 						<c:choose>
 							<c:when test="${not empty expedient.dataFi}"><spring:message code="comu.estat.finalitzat"/></c:when>
 							<c:when test="${not empty expedient.estat}">${expedient.estat.nom}</c:when>

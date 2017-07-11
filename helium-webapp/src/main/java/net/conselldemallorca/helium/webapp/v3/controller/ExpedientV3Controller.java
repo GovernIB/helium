@@ -29,6 +29,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.support.ByteArrayMultipartFileEditor;
 
 import net.conselldemallorca.helium.v3.core.api.dto.AlertaDto;
@@ -61,6 +62,10 @@ public class ExpedientV3Controller extends BaseExpedientController {
 
 	@Autowired
 	private AplicacioService aplicacioService;
+
+	/** Per donar format a les dates sense haver d'instanciar l'objecte cada cop. */
+	private SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm");
+
 
 	@RequestMapping(value = "/{expedientId}", method = RequestMethod.GET)
 	public String info(
@@ -309,6 +314,35 @@ public class ExpedientV3Controller extends BaseExpedientController {
 		}
 		
 		return "redirect:/v3/expedient/" + expedientId;
+	}
+	
+	/** Mètode Ajax per refrescar l'estat de l'expedient quan es tramiten tasques des de la gestió
+	 * de l'expedient.
+	 * @return Retorna un JSON amb {estat: "Estat", dataFi : "dd/MM/yyyy HH:mm"}
+	 */
+	@RequestMapping(value = "/{expedientId}/consultaEstat", method = RequestMethod.GET)
+	@ResponseBody
+	public Map<String, Object> consultaEstat(
+			HttpServletRequest request, 
+			@PathVariable Long expedientId, 
+			Model model) {
+
+		// Objecte amb les propietats de retorn
+		Map<String, Object> data = new HashMap<String, Object>();
+		// Recupera l'informació de l'expedient
+		ExpedientDto expedient = expedientService.findAmbId(expedientId);
+		Date dataFi = expedient.getDataFi();
+		String estat;
+		if (dataFi == null) {
+			estat = expedient.getEstat() != null? 
+					expedient.getEstatNom() 
+					: getMessage(request, "comu.estat.iniciat");
+		} else {
+			estat = getMessage(request, "comu.estat.finalitzat");
+		}
+		data.put("estat", estat);
+		data.put("dataFi", dataFi != null? sdf.format(dataFi) : null);
+		return data;
 	}
 	
 	@InitBinder
