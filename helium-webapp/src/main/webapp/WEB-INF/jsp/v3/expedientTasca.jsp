@@ -61,6 +61,7 @@ function recarregarLlistatTasques(procesId, tascaId, correcte) {
 		var url = '<c:url value="/nodeco/v3/expedient/${expedientId}/refrescarLlistat"/>';
 		var panell = $("#llistat_tasques");
 		panell.load(url);
+		refrescarEstatExpedient();
 	}
 }
 //]]>
