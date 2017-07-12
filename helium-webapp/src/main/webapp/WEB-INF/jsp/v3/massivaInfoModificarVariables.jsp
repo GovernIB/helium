@@ -80,11 +80,12 @@
 	</style>
 </head>
 <body>		
-	<form:form commandName="modificarVariablesCommand" action="modificarVariablesMas" cssClass="uniForm" enctype="multipart/form-data" method="post">
+	<form:form id="command" commandName="modificarVariablesCommand" action="modificarVariablesMas" cssClass="uniForm" enctype="multipart/form-data" method="post">
 		<c:set var="inline" value="${false}"/>
 		<c:set var="isRegistre" value="${false}"/>
 		<c:set var="isMultiple" value="${false}"/>
 		<input id="campId" name="campId" value="${campId}" type="hidden"/>
+		<c:set var="command" value="${modificarVariablesCommand}"/>		
 		<c:choose>
 			<c:when test="${dada.campTipus != 'REGISTRE'}">
 				<c:choose>

@@ -587,11 +587,18 @@ public class MassivaExpedientController extends BaseExpedientController {
 				}
 			}
 			List<TascaDadaDto> listTasca = new ArrayList<TascaDadaDto>();
-			TascaDadaDto tascaDada = new TascaDadaDto();
-			tascaDada.setCampId(campo.getId());
-			tascaDada.setVarCodi(campo.getCodi());
-			tascaDada.setCampEtiqueta(campo.getEtiqueta());
-			tascaDada.setCampTipus(campo.getTipus());
+			TascaDadaDto tascaDada = TascaFormHelper.getTascaDadaDtoFromExpedientDadaDto(
+					expedientDadaService.findOnePerInstanciaProces(
+							expedient.getId(),
+							expedient.getProcessInstanceId(),
+							campo.getCodi()));
+			// Si la variable és múltiple i té valors es esborra
+			if (tascaDada.isCampMultiple() && tascaDada.getMultipleDades().size() > 0) {
+				while (tascaDada.getMultipleDades().size() > 1)
+					tascaDada.getMultipleDades().remove(0);
+				tascaDada.getMultipleDades().get(0).setVarValor(null);
+				tascaDada.setVarValor(null);
+			}
 			listTasca.add(tascaDada);
 			model.addAttribute("campId", campId);			
 			model.addAttribute("dada", tascaDada);
