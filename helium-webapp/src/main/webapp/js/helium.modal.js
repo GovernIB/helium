@@ -386,6 +386,8 @@ function modalRefrescarElements(
 	if (settings.minHeight) {
 		modalAdjustMinHeight($(iframe), settings.minHeight);
 	}
+	// Elimina els tool tips que hagin pogut quedar
+	$('div.tooltip').remove();
 }
 
 function modalAjaxErrorFunction(jqXHR, exception) {
