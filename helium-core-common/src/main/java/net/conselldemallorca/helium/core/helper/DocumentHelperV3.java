@@ -141,6 +141,9 @@ public class DocumentHelperV3 {
 				findDocumentStorePerInstanciaProcesAndDocumentCodi(
 						processInstanceId,
 						documentCodi));
+		if (documentStore == null)
+			return null;
+		
 		if (!documentStore.isAdjunt()) {
 			DefinicioProces definicioProces = expedientHelper.findDefinicioProcesByProcessInstanceId(
 					processInstanceId);

@@ -15,18 +15,12 @@
 	<link href="<c:url value="/css/select2-bootstrap.css"/>" rel="stylesheet"/>
 	<script src="<c:url value="/js/select2.min.js"/>"></script>
 	<script src="<c:url value="/js/select2-locales/select2_locale_${idioma}.js"/>"></script>
-	<script src="<c:url value="/js/helium3Tasca.js"/>"></script>
-	
-	<link href="<c:url value="/css/datepicker.css"/>" rel="stylesheet">
-	<script src="<c:url value="/js/bootstrap-datepicker.js"/>"></script>
-	<script src="<c:url value="/js/locales/bootstrap-datepicker.ca.js"/>"></script>
 	
 	<script src="<c:url value="/js/moment.js"/>"></script>
 	<script src="<c:url value="/js/moment-with-locales.min.js"/>"></script>
 	<script src="<c:url value="/js/bootstrap-datetimepicker.js"/>"></script>
 	<link href="<c:url value="/css/bootstrap-datetimepicker.min.css"/>" rel="stylesheet">
 	
-</script>
 <style type="text/css">
 	.btn-file {position: relative; overflow: hidden;}
 	.btn-file input[type=file] {position: absolute; top: 0; right: 0; min-width: 100%; min-height: 100%; font-size: 100px; text-align: right; filter: alpha(opacity = 0); opacity: 0; outline: none; background: white; cursor: inherit; display: block;}
@@ -45,7 +39,7 @@
 				<label class="control-label col-xs-4 obligatori" for="nom"><spring:message code='expedient.document.arxiu' /></label>
 		        <div class="col-xs-8 arxiu">					
 		            <div class="input-group">
-		                <form:input path="contingut" readonly="readonly" cssClass="form-control" />
+		                <form:input path="arxiu" readonly="readonly" cssClass="form-control" />
 		                <span class="input-group-btn">
 		                    <span class="btn btn-default btn-file">
 		                        <spring:message code='expedient.document.arxiu' />… <input type="file" name="arxiu">
@@ -53,29 +47,10 @@
 		                </span>
 		            </div>
 				</div>
-        	</div>
-			<script type="text/javascript">
-				// <![CDATA[
-				$(document).on('change', '.btn-file :file', function() {
-					var input = $(this),
-					numFiles = input.get(0).files ? input.get(0).files.length : 1,
-					label = input.val().replace(/\\/g, '/').replace(/.*\//, '');
-					input.trigger('fileselect', [numFiles, label]);
-				});
-				$(document).ready( function() {
-					$('.btn-file :file').on('fileselect', function(event, numFiles, label) {
-						var input = $(this).parents('.input-group').find(':text'),
-						log = numFiles > 1 ? numFiles + ' files selected' : label;
-						if( input.length ) {
-							input.val(log);
-						} else {
-							if( log )
-								alert(log);
-						}
-					});
-				}); 
-				// ]]>
-			</script>
+			</div>
+        
+			
+			
 			<hel:inputDate required="true" name="data" textKey="expedient.document.data" placeholder="dd/mm/aaaa"/>
 		</div>
 		<div id="modal-botons" class="well">
@@ -85,5 +60,41 @@
 			</button>
 		</div>
 	</form:form>
+	
+	<script type="text/javascript">
+		// <![CDATA[
+		$(document).on('change', '.btn-file :file', function() {
+			var input = $(this),
+			numFiles = input.get(0).files ? input.get(0).files.length : 1,
+			label = input.val().replace(/\\/g, '/').replace(/.*\//, '');
+			input.trigger('fileselect', [numFiles, label]);
+		});
+		
+		$(document).ready( function() {
+			$('.btn-file :file').on('fileselect', function(event, numFiles, label) {
+				var input = $(this).parents('.input-group').find(':text'),
+				log = numFiles > 1 ? numFiles + ' files selected' : label;
+				if( input.length ) {
+					input.val(log);
+				} else {
+					if( log )
+						alert(log);
+				}
+			});
+			$('#nomArxiu').on('click', function() {
+				$('input[name=arxiu]').click();
+			});
+			
+			$('#documentCodi').on('click', function() {
+				var valor = $(this).val();
+				if (valor == '##adjuntar_arxiu##') {
+					$("#titolArxiu").show();
+				} else {
+					$("#titolArxiu").hide();
+				}
+			});
+		}); 
+		// ]]>
+	</script>
 </body>
 </html>

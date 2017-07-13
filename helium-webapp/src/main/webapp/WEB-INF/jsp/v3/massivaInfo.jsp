@@ -476,9 +476,9 @@
 			<div class="form-group">
 				<c:if test="${not empty documents}">
 					<form:form cssClass="form-horizontal form-tasca" id="documentModificarMas" name="documentModificarMas" action="massiva/documentModificarMas" method="post" commandName="documentExpedientCommand" onsubmit="return confirmarModificarDocument(event)">
-						<hel:inputSelect inline="true" name="docId" textKey="expedient.massiva.documents" placeholderKey="expedient.consulta.select.document" optionItems="${documents}" optionValueAttribute="id" optionTextAttribute="documentNom"/>
+						<hel:inputSelect inline="true" name="docId" textKey="expedient.massiva.documents" placeholderKey="expedient.consulta.select.document" optionItems="${documents}" optionValueAttribute="id" optionTextAttribute="documentNom" required="true" emptyOption="true"/>
 						
-						<a data-rdt-link-modal-min-height="180" class="btn btn-primary right" name="document_modificar" href="#" data-rdt-link-modal="true"><spring:message code='comuns.modificar' /></a>
+						<a data-rdt-link-modal-min-height="500" class="btn btn-primary right" name="document_modificar" href="#" data-rdt-link-modal="true"><spring:message code='comuns.modificar' /></a>
 						
 						<button class="btn btn-primary right" type="submit" name="accio" value="document_generar">
 							<spring:message code='tasca.doc.generar' />
@@ -486,7 +486,7 @@
 						<button class="btn btn-primary right" type="submit" name="accio" value="document_esborrar">
 							<spring:message code='comuns.esborrar' />
 						</button>
-						<a data-rdt-link-modal-min-height="180" class="btn btn-primary right" name="document_adjuntar_massiu" href="../../v3/expedient/massiva/documentAdjunt" data-rdt-link-modal="true"><spring:message code='expedient.document.adjuntar_document_massiu' /></a>
+						<a data-rdt-link-modal-min-height="500" class="btn btn-primary right" name="document_adjuntar_massiu" href="../../v3/expedient/massiva/documentAdjunt" data-rdt-link-modal="true"><spring:message code='expedient.document.adjuntar_document_massiu' /></a>
 					</form:form>
 				</c:if>
 				<c:if test="${empty documents}">
