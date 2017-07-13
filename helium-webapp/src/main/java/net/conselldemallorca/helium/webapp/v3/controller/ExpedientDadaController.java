@@ -185,6 +185,8 @@ public class ExpedientDadaController extends BaseExpedientController {
 								expedientId,
 								procesId,
 								varCodi));
+				if (tascaDada.getError() != null)
+					MissatgesHelper.error(request, tascaDada.getError());
 				llistTasca.add(tascaDada);
 				model.addAttribute("procesId", procesId);
 				model.addAttribute("varCodi", varCodi);

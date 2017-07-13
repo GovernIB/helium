@@ -85,6 +85,8 @@ public class VariableHelper {
 	private MesuresTemporalsHelper mesuresTemporalsHelper;
 	@Resource
 	private ConversioTipusHelper conversioTipusHelper;
+	@Resource
+	private MessageHelper messageHelper;
 
 
 
@@ -178,14 +180,11 @@ public class VariableHelper {
 			mesuresTemporalsHelper.mesuraIniciar("Expedient DADES v3", "expedient", tipusExp, null, "2");
 			filtrarVariablesUsIntern(varsInstanciaProces);
 			for (String var: varsInstanciaProces.keySet()) {
+				ExpedientDadaDto dto = null;
 				boolean varAmbContingut = varsInstanciaProces.get(var) != null;
 				Camp camp = campsIndexatsPerCodi.get(var);
-				if (varAmbContingut && camp != null && (TipusCamp.REGISTRE.equals(camp.getTipus()) || camp.isMultiple())) {
-					Object[] registreValors = (Object[])varsInstanciaProces.get(var);
-					varAmbContingut = registreValors.length > 0;
-				}
 				if (varAmbContingut) {
-					ExpedientDadaDto dto = getDadaPerVariableJbpm(
+					dto = getDadaPerVariableJbpm(
 							camp,
 							var,
 							varsInstanciaProces.get(var),
@@ -193,9 +192,22 @@ public class VariableHelper {
 							null,
 							processInstanceId,
 							false);
+					// Si és registre o múltiple comprova si té contingut. Pot haver error de simple a múltiple
+					try {
+						if (camp != null && (TipusCamp.REGISTRE.equals(camp.getTipus()) || camp.isMultiple())) {
+							Object[] registreValors = (Object[])varsInstanciaProces.get(var);
+							varAmbContingut = registreValors.length > 0;
+						}						
+					} catch(Exception e) {
+						dto.setError(messageHelper.getMessage(
+								"variable.helper.error.recuperant.valor", 
+								new Object[] {camp.getTipus(), (camp.isMultiple() ? " múltiple" : "")}));
+					}
+				}
+				if (varAmbContingut) {
 					resposta.add(dto);
 				} else if (incloureVariablesBuides) {
-					ExpedientDadaDto dto = getDadaPerVariableJbpm(
+					dto = getDadaPerVariableJbpm(
 							camp,
 							var,
 							null,
@@ -238,12 +250,9 @@ public class VariableHelper {
 		Object valor = jbpmHelper.getProcessInstanceVariable(
 				processInstanceId,
 				variableCodi);
-		boolean varAmbContingut = valor != null;
-		if (varAmbContingut && camp != null && (TipusCamp.REGISTRE.equals(camp.getTipus()) || camp.isMultiple())) {
-			Object[] registreValors = (Object[])valor;
-			varAmbContingut = registreValors.length > 0;
-		}
+
 		ExpedientDadaDto dto = null;
+		boolean varAmbContingut = valor != null;
 		if (varAmbContingut) {
 			dto = getDadaPerVariableJbpm(
 					camp,
@@ -253,7 +262,19 @@ public class VariableHelper {
 					null,
 					processInstanceId,
 					false);
-		} else if (incloureVariablesBuides) {
+			// Si és registre o múltiple comprova si té contingut. Pot haver error de simple a múltiple
+			try {
+				if (camp != null && (TipusCamp.REGISTRE.equals(camp.getTipus()) || camp.isMultiple())) {
+					Object[] registreValors = (Object[])valor;
+					varAmbContingut = registreValors.length > 0;
+				}						
+			} catch(Exception e) {
+				dto.setError(messageHelper.getMessage(
+						"variable.helper.error.recuperant.valor", 
+						new Object[] {camp.getTipus(), (camp.isMultiple() ? " múltiple" : "")}));
+			}
+		}
+		if (!varAmbContingut && incloureVariablesBuides) {
 			dto = getDadaPerVariableJbpm(
 					camp,
 					variableCodi,
