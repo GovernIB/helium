@@ -73,6 +73,7 @@ import net.conselldemallorca.helium.core.model.hibernate.Persona;
 import net.conselldemallorca.helium.core.model.hibernate.Termini;
 import net.conselldemallorca.helium.core.util.EntornActual;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
+import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExecucioMassivaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExecucioMassivaDto.ExecucioMassivaTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDocumentDto;
@@ -167,6 +168,8 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 	private IndexHelper indexHelper;
 	@Resource(name = "permisosHelperV3") 
 	private PermisosHelper permisosHelper;
+	@Resource(name = "documentHelperV3")
+	private DocumentHelperV3 documentHelper;
 	
 	@Autowired
 	private TascaService tascaService;
@@ -1402,10 +1405,21 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 				if (nom.equals("generate")) {
 					mesuresTemporalsHelper.mesuraIniciar("Autogenerar document", "massiva", exp.getTipus().getNom());
 					if (doc == null || (!doc.isSignat() && !doc.isRegistrat())) {
-						expedientDocumentService.generarAmbPlantilla(
+						// Genera l'arxiu
+						ArxiuDto arxiu = expedientDocumentService.generarAmbPlantilla(
 								exp.getId(),
 								exp.getProcessInstanceId(),
 								aux.getCodi());
+						// L'actualitza o el crea a la instància de procés
+						documentHelper.actualitzarDocument(
+								null, //taskInstanceId,
+								exp.getProcessInstanceId(),
+								aux.getCodi(),
+								null,
+								new Date(), //documentData,
+								arxiu.getNom(),
+								arxiu.getContingut(),
+								false);						
 					} else if (doc.isSignat()) {
 						throw new Exception("Document signat: no es pot modificar");
 					} else if (doc.isRegistrat()) {

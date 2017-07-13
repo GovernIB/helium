@@ -1451,12 +1451,12 @@ public class ExpedientServiceImpl implements ExpedientService {
 		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
 
 		mesuresTemporalsHelper.mesuraIniciar("Executar ACCIO" + accioCamp, "expedient", expedient.getTipus().getNom());
-		expedientLoggerHelper.afegirLogExpedientPerProces(
+		workflowRetroaccioApi.afegirInformacioRetroaccioPerProces(
 				processInstanceId,
-				ExpedientLogAccioTipus.EXPEDIENT_ACCIO,
+				ExpedientRetroaccioTipus.EXPEDIENT_ACCIO,
 				accioCamp);
 		try {
-			jbpmHelper.executeActionInstanciaProces(
+			workflowEngineApi.executeActionInstanciaProces(
 					processInstanceId,
 					accioCamp);
 		} catch (Exception ex) {

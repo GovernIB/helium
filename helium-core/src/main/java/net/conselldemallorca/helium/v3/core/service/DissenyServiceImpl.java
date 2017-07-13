@@ -668,21 +668,18 @@ public class DissenyServiceImpl implements DissenyService {
 			Long definicioProcesId) {
 		
 		ExpedientTipus expedientTipus = null;
-		DefinicioProces definicioProces = null;
 		if (expedientTipusId != null) {
 			expedientTipus = expedientTipusRepository.findOne(expedientTipusId);
 			if (expedientTipus == null)
 				throw new NoTrobatException(ExpedientTipus.class, expedientTipusId);
 		}
-		if (definicioProcesId != null) {
-			definicioProces = definicioProcesRepository.findOne(definicioProcesId);
-			if (definicioProces == null)
-				throw new NoTrobatException(DefinicioProces.class, definicioProcesId);
-		}
 		List<Document> documents;
 		if (expedientTipus != null && expedientTipus.isAmbInfoPropia()) {
 			documents = documentRepository.findByExpedientTipusOrderByCodiAsc(expedientTipus);
-		} else if (definicioProces != null) {
+		} else if (definicioProcesId != null) {
+			DefinicioProces definicioProces = definicioProcesRepository.findOne(definicioProcesId);
+			if (definicioProces == null)
+				throw new NoTrobatException(DefinicioProces.class, definicioProcesId);
 			documents = documentRepository.findByDefinicioProcesOrderByCodiAsc(definicioProces);
 		} else 
 			documents = new ArrayList<Document>();
