@@ -97,6 +97,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto.IniciadorTipusD
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientErrorDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientErrorDto.ErrorTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.InstanciaProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.MostrarAnulatsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NotificacioDto;
@@ -515,6 +516,12 @@ public class ExpedientServiceImpl implements ExpedientService {
 		ExpedientDto expedientDto = conversioTipusHelper.convertir(
 				expedient,
 				ExpedientDto.class);
+		//  A vegades es produeix un null pointer accedint al tipus d'expedient del DTO, issue #1094
+		if (expedientDto.getTipus() == null) {
+			// Es marca com un error per identificar quan falla i es rectifica la propietat del dto per continuar treballant
+			logger.error("La propietat expedientDto.tipus és null (expedient.getTipus() = " + expedient.getTipus() + ", es fixarà el tipus del dto manualment");
+			expedientDto.setTipus(conversioTipusHelper.convertir(expedient.getTipus(), ExpedientTipusDto.class));
+		}
 		expedientHelper.omplirPermisosExpedient(expedientDto);
 		expedientHelper.trobarAlertesExpedient(expedientDto);
 		return expedientDto;
