@@ -28,6 +28,7 @@ import javax.persistence.UniqueConstraint;
 
 import org.hibernate.annotations.ForeignKey;
 import org.hibernate.annotations.Index;
+import org.hibernate.annotations.Type;
 import org.springmodules.validation.bean.conf.loader.annotation.handler.MaxLength;
 import org.springmodules.validation.bean.conf.loader.annotation.handler.NotBlank;
 import org.springmodules.validation.bean.conf.loader.annotation.handler.NotNull;
@@ -153,6 +154,7 @@ public class Consulta implements Serializable, GenericEntity<Long> {
 	}
 
 	@Lob
+	@Type(type="org.hibernate.type.BinaryType")
 	@Basic(fetch=FetchType.LAZY)
 	@Column(name="informe_contingut")
 	public byte[] getInformeContingut() {

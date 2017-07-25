@@ -26,6 +26,7 @@ import javax.persistence.UniqueConstraint;
 
 import org.hibernate.annotations.ForeignKey;
 import org.hibernate.annotations.Index;
+import org.hibernate.annotations.Type;
 import org.springmodules.validation.bean.conf.loader.annotation.handler.MaxLength;
 import org.springmodules.validation.bean.conf.loader.annotation.handler.NotBlank;
 
@@ -132,6 +133,7 @@ public class Document implements Serializable, GenericEntity<Long> {
 	}
 
 	@Lob
+	@Type(type="org.hibernate.type.BinaryType")
 	@Basic(fetch=FetchType.LAZY)
 	@Column(name="arxiu_contingut")
 	public byte[] getArxiuContingut() {

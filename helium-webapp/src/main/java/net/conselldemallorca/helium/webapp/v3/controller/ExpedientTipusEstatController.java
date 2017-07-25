@@ -32,6 +32,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto.OrdreDireccioDto;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientTipusEstatCommand;
 import net.conselldemallorca.helium.webapp.v3.command.ImportarDadesCommand;
 import net.conselldemallorca.helium.webapp.v3.helper.ConversioTipusHelper;
@@ -92,6 +93,8 @@ public class ExpedientTipusEstatController extends BaseExpedientTipusController 
 			@PathVariable Long expedientTipusId,
 			Model model) {
 		PaginacioParamsDto paginacioParams = DatatablesHelper.getPaginacioDtoFromRequest(request);
+		paginacioParams.getOrdres().clear();
+		paginacioParams.afegirOrdre("ordre", OrdreDireccioDto.ASCENDENT);
 		return DatatablesHelper.getDatatableResponse(
 				request,
 				null,
