@@ -51,8 +51,7 @@ public interface EstatRepository extends JpaRepository<Estat, Long> {
 	@Query(	"from Estat e " +
 			"where " +
 			"   e.expedientTipus.id = :expedientTipusId " +
-			"	and (:esNullFiltre = true or lower(e.codi) like lower('%'||:filtre||'%') or lower(e.nom) like lower('%'||:filtre||'%')) " +
-			"order by e.ordre asc")
+			"	and (:esNullFiltre = true or lower(e.codi) like lower('%'||:filtre||'%') or lower(e.nom) like lower('%'||:filtre||'%')) ")
 	Page<Estat> findByFiltrePaginat(
 			@Param("expedientTipusId") Long expedientTipusId,
 			@Param("esNullFiltre") boolean esNullFiltre,
