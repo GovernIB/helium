@@ -983,6 +983,7 @@ public class DefinicioProcesHelper {
 	 * @param origenId
 	 * @param destiId
 	 */
+	@Transactional
 	public void copiarDefinicioProces(
 			Long origenId, 
 			Long destiId) {
@@ -1125,7 +1126,9 @@ public class DefinicioProcesHelper {
 				// Copia els camps de les tasques
 				for (CampTasca camp: tascaOrigen.getCamps()) {
 					CampTasca nouCamp = new CampTasca(
-							camps.get(camp.getCamp().getCodi()),
+							camp.getCamp().getExpedientTipus() != null?
+									camp.getCamp()	// Camp a nivell de TE
+									: camps.get(camp.getCamp().getCodi()), // Camp de la definició de procés
 							tascaDesti,
 							camp.isReadFrom(),
 							camp.isWriteTo(),
@@ -1134,12 +1137,16 @@ public class DefinicioProcesHelper {
 							camp.getOrder(),
 							camp.getAmpleCols(),
 							camp.getBuitCols());
+					//campTascaRepository.save(nouCamp);
+					//campTascaRepository.flush();
 					tascaDesti.addCamp(nouCamp);
 				}
 				// Copia els documents de la tasca
 				for (DocumentTasca document: tascaOrigen.getDocuments()) {
 					DocumentTasca nouDocument = new DocumentTasca(
-							documents.get(document.getDocument().getCodi()),
+							document.getDocument().getExpedientTipus() != null?
+									document.getDocument()	// document a nivell de TE
+									: documents.get(document.getDocument().getCodi()), // document de la definició de procés
 							tascaDesti,
 							document.isRequired(),
 							document.isReadOnly(),
@@ -1149,7 +1156,9 @@ public class DefinicioProcesHelper {
 				// Copia les firmes de la tasca
 				for (FirmaTasca firma: tascaOrigen.getFirmes()) {
 					FirmaTasca novaFirma = new FirmaTasca(
-							documents.get(firma.getDocument().getCodi()),
+							firma.getDocument().getExpedientTipus() != null?
+									firma.getDocument()	// document a nivell de TE
+									: documents.get(firma.getDocument().getCodi()), // document de la definició de procés
 							tascaDesti,
 							firma.isRequired(),
 							firma.getOrder());
