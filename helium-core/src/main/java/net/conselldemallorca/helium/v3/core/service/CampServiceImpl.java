@@ -890,8 +890,8 @@ public class CampServiceImpl implements CampService {
 		
 		Camp camp = campRepository.findOne(campId);
 		List<ConsultaCamp> consultaCamps = consultaCampRepository.findPerCamp(
-				camp.getCodi(),
-				camp.getDefinicioProces() != null ? camp.getDefinicioProces().getJbpmKey() : null,
+				camp.getCodi() != null? camp.getCodi() : "",
+				camp.getDefinicioProces() != null ? camp.getDefinicioProces().getJbpmKey() : "",
 				camp.getDefinicioProces() != null ? camp.getDefinicioProces().getVersio() : -1);
 		
 		Map<String, Consulta> mapConsultes = new HashMap<String, Consulta>();

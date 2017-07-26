@@ -366,6 +366,7 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 	 * {@inheritDoc}
 	 */
 	@Override
+	@Transactional
 	public void copiarDefinicioProces(Long origenId, Long destiId) {
 		definicioProcesHelper.copiarDefinicioProces(origenId, destiId);
 	}
