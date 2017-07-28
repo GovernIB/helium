@@ -474,7 +474,12 @@ public class VariableHelper {
 				List<FilaResultat> resultatConsultaDomini;
 				Domini domini;		
 				if (camp.isDominiIntern()) {
-					domini = getDominiIntern(camp.getDefinicioProces().getEntorn());
+					Entorn entorn;
+					if (camp.getDefinicioProces() != null)
+						entorn = camp.getDefinicioProces().getEntorn();
+					else
+						entorn = camp.getExpedientTipus().getEntorn();
+					domini = getDominiIntern(entorn);
 				} else { 
 					domini = camp.getDomini();
 				}
