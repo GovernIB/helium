@@ -141,3 +141,42 @@ END $$;
 -- Afegeix les constraints úniques de 3 camps
 ALTER TABLE HEL_DOMINI 		ADD UNIQUE (CODI, ENTORN_ID, EXPEDIENT_TIPUS_ID);
 ALTER TABLE HEL_CONSULTA	ADD UNIQUE (CODI, ENTORN_ID, EXPEDIENT_TIPUS_ID);
+
+
+--------------------------------------------------------
+-- Modifica els camps OID per Bytea
+--------------------------------------------------------
+
+-- Crea la funció que transformarà OID en BYTEA
+CREATE OR REPLACE FUNCTION merge_oid(val oid) 
+returns bytea as $$
+declare merged bytea;
+declare arr bytea;
+ BEGIN  
+   FOR arr IN SELECT data from pg_largeobject WHERE loid = val ORDER BY pageno LOOP
+     IF merged IS NULL THEN
+       merged := arr;
+     ELSE
+       merged := merged || arr;
+     END IF;
+   END LOOP;
+  RETURN merged;
+
+END  
+$$ LANGUAGE plpgsql;
+
+-- Modifica les columnes canviant el tipus
+ALTER TABLE HEL_DOCUMENT 
+    ALTER COLUMN ARXIU_CONTINGUT TYPE BYTEA 
+    USING merge_oid(ARXIU_CONTINGUT);
+
+ALTER TABLE HEL_DOCUMENT_STORE 
+    ALTER COLUMN ARXIU_CONTINGUT TYPE BYTEA 
+    USING merge_oid(ARXIU_CONTINGUT);
+
+ALTER TABLE HEL_CONSULTA 
+    ALTER COLUMN INFORME_CONTINGUT TYPE BYTEA 
+    USING merge_oid(INFORME_CONTINGUT);
+
+-- Esborra la funció declarada
+DROP FUNCTION merge_oid(val oid);
