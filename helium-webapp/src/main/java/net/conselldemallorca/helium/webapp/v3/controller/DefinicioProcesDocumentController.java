@@ -28,8 +28,10 @@ import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
+import net.conselldemallorca.helium.v3.core.api.service.DefinicioProcesService;
 import net.conselldemallorca.helium.webapp.mvc.ArxiuView;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientTipusDocumentCommand;
 import net.conselldemallorca.helium.webapp.v3.helper.ConversioTipusHelper;
@@ -47,7 +49,10 @@ import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
 @Controller(value = "definicioProcesDocumentControllerV3")
 @RequestMapping("/v3/definicioProces")
 public class DefinicioProcesDocumentController extends BaseDefinicioProcesController {
-
+	
+	@Autowired
+	private DefinicioProcesService definicioProcesService;
+	
 	@Autowired
 	private ConversioTipusHelper conversioTipusHelper;
 
@@ -98,10 +103,20 @@ public class DefinicioProcesDocumentController extends BaseDefinicioProcesContro
 			@PathVariable String jbmpKey, 
 			@PathVariable Long definicioProcesId, 
 			Model model) {
+		DefinicioProcesDto definicioProcesDto = definicioProcesService.findById(definicioProcesId);
+		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
+		ExpedientTipusDto expedientTipus = expedientTipusService.findAmbIdPermisDissenyarDelegat(
+					entornActual.getId(),
+					definicioProcesDto.getExpedientTipus().getId());
+		model.addAttribute("metadades", expedientTipus.isNtiActiu());
+		
 		ExpedientTipusDocumentCommand command = new ExpedientTipusDocumentCommand();
 		command.setDefinicioProcesId(definicioProcesId);
 		model.addAttribute("expedientTipusDocumentCommand", command);
 		omplirModelCamps(request, definicioProcesId, model);
+		omplirTipusDocumental(request, model);
+		omplirTipusFirma(request, model);
+		
 		return "v3/expedientTipusDocumentForm";
 	}
 
@@ -113,8 +128,23 @@ public class DefinicioProcesDocumentController extends BaseDefinicioProcesContro
 			@Validated(ExpedientTipusDocumentCommand.Creacio.class) ExpedientTipusDocumentCommand command,
 			BindingResult bindingResult, Model model) {
 		try {
+			if (command.getNtiTipusDocumental() == null || "".equals(command.getNtiTipusDocumental().trim())) {
+				bindingResult.rejectValue("ntiTipusDocumental", "NotEmpty");
+			}
+			
+			DefinicioProcesDto definicioProcesDto = definicioProcesService.findById(definicioProcesId);
+			EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
+			ExpedientTipusDto expedientTipus = expedientTipusService.findAmbIdPermisDissenyarDelegat(
+						entornActual.getId(),
+						definicioProcesDto.getExpedientTipus().getId());
 			if (bindingResult.hasErrors()) {
+				
+				model.addAttribute("metadades", expedientTipus.isNtiActiu());
+				
 				omplirModelCamps(request, definicioProcesId, model);
+				omplirTipusDocumental(request, model);
+				omplirTipusFirma(request, model);
+				
 				return "v3/expedientTipusDocumentForm";
 			} else {
 				byte[] contingutArxiu = IOUtils.toByteArray(arxiuContingut.getInputStream());
@@ -122,9 +152,10 @@ public class DefinicioProcesDocumentController extends BaseDefinicioProcesContro
 				dto.setArxiuContingut(contingutArxiu);
 				
 				documentService.create(
-										null,
-										definicioProcesId,
-										dto);
+						expedientTipus.isNtiActiu(),
+						null,
+						definicioProcesId,
+						dto);
 				
 				MissatgesHelper.success(
 						request, 
@@ -146,6 +177,13 @@ public class DefinicioProcesDocumentController extends BaseDefinicioProcesContro
 			@PathVariable Long definicioProcesId, 
 			@PathVariable Long id,
 			Model model) {
+		DefinicioProcesDto definicioProcesDto = definicioProcesService.findById(definicioProcesId);
+		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
+		ExpedientTipusDto expedientTipus = expedientTipusService.findAmbIdPermisDissenyarDelegat(
+					entornActual.getId(),
+					definicioProcesDto.getExpedientTipus().getId());
+		model.addAttribute("metadades", expedientTipus.isNtiActiu());
+		
 		DocumentDto dto = documentService.findAmbId(id);
 		ExpedientTipusDocumentCommand command = conversioTipusHelper.convertir(dto,
 				ExpedientTipusDocumentCommand.class);
@@ -153,6 +191,9 @@ public class DefinicioProcesDocumentController extends BaseDefinicioProcesContro
 		command.setCampId(dto.getCampData() != null ? dto.getCampData().getId() : null);
 		model.addAttribute("expedientTipusDocumentCommand", command);
 		omplirModelCamps(request, definicioProcesId, model);
+		omplirTipusDocumental(request, model);
+		omplirTipusFirma(request, model);
+		
 		return "v3/expedientTipusDocumentForm";
 	}
 
@@ -166,8 +207,23 @@ public class DefinicioProcesDocumentController extends BaseDefinicioProcesContro
 			@Validated(ExpedientTipusDocumentCommand.Modificacio.class) ExpedientTipusDocumentCommand command,
 			BindingResult bindingResult, Model model) {
 		try {
+			if (command.getNtiTipusDocumental() == null || "".equals(command.getNtiTipusDocumental().trim())) {
+				bindingResult.rejectValue("ntiTipusDocumental", "NotEmpty");
+			}
+			
+			DefinicioProcesDto definicioProcesDto = definicioProcesService.findById(definicioProcesId);
+			EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
+			ExpedientTipusDto expedientTipus = expedientTipusService.findAmbIdPermisDissenyarDelegat(
+						entornActual.getId(),
+						definicioProcesDto.getExpedientTipus().getId());
 			if (bindingResult.hasErrors()) {
+				
+				model.addAttribute("metadades", expedientTipus.isNtiActiu());
+				
 				omplirModelCamps(request, definicioProcesId, model);
+				omplirTipusDocumental(request, model);
+				omplirTipusFirma(request, model);
+				
 				return "v3/expedientTipusDocumentForm";
 			} else {
 	        	boolean actualitzarContingut = false;
@@ -180,6 +236,7 @@ public class DefinicioProcesDocumentController extends BaseDefinicioProcesContro
 					actualitzarContingut = true;
 				}								
 				documentService.update(
+						expedientTipus.isNtiActiu(),
 						ExpedientTipusDocumentCommand.asDocumentDto(command),
 						actualitzarContingut);
 				
@@ -250,6 +307,31 @@ public class DefinicioProcesDocumentController extends BaseDefinicioProcesContro
 		}
 		model.addAttribute("camps", resposta);
 	}
+	
+	private void omplirTipusDocumental(
+			HttpServletRequest request,
+			Model model) {
+		List<ParellaCodiValorDto> tdlist = new ArrayList<ParellaCodiValorDto>();
+		for(DocumentDto.TipoDocumental td : DocumentDto.TipoDocumental.values())
+			tdlist.add(new ParellaCodiValorDto(
+					td.getCodi(),
+					getMessage(request, "tipus.documental." + td)));
+		
+		model.addAttribute("ntiTipusDocumental", tdlist);
+	}
+	
+	private void omplirTipusFirma(
+			HttpServletRequest request,
+			Model model) {
+		List<ParellaCodiValorDto> tdlist = new ArrayList<ParellaCodiValorDto>();
+		for(ExpedientTipusDto.TipoFirma tf : ExpedientTipusDto.TipoFirma.values())
+			tdlist.add(new ParellaCodiValorDto(
+					tf.toString(),
+					getMessage(request, "tipo.firma." + tf)));
+		
+		model.addAttribute("ntiTipoFirma", tdlist);
+	}
+	
 	
 	private static final Log logger = LogFactory.getLog(DefinicioProcesDocumentController.class);
 }

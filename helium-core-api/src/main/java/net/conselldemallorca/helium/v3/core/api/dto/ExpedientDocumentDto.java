@@ -44,6 +44,7 @@ public class ExpedientDocumentDto implements Serializable {
 	
 	private String error;
 
+	private boolean ntiActiu;
 
 
 	public Long getId() {
@@ -190,7 +191,15 @@ public class ExpedientDocumentDto implements Serializable {
 	public void setError(String error) {
 		this.error = error;
 	}
-
+	
+	public boolean isNtiActiu() {
+		return ntiActiu;
+	}
+	public void setNtiActiu(boolean ntiActiu) {
+		this.ntiActiu = ntiActiu;
+	}
+	
+	
 	public String getArxiuExtensio() {
 		if (getArxiuNom() == null)
 			return null;

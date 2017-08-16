@@ -257,7 +257,13 @@ public class ExpedientServiceImpl implements ExpedientService {
 			String iniciadorCodi,
 			String responsableCodi,
 			Map<String, DadesDocumentDto> documents,
-			List<DadesDocumentDto> adjunts) {
+			List<DadesDocumentDto> adjunts,
+			boolean ntiActiu,
+			String organ,
+			String classificacio,
+			String ntiTipoFirma,
+			String ntiValorCsv,
+			String ntiDefGenCsv) {
 		logger.debug("Creant nou expedient (" +
 				"entornId=" + entornId + ", " +
 				"usuari=" + usuari + ", " +
@@ -301,7 +307,18 @@ public class ExpedientServiceImpl implements ExpedientService {
 						iniciadorTipus, iniciadorCodi, 
 						responsableCodi, 
 						documents, 
-						adjunts);
+						adjunts,
+						ntiActiu,
+						organ,
+						classificacio,
+						ntiTipoFirma,
+						ntiValorCsv,
+						ntiDefGenCsv);
+				
+				expedientHelper.updateNtiIdentificador(
+						ntiActiu,
+						expedient);
+				
 			}
 			// Retorna la informació de l'expedient que s'ha iniciat
 			ExpedientDto dto = conversioTipusHelper.convertir(
@@ -334,6 +351,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 			ThreadLocalInfo.setExpedient(null);
 		}
 	}
+	
 
 	/**
 	 * {@inheritDoc}
@@ -669,6 +687,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 				expedientsIds.getCount(),
 				paginacioParams);
 	}
+		
 
 	/**
 	 * {@inheritDoc}

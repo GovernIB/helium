@@ -126,7 +126,21 @@ public class ExpedientInicioPasTitolController extends BaseExpedientController {
 				return "v3/expedient/iniciarPasTitol";
 			}
 			try {
-				ExpedientDto iniciat = iniciarExpedient(request, expedientInicioPasTitolCommand.getEntornId(), expedientInicioPasTitolCommand.getExpedientTipusId(), definicioProcesId, expedientInicioPasTitolCommand.getNumero(), expedientInicioPasTitolCommand.getTitol(), expedientInicioPasTitolCommand.getAny());
+				ExpedientDto iniciat= iniciarExpedient(
+							request, 
+							expedientInicioPasTitolCommand.getEntornId(), 
+							expedientInicioPasTitolCommand.getExpedientTipusId(), 
+							definicioProcesId, 
+							expedientInicioPasTitolCommand.getNumero(), 
+							expedientInicioPasTitolCommand.getTitol(), 
+							expedientInicioPasTitolCommand.getAny(),
+							expedientTipus.isNtiActiu(),
+							expedientTipus.getNtiOrgan(),
+							expedientTipus.getNtiClasificacio(),
+							expedientTipus.getNtiTipoFirma(),
+							expedientTipus.getNtiValorCsv(),
+							expedientTipus.getNtiDefGenCsv());
+				
 				MissatgesHelper.success(request, getMessage(request, "info.expedient.iniciat", new Object[] { iniciat.getIdentificador() }));
 				ExpedientIniciController.netejarSessio(request);
 			} catch (Exception ex) {
@@ -155,9 +169,38 @@ public class ExpedientInicioPasTitolController extends BaseExpedientController {
 	}
 
 	@SuppressWarnings("unchecked")
-	protected synchronized ExpedientDto iniciarExpedient(HttpServletRequest request, Long entornId, Long expedientTipusId, Long definicioProcesId, String numero, String titol, Integer any) {
+	protected synchronized ExpedientDto iniciarExpedient(
+			HttpServletRequest request,
+			Long entornId,
+			Long expedientTipusId,
+			Long definicioProcesId,
+			String numero,
+			String titol,
+			Integer any,
+			boolean ntiActiu,
+			String organ,
+			String classificacio,
+			String ntiTipoFirma,
+			String ntiValorCsv,
+			String ntiDefGenCsv) {
+		
 		Map<String, Object> valorsSessio = (Map<String, Object>) request.getSession().getAttribute(ExpedientIniciController.CLAU_SESSIO_FORM_VALORS);
-		return expedientService.create(entornId, null, expedientTipusId, definicioProcesId, any, numero, titol, null, null, null, null, false, null, null, null, null, null, null, false, null, null, false, valorsSessio, null, IniciadorTipusDto.INTERN, null, null, null, null);
+		return expedientService.create(
+				entornId,
+				null,
+				expedientTipusId,
+				definicioProcesId,
+				any,
+				numero,
+				titol,
+				null, null, null, null, false, null, null, null, null, null, null, false, null, null, false,
+				valorsSessio, null, IniciadorTipusDto.INTERN, null, null, null, null,
+				ntiActiu,
+				organ,
+				classificacio,
+				ntiTipoFirma,
+				ntiValorCsv,
+				ntiDefGenCsv);
 	}
 
 	@RequestMapping(value = "/canviAny/{anySel}/{entornId}/{expedientTipusId}", method = RequestMethod.GET)

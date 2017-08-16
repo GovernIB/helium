@@ -38,6 +38,7 @@ public interface DocumentService {
 			PaginacioParamsDto paginacioParams) throws NoTrobatException;
 	
 	public DocumentDto create(
+			boolean ntiActiu,
 			Long expedientTipusId,
 			Long definicioProcesId, 
 			DocumentDto document) throws PermisDenegatException;
@@ -68,7 +69,9 @@ public interface DocumentService {
 			Long documentId) throws NoTrobatException;
 	
 	public DocumentDto update(
-			DocumentDto document, boolean actualitzarContingut) throws NoTrobatException, PermisDenegatException;
+			boolean ntiActiu,
+			DocumentDto document,
+			boolean actualitzarContingut) throws NoTrobatException, PermisDenegatException;
 		
 	public ArxiuDto getArxiu(
 			Long documentId) throws NoTrobatException;

@@ -86,10 +86,19 @@ public class ExpedientTipusDocumentController extends BaseExpedientTipusControll
 
 	@RequestMapping(value = "/{expedientTipusId}/document/new", method = RequestMethod.GET)
 	public String nou(HttpServletRequest request, @PathVariable Long expedientTipusId, Model model) {
+		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
+		ExpedientTipusDto expedientTipus = expedientTipusService.findAmbIdPermisDissenyarDelegat(
+					entornActual.getId(),
+					expedientTipusId);
+		model.addAttribute("metadades", expedientTipus.isNtiActiu());
+		
 		ExpedientTipusDocumentCommand command = new ExpedientTipusDocumentCommand();
 		command.setExpedientTipusId(expedientTipusId);
 		model.addAttribute("expedientTipusDocumentCommand", command);
 		omplirModelCamps(request, expedientTipusId, model);
+		omplirTipusDocumental(request, model);
+		omplirTipusFirma(request, model);
+		
 		return "v3/expedientTipusDocumentForm";
 	}
 
@@ -101,18 +110,32 @@ public class ExpedientTipusDocumentController extends BaseExpedientTipusControll
 			@Validated(ExpedientTipusDocumentCommand.Creacio.class) ExpedientTipusDocumentCommand command,
 			BindingResult bindingResult, Model model) {
 		try {
+			if (command.getNtiTipusDocumental() == null || "".equals(command.getNtiTipusDocumental().trim())) {
+				bindingResult.rejectValue("ntiTipusDocumental", "NotEmpty");
+			}
+			
+			EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
+			ExpedientTipusDto expedientTipus = expedientTipusService.findAmbIdPermisDissenyarDelegat(
+						entornActual.getId(),
+						expedientTipusId);
 			if (bindingResult.hasErrors()) {
+				model.addAttribute("metadades", expedientTipus.isNtiActiu());
+				
 				omplirModelCamps(request, expedientTipusId, model);
+				omplirTipusDocumental(request, model);
+				omplirTipusFirma(request, model);
+				
 				return "v3/expedientTipusDocumentForm";
-			} else {
+			} else {		
 				byte[] contingutArxiu = IOUtils.toByteArray(arxiuContingut.getInputStream());
 				DocumentDto dto = ExpedientTipusDocumentCommand.asDocumentDto(command);
 				dto.setArxiuContingut(contingutArxiu);
 				
 				documentService.create(
-										expedientTipusId,
-										null,
-										dto);
+						expedientTipus.isNtiActiu(),
+						expedientTipusId,
+						null,
+						dto);
 				
 				MissatgesHelper.success(
 						request, 
@@ -133,13 +156,23 @@ public class ExpedientTipusDocumentController extends BaseExpedientTipusControll
 			@PathVariable Long expedientTipusId, 
 			@PathVariable Long id,
 			Model model) {
+		
+		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
+		ExpedientTipusDto expedientTipus = expedientTipusService.findAmbIdPermisDissenyarDelegat(
+					entornActual.getId(),
+					expedientTipusId);
+		model.addAttribute("metadades", expedientTipus.isNtiActiu());
+		
 		DocumentDto dto = documentService.findAmbId(id);
 		ExpedientTipusDocumentCommand command = conversioTipusHelper.convertir(dto,
 				ExpedientTipusDocumentCommand.class);
 		command.setExpedientTipusId(expedientTipusId);
 		command.setCampId(dto.getCampData() != null ? dto.getCampData().getId() : null);
 		model.addAttribute("expedientTipusDocumentCommand", command);
-		omplirModelCamps(request, expedientTipusId, model);		
+		omplirModelCamps(request, expedientTipusId, model);
+		omplirTipusDocumental(request, model);
+		omplirTipusFirma(request, model);
+		
 		return "v3/expedientTipusDocumentForm";
 	}
 
@@ -153,8 +186,21 @@ public class ExpedientTipusDocumentController extends BaseExpedientTipusControll
 			@Validated(ExpedientTipusDocumentCommand.Modificacio.class) ExpedientTipusDocumentCommand command,
 			BindingResult bindingResult, Model model) {
 		try {
+			if (command.getNtiTipusDocumental() == null || "".equals(command.getNtiTipusDocumental().trim())) {
+				bindingResult.rejectValue("ntiTipusDocumental", "NotEmpty");
+			}
+			
+			EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
+			ExpedientTipusDto expedientTipus = expedientTipusService.findAmbIdPermisDissenyarDelegat(
+						entornActual.getId(),
+						expedientTipusId);
 			if (bindingResult.hasErrors()) {
+				model.addAttribute("metadades", expedientTipus.isNtiActiu());
+				
 				omplirModelCamps(request, expedientTipusId, model);
+				omplirTipusDocumental(request, model);
+				omplirTipusFirma(request, model);
+				
 				return "v3/expedientTipusDocumentForm";
 			} else {				
 	        	boolean actualitzarContingut = false;
@@ -167,6 +213,7 @@ public class ExpedientTipusDocumentController extends BaseExpedientTipusControll
 					actualitzarContingut = true;
 				}				
 				documentService.update(
+						expedientTipus.isNtiActiu(),
 						ExpedientTipusDocumentCommand.asDocumentDto(command),
 						actualitzarContingut);
 				
@@ -225,6 +272,7 @@ public class ExpedientTipusDocumentController extends BaseExpedientTipusControll
 		return "arxiuView";
 	}
 	
+	
 	private void omplirModelCamps(
 			HttpServletRequest request,
 			Long expedientTipusId,
@@ -236,6 +284,31 @@ public class ExpedientTipusDocumentController extends BaseExpedientTipusControll
 		}
 		model.addAttribute("camps", resposta);
 	}
+	
+	private void omplirTipusDocumental(
+			HttpServletRequest request,
+			Model model) {
+		List<ParellaCodiValorDto> tdlist = new ArrayList<ParellaCodiValorDto>();
+		for(DocumentDto.TipoDocumental td : DocumentDto.TipoDocumental.values())
+			tdlist.add(new ParellaCodiValorDto(
+					td.getCodi(),
+					getMessage(request, "tipus.documental." + td)));
+		
+		model.addAttribute("ntiTipusDocumental", tdlist);
+	}
+	
+	private void omplirTipusFirma(
+			HttpServletRequest request,
+			Model model) {
+		List<ParellaCodiValorDto> tdlist = new ArrayList<ParellaCodiValorDto>();
+		for(ExpedientTipusDto.TipoFirma tf : ExpedientTipusDto.TipoFirma.values())
+			tdlist.add(new ParellaCodiValorDto(
+					tf.toString(),
+					getMessage(request, "tipo.firma." + tf)));
+		
+		model.addAttribute("ntiTipoFirma", tdlist);
+	}
+	
 	
 	private static final Log logger = LogFactory.getLog(ExpedientTipusDocumentController.class);
 }

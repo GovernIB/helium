@@ -125,7 +125,17 @@ public class ExpedientIniciController extends BaseExpedientController {
 		} else {
 			// Si no requereix cap pas addicional inicia l'expedient directament
 			try {
-				ExpedientDto iniciat = iniciarExpedient(entorn.getId(), expedientTipusId, definicioProces.getId());
+				ExpedientDto iniciat = iniciarExpedient(
+							entorn.getId(),
+							expedientTipusId,
+							definicioProces.getId(),
+							expedientTipus.isNtiActiu(),
+							expedientTipus.getNtiOrgan(),
+							expedientTipus.getNtiClasificacio(),
+							expedientTipus.getNtiTipoFirma(),
+							expedientTipus.getNtiValorCsv(),
+							expedientTipus.getNtiDefGenCsv());
+					
 				MissatgesHelper.success(request, getMessage(request, "info.expedient.iniciat", new Object[] { iniciat.getIdentificador() }));
 				ExpedientIniciController.netejarSessio(request);
 				return modalUrlTancar();
@@ -210,8 +220,31 @@ public class ExpedientIniciController extends BaseExpedientController {
 		return anys;
 	}
 
-	private synchronized ExpedientDto iniciarExpedient(Long entornId, Long expedientTipusId, Long definicioProcesId) {
-		return expedientService.create(entornId, null, expedientTipusId, definicioProcesId, null, null, null, null, null, null, null, false, null, null, null, null, null, null, false, null, null, false, null, null, IniciadorTipusDto.INTERN, null, null, null, null);
+	private synchronized ExpedientDto iniciarExpedient(
+			Long entornId,
+			Long expedientTipusId,
+			Long definicioProcesId,
+			boolean ntiActiu,
+			String organ,
+			String classificacio,
+			String ntiTipoFirma,
+			String ntiValorCsv,
+			String ntiDefGenCsv) {
+		
+		return expedientService.create(
+				entornId,
+				null,
+				expedientTipusId,
+				definicioProcesId,
+				null, null, null, null, null, null, null, false, null, null, null, null, null, null, false, null, null, false, null, null,
+				IniciadorTipusDto.INTERN,
+				null, null, null, null,
+				ntiActiu,
+				organ,
+				classificacio,
+				ntiTipoFirma,
+				ntiValorCsv,
+				ntiDefGenCsv);
 	}
 
 	protected ExpedientTascaDto obtenirTascaInicial(Long entornId, Long expedientTipusId, Long definicioProcesId, Map<String, Object> valors, HttpServletRequest request) {

@@ -242,7 +242,14 @@ public class ExpedientInicioPasFormController extends BaseExpedientController {
 						(String)request.getSession().getAttribute(ExpedientIniciController.CLAU_SESSIO_NUMERO),
 						(String)request.getSession().getAttribute(ExpedientIniciController.CLAU_SESSIO_TITOL),
 						(Integer)request.getSession().getAttribute(ExpedientIniciController.CLAU_SESSIO_ANY),
-						valors);
+						valors,
+						expedientTipus.isNtiActiu(),
+						expedientTipus.getNtiOrgan(),
+						expedientTipus.getNtiClasificacio(),
+						expedientTipus.getNtiTipoFirma(),
+						expedientTipus.getNtiValorCsv(),
+						expedientTipus.getNtiDefGenCsv());
+				
 				MissatgesHelper.success(request, getMessage(request, "info.expedient.iniciat", new Object[] { iniciat.getIdentificador() }));
 				ExpedientIniciController.netejarSessio(request);
 			} catch (Exception ex) {
@@ -279,8 +286,40 @@ public class ExpedientInicioPasFormController extends BaseExpedientController {
 		return modalUrlTancar();
 	}
 
-	private synchronized ExpedientDto iniciarExpedient(Long entornId, Long expedientTipusId, Long definicioProcesId, String numero, String titol, Integer any, Map<String, Object> valors) {
-		return expedientService.create(entornId, null, expedientTipusId, definicioProcesId, any, numero, titol, null, null, null, null, false, null, null, null, null, null, null, false, null, null, false, valors, null, IniciadorTipusDto.INTERN, null, null, null, null);
+	private synchronized ExpedientDto iniciarExpedient(
+			Long entornId,
+			Long expedientTipusId,
+			Long definicioProcesId,
+			String numero,
+			String titol,
+			Integer any,
+			Map<String, Object> valors,
+			boolean ntiActiu,
+			String organ,
+			String classificacio,
+			String ntiTipoFirma,
+			String ntiValorCsv,
+			String ntiDefGenCsv) {
+		
+		return expedientService.create(
+				entornId,
+				null,
+				expedientTipusId,
+				definicioProcesId,
+				any,
+				numero,
+				titol,
+				null, null, null, null, false, null, null, null, null, null, null, false, null, null, false,
+				valors,
+				null,
+				IniciadorTipusDto.INTERN,
+				null, null, null, null,
+				ntiActiu,
+				organ,
+				classificacio,
+				ntiTipoFirma,
+				ntiValorCsv,
+				ntiDefGenCsv);
 	}
 
 	public List<ParellaCodiValorDto> getAnysSeleccionables() {

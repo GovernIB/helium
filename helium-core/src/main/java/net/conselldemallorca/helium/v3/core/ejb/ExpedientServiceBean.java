@@ -81,7 +81,14 @@ public class ExpedientServiceBean implements ExpedientService {
 			String iniciadorCodi,
 			String responsableCodi,
 			Map<String, DadesDocumentDto> documents,
-			List<DadesDocumentDto> adjunts) {
+			List<DadesDocumentDto> adjunts,
+			boolean ntiActiu,
+			String organ,
+			String classificacio,
+			String ntiTipoFirma,
+			String ntiValorCsv,
+			String ntiDefGenCsv) {
+		
 		return delegate.create(
 				entornId,
 				usuari,
@@ -111,7 +118,13 @@ public class ExpedientServiceBean implements ExpedientService {
 				iniciadorCodi,
 				responsableCodi,
 				documents,
-				adjunts);
+				adjunts,
+				ntiActiu,
+				organ,
+				classificacio,
+				ntiTipoFirma,
+				ntiValorCsv,
+				ntiDefGenCsv);
 	}
 
 	@Override

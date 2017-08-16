@@ -62,6 +62,14 @@
 			<hel:inputText name="custodiaCodi" textKey="expedient.tipus.document.form.camp.codi_custodia" comment="expedient.tipus.document.form.camp.codi_custodia.comment" />
 			<hel:inputText name="tipusDocPortasignatures" textKey="expedient.tipus.document.form.camp.tipus_doc" comment="expedient.tipus.document.form.camp.tipus_doc.comment" />
 			<hel:inputCheckbox name="ignored" textKey="expedient.tipus.document.form.camp.ignored" comment="expedient.tipus.document.form.camp.ignored.comment"/> 			
+			
+			<c:if test="${metadades}">
+				<hel:inputSelect required="false" emptyOption="true" name="ntiTipusDocumental" textKey="expedient.tipus.document.form.camp.tipus.documental" optionItems="${ntiTipusDocumental}" optionValueAttribute="codi" optionTextAttribute="valor"/>
+				
+				<hel:inputSelect name="ntiTipoFirma" textKey="expedient.tipus.metadades.nti.tipus.firma" required="false" emptyOption="true" optionItems="${ntiTipoFirma}" optionValueAttribute="codi" optionTextAttribute="valor"/>
+				<hel:inputText name="ntiValorCsv" textKey="expedient.tipus.metadades.nti.valor.csv" disabled="${expedientTipusDocumentCommand.ntiTipoFirma != 'CSV'}"/>
+				<hel:inputText name="ntiDefGenCsv" textKey="expedient.tipus.metadades.nti.definicio.generacio.csv" disabled="${expedientTipusDocumentCommand.ntiTipoFirma != 'CSV'}"/>
+			</c:if>
 		</div>
 		
 		<div id="modal-botons" class="well">
@@ -85,6 +93,20 @@
 	<script type="text/javascript">
 		// <![CDATA[		
 		$(document).ready( function() {
+			
+			$('#ntiTipoFirma').on("change", function(e) {
+				var data = $("#ntiTipoFirma option:selected").val();
+				if(data == 'CSV') {
+					$('#ntiValorCsv').prop('disabled', false);
+					$('#ntiDefGenCsv').prop('disabled', false);
+				} else {
+					$('#ntiValorCsv').prop('disabled', true);
+					$('#ntiValorCsv').prop('value', null);
+					$('#ntiDefGenCsv').prop('disabled', true);
+					$('#ntiDefGenCsv').prop('value', null);
+				}
+			});
+			
 		}); 
 		// ]]>
 	</script>	

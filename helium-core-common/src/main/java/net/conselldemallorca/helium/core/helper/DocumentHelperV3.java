@@ -7,6 +7,7 @@ import java.io.ByteArrayOutputStream;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -16,6 +17,7 @@ import javax.annotation.Resource;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import net.conselldemallorca.helium.core.common.JbpmVars;
 import net.conselldemallorca.helium.core.helperv26.MesuresTemporalsHelper;
@@ -40,12 +42,13 @@ import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessInstance;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmTask;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DocumentStoreDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RespostaValidacioSignaturaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
-import net.conselldemallorca.helium.v3.core.api.exception.SistemaExternException;
 import net.conselldemallorca.helium.v3.core.api.exception.SistemaExternConversioDocumentException;
+import net.conselldemallorca.helium.v3.core.api.exception.SistemaExternException;
 import net.conselldemallorca.helium.v3.core.repository.DefinicioProcesRepository;
 import net.conselldemallorca.helium.v3.core.repository.DocumentRepository;
 import net.conselldemallorca.helium.v3.core.repository.DocumentStoreRepository;
@@ -1325,6 +1328,7 @@ public class DocumentHelperV3 {
 			documentStore.setArxiuNom(arxiuNom);
 			if (!pluginHelper.gestioDocumentalIsPluginActiu())
 				documentStore.setArxiuContingut(arxiuContingut);
+			
 			documentStore = documentStoreRepository.save(documentStore);
 			documentStoreRepository.flush();
 		} else {
@@ -1370,6 +1374,51 @@ public class DocumentHelperV3 {
 					documentStore.getJbpmVariable(),
 					documentStore.getId());
 		return documentStore.getId();
+	}
+	
+	@Transactional
+	public Long actualizarMetadadesNti(
+			Expedient expedient,
+			Long documentStoreId,
+			boolean ntiActiu,
+			String ntiVersio,
+			String ntiOrgan,
+			String ntiOrigen,
+			String ntiEstatElaboracio,
+			String ntiNomFormat,
+			String ntiTipusDocumental,
+			String ntiTipoFirma,
+			String ntiValorCsv,
+			String ntiDefGenCsv) {
+		
+		DocumentStore documentStore = documentStoreRepository.findById(documentStoreId);
+		
+		String id = documentStoreId.toString();
+		int length = id.length();
+		for(int i = 0; i < 27 - length; i++) id = "0" + id;
+		
+	    Calendar cal = Calendar.getInstance();
+	    cal.setTime( expedient.getDataInici() );
+	    String any = String.valueOf( cal.get(Calendar.YEAR) );
+	    
+	    String org = expedient.getNtiOrgan();
+	    
+	    documentStore.setNtiIdentificador("ES_" + org + "_" + any + "_HEL" + id);
+	    
+	    documentStore.setNtiActiu(ntiActiu);
+	    
+		documentStore.setNtiVersio(ntiVersio);
+		documentStore.setNtiOrgan(ntiOrgan);
+		documentStore.setNtiOrigen(ntiOrigen);
+		documentStore.setNtiEstatElaboracio(ntiEstatElaboracio);
+		documentStore.setNtiNomFormat(ntiNomFormat);
+		documentStore.setNtiTipusDocumental(ntiTipusDocumental);
+		
+		documentStore.setNtiTipoFirma(ntiTipoFirma);
+		documentStore.setNtiValorCsv(ntiValorCsv);
+		documentStore.setNtiDefGenCsv(ntiDefGenCsv);
+		
+		return documentStoreId;
 	}
 	
 	public Long actualitzarAdjunt(
@@ -1706,6 +1755,9 @@ public class DocumentHelperV3 {
 		dto.setDocumentCodi(document.getCodi());
 		dto.setDocumentNom(document.getNom());
 		dto.setSignat(documentStore.isSignat());
+		
+		dto.setNtiActiu((documentStore.getNtiActiu()==null)?false:documentStore.getNtiActiu());
+		
 		if (documentStore.isSignat()) {
 			dto.setSignaturaUrlVerificacio(
 					pluginHelper.custodiaObtenirUrlComprovacioSignatura(
@@ -1740,6 +1792,7 @@ public class DocumentHelperV3 {
 	private ExpedientDocumentDto crearDtoPerAdjuntExpedient(
 			String adjuntId,
 			DocumentStore documentStore) {
+		
 		ExpedientDocumentDto dto = new ExpedientDocumentDto();
 		dto.setId(documentStore.getId());
 		dto.setDataCreacio(documentStore.getDataCreacio());
@@ -1750,8 +1803,21 @@ public class DocumentHelperV3 {
 		dto.setAdjunt(true);
 		dto.setAdjuntId(adjuntId);
 		dto.setAdjuntTitol(documentStore.getAdjuntTitol());
+		
+		dto.setNtiActiu(documentStore.getNtiActiu());
+		
 		return dto;
 	}
+	
+	public DocumentStoreDto findDocumentStoreById(Long documentStoreId) {
+		
+		DocumentStore documentStore = documentStoreRepository.findById(documentStoreId);
+		
+		return conversioTipusHelper.convertir(
+				documentStore, 
+				DocumentStoreDto.class);
+	}
+	
 
 	private static final Log logger = LogFactory.getLog(DocumentHelperV3.class);
 

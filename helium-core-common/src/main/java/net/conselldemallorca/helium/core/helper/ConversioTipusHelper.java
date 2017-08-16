@@ -85,6 +85,13 @@ public class ConversioTipusHelper {
 						target.setCustodiaCodi(source.getCustodiaCodi());
 						target.setTipusDocPortasignatures(source.getTipusDocPortasignatures());
 						target.setIgnored(source.isIgnored());
+						
+						target.setNtiTipusDocumental(source.getNtiTipusDocumental());
+						
+						target.setNtiTipoFirma(source.getNtiTipoFirma());
+						target.setNtiValorCsv(source.getNtiValorCsv());
+						target.setNtiDefGenCsv(source.getNtiDefGenCsv());
+						
 						return target;
 					}
 		});
@@ -236,7 +243,17 @@ public class ConversioTipusHelper {
 						target.setSequenciaDefault(source.getSequenciaDefault());
 						target.setTeNumero(source.getTeNumero());
 						target.setTeTitol(source.getTeTitol());
-						target.setTramitacioMassiva(source.isTramitacioMassiva());						
+						target.setTramitacioMassiva(source.isTramitacioMassiva());
+						
+						target.setNtiActiu(source.getNtiActiu().booleanValue());
+						
+						target.setNtiOrgan(source.getNtiOrgan());
+						target.setNtiClasificacio(source.getNtiClasificacio());
+						
+						target.setNtiTipoFirma(source.getNtiTipoFirma());
+						target.setNtiValorCsv(source.getNtiValorCsv());
+						target.setNtiDefGenCsv(source.getNtiDefGenCsv());
+						
 						Map<Integer,SequenciaAnyDto> sequenciaAnyMap = new HashMap<Integer, SequenciaAnyDto>();
 						for (Entry<Integer, SequenciaAny> entry : source.getSequenciaAny().entrySet()) {
 							SequenciaAny value = entry.getValue();
@@ -304,7 +321,17 @@ public class ConversioTipusHelper {
 						target.setSequenciaDefault(source.getSequenciaDefault());
 						target.setTeNumero(source.isTeNumero());
 						target.setTeTitol(source.isTeTitol());
-						target.setTramitacioMassiva(source.isTramitacioMassiva());						
+						target.setTramitacioMassiva(source.isTramitacioMassiva());
+						
+						target.setNtiActiu(source.isNtiActiu());
+						
+						target.setNtiOrgan(source.getNtiOrgan());
+						target.setNtiClasificacio(source.getNtiClasificacio());
+						
+						target.setNtiTipoFirma(source.getNtiTipoFirma());
+						target.setNtiValorCsv(source.getNtiValorCsv());
+						target.setNtiDefGenCsv(source.getNtiDefGenCsv());
+						
 						SortedMap<Integer, SequenciaAny> sequenciaAnySorted = new TreeMap<Integer, SequenciaAny>();
 						for (Entry<Integer, SequenciaAnyDto> entry : source.getSequenciaAny().entrySet()) {
 							SequenciaAnyDto valueDto = entry.getValue();

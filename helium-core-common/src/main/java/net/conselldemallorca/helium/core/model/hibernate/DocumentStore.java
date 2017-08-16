@@ -35,7 +35,7 @@ import net.conselldemallorca.helium.core.common.JbpmVars;
 @Entity
 @Table(name="hel_document_store")
 public class DocumentStore implements Serializable, GenericEntity<Long> {
-
+	
 	public enum DocumentFont {
 		INTERNA,
 		ALFRESCO
@@ -78,8 +78,36 @@ public class DocumentStore implements Serializable, GenericEntity<Long> {
 	private boolean adjunt = false;
 	@MaxLength(255)
 	private String adjuntTitol;
-
-
+	
+	
+	@NotNull
+	private Boolean ntiActiu;
+	
+	@MaxLength(16)
+	private String ntiVersio;
+	@MaxLength(107)
+	private String ntiIdentificador;
+	@MaxLength(64)
+	private String ntiOrgan;
+	@MaxLength(32)
+	private String ntiOrigen;
+	@MaxLength(32)
+	private String ntiEstatElaboracio;
+	@MaxLength(16)
+	private String ntiNomFormat;
+	@MaxLength(32)
+	private String ntiTipusDocumental;
+	
+	@MaxLength(64)
+	private String ntiTipoFirma;
+	@MaxLength(128)
+	private String ntiValorCsv;
+	@MaxLength(128)
+	private String ntiDefGenCsv;
+	
+	@MaxLength(107)
+	private String ntiIdDocOrigen;
+	
 
 	public DocumentStore() {}
 	public DocumentStore(
@@ -266,7 +294,107 @@ public class DocumentStore implements Serializable, GenericEntity<Long> {
 	public void setAdjuntTitol(String adjuntTitol) {
 		this.adjuntTitol = adjuntTitol;
 	}
-
+	
+	
+	@Column(name="nti_activo")
+	public Boolean getNtiActiu() {
+		return ntiActiu;
+	}
+	public void setNtiActiu(Boolean ntiActiu) {
+		this.ntiActiu = ntiActiu;
+	}
+	
+	@Column(name="nti_versio", length=16)
+	public String getNtiVersio() {
+		return ntiVersio;
+	}
+	public void setNtiVersio(String ntiVersio) {
+		this.ntiVersio = ntiVersio;
+	}
+	
+	@Column(name="nti_identificador", length=107)
+	public String getNtiIdentificador() {
+		return ntiIdentificador;
+	}
+	public void setNtiIdentificador(String ntiIdentificador) {
+		this.ntiIdentificador = ntiIdentificador;
+	}
+	
+	@Column(name="nti_organo", length=64)
+	public String getNtiOrgan() {
+		return ntiOrgan;
+	}
+	public void setNtiOrgan(String ntiOrgan) {
+		this.ntiOrgan = ntiOrgan;
+	}
+	
+	@Column(name="nti_origen", length=32)
+	public String getNtiOrigen() {
+		return ntiOrigen;
+	}
+	public void setNtiOrigen(String ntiOrigen) {
+		this.ntiOrigen = ntiOrigen;
+	}
+	
+	@Column(name="nti_estado_elab", length=32)
+	public String getNtiEstatElaboracio() {
+		return ntiEstatElaboracio;
+	}
+	public void setNtiEstatElaboracio(String ntiEstatElaboracio) {
+		this.ntiEstatElaboracio = ntiEstatElaboracio;
+	}
+	
+	@Column(name="nti_nom_format", length=16)
+	public String getNtiNomFormat() {
+		return ntiNomFormat;
+	}
+	public void setNtiNomFormat(String ntiNomFormat) {
+		this.ntiNomFormat = ntiNomFormat;
+	}
+	
+	@Column(name="nti_tipo_doc", length=32)
+	public String getNtiTipusDocumental() {
+		return ntiTipusDocumental;
+	}
+	public void setNtiTipusDocumental(String ntiTipusDocumental) {
+		this.ntiTipusDocumental = ntiTipusDocumental;
+	}
+	
+	
+	@Column(name="nti_tipo_firma", length=64)
+	public String getNtiTipoFirma() {
+		return ntiTipoFirma;
+	}
+	public void setNtiTipoFirma(String ntiTipoFirma) {
+		this.ntiTipoFirma = ntiTipoFirma;
+	}
+	
+	@Column(name="nti_valor_csv", length=128)
+	public String getNtiValorCsv() {
+		return ntiValorCsv;
+	}
+	public void setNtiValorCsv(String ntiValorCsv) {
+		this.ntiValorCsv = ntiValorCsv;
+	}
+	
+	@Column(name="nti_definicion_generacion_csv", length=128)
+	public String getNtiDefGenCsv() {
+		return ntiDefGenCsv;
+	}
+	public void setNtiDefGenCsv(String ntiDefGenCsv) {
+		this.ntiDefGenCsv = ntiDefGenCsv;
+	}
+	
+	
+	@Column(name="nti_id_doc_origen", length=107)
+	public String getNtiIdDocOrigen() {
+		return ntiIdDocOrigen;
+	}
+	public void setNtiIdDocOrigen(String ntiIdDocOrigen) {
+		this.ntiIdDocOrigen = ntiIdDocOrigen;
+	}
+	
+	
 	@Transient
 	public String getCodiDocument() {
 		if (getJbpmVariable() == null)

@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.annotation.Resource;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 
@@ -21,6 +22,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.propertyeditors.CustomBooleanEditor;
 import org.springframework.beans.propertyeditors.CustomDateEditor;
 import org.springframework.beans.propertyeditors.CustomNumberEditor;
+import org.springframework.security.acls.model.Permission;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
@@ -39,20 +41,27 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.support.SessionStatus;
 import org.springframework.web.multipart.commons.CommonsMultipartFile;
 
+import net.conselldemallorca.helium.core.helper.ExpedientHelper;
+import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.model.service.PluginService;
+import net.conselldemallorca.helium.core.security.ExtendedPermission;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
+import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.InstanciaProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PortasignaturesDto;
 import net.conselldemallorca.helium.v3.core.api.exception.SistemaExternException;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientDocumentService;
+import net.conselldemallorca.helium.v3.core.api.service.ExpedientTipusService;
 import net.conselldemallorca.helium.webapp.mvc.ArxiuView;
 import net.conselldemallorca.helium.webapp.v3.command.DocumentExpedientCommand;
 import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.NodecoHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.ObjectTypeEditorHelper;
+import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
 
 /**
  * Controlador per a la pàgina de documents de l'expedient.
@@ -64,7 +73,11 @@ import net.conselldemallorca.helium.webapp.v3.helper.ObjectTypeEditorHelper;
 public class ExpedientDocumentController extends BaseExpedientController {
 
 	@Autowired
+	private ExpedientTipusService expedientTipusService;
+	@Autowired
 	private ExpedientDocumentService expedientDocumentService;
+	@Resource
+	private ExpedientHelper expedientHelper;
 	// TODO: eliminar la referencia al core 2.6 i passar el mètode processarDocumentPendentPortasignatures al pluginHelper
 	@Autowired
 	private PluginService pluginService;
@@ -77,6 +90,13 @@ public class ExpedientDocumentController extends BaseExpedientController {
 			@PathVariable Long expedientId,
 			Model model) {
 		ExpedientDto expedient = expedientService.findAmbId(expedientId);
+		
+		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
+		ExpedientTipusDto expedientTipus = expedientTipusService.findAmbIdPermisDissenyarDelegat(
+					entornActual.getId(),
+					expedient.getTipus().getId());
+		model.addAttribute("metadades", expedientTipus.isNtiActiu());
+		
 		List<InstanciaProcesDto> arbreProcessos = expedientService.getArbreInstanciesProces(Long.parseLong(expedient.getProcessInstanceId()));
 		Map<InstanciaProcesDto, List<ExpedientDocumentDto>> documents = new LinkedHashMap<InstanciaProcesDto, List<ExpedientDocumentDto>>();
 		List<PortasignaturesDto> portasignaturesPendent = expedientDocumentService.portasignaturesFindPendents(
@@ -172,7 +192,7 @@ public class ExpedientDocumentController extends BaseExpedientController {
 			command.setNomArxiu(nomArxiu);
 			command.setContingut(contingutArxiu);
 			
-			if ("##adjuntar_arxiu##".equalsIgnoreCase(command.getDocumentCodi()))
+			if ("##adjuntar_arxiu##".equalsIgnoreCase(command.getDocumentCodi())) {
 				expedientDocumentService.createOrUpdate(
 						expedientId,
 						processInstanceId,
@@ -182,6 +202,7 @@ public class ExpedientDocumentController extends BaseExpedientController {
 						command.getNomArxiu(),
 						command.getContingut(),
 						command.getData());
+			}
 			else
 				expedientDocumentService.crearDocumentInstanciaProces(expedientId, processInstanceId, command.getDocumentCodi(), command.getNomArxiu(), command.getContingut(), command.getData());
 			

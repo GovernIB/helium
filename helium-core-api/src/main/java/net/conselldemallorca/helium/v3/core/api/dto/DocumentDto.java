@@ -5,6 +5,8 @@ package net.conselldemallorca.helium.v3.core.api.dto;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
+
 
 /**
  * DTO amb informació d'un document.
@@ -12,6 +14,46 @@ import java.util.Date;
  * @author Limit Tecnologies <limit@limit.es>
  */
 public class DocumentDto implements Serializable {
+	
+	public enum TipoDocumental {
+		
+		RESOLUCIO				("TD01"),
+	    ACORD					("RD02"),
+		CONTRACTE				("RD03"),
+		CONVENI					("RD04"),
+		DECLARACIO				("RD05"),
+		COMUNICACIO				("RD06"),
+		NOTIFICACIO				("RD07"),
+		PUBLICACIO				("RD08"),
+		JUSTIFICANT_REBUT		("RD09"),
+		ACTA					("RD10"),
+		CERTIFICAT				("RD11"),
+		DILIGENCIA				("RD12"),
+		INFORME					("RD13"),
+		SOLICITUD				("RD14"),
+		DENUNCIA				("RD15"),
+		ALEGACIO				("RD16");
+		
+		private final String codi;
+	    
+	    private TipoDocumental(String codi) {
+	        this.codi = codi;
+	    }
+
+	    public String getCodi() {
+	        return codi;
+	    }
+	    
+	    public static String getNameByCodi(String codi) {
+	    	
+	    	for(TipoDocumental td : TipoDocumental.values()) {
+	    		if(td.codi.equals(codi))
+	    			return td.name();
+	    	}
+	    	return null;
+	    }
+
+	}
 
 	private Long id;
 	private String codi;
@@ -78,8 +120,14 @@ public class DocumentDto implements Serializable {
 	/** Indica si permetre o no la retroacció. Si isIgnored = true llavors no es realitzarà la retroacció i no s'esborrarà
 	 * el contingut del document. */
 	private boolean ignored;
-
-
+	
+	private String ntiTipusDocumental;
+	
+	private String ntiTipoFirma;
+	private String ntiValorCsv;
+	private String ntiDefGenCsv;
+	
+	
 	public String getCodi() {
 		return codi;
 	}
@@ -339,7 +387,37 @@ public class DocumentDto implements Serializable {
 	public void setArxiuNom(String arxiuNom) {
 		this.arxiuNom = arxiuNom;
 	}
-
+	
+	
+	public String getNtiTipusDocumental() {
+		return ntiTipusDocumental;
+	}
+	public void setNtiTipusDocumental(String ntiTipusDocumental) {
+		this.ntiTipusDocumental = ntiTipusDocumental;
+	}
+	
+	public String getNtiTipoFirma() {
+		return ntiTipoFirma;
+	}
+	public void setNtiTipoFirma(String ntiTipoFirma) {
+		this.ntiTipoFirma = ntiTipoFirma;
+	}
+	
+	public String getNtiValorCsv() {
+		return ntiValorCsv;
+	}
+	public void setNtiValorCsv(String ntiValorCsv) {
+		this.ntiValorCsv = ntiValorCsv;
+	}
+	
+	public String getNtiDefGenCsv() {
+		return ntiDefGenCsv;
+	}
+	public void setNtiDefGenCsv(String ntiDefGenCsv) {
+		this.ntiDefGenCsv = ntiDefGenCsv;
+	}
+	
+	
 	public String getArxiuNomSenseExtensio() {
 		if (getArxiuNom() == null)
 			return null;

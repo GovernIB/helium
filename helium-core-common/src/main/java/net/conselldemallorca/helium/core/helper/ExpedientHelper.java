@@ -124,8 +124,10 @@ public class ExpedientHelper {
 	@Resource
 	private MesuresTemporalsHelper mesuresTemporalsHelper;
 
-
-
+	
+	private static String NTI_VERSION = "1.0";
+	
+	
 	public ExpedientDto toExpedientDto(Expedient expedient) {
 		ExpedientDto dto = new ExpedientDto();
 		dto.setId(expedient.getId());
@@ -1085,7 +1087,13 @@ public class ExpedientHelper {
 			String iniciadorCodi,
 			String responsableCodi,
 			Map<String, DadesDocumentDto> documents,
-			List<DadesDocumentDto> adjunts) {
+			List<DadesDocumentDto> adjunts,
+			boolean ntiActiu,
+			String organ,
+			String classificacio,
+			String ntiTipoFirma,
+			String ntiValorCsv,
+			String ntiDefGenCsv) {
 
 		Expedient expedient = new Expedient();
 		Entorn entorn = entornHelper.getEntornComprovantPermisos(
@@ -1144,6 +1152,17 @@ public class ExpedientHelper {
 		expedient.setAvisosMobil(avisosMobil);
 		expedient.setNotificacioTelematicaHabilitada(notificacioTelematicaHabilitada);
 		expedient.setAmbRetroaccio(expedientTipus.isAmbRetroaccio());
+		
+		expedient.setNtiActiu(ntiActiu);
+		if(ntiActiu) {
+			expedient.setNtiVersio(NTI_VERSION);
+			expedient.setNtiOrgan(organ);
+			expedient.setNtiClasificacio(classificacio);
+			expedient.setNtiTipoFirma(ntiTipoFirma);
+			expedient.setNtiValorCsv(ntiValorCsv);
+			expedient.setNtiDefGenCsv(ntiDefGenCsv);
+		}
+		
 		
 		mesuresTemporalsHelper.mesuraCalcular("Iniciar", "expedient", expedientTipus.getNom(), null, "Omplir dades");
 		mesuresTemporalsHelper.mesuraIniciar("Iniciar", "expedient", expedientTipus.getNom(), null, "Assignar numeros");
@@ -1422,6 +1441,29 @@ public class ExpedientHelper {
 				String.valueOf(expedientId));
 		return registreRepository.save(registre);
 	}
+	
+	@Transactional
+	public Expedient updateNtiIdentificador(
+			boolean ntiActiu,
+			Expedient expedient) {
+		
+		if(ntiActiu) {
+			String id = expedient.getId().toString();
+			int length = id.length();
+			for(int i = 0; i < 27 - length; i++) id = "0" + id;
+			
+		    Calendar cal = Calendar.getInstance();
+		    cal.setTime( expedient.getDataInici() );
+		    String any = String.valueOf( cal.get(Calendar.YEAR) );
+		    
+		    String org = expedient.getNtiOrgan();
+		    
+		    expedient.setNtiIdentificador("ES_" + org + "_" + any + "_EXP_HEL" + id);
+		}
+	    
+	    return expedient;
+	}
+	
 	
 	private static final Logger logger = LoggerFactory.getLogger(ExpedientHelper.class);
 }
