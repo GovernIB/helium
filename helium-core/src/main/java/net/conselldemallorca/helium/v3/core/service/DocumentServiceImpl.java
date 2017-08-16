@@ -77,6 +77,7 @@ public class DocumentServiceImpl implements DocumentService {
 	@Override
 	@Transactional
 	public DocumentDto create(
+			boolean ntiActiu,
 			Long expedientTipusId, 
 			Long definicioProcesId, 
 			DocumentDto document) {
@@ -102,6 +103,13 @@ public class DocumentServiceImpl implements DocumentService {
 		entity.setCustodiaCodi(document.getCustodiaCodi());
 		entity.setTipusDocPortasignatures(document.getTipusDocPortasignatures());
 		entity.setIgnored(document.isIgnored());
+		
+		if(ntiActiu) {
+			entity.setNtiTipusDocumental(document.getNtiTipusDocumental());
+			entity.setNtiTipoFirma(document.getNtiTipoFirma());
+			entity.setNtiValorCsv(document.getNtiValorCsv());
+			entity.setNtiDefGenCsv(document.getNtiDefGenCsv());
+		}
 		
 		if (expedientTipusId != null)
 			entity.setExpedientTipus(expedientTipusRepository.findOne(expedientTipusId));
@@ -184,7 +192,10 @@ public class DocumentServiceImpl implements DocumentService {
 	
 	@Override
 	@Transactional
-	public DocumentDto update(DocumentDto document, boolean actualitzarContingut) {
+	public DocumentDto update(
+			boolean ntiActiu,
+			DocumentDto document,
+			boolean actualitzarContingut) {
 		logger.debug(
 				"Modificant el document del tipus d'expedient existent (" +
 				"document.id=" + document.getId() + ", " +
@@ -210,6 +221,13 @@ public class DocumentServiceImpl implements DocumentService {
 		entity.setContentType(document.getContentType());
 		entity.setCustodiaCodi(document.getCustodiaCodi());
 		entity.setTipusDocPortasignatures(document.getTipusDocPortasignatures());
+		
+		if(ntiActiu) {
+			entity.setNtiTipusDocumental(document.getNtiTipusDocumental());
+			entity.setNtiTipoFirma(document.getNtiTipoFirma());
+			entity.setNtiValorCsv(document.getNtiValorCsv());
+			entity.setNtiDefGenCsv(document.getNtiDefGenCsv());
+		}
 
 		return conversioTipusHelper.convertir(
 				documentRepository.save(entity),

@@ -232,6 +232,7 @@
 						<li id="pipella-redireccions"><a href="#contingut-redireccions" role="tab" data-toggle="tab"><spring:message code="expedient.tipus.pipelles.pipella.redireccions"/></a></li>
 						<li id="pipella-consultes"><a href="#contingut-consultes" role="tab" data-toggle="tab"><spring:message code="expedient.tipus.pipelles.pipella.consultes"/></a></li>
 					</c:if>
+					<li id="pipella-nti"><a href="#contingut-metadadesnti" role="tab" data-toggle="tab"><spring:message code="expedient.tipus.pipelles.pipella.metadades.nti"/></a></li>
 				</ul>
 			</div>
 			<div class="tab-content">
@@ -272,6 +273,9 @@
 					<div class="contingut-carregant"><span class="fa fa-circle-o-notch fa-spin fa-3x"></span></div>
 				</div>
 				<div id="contingut-consultes" class="tab-pane" data-href="<c:url value="/nodeco/v3/expedientTipus/${expedientTipus.id}/consultes"/>">
+					<div class="contingut-carregant"><span class="fa fa-circle-o-notch fa-spin fa-3x"></span></div>
+				</div>
+				<div id="contingut-metadadesnti" class="tab-pane" data-href="<c:url value="/nodeco/v3/expedientTipus/${expedientTipus.id}/metadadesNti"/>">
 					<div class="contingut-carregant"><span class="fa fa-circle-o-notch fa-spin fa-3x"></span></div>
 				</div>
 			</div>

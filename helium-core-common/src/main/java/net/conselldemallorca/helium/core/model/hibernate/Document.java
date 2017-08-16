@@ -29,6 +29,7 @@ import org.hibernate.annotations.Index;
 import org.hibernate.annotations.Type;
 import org.springmodules.validation.bean.conf.loader.annotation.handler.MaxLength;
 import org.springmodules.validation.bean.conf.loader.annotation.handler.NotBlank;
+import org.springmodules.validation.bean.conf.loader.annotation.handler.NotNull;
 
 /**
  * Objecte de domini que representa un document de la definició
@@ -82,7 +83,19 @@ public class Document implements Serializable, GenericEntity<Long> {
 	/** Indica si permetre o no la retroacció. Si isIgnored = true llavors no es realitzarà la retroacció i no s'esborrarà
 	 * el contingut del document. */
 	private boolean ignored;
-
+	
+	@NotNull
+	private Boolean ntiActiu;
+	
+	@MaxLength(32)
+	private String ntiTipusDocumental;
+	
+	@MaxLength(64)
+	private String ntiTipoFirma;
+	@MaxLength(128)
+	private String ntiValorCsv;
+	@MaxLength(128)
+	private String ntiDefGenCsv;
 
 
 	public Document() {}
@@ -206,6 +219,23 @@ public class Document implements Serializable, GenericEntity<Long> {
 	public void setExtensionsPermeses(String extensionsPermeses) {
 		this.extensionsPermeses = extensionsPermeses;
 	}
+	
+	
+	@Column(name="nti_activo")
+	public Boolean getNtiActiu() {
+		return ntiActiu;
+	}
+	public void setNtiActiu(Boolean ntiActiu) {
+		this.ntiActiu = ntiActiu;
+	}
+	
+	@Column(name="nti_tipo_doc", length=32)
+	public String getNtiTipusDocumental() {
+		return ntiTipusDocumental;
+	}
+	public void setNtiTipusDocumental(String ntiTipusDocumental) {
+		this.ntiTipusDocumental = ntiTipusDocumental;
+	}
 
 	@ManyToOne(optional=true)
 	@JoinColumn(name="definicio_proces_id")
@@ -273,6 +303,32 @@ public class Document implements Serializable, GenericEntity<Long> {
 		this.ignored = ignored;
 	}
 	
+	
+	@Column(name="nti_tipo_firma", length=64)
+	public String getNtiTipoFirma() {
+		return ntiTipoFirma;
+	}
+	public void setNtiTipoFirma(String ntiTipoFirma) {
+		this.ntiTipoFirma = ntiTipoFirma;
+	}
+	
+	@Column(name="nti_valor_csv", length=128)
+	public String getNtiValorCsv() {
+		return ntiValorCsv;
+	}
+	public void setNtiValorCsv(String ntiValorCsv) {
+		this.ntiValorCsv = ntiValorCsv;
+	}
+	
+	@Column(name="nti_definicion_generacion_csv", length=128)
+	public String getNtiDefGenCsv() {
+		return ntiDefGenCsv;
+	}
+	public void setNtiDefGenCsv(String ntiDefGenCsv) {
+		this.ntiDefGenCsv = ntiDefGenCsv;
+	}
+	
+	
 	@Transient
 	public String getCodiNom() {
 		return codi + "/" + nom;
@@ -294,7 +350,7 @@ public class Document implements Serializable, GenericEntity<Long> {
 		}
 		return true;
 	}
-
+	
 	@Override
 	public int hashCode() {
 		final int prime = 31;

@@ -109,7 +109,7 @@
 						</c:when>
 					</c:choose>
 					<c:if test="${condicioValor}">
-					
+						
 						<c:if test="${fn:endsWith(dada['class'].name, 'DadaDto') and dada.campTipus == 'TEXTAREA' and posicioActual != '0'}">
 							</tr>
 							<c:set var="posicioActual" value="0"/>

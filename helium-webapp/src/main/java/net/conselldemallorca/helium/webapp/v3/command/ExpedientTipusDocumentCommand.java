@@ -6,6 +6,7 @@ package net.conselldemallorca.helium.webapp.v3.command;
 import javax.validation.constraints.Size;
 
 import org.hibernate.validator.constraints.NotEmpty;
+import org.springmodules.validation.bean.conf.loader.annotation.handler.MaxLength;
 
 import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
@@ -45,6 +46,12 @@ public class ExpedientTipusDocumentCommand {
 	private String custodiaCodi;
 	private Integer tipusDocPortasignatures;
 	private boolean ignored;
+	
+	private String ntiTipusDocumental;
+	
+	private String ntiTipoFirma;
+	private String ntiValorCsv;
+	private String ntiDefGenCsv;
 	
 	public Long getExpedientTipusId() {
 		return expedientTipusId;
@@ -148,6 +155,38 @@ public byte[] getArxiuContingut() {
 	public void setIgnored(boolean ignored) {
 		this.ignored = ignored;
 	}
+	
+	
+	public String getNtiTipusDocumental() {
+		return ntiTipusDocumental;
+	}
+	public void setNtiTipusDocumental(String ntiTipusDocumental) {
+		this.ntiTipusDocumental = ntiTipusDocumental;
+	}
+	
+	
+	public String getNtiTipoFirma() {
+		return ntiTipoFirma;
+	}
+	public void setNtiTipoFirma(String ntiTipoFirma) {
+		this.ntiTipoFirma = ntiTipoFirma;
+	}
+	
+	public String getNtiValorCsv() {
+		return ntiValorCsv;
+	}
+	public void setNtiValorCsv(String ntiValorCsv) {
+		this.ntiValorCsv = ntiValorCsv;
+	}
+	
+	public String getNtiDefGenCsv() {
+		return ntiDefGenCsv;
+	}
+	public void setNtiDefGenCsv(String ntiDefGenCsv) {
+		this.ntiDefGenCsv = ntiDefGenCsv;
+	}
+	
+	
 	public static DocumentDto asDocumentDto(ExpedientTipusDocumentCommand command) {
 		DocumentDto dto = new DocumentDto();
 		dto.setId(command.getId());
@@ -171,6 +210,12 @@ public byte[] getArxiuContingut() {
 		dto.setCustodiaCodi(command.getCustodiaCodi());
 		dto.setTipusDocPortasignatures(command.getTipusDocPortasignatures());
 		dto.setIgnored(command.isIgnored());
+		
+		dto.setNtiTipusDocumental(command.getNtiTipusDocumental());
+		
+		dto.setNtiTipoFirma(command.getNtiTipoFirma());
+		dto.setNtiValorCsv(command.getNtiValorCsv());
+		dto.setNtiDefGenCsv(command.getNtiDefGenCsv());
 		
 		return dto;
 	}

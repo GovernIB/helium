@@ -18,6 +18,7 @@
 <%@ attribute name="emptyOptionTextKey" required="false" rtexprvalue="true"%>
 <%@ attribute name="inline" required="false" rtexprvalue="true"%>
 <%@ attribute name="disabled" required="false" rtexprvalue="true"%>
+<%@ attribute name="readonly" required="false" rtexprvalue="true"%>
 <%@ attribute name="labelSize" required="false" rtexprvalue="true"%>
 <%@ attribute name="multiple" required="false" rtexprvalue="true"%>
 

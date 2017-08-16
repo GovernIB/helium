@@ -88,6 +88,7 @@ public class ExpedientTipus implements Serializable, GenericEntity<Long> {
 	
 	private String diesNoLaborables;
 	
+	
 	private boolean notificacionsActivades;
 	@MaxLength(100)
 	private String notificacioOrganCodi;
@@ -143,6 +144,22 @@ public class ExpedientTipus implements Serializable, GenericEntity<Long> {
 	private List<Document> documents = new ArrayList<Document>();
 	private List<Termini> terminis = new ArrayList<Termini>();
 	private List<Accio> accions = new ArrayList<Accio>();
+	
+	@NotNull
+	private Boolean ntiActiu;
+	
+	@MaxLength(64)
+	private String ntiOrgan;
+	@MaxLength(64)
+	private String ntiClasificacio;
+	
+	@MaxLength(64)
+	private String ntiTipoFirma;
+	@MaxLength(128)
+	private String ntiValorCsv;
+	@MaxLength(128)
+	private String ntiDefGenCsv;
+	
 	
 	public ExpedientTipus() {}
 	public ExpedientTipus(String codi, String nom, Entorn entorn) {
@@ -674,7 +691,57 @@ public class ExpedientTipus implements Serializable, GenericEntity<Long> {
 	public void setAccions(List<Accio> accions) {
 		this.accions = accions;
 	}
-
+	
+	
+	@Column(name="nti_activo")
+	public Boolean getNtiActiu() {
+		return ntiActiu;
+	}
+	public void setNtiActiu(Boolean ntiActiu) {
+		this.ntiActiu = ntiActiu;
+	}
+	
+	@Column(name="nti_organo", length=64)
+	public String getNtiOrgan() {
+		return ntiOrgan;
+	}
+	public void setNtiOrgan(String ntiOrgan) {
+		this.ntiOrgan = ntiOrgan;
+	}
+	
+	@Column(name="nti_clasificacion", length=64)
+	public String getNtiClasificacio() {
+		return ntiClasificacio;
+	}
+	public void setNtiClasificacio(String ntiClasificacio) {
+		this.ntiClasificacio = ntiClasificacio;
+	}
+	
+	@Column(name="nti_tipo_firma", length=64)
+	public String getNtiTipoFirma() {
+		return ntiTipoFirma;
+	}
+	public void setNtiTipoFirma(String ntiTipoFirma) {
+		this.ntiTipoFirma = ntiTipoFirma;
+	}
+	
+	@Column(name="nti_valor_csv", length=128)
+	public String getNtiValorCsv() {
+		return ntiValorCsv;
+	}
+	public void setNtiValorCsv(String ntiValorCsv) {
+		this.ntiValorCsv = ntiValorCsv;
+	}
+	
+	@Column(name="nti_definicion_generacion_csv", length=128)
+	public String getNtiDefGenCsv() {
+		return ntiDefGenCsv;
+	}
+	public void setNtiDefGenCsv(String ntiDefGenCsv) {
+		this.ntiDefGenCsv = ntiDefGenCsv;
+	}
+	
+	
 	@Override
 	public int hashCode() {
 		final int prime = 31;

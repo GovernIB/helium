@@ -1013,6 +1013,38 @@ public interface ExpedientTipusService {
 	public List<PersonaDto> personaFindAll(
 			Long entornId,
 			Long expedientTipusId) throws Exception;
+	
+	
+	/** Modifica les dades metadades nti d'un tipus d'expedient.
+	 * 
+	 * @param ntiActiu
+	 * 				Indica si les metadades nti estana activades.
+	 * @param ntiOrgano
+	 *				L’òrgan al qual està associat l’expedient.
+	 * @param ntiClasificacion
+	 * 				El codi SIA del procediment al qual pertany l’expedient.
+	 * @param ntiTipoFirma
+	 * 				El tipus de firma que incorpora l’expedient.
+	 * @param ntiValorCsv
+	 * 				Valor del CSV quan el tipus de firma és CSV.
+	 * @param ntiDefGenCsv
+	 * 				Referència a la normativa que defineix la creació del CSV.
+	 * 
+	 * @return El tipus d'expedient modificat.
+	 * 
+	 * @throws NoTrobatException
+	 *             Si no s'ha trobat el registre amb l'id especificat.
+	 * @throws PermisDenegatException
+	 *             Si no es tenen els permisos necessaris.
+	 */
+	public ExpedientTipusDto updateMetadadesNti(
+			Long expedientTipusId,
+			boolean ntiActiu,
+			String ntiOrgano,
+			String ntiClasificacion,
+			String ntiTipoFirma,
+			String ntiValorCsv,
+			String ntiDefGenCsv);	
 
 
 }

@@ -81,6 +81,13 @@ public interface ExpedientService {
 	 * @param responsableCodi
 	 * @param documents
 	 * @param adjunts
+	 * @param ntiActiu
+	 * @param organ
+	 * @param classificacio
+	 * @param ntiTipoFirma
+	 * @param ntiValorCsv
+	 * @param ntiDefGenCsv
+	 * 
 	 * @return El nou expedient creat.
 	 * @throws NotFoundException
 	 *             Si no s'ha trobat cap expedient amb l'id especificat.
@@ -116,7 +123,13 @@ public interface ExpedientService {
 			String iniciadorCodi,
 			String responsableCodi,
 			Map<String, DadesDocumentDto> documents,
-			List<DadesDocumentDto> adjunts) throws NoTrobatException;
+			List<DadesDocumentDto> adjunts,
+			boolean ntiActiu,
+			String organ,
+			String classificacio,
+			String ntiTipoFirma,
+			String ntiValorCsv,
+			String ntiDefGenCsv) throws NoTrobatException;
 
 	/**
 	 * Modifica la informació d'un expedient.

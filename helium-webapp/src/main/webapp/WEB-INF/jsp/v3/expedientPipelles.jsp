@@ -269,7 +269,14 @@
 	<div class="row">
 		<div class="col-md-3">
 			<div id="expedient-info" class="well">
-				<h3><spring:message code="expedient.info.informacio"/></h3>
+				<h3>
+					<spring:message code="expedient.info.informacio"/>
+					<c:if test="${metadades}">
+						<a id="nti" href="<c:url value="../../v3/expedient/${expedient.id}/metadadesNti"/>" data-rdt-link-modal="true">
+							<span class="label label-info" style="font-size: 14px; margin-top: 3px; margin-left: 5px; position: absolute;">NTI</span>
+						</a>
+					</c:if>
+				</h3>
 				<dl>
 					<c:if test="${expedient.tipus.teNumero}">
 						<dt><spring:message code="expedient.info.camp.numero"/></dt>
@@ -514,7 +521,10 @@
 			refrescarAlertes: true,
 			refrescarPagina: false
 		});
-		
+		$('#nti').heliumEvalLink({
+			refrescarAlertes: true,
+			refrescarPagina: false
+		});
 		$(".alert-btn").heliumEvalLink({
 			refrescarPagina: true,
 			refrescarAlertes: true ,
@@ -524,6 +534,10 @@
 			refrescarPagina: false,
 			refrescarAlertes: false ,
 			refrescarTaula: false
+		});
+		$("#contingut-documents").heliumEvalLink({
+			refrescarAlertes: true,
+			refrescarPagina: true
 		});
 	//]]>
 	</script>

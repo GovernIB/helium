@@ -21,6 +21,10 @@ import net.conselldemallorca.helium.v3.core.api.exception.SistemaExternException
  * @author Limit Tecnologies <limit@limit.es>
  */
 public interface ExpedientDocumentService {
+	
+	public static final String VERSIO_NTI = "1.0";
+	public static final String ORIGEN_NTI = "Administración";
+	public static final String ESTAT_ELABORACIO_NTI = "Original";
 
 	/**
 	 * Crea o modifica un document de la instància de procés.
@@ -40,7 +44,8 @@ public interface ExpedientDocumentService {
 	 * @param arxiuContingut
 	 *             contingut de l'arxiu del document.
 	 * @param data
-	 *             data del document.
+	 *             data del document.          
+	 *             
 	 * @throws NoTrobatException
 	 *             Si no s'ha trobat l'element amb l'id especificat.
 	 * @throws PermisDenegatException

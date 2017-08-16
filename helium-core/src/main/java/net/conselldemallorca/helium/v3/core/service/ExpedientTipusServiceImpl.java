@@ -23,6 +23,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springmodules.validation.bean.conf.loader.annotation.handler.MaxLength;
 
 import net.conselldemallorca.helium.core.extern.domini.FilaResultat;
 import net.conselldemallorca.helium.core.extern.domini.ParellaCodiValor;
@@ -3065,7 +3066,38 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		
 		return persones;
 	}
+	
+	
+	@Override
+	@Transactional
+	public ExpedientTipusDto updateMetadadesNti(
+			Long expedientTipusId,
+			boolean ntiActiu,
+			String ntiOrgan,
+			String ntiClasificacio,
+			String ntiTipoFirma,
+			String ntiValorCsv,
+			String ntiDefGenCsv) {
 
+		logger.debug(
+				"Modificant tipus d'expedient amb les metadades (" +
+				"expedientTipus=" + expedientTipusId + ")");
+		
+		ExpedientTipus entity = expedientTipusHelper.getExpedientTipusComprovantPermisDisseny(expedientTipusId);
+		
+		entity.setNtiActiu(ntiActiu);
+		entity.setNtiOrgan(ntiOrgan);
+		entity.setNtiClasificacio(ntiClasificacio);
+		entity.setNtiTipoFirma(ntiTipoFirma);
+		entity.setNtiValorCsv(ntiValorCsv);;
+		entity.setNtiDefGenCsv(ntiDefGenCsv);
+
+		return conversioTipusHelper.convertir(
+				expedientTipusRepository.save(entity),
+				ExpedientTipusDto.class);	
+	}
+	
 	
 	private static final Logger logger = LoggerFactory.getLogger(ExpedientServiceImpl.class);
+	
 }

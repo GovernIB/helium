@@ -570,4 +570,26 @@ public class ExpedientTipusServiceBean implements ExpedientTipusService {
 	public List<PersonaDto> personaFindAll(Long entornId, Long expedientTipusId) throws Exception {
 		return delegate.personaFindAll(entornId, expedientTipusId);
 	}
+	
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public ExpedientTipusDto updateMetadadesNti(
+			Long expedientTipusId,
+			boolean ntiActiu,
+			String ntiOrgano,
+			String ntiClasificacion,
+			String ntiTipoFirma,
+			String ntiValorCsv,
+			String ntiDefGenCsv) {
+		
+		return delegate.updateMetadadesNti(
+				expedientTipusId,
+				ntiActiu,
+				ntiOrgano,
+				ntiClasificacion,
+				ntiTipoFirma,
+				ntiValorCsv,
+				ntiDefGenCsv);
+	}
+	
 }

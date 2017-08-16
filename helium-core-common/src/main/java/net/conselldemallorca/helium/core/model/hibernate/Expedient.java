@@ -141,6 +141,25 @@ public class Expedient implements Serializable, GenericEntity<Long> {
 	private boolean ambRetroaccio;
 	private Date reindexarData;
 	private boolean reindexarError;
+	
+	@NotNull
+	private Boolean ntiActiu;
+	
+	@MaxLength(16)
+	private String ntiVersio;
+	@MaxLength(64)
+	private String ntiOrgan;
+	@MaxLength(64)
+	private String ntiClasificacio;
+	@MaxLength(107)
+	private String ntiIdentificador;
+	
+	@MaxLength(64)
+	private String ntiTipoFirma;
+	@MaxLength(128)
+	private String ntiValorCsv;
+	@MaxLength(128)
+	private String ntiDefGenCsv;
 
 	public Expedient() {}
 	public Expedient(IniciadorTipus iniciadorTipus, String iniciadorCodi, ExpedientTipus tipus, Entorn entorn, String processInstanceId) {
@@ -653,6 +672,71 @@ public class Expedient implements Serializable, GenericEntity<Long> {
 	public void setComentariAnulat(String comentariAnulat) {
 		this.comentariAnulat = comentariAnulat;
 	}
+	
+	
+	@Column(name="nti_activo")
+	public Boolean getNtiActiu() {
+		return ntiActiu;
+	}
+	public void setNtiActiu(Boolean ntiActiu) {
+		this.ntiActiu = ntiActiu;
+	}
+	@Column(name="nti_versio", length=16)
+	public String getNtiVersio() {
+		return ntiVersio;
+	}
+	public void setNtiVersio(String ntiVersio) {
+		this.ntiVersio = ntiVersio;
+	}
+	
+	@Column(name="nti_organo", length=64)
+	public String getNtiOrgan() {
+		return ntiOrgan;
+	}
+	public void setNtiOrgan(String ntiOrgan) {
+		this.ntiOrgan = ntiOrgan;
+	}
+	
+	@Column(name="nti_clasificacion", length=64)
+	public String getNtiClasificacio() {
+		return ntiClasificacio;
+	}
+	public void setNtiClasificacio(String ntiClasificacio) {
+		this.ntiClasificacio = ntiClasificacio;
+	}
+	
+	@Column(name="nti_identificador", length=107)
+	public String getNtiIdentificador() {
+		return ntiIdentificador;
+	}
+	public void setNtiIdentificador(String ntiIdentificador) {
+		this.ntiIdentificador = ntiIdentificador;
+	}
+	
+	@Column(name="nti_tipo_firma", length=64)
+	public String getNtiTipoFirma() {
+		return ntiTipoFirma;
+	}
+	public void setNtiTipoFirma(String ntiTipoFirma) {
+		this.ntiTipoFirma = ntiTipoFirma;
+	}
+	
+	@Column(name="nti_valor_csv", length=128)
+	public String getNtiValorCsv() {
+		return ntiValorCsv;
+	}
+	public void setNtiValorCsv(String ntiValorCsv) {
+		this.ntiValorCsv = ntiValorCsv;
+	}
+	
+	@Column(name="nti_definicion_generacion_csv", length=128)
+	public String getNtiDefGenCsv() {
+		return ntiDefGenCsv;
+	}
+	public void setNtiDefGenCsv(String ntiDefGenCsv) {
+		this.ntiDefGenCsv = ntiDefGenCsv;
+	}
+	
 	
 	@Override
 	public int hashCode() {

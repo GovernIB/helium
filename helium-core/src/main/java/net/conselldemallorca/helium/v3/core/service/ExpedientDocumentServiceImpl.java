@@ -10,6 +10,7 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
+import org.apache.commons.io.FilenameUtils;
 import org.json.simple.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,6 +38,8 @@ import net.conselldemallorca.helium.core.model.hibernate.Portasignatures;
 import net.conselldemallorca.helium.core.model.hibernate.Portasignatures.TipusEstat;
 import net.conselldemallorca.helium.core.model.hibernate.Portasignatures.Transicio;
 import net.conselldemallorca.helium.core.security.ExtendedPermission;
+import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
+import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessInstance;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDocumentDto;
@@ -82,6 +85,8 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 	private DocumentHelperV3 documentHelper;
 	@Resource
 	private TascaHelper tascaHelper;
+	@Resource
+	private JbpmHelper jbpmHelper;
 	@Resource
 	private IndexHelper indexHelper;
 	@Resource
@@ -195,6 +200,22 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 					arxiuNom,
 					arxiuContingut,
 					adjunt);
+			
+			
+			
+			documentStoreId = documentHelper.actualizarMetadadesNti(
+					expedient,
+					documentStoreId,
+					expedient.getTipus().getNtiActiu(),
+					VERSIO_NTI,
+					expedient.getNtiOrgan(),
+					ORIGEN_NTI,
+					ESTAT_ELABORACIO_NTI,
+					FilenameUtils.getExtension(arxiuNom),
+					document.getNtiTipusDocumental(),
+					document.getNtiTipoFirma(),
+					document.getNtiValorCsv(),
+					document.getNtiDefGenCsv());
 		}
 		String user = SecurityContextHolder.getContext().getAuthentication().getName();
 		// Registra l'acció
@@ -558,7 +579,7 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 				task.getProcessInstanceId(),
 				documentData);
 		if (document.isAdjuntarAuto()) {
-			documentHelper.actualitzarDocument(
+			Long documentStoreId = documentHelper.actualitzarDocument(
 					taskInstanceId,
 					task.getProcessInstanceId(),
 					document.getCodi(),
@@ -567,6 +588,21 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 					arxiu.getNom(),
 					arxiu.getContingut(),
 					false);
+			
+			documentStoreId = documentHelper.actualizarMetadadesNti(
+					expedient,
+					documentStoreId,
+					expedient.getTipus().getNtiActiu(),
+					VERSIO_NTI,
+					expedient.getNtiOrgan(),
+					ORIGEN_NTI,
+					ESTAT_ELABORACIO_NTI,
+					FilenameUtils.getExtension(arxiu.getNom()),
+					document.getNtiTipusDocumental(),
+					document.getNtiTipoFirma(),
+					document.getNtiValorCsv(),
+					document.getNtiDefGenCsv());
+			
 			return null;
 		} else {
 			return arxiu;
@@ -694,7 +730,28 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 //				definicioProces,
 //				documentCodi);
 		
-		documentHelper.actualitzarDocument(
+ExpedientTipus expedientTipus = expedient.getTipus();
+		
+		Document document;
+		if (expedientTipus.isAmbInfoPropia())
+			document = documentRepository.findByExpedientTipusAndCodi(
+					expedientTipus,
+					documentCodi);
+		else {
+			JbpmProcessInstance pi = jbpmHelper.getProcessInstance(processInstanceId);
+			if (pi == null)
+				throw new NoTrobatException(JbpmProcessInstance.class, processInstanceId);
+
+			DefinicioProces definicioProces = definicioProcesRepository.findByJbpmId(pi.getProcessDefinitionId());
+			if (definicioProces == null)
+				throw new NoTrobatException(DefinicioProces.class, pi.getProcessDefinitionId());
+			
+			document = documentRepository.findByDefinicioProcesAndCodi(
+					definicioProces, 
+					documentCodi);
+		}
+		
+		Long documentStoreId = documentHelper.actualitzarDocument(
 				null, 
 				processInstanceId, 
 				documentCodi, 
@@ -703,6 +760,20 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 				nomArxiu, 
 				arxiu, 
 				false);
+		
+		documentStoreId = documentHelper.actualizarMetadadesNti(
+				expedient,
+				documentStoreId,
+				expedientTipus.getNtiActiu(),
+				VERSIO_NTI,
+				expedient.getNtiOrgan(),
+				ORIGEN_NTI,
+				ESTAT_ELABORACIO_NTI,
+				FilenameUtils.getExtension(nomArxiu),
+				document.getNtiTipusDocumental(),
+				document.getNtiTipoFirma(),
+				document.getNtiValorCsv(),
+				document.getNtiDefGenCsv());
 		
 		indexHelper.expedientIndexLuceneUpdate(processInstanceId);
 
@@ -904,6 +975,7 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 			return arxiuNom.substring(index + 1);
 		}
 	}
+	
 
 	private static final Logger logger = LoggerFactory.getLogger(ExpedientDocumentServiceImpl.class);
 }

@@ -10,15 +10,28 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-
-
-
 /**
  * DTO amb informació d'un tipus d'expedient.
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
 public class ExpedientTipusDto extends ControlPermisosDto implements Serializable {
+	
+	public enum TipoFirma {
+		
+		CSV,
+	    XAdES_ids,
+		XAdES_es,
+		CAdES_des,
+		CAdES_ais,
+		PAdES,
+		XAdES_1506d,
+		XAdES_1506e,
+		CAdES_1506d,
+		CAdES_1506a,
+		PAdES_1506;
+
+	}
 
 	private Long id;
 	private String codi;
@@ -66,6 +79,17 @@ public class ExpedientTipusDto extends ControlPermisosDto implements Serializabl
 	private String formextContrasenya;
 	// Integració amb tràmits Sistra
 	private String sistraTramitCodi;
+	
+	
+	private boolean ntiActiu;
+	
+	private String ntiOrgan;
+	private String ntiClasificacio;
+	
+	private String ntiTipoFirma;
+	private String ntiValorCsv;
+	private String ntiDefGenCsv;
+	
 	
 	public Long getId() {
 		return id;
@@ -323,6 +347,51 @@ public class ExpedientTipusDto extends ControlPermisosDto implements Serializabl
 	public void setSistraTramitCodi(String sistraTramitCodi) {
 		this.sistraTramitCodi = sistraTramitCodi;
 	}
+	
+	
+	public boolean isNtiActiu() {
+		return ntiActiu;
+	}
+	public void setNtiActiu(boolean ntiActiu) {
+		this.ntiActiu = ntiActiu;
+	}
+	
+	public String getNtiOrgan() {
+		return ntiOrgan;
+	}
+	public void setNtiOrgan(String ntiOrgan) {
+		this.ntiOrgan = ntiOrgan;
+	}
+	
+	public String getNtiClasificacio() {
+		return ntiClasificacio;
+	}
+	public void setNtiClasificacio(String ntiClasificacio) {
+		this.ntiClasificacio = ntiClasificacio;
+	}
+	
+	public String getNtiTipoFirma() {
+		return ntiTipoFirma;
+	}
+	public void setNtiTipoFirma(String ntiTipoFirma) {
+		this.ntiTipoFirma = ntiTipoFirma;
+	}
+	
+	public String getNtiValorCsv() {
+		return ntiValorCsv;
+	}
+	public void setNtiValorCsv(String ntiValorCsv) {
+		this.ntiValorCsv = ntiValorCsv;
+	}
+	
+	public String getNtiDefGenCsv() {
+		return ntiDefGenCsv;
+	}
+	public void setNtiDefGenCsv(String ntiDefGenCsv) {
+		this.ntiDefGenCsv = ntiDefGenCsv;
+	}
+	
+	
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;

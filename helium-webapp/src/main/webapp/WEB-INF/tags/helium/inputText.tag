@@ -9,6 +9,7 @@
 <%@ attribute name="placeholderKey" required="false" rtexprvalue="true"%>
 <%@ attribute name="inline" required="false" rtexprvalue="true"%>
 <%@ attribute name="disabled" required="false" rtexprvalue="true"%>
+<%@ attribute name="readonly" required="false" rtexprvalue="true"%>
 <%@ attribute name="comment" required="false" rtexprvalue="true"%>
 <%@ attribute name="labelSize" required="false" rtexprvalue="true"%>
 <c:if test="${empty labelSize}"><c:set var="labelSize" value="${4}"/></c:if>
@@ -22,7 +23,7 @@
 		<div class="form-group<c:if test="${not empty campErrors}"> has-error</c:if>">
 			<label class="control-label col-xs-${labelSize} ${campClassRequired}" for="${campPath}">${campLabelText}</label>
 			<div class="col-xs-${12 - labelSize}">
-				<form:input path="${campPath}" cssClass="form-control" id="${campPath}" disabled="${disabled}" placeholder="${campPlaceholder}"/>
+				<form:input path="${campPath}" cssClass="form-control" id="${campPath}" readonly="${readonly}" disabled="${disabled}" placeholder="${campPlaceholder}"/>
 				<c:if test="${not empty campErrors}"><p class="help-block"><span class="fa fa-exclamation-triangle"></span>&nbsp;<form:errors path="${campPath}"/></p></c:if>
 			</div>
 			<c:if test="${not empty comment}">
@@ -33,7 +34,7 @@
 	<c:otherwise>
 		<div class="form-group<c:if test="${not empty campErrors}"> has-error</c:if>">
     		<label class="sr-only ${campClassRequired}" for="${campPath}">${campLabelText}</label>
-    		<form:input path="${campPath}" cssClass="form-control" id="${campPath}" placeholder="${campPlaceholder}" disabled="${disabled}"/>
+    		<form:input path="${campPath}" cssClass="form-control" id="${campPath}" placeholder="${campPlaceholder}" readonly="${readonly}" disabled="${disabled}"/>
   		</div>
 	</c:otherwise>
 </c:choose>
