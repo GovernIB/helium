@@ -153,7 +153,7 @@ public class DefinicioProcesController extends BaseDefinicioProcesController {
 				return "redirect:/v3/definicioProces";
 			
 		} catch (Exception e) {
-			logger.error("Error : (" + e.getClass() + ") " + e.getLocalizedMessage());
+			logger.error("Error : (" + e.getClass() + ") " + e.getLocalizedMessage(), e);
 			MissatgesHelper.error(request, getMessage(request, "definicio.proces.delete.error", new Object[] {e.getLocalizedMessage()}));
 		}
 		// Retorna a la pàgina de pipelles		

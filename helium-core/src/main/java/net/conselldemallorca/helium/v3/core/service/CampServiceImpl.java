@@ -334,8 +334,8 @@ public class CampServiceImpl implements CampService {
 		PaginaDto<CampDto> pagina = paginacioHelper.toPaginaDto(
 				campRepository.findByFiltrePaginat(
 						expedientTipusId,
-						totes,
 						definicioProcesId,
+						totes,
 						agrupacioId == null,
 						agrupacioId != null ? agrupacioId : 0L,
 						filtre == null || "".equals(filtre), 
@@ -348,11 +348,13 @@ public class CampServiceImpl implements CampService {
 		List<Object[]> countValidacions = campRepository.countValidacions(
 				expedientTipusId,
 				definicioProcesId,
+				totes,
 				agrupacioId == null,
 				agrupacioId); 
 		List<Object[]> countMembres= campRepository.countMembres(
 				expedientTipusId,
 				definicioProcesId,
+				totes,
 				agrupacioId == null,
 				agrupacioId); 
 		for (CampDto dto: pagina.getContingut()) {
@@ -888,8 +890,8 @@ public class CampServiceImpl implements CampService {
 		
 		Camp camp = campRepository.findOne(campId);
 		List<ConsultaCamp> consultaCamps = consultaCampRepository.findPerCamp(
-				camp.getCodi(),
-				camp.getDefinicioProces() != null ? camp.getDefinicioProces().getJbpmKey() : null,
+				camp.getCodi() != null? camp.getCodi() : "",
+				camp.getDefinicioProces() != null ? camp.getDefinicioProces().getJbpmKey() : "",
 				camp.getDefinicioProces() != null ? camp.getDefinicioProces().getVersio() : -1);
 		
 		Map<String, Consulta> mapConsultes = new HashMap<String, Consulta>();

@@ -165,6 +165,11 @@ $(document).ready(function() {
 	<c:if test="${refrescaSegonPla}">
 		setInterval(refrescaEstatSegonPla, (${refrescaSegonPlaPeriode} * 1000));
 	</c:if>
+	
+	// Si es passa el paràmetre accio=iniciar provinent de l'iniciar antic llavors es prem el botó d'iniciar
+	// És un cas especial de redirecció des de l'iniciar de la v2.6 amb l'acció d'iniciar expedient
+	if (window.location.href.includes("accio=iniciar"))
+		$('#iniciar-expediente').find('a').click();
 });
 
 

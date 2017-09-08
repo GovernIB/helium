@@ -97,6 +97,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto.IniciadorTipusD
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientErrorDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientErrorDto.ErrorTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.InstanciaProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.MostrarAnulatsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NotificacioDto;
@@ -408,6 +409,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 					expedient.getId(),
 					ExpedientLogAccioTipus.EXPEDIENT_FINALITZAR,
 					null);
+			estatId = null;
 		}
 		
 		expedientHelper.update(
@@ -532,6 +534,12 @@ public class ExpedientServiceImpl implements ExpedientService {
 		ExpedientDto expedientDto = conversioTipusHelper.convertir(
 				expedient,
 				ExpedientDto.class);
+		//  A vegades es produeix un null pointer accedint al tipus d'expedient del DTO, issue #1094
+		if (expedientDto.getTipus() == null) {
+			// Es marca com un error per identificar quan falla i es rectifica la propietat del dto per continuar treballant
+			logger.error("La propietat expedientDto.tipus és null (expedient.getTipus() = " + expedient.getTipus() + ", es fixarà el tipus del dto manualment");
+			expedientDto.setTipus(conversioTipusHelper.convertir(expedient.getTipus(), ExpedientTipusDto.class));
+		}
 		expedientHelper.omplirPermisosExpedient(expedientDto);
 		expedientHelper.trobarAlertesExpedient(expedientDto);
 		return expedientDto;
@@ -873,10 +881,13 @@ public class ExpedientServiceImpl implements ExpedientService {
 				false,
 				false);
 		
-		List<ExpedientTascaDto> tasques = tascaHelper.findTasquesPerExpedient(
+		List<ExpedientTascaDto> tasques = tascaHelper.findTasquesPerExpedientPerInstanciaProces(
 				expedient,
-				false,
-				false);
+				expedient.getProcessInstanceId(),
+				true, // completades
+				true, // no completades
+				true);
+		
 		Set<String> codisPersona = new HashSet<String>();
 		List<PersonaDto> resposta = new ArrayList<PersonaDto>();
 		for (ExpedientTascaDto tasca: tasques) {
@@ -1452,6 +1463,61 @@ public class ExpedientServiceImpl implements ExpedientService {
 					null);
 		}
 	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@Transactional
+	public void executarCampAccio(
+			Long expedientId, 
+			String processInstanceId, 
+			String accioCamp) {
+		
+		logger.debug("Executant camp acció dins una instància de procés (" +
+				"expedientId" + expedientId + ", " +
+				"processInstanceId" + processInstanceId + ", " +
+				"accioCamp=" + accioCamp + ")");
+
+		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
+
+		mesuresTemporalsHelper.mesuraIniciar("Executar ACCIO" + accioCamp, "expedient", expedient.getTipus().getNom());
+		expedientLoggerHelper.afegirLogExpedientPerProces(
+				processInstanceId,
+				ExpedientLogAccioTipus.EXPEDIENT_ACCIO,
+				accioCamp);
+		try {
+			jbpmHelper.executeActionInstanciaProces(
+					processInstanceId,
+					accioCamp);
+		} catch (Exception ex) {
+			if (ex instanceof ExecucioHandlerException) {
+				logger.error(
+						"Error al executa l'acció '" + accioCamp + "': " + ex.toString(),
+						ex.getCause());
+			} else {
+				logger.error(
+						"Error al executa l'acció '" + accioCamp + "'",
+						ex);
+			}
+			throw new TramitacioException(
+					expedient.getEntorn().getId(), 
+					expedient.getEntorn().getCodi(), 
+					expedient.getEntorn().getNom(), 
+					expedient.getId(), 
+					expedient.getTitol(), 
+					expedient.getNumero(), 
+					expedient.getTipus().getId(), 
+					expedient.getTipus().getCodi(), 
+					expedient.getTipus().getNom(), 
+					"Error al executa l'acció '" + accioCamp + "'", 
+					ex);
+		}
+		expedientHelper.verificarFinalitzacioExpedient(expedient);
+		indexHelper.expedientIndexLuceneUpdate(processInstanceId);
+		mesuresTemporalsHelper.mesuraCalcular("Executar CAMP ACCIO" + accioCamp, "expedient", expedient.getTipus().getNom());
+	}
+
 
 	/**
 	 * {@inheritDoc}
@@ -1910,7 +1976,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 	@Override
 	@Transactional(readOnly=true)
 	public boolean existsExpedientAmbEntornTipusITitol(Long entornId, Long expedientTipusId, String titol) {
-		return !expedientRepository.findByEntornIdAndTipusIdAndTitol(entornId, expedientTipusId, titol == null, titol).isEmpty();
+		return !expedientRepository.findByEntornIdAndTipusIdAndTitol(entornId, expedientTipusId, titol == null, titol != null? titol : "").isEmpty();
 	}
 
 	/**

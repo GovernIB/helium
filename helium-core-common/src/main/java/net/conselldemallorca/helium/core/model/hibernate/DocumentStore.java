@@ -20,6 +20,7 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.Transient;
 
+import org.hibernate.annotations.Type;
 import org.springmodules.validation.bean.conf.loader.annotation.handler.MaxLength;
 import org.springmodules.validation.bean.conf.loader.annotation.handler.NotBlank;
 import org.springmodules.validation.bean.conf.loader.annotation.handler.NotNull;
@@ -197,6 +198,7 @@ public class DocumentStore implements Serializable, GenericEntity<Long> {
 	}
 
 	@Lob
+	@Type(type="org.hibernate.type.BinaryType")
 	@Basic(fetch=FetchType.LAZY)
 	@Column(name="arxiu_contingut")
 	public byte[] getArxiuContingut() {

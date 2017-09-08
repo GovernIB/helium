@@ -882,4 +882,23 @@ public interface ExpedientService {
 	public List<String> findAmbDefinicioProcesId(Long definicioProcesId);
 
 	public void notificacioReprocessar(Long notificacioId) throws NoTrobatException;
+
+	/**
+	 * Executa el handler associat a una variable de tipus acció amb les seves dades.
+	 * 
+	 * @param expedientId
+	 *            Atribut id de l'expedient que es vol actualitzar.
+	 * @param processInstanceId
+	 *            Atribut id de la instància de procés que es vol actualitzar.
+	 * @throws NoTrobatException
+	 *             Si no s'ha trobat cap expedient amb l'id especificat.
+	 * @throws TramitacioException
+	 *             Si s'ha produit algun error executant el handler jBPM.
+	 * @throws PermisDenegatException
+	 *             Si no es tenen els permisos adequats.
+	 */
+	public void executarCampAccio(
+			Long expedientId, 
+			String processInstanceId, 
+			String accioCamp);
 }

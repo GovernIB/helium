@@ -88,6 +88,7 @@
 					} else {
 						window.open(href, '_blank');
 					}
+
 					return false;
 				}
 			});
@@ -172,6 +173,8 @@
 							var modalBodyHeight = (bodyHeight > maxBodyHeight) ? (maxBodyHeight + 5) : (bodyHeight + 5);
 							$('div.modal-body', modalobj).height(modalBodyHeight + 'px');
 						}
+						// Elimina els tool tips que hagin pogut quedar
+						$('div.tooltip').remove();
 					});
 				});
 				modalobj.on('hidden.bs.modal', function () {

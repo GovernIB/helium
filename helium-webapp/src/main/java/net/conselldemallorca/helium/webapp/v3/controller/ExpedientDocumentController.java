@@ -190,7 +190,6 @@ public class ExpedientDocumentController extends BaseExpedientController {
 			byte[] contingutArxiu = IOUtils.toByteArray(arxiu.getInputStream());
 			String nomArxiu = arxiu.getOriginalFilename();
 			command.setNomArxiu(nomArxiu);
-			command.setContingut(contingutArxiu);
 			
 			if ("##adjuntar_arxiu##".equalsIgnoreCase(command.getDocumentCodi())) {
 				expedientDocumentService.createOrUpdate(
@@ -200,11 +199,11 @@ public class ExpedientDocumentController extends BaseExpedientController {
 						null,
 						command.getNom(),
 						command.getNomArxiu(),
-						command.getContingut(),
+						contingutArxiu,
 						command.getData());
 			}
 			else
-				expedientDocumentService.crearDocumentInstanciaProces(expedientId, processInstanceId, command.getDocumentCodi(), command.getNomArxiu(), command.getContingut(), command.getData());
+				expedientDocumentService.crearDocumentInstanciaProces(expedientId, processInstanceId, command.getDocumentCodi(), command.getNomArxiu(), contingutArxiu /*command.getContingut()*/, command.getData());
 			
 			MissatgesHelper.success(request, getMessage(request, "info.document.guardat") );
         } catch (Exception ex) {
@@ -254,11 +253,11 @@ public class ExpedientDocumentController extends BaseExpedientController {
 			SessionStatus status, 
 			Model model) {
 		try {
+			byte[] contingutArxiu = null;
 			if (!arxiu.isEmpty()) {
-				byte[] contingutArxiu = IOUtils.toByteArray(arxiu.getInputStream());
+				contingutArxiu = IOUtils.toByteArray(arxiu.getInputStream());
 				String nomArxiu = arxiu.getOriginalFilename();
 				command.setNomArxiu(nomArxiu);
-				command.setContingut(contingutArxiu);
 			}
 			new DocumentModificarValidator().validate(command, result);
 			boolean docAdjunto = !(modificarArxiu && arxiu.isEmpty());
@@ -283,7 +282,7 @@ public class ExpedientDocumentController extends BaseExpedientController {
 					documentStoreId,
 					command.getNom(),
 					command.getNomArxiu(),
-					command.getContingut(),
+					contingutArxiu,
 					command.getData());
 			MissatgesHelper.success(request, getMessage(request, "info.document.guardat"));
         } catch (Exception ex) {

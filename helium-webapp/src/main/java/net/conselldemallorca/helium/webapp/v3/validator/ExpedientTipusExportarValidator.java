@@ -71,12 +71,12 @@ public class ExpedientTipusExportarValidator implements ConstraintValidator<Expe
 			
 			// Conjunt d'enumeracions i dominis del tipus d'expedient per comprovar si les dependències són globals
 			// O no s'han escollit
-			Set<String> enumeracionsGlobals = new HashSet<String>();
+			Set<Long> enumeracionsGlobalsIds = new HashSet<Long>();
 			for (EnumeracioDto e : enumeracioService.findGlobals(command.getEntornId()))
-				enumeracionsGlobals.add(e.getCodi());
-			Set<String> dominisGlobals = new HashSet<String>();
+				enumeracionsGlobalsIds.add(e.getId());
+			Set<Long> dominisGlobalsIds = new HashSet<Long>();
 			for (DominiDto d : dominiService.findGlobals(expedientTipus.getEntorn().getId()))
-				dominisGlobals.add(d.getCodi());
+				dominisGlobalsIds.add(d.getId());
 			
 			// Definició de procés inicial
 			if (expedientTipus.getJbpmProcessDefinitionKey() != null
@@ -135,10 +135,10 @@ public class ExpedientTipusExportarValidator implements ConstraintValidator<Expe
 					// Comprova les dependències del camp de tipus seleció
 					if (camp.getEnumeracio() != null)
 						if (!command.getEnumeracions().contains(camp.getEnumeracio().getCodi())
-								&& !enumeracionsGlobals.contains(camp.getEnumeracio().getCodi()) ) {
+								&& !enumeracionsGlobalsIds.contains(camp.getEnumeracio().getId()) ) {
 							context.buildConstraintViolationWithTemplate(
 									MessageHelper.getInstance().getMessage(
-											this.codiMissatge + ".variable.seleccio.enumeracio", 
+											this.codiMissatge + ".variable.seleccio.enumeracio.tipexp", 
 											new Object[] {camp.getCodi(), camp.getEnumeracio().getCodi()}))
 							.addNode("variables")
 							.addConstraintViolation();
@@ -146,10 +146,10 @@ public class ExpedientTipusExportarValidator implements ConstraintValidator<Expe
 						}
 					if (camp.getDomini() != null)
 						if (!command.getDominis().contains(camp.getDomini().getCodi())
-								&& !dominisGlobals.contains(camp.getDomini().getCodi())) {
+								&& !dominisGlobalsIds.contains(camp.getDomini().getId())) {
 							context.buildConstraintViolationWithTemplate(
 									MessageHelper.getInstance().getMessage(
-											this.codiMissatge + ".variable.seleccio.domini", 
+											this.codiMissatge + ".variable.seleccio.domini.tipexp", 
 											new Object[] {camp.getCodi(), camp.getDomini().getCodi()}))
 							.addNode("variables")
 							.addConstraintViolation();
@@ -231,111 +231,172 @@ public class ExpedientTipusExportarValidator implements ConstraintValidator<Expe
 							}
 			}	
 
-			// Conjunt de totes les variables per comprovar la integració amb Sistra
+			// Conjunt de totes les variables per comprovar la integració amb Sistra, es completaran dins
+			// de la comprovació de les defincions de procés
 			Set<String> campCodis = new HashSet<String>(campsMap.keySet());
 			Set<String> documentsCodis = new HashSet<String>(documentsMap.keySet());
-			// Definicions de procés ha de coincidir jbpmKey i versió
-			for (DefinicioProcesDto definicioProces : expedientTipusService.definicioFindAll(command.getId())) {
+
+			// Comprovació de les defincions de procés i les seves dependències amb el tipus d'expedient
+			for (DefinicioProcesDto definicioProces : expedientTipusService.definicioFindAll(command.getId()))
 				if (command.getDefinicionsProces().contains(definicioProces.getJbpmKey()) 
-						&& command.getDefinicionsVersions().get(definicioProces.getJbpmKey()).equals(definicioProces.getVersio())) {
-					// Comprova les dependències de les variables.
-					// Només comprova les consultes, perquè les enumeracions i dominis poden ser globals de l'entorn
-					for (CampDto campDp : campService.findAllOrdenatsPerCodi(null, definicioProces.getId())) {
-						// Afegeix el codi del camp al conjunt de camps
-						campCodis.add(campDp.getCodi());
-						if (campDp.getConsulta() != null
-								&& ! command.getConsultes().contains(campDp.getConsulta().getCodi())) {
+						&& command.getDefinicionsVersions().get(definicioProces.getJbpmKey()).equals(definicioProces.getVersio())) 
+				valid = isDefinicioProcesValida(
+							definicioProces,
+							command,
+							enumeracionsGlobalsIds,
+							dominisGlobalsIds,
+							context,
+							campCodis,
+							documentsCodis);
+				
+			// Integració amb tràmits de Sistra
+			if (command.isIntegracioSistra())
+				// Comprova que totes les variables mapejades s'exportin. Mira el tipus i si el TE te info pròpia o les dades estan a la DP
+				for (MapeigSistraDto mapeig : expedientTipusService.mapeigFindAll(command.getId())) {
+
+					if (mapeig.getTipus() == TipusMapeig.Variable
+							&& ((expedientTipus.isAmbInfoPropia() && !command.getVariables().contains(mapeig.getCodiHelium())
+								|| (!expedientTipus.isAmbInfoPropia() && !campCodis.contains(mapeig.getCodiHelium()))))) {
 							context.buildConstraintViolationWithTemplate(
 									MessageHelper.getInstance().getMessage(
-											this.codiMissatge + ".definicio.variable.consulta", 
-											new Object[] {	campDp.getCodi(),
-															definicioProces.getJbpmKey(), 
-															campDp.getConsulta().getCodi()}))
-							.addNode("definicionsProces")
+											this.codiMissatge + ".mapeigSistra.variable", 
+											new Object[] {mapeig.getCodiHelium(), mapeig.getCodiSistra()}))
+							.addNode("integracioSistra")
+							.addConstraintViolation();
+							valid = false;
+						} else if (mapeig.getTipus() == TipusMapeig.Document
+								&& ((expedientTipus.isAmbInfoPropia() && !command.getDocuments().contains(mapeig.getCodiHelium())
+										|| (!expedientTipus.isAmbInfoPropia() && !documentsCodis.contains(mapeig.getCodiHelium()))))) {
+							context.buildConstraintViolationWithTemplate(
+									MessageHelper.getInstance().getMessage(
+											this.codiMissatge + ".mapeigSistra.document", 
+											new Object[] {mapeig.getCodiHelium(), mapeig.getCodiSistra()}))
+							.addNode("integracioSistra")
 							.addConstraintViolation();
 							valid = false;
 						}
-					}
-					// Comprova les dependències de les tasques
-					for (TascaDto tasca : definicioProcesService.tascaFindAll(definicioProces.getId())){
-						// Camps
-						for (CampTascaDto campTasca : tasca.getCamps())
-							if ( campTasca.getCamp().getExpedientTipus() != null // camp del tipus d'expedient
-									&& ! command.getVariables().contains(campTasca.getCamp().getCodi())) {
-								context.buildConstraintViolationWithTemplate(
-										MessageHelper.getInstance().getMessage(
-												this.codiMissatge + ".definicio.variable", 
-												new Object[] {	tasca.getJbpmName(),
-																definicioProces.getJbpmKey(), 
-																campTasca.getCamp().getCodi()}))
-								.addNode("definicionsProces")
-								.addConstraintViolation();
-								valid = false;
-							}
-						// Documents
-						for (DocumentTascaDto documentTasca : tasca.getDocuments())
-							if (documentTasca.getDocument().getExpedientTipus() != null // document del tipus d'expedient
-									&& ! command.getDocuments().contains(documentTasca.getDocument().getCodi())) {
-								context.buildConstraintViolationWithTemplate(
-										MessageHelper.getInstance().getMessage(
-												this.codiMissatge + ".definicio.document", 
-												new Object[] {	tasca.getJbpmName(),
-																definicioProces.getJbpmKey(), 
-																documentTasca.getDocument().getCodi()}))
-								.addNode("definicionsProces")
-								.addConstraintViolation();
-								valid = false;
-							}
-						// Signatures
-						for (FirmaTascaDto firmaTasca : tasca.getFirmes())
-							if ( firmaTasca.getDocument().getExpedientTipus() != null // document del tipus d'expedient
-									&& ! command.getDocuments().contains(firmaTasca.getDocument().getCodi())) {
-								context.buildConstraintViolationWithTemplate(
-										MessageHelper.getInstance().getMessage(
-												this.codiMissatge + ".definicio.firma", 
-												new Object[] {	tasca.getJbpmName(),
-																definicioProces.getJbpmKey(), 
-																firmaTasca.getDocument().getCodi()}))
-								.addNode("definicionsProces")
-								.addConstraintViolation();
-								valid = false;
-							}
-						// Guarda els codis dels documents de la definició de procés
-						for(DocumentDto d : documentService.findAll(null, definicioProces.getId()))
-							documentsCodis.add(d.getCodi());
-					}
 				}
-			}
-			// Integració amb tràmits de Sistra
-			if (command.isIntegracioSistra()) {
-				// Comprova que totes les variables mapejades s'exportin
-				for (MapeigSistraDto mapeig : expedientTipusService.mapeigFindAll(command.getId()))
-					if (mapeig.getTipus() == TipusMapeig.Variable
-						&& !campCodis.contains(mapeig.getCodiHelium())) {
-						context.buildConstraintViolationWithTemplate(
-								MessageHelper.getInstance().getMessage(
-										this.codiMissatge + ".mapeigSistra.variable", 
-										new Object[] {mapeig.getCodiHelium(), mapeig.getCodiSistra()}))
-						.addNode("integracioSistra")
-						.addConstraintViolation();
-						valid = false;
-					} else if (mapeig.getTipus() == TipusMapeig.Document
-							&& !documentsCodis.contains(mapeig.getCodiHelium())) {
-						context.buildConstraintViolationWithTemplate(
-								MessageHelper.getInstance().getMessage(
-										this.codiMissatge + ".mapeigSistra.document", 
-										new Object[] {mapeig.getCodiHelium(), mapeig.getCodiSistra()}))
-						.addNode("integracioSistra")
-						.addConstraintViolation();
-						valid = false;
-					}
-			}
 		} else {
 			context.buildConstraintViolationWithTemplate(
 					MessageHelper.getInstance().getMessage(this.codiMissatge + ".expedientTipusIdNull", null));
 		}
-		if (!valid)
-			context.disableDefaultConstraintViolation();
+		context.disableDefaultConstraintViolation();
+		
+		return valid;
+	}
+
+	/** Valida les dependències de la definció de procés. Ha de recuperar la informació de bbdd 
+	 * per validar-ho amb el command.
+	 * @param dominisGlobalsIds 
+	 * @param enumeracionsGlobalsIds 
+	 * @param command 
+	 * @param definicioProcesCodi
+	 * @param context
+	 * @param documentsCodis 
+	 * @param campCodis 
+	 * @return
+	 */
+	private boolean isDefinicioProcesValida(
+			DefinicioProcesDto definicioProces,
+			ExpedientTipusExportarCommand command, 
+			Set<Long> enumeracionsGlobalsIds, 
+			Set<Long> dominisGlobalsIds, 
+			ConstraintValidatorContext context, 
+			Set<String> campCodis, 
+			Set<String> documentsCodis) {
+
+		boolean valid = true;
+				
+		// Comprova les consultes
+		for (CampDto campDp : campService.findAllOrdenatsPerCodi(null, definicioProces.getId())) {
+			// Afegeix el codi del camp al conjunt de camps
+			campCodis.add(campDp.getCodi());
+			if (campDp.getConsulta() != null
+					&& ! command.getConsultes().contains(campDp.getConsulta().getCodi())) {
+				context.buildConstraintViolationWithTemplate(
+						MessageHelper.getInstance().getMessage(
+								this.codiMissatge + ".definicio.variable.consulta", 
+								new Object[] {	campDp.getCodi(),
+												definicioProces.getJbpmKey(), 
+												campDp.getConsulta().getCodi()}))
+				.addNode("definicionsProces")
+				.addConstraintViolation();
+				valid = false;
+			}
+			// Comprova l'enumeració
+			if (campDp.getEnumeracio() != null 
+					&& !enumeracionsGlobalsIds.contains(campDp.getEnumeracio().getId())
+					&& !command.getEnumeracions().contains(campDp.getEnumeracio().getCodi())) {
+				valid = false;
+				context.buildConstraintViolationWithTemplate(
+						MessageHelper.getInstance().getMessage(
+								this.codiMissatge + ".definicio.variable.seleccio.enumeracio.tipexp", 
+								new Object[] {campDp.getCodi(), definicioProces.getJbpmKey(), campDp.getEnumeracio().getCodi()}))
+				.addNode("definicionsProces")
+				.addConstraintViolation();
+			}
+			
+			// Comprova el domini
+			if (campDp.getDomini() != null 
+					&& !dominisGlobalsIds.contains(campDp.getDomini().getId())
+					&& !command.getDominis().contains(campDp.getDomini().getCodi())) {
+				valid = false;
+				context.buildConstraintViolationWithTemplate(
+						MessageHelper.getInstance().getMessage(
+								this.codiMissatge + ".definicio.variable.seleccio.domini.tipexp", 
+								new Object[] {campDp.getCodi(), definicioProces.getJbpmKey(), campDp.getDomini().getCodi()}))
+				.addNode("definicionsProces")
+				.addConstraintViolation();
+			}					
+		}
+		// Comprova les dependències de les tasques
+		for (TascaDto tasca : definicioProcesService.tascaFindAll(definicioProces.getId())){
+			// Camps
+			for (CampTascaDto campTasca : tasca.getCamps())
+				if ( campTasca.getCamp().getExpedientTipus() != null // camp del tipus d'expedient
+						&& ! command.getVariables().contains(campTasca.getCamp().getCodi())) {
+					context.buildConstraintViolationWithTemplate(
+							MessageHelper.getInstance().getMessage(
+									this.codiMissatge + ".definicio.tasca.variable.tipexp", 
+									new Object[] {	tasca.getJbpmName(),
+													definicioProces.getJbpmKey(), 
+													campTasca.getCamp().getCodi()}))
+					.addNode("definicionsProces")
+					.addConstraintViolation();
+					valid = false;
+				}
+			// Documents
+			for (DocumentTascaDto documentTasca : tasca.getDocuments())
+				if (documentTasca.getDocument().getExpedientTipus() != null // document del tipus d'expedient
+						&& ! command.getDocuments().contains(documentTasca.getDocument().getCodi())) {
+					context.buildConstraintViolationWithTemplate(
+							MessageHelper.getInstance().getMessage(
+									this.codiMissatge + ".definicio.tasca.document.tipexp", 
+									new Object[] {	tasca.getJbpmName(),
+													definicioProces.getJbpmKey(), 
+													documentTasca.getDocument().getCodi()}))
+					.addNode("definicionsProces")
+					.addConstraintViolation();
+					valid = false;
+				}
+			// Signatures
+			for (FirmaTascaDto firmaTasca : tasca.getFirmes())
+				if ( firmaTasca.getDocument().getExpedientTipus() != null // document del tipus d'expedient
+						&& ! command.getDocuments().contains(firmaTasca.getDocument().getCodi())) {
+					context.buildConstraintViolationWithTemplate(
+							MessageHelper.getInstance().getMessage(
+									this.codiMissatge + ".definicio.tasca.signatura.tipexp", 
+									new Object[] {	tasca.getJbpmName(),
+													definicioProces.getJbpmKey(), 
+													firmaTasca.getDocument().getCodi()}))
+					.addNode("definicionsProces")
+					.addConstraintViolation();
+					valid = false;
+				}
+			// Guarda els codis dels documents de la definició de procés
+			for(DocumentDto d : documentService.findAll(null, definicioProces.getId()))
+				documentsCodis.add(d.getCodi());
+		}
 		
 		return valid;
 	}

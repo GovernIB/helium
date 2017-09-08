@@ -10,6 +10,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
+import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
 
 import org.displaytag.properties.SortOrderEnum;
@@ -115,10 +116,12 @@ public class BaseController implements MessageSourceAware {
 		}
 	}
 
-
-
 	public void setMessageSource(MessageSource messageSource) {
 		this.messageSource = messageSource;
 	}
 
+	/** Mètode per consultar la propietat de si s'ha de redireccionar del menú antic al nou menú. */
+	protected boolean isRedireccionar() {
+		return "true".equalsIgnoreCase(GlobalProperties.getInstance().getProperty("app.configuracio.redireccionar"));
+	}
 }

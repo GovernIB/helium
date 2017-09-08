@@ -82,6 +82,11 @@ public class ExpedientIniciarController extends BaseController {
 	public String iniciarGet(
 			HttpServletRequest request,
 			ModelMap model) {
+
+		// Si la redirecció està habilitada redirecciona cap a la nova interfície
+		if (isRedireccionar())
+			return "redirect:/v3/expedient?accio=iniciar";
+		
 		Entorn entorn = getEntornActiu(request);
 		if (entorn != null) {
 			List<ExpedientTipus> tipus = dissenyService.findExpedientTipusAmbEntorn(entorn.getId());
@@ -247,8 +252,6 @@ public class ExpedientIniciarController extends BaseController {
 				null,
 				null);
 	}
-
-
 
 	private static final Log logger = LogFactory.getLog(ExpedientIniciarController.class);
 

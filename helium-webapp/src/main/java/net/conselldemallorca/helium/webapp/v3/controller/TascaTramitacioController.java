@@ -257,6 +257,8 @@ public class TascaTramitacioController extends BaseTascaController {
 				result,
 				request,
 				tascaId)) {
+			// Recarrega les dades guardades
+			tascaDades = tascaService.findDades(tascaId);
 			Map<String, Object> campsAddicionals = new HashMap<String, Object>();
 			Map<String, Class<?>> campsAddicionalsClasses = new HashMap<String, Class<?>>();
 			Object commandValidar = TascaFormHelper.getCommandForCamps(

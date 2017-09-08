@@ -23,6 +23,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.propertyeditors.CustomBooleanEditor;
 import org.springframework.beans.propertyeditors.CustomDateEditor;
 import org.springframework.beans.propertyeditors.CustomNumberEditor;
+import org.springframework.beans.propertyeditors.StringTrimmerEditor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -38,7 +39,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.support.SessionStatus;
-import org.springframework.web.multipart.support.ByteArrayMultipartFileEditor;
 
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
@@ -180,7 +180,6 @@ public class MassivaExpedientController extends BaseExpedientController {
 			model.addAttribute("definicioProces",definicioProces);
 			model.addAttribute("subDefinicioProces", dissenyService.getSubprocessosByProces(definicioProces.getJbpmId()));
 			
-			// Documents
 			InstanciaProcesDto instanciaProces = expedientService.getInstanciaProcesById(expedient.getProcessInstanceId());
 			model.addAttribute("instanciaProces", instanciaProces);
 			
@@ -197,10 +196,13 @@ public class MassivaExpedientController extends BaseExpedientController {
 			}
 			Collections.sort(variables, new ComparadorCampCodi());
 			model.addAttribute("variables", variables);
-			List<DocumentDto> documents = dissenyService.documentFindAmbDefinicioProces(
+			// Documents			
+			List<DocumentDto> documents = dissenyService.findDocumentsOrdenatsPerCodi(
+					expedient.getTipus().getId(),
 					definicioProces.getId());
 			Collections.sort(documents, new ComparadorDocument());
 			model.addAttribute("documents", documents);
+			
 			model.addAttribute("permisAdministrador", expedient.isPermisAdministration());
 			return "v3/massivaInfo";
 		}
@@ -468,9 +470,9 @@ public class MassivaExpedientController extends BaseExpedientController {
 				params[0] = null;
 				params[1] = ((DocumentExpedientCommand) command).getData();
 				params[2] = ((DocumentExpedientCommand) command).getNom();
-				if (((DocumentExpedientCommand) command).getContingut().length > 0) {
+				if (((DocumentExpedientCommand) command).getArxiu().getBytes().length > 0) {
 					dto.setParam1(multipartName);
-					params[3] = ((DocumentExpedientCommand) command).getContingut();
+					params[3] = ((DocumentExpedientCommand) command).getArxiu().getBytes();
 				}
 				dto.setParam2(execucioMassivaService.serialize(params));
 				execucioMassivaService.crearExecucioMassiva(dto);
@@ -487,13 +489,13 @@ public class MassivaExpedientController extends BaseExpedientController {
 				Object[] params = new Object[4];
 				params[0] = docId;
 				
-				if (((DocumentExpedientCommand) command).getContingut().length > 0) {
+				if (((DocumentExpedientCommand) command).getArxiu().getBytes().length > 0) {
 					// Modificar document
 					dto.setParam1(multipartName);
 
 					params[1] = ((DocumentExpedientCommand) command).getData();
 					params[2] = ((DocumentExpedientCommand) command).getCodi();
-					params[3] = ((DocumentExpedientCommand) command).getContingut();
+					params[3] = ((DocumentExpedientCommand) command).getArxiu().getBytes();
 				} else {
 					// Modificar data
 					dto.setParam1(((DocumentExpedientCommand) command).getCodi());
@@ -587,11 +589,18 @@ public class MassivaExpedientController extends BaseExpedientController {
 				}
 			}
 			List<TascaDadaDto> listTasca = new ArrayList<TascaDadaDto>();
-			TascaDadaDto tascaDada = new TascaDadaDto();
-			tascaDada.setCampId(campo.getId());
-			tascaDada.setVarCodi(campo.getCodi());
-			tascaDada.setCampEtiqueta(campo.getEtiqueta());
-			tascaDada.setCampTipus(campo.getTipus());
+			TascaDadaDto tascaDada = TascaFormHelper.getTascaDadaDtoFromExpedientDadaDto(
+					expedientDadaService.findOnePerInstanciaProces(
+							expedient.getId(),
+							expedient.getProcessInstanceId(),
+							campo.getCodi()));
+			// Si la variable és múltiple i té valors es esborra
+			if (tascaDada.isCampMultiple() && tascaDada.getMultipleDades().size() > 0) {
+				while (tascaDada.getMultipleDades().size() > 1)
+					tascaDada.getMultipleDades().remove(0);
+				tascaDada.getMultipleDades().get(0).setVarValor(null);
+				tascaDada.setVarValor(null);
+			}
 			listTasca.add(tascaDada);
 			model.addAttribute("campId", campId);			
 			model.addAttribute("dada", tascaDada);
@@ -636,12 +645,12 @@ public class MassivaExpedientController extends BaseExpedientController {
 			HttpServletRequest request,
 			@RequestParam(value = "inici", required = false) String inici,
 			@RequestParam(value = "correu", required = false) boolean correu,
-			@ModelAttribute DocumentExpedientCommand command, 
 			@RequestParam(value = "accio", required = true) String accio,
+			@ModelAttribute DocumentExpedientCommand command, 
 			BindingResult result, 
 			SessionStatus status, 
 			Model model) {		
-		return massivaPost(request, inici, correu, command, accio, result, status, model, request.getParameter("contingut"), null);
+		return massivaPost(request, inici, correu, command, accio, result, status, model, request.getParameter("arxiu"), null);
 	}
 
 	@RequestMapping(value="/{docId}/documentModificarMas", method = RequestMethod.POST)
@@ -654,7 +663,7 @@ public class MassivaExpedientController extends BaseExpedientController {
 			BindingResult result, 
 			SessionStatus status, 
 			Model model) {		
-		return massivaPost(request, inici, correu, command, accio, result, status, model, request.getParameter("contingut"), null);
+		return massivaPost(request, inici, correu, command, accio, result, status, model, request.getParameter("arxiu"), null);
 	}
 
 	@RequestMapping(value = "/documentGenerarMas", method = RequestMethod.GET)
@@ -703,7 +712,6 @@ public class MassivaExpedientController extends BaseExpedientController {
 		command.setDocId(docId);
 		command.setNom(document.getDocumentNom());
 		command.setCodi(document.getCodi());
-		command.setContingut(document.getArxiuContingut());		
 		command.setData(new Date());
 		model.addAttribute("inici", inici);
 		model.addAttribute("correu", correu);
@@ -771,9 +779,7 @@ public class MassivaExpedientController extends BaseExpedientController {
 
 	@InitBinder
 	public void initBinder(WebDataBinder binder) {
-		binder.registerCustomEditor(
-				byte[].class,
-				new ByteArrayMultipartFileEditor());
+	    binder.registerCustomEditor(String.class, new StringTrimmerEditor(true));
 		binder.registerCustomEditor(
 				Date.class,
 				new CustomDateEditor(new SimpleDateFormat("dd/MM/yyyy"), true));

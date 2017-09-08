@@ -1675,7 +1675,9 @@ public class TascaServiceImpl implements TascaService {
 				new Date(),
 				destinatari,
 				Alerta.AlertaPrioritat.NORMAL,
-				terminiIniciat.getTermini().getDefinicioProces().getEntorn());
+				terminiIniciat.getTermini().getDefinicioProces() != null ?
+						terminiIniciat.getTermini().getDefinicioProces().getEntorn()
+						: terminiIniciat.getTermini().getExpedientTipus().getEntorn());
 		alerta.setExpedient(expedient);
 		alerta.setTerminiIniciat(terminiIniciat);
 		alertaRepository.save(alerta);

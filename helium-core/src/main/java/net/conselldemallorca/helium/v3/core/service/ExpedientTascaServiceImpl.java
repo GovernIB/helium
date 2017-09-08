@@ -83,16 +83,20 @@ public class ExpedientTascaServiceImpl implements ExpedientTascaService {
 						ExtendedPermission.TASK_SUPERV,
 						ExtendedPermission.SUPERVISION,
 						ExtendedPermission.ADMINISTRATION});
+		// Tasques no finalitzades
 		List<ExpedientTascaDto> tasques = tascaHelper.findTasquesPerExpedientPerInstanciaProces(
 				expedient,
 				processInstanceId,
 				false,
+				true,
 				mostrarTasquesAltresUsuaris);
+		// Tasques finalitzades
 		tasques.addAll(
 				tascaHelper.findTasquesPerExpedientPerInstanciaProces(
 						expedient,
 						processInstanceId,
 						true,
+						false,
 						mostrarTasquesAltresUsuaris));
 		return tasques;
 	}

@@ -120,6 +120,11 @@ public class TascaLlistatController extends BaseController {
 			@RequestParam(value = "dir", required = false) String dir,
 			@RequestParam(value = "objectsPerPage", required = false) String objectsPerPage,
 			ModelMap model) {
+
+		// Si la redirecció està habilitada redirecciona cap a la nova interfície
+		if (isRedireccionar())
+			return "redirect:/v3/tasca";
+
 		Entorn entorn = getEntornActiu(request);
 		if (entorn != null) {
 			String sortCalculat = sort;
@@ -202,6 +207,11 @@ public class TascaLlistatController extends BaseController {
 			@RequestParam(value = "dir", required = false) String dir,
 			@RequestParam(value = "objectsPerPage", required = false) String objectsPerPage,
 			ModelMap model) {
+
+		// Si la redirecció està habilitada redirecciona cap a la nova interfície
+		if (isRedireccionar())
+			return "redirect:/v3/tasca";
+
 		Entorn entorn = getEntornActiu(request);
 		if (entorn != null) {
 			String sortCalculat = sort;

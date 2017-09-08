@@ -629,4 +629,10 @@ public class ExpedientServiceBean implements ExpedientService {
 	public void finalitzar(Long id) throws NoTrobatException, PermisDenegatException {
 		delegate.finalitzar(id);
 	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public void executarCampAccio(Long expedientId, String processInstanceId, String accioCamp) {
+		delegate.executarCampAccio(expedientId, processInstanceId, accioCamp);
+	}
 }

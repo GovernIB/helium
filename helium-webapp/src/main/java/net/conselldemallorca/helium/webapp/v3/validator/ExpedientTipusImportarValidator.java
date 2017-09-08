@@ -134,6 +134,14 @@ public class ExpedientTipusImportarValidator implements ConstraintValidator<Expe
     		Set<String> dominisGlobals = new HashSet<String>();
     		for (DominiDto d : dominiService.findGlobals(entornActual.getId()))
     			dominisGlobals.add(d.getCodi());
+    		Set<String> enumeracionsTe = new HashSet<String>();
+    		Set<String> dominisTe = new HashSet<String>();
+    		if (expedientTipus != null) {
+	    		for (EnumeracioDto e : expedientTipusService.enumeracioFindAll(expedientTipus.getId(), false))
+	    			enumeracionsTe.add(e.getCodi());
+	    		for (DominiDto d : expedientTipusService.dominiFindAll(expedientTipus.getId(), false))
+	    			dominisTe.add(d.getCodi());
+    		}
 
     		// Si l'expedient destí està configurat amb info propia llavors haurà de tenir els camps i 
     		// els documents definits per a les tasques de les definicions de procés.
@@ -210,26 +218,52 @@ public class ExpedientTipusImportarValidator implements ConstraintValidator<Expe
 				}  else if (camp.getTipus() == CampTipusDto.SELECCIO) {
 					// Comprova les dependències del camp de tipus seleció
 					if (camp.getCodiEnumeracio() != null && !"".equals(camp.getCodiEnumeracio().trim()))
-						if (!command.getEnumeracions().contains(camp.getCodiEnumeracio())
-								&& !enumeracionsGlobals.contains(camp.getCodiEnumeracio())) {
-							context.buildConstraintViolationWithTemplate(
-									MessageHelper.getInstance().getMessage(
-											this.codiMissatge + ".variable.seleccio.enumeracio", 
-											new Object[] {camp.getCodi(), camp.getCodiEnumeracio()}))
-							.addNode("variables")
-							.addConstraintViolation();
-							valid = false;
+						if (!command.getEnumeracions().contains(camp.getCodiEnumeracio()) || camp.isDependenciaEntorn()) {
+							if (camp.isDependenciaEntorn() && !enumeracionsGlobals.contains(camp.getCodiEnumeracio())) {
+								// El camp necessita una enumeració global
+								context.buildConstraintViolationWithTemplate(
+										MessageHelper.getInstance().getMessage(
+												this.codiMissatge + ".variable.seleccio.enumeracio.entorn", 
+												new Object[] {camp.getCodi(), camp.getCodiEnumeracio()}))
+								.addNode("variables")
+								.addConstraintViolation();
+								valid = false;
+							} else if (!camp.isDependenciaEntorn() 
+									&& !command.getEnumeracions().contains(camp.getCodiEnumeracio())
+									&& !enumeracionsTe.contains(camp.getCodiEnumeracio())) {
+								// El camp necessita una enumeració a nivell de tipus d'expedient
+								context.buildConstraintViolationWithTemplate(
+										MessageHelper.getInstance().getMessage(
+												this.codiMissatge + ".variable.seleccio.enumeracio.tipexp", 
+												new Object[] {camp.getCodi(), camp.getCodiEnumeracio()}))
+								.addNode("variables")
+								.addConstraintViolation();
+								valid = false;
+							}
 						}
-					if (camp.getCodiDomini() != null)
-						if (!command.getDominis().contains(camp.getCodiDomini())
-								&& !dominisGlobals.contains(camp.getCodiDomini())) {
-							context.buildConstraintViolationWithTemplate(
-									MessageHelper.getInstance().getMessage(
-											this.codiMissatge + ".variable.seleccio.domini", 
-											new Object[] {camp.getCodi(), camp.getCodiDomini()}))
-							.addNode("variables")
-							.addConstraintViolation();
-							valid = false;
+					if (camp.getCodiDomini() != null && !"".equals(camp.getCodiDomini().trim()))
+						if (!command.getDominis().contains(camp.getCodiDomini()) || camp.isDependenciaEntorn()) {
+							if (camp.isDependenciaEntorn() && !dominisGlobals.contains(camp.getCodiDomini())) {
+								// El camp necessita una domini global
+								context.buildConstraintViolationWithTemplate(
+										MessageHelper.getInstance().getMessage(
+												this.codiMissatge + ".variable.seleccio.domini.entorn", 
+												new Object[] {camp.getCodi(), camp.getCodiDomini()}))
+								.addNode("variables")
+								.addConstraintViolation();
+								valid = false;
+							} else if (!camp.isDependenciaEntorn() 
+									&& !command.getDominis().contains(camp.getCodiDomini())
+									&& ! dominisTe.contains(camp.getCodiDomini())) {
+								// El camp necessita una domini a nivell de tipus d'expedient
+								context.buildConstraintViolationWithTemplate(
+										MessageHelper.getInstance().getMessage(
+												this.codiMissatge + ".variable.seleccio.domini.tipexp", 
+												new Object[] {camp.getCodi(), camp.getCodiDomini()}))
+								.addNode("variables")
+								.addConstraintViolation();
+								valid = false;
+							}
 						}
 					if (camp.getCodiConsulta() != null)
 						if (!command.getConsultes().contains(camp.getCodiConsulta())) {
@@ -388,23 +422,24 @@ public class ExpedientTipusImportarValidator implements ConstraintValidator<Expe
 					}
 					// Dominis
 					if (campExportacio.getCodiDomini() != null
-							&& ! command.getDominis().contains(campExportacio.getCodiDomini())) {
-						DominiDto d = null;
-						if (expedientTipus != null)
-							// Primer busca dins el tipus d'expedient
-							d = dominiService.findAmbCodi(
-									entornActual.getId(),
-									expedientTipus.getId(), 
-									campExportacio.getCodiDomini());
-						if (d == null)
-							// Si no el troba cerca dins de l'entorn
-							d = dissenyService.dominiFindAmbCodi(
-									entornActual.getId(), 
-									campExportacio.getCodiDomini());
-						if (d == null) {
+							&& (! command.getDominis().contains(campExportacio.getCodiDomini())
+									||  campExportacio.isDependenciaEntorn())) {
+						if (campExportacio.isDependenciaEntorn() && !dominisGlobals.contains(campExportacio.getCodiDomini())) {
 							context.buildConstraintViolationWithTemplate(
 									MessageHelper.getInstance().getMessage(
-											this.codiMissatge + ".definicio.variable.domini", 
+											this.codiMissatge + ".definicio.variable.domini.entorn", 
+											new Object[] {	campExportacio.getCodi(),
+															definicioProcesJbpmKey, 
+															campExportacio.getCodiDomini()}))
+							.addNode("definicionsProces")
+							.addConstraintViolation();
+							valid = false;
+						} else if (! campExportacio.isDependenciaEntorn()
+								&& ! command.getDominis().contains(campExportacio.getCodiDomini())
+								&& ! dominisTe.contains(campExportacio.getCodiDomini())) {
+							context.buildConstraintViolationWithTemplate(
+									MessageHelper.getInstance().getMessage(
+											this.codiMissatge + ".definicio.variable.domini.tipexp", 
 											new Object[] {	campExportacio.getCodi(),
 															definicioProcesJbpmKey, 
 															campExportacio.getCodiDomini()}))
@@ -415,24 +450,24 @@ public class ExpedientTipusImportarValidator implements ConstraintValidator<Expe
 					}
 					// Enumeracions
 					if (campExportacio.getCodiEnumeracio() != null
-							&& ! command.getEnumeracions().contains(campExportacio.getCodiEnumeracio())) {
-						EnumeracioDto e = null;
-						if (expedientTipus != null)
-							// Primer busca dins el tipus d'expedient
-							e = enumeracioService.findAmbCodi(
-									entornActual.getId(),
-									expedientTipus.getId(), 
-									campExportacio.getCodiEnumeracio());
-						if (e == null)
-							// Si no el troba cerca dins de l'entorn
-							e = enumeracioService.findAmbCodi(
-									entornActual.getId(), 
-									null, 
-									campExportacio.getCodiEnumeracio());
-						if (e == null) {
+							&& (! command.getEnumeracions().contains(campExportacio.getCodiEnumeracio())
+									||  campExportacio.isDependenciaEntorn())) {
+						if (campExportacio.isDependenciaEntorn() && !enumeracionsGlobals.contains(campExportacio.getCodiEnumeracio())) {
 							context.buildConstraintViolationWithTemplate(
 									MessageHelper.getInstance().getMessage(
-											this.codiMissatge + ".definicio.variable.enumeracio", 
+											this.codiMissatge + ".definicio.variable.enumeracio.entorn", 
+											new Object[] {	campExportacio.getCodi(),
+															definicioProcesJbpmKey, 
+															campExportacio.getCodiEnumeracio()}))
+							.addNode("definicionsProces")
+							.addConstraintViolation();
+							valid = false;
+						} else if (! campExportacio.isDependenciaEntorn() 
+								&& ! command.getEnumeracions().contains(campExportacio.getCodiEnumeracio())
+								&& ! enumeracionsTe.contains(campExportacio.getCodiEnumeracio())) {
+							context.buildConstraintViolationWithTemplate(
+									MessageHelper.getInstance().getMessage(
+											this.codiMissatge + ".definicio.variable.enumeracio.tipexp", 
 											new Object[] {	campExportacio.getCodi(),
 															definicioProcesJbpmKey, 
 															campExportacio.getCodiEnumeracio()}))

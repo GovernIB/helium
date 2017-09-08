@@ -5,6 +5,8 @@ package net.conselldemallorca.helium.webapp.v3.command;
 
 import java.util.Date;
 
+import org.springframework.web.multipart.MultipartFile;
+
 /**
  * Command per gestionar els documents d'un expedient
  * 
@@ -17,7 +19,7 @@ public class DocumentExpedientCommand {
 	private Long docId;
 	private Date data;
 	private String nomArxiu;
-	private byte[] contingut;
+	private MultipartFile arxiu;
 	private String nom;
 	private String codi;
 
@@ -35,11 +37,11 @@ public class DocumentExpedientCommand {
 	public void setData(Date data) {
 		this.data = data;
 	}
-	public byte[] getContingut() {
-		return contingut;
+	public MultipartFile getArxiu() {
+		return arxiu;
 	}
-	public void setContingut(byte[] contingut) {
-		this.contingut = contingut;
+	public void setArxiu(MultipartFile arxiu) {
+		this.arxiu = arxiu;
 	}
 	public String getNom() {
 		return nom;

@@ -14,13 +14,6 @@ import java.util.List;
 import javax.annotation.Resource;
 import javax.servlet.jsp.jstl.core.LoopTagStatus;
 
-import net.conselldemallorca.helium.v3.core.api.dto.CampTipusDto;
-import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ValidacioDto;
-import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
-import net.conselldemallorca.helium.v3.core.api.service.TascaService;
-import net.sf.cglib.beans.BeanGenerator;
-
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -33,6 +26,13 @@ import org.springmodules.validation.bean.conf.DefaultBeanValidationConfiguration
 import org.springmodules.validation.bean.conf.loader.SimpleBeanValidationConfigurationLoader;
 import org.springmodules.validation.bean.rule.ExpressionValidationRule;
 import org.springmodules.validation.util.cel.valang.ValangConditionExpressionParser;
+
+import net.conselldemallorca.helium.v3.core.api.dto.CampTipusDto;
+import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ValidacioDto;
+import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
+import net.conselldemallorca.helium.v3.core.api.service.TascaService;
+import net.sf.cglib.beans.BeanGenerator;
 
 /**
  * Validador per als formularis de tasca
@@ -295,65 +295,12 @@ public class TascaFormValidatorHelper implements Validator {
 		SimpleBeanValidationConfigurationLoader validationConfigurationLoader = new SimpleBeanValidationConfigurationLoader();
 		DefaultBeanValidationConfiguration beanValidationConfiguration = new DefaultBeanValidationConfiguration();
 		for (TascaDadaDto camp: tascaDadas) {
-			if (camp.getValidacions() != null) {
-				for (ValidacioDto validacio: camp.getValidacions()) {
-					if (camp.isCampMultiple()) {
-						try {
-							Object valors = PropertyUtils.getSimpleProperty(command, camp.getVarCodi());
-							if (valors != null) {
-								String expressio = validacio.getExpressio();
-								if (expressio.indexOf("sum(" + camp.getVarCodi() + ")") != -1) {
-									if (camp.getCampTipus().equals(CampTipusDto.INTEGER)) {
-										Long suma = 0L;
-										for (Long valor: (Long[])valors) {
-											suma += (valor == null ? 0L : valor); 
-										}
-										expressio = expressio.replace("sum(" + camp.getVarCodi() + ")", suma.toString());
-									} else if (camp.getCampTipus().equals(CampTipusDto.FLOAT)) {
-										Double suma = 0.0;
-										for (Double valor: (Double[])valors) {
-											suma += (valor == null ? 0.0 : valor); 
-										}
-										expressio = expressio.replace("sum(" + camp.getVarCodi() + ")", suma.toString());
-									} else if (camp.getCampTipus().equals(CampTipusDto.PRICE)) {
-										BigDecimal suma = new BigDecimal(0);
-										for (BigDecimal valor: (BigDecimal[])valors) {
-											if (valor == null) valor = new BigDecimal(0);
-											suma = suma.add(valor);
-										}
-										expressio = expressio.replace("sum(" + camp.getVarCodi() + ")", suma.toString());
-									}
-									afegirExpressioValidacio(
-											camp.getVarCodi(),
-											expressio,
-											camp.getCampEtiqueta() + ": " + validacio.getMissatge(),
-											"error.camp." + camp.getVarCodi(),
-											beanValidationConfiguration);
-								} else {
-									for (int i = 0; i < Array.getLength(valors); i++) {
-										String expressioFill = expressio.replaceAll(camp.getVarCodi() + "[^\\[]" , camp.getVarCodi() + "[" + i + "]");
-										afegirExpressioValidacio(
-												camp.getVarCodi() + "[" + i + "]",
-												expressioFill,
-												camp.getCampEtiqueta() + ": " + validacio.getMissatge(),
-												"error.camp." + camp.getVarCodi(),
-												beanValidationConfiguration);
-									}
-								}
-							}
-						} catch (Exception ex) {
-							logger.error("No s'ha pogut generar la validació de l'expressió definida per a la variable '" + camp.getVarCodi() + "' amb campId " + camp.getCampId());
-						}
-					} else {
-						afegirExpressioValidacio(
-								camp.getVarCodi(),
-								validacio.getExpressio(),
-								validacio.getMissatge(),
-								"error.camp." + camp.getVarCodi(),
-								beanValidationConfiguration);
-					}
-				}
-			}
+			this.getValidadorPerCamp(
+					camp, 
+					null,	// Registre del camp
+					null,	// índex dada múltiple
+					command, 
+					beanValidationConfiguration);
 		}
 		validationConfigurationLoader.setClassValidation(
 				Object.class,
@@ -361,6 +308,119 @@ public class TascaFormValidatorHelper implements Validator {
 		return new BeanValidator(validationConfigurationLoader);
 	}
 
+	/** Afegeix en el beanValidationCofiguration una configuració pel camp en el cas que tingui validacions. Si 
+	 * el camp és un registre llavors invoca la funció amb cada camp del registre passant el registre com a paràmetre
+	 * per adequar els codis de les variables.
+	 * @param camp
+	 * @param registre
+	 * @param command
+	 * @param beanValidationConfiguration
+	 */
+	private void getValidadorPerCamp(
+			TascaDadaDto camp,
+			TascaDadaDto registre,
+			Integer indexMultiple,
+			Object command, 
+			DefaultBeanValidationConfiguration beanValidationConfiguration) {
+		
+		if (camp.getCampTipus() == CampTipusDto.REGISTRE) {
+			if (camp.getRegistreDades() != null) {
+				for (TascaDadaDto registreDada : camp.getRegistreDades()) {
+					// Crida aquest mètode sobre els camps del registre passant el registre com a paràmetre
+					this.getValidadorPerCamp(
+							registreDada, //
+							camp, // registre
+							indexMultiple,
+							command, 
+							beanValidationConfiguration);
+				}				
+			} else if (camp.isCampMultiple()) {
+				Integer index = 0;
+				for (TascaDadaDto registreDada : camp.getMultipleDades()) {
+					// Crida la validació per cada dada múltiple
+					this.getValidadorPerCamp(
+							registreDada, //
+							camp, // registre
+							index++,
+							command, 
+							beanValidationConfiguration);
+				}
+			}				
+		}
+
+		// Comprovoa les validacions del camp
+		if (camp.getValidacions() != null) {
+			// Si és un camp d'un registre llavors el codi de la variable estarà compost [registre codi].[variable codi]
+			String codiVariable =
+					(registre != null? registre.getVarCodi() : "")
+					+ (indexMultiple != null? "["+indexMultiple+"]" : "")
+					+ (registre != null? "." : "") 
+					+ camp.getVarCodi();
+			
+			for (ValidacioDto validacio: camp.getValidacions()) {
+				// Si és una validació dins d'un registre llavors corregeix la ruta "var_nom is BLANK" -> "registre_nom.var_nom is BLANK"
+				if (registre != null && validacio.getExpressio().contains(camp.getVarCodi())) {
+					validacio.setExpressio(validacio.getExpressio().replace(camp.getVarCodi(), codiVariable));
+				}
+				if (camp.isCampMultiple()) {
+					try {
+						Object valors = PropertyUtils.getSimpleProperty(command, camp.getVarCodi());
+						if (valors != null) {
+							String expressio = validacio.getExpressio();
+							if (expressio.indexOf("sum(" + codiVariable + ")") != -1) {
+								if (camp.getCampTipus().equals(CampTipusDto.INTEGER)) {
+									Long suma = 0L;
+									for (Long valor: (Long[])valors) {
+										suma += (valor == null ? 0L : valor); 
+									}
+									expressio = expressio.replace("sum(" + codiVariable + ")", suma.toString());
+								} else if (camp.getCampTipus().equals(CampTipusDto.FLOAT)) {
+									Double suma = 0.0;
+									for (Double valor: (Double[])valors) {
+										suma += (valor == null ? 0.0 : valor); 
+									}
+									expressio = expressio.replace("sum(" + codiVariable + ")", suma.toString());
+								} else if (camp.getCampTipus().equals(CampTipusDto.PRICE)) {
+									BigDecimal suma = new BigDecimal(0);
+									for (BigDecimal valor: (BigDecimal[])valors) {
+										if (valor == null) valor = new BigDecimal(0);
+										suma = suma.add(valor);
+									}
+									expressio = expressio.replace("sum(" + codiVariable + ")", suma.toString());
+								}
+								afegirExpressioValidacio(
+										codiVariable,
+										expressio,
+										camp.getCampEtiqueta() + ": " + validacio.getMissatge(),
+										"error.camp." + codiVariable,
+										beanValidationConfiguration);
+							} else {
+								for (int i = 0; i < Array.getLength(valors); i++) {
+									String expressioFill = expressio.replaceAll(camp.getVarCodi() + "[^\\[]" , camp.getVarCodi() + "[" + i + "]");
+									afegirExpressioValidacio(
+											codiVariable + "[" + i + "]",
+											expressioFill,
+											camp.getCampEtiqueta() + ": " + validacio.getMissatge(),
+											"error.camp." + codiVariable,
+											beanValidationConfiguration);
+								}
+							}
+						}
+					} catch (Exception ex) {
+						logger.error("No s'ha pogut generar la validació de l'expressió definida per a la variable '" + codiVariable + "' amb campId " + camp.getCampId());
+					}
+				} else {
+					afegirExpressioValidacio(
+							codiVariable,
+							validacio.getExpressio(),
+							validacio.getMissatge(),
+							"error.camp." + codiVariable,
+							beanValidationConfiguration);
+				}
+			}
+		}
+	}
+	
 	private void afegirExpressioValidacio(
 			String varCodi,
 			String validacioExpressio,
