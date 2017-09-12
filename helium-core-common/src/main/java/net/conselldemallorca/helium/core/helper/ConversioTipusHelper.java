@@ -245,7 +245,7 @@ public class ConversioTipusHelper {
 						target.setTeTitol(source.getTeTitol());
 						target.setTramitacioMassiva(source.isTramitacioMassiva());
 						
-						target.setNtiActiu(source.getNtiActiu().booleanValue());
+						target.setNtiActiu(source.getNtiActiu() != null ? source.getNtiActiu().booleanValue() : false);
 						
 						target.setNtiOrgan(source.getNtiOrgan());
 						target.setNtiClasificacio(source.getNtiClasificacio());
