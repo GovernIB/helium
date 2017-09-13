@@ -5,11 +5,12 @@ package net.conselldemallorca.helium.jbpm3.handlers;
 
 import java.util.Date;
 
-import net.conselldemallorca.helium.jbpm3.integracio.Jbpm3HeliumBridge;
-import net.conselldemallorca.helium.v3.core.api.dto.TerminiIniciatDto;
-
 import org.jbpm.JbpmException;
 import org.jbpm.graph.exe.ExecutionContext;
+
+import net.conselldemallorca.helium.jbpm3.integracio.Jbpm3HeliumBridge;
+import net.conselldemallorca.helium.v3.core.api.dto.TerminiIniciatDto;
+import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 
 /**
  * Handler per pausar un termini.
@@ -30,14 +31,24 @@ public class TerminiPausarHandler extends AbstractHeliumActionHandler implements
 				executionContext,
 				(String)getValorOVariable(executionContext, terminiCodi, varTerminiCodi));
 		if (termini != null) {
-			if (varData != null)
-				Jbpm3HeliumBridge.getInstanceService().terminiPausar(
-						termini.getId(),
-						getVariableComData(executionContext, varData));
-			else
+			if (varData != null) {
+				
+				Date valorData;
+				try {
+					valorData = getVariableComData(executionContext, varData);
+				} catch (NoTrobatException ex) {
+					valorData = null;
+				}
+				
+				if (valorData != null)
+					Jbpm3HeliumBridge.getInstanceService().terminiPausar(
+							termini.getId(),
+							valorData);
+			} else {
 				Jbpm3HeliumBridge.getInstanceService().terminiPausar(
 						termini.getId(),
 						new Date());
+			}
 		} else {
 			throw new JbpmException("No existeix cap termini iniciat amb aquest codi '" + terminiCodi + "'");
 		}

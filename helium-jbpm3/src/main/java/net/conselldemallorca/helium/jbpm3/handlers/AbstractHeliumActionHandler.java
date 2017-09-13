@@ -15,6 +15,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TerminiDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TerminiIniciatDto;
+import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 
 import org.jbpm.JbpmException;
 import org.jbpm.graph.def.ActionHandler;
@@ -129,6 +130,8 @@ abstract class AbstractHeliumActionHandler implements ActionHandler {
 	protected Date getVariableComData(ExecutionContext executionContext,
 			String var) {
 		Object obj = executionContext.getVariable(var);
+		if (obj == null)
+			throw new NoTrobatException(Date.class, var);
 		if (obj instanceof Date)
 			return (Date) obj;
 		throw new JbpmException("La variable amb el codi '" + var + "' no és de tipus Date");
