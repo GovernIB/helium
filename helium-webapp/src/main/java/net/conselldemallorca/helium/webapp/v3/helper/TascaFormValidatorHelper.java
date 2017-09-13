@@ -90,12 +90,13 @@ public class TascaFormValidatorHelper implements Validator {
 		try {
 			List<TascaDadaDto> tascaDades = getTascaDades(command);
 			for (TascaDadaDto camp : tascaDades) {
-				if (validarObligatoris && camp.isRequired()) {
+				if (validarObligatoris && (camp.isRequired() || camp.getCampTipus().equals(CampTipusDto.REGISTRE))) {
 					if (camp.getCampTipus().equals(CampTipusDto.REGISTRE)) {
 						Object valorRegistre = PropertyUtils.getSimpleProperty(command, camp.getVarCodi());
-						if (valorRegistre == null || registreInvalid(camp, valorRegistre, errors))
-							errors.rejectValue(camp.getVarCodi(), "not.blank");
-						else {
+						if ((valorRegistre == null && camp.isRequired()) || registreInvalid(camp, valorRegistre, errors)) {
+							if (camp.isReadOnly())
+								errors.rejectValue(camp.getVarCodi(), "not.blank");
+						} else {
 							Object[] registres = null;
 							List<TascaDadaDto> registreDades = null;
 							if (valorRegistre != null) {
@@ -218,29 +219,31 @@ public class TascaFormValidatorHelper implements Validator {
 			if  (camp.isCampMultiple()) {
 				List<TascaDadaDto> registreDades = camp.getMultipleDades().get(0).getRegistreDades();
 				Object[] registres = (Object[])registre;
+				int i = 0;
 				for (Object reg: registres) {
 					for (TascaDadaDto campRegistre : registreDades) {
 						if (campRegistre.isRequired()) {
-							if (isCampRegistreEmpty(PropertyUtils.getProperty(reg, campRegistre.getVarCodi())))
+							if (isCampRegistreEmpty(PropertyUtils.getProperty(reg, campRegistre.getVarCodi()))) {
+								errors.rejectValue(camp.getVarCodi() + "[" + i + "]." + campRegistre.getVarCodi(), "not.blank");								
 								invalid = true;
-							if (invalid) 
-								return true;
+							}
 						}
 					}
+					i++;
 				}
 			} else {
 				List<TascaDadaDto> registreDades = camp.getRegistreDades();
 				for (TascaDadaDto campRegistre : registreDades) {
 					if (campRegistre.isRequired()) {
-						if (isCampRegistreEmpty(PropertyUtils.getProperty(registre, campRegistre.getVarCodi())))
+						if (isCampRegistreEmpty(PropertyUtils.getProperty(registre, campRegistre.getVarCodi()))) {
 							invalid = true;
-						if (invalid) 
-							return true;
+							errors.rejectValue(camp.getVarCodi() + "." + campRegistre.getVarCodi(), "not.blank");								
+						}
 					}
 				}
 			}				
 		}
-		return false;
+		return invalid;
 	}
 
 	private void comprovaCamp(TascaDadaDto camp, Object command, Errors errors) throws Exception {
