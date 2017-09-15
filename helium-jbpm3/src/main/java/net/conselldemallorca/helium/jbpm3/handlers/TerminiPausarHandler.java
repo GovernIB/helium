@@ -27,13 +27,20 @@ public class TerminiPausarHandler extends AbstractHeliumActionHandler implements
 
 
 	public void execute(ExecutionContext executionContext) throws Exception {
-		TerminiIniciatDto termini = getTerminiIniciatAmbCodi(
-				executionContext,
-				(String)getValorOVariable(executionContext, terminiCodi, varTerminiCodi));
+		
+		TerminiIniciatDto termini = null;
+		try {
+			termini = getTerminiIniciatAmbCodi(
+					executionContext,
+					(String)getValorOVariable(executionContext, terminiCodi, varTerminiCodi));
+		} catch (NoTrobatException ex) {
+			termini = null;
+		}
+		
 		if (termini != null) {
 			if (varData != null) {
 				
-				Date valorData;
+				Date valorData = null;
 				try {
 					valorData = getVariableComData(executionContext, varData);
 				} catch (NoTrobatException ex) {
@@ -49,8 +56,6 @@ public class TerminiPausarHandler extends AbstractHeliumActionHandler implements
 						termini.getId(),
 						new Date());
 			}
-		} else {
-			throw new JbpmException("No existeix cap termini iniciat amb aquest codi '" + terminiCodi + "'");
 		}
 	}
 
