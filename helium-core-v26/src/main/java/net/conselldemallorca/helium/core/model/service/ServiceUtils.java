@@ -4,6 +4,7 @@
 package net.conselldemallorca.helium.core.model.service;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -102,13 +103,30 @@ public class ServiceUtils {
 				isExpedientFinalitzat(expedient),
 				false);
 	}
+	
 	public void expedientIndexLuceneUpdate(
-			String processInstanceId) {
-		expedientIndexLuceneUpdate(
-				processInstanceId,
-				false,
-				null);
+  			String processInstanceId) {
+ 		expedientIndexLuceneUpdate(processInstanceId, false);
+ 	}
+	
+	/** Mètode per marcar les reindexacions en segon pla si és el cas */
+	public void expedientIndexLuceneUpdate(
+			String processInstanceId,
+			boolean isExecucioMassiva) {
+		Expedient expedient = expedientDao.findAmbProcessInstanceId(processInstanceId);
+		if (expedient.getTipus().isReindexacioAsincrona() && !isExecucioMassiva) {
+			if (expedient.getReindexarData() == null) {
+				expedient.setReindexarData(new Date());
+				expedientDao.saveOrUpdate(expedient);
+			}
+		} else {
+			expedientIndexLuceneUpdate(
+					processInstanceId,
+					false,
+					null);
+		}
 	}
+
 	public void expedientIndexLuceneUpdate(
 			String processInstanceId,
 			boolean perTasca,

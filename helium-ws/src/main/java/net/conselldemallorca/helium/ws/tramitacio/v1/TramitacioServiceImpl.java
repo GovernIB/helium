@@ -37,7 +37,7 @@ import net.conselldemallorca.helium.core.model.service.TascaService;
 import net.conselldemallorca.helium.core.security.ExtendedPermission;
 import net.conselldemallorca.helium.core.util.EntornActual;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService.FiltreAnulat;
-import net.conselldemallorca.helium.ws.tramitacio.TramitacioException;
+import net.conselldemallorca.helium.ws.tramitacio.v1.TramitacioException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
