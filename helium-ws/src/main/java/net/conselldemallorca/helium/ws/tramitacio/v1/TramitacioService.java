@@ -9,7 +9,7 @@ import java.util.List;
 import javax.jws.WebService;
 import javax.xml.bind.annotation.XmlSeeAlso;
 
-import net.conselldemallorca.helium.ws.tramitacio.TramitacioException;
+import net.conselldemallorca.helium.ws.tramitacio.v1.TramitacioException;
 
 /**
  * Interfície del servei de tramitació d'expedients de Helium

@@ -187,6 +187,8 @@ public class DominiHelper {
 					resultat = consultaWs(domini, id, parametres);
 				else if (domini.getTipus().equals(TipusDomini.CONSULTA_SQL))
 					resultat = consultaSql(domini, parametres);
+				if (resultat == null)
+					resultat = new ArrayList<FilaResultat>();
 				if (domini.getCacheSegons() > 0) {
 					net.sf.ehcache.Cache nativeCache = (net.sf.ehcache.Cache)dominiCache.getNativeCache();
 					Element cacheElement = new Element(
