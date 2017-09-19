@@ -367,15 +367,13 @@ public class EnumeracioServiceImpl implements EnumeracioService {
 			throw new NoTrobatException(EnumeracioValors.class, enumeracioValor.getId());
 				
 		//Es llançará un PermisDenegatException si escau
-		Long expedientTipusId = entity.getEnumeracio().getExpedientTipus().getId();
-		if (entity.getEnumeracio().getExpedientTipus() != null)
+		Long expedientTipusId = entity.getEnumeracio().getExpedientTipus() != null ? entity.getEnumeracio().getExpedientTipus().getId() : null;
+		if (expedientTipusId != null)
 			expedientTipusHelper.getExpedientTipusComprovantPermisDissenyDelegat(expedientTipusId);
 		else
 			entornHelper.getEntornComprovantPermisos(entity.getEnumeracio().getEntorn().getId(), true, true);
-		
-		// Si no pot dissenyar el tipus d'expedient no pot canviar el codi i es llença una excepció
+
 		if(entity.getCodi().compareTo(enumeracioValor.getCodi()) != 0) {
-			expedientTipusHelper.getExpedientTipusComprovantPermisDisseny(expedientTipusId);
 			entity.setCodi(enumeracioValor.getCodi());
 		}
 		entity.setNom(enumeracioValor.getNom());
