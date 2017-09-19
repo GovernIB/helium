@@ -2409,7 +2409,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 		List<TerminiIniciat> terminisIniciats = terminiIniciatRepository.findByProcessInstanceId(procesInstanceId);
 		for (TerminiIniciat terminiIniciat: terminisIniciats) {
 			Termini termini = terminiIniciat.getTermini();
-			if (termini.getDefinicioProces().getId().equals(defprocAntiga.getId())) {
+			if (termini.getDefinicioProces() != null && termini.getDefinicioProces().getId().equals(defprocAntiga.getId())) {
 				for (Termini terminiNou: defprocNova.getTerminis()) {
 					if (terminiNou.getCodi().equals(termini.getCodi())) {
 						termini.removeIniciat(terminiIniciat);
