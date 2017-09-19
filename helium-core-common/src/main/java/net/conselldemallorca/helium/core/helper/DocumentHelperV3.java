@@ -1759,7 +1759,7 @@ public class DocumentHelperV3 {
 		dto.setDocumentNom(document.getNom());
 		dto.setSignat(documentStore.isSignat());
 		
-		dto.setNtiActiu((documentStore.getNtiActiu()==null)?false:documentStore.getNtiActiu());
+		dto.setNtiActiu(documentStore.getNtiActiu());
 		
 		if (documentStore.isSignat()) {
 			dto.setSignaturaUrlVerificacio(

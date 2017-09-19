@@ -29,7 +29,6 @@ import org.hibernate.annotations.Index;
 import org.hibernate.annotations.Type;
 import org.springmodules.validation.bean.conf.loader.annotation.handler.MaxLength;
 import org.springmodules.validation.bean.conf.loader.annotation.handler.NotBlank;
-import org.springmodules.validation.bean.conf.loader.annotation.handler.NotNull;
 
 /**
  * Objecte de domini que representa un document de la definició
@@ -83,9 +82,6 @@ public class Document implements Serializable, GenericEntity<Long> {
 	/** Indica si permetre o no la retroacció. Si isIgnored = true llavors no es realitzarà la retroacció i no s'esborrarà
 	 * el contingut del document. */
 	private boolean ignored;
-	
-	@NotNull
-	private Boolean ntiActiu;
 	
 	@MaxLength(32)
 	private String ntiTipusDocumental;
@@ -218,15 +214,6 @@ public class Document implements Serializable, GenericEntity<Long> {
 	}
 	public void setExtensionsPermeses(String extensionsPermeses) {
 		this.extensionsPermeses = extensionsPermeses;
-	}
-	
-	
-	@Column(name="nti_activo")
-	public Boolean getNtiActiu() {
-		return ntiActiu;
-	}
-	public void setNtiActiu(Boolean ntiActiu) {
-		this.ntiActiu = ntiActiu;
 	}
 	
 	@Column(name="nti_tipo_doc", length=32)
