@@ -695,7 +695,7 @@ public class ExpedientTipus implements Serializable, GenericEntity<Long> {
 	
 	@Column(name="nti_activo")
 	public Boolean getNtiActiu() {
-		return ntiActiu;
+		return ntiActiu != null? ntiActiu.booleanValue() : false;
 	}
 	public void setNtiActiu(Boolean ntiActiu) {
 		this.ntiActiu = ntiActiu;

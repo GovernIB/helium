@@ -110,14 +110,11 @@ public class ExpedientTipusDocumentController extends BaseExpedientTipusControll
 			@Validated(ExpedientTipusDocumentCommand.Creacio.class) ExpedientTipusDocumentCommand command,
 			BindingResult bindingResult, Model model) {
 		try {
-			if (command.getNtiTipusDocumental() == null || "".equals(command.getNtiTipusDocumental().trim())) {
-				bindingResult.rejectValue("ntiTipusDocumental", "NotEmpty");
-			}
-			
 			EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
 			ExpedientTipusDto expedientTipus = expedientTipusService.findAmbIdPermisDissenyarDelegat(
 						entornActual.getId(),
 						expedientTipusId);
+
 			if (bindingResult.hasErrors()) {
 				model.addAttribute("metadades", expedientTipus.isNtiActiu());
 				
@@ -186,14 +183,11 @@ public class ExpedientTipusDocumentController extends BaseExpedientTipusControll
 			@Validated(ExpedientTipusDocumentCommand.Modificacio.class) ExpedientTipusDocumentCommand command,
 			BindingResult bindingResult, Model model) {
 		try {
-			if (command.getNtiTipusDocumental() == null || "".equals(command.getNtiTipusDocumental().trim())) {
-				bindingResult.rejectValue("ntiTipusDocumental", "NotEmpty");
-			}
-			
 			EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
 			ExpedientTipusDto expedientTipus = expedientTipusService.findAmbIdPermisDissenyarDelegat(
 						entornActual.getId(),
 						expedientTipusId);
+
 			if (bindingResult.hasErrors()) {
 				model.addAttribute("metadades", expedientTipus.isNtiActiu());
 				

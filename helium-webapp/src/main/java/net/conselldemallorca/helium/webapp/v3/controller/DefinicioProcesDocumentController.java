@@ -128,9 +128,6 @@ public class DefinicioProcesDocumentController extends BaseDefinicioProcesContro
 			@Validated(ExpedientTipusDocumentCommand.Creacio.class) ExpedientTipusDocumentCommand command,
 			BindingResult bindingResult, Model model) {
 		try {
-			if (command.getNtiTipusDocumental() == null || "".equals(command.getNtiTipusDocumental().trim())) {
-				bindingResult.rejectValue("ntiTipusDocumental", "NotEmpty");
-			}
 			
 			DefinicioProcesDto definicioProcesDto = definicioProcesService.findById(definicioProcesId);
 			EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
@@ -207,10 +204,6 @@ public class DefinicioProcesDocumentController extends BaseDefinicioProcesContro
 			@Validated(ExpedientTipusDocumentCommand.Modificacio.class) ExpedientTipusDocumentCommand command,
 			BindingResult bindingResult, Model model) {
 		try {
-			if (command.getNtiTipusDocumental() == null || "".equals(command.getNtiTipusDocumental().trim())) {
-				bindingResult.rejectValue("ntiTipusDocumental", "NotEmpty");
-			}
-			
 			DefinicioProcesDto definicioProcesDto = definicioProcesService.findById(definicioProcesId);
 			EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
 			ExpedientTipusDto expedientTipus = expedientTipusService.findAmbIdPermisDissenyarDelegat(
