@@ -1145,6 +1145,7 @@ public class ExpedientHelper {
 		expedient.setNotificacioTelematicaHabilitada(notificacioTelematicaHabilitada);
 		expedient.setAmbRetroaccio(expedientTipus.isAmbRetroaccio());
 		
+		expedient.setNtiActiu(ntiActiu);
 		if(ntiActiu) {
 			expedient.setNtiVersio(NTI_VERSION);
 			expedient.setNtiOrgan(organ);

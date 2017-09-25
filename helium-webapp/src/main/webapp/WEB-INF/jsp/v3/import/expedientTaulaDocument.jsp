@@ -182,7 +182,7 @@
 								<a
 									href="../../v3/expedient/${expedientId}/proces/${document.processInstanceId}/document/${document.id}/metadadesNti"
 									data-rdt-link-modal="true" 
-									data-rdt-link-modal-min-height="265"
+									data-rdt-link-modal-min-height="500"
 									class="linkNti" >
 										<span class="label label-info" style="font-size: 10px;margin-left: 3px;position: absolute;padding-top: 4px;">NTI</span>
 								</a>
@@ -266,11 +266,3 @@
 		</div>
 	</div>
 </c:if>
-<script type="text/javascript">
-// <![CDATA[
-	$(".linkNti").heliumEvalLink({
-		refrescarAlertes: true,
-		refrescarPagina: true
-	});
-//]]>
-</script>

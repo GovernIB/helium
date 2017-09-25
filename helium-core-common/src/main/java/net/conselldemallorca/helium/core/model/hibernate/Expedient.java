@@ -141,7 +141,10 @@ public class Expedient implements Serializable, GenericEntity<Long> {
 	private boolean ambRetroaccio;
 	private Date reindexarData;
 	private boolean reindexarError;
-		
+	
+	@NotNull
+	private Boolean ntiActiu;
+	
 	@MaxLength(16)
 	private String ntiVersio;
 	@MaxLength(64)
@@ -670,6 +673,14 @@ public class Expedient implements Serializable, GenericEntity<Long> {
 		this.comentariAnulat = comentariAnulat;
 	}
 	
+	
+	@Column(name="nti_activo")
+	public Boolean getNtiActiu() {
+		return ntiActiu != null? ntiActiu.booleanValue() : false;
+	}
+	public void setNtiActiu(Boolean ntiActiu) {
+		this.ntiActiu = ntiActiu;
+	}
 	@Column(name="nti_versio", length=16)
 	public String getNtiVersio() {
 		return ntiVersio;

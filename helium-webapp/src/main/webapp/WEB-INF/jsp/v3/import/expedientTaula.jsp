@@ -179,6 +179,8 @@ $(document).ready(function() {
 
 	$('[title]').tooltip({container: 'body'});
 	
+	$(".linkNti").heliumEvalLink();
+	
 	$("table tr:last").each(function(){
 		var cols = $(this).find("td").size();
 		if (cols == 0)
@@ -211,7 +213,6 @@ function updatePanell() {
 		ajaxRefrescarAlertes: true,
 		alertesRefreshUrl: '<c:url value="/nodeco/v3/missatges"/>'
 	});
-
 	updateBadges();
 }
 
