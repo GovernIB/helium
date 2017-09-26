@@ -23,7 +23,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springmodules.validation.bean.conf.loader.annotation.handler.MaxLength;
 
 import net.conselldemallorca.helium.core.extern.domini.FilaResultat;
 import net.conselldemallorca.helium.core.extern.domini.ParellaCodiValor;
@@ -1213,10 +1212,36 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 					}
 				}
 		
+		// Definicions
+		DefinicioProces definicioProces;
+		if (command.getDefinicionsProces().size() > 0)
+			for(DefinicioProcesExportacio definicioExportat : importacio.getDefinicions() )
+				if (command.getDefinicionsProces().contains(definicioExportat.getDefinicioProcesDto().getJbpmKey())){
+					definicioProces = definicioProcesHelper.importar(
+							entornId, 
+							expedientTipus.getId(),
+							definicioExportat,
+							null /* no especifica el filtre per a la importació. */,
+							command.isSobreEscriure());
+					expedientTipus.addDefinicioProces(definicioProces);
+				}
+
 		// Consultes
 		Map<String, Consulta> consultes = new HashMap<String, Consulta>();
 		Consulta consulta;
-		if (command.getConsultes().size() > 0)
+		if (command.getConsultes().size() > 0) {
+			// Map<jbpmKey, versio> de les definicions de procés
+			Map<String, Integer> definicionsProcesVersio = new HashMap<String, Integer>();
+			if (!expedientTipus.isAmbInfoPropia()) {
+				// Consulta la darrera versió de totes les definicions de procés
+				for (DefinicioProces definicio : definicioProcesRepository.findByAll(
+															entornId,
+															expedientTipusId == null, // isNullExpedientTipusId
+															expedientTipusId, 
+															true))
+					definicionsProcesVersio.put(definicio.getJbpmKey(), definicio.getVersio());
+			}
+			// Importa la informació de les consultes
 			for(ConsultaExportacio consultaExportat : importacio.getConsultes() )
 				if (command.getConsultes().contains(consultaExportat.getCodi())) {
 					consulta = null;
@@ -1253,6 +1278,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 							consulta.setInformeContingut(null);
 						}
 						// Variables i paràmetres de la consulta
+						int versio;
 						for (ConsultaCampExportacio consultaCampExportacio : consultaExportat.getCamps()) {
 							ConsultaCamp consultaCamp = new ConsultaCamp(
 									consultaCampExportacio.getCampCodi(), 
@@ -1260,6 +1286,11 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 											consultaCampExportacio.getTipusConsultaCamp().toString()));
 							consultaCamp.setConsulta(consulta);
 							consultaCamp.setDefprocJbpmKey(consultaCampExportacio.getJbpmKey());
+							if (definicionsProcesVersio.containsKey(consultaCampExportacio.getJbpmKey()))
+								versio = definicionsProcesVersio.get(consultaCampExportacio.getJbpmKey());
+							else
+								versio = -1;			
+							consultaCamp.setDefprocVersio(versio);
 							consultaCamp.setCampDescripcio(consultaCampExportacio.getCampDescripcio());
 							consultaCamp.setParamTipus(
 									consultaCampExportacio.getTipusParamConsultaCamp() != null?
@@ -1272,21 +1303,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 					}
 					consultes.put(consulta.getCodi(), consulta);
 				}
-		
-		// Definicions
-		DefinicioProces definicioProces;
-		if (command.getDefinicionsProces().size() > 0)
-			for(DefinicioProcesExportacio definicioExportat : importacio.getDefinicions() )
-				if (command.getDefinicionsProces().contains(definicioExportat.getDefinicioProcesDto().getJbpmKey())){
-					definicioProces = definicioProcesHelper.importar(
-							entornId, 
-							expedientTipus.getId(),
-							definicioExportat,
-							null /* no especifica el filtre per a la importació. */,
-							command.isSobreEscriure());
-					expedientTipus.addDefinicioProces(definicioProces);
-				}
-		
+		}
 		// Tracta camps de tipus consulta completant la referència a la consulta
 		CampExportacio campExportat;
 		for (Camp campConsulta : campsTipusConsulta.keySet()) {
