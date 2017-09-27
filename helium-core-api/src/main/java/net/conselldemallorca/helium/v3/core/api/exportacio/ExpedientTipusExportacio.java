@@ -52,6 +52,14 @@ public class ExpedientTipusExportacio implements Serializable {
 	private String sistraTramitCodi;
 	private List<MapeigSistraExportacio> sistraMapejos = new ArrayList<MapeigSistraExportacio>();
 	
+	// Dades NTI
+	private boolean ntiActiu;
+	private String ntiOrgan;
+	private String ntiClasificacio;
+	private String ntiTipoFirma;
+	private String ntiValorCsv;
+	private String ntiDefGenCsv;
+	
 	
 	private List<EstatExportacio> estats = new ArrayList<EstatExportacio>();
 	private List<CampExportacio> camps = new ArrayList<CampExportacio>();
@@ -226,6 +234,42 @@ public class ExpedientTipusExportacio implements Serializable {
 	}
 	public void setSistraMapejos(List<MapeigSistraExportacio> sistraMapejos) {
 		this.sistraMapejos = sistraMapejos;
+	}
+	public boolean isNtiActiu() {
+		return ntiActiu;
+	}
+	public void setNtiActiu(boolean ntiActiu) {
+		this.ntiActiu = ntiActiu;
+	}
+	public String getNtiOrgan() {
+		return ntiOrgan;
+	}
+	public void setNtiOrgan(String ntiOrgan) {
+		this.ntiOrgan = ntiOrgan;
+	}
+	public String getNtiClasificacio() {
+		return ntiClasificacio;
+	}
+	public void setNtiClasificacio(String ntiClasificacio) {
+		this.ntiClasificacio = ntiClasificacio;
+	}
+	public String getNtiTipoFirma() {
+		return ntiTipoFirma;
+	}
+	public void setNtiTipoFirma(String ntiTipoFirma) {
+		this.ntiTipoFirma = ntiTipoFirma;
+	}
+	public String getNtiValorCsv() {
+		return ntiValorCsv;
+	}
+	public void setNtiValorCsv(String ntiValorCsv) {
+		this.ntiValorCsv = ntiValorCsv;
+	}
+	public String getNtiDefGenCsv() {
+		return ntiDefGenCsv;
+	}
+	public void setNtiDefGenCsv(String ntiDefGenCsv) {
+		this.ntiDefGenCsv = ntiDefGenCsv;
 	}
 	public List<EstatExportacio> getEstats() {
 		return estats;

@@ -9,7 +9,13 @@
 <c:set var="campErrors"><form:errors path="${campPath}"/></c:set>
 
 <div class="form-group<c:if test="${not empty campErrors}"> has-error</c:if>" style="margin-left: 0px !important;">
-	<label for="${campPath}" class="control-label top-label">${campActual.campEtiqueta}</label>	
+
+	<label 	for="${campPath}" class="control-label top-label"
+			style="width: 100%; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;"
+			title="${campActual.campEtiqueta}">
+		${campActual.campEtiqueta}
+	</label>	
+
 	<div class="controls consulta-tipus-controls">
 		<c:choose>
 			<c:when test="${campActual.campTipus == 'STRING'}">
