@@ -71,7 +71,7 @@ public class PassarelaFirmaHelper {
 		CommonInfoSignature commonInfoSignature;
 		final String urlFinal = getRelativeControllerBase(request, CONTEXTWEB) + "/final/" + signaturesSetId;
 		// TODO Veure manual de MiniApplet
-		final String filtreCertificats = "filters.1=nonexpired:";
+		String filtreCertificats = GlobalProperties.getInstance().getProperty("app.signatura.certificats.filtre", "filters.1=nonexpired:");
 		// TODO Definir politica de Firma (opcional)
 		PolicyInfoSignature pis = null;
 		commonInfoSignature = new CommonInfoSignature(
