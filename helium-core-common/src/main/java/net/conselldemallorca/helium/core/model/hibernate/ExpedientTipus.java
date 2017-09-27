@@ -147,19 +147,16 @@ public class ExpedientTipus implements Serializable, GenericEntity<Long> {
 	
 	@NotNull
 	private Boolean ntiActiu;
-	
 	@MaxLength(64)
 	private String ntiOrgan;
 	@MaxLength(64)
 	private String ntiClasificacio;
-	
 	@MaxLength(64)
 	private String ntiTipoFirma;
 	@MaxLength(128)
 	private String ntiValorCsv;
 	@MaxLength(128)
 	private String ntiDefGenCsv;
-	
 	
 	public ExpedientTipus() {}
 	public ExpedientTipus(String codi, String nom, Entorn entorn) {

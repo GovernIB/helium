@@ -494,6 +494,13 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 			sequenciaAnyDefaultMap.put(entry.getKey(), valueDto);
 		}					    
 		exportacio.setSequenciaDefaultAny(sequenciaAnyDefaultMap);
+		exportacio.setNtiActiu(tipus.getNtiActiu());
+		exportacio.setNtiOrgan(tipus.getNtiOrgan());
+		exportacio.setNtiClasificacio(tipus.getNtiClasificacio());
+		exportacio.setNtiTipoFirma(tipus.getNtiTipoFirma());
+		exportacio.setNtiValorCsv(tipus.getNtiValorCsv());
+		exportacio.setNtiDefGenCsv(tipus.getNtiDefGenCsv());
+		
 		// Integració amb forms
 		if (command.isIntegracioForms()) {
 			exportacio.setFormextUrl(tipus.getFormextUrl());
@@ -626,6 +633,10 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 					documentExportacio.setConvertirExtensio(document.getConvertirExtensio());
 					documentExportacio.setExtensionsPermeses(document.getExtensionsPermeses());
 					documentExportacio.setIgnored(document.isIgnored());
+					documentExportacio.setNtiTipusDocumental(document.getNtiTipusDocumental());
+					documentExportacio.setNtiTipoFirma(document.getNtiTipoFirma());
+					documentExportacio.setNtiValorCsv(document.getNtiValorCsv());	
+					documentExportacio.setNtiDefGenCsv(document.getNtiDefGenCsv());
 					exportacio.getDocuments().add(documentExportacio);
 				}
 		}		
@@ -721,7 +732,9 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 										ConsultaCampDto.TipusParamConsultaCamp.valueOf(consultaCamp.getParamTipus().toString())
 										: null,
 								consultaCamp.getCampDescripcio(),
-								consultaCamp.getOrdre());
+								consultaCamp.getOrdre(),
+								consultaCamp.getAmpleCols(),
+								consultaCamp.getBuitCols());
 						consultaExportacio.getCamps().add(consultaCampExp);
 					}
 				}
@@ -800,6 +813,13 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 				}
 			}
 		}
+		expedientTipus.setNtiActiu(importacio.isNtiActiu());
+		expedientTipus.setNtiOrgan(importacio.getNtiOrgan());
+		expedientTipus.setNtiClasificacio(importacio.getNtiClasificacio());
+		expedientTipus.setNtiTipoFirma(importacio.getNtiTipoFirma());
+		expedientTipus.setNtiValorCsv(importacio.getNtiValorCsv());
+		expedientTipus.setNtiDefGenCsv(importacio.getNtiDefGenCsv());
+		
 		// Integració amb formularis externs
 		if (command.isIntegracioForms()) {
 			expedientTipus.setFormextUrl(importacio.getFormextUrl());
@@ -1142,6 +1162,10 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 						document.setConvertirExtensio(documentExportat.getConvertirExtensio());
 						document.setExtensionsPermeses(documentExportat.getExtensionsPermeses());
 						document.setIgnored(documentExportat.isIgnored());
+						document.setNtiTipusDocumental(documentExportat.getNtiTipusDocumental());
+						document.setNtiTipoFirma(documentExportat.getNtiTipoFirma());
+						document.setNtiValorCsv(documentExportat.getNtiValorCsv());	
+						document.setNtiDefGenCsv(documentExportat.getNtiDefGenCsv());
 					}
 					documents.put(documentExportat.getCodi(), document);
 				}	
@@ -1235,15 +1259,13 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		if (command.getConsultes().size() > 0) {
 			// Map<jbpmKey, versio> de les definicions de procés
 			Map<String, Integer> definicionsProcesVersio = new HashMap<String, Integer>();
-			if (!expedientTipus.isAmbInfoPropia()) {
-				// Consulta la darrera versió de totes les definicions de procés
-				for (DefinicioProces definicio : definicioProcesRepository.findByAll(
-															entornId,
-															expedientTipusId == null, // isNullExpedientTipusId
-															expedientTipusId, 
-															true))
-					definicionsProcesVersio.put(definicio.getJbpmKey(), definicio.getVersio());
-			}
+			// Consulta la darrera versió de totes les definicions de procés
+			for (DefinicioProces definicio : definicioProcesRepository.findByAll(
+														entornId,
+														expedientTipusId == null, // isNullExpedientTipusId
+														expedientTipusId, 
+														true))
+				definicionsProcesVersio.put(definicio.getJbpmKey(), definicio.getVersio());
 			// Importa la informació de les consultes
 			for(ConsultaExportacio consultaExportat : importacio.getConsultes() )
 				if (command.getConsultes().contains(consultaExportat.getCodi())) {
@@ -1300,6 +1322,8 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 									TipusParamConsultaCamp.valueOf(consultaCampExportacio.getTipusParamConsultaCamp().toString())
 									: null);
 							consultaCamp.setOrdre(consultaCampExportacio.getOrdre());
+							consultaCamp.setAmpleCols(consultaCampExportacio.getAmpleCols());
+							consultaCamp.setBuitCols(consultaCampExportacio.getBuitCols());
 							consultaCampRepository.save(consultaCamp);
 							consulta.getCamps().add(consultaCamp);
 						}

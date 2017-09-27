@@ -26,6 +26,10 @@ public class DocumentExportacio implements Serializable {
 	private String convertirExtensio;
 	private String extensionsPermeses;
 	private boolean ignored;
+	private String ntiTipusDocumental;
+	private String ntiTipoFirma;
+	private String ntiValorCsv;	
+	private String ntiDefGenCsv;
 	
 	public DocumentExportacio(
 			String codi,
@@ -152,6 +156,38 @@ public class DocumentExportacio implements Serializable {
 
 	public void setIgnored(boolean ignored) {
 		this.ignored = ignored;
+	}
+
+	public String getNtiTipusDocumental() {
+		return ntiTipusDocumental;
+	}
+
+	public void setNtiTipusDocumental(String ntiTipusDocumental) {
+		this.ntiTipusDocumental = ntiTipusDocumental;
+	}
+
+	public String getNtiTipoFirma() {
+		return ntiTipoFirma;
+	}
+
+	public void setNtiTipoFirma(String ntiTipoFirma) {
+		this.ntiTipoFirma = ntiTipoFirma;
+	}
+
+	public String getNtiValorCsv() {
+		return ntiValorCsv;
+	}
+
+	public void setNtiValorCsv(String ntiValorCsv) {
+		this.ntiValorCsv = ntiValorCsv;
+	}
+
+	public String getNtiDefGenCsv() {
+		return ntiDefGenCsv;
+	}
+
+	public void setNtiDefGenCsv(String ntiDefGenCsv) {
+		this.ntiDefGenCsv = ntiDefGenCsv;
 	}
 
 	private static final long serialVersionUID = 1L;

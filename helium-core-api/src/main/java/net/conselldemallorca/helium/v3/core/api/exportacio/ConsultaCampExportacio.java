@@ -21,6 +21,8 @@ public class ConsultaCampExportacio implements Serializable {
 	private TipusParamConsultaCamp tipusParamConsultaCamp;
 	private String campDescripcio;
 	private int ordre;
+	private int ampleCols;
+	private int buitCols;
 
 	public ConsultaCampExportacio(
 			String campCodi,
@@ -28,13 +30,17 @@ public class ConsultaCampExportacio implements Serializable {
 			TipusConsultaCamp tipusConsultaCamp,
 			TipusParamConsultaCamp tipusParamConsultaCamp,
 			String campDescripcio,
-			int ordre) {
+			int ordre, 
+			int ampleCols,
+			int buitCols) {
 		this.campCodi = campCodi;
 		this.jbpmKey = jbpmKey;
 		this.tipusConsultaCamp = tipusConsultaCamp;
 		this.tipusParamConsultaCamp = tipusParamConsultaCamp;
 		this.campDescripcio = campDescripcio;
 		this.ordre = ordre;
+		this.ampleCols = ampleCols;
+		this.buitCols = buitCols;
 	}
 
 	public String getCampCodi() {
@@ -72,6 +78,18 @@ public class ConsultaCampExportacio implements Serializable {
 	}
 	public void setCampDescripcio(String campDescripcio) {
 		this.campDescripcio = campDescripcio;
+	}
+	public int getAmpleCols() {
+		return ampleCols;
+	}
+	public void setAmpleCols(int ampleCols) {
+		this.ampleCols = ampleCols;
+	}
+	public int getBuitCols() {
+		return buitCols;
+	}
+	public void setBuitCols(int buitCols) {
+		this.buitCols = buitCols;
 	}
 
 	private static final long serialVersionUID = 1L;
