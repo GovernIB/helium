@@ -269,7 +269,7 @@ public abstract class GraphElement implements Identifiable, Serializable {
     	if (exp == null) {
     		exp = Jbpm3HeliumBridge.getInstanceService().getExpedientIniciant();
     	}
-    	Jbpm3HeliumBridge.getInstanceService().mesuraIniciar("ACCIO: " + (action != null ? action.getName() : "null"), "tasques", (exp == null) ? "NULL" : exp.getTipus().getNom(), null, null);
+    	Jbpm3HeliumBridge.getInstanceService().mesuraIniciar("ACCIO: " + (action != null ? action.getName() : "null"), "tasques", (exp == null || exp.getTipus() == null) ? "NULL" : exp.getTipus().getNom(), null, null);
     }
     // create action log
     ActionLog actionLog = new ActionLog(action);
@@ -311,7 +311,7 @@ public abstract class GraphElement implements Identifiable, Serializable {
         if (actionMustBeLocked) {
           token.unlock(lockOwnerId);
           if ( Jbpm3HeliumBridge.getInstanceService().mesuraIsActiu()) {
-          	Jbpm3HeliumBridge.getInstanceService().mesuraCalcular("ACCIO: " + (action != null ? action.getName() : "null"), "tasques", exp.getTipus().getNom(), null, null);
+          	Jbpm3HeliumBridge.getInstanceService().mesuraCalcular("ACCIO: " + (action != null ? action.getName() : "null"), "tasques", (exp == null || exp.getTipus() == null) ? "NULL" : exp.getTipus().getNom(), null, null);
           }
         }
       }

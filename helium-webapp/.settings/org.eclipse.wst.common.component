@@ -26,9 +26,6 @@
         <dependent-module archiveName="helium-ws-3.2.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/helium-ws/helium-ws">
             <dependency-type>uses</dependency-type>
         </dependent-module>
-        <dependent-module archiveName="helium-selenium-integraciones-3.2.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/helium-selenium-integraciones/helium-selenium-integraciones">
-            <dependency-type>uses</dependency-type>
-        </dependent-module>
         <dependent-module archiveName="helium-plugin-api-3.2.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/helium-plugin-api/helium-plugin-api">
             <dependency-type>uses</dependency-type>
         </dependent-module>
