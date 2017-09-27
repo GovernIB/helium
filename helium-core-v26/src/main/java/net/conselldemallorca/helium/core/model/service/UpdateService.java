@@ -61,7 +61,11 @@ public class UpdateService {
 	public static final String VERSIO_ACTUAL_STR = "3.2.0";
 	public static final int VERSIO_ACTUAL_ORDRE = 320;
 
+<<<<<<< helium-4.0
 	public static final int VERSIO_ACTUAL_RELEASE = 58;
+=======
+	public static final int VERSIO_ACTUAL_RELEASE = 66;
+>>>>>>> c05f4f7 #1112: Possar el filtre de certificats com a una propietat d'Helium 
 
 	private VersioDao versioDao;
 	private PersonaDao personaDao;
