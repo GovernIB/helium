@@ -213,10 +213,10 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 					ORIGEN_NTI,
 					ESTAT_ELABORACIO_NTI,
 					FilenameUtils.getExtension(arxiuNom),
-					document.getNtiTipusDocumental(),
-					document.getNtiTipoFirma(),
-					document.getNtiValorCsv(),
-					document.getNtiDefGenCsv());
+					document != null? document.getNtiTipusDocumental() : null,
+					document != null? document.getNtiTipoFirma() : null,
+					document != null? document.getNtiValorCsv() : null,
+					document != null? document.getNtiDefGenCsv() : null);
 		}
 		String user = SecurityContextHolder.getContext().getAuthentication().getName();
 		// Registra l'acció
