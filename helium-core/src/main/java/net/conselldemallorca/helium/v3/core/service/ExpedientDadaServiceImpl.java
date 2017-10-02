@@ -337,6 +337,9 @@ public class ExpedientDadaServiceImpl implements ExpedientDadaService {
 					
 					String text;
 					try {
+						// Posem a false per a que refresqui  el valor de la consulta
+						camp.setDominiCacheText(false);
+						// Consultem el valor de la variable
 						text = variableHelper.getTextPerCamp(
 								camp, 
 								varValue, 
