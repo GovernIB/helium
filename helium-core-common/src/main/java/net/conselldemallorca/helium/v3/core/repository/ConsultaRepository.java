@@ -88,5 +88,17 @@ public interface ConsultaRepository extends JpaRepository<Consulta, Long> {
 			"where c.consulta.id in (:consultaIds) " +
 			"group by c.consulta.id, c.tipus")
 	List<Object[]> countCamps( @Param("consultaIds") List<Long> consultaIds);
+
+	@Query( "select camp.consulta " + 
+			"from ConsultaCamp camp " +
+			"where camp.consulta.entorn.id = :entornId " +
+			"      and camp.consulta.expedientTipus.id = :expedientTipusId " + 
+			"	   and camp.defprocJbpmKey = :jbpmKey " +
+			"      and camp.defprocVersio = :versio")
+	List<Consulta> findRelacionadesAmbDefinicioProces(
+			@Param("entornId") Long entornId, 
+			@Param("expedientTipusId") Long expedientTipusId, 
+			@Param("jbpmKey") String jbpmKey, 
+			@Param("versio") int versio);
 	
 }

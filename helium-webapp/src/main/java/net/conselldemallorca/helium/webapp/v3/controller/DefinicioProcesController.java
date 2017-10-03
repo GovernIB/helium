@@ -3,6 +3,7 @@ package net.conselldemallorca.helium.webapp.v3.controller;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -26,6 +27,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import net.conselldemallorca.helium.v3.core.api.dto.ConsultaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesExpedientDto.IdAmbEtiqueta;
@@ -167,6 +169,26 @@ public class DefinicioProcesController extends BaseDefinicioProcesController {
 			Long entornId,
 			HttpServletRequest request,
 			DefinicioProcesDto definicioProces) throws Exception {
+		
+		// Comprova si hi ha consultes amb variables que apuntaven a la versió recentment esborrada i en cas afirmatiu avisa
+		if (definicioProces.getExpedientTipus() != null && definicioProces.getExpedientTipus().getConsultes() != null) {
+			List<ConsultaDto> consultes = expedientTipusService.consultaFindRelacionadesAmbDefinicioProces(
+					entornId,
+					definicioProces.getExpedientTipus().getId(),
+					definicioProces.getJbpmKey(),
+					definicioProces.getVersio());
+			Set<Long> consultesAvisades = new HashSet<Long>();
+			for(ConsultaDto consulta : consultes ) 	
+				if (!consultesAvisades.contains(consulta.getId())) {
+					consultesAvisades.add(consulta.getId());
+					MissatgesHelper.warning(
+							request,
+							getMessage(request, "definicio.proces.delete.avis.consultes", 
+									new Object[] {consulta.getCodi(), consulta.getNom()}));
+				}
+		}
+
+		// Esborra la definició de procés
 		boolean success = false;
 		int processosCount = expedientService.findAmbDefinicioProcesId(definicioProces.getId()).size();
 		if (processosCount == 0) 

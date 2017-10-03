@@ -1700,7 +1700,7 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 							definicioProcesRepository.findDarreraVersioByEntornAndJbpmKey(
 								entorn, 
 								consultaCamp.getDefprocJbpmKey());
-					if (consultaCamp.getDefprocVersio() < definicioDarrera.getVersio()) {
+					if (consultaCamp.getDefprocVersio() != definicioDarrera.getVersio()) {
 						camp = campRepository.findByDefinicioProcesAndCodi(definicioDarrera, consultaCamp.getCampCodi());
 						if (camp != null) {
 							consultaCamp.setDefprocVersio(definicioDarrera.getVersio());

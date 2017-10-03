@@ -749,6 +749,20 @@ public interface ExpedientTipusService {
 			String filtre, 
 			PaginacioParamsDto paginacioParams) throws NoTrobatException;	
 	
+	/** Mètode per trobar les consultes pel tipus d'expedient amb camps relacionats amb una definicio de 
+	 * procés concreta. Serveix per avisar de les consultes afectades després d'esborrar una definició de procés. 
+	 * @param entornId
+	 * @param expedientTipusId
+	 * @param jbpmKey
+	 * @param versio
+	 * @return Retorna la llista de consultes afectades.
+	 */
+	public List<ConsultaDto> consultaFindRelacionadesAmbDefinicioProces(
+			Long entornId,
+			Long expedientTipusId, 
+			String jbpmKey, 
+			int versio);	
+
 	/**
 	 * Retorna una consulta d'una consulta d'un tipus d'expedient donat el seu codi.
 	 * 
