@@ -2559,6 +2559,23 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 	}	
 	
 	@Override
+	@Transactional(readOnly = true)
+	public List<ConsultaDto> consultaFindRelacionadesAmbDefinicioProces(
+			Long entornId,
+			Long expedientTipusId, 
+			String jbpmKey,
+			int versio) {
+
+		return conversioTipusHelper.convertirList(
+				consultaRepository.findRelacionadesAmbDefinicioProces(
+						entornId,
+						expedientTipusId,
+						jbpmKey,
+						versio),
+				ConsultaDto.class);
+	}
+	
+	@Override
 	@Transactional
 	public boolean consultaMourePosicio(
 			Long id, 

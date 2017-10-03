@@ -352,14 +352,21 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 			entornHelper.getEntornComprovantPermisos(EntornActual.getEntornId(), true, true);
 
 		workflowEngineApi.esborrarDesplegament(definicioProces.getJbpmId());
-		// Si era la definició de procés inicial del tipus d'expedient actualitza el tipus d'expedient
+		// 
+		definicioProcesRepository.delete(definicioProces);
+		// Si era darrera versió de la definició de procés inicial del tipus d'expedient posa la propietat a null
 		if (definicioProces.getExpedientTipus() != null
 				&& definicioProces.getJbpmKey().equals(definicioProces.getExpedientTipus().getJbpmProcessDefinitionKey())) {
 			ExpedientTipus expedientTipus = expedientTipusRepository.findOne(definicioProces.getExpedientTipus().getId());
-			expedientTipus.setJbpmProcessDefinitionKey(null);
-			expedientTipusRepository.save(expedientTipus);
+			// Troba la darrera definició de procés
+			definicioProces = definicioProcesRepository.findDarreraVersioByEntornAndJbpmKey(
+					expedientTipus.getEntorn(), 
+					definicioProces.getJbpmKey());
+			if (definicioProces == null) {
+				expedientTipus.setJbpmProcessDefinitionKey(null);
+				expedientTipusRepository.save(expedientTipus);
+			}
 		}
-		definicioProcesRepository.delete(definicioProces);
 	}
 	
 	/**
