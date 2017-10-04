@@ -43,8 +43,9 @@ public class DocumentMetadadesNtiInfoController extends BaseExpedientController 
 		
 		String tdCodi = documentStoreDto.getNtiTipusDocumental();
 		String td = DocumentDto.TipoDocumental.getNameByCodi(tdCodi); 
-		documentStoreDto.setNtiTipusDocumental(
-				getMessage(request, "tipus.documental." + td) + " ("+ tdCodi+")");
+		if (td != null)
+			documentStoreDto.setNtiTipusDocumental(
+					getMessage(request, "tipus.documental." + td) + " ("+ tdCodi+")");
 		
 		model.addAttribute("documentStore", documentStoreDto);
 		
