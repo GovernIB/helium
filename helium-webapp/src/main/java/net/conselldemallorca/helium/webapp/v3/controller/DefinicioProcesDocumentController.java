@@ -104,11 +104,8 @@ public class DefinicioProcesDocumentController extends BaseDefinicioProcesContro
 			@PathVariable Long definicioProcesId, 
 			Model model) {
 		DefinicioProcesDto definicioProcesDto = definicioProcesService.findById(definicioProcesId);
-		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
-		ExpedientTipusDto expedientTipus = expedientTipusService.findAmbIdPermisDissenyarDelegat(
-					entornActual.getId(),
-					definicioProcesDto.getExpedientTipus().getId());
-		model.addAttribute("metadades", expedientTipus.isNtiActiu());
+
+		model.addAttribute("metadades", definicioProcesDto.getExpedientTipus().isNtiActiu());
 		
 		ExpedientTipusDocumentCommand command = new ExpedientTipusDocumentCommand();
 		command.setDefinicioProcesId(definicioProcesId);
@@ -130,13 +127,10 @@ public class DefinicioProcesDocumentController extends BaseDefinicioProcesContro
 		try {
 			
 			DefinicioProcesDto definicioProcesDto = definicioProcesService.findById(definicioProcesId);
-			EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
-			ExpedientTipusDto expedientTipus = expedientTipusService.findAmbIdPermisDissenyarDelegat(
-						entornActual.getId(),
-						definicioProcesDto.getExpedientTipus().getId());
+
 			if (bindingResult.hasErrors()) {
 				
-				model.addAttribute("metadades", expedientTipus.isNtiActiu());
+				model.addAttribute("metadades", definicioProcesDto.getExpedientTipus().isNtiActiu());
 				
 				omplirModelCamps(request, definicioProcesId, model);
 				omplirTipusDocumental(request, model);
@@ -149,7 +143,7 @@ public class DefinicioProcesDocumentController extends BaseDefinicioProcesContro
 				dto.setArxiuContingut(contingutArxiu);
 				
 				documentService.create(
-						expedientTipus.isNtiActiu(),
+						definicioProcesDto.getExpedientTipus().isNtiActiu(),
 						null,
 						definicioProcesId,
 						dto);
@@ -205,13 +199,9 @@ public class DefinicioProcesDocumentController extends BaseDefinicioProcesContro
 			BindingResult bindingResult, Model model) {
 		try {
 			DefinicioProcesDto definicioProcesDto = definicioProcesService.findById(definicioProcesId);
-			EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
-			ExpedientTipusDto expedientTipus = expedientTipusService.findAmbIdPermisDissenyarDelegat(
-						entornActual.getId(),
-						definicioProcesDto.getExpedientTipus().getId());
 			if (bindingResult.hasErrors()) {
 				
-				model.addAttribute("metadades", expedientTipus.isNtiActiu());
+				model.addAttribute("metadades", definicioProcesDto.getExpedientTipus().isNtiActiu());
 				
 				omplirModelCamps(request, definicioProcesId, model);
 				omplirTipusDocumental(request, model);
@@ -229,7 +219,7 @@ public class DefinicioProcesDocumentController extends BaseDefinicioProcesContro
 					actualitzarContingut = true;
 				}								
 				documentService.update(
-						expedientTipus.isNtiActiu(),
+						definicioProcesDto.getExpedientTipus().isNtiActiu(),
 						ExpedientTipusDocumentCommand.asDocumentDto(command),
 						actualitzarContingut);
 				
