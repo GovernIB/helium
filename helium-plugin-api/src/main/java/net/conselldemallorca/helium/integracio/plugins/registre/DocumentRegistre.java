@@ -17,6 +17,13 @@ public class DocumentRegistre {
 	private String idiomaCodi;
 	private String arxiuNom;
 	private byte[] arxiuContingut;
+	
+	private String tipusDocument;
+	private String tipusDocumental;
+	private Integer origen;
+	private Integer modeFirma;
+	private String observacions;
+	private String validesa;
 
 	public String getNom() {
 		return nom;
@@ -47,6 +54,47 @@ public class DocumentRegistre {
 	}
 	public void setArxiuContingut(byte[] arxiuContingut) {
 		this.arxiuContingut = arxiuContingut;
+	}
+	public String getTipusDocument() {
+		return tipusDocument;
+	}
+	public void setTipusDocument(
+			String tipusDocument) {
+		this.tipusDocument = tipusDocument;
+	}
+	public String getTipusDocumental() {
+		return tipusDocumental;
+	}
+	public void setTipusDocumental(
+			String tipusDocumental) {
+		this.tipusDocumental = tipusDocumental;
+	}
+	public Integer getOrigen() {
+		return origen;
+	}
+	public void setOrigen(
+			Integer origen) {
+		this.origen = origen;
+	}
+	public Integer getModeFirma() {
+		return modeFirma;
+	}
+	public void setModeFirma(
+			Integer modeFirma) {
+		this.modeFirma = modeFirma;
+	}
+	public String getObservacions() {
+		return observacions;
+	}
+	public void setObservacions(
+			String observacions) {
+		this.observacions = observacions;
+	}
+	public String getValidesa() {
+		return validesa;
+	}
+	public void setValidesa(String validesa) {
+		this.validesa = validesa;
 	}
 
 }
