@@ -41,6 +41,14 @@
 					<th data-col-name="dataCreacio" data-converter="datetime"><spring:message code="expedient.tipus.definicioProces.llistat.columna.dataDarreraVersio"/></th>
 					<th data-col-name="versio" data-orderable="true"><spring:message code="definicio.proces.llistat.columna.versio"/></th>
 					<th data-col-name="jbpmKey"><spring:message code="expedient.tipus.definicioProces.llistat.columna.inicial"/></th>
+					<th data-col-name="jbpmKey" data-template="#cellexpedientTipusDefinicioProcesInicialTemplate">
+					<spring:message code="expedient.tipus.definicioProces.llistat.columna.inicial"/>
+						<script id="cellexpedientTipusDefinicioProcesInicialTemplate" type="text/x-jsrender">
+						{{if ~inicial(jbpmKey) }}
+							<spring:message code="comu.check"></spring:message>
+						{{/if}}
+						</script>
+					</th>
 					<th data-col-name="expedientTipus.id" data-template="#cellexpedientTipusDefinicioProcesGlobalTemplate">
 					<spring:message code="expedient.tipus.definicioProces.llistat.columna.global"/>
 						<script id="cellexpedientTipusDefinicioProcesGlobalTemplate" type="text/x-jsrender">
@@ -88,24 +96,22 @@
 
 <script type="text/javascript">
 // <![CDATA[            
+// Valor jbpmKey de la DP inicial del TE
+var jbpmProcessDefinitionKey = "${expedientTipus.jbpmProcessDefinitionKey}";
+
+// Funció per al template de la columna inicial per comparar amb la variable javascript anterior
+function inicialFunction(jbpmKey) {
+	return jbpmProcessDefinitionKey == jbpmKey;
+}
 
 $(document).ready(function() {	
-
-	var jbpmProcessDefinitionKey = "${expedientTipus.jbpmProcessDefinitionKey}";
 	
+	// Afegeix la funció javascript pel template de la columna inicial
+	var templateHelpers = {inicial: inicialFunction};
+	$.views.helpers(templateHelpers);
+		
+	// Events quan la taula es pinta
 	$('#expedientTipusDefinicioProces').on('draw.dt', function() {
-		// Mira si la definicio de proces coincideix amb la del tipus d'expedient inicial
-		$("tr", this).each(function(){
-			if ($(this).find("td").length > 0) {
-				$jbpmKey = $(this).find("td:nth-child(5)");
-				if ($jbpmKey.html() == jbpmProcessDefinitionKey) {
-					$jbpmKey.html("<spring:message code='comu.check'></spring:message>");
-					$(this).css('font-weight', 'bold');	// Sesaltem la línia amb el procés inicial
-				}
-				else
-					$jbpmKey.html("");
-			}
-		});		    	
 		// Botó per marcar com a inicial una definicó de procés
 		$("#expedientTipusDefinicioProces a.btn-inicial").click(function(e) {
 			var getUrl = $(this).attr('href');
