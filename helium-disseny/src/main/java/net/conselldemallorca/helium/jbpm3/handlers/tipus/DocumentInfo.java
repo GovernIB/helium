@@ -34,6 +34,12 @@ public class DocumentInfo implements Serializable{
 	private String processInstanceId;
 	private String codiDocument;
 
+	private String tipusDocument;
+	private String tipusDocumental;
+	private Integer origen; 
+	private Integer modeFirma;
+	private String validesa;
+	private String observacions;
 
 
 	public Long getId() {
@@ -125,6 +131,42 @@ public class DocumentInfo implements Serializable{
 	}
 	public void setCodiDocument(String codiDocument) {
 		this.codiDocument = codiDocument;
+	}
+	public String getTipusDocument() {
+		return tipusDocument;
+	}
+	public void setTipusDocument(String tipusDocument) {
+		this.tipusDocument = tipusDocument;
+	}
+	public String getTipusDocumental() {
+		return tipusDocumental;
+	}
+	public void setTipusDocumental(String tipusDocumental) {
+		this.tipusDocumental = tipusDocumental;
+	}
+	public Integer getOrigen() {
+		return origen;
+	}
+	public void setOrigen(Integer origen) {
+		this.origen = origen;
+	}
+	public Integer getModeFirma() {
+		return modeFirma;
+	}
+	public void setModeFirma(Integer modeFirma) {
+		this.modeFirma = modeFirma;
+	}
+	public String getValidesa() {
+		return validesa;
+	}
+	public void setValidesa(String validesa) {
+		this.validesa = validesa;
+	}
+	public String getObservacions() {
+		return observacions;
+	}
+	public void setObservacions(String observacions) {
+		this.observacions = observacions;
 	}
 
 }

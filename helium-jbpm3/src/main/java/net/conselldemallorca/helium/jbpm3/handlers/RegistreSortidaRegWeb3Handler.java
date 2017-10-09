@@ -18,6 +18,8 @@ import net.conselldemallorca.helium.v3.core.api.dto.RegistreIdDto;
 import net.conselldemallorca.helium.v3.core.api.registre.RegistreAnnex;
 import net.conselldemallorca.helium.v3.core.api.registre.RegistreAnotacio;
 import net.conselldemallorca.helium.v3.core.api.registre.RegistreInteressat;
+import net.conselldemallorca.helium.v3.core.api.registre.RegistreInteressatDocumentTipusEnum;
+import net.conselldemallorca.helium.v3.core.api.registre.RegistreInteressatTipusEnum;
 
 /**
  * Handler per a interactuar amb el registre de sortida.
@@ -110,6 +112,19 @@ public class RegistreSortidaRegWeb3Handler extends AbstractHeliumActionHandler {
 	
 	private String varDocument;
 	
+	private String documentValidesa;
+	private String varDocumentValidesa;
+	private String documentTipus;
+	private String varDocumentTipus;
+	private String documentTipusDocumental;
+	private String varDocumentTipusDocumental;
+	private String documentOrigen;
+	private String varDocumentOrigen;
+	private String documentObservacions;
+	private String varDocumentObservacions;
+	private String documentModeFirma;
+	private String varDocumentModeFirma;
+	
 
 	public void execute(ExecutionContext executionContext) throws Exception {
 		if (!Jbpm3HeliumBridge.getInstanceService().isRegistreRegWeb3Actiu())
@@ -154,14 +169,20 @@ public class RegistreSortidaRegWeb3Handler extends AbstractHeliumActionHandler {
 		
 //		Info de l'interessat
 		RegistreInteressat interessat = new RegistreInteressat();
-		interessat.setTipus((String)getValorOVariable(
+		interessat.setTipus(getValorOVariable(
 				executionContext,
 				interessatTipus,
-				varInteressatTipus));
-		interessat.setDocumentTipus((String)getValorOVariable(
+				varInteressatTipus) != null ? RegistreInteressatTipusEnum.valueOf((String)getValorOVariable(
+				executionContext,
+				interessatTipus,
+				varInteressatTipus)) : null);
+		interessat.setDocumentTipus(getValorOVariable(
 				executionContext,
 				interessatDocumentTipus,
-				varInteressatDocumentTipus));
+				varInteressatDocumentTipus) != null ? RegistreInteressatDocumentTipusEnum.valueOf((String)getValorOVariable(
+				executionContext,
+				interessatDocumentTipus,
+				varInteressatDocumentTipus)) : null);
 		interessat.setDocumentNum((String)getValorOVariable(
 				executionContext,
 				interessatDocumentNum,
@@ -209,14 +230,20 @@ public class RegistreSortidaRegWeb3Handler extends AbstractHeliumActionHandler {
 		
 //		Info del representant
 		RegistreInteressat representant = new RegistreInteressat();
-		representant.setTipus((String)getValorOVariable(
+		representant.setTipus(getValorOVariable(
 				executionContext,
 				representantTipus,
-				varRepresentantTipus));
-		representant.setDocumentTipus((String)getValorOVariable(
+				varRepresentantTipus) != null ? RegistreInteressatTipusEnum.valueOf((String)getValorOVariable(
+				executionContext,
+				representantTipus,
+				varRepresentantTipus)) : null);
+		representant.setDocumentTipus(getValorOVariable(
 				executionContext,
 				representantDocumentTipus,
-				varRepresentantDocumentTipus));
+				varRepresentantDocumentTipus) != null ? RegistreInteressatDocumentTipusEnum.valueOf((String)getValorOVariable(
+				executionContext,
+				representantDocumentTipus,
+				varRepresentantDocumentTipus)) : null);
 		representant.setDocumentNum((String)getValorOVariable(
 				executionContext,
 				representantDocumentNum,
@@ -262,7 +289,7 @@ public class RegistreSortidaRegWeb3Handler extends AbstractHeliumActionHandler {
 				representantAdresa,
 				varRepresentantAdresa));
 		
-		if (representant.getTipus() != null && !representant.getTipus().isEmpty() && !("".equalsIgnoreCase(representant.getTipus())))
+		if (representant.getTipus() != null)
 			interessat.setRepresentant(representant);
 		else
 			interessat.setRepresentant(null);
@@ -282,6 +309,33 @@ public class RegistreSortidaRegWeb3Handler extends AbstractHeliumActionHandler {
 				executionContext,
 				varDocument,
 				true);
+		
+		/**Dades complementàries de document**/
+		documentInfo.setTipusDocument((String)getValorOVariable(
+				executionContext,
+				documentTipus,
+				varDocumentTipus));
+		documentInfo.setTipusDocumental((String)getValorOVariable(
+				executionContext,
+				documentTipusDocumental,
+				varDocumentTipusDocumental));
+		documentInfo.setValidesa((String)getValorOVariable(
+				executionContext,
+				documentValidesa,
+				varDocumentValidesa));
+		documentInfo.setOrigen(getValorOVariableInteger(
+				executionContext,
+				documentOrigen,
+				varDocumentOrigen));
+		documentInfo.setObservacions((String)getValorOVariable(
+				executionContext,
+				documentObservacions,
+				varDocumentObservacions));
+		documentInfo.setModeFirma(getValorOVariableInteger(
+				executionContext,
+				documentModeFirma,
+				varDocumentModeFirma));
+		/*************************************/
 		
 		List<DocumentInfo> annexos = new ArrayList<DocumentInfo>();
 		annexos.add(documentInfo);
@@ -323,6 +377,12 @@ public class RegistreSortidaRegWeb3Handler extends AbstractHeliumActionHandler {
 			annex.setDataCaptura(document.getDataDocument());
 			annex.setFitxerNom(document.getArxiuNom());
 			annex.setFitxerContingut(document.getArxiuContingut());
+			annex.setTipusDocument(document.getTipusDocument());
+			annex.setTipusDocumental(document.getTipusDocumental());
+			annex.setOrigen(document.getOrigen());
+			annex.setFirmaMode(document.getModeFirma());
+			annex.setObservacions(document.getObservacions());
+			annex.setValidesa(document.getValidesa());
 			annexos.add(annex);
 		}
 		anotacio.setAnnexos(annexos);
@@ -678,6 +738,66 @@ public class RegistreSortidaRegWeb3Handler extends AbstractHeliumActionHandler {
 
 	public void setVarDocument(String varDocument) {
 		this.varDocument = varDocument;
+	}
+
+
+	public void setDocumentValidesa(String documentValidesa) {
+		this.documentValidesa = documentValidesa;
+	}
+
+
+	public void setVarDocumentValidesa(String varDocumentValidesa) {
+		this.varDocumentValidesa = varDocumentValidesa;
+	}
+
+
+	public void setDocumentTipus(String documentTipus) {
+		this.documentTipus = documentTipus;
+	}
+
+
+	public void setVarDocumentTipus(String varDocumentTipus) {
+		this.varDocumentTipus = varDocumentTipus;
+	}
+
+
+	public void setDocumentTipusDocumental(String documentTipusDocumental) {
+		this.documentTipusDocumental = documentTipusDocumental;
+	}
+
+
+	public void setVarDocumentTipusDocumental(String varDocumentTipusDocumental) {
+		this.varDocumentTipusDocumental = varDocumentTipusDocumental;
+	}
+
+
+	public void setDocumentOrigen(String documentOrigen) {
+		this.documentOrigen = documentOrigen;
+	}
+
+
+	public void setVarDocumentOrigen(String varDocumentOrigen) {
+		this.varDocumentOrigen = varDocumentOrigen;
+	}
+
+
+	public void setDocumentObservacions(String documentObservacions) {
+		this.documentObservacions = documentObservacions;
+	}
+
+
+	public void setVarDocumentObservacions(String varDocumentObservacions) {
+		this.varDocumentObservacions = varDocumentObservacions;
+	}
+
+
+	public void setDocumentModeFirma(String documentModeFirma) {
+		this.documentModeFirma = documentModeFirma;
+	}
+
+
+	public void setVarDocumentModeFirma(String varDocumentModeFirma) {
+		this.varDocumentModeFirma = varDocumentModeFirma;
 	}
 
 }

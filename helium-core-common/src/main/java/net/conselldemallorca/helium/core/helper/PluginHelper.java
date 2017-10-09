@@ -43,6 +43,8 @@ import net.conselldemallorca.helium.integracio.plugins.registre.DocumentRegistre
 import net.conselldemallorca.helium.integracio.plugins.registre.RegistreAssentament;
 import net.conselldemallorca.helium.integracio.plugins.registre.RegistreAssentamentInteressat;
 import net.conselldemallorca.helium.integracio.plugins.registre.RegistreEntrada;
+import net.conselldemallorca.helium.integracio.plugins.registre.RegistreInteressatDocumentTipusEnum;
+import net.conselldemallorca.helium.integracio.plugins.registre.RegistreInteressatTipusEnum;
 import net.conselldemallorca.helium.integracio.plugins.registre.RegistreNotificacio;
 import net.conselldemallorca.helium.integracio.plugins.registre.RegistrePlugin;
 import net.conselldemallorca.helium.integracio.plugins.registre.RegistrePluginException;
@@ -1181,7 +1183,7 @@ public class PluginHelper {
 		
 		long t0 = System.currentTimeMillis();
 		try {
-			RespostaConsultaRegistre respostaConsultaRegistre = getRegistrePluginRebWeb3().obtenirRegistrSortida(
+			RespostaConsultaRegistre respostaConsultaRegistre = getRegistrePluginRebWeb3().obtenirRegistreSortida(
 					numRegistre,
 					usuariCodi,
 					entitatCodi);
@@ -2164,6 +2166,14 @@ public class PluginHelper {
 				document.setData(annex.getDataCaptura());
 				document.setArxiuNom(annex.getFitxerNom());
 				document.setArxiuContingut(annex.getFitxerContingut());
+				
+				document.setTipusDocument(annex.getTipusDocument());
+				document.setTipusDocumental(annex.getTipusDocumental());
+				document.setOrigen(annex.getOrigen());
+				document.setModeFirma(annex.getFirmaMode());
+				document.setObservacions(annex.getObservacions());
+				document.setValidesa(annex.getValidesa());
+				
 				documents.add(document);
 			}
 			registreAssentament.setDocuments(documents);
@@ -2175,8 +2185,8 @@ public class PluginHelper {
 	private RegistreAssentamentInteressat toRegistreAssentamentInteressat(RegistreInteressat interessat) {
 		RegistreAssentamentInteressat registreAssentamentInteressat = new RegistreAssentamentInteressat();
 		
-		registreAssentamentInteressat.setTipus(interessat.getTipus());
-		registreAssentamentInteressat.setDocumentTipus(interessat.getDocumentTipus());
+		registreAssentamentInteressat.setTipus(interessat.getTipus() != null ? RegistreInteressatTipusEnum.valorAsEnum(interessat.getTipus().getValor()) : null);
+		registreAssentamentInteressat.setDocumentTipus(interessat.getDocumentTipus() != null ? RegistreInteressatDocumentTipusEnum.valorAsEnum(interessat.getDocumentTipus().getValor()) : null);
 		registreAssentamentInteressat.setDocumentNum(interessat.getDocumentNum());
 		registreAssentamentInteressat.setNom(interessat.getNom());
 		registreAssentamentInteressat.setLlinatge1(interessat.getLlinatge1());
@@ -2192,7 +2202,6 @@ public class PluginHelper {
 		registreAssentamentInteressat.setEmailHabilitat(interessat.getEmailHabilitat());
 		registreAssentamentInteressat.setCanalPreferent(interessat.getCanalPreferent());
 		registreAssentamentInteressat.setObservacions(interessat.getObservacions());
-		registreAssentamentInteressat.setTipus(interessat.getTipus());
 		
 		if (interessat.getRepresentant() != null) {
 			registreAssentamentInteressat.setRepresentant(toRegistreAssentamentInteressat(interessat.getRepresentant()));

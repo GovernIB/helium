@@ -10,8 +10,8 @@ package net.conselldemallorca.helium.integracio.plugins.registre;
  */
 public class RegistreAssentamentInteressat {
 
-	private String tipus;
-	private String documentTipus;
+	private RegistreInteressatTipusEnum tipus;
+	private RegistreInteressatDocumentTipusEnum documentTipus;
 	private String documentNum;
 	private String nom;
 	private String llinatge1;
@@ -31,16 +31,16 @@ public class RegistreAssentamentInteressat {
 
 
 
-	public String getTipus() {
+	public RegistreInteressatTipusEnum getTipus() {
 		return tipus;
 	}
-	public void setTipus(String tipus) {
+	public void setTipus(RegistreInteressatTipusEnum tipus) {
 		this.tipus = tipus;
 	}
-	public String getDocumentTipus() {
+	public RegistreInteressatDocumentTipusEnum getDocumentTipus() {
 		return documentTipus;
 	}
-	public void setDocumentTipus(String documentTipus) {
+	public void setDocumentTipus(RegistreInteressatDocumentTipusEnum documentTipus) {
 		this.documentTipus = documentTipus;
 	}
 	public String getDocumentNum() {
@@ -139,5 +139,4 @@ public class RegistreAssentamentInteressat {
 	public void setRepresentant(RegistreAssentamentInteressat representant) {
 		this.representant = representant;
 	}
-
 }

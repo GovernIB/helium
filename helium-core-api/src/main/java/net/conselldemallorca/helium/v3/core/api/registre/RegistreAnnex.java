@@ -35,7 +35,11 @@ public class RegistreAnnex {
 	private String firmaCsv;
 	private String timestamp;
 	private String validacioOCSP;
-
+	
+	private String tipusDocument;
+	private String tipusDocumental;
+	private Integer origen;
+	private String validesa;
 
 
 	public String getTitol() {
@@ -169,6 +173,30 @@ public class RegistreAnnex {
 	}
 	public void setValidacioOCSP(String validacioOCSP) {
 		this.validacioOCSP = validacioOCSP;
+	}
+	public String getTipusDocument() {
+		return tipusDocument;
+	}
+	public void setTipusDocument(String tipusDocument) {
+		this.tipusDocument = tipusDocument;
+	}
+	public String getTipusDocumental() {
+		return tipusDocumental;
+	}
+	public void setTipusDocumental(String tipusDocumental) {
+		this.tipusDocumental = tipusDocumental;
+	}
+	public Integer getOrigen() {
+		return origen;
+	}
+	public void setOrigen(Integer origen) {
+		this.origen = origen;
+	}
+	public String getValidesa() {
+		return validesa;
+	}
+	public void setValidesa(String validesa) {
+		this.validesa = validesa;
 	}
 
 }
