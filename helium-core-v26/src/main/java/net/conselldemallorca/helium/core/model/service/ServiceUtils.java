@@ -114,7 +114,9 @@ public class ServiceUtils {
 			String processInstanceId,
 			boolean isExecucioMassiva) {
 		Expedient expedient = expedientDao.findAmbProcessInstanceId(processInstanceId);
-		if (expedient.getTipus().isReindexacioAsincrona() && !isExecucioMassiva) {
+		if (expedient.getTipus() != null 
+				&& expedient.getTipus().isReindexacioAsincrona() 
+				&& !isExecucioMassiva) {
 			if (expedient.getReindexarData() == null) {
 				expedient.setReindexarData(new Date());
 				expedientDao.saveOrUpdate(expedient);

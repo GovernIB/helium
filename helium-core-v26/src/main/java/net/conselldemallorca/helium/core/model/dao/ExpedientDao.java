@@ -7,6 +7,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.hibernate.Criteria;
 import org.hibernate.Query;
 import org.hibernate.criterion.Criterion;
@@ -105,16 +107,24 @@ public class ExpedientDao extends HibernateGenericDao<Expedient, Long> {
 	}
 	
 	public Expedient findAmbProcessInstanceId(String processInstanceId) {
+		Expedient expedient = null;
+		int puntControl = 0;
 		List<Expedient> expedients = findByCriteria(
 				Restrictions.eq("processInstanceId", processInstanceId));
 		if (expedients.size() > 0) {
-			return expedients.get(0);
+			expedient = expedients.get(0);
+			puntControl = 1;
 		} else {
 			Expedient expedientIniciant = ThreadLocalInfo.getExpedient();
-			if (expedientIniciant != null && expedientIniciant.getProcessInstanceId().equals(processInstanceId))
-				return expedientIniciant;
+			if (expedientIniciant != null && expedientIniciant.getProcessInstanceId().equals(processInstanceId)) {
+				expedient = expedientIniciant;
+				puntControl = 2;
+			}
 		}
-		return null;
+		if (expedient != null && expedient.getTipus() == null)
+			logger.warn("El tipus d'expedient és null. Punt de control: " + puntControl);
+			
+		return expedient;
 	}
 	public int countAmbExpedientTipusId(Long expedientTipusId) {
 		return getCountByCriteria(
@@ -482,4 +492,6 @@ public class ExpedientDao extends HibernateGenericDao<Expedient, Long> {
 		}
 		return crit;
 	}
+
+	private static final Log logger = LogFactory.getLog(ExpedientDao.class);
 }
