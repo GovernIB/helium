@@ -113,7 +113,8 @@ public class ServiceUtils {
 	public void expedientIndexLuceneUpdate(
 			String processInstanceId,
 			boolean isExecucioMassiva) {
-		Expedient expedient = expedientDao.findAmbProcessInstanceId(processInstanceId);
+		JbpmProcessInstance rootProcessInstance = jbpmHelper.getRootProcessInstance(processInstanceId);
+		Expedient expedient = expedientDao.findAmbProcessInstanceId(rootProcessInstance.getId());
 		if (expedient.getTipus() != null 
 				&& expedient.getTipus().isReindexacioAsincrona() 
 				&& !isExecucioMassiva) {
