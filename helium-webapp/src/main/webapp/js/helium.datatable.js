@@ -235,16 +235,20 @@
 				});
 				$('#' + filtreFormId).on('submit', function() {
 					var accio = $('input[name=accio]', $('#' + filtreFormId)).val();
+					var refrescar = false;
 					if (accio == 'netejar') {
-						$(':input', '#' + filtreFormId)
-						.not(':button, :submit, :reset, :hidden')
-						.val('')
-						.removeAttr('checked')
-						.removeAttr('selected');
-						$(':input.select2-offscreen', '#' + filtreFormId).not(':disabled').select2("val", "", true);
-						
-						//netejam l'estat dels botons del filtre
-						$(':button.filtre-button', '#' + filtreFormId).removeClass("active");
+						// Si el botó de netejar té la propietat de refrescar es recarregarà la pàgina sencera
+						refrescar = $('[name="accio"][value="netejar"]', $('#' + filtreFormId)).data('refrescar');
+						if (!refrescar) {
+							$(':input', '#' + filtreFormId)
+							.not(':button, :submit, :reset, :hidden')
+							.val('')
+							.removeAttr('checked')
+							.removeAttr('selected');
+							$(':input.select2-offscreen', '#' + filtreFormId).not(':disabled').select2("val", "", true);
+							//netejam l'estat dels botons del filtre
+							$(':button.filtre-button', '#' + filtreFormId).removeClass("active");
+						}
 					}
 					$.ajax({
 						type: "POST",
@@ -252,7 +256,10 @@
 						data: $('#' + filtreFormId).serialize(),
 						async: false
 					});
-					taula.dataTable().fnDraw();
+					if (refrescar)
+						location.reload(true);
+					else
+						taula.dataTable().fnDraw();
 					return false;
 				});
 			}

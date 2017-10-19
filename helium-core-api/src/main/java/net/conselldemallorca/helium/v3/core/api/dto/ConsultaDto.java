@@ -4,7 +4,9 @@
 package net.conselldemallorca.helium.v3.core.api.dto;
 
 import java.io.Serializable;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -157,6 +159,21 @@ public class ConsultaDto implements Serializable, Comparable<ConsultaDto> {
 	public int compareTo(ConsultaDto o) {
 		return this.getNom().compareTo(o.getNom());
 	}
+	/** Mètode per convertir com a Map els valors predefinits.*/
+	public Map<String, String> getMapValorsPredefinits() {
+		Map<String, String> mapValorsPredefinits = new HashMap<String, String>();
+		if (valorsPredefinits != null) {
+			String[] parelles = valorsPredefinits.split(",");
+			for (int i = 0; i < parelles.length; i++) {
+				String[] parella = (parelles[i].contains(":")) ? parelles[i].split(":") : parelles[i].split("=");
+				if (parella.length == 2) {
+					mapValorsPredefinits.put(parella[0], parella[1]);
+				}
+			}
+		}
+		return mapValorsPredefinits;
+	}
 	
 	private static final long serialVersionUID = 1L;
+
 }

@@ -87,10 +87,13 @@ public class ExpedientConsultaLlistatController extends BaseExpedientController 
 		campsAddicionalsClasses.put("nomesTasquesPersonals", Boolean.class);
 		campsAddicionalsClasses.put("nomesTasquesGrup", Boolean.class);
 		List<TascaDadaDto> campsFiltre = expedientService.findConsultaFiltre(consultaId);
+		ConsultaDto consulta = dissenyService.findConsulteById(consultaId);
+		Map<String, String> valorsPerDefecteConsulta = consulta.getMapValorsPredefinits();
 		return TascaFormHelper.getCommandBuitForCamps(
 				campsFiltre,
 				campsAddicionals,
 				campsAddicionalsClasses,
+				valorsPerDefecteConsulta.size() > 0 ? valorsPerDefecteConsulta : null,
 				true);
 	}
 

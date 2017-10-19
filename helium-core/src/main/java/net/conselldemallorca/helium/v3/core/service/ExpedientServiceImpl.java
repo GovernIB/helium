@@ -1778,10 +1778,13 @@ public class ExpedientServiceImpl implements ExpedientService {
 				consulta,
 				TipusConsultaCamp.FILTRE);
 		
-		// Quitamos las variables predefinidas de los filtros
+		// Quitamos las variables predefinidas de los filtros con amplitud 0
 		Iterator<TascaDadaDto> itListTascaDada = listTascaDada.iterator();
+		TascaDadaDto tascaDada;
 		while(itListTascaDada.hasNext()) {
-			if (consulta.getMapValorsPredefinits().containsKey(itListTascaDada.next().getVarCodi())) {
+			tascaDada = itListTascaDada.next();
+			if (consulta.getMapValorsPredefinits().containsKey(tascaDada.getVarCodi())
+					&& tascaDada.getAmpleCols() == 0) {
 				itListTascaDada.remove();
 			}
 		}

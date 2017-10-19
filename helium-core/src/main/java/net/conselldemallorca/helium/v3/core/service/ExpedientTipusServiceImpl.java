@@ -3051,7 +3051,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		if (ample > 12)
 			ample = 12;
 		else if (ample <= 0)
-			ample = 1;
+			ample = 0;
 			
 		if (buit > 12)
 			buit = 12;

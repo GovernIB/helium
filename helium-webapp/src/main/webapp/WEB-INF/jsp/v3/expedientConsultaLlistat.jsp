@@ -221,7 +221,7 @@ $(document).ready(function() {
 					<div class="col-md-6">
 						<div class="pull-right">
 							<input type="hidden" name="consultaRealitzada" value="true"/>
-							<button type="submit" name="accio" value="netejar" class="btn btn-default"><spring:message code="comu.filtre.netejar"/></button>
+							<button type="submit" name="accio" value="netejar" data-refrescar="true" class="btn btn-default"><spring:message code="comu.filtre.netejar"/></button>
 							<button id="consultar" type="submit" name="accio" value="filtrar" class="btn btn-primary"><span class="fa fa-filter"></span>&nbsp;<spring:message code="comu.filtre.filtrar"/></button>
 						</div>
 					</div>

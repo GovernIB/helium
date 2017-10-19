@@ -459,6 +459,20 @@ public class TascaFormHelper {
 			Map<String, Object> campsAddicionals,
 			Map<String, Class<?>> campsAddicionalsClasses,
 			boolean esConsultaPerTipus) {
+		return getCommandBuitForCamps(
+				tascaDades, 
+				campsAddicionals, 
+				campsAddicionalsClasses, 
+				null, // Sense valors per defecte
+				esConsultaPerTipus);
+	}
+
+		public static Object getCommandBuitForCamps(
+			List<TascaDadaDto> tascaDades,
+			Map<String, Object> campsAddicionals,
+			Map<String, Class<?>> campsAddicionalsClasses,
+			Map<String, String> valorsPerDefecte,
+			boolean esConsultaPerTipus) {
 		Map<String, Object> registres = new HashMap<String, Object>();
 		// Empram cglib per generar el command de manera dinàmica
 		Object command = getCommandModelForCamps(
@@ -466,10 +480,13 @@ public class TascaFormHelper {
 				campsAddicionalsClasses,
 				registres,
 				esConsultaPerTipus);
-		// Inicialitza els camps del command amb valors buits
+		// Inicialitza els camps del command amb valors buits o els valors per defecte
 		for (TascaDadaDto camp: tascaDades) {
 			if (!camp.getCampTipus().equals(CampTipusDto.REGISTRE)) {
 				Object valor = null;
+				if (valorsPerDefecte != null 
+						&& valorsPerDefecte.containsKey(camp.getVarCodi()))
+					valor = valorsPerDefecte.get(camp.getVarCodi());
 				try {
 					if (isCampMultiple(camp, esConsultaPerTipus)) {
 						if (camp.getCampTipus().equals(CampTipusDto.TERMINI)) {
