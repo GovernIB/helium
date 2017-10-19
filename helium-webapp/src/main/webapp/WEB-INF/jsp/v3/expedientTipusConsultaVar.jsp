@@ -218,7 +218,7 @@
 			if (valor == undefined || valor == '' || valor > 12)
 				valor = 12;
 			else if (valor <= 0) 
-				valor = 1;
+				valor = 0;
 			
 			$("#buitCols_" + variableId).val(definirAmpleBuit(valor, $("#buitCols_" + variableId).val()));
 		} else {

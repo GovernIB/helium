@@ -65,8 +65,10 @@ public class ConsultaHelper {
 			DefinicioProces definicioProces = null;
 			Camp campRes = null;
 			if (camp.getCampCodi().startsWith(ExpedientCamps.EXPEDIENT_PREFIX)) {
+				// Camp expedient
 				campRes = getCampExpedient(camp.getCampCodi());
-			} else {
+			} else if (camp.getDefprocJbpmKey() != null ) {
+				// Definició de procés
 				definicioProces = definicioProcesRepository.findByJbpmKeyAndVersio(
 						camp.getDefprocJbpmKey(),
 						camp.getDefprocVersio());
@@ -75,6 +77,11 @@ public class ConsultaHelper {
 							definicioProces,
 							camp.getCampCodi());
 				}
+			} else if (consulta.getExpedientTipus() != null){
+				// Tipus d'expedient
+				campRes = campRepository.findByExpedientTipusAndCodi(
+						consulta.getExpedientTipus(),
+						camp.getCampCodi()); 
 			}
 			if (campRes != null) {
 				tascaDadaDto = variableHelper.getTascaDadaDtoParaConsultaDisseny(campRes,tipus);
