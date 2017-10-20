@@ -502,7 +502,6 @@
 						url: sSource,
 						data: aoData,
 						success: fnCallback,
-						timeout: 20000,
 						error: function (xhr, textStatus, errorThrown) {
 							$('.datatable-dades-carregant', this).hide();
 							ajaxErrorFunction(xhr, textStatus, errorThrown);
