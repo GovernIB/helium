@@ -195,6 +195,8 @@ public class ConsultaHelper {
 			campExpedient.setCodi(campCodi);
 			campExpedient.setTipus(TipusCamp.SELECCIO);
 			campExpedient.setEtiqueta(messageHelper.getMessage("etiqueta.exp.estat"));
+		} else {
+			campExpedient = null;
 		}
 		return campExpedient;
 	}

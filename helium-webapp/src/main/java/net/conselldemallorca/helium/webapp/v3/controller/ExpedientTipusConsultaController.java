@@ -417,6 +417,8 @@ public class ExpedientTipusConsultaController extends BaseExpedientTipusControll
     								new Object[] {commandDto.getCampCodi(), e.getLocalizedMessage()}));
     			}
     		}
+        	// Esborra de la sessió el filtre
+			SessionHelper.removeAttribute(request, SessionHelper.VARIABLE_FILTRE_CONSULTA_TIPUS + consultaId);
     		if (nSuccess > 0)
 				MissatgesHelper.success(
 						request,
@@ -440,6 +442,9 @@ public class ExpedientTipusConsultaController extends BaseExpedientTipusControll
 		try {
 			expedientTipusService.consultaCampDelete(id);
 			
+        	// Esborra de la sessió el filtre
+			SessionHelper.removeAttribute(request, SessionHelper.VARIABLE_FILTRE_CONSULTA_TIPUS + consultaId);
+
 			MissatgesHelper.success(
 					request,
 					getMessage(
