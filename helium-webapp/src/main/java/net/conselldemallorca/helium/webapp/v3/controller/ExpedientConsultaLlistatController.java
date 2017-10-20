@@ -69,7 +69,10 @@ public class ExpedientConsultaLlistatController extends BaseExpedientController 
 		Object filtreCommand = SessionHelper.getAttribute(
 				request,
 				SessionHelper.VARIABLE_FILTRE_CONSULTA_TIPUS + consultaId);
-		if (filtreCommand != null) {
+		ConsultaDto consulta = dissenyService.findConsulteById(consultaId);
+		List<TascaDadaDto> campsFiltre = expedientService.findConsultaFiltre(consultaId);
+		if (filtreCommand != null 
+				&& TascaFormHelper.commandForCampsValid( filtreCommand, campsFiltre)) {
 			return filtreCommand;
 		}
 		Map<String, Object> campsAddicionals = new HashMap<String, Object>();
@@ -86,14 +89,11 @@ public class ExpedientConsultaLlistatController extends BaseExpedientController 
 		campsAddicionalsClasses.put("consultaId", Long.class);
 		campsAddicionalsClasses.put("nomesTasquesPersonals", Boolean.class);
 		campsAddicionalsClasses.put("nomesTasquesGrup", Boolean.class);
-		List<TascaDadaDto> campsFiltre = expedientService.findConsultaFiltre(consultaId);
-		ConsultaDto consulta = dissenyService.findConsulteById(consultaId);
-		Map<String, String> valorsPerDefecteConsulta = consulta.getMapValorsPredefinits();
 		return TascaFormHelper.getCommandBuitForCamps(
 				campsFiltre,
 				campsAddicionals,
 				campsAddicionalsClasses,
-				valorsPerDefecteConsulta.size() > 0 ? valorsPerDefecteConsulta : null,
+				consulta.getMapValorsPredefinits().size() > 0 ? consulta.getMapValorsPredefinits() : null,
 				true);
 	}
 

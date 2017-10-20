@@ -8,16 +8,12 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
-
-import net.conselldemallorca.helium.v3.core.api.dto.CampTipusDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDadaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ValidacioDto;
-import net.sf.cglib.beans.BeanGenerator;
 
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.logging.Log;
@@ -28,6 +24,12 @@ import org.springmodules.validation.bean.conf.DefaultBeanValidationConfiguration
 import org.springmodules.validation.bean.conf.loader.SimpleBeanValidationConfigurationLoader;
 import org.springmodules.validation.bean.rule.ExpressionValidationRule;
 import org.springmodules.validation.util.cel.valang.ValangConditionExpressionParser;
+
+import net.conselldemallorca.helium.v3.core.api.dto.CampTipusDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDadaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ValidacioDto;
+import net.sf.cglib.beans.BeanGenerator;
 
 
 /**
@@ -902,5 +904,40 @@ public class TascaFormHelper {
 	}
 
 	private static final Log logger = LogFactory.getLog(TascaFormHelper.class);
+
+
+	/** Comprova que l'objecte command tingui tots els camps del filtre. Si no els retorna fals.*/
+	public static boolean commandForCampsValid(
+		Object command, 
+		List<TascaDadaDto> tascaDades) {
+	
+		if (command == null)
+			return false;
+		
+		boolean valid = true;
+		// Crea un conjunt de propietats
+		Set<String> propietats = new HashSet<String>();
+		String name;
+		for  (Method method : command.getClass().getDeclaredMethods()) {
+			if (method.getReturnType() != void.class) {
+				name=method.getName();
+			    if(name.startsWith("get"))
+			    {
+			        name = name.substring(3);
+			    }else if(name.startsWith("is"))
+			    {
+			        name = name.substring(2);
+			    }
+				propietats.add(name.toLowerCase());
+			}
+		}
+		// Comprova que hi siguin totes
+		for (TascaDadaDto dada :tascaDades)
+			if (!propietats.contains(dada.getVarCodi().toLowerCase())) {
+				valid = false;
+				break;
+			}
+		return valid;
+	}
 
 }
