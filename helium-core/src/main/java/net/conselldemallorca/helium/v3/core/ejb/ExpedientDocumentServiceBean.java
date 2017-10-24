@@ -43,7 +43,12 @@ public class ExpedientDocumentServiceBean implements ExpedientDocumentService {
 			String titol,
 			String arxiuNom,
 			byte[] arxiuContingut,
-			Date data) {
+			Date data, 
+			String ntiTipusDocumental, 
+			String ntiTipusFirma, 
+			String ntiValorCsv, 
+			String ntiDefGenCsv, 
+			String ntiOrigen) {
 		
 		delegate.createOrUpdate(
 				expedientId,
@@ -53,7 +58,12 @@ public class ExpedientDocumentServiceBean implements ExpedientDocumentService {
 				titol,
 				arxiuNom,
 				arxiuContingut,
-				data);
+				data, 
+				ntiTipusDocumental, 
+				ntiTipusFirma, 
+				ntiValorCsv, 
+				ntiDefGenCsv, 
+				ntiOrigen);
 	}
 
 	@Override

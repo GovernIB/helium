@@ -150,7 +150,7 @@
 			 		$("a[name='document_modificar']").attr("href","../../v3/expedient/massiva/"+docId+"/documentModificar?inici="+$("#inici").val()+"&correu="+$("#correu").is(":checked"));
 			 		$("button[value='document_esborrar']").prop('disabled', false);
 			 	}
-				$("a[name='document_adjuntar_massiu']").attr("href","../../v3/expedient/massiva/documentAdjunt?inici="+$("#inici").val()+"&correu="+$("#correu").is(":checked"));
+				$("a[name='document_adjuntar_massiu']").attr("href","../../v3/expedient/massiva/documentAdjunt?inici="+$("#inici").val()+"&correu="+$("#correu").is(":checked")+"&docId="+docId);
 			 	$("button[value='document_generar']").prop('disabled', !eval("docPlantilla." + doc));
 			});
 			$("button[value='document_esborrar']").prop('disabled', true);
@@ -477,7 +477,6 @@
 				<c:if test="${not empty documents}">
 					<form:form cssClass="form-horizontal form-tasca" id="documentModificarMas" name="documentModificarMas" action="massiva/documentModificarMas" method="post" commandName="documentExpedientCommand" onsubmit="return confirmarModificarDocument(event)">
 						<hel:inputSelect inline="true" name="docId" textKey="expedient.massiva.documents" placeholderKey="expedient.consulta.select.document" optionItems="${documents}" optionValueAttribute="id" optionTextAttribute="documentNom" required="true" emptyOption="true"/>
-						
 						<a data-rdt-link-modal-min-height="500" class="btn btn-primary right" name="document_modificar" href="#" data-rdt-link-modal="true"><spring:message code='comuns.modificar' /></a>
 						
 						<button class="btn btn-primary right" type="submit" name="accio" value="document_generar">

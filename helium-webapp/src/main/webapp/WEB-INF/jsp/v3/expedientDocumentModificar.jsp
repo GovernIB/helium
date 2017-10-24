@@ -24,8 +24,8 @@
 <style type="text/css">
 	.btn-file {position: relative; overflow: hidden;}
 	.btn-file input[type=file] {position: absolute; top: 0; right: 0; min-width: 100%; min-height: 100%; font-size: 100px; text-align: right; filter: alpha(opacity = 0); opacity: 0; outline: none; background: white; cursor: inherit; display: block;}
-	.col-xs-4 {width: 7%;}		
-	.col-xs-8 {width: 93%;}
+	.col-xs-4 {width: 20%;}		
+	.col-xs-8 {width: 80%;}
 	#s2id_estatId {width: 100% !important;}
 	.titol-missatge {
 		margin-left: 3px;
@@ -34,6 +34,13 @@
 	}
 	.titol-missatge label {
 		padding-right: 10px;
+	}
+	.nav-tabs li.disabled a {
+	    pointer-events: none;
+	}
+	.tab-pane {
+		min-height: 300px;
+		margin-top: 25px;
 	}
 </style>
 </head>
@@ -63,28 +70,61 @@
 					</a>
 				</c:if>
 			</h4>
-			<br/>
-			<c:choose>
-				<c:when test="${document.adjunt}">
-					<hel:inputText required="true" name="nom" textKey="expedient.document.titol" placeholderKey="expedient.document.titol"/>
-				</c:when>
-				<c:otherwise>
-					<form:hidden path="nom"/>
-				</c:otherwise>
-			</c:choose>			
-			<div id="amagarFile" class="form-group <c:if test="${downloadUrl != ''}">hide</c:if>">
-				<label class="control-label col-xs-4 obligatori" for="nom"><spring:message code='expedient.document.arxiu' /></label>
-		        <div class="col-xs-8 arxiu">					
-		            <div class="input-group">
-		                <form:input path="nomArxiu" readonly="readonly" cssClass="form-control" />
-		                <span class="input-group-btn">
-		                    <span class="btn btn-default btn-file">
-		                        <spring:message code='expedient.document.arxiu' />… <input type="file" name="arxiu">
-		                    </span>
-		                </span>
-		            </div>
+
+			<c:if test="${metadades}">
+				<div>
+					<ul class="nav nav-tabs" role="tablist">
+						<li id="pipella-general" class="active"><a href="#dades-generals" role="tab" data-toggle="tab"><spring:message code="expedient.document.pipella.general"/></a></li>
+						<li id="pipella-nti"><a href="#dades-nti" role="tab" data-toggle="tab"><spring:message code="expedient.document.pipella.nti"/></a></li>
+					</ul>
+				</div>
+			</c:if>
+
+
+			<div class="tab-content">
+				<div id="dades-generals" class="tab-pane in active">	
+
+					<c:choose>
+						<c:when test="${document.adjunt}">
+							<hel:inputText required="true" name="nom" textKey="expedient.document.titol" placeholderKey="expedient.document.titol"/>
+						</c:when>
+						<c:otherwise>
+							<form:hidden path="nom"/>
+						</c:otherwise>
+					</c:choose>			
+					<div id="amagarFile" class="form-group <c:if test="${downloadUrl != ''}">hide</c:if>">
+						<label class="control-label col-xs-4 obligatori" for="nom"><spring:message code='expedient.document.arxiu' /></label>
+				        <div class="col-xs-8 arxiu">					
+				            <div class="input-group">
+				                <form:input path="nomArxiu" readonly="readonly" cssClass="form-control" />
+				                <span class="input-group-btn">
+				                    <span class="btn btn-default btn-file">
+				                        <spring:message code='expedient.document.arxiu' />… <input type="file" name="arxiu">
+				                    </span>
+				                </span>
+				            </div>
+						</div>
+					</div>
+					<hel:inputDate required="true" name="data" textKey="expedient.document.data" placeholder="dd/mm/aaaa"/>
+					
+				</div>
+				<div id="dades-nti" class="tab-pane">
+
+					<c:if test="${metadades}">
+							<hel:inputSelect required="true" emptyOption="true" name="ntiTipusDocumental" textKey="document.metadades.nti.tipus.documental" optionItems="${ntiTipusDocumental}" optionValueAttribute="codi" optionTextAttribute="valor"/>
+							<hel:inputSelect name="ntiTipoFirma" textKey="document.metadades.nti.tipus.firma" required="false" emptyOption="true" optionItems="${ntiTipoFirma}" optionValueAttribute="codi" optionTextAttribute="valor"/>
+							<hel:inputText name="ntiValorCsv" textKey="document.metadades.nti.valor.csv" disabled="${documentExpedientCommand.ntiTipoFirma != 'CSV'}"/>
+							<hel:inputText name="ntiDefGenCsv" textKey="document.metadades.nti.definicio.generacio.csv" disabled="${documentExpedientCommand.ntiTipoFirma != 'CSV'}"/>
+							<hel:inputText name="ntiIdOrigen" textKey="document.metadades.nti.identificador.doc.origen"/>
+					</c:if>
+
 				</div>
 			</div>
+						
+		</div>			
+			
+			
+
 			
 			<script type="text/javascript">
 				// <![CDATA[
@@ -106,8 +146,28 @@
 								alert(log);
 						}
 					});
+					
 					$('#nomArxiu').on('click', function() {
 						$('input[name=arxiu]').click();
+					});
+
+					$('#ntiTipoFirma').on("change", function(e) {
+						var data = $("#ntiTipoFirma option:selected").val();
+						if(data == 'CSV') {
+							$('#ntiValorCsv').prop('disabled', false);
+							$('#ntiDefGenCsv').prop('disabled', false);
+						} else {
+							$('#ntiValorCsv').prop('disabled', true);
+							$('#ntiValorCsv').prop('value', null);
+							$('#ntiDefGenCsv').prop('disabled', true);
+							$('#ntiDefGenCsv').prop('value', null);
+						}
+					});
+
+					// Errors en les pipelles
+					$('.tab-pane').each(function() {
+						if ($('.has-error', this).length > 0) 
+							$('a[href="#' + $(this).attr('id') + '"]').append(' <span class="fa fa-exclamation-triangle text-danger"/>');
 					});
 				}); 				
 
@@ -127,7 +187,7 @@
 				</script>
 			</c:if>
 			
-			<hel:inputDate required="true" name="data" textKey="expedient.document.data" placeholder="dd/mm/aaaa"/>
+			
 		</div>
 		<div id="modal-botons" class="well">
 			<button type="button" class="btn btn-default modal-tancar" name="submit" value="cancel"><spring:message code="comu.boto.cancelar"/></button>

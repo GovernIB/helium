@@ -69,6 +69,7 @@ $(document).ready(function() {
 			$('#ntiValorCsv').prop('readonly', true);
 			$('#ntiDefGenCsv').prop('readonly', true);
 		}
+		$('#ntiTipoFirma').select2().enable($(this).is(':checked'));
 	})
 	$('#ntiTipoFirma').on("change", function(e) {
 		var data = $("#ntiTipoFirma option:selected").val();
@@ -79,14 +80,7 @@ $(document).ready(function() {
 			$('#ntiValorCsv').prop('readonly', true);
 			$('#ntiDefGenCsv').prop('readonly', true);
 		}
-	});
-	$('#ntiTipoFirma').select2().on('select2-selecting', function(e) {
-	    if(!$('#ntiActiu').is(':checked')) {
-	    	e.preventDefault();
-	    	$(this).select2('close');
-	    }
-	});
-	
+	});	
 	
 	$('#expedientTipusMetadadesNtiCommand').submit(function(e){
 		$('#accioGuardarProcessant').show();

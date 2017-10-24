@@ -1392,7 +1392,8 @@ public class DocumentHelperV3 {
 			String ntiTipusDocumental,
 			String ntiTipoFirma,
 			String ntiValorCsv,
-			String ntiDefGenCsv) {
+			String ntiDefGenCsv,
+			String ntiIdOrigen) {
 		
 		DocumentStore documentStore = documentStoreRepository.findById(documentStoreId);
 		
@@ -1420,6 +1421,7 @@ public class DocumentHelperV3 {
 		documentStore.setNtiTipoFirma(ntiTipoFirma);
 		documentStore.setNtiValorCsv(ntiValorCsv);
 		documentStore.setNtiDefGenCsv(ntiDefGenCsv);
+		documentStore.setNtiIdDocOrigen(ntiIdOrigen);
 		
 		return documentStoreId;
 	}

@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
@@ -39,6 +40,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.support.SessionStatus;
+import org.springframework.web.multipart.MultipartFile;
 
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
@@ -50,6 +52,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.ExecucioMassivaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExecucioMassivaDto.ExecucioMassivaTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDadaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.InstanciaProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
 import net.conselldemallorca.helium.v3.core.api.dto.SeleccioOpcioDto;
@@ -70,6 +73,7 @@ import net.conselldemallorca.helium.webapp.v3.command.ExpedientEinesReassignarCo
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientEinesScriptCommand;
 import net.conselldemallorca.helium.webapp.v3.command.ModificarVariablesCommand;
 import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
+import net.conselldemallorca.helium.webapp.v3.helper.NtiHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.ObjectTypeEditorHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper.SessionManager;
@@ -95,6 +99,8 @@ public class MassivaExpedientController extends BaseExpedientController {
 	private TascaService tascaService;
 	@Autowired
 	private ExecucioMassivaService execucioMassivaService;
+	@Resource
+	private NtiHelper ntiHelper;
 
 
 
@@ -460,13 +466,24 @@ public class MassivaExpedientController extends BaseExpedientController {
 				MissatgesHelper.success(request, getMessage(request, "info.document.massiu.generar", new Object[] {listIds.size()}));
 				model.addAttribute("documentExpedientCommand", command);
 			} else if ("document_adjuntar".equals(accio)) {
-				new DocumentAdjuntCrearValidator().validate(command, result);
-		        if (result.hasErrors()) {
-		        	model.addAttribute("documentExpedientCommand", command);
+				new DocumentAdjuntCrearValidator(expedientAux).validate(command, result);
+				MultipartFile arxiu = ((DocumentExpedientCommand) command).getArxiu();
+		        if (result.hasErrors() || arxiu == null || arxiu.isEmpty()) {
+		        	if (arxiu == null || arxiu.isEmpty()) {
+			        	MissatgesHelper.error(request, getMessage(request, "error.especificar.document"));				        	
+			        	((DocumentExpedientCommand) command).setArxiu(null);
+			        }
+		    		if (expedientAux.isNtiActiu() && expedientAux.getTipus().isNtiActiu()) {
+		    			// NTI
+		    			model.addAttribute("metadades", true);
+		    			ntiHelper.omplirTipusDocumental(model);
+		    			ntiHelper.omplirTipusFirma(model);
+		    		}		        	
+		    		model.addAttribute(command);
 		        	return "v3/massivaInfoDocumentAdjunt";
 		        }
 				dto.setTipus(ExecucioMassivaTipusDto.MODIFICAR_DOCUMENT);
-				Object[] params = new Object[4];
+				Object[] params = new Object[9];
 				params[0] = null;
 				params[1] = ((DocumentExpedientCommand) command).getData();
 				params[2] = ((DocumentExpedientCommand) command).getNom();
@@ -474,6 +491,11 @@ public class MassivaExpedientController extends BaseExpedientController {
 					dto.setParam1(multipartName);
 					params[3] = ((DocumentExpedientCommand) command).getArxiu().getBytes();
 				}
+				params[4] = ((DocumentExpedientCommand) command).getNtiTipusDocumental();
+				params[5] = ((DocumentExpedientCommand) command).getNtiTipoFirma();
+				params[6] = ((DocumentExpedientCommand) command).getNtiValorCsv();
+				params[7] = ((DocumentExpedientCommand) command).getNtiDefGenCsv();
+				params[8] = ((DocumentExpedientCommand) command).getNtiIdOrigen();
 				dto.setParam2(execucioMassivaService.serialize(params));
 				execucioMassivaService.crearExecucioMassiva(dto);
 				MissatgesHelper.success(request, getMessage(request, "info.document.massiu.guardat", new Object[] {listIds.size()}));
@@ -631,12 +653,30 @@ public class MassivaExpedientController extends BaseExpedientController {
 			HttpServletRequest request,
 			@RequestParam(value = "inici", required = false) String inici,
 			@RequestParam(value = "correu", required = false) boolean correu,
+			@RequestParam(value = "docId", required = false) Long docId,
 			Model model) {
 		DocumentExpedientCommand command = new DocumentExpedientCommand();
 		command.setData(new Date());
 		model.addAttribute("inici", inici);
 		model.addAttribute("correu", correu);
-		model.addAttribute("documentExpedientCommand", command);
+		// Mira si el tipus d'expedient té metadades NTI i tots els primer seleccionat
+		Set<Long> ids = recuperarIdsAccionesMasivas(request);
+		if (ids == null || ids.isEmpty()) {
+			MissatgesHelper.error(request, getMessage(request, "error.no.exp.selec"));
+			return "redirect:/v3";
+		}
+		// NTI
+		if (docId == null) {
+			List<Long> listIds = new ArrayList<Long>(ids);
+			ExpedientDto expedient = expedientService.findAmbId(listIds.get(0));
+			if (expedient.isNtiActiu() && expedient.getTipus().isNtiActiu()) {
+				command.setNtiTipusDocumental(DocumentDto.TipoDocumental.ALTRES.getCodi());
+				model.addAttribute("metadades", true);
+				ntiHelper.omplirTipusDocumental(model);
+				ntiHelper.omplirTipusFirma(model);
+			}
+		}
+		model.addAttribute(command);
 		return "v3/massivaInfoDocumentAdjunt";
 	}
 
@@ -658,8 +698,8 @@ public class MassivaExpedientController extends BaseExpedientController {
 			HttpServletRequest request,
 			@RequestParam(value = "inici", required = false) String inici,
 			@RequestParam(value = "correu", required = false) boolean correu,
-			@ModelAttribute DocumentExpedientCommand command, 
 			@RequestParam(value = "accio", required = true) String accio,
+			@ModelAttribute DocumentExpedientCommand command, 
 			BindingResult result, 
 			SessionStatus status, 
 			Model model) {		
@@ -836,6 +876,12 @@ public class MassivaExpedientController extends BaseExpedientController {
 	}
 	
 	private class DocumentAdjuntCrearValidator implements Validator {
+		
+		private ExpedientDto expedient;
+		
+		public DocumentAdjuntCrearValidator(ExpedientDto expedient) {
+			this.expedient = expedient;
+		}
 		@SuppressWarnings({ "unchecked", "rawtypes" })
 		public boolean supports(Class clazz) {
 			return clazz.isAssignableFrom(Object.class);
@@ -843,7 +889,13 @@ public class MassivaExpedientController extends BaseExpedientController {
 		public void validate(Object command, Errors errors) {
 			ValidationUtils.rejectIfEmpty(errors, "nom", "not.blank");
 			ValidationUtils.rejectIfEmpty(errors, "data", "not.blank");
-			ValidationUtils.rejectIfEmpty(errors, "contingut", "not.blank");
+ 			// NTI
+ 			if (expedient.isNtiActiu() && expedient.getTipus().isNtiActiu()) {
+ 				DocumentExpedientCommand aux_command = (DocumentExpedientCommand) command;
+ 				ValidationUtils.rejectIfEmpty(errors, "ntiTipusDocumental", "not.blank");
+ 				if (ExpedientTipusDto.TipoFirma.CSV.toString().equals(aux_command.getNtiTipoFirma()))
+ 					ValidationUtils.rejectIfEmpty(errors, "ntiValorCsv", "not.blank");
+ 			} 				
 		}
 	}
 

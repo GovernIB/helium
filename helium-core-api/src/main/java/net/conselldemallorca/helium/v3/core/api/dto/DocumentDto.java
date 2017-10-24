@@ -5,7 +5,6 @@ package net.conselldemallorca.helium.v3.core.api.dto;
 
 import java.io.Serializable;
 import java.util.Date;
-import java.util.List;
 
 
 /**
@@ -18,21 +17,22 @@ public class DocumentDto implements Serializable {
 	public enum TipoDocumental {
 		
 		RESOLUCIO				("TD01"),
-	    ACORD					("RD02"),
-		CONTRACTE				("RD03"),
-		CONVENI					("RD04"),
-		DECLARACIO				("RD05"),
-		COMUNICACIO				("RD06"),
-		NOTIFICACIO				("RD07"),
-		PUBLICACIO				("RD08"),
-		JUSTIFICANT_REBUT		("RD09"),
-		ACTA					("RD10"),
-		CERTIFICAT				("RD11"),
-		DILIGENCIA				("RD12"),
-		INFORME					("RD13"),
-		SOLICITUD				("RD14"),
-		DENUNCIA				("RD15"),
-		ALEGACIO				("RD16");
+	    ACORD					("TD02"),
+		CONTRACTE				("TD03"),
+		CONVENI					("TD04"),
+		DECLARACIO				("TD05"),
+		COMUNICACIO				("TD06"),
+		NOTIFICACIO				("TD07"),
+		PUBLICACIO				("TD08"),
+		JUSTIFICANT_REBUT		("TD09"),
+		ACTA					("TD10"),
+		CERTIFICAT				("TD11"),
+		DILIGENCIA				("TD12"),
+		INFORME					("TD13"),
+		SOLICITUD				("TD14"),
+		DENUNCIA				("TD15"),
+		ALEGACIO				("TD16"),
+		ALTRES					("TD99");
 		
 		private final String codi;
 	    

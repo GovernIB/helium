@@ -45,6 +45,11 @@ public interface ExpedientDocumentService {
 	 *             contingut de l'arxiu del document.
 	 * @param data
 	 *             data del document.          
+	 * @param ntiOrigen 
+	 * @param ntiDefGenCsv 
+	 * @param ntiValorCsv 
+	 * @param ntiTipusFirma 
+	 * @param ntiTipusDocumental 
 	 *             
 	 * @throws NoTrobatException
 	 *             Si no s'ha trobat l'element amb l'id especificat.
@@ -59,7 +64,12 @@ public interface ExpedientDocumentService {
 			String titol,
 			String arxiuNom,
 			byte[] arxiuContingut,
-			Date data) throws NoTrobatException, PermisDenegatException;
+			Date data, 
+			String ntiTipusDocumental, 
+			String ntiTipusFirma, 
+			String ntiValorCsv, 
+			String ntiDefGenCsv, 
+			String ntiOrigen) throws NoTrobatException, PermisDenegatException;
 
 	/**
 	 * Esborra un document d'una instància de procés.

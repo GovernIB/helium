@@ -5,8 +5,6 @@ package net.conselldemallorca.helium.webapp.v3.controller;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -14,7 +12,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
-import net.conselldemallorca.helium.core.model.hibernate.Estat;
 import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
@@ -55,8 +52,5 @@ public class ExpedientMetadadesNtiInfoController extends BaseExpedientController
 		
 		return "v3/expedientMetadadesNtiInfo";
 	}
-	
-	
-	private static final Log logger = LogFactory.getLog(ExpedientMetadadesNtiInfoController.class);
 	
 }

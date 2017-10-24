@@ -6,6 +6,7 @@ package net.conselldemallorca.helium.webapp.v3.controller;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.io.IOUtils;
@@ -39,6 +40,7 @@ import net.conselldemallorca.helium.webapp.v3.helper.DatatablesHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.DatatablesHelper.DatatablesResponse;
 import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.NodecoHelper;
+import net.conselldemallorca.helium.webapp.v3.helper.NtiHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
 
 /**
@@ -55,6 +57,9 @@ public class DefinicioProcesDocumentController extends BaseDefinicioProcesContro
 	
 	@Autowired
 	private ConversioTipusHelper conversioTipusHelper;
+	
+	@Resource
+	private NtiHelper ntiHelper;
 
 	@RequestMapping(value = "/{jbmpKey}/{definicioProcesId}/documents")
 	public String documents(
@@ -111,8 +116,8 @@ public class DefinicioProcesDocumentController extends BaseDefinicioProcesContro
 		command.setDefinicioProcesId(definicioProcesId);
 		model.addAttribute("expedientTipusDocumentCommand", command);
 		omplirModelCamps(request, definicioProcesId, model);
-		omplirTipusDocumental(request, model);
-		omplirTipusFirma(request, model);
+		ntiHelper.omplirTipusDocumental(model);
+		ntiHelper.omplirTipusFirma(model);
 		
 		return "v3/expedientTipusDocumentForm";
 	}
@@ -133,8 +138,8 @@ public class DefinicioProcesDocumentController extends BaseDefinicioProcesContro
 				model.addAttribute("metadades", definicioProcesDto.getExpedientTipus().isNtiActiu());
 				
 				omplirModelCamps(request, definicioProcesId, model);
-				omplirTipusDocumental(request, model);
-				omplirTipusFirma(request, model);
+				ntiHelper.omplirTipusDocumental(model);
+				ntiHelper.omplirTipusFirma(model);
 				
 				return "v3/expedientTipusDocumentForm";
 			} else {
@@ -182,8 +187,8 @@ public class DefinicioProcesDocumentController extends BaseDefinicioProcesContro
 		command.setCampId(dto.getCampData() != null ? dto.getCampData().getId() : null);
 		model.addAttribute("expedientTipusDocumentCommand", command);
 		omplirModelCamps(request, definicioProcesId, model);
-		omplirTipusDocumental(request, model);
-		omplirTipusFirma(request, model);
+		ntiHelper.omplirTipusDocumental(model);
+		ntiHelper.omplirTipusFirma(model);
 		
 		return "v3/expedientTipusDocumentForm";
 	}
@@ -204,8 +209,8 @@ public class DefinicioProcesDocumentController extends BaseDefinicioProcesContro
 				model.addAttribute("metadades", definicioProcesDto.getExpedientTipus().isNtiActiu());
 				
 				omplirModelCamps(request, definicioProcesId, model);
-				omplirTipusDocumental(request, model);
-				omplirTipusFirma(request, model);
+				ntiHelper.omplirTipusDocumental(model);
+				ntiHelper.omplirTipusFirma(model);
 				
 				return "v3/expedientTipusDocumentForm";
 			} else {
@@ -289,32 +294,7 @@ public class DefinicioProcesDocumentController extends BaseDefinicioProcesContro
 			resposta.add(new ParellaCodiValorDto(camp.getId().toString(), (camp.getCodi() + "/" + camp.getEtiqueta())));
 		}
 		model.addAttribute("camps", resposta);
-	}
-	
-	private void omplirTipusDocumental(
-			HttpServletRequest request,
-			Model model) {
-		List<ParellaCodiValorDto> tdlist = new ArrayList<ParellaCodiValorDto>();
-		for(DocumentDto.TipoDocumental td : DocumentDto.TipoDocumental.values())
-			tdlist.add(new ParellaCodiValorDto(
-					td.getCodi(),
-					getMessage(request, "tipus.documental." + td)));
-		
-		model.addAttribute("ntiTipusDocumental", tdlist);
-	}
-	
-	private void omplirTipusFirma(
-			HttpServletRequest request,
-			Model model) {
-		List<ParellaCodiValorDto> tdlist = new ArrayList<ParellaCodiValorDto>();
-		for(ExpedientTipusDto.TipoFirma tf : ExpedientTipusDto.TipoFirma.values())
-			tdlist.add(new ParellaCodiValorDto(
-					tf.toString(),
-					getMessage(request, "tipo.firma." + tf)));
-		
-		model.addAttribute("ntiTipoFirma", tdlist);
-	}
-	
+	}	
 	
 	private static final Log logger = LogFactory.getLog(DefinicioProcesDocumentController.class);
 }
