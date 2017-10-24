@@ -42,9 +42,7 @@ import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessInstance;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmTask;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
-import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDocumentDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PortasignaturesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RespostaValidacioSignaturaDto;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
@@ -109,7 +107,12 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 			String titol,
 			String arxiuNom,
 			byte[] arxiuContingut,
-			Date data) {
+			Date data, 
+			String ntiTipusDocumental, 
+			String ntiTipusFirma, 
+			String ntiValorCsv, 
+			String ntiDefGenCsv, 
+			String ntiIdOrigen) {
 		
 		logger.debug("Creant o modificant document de la instància de procés (" +
 				"expedientId=" + expedientId + ", " +
@@ -119,7 +122,12 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 				"titol=" + titol + ", " +
 				"arxiuNom=" + arxiuNom + ", " +
 				"arxiuContingut.length=" + ((arxiuContingut != null) ? arxiuContingut.length : "<null>") + ", " +
-				"data=" + data + ")");
+				"data=" + data + ", " + 
+				"ntiTipusDocumental=" + ntiTipusDocumental + ", " +
+				"ntiTipusFirma=" + ntiTipusFirma + ", " +
+				"ntiValorCsv=" + ntiValorCsv + ", " +
+				"ntiDefGenCsv=" + ntiDefGenCsv + ", " +
+				"ntiIdOrigen=" + ntiIdOrigen + ")");
 		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
 				expedientId,
 				new Permission[] {
@@ -200,24 +208,24 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 					data,
 					arxiuNom,
 					arxiuContingut,
-					adjunt);
-			
-			
-			
-			documentStoreId = documentHelper.actualizarMetadadesNti(
-					expedient,
-					documentStoreId,
-					expedient.getTipus().getNtiActiu(),
-					VERSIO_NTI,
-					expedient.getNtiOrgan(),
-					ORIGEN_NTI,
-					ESTAT_ELABORACIO_NTI,
-					FilenameUtils.getExtension(arxiuNom),
-					document != null? document.getNtiTipusDocumental() : null,
-					document != null? document.getNtiTipoFirma() : null,
-					document != null? document.getNtiValorCsv() : null,
-					document != null? document.getNtiDefGenCsv() : null);
+					adjunt);			
 		}
+		// Metadades NTI
+		documentStoreId = documentHelper.actualizarMetadadesNti(
+				expedient,
+				documentStoreId,
+				expedient.getTipus().getNtiActiu(),
+				VERSIO_NTI,
+				expedient.getNtiOrgan(),
+				ORIGEN_NTI,
+				ESTAT_ELABORACIO_NTI,
+				FilenameUtils.getExtension(arxiuNom),
+				document != null ? document.getNtiTipusDocumental() : ntiTipusDocumental,
+				document != null ? document.getNtiTipoFirma() : ntiTipusFirma,
+				document != null ? document.getNtiValorCsv() : ntiValorCsv,
+				document != null ? document.getNtiDefGenCsv() : ntiDefGenCsv,
+				document != null ? null : ntiIdOrigen);
+		
 		String user = SecurityContextHolder.getContext().getAuthentication().getName();
 		// Registra l'acció
 		if (creat) {
@@ -602,7 +610,8 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 					document.getNtiTipusDocumental(),
 					document.getNtiTipoFirma(),
 					document.getNtiValorCsv(),
-					document.getNtiDefGenCsv());
+					document.getNtiDefGenCsv(),
+					null);
 			
 			return null;
 		} else {
@@ -775,7 +784,8 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 				document.getNtiTipusDocumental(),
 				document.getNtiTipoFirma(),
 				document.getNtiValorCsv(),
-				document.getNtiDefGenCsv());
+				document.getNtiDefGenCsv(),
+				null);
 		
 		indexHelper.expedientIndexLuceneUpdate(processInstanceId);
 

@@ -5,8 +5,6 @@ package net.conselldemallorca.helium.webapp.v3.controller;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -50,9 +48,6 @@ public class DocumentMetadadesNtiInfoController extends BaseExpedientController 
 		model.addAttribute("documentStore", documentStoreDto);
 		
 		return "v3/documentMetadadesNtiInfo";
-	}
-	
-	
-	private static final Log logger = LogFactory.getLog(DocumentMetadadesNtiInfoController.class);
-	
+	}	
+
 }

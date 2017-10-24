@@ -22,6 +22,13 @@ public class DocumentExpedientCommand {
 	private MultipartFile arxiu;
 	private String nom;
 	private String codi;
+	
+	// Meta dades NTI
+	private String ntiTipusDocumental;
+	private String ntiTipoFirma;
+	private String ntiValorCsv;
+	private String ntiDefGenCsv;
+	private String ntiIdOrigen;
 
 	public DocumentExpedientCommand() {}
 
@@ -61,12 +68,50 @@ public class DocumentExpedientCommand {
 	public void setNomArxiu(String nomArxiu) {
 		this.nomArxiu = nomArxiu;
 	}
-	
 	public String getDocumentCodi() {
  		return documentCodi;
  	}
-
  	public void setDocumentCodi(String documentCodi) {
  		this.documentCodi = documentCodi;
  	}
+
+	public String getNtiTipusDocumental() {
+		return ntiTipusDocumental;
+	}
+
+	public void setNtiTipusDocumental(String ntiTipusDocumental) {
+		this.ntiTipusDocumental = ntiTipusDocumental;
+	}
+
+	public String getNtiTipoFirma() {
+		return ntiTipoFirma;
+	}
+
+	public void setNtiTipoFirma(String ntiTipoFirma) {
+		this.ntiTipoFirma = ntiTipoFirma;
+	}
+
+	public String getNtiValorCsv() {
+		return ntiValorCsv;
+	}
+
+	public void setNtiValorCsv(String ntiValorCsv) {
+		this.ntiValorCsv = ntiValorCsv;
+	}
+
+	public String getNtiDefGenCsv() {
+		return ntiDefGenCsv;
+	}
+
+	public void setNtiDefGenCsv(String ntiDefGenCsv) {
+		this.ntiDefGenCsv = ntiDefGenCsv;
+	}
+
+	public String getNtiIdOrigen() {
+		return ntiIdOrigen;
+	}
+
+	public void setNtiIdOrigen(String ntiidOrigen) {
+		this.ntiIdOrigen = ntiidOrigen;
+	}
 }
