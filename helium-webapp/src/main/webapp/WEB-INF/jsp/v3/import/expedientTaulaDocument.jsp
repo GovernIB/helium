@@ -159,7 +159,7 @@
 										<c:if test="${not empty document.dataCreacio}">
 											<tr>
 												<td>
-													<spring:message code='expedient.document.adjuntat' /> <fmt:formatDate value="${document.dataCreacio}" pattern="dd/MM/yyyy hh:mm"/>
+													<spring:message code='expedient.document.adjuntat' /> <fmt:formatDate value="${document.dataCreacio}" pattern="dd/MM/yyyy HH:mm"/>
 												</td>
 											</tr>
 										</c:if>

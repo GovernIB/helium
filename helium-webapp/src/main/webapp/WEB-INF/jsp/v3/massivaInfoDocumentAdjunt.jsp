@@ -20,6 +20,7 @@
 	<script src="<c:url value="/js/moment-with-locales.min.js"/>"></script>
 	<script src="<c:url value="/js/bootstrap-datetimepicker.js"/>"></script>
 	<link href="<c:url value="/css/bootstrap-datetimepicker.min.css"/>" rel="stylesheet">
+
 	
 <style type="text/css">
 	.btn-file {position: relative; overflow: hidden;}
@@ -51,7 +52,18 @@
 				<div class="inlineLabels">
 					<input id="inici" name="inici" value="${inici}" type="hidden"/>
 					<input id="correu" name="correu" value="${correu}" type="hidden"/>
-					<hel:inputText required="true" name="nom" textKey="expedient.document.titol" placeholderKey="expedient.document.titol"/>
+					<input id="docId" name="docId" value="${documentExpedientCommand.docId}" type="hidden"/>
+					
+					<c:choose>
+						<c:when test="${documentExpedientCommand.docId == null}">
+							<hel:inputText required="true" name="nom" textKey="expedient.document.titol" disabled="${documentExpedientCommand.docId != null}"/>						
+						</c:when>
+						<c:otherwise>
+							<h4 class="titol-missatge">
+								${documentExpedientCommand.nom}
+							</h4>
+						</c:otherwise>
+					</c:choose>
 					<div id="amagarFile" class="form-group">
 						<label class="control-label col-xs-4 obligatori" for="nom"><spring:message code='expedient.document.arxiu' /></label>
 				        <div class="col-xs-8 arxiu">					
@@ -137,7 +149,6 @@
 			// Errors en les pipelles
 			$('.tab-pane').each(function() {
 				if ($('.has-error', this).length > 0) {
-					alert('kk');
 					$('a[href="#' + $(this).attr('id') + '"]').append(' <span class="fa fa-exclamation-triangle text-danger"/>');
 				}
 			});

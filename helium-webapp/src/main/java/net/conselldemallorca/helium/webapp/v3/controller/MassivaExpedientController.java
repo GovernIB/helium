@@ -59,6 +59,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.SeleccioOpcioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.exception.SistemaExternConversioDocumentException;
+import net.conselldemallorca.helium.v3.core.api.service.DocumentService;
 import net.conselldemallorca.helium.v3.core.api.service.ExecucioMassivaService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientDadaService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientDocumentService;
@@ -99,6 +100,8 @@ public class MassivaExpedientController extends BaseExpedientController {
 	private TascaService tascaService;
 	@Autowired
 	private ExecucioMassivaService execucioMassivaService;
+	@Autowired
+	private DocumentService documentService;
 	@Resource
 	private NtiHelper ntiHelper;
 
@@ -170,7 +173,8 @@ public class MassivaExpedientController extends BaseExpedientController {
 			model.addAttribute(new CanviVersioProcesCommand());
 			model.addAttribute(new ExpedientEinesAturarCommand());
 			model.addAttribute(new ModificarVariablesCommand());
-			model.addAttribute(new DocumentExpedientCommand());
+			if(!model.containsAttribute("documentExpedientCommand"))
+				model.addAttribute(new DocumentExpedientCommand());
 			model.addAttribute(new ExpedientEinesReassignarCommand());
 			model.addAttribute(
 					"accions",
@@ -329,6 +333,7 @@ public class MassivaExpedientController extends BaseExpedientController {
 			Model model, 
 			String multipartName,
 			Long campId) {		
+		
 		getExpedient(request, null, true, model);
 		Set<Long> ids = recuperarIdsAccionesMasivas(request);
 		if (ids == null || ids.isEmpty()) {
@@ -472,19 +477,28 @@ public class MassivaExpedientController extends BaseExpedientController {
 		        	if (arxiu == null || arxiu.isEmpty()) {
 			        	MissatgesHelper.error(request, getMessage(request, "error.especificar.document"));				        	
 			        	((DocumentExpedientCommand) command).setArxiu(null);
+			        	result.rejectValue("arxiu", "error.especificar.document");
 			        }
-		    		if (expedientAux.isNtiActiu() && expedientAux.getTipus().isNtiActiu()) {
+		        	Long docId = ((DocumentExpedientCommand) command).getDocId();
+	    			if (docId != null) {
+	    				DocumentDto documentDto = documentService.findAmbId(docId);
+	    				((DocumentExpedientCommand) command).setNom(documentDto.getNom());
+	    			}
+		    		if (docId == null
+		    				&& expedientAux.isNtiActiu() 
+		    				&& expedientAux.getTipus().isNtiActiu()) {
 		    			// NTI
 		    			model.addAttribute("metadades", true);
 		    			ntiHelper.omplirTipusDocumental(model);
 		    			ntiHelper.omplirTipusFirma(model);
+
 		    		}		        	
 		    		model.addAttribute(command);
 		        	return "v3/massivaInfoDocumentAdjunt";
 		        }
 				dto.setTipus(ExecucioMassivaTipusDto.MODIFICAR_DOCUMENT);
 				Object[] params = new Object[9];
-				params[0] = null;
+				params[0] = ((DocumentExpedientCommand) command).getDocId(); //TODO: deixar com estava
 				params[1] = ((DocumentExpedientCommand) command).getData();
 				params[2] = ((DocumentExpedientCommand) command).getNom();
 				if (((DocumentExpedientCommand) command).getArxiu().getBytes().length > 0) {
@@ -657,6 +671,7 @@ public class MassivaExpedientController extends BaseExpedientController {
 			Model model) {
 		DocumentExpedientCommand command = new DocumentExpedientCommand();
 		command.setData(new Date());
+		command.setDocId(docId);
 		model.addAttribute("inici", inici);
 		model.addAttribute("correu", correu);
 		// Mira si el tipus d'expedient té metadades NTI i tots els primer seleccionat
@@ -664,6 +679,10 @@ public class MassivaExpedientController extends BaseExpedientController {
 		if (ids == null || ids.isEmpty()) {
 			MissatgesHelper.error(request, getMessage(request, "error.no.exp.selec"));
 			return "redirect:/v3";
+		}
+		if (docId != null) {
+			DocumentDto documentDto = documentService.findAmbId(docId);
+			command.setNom(documentDto.getNom());
 		}
 		// NTI
 		if (docId == null) {
@@ -686,9 +705,9 @@ public class MassivaExpedientController extends BaseExpedientController {
 			@RequestParam(value = "inici", required = false) String inici,
 			@RequestParam(value = "correu", required = false) boolean correu,
 			@RequestParam(value = "accio", required = true) String accio,
+			SessionStatus status, 
 			@ModelAttribute DocumentExpedientCommand command, 
 			BindingResult result, 
-			SessionStatus status, 
 			Model model) {		
 		return massivaPost(request, inici, correu, command, accio, result, status, model, request.getParameter("arxiu"), null);
 	}
@@ -887,10 +906,12 @@ public class MassivaExpedientController extends BaseExpedientController {
 			return clazz.isAssignableFrom(Object.class);
 		}
 		public void validate(Object command, Errors errors) {
-			ValidationUtils.rejectIfEmpty(errors, "nom", "not.blank");
+			Long docId = ((DocumentExpedientCommand) command).getDocId();
+			if (docId == null)
+				ValidationUtils.rejectIfEmpty(errors, "nom", "not.blank");
 			ValidationUtils.rejectIfEmpty(errors, "data", "not.blank");
  			// NTI
- 			if (expedient.isNtiActiu() && expedient.getTipus().isNtiActiu()) {
+ 			if (docId == null && expedient.isNtiActiu() && expedient.getTipus().isNtiActiu()) {
  				DocumentExpedientCommand aux_command = (DocumentExpedientCommand) command;
  				ValidationUtils.rejectIfEmpty(errors, "ntiTipusDocumental", "not.blank");
  				if (ExpedientTipusDto.TipoFirma.CSV.toString().equals(aux_command.getNtiTipoFirma()))
