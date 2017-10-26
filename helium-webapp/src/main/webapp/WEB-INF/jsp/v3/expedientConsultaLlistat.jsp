@@ -190,16 +190,16 @@ $(document).ready(function() {
 				
 				<!-- si tenim el buit menor que 0, l'offset va al davant del camp -->
 				<c:if test="${buitCols < 0}">
-					<div class="col-xs-${buitAbsCols}"></div>
+					<div class="col-sm-${buitAbsCols}"></div>
 				</c:if>
 				
-				<div class="col-xs-${ampleCols}">
+				<div class="col-sm-${ampleCols}">
 					<%@ include file="campsFiltre.jsp" %>
 				</div>
 				
 				<!-- si el buit es major que 0, l'offset va després del camp -->
 				<c:if test="${buitCols > 0}">
-					<div class="col-xs-${buitAbsCols}"></div>
+					<div class="col-sm-${buitAbsCols}"></div>
 				</c:if>
 			</c:forEach>
 			</div>
