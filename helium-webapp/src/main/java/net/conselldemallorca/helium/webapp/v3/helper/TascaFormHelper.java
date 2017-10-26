@@ -6,6 +6,8 @@ package net.conselldemallorca.helium.webapp.v3.helper;
 import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -485,31 +487,28 @@ public class TascaFormHelper {
 		// Inicialitza els camps del command amb valors buits o els valors per defecte
 		for (TascaDadaDto camp: tascaDades) {
 			if (!camp.getCampTipus().equals(CampTipusDto.REGISTRE)) {
-				Object valor = null;
-				if (valorsPerDefecte != null 
-						&& valorsPerDefecte.containsKey(camp.getVarCodi()))
-					valor = valorsPerDefecte.get(camp.getVarCodi());
+				Object valor = obtenirValorDefecte(camp, valorsPerDefecte);
 				try {
 					if (isCampMultiple(camp, esConsultaPerTipus)) {
 						if (camp.getCampTipus().equals(CampTipusDto.TERMINI)) {
 							String[][] terminis = new String[][]{new String[]{"0","0",""}};
 							valor = terminis;
 						} else {
-							valor = Array.newInstance(camp.getJavaClass(), esConsultaPerTipus ? 2 : 1);
+							int tamany = esConsultaPerTipus? 2 : 1;
+							Object a = Array.newInstance(camp.getJavaClass(), tamany);
+							for (int i=0; i<tamany; i++)
+								Array.set(a, i, valor);
+							valor = a;
 						}
-						setSimpleProperty(
-								command,
-								camp.getVarCodi(),
-								valor);
 					} else {
 						if (camp.getCampTipus().equals(CampTipusDto.TERMINI)){
 							valor = new String[3];
 						}
-						setSimpleProperty(
-								command,
-								camp.getVarCodi(),
-								valor);
 					}
+					setSimpleProperty(
+							command,
+							camp.getVarCodi(),
+							valor);
 				} catch (Exception ex) {
 					logger.error("No s'ha pogut afegir el camp al command (" +
 							"campCodi=" + camp.getVarCodi() + ", " +
@@ -901,6 +900,51 @@ public class TascaFormHelper {
 		String[] termini = new String[]{anys, mesos, dies}; 
 		
 		return termini;
+	}
+	
+	/** Obté un objecte a partir del valor per defecte passat per String. */
+	private static Object obtenirValorDefecte(
+			TascaDadaDto camp, 
+			Map<String, String> valorsPerDefecte) {
+		Object valor = null;
+		if (camp != null 
+				&& valorsPerDefecte != null 
+				&& valorsPerDefecte.containsKey(camp.getVarCodi())) {
+			try {
+				CampTipusDto tipus = camp.getCampTipus();
+				String str = valorsPerDefecte.get(camp.getVarCodi());
+				if (tipus != null && str != null && !"".equals(str.trim())) {
+					switch(tipus) {
+						case BOOLEAN:
+							valor = Boolean.parseBoolean(str);
+							break;
+						case DATE:
+							valor = new SimpleDateFormat("dd/MM/yyyy").parse(str);
+							break;
+						case PRICE:
+							valor = new BigDecimal(str);
+							break;
+						case FLOAT:
+							valor = Double.parseDouble(str);
+							break;
+						case INTEGER:
+							valor = Long.parseLong(str);
+							break;
+						case STRING:
+						case SELECCIO:
+						case SUGGEST:
+						case TEXTAREA:
+							valor = str;
+							break;
+						default:
+							break;					
+					}
+				}			
+			} catch (Exception e) {
+				logger.error("Error establint el paràmetre predefinit \"" + camp.getVarCodi() + "\" de tipus \"" + camp.getCampTipus() + "\" amb el valor \"" + valorsPerDefecte.get(camp.getVarCodi()) + "\" pel camp amb id=" + camp.getCampId() );
+			}
+		}
+		return valor;
 	}
 
 	private static final Log logger = LogFactory.getLog(TascaFormHelper.class);

@@ -2354,12 +2354,14 @@ public class ExpedientServiceImpl implements ExpedientService {
 //		return permesa;
 //	}
 
+	/** Afegeix els valors predefinits si aquest no existeixen. */
 	private void afegirValorsPredefinits(
 			Consulta consulta,
 			Map<String, Object> valors,
 			List<Camp> campsFiltre) {
 		for (Camp camp: campsFiltre) {
-			if (consulta.getMapValorsPredefinits().containsKey(camp.getCodi())) {
+			if (consulta.getMapValorsPredefinits().containsKey(camp.getCodi())
+					&& !valors.containsKey(camp.getCodi())) {
 				valors.put(
 						camp.getDefinicioProces()!= null ? camp.getDefinicioProces().getJbpmKey() + "." + camp.getCodi() : camp.getCodi(),
 						Camp.getComObject(
