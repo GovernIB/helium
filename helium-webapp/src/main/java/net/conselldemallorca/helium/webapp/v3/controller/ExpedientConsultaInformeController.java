@@ -148,7 +148,7 @@ public class ExpedientConsultaInformeController extends BaseExpedientController 
 	public  String  mostrarInformeParams(
 			HttpServletRequest request,
 			@PathVariable Long consultaId,
-			@Valid @ModelAttribute("expedientInformeParamsCommand") Object parametrosCommand,			
+			@Valid @ModelAttribute("expedientInformeParametrosCommand") Object parametrosCommand,			
 			BindingResult bindingResult,
 			@RequestParam(value = "accio", required = false) String accio,
 			HttpSession session,
