@@ -77,17 +77,17 @@
 							<c:choose>
 								<%-- STRING -------------------------------------------------------------------------------------%>
 								<c:when test="${camp.campTipus == 'STRING'}">
-									<form:input path="${camp.varCodi}" cssClass="form-control" id="${camp.varCodi}" data-required="${camp.required}" />
+									<form:input path="${camp.varCodi}" cssClass="form-control" id="${camp.varCodi}" data-required="${camp.required}"/>
 								</c:when>
 								
 								<%-- INTEGER ------------------------------------------------------------------------------------%>
 								<c:when test="${camp.campTipus == 'INTEGER'}">
-									<form:input path="${camp.varCodi}" cssClass="form-control text-right enter" id="${camp.varCodi}" data-required="${camp.required}"/>
+									<form:input path="${camp.varCodi}" cssClass="form-control text-right enter" id="${camp.varCodi}" value="0" data-required="${camp.required}"/>
 								</c:when>
 					
 								<%-- FLOAT --------------------------------------------------------------------------------------%>
 								<c:when test="${camp.campTipus == 'FLOAT'}">
-									<form:input path="${camp.varCodi}" cssClass="form-control text-right float" id="${camp.varCodi}" data-required="${camp.required}"/>
+									<form:input path="${camp.varCodi}" cssClass="form-control text-right float" id="${camp.varCodi}" value="0.0" data-required="${camp.required}"/>
 								</c:when>
 					
 								<%-- DATE ---------------------------------------------------------------------------------------%>		

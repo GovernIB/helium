@@ -102,15 +102,15 @@ public class ConsultaHelper {
 		TascaDadaDto tascaDadaDto = null;
 		if (TipusConsultaCamp.PARAM.equals(camp.getTipus())) {
 			if (TipusParamConsultaCamp.SENCER.equals(camp.getParamTipus())) {
-				tascaDadaDto = (new TascaDadaDto(camp.getCampCodi(), CampTipusDto.INTEGER, camp.getCampCodi()));
+				tascaDadaDto = (new TascaDadaDto(camp.getCampCodi(), CampTipusDto.INTEGER, camp.getCampDescripcio() != null ? camp.getCampDescripcio() : camp.getCampCodi()));
 			} else if (TipusParamConsultaCamp.FLOTANT.equals(camp.getParamTipus())) {
-				tascaDadaDto = (new TascaDadaDto(camp.getCampCodi(), CampTipusDto.FLOAT, camp.getCampCodi()));
+				tascaDadaDto = (new TascaDadaDto(camp.getCampCodi(), CampTipusDto.FLOAT, camp.getCampDescripcio() != null ? camp.getCampDescripcio() : camp.getCampCodi()));
 			} else if (TipusParamConsultaCamp.DATA.equals(camp.getParamTipus())) {
-				tascaDadaDto = (new TascaDadaDto(camp.getCampCodi(), CampTipusDto.DATE, camp.getCampCodi()));
+				tascaDadaDto = (new TascaDadaDto(camp.getCampCodi(), CampTipusDto.DATE, camp.getCampDescripcio() != null ? camp.getCampDescripcio() : camp.getCampCodi()));
 			} else if (TipusParamConsultaCamp.BOOLEAN.equals(camp.getParamTipus())) {
-				tascaDadaDto = (new TascaDadaDto(camp.getCampCodi(), CampTipusDto.BOOLEAN, camp.getCampCodi()));
+				tascaDadaDto = (new TascaDadaDto(camp.getCampCodi(), CampTipusDto.BOOLEAN, camp.getCampDescripcio() != null ? camp.getCampDescripcio() : camp.getCampCodi()));
 			} else {
-				tascaDadaDto = (new TascaDadaDto(camp.getCampCodi(), CampTipusDto.STRING, camp.getCampCodi()));
+				tascaDadaDto = (new TascaDadaDto(camp.getCampCodi(), CampTipusDto.STRING, camp.getCampDescripcio() != null ? camp.getCampDescripcio() : camp.getCampCodi()));
 			}
 		} else {
 			String description = camp.getCampDescripcio() == null ? camp.getCampCodi() : camp.getCampDescripcio();
