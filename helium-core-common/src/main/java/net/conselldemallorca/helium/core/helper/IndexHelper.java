@@ -27,7 +27,6 @@ import net.conselldemallorca.helium.core.model.hibernate.Camp.TipusCamp;
 import net.conselldemallorca.helium.core.model.hibernate.CampRegistre;
 import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
-import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.extern.domini.DominiCodiDescripcio;
 import net.conselldemallorca.helium.core.api.Registre;
 import net.conselldemallorca.helium.v3.core.api.exception.IndexacioException;
@@ -481,31 +480,49 @@ public class IndexHelper {
 	
 	private Map<String, Set<Camp>> getMapCamps(String processInstanceId) {
 		Map<String, Set<Camp>> resposta = new HashMap<String, Set<Camp>>();
-		List<WProcessInstance> tree = workflowEngineApi.getProcessInstanceTree(processInstanceId);
-		Set<Camp> camps;
-		ExpedientTipus expedientTipus;
-		for (WProcessInstance pi: tree) {
-			expedientTipus = expedientRepository.findOne(
-					pi.getExpedientId()).getTipus();
-			if (expedientTipus.isAmbInfoPropia()) {
-				camps = new HashSet<Camp>(campRepository.findByExpedientTipusOrderByCodiAsc(expedientTipus));
-			} else {
-				camps = definicioProcesRepository.findByJbpmId(pi.getProcessDefinitionId()).getCamps();		
+		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
+		if (! expedient.getTipus().isAmbInfoPropia()) {
+			// Definicions de procés
+			List<WProcessInstance> tree = workflowEngineApi.getProcessInstanceTree(processInstanceId);
+			for (WProcessInstance pi: tree) {
+				resposta.put(
+						pi.getId(),
+						definicioProcesRepository.findByJbpmId(pi.getProcessDefinitionId()).getCamps());
 			}
+
+		} else {
+			// Tipus d'expedient
 			resposta.put(
-					pi.getId(),
-					camps);
+						processInstanceId,
+						new HashSet<Camp>(campRepository.findByExpedientTipusOrderByCodiAsc(expedient.getTipus())));
 		}
 		return resposta;
 	}
 	
 	private Map<String, Map<String, Object>> getMapValors(String processInstanceId) {
 		Map<String, Map<String, Object>> resposta = new HashMap<String, Map<String, Object>>();
+		Expedient expedient = expedientRepository.findByProcessInstanceId(processInstanceId);
+		boolean ambInfoPropia = expedient.getTipus().isAmbInfoPropia();
 		List<WProcessInstance> tree = workflowEngineApi.getProcessInstanceTree(processInstanceId);
-		for (WProcessInstance pi: tree)
+		if (! ambInfoPropia) {
+			for (WProcessInstance pi: tree)
+				resposta.put(
+						pi.getId(),
+						getVariablesJbpmProcesValor(pi.getId()));
+		} else {
+			// Guarda els valors dels processos però si es repeteix el codi només guarda la del principal
+			Map<String, Object> valors = new HashMap<String, Object>();
+			Map<String, Object> valorsProcessInstance;			
+			for (WProcessInstance pi: tree) { 
+				valorsProcessInstance = getVariablesJbpmProcesValor(pi.getId());
+				for (String varCodi : valorsProcessInstance.keySet())
+					if (!valors.containsKey(varCodi) || processInstanceId.equals(pi.getId()))
+						valors.put(varCodi, valorsProcessInstance.get(varCodi));
+			}
 			resposta.put(
-					pi.getId(),
-					getVariablesJbpmProcesValor(pi.getId()));
+					processInstanceId,
+					valors);
+		}
 		return resposta;
 	}
 	

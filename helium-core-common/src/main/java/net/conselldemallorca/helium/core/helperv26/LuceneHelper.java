@@ -732,36 +732,45 @@ public class LuceneHelper extends LuceneIndexSupport {
 						}
 					}
 				} else {
+					Camp camp = null;
 					String[] parts = codiCamp.split("\\.");
 					if (parts.length == 2) {
-						Camp camp = null;
+						// Definició de procés
 						for (Camp c : camps) {
 							if (parts[1].equals(c.getCodi()) && parts[0].equals(c.getDefinicioProces().getJbpmKey())) {
 								camp = c;
 								break;
 							}
 						}
-						if (camp != null) {
-							if (camp.getTipus().equals(TipusCamp.INTEGER) || camp.getTipus().equals(TipusCamp.FLOAT) || camp.getTipus().equals(TipusCamp.DATE) || camp.getTipus().equals(TipusCamp.PRICE)) {
-								Object valorInicial = ((Object[]) valorFiltre)[0];
-								Object valorFinal = ((Object[]) valorFiltre)[1];
-								if (valorInicial != null && valorFinal != null) {
-									return new TermRangeQuery(codiCamp, valorIndexPerCamp(camp, valorInicial), valorIndexPerCamp(camp, valorFinal), true, true);
-								} else if (valorInicial != null) {
-									return new TermRangeQuery(codiCamp, valorIndexPerCamp(camp, valorInicial), MAX_VALUE, true, true);
-								} else if (valorFinal != null) {
-									return new TermRangeQuery(codiCamp, MIN_VALUE, valorIndexPerCamp(camp, valorFinal), true, true);
-								}
-							} else if (camp.getTipus().equals(TipusCamp.STRING) || camp.getTipus().equals(TipusCamp.TEXTAREA)) {
-								String valorIndex = valorIndexPerCamp(camp, valorFiltre).toLowerCase();
-								if (valorIndex != null && valorIndex.length() > 0) {
-									return queryPerStringAmbWildcards(codiCamp, valorIndex);
-								}
-							} else {
-								String valorIndex = valorIndexPerCamp(camp, valorFiltre);
-								if (valorIndex != null && valorIndex.length() > 0) {
-									return new TermQuery(new Term(codiCamp, valorIndexPerCamp(camp, valorFiltre)));
-								}
+					} else if(parts.length == 1) {
+						// Expedient tipus
+						for (Camp c : camps) {
+							if (parts[0].equals(c.getCodi())) {
+								camp = c;
+								break;
+							}
+						}
+					}
+					if (camp != null) {
+						if (camp.getTipus().equals(TipusCamp.INTEGER) || camp.getTipus().equals(TipusCamp.FLOAT) || camp.getTipus().equals(TipusCamp.DATE) || camp.getTipus().equals(TipusCamp.PRICE)) {
+							Object valorInicial = ((Object[]) valorFiltre)[0];
+							Object valorFinal = ((Object[]) valorFiltre)[1];
+							if (valorInicial != null && valorFinal != null) {
+								return new TermRangeQuery(codiCamp, valorIndexPerCamp(camp, valorInicial), valorIndexPerCamp(camp, valorFinal), true, true);
+							} else if (valorInicial != null) {
+								return new TermRangeQuery(codiCamp, valorIndexPerCamp(camp, valorInicial), MAX_VALUE, true, true);
+							} else if (valorFinal != null) {
+								return new TermRangeQuery(codiCamp, MIN_VALUE, valorIndexPerCamp(camp, valorFinal), true, true);
+							}
+						} else if (camp.getTipus().equals(TipusCamp.STRING) || camp.getTipus().equals(TipusCamp.TEXTAREA)) {
+							String valorIndex = valorIndexPerCamp(camp, valorFiltre).toLowerCase();
+							if (valorIndex != null && valorIndex.length() > 0) {
+								return queryPerStringAmbWildcards(codiCamp, valorIndex);
+							}
+						} else {
+							String valorIndex = valorIndexPerCamp(camp, valorFiltre);
+							if (valorIndex != null && valorIndex.length() > 0) {
+								return new TermQuery(new Term(codiCamp, valorIndexPerCamp(camp, valorFiltre)));
 							}
 						}
 					}
@@ -900,7 +909,12 @@ public class LuceneHelper extends LuceneIndexSupport {
 								if (codi.startsWith(ExpedientCamps.EXPEDIENT_PREFIX)) {
 									coincideix = codi.equals(camp.getCodi());
 								} else {
-									coincideix = camp.getDefinicioProces() != null && partsCodi[0].equals(camp.getDefinicioProces().getJbpmKey()) && partsCodi[1].equals(camp.getCodi());
+									if (camp.getDefinicioProces() != null && camp.getExpedientTipus() == null)
+										// Definició de procés
+										coincideix = partsCodi[0].equals(camp.getDefinicioProces().getJbpmKey()) && partsCodi[1].equals(camp.getCodi());
+									else if (camp.getExpedientTipus() != null)
+										// Expedient tipus
+										coincideix = partsCodi[0].equals(camp.getCodi());
 								}
 							}
 							if (coincideix) {
@@ -912,7 +926,10 @@ public class LuceneHelper extends LuceneIndexSupport {
 											if (codi.startsWith(ExpedientCamps.EXPEDIENT_PREFIX)) {
 												dadaCamp = new DadaIndexadaDto(camp.getCodi(), camp.getEtiqueta());
 											} else {
-												dadaCamp = new DadaIndexadaDto(partsCodi[0], partsCodi[1], camp.getEtiqueta());
+												if (partsCodi.length == 2)
+													dadaCamp = new DadaIndexadaDto(partsCodi[0], partsCodi[1], camp.getEtiqueta());
+												else 
+													dadaCamp = new DadaIndexadaDto(partsCodi[0], camp.getEtiqueta());
 											}
 											if (camp.getTipus().equals(TipusCamp.SELECCIO) || camp.getTipus().equals(TipusCamp.SUGGEST))
 												dadaCamp.setOrdenarPerValorMostrar(true);
@@ -1002,7 +1019,13 @@ public class LuceneHelper extends LuceneIndexSupport {
 						updateDocumentCamp(document, definicioProces, membre, valorsMembres[index++], textDominis, false, isUpdate, campsActualitzats);
 				}
 			} else {
-				String clauIndex = definicioProces.getJbpmKey() + "." + camp.getCodi();
+				String clauIndex;
+				if (camp.getExpedientTipus() == null)
+					// Definició de procés
+					clauIndex = definicioProces.getJbpmKey() + "." + camp.getCodi();
+				else
+					// Expedient tipus
+					clauIndex = camp.getCodi();
 				String valorIndex = valorIndexPerCamp(camp, valor);
 				boolean analyzed = camp.getTipus().equals(TipusCamp.STRING) || camp.getTipus().equals(TipusCamp.TEXTAREA);
 				boolean update = isUpdate && !campsActualitzats.contains(clauIndex);
