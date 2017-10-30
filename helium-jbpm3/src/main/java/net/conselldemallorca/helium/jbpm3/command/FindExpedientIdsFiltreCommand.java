@@ -6,7 +6,9 @@ package net.conselldemallorca.helium.jbpm3.command;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.hibernate.Query;
 import org.jbpm.JbpmContext;
@@ -234,6 +236,7 @@ public class FindExpedientIdsFiltreCommand extends AbstractBaseCommand {
 		int count = ((Long)queryCount.uniqueResult()).intValue();
 		if (!nomesCount) {
 			List<String> sortColumns = new ArrayList<String>();
+			Set<String> nullsColumns = new HashSet<String>(); // Conjunt de columnes a les que posar "null first/last"
 			if (sort != null) {
 				/*sorts:
 				titol
@@ -258,9 +261,11 @@ public class FindExpedientIdsFiltreCommand extends AbstractBaseCommand {
 					sortColumns.add("pie.dataInici");
 				} else if ("dataFi".equals(sort)) {
 					sortColumns.add("pie.dataFi");
+					nullsColumns.add("pie.dataFi");
 				} else if ("estat".equals(sort)) {
 					sortColumns.add("case when pie.dataFi is null then 0 else 1 end");
-					sortColumns.add("pie.estatId nulls first");
+					sortColumns.add("pie.estatId");
+					nullsColumns.add("pie.estatId");
 				} else {
 					sortColumns.add("pie.dataInici");
 				}
@@ -270,6 +275,10 @@ public class FindExpedientIdsFiltreCommand extends AbstractBaseCommand {
 						expedientQuerySb.append(", ");
 					expedientQuerySb.append(sortColumn);
 					expedientQuerySb.append((asc) ? " asc" : " desc");
+					if (nullsColumns.contains(sortColumn)) {
+						expedientQuerySb.append(" nulls");
+						expedientQuerySb.append((asc) ? " first" : " last");
+					}
 					sortFirst = false;
 				}
 			}
@@ -282,6 +291,7 @@ public class FindExpedientIdsFiltreCommand extends AbstractBaseCommand {
 			}
 			selectSb.append(" ");
 			expedientQuerySb.insert(0, selectSb);
+			 
 			Query queryIds = jbpmContext.getSession().createQuery(expedientQuerySb.toString());
 			setQueryParams(
 					queryIds,
