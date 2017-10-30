@@ -260,6 +260,12 @@ public class DefinicioProcesBean implements DefinicioProcesService {
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public FirmaTascaDto tascaFirmaFindAmbTascaDocument(Long tascaId, Long documentId) {
+		return delegate.tascaFirmaFindAmbTascaDocument(tascaId, documentId);
+	}
+	
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public FirmaTascaDto tascaFirmaFindById(Long firmaTascaId) {
 		return delegate.tascaFirmaFindById(firmaTascaId);
 	}
