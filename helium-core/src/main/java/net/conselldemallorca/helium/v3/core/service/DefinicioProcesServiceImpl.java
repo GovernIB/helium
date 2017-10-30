@@ -938,6 +938,20 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 	}
 	
 	@Override
+	@Transactional(readOnly = true)
+	public FirmaTascaDto tascaFirmaFindAmbTascaDocument(
+			Long tascaId,
+			Long documentId) {
+		logger.debug(
+				"Consultant la firma per una tasca i document(" +
+				"tascaId=" + tascaId +
+				", documentId=" + documentId + ")");
+		return conversioTipusHelper.convertir(
+				firmaTascaRepository.findAmbDocumentTasca(documentId, tascaId), 
+				FirmaTascaDto.class);
+	}
+	
+	@Override
 	@Transactional
 	public FirmaTascaDto tascaFirmaUpdate(FirmaTascaDto tascaFirma) 
 						throws NoTrobatException, PermisDenegatException {

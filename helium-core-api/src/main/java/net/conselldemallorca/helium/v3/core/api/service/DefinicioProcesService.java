@@ -443,6 +443,14 @@ public interface DefinicioProcesService {
 	 */
 	public List<FirmaTascaDto> tascaFirmaFindAmbTascaId(Long tascaId);
 
+	/** Consulta la firma utilitzades per a una tasca i un document concret.
+	 * 
+	 * @param tascaId
+	 * @param documentId
+	 * @return
+	 */
+	public FirmaTascaDto tascaFirmaFindAmbTascaDocument(Long tascaId, Long documentId);
+
 	/** 
 	 * Retorna la firma tasca de la definició de procés donat el seu identificador.
 	 * 
@@ -513,5 +521,6 @@ public interface DefinicioProcesService {
 	 * @return
 	 */
 	public String consultarStartTaskName(Long definicioProcesId);
+
 
 }

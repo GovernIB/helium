@@ -52,11 +52,13 @@ import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExecucioMassivaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExecucioMassivaDto.ExecucioMassivaTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.FirmaTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.FormulariExternDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDocumentDto;
+import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.exception.SistemaExternConversioDocumentException;
 import net.conselldemallorca.helium.v3.core.api.exception.SistemaExternException;
 import net.conselldemallorca.helium.v3.core.api.exception.TramitacioException;
@@ -64,6 +66,7 @@ import net.conselldemallorca.helium.v3.core.api.exception.TramitacioHandlerExcep
 import net.conselldemallorca.helium.v3.core.api.exception.TramitacioValidacioException;
 import net.conselldemallorca.helium.v3.core.api.exception.ValidacioException;
 import net.conselldemallorca.helium.v3.core.api.service.AplicacioService;
+import net.conselldemallorca.helium.v3.core.api.service.DefinicioProcesService;
 import net.conselldemallorca.helium.v3.core.api.service.ExecucioMassivaService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientDocumentService;
 import net.conselldemallorca.helium.v3.core.api.service.TascaService;
@@ -101,6 +104,8 @@ public class TascaTramitacioController extends BaseTascaController {
 	protected ExecucioMassivaService execucioMassivaService;
 	@Autowired
 	private AplicacioService aplicacioService;
+	@Autowired 
+	private DefinicioProcesService definicioProcesService;
 	
 	@Autowired
 	private PassarelaFirmaHelper passarelaFirmaHelper;
@@ -464,10 +469,18 @@ public class TascaTramitacioController extends BaseTascaController {
 			@PathVariable Long documentId,
 			Model model) throws IOException {
 		try {
-			TascaDocumentDto doc = tascaService.findDocument(tascaId, documentId);
-			String documentCodi = doc.getDocumentCodi();
-			DocumentDto documentDto = tascaService.getDocumentPerDocumentCodi(tascaId, documentCodi);
-	        ArxiuDto arxiuPerFirmar = expedientDocumentService.arxiuDocumentPerSignar(
+
+			// Troba la definició de la tasca
+			ExpedientTascaDto tasca = tascaService.findAmbIdPerTramitacio(tascaId);
+			// Troba el document de la tasca 
+			FirmaTascaDto firma = definicioProcesService.tascaFirmaFindAmbTascaDocument(tasca.getTascaId(), documentId);
+			if (firma == null)
+				throw new NoTrobatException(FirmaTascaDto.class, "tascaId=" + tasca.getTascaId() + ", documentId = " + documentId);
+			// Recupera la informació del document
+			String documentCodi = firma.getDocument().getCodi();
+			DocumentDto documentDto = tascaService.getDocumentPerDocumentCodi(tascaId, documentCodi);	        
+			
+			ArxiuDto arxiuPerFirmar = expedientDocumentService.arxiuDocumentPerSignar(
 	        		documentDto.getTokenSignatura()); 
 	        		        
 			PersonaDto usuariActual = aplicacioService.findPersonaActual();
@@ -486,12 +499,14 @@ public class TascaTramitacioController extends BaseTascaController {
 					false);
 			return "redirect:" + procesFirmaUrl;
 		} catch (Exception e) {
+			String errMsg = getMessage(
+					request, 
+					"document.controller.firma.passarela.inici.error",
+					new Object[] {e.getLocalizedMessage()});
+			logger.error(errMsg, e);
 			MissatgesHelper.error(
 					request,
-					getMessage(
-							request, 
-							"document.controller.firma.passarela.inici.error",
-							new Object[] {e.getLocalizedMessage()}));			
+					errMsg);			
 			return "v3/passarelaFirma/passarelaFiFirma";
 		}
 	}
