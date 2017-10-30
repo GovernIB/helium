@@ -64,10 +64,11 @@ public class ConsultaHelper {
 			TascaDadaDto tascaDadaDto = null;
 			DefinicioProces definicioProces = null;
 			Camp campRes = null;
+			Camp c = campRepository.findById(camp.getId());
 			if (camp.getCampCodi().startsWith(ExpedientCamps.EXPEDIENT_PREFIX)) {
 				// Camp expedient
 				campRes = getCampExpedient(camp.getCampCodi());
-			} else if (camp.getDefprocJbpmKey() != null ) {
+			} else if (camp.getDefprocJbpmKey() != null && c.getExpedientTipus() == null) {
 				// Definició de procés
 				definicioProces = definicioProcesRepository.findByJbpmKeyAndVersio(
 						camp.getDefprocJbpmKey(),
@@ -77,7 +78,7 @@ public class ConsultaHelper {
 							definicioProces,
 							camp.getCampCodi());
 				}
-			} else if (consulta.getExpedientTipus() != null){
+			} else {
 				// Tipus d'expedient
 				campRes = campRepository.findByExpedientTipusAndCodi(
 						consulta.getExpedientTipus(),
@@ -208,7 +209,12 @@ public class ConsultaHelper {
 		String dadaIndexadaClau = null;
 		for (Camp camp: campsInforme) {
 			if (camp != null && camp.getDefinicioProces() != null) {
-				dadaIndexadaClau = camp.getDefinicioProces().getJbpmKey() + "/" + camp.getCodi();
+				if (camp.getExpedientTipus() == null)
+					// Definició de procés
+					dadaIndexadaClau = camp.getDefinicioProces().getJbpmKey() + "/" + camp.getCodi();
+				else
+					// Tipus d'expedient
+					dadaIndexadaClau = camp.getCodi();
 				if (!dadesExpedient.containsKey(dadaIndexadaClau)) {
 					dadesExpedient.put(dadaIndexadaClau, new DadaIndexadaDto(camp.getCodi(), camp.getEtiqueta()));
 				}

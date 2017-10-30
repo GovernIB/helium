@@ -12,7 +12,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
 
 /**
  * Classe helper amb mètods comuns per treballar amb dades NTi.
- * @author danielm
+ * @author Limit Tecnologies <limit@limit.es>
  *
  */
 @Component

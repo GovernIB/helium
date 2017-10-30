@@ -742,9 +742,11 @@ public class VariableHelper {
 	public TascaDadaDto getTascaDadaDtoParaConsultaDisseny(Camp camp, TipusConsultaCamp tipus) {
 		TascaDadaDto tascaDto = new TascaDadaDto();
 		String varCodi;
-		if (TipusConsultaCamp.INFORME.equals(tipus) && camp.getDefinicioProces() != null) {
+		if (TipusConsultaCamp.INFORME.equals(tipus) && camp.getDefinicioProces() != null  && camp.getExpedientTipus() == null ) {
+			// Variable definició de procés
 			varCodi = camp.getDefinicioProces().getJbpmKey()+"/"+camp.getCodi();
 		} else {
+			// Variable expedient o tipus d'expedient
 			varCodi = camp.getCodi();
 		}
 		varCodi = varCodi.replace(ExpedientCamps.EXPEDIENT_CAMP_ESTAT, ExpedientCamps.EXPEDIENT_CAMP_ESTAT_JSP);
