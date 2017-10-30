@@ -6,6 +6,7 @@ package net.conselldemallorca.helium.v3.core.service;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -685,7 +686,8 @@ public class ExpedientServiceImpl implements ExpedientService {
 				ExpedientDto.class);
 		}
 		// Després de la consulta els expedients es retornen en ordre invers
-		Collections.reverse(expedients);
+		Collections.sort(expedients, new ExpedientDtoIdsComparator(expedientsIds.getLlista()));
+
 		if (expedients.size() > 0) {
 			expedientHelper.omplirPermisosExpedients(expedients);
 			expedientHelper.trobarAlertesExpedients(expedients);
@@ -695,7 +697,28 @@ public class ExpedientServiceImpl implements ExpedientService {
 				expedientsIds.getCount(),
 				paginacioParams);
 	}
+
+	/** Classe per poder comparar la posició dels expedients segons la llista d'identificadors ordenada
+	 * que es retorna de la consulta d'expedients paginada i ordenada. Segons la posició de l'identificador
+	 * a la llista retornada els expedients van en una o altra posició. 
+	 */
+	public class ExpedientDtoIdsComparator implements Comparator<ExpedientDto> {
+
+		private List<Long> ids;
 		
+		public ExpedientDtoIdsComparator(List<Long> ids){
+			this.ids = ids;
+		}
+		
+		/** L'ordre dels expedients depén de la posició del seu ID després de la consulta. */
+		@Override
+		public int compare(ExpedientDto e1, ExpedientDto e2) {
+			Integer i1 = ids.indexOf(e1.getId());
+			Integer i2 = ids.indexOf(e2.getId());
+			return i1.compareTo(i2);
+		}
+
+	}
 
 	/**
 	 * {@inheritDoc}
