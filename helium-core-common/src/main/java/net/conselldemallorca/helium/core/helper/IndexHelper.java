@@ -447,6 +447,19 @@ public class IndexHelper {
 		expedientRepository.saveAndFlush(expedient);
 	}
 
+	/** Mètode per esborrar una camp específic de l'índex. */
+	public void expedientIndexLuceneDelete(String processInstanceId, String camp) {
+		
+		JbpmProcessInstance rootProcessInstance = jbpmHelper.getRootProcessInstance(processInstanceId);
+		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(rootProcessInstance.getId());
+		try {
+			luceneHelper.deleteExpedientCamp(expedient, camp);
+		} catch (Exception ex) {
+			throw new IndexacioException("Update Indexació", ex);
+		}
+		
+	}
+
 	private Map<String, Object> getVariablesJbpmProcesValor(
 			String processInstanceId) {
 		Map<String, Object> valors = jbpmHelper.getProcessInstanceVariables(processInstanceId);

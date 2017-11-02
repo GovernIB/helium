@@ -181,7 +181,7 @@ public class ExpedientDadaServiceImpl implements ExpedientDadaService {
 				ExpedientLogAccioTipus.PROCES_VARIABLE_ESBORRAR,
 				varCodi);
 		jbpmHelper.deleteProcessInstanceVariable(processInstanceId, varCodi);
-		indexHelper.expedientIndexLuceneUpdate(processInstanceId);
+		indexHelper.expedientIndexLuceneDelete(processInstanceId, varCodi);
 		Registre registre = crearRegistreInstanciaProces(
 				expedientId,
 				processInstanceId,

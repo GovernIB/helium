@@ -243,6 +243,30 @@ public class LuceneHelper extends LuceneIndexSupport {
 			return false;
 		}
 	}
+	
+	/** Mètode per esborrar un sol camp de l'índex del document. */
+	public synchronized boolean deleteExpedientCamp(
+			final Expedient expedient, 
+			final String camp) {
+		logger.debug("Esborrant camp l'expedient a l'index Lucene (" +
+				"id=" + expedient.getId() + ", camp=" + camp +")");
+		mesuresTemporalsHelper.mesuraIniciar("Lucene: deleteExpedientCamp", "lucene", expedient.getTipus().getNom());
+		checkIndexOk();
+		try {
+			getLuceneIndexTemplate().updateDocument(termIdFromExpedient(expedient), new DocumentModifier() {
+				public Document updateDocument(Document document) {
+					removeDocumentField(document, camp);
+					return document;
+				}
+			});
+			mesuresTemporalsHelper.mesuraCalcular("Lucene: deleteExpedientCamp", "lucene", expedient.getTipus().getNom());
+			return true;
+		} catch (Exception ex) {
+			logger.error("Error actualitzant l'índex per l'expedient " + expedient.getId(), ex);
+			mesuresTemporalsHelper.mesuraCalcular("Lucene: deleteExpedientCamp", "lucene", expedient.getTipus().getNom());
+			return false;
+		}
+	}
 
 	public synchronized void deleteExpedient(Expedient expedient) {
 		logger.debug("Esborrant informació de l'expedient de l'index Lucene (" +
@@ -589,6 +613,10 @@ public class LuceneHelper extends LuceneIndexSupport {
 		if (isUpdate)
 			document.removeFields(field.name());
 		document.add(field);
+	}
+
+	private void removeDocumentField(Document document, String field) {
+		document.removeFields(field);
 	}
 
 	protected Query getLuceneQuery(
