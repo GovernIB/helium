@@ -85,6 +85,7 @@ public class ExpedientServiceBean implements ExpedientService {
 			boolean ntiActiu,
 			String organ,
 			String classificacio,
+			String serieDocumental,
 			String ntiTipoFirma,
 			String ntiValorCsv,
 			String ntiDefGenCsv) {
@@ -122,6 +123,7 @@ public class ExpedientServiceBean implements ExpedientService {
 				ntiActiu,
 				organ,
 				classificacio,
+				serieDocumental,
 				ntiTipoFirma,
 				ntiValorCsv,
 				ntiDefGenCsv);

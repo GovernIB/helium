@@ -19,6 +19,8 @@ public class ExpedientTipusMetadadesNtiCommand {
 	private String organisme;
 	@Size(max = 64, groups = {Modificacio.class})
 	private String classificacio;
+	@Size(max = 64, groups = {Modificacio.class})
+	private String serieDocumental;
 	
 	@Size(max = 64, groups = {Modificacio.class})
 	private String ntiTipoFirma;
@@ -50,6 +52,13 @@ public class ExpedientTipusMetadadesNtiCommand {
 		this.classificacio = classificacio;
 	}
 	
+	public String getSerieDocumental() {
+		return serieDocumental;
+	}
+	public void setSerieDocumental(String serieDocumental) {
+		this.serieDocumental = serieDocumental;
+	}
+	
 	public String getNtiTipoFirma() {
 		return ntiTipoFirma;
 	}
@@ -76,12 +85,13 @@ public class ExpedientTipusMetadadesNtiCommand {
 		
 		ExpedientTipusMetadadesNtiCommand command = new ExpedientTipusMetadadesNtiCommand();
 		
+		command.setNtiActiu(dto.isNtiActiu());
 		command.setOrganisme(dto.getNtiOrgan());
 		command.setClassificacio(dto.getNtiClasificacio());
+		command.setSerieDocumental(dto.getNtiSerieDocumental());
 		command.setNtiTipoFirma(dto.getNtiTipoFirma());
 		command.setNtiValorCsv(dto.getNtiValorCsv());
 		command.setNtiDefGenCsv(dto.getNtiDefGenCsv());
-		command.setNtiActiu(dto.isNtiActiu());
 		
 		return command;
 	}

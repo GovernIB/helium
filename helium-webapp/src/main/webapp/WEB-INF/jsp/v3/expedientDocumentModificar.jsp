@@ -112,6 +112,7 @@
 
 					<c:if test="${metadades}">
 							<hel:inputSelect required="true" emptyOption="true" name="ntiTipusDocumental" textKey="document.metadades.nti.tipus.documental" optionItems="${ntiTipusDocumental}" optionValueAttribute="codi" optionTextAttribute="valor"/>
+							<hel:inputText name="ntiSerieDocumental" textKey="document.metadades.nti.serie.documental"/>
 							<hel:inputSelect name="ntiTipoFirma" textKey="document.metadades.nti.tipus.firma" required="false" emptyOption="true" optionItems="${ntiTipoFirma}" optionValueAttribute="codi" optionTextAttribute="valor"/>
 							<hel:inputText name="ntiValorCsv" textKey="document.metadades.nti.valor.csv" disabled="${documentExpedientCommand.ntiTipoFirma != 'CSV'}"/>
 							<hel:inputText name="ntiDefGenCsv" textKey="document.metadades.nti.definicio.generacio.csv" disabled="${documentExpedientCommand.ntiTipoFirma != 'CSV'}"/>

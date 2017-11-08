@@ -137,6 +137,7 @@ public class ExpedientInicioPasTitolController extends BaseExpedientController {
 							expedientTipus.isNtiActiu(),
 							expedientTipus.getNtiOrgan(),
 							expedientTipus.getNtiClasificacio(),
+							expedientTipus.getNtiSerieDocumental(),
 							expedientTipus.getNtiTipoFirma(),
 							expedientTipus.getNtiValorCsv(),
 							expedientTipus.getNtiDefGenCsv());
@@ -180,6 +181,7 @@ public class ExpedientInicioPasTitolController extends BaseExpedientController {
 			boolean ntiActiu,
 			String organ,
 			String classificacio,
+			String serieDocumental,
 			String ntiTipoFirma,
 			String ntiValorCsv,
 			String ntiDefGenCsv) {
@@ -198,6 +200,7 @@ public class ExpedientInicioPasTitolController extends BaseExpedientController {
 				ntiActiu,
 				organ,
 				classificacio,
+				serieDocumental,
 				ntiTipoFirma,
 				ntiValorCsv,
 				ntiDefGenCsv);

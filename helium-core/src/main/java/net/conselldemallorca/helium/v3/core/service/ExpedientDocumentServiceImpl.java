@@ -110,7 +110,8 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 			String arxiuNom,
 			byte[] arxiuContingut,
 			Date data, 
-			String ntiTipusDocumental, 
+			String ntiTipusDocumental,
+			String ntiSerieDocumental,
 			String ntiTipusFirma, 
 			String ntiValorCsv, 
 			String ntiDefGenCsv, 
@@ -127,6 +128,7 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 				"data=" + data + ", " + 
 				"ntiTipusDocumental=" + ntiTipusDocumental + ", " +
 				"ntiTipusFirma=" + ntiTipusFirma + ", " +
+				"ntiSerieDocumental=" + ntiSerieDocumental + ", " +
 				"ntiValorCsv=" + ntiValorCsv + ", " +
 				"ntiDefGenCsv=" + ntiDefGenCsv + ", " +
 				"ntiIdOrigen=" + ntiIdOrigen + ")");
@@ -224,6 +226,7 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 				FilenameUtils.getExtension(arxiuNom),
 				document != null ? document.getNtiTipusDocumental() : ntiTipusDocumental,
 				document != null ? document.getNtiTipoFirma() : ntiTipusFirma,
+				document != null ? document.getNtiSerieDocumental() : ntiSerieDocumental,
 				document != null ? document.getNtiValorCsv() : ntiValorCsv,
 				document != null ? document.getNtiDefGenCsv() : ntiDefGenCsv,
 				document != null ? null : ntiIdOrigen);
@@ -611,6 +614,7 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 					FilenameUtils.getExtension(arxiu.getNom()),
 					document.getNtiTipusDocumental(),
 					document.getNtiTipoFirma(),
+					document.getNtiSerieDocumental(),
 					document.getNtiValorCsv(),
 					document.getNtiDefGenCsv(),
 					null);
@@ -725,7 +729,13 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 	
 	@Override
 	@Transactional
-	public void crearDocumentInstanciaProces(Long expedientId, String processInstanceId, String documentCodi, String nomArxiu, byte[] arxiu, Date data) {
+	public void crearDocumentInstanciaProces(
+			Long expedientId,
+			String processInstanceId,
+			String documentCodi,
+			String nomArxiu,
+			byte[] arxiu, Date data) {
+		
 		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
 				expedientId,
 				new Permission[] {
@@ -784,6 +794,7 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 				FilenameUtils.getExtension(nomArxiu),
 				document.getNtiTipusDocumental(),
 				document.getNtiTipoFirma(),
+				document.getNtiSerieDocumental(),
 				document.getNtiValorCsv(),
 				document.getNtiDefGenCsv(),
 				null);

@@ -497,6 +497,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		exportacio.setNtiTipoFirma(tipus.getNtiTipoFirma());
 		exportacio.setNtiValorCsv(tipus.getNtiValorCsv());
 		exportacio.setNtiDefGenCsv(tipus.getNtiDefGenCsv());
+		exportacio.setNtiSerieDocumental(tipus.getNtiSerieDocumental());
 		
 		// Integració amb forms
 		if (command.isIntegracioForms()) {
@@ -634,6 +635,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 					documentExportacio.setNtiTipoFirma(document.getNtiTipoFirma());
 					documentExportacio.setNtiValorCsv(document.getNtiValorCsv());	
 					documentExportacio.setNtiDefGenCsv(document.getNtiDefGenCsv());
+					documentExportacio.setNtiSerieDocumental(document.getNtiSerieDocumental());
 					exportacio.getDocuments().add(documentExportacio);
 				}
 		}		
@@ -816,6 +818,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		expedientTipus.setNtiTipoFirma(importacio.getNtiTipoFirma());
 		expedientTipus.setNtiValorCsv(importacio.getNtiValorCsv());
 		expedientTipus.setNtiDefGenCsv(importacio.getNtiDefGenCsv());
+		expedientTipus.setNtiSerieDocumental(importacio.getNtiSerieDocumental());
 		
 		// Integració amb formularis externs
 		if (command.isIntegracioForms()) {
@@ -1160,6 +1163,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 						document.setExtensionsPermeses(documentExportat.getExtensionsPermeses());
 						document.setIgnored(documentExportat.isIgnored());
 						document.setNtiTipusDocumental(documentExportat.getNtiTipusDocumental());
+						document.setNtiSerieDocumental(documentExportat.getNtiSerieDocumental());
 						document.setNtiTipoFirma(documentExportat.getNtiTipoFirma());
 						document.setNtiValorCsv(documentExportat.getNtiValorCsv());	
 						document.setNtiDefGenCsv(documentExportat.getNtiDefGenCsv());
@@ -3133,6 +3137,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 			boolean ntiActiu,
 			String ntiOrgan,
 			String ntiClasificacio,
+			String ntiSerieDocumental,
 			String ntiTipoFirma,
 			String ntiValorCsv,
 			String ntiDefGenCsv) {
@@ -3146,6 +3151,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		entity.setNtiActiu(ntiActiu);
 		entity.setNtiOrgan(ntiOrgan);
 		entity.setNtiClasificacio(ntiClasificacio);
+		entity.setNtiSerieDocumental(ntiSerieDocumental);
 		entity.setNtiTipoFirma(ntiTipoFirma);
 		entity.setNtiValorCsv(ntiValorCsv);;
 		entity.setNtiDefGenCsv(ntiDefGenCsv);

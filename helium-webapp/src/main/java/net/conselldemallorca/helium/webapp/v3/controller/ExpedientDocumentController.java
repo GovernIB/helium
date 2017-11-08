@@ -218,12 +218,19 @@ public class ExpedientDocumentController extends BaseExpedientController {
 						command.getData(),
 						command.getNtiTipusDocumental(),
 						command.getNtiTipoFirma(),
+						command.getNtiSerieDocumental(),
 						command.getNtiValorCsv(),
 						command.getNtiDefGenCsv(),
 						command.getNtiIdOrigen());
 			}
 			else
-				expedientDocumentService.crearDocumentInstanciaProces(expedientId, processInstanceId, command.getDocumentCodi(), command.getNomArxiu(), contingutArxiu /*command.getContingut()*/, command.getData());
+				expedientDocumentService.crearDocumentInstanciaProces(
+						expedientId,
+						processInstanceId,
+						command.getDocumentCodi(),
+						command.getNomArxiu(),
+						contingutArxiu /*command.getContingut()*/,
+						command.getData());
 			
 			MissatgesHelper.success(request, getMessage(request, "info.document.guardat") );
         } catch (Exception ex) {
@@ -266,6 +273,7 @@ public class ExpedientDocumentController extends BaseExpedientController {
 
 			command.setNtiTipusDocumental(documentStoreDto.getNtiTipusDocumental());
 			command.setNtiTipoFirma(documentStoreDto.getNtiTipoFirma());
+			command.setNtiSerieDocumental(documentStoreDto.getNtiSerieDocumental());
 			command.setNtiValorCsv(documentStoreDto.getNtiValorCsv());
 			command.setNtiDefGenCsv(documentStoreDto.getNtiDefGenCsv());
 			command.setNtiIdOrigen(documentStoreDto.getNtiIdDocOrigen());
@@ -333,6 +341,7 @@ public class ExpedientDocumentController extends BaseExpedientController {
 					command.getData(),
 					command.getNtiTipusDocumental(),
 					command.getNtiTipoFirma(),
+					command.getNtiSerieDocumental(),
 					command.getNtiValorCsv(),
 					command.getNtiDefGenCsv(),
 					command.getNtiIdOrigen());

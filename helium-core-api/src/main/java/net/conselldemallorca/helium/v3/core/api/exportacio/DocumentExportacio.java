@@ -27,6 +27,7 @@ public class DocumentExportacio implements Serializable {
 	private String extensionsPermeses;
 	private boolean ignored;
 	private String ntiTipusDocumental;
+	private String ntiSerieDocumental;
 	private String ntiTipoFirma;
 	private String ntiValorCsv;	
 	private String ntiDefGenCsv;
@@ -164,6 +165,14 @@ public class DocumentExportacio implements Serializable {
 
 	public void setNtiTipusDocumental(String ntiTipusDocumental) {
 		this.ntiTipusDocumental = ntiTipusDocumental;
+	}
+	
+	public String getNtiSerieDocumental() {
+		return ntiSerieDocumental;
+	}
+
+	public void setNtiSerieDocumental(String ntiSerieDocumental) {
+		this.ntiSerieDocumental = ntiSerieDocumental;
 	}
 
 	public String getNtiTipoFirma() {

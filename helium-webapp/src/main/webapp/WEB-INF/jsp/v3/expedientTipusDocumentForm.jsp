@@ -65,8 +65,9 @@
 			
 			<c:if test="${metadades}">
 				<fieldset>
-					<legend><spring:message code="expedient.tipus.document.form.legend.metadades.nti">Metadades NTI</spring:message></legend>
+					<legend><spring:message code="expedient.tipus.document.form.legend.metadades.nti"></spring:message></legend>
 					<hel:inputSelect required="false" emptyOption="true" name="ntiTipusDocumental" textKey="expedient.tipus.document.form.camp.tipus.documental" optionItems="${ntiTipusDocumental}" optionValueAttribute="codi" optionTextAttribute="valor"/>
+					<hel:inputText name="ntiSerieDocumental" textKey="expedient.tipus.metadades.nti.serie.documental" />
 					
 					<hel:inputSelect name="ntiTipoFirma" textKey="expedient.tipus.metadades.nti.tipus.firma" required="false" emptyOption="true" optionItems="${ntiTipoFirma}" optionValueAttribute="codi" optionTextAttribute="valor"/>
 					<hel:inputText name="ntiValorCsv" textKey="expedient.tipus.metadades.nti.valor.csv" disabled="${expedientTipusDocumentCommand.ntiTipoFirma != 'CSV'}"/>

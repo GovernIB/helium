@@ -23,6 +23,7 @@
 				<div id="inputs_metadadesNti">
 					<hel:inputText name="organisme" textKey="expedient.tipus.metadades.nti.organisme" readonly="${not expedientTipusMetadadesNtiCommand.ntiActiu}"/>
 					<hel:inputText name="classificacio" textKey="expedient.tipus.metadades.nti.classificacio" readonly="${not expedientTipusMetadadesNtiCommand.ntiActiu}"/>
+					<hel:inputText name="serieDocumental" textKey="expedient.tipus.metadades.nti.serie.documental" readonly="${not expedientTipusMetadadesNtiCommand.ntiActiu}"/>
 					
 					<hel:inputSelect required="false" emptyOption="true" name="ntiTipoFirma" textKey="expedient.tipus.metadades.nti.tipus.firma" optionItems="${ntiTipoFirma}" optionValueAttribute="codi" optionTextAttribute="valor"/>
 					<hel:inputText name="ntiValorCsv" textKey="expedient.tipus.metadades.nti.valor.csv" readonly="${not (expedientTipusMetadadesNtiCommand.ntiActiu and expedientTipusMetadadesNtiCommand.ntiTipoFirma == 'CSV')}"/>
@@ -54,6 +55,7 @@ $(document).ready(function() {
 		if ($(this).is(':checked')) {
 			$('#organisme').prop('readonly', false);
 			$('#classificacio').prop('readonly', false);
+			$('#serieDocumental').prop('readonly', false);
 			
 			$('#ntiTipoFirma').prop('readonly', false);
 			var data = $("#ntiTipoFirma option:selected").val();
@@ -64,6 +66,7 @@ $(document).ready(function() {
 		} else {
 			$('#organisme').prop('readonly', true);
 			$('#classificacio').prop('readonly', true);
+			$('#serieDocumental').prop('readonly', true);
 			
 			$('#ntiTipoFirma').prop('readonly', true);
 			$('#ntiValorCsv').prop('readonly', true);

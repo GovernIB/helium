@@ -585,6 +585,7 @@ public class ExpedientTipusServiceBean implements ExpedientTipusService {
 			boolean ntiActiu,
 			String ntiOrgano,
 			String ntiClasificacion,
+			String ntiSerieDocumental,
 			String ntiTipoFirma,
 			String ntiValorCsv,
 			String ntiDefGenCsv) {
@@ -594,6 +595,7 @@ public class ExpedientTipusServiceBean implements ExpedientTipusService {
 				ntiActiu,
 				ntiOrgano,
 				ntiClasificacion,
+				ntiSerieDocumental,
 				ntiTipoFirma,
 				ntiValorCsv,
 				ntiDefGenCsv);

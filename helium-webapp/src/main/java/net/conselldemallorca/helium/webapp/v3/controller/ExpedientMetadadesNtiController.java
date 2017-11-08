@@ -95,6 +95,7 @@ public class ExpedientMetadadesNtiController extends BaseExpedientTipusControlle
         				command.isNtiActiu(),
         				command.getOrganisme(), 
         				command.getClassificacio(),
+        				command.getSerieDocumental(),
         				command.getNtiTipoFirma(),
         				("CSV".equals(command.getNtiTipoFirma())) ? command.getNtiValorCsv() : null,
         				("CSV".equals(command.getNtiTipoFirma())) ? command.getNtiDefGenCsv() : null);

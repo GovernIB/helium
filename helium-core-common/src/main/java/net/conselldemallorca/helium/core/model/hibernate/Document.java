@@ -85,6 +85,8 @@ public class Document implements Serializable, GenericEntity<Long> {
 	
 	@MaxLength(32)
 	private String ntiTipusDocumental;
+	@MaxLength(64)
+	private String ntiSerieDocumental;
 	
 	@MaxLength(64)
 	private String ntiTipoFirma;
@@ -297,6 +299,14 @@ public class Document implements Serializable, GenericEntity<Long> {
 	}
 	public void setNtiTipoFirma(String ntiTipoFirma) {
 		this.ntiTipoFirma = ntiTipoFirma;
+	}
+	
+	@Column(name="nti_seriedocumental", length=64)
+	public String getNtiSerieDocumental() {
+		return ntiSerieDocumental;
+	}
+	public void setNtiSerieDocumental(String ntiSerieDocumental) {
+		this.ntiSerieDocumental = ntiSerieDocumental;
 	}
 	
 	@Column(name="nti_valor_csv", length=128)

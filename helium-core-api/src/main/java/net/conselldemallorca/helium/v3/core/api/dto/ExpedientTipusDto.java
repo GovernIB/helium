@@ -85,6 +85,7 @@ public class ExpedientTipusDto extends ControlPermisosDto implements Serializabl
 	
 	private String ntiOrgan;
 	private String ntiClasificacio;
+	private String ntiSerieDocumental;
 	
 	private String ntiTipoFirma;
 	private String ntiValorCsv;
@@ -368,6 +369,13 @@ public class ExpedientTipusDto extends ControlPermisosDto implements Serializabl
 	}
 	public void setNtiClasificacio(String ntiClasificacio) {
 		this.ntiClasificacio = ntiClasificacio;
+	}
+	
+	public String getNtiSerieDocumental() {
+		return ntiSerieDocumental;
+	}
+	public void setNtiSerieDocumental(String ntiSerieDocumental) {
+		this.ntiSerieDocumental = ntiSerieDocumental;
 	}
 	
 	public String getNtiTipoFirma() {

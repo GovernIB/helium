@@ -46,7 +46,8 @@ public interface ExpedientDocumentService {
 	 * @param data
 	 *             data del document.          
 	 * @param ntiOrigen 
-	 * @param ntiDefGenCsv 
+	 * @param ntiDefGenCsv
+	 * @param ntiSerieDocumental
 	 * @param ntiValorCsv 
 	 * @param ntiTipusFirma 
 	 * @param ntiTipusDocumental 
@@ -65,8 +66,9 @@ public interface ExpedientDocumentService {
 			String arxiuNom,
 			byte[] arxiuContingut,
 			Date data, 
-			String ntiTipusDocumental, 
-			String ntiTipusFirma, 
+			String ntiTipusDocumental,
+			String serieDocumental,
+			String ntiTipusFirma,
 			String ntiValorCsv, 
 			String ntiDefGenCsv, 
 			String ntiOrigen) throws NoTrobatException, PermisDenegatException;

@@ -152,6 +152,8 @@ public class ExpedientTipus implements Serializable, GenericEntity<Long> {
 	@MaxLength(64)
 	private String ntiClasificacio;
 	@MaxLength(64)
+	private String ntiSerieDocumental;
+	@MaxLength(64)
 	private String ntiTipoFirma;
 	@MaxLength(128)
 	private String ntiValorCsv;
@@ -712,6 +714,14 @@ public class ExpedientTipus implements Serializable, GenericEntity<Long> {
 	}
 	public void setNtiClasificacio(String ntiClasificacio) {
 		this.ntiClasificacio = ntiClasificacio;
+	}
+	
+	@Column(name="nti_seriedocumental", length=64)
+	public String getNtiSerieDocumental() {
+		return ntiSerieDocumental;
+	}
+	public void setNtiSerieDocumental(String ntiSerieDocumental) {
+		this.ntiSerieDocumental = ntiSerieDocumental;
 	}
 	
 	@Column(name="nti_tipo_firma", length=64)
