@@ -122,6 +122,7 @@ public class DocumentDto implements Serializable {
 	private boolean ignored;
 	
 	private String ntiTipusDocumental;
+	private String ntiSerieDocumental;
 	
 	private String ntiTipoFirma;
 	private String ntiValorCsv;
@@ -401,6 +402,13 @@ public class DocumentDto implements Serializable {
 	}
 	public void setNtiTipoFirma(String ntiTipoFirma) {
 		this.ntiTipoFirma = ntiTipoFirma;
+	}
+	
+	public String getNtiSerieDocumental() {
+		return ntiSerieDocumental;
+	}
+	public void setNtiSerieDocumental(String ntiSerieDocumental) {
+		this.ntiSerieDocumental = ntiSerieDocumental;
 	}
 	
 	public String getNtiValorCsv() {

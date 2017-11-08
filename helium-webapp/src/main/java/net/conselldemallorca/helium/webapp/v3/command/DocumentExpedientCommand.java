@@ -26,6 +26,7 @@ public class DocumentExpedientCommand {
 	// Meta dades NTI
 	private String ntiTipusDocumental;
 	private String ntiTipoFirma;
+	private String ntiSerieDocumental;
 	private String ntiValorCsv;
 	private String ntiDefGenCsv;
 	private String ntiIdOrigen;
@@ -90,7 +91,14 @@ public class DocumentExpedientCommand {
 	public void setNtiTipoFirma(String ntiTipoFirma) {
 		this.ntiTipoFirma = ntiTipoFirma;
 	}
-
+	
+	public String getNtiSerieDocumental() {
+		return ntiSerieDocumental;
+	}
+	public void setNtiSerieDocumental(String ntiSerieDocoumental) {
+		this.ntiSerieDocumental = ntiSerieDocoumental;
+	}
+	
 	public String getNtiValorCsv() {
 		return ntiValorCsv;
 	}

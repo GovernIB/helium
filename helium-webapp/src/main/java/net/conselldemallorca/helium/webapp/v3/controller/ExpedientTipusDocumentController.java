@@ -161,7 +161,8 @@ public class ExpedientTipusDocumentController extends BaseExpedientTipusControll
 		model.addAttribute("metadades", expedientTipus.isNtiActiu());
 		
 		DocumentDto dto = documentService.findAmbId(id);
-		ExpedientTipusDocumentCommand command = conversioTipusHelper.convertir(dto,
+		ExpedientTipusDocumentCommand command = conversioTipusHelper.convertir(
+				dto,
 				ExpedientTipusDocumentCommand.class);
 		command.setExpedientTipusId(expedientTipusId);
 		command.setCampId(dto.getCampData() != null ? dto.getCampData().getId() : null);

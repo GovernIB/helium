@@ -87,6 +87,7 @@ public class ConversioTipusHelper {
 						target.setIgnored(source.isIgnored());
 						
 						target.setNtiTipusDocumental(source.getNtiTipusDocumental());
+						target.setNtiSerieDocumental(source.getNtiSerieDocumental());
 						
 						target.setNtiTipoFirma(source.getNtiTipoFirma());
 						target.setNtiValorCsv(source.getNtiValorCsv());
@@ -249,6 +250,7 @@ public class ConversioTipusHelper {
 						
 						target.setNtiOrgan(source.getNtiOrgan());
 						target.setNtiClasificacio(source.getNtiClasificacio());
+						target.setNtiSerieDocumental(source.getNtiSerieDocumental());
 						
 						target.setNtiTipoFirma(source.getNtiTipoFirma());
 						target.setNtiValorCsv(source.getNtiValorCsv());
@@ -327,6 +329,7 @@ public class ConversioTipusHelper {
 						
 						target.setNtiOrgan(source.getNtiOrgan());
 						target.setNtiClasificacio(source.getNtiClasificacio());
+						target.setNtiSerieDocumental(source.getNtiSerieDocumental());
 						
 						target.setNtiTipoFirma(source.getNtiTipoFirma());
 						target.setNtiValorCsv(source.getNtiValorCsv());

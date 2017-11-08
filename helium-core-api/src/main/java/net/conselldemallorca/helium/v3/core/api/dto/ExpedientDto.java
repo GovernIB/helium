@@ -104,6 +104,7 @@ public class ExpedientDto extends ControlPermisosDto implements Serializable {
 	private String ntiVersio;
 	private String ntiOrgan;
 	private String ntiClasificacio;
+	private String ntiSerieDocumental;
 	private String ntiIdentificador;
 	
 	private String ntiTipoFirma;
@@ -540,6 +541,13 @@ public class ExpedientDto extends ControlPermisosDto implements Serializable {
 	}
 	public void setNtiClasificacio(String ntiClasificacio) {
 		this.ntiClasificacio = ntiClasificacio;
+	}
+	
+	public String getNtiSerieDocumental() {
+		return ntiSerieDocumental;
+	}
+	public void setNtiSerieDocumental(String ntiSerieDocumental) {
+		this.ntiSerieDocumental = ntiSerieDocumental;
 	}
 	
 	public String getNtiIdentificador() {

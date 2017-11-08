@@ -18,6 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+import org.springmodules.validation.bean.conf.loader.annotation.handler.MaxLength;
 
 import net.conselldemallorca.helium.core.model.hibernate.Accio;
 import net.conselldemallorca.helium.core.model.hibernate.Camp;
@@ -385,6 +386,12 @@ public class DefinicioProcesHelper {
 						document.setConvertirExtensio(documentExportat.getConvertirExtensio());
 						document.setExtensionsPermeses(documentExportat.getExtensionsPermeses());
 						document.setIgnored(documentExportat.isIgnored());
+						
+						document.setNtiTipusDocumental(documentExportat.getNtiTipusDocumental());
+						document.setNtiSerieDocumental(documentExportat.getNtiSerieDocumental());
+						document.setNtiTipoFirma(documentExportat.getNtiTipoFirma());
+						document.setNtiValorCsv(documentExportat.getNtiValorCsv());
+						document.setNtiDefGenCsv(documentExportat.getNtiDefGenCsv());
 					}
 					documents.put(documentExportat.getCodi(), document);
 				}	
@@ -932,6 +939,13 @@ public class DefinicioProcesHelper {
 					documentExportacio.setConvertirExtensio(document.getConvertirExtensio());
 					documentExportacio.setExtensionsPermeses(document.getExtensionsPermeses());
 					documentExportacio.setIgnored(document.isIgnored());
+					
+					documentExportacio.setNtiTipusDocumental(document.getNtiTipusDocumental());
+					documentExportacio.setNtiSerieDocumental(document.getNtiSerieDocumental());
+					documentExportacio.setNtiTipoFirma(document.getNtiTipoFirma());
+					documentExportacio.setNtiValorCsv(document.getNtiValorCsv());
+					documentExportacio.setNtiDefGenCsv(document.getNtiDefGenCsv());
+					
 					exportacio.getDocuments().add(documentExportacio);
 				}
 		}		
@@ -973,7 +987,7 @@ public class DefinicioProcesHelper {
 							accio.getRols());
 					exportacio.getAccions().add(accioExportacio);
 				}
-		}		
+		}
 		
 		return exportacio;
 	}

@@ -84,6 +84,7 @@ public interface ExpedientService {
 	 * @param ntiActiu
 	 * @param organ
 	 * @param classificacio
+	 * @param serieDocumental
 	 * @param ntiTipoFirma
 	 * @param ntiValorCsv
 	 * @param ntiDefGenCsv
@@ -127,6 +128,7 @@ public interface ExpedientService {
 			boolean ntiActiu,
 			String organ,
 			String classificacio,
+			String serieDocumental,
 			String ntiTipoFirma,
 			String ntiValorCsv,
 			String ntiDefGenCsv) throws NoTrobatException;

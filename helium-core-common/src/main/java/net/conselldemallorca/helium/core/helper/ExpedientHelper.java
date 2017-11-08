@@ -1091,6 +1091,7 @@ public class ExpedientHelper {
 			boolean ntiActiu,
 			String organ,
 			String classificacio,
+			String serieDocumental,
 			String ntiTipoFirma,
 			String ntiValorCsv,
 			String ntiDefGenCsv) {
@@ -1158,6 +1159,7 @@ public class ExpedientHelper {
 			expedient.setNtiVersio(NTI_VERSION);
 			expedient.setNtiOrgan(organ);
 			expedient.setNtiClasificacio(classificacio);
+			expedient.setNtiSerieDocumental(serieDocumental);
 			expedient.setNtiTipoFirma(ntiTipoFirma);
 			expedient.setNtiValorCsv(ntiValorCsv);
 			expedient.setNtiDefGenCsv(ntiDefGenCsv);

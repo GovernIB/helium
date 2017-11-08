@@ -59,6 +59,7 @@ public class ExpedientTipusExportacio implements Serializable {
 	private String ntiTipoFirma;
 	private String ntiValorCsv;
 	private String ntiDefGenCsv;
+	private String ntiSerieDocumental;
 	
 	
 	private List<EstatExportacio> estats = new ArrayList<EstatExportacio>();
@@ -271,6 +272,14 @@ public class ExpedientTipusExportacio implements Serializable {
 	public void setNtiDefGenCsv(String ntiDefGenCsv) {
 		this.ntiDefGenCsv = ntiDefGenCsv;
 	}
+	
+	public String getNtiSerieDocumental() {
+		return ntiSerieDocumental;
+	}
+	public void setNtiSerieDocumental(String ntiSerieDocumental) {
+		this.ntiSerieDocumental = ntiSerieDocumental;
+	}
+	
 	public List<EstatExportacio> getEstats() {
 		return estats;
 	}

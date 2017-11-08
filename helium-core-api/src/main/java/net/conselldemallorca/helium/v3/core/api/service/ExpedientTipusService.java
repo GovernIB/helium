@@ -1037,6 +1037,8 @@ public interface ExpedientTipusService {
 	 *				L’òrgan al qual està associat l’expedient.
 	 * @param ntiClasificacion
 	 * 				El codi SIA del procediment al qual pertany l’expedient.
+	 * @param ntiSerieDocumentañ
+	 * 				El codi de la serie documental relacionada amb l'expedient.
 	 * @param ntiTipoFirma
 	 * 				El tipus de firma que incorpora l’expedient.
 	 * @param ntiValorCsv
@@ -1056,6 +1058,7 @@ public interface ExpedientTipusService {
 			boolean ntiActiu,
 			String ntiOrgano,
 			String ntiClasificacion,
+			String ntiSerieDocumental,
 			String ntiTipoFirma,
 			String ntiValorCsv,
 			String ntiDefGenCsv);	

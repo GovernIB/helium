@@ -21,6 +21,7 @@
 		<hel:inputText name="ntiNomFormat" textKey="document.metadades.nti.nom.format" disabled="true"/>
 		<hel:inputText name="ntiTipusDocumental" textKey="document.metadades.nti.tipus.documental" disabled="true"/>
 		<hel:inputText name="dataCreacio" textKey="document.metadades.nti.data.captura" disabled="true"/>
+		<hel:inputText name="ntiSerieDocumental" textKey="document.metadades.nti.serie.documental" disabled="true"/>
 		
 		<hel:inputText name="ntiTipoFirma" textKey="document.metadades.nti.tipus.firma" disabled="true"/>
 		<hel:inputText name="ntiValorCsv" textKey="document.metadades.nti.valor.csv" disabled="true"/>

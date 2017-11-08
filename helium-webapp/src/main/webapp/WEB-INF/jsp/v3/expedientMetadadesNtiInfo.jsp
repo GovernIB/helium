@@ -18,6 +18,7 @@
 		<hel:inputText name="ntiOrgan" textKey="expedient.metadades.nti.organisme" disabled="true"/>
 		<hel:inputText name="dataInici" textKey="expedient.metadades.nti.data.apertura" disabled="true"/>
 		<hel:inputText name="ntiClasificacio" textKey="expedient.metadades.nti.classificacio" disabled="true"/>
+		<hel:inputText name="ntiSerieDocumental" textKey="expedient.metadades.nti.serie.documental" disabled="true"/>
 		<hel:inputText name="estat.nom" textKey="expedient.metadades.nti.estat" disabled="true"/>
 		<hel:inputText name="interessat" textKey="expedient.metadades.nti.interesat" disabled="true"/>
 		<hel:inputText name="ntiTipoFirma" textKey="expedient.metadades.nti.tipus.firma" disabled="true"/>

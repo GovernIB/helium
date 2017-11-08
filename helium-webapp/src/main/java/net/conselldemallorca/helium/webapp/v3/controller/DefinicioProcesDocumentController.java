@@ -110,7 +110,9 @@ public class DefinicioProcesDocumentController extends BaseDefinicioProcesContro
 			Model model) {
 		DefinicioProcesDto definicioProcesDto = definicioProcesService.findById(definicioProcesId);
 
-		model.addAttribute("metadades", definicioProcesDto.getExpedientTipus().isNtiActiu());
+		model.addAttribute(
+				"metadades",
+				definicioProcesDto.getExpedientTipus() != null ? definicioProcesDto.getExpedientTipus().isNtiActiu() :false);
 		
 		ExpedientTipusDocumentCommand command = new ExpedientTipusDocumentCommand();
 		command.setDefinicioProcesId(definicioProcesId);
@@ -135,7 +137,9 @@ public class DefinicioProcesDocumentController extends BaseDefinicioProcesContro
 
 			if (bindingResult.hasErrors()) {
 				
-				model.addAttribute("metadades", definicioProcesDto.getExpedientTipus().isNtiActiu());
+				model.addAttribute(
+						"metadades",
+						definicioProcesDto.getExpedientTipus() != null ? definicioProcesDto.getExpedientTipus().isNtiActiu() :false);
 				
 				omplirModelCamps(request, definicioProcesId, model);
 				ntiHelper.omplirTipusDocumental(model);
@@ -174,14 +178,13 @@ public class DefinicioProcesDocumentController extends BaseDefinicioProcesContro
 			@PathVariable Long id,
 			Model model) {
 		DefinicioProcesDto definicioProcesDto = definicioProcesService.findById(definicioProcesId);
-		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
-		ExpedientTipusDto expedientTipus = expedientTipusService.findAmbIdPermisDissenyarDelegat(
-					entornActual.getId(),
-					definicioProcesDto.getExpedientTipus().getId());
-		model.addAttribute("metadades", expedientTipus.isNtiActiu());
+		model.addAttribute(
+				"metadades",
+				definicioProcesDto.getExpedientTipus() != null ? definicioProcesDto.getExpedientTipus().isNtiActiu() :false);
 		
 		DocumentDto dto = documentService.findAmbId(id);
-		ExpedientTipusDocumentCommand command = conversioTipusHelper.convertir(dto,
+		ExpedientTipusDocumentCommand command = conversioTipusHelper.convertir(
+				dto,
 				ExpedientTipusDocumentCommand.class);
 		command.setDefinicioProcesId(definicioProcesId);
 		command.setCampId(dto.getCampData() != null ? dto.getCampData().getId() : null);
@@ -206,7 +209,9 @@ public class DefinicioProcesDocumentController extends BaseDefinicioProcesContro
 			DefinicioProcesDto definicioProcesDto = definicioProcesService.findById(definicioProcesId);
 			if (bindingResult.hasErrors()) {
 				
-				model.addAttribute("metadades", definicioProcesDto.getExpedientTipus().isNtiActiu());
+				model.addAttribute(
+						"metadades",
+						definicioProcesDto.getExpedientTipus() != null ? definicioProcesDto.getExpedientTipus().isNtiActiu() :false);
 				
 				omplirModelCamps(request, definicioProcesId, model);
 				ntiHelper.omplirTipusDocumental(model);

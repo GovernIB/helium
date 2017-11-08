@@ -23,6 +23,7 @@ public class DocumentStoreDto implements Serializable {
 	private String ntiTipusDocumental;
 	
 	private String ntiTipoFirma;
+	private String ntiSerieDocumental;
 	private String ntiValorCsv;
 	private String ntiDefGenCsv;
 	
@@ -92,6 +93,13 @@ public class DocumentStoreDto implements Serializable {
 	}
 	public void setNtiTipoFirma(String ntiTipoFirma) {
 		this.ntiTipoFirma = ntiTipoFirma;
+	}
+	
+	public String getNtiSerieDocumental() {
+		return ntiSerieDocumental;
+	}
+	public void setNtiSerieDocumental(String ntiSerieDocumental) {
+		this.ntiSerieDocumental = ntiSerieDocumental;
 	}
 	
 	public String getNtiValorCsv() {

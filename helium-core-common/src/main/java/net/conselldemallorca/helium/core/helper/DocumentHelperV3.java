@@ -1391,6 +1391,7 @@ public class DocumentHelperV3 {
 			String ntiNomFormat,
 			String ntiTipusDocumental,
 			String ntiTipoFirma,
+			String ntiSerieDocumental,
 			String ntiValorCsv,
 			String ntiDefGenCsv,
 			String ntiIdOrigen) {
@@ -1419,6 +1420,7 @@ public class DocumentHelperV3 {
 		documentStore.setNtiTipusDocumental(ntiTipusDocumental);
 		
 		documentStore.setNtiTipoFirma(ntiTipoFirma);
+		documentStore.setNtiSerieDocumental(ntiSerieDocumental);
 		documentStore.setNtiValorCsv(ntiValorCsv);
 		documentStore.setNtiDefGenCsv(ntiDefGenCsv);
 		documentStore.setNtiIdDocOrigen(ntiIdOrigen);
