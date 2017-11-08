@@ -67,7 +67,7 @@ public interface ExpedientDocumentService {
 			byte[] arxiuContingut,
 			Date data, 
 			String ntiTipusDocumental,
-			String serieDocumental,
+			String ntiSerieDocumental,
 			String ntiTipusFirma,
 			String ntiValorCsv, 
 			String ntiDefGenCsv, 
