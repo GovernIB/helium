@@ -113,10 +113,14 @@ public class ExpedientConsultaInformeController extends BaseExpedientController 
 				campsFiltre,
 				filtreCommand,
 				true);
+		
+		SessionManager sessionManager = SessionHelper.getSessionManager(request);
+		Set<Long> expedientsIds = sessionManager.getSeleccioInforme(consultaId);
+		
 		PaginaDto<ExpedientConsultaDissenyDto> paginaExpedients = expedientService.consultaFindPaginat(
 				consultaId,
 				processarValorsFiltre(filtreCommand, campsFiltre, filtreValors),
-				null,
+				expedientsIds,
 				(Boolean)PropertyUtils.getSimpleProperty(filtreCommand, "nomesTasquesPersonals"),
 				(Boolean)PropertyUtils.getSimpleProperty(filtreCommand, "nomesTasquesGrup"),
 				(Boolean)PropertyUtils.getSimpleProperty(filtreCommand, "nomesMeves"),
@@ -277,11 +281,11 @@ public class ExpedientConsultaInformeController extends BaseExpedientController 
 					sheet,
 					informeCamps);
 		int rowNum = 1;
+		int colNum = 0;
 		for (ExpedientConsultaDissenyDto  expedientConsultaDissenyDto : expedientsConsultaDissenyDto) {
 			try {
 				HSSFRow xlsRow = sheet.createRow(rowNum++);
-				int colNum = 0;
-				
+				colNum = 0;
 				ExpedientDto exp = expedientConsultaDissenyDto.getExpedient();
 				Map<String, DadaIndexadaDto> dades = expedientConsultaDissenyDto.getDadesExpedient();
 				
@@ -294,7 +298,6 @@ public class ExpedientConsultaInformeController extends BaseExpedientController 
 		    		if (titol.length() == 0)
 		    			titol = exp.getNumeroDefault();
 				}
-				sheet.autoSizeColumn(colNum);
 				HSSFCell cell = xlsRow.createCell(colNum++);
 				cell.setCellValue(titol);
 				cell.setCellStyle(dStyle);
@@ -302,7 +305,6 @@ public class ExpedientConsultaInformeController extends BaseExpedientController 
 				for (TascaDadaDto camp: informeCamps) {
 					if(dades.containsKey(camp.getVarCodi())) {
 						DadaIndexadaDto dada = dades.get(camp.getVarCodi());
-						sheet.autoSizeColumn(colNum);
 						cell = xlsRow.createCell(colNum++);
 						if (camp.getCampTipus().equals(CampTipusDto.INTEGER) || camp.getCampTipus().equals(CampTipusDto.FLOAT) || camp.getCampTipus().equals(CampTipusDto.PRICE) ) {
 							cell.setCellType(HSSFCell.CELL_TYPE_NUMERIC);
@@ -329,6 +331,9 @@ public class ExpedientConsultaInformeController extends BaseExpedientController 
 				logger.error("Export Excel: No s'ha pogut crear la línia: " + rowNum + " - amb ID: " + expedientConsultaDissenyDto.getExpedient().getId(), e);
 			}
 		}
+		for(int i=0; i<colNum; i++)
+			sheet.autoSizeColumn(i);
+
 		try {
 			String fileName = "Informe.xls";
 			response.setHeader("Pragma", "");
