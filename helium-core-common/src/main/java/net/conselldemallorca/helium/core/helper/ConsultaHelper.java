@@ -64,11 +64,10 @@ public class ConsultaHelper {
 			TascaDadaDto tascaDadaDto = null;
 			DefinicioProces definicioProces = null;
 			Camp campRes = null;
-			Camp c = campRepository.findById(camp.getId());
 			if (camp.getCampCodi().startsWith(ExpedientCamps.EXPEDIENT_PREFIX)) {
 				// Camp expedient
 				campRes = getCampExpedient(camp.getCampCodi());
-			} else if (camp.getDefprocJbpmKey() != null && c.getExpedientTipus() == null) {
+			} else if (camp.getDefprocJbpmKey() != null) {
 				// Definició de procés
 				definicioProces = definicioProcesRepository.findByJbpmKeyAndVersio(
 						camp.getDefprocJbpmKey(),
