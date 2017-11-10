@@ -48,7 +48,6 @@ public class ExpedientTipusDocumentCommand {
 	private boolean ignored;
 	
 	private String ntiTipusDocumental;
-	private String ntiSerieDocumental;
 	
 	private String ntiTipoFirma;
 	private String ntiValorCsv;
@@ -165,15 +164,6 @@ public byte[] getArxiuContingut() {
 		this.ntiTipusDocumental = ntiTipusDocumental;
 	}
 	
-	public String getNtiSerieDocumental() {
-		return ntiSerieDocumental;
-	}
-	public void setNtiSerieDocumental(String ntiSerieDocumental) {
-		this.ntiSerieDocumental = ntiSerieDocumental;
-	}
-	
-	
-	
 	public String getNtiTipoFirma() {
 		return ntiTipoFirma;
 	}
@@ -221,7 +211,6 @@ public byte[] getArxiuContingut() {
 		dto.setIgnored(command.isIgnored());
 		
 		dto.setNtiTipusDocumental(command.getNtiTipusDocumental());
-		dto.setNtiSerieDocumental(command.getNtiSerieDocumental());
 		
 		dto.setNtiTipoFirma(command.getNtiTipoFirma());
 		dto.setNtiValorCsv(command.getNtiValorCsv());

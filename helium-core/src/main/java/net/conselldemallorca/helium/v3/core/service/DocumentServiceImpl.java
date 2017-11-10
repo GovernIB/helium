@@ -1,4 +1,4 @@
-/**
+                                                                                                                                                                              /**
  * 
  */
 package net.conselldemallorca.helium.v3.core.service;
@@ -106,7 +106,6 @@ public class DocumentServiceImpl implements DocumentService {
 		
 		if(ntiActiu) {
 			entity.setNtiTipusDocumental(document.getNtiTipusDocumental());
-			entity.setNtiSerieDocumental(document.getNtiSerieDocumental());
 			entity.setNtiTipoFirma(document.getNtiTipoFirma());
 			entity.setNtiValorCsv(document.getNtiValorCsv());
 			entity.setNtiDefGenCsv(document.getNtiDefGenCsv());
@@ -225,7 +224,6 @@ public class DocumentServiceImpl implements DocumentService {
 		
 		if(ntiActiu) {
 			entity.setNtiTipusDocumental(document.getNtiTipusDocumental());
-			entity.setNtiSerieDocumental(document.getNtiSerieDocumental());
 			entity.setNtiTipoFirma(document.getNtiTipoFirma());
 			entity.setNtiValorCsv(document.getNtiValorCsv());
 			entity.setNtiDefGenCsv(document.getNtiDefGenCsv());

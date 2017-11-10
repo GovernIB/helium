@@ -47,7 +47,6 @@ public interface ExpedientDocumentService {
 	 *             data del document.          
 	 * @param ntiOrigen 
 	 * @param ntiDefGenCsv
-	 * @param ntiSerieDocumental
 	 * @param ntiValorCsv 
 	 * @param ntiTipusFirma 
 	 * @param ntiTipusDocumental 
@@ -67,7 +66,6 @@ public interface ExpedientDocumentService {
 			byte[] arxiuContingut,
 			Date data, 
 			String ntiTipusDocumental,
-			String ntiSerieDocumental,
 			String ntiTipusFirma,
 			String ntiValorCsv, 
 			String ntiDefGenCsv, 
