@@ -1392,7 +1392,6 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 			String ntiValorCsv = null; 
 			String ntiDefGenCsv = null; 
 			String ntiOrigen = null;
-			String ntiSerieDocumental = null;
 			if (params[0] != null) docId = (Long)params[0];
 			if (params[1] != null) data = (Date)params[1];
 			if (params[2] != null) nom = (String)params[2];
@@ -1402,7 +1401,6 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 			if (params[6] != null) ntiValorCsv = (String)params[6];
 			if (params[7] != null) ntiDefGenCsv = (String)params[7];
 			if (params[8] != null) ntiOrigen = (String)params[8];
-			if (params[9] != null) ntiSerieDocumental = (String)params[9];
 
 			Document aux = null;
 			ExpedientDocumentDto doc = null;
@@ -1467,7 +1465,6 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 								null,
 								data, 
 								ntiTipusDocumental,
-								ntiSerieDocumental,
 								ntiTipusFirma, 
 								ntiValorCsv, 
 								ntiDefGenCsv, 
@@ -1493,7 +1490,6 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 							contingut,
 							data, 
 							ntiTipusDocumental,
-							ntiSerieDocumental,
 							ntiTipusFirma, 
 							ntiValorCsv, 
 							ntiDefGenCsv, 
@@ -1513,7 +1509,6 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 								contingut,
 								data, 
 								ntiTipusDocumental,
-								ntiSerieDocumental,
 								ntiTipusFirma, 
 								ntiValorCsv, 
 								ntiDefGenCsv, 

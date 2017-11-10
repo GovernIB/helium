@@ -635,7 +635,6 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 					documentExportacio.setNtiTipoFirma(document.getNtiTipoFirma());
 					documentExportacio.setNtiValorCsv(document.getNtiValorCsv());	
 					documentExportacio.setNtiDefGenCsv(document.getNtiDefGenCsv());
-					documentExportacio.setNtiSerieDocumental(document.getNtiSerieDocumental());
 					exportacio.getDocuments().add(documentExportacio);
 				}
 		}		
@@ -1163,7 +1162,6 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 						document.setExtensionsPermeses(documentExportat.getExtensionsPermeses());
 						document.setIgnored(documentExportat.isIgnored());
 						document.setNtiTipusDocumental(documentExportat.getNtiTipusDocumental());
-						document.setNtiSerieDocumental(documentExportat.getNtiSerieDocumental());
 						document.setNtiTipoFirma(documentExportat.getNtiTipoFirma());
 						document.setNtiValorCsv(documentExportat.getNtiValorCsv());	
 						document.setNtiDefGenCsv(documentExportat.getNtiDefGenCsv());

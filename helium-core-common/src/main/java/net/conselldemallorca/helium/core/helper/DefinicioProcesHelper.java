@@ -391,7 +391,6 @@ public class DefinicioProcesHelper {
 						document.setIgnored(documentExportat.isIgnored());
 						
 						document.setNtiTipusDocumental(documentExportat.getNtiTipusDocumental());
-						document.setNtiSerieDocumental(documentExportat.getNtiSerieDocumental());
 						document.setNtiTipoFirma(documentExportat.getNtiTipoFirma());
 						document.setNtiValorCsv(documentExportat.getNtiValorCsv());
 						document.setNtiDefGenCsv(documentExportat.getNtiDefGenCsv());
@@ -944,7 +943,6 @@ public class DefinicioProcesHelper {
 					documentExportacio.setIgnored(document.isIgnored());
 					
 					documentExportacio.setNtiTipusDocumental(document.getNtiTipusDocumental());
-					documentExportacio.setNtiSerieDocumental(document.getNtiSerieDocumental());
 					documentExportacio.setNtiTipoFirma(document.getNtiTipoFirma());
 					documentExportacio.setNtiValorCsv(document.getNtiValorCsv());
 					documentExportacio.setNtiDefGenCsv(document.getNtiDefGenCsv());

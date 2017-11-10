@@ -497,7 +497,7 @@ public class MassivaExpedientController extends BaseExpedientController {
 		        	return "v3/massivaInfoDocumentAdjunt";
 		        }
 				dto.setTipus(ExecucioMassivaTipusDto.MODIFICAR_DOCUMENT);
-				Object[] params = new Object[10];
+				Object[] params = new Object[9];
 				params[0] = ((DocumentExpedientCommand) command).getDocId(); //TODO: deixar com estava
 				params[1] = ((DocumentExpedientCommand) command).getData();
 				params[2] = ((DocumentExpedientCommand) command).getNom();
@@ -510,7 +510,6 @@ public class MassivaExpedientController extends BaseExpedientController {
 				params[6] = ((DocumentExpedientCommand) command).getNtiValorCsv();
 				params[7] = ((DocumentExpedientCommand) command).getNtiDefGenCsv();
 				params[8] = ((DocumentExpedientCommand) command).getNtiIdOrigen();
-				params[9] = ((DocumentExpedientCommand) command).getNtiSerieDocumental();
 				dto.setParam2(execucioMassivaService.serialize(params));
 				execucioMassivaService.crearExecucioMassiva(dto);
 				MissatgesHelper.success(request, getMessage(request, "info.document.massiu.guardat", new Object[] {listIds.size()}));
