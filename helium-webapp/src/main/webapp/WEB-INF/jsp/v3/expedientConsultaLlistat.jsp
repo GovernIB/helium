@@ -316,6 +316,7 @@ $(document).ready(function() {
 			</tr>
 		</thead>
 	</table>
+	
 	<script id="tableButtonsTemplate" type="text/x-jsrender">
 		<div class="btn-group pull-right">
 			<a class="btn btn-default" href="<c:url value="../../../v3/expedient/consulta/${consulta.id}/selectionAll"/>" data-rdt-link-ajax="true" title="<spring:message code="expedient.llistat.accio.seleccio.tots"/>"><span class="fa fa-check-square-o"></span></a>
@@ -329,17 +330,60 @@ $(document).ready(function() {
 				</a>
 			</c:if>
 			<c:if test="${not empty consulta.informeNom and not empty campsInformeParams}">
-				<a data-rdt-link-modal="true" id="mostrar_informe" href="<c:url value="../../../v3/expedient/consulta/${consulta.id}/informeParams"/>" class="btn btn-default">
+				<a data-rdt-link-modal="true" data-rdt-link-modal-min-height="300" href="<c:url value="../../../v3/expedient/consulta/${consulta.id}/informeParams"/>" class="btn btn-default">
 					<span class="fa fa-file-text-o"></span>&nbsp;<spring:message code="expedient.consulta.informe"/>
 				</a>
 			</c:if>
 			<c:if test="${not empty consulta.informeNom and empty campsInformeParams}">
-				<a id="mostrar_informe" href="<c:url value="../../../v3/expedient/consulta/${consulta.id}/informe"/>" class="btn btn-default">
+				<button type="button" class="btn btn-default" data-toggle="modal" data-target="#informeDescarregarModal">
 					<span class="fa fa-file-text-o"></span>&nbsp;<spring:message code="expedient.consulta.informe"/>
-				</a>
+				</button>
 			</c:if>
 		</div>			
 	</script>
+	
+	<div id="modal-error" class="modal fade">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-label="<spring:message code="comu.boto.tancar"/>"><span aria-hidden="true">&times;</span></button>
+					<h4 class="modal-title"></h4>
+				</div>
+				<div class="modal-body">
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal"><spring:message code="comu.boto.tancar"/></button>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<div id="informeDescarregarModal" class="modal fade" role="dialog">
+		<div class="modal-dialog">
+		    <div class="modal-content">
+        		<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-label="<spring:message code="comu.boto.cancelar"/>"><span aria-hidden="true">&times;</span></button>
+          			<h4 class="modal-title"><spring:message code="expedient.informe.generacio"/></h4>
+        		</div>
+	        	<div class="modal-body">
+	        		<p><spring:message code="expedient.informe.generacio.estat"/>: <label id="labelEstat">[estat]</label>
+	        		<div id="divError" style="display:none;"><span class="fa fa-exclamation-triangle text-danger"></span> <label id="labelError">[error]</label></div>
+	        		<div id="divInfo" style="display:none;"><spring:message code="expedient.informe.numero.expedients"/>: <label id="labelNumeroExpedients">0</label></div>
+	        		<div class="row">
+		        		<div class="col-sm-1">
+		        			<span id="spinnerIcon" style="visibility:hidden;" class="fa fa-spinner fa-spin fa-2x"/>
+		        		</div>
+		        		<div class="col-sm-1">
+		        			<span id="dataTransferIcon" style="visibility:hidden;" class="fa fa-exchange fa-rotate-90 fa-2x"/>
+		        		</div>
+	        		</div>
+        		</div>
+        		<div class="modal-footer">
+					<button id="tancarInformeBtn" type="button" class="btn btn-default" data-dismiss="modal"><spring:message code="comu.boto.tancar"/></button>
+	        	</div>
+      		</div>
+	    </div>
+	</div>
 	
 	<script type="text/javascript">
 		function recarregarTaula(tableId, correcte) {
@@ -365,21 +409,178 @@ $(document).ready(function() {
 			refrescarPagina: false,
 			alertesRefreshUrl: "<c:url value="/nodeco/v3/missatges"/>",
 		});
+		
+		
+		// Variable on es guarda la informació de la generació en curs
+		var informe = null;
+		var interval = null;
+		
+		$(document).ready(function() {
+
+			$('#informeDescarregarModal').on('shown.bs.modal', function () {
+				informe = getConsultaInfo();
+				if (informe != null && informe.estat != 'NO_TROBAT')
+					actualitzarInfoDescarrega(informe);
+				else {
+					// Inicia la generació i obté un objecte de consulta
+					generarInforme();
+				}
+			});
+			
+			$('#informeDescarregarModal').on('hide.bs.modal', function (e) {
+				if (informe != null && (["NO_TROBAT", "INICIALITZANT", "GENERANT"].indexOf(informe.estat) >= 0)) {
+				    if (confirm("<spring:message code='expedient.informe.generacio.cancellar.confirmacio'/>")) {
+					    // Cancel·lar la generació de l'informe
+					    informe = cancellarInforme();
+					    actualitzarInfoDescarrega(informe)
+				    } else {
+				    	e.preventDefault();
+				    	return false;
+				    }
+				}
+			});
+		});
+		
+		/** Inicia asíncronament la generació de l'informe. */
+		function generarInforme() {
+
+			$("#labelEstat").html(estats['INICIALITZANT']);
+			$("#divError").hide()
+			$("#divInfo").hide()
+			$('#spinnerIcon').css('visibility', 'visible');
+			$("#informeDescarregarModal").modal();
+			
+			$.ajax({
+				type: 'GET',
+				url: '<c:url value="/v3/expedient/consulta/${consulta.id}/informeAsync"/>',
+				dataType: "json",
+				traditional: true,
+			  	data: {
+			  	}
+			})
+				.done(function( data ) {
+					informe = data;
+					
+					// Consulta periòdica
+					interval = setInterval(function(){ 
+						informe = getConsultaInfo();
+						actualitzarInfoDescarrega(informe);
+						if (informe == null || (["NO_TROBAT", "FINALITZAT", "CANCELLAT", "ERROR"].indexOf(informe.estat) >= 0))
+							clearInterval(interval);
+					}, 5000);		
+				})
+				.fail(function(jqXHR, textStatus) {
+				    console.log( "Error iniciant la generació de l'informe: " + textStatus );
+					$("#labelError").html(textStatus);
+					$("#divError").show();
+				});
+		}
+				
+		/** Mètode per consultar l'estat de la consulta */
+		function getConsultaInfo() {
+			var ret = null;
+			$('#dataTransferIcon').css('visibility', 'visible');
+			$.ajax({
+				type: 'GET',
+				url: '<c:url value="/v3/expedient/consulta/${consulta.id}/informeAsync/info"/>',
+				dataType: "json",
+				traditional: true,
+				async: false,
+			  	data: {
+			  	}
+			})
+				.done(function( data ) {
+					ret = data;
+				  })
+				.fail(function(jqXHR, textStatus) {
+				    console.log( "Error consultant la informació: " + textStatus );
+					$("#labelError").html(textStatus);
+					$("#divError").show();
+				  })
+				.always(function() {
+					$('#dataTransferIcon').css('visibility', 'hidden');
+				  });	
+			return ret;
+		}
+		
+		var estats = {};
+		estats['NO_TROBAT'] = '<spring:message code="expedient.informe.estat.NO_TROBAT"/>';
+		estats['INICIALITZANT'] = '<spring:message code="expedient.informe.estat.INICIALITZANT"/>';
+		estats['GENERANT'] = '<spring:message code="expedient.informe.estat.GENERANT"/>';
+		estats['FINALITZAT'] = '<spring:message code="expedient.informe.estat.FINALITZAT"/>';
+		estats['CANCELLAT'] = '<spring:message code="expedient.informe.estat.CANCELLAT"/>';
+		estats['ERROR'] = '<spring:message code="expedient.informe.estat.ERROR"/>';
+
+		
+		/** Actualitza visualment la modal de descàrrega segons la informació rebuda. */
+		function actualitzarInfoDescarrega(info) {
+
+			if (info == null || info.estat == 'NO_TROBAT') {
+				informe = null;
+				$('#informeDescarregarModal').modal('hide');
+			} else {
+				$('#informeDescarregarModal').modal();
+				informe = info;
+				$("#labelEstat").html(estats[informe.estat]);
+				switch (informe.estat) {
+				case 'INICIALITZANT':
+					$('#spinnerIcon').css('visibility', 'visible');
+					break;
+				case 'GENERANT':
+					$('#spinnerIcon').css('visibility', 'visible');
+					$('#labelNumeroExpedients').html(info.numeroRegistres);
+					$('#divInfo').show();
+					break;
+				case 'FINALITZAT':
+					$('#spinnerIcon').css('visibility', 'hidden');
+					// Descarrega el document
+					window.location = '<c:url value="/v3/expedient/consulta/${consulta.id}/informeAsync/exportar"/>';
+					informe = null;
+					$('#informeDescarregarModal').modal('hide');
+					break;
+				case 'CANCELLAT':
+					$('#spinnerIcon').css('visibility', 'hidden');
+					break;
+				case 'ERROR':
+					$('#spinnerIcon').css('visibility', 'hidden');
+					$("#labelError").html(info.missatge);
+					$("#divError").show();
+					break;
+				default:
+					;
+				}
+			}
+		}
+		
+		function cancellarInforme() {
+			var ret = null;
+			if (interval != null)
+				clearInterval(interval);
+			informe = null;
+			$('#dataTransferIcon').css('visibility', 'visible');
+			$.ajax({
+				type: 'GET',
+				url: '<c:url value="/v3/expedient/consulta/${consulta.id}/informeAsync/cancellar"/>',
+				dataType: "json",
+				traditional: true,
+				async: false,
+			  	data: {
+			  	}
+			})
+				.done(function( data ) {
+					ret = data;
+				  })
+				.fail(function(jqXHR, textStatus) {
+				    console.log( "Error cancel·lant la generació: " + textStatus );
+					$("#labelError").html(textStatus);
+					$("#divError").show();
+				  })
+				.always(function() {
+					$('#dataTransferIcon').css('visibility', 'hidden');
+				  });	
+			return ret;
+			
+		}
 	</script>
-	<div id="modal-error" class="modal fade">
-		<div class="modal-dialog">
-			<div class="modal-content">
-				<div class="modal-header">
-					<button type="button" class="close" data-dismiss="modal" aria-label="<spring:message code="comu.boto.tancar"/>"><span aria-hidden="true">&times;</span></button>
-					<h4 class="modal-title"></h4>
-				</div>
-				<div class="modal-body">
-				</div>
-				<div class="modal-footer">
-					<button type="button" class="btn btn-default" data-dismiss="modal"><spring:message code="comu.boto.tancar"/></button>
-				</div>
-			</div>
-		</div>
-	</div>
 </body>
 </html>

@@ -13,6 +13,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -20,6 +21,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 import javax.activation.MimetypesFileTypeMap;
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -52,6 +54,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import net.conselldemallorca.helium.report.FieldValue;
 import net.conselldemallorca.helium.v3.core.api.dto.CampTipusDto;
@@ -64,13 +67,17 @@ import net.conselldemallorca.helium.v3.core.api.dto.MostrarAnulatsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
-import net.conselldemallorca.helium.webapp.mvc.JasperReportsView;
+import net.conselldemallorca.helium.webapp.v3.helper.InformeHelper;
+import net.conselldemallorca.helium.webapp.v3.helper.InformeHelper.Estat;
+import net.conselldemallorca.helium.webapp.v3.helper.InformeHelper.InformeInfo;
+import net.conselldemallorca.helium.webapp.v3.helper.JasperReportsHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.ObjectTypeEditorHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.PaginacioHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper.SessionManager;
 import net.conselldemallorca.helium.webapp.v3.helper.TascaFormHelper;
+import net.sf.jasperreports.engine.JRException;
 
 /**
  * Controlador per al llistat d'expedients.
@@ -80,6 +87,11 @@ import net.conselldemallorca.helium.webapp.v3.helper.TascaFormHelper;
 @Controller
 @RequestMapping("/v3/expedient/consulta")
 public class ExpedientConsultaInformeController extends BaseExpedientController {
+	
+	@Resource
+	InformeHelper informeHelper;
+	@Resource
+	JasperReportsHelper jasperReportsHelper;
 
 	@ModelAttribute("expedientInformeParametrosCommand")
 	public Object getFiltreParameterCommand(
@@ -144,43 +156,156 @@ public class ExpedientConsultaInformeController extends BaseExpedientController 
 		Object parametrosCommand = getFiltreParameterCommand(request, consultaId);
 		SessionHelper.setAttribute(request, SessionHelper.VARIABLE_FILTRE_CONSULTA_TIPUS_PARAM, parametrosCommand);
 		model.addAttribute("expedientInformeParametrosCommand", parametrosCommand);
-		model.addAttribute("campsInformeParams", expedientService.findConsultaInformeParams(consultaId));			
+		model.addAttribute("campsInformeParams", expedientService.findConsultaInformeParams(consultaId));	
+		model.addAttribute("consultaId", consultaId);
 		return "v3/expedientConsultaInformeParams";
 	}
-
+	
+	/** Mètode post amb un formulari de paràmetres. */
 	@RequestMapping(value = "/{consultaId}/informeParams", method = RequestMethod.POST)
-	public  String  mostrarInformeParams(
+	@ResponseBody
+	public  InformeInfo  informeParamsAsync(
 			HttpServletRequest request,
+			HttpServletResponse response,
 			@PathVariable Long consultaId,
 			@Valid @ModelAttribute("expedientInformeParametrosCommand") Object parametrosCommand,			
 			BindingResult bindingResult,
 			@RequestParam(value = "accio", required = false) String accio,
 			HttpSession session,
 			Model model)  throws IllegalAccessException, InvocationTargetException, NoSuchMethodException, IOException {
-		Map<String, Object> valors = TascaFormHelper.getValorsFromCommand(
-				expedientService.findConsultaInformeParams(consultaId),
-				parametrosCommand,
-				true);
-		model.addAttribute(JasperReportsView.MODEL_ATTRIBUTE_PARAMS, valors);
-		return generarReport(
-				session,
-				consultaId,
-				model,
-				request);
-	}
 
-	@RequestMapping(value = "/{consultaId}/informe", method = RequestMethod.GET)
-	public String informe(
+		// Mira si l'usuari ja té una generació d'informe en curs
+		InformeInfo ret = informeHelper.getConsulta(session.getId());
+		
+		if (Estat.NO_TROBAT.equals(ret.getEstat())) {
+			ret.setId(request.getSession().getId());
+			ret.setEstat(Estat.INICIALITZANT);
+			informeHelper.setConsulta(session.getId(), ret);
+			
+			Map<String, Object> valors = TascaFormHelper.getValorsFromCommand(
+					expedientService.findConsultaInformeParams(consultaId),
+					parametrosCommand,
+					true);
+			InformeInfo info = new InformeHelper().new InformeInfo();
+			info.setEstat(Estat.INICIALITZANT);
+			info.setId(request.getSession().getId());
+			informeHelper.setConsulta(info.getId(), info);
+			
+			info =	generarReport(
+							info,
+							consultaId,
+							model,
+							request,
+							valors);		
+		}
+		return ret;
+	}
+	
+	/** Generació de l'informe asíncrona. Retorna un objecte JSON amb informaicó per consultar com va la generació de 
+	 * l'informe.
+	 */
+	@RequestMapping(value = "/{consultaId}/informeAsync", method = RequestMethod.GET)
+	@ResponseBody
+	public InformeInfo informeAsync(
 			HttpServletRequest request,
 			@PathVariable Long consultaId,
 			HttpSession session,
 			Model model) throws IllegalAccessException, InvocationTargetException, NoSuchMethodException, IOException {
-		return generarReport(
-				session,
-				consultaId,
-				model,
-				request);
+		
+		// Mira si l'usuari ja té una generació d'informe en curs
+		InformeInfo ret = informeHelper.getConsulta(session.getId());
+		
+		if (Estat.NO_TROBAT.equals(ret.getEstat())) {
+			ret.setId(request.getSession().getId());
+			ret.setEstat(Estat.INICIALITZANT);
+			informeHelper.setConsulta(session.getId(), ret);
+			ret = generarReport(
+					ret,
+					consultaId,
+					model,
+					request,
+					null);
+		}
+		return ret;
 	}
+	
+	/** Mètode per consultar la informació de l'estat actual de la generació de l'informe.
+	 */
+	@RequestMapping(value = "/{consultaId}/informeAsync/info", method = RequestMethod.GET)
+	@ResponseBody
+	public InformeInfo informeAsyncInfo(
+			HttpServletRequest request,
+			@PathVariable Long consultaId,
+			HttpSession session,
+			Model model) throws IllegalAccessException, InvocationTargetException, NoSuchMethodException, IOException {
+		
+		InformeInfo info = informeHelper.getConsulta(request.getSession().getId());
+		switch(info.getEstat()) {
+			case CANCELLAT:
+			case ERROR:
+				informeHelper.setConsulta(info.getId(), null);
+				jasperReportsHelper.setJasperPrint(info, null);
+				break;
+			default:
+				break;
+			}
+		return info;
+	}	
+	
+	/** Mètode per cancel·lar la generació d'una consulta de forma asíncrona.
+	 */
+	@RequestMapping(value = "/{consultaId}/informeAsync/cancellar", method = RequestMethod.GET)
+	@ResponseBody
+	public InformeInfo informeAsyncCancellar(
+			HttpServletRequest request,
+			@PathVariable Long consultaId,
+			HttpSession session,
+			Model model) throws IllegalAccessException, InvocationTargetException, NoSuchMethodException, IOException {
+
+		InformeInfo info = informeHelper.getConsulta(request.getSession().getId());
+		try {
+			if (Estat.GENERANT.equals(info.getEstat())) {
+				info = jasperReportsHelper.cancellar(info);
+			}
+			info.setEstat(Estat.CANCELLAT);
+			informeHelper.setConsulta(info.getId(), null);
+			jasperReportsHelper.setJasperPrint(info, null);
+		} catch (JRException e) {
+			String msg = getMessage(request, "error.consulta.informe.cancelacio", new Object[] {e.getMessage()});
+			logger.error(msg, e);
+			info.setEstat(Estat.ERROR);
+			info.setMissatge(msg);
+		}
+		return info;
+	}	
+	
+	/** Mètode per realitzar l'exportació de l'informe i esborrar la informació associada
+	 */
+	@RequestMapping(value = "/{consultaId}/informeAsync/exportar", method = RequestMethod.GET)
+	@ResponseBody
+	public void informeAsyncExportar(
+			HttpServletRequest request,
+			HttpServletResponse response,
+			@PathVariable Long consultaId,
+			HttpSession session,
+			Model model) throws IllegalAccessException, InvocationTargetException, NoSuchMethodException, IOException {
+
+		InformeInfo info = informeHelper.getConsulta(request.getSession().getId());
+		try {
+			jasperReportsHelper.exportarReport(
+					info,
+					response);
+			// Esborra la informació referent a la generació
+			informeHelper.setConsulta(session.getId(), null);
+			jasperReportsHelper.setJasperPrint(info, null);
+		} catch(Exception e) {
+			String msg = "Error exportant el report: " + e.getMessage();
+			logger.error(msg, e);
+			MissatgesHelper.error(request, msg);
+			response.sendRedirect(request.getContextPath() +"/v3/expedient/consulta/" + consultaId);
+		}
+	}	
+	
 
 	@ModelAttribute("listTerminis")
 	public List<ParellaCodiValorDto> valors12(HttpServletRequest request) {
@@ -376,11 +501,26 @@ public class ExpedientConsultaInformeController extends BaseExpedientController 
 		}
 	}
 
-	private String generarReport(
-			HttpSession session,
+	/** Mètode per iniciar la generació d'un report. Consulta les dades i crida al JasperReportsHelper
+	 * per iniciar en 2n pla la generació.
+	 * @param session
+	 * @param consultaId
+	 * @param model
+	 * @param request
+	 * @return Retorna un objecte amb la informació de la generació de l'informe.
+	 * @throws IllegalAccessException
+	 * @throws InvocationTargetException
+	 * @throws NoSuchMethodException
+	 * @throws IOException
+	 */
+	private InformeInfo generarReport(
+			InformeInfo info,
 			Long consultaId,
 			Model model,
-			HttpServletRequest request) throws IllegalAccessException, InvocationTargetException, NoSuchMethodException, IOException {
+			HttpServletRequest request,
+			Map<String, Object> parametres) throws IllegalAccessException, InvocationTargetException, NoSuchMethodException, IOException {
+		
+		// Realitza la consulta de les dades
 		Object filtreCommand = SessionHelper.getAttribute(
 				request,
 				SessionHelper.VARIABLE_FILTRE_CONSULTA_TIPUS + consultaId);
@@ -390,53 +530,98 @@ public class ExpedientConsultaInformeController extends BaseExpedientController 
 				filtreCommand,
 				true);
 		SessionManager sessionManager = SessionHelper.getSessionManager(request);
-		Set<Long> expedientsIds = sessionManager.getSeleccioInforme(consultaId);
-		PaginaDto<ExpedientConsultaDissenyDto> paginaExpedients = expedientService.consultaFindPaginat(
-				consultaId,
-				processarValorsFiltre(filtreCommand, campsFiltre, filtreValors),
-				expedientsIds,
-				(Boolean)PropertyUtils.getSimpleProperty(filtreCommand, "nomesTasquesPersonals"),
-				(Boolean)PropertyUtils.getSimpleProperty(filtreCommand, "nomesTasquesGrup"),
-				(Boolean)PropertyUtils.getSimpleProperty(filtreCommand, "nomesMeves"),
-				(Boolean)PropertyUtils.getSimpleProperty(filtreCommand, "nomesAlertes"),
-				false, //nomesErrors
-				MostrarAnulatsDto.NO, //mostrarAnulats
-				PaginacioHelper.getPaginacioDtoTotsElsResultats());
-		if (paginaExpedients.getContingut().isEmpty()) {
-			MissatgesHelper.error(request, getMessage(request, "error.consulta.informe.expedients.nonhiha"));
-			return "redirect:/v3/expedient/consulta/" + consultaId;
+
+		// Obté la llista d'ids d'expedients
+		Set<Long> expedientsIds = sessionManager.getSeleccioInforme(consultaId);	
+		List<Long> ids;
+		if (expedientsIds == null || expedientsIds.size() == 0) {
+			// Consulta amb filtre
+			PaginaDto<Long> paginaIds = expedientService.consultaFindNomesIdsPaginat(
+					consultaId,
+					processarValorsFiltre(filtreCommand, campsFiltre, filtreValors),
+					(Boolean)PropertyUtils.getSimpleProperty(filtreCommand, "nomesTasquesPersonals"),
+					(Boolean)PropertyUtils.getSimpleProperty(filtreCommand, "nomesTasquesGrup"),
+					(Boolean)PropertyUtils.getSimpleProperty(filtreCommand, "nomesMeves"),
+					(Boolean)PropertyUtils.getSimpleProperty(filtreCommand, "nomesAlertes"),
+					false, //nomesErrors
+					MostrarAnulatsDto.NO, //mostrarAnulats
+					PaginacioHelper.getPaginacioDtoTotsElsResultats());
+			ids = paginaIds.getContingut();
+			expedientsIds = new HashSet<Long>(ids);
+		} else {
+			ids = new ArrayList<Long>(expedientsIds);
 		}
-		model.addAttribute(
-				JasperReportsView.MODEL_ATTRIBUTE_REPORTDATA,
-				getDadesDatasource(
-						request,
-						paginaExpedients.getContingut()));
+		// Comprova que hi hagi resultats
+		if (ids.isEmpty()) {
+			String msg = getMessage(request, "error.consulta.informe.expedients.nonhiha");
+			MissatgesHelper.error(request, msg);
+			info.setEstat(Estat.ERROR);
+			info.setMissatge(msg);
+			return info;
+		}		
+		
+		info.setNumeroRegistres(ids.size());
+		
+		// Consulta les dades
+		// Itera sobre els resultats i recupera les dades
+		int n = 0;
+		int total = ids.size();
+		int inc = 2000;
+		PaginaDto<ExpedientConsultaDissenyDto> paginaExpedients;
+		List<Map<String, FieldValue>> dadesDataSource =  new ArrayList<Map<String, FieldValue>>();
+		while (n < total) {
+			expedientsIds = new HashSet<Long>(ids.subList(n, Math.min(n + inc, total)));
+			n = n + inc;
+			paginaExpedients = expedientService.consultaFindPaginat(
+					consultaId,
+					processarValorsFiltre(filtreCommand, campsFiltre, filtreValors),
+					expedientsIds,
+					(Boolean)PropertyUtils.getSimpleProperty(filtreCommand, "nomesTasquesPersonals"),
+					(Boolean)PropertyUtils.getSimpleProperty(filtreCommand, "nomesTasquesGrup"),
+					(Boolean)PropertyUtils.getSimpleProperty(filtreCommand, "nomesMeves"),
+					(Boolean)PropertyUtils.getSimpleProperty(filtreCommand, "nomesAlertes"),
+					false, //nomesErrors
+					MostrarAnulatsDto.NO, //mostrarAnulats
+					PaginacioHelper.getPaginacioDtoTotsElsResultats());
+			dadesDataSource.addAll(
+					getDadesDatasource(request, paginaExpedients.getContingut()));
+		}
+		
+		byte[] report;
+		HashMap<String, byte[]> subreports = null;
 		ConsultaDto consulta = dissenyService.findConsulteById(consultaId);
 		String extensio = consulta.getInformeNom().substring(
 				consulta.getInformeNom().lastIndexOf(".") + 1).toLowerCase();
 		String nom = consulta.getInformeNom().substring(0,
 				consulta.getInformeNom().lastIndexOf("."));
-		String formatExportacio = consulta.getFormatExport();
-		request.setAttribute("formatJR", formatExportacio);
+		
 		if ("zip".equals(extensio)) {
 			HashMap<String, byte[]> reports = unZipReports(consulta
 					.getInformeContingut());
-			model.addAttribute(
-					JasperReportsView.MODEL_ATTRIBUTE_REPORTCONTENT,
-					reports.get(nom + ".jrxml"));
+			report = reports.get(nom + ".jrxml");
 			reports.remove(nom + ".jrxml");
-			model.addAttribute(
-					JasperReportsView.MODEL_ATTRIBUTE_SUBREPORTS,
-					reports);
+			subreports = reports;
 		} else {
-			model.addAttribute(
-					JasperReportsView.MODEL_ATTRIBUTE_REPORTCONTENT,
-					consulta.getInformeContingut());
+			report = consulta.getInformeContingut();
 		}
-		model.addAttribute(
-				JasperReportsView.MODEL_ATTRIBUTE_CONSULTA,
-				consulta.getCodi());
-		return "jasperReportsView";
+		
+		try {
+			info = jasperReportsHelper.generarReport(
+				info,
+				consulta.getCodi(),
+				dadesDataSource,
+				report,
+				subreports,
+				parametres,
+				consulta.getFormatExport());
+		} catch (Exception e) {
+			String msg = getMessage(request, "error.consulta.informe.generacio", 
+						new Object[] {(consulta != null? consulta.getCodi() : "[null]"), e.getMessage()});
+			logger.error(msg, e);
+			info.setEstat(Estat.ERROR);
+			info.setMissatge(msg);
+		}
+		return info;
 	}
 
 	private HashMap<String, byte[]> unZipReports(byte[] zipContent) throws IOException {
@@ -482,6 +667,16 @@ public class ExpedientConsultaInformeController extends BaseExpedientController 
 				mapFila.put(fieldName, toReportField(request, expedient, dada));
 			}
 			dadesDataSource.add(mapFila);
+
+//			// Per simular x20 les dades recuperades
+//			Map<String, FieldValue> mapAux = new HashMap<String, FieldValue>();
+//			for (int i=0;i<19;i++){
+//				mapAux = new HashMap<String, FieldValue>();
+//				for (String key : mapFila.keySet())
+//					mapAux.put(key, mapFila.get(key));
+//				
+//				dadesDataSource.add(mapAux);
+//			}
 		}
 		return dadesDataSource;
 	}

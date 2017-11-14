@@ -80,6 +80,7 @@ import net.conselldemallorca.helium.webapp.v3.helper.TascaFormHelper;
 
 /**
  * Controlador per al llistat d'expedients.
+ * TODO: probablement no s'utilitzi. Arreglar application controller per a que redireccioni cap al consulta controller.
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */

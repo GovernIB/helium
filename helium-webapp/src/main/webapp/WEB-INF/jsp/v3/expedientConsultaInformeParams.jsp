@@ -66,7 +66,7 @@
 		</style>
 	</head>
 	<body>		
-		<form:form method="post" cssClass="well_mod form-horizontal form-tasca" commandName="expedientInformeParametrosCommand">
+		<form:form id="formulariParametres" method="post" cssClass="well_mod form-horizontal form-tasca" commandName="expedientInformeParametrosCommand">
 	 		<div class="control-group fila_reducida">
 				<c:forEach var="camp" items="${campsInformeParams}">
 					<c:set var="campErrors"><form:errors path="${camp.varCodi}"/></c:set>
@@ -109,9 +109,134 @@
 				</c:forEach>
 			</div>
 			<div id="modal-botons" class="well">
-				<button type="button" class="btn btn-default modal-tancar" name="submit" value="cancel"><spring:message code="comu.boto.cancelar"/></button>
+				<button id="cancelarBtn" type="button" class="btn btn-default modal-tancar" name="submit" value="cancel"><spring:message code="comu.boto.cancelar"/></button>
 				<button type="submit" class="btn btn-primary"><span class="icon-download-alt"></span>&nbsp;<spring:message code="expedient.consulta.informe"/></button>					
 			</div>
+
+			<div id="informeDescarrega" style="visibility:hidden;">
+				<h4 class="modal-title"><spring:message code="expedient.informe.generacio"/></h4>
+				<br/>
+        		<p><spring:message code="expedient.informe.generacio.estat"/>: <label id="labelEstat">[estat]</label>
+        		<div id="divError" style="display:none;"><span class="fa fa-exclamation-triangle text-danger"></span> <label id="labelError"/></div>
+        		<div id="divInfo" style="display:none;"><spring:message code="expedient.informe.numero.expedients"/>: <label id="labelNumeroExpedients">0</label></div>
+        		<div class="row">
+	        		<div class="col-sm-1">
+	        			<span id="spinnerIcon" style="visibility:hidden;" class="fa fa-spinner fa-spin fa-2x"/>
+	        		</div>
+	        		<div class="col-sm-1">
+	        			<span id="dataTransferIcon" style="visibility:hidden;" class="fa fa-exchange fa-rotate-90 fa-2x"/>
+	        		</div>
+        		</div>
+			</div>
+			
 		</form:form>
+		<script>
+			// Variable on es guarda la informació de la generació en curs
+			var informe = null;
+			var interval = null;
+
+			$(document).ready(function(){
+
+				$('#formulariParametres').submit(function(e){
+					
+					$("#labelEstat").html(estats['INICIALITZANT']);
+					$("#divError").hide()
+					$("#divInfo").hide()
+					$('#spinnerIcon').css('visibility', 'visible');
+					$('#informeDescarrega').css('visibility', 'visible');					
+
+					$.ajax({
+				           type: "POST",
+				           success: function(data)
+				           {
+								informe = data;
+								// Consulta periòdica
+								interval = setInterval(function(){ 
+									informe = getConsultaInfo();
+									actualitzarInfoDescarrega(informe);
+									if (informe == null || (["NO_TROBAT", "FINALITZAT", "CANCELLAT", "ERROR"].indexOf(informe.estat) >= 0))
+										clearInterval(interval)
+								}, 5000);		
+				           }
+				    });
+					e.preventDefault();
+				});
+			});
+			
+			/** Mètode per consultar l'estat de la consulta */
+			function getConsultaInfo() {
+				var ret = null;
+				$('#dataTransferIcon').css('visibility', 'visible');
+				$.ajax({
+					type: 'GET',
+					url: '<c:url value="/v3/expedient/consulta/${consultaId}/informeAsync/info"/>',
+					dataType: "json",
+					traditional: true,
+					async: false,
+				  	data: {
+				  	}
+				})
+					.done(function( data ) {
+						ret = data;
+					  })
+					.fail(function(jqXHR, textStatus) {
+					    console.log( "Error consultant la informació: " + textStatus );
+						$("#labelError").html(textStatus);
+						$("#divError").show();
+					  })
+					.always(function() {
+						$('#dataTransferIcon').css('visibility', 'hidden');
+					  });	
+				return ret;
+			}
+			
+			var estats = {};
+			estats['NO_TROBAT'] = '<spring:message code="expedient.informe.estat.NO_TROBAT"/>';
+			estats['INICIALITZANT'] = '<spring:message code="expedient.informe.estat.INICIALITZANT"/>';
+			estats['GENERANT'] = '<spring:message code="expedient.informe.estat.GENERANT"/>';
+			estats['FINALITZAT'] = '<spring:message code="expedient.informe.estat.FINALITZAT"/>';
+			estats['CANCELLAT'] = '<spring:message code="expedient.informe.estat.CANCELLAT"/>';
+			estats['ERROR'] = '<spring:message code="expedient.informe.estat.ERROR"/>';
+
+			
+			/** Actualitza visualment la modal de descàrrega segons la informació rebuda. */
+			function actualitzarInfoDescarrega(info) {
+				if (info == null || info.estat == 'NO_TROBAT') {
+					informe = null;
+					$('#informeDescarrega').css('visibility', 'hidden');
+				} else {
+					$('#informeDescarrega').css('visibility', 'visible');
+					informe = info;
+					$("#labelEstat").html(estats[informe.estat]);
+					switch (informe.estat) {
+					case 'INICIALITZANT':
+						$('#spinnerIcon').css('visibility', 'visible');
+						break;
+					case 'GENERANT':
+						$('#spinnerIcon').css('visibility', 'visible');
+						$('#labelNumeroExpedients').html(info.numeroRegistres);
+						$('#divInfo').show();
+						break;
+					case 'FINALITZAT':
+						$('#spinnerIcon').css('visibility', 'hidden');
+						// Descarrega el document
+						window.location = '<c:url value="/v3/expedient/consulta/${consultaId}/informeAsync/exportar"/>';
+						informe = null;
+						$('#informeDescarrega').css('visibility', 'hidden');
+						break;
+					case 'CANCELLAT':
+						$('#spinnerIcon').css('visibility', 'hidden');
+						break;
+					case 'ERROR':
+						$('#spinnerIcon').css('visibility', 'hidden');
+						$("#labelError").html(info.missatge);
+						$("#divError").show();
+						break;
+					default:
+						;
+					}
+				}
+			}			
+		</script>
 	</body>
 </html>
