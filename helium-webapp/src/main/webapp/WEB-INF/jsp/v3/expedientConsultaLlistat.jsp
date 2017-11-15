@@ -578,6 +578,8 @@ $(document).ready(function() {
 			})
 				.done(function( data ) {
 					ret = data;
+					if (ret == null || (["NO_TROBAT", "FINALITZAT", "CANCELLAT", "ERROR"].indexOf(ret.estat) >= 0))
+						clearInterval(interval)
 				  })
 				.fail(function(jqXHR, textStatus) {
 				    console.log( "Error cancel·lant la generació: " + textStatus );
