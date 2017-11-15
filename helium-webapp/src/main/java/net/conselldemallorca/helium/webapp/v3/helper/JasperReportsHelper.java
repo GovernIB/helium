@@ -9,12 +9,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.codahale.metrics.Counter;
+import com.codahale.metrics.MetricRegistry;
+import com.codahale.metrics.Timer;
+
 import net.conselldemallorca.helium.report.FieldValue;
+import net.conselldemallorca.helium.webapp.mvc.JasperReportsView;
 import net.conselldemallorca.helium.webapp.v3.helper.InformeHelper.Estat;
 import net.conselldemallorca.helium.webapp.v3.helper.InformeHelper.InformeInfo;
 import net.sf.jasperreports.engine.JRException;
@@ -44,15 +49,15 @@ import net.sf.jasperreports.engine.fill.JRFileVirtualizer;
 @Component
 public class JasperReportsHelper {
 
+	@Autowired
+	private MetricRegistry metricRegistry;
+
 	/** Mapeig de les diferents consultes per identificador de sessió. */
 	private Map<String, JasperReportInfo> jasperInfo = new HashMap<String, JasperReportInfo>();
 	
 	public static final String HEADER_PRAGMA = "Pragma";
 	public static final String HEADER_EXPIRES = "Expires";
 	public static final String HEADER_CACHE_CONTROL = "Cache-Control";
-
-	@Resource
-	private InformeHelper informeHelper;
 
 	/** Mètode per iniciar la generació en 2n pla.
 	 * 
@@ -112,17 +117,29 @@ public class JasperReportsHelper {
 			handle.addListener(listener);
 			
 			// Guarda la informació associada
-			jasperInfo.put(
-						info.getId(), 
-						new JasperReportInfo(
-								handle, 
-								listener,
-								virtualizer,
-								info));
-			
+			JasperReportInfo ji = new JasperReportInfo(
+					handle, 
+					listener,
+					virtualizer,
+					info);
+			jasperInfo.put(info.getId(), 
+						ji);
+						
 			// Fa una comporovació de que el procés no s'hagi cancel·lat
 			if (Estat.CANCELLAT.equals(info.getEstat()))
 					return info;
+
+			// Inici mètriques
+			Timer.Context context = metricRegistry.timer(
+					MetricRegistry.name(
+							JasperReportsView.class,
+							"informe." + nomConsulta )).time();
+			ji.setContextConsulta(context);
+			Counter counter = metricRegistry.counter(
+					MetricRegistry.name(
+							JasperReportsView.class,
+							"informe." + nomConsulta + ".count"));
+			counter.inc();
 
 			// Comença a omlir el report
 			handle.startFill();
@@ -272,6 +289,8 @@ public class JasperReportsHelper {
 			}
 			if (jasperInfo.virtualizer != null)
 				jasperInfo.virtualizer.cleanup();
+			if (jasperInfo.contextConsulta != null)
+				jasperInfo.contextConsulta.stop();
 		}
 	}
 
@@ -296,6 +315,8 @@ public class JasperReportsHelper {
 		private JasperPrint jasperPrint = null;
 		private JRVirtualizer virtualizer = null;;
 		private InformeInfo info;
+		// Referències a objectes per mètriques
+		private Timer.Context contextConsulta = null;
 		// Objecte per esperar la fi de la generació
 		private Object o = new Object();
 		
@@ -325,6 +346,13 @@ public class JasperReportsHelper {
 		}
 		public InformeInfo getInformeInfo() {
 			return info;
+		}
+		// Per mètriques
+		public Timer.Context getContextConsulta() {
+			return contextConsulta;
+		}
+		public void setContextConsulta(Timer.Context contextConsulta) {
+			this.contextConsulta = contextConsulta;
 		}
 	}
 	
