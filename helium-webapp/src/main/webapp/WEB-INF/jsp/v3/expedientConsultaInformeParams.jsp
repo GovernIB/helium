@@ -160,9 +160,10 @@
 								informe = data;
 							    actualitzarInfoDescarrega(informe);
 								// Consulta periòdica
+								clearInterval(interval);
 								interval = setInterval(function(){ 
 									if (informe == null || (["NO_TROBAT", "FINALITZAT", "CANCELLAT", "ERROR"].indexOf(informe.estat) >= 0))
-										clearInterval(interval)
+										clearInterval(interval);
 									else
 										informe = getConsultaInfo();
 									actualitzarInfoDescarrega(informe);
