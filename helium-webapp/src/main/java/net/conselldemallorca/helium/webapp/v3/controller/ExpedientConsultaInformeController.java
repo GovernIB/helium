@@ -107,7 +107,7 @@ public class ExpedientConsultaInformeController extends BaseExpedientController 
 				campsFiltre,
 				new HashMap<String, Object>(),
 				new HashMap<String, Class<?>>(),
-				true);
+				false);
 	}
 
 	@RequestMapping(value = "/{consultaId}/excel", method = RequestMethod.GET)
@@ -561,6 +561,10 @@ public class ExpedientConsultaInformeController extends BaseExpedientController 
 		}		
 		
 		info.setNumeroRegistres(ids.size());
+		
+		// Fa una comporovació de que el procés no s'hagi cancel·lat
+		if (Estat.CANCELLAT.equals(info.getEstat()))
+				return info;
 		
 		// Consulta les dades
 		// Itera sobre els resultats i recupera les dades

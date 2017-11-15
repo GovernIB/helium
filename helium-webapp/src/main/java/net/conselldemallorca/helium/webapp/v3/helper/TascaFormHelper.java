@@ -144,8 +144,7 @@ public class TascaFormHelper {
 	    						valor = null;
 	    					else
 	    						valor = obtenirValorTermini(pre_valor);
-	    				}
-		    			if (tascaDada.getCampTipus().equals(CampTipusDto.BOOLEAN) && valor == null) {
+	    				} else if (tascaDada.getCampTipus().equals(CampTipusDto.BOOLEAN) && valor == null) {
 			    			valor = Boolean.FALSE;
 			    		}
 //		    			valor = compatibilitat26(camp, valor);
