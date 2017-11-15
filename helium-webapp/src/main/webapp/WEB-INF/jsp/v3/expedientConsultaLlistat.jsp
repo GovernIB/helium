@@ -475,7 +475,9 @@ $(document).ready(function() {
 		}
 		
 		function consultarPeriodicament() {
+			console.log('consultarPeriodicament');
 			// Consulta periòdica
+			clearInterval(interval);
 			interval = setInterval(function(){ 
 				informe = getConsultaInfo();
 				actualitzarInfoDescarrega(informe);
