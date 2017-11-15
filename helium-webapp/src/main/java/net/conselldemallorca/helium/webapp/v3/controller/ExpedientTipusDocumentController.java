@@ -234,6 +234,11 @@ public class ExpedientTipusDocumentController extends BaseExpedientTipusControll
 			Model model) {
 		
 		try {
+			EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
+			expedientTipusService.findAmbIdPermisDissenyarDelegat(
+						entornActual.getId(),
+						expedientTipusId);
+
 			documentService.delete(id);
 			
 			MissatgesHelper.success(
@@ -259,6 +264,10 @@ public class ExpedientTipusDocumentController extends BaseExpedientTipusControll
 			@PathVariable Long expedientTipusId, 
 			@PathVariable Long id,
 			Model model) {
+		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
+		expedientTipusService.findAmbIdPermisDissenyarDelegat(
+					entornActual.getId(),
+					expedientTipusId);
 		ArxiuDto arxiu = documentService.getArxiu(id);
 		if (arxiu != null) {
 			model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_FILENAME, arxiu.getNom());

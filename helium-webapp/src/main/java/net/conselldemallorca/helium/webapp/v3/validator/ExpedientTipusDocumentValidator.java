@@ -77,7 +77,7 @@ public class ExpedientTipusDocumentValidator implements ConstraintValidator<Expe
 			}
 		}
 		if (expedientTipusId != null) {
-			ExpedientTipusDto expedientTipus = expedientTipusService.findAmbIdPermisConsultar(
+			ExpedientTipusDto expedientTipus = expedientTipusService.findAmbIdPermisDissenyarDelegat(
 					entornActual.getId(), 
 					expedientTipusId);
 			if (expedientTipus.isNtiActiu() 

@@ -134,12 +134,12 @@ public class DefinicioProcesDocumentController extends BaseDefinicioProcesContro
 		try {
 			
 			DefinicioProcesDto definicioProcesDto = definicioProcesService.findById(definicioProcesId);
-
+			boolean ntiActiu = definicioProcesDto.getExpedientTipus() != null && definicioProcesDto.getExpedientTipus().isNtiActiu();
 			if (bindingResult.hasErrors()) {
 				
 				model.addAttribute(
 						"metadades",
-						definicioProcesDto.getExpedientTipus() != null ? definicioProcesDto.getExpedientTipus().isNtiActiu() :false);
+						ntiActiu);
 				
 				omplirModelCamps(request, definicioProcesId, model);
 				ntiHelper.omplirTipusDocumental(model);
@@ -152,7 +152,7 @@ public class DefinicioProcesDocumentController extends BaseDefinicioProcesContro
 				dto.setArxiuContingut(contingutArxiu);
 				
 				documentService.create(
-						definicioProcesDto.getExpedientTipus().isNtiActiu(),
+						ntiActiu,
 						null,
 						definicioProcesId,
 						dto);
@@ -207,11 +207,12 @@ public class DefinicioProcesDocumentController extends BaseDefinicioProcesContro
 			BindingResult bindingResult, Model model) {
 		try {
 			DefinicioProcesDto definicioProcesDto = definicioProcesService.findById(definicioProcesId);
+			boolean ntiActiu = definicioProcesDto.getExpedientTipus() != null && definicioProcesDto.getExpedientTipus().isNtiActiu();
 			if (bindingResult.hasErrors()) {
 				
 				model.addAttribute(
 						"metadades",
-						definicioProcesDto.getExpedientTipus() != null ? definicioProcesDto.getExpedientTipus().isNtiActiu() :false);
+						ntiActiu);
 				
 				omplirModelCamps(request, definicioProcesId, model);
 				ntiHelper.omplirTipusDocumental(model);
@@ -229,7 +230,7 @@ public class DefinicioProcesDocumentController extends BaseDefinicioProcesContro
 					actualitzarContingut = true;
 				}								
 				documentService.update(
-						definicioProcesDto.getExpedientTipus().isNtiActiu(),
+						ntiActiu,
 						ExpedientTipusDocumentCommand.asDocumentDto(command),
 						actualitzarContingut);
 				
