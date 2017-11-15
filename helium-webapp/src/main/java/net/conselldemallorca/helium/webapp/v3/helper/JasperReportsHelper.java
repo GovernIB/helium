@@ -20,6 +20,7 @@ import net.conselldemallorca.helium.webapp.v3.helper.InformeHelper.InformeInfo;
 import net.sf.jasperreports.engine.JRException;
 import net.sf.jasperreports.engine.JRExporterParameter;
 import net.sf.jasperreports.engine.JRParameter;
+import net.sf.jasperreports.engine.JRVirtualizer;
 import net.sf.jasperreports.engine.JasperCompileManager;
 import net.sf.jasperreports.engine.JasperExportManager;
 import net.sf.jasperreports.engine.JasperPrint;
@@ -85,9 +86,10 @@ public class JasperReportsHelper {
 			Map<String, Object> params = new HashMap<String, Object>();
 
 			// Per particionar l'informe de sortida en el cas que sigui molt gran
-			JRFileVirtualizer virtualizer = new JRFileVirtualizer (100, System.getProperty("java.io.tmpdir"));
+			JRFileVirtualizer virtualizer = new JRFileVirtualizer (1000, System.getProperty("java.io.tmpdir"));
 			virtualizer.setReadOnly(true);
-			params.put(JRParameter.REPORT_VIRTUALIZER, virtualizer);		
+			params.put(JRParameter.REPORT_VIRTUALIZER, virtualizer);
+			
 
 			JasperReport subreport = null;
 			if (subreports!=null && !subreports.isEmpty()) {
@@ -114,9 +116,14 @@ public class JasperReportsHelper {
 						info.getId(), 
 						new JasperReportInfo(
 								handle, 
-								listener, 
+								listener,
+								virtualizer,
 								info));
 			
+			// Fa una comporovació de que el procés no s'hagi cancel·lat
+			if (Estat.CANCELLAT.equals(info.getEstat()))
+					return info;
+
 			// Comença a omlir el report
 			handle.startFill();
 			
@@ -126,6 +133,7 @@ public class JasperReportsHelper {
 			info.setEstat(Estat.ERROR);
 			info.setMissatge("No hi ha dades per generar l'informe.");
 		}
+		info.setConsulta(nomConsulta);
 		return info;
 	}
 
@@ -256,12 +264,15 @@ public class JasperReportsHelper {
 	/** Mètode que notifica a qui esperi a la informació que ja s'ha acabat.*/
 	public void notificarFinalitzat(InformeInfo info) {
 		JasperReportInfo jasperInfo = this.jasperInfo.get(info.getId());
-		if (jasperInfo != null)
+		if (jasperInfo != null) {
 			synchronized(jasperInfo.o) {
 				try {
 					jasperInfo.notifyAll();
 				} catch (Exception ignored) {}
 			}
+			if (jasperInfo.virtualizer != null)
+				jasperInfo.virtualizer.cleanup();
+		}
 	}
 
 	
@@ -280,9 +291,10 @@ public class JasperReportsHelper {
 	/** Classe per guardar la informació de la generació */
 	public class JasperReportInfo {
 		
-		private AsynchronousFillHandle handle;
-		private JasperReportsAsyncFillListener listener;
-		private JasperPrint jasperPrint;
+		private AsynchronousFillHandle handle = null;
+		private JasperReportsAsyncFillListener listener = null;
+		private JasperPrint jasperPrint = null;
+		private JRVirtualizer virtualizer = null;;
 		private InformeInfo info;
 		// Objecte per esperar la fi de la generació
 		private Object o = new Object();
@@ -290,9 +302,11 @@ public class JasperReportsHelper {
 		public JasperReportInfo( 		
 				AsynchronousFillHandle handle,
 				JasperReportsAsyncFillListener listener,
+				JRVirtualizer virtualizer,
 				InformeInfo info) {
 			this.handle = handle;
 			this.listener = listener;
+			this.virtualizer = virtualizer;
 			this.jasperPrint = null;
 			this.info = info;
 		}
@@ -306,6 +320,9 @@ public class JasperReportsHelper {
 		public JasperPrint getJasperPrint() {
 			return jasperPrint;
 		}
+		public JRVirtualizer getVirualizer() {
+			return virtualizer;
+		}
 		public InformeInfo getInformeInfo() {
 			return info;
 		}
@@ -313,6 +330,8 @@ public class JasperReportsHelper {
 	
 	/** Es crida des del listener. Informe el jasperPrint un cop acaba d'omplir el report. */
 	public void setJasperPrint(InformeInfo informeInfo, JasperPrint jasperPrint) {
-		this.jasperInfo.get(informeInfo.getId()).jasperPrint = jasperPrint;
+		JasperReportInfo jasperInfo = this.jasperInfo.get(informeInfo.getId());
+		if (jasperInfo != null)
+			jasperInfo.jasperPrint = jasperPrint;
 	}	
 }

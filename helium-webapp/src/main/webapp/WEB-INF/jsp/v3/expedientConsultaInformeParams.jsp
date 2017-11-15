@@ -109,22 +109,28 @@
 				</c:forEach>
 			</div>
 			<div id="modal-botons" class="well">
-				<button id="cancelarBtn" type="button" class="btn btn-default modal-tancar" name="submit" value="cancel"><spring:message code="comu.boto.cancelar"/></button>
+				<button id="cancelarInformeBtn" type="button" class="btn btn-default modal-tancar" name="submit" value="cancel"><spring:message code="comu.boto.cancelar"/></button>
 				<button type="submit" class="btn btn-primary"><span class="icon-download-alt"></span>&nbsp;<spring:message code="expedient.consulta.informe"/></button>					
 			</div>
 
 			<div id="informeDescarrega" style="visibility:hidden;">
 				<h4 class="modal-title"><spring:message code="expedient.informe.generacio"/></h4>
 				<br/>
-        		<p><spring:message code="expedient.informe.generacio.estat"/>: <label id="labelEstat">[estat]</label>
+        		<p><spring:message code="expedient.informe.generacio.estat"/>: <label id="labelEstat">[estat]</label></p>
         		<div id="divError" style="display:none;"><span class="fa fa-exclamation-triangle text-danger"></span> <label id="labelError"/></div>
-        		<div id="divInfo" style="display:none;"><spring:message code="expedient.informe.numero.expedients"/>: <label id="labelNumeroExpedients">0</label></div>
+        		<div id="divInfo" style="display:none;">
+        			<p><spring:message code="expedient.informe.generacio.consulta"/>: <label id="labelConsulta">-</label></p>
+        			<p><spring:message code="expedient.informe.numero.expedients"/>: <label id="labelNumeroExpedients">0</label></p>
+        		</div>
         		<div class="row">
 	        		<div class="col-sm-1">
 	        			<span id="spinnerIcon" style="visibility:hidden;" class="fa fa-spinner fa-spin fa-2x"/>
 	        		</div>
 	        		<div class="col-sm-1">
 	        			<span id="dataTransferIcon" style="visibility:hidden;" class="fa fa-exchange fa-rotate-90 fa-2x"/>
+	        		</div>
+	        		<div class="col-sm-1">
+	        			<button id="generacioCancelarButton" title="<spring:message code='expedient.informe.generacio.cancellar'/>" class="btn btn-link" style="visibility:hidden;"><span class="fa fa-times fa-2x"/></button>
 	        		</div>
         		</div>
 			</div>
@@ -136,30 +142,46 @@
 			var interval = null;
 
 			$(document).ready(function(){
-
+				
 				$('#formulariParametres').submit(function(e){
 					
 					$("#labelEstat").html(estats['INICIALITZANT']);
 					$("#divError").hide()
 					$("#divInfo").hide()
+					$("#labelConsulta").html('-');
 					$('#spinnerIcon').css('visibility', 'visible');
-					$('#informeDescarrega').css('visibility', 'visible');					
+					$('#informeDescarrega').css('visibility', 'visible');
 
 					$.ajax({
 				           type: "POST",
+				           data: $(this).serialize(),
 				           success: function(data)
 				           {
 								informe = data;
+							    actualitzarInfoDescarrega(informe);
 								// Consulta periòdica
 								interval = setInterval(function(){ 
-									informe = getConsultaInfo();
-									actualitzarInfoDescarrega(informe);
 									if (informe == null || (["NO_TROBAT", "FINALITZAT", "CANCELLAT", "ERROR"].indexOf(informe.estat) >= 0))
 										clearInterval(interval)
-								}, 5000);		
+									else
+										informe = getConsultaInfo();
+									actualitzarInfoDescarrega(informe);
+								}, 5000);
 				           }
 				    });
 					e.preventDefault();
+				});
+				
+				$('#generacioCancelarButton').click(function (e) {
+					if (informe != null && (["NO_TROBAT", "INICIALITZANT", "GENERANT"].indexOf(informe.estat) >= 0)) {
+					    if (confirm("<spring:message code='expedient.informe.generacio.cancellar.confirmacio'/>")) {
+						    // Cancel·lar la generació de l'informe
+						    informe = cancellarInforme();
+						    actualitzarInfoDescarrega(informe);
+					    }
+					}
+				    e.preventDefault();
+				    return false;
 				});
 			});
 			
@@ -204,6 +226,9 @@
 				if (info == null || info.estat == 'NO_TROBAT') {
 					informe = null;
 					$('#informeDescarrega').css('visibility', 'hidden');
+					$('#spinnerIcon').css('visibility', 'hidden');
+					$('#generacioCancelarButton').css('visibility', 'hidden');
+					$("#divError").hide();
 				} else {
 					$('#informeDescarrega').css('visibility', 'visible');
 					informe = info;
@@ -211,14 +236,18 @@
 					switch (informe.estat) {
 					case 'INICIALITZANT':
 						$('#spinnerIcon').css('visibility', 'visible');
+						$('#generacioCancelarButton').css('visibility', 'visible');
 						break;
 					case 'GENERANT':
 						$('#spinnerIcon').css('visibility', 'visible');
+						$('#labelConsulta').html(info.consulta);
 						$('#labelNumeroExpedients').html(info.numeroRegistres);
+						$('#generacioCancelarButton').css('visibility', 'visible');
 						$('#divInfo').show();
 						break;
 					case 'FINALITZAT':
 						$('#spinnerIcon').css('visibility', 'hidden');
+						$('#generacioCancelarButton').css('visibility', 'hidden');
 						// Descarrega el document
 						window.location = '<c:url value="/v3/expedient/consulta/${consultaId}/informeAsync/exportar"/>';
 						informe = null;
@@ -226,9 +255,11 @@
 						break;
 					case 'CANCELLAT':
 						$('#spinnerIcon').css('visibility', 'hidden');
+						$('#generacioCancelarButton').css('visibility', 'hidden');
 						break;
 					case 'ERROR':
 						$('#spinnerIcon').css('visibility', 'hidden');
+						$('#generacioCancelarButton').css('visibility', 'hidden');
 						$("#labelError").html(info.missatge);
 						$("#divError").show();
 						break;
@@ -237,6 +268,37 @@
 					}
 				}
 			}			
+			
+			function cancellarInforme() {
+				var ret = null;
+				if (interval != null)
+					clearInterval(interval);
+				informe = null;
+				$('#dataTransferIcon').css('visibility', 'visible');
+				$.ajax({
+					type: 'GET',
+					url: '<c:url value="/v3/expedient/consulta/${consultaId}/informeAsync/cancellar"/>',
+					dataType: "json",
+					traditional: true,
+					async: false,
+				  	data: {
+				  	}
+				})
+					.done(function( data ) {
+						ret = data;
+						if (ret == null || (["NO_TROBAT", "FINALITZAT", "CANCELLAT", "ERROR"].indexOf(ret.estat) >= 0))
+							clearInterval(interval)
+					  })
+					.fail(function(jqXHR, textStatus) {
+					    console.log( "Error cancel·lant la generació: " + textStatus );
+						$("#labelError").html(textStatus);
+						$("#divError").show();
+					  })
+					.always(function() {
+						$('#dataTransferIcon').css('visibility', 'hidden');
+					  });	
+				return ret;	
+			}
 		</script>
 	</body>
 </html>

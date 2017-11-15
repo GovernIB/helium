@@ -52,6 +52,7 @@ public class InformeHelper {
 	public class InformeInfo {
 		
 		private String id;
+		private String consulta;
 		private Estat estat;
 		private String msg;
 		private int numeroRegistres;
@@ -66,6 +67,12 @@ public class InformeHelper {
 		}
 		public void setId(String id) {
 			this.id = id;
+		}
+		public String getConsulta() {
+			return consulta;
+		}
+		public void setConsulta(String consulta) {
+			this.consulta = consulta;
 		}
 		public void setEstat(Estat estat) {
 			synchronized(this){

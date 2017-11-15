@@ -366,9 +366,12 @@ $(document).ready(function() {
           			<h4 class="modal-title"><spring:message code="expedient.informe.generacio"/></h4>
         		</div>
 	        	<div class="modal-body">
-	        		<p><spring:message code="expedient.informe.generacio.estat"/>: <label id="labelEstat">[estat]</label>
+	        		<p><spring:message code="expedient.informe.generacio.estat"/>: <label id="labelEstat">-</label></p>
 	        		<div id="divError" style="display:none;"><span class="fa fa-exclamation-triangle text-danger"></span> <label id="labelError">[error]</label></div>
-	        		<div id="divInfo" style="display:none;"><spring:message code="expedient.informe.numero.expedients"/>: <label id="labelNumeroExpedients">0</label></div>
+	        		<div id="divInfo" style="display:none;">
+	        			<p><spring:message code="expedient.informe.generacio.consulta"/>: <label id="labelConsulta">-</label></p>
+	        			<p><spring:message code="expedient.informe.numero.expedients"/>: <label id="labelNumeroExpedients">0</label></p>
+	        		</div>
 	        		<div class="row">
 		        		<div class="col-sm-1">
 		        			<span id="spinnerIcon" style="visibility:hidden;" class="fa fa-spinner fa-spin fa-2x"/>
@@ -420,7 +423,7 @@ $(document).ready(function() {
 			$('#informeDescarregarModal').on('shown.bs.modal', function () {
 				informe = getConsultaInfo();
 				if (informe != null && informe.estat != 'NO_TROBAT')
-					actualitzarInfoDescarrega(informe);
+					consultarPeriodicament();
 				else {
 					// Inicia la generació i obté un objecte de consulta
 					generarInforme();
@@ -445,6 +448,7 @@ $(document).ready(function() {
 		function generarInforme() {
 
 			$("#labelEstat").html(estats['INICIALITZANT']);
+			$("#labelConsulta").html('-');
 			$("#divError").hide()
 			$("#divInfo").hide()
 			$('#spinnerIcon').css('visibility', 'visible');
@@ -460,20 +464,24 @@ $(document).ready(function() {
 			})
 				.done(function( data ) {
 					informe = data;
-					
-					// Consulta periòdica
-					interval = setInterval(function(){ 
-						informe = getConsultaInfo();
-						actualitzarInfoDescarrega(informe);
-						if (informe == null || (["NO_TROBAT", "FINALITZAT", "CANCELLAT", "ERROR"].indexOf(informe.estat) >= 0))
-							clearInterval(interval);
-					}, 5000);		
+					actualitzarInfoDescarrega(informe);
+					consultarPeriodicament();		
 				})
 				.fail(function(jqXHR, textStatus) {
 				    console.log( "Error iniciant la generació de l'informe: " + textStatus );
 					$("#labelError").html(textStatus);
 					$("#divError").show();
 				});
+		}
+		
+		function consultarPeriodicament() {
+			// Consulta periòdica
+			interval = setInterval(function(){ 
+				informe = getConsultaInfo();
+				actualitzarInfoDescarrega(informe);
+				if (informe == null || (["NO_TROBAT", "FINALITZAT", "CANCELLAT", "ERROR"].indexOf(informe.estat) >= 0))
+					clearInterval(interval);
+			}, 5000);		
 		}
 				
 		/** Mètode per consultar l'estat de la consulta */
@@ -528,6 +536,7 @@ $(document).ready(function() {
 					break;
 				case 'GENERANT':
 					$('#spinnerIcon').css('visibility', 'visible');
+					$('#labelConsulta').html(info.consulta);
 					$('#labelNumeroExpedients').html(info.numeroRegistres);
 					$('#divInfo').show();
 					break;
