@@ -478,6 +478,18 @@ public class ExpedientServiceImpl implements ExpedientService {
 		}
 		
 		List<JbpmProcessInstance> processInstancesTree = jbpmHelper.getProcessInstanceTree(expedient.getProcessInstanceId());
+
+		// Ordena per id de menor a major per evitar errors de dependències
+		Collections.sort(
+				processInstancesTree,
+				new Comparator<JbpmProcessInstance>() {
+					public int compare(JbpmProcessInstance o1, JbpmProcessInstance o2) {
+						Long l1 = new Long(o1.getId());
+						Long l2 = new Long(o2.getId());
+						return l2.compareTo(l1);
+					}
+				});
+
 		for (JbpmProcessInstance pi: processInstancesTree){
 			for (TerminiIniciat ti: terminiIniciatRepository.findByProcessInstanceId(pi.getId()))
 				terminiIniciatRepository.delete(ti);
