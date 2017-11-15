@@ -208,7 +208,7 @@ public class ExpedientTipusExportarValidator implements ConstraintValidator<Expe
 							if (!command.getDefinicionsProces().contains(consultaCamp.getDefprocJbpmKey())) {
 								context.buildConstraintViolationWithTemplate(
 										MessageHelper.getInstance().getMessage(
-												this.codiMissatge + ".consulta.variable.definicioProces", 
+												this.codiMissatge + ".consulta.variable.definicioProces.versio", 
 												new Object[] {	consulta.getCodi(), 
 																consultaCamp.getCampCodi(),
 																consultaCamp.getDefprocJbpmKey(),

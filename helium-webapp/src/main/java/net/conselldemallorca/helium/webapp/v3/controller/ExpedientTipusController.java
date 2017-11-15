@@ -489,7 +489,7 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 								"expedient.tipus.importar.form.success"));
 	    		// Indica que la importació ha finalitzat per no haver de processar més codi
 	    		model.addAttribute("importacioFinalitzada", true);
-	        	if (command.getId() != null) 
+	        	if (command.getId() == null) 
 		    		return modalUrlTancar();
 	        	else {        		
 	        		// retorna la redirecció

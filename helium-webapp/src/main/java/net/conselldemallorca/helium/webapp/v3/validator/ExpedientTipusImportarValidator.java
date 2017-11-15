@@ -15,6 +15,7 @@ import javax.validation.ConstraintValidatorContext;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
+import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ConsultaCampDto.TipusConsultaCamp;
 import net.conselldemallorca.helium.v3.core.api.dto.ConsultaDto;
@@ -74,7 +75,7 @@ public class ExpedientTipusImportarValidator implements ConstraintValidator<Expe
 	@Override
 	public boolean isValid(ExpedientTipusExportarCommand command, ConstraintValidatorContext context) {
 		boolean valid = true;
-		
+
 		// Recupera l'exportació
 		ExpedientTipusExportacio exportacio = null;		
 	 	try {
@@ -313,57 +314,21 @@ public class ExpedientTipusImportarValidator implements ConstraintValidator<Expe
 					valid = false;
 				}
 			}				
-
-			// Consultes
-			Map<String, ConsultaExportacio> consultesMap = new HashMap<String, ConsultaExportacio>();
-			for (ConsultaExportacio consulta : exportacio.getConsultes())
-				consultesMap.put(consulta.getCodi(), consulta);
-			ConsultaExportacio consulta;
-			Set<ConsultaCampExportacio> campsConsulta;
-			for (String consultaCodi : command.getConsultes()) {
-				consulta = consultesMap.get(consultaCodi);
-				campsConsulta = new HashSet<ConsultaCampExportacio>();
-				campsConsulta.addAll(consulta.getCamps());
-				// Comprova que tots els seus camps de tipus filtre i paràmetre s'exportin juntament amb les variables del tipus expedient o 
-				// amb les variables de les defincions de procés
-				for (ConsultaCampExportacio consultaCamp : campsConsulta)
-					if (consultaCamp.getTipusConsultaCamp() != TipusConsultaCamp.PARAM
-							&& ! consultaCamp.getCampCodi().startsWith(ExpedientCamps.EXPEDIENT_PREFIX))
-						if (consultaCamp.getJbpmKey() != null) {
-							// variable lligada a una variable de la definició de procés
-							if (!command.getDefinicionsProces().contains(consultaCamp.getJbpmKey())) {
-								context.buildConstraintViolationWithTemplate(
-										MessageHelper.getInstance().getMessage(
-												this.codiMissatge + ".consulta.variable.definicioProces", 
-												new Object[] {	consulta.getCodi(), 
-																consultaCamp.getCampCodi(),
-																consultaCamp.getJbpmKey(),
-																1 /*consultaCamp.getVersio()*/}))
-								.addNode("consultes")
-								.addConstraintViolation();
-								valid = false;
-							}
-						} else 
-							// variable lligada  al tipus d'expedient
-							if (!command.getVariables().contains(consultaCamp.getCampCodi())) {
-								context.buildConstraintViolationWithTemplate(
-										MessageHelper.getInstance().getMessage(
-												this.codiMissatge + ".consulta.variable", 
-												new Object[] {	consulta.getCodi(), 
-																consultaCamp.getCampCodi()}))
-								.addNode("consultes")
-								.addConstraintViolation();
-								valid = false;
-							}						
-			}	
 			
 			// Definicions de procés
 			Map<String, DefinicioProcesExportacio> definicionsMap = new HashMap<String, DefinicioProcesExportacio>();
 			for (DefinicioProcesExportacio definicio : exportacio.getDefinicions())
 				definicionsMap.put(definicio.getDefinicioProcesDto().getJbpmKey(), definicio);
 			DefinicioProcesExportacio definicio;
+			// Camps per cada definició de proces per validar camps en les consultes
+			// Map<jbpmKey, Set<campCodi>>
+			Map<String, Set<String>> campsDefinicionsProces = new HashMap<String, Set<String>>();
+			
 			for (String definicioProcesJbpmKey : command.getDefinicionsProces()) {
 				definicio = definicionsMap.get(definicioProcesJbpmKey);
+				
+				Set<String> campsDefinicioProces = new HashSet<String>();
+				campsDefinicionsProces.put(definicioProcesJbpmKey, campsDefinicioProces);
 				
 				// Comprova que no existeixi ja una definició de procés per a un altre tipus d'expedient diferent o pera l'entorn
 				DefinicioProcesDto definicioProcesDto = 
@@ -400,6 +365,7 @@ public class ExpedientTipusImportarValidator implements ConstraintValidator<Expe
 					}
 				// Comprova les dependències de les variables
 				for (CampExportacio campExportacio : definicio.getCamps()) {
+					campsDefinicioProces.add(campExportacio.getCodi());
 					// Consultes
 					if (campExportacio.getCodiConsulta() != null
 							&& ! command.getConsultes().contains(campExportacio.getCodiConsulta())) {
@@ -523,6 +489,71 @@ public class ExpedientTipusImportarValidator implements ConstraintValidator<Expe
 						}
 				}
 			}	
+			
+			// Consultes
+			if (command.getConsultes().size() > 0) {
+				if (expedientTipus != null) {
+					// Completa els camps per definició de procés amb les existents en el tipus d'expedient
+					// per validar que existeixin en la importació o en el TE destí
+					Set<String> campsDefinicioProces;
+					// Per totes les definicions de procés darrera versió
+					for (DefinicioProcesDto dp : definicioProcesService.findAll(expedientTipus.getEntorn().getId(), expedientTipus.getId(), false)) {
+						campsDefinicioProces = campsDefinicionsProces.get(dp.getJbpmKey());
+						if (campsDefinicioProces == null) {
+							campsDefinicioProces = new HashSet<String>();
+							campsDefinicionsProces.put(dp.getJbpmKey(), campsDefinicioProces);
+						}
+						// Per cada camp
+						for (CampDto c : dissenyService.findCampsOrdenatsPerCodi(expedientTipus.getId(), dp.getId()))
+							if (!campsDefinicioProces.contains(c.getCodi()))
+								campsDefinicioProces.add(c.getCodi());
+					}
+				}			
+				Map<String, ConsultaExportacio> consultesMap = new HashMap<String, ConsultaExportacio>();
+				for (ConsultaExportacio consulta : exportacio.getConsultes())
+					consultesMap.put(consulta.getCodi(), consulta);
+				ConsultaExportacio consulta;
+				Set<ConsultaCampExportacio> campsConsulta;
+				for (String consultaCodi : command.getConsultes()) {
+					consulta = consultesMap.get(consultaCodi);
+					campsConsulta = new HashSet<ConsultaCampExportacio>();
+					campsConsulta.addAll(consulta.getCamps());
+					// Comprova que tots els seus camps de tipus filtre i paràmetre s'exportin juntament amb les variables del tipus expedient o 
+					// amb les variables de les defincions de procés
+					for (ConsultaCampExportacio consultaCamp : campsConsulta)
+						if (consultaCamp.getTipusConsultaCamp() != TipusConsultaCamp.PARAM
+								&& ! consultaCamp.getCampCodi().startsWith(ExpedientCamps.EXPEDIENT_PREFIX))
+							if (consultaCamp.getJbpmKey() != null) {
+								// variable lligada a una variable de la definició de procés
+								if (!command.getDefinicionsProces().contains(consultaCamp.getJbpmKey())) {
+									// Si no està en el command mira si està en una definició de procés existent
+									if (!campsDefinicionsProces.containsKey(consultaCamp.getJbpmKey()) // definicions de procés
+											|| !campsDefinicionsProces.get(consultaCamp.getJbpmKey()).contains(consultaCamp.getCampCodi())) { // codis de camps per DP
+										context.buildConstraintViolationWithTemplate(
+												MessageHelper.getInstance().getMessage(
+														this.codiMissatge + ".consulta.variable.definicioProces", 
+														new Object[] {	consulta.getCodi(), 
+																		consultaCamp.getCampCodi(),
+																		consultaCamp.getJbpmKey()}))
+										.addNode("consultes")
+										.addConstraintViolation();
+										valid = false;
+									}
+								}
+							} else 
+								// variable lligada  al tipus d'expedient
+								if (!command.getVariables().contains(consultaCamp.getCampCodi())) {
+									context.buildConstraintViolationWithTemplate(
+											MessageHelper.getInstance().getMessage(
+													this.codiMissatge + ".consulta.variable", 
+													new Object[] {	consulta.getCodi(), 
+																	consultaCamp.getCampCodi()}))
+									.addNode("consultes")
+									.addConstraintViolation();
+									valid = false;
+								}						
+				}		
+			}		
 		}
 		if (!valid)
 			context.disableDefaultConstraintViolation();
