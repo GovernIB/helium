@@ -42,7 +42,7 @@
 				<th data-col-name="nom"><spring:message code="expedient.tipus.llistat.columna.titol"/></th>
 				<th data-col-name="permisCount" data-template="#cellPermisosTemplate" data-orderable="false" width="13%">
 					<script id="cellPermisosTemplate" type="text/x-jsrender">
-						{{if ${potAdministrarEntorn or potDissenyarEntorn} }}
+						{{if permisAdministration || ${potAdministrarEntorn} }}
 							<a href="expedientTipus/{{:id}}/permis" data-toggle="" class="btn btn-default"><span class="fa fa-key"></span>&nbsp;<spring:message code="expedient.tipus.llistat.accio.permisos"/>&nbsp;<span class="badge">{{:permisCount}}</span></a>
 						{{/if}}
 					</script>

@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import net.conselldemallorca.helium.core.helper.ConversioTipusHelper;
+import net.conselldemallorca.helium.core.helper.EntornHelper;
 import net.conselldemallorca.helium.core.helper.PaginacioHelper;
 import net.conselldemallorca.helium.core.helper.PermisosHelper;
 import net.conselldemallorca.helium.core.helper.UsuariActualHelper;
@@ -47,6 +48,8 @@ public class EntornServiceImpl implements EntornService {
 	private PaginacioHelper paginacioHelper;
 	@Resource(name = "permisosHelperV3") 
 	private PermisosHelper permisosHelper;
+	@Resource 
+	private EntornHelper entornHelper;
 
 
 

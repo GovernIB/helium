@@ -133,7 +133,7 @@ public class EntornController extends BaseController {
 		return this.getAjaxControllerReturnValueSuccess(
 				request,
 				"redirect:/v3/entorn",
-				"entorn.controller.modificat");
+				"entorn.controller.esborrat");
 	}
 
 	@RequestMapping(value = "/{entornId}/permis", method = RequestMethod.GET)

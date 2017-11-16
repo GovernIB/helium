@@ -21,7 +21,9 @@
 </head>
 <body>
 	<div class="text-right" data-toggle="botons-titol">
-		<a class="btn btn-default" href="entorn/new" data-toggle="modal"><span class="fa fa-plus"></span>&nbsp;<spring:message code="entorn.llistat.accio.nou"/></a>
+		<c:if test="${dadesPersona.admin}">
+			<a class="btn btn-default" href="entorn/new" data-toggle="modal"><span class="fa fa-plus"></span>&nbsp;<spring:message code="entorn.llistat.accio.nou"/></a>
+		</c:if>
 	</div>
 	<table	id="entorn"
 			data-toggle="datatable"
@@ -39,18 +41,22 @@
 				<th data-col-name="nom"><spring:message code="entorn.llistat.columna.nom"/></th>
 				<th data-col-name="permisCount" data-template="#cellPermisosTemplate" data-orderable="false" width="13%">
 					<script id="cellPermisosTemplate" type="text/x-jsrender">
-						<a href="entorn/{{:id}}/permis" data-toggle="" class="btn btn-default"><span class="fa fa-key"></span>&nbsp;<spring:message code="entorn.llistat.accio.permisos"/>&nbsp;<span class="badge">{{:permisCount}}</span></a>
+						<c:if test="${dadesPersona.admin}">
+							<a href="entorn/{{:id}}/permis" data-toggle="" class="btn btn-default"><span class="fa fa-key"></span>&nbsp;<spring:message code="entorn.llistat.accio.permisos"/>&nbsp;<span class="badge">{{:permisCount}}</span></a>
+						</c:if>
 					</script>
 				</th>
 				<th data-col-name="id" data-template="#cellAccionsTemplate" data-orderable="false" width="10%">
 					<script id="cellAccionsTemplate" type="text/x-jsrender">
-						<div class="dropdown">
-							<button class="btn btn-primary" data-toggle="dropdown"><span class="fa fa-cog"></span>&nbsp;<spring:message code="comu.boto.accions"/>&nbsp;<span class="caret"></span></button>
-							<ul class="dropdown-menu">
-								<li><a href="entorn/{{:id}}/update" data-toggle="modal"><span class="fa fa-pencil"></span>&nbsp;<spring:message code="comu.boto.modificar"/></a></li>
-								<li><a href="entorn/{{:id}}/delete" data-rdt-link-ajax="true" data-confirm="<spring:message code="entorn.llistat.confirmacio.esborrar"/>"><span class="fa fa-trash-o"></span>&nbsp;<spring:message code="comu.boto.esborrar"/></a></li>
-							</ul>
-						</div>
+						<c:if test="${dadesPersona.admin}">
+							<div class="dropdown">
+								<button class="btn btn-primary" data-toggle="dropdown"><span class="fa fa-cog"></span>&nbsp;<spring:message code="comu.boto.accions"/>&nbsp;<span class="caret"></span></button>
+								<ul class="dropdown-menu">
+									<li><a href="entorn/{{:id}}/update" data-toggle="modal"><span class="fa fa-pencil"></span>&nbsp;<spring:message code="comu.boto.modificar"/></a></li>
+									<li><a href="entorn/{{:id}}/delete" data-rdt-link-ajax="true" data-confirm="<spring:message code="entorn.llistat.confirmacio.esborrar"/>"><span class="fa fa-trash-o"></span>&nbsp;<spring:message code="comu.boto.esborrar"/></a></li>
+								</ul>
+							</div>
+						</c:if>
 					</script>
 				</th>
 			</tr>
