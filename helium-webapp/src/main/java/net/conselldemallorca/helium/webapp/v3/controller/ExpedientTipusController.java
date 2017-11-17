@@ -2,6 +2,7 @@ package net.conselldemallorca.helium.webapp.v3.controller;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -17,6 +18,10 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.propertyeditors.StringTrimmerEditor;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
@@ -654,7 +659,7 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 			BindingResult bindingResult,
 			Model model) {
 		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
-        if (bindingResult.hasErrors()) {
+		if (bindingResult.hasErrors()) {
         	model.addAttribute(
     				"expedientTipus",
     				expedientTipusService.findAmbIdPermisDissenyar(
@@ -662,16 +667,32 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
     						id));
         	return "v3/expedientTipusPermisForm";
         } else {
-    		expedientTipusService.permisUpdate(
-    				entornActual.getId(),
-    				id,
-    				conversioTipusHelper.convertir(
-    						command,
-    						PermisDto.class));
-			return getModalControllerReturnValueSuccess(
-					request,
-					"redirect:/v3/expedientTipus/" + id + "/permis",
-					"expedient.tipus.controller.permis.actualitzat");
+        	try {
+	    		expedientTipusService.permisUpdate(
+	    				entornActual.getId(),
+	    				id,
+	    				conversioTipusHelper.convertir(
+	    						command,
+	    						PermisDto.class),
+	    				entornActual.isPermisAdministration());
+	        	return getModalControllerReturnValueSuccess(
+						request,
+						"redirect:/v3/expedientTipus/" + id + "/permis",
+						"expedient.tipus.controller.permis.actualitzat");
+        	} catch (Exception e) {
+            	model.addAttribute(
+        				"expedientTipus",
+        				expedientTipusService.findAmbIdPermisDissenyar(
+        						entornActual.getId(),
+        						id));
+    			String msg = getMessage(request, "expedient.tipus.controller.permis.esborrar.error",
+    					new Object[] {e.getMessage()});
+    			logger.error(msg, e);
+    			MissatgesHelper.error(
+    					request,
+    					msg);			
+            	return "v3/expedientTipusPermisForm";
+        	}
         }
 	}
 
@@ -682,16 +703,23 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 			@PathVariable Long permisId,
 			Model model) {
 		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
-		expedientTipusService.permisDelete(
-				entornActual.getId(),
-				id,
-				permisId);
-		model.addAttribute(
-				"expedientTipus",
-				expedientTipusService.findAmbIdPermisDissenyar(
-						entornActual.getId(),
-						id));
-		model.addAttribute(new PermisCommand());
+		try {
+			expedientTipusService.permisDelete(
+					entornActual.getId(),
+					id,
+					permisId,
+    				entornActual.isPermisAdministration());
+			MissatgesHelper.success(
+					request,
+					getMessage(request, "expedient.tipus.controller.permis.esborrat"));			
+		} catch (Exception e) {
+			String msg = getMessage(request, "expedient.tipus.controller.permis.esborrar.error",
+					new Object[] {e.getMessage()});
+			logger.error(msg, e);
+			MissatgesHelper.error(
+					request,
+					msg);			
+		}
 		return "redirect:/v3/expedientTipus/" + id + "/permis";
 	}
 	

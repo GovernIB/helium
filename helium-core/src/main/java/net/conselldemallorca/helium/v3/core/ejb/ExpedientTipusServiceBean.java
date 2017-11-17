@@ -197,11 +197,13 @@ public class ExpedientTipusServiceBean implements ExpedientTipusService {
 	public void permisUpdate(
 			Long entornId,
 			Long expedientTipusId,
-			PermisDto permis) throws NoTrobatException, PermisDenegatException {
+			PermisDto permis,
+			boolean entornAdmin) throws NoTrobatException, PermisDenegatException {
 		delegate.permisUpdate(
 				entornId,
 				expedientTipusId,
-				permis);
+				permis,
+				entornAdmin);
 	}
 
 	@Override
@@ -209,11 +211,13 @@ public class ExpedientTipusServiceBean implements ExpedientTipusService {
 	public void permisDelete(
 			Long entornId,
 			Long expedientTipusId,
-			Long permisId) throws NoTrobatException, PermisDenegatException {
+			Long permisId,
+			boolean entornAdmin) throws NoTrobatException, PermisDenegatException {
 		delegate.permisDelete(
 				entornId,
 				expedientTipusId,
-				permisId);
+				permisId,
+				entornAdmin);
 	}
 
 	@Override

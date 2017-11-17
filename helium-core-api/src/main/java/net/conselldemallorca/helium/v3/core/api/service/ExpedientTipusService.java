@@ -305,6 +305,8 @@ public interface ExpedientTipusService {
 	 *            Atribut id del tipus d'expedient.
 	 * @param permis
 	 *            La informació del permis.
+	 * @param entornAdmin
+	 * 			  Indica si l'usuari és administrador de l'entorn i per tant pot modifica pot modificar permsios del tipus d'expeient.
 	 * @throws NoTrobatException
 	 *             Si no s'ha trobat el registre amb l'id especificat.
 	 * @throws PermisDenegatException
@@ -313,7 +315,8 @@ public interface ExpedientTipusService {
 	public void permisUpdate(
 			Long entornId,
 			Long expedientTipusId,
-			PermisDto permis) throws NoTrobatException, PermisDenegatException;
+			PermisDto permis,
+			boolean entornAdmin) throws NoTrobatException, PermisDenegatException;
 
 	/**
 	 * Esborra un permis existent d'un tipus d'expedient.
@@ -324,6 +327,8 @@ public interface ExpedientTipusService {
 	 *            Atribut id del tipus d'expedient.
 	 * @param permisId
 	 *            Atribut id del permis.
+	 * @param entornAdmin
+	 * 			  Indica si l'usuari és administrador de l'entorn i per tant pot modifica pot modificar permsios del tipus d'expeient.
 	 * @throws NoTrobatException
 	 *             Si no s'ha trobat el registre amb l'id especificat.
 	 * @throws PermisDenegatException
@@ -332,7 +337,8 @@ public interface ExpedientTipusService {
 	public void permisDelete(
 			Long entornId,
 			Long expedientTipusId,
-			Long permisId) throws NoTrobatException, PermisDenegatException;
+			Long permisId,
+			boolean entornAdmin) throws NoTrobatException, PermisDenegatException;
 
 	/**
 	 * Retorna els permisos per a un tipus d'expedient.

@@ -6,6 +6,7 @@ package net.conselldemallorca.helium.v3.core.service;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -19,7 +20,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.security.acls.model.Permission;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -1622,19 +1625,25 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 	public void permisUpdate(
 			Long entornId,
 			Long expedientTipusId,
-			PermisDto permis) {
+			PermisDto permis,
+			boolean entornAdmin) {
 		logger.debug(
 				"Creant permis per al tipus d'expedient (" +
 				"entornId=" + entornId + ", " +
 				"expedientTipusId=" + expedientTipusId + ", " +
 				"permis=" + permis + ")");
 
-		expedientTipusHelper.getExpedientTipusComprovantPermisDisseny(expedientTipusId);
-		
-		permisosHelper.updatePermis(
-				expedientTipusId,
-				ExpedientTipus.class,
-				permis);
+		ExpedientTipus expedientTipus = expedientTipusHelper.getExpedientTipusComprovantPermisDisseny(expedientTipusId);
+		Authentication authOrignal = this.permisComprovarPermisAdmin(expedientTipus, entornAdmin);
+    	try {    		
+    		permisosHelper.updatePermis(
+    				expedientTipusId,
+    				ExpedientTipus.class,
+    				permis);
+    	} finally {        		
+			if (authOrignal != null)
+				SecurityContextHolder.getContext().setAuthentication(authOrignal);
+    	}
 	}
 
 	/**
@@ -1645,17 +1654,58 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 	public void permisDelete(
 			Long entornId,
 			Long expedientTipusId,
-			Long permisId) {
+			Long permisId,
+			boolean entornAdmin) {
 		logger.debug(
 				"Esborrant permis per al tipus d'expedient (" +
 				"entornId=" + entornId + ", " +
 				"expedientTipusId=" + expedientTipusId + ", " +
 				"permisId=" + permisId + ")");
-		expedientTipusHelper.getExpedientTipusComprovantPermisDisseny(expedientTipusId);
-		permisosHelper.deletePermis(
-				expedientTipusId,
-				ExpedientTipus.class,
-				permisId);
+		
+		ExpedientTipus expedientTipus = expedientTipusHelper.getExpedientTipusComprovantPermisDisseny(expedientTipusId);
+		Authentication authOrignal = this.permisComprovarPermisAdmin(expedientTipus, entornAdmin);
+    	try {    		
+			permisosHelper.deletePermis(
+					expedientTipusId,
+					ExpedientTipus.class,
+					permisId);
+    	} finally {        		
+			if (authOrignal != null)
+				SecurityContextHolder.getContext().setAuthentication(authOrignal);
+    	}
+	}
+	
+	/** Mètode per afegir el rol d'administrador al context en el cas que l'usuari sigui administrador de
+	 * l'entorn i no sigui administrador del tipus d'expedient per a poder editar els permisos del tipus
+	 * d'expedient. 
+	 * @param expedientTipus
+	 * @param entornAdmin
+	 * @return
+	 */
+	private Authentication permisComprovarPermisAdmin(ExpedientTipus expedientTipus, boolean entornAdmin) {
+		Authentication authOrignal = null;
+		// Si és administrador de l'entorn però no és administrador del TE se li afegirà el rol admin
+		if (entornAdmin 
+				&& !expedientTipusHelper.comprovarPermisos(
+						expedientTipus, 
+						null, 
+						new Permission[] {ExtendedPermission.ADMINISTRATION})) {
+			authOrignal = SecurityContextHolder.getContext().getAuthentication();
+			// Afegeix el rol ROLE_ADMIN a la llista de rols
+			@SuppressWarnings("unchecked")
+			Collection<SimpleGrantedAuthority> nowAuthorities = 
+				(Collection<SimpleGrantedAuthority>)SecurityContextHolder.getContext().getAuthentication().getAuthorities();
+			Set<SimpleGrantedAuthority> newAuthorities = new HashSet<SimpleGrantedAuthority>(nowAuthorities);
+			newAuthorities.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
+			// Substitueix temporalent l'autenticació per poder modificar la llista tot i no ser ni propietari, ni administrador ni tenir permís d'administració
+			UsernamePasswordAuthenticationToken authentication =
+					new UsernamePasswordAuthenticationToken(
+							authOrignal.getPrincipal(), 
+							authOrignal.getCredentials(),
+							newAuthorities);
+			SecurityContextHolder.getContext().setAuthentication(authentication);				
+		}
+		return authOrignal;
 	}
 
 	/**
