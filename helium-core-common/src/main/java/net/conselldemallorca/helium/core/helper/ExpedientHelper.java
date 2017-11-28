@@ -125,7 +125,7 @@ public class ExpedientHelper {
 	private MesuresTemporalsHelper mesuresTemporalsHelper;
 
 	
-	private static String NTI_VERSION = "1.0";
+	private static String VERSIO_NTI = "http://administracionelectronica.gob.es/ENI/XSD/v1.0/expediente-e";
 	
 	
 	public ExpedientDto toExpedientDto(Expedient expedient) {
@@ -1156,7 +1156,7 @@ public class ExpedientHelper {
 		
 		expedient.setNtiActiu(ntiActiu);
 		if(ntiActiu) {
-			expedient.setNtiVersio(NTI_VERSION);
+			expedient.setNtiVersio(VERSIO_NTI);
 			expedient.setNtiOrgan(organ);
 			expedient.setNtiClasificacio(classificacio);
 			expedient.setNtiSerieDocumental(serieDocumental);

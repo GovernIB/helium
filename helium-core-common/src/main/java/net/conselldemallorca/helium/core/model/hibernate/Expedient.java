@@ -145,7 +145,7 @@ public class Expedient implements Serializable, GenericEntity<Long> {
 	@NotNull
 	private Boolean ntiActiu;
 	
-	@MaxLength(16)
+	@MaxLength(256)
 	private String ntiVersio;
 	@MaxLength(64)
 	private String ntiOrgan;

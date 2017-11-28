@@ -84,7 +84,7 @@ public class DocumentStore implements Serializable, GenericEntity<Long> {
 	@NotNull
 	private Boolean ntiActiu;
 	
-	@MaxLength(16)
+	@MaxLength(256)
 	private String ntiVersio;
 	@MaxLength(107)
 	private String ntiIdentificador;

@@ -22,7 +22,7 @@ import net.conselldemallorca.helium.v3.core.api.exception.SistemaExternException
  */
 public interface ExpedientDocumentService {
 	
-	public static final String VERSIO_NTI = "1.0";
+	public static final String VERSIO_NTI = "http://administracionelectronica.gob.es/ENI/XSD/v1.0/expediente-e";
 	public static final String ORIGEN_NTI = "Administración";
 	public static final String ESTAT_ELABORACIO_NTI = "Original";
 
