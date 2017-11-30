@@ -2402,10 +2402,11 @@ public class ExpedientServiceImpl implements ExpedientService {
 			Map<String, Object> valors,
 			List<Camp> campsFiltre) {
 		for (Camp camp: campsFiltre) {
+			String campFiltreCodi = camp.getDefinicioProces()!= null ? camp.getDefinicioProces().getJbpmKey() + "." + camp.getCodi() : camp.getCodi();
 			if (consulta.getMapValorsPredefinits().containsKey(camp.getCodi())
-					&& !valors.containsKey(camp.getCodi())) {
+					&& !valors.containsKey(campFiltreCodi)) {
 				valors.put(
-						camp.getDefinicioProces()!= null ? camp.getDefinicioProces().getJbpmKey() + "." + camp.getCodi() : camp.getCodi(),
+						campFiltreCodi,
 						Camp.getComObject(
 								camp.getTipus(),
 								consulta.getMapValorsPredefinits().get(camp.getCodi())));

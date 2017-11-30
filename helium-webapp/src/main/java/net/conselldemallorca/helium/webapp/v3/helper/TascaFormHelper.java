@@ -915,7 +915,13 @@ public class TascaFormHelper {
 				if (tipus != null && str != null && !"".equals(str.trim())) {
 					switch(tipus) {
 						case BOOLEAN:
-							valor = Boolean.parseBoolean(str);
+							if ("S".equals(str)) {
+								valor = new Boolean(true);
+							} else if ("N".equals(str)) {
+								valor = new Boolean(false);
+							} else {
+								valor = Boolean.parseBoolean(str);
+							}
 							break;
 						case DATE:
 							valor = new SimpleDateFormat("dd/MM/yyyy").parse(str);
