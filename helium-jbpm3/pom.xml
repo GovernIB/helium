@@ -2,7 +2,7 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
-		<groupId>net.conselldemallorca</groupId>
+		<groupId>net.conselldemallorca.helium</groupId>
 		<artifactId>helium</artifactId>
 		<version>3.2</version>
 	</parent>
@@ -69,12 +69,12 @@
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
-			<groupId>net.conselldemallorca</groupId>
+			<groupId>${project.groupId}</groupId>
 			<artifactId>helium-disseny</artifactId>
 			<version>${helium.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>net.conselldemallorca</groupId>
+			<groupId>${project.groupId}</groupId>
 			<artifactId>helium-core-api</artifactId>
 			<version>${helium.version}</version>
 		</dependency>

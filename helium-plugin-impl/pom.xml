@@ -4,8 +4,8 @@
 	xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
+		<groupId>net.conselldemallorca.helium</groupId>
 		<artifactId>helium</artifactId>
-		<groupId>net.conselldemallorca</groupId>
 		<version>3.2</version>
 	</parent>
 	<artifactId>helium-plugin-impl</artifactId>
@@ -73,7 +73,7 @@
 			<systemPath>${basedir}/../helium-webapp/src/main/webapp/WEB-INF/lib/sistra-wsdl-1.1.0.jar</systemPath>
 		</dependency>
 		<dependency>
-			<groupId>net.conselldemallorca</groupId>
+			<groupId>${project.groupId}</groupId>
 			<artifactId>esbcim-wsdl</artifactId>
 			<version>1.0</version>
 			<scope>system</scope>
@@ -209,12 +209,12 @@
 			</exclusions>
 		</dependency-->
 		<dependency>
-			<groupId>net.conselldemallorca</groupId>
+			<groupId>${project.groupId}</groupId>
 			<artifactId>helium-plugin-api</artifactId>
 			<version>${helium.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>net.conselldemallorca</groupId>
+			<groupId>${project.groupId}</groupId>
 			<artifactId>helium-core-common</artifactId>
 			<version>${helium.version}</version>
 		</dependency>

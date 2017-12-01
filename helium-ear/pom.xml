@@ -2,8 +2,8 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
+		<groupId>net.conselldemallorca.helium</groupId>
 		<artifactId>helium</artifactId>
-		<groupId>net.conselldemallorca</groupId>
 		<version>3.2</version>
 	</parent>
 	<artifactId>helium-ear</artifactId>
@@ -26,9 +26,7 @@
 					<groupId>org.hibernate</groupId>
 				</exclusion>
 				<exclusion>
-					<artifactId>
-						hibernate-commons-annotations
-					</artifactId>
+					<artifactId>hibernate-commons-annotations</artifactId>
 					<groupId>org.hibernate</groupId>
 				</exclusion>
 			</exclusions>
@@ -56,19 +54,13 @@
 			</exclusions>
 		</dependency>
 		<dependency>
-			<groupId>net.conselldemallorca</groupId>
+			<groupId>${project.groupId}</groupId>
 			<artifactId>helium-hibernate-entitymanager</artifactId>
 			<version>${helium.version}</version>
 			<type>jar</type>
 		</dependency>
-<!-- 		<dependency> -->
-<!-- 			<groupId>net.conselldemallorca</groupId> -->
-<!-- 			<artifactId>helium-core</artifactId> -->
-<!-- 			<version>${helium.version}</version> -->
-<!-- 			<type>ejb</type> -->
-<!-- 		</dependency> -->
 		<dependency>
-			<groupId>net.conselldemallorca</groupId>
+			<groupId>${project.groupId}</groupId>
 			<artifactId>helium-webapp</artifactId>
 			<version>${helium.version}</version>
 			<type>war</type>
@@ -87,13 +79,9 @@
 				<version>2.3.2</version>
 				<configuration>
 					<finalName>helium</finalName>
-<!-- 					<ejbModule> -->
-<!-- 						<groupId>net.conselldemallorca</groupId> -->
-<!-- 						<artifactId>helium-core</artifactId> -->
-<!-- 					</ejbModule> -->
 					<modules>
 						<webModule>
-							<groupId>net.conselldemallorca</groupId>
+							<groupId>${project.groupId}</groupId>
 							<artifactId>helium-webapp</artifactId>
 						</webModule>
 					</modules>

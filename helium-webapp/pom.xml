@@ -4,8 +4,8 @@
 	xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
+		<groupId>net.conselldemallorca.helium</groupId>
 		<artifactId>helium</artifactId>
-		<groupId>net.conselldemallorca</groupId>
 		<version>3.2</version>
 	</parent>
 	<artifactId>helium-webapp</artifactId>
@@ -239,32 +239,32 @@
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
-			<groupId>net.conselldemallorca</groupId>
+			<groupId>${project.groupId}</groupId>
 			<artifactId>helium-core-v26</artifactId>
 			<version>${helium.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>net.conselldemallorca</groupId>
+			<groupId>${project.groupId}</groupId>
 			<artifactId>helium-core</artifactId>
 			<version>${helium.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>net.conselldemallorca</groupId>
+			<groupId>${project.groupId}</groupId>
 			<artifactId>helium-ws</artifactId>
 			<version>${helium.version}</version>
 		</dependency>
 		<!--dependency>
-			<groupId>net.conselldemallorca</groupId>
+			<groupId>${project.groupId}</groupId>
 			<artifactId>helium-selenium-integraciones</artifactId>
 			<version>${helium.version}</version>
 		</dependency-->
 		<dependency>
-			<groupId>net.conselldemallorca</groupId>
+			<groupId>${project.groupId}</groupId>
 			<artifactId>helium-plugin-api</artifactId>
 			<version>${helium.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>net.conselldemallorca</groupId>
+			<groupId>${project.groupId}</groupId>
 			<artifactId>helium-plugin-impl</artifactId>
 			<version>${helium.version}</version>
 		</dependency>
@@ -420,12 +420,12 @@
 					</exclusions>
 				</dependency>
 				<dependency>
-					<groupId>net.conselldemallorca</groupId>
+					<groupId>${project.groupId}</groupId>
 					<artifactId>helium-core</artifactId>
 					<version>${helium.version}</version>
 				</dependency>
 				<dependency>
-					<groupId>net.conselldemallorca</groupId>
+					<groupId>${project.groupId}</groupId>
 					<artifactId>helium-hibernate-entitymanager</artifactId>
 					<version>${helium.version}</version>
 				</dependency>
