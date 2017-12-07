@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wsdl:definitions name="GuardarFormulariImplService" targetNamespace="http://forms.integracio.helium.conselldemallorca.net/" xmlns:ns1="http://cxf.apache.org/bindings/xformat" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:tns="http://forms.integracio.helium.conselldemallorca.net/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <wsdl:types>
+<xs:schema elementFormDefault="unqualified" targetNamespace="http://forms.integracio.helium.conselldemallorca.net/" version="1.0" xmlns:tns="http://forms.integracio.helium.conselldemallorca.net/" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+<xs:element name="guardar" type="tns:guardar"/>
+<xs:element name="guardarResponse" type="tns:guardarResponse"/>
+<xs:complexType name="guardar">
+<xs:sequence>
+<xs:element minOccurs="0" name="arg0" type="xs:string"/>
+<xs:element maxOccurs="unbounded" minOccurs="0" name="arg1" type="tns:parellaCodiValor"/>
+</xs:sequence>
+</xs:complexType>
+<xs:complexType name="parellaCodiValor">
+<xs:sequence>
+<xs:element minOccurs="0" name="codi" type="xs:string"/>
+<xs:element minOccurs="0" name="valor" type="xs:anyType"/>
+</xs:sequence>
+</xs:complexType>
+<xs:complexType name="guardarResponse">
+<xs:sequence/>
+</xs:complexType>
+</xs:schema>
+  </wsdl:types>
+  <wsdl:message name="guardarResponse">
+    <wsdl:part element="tns:guardarResponse" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="guardar">
+    <wsdl:part element="tns:guardar" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:portType name="GuardarFormulari">
+    <wsdl:operation name="guardar">
+      <wsdl:input message="tns:guardar" name="guardar">
+    </wsdl:input>
+      <wsdl:output message="tns:guardarResponse" name="guardarResponse">
+    </wsdl:output>
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="GuardarFormulariImplServiceSoapBinding" type="tns:GuardarFormulari">
+    <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+    <wsdl:operation name="guardar">
+      <soap:operation soapAction="" style="document"/>
+      <wsdl:input name="guardar">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="guardarResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:service name="GuardarFormulariImplService">
+    <wsdl:port binding="tns:GuardarFormulariImplServiceSoapBinding" name="GuardarFormulariImplPort">
+      <soap:address location="http://localhost:8080/helium/ws/FormulariExtern"/>
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>

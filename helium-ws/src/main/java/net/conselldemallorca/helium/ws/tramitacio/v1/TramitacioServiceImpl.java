@@ -6,11 +6,20 @@ package net.conselldemallorca.helium.ws.tramitacio.v1;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.jws.WebService;
 import javax.xml.datatype.XMLGregorianCalendar;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.acls.model.Permission;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import net.conselldemallorca.helium.core.model.dto.ArxiuDto;
 import net.conselldemallorca.helium.core.model.dto.DocumentDto;
@@ -36,15 +45,12 @@ import net.conselldemallorca.helium.core.model.service.PermissionService;
 import net.conselldemallorca.helium.core.model.service.TascaService;
 import net.conselldemallorca.helium.core.security.ExtendedPermission;
 import net.conselldemallorca.helium.core.util.EntornActual;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto.OrdreDireccioDto;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService.FiltreAnulat;
-import net.conselldemallorca.helium.ws.tramitacio.v1.TramitacioException;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.acls.model.Permission;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 
 /**
  * Implementació del servei de tramitació d'expedients
@@ -62,11 +68,12 @@ public class TramitacioServiceImpl implements TramitacioService {
 	private DissenyService dissenyService;
 	private ExpedientService expedientService;
 	private TascaService tascaService;
+	private net.conselldemallorca.helium.v3.core.api.service.TascaService tascaServiceV3;
 	private DocumentService documentService;
 	private PermissionService permissionService;
 
 
-
+	@Override
 	public String iniciExpedient(
 			String entorn,
 			String expedientTipus,
@@ -143,6 +150,7 @@ public class TramitacioServiceImpl implements TramitacioService {
 		}
 	}
 
+	@Override
 	public List<TascaTramitacio> consultaTasquesPersonals(
 			String entorn) throws TramitacioException {
 		Entorn e = findEntornAmbCodi(entorn);
@@ -162,6 +170,7 @@ public class TramitacioServiceImpl implements TramitacioService {
 		}
 	}
 
+	@Override
 	public List<TascaTramitacio> consultaTasquesGrup(
 			String entorn) throws TramitacioException {
 		Entorn e = findEntornAmbCodi(entorn);
@@ -181,6 +190,139 @@ public class TramitacioServiceImpl implements TramitacioService {
 		}
 	}
 
+	@Override
+	public List<TascaTramitacio> consultaTasquesPersonalsByCodi(
+			String entorn, 
+			String codi) throws TramitacioException {
+		Entorn e = findEntornAmbCodi(entorn);
+		if (e == null)
+			throw new TramitacioException("No existeix cap entorn amb el codi '" + entorn + "'");
+		if (!validarPermisEntornRead(e))
+			throw new TramitacioException("No té permisos per accedir a l'entorn '" + entorn + "'");
+		try {
+			List<TascaLlistatDto> tasques = tascaService.findTasquesPersonalsTramitacio(e.getId(), null, codi, true);
+			List<TascaTramitacio> resposta = new ArrayList<TascaTramitacio>();
+			for (TascaLlistatDto tasca: tasques)
+				resposta.add(convertirTascaTramitacio(tasca));
+			return resposta;
+		} catch (Exception ex) {
+			logger.error("No s'ha pogut obtenir el llistat de tasques", ex);
+			throw new TramitacioException("No s'ha pogut obtenir el llistat de tasques: " + ex.getMessage());
+		}
+	}
+
+	@Override
+	public List<TascaTramitacio> consultaTasquesGrupByCodi(
+			String entorn, 
+			String codi) throws TramitacioException {
+		Entorn e = findEntornAmbCodi(entorn);
+		if (e == null)
+			throw new TramitacioException("No existeix cap entorn amb el codi '" + entorn + "'");
+		if (!validarPermisEntornRead(e))
+			throw new TramitacioException("No té permisos per accedir a l'entorn '" + entorn + "'");
+		try {
+			List<TascaLlistatDto> tasques = tascaService.findTasquesGrupTramitacio(e.getId(), null, codi, true);
+			List<TascaTramitacio> resposta = new ArrayList<TascaTramitacio>();
+			for (TascaLlistatDto tasca: tasques)
+				resposta.add(convertirTascaTramitacio(tasca));
+			return resposta;
+		} catch (Exception ex) {
+			logger.error("No s'ha pogut obtenir el llistat de tasques", ex);
+			throw new TramitacioException("No s'ha pogut obtenir el llistat de tasques: " + ex.getMessage());
+		}
+	}
+
+	@Override
+	public List<TascaTramitacio> consultaTasquesPersonalsByProces(
+			String entorn, 
+			String processInstanceId) throws TramitacioException {
+		Entorn e = findEntornAmbCodi(entorn);
+		if (e == null)
+			throw new TramitacioException("No existeix cap entorn amb el codi '" + entorn + "'");
+		if (!validarPermisEntornRead(e))
+			throw new TramitacioException("No té permisos per accedir a l'entorn '" + entorn + "'");
+		try {
+			ExpedientDto expedient = expedientService.findExpedientAmbProcessInstanceId(processInstanceId);
+			PaginacioParamsDto paginacioParams = new PaginacioParamsDto();
+			paginacioParams.afegirOrdre(
+					"dataCreacio",
+					OrdreDireccioDto.DESCENDENT);
+			paginacioParams.setPaginaNum(0);
+			paginacioParams.setPaginaTamany(1000);
+			PaginaDto<ExpedientTascaDto> tasques = tascaServiceV3.findPerFiltrePaginat(
+					e.getId(),
+					null,
+					expedient.getTipus().getId(),
+					null,
+					null,
+					null,
+					expedient.getTitol(),
+					null,
+					null,
+					null,
+					null,
+					null,
+					true,
+					false,
+					true,
+					paginacioParams);
+			List<TascaTramitacio> resposta = new ArrayList<TascaTramitacio>();
+			for (ExpedientTascaDto tasca: tasques.getContingut()) {
+				resposta.add(convertirTascaTramitacio(tasca));
+			}
+			return resposta;
+		} catch (Exception ex) {
+			logger.error("No s'ha pogut obtenir el llistat de tasques", ex);
+			throw new TramitacioException("No s'ha pogut obtenir el llistat de tasques: " + ex.getMessage());
+		}
+	}
+
+	@Override
+	public List<TascaTramitacio> consultaTasquesGrupByProces(
+			String entorn, 
+			String processInstanceId) throws TramitacioException {
+		Entorn e = findEntornAmbCodi(entorn);
+		if (e == null)
+			throw new TramitacioException("No existeix cap entorn amb el codi '" + entorn + "'");
+		if (!validarPermisEntornRead(e))
+			throw new TramitacioException("No té permisos per accedir a l'entorn '" + entorn + "'");
+		try {
+			ExpedientDto expedient = expedientService.findExpedientAmbProcessInstanceId(processInstanceId);
+			PaginacioParamsDto paginacioParams = new PaginacioParamsDto();
+			paginacioParams.afegirOrdre(
+					"dataCreacio",
+					OrdreDireccioDto.DESCENDENT);
+			paginacioParams.setPaginaNum(0);
+			paginacioParams.setPaginaTamany(1000);
+			PaginaDto<ExpedientTascaDto> tasques = tascaServiceV3.findPerFiltrePaginat(
+					e.getId(),
+					null,
+					expedient.getTipus().getId(),
+					null,
+					null,
+					null,
+					expedient.getTitol(),
+					null,
+					null,
+					null,
+					null,
+					null,
+					false,
+					true,
+					true,
+					paginacioParams);
+			List<TascaTramitacio> resposta = new ArrayList<TascaTramitacio>();
+			for (ExpedientTascaDto tasca: tasques.getContingut()) {
+				resposta.add(convertirTascaTramitacio(tasca));
+			}
+			return resposta;
+		} catch (Exception ex) {
+			logger.error("No s'ha pogut obtenir el llistat de tasques", ex);
+			throw new TramitacioException("No s'ha pogut obtenir el llistat de tasques: " + ex.getMessage());
+		}
+	}
+
+	@Override
 	public void agafarTasca(
 			String entorn,
 			String tascaId) throws TramitacioException {
@@ -203,6 +345,7 @@ public class TramitacioServiceImpl implements TramitacioService {
 			throw new TramitacioException("Aquest usuari no té la tasca " + tascaId + " assignada");
 	}
 
+	@Override
 	public void alliberarTasca(
 			String entorn,
 			String tascaId) throws TramitacioException {
@@ -229,6 +372,7 @@ public class TramitacioServiceImpl implements TramitacioService {
 			throw new TramitacioException("Aquest usuari no té la tasca " + tascaId + " assignada");
 	}
 
+	@Override
 	public List<CampTasca> consultaFormulariTasca(
 			String entorn,
 			String tascaId) throws TramitacioException {
@@ -252,6 +396,7 @@ public class TramitacioServiceImpl implements TramitacioService {
 		return resposta;
 	}
 
+	@Override
 	public void setDadesFormulariTasca(
 			String entorn,
 			String tascaId,
@@ -307,6 +452,7 @@ public class TramitacioServiceImpl implements TramitacioService {
 		}
 	}
 
+	@Override
 	public List<DocumentTasca> consultaDocumentsTasca(
 			String entorn,
 			String tascaId) throws TramitacioException {
@@ -330,6 +476,7 @@ public class TramitacioServiceImpl implements TramitacioService {
 		return resposta;
 	}
 
+	@Override
 	public void setDocumentTasca(
 			String entorn,
 			String tascaId,
@@ -356,6 +503,8 @@ public class TramitacioServiceImpl implements TramitacioService {
 			throw new TramitacioException("No s'ha pogut guardar el document a la tasca: " + ex.getMessage());
 		}
 	}
+
+	@Override
 	public void esborrarDocumentTasca(
 			String entorn,
 			String tascaId,
@@ -377,6 +526,7 @@ public class TramitacioServiceImpl implements TramitacioService {
 		}
 	}
 
+	@Override
 	public void finalitzarTasca(
 			String entorn,
 			String tascaId,
@@ -398,6 +548,20 @@ public class TramitacioServiceImpl implements TramitacioService {
 		}
 	}
 
+	@Override
+	public ExpedientInfo getExpedientInfo(
+			String entornCodi,
+			String processInstanceId) throws TramitacioException {
+		Entorn e = findEntornAmbCodi(entornCodi);
+		if (e == null)
+			throw new TramitacioException("No existeix cap entorn amb el codi '" + entornCodi + "'");
+		if (!validarPermisEntornRead(e))
+			throw new TramitacioException("No té permisos per accedir a l'entorn '" + entornCodi + "'");
+		return toExpedientInfo(
+			expedientService.findExpedientAmbProcessInstanceId(processInstanceId));
+	}
+
+	@Override
 	public List<CampProces> consultarVariablesProces(
 			String entorn,
 			String processInstanceId) throws TramitacioException {
@@ -438,6 +602,8 @@ public class TramitacioServiceImpl implements TramitacioService {
 			throw new TramitacioException("No s'ha pogut guardar la variable al procés: " + ex.getMessage());
 		}
 	}
+
+	@Override
 	public void setVariableProces(
 			String entorn,
 			String processInstanceId,
@@ -488,6 +654,8 @@ public class TramitacioServiceImpl implements TramitacioService {
 			throw new TramitacioException("No s'ha pogut guardar la variable al procés: " + ex.getMessage());
 		}
 	}
+
+	@Override
 	public void esborrarVariableProces(
 			String entorn,
 			String processInstanceId,
@@ -510,6 +678,7 @@ public class TramitacioServiceImpl implements TramitacioService {
 		}
 	}
 
+	@Override
 	public List<DocumentProces> consultarDocumentsProces(
 			String entorn,
 			String processInstanceId) throws TramitacioException {
@@ -533,6 +702,8 @@ public class TramitacioServiceImpl implements TramitacioService {
 			throw new TramitacioException("No s'han pogut consultar el documents del procés: " + ex.getMessage());
 		}
 	}
+
+	@Override
 	public ArxiuProces getArxiuProces(
 			Long documentId) throws TramitacioException {
 		try {
@@ -556,6 +727,8 @@ public class TramitacioServiceImpl implements TramitacioService {
 			throw new TramitacioException("No s'ha pogut obtenir l'arxiu del procés: " + ex.getMessage());
 		}
 	}
+
+	@Override
 	public Long setDocumentProces(
 			String entorn,
 			String processInstanceId,
@@ -593,6 +766,8 @@ public class TramitacioServiceImpl implements TramitacioService {
 			throw new TramitacioException("No s'ha pogut guardar el document al procés: " + ex.getMessage());
 		}
 	}
+
+	@Override
 	public void esborrarDocumentProces(
 			String entorn,
 			String processInstanceId,
@@ -616,6 +791,7 @@ public class TramitacioServiceImpl implements TramitacioService {
 		}
 	}
 
+	@Override
 	public void executarAccioProces(
 			String entorn,
 			String processInstanceId,
@@ -644,6 +820,8 @@ public class TramitacioServiceImpl implements TramitacioService {
 			throw new TramitacioException("No s'ha pogut executar l'acció: " + ex.getMessage());
 		}
 	}
+
+	@Override
 	public void executarScriptProces(
 			String entorn,
 			String processInstanceId,
@@ -666,6 +844,8 @@ public class TramitacioServiceImpl implements TramitacioService {
 			throw new TramitacioException("No s'ha pogut executar l'script: " + ex.getMessage());
 		}
 	}
+
+	@Override
 	public void aturarExpedient(
 			String entorn,
 			String processInstanceId,
@@ -688,6 +868,8 @@ public class TramitacioServiceImpl implements TramitacioService {
 			throw new TramitacioException("No s'ha pogut aturar l'expedient: " + ex.getMessage());
 		}
 	}
+
+	@Override
 	public void reprendreExpedient(
 			String entorn,
 			String processInstanceId) throws TramitacioException {
@@ -708,6 +890,8 @@ public class TramitacioServiceImpl implements TramitacioService {
 			throw new TramitacioException("No s'ha pogut reprendre l'expedient: " + ex.getMessage());
 		}
 	}
+
+	@Override
 	public List<ExpedientInfo> consultaExpedients(
 			String entorn,
 			String titol,
@@ -771,6 +955,7 @@ public class TramitacioServiceImpl implements TramitacioService {
 		return resposta;
 	}
 
+	@Override
 	public void deleteExpedient(
 			String entorn,
 			String processInstanceId) throws TramitacioException {
@@ -805,6 +990,10 @@ public class TramitacioServiceImpl implements TramitacioService {
 	@Autowired
 	public void setTascaService(TascaService tascaService) {
 		this.tascaService = tascaService;
+	}
+	@Autowired
+	public void setTascaServiceV3(net.conselldemallorca.helium.v3.core.api.service.TascaService tascaServiceV3) {
+		this.tascaServiceV3 = tascaServiceV3;
 	}
 	@Autowired
 	public void setDocumentService(DocumentService documentService) {
@@ -847,6 +1036,33 @@ public class TramitacioServiceImpl implements TramitacioService {
 		tt.setCancelled(tasca.isCancelada());
 		tt.setSuspended(tasca.isSuspesa());
 		tt.setTransicionsSortida(tasca.getResultats());
+		tt.setProcessInstanceId(tasca.getProcessInstanceId());
+		return tt;
+	}
+	private TascaTramitacio convertirTascaTramitacio(ExpedientTascaDto tasca) {
+		TascaTramitacio tt = new TascaTramitacio();
+		tt.setId(tasca.getId());
+		tt.setCodi(tasca.getJbpmName());
+		tt.setTitol(tasca.getTitol());
+		//tt.setExpedient(tasca.getex.gete.getExpedientNumero());
+		tt.setMissatgeInfo(tasca.getTascaMissatgeInfo());
+		tt.setMissatgeWarn(tasca.getTascaMissatgeWarn());
+		tt.setResponsable(tasca.getResponsable().getCodi());
+		Set<String> responsables = new HashSet<String>();
+		for (PersonaDto responsable: tasca.getResponsables()) {
+			responsables.add(responsable.getCodi());
+		}
+		tt.setResponsables(responsables);
+		tt.setDataCreacio(tasca.getCreateTime());
+		tt.setDataInici(tasca.getStartTime());
+		tt.setDataFi(tasca.getEndTime());
+		tt.setDataLimit(tasca.getDueDate());
+		tt.setPrioritat(tasca.getPriority());
+		tt.setOpen(tasca.isOpen());
+		tt.setCompleted(tasca.isCompleted());
+		tt.setCancelled(tasca.isCancelled());
+		tt.setSuspended(tasca.isSuspended());
+		tt.setTransicionsSortida(tasca.getOutcomes());
 		tt.setProcessInstanceId(tasca.getProcessInstanceId());
 		return tt;
 	}
@@ -1015,46 +1231,6 @@ public class TramitacioServiceImpl implements TramitacioService {
 		if (PRINT_USUARI) {
 			Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 			logger.info(">>> " + auth.getName());
-		}
-	}
-
-	public List<TascaTramitacio> consultaTasquesPersonalsByCodi(
-			String entorn, 
-			String codi) throws TramitacioException {
-		Entorn e = findEntornAmbCodi(entorn);
-		if (e == null)
-			throw new TramitacioException("No existeix cap entorn amb el codi '" + entorn + "'");
-		if (!validarPermisEntornRead(e))
-			throw new TramitacioException("No té permisos per accedir a l'entorn '" + entorn + "'");
-		try {
-			List<TascaLlistatDto> tasques = tascaService.findTasquesPersonalsTramitacio(e.getId(), null, codi, true);
-			List<TascaTramitacio> resposta = new ArrayList<TascaTramitacio>();
-			for (TascaLlistatDto tasca: tasques)
-				resposta.add(convertirTascaTramitacio(tasca));
-			return resposta;
-		} catch (Exception ex) {
-			logger.error("No s'ha pogut obtenir el llistat de tasques", ex);
-			throw new TramitacioException("No s'ha pogut obtenir el llistat de tasques: " + ex.getMessage());
-		}
-	}
-
-	public List<TascaTramitacio> consultaTasquesGrupByCodi(
-			String entorn, 
-			String codi) throws TramitacioException {
-		Entorn e = findEntornAmbCodi(entorn);
-		if (e == null)
-			throw new TramitacioException("No existeix cap entorn amb el codi '" + entorn + "'");
-		if (!validarPermisEntornRead(e))
-			throw new TramitacioException("No té permisos per accedir a l'entorn '" + entorn + "'");
-		try {
-			List<TascaLlistatDto> tasques = tascaService.findTasquesGrupTramitacio(e.getId(), null, codi, true);
-			List<TascaTramitacio> resposta = new ArrayList<TascaTramitacio>();
-			for (TascaLlistatDto tasca: tasques)
-				resposta.add(convertirTascaTramitacio(tasca));
-			return resposta;
-		} catch (Exception ex) {
-			logger.error("No s'ha pogut obtenir el llistat de tasques", ex);
-			throw new TramitacioException("No s'ha pogut obtenir el llistat de tasques: " + ex.getMessage());
 		}
 	}
 

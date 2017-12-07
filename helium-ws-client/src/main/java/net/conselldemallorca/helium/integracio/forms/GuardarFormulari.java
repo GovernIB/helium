@@ -32,9 +32,9 @@ public interface GuardarFormulari {
     @RequestWrapper(localName = "guardar", targetNamespace = "http://forms.integracio.helium.conselldemallorca.net/", className = "net.conselldemallorca.helium.integracio.forms.Guardar")
     @ResponseWrapper(localName = "guardarResponse", targetNamespace = "http://forms.integracio.helium.conselldemallorca.net/", className = "net.conselldemallorca.helium.integracio.forms.GuardarResponse")
     public void guardar(
-        @WebParam(name = "formulariId", targetNamespace = "")
+        @WebParam(name = "arg0", targetNamespace = "")
         String formulariId,
-        @WebParam(name = "valors", targetNamespace = "")
+        @WebParam(name = "arg1", targetNamespace = "")
         List<ParellaCodiValor> valors);
 
 }

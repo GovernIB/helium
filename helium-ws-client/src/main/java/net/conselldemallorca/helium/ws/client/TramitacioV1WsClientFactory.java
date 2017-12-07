@@ -4,6 +4,7 @@
 package net.conselldemallorca.helium.ws.client;
 
 import java.net.MalformedURLException;
+import java.net.URL;
 
 import javax.xml.namespace.QName;
 
@@ -22,11 +23,14 @@ public class TramitacioV1WsClientFactory {
 			String url,
 			String userName,
 			String password) throws MalformedURLException {
+		URL wsdlResource = TramitacioV1WsClientFactory.class.getClassLoader().getResource(
+        		"net/conselldemallorca/helium/ws/client/TramitacioV1.wsdl");
 		return new WsClientHelper<TramitacioService>().generarClientWs(
+				wsdlResource,
 				url,
 				new QName(
-						"http://tramitacio.integracio.helium.conselldemallorca.net/",
-						"TramitacioService"),
+						"http://conselldemallorca.net/helium/ws/tramitacio/v1",
+						"TramitacioServiceImplService"),
 				userName,
 				password,
 				TramitacioService.class);

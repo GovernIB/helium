@@ -4,6 +4,7 @@
 package net.conselldemallorca.helium.ws.client;
 
 import java.net.MalformedURLException;
+import java.net.URL;
 
 import javax.xml.namespace.QName;
 
@@ -21,7 +22,10 @@ public class GuardarFormulariWsClientFactory {
 			String url,
 			String userName,
 			String password) throws MalformedURLException {
+		URL wsdlResource = TramitacioV1WsClientFactory.class.getClassLoader().getResource(
+        		"net/conselldemallorca/helium/ws/client/GuardarFormulari.wsdl");
 		return new WsClientHelper<GuardarFormulari>().generarClientWs(
+				wsdlResource,
 				url,
 				new QName(
 						"http://forms.integracio.helium.conselldemallorca.net/",

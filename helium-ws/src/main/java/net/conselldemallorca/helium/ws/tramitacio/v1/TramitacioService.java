@@ -9,8 +9,6 @@ import java.util.List;
 import javax.jws.WebService;
 import javax.xml.bind.annotation.XmlSeeAlso;
 
-import net.conselldemallorca.helium.ws.tramitacio.v1.TramitacioException;
-
 /**
  * Interfície del servei de tramitació d'expedients de Helium
  * 
@@ -25,17 +23,17 @@ public interface TramitacioService {
 	/**
 	 * Mètode per a iniciar un expedient
 	 * 
-	 * @param entorn
+	 * @param entornCodi
 	 * @param expedientTipus
 	 * @param numero
 	 * @param titol
-	 * @param valors
-	 * @return L'identificador intern de l'expedient
+	 * @param valorsFormulari
+	 * @return La instància de procés de l'expedient creat.
 	 * @throws TramitacioException
 	 */
 	public String iniciExpedient(
-			String entorn,
-			String expedientTipus,
+			String entornCodi,
+			String expedientTipusCodi,
 			String numero,
 			String titol,
 			List<ParellaCodiValor> valorsFormulari) throws TramitacioException;
@@ -43,98 +41,148 @@ public interface TramitacioService {
 	/**
 	 * Mètode per a obtenir el llistat de tasques personals
 	 * 
-	 * @param entorn
+	 * @param entornCodi
 	 * @param usuari
 	 * @return El llistat de tasques
 	 * @throws TramitacioException
 	 */
 	public List<TascaTramitacio> consultaTasquesPersonals(
-			String entorn) throws TramitacioException;
+			String entornCodi) throws TramitacioException;
 
 	/**
 	 * Mètode per a obtenir el llistat de tasques de grup
 	 * 
-	 * @param entorn
+	 * @param entornCodi
 	 * @param usuari
 	 * @return El llistat de tasques
 	 * @throws TramitacioException
 	 */
 	public List<TascaTramitacio> consultaTasquesGrup(
-			String entorn) throws TramitacioException;
+			String entornCodi) throws TramitacioException;
+
+	/**
+	 * Mètode per a obtenir el llistat de tasques personals amb codi
+	 * 
+	 * @param entornCodi
+	 * @param expedientNumero
+	 * @return El llistat de tasques
+	 * @throws TramitacioException
+	 */
+	public List<TascaTramitacio> consultaTasquesPersonalsByCodi(
+			String entornCodi,
+			String expedientNumero) throws TramitacioException;
+
+	/**
+	 * Mètode per a obtenir el llistat de tasques de grup amb codi
+	 * 
+	 * @param entornCodi
+	 * @param expedientNumero
+	 * @return El llistat de tasques
+	 * @throws TramitacioException
+	 */
+	public List<TascaTramitacio> consultaTasquesGrupByCodi(
+			String entornCodi,
+			String expedientNumero) throws TramitacioException;
+
+	/**
+	 * Mètode per a obtenir el llistat de tasques personals donat
+	 * l'identificador d'instància de procés.
+	 * 
+	 * @param entornCodi
+	 * @param processInstanceId
+	 * @return El llistat de tasques
+	 * @throws TramitacioException
+	 */
+	public List<TascaTramitacio> consultaTasquesPersonalsByProces(
+			String entornCodi,
+			String processInstanceId) throws TramitacioException;
+
+	/**
+	 * Mètode per a obtenir el llistat de tasques de grup donat
+	 * l'identificador d'instància de procés.
+	 * 
+	 * @param entornCodi
+	 * @param processInstanceId
+	 * @return El llistat de tasques
+	 * @throws TramitacioException
+	 */
+	public List<TascaTramitacio> consultaTasquesGrupByProces(
+			String entornCodi,
+			String processInstanceId) throws TramitacioException;
 
 	/**
 	 * Mètode per a agafar una tasca assignada a un grup de l'usuari
 	 * 
-	 * @param entorn
+	 * @param entornCodi
 	 * @param usuari
 	 * @param tascaId
 	 * @throws TramitacioException
 	 */
 	public void agafarTasca(
-			String entorn,
+			String entornCodi,
 			String tascaId) throws TramitacioException;
 
 	/**
 	 * Mètode per a alliberar una tasca assignada a un grup de l'usuari
 	 * 
-	 * @param entorn
+	 * @param entornCodi
 	 * @param usuari
 	 * @param tascaId
 	 * @throws TramitacioException
 	 */
 	public void alliberarTasca(
-			String entorn,
+			String entornCodi,
 			String tascaId) throws TramitacioException;
 
 	/**
 	 * Mètode per a consultar els camps del formulari de la tasca
 	 * 
-	 * @param entorn
+	 * @param entornCodi
 	 * @param usuari
 	 * @param tascaId
 	 * @throws TramitacioException
 	 */
 	public List<CampTasca> consultaFormulariTasca(
-			String entorn,
+			String entornCodi,
 			String tascaId) throws TramitacioException;
 
 	/**
 	 * Mètode per a modificar els valors del formulari de la tasca
 	 * 
-	 * @param entorn
+	 * @param entornCodi
 	 * @param usuari
 	 * @param tascaId
 	 * @param valors
 	 * @throws TramitacioException
 	 */
 	public void setDadesFormulariTasca(
-			String entorn,
+			String entornCodi,
 			String tascaId,
 			List<ParellaCodiValor> valors) throws TramitacioException;
 
 	/**
 	 * Mètode per a consultar els documents de la tasca
 	 * 
-	 * @param entorn
+	 * @param entornCodi
 	 * @param usuari
 	 * @param tascaId
 	 * @throws TramitacioException
 	 */
 	public List<DocumentTasca> consultaDocumentsTasca(
-			String entorn,
+			String entornCodi,
 			String tascaId) throws TramitacioException;
 
 	/**
 	 * Mètode per a modificar el contingut dels documents de la tasca
 	 * 
-	 * @param entorn
+	 * @param entornCodi
 	 * @param usuari
 	 * @param tascaId
 	 * @param valors
 	 * @throws TramitacioException
 	 */
 	public void setDocumentTasca(
-			String entorn,
+			String entornCodi,
 			String tascaId,
 			String document,
 			String nom,
@@ -144,48 +192,60 @@ public interface TramitacioService {
 	/**
 	 * Mètode per a esborrar el contingut dels documents de la tasca
 	 * 
-	 * @param entorn
+	 * @param entornCodi
 	 * @param usuari
 	 * @param tascaId
 	 * @param document
 	 * @throws TramitacioException
 	 */
 	public void esborrarDocumentTasca(
-			String entorn,
+			String entornCodi,
 			String tascaId,
 			String document) throws TramitacioException;
 
 	/**
 	 * Mètode per a finalitzar una tasca
 	 * 
-	 * @param entorn
+	 * @param entornCodi
 	 * @param usuari
 	 * @param tascaId
 	 * @param transicio
 	 * @throws TramitacioException
 	 */
 	public void finalitzarTasca(
-			String entorn,
+			String entornCodi,
 			String tascaId,
 			String transicio) throws TramitacioException;
 
 	/**
+	 * Mètode per a consultar la informació d'un expedient
+	 * 
+	 * @param entornCodiCodi
+	 * @param processInstanceId
+	 * @return La informació de l'expedient
+	 * @throws TramitacioException
+	 */
+	public ExpedientInfo getExpedientInfo(
+	    	String entornCodiCodi,
+			String processInstanceId) throws TramitacioException;
+
+	/**
 	 * Consulta les variables d'un procés
 	 * 
-	 * @param entorn
+	 * @param entornCodi
 	 * @param usuari
 	 * @param processInstanceId
 	 * @return
 	 * @throws TramitacioException
 	 */
 	public List<CampProces> consultarVariablesProces(
-			String entorn,
+			String entornCodi,
 			String processInstanceId) throws TramitacioException;
 
 	/**
 	 * Mètode per a modificar variables del procés
 	 * 
-	 * @param entorn
+	 * @param entornCodi
 	 * @param usuari
 	 * @param processInstanceId
 	 * @param varCodi
@@ -193,7 +253,7 @@ public interface TramitacioService {
 	 * @throws TramitacioException
 	 */
 	public void setVariableProces(
-			String entorn,
+			String entornCodi,
 			String processInstanceId,
 			String varCodi,
 			Object valor) throws TramitacioException;
@@ -201,28 +261,28 @@ public interface TramitacioService {
 	/**
 	 * Mètode per a esborrar variables del procés
 	 * 
-	 * @param entorn
+	 * @param entornCodi
 	 * @param usuari
 	 * @param processInstanceId
 	 * @param varCodi
 	 * @throws TramitacioException
 	 */
 	public void esborrarVariableProces(
-			String entorn,
+			String entornCodi,
 			String processInstanceId,
 			String varCodi) throws TramitacioException;
 
 	/**
 	 * Mètode per a consultar els documents d'un expedient
 	 * 
-	 * @param entorn
+	 * @param entornCodi
 	 * @param usuari
 	 * @param processInstanceId
 	 * @return
 	 * @throws TramitacioException
 	 */
 	public List<DocumentProces> consultarDocumentsProces(
-			String entorn,
+			String entornCodi,
 			String processInstanceId) throws TramitacioException;
 
 	/**
@@ -238,8 +298,7 @@ public interface TramitacioService {
 	/**
 	 * Mètode per a modificar documents del procés
 	 * 
-	 * @param entorn
-	 * @param usuari
+	 * @param entornCodi
 	 * @param processInstanceId
 	 * @param documentCodi
 	 * @param arxiu
@@ -249,7 +308,7 @@ public interface TramitacioService {
 	 * @throws TramitacioException
 	 */
 	public Long setDocumentProces(
-			String entorn,
+			String entornCodi,
 			String processInstanceId,
 			String documentCodi,
 			String arxiu,
@@ -259,82 +318,85 @@ public interface TramitacioService {
 	/**
 	 * Mètode per a esborrar documents del procés
 	 * 
-	 * @param entorn
-	 * @param usuari
+	 * @param entornCodi
 	 * @param processInstanceId
 	 * @param documentId
 	 * @throws TramitacioException
 	 */
 	public void esborrarDocumentProces(
-			String entorn,
+			String entornCodi,
 			String processInstanceId,
 			Long documentId) throws TramitacioException;
 
 	/**
 	 * Mètode per a executar una acció a dins un procés
 	 * 
-	 * @param entorn
-	 * @param usuari
+	 * @param entornCodi
 	 * @param processInstanceId
 	 * @param accio
 	 * @throws TramitacioException
 	 */
 	public void executarAccioProces(
-			String entorn,
+			String entornCodi,
 			String processInstanceId,
 			String accio) throws TramitacioException;	
 
 	/**
 	 * Mètode per a executar un script a dins un procés
 	 * 
-	 * @param entorn
-	 * @param usuari
+	 * @param entornCodi
 	 * @param processInstanceId
 	 * @param script
 	 * @throws TramitacioException
 	 */
 	public void executarScriptProces(
-			String entorn,
+			String entornCodi,
 			String processInstanceId,
 			String script) throws TramitacioException;
 
 	/**
 	 * Mètode per a aturar la tramitació d'un expedient
 	 * 
-	 * @param entorn
-	 * @param usuari
+	 * @param entornCodi
 	 * @param processInstanceId
 	 * @param motiu
 	 * @throws TramitacioException
 	 */
 	public void aturarExpedient(
-			String entorn,
+			String entornCodi,
 			String processInstanceId,
 			String motiu) throws TramitacioException;
 
 	/**
 	 * Mètode per a reprendre la tramitació d'un expedient
 	 * 
-	 * @param entorn
-	 * @param usuari
+	 * @param entornCodi
 	 * @param processInstanceId
 	 * @throws TramitacioException
 	 */
 	public void reprendreExpedient(
-			String entorn,
+			String entornCodi,
 			String processInstanceId) throws TramitacioException;
 
 	/**
 	 * Mètode per fer una consulta d'expedients
 	 * 
-	 * @param entorn
-	 * @param usuari
-	 * @param processInstanceId
-	 * @param script
+	 * @param entornCodi
+	 * @param titol
+	 * @param numero
+	 * @param dataInici1
+	 * @param dataInici2
+	 * @param expedientTipusCodi
+	 * @param estatCodi
+	 * @param iniciat
+	 * @param finalitzat
+	 * @param geoPosX
+	 * @param geoPosY
+	 * @param geoReferencia
 	 * @throws TramitacioException
 	 */
 	public List<ExpedientInfo> consultaExpedients(
-			String entorn,
+			String entornCodi,
 			String titol,
 			String numero,
 			Date dataInici1,
@@ -350,37 +412,12 @@ public interface TramitacioService {
 	/**
 	 * Mètode per a esborrar un expedient
 	 * 
-	 * @param entorn
-	 * @param usuari
+	 * @param entornCodi
 	 * @param processInstanceId
 	 * @throws TramitacioException
 	 */
 	public void deleteExpedient(
-			String entorn,
+			String entornCodi,
 			String processInstanceId) throws TramitacioException;
 
-	/**
-	 * Mètode per a obtenir el llistat de tasques personals amb codi
-	 * 
-	 * @param entorn
-	 * @param codi
-	 * @return El llistat de tasques
-	 * @throws TramitacioException
-	 */
-	public List<TascaTramitacio> consultaTasquesPersonalsByCodi(
-			String entorn,
-			String codi) throws TramitacioException;
-
-	/**
-	 * Mètode per a obtenir el llistat de tasques de grup amb codi
-	 * 
-	 * @param entorn
-	 * @param codi
-	 * @return El llistat de tasques
-	 * @throws TramitacioException
-	 */
-	public List<TascaTramitacio> consultaTasquesGrupByCodi(
-			String entorn,
-			String codi) throws TramitacioException;
-	
 }
