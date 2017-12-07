@@ -25,11 +25,8 @@ public class TramitacioWsClientTest {
 
 	private static final String SERVICE_URL = "http://localhost:8080/helium/ws/TramitacioService";
 
-	/*private static final String ENTORN_CODI = "CAIB";
+	private static final String ENTORN_CODI = "CAIB";
 	private static final String USUARI_CODI = "user";
-	private static final String EXPTIPUS_CODI = "test";*/
-	private static final String ENTORN_CODI = "josepg";
-	private static final String USUARI_CODI = "josepg";
 	private static final String EXPTIPUS_CODI = "test";
 
 	private TramitacioService tramitacioService;
