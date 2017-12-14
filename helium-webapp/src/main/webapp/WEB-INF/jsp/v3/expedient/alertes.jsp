@@ -36,7 +36,7 @@
 		<tbody>
 		<c:forEach var="alerta" items="${alertes}">
 			<tr>
-				<td><fmt:formatDate value="${alerta.dataCreacio}" pattern="dd/MM/yyyy"/></td>
+				<td><fmt:formatDate value="${alerta.dataCreacio}" pattern="dd/MM/yyyy HH:mm:ss"/></td>
 				<td>${persones[alerta.destinatari]}</td>
 				<td>${alerta.expedient.numero}</td>
 				<td>
