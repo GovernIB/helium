@@ -1321,7 +1321,18 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 			}
 			
 			DefinicioProces definicioProces = expedientHelper.findDefinicioProcesByProcessInstanceId(exp.getProcessInstanceId());
-			Accio accio = accioRepository.findByCodiAndDefinicioProces(accioCodi, definicioProces);
+			boolean infoPropia = definicioProces.getExpedientTipus() != null && definicioProces.getExpedientTipus().isAmbInfoPropia();
+			boolean herencia = infoPropia && definicioProces.getExpedientTipus().getExpedientTipusPare() != null;
+			Accio accio = null;
+			if (infoPropia) {
+				accio = accioRepository.findByExpedientTipusIdAndCodi(definicioProces.getExpedientTipus().getId(), accioCodi);
+				if (accio == null && herencia)
+					accio = accioRepository.findByExpedientTipusIdAndCodi(definicioProces.getExpedientTipus().getExpedientTipusPare().getId(), accioCodi);					
+			} else {
+				accio = accioRepository.findByCodiAndDefinicioProces(accioCodi, definicioProces);
+			}
+			if (accio == null)
+				throw new NoTrobatException(Accio.class, accioCodi);
 			
 			expedientService.accioExecutar(exp.getId(), exp.getProcessInstanceId(), accio.getId());
 			ome.setEstat(ExecucioMassivaEstat.ESTAT_FINALITZAT);
@@ -1664,8 +1675,8 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 								true, false).size();
 						if (expedientsActiusCount > 0 ) {
 							for ( Document documentPlantilla : documentsPlantilles) {
-								Document document = documentRepository.findAmbDefinicioProcesICodi(
-										definicioAnterior.getId(), 
+								Document document = documentRepository.findByDefinicioProcesAndCodi(
+										definicioAnterior, 
 										documentPlantilla.getCodi());
 								// Comprova si existeix
 								if (document != null && document.isPlantilla()) {

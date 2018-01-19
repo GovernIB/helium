@@ -36,7 +36,20 @@
 			<thead>
 				<tr>
 					<th data-col-name="id" data-visible="false"/>
-					<th data-col-name="jbpmKey"><spring:message code="expedient.tipus.definicioProces.llistat.columna.nom"/></th>
+					<th data-col-name="jbpmKey" width="20%" data-template="#cellExpedientTipusDefinicioJbpmkeyTemplate">
+					<spring:message code="expedient.tipus.definicioProces.llistat.columna.nom"/>
+						<script id="cellExpedientTipusDefinicioJbpmkeyTemplate" type="text/x-jsrender">
+								{{if heretat }}
+									<span class="dada-heretada">{{:jbpmKey}}</span> 
+									<span class="label label-primary" title="<spring:message code="expedient.tipus.definicioProces.llistat.columna.nom.heretat"/>">R</span>
+								{{else}}
+									{{:jbpmKey}}
+									{{if sobreescriu }}
+										<span class="label label-warning" title="<spring:message code="expedient.tipus.definicioProces.llistat.columna.nom.sobreescriu"/>">S</span>
+									{{/if}}
+								{{/if}}
+						</script>
+					</th>
 					<th data-col-name="versioCount" data-orderable="false"><spring:message code="expedient.tipus.definicioProces.llistat.columna.versions"/></th>
 					<th data-col-name="dataCreacio" data-converter="datetime"><spring:message code="expedient.tipus.definicioProces.llistat.columna.dataDarreraVersio"/></th>
 					<th data-col-name="versio" data-orderable="true"><spring:message code="definicio.proces.llistat.columna.versio"/></th>
@@ -63,7 +76,7 @@
 							<button class="btn btn-primary" data-toggle="dropdown"><span class="fa fa-cog"></span>&nbsp;<spring:message code="comu.boto.accions"/>&nbsp;<span class="caret"></span></button>
 							<ul class="dropdown-menu">
 								<li><a href="../definicioProces/{{:jbpmKey}}" class="consultar-expedient"><span class="fa fa-folder-open"></span>&nbsp;<spring:message code="expedient.tipus.definicioProces.llistat.definicioProces.dissenyar"/></a></li>
-								{{if ${potDissenyarExpedientTipusAdmin} }}
+								{{if ${!heretat && potDissenyarExpedientTipusAdmin} }}
 									<li><a class="btn-inicial" data-jbpmkey="{{:jbpmKey}}" href="${expedientTipus.id}/definicionsProces/{{:id}}/inicial"><span class="fa fa-flag-checkered"></span>&nbsp;<spring:message code="expedient.tipus.definicioProces.llistat.definicioProces.inicial"/></a></li>
 									<li><a data-toggle="modal" data-callback="callbackModaldefinicionsProces()" href="${expedientTipus.id}/definicionsProces/{{:id}}/incorporar"><span class="fa fa-download"></span>&nbsp;<spring:message code="expedient.tipus.definicioProces.llistat.definicioProces.incorporar"/></a></li>
 									<li><a data-toggle="modal" href="../definicioProces/{{:jbpmKey}}/exportar"><span class="fa fa-sign-out"></span>&nbsp;<spring:message code="comu.filtre.exportar"/></a></li>
@@ -74,6 +87,8 @@
 						</div>
 						</script>
 					</th>
+					<th data-col-name="sobreescriu" data-visible="false"/>
+					<th data-col-name="heretat" data-visible="false"/>
 				</tr>
 			</thead>
 		</table>

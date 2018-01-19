@@ -182,7 +182,7 @@ public class DefinicioProcesDocumentController extends BaseDefinicioProcesContro
 				"metadades",
 				definicioProcesDto.getExpedientTipus() != null ? definicioProcesDto.getExpedientTipus().isNtiActiu() :false);
 		
-		DocumentDto dto = documentService.findAmbId(id);
+		DocumentDto dto = documentService.findAmbId(null, id);
 		ExpedientTipusDocumentCommand command = conversioTipusHelper.convertir(
 				dto,
 				ExpedientTipusDocumentCommand.class);

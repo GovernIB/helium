@@ -31,6 +31,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDto;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
+import net.conselldemallorca.helium.v3.core.api.service.DissenyService;
 import net.conselldemallorca.helium.v3.core.api.service.DocumentService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientTipusService;
 import net.conselldemallorca.helium.webapp.v3.command.DefinicioProcesTascaCommand;
@@ -54,33 +55,35 @@ public class DefinicioProcesTascaController extends BaseDefinicioProcesControlle
 	@Autowired
 	ExpedientTipusService expedientTipusService;
 	@Autowired
+	DissenyService dissenyService;
+	@Autowired
 	DocumentService documentService;
 	
 	/** Pipella del tasques. */
-	@RequestMapping(value = "/{jbmpKey}/{definicioProcesId}/tasca")
+	@RequestMapping(value = "/{jbpmKey}/{definicioProcesId}/tasca")
 	public String tasques(
 			HttpServletRequest request,
-			@PathVariable String jbmpKey,
+			@PathVariable String jbpmKey,
 			@PathVariable Long definicioProcesId,
 			Model model) {
 		if (!NodecoHelper.isNodeco(request)) {
 			return mostrarInformacioDefinicioProcesPerPipelles(
 					request,
-					jbmpKey,
+					jbpmKey,
 					model,
 					"tasques");
 		}
-		model.addAttribute("jbpmKey", jbmpKey);
+		model.addAttribute("jbpmKey", jbpmKey);
 		model.addAttribute("definicioProcesId", definicioProcesId);
 				
 		return "v3/definicioProcesTasques";
 	}	
 	
-	@RequestMapping(value = "/{jbmpKey}/{definicioProcesId}/tasca/datatable")
+	@RequestMapping(value = "/{jbpmKey}/{definicioProcesId}/tasca/datatable")
 	@ResponseBody
 	DatatablesResponse datatable(
 			HttpServletRequest request,
-			@PathVariable String jbmpKey,
+			@PathVariable String jbpmKey,
 			@PathVariable Long definicioProcesId,
 			Model model) {
 		PaginacioParamsDto paginacioParams = DatatablesHelper.getPaginacioDtoFromRequest(request);
@@ -96,10 +99,10 @@ public class DefinicioProcesTascaController extends BaseDefinicioProcesControlle
 				"id");
 	}	
 	
-	@RequestMapping(value = "/{jbmpKey}/{definicioProcesId}/tasca/{tascaId}/update", method = RequestMethod.GET)
+	@RequestMapping(value = "/{jbpmKey}/{definicioProcesId}/tasca/{tascaId}/update", method = RequestMethod.GET)
 	public String modificar(
 			HttpServletRequest request,
-			@PathVariable String jbmpKey,
+			@PathVariable String jbpmKey,
 			@PathVariable Long definicioProcesId,
 			@PathVariable Long tascaId,
 			Model model) {
@@ -111,10 +114,10 @@ public class DefinicioProcesTascaController extends BaseDefinicioProcesControlle
 		return "v3/definicioProcesTascaForm";
 	}
 	
-	@RequestMapping(value = "/{jbmpKey}/{definicioProcesId}/tasca/{tascaId}/update", method = RequestMethod.POST)
+	@RequestMapping(value = "/{jbpmKey}/{definicioProcesId}/tasca/{tascaId}/update", method = RequestMethod.POST)
 	public String modificarPost(
 			HttpServletRequest request,
-			@PathVariable String jbmpKey,
+			@PathVariable String jbpmKey,
 			@PathVariable Long definicioProcesId,
 			@PathVariable Long tascaId,
 			@Validated(DefinicioProcesTascaCommand.Modificacio.class) DefinicioProcesTascaCommand command,
@@ -138,16 +141,13 @@ public class DefinicioProcesTascaController extends BaseDefinicioProcesControlle
 	// Manteniment de variables de la tasca
 	
 	/** Modal per veure els camps de la tasca de tipus filtre. */
-	@RequestMapping(value = "/{jbmpKey}/{definicioProcesId}/tasca/{id}/variable", method = RequestMethod.GET)
+	@RequestMapping(value = "/{jbpmKey}/{definicioProcesId}/tasca/{id}/variable", method = RequestMethod.GET)
 	public String variables(
 			HttpServletRequest request,
-			@PathVariable String jbmpKey,
+			@PathVariable String jbpmKey,
 			@PathVariable Long definicioProcesId,
 			@PathVariable Long id,
 			Model model) {
-		model.addAttribute("jbpmKey", jbmpKey);
-		model.addAttribute("definicioProcesId", definicioProcesId);
-		model.addAttribute("tasca", definicioProcesService.tascaFindAmbId(id));
 
 		DefinicioProcesTascaVariableCommand command = new DefinicioProcesTascaVariableCommand();
 		command.setTascaId(id);
@@ -156,17 +156,17 @@ public class DefinicioProcesTascaController extends BaseDefinicioProcesControlle
 		command.setAmpleCols(12);
 		command.setBuitCols(0);
 		model.addAttribute("definicioProcesTascaVariableCommand", command);
-		model.addAttribute("variables", obtenirParellesVariables(
-				definicioProcesId,
-				id));
+
+		omplirModelVariables(jbpmKey, definicioProcesId, id, model);
+
 		return "v3/definicioProcesTascaVariable";
 	}	
 	
-	@RequestMapping(value = "/{jbmpKey}/{definicioProcesId}/tasca/{tascaId}/variable/datatable", method = RequestMethod.GET)
+	@RequestMapping(value = "/{jbpmKey}/{definicioProcesId}/tasca/{tascaId}/variable/datatable", method = RequestMethod.GET)
 	@ResponseBody
 	DatatablesResponse variablesDatatable(
 			HttpServletRequest request,
-			@PathVariable String jbmpKey,
+			@PathVariable String jbpmKey,
 			@PathVariable Long definicioProcesId,
 			@PathVariable Long tascaId,
 			Model model) {
@@ -181,10 +181,10 @@ public class DefinicioProcesTascaController extends BaseDefinicioProcesControlle
 				"id");
 	}		
 	
-	@RequestMapping(value = "/{jbmpKey}/{definicioProcesId}/tasca/{id}/variable/new", method = RequestMethod.POST)
+	@RequestMapping(value = "/{jbpmKey}/{definicioProcesId}/tasca/{id}/variable/new", method = RequestMethod.POST)
 	public String variableNouPost(
 			HttpServletRequest request,
-			@PathVariable String jbmpKey,
+			@PathVariable String jbpmKey,
 			@PathVariable Long definicioProcesId,
 			@PathVariable Long id,
 			@Validated(DefinicioProcesTascaVariableCommand.Creacio.class) DefinicioProcesTascaVariableCommand command,
@@ -192,13 +192,9 @@ public class DefinicioProcesTascaController extends BaseDefinicioProcesControlle
 			Model model) {
         if (bindingResult.hasErrors()) {
 
-    		model.addAttribute("jbpmKey", jbmpKey);
-    		model.addAttribute("definicioProcesId", definicioProcesId);
-    		model.addAttribute("tasca", definicioProcesService.tascaFindAmbId(id));
-    		model.addAttribute("variables", obtenirParellesVariables(
-    				definicioProcesId,
-    				id));
-        	return "v3/definicioProcesTascaVariable";
+
+    		omplirModelVariables(jbpmKey, definicioProcesId, id, model);
+    		return "v3/definicioProcesTascaVariable";
         } else {
         	// Verificar permisos
     		definicioProcesService.tascaCampCreate(
@@ -209,15 +205,15 @@ public class DefinicioProcesTascaController extends BaseDefinicioProcesControlle
 					getMessage(
 							request,
 							"definicio.proces.tasca.controller.variable.creat"));
-        	return variables(request, jbmpKey, definicioProcesId, id, model);
+        	return variables(request, jbpmKey, definicioProcesId, id, model);
         }
 	}	
 	
-	@RequestMapping(value = "/{jbmpKey}/{definicioProcesId}/tasca/{tascaId}/variable/{campTascaId}/{propietat}", method = RequestMethod.POST)
+	@RequestMapping(value = "/{jbpmKey}/{definicioProcesId}/tasca/{tascaId}/variable/{campTascaId}/{propietat}", method = RequestMethod.POST)
 	@ResponseBody
 	public boolean variableUpdatePropietat(
 			HttpServletRequest request,
-			@PathVariable String jbmpKey,
+			@PathVariable String jbpmKey,
 			@PathVariable Long definicioProcesId,
 			@PathVariable Long tascaId,
 			@PathVariable Long campTascaId,
@@ -243,11 +239,11 @@ public class DefinicioProcesTascaController extends BaseDefinicioProcesControlle
 		return true;
 	}
 
-	@RequestMapping(value = "/{jbmpKey}/{definicioProcesId}/tasca/{tascaId}/variable/{id}/delete", method = RequestMethod.GET)
+	@RequestMapping(value = "/{jbpmKey}/{definicioProcesId}/tasca/{tascaId}/variable/{id}/delete", method = RequestMethod.GET)
 	@ResponseBody
 	public boolean variableDelete(
 			HttpServletRequest request,
-			@PathVariable String jbmpKey,
+			@PathVariable String jbpmKey,
 			@PathVariable Long definicioProcesId,
 			@PathVariable Long tascaId,
 			@PathVariable Long id,
@@ -272,11 +268,11 @@ public class DefinicioProcesTascaController extends BaseDefinicioProcesControlle
 	 * @param model
 	 * @return
 	 */
-	@RequestMapping(value = "/{jbmpKey}/{definicioProcesId}/tasca/{tascaId}/variable/{id}/moure/{posicio}")
+	@RequestMapping(value = "/{jbpmKey}/{definicioProcesId}/tasca/{tascaId}/variable/{id}/moure/{posicio}")
 	@ResponseBody
 	public boolean variableMourePosicio(
 			HttpServletRequest request,
-			@PathVariable String jbmpKey,
+			@PathVariable String jbpmKey,
 			@PathVariable Long definicioProcesId,
 			@PathVariable Long tascaId,
 			@PathVariable Long id,
@@ -286,17 +282,63 @@ public class DefinicioProcesTascaController extends BaseDefinicioProcesControlle
 	}	
 	
 	/** Mètode per obtenir les possibles variables per al select a l'edició d'un registre via ajax. */
-	@RequestMapping(value = "/{jbmpKey}/{definicioProcesId}/tasca/{tascaId}/variable/select", method = RequestMethod.GET)
+	@RequestMapping(value = "/{jbpmKey}/{definicioProcesId}/tasca/{tascaId}/variable/select", method = RequestMethod.GET)
 	@ResponseBody
 	public List<ParellaCodiValorDto> variablesSelect(
 			HttpServletRequest request,
-			@PathVariable String jbmpKey,
+			@PathVariable String jbpmKey,
 			@PathVariable Long definicioProcesId,
 			@PathVariable Long tascaId,
 			Model model) {
-		return obtenirParellesVariables(definicioProcesId, tascaId);
+
+		DefinicioProcesDto definicioProces = definicioProcesService.findById(definicioProcesId);
+		List<CampDto> variables = dissenyService.findCampsOrdenatsPerCodi(
+					definicioProces.getExpedientTipus() != null ? definicioProces.getExpedientTipus().getId() : null,
+					definicioProcesId,
+					true // amb herencia
+				);
+
+		return obtenirParellesVariables(definicioProcesId, variables, tascaId);
 	}	
-			
+		
+	
+	private void omplirModelVariables(
+			String jbpmKey,
+			Long definicioProcesId,
+			Long tascaId,
+			Model model) {
+		model.addAttribute("jbpmKey", jbpmKey);
+		model.addAttribute("definicioProcesId", definicioProcesId);
+		model.addAttribute("tasca", definicioProcesService.tascaFindAmbId(tascaId));
+		
+		// Obté el llistat de variables
+		DefinicioProcesDto definicioProces = definicioProcesService.findById(definicioProcesId);
+
+		List<CampDto> variables = dissenyService.findCampsOrdenatsPerCodi(
+					definicioProces.getExpedientTipus() != null ? definicioProces.getExpedientTipus().getId() : null,
+					definicioProcesId,
+					true // amb herencia
+				);
+		// Afegeix al model les variables que són heretades o sobreescriuen
+		List<Long> campsHeretatsIds = new ArrayList<Long>();
+		List<Long> campsSobreescriuenIds = new ArrayList<Long>();
+		if (definicioProces.getExpedientTipus().getExpedientTipusPareId() != null) {
+			for (CampDto v : variables) {
+				if (v.isHeretat())
+					campsHeretatsIds.add(v.getId());
+				if (v.isSobreescriu())
+					campsSobreescriuenIds.add(v.getId());
+			}
+		}
+		model.addAttribute("campsHeretatsIds", campsHeretatsIds);
+		model.addAttribute("campsSobreescriuenIds", campsSobreescriuenIds);
+		// Construeix les parelles de variables
+		model.addAttribute("variables", obtenirParellesVariables(
+				definicioProcesId,
+				variables,
+				tascaId));
+	}
+	
 	/**
 	 * Retorna les parelles codi i valor per a les possibles variables per als camps de les consultes.
 	 * Lleva les variables que s'han utilitzat ja en la tasca.
@@ -306,12 +348,9 @@ public class DefinicioProcesTascaController extends BaseDefinicioProcesControlle
 	 */
 	private List<ParellaCodiValorDto> obtenirParellesVariables(
 			Long definicioProcesId,
+			List<CampDto> variables,
 			Long tascaId) {
 		List<ParellaCodiValorDto> resposta = new ArrayList<ParellaCodiValorDto>();
-		DefinicioProcesDto definicioProces = definicioProcesService.findById(definicioProcesId);
-		List<CampDto> variables = dissenyService.findCampsOrdenatsPerCodi(
-				definicioProces.getExpedientTipus() != null ? definicioProces.getExpedientTipus().getId() : null,
-				definicioProcesId);
 		// Tasca els camps de la tasca segons el tipus
 		List<CampTascaDto> camps = definicioProcesService.tascaCampFindCampAmbTascaId(tascaId);
 		// Lleva les variables que ja pertanyin a algun camp
@@ -326,7 +365,7 @@ public class DefinicioProcesTascaController extends BaseDefinicioProcesControlle
 			}
 		}
 		// Si és la tasca inicial treu les variables de tipus acció
-		String startTaskName = definicioProcesService.consultarStartTaskName(definicioProces.getId());
+		String startTaskName = definicioProcesService.consultarStartTaskName(definicioProcesId);
 		TascaDto tasca = definicioProcesService.tascaFindAmbId(tascaId);
 		if (startTaskName != null && tasca.getNom().equals(startTaskName)) {
 			it = variables.iterator();
@@ -349,31 +388,28 @@ public class DefinicioProcesTascaController extends BaseDefinicioProcesControlle
 	// Manteniment de documents de la tasca
 	
 	/** Modal per veure els documents de la tasca de tipus filtre. */
-	@RequestMapping(value = "/{jbmpKey}/{definicioProcesId}/tasca/{id}/document", method = RequestMethod.GET)
+	@RequestMapping(value = "/{jbpmKey}/{definicioProcesId}/tasca/{id}/document", method = RequestMethod.GET)
 	public String documents(
 			HttpServletRequest request,
-			@PathVariable String jbmpKey,
+			@PathVariable String jbpmKey,
 			@PathVariable Long definicioProcesId,
 			@PathVariable Long id,
 			Model model) {
-		model.addAttribute("jbpmKey", jbmpKey);
-		model.addAttribute("definicioProcesId", definicioProcesId);
-		model.addAttribute("tasca", definicioProcesService.tascaFindAmbId(id));
 
 		DefinicioProcesTascaDocumentCommand command = new DefinicioProcesTascaDocumentCommand();
 		command.setTascaId(id);
 		model.addAttribute("definicioProcesTascaDocumentCommand", command);
-		model.addAttribute("documents", documentObtenirParellesDocuments(
-				definicioProcesId,
-				id));
+
+		omplirModelDocuments(jbpmKey, definicioProcesId, id, model);
+
 		return "v3/definicioProcesTascaDocument";
 	}	
 	
-	@RequestMapping(value = "/{jbmpKey}/{definicioProcesId}/tasca/{tascaId}/document/datatable", method = RequestMethod.GET)
+	@RequestMapping(value = "/{jbpmKey}/{definicioProcesId}/tasca/{tascaId}/document/datatable", method = RequestMethod.GET)
 	@ResponseBody
 	DatatablesResponse documentsDatatable(
 			HttpServletRequest request,
-			@PathVariable String jbmpKey,
+			@PathVariable String jbpmKey,
 			@PathVariable Long definicioProcesId,
 			@PathVariable Long tascaId,
 			Model model) {
@@ -388,10 +424,10 @@ public class DefinicioProcesTascaController extends BaseDefinicioProcesControlle
 				"id");
 	}		
 	
-	@RequestMapping(value = "/{jbmpKey}/{definicioProcesId}/tasca/{id}/document/new", method = RequestMethod.POST)
+	@RequestMapping(value = "/{jbpmKey}/{definicioProcesId}/tasca/{id}/document/new", method = RequestMethod.POST)
 	public String documentNouPost(
 			HttpServletRequest request,
-			@PathVariable String jbmpKey,
+			@PathVariable String jbpmKey,
 			@PathVariable Long definicioProcesId,
 			@PathVariable Long id,
 			@Validated(DefinicioProcesTascaDocumentCommand.Creacio.class) DefinicioProcesTascaDocumentCommand command,
@@ -399,13 +435,9 @@ public class DefinicioProcesTascaController extends BaseDefinicioProcesControlle
 			Model model) {
         if (bindingResult.hasErrors()) {
 
-    		model.addAttribute("jbpmKey", jbmpKey);
-    		model.addAttribute("definicioProcesId", definicioProcesId);
-    		model.addAttribute("tasca", definicioProcesService.tascaFindAmbId(id));
-    		model.addAttribute("documents", documentObtenirParellesDocuments(
-    				definicioProcesId,
-    				id));
-        	return "v3/definicioProcesTascaDocument";
+    		omplirModelDocuments(jbpmKey, definicioProcesId, id, model);
+
+    		return "v3/definicioProcesTascaDocument";
         } else {
         	// Verificar permisos
     		definicioProcesService.tascaDocumentCreate(
@@ -416,15 +448,15 @@ public class DefinicioProcesTascaController extends BaseDefinicioProcesControlle
 					getMessage(
 							request,
 							"definicio.proces.tasca.controller.document.creat"));
-        	return documents(request, jbmpKey, definicioProcesId, id, model);
+        	return documents(request, jbpmKey, definicioProcesId, id, model);
         }
 	}	
 	
-	@RequestMapping(value = "/{jbmpKey}/{definicioProcesId}/tasca/{tascaId}/document/{documentTascaId}/{propietat}", method = RequestMethod.POST)
+	@RequestMapping(value = "/{jbpmKey}/{definicioProcesId}/tasca/{tascaId}/document/{documentTascaId}/{propietat}", method = RequestMethod.POST)
 	@ResponseBody
 	public boolean documentUpdatePropietat(
 			HttpServletRequest request,
-			@PathVariable String jbmpKey,
+			@PathVariable String jbpmKey,
 			@PathVariable Long definicioProcesId,
 			@PathVariable Long tascaId,
 			@PathVariable Long documentTascaId,
@@ -442,11 +474,11 @@ public class DefinicioProcesTascaController extends BaseDefinicioProcesControlle
 		return true;
 	}
 
-	@RequestMapping(value = "/{jbmpKey}/{definicioProcesId}/tasca/{tascaId}/document/{id}/delete", method = RequestMethod.GET)
+	@RequestMapping(value = "/{jbpmKey}/{definicioProcesId}/tasca/{tascaId}/document/{id}/delete", method = RequestMethod.GET)
 	@ResponseBody
 	public boolean documentDelete(
 			HttpServletRequest request,
-			@PathVariable String jbmpKey,
+			@PathVariable String jbpmKey,
 			@PathVariable Long definicioProcesId,
 			@PathVariable Long tascaId,
 			@PathVariable Long id,
@@ -471,11 +503,11 @@ public class DefinicioProcesTascaController extends BaseDefinicioProcesControlle
 	 * @param model
 	 * @return
 	 */
-	@RequestMapping(value = "/{jbmpKey}/{definicioProcesId}/tasca/{tascaId}/document/{id}/moure/{posicio}")
+	@RequestMapping(value = "/{jbpmKey}/{definicioProcesId}/tasca/{tascaId}/document/{id}/moure/{posicio}")
 	@ResponseBody
 	public boolean documentMourePosicio(
 			HttpServletRequest request,
-			@PathVariable String jbmpKey,
+			@PathVariable String jbpmKey,
 			@PathVariable Long definicioProcesId,
 			@PathVariable Long tascaId,
 			@PathVariable Long id,
@@ -485,36 +517,76 @@ public class DefinicioProcesTascaController extends BaseDefinicioProcesControlle
 	}	
 	
 	/** Mètode per obtenir les possibles documents per al select a l'edició d'un registre via ajax. */
-	@RequestMapping(value = "/{jbmpKey}/{definicioProcesId}/tasca/{tascaId}/document/select", method = RequestMethod.GET)
+	@RequestMapping(value = "/{jbpmKey}/{definicioProcesId}/tasca/{tascaId}/document/select", method = RequestMethod.GET)
 	@ResponseBody
 	public List<ParellaCodiValorDto> documentsSelect(
 			HttpServletRequest request,
-			@PathVariable String jbmpKey,
+			@PathVariable String jbpmKey,
 			@PathVariable Long definicioProcesId,
 			@PathVariable Long tascaId,
 			Model model) {
-		return documentObtenirParellesDocuments(definicioProcesId, tascaId);
+		// Obté el llistat de documents
+		DefinicioProcesDto definicioProces = definicioProcesService.findById(definicioProcesId);
+		List<DocumentDto> documents = dissenyService.findDocumentsOrdenatsPerCodi(
+					definicioProces.getExpedientTipus() != null ? definicioProces.getExpedientTipus().getId() : null,
+					definicioProcesId
+					,true // amb herencia
+				);
+		return documentObtenirParellesDocuments(definicioProcesId, documents, tascaId);
 	}	
 			
+	private void omplirModelDocuments(
+			String jbpmKey,
+			Long definicioProcesId,
+			Long tascaId,
+			Model model) {
+
+		model.addAttribute("jbpmKey", jbpmKey);
+		model.addAttribute("definicioProcesId", definicioProcesId);
+		model.addAttribute("tasca", definicioProcesService.tascaFindAmbId(tascaId));
+
+		// Obté el llistat de documents
+		DefinicioProcesDto definicioProces = definicioProcesService.findById(definicioProcesId);
+
+		List<DocumentDto> documents = dissenyService.findDocumentsOrdenatsPerCodi(
+					definicioProces.getExpedientTipus() != null ? definicioProces.getExpedientTipus().getId() : null,
+					definicioProcesId
+					,true // amb herencia
+				);
+		// Afegeix al model els documents que són heretades o sobreescriuen
+		List<Long> documentsHeretatsIds = new ArrayList<Long>();
+		List<Long> documentsSobreescriuenIds = new ArrayList<Long>();
+		if (definicioProces.getExpedientTipus().getExpedientTipusPareId() != null) {
+			for (DocumentDto d : documents) {
+				if (d.isHeretat())
+					documentsHeretatsIds.add(d.getId());
+				if (d.isSobreescriu())
+					documentsSobreescriuenIds.add(d.getId());
+			}
+		}
+		model.addAttribute("documentsHeretatsIds", documentsHeretatsIds);
+		model.addAttribute("documentsSobreescriuenIds", documentsSobreescriuenIds);
+		
+		// Construeix les parelles de documents
+		model.addAttribute("documents", documentObtenirParellesDocuments(
+				definicioProcesId,
+				documents,
+				tascaId));
+	}
+	
 	/**
 	 * Retorna les parelles codi i valor per a les possibles documents per als documents de les consultes.
 	 * Lleva les documents que s'han utilitzat ja en la tasca.
 	 * @param definicioProcesId
+	 * @param documents 
 	 * @param tascaId
 	 * @return
 	 */
 	private List<ParellaCodiValorDto> documentObtenirParellesDocuments(
 			Long definicioProcesId,
+			List<DocumentDto> documents, 
 			Long tascaId) {
 		List<ParellaCodiValorDto> resposta = new ArrayList<ParellaCodiValorDto>();
-		DefinicioProcesDto definicioProces = definicioProcesService.findById(definicioProcesId);
-		List<DocumentDto> documents; 
-		if (definicioProces.getExpedientTipus() != null && definicioProces.getExpedientTipus().isAmbInfoPropia() ){
-			// Obté tots els documents del tipus d'expedient de la definició de procés
-			documents = documentService.findAll(definicioProces.getExpedientTipus().getId(), null);			
-		} else {
-			documents = documentService.findAll(null, definicioProcesId);
-		}
 		// Documents de la tasca existents
 		List<DocumentTascaDto> documentsTasca = definicioProcesService.tascaDocumentFindDocumentAmbTascaId(tascaId);
 		// Lleva les documents que ja pertanyin a algun document
@@ -540,31 +612,28 @@ public class DefinicioProcesTascaController extends BaseDefinicioProcesControlle
 	// Manteniment de firmes de la tasca
 	
 	/** Modal per veure les firmes de la tasca de tipus filtre. */
-	@RequestMapping(value = "/{jbmpKey}/{definicioProcesId}/tasca/{id}/firma", method = RequestMethod.GET)
+	@RequestMapping(value = "/{jbpmKey}/{definicioProcesId}/tasca/{id}/firma", method = RequestMethod.GET)
 	public String firmes(
 			HttpServletRequest request,
-			@PathVariable String jbmpKey,
+			@PathVariable String jbpmKey,
 			@PathVariable Long definicioProcesId,
 			@PathVariable Long id,
 			Model model) {
-		model.addAttribute("jbpmKey", jbmpKey);
-		model.addAttribute("definicioProcesId", definicioProcesId);
-		model.addAttribute("tasca", definicioProcesService.tascaFindAmbId(id));
 
 		DefinicioProcesTascaFirmaCommand command = new DefinicioProcesTascaFirmaCommand();
 		command.setTascaId(id);
 		model.addAttribute("definicioProcesTascaFirmaCommand", command);
-		model.addAttribute("documents", firmaObtenirParellesDocuments(
-				definicioProcesId,
-				id));
+
+		omplirModelFirmes(jbpmKey, definicioProcesId, id, model);
+
 		return "v3/definicioProcesTascaFirma";
 	}	
 	
-	@RequestMapping(value = "/{jbmpKey}/{definicioProcesId}/tasca/{tascaId}/firma/datatable", method = RequestMethod.GET)
+	@RequestMapping(value = "/{jbpmKey}/{definicioProcesId}/tasca/{tascaId}/firma/datatable", method = RequestMethod.GET)
 	@ResponseBody
 	DatatablesResponse firmesDatatable(
 			HttpServletRequest request,
-			@PathVariable String jbmpKey,
+			@PathVariable String jbpmKey,
 			@PathVariable Long definicioProcesId,
 			@PathVariable Long tascaId,
 			Model model) {
@@ -579,10 +648,10 @@ public class DefinicioProcesTascaController extends BaseDefinicioProcesControlle
 				"id");
 	}		
 	
-	@RequestMapping(value = "/{jbmpKey}/{definicioProcesId}/tasca/{id}/firma/new", method = RequestMethod.POST)
+	@RequestMapping(value = "/{jbpmKey}/{definicioProcesId}/tasca/{id}/firma/new", method = RequestMethod.POST)
 	public String firmaNouPost(
 			HttpServletRequest request,
-			@PathVariable String jbmpKey,
+			@PathVariable String jbpmKey,
 			@PathVariable Long definicioProcesId,
 			@PathVariable Long id,
 			@Validated(DefinicioProcesTascaFirmaCommand.Creacio.class) DefinicioProcesTascaFirmaCommand command,
@@ -590,13 +659,9 @@ public class DefinicioProcesTascaController extends BaseDefinicioProcesControlle
 			Model model) {
         if (bindingResult.hasErrors()) {
 
-    		model.addAttribute("jbpmKey", jbmpKey);
-    		model.addAttribute("definicioProcesId", definicioProcesId);
-    		model.addAttribute("tasca", definicioProcesService.tascaFindAmbId(id));
-    		model.addAttribute("firmes", firmaObtenirParellesDocuments(
-    				definicioProcesId,
-    				id));
-        	return "v3/definicioProcesTascaFirma";
+    		omplirModelFirmes(jbpmKey, definicioProcesId, id, model);
+
+    		return "v3/definicioProcesTascaFirma";
         } else {
         	// Verificar permisos
     		definicioProcesService.tascaFirmaCreate(
@@ -607,15 +672,15 @@ public class DefinicioProcesTascaController extends BaseDefinicioProcesControlle
 					getMessage(
 							request,
 							"definicio.proces.tasca.controller.firma.creat"));
-        	return firmes(request, jbmpKey, definicioProcesId, id, model);
+        	return firmes(request, jbpmKey, definicioProcesId, id, model);
         }
 	}	
 	
-	@RequestMapping(value = "/{jbmpKey}/{definicioProcesId}/tasca/{tascaId}/firma/{firmaTascaId}/{propietat}", method = RequestMethod.POST)
+	@RequestMapping(value = "/{jbpmKey}/{definicioProcesId}/tasca/{tascaId}/firma/{firmaTascaId}/{propietat}", method = RequestMethod.POST)
 	@ResponseBody
 	public boolean firmaUpdatePropietat(
 			HttpServletRequest request,
-			@PathVariable String jbmpKey,
+			@PathVariable String jbpmKey,
 			@PathVariable Long definicioProcesId,
 			@PathVariable Long tascaId,
 			@PathVariable Long firmaTascaId,
@@ -630,11 +695,11 @@ public class DefinicioProcesTascaController extends BaseDefinicioProcesControlle
 		return true;
 	}
 
-	@RequestMapping(value = "/{jbmpKey}/{definicioProcesId}/tasca/{tascaId}/firma/{id}/delete", method = RequestMethod.GET)
+	@RequestMapping(value = "/{jbpmKey}/{definicioProcesId}/tasca/{tascaId}/firma/{id}/delete", method = RequestMethod.GET)
 	@ResponseBody
 	public boolean firmaDelete(
 			HttpServletRequest request,
-			@PathVariable String jbmpKey,
+			@PathVariable String jbpmKey,
 			@PathVariable Long definicioProcesId,
 			@PathVariable Long tascaId,
 			@PathVariable Long id,
@@ -659,11 +724,11 @@ public class DefinicioProcesTascaController extends BaseDefinicioProcesControlle
 	 * @param model
 	 * @return
 	 */
-	@RequestMapping(value = "/{jbmpKey}/{definicioProcesId}/tasca/{tascaId}/firma/{id}/moure/{posicio}")
+	@RequestMapping(value = "/{jbpmKey}/{definicioProcesId}/tasca/{tascaId}/firma/{id}/moure/{posicio}")
 	@ResponseBody
 	public boolean firmaMourePosicio(
 			HttpServletRequest request,
-			@PathVariable String jbmpKey,
+			@PathVariable String jbpmKey,
 			@PathVariable Long definicioProcesId,
 			@PathVariable Long tascaId,
 			@PathVariable Long id,
@@ -673,17 +738,66 @@ public class DefinicioProcesTascaController extends BaseDefinicioProcesControlle
 	}	
 	
 	/** Mètode per obtenir els possibles firmes per al select a l'edició d'un registre via ajax. */
-	@RequestMapping(value = "/{jbmpKey}/{definicioProcesId}/tasca/{tascaId}/firma/select", method = RequestMethod.GET)
+	@RequestMapping(value = "/{jbpmKey}/{definicioProcesId}/tasca/{tascaId}/firma/select", method = RequestMethod.GET)
 	@ResponseBody
 	public List<ParellaCodiValorDto> firmesSelect(
 			HttpServletRequest request,
-			@PathVariable String jbmpKey,
+			@PathVariable String jbpmKey,
 			@PathVariable Long definicioProcesId,
 			@PathVariable Long tascaId,
 			Model model) {
-		return firmaObtenirParellesDocuments(definicioProcesId, tascaId);
+		
+		// Obté el llistat de documents
+		DefinicioProcesDto definicioProces = definicioProcesService.findById(definicioProcesId);
+
+		List<DocumentDto> documents = dissenyService.findDocumentsOrdenatsPerCodi(
+					definicioProces.getExpedientTipus() != null ? definicioProces.getExpedientTipus().getId() : null,
+					definicioProcesId
+					,true // amb herencia
+				);
+
+		return firmaObtenirParellesDocuments(definicioProcesId, documents, tascaId);
 	}	
 			
+	private void omplirModelFirmes(
+			String jbpmKey,
+			Long definicioProcesId,
+			Long tascaId,
+			Model model) {
+
+		model.addAttribute("jbpmKey", jbpmKey);
+		model.addAttribute("definicioProcesId", definicioProcesId);
+		model.addAttribute("tasca", definicioProcesService.tascaFindAmbId(tascaId));
+
+		// Obté el llistat de documents
+		DefinicioProcesDto definicioProces = definicioProcesService.findById(definicioProcesId);
+
+		List<DocumentDto> documents = dissenyService.findDocumentsOrdenatsPerCodi(
+					definicioProces.getExpedientTipus() != null ? definicioProces.getExpedientTipus().getId() : null,
+					definicioProcesId
+					,true // amb herencia
+				);
+		// Afegeix al model els documents que són heretades o sobreescriuen
+		List<Long> documentsHeretatsIds = new ArrayList<Long>();
+		List<Long> documentsSobreescriuenIds = new ArrayList<Long>();
+		if (definicioProces.getExpedientTipus().getExpedientTipusPareId() != null) {
+			for (DocumentDto d : documents) {
+				if (d.isHeretat())
+					documentsHeretatsIds.add(d.getId());
+				if (d.isSobreescriu())
+					documentsSobreescriuenIds.add(d.getId());
+			}
+		}
+		model.addAttribute("documentsHeretatsIds", documentsHeretatsIds);
+		model.addAttribute("documentsSobreescriuenIds", documentsSobreescriuenIds);
+		
+		// Construeix les parelles de documents
+		model.addAttribute("documents", firmaObtenirParellesDocuments(
+				definicioProcesId,
+				documents,
+				tascaId));
+	}
+
 	/**
 	 * Retorna les parelles codi i valor per als possibles docuemnts per a les firmes de les tasques.
 	 * Lleva els documents que s'han utilitzat ja en la tasca.
@@ -693,20 +807,9 @@ public class DefinicioProcesTascaController extends BaseDefinicioProcesControlle
 	 */
 	private List<ParellaCodiValorDto> firmaObtenirParellesDocuments(
 			Long definicioProcesId,
+			List<DocumentDto> documents,
 			Long tascaId) {
 		List<ParellaCodiValorDto> resposta = new ArrayList<ParellaCodiValorDto>();
-		DefinicioProcesDto definicioProces = definicioProcesService.findById(definicioProcesId);
-		List<DocumentDto> documents;
-		if (definicioProces.getExpedientTipus() != null 
-				&& definicioProces.getExpedientTipus().isAmbInfoPropia()){
-			// Obté totes els documents del tipus d'expedient de la definició de procés
-			documents = documentService.findAll(
-					definicioProces.getExpedientTipus().getId(), null);
-		} else {
-			// Obté totes els documents de la definició de procés
-			documents = documentService.findAll(
-								null, definicioProcesId);
-		}
 		// Documents de la tasca existents
 		List<FirmaTascaDto> firmesTasca = definicioProcesService.tascaFirmaFindAmbTascaId(tascaId);
 		// Lleva les firmes que ja pertanyin a algun firma

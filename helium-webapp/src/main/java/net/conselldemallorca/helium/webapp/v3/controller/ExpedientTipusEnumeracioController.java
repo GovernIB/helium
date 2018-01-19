@@ -121,9 +121,10 @@ public class ExpedientTipusEnumeracioController extends BaseExpedientTipusContro
 			@PathVariable Long expedientTipusId, 
 			@PathVariable Long id,
 			Model model) {
-		EnumeracioDto dto = enumeracioService.findAmbId(id);
+		EnumeracioDto dto = enumeracioService.findAmbId(expedientTipusId, id);
 		ExpedientTipusEnumeracioCommand command = conversioTipusHelper.convertir(dto, ExpedientTipusEnumeracioCommand.class);
 		model.addAttribute("expedientTipusEnumeracioCommand", command);
+		model.addAttribute("heretat", dto.isHeretat());
 		return "v3/expedientTipusEnumeracioForm";
 	}
 
@@ -136,6 +137,7 @@ public class ExpedientTipusEnumeracioController extends BaseExpedientTipusContro
 			BindingResult bindingResult, Model model) {
 		try {
 			if (bindingResult.hasErrors()) {
+	    		model.addAttribute("heretat", enumeracioService.findAmbId(expedientTipusId, id).isHeretat());
 				return "v3/expedientTipusEnumeracioForm";
 			} else {
 				EnumeracioDto dto = ExpedientTipusEnumeracioCommand.asEnumeracioDto(command);

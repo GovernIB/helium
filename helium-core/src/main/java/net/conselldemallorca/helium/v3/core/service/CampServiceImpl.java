@@ -5,8 +5,10 @@ package net.conselldemallorca.helium.v3.core.service;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.annotation.Resource;
 
@@ -16,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import net.conselldemallorca.helium.core.helper.ConversioTipusHelper;
+import net.conselldemallorca.helium.core.helper.ExpedientTipusHelper;
 import net.conselldemallorca.helium.core.helper.PaginacioHelper;
 import net.conselldemallorca.helium.core.model.hibernate.Camp;
 import net.conselldemallorca.helium.core.model.hibernate.Camp.TipusCamp;
@@ -26,6 +29,7 @@ import net.conselldemallorca.helium.core.model.hibernate.Consulta;
 import net.conselldemallorca.helium.core.model.hibernate.ConsultaCamp;
 import net.conselldemallorca.helium.core.model.hibernate.Domini;
 import net.conselldemallorca.helium.core.model.hibernate.Enumeracio;
+import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.hibernate.Tasca;
 import net.conselldemallorca.helium.v3.core.api.dto.CampAgrupacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
@@ -74,6 +78,8 @@ public class CampServiceImpl implements CampService {
 	@Resource
 	private ConsultaCampRepository consultaCampRepository;
 
+	@Resource
+	private ExpedientTipusHelper expedientTipusHelper;
 	@Resource
 	private ConversioTipusHelper conversioTipusHelper;
 	@Resource
@@ -266,17 +272,32 @@ public class CampServiceImpl implements CampService {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public CampDto findAmbId(Long id) throws NoTrobatException {
+	public CampDto findAmbId(
+			Long expedientTipusId,
+			Long id) throws NoTrobatException {
 		logger.debug(
-				"Consultant el camp del tipus d'expedient amb id (" +
+				"Consultant el camp del tipus d'expedient (" +
+				"expedientTipusId=" + expedientTipusId + "," +		
 				"campId=" + id +  ")");
 		Camp camp = campRepository.findOne(id);
 		if (camp == null) {
 			throw new NoTrobatException(Camp.class, id);
 		}
-		return conversioTipusHelper.convertir(
+		CampDto dto = conversioTipusHelper.convertir(
 				camp,
 				CampDto.class);
+		// Herencia
+		ExpedientTipus tipus = expedientTipusId != null? expedientTipusRepository.findOne(expedientTipusId) : null;
+		if (tipus != null && tipus.getExpedientTipusPare() != null) {
+			if (tipus.getExpedientTipusPare().getId().equals(camp.getExpedientTipus().getId()))
+				dto.setHeretat(true);
+			else
+				dto.setSobreescriu(campRepository.findByExpedientTipusAndCodi(
+						tipus.getExpedientTipusPare().getId(), 
+						camp.getCodi(),
+						false) != null);					
+		}
+		return dto;
 	}
 
 	/**
@@ -286,7 +307,8 @@ public class CampServiceImpl implements CampService {
 	public CampDto findAmbCodi(
 			Long expedientTipusId, 
 			Long definicioProcesId,
-			String codi) {
+			String codi,
+			boolean herencia) {
 		CampDto ret = null;
 		logger.debug(
 				"Consultant el camp del tipus d'expedient per codi per validar repetició (" +
@@ -297,8 +319,9 @@ public class CampServiceImpl implements CampService {
 		Camp camp = null;
 		if (expedientTipusId != null)
 			camp = campRepository.findByExpedientTipusAndCodi(
-					expedientTipusRepository.findOne(expedientTipusId), 
-					codi);
+					expedientTipusId, 
+					codi,
+					herencia);
 		else if (definicioProcesId != null)
 			camp = campRepository.findByDefinicioProcesAndCodi(
 					definicioProcesRepository.findById(definicioProcesId), 
@@ -329,7 +352,11 @@ public class CampServiceImpl implements CampService {
 				"definicioProcesId =" + definicioProcesId + ", " +
 				"agrupacioId=" + agrupacioId + ", " +
 				"filtre=" + filtre + ")");
-						
+		
+		ExpedientTipus expedientTipus = expedientTipusId != null? expedientTipusHelper.getExpedientTipusComprovantPermisDissenyDelegat(expedientTipusId) : null;
+		
+		// Determina si hi ha herència 
+		boolean herencia = expedientTipus != null && expedientTipus.isAmbInfoPropia() && expedientTipus.getExpedientTipusPare() != null;
 		
 		PaginaDto<CampDto> pagina = paginacioHelper.toPaginaDto(
 				campRepository.findByFiltrePaginat(
@@ -340,24 +367,40 @@ public class CampServiceImpl implements CampService {
 						agrupacioId != null ? agrupacioId : 0L,
 						filtre == null || "".equals(filtre), 
 						filtre, 
+						herencia,
 						paginacioHelper.toSpringDataPageable(
 								paginacioParams)),
 				CampDto.class);
 		
 		// Omple els comptador de validacions i de membres
 		List<Object[]> countValidacions = campRepository.countValidacions(
-				expedientTipusId,
+				expedientTipusId, 
 				definicioProcesId,
 				totes,
 				agrupacioId == null,
-				agrupacioId); 
+				agrupacioId,
+				herencia
+				); 
 		List<Object[]> countMembres= campRepository.countMembres(
 				expedientTipusId,
 				definicioProcesId,
 				totes,
 				agrupacioId == null,
-				agrupacioId); 
+				agrupacioId, 
+				herencia
+				); 
+		
+		// Llistat d'elements sobreescrits
+		Set<String> sobreescritsCodis = new HashSet<String>();
+		if (herencia) {
+			for (Camp c : campRepository.findSobreescrits(expedientTipusId)) {
+				sobreescritsCodis.add(c.getCodi());
+			}
+		}
+
+		// Completa l'informació del dto
 		for (CampDto dto: pagina.getContingut()) {
+			// Validacions
 			for (Object[] reg: countValidacions) {
 				Long campId = (Long)reg[0];
 				if (campId.equals(dto.getId())) {
@@ -367,6 +410,7 @@ public class CampServiceImpl implements CampService {
 					break;
 				}
 			}
+			// Camps registre
 			if (dto.getTipus() == CampTipusDto.REGISTRE) {
 				for (Object[] reg: countMembres) {
 					Long campId = (Long)reg[0];
@@ -378,10 +422,16 @@ public class CampServiceImpl implements CampService {
 					}
 				}
 			}
+			if (herencia) {
+				// Sobreescriu
+				if (sobreescritsCodis.contains(dto.getCodi()))
+					dto.setSobreescriu(true);
+				// Heretat
+				if (!expedientTipusId.equals(dto.getExpedientTipus().getId()))
+					dto.setHeretat(true);
+			}
 		}		
-		
 		return pagina;		
-		
 	}
 	
 	@Override
@@ -411,7 +461,7 @@ public class CampServiceImpl implements CampService {
 			Long expedientTipusId, 
 			Long definicioProcesId) {
 		logger.debug(
-				"Consultant tots els camps del tipus expedient per al desplegable " +
+				"Consultant tots els camps del tipus expedient " +
 				" de camps del registre (expedientTipusId =" + expedientTipusId + ", " +
 				"definicioProcesId =" + definicioProcesId + ")");
 		
@@ -427,7 +477,7 @@ public class CampServiceImpl implements CampService {
 				camps, 
 				CampDto.class);
 	}
-
+	
 	// MANTENIMENT D'AGRUPACIONS DE CAMPS
 
 	/**
@@ -437,15 +487,39 @@ public class CampServiceImpl implements CampService {
 	@Transactional(readOnly = true)
 	public List<CampAgrupacioDto> agrupacioFindAll(
 			Long expedientTipusId,
-			Long definicioProcesId) throws NoTrobatException, PermisDenegatException {
+			Long definicioProcesId,
+			boolean herencia) throws NoTrobatException, PermisDenegatException {
 		List<CampAgrupacio> agrupacions;
-		if (expedientTipusId != null)
-			agrupacions = campAgrupacioRepository.findAmbExpedientTipusOrdenats(expedientTipusId);
-		else
+		Set<Long> agrupacionsHeretadesIds = new HashSet<Long>();
+		Set<String> sobreescritsCodis = new HashSet<String>();
+		if (expedientTipusId != null) {
+			agrupacions = campAgrupacioRepository.findAmbExpedientTipusOrdenats(expedientTipusId, herencia);
+			if (herencia) {
+				for(CampAgrupacio a : agrupacions)
+					if(!expedientTipusId.equals(a.getExpedientTipus().getId()))
+						agrupacionsHeretadesIds.add(a.getId());
+				// Llistat d'elements sobreescrits
+				for (CampAgrupacio a : campAgrupacioRepository.findSobreescrits(expedientTipusId)) 
+					sobreescritsCodis.add(a.getCodi());
+			}
+		} else
 			agrupacions = campAgrupacioRepository.findAmbDefinicioProcesOrdenats(definicioProcesId);
-		return conversioTipusHelper.convertirList(
+		List<CampAgrupacioDto> agrupacionsDto = conversioTipusHelper.convertirList(
 									agrupacions, 
 									CampAgrupacioDto.class);
+		
+		if (herencia) {
+			// Completa l'informació del dto
+			for(CampAgrupacioDto dto : agrupacionsDto) {
+				// Sobreescriu
+				if (sobreescritsCodis.contains(dto.getCodi()))
+					dto.setSobreescriu(true);
+				// Heretat
+				if(agrupacionsHeretadesIds.contains(dto.getId()))
+					dto.setHeretat(true);
+			}
+		}
+		return agrupacionsDto;
 	}
 	
 	/**
@@ -528,7 +602,7 @@ public class CampServiceImpl implements CampService {
 		CampAgrupacio agrupacio = campAgrupacioRepository.findOne(id);
 		if (agrupacio != null) {
 			List<CampAgrupacio> agrupacions = agrupacio.getExpedientTipus() != null
-					? campAgrupacioRepository.findAmbExpedientTipusOrdenats(agrupacio.getExpedientTipus().getId())
+					? campAgrupacioRepository.findAmbExpedientTipusOrdenats(agrupacio.getExpedientTipus().getId(), false)
 					: campAgrupacioRepository.findAmbDefinicioProcesOrdenats(agrupacio.getDefinicioProces().getId());
 			if(posicio != agrupacions.indexOf(agrupacio)) {
 				agrupacions.remove(agrupacio);

@@ -34,9 +34,9 @@ public class CampServiceBean implements CampService {
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public List<CampAgrupacioDto> agrupacioFindAll(Long expedientTipusId, Long definicioProcesId)
+	public List<CampAgrupacioDto> agrupacioFindAll(Long expedientTipusId, Long definicioProcesId, boolean herencia)
 			throws NoTrobatException, PermisDenegatException {
-		return delegate.agrupacioFindAll(expedientTipusId, definicioProcesId);
+		return delegate.agrupacioFindAll(expedientTipusId, definicioProcesId, herencia);
 	}
 
 	@Override
@@ -105,8 +105,8 @@ public class CampServiceBean implements CampService {
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public CampDto findAmbId(Long id) throws NoTrobatException {
-		return delegate.findAmbId(id);
+	public CampDto findAmbId(Long expedientTipusId, Long id) throws NoTrobatException {
+		return delegate.findAmbId(expedientTipusId, id);
 	}
 
 	@Override
@@ -129,8 +129,8 @@ public class CampServiceBean implements CampService {
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public CampDto findAmbCodi(Long tipusExpedientId, Long definicioProcesId, String codi) {
-		return delegate.findAmbCodi(tipusExpedientId, definicioProcesId, codi);
+	public CampDto findAmbCodi(Long tipusExpedientId, Long definicioProcesId, String codi, boolean herencia) {
+		return delegate.findAmbCodi(tipusExpedientId, definicioProcesId, codi, herencia);
 	}
 
 	@Override
@@ -138,7 +138,7 @@ public class CampServiceBean implements CampService {
 	public List<CampDto> findAllOrdenatsPerCodi(Long expedientTipusId, Long definicioProcesId) {
 		return delegate.findAllOrdenatsPerCodi(expedientTipusId, definicioProcesId);
 	}
-
+	
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public boolean afegirAgrupacio(Long campId, Long agrupacioId) {

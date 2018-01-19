@@ -136,9 +136,10 @@ public class DominiController extends BaseDissenyController {
 			@PathVariable Long id,
 			Model model) {
 		if (SessionHelper.getSessionManager(request).getPotDissenyarEntorn()) {
-			DominiDto dto = dominiService.findAmbId(id);
+			DominiDto dto = dominiService.findAmbId(null, id);
 			ExpedientTipusDominiCommand command = conversioTipusHelper.convertir(dto, ExpedientTipusDominiCommand.class);
 			model.addAttribute("expedientTipusDominiCommand", command);
+			model.addAttribute("heretat", dto.isHeretat());
 			return "v3/expedientTipusDominiForm";
 		} else {
 			MissatgesHelper.error(request, getMessage(request, "error.permis.disseny.entorn"));
@@ -156,6 +157,7 @@ public class DominiController extends BaseDissenyController {
 		if (SessionHelper.getSessionManager(request).getPotDissenyarEntorn()) {
 			try {
 				if (bindingResult.hasErrors()) {
+		    		model.addAttribute("heretat", dominiService.findAmbId(null, id).isHeretat());
 					return "v3/expedientTipusDominiForm";
 				} else {
 					dominiService.update(
@@ -177,6 +179,7 @@ public class DominiController extends BaseDissenyController {
 								"expedient.tipus.domini.controller.creat.error",
 								new Object[] {ex.getLocalizedMessage()}));
 				logger.error("No s'ha pogut guardar l'enumerat: " + id, ex);
+	    		model.addAttribute("heretat", dominiService.findAmbId(null, id).isHeretat());
 				return "v3/expedientTipusDominiForm";
 		    }
 		} else {

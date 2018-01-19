@@ -61,6 +61,7 @@ public interface DominiService {
 			Long entornId) throws NoTrobatException;
 	
 	public DominiDto findAmbId(
+			Long expedientTipusId,
 			Long dominiId) throws NoTrobatException;
 	
 	public DominiDto update(

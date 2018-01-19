@@ -14,7 +14,7 @@ import java.util.Date;
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
-public class CampDto implements Serializable {
+public class CampDto extends HeretableDto implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 	

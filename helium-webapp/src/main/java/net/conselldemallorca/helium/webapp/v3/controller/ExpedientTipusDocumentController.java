@@ -160,7 +160,7 @@ public class ExpedientTipusDocumentController extends BaseExpedientTipusControll
 					expedientTipusId);
 		model.addAttribute("metadades", expedientTipus.isNtiActiu());
 		
-		DocumentDto dto = documentService.findAmbId(id);
+		DocumentDto dto = documentService.findAmbId(expedientTipusId, id);
 		ExpedientTipusDocumentCommand command = conversioTipusHelper.convertir(
 				dto,
 				ExpedientTipusDocumentCommand.class);
@@ -171,6 +171,7 @@ public class ExpedientTipusDocumentController extends BaseExpedientTipusControll
 		omplirTipusDocumental(request, model);
 		omplirTipusFirma(request, model);
 		
+		model.addAttribute("heretat", dto.isHeretat());
 		return "v3/expedientTipusDocumentForm";
 	}
 
@@ -195,7 +196,7 @@ public class ExpedientTipusDocumentController extends BaseExpedientTipusControll
 				omplirModelCamps(request, expedientTipusId, model);
 				omplirTipusDocumental(request, model);
 				omplirTipusFirma(request, model);
-				
+				model.addAttribute("heretat", documentService.findAmbId(expedientTipusId, id).isHeretat());
 				return "v3/expedientTipusDocumentForm";
 			} else {				
 	        	boolean actualitzarContingut = false;
@@ -221,6 +222,7 @@ public class ExpedientTipusDocumentController extends BaseExpedientTipusControll
 			}
 		} catch (Exception ex) {
 			logger.error("No s'ha pogut guardar el document: " + id, ex);
+			model.addAttribute("heretat", documentService.findAmbId(expedientTipusId, id).isHeretat());
 			return "v3/expedientTipusDocumentForm";
 	    }
 	}

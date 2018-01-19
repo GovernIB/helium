@@ -1774,7 +1774,7 @@ public class TascaService {
 				user);
 		if (MesuresTemporalsHelper.isActiu())
 			mesuresTemporalsHelper.mesuraCalcular("Executar ACCIO" + accio, "tasques", expedient.getTipus().getNom(), task.getTaskName(), "LOG");
-		jbpmDao.executeActionInstanciaTasca(taskId, accio);
+		jbpmDao.executeActionInstanciaTasca(taskId, accio, null);
 		getServiceUtils().expedientIndexLuceneUpdate(task.getProcessInstanceId());
 		if (MesuresTemporalsHelper.isActiu())
 			mesuresTemporalsHelper.mesuraCalcular("Executar ACCIO" + accio, "tasques", expedient.getTipus().getNom(), task.getTaskName());

@@ -68,6 +68,8 @@ public class ExpedientTipusExportarValidator implements ConstraintValidator<Expe
 			ExpedientTipusDto expedientTipus = expedientTipusService.findAmbIdPermisDissenyar(
 					command.getEntornId(), 
 					command.getId());
+			boolean herencia = expedientTipus.getExpedientTipusPareId() != null;
+			Long expedientTipusPareId = expedientTipus.getExpedientTipusPareId();
 			
 			// Conjunt d'enumeracions i dominis del tipus d'expedient per comprovar si les dependències són globals
 			// O no s'han escollit

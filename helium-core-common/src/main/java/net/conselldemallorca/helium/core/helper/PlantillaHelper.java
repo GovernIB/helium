@@ -18,6 +18,27 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Component;
+
+import freemarker.core.Environment;
+import freemarker.core.NonStringException;
+import freemarker.ext.beans.ArrayModel;
+import freemarker.ext.beans.BeanModel;
+import freemarker.ext.beans.BooleanModel;
+import freemarker.ext.beans.DateModel;
+import freemarker.ext.beans.NumberModel;
+import freemarker.log.Logger;
+import freemarker.template.DefaultObjectWrapper;
+import freemarker.template.SimpleNumber;
+import freemarker.template.SimpleScalar;
+import freemarker.template.TemplateException;
+import freemarker.template.TemplateExceptionHandler;
+import freemarker.template.TemplateMethodModel;
+import freemarker.template.TemplateMethodModelEx;
+import freemarker.template.TemplateModel;
+import freemarker.template.TemplateModelException;
 import net.conselldemallorca.helium.core.common.JbpmVars;
 import net.conselldemallorca.helium.core.extern.domini.FilaResultat;
 import net.conselldemallorca.helium.core.model.hibernate.Area;
@@ -50,35 +71,12 @@ import net.conselldemallorca.helium.v3.core.repository.AreaJbpmIdRepository;
 import net.conselldemallorca.helium.v3.core.repository.AreaRepository;
 import net.conselldemallorca.helium.v3.core.repository.CarrecJbpmIdRepository;
 import net.conselldemallorca.helium.v3.core.repository.CarrecRepository;
-import net.conselldemallorca.helium.v3.core.repository.DocumentRepository;
 import net.conselldemallorca.helium.v3.core.repository.DocumentStoreRepository;
 import net.conselldemallorca.helium.v3.core.repository.DominiRepository;
 import net.conselldemallorca.helium.v3.core.repository.EntornRepository;
 import net.sf.jooreports.templates.DocumentTemplate;
 import net.sf.jooreports.templates.DocumentTemplateException;
 import net.sf.jooreports.templates.DocumentTemplateFactory;
-
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Component;
-
-import freemarker.core.Environment;
-import freemarker.core.NonStringException;
-import freemarker.ext.beans.ArrayModel;
-import freemarker.ext.beans.BeanModel;
-import freemarker.ext.beans.BooleanModel;
-import freemarker.ext.beans.DateModel;
-import freemarker.ext.beans.NumberModel;
-import freemarker.log.Logger;
-import freemarker.template.DefaultObjectWrapper;
-import freemarker.template.SimpleNumber;
-import freemarker.template.SimpleScalar;
-import freemarker.template.TemplateException;
-import freemarker.template.TemplateExceptionHandler;
-import freemarker.template.TemplateMethodModel;
-import freemarker.template.TemplateMethodModelEx;
-import freemarker.template.TemplateModel;
-import freemarker.template.TemplateModelException;
 
 /**
  * Helper per a generar documents mitjançant plantilles fetes amb ODT
@@ -91,8 +89,6 @@ public class PlantillaHelper {
 
 	@Resource
 	private PluginHelper pluginHelper;
-	@Resource
-	private DocumentRepository documentRepository;
 	@Resource
 	private DocumentStoreRepository documentStoreRepository;
 	@Resource

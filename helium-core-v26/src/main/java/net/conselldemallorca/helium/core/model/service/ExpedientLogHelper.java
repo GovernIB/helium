@@ -622,7 +622,8 @@ public class ExpedientLogHelper {
 					jbpmDao.retrocedirAccio(
 							pid,
 							logo.getName(),
-							params);
+							params,
+							null);
 					break;
 				case LogObject.LOG_OBJECT_INFO:
 					Expedient expedient = getExpedientPerProcessInstanceId(String.valueOf(logo.getProcessInstanceId()));

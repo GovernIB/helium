@@ -419,7 +419,7 @@ public class DefinicioProcesController extends BaseDefinicioProcesController {
 		model.addAttribute("variables", campService.findAllOrdenatsPerCodi(null, definicioProcesId));
 		model.addAttribute("documents", documentService.findAll(null, definicioProcesId));
 		model.addAttribute("terminis", definicioProcesService.terminiFindAll(definicioProcesId));
-		model.addAttribute("agrupacions", campService.agrupacioFindAll(null, definicioProcesId));
+		model.addAttribute("agrupacions", campService.agrupacioFindAll(null, definicioProcesId, false));
 		model.addAttribute("accions", accioService.findAll(null, definicioProcesId));
 	}	
 	

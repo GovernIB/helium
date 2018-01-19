@@ -3,9 +3,7 @@
  */
 package net.conselldemallorca.helium.ws.test;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import net.conselldemallorca.helium.core.util.ws.WsClientUtils;

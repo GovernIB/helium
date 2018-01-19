@@ -1252,12 +1252,14 @@ public class JbpmHelper {
 	
 	public void executeActionInstanciaProces(
 			String processInstanceId,
-			String actionName) {
+			String actionName,
+			String processDefinitionPareId) {
 		//adminService.mesuraIniciar("jBPM executeActionInstanciaProces", "jbpmDao");
 		final long id = Long.parseLong(processInstanceId);
 		ExecuteActionCommand command = new ExecuteActionCommand(
 				id,
-				actionName);
+				actionName,
+				processDefinitionPareId);
 		executeCommandWithAutoSave(
 				command,
 				id,
@@ -1268,12 +1270,14 @@ public class JbpmHelper {
 	
 	public void executeActionInstanciaTasca(
 			String taskInstanceId,
-			String actionName) {
+			String actionName,
+			String processDefinitionPareId) {
 		//adminService.mesuraIniciar("jBPM executeActionInstanciaTasca", "jbpmDao");
 		final long id = Long.parseLong(taskInstanceId);
 		ExecuteActionCommand command = new ExecuteActionCommand(
 				id,
-				actionName);
+				actionName,
+				processDefinitionPareId);
 		command.setTaskInstance(true);
 		executeCommandWithAutoSave(
 				command,
@@ -1286,12 +1290,14 @@ public class JbpmHelper {
 	public void retrocedirAccio(
 			String processInstanceId,
 			String actionName,
-			List<String> params) {
+			List<String> params,
+			String processDefinitionPareId) {
 		//adminService.mesuraIniciar("jBPM retrocedirAccio", "jbpmDao");
 		final long id = Long.parseLong(processInstanceId);
 		ExecuteActionCommand command = new ExecuteActionCommand(
 				id,
-				actionName);
+				actionName,
+				processDefinitionPareId);
 		command.setGoBack(true);
 		command.setParams(params);
 		executeCommandWithAutoSave(

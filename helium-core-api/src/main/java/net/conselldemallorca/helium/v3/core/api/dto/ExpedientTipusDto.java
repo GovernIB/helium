@@ -53,6 +53,8 @@ public class ExpedientTipusDto extends ControlPermisosDto implements Serializabl
 	private boolean ambRetroaccio;
 	private boolean reindexacioAsincrona;
 	private boolean ambInfoPropia;
+	private boolean heretable;
+	private Long expedientTipusPareId;
 	private String diesNoLaborables;
 	private boolean notificacionsActivades;
 	private String notificacioOrganCodi;
@@ -211,6 +213,18 @@ public class ExpedientTipusDto extends ControlPermisosDto implements Serializabl
 	}
 	public void setAmbInfoPropia(boolean ambInfoPropia) {
 		this.ambInfoPropia = ambInfoPropia;
+	}
+	public boolean isHeretable() {
+		return heretable;
+	}
+	public void setHeretable(boolean heretable) {
+		this.heretable = heretable;
+	}
+	public Long getExpedientTipusPareId() {
+		return expedientTipusPareId;
+	}
+	public void setExpedientTipusPareId(Long expedientTipusPareId) {
+		this.expedientTipusPareId = expedientTipusPareId;
 	}
 	public String getDiesNoLaborables() {
 		return diesNoLaborables;

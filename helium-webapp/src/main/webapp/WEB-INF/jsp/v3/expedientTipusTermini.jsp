@@ -41,7 +41,20 @@
 			<thead>
 				<tr>
 					<th data-col-name="id" data-visible="false"/>
-					<th data-col-name="codi" width="20%"><spring:message code="comuns.codi"/></th>
+					<th data-col-name="codi" width="20%" data-template="#cellExpedientTipusTerminiCodiTemplate">
+					<spring:message code="comuns.codi"/>
+						<script id="cellExpedientTipusTerminiCodiTemplate" type="text/x-jsrender">
+								{{if heretat }}
+									<span class="dada-heretada">{{:codi}}</span> 
+									<span class="label label-primary" title="<spring:message code="expedient.tipus.termini.llistat.codi.heretat"/>">R</span>
+								{{else}}
+									{{:codi}}
+									{{if sobreescriu }}
+										<span class="label label-warning" title="<spring:message code="expedient.tipus.termini.llistat.codi.sobreescriu"/>">S</span>
+									{{/if}}
+								{{/if}}
+						</script>
+					</th>
 					<th data-col-name="nom"><spring:message code="comuns.nom"/></th>
 					<th data-col-name="durada"><spring:message code="defproc.termllist.durada"/></th>
 					<th data-col-name="id" data-template="#cellTerminiTemplate" data-orderable="false" width="10%">
@@ -49,12 +62,18 @@
 						<div class="dropdown">
 							<button class="btn btn-primary" data-toggle="dropdown"><span class="fa fa-cog"></span>&nbsp;<spring:message code="comu.boto.accions"/>&nbsp;<span class="caret"></span></button>
 							<ul class="dropdown-menu">
-								<li><a data-toggle="modal" data-callback="callbackModalTerminis()" href="${baseUrl}/termini/{{:id}}/update"><span class="fa fa-pencil"></span>&nbsp;<spring:message code="expedient.tipus.info.accio.modificar"/></a></li>
-								<li><a href="${baseUrl}/termini/{{:id}}/delete" data-toggle="ajax" data-confirm="<spring:message code="expedient.tipus.camp.llistat.confirmacio.esborrar"/>"><span class="fa fa-trash-o"></span>&nbsp;<spring:message code="expedient.llistat.accio.esborrar"/></a></li>
+								{{if heretat}}
+									<li><a data-toggle="modal" href="${baseUrl}/termini/{{:id}}/update"><span class="fa fa-search"></span>&nbsp;<spring:message code="comu.boto.visualitzar"/></a></li>
+								{{else}}
+									<li><a data-toggle="modal" data-callback="callbackModalTerminis()" href="${baseUrl}/termini/{{:id}}/update"><span class="fa fa-pencil"></span>&nbsp;<spring:message code="expedient.tipus.info.accio.modificar"/></a></li>
+									<li><a href="${baseUrl}/termini/{{:id}}/delete" data-toggle="ajax" data-confirm="<spring:message code="expedient.tipus.camp.llistat.confirmacio.esborrar"/>"><span class="fa fa-trash-o"></span>&nbsp;<spring:message code="expedient.llistat.accio.esborrar"/></a></li>
+								{{/if}}
 							</ul>
 						</div>
 					</script>
 					</th>
+					<th data-col-name="sobreescriu" data-visible="false"/>
+					<th data-col-name="heretat" data-visible="false"/>
 				</tr>
 			</thead>
 		</table>

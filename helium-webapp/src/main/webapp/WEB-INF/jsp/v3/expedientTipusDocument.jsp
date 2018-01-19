@@ -43,7 +43,20 @@
 			<thead>
 				<tr>
 					<th data-col-name="id" data-visible="false"/>
-					<th data-col-name="codi" width="20%"><spring:message code="expedient.tipus.document.llistat.columna.codi"/></th>
+					<th data-col-name="codi" width="20%" data-template="#cellExpedientTipusDocumentCodiTemplate">
+					<spring:message code="expedient.tipus.document.llistat.columna.codi"/>
+						<script id="cellExpedientTipusDocumentCodiTemplate" type="text/x-jsrender">
+								{{if heretat }}
+									<span class="dada-heretada">{{:codi}}</span> 
+									<span class="label label-primary" title="<spring:message code="expedient.tipus.document.llistat.codi.heretat"/>">R</span>
+								{{else}}
+									{{:codi}}
+									{{if sobreescriu }}
+										<span class="label label-warning" title="<spring:message code="expedient.tipus.document.llistat.codi.sobreescriu"/>">S</span>
+									{{/if}}
+								{{/if}}
+						</script>
+					</th>
 					<th data-col-name="nom"><spring:message code="expedient.tipus.document.llistat.columna.nom"/></th>
 					<th data-col-name="plantilla" data-template="#plantillaTemplate">
 					<spring:message code="expedient.tipus.document.llistat.columna.plantilla"/>
@@ -68,16 +81,24 @@
 							<div class="dropdown">
 								<button class="btn btn-primary" data-toggle="dropdown"><span class="fa fa-cog"></span>&nbsp;<spring:message code="comu.boto.accions"/>&nbsp;<span class="caret"></span></button>
 								<ul class="dropdown-menu">
-									<li><a data-toggle="modal" data-callback="callbackModalDocuments()" href="${baseUrl}/document/{{:id}}/update"><span class="fa fa-pencil"></span>&nbsp;<spring:message code="expedient.tipus.info.accio.modificar"/></a></li>
+									{{if heretat}}
+										<li><a data-toggle="modal" href="${baseUrl}/document/{{:id}}/update"><span class="fa fa-search"></span>&nbsp;<spring:message code="comu.boto.visualitzar"/></a></li>
+									{{else}}
+										<li><a data-toggle="modal" data-callback="callbackModalDocuments()" href="${baseUrl}/document/{{:id}}/update"><span class="fa fa-pencil"></span>&nbsp;<spring:message code="expedient.tipus.info.accio.modificar"/></a></li>
+									{{/if}}
 									{{if arxiuNom != null }}
 										<li><a href="${baseUrl}/document/{{:id}}/download" ><span class="fa fa-file"></span>&nbsp;<spring:message code="expedient.tipus.document.llistat.accio.descarregar"/></a></li>
 									{{/if}}
-									<li><a href="${baseUrl}/document/{{:id}}/delete" data-toggle="ajax" data-confirm="<spring:message code="expedient.tipus.document.llistat.confirmacio.esborrar"/>"><span class="fa fa-trash-o"></span>&nbsp;<spring:message code="expedient.llistat.accio.esborrar"/></a></li>
+									{{if !heretat}}
+										<li><a href="${baseUrl}/document/{{:id}}/delete" data-toggle="ajax" data-confirm="<spring:message code="expedient.tipus.document.llistat.confirmacio.esborrar"/>"><span class="fa fa-trash-o"></span>&nbsp;<spring:message code="expedient.llistat.accio.esborrar"/></a></li>
+									{{/if}}
 								</ul>
 							</div>
 						</script>
 					</th>
 					<th data-col-name="plantilla" data-visible="false"/>
+					<th data-col-name="sobreescriu" data-visible="false"/>
+					<th data-col-name="heretat" data-visible="false"/>
 				</tr>
 			</thead>
 		</table>

@@ -81,12 +81,17 @@
 						<spring:message code="definicio.proces.tasca.variable.columna.variable"/>
 						<script id="celldefinicioProcesTascaVariable" type="text/x-jsrender">
 							{{:camp.codi}} / {{:camp.etiqueta}}
+							{{if camp.heretat }}
+								<span class="label label-primary" title="<spring:message code="expedient.tipus.camp.llistat.codi.heretat"/>">R</span>
+							{{/if}}
+							{{if camp.sobreescriu }}
+								<span class="label label-warning" title="<spring:message code="expedient.tipus.camp.llistat.codi.sobreescriu"/>">S</span>
+							{{/if}}
 							{{if camp.expedientTipus != null}}
 								<span class="label label-info pull-right" title="Tipus Expedient">TE</span>
 							{{else}}
 								<span class="label label-warning pull-right" title="Definició de Procés">DP</span>
-							{{/if}}
-							
+							{{/if}}							
 						</script>
 					</th>
 					<th data-col-name="readFrom" data-template="#celldefinicioProcesTascaVariableReadFromTemplate">
@@ -155,9 +160,33 @@
 	
 	<script type="text/javascript">
 	// <![CDATA[
-	            
+
+	// Llistat d'identificadors de camps heretats
+	var campsHeretatsIds =  ${campsHeretatsIds};
+	//Llistat d'identificadors de camps que sobreescriuen
+	var campsSobreescriuenIds =  ${campsSobreescriuenIds};
+
+	// Funció per donar format als itemps de la select d'agrupacions depenent de la herència
+	function formatCampSelectHerencia(item) {
+		var res;
+	    if(item.id && campsHeretatsIds.indexOf(parseInt(item.id)) >= 0)
+			res = item.text + " <span class='label label-primary'>R</span>";
+		else if(item.id && campsSobreescriuenIds.indexOf(parseInt(item.id)) >= 0)
+			res = item.text + " <span class='label label-warning'>S</span>";
+		else 
+			res = item.text;
+	    return res;
+	  }
+	
 	$(document).ready(function() {
 		
+
+		// Afegeix format si l'item de la agrupació està heretat
+		$('#campId').select2({
+	        formatResult: formatCampSelectHerencia,
+	        formatSelection: formatCampSelectHerencia
+	    });
+
 		// Quan es repinta la taula aplica la reordenació
 		$('#tascaVariable').on('draw.dt', function() {
 			// Posa la taula com a ordenable
@@ -172,7 +201,7 @@
 		    	onDragStart: function(table, row) {
 		    			filaMovem = row.rowIndex-1;
 				}
-		    });
+		    });			
 		    $("#tascaVariable tr").hover(function() {
 		        $(this.cells[0]).addClass('showDragHandle');
 		    }, function() {

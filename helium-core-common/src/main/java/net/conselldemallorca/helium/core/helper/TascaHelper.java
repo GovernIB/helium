@@ -444,7 +444,6 @@ public class TascaHelper {
 					expedient,
 					true,
 					false);
-//			if ((tasca.isCompleted() == completed) && (mostrarDeOtrosUsuarios || tasca.isAssignadaUsuariActual())) {
 			if (((completed && tasca.isCompleted()) || (notCompleted && !tasca.isCompleted()))
 					&& (mostrarDeOtrosUsuarios || tasca.isAssignadaUsuariActual())) {
 				resposta.add(tasca);

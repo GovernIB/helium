@@ -142,7 +142,7 @@ public class DefinicioProcesTerminiController extends BaseDefinicioProcesControl
 			@PathVariable Long definicioProcesId, 
 			@PathVariable Long id,
 			Model model) {
-		TerminiDto dto = terminiService.findAmbId(id);
+		TerminiDto dto = terminiService.findAmbId(null, id);
 		ExpedientTipusTerminiCommand command = conversioTipusHelper.convertir(
 				dto,
 				ExpedientTipusTerminiCommand.class);

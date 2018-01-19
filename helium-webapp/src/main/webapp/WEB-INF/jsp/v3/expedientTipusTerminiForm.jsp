@@ -6,15 +6,24 @@
 <c:set var="idioma"><%=org.springframework.web.servlet.support.RequestContextUtils.getLocale(request).getLanguage()%></c:set>
 
 <c:choose>
-	<c:when test="${empty expedientTipusTerminiCommand.id}"><
-		<c:set var="titol"><spring:message code="expedient.tipus.termini.form.titol.nou"/></c:set>
-		<c:set var="formAction">new</c:set>
+	<c:when test="${!heretat}">
+		<c:choose>
+			<c:when test="${empty expedientTipusTerminiCommand.id}"><
+				<c:set var="titol"><spring:message code="expedient.tipus.termini.form.titol.nou"/></c:set>
+				<c:set var="formAction">new</c:set>
+			</c:when>
+			<c:otherwise>
+				<c:set var="titol"><spring:message code="expedient.tipus.termini.form.titol.modificar"/></c:set>
+				<c:set var="formAction">update</c:set>
+			</c:otherwise>
+		</c:choose>
 	</c:when>
 	<c:otherwise>
-		<c:set var="titol"><spring:message code="expedient.tipus.termini.form.titol.modificar"/></c:set>
-		<c:set var="formAction">update</c:set>
+		<c:set var="titol"><spring:message code="expedient.tipus.termini.form.titol.visualitzar"/></c:set>
+		<c:set var="formAction">none</c:set>		
 	</c:otherwise>
 </c:choose>
+
 
 <html>
 <head>
@@ -124,18 +133,20 @@
 		
 		<div id="modal-botons" class="well">
 			<button type="button" class="btn btn-default" data-modal-cancel="true"><spring:message code="comu.boto.cancelar"/></button>
-			<c:choose>
-				<c:when test="${empty expedientTipusTerminiCommand.id}">
-					<button class="btn btn-primary right" type="submit" name="accio" value="crear">
-						<span class="fa fa-plus"></span> <spring:message code='comu.boto.crear' />
-					</button>
-				</c:when>
-				<c:otherwise>
-					<button class="btn btn-primary right" type="submit" name="accio" value="modificar">
-						<span class="fa fa-pencil"></span> <spring:message code='comu.boto.modificar' />
-					</button>
-				</c:otherwise>
-			</c:choose>
+			<c:if test="${!heretat}">
+				<c:choose>
+					<c:when test="${empty expedientTipusTerminiCommand.id}">
+						<button class="btn btn-primary right" type="submit" name="accio" value="crear">
+							<span class="fa fa-plus"></span> <spring:message code='comu.boto.crear' />
+						</button>
+					</c:when>
+					<c:otherwise>
+						<button class="btn btn-primary right" type="submit" name="accio" value="modificar">
+							<span class="fa fa-pencil"></span> <spring:message code='comu.boto.modificar' />
+						</button>
+					</c:otherwise>
+				</c:choose>
+			</c:if>
 		</div>
 	</form:form>
 </body>

@@ -64,7 +64,18 @@
 			<thead>
 				<tr>
 					<th data-col-name="id" data-visible="false"/>
-					<th data-col-name="document.codi"><spring:message code="definicio.proces.tasca.firma.columna.document"/></th>
+					<th data-col-name="document.codi" data-template="#celldefinicioProcesTascaFirma" width="30%">
+						<spring:message code="definicio.proces.tasca.firma.columna.document"/>
+						<script id="celldefinicioProcesTascaFirma" type="text/x-jsrender">
+							{{:document.codi}} / {{:document.nom}}
+							{{if document.heretat }}
+								<span class="label label-primary" title="<spring:message code="expedient.tipus.camp.llistat.codi.heretat"/>">R</span>
+							{{/if}}
+							{{if document.sobreescriu }}
+								<span class="label label-warning" title="<spring:message code="expedient.tipus.camp.llistat.codi.sobreescriu"/>">S</span>
+							{{/if}}
+						</script>
+					</th>
 					<th data-col-name="required" data-template="#celldefinicioProcesTascaFirmaRequiredTemplate">
 					<spring:message code="definicio.proces.tasca.firma.columna.required"/>
 						<script id="celldefinicioProcesTascaFirmaRequiredTemplate" type="text/x-jsrender">
@@ -89,9 +100,32 @@
 	
 	<script type="text/javascript">
 	// <![CDATA[
-	            
+
+   	// Llistat d'identificadors de camps heretats
+	var documentsHeretatsIds =  ${documentsHeretatsIds};
+	//Llistat d'identificadors de camps que sobreescriuen
+	var documentsSobreescriuenIds =  ${documentsSobreescriuenIds};
+
+	// Funció per donar format als itemps de la select d'agrupacions depenent de la herència
+	function formatDocumentSelectHerencia(item) {
+		var res;
+	    if(item.id && documentsHeretatsIds.indexOf(parseInt(item.id)) >= 0)
+			res = item.text + " <span class='label label-primary'>R</span>";
+		else if(item.id && documentsSobreescriuenIds.indexOf(parseInt(item.id)) >= 0)
+			res = item.text + " <span class='label label-warning'>S</span>";
+		else 
+			res = item.text;
+	    return res;
+	  }
+	
 	$(document).ready(function() {
 		
+		// Afegeix format si l'item de la agrupació està heretat
+		$('#documentId').select2({
+	        formatResult: formatDocumentSelectHerencia,
+	        formatSelection: formatDocumentSelectHerencia
+	    });
+
 		// Quan es repinta la taula aplica la reordenació
 		$('#tascaFirma').on('draw.dt', function() {
 			// Posa la taula com a ordenable

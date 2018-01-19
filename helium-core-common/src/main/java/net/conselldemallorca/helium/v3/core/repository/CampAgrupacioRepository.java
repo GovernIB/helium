@@ -12,8 +12,6 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import net.conselldemallorca.helium.core.model.hibernate.CampAgrupacio;
-import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
-import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 
 /**
  * Dao pels objectes de tipus CampAgrupacio
@@ -34,11 +32,15 @@ public interface CampAgrupacioRepository extends JpaRepository<CampAgrupacio, Lo
 	@Query("select ca from " +
 			"    CampAgrupacio ca " +
 			"where " +
-			"    ca.expedientTipus.id=:expedientTipusId " +
+			"    (ca.expedientTipus.id=:expedientTipusId " +
+						// Heretats
+			"			or (:herencia = true " +
+			"					and ca.expedientTipus.id = (select etp.expedientTipusPare.id from ExpedientTipus etp where etp.id = :expedientTipusId) ) ) " +
 			"order by " +
-			"    ordre")
+			"    ca.expedientTipus.id, ordre")
 	List<CampAgrupacio> findAmbExpedientTipusOrdenats(
-			@Param("expedientTipusId") Long expedientTipusId);
+			@Param("expedientTipusId") Long expedientTipusId,
+			@Param("herencia") boolean herencia);
 
 	@Query("select ca from " +
 			"    CampAgrupacio ca " +
@@ -89,5 +91,15 @@ public interface CampAgrupacioRepository extends JpaRepository<CampAgrupacio, Lo
 			@Param("definicioProcesId") Long definicioProcesId,
 			@Param("esNullFiltre") boolean esNullFiltre,
 			@Param("filtre") String filtre,		
-			Pageable pageable);	
+			Pageable pageable);
+
+	/** Recupera la informació de tots els registres sobreescrits.*/
+	@Query( "select cas " +
+			"from CampAgrupacio ca " +
+			"	join ca.expedientTipus et with et.id = :expedientTipusId, " +
+			"	CampAgrupacio cas " +
+			"where " +
+			"	cas.codi = ca.codi " +
+			" 	and cas.expedientTipus.id = et.expedientTipusPare.id ")
+	List<CampAgrupacio> findSobreescrits(@Param("expedientTipusId") Long expedientTipusId);	
 }

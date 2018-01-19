@@ -8,7 +8,7 @@ import java.io.Serializable;
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
-public class AccioDto implements Serializable {
+public class AccioDto extends HeretableDto implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 	

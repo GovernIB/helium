@@ -469,8 +469,8 @@ public class ExpedientHelper {
 						ambRetroaccio,
 						expedient.getProcessInstanceId(), 
 						LogInfo.ESTAT + "#@#" + "---");
-				Estat estat = estatRepository.findByExpedientTipusAndId(
-						expedient.getTipus(),
+				Estat estat = estatRepository.findByExpedientTipusAndIdAmbHerencia(
+						expedient.getTipus().getId(), 
 						estatId);
 				if (estat == null)
 					throw new NoTrobatException(Estat.class, estatId);

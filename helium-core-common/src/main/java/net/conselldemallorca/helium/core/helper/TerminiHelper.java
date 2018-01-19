@@ -384,6 +384,19 @@ public class TerminiHelper {
 					processInstanceId);
 		}
 
+	/** Retorna la llista de terminis del tipus d'expedient incloent els terminis heretats en el
+	 * cas de tenir herència. */
+	public List<Termini> findByExpedientTipusAmbHerencia(ExpedientTipus tipus) {
+		
+		List<Termini> terminis;
+		if (tipus.getExpedientTipusPare() != null )
+			terminis = terminiRepository.findByExpedientTipusAmbHerencia(
+						tipus.getId());
+		else
+			terminis = terminiRepository.findByExpedientTipus(tipus.getId());
+		return terminis;
+	}
+
 	private void sumarDies(
 			Calendar cal, 
 			int numDies,

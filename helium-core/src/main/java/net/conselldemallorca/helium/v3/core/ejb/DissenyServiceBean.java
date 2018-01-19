@@ -24,7 +24,6 @@ import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesVersioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DominiDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
-import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
@@ -46,19 +45,6 @@ public class DissenyServiceBean implements DissenyService {
 
 	@Autowired
 	DissenyService delegate;
-
-	/**
-	 * Retorna una llista amb els estats donats d'alta a dins un determinat tipus d'expedient.
-	 * 
-	 * @param expedientTipusId
-	 * @return
-	 * @throws ExpedientTipusNotFoundException
-	 */
-	@Override
-	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public List<EstatDto> findEstatByExpedientTipus(Long expedientTipusId) {
-		return delegate.findEstatByExpedientTipus(expedientTipusId);
-	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
@@ -170,8 +156,8 @@ public class DissenyServiceBean implements DissenyService {
 	
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public List<CampDto> findCampsOrdenatsPerCodi(Long expedientTipusId, Long definicioProcesId) {
-		return delegate.findCampsOrdenatsPerCodi(expedientTipusId, definicioProcesId);
+	public List<CampDto> findCampsOrdenatsPerCodi(Long expedientTipusId, Long definicioProcesId, boolean herencia) {
+		return delegate.findCampsOrdenatsPerCodi(expedientTipusId, definicioProcesId, herencia);
 	}
 
 	@Override
@@ -323,7 +309,7 @@ public class DissenyServiceBean implements DissenyService {
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public List<DocumentDto> findDocumentsOrdenatsPerCodi(Long expedientTipusId, Long definicioProcesId) {
-		return delegate.findDocumentsOrdenatsPerCodi(expedientTipusId, definicioProcesId);
+	public List<DocumentDto> findDocumentsOrdenatsPerCodi(Long expedientTipusId, Long definicioProcesId, boolean herencia) {
+		return delegate.findDocumentsOrdenatsPerCodi(expedientTipusId, definicioProcesId, herencia);
 	}
 }

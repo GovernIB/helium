@@ -7,6 +7,7 @@
 <%@ attribute name="inline" required="false" rtexprvalue="true"%>
 <%@ attribute name="comment" required="false" rtexprvalue="true"%>
 <%@ attribute name="labelSize" required="false" rtexprvalue="true"%>
+<%@ attribute name="disabled" required="false" rtexprvalue="true"%>
 <c:if test="${empty labelSize}"><c:set var="labelSize" value="${4}"/></c:if>
 
 <c:set var="campPath" value="${name}"/>
@@ -24,7 +25,7 @@
 	<div class="controls col-xs-${12 - labelSize}">
 		<div class="checkbox">
   			<label>
-				<form:checkbox path="${campPath}" cssClass="span12" id="${campPath}"/>
+				<form:checkbox path="${campPath}" cssClass="span12" id="${campPath}" disabled="${disabled}" />
 			</label>
 		</div>
 		<c:if test="${not empty campErrors}"><p class="help-block"><span class="fa fa-exclamation-triangle"></span>&nbsp;<form:errors path="${campPath}"/></p></c:if>

@@ -209,7 +209,8 @@ public class MassivaExpedientController extends BaseExpedientController {
 			// Documents			
 			List<DocumentDto> documents = dissenyService.findDocumentsOrdenatsPerCodi(
 					expedient.getTipus().getId(),
-					definicioProces.getId());
+					definicioProces.getId(),
+					true);
 			Collections.sort(documents, new ComparadorDocument());
 			model.addAttribute("documents", documents);
 			
@@ -481,7 +482,7 @@ public class MassivaExpedientController extends BaseExpedientController {
 			        }
 		        	Long docId = ((DocumentExpedientCommand) command).getDocId();
 	    			if (docId != null) {
-	    				DocumentDto documentDto = documentService.findAmbId(docId);
+	    				DocumentDto documentDto = documentService.findAmbId(null, docId);
 	    				((DocumentExpedientCommand) command).setNom(documentDto.getNom());
 	    			}
 		    		if (docId == null
@@ -681,7 +682,7 @@ public class MassivaExpedientController extends BaseExpedientController {
 			return "redirect:/v3";
 		}
 		if (docId != null) {
-			DocumentDto documentDto = documentService.findAmbId(docId);
+			DocumentDto documentDto = documentService.findAmbId(null, docId);
 			command.setNom(documentDto.getNom());
 		}
 		// NTI

@@ -10,7 +10,7 @@ import java.io.Serializable;
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
-public class EnumeracioDto implements Serializable {
+public class EnumeracioDto extends HeretableDto implements Serializable {
 
 	private Long id;
 	private String codi;

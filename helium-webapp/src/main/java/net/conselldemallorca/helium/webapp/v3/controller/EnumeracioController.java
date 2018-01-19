@@ -142,7 +142,7 @@ public class EnumeracioController extends BaseDissenyController {
 			@PathVariable Long id,
 			Model model) {
 		if (SessionHelper.getSessionManager(request).getPotDissenyarEntorn()) {
-			EnumeracioDto dto = enumeracioService.findAmbId(id);
+			EnumeracioDto dto = enumeracioService.findAmbId(null, id);
 			ExpedientTipusEnumeracioCommand command = conversioTipusHelper.convertir(dto, ExpedientTipusEnumeracioCommand.class);
 			model.addAttribute("expedientTipusEnumeracioCommand", command);
 			return "v3/expedientTipusEnumeracioForm";
@@ -420,7 +420,7 @@ public class EnumeracioController extends BaseDissenyController {
 		
 		if (entornActual != null) {
 						
-			EnumeracioDto enumeracio = enumeracioService.findAmbId(enumeracioId);
+			EnumeracioDto enumeracio = enumeracioService.findAmbId(null, enumeracioId);
 			model.addAttribute("enumeracio", enumeracio);
 			
 			if (ficaCommand) {
@@ -428,6 +428,7 @@ public class EnumeracioController extends BaseDissenyController {
 				command.setEnumeracioId(enumeracioId);
 				model.addAttribute("expedientTipusEnumeracioValorCommand", command);
 			}
+			model.addAttribute("heretat", enumeracio.isHeretat());
 		}
 	}
 

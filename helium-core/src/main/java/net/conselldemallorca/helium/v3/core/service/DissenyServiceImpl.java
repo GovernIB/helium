@@ -64,7 +64,6 @@ import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesVersioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DominiDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
-import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
@@ -165,20 +164,6 @@ public class DissenyServiceImpl implements DissenyService {
 				AreaDto.class);
 	}
 
-	@Transactional(readOnly=true)
-	@Override
-	public List<EstatDto> findEstatByExpedientTipus(Long expedientTipusId){
-		ExpedientTipus expedientTipus = expedientTipusRepository.findOne(
-				expedientTipusId);
-		if (expedientTipus == null)
-			throw new NoTrobatException(
-					ExpedientTipus.class, 
-					expedientTipusId);
-		return conversioTipusHelper.convertirList(
-				estatRepository.findByExpedientTipusOrderByOrdreAsc(expedientTipus),
-				EstatDto.class);
-	}
-	
 	@Transactional(readOnly=true)
 	@Override
 	public List<String> findAccionsJbpmOrdenades(Long definicioProcesId) {
@@ -636,10 +621,16 @@ public class DissenyServiceImpl implements DissenyService {
 	@Transactional(readOnly=true)
 	public List<CampDto> findCampsOrdenatsPerCodi(
 			Long expedientTipusId,
-			Long definicioProcesId) {
+			Long definicioProcesId,
+			boolean herencia) {
 		
 		ExpedientTipus expedientTipus = null;
 		DefinicioProces definicioProces = null;
+
+		List<CampDto> campsDto;
+		Set<Long> heretatsIds = new HashSet<Long>();
+		Set<String> sobreescritsCodis = new HashSet<String>();
+
 		if (expedientTipusId != null) {
 			expedientTipus = expedientTipusRepository.findOne(expedientTipusId);
 			if (expedientTipus == null)
@@ -652,37 +643,92 @@ public class DissenyServiceImpl implements DissenyService {
 		}
 		List<Camp> camps;
 		if (expedientTipus != null && expedientTipus.isAmbInfoPropia()) {
-			camps = campRepository.findByExpedientTipusOrderByCodiAsc(expedientTipus);
+			herencia = herencia && expedientTipus.getExpedientTipusPare() != null;
+			if (herencia) {
+				camps = campRepository.findByExpedientTipusAmbHerencia(expedientTipus.getId());
+				for(Camp c : camps)
+					if(!expedientTipusId.equals(c.getExpedientTipus().getId()))
+						heretatsIds.add(c.getId());
+				// Llistat d'elements sobreescrits
+				for (Camp c : campRepository.findSobreescrits(expedientTipusId)) 
+					sobreescritsCodis.add(c.getCodi());
+			} else
+				camps = campRepository.findByExpedientTipusOrderByCodiAsc(expedientTipus);
 		} else if (definicioProces != null) {
 			camps = campRepository.findByDefinicioProcesOrderByCodiAsc(definicioProces);
 		} else 
 			camps = new ArrayList<Camp>();
-		return conversioTipusHelper.convertirList(camps, CampDto.class);
+		campsDto = conversioTipusHelper.convertirList(camps, CampDto.class);
+		
+		if (herencia) {
+			// Completa l'informació del dto
+			for(CampDto dto : campsDto) {
+				// Sobreescriu
+				if (sobreescritsCodis.contains(dto.getCodi()))
+					dto.setSobreescriu(true);
+				// Heretat
+				if(heretatsIds.contains(dto.getId()))
+					dto.setHeretat(true);
+			}
+		}
+		return campsDto;
 	}	
 	
 	@Override
 	@Transactional(readOnly=true)
 	public List<DocumentDto> findDocumentsOrdenatsPerCodi(
 			Long expedientTipusId,
-			Long definicioProcesId) {
+			Long definicioProcesId,
+			boolean herencia) {
 		
 		ExpedientTipus expedientTipus = null;
+		DefinicioProces definicioProces = null;
+
+		List<DocumentDto> documentsDto;
+		Set<Long> heretatsIds = new HashSet<Long>();
+		Set<String> sobreescritsCodis = new HashSet<String>();
+
 		if (expedientTipusId != null) {
 			expedientTipus = expedientTipusRepository.findOne(expedientTipusId);
 			if (expedientTipus == null)
 				throw new NoTrobatException(ExpedientTipus.class, expedientTipusId);
 		}
-		List<Document> documents;
-		if (expedientTipus != null && expedientTipus.isAmbInfoPropia()) {
-			documents = documentRepository.findByExpedientTipusOrderByCodiAsc(expedientTipus);
-		} else if (definicioProcesId != null) {
-			DefinicioProces definicioProces = definicioProcesRepository.findOne(definicioProcesId);
+		if (definicioProcesId != null) {
+			definicioProces = definicioProcesRepository.findOne(definicioProcesId);
 			if (definicioProces == null)
 				throw new NoTrobatException(DefinicioProces.class, definicioProcesId);
-			documents = documentRepository.findByDefinicioProcesOrderByCodiAsc(definicioProces);
+		}
+		List<Document> documents;
+		if (expedientTipus != null && expedientTipus.isAmbInfoPropia()) {
+			herencia = herencia && expedientTipus.getExpedientTipusPare() != null;
+			if (herencia) {
+				documents = documentRepository.findByExpedientTipusAmbHerencia(expedientTipus.getId());
+				for(Document d : documents)
+					if(!expedientTipusId.equals(d.getExpedientTipus().getId()))
+						heretatsIds.add(d.getId());
+				// Llistat d'elements sobreescrits
+				for (Document d : documentRepository.findSobreescrits(expedientTipusId)) 
+					sobreescritsCodis.add(d.getCodi());
+			} else
+				documents = documentRepository.findByExpedientTipusId(expedientTipus.getId());
+		} else if (definicioProces != null) {
+			documents = documentRepository.findByDefinicioProcesId(definicioProces.getId());
 		} else 
 			documents = new ArrayList<Document>();
-		return conversioTipusHelper.convertirList(documents, DocumentDto.class);
+		documentsDto = conversioTipusHelper.convertirList(documents, DocumentDto.class);
+
+		if (herencia) {
+			// Completa l'informació del dto
+			for(DocumentDto dto : documentsDto) {
+				// Sobreescriu
+				if (sobreescritsCodis.contains(dto.getCodi()))
+					dto.setSobreescriu(true);
+				// Heretat
+				if(heretatsIds.contains(dto.getId()))
+					dto.setHeretat(true);
+			}
+		}
+		return documentsDto;
 	}	
 
 	@Override
@@ -709,7 +755,7 @@ public class DissenyServiceImpl implements DissenyService {
 	@Override
 	@Transactional(readOnly = true)
 	public List<DocumentDto> documentFindAmbDefinicioProces(Long definicioProcesId) {
-		List<Document> documents = documentRepository.findAmbDefinicioProces(definicioProcesId);
+		List<Document> documents = documentRepository.findByDefinicioProcesId(definicioProcesId);
 		return conversioTipusHelper.convertirList(
 				documents,
 				DocumentDto.class);
@@ -1013,7 +1059,7 @@ public class DissenyServiceImpl implements DissenyService {
  		if (definicioProces == null)
  			throw new NoTrobatException(DefinicioProces.class, definicioProcesId);
  		
- 		return conversioTipusHelper.convertirList(documentRepository.findByDefinicioProcesOrderByCodiAsc(definicioProces), DocumentDto.class);
+ 		return conversioTipusHelper.convertirList(documentRepository.findByDefinicioProcesId(definicioProces.getId()), DocumentDto.class);
  	}
 
 	private static final Logger logger = LoggerFactory.getLogger(ExpedientServiceImpl.class);

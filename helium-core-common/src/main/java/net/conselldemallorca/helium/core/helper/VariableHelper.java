@@ -159,15 +159,20 @@ public class VariableHelper {
 		}
 		DefinicioProces definicioProces = expedientHelper.findDefinicioProcesByProcessInstanceId(
 				processInstanceId);
+		Map<String, Camp> campsIndexatsPerCodi = new HashMap<String, Camp>();
 		Set<Camp> camps;
 		if (expedientTipus.isAmbInfoPropia()) {
+			if (expedientTipus.getExpedientTipusPare() != null) {
+				// Camps heretats
+				for (Camp camp: expedientTipus.getExpedientTipusPare().getCamps())
+					campsIndexatsPerCodi.put(camp.getCodi(), camp);
+			}
 			camps = expedientTipus.getCamps();
 //			camps = new HashSet<Camp>(campRepository.findByExpedientTipusOrderByCodiAsc(exp.getTipus()));
 		} else {
 			camps = definicioProces.getCamps();
 		}
 		
-		Map<String, Camp> campsIndexatsPerCodi = new HashMap<String, Camp>();
 		for (Camp camp: camps)
 			campsIndexatsPerCodi.put(camp.getCodi(), camp);
 		mesuresTemporalsHelper.mesuraCalcular("Expedient DADES v3", "expedient", tipusExp, null, "0");
@@ -240,8 +245,9 @@ public class VariableHelper {
 		Camp camp;
 		if (expedientTipus.isAmbInfoPropia())
 			camp = campRepository.findByExpedientTipusAndCodi(
-					expedientTipus,
-					variableCodi);
+					expedientTipus.getId(),
+					variableCodi,
+					expedientTipus.getExpedientTipusPare() != null);
 		else
 			camp = campRepository.findByDefinicioProcesAndCodi(
 					definicioProces,

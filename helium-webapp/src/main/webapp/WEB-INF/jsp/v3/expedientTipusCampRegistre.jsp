@@ -58,7 +58,9 @@
 	</form:form>
 	
 	<div class="botons-titol text-right">
-		<button id="btnNew" class="btn btn-default" style='${mostraCreate || mostraUpdate ? "display:none;" : ""}'><span class="fa fa-plus"></span>&nbsp;<spring:message code="expedient.tipus.campRegistre.llistat.accio.crear"/></button>
+		<c:if test="${!heretat}">
+			<button id="btnNew" class="btn btn-default" style='${mostraCreate || mostraUpdate ? "display:none;" : ""}'><span class="fa fa-plus"></span>&nbsp;<spring:message code="expedient.tipus.campRegistre.llistat.accio.crear"/></button>
+		</c:if>
 	</div>	
 	<div style="height: 500px;">
 		<table	id="campRegistre"
@@ -94,13 +96,15 @@
 					<th data-col-name="ordre"><spring:message code="expedient.tipus.campRegistre.llistat.columna.ordre"/></th>
 					<th data-col-name="id" data-template="#cellAccionsTemplate" data-orderable="false" width="10%">
 						<script id="cellAccionsTemplate" type="text/x-jsrender">
-						<div class="dropdown">
-							<button class="btn btn-primary" data-toggle="dropdown"><span class="fa fa-cog"></span>&nbsp;<spring:message code="comu.boto.accions"/>&nbsp;<span class="caret"></span></button>
-							<ul class="dropdown-menu">
-								<li><a href="${baseUrl}/{{:id}}/update" class="campRegistreUpdate" data-campregistreid="{{:id}}" data-membreId="{{:membreId}}"><span class="fa fa-pencil"></span>&nbsp;<spring:message code="expedient.tipus.info.accio.modificar"/></a></li>
-								<li><a href="${baseUrl}/{{:id}}/delete" class="campRegistreDelete" data-confirm="<spring:message code="expedient.tipus.campRegistre.llistat.confirmacio.esborrar"/>"><span class="fa fa-trash-o"></span>&nbsp;<spring:message code="expedient.llistat.accio.esborrar"/></a></li>
-							</ul>
-						</div>
+						<c:if test="${!heretat}">
+							<div class="dropdown">
+								<button class="btn btn-primary" data-toggle="dropdown"><span class="fa fa-cog"></span>&nbsp;<spring:message code="comu.boto.accions"/>&nbsp;<span class="caret"></span></button>
+								<ul class="dropdown-menu">
+									<li><a href="${baseUrl}/{{:id}}/update" class="campRegistreUpdate" data-campregistreid="{{:id}}" data-membreId="{{:membreId}}"><span class="fa fa-pencil"></span>&nbsp;<spring:message code="expedient.tipus.info.accio.modificar"/></a></li>
+									<li><a href="${baseUrl}/{{:id}}/delete" class="campRegistreDelete" data-confirm="<spring:message code="expedient.tipus.campRegistre.llistat.confirmacio.esborrar"/>"><span class="fa fa-trash-o"></span>&nbsp;<spring:message code="expedient.llistat.accio.esborrar"/></a></li>
+								</ul>
+							</div>
+						</c:if>
 					</script>
 					</th>
 				</tr>
@@ -123,6 +127,7 @@
 		
 		// Quan es repinta la taula aplica la reordenació
 		$('#campRegistre').on('draw.dt', function() {
+			/* <c:if test="${!heretat}"> */
 			// Posa la taula com a ordenable
 			$("#campRegistre").tableDnD({
 		    	onDragClass: "drag",
@@ -136,6 +141,7 @@
 		    			filaMovem = row.rowIndex-1;
 				}
 		    });
+			/* </c:if> */
 		    $("#campRegistre tr").hover(function() {
 		        $(this.cells[0]).addClass('showDragHandle');
 		    }, function() {

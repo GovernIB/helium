@@ -79,7 +79,7 @@ public interface CampService {
 	 *             Si no s'ha trobat el registre amb l'id especificat.
 	 */
 	public CampDto findAmbId(
-			Long id) throws NoTrobatException;	
+			Long expedientTipusId, Long id) throws NoTrobatException;	
 	
 	/** 
 	 * Retorna la llista de camps del tipus d'expedient paginada per la datatable.
@@ -130,12 +130,15 @@ public interface CampService {
 	 *            Atribut id de la definició de procés.
 	 * @param codi
 	 *            El codi per a la consulta.
+	 * @param herencia
+	 *            Determina si tenir en compte els camps heretats
 	 * @return El camp del tipus d'expedient o null si no el troba.
 	 */
 	public CampDto findAmbCodi(
 			Long expedientTipusId,
 			Long definicioProcesId,
-			String codi);
+			String codi,
+			boolean herencia);
 
 	/**
 	 * Retorna tots els camps d'un tipus d'expedient donat el seu identificador.
@@ -155,6 +158,8 @@ public interface CampService {
 	 *            Atribut id del tipus d'expedient.
 	 * @param definicioProcesId
 	 *            Atribut id de la definició de procés.
+	 * @param herencia
+	 * 			  Indica si incloure les possibles agrupacions heretades del tipus d'expedient.
 	 * @return les agrupacions del tipus d'expedient.
 	 * @throws NoTrobatException
 	 *             Si no s'ha trobat el registre amb l'id especificat.
@@ -163,7 +168,8 @@ public interface CampService {
 	 */
 	public List<CampAgrupacioDto> agrupacioFindAll(
 			Long expedientTipusId,
-			Long definicioProcesId) throws NoTrobatException, PermisDenegatException;
+			Long definicioProcesId,
+			boolean herencia) throws NoTrobatException, PermisDenegatException;
 		
 	/**
 	 * Crea una nova agrupació.

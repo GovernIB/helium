@@ -631,7 +631,8 @@ public class ExpedientDocumentController extends BaseExpedientController {
 		
 		List<DocumentDto> documents = dissenyService.findDocumentsOrdenatsPerCodi(
 				expedient.getTipus().getId(),
-				instanciaProces.getDefinicioProces().getId());
+				instanciaProces.getDefinicioProces().getId(),
+				true); // amb herencia
 		
 		List<ExpedientDocumentDto> documentsInstancia = expedientDocumentService.findAmbInstanciaProces(expedientId, procesId);
 		if (documentsInstancia != null && documentsInstancia.size() > 0) {

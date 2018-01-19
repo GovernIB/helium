@@ -44,6 +44,27 @@
 					})
 					
 					$('#ambInfoPropiaNota').insertAfter('#ambInfoPropia');
+
+					// Habilita o deshabilita les opcions d'herència
+					$('#ambInfoPropia').click(function() {
+						if($(this).is(':checked')){
+					        $('#heretable,#expedientTipusPareId').removeAttr("disabled");
+					    }else {
+					        $('#heretable,#expedientTipusPareId').attr("disabled", "true");
+					    }
+					});
+					// Si és heretable esborra el valor d'expedientTipusPare
+					$('#heretable').click(function() {
+						if($(this).is(':checked')){
+					        $('#expedientTipusPareId').val('').change();
+					    }
+					});
+					// Si hereta el desmarca d'heretable
+					$('#expedientTipusPareId').change(function() {
+						if($(this).val() != ''){
+					        $('#heretable').prop('checked', false);
+					    }
+					});
 					
 				}); 
 
@@ -89,7 +110,9 @@
 			<hel:inputText required="true" name="nom" textKey="expedient.tipus.form.camp.titol" />
 			<hel:inputCheckbox name="ambInfoPropia" textKey="expedient.tipus.form.camp.ambInfoPropia" />
 			<p id="ambInfoPropiaNota" class="help-block"><spring:message code="expedient.tipus.form.camp.ambInfoPropia.nota"></spring:message></p>			
-			<hel:inputCheckbox name="teTitol" textKey="expedient.tipus.form.camp.teTitol" />
+			<hel:inputCheckbox name="heretable" textKey="expedient.tipus.form.camp.heretable" disabled="${! expedientTipusCommand.ambInfoPropia}" />
+			<hel:inputSelect name="expedientTipusPareId" textKey="expedient.tipus.form.camp.expedientTipusPare" optionItems="${expedientTipusPares}" optionTextAttribute="nom" optionValueAttribute="id" emptyOption="true" disabled="${! expedientTipusCommand.ambInfoPropia}" />
+			<hel:inputCheckbox name="teTitol" textKey="expedient.tipus.form.camp.teTitol"/>
 			<hel:inputCheckbox name="demanaTitol" textKey="expedient.tipus.form.camp.demanaTitol" />
 			<hel:inputCheckbox name="teNumero" textKey="expedient.tipus.form.camp.teNumero" />
 			<hel:inputCheckbox name="demanaNumero" textKey="expedient.tipus.form.camp.demanaNumero" />

@@ -17,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 import net.conselldemallorca.helium.core.helper.ConversioTipusHelper;
 import net.conselldemallorca.helium.core.helper.ExpedientHelper;
 import net.conselldemallorca.helium.core.helper.MessageHelper;
+import net.conselldemallorca.helium.core.helper.TerminiHelper;
 import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
@@ -33,7 +34,6 @@ import net.conselldemallorca.helium.v3.core.api.dto.TerminiIniciatDto;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.exception.ValidacioException;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientTerminiService;
-import net.conselldemallorca.helium.v3.core.repository.DefinicioProcesRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientRepository;
 import net.conselldemallorca.helium.v3.core.repository.FestiuRepository;
 import net.conselldemallorca.helium.v3.core.repository.RegistreRepository;
@@ -65,9 +65,9 @@ public class ExpedientTerminiServiceImpl implements ExpedientTerminiService {
 	@Resource
 	private ConversioTipusHelper conversioTipusHelper;
 	@Resource
-	private DefinicioProcesRepository definicioProcesRepository;
-	@Resource
 	private ExpedientHelper expedientHelper;
+	@Resource
+	private TerminiHelper terminiHelper;
 
 
 
@@ -302,7 +302,7 @@ public class ExpedientTerminiServiceImpl implements ExpedientTerminiService {
 				processInstanceId);
 		List<Termini> terminis = null;
 		if (expedient.getTipus().isAmbInfoPropia()) {
-			terminis = terminiRepository.findByExpedientTipusId(expedient.getTipus().getId());			
+			terminis = terminiHelper.findByExpedientTipusAmbHerencia(expedient.getTipus());			
 		} else {
 			DefinicioProces definicioProces = expedientHelper.findDefinicioProcesByProcessInstanceId(
 					processInstanceId);

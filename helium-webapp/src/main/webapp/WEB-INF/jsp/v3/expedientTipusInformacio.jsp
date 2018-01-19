@@ -52,7 +52,20 @@
 						<dt><spring:message code="expedient.tipus.info.camp.titol"/></dt>
 						<dd>${expedientTipus.nom}</dd>				
 						<dt><spring:message code="expedient.tipus.info.camp.ambInfoPropia"/></dt>
-						<dd><spring:message code="comu.${expedientTipus.ambInfoPropia}"></spring:message></dd>
+						<dd>
+							<spring:message code="comu.${expedientTipus.ambInfoPropia}"></spring:message>
+							<c:if test="${expedientTipus.heretable}">
+								, <spring:message code="expedient.tipus.info.camp.ambInfoPropia.heretable"/>
+							</c:if>
+							<c:if test="${not empty expedientTipusPare}">
+								, 
+								<a href="../expedientTipus/${expedientTipusPare.id}">
+									<span class="label label-primary" 
+										title="<spring:message code="expedient.tipus.info.camp.ambInfoPropia.expedientTipusPare" 
+										arguments="${expedientTipusPare.codi},${expedientTipusPare.nom}" htmlEscape="true"/>">R</span>
+								</a>
+							</c:if>
+						</dd>
 						<dt><spring:message code="expedient.tipus.info.camp.amb.titol"/></dt>
 						<dd><spring:message code="comu.${expedientTipus.teTitol}"></spring:message></dd>
 						<dt><spring:message code="expedient.tipus.info.camp.demana.titol"/></dt>

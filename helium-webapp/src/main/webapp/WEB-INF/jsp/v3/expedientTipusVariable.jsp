@@ -68,7 +68,20 @@
 					<th data-col-name="id" data-visible="false"/>
 					<th data-col-name="agrupacio" data-visible="false"/>
 					<th data-col-name="ordre" width="5%"><spring:message code="expedient.tipus.camp.llistat.columna.ordre"/></th>
-					<th data-col-name="codi" width="20%"><spring:message code="expedient.tipus.camp.llistat.columna.codi"/></th>
+					<th data-col-name="codi" width="20%" data-template="#cellExpedientTipusVariableCodiTemplate">
+					<spring:message code="expedient.tipus.camp.llistat.columna.codi"/>
+						<script id="cellExpedientTipusVariableCodiTemplate" type="text/x-jsrender">
+								{{if heretat }}
+									<span class="dada-heretada">{{:codi}}</span> 
+									<span class="label label-primary" title="<spring:message code="expedient.tipus.camp.llistat.codi.heretat"/>">R</span>
+								{{else}}
+									{{:codi}}
+									{{if sobreescriu }}
+										<span class="label label-warning" title="<spring:message code="expedient.tipus.camp.llistat.codi.sobreescriu"/>">S</span>
+									{{/if}}
+								{{/if}}
+						</script>
+					</th>
 					<th data-col-name="etiqueta"><spring:message code="expedient.tipus.camp.llistat.columna.etiqueta"/></th>
 					<th data-col-name="tipus"><spring:message code="expedient.tipus.camp.llistat.columna.tipus"/></th>
 					<th data-col-name="multiple" data-template="#cellexpedientTipusVariableMultibleTemplate">
@@ -96,22 +109,28 @@
 						<div class="dropdown">
 							<button class="btn btn-primary" data-toggle="dropdown"><span class="fa fa-cog"></span>&nbsp;<spring:message code="comu.boto.accions"/>&nbsp;<span class="caret"></span></button>
 							<ul class="dropdown-menu">
-								<li><a data-toggle="modal" data-callback="callbackModalVariables()" href="${baseUrl}/variable/{{:id}}/update"><span class="fa fa-pencil"></span>&nbsp;<spring:message code="expedient.tipus.info.accio.modificar"/></a></li>
-								<li><a href="${baseUrl}/variable/{{:id}}/delete" data-toggle="ajax" data-confirm="<spring:message code="expedient.tipus.camp.llistat.confirmacio.esborrar"/>"><span class="fa fa-trash-o"></span>&nbsp;<spring:message code="expedient.llistat.accio.esborrar"/></a></li>
-								<li class="divider"></li>
-								<li id="accioAgrupacions">
-									{{if agrupacio == null}}
-										<span class="fa fa-plus" style="margin-left:10px"></span>&nbsp;<spring:message code="expedient.tipus.info.accio.agrupar"/>
-										<br/>						
-									{{else}}
-										<a href="${baseUrl}/variable/{{:id}}/desagrupar"
+								{{if heretat}}
+									<li><a data-toggle="modal" href="${baseUrl}/variable/{{:id}}/update"><span class="fa fa-search"></span>&nbsp;<spring:message code="comu.boto.visualitzar"/></a></li>
+								{{else}}
+									<li><a data-toggle="modal" data-callback="callbackModalVariables()" href="${baseUrl}/variable/{{:id}}/update"><span class="fa fa-pencil"></span>&nbsp;<spring:message code="expedient.tipus.info.accio.modificar"/></a></li>
+									<li><a href="${baseUrl}/variable/{{:id}}/delete" data-toggle="ajax" data-confirm="<spring:message code="expedient.tipus.camp.llistat.confirmacio.esborrar"/>"><span class="fa fa-trash-o"></span>&nbsp;<spring:message code="expedient.llistat.accio.esborrar"/></a></li>
+									<li class="divider"></li>
+									<li id="accioAgrupacions">
+										{{if agrupacio == null}}
+											<span class="fa fa-plus" style="margin-left:10px"></span>&nbsp;<spring:message code="expedient.tipus.info.accio.agrupar"/>
+											<br/>						
+										{{else}}
+											<a href="${baseUrl}/variable/{{:id}}/desagrupar"
 												data-toggle="ajax" ><span class="fa fa-minus"></span>&nbsp;<spring:message code="expedient.tipus.info.accio.desagrupar"/>
-									{{/if}}																		
-								</li>
+										{{/if}}																		
+									</li>
+								{{/if}}
 							</ul>
 						</div>
 					</script>
 					</th>
+					<th data-col-name="sobreescriu" data-visible="false"/>
+					<th data-col-name="heretat" data-visible="false"/>
 				</tr>
 			</thead>
 		</table>
@@ -131,6 +150,24 @@
 
 <script type="text/javascript">
 // <![CDATA[            
+
+// Llistat d'identificadors d'agrupacions heretades
+var agrupacionsHeretadesIds =  ${agrupacionsHeretadesIds};
+//Llistat d'identificadors d'agrupacions que sobreescriuen
+var agrupacionsSobreescriuenIds =  ${agrupacionsSobreescriuenIds};
+
+// Funció per donar format als itemps de la select d'agrupacions depenent de la herència
+function formatAgrupacioSelectHerencia(item) {
+	var res;
+    if(item.id && agrupacionsHeretadesIds.indexOf(parseInt(item.id)) >= 0)
+		res = item.text + " <span class='label label-primary'>R</span>";
+	else if(item.id && agrupacionsSobreescriuenIds.indexOf(parseInt(item.id)) >= 0)
+		res = item.text + " <span class='label label-warning'>S</span>";
+	else 
+		res = item.text;
+    return res;
+  }
+   
 $(document).ready(function() {
 
 	// Posa el text "Totes" pel botó de selecció de totes les variables
@@ -164,9 +201,13 @@ $(document).ready(function() {
 		var agrupacioId = $(this).val();
 		if (agrupacioId >= 0 ) {
 			$('#nou_camp').attr('href', '${baseUrl}/variable/new?agrupacioId=' + agrupacioId);
-			$('#agrupacioUpdate').attr('href', '${baseUrl}/agrupacio/' + agrupacioId + '/update');
-			$('#agrupacioDelete').attr('href', '${baseUrl}/agrupacio/' + agrupacioId + '/delete');
-			$('#agrupacioUpdate,#agrupacioDelete').closest('li').show();			
+			if (agrupacionsHeretadesIds.indexOf(parseInt(agrupacioId)) < 0) {
+				$('#agrupacioUpdate').attr('href', '${baseUrl}/agrupacio/' + agrupacioId + '/update');
+				$('#agrupacioDelete').attr('href', '${baseUrl}/agrupacio/' + agrupacioId + '/delete');
+				$('#agrupacioUpdate,#agrupacioDelete').closest('li').show();
+			} else {
+				$('#agrupacioUpdate,#agrupacioDelete').closest('li').hide();
+			}
 			// Mostra la columna d'ordre
 			$('#expedientTipusVariable').DataTable().order([2, 'asc']);
 			$('#expedientTipusVariable').DataTable().column(2).visible(true);
@@ -178,7 +219,13 @@ $(document).ready(function() {
 			$('#expedientTipusVariable').DataTable().column(2).visible(false);
 		}
 		refrescaTaula();
-	});	
+	});
+	// Afegeix format si l'item de la agrupació està heretat
+	$('#agrupacions').select2({
+        formatResult: formatAgrupacioSelectHerencia,
+        formatSelection: formatAgrupacioSelectHerencia
+    });
+	
 	// Amaga la columna d'ordre
 	$('#expedientTipusVariable').DataTable().column(2).visible(false);
 	
@@ -191,7 +238,8 @@ $(document).ready(function() {
 					var campId = $(this).attr('id').replace('row_','');
 					$agrupacions = $(this).find("#accioAgrupacions");
 					$("#agrupacions option").each(function(){
-						if ($(this).val() > 0)
+						if ($(this).val() > 0 
+								&& (agrupacionsHeretadesIds.indexOf(parseInt($(this).val())) < 0))
 							$agrupacions.append("<a href='${baseUrl}/variable/"+campId+"/agrupar/"+$(this).val()+"' data-toggle='ajax'>"+$(this).text()+"</a>");
 					});
 				}
@@ -203,8 +251,10 @@ $(document).ready(function() {
 				}
 			});			
 		}
-				
-		if ($('#agrupacions').val() >= 0) {
+
+		var agrupacioId = $("#agrupacions").val();
+		if (agrupacioId >= 0 
+				&& agrupacionsHeretadesIds.indexOf(parseInt(agrupacioId)) < 0) {
 			// Posa la taula com a ordenable
 			$("#expedientTipusVariable").tableDnD({
 		    	onDragClass: "drag",

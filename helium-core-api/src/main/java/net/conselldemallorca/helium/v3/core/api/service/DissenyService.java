@@ -19,7 +19,6 @@ import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesVersioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DominiDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
-import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
@@ -37,17 +36,6 @@ import net.conselldemallorca.helium.v3.core.api.exportacio.DefinicioProcesExport
  * @author Limit Tecnologies <limit@limit.es>
  */
 public interface DissenyService {
-
-	/**
-	 * Retorna una llista amb els estats donats d'alta a dins un
-	 * determinat tipus d'expedient.
-	 * 
-	 * @param expedientTipusId
-	 * @return
-	 * @throws ExpedientTipusNotFoundException
-	 */
-	public List<EstatDto> findEstatByExpedientTipus(
-			Long expedientTipusId) throws NoTrobatException;
 
 	/**
 	 * Retorna els tipus d'expedient per als quals l'usuari actual
@@ -199,7 +187,8 @@ public interface DissenyService {
 	 */
 	public List<CampDto> findCampsOrdenatsPerCodi(
 			Long expedientTipusId,
-			Long definicioProcesId);
+			Long definicioProcesId,
+			boolean herencia);
 	
 	/** Retorna la llista de documents definits al tius d'expedient si està informat i està cofigurat amb informació pròpia o 
 	 * la llista de documents de la definició de procés si està informat. El resultat està ordentat per codi.
@@ -209,7 +198,8 @@ public interface DissenyService {
 	 */
 	public List<DocumentDto> findDocumentsOrdenatsPerCodi(
 			Long expedientTipusId,
-			Long definicioProcesId);
+			Long definicioProcesId,
+			boolean herencia);
 
 	/** Retorna la informació de disseny d'una definició de procés donat l'identificador de l'entorn i l'id de
 	 * la definició de procés. */
@@ -278,6 +268,7 @@ public interface DissenyService {
 			Long expedientTipusId,
 			Long jbpmId) throws NoTrobatException, PermisDenegatException;
 
+	/** Cerca el domini global dins l'entorn. Retorna null si no hi és. */
 	public DominiDto dominiFindAmbCodi(
 			Long entornId, 
 			String codiDomini);

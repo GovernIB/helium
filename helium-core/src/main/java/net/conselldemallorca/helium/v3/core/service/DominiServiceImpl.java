@@ -3,12 +3,15 @@
  */
 package net.conselldemallorca.helium.v3.core.service;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.annotation.Resource;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -78,17 +81,49 @@ public class DominiServiceImpl implements DominiService {
 				"incloureGlobals=" + incloureGlobals + ", " +
 				"filtre=" + filtre + ")");
 		
+		ExpedientTipus expedientTipus = expedientTipusId != null? expedientTipusHelper.getExpedientTipusComprovantPermisDissenyDelegat(expedientTipusId) : null;
+
+		// Determina si hi ha herència 
+		boolean herencia = expedientTipus != null && expedientTipus.isAmbInfoPropia() && expedientTipus.getExpedientTipusPare() != null;
+
+		Page<Domini> page = dominiRepository.findByFiltrePaginat(
+				entornId,
+				expedientTipusId == null,
+				expedientTipusId,
+				incloureGlobals,
+				filtre == null || "".equals(filtre), 
+				filtre, 
+				herencia,
+				paginacioHelper.toSpringDataPageable(
+						paginacioParams));
+
 		PaginaDto<DominiDto> pagina = paginacioHelper.toPaginaDto(
-				dominiRepository.findByFiltrePaginat(
-						entornId,
-						expedientTipusId == null,
-						expedientTipusId,
-						incloureGlobals,
-						filtre == null || "".equals(filtre), 
-						filtre, 
-						paginacioHelper.toSpringDataPageable(
-								paginacioParams)),
+				page,
 				DominiDto.class);		
+		
+		if (herencia) {
+			// Llista d'heretats
+			Set<Long> heretatsIds = new HashSet<Long>();
+			for (Domini d : page.getContent()) 
+				if ( !expedientTipusId.equals(d.getExpedientTipus().getId()))
+					heretatsIds.add(d.getId());
+			// Llistat d'elements sobreescrits
+			Set<String> sobreescritsCodis = new HashSet<String>();
+			for (Domini d : dominiRepository.findSobreescrits(
+					expedientTipus.getId()
+				)) {
+				sobreescritsCodis.add(d.getCodi());
+			}
+			// Completa l'informació del dto
+			for (DominiDto dto : pagina.getContingut()) {
+				// Sobreescriu
+				if (sobreescritsCodis.contains(dto.getCodi()))
+					dto.setSobreescriu(true);
+				// Heretat
+				if (heretatsIds.contains(dto.getId()) && ! dto.isSobreescriu())
+					dto.setHeretat(true);								
+			}					
+		}
 		return pagina;	
 	}
 	
@@ -213,17 +248,32 @@ public class DominiServiceImpl implements DominiService {
 	
 	@Override
 	@Transactional
-	public DominiDto findAmbId(Long dominiId) throws NoTrobatException {
+	public DominiDto findAmbId(
+			Long expedientTipusId,
+			Long dominiId) throws NoTrobatException {
 		logger.debug(
 				"Consultant el domini amb id (" +
+				"expedientTipusId=" + expedientTipusId + "," +
 				"dominiId=" + dominiId +  ")");
+		ExpedientTipus tipus = expedientTipusId != null?
+				expedientTipusRepository.findById(expedientTipusId) : null;
 		Domini domini = dominiRepository.findOne(dominiId);
 		if (domini == null) {
 			throw new NoTrobatException(Domini.class, dominiId);
 		}
-		return conversioTipusHelper.convertir(
+		DominiDto dto = conversioTipusHelper.convertir(
 				domini,
-				DominiDto.class);
+				DominiDto.class); 
+		// Herencia
+		if (tipus != null && tipus.getExpedientTipusPare() != null) {
+			if (tipus.getExpedientTipusPare().getId().equals(domini.getExpedientTipus().getId()))
+				dto.setHeretat(true);
+			else
+				dto.setSobreescriu(dominiRepository.findByExpedientTipusAndCodi(
+						tipus.getExpedientTipusPare(), 
+						domini.getCodi()) != null);					
+		}
+		return dto;
 	}
 	
 	@Override

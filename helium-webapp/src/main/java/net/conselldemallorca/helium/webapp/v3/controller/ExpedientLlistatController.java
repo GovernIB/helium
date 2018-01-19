@@ -248,7 +248,7 @@ public class ExpedientLlistatController extends BaseExpedientController {
 	public List<EstatDto> estatsPerExpedientTipus(
 			HttpServletRequest request,
 			@PathVariable Long expedientTipusId) {
-		return dissenyService.findEstatByExpedientTipus(expedientTipusId);
+		return expedientTipusService.estatFindAll(expedientTipusId, true);
 	}
 
 	@InitBinder
@@ -266,8 +266,9 @@ public class ExpedientLlistatController extends BaseExpedientController {
 		if (filtreCommand.getExpedientTipusId() != null) {
 			model.addAttribute(
 					"estats",
-					dissenyService.findEstatByExpedientTipus(
-							filtreCommand.getExpedientTipusId()));
+					expedientTipusService.estatFindAll(
+							filtreCommand.getExpedientTipusId(),
+							true));
 		}
 	}
 

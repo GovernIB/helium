@@ -6,7 +6,6 @@ package net.conselldemallorca.helium.v3.core.api.service;
 import java.util.List;
 
 import net.conselldemallorca.helium.v3.core.api.dto.CampAgrupacioDto;
-import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDadaDto;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
@@ -140,18 +139,4 @@ public interface ExpedientDadaService {
 	public List<CampAgrupacioDto> agrupacionsFindAmbInstanciaProces(
 			Long expedientId,
 			String processInstanceId) throws NoTrobatException, PermisDenegatException;
-
-	
-	/**
-	 * Retorna els camps disponibles definits en el tipus d'epxedient o en la definició
-	 * de procés, depenent del flag "Amb informació pròpia" del tipus d'expedient
-	 * 
-	 * @param expedientTipusId
-	 * @param definicioProcesId
-	 * 
-	 * @return Llista dels camps disponibles
-	 */
-	public List<CampDto> findCampsDisponiblesOrdenatsPerCodi(
-			Long expedientId, 
-			String procesInstanceId) throws NoTrobatException, PermisDenegatException;
 }

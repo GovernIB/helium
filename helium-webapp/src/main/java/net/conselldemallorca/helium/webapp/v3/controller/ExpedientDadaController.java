@@ -13,9 +13,12 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
@@ -559,9 +562,10 @@ public class ExpedientDadaController extends BaseExpedientController {
 		List<CampDto> campsNoUtilitzats = new ArrayList<CampDto>();
 		ExpedientDto expedient = expedientService.findAmbId(expedientId);
 		List<CampDto> camps = dissenyService.findCampsOrdenatsPerCodi(
-				expedient.getTipus().getId(),
-				instanciaProces.getDefinicioProces().getId());
-//		List<CampDto> camps = expedientDadaService.findCampsDisponiblesOrdenatsPerCodi(expedientId, procesInstanceId);
+					expedient.getTipus().getId(),
+					instanciaProces.getDefinicioProces().getId(),
+					true // amb herencia
+				);
 		List<ExpedientDadaDto> dadesInstancia = expedientDadaService.findAmbInstanciaProces(
 				expedientId,
 				procesInstanceId);
@@ -590,13 +594,45 @@ public class ExpedientDadaController extends BaseExpedientController {
 		}
 	}
 
+	/** Retorna les dades de la instància de procés agrupades per agrupació. S'ha de tenir en compte
+	 * que les agrupacions poden estar sobreescrites, per tant preval la agrupació sobreescrita del fill
+	 * i s'ha de determinar la agrupació pel codi en comptes de l'identificador. 
+	 * @param expedientId
+	 * @param instaciaProcesId
+	 * @param ambOcults
+	 * @return
+	 */
 	private Map<CampAgrupacioDto, List<ExpedientDadaDto>> getDadesInstanciaProces(
 			Long expedientId,
 			String instaciaProcesId,
 			boolean ambOcults) {		
 		// definirem un mapa. La clau serà el nom de l'agrupació, i el valor el llistat de variables de l'agrupació
-		Map<CampAgrupacioDto, List<ExpedientDadaDto>> dadesProces = new LinkedHashMap<CampAgrupacioDto, List<ExpedientDadaDto>>();
-		
+		Map<CampAgrupacioDto, List<ExpedientDadaDto>> dadesProces = new TreeMap<CampAgrupacioDto, List<ExpedientDadaDto>>(
+				// Comparador d'ordre d'agrupacions, primer la null, després heretades i finalment pròpies
+				new Comparator<CampAgrupacioDto>() {
+                    @Override
+                    public int compare(CampAgrupacioDto a1, CampAgrupacioDto a2) {
+                    	// El null va davant
+                    	if (a1 == null && a2 == null)
+                    		return 0;
+                    	else if (a1 == null)
+                    		return -1;
+                    	else if (a2 == null )
+                    		return 1;
+                    	else {
+                    		// Després van els heretats
+                    		if (a1.isHeretat() && a2.isHeretat())
+                    			return Integer.compare(a1.getOrdre(), a2.getOrdre());
+                    		else if (a1.isHeretat() && !a2.isHeretat())
+                    			return -1;
+                    		else if (!a1.isHeretat() && a2.isHeretat())
+                    			return 1;
+                    		else
+                    			// Si no retorna l'ordre normal
+                    			return Integer.compare(a1.getOrdre(), a2.getOrdre());
+                    	}
+                    }
+                });
 		// Obtenim les dades de la definició de procés
 		List<ExpedientDadaDto> dadesInstancia = expedientDadaService.findAmbInstanciaProces(
 				expedientId,
@@ -605,58 +641,64 @@ public class ExpedientDadaController extends BaseExpedientController {
 			return null;
 		
 		// Obtenim les agrupacions de la definició de procés o del tipus d'expedient
-		// Les posam amb un map per a que obtenir el nom sigui directe
 		List<CampAgrupacioDto> agrupacions = expedientDadaService.agrupacionsFindAmbInstanciaProces(
 				expedientId,
 				instaciaProcesId);
-		final Map<Long,CampAgrupacioDto> magrupacions = new HashMap<Long, CampAgrupacioDto>();
-		for (CampAgrupacioDto agrupacio : agrupacions) {
-			magrupacions.put(agrupacio.getId(), agrupacio);
-		}
-		// Ordenam les dadesInstancia per ordre d'agrupació
-		Collections.sort(
-			dadesInstancia, 
-			new Comparator<ExpedientDadaDto>() {
-				public int compare(ExpedientDadaDto d1, ExpedientDadaDto d2) {
-					if (d1.getAgrupacioId() == null && d2.getAgrupacioId() == null)
-						return 0;
-					if (d1.getAgrupacioId() == null ^ d2.getAgrupacioId() == null)
-						return (d1.getAgrupacioId() == null ? -1 : 1);
-					int c = magrupacions.get(d1.getAgrupacioId()).getOrdre() - magrupacions.get(d2.getAgrupacioId()).getOrdre();
-					if (c != 0) 
-						return c;
-					else 
-						return d1.getCampEtiqueta().compareToIgnoreCase(d2.getCampEtiqueta());
-				}
-			}
-		);
-		magrupacions.put(null, null);
-		Long agrupacioId = null;
-		List<ExpedientDadaDto> dadesAgrupacio = new ArrayList<ExpedientDadaDto>();
+
+		// Construeix els maps per poder recuperar fàcilment les agrupacions per id i per codi
+		Map<Long, CampAgrupacioDto> mapAgrupacionsPerId = new HashMap<Long, CampAgrupacioDto>();
+		Map<String, CampAgrupacioDto> mapAgrupacionsPerCodi = new HashMap<String, CampAgrupacioDto>();
+		this.resoldreAgrupacionsSobreescrites(agrupacions, mapAgrupacionsPerId, mapAgrupacionsPerCodi);
+		
+		// Agrupa les dades per agrupacions
+		CampAgrupacioDto agrupacio;
+		List<ExpedientDadaDto> dades;
 		for (ExpedientDadaDto dada: dadesInstancia) {
 			if (ambOcults || !dada.isCampOcult()) {
-				if ((agrupacioId == null && dada.getAgrupacioId() == null) || dada.getAgrupacioId().equals(agrupacioId)) {
-					dadesAgrupacio.add(dada);
-				} else {
-					if (!dadesAgrupacio.isEmpty()) {
-						if (magrupacions.get(agrupacioId) != null)
-						Collections.sort(
-								dadesAgrupacio, 
-								new Comparator<ExpedientDadaDto>() {
-									public int compare(ExpedientDadaDto d1, ExpedientDadaDto d2) {
-										return d1.getOrdre() - d2.getOrdre();
-									}
-								});
-						dadesProces.put(magrupacions.get(agrupacioId), dadesAgrupacio);
-						dadesAgrupacio = new ArrayList<ExpedientDadaDto>();
-					}
-					agrupacioId = dada.getAgrupacioId();
-					dadesAgrupacio.add(dada);
+				// resol la agrupació
+				if (dada.getAgrupacioId() == null)
+					agrupacio = null;
+				else {
+					agrupacio = mapAgrupacionsPerCodi.get( mapAgrupacionsPerId.get(dada.getAgrupacioId()).getCodi() );
 				}
+				// Esbrina la llista
+				if (dadesProces.containsKey(agrupacio)) { 
+					dades = dadesProces.get(agrupacio);
+				} else {
+					dades = new ArrayList<ExpedientDadaDto>();
+					dadesProces.put(agrupacio, dades);
+				}
+				// Afegeix la dada
+				dades.add(dada);
 			}
 		}
-		dadesProces.put(magrupacions.get(agrupacioId), dadesAgrupacio);
-		return dadesProces;
+		
+		return dadesProces;	
+	}
+
+	/** Mètode per posar totes les agrupacions en el map per identificador i posar només
+	 * les agrupacions que no estan sobreescrites en el map per codi.
+	 * @param agrupacions Totes les agrupacions
+	 * @param mapAgrupacionsPerId Map on es posaran les agrupacions per id
+	 * @param mapAgrupacionsPerCodi Map on es posaran per codi les agrupacions no sobreescrites
+	 */
+	private void resoldreAgrupacionsSobreescrites(
+			List<CampAgrupacioDto> agrupacions,
+			Map<Long, CampAgrupacioDto> mapAgrupacionsPerId, 
+			Map<String, CampAgrupacioDto> mapAgrupacionsPerCodi) {
+
+		// Afegeix les agrupacions per id i guarda el codi de les sobreescrites
+		Set<String> codisSobreescrites = new HashSet<String>();
+		for (CampAgrupacioDto agrupacio : agrupacions) {
+			mapAgrupacionsPerId.put(agrupacio.getId(), agrupacio);
+			if (agrupacio.isSobreescriu())
+				codisSobreescrites.add(agrupacio.getCodi());
+		}
+		// Construeix el map de les agrupacions per codi no sobreescrites
+		mapAgrupacionsPerCodi.put(null, null);
+		for (CampAgrupacioDto agrupacio : agrupacions) 
+			if (!codisSobreescrites.contains(agrupacio.getCodi()) || agrupacio.isSobreescriu())
+				mapAgrupacionsPerCodi.put(agrupacio.getCodi(), agrupacio);
 	}
 	
 	/** Mètode privat per executar una acció relacionada amb una variable tipus ACCIO.

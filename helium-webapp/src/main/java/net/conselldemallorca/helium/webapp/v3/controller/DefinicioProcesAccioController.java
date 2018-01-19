@@ -127,7 +127,7 @@ public class DefinicioProcesAccioController extends BaseDefinicioProcesControlle
 			@PathVariable Long definicioProcesId, 
 			@PathVariable Long id,
 			Model model) {
-		AccioDto dto = accioService.findAmbId(id);
+		AccioDto dto = accioService.findAmbId(null, id);
 		ExpedientTipusAccioCommand command = conversioTipusHelper.convertir(
 				dto,
 				ExpedientTipusAccioCommand.class);

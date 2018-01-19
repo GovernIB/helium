@@ -2108,7 +2108,8 @@ public class ExpedientService {
 		try {
 			jbpmHelper.executeActionInstanciaProces(
 					processInstanceId,
-					accio.getJbpmAction());
+					accio.getJbpmAction(),
+					null);
 		} catch (ExecucioHandlerException ex) {
 			throw new TramitacioHandlerException(
 					(expedient != null) ? expedient.getEntorn().getId() : null, 

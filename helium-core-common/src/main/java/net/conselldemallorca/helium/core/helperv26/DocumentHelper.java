@@ -498,8 +498,9 @@ public class DocumentHelper {
 		
 		if (expedientTipus.isAmbInfoPropia())
 			return documentRepository.findByExpedientTipusAndCodi(
-					expedientTipus,
-					documentCodi);
+					expedientTipus.getId(),
+					documentCodi,
+					expedientTipus.getExpedientTipusPare() != null);
 		else
 			return documentRepository.findByDefinicioProcesAndCodi(
 					definicioProces, 
@@ -551,8 +552,9 @@ public class DocumentHelper {
 					Document doc;
 					if (expedientTipus.isAmbInfoPropia())
 						doc = documentRepository.findByExpedientTipusAndCodi(
-								expedientTipus,
-								codiDocument);
+								expedientTipus.getId(),
+								codiDocument,
+								expedientTipus.getExpedientTipusPare() != null);
 					else
 						doc = documentRepository.findByDefinicioProcesAndCodi(
 								definicioProces, 

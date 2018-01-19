@@ -41,6 +41,7 @@ import net.conselldemallorca.helium.core.helper.ExpedientHelper;
 import net.conselldemallorca.helium.core.helper.ExpedientLoggerHelper;
 import net.conselldemallorca.helium.core.helper.ExpedientRegistreHelper;
 import net.conselldemallorca.helium.core.helper.ExpedientTipusHelper;
+import net.conselldemallorca.helium.core.helper.HerenciaHelper;
 import net.conselldemallorca.helium.core.helper.IndexHelper;
 import net.conselldemallorca.helium.core.helper.MessageHelper;
 import net.conselldemallorca.helium.core.helper.MonitorIntegracioHelper;
@@ -223,6 +224,8 @@ public class ExpedientServiceImpl implements ExpedientService {
 	private NotificacioHelper notificacioHelper;
 	@Resource
 	private MonitorIntegracioHelper monitorIntegracioHelper;
+	@Resource
+	private HerenciaHelper herenciaHelper;
 
 
 
@@ -649,7 +652,9 @@ public class ExpedientServiceImpl implements ExpedientService {
 		// Comprova l'accés a l'estat
 		Estat estat = null;
 		if (estatId != null) {
-			estat = estatRepository.findByExpedientTipusAndId(expedientTipus, estatId);
+			estat = estatRepository.findByExpedientTipusAndIdAmbHerencia(
+					expedientTipus.getId(), 
+					estatId);
 			if (estat == null) {
 				logger.debug("No s'ha trobat l'estat (expedientTipusId=" + expedientTipusId + ", estatId=" + estatId + ")");
 				throw new NoTrobatException(Estat.class,estatId);
@@ -791,7 +796,9 @@ public class ExpedientServiceImpl implements ExpedientService {
 		// Comprova l'accés a l'estat
 		Estat estat = null;
 		if (estatId != null) {
-			estat = estatRepository.findByExpedientTipusAndId(expedientTipus, estatId);
+			estat = estatRepository.findByExpedientTipusAndIdAmbHerencia(
+					expedientTipus.getId(), 
+					estatId);
 			if (estat == null) {
 				logger.debug("No s'ha trobat l'estat (expedientTipusId=" + expedientTipusId + ", estatId=" + estatId + ")");
 				throw new NoTrobatException(Estat.class, estatId);
@@ -836,7 +843,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 				false);
 		return expedientsIds.getLlista();
 	}
-
+	
 	/**
 	 * {@inheritDoc}
 	 */
@@ -1392,7 +1399,10 @@ public class ExpedientServiceImpl implements ExpedientService {
 				processInstanceId);
 		List<Accio> accions = null;
 		if (expedient.getTipus().isAmbInfoPropia()) {
-			accions = accioRepository.findAmbExpedientTipusAndOcultaFalse(expedient.getTipus());
+			boolean herencia = expedient.getTipus().getExpedientTipusPare() != null;
+			accions = accioRepository.findAmbExpedientTipusAndOcultaFalse(
+					expedient.getTipus().getId(),
+					herencia);
 		} else {
 			DefinicioProces definicioProces = expedientHelper.findDefinicioProcesByProcessInstanceId(processInstanceId);
 			accions = accioRepository.findAmbDefinicioProcesAndOcultaFalse(definicioProces);
@@ -1463,9 +1473,11 @@ public class ExpedientServiceImpl implements ExpedientService {
 					ExpedientLogAccioTipus.EXPEDIENT_ACCIO,
 					accio.getJbpmAction());
 			try {
+				// Executa l'acció
 				jbpmHelper.executeActionInstanciaProces(
 						processInstanceId,
-						accio.getJbpmAction());
+						accio.getJbpmAction(),
+						herenciaHelper.getProcessDefinitionIdHeretadaAmbExpedient(expedient));
 			} catch (Exception ex) {
 				if (ex instanceof ExecucioHandlerException) {
 					logger.error(
@@ -1524,9 +1536,12 @@ public class ExpedientServiceImpl implements ExpedientService {
 				ExpedientLogAccioTipus.EXPEDIENT_ACCIO,
 				accioCamp);
 		try {
+			// Executa l'acció
 			jbpmHelper.executeActionInstanciaProces(
 					processInstanceId,
-					accioCamp);
+					accioCamp,
+					herenciaHelper.getProcessDefinitionIdHeretadaAmbExpedient(expedient));
+			
 		} catch (Exception ex) {
 			if (ex instanceof ExecucioHandlerException) {
 				logger.error(
@@ -1794,7 +1809,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 
 		List<Camp> camps;
 		if (expedientTipus.isAmbInfoPropia()) {
-			camps = campRepository.findByExpedientTipusOrderByCodiAsc(expedientTipus);
+			camps = campRepository.findByExpedientTipusAmbHerencia(expedientTipusId);
 		} else {
 			camps = campRepository.findByDefinicioProcesOrderByCodiAsc(definicioProces);
 		} 

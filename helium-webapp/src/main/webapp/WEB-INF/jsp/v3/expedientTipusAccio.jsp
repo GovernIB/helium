@@ -46,7 +46,20 @@
 			<thead>
 				<tr>
 					<th data-col-name="id" data-visible="false"/>
-					<th data-col-name="codi" width="20%"><spring:message code="expedient.tipus.accio.llistat.columna.codi"/></th>
+					<th data-col-name="codi" width="20%" data-template="#cellExpedientTipusAccioCodiTemplate">
+					<spring:message code="expedient.tipus.accio.llistat.columna.codi"/>
+						<script id="cellExpedientTipusAccioCodiTemplate" type="text/x-jsrender">
+								{{if heretat }}
+									<span class="dada-heretada">{{:codi}}</span> 
+									<span class="label label-primary" title="<spring:message code="expedient.tipus.accio.llistat.codi.heretat"/>">R</span>
+								{{else}}
+									{{:codi}}
+									{{if sobreescriu }}
+										<span class="label label-warning" title="<spring:message code="expedient.tipus.accio.llistat.codi.sobreescriu"/>">S</span>
+									{{/if}}
+								{{/if}}
+						</script>
+					</th>
 					<th data-col-name="nom"><spring:message code="expedient.tipus.accio.llistat.columna.nom"/></th>
 					<c:if test="${not empty expedientTipus}">
 						<!-- Per les accions dels tipus d'expedient es mostra la clau de la definició de procés -->
@@ -58,12 +71,18 @@
 						<div class="dropdown">
 							<button class="btn btn-primary" data-toggle="dropdown"><span class="fa fa-cog"></span>&nbsp;<spring:message code="comu.boto.accions"/>&nbsp;<span class="caret"></span></button>
 							<ul class="dropdown-menu">
-								<li><a data-toggle="modal" data-callback="callbackModalAccions()" href="${baseUrl}/accio/{{:id}}/update"><span class="fa fa-pencil"></span>&nbsp;<spring:message code="expedient.tipus.info.accio.modificar"/></a></li>
-								<li><a href="${baseUrl}/accio/{{:id}}/delete" data-toggle="ajax" data-confirm="<spring:message code="expedient.tipus.accio.llistat.accio.esborrar.confirmacio"/>"><span class="fa fa-trash-o"></span>&nbsp;<spring:message code="expedient.llistat.accio.esborrar"/></a></li>
+								{{if heretat}}
+									<li><a data-toggle="modal" href="${baseUrl}/accio/{{:id}}/update"><span class="fa fa-search"></span>&nbsp;<spring:message code="comu.boto.visualitzar"/></a></li>
+								{{else}}
+									<li><a data-toggle="modal" data-callback="callbackModalAccions()" href="${baseUrl}/accio/{{:id}}/update"><span class="fa fa-pencil"></span>&nbsp;<spring:message code="expedient.tipus.info.accio.modificar"/></a></li>
+									<li><a href="${baseUrl}/accio/{{:id}}/delete" data-toggle="ajax" data-confirm="<spring:message code="expedient.tipus.accio.llistat.accio.esborrar.confirmacio"/>"><span class="fa fa-trash-o"></span>&nbsp;<spring:message code="expedient.llistat.accio.esborrar"/></a></li>
+								{{/if}}
 							</ul>
 						</div>
 					</script>
 					</th>
+					<th data-col-name="sobreescriu" data-visible="false"/>
+					<th data-col-name="heretat" data-visible="false"/>
 				</tr>
 			</thead>
 		</table>

@@ -131,14 +131,23 @@ public interface DefinicioProcesRepository extends JpaRepository<DefinicioProces
 	@Query(	"from DefinicioProces dp " +
 			"where " +
 			"   dp.entorn.id = :entornId " +
-			"	and (:esNullExpedientTipusId = true or (dp.expedientTipus.id = :expedientTipusId) or (:incloureGlobals = true and dp.expedientTipus is null)) " +
+			"	and (:esNullExpedientTipusId = true " +
+			"			or (dp.expedientTipus.id = :expedientTipusId) " + 
+						// Heretats
+			"			or (:herencia = true " +
+			"					and dp.expedientTipus.id = (select etp.expedientTipusPare.id from ExpedientTipus etp where etp.id = :expedientTipusId) ) " + 
+			"			or (:incloureGlobals = true and dp.expedientTipus is null)) " +
 			"	and (:esNullFiltre = true or lower(dp.jbpmKey) like lower('%'||:filtre||'%')) " +
 			"	and dp.versio = (" +
 			"  		select max(dps.versio) " +
 			"    	from DefinicioProces dps " +
 			"    	where " +
 			"       	dps.entorn.id = :entornId " +
-			"			and (:esNullExpedientTipusId = true or (dp.expedientTipus.id = :expedientTipusId) or (:incloureGlobals = true and dp.expedientTipus is null)) " +
+			"			and (:esNullExpedientTipusId = true " +
+			"					or (dp.expedientTipus.id = :expedientTipusId) " +
+			"					or (:herencia = true " +
+			"							and dp.expedientTipus.id = (select etp.expedientTipusPare.id from ExpedientTipus etp where etp.id = :expedientTipusId) ) " + 
+			"					or (:incloureGlobals = true and dp.expedientTipus is null)) " +
 			"		    and dps.jbpmKey= dp.jbpmKey) ")
 	Page<DefinicioProces> findByFiltrePaginat(
 			@Param("entornId") Long entornId,
@@ -147,23 +156,35 @@ public interface DefinicioProcesRepository extends JpaRepository<DefinicioProces
 			@Param("incloureGlobals") boolean incloureGlobals,
 			@Param("esNullFiltre") boolean esNullFiltre,
 			@Param("filtre") String filtre,		
+			@Param("herencia") boolean herencia,
 			Pageable pageable);
 
 	@Query(	"select dp.jbpmKey " + 
 			"from DefinicioProces dp " +
 			"where " +
 			"   dp.entorn.id = :entornId " +
-			"	and (dp.expedientTipus.id = :expedientTipusId or (:incloureGlobals = true and dp.expedientTipus is null)) " +
+			"	and (dp.expedientTipus.id = :expedientTipusId " + 
+						// Heretats
+			"			or (:herencia = true " +
+			"					and dp.expedientTipus.id = (select etp.expedientTipusPare.id from ExpedientTipus etp where etp.id = :expedientTipusId) ) " + 
+						// Globals
+			"			or (:incloureGlobals = true and dp.expedientTipus is null)) " +
 			"	and dp.versio = (" +
 			"  		select max(dps.versio) " +
 			"    	from DefinicioProces dps " +
 			"    	where " +
 			"       	dps.entorn.id = :entornId " +
-			"			and (dps.expedientTipus.id = :expedientTipusId or (:incloureGlobals = true and dp.expedientTipus is null)) " +
+			"			and (dps.expedientTipus.id = :expedientTipusId " + 
+						// Heretats
+			"			or (:herencia = true " +
+			"					and dp.expedientTipus.id = (select etp.expedientTipusPare.id from ExpedientTipus etp where etp.id = :expedientTipusId) ) " + 
+						// Globals
+			"				or (:incloureGlobals = true and dp.expedientTipus is null)) " +
 			"		    and dps.jbpmKey= dp.jbpmKey) ")
 	List<String> findJbpmKeys(
 			@Param("entornId") Long entornId,
 			@Param("expedientTipusId") Long expedientTipusId,
+			@Param("herencia") boolean herencia,
 			@Param("incloureGlobals") boolean incloureGlobals);
 
 	/** Mètode per consultar quantes versions hi ha per definició de procés en un entorn.

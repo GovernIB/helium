@@ -9,7 +9,7 @@ package net.conselldemallorca.helium.v3.core.api.dto;
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
-public class CampAgrupacioDto {
+public class CampAgrupacioDto extends HeretableDto {
 
 	private Long id;
 	private String codi;
@@ -60,4 +60,5 @@ public class CampAgrupacioDto {
 		this.ordre = ordre;
 	}
 
+	private static final long serialVersionUID = -1156854629101439726L;
 }

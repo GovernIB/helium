@@ -4,6 +4,7 @@
 package net.conselldemallorca.helium.v3.core.repository;
 
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -51,4 +52,13 @@ public interface EnumeracioValorsRepository extends JpaRepository<EnumeracioValo
 			"where " +
 			"    e.enumeracio.id = :enumeracioId " )
 	Integer getNextOrdre(@Param("enumeracioId") Long enumeracioId);
+
+	/** Mètode per consultar el número de valors que té una enumeració. */
+	@Query(	"select v.enumeracio.id, " +
+			"		count(v) " +
+			"from EnumeracioValors v " +
+			"where " +
+			"    v.enumeracio.id in (:enumeracionsId) " +
+			"group by v.enumeracio.id ")
+	List<Object[]> countValors(@Param("enumeracionsId") Set<Long> enumeracionsId);
 }
