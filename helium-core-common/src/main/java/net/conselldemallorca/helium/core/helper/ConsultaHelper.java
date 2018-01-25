@@ -70,6 +70,7 @@ public class ConsultaHelper {
 			} else if (camp.getDefprocJbpmKey() != null) {
 				// Definició de procés
 				definicioProces = definicioProcesRepository.findByJbpmKeyAndVersio(
+						consulta.getExpedientTipus() != null ? consulta.getExpedientTipus().getId() : null,
 						camp.getDefprocJbpmKey(),
 						camp.getDefprocVersio());
 				if (definicioProces != null) {

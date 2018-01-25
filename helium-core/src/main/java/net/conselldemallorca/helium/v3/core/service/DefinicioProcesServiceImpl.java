@@ -149,8 +149,8 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 				entornId,
 				true);
 		
-		DefinicioProces definicioProces = definicioProcesRepository.findDarreraVersioByEntornAndJbpmKey(
-				entorn, 
+		DefinicioProces definicioProces = definicioProcesRepository.findDarreraVersioAmbEntornIJbpmKey(
+				entorn.getId(), 
 				jbpmKey);
 		
 		DefinicioProcesDto dto = null;
@@ -229,18 +229,21 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 		// Determina si hi ha herència 
 		boolean herencia = expedientTipus != null && expedientTipus.isAmbInfoPropia() && expedientTipus.getExpedientTipusPare() != null;
 
+		Page<DefinicioProces> page = definicioProcesRepository.findByFiltrePaginat(
+				entornId,
+				expedientTipusId == null,
+				expedientTipusId,
+				incloureGlobals,
+				filtre == null || "".equals(filtre), 
+				filtre, 
+				herencia,
+				paginacioHelper.toSpringDataPageable(
+						paginacioParams));
+		
 		PaginaDto<DefinicioProcesDto> pagina = paginacioHelper.toPaginaDto(
-				definicioProcesRepository.findByFiltrePaginat(
-						entornId,
-						expedientTipusId == null,
-						expedientTipusId,
-						incloureGlobals,
-						filtre == null || "".equals(filtre), 
-						filtre, 
-						herencia,
-						paginacioHelper.toSpringDataPageable(
-								paginacioParams)),
+				page,
 				DefinicioProcesDto.class);
+		
 		// Consulta els valors pels comptadors 
 		// List< Object[String jbpmKey, Long count]>
 		List<String> paginaJbpmKeys = new ArrayList<String>();
@@ -253,13 +256,18 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 					paginaJbpmKeys); 
 			// Omple els comptadors de tipus de camps
 			String jbpmKey;
+			Long etId;
 			Long count;
 			List<Object[]> processats = new ArrayList<Object[]>();	// per esborrar la informació processada i reduir la cerca
 			for (DefinicioProcesDto definicio: pagina.getContingut()) {
 				for (Object[] countVersio: countVersions) {
 					jbpmKey = (String) countVersio[0];
-					if (definicio.getJbpmKey().equals(jbpmKey)) {
-						count = (Long) countVersio[1];
+					etId = (Long) countVersio[1];
+					if (definicio.getJbpmKey().equals(jbpmKey) 
+							&& (
+								(definicio.getExpedientTipus() == null && etId == null)
+								|| (definicio.getExpedientTipus() != null && definicio.getExpedientTipus().getId().equals(etId)))) {
+						count = (Long) countVersio[2];
 						definicio.setVersioCount(count);
 						processats.add(countVersio);
 					}
@@ -272,6 +280,27 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 						&& definicio.getExpedientTipus() != null
 						&& !expedientTipusId.equals(definicio.getExpedientTipus().getId()))
 					definicio.setHeretat(true);
+				if (herencia) {
+					// Llista d'heretats
+					Set<Long> heretatsIds = new HashSet<Long>();
+					for (DefinicioProces dp : page.getContent())
+						if ( dp.getExpedientTipus() != null && !expedientTipusId.equals(dp.getExpedientTipus().getId()))
+							heretatsIds.add(dp.getId());
+					// Llistat d'elements sobreescrits
+					Set<String> sobreescritsCodis = new HashSet<String>();
+					for (DefinicioProces dp : definicioProcesRepository.findSobreescrits(
+							expedientTipus.getId()))
+						sobreescritsCodis.add(dp.getJbpmKey());
+					// Completa l'informació del dto
+					for (DefinicioProcesDto dto: pagina.getContingut()) {
+						// Sobreescriu, les globals no es marquen sobreescrites 
+						if (dto.getExpedientTipus() != null && sobreescritsCodis.contains(dto.getJbpmKey()))
+							dto.setSobreescriu(true);
+						// Heretat
+						if (heretatsIds.contains(dto.getId()) && ! dto.isSobreescriu())
+							dto.setHeretat(true);			
+					}				
+				}
 			}		
 		}
 		return pagina;
@@ -370,8 +399,8 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 				&& definicioProces.getJbpmKey().equals(definicioProces.getExpedientTipus().getJbpmProcessDefinitionKey())) {
 			ExpedientTipus expedientTipus = expedientTipusRepository.findOne(definicioProces.getExpedientTipus().getId());
 			// Troba la darrera definició de procés
-			definicioProces = definicioProcesRepository.findDarreraVersioByEntornAndJbpmKey(
-					expedientTipus.getEntorn(), 
+			definicioProces = definicioProcesRepository.findDarreraVersioAmbEntornIJbpmKey(
+					expedientTipus.getEntorn().getId(), 
 					definicioProces.getJbpmKey());
 			if (definicioProces == null) {
 				expedientTipus.setJbpmProcessDefinitionKey(null);
@@ -1112,9 +1141,11 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 				"Consultant definicioProces amb id i amb permisos de disseny (" +
 				"entornId=" + entornId + ", " +
 				"definicioProcesId = " + definicioProcesId + ")");
-		DefinicioProces definicioProces = definicioProcesRepository.findByIdAndEntornId(
-					definicioProcesId,
-					entornId);
+		// Comprova l'accés
+		entornHelper.getEntornComprovantPermisos(entornId, false, true);
+		// Recupera la definició de procés per id
+		DefinicioProces definicioProces = definicioProcesRepository.findById(
+				definicioProcesId);
 		return conversioTipusHelper.convertir(
 				definicioProces,
 				DefinicioProcesDto.class);

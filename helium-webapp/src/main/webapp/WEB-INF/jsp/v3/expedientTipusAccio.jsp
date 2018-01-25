@@ -51,11 +51,11 @@
 						<script id="cellExpedientTipusAccioCodiTemplate" type="text/x-jsrender">
 								{{if heretat }}
 									<span class="dada-heretada">{{:codi}}</span> 
-									<span class="label label-primary" title="<spring:message code="expedient.tipus.accio.llistat.codi.heretat"/>">R</span>
+									<span class="label label-primary herencia" title="<spring:message code="expedient.tipus.accio.llistat.codi.heretat"/>">R</span>
 								{{else}}
 									{{:codi}}
 									{{if sobreescriu }}
-										<span class="label label-warning" title="<spring:message code="expedient.tipus.accio.llistat.codi.sobreescriu"/>">S</span>
+										<span class="label label-warning herencia" title="<spring:message code="expedient.tipus.accio.llistat.codi.sobreescriu"/>">S</span>
 									{{/if}}
 								{{/if}}
 						</script>

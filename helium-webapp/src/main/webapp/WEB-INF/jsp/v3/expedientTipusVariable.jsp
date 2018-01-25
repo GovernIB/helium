@@ -73,11 +73,11 @@
 						<script id="cellExpedientTipusVariableCodiTemplate" type="text/x-jsrender">
 								{{if heretat }}
 									<span class="dada-heretada">{{:codi}}</span> 
-									<span class="label label-primary" title="<spring:message code="expedient.tipus.camp.llistat.codi.heretat"/>">R</span>
+									<span class="label label-primary herencia" title="<spring:message code="expedient.tipus.camp.llistat.codi.heretat"/>">R</span>
 								{{else}}
 									{{:codi}}
 									{{if sobreescriu }}
-										<span class="label label-warning" title="<spring:message code="expedient.tipus.camp.llistat.codi.sobreescriu"/>">S</span>
+										<span class="label label-warning herencia" title="<spring:message code="expedient.tipus.camp.llistat.codi.sobreescriu"/>">S</span>
 									{{/if}}
 								{{/if}}
 						</script>
@@ -160,9 +160,9 @@ var agrupacionsSobreescriuenIds =  ${agrupacionsSobreescriuenIds};
 function formatAgrupacioSelectHerencia(item) {
 	var res;
     if(item.id && agrupacionsHeretadesIds.indexOf(parseInt(item.id)) >= 0)
-		res = item.text + " <span class='label label-primary'>R</span>";
+		res = item.text + " <span class='label label-primary herencia'>R</span>";
 	else if(item.id && agrupacionsSobreescriuenIds.indexOf(parseInt(item.id)) >= 0)
-		res = item.text + " <span class='label label-warning'>S</span>";
+		res = item.text + " <span class='label label-warning herencia'>S</span>";
 	else 
 		res = item.text;
     return res;

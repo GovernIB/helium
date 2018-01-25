@@ -215,3 +215,12 @@ form .btn-group > .btn-default:hover:HOVER {
 	color: #999;
 	margin-bottom: 0px;
 }
+
+/* Per posar l'span de l'herència a la dreta flotant.*/
+span.herencia { 
+	float: right; 
+}
+.select2-chosen > span.herencia {
+    top: -16px;
+    position: relative;
+}

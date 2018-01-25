@@ -86,58 +86,58 @@ public class DefinicioProcesUploadValidator implements ConstraintValidator<Defin
 			command.setCodi(exportacio.getDefinicioProcesDto().getJbpmKey());
 			command.setExportacio(exportacio);
 			
-			if (command.getId() == null) {
-
-				// Comprova que no existeixi ja una definició de procés amb el mateix codi en un expedient diferent o a l'entorn
-	    		// si es vol publicar des d'un expedient o l'entorn
-	    		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
-				DefinicioProcesDto repetit = definicioProcesService.findByEntornIdAndJbpmKey(
-						entornActual.getId(),
-						exportacio.getDefinicioProcesDto().getJbpmKey());
-				if (repetit != null && command.getId() == null)	
-					if (command.getExpedientTipusId() == null ) {
-						// desplegament dins l'entorn
-						if (repetit.getExpedientTipus() != null) {
-							// ja està en un altre tipus d'expedient
-							context.buildConstraintViolationWithTemplate(
-									MessageHelper.getInstance().getMessage(
-											"definicio.proces.importar.validacio.codi.repetit.tipusExpedient", 
-											new Object[]{
-													exportacio.getDefinicioProcesDto().getJbpmKey(),
-													repetit.getExpedientTipus().getCodi()}))
-									.addNode("codi")
-									.addConstraintViolation();	
-							valid = false;
-						}
-					} else {
-						// desplegament dins el tipus d'expedient
-						if (repetit.getExpedientTipus() != null) { 
-							if(! repetit.getExpedientTipus().getId().equals(command.getExpedientTipusId())) {
-								// ja està en un altre tipus d'expedient
-								context.buildConstraintViolationWithTemplate(
-										MessageHelper.getInstance().getMessage(
-												"definicio.proces.importar.validacio.codi.repetit.tipusExpedient", 
-												new Object[]{
-														exportacio.getDefinicioProcesDto().getJbpmKey(),
-														repetit.getExpedientTipus().getCodi()}))
-										.addNode("codi")
-										.addConstraintViolation();	
-								valid = false;
-							}
-						} else {
-							// ja està a l'entorn
-							context.buildConstraintViolationWithTemplate(
-									MessageHelper.getInstance().getMessage(
-											"definicio.proces.importar.validacio.codi.repetit.entorn", 
-											new Object[]{
-													exportacio.getDefinicioProcesDto().getJbpmKey(),
-													repetit.getEntorn().getCodi()}))
-									.addNode("codi")
-									.addConstraintViolation();	
-							valid = false;
-						}
-					}
-			}
+//			if (command.getId() == null) {
+//
+//				// Comprova que no existeixi ja una definició de procés amb el mateix codi en un expedient diferent o a l'entorn
+//	    		// si es vol publicar des d'un expedient o l'entorn
+//	    		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
+//				DefinicioProcesDto repetit = definicioProcesService.findByEntornIdAndJbpmKey(
+//						entornActual.getId(),
+//						exportacio.getDefinicioProcesDto().getJbpmKey());
+//				if (repetit != null && command.getId() == null)	
+//					if (command.getExpedientTipusId() == null ) {
+//						// desplegament dins l'entorn
+//						if (repetit.getExpedientTipus() != null) {
+//							// ja està en un altre tipus d'expedient
+//							context.buildConstraintViolationWithTemplate(
+//									MessageHelper.getInstance().getMessage(
+//											"definicio.proces.importar.validacio.codi.repetit.tipusExpedient", 
+//											new Object[]{
+//													exportacio.getDefinicioProcesDto().getJbpmKey(),
+//													repetit.getExpedientTipus().getCodi()}))
+//									.addNode("codi")
+//									.addConstraintViolation();	
+//							valid = false;
+//						}
+//					} else {
+//						// desplegament dins el tipus d'expedient
+//						if (repetit.getExpedientTipus() != null) { 
+//							if(! repetit.getExpedientTipus().getId().equals(command.getExpedientTipusId())) {
+//								// ja està en un altre tipus d'expedient
+//								context.buildConstraintViolationWithTemplate(
+//										MessageHelper.getInstance().getMessage(
+//												"definicio.proces.importar.validacio.codi.repetit.tipusExpedient", 
+//												new Object[]{
+//														exportacio.getDefinicioProcesDto().getJbpmKey(),
+//														repetit.getExpedientTipus().getCodi()}))
+//										.addNode("codi")
+//										.addConstraintViolation();	
+//								valid = false;
+//							}
+//						} else {
+//							// ja està a l'entorn
+//							context.buildConstraintViolationWithTemplate(
+//									MessageHelper.getInstance().getMessage(
+//											"definicio.proces.importar.validacio.codi.repetit.entorn", 
+//											new Object[]{
+//													exportacio.getDefinicioProcesDto().getJbpmKey(),
+//													repetit.getEntorn().getCodi()}))
+//									.addNode("codi")
+//									.addConstraintViolation();	
+//							valid = false;
+//						}
+//					}
+//			}
 		}
 		if (!valid)
 			context.disableDefaultConstraintViolation();

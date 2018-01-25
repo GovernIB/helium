@@ -18,7 +18,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-import org.springmodules.validation.bean.conf.loader.annotation.handler.MaxLength;
 
 import net.conselldemallorca.helium.core.model.hibernate.Accio;
 import net.conselldemallorca.helium.core.model.hibernate.Camp;
@@ -158,29 +157,6 @@ public class DefinicioProcesHelper {
 
 		if ( ! definicioProcesExisteix) {
 			// Nova definició de procés
-			
-			// Comprova que no existeixi ja una definició de procés per a un altre tipus d'expedient diferent o pera l'entorn
-			definicio = definicioProcesRepository.findDarreraVersioAmbEntornIJbpmKey(
-					entornId, 
-					importacio.getDefinicioProcesDto().getJbpmKey());
-			if (definicio != null)
-				if ((definicio.getExpedientTipus() != null // definició de procés lligada a un expedient
-					&& 
-						(expedientTipusId == null 				// es vol importar a un nou tipus d'expedient
-						|| !definicio.getExpedientTipus().getId().equals(expedientTipusId)))) {	// es vol importar a un expedient diferent
-					throw new DeploymentException(
-							messageHelper.getMessage(
-									"exportar.validacio.definicio.desplegada.tipus.expedient", 
-									new Object[]{
-											definicio.getJbpmKey(),
-											definicio.getExpedientTipus().getCodi(),
-											definicio.getExpedientTipus().getNom()}));
-				} else if (definicio.getExpedientTipus() == null && expedientTipusId != null) { // es vol importar una definició de procés de l'entorn
-					throw new DeploymentException(
-							messageHelper.getMessage(
-									"exportar.validacio.definicio.desplegada.entorn", 
-									new Object[]{definicio.getJbpmKey()}));
-				}
 			JbpmProcessDefinition dpd = jbpmHelper.desplegar(
 					importacio.getNomDeploy(), 
 					importacio.getContingutDeploy());

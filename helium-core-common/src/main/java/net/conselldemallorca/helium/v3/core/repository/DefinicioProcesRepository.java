@@ -13,7 +13,6 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
-import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 
 /**
  * Especifica els mètodes que s'han d'emprar per obtenir i modificar la
@@ -30,67 +29,26 @@ public interface DefinicioProcesRepository extends JpaRepository<DefinicioProces
 	DefinicioProces findByJbpmId(
 			String jbpmId);
 
+	//TODO: eliminar aquest mètode que només serveix per evitar un error a l'hora de trobar el subprocés
 	DefinicioProces findByJbpmKeyAndVersio(
 			String jbpmKey,
 			int versio);
-
-	DefinicioProces findByIdAndEntornId(
-			Long id,
-			Long entornId);
 	
-	List<DefinicioProces> findByEntornAndJbpmKeyOrderByVersioDesc(
-			Entorn entorn,
-			String jbpmKey);
+	//TODO: comprovar que filtra bé per tipus d'expedient o bé s'ha de posar isNull
+	@Query(	"from " +
+			"    DefinicioProces dp " +
+			"where ((:expedientTipusId is null and dp.expedientTipus is null) or dp.expedientTipus.id = :expedientTipusId) " +
+			"	and dp.jbpmKey = :jbpmKey " +
+			"	and dp.versio = :versio ")
+	DefinicioProces findByJbpmKeyAndVersio(
+			@Param("expedientTipusId") Long expedientTipusId,
+			@Param("jbpmKey") String jbpmKey,
+			@Param("versio") int versio);
 
+	//TODO : adaptar
 	List<DefinicioProces> findByEntornIdAndJbpmKeyOrderByVersioDesc(
 			Long entornId,
 			String jbpmKey);
-
-	@Query(	"from " +
-			"    DefinicioProces dp " +
-			"where " +
-			"    dp.entorn = ?1 " +
-			"and dp.jbpmKey = ?2 " +
-			"and dp.versio = (" +
-			"    select " +
-			"        max(dps.versio) " +
-			"    from " +
-			"        DefinicioProces dps " +
-			"    where " +
-			"        dps.entorn=?1 " +
-			"    and dps.jbpmKey=dp.jbpmKey)")
-	DefinicioProces findDarreraVersioByEntornAndJbpmKey(
-			Entorn entorn,
-			String jbpmKey);
-
-	@Query(	"select dp.id  from " +
-			"    DefinicioProces dp " +
-			"where " +
-			"    dp.entorn.id=:entornId " +
-			"and dp.jbpmKey = :jbpmKey " +
-			"and dp.versio = (" +
-			"    select " +
-			"        max(dps.versio) " +
-			"    from " +
-			"        DefinicioProces dps " +
-			"    where " +
-			"        dps.entorn.id=:entornId " +
-			"    and dps.jbpmKey=dp.jbpmKey)")
-	List<Long> findIdsDarreraVersioAmbEntornIJbpmKey(@Param("entornId") Long entornId, @Param("jbpmKey") String jbpmKey);
-
-	@Query(	"select dp.id  from " +
-			"    DefinicioProces dp " +
-			"where " +
-			"    dp.entorn.id=:entornId " +
-			"and dp.versio = (" +
-			"    select " +
-			"        max(dps.versio) " +
-			"    from " +
-			"        DefinicioProces dps " +
-			"    where " +
-			"        dps.entorn.id=:entornId " +
-			"    and dps.jbpmKey=dp.jbpmKey)")
-	List<Long> findIdsDarreraVersioAmbEntornId(@Param("entornId") Long entornId);
 
 	@Query(	"from " +
 				"    DefinicioProces dp " +
@@ -128,6 +86,19 @@ public interface DefinicioProcesRepository extends JpaRepository<DefinicioProces
 			@Param("expedientTipusId") Long expedientTipusId);
 
 	
+	/** Consulta de les definicions de procés per entorn o tipus d'expedient que pot retornar o no les definicions
+	 * de procés globals.
+	 * 
+	 * @param entornId
+	 * @param esNullExpedientTipusId
+	 * @param expedientTipusId
+	 * @param incloureGlobals
+	 * @param esNullFiltre
+	 * @param filtre
+	 * @param herencia
+	 * @param pageable
+	 * @return
+	 */
 	@Query(	"from DefinicioProces dp " +
 			"where " +
 			"   dp.entorn.id = :entornId " +
@@ -137,6 +108,18 @@ public interface DefinicioProcesRepository extends JpaRepository<DefinicioProces
 			"			or (:herencia = true " +
 			"					and dp.expedientTipus.id = (select etp.expedientTipusPare.id from ExpedientTipus etp where etp.id = :expedientTipusId) ) " + 
 			"			or (:incloureGlobals = true and dp.expedientTipus is null)) " +
+			"	and (:herencia = false " +
+			"		or dp.id not in ( " + 
+						// Llistat de sobreescrits
+			"			select dps.id " +
+			"			from DefinicioProces dpa " +
+			"				join dpa.expedientTipus dpt with dpt.id = :expedientTipusId, " +
+			"				DefinicioProces dps " +
+			"			where " +
+			"				dps.jbpmKey = dpa.jbpmKey " +
+			"			 	and dps.expedientTipus.id = dpt.expedientTipusPare.id " +
+			"		) " +
+			"	) " +
 			"	and (:esNullFiltre = true or lower(dp.jbpmKey) like lower('%'||:filtre||'%')) " +
 			"	and dp.versio = (" +
 			"  		select max(dps.versio) " +
@@ -148,7 +131,9 @@ public interface DefinicioProcesRepository extends JpaRepository<DefinicioProces
 			"					or (:herencia = true " +
 			"							and dp.expedientTipus.id = (select etp.expedientTipusPare.id from ExpedientTipus etp where etp.id = :expedientTipusId) ) " + 
 			"					or (:incloureGlobals = true and dp.expedientTipus is null)) " +
-			"		    and dps.jbpmKey= dp.jbpmKey) ")
+			"		    and dps.jbpmKey= dp.jbpmKey" +
+/* nou!*/	"			and (dps.expedientTipus.id = dp.expedientTipus.id or dps.expedientTipus is null and dp.expedientTipus is null) "  +
+			"	) ")
 	Page<DefinicioProces> findByFiltrePaginat(
 			@Param("entornId") Long entornId,
 			@Param("esNullExpedientTipusId") boolean esNullExpedientTipusId,
@@ -187,15 +172,17 @@ public interface DefinicioProcesRepository extends JpaRepository<DefinicioProces
 			@Param("herencia") boolean herencia,
 			@Param("incloureGlobals") boolean incloureGlobals);
 
+	// TODO: adaptar amb expedientTipusId
 	/** Mètode per consultar quantes versions hi ha per definició de procés en un entorn.
 	 * Aquesta consulta s'utilitza en el datatable de definicions de procés.
 	 * Retorna una llista amb els valors <[jbpmKey, count]>*/
 	@Query(	"select d.jbpmKey as jbpmKey, " +
+			"		d.expedientTipus.id, " +
 			"		count(d) as nversions " +
 			"from DefinicioProces d " +
 			"where d.entorn.id = :entornId " + 
 			"		and d.jbpmKey in (:consultaJbpmKeys) " +
-			"group by d.jbpmKey")
+			"group by d.jbpmKey, d.expedientTipus.id ")
 	List<Object[]> countVersions(
 			@Param("entornId") Long entornId,
 			@Param("consultaJbpmKeys") List<String> consultaJbpmKeys);	
@@ -240,4 +227,14 @@ public interface DefinicioProcesRepository extends JpaRepository<DefinicioProces
 			@Param("isNullExpedientTipusId") boolean isNullExpedientTipusId,
 			@Param("expedientTipusId") Long expedientTipusId,
 			@Param("incloureGlobals") boolean incloureGlobals);
+
+	/** Recupera la informació de tots els registres sobreescrits.*/
+	@Query( "select dps " +
+			"from DefinicioProces dp " +
+			"	join dp.expedientTipus dpt with dpt.id = :expedientTipusId, " +
+			"	DefinicioProces dps " +
+			"where " +
+			"	dps.jbpmKey = dp.jbpmKey " +
+			" 	and dps.expedientTipus.id = dpt.expedientTipusPare.id ")
+	List<DefinicioProces> findSobreescrits(@Param("expedientTipusId") Long expedientTipusId);	
 }

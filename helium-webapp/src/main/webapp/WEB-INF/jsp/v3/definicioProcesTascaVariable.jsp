@@ -82,10 +82,10 @@
 						<script id="celldefinicioProcesTascaVariable" type="text/x-jsrender">
 							{{:camp.codi}} / {{:camp.etiqueta}}
 							{{if camp.heretat }}
-								<span class="label label-primary" title="<spring:message code="expedient.tipus.camp.llistat.codi.heretat"/>">R</span>
+								<span class="label label-primary herencia" title="<spring:message code="expedient.tipus.camp.llistat.codi.heretat"/>">R</span>
 							{{/if}}
 							{{if camp.sobreescriu }}
-								<span class="label label-warning" title="<spring:message code="expedient.tipus.camp.llistat.codi.sobreescriu"/>">S</span>
+								<span class="label label-warning herencia" title="<spring:message code="expedient.tipus.camp.llistat.codi.sobreescriu"/>">S</span>
 							{{/if}}
 							{{if camp.expedientTipus != null}}
 								<span class="label label-info pull-right" title="Tipus Expedient">TE</span>

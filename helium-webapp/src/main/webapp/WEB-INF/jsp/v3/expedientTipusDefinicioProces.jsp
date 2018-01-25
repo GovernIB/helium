@@ -41,11 +41,11 @@
 						<script id="cellExpedientTipusDefinicioJbpmkeyTemplate" type="text/x-jsrender">
 								{{if heretat }}
 									<span class="dada-heretada">{{:jbpmKey}}</span> 
-									<span class="label label-primary" title="<spring:message code="expedient.tipus.definicioProces.llistat.columna.nom.heretat"/>">R</span>
+									<span class="label label-primary herencia" title="<spring:message code="expedient.tipus.definicioProces.llistat.columna.nom.heretat"/>">R</span>
 								{{else}}
 									{{:jbpmKey}}
 									{{if sobreescriu }}
-										<span class="label label-warning" title="<spring:message code="expedient.tipus.definicioProces.llistat.columna.nom.sobreescriu"/>">S</span>
+										<span class="label label-warning herencia" title="<spring:message code="expedient.tipus.definicioProces.llistat.columna.nom.sobreescriu"/>">S</span>
 									{{/if}}
 								{{/if}}
 						</script>
@@ -53,11 +53,10 @@
 					<th data-col-name="versioCount" data-orderable="false"><spring:message code="expedient.tipus.definicioProces.llistat.columna.versions"/></th>
 					<th data-col-name="dataCreacio" data-converter="datetime"><spring:message code="expedient.tipus.definicioProces.llistat.columna.dataDarreraVersio"/></th>
 					<th data-col-name="versio" data-orderable="true"><spring:message code="definicio.proces.llistat.columna.versio"/></th>
-					<th data-col-name="jbpmKey"><spring:message code="expedient.tipus.definicioProces.llistat.columna.inicial"/></th>
 					<th data-col-name="jbpmKey" data-template="#cellexpedientTipusDefinicioProcesInicialTemplate">
 					<spring:message code="expedient.tipus.definicioProces.llistat.columna.inicial"/>
 						<script id="cellexpedientTipusDefinicioProcesInicialTemplate" type="text/x-jsrender">
-						{{if ~inicial(jbpmKey) }}
+						{{if ~inicial(jbpmKey) && expedientTipus != null }}
 							<spring:message code="comu.check"></spring:message>
 						{{/if}}
 						</script>

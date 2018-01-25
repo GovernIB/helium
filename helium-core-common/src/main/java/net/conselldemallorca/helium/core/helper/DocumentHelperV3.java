@@ -1044,10 +1044,7 @@ public class DocumentHelperV3 {
 				} else {
 					codiDocument = document.getJbpmVariable().substring(JbpmVars.PREFIX_DOCUMENT.length());
 					JbpmProcessDefinition jpd = jbpmHelper.findProcessDefinitionWithProcessInstanceId(document.getProcessInstanceId());
-					DefinicioProces definicioProces = definicioProcesRepository.findByJbpmKeyAndVersio(
-							jpd.getKey(),
-							jpd.getVersion());
-					
+					DefinicioProces definicioProces = definicioProcesRepository.findByJbpmId(jpd.getId());
 					Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(document.getProcessInstanceId());
 					ExpedientTipus expedientTipus = expedient.getTipus();
 					Document doc;

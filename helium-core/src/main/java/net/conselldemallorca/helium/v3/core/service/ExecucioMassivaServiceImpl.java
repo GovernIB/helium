@@ -1733,8 +1733,8 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 						&& consultaCamp.getDefprocJbpmKey() != null) {
 					// Recupera la darrera versió de la definició de procés
 					DefinicioProces definicioDarrera = 
-							definicioProcesRepository.findDarreraVersioByEntornAndJbpmKey(
-								entorn, 
+							definicioProcesRepository.findDarreraVersioAmbEntornIJbpmKey(
+								entorn.getId(), 
 								consultaCamp.getDefprocJbpmKey());
 					if (consultaCamp.getDefprocVersio() != definicioDarrera.getVersio()) {
 						camp = campRepository.findByDefinicioProcesAndCodi(definicioDarrera, consultaCamp.getCampCodi());

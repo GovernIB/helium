@@ -2903,33 +2903,37 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 				// camp de l'expedient
 				consultaCamp.setCampTipus(CampTipusDto.STRING);
 				consultaCamp.setCampEtiqueta(this.getEtiquetaCampExpedient(consultaCamp.getCampCodi()));
-			} else if (consultaCamp.getDefprocJbpmKey() != null) {
-				// camp de la definició de procés
-				DefinicioProces definicioProces = definicioProcesRepository.findByJbpmKeyAndVersio(
-						consultaCamp.getDefprocJbpmKey(),
-						consultaCamp.getDefprocVersio());
-				if (definicioProces != null) {
-					Camp camp = campRepository.findByDefinicioProcesAndCodi(
-							definicioProces, 
-							consultaCamp.getCampCodi());
+			} else {
+				Consulta consulta = consultaRepository.findOne(consultaId);
+				Long expedientTipusId = consulta.getExpedientTipus() != null? consulta.getExpedientTipus().getId() : null;
+				if (consultaCamp.getDefprocJbpmKey() != null) {
+					// camp de la definició de procés
+					DefinicioProces definicioProces = definicioProcesRepository.findByJbpmKeyAndVersio(
+							expedientTipusId,
+							consultaCamp.getDefprocJbpmKey(),
+							consultaCamp.getDefprocVersio());
+					if (definicioProces != null) {
+						Camp camp = campRepository.findByDefinicioProcesAndCodi(
+								definicioProces, 
+								consultaCamp.getCampCodi());
+						if (camp != null) {
+							consultaCamp.setCampTipus(CampTipusDto.valueOf(camp.getTipus().toString()));
+							consultaCamp.setCampEtiqueta(camp.getEtiqueta());
+						}
+					}
+				} else {
+					// camp de l'expedient
+					Camp camp = campRepository.findByExpedientTipusAndCodi(
+							expedientTipusId, 
+							consultaCamp.getCampCodi(),
+							false);
 					if (camp != null) {
 						consultaCamp.setCampTipus(CampTipusDto.valueOf(camp.getTipus().toString()));
 						consultaCamp.setCampEtiqueta(camp.getEtiqueta());
 					}
 				}
-			} else {
-				// camp de l'expedient
-				Consulta consulta = consultaRepository.findOne(consultaId);
-				Camp camp = campRepository.findByExpedientTipusAndCodi(
-						consulta.getExpedientTipus().getId(), 
-						consultaCamp.getCampCodi(),
-						false);
-				if (camp != null) {
-					consultaCamp.setCampTipus(CampTipusDto.valueOf(camp.getTipus().toString()));
-					consultaCamp.setCampEtiqueta(camp.getEtiqueta());
-				}
+					
 			}
-				
 		}
 		return paginaConsultaCamps;		
 	}		
