@@ -48,10 +48,10 @@
 						<div class="dropdown">
 							<button class="btn btn-primary" data-toggle="dropdown"><span class="fa fa-cog"></span>&nbsp;<spring:message code="comu.boto.accions"/>&nbsp;<span class="caret"></span></button>
 							<ul class="dropdown-menu pull-right">
-								<li><a href="definicioProces/{{:jbpmKey}}" class="consultar-expedient"><span class="fa fa-folder-open"></span>&nbsp;<spring:message code="definicio.proces.llistat.accio.dissenyar"/></a></li>
-								<li><a data-toggle="modal" href="definicioProces/{{:jbpmKey}}/exportar"><span class="fa fa-sign-out"></span>&nbsp;<spring:message code="comu.filtre.exportar"/></a></li>
+								<li><a href="definicioProces/{{:jbpmKey}}/{{:id}}" class="consultar-expedient"><span class="fa fa-folder-open"></span>&nbsp;<spring:message code="definicio.proces.llistat.accio.dissenyar"/></a></li>
+								<li><a data-toggle="modal" href="definicioProces/{{:jbpmKey}}/exportar?definicioProcesId={{:id}}"><span class="fa fa-sign-out"></span>&nbsp;<spring:message code="comu.filtre.exportar"/></a></li>
 								<li><a data-toggle="modal" href="definicioProces/importar?definicioProcesId={{:id}}"><span class="fa fa-sign-in"></span>&nbsp;<spring:message code="comu.importar"/></a></li>
-								<li><a href="definicioProces/{{:jbpmKey}}/delete" data-toggle="ajax" data-confirm="<spring:message code="definicio.proces.llistat.confirmacio.esborrar"/>"><span class="fa fa-trash-o"></span>&nbsp;<spring:message code="definicio.proces.llistat.accio.esborrar"/></a></li>
+								<li><a href="definicioProces/{{:jbpmKey}}/{{:id}}/delete" data-toggle="ajax" data-confirm="<spring:message code="definicio.proces.llistat.confirmacio.esborrar"/>"><span class="fa fa-trash-o"></span>&nbsp;<spring:message code="definicio.proces.llistat.accio.esborrar"/></a></li>
 							</ul>
 						</div>
 					</script>
@@ -59,7 +59,7 @@
 			</tr>
 		</thead>
 	</table>
-	<script id="rowhrefTemplate" type="text/x-jsrender">definicioProces/{{:jbpmKey}}</script>	
+	<script id="rowhrefTemplate" type="text/x-jsrender">definicioProces/{{:jbpmKey}}/{{:id}}</script>	
 
 	<script>
 		function callbackModaldefinicionsProces() {

@@ -63,6 +63,7 @@ public class DefinicioProcesTerminiController extends BaseDefinicioProcesControl
 			return mostrarInformacioDefinicioProcesPerPipelles(
 					request,
 					jbmpKey,
+					definicioProcesId,
 					model,
 					"terminis");
 		}
@@ -71,7 +72,7 @@ public class DefinicioProcesTerminiController extends BaseDefinicioProcesControl
 			DefinicioProcesDto definicioProces = definicioProcesService.findAmbIdAndEntorn(entornActual.getId(),
 					definicioProcesId);
 			model.addAttribute("definicioProces", definicioProces);
-			model.addAttribute("baseUrl", (definicioProces.getJbpmKey() + "/" + definicioProces.getId().toString()));
+			model.addAttribute("baseUrl", ("/helium/v3/definicioProces/" + definicioProces.getJbpmKey() + "/" + definicioProces.getId().toString()));
 		}
 		return "v3/expedientTipusTermini";
 	}

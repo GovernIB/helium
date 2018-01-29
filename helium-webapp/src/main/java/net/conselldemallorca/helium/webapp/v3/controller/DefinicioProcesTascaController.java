@@ -70,6 +70,7 @@ public class DefinicioProcesTascaController extends BaseDefinicioProcesControlle
 			return mostrarInformacioDefinicioProcesPerPipelles(
 					request,
 					jbpmKey,
+					definicioProcesId,
 					model,
 					"tasques");
 		}

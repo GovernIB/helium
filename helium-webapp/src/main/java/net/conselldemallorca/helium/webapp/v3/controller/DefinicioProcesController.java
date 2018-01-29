@@ -106,31 +106,6 @@ public class DefinicioProcesController extends BaseDefinicioProcesController {
 						paginacioParams));
 	}	
 	
-	/** Mètode per esborrar la darrera versió d'una definició de procés des del llistat
-	 * de definicions de procés o el llista de definicions de procés del tipus d'expedient. */
-	@RequestMapping(value = "/{jbmpKey}/delete", method = RequestMethod.GET)
-	@ResponseBody
-	public boolean deleteDarreraVersió(
-			HttpServletRequest request,
-			@PathVariable String jbmpKey,
-			Model model) {
-		boolean success = false;
-		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
-		try {
-			DefinicioProcesDto definicioProces = definicioProcesService.findByEntornIdAndJbpmKey(
-					entornActual.getId(), 
-					jbmpKey);
-			if (definicioProces == null)
-				throw new NoTrobatException(DefinicioProcesDto.class);
-			
-			success = this.deleteDefinicioProces(entornActual.getId(), request, definicioProces);
-		} catch (Exception e) {
-			logger.error("Error : (" + e.getClass() + ") " + e.getLocalizedMessage());
-			MissatgesHelper.error(request, getMessage(request, "definicio.proces.delete.error", new Object[] {e.getLocalizedMessage()}));
-		}
-		return success;
-	}
-	
 	/** Mètode per esborrar una versió específica des del disseny de la definició de procés. */
 	@RequestMapping(value = "/{jbmpKey}/{definicioProcesId}/delete", method = RequestMethod.GET)
 	public String delete(
@@ -212,19 +187,35 @@ public class DefinicioProcesController extends BaseDefinicioProcesController {
 		return success;
 	}
 
-	/** Vista de les pipelles per a la definició de procés. */
+	/** Vista de les pipelles per a la definició de procés que mostrarà la darrera versió. */
 	@RequestMapping(value = "/{jbmpKey}", method = RequestMethod.GET)
 	public String pipelles(
 			HttpServletRequest request,
 			@PathVariable String jbmpKey,
 			Model model) {		
+		// consulta la darrera definicio de procés de l'entonr i redirigeix cap al mètode
+		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
+		DefinicioProcesDto definicioProces = definicioProcesService.findByEntornIdAndJbpmKey(
+				entornActual.getId(),
+				jbmpKey);
+		return "redirect:/v3/definicioProces/" + jbmpKey + "/" + definicioProces.getId();
+	}
+
+	/** Vista de les pipelles per a la definició de procés mostrant una específica. */
+	@RequestMapping(value = "/{jbmpKey}/{definicioProcesId}", method = RequestMethod.GET)
+	public String pipellesDefinicioProces(
+			HttpServletRequest request,
+			@PathVariable String jbmpKey,
+			@PathVariable Long definicioProcesId,
+			Model model) {		
 		return mostrarInformacioDefinicioProcesPerPipelles(
 				request,
 				jbmpKey,
+				definicioProcesId,
 				model,
 				"detall");
 	}
-	
+
 	/** Pipella del detall. */
 	@RequestMapping(value = "/{jbmpKey}/{definicioProcesId}/detall")
 	public String detall(
@@ -236,6 +227,7 @@ public class DefinicioProcesController extends BaseDefinicioProcesController {
 			return mostrarInformacioDefinicioProcesPerPipelles(
 					request,
 					jbmpKey,
+					definicioProcesId,
 					model,
 					"detall");
 		}
@@ -265,6 +257,7 @@ public class DefinicioProcesController extends BaseDefinicioProcesController {
 			return mostrarInformacioDefinicioProcesPerPipelles(
 					request,
 					jbmpKey,
+					definicioProcesId,
 					model,
 					"recurs");
 		}

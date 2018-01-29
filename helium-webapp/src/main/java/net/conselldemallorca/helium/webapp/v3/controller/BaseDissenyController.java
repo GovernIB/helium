@@ -71,6 +71,7 @@ public class BaseDissenyController extends BaseController {
 	protected String mostrarInformacioDefinicioProcesPerPipelles(
 			HttpServletRequest request,
 			String jbmpKey,
+			Long definicioProcesId,
 			Model model,
 			String pipellaActiva) {
 				
@@ -78,9 +79,10 @@ public class BaseDissenyController extends BaseController {
 
 		DefinicioProcesDto definicioProces = null;
 		if (entornActual != null) {
-			definicioProces = definicioProcesService.findByEntornIdAndJbpmKey(
-					entornActual.getId(),
-					jbmpKey);
+			if (definicioProcesId != null)
+				definicioProces = definicioProcesService.findAmbIdAndEntorn(entornActual.getId(), definicioProcesId);
+			else
+				definicioProces = definicioProcesService.findByEntornIdAndJbpmKey(entornActual.getId(), jbmpKey);
 			
 			// Comprova si pot dissenyar la definició de procés
 			if (!potDissenyarDefinicioProces(request, definicioProces)) {

@@ -74,7 +74,7 @@ public class DefinicioProcesVariableController extends BaseVariableController {
 			@PathVariable Long definicioProcesId, 
 			Model model) {
 		if (!NodecoHelper.isNodeco(request)) {
-			return mostrarInformacioDefinicioProcesPerPipelles(request, jbpmKey, model, "variables");
+			return mostrarInformacioDefinicioProcesPerPipelles(request, jbpmKey, definicioProcesId, model, "variables");
 		}
 
 		omplirModelVariablesPestanya(request, definicioProcesId, model);
@@ -488,7 +488,7 @@ public class DefinicioProcesVariableController extends BaseVariableController {
 			DefinicioProcesDto definicioProces = definicioProcesService.findAmbIdAndEntorn(entornActual.getId(),
 					definicioProcesId);
 			model.addAttribute("definicioProces", definicioProces);
-			model.addAttribute("baseUrl", (definicioProces.getJbpmKey() + "/" + definicioProces.getId().toString()));
+			model.addAttribute("baseUrl", ("/helium/v3/definicioProces/" + definicioProces.getJbpmKey() + "/" + definicioProces.getId().toString()));
 		}
 		this.omplirModelAgrupacions(request, null, definicioProcesId, model, false);
 	}

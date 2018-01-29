@@ -160,9 +160,9 @@ var agrupacionsSobreescriuenIds =  ${agrupacionsSobreescriuenIds};
 function formatAgrupacioSelectHerencia(item) {
 	var res;
     if(item.id && agrupacionsHeretadesIds.indexOf(parseInt(item.id)) >= 0)
-		res = item.text + " <span class='label label-primary herencia'>R</span>";
+		res = item.text + " <span class='label label-primary'>R</span>";
 	else if(item.id && agrupacionsSobreescriuenIds.indexOf(parseInt(item.id)) >= 0)
-		res = item.text + " <span class='label label-warning herencia'>S</span>";
+		res = item.text + " <span class='label label-warning'>S</span>";
 	else 
 		res = item.text;
     return res;

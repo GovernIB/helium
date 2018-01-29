@@ -45,11 +45,43 @@ public interface DefinicioProcesRepository extends JpaRepository<DefinicioProces
 			@Param("jbpmKey") String jbpmKey,
 			@Param("versio") int versio);
 
-	//TODO : adaptar
+	// TODO: revisar on es crida aquest mètode pequè es pot substituir pel pegüent distingint per tipus d'expedient
 	List<DefinicioProces> findByEntornIdAndJbpmKeyOrderByVersioDesc(
 			Long entornId,
 			String jbpmKey);
 
+	@Query(	"from " +
+			"    DefinicioProces dp " +
+			"where " +
+			" 	 dp.entorn.id = :entornId " +
+			"    and ((:isNullExpedientTipus = true and dp.expedientTipus is null ) " +
+			"				or (:isNullExpedientTipus = false and dp.expedientTipus.id = :expedientTipusId)) " +
+			"    and dp.jbpmKey = :jbpmKey " +
+			"order by dp.versio DESC")
+	List<DefinicioProces> findByEntornIdAndJbpmKey(
+			@Param("entornId") Long entornId,
+			@Param("jbpmKey") String jbpmKey,
+			@Param("isNullExpedientTipus") boolean isNullExpedientTipus,
+			@Param("expedientTipusId") Long expedientTipusId);
+	
+	@Query(	"from " +
+			"    DefinicioProces dp " +
+			"where " +
+			"    ((:tipusExpedientId is null and dp.expedientTipus is null ) or dp.expedientTipus.id = :tipusExpedientId) " +
+			"and dp.versio = (" +
+			"    select " +
+			"        max(dps.versio) " +
+			"    from " +
+			"        DefinicioProces dps " +
+			"    where " +
+			"        (dps.expedientTipus.id=:tipusExpedientId) " +
+			"    and dps.jbpmKey = dp.jbpmKey " +
+			"    and dps.jbpmKey = :jbpmProcessDefinitionKey) " +
+			"order by dp.versio DESC")
+	DefinicioProces findDarreraVersioAmbTipusExpedientIJbpmKey(
+				@Param("tipusExpedientId") Long tipusExpedientId,
+				@Param("jbpmProcessDefinitionKey") String jbpmProcessDefinitionKey);
+	
 	@Query(	"from " +
 				"    DefinicioProces dp " +
 				"where " +
@@ -132,7 +164,7 @@ public interface DefinicioProcesRepository extends JpaRepository<DefinicioProces
 			"							and dp.expedientTipus.id = (select etp.expedientTipusPare.id from ExpedientTipus etp where etp.id = :expedientTipusId) ) " + 
 			"					or (:incloureGlobals = true and dp.expedientTipus is null)) " +
 			"		    and dps.jbpmKey= dp.jbpmKey" +
-/* nou!*/	"			and (dps.expedientTipus.id = dp.expedientTipus.id or dps.expedientTipus is null and dp.expedientTipus is null) "  +
+			"			and (dps.expedientTipus.id = dp.expedientTipus.id or dps.expedientTipus is null and dp.expedientTipus is null) "  +
 			"	) ")
 	Page<DefinicioProces> findByFiltrePaginat(
 			@Param("entornId") Long entornId,
@@ -143,7 +175,7 @@ public interface DefinicioProcesRepository extends JpaRepository<DefinicioProces
 			@Param("filtre") String filtre,		
 			@Param("herencia") boolean herencia,
 			Pageable pageable);
-
+	
 	@Query(	"select dp.jbpmKey " + 
 			"from DefinicioProces dp " +
 			"where " +
