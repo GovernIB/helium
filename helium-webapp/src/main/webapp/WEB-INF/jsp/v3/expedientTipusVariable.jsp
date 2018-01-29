@@ -150,7 +150,6 @@
 
 <script type="text/javascript">
 // <![CDATA[            
-
 // Llistat d'identificadors d'agrupacions heretades
 var agrupacionsHeretadesIds =  ${agrupacionsHeretadesIds};
 //Llistat d'identificadors d'agrupacions que sobreescriuen
@@ -338,7 +337,11 @@ function refrescarAgrupacions() {
 			for (i = 0; i < data.length; i++) {
 				$("#agrupacions").append($("<option/>", {value: data[i].codi, text: data[i].valor}));
 			}
-			$("#agrupacions").val(vActual).change();
+			// Restaura la selecció anterior o -2 Totes si s'ha esborrat l'agrupació
+			$("#agrupacions").val(vActual);
+			if ($("#agrupacions").val() == null)
+				$("#agrupacions").val(-2);
+			$("#agrupacions").change();
 		},
 		error: function(e) {
 			console.log("Error obtenint agrupacions: " + e);

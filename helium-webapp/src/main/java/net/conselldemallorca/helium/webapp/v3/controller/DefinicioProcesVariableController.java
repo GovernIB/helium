@@ -489,6 +489,9 @@ public class DefinicioProcesVariableController extends BaseVariableController {
 					definicioProcesId);
 			model.addAttribute("definicioProces", definicioProces);
 			model.addAttribute("baseUrl", ("/helium/v3/definicioProces/" + definicioProces.getJbpmKey() + "/" + definicioProces.getId().toString()));
+			// agrupacions heretades
+			model.addAttribute("agrupacionsHeretadesIds", new ArrayList<Long>());
+			model.addAttribute("agrupacionsSobreescriuenIds", new ArrayList<Long>());
 		}
 		this.omplirModelAgrupacions(request, null, definicioProcesId, model, false);
 	}
