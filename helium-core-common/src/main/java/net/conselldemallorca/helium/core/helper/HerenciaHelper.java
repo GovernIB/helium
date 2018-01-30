@@ -39,8 +39,8 @@ public class HerenciaHelper {
 				&& dp.getExpedientTipus().getExpedientTipusPare() != null
 				&& dp.getExpedientTipus().getExpedientTipusPare().getJbpmProcessDefinitionKey() != null) {
 
-			DefinicioProces dph = definicioProcesRepository.findDarreraVersioAmbEntornIJbpmKey(
-					dp.getEntorn().getId(),
+			DefinicioProces dph = definicioProcesRepository.findDarreraVersioAmbTipusExpedientIJbpmKey(
+					dp.getExpedientTipus().getExpedientTipusPare().getId(),
 					dp.getExpedientTipus().getExpedientTipusPare().getJbpmProcessDefinitionKey());
 			if (dph != null)
 				processDefinitionIdHeretada = dph.getJbpmId();
@@ -57,8 +57,8 @@ public class HerenciaHelper {
 		String processDefinitionIdHeretada = null;
 		if (expedient.getTipus().getExpedientTipusPare() != null 
 				&& expedient.getTipus().getExpedientTipusPare().getJbpmProcessDefinitionKey() != null ) {
-			DefinicioProces dph = definicioProcesRepository.findDarreraVersioAmbEntornIJbpmKey(
-					expedient.getEntorn().getId(),
+			DefinicioProces dph = definicioProcesRepository.findDarreraVersioAmbTipusExpedientIJbpmKey(
+					expedient.getTipus().getExpedientTipusPare().getId(),
 					expedient.getTipus().getExpedientTipusPare().getJbpmProcessDefinitionKey());
 			if (dph != null)
 				processDefinitionIdHeretada = dph.getJbpmId();
@@ -78,8 +78,8 @@ public class HerenciaHelper {
 				&& dp.getExpedientTipus().getExpedientTipusPare() != null
 				&& dp.getExpedientTipus().getExpedientTipusPare().getJbpmProcessDefinitionKey() != null) {
 
-			DefinicioProces dph = definicioProcesRepository.findDarreraVersioAmbEntornIJbpmKey(
-					dp.getEntorn().getId(),
+			DefinicioProces dph = definicioProcesRepository.findDarreraVersioAmbTipusExpedientIJbpmKey(
+					dp.getExpedientTipus().getExpedientTipusPare().getId(),
 					dp.getExpedientTipus().getExpedientTipusPare().getJbpmProcessDefinitionKey());
 			if (dph != null)
 				processDefinitionIdHeretada = dph.getJbpmId();

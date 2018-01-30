@@ -224,7 +224,8 @@ public class DissenyServiceImpl implements DissenyService {
 			
 			DefinicioProces definicioProces = definicioProcesRepository.findDarreraVersioAmbTipusExpedientIJbpmKey(
 					expedientTipus.getId(),
-					expedientTipus.getJbpmProcessDefinitionKey());
+					expedientTipus.getJbpmProcessDefinitionKey(),
+					expedientTipus.getExpedientTipusPare() != null);
 			
 			if (definicioProces != null) {
 				JbpmProcessDefinition jb = jbpmHelper.getProcessDefinition(definicioProces.getJbpmId());
@@ -281,7 +282,8 @@ public class DissenyServiceImpl implements DissenyService {
 		if (expedientTipus != null)
 			definicioProces = definicioProcesRepository.findDarreraVersioAmbTipusExpedientIJbpmKey(
 					expedientTipus.getId(), 
-					jbpmKey);
+					jbpmKey,
+					expedientTipus.getExpedientTipusPareId() != null);
 		else
 			definicioProces = definicioProcesRepository.findDarreraVersioAmbEntornIJbpmKey(entornId, jbpmKey);
 
@@ -297,10 +299,6 @@ public class DissenyServiceImpl implements DissenyService {
 					definicioProces.getJbpmKey(), 
 					expedientTipus == null, 
 					expedientTipus != null ? expedientTipus.getId() : 0L);
-//			if (expedientTipus != null)
-//				listDefProces = definicioProcesRepository.findByExpedientTipusIdAndJbpmKeyOrderByVersioDesc(expedientTipus.getId(), definicioProces.getJbpmKey());
-//			else
-//				listDefProces = definicioProcesRepository.findByEntornIdAndJbpmKey(entornId, definicioProces.getJbpmKey());
 
 			boolean demanaNumeroTitol = false;
 			if (expedientTipus != null)
@@ -355,9 +353,10 @@ public class DissenyServiceImpl implements DissenyService {
 	public DefinicioProcesDto findDarreraDefinicioProcesForExpedientTipus(Long expedientTipusId) {
 		ExpedientTipusDto expedientTipus = getExpedientTipusById(expedientTipusId);
 		if (expedientTipus.getJbpmProcessDefinitionKey() != null) {
-			DefinicioProces definicioProces = definicioProcesRepository.findDarreraVersioAmbEntornIJbpmKey(
-					expedientTipus.getEntorn().getId(),
-					expedientTipus.getJbpmProcessDefinitionKey());
+			DefinicioProces definicioProces = definicioProcesRepository.findDarreraVersioAmbTipusExpedientIJbpmKey(
+					expedientTipus.getId(),
+					expedientTipus.getJbpmProcessDefinitionKey(),
+					true);
 			if (definicioProces != null) {
 				DefinicioProcesDto dto = conversioTipusHelper.convertir(definicioProces, DefinicioProcesDto.class);
 				Map<Long, Boolean> hasStartTask = new HashMap<Long, Boolean>();

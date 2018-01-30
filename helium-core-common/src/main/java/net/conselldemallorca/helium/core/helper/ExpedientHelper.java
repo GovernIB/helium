@@ -1246,9 +1246,16 @@ public class ExpedientHelper {
 		if (definicioProcesId != null) {
 			definicioProces = definicioProcesRepository.findById(definicioProcesId);
 		} else {
-			definicioProces = definicioProcesRepository.findDarreraVersioAmbEntornIJbpmKey(
-					entornId,
-					expedientTipus.getJbpmProcessDefinitionKey());
+			// Cerca la darrera versió de la definició de procés per codi pel tipus d'expedient
+			definicioProces = definicioProcesRepository.findDarreraVersioAmbTipusExpedientIJbpmKey(
+					expedientTipus.getId(),
+					expedientTipus.getJbpmProcessDefinitionKey(),
+					expedientTipus.getExpedientTipusPare() != null);
+			// Si no la trova cerca a l'entorn
+			if (definicioProces == null)
+				definicioProces = definicioProcesRepository.findDarreraVersioAmbEntornIJbpmKey(
+						entornId,
+						expedientTipus.getJbpmProcessDefinitionKey());
 		}
 		//MesurarTemps.diferenciaImprimirStdoutIReiniciar(mesuraTempsIncrementalPrefix, "7");
 		JbpmProcessInstance processInstance = jbpmHelper.startProcessInstanceById(
