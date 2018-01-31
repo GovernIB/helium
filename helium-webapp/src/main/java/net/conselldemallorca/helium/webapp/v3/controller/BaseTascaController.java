@@ -83,7 +83,7 @@ public class BaseTascaController extends BaseController {
 					true);
 			pipellaPerDefecte = "form";
 		}
-		if (tascaService.hasDocuments(tascaId)) {
+		if (tascaService.hasDocumentsNotReadOnly(tascaId)) {
 			model.addAttribute(
 					"hasDocuments",
 					true);

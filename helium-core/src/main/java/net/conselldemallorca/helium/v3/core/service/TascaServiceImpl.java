@@ -564,6 +564,19 @@ public class TascaServiceImpl implements TascaService {
 				true);
 		return documentHelper.hasDocumentsPerInstanciaTasca(task);
 	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public boolean hasDocumentsNotReadOnly(
+			String id) {
+		logger.debug("Consultant si la tasca disposa de documents només de lectura (" +
+				"id=" + id + ")");
+		JbpmTask task = tascaHelper.getTascaComprovacionsTramitacio(
+				id,
+				true,
+				true);
+		return documentHelper.hasDocumentsNotReadOnlyPerInstanciaTasca(task);
+	}
 
 	@Transactional(readOnly = true)
 	public ArxiuDto getArxiuPerDocumentCodi(

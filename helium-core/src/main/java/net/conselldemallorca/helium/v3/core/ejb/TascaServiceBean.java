@@ -295,6 +295,12 @@ public class TascaServiceBean implements TascaService {
 	public boolean hasDocuments(String tascaId) {
 		return delegate.hasDocuments(tascaId);
 	}
+	
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public boolean hasDocumentsNotReadOnly(String tascaId) {
+		return delegate.hasDocumentsNotReadOnly(tascaId);
+	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})

@@ -431,6 +431,8 @@ public interface TascaService {
 	public boolean hasFormulari(String tascaId);
 
 	public boolean hasDocuments(String tascaId);
+	
+	public boolean hasDocumentsNotReadOnly(String id);
 
 	public boolean hasSignatures(String tascaId);
 

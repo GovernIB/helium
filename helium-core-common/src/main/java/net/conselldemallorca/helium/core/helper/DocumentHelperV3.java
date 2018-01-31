@@ -534,6 +534,14 @@ public class DocumentHelperV3 {
 				definicioProces.getId(),
 				task.getTaskName()) > 0;
 	}
+	
+	public boolean hasDocumentsNotReadOnlyPerInstanciaTasca(JbpmTask task) {
+		DefinicioProces definicioProces = definicioProcesRepository.findByJbpmId(
+				task.getProcessDefinitionId());
+		return documentTascaRepository.countAmbDefinicioProcesITascaJbpmNameINotReadOnly(
+				definicioProces.getId(),
+				task.getTaskName()) > 0;
+	}
 
 	public List<TascaDocumentDto> findDocumentsPerInstanciaTascaSignar(JbpmTask task) {
 		List<TascaDocumentDto> resposta = new ArrayList<TascaDocumentDto>();
