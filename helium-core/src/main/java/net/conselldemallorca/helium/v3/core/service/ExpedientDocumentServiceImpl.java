@@ -916,6 +916,15 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 			return null;
 		return new ArxiuDto(dto.getVistaNom(), dto.getVistaContingut());
 	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public DocumentDto getDocument(Long documentStoreId) {
+		DocumentDto dto = documentHelper.getDocumentVista(documentStoreId, true, true);
+		if (dto == null)
+			throw new NoTrobatException(DocumentDto.class, documentStoreId);
+		return dto;
+	}
 
 /*
 	@Override

@@ -624,7 +624,7 @@ public class TascaServiceImpl implements TascaService {
 	public DocumentDto getDocumentPerDocumentCodi(
 			String tascaId,
 			String documentCodi) {
-		logger.debug("Obtenint contingut de l'arxiu per l'tasca (" +
+		logger.debug("Obtenint contingut de l'arxiu per la tasca (" +
 				"tascaId=" + tascaId + ", " +
 				"documentCodi=" + documentCodi + ")");
 		DocumentDto document = null;

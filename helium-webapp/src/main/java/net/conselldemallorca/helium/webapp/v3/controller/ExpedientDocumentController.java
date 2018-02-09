@@ -438,14 +438,16 @@ public class ExpedientDocumentController extends BaseExpedientController {
 				model.addAttribute("tittle", getMessage(request, "expedient.document.verif_signatures"));
 				model.addAttribute("url", urlVerificacioCustodia);
 				return "v3/utils/modalIframe";
-			}
-			model.addAttribute(
-					"signatura",
-					expedientDocumentService.findOneAmbInstanciaProces(
-							expedientId,
-							processInstanceId,
-							documentStoreId));
+			}			
+			// Recupera la informació del document i la afegeix al model
+			ExpedientDocumentDto ed = expedientDocumentService.findOneAmbInstanciaProces(expedientId,
+																processInstanceId,
+																documentStoreId);
+			if (ed != null) {
+				model.addAttribute("signatura", expedientDocumentService.getDocument(documentStoreId));
+			}			
 			model.addAttribute("signatures", expedientService.verificarSignatura(documentStoreId));
+			
 			return "v3/expedientTascaTramitacioSignarVerificar";
 		} catch(Exception ex) {
 			logger.error("Error al verificar la signatura", ex);

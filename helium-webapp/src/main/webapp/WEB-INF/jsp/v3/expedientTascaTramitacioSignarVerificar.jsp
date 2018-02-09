@@ -29,8 +29,8 @@
 		<h4 class="titol-missatge">
 			<spring:message code='signa.verif.doc_signat' /> &nbsp;
 			<c:url value="/v3/expedient/document/arxiuMostrar" var="downloadUrl"><c:param name="token" value="${signatura.tokenSignatura}"/></c:url>
-			<c:if test="${not empty document.tokenSignatura}">
-				<a class="icon" id="downloadUrl${document.id}" href="${downloadUrl}">
+			<c:if test="${not empty signatura.tokenSignatura}">
+				<a class="icon" id="downloadUrl${signatura.id}" href="${downloadUrl}">
 					<i class="fa fa-download"></i>
 				</a>
 			</c:if>

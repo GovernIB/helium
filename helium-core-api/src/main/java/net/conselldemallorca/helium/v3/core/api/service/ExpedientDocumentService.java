@@ -7,6 +7,7 @@ import java.util.Date;
 import java.util.List;
 
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PortasignaturesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RespostaValidacioSignaturaDto;
@@ -295,6 +296,8 @@ public interface ExpedientDocumentService {
 	public ArxiuDto arxiuDocumentPerSignar(String token) throws NoTrobatException;
 	
 	public ArxiuDto arxiuDocumentPerMostrar(String token) throws NoTrobatException;
+	
+	public DocumentDto getDocument(Long documentStoreId) throws NoTrobatException;
 
 	public void crearDocumentInstanciaProces(Long expedientId, String processInstanceId, String documentCodi, String nomArxiu, byte[] arxiu, Date data) throws NoTrobatException;
 
