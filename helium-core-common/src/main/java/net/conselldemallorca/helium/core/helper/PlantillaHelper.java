@@ -784,9 +784,9 @@ public class PlantillaHelper {
 			numExpedient = expedient.getNumero() + "_";
 		}
 		String titol = numExpedient + document.getNom() + ".odt";
-		String carRemp = "\\/:*?\"<>|";
-		titol.replaceAll(carRemp, "_");		
-		return titol;
+		String carRemp = "[^a-zA-Z0-9\\.\\-]";
+		String fixedTitol = titol.replaceAll(carRemp, "_");		
+		return fixedTitol;
 	}
 
 }

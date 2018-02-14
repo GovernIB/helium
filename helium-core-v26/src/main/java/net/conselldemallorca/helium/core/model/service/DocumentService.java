@@ -500,9 +500,9 @@ public class DocumentService {
 					numExpedient = expedient.getNumero() + "-";
 				}
 				String titol = numExpedient + document.getNom()+".odt";
-				String carRemp ="\\/:*?\"<>|";
-				titol.replaceAll(carRemp, "_");
-				resposta.setArxiuNom(titol);
+				String carRemp = "[^a-zA-Z0-9\\.\\-]";
+				String fixedTitol = titol.replaceAll(carRemp, "_");
+				resposta.setArxiuNom(fixedTitol);
 				tasca = dtoConverter.toTascaDto(
 						task,
 						null,
