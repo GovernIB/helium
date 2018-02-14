@@ -198,7 +198,7 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 				"entornId = " + entornId + ", " + 
 				"expedientTipusId = " + expedientTipusId + ", " + 
 				"incloureGlobals = " + incloureGlobals + ")");
-		List<DefinicioProces> definicions = definicioProcesRepository.findByAll(
+		List<DefinicioProces> definicions = definicioProcesRepository.findListDarreraVersioByAll(
 				entornId, 
 				expedientTipusId == null,
 				expedientTipusId,
@@ -251,6 +251,7 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 					paginaJbpmKeys.add(d.getJbpmKey());
 		}
 		if (paginaJbpmKeys.size() > 0) {
+			// <[jbpmKey, expedientTipusId, count]>
 			List<Object[]> countVersions = definicioProcesRepository.countVersions(
 					entornId,
 					paginaJbpmKeys); 

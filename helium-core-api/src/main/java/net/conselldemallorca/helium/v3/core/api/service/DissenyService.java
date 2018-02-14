@@ -159,6 +159,7 @@ public interface DissenyService {
 
 	public DefinicioProcesDto getById(Long id);
 
+	/** Troba la darrera versió de la definició de procés inicial tenint en compte l'herència. */
 	public DefinicioProcesDto findDarreraDefinicioProcesForExpedientTipus(Long expedientTipusId) throws NoTrobatException;
 
 	public List<ExpedientTipusDto> findExpedientTipusAmbEntorn(EntornDto entorn) throws NoTrobatException;
@@ -207,7 +208,7 @@ public interface DissenyService {
 	
  	public DefinicioProcesExpedientDto getDefinicioProcesByTipusExpedientById(Long expedientTipusId);
 
-	public List<DefinicioProcesExpedientDto> getSubprocessosByProces(String jbpmId) throws NoTrobatException;
+	public List<DefinicioProcesExpedientDto> getSubprocessosByProces(Long expedientTipusId, String jbpmId) throws NoTrobatException;
 
 	public AreaDto findAreaById(Long areaId) throws NoTrobatException;
 

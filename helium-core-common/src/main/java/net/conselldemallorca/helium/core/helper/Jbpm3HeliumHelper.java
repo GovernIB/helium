@@ -196,6 +196,9 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 	
 	@Resource
 	private TascaSegonPlaHelper tascaSegonPlaHelper;
+	
+	@Resource
+	private DefinicioProcesHelper definicioProcesHelper;
 
 
 
@@ -275,6 +278,20 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 				EntornDto.class);
 	}
 
+	@Override
+	public DefinicioProcesDto getDefinicioProcesAmbJbpmKeyIProcessInstanceId(
+			String jbpmKey,
+			String processInstanceId) {
+		logger.debug("Obtenint la darrera versió de la definició de procés donat el codi jBPM i el processInstanceId (jbpmKey=" + jbpmKey + ", processInstanceId=" + processInstanceId +")");
+		Expedient expedient = getExpedientDonatProcessInstanceId(processInstanceId);
+		DefinicioProces defincioProces = definicioProcesHelper.findDarreraVersioDefinicioProces(
+				expedient.getTipus(), 
+				jbpmKey);
+		return conversioTipusHelper.convertir(
+				defincioProces,
+				DefinicioProcesDto.class);
+	}
+	
 	@Override
 	public DefinicioProcesDto getDefinicioProcesAmbJbpmKeyIVersio(
 			String jbpmKey,
@@ -1021,13 +1038,13 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 				"processInstanceId=" + processInstanceId + ", " +
 				"enumeracioCodi=" + enumeracioCodi + ")");
 		Expedient expedient = getExpedientDonatProcessInstanceId(processInstanceId);
-		Enumeracio enumeracio = enumeracioRepository.findByEntornAndCodi(
+		Enumeracio enumeracio = enumeracioRepository.findByEntornAndExpedientTipusAndCodi(
 				expedient.getEntorn(),
+				expedient.getTipus(),
 				enumeracioCodi);
 		if (enumeracio == null) {
-			enumeracio = enumeracioRepository.findByEntornAndExpedientTipusAndCodi(
+			enumeracio = enumeracioRepository.findByEntornAndCodi(
 					expedient.getEntorn(),
-					expedient.getTipus(),
 					enumeracioCodi);
 		}
 		if (enumeracio == null)

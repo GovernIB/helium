@@ -83,7 +83,16 @@ public class BaseDissenyController extends BaseController {
 				definicioProces = definicioProcesService.findAmbIdAndEntorn(entornActual.getId(), definicioProcesId);
 			else
 				definicioProces = definicioProcesService.findByEntornIdAndJbpmKey(entornActual.getId(), jbmpKey);
-			
+
+			if (definicioProces == null) {
+				MissatgesHelper.error(
+						request, 
+						getMessage(request, 
+								"definicio.proces.pipelles.definicio.no.trobada", 
+								new Object[] {jbmpKey}));
+				return "redirect:/v3/definicioProces";			
+			}		
+
 			// Comprova si pot dissenyar la definició de procés
 			if (!potDissenyarDefinicioProces(request, definicioProces)) {
 					MissatgesHelper.error(request, getMessage(request, "error.permisos.disseny.defproc"));

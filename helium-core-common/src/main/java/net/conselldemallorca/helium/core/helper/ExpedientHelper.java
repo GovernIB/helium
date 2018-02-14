@@ -123,6 +123,8 @@ public class ExpedientHelper {
 	private ConversioTipusHelper conversioTipusHelper;
 	@Resource
 	private MesuresTemporalsHelper mesuresTemporalsHelper;
+	@Resource
+	private DefinicioProcesHelper definicioProcesHelper;
 
 	
 	private static String VERSIO_NTI = "http://administracionelectronica.gob.es/ENI/XSD/v1.0/expediente-e";
@@ -1246,16 +1248,9 @@ public class ExpedientHelper {
 		if (definicioProcesId != null) {
 			definicioProces = definicioProcesRepository.findById(definicioProcesId);
 		} else {
-			// Cerca la darrera versió de la definició de procés per codi pel tipus d'expedient
-			definicioProces = definicioProcesRepository.findDarreraVersioAmbTipusExpedientIJbpmKey(
-					expedientTipus.getId(),
-					expedientTipus.getJbpmProcessDefinitionKey(),
-					expedientTipus.getExpedientTipusPare() != null);
-			// Si no la trova cerca a l'entorn
-			if (definicioProces == null)
-				definicioProces = definicioProcesRepository.findDarreraVersioAmbEntornIJbpmKey(
-						entornId,
-						expedientTipus.getJbpmProcessDefinitionKey());
+			definicioProces = definicioProcesHelper.findDarreraVersioDefinicioProces(
+					expedientTipus, 
+					expedientTipus.getJbpmProcessDefinitionKey());
 		}
 		//MesurarTemps.diferenciaImprimirStdoutIReiniciar(mesuraTempsIncrementalPrefix, "7");
 		JbpmProcessInstance processInstance = jbpmHelper.startProcessInstanceById(

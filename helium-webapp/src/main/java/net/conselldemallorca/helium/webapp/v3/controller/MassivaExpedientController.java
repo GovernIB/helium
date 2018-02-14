@@ -188,7 +188,7 @@ public class MassivaExpedientController extends BaseExpedientController {
 			model.addAttribute(canviVersioProcesCommand);
 
 			model.addAttribute("definicioProces",definicioProces);
-			model.addAttribute("subDefinicioProces", dissenyService.getSubprocessosByProces(definicioProces.getJbpmId()));
+			model.addAttribute("subDefinicioProces", dissenyService.getSubprocessosByProces(expedient.getTipus().getId(), definicioProces.getJbpmId()));
 			
 			InstanciaProcesDto instanciaProces = expedientService.getInstanciaProcesById(expedient.getProcessInstanceId());
 			model.addAttribute("instanciaProces", instanciaProces);
@@ -427,7 +427,7 @@ public class MassivaExpedientController extends BaseExpedientController {
 								
 				ExpedientDto expedient = expedientService.findAmbId(listIds.get(0));
 				DefinicioProcesExpedientDto definicioProces = dissenyService.getDefinicioProcesByTipusExpedientById(expedient.getTipus().getId());
-				List<DefinicioProcesExpedientDto> supProcessos = dissenyService.getSubprocessosByProces(definicioProces.getJbpmId());
+				List<DefinicioProcesExpedientDto> supProcessos = dissenyService.getSubprocessosByProces(expedient.getTipus().getId(), definicioProces.getJbpmId());
 
 				String[] keys = new String[supProcessos.size()];
 				int i = 0;

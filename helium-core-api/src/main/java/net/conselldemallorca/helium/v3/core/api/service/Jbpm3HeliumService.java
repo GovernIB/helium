@@ -136,6 +136,17 @@ public interface Jbpm3HeliumService {
 	public DefinicioProcesDto getDefinicioProcesAmbJbpmKeyIVersio(
 			String jbpmKey,
 			int version);
+	
+	/**
+	 * Obté la definició de procés donada la seva clau jBPM i el processInstanceId.
+	 * 
+	 * @param jbpmKey la clau jBPM.
+	 * @param version la versió.
+	 * @return La definició de procés o null si no s'ha trobat.
+	 */
+	public DefinicioProcesDto getDefinicioProcesAmbJbpmKeyIProcessInstanceId(
+			String jbpmKey,
+			String processInstanceId);	
 
 	/**
 	 * Obté la darrera versió d'una definició de procés donat el

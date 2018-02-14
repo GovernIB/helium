@@ -1652,7 +1652,6 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 			int actualitzacionsCount = 0;
 			
 			ome.setDataInici(new Date());
-			Long entornId = ome.getExecucioMassiva().getEntorn();
 			ExpedientTipus expedientTipus = ome.getExecucioMassiva().getExpedientTipus();
 			// Recupera la darrera versió identificada per l'ome.definicioProcesId
 			DefinicioProces definicioDarrera = definicioProcesRepository.findById(ome.getDefinicioProcesId());
@@ -1664,8 +1663,8 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 			if (documentsPlantilles.size() > 0) {
 				int expedientsActiusCount;
 				// Propaga els documents per a totes les versions anteriors
-				for (DefinicioProces definicioAnterior :  definicioProcesRepository.findByEntornIdAndJbpmKeyOrderByVersioDesc(
-																						entornId, 
+				for (DefinicioProces definicioAnterior :  definicioProcesRepository.findByExpedientTipusIJpbmKey(
+																						expedientTipus.getId(),
 																						definicioDarrera.getJbpmKey()))
 				{
 					if (definicioAnterior.getVersio() < definicioDarrera.getVersio()) {

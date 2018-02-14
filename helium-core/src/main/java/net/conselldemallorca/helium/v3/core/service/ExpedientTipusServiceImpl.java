@@ -1261,13 +1261,9 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		if (command.getConsultes().size() > 0) {
 			// Map<jbpmKey, versio> de les definicions de procés
 			Map<String, Integer> definicionsProcesVersio = new HashMap<String, Integer>();
-			// Consulta la darrera versió de totes les definicions de procés
-			for (DefinicioProces definicio : definicioProcesRepository.findByAll(
-														entornId,
-														expedientTipusId == null, // isNullExpedientTipusId
-														expedientTipusId, 
-														true))
-				definicionsProcesVersio.put(definicio.getJbpmKey(), definicio.getVersio());
+			// Consulta la darrera versió de totes les definicions de procés incloent les heretades i les de l'entorn
+			for (DefinicioProces definicio : definicioProcesHelper.findAllDarreraVersio(entornId, expedientTipus))
+				definicionsProcesVersio.put(definicio.getJbpmKey(), definicio.getVersio());			
 			// Importa la informació de les consultes
 			for(ConsultaExportacio consultaExportat : importacio.getConsultes() )
 				if (command.getConsultes().contains(consultaExportat.getCodi())) {
@@ -1879,6 +1875,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 	@Transactional(readOnly = true)
 	public List<DefinicioProcesDto> definicioFindAll(
 			Long expedientTipusId) throws NoTrobatException, PermisDenegatException {
+				
 		List<DefinicioProces> definicions = definicioProcesRepository.findAmbExpedientTipus(expedientTipusId);
 		return conversioTipusHelper.convertirList(
 									definicions, 
@@ -1903,9 +1900,10 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 				"incloureGlobals=" + incloureGlobals + ")");
 		return definicioProcesRepository.findJbpmKeys(
 				entornId, 
+				expedientTipusId == null,
 				expedientTipusId,
-				herencia,
-				incloureGlobals);
+				incloureGlobals,
+				herencia);
 	}	
 
 	@Override
@@ -2909,7 +2907,6 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 				if (consultaCamp.getDefprocJbpmKey() != null) {
 					// camp de la definició de procés
 					DefinicioProces definicioProces = definicioProcesRepository.findByJbpmKeyAndVersio(
-							expedientTipusId,
 							consultaCamp.getDefprocJbpmKey(),
 							consultaCamp.getDefprocVersio());
 					if (definicioProces != null) {

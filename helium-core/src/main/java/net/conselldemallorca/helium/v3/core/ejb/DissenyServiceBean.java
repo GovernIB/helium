@@ -174,8 +174,8 @@ public class DissenyServiceBean implements DissenyService {
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public List<DefinicioProcesExpedientDto> getSubprocessosByProces(String jbpmId) {
-		return delegate.getSubprocessosByProces(jbpmId);
+	public List<DefinicioProcesExpedientDto> getSubprocessosByProces(Long expedientTipusId, String jbpmId) {
+		return delegate.getSubprocessosByProces(expedientTipusId, jbpmId);
 	}
 
 	@Override

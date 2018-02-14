@@ -464,11 +464,11 @@ public interface ExpedientTipusService {
 			boolean incloureGlobals);	
 
 	/**
-	 * Retorna les definicions de procés per a un tipus d'expedient.
+	 * Retorna les definicions de procés per a un tipus d'expedient sense tenir en compte l'herència.
 	 * 
 	 * @param expedientTipusId
 	 *            Atribut id del tipus d'expedient.
-	 * @return les definicions de procés del tipus d'expedient.
+	 * @return les definicions de procés associades al tipus d'expedient.
 	 * @throws NoTrobatException
 	 *             Si no s'ha trobat el registre amb l'id especificat.
 	 * @throws PermisDenegatException

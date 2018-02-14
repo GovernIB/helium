@@ -99,28 +99,6 @@
 			<c:when test="${not empty pipellaActiva}">$('#expedient-pipelles li#pipella-${pipellaActiva} a').click();</c:when>
 			<c:otherwise>$('#expedient-pipelles li:first a').click();</c:otherwise>
 		</c:choose>
-		$('#definicioProcesVersio').on('change', function () {
-			if (confirm("<spring:message code='expedient.eines.confirm_canviar_versio_proces' />")) {
-				$.ajax({
-				    url:'${expedient.id}/updateDefinicioProces/' + $(this).val(),
-				    type:'GET',
-				    dataType: 'json',
-				    success: function(data) {
-				        $("#canviDefinicioProcesJbpm").toggleClass('hide');
-				        $("#desc_def_proc").text($("#definicioProcesVersio option:selected").text());
-						refrescarAlertas();
-				    },
-				    error :function(jqXHR, exception) {
-						modalAjaxErrorFunction(jqXHR, exception);
-					}
-				});
-			}
-		});
-		$('#definicioProcesVersio').select2({
-		    width: '100%',
-		    allowClear: true,
-		    minimumResultsForSearch: 10
-		});
 		// Per defecte, si no s'especifica al fitxer de properties
 		// tendrem un interval que executa una funció cada 10 segons per a refrescar les
 		// ícones d'estat de les tasques en segon pla
@@ -322,13 +300,6 @@
 							</c:forEach>
 						</c:if>
 					</dd>
-<%-- 					<div id="canviDefinicioProcesJbpm" class="hide">
- 						<select id="definicioProcesVersio">
- 							<c:forEach var="opt" items="${definicioProces.listVersioAmbEtiqueta}">
- 								<option value="${opt.versio}" <c:if test="${opt.versio == definicioProces.versio}"> selected</c:if>>${opt.etiqueta}</option>
- 							</c:forEach>
- 						</select>
- 					</div> --%>
 				</dl>
 				<c:if test="${not empty relacionats}">
 					<h4 id="expedient-info-relacionats"><spring:message code="expedient.info.relacionats"/></h4>

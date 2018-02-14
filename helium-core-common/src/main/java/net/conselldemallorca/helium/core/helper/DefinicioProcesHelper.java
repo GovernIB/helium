@@ -6,9 +6,12 @@ package net.conselldemallorca.helium.core.helper;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -1163,6 +1166,102 @@ public class DefinicioProcesHelper {
 				tascaRepository.save(tascaDesti);
 			}
 		}		
+	}
+	
+	/** Cerca la darrera versió de la definició de procés per codi en:
+	 * 1- Definicions de procés associades a l'expedient
+	 * 2- Definicions de procés heretades
+	 * 3- Definicions de procés de l'entorn
+	 * Així doncs aquest mètode té en compte l'herència, la sobreescriptura i les definicions
+	 * de procés globals.
+	 * @param entornId
+	 * @param expedientTipus
+	 * @param jbpmKey
+	 * @return
+	 */
+	public DefinicioProces findDarreraVersioDefinicioProces(
+			ExpedientTipus expedientTipus, 
+			String jbpmKey) {
+		DefinicioProces definicioProces = null;
+		if (expedientTipus != null) {
+			// Cerca la darrera versió de la definició de procés per codi pel tipus d'expedient
+			definicioProces = definicioProcesRepository.findDarreraVersioAmbTipusExpedientIJbpmKey(
+					expedientTipus.getId(),
+					jbpmKey);
+			// Si no la troba i hi ha herència la cerca al pare
+			if (definicioProces == null && expedientTipus.getExpedientTipusPare() != null)
+				definicioProces = definicioProcesRepository.findDarreraVersioAmbTipusExpedientIJbpmKey(
+						expedientTipus.getExpedientTipusPare().getId(),
+						jbpmKey);
+		}
+		// Si no la trova cerca a l'entorn
+		if (definicioProces == null)
+			definicioProces = definicioProcesRepository.findDarreraVersioAmbEntornIJbpmKey(
+					expedientTipus.getEntorn().getId(),
+					jbpmKey);
+		return definicioProces;
+	}
+	
+	public List<DefinicioProces> findVersionsDefinicioProces(Long entornId, ExpedientTipus expedientTipus, String jbpmKey) {
+		List<DefinicioProces> versions = null;
+		
+		if (expedientTipus != null) {
+			// Relacionades amb el tipus d'expedient
+			versions = definicioProcesRepository.findByExpedientTipusIJpbmKey( expedientTipus.getId(), 
+																jbpmKey);
+			// Heretades
+			if ((versions == null || versions.isEmpty()) && expedientTipus.getExpedientTipusPare() != null)
+				versions = definicioProcesRepository.findByExpedientTipusIJpbmKey( expedientTipus.getExpedientTipusPare().getId(), 
+																jbpmKey);
+		}
+		// De l'entorn
+		if ((versions == null || versions.isEmpty()))
+			versions = definicioProcesRepository.findByEntornIJbpmKey(entornId,
+																	jbpmKey);
+		return versions;
+	}
+
+
+	/** Cerca les darreres versins de les definicions de procés per un tipus d'expedient en:
+	 * 1- Definicions de procés associades a l'expedient
+	 * 2- Definicions de procés heretades
+	 * 3- Definicions de procés de l'entorn
+	 * Així doncs aquest mètode té en compte l'herència, la sobreescriptura i les definicions
+	 * de procés globals.
+	 * @param entornId
+	 * @param expedientTipus a partir del qual se cercaran totes les definicions de procés.
+	 * @return Una llista amb les darreres versions de defincions de procés.
+	 */
+	public List<DefinicioProces> findAllDarreraVersio(Long entornId, ExpedientTipus expedientTipus) {
+		Map<String, DefinicioProces> definicionsProces = new TreeMap<String, DefinicioProces>();
+		// Cerca les darreres versions de definicions de procés al tipus d'expedient
+		for (DefinicioProces dp : definicioProcesRepository.findDarreresVersionsBy(
+				expedientTipus.getEntorn().getId(), 
+				false, 
+				expedientTipus.getId(),
+				false))
+			if (!definicionsProces.containsKey(dp.getJbpmKey()))
+				definicionsProces.put(dp.getJbpmKey(), dp);
+		// Cerca les definicions de procés heretades
+		if (expedientTipus.getExpedientTipusPare() != null)
+			for (DefinicioProces dp : definicioProcesRepository.findDarreresVersionsBy(
+					expedientTipus.getEntorn().getId(), 
+					false, 
+					expedientTipus.getExpedientTipusPare().getId(), 
+					false))
+				if (!definicionsProces.containsKey(dp.getJbpmKey()))
+					definicionsProces.put(dp.getJbpmKey(), dp);
+		// Cerca les definicions de procés de l'entorn
+		for (DefinicioProces dp : definicioProcesRepository.findDarreresVersionsBy(
+				expedientTipus.getEntorn().getId(), 
+				false, 
+				0L, 
+				true))
+			if (!definicionsProces.containsKey(dp.getJbpmKey()))
+				definicionsProces.put(dp.getJbpmKey(), dp);
+
+		// Retorna totes les definicions de procés trobades
+		return new ArrayList<DefinicioProces>(definicionsProces.values());
 	}
 
 	private static final Logger logger = LoggerFactory.getLogger(DefinicioProcesHelper.class);

@@ -121,12 +121,16 @@ public class DefinicioProcesController extends BaseDefinicioProcesController {
 
 			this.deleteDefinicioProces(entornActual.getId(), request, definicioProces);
 			
-			// Cerca la darrera definició de procés per codi jbpm
-			definicioProces = definicioProcesService.findByEntornIdAndJbpmKey(
-					entornActual.getId(), 
-					jbmpKey);
-			// Si no n'hi ha cap llavors torna al llistat
-			if (definicioProces == null)
+			// Cerca la darrera definició de procés per codi jbpm i expedient Tipus
+			ExpedientTipusDto et = definicioProces.getExpedientTipus();
+			if (et != null)
+				definicioProces = dissenyService.findDarreraDefinicioProcesForExpedientTipus(et.getId());
+			else
+				definicioProcesService.findByEntornIdAndJbpmKey(entornActual.getId(), jbmpKey);
+			
+			// Si no es troba la definició de procés anterior o canvia el tipus d'expedient torna al llistat
+			if (definicioProces == null 
+					|| (et != null && !et.getId().equals(definicioProces.getExpedientTipus() != null ? definicioProces.getExpedientTipus().getId() : 0L)))
 				return "redirect:/v3/definicioProces";
 			
 		} catch (Exception e) {
@@ -198,6 +202,14 @@ public class DefinicioProcesController extends BaseDefinicioProcesController {
 		DefinicioProcesDto definicioProces = definicioProcesService.findByEntornIdAndJbpmKey(
 				entornActual.getId(),
 				jbmpKey);
+		if (definicioProces == null) {
+			MissatgesHelper.error(
+					request, 
+					getMessage(request, 
+							"definicio.proces.pipelles.definicio.no.trobada", 
+							new Object[] {jbmpKey}));
+			return "redirect:/v3/definicioProces";			
+		}		
 		return "redirect:/v3/definicioProces/" + jbmpKey + "/" + definicioProces.getId();
 	}
 
