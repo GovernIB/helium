@@ -99,5 +99,7 @@ public class RegistreSortidaRegWeb3Handler extends BasicActionHandler {
 	public void setVarDocumentObservacions(String varDocumentObservacions) {}
 	public void setDocumentModeFirma(String documentModeFirma) {}
 	public void setVarDocumentModeFirma(String varDocumentModeFirma) {}
+	public void setVarNumeroRegistre(String varNumeroRegistre) {}
+	public void setVarDataRegistre(String varDataRegistre) {}
 
 }

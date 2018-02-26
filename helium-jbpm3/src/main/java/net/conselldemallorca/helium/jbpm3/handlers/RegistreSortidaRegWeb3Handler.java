@@ -125,6 +125,10 @@ public class RegistreSortidaRegWeb3Handler extends AbstractHeliumActionHandler {
 	private String documentModeFirma;
 	private String varDocumentModeFirma;
 	
+	//	variables per guardar número i data de registre
+	private String varNumeroRegistre;
+	private String varDataRegistre;
+	
 
 	public void execute(ExecutionContext executionContext) throws Exception {
 		if (!Jbpm3HeliumBridge.getInstanceService().isRegistreRegWeb3Actiu())
@@ -343,6 +347,10 @@ public class RegistreSortidaRegWeb3Handler extends AbstractHeliumActionHandler {
 				executionContext,
 				anotacio,
 				annexos);
+		
+		executionContext.setVariable(this.varNumeroRegistre, resposta.getNumero());
+		executionContext.setVariable(this.varDataRegistre, resposta.getData());
+		
 		Jbpm3HeliumBridge.getInstanceService().documentExpedientGuardarDadesRegistre(
 				documentInfo.getId(),
 				resposta.getNumero(),
@@ -800,4 +808,13 @@ public class RegistreSortidaRegWeb3Handler extends AbstractHeliumActionHandler {
 		this.varDocumentModeFirma = varDocumentModeFirma;
 	}
 
+
+	public void setVarNumeroRegistre(String varNumeroRegistre) {
+		this.varNumeroRegistre = varNumeroRegistre;
+	}
+
+
+	public void setVarDataRegistre(String varDataRegistre) {
+		this.varDataRegistre = varDataRegistre;
+	}
 }
