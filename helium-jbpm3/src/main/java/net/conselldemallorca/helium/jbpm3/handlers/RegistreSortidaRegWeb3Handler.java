@@ -348,8 +348,11 @@ public class RegistreSortidaRegWeb3Handler extends AbstractHeliumActionHandler {
 				anotacio,
 				annexos);
 		
-		executionContext.setVariable(this.varNumeroRegistre, resposta.getNumero());
-		executionContext.setVariable(this.varDataRegistre, resposta.getData());
+		if (varNumeroRegistre != null && !varNumeroRegistre.isEmpty())
+			executionContext.setVariable(varNumeroRegistre, resposta.getNumero());
+		
+		if (varDataRegistre != null && !varDataRegistre.isEmpty())
+			executionContext.setVariable(varDataRegistre, resposta.getData());
 		
 		Jbpm3HeliumBridge.getInstanceService().documentExpedientGuardarDadesRegistre(
 				documentInfo.getId(),
