@@ -1620,7 +1620,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 	public List<ExpedientDto> findSuggestAmbEntornLikeIdentificador(Long entornId, String text) {
 		List<ExpedientDto> resposta = new ArrayList<ExpedientDto>();
 		List<Expedient> expedients = expedientRepository.findAmbEntornLikeIdentificador(entornId, text);
-		for (Expedient expedient : expedients) {
+		for (Expedient expedient: expedients) {
 			resposta.add(conversioTipusHelper.convertir(expedient,ExpedientDto.class));
 		}
 		return resposta;

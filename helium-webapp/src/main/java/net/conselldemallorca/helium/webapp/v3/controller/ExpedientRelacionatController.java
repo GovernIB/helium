@@ -3,6 +3,8 @@
  */
 package net.conselldemallorca.helium.webapp.v3.controller;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -102,12 +104,12 @@ public class ExpedientRelacionatController extends BaseExpedientController {
 	public String suggestAction(
 			HttpServletRequest request,
 			@PathVariable String text,
-			ModelMap model) {
+			ModelMap model) throws UnsupportedEncodingException {
 		String json = "[";
 		EntornDto entorn = SessionHelper.getSessionManager(request).getEntornActual();
 		List<ExpedientDto> lista = expedientService.findSuggestAmbEntornLikeIdentificador(
 					entorn.getId(),
-					text);
+					URLDecoder.decode(text, "UTF-8"));
 		for (ExpedientDto expediente: lista) {
 			json += "{\"codi\":\"" + expediente.getId() + "\", \"nom\":\"" + expediente.getIdentificador() + "\"},";
 		}

@@ -296,7 +296,16 @@ public interface ExpedientRepository extends JpaRepository<Expedient, Long> {
 			@Param("mostrarAnulats") boolean mostrarAnulats,
 			@Param("nomesAlertes") boolean nomesAlertes);
 
-	@Query("select e from Expedient e where entorn.id = :entornId AND (titol like '%'||:text||'%' or numero like '%'||:text||'%') order by numero, titol")
+	@Query(	"select " +
+			"    e " +
+			"from " +
+			"    Expedient e " +
+			"where " +
+			"    entorn.id = :entornId " +
+			"and (lower(titol) like lower('%'||:text||'%') or lower(numero) like lower('%'||:text||'%')) " +
+			"order by " +
+			"    numero, " +
+			"    titol")
 	List<Expedient> findAmbEntornLikeIdentificador(
 			@Param("entornId") Long entornId,
 			@Param("text") String text);
