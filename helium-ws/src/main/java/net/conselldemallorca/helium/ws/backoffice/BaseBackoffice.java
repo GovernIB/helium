@@ -172,8 +172,7 @@ public abstract class BaseBackoffice {
 		boolean trobat = false;
 		Map<String, Object> resposta = new HashMap<String, Object>();
 		List<CampTasca> campsTasca = getCampsStartTask(expedientTipus);
-		
-		for (MapeigSistra mapeig : mapeigsSistra){
+		for (MapeigSistra mapeig: mapeigsSistra){
 			trobat = true;
 			Camp campHelium = null;
 			for (CampTasca campTasca: campsTasca) {
@@ -184,6 +183,18 @@ public abstract class BaseBackoffice {
 			}
 			try {
 				if (campHelium != null) {
+					logger.debug(
+							"Mapeig variable SISTRA-HELIUM (" +
+							"codiSistra=" + mapeig.getCodiSistra() + ", " +
+							"codiHelium=" + mapeig.getCodiHelium() + ", " +
+							"camp.codi=" + campHelium.getCodi() + ", " +
+							"camp.etiqueta=" + campHelium.getEtiqueta() + ", " +
+							"camp.tipus=" + campHelium.getTipus() + ", " +
+							"camp.dp.jbpmId=" + campHelium.getDefinicioProces().getJbpmId() + ", " +
+							"camp.dp.jbpmKey=" + campHelium.getDefinicioProces().getJbpmKey() + ", " +
+							"camp.dp.versio=" + campHelium.getDefinicioProces().getVersio() + ", " +
+							"camp.et.codi=" + campHelium.getDefinicioProces().getExpedientTipus().getCodi() + ", " +
+							"camp.et.nom=" + campHelium.getDefinicioProces().getExpedientTipus().getNom() + ")");
 					Object valorSistra = valorVariableSistra(
 							tramit,
 							mapeig.getCodiHelium(),
