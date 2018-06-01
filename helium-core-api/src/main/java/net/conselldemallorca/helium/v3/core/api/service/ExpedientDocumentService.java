@@ -6,9 +6,13 @@ package net.conselldemallorca.helium.v3.core.api.service;
 import java.util.Date;
 import java.util.List;
 
+import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDetallDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDocumentDto;
+import net.conselldemallorca.helium.v3.core.api.dto.NtiEstadoElaboracionEnumDto;
+import net.conselldemallorca.helium.v3.core.api.dto.NtiOrigenEnumDto;
+import net.conselldemallorca.helium.v3.core.api.dto.NtiTipoDocumentalEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PortasignaturesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RespostaValidacioSignaturaDto;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
@@ -22,10 +26,157 @@ import net.conselldemallorca.helium.v3.core.api.exception.SistemaExternException
  * @author Limit Tecnologies <limit@limit.es>
  */
 public interface ExpedientDocumentService {
-	
-	public static final String VERSIO_NTI = "http://administracionelectronica.gob.es/ENI/XSD/v1.0/expediente-e";
-	public static final String ORIGEN_NTI = "Administración";
-	public static final String ESTAT_ELABORACIO_NTI = "Original";
+
+	/**
+	 * Crea un nou document a dins la instància de procés.
+	 * 
+	 * @param expedientId
+	 *             atribut id de l'expedient.
+	 * @param processInstanceId
+	 *             atribut id de la instància de procés.
+	 * @param documentCodi
+	 *             codi de document dins el disseny de l'expedient.
+	 * @param data
+	 *             data del document.
+	 * @param arxiuNom
+	 *             nom d'arxiu del document.
+	 * @param arxiuContingut
+	 *             contingut de l'arxiu del document.
+	 * @param ntiOrigen
+	 *             orígen NTI.
+	 * @param ntiEstadoElaboracion
+	 *             estat d'elaboració NTI.
+	 * @param ntiTipoDocumental
+	 *             tipus de document NTI.
+	 * @param ntiIdOrigen
+	 *             identificador NTI Del document original.
+	 * @throws NoTrobatException
+	 */
+	public void create(
+			Long expedientId,
+			String processInstanceId,
+			String documentCodi,
+			Date data,
+			String arxiuNom,
+			byte[] arxiuContingut,
+			NtiOrigenEnumDto ntiOrigen,
+			NtiEstadoElaboracionEnumDto ntiEstadoElaboracion,
+			NtiTipoDocumentalEnumDto ntiTipoDocumental,
+			String ntiIdOrigen) throws NoTrobatException;
+
+	/**
+	 * Crea un nou document a dins la instància de procés.
+	 * 
+	 * @param expedientId
+	 *             atribut id de l'expedient.
+	 * @param processInstanceId
+	 *             atribut id de la instància de procés.
+	 * @param documentStoreId
+	 *             identificador del document a modificar.
+	 * @param data
+	 *             data del document.
+	 * @param arxiuNom
+	 *             nom d'arxiu del document.
+	 * @param arxiuContingut
+	 *             contingut de l'arxiu del document.
+	 * @param ntiOrigen
+	 *             orígen NTI.
+	 * @param ntiEstadoElaboracion
+	 *             estat d'elaboració NTI.
+	 * @param ntiTipoDocumental
+	 *             tipus de document NTI.
+	 * @param ntiIdOrigen
+	 *             identificador NTI Del document original.
+	 * @throws NoTrobatException
+	 */
+	public void update(
+			Long expedientId,
+			String processInstanceId,
+			Long documentStoreId,
+			Date data,
+			String arxiuNom,
+			byte[] arxiuContingut,
+			NtiOrigenEnumDto ntiOrigen,
+			NtiEstadoElaboracionEnumDto ntiEstadoElaboracion,
+			NtiTipoDocumentalEnumDto ntiTipoDocumental,
+			String ntiIdOrigen) throws NoTrobatException;
+
+	/**
+	 * Crea un nou document adjunt a dins la instància de procés.
+	 * 
+	 * @param expedientId
+	 *             atribut id de l'expedient.
+	 * @param processInstanceId
+	 *             atribut id de la instància de procés.
+	 * @param data
+	 *             data del document.
+	 * @param adjuntTitol
+	 *             títol del document adjunt.
+	 * @param arxiuNom
+	 *             nom d'arxiu del document.
+	 * @param arxiuContingut
+	 *             contingut de l'arxiu del document.
+	 * @param ntiOrigen
+	 *             orígen NTI.
+	 * @param ntiEstadoElaboracion
+	 *             estat d'elaboració NTI.
+	 * @param ntiTipoDocumental
+	 *             tipus de document NTI.
+	 * @param ntiIdOrigen
+	 *             identificador NTI Del document original.
+	 * @throws NoTrobatException
+	 */
+	public void createAdjunt(
+			Long expedientId,
+			String processInstanceId,
+			Date data,
+			String adjuntTitol,
+			String arxiuNom,
+			byte[] arxiuContingut,
+			NtiOrigenEnumDto ntiOrigen,
+			NtiEstadoElaboracionEnumDto ntiEstadoElaboracion,
+			NtiTipoDocumentalEnumDto ntiTipoDocumental,
+			String ntiIdOrigen) throws NoTrobatException;
+
+	/**
+	 * Modifica un document adjunt de la instància de procés.
+	 * 
+	 * @param expedientId
+	 *             atribut id de l'expedient.
+	 * @param processInstanceId
+	 *             atribut id de la instància de procés.
+	 * @param documentStoreId
+	 *             identificador del document a modificar.
+	 * @param data
+	 *             data del document.
+	 * @param adjuntTitol
+	 *             títol del document adjunt.
+	 * @param arxiuNom
+	 *             nom d'arxiu del document.
+	 * @param arxiuContingut
+	 *             contingut de l'arxiu del document.
+	 * @param ntiOrigen
+	 *             orígen NTI.
+	 * @param ntiEstadoElaboracion
+	 *             estat d'elaboració NTI.
+	 * @param ntiTipoDocumental
+	 *             tipus de document NTI.
+	 * @param ntiIdOrigen
+	 *             identificador NTI Del document original.
+	 * @throws NoTrobatException
+	 */
+	public void updateAdjunt(
+			Long expedientId,
+			String processInstanceId,
+			Long documentStoreId,
+			Date data,
+			String adjuntTitol,
+			String arxiuNom,
+			byte[] arxiuContingut,
+			NtiOrigenEnumDto ntiOrigen,
+			NtiEstadoElaboracionEnumDto ntiEstadoElaboracion,
+			NtiTipoDocumentalEnumDto ntiTipoDocumental,
+			String ntiIdOrigen) throws NoTrobatException;
 
 	/**
 	 * Crea o modifica un document de la instància de procés.
@@ -45,19 +196,21 @@ public interface ExpedientDocumentService {
 	 * @param arxiuContingut
 	 *             contingut de l'arxiu del document.
 	 * @param data
-	 *             data del document.          
-	 * @param ntiOrigen 
-	 * @param ntiDefGenCsv
-	 * @param ntiValorCsv 
-	 * @param ntiTipusFirma 
-	 * @param ntiTipusDocumental 
-	 *             
+	 *             data del document.
+	 * @param ntiOrigen
+	 *             orígen NTI.
+	 * @param ntiEstadoElaboracion
+	 *             estat d'elaboració NTI.
+	 * @param ntiTipoDocumental
+	 *             tipus de document NTI.
+	 * @param ntiIdOrigen
+	 *             identificador NTI Del document original.
 	 * @throws NoTrobatException
 	 *             Si no s'ha trobat l'element amb l'id especificat.
 	 * @throws PermisDenegatException
 	 *             Si no es tenen els permisos requerits per aquesta acció.
 	 */
-	public void createOrUpdate(
+	/*public void createOrUpdatea(
 			Long expedientId,
 			String processInstanceId,
 			Long documentId,
@@ -65,12 +218,11 @@ public interface ExpedientDocumentService {
 			String titol,
 			String arxiuNom,
 			byte[] arxiuContingut,
-			Date data, 
-			String ntiTipusDocumental,
-			String ntiTipusFirma,
-			String ntiValorCsv, 
-			String ntiDefGenCsv, 
-			String ntiOrigen) throws NoTrobatException, PermisDenegatException;
+			Date data,
+			NtiOrigenEnumDto ntiOrigen,
+			NtiEstadoElaboracionEnumDto ntiEstadoElaboracion,
+			NtiTipoDocumentalEnumDto ntiTipoDocumental,
+			String ntiIdOrigen) throws NoTrobatException, PermisDenegatException;*/
 
 	/**
 	 * Esborra un document d'una instància de procés.
@@ -235,7 +387,6 @@ public interface ExpedientDocumentService {
 			String documentCodi,
 			String arxiuNom) throws NoTrobatException, PermisDenegatException;
 
-	/* PER REVISAR! */
 	/**
 	 * Genera l'arxiu d'un document per una tasca a partir de la seva plantilla.
 	 * 
@@ -274,31 +425,29 @@ public interface ExpedientDocumentService {
 			String arxiuNom) throws NoTrobatException, PermisDenegatException;
 
 	public List<RespostaValidacioSignaturaDto> verificarSignatura(Long documentStoreId);
-	
+
 	public Object findPortasignaturesInfo(Long expedientId, String processInstanceId, Long documentStoreId) throws NoTrobatException;
 
-	/*
-	public List<DocumentDto> dissenyFindAmbDefinicioProces(
-			Long definicioProcesId,
-			String processInstanceId,
-			String expedientTipusNom) throws NoTrobatException, PermisDenegatException;
-	public DocumentDto findById(Long id) throws NoTrobatException;
-	public ArxiuDto arxiuPerMostrar(String token);
-	public ArxiuDto arxiuPerSignar(String token);
-	public ExpedientDocumentDto findDocumentPerDocumentStoreId(
+	public ArxiuDto findArxiuAmbTokenPerMostrar(String token) throws NoTrobatException;
+
+	public ArxiuDto findArxiuAmbTokenPerSignar(String token) throws NoTrobatException;
+
+	public DocumentDto findDocumentAmbId(Long documentStoreId) throws NoTrobatException;
+
+	/**
+	 * Retorna la informació del document emmagatzemada a dins l'arxiu.
+	 * 
+	 * @param expedientId
+	 *            Atribut id de l'expedient que es vol actualitzar.
+	 * @param processInstanceId
+	 *             atribut id de la instància de procés.
+	 * @param documentCodi
+	 *             codi de document dins el disseny de l'expedient.
+	 * @return la informació del document emmagatzemada a dins l'arxiu
+	 */
+	public ArxiuDetallDto getArxiuDetall(
 			Long expedientId,
 			String processInstanceId,
-			Long documentStoreId) throws NoTrobatException;
-	public Long findDocumentStorePerInstanciaProcesAndDocumentCodi(
-			String processInstanceId,
-			String documentCodi);*/
-	
-	public ArxiuDto arxiuDocumentPerSignar(String token) throws NoTrobatException;
-	
-	public ArxiuDto arxiuDocumentPerMostrar(String token) throws NoTrobatException;
-	
-	public DocumentDto getDocument(Long documentStoreId) throws NoTrobatException;
-
-	public void crearDocumentInstanciaProces(Long expedientId, String processInstanceId, String documentCodi, String nomArxiu, byte[] arxiu, Date data) throws NoTrobatException;
+			Long documentStoreId);
 
 }

@@ -16,6 +16,7 @@ import org.jbpm.graph.exe.ProcessInstanceExpedient;
 import org.springframework.stereotype.Component;
 
 import net.conselldemallorca.helium.core.common.JbpmVars;
+import net.conselldemallorca.helium.core.helper.DocumentHelperV3;
 import net.conselldemallorca.helium.core.helper.ExpedientHelper;
 import net.conselldemallorca.helium.core.helper.PluginHelper;
 import net.conselldemallorca.helium.core.model.dto.DocumentDto;
@@ -35,6 +36,7 @@ import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessDefinition;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessInstance;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmTask;
+import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.exception.SistemaExternException;
 import net.conselldemallorca.helium.v3.core.repository.DefinicioProcesRepository;
 import net.conselldemallorca.helium.v3.core.repository.DocumentRepository;
@@ -71,6 +73,8 @@ public class DocumentHelper {
 	private PluginHelper pluginHelper;
 	@Resource
 	private ExpedientHelper expedientHelper;
+	@Resource(name = "documentHelperV3")
+	private DocumentHelperV3 documentHelperV3;
 
 	private DocumentTokenUtils documentTokenUtils;
 	private PdfUtils pdfUtils;
@@ -240,6 +244,7 @@ public class DocumentHelper {
 		}
 	}
 
+	@SuppressWarnings("incomplete-switch")
 	public boolean signarDocumentTascaAmbToken(
 			String token,
 			byte[] signatura) {
@@ -254,8 +259,29 @@ public class DocumentHelper {
 				true);
 		if (dto != null) {
 			DocumentStore documentStore = documentStoreRepository.findOne(dto.getId());
+			Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(
+					documentStore.getProcessInstanceId());
 			boolean custodiat = false;
-			if (pluginHelper.custodiaIsPluginActiu()) {
+			if (documentStore.getArxiuUuid() != null) {
+				ArxiuDto pdfFirmat = new ArxiuDto();
+				pdfFirmat.setNom("firma.pdf");
+				pdfFirmat.setTipusMime("application/pdf");
+				pdfFirmat.setContingut(signatura);
+				pluginHelper.arxiuDocumentGuardarPdfFirmat(
+						expedient,
+						documentStore,
+						dto.getDocumentNom(),
+						pdfFirmat);
+				es.caib.plugins.arxiu.api.Document documentArxiu = pluginHelper.arxiuDocumentInfo(
+						documentStore.getArxiuUuid(),
+						null,
+						false);
+				documentHelperV3.actualitzarNtiFirma(documentStore, documentArxiu);
+				custodiat = true;
+			} else if (pluginHelper.custodiaIsPluginActiu()) {
+				if (expedient.isNtiActiu()) {
+					documentHelperV3.actualitzarNtiFirma(documentStore, null);
+				}
 				String nomArxiu = getNomArxiuAmbExtensio(
 						dto.getArxiuNom(),
 						getExtensioArxiuSignat());
@@ -451,6 +477,12 @@ public class DocumentHelper {
 
 	public JbpmTask getTaskPerToken(String token) {
 		return jbpmDao.getTaskById(getTaskInstanceIdPerToken(token));
+	}
+
+	public void actualitzarNtiFirma(
+			DocumentStore documentStore,
+			es.caib.plugins.arxiu.api.Document arxiuDocument) {
+		documentHelperV3.actualitzarNtiFirma(documentStore, arxiuDocument);
 	}
 
 

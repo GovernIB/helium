@@ -4,7 +4,6 @@
 <%@ taglib uri="http://www.springframework.org/tags/form" prefix="form" %>
 <%@ taglib tagdir="/WEB-INF/tags/helium" prefix="hel"%>
 <c:set var="idioma"><%=org.springframework.web.servlet.support.RequestContextUtils.getLocale(request).getLanguage()%></c:set>
-
 <c:choose>
 	<c:when test="${empty expedientTipusDocumentCommand.id}"><
 		<c:set var="titol"><spring:message code="expedient.tipus.document.form.titol.nou"/></c:set>
@@ -15,7 +14,6 @@
 		<c:set var="formAction">update</c:set>
 	</c:otherwise>
 </c:choose>
-
 <html>
 <head>
 	<title>${titol}</title>
@@ -52,7 +50,7 @@
 	 			textKey="expedient.tipus.document.form.camp.arxiu"
 	 			fileName="arxiuNom"
 	 			fileUrl="${arxiuUrl}"
-	 			fileExists="${not empty expedientTipusDocumentCommand.arxiuContingut}" /> 			
+	 			fileExists="${not empty expedientTipusDocumentCommand.arxiuContingut}" />		
 			<hel:inputCheckbox name="plantilla" textKey="expedient.tipus.document.form.camp.plantilla" />
 			<hel:inputText name="convertirExtensio" textKey="expedient.tipus.document.form.camp.gen_ext" />
 			<hel:inputCheckbox name="adjuntarAuto" textKey="expedient.tipus.document.form.camp.adj_auto" />
@@ -62,19 +60,13 @@
 			<hel:inputText name="custodiaCodi" textKey="expedient.tipus.document.form.camp.codi_custodia" comment="expedient.tipus.document.form.camp.codi_custodia.comment" />
 			<hel:inputText name="tipusDocPortasignatures" textKey="expedient.tipus.document.form.camp.tipus_doc" comment="expedient.tipus.document.form.camp.tipus_doc.comment" />
 			<hel:inputCheckbox name="ignored" textKey="expedient.tipus.document.form.camp.ignored" comment="expedient.tipus.document.form.camp.ignored.comment"/> 			
-			
-			<c:if test="${metadades}">
-				<fieldset>
-					<legend><spring:message code="expedient.tipus.document.form.legend.metadades.nti"></spring:message></legend>
-					<hel:inputSelect required="false" emptyOption="true" name="ntiTipusDocumental" textKey="expedient.tipus.document.form.camp.tipus.documental" optionItems="${ntiTipusDocumental}" optionValueAttribute="codi" optionTextAttribute="valor"/>
-					
-					<hel:inputSelect name="ntiTipoFirma" textKey="expedient.tipus.metadades.nti.tipus.firma" required="false" emptyOption="true" optionItems="${ntiTipoFirma}" optionValueAttribute="codi" optionTextAttribute="valor"/>
-					<hel:inputText name="ntiValorCsv" textKey="expedient.tipus.metadades.nti.valor.csv" disabled="${expedientTipusDocumentCommand.ntiTipoFirma != 'CSV'}"/>
-					<hel:inputText name="ntiDefGenCsv" textKey="expedient.tipus.metadades.nti.definicio.generacio.csv" disabled="${expedientTipusDocumentCommand.ntiTipoFirma != 'CSV'}"/>
-				</fieldset>
-			</c:if>
+			<fieldset>
+				<legend><spring:message code="expedient.tipus.document.form.legend.metadades.nti"></spring:message></legend>
+				<hel:inputSelect name="ntiOrigen" textKey="expedient.tipus.document.form.camp.nti.origen" optionItems="${ntiOrigen}" optionValueAttribute="codi" optionTextAttribute="valor" emptyOption="true" comment="expedient.tipus.document.form.camp.nti.origen.comentari"/>
+				<hel:inputSelect name="ntiEstadoElaboracion" textKey="expedient.tipus.document.form.camp.nti.estado.elaboracion" optionItems="${ntiEstadoElaboracion}" optionValueAttribute="codi" optionTextAttribute="valor" emptyOption="true" comment="expedient.tipus.document.form.camp.nti.estado.elaboracion.comentari"/>
+				<hel:inputSelect name="ntiTipoDocumental" textKey="expedient.tipus.document.form.camp.nti.tipo.documental" optionItems="${ntiTipoDocumental}" optionValueAttribute="codi" optionTextAttribute="valor" emptyOption="true" comment="expedient.tipus.document.form.camp.nti.tipo.documental.comentari"/>
+			</fieldset>
 		</div>
-		
 		<div id="modal-botons" class="well">
 			<button type="button" class="btn btn-default" data-modal-cancel="true"><spring:message code="comu.boto.cancelar"/></button>
 			<c:choose>
@@ -89,29 +81,7 @@
 					</button>
 				</c:otherwise>
 			</c:choose>
-	
 		</div>
-
 	</form:form>
-	<script type="text/javascript">
-		// <![CDATA[		
-		$(document).ready( function() {
-			
-			$('#ntiTipoFirma').on("change", function(e) {
-				var data = $("#ntiTipoFirma option:selected").val();
-				if(data == 'CSV') {
-					$('#ntiValorCsv').prop('disabled', false);
-					$('#ntiDefGenCsv').prop('disabled', false);
-				} else {
-					$('#ntiValorCsv').prop('disabled', true);
-					$('#ntiValorCsv').prop('value', null);
-					$('#ntiDefGenCsv').prop('disabled', true);
-					$('#ntiDefGenCsv').prop('value', null);
-				}
-			});
-			
-		}); 
-		// ]]>
-	</script>	
 </body>
 </html>

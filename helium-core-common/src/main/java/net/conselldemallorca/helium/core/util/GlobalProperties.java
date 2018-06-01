@@ -5,8 +5,6 @@ package net.conselldemallorca.helium.core.util;
 
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Properties;
 
 import org.slf4j.Logger;
@@ -101,13 +99,13 @@ public class GlobalProperties extends Properties {
 		return new Double(getProperty(key)).doubleValue();
 	}
 
-	public Map<String, String> findByPrefix(String prefix) {
-		Map<String, String> properties = new HashMap<String, String>();
+	public Properties findByPrefix(String prefix) {
+		Properties properties = new Properties();
 		if (llegirSystem) {
 			for (Object key: System.getProperties().keySet()) {
 				if (key instanceof String) {
 					String keystr = (String)key;
-					if (keystr.startsWith(prefix)) {
+					if (prefix == null || keystr.startsWith(prefix)) {
 						properties.put(
 								keystr,
 								System.getProperty(keystr));
@@ -118,7 +116,7 @@ public class GlobalProperties extends Properties {
 			for (Object key: this.keySet()) {
 				if (key instanceof String) {
 					String keystr = (String)key;
-					if (keystr.startsWith(prefix)) {
+					if (prefix == null || keystr.startsWith(prefix)) {
 						properties.put(
 								keystr,
 								getProperty(keystr));
@@ -128,9 +126,12 @@ public class GlobalProperties extends Properties {
 		}
 		return properties;
 	}
+	public Properties findAll() {
+		return findByPrefix(null);
+	}
 
-	public Map<String, String> getPropertiesByPrefix(String prefix) {
-		return findByPrefix(prefix);
+	public boolean isLlegirSystem() {
+		return llegirSystem;
 	}
 
 	private static final Logger logger = LoggerFactory.getLogger(GlobalProperties.class);

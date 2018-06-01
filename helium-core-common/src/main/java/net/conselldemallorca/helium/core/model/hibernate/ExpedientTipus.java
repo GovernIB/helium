@@ -145,20 +145,14 @@ public class ExpedientTipus implements Serializable, GenericEntity<Long> {
 	private List<Termini> terminis = new ArrayList<Termini>();
 	private List<Accio> accions = new ArrayList<Accio>();
 	
-	@NotNull
-	private Boolean ntiActiu;
-	@MaxLength(64)
-	private String ntiOrgan;
-	@MaxLength(64)
-	private String ntiClasificacio;
-	@MaxLength(64)
+	private boolean ntiActiu;
+	@MaxLength(256)
+	private String ntiOrgano;
+	@MaxLength(44)
+	private String ntiClasificacion;
+	@MaxLength(16)
 	private String ntiSerieDocumental;
-	@MaxLength(64)
-	private String ntiTipoFirma;
-	@MaxLength(128)
-	private String ntiValorCsv;
-	@MaxLength(128)
-	private String ntiDefGenCsv;
+	private boolean arxiuActiu;
 	
 	public ExpedientTipus() {}
 	public ExpedientTipus(String codi, String nom, Entorn entorn) {
@@ -691,64 +685,46 @@ public class ExpedientTipus implements Serializable, GenericEntity<Long> {
 		this.accions = accions;
 	}
 	
-	
-	@Column(name="nti_activo")
-	public Boolean getNtiActiu() {
-		return ntiActiu != null? ntiActiu.booleanValue() : false;
+	@Column(name="nti_actiu")
+	public boolean isNtiActiu() {
+		return ntiActiu;
 	}
-	public void setNtiActiu(Boolean ntiActiu) {
+	public void setNtiActiu(boolean ntiActiu) {
 		this.ntiActiu = ntiActiu;
 	}
 	
-	@Column(name="nti_organo", length=64)
-	public String getNtiOrgan() {
-		return ntiOrgan;
+	@Column(name="nti_organo", length=256)
+	public String getNtiOrgano() {
+		return ntiOrgano;
 	}
-	public void setNtiOrgan(String ntiOrgan) {
-		this.ntiOrgan = ntiOrgan;
+	public void setNtiOrgano(String ntiOrgano) {
+		this.ntiOrgano = ntiOrgano;
 	}
-	
-	@Column(name="nti_clasificacion", length=64)
-	public String getNtiClasificacio() {
-		return ntiClasificacio;
+
+	@Column(name="nti_clasificacion", length=44)
+	public String getNtiClasificacion() {
+		return ntiClasificacion;
 	}
-	public void setNtiClasificacio(String ntiClasificacio) {
-		this.ntiClasificacio = ntiClasificacio;
+	public void setNtiClasificacion(String ntiClasificacion) {
+		this.ntiClasificacion = ntiClasificacion;
 	}
-	
-	@Column(name="nti_seriedocumental", length=64)
+
+	@Column(name="nti_seriedocumental", length=16)
 	public String getNtiSerieDocumental() {
 		return ntiSerieDocumental;
 	}
 	public void setNtiSerieDocumental(String ntiSerieDocumental) {
 		this.ntiSerieDocumental = ntiSerieDocumental;
 	}
-	
-	@Column(name="nti_tipo_firma", length=64)
-	public String getNtiTipoFirma() {
-		return ntiTipoFirma;
+
+	@Column(name="arxiu_actiu")
+	public boolean isArxiuActiu() {
+		return arxiuActiu;
 	}
-	public void setNtiTipoFirma(String ntiTipoFirma) {
-		this.ntiTipoFirma = ntiTipoFirma;
+	public void setArxiuActiu(boolean arxiuActiu) {
+		this.arxiuActiu = arxiuActiu;
 	}
-	
-	@Column(name="nti_valor_csv", length=128)
-	public String getNtiValorCsv() {
-		return ntiValorCsv;
-	}
-	public void setNtiValorCsv(String ntiValorCsv) {
-		this.ntiValorCsv = ntiValorCsv;
-	}
-	
-	@Column(name="nti_definicion_generacion_csv", length=128)
-	public String getNtiDefGenCsv() {
-		return ntiDefGenCsv;
-	}
-	public void setNtiDefGenCsv(String ntiDefGenCsv) {
-		this.ntiDefGenCsv = ntiDefGenCsv;
-	}
-	
-	
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;

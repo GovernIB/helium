@@ -296,8 +296,9 @@ public abstract class BasicActionHandler extends AbstractHeliumActionHandler imp
 				documents = new ArrayList<ArxiuDto>();
 				for (Long id: attachments) {
 					ArxiuDto arxiu = Jbpm3HeliumBridge.getInstanceService().getArxiuPerMostrar(id);
-					if (arxiu != null)
+					if (arxiu != null) {
 						documents.add(arxiu);
+					}
 				}
 			}
 			Jbpm3HeliumBridge.getInstanceService().emailSend(

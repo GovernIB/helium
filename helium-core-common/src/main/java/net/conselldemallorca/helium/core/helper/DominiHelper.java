@@ -312,7 +312,6 @@ public class DominiHelper {
 			return resposta;
 		} catch (Exception ex) {
 			logger.error("ERROR SISTEMA DOMINI INTERN: ", ex);
-			
 			monitorDominiHelper.addAccioError(
 					domini,
 					"Consulta WS (id=" + id + ")",
@@ -321,7 +320,6 @@ public class DominiHelper {
 					ex.getMessage(),
 					ex,
 					toIntegracioParametres(parametres));
-			
 			throw SistemaExternException.tractarSistemaExternException(
 					domini.getEntorn().getId(),
 					domini.getEntorn().getCodi(), 

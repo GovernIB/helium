@@ -38,9 +38,11 @@ public class DocumentServiceBean implements DocumentService {
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public DocumentDto create(boolean ntiActiu, Long expedientTipusId, Long definicioProcesId,
+	public DocumentDto create(
+			Long expedientTipusId,
+			Long definicioProcesId,
 			DocumentDto document) throws PermisDenegatException {
-		return delegate.create(ntiActiu, expedientTipusId, definicioProcesId, document);
+		return delegate.create(expedientTipusId, definicioProcesId, document);
 	}
 
 	@Override
@@ -69,9 +71,13 @@ public class DocumentServiceBean implements DocumentService {
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public DocumentDto update(boolean ntiActiu, DocumentDto document, boolean actualitzarContingut)
+	public DocumentDto update(
+			DocumentDto document,
+			boolean actualitzarContingut)
 			throws NoTrobatException, PermisDenegatException {
-		return delegate.update(ntiActiu, document, actualitzarContingut);
+		return delegate.update(
+				document,
+				actualitzarContingut);
 	}
 
 	@Override

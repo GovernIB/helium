@@ -62,7 +62,6 @@ public class DocumentServiceImpl implements DocumentService {
 				"expedientTipusId =" + expedientTipusId + ", " +
 				"definicioProcesId =" + definicioProcesId + ", " +
 				"filtre=" + filtre + ")");
-				
 		return paginacioHelper.toPaginaDto(
 				documentRepository.findByFiltrePaginat(
 						expedientTipusId,
@@ -73,15 +72,13 @@ public class DocumentServiceImpl implements DocumentService {
 								paginacioParams)),
 						DocumentDto.class);
 	}
-	
+
 	@Override
 	@Transactional
 	public DocumentDto create(
-			boolean ntiActiu,
 			Long expedientTipusId, 
 			Long definicioProcesId, 
 			DocumentDto document) {
-
 		logger.debug(
 				"Creant nou document per un tipus d'expedient (" +
 				"expedientTipusId =" + expedientTipusId + ", " +
@@ -96,26 +93,21 @@ public class DocumentServiceImpl implements DocumentService {
 		entity.setArxiuContingut(document.getArxiuContingut());
 		entity.setConvertirExtensio(document.getConvertirExtensio());
 		entity.setAdjuntarAuto(document.isAdjuntarAuto());
-		if (document.getCampData() != null)
+		if (document.getCampData() != null) {
 			entity.setCampData(campRepository.findOne(document.getCampData().getId()));
+		}
 		entity.setExtensionsPermeses(document.getExtensionsPermeses());
 		entity.setContentType(document.getContentType());
 		entity.setCustodiaCodi(document.getCustodiaCodi());
 		entity.setTipusDocPortasignatures(document.getTipusDocPortasignatures());
 		entity.setIgnored(document.isIgnored());
-		
-		if(ntiActiu) {
-			entity.setNtiTipusDocumental(document.getNtiTipusDocumental());
-			entity.setNtiTipoFirma(document.getNtiTipoFirma());
-			entity.setNtiValorCsv(document.getNtiValorCsv());
-			entity.setNtiDefGenCsv(document.getNtiDefGenCsv());
-		}
-		
+		entity.setNtiOrigen(document.getNtiOrigen());
+		entity.setNtiEstadoElaboracion(document.getNtiEstadoElaboracion());
+		entity.setNtiTipoDocumental(document.getNtiTipoDocumental());
 		if (expedientTipusId != null)
 			entity.setExpedientTipus(expedientTipusRepository.findOne(expedientTipusId));
 		if (definicioProcesId != null)
 			entity.setDefinicioProces(definicioProcesRepository.findOne(definicioProcesId));
-
 		return conversioTipusHelper.convertir(
 				documentRepository.save(entity),
 				DocumentDto.class);
@@ -134,14 +126,15 @@ public class DocumentServiceImpl implements DocumentService {
 				"definicioProcesId =" + definicioProcesId + ", " +
 				"codi = " + codi + ")");
 		Document document = null;
-		if (expedientTipusId != null)
+		if (expedientTipusId != null) {
 			document = documentRepository.findByExpedientTipusAndCodi(
-											expedientTipusRepository.findOne(expedientTipusId), 
-											codi);
-		else if(definicioProcesId != null)
+					expedientTipusRepository.findOne(expedientTipusId),
+					codi);
+		} else if(definicioProcesId != null) {
 			document = documentRepository.findByDefinicioProcesAndCodi(
-											definicioProcesRepository.findOne(definicioProcesId), 
-											codi);
+					definicioProcesRepository.findOne(definicioProcesId),
+					codi);
+		}
 		if (document != null) {
 			ret = conversioTipusHelper.convertir(
 					document,
@@ -158,7 +151,6 @@ public class DocumentServiceImpl implements DocumentService {
 				"Esborrant el document del tipus d'expedient (" +
 				"documentId=" + documentId +  ")");
 		Document entity = documentRepository.findOne(documentId);
-
 		if (entity != null) {
 			for (DocumentTasca documentTasca: entity.getTasques()) {
 				documentTasca.getTasca().removeDocument(documentTasca);
@@ -186,14 +178,12 @@ public class DocumentServiceImpl implements DocumentService {
 				document,
 				DocumentDto.class);
 		ret.setArxiuContingut(document.getArxiuContingut());
-		
 		return ret;
 	}
 	
 	@Override
 	@Transactional
 	public DocumentDto update(
-			boolean ntiActiu,
 			DocumentDto document,
 			boolean actualitzarContingut) {
 		logger.debug(
@@ -207,53 +197,45 @@ public class DocumentServiceImpl implements DocumentService {
 		entity.setDescripcio(document.getDescripcio());
 		entity.setPlantilla(document.isPlantilla());
 		entity.setArxiuNom(document.getArxiuNom());
-		if (actualitzarContingut)
+		if (actualitzarContingut) {
 			entity.setArxiuContingut(document.getArxiuContingut());
+		}
 		entity.setConvertirExtensio(document.getConvertirExtensio());
 		entity.setAdjuntarAuto(document.isAdjuntarAuto());
-		if (document.getCampData() != null)
+		if (document.getCampData() != null) {
 			entity.setCampData(campRepository.findOne(document.getCampData().getId()));
-		else
+		} else {
 			entity.setCampData(null);
+		}
 		entity.setIgnored(document.isIgnored());
-
 		entity.setExtensionsPermeses(document.getExtensionsPermeses());
 		entity.setContentType(document.getContentType());
 		entity.setCustodiaCodi(document.getCustodiaCodi());
 		entity.setTipusDocPortasignatures(document.getTipusDocPortasignatures());
-		
-		if(ntiActiu) {
-			entity.setNtiTipusDocumental(document.getNtiTipusDocumental());
-			entity.setNtiTipoFirma(document.getNtiTipoFirma());
-			entity.setNtiValorCsv(document.getNtiValorCsv());
-			entity.setNtiDefGenCsv(document.getNtiDefGenCsv());
-		}
-
+		entity.setNtiOrigen(document.getNtiOrigen());
+		entity.setNtiEstadoElaboracion(document.getNtiEstadoElaboracion());
+		entity.setNtiTipoDocumental(document.getNtiTipoDocumental());
 		return conversioTipusHelper.convertir(
 				documentRepository.save(entity),
 				DocumentDto.class);
 	}
-	
+
 	@Override
 	@Transactional(readOnly = true)
 	public ArxiuDto getArxiu(
 			Long id) {
 		logger.debug("obtenint contingut de l'arxiu pel document (" +
 				"id=" + id + ")");
-		
 		Document document = documentRepository.findOne(id);
 		if (document == null) {
 			throw new NoTrobatException(Document.class,id);
 		}
-		
 		ArxiuDto resposta = new ArxiuDto();
-		
 		resposta.setNom(document.getArxiuNom());
 		resposta.setContingut(document.getArxiuContingut());
-		
 		return resposta;
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -271,6 +253,7 @@ public class DocumentServiceImpl implements DocumentService {
 						: documentRepository.findByDefinicioProcesIdOrderByCodiAsc(definicioProcesId), 
 				DocumentDto.class);
 	}		
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(DocumentServiceImpl.class);
+
 }

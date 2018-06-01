@@ -74,10 +74,11 @@ public class ConversioTipusHelper {
 						target.setExpedientTipus(mapperFacade.map(
 								source.getExpedientTipus(), 
 								ExpedientTipusDto.class));
-						if (source.getCampData() != null)
+						if (source.getCampData() != null) {
 							target.setCampData(mapperFacade.map(
 									source.getCampData(), 
 									CampDto.class));
+						}
 						target.setConvertirExtensio(source.getConvertirExtensio());
 						target.setAdjuntarAuto(source.isAdjuntarAuto());
 						target.setExtensionsPermeses(source.getExtensionsPermeses());
@@ -85,13 +86,9 @@ public class ConversioTipusHelper {
 						target.setCustodiaCodi(source.getCustodiaCodi());
 						target.setTipusDocPortasignatures(source.getTipusDocPortasignatures());
 						target.setIgnored(source.isIgnored());
-						
-						target.setNtiTipusDocumental(source.getNtiTipusDocumental());
-						
-						target.setNtiTipoFirma(source.getNtiTipoFirma());
-						target.setNtiValorCsv(source.getNtiValorCsv());
-						target.setNtiDefGenCsv(source.getNtiDefGenCsv());
-						
+						target.setNtiOrigen(source.getNtiOrigen());
+						target.setNtiEstadoElaboracion(source.getNtiEstadoElaboracion());
+						target.setNtiTipoDocumental(source.getNtiTipoDocumental());
 						return target;
 					}
 		});
@@ -244,17 +241,11 @@ public class ConversioTipusHelper {
 						target.setTeNumero(source.getTeNumero());
 						target.setTeTitol(source.getTeTitol());
 						target.setTramitacioMassiva(source.isTramitacioMassiva());
-						
-						target.setNtiActiu(source.getNtiActiu());
-						
-						target.setNtiOrgan(source.getNtiOrgan());
-						target.setNtiClasificacio(source.getNtiClasificacio());
+						target.setNtiActiu(source.isNtiActiu());
+						target.setNtiOrgano(source.getNtiOrgano());
+						target.setNtiClasificacion(source.getNtiClasificacion());
 						target.setNtiSerieDocumental(source.getNtiSerieDocumental());
-						
-						target.setNtiTipoFirma(source.getNtiTipoFirma());
-						target.setNtiValorCsv(source.getNtiValorCsv());
-						target.setNtiDefGenCsv(source.getNtiDefGenCsv());
-						
+						target.setArxiuActiu(source.isArxiuActiu());
 						Map<Integer,SequenciaAnyDto> sequenciaAnyMap = new HashMap<Integer, SequenciaAnyDto>();
 						for (Entry<Integer, SequenciaAny> entry : source.getSequenciaAny().entrySet()) {
 							SequenciaAny value = entry.getValue();
@@ -323,17 +314,11 @@ public class ConversioTipusHelper {
 						target.setTeNumero(source.isTeNumero());
 						target.setTeTitol(source.isTeTitol());
 						target.setTramitacioMassiva(source.isTramitacioMassiva());
-						
 						target.setNtiActiu(source.isNtiActiu());
-						
-						target.setNtiOrgan(source.getNtiOrgan());
-						target.setNtiClasificacio(source.getNtiClasificacio());
+						target.setNtiOrgano(source.getNtiOrgano());
+						target.setNtiClasificacion(source.getNtiClasificacion());
 						target.setNtiSerieDocumental(source.getNtiSerieDocumental());
-						
-						target.setNtiTipoFirma(source.getNtiTipoFirma());
-						target.setNtiValorCsv(source.getNtiValorCsv());
-						target.setNtiDefGenCsv(source.getNtiDefGenCsv());
-						
+						target.setArxiuActiu(source.isArxiuActiu());
 						SortedMap<Integer, SequenciaAny> sequenciaAnySorted = new TreeMap<Integer, SequenciaAny>();
 						for (Entry<Integer, SequenciaAnyDto> entry : source.getSequenciaAny().entrySet()) {
 							SequenciaAnyDto valueDto = entry.getValue();

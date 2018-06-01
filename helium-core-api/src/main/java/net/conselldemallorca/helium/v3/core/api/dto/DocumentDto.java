@@ -6,54 +6,12 @@ package net.conselldemallorca.helium.v3.core.api.dto;
 import java.io.Serializable;
 import java.util.Date;
 
-
 /**
  * DTO amb informació d'un document.
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
 public class DocumentDto implements Serializable {
-	
-	public enum TipoDocumental {
-		
-		RESOLUCIO				("TD01"),
-	    ACORD					("TD02"),
-		CONTRACTE				("TD03"),
-		CONVENI					("TD04"),
-		DECLARACIO				("TD05"),
-		COMUNICACIO				("TD06"),
-		NOTIFICACIO				("TD07"),
-		PUBLICACIO				("TD08"),
-		JUSTIFICANT_REBUT		("TD09"),
-		ACTA					("TD10"),
-		CERTIFICAT				("TD11"),
-		DILIGENCIA				("TD12"),
-		INFORME					("TD13"),
-		SOLICITUD				("TD14"),
-		DENUNCIA				("TD15"),
-		ALEGACIO				("TD16"),
-		ALTRES					("TD99");
-		
-		private final String codi;
-	    
-	    private TipoDocumental(String codi) {
-	        this.codi = codi;
-	    }
-
-	    public String getCodi() {
-	        return codi;
-	    }
-	    
-	    public static String getNameByCodi(String codi) {
-	    	
-	    	for(TipoDocumental td : TipoDocumental.values()) {
-	    		if(td.codi.equals(codi))
-	    			return td.name();
-	    	}
-	    	return null;
-	    }
-
-	}
 
 	private Long id;
 	private String codi;
@@ -63,7 +21,6 @@ public class DocumentDto implements Serializable {
 	private Date dataModificacio;
 	private Date dataDocument;
 	private boolean plantilla;
-	
 	private boolean required;
 	private boolean readOnly;
 
@@ -97,7 +54,7 @@ public class DocumentDto implements Serializable {
 	private byte[] signatContingut;
 	private String vistaNom;
 	private byte[] vistaContingut;
-	
+
 	private String convertirExtensio;
 	private String extensionsPermeses;
 
@@ -110,24 +67,25 @@ public class DocumentDto implements Serializable {
 	private String tokenSignaturaMultiple;
 	private boolean signatEnTasca;
 	private boolean adjuntarAuto;
-
 	private String urlVerificacioCustodia;
-	
-	private ExpedientTipusDto expedientTipus;
 
+	private NtiOrigenEnumDto ntiOrigen;
+	private NtiEstadoElaboracionEnumDto ntiEstadoElaboracion;
+	private NtiTipoDocumentalEnumDto ntiTipoDocumental;
+
+	private ExpedientTipusDto expedientTipus;
 	private CampDto campData;
-	
-	/** Indica si permetre o no la retroacció. Si isIgnored = true llavors no es realitzarà la retroacció i no s'esborrarà
+	/* Indica si permetre o no la retroacció.
+	 * Si isIgnored = true llavors no es realitzarà la retroacció i no s'esborrarà
 	 * el contingut del document. */
 	private boolean ignored;
-	
-	private String ntiTipusDocumental;
-	
-	private String ntiTipoFirma;
-	private String ntiValorCsv;
-	private String ntiDefGenCsv;
-	
-	
+
+	public Long getId() {
+		return id;
+	}
+	public void setId(Long id) {
+		this.id = id;
+	}
 	public String getCodi() {
 		return codi;
 	}
@@ -145,6 +103,169 @@ public class DocumentDto implements Serializable {
 	}
 	public void setDescripcio(String descripcio) {
 		this.descripcio = descripcio;
+	}
+	public Date getDataCreacio() {
+		return dataCreacio;
+	}
+	public void setDataCreacio(Date dataCreacio) {
+		this.dataCreacio = dataCreacio;
+	}
+	public Date getDataModificacio() {
+		return dataModificacio;
+	}
+	public void setDataModificacio(Date dataModificacio) {
+		this.dataModificacio = dataModificacio;
+	}
+	public Date getDataDocument() {
+		return dataDocument;
+	}
+	public void setDataDocument(Date dataDocument) {
+		this.dataDocument = dataDocument;
+	}
+	public boolean isPlantilla() {
+		return plantilla;
+	}
+	public void setPlantilla(boolean plantilla) {
+		this.plantilla = plantilla;
+	}
+	public boolean isRequired() {
+		return required;
+	}
+	public void setRequired(boolean required) {
+		this.required = required;
+	}
+	public boolean isReadOnly() {
+		return readOnly;
+	}
+	public void setReadOnly(boolean readOnly) {
+		this.readOnly = readOnly;
+	}
+	public Long getDocumentId() {
+		return documentId;
+	}
+	public void setDocumentId(Long documentId) {
+		this.documentId = documentId;
+	}
+	public String getDocumentCodi() {
+		return documentCodi;
+	}
+	public void setDocumentCodi(String documentCodi) {
+		this.documentCodi = documentCodi;
+	}
+	public String getDocumentNom() {
+		return documentNom;
+	}
+	public void setDocumentNom(String documentNom) {
+		this.documentNom = documentNom;
+	}
+	public String getDocumentContentType() {
+		return documentContentType;
+	}
+	public void setDocumentContentType(String documentContentType) {
+		this.documentContentType = documentContentType;
+	}
+	public String getDocumentCustodiaCodi() {
+		return documentCustodiaCodi;
+	}
+	public void setDocumentCustodiaCodi(String documentCustodiaCodi) {
+		this.documentCustodiaCodi = documentCustodiaCodi;
+	}
+	public Integer getDocumentTipusDocPortasignatures() {
+		return documentTipusDocPortasignatures;
+	}
+	public void setDocumentTipusDocPortasignatures(
+			Integer documentTipusDocPortasignatures) {
+		this.documentTipusDocPortasignatures = documentTipusDocPortasignatures;
+	}
+	public boolean isDocumentPendentSignar() {
+		return documentPendentSignar;
+	}
+	public void setDocumentPendentSignar(boolean documentPendentSignar) {
+		this.documentPendentSignar = documentPendentSignar;
+	}
+	public boolean isSignatRequired() {
+		return signatRequired;
+	}
+	public void setSignatRequired(boolean signatRequired) {
+		this.signatRequired = signatRequired;
+	}
+	public boolean isSignat() {
+		return signat;
+	}
+	public void setSignat(boolean signat) {
+		this.signat = signat;
+	}
+	public Long getPortasignaturesId() {
+		return portasignaturesId;
+	}
+	public void setPortasignaturesId(Long portasignaturesId) {
+		this.portasignaturesId = portasignaturesId;
+	}
+	public String getSignaturaUrlVerificacio() {
+		return signaturaUrlVerificacio;
+	}
+	public void setSignaturaUrlVerificacio(String signaturaUrlVerificacio) {
+		this.signaturaUrlVerificacio = signaturaUrlVerificacio;
+	}
+	public boolean isRegistrat() {
+		return registrat;
+	}
+	public void setRegistrat(boolean registrat) {
+		this.registrat = registrat;
+	}
+	public String getRegistreNumero() {
+		return registreNumero;
+	}
+	public void setRegistreNumero(String registreNumero) {
+		this.registreNumero = registreNumero;
+	}
+	public Date getRegistreData() {
+		return registreData;
+	}
+	public void setRegistreData(Date registreData) {
+		this.registreData = registreData;
+	}
+	public String getRegistreOficinaCodi() {
+		return registreOficinaCodi;
+	}
+	public void setRegistreOficinaCodi(String registreOficinaCodi) {
+		this.registreOficinaCodi = registreOficinaCodi;
+	}
+	public String getRegistreOficinaNom() {
+		return registreOficinaNom;
+	}
+	public void setRegistreOficinaNom(String registreOficinaNom) {
+		this.registreOficinaNom = registreOficinaNom;
+	}
+	public boolean isRegistreEntrada() {
+		return registreEntrada;
+	}
+	public void setRegistreEntrada(boolean registreEntrada) {
+		this.registreEntrada = registreEntrada;
+	}
+	public boolean isAdjunt() {
+		return adjunt;
+	}
+	public void setAdjunt(boolean adjunt) {
+		this.adjunt = adjunt;
+	}
+	public String getAdjuntId() {
+		return adjuntId;
+	}
+	public void setAdjuntId(String adjuntId) {
+		this.adjuntId = adjuntId;
+	}
+	public String getAdjuntTitol() {
+		return adjuntTitol;
+	}
+	public void setAdjuntTitol(String adjuntTitol) {
+		this.adjuntTitol = adjuntTitol;
+	}
+	public String getArxiuNom() {
+		return arxiuNom;
+	}
+	public void setArxiuNom(String arxiuNom) {
+		this.arxiuNom = arxiuNom;
 	}
 	public byte[] getArxiuContingut() {
 		return arxiuContingut;
@@ -242,237 +363,29 @@ public class DocumentDto implements Serializable {
 	public void setUrlVerificacioCustodia(String urlVerificacioCustodia) {
 		this.urlVerificacioCustodia = urlVerificacioCustodia;
 	}
+	public NtiOrigenEnumDto getNtiOrigen() {
+		return ntiOrigen;
+	}
+	public void setNtiOrigen(NtiOrigenEnumDto ntiOrigen) {
+		this.ntiOrigen = ntiOrigen;
+	}
+	public NtiEstadoElaboracionEnumDto getNtiEstadoElaboracion() {
+		return ntiEstadoElaboracion;
+	}
+	public void setNtiEstadoElaboracion(NtiEstadoElaboracionEnumDto ntiEstadoElaboracion) {
+		this.ntiEstadoElaboracion = ntiEstadoElaboracion;
+	}
+	public NtiTipoDocumentalEnumDto getNtiTipoDocumental() {
+		return ntiTipoDocumental;
+	}
+	public void setNtiTipoDocumental(NtiTipoDocumentalEnumDto ntiTipoDocumental) {
+		this.ntiTipoDocumental = ntiTipoDocumental;
+	}
 	public ExpedientTipusDto getExpedientTipus() {
 		return expedientTipus;
 	}
 	public void setExpedientTipus(ExpedientTipusDto expedientTipus) {
 		this.expedientTipus = expedientTipus;
-	}
-	public Long getId() {
-		return id;
-	}
-	public void setId(Long id) {
-		this.id = id;
-	}
-	public Date getDataCreacio() {
-		return dataCreacio;
-	}
-	public void setDataCreacio(Date dataCreacio) {
-		this.dataCreacio = dataCreacio;
-	}
-	public Date getDataModificacio() {
-		return dataModificacio;
-	}
-	public void setDataModificacio(Date dataModificacio) {
-		this.dataModificacio = dataModificacio;
-	}
-	public Date getDataDocument() {
-		return dataDocument;
-	}
-	public void setDataDocument(Date dataDocument) {
-		this.dataDocument = dataDocument;
-	}
-	public Long getDocumentId() {
-		return documentId;
-	}
-	public void setDocumentId(Long documentId) {
-		this.documentId = documentId;
-	}
-	public String getDocumentCodi() {
-		return documentCodi;
-	}
-	public void setDocumentCodi(String documentCodi) {
-		this.documentCodi = documentCodi;
-	}
-	public String getDocumentNom() {
-		return documentNom;
-	}
-	public void setDocumentNom(String documentNom) {
-		this.documentNom = documentNom;
-	}
-	public String getDocumentContentType() {
-		return documentContentType;
-	}
-	public void setDocumentContentType(String documentContentType) {
-		this.documentContentType = documentContentType;
-	}
-	public String getDocumentCustodiaCodi() {
-		return documentCustodiaCodi;
-	}
-	public void setDocumentCustodiaCodi(String documentCustodiaCodi) {
-		this.documentCustodiaCodi = documentCustodiaCodi;
-	}
-	public Integer getDocumentTipusDocPortasignatures() {
-		return documentTipusDocPortasignatures;
-	}
-	public void setDocumentTipusDocPortasignatures(
-			Integer documentTipusDocPortasignatures) {
-		this.documentTipusDocPortasignatures = documentTipusDocPortasignatures;
-	}
-	public boolean isSignat() {
-		return signat;
-	}
-	public void setSignat(boolean signat) {
-		this.signat = signat;
-	}
-	public Long getPortasignaturesId() {
-		return portasignaturesId;
-	}
-	public void setPortasignaturesId(Long portasignaturesId) {
-		this.portasignaturesId = portasignaturesId;
-	}
-	public String getSignaturaUrlVerificacio() {
-		return signaturaUrlVerificacio;
-	}
-	public void setSignaturaUrlVerificacio(String signaturaUrlVerificacio) {
-		this.signaturaUrlVerificacio = signaturaUrlVerificacio;
-	}
-	public boolean isRegistrat() {
-		return registrat;
-	}
-	public void setRegistrat(boolean registrat) {
-		this.registrat = registrat;
-	}
-	public String getRegistreNumero() {
-		return registreNumero;
-	}
-	public void setRegistreNumero(String registreNumero) {
-		this.registreNumero = registreNumero;
-	}
-	public Date getRegistreData() {
-		return registreData;
-	}
-	public void setRegistreData(Date registreData) {
-		this.registreData = registreData;
-	}
-	public String getRegistreOficinaCodi() {
-		return registreOficinaCodi;
-	}
-	public void setRegistreOficinaCodi(String registreOficinaCodi) {
-		this.registreOficinaCodi = registreOficinaCodi;
-	}
-	public String getRegistreOficinaNom() {
-		return registreOficinaNom;
-	}
-	public void setRegistreOficinaNom(String registreOficinaNom) {
-		this.registreOficinaNom = registreOficinaNom;
-	}
-	public boolean isRegistreEntrada() {
-		return registreEntrada;
-	}
-	public void setRegistreEntrada(boolean registreEntrada) {
-		this.registreEntrada = registreEntrada;
-	}
-	public boolean isAdjunt() {
-		return adjunt;
-	}
-	public void setAdjunt(boolean adjunt) {
-		this.adjunt = adjunt;
-	}
-	public String getAdjuntId() {
-		return adjuntId;
-	}
-	public void setAdjuntId(String adjuntId) {
-		this.adjuntId = adjuntId;
-	}
-	public String getAdjuntTitol() {
-		return adjuntTitol;
-	}
-	public void setAdjuntTitol(String adjuntTitol) {
-		this.adjuntTitol = adjuntTitol;
-	}
-	public String getArxiuNom() {
-		return arxiuNom;
-	}
-	public void setArxiuNom(String arxiuNom) {
-		this.arxiuNom = arxiuNom;
-	}
-	
-	
-	public String getNtiTipusDocumental() {
-		return ntiTipusDocumental;
-	}
-	public void setNtiTipusDocumental(String ntiTipusDocumental) {
-		this.ntiTipusDocumental = ntiTipusDocumental;
-	}
-	
-	public String getNtiTipoFirma() {
-		return ntiTipoFirma;
-	}
-	public void setNtiTipoFirma(String ntiTipoFirma) {
-		this.ntiTipoFirma = ntiTipoFirma;
-	}
-	
-	public String getNtiValorCsv() {
-		return ntiValorCsv;
-	}
-	public void setNtiValorCsv(String ntiValorCsv) {
-		this.ntiValorCsv = ntiValorCsv;
-	}
-	
-	public String getNtiDefGenCsv() {
-		return ntiDefGenCsv;
-	}
-	public void setNtiDefGenCsv(String ntiDefGenCsv) {
-		this.ntiDefGenCsv = ntiDefGenCsv;
-	}
-	
-	
-	public String getArxiuNomSenseExtensio() {
-		if (getArxiuNom() == null)
-			return null;
-		int indexPunt = getArxiuNom().lastIndexOf(".");
-		if (indexPunt != -1) {
-			return getArxiuNom().substring(0, indexPunt);
-		} else {
-			return getArxiuNom();
-		}
-	}
-
-	public String getArxiuExtensio() {
-		if (getArxiuNom() == null)
-			return null;
-		int indexPunt = getArxiuNom().lastIndexOf(".");
-		if (indexPunt != -1) {
-			return getArxiuNom().substring(indexPunt + 1);
-		} else {
-			return null;
-		}
-	}
-
-	public boolean isRequired() {
-		return required;
-	}
-	public void setRequired(boolean required) {
-		this.required = required;
-	}
-
-	public boolean isReadOnly() {
-		return readOnly;
-	}
-	public void setReadOnly(boolean readOnly) {
-		this.readOnly = readOnly;
-	}
-
-	public boolean isPlantilla() {
-		return plantilla;
-	}
-	public void setPlantilla(boolean plantilla) {
-		this.plantilla = plantilla;
-	}
-
-	public boolean isDocumentPendentSignar() {
-		return documentPendentSignar;
-	}
-	public void setDocumentPendentSignar(boolean documentPendentSignar) {
-		this.documentPendentSignar = documentPendentSignar;
-	}
-
-	public boolean isSignatRequired() {
-		return signatRequired;
-	}
-	public void setSignatRequired(boolean signatRequired) {
-		this.signatRequired = signatRequired;
 	}
 	public CampDto getCampData() {
 		return campData;
@@ -486,7 +399,28 @@ public class DocumentDto implements Serializable {
 	public void setIgnored(boolean ignored) {
 		this.ignored = ignored;
 	}
-	private static final long serialVersionUID = 774909297938469787L;
 
+	public String getArxiuNomSenseExtensio() {
+		if (getArxiuNom() == null)
+			return null;
+		int indexPunt = getArxiuNom().lastIndexOf(".");
+		if (indexPunt != -1) {
+			return getArxiuNom().substring(0, indexPunt);
+		} else {
+			return getArxiuNom();
+		}
+	}
+	public String getArxiuExtensio() {
+		if (getArxiuNom() == null)
+			return null;
+		int indexPunt = getArxiuNom().lastIndexOf(".");
+		if (indexPunt != -1) {
+			return getArxiuNom().substring(indexPunt + 1);
+		} else {
+			return null;
+		}
+	}
+
+	private static final long serialVersionUID = 774909297938469787L;
 
 }

@@ -5,7 +5,13 @@ package net.conselldemallorca.helium.webapp.v3.command;
 
 import java.util.Date;
 
+import javax.validation.constraints.NotNull;
+
 import org.springframework.web.multipart.MultipartFile;
+
+import net.conselldemallorca.helium.v3.core.api.dto.NtiEstadoElaboracionEnumDto;
+import net.conselldemallorca.helium.v3.core.api.dto.NtiOrigenEnumDto;
+import net.conselldemallorca.helium.v3.core.api.dto.NtiTipoDocumentalEnumDto;
 
 /**
  * Command per gestionar els documents d'un expedient
@@ -14,21 +20,21 @@ import org.springframework.web.multipart.MultipartFile;
  */
 public class DocumentExpedientCommand {
 
-	private String documentCodi;
-	
 	private Long docId;
-	private Date data;
-	private String nomArxiu;
-	private MultipartFile arxiu;
-	private String nom;
+	private String documentCodi;
 	private String codi;
-	
-	// Meta dades NTI
-	private String ntiTipusDocumental;
-	private String ntiTipoFirma;
-	private String ntiValorCsv;
-	private String ntiDefGenCsv;
+	private String nom;
+	@NotNull
+	private Date data;
+	@NotNull
+	private NtiOrigenEnumDto ntiOrigen;
+	@NotNull
+	private NtiEstadoElaboracionEnumDto ntiEstadoElaboracion;
+	@NotNull
+	private NtiTipoDocumentalEnumDto ntiTipoDocumental;
 	private String ntiIdOrigen;
+	private MultipartFile arxiu;
+	private String arxiuNom;
 
 	public DocumentExpedientCommand() {}
 
@@ -38,17 +44,17 @@ public class DocumentExpedientCommand {
 	public void setDocId(Long docId) {
 		this.docId = docId;
 	}
-	public Date getData() {
-		return data;
+	public String getDocumentCodi() {
+ 		return documentCodi;
+ 	}
+ 	public void setDocumentCodi(String documentCodi) {
+ 		this.documentCodi = documentCodi;
+ 	}
+	public String getCodi() {
+		return codi;
 	}
-	public void setData(Date data) {
-		this.data = data;
-	}
-	public MultipartFile getArxiu() {
-		return arxiu;
-	}
-	public void setArxiu(MultipartFile arxiu) {
-		this.arxiu = arxiu;
+	public void setCodi(String codi) {
+		this.codi = codi;
 	}
 	public String getNom() {
 		return nom;
@@ -56,62 +62,47 @@ public class DocumentExpedientCommand {
 	public void setNom(String nom) {
 		this.nom = nom;
 	}
-	public String getCodi() {
-		return codi;
+	public Date getData() {
+		return data;
 	}
-	public void setCodi(String codi) {
-		this.codi = codi;
+	public void setData(Date data) {
+		this.data = data;
 	}
-	public String getNomArxiu() {
-		return nomArxiu;
+	public NtiOrigenEnumDto getNtiOrigen() {
+		return ntiOrigen;
 	}
-	public void setNomArxiu(String nomArxiu) {
-		this.nomArxiu = nomArxiu;
+	public void setNtiOrigen(NtiOrigenEnumDto ntiOrigen) {
+		this.ntiOrigen = ntiOrigen;
 	}
-	public String getDocumentCodi() {
- 		return documentCodi;
- 	}
- 	public void setDocumentCodi(String documentCodi) {
- 		this.documentCodi = documentCodi;
- 	}
-
-	public String getNtiTipusDocumental() {
-		return ntiTipusDocumental;
+	public NtiEstadoElaboracionEnumDto getNtiEstadoElaboracion() {
+		return ntiEstadoElaboracion;
 	}
-
-	public void setNtiTipusDocumental(String ntiTipusDocumental) {
-		this.ntiTipusDocumental = ntiTipusDocumental;
+	public void setNtiEstadoElaboracion(NtiEstadoElaboracionEnumDto ntiEstadoElaboracion) {
+		this.ntiEstadoElaboracion = ntiEstadoElaboracion;
 	}
-
-	public String getNtiTipoFirma() {
-		return ntiTipoFirma;
+	public NtiTipoDocumentalEnumDto getNtiTipoDocumental() {
+		return ntiTipoDocumental;
 	}
-
-	public void setNtiTipoFirma(String ntiTipoFirma) {
-		this.ntiTipoFirma = ntiTipoFirma;
+	public void setNtiTipoDocumental(NtiTipoDocumentalEnumDto ntiTipoDocumental) {
+		this.ntiTipoDocumental = ntiTipoDocumental;
 	}
-	
-	public String getNtiValorCsv() {
-		return ntiValorCsv;
-	}
-
-	public void setNtiValorCsv(String ntiValorCsv) {
-		this.ntiValorCsv = ntiValorCsv;
-	}
-
-	public String getNtiDefGenCsv() {
-		return ntiDefGenCsv;
-	}
-
-	public void setNtiDefGenCsv(String ntiDefGenCsv) {
-		this.ntiDefGenCsv = ntiDefGenCsv;
-	}
-
 	public String getNtiIdOrigen() {
 		return ntiIdOrigen;
 	}
-
 	public void setNtiIdOrigen(String ntiidOrigen) {
 		this.ntiIdOrigen = ntiidOrigen;
 	}
+	public MultipartFile getArxiu() {
+		return arxiu;
+	}
+	public void setArxiu(MultipartFile arxiu) {
+		this.arxiu = arxiu;
+	}
+	public String getArxiuNom() {
+		return arxiuNom;
+	}
+	public void setArxiuNom(String arxiuNom) {
+		this.arxiuNom = arxiuNom;
+	}
+
 }

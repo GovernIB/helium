@@ -6,10 +6,12 @@ package net.conselldemallorca.helium.webapp.v3.command;
 import javax.validation.constraints.Size;
 
 import org.hibernate.validator.constraints.NotEmpty;
-import org.springmodules.validation.bean.conf.loader.annotation.handler.MaxLength;
 
 import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
+import net.conselldemallorca.helium.v3.core.api.dto.NtiEstadoElaboracionEnumDto;
+import net.conselldemallorca.helium.v3.core.api.dto.NtiOrigenEnumDto;
+import net.conselldemallorca.helium.v3.core.api.dto.NtiTipoDocumentalEnumDto;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientTipusDocumentCommand.Creacio;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientTipusDocumentCommand.Modificacio;
 import net.conselldemallorca.helium.webapp.v3.validator.Codi;
@@ -46,13 +48,10 @@ public class ExpedientTipusDocumentCommand {
 	private String custodiaCodi;
 	private Integer tipusDocPortasignatures;
 	private boolean ignored;
-	
-	private String ntiTipusDocumental;
-	
-	private String ntiTipoFirma;
-	private String ntiValorCsv;
-	private String ntiDefGenCsv;
-	
+	private NtiOrigenEnumDto ntiOrigen;
+	private NtiEstadoElaboracionEnumDto ntiEstadoElaboracion;
+	private NtiTipoDocumentalEnumDto ntiTipoDocumental;
+
 	public Long getExpedientTipusId() {
 		return expedientTipusId;
 	}
@@ -95,7 +94,7 @@ public class ExpedientTipusDocumentCommand {
 	public void setArxiuNom(String arxiuNom) {
 		this.arxiuNom = arxiuNom;
 	}
-public byte[] getArxiuContingut() {
+	public byte[] getArxiuContingut() {
 		return arxiuContingut;
 	}
 	public void setArxiuContingut(byte[] arxiuContingut) {
@@ -155,37 +154,25 @@ public byte[] getArxiuContingut() {
 	public void setIgnored(boolean ignored) {
 		this.ignored = ignored;
 	}
-	
-	
-	public String getNtiTipusDocumental() {
-		return ntiTipusDocumental;
+	public NtiOrigenEnumDto getNtiOrigen() {
+		return ntiOrigen;
 	}
-	public void setNtiTipusDocumental(String ntiTipusDocumental) {
-		this.ntiTipusDocumental = ntiTipusDocumental;
+	public void setNtiOrigen(NtiOrigenEnumDto ntiOrigen) {
+		this.ntiOrigen = ntiOrigen;
 	}
-	
-	public String getNtiTipoFirma() {
-		return ntiTipoFirma;
+	public NtiEstadoElaboracionEnumDto getNtiEstadoElaboracion() {
+		return ntiEstadoElaboracion;
 	}
-	public void setNtiTipoFirma(String ntiTipoFirma) {
-		this.ntiTipoFirma = ntiTipoFirma;
+	public void setNtiEstadoElaboracion(NtiEstadoElaboracionEnumDto ntiEstadoElaboracion) {
+		this.ntiEstadoElaboracion = ntiEstadoElaboracion;
 	}
-	
-	public String getNtiValorCsv() {
-		return ntiValorCsv;
+	public NtiTipoDocumentalEnumDto getNtiTipoDocumental() {
+		return ntiTipoDocumental;
 	}
-	public void setNtiValorCsv(String ntiValorCsv) {
-		this.ntiValorCsv = ntiValorCsv;
+	public void setNtiTipoDocumental(NtiTipoDocumentalEnumDto ntiTipoDocumental) {
+		this.ntiTipoDocumental = ntiTipoDocumental;
 	}
-	
-	public String getNtiDefGenCsv() {
-		return ntiDefGenCsv;
-	}
-	public void setNtiDefGenCsv(String ntiDefGenCsv) {
-		this.ntiDefGenCsv = ntiDefGenCsv;
-	}
-	
-	
+
 	public static DocumentDto asDocumentDto(ExpedientTipusDocumentCommand command) {
 		DocumentDto dto = new DocumentDto();
 		dto.setId(command.getId());
@@ -209,16 +196,13 @@ public byte[] getArxiuContingut() {
 		dto.setCustodiaCodi(command.getCustodiaCodi());
 		dto.setTipusDocPortasignatures(command.getTipusDocPortasignatures());
 		dto.setIgnored(command.isIgnored());
-		
-		dto.setNtiTipusDocumental(command.getNtiTipusDocumental());
-		
-		dto.setNtiTipoFirma(command.getNtiTipoFirma());
-		dto.setNtiValorCsv(command.getNtiValorCsv());
-		dto.setNtiDefGenCsv(command.getNtiDefGenCsv());
-		
+		dto.setNtiOrigen(command.getNtiOrigen());
+		dto.setNtiEstadoElaboracion(command.getNtiEstadoElaboracion());
+		dto.setNtiTipoDocumental(command.getNtiTipoDocumental());
 		return dto;
 	}
 
 	public interface Creacio {}
 	public interface Modificacio {}
+
 }

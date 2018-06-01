@@ -678,24 +678,28 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 			document = documentRepository.findByDefinicioProcesAndCodi(
 					definicioProces, 
 					documentCodi);
-		
-		if (document == null)
+		if (document == null) {
 			throw new NoTrobatException(Document.class, documentCodi);
+		}
 		ArxiuDto generat = documentHelper.generarDocumentAmbPlantillaIConvertir(
 				expedient,
 				document,
 				taskInstanceId,
 				processInstanceId,
 				dataDocument);
-		documentHelper.actualitzarDocument(
+		documentHelper.crearDocument(
 				taskInstanceId,
 				processInstanceId,
 				document.getCodi(),
-				null,
 				dataDocument,
+				false,
+				null,
 				generat.getNom(),
 				generat.getContingut(),
-				false);
+				null,
+				null,
+				null,
+				null);
 		return generat;
 	}
 
@@ -1090,8 +1094,12 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 		logger.debug("Obtenint informació del document (" +
 				"documentStoreId=" + documentStoreId + ")");
 		return conversioTipusHelper.convertir(
-				documentHelper.getDocumentOriginal(
+				documentHelper.toDocumentDto(
 						documentStoreId,
+						false,
+						false,
+						false,
+						false,
 						false),
 				DocumentDto.class);
 	}
@@ -1100,11 +1108,16 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 	public ArxiuDto getArxiuPerMostrar(Long documentStoreId) {
 		logger.debug("Obtenint arxiu del document (" +
 				"documentStoreId=" + documentStoreId + ")");
-		DocumentDto document = documentHelper.getDocumentOriginal(
+		DocumentDto document = documentHelper.toDocumentDto(
 				documentStoreId,
+				false,
+				false,
+				false,
+				false,
 				false);
-		if (document == null)
+		if (document == null) {
 			return null;
+		}
 		return documentHelper.getArxiuPerDocumentStoreId(
 				documentStoreId,
 				false,
@@ -1124,15 +1137,17 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 				"data=" + data + ", " +
 				"arxiuNom=" + arxiuNom + ", " +
 				"arxiuContingut=" + arxiuContingut + ")");
-		return documentHelper.actualitzarDocument(
+		return documentHelper.crearOActualitzarDocument(
 				null,
 				processInstanceId,
 				documentCodi,
-				null,
 				data,
 				arxiuNom,
 				arxiuContingut,
-				false);
+				null,
+				null,
+				null,
+				null);
 	}
 
 	@Override
@@ -1171,15 +1186,19 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 				"adjuntData=" + adjuntData + ", " +
 				"arxiuNom=" + arxiuNom + ", " +
 				"arxiuContingut=" + arxiuContingut + ")");
-		return documentHelper.actualitzarDocument(
+		return documentHelper.crearDocument(
 				null,
 				processInstanceId,
 				null,
-				adjuntTitol,
 				adjuntData,
+				true,
+				adjuntTitol,
 				arxiuNom,
 				arxiuContingut,
-				true);
+				null,
+				null,
+				null,
+				null);
 	}
 
 	@Override
@@ -1563,16 +1582,22 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 			Long processInstanceId,
 			String transicioOK,
 			String transicioKO) {
-		DocumentDto document = documentHelper.getDocumentVista(
+		DocumentDto document = documentHelper.toDocumentDto(
 				documentId,
+				false,
+				false,
+				true,
 				true,
 				true);
 		List<DocumentDto> annexos = null;
 		if (annexosId != null) {
 			annexos = new ArrayList<DocumentDto>();
 			for (Long docId: annexosId) {
-				DocumentDto docDto = documentHelper.getDocumentVista(
+				DocumentDto docDto = documentHelper.toDocumentDto(
 						docId,
+						false,
+						false,
+						true,
 						false,
 						false);
 				if (docDto != null){

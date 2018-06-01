@@ -133,14 +133,7 @@ public class ExpedientInicioPasTitolController extends BaseExpedientController {
 							definicioProcesId, 
 							expedientInicioPasTitolCommand.getNumero(), 
 							expedientInicioPasTitolCommand.getTitol(), 
-							expedientInicioPasTitolCommand.getAny(),
-							expedientTipus.isNtiActiu(),
-							expedientTipus.getNtiOrgan(),
-							expedientTipus.getNtiClasificacio(),
-							expedientTipus.getNtiSerieDocumental(),
-							expedientTipus.getNtiTipoFirma(),
-							expedientTipus.getNtiValorCsv(),
-							expedientTipus.getNtiDefGenCsv());
+							expedientInicioPasTitolCommand.getAny());
 				
 				MissatgesHelper.success(request, getMessage(request, "info.expedient.iniciat", new Object[] { iniciat.getIdentificador() }));
 				ExpedientIniciController.netejarSessio(request);
@@ -177,15 +170,7 @@ public class ExpedientInicioPasTitolController extends BaseExpedientController {
 			Long definicioProcesId,
 			String numero,
 			String titol,
-			Integer any,
-			boolean ntiActiu,
-			String organ,
-			String classificacio,
-			String serieDocumental,
-			String ntiTipoFirma,
-			String ntiValorCsv,
-			String ntiDefGenCsv) {
-		
+			Integer any) {
 		Map<String, Object> valorsSessio = (Map<String, Object>) request.getSession().getAttribute(ExpedientIniciController.CLAU_SESSIO_FORM_VALORS);
 		return expedientService.create(
 				entornId,
@@ -196,14 +181,7 @@ public class ExpedientInicioPasTitolController extends BaseExpedientController {
 				numero,
 				titol,
 				null, null, null, null, false, null, null, null, null, null, null, false, null, null, false,
-				valorsSessio, null, IniciadorTipusDto.INTERN, null, null, null, null,
-				ntiActiu,
-				organ,
-				classificacio,
-				serieDocumental,
-				ntiTipoFirma,
-				ntiValorCsv,
-				ntiDefGenCsv);
+				valorsSessio, null, IniciadorTipusDto.INTERN, null, null, null, null);
 	}
 
 	@RequestMapping(value = "/canviAny/{anySel}/{entornId}/{expedientTipusId}", method = RequestMethod.GET)

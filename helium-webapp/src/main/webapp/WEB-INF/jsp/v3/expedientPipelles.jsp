@@ -21,68 +21,73 @@
 	<script src="<c:url value="/js/moment-with-locales.min.js"/>"></script>
 
 <style type="text/css">
-	#expedient-info h3 {
-		font-weight: bold;
-		margin-top: 0;
-		border-bottom: 1px solid #e3e3e3;
-		padding-bottom: .2em;
-	}
-	#expedient-info h4 {
-		font-weight: bold;
-		margin-top: 0;
-		border-bottom: 1px solid #e3e3e3;
-		padding-bottom: .2em;
-		margin-bottom: 0.4em;
-	}
-	#expedient-info dt {
-		color: #999;
-		font-size: small;
-		font-style: italic;
-		font-weight: normal;
-	}
-	#expedient-info dd {
-		font-size: medium;
-		font-weight: bold;
-		margin-bottom: 0.4em;
-	}
-	#expedient-info-participants, #expedient-info-relacionats {
-		padding-bottom: .2em !important;
-		margin-bottom: .6em !important;
-	}
-	#expedient-info ul.interessats {
-		padding-left: 1em !important;
-	}
-	#expedient-info-accio {
-		margin-top: 1em;
-	}
-	#expedient-pipelles .tab-pane {
-		margin-top: .6em;
-	}
-	.contingut-carregant {
-		margin-top: 4em;
-		text-align: center;
-	}
-	.edita {
-		color: #428bca
-	}
-	.edita:hover {
-		color: #3071a9
-	}
-	.formRelacioDelete {float: right;}
-	.right-btn {
-		float: right;
-		margin-top: -4px;
-	}
-	dd.proces {
-		margin-bottom: -5px !important;
-	}
-	dt.subproc {
-		padding-left: 15px;
-	}
-	dd.subproc {
-		padding-left: 15px;
-		font-size: 14px !important;
-	}
+#expedient-info h3 {
+	font-weight: bold;
+	margin-top: 0;
+	border-bottom: 1px solid #e3e3e3;
+	padding-bottom: .2em;
+}
+#expedient-info h4 {
+	font-weight: bold;
+	margin-top: 0;
+	border-bottom: 1px solid #e3e3e3;
+	padding-bottom: .2em;
+	margin-bottom: 0.4em;
+}
+#expedient-info dt {
+	color: #999;
+	font-size: small;
+	font-style: italic;
+	font-weight: normal;
+}
+#expedient-info dd {
+	font-size: medium;
+	font-weight: bold;
+	margin-bottom: 0.4em;
+}
+#expedient-info-participants, #expedient-info-relacionats {
+	padding-bottom: .2em !important;
+	margin-bottom: .6em !important;
+}
+#expedient-info ul.interessats {
+	padding-left: 1em !important;
+}
+#expedient-info-accio {
+	margin-top: 1em;
+}
+#expedient-pipelles .tab-pane {
+	margin-top: .6em;
+}
+.contingut-carregant {
+	margin-top: 4em;
+	text-align: center;
+}
+.edita {
+	color: #428bca
+}
+.edita:hover {
+	color: #3071a9
+}
+.formRelacioDelete {float: right;}
+.right-btn {
+	float: right;
+	margin-top: -4px;
+}
+dd.proces {
+	margin-bottom: -5px !important;
+}
+dt.subproc {
+	padding-left: 15px;
+}
+dd.subproc {
+	padding-left: 15px;
+	font-size: 14px !important;
+}
+.etiqueta-nti-arxiu {
+	font-size: 12px;
+	padding-top: 4px;
+	float: right;
+}
 </style>
 
 <script type="text/javascript">
@@ -121,9 +126,9 @@
 		    allowClear: true,
 		    minimumResultsForSearch: 10
 		});
-		// Per defecte, si no s'especifica al fitxer de properties
-		// tendrem un interval que executa una funció cada 10 segons per a refrescar les
-		// ícones d'estat de les tasques en segon pla
+		/* Per defecte, si no s'especifica al fitxer de properties
+		   tendrem un interval que executa una funció cada 10 segons per a refrescar les
+		   ícones d'estat de les tasques en segon pla */
 		<c:set var="refrescaSegonPla" value="${globalProperties['app.segonpla.refrescar.auto'] == 'false' ? false : true}"/>
 		<c:set var="refrescaSegonPlaPeriode" value="${globalProperties['app.segonpla.refrescar.auto.periode'] != null ? globalProperties['app.segonpla.refrescar.auto.periode'] : 10}"/>
 		<c:if test="${refrescaSegonPla}">
@@ -271,9 +276,17 @@
 			<div id="expedient-info" class="well">
 				<h3>
 					<spring:message code="expedient.info.informacio"/>
-					<c:if test="${metadades}">
-						<a id="nti" href="<c:url value="../../v3/expedient/${expedient.id}/metadadesNti"/>" data-rdt-link-modal="true">
-							<span class="label label-info" style="font-size: 14px; margin-top: 3px; margin-left: 5px; position: absolute;">NTI</span>
+					<c:if test="${expedient.ntiActiu}">
+						<a	href="<c:url value="../../v3/expedient/${expedient.id}/metadadesNti"/>"
+							data-rdt-link-modal="true"
+							data-rdt-link-modal-min-height="500"
+							id="nti">
+							<span class="label label-info etiqueta-nti-arxiu">
+								<c:choose>
+									<c:when test="${empty expedient.arxiuUuid}"><spring:message code="expedient.info.etiqueta.nti"/></c:when>
+									<c:otherwise><spring:message code="expedient.info.etiqueta.arxiu"/></c:otherwise>
+								</c:choose>
+							</span>
 						</a>
 					</c:if>
 				</h3>

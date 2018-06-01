@@ -154,9 +154,6 @@ public class Entorn implements Serializable, GenericEntity<Long>, Auditable {
 	public void addDomini(Domini domini) {
 		getDominis().add(domini);
 	}
-	public void removeDomini(Enumeracio domini) {
-		getDominis().remove(domini);
-	}
 
 	@OneToMany(mappedBy="entorn")
 	public Set<Enumeracio> getEnumeracions() {

@@ -23,6 +23,7 @@ import com.codahale.metrics.MetricRegistry;
 import net.conselldemallorca.helium.core.common.JbpmVars;
 import net.conselldemallorca.helium.core.common.ThreadLocalInfo;
 import net.conselldemallorca.helium.core.helper.ExpedientHelper;
+import net.conselldemallorca.helium.core.helper.PluginHelper;
 import net.conselldemallorca.helium.core.helper.ProcesCallbackHelper;
 import net.conselldemallorca.helium.core.helperv26.DocumentHelper;
 import net.conselldemallorca.helium.core.model.dao.AlertaDao;
@@ -63,6 +64,7 @@ import net.conselldemallorca.helium.integracio.plugins.tramitacio.ResultatProces
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessInstance;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmToken;
+import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 
 
 /**
@@ -99,6 +101,10 @@ public class PluginService {
 	private MessageSource messageSource;
 	private MetricRegistry metricRegistry;
 	private ProcesCallbackHelper procesCallbackHelper;
+
+	@Autowired
+	private PluginHelper pluginHelper;
+
 
 
 	public List<PersonaDto> findPersonaLikeNomSencer(String text) {
@@ -602,52 +608,76 @@ public class PluginService {
 			String varDocumentCodi = documentStore.getJbpmVariable().substring(JbpmVars.PREFIX_DOCUMENT.length());
 			List<byte[]> signatures = obtenirSignaturesDelPortasignatures(documentId);
 			if (signatures != null) {
-				//logger.info(">>> [PSIGN] Té signatures i comença custòdia (psignaId=" + documentId + ", docStoreId=" + documentStoreId + ", refCustòdia=" + docst.getReferenciaCustodia() + ")");
-				if (documentStore.getReferenciaCustodia() != null) {
-					//logger.info(">>> [PSIGN] Abans esborrar signatures (psignaId=" + documentId + ", docStoreId=" + documentStoreId + ", refCustòdia=" + docst.getReferenciaCustodia() + ")");
-					pluginCustodiaDao.esborrarSignatures(documentStore.getReferenciaCustodia());
-					//logger.info(">>> [PSIGN] Després esborrar signatures (psignaId=" + documentId + ", docStoreId=" + documentStoreId + ", refCustòdia=" + docst.getReferenciaCustodia() + ")");
-				}
-				String referenciaCustodia = null;
-				for (byte[] signatura: signatures) {
-					try {
-						//logger.info(">>> [PSIGN] Abans cridada custòdia 1 (psignaId=" + documentId + ", docStoreId=" + documentStoreId + ")");
-						referenciaCustodia = pluginCustodiaDao.afegirSignatura(
-								documentStoreId,
-								documentStore.getReferenciaFont(),
-								document.getArxiuNom(),
-								document.getCustodiaCodi(),
-								signatura);
-						//logger.info(">>> [PSIGN] Després cridada custòdia 1 (psignaId=" + documentId + ", docStoreId=" + documentStoreId + ", refCustòdia=" + referenciaCustodia + ")");
-					} catch (Exception ex) {
-						// Si dona error perquè el document ja està arxivat l'esborra
-						// i el torna a crear.
-						//logger.info(">>> [PSIGN] Error custòdia (" + ex.getCause().getMessage() + ") (psignaId=" + documentId + ", docStoreId=" + documentStoreId + ", refCustòdia=" + referenciaCustodia + ")");
-						/*if (cercarMissatgeDinsCadenaExcepcions("ERROR_DOCUMENTO_ARCHIVADO", ex)) {
-							logger.info(">>> [PSIGN] Abans cridada esborrar signatures (psignaId=" + documentId + ", docStoreId=" + documentStoreId + ", refCustòdia=" + referenciaCustodia + ")");
-							pluginCustodiaDao.esborrarSignatures(documentStoreId.toString());
-							logger.info(">>> [PSIGN] Després cridada esborrar signatures (psignaId=" + documentId + ", docStoreId=" + documentStoreId + ", refCustòdia=" + referenciaCustodia + ")");
-							logger.info(">>> [PSIGN] Abans cridada custòdia 2 (psignaId=" + documentId + ", docStoreId=" + documentStoreId + ", refCustòdia=" + referenciaCustodia + ")");
+				if (documentStore.getArxiuUuid() != null) {
+					if (signatures.size() == 1) {
+						ArxiuDto pdfFirmat = new ArxiuDto();
+						pdfFirmat.setNom("firma.pdf");
+						pdfFirmat.setTipusMime("application/pdf");
+						pdfFirmat.setContingut(signatures.get(0));
+						pluginHelper.arxiuDocumentGuardarPdfFirmat(
+								expedient,
+								documentStore,
+								document.getDocumentNom(),
+								pdfFirmat);
+						es.caib.plugins.arxiu.api.Document documentArxiu = pluginHelper.arxiuDocumentInfo(
+								documentStore.getArxiuUuid(),
+								null,
+								false);
+						documentHelper.actualitzarNtiFirma(documentStore, documentArxiu);
+					} else {
+						throw new Exception("El nombre de signatures recuperades del portafirmes és " + signatures.size() + " en comptes de 1");
+					}
+				} else {
+					if (expedient.isNtiActiu()) {
+						documentHelper.actualitzarNtiFirma(documentStore, null);
+					}
+					//logger.info(">>> [PSIGN] Té signatures i comença custòdia (psignaId=" + documentId + ", docStoreId=" + documentStoreId + ", refCustòdia=" + docst.getReferenciaCustodia() + ")");
+					if (documentStore.getReferenciaCustodia() != null) {
+						//logger.info(">>> [PSIGN] Abans esborrar signatures (psignaId=" + documentId + ", docStoreId=" + documentStoreId + ", refCustòdia=" + docst.getReferenciaCustodia() + ")");
+						pluginCustodiaDao.esborrarSignatures(documentStore.getReferenciaCustodia());
+						//logger.info(">>> [PSIGN] Després esborrar signatures (psignaId=" + documentId + ", docStoreId=" + documentStoreId + ", refCustòdia=" + docst.getReferenciaCustodia() + ")");
+					}
+					String referenciaCustodia = null;
+					for (byte[] signatura: signatures) {
+						try {
+							//logger.info(">>> [PSIGN] Abans cridada custòdia 1 (psignaId=" + documentId + ", docStoreId=" + documentStoreId + ")");
 							referenciaCustodia = pluginCustodiaDao.afegirSignatura(
 									documentStoreId,
-									docst.getReferenciaFont(),
+									documentStore.getReferenciaFont(),
 									document.getArxiuNom(),
 									document.getCustodiaCodi(),
 									signatura);
-							logger.info(">>> [PSIGN] Després cridada custòdia 2 (psignaId=" + documentId + ", docStoreId=" + documentStoreId + ", refCustòdia=" + referenciaCustodia + ")");
-						} else {
-							throw ex;
-						}*/
-						logger.info(">>> [PSIGN] Processant error custòdia (" + getMissageFinalCadenaExcepcions(ex) + ", " + cercarMissatgeDinsCadenaExcepcions("ERROR_DOCUMENTO_ARCHIVADO", ex) + ") (psignaId=" + documentId + ", docStoreId=" + documentStoreId + ", refCustòdia=" + referenciaCustodia + ")");
-						if (cercarMissatgeDinsCadenaExcepcions("ERROR_DOCUMENTO_ARCHIVADO", ex)) {
-							referenciaCustodia = documentStoreId.toString();
-						} else {
-							throw ex;
+							//logger.info(">>> [PSIGN] Després cridada custòdia 1 (psignaId=" + documentId + ", docStoreId=" + documentStoreId + ", refCustòdia=" + referenciaCustodia + ")");
+						} catch (Exception ex) {
+							// Si dona error perquè el document ja està arxivat l'esborra
+							// i el torna a crear.
+							//logger.info(">>> [PSIGN] Error custòdia (" + ex.getCause().getMessage() + ") (psignaId=" + documentId + ", docStoreId=" + documentStoreId + ", refCustòdia=" + referenciaCustodia + ")");
+							/*if (cercarMissatgeDinsCadenaExcepcions("ERROR_DOCUMENTO_ARCHIVADO", ex)) {
+								logger.info(">>> [PSIGN] Abans cridada esborrar signatures (psignaId=" + documentId + ", docStoreId=" + documentStoreId + ", refCustòdia=" + referenciaCustodia + ")");
+								pluginCustodiaDao.esborrarSignatures(documentStoreId.toString());
+								logger.info(">>> [PSIGN] Després cridada esborrar signatures (psignaId=" + documentId + ", docStoreId=" + documentStoreId + ", refCustòdia=" + referenciaCustodia + ")");
+								logger.info(">>> [PSIGN] Abans cridada custòdia 2 (psignaId=" + documentId + ", docStoreId=" + documentStoreId + ", refCustòdia=" + referenciaCustodia + ")");
+								referenciaCustodia = pluginCustodiaDao.afegirSignatura(
+										documentStoreId,
+										docst.getReferenciaFont(),
+										document.getArxiuNom(),
+										document.getCustodiaCodi(),
+										signatura);
+								logger.info(">>> [PSIGN] Després cridada custòdia 2 (psignaId=" + documentId + ", docStoreId=" + documentStoreId + ", refCustòdia=" + referenciaCustodia + ")");
+							} else {
+								throw ex;
+							}*/
+							logger.info(">>> [PSIGN] Processant error custòdia (" + getMissageFinalCadenaExcepcions(ex) + ", " + cercarMissatgeDinsCadenaExcepcions("ERROR_DOCUMENTO_ARCHIVADO", ex) + ") (psignaId=" + documentId + ", docStoreId=" + documentStoreId + ", refCustòdia=" + referenciaCustodia + ")");
+							if (cercarMissatgeDinsCadenaExcepcions("ERROR_DOCUMENTO_ARCHIVADO", ex)) {
+								referenciaCustodia = documentStoreId.toString();
+							} else {
+								throw ex;
+							}
 						}
 					}
+					//logger.info(">>> [PSIGN] Fi procés custòdia 1 (psignaId=" + documentId + ", docStoreId=" + documentStoreId + ", refCustòdia=" + referenciaCustodia + ")");
+					documentStore.setReferenciaCustodia(referenciaCustodia);
 				}
-				//logger.info(">>> [PSIGN] Fi procés custòdia 1 (psignaId=" + documentId + ", docStoreId=" + documentStoreId + ", refCustòdia=" + referenciaCustodia + ")");
-				documentStore.setReferenciaCustodia(referenciaCustodia);
 				documentStore.setSignat(true);
 				registreDao.crearRegistreSignarDocument(
 						expedient.getId(),
@@ -660,7 +690,7 @@ public class PluginService {
 				throw new Exception(getServiceUtils().getMessage("error.pluginService.capSignatura"));
 			}
 		} else {
-			//logger.info(">>> [PSIGN] No s'ha trobat diocument (psignaId=" + documentId + ", docStoreId=" + documentStoreId + ")");
+			//logger.info(">>> [PSIGN] No s'ha trobat document (psignaId=" + documentId + ", docStoreId=" + documentStoreId + ")");
 			throw new IllegalStateException(getServiceUtils().getMessage("error.pluginService.noDisponible"));
 		}
 		//logger.info(">>> [PSIGN] Fi procés custòdia 3 (psignaId=" + documentId + ", docStoreId=" + documentStoreId + ")");

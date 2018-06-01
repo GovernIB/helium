@@ -14,11 +14,16 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.tika.Tika;
+import org.apache.tika.mime.MimeTypes;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
+import es.caib.plugins.arxiu.api.ContingutArxiu;
+import es.caib.plugins.arxiu.api.Firma;
+import es.caib.plugins.arxiu.api.FirmaTipus;
 import net.conselldemallorca.helium.core.common.JbpmVars;
 import net.conselldemallorca.helium.core.helperv26.MesuresTemporalsHelper;
 import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
@@ -42,13 +47,18 @@ import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessInstance;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmTask;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
-import net.conselldemallorca.helium.v3.core.api.dto.DocumentStoreDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDocumentDto;
+import net.conselldemallorca.helium.v3.core.api.dto.NtiDocumentoFormato;
+import net.conselldemallorca.helium.v3.core.api.dto.NtiEstadoElaboracionEnumDto;
+import net.conselldemallorca.helium.v3.core.api.dto.NtiOrigenEnumDto;
+import net.conselldemallorca.helium.v3.core.api.dto.NtiTipoDocumentalEnumDto;
+import net.conselldemallorca.helium.v3.core.api.dto.NtiTipoFirmaEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RespostaValidacioSignaturaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.exception.SistemaExternConversioDocumentException;
 import net.conselldemallorca.helium.v3.core.api.exception.SistemaExternException;
+import net.conselldemallorca.helium.v3.core.api.exception.ValidacioException;
 import net.conselldemallorca.helium.v3.core.repository.DefinicioProcesRepository;
 import net.conselldemallorca.helium.v3.core.repository.DocumentRepository;
 import net.conselldemallorca.helium.v3.core.repository.DocumentStoreRepository;
@@ -64,6 +74,8 @@ import net.conselldemallorca.helium.v3.core.repository.PortasignaturesRepository
  */
 @Component
 public class DocumentHelperV3 {
+
+	public static final String VERSIO_NTI = "http://administracionelectronica.gob.es/ENI/XSD/v1.0/expediente-e";
 
 	@Resource
 	private PlantillaHelper plantillaHelper;
@@ -100,80 +112,42 @@ public class DocumentHelperV3 {
 
 	private PdfUtils pdfUtils;
 	private DocumentTokenUtils documentTokenUtils;
+	private Tika tika = new Tika();
 
 
 
 	public ExpedientDocumentDto findOnePerInstanciaProces(
 			String processInstanceId,
 			Long documentStoreId) {
-		DocumentStore documentStore = documentStoreRepository.findById(documentStoreId);
-		if (!documentStore.isAdjunt()) {
-			DefinicioProces definicioProces = expedientHelper.findDefinicioProcesByProcessInstanceId(
-					processInstanceId);
-			Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
-			ExpedientTipus expedientTipus = expedient.getTipus();
-			Document document;
-			if (expedientTipus.isAmbInfoPropia())
-				document = documentRepository.findByExpedientTipusAndCodi(
-						expedientTipus,
-						documentStore.getCodiDocument());
-			else
-				document = documentRepository.findByDefinicioProcesAndCodi(
-						definicioProces, 
-						documentStore.getCodiDocument());
-			if (document != null) {
-				return crearDtoPerDocumentExpedient(
-								document,
-								documentStore);
-			} else {
-				throw new NoTrobatException(
-						Document.class,
-						"(codi=" + documentStore.getCodiDocument() + ")");
-			}
-		} else {
-			return crearDtoPerAdjuntExpedient(
-					getAdjuntIdDeVariableJbpm(documentStore.getJbpmVariable()),
-					documentStore);
-		}
+		DocumentStore documentStore = documentStoreRepository.findOne(documentStoreId);
+		return findOnePerInstanciaProces(processInstanceId, documentStore);
 	}
 
 	public ExpedientDocumentDto findOnePerInstanciaProces(
 			String processInstanceId,
 			String documentCodi) {
-		DocumentStore documentStore = documentStoreRepository.findById(
+		DocumentStore documentStore = documentStoreRepository.findOne(
 				findDocumentStorePerInstanciaProcesAndDocumentCodi(
 						processInstanceId,
 						documentCodi));
-		if (documentStore == null)
-			return null;
-		
-		if (!documentStore.isAdjunt()) {
+		return findOnePerInstanciaProces(processInstanceId, documentStore);
+	}
+
+	public Document findDocumentPerInstanciaProcesICodi(
+			String processInstanceId,
+			String documentCodi) {
+		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
+		ExpedientTipus expedientTipus = expedient.getTipus();
+		if (expedientTipus.isAmbInfoPropia()) {
+			return documentRepository.findByExpedientTipusAndCodi(
+					expedientTipus,
+					documentCodi);
+		} else {
 			DefinicioProces definicioProces = expedientHelper.findDefinicioProcesByProcessInstanceId(
 					processInstanceId);
-			Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
-			ExpedientTipus expedientTipus = expedient.getTipus();
-			Document document;
-			if (expedientTipus.isAmbInfoPropia())
-				document = documentRepository.findByExpedientTipusAndCodi(
-						expedientTipus,
-						documentStore.getCodiDocument());
-			else
-				document = documentRepository.findByDefinicioProcesAndCodi(
-						definicioProces, 
-						documentStore.getCodiDocument());
-			if (document != null) {
-				return crearDtoPerDocumentExpedient(
-								document,
-								documentStore);
-			} else {
-				throw new NoTrobatException(
-						Document.class,
-						"(codi=" + documentStore.getCodiDocument() + ")");
-			}
-		} else {
-			return crearDtoPerAdjuntExpedient(
-					getAdjuntIdDeVariableJbpm(documentStore.getJbpmVariable()),
-					documentStore);
+			return documentRepository.findByDefinicioProcesAndCodi(
+					definicioProces, 
+					documentCodi);
 		}
 	}
 
@@ -185,86 +159,96 @@ public class DocumentHelperV3 {
 		DocumentStore documentStore = documentStoreRepository.findOne(documentStoreId);
 		// Obtenim el contingut de l'arxiu
 		byte[] arxiuOrigenContingut = null;
-		if (documentStore.isSignat() && isSignaturaFileAttached()) {
-			arxiuOrigenContingut = pluginHelper.custodiaObtenirSignaturesAmbArxiu(documentStore.getReferenciaCustodia());
+		if (documentStore.getArxiuUuid() != null) {
+			es.caib.plugins.arxiu.api.Document documentArxiu = pluginHelper.arxiuDocumentInfo(
+					documentStore.getArxiuUuid(),
+					null,
+					true);
+			resposta.setNom(documentStore.getArxiuNom());
+			// resposta.setNom(documentArxiu.getContingut().getArxiuNom());
+			resposta.setContingut(documentArxiu.getContingut().getContingut());
+			resposta.setTipusMime(documentArxiu.getContingut().getTipusMime());
 		} else {
-			if (documentStore.getFont().equals(DocumentFont.INTERNA)) {
-				arxiuOrigenContingut = documentStore.getArxiuContingut();
+			if (documentStore.isSignat() && isSignaturaFileAttached()) {
+				arxiuOrigenContingut = pluginHelper.custodiaObtenirSignaturesAmbArxiu(documentStore.getReferenciaCustodia());
 			} else {
-				arxiuOrigenContingut = pluginHelper.gestioDocumentalObtenirDocument(
-						documentStore.getReferenciaFont());
+				if (documentStore.getFont().equals(DocumentFont.INTERNA)) {
+					arxiuOrigenContingut = documentStore.getArxiuContingut();
+				} else {
+					arxiuOrigenContingut = pluginHelper.gestioDocumentalObtenirDocument(
+							documentStore.getReferenciaFont());
+				}
 			}
-		}
-		// Calculam el nom de l'arxiu
-		String arxiuNomOriginal = calcularArxiuNomOriginal(documentStore);
-		String extensioDesti = calcularArxiuExtensioDesti(
-				arxiuNomOriginal,
-				documentStore,
-				perSignar);
-		// Només podem convertir a extensió de destí PDF
-		if ("pdf".equalsIgnoreCase(extensioDesti)) {
-			resposta.setNom(
-					getNomArxiuAmbExtensio(
-							documentStore.getArxiuNom(),
-							extensioDesti));
-			// Si és un PDF podem estampar
-			try {
-				ByteArrayOutputStream vistaContingut = new ByteArrayOutputStream();
-				DateFormat df = new SimpleDateFormat("dd/MM/yyyy HH:mm");
-				String dataRegistre = null;
-				if (documentStore.getRegistreData() != null)
-					dataRegistre = df.format(documentStore.getRegistreData());
-				String numeroRegistre = documentStore.getRegistreNumero();
-				String urlComprovacioSignatura = null;
-			    if (ambSegellSignatura)
-			    	urlComprovacioSignatura = getUrlComprovacioSignatura(documentStoreId);
-				
-			    getPdfUtils().estampar(
-				      arxiuNomOriginal,
-				      arxiuOrigenContingut,
-				      (ambSegellSignatura) ? !documentStore.isSignat() : false,
-				      urlComprovacioSignatura,
-				      documentStore.isRegistrat(),
-				      numeroRegistre,
-				      dataRegistre,
-				      documentStore.getRegistreOficinaNom(),
-				      documentStore.isRegistreEntrada(),
-				      vistaContingut,
-				      extensioDesti);
-				resposta.setContingut(vistaContingut.toByteArray());
-			} catch (SistemaExternConversioDocumentException ex) {
-				logger.error("Hi ha hagut un problema amb el servidor OpenOffice i el document '" + arxiuNomOriginal + "'", ex.getCause());
-				Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(documentStore.getProcessInstanceId());
-				throw new SistemaExternConversioDocumentException(
-						expedient.getEntorn().getId(),
-						expedient.getEntorn().getCodi(), 
-						expedient.getEntorn().getNom(), 
-						expedient.getId(), 
-						expedient.getTitol(), 
-						expedient.getNumero(), 
-						expedient.getTipus().getId(), 
-						expedient.getTipus().getCodi(), 
-						expedient.getTipus().getNom(), 
-						messageHelper.getMessage("error.document.conversio.externa"));
-			} catch (Exception ex) {
-				Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(documentStore.getProcessInstanceId());
-				throw SistemaExternException.tractarSistemaExternException(
-						expedient.getEntorn().getId(),
-						expedient.getEntorn().getCodi(), 
-						expedient.getEntorn().getNom(), 
-						expedient.getId(), 
-						expedient.getTitol(), 
-						expedient.getNumero(), 
-						expedient.getTipus().getId(), 
-						expedient.getTipus().getCodi(), 
-						expedient.getTipus().getNom(), 
-						"No s'ha pogut generar la vista pel document (id=" + documentStoreId + ", processInstanceId=" + documentStore.getProcessInstanceId() + ")", 
-						ex);
+			// Calculam el nom de l'arxiu
+			String arxiuNomOriginal = calcularArxiuNomOriginal(documentStore);
+			String extensioDesti = calcularArxiuExtensioDesti(
+					arxiuNomOriginal,
+					documentStore,
+					perSignar);
+			// Només podem convertir a extensió de destí PDF
+			if ("pdf".equalsIgnoreCase(extensioDesti)) {
+				resposta.setNom(
+						getNomArxiuAmbExtensio(
+								documentStore.getArxiuNom(),
+								extensioDesti));
+				// Si és un PDF podem estampar
+				try {
+					ByteArrayOutputStream vistaContingut = new ByteArrayOutputStream();
+					DateFormat df = new SimpleDateFormat("dd/MM/yyyy HH:mm");
+					String dataRegistre = null;
+					if (documentStore.getRegistreData() != null)
+						dataRegistre = df.format(documentStore.getRegistreData());
+					String numeroRegistre = documentStore.getRegistreNumero();
+					String urlComprovacioSignatura = null;
+				    if (ambSegellSignatura)
+				    	urlComprovacioSignatura = getUrlComprovacioSignatura(documentStoreId);
+				    getPdfUtils().estampar(
+					      arxiuNomOriginal,
+					      arxiuOrigenContingut,
+					      (ambSegellSignatura) ? !documentStore.isSignat() : false,
+					      urlComprovacioSignatura,
+					      documentStore.isRegistrat(),
+					      numeroRegistre,
+					      dataRegistre,
+					      documentStore.getRegistreOficinaNom(),
+					      documentStore.isRegistreEntrada(),
+					      vistaContingut,
+					      extensioDesti);
+					resposta.setContingut(vistaContingut.toByteArray());
+				} catch (SistemaExternConversioDocumentException ex) {
+					logger.error("Hi ha hagut un problema amb el servidor OpenOffice i el document '" + arxiuNomOriginal + "'", ex.getCause());
+					Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(documentStore.getProcessInstanceId());
+					throw new SistemaExternConversioDocumentException(
+							expedient.getEntorn().getId(),
+							expedient.getEntorn().getCodi(), 
+							expedient.getEntorn().getNom(), 
+							expedient.getId(), 
+							expedient.getTitol(), 
+							expedient.getNumero(), 
+							expedient.getTipus().getId(), 
+							expedient.getTipus().getCodi(), 
+							expedient.getTipus().getNom(), 
+							messageHelper.getMessage("error.document.conversio.externa"));
+				} catch (Exception ex) {
+					Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(documentStore.getProcessInstanceId());
+					throw SistemaExternException.tractarSistemaExternException(
+							expedient.getEntorn().getId(),
+							expedient.getEntorn().getCodi(), 
+							expedient.getEntorn().getNom(), 
+							expedient.getId(), 
+							expedient.getTitol(), 
+							expedient.getNumero(), 
+							expedient.getTipus().getId(), 
+							expedient.getTipus().getCodi(), 
+							expedient.getTipus().getNom(), 
+							"No s'ha pogut generar la vista pel document (id=" + documentStoreId + ", processInstanceId=" + documentStore.getProcessInstanceId() + ")", 
+							ex);
+				}
+			} else {
+				// Si no és un pdf retornam la vista directament
+				resposta.setNom(arxiuNomOriginal);
+				resposta.setContingut(arxiuOrigenContingut);
 			}
-		} else {
-			// Si no és un pdf retornam la vista directament
-			resposta.setNom(arxiuNomOriginal);
-			resposta.setContingut(arxiuOrigenContingut);
 		}
 		return resposta;
 	}
@@ -278,11 +262,11 @@ public class DocumentHelperV3 {
 		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
 		ExpedientTipus expedientTipus = expedient.getTipus();
 		List<Document> documents;
-		if (expedientTipus.isAmbInfoPropia())
+		if (expedientTipus.isAmbInfoPropia()) {
 			documents = documentRepository.findByExpedientTipus(expedientTipus);
-		else
+		} else {
 			documents = documentRepository.findByDefinicioProces(definicioProces);
-			
+		}
 		// Consulta els documents de l'instància de procés
 		Map<String, Object> varsInstanciaProces = jbpmHelper.getProcessInstanceVariables(processInstanceId);
 		if (varsInstanciaProces != null) {
@@ -324,48 +308,8 @@ public class DocumentHelperV3 {
 			}
 		}
 		return resposta;
-		/*String tipusExp = null;
-		if (MesuresTemporalsHelper.isActiu()) {
-			Expedient exp = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
-			tipusExp = (exp != null ? exp.getTipus().getNom() : null);
-			mesuresTemporalsHelper.mesuraIniciar("Expedient DOCUMENTS v3", "expedient", tipusExp);
-			mesuresTemporalsHelper.mesuraIniciar("Expedient DOCUMENTS v3", "expedient", tipusExp, null, "0");
-		}
-
-		DefinicioProces definicioProces = expedientHelper.findDefinicioProcesByProcessInstanceId(
-				processInstanceId);
-		mesuresTemporalsHelper.mesuraCalcular("Expedient DOCUMENTS v3", "expedient", tipusExp, null, "0");
-		mesuresTemporalsHelper.mesuraIniciar("Expedient DOCUMENTS v3", "expedient", tipusExp, null, "1");
-		List<Document> documents = documentRepository.findByDefinicioProces(definicioProces);
-		List<ExpedientDocumentDto> resposta = convertDocumentDto(documents, processInstanceId, tipusExp);
-		mesuresTemporalsHelper.mesuraCalcular("Expedient DOCUMENTS v3", "expedient", tipusExp, null, "1");
-		mesuresTemporalsHelper.mesuraCalcular("Expedient DOCUMENTS v3", "expedient",tipusExp);
-		return resposta;*/
 	}
 
-	/*public ExpedientDocumentDto findDocumentPerInstanciaProces(
-			String processInstanceId,
-			Long documentStoreId,
-			String documentCodi) {
-		// Consulta els documents de la definició de procés
-		DefinicioProces definicioProces = expedientHelper.findDefinicioProcesByProcessInstanceId(
-				processInstanceId);
-		Document document =  documentRepository.findByDefinicioProcesAndCodi(definicioProces,documentCodi);
-		if (documentStoreId == null) {
-			documentStoreId = getDocumentStoreIdDeVariableJbpm(null, processInstanceId, documentCodi);
-		}
-		if (document != null) {
-			return crearDtoPerDocumentExpedient(
-							document,
-							documentStoreId);
-		} else {
-			ExpedientDocumentDto dto = new ExpedientDocumentDto();
-			dto.setId(documentStoreId);
-			dto.setError("No s'ha trobat el document de la definició de procés (" +
-						"documentCodi=" + documentCodi + ")");
-			return dto;
-		}
-	}*/
 	public Long findDocumentStorePerInstanciaProcesAndDocumentCodi(
 			String processInstanceId,
 			String documentCodi) {
@@ -378,9 +322,7 @@ public class DocumentHelperV3 {
 		// Consulta els documents de la definició de procés
 		DefinicioProces definicioProces = expedientHelper.findDefinicioProcesByProcessInstanceId(
 				processInstanceId);
-		
 		DocumentStore documentStore = documentStoreRepository.findOne(documentStoreId);
-		
 		if (documentStore != null) {
 			if (documentStore.isAdjunt()) {
 				return crearDtoPerAdjuntExpedient(
@@ -390,14 +332,15 @@ public class DocumentHelperV3 {
 				Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
 				ExpedientTipus expedientTipus = expedient.getTipus();
 				Document document;
-				if (expedientTipus.isAmbInfoPropia())
+				if (expedientTipus.isAmbInfoPropia()) {
 					document = documentRepository.findByExpedientTipusAndCodi(
 							expedientTipus,
 							documentStore.getCodiDocument());
-				else
+				} else {
 					document = documentRepository.findByDefinicioProcesAndCodi(
 							definicioProces, 
 							documentStore.getCodiDocument());
+				}
 				if (document != null) {
 					return crearDtoPerDocumentExpedient(
 									document,
@@ -417,83 +360,7 @@ public class DocumentHelperV3 {
 						"documentStoreId=" + documentStoreId + ")");
 			return dto;
 		}
-		
-		
 	}
-	
-	/*public List<ExpedientDocumentDto> convertDocumentDto(List<Document> documents, String processInstanceId, String tipusExp) {
-		mesuresTemporalsHelper.mesuraIniciar("Expedient DOCUMENTS v3 convertDocumentDto", "expedient", tipusExp);
-		
-		mesuresTemporalsHelper.mesuraIniciar("Expedient DOCUMENTS v3 convertDocumentDto", "expedient", tipusExp, null, "0");
-		Map<String, Document> documentsIndexatsPerCodi = new HashMap<String, Document>();
-		Map<String, Object> varsInstanciaProces = jbpmHelper.getProcessInstanceVariables(processInstanceId);
-		for (Document document: documents)
-			documentsIndexatsPerCodi.put(document.getCodi(), document);
-		mesuresTemporalsHelper.mesuraCalcular("Expedient DOCUMENTS v3 convertDocumentDto", "expedient", tipusExp, null, "0");
-		
-		List<ExpedientDocumentDto> resposta = new ArrayList<ExpedientDocumentDto>();		
-				
-		if (varsInstanciaProces != null) {
-			mesuresTemporalsHelper.mesuraIniciar("Expedient DOCUMENTS v3 convertDocumentDto", "expedient", tipusExp, null, "1");
-			filtrarVariablesAmbDocuments(varsInstanciaProces);
-			for (String var: varsInstanciaProces.keySet()) {
-				Long documentStoreId = (Long)varsInstanciaProces.get(var);
-				if (documentStoreId != null) {
-					String documentCodi = getDocumentCodiDeVariableJbpm(var);
-					if (documentsIndexatsPerCodi.containsKey(documentCodi)) {
-						ExpedientDocumentDto dto = toExpedientDocumentDto(
-								documentStoreId,
-								var.startsWith(VariableHelper.PREFIX_VAR_DOCUMENT),
-								documentCodi,
-								var.startsWith(VariableHelper.PREFIX_VAR_ADJUNT),
-								getAdjuntIdDeVariableJbpm(var),
-								documentsIndexatsPerCodi.get(documentCodi));
-						resposta.add(dto);
-					} else if (var.startsWith(DocumentHelper.PREFIX_ADJUNT)) {
-						// Afegeix els adjunts
-						resposta.add(toExpedientDocument(
-								documentStoreId,
-								documentCodi,
-								getAdjuntIdDeVariableJbpm(var),
-								getDocumentSenseContingut(documentStoreId)));
-					}
-				}
-			}
-			mesuresTemporalsHelper.mesuraCalcular("Expedient DOCUMENTS v3 convertDocumentDto", "expedient", tipusExp, null, "1");
-		}
-		mesuresTemporalsHelper.mesuraCalcular("Expedient DOCUMENTS v3 convertDocumentDto", "expedient",tipusExp);
-		
-		return resposta;
-	}*/
-
-	/*public ExpedientDocumentDto findDocumentPerExpedientDocumentStoreId(
-			Expedient expedient,
-			Long documentStoreId,
-			String docCodi) {
-		mesuresTemporalsHelper.mesuraCalcular("Expedient DOCUMENT v3", "expedient", expedient.getTipus().getCodi(), null, "0");
-		mesuresTemporalsHelper.mesuraIniciar("Expedient DOCUMENT v3", "expedient", expedient.getTipus().getCodi(), null, "1");
-		DefinicioProces definicioProces = expedientHelper.findDefinicioProcesByProcessInstanceId(expedient.getProcessInstanceId());
-		DocumentStore documentStore = documentStoreRepository.findById(documentStoreId);
-		ExpedientDocumentDto resposta = null;
-		if (documentStore.isAdjunt()) {
-			resposta = toExpedientDocument(
-					documentStoreId,
-					docCodi,
-					getAdjuntIdDeVariableJbpm(documentStore.getJbpmVariable()),
-					getDocumentSenseContingut(documentStoreId));
-		} else {
-			resposta = toExpedientDocumentDto(
-					documentStoreId,
-					documentStore.getJbpmVariable().startsWith(VariableHelper.PREFIX_VAR_DOCUMENT),
-					docCodi,
-					documentStore.getJbpmVariable().startsWith(VariableHelper.PREFIX_VAR_ADJUNT),
-					getAdjuntIdDeVariableJbpm(documentStore.getJbpmVariable()),
-					documentRepository.findByDefinicioProcesAndCodi(definicioProces, docCodi));
-		}
-		mesuresTemporalsHelper.mesuraCalcular("Expedient DOCUMENT v3", "expedient", expedient.getTipus().getCodi(), null, "1");
-		mesuresTemporalsHelper.mesuraCalcular("Expedient DOCUMENT v3", "expedient",expedient.getTipus().getCodi());
-		return resposta;
-	}*/
 		
 	public TascaDocumentDto findDocumentPerId(String tascaId, Long docId) {
 		JbpmTask task = tascaHelper.getTascaComprovacionsTramitacio(
@@ -576,154 +443,13 @@ public class DocumentHelperV3 {
 		documentStore.setRegistreEntrada(registreEntrada);
 	}
 
-	/*private ExpedientDocumentDto toExpedientDocument(
-			Long documentStoreId,
-			String documentCodi,
-			String adjuntId,
-			DocumentDto document) {
-		ExpedientDocumentDto dto = new ExpedientDocumentDto();
-		dto.setId(documentStoreId);
-		dto.setDocumentCodi(documentCodi);
-		DocumentStore documentStore = documentStoreRepository.findOne(documentStoreId);
-		if (documentStore != null) {
-			dto.setDataCreacio(documentStore.getDataCreacio());
-			dto.setDataModificacio(documentStore.getDataModificacio());
-			dto.setDataDocument(documentStore.getDataDocument());
-			dto.setSignat(documentStore.isSignat());
-			// TODO
-			//dto.setPortasignaturesId(portasignaturesId);
-			if (documentStore.isSignat()) {
-				dto.setDocumentPendentSignar(documentStore.isSignat());
-				dto.setUrlVerificacioCustodia(
-						pluginCustodiaDao.getUrlComprovacioSignatura(
-								documentStoreId.toString()));
-			}
-			try {
-				dto.setTokenSignatura(getDocumentTokenUtils().xifrarToken(documentStoreId.toString()));
-			} catch (Exception ex) {
-				logger.error("No s'ha pogut generar el token pel document " + documentStoreId, ex);
-			}
-			try {
-				dto.setSignaturaUrlVerificacio(getUrlComprovacioSignatura(documentStoreId));
-			} catch (Exception ex) {
-				dto.setError("No s'ha pogut obtenir la URL de comprovació de signatura (id=" + documentStoreId + ",documentCodi=" + documentCodi + ")");
-				logger.error("No s'ha pogut obtenir la URL de comprovació de signatura (id=" + documentStoreId + ",documentCodi=" + documentCodi + ")", ex);
-			}
-			dto.setRegistrat(documentStore.isRegistrat());
-			dto.setRegistreEntrada(documentStore.isRegistreEntrada());
-			dto.setRegistreNumero(documentStore.getRegistreNumero());
-			dto.setRegistreData(documentStore.getRegistreData());
-			dto.setRegistreOficinaCodi(documentStore.getRegistreOficinaCodi());
-			dto.setRegistreOficinaNom(documentStore.getRegistreOficinaNom());
-			dto.setProcessInstanceId(documentStore.getProcessInstanceId());
-			dto.setDocumentId(document.getId());
-			dto.setDocumentNom(document.getAdjuntTitol());
-			dto.setDocumentContentType(document.getContentType());
-			dto.setDocumentCustodiaCodi(document.getCustodiaCodi());
-			dto.setDocumentTipusDocPortasignatures(document.getTipusDocPortasignatures());
-			dto.setAdjunt(true);
-			dto.setAdjuntId(adjuntId);
-			dto.setAdjuntTitol(documentStore.getAdjuntTitol());
-			dto.setArxiuNom(calcularArxiuNom(documentStore, false));
-		} else {
-			dto.setAdjuntId(adjuntId);
-			dto.setAdjunt(true);
-			dto.setError("No s'ha trobat el documentStore del adjunt (id=" + documentStoreId + ", adjuntId=" + adjuntId + ")");
-		}
-		return dto;
-	}
-
-	private ExpedientDocumentDto toExpedientDocumentDto(
-			Long documentStoreId,
-			boolean esDocument,
-			String documentCodi,
-			boolean esAdjunt,
-			String adjuntId,
-			Document document) {
-		ExpedientDocumentDto dto = new ExpedientDocumentDto();
-		dto.setId(documentStoreId);
-		DocumentStore documentStore = documentStoreRepository.findOne(documentStoreId);
-		if (documentStore != null) {
-			dto.setDataCreacio(documentStore.getDataCreacio());
-			dto.setDataModificacio(documentStore.getDataModificacio());
-			dto.setDataDocument(documentStore.getDataDocument());
-			dto.setSignat(documentStore.isSignat());
-			// TODO
-			//dto.setPortasignaturesId(portasignaturesId);
-			if (documentStore.isSignat()) {
-				dto.setDocumentPendentSignar(documentStore.isSignat());
-				dto.setUrlVerificacioCustodia(
-						pluginCustodiaDao.getUrlComprovacioSignatura(
-								documentStoreId.toString()));
-			}
-			try {
-				dto.setTokenSignatura(getDocumentTokenUtils().xifrarToken(documentStoreId.toString()));
-			} catch (Exception ex) {
-				logger.error("No s'ha pogut generar el token pel document " + documentStoreId, ex);
-			}
-			try {
-				dto.setSignaturaUrlVerificacio(getUrlComprovacioSignatura(documentStoreId));
-			} catch (Exception ex) {
-				dto.setError("No s'ha pogut obtenir la URL de comprovació de signatura (id=" + documentStoreId + ",documentCodi=" + documentCodi + ")");
-				logger.error("No s'ha pogut obtenir la URL de comprovació de signatura (id=" + documentStoreId + ",documentCodi=" + documentCodi + ")", ex);
-			}
-			dto.setRegistrat(documentStore.isRegistrat());
-			dto.setRegistreEntrada(documentStore.isRegistreEntrada());
-			dto.setRegistreNumero(documentStore.getRegistreNumero());
-			dto.setRegistreData(documentStore.getRegistreData());
-			dto.setRegistreOficinaCodi(documentStore.getRegistreOficinaCodi());
-			dto.setRegistreOficinaNom(documentStore.getRegistreOficinaNom());
-			dto.setProcessInstanceId(documentStore.getProcessInstanceId());
-			if (esDocument) {
-				dto.setDocumentCodi(documentCodi);
-				if (document != null) {
-					dto.setPlantilla(document.isPlantilla());
-					dto.setDocumentId(document.getId());
-					dto.setDocumentNom(document.getNom());
-					dto.setDocumentContentType(document.getContentType());
-					dto.setDocumentCustodiaCodi(document.getCustodiaCodi());
-					dto.setDocumentTipusDocPortasignatures(document.getTipusDocPortasignatures());
-				} else {
-					dto.setError("No s'ha trobat el document (id=" + documentStoreId + ",documentCodi=" + documentCodi + ")");
-				}
-			} else if (esAdjunt) {
-				dto.setAdjunt(true);
-				dto.setAdjuntId(adjuntId);
-				dto.setAdjuntTitol(documentStore.getAdjuntTitol());
-			}
-			dto.setArxiuNom(calcularArxiuNom(documentStore, false));
-		} else {
-			if (esDocument) {
-				dto.setDocumentCodi(documentCodi);
-				dto.setError("No s'ha trobat el documentStore del document (id=" + documentStoreId + ", documentCodi=" + documentCodi + ")");
-			} else if (esAdjunt) {
-				dto.setAdjuntId(adjuntId);
-				dto.setAdjunt(true);
-				dto.setError("No s'ha trobat el documentStore del adjunt (id=" + documentStoreId + ", adjuntId=" + adjuntId + ")");
-			} else {
-				dto.setError("No s'ha trobat el documentStore i no es ni document ni adjunt (id=" + documentStoreId + ")"); 
-			}
-		}
-		if (document != null && !document.getFirmes().isEmpty()) {
-			dto.setDocumentPendentSignar(true);
-			Iterator<FirmaTasca> firmas = document.getFirmes().iterator();
-			while (firmas.hasNext()) {						
-				if (firmas.next().isRequired()) {
-					dto.setSignatRequired(true);
-					break;
-				}
-			}
-		}
-		return dto;
-	}*/
-
 	public DocumentStore getDocumentStore(
 			JbpmTask task,
 			String documentCodi) {
 		DocumentStore documentStore = null;
 		Long documentStoreId = getDocumentStoreIdDeVariableJbpm(String.valueOf(task.getTask().getId()), task.getProcessInstanceId(), documentCodi);
 		if (documentStoreId != null) {
-			documentStore = documentStoreRepository.findById(documentStoreId);
+			documentStore = documentStoreRepository.findOne(documentStoreId);
 		}
 		return documentStore;
 	}
@@ -740,7 +466,13 @@ public class DocumentHelperV3 {
 	}
 	
 	public List<RespostaValidacioSignaturaDto> getRespostasValidacioSignatura(DocumentStore documentStore) {
-		DocumentDto document = getDocumentOriginal(documentStore.getId(), true);
+		DocumentDto document = toDocumentDto(
+				documentStore.getId(),
+				true,
+				false,
+				false,
+				false,
+				false);
 		if (pluginHelper.custodiaPotObtenirInfoSignatures()) {
 			return conversioTipusHelper.convertirList(pluginHelper.custodiaDadesValidacioSignatura(
 					documentStore.getReferenciaCustodia()), RespostaValidacioSignaturaDto.class);
@@ -770,7 +502,829 @@ public class DocumentHelperV3 {
 		}
 	}
 
+	public DocumentDto signarDocumentTascaAmbToken(
+			Long docId,
+			String tascaId,
+			String token,
+			byte[] signatura) throws Exception {
+		DocumentDto dto = null;
+		Long documentStoreId = getDocumentStoreIdPerToken(token);		
+		if (documentStoreId != null) {
+			DocumentStore documentStore = documentStoreRepository.findOne(documentStoreId);
+			dto = toDocumentDto(
+					documentStoreId,
+					false,
+					false,
+					true,
+					true,
+					true);
+			boolean custodiat = false;
+			if (pluginHelper.custodiaIsPluginActiu()) {
+				String nomArxiu = getNomArxiuAmbExtensio(
+						dto.getArxiuNom(),
+						getExtensioArxiuSignat());		
+				String referenciaCustodia = null;
+				if (pluginHelper.custodiaIsValidacioImplicita()) {
+					logger.info("signarDocumentTascaAmbToken : documentId: " + documentStore.getId() + ". gesdocId: " +documentStore.getReferenciaFont() + ". nomArxiuSignat: " + nomArxiu + ". codiTipusCustodia: " + dto.getCustodiaCodi()); 
+					referenciaCustodia = pluginHelper.custodiaAfegirSignatura(
+							documentStore.getId(),
+							documentStore.getReferenciaFont(),
+							nomArxiu,
+							dto.getCustodiaCodi(),
+							signatura);
+					custodiat = true;
+				} else {
+					RespostaValidacioSignatura resposta = pluginHelper.signaturaVerificar(
+							dto.getVistaContingut(),
+							signatura,
+							false);
+					if (resposta.isEstatOk()) {
+						referenciaCustodia = pluginHelper.custodiaAfegirSignatura(
+								documentStore.getId(),
+								documentStore.getReferenciaFont(),
+								nomArxiu,
+								dto.getCustodiaCodi(),
+								signatura);
+						custodiat = true;
+					}
+				}
+				documentStore.setReferenciaCustodia(referenciaCustodia);
+			}
+			if (custodiat) {
+				documentStore.setSignat(true);
+				JbpmTask task = tascaHelper.getTascaComprovacionsTramitacio(
+						tascaId,
+						true,
+						true);
+				String.valueOf(task.getTask().getId());
+				jbpmHelper.setTaskInstanceVariable(
+						tascaId,
+						JbpmVars.PREFIX_SIGNATURA + dto.getDocumentCodi(),
+						documentStore.getId());
+			}
+		}
+		return dto;
+	}
 
+	public Long getDocumentStoreIdPerToken(String token) {
+		try {
+			String[] tokenDesxifrat = getDocumentTokenUtils().desxifrarTokenMultiple(token);
+			if (tokenDesxifrat.length == 1)
+				return Long.parseLong(tokenDesxifrat[0]);
+			else
+				return Long.parseLong(tokenDesxifrat[1]);
+		} catch (Exception ex) {
+			throw new RuntimeException("Format de token ('" + token + "') incorrecte", ex);
+		}
+	}
+
+	/*public DocumentDto getDocumentVista(
+			Long documentStoreId,
+			boolean perSignar,
+			boolean ambSegellSignatura) {
+		if (documentStoreId != null) {
+			return toDocumentDto(
+					documentStoreId,
+					false,
+					false,
+					true,
+					perSignar,
+					ambSegellSignatura);
+		} else {
+			return null;
+		}
+	}
+
+	public DocumentDto getDocumentSenseContinguta(
+			String taskInstanceId,
+			String processInstanceId,
+			String documentCodi,
+			boolean perSignarEnTasca,
+			boolean ambInfoPsigna) {
+		Long documentStoreId = getDocumentStoreIdDeVariableJbpm(taskInstanceId, processInstanceId, documentCodi);
+		if (documentStoreId != null) {
+			DocumentDto dto = toDocumentDto(
+					documentStoreId,
+					false,
+					false,
+					false,
+					false,
+					false);
+			if (perSignarEnTasca) {
+				try {
+					dto.setTokenSignaturaMultiple(getDocumentTokenUtils().xifrarTokenMultiple(
+							new String[] {
+									taskInstanceId,
+									documentStoreId.toString()}));
+				} catch (Exception ex) {
+					logger.error("No s'ha pogut generar el token pel document " + documentStoreId, ex);
+				}
+				if (dto.isSignat()) {
+					Object signatEnTasca = jbpmHelper.getTaskInstanceVariable(taskInstanceId, JbpmVars.PREFIX_SIGNATURA + dto.getDocumentCodi());
+					dto.setSignatEnTasca(signatEnTasca != null);
+				} else {
+					dto.setSignatEnTasca(false);
+				}
+			}
+			return dto;
+		} else {
+			return null;
+		}
+	}*/
+
+	public Long crearDocument(
+			String taskInstanceId,
+			String processInstanceId,
+			String documentCodi,
+			Date documentData,
+			boolean isAdjunt,
+			String adjuntTitol,
+			String arxiuNom,
+			byte[] arxiuContingut,
+			NtiOrigenEnumDto ntiOrigen,
+			NtiEstadoElaboracionEnumDto ntiEstadoElaboracion,
+			NtiTipoDocumentalEnumDto ntiTipoDocumental,
+			String ntiIdDocumentoOrigen) {
+		String documentCodiPerCreacio = documentCodi;
+		if (documentCodiPerCreacio == null && isAdjunt) {
+			documentCodiPerCreacio = new Long(new Date().getTime()).toString();
+		}
+		DocumentStore documentStore = new DocumentStore(
+				(pluginHelper.gestioDocumentalIsPluginActiu()) ? DocumentFont.ALFRESCO : DocumentFont.INTERNA,
+				processInstanceId,
+				getVarPerDocumentCodi(documentCodiPerCreacio, isAdjunt),
+				new Date(),
+				documentData,
+				arxiuNom);
+		documentStore.setAdjunt(isAdjunt);
+		if (isAdjunt) {
+			documentStore.setAdjuntTitol(adjuntTitol);
+		}
+		DocumentStore documentStoreCreat = documentStoreRepository.save(documentStore);
+		documentStoreRepository.flush();
+		postProcessarDocument(
+				documentStoreCreat,
+				taskInstanceId,
+				processInstanceId,
+				arxiuNom,
+				arxiuContingut,
+				ntiOrigen,
+				ntiEstadoElaboracion,
+				ntiTipoDocumental,
+				ntiIdDocumentoOrigen);
+		return documentStoreCreat.getId();
+	}
+
+	public Long actualitzarDocument(
+			Long documentStoreId,
+			String taskInstanceId,
+			String processInstanceId,
+			Date documentData,
+			String adjuntTitol,
+			String arxiuNom,
+			byte[] arxiuContingut,
+			NtiOrigenEnumDto ntiOrigen,
+			NtiEstadoElaboracionEnumDto ntiEstadoElaboracion,
+			NtiTipoDocumentalEnumDto ntiTipoDocumental,
+			String ntiIdDocumentoOrigen) {
+		DocumentStore documentStore = documentStoreRepository.findOne(documentStoreId);
+		if (documentStore == null) {
+			throw new NoTrobatException(
+					DocumentStore.class, 
+					documentStoreId);
+		}
+		documentStore.setDataDocument(documentData);
+		documentStore.setDataModificacio(new Date());
+		if (documentStore.isAdjunt()) {
+			documentStore.setAdjuntTitol(adjuntTitol);
+		}
+		if (arxiuContingut != null && pluginHelper.gestioDocumentalIsPluginActiu()) {
+			Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
+			pluginHelper.gestioDocumentalDeleteDocument(
+					documentStore.getReferenciaFont(),
+					expedient);
+		}
+		postProcessarDocument(
+				documentStore,
+				taskInstanceId,
+				processInstanceId,
+				arxiuNom,
+				arxiuContingut,
+				ntiOrigen,
+				ntiEstadoElaboracion,
+				ntiTipoDocumental,
+				ntiIdDocumentoOrigen);
+		return documentStore.getId();
+	}
+
+	public Long crearOActualitzarDocument(
+			String taskInstanceId,
+			String processInstanceId,
+			String documentCodi,
+			Date documentData,
+			String arxiuNom,
+			byte[] arxiuContingut,
+			NtiOrigenEnumDto ntiOrigen,
+			NtiEstadoElaboracionEnumDto ntiEstadoElaboracion,
+			NtiTipoDocumentalEnumDto ntiTipoDocumental,
+			String ntiIdDocumentoOrigen) {
+		// ALERTA! Crear/actualitzar no funciona amb adjunts
+		Long documentStoreId = getDocumentStoreIdDeVariableJbpm(
+				taskInstanceId,
+				processInstanceId,
+				documentCodi);
+		DocumentStore documentStore = null;
+		if (documentStoreId != null) {
+			documentStore = documentStoreRepository.findOne(documentStoreId);
+		}
+		if (documentStore == null) {
+			return crearDocument(
+					taskInstanceId,
+					processInstanceId,
+					documentCodi,
+					documentData,
+					false,
+					null,
+					arxiuNom,
+					arxiuContingut,
+					ntiOrigen,
+					ntiEstadoElaboracion,
+					ntiTipoDocumental,
+					ntiIdDocumentoOrigen);
+		} else {
+			return actualitzarDocument(
+					documentStoreId,
+					taskInstanceId,
+					processInstanceId,
+					documentData,
+					null,
+					arxiuNom,
+					arxiuContingut,
+					ntiOrigen,
+					ntiEstadoElaboracion,
+					ntiTipoDocumental,
+					ntiIdDocumentoOrigen);
+		}
+	}
+
+	public void esborrarDocument(
+			String taskInstanceId,
+			String processInstanceId,
+			String documentCodi) {
+		Object varValor = null;
+		if (taskInstanceId != null) {
+			varValor = jbpmHelper.getTaskInstanceVariable(
+					taskInstanceId,
+					getVarPerDocumentCodi(documentCodi, false));
+		} else if (processInstanceId != null) {
+			varValor = jbpmHelper.getProcessInstanceVariable(
+					processInstanceId,
+					getVarPerDocumentCodi(documentCodi, false));
+		}
+		if (varValor != null && varValor instanceof Long) {
+			esborrarDocument(
+					taskInstanceId,
+					processInstanceId,
+					(Long)varValor);
+		}
+	}
+
+	public void esborrarDocument(
+			String taskInstanceId,
+			String processInstanceId,
+			Long documentStoreId) {
+		DocumentStore documentStore = documentStoreRepository.findOne(documentStoreId);
+		if (documentStore != null) {
+			Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
+			if (expedient.isArxiuActiu()) {
+				if (documentStore.isSignat()) {
+					throw new ValidacioException("No es pot esborrar un document firmat");
+				} else {
+					pluginHelper.arxiuDocumentEsborrar(documentStore.getArxiuUuid());
+				}
+			} else {
+				if (documentStore.isSignat()) {
+					if (pluginHelper.custodiaIsPluginActiu()) {
+						pluginHelper.custodiaEsborrarSignatures(
+								documentStore.getReferenciaCustodia(), 
+								expedientHelper.findExpedientByProcessInstanceId(processInstanceId));
+					}
+				}
+				if (documentStore.getFont().equals(DocumentFont.ALFRESCO)) {
+					pluginHelper.gestioDocumentalDeleteDocument(
+							documentStore.getReferenciaFont(),
+							expedientHelper.findExpedientByProcessInstanceId(processInstanceId));
+				}
+				if (processInstanceId != null) {
+					List<TipusEstat> estats = new ArrayList<TipusEstat>();
+					estats.add(TipusEstat.PENDENT);
+					estats.add(TipusEstat.SIGNAT);
+					estats.add(TipusEstat.REBUTJAT);
+					estats.add(TipusEstat.ERROR);
+					List<Portasignatures> psignaPendents = portasignaturesRepository.findByProcessInstanceIdAndEstatNotIn(
+							processInstanceId,
+							estats);
+					for (Portasignatures psigna: psignaPendents) {
+						if (psigna.getDocumentStoreId().longValue() == documentStore.getId().longValue()) {
+							psigna.setEstat(TipusEstat.ESBORRAT);
+							portasignaturesRepository.save(psigna);
+						}
+					}
+				}
+			}
+			documentStoreRepository.delete(documentStoreId);
+		}
+		if (taskInstanceId != null) {
+			jbpmHelper.deleteTaskInstanceVariable(
+					taskInstanceId,
+					documentStore.getJbpmVariable());
+			String documentCodi = getDocumentCodiPerVariableJbpm(
+					documentStore.getJbpmVariable());
+			jbpmHelper.deleteTaskInstanceVariable(
+					taskInstanceId,
+					JbpmVars.PREFIX_SIGNATURA + documentCodi);
+		}
+		if (processInstanceId != null) {
+			jbpmHelper.deleteProcessInstanceVariable(
+					processInstanceId,
+					documentStore.getJbpmVariable());
+		}
+	}
+
+	public Document getDocumentDisseny(
+			String taskInstanceId,
+			String processInstanceId,
+			String documentCodi) {
+		DefinicioProces definicioProces = null;
+		if (taskInstanceId != null) {
+			JbpmTask taskInstance = jbpmHelper.getTaskById(taskInstanceId);
+			definicioProces = definicioProcesRepository.findByJbpmId(taskInstance.getProcessDefinitionId());
+		} else {
+			JbpmProcessInstance processInstance = jbpmHelper.getProcessInstance(processInstanceId);
+			definicioProces = definicioProcesRepository.findByJbpmId(processInstance.getProcessDefinitionId());
+		}
+		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
+		ExpedientTipus expedientTipus = expedient.getTipus();
+		if (expedientTipus.isAmbInfoPropia())
+			return documentRepository.findByExpedientTipusAndCodi(
+					expedientTipus,
+					documentCodi);
+		else
+			return documentRepository.findByDefinicioProcesAndCodi(
+					definicioProces, 
+					documentCodi);
+	}
+
+	public String getVarPerDocumentCodi(String documentCodi, boolean isAdjunt) {
+		if (isAdjunt)
+			return JbpmVars.PREFIX_ADJUNT + documentCodi;
+		else
+			return JbpmVars.PREFIX_DOCUMENT + documentCodi;
+	}
+	public static String getDocumentCodiPerVariableJbpm(String var) {
+		if (var.startsWith(JbpmVars.PREFIX_DOCUMENT)) {
+			return var.substring(JbpmVars.PREFIX_DOCUMENT.length());
+		} else if (var.startsWith(JbpmVars.PREFIX_ADJUNT)) {
+			return var.substring(JbpmVars.PREFIX_ADJUNT.length());
+		} else if (var.startsWith(JbpmVars.PREFIX_SIGNATURA)) {
+			return var.substring(JbpmVars.PREFIX_SIGNATURA.length());
+		} else {
+			return var;
+		}
+	}
+
+	public ArxiuDto generarDocumentAmbPlantillaIConvertir(
+			Expedient expedient,
+			Document document,
+			String taskInstanceId,
+			String processInstanceId,
+			Date dataDocument) {
+		if (document.isPlantilla()) {
+			ArxiuDto resultat = plantillaHelper.generarDocumentPlantilla(
+					expedient,
+					document,
+					taskInstanceId,
+					processInstanceId,
+					dataDocument);
+			if (isActiuConversioVista()) {
+				try {
+					ByteArrayOutputStream baos = new ByteArrayOutputStream();
+					openOfficeUtils.convertir(
+							resultat.getNom(),
+							resultat.getContingut(),
+							getExtensioVista(document),
+							baos);
+					resultat.setNom(
+							nomArxiuAmbExtensio(
+									resultat.getNom(),
+									getExtensioVista(document)));
+					resultat.setContingut(baos.toByteArray());
+				} catch (Exception ex) {
+					throw new SistemaExternConversioDocumentException(
+							expedient.getEntorn().getId(),
+							expedient.getEntorn().getCodi(), 
+							expedient.getEntorn().getNom(), 
+							expedient.getId(), 
+							expedient.getTitol(), 
+							expedient.getNumero(), 
+							expedient.getTipus().getId(), 
+							expedient.getTipus().getCodi(), 
+							expedient.getTipus().getNom(), 
+							messageHelper.getMessage("error.document.conversio.externa"));
+				}
+			}
+			return resultat;
+		} else {
+			ArxiuDto resultat = new ArxiuDto(
+					document.getArxiuNom(),
+					document.getArxiuContingut());
+			return resultat;
+		}
+	}
+
+	public DocumentDto toDocumentDto(
+			Long documentStoreId,
+			boolean ambContingutOriginal,
+			boolean ambContingutSignat,
+			boolean ambContingutVista,
+			boolean perSignar,
+			boolean ambSegellSignatura) {
+		if (documentStoreId != null) {
+			DocumentStore documentStore = documentStoreRepository.findOne(documentStoreId);
+			if (documentStore != null) {
+				DocumentDto dto = new DocumentDto();
+				dto.setId(documentStore.getId());
+				dto.setDataCreacio(documentStore.getDataCreacio());
+				dto.setDataDocument(documentStore.getDataDocument());
+				dto.setArxiuNom(documentStore.getArxiuNom());
+				dto.setProcessInstanceId(documentStore.getProcessInstanceId());
+				dto.setSignat(documentStore.isSignat());
+				dto.setAdjunt(documentStore.isAdjunt());
+				dto.setAdjuntTitol(documentStore.getAdjuntTitol());
+				try {
+					dto.setTokenSignatura(getDocumentTokenUtils().xifrarToken(documentStoreId.toString()));
+				} catch (Exception ex) {
+					logger.error("No s'ha pogut generar el token pel document " + documentStoreId, ex);
+				}
+				if (documentStore.isSignat()) {
+					dto.setUrlVerificacioCustodia(
+							pluginHelper.custodiaObtenirUrlComprovacioSignatura(
+									documentStoreId.toString()));
+				}
+				String codiDocument;
+				if (documentStore.isAdjunt()) {
+					dto.setAdjuntId(documentStore.getJbpmVariable().substring(JbpmVars.PREFIX_ADJUNT.length()));
+					dto.setCodi(dto.getAdjuntId());
+					dto.setDocumentCodi(dto.getAdjuntId());
+					dto.setDocumentNom(documentStore.getAdjuntTitol());
+					dto.setArxiuContingut(documentStore.getArxiuContingut());
+				} else {
+					codiDocument = documentStore.getJbpmVariable().substring(JbpmVars.PREFIX_DOCUMENT.length());
+					JbpmProcessDefinition jpd = jbpmHelper.findProcessDefinitionWithProcessInstanceId(documentStore.getProcessInstanceId());
+					DefinicioProces definicioProces = definicioProcesRepository.findByJbpmKeyAndVersio(
+							jpd.getKey(),
+							jpd.getVersion());
+					Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(documentStore.getProcessInstanceId());
+					ExpedientTipus expedientTipus = expedient.getTipus();
+					Document doc;
+					if (expedientTipus.isAmbInfoPropia()) {
+						doc = documentRepository.findByExpedientTipusAndCodi(
+								expedientTipus,
+								codiDocument);
+					} else {
+						doc = documentRepository.findByDefinicioProcesAndCodi(
+								definicioProces, 
+								codiDocument);
+					}
+					if (doc != null) {
+						dto.setContentType(doc.getContentType());
+						dto.setCustodiaCodi(doc.getCustodiaCodi());
+						dto.setDocumentId(doc.getId());
+						dto.setDocumentCodi(doc.getCodi());
+						dto.setDocumentNom(doc.getNom());
+						dto.setTipusDocPortasignatures(doc.getTipusDocPortasignatures());
+						dto.setAdjuntarAuto(doc.isAdjuntarAuto());
+					}
+				}
+				if (documentStore.getArxiuUuid() != null) {
+					// Si el document està guardat a l'arxiu no és necessari estampar-lo abans
+					// de firmar i una vegada firmat hem de mostrar la versió imprimible.
+					boolean ambContingut = ambContingutOriginal || ambContingutSignat || ambContingutVista;
+					es.caib.plugins.arxiu.api.Document documentArxiu = pluginHelper.arxiuDocumentInfo(
+							documentStore.getArxiuUuid(),
+							null,
+							ambContingut);
+					String arxiuNom = documentStore.getArxiuNom();
+					// String arxiuNom = documentArxiu.getContingut().getArxiuNom();
+					byte[] arxiuContingut = documentArxiu.getContingut().getContingut();
+					// String arxiuTipusMime = documentArxiu.getContingut().getTipusMime();
+					if (ambContingutOriginal) {
+						dto.setArxiuNom(arxiuNom);
+						dto.setArxiuContingut(arxiuContingut);
+					}
+					if (ambContingutSignat) {
+						dto.setSignatNom(arxiuNom);
+						dto.setSignatContingut(arxiuContingut);
+					}
+					if (ambContingutVista) {
+						dto.setVistaNom(arxiuNom);
+						dto.setVistaContingut(arxiuContingut);
+					}
+				} else {
+					if (ambContingutOriginal) {
+						dto.setArxiuContingut(
+								getContingutDocumentAmbFont(documentStore));
+					}
+					if (ambContingutSignat && documentStore.isSignat() && isSignaturaFileAttached()) {
+						dto.setSignatNom(
+								getNomArxiuAmbExtensio(
+										documentStore.getArxiuNom(),
+										getExtensioArxiuSignat()));
+						byte[] signatura = pluginHelper.custodiaObtenirSignaturesAmbArxiu(documentStore.getReferenciaCustodia());
+						dto.setSignatContingut(signatura);
+					}
+					if (ambContingutVista) {
+						String arxiuOrigenNom;
+						byte[] arxiuOrigenContingut;
+						// Obtenim l'origen per a generar la vista o bé del document original
+						// o bé del document signat
+						if (documentStore.isSignat() && isSignaturaFileAttached()) {
+							if (ambContingutSignat) {
+								arxiuOrigenNom = dto.getSignatNom();
+								arxiuOrigenContingut = dto.getSignatContingut();
+							} else {
+								arxiuOrigenNom = getNomArxiuAmbExtensio(
+										documentStore.getArxiuNom(),
+										getExtensioArxiuSignat());
+								arxiuOrigenContingut = pluginHelper.custodiaObtenirSignaturesAmbArxiu(documentStore.getReferenciaCustodia());
+							}
+						} else {
+							arxiuOrigenNom = dto.getArxiuNom();
+							if (ambContingutOriginal) {
+								arxiuOrigenContingut = dto.getArxiuContingut();
+							} else {
+								if (documentStore.getFont().equals(DocumentFont.INTERNA)) {
+									arxiuOrigenContingut = documentStore.getArxiuContingut();
+								} else {
+									arxiuOrigenContingut = pluginHelper.gestioDocumentalObtenirDocument(
+											documentStore.getReferenciaFont());
+								}
+							}
+						}
+						// Calculam l'extensió del document final de la vista
+						String extensioActual = null;
+						int indexPunt = arxiuOrigenNom.lastIndexOf(".");
+						if (indexPunt != -1)
+							extensioActual = arxiuOrigenNom.substring(indexPunt + 1);
+						String extensioDesti = extensioActual;
+						if (perSignar && isActiuConversioSignatura()) {
+							extensioDesti = getExtensioArxiuSignat();
+						} else if (documentStore.isRegistrat()) {
+							extensioDesti = getExtensioArxiuRegistrat();
+						}
+						dto.setVistaNom(dto.getArxiuNomSenseExtensio() + "." + extensioDesti);
+						if ("pdf".equalsIgnoreCase(extensioDesti)) {
+							// Si és un PDF podem estampar
+							try {
+								ByteArrayOutputStream vistaContingut = new ByteArrayOutputStream();
+								DateFormat df = new SimpleDateFormat("dd/MM/yyyy HH:mm");
+								String dataRegistre = null;
+								if (documentStore.getRegistreData() != null)
+									dataRegistre = df.format(documentStore.getRegistreData());
+								String numeroRegistre = documentStore.getRegistreNumero();
+								getPdfUtils().estampar(
+										arxiuOrigenNom,
+										arxiuOrigenContingut,
+										(ambSegellSignatura) ? !documentStore.isSignat() : false,
+										(ambSegellSignatura) ? getUrlComprovacioSignatura(documentStoreId, dto.getTokenSignatura()): null,
+										documentStore.isRegistrat(),
+										numeroRegistre,
+										dataRegistre,
+										documentStore.getRegistreOficinaNom(),
+										documentStore.isRegistreEntrada(),
+										vistaContingut,
+										extensioDesti);
+								dto.setVistaContingut(vistaContingut.toByteArray());
+							} catch (SistemaExternConversioDocumentException ex) {
+								logger.error("Hi ha hagut un problema amb el servidor OpenOffice i el document '" + documentStore.getCodiDocument() + "'", ex.getCause());
+								Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(documentStore.getProcessInstanceId());
+								throw new SistemaExternConversioDocumentException(
+										expedient.getEntorn().getId(),
+										expedient.getEntorn().getCodi(), 
+										expedient.getEntorn().getNom(), 
+										expedient.getId(), 
+										expedient.getTitol(), 
+										expedient.getNumero(), 
+										expedient.getTipus().getId(), 
+										expedient.getTipus().getCodi(), 
+										expedient.getTipus().getNom(), 
+										messageHelper.getMessage("error.document.conversio.externa"));
+							} catch (Exception ex) {
+								logger.error("No s'ha pogut generar la vista pel document '" + documentStore.getCodiDocument() + "'", ex);
+								Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(documentStore.getProcessInstanceId());
+								throw SistemaExternException.tractarSistemaExternException(
+										expedient.getEntorn().getId(),
+										expedient.getEntorn().getCodi(), 
+										expedient.getEntorn().getNom(), 
+										expedient.getId(), 
+										expedient.getTitol(),
+										expedient.getNumero(), 
+										expedient.getTipus().getId(), 
+										expedient.getTipus().getCodi(), 
+										expedient.getTipus().getNom(), 
+										"Estampar PDF '" + documentStore.getCodiDocument() + "'", 
+										ex);
+							}
+						} else {
+							// Si no és un pdf retornam la vista directament
+							dto.setVistaNom(arxiuOrigenNom);
+							dto.setVistaContingut(arxiuOrigenContingut);
+						}
+					}
+				}
+				if (documentStore.isRegistrat()) {
+					dto.setRegistreData(documentStore.getRegistreData());
+					dto.setRegistreNumero(documentStore.getRegistreNumero());
+					dto.setRegistreOficinaCodi(documentStore.getRegistreOficinaCodi());
+					dto.setRegistreOficinaNom(documentStore.getRegistreOficinaNom());
+					dto.setRegistreEntrada(documentStore.isRegistreEntrada());
+					dto.setRegistrat(true);
+				}
+				return dto;
+			}
+		}
+		return null;
+	}
+
+	@SuppressWarnings("incomplete-switch")
+	public void actualitzarNtiFirma(
+			DocumentStore documentStore,
+			es.caib.plugins.arxiu.api.Document arxiuDocument) {
+		NtiTipoFirmaEnumDto arxiuTipoFirma = null;
+		String arxiuCsv = null;
+		String arxiuCsvRegulacio = null;
+		if (arxiuDocument != null) {
+			if (arxiuDocument.getFirmes() != null) {
+				for (Firma firma: arxiuDocument.getFirmes()) {
+					if (FirmaTipus.CSV.equals(firma.getTipus())) {
+						arxiuCsv = new String(firma.getContingut());
+						arxiuCsvRegulacio = firma.getCsvRegulacio();
+					} else if (firma.getTipus() != null) {
+						switch (firma.getTipus()) {
+						case CADES_ATT:
+							arxiuTipoFirma = NtiTipoFirmaEnumDto.CADES_ATT;
+							break;
+						case CADES_DET:
+							arxiuTipoFirma = NtiTipoFirmaEnumDto.CADES_DET;
+							break;
+						case XADES_ENV:
+							arxiuTipoFirma = NtiTipoFirmaEnumDto.XADES_ENV;
+							break;
+						case XADES_DET:
+							arxiuTipoFirma = NtiTipoFirmaEnumDto.XADES_DET;
+							break;
+						case PADES:
+							arxiuTipoFirma = NtiTipoFirmaEnumDto.PADES;
+							break;
+						case ODT:
+							arxiuTipoFirma = NtiTipoFirmaEnumDto.ODT;
+							break;
+						case OOXML:
+							arxiuTipoFirma = NtiTipoFirmaEnumDto.OOXML;
+							break;
+						case SMIME:
+							arxiuTipoFirma = NtiTipoFirmaEnumDto.SMIME;
+							break;
+						}
+					}
+				}
+			}
+		} else {
+			arxiuTipoFirma = NtiTipoFirmaEnumDto.PADES;
+			String urlCustodia = pluginHelper.custodiaObtenirUrlComprovacioSignatura(
+					documentStore.getId().toString());
+			String baseUrl = getPropertyCustodiaVerificacioBaseUrl();
+			if (baseUrl != null && urlCustodia.startsWith(baseUrl)) {
+				arxiuCsv = urlCustodia.substring(baseUrl.length());
+			} else {
+				arxiuCsv = urlCustodia;
+			}
+			arxiuCsvRegulacio = getPropertyNtiCsvDef();
+		}
+		if (arxiuTipoFirma != null) {
+			documentStore.setNtiTipoFirma(arxiuTipoFirma);
+		}
+		if (arxiuCsv != null) {
+			documentStore.setNtiCsv(arxiuCsv);
+		}
+		if (arxiuCsvRegulacio != null) {
+			documentStore.setNtiDefinicionGenCsv(arxiuCsvRegulacio);
+		}
+	}
+
+
+
+	private ExpedientDocumentDto crearDtoPerDocumentExpedient(
+			Document document,
+			Long documentStoreId) {
+		DocumentStore documentStore = documentStoreRepository.findOne(documentStoreId);
+		if (documentStore != null) {
+			return crearDtoPerDocumentExpedient(document, documentStore);
+		} else {
+			ExpedientDocumentDto dto = new ExpedientDocumentDto();
+			dto.setId(documentStoreId);
+			dto.setError("No s'ha trobat el documentStore del document (" +
+					"documentCodi=" + document.getCodi() + ", " +
+					"documentStoreId=" + documentStoreId + ")");
+			return dto;
+		}
+	}
+
+	private ExpedientDocumentDto crearDtoPerDocumentExpedient(
+			Document document,
+			DocumentStore documentStore) {
+		ExpedientDocumentDto dto = new ExpedientDocumentDto();
+		dto.setId(documentStore.getId());
+		dto.setDataCreacio(documentStore.getDataCreacio());
+		dto.setDataModificacio(documentStore.getDataModificacio());
+		dto.setDataDocument(documentStore.getDataDocument());
+		dto.setArxiuNom(calcularArxiuNom(documentStore, false));
+		dto.setProcessInstanceId(documentStore.getProcessInstanceId());
+		dto.setDocumentId(document.getId());
+		dto.setDocumentCodi(document.getCodi());
+		dto.setDocumentNom(document.getNom());
+		dto.setSignat(documentStore.isSignat());
+		if (documentStore.isSignat()) {
+			dto.setSignaturaUrlVerificacio(
+					pluginHelper.custodiaObtenirUrlComprovacioSignatura(
+							documentStore.getId().toString()));
+		}
+		dto.setRegistrat(documentStore.isRegistrat());
+		if (documentStore.isRegistrat()) {
+			dto.setRegistreEntrada(documentStore.isRegistreEntrada());
+			dto.setRegistreNumero(documentStore.getRegistreNumero());
+			dto.setRegistreData(documentStore.getRegistreData());
+			dto.setRegistreOficinaCodi(documentStore.getRegistreOficinaCodi());
+			dto.setRegistreOficinaNom(documentStore.getRegistreOficinaNom());
+		}
+		dto.setNtiVersion(documentStore.getNtiVersion());
+		dto.setNtiIdentificador(documentStore.getNtiIdentificador());
+		dto.setNtiOrgano(documentStore.getNtiOrgano());
+		dto.setNtiOrigen(documentStore.getNtiOrigen());
+		dto.setNtiEstadoElaboracion(documentStore.getNtiEstadoElaboracion());
+		dto.setNtiNombreFormato(documentStore.getNtiNombreFormato());
+		dto.setNtiTipoDocumental(documentStore.getNtiTipoDocumental());
+		dto.setNtiIdOrigen(documentStore.getNtiIdDocumentoOrigen());
+		dto.setNtiTipoFirma(documentStore.getNtiTipoFirma());
+		dto.setNtiCsv(documentStore.getNtiCsv());
+		dto.setNtiDefinicionGenCsv(documentStore.getNtiDefinicionGenCsv());
+		dto.setArxiuUuid(documentStore.getArxiuUuid());
+		return dto;
+	}
+
+	private ExpedientDocumentDto crearDtoPerAdjuntExpedient(
+			String adjuntId,
+			Long documentStoreId) {
+		DocumentStore documentStore = documentStoreRepository.findOne(documentStoreId);
+		if (documentStore != null) {
+			return crearDtoPerAdjuntExpedient(adjuntId, documentStore);
+		} else {
+			ExpedientDocumentDto dto = new ExpedientDocumentDto();
+			dto.setId(documentStoreId);
+			dto.setError("No s'ha trobat el documentStore del document (" +
+					"adjuntId=" + adjuntId + ", " +
+					"documentStoreId=" + documentStoreId + ")");
+			return dto;
+		}
+	}
+
+	private ExpedientDocumentDto crearDtoPerAdjuntExpedient(
+			String adjuntId,
+			DocumentStore documentStore) {
+		ExpedientDocumentDto dto = new ExpedientDocumentDto();
+		dto.setId(documentStore.getId());
+		dto.setDataCreacio(documentStore.getDataCreacio());
+		dto.setDataModificacio(documentStore.getDataModificacio());
+		dto.setDataDocument(documentStore.getDataDocument());
+		dto.setArxiuNom(calcularArxiuNom(documentStore, false));
+		dto.setProcessInstanceId(documentStore.getProcessInstanceId());
+		dto.setAdjunt(true);
+		dto.setAdjuntId(adjuntId);
+		dto.setAdjuntTitol(documentStore.getAdjuntTitol());
+		dto.setNtiVersion(documentStore.getNtiVersion());
+		dto.setNtiIdentificador(documentStore.getNtiIdentificador());
+		dto.setNtiOrgano(documentStore.getNtiOrgano());
+		dto.setNtiOrigen(documentStore.getNtiOrigen());
+		dto.setNtiEstadoElaboracion(documentStore.getNtiEstadoElaboracion());
+		dto.setNtiNombreFormato(documentStore.getNtiNombreFormato());
+		dto.setNtiTipoDocumental(documentStore.getNtiTipoDocumental());
+		dto.setNtiIdOrigen(documentStore.getNtiIdDocumentoOrigen());
+		dto.setNtiTipoFirma(documentStore.getNtiTipoFirma());
+		dto.setNtiCsv(documentStore.getNtiCsv());
+		dto.setNtiDefinicionGenCsv(documentStore.getNtiDefinicionGenCsv());
+		dto.setArxiuUuid(documentStore.getArxiuUuid());
+		return dto;
+	}
 
 	private TascaDocumentDto toTascaDocumentDto(
 			JbpmTask task,
@@ -794,7 +1348,7 @@ public class DocumentHelperV3 {
 		dto.setArxiuContingutDefinit(document.getArxiuContingut() != null && document.getArxiuContingut().length > 0);
 		Long documentStoreId = getDocumentStoreIdDeVariableJbpm(String.valueOf(task.getTask().getId()), task.getProcessInstanceId(), document.getCodi());
 		if (documentStoreId != null) {
-			DocumentStore documentStore = documentStoreRepository.findById(documentStoreId);
+			DocumentStore documentStore = documentStoreRepository.findOne(documentStoreId);
 			if (documentStore != null) {
 				dto.setDocumentStoreId(documentStoreId);
 				dto.setArxiuNom(documentStore.getArxiuNom());
@@ -823,6 +1377,32 @@ public class DocumentHelperV3 {
 			}
 		}	
 		return dto;
+	}
+
+	private ExpedientDocumentDto findOnePerInstanciaProces(
+			String processInstanceId,
+			DocumentStore documentStore) {
+		if (documentStore == null) {
+			return null;
+		}
+		if (!documentStore.isAdjunt()) {
+			Document document = findDocumentPerInstanciaProcesICodi(
+					processInstanceId,
+					documentStore.getCodiDocument());
+			if (document != null) {
+				return crearDtoPerDocumentExpedient(
+								document,
+								documentStore);
+			} else {
+				throw new NoTrobatException(
+						Document.class,
+						"(codi=" + documentStore.getCodiDocument() + ")");
+			}
+		} else {
+			return crearDtoPerAdjuntExpedient(
+					getAdjuntIdDeVariableJbpm(documentStore.getJbpmVariable()),
+					documentStore);
+		}
 	}
 
 	private String calcularArxiuNom(
@@ -945,299 +1525,6 @@ public class DocumentHelperV3 {
 		return documentTokenUtils;
 	}
 
-	public DocumentDto signarDocumentTascaAmbToken(Long docId, String tascaId, String token, byte[] signatura) throws Exception {
-		DocumentDto dto = null;
-		Long documentStoreId = getDocumentStoreIdPerToken(token);		
-		if (documentStoreId != null) {
-			DocumentStore documentStore = documentStoreRepository.findById(documentStoreId);
-			//dto = getDocumentSenseContingut(documentStoreId);
-			dto = getDocumentVista(
-					documentStoreId, 
-					true, 
-					true);			
-			boolean custodiat = false;
-			if (pluginHelper.custodiaIsPluginActiu()) {
-				String nomArxiu = getNomArxiuAmbExtensio(
-						dto.getArxiuNom(),
-						getExtensioArxiuSignat());		
-				String referenciaCustodia = null;
-				if (pluginHelper.custodiaIsValidacioImplicita()) {
-					logger.info("signarDocumentTascaAmbToken : documentId: " + documentStore.getId() + ". gesdocId: " +documentStore.getReferenciaFont() + ". nomArxiuSignat: " + nomArxiu + ". codiTipusCustodia: " + dto.getCustodiaCodi()); 
-					referenciaCustodia = pluginHelper.custodiaAfegirSignatura(
-							documentStore.getId(),
-							documentStore.getReferenciaFont(),
-							nomArxiu,
-							dto.getCustodiaCodi(),
-							signatura);
-					custodiat = true;
-				} else {
-					RespostaValidacioSignatura resposta = pluginHelper.signaturaVerificar(
-							dto.getVistaContingut(),
-							signatura,
-							false);
-					if (resposta.isEstatOk()) {
-						referenciaCustodia = pluginHelper.custodiaAfegirSignatura(
-								documentStore.getId(),
-								documentStore.getReferenciaFont(),
-								nomArxiu,
-								dto.getCustodiaCodi(),
-								signatura);
-						custodiat = true;
-					}
-				}
-				documentStore.setReferenciaCustodia(referenciaCustodia);
-			}
-			if (custodiat) {
-				documentStore.setSignat(true);
-				JbpmTask task = tascaHelper.getTascaComprovacionsTramitacio(
-						tascaId,
-						true,
-						true);
-				String.valueOf(task.getTask().getId());
-				jbpmHelper.setTaskInstanceVariable(
-						tascaId,
-						JbpmVars.PREFIX_SIGNATURA + dto.getDocumentCodi(),
-						documentStore.getId());
-			}
-		}
-		return dto;
-	}
-
-	private DocumentDto toDocumentDto(
-			Long documentStoreId,
-			boolean ambContingutOriginal,
-			boolean ambContingutSignat,
-			boolean ambContingutVista,
-			boolean perSignar,
-			boolean ambSegellSignatura) {
-		if (documentStoreId != null) {
-			DocumentStore document = documentStoreRepository.findOne(documentStoreId);
-			if (document != null) {
-				DocumentDto dto = new DocumentDto();
-				dto.setId(document.getId());
-				dto.setDataCreacio(document.getDataCreacio());
-				dto.setDataDocument(document.getDataDocument());
-				dto.setArxiuNom(document.getArxiuNom());
-				dto.setProcessInstanceId(document.getProcessInstanceId());
-				dto.setSignat(document.isSignat());
-				dto.setAdjunt(document.isAdjunt());
-				dto.setAdjuntTitol(document.getAdjuntTitol());
-				try {
-					dto.setTokenSignatura(getDocumentTokenUtils().xifrarToken(documentStoreId.toString()));
-				} catch (Exception ex) {
-					logger.error("No s'ha pogut generar el token pel document " + documentStoreId, ex);
-				}
-				if (document.isSignat()) {
-					dto.setUrlVerificacioCustodia(
-							pluginHelper.custodiaObtenirUrlComprovacioSignatura(
-									documentStoreId.toString()));
-				}
-				String codiDocument;
-				if (document.isAdjunt()) {
-					dto.setAdjuntId(document.getJbpmVariable().substring(JbpmVars.PREFIX_ADJUNT.length()));
-					dto.setCodi(dto.getAdjuntId());
-					dto.setDocumentCodi(dto.getAdjuntId());
-					dto.setDocumentNom(document.getAdjuntTitol());
-					dto.setArxiuContingut(document.getArxiuContingut());
-				} else {
-					codiDocument = document.getJbpmVariable().substring(JbpmVars.PREFIX_DOCUMENT.length());
-					JbpmProcessDefinition jpd = jbpmHelper.findProcessDefinitionWithProcessInstanceId(document.getProcessInstanceId());
-					DefinicioProces definicioProces = definicioProcesRepository.findByJbpmKeyAndVersio(
-							jpd.getKey(),
-							jpd.getVersion());
-					
-					Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(document.getProcessInstanceId());
-					ExpedientTipus expedientTipus = expedient.getTipus();
-					Document doc;
-					if (expedientTipus.isAmbInfoPropia())
-						doc = documentRepository.findByExpedientTipusAndCodi(
-								expedientTipus,
-								codiDocument);
-					else
-						doc = documentRepository.findByDefinicioProcesAndCodi(
-								definicioProces, 
-								codiDocument);
-					
-					if (doc != null) {
-						dto.setContentType(doc.getContentType());
-						dto.setCustodiaCodi(doc.getCustodiaCodi());
-						dto.setDocumentId(doc.getId());
-						dto.setDocumentCodi(doc.getCodi());
-						dto.setDocumentNom(doc.getNom());
-						dto.setTipusDocPortasignatures(doc.getTipusDocPortasignatures());
-						dto.setAdjuntarAuto(doc.isAdjuntarAuto());
-					}
-				}
-				if (ambContingutOriginal) {
-					dto.setArxiuContingut(
-							getContingutDocumentAmbFont(document));
-				}
-				if (ambContingutSignat && document.isSignat() && isSignaturaFileAttached()) {
-					dto.setSignatNom(
-							getNomArxiuAmbExtensio(
-									document.getArxiuNom(),
-									getExtensioArxiuSignat()));
-					byte[] signatura = pluginHelper.custodiaObtenirSignaturesAmbArxiu(document.getReferenciaCustodia());
-					dto.setSignatContingut(signatura);
-				}
-				if (ambContingutVista) {
-					String arxiuOrigenNom;
-					byte[] arxiuOrigenContingut;
-					// Obtenim l'origen per a generar la vista o bé del document original
-					// o bé del document signat
-					if (document.isSignat() && isSignaturaFileAttached()) {
-						if (ambContingutSignat) {
-							arxiuOrigenNom = dto.getSignatNom();
-							arxiuOrigenContingut = dto.getSignatContingut();
-						} else {
-							arxiuOrigenNom = getNomArxiuAmbExtensio(
-									document.getArxiuNom(),
-									getExtensioArxiuSignat());
-							arxiuOrigenContingut = pluginHelper.custodiaObtenirSignaturesAmbArxiu(document.getReferenciaCustodia());
-						}
-					} else {
-						arxiuOrigenNom = dto.getArxiuNom();
-						if (ambContingutOriginal) {
-							arxiuOrigenContingut = dto.getArxiuContingut();
-						} else {
-							if (document.getFont().equals(DocumentFont.INTERNA)) {
-								arxiuOrigenContingut = document.getArxiuContingut();
-							} else {
-								arxiuOrigenContingut = pluginHelper.gestioDocumentalObtenirDocument(
-												document.getReferenciaFont());
-							}
-						}
-					}
-					// Calculam l'extensió del document final de la vista
-					String extensioActual = null;
-					int indexPunt = arxiuOrigenNom.lastIndexOf(".");
-					if (indexPunt != -1)
-						extensioActual = arxiuOrigenNom.substring(indexPunt + 1);
-					String extensioDesti = extensioActual;
-					
-					if (perSignar && isActiuConversioSignatura()) {
-						extensioDesti = getExtensioArxiuSignat();
-					} else if (document.isRegistrat()) {
-						extensioDesti = getExtensioArxiuRegistrat();
-					}
-					dto.setVistaNom(dto.getArxiuNomSenseExtensio() + "." + extensioDesti);
-					if ("pdf".equalsIgnoreCase(extensioDesti)) {
-						// Si és un PDF podem estampar
-						try {
-							ByteArrayOutputStream vistaContingut = new ByteArrayOutputStream();
-							DateFormat df = new SimpleDateFormat("dd/MM/yyyy HH:mm");
-							String dataRegistre = null;
-							if (document.getRegistreData() != null)
-								dataRegistre = df.format(document.getRegistreData());
-							String numeroRegistre = document.getRegistreNumero();
-								getPdfUtils().estampar(
-										arxiuOrigenNom,
-										arxiuOrigenContingut,
-										(ambSegellSignatura) ? !document.isSignat() : false,
-										(ambSegellSignatura) ? getUrlComprovacioSignatura(documentStoreId, dto.getTokenSignatura()): null,
-										document.isRegistrat(),
-										numeroRegistre,
-										dataRegistre,
-										document.getRegistreOficinaNom(),
-										document.isRegistreEntrada(),
-										vistaContingut,
-										extensioDesti);
-							dto.setVistaContingut(vistaContingut.toByteArray());
-						} catch (SistemaExternConversioDocumentException ex) {
-							logger.error("Hi ha hagut un problema amb el servidor OpenOffice i el document '" + document.getCodiDocument() + "'", ex.getCause());
-							Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(document.getProcessInstanceId());
-							throw new SistemaExternConversioDocumentException(
-									expedient.getEntorn().getId(),
-									expedient.getEntorn().getCodi(), 
-									expedient.getEntorn().getNom(), 
-									expedient.getId(), 
-									expedient.getTitol(), 
-									expedient.getNumero(), 
-									expedient.getTipus().getId(), 
-									expedient.getTipus().getCodi(), 
-									expedient.getTipus().getNom(), 
-									messageHelper.getMessage("error.document.conversio.externa"));
-						} catch (Exception ex) {
-							logger.error("No s'ha pogut generar la vista pel document '" + document.getCodiDocument() + "'", ex);
-							Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(document.getProcessInstanceId());
-							throw SistemaExternException.tractarSistemaExternException(
-									expedient.getEntorn().getId(),
-									expedient.getEntorn().getCodi(), 
-									expedient.getEntorn().getNom(), 
-									expedient.getId(), 
-									expedient.getTitol(),
-									expedient.getNumero(), 
-									expedient.getTipus().getId(), 
-									expedient.getTipus().getCodi(), 
-									expedient.getTipus().getNom(), 
-									"Estampar PDF '" + document.getCodiDocument() + "'", 
-									ex);
-						}
-					} else {
-						// Si no és un pdf retornam la vista directament
-						dto.setVistaNom(arxiuOrigenNom);
-						dto.setVistaContingut(arxiuOrigenContingut);
-					}
-				}
-				if (document.isRegistrat()) {
-					dto.setRegistreData(document.getRegistreData());
-					dto.setRegistreNumero(document.getRegistreNumero());
-					dto.setRegistreOficinaCodi(document.getRegistreOficinaCodi());
-					dto.setRegistreOficinaNom(document.getRegistreOficinaNom());
-					dto.setRegistreEntrada(document.isRegistreEntrada());
-					dto.setRegistrat(true);
-				}
-				return dto;
-			}
-		}
-		return null;
-	}
-
-	public Long getDocumentStoreIdPerToken(String token) {
-		try {
-			String[] tokenDesxifrat = getDocumentTokenUtils().desxifrarTokenMultiple(token);
-			if (tokenDesxifrat.length == 1)
-				return Long.parseLong(tokenDesxifrat[0]);
-			else
-				return Long.parseLong(tokenDesxifrat[1]);
-		} catch (Exception ex) {
-			throw new RuntimeException("Format de token ('" + token + "') incorrecte", ex);
-		}
-	}
-	
-	public DocumentDto getDocumentVista(
-			Long documentStoreId,
-			boolean perSignar,
-			boolean ambSegellSignatura) {
-		if (documentStoreId != null) {
-			return toDocumentDto(
-					documentStoreId,
-					false,
-					false,
-					true,
-					perSignar,
-					ambSegellSignatura);
-		} else {
-			return null;
-		}
-	}
-	
-	public DocumentDto getDocumentOriginal(
-			Long documentStoreId,
-			boolean ambContingut) {
-		if (documentStoreId != null) {
-			return toDocumentDto(
-					documentStoreId,
-					ambContingut,
-					false,
-					false,
-					false,
-					false);
-		} else {
-			return null;
-		}
-	}
-
 	private String getUrlComprovacioSignatura(Long documentStoreId, String token) {
 		String urlCustodia = pluginHelper.custodiaObtenirUrlComprovacioSignatura(documentStoreId.toString());
 		if (urlCustodia != null) {
@@ -1257,315 +1544,6 @@ public class DocumentHelperV3 {
 			return pluginHelper.gestioDocumentalObtenirDocument(
 							document.getReferenciaFont());
 	}
-
-	public DocumentDto getDocumentSenseContingut(
-			Long documentStoreId) {
-		if (documentStoreId != null) {
-			DocumentDto dto = toDocumentDto(
-					documentStoreId,
-					false,
-					false,
-					false,
-					false,
-					false);
-			return dto;
-		} else {
-			return null;
-		}
-	}
-
-	public DocumentDto getDocumentSenseContingut(
-			String taskInstanceId,
-			String processInstanceId,
-			String documentCodi,
-			boolean perSignarEnTasca,
-			boolean ambInfoPsigna) {
-		Long documentStoreId = getDocumentStoreIdDeVariableJbpm(taskInstanceId, processInstanceId, documentCodi);
-		if (documentStoreId != null) {
-			DocumentDto dto = toDocumentDto(
-					documentStoreId,
-					false,
-					false,
-					false,
-					false,
-					false);
-			if (perSignarEnTasca) {
-				try {
-					dto.setTokenSignaturaMultiple(getDocumentTokenUtils().xifrarTokenMultiple(
-							new String[] {
-									taskInstanceId,
-									documentStoreId.toString()}));
-				} catch (Exception ex) {
-					logger.error("No s'ha pogut generar el token pel document " + documentStoreId, ex);
-				}
-				if (dto.isSignat()) {
-					Object signatEnTasca = jbpmHelper.getTaskInstanceVariable(taskInstanceId, JbpmVars.PREFIX_SIGNATURA + dto.getDocumentCodi());
-					dto.setSignatEnTasca(signatEnTasca != null);
-				} else {
-					dto.setSignatEnTasca(false);
-				}
-			}
-			return dto;
-		} else {
-			return null;
-		}
-	}
-	
-	public Long actualitzarDocument(
-			String taskInstanceId,
-			String processInstanceId,
-			String documentCodi,
-			String documentNom,
-			Date documentData,
-			String arxiuNom,
-			byte[] arxiuContingut,
-			boolean isAdjunt) {
-		DocumentStore documentStore = null;
-		Long documentStoreId = getDocumentStoreIdDeVariableJbpm(taskInstanceId, processInstanceId, documentCodi);
-		if (documentStoreId != null)
-			documentStore = documentStoreRepository.findById(documentStoreId);
-		if (documentStore == null) {
-			// Si el document no existeix el crea
-			documentStore = new DocumentStore(
-					(pluginHelper.gestioDocumentalIsPluginActiu()) ? DocumentFont.ALFRESCO : DocumentFont.INTERNA,
-					processInstanceId,
-					getVarPerDocumentCodi(documentCodi, isAdjunt),
-					new Date(),
-					documentData,
-					arxiuNom);
-			documentStore.setAdjunt(isAdjunt);
-			if (isAdjunt)
-				documentStore.setAdjuntTitol(documentNom);
-			documentStore.setArxiuNom(arxiuNom);
-			if (!pluginHelper.gestioDocumentalIsPluginActiu())
-				documentStore.setArxiuContingut(arxiuContingut);
-			
-			documentStore = documentStoreRepository.save(documentStore);
-			documentStoreRepository.flush();
-		} else {
-			// Si el document està creat l'actualitza
-			documentStore = documentStoreRepository.findOne(documentStoreId);
-			documentStore.setDataDocument(documentData);
-			documentStore.setDataModificacio(new Date());
-			if (documentStore.isAdjunt())
-				documentStore.setAdjuntTitol(documentNom);
-			documentStore.setArxiuNom(arxiuNom != null ? arxiuNom : documentStore.getArxiuNom());
-			if (!pluginHelper.gestioDocumentalIsPluginActiu())
-				documentStore.setArxiuContingut(arxiuContingut);
-			if (arxiuContingut != null && pluginHelper.gestioDocumentalIsPluginActiu())
-				pluginHelper.gestioDocumentalDeleteDocument(
-						documentStore.getReferenciaFont(),
-						expedientHelper.findExpedientByProcessInstanceId(processInstanceId));
-		}
-		// Crea el document a dins la gestió documental
-		if (arxiuContingut != null && pluginHelper.gestioDocumentalIsPluginActiu()) {
-			Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
-			if (documentNom == null) {
-				Document document = getDocumentDisseny(taskInstanceId, processInstanceId, documentCodi);
-				documentNom = document.getNom();
-			}
-			String referenciaFont = pluginHelper.gestioDocumentalCreateDocument(
-					expedient,
-					documentStore.getId().toString(),
-					documentNom,
-					documentData,
-					arxiuNom,
-					arxiuContingut);
-			documentStore.setReferenciaFont(referenciaFont);
-		}
-		// Guarda la referència al nou document a dins el jBPM
-		if (taskInstanceId != null)
-			jbpmHelper.setTaskInstanceVariable(
-					taskInstanceId,
-					documentStore.getJbpmVariable(),
-					documentStore.getId());
-		else
-			jbpmHelper.setProcessInstanceVariable(
-					processInstanceId,
-					documentStore.getJbpmVariable(),
-					documentStore.getId());
-		return documentStore.getId();
-	}
-	
-	@Transactional
-	public Long actualizarMetadadesNti(
-			Expedient expedient,
-			Long documentStoreId,
-			boolean ntiActiu,
-			String ntiVersio,
-			String ntiOrgan,
-			String ntiOrigen,
-			String ntiEstatElaboracio,
-			String ntiNomFormat,
-			String ntiTipusDocumental,
-			String ntiTipoFirma,
-			String ntiValorCsv,
-			String ntiDefGenCsv,
-			String ntiIdOrigen) {
-		
-		DocumentStore documentStore = documentStoreRepository.findById(documentStoreId);
-		
-		String id = documentStoreId.toString();
-		int length = id.length();
-		for(int i = 0; i < 27 - length; i++) id = "0" + id;
-		
-	    Calendar cal = Calendar.getInstance();
-	    cal.setTime( expedient.getDataInici() );
-	    String any = String.valueOf( cal.get(Calendar.YEAR) );
-	    
-	    String org = expedient.getNtiOrgan();
-	    
-	    documentStore.setNtiIdentificador("ES_" + org + "_" + any + "_HEL" + id);
-	    
-	    documentStore.setNtiActiu(ntiActiu);
-	    
-		documentStore.setNtiVersio(ntiVersio);
-		documentStore.setNtiOrgan(ntiOrgan);
-		documentStore.setNtiOrigen(ntiOrigen);
-		documentStore.setNtiEstatElaboracio(ntiEstatElaboracio);
-		documentStore.setNtiNomFormat(ntiNomFormat);
-		documentStore.setNtiTipusDocumental(ntiTipusDocumental);
-		
-		documentStore.setNtiTipoFirma(ntiTipoFirma);
-		documentStore.setNtiValorCsv(ntiValorCsv);
-		documentStore.setNtiDefGenCsv(ntiDefGenCsv);
-		documentStore.setNtiIdDocOrigen(ntiIdOrigen);
-		
-		return documentStoreId;
-	}
-	
-	public Long actualitzarAdjunt(
-			Long documentStoreId,
-			String processInstanceId,
-			String documentCodi,
-			String documentNom,
-			Date documentData,
-			String arxiuNom,
-			byte[] arxiuContingut,
-			boolean isAdjunt) {
-		DocumentStore documentStore = null;
-		documentStore = documentStoreRepository.findById(documentStoreId);
-		
-		// Si el document està creat l'actualitza
-		documentStore = documentStoreRepository.findOne(documentStoreId);
-		documentStore.setDataDocument(documentData);
-		documentStore.setDataModificacio(new Date());
-		if (documentStore.isAdjunt())
-			documentStore.setAdjuntTitol(documentNom);
-		documentStore.setArxiuNom(arxiuNom);
-		if (!pluginHelper.gestioDocumentalIsPluginActiu())
-			documentStore.setArxiuContingut(arxiuContingut);
-		if (arxiuContingut != null && pluginHelper.gestioDocumentalIsPluginActiu())
-			pluginHelper.gestioDocumentalDeleteDocument(
-					documentStore.getReferenciaFont(),
-					expedientHelper.findExpedientByProcessInstanceId(processInstanceId));
-		// Guarda la referència al nou document a dins el jBPM
-		jbpmHelper.setProcessInstanceVariable(
-				processInstanceId,
-				documentStore.getJbpmVariable(),
-				documentStore.getId());
-		return documentStore.getId();
-	}
-
-	public void esborrarDocument(
-			String taskInstanceId,
-			String processInstanceId,
-			String documentCodi) {
-		Object varValor = null;
-		if (taskInstanceId != null) {
-			varValor = jbpmHelper.getTaskInstanceVariable(
-					taskInstanceId,
-					getVarPerDocumentCodi(documentCodi, false));
-		} else if (processInstanceId != null) {
-			varValor = jbpmHelper.getProcessInstanceVariable(
-					processInstanceId,
-					getVarPerDocumentCodi(documentCodi, false));
-		}
-		if (varValor != null && varValor instanceof Long) {
-			esborrarDocument(
-					taskInstanceId,
-					processInstanceId,
-					(Long)varValor);
-		}
-	}
-
-	public void esborrarDocument(
-			String taskInstanceId,
-			String processInstanceId,
-			Long documentStoreId) {
-		DocumentStore documentStore = documentStoreRepository.findOne(documentStoreId);
-		if (documentStore != null) {
-			if (documentStore.isSignat()) {
-				if (pluginHelper.custodiaIsPluginActiu()) {
-					pluginHelper.custodiaEsborrarSignatures(
-							documentStore.getReferenciaCustodia(), 
-							expedientHelper.findExpedientByProcessInstanceId(processInstanceId));
-				}
-			}
-			if (documentStore.getFont().equals(DocumentFont.ALFRESCO))
-				pluginHelper.gestioDocumentalDeleteDocument(
-						documentStore.getReferenciaFont(),
-						expedientHelper.findExpedientByProcessInstanceId(processInstanceId));
-			if (processInstanceId != null) {
-				
-				List<TipusEstat> estats = new ArrayList<TipusEstat>();
-				estats.add(TipusEstat.PENDENT);
-				estats.add(TipusEstat.SIGNAT);
-				estats.add(TipusEstat.REBUTJAT);
-				estats.add(TipusEstat.ERROR);
-				
-				List<Portasignatures> psignaPendents = portasignaturesRepository.findByProcessInstanceIdAndEstatNotIn(
-						processInstanceId,
-						estats);
-				for (Portasignatures psigna: psignaPendents) {
-					if (psigna.getDocumentStoreId().longValue() == documentStore.getId().longValue()) {
-						psigna.setEstat(TipusEstat.ESBORRAT);
-						portasignaturesRepository.save(psigna);
-					}
-				}
-			}
-			documentStoreRepository.delete(documentStoreId);
-		}
-		if (taskInstanceId != null) {
-			jbpmHelper.deleteTaskInstanceVariable(
-					taskInstanceId,
-					documentStore.getJbpmVariable());
-			String documentCodi = getDocumentCodiPerVariableJbpm(
-					documentStore.getJbpmVariable());
-			jbpmHelper.deleteTaskInstanceVariable(
-					taskInstanceId,
-					JbpmVars.PREFIX_SIGNATURA + documentCodi);
-		}
-		if (processInstanceId != null) {
-			jbpmHelper.deleteProcessInstanceVariable(
-					processInstanceId,
-					documentStore.getJbpmVariable());
-		}
-	}
-
-	public Document getDocumentDisseny(
-			String taskInstanceId,
-			String processInstanceId,
-			String documentCodi) {
-		DefinicioProces definicioProces = null;
-		if (taskInstanceId != null) {
-			JbpmTask taskInstance = jbpmHelper.getTaskById(taskInstanceId);
-			definicioProces = definicioProcesRepository.findByJbpmId(taskInstance.getProcessDefinitionId());
-		} else {
-			JbpmProcessInstance processInstance = jbpmHelper.getProcessInstance(processInstanceId);
-			definicioProces = definicioProcesRepository.findByJbpmId(processInstance.getProcessDefinitionId());
-		}
-		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
-		ExpedientTipus expedientTipus = expedient.getTipus();
-		if (expedientTipus.isAmbInfoPropia())
-			return documentRepository.findByExpedientTipusAndCodi(
-					expedientTipus,
-					documentCodi);
-		else
-			return documentRepository.findByDefinicioProcesAndCodi(
-					definicioProces, 
-					documentCodi);
-	}
 	
 	private Long getDocumentStoreIdDeVariableJbpm(
 			String taskInstanceId,
@@ -1583,24 +1561,6 @@ public class DocumentHelperV3 {
 					getVarPerDocumentCodi(documentCodi, false));
 		}
 		return (Long)value;
-	}
-	
-	public String getVarPerDocumentCodi(String documentCodi, boolean isAdjunt) {
-		if (isAdjunt)
-			return JbpmVars.PREFIX_ADJUNT + documentCodi;
-		else
-			return JbpmVars.PREFIX_DOCUMENT + documentCodi;
-	}
-	public static String getDocumentCodiPerVariableJbpm(String var) {
-		if (var.startsWith(JbpmVars.PREFIX_DOCUMENT)) {
-			return var.substring(JbpmVars.PREFIX_DOCUMENT.length());
-		} else if (var.startsWith(JbpmVars.PREFIX_ADJUNT)) {
-			return var.substring(JbpmVars.PREFIX_ADJUNT.length());
-		} else if (var.startsWith(JbpmVars.PREFIX_SIGNATURA)) {
-			return var.substring(JbpmVars.PREFIX_SIGNATURA.length());
-		} else {
-			return var;
-		}
 	}
 
 	private String nomArxiuAmbExtensio(String fileName, String extensio) {
@@ -1624,7 +1584,7 @@ public class DocumentHelperV3 {
 			actiuConversioVista = (String)GlobalProperties.getInstance().get("app.conversio.gentasca.actiu");
 		return "true".equalsIgnoreCase(actiuConversioVista);
 	}
-	
+
 	private String getExtensioVista(Document document) {
 		String extensioVista = null;
 		if (isActiuConversioVista()) {
@@ -1639,198 +1599,229 @@ public class DocumentHelperV3 {
 		return extensioVista;
 	}
 
-	public ArxiuDto generarDocumentAmbPlantillaIConvertir(
+	private void postProcessarDocument(
+			DocumentStore documentStore,
+			String taskInstanceId,
+			String processInstanceId,
+			String arxiuNom,
+			byte[] arxiuContingut,
+			NtiOrigenEnumDto ntiOrigen,
+			NtiEstadoElaboracionEnumDto ntiEstadoElaboracion,
+			NtiTipoDocumentalEnumDto ntiTipoDocumental,
+			String ntiIdDocumentoOrigen) {
+		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
+		if (arxiuNom != null) {
+			documentStore.setArxiuNom(arxiuNom);
+		}
+		// Actualitza les metadades NTI
+		Document document = findDocumentPerInstanciaProcesICodi(
+				processInstanceId,
+				documentStore.getCodiDocument());
+		actualizarMetadadesNti(
+				expedient,
+				document,
+				documentStore,
+				ntiOrigen,
+				ntiEstadoElaboracion,
+				ntiTipoDocumental,
+				ntiIdDocumentoOrigen);
+		String documentDescripcio;
+		if (documentStore.isAdjunt()) {
+			documentDescripcio = documentStore.getAdjuntTitol();
+		} else {
+			documentDescripcio = document.getNom();
+		}
+		if (expedient.isArxiuActiu()) {
+			// Actualitza el document a dins l'arxiu
+			ArxiuDto arxiu = new ArxiuDto(
+					arxiuNom,
+					arxiuContingut,
+					getContentType(arxiuNom));
+			ContingutArxiu contingutArxiu = pluginHelper.arxiuDocumentActualitzar(
+					expedient,
+					documentDescripcio,
+					documentStore,
+					arxiu);
+			documentStore.setArxiuUuid(contingutArxiu.getIdentificador());
+			es.caib.plugins.arxiu.api.Document documentArxiu = pluginHelper.arxiuDocumentInfo(
+					contingutArxiu.getIdentificador(),
+					null,
+					false);
+			documentStore.setNtiIdentificador(
+					documentArxiu.getMetadades().getIdentificador());
+		} else if (arxiuContingut != null) {
+			// Si el arxiuContingut no es null actualitza la gestió documental o la BBDD
+			if (pluginHelper.gestioDocumentalIsPluginActiu()) {
+				String referenciaFont = pluginHelper.gestioDocumentalCreateDocument(
+						expedient,
+						documentStore.getId().toString(),
+						documentDescripcio,
+						documentStore.getDataDocument(),
+						arxiuNom,
+						arxiuContingut);
+				documentStore.setReferenciaFont(referenciaFont);
+			} else {
+				documentStore.setArxiuContingut(arxiuContingut);
+			}
+		}
+		// Guarda la referència al nou document a dins el jBPM
+		if (taskInstanceId != null) {
+			jbpmHelper.setTaskInstanceVariable(
+					taskInstanceId,
+					documentStore.getJbpmVariable(),
+					documentStore.getId());
+		} else {
+			jbpmHelper.setProcessInstanceVariable(
+					processInstanceId,
+					documentStore.getJbpmVariable(),
+					documentStore.getId());
+		}
+	}
+
+	private void actualizarMetadadesNti(
 			Expedient expedient,
 			Document document,
-			String taskInstanceId,
-			String processInstanceId,
-			Date dataDocument) {
-		if (document.isPlantilla()) {
-			ArxiuDto resultat = plantillaHelper.generarDocumentPlantilla(
-					expedient,
-					document,
-					taskInstanceId,
-					processInstanceId,
-					dataDocument);
-			if (isActiuConversioVista()) {
-				try {
-					ByteArrayOutputStream baos = new ByteArrayOutputStream();
-					openOfficeUtils.convertir(
-							resultat.getNom(),
-							resultat.getContingut(),
-							getExtensioVista(document),
-							baos);
-					resultat.setNom(
-							nomArxiuAmbExtensio(
-									resultat.getNom(),
-									getExtensioVista(document)));
-					resultat.setContingut(baos.toByteArray());
-				} catch (Exception ex) {
-					throw new SistemaExternConversioDocumentException(
-							expedient.getEntorn().getId(),
-							expedient.getEntorn().getCodi(), 
-							expedient.getEntorn().getNom(), 
-							expedient.getId(), 
-							expedient.getTitol(), 
-							expedient.getNumero(), 
-							expedient.getTipus().getId(), 
-							expedient.getTipus().getCodi(), 
-							expedient.getTipus().getNom(), 
-							messageHelper.getMessage("error.document.conversio.externa"));
-				}
-			}
-			return resultat;
+			DocumentStore documentStore,
+			NtiOrigenEnumDto ntiOrigen,
+			NtiEstadoElaboracionEnumDto ntiEstadoElaboracion,
+			NtiTipoDocumentalEnumDto ntiTipoDocumental,
+			String ntiIdDocumentoOrigen) {
+	    Calendar cal = Calendar.getInstance();
+	    cal.setTime(expedient.getDataInici());
+	    String any = String.valueOf(cal.get(Calendar.YEAR));
+	    String org = expedient.getNtiOrgano();
+	    documentStore.setNtiIdentificador(
+	    		"ES_" + org + "_" + any + "_HEL" + String.format("%027d", documentStore.getId()));
+		documentStore.setNtiVersion(VERSIO_NTI);
+		documentStore.setNtiOrgano(expedient.getNtiOrgano());
+		NtiOrigenEnumDto ntiOrigenCalculat = ntiOrigen;
+		if (ntiOrigenCalculat == null && document != null) {
+			ntiOrigenCalculat = document.getNtiOrigen();
+		}
+		if (ntiOrigenCalculat == null) {
+			ntiOrigenCalculat = NtiOrigenEnumDto.ADMINISTRACIO;
+		}
+		documentStore.setNtiOrigen(ntiOrigenCalculat);
+		NtiEstadoElaboracionEnumDto ntiEstadoElaboracionCalculat = ntiEstadoElaboracion;
+		if (ntiEstadoElaboracionCalculat == null && document != null) {
+			ntiEstadoElaboracionCalculat = document.getNtiEstadoElaboracion();
+		}
+		if (ntiEstadoElaboracionCalculat == null) {
+			ntiEstadoElaboracionCalculat = NtiEstadoElaboracionEnumDto.ORIGINAL;
+		}
+		documentStore.setNtiEstadoElaboracion(ntiEstadoElaboracionCalculat);
+		NtiTipoDocumentalEnumDto ntiTipoDocumentalCalculat = ntiTipoDocumental;
+		if (ntiTipoDocumentalCalculat == null && document != null) {
+			ntiTipoDocumentalCalculat = document.getNtiTipoDocumental();
+		}
+		if (ntiTipoDocumentalCalculat == null) {
+			ntiTipoDocumentalCalculat = NtiTipoDocumentalEnumDto.ALTRES;
+		}
+		documentStore.setNtiTipoDocumental(ntiTipoDocumentalCalculat);
+		NtiDocumentoFormato formato = getDocumentoFormatoPerArxiuNom(documentStore.getArxiuNom());
+		if (formato != null) {
+			documentStore.setNtiNombreFormato(formato);
 		} else {
-			ArxiuDto resultat = new ArxiuDto(
-					document.getArxiuNom(),
-					document.getArxiuContingut());
-			return resultat;
+			throw new ValidacioException("Tipus d'arxiu no permes: " + documentStore.getArxiuNom());
 		}
+		documentStore.setNtiIdDocumentoOrigen(ntiIdDocumentoOrigen);
 	}
 
-	/*public DocumentDto generarDocumentAmbPlantilla(
-			String taskInstanceId,
-			String processInstanceId,
-			String documentCodi,
-			Date dataDocument,
-			boolean forsarAdjuntarAuto) throws DocumentGenerarException, DocumentConvertirException {
-		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
-		Document document = documentRepository.findByDefinicioProcesAndCodi(
-				expedientHelper.findDefinicioProcesByProcessInstanceId(processInstanceId),
-				documentCodi);
-		DocumentDto resposta = new DocumentDto();
-		resposta.setCodi(document.getCodi());
-		resposta.setDataCreacio(new Date());
-		resposta.setDataDocument(dataDocument);
-		resposta.setArxiuNom(expedient.getNumeroIdentificador() + "-" + document.getNom() + ".odt");
-		if (document.isPlantilla()) {
-			ArxiuDto resultat = plantillaHelper.generarDocumentPlantilla(
-					expedient,
-					document,
-					taskInstanceId,
-					processInstanceId,
-					dataDocument);
-			if (isActiuConversioVista()) {
-				try {
-					ByteArrayOutputStream baos = new ByteArrayOutputStream();
-					openOfficeUtils.convertir(
-							resposta.getArxiuNom(),
-							resultat.getContingut(),
-							getExtensioVista(document),
-							baos);
-					resposta.setArxiuNom(
-							nomArxiuAmbExtensio(
-									resposta.getArxiuNom(),
-									getExtensioVista(document)));
-					resposta.setArxiuContingut(baos.toByteArray());
-				} catch (Exception ex) {
-					throw new DocumentConvertirException(
-							"Error en la conversió del document",
-							ex);
-				}
-			} else {
-				resposta.setArxiuContingut(resultat.getContingut());
-			}
-		} else {
-			resposta.setArxiuContingut(document.getArxiuContingut());
+	private NtiDocumentoFormato getDocumentoFormatoPerArxiuNom(
+			String arxiuNom) {
+		String extensio = FilenameUtils.getExtension(arxiuNom);
+		if ("AVI".equalsIgnoreCase(extensio)) {
+			return NtiDocumentoFormato.AVI;
+		} else if ("CSS".equalsIgnoreCase(extensio)) {
+			return NtiDocumentoFormato.CSS;
+		} else if ("CSV".equalsIgnoreCase(extensio)) {
+			return NtiDocumentoFormato.CSV;
+		} else if ("DOCX".equalsIgnoreCase(extensio)) {
+			return NtiDocumentoFormato.SOXML;
+		} else if ("GML".equalsIgnoreCase(extensio)) {
+			return NtiDocumentoFormato.GML;
+		} else if ("GZ".equalsIgnoreCase(extensio)) {
+			return NtiDocumentoFormato.GZIP;
+		} else if ("HTM".equalsIgnoreCase(extensio)) {
+			return NtiDocumentoFormato.XHTML; // HTML o XHTML!!!
+		} else if ("HTML".equalsIgnoreCase(extensio)) {
+			return NtiDocumentoFormato.XHTML; // HTML o XHTML!!!
+		} else if ("JPEG".equalsIgnoreCase(extensio)) {
+			return NtiDocumentoFormato.JPEG;
+		} else if ("JPG".equalsIgnoreCase(extensio)) {
+			return NtiDocumentoFormato.JPEG;
+		} else if ("MHT".equalsIgnoreCase(extensio)) {
+			return NtiDocumentoFormato.MHTML;
+		} else if ("MHTML".equalsIgnoreCase(extensio)) {
+			return NtiDocumentoFormato.MHTML;
+		} else if ("MP3".equalsIgnoreCase(extensio)) {
+			return NtiDocumentoFormato.MP3;
+		} else if ("MP4".equalsIgnoreCase(extensio)) {
+			return NtiDocumentoFormato.MP4V;
+		} else if ("MPEG".equalsIgnoreCase(extensio)) {
+			return NtiDocumentoFormato.MP4V;
+		} else if ("ODG".equalsIgnoreCase(extensio)) {
+			return NtiDocumentoFormato.OASIS12;
+		} else if ("ODP".equalsIgnoreCase(extensio)) {
+			return NtiDocumentoFormato.OASIS12;
+		} else if ("ODS".equalsIgnoreCase(extensio)) {
+			return NtiDocumentoFormato.OASIS12;
+		} else if ("ODT".equalsIgnoreCase(extensio)) {
+			return NtiDocumentoFormato.OASIS12;
+		} else if ("OGA".equalsIgnoreCase(extensio)) {
+			return NtiDocumentoFormato.OGG;
+		} else if ("OGG".equalsIgnoreCase(extensio)) {
+			return NtiDocumentoFormato.OGG;
+		} else if ("PDF".equalsIgnoreCase(extensio)) {
+			return NtiDocumentoFormato.PDF;
+		} else if ("PNG".equalsIgnoreCase(extensio)) {
+			return NtiDocumentoFormato.PNG;
+		} else if ("PPTX".equalsIgnoreCase(extensio)) {
+			return NtiDocumentoFormato.SOXML;
+		} else if ("RTF".equalsIgnoreCase(extensio)) {
+			return NtiDocumentoFormato.RTF;
+		} else if ("SVG".equalsIgnoreCase(extensio)) {
+			return NtiDocumentoFormato.SVG;
+		} else if ("TIFF".equalsIgnoreCase(extensio)) {
+			return NtiDocumentoFormato.TIFF;
+		} else if ("TXT".equalsIgnoreCase(extensio)) {
+			return NtiDocumentoFormato.TXT;
+		} else if ("WEBM".equalsIgnoreCase(extensio)) {
+			return NtiDocumentoFormato.WEBM;
+		} else if ("XLSX".equalsIgnoreCase(extensio)) {
+			return NtiDocumentoFormato.SOXML;
+		} else if ("ZIP".equalsIgnoreCase(extensio)) {
+			return NtiDocumentoFormato.ZIP;
+		} else if ("CSIG".equalsIgnoreCase(extensio)) {
+			return NtiDocumentoFormato.CSIG;
+		} else if ("XSIG".equalsIgnoreCase(extensio)) {
+			return NtiDocumentoFormato.XSIG;
+		} else if ("XML".equalsIgnoreCase(extensio)) {
+			return NtiDocumentoFormato.XML;
 		}
-		return resposta;
-	}*/
-
-
-
-	private ExpedientDocumentDto crearDtoPerDocumentExpedient(
-			Document document,
-			Long documentStoreId) {
-		DocumentStore documentStore = documentStoreRepository.findOne(documentStoreId);
-		if (documentStore != null) {
-			return crearDtoPerDocumentExpedient(document, documentStore);
-		} else {
-			ExpedientDocumentDto dto = new ExpedientDocumentDto();
-			dto.setId(documentStoreId);
-			dto.setError("No s'ha trobat el documentStore del document (" +
-					"documentCodi=" + document.getCodi() + ", " +
-					"documentStoreId=" + documentStoreId + ")");
-			return dto;
-		}
-	}
-	private ExpedientDocumentDto crearDtoPerDocumentExpedient(
-			Document document,
-			DocumentStore documentStore) {
-		ExpedientDocumentDto dto = new ExpedientDocumentDto();
-		dto.setId(documentStore.getId());
-		dto.setDataCreacio(documentStore.getDataCreacio());
-		dto.setDataModificacio(documentStore.getDataModificacio());
-		dto.setDataDocument(documentStore.getDataDocument());
-		dto.setArxiuNom(calcularArxiuNom(documentStore, false));
-		dto.setProcessInstanceId(documentStore.getProcessInstanceId());
-		dto.setDocumentId(document.getId());
-		dto.setDocumentCodi(document.getCodi());
-		dto.setDocumentNom(document.getNom());
-		dto.setSignat(documentStore.isSignat());
-		
-		dto.setNtiActiu(documentStore.getNtiActiu());
-		
-		if (documentStore.isSignat()) {
-			dto.setSignaturaUrlVerificacio(
-					pluginHelper.custodiaObtenirUrlComprovacioSignatura(
-							documentStore.getId().toString()));
-		}
-		dto.setRegistrat(documentStore.isRegistrat());
-		if (documentStore.isRegistrat()) {
-			dto.setRegistreEntrada(documentStore.isRegistreEntrada());
-			dto.setRegistreNumero(documentStore.getRegistreNumero());
-			dto.setRegistreData(documentStore.getRegistreData());
-			dto.setRegistreOficinaCodi(documentStore.getRegistreOficinaCodi());
-			dto.setRegistreOficinaNom(documentStore.getRegistreOficinaNom());
-		}
-		return dto;
+		return null;
 	}
 
-	private ExpedientDocumentDto crearDtoPerAdjuntExpedient(
-			String adjuntId,
-			Long documentStoreId) {
-		DocumentStore documentStore = documentStoreRepository.findOne(documentStoreId);
-		if (documentStore != null) {
-			return crearDtoPerAdjuntExpedient(adjuntId, documentStore);
-		} else {
-			ExpedientDocumentDto dto = new ExpedientDocumentDto();
-			dto.setId(documentStoreId);
-			dto.setError("No s'ha trobat el documentStore del document (" +
-					"adjuntId=" + adjuntId + ", " +
-					"documentStoreId=" + documentStoreId + ")");
-			return dto;
-		}
+	private String getContentType(String arxiuNom) {
+		String fileNameDetect = tika.detect(arxiuNom);
+        if (!fileNameDetect.equals(MimeTypes.OCTET_STREAM)) {
+            return fileNameDetect;
+        }
+        String fileContentDetect = tika.detect(arxiuNom);
+        if (!fileContentDetect.equals(MimeTypes.OCTET_STREAM)) {
+            return fileContentDetect;
+        }
+        return MimeTypes.OCTET_STREAM;
 	}
-	private ExpedientDocumentDto crearDtoPerAdjuntExpedient(
-			String adjuntId,
-			DocumentStore documentStore) {
-		
-		ExpedientDocumentDto dto = new ExpedientDocumentDto();
-		dto.setId(documentStore.getId());
-		dto.setDataCreacio(documentStore.getDataCreacio());
-		dto.setDataModificacio(documentStore.getDataModificacio());
-		dto.setDataDocument(documentStore.getDataDocument());
-		dto.setArxiuNom(calcularArxiuNom(documentStore, false));
-		dto.setProcessInstanceId(documentStore.getProcessInstanceId());
-		dto.setAdjunt(true);
-		dto.setAdjuntId(adjuntId);
-		dto.setAdjuntTitol(documentStore.getAdjuntTitol());
-		
-		dto.setNtiActiu(documentStore.getNtiActiu());
-		
-		return dto;
+
+	private String getPropertyNtiCsvDef() {
+		return GlobalProperties.getInstance().getProperty(
+				"app.nti.csv.definicio");
 	}
-	
-	public DocumentStoreDto findDocumentStoreById(Long documentStoreId) {
-		
-		DocumentStore documentStore = documentStoreRepository.findById(documentStoreId);
-		
-		return conversioTipusHelper.convertir(
-				documentStore, 
-				DocumentStoreDto.class);
+	private String getPropertyCustodiaVerificacioBaseUrl() {
+		return GlobalProperties.getInstance().getProperty(
+				"app.custodia.plugin.caib.verificacio.baseurl");
 	}
-	
 
 	private static final Log logger = LogFactory.getLog(DocumentHelperV3.class);
 

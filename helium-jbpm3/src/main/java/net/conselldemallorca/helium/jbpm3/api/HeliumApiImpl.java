@@ -435,8 +435,9 @@ public class HeliumApiImpl implements HeliumApi {
 					if (valor instanceof Long) {
 						Long documentStoreId = (Long) valor;
 						ArxiuDto arxiu = Jbpm3HeliumBridge.getInstanceService().getArxiuPerMostrar(documentStoreId);
-						if (arxiu != null)
+						if (arxiu != null) {
 							documents.add(arxiu);
+						}
 					}
 				}
 			}

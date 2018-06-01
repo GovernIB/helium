@@ -14,88 +14,56 @@ import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
  */
 public class ExpedientTipusMetadadesNtiCommand {
 
-	private boolean ntiActiu;
-	@Size(max = 64, groups = {Modificacio.class})
-	private String organisme;
-	@Size(max = 64, groups = {Modificacio.class})
-	private String classificacio;
-	@Size(max = 64, groups = {Modificacio.class})
+	private boolean actiu;
+	@Size(max = 256, groups = {Modificacio.class})
+	private String organo;
+	@Size(max = 44, groups = {Modificacio.class})
+	private String clasificacion;
+	@Size(max = 16, groups = {Modificacio.class})
 	private String serieDocumental;
-	
-	@Size(max = 64, groups = {Modificacio.class})
-	private String ntiTipoFirma;
-	@Size(max = 128, groups = {Modificacio.class})
-	private String ntiValorCsv;
-	@Size(max = 128, groups = {Modificacio.class})
-	private String ntiDefGenCsv;
-	
-	
-	
-	public boolean isNtiActiu() {
-		return ntiActiu;
+	private boolean arxiuActiu;
+
+	public boolean isActiu() {
+		return actiu;
 	}
-	public void setNtiActiu(boolean ntiActiu) {
-		this.ntiActiu = ntiActiu;
+	public void setActiu(boolean actiu) {
+		this.actiu = actiu;
 	}
-	
-	public String getOrganisme() {
-		return organisme;
+	public String getOrgano() {
+		return organo;
 	}
-	public void setOrganisme(String organisme) {
-		this.organisme = organisme;
+	public void setOrgano(String organo) {
+		this.organo = organo;
 	}
-	
-	public String getClassificacio() {
-		return classificacio;
+	public String getClasificacion() {
+		return clasificacion;
 	}
-	public void setClassificacio(String classificacio) {
-		this.classificacio = classificacio;
+	public void setClasificacion(String clasificacion) {
+		this.clasificacion = clasificacion;
 	}
-	
 	public String getSerieDocumental() {
 		return serieDocumental;
 	}
 	public void setSerieDocumental(String serieDocumental) {
 		this.serieDocumental = serieDocumental;
 	}
-	
-	public String getNtiTipoFirma() {
-		return ntiTipoFirma;
+	public boolean isArxiuActiu() {
+		return arxiuActiu;
 	}
-	public void setNtiTipoFirma(String ntiTipoFirma) {
-		this.ntiTipoFirma = ntiTipoFirma;
+	public void setArxiuActiu(boolean arxiuActiu) {
+		this.arxiuActiu = arxiuActiu;
 	}
-	
-	public String getNtiValorCsv() {
-		return ntiValorCsv;
-	}
-	public void setNtiValorCsv(String ntiValorCsv) {
-		this.ntiValorCsv = ntiValorCsv;
-	}
-	
-	public String getNtiDefGenCsv() {
-		return ntiDefGenCsv;
-	}
-	public void setNtiDefGenCsv(String ntiDefGenCsv) {
-		this.ntiDefGenCsv = ntiDefGenCsv;
-	}
-	
-	
+
 	public static ExpedientTipusMetadadesNtiCommand toCommand(ExpedientTipusDto dto) {
-		
 		ExpedientTipusMetadadesNtiCommand command = new ExpedientTipusMetadadesNtiCommand();
-		
-		command.setNtiActiu(dto.isNtiActiu());
-		command.setOrganisme(dto.getNtiOrgan());
-		command.setClassificacio(dto.getNtiClasificacio());
+		command.setActiu(dto.isNtiActiu());
+		command.setOrgano(dto.getNtiOrgano());
+		command.setClasificacion(dto.getNtiClasificacion());
 		command.setSerieDocumental(dto.getNtiSerieDocumental());
-		command.setNtiTipoFirma(dto.getNtiTipoFirma());
-		command.setNtiValorCsv(dto.getNtiValorCsv());
-		command.setNtiDefGenCsv(dto.getNtiDefGenCsv());
-		
+		command.setArxiuActiu(dto.isArxiuActiu());
 		return command;
 	}
 	
-	
 	public interface Modificacio {}
+
 }

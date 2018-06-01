@@ -106,7 +106,7 @@ public class TascaTramitacioController extends BaseTascaController {
 	private AplicacioService aplicacioService;
 	@Autowired 
 	private DefinicioProcesService definicioProcesService;
-	
+
 	@Autowired
 	private PassarelaFirmaHelper passarelaFirmaHelper;
 
@@ -161,7 +161,7 @@ public class TascaTramitacioController extends BaseTascaController {
 		    
 		}
 	}
-	
+
 	@RequestMapping(value = "/{tascaId}/{pipellaActiva}", method = RequestMethod.GET)
 	public String pipellesActiva(
 			HttpServletRequest request,
@@ -410,7 +410,7 @@ public class TascaTramitacioController extends BaseTascaController {
 		model.addAttribute("isModal", ModalHelper.isModal(request));
 		return "v3/tascaDocument";
 	}
-	
+
 	@RequestMapping(value = "/{tascaId}/isPermetreFinalitzar", method = RequestMethod.POST)
 	@ResponseBody
 	public String isPermetreFinalitzar(
@@ -429,13 +429,13 @@ public class TascaTramitacioController extends BaseTascaController {
 		}
 		return resposta.toString();
 	}
-	
+
 	@RequestMapping(value = "/{tascaId}/isDocumentsComplet", method = RequestMethod.POST)
 	@ResponseBody
 	public boolean isDocumentsComplet(@PathVariable String tascaId) {
 		return tascaService.isDocumentsComplet(tascaId);
 	}
-	
+
 	@RequestMapping(value = "/{tascaId}/isSignaturesComplet", method = RequestMethod.POST)
 	@ResponseBody
 	public boolean isSignaturesComplet(@PathVariable String tascaId) {
@@ -479,10 +479,8 @@ public class TascaTramitacioController extends BaseTascaController {
 			// Recupera la informació del document
 			String documentCodi = firma.getDocument().getCodi();
 			DocumentDto documentDto = tascaService.getDocumentPerDocumentCodi(tascaId, documentCodi);	        
-			
-			ArxiuDto arxiuPerFirmar = expedientDocumentService.arxiuDocumentPerSignar(
+			ArxiuDto arxiuPerFirmar = expedientDocumentService.findArxiuAmbTokenPerSignar(
 	        		documentDto.getTokenSignatura()); 
-	        		        
 			PersonaDto usuariActual = aplicacioService.findPersonaActual();
 			String modalStr = (ModalHelper.isModal(request)) ? "/modal" : "";
 			
@@ -510,7 +508,7 @@ public class TascaTramitacioController extends BaseTascaController {
 			return "v3/passarelaFirma/passarelaFiFirma";
 		}
 	}
-	
+
 	@RequestMapping(value = "/{tascaId}/document/{documentCodi}/firmaPassarelaFinal")
 	public String firmaPassarelaFinal(
 			HttpServletRequest request,
@@ -602,7 +600,7 @@ public class TascaTramitacioController extends BaseTascaController {
 				signaturesSet);
 		return "v3/passarelaFirma/passarelaFiFirma";
 	}
-	
+
 	@RequestMapping(value = "/{tascaId}/verificarSignatura/{documentStoreId}/{documentCodi}", method = RequestMethod.GET)
 	public String verificarSignatura(
 			HttpServletRequest request,
@@ -629,7 +627,7 @@ public class TascaTramitacioController extends BaseTascaController {
 			throw new ServletException(ex);
 	    }
 	}
-	
+
 	@RequestMapping(value = "/{tascaId}/document/{documentId}/adjuntar", method = RequestMethod.POST)
 	public String documentAdjuntar(
 			HttpServletRequest request,
@@ -674,7 +672,7 @@ public class TascaTramitacioController extends BaseTascaController {
 				model,
 				"document");
 	}
-	
+
 	@RequestMapping(value = "/{tascaId}/{tascaId2}/document/{documentId}/adjuntar", method = RequestMethod.POST)
 	public String documentAdjuntar2(
 			HttpServletRequest request,
@@ -768,7 +766,6 @@ public class TascaTramitacioController extends BaseTascaController {
 			@PathVariable String tascaId,
 			@PathVariable String documentCodi,
 			Model model) {
-		
 		try {
 			ArxiuDto arxiu = tascaService.getArxiuPerDocumentCodi(
 					tascaId,
@@ -788,7 +785,6 @@ public class TascaTramitacioController extends BaseTascaController {
 			
 			return "redirect:/modal/v3/tasca/" + tascaId + "/document";
 		}	
-		
 		return "arxiuView";
 	}
 
@@ -1429,7 +1425,6 @@ public class TascaTramitacioController extends BaseTascaController {
 			byte[] contingutArxiu,
 			Date data) {
 		Long documentStoreId = null;
-		
 		EntornDto entorn = SessionHelper.getSessionManager(request).getEntornActual();
 		Map<String, Object> datosTramitacionMasiva = getDatosTramitacionMasiva(request);
 		if (datosTramitacionMasiva != null) {
@@ -1444,7 +1439,6 @@ public class TascaTramitacioController extends BaseTascaController {
 						nomArxiu,
 						contingutArxiu,
 						null);
-				
 //				Authentication auth = SecurityContextHolder.getContext().getAuthentication();				
 				ExecucioMassivaDto dto = new ExecucioMassivaDto();
 				dto.setDataInici((Date) datosTramitacionMasiva.get("inici"));
@@ -1467,7 +1461,6 @@ public class TascaTramitacioController extends BaseTascaController {
 //				params[6] = rols;
 				dto.setParam2(execucioMassivaService.serialize(params));
 				execucioMassivaService.crearExecucioMassiva(dto);
-
 				MissatgesHelper.success(request, getMessage(request, "info.tasca.massiu.document.guardar", new Object[] {tascaIds.length}));
 			} catch (Exception ex) {
 				MissatgesHelper.error(request, getMessage(request, "error.no.massiu"));

@@ -17,22 +17,6 @@ import java.util.TreeMap;
  */
 public class ExpedientTipusDto extends ControlPermisosDto implements Serializable {
 	
-	public enum TipoFirma {
-		
-		CSV,
-	    XAdES_ids,
-		XAdES_es,
-		CAdES_des,
-		CAdES_ais,
-		PAdES,
-		XAdES_1506d,
-		XAdES_1506e,
-		CAdES_1506d,
-		CAdES_1506a,
-		PAdES_1506;
-
-	}
-
 	private Long id;
 	private String codi;
 	private String nom;
@@ -80,18 +64,15 @@ public class ExpedientTipusDto extends ControlPermisosDto implements Serializabl
 	// Integració amb tràmits Sistra
 	private String sistraTramitCodi;
 	
-	
 	private boolean ntiActiu;
-	
-	private String ntiOrgan;
-	private String ntiClasificacio;
+	private String ntiOrgano;
+	private String ntiClasificacion;
 	private String ntiSerieDocumental;
-	
-	private String ntiTipoFirma;
-	private String ntiValorCsv;
-	private String ntiDefGenCsv;
-	
-	
+
+	private boolean arxiuActiu;
+
+
+
 	public Long getId() {
 		return id;
 	}
@@ -348,58 +329,37 @@ public class ExpedientTipusDto extends ControlPermisosDto implements Serializabl
 	public void setSistraTramitCodi(String sistraTramitCodi) {
 		this.sistraTramitCodi = sistraTramitCodi;
 	}
-	
-	
 	public boolean isNtiActiu() {
 		return ntiActiu;
 	}
 	public void setNtiActiu(boolean ntiActiu) {
 		this.ntiActiu = ntiActiu;
 	}
-	
-	public String getNtiOrgan() {
-		return ntiOrgan;
+	public String getNtiOrgano() {
+		return ntiOrgano;
 	}
-	public void setNtiOrgan(String ntiOrgan) {
-		this.ntiOrgan = ntiOrgan;
+	public void setNtiOrgano(String ntiOrgano) {
+		this.ntiOrgano = ntiOrgano;
 	}
-	
-	public String getNtiClasificacio() {
-		return ntiClasificacio;
+	public String getNtiClasificacion() {
+		return ntiClasificacion;
 	}
-	public void setNtiClasificacio(String ntiClasificacio) {
-		this.ntiClasificacio = ntiClasificacio;
+	public void setNtiClasificacion(String ntiClasificacion) {
+		this.ntiClasificacion = ntiClasificacion;
 	}
-	
 	public String getNtiSerieDocumental() {
 		return ntiSerieDocumental;
 	}
 	public void setNtiSerieDocumental(String ntiSerieDocumental) {
 		this.ntiSerieDocumental = ntiSerieDocumental;
 	}
-	
-	public String getNtiTipoFirma() {
-		return ntiTipoFirma;
+	public boolean isArxiuActiu() {
+		return arxiuActiu;
 	}
-	public void setNtiTipoFirma(String ntiTipoFirma) {
-		this.ntiTipoFirma = ntiTipoFirma;
+	public void setArxiuActiu(boolean arxiuActiu) {
+		this.arxiuActiu = arxiuActiu;
 	}
-	
-	public String getNtiValorCsv() {
-		return ntiValorCsv;
-	}
-	public void setNtiValorCsv(String ntiValorCsv) {
-		this.ntiValorCsv = ntiValorCsv;
-	}
-	
-	public String getNtiDefGenCsv() {
-		return ntiDefGenCsv;
-	}
-	public void setNtiDefGenCsv(String ntiDefGenCsv) {
-		this.ntiDefGenCsv = ntiDefGenCsv;
-	}
-	
-	
+
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;

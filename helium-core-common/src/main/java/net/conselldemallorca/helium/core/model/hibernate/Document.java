@@ -30,6 +30,10 @@ import org.hibernate.annotations.Type;
 import org.springmodules.validation.bean.conf.loader.annotation.handler.MaxLength;
 import org.springmodules.validation.bean.conf.loader.annotation.handler.NotBlank;
 
+import net.conselldemallorca.helium.v3.core.api.dto.NtiEstadoElaboracionEnumDto;
+import net.conselldemallorca.helium.v3.core.api.dto.NtiOrigenEnumDto;
+import net.conselldemallorca.helium.v3.core.api.dto.NtiTipoDocumentalEnumDto;
+
 /**
  * Objecte de domini que representa un document de la definició
  * de procés
@@ -82,16 +86,11 @@ public class Document implements Serializable, GenericEntity<Long> {
 	/** Indica si permetre o no la retroacció. Si isIgnored = true llavors no es realitzarà la retroacció i no s'esborrarà
 	 * el contingut del document. */
 	private boolean ignored;
-	
-	@MaxLength(32)
-	private String ntiTipusDocumental;
-	
-	@MaxLength(64)
-	private String ntiTipoFirma;
-	@MaxLength(128)
-	private String ntiValorCsv;
-	@MaxLength(128)
-	private String ntiDefGenCsv;
+
+	private NtiOrigenEnumDto ntiOrigen;
+	private NtiEstadoElaboracionEnumDto ntiEstadoElaboracion;
+	private NtiTipoDocumentalEnumDto ntiTipoDocumental;
+
 
 
 	public Document() {}
@@ -215,13 +214,29 @@ public class Document implements Serializable, GenericEntity<Long> {
 	public void setExtensionsPermeses(String extensionsPermeses) {
 		this.extensionsPermeses = extensionsPermeses;
 	}
-	
-	@Column(name="nti_tipo_doc", length=32)
-	public String getNtiTipusDocumental() {
-		return ntiTipusDocumental;
+
+	@Column(name="nti_origen")
+	public NtiOrigenEnumDto getNtiOrigen() {
+		return ntiOrigen;
 	}
-	public void setNtiTipusDocumental(String ntiTipusDocumental) {
-		this.ntiTipusDocumental = ntiTipusDocumental;
+	public void setNtiOrigen(NtiOrigenEnumDto ntiOrigen) {
+		this.ntiOrigen = ntiOrigen;
+	}
+
+	@Column(name="nti_estado_elab")
+	public NtiEstadoElaboracionEnumDto getNtiEstadoElaboracion() {
+		return ntiEstadoElaboracion;
+	}
+	public void setNtiEstadoElaboracion(NtiEstadoElaboracionEnumDto ntiEstadoElaboracion) {
+		this.ntiEstadoElaboracion = ntiEstadoElaboracion;
+	}
+
+	@Column(name="nti_tipo_doc")
+	public NtiTipoDocumentalEnumDto getNtiTipoDocumental() {
+		return ntiTipoDocumental;
+	}
+	public void setNtiTipoDocumental(NtiTipoDocumentalEnumDto ntiTipoDocumental) {
+		this.ntiTipoDocumental = ntiTipoDocumental;
 	}
 
 	@ManyToOne(optional=true)
@@ -288,31 +303,6 @@ public class Document implements Serializable, GenericEntity<Long> {
 	}
 	public void setIgnored(boolean ignored) {
 		this.ignored = ignored;
-	}
-	
-	
-	@Column(name="nti_tipo_firma", length=64)
-	public String getNtiTipoFirma() {
-		return ntiTipoFirma;
-	}
-	public void setNtiTipoFirma(String ntiTipoFirma) {
-		this.ntiTipoFirma = ntiTipoFirma;
-	}
-	
-	@Column(name="nti_valor_csv", length=128)
-	public String getNtiValorCsv() {
-		return ntiValorCsv;
-	}
-	public void setNtiValorCsv(String ntiValorCsv) {
-		this.ntiValorCsv = ntiValorCsv;
-	}
-	
-	@Column(name="nti_definicion_generacion_csv", length=128)
-	public String getNtiDefGenCsv() {
-		return ntiDefGenCsv;
-	}
-	public void setNtiDefGenCsv(String ntiDefGenCsv) {
-		this.ntiDefGenCsv = ntiDefGenCsv;
 	}
 	
 	

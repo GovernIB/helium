@@ -17,6 +17,7 @@ import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 
 import net.conselldemallorca.helium.v3.core.api.dto.AccioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.AlertaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDetallDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DadesDocumentDto;
@@ -81,15 +82,7 @@ public class ExpedientServiceBean implements ExpedientService {
 			String iniciadorCodi,
 			String responsableCodi,
 			Map<String, DadesDocumentDto> documents,
-			List<DadesDocumentDto> adjunts,
-			boolean ntiActiu,
-			String organ,
-			String classificacio,
-			String serieDocumental,
-			String ntiTipoFirma,
-			String ntiValorCsv,
-			String ntiDefGenCsv) {
-		
+			List<DadesDocumentDto> adjunts) {
 		return delegate.create(
 				entornId,
 				usuari,
@@ -119,14 +112,7 @@ public class ExpedientServiceBean implements ExpedientService {
 				iniciadorCodi,
 				responsableCodi,
 				documents,
-				adjunts,
-				ntiActiu,
-				organ,
-				classificacio,
-				serieDocumental,
-				ntiTipoFirma,
-				ntiValorCsv,
-				ntiDefGenCsv);
+				adjunts);
 	}
 
 	@Override
@@ -637,4 +623,11 @@ public class ExpedientServiceBean implements ExpedientService {
 	public void executarCampAccio(Long expedientId, String processInstanceId, String accioCamp) {
 		delegate.executarCampAccio(expedientId, processInstanceId, accioCamp);
 	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public ArxiuDetallDto getArxiuDetall(Long expedientId) {
+		return delegate.getArxiuDetall(expedientId);
+	}
+
 }

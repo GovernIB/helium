@@ -100,17 +100,18 @@ public class ExpedientDto extends ControlPermisosDto implements Serializable {
 	private Long alertesPendents;
 	
 	private boolean ntiActiu;
-	
-	private String ntiVersio;
-	private String ntiOrgan;
-	private String ntiClasificacio;
-	private String ntiSerieDocumental;
+	private String ntiVersion;
 	private String ntiIdentificador;
-	
+	private String ntiOrgano;
+	private String ntiSerieDocumental;
+	private String ntiClasificacion;
 	private String ntiTipoFirma;
-	private String ntiValorCsv;
+	private String ntiCsv;
 	private String ntiDefGenCsv;
-	
+	private boolean arxiuActiu;
+	private String arxiuUuid;
+
+
 
 	public Long getId() {
 		return id;
@@ -399,20 +400,101 @@ public class ExpedientDto extends ControlPermisosDto implements Serializable {
 	public void setUsuariActualRead(boolean usuariActualRead) {
 		this.usuariActualRead = usuariActualRead;
 	}
+	public boolean isAmbRetroaccio() {
+		return ambRetroaccio;
+	}
+	public void setAmbRetroaccio(boolean ambRetroaccio) {
+		this.ambRetroaccio = ambRetroaccio;
+	}
+	public Date getReindexarData() {
+		return reindexarData;
+	}
+	public void setReindexarData(Date reindexarData) {
+		this.reindexarData = reindexarData;
+	}
+	public boolean isReindexarError() {
+		return reindexarError;
+	}
+	public void setReindexarError(boolean reindexarError) {
+		this.reindexarError = reindexarError;
+	}
 	public Long getAlertesTotals() {
 		return alertesTotals;
 	}
-
 	public void setAlertesTotals(Long alertesTotals) {
 		this.alertesTotals = alertesTotals;
 	}
-
 	public Long getAlertesPendents() {
 		return alertesPendents;
 	}
-
 	public void setAlertesPendents(Long alertesPendents) {
 		this.alertesPendents = alertesPendents;
+	}
+	public boolean isNtiActiu() {
+		return ntiActiu;
+	}
+	public void setNtiActiu(boolean ntiActiu) {
+		this.ntiActiu = ntiActiu;
+	}
+	public String getNtiVersion() {
+		return ntiVersion;
+	}
+	public void setNtiVersion(String ntiVersion) {
+		this.ntiVersion = ntiVersion;
+	}
+	public String getNtiIdentificador() {
+		return ntiIdentificador;
+	}
+	public void setNtiIdentificador(String ntiIdentificador) {
+		this.ntiIdentificador = ntiIdentificador;
+	}
+	public String getNtiOrgano() {
+		return ntiOrgano;
+	}
+	public void setNtiOrgano(String ntiOrgano) {
+		this.ntiOrgano = ntiOrgano;
+	}
+	public String getNtiSerieDocumental() {
+		return ntiSerieDocumental;
+	}
+	public void setNtiSerieDocumental(String ntiSerieDocumental) {
+		this.ntiSerieDocumental = ntiSerieDocumental;
+	}
+	public String getNtiClasificacion() {
+		return ntiClasificacion;
+	}
+	public void setNtiClasificacion(String ntiClasificacion) {
+		this.ntiClasificacion = ntiClasificacion;
+	}
+	public String getNtiTipoFirma() {
+		return ntiTipoFirma;
+	}
+	public void setNtiTipoFirma(String ntiTipoFirma) {
+		this.ntiTipoFirma = ntiTipoFirma;
+	}
+	public String getNtiCsv() {
+		return ntiCsv;
+	}
+	public void setNtiCsv(String ntiCsv) {
+		this.ntiCsv = ntiCsv;
+	}
+	public String getNtiDefGenCsv() {
+		return ntiDefGenCsv;
+	}
+	public void setNtiDefGenCsv(String ntiDefGenCsv) {
+		this.ntiDefGenCsv = ntiDefGenCsv;
+	}
+	public boolean getArxiuActiu() {
+		return arxiuActiu;
+	}
+	public void isArxiuActiu(boolean arxiuActiu) {
+		this.arxiuActiu = arxiuActiu;
+	}
+	public String getArxiuUuid() {
+		return arxiuUuid;
+	}
+	public void setArxiuUuid(String arxiuUuid) {
+		this.arxiuUuid = arxiuUuid;
 	}
 
 	public String getEstatNom() {
@@ -479,6 +561,10 @@ public class ExpedientDto extends ControlPermisosDto implements Serializable {
 	public String getIdentificacioPerLogs() {
 		return null;
 	}
+	
+	public boolean isAmbErrors () {
+		return (reindexarError || errorsIntegracions || errorDesc != null);
+	}
 
 	@Override
 	public String toString() {
@@ -487,98 +573,6 @@ public class ExpedientDto extends ControlPermisosDto implements Serializable {
 				+ ", responsablePersona=" + responsablePersona + "]";
 	}
 
-	public boolean isAmbRetroaccio() {
-		return ambRetroaccio;
-	}
-	public void setAmbRetroaccio(boolean ambRetroaccio) {
-		this.ambRetroaccio = ambRetroaccio;
-	}
-
-	public Date getReindexarData() {
-		return reindexarData;
-	}
-
-	public void setReindexarData(Date reindexarData) {
-		this.reindexarData = reindexarData;
-	}
-
-	public boolean isReindexarError() {
-		return reindexarError;
-	}
-
-	public void setReindexarError(boolean reindexarError) {
-		this.reindexarError = reindexarError;
-	}
-	
-	public boolean isAmbErrors () {
-		return (reindexarError || errorsIntegracions || errorDesc != null);
-	}
-	
-	
-	public boolean isNtiActiu() {
-		return ntiActiu;
-	}
-	public void setNtiActiu(boolean ntiActiu) {
-		this.ntiActiu = ntiActiu;
-	}
-	
-	public String getNtiVersio() {
-		return ntiVersio;
-	}
-	public void setNtiVersio(String ntiVersio) {
-		this.ntiVersio = ntiVersio;
-	}
-	
-	public String getNtiOrgan() {
-		return ntiOrgan;
-	}
-	public void setNtiOrgan(String ntiOrgan) {
-		this.ntiOrgan = ntiOrgan;
-	}
-	
-	public String getNtiClasificacio() {
-		return ntiClasificacio;
-	}
-	public void setNtiClasificacio(String ntiClasificacio) {
-		this.ntiClasificacio = ntiClasificacio;
-	}
-	
-	public String getNtiSerieDocumental() {
-		return ntiSerieDocumental;
-	}
-	public void setNtiSerieDocumental(String ntiSerieDocumental) {
-		this.ntiSerieDocumental = ntiSerieDocumental;
-	}
-	
-	public String getNtiIdentificador() {
-		return ntiIdentificador;
-	}
-	public void setNtiIdentificador(String ntiIdentificador) {
-		this.ntiIdentificador = ntiIdentificador;
-	}
-	
-	public String getNtiTipoFirma() {
-		return ntiTipoFirma;
-	}
-	public void setNtiTipoFirma(String ntiTipoFirma) {
-		this.ntiTipoFirma = ntiTipoFirma;
-	}
-	
-	public String getNtiValorCsv() {
-		return ntiValorCsv;
-	}
-	public void setNtiValorCsv(String ntiValorCsv) {
-		this.ntiValorCsv = ntiValorCsv;
-	}
-	
-	public String getNtiDefGenCsv() {
-		return ntiDefGenCsv;
-	}
-	public void setNtiDefGenCsv(String ntiDefGenCsv) {
-		this.ntiDefGenCsv = ntiDefGenCsv;
-	}
-	
-	
 	private static final long serialVersionUID = -9207907579002520198L;
-	
+
 }

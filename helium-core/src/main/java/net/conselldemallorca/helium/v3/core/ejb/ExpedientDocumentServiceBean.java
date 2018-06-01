@@ -13,9 +13,13 @@ import javax.interceptor.Interceptors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 
+import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDetallDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDocumentDto;
+import net.conselldemallorca.helium.v3.core.api.dto.NtiEstadoElaboracionEnumDto;
+import net.conselldemallorca.helium.v3.core.api.dto.NtiOrigenEnumDto;
+import net.conselldemallorca.helium.v3.core.api.dto.NtiTipoDocumentalEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PortasignaturesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RespostaValidacioSignaturaDto;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
@@ -36,35 +40,108 @@ public class ExpedientDocumentServiceBean implements ExpedientDocumentService {
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public void createOrUpdate(
+	public void create(
 			Long expedientId,
 			String processInstanceId,
-			Long documentId,
-			Long documentStoreId,
-			String titol,
+			String documentCodi,
+			Date data,
 			String arxiuNom,
 			byte[] arxiuContingut,
-			Date data, 
-			String ntiTipusDocumental,
-			String ntiTipusFirma, 
-			String ntiValorCsv, 
-			String ntiDefGenCsv, 
-			String ntiOrigen) {
-		
-		delegate.createOrUpdate(
+			NtiOrigenEnumDto ntiOrigen,
+			NtiEstadoElaboracionEnumDto ntiEstadoElaboracion,
+			NtiTipoDocumentalEnumDto ntiTipoDocumental,
+			String ntiIdOrigen) {
+		delegate.create(
 				expedientId,
 				processInstanceId,
-				documentId,
-				documentStoreId,
-				titol,
+				documentCodi,
+				data,
 				arxiuNom,
 				arxiuContingut,
-				data, 
-				ntiTipusDocumental,
-				ntiTipusFirma, 
-				ntiValorCsv, 
-				ntiDefGenCsv, 
-				ntiOrigen);
+				ntiOrigen,
+				ntiEstadoElaboracion,
+				ntiTipoDocumental,
+				ntiIdOrigen);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public void update(
+			Long expedientId,
+			String processInstanceId,
+			Long documentStoreId,
+			Date data,
+			String arxiuNom,
+			byte[] arxiuContingut,
+			NtiOrigenEnumDto ntiOrigen,
+			NtiEstadoElaboracionEnumDto ntiEstadoElaboracion,
+			NtiTipoDocumentalEnumDto ntiTipoDocumental,
+			String ntiIdOrigen) {
+		delegate.update(
+				expedientId,
+				processInstanceId,
+				documentStoreId,
+				data,
+				arxiuNom,
+				arxiuContingut,
+				ntiOrigen,
+				ntiEstadoElaboracion,
+				ntiTipoDocumental,
+				ntiIdOrigen);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public void createAdjunt(
+			Long expedientId,
+			String processInstanceId,
+			Date data,
+			String adjuntTitol,
+			String arxiuNom,
+			byte[] arxiuContingut,
+			NtiOrigenEnumDto ntiOrigen,
+			NtiEstadoElaboracionEnumDto ntiEstadoElaboracion,
+			NtiTipoDocumentalEnumDto ntiTipoDocumental,
+			String ntiIdOrigen) {
+		delegate.createAdjunt(
+				expedientId,
+				processInstanceId,
+				data,
+				adjuntTitol,
+				arxiuNom,
+				arxiuContingut,
+				ntiOrigen,
+				ntiEstadoElaboracion,
+				ntiTipoDocumental,
+				ntiIdOrigen);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public void updateAdjunt(
+			Long expedientId,
+			String processInstanceId,
+			Long documentStoreId,
+			Date data,
+			String adjuntTitol,
+			String arxiuNom,
+			byte[] arxiuContingut,
+			NtiOrigenEnumDto ntiOrigen,
+			NtiEstadoElaboracionEnumDto ntiEstadoElaboracion,
+			NtiTipoDocumentalEnumDto ntiTipoDocumental,
+			String ntiIdOrigen) {
+		delegate.updateAdjunt(
+				expedientId,
+				processInstanceId,
+				documentStoreId,
+				data,
+				adjuntTitol,
+				arxiuNom,
+				arxiuContingut,
+				ntiOrigen,
+				ntiEstadoElaboracion,
+				ntiTipoDocumental,
+				ntiIdOrigen);
 	}
 
 	@Override
@@ -198,27 +275,35 @@ public class ExpedientDocumentServiceBean implements ExpedientDocumentService {
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public void crearDocumentInstanciaProces(Long expedientId, String processInstanceId, String documentCodi,
-			String nomArxiu, byte[] arxiu, Date data) throws NoTrobatException {
-		delegate.crearDocumentInstanciaProces(expedientId, processInstanceId, documentCodi, nomArxiu, arxiu, data);
+	public ArxiuDto findArxiuAmbTokenPerMostrar(
+			String token) throws NoTrobatException {
+		return delegate.findArxiuAmbTokenPerMostrar(token);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public ArxiuDto arxiuDocumentPerSignar(String token) throws NoTrobatException {
-		return delegate.arxiuDocumentPerSignar(token);
+	public ArxiuDto findArxiuAmbTokenPerSignar(
+			String token) throws NoTrobatException {
+		return delegate.findArxiuAmbTokenPerSignar(token);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public ArxiuDto arxiuDocumentPerMostrar(String token) throws NoTrobatException {
-		return delegate.arxiuDocumentPerMostrar(token);
+	public DocumentDto findDocumentAmbId(
+			Long documentStoreId) throws NoTrobatException {
+		return delegate.findDocumentAmbId(documentStoreId);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public DocumentDto getDocument(Long documentStoreId) throws NoTrobatException {
-		return delegate.getDocument(documentStoreId);
+	public ArxiuDetallDto getArxiuDetall(
+			Long expedientId,
+			String processInstanceId,
+			Long documentStoreId) {
+		return delegate.getArxiuDetall(
+				expedientId,
+				processInstanceId,
+				documentStoreId);
 	}
 
 }

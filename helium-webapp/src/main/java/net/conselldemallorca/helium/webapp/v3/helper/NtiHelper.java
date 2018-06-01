@@ -6,8 +6,10 @@ import java.util.List;
 import org.springframework.stereotype.Component;
 import org.springframework.ui.Model;
 
-import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
+import net.conselldemallorca.helium.v3.core.api.dto.NtiEstadoElaboracionEnumDto;
+import net.conselldemallorca.helium.v3.core.api.dto.NtiOrigenEnumDto;
+import net.conselldemallorca.helium.v3.core.api.dto.NtiTipoDocumentalEnumDto;
+import net.conselldemallorca.helium.v3.core.api.dto.NtiTipoFirmaEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
 
 /**
@@ -17,25 +19,45 @@ import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
  */
 @Component
 public class NtiHelper {
-	
-	public void omplirTipusDocumental(
+
+	public void omplirOrigen(
 			Model model) {
 		List<ParellaCodiValorDto> tdlist = new ArrayList<ParellaCodiValorDto>();
-		for(DocumentDto.TipoDocumental td : DocumentDto.TipoDocumental.values())
+		for(NtiOrigenEnumDto or: NtiOrigenEnumDto.values())
 			tdlist.add(new ParellaCodiValorDto(
-					td.getCodi(),
-					MessageHelper.getInstance().getMessage("tipus.documental." + td)));		
-		model.addAttribute("ntiTipusDocumental", tdlist);
+					or.name(),
+					MessageHelper.getInstance().getMessage("nti.document.origen." + or.name())));		
+		model.addAttribute("ntiOrigen", tdlist);
 	}
-	
-	public void omplirTipusFirma(
+
+	public void omplirEstadoElaboracion(
 			Model model) {
 		List<ParellaCodiValorDto> tdlist = new ArrayList<ParellaCodiValorDto>();
-		for(ExpedientTipusDto.TipoFirma tf : ExpedientTipusDto.TipoFirma.values())
+		for(NtiEstadoElaboracionEnumDto ee: NtiEstadoElaboracionEnumDto.values())
 			tdlist.add(new ParellaCodiValorDto(
-					tf.toString(),
-					MessageHelper.getInstance().getMessage("tipo.firma." + tf)));
-		
+					ee.name(),
+					MessageHelper.getInstance().getMessage("nti.document.estado.elaboracion." + ee.name())));		
+		model.addAttribute("ntiEstadoElaboracion", tdlist);
+	}
+
+	public void omplirTipoDocumental(
+			Model model) {
+		List<ParellaCodiValorDto> tdlist = new ArrayList<ParellaCodiValorDto>();
+		for(NtiTipoDocumentalEnumDto td: NtiTipoDocumentalEnumDto.values())
+			tdlist.add(new ParellaCodiValorDto(
+					td.name(),
+					MessageHelper.getInstance().getMessage("nti.document.tipo.documental." + td.name())));		
+		model.addAttribute("ntiTipoDocumental", tdlist);
+	}
+
+	public void omplirTipoFirma(
+			Model model) {
+		List<ParellaCodiValorDto> tdlist = new ArrayList<ParellaCodiValorDto>();
+		for(NtiTipoFirmaEnumDto tf : NtiTipoFirmaEnumDto.values())
+			tdlist.add(new ParellaCodiValorDto(
+					tf.name(),
+					MessageHelper.getInstance().getMessage("nti.tipo.firma." + tf.name())));
 		model.addAttribute("ntiTipoFirma", tdlist);
 	}
+
 }

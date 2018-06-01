@@ -242,14 +242,7 @@ public class ExpedientInicioPasFormController extends BaseExpedientController {
 						(String)request.getSession().getAttribute(ExpedientIniciController.CLAU_SESSIO_NUMERO),
 						(String)request.getSession().getAttribute(ExpedientIniciController.CLAU_SESSIO_TITOL),
 						(Integer)request.getSession().getAttribute(ExpedientIniciController.CLAU_SESSIO_ANY),
-						valors,
-						expedientTipus.isNtiActiu(),
-						expedientTipus.getNtiOrgan(),
-						expedientTipus.getNtiClasificacio(),
-						expedientTipus.getNtiSerieDocumental(),
-						expedientTipus.getNtiTipoFirma(),
-						expedientTipus.getNtiValorCsv(),
-						expedientTipus.getNtiDefGenCsv());
+						valors);
 				
 				MissatgesHelper.success(request, getMessage(request, "info.expedient.iniciat", new Object[] { iniciat.getIdentificador() }));
 				ExpedientIniciController.netejarSessio(request);
@@ -294,15 +287,7 @@ public class ExpedientInicioPasFormController extends BaseExpedientController {
 			String numero,
 			String titol,
 			Integer any,
-			Map<String, Object> valors,
-			boolean ntiActiu,
-			String organ,
-			String classificacio,
-			String serieDocumental,
-			String ntiTipoFirma,
-			String ntiValorCsv,
-			String ntiDefGenCsv) {
-		
+			Map<String, Object> valors) {
 		return expedientService.create(
 				entornId,
 				null,
@@ -315,14 +300,7 @@ public class ExpedientInicioPasFormController extends BaseExpedientController {
 				valors,
 				null,
 				IniciadorTipusDto.INTERN,
-				null, null, null, null,
-				ntiActiu,
-				organ,
-				classificacio,
-				serieDocumental,
-				ntiTipoFirma,
-				ntiValorCsv,
-				ntiDefGenCsv);
+				null, null, null, null);
 	}
 
 	public List<ParellaCodiValorDto> getAnysSeleccionables() {

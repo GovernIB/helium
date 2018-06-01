@@ -4,10 +4,12 @@
 package net.conselldemallorca.helium.core.helper;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Properties;
 
 import javax.annotation.Resource;
 
@@ -18,7 +20,24 @@ import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 import org.springframework.stereotype.Component;
 
+import es.caib.plugins.arxiu.api.ContingutArxiu;
+import es.caib.plugins.arxiu.api.ContingutOrigen;
+import es.caib.plugins.arxiu.api.DocumentContingut;
+import es.caib.plugins.arxiu.api.DocumentEstat;
+import es.caib.plugins.arxiu.api.DocumentEstatElaboracio;
+import es.caib.plugins.arxiu.api.DocumentExtensio;
+import es.caib.plugins.arxiu.api.DocumentFormat;
+import es.caib.plugins.arxiu.api.DocumentMetadades;
+import es.caib.plugins.arxiu.api.DocumentTipus;
+import es.caib.plugins.arxiu.api.ExpedientEstat;
+import es.caib.plugins.arxiu.api.ExpedientMetadades;
+import es.caib.plugins.arxiu.api.Firma;
+import es.caib.plugins.arxiu.api.FirmaPerfil;
+import es.caib.plugins.arxiu.api.FirmaTipus;
+import es.caib.plugins.arxiu.api.IArxiuPlugin;
+import net.conselldemallorca.helium.core.model.hibernate.DocumentStore;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
+import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.hibernate.Portasignatures;
 import net.conselldemallorca.helium.core.model.hibernate.Portasignatures.TipusEstat;
 import net.conselldemallorca.helium.core.model.hibernate.Portasignatures.Transicio;
@@ -68,10 +87,14 @@ import net.conselldemallorca.helium.integracio.plugins.tramitacio.PublicarExpedi
 import net.conselldemallorca.helium.integracio.plugins.tramitacio.Signatura;
 import net.conselldemallorca.helium.integracio.plugins.tramitacio.TramitacioPlugin;
 import net.conselldemallorca.helium.integracio.plugins.tramitacio.TramitacioPluginException;
+import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.IntegracioAccioTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.IntegracioParametreDto;
+import net.conselldemallorca.helium.v3.core.api.dto.NtiEstadoElaboracionEnumDto;
+import net.conselldemallorca.helium.v3.core.api.dto.NtiOrigenEnumDto;
+import net.conselldemallorca.helium.v3.core.api.dto.NtiTipoDocumentalEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RegistreAnnexDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RegistreAnotacioDto;
@@ -113,21 +136,14 @@ public class PluginHelper {
 	private MonitorIntegracioHelper monitorIntegracioHelper;
 
 	private PersonesPlugin personesPlugin;
-	private boolean personesPluginEvaluat = false;
 	private TramitacioPlugin tramitacioPlugin;
-	private boolean tramitacioPluginEvaluat = false;
 	private RegistrePlugin registrePlugin;
-	private boolean registrePluginEvaluat = false;
 	private GestioDocumentalPlugin gestioDocumentalPlugin;
 	private RegistrePluginRegWeb3 registrePluginRegWeb3;
-	private boolean registrePluginRegWeb3Evaluat = false;
-	private boolean gestioDocumentalPluginEvaluat = false;
 	private PortasignaturesPlugin portasignaturesPlugin;
-	private boolean portasignaturesPluginEvaluat = false;
 	private CustodiaPlugin custodiaPlugin;
-	private boolean custodiaPluginEvaluat = false;
 	private SignaturaPlugin signaturaPlugin;
-	private boolean signaturaPluginEvaluat = false;
+	private IArxiuPlugin arxiuPlugin;
 
 
 
@@ -245,7 +261,8 @@ public class PluginHelper {
 	}
 	
 	public boolean personaIsPluginActiu() {
-		return getPersonesPlugin() != null;
+		String pluginClass = GlobalProperties.getInstance().getProperty("app.persones.plugin.class");
+		return pluginClass != null && !pluginClass.isEmpty();
 	}
 
 	public boolean personaIsSyncActiu() {
@@ -898,7 +915,7 @@ public class PluginHelper {
 		};
 		long t0 = System.currentTimeMillis();
 		try {
-			RespostaAnotacioRegistre resposta = getRegistrePluginRebWeb3().registrarSortida(
+			RespostaAnotacioRegistre resposta = getRegistrePluginRegWeb3().registrarSortida(
 					toRegistreAssentament(anotacio),
 					"Helium",
 					"3.2");
@@ -1183,7 +1200,7 @@ public class PluginHelper {
 		
 		long t0 = System.currentTimeMillis();
 		try {
-			RespostaConsultaRegistre respostaConsultaRegistre = getRegistrePluginRebWeb3().obtenirRegistreSortida(
+			RespostaConsultaRegistre respostaConsultaRegistre = getRegistrePluginRegWeb3().obtenirRegistreSortida(
 					numRegistre,
 					usuariCodi,
 					entitatCodi);
@@ -1245,11 +1262,13 @@ public class PluginHelper {
 	}
 	
 	public boolean registreIsPluginActiu() {
-		return getRegistrePlugin() != null;
+		String pluginClass = GlobalProperties.getInstance().getProperty("app.registre.plugin.class");
+		return pluginClass != null && !pluginClass.isEmpty();
 	}
 	
 	public boolean registreIsPluginRebWeb3Actiu() {
-		return getRegistrePluginRebWeb3() != null;
+		String pluginClass = GlobalProperties.getInstance().getProperty("app.registre.plugin.rw3.class");
+		return pluginClass != null && !pluginClass.isEmpty();
 	}
 
 	public String gestioDocumentalCreateDocument(
@@ -1422,7 +1441,8 @@ public class PluginHelper {
 	}
 
 	public boolean gestioDocumentalIsPluginActiu() {
-		return getGestioDocumentalPlugin() != null;
+		String pluginClass = GlobalProperties.getInstance().getProperty("app.gesdoc.plugin.class");
+		return pluginClass != null && !pluginClass.isEmpty();
 	}
 
 	public Integer portasignaturesEnviar(
@@ -1442,12 +1462,9 @@ public class PluginHelper {
 			Long processInstanceId,
 			String transicioOK,
 			String transicioKO) {
-		
 		IntegracioParametreDto[] parametres = null;
 		long t0 = System.currentTimeMillis();
-
 		try {
-			
 			parametres = new IntegracioParametreDto[9];
 			parametres[0] = new IntegracioParametreDto(
 					"expedient",
@@ -1465,22 +1482,20 @@ public class PluginHelper {
 					"arxiuNom",
 					document != null ? document.getArxiuNom() : null);
 			parametres[5] = new IntegracioParametreDto(
-					"personaCodi",
-					persona != null ? persona.getCodi() : null);
+					"destinatari",
+					getSignatariIdPerPersona(persona));
 			parametres[6] = new IntegracioParametreDto(
-					"personesCodiPas1",
+					"destinatariPas1",
 					personestoString(personesPas1));
 			parametres[7] = new IntegracioParametreDto(
-					"personesCodiPas2",
+					"destinatariPas2",
 					personestoString(personesPas2));
 			parametres[8] = new IntegracioParametreDto(
-					"personesCodiPas3",
+					"destinatari3",
 					personestoString(personesPas3));
-			
 			if (document == null) {
 				throw new NullPointerException("El document per a enviar a portafirmes es null.");
 			}
-			
 			Integer resposta = getPortasignaturesPlugin().uploadDocument(
 					getDocumentPortasignatures(document, expedient),
 					getAnnexosPortasignatures(annexos, expedient),
@@ -1544,20 +1559,6 @@ public class PluginHelper {
 					"(PORTASIGNATURES. Enviar: " + errorDescripcio + ")", 
 					ex);
 		}
-	}
-	
-	private String personestoString(List<PersonaDto> persones) {
-		if (persones == null)
-			return null;
-		
-		String sPersones = "";
-		for (PersonaDto persona: persones) {
-			if (persona != null)
-				sPersones += persona.getCodi() + ",";
-		}
-		if (sPersones.length() > 0)
-			sPersones = sPersones.substring(0, sPersones.length() - 1);
-		return sPersones;
 	}
 
 	public void portasignaturesCancelar(
@@ -1916,7 +1917,8 @@ public class PluginHelper {
 	}
 	
 	public boolean custodiaIsPluginActiu() {
-		return getCustodiaPlugin() != null;
+		String pluginClass = GlobalProperties.getInstance().getProperty("app.custodia.plugin.class");
+		return pluginClass != null && !pluginClass.isEmpty();
 	}
 
 	public RespostaValidacioSignatura signaturaVerificar(
@@ -1973,10 +1975,366 @@ public class PluginHelper {
 		}
 	}
 
-	public Portasignatures findPortasignaturesInfo(String processInstanceId, Long documentStoreId) {		
-		Portasignatures psigna = portasignaturesRepository.findByProcessInstanceIdAndDocumentStoreId(processInstanceId, documentStoreId);
-		return psigna;
+	public ContingutArxiu arxiuExpedientCrear(
+			Expedient expedient) {
+		String accioDescripcio = "Creació d'expedient";
+		IntegracioParametreDto[] parametres = new IntegracioParametreDto[] {
+				new IntegracioParametreDto(
+						"identificador",
+						expedient.getIdentificador()),
+				new IntegracioParametreDto(
+						"numero",
+						expedient.getNumero()),
+				new IntegracioParametreDto(
+						"expedientTipusId",
+						expedient.getTipus().getId()),
+				new IntegracioParametreDto(
+						"expedientTipusCodi",
+						expedient.getTipus().getCodi()),
+				new IntegracioParametreDto(
+						"expedientTipusNom",
+						expedient.getTipus().getNom())
+		};
+		long t0 = System.currentTimeMillis();
+		try {
+			ExpedientTipus expedientTipus = expedient.getTipus();
+			ContingutArxiu expedientCreat = getArxiuPlugin().expedientCrear(
+					toArxiuExpedient(
+							expedient.getIdentificador(),
+							Arrays.asList(expedientTipus.getNtiOrgano()),
+							expedient.getDataInici(),
+							expedientTipus.getNtiClasificacion(),
+							expedient.getDataFi() != null,
+							null,
+							expedientTipus.getNtiSerieDocumental()));
+			monitorIntegracioHelper.addAccioOk(
+					MonitorIntegracioHelper.INTCODI_ARXIU,
+					accioDescripcio,
+					IntegracioAccioTipusEnumDto.ENVIAMENT,
+					System.currentTimeMillis() - t0,
+					parametres);
+			return expedientCreat;
+		} catch (Exception ex) {
+			String errorDescripcio = "No s'han pogut crear l'expedient a l'arxiu: " + ex.getMessage();
+			monitorIntegracioHelper.addAccioError(
+					MonitorIntegracioHelper.INTCODI_ARXIU,
+					accioDescripcio,
+					IntegracioAccioTipusEnumDto.ENVIAMENT,
+					System.currentTimeMillis() - t0,
+					errorDescripcio,
+					ex,
+					parametres);
+			throw tractarExcepcioEnSistemaExtern(errorDescripcio, ex);
+		}
 	}
+
+	public void arxiuExpedientEsborrar(
+			String arxiuUuid) {
+		String accioDescripcio = "Esborrat d'expedient";
+		IntegracioParametreDto[] parametres = new IntegracioParametreDto[] {
+				new IntegracioParametreDto(
+						"arxiuUuid",
+						arxiuUuid)
+		};
+		long t0 = System.currentTimeMillis();
+		try {
+			getArxiuPlugin().expedientEsborrar(arxiuUuid);
+			monitorIntegracioHelper.addAccioOk(
+					MonitorIntegracioHelper.INTCODI_ARXIU,
+					accioDescripcio,
+					IntegracioAccioTipusEnumDto.ENVIAMENT,
+					System.currentTimeMillis() - t0,
+					parametres);
+		} catch (Exception ex) {
+			String errorDescripcio = "No s'ha pogut esborrar l'expedient a l'arxiu: " + ex.getMessage();
+			monitorIntegracioHelper.addAccioError(
+					MonitorIntegracioHelper.INTCODI_ARXIU,
+					accioDescripcio,
+					IntegracioAccioTipusEnumDto.ENVIAMENT,
+					System.currentTimeMillis() - t0,
+					errorDescripcio,
+					ex,
+					parametres);
+			throw tractarExcepcioEnSistemaExtern(errorDescripcio, ex);
+		}
+	}
+
+	public es.caib.plugins.arxiu.api.Expedient arxiuExpedientInfo(
+			String arxiuUuid) {
+		String accioDescripcio = "Consulta d'informació de l'expedient";
+		IntegracioParametreDto[] parametres = new IntegracioParametreDto[] {
+				new IntegracioParametreDto(
+						"arxiuUuid",
+						arxiuUuid)
+		};
+		long t0 = System.currentTimeMillis();
+		try {
+			es.caib.plugins.arxiu.api.Expedient exp = getArxiuPlugin().expedientDetalls(arxiuUuid, null);
+			monitorIntegracioHelper.addAccioOk(
+					MonitorIntegracioHelper.INTCODI_ARXIU,
+					accioDescripcio,
+					IntegracioAccioTipusEnumDto.ENVIAMENT,
+					System.currentTimeMillis() - t0,
+					parametres);
+			return exp;
+		} catch (Exception ex) {
+			String errorDescripcio = "No s'ha pogut consultar la informació de l'expedient: " + ex.getMessage();
+			monitorIntegracioHelper.addAccioError(
+					MonitorIntegracioHelper.INTCODI_ARXIU,
+					accioDescripcio,
+					IntegracioAccioTipusEnumDto.ENVIAMENT,
+					System.currentTimeMillis() - t0,
+					errorDescripcio,
+					ex,
+					parametres);
+			throw tractarExcepcioEnSistemaExtern(errorDescripcio, ex);
+		}
+	}
+
+	public ContingutArxiu arxiuDocumentActualitzar(
+			Expedient expedient,
+			String documentNom,
+			DocumentStore documentStore,
+			ArxiuDto arxiu) {
+		String accioDescripcio;
+		if (documentStore.getArxiuUuid() == null) {
+			accioDescripcio = "Creació de document";
+		} else {
+			accioDescripcio = "Modificació de document";
+		}
+		List<IntegracioParametreDto> parametres = new ArrayList<IntegracioParametreDto>();
+		parametres.add(
+				new IntegracioParametreDto(
+						"expedient",
+						expedient.getIdentificador()));
+		parametres.add(
+				new IntegracioParametreDto(
+						"documentNom",
+						documentNom));
+		parametres.add(
+				new IntegracioParametreDto(
+						"arxiuNom",
+						arxiu.getNom()));
+		parametres.add(
+				new IntegracioParametreDto(
+						"arxiuTamany",
+						arxiu.getTamany()));
+		long t0 = System.currentTimeMillis();
+		try {
+			ContingutArxiu documentPerRetornar;
+			if (documentStore.getArxiuUuid() == null) {
+				documentPerRetornar = getArxiuPlugin().documentCrear(
+						toArxiuDocument(
+								null,
+								documentNom,
+								arxiu,
+								null,
+								null,
+								null,
+								documentStore.getNtiOrigen(),
+								Arrays.asList(expedient.getNtiOrgano()),
+								documentStore.getDataCreacio(),
+								documentStore.getNtiEstadoElaboracion(),
+								documentStore.getNtiTipoDocumental(),
+								DocumentEstat.ESBORRANY),
+						expedient.getArxiuUuid());
+			} else {
+				documentPerRetornar = getArxiuPlugin().documentModificar(
+						toArxiuDocument(
+								documentStore.getArxiuUuid(),
+								documentNom,
+								arxiu,
+								null,
+								null,
+								null,
+								documentStore.getNtiOrigen(),
+								Arrays.asList(expedient.getNtiOrgano()),
+								documentStore.getDataCreacio(),
+								documentStore.getNtiEstadoElaboracion(),
+								documentStore.getNtiTipoDocumental(),
+								DocumentEstat.ESBORRANY));
+			}
+			monitorIntegracioHelper.addAccioOk(
+					MonitorIntegracioHelper.INTCODI_ARXIU,
+					accioDescripcio,
+					IntegracioAccioTipusEnumDto.ENVIAMENT,
+					System.currentTimeMillis() - t0,
+					parametres.toArray(new IntegracioParametreDto[parametres.size()]));
+			return documentPerRetornar;
+		} catch (Exception ex) {
+			String errorDescripcio = "No s'ha pogut actualitzar la informació del document: " + ex.getMessage();
+			monitorIntegracioHelper.addAccioError(
+					MonitorIntegracioHelper.INTCODI_ARXIU,
+					accioDescripcio,
+					IntegracioAccioTipusEnumDto.ENVIAMENT,
+					System.currentTimeMillis() - t0,
+					errorDescripcio,
+					ex,
+					parametres.toArray(new IntegracioParametreDto[parametres.size()]));
+			throw tractarExcepcioEnSistemaExtern(errorDescripcio, ex);
+		}
+	}
+
+	public ContingutArxiu arxiuDocumentGuardarPdfFirmat(
+			Expedient expedient,
+			DocumentStore documentStore,
+			String documentNom,
+			ArxiuDto pdfFirmat) {
+		String accioDescripcio = "Guardar PDF firmat com a document definitiu";
+		List<IntegracioParametreDto> parametres = new ArrayList<IntegracioParametreDto>();
+		parametres.add(
+				new IntegracioParametreDto(
+						"id",
+						documentStore.getId().toString()));
+		parametres.add(
+				new IntegracioParametreDto(
+						"documentNom",
+						documentNom));
+		parametres.add(
+				new IntegracioParametreDto(
+						"fitxerPdfFirmatNom",
+						pdfFirmat.getNom()));
+		parametres.add(
+				new IntegracioParametreDto(
+						"fitxerPdfFirmatTipusMime",
+						pdfFirmat.getTipusMime()));
+		parametres.add(
+				new IntegracioParametreDto(
+						"fitxerPdfFirmatTamany",
+						new Long(pdfFirmat.getTamany()).toString()));
+		long t0 = System.currentTimeMillis();
+		try {
+			ContingutArxiu documentPerRetornar = getArxiuPlugin().documentModificar(
+					toArxiuDocument(
+							documentStore.getArxiuUuid(),
+							documentNom,
+							null,
+							pdfFirmat,
+							null,
+							null,
+							documentStore.getNtiOrigen(),
+							Arrays.asList(expedient.getNtiOrgano()),
+							documentStore.getDataCreacio(),
+							documentStore.getNtiEstadoElaboracion(),
+							documentStore.getNtiTipoDocumental(),
+							DocumentEstat.DEFINITIU));
+			monitorIntegracioHelper.addAccioOk(
+					MonitorIntegracioHelper.INTCODI_ARXIU,
+					accioDescripcio,
+					IntegracioAccioTipusEnumDto.ENVIAMENT,
+					System.currentTimeMillis() - t0,
+					parametres.toArray(new IntegracioParametreDto[parametres.size()]));
+			return documentPerRetornar;
+		} catch (Exception ex) {
+			String errorDescripcio = "No s'ha pogut guardar el PDF firmat com a document definitiu: " + ex.getMessage();
+			monitorIntegracioHelper.addAccioError(
+					MonitorIntegracioHelper.INTCODI_ARXIU,
+					accioDescripcio,
+					IntegracioAccioTipusEnumDto.ENVIAMENT,
+					System.currentTimeMillis() - t0,
+					errorDescripcio,
+					ex,
+					parametres.toArray(new IntegracioParametreDto[parametres.size()]));
+			throw tractarExcepcioEnSistemaExtern(errorDescripcio, ex);
+		}
+	}
+
+	public es.caib.plugins.arxiu.api.Document arxiuDocumentInfo(
+			String arxiuUuid,
+			String versio,
+			boolean ambContingut) {
+		String accioDescripcio = "Consulta d'un document";
+		IntegracioParametreDto[] parametres = new IntegracioParametreDto[] {
+				new IntegracioParametreDto(
+						"arxiuUuid",
+						arxiuUuid),
+				new IntegracioParametreDto(
+						"versio",
+						versio),
+				new IntegracioParametreDto(
+						"ambContingut",
+						ambContingut)
+		};
+		long t0 = System.currentTimeMillis();
+		try {
+			es.caib.plugins.arxiu.api.Document documentDetalls = getArxiuPlugin().documentDetalls(
+					arxiuUuid,
+					versio,
+					ambContingut);
+			if (ambContingut) {
+				boolean isFirmaPades = false;
+				if (documentDetalls.getFirmes() != null) {
+					for (Firma firma: documentDetalls.getFirmes()) {
+						if (FirmaTipus.PADES.equals(firma.getTipus())) {
+							isFirmaPades = true;
+							break;
+						}
+					}
+				}
+				if (isFirmaPades) {
+					DocumentContingut documentContingut = getArxiuPlugin().documentImprimible(
+							arxiuUuid);
+					if (documentContingut != null && documentContingut.getContingut() != null) {
+						documentDetalls.getContingut().setContingut(
+								documentContingut.getContingut());
+						documentDetalls.getContingut().setTamany(
+								documentContingut.getContingut().length);
+					}
+				}
+			}
+			monitorIntegracioHelper.addAccioOk(
+					MonitorIntegracioHelper.INTCODI_ARXIU,
+					accioDescripcio,
+					IntegracioAccioTipusEnumDto.ENVIAMENT,
+					System.currentTimeMillis() - t0,
+					parametres);
+			return documentDetalls;
+		} catch (Exception ex) {
+			String errorDescripcio = "No s'ha pogut consultar la informació del document: " + ex.getMessage();
+			monitorIntegracioHelper.addAccioError(
+					MonitorIntegracioHelper.INTCODI_ARXIU,
+					accioDescripcio,
+					IntegracioAccioTipusEnumDto.ENVIAMENT,
+					System.currentTimeMillis() - t0,
+					errorDescripcio,
+					ex,
+					parametres);
+			throw tractarExcepcioEnSistemaExtern(errorDescripcio, ex);
+		}
+	}
+
+	public void arxiuDocumentEsborrar(
+			String arxiuUuid) {
+		String accioDescripcio = "Consulta d'un document";
+		IntegracioParametreDto[] parametres = new IntegracioParametreDto[] {
+				new IntegracioParametreDto(
+						"arxiuUuid",
+						arxiuUuid)
+		};
+		long t0 = System.currentTimeMillis();
+		try {
+			getArxiuPlugin().documentEsborrar(arxiuUuid);
+			monitorIntegracioHelper.addAccioOk(
+					MonitorIntegracioHelper.INTCODI_ARXIU,
+					accioDescripcio,
+					IntegracioAccioTipusEnumDto.ENVIAMENT,
+					System.currentTimeMillis() - t0,
+					parametres);
+		} catch (Exception ex) {
+			String errorDescripcio = "No s'ha pogut esborrar el document: " + ex.getMessage();
+			monitorIntegracioHelper.addAccioError(
+					MonitorIntegracioHelper.INTCODI_ARXIU,
+					accioDescripcio,
+					IntegracioAccioTipusEnumDto.ENVIAMENT,
+					System.currentTimeMillis() - t0,
+					errorDescripcio,
+					ex,
+					parametres);
+			throw tractarExcepcioEnSistemaExtern(errorDescripcio, ex);
+		}
+	}
+
+
 
 	private TramitDto toTramitDto(DadesTramit dadesTramit) {
 		TramitDto dto = conversioTipusHelper.convertir(
@@ -2149,15 +2507,11 @@ public class PluginHelper {
 		registreAssentament.setObservacions(anotacio.getObservacions());
 		registreAssentament.setExposa(anotacio.getExposa());
 		registreAssentament.setSolicita(anotacio.getSolicita());
-		
 		List<RegistreAssentamentInteressat> interessats = new ArrayList<RegistreAssentamentInteressat>();
-
 		for (RegistreInteressat regInt: anotacio.getInteressats()) {
 			interessats.add(toRegistreAssentamentInteressat(regInt));
 		}
-		
 		registreAssentament.setInteressats(interessats);
-		
 		if (anotacio.getAnnexos() != null) {
 			List<DocumentRegistre> documents = new ArrayList<DocumentRegistre>();
 			for (RegistreAnnex annex: anotacio.getAnnexos()) {
@@ -2166,25 +2520,21 @@ public class PluginHelper {
 				document.setData(annex.getDataCaptura());
 				document.setArxiuNom(annex.getFitxerNom());
 				document.setArxiuContingut(annex.getFitxerContingut());
-				
 				document.setTipusDocument(annex.getTipusDocument());
 				document.setTipusDocumental(annex.getTipusDocumental());
 				document.setOrigen(annex.getOrigen());
 				document.setModeFirma(annex.getFirmaMode());
 				document.setObservacions(annex.getObservacions());
 				document.setValidesa(annex.getValidesa());
-				
 				documents.add(document);
 			}
 			registreAssentament.setDocuments(documents);
 		}
-		
 		return registreAssentament;
 	}
 	
 	private RegistreAssentamentInteressat toRegistreAssentamentInteressat(RegistreInteressat interessat) {
 		RegistreAssentamentInteressat registreAssentamentInteressat = new RegistreAssentamentInteressat();
-		
 		registreAssentamentInteressat.setTipus(interessat.getTipus() != null ? RegistreInteressatTipusEnum.valorAsEnum(interessat.getTipus().getValor()) : null);
 		registreAssentamentInteressat.setDocumentTipus(interessat.getDocumentTipus() != null ? RegistreInteressatDocumentTipusEnum.valorAsEnum(interessat.getDocumentTipus().getValor()) : null);
 		registreAssentamentInteressat.setDocumentNum(interessat.getDocumentNum());
@@ -2202,11 +2552,9 @@ public class PluginHelper {
 		registreAssentamentInteressat.setEmailHabilitat(interessat.getEmailHabilitat());
 		registreAssentamentInteressat.setCanalPreferent(interessat.getCanalPreferent());
 		registreAssentamentInteressat.setObservacions(interessat.getObservacions());
-		
 		if (interessat.getRepresentant() != null) {
 			registreAssentamentInteressat.setRepresentant(toRegistreAssentamentInteressat(interessat.getRepresentant()));
 		}
-		
 		return registreAssentamentInteressat;
 	}
 	
@@ -2285,6 +2633,353 @@ public class PluginHelper {
 		return registreNotificacio;
 	}
 
+	private es.caib.plugins.arxiu.api.Expedient toArxiuExpedient(
+			String nom,
+			List<String> ntiOrgans,
+			Date ntiDataObertura,
+			String ntiClassificacio,
+			boolean expedientFinalitzat,
+			List<String> ntiInteressats,
+			String serieDocumental) {
+		es.caib.plugins.arxiu.api.Expedient expedient = new es.caib.plugins.arxiu.api.Expedient();
+		expedient.setNom(nom);
+		ExpedientMetadades metadades = new ExpedientMetadades();
+		metadades.setDataObertura(ntiDataObertura);
+		metadades.setClassificacio(ntiClassificacio);
+		if (!expedientFinalitzat) {
+			metadades.setEstat(ExpedientEstat.OBERT);
+		} else {
+			metadades.setEstat(ExpedientEstat.TANCAT);
+		}
+		metadades.setOrgans(ntiOrgans);
+		metadades.setInteressats(ntiInteressats);
+		metadades.setSerieDocumental(serieDocumental);
+		expedient.setMetadades(metadades);
+		return expedient;
+	}
+
+	private es.caib.plugins.arxiu.api.Document toArxiuDocument(
+			String identificador,
+			String nom,
+			ArxiuDto fitxer,
+			ArxiuDto firmaPdf,
+			List<ArxiuDto> firmes, 
+			String ntiIdentificador,
+			NtiOrigenEnumDto ntiOrigen,
+			List<String> ntiOrgans,
+			Date ntiDataCaptura,
+			NtiEstadoElaboracionEnumDto ntiEstatElaboracio,
+			NtiTipoDocumentalEnumDto ntiTipusDocumental,
+			DocumentEstat estat) {
+		es.caib.plugins.arxiu.api.Document document = new es.caib.plugins.arxiu.api.Document();
+		document.setNom(nom);
+		document.setIdentificador(identificador);
+		DocumentMetadades metadades = new DocumentMetadades();
+		metadades.setIdentificador(ntiIdentificador);
+		if (ntiOrigen != null) {
+			switch (ntiOrigen) {
+			case CIUTADA:
+				metadades.setOrigen(ContingutOrigen.CIUTADA);
+				break;
+			case ADMINISTRACIO:
+				metadades.setOrigen(ContingutOrigen.ADMINISTRACIO);
+				break;
+			}
+		}
+		metadades.setDataCaptura(ntiDataCaptura);
+		DocumentEstatElaboracio estatElaboracio = null;
+		switch (ntiEstatElaboracio) {
+		case ORIGINAL:
+			estatElaboracio = DocumentEstatElaboracio.ORIGINAL;
+			break;
+		case COPIA_CF:
+			estatElaboracio = DocumentEstatElaboracio.COPIA_CF;
+			break;
+		case COPIA_DP:
+			estatElaboracio = DocumentEstatElaboracio.COPIA_DP;
+			break;
+		case COPIA_PR:
+			estatElaboracio = DocumentEstatElaboracio.COPIA_PR;
+			break;
+		case ALTRES:
+			estatElaboracio = DocumentEstatElaboracio.ALTRES;
+			break;
+		}
+		metadades.setEstatElaboracio(estatElaboracio);
+		DocumentTipus tipusDocumental = null;
+		switch (ntiTipusDocumental) {
+		case RESOLUCIO:
+			tipusDocumental = DocumentTipus.RESOLUCIO;
+			break;
+		case ACORD:
+			tipusDocumental = DocumentTipus.ACORD;
+			break;
+		case CONTRACTE:
+			tipusDocumental = DocumentTipus.CONTRACTE;
+			break;
+		case CONVENI:
+			tipusDocumental = DocumentTipus.CONVENI;
+			break;
+		case DECLARACIO:
+			tipusDocumental = DocumentTipus.DECLARACIO;
+			break;
+		case COMUNICACIO:
+			tipusDocumental = DocumentTipus.COMUNICACIO;
+			break;
+		case NOTIFICACIO:
+			tipusDocumental = DocumentTipus.NOTIFICACIO;
+			break;
+		case PUBLICACIO:
+			tipusDocumental = DocumentTipus.PUBLICACIO;
+			break;
+		case JUSTIFICANT_RECEPCIO:
+			tipusDocumental = DocumentTipus.JUSTIFICANT_RECEPCIO;
+			break;
+		case ACTA:
+			tipusDocumental = DocumentTipus.ACTA;
+			break;
+		case CERTIFICAT:
+			tipusDocumental = DocumentTipus.CERTIFICAT;
+			break;
+		case DILIGENCIA:
+			tipusDocumental = DocumentTipus.DILIGENCIA;
+			break;
+		case INFORME:
+			tipusDocumental = DocumentTipus.INFORME;
+			break;
+		case SOLICITUD:
+			tipusDocumental = DocumentTipus.SOLICITUD;
+			break;
+		case DENUNCIA:
+			tipusDocumental = DocumentTipus.DENUNCIA;
+			break;
+		case ALEGACIO:
+			tipusDocumental = DocumentTipus.ALEGACIO;
+			break;
+		case RECURS:
+			tipusDocumental = DocumentTipus.RECURS;
+			break;
+		case COMUNICACIO_CIUTADA:
+			tipusDocumental = DocumentTipus.COMUNICACIO_CIUTADA;
+			break;
+		case FACTURA:
+			tipusDocumental = DocumentTipus.FACTURA;
+			break;
+		case ALTRES_INCAUTATS:
+			tipusDocumental = DocumentTipus.ALTRES_INCAUTATS;
+			break;
+		default:
+			tipusDocumental = DocumentTipus.ALTRES;
+			break;
+		}
+		metadades.setTipusDocumental(tipusDocumental);
+		DocumentExtensio extensio = null;
+		if (fitxer != null) {
+			String fitxerExtensio = fitxer.getExtensio();
+			String extensioAmbPunt = (fitxerExtensio.startsWith(".")) ? fitxerExtensio.toLowerCase() : "." + fitxerExtensio.toLowerCase();
+			extensio = DocumentExtensio.toEnum(extensioAmbPunt);
+			DocumentContingut contingut = new DocumentContingut();
+			contingut.setArxiuNom(fitxer.getNom());
+			contingut.setContingut(fitxer.getContingut());
+			contingut.setTipusMime(fitxer.getTipusMime());
+			document.setContingut(contingut);
+		}
+		if (firmaPdf != null) {
+			Firma firmaPades = new Firma();
+			firmaPades.setTipus(FirmaTipus.PADES);
+			firmaPades.setPerfil(FirmaPerfil.EPES);
+			firmaPades.setTipusMime("application/pdf");
+			firmaPades.setFitxerNom(firmaPdf.getNom());
+			firmaPades.setContingut(firmaPdf.getContingut());
+			document.setFirmes(Arrays.asList(firmaPades));
+			extensio = DocumentExtensio.PDF;
+		}
+		/*if (firmes != null && firmes.size() > 0) {
+			if (document.getFirmes() == null)
+				document.setFirmes(new ArrayList<Firma>());
+			for (ArxiuFirmaDto firmaDto: firmes) {
+				Firma firma = new Firma();
+				firma.setContingut(firmaDto.getContingut());
+				firma.setCsvRegulacio(firmaDto.getCsvRegulacio());
+				firma.setFitxerNom(firmaDto.getFitxerNom());
+				if (firmaDto.getPerfil() != null) {
+					switch(firmaDto.getPerfil()) {
+					case BES:
+						firma.setPerfil(FirmaPerfil.BES);
+						break;
+					case EPES:
+						firma.setPerfil(FirmaPerfil.EPES);
+						break;
+					case LTV:
+						firma.setPerfil(FirmaPerfil.LTV);
+						break;
+					case T:
+						firma.setPerfil(FirmaPerfil.T);
+						break;
+					case C:
+						firma.setPerfil(FirmaPerfil.C);
+						break;
+					case X:
+						firma.setPerfil(FirmaPerfil.X);
+						break;
+					case XL:
+						firma.setPerfil(FirmaPerfil.XL);
+						break;
+					case A:
+						firma.setPerfil(FirmaPerfil.A);
+						break;
+					}
+				}
+				if (firmaDto.getTipus() != null) {
+					switch(firmaDto.getTipus()) {
+					case CSV:
+						firma.setTipus(FirmaTipus.CSV);
+						break;
+					case XADES_DET:
+						firma.setTipus(FirmaTipus.XADES_DET);
+						break;
+					case XADES_ENV:
+						firma.setTipus(FirmaTipus.XADES_ENV);
+						break;
+					case CADES_DET:
+						firma.setTipus(FirmaTipus.CADES_DET);
+						break;
+					case CADES_ATT:
+						firma.setTipus(FirmaTipus.CADES_ATT);
+						break;
+					case PADES:
+						firma.setTipus(FirmaTipus.PADES);
+						break;
+					case SMIME:
+						firma.setTipus(FirmaTipus.SMIME);
+						break;
+					case ODT:
+						firma.setTipus(FirmaTipus.ODT);
+						break;
+					case OOXML:
+						firma.setTipus(FirmaTipus.OOXML);
+						break;
+					}
+				}
+				firma.setTipusMime(firmaDto.getTipusMime());
+				document.getFirmes().add(firma);
+			}
+		}*/
+		if (extensio != null) {
+			metadades.setExtensio(extensio);
+			DocumentFormat format = null;
+			switch (extensio) {
+			case AVI:
+				format = DocumentFormat.AVI;
+				break;
+			case CSS:
+				format = DocumentFormat.CSS;
+				break;
+			case CSV:
+				format = DocumentFormat.CSV;
+				break;
+			case DOCX:
+				format = DocumentFormat.SOXML;
+				break;
+			case GML:
+				format = DocumentFormat.GML;
+				break;
+			case GZ:
+				format = DocumentFormat.GZIP;
+				break;
+			case HTM:
+				format = DocumentFormat.XHTML; // HTML o XHTML!!!
+				break;
+			case HTML:
+				format = DocumentFormat.XHTML; // HTML o XHTML!!!
+				break;
+			case JPEG:
+				format = DocumentFormat.JPEG;
+				break;
+			case JPG:
+				format = DocumentFormat.JPEG;
+				break;
+			case MHT:
+				format = DocumentFormat.MHTML;
+				break;
+			case MHTML:
+				format = DocumentFormat.MHTML;
+				break;
+			case MP3:
+				format = DocumentFormat.MP3;
+				break;
+			case MP4:
+				format = DocumentFormat.MP4V; // MP4A o MP4V!!!
+				break;
+			case MPEG:
+				format = DocumentFormat.MP4V; // MP4A o MP4V!!!
+				break;
+			case ODG:
+				format = DocumentFormat.OASIS12;
+				break;
+			case ODP:
+				format = DocumentFormat.OASIS12;
+				break;
+			case ODS:
+				format = DocumentFormat.OASIS12;
+				break;
+			case ODT:
+				format = DocumentFormat.OASIS12;
+				break;
+			case OGA:
+				format = DocumentFormat.OGG;
+				break;
+			case OGG:
+				format = DocumentFormat.OGG;
+				break;
+			case PDF:
+				format = DocumentFormat.PDF; // PDF o PDFA!!!
+				break;
+			case PNG:
+				format = DocumentFormat.PNG;
+				break;
+			case PPTX:
+				format = DocumentFormat.SOXML;
+				break;
+			case RTF:
+				format = DocumentFormat.RTF;
+				break;
+			case SVG:
+				format = DocumentFormat.SVG;
+				break;
+			case TIFF:
+				format = DocumentFormat.TIFF;
+				break;
+			case TXT:
+				format = DocumentFormat.TXT;
+				break;
+			case WEBM:
+				format = DocumentFormat.WEBM;
+				break;
+			case XLSX:
+				format = DocumentFormat.SOXML;
+				break;
+			case ZIP:
+				format = DocumentFormat.ZIP;
+				break;
+			case CSIG:
+				format = DocumentFormat.CSIG;
+				break;
+			case XSIG:
+				format = DocumentFormat.XSIG;
+				break;
+			case XML:
+				format = DocumentFormat.XML;
+				break;
+			}
+			metadades.setFormat(format);
+		}
+		metadades.setOrgans(ntiOrgans);
+		document.setMetadades(metadades);
+		document.setEstat(estat);
+		return document;
+	}
+
 	private DocumentPortasignatures getDocumentPortasignatures(
 			DocumentDto document,
 			Expedient expedient) {
@@ -2296,6 +2991,11 @@ public class PluginHelper {
 		documentPs.setTipus(document.getTipusDocPortasignatures());
 		documentPs.setSignat(document.isSignat());
 		documentPs.setReference(document.getId().toString());
+		System.out.println(">>> Afegit document portafirmes (" +
+				"arxiuNom=" + document.getVistaNom() + ", " +
+				"arxiuContingut=" + document.getVistaContingut().length + ", " +
+				"tipus=" + document.getTipusDocPortasignatures() + ", " +
+				"signat=" + document.isSignat() + ")");
 		return documentPs;
 	}
 	private List<DocumentPortasignatures> getAnnexosPortasignatures(
@@ -2360,14 +3060,35 @@ public class PluginHelper {
 		return signatariIds;
 	}
 	private String getSignatariIdPerPersona(PersonaDto persona) {
-		if (persona == null)
+		if (persona == null) {
 			return null;
+		}
 		String signatariId = persona.getDni();
-		if (isIdUsuariPerCodi())
+		if (isIdUsuariPerCodi()) {
 			signatariId = persona.getCodi();
-		if (isIdUsuariPerDni())
+		}
+		if (isIdUsuariPerDni()) {
 			signatariId = persona.getDni();
+		}
 		return signatariId;
+	}
+	
+	private String personestoString(List<PersonaDto> persones) {
+		if (persones == null) {
+			return null;
+		}
+		StringBuilder sb = new StringBuilder();
+		for (PersonaDto persona: persones) {
+			if (persona != null) {
+				sb.append(getSignatariIdPerPersona(persona));
+				sb.append(",");
+			}
+		}
+		if (sb.length() > 0) {
+			return sb.substring(0, sb.length() - 1).toString();
+		} else {
+			return "";
+		}
 	}
 
 	private String getDescripcioErrorRegistre(
@@ -2399,35 +3120,30 @@ public class PluginHelper {
 	}
 
 	private PersonesPlugin getPersonesPlugin() {
-		if (!personesPluginEvaluat) {
+		if (personesPlugin == null) {
 			String pluginClass = GlobalProperties.getInstance().getProperty("app.persones.plugin.class");
-			if (pluginClass != null) {
+			if (pluginClass != null && pluginClass.length() > 0) {
 				try {
 					Class<?> clazz = Class.forName(pluginClass);
 					personesPlugin = (PersonesPlugin)clazz.newInstance();
 				} catch (Exception ex) {
-					throw SistemaExternException.tractarSistemaExternException(
-							null,
-							null, 
-							null, 
-							null, 
-							null, 
-							null, 
-							null, 
-							null, 
-							null, 
-							"No s'ha pogut instanciar el plugin de persones (class=" + pluginClass + ")", 
+					throw tractarExcepcioEnSistemaExtern(
+							"Error al crear la instància del plugin de persones (" +
+							"pluginClass=" + pluginClass + ")",
 							ex);
 				}
+			} else {
+				throw tractarExcepcioEnSistemaExtern(
+						"No està configurada la classe per al plugin de persones",
+						null);
 			}
-			personesPluginEvaluat = true;
 		}
 		return personesPlugin;
 	}
 	private TramitacioPlugin getTramitacioPlugin() {
-		if (!tramitacioPluginEvaluat) {
+		if (tramitacioPlugin == null) {
 			String pluginClass = GlobalProperties.getInstance().getProperty("app.tramitacio.plugin.class");
-			if (pluginClass == null) {
+			if (pluginClass != null && pluginClass.length() > 0) {
 				String bantelUrl = GlobalProperties.getInstance().getProperty("app.bantel.entrades.url");
 				if (bantelUrl.contains("v1")) {
 					pluginClass = "net.conselldemallorca.helium.integracio.plugins.tramitacio.TramitacioPluginSistrav1";
@@ -2440,177 +3156,198 @@ public class PluginHelper {
 					Class<?> clazz = Class.forName(pluginClass);
 					tramitacioPlugin = (TramitacioPlugin)clazz.newInstance();
 				} catch (Exception ex) {
-					throw SistemaExternException.tractarSistemaExternException(
-							null,
-							null, 
-							null, 
-							null, 
-							null, 
-							null, 
-							null, 
-							null, 
-							null,
-							"No s'ha pogut instanciar el plugin de tramitació (class=" + pluginClass + ")",
+					throw tractarExcepcioEnSistemaExtern(
+							"Error al crear la instància del plugin de tramitació (" +
+							"pluginClass=" + pluginClass + ")",
 							ex);
 				}
+			} else {
+				throw tractarExcepcioEnSistemaExtern(
+						"No està configurada la classe per al plugin de tramitació",
+						null);
 			}
 		}
 		return tramitacioPlugin;
 	}
 	private RegistrePlugin getRegistrePlugin() {
-		if (!registrePluginEvaluat) {
+		if (registrePlugin == null) {
 			String pluginClass = GlobalProperties.getInstance().getProperty("app.registre.plugin.class");
 			if (pluginClass != null && pluginClass.length() > 0) {
 				try {
 					Class<?> clazz = Class.forName(pluginClass);
 					registrePlugin = (RegistrePlugin)clazz.newInstance();
 				} catch (Exception ex) {
-					throw SistemaExternException.tractarSistemaExternException(
-							null,
-							null, 
-							null, 
-							null, 
-							null, 
-							null, 
-							null, 
-							null, 
-							null,
-							"No s'ha pogut instanciar el plugin de registre (class=" + pluginClass + ")",
+					throw tractarExcepcioEnSistemaExtern(
+							"Error al crear la instància del plugin de registre (" +
+							"pluginClass=" + pluginClass + ")",
 							ex);
 				}
+			} else {
+				throw tractarExcepcioEnSistemaExtern(
+						"No està configurada la classe per al plugin de registre",
+						null);
 			}
 		}
 		return registrePlugin;
 	}
 	
-	private RegistrePluginRegWeb3 getRegistrePluginRebWeb3() {
-		if (!registrePluginRegWeb3Evaluat) {
+	private RegistrePluginRegWeb3 getRegistrePluginRegWeb3() {
+		if (registrePluginRegWeb3 == null) {
 			String pluginClass = GlobalProperties.getInstance().getProperty("app.registre.plugin.rw3.class");
 			if (pluginClass != null && pluginClass.length() > 0) {
 				try {
 					Class<?> clazz = Class.forName(pluginClass);
 					registrePluginRegWeb3 = (RegistrePluginRegWeb3)clazz.newInstance();
 				} catch (Exception ex) {
-					throw SistemaExternException.tractarSistemaExternException(
-							null,
-							null, 
-							null, 
-							null, 
-							null, 
-							null, 
-							null, 
-							null, 
-							null,
-							"No s'ha pogut instanciar el plugin de registre (class=" + pluginClass + ")",
+					throw tractarExcepcioEnSistemaExtern(
+							"Error al crear la instància del plugin de REGWEB3 (" +
+							"pluginClass=" + pluginClass + ")",
 							ex);
 				}
+			} else {
+				throw tractarExcepcioEnSistemaExtern(
+						"No està configurada la classe per al plugin de REGWEB3",
+						null);
 			}
 		}
 		return registrePluginRegWeb3;
 	}
-	
+
 	private GestioDocumentalPlugin getGestioDocumentalPlugin() {
-		if (!gestioDocumentalPluginEvaluat) {
+		if (gestioDocumentalPlugin == null) {
 			String pluginClass = GlobalProperties.getInstance().getProperty("app.gesdoc.plugin.class");
 			if (pluginClass != null && pluginClass.length() > 0) {
 				try {
 					Class<?> clazz = Class.forName(pluginClass);
 					gestioDocumentalPlugin = (GestioDocumentalPlugin)clazz.newInstance();
 				} catch (Exception ex) {
-					throw SistemaExternException.tractarSistemaExternException(
-							null,
-							null, 
-							null, 
-							null, 
-							null, 
-							null, 
-							null, 
-							null, 
-							null,
-							"No s'ha pogut instanciar el plugin de gestió documental (class=" + pluginClass + ")",
+					throw tractarExcepcioEnSistemaExtern(
+							"Error al crear la instància del plugin de gestió documental (" +
+							"pluginClass=" + pluginClass + ")",
 							ex);
 				}
+			} else {
+				throw tractarExcepcioEnSistemaExtern(
+						"No està configurada la classe per al plugin de gestió documental",
+						null);
 			}
 		}
 		return gestioDocumentalPlugin;
 	}
 
 	private PortasignaturesPlugin getPortasignaturesPlugin() {
-		if (!portasignaturesPluginEvaluat) {
+		if (portasignaturesPlugin == null) {
 			String pluginClass = GlobalProperties.getInstance().getProperty("app.portasignatures.plugin.class");
 			if ((pluginClass != null) && (pluginClass.length() > 0)) {
 				try {
 					Class<?> clazz = Class.forName(pluginClass);
 					portasignaturesPlugin = (PortasignaturesPlugin)clazz.newInstance();
 				} catch (Exception ex) {
-					throw SistemaExternException.tractarSistemaExternException(
-							null,
-							null, 
-							null, 
-							null, 
-							null, 
-							null, 
-							null, 
-							null, 
-							null,
-							"No s'ha pogut instanciar el plugin de portafirmes (class=" + pluginClass + ")",
+					throw tractarExcepcioEnSistemaExtern(
+							"Error al crear la instància del plugin de portafirmes (" +
+							"pluginClass=" + pluginClass + ")",
 							ex);
 				}
+			} else {
+				throw tractarExcepcioEnSistemaExtern(
+						"No està configurada la classe per al plugin de portafirmes",
+						null);
 			}
 		}
 		return portasignaturesPlugin;
 	}
 	private CustodiaPlugin getCustodiaPlugin() {
-		if (!custodiaPluginEvaluat) {
+		if (custodiaPlugin == null) {
 			String pluginClass = GlobalProperties.getInstance().getProperty("app.custodia.plugin.class");
 			if (pluginClass != null && pluginClass.length() > 0) {
 				try {
 					Class<?> clazz = Class.forName(pluginClass);
 					custodiaPlugin = (CustodiaPlugin)clazz.newInstance();
-					custodiaPluginEvaluat = true;
 				} catch (Exception ex) {
-					throw SistemaExternException.tractarSistemaExternException(
-							null,
-							null, 
-							null, 
-							null, 
-							null, 
-							null, 
-							null, 
-							null, 
-							null,
-							"No s'ha pogut instanciar el plugin de custòdia (class=" + pluginClass + ")",
+					tractarExcepcioEnSistemaExtern(
+							"Error al crear la instància del plugin de custòdia (" +
+							"pluginClass=" + pluginClass + ")",
 							ex);
 				}
+			} else {
+				tractarExcepcioEnSistemaExtern(
+						"No està configurada la classe per al plugin de custòdia",
+						null);
 			}
 		}
 		return custodiaPlugin;
 	}
 	private SignaturaPlugin getSignaturaPlugin() {
-		if (!signaturaPluginEvaluat) {
+		if (signaturaPlugin == null) {
 			String pluginClass = GlobalProperties.getInstance().getProperty("app.signatura.plugin.class");
 			if (pluginClass != null && pluginClass.length() > 0) {
 				try {
 					Class<?> clazz = Class.forName(pluginClass);
 					signaturaPlugin = (SignaturaPlugin)clazz.newInstance();
 				} catch (Exception ex) {
-					throw SistemaExternException.tractarSistemaExternException(
-							null,
-							null, 
-							null, 
-							null, 
-							null, 
-							null, 
-							null, 
-							null, 
-							null,
-							"No s'ha pogut instanciar el plugin de signatura (class=" + pluginClass + ")",
+					tractarExcepcioEnSistemaExtern(
+							"Error al crear la instància del plugin de signatura (" +
+							"pluginClass=" + pluginClass + ")",
 							ex);
 				}
+			} else {
+				tractarExcepcioEnSistemaExtern(
+						"No està configurada la classe per al plugin de signatura",
+						null);
 			}
 		}
 		return signaturaPlugin;
 	}
+	private IArxiuPlugin getArxiuPlugin() {
+		if (arxiuPlugin == null) {
+			String pluginClass = GlobalProperties.getInstance().getProperty(
+					"app.arxiu.plugin.class");
+			if (pluginClass != null && pluginClass.length() > 0) {
+				try {
+					Class<?> clazz = Class.forName(pluginClass);
+					if (GlobalProperties.getInstance().isLlegirSystem()) {
+						arxiuPlugin = (IArxiuPlugin)clazz.getDeclaredConstructor(
+								String.class).newInstance(
+								"app.");
+					} else {
+						arxiuPlugin = (IArxiuPlugin)clazz.getDeclaredConstructor(
+								String.class,
+								Properties.class).newInstance(
+								"app.",
+								GlobalProperties.getInstance().findAll());
+					}
+				} catch (Exception ex) {
+					throw tractarExcepcioEnSistemaExtern(
+							"Error al crear la instància del plugin d'arxiu digital (" +
+							"pluginClass=" + pluginClass + ")",
+							ex);
+				}
+			} else {
+				throw tractarExcepcioEnSistemaExtern(
+						"No està configurada la classe per al plugin d'arxiu digital",
+						null);
+			}
+		}
+		return arxiuPlugin;
+	}
+
+	private SistemaExternException tractarExcepcioEnSistemaExtern(
+			String missatge,
+			Throwable ex) {
+		return SistemaExternException.tractarSistemaExternException(
+				null,
+				null, 
+				null, 
+				null, 
+				null, 
+				null, 
+				null, 
+				null, 
+				null,
+				missatge,
+				ex);
+	}
 
 	private static final Log logger = LogFactory.getLog(PluginHelper.class);
+
 }

@@ -39,6 +39,7 @@ public class MonitorIntegracioHelper {
 	public static final String INTCODI_GESDOC = "GESDOC";
 	public static final String INTCODI_CONVDOC = "CONVDOC";
 	public static final String INTCODI_PFIRMA_CB = "PFIRMA_CB";
+	public static final String INTCODI_ARXIU = "ARXIU";
 
 	private Map<String, LinkedList<IntegracioAccioDto>> accionsIntegracio = new HashMap<String, LinkedList<IntegracioAccioDto>>();
 	private Map<String, Integer> maxAccionsIntegracio = new HashMap<String, Integer>();
@@ -47,6 +48,9 @@ public class MonitorIntegracioHelper {
 
 	public List<IntegracioDto> findAll() {
 		List<IntegracioDto> integracions = new ArrayList<IntegracioDto>();
+		integracions.add(
+				novaIntegracio(
+						INTCODI_ARXIU));
 		integracions.add(
 				novaIntegracio(
 						INTCODI_PERSONA));
@@ -234,6 +238,8 @@ public class MonitorIntegracioHelper {
 			integracio.setDescripcio("SISTRA");
 		} else if (INTCODI_PFIRMA_CB.equals(codi)) {
 			integracio.setDescripcio("Portafib CB");
+		} else if (INTCODI_ARXIU.equals(codi)) {
+			integracio.setDescripcio("Arxiu digital");
 		}
 		return integracio;
 	}

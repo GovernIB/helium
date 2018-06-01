@@ -103,7 +103,7 @@
 					<label class="control-label col-xs-4" for="nom"><spring:message code='expedient.document.arxiu' /></label>
 			        <div class="col-xs-10 arxiu">
 			            <div class="input-group">
-			                <input  id="contingut${document.id}" name="contingut" class="form-control" />
+			                <input id="contingut${document.id}" name="contingut" class="form-control input-file" />
 			                <span class="input-group-btn">
 			                    <span class="btn btn-default btn-file">
 			                        <spring:message code="expedient.document.arxiu"/>… <input type="file" id="arxiu${document.id}" name="arxiu" <c:if test="${not empty document.extensionsPermeses}">accept="${document.extensionsPermeses}"</c:if>>
@@ -162,6 +162,10 @@
     	});
 		$(".btn_date").click(function(){
 			$(this).prev(".date").trigger("focus");
+		});
+		$('.input-file').click(function() {
+			$(this).blur();
+			$(this).parent().find('input[type="file"]').click();
 		});
 	});
 	

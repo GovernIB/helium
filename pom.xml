@@ -21,6 +21,7 @@
 		<cxf.version>2.2.10</cxf.version>
 		<lucene.version>2.9.4</lucene.version>
 		<commons-lang.version>2.6</commons-lang.version>
+		<portafib.version>1.1.0</portafib.version>
 		<slf4j.version>1.5.8</slf4j.version>
 	</properties>
 	<modules>

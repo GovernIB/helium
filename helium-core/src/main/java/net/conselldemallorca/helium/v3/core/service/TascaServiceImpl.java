@@ -634,8 +634,11 @@ public class TascaServiceImpl implements TascaService {
 				true);
 		DocumentStore documentStore = documentHelper.getDocumentStore(task, documentCodi);
 		if (documentStore != null) {
-			document = documentHelper.getDocumentVista(
-					documentStore.getId(), 
+			document = documentHelper.toDocumentDto(
+					documentStore.getId(),
+					false,
+					false,
+					true,
 					true,
 					true);
 		}
@@ -925,7 +928,6 @@ public class TascaServiceImpl implements TascaService {
 		DocumentStore documentStore = documentHelper.getDocumentStore(task, documentCodi);
 		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(task.getProcessInstanceId());
 		boolean creat = (documentStore == null);
-		
 		if (creat) {
 			expedientLoggerHelper.afegirLogExpedientPerTasca(
 					taskInstanceId,
@@ -937,21 +939,18 @@ public class TascaServiceImpl implements TascaService {
 					ExpedientLogAccioTipus.TASCA_DOCUMENT_MODIFICAR,
 					documentCodi);
 		}
-		
 		String arxiuNomAntic = (documentStore != null) ? documentStore.getArxiuNom() : null;
-		Long documentStoreId;
-		if (documentStore != null)
-			documentStoreId = documentStore.getId();
-		else
-			documentStoreId = documentHelper.actualitzarDocument(
-					taskInstanceId,
-					task.getProcessInstanceId(),
-					documentCodi,
-					null,
-					documentData,
-					arxiuNom,
-					arxiuContingut,
-					false);
+		Long documentStoreId = documentHelper.crearOActualitzarDocument(
+				taskInstanceId,
+				task.getProcessInstanceId(),
+				documentCodi,
+				documentData,
+				arxiuNom,
+				arxiuContingut,
+				null,
+				null,
+				null,
+				null);
 		// Registra l'acció
 		if (user == null) {
 			user = SecurityContextHolder.getContext().getAuthentication().getName();

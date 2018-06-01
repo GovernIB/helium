@@ -339,15 +339,12 @@ public abstract class BaseBackoffice {
 		for (DocumentTramit doc: tramit.getDocuments()) {
 			if (documentCodi.equalsIgnoreCase(doc.getIdentificador()) && doc.getInstanciaNumero() == instancia) {
 				org.w3c.dom.Document document = xmlToDocument(new ByteArrayInputStream(doc.getDocumentTelematic().getArxiuContingut()));
-				
 				XPathFactory factory = XPathFactory.newInstance();
 				XPath xpath = factory.newXPath();
-				
 				Element node= (Element) xpath.evaluate(
 						"/FORMULARIO/" + finestraCodi + "/" + campCodi,
 						document, 
 						XPathConstants.NODE);
-				
 				if (node != null) {	 
 				    if (node.hasAttribute("indice")) {
 						return node.getAttribute("indice");
@@ -360,15 +357,18 @@ public abstract class BaseBackoffice {
 							Node fila = nodes.item(index);
 							if (fila.getNodeName().startsWith("ID")) {
 								NodeList columnes = fila.getChildNodes();
-								String[] valors = new String[columnes.getLength()];
+								List<String> valors = new ArrayList<String>();
 								for (int i = 0; i < columnes.getLength(); i++) {
-									Element columna = (Element) columnes.item(i);
-									if (columna.hasAttribute("indice"))
-										valors[i] = columna.getAttribute("indice");
-									else
-										valors[i] = columna.getTextContent();
+									if (columnes.item(i).getNodeType() == Node.ELEMENT_NODE) {
+										Element columna = (Element)columnes.item(i);
+										if (columna.hasAttribute("indice")) {
+											valors.add(columna.getAttribute("indice"));
+										} else {
+											valors.add(columna.getTextContent());
+										}
+									}
 								}
-								valorsFiles.add(valors);
+								valorsFiles.add(valors.toArray(new String[valorsFiles.size()]));
 							}
 						}
 						return valorsFiles.toArray(new Object[valorsFiles.size()]);

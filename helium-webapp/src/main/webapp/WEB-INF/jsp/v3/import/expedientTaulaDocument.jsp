@@ -43,6 +43,9 @@
 								<c:if test="${document.adjunt}">
 									<span class="adjuntIcon icon fa fa-paperclip fa-2x"></span>
 								</c:if>
+								<c:if test="${document.arxiuActiu and document.signat}">
+									<span class="adjuntIcon icon fa fa-certificate fa-2x"></span>
+								</c:if>
 								<span class="extensionIcon">
 									${fn:toUpperCase(document.arxiuExtensio)}
 								</span>
@@ -63,7 +66,7 @@
 															<span class="fa fa-2x fa-pencil" title="<spring:message code='expedient.document.modificar' />"></span>
 													</a>
 												</c:if>
-												<c:if test="${document.signat}">	
+												<c:if test="${document.signat and not document.arxiuActiu}">	
 													<c:choose>
 														<c:when test="${not empty document.signaturaUrlVerificacio}">
 															<a 	class="icon signature"
@@ -100,7 +103,7 @@
 														<span class="fa fa-book fa-2x" title="<spring:message code='expedient.document.registrat' />"></span>
 													</a>
 												</c:if>
-												<c:if test="${expedient.permisDocManagement}">
+												<c:if test="${expedient.permisDocManagement and (not document.signat or (document.signat and not document.arxiuActiu))}">
 													<a 	class="icon fa fa-trash-o fa-2x" 
 														data-rdt-link-confirm="<spring:message code='expedient.document.confirm_esborrar_proces' />"
 														data-rdt-link-ajax=true
@@ -113,8 +116,6 @@
 												<c:if test="${not empty psignaPendentActual}">
 													<c:choose>
 														<c:when test="${psignaPendentActual.error}">
-														
-														
 															<c:choose>
  															<c:when test="${psignaPendentActual.estat != 'PROCESSAT'}">
  																<c:set var="missatgeIconaError" value="expedient.document.pendent.psigna.error"/>
@@ -123,8 +124,6 @@
  																<c:set var="missatgeIconaError" value="expedient.document.rebutjat.psigna.error"/>
  															</c:otherwise>
  															</c:choose>
-														
-														
 															<a 	data-psigna = "${document.id}"
 																class="icon fa fa-exclamation-triangle fa-2x psigna-info" 
 																style="cursor:pointer"
@@ -178,13 +177,12 @@
 									<c:otherwise>${document.adjuntTitol}</c:otherwise>
 								</c:choose>
 							</strong>
-							<c:if test="${metadades && document.ntiActiu}">
-								<a
-									href="../../v3/expedient/${expedientId}/proces/${document.processInstanceId}/document/${document.id}/metadadesNti"
-									data-rdt-link-modal="true" 
+							<c:if test="${expedient.ntiActiu}">
+								<a	href="../../v3/expedient/${expedientId}/proces/${document.processInstanceId}/document/${document.id}/metadadesNti"
+									data-rdt-link-modal="true"
 									data-rdt-link-modal-min-height="500"
-									class="linkNti" >
-										<span class="label label-info" style="font-size: 10px;margin-left: 3px;position: absolute;padding-top: 4px;">NTI</span>
+									class="linkNti">
+									<span class="label label-info etiqueta-nti-arxiu"><c:choose><c:when test="${empty expedient.arxiuUuid}"><spring:message code="expedient.info.etiqueta.nti"/></c:when><c:otherwise><spring:message code="expedient.info.etiqueta.arxiu"/></c:otherwise></c:choose></span>
 								</a>
 							</c:if>
 							<br/>

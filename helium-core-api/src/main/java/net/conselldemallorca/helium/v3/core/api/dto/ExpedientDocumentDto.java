@@ -41,11 +41,21 @@ public class ExpedientDocumentDto implements Serializable {
 	private boolean registreEntrada = true;
 
 	private boolean plantilla = false;
-	
 	private String error;
 
-	private boolean ntiActiu;
-
+	private String ntiVersion;
+	private String ntiIdentificador;
+	private String ntiOrgano;
+	private NtiOrigenEnumDto ntiOrigen;
+	private NtiEstadoElaboracionEnumDto ntiEstadoElaboracion;
+	private NtiDocumentoFormato ntiNombreFormato;
+	private NtiTipoDocumentalEnumDto ntiTipoDocumental;
+	private String ntiIdOrigen;
+	private String ntiIdDocumentoOrigen;
+	private NtiTipoFirmaEnumDto ntiTipoFirma;
+	private String ntiCsv;
+	private String ntiDefinicionGenCsv;
+	private String arxiuUuid;
 
 	public Long getId() {
 		return id;
@@ -191,15 +201,89 @@ public class ExpedientDocumentDto implements Serializable {
 	public void setError(String error) {
 		this.error = error;
 	}
-	
-	public boolean isNtiActiu() {
-		return ntiActiu;
+	public String getNtiVersion() {
+		return ntiVersion;
 	}
-	public void setNtiActiu(boolean ntiActiu) {
-		this.ntiActiu = ntiActiu;
+	public void setNtiVersion(String ntiVersion) {
+		this.ntiVersion = ntiVersion;
 	}
-	
-	
+	public String getNtiIdentificador() {
+		return ntiIdentificador;
+	}
+	public void setNtiIdentificador(String ntiIdentificador) {
+		this.ntiIdentificador = ntiIdentificador;
+	}
+	public String getNtiOrgano() {
+		return ntiOrgano;
+	}
+	public void setNtiOrgano(String ntiOrgano) {
+		this.ntiOrgano = ntiOrgano;
+	}
+	public NtiOrigenEnumDto getNtiOrigen() {
+		return ntiOrigen;
+	}
+	public void setNtiOrigen(NtiOrigenEnumDto ntiOrigen) {
+		this.ntiOrigen = ntiOrigen;
+	}
+	public NtiEstadoElaboracionEnumDto getNtiEstadoElaboracion() {
+		return ntiEstadoElaboracion;
+	}
+	public void setNtiEstadoElaboracion(NtiEstadoElaboracionEnumDto ntiEstadoElaboracion) {
+		this.ntiEstadoElaboracion = ntiEstadoElaboracion;
+	}
+	public NtiDocumentoFormato getNtiNombreFormato() {
+		return ntiNombreFormato;
+	}
+	public void setNtiNombreFormato(NtiDocumentoFormato ntiNombreFormato) {
+		this.ntiNombreFormato = ntiNombreFormato;
+	}
+	public NtiTipoDocumentalEnumDto getNtiTipoDocumental() {
+		return ntiTipoDocumental;
+	}
+	public void setNtiTipoDocumental(NtiTipoDocumentalEnumDto ntiTipoDocumental) {
+		this.ntiTipoDocumental = ntiTipoDocumental;
+	}
+	public String getNtiIdOrigen() {
+		return ntiIdOrigen;
+	}
+	public void setNtiIdOrigen(String ntiIdOrigen) {
+		this.ntiIdOrigen = ntiIdOrigen;
+	}
+	public String getNtiIdDocumentoOrigen() {
+		return ntiIdDocumentoOrigen;
+	}
+	public void setNtiIdDocumentoOrigen(String ntiIdDocumentoOrigen) {
+		this.ntiIdDocumentoOrigen = ntiIdDocumentoOrigen;
+	}
+	public NtiTipoFirmaEnumDto getNtiTipoFirma() {
+		return ntiTipoFirma;
+	}
+	public void setNtiTipoFirma(NtiTipoFirmaEnumDto ntiTipoFirma) {
+		this.ntiTipoFirma = ntiTipoFirma;
+	}
+	public String getNtiCsv() {
+		return ntiCsv;
+	}
+	public void setNtiCsv(String ntiCsv) {
+		this.ntiCsv = ntiCsv;
+	}
+	public String getNtiDefinicionGenCsv() {
+		return ntiDefinicionGenCsv;
+	}
+	public void setNtiDefinicionGenCsv(String ntiDefinicionGenCsv) {
+		this.ntiDefinicionGenCsv = ntiDefinicionGenCsv;
+	}
+	public String getArxiuUuid() {
+		return arxiuUuid;
+	}
+	public void setArxiuUuid(String arxiuUuid) {
+		this.arxiuUuid = arxiuUuid;
+	}
+
+	public boolean isArxiuActiu() {
+		return this.arxiuUuid != null;
+	}
+
 	public String getArxiuExtensio() {
 		if (getArxiuNom() == null)
 			return null;

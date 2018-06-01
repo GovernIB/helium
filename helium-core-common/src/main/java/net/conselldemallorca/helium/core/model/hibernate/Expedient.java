@@ -38,6 +38,8 @@ import org.springmodules.validation.bean.conf.loader.annotation.handler.MaxLengt
 import org.springmodules.validation.bean.conf.loader.annotation.handler.NotBlank;
 import org.springmodules.validation.bean.conf.loader.annotation.handler.NotNull;
 
+import net.conselldemallorca.helium.v3.core.api.dto.NtiTipoFirmaEnumDto;
+
 /**
  * Objecte de domini que representa un expedient.
  * 
@@ -141,27 +143,26 @@ public class Expedient implements Serializable, GenericEntity<Long> {
 	private boolean ambRetroaccio;
 	private Date reindexarData;
 	private boolean reindexarError;
-	
-	@NotNull
-	private Boolean ntiActiu;
-	
+
+	private boolean ntiActiu;
 	@MaxLength(256)
-	private String ntiVersio;
-	@MaxLength(64)
-	private String ntiOrgan;
-	@MaxLength(64)
-	private String ntiClasificacio;
-	@MaxLength(64)
-	private String ntiSerieDocumental;
-	@MaxLength(107)
+	private String ntiVersion;
+	@MaxLength(52)
 	private String ntiIdentificador;
-	
-	@MaxLength(64)
-	private String ntiTipoFirma;
-	@MaxLength(128)
-	private String ntiValorCsv;
-	@MaxLength(128)
-	private String ntiDefGenCsv;
+	@MaxLength(256)
+	private String ntiOrgano;
+	@MaxLength(16)
+	private String ntiSerieDocumental;
+	@MaxLength(44)
+	private String ntiClasificacion;
+	private NtiTipoFirmaEnumDto ntiTipoFirma;
+	@MaxLength(256)
+	private String ntiCsv;
+	@MaxLength(256)
+	private String ntiDefinicionGenCsv;
+	private boolean arxiuActiu;
+	@MaxLength(32)
+	private String arxiuUuid;
 
 	public Expedient() {}
 	public Expedient(IniciadorTipus iniciadorTipus, String iniciadorCodi, ExpedientTipus tipus, Entorn entorn, String processInstanceId) {
@@ -674,80 +675,95 @@ public class Expedient implements Serializable, GenericEntity<Long> {
 	public void setComentariAnulat(String comentariAnulat) {
 		this.comentariAnulat = comentariAnulat;
 	}
-	
-	
-	@Column(name="nti_activo")
-	public Boolean getNtiActiu() {
-		return ntiActiu != null? ntiActiu.booleanValue() : false;
+
+	@Column(name="nti_actiu", nullable=false)
+	public boolean isNtiActiu() {
+		return ntiActiu;
 	}
-	public void setNtiActiu(Boolean ntiActiu) {
+	public void setNtiActiu(boolean ntiActiu) {
 		this.ntiActiu = ntiActiu;
 	}
-	@Column(name="nti_versio", length=16)
-	public String getNtiVersio() {
-		return ntiVersio;
+
+	@Column(name="nti_version", length=256)
+	public String getNtiVersion() {
+		return ntiVersion;
 	}
-	public void setNtiVersio(String ntiVersio) {
-		this.ntiVersio = ntiVersio;
+	public void setNtiVersion(String ntiVersion) {
+		this.ntiVersion = ntiVersion;
 	}
-	
-	@Column(name="nti_organo", length=64)
-	public String getNtiOrgan() {
-		return ntiOrgan;
-	}
-	public void setNtiOrgan(String ntiOrgan) {
-		this.ntiOrgan = ntiOrgan;
-	}
-	
-	@Column(name="nti_clasificacion", length=64)
-	public String getNtiClasificacio() {
-		return ntiClasificacio;
-	}
-	public void setNtiClasificacio(String ntiClasificacio) {
-		this.ntiClasificacio = ntiClasificacio;
-	}
-	
-	@Column(name="nti_seriedocumental", length=64)
-	public String getNtiSerieDocumental() {
-		return ntiSerieDocumental;
-	}
-	public void setNtiSerieDocumental(String ntiSerieDocumental) {
-		this.ntiSerieDocumental = ntiSerieDocumental;
-	}
-	
-	@Column(name="nti_identificador", length=107)
+
+	@Column(name="nti_identificador", length=52)
 	public String getNtiIdentificador() {
 		return ntiIdentificador;
 	}
 	public void setNtiIdentificador(String ntiIdentificador) {
 		this.ntiIdentificador = ntiIdentificador;
 	}
-	
-	@Column(name="nti_tipo_firma", length=64)
-	public String getNtiTipoFirma() {
+
+	@Column(name="nti_organo", length=256)
+	public String getNtiOrgano() {
+		return ntiOrgano;
+	}
+	public void setNtiOrgano(String ntiOrgano) {
+		this.ntiOrgano = ntiOrgano;
+	}
+
+	@Column(name="nti_seriedocumental", length=16)
+	public String getNtiSerieDocumental() {
+		return ntiSerieDocumental;
+	}
+	public void setNtiSerieDocumental(String ntiSerieDocumental) {
+		this.ntiSerieDocumental = ntiSerieDocumental;
+	}
+
+	@Column(name="nti_clasificacion", length=44)
+	public String getNtiClasificacion() {
+		return ntiClasificacion;
+	}
+	public void setNtiClasificacion(String ntiClasificacion) {
+		this.ntiClasificacion = ntiClasificacion;
+	}
+
+	@Column(name="nti_tipo_firma")
+	public NtiTipoFirmaEnumDto getNtiTipoFirma() {
 		return ntiTipoFirma;
 	}
-	public void setNtiTipoFirma(String ntiTipoFirma) {
+	public void setNtiTipoFirma(NtiTipoFirmaEnumDto ntiTipoFirma) {
 		this.ntiTipoFirma = ntiTipoFirma;
 	}
-	
-	@Column(name="nti_valor_csv", length=128)
-	public String getNtiValorCsv() {
-		return ntiValorCsv;
+
+	@Column(name="nti_csv", length=256)
+	public String getNtiCsv() {
+		return ntiCsv;
 	}
-	public void setNtiValorCsv(String ntiValorCsv) {
-		this.ntiValorCsv = ntiValorCsv;
+	public void setNtiCsv(String ntiCsv) {
+		this.ntiCsv = ntiCsv;
 	}
-	
-	@Column(name="nti_definicion_generacion_csv", length=128)
-	public String getNtiDefGenCsv() {
-		return ntiDefGenCsv;
+
+	@Column(name="nti_def_gen_csv", length=256)
+	public String getNtiDefinicionGenCsv() {
+		return ntiDefinicionGenCsv;
 	}
-	public void setNtiDefGenCsv(String ntiDefGenCsv) {
-		this.ntiDefGenCsv = ntiDefGenCsv;
+	public void setNtiDefinicionGenCsv(String ntiDefinicionGenCsv) {
+		this.ntiDefinicionGenCsv = ntiDefinicionGenCsv;
 	}
-	
-	
+
+	@Column(name="arxiu_actiu")
+	public boolean isArxiuActiu() {
+		return arxiuActiu;
+	}
+	public void setArxiuActiu(boolean arxiuActiu) {
+		this.arxiuActiu = arxiuActiu;
+	}
+
+	@Column(name="arxiu_uuid", length=36)
+	public String getArxiuUuid() {
+		return arxiuUuid;
+	}
+	public void setArxiuUuid(String arxiuUuid) {
+		this.arxiuUuid = arxiuUuid;
+	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;

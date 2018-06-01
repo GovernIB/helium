@@ -12,16 +12,6 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
-	
-	<repositories>
-        <!-- Requerim RIPEA, PluginsIB(ScanWeb) i Dir3CAIB -->
-	    <repository>
-	      <id>maven-repos</id>
-	      <name>GitHub GovernIB Maven Repository</name>
-	      <url>http://GovernIB.github.io/maven/maven/</url>
-	    </repository>
-    </repositories>
-	
 	<dependencies>
 		<dependency>
 			<groupId>es.caib</groupId>
@@ -125,6 +115,11 @@
 					<groupId>axis</groupId>
 				</exclusion>
 			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>es.caib.portafib</groupId>
+			<artifactId>portafib-ws-api</artifactId>
+			<version>${portafib.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.security</groupId>
@@ -271,4 +266,11 @@
 			</plugin-->
 		</plugins>
 	</build>
+	<repositories>
+		<repository>
+			<id>maven-repos</id>
+			<name>GitHub GovernIB Maven Repository</name>
+			<url>http://GovernIB.github.io/maven/maven/</url>
+		</repository>
+	</repositories>
 </project>

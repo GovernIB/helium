@@ -344,7 +344,21 @@ public class ExpedientV3Controller extends BaseExpedientController {
 		data.put("dataFi", dataFi != null? sdf.format(dataFi) : null);
 		return data;
 	}
-	
+
+	@RequestMapping(value = "/{expedientId}/metadadesNti", method = RequestMethod.GET)
+	public String info(
+			@PathVariable Long expedientId,
+			HttpServletRequest request,
+			Model model) {
+		model.addAttribute(
+				"expedient",
+				expedientService.findAmbId(expedientId));
+		model.addAttribute(
+				"arxiuDetall",
+				expedientService.getArxiuDetall(expedientId));
+		return "v3/expedientMetadadesNtiInfo";
+	}
+
 	@InitBinder
 	public void initBinder(WebDataBinder binder) {
 		binder.registerCustomEditor(

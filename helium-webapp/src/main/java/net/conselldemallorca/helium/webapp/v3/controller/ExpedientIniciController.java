@@ -128,15 +128,7 @@ public class ExpedientIniciController extends BaseExpedientController {
 				ExpedientDto iniciat = iniciarExpedient(
 							entorn.getId(),
 							expedientTipusId,
-							definicioProces.getId(),
-							expedientTipus.isNtiActiu(),
-							expedientTipus.getNtiOrgan(),
-							expedientTipus.getNtiClasificacio(),
-							expedientTipus.getNtiSerieDocumental(),
-							expedientTipus.getNtiTipoFirma(),
-							expedientTipus.getNtiValorCsv(),
-							expedientTipus.getNtiDefGenCsv());
-					
+							definicioProces.getId());
 				MissatgesHelper.success(request, getMessage(request, "info.expedient.iniciat", new Object[] { iniciat.getIdentificador() }));
 				ExpedientIniciController.netejarSessio(request);
 				return modalUrlTancar();
@@ -224,15 +216,7 @@ public class ExpedientIniciController extends BaseExpedientController {
 	private synchronized ExpedientDto iniciarExpedient(
 			Long entornId,
 			Long expedientTipusId,
-			Long definicioProcesId,
-			boolean ntiActiu,
-			String organ,
-			String classificacio,
-			String serieDocumental,
-			String ntiTipoFirma,
-			String ntiValorCsv,
-			String ntiDefGenCsv) {
-		
+			Long definicioProcesId) {
 		return expedientService.create(
 				entornId,
 				null,
@@ -240,14 +224,7 @@ public class ExpedientIniciController extends BaseExpedientController {
 				definicioProcesId,
 				null, null, null, null, null, null, null, false, null, null, null, null, null, null, false, null, null, false, null, null,
 				IniciadorTipusDto.INTERN,
-				null, null, null, null,
-				ntiActiu,
-				organ,
-				classificacio,
-				serieDocumental,
-				ntiTipoFirma,
-				ntiValorCsv,
-				ntiDefGenCsv);
+				null, null, null, null);
 	}
 
 	protected ExpedientTascaDto obtenirTascaInicial(Long entornId, Long expedientTipusId, Long definicioProcesId, Map<String, Object> valors, HttpServletRequest request) {

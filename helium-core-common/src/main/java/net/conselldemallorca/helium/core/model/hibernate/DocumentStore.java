@@ -26,6 +26,11 @@ import org.springmodules.validation.bean.conf.loader.annotation.handler.NotBlank
 import org.springmodules.validation.bean.conf.loader.annotation.handler.NotNull;
 
 import net.conselldemallorca.helium.core.common.JbpmVars;
+import net.conselldemallorca.helium.v3.core.api.dto.NtiDocumentoFormato;
+import net.conselldemallorca.helium.v3.core.api.dto.NtiEstadoElaboracionEnumDto;
+import net.conselldemallorca.helium.v3.core.api.dto.NtiOrigenEnumDto;
+import net.conselldemallorca.helium.v3.core.api.dto.NtiTipoDocumentalEnumDto;
+import net.conselldemallorca.helium.v3.core.api.dto.NtiTipoFirmaEnumDto;
 
 /**
  * Objecte de domini que representa una entrada al magatzem de documents
@@ -79,36 +84,26 @@ public class DocumentStore implements Serializable, GenericEntity<Long> {
 	private boolean adjunt = false;
 	@MaxLength(255)
 	private String adjuntTitol;
-	
-	
-	@NotNull
-	private Boolean ntiActiu;
-	
+
 	@MaxLength(256)
-	private String ntiVersio;
-	@MaxLength(107)
+	private String ntiVersion;
+	@MaxLength(52)
 	private String ntiIdentificador;
-	@MaxLength(64)
-	private String ntiOrgan;
+	@MaxLength(256)
+	private String ntiOrgano;
+	private NtiOrigenEnumDto ntiOrigen;
+	private NtiEstadoElaboracionEnumDto ntiEstadoElaboracion;
+	private NtiDocumentoFormato ntiNombreFormato;
+	private NtiTipoDocumentalEnumDto ntiTipoDocumental;
+	@MaxLength(52)
+	private String ntiIdDocumentoOrigen;
+	private NtiTipoFirmaEnumDto ntiTipoFirma;
+	@MaxLength(256)
+	private String ntiCsv;
+	@MaxLength(256)
+	private String ntiDefinicionGenCsv;
 	@MaxLength(32)
-	private String ntiOrigen;
-	@MaxLength(32)
-	private String ntiEstatElaboracio;
-	@MaxLength(16)
-	private String ntiNomFormat;
-	@MaxLength(32)
-	private String ntiTipusDocumental;
-	
-	@MaxLength(64)
-	private String ntiTipoFirma;
-	@MaxLength(128)
-	private String ntiValorCsv;
-	@MaxLength(128)
-	private String ntiDefGenCsv;
-	
-	@MaxLength(107)
-	private String ntiIdDocOrigen;
-	
+	private String arxiuUuid;
 
 	public DocumentStore() {}
 	public DocumentStore(
@@ -296,111 +291,108 @@ public class DocumentStore implements Serializable, GenericEntity<Long> {
 	public void setAdjuntTitol(String adjuntTitol) {
 		this.adjuntTitol = adjuntTitol;
 	}
-	
-	
-	@Column(name="nti_activo")
-	public Boolean getNtiActiu() {
-		return ntiActiu != null? ntiActiu.booleanValue() : false;
+
+	@Column(name="nti_version", length=256)
+	public String getNtiVersion() {
+		return ntiVersion;
 	}
-	public void setNtiActiu(Boolean ntiActiu) {
-		this.ntiActiu = ntiActiu;
+	public void setNtiVersion(String ntiVersion) {
+		this.ntiVersion = ntiVersion;
 	}
-	
-	@Column(name="nti_versio", length=16)
-	public String getNtiVersio() {
-		return ntiVersio;
-	}
-	public void setNtiVersio(String ntiVersio) {
-		this.ntiVersio = ntiVersio;
-	}
-	
-	@Column(name="nti_identificador", length=107)
+
+	@Column(name="nti_identificador", length=52)
 	public String getNtiIdentificador() {
 		return ntiIdentificador;
 	}
 	public void setNtiIdentificador(String ntiIdentificador) {
 		this.ntiIdentificador = ntiIdentificador;
 	}
-	
-	@Column(name="nti_organo", length=64)
-	public String getNtiOrgan() {
-		return ntiOrgan;
+
+	@Column(name="nti_organo", length=256)
+	public String getNtiOrgano() {
+		return ntiOrgano;
 	}
-	public void setNtiOrgan(String ntiOrgan) {
-		this.ntiOrgan = ntiOrgan;
+	public void setNtiOrgano(String ntiOrgano) {
+		this.ntiOrgano = ntiOrgano;
 	}
-	
-	@Column(name="nti_origen", length=32)
-	public String getNtiOrigen() {
+
+	@Column(name="nti_origen")
+	public NtiOrigenEnumDto getNtiOrigen() {
 		return ntiOrigen;
 	}
-	public void setNtiOrigen(String ntiOrigen) {
+	public void setNtiOrigen(NtiOrigenEnumDto ntiOrigen) {
 		this.ntiOrigen = ntiOrigen;
 	}
-	
-	@Column(name="nti_estado_elab", length=32)
-	public String getNtiEstatElaboracio() {
-		return ntiEstatElaboracio;
+
+	@Column(name="nti_estado_elab")
+	public NtiEstadoElaboracionEnumDto getNtiEstadoElaboracion() {
+		return ntiEstadoElaboracion;
 	}
-	public void setNtiEstatElaboracio(String ntiEstatElaboracio) {
-		this.ntiEstatElaboracio = ntiEstatElaboracio;
+	public void setNtiEstadoElaboracion(NtiEstadoElaboracionEnumDto ntiEstadoElaboracion) {
+		this.ntiEstadoElaboracion = ntiEstadoElaboracion;
 	}
-	
-	@Column(name="nti_nom_format", length=16)
-	public String getNtiNomFormat() {
-		return ntiNomFormat;
+
+	@Column(name="nti_nombre_fmt")
+	public NtiDocumentoFormato getNtiNombreFormato() {
+		return ntiNombreFormato;
 	}
-	public void setNtiNomFormat(String ntiNomFormat) {
-		this.ntiNomFormat = ntiNomFormat;
+	public void setNtiNombreFormato(NtiDocumentoFormato ntiNombreFormato) {
+		this.ntiNombreFormato = ntiNombreFormato;
 	}
-	
-	@Column(name="nti_tipo_doc", length=32)
-	public String getNtiTipusDocumental() {
-		return ntiTipusDocumental;
+
+	@Column(name="nti_tipo_doc")
+	public NtiTipoDocumentalEnumDto getNtiTipoDocumental() {
+		return ntiTipoDocumental;
 	}
-	public void setNtiTipusDocumental(String ntiTipusDocumental) {
-		this.ntiTipusDocumental = ntiTipusDocumental;
+	public void setNtiTipoDocumental(NtiTipoDocumentalEnumDto ntiTipoDocumental) {
+		this.ntiTipoDocumental = ntiTipoDocumental;
 	}
-	
-	
-	@Column(name="nti_tipo_firma", length=64)
-	public String getNtiTipoFirma() {
+
+	@Column(name="nti_iddoc_orig", length=52)
+	public String getNtiIdDocumentoOrigen() {
+		return ntiIdDocumentoOrigen;
+	}
+	public void setNtiIdDocumentoOrigen(String ntiIdDocumentoOrigen) {
+		this.ntiIdDocumentoOrigen = ntiIdDocumentoOrigen;
+	}
+
+	@Column(name="nti_tipo_firma")
+	public NtiTipoFirmaEnumDto getNtiTipoFirma() {
 		return ntiTipoFirma;
 	}
-	public void setNtiTipoFirma(String ntiTipoFirma) {
+	public void setNtiTipoFirma(NtiTipoFirmaEnumDto ntiTipoFirma) {
 		this.ntiTipoFirma = ntiTipoFirma;
 	}
-	
-	@Column(name="nti_valor_csv", length=128)
-	public String getNtiValorCsv() {
-		return ntiValorCsv;
+
+	@Column(name="nti_csv", length=256)
+	public String getNtiCsv() {
+		return ntiCsv;
 	}
-	public void setNtiValorCsv(String ntiValorCsv) {
-		this.ntiValorCsv = ntiValorCsv;
+	public void setNtiCsv(String ntiCsv) {
+		this.ntiCsv = ntiCsv;
 	}
-	
-	@Column(name="nti_definicion_generacion_csv", length=128)
-	public String getNtiDefGenCsv() {
-		return ntiDefGenCsv;
+
+	@Column(name="nti_def_gen_csv", length=256)
+	public String getNtiDefinicionGenCsv() {
+		return ntiDefinicionGenCsv;
 	}
-	public void setNtiDefGenCsv(String ntiDefGenCsv) {
-		this.ntiDefGenCsv = ntiDefGenCsv;
+	public void setNtiDefinicionGenCsv(String ntiDefinicionGenCsv) {
+		this.ntiDefinicionGenCsv = ntiDefinicionGenCsv;
 	}
-	
-	
-	@Column(name="nti_id_doc_origen", length=107)
-	public String getNtiIdDocOrigen() {
-		return ntiIdDocOrigen;
+
+	@Column(name="arxiu_uuid", length=36)
+	public String getArxiuUuid() {
+		return arxiuUuid;
 	}
-	public void setNtiIdDocOrigen(String ntiIdDocOrigen) {
-		this.ntiIdDocOrigen = ntiIdDocOrigen;
+	public void setArxiuUuid(String arxiuUuid) {
+		this.arxiuUuid = arxiuUuid;
 	}
-	
-	
+
 	@Transient
 	public String getCodiDocument() {
-		if (getJbpmVariable() == null)
+		if (getJbpmVariable() == null || !getJbpmVariable().startsWith(JbpmVars.PREFIX_DOCUMENT)) {
 			return null;
+		}
 		return getJbpmVariable().substring(JbpmVars.PREFIX_DOCUMENT.length());
 	}
 	@Transient

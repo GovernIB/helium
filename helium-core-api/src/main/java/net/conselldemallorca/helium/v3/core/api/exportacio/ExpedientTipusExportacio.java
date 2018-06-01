@@ -54,11 +54,8 @@ public class ExpedientTipusExportacio implements Serializable {
 	
 	// Dades NTI
 	private boolean ntiActiu;
-	private String ntiOrgan;
-	private String ntiClasificacio;
-	private String ntiTipoFirma;
-	private String ntiValorCsv;
-	private String ntiDefGenCsv;
+	private String ntiOrgano;
+	private String ntiClasificacion;
 	private String ntiSerieDocumental;
 	
 	
@@ -242,35 +239,17 @@ public class ExpedientTipusExportacio implements Serializable {
 	public void setNtiActiu(boolean ntiActiu) {
 		this.ntiActiu = ntiActiu;
 	}
-	public String getNtiOrgan() {
-		return ntiOrgan;
+	public String getNtiOrgano() {
+		return ntiOrgano;
 	}
-	public void setNtiOrgan(String ntiOrgan) {
-		this.ntiOrgan = ntiOrgan;
+	public void setNtiOrgano(String ntiOrgano) {
+		this.ntiOrgano = ntiOrgano;
 	}
-	public String getNtiClasificacio() {
-		return ntiClasificacio;
+	public String getNtiClasificacion() {
+		return ntiClasificacion;
 	}
-	public void setNtiClasificacio(String ntiClasificacio) {
-		this.ntiClasificacio = ntiClasificacio;
-	}
-	public String getNtiTipoFirma() {
-		return ntiTipoFirma;
-	}
-	public void setNtiTipoFirma(String ntiTipoFirma) {
-		this.ntiTipoFirma = ntiTipoFirma;
-	}
-	public String getNtiValorCsv() {
-		return ntiValorCsv;
-	}
-	public void setNtiValorCsv(String ntiValorCsv) {
-		this.ntiValorCsv = ntiValorCsv;
-	}
-	public String getNtiDefGenCsv() {
-		return ntiDefGenCsv;
-	}
-	public void setNtiDefGenCsv(String ntiDefGenCsv) {
-		this.ntiDefGenCsv = ntiDefGenCsv;
+	public void setNtiClasificacion(String ntiClasificacion) {
+		this.ntiClasificacion = ntiClasificacion;
 	}
 	
 	public String getNtiSerieDocumental() {

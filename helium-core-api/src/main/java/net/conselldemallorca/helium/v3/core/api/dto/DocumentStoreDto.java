@@ -14,7 +14,7 @@ import java.util.Date;
  */
 public class DocumentStoreDto implements Serializable {
 	
-	private String ntiVersio;
+	private String ntiVersion;
 	private String ntiIdentificador;
 	private String ntiOrgan;
 	private String ntiOrigen;
@@ -31,11 +31,11 @@ public class DocumentStoreDto implements Serializable {
 	private String ntiIdDocOrigen;
 	
 	
-	public String getNtiVersio() {
-		return ntiVersio;
+	public String getNtiVersion() {
+		return ntiVersion;
 	}
-	public void setNtiVersio(String ntiVersio) {
-		this.ntiVersio = ntiVersio;
+	public void setNtiVersion(String ntiVersion) {
+		this.ntiVersion = ntiVersion;
 	}
 	
 	public String getNtiIdentificador() {

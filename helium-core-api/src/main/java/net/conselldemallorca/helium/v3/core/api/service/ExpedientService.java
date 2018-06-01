@@ -12,6 +12,7 @@ import org.springframework.security.acls.model.NotFoundException;
 
 import net.conselldemallorca.helium.v3.core.api.dto.AccioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.AlertaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDetallDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DadesDocumentDto;
@@ -124,14 +125,7 @@ public interface ExpedientService {
 			String iniciadorCodi,
 			String responsableCodi,
 			Map<String, DadesDocumentDto> documents,
-			List<DadesDocumentDto> adjunts,
-			boolean ntiActiu,
-			String organ,
-			String classificacio,
-			String serieDocumental,
-			String ntiTipoFirma,
-			String ntiValorCsv,
-			String ntiDefGenCsv) throws NoTrobatException;
+			List<DadesDocumentDto> adjunts) throws NoTrobatException;
 
 	/**
 	 * Modifica la informació d'un expedient.
@@ -866,7 +860,8 @@ public interface ExpedientService {
 	
 	public NotificacioDto findNotificacioPerId(Long notificacioId) throws NoTrobatException;
 
-	/** Mètode per consulta els ids de les instàncies de procés per a una definició de procés
+	/**
+	 * Mètode per consulta els ids de les instàncies de procés per a una definició de procés
 	 * identificada per la seva clau JBPM.
 	 * @param entornId
 	 * @param jbpmKey
@@ -876,7 +871,8 @@ public interface ExpedientService {
 			Long entornId, 
 			String jbpmKey);
 
-	/** Mètode per consulta els ids de les instàncies de procés per a una definició de procés
+	/**
+	 * Mètode per consulta els ids de les instàncies de procés per a una definició de procés
 	 * específica per el seu id a la taula de definicions de procés.
 	 * @param definicioProcesId
 	 * @return
@@ -903,4 +899,14 @@ public interface ExpedientService {
 			Long expedientId, 
 			String processInstanceId, 
 			String accioCamp);
+
+	/**
+	 * Retorna la informació de l'expedient emmagatzemada a dins l'arxiu.
+	 * 
+	 * @param expedientId
+	 *            Atribut id de l'expedient que es vol actualitzar.
+	 * @return la informació de l'expedient emmagatzemada a dins l'arxiu
+	 */
+	public ArxiuDetallDto getArxiuDetall(Long expedientId);
+
 }

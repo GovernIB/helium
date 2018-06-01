@@ -698,7 +698,13 @@ public class PlantillaHelper {
 								DocumentDto resposta = null;
 								for (int i = 0; i < documents.size(); i++) {
 									if (documents.get(i).getJbpmVariable().equals(JbpmVars.PREFIX_DOCUMENT + codi))
-										resposta = documentHelper.getDocumentSenseContingut(documents.get(i).getId());
+										resposta = documentHelper.toDocumentDto(
+												documents.get(i).getId(),
+												false,
+												false,
+												false,
+												false,
+												false);
 								}
 								return new BeanModel(
 										resposta,
@@ -722,7 +728,13 @@ public class PlantillaHelper {
 							List<DocumentStore> documents = documentStoreRepository.findByProcessInstanceId(pid);
 							DocumentDto[] resposta = new DocumentDto[documents.size()];
 							for (int i = 0; i < resposta.length; i++) {
-								resposta[i] = documentHelper.getDocumentSenseContingut(documents.get(i).getId());
+								resposta[i] = documentHelper.toDocumentDto(
+										documents.get(i).getId(),
+										false,
+										false,
+										false,
+										false,
+										false);
 							}
 							return new ArrayModel(
 									resposta,

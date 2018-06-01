@@ -81,6 +81,9 @@ import net.conselldemallorca.helium.v3.core.api.dto.ExecucioMassivaDto.ExecucioM
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.InstanciaProcesDto;
+import net.conselldemallorca.helium.v3.core.api.dto.NtiEstadoElaboracionEnumDto;
+import net.conselldemallorca.helium.v3.core.api.dto.NtiOrigenEnumDto;
+import net.conselldemallorca.helium.v3.core.api.dto.NtiTipoDocumentalEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.exception.ExecucioMassivaException;
@@ -1379,33 +1382,29 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 		try {
 			ome.setDataInici(new Date());
 			String fileName = ome.getExecucioMassiva().getParam1();
-			
 			// Paràmetres
 			Object[] params = (Object[])deserialize(ome.getExecucioMassiva().getParam2());
+			Long docId = null;
 			Date data = null;
 			String nom = null;
 			byte[] contingut = null;
-			Long docId = null;
-			String ntiTipusDocumental = null; 
-			String ntiTipusFirma = null; 
-			String ntiValorCsv = null; 
-			String ntiDefGenCsv = null; 
-			String ntiOrigen = null;
+			NtiOrigenEnumDto ntiOrigen = null;
+			NtiEstadoElaboracionEnumDto ntiEstadoElaboracion = null;
+			NtiTipoDocumentalEnumDto ntiTipoDocumental = null;
+			String ntiIdOrigen = null;
 			if (params[0] != null) docId = (Long)params[0];
 			if (params[1] != null) data = (Date)params[1];
 			if (params[2] != null) nom = (String)params[2];
 			if (params[3] != null) contingut = (byte[])params[3];
-			if (params[4] != null) ntiTipusDocumental = (String)params[4];
-			if (params[5] != null) ntiTipusFirma = (String)params[5];
-			if (params[6] != null) ntiValorCsv = (String)params[6];
-			if (params[7] != null) ntiDefGenCsv = (String)params[7];
-			if (params[8] != null) ntiOrigen = (String)params[8];
-
+			if (params[4] != null) ntiOrigen = (NtiOrigenEnumDto)params[4];
+			if (params[5] != null) ntiEstadoElaboracion = (NtiEstadoElaboracionEnumDto)params[5];
+			if (params[6] != null) ntiTipoDocumental = (NtiTipoDocumentalEnumDto)params[6];
+			if (params[7] != null) ntiIdOrigen = (String)params[7];
 			Document aux = null;
 			ExpedientDocumentDto doc = null;
 			if (docId != null) {
 				aux = documentRepository.findOne(docId);
-				doc =  documentHelperV3.findOnePerInstanciaProces(
+				doc = documentHelperV3.findOnePerInstanciaProces(
 						exp.getProcessInstanceId(),
 						aux.getCodi());
 			}
@@ -1420,15 +1419,17 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 								exp.getProcessInstanceId(),
 								aux.getCodi());
 						// L'actualitza o el crea a la instància de procés
-						documentHelper.actualitzarDocument(
-								null, //taskInstanceId,
+						documentHelper.crearOActualitzarDocument(
+								null,
 								exp.getProcessInstanceId(),
 								aux.getCodi(),
-								null,
-								new Date(), //documentData,
+								new Date(),
 								arxiu.getNom(),
 								arxiu.getContingut(),
-								false);						
+								ntiOrigen,
+								ntiEstadoElaboracion,
+								ntiTipoDocumental,
+								ntiIdOrigen);
 					} else if (doc.isSignat()) {
 						throw new Exception("Document signat: no es pot modificar");
 					} else if (doc.isRegistrat()) {
@@ -1454,20 +1455,18 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 					if (doc == null) {
 						throw new Exception("Document inexistent: no es pot modificar");
 					} else 	if (!doc.isSignat() && !doc.isRegistrat()) {
-						expedientDocumentService.createOrUpdate(
-								exp.getId(),
-								exp.getProcessInstanceId(),
+						documentHelper.actualitzarDocument(
 								docId,
 								null,
-								doc.getDocumentNom(),
+								exp.getProcessInstanceId(),
+								data,
+								null,
 								doc.getArxiuNom(),
 								null,
-								data, 
-								ntiTipusDocumental,
-								ntiTipusFirma, 
-								ntiValorCsv, 
-								ntiDefGenCsv, 
-								ntiOrigen);
+								ntiOrigen,
+								ntiEstadoElaboracion,
+								ntiTipoDocumental,
+								ntiIdOrigen);
 					} else if (doc.isSignat()) {
 						throw new Exception("Document signat: no es pot modificar");
 					} else if (doc.isRegistrat()) {
@@ -1479,39 +1478,36 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 				// Adjuntar document
 				if (docId == null) {
 					mesuresTemporalsHelper.mesuraIniciar("Adjuntar document", "massiva", exp.getTipus().getNom());
-					expedientDocumentService.createOrUpdate(
-							exp.getId(),
+					documentHelper.crearDocument(
+							null,
 							exp.getProcessInstanceId(),
 							null,
-							null,
+							data,
+							true,
 							nom,
 							fileName,
 							contingut,
-							data, 
-							ntiTipusDocumental,
-							ntiTipusFirma, 
-							ntiValorCsv, 
-							ntiDefGenCsv, 
-							ntiOrigen);
+							ntiOrigen,
+							ntiEstadoElaboracion,
+							ntiTipoDocumental,
+							ntiIdOrigen);
 					mesuresTemporalsHelper.mesuraCalcular("Adjuntar document", "massiva", exp.getTipus().getNom());
 				// Modificar document
 				} else {
 					mesuresTemporalsHelper.mesuraIniciar("Modificar document", "massiva", exp.getTipus().getNom());
 					if (doc == null || (!doc.isSignat() && !doc.isRegistrat())) {
-						expedientDocumentService.createOrUpdate(
-								exp.getId(),
-								exp.getProcessInstanceId(),
+						documentHelper.actualitzarDocument(
 								docId,
 								null,
-								nom,
+								exp.getProcessInstanceId(),
+								data,
+								null,
 								fileName,
 								contingut,
-								data, 
-								ntiTipusDocumental,
-								ntiTipusFirma, 
-								ntiValorCsv, 
-								ntiDefGenCsv, 
-								ntiOrigen);
+								ntiOrigen,
+								ntiEstadoElaboracion,
+								ntiTipoDocumental,
+								ntiIdOrigen);
 					} else if (doc.isSignat()) {
 						throw new Exception("Document signat: no es pot modificar");
 					} else if (doc.isRegistrat()) {

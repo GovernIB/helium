@@ -51,11 +51,11 @@ public class NotificacioHelper {
 			NotificacioDto notificacioDto) {
 		Notificacio notificacio = conversioTipusHelper.convertir(notificacioDto, Notificacio.class);
 		notificacio.setExpedient(expedientRepository.findOne(expedient.getId()));
-		notificacio.setDocument(documentStoreRepository.findById(notificacioDto.getDocument().getId()));
+		notificacio.setDocument(documentStoreRepository.findOne(notificacioDto.getDocument().getId()));
 		
 		List<DocumentStore> annexos = new ArrayList<DocumentStore>();
 		for (DocumentNotificacioDto annex: notificacioDto.getAnnexos()) {
-			annexos.add(documentStoreRepository.findById(annex.getId()));
+			annexos.add(documentStoreRepository.findOne(annex.getId()));
 		}
 		notificacio.setAnnexos(annexos);
 		

@@ -497,14 +497,10 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 			sequenciaAnyDefaultMap.put(entry.getKey(), valueDto);
 		}					    
 		exportacio.setSequenciaDefaultAny(sequenciaAnyDefaultMap);
-		exportacio.setNtiActiu(tipus.getNtiActiu());
-		exportacio.setNtiOrgan(tipus.getNtiOrgan());
-		exportacio.setNtiClasificacio(tipus.getNtiClasificacio());
-		exportacio.setNtiTipoFirma(tipus.getNtiTipoFirma());
-		exportacio.setNtiValorCsv(tipus.getNtiValorCsv());
-		exportacio.setNtiDefGenCsv(tipus.getNtiDefGenCsv());
+		exportacio.setNtiActiu(tipus.isNtiActiu());
+		exportacio.setNtiOrgano(tipus.getNtiOrgano());
+		exportacio.setNtiClasificacion(tipus.getNtiClasificacion());
 		exportacio.setNtiSerieDocumental(tipus.getNtiSerieDocumental());
-		
 		// Integració amb forms
 		if (command.isIntegracioForms()) {
 			exportacio.setFormextUrl(tipus.getFormextUrl());
@@ -637,10 +633,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 					documentExportacio.setConvertirExtensio(document.getConvertirExtensio());
 					documentExportacio.setExtensionsPermeses(document.getExtensionsPermeses());
 					documentExportacio.setIgnored(document.isIgnored());
-					documentExportacio.setNtiTipusDocumental(document.getNtiTipusDocumental());
-					documentExportacio.setNtiTipoFirma(document.getNtiTipoFirma());
-					documentExportacio.setNtiValorCsv(document.getNtiValorCsv());	
-					documentExportacio.setNtiDefGenCsv(document.getNtiDefGenCsv());
+					documentExportacio.setNtiTipoDocumental(document.getNtiTipoDocumental());
 					exportacio.getDocuments().add(documentExportacio);
 				}
 		}		
@@ -818,13 +811,9 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 			}
 		}
 		expedientTipus.setNtiActiu(importacio.isNtiActiu());
-		expedientTipus.setNtiOrgan(importacio.getNtiOrgan());
-		expedientTipus.setNtiClasificacio(importacio.getNtiClasificacio());
-		expedientTipus.setNtiTipoFirma(importacio.getNtiTipoFirma());
-		expedientTipus.setNtiValorCsv(importacio.getNtiValorCsv());
-		expedientTipus.setNtiDefGenCsv(importacio.getNtiDefGenCsv());
+		expedientTipus.setNtiOrgano(importacio.getNtiOrgano());
+		expedientTipus.setNtiClasificacion(importacio.getNtiClasificacion());
 		expedientTipus.setNtiSerieDocumental(importacio.getNtiSerieDocumental());
-		
 		// Integració amb formularis externs
 		if (command.isIntegracioForms()) {
 			expedientTipus.setFormextUrl(importacio.getFormextUrl());
@@ -1167,10 +1156,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 						document.setConvertirExtensio(documentExportat.getConvertirExtensio());
 						document.setExtensionsPermeses(documentExportat.getExtensionsPermeses());
 						document.setIgnored(documentExportat.isIgnored());
-						document.setNtiTipusDocumental(documentExportat.getNtiTipusDocumental());
-						document.setNtiTipoFirma(documentExportat.getNtiTipoFirma());
-						document.setNtiValorCsv(documentExportat.getNtiValorCsv());	
-						document.setNtiDefGenCsv(documentExportat.getNtiDefGenCsv());
+						document.setNtiTipoDocumental(documentExportat.getNtiTipoDocumental());
 					}
 					documents.put(documentExportat.getCodi(), document);
 				}	
@@ -3124,7 +3110,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		consultaCamp.setAmpleCols(ample);
 		consultaCamp.setBuitCols(buit);
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 * @throws Exception 
@@ -3179,40 +3165,38 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		
 		return persones;
 	}
-	
-	
+
 	@Override
 	@Transactional
 	public ExpedientTipusDto updateMetadadesNti(
+			Long entornId,
 			Long expedientTipusId,
-			boolean ntiActiu,
-			String ntiOrgan,
-			String ntiClasificacio,
-			String ntiSerieDocumental,
-			String ntiTipoFirma,
-			String ntiValorCsv,
-			String ntiDefGenCsv) {
-
+			boolean actiu,
+			String organo,
+			String clasificacion,
+			String serieDocumental,
+			boolean arxiuActiu) {
 		logger.debug(
 				"Modificant tipus d'expedient amb les metadades (" +
-				"expedientTipus=" + expedientTipusId + ")");
-		
-		ExpedientTipus entity = expedientTipusHelper.getExpedientTipusComprovantPermisDisseny(expedientTipusId);
-		
-		entity.setNtiActiu(ntiActiu);
-		entity.setNtiOrgan(ntiOrgan);
-		entity.setNtiClasificacio(ntiClasificacio);
-		entity.setNtiSerieDocumental(ntiSerieDocumental);
-		entity.setNtiTipoFirma(ntiTipoFirma);
-		entity.setNtiValorCsv(ntiValorCsv);;
-		entity.setNtiDefGenCsv(ntiDefGenCsv);
-
+				"entornId=" + entornId + ", " +
+				"expedientTipusId=" + expedientTipusId + ", " +
+				"actiu=" + actiu + ", " +
+				"organo=" + organo + ", " +
+				"clasificacion=" + clasificacion + ", " +
+				"serieDocumental=" + serieDocumental + ", " +
+				"arxiuActiu=" + arxiuActiu + ")");
+		ExpedientTipus entity = expedientTipusHelper.getExpedientTipusComprovantPermisDisseny(
+				expedientTipusId);
+		entity.setNtiActiu(actiu);
+		entity.setNtiOrgano(organo);
+		entity.setNtiClasificacion(clasificacion);
+		entity.setNtiSerieDocumental(serieDocumental);
+		entity.setArxiuActiu(arxiuActiu);
 		return conversioTipusHelper.convertir(
 				expedientTipusRepository.save(entity),
 				ExpedientTipusDto.class);	
 	}
-	
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(ExpedientServiceImpl.class);
-	
+
 }

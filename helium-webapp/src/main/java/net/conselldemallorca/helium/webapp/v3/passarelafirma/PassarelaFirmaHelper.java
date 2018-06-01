@@ -443,12 +443,13 @@ public class PassarelaFirmaHelper {
 					String classe = GlobalProperties.getInstance().getProperty(base + "class");
 					if (classe != null) {
 						String descripcioCurta = GlobalProperties.getInstance().getProperty(base + "desc");
-						Map<String, String> pluginProperties = GlobalProperties.getInstance().getPropertiesByPrefix(base);
+						Properties pluginProperties = GlobalProperties.getInstance().findByPrefix(base);
 						Properties pluginPropertiesProcessat = new Properties();
-						for (String property: pluginProperties.keySet()) {
-							if (property.startsWith(base)) {
-								String value = GlobalProperties.getInstance().getProperty(property);
-								String nomFinal = property.substring(base.length());
+						for (Object property: pluginProperties.keySet()) {
+							String propertyStr = (String)property;
+							if (propertyStr.startsWith(base)) {
+								String value = GlobalProperties.getInstance().getProperty(propertyStr);
+								String nomFinal = propertyStr.substring(base.length());
 								pluginPropertiesProcessat.put(
 										PROPERTIES_BASE + nomFinal,
 										value);

@@ -936,15 +936,19 @@ public class ExpedientLoggerHelper {
 								logger.info(">>> [RETLOG] Crear variable " + logo.getName() + " del proces (" + pid + ") amb el valor (" + logo.getValorInicial() + ")");
 							if (logo.getName().startsWith(JbpmVars.PREFIX_DOCUMENT)) {
 								// Si existissin versions de documents no s'hauria de fer res
-								Long documentStoreId = documentHelper.actualitzarDocument(
+								Long documentStoreId = documentHelper.crearDocument(
 										null,
 										pid,
 										DocumentHelperV3.getDocumentCodiPerVariableJbpm(logo.getName()),
-										"Document buit",
 										new Date(),
+										false,
+										null,
 										"document.pdf",
 										getContingutRecurs("document_buit.pdf"),
-										false);
+										null,
+										null,
+										null,
+										null);
 								jbpmHelper.setProcessInstanceVariable(
 										pid,
 										logo.getName(),
@@ -960,15 +964,19 @@ public class ExpedientLoggerHelper {
 								logger.info(">>> [RETLOG] Actualitzar variable " + logo.getName() + " del proces (" + pid + ") amb el valor (" + logo.getValorInicial() + ")");
 							if (logo.getName().startsWith(JbpmVars.PREFIX_DOCUMENT)) {
 								// Si existissin versions de documents no s'hauria de fer res
-								Long documentStoreId = documentHelper.actualitzarDocument(
+								Long documentStoreId = documentHelper.crearDocument(
 										null,
 										pid,
 										DocumentHelperV3.getDocumentCodiPerVariableJbpm(logo.getName()),
-										"Document buit",
 										new Date(),
+										false,
+										null,
 										"document.pdf",
 										getContingutRecurs("document_buit.pdf"),
-										false);
+										null,
+										null,
+										null,
+										null);
 								jbpmHelper.setProcessInstanceVariable(
 										pid,
 										logo.getName(),
@@ -1029,15 +1037,19 @@ public class ExpedientLoggerHelper {
 									logger.info(">>> [RETLOG] Crear variable " + logo.getName() + " de la tasca (" + task.getId() + ") amb el valor (" + logo.getValorInicial() + ")");
 								if (logo.getName().startsWith(JbpmVars.PREFIX_DOCUMENT)) {
 									// Si existissin versions de documents no s'hauria de fer res
-									Long documentStoreId = documentHelper.actualitzarDocument(
+									Long documentStoreId = documentHelper.crearDocument(
 											task.getId(),
-											null,
+											task.getProcessInstanceId(),
 											DocumentHelperV3.getDocumentCodiPerVariableJbpm(logo.getName()),
-											"Document buit",
 											new Date(),
+											false,
+											null,
 											"document.pdf",
 											getContingutRecurs("document_buit.pdf"),
-											false);
+											null,
+											null,
+											null,
+											null);
 									jbpmHelper.setTaskInstanceVariable(
 											task.getId(),
 											logo.getName(),
@@ -1053,15 +1065,19 @@ public class ExpedientLoggerHelper {
 									logger.info(">>> [RETLOG] Actualitzar variable " + logo.getName() + " de la tasca (" + task.getId() + ") amb el valor (" + logo.getValorInicial() + ")");
 								if (logo.getName().startsWith(JbpmVars.PREFIX_DOCUMENT)) {
 									// Si existissin versions de documents no s'hauria de fer res
-									Long documentStoreId = documentHelper.actualitzarDocument(
+									Long documentStoreId = documentHelper.crearDocument(
 											task.getId(),
 											new Long(logo.getProcessInstanceId()).toString(),
 											DocumentHelperV3.getDocumentCodiPerVariableJbpm(logo.getName()),
-											"Document buit",
 											new Date(),
+											false,
+											null,
 											"document.pdf",
 											getContingutRecurs("document_buit.pdf"),
-											false);
+											null,
+											null,
+											null,
+											null);
 									jbpmHelper.setTaskInstanceVariable(
 											task.getId(),
 											logo.getName(),
