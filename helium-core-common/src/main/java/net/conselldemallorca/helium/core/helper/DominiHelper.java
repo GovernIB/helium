@@ -622,8 +622,10 @@ public class DominiHelper {
 			return rolsPerUsuari(parametersMap);
 		} else if ("USUARIS_PER_ROL".equals(id)) {
 			return usuarisPerRol(parametersMap);
-		/* Per suprimir */
+		} else if ("CARRECS_PER_PERSONA".equals(id)) {
+			return carrecsPerPersona(parametersMap);
 		} else if ("PERSONES_AMB_CARREC".equals(id)) {
+			/* Per suprimir */
 			return personesAmbCarrec(parametersMap);
 		}
 		return new ArrayList<FilaResultat>();
@@ -707,6 +709,17 @@ public class DominiHelper {
 		return resposta;
 	}
 
+	public List<FilaResultat> carrecsPerPersona(Map<String, Object> parametres) {
+		List<FilaResultat> resposta = new ArrayList<FilaResultat>();
+		List<Carrec> carrecs = getCarrecsAmbPersonaCodi(
+				(String)parametres.get("entorn"),
+				(String)parametres.get("persona"));
+		for (Carrec carrec: carrecs) {
+			resposta.add(novaFilaCarrec(carrec));
+		}
+		return resposta;
+	}
+
 	public List<FilaResultat> rolsPerUsuari(Map<String, Object> parametres) {
 		List<FilaResultat> resposta = new ArrayList<FilaResultat>();
 		if (isHeliumIdentitySource()) {
@@ -732,7 +745,6 @@ public class DominiHelper {
 		List<FilaResultat> resposta = new ArrayList<FilaResultat>();
 		Object tiId = parametres.get("taskInstanceId");
 		Object piId = parametres.get("processInstanceId");
-		
 		String taskInstanceId = tiId != null ? tiId instanceof Long ? ((Long)tiId).toString() : (String)tiId : null;
 		String processInstanceId =  piId != null ? piId instanceof Long ? ((Long)piId).toString() : (String)piId : null;
 		String variable = (String)parametres.get("variable");
@@ -744,7 +756,6 @@ public class DominiHelper {
 		if (taskInstanceId != null) {
 			JbpmTask task = jbpmHelper.getTaskById(taskInstanceId);
 			TascaDadaDto dada = variableHelper.findDadaPerInstanciaTasca(task, variable); 
-			
 			camp = campRepository.findOne(dada.getCampId());
 			if (camp.getTipus().equals(TipusCamp.REGISTRE)) {
 				if (camp.isMultiple()) {
@@ -768,9 +779,7 @@ public class DominiHelper {
 				}
 			}
 		} else if (processInstanceId != null) {
-			
 			ExpedientDadaDto dada = variableHelper.getDadaPerInstanciaProces(processInstanceId, variable);
-			
 			camp = campRepository.findOne(dada.getCampId());
 			if (camp.getTipus().equals(TipusCamp.REGISTRE)) {
 				if (camp.isMultiple()) {
@@ -864,6 +873,19 @@ public class DominiHelper {
 		return resposta;
 	}
 	
+	private FilaResultat novaFilaCarrec(Carrec carrec) {
+		FilaResultat resposta = new FilaResultat();
+		resposta.addColumna(new ParellaCodiValor("codi", carrec.getCodi()));
+		resposta.addColumna(new ParellaCodiValor("nomHome", carrec.getNomHome()));
+		resposta.addColumna(new ParellaCodiValor("nomDona", carrec.getNomDona()));
+		resposta.addColumna(new ParellaCodiValor("tractamentHome", carrec.getTractamentHome()));
+		resposta.addColumna(new ParellaCodiValor("tractamentDona", carrec.getTractamentDona()));
+		resposta.addColumna(new ParellaCodiValor("descripcio", carrec.getDescripcio()));
+		resposta.addColumna(new ParellaCodiValor("personaCodi", carrec.getPersonaCodi()));
+		resposta.addColumna(new ParellaCodiValor("personaSexe", carrec.getPersonaSexe()));
+		return resposta;
+	}
+	
 	private List<String> getPersonesPerArea(String entornCodi, String areaCodi) {
 		if (isHeliumIdentitySource()) {
 			Entorn entorn = entornRepository.findByCodi(entornCodi);
@@ -928,7 +950,21 @@ public class DominiHelper {
 		Entorn entorn = entornRepository.findByCodi(entornCodi);
 		return areaRepository.findByEntornAndPareCodi(entorn, areaCodi);
 	}
-	
+
+	private List<Carrec> getCarrecsAmbPersonaCodi(
+			String entornCodi,
+			String personaCodi) {
+		if (isHeliumIdentitySource()) {
+			Entorn entorn = entornRepository.findByCodi(entornCodi);
+			if (entorn != null) {
+				return carrecRepository.findByEntornAndPersonaCodi(entorn, personaCodi);
+			}
+			return new ArrayList<Carrec>();
+		} else {
+			return new ArrayList<Carrec>(); // TODO
+		}
+	}
+
 	private List<String> findCodisPersonaAmbArea(Long areaId) {
 		Area area = areaRepository.findOne(areaId);
 		List<String> resposta = new ArrayList<String>();

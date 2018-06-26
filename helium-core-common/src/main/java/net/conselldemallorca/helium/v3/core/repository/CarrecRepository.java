@@ -3,11 +3,13 @@
  */
 package net.conselldemallorca.helium.v3.core.repository;
 
+import java.util.List;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+
 import net.conselldemallorca.helium.core.model.hibernate.Area;
 import net.conselldemallorca.helium.core.model.hibernate.Carrec;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
-
-import org.springframework.data.jpa.repository.JpaRepository;
 
 /**
  * Especifica els mètodes que s'han d'emprar per obtenir i modificar la
@@ -30,5 +32,9 @@ public interface CarrecRepository extends JpaRepository<Carrec, Long> {
 			Entorn entorn,
 			String areaCodi,
 			String codi);
+
+	List<Carrec> findByEntornAndPersonaCodi(
+			Entorn entorn,
+			String personaCodi);
 
 }
