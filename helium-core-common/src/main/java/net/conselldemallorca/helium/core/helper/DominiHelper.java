@@ -58,6 +58,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDadaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.IntegracioAccioTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.IntegracioParametreDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto.Sexe;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.exception.SistemaExternException;
@@ -711,11 +712,12 @@ public class DominiHelper {
 
 	public List<FilaResultat> carrecsPerPersona(Map<String, Object> parametres) {
 		List<FilaResultat> resposta = new ArrayList<FilaResultat>();
+		PersonaDto persona = pluginHelper.personaFindAmbCodi((String)parametres.get("persona"));
 		List<Carrec> carrecs = getCarrecsAmbPersonaCodi(
 				(String)parametres.get("entorn"),
 				(String)parametres.get("persona"));
 		for (Carrec carrec: carrecs) {
-			resposta.add(novaFilaCarrec(carrec));
+			resposta.add(novaFilaCarrec(persona, carrec));
 		}
 		return resposta;
 	}
@@ -863,7 +865,7 @@ public class DominiHelper {
 		resposta.addColumna(new ParellaCodiValor("nomSencer", persona.getNomSencer()));
 		return resposta;
 	}
-	
+
 	private FilaResultat novaFilaArea(Area area) {
 		FilaResultat resposta = new FilaResultat();
 		resposta.addColumna(new ParellaCodiValor("codi", area.getCodi()));
@@ -872,20 +874,27 @@ public class DominiHelper {
 		resposta.addColumna(new ParellaCodiValor("pareCodi", pareCodi));
 		return resposta;
 	}
-	
-	private FilaResultat novaFilaCarrec(Carrec carrec) {
+
+	private FilaResultat novaFilaCarrec(PersonaDto persona, Carrec carrec) {
+		String nom;
+		String tractament;
+		if (Sexe.SEXE_HOME.equals(persona.getSexe())) {
+			nom = carrec.getNomHome();
+			tractament = carrec.getTractamentHome();
+		} else {
+			nom = carrec.getNomHome();
+			tractament = carrec.getTractamentHome();
+		}
+		String nomAmbTractament = (tractament != null) ? tractament + " " + nom : nom;
 		FilaResultat resposta = new FilaResultat();
 		resposta.addColumna(new ParellaCodiValor("codi", carrec.getCodi()));
-		resposta.addColumna(new ParellaCodiValor("nomHome", carrec.getNomHome()));
-		resposta.addColumna(new ParellaCodiValor("nomDona", carrec.getNomDona()));
-		resposta.addColumna(new ParellaCodiValor("tractamentHome", carrec.getTractamentHome()));
-		resposta.addColumna(new ParellaCodiValor("tractamentDona", carrec.getTractamentDona()));
+		resposta.addColumna(new ParellaCodiValor("nom", carrec.getNomHome()));
+		resposta.addColumna(new ParellaCodiValor("tractament", carrec.getTractamentHome()));
 		resposta.addColumna(new ParellaCodiValor("descripcio", carrec.getDescripcio()));
-		resposta.addColumna(new ParellaCodiValor("personaCodi", carrec.getPersonaCodi()));
-		resposta.addColumna(new ParellaCodiValor("personaSexe", carrec.getPersonaSexe()));
+		resposta.addColumna(new ParellaCodiValor("nomAmbTractament", nomAmbTractament));
 		return resposta;
 	}
-	
+
 	private List<String> getPersonesPerArea(String entornCodi, String areaCodi) {
 		if (isHeliumIdentitySource()) {
 			Entorn entorn = entornRepository.findByCodi(entornCodi);
