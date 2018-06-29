@@ -88,7 +88,8 @@ public class ExpedientTipus implements Serializable, GenericEntity<Long> {
 	
 	private String diesNoLaborables;
 	
-	
+	// Integració SISTRA
+	// 		Notificacions
 	private boolean notificacionsActivades;
 	@MaxLength(100)
 	private String notificacioOrganCodi;
@@ -109,6 +110,7 @@ public class ExpedientTipus implements Serializable, GenericEntity<Long> {
 	@MaxLength(1024)
 	private String notificacioOficiText;
 
+	// 		Tràmits
 	@MaxLength(64)
 	private String sistraTramitCodi;
 	@MaxLength(2048)
@@ -118,6 +120,7 @@ public class ExpedientTipus implements Serializable, GenericEntity<Long> {
 	@MaxLength(2048)
 	private String sistraTramitMapeigAdjunts;
 
+	// Integració FORMS
 	@MaxLength(255)
 	private String formextUrl;
 	@MaxLength(255)
