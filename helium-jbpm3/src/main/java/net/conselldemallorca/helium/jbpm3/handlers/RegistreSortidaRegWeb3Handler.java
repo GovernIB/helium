@@ -110,7 +110,8 @@ public class RegistreSortidaRegWeb3Handler extends AbstractHeliumActionHandler {
 	private String idiomaCodi;
 	private String varIdiomaCodi;
 	
-	private String varDocument;
+	private String codiDocument;
+	private String varCodiDocument;
 	
 	private String documentValidesa;
 	private String varDocumentValidesa;
@@ -309,9 +310,14 @@ public class RegistreSortidaRegWeb3Handler extends AbstractHeliumActionHandler {
 				varIdiomaCodi);
 		anotacio.setIdiomaCodi((idiomaExtracte != null) ? idiomaExtracte : "ca");
 		
+		String documentCodi = (String)getValorOVariable(
+				executionContext,
+				codiDocument,
+				varCodiDocument);
+		
 		DocumentInfo documentInfo = getDocumentInfo(
 				executionContext,
-				varDocument,
+				documentCodi,
 				true);
 		
 		/**Dades complementàries de document**/
@@ -747,9 +753,7 @@ public class RegistreSortidaRegWeb3Handler extends AbstractHeliumActionHandler {
 	}
 
 
-	public void setVarDocument(String varDocument) {
-		this.varDocument = varDocument;
-	}
+	
 
 
 	public void setDocumentValidesa(String documentValidesa) {
@@ -819,5 +823,15 @@ public class RegistreSortidaRegWeb3Handler extends AbstractHeliumActionHandler {
 
 	public void setVarDataRegistre(String varDataRegistre) {
 		this.varDataRegistre = varDataRegistre;
+	}
+
+
+	public void setCodiDocument(String codiDocument) {
+		this.codiDocument = codiDocument;
+	}
+
+
+	public void setVarCodiDocument(String varCodiDocument) {
+		this.varCodiDocument = varCodiDocument;
 	}
 }

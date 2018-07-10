@@ -85,7 +85,9 @@ public class RegistreSortidaRegWeb3Handler extends BasicActionHandler {
 	public void setVarRepresentantAdresa(String varRepresentantAdresa) {}
 	public void setIdiomaCodi(String idiomaCodi) {}
 	public void setVarIdiomaCodi(String varIdiomaCodi) {}
-	public void setVarDocument(String varDocument) {}
+	
+	public void setCodiDocument(String codiDocument) {}
+	public void setVarCodiDocument(String varCodiDocument) {}
 	
 	public void setDocumentValidesa(String documentValidesa) {}
 	public void setVarDocumentValidesa(String varDocumentValidesa) {}
