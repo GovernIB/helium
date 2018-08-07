@@ -3,159 +3,160 @@
  */
 package net.conselldemallorca.helium.webapp.v3.command;
 
-import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+
+import net.conselldemallorca.helium.webapp.v3.command.ExpedientTipusIntegracioNotibCommand.Creacio;
+import net.conselldemallorca.helium.webapp.v3.command.ExpedientTipusIntegracioNotibCommand.Modificacio;
+import net.conselldemallorca.helium.webapp.v3.validator.ExpedientTipusIntegracioNotib;
 
 /**
  * Command per modificar les dades d'integració dels tipus d'expedient amb Notib.
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
+@ExpedientTipusIntegracioNotib(groups = {Creacio.class, Modificacio.class})
 public class ExpedientTipusIntegracioNotibCommand {
 	
-	@NotNull(groups = {Modificacio.class})
-	@Size(max = 9, min = 9, groups = {Modificacio.class})
-	private String notificacioEmisor;
+	private String notibEmisor;
+	private String notibCodiProcediment;
+	private String notibSeuUnitatAdministrativa;
+	private String notibSeuOficina;
+	private String notibSeuLlibre;
+	private String notibSeuOrgan;
 	
-	@NotNull(groups = {Modificacio.class})
-	@Size(max = 6, groups = {Modificacio.class})
-	private String notificacioCodiProcediment;
+	private String notibSeuIdioma;
 	
-	@NotNull(groups = {Modificacio.class})
-	@Size(max = 10, groups = {Modificacio.class})
-	private String seuExpedientUnitatOrganitzativa;
+	@Size(max = 100, groups = {Modificacio.class})
+	private String notibAvisTitol;
 	
-	@NotNull(groups = {Modificacio.class})
-	@Size(max = 256, groups = {Modificacio.class})
-	private String seuRegistreOficina;
+	@Size(max = 1024, groups = {Modificacio.class})
+	private String notibAvisText;
 	
-	@NotNull(groups = {Modificacio.class})
-	@Size(max = 256, groups = {Modificacio.class})
-	private String seuRegistreLlibre;
-	
-	@NotNull(groups = {Modificacio.class})
-	@Size(max = 256, groups = {Modificacio.class})
-	private String seuRegistreOrgan;
+	@Size(max = 200, groups = {Modificacio.class})
+	private String notibAvisTextSms;
 	
 	@Size(max = 256, groups = {Modificacio.class})
-	private String seuIdioma;
+	private String notibOficiTitol;
 	
-	@Size(max = 256, groups = {Modificacio.class})
-	private String seuAvisTitol;
+	@Size(max = 1024, groups = {Modificacio.class})
+	private String notibOficiText;
 	
-	@Size(max = 256, groups = {Modificacio.class})
-	private String seuAvisText;
-	
-	@Size(max = 256, groups = {Modificacio.class})
-	private String seuAvisTextMobil;
-	
-	@Size(max = 256, groups = {Modificacio.class})
-	private String seuOficiTitol;
-	
-	@Size(max = 256, groups = {Modificacio.class})
-	private String seuOficiText;
-	
-	private boolean parametresNotibActius;
+	private boolean notibActiu;
 	private boolean ntiActiu;
 	
 	
-	public String getNotificacioEmisor() {
-		return notificacioEmisor;
+	public String getNotibEmisor() {
+		return notibEmisor;
 	}
-	public void setNotificacioEmisor(String notificacioEmisor) {
-		this.notificacioEmisor = notificacioEmisor;
+
+	public void setNotibEmisor(String notibEmisor) {
+		this.notibEmisor = notibEmisor;
 	}
-	
-	public String getNotificacioCodiProcediment() {
-		return notificacioCodiProcediment;
+
+	public String getNotibCodiProcediment() {
+		return notibCodiProcediment;
 	}
-	public void setNotificacioCodiProcediment(String notificacioCodiProcediment) {
-		this.notificacioCodiProcediment = notificacioCodiProcediment;
+
+	public void setNotibCodiProcediment(String notibCodiProcediment) {
+		this.notibCodiProcediment = notibCodiProcediment;
 	}
-	
-	public String getSeuExpedientUnitatOrganitzativa() {
-		return seuExpedientUnitatOrganitzativa;
+
+	public String getNotibSeuUnitatAdministrativa() {
+		return notibSeuUnitatAdministrativa;
 	}
-	public void setSeuExpedientUnitatOrganitzativa(String seuExpedientUnitatOrganitzativa) {
-		this.seuExpedientUnitatOrganitzativa = seuExpedientUnitatOrganitzativa;
+
+	public void setNotibSeuUnitatAdministrativa(String notibSeuUnitatAdministrativa) {
+		this.notibSeuUnitatAdministrativa = notibSeuUnitatAdministrativa;
 	}
-	
-	public String getSeuRegistreOficina() {
-		return seuRegistreOficina;
+
+	public String getNotibSeuOficina() {
+		return notibSeuOficina;
 	}
-	public void setSeuRegistreOficina(String seuRegistreOficina) {
-		this.seuRegistreOficina = seuRegistreOficina;
+
+	public void setNotibSeuOficina(String notibSeuOficina) {
+		this.notibSeuOficina = notibSeuOficina;
 	}
-	
-	public String getSeuRegistreLlibre() {
-		return seuRegistreLlibre;
+
+	public String getNotibSeuLlibre() {
+		return notibSeuLlibre;
 	}
-	public void setSeuRegistreLlibre(String seuRegistreLlibre) {
-		this.seuRegistreLlibre = seuRegistreLlibre;
+
+	public void setNotibSeuLlibre(String notibSeuLlibre) {
+		this.notibSeuLlibre = notibSeuLlibre;
 	}
-	
-	public String getSeuRegistreOrgan() {
-		return seuRegistreOrgan;
+
+	public String getNotibSeuOrgan() {
+		return notibSeuOrgan;
 	}
-	public void setSeuRegistreOrgan(String seuRegistreOrgan) {
-		this.seuRegistreOrgan = seuRegistreOrgan;
+
+	public void setNotibSeuOrgan(String notibSeuOrgan) {
+		this.notibSeuOrgan = notibSeuOrgan;
 	}
-	
-	public String getSeuIdioma() {
-		return seuIdioma;
+
+	public String getNotibSeuIdioma() {
+		return notibSeuIdioma;
 	}
-	public void setSeuIdioma(String seuIdioma) {
-		this.seuIdioma = seuIdioma;
+
+	public void setNotibSeuIdioma(String notibSeuIdioma) {
+		this.notibSeuIdioma = notibSeuIdioma;
 	}
-	
-	public String getSeuAvisTitol() {
-		return seuAvisTitol;
+
+	public String getNotibAvisTitol() {
+		return notibAvisTitol;
 	}
-	public void setSeuAvisTitol(String seuAvisTitol) {
-		this.seuAvisTitol = seuAvisTitol;
+
+	public void setNotibAvisTitol(String notibAvisTitol) {
+		this.notibAvisTitol = notibAvisTitol;
 	}
-	
-	public String getSeuAvisText() {
-		return seuAvisText;
+
+	public String getNotibAvisText() {
+		return notibAvisText;
 	}
-	public void setSeuAvisText(String seuAvisText) {
-		this.seuAvisText = seuAvisText;
+
+	public void setNotibAvisText(String notibAvisText) {
+		this.notibAvisText = notibAvisText;
 	}
-	
-	public String getSeuAvisTextMobil() {
-		return seuAvisTextMobil;
+
+	public String getNotibAvisTextSms() {
+		return notibAvisTextSms;
 	}
-	public void setSeuAvisTextMobil(String seuAvisTextMobil) {
-		this.seuAvisTextMobil = seuAvisTextMobil;
+
+	public void setNotibAvisTextSms(String notibAvisTextSms) {
+		this.notibAvisTextSms = notibAvisTextSms;
 	}
-	
-	public String getSeuOficiTitol() {
-		return seuOficiTitol;
+
+	public String getNotibOficiTitol() {
+		return notibOficiTitol;
 	}
-	public void setSeuOficiTitol(String seuOficiTitol) {
-		this.seuOficiTitol = seuOficiTitol;
+
+	public void setNotibOficiTitol(String notibOficiTitol) {
+		this.notibOficiTitol = notibOficiTitol;
 	}
-	
-	public String getSeuOficiText() {
-		return seuOficiText;
+
+	public String getNotibOficiText() {
+		return notibOficiText;
 	}
-	public void setSeuOficiText(String seuOficiText) {
-		this.seuOficiText = seuOficiText;
+
+	public void setNotibOficiText(String notibOficiText) {
+		this.notibOficiText = notibOficiText;
 	}
-	
-	public boolean isParametresNotibActius() {
-		return parametresNotibActius;
+
+	public boolean isNotibActiu() {
+		return notibActiu;
 	}
-	public void setParametresNotibActius(boolean parametresNotibActius) {
-		this.parametresNotibActius = parametresNotibActius;
+
+	public void setNotibActiu(boolean notibActiu) {
+		this.notibActiu = notibActiu;
 	}
 
 	public boolean isNtiActiu() {
 		return ntiActiu;
 	}
+
 	public void setNtiActiu(boolean ntiActiu) {
 		this.ntiActiu = ntiActiu;
 	}
 
+	public interface Creacio {}
 	public interface Modificacio {}
 }

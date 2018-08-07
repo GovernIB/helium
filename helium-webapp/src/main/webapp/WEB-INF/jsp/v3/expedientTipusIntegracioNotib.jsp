@@ -14,7 +14,7 @@
 
 <script type="text/javascript">
 $(document).ready(function() {
-	$('#parametresNotibActius', '#expedientTipusIntegracioNotibCommand').change(function() {
+	$('#notibActiu', '#expedientTipusIntegracioNotibCommand').change(function() {
 		if ($(this).is(':checked')) {
 			$('#inputs-notib').show();
 		} else {
@@ -52,25 +52,25 @@ $(document).ready(function() {
 
 		<form:form cssClass="form-horizontal" enctype="multipart/form-data" method="post" commandName="expedientTipusIntegracioNotibCommand">
 			<div>				
-				<hel:inputCheckbox name="parametresNotibActius" textKey="expedient.tipus.integracio.tramits.notificacions.activar"/>
-				<div id="inputs-notib" style="display:${expedientTipusIntegracioNotibCommand.parametresNotibActius? 'inline' : 'none'}">
+				<hel:inputCheckbox name="notibActiu" textKey="expedient.tipus.integracio.tramits.notificacions.activar"/>
+				<div id="inputs-notib" style="display:${expedientTipusIntegracioNotibCommand.notibActiu? 'inline' : 'none'}">
 
-					<hel:inputText required="true" name="notificacioEmisor" textKey="expedient.tipus.integracio.notib.organisme.emisor" readonly="${expedientTipusIntegracioNotibCommand.ntiActiu}"/>
-					<hel:inputText required="true" name="notificacioCodiProcediment" textKey="expedient.tipus.integracio.notib.sia.codiprocediment"  readonly="${expedientTipusIntegracioNotibCommand.ntiActiu}"/>
+					<hel:inputText required="true" name="notibEmisor" textKey="expedient.tipus.integracio.notib.organisme.emisor" readonly="${expedientTipusIntegracioNotibCommand.ntiActiu}"/>
+					<hel:inputText required="true" name="notibCodiProcediment" textKey="expedient.tipus.integracio.notib.sia.codiprocediment"  readonly="${expedientTipusIntegracioNotibCommand.ntiActiu}"/>
 					
-					<hel:inputText required="true" name="seuExpedientUnitatOrganitzativa" textKey="expedient.tipus.integracio.notib.exp.unitatorganitzativa" />
-					<hel:inputText required="true" name="seuRegistreOficina" textKey="expedient.tipus.integracio.notib.reg.oficina" />
-					<hel:inputText required="true" name="seuRegistreLlibre" textKey="expedient.tipus.integracio.notib.reg.llibre" />
-					<hel:inputText required="true" name="seuRegistreOrgan" textKey="expedient.tipus.integracio.notib.reg.organ" />
+					<hel:inputText required="true" name="notibSeuUnitatAdministrativa" textKey="expedient.tipus.integracio.notib.exp.unitatorganitzativa" />
+					<hel:inputText required="true" name="notibSeuOficina" textKey="expedient.tipus.integracio.notib.reg.oficina" />
+					<hel:inputText required="true" name="notibSeuLlibre" textKey="expedient.tipus.integracio.notib.reg.llibre" />
+					<hel:inputText required="true" name="notibSeuOrgan" textKey="expedient.tipus.integracio.notib.reg.organ" />
 					
-					<hel:inputSelect name="seuIdioma" textKey="expedient.tipus.integracio.notib.idioma" placeholderKey="expedient.tipus.integracio.notib.idioma" optionItems="${seuIdioma}" optionTextAttribute="codi" optionValueAttribute="valor"/>
+					<hel:inputSelect name="notibSeuIdioma" textKey="expedient.tipus.integracio.notib.idioma" placeholderKey="expedient.tipus.integracio.notib.idioma" optionItems="${seuIdioma}" optionTextAttribute="codi" optionValueAttribute="valor"/>
 					
-					<hel:inputText required="false" name="seuAvisTitol" textKey="expedient.tipus.integracio.notib.avis.titol" />
-					<hel:inputTextarea required="false" name="seuAvisText" textKey="expedient.tipus.integracio.notib.avis.text" />
-					<hel:inputText required="false" name="seuAvisTextMobil" textKey="expedient.tipus.integracio.notib.avis.textmobil" />
+					<hel:inputText required="false" name="notibAvisTitol" textKey="expedient.tipus.integracio.notib.avis.titol" />
+					<hel:inputTextarea required="false" name="notibAvisText" textKey="expedient.tipus.integracio.notib.avis.text" />
+					<hel:inputText required="false" name="notibAvisTextSms" textKey="expedient.tipus.integracio.notib.avis.textmobil" />
 					
-					<hel:inputText required="false" name="seuOficiTitol" textKey="expedient.tipus.integracio.notib.ofici.titol" />
-					<hel:inputTextarea required="false" name="seuOficiText" textKey="expedient.tipus.integracio.notib.ofici.text" />
+					<hel:inputText required="false" name="notibOficiTitol" textKey="expedient.tipus.integracio.notib.ofici.titol" />
+					<hel:inputTextarea required="false" name="notibOficiText" textKey="expedient.tipus.integracio.notib.ofici.text" />
 				</div>
 			</div>
 			

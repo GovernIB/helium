@@ -88,8 +88,31 @@ public class ExpedientTipus implements Serializable, GenericEntity<Long> {
 	
 	private String diesNoLaborables;
 	
+	// Integració NOTIB
+	private boolean notibActiu;
+	@MaxLength(100)
+	private String notibSeuUnitatAdministrativa;
+	@MaxLength(100)
+	private String notibSeuOficina;
+	@MaxLength(100)
+	private String notibSeuLlibre;
+	@MaxLength(100)
+	private String notibSeuOrgan;
+	@MaxLength(256)
+	private String notibSeuIdioma;
+	@MaxLength(256)
+	private String notibAvisTitol;
+	@MaxLength(1024)
+	private String notibAvisText;
+	@MaxLength(200)
+	private String notibAvisTextSms;
+	@MaxLength(256)
+	private String notibOficiTitol;
+	@MaxLength(1024)
+	private String notibOficiText;
+		
 	// Integració SISTRA
-	// 		Notificacions
+	//  - Notificacions
 	private boolean notificacionsActivades;
 	@MaxLength(100)
 	private String notificacioOrganCodi;
@@ -110,7 +133,7 @@ public class ExpedientTipus implements Serializable, GenericEntity<Long> {
 	@MaxLength(1024)
 	private String notificacioOficiText;
 
-	// 		Tràmits
+	//  - Tràmits
 	@MaxLength(64)
 	private String sistraTramitCodi;
 	@MaxLength(2048)
@@ -460,6 +483,94 @@ public class ExpedientTipus implements Serializable, GenericEntity<Long> {
 		this.sistraTramitMapeigAdjunts = sistraTramitMapeigAdjunts;
 	}
 
+	@Column(name="notib_actiu")
+	public boolean isNotibActiu() {
+		return notibActiu;
+	}
+	public void setNotibActiu(boolean notibActiu) {
+		this.notibActiu = notibActiu;
+	}
+	
+	@Column(name="notib_seu_unitatadmin", length = 100)
+	public String getNotibSeuUnitatAdministrativa() {
+		return notibSeuUnitatAdministrativa;
+	}
+	public void setNotibSeuUnitatAdministrativa(String notibSeuUnitatAdministrativa) {
+		this.notibSeuUnitatAdministrativa = notibSeuUnitatAdministrativa;
+	}
+	
+	@Column(name="notib_seu_oficina", length = 100)
+	public String getNotibSeuOficina() {
+		return notibSeuOficina;
+	}
+	public void setNotibSeuOficina(String notibSeuOficina) {
+		this.notibSeuOficina = notibSeuOficina;
+	}
+	
+	@Column(name="notib_seu_llibre", length = 100)
+	public String getNotibSeuLlibre() {
+		return notibSeuLlibre;
+	}
+	public void setNotibSeuLlibre(String notibSeuLlibre) {
+		this.notibSeuLlibre = notibSeuLlibre;
+	}
+	
+	@Column(name="notib_seu_organ", length = 100)
+	public String getNotibSeuOrgan() {
+		return notibSeuOrgan;
+	}
+	public void setNotibSeuOrgan(String notibSeuOrgan) {
+		this.notibSeuOrgan = notibSeuOrgan;
+	}
+	
+	@Column(name="notib_seu_idioma", length = 10)
+	public String getNotibSeuIdioma() {
+		return notibSeuIdioma;
+	}
+	public void setNotibSeuIdioma(String notibSeuIdioma) {
+		this.notibSeuIdioma = notibSeuIdioma;
+	}
+	
+	@Column(name="notib_avistitol", length = 100)
+	public String getNotibAvisTitol() {
+		return notibAvisTitol;
+	}
+	public void setNotibAvisTitol(String notibAvisTitol) {
+		this.notibAvisTitol = notibAvisTitol;
+	}
+	
+	@Column(name="notib_avistext", length = 1024)
+	public String getNotibAvisText() {
+		return notibAvisText;
+	}
+	public void setNotibAvisText(String notibAvisText) {
+		this.notibAvisText = notibAvisText;
+	}
+	
+	@Column(name="notib_avistextsms", length = 200)
+	public String getNotibAvisTextSms() {
+		return notibAvisTextSms;
+	}
+	public void setNotibAvisTextSms(String notibAvisTextSms) {
+		this.notibAvisTextSms = notibAvisTextSms;
+	}
+	
+	@Column(name="notib_oficititol", length = 256)
+	public String getNotibOficiTitol() {
+		return notibOficiTitol;
+	}
+	public void setNotibOficiTitol(String notibOficiTitol) {
+		this.notibOficiTitol = notibOficiTitol;
+	}
+	
+	@Column(name="notib_oficitext", length = 1024)
+	public String getNotibOficiText() {
+		return notibOficiText;
+	}
+	public void setNotibOficiText(String notibOficiText) {
+		this.notibOficiText = notibOficiText;
+	}
+	
 	@Column(name="formext_url", length=255)
 	public String getFormextUrl() {
 		return formextUrl;

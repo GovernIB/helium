@@ -602,4 +602,39 @@ public class ExpedientTipusServiceBean implements ExpedientTipusService {
 				arxiuActiu);
 	}
 
+	@Override
+	@RolesAllowed({"HEL_ADMIN"})
+	public ExpedientTipusDto updateIntegracioNotib(
+			Long expedientTipusId, 
+			String notibEmisor, 
+			String notibCodiProcediment,
+			String notibSeuUnitatAdministrativa, 
+			String notibSeuOficina, 
+			String notibSeuLlibre, 
+			String notibSeuOrgan,
+			String notibSeuIdioma, 
+			String notibAvisTitol, 
+			String notibAvisText, 
+			String notibAvisTextSms,
+			String notibOficiTitol, 
+			String notibOficiText, 
+			boolean notibActiu) {
+
+		return delegate.updateIntegracioNotib(
+				expedientTipusId, 
+				notibEmisor, 
+				notibCodiProcediment, 
+				notibSeuUnitatAdministrativa, 
+				notibSeuOficina, 
+				notibSeuLlibre, 
+				notibSeuOrgan, 
+				notibSeuIdioma, 
+				notibAvisTitol, 
+				notibAvisText, 
+				notibAvisTextSms, 
+				notibOficiTitol, 
+				notibOficiText, 
+				notibActiu);
+	}
+
 }

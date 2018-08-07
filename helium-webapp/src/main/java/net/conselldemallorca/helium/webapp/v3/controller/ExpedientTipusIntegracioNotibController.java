@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import net.conselldemallorca.helium.integracio.plugins.notib.NotibSeuIdioma;
+//import net.conselldemallorca.helium.integracio.plugins.notib.NotibSeuIdioma;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.ParellaCodiValor;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
@@ -52,20 +52,20 @@ public class ExpedientTipusIntegracioNotibController extends BaseExpedientTipusC
 			
 			ExpedientTipusIntegracioNotibCommand command = new ExpedientTipusIntegracioNotibCommand();			
 			
-			command.setNotificacioEmisor(expedientTipus.getNtiOrgano());
-			command.setNotificacioCodiProcediment(expedientTipus.getNtiClasificacion());
+			command.setNotibEmisor(expedientTipus.getNtiOrgano());
+			command.setNotibCodiProcediment(expedientTipus.getNtiClasificacion());
 			
-			command.setSeuExpedientUnitatOrganitzativa(expedientTipus.getSeuExpedientUnitatOrganitzativa());
-			command.setSeuRegistreOficina(expedientTipus.getSeuRegistreOficina());
-			command.setSeuRegistreLlibre(expedientTipus.getSeuRegistreLlibre());
-			command.setSeuRegistreOrgan(expedientTipus.getSeuRegistreOrgan());
-			command.setSeuIdioma(expedientTipus.getSeuIdioma());
-			command.setSeuAvisTitol(expedientTipus.getNotificacioAvisTitol());
-			command.setSeuAvisText(expedientTipus.getNotificacioAvisText());
-			command.setSeuAvisTextMobil(expedientTipus.getNotificacioAvisTextSms());
-			command.setSeuOficiTitol(expedientTipus.getNotificacioOficiTitol());
-			command.setSeuOficiText(expedientTipus.getNotificacioOficiText());
-			command.setParametresNotibActius(expedientTipus.isParametresNotibActius());
+			command.setNotibSeuUnitatAdministrativa(expedientTipus.getNotibSeuUnitatAdministrativa());
+			command.setNotibSeuOficina(expedientTipus.getNotibSeuOficina());
+			command.setNotibSeuLlibre(expedientTipus.getNotibSeuLlibre());
+			command.setNotibSeuOrgan(expedientTipus.getNotibSeuOrgan());
+			command.setNotibSeuIdioma(expedientTipus.getNotibSeuIdioma());
+			command.setNotibAvisTitol(expedientTipus.getNotibAvisTitol());
+			command.setNotibAvisText(expedientTipus.getNotibAvisText());
+			command.setNotibAvisTextSms(expedientTipus.getNotibAvisTextSms());
+			command.setNotibOficiTitol(expedientTipus.getNotibOficiTitol());
+			command.setNotibOficiText(expedientTipus.getNotibOficiText());
+			command.setNotibActiu(expedientTipus.isNotibActiu());
 			command.setNtiActiu(expedientTipus.isNtiActiu());
 			
 			model.addAttribute("expedientTipusIntegracioNotibCommand", command);
@@ -88,28 +88,24 @@ public class ExpedientTipusIntegracioNotibController extends BaseExpedientTipusC
 		
 		if (entornActual != null) {
 			
-			this.validarCommand(command, bindingResult);
-			
 	        if (bindingResult.hasErrors()) {
 	        	response = AjaxHelper.generarAjaxFormErrors(command, bindingResult);
 	        } else {
 	        	expedientTipusService.updateIntegracioNotib(
 	        			expedientTipusId,
-	        			command.getNotificacioCodiProcediment(),
-//	        			command.getSeuExpedientSerieDocumental(),
-	        			command.getSeuExpedientUnitatOrganitzativa(),
-//	        			command.getSeuExpedientIdentificadorEni(),
-//	        			command.getSeuExpedientTitol(),
-	        			command.getSeuRegistreOficina(),
-	        			command.getSeuRegistreLlibre(),
-	        			command.getSeuRegistreOrgan(),
-	        			command.getSeuIdioma(),
-	        			command.getSeuAvisTitol(),
-	        			command.getSeuAvisText(),
-	        			command.getSeuAvisTextMobil(),
-	        			command.getSeuOficiTitol(),
-	        			command.getSeuOficiText(),
-	        			command.isParametresNotibActius());
+	        			command.getNotibEmisor(),
+	        			command.getNotibCodiProcediment(),
+	        			command.getNotibSeuUnitatAdministrativa(),
+	        			command.getNotibSeuOficina(),
+	        			command.getNotibSeuLlibre(),
+	        			command.getNotibSeuOrgan(),
+	        			command.getNotibSeuIdioma(),
+	        			command.getNotibAvisTitol(),
+	        			command.getNotibAvisText(),
+	        			command.getNotibAvisTextSms(),
+	        			command.getNotibOficiTitol(),
+	        			command.getNotibOficiText(),
+	        			command.isNotibActiu());
 	        	
 		        MissatgesHelper.success(
 						request, 
@@ -125,44 +121,9 @@ public class ExpedientTipusIntegracioNotibController extends BaseExpedientTipusC
 	@ModelAttribute("seuIdioma")
 	public ParellaCodiValor[] populateSexes(HttpServletRequest request) {
 		ParellaCodiValor[] resposta = new ParellaCodiValor[2];
-		resposta[0] = new ParellaCodiValor(getMessage(request, "seu.idioma.CA"), NotibSeuIdioma.CA);
-		resposta[1] = new ParellaCodiValor(getMessage(request, "seu.idioma.ES"), NotibSeuIdioma.ES);
+		resposta[0] = new ParellaCodiValor(getMessage(request, "seu.idioma.CA"), "CA");
+		resposta[1] = new ParellaCodiValor(getMessage(request, "seu.idioma.ES"), "ES");
 		return resposta;
-	}
-
-	private boolean isNullOrEmpty(String str) {
-		return str == null? true : "".equals(str.trim());
-	}
-	private void validarCommand(
-			ExpedientTipusIntegracioNotibCommand command,
-			BindingResult bindingResult) {
-		
-		if (command.isParametresNotibActius()) {
-			if (isNullOrEmpty(command.getNotificacioCodiProcediment())) {
-				bindingResult.rejectValue("notificacioCodiProcediment", "NotEmpty");
-			}
-//			if (isNullOrEmpty(command.getSeuExpedientSerieDocumental())) {
-//				bindingResult.rejectValue("seuExpedientSerieDocumental", "NotEmpty");
-//			}
-			if (isNullOrEmpty(command.getSeuExpedientUnitatOrganitzativa())) {
-				bindingResult.rejectValue("seuExpedientUnitatOrganitzativa", "NotEmpty");
-			}
-//			if (isNullOrEmpty(command.getSeuExpedientIdentificadorEni())) {
-//				bindingResult.rejectValue("seuExpedientIdentificadorEni", "NotEmpty");
-//			}
-//			if (isNullOrEmpty(command.getSeuExpedientTitol())) {
-//				bindingResult.rejectValue("seuExpedientTitol", "NotEmpty");
-//			}
-			if (isNullOrEmpty(command.getSeuRegistreOficina())) {
-				bindingResult.rejectValue("seuRegistreOficina", "NotEmpty");
-			}
-			if (isNullOrEmpty(command.getSeuRegistreLlibre())) {
-				bindingResult.rejectValue("seuRegistreLlibre", "NotEmpty");
-			}
-			if (isNullOrEmpty(command.getSeuRegistreOrgan())) {
-				bindingResult.rejectValue("seuRegistreOrgan", "NotEmpty");
-			}
-		}
 	}
 
 }

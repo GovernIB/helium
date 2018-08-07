@@ -5,6 +5,7 @@ package net.conselldemallorca.helium.jbpm3.handlers;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Objects;
 
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.DocumentInfo;
 import net.conselldemallorca.helium.jbpm3.integracio.DominiCodiDescripcio;
@@ -198,6 +199,28 @@ abstract class AbstractHeliumActionHandler implements ActionHandler {
 					return (Integer) valor;
 				} else {
 					return new Integer(valor.toString());
+				}
+			}
+		}
+		return null;
+	}
+	
+	protected Boolean getValorOVariableBoolean(
+			ExecutionContext executionContext, Object value, String var) {
+		if (value != null) {
+			if (value instanceof Boolean) {
+				return (Boolean) value;
+			} else {
+				return new Boolean(value.toString());
+			}
+		}
+		if (var != null && var.length() > 0) {
+			Object valor = executionContext.getVariable(var);
+			if (valor != null) {
+				if (valor instanceof Boolean) {
+					return (Boolean) valor;
+				} else {
+					return new Boolean(valor.toString());
 				}
 			}
 		}

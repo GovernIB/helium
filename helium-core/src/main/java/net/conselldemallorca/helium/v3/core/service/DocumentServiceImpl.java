@@ -89,6 +89,7 @@ public class DocumentServiceImpl implements DocumentService {
 		entity.setNom(document.getNom());
 		entity.setDescripcio(document.getDescripcio());
 		entity.setPlantilla(document.isPlantilla());
+		entity.setNotificable(document.isNotificable());
 		entity.setArxiuNom(document.getArxiuNom());
 		entity.setArxiuContingut(document.getArxiuContingut());
 		entity.setConvertirExtensio(document.getConvertirExtensio());
@@ -196,6 +197,7 @@ public class DocumentServiceImpl implements DocumentService {
 		entity.setNom(document.getNom());
 		entity.setDescripcio(document.getDescripcio());
 		entity.setPlantilla(document.isPlantilla());
+		entity.setNotificable(document.isNotificable());
 		entity.setArxiuNom(document.getArxiuNom());
 		if (actualitzarContingut) {
 			entity.setArxiuContingut(document.getArxiuContingut());

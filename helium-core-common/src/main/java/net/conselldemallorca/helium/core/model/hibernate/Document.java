@@ -65,6 +65,7 @@ public class Document implements Serializable, GenericEntity<Long> {
 	@MaxLength(255)
 	private String arxiuNom;
 	private boolean plantilla;
+	private boolean notificable;
 	@MaxLength(255)
 	private String contentType;
 	@MaxLength(255)
@@ -166,7 +167,15 @@ public class Document implements Serializable, GenericEntity<Long> {
 	public void setPlantilla(boolean plantilla) {
 		this.plantilla = plantilla;
 	}
-
+	
+	@Column(name="notificable")
+	public boolean isNotificable() {
+		return notificable;
+	}
+	public void setNotificable(boolean notificable) {
+		this.notificable = notificable;
+	}
+	
 	@Column(name="content_type", length=255)
 	public String getContentType() {
 		return contentType;

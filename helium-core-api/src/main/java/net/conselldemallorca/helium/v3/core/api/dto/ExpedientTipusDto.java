@@ -70,6 +70,19 @@ public class ExpedientTipusDto extends ControlPermisosDto implements Serializabl
 	private String ntiSerieDocumental;
 
 	private boolean arxiuActiu;
+	
+	// Integració NOTIB
+	private boolean notibActiu;
+	private String notibSeuUnitatAdministrativa;
+	private String notibSeuOficina;
+	private String notibSeuLlibre;
+	private String notibSeuOrgan;
+	private String notibSeuIdioma;
+	private String notibAvisTitol;
+	private String notibAvisText;
+	private String notibAvisTextSms;
+	private String notibOficiTitol;
+	private String notibOficiText;
 
 
 
@@ -360,6 +373,73 @@ public class ExpedientTipusDto extends ControlPermisosDto implements Serializabl
 		this.arxiuActiu = arxiuActiu;
 	}
 
+	public boolean isNotibActiu() {
+		return notibActiu;
+	}
+	public void setNotibActiu(boolean notibActiu) {
+		this.notibActiu = notibActiu;
+	}
+	public String getNotibSeuUnitatAdministrativa() {
+		return notibSeuUnitatAdministrativa;
+	}
+	public void setNotibSeuUnitatAdministrativa(String notibSeuUnitatAdministrativa) {
+		this.notibSeuUnitatAdministrativa = notibSeuUnitatAdministrativa;
+	}
+	public String getNotibSeuOficina() {
+		return notibSeuOficina;
+	}
+	public void setNotibSeuOficina(String notibSeuOficina) {
+		this.notibSeuOficina = notibSeuOficina;
+	}
+	public String getNotibSeuLlibre() {
+		return notibSeuLlibre;
+	}
+	public void setNotibSeuLlibre(String notibSeuLlibre) {
+		this.notibSeuLlibre = notibSeuLlibre;
+	}
+	public String getNotibSeuOrgan() {
+		return notibSeuOrgan;
+	}
+	public void setNotibSeuOrgan(String notibSeuOrgan) {
+		this.notibSeuOrgan = notibSeuOrgan;
+	}
+	public String getNotibSeuIdioma() {
+		return notibSeuIdioma;
+	}
+	public void setNotibSeuIdioma(String notibSeuIdioma) {
+		this.notibSeuIdioma = notibSeuIdioma;
+	}
+	public String getNotibAvisTitol() {
+		return notibAvisTitol;
+	}
+	public void setNotibAvisTitol(String notibAvisTitol) {
+		this.notibAvisTitol = notibAvisTitol;
+	}
+	public String getNotibAvisText() {
+		return notibAvisText;
+	}
+	public void setNotibAvisText(String notibAvisText) {
+		this.notibAvisText = notibAvisText;
+	}
+	public String getNotibAvisTextSms() {
+		return notibAvisTextSms;
+	}
+	public void setNotibAvisTextSms(String notibAvisTextSms) {
+		this.notibAvisTextSms = notibAvisTextSms;
+	}
+	public String getNotibOficiTitol() {
+		return notibOficiTitol;
+	}
+	public void setNotibOficiTitol(String notibOficiTitol) {
+		this.notibOficiTitol = notibOficiTitol;
+	}
+	public String getNotibOficiText() {
+		return notibOficiText;
+	}
+	public void setNotibOficiText(String notibOficiText) {
+		this.notibOficiText = notibOficiText;
+	}
+	
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
