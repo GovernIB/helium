@@ -215,10 +215,9 @@ public class PluginHelper {
 						IntegracioAccioTipusEnumDto.ENVIAMENT,
 						System.currentTimeMillis() - t0,
 						new IntegracioParametreDto("codi", codi));
-				
-				if (dadesPersona == null)
+				if (dadesPersona == null) {
 					throw new NoTrobatException(DadesPersona.class, codi);
-				
+				}
 				PersonaDto dto = conversioTipusHelper.convertir(
 						dadesPersona,
 						PersonaDto.class);

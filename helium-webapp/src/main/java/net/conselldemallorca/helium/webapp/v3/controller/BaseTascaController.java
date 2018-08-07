@@ -52,6 +52,7 @@ public class BaseTascaController extends BaseController {
 			String pipellaActiva) {
 		ExpedientTascaDto tasca = tascaService.findAmbIdPerTramitacio(tascaId);
 		model.addAttribute("tasca", tasca);
+		model.addAttribute("expedientId", tasca.getExpedientId());
 		
 		List<Object> nomesLectura = new ArrayList<Object>();
 		
