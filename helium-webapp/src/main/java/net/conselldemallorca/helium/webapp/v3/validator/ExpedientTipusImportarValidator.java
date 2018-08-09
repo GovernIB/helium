@@ -283,15 +283,16 @@ public class ExpedientTipusImportarValidator implements ConstraintValidator<Expe
 			if (command.isIntegracioSistra()) {
 				// Comprova que totes les variables mapejades s'exportin
 				for (MapeigSistraExportacio mapeig : exportacio.getSistraMapejos())
-					if (mapeig.getTipus() != TipusMapeig.Adjunt 
-						&& !command.getVariables().contains(mapeig.getCodiHelium())) {
-						context.buildConstraintViolationWithTemplate(
-								MessageHelper.getInstance().getMessage(
-										this.codiMissatge + ".mapeigSistra.variable", 
-										new Object[] {mapeig.getCodiHelium(), mapeig.getCodiSistra()}))
-						.addNode("integracioSistra")
-						.addConstraintViolation();
-						valid = false;
+					if (mapeig.getTipus() != TipusMapeig.Adjunt ) {
+						if (isAmbInfoPropia && !command.getVariables().contains(mapeig.getCodiHelium())) {
+							context.buildConstraintViolationWithTemplate(
+									MessageHelper.getInstance().getMessage(
+											this.codiMissatge + ".mapeigSistra.variable", 
+											new Object[] {mapeig.getCodiHelium(), mapeig.getCodiSistra()}))
+							.addNode("integracioSistra")
+							.addConstraintViolation();
+							valid = false;
+						}
 					}
 			}
 			
