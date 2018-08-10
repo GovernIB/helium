@@ -84,5 +84,7 @@ public interface EnumeracioService {
 			ExpedientTipusEnumeracioValorDto enumeracio) throws NoTrobatException, PermisDenegatException;
 	
 	public boolean valorMoure(Long valorId, int posicio) throws NoTrobatException;
+
+	List<ExpedientTipusEnumeracioValorDto> valorsFind(Long enumeracioId) throws NoTrobatException;
 	
 }

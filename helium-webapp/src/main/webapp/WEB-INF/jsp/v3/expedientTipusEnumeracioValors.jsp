@@ -100,10 +100,11 @@
 		<div class="botons-titol text-right">
 			<button id="btnNew" class="btn btn-default" style='${mostraCreate || mostraUpdate ? "display:none;" : ""}'><span class="fa fa-plus"></span>&nbsp;<spring:message code="expedient.tipus.enumeracio.valors.form.titol.nou"/></button>
 			<button id="btnImp" class="btn btn-info"    style='${mostraCreate || mostraUpdate ? "display:none;" : ""}'><span class="fa fa-sign-in"></span>&nbsp;<spring:message code="comu.boto.importar.dades"/></button>
+			<a id="btnExp" href="${baseUrl}/exportar" class="btn btn-info" style='${mostraCreate || mostraUpdate ? "display:none;" : ""}'><span class="fa fa-sign-out"></span>&nbsp;<spring:message code="comu.boto.exportar.dades"/></a>
 		</div>	
 	</c:if>
 	
-	<div style="height: 500px;">
+	<div style="height: 390px;">
 		<table	id="campValidacio"
 				data-toggle="datatable"
 				data-url="${baseUrl}/datatable"
@@ -147,6 +148,7 @@
 		if (updateMode) {
 			$('#btnNew').hide();
 			$('#btnImp').hide();
+			$('#btnExp').hide();
 		}
 		
 		$('#btnCancelar').click(function(e){
@@ -197,6 +199,7 @@
 		$('#validacio-form').hide(300);
 		$('#btnNew').show();
 		$('#btnImp').show();
+		$('#btnExp').show();
 		$('#validacio-form').attr('action','');
 	}
 	
@@ -204,12 +207,14 @@
 		$('#importar-form').hide(300);
 		$('#btnImp').show();
 		$('#btnNew').show();
+		$('#btnExp').show();
 		$('#importar-form').attr('action','');
 	}
 	
 	function mostraFormulariNew() {
 		$('#btnNew').hide();
 		$('#btnImp').hide();
+		$('#btnExp').hide();
 		$('#btnCreate').show();
 		$('#btnUpdate').hide();
 		resetFormulari();
@@ -222,6 +227,7 @@
 	function mostraFormulariImp() {
 		$('#btnImp').hide();
 		$('#btnNew').hide();
+		$('#btnExp').hide();
 		$('#importar-form').trigger('reset').show(300);
 		$('#importar-form .help-block').remove();
 		$('#importar-form .has-error').removeClass('has-error');
@@ -230,6 +236,7 @@
 	
 	function mostraFormulariUpdate(id) {
 		$('#btnNew').hide();
+		$('#btnExp').hide();
 		$('#btnCreate').hide();
 		$('#btnUpdate').show();
 		resetFormulari();

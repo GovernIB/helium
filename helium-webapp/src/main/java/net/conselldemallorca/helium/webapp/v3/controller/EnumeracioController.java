@@ -2,9 +2,11 @@ package net.conselldemallorca.helium.webapp.v3.controller;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.util.List;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -23,6 +25,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
+import net.conselldemallorca.helium.core.model.hibernate.EnumeracioValors;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EnumeracioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusEnumeracioValorDto;
@@ -409,6 +412,48 @@ public class EnumeracioController extends BaseDissenyController {
         }
     	return valors(request, enumeracioId, model);
 	}	
+	
+	
+	@RequestMapping(value = "/{enumeracioId}/valor/exportar", method = RequestMethod.GET)
+	@ResponseBody
+	public void exportarPost(
+			HttpServletRequest request,
+			HttpServletResponse response,
+			@PathVariable Long enumeracioId) {
+
+        	try {
+        		List<ExpedientTipusEnumeracioValorDto> enumeracioValors = enumeracioService.valorsFind(enumeracioId);
+        		
+        		String estatsString = "";
+        		for(ExpedientTipusEnumeracioValorDto enumeracio: enumeracioValors){
+        			estatsString +=
+        					enumeracio.getCodi()+";"+enumeracio.getNom()+";"+enumeracio.getOrdre()+"\n";
+        		}
+        		
+        		response.setHeader("Pragma", "");
+        		response.setHeader("Expires", "");
+        		response.setHeader("Cache-Control", "");
+        		response.setHeader("Content-Disposition", "attachment; filename=\""
+        				+ "enumeracions_exp.csv" + "\"");
+        		response.setContentType("text/plain");
+        		response.getOutputStream().write(estatsString.getBytes());
+        
+        	} catch(Exception e) {
+        		logger.error(e);
+        		MissatgesHelper.error(
+        				request,
+        				getMessage(
+        						request, 
+        						"expedient.tipus.enumeracio.valors.exportats",
+        						new Object[]{e.getLocalizedMessage()}));
+        	}
+    		MissatgesHelper.success(
+					request, 
+					getMessage(
+							request, 
+							"expedient.tipus.enumeracio.valors.exportats.error"));        			
+        
+	}
 	
 	private void ompleDadesModel(
 			HttpServletRequest request,

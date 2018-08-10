@@ -138,4 +138,10 @@ public class EnumeracioServiceBean implements EnumeracioService {
 		delegate.enumeracioDeleteAllByEnumeracio(enumeracioId);
 	}
 
+	@Override
+	public List<ExpedientTipusEnumeracioValorDto> valorsFind(Long enumeracioId) throws NoTrobatException {
+		// TODO Auto-generated method stub
+		return delegate.valorsFind(enumeracioId);
+	}
+
 }

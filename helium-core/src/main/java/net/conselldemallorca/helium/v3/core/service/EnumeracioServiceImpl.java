@@ -273,6 +273,28 @@ public class EnumeracioServiceImpl implements EnumeracioService {
 		
 		return out;
 	}
+	
+	
+	@Override
+	@Transactional(readOnly = true)
+	public List <ExpedientTipusEnumeracioValorDto> valorsFind(
+			Long enumeracioId) throws NoTrobatException {
+		
+		logger.debug(
+				"Consultant els valors de enumeracio(" +
+				"enumeracioId=" + enumeracioId);
+		
+		List<EnumeracioValors> resultats = enumeracioValorsRepository.findByEnumeracioId(
+				enumeracioId);
+		
+		return conversioTipusHelper.convertirList(
+				resultats,
+				ExpedientTipusEnumeracioValorDto.class);
+	}
+	
+	
+	
+	
 
 	@Override
 	@Transactional

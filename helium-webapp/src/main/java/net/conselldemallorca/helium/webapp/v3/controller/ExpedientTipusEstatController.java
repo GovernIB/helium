@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -31,8 +32,8 @@ import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto.OrdreDireccioDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientTipusEstatCommand;
 import net.conselldemallorca.helium.webapp.v3.command.ImportarDadesCommand;
 import net.conselldemallorca.helium.webapp.v3.helper.ConversioTipusHelper;
@@ -226,6 +227,51 @@ public class ExpedientTipusEstatController extends BaseExpedientTipusController 
 			Model model) {
 		return expedientTipusService.estatMoure(estatId, posicio);
 	}
+	
+	
+	
+	@RequestMapping(value = "/{expedientTipusId}/estat/exportar", method = RequestMethod.GET)
+	@ResponseBody
+	public void exportarPost(
+			HttpServletRequest request,
+			HttpServletResponse response,
+			@PathVariable Long expedientTipusId) {
+
+
+        	try {
+        		List<EstatDto> estats = expedientTipusService.estatFindAll(expedientTipusId);
+        		
+        		String estatsString = "";
+        		for(EstatDto estat: estats){
+        			estatsString +=
+        					estat.getCodi()+";"+estat.getNom()+"\n";
+        		}
+        		
+        		response.setHeader("Pragma", "");
+        		response.setHeader("Expires", "");
+        		response.setHeader("Cache-Control", "");
+        		response.setHeader("Content-Disposition", "attachment; filename=\""
+        				+ "estats_exp.csv" + "\"");
+        		response.setContentType("text/plain");
+        		response.getOutputStream().write(estatsString.getBytes());
+        
+        	} catch(Exception e) {
+        		logger.error(e);
+        		MissatgesHelper.error(
+        				request,
+        				getMessage(
+        						request, 
+        						"expedient.tipus.estat.exportar.controller.error",
+        						new Object[]{e.getLocalizedMessage()}));
+        	}
+    		MissatgesHelper.success(
+					request, 
+					getMessage(
+							request, 
+							"expedient.tipus.estat.exportar.controller.success"));        			
+        
+	}	
+
 	
 	/** Mètode per obrir un formulari d'importació de dades d'estats. */
 	@RequestMapping(value = "/{expedientTipusId}/estat/importar", method = RequestMethod.GET)
