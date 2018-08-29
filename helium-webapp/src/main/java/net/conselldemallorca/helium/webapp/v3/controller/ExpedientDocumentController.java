@@ -239,12 +239,12 @@ public class ExpedientDocumentController extends BaseExpedientController {
 			BindingResult result,
 			Model model) throws IOException {
 		new DocumentModificarValidator(false).validate(command, result);
+		ExpedientDocumentDto document = expedientDocumentService.findOneAmbInstanciaProces(
+    			expedientId,
+    			processInstanceId,
+    			documentStoreId);
 		if (result.hasErrors()) {
 			command.setArxiuNom(null);
-        	ExpedientDocumentDto document = expedientDocumentService.findOneAmbInstanciaProces(
-        			expedientId,
-        			processInstanceId,
-        			documentStoreId);
     		model.addAttribute("processInstanceId", processInstanceId);
     		model.addAttribute("document", document);
     		emplenarModelNti(expedientId, model);
@@ -253,8 +253,8 @@ public class ExpedientDocumentController extends BaseExpedientController {
 		byte[] arxiuContingut = IOUtils.toByteArray(
 				command.getArxiu().getInputStream());
 		String arxiuNom = command.getArxiu().getOriginalFilename();
-		boolean esAdjunt = command.getNom() == null || command.getNom().isEmpty();
-		if (!esAdjunt) {
+//		boolean esAdjunt = command.getNom() == null || command.getNom().isEmpty();
+		if (!document.isAdjunt()) {
 			expedientDocumentService.update(
 					expedientId,
 					processInstanceId,
