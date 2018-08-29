@@ -410,6 +410,7 @@ public class ExpedientHelper {
 			String grupCodi,
 			boolean execucioDinsHandler) {
 		boolean ambRetroaccio = expedient.isAmbRetroaccio();
+		boolean atributsArxiuCanviats = false;
 		if (!execucioDinsHandler) {
 			ExpedientLog elog = expedientLoggerHelper.afegirLogExpedientPerExpedient(
 				expedient.getId(),
@@ -425,6 +426,7 @@ public class ExpedientHelper {
 						expedient.getProcessInstanceId(), 
 						LogInfo.NUMERO + "#@#" + expedient.getNumero());
 				expedient.setNumero(numero);
+				atributsArxiuCanviats = true;
 			}
 		}
 		// Titol
@@ -435,6 +437,7 @@ public class ExpedientHelper {
 						expedient.getProcessInstanceId(), 
 						LogInfo.TITOL + "#@#" + expedient.getTitol());
 				expedient.setTitol(titol);
+				atributsArxiuCanviats = true;
 			}
 		}
 		// Responsable
@@ -454,6 +457,7 @@ public class ExpedientHelper {
 					expedient.getProcessInstanceId(), 
 					LogInfo.INICI + "#@#" + inici);
 			expedient.setDataInici(dataInici);
+			atributsArxiuCanviats = true;
 		}
 		// Comentari
 		if (!StringUtils.equals(expedient.getComentari(), comentari)) {
@@ -519,6 +523,14 @@ public class ExpedientHelper {
 		indexHelper.expedientIndexLuceneUpdate(
 				expedient.getProcessInstanceId(), 
 				false);
+		
+		//Actualitzem el nom de l'expedient a l'arxiu
+		if (expedient.getTipus().isArxiuActiu() &&
+			expedient.getArxiuUuid() != null &&
+			atributsArxiuCanviats) {
+			// Modifiquem l'expedient a l'arxiu.
+			pluginHelper.arxiuExpedientModificar(expedient);
+		}
 		
 		// TODO
 		/*String informacioNova = getInformacioExpedient(expedient);

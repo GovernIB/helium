@@ -2005,7 +2005,8 @@ public class PluginHelper {
 							expedientTipus.getNtiClasificacion(),
 							expedient.getDataFi() != null,
 							null,
-							expedientTipus.getNtiSerieDocumental()));
+							expedientTipus.getNtiSerieDocumental(),
+							expedient.getArxiuUuid()));
 			monitorIntegracioHelper.addAccioOk(
 					MonitorIntegracioHelper.INTCODI_ARXIU,
 					accioDescripcio,
@@ -2015,6 +2016,59 @@ public class PluginHelper {
 			return expedientCreat;
 		} catch (Exception ex) {
 			String errorDescripcio = "No s'han pogut crear l'expedient a l'arxiu: " + ex.getMessage();
+			monitorIntegracioHelper.addAccioError(
+					MonitorIntegracioHelper.INTCODI_ARXIU,
+					accioDescripcio,
+					IntegracioAccioTipusEnumDto.ENVIAMENT,
+					System.currentTimeMillis() - t0,
+					errorDescripcio,
+					ex,
+					parametres);
+			throw tractarExcepcioEnSistemaExtern(errorDescripcio, ex);
+		}
+	}
+	
+	public void arxiuExpedientModificar(
+			Expedient expedient) {
+		String accioDescripcio = "Modificació d'expedient";
+		IntegracioParametreDto[] parametres = new IntegracioParametreDto[] {
+				new IntegracioParametreDto(
+						"identificador",
+						expedient.getIdentificador()),
+				new IntegracioParametreDto(
+						"numero",
+						expedient.getNumero()),
+				new IntegracioParametreDto(
+						"expedientTipusId",
+						expedient.getTipus().getId()),
+				new IntegracioParametreDto(
+						"expedientTipusCodi",
+						expedient.getTipus().getCodi()),
+				new IntegracioParametreDto(
+						"expedientTipusNom",
+						expedient.getTipus().getNom())
+		};
+		long t0 = System.currentTimeMillis();
+		try {
+			ExpedientTipus expedientTipus = expedient.getTipus();
+			getArxiuPlugin().expedientModificar(
+					toArxiuExpedient(
+							expedient.getIdentificador(),
+							Arrays.asList(expedientTipus.getNtiOrgano()),
+							expedient.getDataInici(),
+							expedientTipus.getNtiClasificacion(),
+							expedient.getDataFi() != null,
+							null,
+							expedientTipus.getNtiSerieDocumental(),
+							expedient.getArxiuUuid()));
+			monitorIntegracioHelper.addAccioOk(
+					MonitorIntegracioHelper.INTCODI_ARXIU,
+					accioDescripcio,
+					IntegracioAccioTipusEnumDto.ENVIAMENT,
+					System.currentTimeMillis() - t0,
+					parametres);
+		} catch (Exception ex) {
+			String errorDescripcio = "No s'han pogut modificar l'expedient a l'arxiu: " + ex.getMessage();
 			monitorIntegracioHelper.addAccioError(
 					MonitorIntegracioHelper.INTCODI_ARXIU,
 					accioDescripcio,
@@ -2639,7 +2693,8 @@ public class PluginHelper {
 			String ntiClassificacio,
 			boolean expedientFinalitzat,
 			List<String> ntiInteressats,
-			String serieDocumental) {
+			String serieDocumental,
+			String arxiuUuid) {
 		es.caib.plugins.arxiu.api.Expedient expedient = new es.caib.plugins.arxiu.api.Expedient();
 		expedient.setNom(nom);
 		ExpedientMetadades metadades = new ExpedientMetadades();
@@ -2654,6 +2709,10 @@ public class PluginHelper {
 		metadades.setInteressats(ntiInteressats);
 		metadades.setSerieDocumental(serieDocumental);
 		expedient.setMetadades(metadades);
+		
+		if (arxiuUuid != null && !arxiuUuid.isEmpty())
+			expedient.setIdentificador(arxiuUuid);
+		
 		return expedient;
 	}
 
