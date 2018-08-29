@@ -1029,6 +1029,78 @@ public class DocumentHelperV3 {
 					if (ambContingutVista) {
 						dto.setVistaNom(arxiuNom);
 						dto.setVistaContingut(arxiuContingut);
+						
+						if ((perSignar && isActiuConversioSignatura()) || documentStore.isRegistrat()) {
+	 						String arxiuOrigenNom = arxiuNom;
+							byte[] arxiuOrigenContingut = arxiuContingut;
+							
+							
+							// Calculam l'extensió del document final de la vista
+							String extensioActual = null;
+							int indexPunt = arxiuOrigenNom.lastIndexOf(".");
+							if (indexPunt != -1)
+								extensioActual = arxiuOrigenNom.substring(indexPunt + 1);
+							String extensioDesti = extensioActual;
+							if (perSignar && isActiuConversioSignatura()) {
+								extensioDesti = getExtensioArxiuSignat();
+							} else if (documentStore.isRegistrat()) {
+								extensioDesti = getExtensioArxiuRegistrat();
+							}
+							dto.setVistaNom(dto.getArxiuNomSenseExtensio() + "." + extensioDesti);
+							if ("pdf".equalsIgnoreCase(extensioDesti)) {
+								// Si és un PDF podem estampar
+								try {
+									ByteArrayOutputStream vistaContingut = new ByteArrayOutputStream();
+									DateFormat df = new SimpleDateFormat("dd/MM/yyyy HH:mm");
+									String dataRegistre = null;
+									if (documentStore.getRegistreData() != null)
+										dataRegistre = df.format(documentStore.getRegistreData());
+									String numeroRegistre = documentStore.getRegistreNumero();
+									getPdfUtils().estampar(
+											arxiuOrigenNom,
+											arxiuOrigenContingut,
+											(ambSegellSignatura) ? !documentStore.isSignat() : false,
+											(ambSegellSignatura) ? getUrlComprovacioSignatura(documentStoreId, dto.getTokenSignatura()): null,
+											documentStore.isRegistrat(),
+											numeroRegistre,
+											dataRegistre,
+											documentStore.getRegistreOficinaNom(),
+											documentStore.isRegistreEntrada(),
+											vistaContingut,
+											extensioDesti);
+									dto.setVistaContingut(vistaContingut.toByteArray());
+								} catch (SistemaExternConversioDocumentException ex) {
+									logger.error("Hi ha hagut un problema amb el servidor OpenOffice i el document '" + documentStore.getCodiDocument() + "'", ex.getCause());
+									Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(documentStore.getProcessInstanceId());
+									throw new SistemaExternConversioDocumentException(
+											expedient.getEntorn().getId(),
+											expedient.getEntorn().getCodi(), 
+											expedient.getEntorn().getNom(), 
+											expedient.getId(), 
+											expedient.getTitol(), 
+											expedient.getNumero(), 
+											expedient.getTipus().getId(), 
+											expedient.getTipus().getCodi(), 
+											expedient.getTipus().getNom(), 
+											messageHelper.getMessage("error.document.conversio.externa"));
+								} catch (Exception ex) {
+									logger.error("No s'ha pogut generar la vista pel document '" + documentStore.getCodiDocument() + "'", ex);
+									Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(documentStore.getProcessInstanceId());
+									throw SistemaExternException.tractarSistemaExternException(
+											expedient.getEntorn().getId(),
+											expedient.getEntorn().getCodi(), 
+											expedient.getEntorn().getNom(), 
+											expedient.getId(), 
+											expedient.getTitol(),
+											expedient.getNumero(), 
+											expedient.getTipus().getId(), 
+											expedient.getTipus().getCodi(), 
+											expedient.getTipus().getNom(), 
+											"Estampar PDF '" + documentStore.getCodiDocument() + "'", 
+											ex);
+								}
+							}
+						}
 					}
 				} else {
 					if (ambContingutOriginal) {
