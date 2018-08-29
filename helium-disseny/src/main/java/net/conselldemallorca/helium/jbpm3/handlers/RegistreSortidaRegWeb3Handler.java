@@ -85,10 +85,8 @@ public class RegistreSortidaRegWeb3Handler extends BasicActionHandler {
 	public void setVarRepresentantAdresa(String varRepresentantAdresa) {}
 	public void setIdiomaCodi(String idiomaCodi) {}
 	public void setVarIdiomaCodi(String varIdiomaCodi) {}
-	
 	public void setCodiDocument(String codiDocument) {}
 	public void setVarCodiDocument(String varCodiDocument) {}
-	
 	public void setDocumentValidesa(String documentValidesa) {}
 	public void setVarDocumentValidesa(String varDocumentValidesa) {}
 	public void setDocumentTipus(String documentTipus) {}
@@ -103,5 +101,23 @@ public class RegistreSortidaRegWeb3Handler extends BasicActionHandler {
 	public void setVarDocumentModeFirma(String varDocumentModeFirma) {}
 	public void setVarNumeroRegistre(String varNumeroRegistre) {}
 	public void setVarDataRegistre(String varDataRegistre) {}
+	
+	public void setInteressatEmailHabilitat(String interessatEmailHabilitat) {}
+	public void setVarInteressatEmailHabilitat(String varInteressatEmailHabilitat) {}
+	public void setInteressatRaoSocial(String interessatRaoSocial) {}
+	public void setVarInteressatRaoSocial(String varInteressatRaoSocial) {}
+	public void setInteressatCanalPreferent(String interessatCanalPreferent) {}
+	public void setVarInteressatCanalPreferent(String varInteressatCanalPreferent) {}
+	public void setInteressatObservacions(String interessatObservacions) {}
+	public void setVarInteressatObservacions(String varInteressatObservacions) {}
+	
+	public void setRepresentantEmailHabilitat(String representantEmailHabilitat) {}
+	public void setVarRepresentantEmailHabilitat(String varRepresentantEmailHabilitat) {}
+	public void setRepresentantRaoSocial(String representantRaoSocial) {}
+	public void setVarRepresentantRaoSocial(String varRepresentantRaoSocial) {}
+	public void setRepresentantCanalPreferent(String representantCanalPreferent) {}
+	public void setVarRepresentantCanalPreferent(String varRepresentantCanalPreferent) {}
+	public void setRepresentantObservacions(String representantObservacions) {}
+	public void setVarRepresentantObservacions(String varRepresentantObservacions) {}
 
 }

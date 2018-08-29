@@ -60,6 +60,8 @@ public class RegistreSortidaRegWeb3Handler extends AbstractHeliumActionHandler {
 	private String varInteressatDocumentNum;
 	private String interessatEmail;
 	private String varInteressatEmail;
+	private String interessatEmailHabilitat;
+	private String varInteressatEmailHabilitat;
 	private String interessatTelefon;
 	private String varInteressatTelefon;
 	private String interessatNom;
@@ -68,6 +70,8 @@ public class RegistreSortidaRegWeb3Handler extends AbstractHeliumActionHandler {
 	private String varInteressatLlinatge1;
 	private String interessatLlinatge2;
 	private String varInteressatLlinatge2;
+	private String interessatRaoSocial;
+	private String varInteressatRaoSocial;
 	private String interessatPais;
 	private String varInteressatPais;
 	private String interessatProvincia;
@@ -78,6 +82,10 @@ public class RegistreSortidaRegWeb3Handler extends AbstractHeliumActionHandler {
 	private String varInteressatCodiPostal;
 	private String interessatAdresa;
 	private String varInteressatAdresa;
+	private String interessatCanalPreferent;
+	private String varInteressatCanalPreferent;
+	private String interessatObservacions;
+	private String varInteressatObservacions;
 	
 //	Info del representant
 	private String representantTipus;
@@ -88,6 +96,8 @@ public class RegistreSortidaRegWeb3Handler extends AbstractHeliumActionHandler {
 	private String varRepresentantDocumentNum;
 	private String representantEmail;
 	private String varRepresentantEmail;
+	private String representantEmailHabilitat;
+	private String varRepresentantEmailHabilitat;
 	private String representantTelefon;
 	private String varRepresentantTelefon;
 	private String representantNom;
@@ -96,6 +106,8 @@ public class RegistreSortidaRegWeb3Handler extends AbstractHeliumActionHandler {
 	private String varRepresentantLlinatge1;
 	private String representantLlinatge2;
 	private String varRepresentantLlinatge2;
+	private String representantRaoSocial;
+	private String varRepresentantRaoSocial;
 	private String representantPais;
 	private String varRepresentantPais;
 	private String representantProvincia;
@@ -106,6 +118,10 @@ public class RegistreSortidaRegWeb3Handler extends AbstractHeliumActionHandler {
 	private String varRepresentantCodiPostal;
 	private String representantAdresa;
 	private String varRepresentantAdresa;
+	private String representantCanalPreferent;
+	private String varRepresentantCanalPreferent;
+	private String representantObservacions;
+	private String varRepresentantObservacions;
 	
 	private String idiomaCodi;
 	private String varIdiomaCodi;
@@ -196,6 +212,10 @@ public class RegistreSortidaRegWeb3Handler extends AbstractHeliumActionHandler {
 				executionContext,
 				interessatEmail,
 				varInteressatEmail));
+		interessat.setEmailHabilitat((String)getValorOVariable(
+				executionContext,
+				interessatEmailHabilitat,
+				varInteressatEmailHabilitat));
 		interessat.setNom((String)getValorOVariable(
 				executionContext,
 				interessatNom,
@@ -208,6 +228,10 @@ public class RegistreSortidaRegWeb3Handler extends AbstractHeliumActionHandler {
 				executionContext,
 				interessatLlinatge2,
 				varInteressatLlinatge2));
+		interessat.setRaoSocial((String)getValorOVariable(
+				executionContext,
+				interessatRaoSocial,
+				varInteressatRaoSocial));
 		interessat.setPais((String)getValorOVariable(
 				executionContext,
 				interessatPais,
@@ -232,6 +256,14 @@ public class RegistreSortidaRegWeb3Handler extends AbstractHeliumActionHandler {
 				executionContext,
 				interessatAdresa,
 				varInteressatAdresa));
+		interessat.setCanalPreferent((String)getValorOVariable(
+				executionContext,
+				interessatCanalPreferent,
+				varInteressatCanalPreferent));
+		interessat.setObservacions((String)getValorOVariable(
+				executionContext,
+				interessatObservacions,
+				varInteressatObservacions));
 		
 //		Info del representant
 		RegistreInteressat representant = new RegistreInteressat();
@@ -257,6 +289,10 @@ public class RegistreSortidaRegWeb3Handler extends AbstractHeliumActionHandler {
 				executionContext,
 				representantEmail,
 				varRepresentantEmail));
+		representant.setEmailHabilitat((String)getValorOVariable(
+				executionContext,
+				representantEmailHabilitat,
+				varRepresentantEmailHabilitat));
 		representant.setNom((String)getValorOVariable(
 				executionContext,
 				representantNom,
@@ -269,6 +305,10 @@ public class RegistreSortidaRegWeb3Handler extends AbstractHeliumActionHandler {
 				executionContext,
 				representantLlinatge2,
 				varRepresentantLlinatge2));
+		representant.setRaoSocial((String)getValorOVariable(
+				executionContext,
+				representantRaoSocial,
+				varRepresentantRaoSocial));
 		representant.setPais((String)getValorOVariable(
 				executionContext,
 				representantPais,
@@ -293,6 +333,14 @@ public class RegistreSortidaRegWeb3Handler extends AbstractHeliumActionHandler {
 				executionContext,
 				representantAdresa,
 				varRepresentantAdresa));
+		representant.setCanalPreferent((String)getValorOVariable(
+				executionContext,
+				representantCanalPreferent,
+				varRepresentantCanalPreferent));
+		representant.setObservacions((String)getValorOVariable(
+				executionContext,
+				representantObservacions,
+				varRepresentantObservacions));
 		
 		if (representant.getTipus() != null)
 			interessat.setRepresentant(representant);
@@ -833,5 +881,85 @@ public class RegistreSortidaRegWeb3Handler extends AbstractHeliumActionHandler {
 
 	public void setVarCodiDocument(String varCodiDocument) {
 		this.varCodiDocument = varCodiDocument;
+	}
+
+
+	public void setInteressatEmailHabilitat(String interessatEmailHabilitat) {
+		this.interessatEmailHabilitat = interessatEmailHabilitat;
+	}
+
+
+	public void setVarInteressatEmailHabilitat(String varInteressatEmailHabilitat) {
+		this.varInteressatEmailHabilitat = varInteressatEmailHabilitat;
+	}
+
+
+	public void setInteressatRaoSocial(String interessatRaoSocial) {
+		this.interessatRaoSocial = interessatRaoSocial;
+	}
+
+
+	public void setVarInteressatRaoSocial(String varInteressatRaoSocial) {
+		this.varInteressatRaoSocial = varInteressatRaoSocial;
+	}
+
+
+	public void setInteressatCanalPreferent(String interessatCanalPreferent) {
+		this.interessatCanalPreferent = interessatCanalPreferent;
+	}
+
+
+	public void setVarInteressatCanalPreferent(String varInteressatCanalPreferent) {
+		this.varInteressatCanalPreferent = varInteressatCanalPreferent;
+	}
+
+
+	public void setInteressatObservacions(String interessatObservacions) {
+		this.interessatObservacions = interessatObservacions;
+	}
+
+
+	public void setVarInteressatObservacions(String varInteressatObservacions) {
+		this.varInteressatObservacions = varInteressatObservacions;
+	}
+
+
+	public void setRepresentantEmailHabilitat(String representantEmailHabilitat) {
+		this.representantEmailHabilitat = representantEmailHabilitat;
+	}
+
+
+	public void setVarRepresentantEmailHabilitat(String varRepresentantEmailHabilitat) {
+		this.varRepresentantEmailHabilitat = varRepresentantEmailHabilitat;
+	}
+
+
+	public void setRepresentantRaoSocial(String representantRaoSocial) {
+		this.representantRaoSocial = representantRaoSocial;
+	}
+
+
+	public void setVarRepresentantRaoSocial(String varRepresentantRaoSocial) {
+		this.varRepresentantRaoSocial = varRepresentantRaoSocial;
+	}
+
+
+	public void setRepresentantCanalPreferent(String representantCanalPreferent) {
+		this.representantCanalPreferent = representantCanalPreferent;
+	}
+
+
+	public void setVarRepresentantCanalPreferent(String varRepresentantCanalPreferent) {
+		this.varRepresentantCanalPreferent = varRepresentantCanalPreferent;
+	}
+
+
+	public void setRepresentantObservacions(String representantObservacions) {
+		this.representantObservacions = representantObservacions;
+	}
+
+
+	public void setVarRepresentantObservacions(String varRepresentantObservacions) {
+		this.varRepresentantObservacions = varRepresentantObservacions;
 	}
 }
