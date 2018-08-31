@@ -56,6 +56,7 @@ public class ExpedientTipusIntegracioNotibController extends BaseExpedientTipusC
 			command.setNotibCodiProcediment(expedientTipus.getNtiClasificacion());
 			
 			command.setNotibSeuUnitatAdministrativa(expedientTipus.getNotibSeuUnitatAdministrativa());
+			command.setNotibSeuCodiProcediment(expedientTipus.getNotibSeuCodiProcediment());
 			command.setNotibSeuOficina(expedientTipus.getNotibSeuOficina());
 			command.setNotibSeuLlibre(expedientTipus.getNotibSeuLlibre());
 			command.setNotibSeuOrgan(expedientTipus.getNotibSeuOrgan());
@@ -96,6 +97,7 @@ public class ExpedientTipusIntegracioNotibController extends BaseExpedientTipusC
 	        			command.getNotibEmisor(),
 	        			command.getNotibCodiProcediment(),
 	        			command.getNotibSeuUnitatAdministrativa(),
+	        			command.getNotibSeuCodiProcediment(),
 	        			command.getNotibSeuOficina(),
 	        			command.getNotibSeuLlibre(),
 	        			command.getNotibSeuOrgan(),

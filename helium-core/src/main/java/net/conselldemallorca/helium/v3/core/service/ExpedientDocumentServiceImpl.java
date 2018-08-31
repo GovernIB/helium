@@ -10,6 +10,7 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
+import org.apache.commons.lang.exception.ExceptionUtils;
 import org.json.simple.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,6 +31,7 @@ import net.conselldemallorca.helium.core.helper.PluginHelper;
 import net.conselldemallorca.helium.core.helper.TascaHelper;
 import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
 import net.conselldemallorca.helium.core.model.hibernate.Document;
+import net.conselldemallorca.helium.core.model.hibernate.DocumentNotificacio;
 import net.conselldemallorca.helium.core.model.hibernate.DocumentStore;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientLog.ExpedientLogAccioTipus;
@@ -57,6 +59,7 @@ import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientDocumentService;
 import net.conselldemallorca.helium.v3.core.repository.CampRepository;
 import net.conselldemallorca.helium.v3.core.repository.DefinicioProcesRepository;
+import net.conselldemallorca.helium.v3.core.repository.DocumentNotificacioRepository;
 import net.conselldemallorca.helium.v3.core.repository.DocumentRepository;
 import net.conselldemallorca.helium.v3.core.repository.DocumentStoreRepository;
 import net.conselldemallorca.helium.v3.core.repository.PortasignaturesRepository;
@@ -81,6 +84,8 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 	private DocumentRepository documentRepository;
 	@Resource
 	private DocumentStoreRepository documentStoreRepository;
+	@Resource
+	private DocumentNotificacioRepository documentNotificacioRepository;
 	@Resource
 	private PortasignaturesRepository portasignaturesRepository;
 
@@ -1235,6 +1240,28 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 			return "";
 		} else {
 			return arxiuNom.substring(index + 1);
+		}
+	}
+	
+	@Transactional
+	@Override
+	public void notificacioActualitzarEstat(
+			String identificador, 
+			String referencia) {
+		
+		DocumentNotificacio notificacio = documentNotificacioRepository.findByEnviamentIdentificadorAndEnviamentReferencia(
+				identificador,
+				referencia);
+		if (notificacio == null) {
+			throw new NoTrobatException(DocumentNotificacio.class);
+		}
+		
+		try {
+			pluginHelper.notificacioActualitzarEstat(notificacio);
+		} catch (Exception ex) {
+//			String errorDescripcio = "Error al accedir al plugin de notificacions";
+//			Throwable rootCause = ExceptionUtils.getRootCause(ex);
+//			if (rootCause == null) rootCause = ex;
 		}
 	}
 

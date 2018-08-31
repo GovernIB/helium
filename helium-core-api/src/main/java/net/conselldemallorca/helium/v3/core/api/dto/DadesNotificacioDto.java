@@ -16,6 +16,7 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 
 public class DadesNotificacioDto {
 
+	private Long expedientId;
 	private String emisorDir3Codi;
 	private EnviamentTipusEnumDto enviamentTipus;
 	private String concepte;
@@ -23,8 +24,10 @@ public class DadesNotificacioDto {
 	private Date enviamentDataProgramada;
 	private Integer retard;
 	private Date caducitat;
+	private Long documentId;
 	private String documentArxiuNom;
 	private byte[] documentArxiuContingut;
+	private List<DocumentDto> annexos;
 	private String procedimentCodi;
 	private String pagadorPostalDir3Codi;
 	private String pagadorPostalContracteNum;
@@ -47,7 +50,19 @@ public class DadesNotificacioDto {
 	private String seuAvisTextMobil;
 	private String seuOficiTitol;
 	private String seuOficiText;
+	private NotificacioEnviamentEstatEnumDto estat;
+	private Date enviatData;
+	private Boolean error;
+	private String errorDescripcio;
+	private Long justificantId;
+	private String justificantArxiuNom;
 
+	public Long getExpedientId() {
+		return expedientId;
+	}
+	public void setExpedientId(Long expedientId) {
+		this.expedientId = expedientId;
+	}
 	public String getEmisorDir3Codi() {
 		return emisorDir3Codi;
 	}
@@ -89,6 +104,12 @@ public class DadesNotificacioDto {
 	}
 	public void setCaducitat(Date caducitat) {
 		this.caducitat = caducitat;
+	}
+	public Long getDocumentId() {
+		return documentId;
+	}
+	public void setDocumentId(Long documentId) {
+		this.documentId = documentId;
 	}
 	public String getDocumentArxiuNom() {
 		return documentArxiuNom;
@@ -235,6 +256,53 @@ public class DadesNotificacioDto {
 		this.seuOficiText = seuOficiText;
 	}
 
+	public List<DocumentDto> getAnnexos() {
+		return annexos;
+	}
+	public void setAnnexos(List<DocumentDto> annexos) {
+		this.annexos = annexos;
+	}
+	
+	public NotificacioEnviamentEstatEnumDto getEstat() {
+		return estat;
+	}
+	public void setEstat(NotificacioEnviamentEstatEnumDto estat) {
+		this.estat = estat;
+	}
+	
+	public Date getEnviatData() {
+		return enviatData;
+	}
+	public void setEnviatData(Date enviatData) {
+		this.enviatData = enviatData;
+	}
+	
+	public Boolean getError() {
+		return error;
+	}
+	public void setError(Boolean error) {
+		this.error = error;
+	}
+	
+	public String getErrorDescripcio() {
+		return errorDescripcio;
+	}
+	public void setErrorDescripcio(String errorDescripcio) {
+		this.errorDescripcio = errorDescripcio;
+	}
+	
+	public Long getJustificantId() {
+		return justificantId;
+	}
+	public void setJustificantId(Long justificantId) {
+		this.justificantId = justificantId;
+	}
+	public String getJustificantArxiuNom() {
+		return justificantArxiuNom;
+	}
+	public void setJustificantArxiuNom(String justificantArxiuNom) {
+		this.justificantArxiuNom = justificantArxiuNom;
+	}
 	@Override
 	public String toString() {
 		return ToStringBuilder.reflectionToString(this);

@@ -73,4 +73,5 @@ public interface DocumentService {
 		
 	public ArxiuDto getArxiu(
 			Long documentId) throws NoTrobatException;
+
 }

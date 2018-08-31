@@ -4,12 +4,6 @@ import java.util.Date;
 import java.util.List;
 
 import org.jbpm.graph.exe.ExecutionContext;
-import org.springmodules.validation.bean.conf.loader.annotation.handler.MaxLength;
-
-import net.conselldemallorca.helium.integracio.plugins.notificacio.EntregaPostalTipus;
-import net.conselldemallorca.helium.integracio.plugins.notificacio.EntregaPostalViaTipus;
-import net.conselldemallorca.helium.integracio.plugins.notificacio.Enviament;
-import net.conselldemallorca.helium.integracio.plugins.notificacio.EnviamentTipus;
 
 /**
  * Handler per a interactuar amb el registre de sortida.

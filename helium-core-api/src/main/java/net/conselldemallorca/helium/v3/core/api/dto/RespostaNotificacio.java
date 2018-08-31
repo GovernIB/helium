@@ -3,7 +3,7 @@
  */
 package net.conselldemallorca.helium.v3.core.api.dto;
 
-import java.util.Map;
+import java.util.List;
 
 /**
  * Resposta a una anotació de registre
@@ -20,7 +20,7 @@ public class RespostaNotificacio {
 	
 	private String identificador;
 	private NotificacioEstat estat;
-	private Map<String, String> referencies;
+	private List<ReferenciaNotificacio> referencies;
 
 	public String getIdentificador() {
 		return identificador;
@@ -34,10 +34,10 @@ public class RespostaNotificacio {
 	public void setEstat(NotificacioEstat estat) {
 		this.estat = estat;
 	}
-	public Map<String, String> getReferencies() {
+	public List<ReferenciaNotificacio> getReferencies() {
 		return referencies;
 	}
-	public void setReferencies(Map<String, String> referencies) {
+	public void setReferencies(List<ReferenciaNotificacio> referencies) {
 		this.referencies = referencies;
 	}
 }

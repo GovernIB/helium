@@ -5,7 +5,10 @@ package net.conselldemallorca.helium.jbpm3.handlers;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.Objects;
+
+import org.jbpm.JbpmException;
+import org.jbpm.graph.def.ActionHandler;
+import org.jbpm.graph.exe.ExecutionContext;
 
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.DocumentInfo;
 import net.conselldemallorca.helium.jbpm3.integracio.DominiCodiDescripcio;
@@ -17,10 +20,6 @@ import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TerminiDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TerminiIniciatDto;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
-
-import org.jbpm.JbpmException;
-import org.jbpm.graph.def.ActionHandler;
-import org.jbpm.graph.exe.ExecutionContext;
 
 /**
  * Handler base amb accés a la funcionalitat de Helium

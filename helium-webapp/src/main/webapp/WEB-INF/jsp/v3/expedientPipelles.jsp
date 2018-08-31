@@ -481,7 +481,7 @@ dd.subproc {
 				<c:if test="${numAccions > 0}">
 					<li id="pipella-accions"><a href="#contingut-accions" role="tab" data-toggle="tab"><spring:message code="expedient.info.pipella.accions"/></a></li>
 				</c:if>
-				<c:if test="${expedient.tipus.notificacionsActivades}">
+				<c:if test="${expedient.tipus.notibActiu}">
 					<li id="pipella-notificacions"><a href="#contingut-notificacions" role="tab" data-toggle="tab"><spring:message code="expedient.info.pipella.notificacions"/></a></li>
 				</c:if>
 			</ul>
@@ -516,7 +516,7 @@ dd.subproc {
 						<div class="contingut-carregant"><span class="fa fa-circle-o-notch fa-spin fa-3x"></span></div>
 					</div>
 				</c:if>
-				<c:if test="${expedient.tipus.notificacionsActivades}">
+				<c:if test="${expedient.tipus.notibActiu}">
 					<div id="contingut-notificacions" class="tab-pane" data-href="<c:url value="/nodeco/v3/expedient/${expedient.id}/notificacions"/>">
 						<div class="contingut-carregant"><span class="fa fa-circle-o-notch fa-spin fa-3x"></span></div>
 					</div>

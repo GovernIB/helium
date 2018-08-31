@@ -3204,6 +3204,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 			String notibEmisor, 
 			String notibCodiProcediment,
 			String notibSeuUnitatAdministrativa, 
+			String notibSeuCodiProcediment,
 			String notibSeuOficina, 
 			String notibSeuLlibre, 
 			String notibSeuOrgan,
@@ -3224,6 +3225,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 			expedientTipus.setNtiClasificacion(notibCodiProcediment);
 		}
 		expedientTipus.setNotibSeuUnitatAdministrativa(notibSeuUnitatAdministrativa);
+		expedientTipus.setNotibSeuCodiProcediment(notibSeuCodiProcediment);
 		expedientTipus.setNotibSeuOficina(notibSeuOficina);
 		expedientTipus.setNotibSeuLlibre(notibSeuLlibre);
 		expedientTipus.setNotibSeuOrgan(notibSeuOrgan);

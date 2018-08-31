@@ -93,6 +93,8 @@ public class ExpedientTipus implements Serializable, GenericEntity<Long> {
 	@MaxLength(100)
 	private String notibSeuUnitatAdministrativa;
 	@MaxLength(100)
+	private String notibSeuCodiProcediment;
+	@MaxLength(100)
 	private String notibSeuOficina;
 	@MaxLength(100)
 	private String notibSeuLlibre;
@@ -497,6 +499,14 @@ public class ExpedientTipus implements Serializable, GenericEntity<Long> {
 	}
 	public void setNotibSeuUnitatAdministrativa(String notibSeuUnitatAdministrativa) {
 		this.notibSeuUnitatAdministrativa = notibSeuUnitatAdministrativa;
+	}
+	
+	@Column(name="notib_seu_codiprocediment", length = 100)
+	public String getNotibSeuCodiProcediment() {
+		return notibSeuCodiProcediment;
+	}
+	public void setNotibSeuCodiProcediment(String notibSeuCodiProcediment) {
+		this.notibSeuCodiProcediment = notibSeuCodiProcediment;
 	}
 	
 	@Column(name="notib_seu_oficina", length = 100)

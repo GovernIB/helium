@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import net.conselldemallorca.helium.core.helper.ConversioTipusHelper;
+import net.conselldemallorca.helium.core.helper.NotificacioHelper;
 import net.conselldemallorca.helium.core.helper.PaginacioHelper;
 import net.conselldemallorca.helium.core.model.hibernate.Document;
 import net.conselldemallorca.helium.core.model.hibernate.DocumentTasca;
@@ -36,6 +37,7 @@ public class DocumentServiceImpl implements DocumentService {
 
 	@Resource
 	private DocumentRepository documentRepository;
+	
 	@Resource
 	private ExpedientTipusRepository expedientTipusRepository;
 	@Resource
@@ -46,6 +48,8 @@ public class DocumentServiceImpl implements DocumentService {
 	private PaginacioHelper paginacioHelper;
 	@Resource
 	private ConversioTipusHelper conversioTipusHelper;
+	@Resource
+	private NotificacioHelper notificacioHelper;
 
 	/**
 	 * {@inheritDoc}

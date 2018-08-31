@@ -20,6 +20,7 @@ public class ExpedientTipusIntegracioNotibCommand {
 	private String notibEmisor;
 	private String notibCodiProcediment;
 	private String notibSeuUnitatAdministrativa;
+	private String notibSeuCodiProcediment;
 	private String notibSeuOficina;
 	private String notibSeuLlibre;
 	private String notibSeuOrgan;
@@ -67,6 +68,14 @@ public class ExpedientTipusIntegracioNotibCommand {
 
 	public void setNotibSeuUnitatAdministrativa(String notibSeuUnitatAdministrativa) {
 		this.notibSeuUnitatAdministrativa = notibSeuUnitatAdministrativa;
+	}
+
+	public String getNotibSeuCodiProcediment() {
+		return notibSeuCodiProcediment;
+	}
+
+	public void setNotibSeuCodiProcediment(String notibSeuCodiProcediment) {
+		this.notibSeuCodiProcediment = notibSeuCodiProcediment;
 	}
 
 	public String getNotibSeuOficina() {

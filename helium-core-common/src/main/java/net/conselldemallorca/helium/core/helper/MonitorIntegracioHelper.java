@@ -40,6 +40,7 @@ public class MonitorIntegracioHelper {
 	public static final String INTCODI_CONVDOC = "CONVDOC";
 	public static final String INTCODI_PFIRMA_CB = "PFIRMA_CB";
 	public static final String INTCODI_ARXIU = "ARXIU";
+	public static final String INTCODI_NOTIB = "NOTIB";
 
 	private Map<String, LinkedList<IntegracioAccioDto>> accionsIntegracio = new HashMap<String, LinkedList<IntegracioAccioDto>>();
 	private Map<String, Integer> maxAccionsIntegracio = new HashMap<String, Integer>();
@@ -78,6 +79,9 @@ public class MonitorIntegracioHelper {
 		integracions.add(
 				novaIntegracio(
 						INTCODI_CONVDOC));
+		integracions.add(
+				novaIntegracio(
+						INTCODI_NOTIB));
 		for (IntegracioDto integracio: integracions) {
 			LinkedList<IntegracioAccioDto> accions = accionsIntegracio.get(integracio.getCodi());
 			if (accions != null) {
@@ -240,6 +244,8 @@ public class MonitorIntegracioHelper {
 			integracio.setDescripcio("Portafib CB");
 		} else if (INTCODI_ARXIU.equals(codi)) {
 			integracio.setDescripcio("Arxiu digital");
+		} else if (INTCODI_NOTIB.equals(codi)) {
+			integracio.setDescripcio("Notificcació");
 		}
 		return integracio;
 	}

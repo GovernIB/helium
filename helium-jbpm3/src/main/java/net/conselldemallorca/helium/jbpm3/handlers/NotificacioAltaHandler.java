@@ -56,6 +56,9 @@ public class NotificacioAltaHandler extends BasicActionHandler implements Notifi
 	private String document;
 	private String varDocument;
 	
+	private String annexos;
+	private String varAnnexos;
+	
 	private String procedimentCodi;
 	private String varProcedimentCodi;
 	
@@ -77,19 +80,19 @@ public class NotificacioAltaHandler extends BasicActionHandler implements Notifi
 	private String pagadorCieContracteDataVigencia;
 	private String varPagadorCieContracteDataVigencia;
 	
-	private String seuProcedimentCodi; // IDENTIFICADOR_PROCEDIMENT_SISTRA (falta)
+	private String seuProcedimentCodi;
 	private String varSeuProcedimentCodi;
 	
-	private String seuExpedientSerieDocumental; // agafat exp RIPEA
+	private String seuExpedientSerieDocumental;
 	private String varSeuExpedientSerieDocumental;
 	
 	private String seuExpedientUnitatOrganitzativa; // UNITAT_ADMINISTRATIVA_SISTRA
 	private String varSeuExpedientUnitatOrganitzativa;
 	
-	private String seuExpedientIdentificadorEni; // agafat exp RIPEA
+	private String seuExpedientIdentificadorEni;
 	private String varSeuExpedientIdentificadorEni;
 	
-	private String seuExpedientTitol; // agafat exp RIPEA
+	private String seuExpedientTitol; 
 	private String varSeuExpedientTitol;
 	
 	private String seuRegistreOficina; // OFICINA
@@ -261,6 +264,8 @@ public class NotificacioAltaHandler extends BasicActionHandler implements Notifi
 //						+ "personal.");
 //		}
 		
+		String expedientTitol = expedient.getTitol();
+		String notibEmisor = expedientTipus.getNtiOrgano();
 		String notibSeuUnitatAdministrativa = expedientTipus.getNotibSeuUnitatAdministrativa();
 		if (notibSeuUnitatAdministrativa == null && expedient.getUnitatAdministrativa() != null)
 			notibSeuUnitatAdministrativa = String.valueOf(expedient.getUnitatAdministrativa());
@@ -276,14 +281,16 @@ public class NotificacioAltaHandler extends BasicActionHandler implements Notifi
 		String notibOficiTitol = expedientTipus.getNotibOficiTitol();
 		String notibOficiText = expedientTipus.getNotibOficiText();
 		String notibSerieDocumental = expedientTipus.getNtiSerieDocumental();
-		String notibProcedimentCodi = expedientTipus.getNotificacioCodiProcediment();
+		String notibProcedimentCodi = expedientTipus.getNtiClasificacion();
+		String notibSeuProcedimentCodi = expedientTipus.getNotibSeuCodiProcediment();
 		
 		DadesNotificacio dadesNotificacio = new DadesNotificacio();
 		
-		dadesNotificacio.setEmisorDir3Codi((String)getValorOVariable(
+		String emisorCodi = (String)getValorOVariable(
 				executionContext,
 				emisorDir3Codi,
-				varEmisorDir3Codi));
+				varEmisorDir3Codi);
+		dadesNotificacio.setEmisorDir3Codi(emisorCodi != null ? emisorCodi : notibEmisor);
 
 		String strTipusEnviament = (String)getValorOVariable(
 				executionContext,
@@ -319,6 +326,7 @@ public class NotificacioAltaHandler extends BasicActionHandler implements Notifi
 		
 		DocumentInfo documentInfo = null;
 		List<DocumentInfo> annexos_notificacio = new ArrayList<DocumentInfo>();
+		
 		String doc = (String)getValorOVariable(
 				executionContext,
 				document,
@@ -326,6 +334,7 @@ public class NotificacioAltaHandler extends BasicActionHandler implements Notifi
 		if (doc != null && !doc.isEmpty()) {
 			documentInfo = getDocumentInfo(executionContext, doc, true);
 			if (documentInfo != null) {
+				dadesNotificacio.setDocumentId(documentInfo.getId());
 				dadesNotificacio.setDocumentArxiuNom(documentInfo.getArxiuNom());
 				dadesNotificacio.setDocumentArxiuContingut(documentInfo.getArxiuContingut());
 			} else {
@@ -333,10 +342,32 @@ public class NotificacioAltaHandler extends BasicActionHandler implements Notifi
 			}
 		}
 		
-		dadesNotificacio.setProcedimentCodi((String)getValorOVariable(
+// 		Actualment no enviem annexos
+		
+//		List<Long> anxs = null;
+//		String anxsCodis = (String)getValorOVariable(
+//				executionContext, 
+//				annexos,
+//				varAnnexos);
+//		if (anxsCodis != null) {
+//			anxs = new ArrayList<Long>();
+//			String[] codis = anxsCodis.split(",");
+//			for (String codi: codis) {
+//				DocumentInfo annexInfo = getDocumentInfo(executionContext, codi, true);
+//				if (annexInfo != null) {
+//					annexos_notificacio.add(annexInfo);
+//				} else {
+//					throw new JbpmException("No existeix cap annex amb documentCodi: " + codi + ".");
+//				}
+//			}
+//		}
+//		dadesNotificacio.setAnnexos(annexos_notificacio);
+		
+		String codiProcediment = (String)getValorOVariable(
 				executionContext,
 				procedimentCodi,
-				varProcedimentCodi));
+				varProcedimentCodi);
+		dadesNotificacio.setProcedimentCodi(codiProcediment != null ? codiProcediment : notibProcedimentCodi);
 		dadesNotificacio.setPagadorPostalDir3Codi((String)getValorOVariable(
 				executionContext,
 				pagadorPostalDir3Codi,
@@ -362,11 +393,11 @@ public class NotificacioAltaHandler extends BasicActionHandler implements Notifi
 				pagadorCieContracteDataVigencia,
 				varPagadorCieContracteDataVigencia));
 		
-		String seuProcedimentCodiVal = (String)getValorOVariable(
+		String seuCodiProcediment = (String)getValorOVariable(
 				executionContext,
 				seuProcedimentCodi,
 				varSeuProcedimentCodi);
-		dadesNotificacio.setSeuProcedimentCodi(seuProcedimentCodiVal != null ? seuProcedimentCodiVal: notibProcedimentCodi);
+		dadesNotificacio.setSeuProcedimentCodi(seuCodiProcediment != null ? seuCodiProcediment: notibSeuProcedimentCodi);
 		String seuSerieDocumental = (String)getValorOVariable(
 				executionContext,
 				seuExpedientSerieDocumental,
@@ -396,10 +427,11 @@ public class NotificacioAltaHandler extends BasicActionHandler implements Notifi
 		}
 //		expedient.setTramitExpedientIdentificador(identificadorEni);
 		dadesNotificacio.setSeuExpedientIdentificadorEni(identificadorEni);
-		dadesNotificacio.setSeuExpedientTitol((String)getValorOVariable(
+		String expTitol = (String)getValorOVariable(
 				executionContext,
 				seuExpedientTitol,
-				varSeuExpedientTitol));
+				varSeuExpedientTitol);
+		dadesNotificacio.setSeuExpedientTitol(expTitol != null ? expTitol : expedientTitol);
 		String seuOficina = (String)getValorOVariable(
 				executionContext,
 				seuRegistreOficina,
@@ -610,10 +642,11 @@ public class NotificacioAltaHandler extends BasicActionHandler implements Notifi
 				executionContext,
 				entregaPostalFormatFulla,
 				varEntregaPostalFormatFulla));
-		enviament.setEntregaDehObligat(getValorOVariableBoolean(
+		Boolean dehObligat = getValorOVariableBoolean(
 				executionContext,
 				entregaDehObligat,
-				varEntregaDehObligat));
+				varEntregaDehObligat);
+		enviament.setEntregaDehObligat(dehObligat != null ? dehObligat : false);
 		enviament.setEntregaDehProcedimentCodi((String)getValorOVariable(
 				executionContext,
 				entregaDehProcedimentCodi,
@@ -801,6 +834,14 @@ public class NotificacioAltaHandler extends BasicActionHandler implements Notifi
 
 	public void setVarDocument(String varDocument) {
 		this.varDocument = varDocument;
+	}
+
+	public void setAnnexos(String annexos) {
+		this.annexos = annexos;
+	}
+
+	public void setVarAnnexos(String varAnnexos) {
+		this.varAnnexos = varAnnexos;
 	}
 
 	public void setProcedimentCodi(String procedimentCodi) {

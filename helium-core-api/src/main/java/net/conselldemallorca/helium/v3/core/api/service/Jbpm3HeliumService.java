@@ -806,9 +806,7 @@ public interface Jbpm3HeliumService {
 	public RespostaJustificantDetallRecepcioDto notificacioElectronicaJustificantDetall(
 			String registreNumero) throws Exception;
 	
-	public RespostaNotificacio altaNotificacio(
-			DadesNotificacioDto notificacio,
-			Long expedientId) throws SistemaExternException, NoTrobatException;
+	public RespostaNotificacio altaNotificacio(DadesNotificacioDto notificacio) throws SistemaExternException, NoTrobatException;
 
 	/**
 	 * 

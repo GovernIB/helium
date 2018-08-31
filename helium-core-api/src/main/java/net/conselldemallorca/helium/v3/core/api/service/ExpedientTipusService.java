@@ -1112,6 +1112,7 @@ public interface ExpedientTipusService {
 			String notibEmisor, 
 			String notibCodiProcediment,
 			String notibSeuUnitatAdministrativa, 
+			String notibSeuCodiProcediment,
 			String notibSeuOficina, 
 			String notibSeuLlibre, 
 			String notibSeuOrgan,

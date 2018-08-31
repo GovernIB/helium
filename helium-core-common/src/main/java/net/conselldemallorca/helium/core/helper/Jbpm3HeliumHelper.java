@@ -10,6 +10,7 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
+import org.apache.commons.lang.exception.ExceptionUtils;
 import org.hibernate.Hibernate;
 import org.jbpm.graph.exe.ProcessInstanceExpedient;
 import org.slf4j.Logger;
@@ -31,6 +32,7 @@ import net.conselldemallorca.helium.core.model.hibernate.Area;
 import net.conselldemallorca.helium.core.model.hibernate.Camp;
 import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
 import net.conselldemallorca.helium.core.model.hibernate.Document;
+import net.conselldemallorca.helium.core.model.hibernate.DocumentNotificacio;
 import net.conselldemallorca.helium.core.model.hibernate.Domini;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 import net.conselldemallorca.helium.core.model.hibernate.Enumeracio;
@@ -1567,14 +1569,39 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 	}
 	
 	@Override
-	public RespostaNotificacio altaNotificacio(
-			DadesNotificacioDto notificacio,
-			Long expedientId) {
-		Expedient expedient = expedientRepository.findOne(expedientId);
-		expedient.setTramitExpedientIdentificador(notificacio.getSeuExpedientIdentificadorEni());
-		RespostaNotificacio resposta = pluginHelper.altaNotificacio(
-				notificacio, 
-				expedient);
+	public RespostaNotificacio altaNotificacio(DadesNotificacioDto dadesNotificacio) {
+		Expedient expedient = expedientRepository.findOne(dadesNotificacio.getExpedientId());
+		expedient.setTramitExpedientIdentificador(dadesNotificacio.getSeuExpedientIdentificadorEni());
+		DocumentNotificacio notificacio = notificacioElectronicaHelper.create(dadesNotificacio);
+		
+		RespostaNotificacio resposta = null; 
+				
+		try {
+			resposta = pluginHelper.altaNotificacio(
+					dadesNotificacio, 
+					expedient);
+			notificacio.updateEnviat(
+					new Date(),
+					resposta.getIdentificador(),
+					resposta.getReferencies().get(0).getReferencia());
+		} catch (Exception e) {
+			notificacio.updateEnviatError(
+					ExceptionUtils.getStackTrace(e), 
+					null);
+			throw new SistemaExternException(
+					expedient.getEntorn().getId(),
+					expedient.getEntorn().getCodi(), 
+					expedient.getEntorn().getNom(), 
+					expedient.getId(), 
+					expedient.getTitol(), 
+					expedient.getNumero(), 
+					expedient.getTipus().getId(), 
+					expedient.getTipus().getCodi(), 
+					expedient.getTipus().getNom(), 
+					"(Enviament de notificació)", 
+					e);
+		}
+		
 		return resposta;
 	}
 

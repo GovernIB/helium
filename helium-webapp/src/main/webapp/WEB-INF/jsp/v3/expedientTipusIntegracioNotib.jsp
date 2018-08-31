@@ -59,6 +59,7 @@ $(document).ready(function() {
 					<hel:inputText required="true" name="notibCodiProcediment" textKey="expedient.tipus.integracio.notib.sia.codiprocediment"  readonly="${expedientTipusIntegracioNotibCommand.ntiActiu}"/>
 					
 					<hel:inputText required="true" name="notibSeuUnitatAdministrativa" textKey="expedient.tipus.integracio.notib.exp.unitatorganitzativa" />
+					<hel:inputText required="true" name="notibSeuCodiProcediment" textKey="expedient.tipus.integracio.notib.sistra.codiprocediment" />
 					<hel:inputText required="true" name="notibSeuOficina" textKey="expedient.tipus.integracio.notib.reg.oficina" />
 					<hel:inputText required="true" name="notibSeuLlibre" textKey="expedient.tipus.integracio.notib.reg.llibre" />
 					<hel:inputText required="true" name="notibSeuOrgan" textKey="expedient.tipus.integracio.notib.reg.organ" />

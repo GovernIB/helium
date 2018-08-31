@@ -42,6 +42,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.DadesEnviamentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DadesNotificacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentDissenyDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DominiRespostaColumnaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DominiRespostaFilaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EnumeracioValorDto;
@@ -550,6 +551,7 @@ public abstract class BasicActionHandler extends AbstractHeliumActionHandler imp
 			DadesNotificacio dadesNotificacio,
 			Long expedientId) throws JbpmException {
 		DadesNotificacioDto notificacio = new DadesNotificacioDto();
+		notificacio.setExpedientId(expedientId);
 		notificacio.setEmisorDir3Codi(dadesNotificacio.getEmisorDir3Codi());
 		if (dadesNotificacio.getEnviamentTipus() != null)
 			notificacio.setEnviamentTipus(EnviamentTipusEnumDto.valueOf(dadesNotificacio.getEnviamentTipus().name()));
@@ -558,8 +560,19 @@ public abstract class BasicActionHandler extends AbstractHeliumActionHandler imp
 		notificacio.setEnviamentDataProgramada(dadesNotificacio.getEnviamentDataProgramada());
 		notificacio.setRetard(dadesNotificacio.getRetard());
 		notificacio.setCaducitat(dadesNotificacio.getCaducitat());
+		notificacio.setDocumentId(dadesNotificacio.getDocumentId());
 		notificacio.setDocumentArxiuNom(dadesNotificacio.getDocumentArxiuNom());
 		notificacio.setDocumentArxiuContingut(dadesNotificacio.getDocumentArxiuContingut());
+		List<DocumentDto> annexos = new ArrayList<DocumentDto>();
+		if (dadesNotificacio.getAnnexos() != null) {
+			for (DocumentInfo doc_annex: dadesNotificacio.getAnnexos()) {
+				DocumentDto annex = new DocumentDto();
+				annex.setDocumentId(doc_annex.getId());
+				annex.setArxiuNom(doc_annex.getArxiuNom());
+				annex.setArxiuContingut(doc_annex.getArxiuContingut());
+			}
+		}
+		notificacio.setAnnexos(annexos);
 		notificacio.setProcedimentCodi(dadesNotificacio.getProcedimentCodi());
 		notificacio.setPagadorPostalDir3Codi(dadesNotificacio.getPagadorPostalDir3Codi());
 		notificacio.setPagadorPostalContracteNum(dadesNotificacio.getPagadorPostalContracteNum());
@@ -645,9 +658,7 @@ public abstract class BasicActionHandler extends AbstractHeliumActionHandler imp
 		notificacio.setEnviaments(enviaments);
 		
 		
-		RespostaNotificacio resposta = Jbpm3HeliumBridge.getInstanceService().altaNotificacio(
-				notificacio, 
-				expedientId);
+		RespostaNotificacio resposta = Jbpm3HeliumBridge.getInstanceService().altaNotificacio(notificacio);
 		
 		return resposta;
 	}

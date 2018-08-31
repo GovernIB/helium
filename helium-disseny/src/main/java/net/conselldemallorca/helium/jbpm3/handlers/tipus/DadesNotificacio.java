@@ -28,8 +28,10 @@ public class DadesNotificacio {
 	private Date enviamentDataProgramada;
 	private Integer retard;
 	private Date caducitat;
+	private Long documentId;
 	private String documentArxiuNom;
 	private byte[] documentArxiuContingut;
+	private List<DocumentInfo> annexos;
 	private String procedimentCodi;
 	private String pagadorPostalDir3Codi;
 	private String pagadorPostalContracteNum;
@@ -94,6 +96,12 @@ public class DadesNotificacio {
 	}
 	public void setCaducitat(Date caducitat) {
 		this.caducitat = caducitat;
+	}
+	public Long getDocumentId() {
+		return documentId;
+	}
+	public void setDocumentId(Long documentId) {
+		this.documentId = documentId;
 	}
 	public String getDocumentArxiuNom() {
 		return documentArxiuNom;
@@ -239,7 +247,13 @@ public class DadesNotificacio {
 	public void setSeuOficiText(String seuOficiText) {
 		this.seuOficiText = seuOficiText;
 	}
-
+	public List<DocumentInfo> getAnnexos() {
+		return annexos;
+	}
+	public void setAnnexos(List<DocumentInfo> annexos) {
+		this.annexos = annexos;
+	}
+	
 	@Override
 	public String toString() {
 		return ToStringBuilder.reflectionToString(this);

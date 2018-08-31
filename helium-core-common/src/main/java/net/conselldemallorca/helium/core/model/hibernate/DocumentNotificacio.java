@@ -4,8 +4,11 @@
 package net.conselldemallorca.helium.core.model.hibernate;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -15,6 +18,8 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.TableGenerator;
@@ -22,13 +27,16 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.UniqueConstraint;
 
+import org.apache.commons.lang.StringUtils;
 import org.hibernate.annotations.ForeignKey;
 
+import net.conselldemallorca.helium.integracio.plugins.notificacio.EnviamentEstat;
 import net.conselldemallorca.helium.v3.core.api.dto.EnviamentTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NotificacioEnviamentEstatEnumDto;
 
 /**
  * Objecte de domini que representa una notificació electronica de un expedient.
+ * Només inclou 1 enviament, i per ara sense annexos
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
@@ -38,7 +46,7 @@ uniqueConstraints = {
 		@UniqueConstraint(columnNames = {
 				"expedient_id",
 				"document_store_id",
-				"data_enviament"})})
+				"enviat_data"})})
 public class DocumentNotificacio implements Serializable, GenericEntity<Long> {
 
 	@Id
@@ -47,10 +55,8 @@ public class DocumentNotificacio implements Serializable, GenericEntity<Long> {
 	@Column(name="id")
 	private Long id;
 	
-	@ManyToOne(optional = false, fetch = FetchType.EAGER)
-	@JoinColumn(name = "usuari_id")
-	@ForeignKey(name = "hel_usuari_not_notib_fk")
-	private Usuari usuari;
+	@Column(name = "usuari_codi")
+	private String usuariCodi;
 	
 	@ManyToOne(optional = false, fetch = FetchType.EAGER)
 	@JoinColumn(name = "expedient_id")
@@ -62,18 +68,30 @@ public class DocumentNotificacio implements Serializable, GenericEntity<Long> {
 	@ForeignKey(name = "hel_document_notif_fk")
 	private DocumentStore document;
 	
+	@ManyToMany(
+			cascade = CascadeType.ALL,
+			fetch = FetchType.LAZY)
+	@JoinTable(
+			name = "hel_document_notificacio_anx",
+			joinColumns = {@JoinColumn(name = "document_notificacio_id")},
+			inverseJoinColumns = {@JoinColumn(name = "document_store_id")})
+	protected List<DocumentStore> annexos = new ArrayList<DocumentStore>();
+	
+	@Column(name = "emisor")
+	private String emisorDir3Codi;
+	
 	@Column(name = "tipus")
 	@Enumerated(EnumType.STRING)
 	private EnviamentTipusEnumDto tipus;
 	
-	@Column(name = "not_data_prog")
+	@Column(name = "data_programada")
 	@Temporal(TemporalType.DATE)
 	private Date dataProgramada;
 	
-	@Column(name = "not_retard")
+	@Column(name = "retard")
 	private Integer retard;
 	
-	@Column(name = "not_data_caducitat")
+	@Column(name = "data_caducitat")
 	@Temporal(TemporalType.DATE)
 	private Date dataCaducitat;
 	
@@ -115,85 +133,13 @@ public class DocumentNotificacio implements Serializable, GenericEntity<Long> {
 	@Column(name = "dest_email", nullable = false, length = 100)
 	private String destinatariEmail;
 	
-	@Column(name = "estat", nullable = false)
-	@Enumerated(EnumType.STRING)
-	private NotificacioEnviamentEstatEnumDto estat;
-	
-	@Column(name = "enviat_data")
-	@Temporal(TemporalType.TIMESTAMP)
-	protected Date enviatData;
-	
-	@Column(name = "processat_data")
-	@Temporal(TemporalType.TIMESTAMP)
-	protected Date processatData;
-	
-	@Column(name = "cancelat_data")
-	@Temporal(TemporalType.TIMESTAMP)
-	protected Date cancelatData;
-	
-	@Column(name = "error")
-	protected boolean error;
-	
-	@Column(name = "error_desc", length = 2048)
-	protected String errorDescripcio;
-	
-	@Column(name = "intent_num")
-	private Integer numIntents;
-	
-	@Column(name = "intent_data")
-	@Temporal(TemporalType.TIMESTAMP)
-	protected Date intentData;
-	
-	@Column(name = "intent_proxim_data")
-	@Temporal(TemporalType.TIMESTAMP)
-	protected Date intentProximData;
-	
-	@Column(name = "enviament_tipus", nullable = false, length = 30)
-	private String enviamentTipus;
-	
-	@Column(name = "concepte", nullable = false, length = 50)
-	private String concepte;
-	
-	@Column(name = "codi_procediment", nullable = false, length = 6)
-	private String notificacioCodiProcediment;
-	
-	@Column(name = "pais_codi", nullable = false, length = 3)
-	private String entregaPostalPaisCodi;
-	
-	@Column(name = "provincia_codi", nullable = false, length = 2)
-	private String entregaPostalProvinciaCodi;
-	
-	@Column(name = "municipi_codi", nullable = false, length = 5)
-	private String entregaPostalMunicipiCodi;
-	
-	@Column(name = "adresa", nullable = false, length = 50)
-	private String entregaPostalAdresa;
-	
-	@Column(name = "exp_serie_documental", nullable = false, length = 10)
-	private String seuExpedientSerieDocumental;
-	
-	@Column(name = "exp_unitat_organitzativa", nullable = false, length = 10)
-	private String seuExpedientUnitatOrganitzativa;
-	
-	@Column(name = "exp_identificador_eni", nullable = false, length = 52)
-	private String seuExpedientIdentificadorEni;
-	
-	@Column(name = "exp_titol", nullable = false, length = 256)
-	private String seuExpedientTitol;
-	
-	@Column(name = "reg_oficina", nullable = false, length = 256)
-	private String seuRegistreOficina;
-	
-	@Column(name = "reg_llibre", nullable = false, length = 256)
-	private String seuRegistreLlibre;
-	
-	@Column(name = "idioma", nullable = false, length = 256)
+	@Column(name = "idioma", nullable = false, length = 32)
 	private String seuIdioma;
 	
 	@Column(name = "avis_titol", nullable = false, length = 256)
 	private String seuAvisTitol;
 	
-	@Column(name = "avis_text", nullable = false, length = 256)
+	@Column(name = "avis_text", nullable = false, length = 1024)
 	private String seuAvisText;
 	
 	@Column(name = "avis_text_mobil", nullable = false, length = 256)
@@ -217,18 +163,102 @@ public class DocumentNotificacio implements Serializable, GenericEntity<Long> {
 	@Column(name = "env_dat_data")
 	private Date enviamentDatatData;
 	
-	@Column(name = "env_dat_orig", length = 20)
+	@Column(name = "env_dat_origen", length = 20)
 	private String enviamentDatatOrigen;
 	
 	@Column(name = "env_cert_data")
 	@Temporal(TemporalType.DATE)
 	private Date enviamentCertificacioData;
 	
-	@Column(name = "env_cert_orig", length = 20)
+	@Column(name = "env_cert_origen", length = 20)
 	private String enviamentCertificacioOrigen;
 	
-	@Column(name = "env_cert_arxiuid", length = 50)
-	private String enviamentCertificacioArxiuId;
+	@ManyToOne(optional = false, fetch = FetchType.EAGER)
+	@JoinColumn(name = "certificacio_store_id")
+	@ForeignKey(name = "hel_certificacio_notif_fk")
+	private DocumentStore enviamentCertificacio;
+	
+	// Enviament
+	
+	@Column(name = "estat", nullable = false)
+	@Enumerated(EnumType.STRING)
+	private NotificacioEnviamentEstatEnumDto estat;
+	
+	@Column(name = "enviat_data")
+	@Temporal(TemporalType.TIMESTAMP)
+	protected Date enviatData;
+	
+	@Column(name = "processat_data")
+	@Temporal(TemporalType.TIMESTAMP)
+	protected Date processatData;
+	
+	@Column(name = "cancelat_data")
+	@Temporal(TemporalType.TIMESTAMP)
+	protected Date cancelatData;
+	
+	@Column(name = "error")
+	protected boolean error;
+	
+	@Column(name = "error_descripcio", length = ERROR_DESC_TAMANY)
+	protected String errorDescripcio;
+	
+	@Column(name = "intent_num")
+	private Integer numIntents;
+	
+	@Column(name = "intent_data")
+	@Temporal(TemporalType.TIMESTAMP)
+	protected Date intentData;
+	
+	@Column(name = "intent_proxim_data")
+	@Temporal(TemporalType.TIMESTAMP)
+	protected Date intentProximData;
+	
+	@Column(name = "enviament_tipus", length = 30)
+	private String enviamentTipus;
+	
+	@Column(name = "concepte", nullable = false, length = 50)
+	private String concepte;
+	
+	@Column(name = "descripcio", nullable = false)
+	private String descripcio;
+	
+//	@Column(name = "codi_procediment", nullable = false, length = 6)
+//	private String notificacioCodiProcediment;
+//	
+//	@Column(name = "pais_codi", nullable = false, length = 3)
+//	private String entregaPostalPaisCodi;
+//	
+//	@Column(name = "provincia_codi", nullable = false, length = 2)
+//	private String entregaPostalProvinciaCodi;
+//	
+//	@Column(name = "municipi_codi", nullable = false, length = 5)
+//	private String entregaPostalMunicipiCodi;
+//	
+//	@Column(name = "adresa", nullable = false, length = 50)
+//	private String entregaPostalAdresa;
+//	
+//	@Column(name = "exp_serie_documental", nullable = false, length = 10)
+//	private String seuExpedientSerieDocumental;
+//	
+//	@Column(name = "exp_unitat_organitzativa", nullable = false, length = 10)
+//	private String seuExpedientUnitatOrganitzativa;
+//	
+//	@Column(name = "exp_identificador_eni", nullable = false, length = 52)
+//	private String seuExpedientIdentificadorEni;
+//	
+//	@Column(name = "exp_titol", nullable = false, length = 256)
+//	private String seuExpedientTitol;
+//	
+//	@Column(name = "reg_oficina", nullable = false, length = 256)
+//	private String seuRegistreOficina;
+//	
+//	@Column(name = "reg_llibre", nullable = false, length = 256)
+//	private String seuRegistreLlibre;
+	
+	public DocumentNotificacio() {
+		super();
+		inicialitzar();
+	}
 	
 	public Long getId() {
 		return id;
@@ -238,12 +268,12 @@ public class DocumentNotificacio implements Serializable, GenericEntity<Long> {
 		this.id = id;
 	}
 
-	public Usuari getUsuari() {
-		return usuari;
+	public String getUsuariCodi() {
+		return usuariCodi;
 	}
 
-	public void setUsuari(Usuari usuari) {
-		this.usuari = usuari;
+	public void setUsuariCodi(String usuariCodi) {
+		this.usuariCodi = usuariCodi;
 	}
 
 	public Expedient getExpedient() {
@@ -268,6 +298,14 @@ public class DocumentNotificacio implements Serializable, GenericEntity<Long> {
 
 	public void setTipus(EnviamentTipusEnumDto tipus) {
 		this.tipus = tipus;
+	}
+
+	public String getEmisorDir3Codi() {
+		return emisorDir3Codi;
+	}
+
+	public void setEmisorDir3Codi(String emisorDir3Codi) {
+		this.emisorDir3Codi = emisorDir3Codi;
 	}
 
 	public Date getDataProgramada() {
@@ -478,93 +516,101 @@ public class DocumentNotificacio implements Serializable, GenericEntity<Long> {
 		this.concepte = concepte;
 	}
 
-	public String getNotificacioCodiProcediment() {
-		return notificacioCodiProcediment;
+	public String getDescripcio() {
+		return descripcio;
 	}
 
-	public void setNotificacioCodiProcediment(String notificacioCodiProcediment) {
-		this.notificacioCodiProcediment = notificacioCodiProcediment;
+	public void setDescripcio(String descripcio) {
+		this.descripcio = descripcio;
 	}
-
-	public String getEntregaPostalPaisCodi() {
-		return entregaPostalPaisCodi;
-	}
-
-	public void setEntregaPostalPaisCodi(String entregaPostalPaisCodi) {
-		this.entregaPostalPaisCodi = entregaPostalPaisCodi;
-	}
-
-	public String getEntregaPostalProvinciaCodi() {
-		return entregaPostalProvinciaCodi;
-	}
-
-	public void setEntregaPostalProvinciaCodi(String entregaPostalProvinciaCodi) {
-		this.entregaPostalProvinciaCodi = entregaPostalProvinciaCodi;
-	}
-
-	public String getEntregaPostalMunicipiCodi() {
-		return entregaPostalMunicipiCodi;
-	}
-
-	public void setEntregaPostalMunicipiCodi(String entregaPostalMunicipiCodi) {
-		this.entregaPostalMunicipiCodi = entregaPostalMunicipiCodi;
-	}
-
-	public String getEntregaPostalAdresa() {
-		return entregaPostalAdresa;
-	}
-
-	public void setEntregaPostalAdresa(String entregaPostalAdresa) {
-		this.entregaPostalAdresa = entregaPostalAdresa;
-	}
-
-	public String getSeuExpedientSerieDocumental() {
-		return seuExpedientSerieDocumental;
-	}
-
-	public void setSeuExpedientSerieDocumental(String seuExpedientSerieDocumental) {
-		this.seuExpedientSerieDocumental = seuExpedientSerieDocumental;
-	}
-
-	public String getSeuExpedientUnitatOrganitzativa() {
-		return seuExpedientUnitatOrganitzativa;
-	}
-
-	public void setSeuExpedientUnitatOrganitzativa(String seuExpedientUnitatOrganitzativa) {
-		this.seuExpedientUnitatOrganitzativa = seuExpedientUnitatOrganitzativa;
-	}
-
-	public String getSeuExpedientIdentificadorEni() {
-		return seuExpedientIdentificadorEni;
-	}
-
-	public void setSeuExpedientIdentificadorEni(String seuExpedientIdentificadorEni) {
-		this.seuExpedientIdentificadorEni = seuExpedientIdentificadorEni;
-	}
-
-	public String getSeuExpedientTitol() {
-		return seuExpedientTitol;
-	}
-
-	public void setSeuExpedientTitol(String seuExpedientTitol) {
-		this.seuExpedientTitol = seuExpedientTitol;
-	}
-
-	public String getSeuRegistreOficina() {
-		return seuRegistreOficina;
-	}
-
-	public void setSeuRegistreOficina(String seuRegistreOficina) {
-		this.seuRegistreOficina = seuRegistreOficina;
-	}
-
-	public String getSeuRegistreLlibre() {
-		return seuRegistreLlibre;
-	}
-
-	public void setSeuRegistreLlibre(String seuRegistreLlibre) {
-		this.seuRegistreLlibre = seuRegistreLlibre;
-	}
+	
+//	public String getNotificacioCodiProcediment() {
+//		return notificacioCodiProcediment;
+//	}
+//
+//	public void setNotificacioCodiProcediment(String notificacioCodiProcediment) {
+//		this.notificacioCodiProcediment = notificacioCodiProcediment;
+//	}
+//
+//	public String getEntregaPostalPaisCodi() {
+//		return entregaPostalPaisCodi;
+//	}
+//
+//	public void setEntregaPostalPaisCodi(String entregaPostalPaisCodi) {
+//		this.entregaPostalPaisCodi = entregaPostalPaisCodi;
+//	}
+//
+//	public String getEntregaPostalProvinciaCodi() {
+//		return entregaPostalProvinciaCodi;
+//	}
+//
+//	public void setEntregaPostalProvinciaCodi(String entregaPostalProvinciaCodi) {
+//		this.entregaPostalProvinciaCodi = entregaPostalProvinciaCodi;
+//	}
+//
+//	public String getEntregaPostalMunicipiCodi() {
+//		return entregaPostalMunicipiCodi;
+//	}
+//
+//	public void setEntregaPostalMunicipiCodi(String entregaPostalMunicipiCodi) {
+//		this.entregaPostalMunicipiCodi = entregaPostalMunicipiCodi;
+//	}
+//
+//	public String getEntregaPostalAdresa() {
+//		return entregaPostalAdresa;
+//	}
+//
+//	public void setEntregaPostalAdresa(String entregaPostalAdresa) {
+//		this.entregaPostalAdresa = entregaPostalAdresa;
+//	}
+//
+//	public String getSeuExpedientSerieDocumental() {
+//		return seuExpedientSerieDocumental;
+//	}
+//
+//	public void setSeuExpedientSerieDocumental(String seuExpedientSerieDocumental) {
+//		this.seuExpedientSerieDocumental = seuExpedientSerieDocumental;
+//	}
+//
+//	public String getSeuExpedientUnitatOrganitzativa() {
+//		return seuExpedientUnitatOrganitzativa;
+//	}
+//
+//	public void setSeuExpedientUnitatOrganitzativa(String seuExpedientUnitatOrganitzativa) {
+//		this.seuExpedientUnitatOrganitzativa = seuExpedientUnitatOrganitzativa;
+//	}
+//
+//	public String getSeuExpedientIdentificadorEni() {
+//		return seuExpedientIdentificadorEni;
+//	}
+//
+//	public void setSeuExpedientIdentificadorEni(String seuExpedientIdentificadorEni) {
+//		this.seuExpedientIdentificadorEni = seuExpedientIdentificadorEni;
+//	}
+//
+//	public String getSeuExpedientTitol() {
+//		return seuExpedientTitol;
+//	}
+//
+//	public void setSeuExpedientTitol(String seuExpedientTitol) {
+//		this.seuExpedientTitol = seuExpedientTitol;
+//	}
+//
+//	public String getSeuRegistreOficina() {
+//		return seuRegistreOficina;
+//	}
+//
+//	public void setSeuRegistreOficina(String seuRegistreOficina) {
+//		this.seuRegistreOficina = seuRegistreOficina;
+//	}
+//
+//	public String getSeuRegistreLlibre() {
+//		return seuRegistreLlibre;
+//	}
+//
+//	public void setSeuRegistreLlibre(String seuRegistreLlibre) {
+//		this.seuRegistreLlibre = seuRegistreLlibre;
+//	}
 
 	public String getSeuIdioma() {
 		return seuIdioma;
@@ -670,17 +716,139 @@ public class DocumentNotificacio implements Serializable, GenericEntity<Long> {
 		this.enviamentCertificacioOrigen = enviamentCertificacioOrigen;
 	}
 
-	public String getEnviamentCertificacioArxiuId() {
-		return enviamentCertificacioArxiuId;
+	public DocumentStore getEnviamentCertificacio() {
+		return enviamentCertificacio;
 	}
 
-	public void setEnviamentCertificacioArxiuId(String enviamentCertificacioArxiuId) {
-		this.enviamentCertificacioArxiuId = enviamentCertificacioArxiuId;
+	public void setEnviamentCertificacio(DocumentStore enviamentCertificacio) {
+		this.enviamentCertificacio = enviamentCertificacio;
+	}
+	
+	public List<DocumentStore> getAnnexos() {
+		return annexos;
+	}
+
+	public void setAnnexos(List<DocumentStore> annexos) {
+		this.annexos = annexos;
+	}
+
+	public void updateEnviat(
+			Date enviatData,
+			String enviamentIdentificador,
+			String enviamentReferencia) {
+		this.enviamentIdentificador = enviamentIdentificador;
+		this.enviamentReferencia = enviamentReferencia;
+		this.estat = NotificacioEnviamentEstatEnumDto.ENVIADA;
+		this.enviatData = enviatData;
+		this.error = false;
+		this.errorDescripcio = null;
+		this.numIntents = 0;
+		this.intentData = null;
+		this.intentProximData = null;
+	}
+	
+	public void updateEnviat(
+			Date enviatData) {
+		this.estat = NotificacioEnviamentEstatEnumDto.ENVIADA;
+		this.enviatData = enviatData;
+		this.error = false;
+		this.errorDescripcio = null;
+		this.numIntents = 0;
+		this.intentData = null;
+		this.intentProximData = null;
+	}
+	public void updateEnviatError(
+			String errorDescripcio,
+			Date intentProximData) {
+		this.estat = NotificacioEnviamentEstatEnumDto.PENDENT;
+		this.error = true;
+		this.errorDescripcio = StringUtils.abbreviate(errorDescripcio, ERROR_DESC_TAMANY);
+		this.enviatData = null;
+		this.numIntents = numIntents++;
+		this.intentData = new Date();
+		this.intentProximData = intentProximData;
+	}
+
+	public void updateProcessat(
+			boolean processat,
+			Date processatData) {
+		this.estat = (processat) ? NotificacioEnviamentEstatEnumDto.PROCESSADA : NotificacioEnviamentEstatEnumDto.REBUTJADA;
+		this.processatData = processatData;
+		this.error = false;
+		this.errorDescripcio = null;
+		this.numIntents = 0;
+		this.intentData = null;
+		this.intentProximData = null;
+	}
+	public void updateProcessatError(
+			String errorDescripcio,
+			Date intentProximData) {
+		this.estat = NotificacioEnviamentEstatEnumDto.ENVIADA;
+		this.error = true;
+		this.errorDescripcio = StringUtils.abbreviate(errorDescripcio, ERROR_DESC_TAMANY);
+		this.processatData = null;
+		this.numIntents = numIntents++;
+		this.intentData = new Date();
+		this.intentProximData = intentProximData;
+	}
+
+	public void updateCancelat(
+			Date cancelatData) {
+		this.estat = NotificacioEnviamentEstatEnumDto.CANCELADA;
+		this.cancelatData = cancelatData;
+		this.error = false;
+		this.errorDescripcio = null;
+		this.numIntents = 0;
+		this.intentData = null;
+		this.intentProximData = null;
+	}
+
+	protected void inicialitzar() {
+		this.estat = NotificacioEnviamentEstatEnumDto.PENDENT;
+		this.enviatData = null;
+		this.processatData = null;
+		this.cancelatData = null;
+		this.error = false;
+		this.errorDescripcio = null;
+		this.numIntents = 0;
+		this.intentData = null;
+		this.intentProximData = null;
+	}
+	
+	public void updateEnviamentEstat(
+			EnviamentEstat enviamentDatatEstat,
+			Date enviamentDatatData,
+			String enviamentDatatOrigen,
+			Date enviamentCertificacioData,
+			String enviamentCertificacioOrigen,
+			DocumentStore enviamentCertificacio) {
+		this.enviamentDatatEstat = enviamentDatatEstat.name();
+		this.enviamentDatatData = enviamentDatatData;
+		this.enviamentDatatOrigen = enviamentDatatOrigen;
+		this.enviamentCertificacioData = enviamentCertificacioData;
+		this.enviamentCertificacioOrigen = enviamentCertificacioOrigen;
+		this.enviamentCertificacio = enviamentCertificacio;
+		switch (enviamentDatatEstat) {
+		case LLEGIDA:
+		case NOTIFICADA:
+			updateProcessat(true, enviamentDatatData);
+			break;
+		case EXPIRADA:
+		case REBUTJADA:
+			updateProcessat(false, enviamentDatatData);
+			break;
+		case NOTIB_ENVIADA:
+			updateEnviat(enviamentDatatData);
+			break;
+		default:
+			break;
+		}
 	}
 
 	public static long getSerialversionuid() {
 		return serialVersionUID;
 	}
 
+	private static final int ERROR_DESC_TAMANY = 2048;
 	private static final long serialVersionUID = 1L;
 }

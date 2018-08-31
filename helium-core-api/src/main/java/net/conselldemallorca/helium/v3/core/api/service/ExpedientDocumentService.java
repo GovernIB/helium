@@ -449,5 +449,9 @@ public interface ExpedientDocumentService {
 			Long expedientId,
 			String processInstanceId,
 			Long documentStoreId);
+	
+	public void notificacioActualitzarEstat(
+			String identificador, 
+			String referenciaEnviament);
 
 }

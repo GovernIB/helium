@@ -275,6 +275,7 @@ public class ConversioTipusHelper {
 						target.setSistraTramitCodi(source.getSistraTramitCodi());
 						target.setNotibActiu(source.isNotibActiu());
 						target.setNotibSeuUnitatAdministrativa(source.getNotibSeuUnitatAdministrativa());
+						target.setNotibSeuCodiProcediment(source.getNotibSeuCodiProcediment());
 						target.setNotibSeuOficina(source.getNotibSeuOficina());
 						target.setNotibSeuLlibre(source.getNotibSeuLlibre());
 						target.setNotibSeuOrgan(source.getNotibSeuOrgan());
@@ -355,6 +356,7 @@ public class ConversioTipusHelper {
 						target.setSistraTramitCodi(source.getSistraTramitCodi());
 						target.setNotibActiu(source.isNotibActiu());
 						target.setNotibSeuUnitatAdministrativa(source.getNotibSeuUnitatAdministrativa());
+						target.setNotibSeuCodiProcediment(source.getNotibSeuCodiProcediment());
 						target.setNotibSeuOficina(source.getNotibSeuOficina());
 						target.setNotibSeuLlibre(source.getNotibSeuLlibre());
 						target.setNotibSeuOrgan(source.getNotibSeuOrgan());

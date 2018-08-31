@@ -3,12 +3,15 @@
  */
 package net.conselldemallorca.helium.core.helper;
 
+import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 import javax.annotation.Resource;
@@ -35,6 +38,7 @@ import es.caib.plugins.arxiu.api.Firma;
 import es.caib.plugins.arxiu.api.FirmaPerfil;
 import es.caib.plugins.arxiu.api.FirmaTipus;
 import es.caib.plugins.arxiu.api.IArxiuPlugin;
+import net.conselldemallorca.helium.core.model.hibernate.DocumentNotificacio;
 import net.conselldemallorca.helium.core.model.hibernate.DocumentStore;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
@@ -53,6 +57,7 @@ import net.conselldemallorca.helium.integracio.plugins.notificacio.EnviamentTipu
 import net.conselldemallorca.helium.integracio.plugins.notificacio.Notificacio;
 import net.conselldemallorca.helium.integracio.plugins.notificacio.NotificacioPlugin;
 import net.conselldemallorca.helium.integracio.plugins.notificacio.Persona;
+import net.conselldemallorca.helium.integracio.plugins.notificacio.RespostaConsultaEstatEnviament;
 import net.conselldemallorca.helium.integracio.plugins.notificacio.RespostaEnviar;
 import net.conselldemallorca.helium.integracio.plugins.persones.DadesPersona;
 import net.conselldemallorca.helium.integracio.plugins.persones.PersonesPlugin;
@@ -107,12 +112,13 @@ import net.conselldemallorca.helium.v3.core.api.dto.NtiEstadoElaboracionEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NtiOrigenEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NtiTipoDocumentalEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ReferenciaNotificacio;
 import net.conselldemallorca.helium.v3.core.api.dto.RegistreAnnexDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RegistreAnotacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RegistreIdDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RegistreNotificacioDto;
-import net.conselldemallorca.helium.v3.core.api.dto.RespostaNotificacio;
 import net.conselldemallorca.helium.v3.core.api.dto.RegistreNotificacioDto.RegistreNotificacioTramitSubsanacioParametreDto;
+import net.conselldemallorca.helium.v3.core.api.dto.RespostaNotificacio;
 import net.conselldemallorca.helium.v3.core.api.dto.TramitDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TramitDocumentDto.TramitDocumentSignaturaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TramitDto;
@@ -123,6 +129,7 @@ import net.conselldemallorca.helium.v3.core.api.exception.SistemaExternException
 import net.conselldemallorca.helium.v3.core.api.registre.RegistreAnnex;
 import net.conselldemallorca.helium.v3.core.api.registre.RegistreAnotacio;
 import net.conselldemallorca.helium.v3.core.api.registre.RegistreInteressat;
+import net.conselldemallorca.helium.v3.core.repository.DocumentStoreRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientRepository;
 import net.conselldemallorca.helium.v3.core.repository.PortasignaturesRepository;
 
@@ -135,17 +142,21 @@ import net.conselldemallorca.helium.v3.core.repository.PortasignaturesRepository
 public class PluginHelper {
 
 	private static final String CACHE_PERSONA_ID = "personaPluginCache";
-
+	
 	@Resource
 	private PortasignaturesRepository portasignaturesRepository;
 	@Resource
 	private ExpedientRepository expedientRepository;
+	@Resource
+	private DocumentStoreRepository documentStoreRepository;
 	@Resource
 	private ConversioTipusHelper conversioTipusHelper;
 	@Autowired
 	private CacheManager cacheManager;
 	@Autowired
 	private MonitorIntegracioHelper monitorIntegracioHelper;
+	@Resource
+	private DocumentHelperV3 documentHelperV3;
 
 	private PersonesPlugin personesPlugin;
 	private TramitacioPlugin tramitacioPlugin;
@@ -2394,6 +2405,9 @@ public class PluginHelper {
 			notificacio.setCaducitat(dadesNotificacio.getCaducitat());
 			notificacio.setDocumentArxiuNom(dadesNotificacio.getDocumentArxiuNom());
 			notificacio.setDocumentArxiuContingut(dadesNotificacio.getDocumentArxiuContingut());
+//			for (DocumentDto doc_annex: dadesNotificacio.getAnnexos()) {
+//				
+//			}
 			notificacio.setProcedimentCodi(dadesNotificacio.getProcedimentCodi());
 			notificacio.setPagadorPostalDir3Codi(dadesNotificacio.getPagadorPostalDir3Codi());
 			notificacio.setPagadorPostalContracteNum(dadesNotificacio.getPagadorPostalContracteNum());
@@ -2489,12 +2503,18 @@ public class PluginHelper {
 			resposta.setIdentificador(respostaEnviar.getIdentificador());
 			if (respostaEnviar.getEstat() != null)
 				resposta.setEstat(RespostaNotificacio.NotificacioEstat.valueOf(respostaEnviar.getEstat().name()));
+			
+			List<ReferenciaNotificacio> referencies = new ArrayList<ReferenciaNotificacio>();
 			for (EnviamentReferencia referencia: respostaEnviar.getReferencies()) {
-				resposta.getReferencies().put(referencia.getTitularNif(), referencia.getReferencia());
+				ReferenciaNotificacio ref = new ReferenciaNotificacio();
+				ref.setTitularNif(referencia.getTitularNif());
+				ref.setReferencia(referencia.getReferencia());
+				referencies.add(ref);
 			}
+			resposta.setReferencies(referencies);
 			
 			monitorIntegracioHelper.addAccioOk(
-					MonitorIntegracioHelper.INTCODI_ARXIU,
+					MonitorIntegracioHelper.INTCODI_NOTIB,
 					accioDescripcio,
 					IntegracioAccioTipusEnumDto.ENVIAMENT,
 					System.currentTimeMillis() - t0,
@@ -2505,7 +2525,7 @@ public class PluginHelper {
 		} catch (Exception ex) {
 			String errorDescripcio = "No s'ha pogut esborrar el document: " + ex.getMessage();
 			monitorIntegracioHelper.addAccioError(
-					MonitorIntegracioHelper.INTCODI_ARXIU,
+					MonitorIntegracioHelper.INTCODI_NOTIB,
 					accioDescripcio,
 					IntegracioAccioTipusEnumDto.ENVIAMENT,
 					System.currentTimeMillis() - t0,
@@ -2517,248 +2537,87 @@ public class PluginHelper {
 		
 	}
 	
-//	@SuppressWarnings("incomplete-switch")
-//	public void notificacioEnviar(
-//			DocumentNotificacioEntity notificacio,
-//			Expedient expedient) {
-//		ExpedientEntity expedient = notificacio.getExpedient();
-//		DocumentEntity document = notificacio.getDocument();
-//		MetaExpedientEntity metaExpedient = expedient.getMetaExpedient();
-//		String accioDescripcio = "Enviament d'una notificació electrònica";
-//		Map<String, String> accioParams = new HashMap<String, String>();
-//		accioParams.put("setEmisorDir3Codi", expedient.getEntitat().getUnitatArrel());
-//		accioParams.put("expedientId", expedient.getId().toString());
-//		accioParams.put("expedientNumero", expedient.getNumero());
-//		accioParams.put("expedientTitol", expedient.getNom());
-//		accioParams.put("expedientTipusId", expedient.getMetaNode().getId().toString());
-//		accioParams.put("expedientTipusNom", expedient.getMetaNode().getNom());
-//		accioParams.put("documentNom", document.getNom());
-//		accioParams.put("interessat", notificacio.getInteressat().getIdentificador());
-//		if (notificacio.getTipus() != null) {
-//			accioParams.put("enviamentTipus", notificacio.getTipus().name());
-//		}
-//		accioParams.put("concepte", notificacio.getAssumpte());
-//		accioParams.put("descripcio", notificacio.getObservacions());
-//		if (notificacio.getDataProgramada() != null) {
-//			accioParams.put("dataProgramada", notificacio.getDataProgramada().toString());
-//		}
-//		if (notificacio.getRetard() != null) {
-//			accioParams.put("retard", notificacio.getRetard().toString());
-//		}
-//		if (notificacio.getDataCaducitat() != null) {
-//			accioParams.put("dataCaducitat", notificacio.getDataCaducitat().toString());
-//		}
-//		long t0 = System.currentTimeMillis();
-//		try {
-//			Notificacio not = new Notificacio();
-//			String forsarEntitat = getPropertyNotificacioForsarEntitat();
-//			if (forsarEntitat != null) {
-//				not.setEmisorDir3Codi(forsarEntitat);
-//			} else {
-//				not.setEmisorDir3Codi(expedient.getEntitat().getUnitatArrel());
-//			}
-//			EnviamentTipus enviamentTipus = null;
-//			switch (notificacio.getTipus()) {
-//			case COMUNICACIO:
-//				enviamentTipus = EnviamentTipus.COMUNICACIO;
-//				break;
-//			case NOTIFICACIO:
-//				enviamentTipus = EnviamentTipus.NOTIFICACIO;
-//				break;
-//			}
-//			not.setEnviamentTipus(enviamentTipus);
-//			not.setConcepte(notificacio.getAssumpte());
-//			not.setDescripcio(notificacio.getObservacions());
-//			not.setEnviamentDataProgramada(notificacio.getDataProgramada());
-//			not.setRetard(
-//					(notificacio.getRetard() != null) ? notificacio.getRetard() : getPropertyNotificacioRetardNumDies());
-//			if (notificacio.getDataCaducitat() != null) {
-//				not.setCaducitat(notificacio.getDataCaducitat());
-//			} else {
-//				Integer numDies = getPropertyNotificacioCaducitatNumDies();
-//				if (numDies != null) {
-//					Date dataInicial = (notificacio.getDataProgramada() != null) ? notificacio.getDataProgramada() : new Date();
-//					Calendar cal = Calendar.getInstance();
-//					cal.setTime(dataInicial);
-//					cal.add(Calendar.DAY_OF_MONTH, numDies);
-//					not.setCaducitat(cal.getTime());
-//				}
-//			}
-//			FitxerDto fitxer = documentHelper.getFitxerAssociat(document);
-//			not.setDocumentArxiuNom(fitxer.getNom());
-//			not.setDocumentArxiuContingut(fitxer.getContingut());
-//			not.setProcedimentCodi(
-//					metaExpedient.getClassificacioSia());
-//			//private String pagadorPostalDir3Codi;
-//			//private String pagadorPostalContracteNum;
-//			//private Date pagadorPostalContracteDataVigencia;
-//			//private String pagadorPostalFacturacioClientCodi;
-//			//private String pagadorCieDir3Codi;
-//			//private Date pagadorCieContracteDataVigencia;
-//			Enviament enviament = new Enviament();
-//			Persona titular = convertirAmbPersona(notificacio.getInteressat());
-//			enviament.setTitular(titular);
-//			Persona destinatari = null;
-//			if (notificacio.getInteressat().getRepresentant() != null) {
-//				destinatari = convertirAmbPersona(notificacio.getInteressat().getRepresentant());
-//				enviament.setDestinataris(Arrays.asList(destinatari));
-//			}
-//			if (getPropertyNotificacioEnviamentPostalActiu()) {
-//				enviament.setEntregaPostalTipus(EntregaPostalTipus.SENSE_NORMALITZAR);
-//				InteressatEntity interessatPerAdresa = notificacio.getInteressat();
-//				if (notificacio.getInteressat().getRepresentant() != null) {
-//					interessatPerAdresa = notificacio.getInteressat().getRepresentant();
-//				}
-//				PaisDto pais = dadesExternesHelper.getPaisAmbCodi(
-//						interessatPerAdresa.getPais());
-//				if (pais == null) {
-//					throw new NotFoundException(
-//							interessatPerAdresa.getPais(),
-//							PaisDto.class);
-//				}
-//				ProvinciaDto provincia = dadesExternesHelper.getProvinciaAmbCodi(
-//						interessatPerAdresa.getProvincia());
-//				if (provincia == null) {
-//					throw new NotFoundException(
-//							interessatPerAdresa.getProvincia(),
-//							ProvinciaDto.class);
-//				}
-//				MunicipiDto municipi = dadesExternesHelper.getMunicipiAmbCodi(
-//						interessatPerAdresa.getProvincia(),
-//						interessatPerAdresa.getMunicipi());
-//				if (municipi == null) {
-//					throw new NotFoundException(
-//							interessatPerAdresa.getMunicipi(),
-//							MunicipiDto.class);
-//				}
-//				enviament.setEntregaPostalLinea1(
-//						interessatPerAdresa.getAdresa() + ", " +
-//						interessatPerAdresa.getCodiPostal() + ", " +
-//						municipi.getNom());
-//				enviament.setEntregaPostalLinea2(
-//						provincia.getNom() + ", " +
-//						pais.getNom());
-//			}
-//			if (getPropertyNotificacioEnviamentDehActiva()) {
-//				enviament.setEntregaDehObligat(false);
-//				enviament.setEntregaDehProcedimentCodi(
-//						metaExpedient.getClassificacioSia());
-//			}
-//			not.setEnviaments(Arrays.asList(enviament));
-//			not.setSeuProcedimentCodi(metaExpedient.getNotificacioSeuProcedimentCodi());
-//			not.setSeuExpedientSerieDocumental(metaExpedient.getSerieDocumental());
-//			not.setSeuExpedientUnitatOrganitzativa(metaExpedient.getNotificacioSeuExpedientUnitatOrganitzativa());
-//			not.setSeuExpedientIdentificadorEni(expedient.getNtiIdentificador());
-//			not.setSeuExpedientTitol(expedient.getNom());
-//			not.setSeuRegistreOficina(metaExpedient.getNotificacioSeuRegistreOficina());
-//			not.setSeuRegistreLlibre(metaExpedient.getNotificacioSeuRegistreLlibre());
-//			not.setSeuRegistreOrgan(metaExpedient.getNotificacioSeuRegistreOrgan());
-//			not.setSeuIdioma("ca"); // TODO
-//			not.setSeuAvisTitol(notificacio.getSeuAvisTitol());
-//			not.setSeuAvisText(notificacio.getSeuAvisText());
-//			not.setSeuAvisTextMobil(notificacio.getSeuAvisTextMobil());
-//			not.setSeuOficiTitol(notificacio.getSeuOficiTitol());
-//			not.setSeuOficiText(notificacio.getSeuOficiText());
-//			RespostaEnviar resposta = getNotificacioPlugin().enviar(not);
-//			notificacio.updateEnviat(
-//					new Date(),
-//					resposta.getEstat().equals(NotificacioEstat.ENVIADA),
-//					resposta.getIdentificador(), 
-//					resposta.getReferencies().get(0).getReferencia());
-//			integracioHelper.addAccioOk(
-//					IntegracioHelper.INTCODI_NOTIFICACIO,
-//					accioDescripcio,
-//					accioParams,
-//					IntegracioAccioTipusEnumDto.ENVIAMENT,
-//					System.currentTimeMillis() - t0);
-//		} catch (Exception ex) {
-//			String errorDescripcio = "Error al accedir al plugin de notificacions";
-//			integracioHelper.addAccioError(
-//					IntegracioHelper.INTCODI_NOTIFICACIO,
-//					accioDescripcio,
-//					accioParams,
-//					IntegracioAccioTipusEnumDto.RECEPCIO,
-//					System.currentTimeMillis() - t0,
-//					errorDescripcio,
-//					ex);
-//			notificacio.updateEnviatError(
-//					ExceptionUtils.getStackTrace(ex), 
-//					null);
-//			throw new SistemaExternException(
-//					IntegracioHelper.INTCODI_NOTIFICACIO,
-//					errorDescripcio,
-//					ex);
-//		}
-//	}
-//
-//	public void notificacioActualitzarEstat(
-//			DocumentNotificacioEntity notificacio,
-//			Expedient expedient) {
-//		ExpedientEntity expedient = notificacio.getExpedient();
-//		DocumentEntity document = notificacio.getDocument();
-//		String accioDescripcio = "Consulta d'estat d'una notificació electrònica";
-//		Map<String, String> accioParams = new HashMap<String, String>();
-//		accioParams.put("setEmisorDir3Codi", expedient.getEntitat().getUnitatArrel());
-//		accioParams.put("expedientId", expedient.getId().toString());
-//		accioParams.put("expedientNumero", expedient.getNumero());
-//		accioParams.put("expedientTitol", expedient.getNom());
-//		accioParams.put("expedientTipusId", expedient.getMetaNode().getId().toString());
-//		accioParams.put("expedientTipusNom", expedient.getMetaNode().getNom());
-//		accioParams.put("documentNom", document.getNom());
-//		accioParams.put("interessat", notificacio.getInteressat().getIdentificador());
-//		if (notificacio.getTipus() != null) {
-//			accioParams.put("enviamentTipus", notificacio.getTipus().name());
-//		}
-//		accioParams.put("concepte", notificacio.getAssumpte());
-//		accioParams.put("referencia", notificacio.getEnviamentReferencia());
-//		long t0 = System.currentTimeMillis();
-//		try {
-//			RespostaConsultaEstatEnviament resposta = getNotificacioPlugin().consultarEnviament(
-//					notificacio.getEnviamentReferencia());
-//			String gestioDocumentalId = notificacio.getEnviamentCertificacioArxiuId();
-//			if (resposta.getCertificacioData() != null) {
-//				byte[] certificacio = resposta.getCertificacioContingut();
-//				if (gestioDocumentalId != null && notificacio.getEnviamentCertificacioData().before(resposta.getCertificacioData())) {
-//					gestioDocumentalDelete(
-//							notificacio.getEnviamentCertificacioArxiuId(),
-//							GESDOC_AGRUPACIO_CERTIFICACIONS);
-//				}
-//				if (gestioDocumentalId == null || notificacio.getEnviamentCertificacioData().before(resposta.getCertificacioData())) {
-//					gestioDocumentalId = gestioDocumentalCreate(
-//							PluginHelper.GESDOC_AGRUPACIO_CERTIFICACIONS,
-//							new ByteArrayInputStream(certificacio));
-//				}
-//			}
-//			
-//			notificacio.updateEnviamentEstat(
-//					resposta.getEstat(),
-//					resposta.getEstatData(),
-//					resposta.getEstatOrigen(),
-//					resposta.getCertificacioData(),
-//					resposta.getCertificacioOrigen(),
-//					gestioDocumentalId);
-//			integracioHelper.addAccioOk(
-//					IntegracioHelper.INTCODI_NOTIFICACIO,
-//					accioDescripcio,
-//					accioParams,
-//					IntegracioAccioTipusEnumDto.ENVIAMENT,
-//					System.currentTimeMillis() - t0);
-//		} catch (Exception ex) {
-//			String errorDescripcio = "Error al accedir al plugin de notificacions";
-//			integracioHelper.addAccioError(
-//					IntegracioHelper.INTCODI_NOTIFICACIO,
-//					accioDescripcio,
-//					accioParams,
-//					IntegracioAccioTipusEnumDto.RECEPCIO,
-//					System.currentTimeMillis() - t0,
-//					errorDescripcio,
-//					ex);
-//			throw new SistemaExternException(
-//					IntegracioHelper.INTCODI_NOTIFICACIO,
-//					errorDescripcio,
-//					ex);
-//		}
-//	}
+	public void notificacioActualitzarEstat(
+			DocumentNotificacio notificacio) {
+		Expedient expedient = notificacio.getExpedient();
+		DocumentStore document = notificacio.getDocument();
+		DocumentStore certificacio = notificacio.getEnviamentCertificacio();
+		
+		String accioDescripcio = "Consulta d'estat d'una notificació electrònica";
+		
+		IntegracioParametreDto[] parametres = new IntegracioParametreDto[] {
+				new IntegracioParametreDto("expedientId", expedient.getId()),
+				new IntegracioParametreDto("expedientTitol", expedient.getTitol()),
+				new IntegracioParametreDto("expedientTipusId", expedient.getTipus().getId()),
+				new IntegracioParametreDto("referencia", notificacio.getEnviamentReferencia())
+		};
+		long t0 = System.currentTimeMillis();
+		
+		try {
+			RespostaConsultaEstatEnviament resposta = getNotificacioPlugin().consultarEnviament(
+					notificacio.getEnviamentReferencia());
+			Long gestioDocumentalId = certificacio != null ? certificacio.getId() : null;
+			if (resposta.getCertificacioData() != null) {
+				byte[] certificacioContingut = resposta.getCertificacioContingut();
+				if (gestioDocumentalId != null && notificacio.getEnviamentCertificacioData().before(resposta.getCertificacioData())) {
+					gestioDocumentalId = documentHelperV3.actualitzarDocument(
+							gestioDocumentalId, 
+							null, 
+							expedient.getProcessInstanceId(), 
+							resposta.getCertificacioData(), 
+							document.getCodiDocument() + "_certificacio", 
+							document.getCodiDocument() + "_certificacio.pdf", 
+							certificacioContingut, 
+							NtiOrigenEnumDto.ADMINISTRACIO, 
+							NtiEstadoElaboracionEnumDto.ALTRES, 
+							NtiTipoDocumentalEnumDto.CERTIFICAT, 
+							null);
+				}
+				if (gestioDocumentalId == null || notificacio.getEnviamentCertificacioData().before(resposta.getCertificacioData())) {
+					gestioDocumentalId = documentHelperV3.crearDocument(
+							null, 
+							expedient.getProcessInstanceId(), 
+							null, 
+							resposta.getCertificacioData(), 
+							true, 
+							document.getCodiDocument() + "_certificacio", 
+							document.getCodiDocument() + "_certificacio.pdf", 
+							certificacioContingut, 
+							NtiOrigenEnumDto.ADMINISTRACIO, 
+							NtiEstadoElaboracionEnumDto.ALTRES, 
+							NtiTipoDocumentalEnumDto.CERTIFICAT, 
+							null);
+				}
+			}
+			
+			notificacio.updateEnviamentEstat(
+					resposta.getEstat(),
+					resposta.getEstatData(),
+					resposta.getEstatOrigen(),
+					resposta.getCertificacioData(),
+					resposta.getCertificacioOrigen(),
+					documentStoreRepository.findOne(gestioDocumentalId));
+					
+			monitorIntegracioHelper.addAccioOk(
+					MonitorIntegracioHelper.INTCODI_NOTIB,
+					accioDescripcio,
+					IntegracioAccioTipusEnumDto.RECEPCIO,
+					System.currentTimeMillis() - t0,
+					parametres);
+			
+		} catch (Exception ex) {
+			String errorDescripcio = "No s'ha pogut consultar l'estat de la notificació: " + ex.getMessage();
+			monitorIntegracioHelper.addAccioError(
+					MonitorIntegracioHelper.INTCODI_NOTIB,
+					accioDescripcio,
+					IntegracioAccioTipusEnumDto.RECEPCIO,
+					System.currentTimeMillis() - t0,
+					errorDescripcio,
+					ex,
+					parametres);
+			throw tractarExcepcioEnSistemaExtern(errorDescripcio, ex);
+		}
+	}
 	
 	// NOTIB -- Fi
 	

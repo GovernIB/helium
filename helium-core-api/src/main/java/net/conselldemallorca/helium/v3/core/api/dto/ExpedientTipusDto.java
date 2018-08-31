@@ -42,6 +42,7 @@ public class ExpedientTipusDto extends ControlPermisosDto implements Serializabl
 	private String notificacioOrganCodi;
 	private String notificacioOficinaCodi;
 	private String notificacioUnitatAdministrativa;
+	private String notibSeuCodiProcediment;
 	private String notificacioCodiProcediment;
 	private String notificacioAvisTitol;
 	private String notificacioAvisText;
@@ -384,6 +385,12 @@ public class ExpedientTipusDto extends ControlPermisosDto implements Serializabl
 	}
 	public void setNotibSeuUnitatAdministrativa(String notibSeuUnitatAdministrativa) {
 		this.notibSeuUnitatAdministrativa = notibSeuUnitatAdministrativa;
+	}
+	public String getNotibSeuCodiProcediment() {
+		return notibSeuCodiProcediment;
+	}
+	public void setNotibSeuCodiProcediment(String notibSeuCodiProcediment) {
+		this.notibSeuCodiProcediment = notibSeuCodiProcediment;
 	}
 	public String getNotibSeuOficina() {
 		return notibSeuOficina;
