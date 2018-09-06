@@ -3,8 +3,6 @@
  */
 package net.conselldemallorca.helium.core.model.service;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -22,6 +20,7 @@ import com.codahale.metrics.MetricRegistry;
 
 import net.conselldemallorca.helium.core.common.JbpmVars;
 import net.conselldemallorca.helium.core.common.ThreadLocalInfo;
+import net.conselldemallorca.helium.core.helper.ExceptionHelper;
 import net.conselldemallorca.helium.core.helper.ExpedientHelper;
 import net.conselldemallorca.helium.core.helper.PluginHelper;
 import net.conselldemallorca.helium.core.helper.ProcesCallbackHelper;
@@ -104,7 +103,8 @@ public class PluginService {
 
 	@Autowired
 	private PluginHelper pluginHelper;
-
+	@Autowired
+	private ExceptionHelper exceptionHelper;
 
 
 	public List<PersonaDto> findPersonaLikeNomSencer(String text) {
@@ -542,12 +542,12 @@ public class PluginService {
 					} catch (PluginException pex) {
 						errorProcesPsigna(
 								portasignatures,
-								getMissageFinalCadenaExcepcions(pex));
-						logger.error("Error al processar el document firmat pel callback (id=" + portasignatures.getDocumentId() + "): " + getMissageFinalCadenaExcepcions(pex), pex);
+								exceptionHelper.getMissageFinalCadenaExcepcions(pex));
+						logger.error("Error al processar el document firmat pel callback (id=" + portasignatures.getDocumentId() + "): " + exceptionHelper.getMissageFinalCadenaExcepcions(pex), pex);
 					} catch (Exception ex) {
 						errorProcesPsigna(
 								portasignatures,
-								getMissageFinalCadenaExcepcions(ex));
+								exceptionHelper.getMissageFinalCadenaExcepcions(ex));
 						logger.error("Error al processar el document firmat pel callback (id=" + portasignatures.getDocumentId() + ")", ex);
 					}
 					pluginPortasignaturesDao.saveOrUpdate(portasignatures);
@@ -569,7 +569,7 @@ public class PluginService {
 					} catch (Exception ex) {
 						errorProcesPsigna(
 								portasignatures,
-								getMissageFinalCadenaExcepcions(ex));
+								exceptionHelper.getMissageFinalCadenaExcepcions(ex));
 						logger.error("Error al processar el document rebutjat pel callback (id=" + portasignatures.getDocumentId() + ")", ex);
 					}
 					pluginPortasignaturesDao.saveOrUpdate(portasignatures);
@@ -667,8 +667,8 @@ public class PluginService {
 							} else {
 								throw ex;
 							}*/
-							logger.info(">>> [PSIGN] Processant error custòdia (" + getMissageFinalCadenaExcepcions(ex) + ", " + cercarMissatgeDinsCadenaExcepcions("ERROR_DOCUMENTO_ARCHIVADO", ex) + ") (psignaId=" + documentId + ", docStoreId=" + documentStoreId + ", refCustòdia=" + referenciaCustodia + ")");
-							if (cercarMissatgeDinsCadenaExcepcions("ERROR_DOCUMENTO_ARCHIVADO", ex)) {
+							logger.info(">>> [PSIGN] Processant error custòdia (" + exceptionHelper.getMissageFinalCadenaExcepcions(ex) + ", " + exceptionHelper.cercarMissatgeDinsCadenaExcepcions("ERROR_DOCUMENTO_ARCHIVADO", ex) + ") (psignaId=" + documentId + ", docStoreId=" + documentStoreId + ", refCustòdia=" + referenciaCustodia + ")");
+							if (exceptionHelper.cercarMissatgeDinsCadenaExcepcions("ERROR_DOCUMENTO_ARCHIVADO", ex)) {
 								referenciaCustodia = documentStoreId.toString();
 							} else {
 								throw ex;
@@ -729,27 +729,6 @@ public class PluginService {
 					metricRegistry);
 		}
 		return serviceUtils;
-	}
-
-	private boolean cercarMissatgeDinsCadenaExcepcions(String missatge, Throwable ex) {
-		//logger.info(">>> [PSIGN] Cercant missatge dins excepcio (missatge=" + missatge + ", getMessage=" + ex.getMessage() + ")");
-		if (ex.getMessage().contains(missatge))
-			return true;
-		if (ex.getCause() != null)
-			return cercarMissatgeDinsCadenaExcepcions(missatge, ex.getCause());
-		else
-			return false;
-	}
-	private String getMissageFinalCadenaExcepcions(Throwable ex) {
-		if (ex.getCause() == null) {
-			StringWriter sw = new StringWriter();
-		    PrintWriter pw = new PrintWriter(sw);
-		    ex.printStackTrace(pw);
-		    logger.error(sw.toString());
-		    return sw.toString();
-		} else {
-			return getMissageFinalCadenaExcepcions(ex.getCause());
-		}
 	}
 
 	private void errorProcesPsigna(

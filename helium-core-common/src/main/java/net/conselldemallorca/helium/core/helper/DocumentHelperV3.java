@@ -19,6 +19,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.tika.Tika;
 import org.apache.tika.mime.MimeTypes;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
 import es.caib.plugins.arxiu.api.ContingutArxiu;
@@ -109,6 +110,10 @@ public class DocumentHelperV3 {
 	private OpenOfficeUtils openOfficeUtils;
 	@Resource
 	private MessageHelper messageHelper;
+	@Resource
+	private ExceptionHelper exceptionHelper;
+	@Resource
+	private ExpedientRegistreHelper expedientRegistreHelper;
 
 	private PdfUtils pdfUtils;
 	private DocumentTokenUtils documentTokenUtils;
@@ -519,37 +524,94 @@ public class DocumentHelperV3 {
 					true,
 					true);
 			boolean custodiat = false;
-			if (pluginHelper.custodiaIsPluginActiu()) {
-				String nomArxiu = getNomArxiuAmbExtensio(
-						dto.getArxiuNom(),
-						getExtensioArxiuSignat());		
-				String referenciaCustodia = null;
-				if (pluginHelper.custodiaIsValidacioImplicita()) {
-					logger.info("signarDocumentTascaAmbToken : documentId: " + documentStore.getId() + ". gesdocId: " +documentStore.getReferenciaFont() + ". nomArxiuSignat: " + nomArxiu + ". codiTipusCustodia: " + dto.getCustodiaCodi()); 
-					referenciaCustodia = pluginHelper.custodiaAfegirSignatura(
-							documentStore.getId(),
-							documentStore.getReferenciaFont(),
-							nomArxiu,
-							dto.getCustodiaCodi(),
-							signatura);
-					custodiat = true;
-				} else {
-					RespostaValidacioSignatura resposta = pluginHelper.signaturaVerificar(
-							dto.getVistaContingut(),
-							signatura,
+			Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(documentStore.getProcessInstanceId());
+			String varDocumentCodi = documentStore.getJbpmVariable().substring(JbpmVars.PREFIX_DOCUMENT.length());
+			if (documentStore.getArxiuUuid() != null) {
+					ArxiuDto pdfFirmat = new ArxiuDto();
+					pdfFirmat.setNom("firma.pdf");
+					pdfFirmat.setTipusMime("application/pdf");
+					pdfFirmat.setContingut(signatura);
+					pluginHelper.arxiuDocumentGuardarPdfFirmat(
+							expedient,
+							documentStore,
+							dto.getDocumentNom(),
+							pdfFirmat);
+					es.caib.plugins.arxiu.api.Document documentArxiu = pluginHelper.arxiuDocumentInfo(
+							documentStore.getArxiuUuid(),
+							null,
 							false);
-					if (resposta.isEstatOk()) {
+					actualitzarNtiFirma(documentStore, documentArxiu);
+			} else {
+				if (expedient.isNtiActiu()) {
+					actualitzarNtiFirma(documentStore, null);
+				}
+				if (documentStore.getReferenciaCustodia() != null) {
+					pluginHelper.custodiaEsborrarSignatures(documentStore.getReferenciaCustodia(), expedient);
+				}
+				String referenciaCustodia = null;
+				if (signatura != null && signatura.length > 0) {
+					try {
 						referenciaCustodia = pluginHelper.custodiaAfegirSignatura(
-								documentStore.getId(),
-								documentStore.getReferenciaFont(),
-								nomArxiu,
+								docId, 
+								documentStore.getReferenciaFont(), 
+								dto.getArxiuNom(),
 								dto.getCustodiaCodi(),
 								signatura);
-						custodiat = true;
+								
+					} catch (Exception ex) {
+						logger.info(">>> [PSIGN] Processant error custòdia (" + exceptionHelper.getMissageFinalCadenaExcepcions(ex) + ", " + exceptionHelper.cercarMissatgeDinsCadenaExcepcions("ERROR_DOCUMENTO_ARCHIVADO", ex) + ") (psignaId=" + docId + ", docStoreId=" + documentStoreId + ", refCustòdia=" + referenciaCustodia + ")");
+						if (exceptionHelper.cercarMissatgeDinsCadenaExcepcions("ERROR_DOCUMENTO_ARCHIVADO", ex)) {
+							referenciaCustodia = documentStoreId.toString();
+						} else {
+							throw ex;
+						}
 					}
 				}
+				//logger.info(">>> [PSIGN] Fi procés custòdia 1 (psignaId=" + documentId + ", docStoreId=" + documentStoreId + ", refCustòdia=" + referenciaCustodia + ")");
 				documentStore.setReferenciaCustodia(referenciaCustodia);
 			}
+			documentStore.setSignat(true);
+			
+			expedientRegistreHelper.crearRegistreSignarDocument(
+					documentStore.getProcessInstanceId(), 
+					SecurityContextHolder.getContext().getAuthentication().getName(), 
+					varDocumentCodi);
+			
+			
+/////*********** LOGICA ANTIGA *****************/////			
+//			if (pluginHelper.custodiaIsPluginActiu()) {
+//				String nomArxiu = getNomArxiuAmbExtensio(
+//						dto.getArxiuNom(),
+//						getExtensioArxiuSignat());		
+//				String referenciaCustodia = null;
+//				if (pluginHelper.custodiaIsValidacioImplicita()) {
+//					logger.info("signarDocumentTascaAmbToken : documentId: " + documentStore.getId() + ". gesdocId: " +documentStore.getReferenciaFont() + ". nomArxiuSignat: " + nomArxiu + ". codiTipusCustodia: " + dto.getCustodiaCodi()); 
+//					referenciaCustodia = pluginHelper.custodiaAfegirSignatura(
+//							documentStore.getId(),
+//							documentStore.getReferenciaFont(),
+//							nomArxiu,
+//							dto.getCustodiaCodi(),
+//							signatura);
+//					custodiat = true;
+//				} else {
+//					RespostaValidacioSignatura resposta = pluginHelper.signaturaVerificar(
+//							dto.getVistaContingut(),
+//							signatura,
+//							false);
+//					if (resposta.isEstatOk()) {
+//						referenciaCustodia = pluginHelper.custodiaAfegirSignatura(
+//								documentStore.getId(),
+//								documentStore.getReferenciaFont(),
+//								nomArxiu,
+//								dto.getCustodiaCodi(),
+//								signatura);
+//						custodiat = true;
+//					}
+//				}
+//				documentStore.setReferenciaCustodia(referenciaCustodia);
+//			}
+////////*****************************************/////
+			
 			if (custodiat) {
 				documentStore.setSignat(true);
 				JbpmTask task = tascaHelper.getTascaComprovacionsTramitacio(
