@@ -1123,6 +1123,12 @@ public class ExpedientServiceImpl implements ExpedientService {
 		expedientHelper.desfinalitzar(
 				expedient, 
 				null);
+		
+		//reobrim l'expedient de l'arxiu digital si escau
+		if (expedient.getTipus().isArxiuActiu() && expedient.getArxiuUuid() != null) {
+			// Obre de nou l'expedient tancat a l'arxiu.
+			pluginHelper.arxiuExpedientReobrir(expedient.getArxiuUuid());
+		}
 	}
 	
 	/**
@@ -1151,6 +1157,12 @@ public class ExpedientServiceImpl implements ExpedientService {
 		Date dataFinalitzacio = new Date();
 		jbpmHelper.finalitzarExpedient(ids, dataFinalitzacio);
 		expedient.setDataFi(dataFinalitzacio);
+		
+		//tancam l'expedient de l'arxiu si escau
+		if (expedient.getTipus().isArxiuActiu()) {
+			// Tanca l'expedient a l'arxiu.
+			pluginHelper.arxiuExpedientTancar(expedient.getArxiuUuid());
+		}
 		
 		crearRegistreExpedient(
 				expedient.getId(),

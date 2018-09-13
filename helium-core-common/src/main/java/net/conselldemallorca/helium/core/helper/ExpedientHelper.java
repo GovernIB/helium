@@ -1055,6 +1055,12 @@ public class ExpedientHelper {
 			Expedient expedient = expedientRepository.findByProcessInstanceId(processInstanceId);
 			if (expedient != null) {
 				expedient.setDataFi(processInstance.getEnd());
+				
+				//tancam l'expedient de l'arxiu si escau
+				if (expedient.getTipus().isArxiuActiu() && expedient.getArxiuUuid() != null) {
+					// Tanca l'expedient a l'arxiu.
+					pluginHelper.arxiuExpedientTancar(expedient.getArxiuUuid());
+				}
 			}
 			// Finalitzar terminis actius
 			for (TerminiIniciat terminiIniciat: terminiIniciatRepository.findByProcessInstanceId(processInstance.getId())) {

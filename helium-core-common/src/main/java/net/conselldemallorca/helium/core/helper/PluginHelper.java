@@ -2080,6 +2080,68 @@ public class PluginHelper {
 			throw tractarExcepcioEnSistemaExtern(errorDescripcio, ex);
 		}
 	}
+	
+	public void arxiuExpedientTancar(
+			String arxiuUuid) {
+		String accioDescripcio = "Tancar l'expedient";
+		IntegracioParametreDto[] parametres = new IntegracioParametreDto[] {
+				new IntegracioParametreDto(
+						"arxiuUuid",
+						arxiuUuid)
+		};
+		long t0 = System.currentTimeMillis();
+		try {
+			getArxiuPlugin().expedientTancar(arxiuUuid);
+			monitorIntegracioHelper.addAccioOk(
+					MonitorIntegracioHelper.INTCODI_ARXIU,
+					accioDescripcio,
+					IntegracioAccioTipusEnumDto.ENVIAMENT,
+					System.currentTimeMillis() - t0,
+					parametres);
+		} catch (Exception ex) {
+			String errorDescripcio = "No s'ha pogut tancar l'expedient a l'arxiu: " + ex.getMessage();
+			monitorIntegracioHelper.addAccioError(
+					MonitorIntegracioHelper.INTCODI_ARXIU,
+					accioDescripcio,
+					IntegracioAccioTipusEnumDto.ENVIAMENT,
+					System.currentTimeMillis() - t0,
+					errorDescripcio,
+					ex,
+					parametres);
+			throw tractarExcepcioEnSistemaExtern(errorDescripcio, ex);
+		}
+	}
+	
+	public void arxiuExpedientReobrir(
+			String arxiuUuid) {
+		String accioDescripcio = "Reobrir l'expedient tancat";
+		IntegracioParametreDto[] parametres = new IntegracioParametreDto[] {
+				new IntegracioParametreDto(
+						"arxiuUuid",
+						arxiuUuid)
+		};
+		long t0 = System.currentTimeMillis();
+		try {
+			getArxiuPlugin().expedientReobrir(arxiuUuid);
+			monitorIntegracioHelper.addAccioOk(
+					MonitorIntegracioHelper.INTCODI_ARXIU,
+					accioDescripcio,
+					IntegracioAccioTipusEnumDto.ENVIAMENT,
+					System.currentTimeMillis() - t0,
+					parametres);
+		} catch (Exception ex) {
+			String errorDescripcio = "No s'ha pogut reobrir l'expedient a l'arxiu: " + ex.getMessage();
+			monitorIntegracioHelper.addAccioError(
+					MonitorIntegracioHelper.INTCODI_ARXIU,
+					accioDescripcio,
+					IntegracioAccioTipusEnumDto.ENVIAMENT,
+					System.currentTimeMillis() - t0,
+					errorDescripcio,
+					ex,
+					parametres);
+			throw tractarExcepcioEnSistemaExtern(errorDescripcio, ex);
+		}
+	}
 
 	public void arxiuExpedientEsborrar(
 			String arxiuUuid) {

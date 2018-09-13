@@ -27,7 +27,7 @@ import es.indra.www.portafirmasmcgdws.mcgdws.MCGDwsServiceLocator;
 public class CallbackPortafirmesTest {
 
 	private static final String SERVICE_URL = "http://localhost:8080/helium/services/MCGDWS";
-	private static final int psignaDocumentId = -2072450418;
+	private static final int psignaDocumentId = -1293309463;
 
 	public static void main(String[] args) {
 		try {
