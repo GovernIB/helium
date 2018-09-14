@@ -51,6 +51,9 @@ public class RegistreSortidaRegWeb3Handler extends AbstractHeliumActionHandler {
 	private String assumpteCodi;
 	private String varAssumpteCodi;
 	
+	private String usuariCodi;
+	private String varUsuariCodi;
+	
 //	Info de l'interessat
 	private String interessatTipus;
 	private String varInteressatTipus;
@@ -183,7 +186,12 @@ public class RegistreSortidaRegWeb3Handler extends AbstractHeliumActionHandler {
 				assumpteCodi,
 				varAssumpteCodi));
 		
-		anotacio.setUsuariCodi(Jbpm3HeliumBridge.getInstanceService().getUsuariCodiActual());
+		String usuari = (String)getValorOVariable(
+				executionContext,
+				usuariCodi,
+				varUsuariCodi);
+		
+		anotacio.setUsuariCodi(usuari != null ? usuari : Jbpm3HeliumBridge.getInstanceService().getUsuariCodiActual());
 		
 		ExpedientDto expedient = getExpedientActual(executionContext);
 		anotacio.setExpedientNumero(expedient.getIdentificador());
@@ -528,6 +536,16 @@ public class RegistreSortidaRegWeb3Handler extends AbstractHeliumActionHandler {
 
 	public void setVarAssumpteCodi(String varAssumpteCodi) {
 		this.varAssumpteCodi = varAssumpteCodi;
+	}
+
+
+	public void setUsuariCodi(String usuariCodi) {
+		this.usuariCodi = usuariCodi;
+	}
+
+
+	public void setVarUsuariCodi(String varUsuariCodi) {
+		this.varUsuariCodi = varUsuariCodi;
 	}
 
 
