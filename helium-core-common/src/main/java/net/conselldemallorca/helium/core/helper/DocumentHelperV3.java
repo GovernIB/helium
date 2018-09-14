@@ -1751,14 +1751,16 @@ public class DocumentHelperV3 {
 		Document document = findDocumentPerInstanciaProcesICodi(
 				processInstanceId,
 				documentStore.getCodiDocument());
-		actualizarMetadadesNti(
-				expedient,
-				document,
-				documentStore,
-				ntiOrigen,
-				ntiEstadoElaboracion,
-				ntiTipoDocumental,
-				ntiIdDocumentoOrigen);
+		if (expedient.isNtiActiu()) {
+			actualizarMetadadesNti(
+					expedient,
+					document,
+					documentStore,
+					ntiOrigen,
+					ntiEstadoElaboracion,
+					ntiTipoDocumental,
+					ntiIdDocumentoOrigen);
+		}
 		String documentDescripcio;
 		if (documentStore.isAdjunt()) {
 			documentDescripcio = documentStore.getAdjuntTitol();
@@ -1932,6 +1934,16 @@ public class DocumentHelperV3 {
 			return NtiDocumentoFormato.XSIG;
 		} else if ("XML".equalsIgnoreCase(extensio)) {
 			return NtiDocumentoFormato.XML;
+		
+		// FORMATS NO DEFINITS AL CATÀLEG GENERAL DE L'ENI
+		} else if ("DOC".equalsIgnoreCase(extensio)) {
+			return NtiDocumentoFormato.DOC;
+		} else if ("XLS".equalsIgnoreCase(extensio)) {
+			return NtiDocumentoFormato.XLS;
+		} else if ("MDB".equalsIgnoreCase(extensio)) {
+			return NtiDocumentoFormato.MDB;
+		} else if (extensio != null && !extensio.isEmpty()) {
+			return NtiDocumentoFormato.ALTRES;
 		}
 		return null;
 	}

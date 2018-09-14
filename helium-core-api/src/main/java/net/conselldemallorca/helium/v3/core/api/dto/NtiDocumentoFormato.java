@@ -64,5 +64,10 @@ public enum NtiDocumentoFormato {
 	WEBM,
 	CSIG,
 	XSIG,
-	XML;
+	XML,
+	// FORMATS NO DEFINITS AL CATÀLEG GENERAL DE L'ENI
+	DOC,
+	XLS,
+	MDB,
+	ALTRES;
 }
