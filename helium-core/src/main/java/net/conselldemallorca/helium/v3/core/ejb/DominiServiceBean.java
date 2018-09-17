@@ -66,8 +66,8 @@ public class DominiServiceBean implements DominiService {
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public DominiDto findAmbId(Long dominiId) throws NoTrobatException {
-		return delegate.findAmbId(dominiId);
+	public DominiDto findAmbId(Long expedientTipusId, Long dominiId) throws NoTrobatException {
+		return delegate.findAmbId(expedientTipusId, dominiId);
 	}
 
 	@Override

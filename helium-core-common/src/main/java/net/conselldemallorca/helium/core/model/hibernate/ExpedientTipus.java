@@ -49,7 +49,7 @@ import org.springmodules.validation.bean.conf.loader.annotation.handler.NotNull;
 @org.hibernate.annotations.Table(
 		appliesTo = "hel_expedient_tipus",
 		indexes = @Index(name = "hel_exptip_entorn_i", columnNames = {"entorn_id"}))
-public class ExpedientTipus implements Serializable, GenericEntity<Long> {
+public class ExpedientTipus  implements Serializable, GenericEntity<Long> {
 
 	private Long id;
 	@NotBlank
@@ -85,6 +85,10 @@ public class ExpedientTipus implements Serializable, GenericEntity<Long> {
 	 * directament o a través de la definició de procesos tal i com s'ha fet fins ara.
 	 */
 	private boolean ambInfoPropia;
+	/** Indica si altres tipus d'expedient amb informació pròpia poden heretar d'aquest tipus d'expedient. */
+	private boolean heretable;
+	/** Propietat de qui hereta les dades el tipus d'expedient. */
+	private ExpedientTipus expedientTipusPare;
 	
 	private String diesNoLaborables;
 	
@@ -329,7 +333,22 @@ public class ExpedientTipus implements Serializable, GenericEntity<Long> {
 	public void setAmbInfoPropia(boolean ambInfoPropia) {
 		this.ambInfoPropia = ambInfoPropia;
 	}
-
+	@Column(name="heretable")
+	public boolean isHeretable() {
+		return heretable;
+	}
+	public void setHeretable(boolean heretable) {
+		this.heretable = heretable;
+	}
+	@ManyToOne
+	@JoinColumn(name="expedient_tipus_pare_id")
+	@ForeignKey(name="hel_exptipus_pare_exptipus_fk")
+	public ExpedientTipus getExpedientTipusPare() {
+		return expedientTipusPare;
+	}
+	public void setExpedientTipusPare(ExpedientTipus expedientTipusPare) {
+		this.expedientTipusPare = expedientTipusPare;
+	}
 	@Column(name="reindexacio_asincrona")
 	public boolean isReindexacioAsincrona() {
 		return reindexacioAsincrona;

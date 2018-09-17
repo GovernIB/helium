@@ -45,7 +45,8 @@ public class ExpedientTipusDocumentValidator implements ConstraintValidator<Expe
 			DocumentDto repetit = documentService.findAmbCodi(
 					document.getExpedientTipusId(),
 					document.getDefinicioProcesId(),
-					document.getCodi());
+					document.getCodi(),
+					false);
 			if(repetit != null && (document.getId() == null || !document.getId().equals(repetit.getId()))) {
 				context.buildConstraintViolationWithTemplate(
 						MessageHelper.getInstance().getMessage(this.codiMissatge + ".codi.repetit", null))

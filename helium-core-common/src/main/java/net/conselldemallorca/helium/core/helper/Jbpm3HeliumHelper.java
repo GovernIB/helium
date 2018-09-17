@@ -196,6 +196,9 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 	
 	@Resource
 	private TascaSegonPlaHelper tascaSegonPlaHelper;
+	
+	@Resource
+	private DefinicioProcesHelper definicioProcesHelper;
 
 
 
@@ -275,6 +278,20 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 				EntornDto.class);
 	}
 
+	@Override
+	public DefinicioProcesDto getDefinicioProcesAmbJbpmKeyIProcessInstanceId(
+			String jbpmKey,
+			String processInstanceId) {
+		logger.debug("Obtenint la darrera versió de la definició de procés donat el codi jBPM i el processInstanceId (jbpmKey=" + jbpmKey + ", processInstanceId=" + processInstanceId +")");
+		Expedient expedient = getExpedientDonatProcessInstanceId(processInstanceId);
+		DefinicioProces defincioProces = definicioProcesHelper.findDarreraVersioDefinicioProces(
+				expedient.getTipus(), 
+				jbpmKey);
+		return conversioTipusHelper.convertir(
+				defincioProces,
+				DefinicioProcesDto.class);
+	}
+	
 	@Override
 	public DefinicioProcesDto getDefinicioProcesAmbJbpmKeyIVersio(
 			String jbpmKey,
@@ -449,8 +466,8 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 				"processInstanceId=" + processInstanceId + ", " +
 				"estatCodi=" + estatCodi + ")");
 		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
-		Estat estat = estatRepository.findByExpedientTipusAndCodi(
-				expedient.getTipus(),
+		Estat estat = estatRepository.findByExpedientTipusAndCodiAmbHerencia(
+				expedient.getTipus().getId(), 
 				estatCodi);
 		if (estat == null)
 			throw new NoTrobatException(Estat.class, estatCodi);
@@ -672,8 +689,9 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 		Document document;
 		if (expedientTipus.isAmbInfoPropia())
 			document = documentRepository.findByExpedientTipusAndCodi(
-					expedientTipus,
-					documentCodi);
+					expedientTipus.getId(),
+					documentCodi,
+					expedientTipus.getExpedientTipusPare() != null);
 		else
 			document = documentRepository.findByDefinicioProcesAndCodi(
 					definicioProces, 
@@ -941,9 +959,10 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 				"dominiId=" + dominiId + ", " +
 				"parametres=" + parametres + ")");
 		Expedient expedient = getExpedientDonatProcessInstanceId(processInstanceId);
-		// Primer el cerca al tipus d'expedient
-		Domini domini = dominiRepository.findByExpedientTipusAndCodi(
-				expedient.getTipus(),
+		Domini domini;
+		// Dominis del tipus d'expedient
+		domini = dominiRepository.findByExpedientTipusAndCodiAmbHerencia(
+				expedient.getTipus().getId(),
 				dominiCodi);
 		// Si no el troba el busca a l'entorn
 		if (domini == null)
@@ -1023,13 +1042,13 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 				"processInstanceId=" + processInstanceId + ", " +
 				"enumeracioCodi=" + enumeracioCodi + ")");
 		Expedient expedient = getExpedientDonatProcessInstanceId(processInstanceId);
-		Enumeracio enumeracio = enumeracioRepository.findByEntornAndCodi(
+		Enumeracio enumeracio = enumeracioRepository.findByEntornAndExpedientTipusAndCodi(
 				expedient.getEntorn(),
+				expedient.getTipus(),
 				enumeracioCodi);
 		if (enumeracio == null) {
-			enumeracio = enumeracioRepository.findByEntornAndExpedientTipusAndCodi(
+			enumeracio = enumeracioRepository.findByEntornAndCodi(
 					expedient.getEntorn(),
-					expedient.getTipus(),
 					enumeracioCodi);
 		}
 		if (enumeracio == null)
@@ -1689,8 +1708,8 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 		if (expedientTipus == null)
 			throw new NoTrobatException(ExpedientTipus.class, expedientTipusCodi);
 		return conversioTipusHelper.convertir(
-				estatRepository.findByExpedientTipusAndCodi(
-						expedientTipus,
+				estatRepository.findByExpedientTipusAndCodiAmbHerencia(
+						expedientTipus.getId(), 
 						estatCodi),
 				EstatDto.class);
 	}
@@ -1712,8 +1731,9 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 		if (expedientTipus.isAmbInfoPropia())
 			return conversioTipusHelper.convertir(
 					documentRepository.findByExpedientTipusAndCodi(
-							expedientTipus, 
-							documentCodi),
+							expedientTipus.getId(), 
+							documentCodi,
+							expedientTipus.getExpedientTipusPare() != null),
 					DocumentDissenyDto.class);
 		else
 			return conversioTipusHelper.convertir(
@@ -1769,8 +1789,10 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 		ExpedientTipus expedientTipus = expedient.getTipus();
 		Camp camp;
 		if (expedientTipus.isAmbInfoPropia()) {
-			camp = campRepository.findByExpedientTipusAndCodi(expedientTipus,
-					varCodi);
+			camp = campRepository.findByExpedientTipusAndCodi(
+					expedientTipus.getId(),
+					varCodi,
+					expedientTipus.getExpedientTipusPare() != null);
 		} else {
 			camp = campRepository.findByDefinicioProcesAndCodi(
 					definicioProces,
@@ -1808,8 +1830,9 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 		Camp camp;
 		if (expedientTipus.isAmbInfoPropia()) {
 			camp = campRepository.findByExpedientTipusAndCodi(
-					expedientTipus,
-					varCodi);
+					expedientTipus.getId(),
+					varCodi,
+					expedientTipus.getExpedientTipusPare() != null);
 		} else {
 			camp = campRepository.findByDefinicioProcesAndCodi(
 					definicioProces,

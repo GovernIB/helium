@@ -24,10 +24,17 @@ import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
  */
 public interface EnumeracioRepository extends JpaRepository<Enumeracio, Long> {
 
+	/** Consulta per entorn, expedient tipus id i el codi. No té en compte l'herència. */
 	Enumeracio findByEntornAndExpedientTipusAndCodi(
 			Entorn entorn,
 			ExpedientTipus expedientTipus,
-			String codi);	
+			String codi);
+
+	/** Consulta per expedient tipus id i el codi. No té en compte l'herència. */
+	Enumeracio findByExpedientTipusAndCodi(
+			ExpedientTipus expedientTipus, 
+			String codi);
+	
 	
 	@Query(	"from " +
 			"    Enumeracio e " +
@@ -57,8 +64,24 @@ public interface EnumeracioRepository extends JpaRepository<Enumeracio, Long> {
 
 	@Query(	"from Enumeracio e " +
 			"where " +
-			"   e.entorn.id = :entornId " +
-			"	and ((e.expedientTipus.id = :expedientTipusId) or (e.expedientTipus is null and (:esNullExpedientTipusId = true or :incloureGlobals = true))) " +
+			"	(:herencia = false " +
+			"		or e.id not in ( " + 
+						// Llistat de sobreescrits
+			"			select es.id " +
+			"			from Enumeracio ea " +
+			"				join ea.expedientTipus et with et.id = :expedientTipusId, " +
+			"				Enumeracio es " +
+			"			where " +
+			"				es.codi = ea.codi " +
+			"			 	and es.expedientTipus.id = et.expedientTipusPare.id " +
+			"		) " +
+			"	) " +
+			"   and e.entorn.id = :entornId " +
+			"	and ((e.expedientTipus.id = :expedientTipusId) " +
+						// Heretats
+			"			or (:herencia = true " +
+			"					and e.expedientTipus.id = (select etp.expedientTipusPare.id from ExpedientTipus etp where etp.id = :expedientTipusId)) " +
+			"			or (e.expedientTipus is null and (:esNullExpedientTipusId = true or :incloureGlobals = true))) " +
 			"	and (:esNullFiltre = true or lower(e.codi) like lower('%'||:filtre||'%') or lower(e.nom) like lower('%'||:filtre||'%')) ")
 	public Page<Enumeracio> findByFiltrePaginat(
 			@Param("entornId") Long entornId,
@@ -67,10 +90,9 @@ public interface EnumeracioRepository extends JpaRepository<Enumeracio, Long> {
 			@Param("incloureGlobals") boolean incloureGlobals,
 			@Param("esNullFiltre") boolean esNullFiltre,
 			@Param("filtre") String filtre,		
+			@Param("herencia") boolean herencia, 
 			Pageable pageable);
 	
-	public Enumeracio findByExpedientTipusAndCodi(ExpedientTipus expedientTipus, String codi);
-
 	/** Troba les enumeracions per a un tipus d'expedient i també les globals de l'entorn i les ordena per nom.*/
 	@Query(	"from Enumeracio e " +
 			"where " +
@@ -80,4 +102,13 @@ public interface EnumeracioRepository extends JpaRepository<Enumeracio, Long> {
 			"	nom")
 	List<Enumeracio> findAmbExpedientTipusIGlobals(
 			@Param("expedientTipusId") Long expedientTipusId);
+
+	@Query( "select es " +
+			"from Enumeracio e " +
+			"	join e.expedientTipus et with et.id = :expedientTipusId, " +
+			"	Enumeracio es " +
+			"where " +
+			"	es.codi = e.codi " +
+			" 	and es.expedientTipus.id = et.expedientTipusPare.id ")
+	List<Enumeracio> findSobreescrits(@Param("expedientTipusId") Long expedientTipusId);
 }

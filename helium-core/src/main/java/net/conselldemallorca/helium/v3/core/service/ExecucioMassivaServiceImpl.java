@@ -1324,7 +1324,18 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 			}
 			
 			DefinicioProces definicioProces = expedientHelper.findDefinicioProcesByProcessInstanceId(exp.getProcessInstanceId());
-			Accio accio = accioRepository.findByCodiAndDefinicioProces(accioCodi, definicioProces);
+			boolean infoPropia = definicioProces.getExpedientTipus() != null && definicioProces.getExpedientTipus().isAmbInfoPropia();
+			boolean herencia = infoPropia && definicioProces.getExpedientTipus().getExpedientTipusPare() != null;
+			Accio accio = null;
+			if (infoPropia) {
+				accio = accioRepository.findByExpedientTipusIdAndCodi(definicioProces.getExpedientTipus().getId(), accioCodi);
+				if (accio == null && herencia)
+					accio = accioRepository.findByExpedientTipusIdAndCodi(definicioProces.getExpedientTipus().getExpedientTipusPare().getId(), accioCodi);					
+			} else {
+				accio = accioRepository.findByCodiAndDefinicioProces(accioCodi, definicioProces);
+			}
+			if (accio == null)
+				throw new NoTrobatException(Accio.class, accioCodi);
 			
 			expedientService.accioExecutar(exp.getId(), exp.getProcessInstanceId(), accio.getId());
 			ome.setEstat(ExecucioMassivaEstat.ESTAT_FINALITZAT);
@@ -1637,7 +1648,6 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 			int actualitzacionsCount = 0;
 			
 			ome.setDataInici(new Date());
-			Long entornId = ome.getExecucioMassiva().getEntorn();
 			ExpedientTipus expedientTipus = ome.getExecucioMassiva().getExpedientTipus();
 			// Recupera la darrera versió identificada per l'ome.definicioProcesId
 			DefinicioProces definicioDarrera = definicioProcesRepository.findById(ome.getDefinicioProcesId());
@@ -1649,8 +1659,8 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 			if (documentsPlantilles.size() > 0) {
 				int expedientsActiusCount;
 				// Propaga els documents per a totes les versions anteriors
-				for (DefinicioProces definicioAnterior :  definicioProcesRepository.findByEntornIdAndJbpmKeyOrderByVersioDesc(
-																						entornId, 
+				for (DefinicioProces definicioAnterior :  definicioProcesRepository.findByExpedientTipusIJpbmKey(
+																						expedientTipus.getId(),
 																						definicioDarrera.getJbpmKey()))
 				{
 					if (definicioAnterior.getVersio() < definicioDarrera.getVersio()) {
@@ -1660,8 +1670,8 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 								true, false).size();
 						if (expedientsActiusCount > 0 ) {
 							for ( Document documentPlantilla : documentsPlantilles) {
-								Document document = documentRepository.findAmbDefinicioProcesICodi(
-										definicioAnterior.getId(), 
+								Document document = documentRepository.findByDefinicioProcesAndCodi(
+										definicioAnterior, 
 										documentPlantilla.getCodi());
 								// Comprova si existeix
 								if (document != null && document.isPlantilla()) {
@@ -1718,8 +1728,8 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 						&& consultaCamp.getDefprocJbpmKey() != null) {
 					// Recupera la darrera versió de la definició de procés
 					DefinicioProces definicioDarrera = 
-							definicioProcesRepository.findDarreraVersioByEntornAndJbpmKey(
-								entorn, 
+							definicioProcesRepository.findDarreraVersioAmbEntornIJbpmKey(
+								entorn.getId(), 
 								consultaCamp.getDefprocJbpmKey());
 					if (consultaCamp.getDefprocVersio() != definicioDarrera.getVersio()) {
 						camp = campRepository.findByDefinicioProcesAndCodi(definicioDarrera, consultaCamp.getCampCodi());

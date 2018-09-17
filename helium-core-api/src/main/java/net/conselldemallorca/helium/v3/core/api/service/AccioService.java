@@ -71,13 +71,15 @@ public interface AccioService {
 	/** 
 	 * Retorna la accio del tipus d'expedient donat el seu identificador.
 	 * 
-	 * @param id
+	 * @param expedientTipusId
+	 * @param id 
 	 * 
 	 * @return La accio del tipus d'expedient.
 	 * @throws NoTrobatException
 	 *             Si no s'ha trobat el registre amb l'id especificat.
 	 */
 	public AccioDto findAmbId(
+			Long expedientTipusId, 
 			Long id) throws NoTrobatException;	
 	
 	/**

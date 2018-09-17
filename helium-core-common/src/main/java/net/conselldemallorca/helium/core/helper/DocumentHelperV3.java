@@ -145,15 +145,16 @@ public class DocumentHelperV3 {
 		ExpedientTipus expedientTipus = expedient.getTipus();
 		if (expedientTipus.isAmbInfoPropia()) {
 			return documentRepository.findByExpedientTipusAndCodi(
-					expedientTipus,
-					documentCodi);
+					expedientTipus.getId(),
+					documentCodi, 
+					expedientTipus.getExpedientTipusPare() != null);
 		} else {
 			DefinicioProces definicioProces = expedientHelper.findDefinicioProcesByProcessInstanceId(
 					processInstanceId);
 			return documentRepository.findByDefinicioProcesAndCodi(
 					definicioProces, 
 					documentCodi);
-		}
+		}		
 	}
 
 	public ArxiuDto getArxiuPerDocumentStoreId(
@@ -268,9 +269,12 @@ public class DocumentHelperV3 {
 		ExpedientTipus expedientTipus = expedient.getTipus();
 		List<Document> documents;
 		if (expedientTipus.isAmbInfoPropia()) {
-			documents = documentRepository.findByExpedientTipus(expedientTipus);
+			if (expedientTipus.getExpedientTipusPare() == null)
+				documents = documentRepository.findByExpedientTipusId(expedientTipus.getId());
+			else
+				documents = documentRepository.findByExpedientTipusAmbHerencia(expedientTipus.getId());
 		} else {
-			documents = documentRepository.findByDefinicioProces(definicioProces);
+			documents = documentRepository.findByDefinicioProcesId(definicioProces.getId());
 		}
 		// Consulta els documents de l'instància de procés
 		Map<String, Object> varsInstanciaProces = jbpmHelper.getProcessInstanceVariables(processInstanceId);
@@ -339,8 +343,9 @@ public class DocumentHelperV3 {
 				Document document;
 				if (expedientTipus.isAmbInfoPropia()) {
 					document = documentRepository.findByExpedientTipusAndCodi(
-							expedientTipus,
-							documentStore.getCodiDocument());
+							expedientTipus.getId(),
+							documentStore.getCodiDocument(),
+							expedientTipus.getExpedientTipusPare() != null);
 				} else {
 					document = documentRepository.findByDefinicioProcesAndCodi(
 							definicioProces, 
@@ -929,8 +934,9 @@ public class DocumentHelperV3 {
 		ExpedientTipus expedientTipus = expedient.getTipus();
 		if (expedientTipus.isAmbInfoPropia())
 			return documentRepository.findByExpedientTipusAndCodi(
-					expedientTipus,
-					documentCodi);
+					expedientTipus.getId(),
+					documentCodi,
+					expedientTipus.getExpedientTipusPare() != null);
 		else
 			return documentRepository.findByDefinicioProcesAndCodi(
 					definicioProces, 
@@ -1051,8 +1057,9 @@ public class DocumentHelperV3 {
 					Document doc;
 					if (expedientTipus.isAmbInfoPropia()) {
 						doc = documentRepository.findByExpedientTipusAndCodi(
-								expedientTipus,
-								codiDocument);
+								expedientTipus.getId(),
+								codiDocument,
+								expedientTipus.getExpedientTipusPare() != null);
 					} else {
 						doc = documentRepository.findByDefinicioProcesAndCodi(
 								definicioProces, 

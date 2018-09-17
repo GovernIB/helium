@@ -64,7 +64,7 @@ public class DefinicioProcesDocumentController extends BaseDefinicioProcesContro
 			@PathVariable Long definicioProcesId, 
 			Model model) {
 		if (!NodecoHelper.isNodeco(request)) {
-			return mostrarInformacioDefinicioProcesPerPipelles(request, jbmpKey, model, "documents");
+			return mostrarInformacioDefinicioProcesPerPipelles(request, jbmpKey, definicioProcesId, model, "documents");
 		}
 		// Omple el model per a la pestanya
 		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
@@ -72,7 +72,7 @@ public class DefinicioProcesDocumentController extends BaseDefinicioProcesContro
 			DefinicioProcesDto definicioProces = definicioProcesService.findAmbIdAndEntorn(entornActual.getId(),
 					definicioProcesId);
 			model.addAttribute("definicioProces", definicioProces);
-			model.addAttribute("baseUrl", (definicioProces.getJbpmKey() + "/" + definicioProces.getId().toString()));
+			model.addAttribute("baseUrl", ("/helium/v3/definicioProces/" + definicioProces.getJbpmKey() + "/" + definicioProces.getId().toString()));
 		}
 		model.addAttribute("jbpmKey", jbmpKey);
 		model.addAttribute("definicioProcesId", definicioProcesId);
@@ -150,7 +150,7 @@ public class DefinicioProcesDocumentController extends BaseDefinicioProcesContro
 			@PathVariable Long definicioProcesId, 
 			@PathVariable Long id,
 			Model model) {
-		DocumentDto dto = documentService.findAmbId(id);
+		DocumentDto dto = documentService.findAmbId(null, id);
 		ExpedientTipusDocumentCommand command = conversioTipusHelper.convertir(
 				dto,
 				ExpedientTipusDocumentCommand.class);

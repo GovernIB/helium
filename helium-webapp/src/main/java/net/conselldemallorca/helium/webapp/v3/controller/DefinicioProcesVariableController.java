@@ -74,7 +74,7 @@ public class DefinicioProcesVariableController extends BaseVariableController {
 			@PathVariable Long definicioProcesId, 
 			Model model) {
 		if (!NodecoHelper.isNodeco(request)) {
-			return mostrarInformacioDefinicioProcesPerPipelles(request, jbpmKey, model, "variables");
+			return mostrarInformacioDefinicioProcesPerPipelles(request, jbpmKey, definicioProcesId, model, "variables");
 		}
 
 		omplirModelVariablesPestanya(request, definicioProcesId, model);
@@ -167,7 +167,7 @@ public class DefinicioProcesVariableController extends BaseVariableController {
 			@PathVariable Long id,
 			Model model) {
 		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
-		CampDto dto = campService.findAmbId(id);
+		CampDto dto = campService.findAmbId(null, id);
 		CampCommand command = conversioTipusHelper.convertir(
 				dto,
 				CampCommand.class);
@@ -341,7 +341,7 @@ public class DefinicioProcesVariableController extends BaseVariableController {
 			@Validated(ValidacioCommand.Creacio.class) ValidacioCommand command,
 			BindingResult bindingResult,
 			Model model) {
-		model.addAttribute("camp", campService.findAmbId(campId));
+		model.addAttribute("camp", campService.findAmbId(null, campId));
         if (bindingResult.hasErrors()) {
     		omplirModelValidacionsForm(jbpmKey, definicioProcesId, campId, model);
         	model.addAttribute("mostraCreate", true);
@@ -372,7 +372,7 @@ public class DefinicioProcesVariableController extends BaseVariableController {
 			@Validated(ValidacioCommand.Modificacio.class) ValidacioCommand command,
 			BindingResult bindingResult,
 			Model model) {
-		model.addAttribute("camp", campService.findAmbId(campId));
+		model.addAttribute("camp", campService.findAmbId(null, campId));
         if (bindingResult.hasErrors()) {
     		omplirModelValidacionsForm(jbpmKey, definicioProcesId, campId, model);
         	model.addAttribute("mostraUpdate", true);
@@ -461,7 +461,8 @@ public class DefinicioProcesVariableController extends BaseVariableController {
 				request, 
 				null,
 				definicioProcesId, 
-				model);
+				model,
+				false);
 		
 		DefinicioProcesDto definicioProces = definicioProcesService.findAmbIdAndEntorn(entornId,
 				definicioProcesId);
@@ -487,9 +488,12 @@ public class DefinicioProcesVariableController extends BaseVariableController {
 			DefinicioProcesDto definicioProces = definicioProcesService.findAmbIdAndEntorn(entornActual.getId(),
 					definicioProcesId);
 			model.addAttribute("definicioProces", definicioProces);
-			model.addAttribute("baseUrl", (definicioProces.getJbpmKey() + "/" + definicioProces.getId().toString()));
+			model.addAttribute("baseUrl", ("/helium/v3/definicioProces/" + definicioProces.getJbpmKey() + "/" + definicioProces.getId().toString()));
+			// agrupacions heretades
+			model.addAttribute("agrupacionsHeretadesIds", new ArrayList<Long>());
+			model.addAttribute("agrupacionsSobreescriuenIds", new ArrayList<Long>());
 		}
-		this.omplirModelAgrupacions(request, null, definicioProcesId, model);
+		this.omplirModelAgrupacions(request, null, definicioProcesId, model, false);
 	}
 
 	private void omplirModelValidacionsForm(
@@ -499,7 +503,7 @@ public class DefinicioProcesVariableController extends BaseVariableController {
 			Model model) {
 		model.addAttribute("basicUrl", ("definicioProces" + "/" + jbpmKey + "/" + definicioProcesId.toString()));
 		model.addAttribute("definicioProcesId", definicioProcesId);
-		model.addAttribute("camp", campService.findAmbId(campId));
+		model.addAttribute("camp", campService.findAmbId(null, campId));
 	}
 	
 	// Mètodes pel manteniment d'agrupacions
@@ -526,7 +530,7 @@ public class DefinicioProcesVariableController extends BaseVariableController {
 			@PathVariable String jbpmKey,
 			@PathVariable Long definicioProcesId,
 			Model model) {
-		return obtenirParellesAgrupacions(request, null, definicioProcesId);
+		return obtenirParellesAgrupacions(request, null, definicioProcesId, false);
 	}
 
 	/** Obre una modal amb un llistat per reordenar les agrupacions. */
@@ -742,7 +746,7 @@ public class DefinicioProcesVariableController extends BaseVariableController {
 			@Validated(ExpedientTipusCampRegistreCommand.Modificacio.class) ExpedientTipusCampRegistreCommand command,
 			BindingResult bindingResult,
 			Model model) {
-		model.addAttribute("camp", campService.findAmbId(campId));
+		model.addAttribute("camp", campService.findAmbId(null, campId));
         if (bindingResult.hasErrors()) {
     		omplirModelCampsRegistreForm(jbpmKey, definicioProcesId, campId, model);
     		model.addAttribute("variables", obtenirParellesCampRegistre(
@@ -838,7 +842,7 @@ public class DefinicioProcesVariableController extends BaseVariableController {
 			Model model) {
 		model.addAttribute("basicUrl", ("definicioProces" + "/" + jbpmKey + "/" + definicioProcesId.toString()));
 		model.addAttribute("definicioProcesId", definicioProcesId);
-		model.addAttribute("camp", campService.findAmbId(campId));
+		model.addAttribute("camp", campService.findAmbId(null, campId));
 	}
 
 		

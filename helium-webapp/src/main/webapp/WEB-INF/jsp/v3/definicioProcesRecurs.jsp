@@ -28,7 +28,7 @@
 					<tr>
 						<td>${recurs}</td>
 						<td style="text-align: center;" width="50px">
-							<a href='<c:url value="${jbpmKey}/${definicioProcesId}/recurs/descarregar"><c:param name="nom" value="${recurs}" /></c:url>' >
+							<a href='<c:url value="/v3/definicioProces/${jbpmKey}/${definicioProcesId}/recurs/descarregar"><c:param name="nom" value="${recurs}" /></c:url>' >
 								<span class="btn btn-default btn-file no-left-radius"
 									  title='<spring:message code="definico.proces.recurs.descarregar"></spring:message>'>
 									<span class="fa fa-download"></span>

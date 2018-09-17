@@ -106,31 +106,6 @@ public class DefinicioProcesController extends BaseDefinicioProcesController {
 						paginacioParams));
 	}	
 	
-	/** Mètode per esborrar la darrera versió d'una definició de procés des del llistat
-	 * de definicions de procés o el llista de definicions de procés del tipus d'expedient. */
-	@RequestMapping(value = "/{jbmpKey}/delete", method = RequestMethod.GET)
-	@ResponseBody
-	public boolean deleteDarreraVersió(
-			HttpServletRequest request,
-			@PathVariable String jbmpKey,
-			Model model) {
-		boolean success = false;
-		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
-		try {
-			DefinicioProcesDto definicioProces = definicioProcesService.findByEntornIdAndJbpmKey(
-					entornActual.getId(), 
-					jbmpKey);
-			if (definicioProces == null)
-				throw new NoTrobatException(DefinicioProcesDto.class);
-			
-			success = this.deleteDefinicioProces(entornActual.getId(), request, definicioProces);
-		} catch (Exception e) {
-			logger.error("Error : (" + e.getClass() + ") " + e.getLocalizedMessage());
-			MissatgesHelper.error(request, getMessage(request, "definicio.proces.delete.error", new Object[] {e.getLocalizedMessage()}));
-		}
-		return success;
-	}
-	
 	/** Mètode per esborrar una versió específica des del disseny de la definició de procés. */
 	@RequestMapping(value = "/{jbmpKey}/{definicioProcesId}/delete", method = RequestMethod.GET)
 	public String delete(
@@ -146,12 +121,16 @@ public class DefinicioProcesController extends BaseDefinicioProcesController {
 
 			this.deleteDefinicioProces(entornActual.getId(), request, definicioProces);
 			
-			// Cerca la darrera definició de procés per codi jbpm
-			definicioProces = definicioProcesService.findByEntornIdAndJbpmKey(
-					entornActual.getId(), 
-					jbmpKey);
-			// Si no n'hi ha cap llavors torna al llistat
-			if (definicioProces == null)
+			// Cerca la darrera definició de procés per codi jbpm i expedient Tipus
+			ExpedientTipusDto et = definicioProces.getExpedientTipus();
+			if (et != null)
+				definicioProces = dissenyService.findDarreraDefinicioProcesForExpedientTipus(et.getId());
+			else
+				definicioProcesService.findByEntornIdAndJbpmKey(entornActual.getId(), jbmpKey);
+			
+			// Si no es troba la definició de procés anterior o canvia el tipus d'expedient torna al llistat
+			if (definicioProces == null 
+					|| (et != null && !et.getId().equals(definicioProces.getExpedientTipus() != null ? definicioProces.getExpedientTipus().getId() : 0L)))
 				return "redirect:/v3/definicioProces";
 			
 		} catch (Exception e) {
@@ -212,19 +191,43 @@ public class DefinicioProcesController extends BaseDefinicioProcesController {
 		return success;
 	}
 
-	/** Vista de les pipelles per a la definició de procés. */
+	/** Vista de les pipelles per a la definició de procés que mostrarà la darrera versió. */
 	@RequestMapping(value = "/{jbmpKey}", method = RequestMethod.GET)
 	public String pipelles(
 			HttpServletRequest request,
 			@PathVariable String jbmpKey,
 			Model model) {		
+		// consulta la darrera definicio de procés de l'entonr i redirigeix cap al mètode
+		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
+		DefinicioProcesDto definicioProces = definicioProcesService.findByEntornIdAndJbpmKey(
+				entornActual.getId(),
+				jbmpKey);
+		if (definicioProces == null) {
+			MissatgesHelper.error(
+					request, 
+					getMessage(request, 
+							"definicio.proces.pipelles.definicio.no.trobada", 
+							new Object[] {jbmpKey}));
+			return "redirect:/v3/definicioProces";			
+		}		
+		return "redirect:/v3/definicioProces/" + jbmpKey + "/" + definicioProces.getId();
+	}
+
+	/** Vista de les pipelles per a la definició de procés mostrant una específica. */
+	@RequestMapping(value = "/{jbmpKey}/{definicioProcesId}", method = RequestMethod.GET)
+	public String pipellesDefinicioProces(
+			HttpServletRequest request,
+			@PathVariable String jbmpKey,
+			@PathVariable Long definicioProcesId,
+			Model model) {		
 		return mostrarInformacioDefinicioProcesPerPipelles(
 				request,
 				jbmpKey,
+				definicioProcesId,
 				model,
 				"detall");
 	}
-	
+
 	/** Pipella del detall. */
 	@RequestMapping(value = "/{jbmpKey}/{definicioProcesId}/detall")
 	public String detall(
@@ -236,6 +239,7 @@ public class DefinicioProcesController extends BaseDefinicioProcesController {
 			return mostrarInformacioDefinicioProcesPerPipelles(
 					request,
 					jbmpKey,
+					definicioProcesId,
 					model,
 					"detall");
 		}
@@ -265,6 +269,7 @@ public class DefinicioProcesController extends BaseDefinicioProcesController {
 			return mostrarInformacioDefinicioProcesPerPipelles(
 					request,
 					jbmpKey,
+					definicioProcesId,
 					model,
 					"recurs");
 		}
@@ -419,7 +424,7 @@ public class DefinicioProcesController extends BaseDefinicioProcesController {
 		model.addAttribute("variables", campService.findAllOrdenatsPerCodi(null, definicioProcesId));
 		model.addAttribute("documents", documentService.findAll(null, definicioProcesId));
 		model.addAttribute("terminis", definicioProcesService.terminiFindAll(definicioProcesId));
-		model.addAttribute("agrupacions", campService.agrupacioFindAll(null, definicioProcesId));
+		model.addAttribute("agrupacions", campService.agrupacioFindAll(null, definicioProcesId, false));
 		model.addAttribute("accions", accioService.findAll(null, definicioProcesId));
 	}	
 	

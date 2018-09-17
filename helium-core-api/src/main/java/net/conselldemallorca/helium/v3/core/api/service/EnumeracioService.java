@@ -48,7 +48,19 @@ public interface EnumeracioService {
 	public List<EnumeracioDto> findGlobals(
 			Long entornId) throws NoTrobatException;
 	
+	/** 
+	 * Retorna l'enumeració del tipus d'expedient donat el seu identificador. Té en compte els
+	 * heretats i informa el camps d'herència del dto.
+	 * 
+	 * @param estatId
+	 * @param id 
+	 * 
+	 * @return L'enumeració del tipus d'expedient.
+	 * @throws NoTrobatException
+	 *             Si no s'ha trobat el registre amb l'id especificat.
+	 */
 	public EnumeracioDto findAmbId(
+			Long expedientTipusId, 
 			Long enumeracioId) throws NoTrobatException;
 	
 	public EnumeracioDto update(

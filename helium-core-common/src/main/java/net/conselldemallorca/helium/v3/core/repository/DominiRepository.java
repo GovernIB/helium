@@ -28,6 +28,29 @@ public interface DominiRepository extends JpaRepository<Domini, Long> {
 			ExpedientTipus expedientTipus,
 			String codi);
 
+	/** Consulta per expedient tipus i el codi. Té en compte l'herència. */
+	@Query(	"from Domini d " +
+			"where " +
+			"  	d.codi = :codi " +
+			"	and d.id not in ( " + 
+						// Llistat de sobreescrits
+			"			select ds.id " +
+			"			from Domini da " +
+			"				join da.expedientTipus et with et.id = :expedientTipusId, " +
+			"				Domini ds " +
+			"			where " +
+			"				ds.codi = da.codi " +
+			"			 	and ds.expedientTipus.id = et.expedientTipusPare.id) " +
+			"  	and (d.expedientTipus.id = :expedientTipusId " +
+						// Heretats
+			"			or d.expedientTipus.id = ( " + 
+			"				select et.expedientTipusPare.id " + 
+			"				from ExpedientTipus et " + 
+			"				where et.id = :expedientTipusId)) ")
+	Domini findByExpedientTipusAndCodiAmbHerencia(
+			@Param("expedientTipusId") Long expedientTipusId,
+			@Param("codi") String codi);
+	
 	/** Troba el domini global per entorn i codi amb expedient tipus null. */
 	@Query(	"from " +
 			"    Domini d " +
@@ -39,6 +62,7 @@ public interface DominiRepository extends JpaRepository<Domini, Long> {
 			@Param("entorn") Entorn entorn,
 			@Param("codi") String codi);
 	
+	/** Consulta la llista de tots els dominis d'un entorn siguin o no globals. */
 	List<Domini> findByEntorn(
 			Entorn entorn);
 
@@ -56,7 +80,23 @@ public interface DominiRepository extends JpaRepository<Domini, Long> {
 	@Query(	"from Domini d " +
 			"where " +
 			"   d.entorn.id = :entornId " +
-			"	and ((d.expedientTipus.id = :expedientTipusId) or (d.expedientTipus is null and (:esNullExpedientTipusId = true or :incloureGlobals = true))) " +
+			"	and (:herencia = false " +
+			"		or d.id not in ( " + 
+						// Llistat de sobreescrits
+			"			select ds.id " +
+			"			from Domini da " +
+			"				join da.expedientTipus et with et.id = :expedientTipusId, " +
+			"				Domini ds " +
+			"			where " +
+			"				ds.codi = da.codi " +
+			"			 	and ds.expedientTipus.id = et.expedientTipusPare.id " +
+			"		) " +
+			"	) " +
+			"	and ((d.expedientTipus.id = :expedientTipusId) " + 
+						// Heretats
+			"			or (:herencia = true " +
+			"					and d.expedientTipus.id = (select etp.expedientTipusPare.id from ExpedientTipus etp where etp.id = :expedientTipusId))  " +
+			"			or (d.expedientTipus is null and (:esNullExpedientTipusId = true or :incloureGlobals = true))) " +
 			"	and (:esNullFiltre = true or lower(d.codi) like lower('%'||:filtre||'%') or lower(d.nom) like lower('%'||:filtre||'%')) ")
 	Page<Domini> findByFiltrePaginat(
 			@Param("entornId") Long entornId,
@@ -65,6 +105,7 @@ public interface DominiRepository extends JpaRepository<Domini, Long> {
 			@Param("incloureGlobals") boolean incloureGlobals,
 			@Param("esNullFiltre") boolean esNullFiltre,
 			@Param("filtre") String filtre,		
+			@Param("herencia") boolean herencia, 
 			Pageable pageable);
 
 	/** Troba les enumeracions per a un tipus d'expedient i també les globals de l'entorn i les ordena per nom.*/
@@ -82,8 +123,17 @@ public interface DominiRepository extends JpaRepository<Domini, Long> {
 	@Query(	"from " +
 			"    Domini d " +
 			"where " +
-			"    d.entorn.id = :dominiId " +
+			"    d.entorn.id = :entornId " +
 			"and d.expedientTipus is null ")
 	List<Domini> findGlobals(
-			@Param("dominiId") Long dominiId);
+			@Param("entornId") Long entornId);
+
+	@Query( "select ds " +
+			"from Domini d " +
+			"	join d.expedientTipus et with et.id = :expedientTipusId, " +
+			"	Domini ds " +
+			"where " +
+			"	ds.codi = d.codi " +
+			" 	and ds.expedientTipus.id = et.expedientTipusPare.id ")
+	List<Domini> findSobreescrits(@Param("expedientTipusId") Long expedientTipusId);
 }

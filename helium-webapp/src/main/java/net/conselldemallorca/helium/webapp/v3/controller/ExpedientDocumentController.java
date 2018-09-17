@@ -578,7 +578,8 @@ public class ExpedientDocumentController extends BaseExpedientController {
 		ExpedientDto expedient = expedientService.findAmbId(expedientId);
 		List<DocumentDto> documents = dissenyService.findDocumentsOrdenatsPerCodi(
 				expedient.getTipus().getId(),
-				instanciaProces.getDefinicioProces().getId());
+				instanciaProces.getDefinicioProces().getId(),
+				true);	// amb herència
 		List<ExpedientDocumentDto> documentsInstancia = expedientDocumentService.findAmbInstanciaProces(expedientId, procesId);
 		if (documentsInstancia != null && documentsInstancia.size() > 0) {
 			List<DocumentDto> documentsNoUtilitzats = new ArrayList<DocumentDto>();

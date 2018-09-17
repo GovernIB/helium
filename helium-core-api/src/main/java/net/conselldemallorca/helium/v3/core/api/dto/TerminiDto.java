@@ -3,12 +3,14 @@
  */
 package net.conselldemallorca.helium.v3.core.api.dto;
 
+import java.io.Serializable;
+
 /**
  * DTO amb informació d'un termini.
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
-public class TerminiDto {
+public class TerminiDto extends HeretableDto implements Serializable {
 
 	private Long id;
 	private String codi;
@@ -165,4 +167,6 @@ public class TerminiDto {
 	public boolean isEmpty() {
 		return (anys == 0 && mesos == 0 && dies == null);
 	}
+
+	private static final long serialVersionUID = -7870230958190962621L;
 }

@@ -154,6 +154,8 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 					entornActual.getId(),
 					expedientTipusId);
 			model.addAttribute("expedientTipus", expedientTipus);
+			if (expedientTipus.getExpedientTipusPareId() != null)
+				model.addAttribute("expedientTipusPare", expedientTipusService.findAmbId(expedientTipus.getExpedientTipusPareId()));
 			// Responsable per defecte
 			String responsableCodi = expedientTipus.getResponsableDefecteCodi();
 			if (responsableCodi != null) {
@@ -181,10 +183,28 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 	public String nou(
 			HttpServletRequest request,
 			Model model) {
-		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
-		model.addAttribute("potDissenyar", entornHelper.potDissenyarEntorn(entornActual.getId()));
+		omplirModelExpedientTipusForm( request, null, model);		
 		model.addAttribute("expedientTipusCommand", new ExpedientTipusCommand());
 		return "v3/expedientTipusForm";
+	}
+	
+	private void omplirModelExpedientTipusForm(
+			HttpServletRequest request,
+			Long expedientTipusId,
+			Model model) {
+		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
+		if (entornActual != null) {
+			List<ExpedientTipusDto> expedientsTipusPares = expedientTipusService.findHeretables(entornActual.getId());
+			// Treu de la llista d'heretables el tipus d'expedient que s'està modificant
+			if (expedientTipusId != null)
+				for (ExpedientTipusDto expedientTipus : expedientsTipusPares)
+					if (expedientTipus.getId().equals(expedientTipusId)) {
+						expedientsTipusPares.remove(expedientTipus);
+						break;
+					}
+			model.addAttribute("expedientTipusPares", expedientsTipusPares);
+			model.addAttribute("potDissenyar", entornHelper.potDissenyarEntorn(entornActual.getId()));
+		}
 	}
 	@RequestMapping(value = "/new", method = RequestMethod.POST)
 	public String nouPost(
@@ -192,11 +212,11 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 			@Validated(Creacio.class) ExpedientTipusCommand command,
 			BindingResult bindingResult,
 			Model model) {
-		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
         if (bindingResult.hasErrors()) {
-        	model.addAttribute("potDissenyar", entornHelper.potDissenyarEntorn(entornActual.getId()));
+    		omplirModelExpedientTipusForm( request, null, model);		
         	return "v3/expedientTipusForm";
         } else {
+    		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
     		// Transforma els llistats d'anys i valors 
     		List<Integer> sequenciesAny = new ArrayList<Integer>();
     		List<Long> sequenciesValor = new ArrayList<Long>();
@@ -223,6 +243,7 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 			HttpServletRequest request,
 			@PathVariable Long id,
 			Model model) {
+		omplirModelExpedientTipusForm( request, id, model);		
 		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
 		ExpedientTipusDto dto = expedientTipusService.findAmbIdPermisDissenyar(
 				entornActual.getId(),
@@ -235,7 +256,6 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 			command.getSequenciesAny().add(any.getAny().toString());
 			command.getSequenciesValor().add(any.getSequencia().toString());
 		}
-		model.addAttribute("potDissenyar", entornHelper.potDissenyarEntorn(entornActual.getId()));
 		model.addAttribute("expedientTipusCommand", command);
 		return "v3/expedientTipusForm";
 	}
@@ -246,11 +266,11 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 			@Validated(Modificacio.class) ExpedientTipusCommand command,
 			BindingResult bindingResult,
 			Model model) {
-		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
         if (bindingResult.hasErrors()) {
-        	model.addAttribute("potDissenyar", entornHelper.potDissenyarEntorn(entornActual.getId()));
+    		omplirModelExpedientTipusForm( request, id, model);		
         	return "v3/expedientTipusForm";
         } else {
+    		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
     		// Transforma els llistats d'anys i valors 
     		List<Integer> sequenciesAny = new ArrayList<Integer>();
     		List<Long> sequenciesValor = new ArrayList<Long>();
@@ -278,10 +298,39 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 			@PathVariable Long id,
 			Model model) {
 		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
-		if (!expedientService.existsExpedientAmbEntornTipusITitol(
+		boolean error = false;
+		// Comprova que no hi hagi expedients
+		if (expedientService.existsExpedientAmbEntornTipusITitol(
 				entornActual.getId(),
 				id,
 				null)) {
+			error = true;
+			MissatgesHelper.error(
+					request,
+					getMessage(
+							request,
+							"expedient.tipus.controller.eliminar.expedients.relacionats"));
+		}
+		// Comprova que no hi hagi tipus d'expedients que heretin
+		List<ExpedientTipusDto> heretats = expedientTipusService.findHeretats(id); 
+		if (heretats.size() > 0) {
+			MissatgesHelper.error(
+					request,
+					getMessage(
+							request,
+							"expedient.tipus.controller.eliminar.tipus.heretats",
+							new Object[] {heretats.size()}));
+			for (ExpedientTipusDto heretat : heretats) {
+				MissatgesHelper.error(
+						request,
+						getMessage(
+								request,
+								"expedient.tipus.controller.eliminar.tipus.heretat",
+								new Object[] {heretat.getCodi(), heretat.getNom()}));
+			}
+			error = true;
+		}
+		if (!error) {
 			expedientTipusService.delete(
 					entornActual.getId(),
 					id);
@@ -290,12 +339,6 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 					getMessage(
 							request,
 							"expedient.tipus.controller.eliminat"));
-		} else {
-			MissatgesHelper.error(
-					request,
-					getMessage(
-							request,
-							"expedient.tipus.controller.eliminar.expedients.relacionats"));
 		}			
 		return "redirect:/v3/expedientTipus";
 	}
@@ -361,7 +404,7 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 			ExpedientTipusDto dto) {
 		model.addAttribute("estats", dto.getEstats());
 		model.addAttribute("variables", campService.findAllOrdenatsPerCodi(expedientTipusId, null));
-		model.addAttribute("agrupacions", campService.agrupacioFindAll(expedientTipusId, null));
+		model.addAttribute("agrupacions", campService.agrupacioFindAll(expedientTipusId, null, false));
 		
 		// Map<definicioCodi, List<ParellaCodiValorDto>> map amb les versions agrupades per codi jbpm
 		Map<String, List<Integer>> versionsMap = new HashMap<String, List<Integer>>();

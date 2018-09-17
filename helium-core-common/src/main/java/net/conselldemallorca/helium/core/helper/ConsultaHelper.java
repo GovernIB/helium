@@ -79,9 +79,12 @@ public class ConsultaHelper {
 				}
 			} else {
 				// Tipus d'expedient
-				campRes = campRepository.findByExpedientTipusAndCodi(
-						consulta.getExpedientTipus(),
-						camp.getCampCodi()); 
+				if (consulta.getExpedientTipus() != null) {
+					campRes = campRepository.findByExpedientTipusAndCodi(
+							consulta.getExpedientTipus().getId(),
+							camp.getCampCodi(),
+							consulta.getExpedientTipus().getExpedientTipusPare() != null); 
+				}
 			}
 			if (campRes != null) {
 				tascaDadaDto = variableHelper.getTascaDadaDtoParaConsultaDisseny(campRes,tipus);

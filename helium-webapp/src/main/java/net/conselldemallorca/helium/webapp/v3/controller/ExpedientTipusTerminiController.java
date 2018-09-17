@@ -57,7 +57,7 @@ public class ExpedientTipusTerminiController extends BaseExpedientTipusControlle
 	}
 	
 	@RequestMapping(value = "/{expedientTipusId}/terminis")
-	public String documents(
+	public String terminis(
 			HttpServletRequest request,
 			@PathVariable Long expedientTipusId,
 			Model model) {
@@ -148,12 +148,13 @@ public class ExpedientTipusTerminiController extends BaseExpedientTipusControlle
 			@PathVariable Long expedientTipusId,
 			@PathVariable Long id,
 			Model model) {
-		TerminiDto dto = terminiService.findAmbId(id);
+		TerminiDto dto = terminiService.findAmbId(expedientTipusId, id);
 		ExpedientTipusTerminiCommand command = conversioTipusHelper.convertir(
 				dto,
 				ExpedientTipusTerminiCommand.class);
 		model.addAttribute("expedientTipusTerminiCommand", command);
 		model.addAttribute("expedientTipusId", expedientTipusId);
+		model.addAttribute("heretat", dto.isHeretat());
 		return "v3/expedientTipusTerminiForm";
 	}
 	@RequestMapping(value = "/{expedientTipusId}/termini/{id}/update", method = RequestMethod.POST)
@@ -166,6 +167,7 @@ public class ExpedientTipusTerminiController extends BaseExpedientTipusControlle
 			Model model) {
         if (bindingResult.hasErrors()) {
         	model.addAttribute("expedientTipusId", expedientTipusId);
+    		model.addAttribute("heretat", terminiService.findAmbId(expedientTipusId, id).isHeretat());
         	return "v3/expedientTipusTerminiForm";
         } else {
         	terminiService.update(

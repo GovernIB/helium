@@ -3,7 +3,11 @@
  */
 package net.conselldemallorca.helium.v3.core.service;
 
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import javax.annotation.Resource;
 
@@ -81,30 +85,61 @@ public class EnumeracioServiceImpl implements EnumeracioService {
 				"incloureGlobals=" + incloureGlobals + ", " +
 				"filtre=" + filtre + ")");
 		
-		Page<Enumeracio> resultats = enumeracioRepository.findByFiltrePaginat(
+		ExpedientTipus expedientTipus = expedientTipusId != null? expedientTipusHelper.getExpedientTipusComprovantPermisDissenyDelegat(expedientTipusId) : null;
+
+		// Determina si hi ha herència 
+		boolean herencia = expedientTipus != null && expedientTipus.isAmbInfoPropia() && expedientTipus.getExpedientTipusPare() != null;
+
+		Page<Enumeracio> page = enumeracioRepository.findByFiltrePaginat(
 				entornId,
 				expedientTipusId == null,
 				expedientTipusId,
 				incloureGlobals,
 				filtre == null || "".equals(filtre),
 				filtre,
+				herencia,
 				paginacioHelper.toSpringDataPageable(paginacioParams));
 		
-		PaginaDto<EnumeracioDto> out = paginacioHelper.toPaginaDto(resultats, EnumeracioDto.class);
-		
-		//Recuperam el nombre de valors per cada enumerat
-		if (out!=null) {
-			for (int o=0; o<out.getContingut().size(); o++) {
-				List<EnumeracioValors> valors = enumeracioValorsRepository.findByEnumeracioOrdenat(out.getContingut().get(o).getId());
-				if (valors!=null) {
-					out.getContingut().get(o).setNumValors(valors.size());
-				}else{
-					out.getContingut().get(o).setNumValors(new Integer(0));
-				}
-			}
+		PaginaDto<EnumeracioDto> pagina = paginacioHelper.toPaginaDto(page, EnumeracioDto.class);
+
+		// Llista d'enumeracions de la pàgina per consultar els seus valors
+		Set<Long> enumeracionsIds = new HashSet<Long>(); // per guardar els ids de les enumeracions a mostrar
+		// Llista d'heretats
+		Set<Long> heretatsIds = new HashSet<Long>();
+		// Llistat d'elements sobreescrits
+		Set<String> sobreescritsCodis = new HashSet<String>();
+		for (Enumeracio e : page.getContent()) {
+			enumeracionsIds.add(e.getId());
+			if (herencia
+					&& !expedientTipusId.equals(e.getExpedientTipus().getId()))
+				heretatsIds.add(e.getId());				
 		}
-		
-		return out;
+		if (enumeracionsIds.isEmpty())
+			enumeracionsIds.add(0L);
+		if (herencia) {
+			for (Enumeracio e : enumeracioRepository.findSobreescrits(expedientTipus.getId()))
+				sobreescritsCodis.add(e.getCodi());
+		}
+		if (pagina!=null) {
+			// Consulta els valors per enumeració dins d'un Map<enumeracioId, valors count>
+			Map<Long, Long> enumeracioValorsCountMap = new HashMap<Long, Long>();
+			for(Object[] o : enumeracioValorsRepository.countValors(enumeracionsIds))
+				enumeracioValorsCountMap.put((Long) o[0], (Long) o[1]);
+			// Completa l'informació del dto
+			for (EnumeracioDto dto : pagina.getContingut()) {
+				// Comptador de valors
+				dto.setNumValors(enumeracioValorsCountMap.containsKey(dto.getId()) ? enumeracioValorsCountMap.get(dto.getId()).intValue() : 0);
+				if(herencia) {
+					// Sobreescriu
+					if (sobreescritsCodis.contains(dto.getCodi()))
+						dto.setSobreescriu(true);
+					// Heretat
+					if (heretatsIds.contains(dto.getId()) && ! dto.isSobreescriu())
+						dto.setHeretat(true);								
+				}
+			}			
+		}
+		return pagina;
 	}
 	
 	@Override
@@ -213,17 +248,33 @@ public class EnumeracioServiceImpl implements EnumeracioService {
 	
 	@Override
 	@Transactional
-	public EnumeracioDto findAmbId(Long enumeracioId) throws NoTrobatException {
+	public EnumeracioDto findAmbId(
+			Long expedientTipusId,
+			Long enumeracioId) throws NoTrobatException {
 		logger.debug(
 				"Consultant l'enumeracio amb id (" +
+				"expedientTipusId=" + expedientTipusId + "," +
 				"enumeracioId=" + enumeracioId +  ")");
+		ExpedientTipus tipus = expedientTipusId != null?
+									expedientTipusRepository.findById(expedientTipusId) : null;
 		Enumeracio enumeracio = enumeracioRepository.findOne(enumeracioId);
 		if (enumeracio == null) {
 			throw new NoTrobatException(Enumeracio.class, enumeracioId);
 		}
-		return conversioTipusHelper.convertir(
+		EnumeracioDto dto = conversioTipusHelper.convertir(
 				enumeracio,
 				EnumeracioDto.class);
+		// Herencia
+		if (tipus != null && tipus.getExpedientTipusPare() != null) {
+			if (tipus.getExpedientTipusPare().getId().equals(enumeracio.getExpedientTipus().getId()))
+				dto.setHeretat(true);
+			else
+				dto.setSobreescriu(enumeracioRepository.findByEntornAndExpedientTipusAndCodi(
+						tipus.getEntorn(),
+						tipus.getExpedientTipusPare(), 
+						enumeracio.getCodi()) != null);					
+		}
+		return dto;
 	}
 	
 	@Override

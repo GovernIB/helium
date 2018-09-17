@@ -165,7 +165,7 @@ public class ExpedientInformeController extends BaseExpedientController {
 		model.addAttribute("campsFiltre", expedientService.findConsultaFiltre(consultaId));	
 		model.addAttribute("campsInforme", expedientService.findConsultaInforme(consultaId));
 		model.addAttribute("campsInformeParams", expedientService.findConsultaInformeParams(consultaId));
-		List<EstatDto> estats = dissenyService.findEstatByExpedientTipus(consulta.getExpedientTipus().getId());
+		List<EstatDto> estats = expedientTipusService.estatFindAll(consulta.getExpedientTipus().getId(), true);
 		estats.add(0, new EstatDto(0L, "0", getMessage(request, "expedient.consulta.iniciat")));
 		estats.add(new EstatDto(-1L, "-1", getMessage(request, "expedient.consulta.finalitzat")));
 		model.addAttribute("estats", estats);
@@ -197,7 +197,7 @@ public class ExpedientInformeController extends BaseExpedientController {
 			model.addAttribute("campsFiltre", expedientService.findConsultaFiltre(consultaId));
 			model.addAttribute("campsInforme", expedientService.findConsultaInforme(consultaId));
 			model.addAttribute("campsInformeParams", expedientService.findConsultaInformeParams(consultaId));
-			List<EstatDto> estats = dissenyService.findEstatByExpedientTipus(consulta.getExpedientTipus().getId());
+			List<EstatDto> estats = expedientTipusService.estatFindAll(consulta.getExpedientTipus().getId(), true);
 			estats.add(0, new EstatDto(0L, "0", getMessage(request, "expedient.consulta.iniciat")));
 			estats.add(new EstatDto(-1L, "-1", getMessage(request, "expedient.consulta.finalitzat")));
 			model.addAttribute("estats", estats);

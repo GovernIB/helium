@@ -11,7 +11,7 @@ import java.util.Date;
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
-public class DocumentDto implements Serializable {
+public class DocumentDto extends HeretableDto implements Serializable {
 
 	private Long id;
 	private String codi;

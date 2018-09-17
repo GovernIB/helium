@@ -90,6 +90,9 @@
 			border-bottom-right-radius: 4px;
     		border-top-right-radius: 4px;
 		}
+		.dada-heretada{
+			color:gray !important; 
+		}
 	</style>
 	<script type="text/javascript">
 		$(document).ready(function(){

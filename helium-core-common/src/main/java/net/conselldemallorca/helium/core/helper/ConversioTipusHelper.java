@@ -224,6 +224,8 @@ public class ConversioTipusHelper {
 						target.setSeleccionarAny(source.isSeleccionarAny());
 						target.setAmbRetroaccio(source.isAmbRetroaccio());
 						target.setAmbInfoPropia(source.isAmbInfoPropia());
+						target.setHeretable(source.isHeretable());
+						target.setExpedientTipusPareId(source.getExpedientTipusPare() != null ? source.getExpedientTipusPare().getId() : null );
 						target.setReindexacioAsincrona(source.isReindexacioAsincrona());
 						target.setDiesNoLaborables(source.getDiesNoLaborables());
 						target.setNotificacionsActivades(source.isNotificacionsActivades());

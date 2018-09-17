@@ -40,6 +40,8 @@ public class ExpedientTipusExportacio implements Serializable {
 	private boolean ambRetroaccio;
 	private boolean reindexacioAsincrona;
 	private boolean ambInfoPropia;
+	private boolean heretable;
+	private String expedientTipusPareCodi;
 
 	private Map<Integer, SequenciaAnyDto> sequenciaAny = new TreeMap<Integer, SequenciaAnyDto>();
 	private Map<Integer, SequenciaDefaultAnyDto> sequenciaDefaultAny = new TreeMap<Integer, SequenciaDefaultAnyDto>();
@@ -186,6 +188,18 @@ public class ExpedientTipusExportacio implements Serializable {
 	}
 	public boolean isAmbInfoPropia() {
 		return ambInfoPropia;
+	}
+	public boolean isHeretable() {
+		return heretable;
+	}
+	public void setHeretable(boolean heretable) {
+		this.heretable = heretable;
+	}
+	public String getExpedientTipusPareCodi() {
+		return expedientTipusPareCodi;
+	}
+	public void setExpedientTipusPareCodi(String expedientTipusPareCodi) {
+		this.expedientTipusPareCodi = expedientTipusPareCodi;
 	}
 	public void setAmbInfoPropia(boolean ambInfoPropia) {
 		this.ambInfoPropia = ambInfoPropia;

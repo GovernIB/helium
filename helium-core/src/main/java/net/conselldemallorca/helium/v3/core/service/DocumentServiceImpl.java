@@ -3,19 +3,24 @@
  */
 package net.conselldemallorca.helium.v3.core.service;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.annotation.Resource;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import net.conselldemallorca.helium.core.helper.ConversioTipusHelper;
+import net.conselldemallorca.helium.core.helper.ExpedientTipusHelper;
 import net.conselldemallorca.helium.core.helper.PaginacioHelper;
 import net.conselldemallorca.helium.core.model.hibernate.Document;
 import net.conselldemallorca.helium.core.model.hibernate.DocumentTasca;
+import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
@@ -42,6 +47,9 @@ public class DocumentServiceImpl implements DocumentService {
 	private DefinicioProcesRepository definicioProcesRepository;
 	@Resource
 	private CampRepository campRepository;
+
+	@Resource
+	private ExpedientTipusHelper expedientTipusHelper;
 	@Resource
 	private PaginacioHelper paginacioHelper;
 	@Resource
@@ -62,23 +70,56 @@ public class DocumentServiceImpl implements DocumentService {
 				"expedientTipusId =" + expedientTipusId + ", " +
 				"definicioProcesId =" + definicioProcesId + ", " +
 				"filtre=" + filtre + ")");
-		return paginacioHelper.toPaginaDto(
-				documentRepository.findByFiltrePaginat(
-						expedientTipusId,
-						definicioProcesId,
-						filtre == null || "".equals(filtre),
-						filtre,
-						paginacioHelper.toSpringDataPageable(
-								paginacioParams)),
-						DocumentDto.class);
-	}
 
+		ExpedientTipus expedientTipus = expedientTipusId != null? expedientTipusHelper.getExpedientTipusComprovantPermisDissenyDelegat(expedientTipusId) : null;
+		// Determina si hi ha herència 
+		boolean herencia = expedientTipus != null && expedientTipus.isAmbInfoPropia() && expedientTipus.getExpedientTipusPare() != null;
+
+		Page<Document> page = documentRepository.findByFiltrePaginat(
+				expedientTipusId,
+				definicioProcesId,
+				filtre == null || "".equals(filtre),
+				filtre,
+				herencia,
+				paginacioHelper.toSpringDataPageable(
+						paginacioParams));
+		
+		PaginaDto<DocumentDto> pagina =  paginacioHelper.toPaginaDto(
+						page,
+						DocumentDto.class);
+		// completa la informació d'herència
+		if (herencia) {
+			// Llista d'heretats
+			Set<Long> heretatsIds = new HashSet<Long>();
+			for (Document d : page.getContent())
+				if ( !expedientTipusId.equals(d.getExpedientTipus().getId()))
+					heretatsIds.add(d.getId());
+			// Llistat d'elements sobreescrits
+			Set<String> sobreescritsCodis = new HashSet<String>();
+			if (herencia)
+				for (Document d : documentRepository.findSobreescrits(expedientTipus.getId())) 
+					sobreescritsCodis.add(d.getCodi());
+			// Completa l'informació del dto
+			for (DocumentDto dto : pagina.getContingut()) {
+				// Sobreescriu
+				if (sobreescritsCodis.contains(dto.getCodi()))
+					dto.setSobreescriu(true);
+				// Heretat
+				if (heretatsIds.contains(dto.getId()) && ! dto.isSobreescriu())
+					dto.setHeretat(true);								
+			}
+		}
+		return pagina;
+	}
+	
 	@Override
 	@Transactional
 	public DocumentDto create(
+					
 			Long expedientTipusId, 
 			Long definicioProcesId, 
 			DocumentDto document) {
+
 		logger.debug(
 				"Creant nou document per un tipus d'expedient (" +
 				"expedientTipusId =" + expedientTipusId + ", " +
@@ -101,13 +142,19 @@ public class DocumentServiceImpl implements DocumentService {
 		entity.setCustodiaCodi(document.getCustodiaCodi());
 		entity.setTipusDocPortasignatures(document.getTipusDocPortasignatures());
 		entity.setIgnored(document.isIgnored());
+  
+				
 		entity.setNtiOrigen(document.getNtiOrigen());
 		entity.setNtiEstadoElaboracion(document.getNtiEstadoElaboracion());
 		entity.setNtiTipoDocumental(document.getNtiTipoDocumental());
+													  
+   
+  
 		if (expedientTipusId != null)
 			entity.setExpedientTipus(expedientTipusRepository.findOne(expedientTipusId));
 		if (definicioProcesId != null)
 			entity.setDefinicioProces(definicioProcesRepository.findOne(definicioProcesId));
+
 		return conversioTipusHelper.convertir(
 				documentRepository.save(entity),
 				DocumentDto.class);
@@ -118,7 +165,8 @@ public class DocumentServiceImpl implements DocumentService {
 	public DocumentDto findAmbCodi(
 			Long expedientTipusId, 
 			Long definicioProcesId, 
-			String codi) {
+			String codi,
+			boolean herencia) {
 		DocumentDto ret = null; 
 		logger.debug(
 				"Consultant el document del tipus d'expedient per codi (" +
@@ -126,15 +174,16 @@ public class DocumentServiceImpl implements DocumentService {
 				"definicioProcesId =" + definicioProcesId + ", " +
 				"codi = " + codi + ")");
 		Document document = null;
-		if (expedientTipusId != null) {
+		if (expedientTipusId != null)
 			document = documentRepository.findByExpedientTipusAndCodi(
-					expedientTipusRepository.findOne(expedientTipusId),
-					codi);
-		} else if(definicioProcesId != null) {
+											expedientTipusId, 
+											codi,
+											herencia);
+		else if(definicioProcesId != null)
 			document = documentRepository.findByDefinicioProcesAndCodi(
-					definicioProcesRepository.findOne(definicioProcesId),
-					codi);
-		}
+											definicioProcesRepository.findOne(definicioProcesId), 
+											codi);
+
 		if (document != null) {
 			ret = conversioTipusHelper.convertir(
 					document,
@@ -151,6 +200,8 @@ public class DocumentServiceImpl implements DocumentService {
 				"Esborrant el document del tipus d'expedient (" +
 				"documentId=" + documentId +  ")");
 		Document entity = documentRepository.findOne(documentId);
+
+		
 		if (entity != null) {
 			for (DocumentTasca documentTasca: entity.getTasques()) {
 				documentTasca.getTasca().removeDocument(documentTasca);
@@ -166,24 +217,39 @@ public class DocumentServiceImpl implements DocumentService {
 	
 	@Override
 	@Transactional
-	public DocumentDto findAmbId(Long id) {
+	public DocumentDto findAmbId(
+			Long expedientTipusId, 
+			Long id) throws NoTrobatException {
 		logger.debug(
 				"Consultant el document del tipus d'expedient amb id (" +
+				"expedientTiusId=" + expedientTipusId + "," +
 				"documentId=" + id +  ")");
 		Document document = documentRepository.findOne(id);
 		if (document == null) {
 			throw new NoTrobatException(Document.class, id);
 		}
-		DocumentDto ret = conversioTipusHelper.convertir(
+		DocumentDto dto = conversioTipusHelper.convertir(
 				document,
 				DocumentDto.class);
-		ret.setArxiuContingut(document.getArxiuContingut());
-		return ret;
+		dto.setArxiuContingut(document.getArxiuContingut());
+		// Herencia
+		ExpedientTipus tipus = expedientTipusId != null? expedientTipusRepository.findOne(expedientTipusId) : null;
+		if (tipus != null && tipus.getExpedientTipusPare() != null) {
+			if (tipus.getExpedientTipusPare().getId().equals(document.getExpedientTipus().getId()))
+				dto.setHeretat(true);
+			else
+				dto.setSobreescriu(documentRepository.findByExpedientTipusAndCodi(
+						tipus.getExpedientTipusPare().getId(), 
+						document.getCodi(),
+						false) != null);					
+		}
+		return dto;
 	}
 	
 	@Override
 	@Transactional
 	public DocumentDto update(
+					
 			DocumentDto document,
 			boolean actualitzarContingut) {
 		logger.debug(
@@ -208,13 +274,19 @@ public class DocumentServiceImpl implements DocumentService {
 			entity.setCampData(null);
 		}
 		entity.setIgnored(document.isIgnored());
+
 		entity.setExtensionsPermeses(document.getExtensionsPermeses());
 		entity.setContentType(document.getContentType());
 		entity.setCustodiaCodi(document.getCustodiaCodi());
 		entity.setTipusDocPortasignatures(document.getTipusDocPortasignatures());
+  
+				
 		entity.setNtiOrigen(document.getNtiOrigen());
 		entity.setNtiEstadoElaboracion(document.getNtiEstadoElaboracion());
 		entity.setNtiTipoDocumental(document.getNtiTipoDocumental());
+													  
+   
+
 		return conversioTipusHelper.convertir(
 				documentRepository.save(entity),
 				DocumentDto.class);
@@ -226,13 +298,17 @@ public class DocumentServiceImpl implements DocumentService {
 			Long id) {
 		logger.debug("obtenint contingut de l'arxiu pel document (" +
 				"id=" + id + ")");
+  
 		Document document = documentRepository.findOne(id);
 		if (document == null) {
 			throw new NoTrobatException(Document.class,id);
 		}
+  
 		ArxiuDto resposta = new ArxiuDto();
+  
 		resposta.setNom(document.getArxiuNom());
 		resposta.setContingut(document.getArxiuContingut());
+  
 		return resposta;
 	}
 
@@ -249,8 +325,8 @@ public class DocumentServiceImpl implements DocumentService {
 						
 		return conversioTipusHelper.convertirList(
 				expedientTipusId != null ?
-						documentRepository.findByExpedientTipusIdOrderByCodiAsc(expedientTipusId)
-						: documentRepository.findByDefinicioProcesIdOrderByCodiAsc(definicioProcesId), 
+						documentRepository.findByExpedientTipusId(expedientTipusId)
+						: documentRepository.findByDefinicioProcesId(definicioProcesId), 
 				DocumentDto.class);
 	}		
 

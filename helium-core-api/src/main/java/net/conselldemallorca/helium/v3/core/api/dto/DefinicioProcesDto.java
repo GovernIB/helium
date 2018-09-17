@@ -13,7 +13,7 @@ import java.util.List;
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
-public class DefinicioProcesDto implements Serializable {
+public class DefinicioProcesDto extends HeretableDto implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 

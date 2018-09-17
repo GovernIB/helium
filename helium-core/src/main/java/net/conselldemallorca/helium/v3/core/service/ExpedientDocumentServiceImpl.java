@@ -55,8 +55,6 @@ import net.conselldemallorca.helium.v3.core.api.dto.RespostaValidacioSignaturaDt
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientDocumentService;
-import net.conselldemallorca.helium.v3.core.repository.CampRepository;
-import net.conselldemallorca.helium.v3.core.repository.DefinicioProcesRepository;
 import net.conselldemallorca.helium.v3.core.repository.DocumentRepository;
 import net.conselldemallorca.helium.v3.core.repository.DocumentStoreRepository;
 import net.conselldemallorca.helium.v3.core.repository.PortasignaturesRepository;
@@ -71,10 +69,6 @@ import net.conselldemallorca.helium.v3.core.repository.RegistreRepository;
 @Service
 public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 
-	@Resource
-	private CampRepository campRepository;
-	@Resource
-	private DefinicioProcesRepository definicioProcesRepository;
 	@Resource
 	private RegistreRepository registreRepository;
 	@Resource
@@ -740,11 +734,12 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 				processInstanceId);
 		ExpedientTipus expedientTipus = expedient.getTipus();
 		Document document;
-		if (expedientTipus.isAmbInfoPropia())
+		if (expedientTipus.isAmbInfoPropia()) {
 			document = documentRepository.findByExpedientTipusAndCodi(
-					expedientTipus,
-					documentCodi);
-		else
+					expedientTipus.getId(),
+					documentCodi,
+					expedientTipus.getExpedientTipusPare() != null);
+		} else
 			document = documentRepository.findByDefinicioProcesAndCodi(
 					expedientHelper.findDefinicioProcesByProcessInstanceId(
 							processInstanceId), 
@@ -786,8 +781,9 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 		Document document;
 		if (expedientTipus.isAmbInfoPropia())
 			document = documentRepository.findByExpedientTipusAndCodi(
-					expedientTipus,
-					documentCodi);
+					expedientTipus.getId(),
+					documentCodi,
+					false);
 		else
 			document = documentRepository.findByDefinicioProcesAndCodi(
 					expedientHelper.findDefinicioProcesByProcessInstanceId(
@@ -812,11 +808,23 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 				taskInstanceId,
 				true,
 				true);
-		Document document = documentHelper.findDocumentPerInstanciaProcesICodi(
-				task.getProcessInstanceId(),
-				documentCodi);
 		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(
 				task.getProcessInstanceId());
+		ExpedientTipus expedientTipus = expedient.getTipus();
+		Document document;
+		if (expedientTipus.isAmbInfoPropia())
+			document = documentRepository.findByExpedientTipusAndCodi(
+					expedientTipus.getId(),
+					documentCodi,
+					true);
+		else
+			document = documentRepository.findByDefinicioProcesAndCodi(
+					expedientHelper.findDefinicioProcesByProcessInstanceId(
+							task.getProcessInstanceId()), 
+					documentCodi);
+		if(document == null)
+			throw new NoTrobatException(Document.class, documentCodi);
+				
 		Date documentData = new Date();
 		ArxiuDto arxiu = documentHelper.generarDocumentAmbPlantillaIConvertir(
 				expedient,
@@ -861,14 +869,25 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 				tascaId,
 				true,
 				true);
-		DefinicioProces definicioProces = expedientHelper.findDefinicioProcesByProcessInstanceId(
-				task.getProcessInstanceId());
 		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(task.getProcessInstanceId());
 		ExpedientTipus expedientTipus = expedient.getTipus();
-		Document document = documentRepository.findOne(documentId);
-		if ((document.getExpedientTipus() == null || document.getExpedientTipus().getId() != expedientTipus.getId()) && 
-			(document.getDefinicioProces() == null || document.getDefinicioProces().getId() != definicioProces.getId()))
+
+		Document document = null;
+
+		if (expedientTipus.isAmbInfoPropia()) {
+			document = documentRepository.findByExpedientTipusAndIdAmbHerencia(
+					expedientTipus.getId(), 
+					documentId);
+		} else {
+			DefinicioProces definicioProces = expedientHelper.findDefinicioProcesByProcessInstanceId(
+					task.getProcessInstanceId());
+			document = documentRepository.findByDefinicioProces(
+					definicioProces.getId(), 
+					documentId);		
+		}
+		if (document == null)
 			throw new NoTrobatException(Document.class);
+
 		return document.isExtensioPermesa(
 				getExtensio(arxiuNom));
 	}

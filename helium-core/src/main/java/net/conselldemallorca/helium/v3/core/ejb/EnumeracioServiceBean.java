@@ -68,8 +68,8 @@ public class EnumeracioServiceBean implements EnumeracioService {
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public EnumeracioDto findAmbId(Long enumeracioId) throws NoTrobatException {
-		return delegate.findAmbId(enumeracioId);
+	public EnumeracioDto findAmbId(Long expedientTipusId, Long enumeracioId) throws NoTrobatException {
+		return delegate.findAmbId(expedientTipusId, enumeracioId);
 	}
 
 	@Override

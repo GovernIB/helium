@@ -37,7 +37,8 @@ public class CampValidator implements ConstraintValidator<Camp, CampCommand>{
 			CampDto repetit = campService.findAmbCodi(
 						camp.getExpedientTipusId(),
 						camp.getDefinicioProcesId(),
-						camp.getCodi());				
+						camp.getCodi(), 
+						false  );				
 			if(repetit != null && (camp.getId() == null || !camp.getId().equals(repetit.getId()))) {
 				context.buildConstraintViolationWithTemplate(
 						MessageHelper.getInstance().getMessage(this.codiMissatge + ".codi.repetit", null))

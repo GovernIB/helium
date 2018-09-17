@@ -4,13 +4,16 @@
 package net.conselldemallorca.helium.v3.core.service;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.annotation.Resource;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,6 +26,7 @@ import net.conselldemallorca.helium.core.model.hibernate.Camp;
 import net.conselldemallorca.helium.core.model.hibernate.CampTasca;
 import net.conselldemallorca.helium.core.model.hibernate.Consulta;
 import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
+import net.conselldemallorca.helium.core.model.hibernate.Document;
 import net.conselldemallorca.helium.core.model.hibernate.DocumentTasca;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
@@ -47,7 +51,6 @@ import net.conselldemallorca.helium.v3.core.api.exportacio.DefinicioProcesExport
 import net.conselldemallorca.helium.v3.core.api.exportacio.DefinicioProcesExportacioCommandDto;
 import net.conselldemallorca.helium.v3.core.api.service.DefinicioProcesService;
 import net.conselldemallorca.helium.v3.core.api.service.Jbpm3HeliumService;
-import net.conselldemallorca.helium.v3.core.repository.AccioRepository;
 import net.conselldemallorca.helium.v3.core.repository.CampAgrupacioRepository;
 import net.conselldemallorca.helium.v3.core.repository.CampRegistreRepository;
 import net.conselldemallorca.helium.v3.core.repository.CampRepository;
@@ -56,7 +59,6 @@ import net.conselldemallorca.helium.v3.core.repository.ConsultaRepository;
 import net.conselldemallorca.helium.v3.core.repository.DefinicioProcesRepository;
 import net.conselldemallorca.helium.v3.core.repository.DocumentRepository;
 import net.conselldemallorca.helium.v3.core.repository.DocumentTascaRepository;
-import net.conselldemallorca.helium.v3.core.repository.DominiRepository;
 import net.conselldemallorca.helium.v3.core.repository.EnumeracioRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientTipusRepository;
 import net.conselldemallorca.helium.v3.core.repository.FirmaTascaRepository;
@@ -73,8 +75,6 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 	
 	@Resource
 	private DefinicioProcesRepository definicioProcesRepository;
-	@Resource
-	private DominiRepository dominiRepository;
 	@Resource
 	private TascaRepository tascaRepository;
 	@Resource
@@ -93,8 +93,6 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 	private TerminiRepository terminiRepository;
 	@Resource
 	private CampAgrupacioRepository campAgrupacioRepository;
-	@Resource
-	private AccioRepository accioRepository;
 	@Resource
 	private EnumeracioRepository enumeracioRepository;
 	@Resource
@@ -151,8 +149,8 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 				entornId,
 				true);
 		
-		DefinicioProces definicioProces = definicioProcesRepository.findDarreraVersioByEntornAndJbpmKey(
-				entorn, 
+		DefinicioProces definicioProces = definicioProcesRepository.findDarreraVersioAmbEntornIJbpmKey(
+				entorn.getId(), 
 				jbpmKey);
 		
 		DefinicioProcesDto dto = null;
@@ -200,7 +198,7 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 				"entornId = " + entornId + ", " + 
 				"expedientTipusId = " + expedientTipusId + ", " + 
 				"incloureGlobals = " + incloureGlobals + ")");
-		List<DefinicioProces> definicions = definicioProcesRepository.findByAll(
+		List<DefinicioProces> definicions = definicioProcesRepository.findListDarreraVersioByAll(
 				entornId, 
 				expedientTipusId == null,
 				expedientTipusId,
@@ -226,17 +224,26 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 				"entornId=" + entornId + ", " +
 				"filtre=" + filtre + ")");
 
+		ExpedientTipus expedientTipus = expedientTipusId != null? expedientTipusHelper.getExpedientTipusComprovantPermisDissenyDelegat(expedientTipusId) : null;
+		
+		// Determina si hi ha herència 
+		boolean herencia = expedientTipus != null && expedientTipus.isAmbInfoPropia() && expedientTipus.getExpedientTipusPare() != null;
+
+		Page<DefinicioProces> page = definicioProcesRepository.findByFiltrePaginat(
+				entornId,
+				expedientTipusId == null,
+				expedientTipusId,
+				incloureGlobals,
+				filtre == null || "".equals(filtre), 
+				filtre, 
+				herencia,
+				paginacioHelper.toSpringDataPageable(
+						paginacioParams));
+		
 		PaginaDto<DefinicioProcesDto> pagina = paginacioHelper.toPaginaDto(
-				definicioProcesRepository.findByFiltrePaginat(
-						entornId,
-						expedientTipusId == null,
-						expedientTipusId,
-						incloureGlobals,
-						filtre == null || "".equals(filtre), 
-						filtre, 
-						paginacioHelper.toSpringDataPageable(
-								paginacioParams)),
+				page,
 				DefinicioProcesDto.class);
+		
 		// Consulta els valors pels comptadors 
 		// List< Object[String jbpmKey, Long count]>
 		List<String> paginaJbpmKeys = new ArrayList<String>();
@@ -244,24 +251,57 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 					paginaJbpmKeys.add(d.getJbpmKey());
 		}
 		if (paginaJbpmKeys.size() > 0) {
+			// <[jbpmKey, expedientTipusId, count]>
 			List<Object[]> countVersions = definicioProcesRepository.countVersions(
 					entornId,
 					paginaJbpmKeys); 
 			// Omple els comptadors de tipus de camps
 			String jbpmKey;
+			Long etId;
 			Long count;
 			List<Object[]> processats = new ArrayList<Object[]>();	// per esborrar la informació processada i reduir la cerca
 			for (DefinicioProcesDto definicio: pagina.getContingut()) {
 				for (Object[] countVersio: countVersions) {
 					jbpmKey = (String) countVersio[0];
-					if (definicio.getJbpmKey().equals(jbpmKey)) {
-						count = (Long) countVersio[1];
+					etId = (Long) countVersio[1];
+					if (definicio.getJbpmKey().equals(jbpmKey) 
+							&& (
+								(definicio.getExpedientTipus() == null && etId == null)
+								|| (definicio.getExpedientTipus() != null && definicio.getExpedientTipus().getId().equals(etId)))) {
+						count = (Long) countVersio[2];
 						definicio.setVersioCount(count);
 						processats.add(countVersio);
 					}
 				}
 				countVersions.removeAll(processats);
 				processats.clear();
+
+				// Herencia				
+				if (herencia 
+						&& definicio.getExpedientTipus() != null
+						&& !expedientTipusId.equals(definicio.getExpedientTipus().getId()))
+					definicio.setHeretat(true);
+				if (herencia) {
+					// Llista d'heretats
+					Set<Long> heretatsIds = new HashSet<Long>();
+					for (DefinicioProces dp : page.getContent())
+						if ( dp.getExpedientTipus() != null && !expedientTipusId.equals(dp.getExpedientTipus().getId()))
+							heretatsIds.add(dp.getId());
+					// Llistat d'elements sobreescrits
+					Set<String> sobreescritsCodis = new HashSet<String>();
+					for (DefinicioProces dp : definicioProcesRepository.findSobreescrits(
+							expedientTipus.getId()))
+						sobreescritsCodis.add(dp.getJbpmKey());
+					// Completa l'informació del dto
+					for (DefinicioProcesDto dto: pagina.getContingut()) {
+						// Sobreescriu, les globals no es marquen sobreescrites 
+						if (dto.getExpedientTipus() != null && sobreescritsCodis.contains(dto.getJbpmKey()))
+							dto.setSobreescriu(true);
+						// Heretat
+						if (heretatsIds.contains(dto.getId()) && ! dto.isSobreescriu())
+							dto.setHeretat(true);			
+					}				
+				}
 			}		
 		}
 		return pagina;
@@ -360,8 +400,8 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 				&& definicioProces.getJbpmKey().equals(definicioProces.getExpedientTipus().getJbpmProcessDefinitionKey())) {
 			ExpedientTipus expedientTipus = expedientTipusRepository.findOne(definicioProces.getExpedientTipus().getId());
 			// Troba la darrera definició de procés
-			definicioProces = definicioProcesRepository.findDarreraVersioByEntornAndJbpmKey(
-					expedientTipus.getEntorn(), 
+			definicioProces = definicioProcesRepository.findDarreraVersioAmbEntornIJbpmKey(
+					expedientTipus.getEntorn().getId(), 
 					definicioProces.getJbpmKey());
 			if (definicioProces == null) {
 				expedientTipus.setJbpmProcessDefinitionKey(null);
@@ -607,14 +647,49 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 				"tascaId=" + tascaId + ", " +
 				"filtre=" + filtre + ")");
 		
-		return paginacioHelper.toPaginaDto(
-				campTascaRepository.findByFiltrePaginat(
-						tascaId,
-						filtre == null,
-						filtre,
-						paginacioHelper.toSpringDataPageable(
-								paginacioParams)),
-				CampTascaDto.class);		
+		Tasca tasca = tascaRepository.findOne(tascaId);
+		boolean herencia = tasca != null 
+							&& tasca.getDefinicioProces().getExpedientTipus() != null 
+							&& tasca.getDefinicioProces().getExpedientTipus().getExpedientTipusPare() != null;
+		Long expedientTipusId = herencia? tasca.getDefinicioProces().getExpedientTipus().getId() : null;
+		
+		Page<CampTasca> page = campTascaRepository.findByFiltrePaginat(
+				tascaId,
+				filtre == null,
+				filtre,
+				paginacioHelper.toSpringDataPageable(
+						paginacioParams));
+		
+		// Llista d'heretats
+		Set<Long> heretatsIds = new HashSet<Long>();
+		if (herencia) {
+			for (CampTasca ct : page.getContent())
+				if (ct.getCamp().getExpedientTipus() != null && ! expedientTipusId.equals(ct.getCamp().getExpedientTipus().getId()))
+					heretatsIds.add(ct.getId());
+		}
+
+		PaginaDto<CampTascaDto> pagina = paginacioHelper.toPaginaDto(
+				page,
+				CampTascaDto.class);
+		
+		// Llistat d'elements sobreescrits
+		Set<String> sobreescritsCodis = new HashSet<String>();
+		if (herencia) {
+			for (Camp c : campRepository.findSobreescrits(expedientTipusId)) {
+				sobreescritsCodis.add(c.getCodi());
+			}
+			// Completa l'informació del dto
+			for (CampTascaDto dto : pagina.getContingut()) {
+				// Sobreescriu
+				if (sobreescritsCodis.contains(dto.getCamp().getCodi()))
+					dto.getCamp().setSobreescriu(true);
+				// Heretat
+				if (heretatsIds.contains(dto.getId()) && ! dto.getCamp().isSobreescriu())
+					dto.getCamp().setHeretat(true);								
+			}
+		}
+
+		return pagina;
 	}		
 	
 	@Override
@@ -764,15 +839,50 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 				"Consultant els documents de la tasca d'una definició de proces per datatable (" +
 				"tascaId=" + tascaId + ", " +
 				"filtre=" + filtre + ")");
+
+		Tasca tasca = tascaRepository.findOne(tascaId);
+		boolean herencia = tasca != null 
+							&& tasca.getDefinicioProces().getExpedientTipus() != null 
+							&& tasca.getDefinicioProces().getExpedientTipus().getExpedientTipusPare() != null;
+		Long expedientTipusId = herencia? tasca.getDefinicioProces().getExpedientTipus().getId() : null;
+
+		Page<DocumentTasca> page = documentTascaRepository.findByFiltrePaginat(
+				tascaId,
+				filtre == null,
+				filtre,
+				paginacioHelper.toSpringDataPageable(
+						paginacioParams)); 
 		
-		return paginacioHelper.toPaginaDto(
-				documentTascaRepository.findByFiltrePaginat(
-						tascaId,
-						filtre == null,
-						filtre,
-						paginacioHelper.toSpringDataPageable(
-								paginacioParams)),
-				DocumentTascaDto.class);		
+		// Llista d'heretats
+		Set<Long> heretatsIds = new HashSet<Long>();
+		if (herencia) {
+			for (DocumentTasca dt : page.getContent())
+				if (dt.getDocument().getExpedientTipus() != null && ! expedientTipusId.equals(dt.getDocument().getExpedientTipus().getId()))
+					heretatsIds.add(dt.getId());
+		}
+		
+		PaginaDto<DocumentTascaDto> pagina = paginacioHelper.toPaginaDto(
+				page,
+				DocumentTascaDto.class);
+
+		// Llistat d'elements sobreescrits
+		Set<String> sobreescritsCodis = new HashSet<String>();
+		if (herencia) {
+			for (Document d : documentRepository.findSobreescrits(expedientTipusId)) {
+				sobreescritsCodis.add(d.getCodi());
+			}
+			// Completa l'informació del dto
+			for (DocumentTascaDto dto : pagina.getContingut()) {
+				// Sobreescriu
+				if (sobreescritsCodis.contains(dto.getDocument().getCodi()))
+					dto.getDocument().setSobreescriu(true);
+				// Heretat
+				if (heretatsIds.contains(dto.getId()) && ! dto.getDocument().isSobreescriu())
+					dto.getDocument().setHeretat(true);								
+			}
+		}
+
+		return pagina;		
 	}		
 	
 	@Override
@@ -914,15 +1024,49 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 				"Consultant les firmes de la tasca d'una definició de proces per datatable (" +
 				"tascaId=" + tascaId + ", " +
 				"filtre=" + filtre + ")");
-		
-		return paginacioHelper.toPaginaDto(
-				firmaTascaRepository.findByFiltrePaginat(
-						tascaId,
-						filtre == null,
-						filtre,
-						paginacioHelper.toSpringDataPageable(
-								paginacioParams)),
-				FirmaTascaDto.class);		
+
+		Tasca tasca = tascaRepository.findOne(tascaId);
+		boolean herencia = tasca != null 
+							&& tasca.getDefinicioProces().getExpedientTipus() != null 
+							&& tasca.getDefinicioProces().getExpedientTipus().getExpedientTipusPare() != null;
+		Long expedientTipusId = herencia? tasca.getDefinicioProces().getExpedientTipus().getId() : null;
+
+		Page<FirmaTasca> page = firmaTascaRepository.findByFiltrePaginat(
+				tascaId,
+				filtre == null,
+				filtre,
+				paginacioHelper.toSpringDataPageable(
+						paginacioParams));
+
+		// Llista d'heretats
+		Set<Long> heretatsIds = new HashSet<Long>();
+		if (herencia) {
+			for (FirmaTasca ft : page.getContent())
+				if (ft.getDocument().getExpedientTipus() != null && ! expedientTipusId.equals(ft.getDocument().getExpedientTipus().getId()))
+					heretatsIds.add(ft.getId());
+		}
+
+		PaginaDto<FirmaTascaDto> pagina = paginacioHelper.toPaginaDto(
+				page,
+				FirmaTascaDto.class);
+
+		// Llistat d'elements sobreescrits
+		Set<String> sobreescritsCodis = new HashSet<String>();
+		if (herencia) {
+			for (Document d : documentRepository.findSobreescrits(expedientTipusId)) {
+				sobreescritsCodis.add(d.getCodi());
+			}
+			// Completa l'informació del dto
+			for (FirmaTascaDto dto : pagina.getContingut()) {
+				// Sobreescriu
+				if (sobreescritsCodis.contains(dto.getDocument().getCodi()))
+					dto.getDocument().setSobreescriu(true);
+				// Heretat
+				if (heretatsIds.contains(dto.getId()) && ! dto.getDocument().isSobreescriu())
+					dto.getDocument().setHeretat(true);								
+			}
+		}		
+		return pagina;
 	}		
 	
 	@Override
@@ -998,9 +1142,11 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 				"Consultant definicioProces amb id i amb permisos de disseny (" +
 				"entornId=" + entornId + ", " +
 				"definicioProcesId = " + definicioProcesId + ")");
-		DefinicioProces definicioProces = definicioProcesRepository.findByIdAndEntornId(
-					definicioProcesId,
-					entornId);
+		// Comprova l'accés
+		entornHelper.getEntornComprovantPermisos(entornId, false, true);
+		// Recupera la definició de procés per id
+		DefinicioProces definicioProces = definicioProcesRepository.findById(
+				definicioProcesId);
 		return conversioTipusHelper.convertir(
 				definicioProces,
 				DefinicioProcesDto.class);

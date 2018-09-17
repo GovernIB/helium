@@ -54,8 +54,8 @@ public class AccioServiceBean implements AccioService {
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public AccioDto findAmbId(Long id) throws NoTrobatException {
-		return delegate.findAmbId(id);
+	public AccioDto findAmbId(Long expedientTipusId, Long id) throws NoTrobatException {
+		return delegate.findAmbId(expedientTipusId, id);
 	}
 
 	@Override

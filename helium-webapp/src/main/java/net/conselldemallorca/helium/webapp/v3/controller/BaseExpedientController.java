@@ -17,6 +17,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.InstanciaProcesDto;
 import net.conselldemallorca.helium.v3.core.api.service.DissenyService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
+import net.conselldemallorca.helium.v3.core.api.service.ExpedientTipusService;
 
 /**
  * Controlador base per al llistat d'expedients.
@@ -27,6 +28,8 @@ public class BaseExpedientController extends BaseController {
 
 	@Autowired
 	protected ExpedientService expedientService;
+	@Autowired
+	protected ExpedientTipusService expedientTipusService;
 	@Autowired
 	protected DissenyService dissenyService;
 
@@ -39,8 +42,8 @@ public class BaseExpedientController extends BaseController {
 		model.addAttribute("expedient", expedient);
 		model.addAttribute("participants", expedientService.findParticipants(expedientId));
 		model.addAttribute("relacionats", expedientService.relacioFindAmbExpedient(expedientId));
-		DefinicioProcesVersioDto versions = dissenyService.getByVersionsInstanciaProcesById(expedient.getProcessInstanceId());
-		model.addAttribute("definicioProces", versions);
+		DefinicioProcesVersioDto definicioProces = dissenyService.getByVersionsInstanciaProcesById(expedient.getProcessInstanceId());
+		model.addAttribute("definicioProces", definicioProces);
 		if (pipellaActiva != null)
 			model.addAttribute("pipellaActiva", pipellaActiva);
 		else if (request.getParameter("pipellaActiva") != null)

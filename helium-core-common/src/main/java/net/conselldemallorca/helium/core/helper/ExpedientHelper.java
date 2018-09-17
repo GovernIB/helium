@@ -124,6 +124,8 @@ public class ExpedientHelper {
 	private ConversioTipusHelper conversioTipusHelper;
 	@Resource
 	private MesuresTemporalsHelper mesuresTemporalsHelper;
+	@Resource
+	private DefinicioProcesHelper definicioProcesHelper;
 
 	
 	private static String VERSIO_NTI = "http://administracionelectronica.gob.es/ENI/XSD/v1.0/expediente-e";
@@ -474,8 +476,8 @@ public class ExpedientHelper {
 						ambRetroaccio,
 						expedient.getProcessInstanceId(), 
 						LogInfo.ESTAT + "#@#" + "---");
-				Estat estat = estatRepository.findByExpedientTipusAndId(
-						expedient.getTipus(),
+				Estat estat = estatRepository.findByExpedientTipusAndIdAmbHerencia(
+						expedient.getTipus().getId(), 
 						estatId);
 				if (estat == null)
 					throw new NoTrobatException(Estat.class, estatId);
@@ -1243,8 +1245,8 @@ public class ExpedientHelper {
 		if (definicioProcesId != null) {
 			definicioProces = definicioProcesRepository.findById(definicioProcesId);
 		} else {
-			definicioProces = definicioProcesRepository.findDarreraVersioAmbEntornIJbpmKey(
-					entornId,
+			definicioProces = definicioProcesHelper.findDarreraVersioDefinicioProces(
+					expedientTipus, 
 					expedientTipus.getJbpmProcessDefinitionKey());
 		}
 		//MesurarTemps.diferenciaImprimirStdoutIReiniciar(mesuraTempsIncrementalPrefix, "7");

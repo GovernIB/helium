@@ -50,6 +50,7 @@ public class DefinicioProcesAccioController extends BaseDefinicioProcesControlle
 			return mostrarInformacioDefinicioProcesPerPipelles(
 					request,
 					jbmpKey,
+					definicioProcesId,
 					model,
 					"accions");
 		}
@@ -58,7 +59,7 @@ public class DefinicioProcesAccioController extends BaseDefinicioProcesControlle
 			DefinicioProcesDto definicioProces = definicioProcesService.findAmbIdAndEntorn(entornActual.getId(),
 					definicioProcesId);
 			model.addAttribute("definicioProces", definicioProces);
-			model.addAttribute("baseUrl", (definicioProces.getJbpmKey() + "/" + definicioProces.getId().toString()));
+			model.addAttribute("baseUrl", ("/helium/v3/definicioProces/" + definicioProces.getJbpmKey() + "/" + definicioProces.getId().toString()));
 		}
 		return "v3/expedientTipusAccio";
 	}
@@ -127,7 +128,7 @@ public class DefinicioProcesAccioController extends BaseDefinicioProcesControlle
 			@PathVariable Long definicioProcesId, 
 			@PathVariable Long id,
 			Model model) {
-		AccioDto dto = accioService.findAmbId(id);
+		AccioDto dto = accioService.findAmbId(null, id);
 		ExpedientTipusAccioCommand command = conversioTipusHelper.convertir(
 				dto,
 				ExpedientTipusAccioCommand.class);

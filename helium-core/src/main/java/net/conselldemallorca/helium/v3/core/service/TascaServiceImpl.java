@@ -43,6 +43,7 @@ import net.conselldemallorca.helium.core.helper.ExpedientLoggerHelper;
 import net.conselldemallorca.helium.core.helper.ExpedientRegistreHelper;
 import net.conselldemallorca.helium.core.helper.ExpedientTipusHelper;
 import net.conselldemallorca.helium.core.helper.FormulariExternHelper;
+import net.conselldemallorca.helium.core.helper.HerenciaHelper;
 import net.conselldemallorca.helium.core.helper.IndexHelper;
 import net.conselldemallorca.helium.core.helper.MessageHelper;
 import net.conselldemallorca.helium.core.helper.PaginacioHelper;
@@ -170,6 +171,8 @@ public class TascaServiceImpl implements TascaService {
 	private FormulariExternHelper formulariExternHelper;
 	@Resource
 	private ExpedientLoggerHelper expedientLoggerHelper;
+	@Resource
+	private HerenciaHelper herenciaHelper;
 	
 	@Autowired
 	private TascaSegonPlaHelper tascaSegonPlaHelper;
@@ -600,11 +603,12 @@ public class TascaServiceImpl implements TascaService {
 					task.getProcessInstanceId());
 			ExpedientTipus expedientTipus = expedient.getTipus();
 			Document document;
-			if (expedientTipus.isAmbInfoPropia())
+			if (expedientTipus.isAmbInfoPropia()) {
 				document = documentRepository.findByExpedientTipusAndCodi(
-						expedientTipus,
-						documentCodi);
-			else
+						expedientTipus.getId(),
+						documentCodi,
+						expedientTipus.getExpedientTipusPare() != null);
+			} else
 				document = documentRepository.findByDefinicioProcesAndCodi(
 						expedientHelper.findDefinicioProcesByProcessInstanceId(
 								task.getProcessInstanceId()), 
@@ -1403,7 +1407,12 @@ public class TascaServiceImpl implements TascaService {
 				ExpedientLogAccioTipus.TASCA_ACCIO_EXECUTAR,
 				accio,
 				usuari);
-		jbpmHelper.executeActionInstanciaTasca(tascaId, accio);
+		// Executa l'acció de la instància de la tasca
+		jbpmHelper.executeActionInstanciaTasca(
+				tascaId, 
+				accio, 
+				herenciaHelper.getProcessDefinitionIdHeretadaAmbTaskId(tascaId)
+				);
 		indexHelper.expedientIndexLuceneUpdate(task.getProcessInstanceId());
 	}
 

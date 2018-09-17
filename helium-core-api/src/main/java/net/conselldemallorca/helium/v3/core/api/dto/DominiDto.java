@@ -10,7 +10,7 @@ import java.io.Serializable;
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
-public class DominiDto implements Serializable {
+public class DominiDto extends HeretableDto implements Serializable {
 
 	public enum TipusDomini {
 		CONSULTA_SQL,

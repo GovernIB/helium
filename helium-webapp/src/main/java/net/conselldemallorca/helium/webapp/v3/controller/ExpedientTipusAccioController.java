@@ -90,13 +90,14 @@ public class ExpedientTipusAccioController extends BaseExpedientTipusController 
 		ExpedientTipusAccioCommand command = new ExpedientTipusAccioCommand();
 		command.setExpedientTipusId(expedientTipusId);
 		model.addAttribute("expedientTipusAccioCommand", command);
-		model.addAttribute("definicionsProces", 
-				expedientTipusService.definicioProcesFindJbjmKey(
-						entornActual.getId(), 
-						expedientTipusId, 
-						true));
+		this.omplirModelFormulariAccio(
+				request,
+				entornActual.getId(),
+				expedientTipusId,
+				model);
 		return "v3/expedientTipusAccioForm";
 	}
+	
 	@RequestMapping(value = "/{expedientTipusId}/accio/new", method = RequestMethod.POST)
 	public String novaPost(
 			HttpServletRequest request,
@@ -106,11 +107,11 @@ public class ExpedientTipusAccioController extends BaseExpedientTipusController 
 			Model model) {
         if (bindingResult.hasErrors()) {
     		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
-    		model.addAttribute("definicionsProces", 
-    				expedientTipusService.definicioProcesFindJbjmKey(
-    						entornActual.getId(), 
-    						expedientTipusId, 
-    						true));
+    		this.omplirModelFormulariAccio(
+    				request,
+    				entornActual.getId(),
+    				expedientTipusId,
+    				model);
         	return "v3/expedientTipusAccioForm";
         } else {
         	// Verificar permisos
@@ -134,17 +135,19 @@ public class ExpedientTipusAccioController extends BaseExpedientTipusController 
 			@PathVariable Long id,
 			Model model) {
 		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
-		AccioDto dto = accioService.findAmbId(id);
+		AccioDto dto = accioService.findAmbId(expedientTipusId, id);
 		ExpedientTipusAccioCommand command = conversioTipusHelper.convertir(
 				dto,
 				ExpedientTipusAccioCommand.class);
 		command.setExpedientTipusId(expedientTipusId);
 		model.addAttribute("expedientTipusAccioCommand", command);
-		model.addAttribute("definicionsProces", 
-				expedientTipusService.definicioProcesFindJbjmKey(
-						entornActual.getId(), 
-						expedientTipusId, 
-						true));
+		this.omplirModelFormulariAccio(
+				request,
+				entornActual.getId(),
+				expedientTipusId,
+				model);
+		model.addAttribute("heretat", dto.isHeretat());
+
 		return "v3/expedientTipusAccioForm";
 	}
 	@RequestMapping(value = "/{expedientTipusId}/accio/{id}/update", method = RequestMethod.POST)
@@ -157,11 +160,14 @@ public class ExpedientTipusAccioController extends BaseExpedientTipusController 
 			Model model) {
         if (bindingResult.hasErrors()) {
     		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
-    		model.addAttribute("definicionsProces", 
-    				expedientTipusService.definicioProcesFindJbjmKey(
-    						entornActual.getId(), 
-    						expedientTipusId, 
-    						true));
+    		this.omplirModelFormulariAccio(
+    				request,
+    				entornActual.getId(),
+    				expedientTipusId,
+    				model);
+    		model.addAttribute("heretat", accioService.findAmbId(
+    				expedientTipusId, 
+    				id).isHeretat());
         	return "v3/expedientTipusAccioForm";
         } else {
         	accioService.update(
@@ -174,6 +180,20 @@ public class ExpedientTipusAccioController extends BaseExpedientTipusController 
 			return modalUrlTancar(false);
         }
 	}
+	
+	private void omplirModelFormulariAccio(
+			HttpServletRequest request, 
+			Long entornId, 
+			Long expedientTipusId, 
+			Model model) {
+		model.addAttribute("definicionsProces", 
+				expedientTipusService.definicioProcesFindJbjmKey(
+						entornId, 
+						expedientTipusId, 
+						false,
+						true));
+	}
+
 	
 	@RequestMapping(value = "/{expedientTipusId}/accio/{id}/delete", method = RequestMethod.GET)
 	@ResponseBody

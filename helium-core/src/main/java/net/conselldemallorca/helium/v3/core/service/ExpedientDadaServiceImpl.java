@@ -5,7 +5,9 @@ package net.conselldemallorca.helium.v3.core.service;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.annotation.Resource;
 
@@ -35,11 +37,9 @@ import net.conselldemallorca.helium.core.security.ExtendedPermission;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessDefinition;
 import net.conselldemallorca.helium.v3.core.api.dto.CampAgrupacioDto;
-import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDadaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.InstanciaProcesDto;
-import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientDadaService;
+import net.conselldemallorca.helium.v3.core.repository.CampAgrupacioRepository;
 import net.conselldemallorca.helium.v3.core.repository.CampRepository;
 import net.conselldemallorca.helium.v3.core.repository.DefinicioProcesRepository;
 import net.conselldemallorca.helium.v3.core.repository.RegistreRepository;
@@ -55,6 +55,8 @@ public class ExpedientDadaServiceImpl implements ExpedientDadaService {
 
 	@Resource
 	private CampRepository campRepository;
+	@Resource
+	private CampAgrupacioRepository campAgrupacioRepository;
 	@Resource
 	private DefinicioProcesRepository definicioProcesRepository;
 	@Resource
@@ -260,8 +262,22 @@ public class ExpedientDadaServiceImpl implements ExpedientDadaService {
 				false);
 		
 		ExpedientTipus expedientTipus = expedient.getTipus();
+		
+		boolean herencia = expedientTipus.getExpedientTipusPare() != null;
+		Set<Long> agrupacionsHeretadesIds = new HashSet<Long>();
+		Set<String> sobreescritsCodis = new HashSet<String>();
+
 		if (expedientTipus.isAmbInfoPropia()) {
-			agrupacions.addAll(expedientTipus.getAgrupacions());
+			agrupacions = campAgrupacioRepository.findAmbExpedientTipusOrdenats(expedientTipus.getId(), herencia);
+			if (herencia) {
+				Long expedientTipusId = expedientTipus.getId();
+				for(CampAgrupacio a : agrupacions)
+					if(!expedientTipusId.equals(a.getExpedientTipus().getId()))
+						agrupacionsHeretadesIds.add(a.getId());
+				// Llistat d'elements sobreescrits
+				for (CampAgrupacio a : campAgrupacioRepository.findSobreescrits(expedientTipusId)) 
+					sobreescritsCodis.add(a.getCodi());
+			}	
 		} else {
 			DefinicioProces definicioProces;
 			if (processInstanceId == null) {
@@ -274,43 +290,26 @@ public class ExpedientDadaServiceImpl implements ExpedientDadaService {
 				definicioProces = expedientHelper.findDefinicioProcesByProcessInstanceId(
 						processInstanceId);
 			}
-			agrupacions.addAll(definicioProces.getAgrupacions());
+			agrupacions = campAgrupacioRepository.findAmbDefinicioProcesOrdenats(definicioProces.getId());
 		}
-		
-		return conversioTipusHelper.convertirList(
-				agrupacions,
+		List<CampAgrupacioDto> agrupacionsDto = conversioTipusHelper.convertirList(
+				agrupacions, 
 				CampAgrupacioDto.class);
+
+		if (herencia) {
+			// Completa l'informació del dto
+			for(CampAgrupacioDto dto : agrupacionsDto) {
+				// Sobreescriu
+				if (sobreescritsCodis.contains(dto.getCodi()))
+					dto.setSobreescriu(true);
+				// Heretat
+				if(agrupacionsHeretadesIds.contains(dto.getId()))
+					dto.setHeretat(true);
+			}
+		}		
+		return agrupacionsDto;
 	}
 
-	/**
-	 * MÈTODES COMUNS PER A OBTENIR DADES TANT DEL TIPUS D'EXPEDIENT COM DE LA DEFINICIÓ DE PROCÉS
-	 * DEPENENT DE SI EL TIPUS D'EXPEDIENT TÉ EL FLAG "AMB INFORMACIÓ PRÒPIA" ACTIVAT O NO
-	 */
-	
-	public List<CampDto> findCampsDisponiblesOrdenatsPerCodi(
-			Long expedientId, 
-			String procesInstanceId) {
-		
-		logger.debug("Consulta les dades disponibles donada la id d'epxedient"
-				+ "i un una id d'instància de procés");
-		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
-				expedientId,
-				true,
-				false,
-				false,
-				false);
-		
-		InstanciaProcesDto instanciaProces = expedientHelper.getInstanciaProcesById(procesInstanceId);
-		DefinicioProces definicioProces = definicioProcesRepository.findOne(instanciaProces.getDefinicioProces().getId());
-
-		if (definicioProces == null)
-			throw new NoTrobatException(DefinicioProces.class, instanciaProces.getDefinicioProces().getId());
-		
-		
-		return conversioTipusHelper.convertirList(expedientDadaHelper.findCampsDisponiblesOrdenatsPerCodi(expedient.getTipus(), definicioProces), CampDto.class);
-	}
-	
-	
 	/*********************/
 
 	private void optimitzarValorPerConsultesDominiGuardar(
@@ -321,11 +320,12 @@ public class ExpedientDadaServiceImpl implements ExpedientDadaService {
 		JbpmProcessDefinition jpd = jbpmHelper.findProcessDefinitionWithProcessInstanceId(processInstanceId);
 		DefinicioProces definicioProces = definicioProcesRepository.findByJbpmId(jpd.getId());
 		Camp camp;
-		if (expedientTipus.isAmbInfoPropia()) {
+		if (expedientTipus.isAmbInfoPropia())
 			camp = campRepository.findByExpedientTipusAndCodi(
-					expedientTipus, 
-					varName);
-		} else {
+					expedientTipus.getId(), 
+					varName,
+					expedientTipus.getExpedientTipusPare() != null);
+		else {
 			camp = campRepository.findByDefinicioProcesAndCodi(
 					definicioProces,
 					varName);			

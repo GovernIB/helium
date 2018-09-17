@@ -49,7 +49,7 @@ public class BaseVariableController extends BaseDissenyController {
 		// Valida que la variable no s'utilitzi en cap registre o consulta
 		boolean valid = true;
 		// Recupera la informació del camp
-		CampDto camp = campService.findAmbId(id);
+		CampDto camp = campService.findAmbId(null, id);
 		// Valida que no pertany a cap tasca
 		List<TascaDto> tasques = campService.findTasquesPerCamp(id);
 		if (tasques.size() > 0) {
@@ -131,21 +131,25 @@ public class BaseVariableController extends BaseDissenyController {
 			HttpServletRequest request,
 			Long expedientTipusId,
 			Long definicioProcesId,
-			Model model) {
-		model.addAttribute("agrupacions", obtenirParellesAgrupacions(request, expedientTipusId, definicioProcesId));		
+			Model model,
+			boolean herencia) {
+		model.addAttribute("agrupacions", obtenirParellesAgrupacions(request, expedientTipusId, definicioProcesId, herencia));		
 	}
 	
 	/** Obté la llista de parelles codi-valor per les possibles agrupacions. A més també afegeix a l'inici
 	 * les opcions de totes les variables (-2) o sensa grupació (-1).
 	 * @param request
 	 * @param expedientTipusId
+	 * @param herencia
+	 * 				Indica si incloure els resultats de les possibles agrupacions heretades pel tipus d'expedient.
 	 * @return
 	 */
 	protected List<ParellaCodiValorDto> obtenirParellesAgrupacions(
 			HttpServletRequest request, 
 			Long expedientTipusId,
-			Long definicioProcesId) {
-		List<CampAgrupacioDto> agrupacions = campService.agrupacioFindAll(expedientTipusId, definicioProcesId);
+			Long definicioProcesId,
+			boolean herencia) {
+		List<CampAgrupacioDto> agrupacions = campService.agrupacioFindAll(expedientTipusId, definicioProcesId, herencia);
 		List<ParellaCodiValorDto> resposta = new ArrayList<ParellaCodiValorDto>();
 		resposta.add(new ParellaCodiValorDto(AGRUPACIO_TOTES.toString(), "[ " + getMessage(request, "expedient.tipus.camp.llistat.agrupacio.opcio.totes") + " ]"));
 		resposta.add(new ParellaCodiValorDto(AGRUPACIO_SENSE.toString(), "[ " + getMessage(request, "expedient.tipus.camp.llistat.agrupacio.opcio.sense") + " ]"));

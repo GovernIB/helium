@@ -163,7 +163,7 @@ public class ExpedientTipusVariableController extends BaseVariableController {
 			@PathVariable Long id,
 			Model model) {
 		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
-		CampDto dto = campService.findAmbId(id);
+		CampDto dto = campService.findAmbId(expedientTipusId, id);
 		CampCommand command = conversioTipusHelper.convertir(
 				dto,
 				CampCommand.class);
@@ -171,7 +171,8 @@ public class ExpedientTipusVariableController extends BaseVariableController {
 		command.setEnumeracioId(dto.getEnumeracio() != null? dto.getEnumeracio().getId() : null);
 		command.setDominiId(dto.getDomini() != null? dto.getDomini().getId() : null);
 		command.setConsultaId(dto.getConsulta() != null? dto.getConsulta().getId() : null);
-		
+		model.addAttribute("heretat", dto.isHeretat());
+
 		model.addAttribute("campCommand", command);
 		this.omplirModelVariableForm(
 				request, 
@@ -190,6 +191,7 @@ public class ExpedientTipusVariableController extends BaseVariableController {
 			Model model) {
         if (bindingResult.hasErrors()) {
     		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
+    		model.addAttribute("heretat", campService.findAmbId(expedientTipusId, id));
     		this.omplirModelVariableForm(
     				request, 
     				entornActual.getId(),
@@ -304,7 +306,7 @@ public class ExpedientTipusVariableController extends BaseVariableController {
 			HttpServletRequest request,
 			@PathVariable Long expedientTipusId,
 			Model model) {
-		return obtenirParellesAgrupacions(request, expedientTipusId, null);
+		return obtenirParellesAgrupacions(request, expedientTipusId, null, true);
 	}
 
 	/** Obre una modal amb un llistat per reordenar les agrupacions. */
@@ -495,7 +497,7 @@ public class ExpedientTipusVariableController extends BaseVariableController {
 			@Validated(ValidacioCommand.Creacio.class) ValidacioCommand command,
 			BindingResult bindingResult,
 			Model model) {
-		model.addAttribute("camp", campService.findAmbId(campId));
+		model.addAttribute("camp", campService.findAmbId(expedientTipusId, campId));
         if (bindingResult.hasErrors()) {
     		omplirModelValidacionsForm(expedientTipusId, campId, model);
         	model.addAttribute("mostraCreate", true);
@@ -525,7 +527,7 @@ public class ExpedientTipusVariableController extends BaseVariableController {
 			@Validated(ValidacioCommand.Modificacio.class) ValidacioCommand command,
 			BindingResult bindingResult,
 			Model model) {
-		model.addAttribute("camp", campService.findAmbId(campId));
+		model.addAttribute("camp", campService.findAmbId(expedientTipusId, campId));
         if (bindingResult.hasErrors()) {
     		omplirModelValidacionsForm(expedientTipusId, campId, model);
         	model.addAttribute("mostraUpdate", true);
@@ -600,7 +602,9 @@ public class ExpedientTipusVariableController extends BaseVariableController {
 			Model model) {
 		model.addAttribute("basicUrl", "expedientTipus/" + expedientTipusId);
 		model.addAttribute("expedientTipusId", expedientTipusId);
-		model.addAttribute("camp", campService.findAmbId(campId));
+		CampDto camp = campService.findAmbId(expedientTipusId, campId);
+		model.addAttribute("camp", camp);
+		model.addAttribute("heretat", camp.isHeretat());		
 	}
 	
 	private void omplirModelVariablesPestanya(
@@ -614,12 +618,27 @@ public class ExpedientTipusVariableController extends BaseVariableController {
 					expedientTipusId);
 			model.addAttribute("expedientTipus", expedientTipus);
 			model.addAttribute("baseUrl", expedientTipus.getId());
+			// agrupacions heretades
+			List<Long> agrupacionsHeretadesIds = new ArrayList<Long>();
+			List<Long> agrupacionsSobreescriuenIds = new ArrayList<Long>();
+			if (expedientTipus.getExpedientTipusPareId() != null) {
+				List<CampAgrupacioDto> agrupacions = campService.agrupacioFindAll(expedientTipusId, null, true);
+				for (CampAgrupacioDto a : agrupacions) {
+					if (a.isHeretat())
+						agrupacionsHeretadesIds.add(a.getId());
+					if (a.isSobreescriu())
+						agrupacionsSobreescriuenIds.add(a.getId());
+				}
+			}
+			model.addAttribute("agrupacionsHeretadesIds", agrupacionsHeretadesIds);
+			model.addAttribute("agrupacionsSobreescriuenIds", agrupacionsSobreescriuenIds);
 		}
 		this.omplirModelAgrupacions(
 				request, 
 				expedientTipusId, 
 				null,
-				model);
+				model,
+				true);
 	}
 	
 	private void omplirModelVariableForm(
@@ -640,7 +659,8 @@ public class ExpedientTipusVariableController extends BaseVariableController {
 				request, 
 				expedientTipusId,
 				null,
-				model);
+				model,
+				false);
 		
 		// Enumeracions
 		model.addAttribute("enumeracions", expedientTipusService.enumeracioFindAll(expedientTipusId, true));
@@ -656,6 +676,7 @@ public class ExpedientTipusVariableController extends BaseVariableController {
 				expedientTipusService.definicioProcesFindJbjmKey(
 						entornId, 
 						expedientTipusId, 
+						true,
 						true));
 	}
 		
@@ -740,7 +761,7 @@ public class ExpedientTipusVariableController extends BaseVariableController {
 			@Validated(ExpedientTipusCampRegistreCommand.Modificacio.class) ExpedientTipusCampRegistreCommand command,
 			BindingResult bindingResult,
 			Model model) {
-		model.addAttribute("camp", campService.findAmbId(campId));
+		model.addAttribute("camp", campService.findAmbId(expedientTipusId, campId));
         if (bindingResult.hasErrors()) {
         	omplirModelCampsRegistreForm(expedientTipusId, campId, model);
     		model.addAttribute("variables", obtenirParellesCampRegistre(
@@ -831,7 +852,9 @@ public class ExpedientTipusVariableController extends BaseVariableController {
 			Model model) {
 		model.addAttribute("basicUrl", "expedientTipus/" + expedientTipusId);
 		model.addAttribute("expedientTipusId", expedientTipusId);
-		model.addAttribute("camp", campService.findAmbId(campId));
+		CampDto camp = campService.findAmbId(expedientTipusId, campId);
+		model.addAttribute("camp", camp);
+		model.addAttribute("heretat", camp.isHeretat());
 	}
 		
 	/**

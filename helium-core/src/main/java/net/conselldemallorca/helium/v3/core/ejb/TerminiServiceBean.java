@@ -33,8 +33,8 @@ public class TerminiServiceBean implements TerminiService {
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public TerminiDto findAmbId(Long terminiId) {
-		return delegate.findAmbId(terminiId);
+	public TerminiDto findAmbId(Long expedientTipusId, Long terminiId) {
+		return delegate.findAmbId(expedientTipusId, terminiId);
 	}
 	
 	@Override

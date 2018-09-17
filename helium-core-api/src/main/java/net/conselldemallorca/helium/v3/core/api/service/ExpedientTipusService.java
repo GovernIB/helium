@@ -184,6 +184,14 @@ public interface ExpedientTipusService {
 	public List<ExpedientTipusDto> findAmbEntornPermisConsultar(
 			Long entornId) throws NoTrobatException;
 
+	/** Consulta el tipus d'expedient 
+	 * 
+	 * @param expedientTipusId Identificador.
+	 * @return Retorna el tipus d'expedient a consultar.
+	 * @throws NoTrobatException Excepció si no el troba per ID. 
+	 */
+	public ExpedientTipusDto findAmbId(Long expedientTipusId) throws NoTrobatException;
+
 	/**
 	 * Retorna un tipus d'expedient donat el seu id per a consultar.
 	 * 
@@ -297,6 +305,20 @@ public interface ExpedientTipusService {
 			String filtre, 
 			PaginacioParamsDto paginacioParams) throws NoTrobatException;
 
+	/**
+	 * Retorna la llista de tipus d'expedients amb la propietat heretable certa.
+	 * @param entornId
+	 * @return La llista de tipus d'expedients que es poden heretar.
+	 */
+	public List<ExpedientTipusDto> findHeretables(Long entornId);
+	
+	/**
+	 * Retorna la llista de tipus d'expedients que hereten del tipus d'expedient passat com a paràmetre.
+	 * @param expedientTipusId Tipus d'expedient pare
+	 * @return La llista de tipus d'expedients que tenen el tipus d'expedient com a heretat.
+	 */
+	public List<ExpedientTipusDto> findHeretats(Long expedientTipusId);
+	
 	/**
 	 * Modifica un permis existent d'un tipus d'expedient.
 	 * 
@@ -431,20 +453,23 @@ public interface ExpedientTipusService {
 	 * 
 	 * @param entornId
 	 * @param expedientTipusId
+	 * @param herencia Consultar definicions de procés heretades
+	 * @param incloureGlobals
 	 * 
 	 * @return La llista de codis de les diferents definicions de procés.
 	 */
 	public List<String> definicioProcesFindJbjmKey(
 			Long entornId, 
 			Long expedientTipusId,
+			boolean herencia,
 			boolean incloureGlobals);	
 
 	/**
-	 * Retorna les definicions de procés per a un tipus d'expedient.
+	 * Retorna les definicions de procés per a un tipus d'expedient sense tenir en compte l'herència.
 	 * 
 	 * @param expedientTipusId
 	 *            Atribut id del tipus d'expedient.
-	 * @return les definicions de procés del tipus d'expedient.
+	 * @return les definicions de procés associades al tipus d'expedient.
 	 * @throws NoTrobatException
 	 *             Si no s'ha trobat el registre amb l'id especificat.
 	 * @throws PermisDenegatException
@@ -587,35 +612,34 @@ public interface ExpedientTipusService {
 	 * Retorna els estats per a un tipus d'expedient.
 	 * 
 	 * @param expedientTipusId
+	 * @param ambHerencia Indica si incloure els estats heretats per l'expedient tipus.
 	 * @return
 	 * @throws NoTrobatException
 	 * @throws PermisDenegatException
 	 */
 	public List<EstatDto> estatFindAll(
 			Long expedientTipusId,
-			PaginacioParamsDto paginacioParams) throws NoTrobatException, PermisDenegatException;
-
-	/**
-	 * Retorna els estats per a un tipus d'expedient.
-	 * 
-	 * @param expedientTipusId
-	 * @return
-	 * @throws NoTrobatException
-	 * @throws PermisDenegatException
-	 */
-	public List<EstatDto> estatFindAll(Long expedientTipusId) throws PermisDenegatException;
+			boolean ambHerencia) throws PermisDenegatException;
 
 	/** 
-	 * Retorna el estat del tipus d'expedient donat el seu identificador.
+	 * Retorna l'estat del tipus d'expedient donat el seu identificador. Té en compte els
+	 * heretats i informa el camps d'herència del dto.
 	 * 
 	 * @param estatId
+	 * @param id 
 	 * 
-	 * @return El estat del tipus d'expedient.
+	 * @return L'estat del tipus d'expedient.
 	 * @throws NoTrobatException
 	 *             Si no s'ha trobat el registre amb l'id especificat.
 	 */
-	public EstatDto estatFindAmbId(Long estatId);
+	public EstatDto estatFindAmbId( Long expedientTipusId, Long estatId);
 
+	/**
+	 * Mètode per recuperar l'estat d'un tipus d'expedient per codi. No té en compte la herència.
+	 * @param expedientTipusId
+	 * @param codi
+	 * @return
+	 */
 	public EstatDto estatFindAmbCodi(Long expedientTipusId, String codi);
 
 	/**
@@ -1070,5 +1094,6 @@ public interface ExpedientTipusService {
 			String clasificacion,
 			String serieDocumental,
 			boolean arxiuActiu);	
+
 
 }

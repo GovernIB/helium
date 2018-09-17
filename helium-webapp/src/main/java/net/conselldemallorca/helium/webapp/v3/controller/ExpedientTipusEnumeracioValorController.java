@@ -269,7 +269,7 @@ public class ExpedientTipusEnumeracioValorController extends BaseExpedientTipusC
 			ExpedientTipusDto expedientTipus = expedientTipusService.findAmbIdPermisDissenyarDelegat(entornActual.getId(),	expedientTipusId);
 			model.addAttribute("expedientTipus", expedientTipus);
 			
-			EnumeracioDto enumeracio = enumeracioService.findAmbId(enumeracioId);
+			EnumeracioDto enumeracio = enumeracioService.findAmbId(expedientTipusId, enumeracioId);
 			model.addAttribute("enumeracio", enumeracio);
 			
 			if (ficaCommand) {
@@ -278,6 +278,7 @@ public class ExpedientTipusEnumeracioValorController extends BaseExpedientTipusC
 				command.setEnumeracioId(enumeracioId);
 				model.addAttribute("expedientTipusEnumeracioValorCommand", command);
 			}
+			model.addAttribute("heretat", enumeracio.isHeretat());
 		}
 	}
 

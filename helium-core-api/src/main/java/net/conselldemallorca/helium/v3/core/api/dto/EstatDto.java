@@ -11,7 +11,7 @@ import java.io.Serializable;
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
-public class EstatDto implements Serializable {
+public class EstatDto extends HeretableDto implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 	
