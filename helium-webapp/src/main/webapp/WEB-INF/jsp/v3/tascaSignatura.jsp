@@ -62,16 +62,15 @@
 							</a>
 							
 							<c:if test="${document.signat}">																					
-								<a 	data-rdt-link-modal="true" 
-									class="icon signature" 
-									href="<c:url value="/v3/expedient/${expedientId}/proces/${document.processInstanceId}/document/${document.id}/descarregar"/>">
+								<a class="icon signature" 
+									href="<c:url value="/v3/expedient/${tasca.expedientId}/proces/${tasca.processInstanceId}/document/${document.documentStoreId}/descarregar"/>">
 									<span class="fa fa-certificate" title="<spring:message code='expedient.document.signat' />"></span>
 								</a>
 							</c:if>
 							<c:if test="${document.registrat}">
 								<a 	data-rdt-link-modal="true" 
 									class="icon registre" 
-									href="<c:url value='/modal/v3/expedient/${expedientId}/proces/${document.processInstanceId}/document/${document.documentStoreId}/registre/verificar'/>">
+									href="<c:url value='/modal/v3/expedient/${tasca.expedientId}/proces/${tasca.processInstanceId}/document/${document.documentStoreId}/registre/verificar'/>">
 									<span class="fa fa-book" title="<spring:message code='expedient.document.registrat' />"></span>
 								</a>
 							</c:if>
