@@ -159,7 +159,6 @@ public class BaseVariableController extends BaseDissenyController {
 		return resposta;
 	}
 	
-	
 	@InitBinder
 	public void initBinder(WebDataBinder binder) {
 		binder.registerCustomEditor(
