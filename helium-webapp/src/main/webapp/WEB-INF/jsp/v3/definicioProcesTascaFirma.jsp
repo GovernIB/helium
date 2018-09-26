@@ -9,7 +9,7 @@
 
 <c:set var="idioma"><%=org.springframework.web.servlet.support.RequestContextUtils.getLocale(request).getLanguage()%></c:set>
 <c:set var="titol"><spring:message code="definicio.proces.tasca.firma.titol" arguments="${tasca.nom}"/></c:set>
-<c:set var="baseUrl"><c:url value="/modal/v3/definicioProces/${jbpmKey}/${definicioProcesId}/tasca/${tasca.id}/firma"></c:url></c:set>
+<c:set var="baseModalUrl"><c:url value="/modal/v3/${basicUrl}"></c:url></c:set>
 
 <html>
 <head>
@@ -35,7 +35,7 @@
 		<button type="button" class="btn btn-default" data-modal-cancel="true"><spring:message code="comu.boto.tancar"/></button>
 	</div>
 	
-	<form:form id="tasca-firma-form" cssClass="well" action="${baseUrl}/new" enctype="multipart/form-data" method="post" commandName="definicioProcesTascaFirmaCommand">
+	<form:form id="tasca-firma-form" cssClass="well" action="${baseModalUrl}/firma/new" enctype="multipart/form-data" method="post" commandName="definicioProcesTascaFirmaCommand">
 		<input type="hidden" name="tascaId" id="inputTascaId" value="${definicioProcesTascaFirmaCommand.tascaId}"/>
 		<div class="row">
 			<div class="col-sm-6">
@@ -55,7 +55,7 @@
 	<div style="height: 500px;">
 		<table	id="tascaFirma"
 				data-toggle="datatable"
-				data-url="${baseUrl}/datatable"
+				data-url="${baseUrl}/firma/datatable"
 				data-paging-enabled="false"
 				data-ordering="true"
 				data-info-type="search"
@@ -64,19 +64,19 @@
 			<thead>
 				<tr>
 					<th data-col-name="id" data-visible="false"/>
-					<th data-col-name="document.codi" data-template="#celldefinicioProcesTascaFirma" width="30%">
+					<th data-col-name="document.codi" data-template="#celldefinicioProcesTascaFirma" width="30%" data-orderable="false">
 						<spring:message code="definicio.proces.tasca.firma.columna.document"/>
 						<script id="celldefinicioProcesTascaFirma" type="text/x-jsrender">
 							{{:document.codi}} / {{:document.nom}}
 							{{if document.heretat }}
-								<span class="label label-primary herencia" title="<spring:message code="expedient.tipus.camp.llistat.codi.heretat"/>">R</span>
+								<span class="label label-primary" title="<spring:message code="expedient.tipus.camp.llistat.codi.heretat"/>">R</span>
 							{{/if}}
 							{{if document.sobreescriu }}
-								<span class="label label-warning herencia" title="<spring:message code="expedient.tipus.camp.llistat.codi.sobreescriu"/>">S</span>
+								<span class="label label-warning" title="<spring:message code="expedient.tipus.camp.llistat.codi.sobreescriu"/>">S</span>
 							{{/if}}
 						</script>
 					</th>
-					<th data-col-name="required" data-template="#celldefinicioProcesTascaFirmaRequiredTemplate">
+					<th data-col-name="required" data-template="#celldefinicioProcesTascaFirmaRequiredTemplate" data-orderable="false">
 					<spring:message code="definicio.proces.tasca.firma.columna.required"/>
 						<script id="celldefinicioProcesTascaFirmaRequiredTemplate" type="text/x-jsrender">
 						<div style="text-align: center;">
@@ -85,9 +85,14 @@
 						</script>
 					</th>
 					<th data-col-name="order" data-visible="false"><spring:message code="definicio.proces.tasca.firma.columna.ordre"/></th>
+					<th data-col-name="heretat" data-visible="false"/>					
 					<th data-col-name="id" width="100px" data-template="#cellTascaFirmaDeleteTemplate" data-orderable="false" width="10%">
 						<script id="cellTascaFirmaDeleteTemplate" type="text/x-jsrender">
-							<a href="${baseUrl}/{{:id}}/delete" class="btn btn-default ajax-delete" data-confirm="<spring:message code="definicio.proces.tasca.firma.confirmacio.esborrar"/>"><span class="fa fa-trash-o"></span>&nbsp;<spring:message code="comu.boto.esborrar"/></a>
+						{{if !heretat}}
+							<a href="${baseUrl}/firma/{{:id}}/delete" class="btn btn-default ajax-delete" data-confirm="<spring:message code="definicio.proces.tasca.firma.confirmacio.esborrar"/>"><span class="fa fa-trash-o"></span>&nbsp;<spring:message code="comu.boto.esborrar"/></a>
+						{{else}}
+							<a href="#" class="herencia"/>
+						{{/if}}
 						</script>
 					</th>
 				</tr>
@@ -173,6 +178,12 @@
 				e.stopImmediatePropagation();
 				return false;				
 			});
+		    // Bloqueja les files heretades
+			$("tr", this).each(function(){
+				if ($(this).find("a.herencia").length > 0) {
+					$("input", this).prop('disabled', true);
+				}
+			});		    
 		  });			
 	});
 	
@@ -180,7 +191,7 @@
 	function updateCheckbox(checkbox) {
 		var firmaId = $(checkbox).data('firmaid');
 		var propietat = $(checkbox).data('propietat');
-		var getUrl = '<c:url value="/v3/definicioProces/${jbpmKey}/${definicioProcesId}/tasca/${tasca.id}/firma/"/>'+firmaId+'/'+propietat;
+		var getUrl = '${baseUrl}/firma/'+firmaId+'/'+propietat;
 		var spin = $("#accioUpdateProcessant")
 			.clone()
 			.show()
@@ -211,7 +222,7 @@
 	function canviarPosicioTascaFirma( id, pos) {
 	  	// Canvia la ordenació sempre amb ordre ascendent
 		$('#tascaFirma').DataTable().order([3, 'asc']);
-		var getUrl = '<c:url value="/v3/definicioProces/${jbpmKey}/${definicioProcesId}/tasca/${tasca.id}/firma/"/>'+id+'/moure/'+pos;
+		var getUrl = '${baseUrl}/firma/'+id+'/moure/'+pos;
 		$.ajax({
 			type: 'GET',
 			url: getUrl,
@@ -222,6 +233,11 @@
 			error: function(e) {
 				console.log("Error canviant l'ordre: " + e);
 				$('#tascaFirma').webutilDatatable('refresh');
+			},
+			complete: function() {
+				webutilRefreshMissatges();
+				$(spin).remove();
+				$(input).show();
 			}
 		});	
 	}
@@ -243,7 +259,7 @@
 	}
 		
 	function refrescaDocuments() {
-		var getUrl = '<c:url value="/v3/definicioProces/${jbpmKey}/${definicioProcesId}/tasca/${tasca.id}/firma/select"/>';
+		var getUrl = '${baseUrl}/firma/select';
 		$.ajax({
 			type: 'GET',
 			url: getUrl,

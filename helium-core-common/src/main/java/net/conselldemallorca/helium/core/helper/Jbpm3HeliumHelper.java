@@ -167,6 +167,8 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 	@Resource
 	private ExpedientHelper expedientHelper;
 	@Resource
+	private ExpedientTipusHelper expedientTipusHelper;
+	@Resource
 	private DominiHelper dominiHelper;
 	@Resource
 	private JbpmHelper jbpmHelper;
@@ -1075,8 +1077,11 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 				definicioProces);
 		if (tasca == null)
 			throw new NoTrobatException(Tasca.class, task.getTaskName());
+		ExpedientTipus tipus = expedientTipusHelper.findAmbProcessInstanceId(task.getProcessInstanceId());
+		if (tipus == null)
+			throw new NoTrobatException(ExpedientTipus.class, task.getTaskName());
 		return conversioTipusHelper.convertirList(
-				campTascaRepository.findAmbTascaOrdenats(tasca.getId()),
+				campTascaRepository.findAmbTascaIdOrdenats(tasca.getId(), tipus.getId()),
 				CampTascaDto.class);
 	}
 
@@ -1096,8 +1101,11 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 				definicioProces);
 		if (tasca == null)
 			throw new NoTrobatException(Tasca.class, task.getTaskName());
+		ExpedientTipus tipus = expedientTipusHelper.findAmbProcessInstanceId(task.getProcessInstanceId());
+		if (tipus == null)
+			throw new NoTrobatException(ExpedientTipus.class, task.getTaskName());
 		return conversioTipusHelper.convertirList(
-				documentTascaRepository.findAmbTascaOrdenats(tasca.getId()),
+				documentTascaRepository.findAmbTascaOrdenats(tasca.getId(), tipus.getId()),
 				DocumentTascaDto.class);
 	}
 

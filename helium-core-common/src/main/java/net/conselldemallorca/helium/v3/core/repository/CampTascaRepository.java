@@ -12,6 +12,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import net.conselldemallorca.helium.core.model.hibernate.CampTasca;
+import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 
 /**
  * Dao pels objectes de tipus camp de formulari
@@ -57,21 +58,41 @@ public interface CampTascaRepository extends JpaRepository<CampTasca, Long> {
 	public long countAmbTasca(
 			@Param("tascaId") Long tascaId);
 	
+	/** Consulta els camps de la tasca.
+	 * 
+	 * @param tascaId Identificador de la tasca.
+	 * @param expedientTipusId Si s'informa llavors es filtren els camps que estiguin relacionats amb aquest tipus d'expedient.
+	 * @return
+	 */
 	@Query("from CampTasca ct " +
 			"where " +
 			"    ct.tasca.id = :tascaId " +
+					// Propis
+			"   and ( (ct.expedientTipus.id = :expedientTipusId or (ct.expedientTipus is null and ct.tasca.definicioProces.expedientTipus.id = :expedientTipusId)  ) " +
+			"			or " +
+					// Heretats
+			" 		  (ct.expedientTipus is null and ct.tasca.definicioProces.expedientTipus.id = (select etp.expedientTipusPare.id from ExpedientTipus etp where etp.id = :expedientTipusId)) " +
+			"       ) " +
 			"order by " +
 			"    ct.order")
 	public List<CampTasca> findAmbTascaIdOrdenats(
-			@Param("tascaId") Long tascaId);
+			@Param("tascaId") Long tascaId,
+			@Param("expedientTipusId") Long expedientTipusId);
 
 	
 	@Query(	"from CampTasca ct " +
 			"where " +
 			"   ct.tasca.id = :tascaId " +
+					// Propis
+			"   and ( (ct.expedientTipus.id = :expedientTipusId or (ct.expedientTipus is null and ct.tasca.definicioProces.expedientTipus.id = :expedientTipusId)  ) " +
+			"			or " +
+					// Heretats
+			" 		  (ct.expedientTipus is null and ct.tasca.definicioProces.expedientTipus.id = (select etp.expedientTipusPare.id from ExpedientTipus etp where etp.id = :expedientTipusId)) " +
+			"       ) " +
 			"	and (:esNullFiltre = true or lower(ct.camp.codi) like lower('%'||:filtre||'%')) ")
 	public Page<CampTasca> findByFiltrePaginat(
 			@Param("tascaId") Long tascaId,
+			@Param("expedientTipusId") Long expedientTipusId, 
 			@Param("esNullFiltre") boolean esNullFiltre,
 			@Param("filtre") String filtre,
 			Pageable pageable);
@@ -89,5 +110,8 @@ public interface CampTascaRepository extends JpaRepository<CampTasca, Long> {
 			"where " +
 			"    ct.tasca.id = :tascaId " )
 	public Integer getNextOrdre(@Param("tascaId") Long tascaId);
-	
+
+	/** Troba tots els camps relacionats amb l'expedient tipus. */
+	public List<CampTasca> findAllByExpedientTipus(ExpedientTipus expedientTipus);
+		
 }

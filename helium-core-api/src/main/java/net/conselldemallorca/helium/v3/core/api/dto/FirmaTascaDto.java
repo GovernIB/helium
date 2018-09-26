@@ -9,12 +9,22 @@ package net.conselldemallorca.helium.v3.core.api.dto;
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
-public class FirmaTascaDto {
+public class FirmaTascaDto extends HeretableDto {
+
+	private static final long serialVersionUID = 1831839772913769166L;
+
 	private Long id;
 	private boolean required;
 	private int order;
 	private DocumentDto document;
 	private ExpedientTascaDto tasca;
+
+	
+	/** Quan es crea una relació entre un camp i la definició de procés pot ser que el camp sigui 
+	 * del tipus d'expedient i la tasca sigui de la definició de procés del tipus expedient pare heretat. Aquest
+	 * camp fa referència al tipus d'expedient que posseix la relació camp-tasca.
+	 */
+	private Long expedientTipusId;
 
 	public FirmaTascaDto() {}
 	public FirmaTascaDto(
@@ -59,6 +69,13 @@ public class FirmaTascaDto {
 	}
 	public void setOrder(int order) {
 		this.order = order;
+	}
+
+	public Long getExpedientTipusId() {
+		return expedientTipusId;
+	}
+	public void setExpedientTipusId(Long expedientTipusId) {
+		this.expedientTipusId = expedientTipusId;
 	}
 
 	public int hashCode() {

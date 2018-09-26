@@ -72,6 +72,10 @@ public class ExpedientTipusExportacio implements Serializable {
 	private List<DominiExportacio> dominis = new ArrayList<DominiExportacio>();
 	private List<ConsultaExportacio> consultes = new ArrayList<ConsultaExportacio>();
 	
+	/** Informació de camps i tasques relacionats amb les definicions de procés en cas de ser un tipus d'expedient que hereta. Conté una llista
+	 * d'informació de tasques per la clau segons el codi de la definició de procés*/
+	private Map<String, List<TascaExportacio>> herenciaTasques;
+	
 	public Long getId() {
 		return id;
 	}
@@ -335,6 +339,13 @@ public class ExpedientTipusExportacio implements Serializable {
 	}
 	public void setConsultes(List<ConsultaExportacio> consultes) {
 		this.consultes = consultes;
+	}
+
+	public Map<String, List<TascaExportacio>> getHerenciaTasques() {
+		return herenciaTasques;
+	}
+	public void setHerenciaTasques(Map<String, List<TascaExportacio>> herenciaTasques) {
+		this.herenciaTasques = herenciaTasques;
 	}
 
 	private static final long serialVersionUID = 4423574853273245620L;

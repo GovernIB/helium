@@ -35,7 +35,8 @@ import org.springmodules.validation.bean.conf.loader.annotation.handler.NotNull;
 		appliesTo = "hel_firma_tasca",
 		indexes = {
 				@Index(name = "hel_firtasca_document_i", columnNames = {"document_id"}),
-				@Index(name = "hel_firtasca_tasca_i", columnNames = {"tasca_id"})})
+				@Index(name = "hel_firtasca_tasca_i", columnNames = {"tasca_id"}),
+				@Index(name = "hel_firtasca_extip_i", columnNames = {"expedient_tipus_id"})})
 public class FirmaTasca implements Serializable, GenericEntity<Long> {
 
 	private Long id;
@@ -47,6 +48,9 @@ public class FirmaTasca implements Serializable, GenericEntity<Long> {
 	private Document document;
 	@NotNull
 	private Tasca tasca;
+	
+	/** Aquest valor només s'informa quan es relaciona una firma amb una tasca heretada pel tipus d'expedient. */
+	private ExpedientTipus expedientTipus;
 
 
 
@@ -109,6 +113,15 @@ public class FirmaTasca implements Serializable, GenericEntity<Long> {
 		this.tasca = tasca;
 	}
 
+	@ManyToOne(optional=true, fetch=FetchType.EAGER)
+	@JoinColumn(name="expedient_tipus_id")
+	@ForeignKey(name="hel_extipus_firtasca_fk")
+	public ExpedientTipus getExpedientTipus() {
+		return expedientTipus;
+	}
+	public void setExpedientTipus(ExpedientTipus expedientTipus) {
+		this.expedientTipus = expedientTipus;
+	}
 
 
 	@Override

@@ -35,7 +35,8 @@ import org.springmodules.validation.bean.conf.loader.annotation.handler.NotNull;
 		appliesTo = "hel_camp_tasca",
 		indexes = {
 				@Index(name = "hel_camptasca_camp_i", columnNames = {"camp_id"}),
-				@Index(name = "hel_camptasca_tasca_i", columnNames = {"tasca_id"})})
+				@Index(name = "hel_camptasca_tasca_i", columnNames = {"tasca_id"}),
+				@Index(name = "hel_camptasca_extip_i", columnNames = {"expedient_tipus_id"})})
 public class CampTasca implements Serializable, GenericEntity<Long> {
 
 	private Long id;
@@ -51,6 +52,9 @@ public class CampTasca implements Serializable, GenericEntity<Long> {
 	private Camp camp;
 	@NotNull
 	private Tasca tasca;
+	
+	/** Aquest valor només s'informa quan es relaciona un camp amb una tasca heretada pel tipus d'expedient. */
+	private ExpedientTipus expedientTipus;
 
 
 
@@ -160,8 +164,17 @@ public class CampTasca implements Serializable, GenericEntity<Long> {
 		this.tasca = tasca;
 	}
 
-
-
+	@ManyToOne(optional=true, fetch=FetchType.LAZY)
+	@JoinColumn(name="expedient_tipus_id")
+	@ForeignKey(name="hel_extipus_camptasca_fk")
+	public ExpedientTipus getExpedientTipus() {
+		return expedientTipus;
+	}
+	public void setExpedientTipus(ExpedientTipus expedientTipus) {
+		this.expedientTipus = expedientTipus;
+	}
+	
+	
 	@Override
 	public int hashCode() {
 		final int prime = 31;

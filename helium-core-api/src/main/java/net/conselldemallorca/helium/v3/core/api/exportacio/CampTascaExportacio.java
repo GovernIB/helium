@@ -24,6 +24,8 @@ public class CampTascaExportacio implements Serializable {
 	private int buitCols;
 	/** Indica si el camp està lligat al tipus d'expedient.*/
 	private boolean tipusExpedient;
+	/** Indica si el camp està heretat pel tipus d'expedient. */
+	private boolean campHeretat;
 
 
 
@@ -36,7 +38,8 @@ public class CampTascaExportacio implements Serializable {
 			int order,
 			int ampleCols,
 			int buitCols,
-			boolean tipusExpedient) {
+			boolean tipusExpedient,
+			boolean campHeretat) {
 		this.campCodi = campCodi;
 		this.readFrom = readFrom;
 		this.writeTo = writeTo;
@@ -46,6 +49,7 @@ public class CampTascaExportacio implements Serializable {
 		this.ampleCols = ampleCols;
 		this.buitCols = buitCols;
 		this.tipusExpedient = tipusExpedient;
+		this.campHeretat = campHeretat;
 	}
 
 	public String getCampCodi() {
@@ -106,6 +110,12 @@ public class CampTascaExportacio implements Serializable {
 	public void setTipusExpedient(boolean tipusExpedient) {
 		this.tipusExpedient = tipusExpedient;
 	}
+	public boolean isCampHeretat() {
+		return campHeretat;
+	}
 
+	public void setCampHeretat(boolean campHeretat) {
+		this.campHeretat = campHeretat;
+	}
 	private static final long serialVersionUID = -8791553619883705667L;
 }

@@ -105,6 +105,7 @@ public interface DefinicioProcesRepository extends JpaRepository<DefinicioProces
 			"        DefinicioProces dps " +
 			"    where " +
 			"        dps.entorn.id=:entornId " +
+			"		and (:isNullExpedientTipusId = true or dps.expedientTipus.id = :expedientTipusId or (:incloureGlobals = true and dps.expedientTipus is null)) " + 
 			"    	and dps.jbpmKey=dp.jbpmKey) ")
 	List<DefinicioProces> findListDarreraVersioByAll(
 			@Param("entornId") Long entornId,
@@ -319,6 +320,61 @@ public interface DefinicioProcesRepository extends JpaRepository<DefinicioProces
 		@Param("isNullExpedientTipusId") boolean isNullExpedientTipusId,
 		@Param("expedientTipusId") Long expedientTipusId,
 		@Param("incloureGlobals") boolean incloureGlobals);	
+	
+	/** Consulta de les darreres versions de defincions de procés per entorn 
+	 * o tipus d'expedient que pot retornar o no les definicions
+	 * de procés globals.
+	 * 
+	 * @param entornId
+	 * @param esNullExpedientTipusId
+	 * @param expedientTipusId
+	 * @param incloureGlobals
+	 * @param esNullFiltre
+	 * @param filtre
+	 * @param herencia
+	 * @return
+	 */
+	@Query(	"select dp " +
+			"from DefinicioProces dp " +
+			"where " +
+			"   dp.entorn.id = :entornId " +
+			"	and (:esNullExpedientTipusId = true " +
+			"			or (dp.expedientTipus.id = :expedientTipusId) " + 
+						// Heretats
+			"			or (:herencia = true " +
+			"					and dp.expedientTipus.id = (select etp.expedientTipusPare.id from ExpedientTipus etp where etp.id = :expedientTipusId) ) " + 
+			"			or (:incloureGlobals = true and dp.expedientTipus is null)) " +
+			"	and (:herencia = false " +
+			"		or dp.id not in ( " + 
+						// Llistat de sobreescrits
+			"			select dps.id " +
+			"			from DefinicioProces dpa " +
+			"				join dpa.expedientTipus dpt with dpt.id = :expedientTipusId, " +
+			"				DefinicioProces dps " +
+			"			where " +
+			"				dps.jbpmKey = dpa.jbpmKey " +
+			"			 	and dps.expedientTipus.id = dpt.expedientTipusPare.id " +
+			"		) " +
+			"	) " +
+			"	and dp.versio = (" +
+			"  		select max(dps.versio) " +
+			"    	from DefinicioProces dps " +
+			"    	where " +
+			"       	dps.entorn.id = :entornId " +
+			"			and (:esNullExpedientTipusId = true " +
+			"					or (dp.expedientTipus.id = :expedientTipusId) " +
+			"					or (:herencia = true " +
+			"							and dps.expedientTipus.id = (select etp.expedientTipusPare.id from ExpedientTipus etp where etp.id = :expedientTipusId) ) " + 
+			"					or (:incloureGlobals = true and dp.expedientTipus is null)) " +
+			"		    and dps.jbpmKey= dp.jbpmKey" +
+			"			and (dps.expedientTipus.id = dp.expedientTipus.id or dps.expedientTipus is null and dp.expedientTipus is null) "  +
+			"	) ")
+	List<DefinicioProces> findJbfindDarreresVersionsAmbHerencia(
+			@Param("entornId") Long entornId,
+			@Param("esNullExpedientTipusId") boolean esNullExpedientTipusId,
+			@Param("expedientTipusId") Long expedientTipusId,
+			@Param("incloureGlobals") boolean incloureGlobals,
+			@Param("herencia") boolean herencia);
 	
 	/** Recupera la informació de tots els registres sobreescrits.*/
 	@Query( "select dps " +

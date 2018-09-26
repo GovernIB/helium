@@ -20,6 +20,7 @@ public class DefinicioProcesTascaFirmaCommand {
 	@NotNull(groups = {Creacio.class})
 	private Long documentId;
 	private boolean required;
+	private Long expedientTipusId;
 	
 	public Long getTascaId() {
 		return tascaId;
@@ -39,12 +40,19 @@ public class DefinicioProcesTascaFirmaCommand {
 	public void setRequired(boolean required) {
 		this.required = required;
 	}
+	public Long getExpedientTipusId() {
+		return expedientTipusId;
+	}
+	public void setExpedientTipusId(Long expedientTipusId) {
+		this.expedientTipusId = expedientTipusId;
+	}
 	public static FirmaTascaDto asFirmaTascaDto(DefinicioProcesTascaFirmaCommand command) {
 		FirmaTascaDto dto = new FirmaTascaDto();
 		DocumentDto document = new DocumentDto();
 		document.setId(command.getDocumentId());
 		dto.setDocument(document);
 		dto.setRequired(command.isRequired());
+		dto.setExpedientTipusId(command.getExpedientTipusId());
 		return dto;
 	}	
 	public interface Creacio {}

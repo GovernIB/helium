@@ -5,8 +5,17 @@
 <%@ taglib tagdir="/WEB-INF/tags/helium" prefix="hel"%>
 
 <c:set var="idioma"><%=org.springframework.web.servlet.support.RequestContextUtils.getLocale(request).getLanguage()%></c:set>
-<c:set var="titol"><spring:message code="definicio.proces.tasca.form.titol.modificar" arguments="${tipus},${consulta.nom}"/></c:set>
 
+<c:choose>
+	<c:when test="${!heretat}">
+		<c:set var="titol"><spring:message code="definicio.proces.tasca.form.titol.modificar"/></c:set>
+		<c:set var="formAction">update</c:set>
+	</c:when>
+	<c:otherwise>
+		<c:set var="titol"><spring:message code="definicio.proces.tasca.form.titol.visualitzar"/></c:set>
+		<c:set var="formAction">none</c:set>		
+	</c:otherwise>
+</c:choose>
 <html>
 <head>
 	<title>${titol}</title>
@@ -21,7 +30,7 @@
 	<script src="<c:url value="/js/helium.modal.js"/>"></script>
 </head>
 <body>		
-	<form:form cssClass="form-horizontal" action="update" enctype="multipart/form-data" method="post" commandName="definicioProcesTascaCommand">
+	<form:form cssClass="form-horizontal" action="${formAction}" enctype="multipart/form-data" method="post" commandName="definicioProcesTascaCommand">
 		<div>        
 		
 			<input type="hidden" name="id" value="${definicioProcesTascaCommand.id}"/>
@@ -41,9 +50,11 @@
 		
 		<div id="modal-botons" class="well">
 			<button type="button" class="btn btn-default" data-modal-cancel="true"><spring:message code="comu.boto.cancelar"/></button>
-			<button class="btn btn-primary right" type="submit" name="accio" value="modificar">
-				<span class="fa fa-pencil"></span> <spring:message code='comu.boto.modificar' />
-			</button>	
+			<c:if test="${!heretat}">
+				<button class="btn btn-primary right" type="submit" name="accio" value="modificar">
+					<span class="fa fa-pencil"></span> <spring:message code='comu.boto.modificar' />
+				</button>	
+			</c:if>
 		</div>
 		
 	<script type="text/javascript">

@@ -32,5 +32,5 @@ public abstract class HeretableDto implements Serializable {
 		this.sobreescriu = sobreescriu;
 	}
 	
-	private static final long serialVersionUID = 8338184447461193307L;
+	private static final long serialVersionUID = 1L;
 }

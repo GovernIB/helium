@@ -5,8 +5,6 @@
 <%@ taglib tagdir="/WEB-INF/tags/helium" prefix="hel"%>
 <c:set var="idioma"><%=org.springframework.web.servlet.support.RequestContextUtils.getLocale(request).getLanguage()%></c:set>
 
-
-
 <c:choose>
 	<c:when test="${!heretat}">
 		<c:choose>

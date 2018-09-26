@@ -24,10 +24,12 @@ import net.conselldemallorca.helium.core.model.hibernate.CampTasca;
 import net.conselldemallorca.helium.core.model.hibernate.Consulta;
 import net.conselldemallorca.helium.core.model.hibernate.ConsultaCamp;
 import net.conselldemallorca.helium.core.model.hibernate.Document;
+import net.conselldemallorca.helium.core.model.hibernate.DocumentTasca;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 import net.conselldemallorca.helium.core.model.hibernate.Enumeracio;
 import net.conselldemallorca.helium.core.model.hibernate.Estat;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
+import net.conselldemallorca.helium.core.model.hibernate.FirmaTasca;
 import net.conselldemallorca.helium.core.model.hibernate.SequenciaAny;
 import net.conselldemallorca.helium.core.model.hibernate.SequenciaDefaultAny;
 import net.conselldemallorca.helium.v3.core.api.dto.CampAgrupacioDto;
@@ -38,11 +40,13 @@ import net.conselldemallorca.helium.v3.core.api.dto.CampTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ConsultaCampDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ConsultaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DocumentTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DominiDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EnumeracioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
+import net.conselldemallorca.helium.v3.core.api.dto.FirmaTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.SequenciaAnyDto;
 import net.conselldemallorca.helium.v3.core.api.dto.SequenciaDefaultAnyDto;
 
@@ -168,6 +172,42 @@ public class ConversioTipusHelper {
 						target.setBuitCols(source.getBuitCols());
 						if (source.getCamp() != null) {
 							target.setCamp(convertir(source.getCamp(), CampDto.class));
+						}
+						if (source.getExpedientTipus() != null) {
+							target.setExpedientTipusId(source.getExpedientTipus().getId());
+						}
+						return target;
+					}
+				});
+		mapperFactory.getConverterFactory().registerConverter(
+				new CustomConverter<DocumentTasca, DocumentTascaDto>() {
+					public DocumentTascaDto convert(DocumentTasca source, Type<? extends DocumentTascaDto> destinationClass) {
+						DocumentTascaDto target = new DocumentTascaDto();
+						target.setId(source.getId());
+						target.setRequired(source.isRequired());
+						target.setReadOnly(source.isReadOnly());
+						target.setOrder(source.getOrder());
+						if (source.getDocument() != null) {
+							target.setDocument(convertir(source.getDocument(), DocumentDto.class));
+						}
+						if (source.getExpedientTipus() != null) {
+							target.setExpedientTipusId(source.getExpedientTipus().getId());
+						}
+						return target;
+					}
+				});
+		mapperFactory.getConverterFactory().registerConverter(
+				new CustomConverter<FirmaTasca, FirmaTascaDto>() {
+					public FirmaTascaDto convert(FirmaTasca source, Type<? extends FirmaTascaDto> destinationClass) {
+						FirmaTascaDto target = new FirmaTascaDto();
+						target.setId(source.getId());
+						target.setRequired(source.isRequired());
+						target.setOrder(source.getOrder());
+						if (source.getDocument() != null) {
+							target.setDocument(convertir(source.getDocument(), DocumentDto.class));
+						}
+						if (source.getExpedientTipus() != null) {
+							target.setExpedientTipusId(source.getExpedientTipus().getId());
 						}
 						return target;
 					}
@@ -389,7 +429,7 @@ public class ConversioTipusHelper {
 						target.setBuitCols(source.getBuitCols());
 						return target;
 					}
-		});		
+		});
 	}
 
 	public <T> T convertir(Object source, Class<T> targetType) {

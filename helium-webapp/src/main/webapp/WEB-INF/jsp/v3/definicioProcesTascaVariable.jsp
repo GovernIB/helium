@@ -9,7 +9,7 @@
 
 <c:set var="idioma"><%=org.springframework.web.servlet.support.RequestContextUtils.getLocale(request).getLanguage()%></c:set>
 <c:set var="titol"><spring:message code="definicio.proces.tasca.variable.titol" arguments="${tasca.nom}"/></c:set>
-<c:set var="baseUrl"><c:url value="/modal/v3/definicioProces/${jbpmKey}/${definicioProcesId}/tasca/${tasca.id}/variable"></c:url></c:set>
+<c:set var="baseModalUrl"><c:url value="/modal/v3/${basicUrl}"></c:url></c:set>
 
 <html>
 <head>
@@ -35,7 +35,7 @@
 		<button type="button" class="btn btn-default" data-modal-cancel="true"><spring:message code="comu.boto.tancar"/></button>
 	</div>
 	
-	<form:form id="tasca-camp-form" cssClass="well" action="${baseUrl}/new" enctype="multipart/form-data" method="post" commandName="definicioProcesTascaVariableCommand">
+	<form:form id="tasca-camp-form" cssClass="well" action="${baseModalUrl}/variable/new" enctype="multipart/form-data" method="post" commandName="definicioProcesTascaVariableCommand">
 		<input type="hidden" name="tascaId" id="inputTascaId" value="${definicioProcesTascaVariableCommand.tascaId}"/>
 		<div class="row">
 			<div class="col-sm-4">
@@ -68,7 +68,7 @@
 	<div style="height: 500px;">
 		<table	id="tascaVariable"
 				data-toggle="datatable"
-				data-url="${baseUrl}/datatable"
+				data-url="${baseUrl}/variable/datatable"
 				data-paging-enabled="false"
 				data-ordering="true"
 				data-info-type="search"
@@ -77,24 +77,24 @@
 			<thead>
 				<tr>
 					<th data-col-name="id" data-visible="false"/>
-					<th data-col-name="camp.codi" data-template="#celldefinicioProcesTascaVariable" width="30%">
+					<th data-col-name="camp.codi" data-template="#celldefinicioProcesTascaVariable" width="30%" data-orderable="false">
 						<spring:message code="definicio.proces.tasca.variable.columna.variable"/>
 						<script id="celldefinicioProcesTascaVariable" type="text/x-jsrender">
 							{{:camp.codi}} / {{:camp.etiqueta}}
 							{{if camp.heretat }}
-								<span class="label label-primary herencia" title="<spring:message code="expedient.tipus.camp.llistat.codi.heretat"/>">R</span>
+								<span class="label label-primary" title="<spring:message code="expedient.tipus.camp.llistat.codi.heretat"/>">R</span>
 							{{/if}}
 							{{if camp.sobreescriu }}
-								<span class="label label-warning herencia" title="<spring:message code="expedient.tipus.camp.llistat.codi.sobreescriu"/>">S</span>
+								<span class="label label-warning" title="<spring:message code="expedient.tipus.camp.llistat.codi.sobreescriu"/>">S</span>
 							{{/if}}
 							{{if camp.expedientTipus != null}}
 								<span class="label label-info pull-right" title="Tipus Expedient">TE</span>
 							{{else}}
 								<span class="label label-warning pull-right" title="Definició de Procés">DP</span>
-							{{/if}}							
+							{{/if}}
 						</script>
-					</th>
-					<th data-col-name="readFrom" data-template="#celldefinicioProcesTascaVariableReadFromTemplate">
+					</th>					
+					<th data-col-name="readFrom" data-template="#celldefinicioProcesTascaVariableReadFromTemplate" data-orderable="false">
 					<spring:message code="definicio.proces.tasca.variable.columna.readFrom"/>
 						<script id="celldefinicioProcesTascaVariableReadFromTemplate" type="text/x-jsrender">
 						<div style="text-align: center;">
@@ -102,7 +102,7 @@
 						</div>
 						</script>
 					</th>
-					<th data-col-name="writeTo" data-template="#celldefinicioProcesTascaVariableWriteToTemplate">
+					<th data-col-name="writeTo" data-template="#celldefinicioProcesTascaVariableWriteToTemplate" data-orderable="false">
 					<spring:message code="definicio.proces.tasca.variable.columna.writeTo"/>
 						<script id="celldefinicioProcesTascaVariableWriteToTemplate" type="text/x-jsrender">
 						<div style="text-align: center;">
@@ -110,7 +110,7 @@
 						</div>
 						</script>
 					</th>
-					<th data-col-name="required" data-template="#celldefinicioProcesTascaVariableRequiredTemplate">
+					<th data-col-name="required" data-template="#celldefinicioProcesTascaVariableRequiredTemplate" data-orderable="false">
 					<spring:message code="definicio.proces.tasca.variable.columna.required"/>
 						<script id="celldefinicioProcesTascaVariableRequiredTemplate" type="text/x-jsrender">
 						<div style="text-align: center;">
@@ -118,7 +118,7 @@
 						</div>
 						</script>
 					</th>
-					<th data-col-name="readOnly" data-template="#celldefinicioProcesTascaVariableReadOnlyTemplate">
+					<th data-col-name="readOnly" data-template="#celldefinicioProcesTascaVariableReadOnlyTemplate" data-orderable="false">
 					<spring:message code="definicio.proces.tasca.variable.columna.readOnly"/>
 						<script id="celldefinicioProcesTascaVariableReadOnlyTemplate" type="text/x-jsrender">
 						<div style="text-align: center;">
@@ -128,8 +128,8 @@
 					</th>
 					
 					<th data-col-name="order" data-visible="false"><spring:message code="definicio.proces.tasca.variable.columna.ordre"/></th>
-					
-					<th data-col-name="ampleCols" data-template="#celldefinicioProcesTascaVariableAmpleColsTemplate">
+					<th data-col-name="heretat" data-visible="false"/>					
+					<th data-col-name="ampleCols" data-template="#celldefinicioProcesTascaVariableAmpleColsTemplate" data-orderable="false">
 						<spring:message code="definicio.proces.tasca.variable.columna.ampleCols"/>
 						<script id="celldefinicioProcesTascaVariableAmpleColsTemplate" type="text/x-jsrender">
 							<div class="form-group">
@@ -137,7 +137,7 @@
 							</div>
 						</script>
 					</th>
-					<th data-col-name="buitCols" data-template="#celldefinicioProcesTascaVariableBuitColsTemplate">
+					<th data-col-name="buitCols" data-template="#celldefinicioProcesTascaVariableBuitColsTemplate" data-orderable="false">
 						<spring:message code="definicio.proces.tasca.variable.columna.buitCols"/>
 						<script id="celldefinicioProcesTascaVariableBuitColsTemplate" type="text/x-jsrender">
 							<div class="form-group">
@@ -147,7 +147,11 @@
 					</th>
 					<th data-col-name="id" width="100px" data-template="#cellTascaVariableDeleteTemplate" data-orderable="false" width="10%">
 						<script id="cellTascaVariableDeleteTemplate" type="text/x-jsrender">
-							<a href="${baseUrl}/{{:id}}/delete" class="btn btn-default ajax-delete" data-confirm="<spring:message code="definicio.proces.tasca.variable.confirmacio.esborrar"/>"><span class="fa fa-trash-o"></span>&nbsp;<spring:message code="comu.boto.esborrar"/></a>
+						{{if !heretat}}
+							<a href="${baseUrl}/variable/{{:id}}/delete" class="btn btn-default ajax-delete" data-confirm="<spring:message code="definicio.proces.tasca.variable.confirmacio.esborrar"/>"><span class="fa fa-trash-o"></span>&nbsp;<spring:message code="comu.boto.esborrar"/></a>
+						{{else}}
+							<a href="#" class="herencia"/>
+						{{/if}}
 						</script>
 					</th>
 				</tr>
@@ -201,7 +205,7 @@
 		    	onDragStart: function(table, row) {
 		    			filaMovem = row.rowIndex-1;
 				}
-		    });			
+		    });
 		    $("#tascaVariable tr").hover(function() {
 		        $(this.cells[0]).addClass('showDragHandle');
 		    }, function() {
@@ -238,14 +242,20 @@
 				e.stopImmediatePropagation();
 				return false;				
 			});
-		  });			
+		    // Bloqueja les files heretades
+			$("tr", this).each(function(){
+				if ($(this).find("a.herencia").length > 0) {
+					$("input", this).prop('disabled', true);
+				}
+			});		    
+		  });	
 	});
 	
 	/* Actualitza un valor del camp de la tasca. */
 	function updateCheckbox(checkbox) {
 		var variableId = $(checkbox).data('variableid');
 		var propietat = $(checkbox).data('propietat');
-		var getUrl = '<c:url value="/v3/definicioProces/${jbpmKey}/${definicioProcesId}/tasca/${tasca.id}/variable/"/>'+variableId+'/'+propietat;
+		var getUrl = '${baseUrl}/variable/'+variableId+'/'+propietat;
 		var spin = $("#accioUpdateProcessant")
 			.clone()
 			.show()
@@ -292,7 +302,7 @@
 	function updateNumeric(input) {
 		var variableId = $(input).data('variableid');
 		var propietat = $(input).data('propietat');
-		var getUrl = '<c:url value="/v3/definicioProces/${jbpmKey}/${definicioProcesId}/tasca/${tasca.id}/variable/"/>'+variableId+'/'+propietat;
+		var getUrl = '${baseUrl}/variable/'+variableId+'/'+propietat;
 		var spin = $("#accioUpdateProcessant")
 			.clone()
 			.show()
@@ -344,7 +354,7 @@
 	function canviarPosicioTascaVariable( id, pos) {
 	  	// Canvia la ordenació sempre amb ordre ascendent
 		$('#tascaVariable').DataTable().order([6, 'asc']);
-		var getUrl = '<c:url value="/v3/definicioProces/${jbpmKey}/${definicioProcesId}/tasca/${tasca.id}/variable/"/>'+id+'/moure/'+pos;
+		var getUrl = '${baseUrl}/variable/'+id+'/moure/'+pos;
 		$.ajax({
 			type: 'GET',
 			url: getUrl,
@@ -355,6 +365,11 @@
 			error: function(e) {
 				console.log("Error canviant l'ordre: " + e);
 				$('#tascaVariable').webutilDatatable('refresh');
+			},
+			complete: function() {
+				webutilRefreshMissatges();
+				$(spin).remove();
+				$(input).show();
 			}
 		});	
 	}
@@ -376,7 +391,7 @@
 	}
 		
 	function refrescaVariables() {
-		var getUrl = '<c:url value="/v3/definicioProces/${jbpmKey}/${definicioProcesId}/tasca/${tasca.id}/variable/select"/>';
+		var getUrl = '${baseUrl}/variable/select';
 		$.ajax({
 			type: 'GET',
 			url: getUrl,

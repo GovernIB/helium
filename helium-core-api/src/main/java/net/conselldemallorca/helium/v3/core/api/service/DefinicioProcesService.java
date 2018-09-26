@@ -147,7 +147,8 @@ public interface DefinicioProcesService {
 	 */
 	public PaginaDto<TascaDto> tascaFindPerDatatable(
 			Long entornId,
-			Long definicioProcesId,
+			Long expedientTipusId, 
+			Long definicioProcesId, 
 			String filtre, 
 			PaginacioParamsDto paginacioParams) throws NoTrobatException;
 
@@ -161,16 +162,19 @@ public interface DefinicioProcesService {
 	public List<TascaDto> tascaFindAll(Long definicioProcesId);
 	
 	/** 
-	 * Retorna la tasca de la definició de procés donat el seu identificador.
+	 * Retorna la tasca de la definició de procés donat el seu identificador. Té en compte l'herència del tipus d'expedient
+	 * passat com a paràmetre. Si no es passa cap identificador del tipus d'expedient llavors no es mira si la tasca està heretada.
 	 * 
-	 * @param id
+	 * @param expedientTipusId
+	 * @param tascaId 
 	 * 
 	 * @return La tasca de la definició de procés.
 	 * @throws NoTrobatException
 	 *             Si no s'ha trobat el registre amb l'id especificat.
 	 */
 	public TascaDto tascaFindAmbId(
-			Long id) throws NoTrobatException;
+			Long expedientTipusId, 
+			Long tascaId) throws NoTrobatException;
 	
 	/** Recupera la informació de la definició de procés d'una tasca donat el seu id. */
 	public DefinicioProcesDto tascaFindDefinicioProcesDeTasca(Long tascaId);	
@@ -238,6 +242,9 @@ public interface DefinicioProcesService {
 	 * 
 	 * @param tascaId
 	 * 
+	 * @param expedientTipusId
+	 * 			Identificador de l'expedient tipus des del que es fa la consulta per establir si hi ha herència o no.
+	 * 
 	 * @param filtre
 	 *            Text per a filtrar els resultats.
 	 * @param paginacioParams
@@ -248,16 +255,28 @@ public interface DefinicioProcesService {
 	 */
 	public PaginaDto<CampTascaDto> tascaCampFindPerDatatable(
 			Long tascaId,
+			Long expedientTipusId,
 			String filtre, 
 			PaginacioParamsDto paginacioParams) throws NoTrobatException;	
 
+	/**
+	 * Consulta la llista de camps de la tasca tenint en compte l'herència amb l'expedient tipus passat com a paràmetre.
+	 * 
+	 * @param expedientTipusId
+	 * @param tascaId
+	 * @return
+	 */
+	public List<CampTascaDto> tascaCampFindAll(Long expedientTipusId, Long tascaId);
+
+	
 	/** Mou el camp de la tasca amb id de camp cap a la posició indicada reassignant el valor pel camp ordre.
 	 * 
 	 * @param id
+	 * @param expedientTipusId Identificador del tipus d'expedient en el cas que es faci l'operaicó des del tipus d'expedient per tenir en compte l'herència
 	 * @param posicio
 	 * @return Retorna true si ha anat bé o false si no té agrupació o la posició no és correcta.
 	 */
-	public boolean tascaCampMourePosicio(Long id, int posicio);
+	public boolean tascaCampMourePosicio(Long id, Long expedientTipusId, int posicio);
 
 	/** Consulta els camps utilitzats per a una tasca.
 	 * 
@@ -269,13 +288,15 @@ public interface DefinicioProcesService {
 	/** 
 	 * Retorna el camp tasca de la definició de procés donat el seu identificador.
 	 * 
-	 * @param id
+	 * @param expedientTipusId Id de l'expedient tipus pel qual es busca la tasca per establir les propietats d'herència.
+	 * 
+	 * @param campTascaId Id de la tasca a cercar.
 	 * 
 	 * @return El camp tasca de la definició de procés.
 	 * @throws NoTrobatException
 	 *             Si no s'ha trobat el registre amb l'id especificat.
 	 */
-	public CampTascaDto tascaCampFindById(Long campTascaId);
+	public CampTascaDto tascaCampFindById(Long expedientTipusId, Long campTascaId);
 	
 	
 	/**
@@ -326,6 +347,9 @@ public interface DefinicioProcesService {
 	 * 
 	 * @param tascaId
 	 * 
+	 * @param expedientTipusId
+	 * 			Identificador de l'expedient tipus des del que es fa la consulta per establir si hi ha herència o no.
+	 * 
 	 * @param filtre
 	 *            Text per a filtrar els resultats.
 	 * @param paginacioParams
@@ -336,16 +360,28 @@ public interface DefinicioProcesService {
 	 */
 	public PaginaDto<DocumentTascaDto> tascaDocumentFindPerDatatable(
 			Long tascaId,
+			Long expedientTipusId, 
 			String filtre, 
-			PaginacioParamsDto paginacioParams) throws NoTrobatException;	
+			PaginacioParamsDto paginacioParams) throws NoTrobatException;
+	
+	/**
+	 * Consulta la llista de documents de la tasca tenint en compte l'herència amb l'expedient tipus passat com a paràmetre.
+	 * 
+	 * @param expedientTipusId
+	 * @param tascaId
+	 * @return
+	 */
+	public List<DocumentTascaDto> tascaDocumentFindAll(Long expedientTipusId, Long tascaId);
 
+	
 	/** Mou el document de la tasca amb id de document cap a la posició indicada reassignant el valor pel document ordre.
 	 * 
 	 * @param id
+	 * @param expedientTipusId Identificador del tipus d'expedient en el cas que es faci l'operaicó des del tipus d'expedient per tenir en compte l'herència
 	 * @param posicio
 	 * @return Retorna true si ha anat bé o false si no té agrupació o la posició no és correcta.
 	 */
-	public boolean tascaDocumentMourePosicio(Long id, int posicio);
+	public boolean tascaDocumentMourePosicio(Long id, Long expedientTipusId, int posicio);
 
 	/** Consulta els documents utilitzats per a una tasca.
 	 * 
@@ -355,15 +391,20 @@ public interface DefinicioProcesService {
 	public List<DocumentTascaDto> tascaDocumentFindDocumentAmbTascaId(Long tascaId);
 
 	/** 
-	 * Retorna el document tasca de la definició de procés donat el seu identificador.
+	 * Retorna el document tasca de la definició de procés donat el seu identificador. Té en compte l'herència del tipus d'expedient
+	 * passat com a paràmetre. Si no es passa cap identificador del tipus d'expedient llavors no es mira si la tasca està heretada.
 	 * 
-	 * @param id
+	 * @param expedientTipusId
+	 * 
+	 * @param documentTascaId
 	 * 
 	 * @return El document tasca de la definició de procés.
 	 * @throws NoTrobatException
 	 *             Si no s'ha trobat el registre amb l'id especificat.
 	 */
-	public DocumentTascaDto tascaDocumentFindById(Long documentTascaId);
+	public DocumentTascaDto tascaDocumentFindById(
+			Long expedientTipusId, 
+			Long documentTascaId);
 	
 
 	
@@ -415,6 +456,9 @@ public interface DefinicioProcesService {
 	 * 
 	 * @param tascaId
 	 * 
+	 * @param expedientTipusId
+	 * 			Identificador de l'expedient tipus des del que es fa la consulta per establir si hi ha herència o no.
+	 * 
 	 * @param filtre
 	 *            Text per a filtrar els resultats.
 	 * @param paginacioParams
@@ -425,16 +469,27 @@ public interface DefinicioProcesService {
 	 */
 	public PaginaDto<FirmaTascaDto> tascaFirmaFindPerDatatable(
 			Long tascaId,
+			Long expedientTipusId,
 			String filtre, 
 			PaginacioParamsDto paginacioParams) throws NoTrobatException;	
+
+	/**
+	 * Consulta la llista de firmes de la tasca tenint en compte l'herència amb l'expedient tipus passat com a paràmetre.
+	 * 
+	 * @param expedientTipusId
+	 * @param tascaId
+	 * @return
+	 */
+	public List<FirmaTascaDto> tascaFirmaFindAll(Long expedientTipusId, Long tascaId);
 
 	/** Mou la firma de la tasca amb id de firma cap a la posició indicada reassignant el valor per la firma ordre.
 	 * 
 	 * @param id
+	 * @param expedientTipusId Identificador del tipus d'expedient en el cas que es faci l'operaicó des del tipus d'expedient per tenir en compte l'herència
 	 * @param posicio
 	 * @return Retorna true si ha anat bé o false si no té agrupació o la posició no és correcta.
 	 */
-	public boolean tascaFirmaMourePosicio(Long id, int posicio);
+	public boolean tascaFirmaMourePosicio(Long id, Long expedientTipusId, int posicio);
 
 	/** Consulta les firmes utilitzades per a una tasca.
 	 * 
@@ -454,13 +509,15 @@ public interface DefinicioProcesService {
 	/** 
 	 * Retorna la firma tasca de la definició de procés donat el seu identificador.
 	 * 
-	 * @param id
+	 * @param expedientTipusId Id de l'expedient tipus pel qual es busca la tasca per establir les propietats d'herència.
+	 * 
+	 * @param campTascaId Id de la tasca a cercar.
 	 * 
 	 * @return La firma tasca de la definició de procés.
 	 * @throws NoTrobatException
 	 *             Si no s'ha trobat el registre amb l'id especificat.
 	 */
-	public FirmaTascaDto tascaFirmaFindById(Long firmaTascaId);	
+	public FirmaTascaDto tascaFirmaFindById(Long expedientTipusId, Long firmaTascaId);	
 	
 	/**
 	 * Retorna una definicio de procés donat el seu id per a dissenyar.
@@ -521,6 +578,4 @@ public interface DefinicioProcesService {
 	 * @return
 	 */
 	public String consultarStartTaskName(Long definicioProcesId);
-
-
 }

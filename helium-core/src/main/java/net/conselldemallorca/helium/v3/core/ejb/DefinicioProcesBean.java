@@ -102,15 +102,15 @@ public class DefinicioProcesBean implements DefinicioProcesService {
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public PaginaDto<TascaDto> tascaFindPerDatatable(Long entornId, Long definicioProcesId, String filtre,
+	public PaginaDto<TascaDto> tascaFindPerDatatable(Long entornId, Long expedientTipusId, Long definicioProcesId, String filtre,
 			PaginacioParamsDto paginacioParams) throws NoTrobatException {
-		return delegate.tascaFindPerDatatable(entornId, definicioProcesId, filtre, paginacioParams);
+		return delegate.tascaFindPerDatatable(entornId, expedientTipusId, definicioProcesId, filtre, paginacioParams);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public TascaDto tascaFindAmbId(Long id) throws NoTrobatException {
-		return delegate.tascaFindAmbId(id);
+	public TascaDto tascaFindAmbId(Long expedientTipusId, Long tascaId) throws NoTrobatException {
+		return delegate.tascaFindAmbId(expedientTipusId, tascaId);
 	}
 
 	@Override
@@ -151,15 +151,21 @@ public class DefinicioProcesBean implements DefinicioProcesService {
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public PaginaDto<CampTascaDto> tascaCampFindPerDatatable(Long tascaId, String filtre,
+	public PaginaDto<CampTascaDto> tascaCampFindPerDatatable(Long tascaId, Long expedientTipusId, String filtre,
 			PaginacioParamsDto paginacioParams) throws NoTrobatException {
-		return delegate.tascaCampFindPerDatatable(tascaId, filtre, paginacioParams);
+		return delegate.tascaCampFindPerDatatable(tascaId, expedientTipusId, filtre, paginacioParams);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public boolean tascaCampMourePosicio(Long id, int posicio) {
-		return delegate.tascaCampMourePosicio(id, posicio);
+	public List<CampTascaDto> tascaCampFindAll(Long expedientTipusId, Long tascaId) {
+		return delegate.tascaCampFindAll(expedientTipusId, tascaId);
+	}
+	
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public boolean tascaCampMourePosicio(Long id, Long expedientTipusId, int posicio) {
+		return delegate.tascaCampMourePosicio(id, expedientTipusId, posicio);
 	}
 
 	@Override
@@ -170,8 +176,8 @@ public class DefinicioProcesBean implements DefinicioProcesService {
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public CampTascaDto tascaCampFindById(Long campTascaId) {
-		return delegate.tascaCampFindById(campTascaId);
+	public CampTascaDto tascaCampFindById(Long expedientTipusId, Long campTascaId) {
+		return delegate.tascaCampFindById(expedientTipusId, campTascaId);
 	}
 
 	@Override
@@ -196,15 +202,21 @@ public class DefinicioProcesBean implements DefinicioProcesService {
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public PaginaDto<DocumentTascaDto> tascaDocumentFindPerDatatable(Long tascaId, String filtre,
+	public PaginaDto<DocumentTascaDto> tascaDocumentFindPerDatatable(Long tascaId, Long expedientTipusId, String filtre,
 			PaginacioParamsDto paginacioParams) throws NoTrobatException {
-		return delegate.tascaDocumentFindPerDatatable(tascaId, filtre, paginacioParams);
+		return delegate.tascaDocumentFindPerDatatable(tascaId, expedientTipusId, filtre, paginacioParams);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public boolean tascaDocumentMourePosicio(Long id, int posicio) {
-		return delegate.tascaDocumentMourePosicio(id, posicio);
+	public List<DocumentTascaDto> tascaDocumentFindAll(Long expedientTipusId, Long tascaId) {
+		return delegate.tascaDocumentFindAll(expedientTipusId, tascaId);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public boolean tascaDocumentMourePosicio(Long id, Long expedientTipusId, int posicio) {
+		return delegate.tascaDocumentMourePosicio(id, expedientTipusId, posicio);
 	}
 
 	@Override
@@ -215,8 +227,8 @@ public class DefinicioProcesBean implements DefinicioProcesService {
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public DocumentTascaDto tascaDocumentFindById(Long documentTascaId) {
-		return delegate.tascaDocumentFindById(documentTascaId);
+	public DocumentTascaDto tascaDocumentFindById(Long expedientTipusId, Long documentTascaId) {
+		return delegate.tascaDocumentFindById(expedientTipusId, documentTascaId);
 	}
 	
 	@Override
@@ -241,15 +253,21 @@ public class DefinicioProcesBean implements DefinicioProcesService {
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public PaginaDto<FirmaTascaDto> tascaFirmaFindPerDatatable(Long tascaId, String filtre,
+	public PaginaDto<FirmaTascaDto> tascaFirmaFindPerDatatable(Long tascaId, Long expedientTipusId, String filtre,
 			PaginacioParamsDto paginacioParams) throws NoTrobatException {
-		return delegate.tascaFirmaFindPerDatatable(tascaId, filtre, paginacioParams);
+		return delegate.tascaFirmaFindPerDatatable(tascaId, expedientTipusId, filtre, paginacioParams);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public boolean tascaFirmaMourePosicio(Long id, int posicio) {
-		return delegate.tascaFirmaMourePosicio(id, posicio);
+	public List<FirmaTascaDto> tascaFirmaFindAll(Long expedientTipusId, Long tascaId) {
+		return delegate.tascaFirmaFindAll(expedientTipusId, tascaId);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public boolean tascaFirmaMourePosicio(Long id, Long expedientTipusId, int posicio) {
+		return delegate.tascaFirmaMourePosicio(id, expedientTipusId, posicio);
 	}
 
 	@Override
@@ -257,7 +275,7 @@ public class DefinicioProcesBean implements DefinicioProcesService {
 	public List<FirmaTascaDto> tascaFirmaFindAmbTascaId(Long tascaId) {
 		return delegate.tascaFirmaFindAmbTascaId(tascaId);
 	}
-
+	
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public FirmaTascaDto tascaFirmaFindAmbTascaDocument(Long tascaId, Long documentId) {
@@ -266,8 +284,8 @@ public class DefinicioProcesBean implements DefinicioProcesService {
 	
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public FirmaTascaDto tascaFirmaFindById(Long firmaTascaId) {
-		return delegate.tascaFirmaFindById(firmaTascaId);
+	public FirmaTascaDto tascaFirmaFindById(Long expedientTipusId, Long campTascaId) {
+		return delegate.tascaFirmaFindById(expedientTipusId, campTascaId);
 	}
 
 	@Override

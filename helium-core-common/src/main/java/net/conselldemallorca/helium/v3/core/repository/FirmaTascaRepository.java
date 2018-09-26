@@ -11,6 +11,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.hibernate.FirmaTasca;
 
 /**
@@ -45,11 +46,24 @@ public interface FirmaTascaRepository extends JpaRepository<FirmaTasca, Long> {
 			@Param("jbpmName") String name,
 			@Param("jbpmId") String jbpmId);
 	
+	/** Consulta les firmes de la tasca.
+	 * 
+	 * @param tascaId Identificador de la tasca.
+	 * @param expedientTipusId Si s'informa llavors es filtren els camps que estiguin relacionats amb aquest tipus d'expedient.
+	 * @return
+	 */
 	@Query("from FirmaTasca ft " +
 			"where ft.tasca.id=:tascaId " +
+					// Propis
+			"   and ( (ft.expedientTipus.id = :expedientTipusId or (ft.expedientTipus is null and ft.tasca.definicioProces.expedientTipus.id = :expedientTipusId)  ) " +
+			"			or " +
+					// Heretats
+			" 		  (ft.expedientTipus is null and ft.tasca.definicioProces.expedientTipus.id = (select etp.expedientTipusPare.id from ExpedientTipus etp where etp.id = :expedientTipusId)) " +
+			"       ) " +
 			"order by ft.order")
 	public List<FirmaTasca> findAmbTascaIdOrdenats(
-			@Param("tascaId") Long tascaId);	
+			@Param("tascaId") Long tascaId,
+			@Param("expedientTipusId") Long expedientTipusId);	
 
 	@Query("select count(ft) from " +
 			"    FirmaTasca ft " +
@@ -70,9 +84,16 @@ public interface FirmaTascaRepository extends JpaRepository<FirmaTasca, Long> {
 	@Query(	"from FirmaTasca ft " +
 			"where " +
 			"   ft.tasca.id = :tascaId " +
+					// Propis
+			"   and ( (ft.expedientTipus.id = :expedientTipusId or (ft.expedientTipus is null and ft.tasca.definicioProces.expedientTipus.id = :expedientTipusId)  ) " +
+			"			or " +
+					// Heretats
+			" 		  (ft.expedientTipus is null and ft.tasca.definicioProces.expedientTipus.id = (select etp.expedientTipusPare.id from ExpedientTipus etp where etp.id = :expedientTipusId)) " +
+			"       ) " +
 			"	and (:esNullFiltre = true or lower(ft.document.codi) like lower('%'||:filtre||'%') or lower(ft.document.nom) like lower('%'||:filtre||'%')) ")
 	public Page<FirmaTasca> findByFiltrePaginat(
 			@Param("tascaId") Long tascaId,
+			@Param("expedientTipusId") Long expedientTipusId, 
 			@Param("esNullFiltre") boolean esNullFiltre,
 			@Param("filtre") String filtre,
 			Pageable pageable);
@@ -82,5 +103,8 @@ public interface FirmaTascaRepository extends JpaRepository<FirmaTasca, Long> {
 			"where ft.tasca.id = :tascaId " +
 			"order by ft.order asc ")
 	List<FirmaTasca> findFirmesTasca(
-			@Param("tascaId") Long tascaId);	
+			@Param("tascaId") Long tascaId);
+
+	/** Troba totes les firmes relacionades amb l'expedient tipus. */
+	public List<FirmaTasca> findAllByExpedientTipus(ExpedientTipus expedientTipus);
 }

@@ -61,6 +61,11 @@ public class ExpedientTipusExportarCommand {
 	private List<String> consultes;
 	private MultipartFile file;
 	
+	/** Indica el codi de l'expedient tipus pare del qual hereta */
+	private String expedientTipusPare;
+	/** Indica si exportar les dades de relación amb tasques heretades i variables*/
+	private boolean tasquesHerencia;
+	
 	public ExpedientTipusExportarCommand() {
 		this.estats = new ArrayList<String>();
 		this.variables = new ArrayList<String>();
@@ -203,15 +208,26 @@ public class ExpedientTipusExportarCommand {
 	public void setConsultes(List<String> consultes) {
 		this.consultes = consultes;
 	}
-
 	public MultipartFile getFile() {
 		return file;
 	}
-
 	public void setFile(MultipartFile file) {
 		this.file = file;
 	}
-	
+	public boolean isTasquesHerencia() {
+		return tasquesHerencia;
+	}
+	public void setTasquesHerencia(boolean tasquesHerencia) {
+		this.tasquesHerencia = tasquesHerencia;
+	}
+
+	public String getExpedientTipusPare() {
+		return expedientTipusPare;
+	}
+
+	public void setExpedientTipusPare(String expedientTipusPare) {
+		this.expedientTipusPare = expedientTipusPare;
+	}
 
 	/** Serveix per guardar el resultat del processament del fitxer després de la validació
 	 * del POST de la comanda d'importació per no haver de processar el fitxer dues vegades.

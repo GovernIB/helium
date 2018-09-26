@@ -46,6 +46,7 @@ import net.conselldemallorca.helium.core.model.hibernate.Camp;
 import net.conselldemallorca.helium.core.model.hibernate.Camp.TipusCamp;
 import net.conselldemallorca.helium.core.model.hibernate.CampAgrupacio;
 import net.conselldemallorca.helium.core.model.hibernate.CampRegistre;
+import net.conselldemallorca.helium.core.model.hibernate.CampTasca;
 import net.conselldemallorca.helium.core.model.hibernate.Consulta;
 import net.conselldemallorca.helium.core.model.hibernate.ConsultaCamp;
 import net.conselldemallorca.helium.core.model.hibernate.ConsultaCamp.TipusParamConsultaCamp;
@@ -104,6 +105,7 @@ import net.conselldemallorca.helium.v3.core.api.exportacio.ExpedientTipusExporta
 import net.conselldemallorca.helium.v3.core.api.exportacio.ExpedientTipusExportacioCommandDto;
 import net.conselldemallorca.helium.v3.core.api.exportacio.MapeigSistraExportacio;
 import net.conselldemallorca.helium.v3.core.api.exportacio.RegistreMembreExportacio;
+import net.conselldemallorca.helium.v3.core.api.exportacio.TascaExportacio;
 import net.conselldemallorca.helium.v3.core.api.exportacio.TerminiExportacio;
 import net.conselldemallorca.helium.v3.core.api.exportacio.ValidacioExportacio;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientTipusService;
@@ -111,16 +113,19 @@ import net.conselldemallorca.helium.v3.core.repository.AccioRepository;
 import net.conselldemallorca.helium.v3.core.repository.CampAgrupacioRepository;
 import net.conselldemallorca.helium.v3.core.repository.CampRegistreRepository;
 import net.conselldemallorca.helium.v3.core.repository.CampRepository;
+import net.conselldemallorca.helium.v3.core.repository.CampTascaRepository;
 import net.conselldemallorca.helium.v3.core.repository.CampValidacioRepository;
 import net.conselldemallorca.helium.v3.core.repository.ConsultaCampRepository;
 import net.conselldemallorca.helium.v3.core.repository.ConsultaRepository;
 import net.conselldemallorca.helium.v3.core.repository.DefinicioProcesRepository;
 import net.conselldemallorca.helium.v3.core.repository.DocumentRepository;
+import net.conselldemallorca.helium.v3.core.repository.DocumentTascaRepository;
 import net.conselldemallorca.helium.v3.core.repository.DominiRepository;
 import net.conselldemallorca.helium.v3.core.repository.EnumeracioRepository;
 import net.conselldemallorca.helium.v3.core.repository.EnumeracioValorsRepository;
 import net.conselldemallorca.helium.v3.core.repository.EstatRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientTipusRepository;
+import net.conselldemallorca.helium.v3.core.repository.FirmaTascaRepository;
 import net.conselldemallorca.helium.v3.core.repository.MapeigSistraRepository;
 import net.conselldemallorca.helium.v3.core.repository.ReassignacioRepository;
 import net.conselldemallorca.helium.v3.core.repository.SequenciaAnyRepository;
@@ -174,6 +179,12 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 	private EstatRepository estatRepository;
 	@Resource
 	private MapeigSistraRepository mapeigSistraRepository;
+	@Resource
+	private CampTascaRepository campTascaRepository;
+	@Resource
+	private DocumentTascaRepository documentTascaRepository;
+	@Resource
+	private FirmaTascaRepository firmaTascaRepository;
 
 	@Resource
 	private ExpedientHelper expedientHelper;
@@ -424,6 +435,12 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 				true);
 		ExpedientTipus entity = expedientTipusRepository.findOne(expedientTipusId);
 		
+		// Esborra primmer tots el camps de tasques
+		for (CampTasca ct :	campTascaRepository.findAllByExpedientTipus(entity)) {
+			ct.getCamp().removeCampTasca(ct);
+			campTascaRepository.delete(ct);
+			campTascaRepository.flush();
+		}		
 		expedientTipusRepository.delete(entity);
 	}
 
@@ -730,7 +747,11 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 					}
 				}
 		}	
-
+		
+		// Herència
+		
+		exportacio.setHerenciaTasques(definicioProcesHelper.getHerenciaTasques(tipus));
+		
 		return exportacio;
 	}	
 	
@@ -757,6 +778,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		// Dades del tipus d'expedient
 		boolean expedientTipusExisteix = expedientTipusId != null;
 		ExpedientTipus expedientTipus;
+		ExpedientTipus expedientTipusPare = null;
 		if (!expedientTipusExisteix) {
 			// Nou tipus d'expedient
 			expedientTipus = new ExpedientTipus();
@@ -794,8 +816,10 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 			expedientTipus.setReindexacioAsincrona(importacio.isReindexacioAsincrona());
 			expedientTipus.setTramitacioMassiva(importacio.isTramitacioMassiva());
 			expedientTipus.setHeretable(importacio.isHeretable());
-			if (importacio.getExpedientTipusPareCodi() !=  null)
-				expedientTipus.setExpedientTipusPare(expedientTipusRepository.findByEntornAndCodi(entorn, importacio.getExpedientTipusPareCodi()));
+			if (importacio.getExpedientTipusPareCodi() !=  null) {
+				expedientTipusPare = expedientTipusRepository.findByEntornAndCodi(entorn, importacio.getExpedientTipusPareCodi());
+				expedientTipus.setExpedientTipusPare(expedientTipusPare);
+			}
 			if (importacio.isReiniciarCadaAny()) {
 				Collection<SequenciaAnyDto> sequencies = importacio.getSequenciaAny().values();
 				for (SequenciaAnyDto sequencia : sequencies) {
@@ -1322,6 +1346,22 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 			campExportat = campsTipusConsulta.get(campConsulta);
 			if (consultes.containsKey(campExportat.getCodiConsulta()))
 				campConsulta.setConsulta(consultes.get(campExportat.getCodiConsulta()));
+		}
+		
+		
+		if (expedientTipusPare != null) {
+			// Herencia
+			List<TascaExportacio> tasquesExportacio;
+			// Informacó de les tasques
+			for ( String definicioProcesJbpmkey : importacio.getHerenciaTasques().keySet()) {
+				// S'han de relacionar els camps, documents i firmes indicats amb la informació inclosa
+				tasquesExportacio = importacio.getHerenciaTasques().get(definicioProcesJbpmkey);
+				definicioProcesHelper.importarTascaHerencia(
+						expedientTipus,
+						expedientTipusPare,
+						definicioProcesJbpmkey, 
+						tasquesExportacio);
+			}
 		}
 
 		return conversioTipusHelper.convertir(

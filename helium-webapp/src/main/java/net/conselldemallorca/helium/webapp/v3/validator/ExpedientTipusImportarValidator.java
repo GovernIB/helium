@@ -208,8 +208,9 @@ public class ExpedientTipusImportarValidator implements ConstraintValidator<Expe
 			// Expedient tipus pare del qual hereta
 			boolean herencia = false;
 			Long expedientTipusPareId = null;
+			ExpedientTipusDto expedientTipusPare = null;
 			if (exportacio.getExpedientTipusPareCodi() != null) {
-				ExpedientTipusDto expedientTipusPare = expedientTipusService.findAmbCodiPerValidarRepeticio(
+				expedientTipusPare = expedientTipusService.findAmbCodiPerValidarRepeticio(
 						entornActual.getId(), 
 						exportacio.getExpedientTipusPareCodi());
 				if (expedientTipusPare == null) {
@@ -226,6 +227,7 @@ public class ExpedientTipusImportarValidator implements ConstraintValidator<Expe
 			// Definició de procés inicial
 			if (expedientTipus == null
 					&& exportacio.getJbpmProcessDefinitionKey() != null
+					&& !herencia
 					&& ! command.getDefinicionsProces().contains(exportacio.getJbpmProcessDefinitionKey())) {
 				context.buildConstraintViolationWithTemplate(
 						MessageHelper.getInstance().getMessage(
@@ -657,6 +659,49 @@ public class ExpedientTipusImportarValidator implements ConstraintValidator<Expe
 								}						
 				}		
 			}		
+			
+			// Herència
+			
+			// Comprova les dades associades a tasques heretades
+			if (herencia && expedientTipusPare != null) {
+				// Consulta totes les definicions de procés del pare
+				Map<String, DefinicioProcesDto> definicionsProcesPareMap = new HashMap<String, DefinicioProcesDto>();
+				for (DefinicioProcesDto dp : definicioProcesService.findAll(entornActual.getId(), 
+																			expedientTipusPareId, 
+																			false)) {
+					definicionsProcesPareMap.put(dp.getJbpmKey(), dp);
+				}
+				List<TascaExportacio> tasquesExportacio;
+				DefinicioProcesDto definicioProcesPare;
+				for (String definicioProcesJbpmkey : exportacio.getHerenciaTasques().keySet()) {
+					// Comprova que la definició de procés existeix
+					if (!definicionsProcesPareMap.containsKey(definicioProcesJbpmkey)) {
+						context.buildConstraintViolationWithTemplate(
+								MessageHelper.getInstance().getMessage(
+										this.codiMissatge + ".herencia.tasca.definicio.no.trobada", 
+										new Object[] {	definicioProcesJbpmkey}))
+						.addNode("tasquesHerencia")
+						.addConstraintViolation();
+						valid = false;
+					}
+					definicioProcesPare = definicionsProcesPareMap.get(definicioProcesJbpmkey);
+					tasquesExportacio = exportacio.getHerenciaTasques().get(definicioProcesJbpmkey);
+					// Per cada tasca de l'exportació valida que les variables o els documents estiguin al tipus d'expedient
+					// del pare
+					for (TascaExportacio tascaExportacio : tasquesExportacio) {
+						for (CampTascaExportacio campTascaExportacio : tascaExportacio.getCamps()) {
+							// TODO: comprovar que es pot afegir la relació amb la variable pertinent
+						}
+						for (DocumentTascaExportacio documentTascaExportacio : tascaExportacio.getDocuments()) {
+							// TODO: comprovar que es pot afegir la relació amb el document pertinent
+						}
+						for (FirmaTascaExportacio firmaTascaExportacio : tascaExportacio.getFirmes()) {
+							// TODO: comprovar que es pot afegir la relació amb el document pertinent
+						}
+					}
+				}
+			}
+			
 		}
 		if (!valid)
 			context.disableDefaultConstraintViolation();

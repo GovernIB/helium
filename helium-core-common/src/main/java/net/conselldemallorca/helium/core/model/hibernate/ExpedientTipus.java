@@ -48,7 +48,8 @@ import org.springmodules.validation.bean.conf.loader.annotation.handler.NotNull;
 		uniqueConstraints={@UniqueConstraint(columnNames={"codi", "entorn_id"})})
 @org.hibernate.annotations.Table(
 		appliesTo = "hel_expedient_tipus",
-		indexes = @Index(name = "hel_exptip_entorn_i", columnNames = {"entorn_id"}))
+		indexes = {	@Index(name = "hel_exptip_entorn_i", columnNames = {"entorn_id"}),
+					@Index(name = "hel_exptip_pare_i", columnNames = {"expedient_tipus_pare_id"})})
 public class ExpedientTipus  implements Serializable, GenericEntity<Long> {
 
 	private Long id;

@@ -35,7 +35,8 @@ import org.springmodules.validation.bean.conf.loader.annotation.handler.NotNull;
 		appliesTo = "hel_document_tasca",
 		indexes = {
 				@Index(name = "hel_doctasca_document_i", columnNames = {"document_id"}),
-				@Index(name = "hel_doctasca_tasca_i", columnNames = {"tasca_id"})})
+				@Index(name = "hel_doctasca_tasca_i", columnNames = {"tasca_id"}),
+				@Index(name = "hel_doctasca_extip_i", columnNames = {"expedient_tipus_id"})})
 public class DocumentTasca implements Serializable, GenericEntity<Long> {
 
 	private Long id;
@@ -48,6 +49,9 @@ public class DocumentTasca implements Serializable, GenericEntity<Long> {
 	private Document document;
 	@NotNull
 	private Tasca tasca;
+	
+	/** Aquest valor només s'informa quan es relaciona un document amb una tasca heretada pel tipus d'expedient. */
+	private ExpedientTipus expedientTipus;
 
 
 
@@ -120,6 +124,15 @@ public class DocumentTasca implements Serializable, GenericEntity<Long> {
 		this.tasca = tasca;
 	}
 
+	@ManyToOne(optional=true, fetch=FetchType.EAGER)
+	@JoinColumn(name="expedient_tipus_id")
+	@ForeignKey(name="hel_extipus_doctasca_fk")
+	public ExpedientTipus getExpedientTipus() {
+		return expedientTipus;
+	}
+	public void setExpedientTipus(ExpedientTipus expedientTipus) {
+		this.expedientTipus = expedientTipus;
+	}
 
 
 	@Override

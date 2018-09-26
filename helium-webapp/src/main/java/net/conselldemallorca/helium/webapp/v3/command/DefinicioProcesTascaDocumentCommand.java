@@ -21,6 +21,7 @@ public class DefinicioProcesTascaDocumentCommand {
 	private Long documentId;
 	private boolean required;
 	private boolean readOnly;
+	private Long expedientTipusId;
 	
 	public Long getTascaId() {
 		return tascaId;
@@ -46,6 +47,12 @@ public class DefinicioProcesTascaDocumentCommand {
 	public void setReadOnly(boolean readOnly) {
 		this.readOnly = readOnly;
 	}
+	public Long getExpedientTipusId() {
+		return expedientTipusId;
+	}
+	public void setExpedientTipusId(Long expedientTipusId) {
+		this.expedientTipusId = expedientTipusId;
+	}
 	public static DocumentTascaDto asDocumentTascaDto(DefinicioProcesTascaDocumentCommand command) {
 		DocumentTascaDto dto = new DocumentTascaDto();
 		DocumentDto document = new DocumentDto();
@@ -53,6 +60,7 @@ public class DefinicioProcesTascaDocumentCommand {
 		dto.setDocument(document);
 		dto.setRequired(command.isRequired());
 		dto.setReadOnly(command.isReadOnly());
+		dto.setExpedientTipusId(command.getExpedientTipusId());
 		return dto;
 	}	
 	public interface Creacio {}

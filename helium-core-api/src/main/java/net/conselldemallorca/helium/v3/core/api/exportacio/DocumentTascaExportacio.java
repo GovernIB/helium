@@ -21,6 +21,8 @@ public class DocumentTascaExportacio implements Serializable {
 	private int order;
 	/** Indica si el camp està lligat al tipus d'expedient.*/
 	private boolean tipusExpedient;
+	/** Indica si el doucment està heretat pel tipus d'expedient. */
+	private boolean documentHeretat;
 
 
 
@@ -29,12 +31,14 @@ public class DocumentTascaExportacio implements Serializable {
 			boolean required,
 			boolean readOnly,
 			int order,
-			boolean tipusExpedient) {
+			boolean tipusExpedient,
+			boolean documentHeretat) {
 		this.documentCodi = documentCodi;
 		this.required = required;
 		this.readOnly = readOnly;
 		this.order = order;
 		this.tipusExpedient = tipusExpedient;
+		this.documentHeretat = documentHeretat;
 	}
 
 	public String getDocumentCodi() {
@@ -61,9 +65,6 @@ public class DocumentTascaExportacio implements Serializable {
 	public void setOrder(int order) {
 		this.order = order;
 	}
-
-
-
 	public boolean isTipusExpedient() {
 		return tipusExpedient;
 	}
@@ -71,9 +72,12 @@ public class DocumentTascaExportacio implements Serializable {
 	public void setTipusExpedient(boolean tipusExpedient) {
 		this.tipusExpedient = tipusExpedient;
 	}
-
-
-
+	public boolean isDocumentHeretat() {
+		return documentHeretat;
+	}
+	public void setDocumentHeretat(boolean documentHeretat) {
+		this.documentHeretat = documentHeretat;
+	}
 	private static final long serialVersionUID = 1L;
 
 }

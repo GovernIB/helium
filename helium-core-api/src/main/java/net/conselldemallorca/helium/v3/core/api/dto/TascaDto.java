@@ -3,6 +3,7 @@
  */
 package net.conselldemallorca.helium.v3.core.api.dto;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,8 +12,10 @@ import java.util.List;
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
-public class TascaDto {
+public class TascaDto extends HeretableDto implements Serializable {
 	
+	private static final long serialVersionUID = 3685209683973264851L;
+
 	public enum TipusTascaDto {
 		ESTAT,
 		FORM,
@@ -20,7 +23,7 @@ public class TascaDto {
 	}
 	private Long id;
 	private String nom;
-	
+	private Long definicioProcesId;
 	private TipusTascaDto tipus;
 	private String missatgeInfo;
 	private String missatgeWarn;
@@ -36,6 +39,7 @@ public class TascaDto {
 	private List<DocumentTascaDto> documents = new ArrayList<DocumentTascaDto>();
 	private List<FirmaTascaDto> firmes = new ArrayList<FirmaTascaDto>();
 	
+	
 	/** Atribut que indica si la tasca és inicial. S'ha de fixar manualment aquest valor a les cerques. */
 	private boolean inicial;
 	
@@ -50,6 +54,12 @@ public class TascaDto {
 	}
 	public void setNom(String nom) {
 		this.nom = nom;
+	}
+	public Long getDefinicioProcesId() {
+		return definicioProcesId;
+	}
+	public void setDefinicioProcesId(Long definicioProcesId) {
+		this.definicioProcesId = definicioProcesId;
 	}
 	public TipusTascaDto getTipus() {
 		return tipus;

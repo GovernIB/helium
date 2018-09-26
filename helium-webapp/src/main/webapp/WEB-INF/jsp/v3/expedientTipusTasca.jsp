@@ -32,8 +32,11 @@
 		
 		<form class="well">
 			<div class="row">
-				<div class="col-sm-10">
-					<hel:inputSelect required="false" emptyOption="false" name="definicions" textKey="expedient.tipus.tasca.llistat.definicio.seleccionada" optionItems="${definicions}" optionValueAttribute="codi" optionTextAttribute="valor"/>
+				<div class="col-sm-6">
+					<hel:inputSelect required="false" emptyOption="true" name="definicions" textKey="expedient.tipus.tasca.llistat.definicio.seleccionada" labelSize="4" optionItems="${definicions}" optionValueAttribute="codi" optionTextAttribute="valor"/>
+				</div>
+				<div class="col-sm-6">
+					<hel:inputSelect required="false" emptyOption="true" name="versions" textKey="expedient.tipus.tasca.llistat.versio.seleccionada" optionItems="${versions}" optionValueAttribute="codi" optionTextAttribute="valor"/>
 				</div>
 			</div>
 		</form>
@@ -45,7 +48,7 @@
 				data-paging-enabled="true"
 				data-info-type="search+button"
 				data-ordering="true"
-				data-default-order="3"
+				data-default-order="2"
 				data-length-menu='[[10,25,50,-1],["10","25","50","<spring:message code="comu.totes"/>"]]'
 				data-rowhref-toggle="modal"
 				data-rowhref-template="#rowhrefTemplateTasques" 
@@ -53,17 +56,16 @@
 			<thead>
 				<tr>
 					<th data-col-name="id" data-visible="false"/>
-					<th data-col-name="jbpmName" width="20%"><spring:message code="definicio.proces.tasca.llistat.columna.codi"/></th>
 					<th data-col-name="jbpmName" width="20%" data-template="#cellExpedientTipusTascaJbpmKeyTemplate">
 					<spring:message code="expedient.tipus.camp.llistat.columna.codi"/>
 						<script id="cellExpedientTipusTascaJbpmKeyTemplate" type="text/x-jsrender">
 								{{if heretat }}
 									<span class="dada-heretada">{{:jbpmName}}</span> 
-									<span class="label label-primary herencia" title="<spring:message code="expedient.tipus.camp.llistat.codi.heretat"/>">R</span>
+									<span class="label label-primary herencia" title="<spring:message code="expedient.tipus.tasca.llistat.codi.heretat"/>">R</span>
 								{{else}}
 									{{:jbpmName}}
 									{{if sobreescriu }}
-										<span class="label label-warning herencia" title="<spring:message code="expedient.tipus.camp.llistat.codi.sobreescriu"/>">S</span>
+										<span class="label label-warning herencia" title="<spring:message code="expedient.tipus.tasca.llistat.codi.sobreescriu"/>">S</span>
 									{{/if}}
 								{{/if}}
 						</script>
@@ -81,30 +83,33 @@
 					</th>
 					<th data-col-name="campsCount" data-template="#cellFirmesTemplate" data-orderable="false" width="13%">
 						<script id="cellFirmesTemplate" type="text/x-jsrender">
-							<a href="/helium/v3/definicioProces/${jbpmKey}/${definicioProcesId}/tasca/{{:id}}/variable" data-maximized="true" data-toggle="modal" data-callback="callbackModalTasques()" class="btn btn-default"><spring:message code="definicio.proces.tasca.llistat.accio.variables"/>&nbsp;<span class="badge">{{:campsCount}}</span></a>
+							<a href="${baseUrl}/tasca/{{:id}}/variable" data-maximized="true" data-toggle="modal" data-callback="callbackModalTasques()" class="btn btn-default"><spring:message code="definicio.proces.tasca.llistat.accio.variables"/>&nbsp;<span class="badge">{{:campsCount}}</span></a>
 						</script>
 					</th>
 					<th data-col-name="documentsCount" data-template="#cellDocumentsTemplate" data-orderable="false" width="13%">
 						<script id="cellDocumentsTemplate" type="text/x-jsrender">
-							<a href="/helium/v3/definicioProces/${jbpmKey}/${definicioProcesId}/tasca/{{:id}}/document" data-toggle="modal" data-callback="callbackModalTasques()" class="btn btn-default"><spring:message code="definicio.proces.tasca.llistat.accio.documents"/>&nbsp;<span class="badge">{{:documentsCount}}</span></a>
+							<a href="${baseUrl}/tasca/{{:id}}/document" data-toggle="modal" data-callback="callbackModalTasques()" class="btn btn-default"><spring:message code="definicio.proces.tasca.llistat.accio.documents"/>&nbsp;<span class="badge">{{:documentsCount}}</span></a>
 						</script>
 					</th>
 					<th data-col-name="firmesCount" data-template="#cellSignaturesTemplate" data-orderable="false" width="13%">
 						<script id="cellSignaturesTemplate" type="text/x-jsrender">
-							<a href="/helium/v3/definicioProces/${jbpmKey}/${definicioProcesId}/tasca/{{:id}}/firma" data-toggle="modal" data-callback="callbackModalTasques()" class="btn btn-default"><spring:message code="definicio.proces.tasca.llistat.accio.signatures"/>&nbsp;<span class="badge">{{:firmesCount}}</span></a>
+							<a href="${baseUrl}/tasca/{{:id}}/firma" data-toggle="modal" data-callback="callbackModalTasques()" class="btn btn-default"><spring:message code="definicio.proces.tasca.llistat.accio.signatures"/>&nbsp;<span class="badge">{{:firmesCount}}</span></a>
 						</script>
 					</th>
 					<th data-col-name="id" data-template="#cellAccionsTascaTemplate" data-orderable="false" width="10%">
 						<script id="cellAccionsTascaTemplate" type="text/x-jsrender">
-							<a class="btn btn-default" data-toggle="modal" data-callback="callbackModalTasques()" href="/helium/v3/definicioProces/${jbpmKey}/${definicioProcesId}/tasca/{{:id}}/update"><span class="fa fa-pencil"></span>&nbsp;<spring:message code="comu.boto.modificar"/></a>
-						</script>
+							{{if heretat }}
+								<a class="btn btn-default" data-toggle="modal" data-callback="callbackModalTasques()" href="${baseUrl}/tasca/{{:id}}/update"><span class="fa fa-search"></span>&nbsp;<spring:message code="comu.boto.visualitzar"/></a>
+							{{else}}
+								<a class="btn btn-default" data-toggle="modal" data-callback="callbackModalTasques()" href="${baseUrl}/tasca/{{:id}}/update"><span class="fa fa-pencil"></span>&nbsp;<spring:message code="comu.boto.modificar"/></a>
+							{{/if}}
+					</script>
 					</th>
-					<th data-col-name="sobreescriu" data-visible="false"/>
 					<th data-col-name="heretat" data-visible="false"/>
 				</tr>
 			</thead>
 		</table>
-		<script id="rowhrefTemplateTasca" type="text/x-jsrender">${baseUrl}/tasca/{{:id}}/update</script>	
+		<script id="rowhrefTemplateTasques" type="text/x-jsrender">${baseUrl}/tasca/{{:id}}/update</script>	
 	</c:when>
 	<c:otherwise>
 		<div class="well well-small"><spring:message code='expedient.dada.expedient.cap'/></div>
@@ -137,8 +142,13 @@ $(document).ready(function() {
 	
 	// Canvi en la selecció de les definicions
 	$('#definicions').change(function() {
+		refrescaVersions();
+	});
+	// Quan se selecciona una versió de la definicó de procés
+	$('#versions').change(function() {
 		refrescaTaula();
 	});
+
 	// Afegeix format si l'item de la agrupació està heretat
 	$('#definicions').select2({
         formatResult: formatDefinicioSelectHerencia,
@@ -149,18 +159,42 @@ $(document).ready(function() {
 	$('#expedientTipusTasca').on('draw.dt', function() {
 		// Refresca els missatges
 		webutilRefreshMissatges();
-	  });		
+  	});		
 });
 
 
 function refrescaTaula() {
-	var definicioId = $("#definicions").val();
-	$('#expedientTipusTasca').webutilDatatable('refresh-url', '${baseUrl}/tasca/datatable?definicioId='+definicioId);		
+	var definicioProcesId = $("#versions").val();
+	$('#expedientTipusTasca').webutilDatatable('refresh-url', '${baseUrl}/tasca/datatable?definicioProcesId='+definicioProcesId);		
 }
 
 function callbackModalTasques() {
 	refrescaTaula();
 }
+
+function refrescaVersions() {
+	var definicioProcesId = $("#definicions").val();
+	var getUrl = '${baseUrl}/definicio/' + definicioProcesId + '/versions/select';
+	$.ajax({
+		type: 'GET',
+		url: getUrl,
+		async: true,
+		success: function(data) {
+			$("#versions option").each(function(){
+			    $(this).remove();
+			});
+			$("#versions").append($("<option/>"));
+			for (i = 0; i < data.length; i++) {
+				$("#versions").append($("<option/>", {value: data[i].codi, text: data[i].valor}));
+			}
+			$("#versions").val('').change();
+		},
+		error: function(e) {
+			console.log("Error obtenint les versions de les definicions de procés per l' id " + definicioProcesId + ": " + e);
+		}
+	});
+}	
+
 
 
 // ]]>

@@ -798,7 +798,8 @@ public class DefinicioProcesHelper {
 									camp.getOrder(),
 									camp.getAmpleCols(),
 									camp.getBuitCols(),
-									camp.getCamp().getExpedientTipus() != null));
+									camp.getCamp().getExpedientTipus() != null,
+									definicio.getExpedientTipus() != null && definicio.getExpedientTipus().equals(camp.getExpedientTipus())));
 					}
 					// Afegeix els documents de la tasca
 					for (DocumentTasca document: tasca.getDocuments()) {
@@ -808,7 +809,8 @@ public class DefinicioProcesHelper {
 										document.isRequired(),
 										document.isReadOnly(),
 										document.getOrder(),
-										document.getDocument().getExpedientTipus() != null));
+										document.getDocument().getExpedientTipus() != null,
+										definicio.getExpedientTipus() != null && definicio.getExpedientTipus().equals(document.getExpedientTipus())));
 					}
 					// Afegeix les signatures de la tasca
 					for (FirmaTasca firma: tasca.getFirmes()) {
@@ -817,7 +819,8 @@ public class DefinicioProcesHelper {
 										firma.getDocument().getCodi(),
 										firma.isRequired(),
 										firma.getOrder(),
-										firma.getDocument().getExpedientTipus() != null));
+										firma.getDocument().getExpedientTipus() != null,
+										definicio.getExpedientTipus() != null && definicio.getExpedientTipus().equals(firma.getExpedientTipus())));
 					}
 					// Afegeix les validacions de la tasca
 					for (Validacio validacio: tasca.getValidacions()) {
@@ -1255,5 +1258,283 @@ public class DefinicioProcesHelper {
 		return new ArrayList<DefinicioProces>(definicionsProces.values());
 	}
 
+	/** Mètode per retornar una mapeig de definicions de procés i informació de tasques heretada pel tipus d'expedient
+	 * passat com a paràmetre-
+	 * 
+	 * @param tipus
+	 * @return
+	 */
+	@Transactional(readOnly = true)
+	public Map<String, List<TascaExportacio>> getHerenciaTasques(ExpedientTipus expedientTipus) {
+		
+		Map<String, List<TascaExportacio>> herenciaTasques = new HashMap<String, List<TascaExportacio>>();
+		if (expedientTipus.getExpedientTipusPare() != null) {
+			// Per guardar les darreres tasques per ID
+			Map<Long, TascaExportacio> tascaMap = new HashMap<Long, TascaExportacio>();
+			TascaExportacio tascaExportacio;
+			// Troba tots els camps de tasca associats al tipus d'expedient
+			for (CampTasca campTasca : campTascaRepository.findAllByExpedientTipus(expedientTipus)) {
+				if (isTascaHeretada(campTasca.getTasca(), expedientTipus)) {
+					// Afegeix tots els camps que calguin
+					tascaExportacio = this.getHerenciaTascaExportacio(tascaMap, herenciaTasques, campTasca.getTasca());
+					tascaExportacio.addCamp(new CampTascaExportacio(
+													campTasca.getCamp().getCodi(),
+													campTasca.isReadFrom(),
+													campTasca.isWriteTo(),
+													campTasca.isRequired(),
+													campTasca.isReadOnly(),
+													campTasca.getOrder(),
+													campTasca.getAmpleCols(),
+													campTasca.getBuitCols(),
+													true,
+													campTasca.getCamp().getExpedientTipus().getId().equals(expedientTipus.getId())));
+				}
+			}
+			// Troba tots els documents de tasca assocats al tipus d'expedient
+			for (DocumentTasca documentTasca : documentTascaRepository.findAllByExpedientTipus(expedientTipus)) {
+				if (isTascaHeretada(documentTasca.getTasca(), expedientTipus)) {
+					// Afegeix tots els camps que calguin
+					tascaExportacio = this.getHerenciaTascaExportacio(tascaMap, herenciaTasques, documentTasca.getTasca());
+					tascaExportacio.addDocument(new DocumentTascaExportacio(
+													documentTasca.getDocument().getCodi(),
+													documentTasca.isRequired(),
+													documentTasca.isReadOnly(),
+													documentTasca.getOrder(),
+													true,
+													documentTasca.getDocument().getExpedientTipus().getId().equals(expedientTipus.getId())));
+				}
+			}
+			// Troba totes les firmes associades al tipus d'expedient
+			for (FirmaTasca firmaTasca : firmaTascaRepository.findAllByExpedientTipus(expedientTipus)) {
+				if (isTascaHeretada(firmaTasca.getTasca(), expedientTipus)) {
+					// Afegeix tots els camps que calguin
+					tascaExportacio = this.getHerenciaTascaExportacio(tascaMap, herenciaTasques, firmaTasca.getTasca());
+					tascaExportacio.addFirma(new FirmaTascaExportacio(
+													firmaTasca.getDocument().getCodi(),
+													firmaTasca.isRequired(),
+													firmaTasca.getOrder(),
+													true,
+													firmaTasca.getDocument().getExpedientTipus().getId().equals(expedientTipus.getId())));
+				}
+			}
+			
+		}
+		return herenciaTasques;
+	}
+	
+	/** Mètode per obtenir del map de darreres tasques exportades la que es correspon amb la passada com a paràmetre. Si no està,
+	 * llavors la crea.
+	 * @param tascaMap Map de les darreres tasques d'exportació identificades pel seu ID
+	 * @param herenciaTasques Llista de tasques d'exportació per retornar.
+	 * @param tasca Tasca per comprovar.
+	 * @return
+	 */
+	private TascaExportacio getHerenciaTascaExportacio(Map<Long, TascaExportacio> tascaMap, Map<String, List<TascaExportacio>> herenciaTasques, Tasca tasca) {
+		TascaExportacio tascaExportacio = tascaMap.get(tasca.getId());
+		if (tascaExportacio == null) {
+			// Crea la tasca exportació
+			tascaExportacio = new TascaExportacio(
+									tasca.getNom(),
+									TascaDto.TipusTascaDto.valueOf(tasca.getTipus().toString()),
+									tasca.getJbpmName());
+			// La afegeix al map de tasques utilitzades recentment
+			tascaMap.put(tasca.getId(), tascaExportacio);
+			// La afegeix al map per retornar
+			if (!herenciaTasques.containsKey(tasca.getDefinicioProces().getJbpmKey()))
+				herenciaTasques.put(tasca.getDefinicioProces().getJbpmKey(), new ArrayList<TascaExportacio>());
+			herenciaTasques.get(tasca.getDefinicioProces().getJbpmKey()).add(tascaExportacio);
+		}
+		return tascaExportacio;
+	}
+
+	/** Mètode per determinar si la definició de procés passada per paràmetre està heretada pel tipus d'expedient.
+	 *  Està heretada si:
+	 *  - El tipus d'expedient de la definició de procés és el tipus d'expedient pare del tipus d'expedient.
+	 *  
+	 * @param definicioProces Definició de procés a comprovar si està heretada.
+	 * @param expedientTipus Expedient tipus a comprovar si hereta la definició de procés.
+	 * @return
+	 */
+	public boolean isDefinicioProcesHeretada(DefinicioProces definicioProces, ExpedientTipus expedientTipus) {
+
+		boolean heretada = expedientTipus != null 
+				&& expedientTipus.isAmbInfoPropia() 
+				&& expedientTipus.getExpedientTipusPare() != null
+				&& definicioProces != null
+				&& definicioProces.getExpedientTipus() != null
+				&& definicioProces.getExpedientTipus().getId().equals(expedientTipus.getExpedientTipusPare().getId());
+		return heretada;
+	}
+
+	/** Mètode per determinar si la tasca passada per paràmetre està heretada pel tipus d'expedient.
+	 *  Està heretada si:
+	 *  - El tipus d'expedient de la definició de procés de la tasca és el tipus d'expedient pare del tipus d'expedient.
+	 *  
+	 * @param definicioProces Definició de procés a comprovar si està heretada.
+	 * @param expedientTipus Expedient tipus a comprovar si hereta la definició de procés.
+	 * @return
+	 */
+	public boolean isTascaHeretada(Tasca tasca, ExpedientTipus expedientTipus) {
+
+		boolean heretada = this.isDefinicioProcesHeretada(tasca.getDefinicioProces(), expedientTipus);
+		return heretada;
+	}
+	
+	/** Mètode per determinar si el camp de la tasca està heretat pel tipus d'expedient.
+	 * Està heretat si:
+	 * - La tasca està heretada i el camp de la tasca no pertany a cap altra tipus d'expedient que no sigui el tipus d'expedient pare.
+	 * 
+	 * @param campTasca
+	 * @param expedientTipus
+	 * @return
+	 */
+	public boolean isCampTascaHeretat(CampTasca campTasca, ExpedientTipus expedientTipus) {
+		boolean heretat = this.isTascaHeretada(campTasca.getTasca(), expedientTipus)
+							&& (campTasca.getExpedientTipus() == null || campTasca.getExpedientTipus().getId().equals(expedientTipus.getExpedientTipusPare().getId()));
+		return heretat;
+	}
+	
+	/** Mètode per determinar si el document de la tasca està heretat pel tipus d'expedient.
+	 * Està heretat si:
+	 * - La tasca està heretada i el document de la tasca no pertany a cap altra tipus d'expedient que no sigui el tipus d'expedient pare.
+	 * 
+	 * @param campTasca
+	 * @param expedientTipus
+	 * @return
+	 */
+	public boolean isDocumentTascaHeretat(DocumentTasca documentTasca, ExpedientTipus expedientTipus) {
+		boolean heretat = this.isTascaHeretada(documentTasca.getTasca(), expedientTipus)
+							&& (documentTasca.getExpedientTipus() == null || documentTasca.getExpedientTipus().getId().equals(expedientTipus.getExpedientTipusPare().getId()));
+		return heretat;
+	}
+	
+	/** Mètode per determinar si la firma de la tasca està heretada pel tipus d'expedient.
+	 * Està heretada si:
+	 * - La tasca està heretada i la firma de la tasca no pertany a cap altra tipus d'expedient que no sigui el tipus d'expedient pare.
+	 * 
+	 * @param firmaTasca
+	 * @param expedientTipus
+	 * @return
+	 */
+	public boolean isFirmaTascaHeretada(FirmaTasca firmaTasca, ExpedientTipus expedientTipus) {
+		boolean heretat = this.isTascaHeretada(firmaTasca.getTasca(), expedientTipus)
+							&& (firmaTasca.getExpedientTipus() == null || firmaTasca.getExpedientTipus().getId().equals(expedientTipus.getExpedientTipusPare().getId()));
+		return heretat;
+	}
+
+	/** Mètode helper per incorporar la informació de les tasques per a un tipus d'expedient que hereta d'un tipus d'expedient pare. Importa
+	 * la informació de les tasques d'una definició de procés concreta del tipus d'expedient pare.
+	 * 
+	 * @param expedientTipus
+	 * @param expedientTipusPare
+	 * @param definicioProcesJbpmkey
+	 * @param tasquesExportacio
+	 */
+	@Transactional
+	public void importarTascaHerencia(
+			ExpedientTipus expedientTipus, 
+			ExpedientTipus expedientTipusPare, 
+			String definicioProcesJbpmkey, 
+			List<TascaExportacio> tasquesExportacio) {
+		// Troba la definició de procés
+		DefinicioProces definicioProces = this.findDarreraVersioDefinicioProces(expedientTipusPare, definicioProcesJbpmkey);
+		expedientTipusPare.getCamps();
+		// Per cada tasca
+		Tasca tasca;
+		for (TascaExportacio tascaExportacio : tasquesExportacio) {
+			// Troba la tasca
+			tasca = tascaRepository.findByJbpmNameAndDefinicioProces(tascaExportacio.getJbpmName(), definicioProces);
+			// Per cada camp de la exportació
+
+			// Camps de la tasca
+			for (CampTascaExportacio campExportat : tascaExportacio.getCamps()) {
+				// Primer mira si ja està relacionat, si no l'afegeix
+				CampTasca campTasca = null;
+				for (CampTasca ct : tasca.getCamps())
+					if (ct.getCamp().getCodi().equals(campExportat.getCampCodi())) {
+						campTasca = ct;
+						break;
+					}
+				if (campTasca == null) {
+					campTasca = new CampTasca();
+					campTasca.setTasca(tasca);
+					tasca.getCamps().add(campTasca);	
+				}
+				// Actualitza la informació
+				campTasca.setOrder(campExportat.getOrder());	
+				campTasca.setAmpleCols(campExportat.getAmpleCols());
+				campTasca.setBuitCols(campExportat.getBuitCols());
+				campTasca.setReadFrom(campExportat.isReadFrom());
+				campTasca.setWriteTo(campExportat.isWriteTo());
+				campTasca.setRequired(campExportat.isRequired());
+				campTasca.setReadOnly(campExportat.isReadOnly());
+				// Relaciona el camp tasca amb el camp
+				this.relacionarCampTasca(
+						campTasca, 
+						campExportat.getCampCodi(), 
+						campExportat.isTipusExpedient(),
+						expedientTipus, 
+						definicioProces);
+				campTascaRepository.save(campTasca);
+			}			
+			
+			// Documents de la tasca
+			for (DocumentTascaExportacio documentExportat : tascaExportacio.getDocuments()) {
+				// Primer mira si ja està relacionat, si no l'afegeix
+				DocumentTasca documentTasca = null;
+				for (DocumentTasca dt : tasca.getDocuments())
+					if (dt.getDocument().getCodi().equals(documentExportat.getDocumentCodi())) {
+						documentTasca = dt;
+						break;
+					}
+				if (documentTasca == null) {
+					documentTasca = new DocumentTasca();
+					documentTasca.setTasca(tasca);
+					tasca.getDocuments().add(documentTasca);	
+				}
+				// Actualitza la informació
+				documentTasca.setRequired(documentExportat.isRequired());
+				documentTasca.setReadOnly(documentExportat.isReadOnly());
+				documentTasca.setOrder(documentExportat.getOrder());
+				// Relaciona el camp tasca amb el camp
+				this.relacionarDocumentTasca(
+						documentTasca, 
+						documentExportat.getDocumentCodi(), 
+						documentExportat.isTipusExpedient(),
+						expedientTipus, 
+						definicioProces);
+				documentTascaRepository.save(documentTasca);
+			}			
+
+			// Documents de la tasca
+			for (FirmaTascaExportacio firmaExportat : tascaExportacio.getFirmes()) {
+				// Primer mira si ja està relacionat, si no l'afegeix
+				FirmaTasca firmaTasca = null;
+				for (FirmaTasca ft : tasca.getFirmes())
+					if (ft.getDocument().getCodi().equals(firmaExportat.getDocumentCodi())) {
+						firmaTasca = ft;
+						break;
+					}
+				if (firmaTasca == null) {
+					firmaTasca = new FirmaTasca();
+					firmaTasca.setTasca(tasca);
+					tasca.getFirmes().add(firmaTasca);	
+				}
+				// Actualitza la informació
+				firmaTasca.setRequired(firmaExportat.isRequired());
+				firmaTasca.setOrder(firmaExportat.getOrder());
+				// Relaciona el camp tasca amb el camp
+				this.relacionarFirmaTasca(
+						firmaTasca, 
+						firmaExportat.getDocumentCodi(), 
+						firmaExportat.isTipusExpedient(),
+						expedientTipus, 
+						definicioProces);
+				firmaTascaRepository.save(firmaTasca);
+			}			
+
+		}
+	}
+	
 	private static final Logger logger = LoggerFactory.getLogger(DefinicioProcesHelper.class);
 }

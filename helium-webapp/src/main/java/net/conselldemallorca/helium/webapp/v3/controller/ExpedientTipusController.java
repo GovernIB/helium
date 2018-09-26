@@ -359,6 +359,13 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 		command.setEntornId(entornActual.getId());
 		command.setIntegracioSistra(true);
 		command.setIntegracioForms(true);
+		if (dto.getExpedientTipusPareId() != null) {
+			ExpedientTipusDto tipusPare = expedientTipusService.findAmbIdPermisDissenyar(
+					entornActual.getId(),
+					dto.getExpedientTipusPareId());
+			command.setExpedientTipusPare(tipusPare.getCodi());
+			command.setTasquesHerencia(true);
+		}
 		model.addAttribute("inici", true); // per marcar tots els checboxs inicialment
 		model.addAttribute("expedientTipus", dto);
 		model.addAttribute("command", command);
@@ -480,6 +487,11 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 		}
 		command.setIntegracioSistra(true);
 		command.setIntegracioForms(true);
+		if (exportacio.getExpedientTipusPareCodi() != null) {
+			command.setExpedientTipusPare(exportacio.getExpedientTipusPareCodi());
+			command.setTasquesHerencia(true);
+		}
+		
 		model.addAttribute("inici", true); // per marcar tots els checboxs inicialment
 		model.addAttribute("command", command);	
 	 	EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();

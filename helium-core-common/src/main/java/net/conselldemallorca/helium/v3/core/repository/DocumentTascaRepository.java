@@ -12,6 +12,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import net.conselldemallorca.helium.core.model.hibernate.DocumentTasca;
+import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 
 /**
  * Dao pels objectes de tipus plantilla de tasca
@@ -36,14 +37,27 @@ public interface DocumentTascaRepository extends JpaRepository<DocumentTasca, Lo
 			@Param("tascaId") Long tascaId,
 			@Param("order") int order);
 
+	/** Consulta els documents de la tasca.
+	 * 
+	 * @param tascaId Identificador de la tasca.
+	 * @param expedientTipusId Si s'informa llavors es filtren els camps que estiguin relacionats amb aquest tipus d'expedient.
+	 * @return
+	 */
 	@Query("select dt from " +
 			"    DocumentTasca dt " +
 			"where " +
 			"    dt.tasca.id=:tascaId " +
+					// Propis
+			"   and ( (dt.expedientTipus.id = :expedientTipusId or (dt.expedientTipus is null and dt.tasca.definicioProces.expedientTipus.id = :expedientTipusId)  ) " +
+			"			or " +
+					// Heretats
+			" 		  (dt.expedientTipus is null and dt.tasca.definicioProces.expedientTipus.id = (select etp.expedientTipusPare.id from ExpedientTipus etp where etp.id = :expedientTipusId)) " +
+			"       ) " +
 			"order by " +
 			"    dt.order")
 	public List<DocumentTasca> findAmbTascaOrdenats(
-			@Param("tascaId") Long tascaId);
+			@Param("tascaId") Long tascaId,
+			@Param("expedientTipusId") Long expedientTipusId);
 	
 	@Query("select dt from " +
 			"    DocumentTasca dt " +
@@ -103,12 +117,37 @@ public interface DocumentTascaRepository extends JpaRepository<DocumentTasca, Lo
 			@Param("definicioProcesId") Long definicioProcesId,
 			@Param("jbpmName") String jbpmName);
 	
+	/** Consulta els documents de la tasca.
+	 * 
+	 * @param tascaId Identificador de la tasca.
+	 * @param expedientTipusId Si s'informa llavors es filtren els camps que estiguin relacionats amb aquest tipus d'expedient.
+	 * @return
+	 */
+	@Query("from DocumentTasca dt " +
+			"where " +
+			"    dt.tasca.id = :tascaId " +
+					// Propis
+			"   and ( (dt.expedientTipus.id = :expedientTipusId or (dt.expedientTipus is null and dt.tasca.definicioProces.expedientTipus.id = :expedientTipusId)  ) " +
+			"			or " +
+					// Heretats
+			" 		  (dt.expedientTipus is null and dt.tasca.definicioProces.expedientTipus.id = (select etp.expedientTipusPare.id from ExpedientTipus etp where etp.id = :expedientTipusId)) " +
+			"       ) " +
+			"order by " +
+			"    dt.order")
+	public List<DocumentTasca> findAmbTascaIdOrdenats(
+			@Param("tascaId") Long tascaId,
+			@Param("expedientTipusId") Long expedientTipusId);
+	
 	@Query(	"from DocumentTasca dt " +
 			"where " +
 			"   dt.tasca.id = :tascaId " +
+			"   and (dt.expedientTipus is null or dt.expedientTipus.id = :expedientTipusId " +
+						// Heretats
+			" 			or dt.expedientTipus.id = (select etp.expedientTipusPare.id from ExpedientTipus etp where etp.id = :expedientTipusId)) " +
 			"	and (:esNullFiltre = true or lower(dt.document.codi) like lower('%'||:filtre||'%') or lower(dt.document.nom) like lower('%'||:filtre||'%')) ")
 	public Page<DocumentTasca> findByFiltrePaginat(
 			@Param("tascaId") Long tascaId,
+			@Param("expedientTipusId") Long expedientTipusId, 
 			@Param("esNullFiltre") boolean esNullFiltre,
 			@Param("filtre") String filtre,
 			Pageable pageable);
@@ -119,4 +158,7 @@ public interface DocumentTascaRepository extends JpaRepository<DocumentTasca, Lo
 			"order by dt.order asc ")
 	List<DocumentTasca> findDocumentsTasca(
 			@Param("tascaId") Long tascaId);
+
+	/** Troba tots els documents relacionats amb l'expedient tipus. */
+	public List<DocumentTasca> findAllByExpedientTipus(ExpedientTipus expedientTipus);
 }

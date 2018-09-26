@@ -235,7 +235,7 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 				expedientTipusId,
 				incloureGlobals,
 				filtre == null || "".equals(filtre), 
-				filtre, 
+				filtre != null? filtre : "", 
 				herencia,
 				paginacioHelper.toSpringDataPageable(
 						paginacioParams));
@@ -442,15 +442,17 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 	@Transactional(readOnly = true)
 	public PaginaDto<TascaDto> tascaFindPerDatatable(
 			Long entornId, 
+			Long expedientTipusId,
 			Long definicioProcesId, 
 			String filtre,
 			PaginacioParamsDto paginacioParams) throws NoTrobatException {
 		logger.debug(
 				"Consultant les tasques de la definicio de proces pel datatable (" +
 				"entornId=" + entornId + ", " +
+				"expedientTipusId=" + expedientTipusId + ", " +
 				"definicioProcesId=" + definicioProcesId + ", " +
 				"filtre=" + filtre + ")");
-								
+
 		PaginaDto<TascaDto> pagina = paginacioHelper.toPaginaDto(
 				tascaRepository.findByFiltrePaginat(
 						definicioProcesId,
@@ -468,11 +470,73 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 				if(tasca.getNom().equals(startTaskName)) {
 					tasca.setInicial(true);
 					break;
-				}			
+				}
 
+		ExpedientTipus expedientTipus = null;
+		if ( expedientTipusId != null)
+			expedientTipus = expedientTipusHelper.getExpedientTipusComprovantPermisDissenyDelegat(expedientTipusId);
+		else if (definicioProces.getExpedientTipus() != null) {
+			expedientTipus = definicioProces.getExpedientTipus();
+			expedientTipusId = expedientTipus.getId();
+		}
+		
+		// Determina si les tasques són heretades 
+		boolean definicioProcesHeretada = definicioProcesHelper.isDefinicioProcesHeretada(definicioProces, expedientTipus);
+		if (definicioProcesHeretada) {
+			for(TascaDto tasca : pagina.getContingut())
+				tasca.setHeretat(true);
+		}
+		// S'han de llevar els camps, documents i firmes afegides per altres tipus d'expedients
+		if (expedientTipusId != null) {
+			for (TascaDto tasca : pagina.getContingut())
+				this.filtrarDadesPerTipusExpedientId(tasca, expedientTipusId);
+		}			
 		return pagina;		
 	}
-	
+
+	/** Mètode per treure de la llista de camps, documents i firmes aquelles que estiguin incloses per un tipus d'expedient diferent
+	 * al de la definició de procés o que no estigui heretada. Filtra aquells no relacionats amb el tipus d'expedient o que no siguin
+	 * heretats del tipus d'expedient pare.
+	 * @param tasca
+	 * @param expedientTipusId
+	 */
+	private void filtrarDadesPerTipusExpedientId(TascaDto tasca, Long expedientTipusId) {
+		
+		// Filtra els camps d'altres tipus d'expedients
+		boolean campCorrecte;
+		List<CampTascaDto> campsEsborrar = new ArrayList<CampTascaDto>();
+		for (CampTascaDto camp : tasca.getCamps()) {
+			// Camp directament relacionat a la definició de procés de la tasca o afegit pel tipus d'expedient
+			campCorrecte = camp.getExpedientTipusId() == null || camp.getExpedientTipusId().equals(expedientTipusId);
+			if (!campCorrecte)
+				campsEsborrar.add(camp);
+		}
+		tasca.getCamps().removeAll(campsEsborrar);
+		
+		// Filtra els documents d'altres tipus d'expedients
+		boolean documentCorrecte;
+		List<DocumentTascaDto> documentsEsborrar = new ArrayList<DocumentTascaDto>();
+		for (DocumentTascaDto document : tasca.getDocuments()) {
+			// Camp directament relacionat a la definició de procés de la tasca o afegit pel tipus d'expedient
+			documentCorrecte = document.getExpedientTipusId() == null || document.getExpedientTipusId().equals(expedientTipusId);
+			if (!documentCorrecte)
+				documentsEsborrar.add(document);
+		}
+		tasca.getDocuments().removeAll(documentsEsborrar);
+
+		// Filtra les firmes d'altres tipus d'expedients
+		boolean firmaCorrecte;
+		List<FirmaTascaDto> firmesEsborrar = new ArrayList<FirmaTascaDto>();
+		for (FirmaTascaDto firma : tasca.getFirmes()) {
+			// Camp directament relacionat a la definició de procés de la tasca o afegit pel tipus d'expedient
+			firmaCorrecte = firma.getExpedientTipusId() == null || firma.getExpedientTipusId().equals(expedientTipusId);
+			if (!firmaCorrecte)
+				firmesEsborrar.add(firma);
+		}
+		tasca.getFirmes().removeAll(firmesEsborrar);
+
+	}
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -507,14 +571,27 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 
 	@Override
 	@Transactional(readOnly = true)
-	public TascaDto tascaFindAmbId(Long id) throws NoTrobatException {
-		Tasca tasca = tascaRepository.findOne(id);
+	public TascaDto tascaFindAmbId(Long expedientTipusId, Long tascaId) throws NoTrobatException {
+		Tasca tasca = tascaRepository.findOne(tascaId);
 		if (tasca == null) {
-			throw new NoTrobatException(Tasca.class, id);
+			throw new NoTrobatException(Tasca.class, tascaId);
 		}
-		return conversioTipusHelper.convertir(
+		TascaDto tascaDto = conversioTipusHelper.convertir(
 				tasca, 
 				TascaDto.class);
+		if (tasca.getDefinicioProces() != null)
+			tascaDto.setDefinicioProcesId(tasca.getDefinicioProces().getId());
+
+		// Determina si la tasca és heretada
+		ExpedientTipus expedientTipus = expedientTipusId != null? expedientTipusHelper.getExpedientTipusComprovantPermisDissenyDelegat(expedientTipusId) : null;
+		boolean tascaHeretada = definicioProcesHelper.isTascaHeretada(tasca, expedientTipus);
+		if (tascaHeretada) {
+			tascaDto.setHeretat(true);
+		} else {
+			// La tasca no està heretada, s'han de llevar els camps, documents i firmes afegides per altres tipus d'expedients
+			this.filtrarDadesPerTipusExpedientId(tascaDto, expedientTipusId);
+		}
+		return tascaDto;
 	}
 	
 	/**
@@ -567,8 +644,15 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 		entity.setReadOnly(tascaCamp.isReadOnly());
 		entity.setAmpleCols(12);
 		entity.setBuitCols(0);
-		entity.setTasca(tascaRepository.findOne(tascaId));
+		Tasca tasca = tascaRepository.findOne(tascaId);
+		entity.setTasca(tasca);
 		entity.setCamp(campRepository.findOne(tascaCamp.getCamp().getId()));
+		if (tascaCamp.getExpedientTipusId() != null) {
+			ExpedientTipus expedientTipus = expedientTipusRepository.findById(tascaCamp.getExpedientTipusId());
+			// Només relaciona el camp tasca amb el tipus d'expedient si la tasca està heretada
+			if (definicioProcesHelper.isTascaHeretada(tasca, expedientTipus))
+				entity.setExpedientTipus(expedientTipus);
+		}
 		
 		return conversioTipusHelper.convertir(
 				campTascaRepository.save(entity),
@@ -594,7 +678,9 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 	/** Funció per reasignar el valor d'ordre dins dels camps d'una tasca de tipus registre. */
 	private void reordenarCampsTasca(
 			Long tascaId) {
-		List<CampTasca> tascaCamps = campTascaRepository.findAmbTascaIdOrdenats(tascaId);		
+		List<CampTasca> tascaCamps = campTascaRepository.findAmbTascaIdOrdenats(
+				tascaId,
+				null);		
 		int i = 0;
 		for (CampTasca c : tascaCamps) {
 			c.setOrder(i);
@@ -606,14 +692,16 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 	@Override
 	@Transactional
 	public boolean tascaCampMourePosicio(
-			Long id, 
+			Long campTascaId,
+			Long expedientTipusId,
 			int posicio) {
 		
 		boolean ret = false;
-		CampTasca tascaCamp = campTascaRepository.findOne(id);
+		CampTasca tascaCamp = campTascaRepository.findOne(campTascaId);
 		if (tascaCamp != null) {
 			List<CampTasca> campsTasca = campTascaRepository.findAmbTascaIdOrdenats(
-					tascaCamp.getTasca().getId());
+					tascaCamp.getTasca().getId(), 
+					expedientTipusId);
 			int index = campsTasca.indexOf(tascaCamp);
 			if(posicio != index) {	
 				tascaCamp = campsTasca.get(index);
@@ -640,6 +728,7 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 	@Transactional(readOnly = true)
 	public PaginaDto<CampTascaDto> tascaCampFindPerDatatable(
 			Long tascaId,
+			Long expedientTipusId,
 			String filtre,
 			PaginacioParamsDto paginacioParams) {
 		logger.debug(
@@ -648,13 +737,23 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 				"filtre=" + filtre + ")");
 		
 		Tasca tasca = tascaRepository.findOne(tascaId);
-		boolean herencia = tasca != null 
-							&& tasca.getDefinicioProces().getExpedientTipus() != null 
-							&& tasca.getDefinicioProces().getExpedientTipus().getExpedientTipusPare() != null;
-		Long expedientTipusId = herencia? tasca.getDefinicioProces().getExpedientTipus().getId() : null;
+
+		// Consulta el tipus d'expedient
+		ExpedientTipus expedientTipus = null;
+		if (expedientTipusId != null)
+			expedientTipus = expedientTipusRepository.findById(expedientTipusId);
+		else {
+			expedientTipus = tasca.getDefinicioProces().getExpedientTipus();
+			if (expedientTipus != null)
+				expedientTipusId = expedientTipus.getId();
+		}
+
+		// Herencia
+		boolean isDefinicioProcesHeretada = definicioProcesHelper.isTascaHeretada(tasca, expedientTipus);
 		
 		Page<CampTasca> page = campTascaRepository.findByFiltrePaginat(
 				tascaId,
+				expedientTipusId,
 				filtre == null,
 				filtre,
 				paginacioHelper.toSpringDataPageable(
@@ -662,33 +761,41 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 		
 		// Llista d'heretats
 		Set<Long> heretatsIds = new HashSet<Long>();
-		if (herencia) {
-			for (CampTasca ct : page.getContent())
-				if (ct.getCamp().getExpedientTipus() != null && ! expedientTipusId.equals(ct.getCamp().getExpedientTipus().getId()))
+		Set<Long> campsHeretatsIds = new HashSet<Long>();
+		if (isDefinicioProcesHeretada) {
+			for (CampTasca ct : page.getContent()) {
+				if (definicioProcesHelper.isCampTascaHeretat(ct, expedientTipus))
 					heretatsIds.add(ct.getId());
+				if (definicioProcesHelper.isDefinicioProcesHeretada(ct.getCamp().getDefinicioProces(), expedientTipus))
+					campsHeretatsIds.add(ct.getId());
+			}
 		}
 
 		PaginaDto<CampTascaDto> pagina = paginacioHelper.toPaginaDto(
 				page,
 				CampTascaDto.class);
-		
-		// Llistat d'elements sobreescrits
-		Set<String> sobreescritsCodis = new HashSet<String>();
-		if (herencia) {
+
+		Set<String> campsSobreescritsCodis = new HashSet<String>();
+		if (isDefinicioProcesHeretada) {
+			// Llistat d'elements sobreescrits
 			for (Camp c : campRepository.findSobreescrits(expedientTipusId)) {
-				sobreescritsCodis.add(c.getCodi());
+				campsSobreescritsCodis.add(c.getCodi());
 			}
-			// Completa l'informació del dto
 			for (CampTascaDto dto : pagina.getContingut()) {
+				// Determina si el campTasca és heretat segons si el tipus d'expedient de la tasca és igual al tipus d'expedient pare del tipus d'expedient passat com a paràmetre
+				if (heretatsIds.contains(dto.getId()))
+					dto.setHeretat(true);
+				
+				// Completa l'informació del camp del campTasca
+
 				// Sobreescriu
-				if (sobreescritsCodis.contains(dto.getCamp().getCodi()))
+				if (campsSobreescritsCodis.contains(dto.getCamp().getCodi()))
 					dto.getCamp().setSobreescriu(true);
 				// Heretat
-				if (heretatsIds.contains(dto.getId()) && ! dto.getCamp().isSobreescriu())
+				if (campsHeretatsIds.contains(dto.getId()) && ! dto.getCamp().isSobreescriu())
 					dto.getCamp().setHeretat(true);								
 			}
 		}
-
 		return pagina;
 	}		
 	
@@ -733,16 +840,55 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 	@Override
 	@Transactional(readOnly = true)
 	public CampTascaDto tascaCampFindById(
+			Long expedientTipusId,
 			Long campTascaId) {
 		logger.debug(
 				"Consultant el camp tasca amb id (" +
 				"campTascaId = " + campTascaId + ")");
 		CampTasca campTasca = campTascaRepository.findOne(campTascaId);
-
-		return conversioTipusHelper.convertir(
-				campTasca,
+		if (campTasca == null) {
+			throw new NoTrobatException(CampTasca.class, campTascaId);
+		}
+		CampTascaDto dto = conversioTipusHelper.convertir(
+				campTasca, 
 				CampTascaDto.class);
+
+		if (expedientTipusId != null) {
+			// Consulta el tipus d'expedient
+			ExpedientTipus expedientTipus = expedientTipusRepository.findById(expedientTipusId);
+			// Herència
+			dto.setHeretat(definicioProcesHelper.isCampTascaHeretat(campTasca, expedientTipus));
+		}
+		return dto;
 	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public List<CampTascaDto> tascaCampFindAll(Long expedientTipusId, Long tascaId) {
+		logger.debug(
+				"Consultant tots els camps de la tasca amb id (" +
+				"tascaId = " + tascaId + ")");
+
+		List<CampTasca> campsTasca = campTascaRepository.findAmbTascaIdOrdenats(tascaId, expedientTipusId);
+		
+		List<CampTascaDto> dtos = new ArrayList<CampTascaDto>();
+
+		// Consulta la tasca i el tipus d'expedient
+		ExpedientTipus expedientTipus = expedientTipusId != null ? 
+				expedientTipus = expedientTipusRepository.findById(expedientTipusId) 
+				: null;
+
+		CampTascaDto dto;
+		for (CampTasca campTasca : campsTasca) {
+			dto = conversioTipusHelper.convertir(
+					campTasca, 
+					CampTascaDto.class);
+			// Herencia
+			dto.setHeretat(definicioProcesHelper.isCampTascaHeretat(campTasca, expedientTipus)); 
+			dtos.add(dto);
+		}
+		return dtos;
+	}	
 	
 
 	
@@ -762,8 +908,15 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 		entity.setOrder(documentTascaRepository.getNextOrdre(tascaId));		
 		entity.setRequired(tascaDocument.isRequired());
 		entity.setReadOnly(tascaDocument.isReadOnly());
-		entity.setTasca(tascaRepository.findOne(tascaId));
+		Tasca tasca = tascaRepository.findOne(tascaId);
+		entity.setTasca(tasca);
 		entity.setDocument(documentRepository.findOne(tascaDocument.getDocument().getId()));
+		if (tascaDocument.getExpedientTipusId() != null) {
+			ExpedientTipus expedientTipus = expedientTipusRepository.findById(tascaDocument.getExpedientTipusId());
+			// Només relaciona el camp tasca amb el tipus d'expedient si la tasca està heretada
+			if (definicioProcesHelper.isTascaHeretada(tasca, expedientTipus))
+				entity.setExpedientTipus(expedientTipus);
+		}
 		
 		return conversioTipusHelper.convertir(
 				documentTascaRepository.save(entity),
@@ -787,7 +940,7 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 	/** Funció per reasignar el valor d'ordre dins dels documents d'una tasca de tipus registre. */
 	private void reordenarDocumentsTasca(
 			Long tascaId) {
-		List<DocumentTasca> tascaDocuments = documentTascaRepository.findAmbTascaOrdenats(tascaId);		
+		List<DocumentTasca> tascaDocuments = documentTascaRepository.findAmbTascaOrdenats(tascaId, null);		
 		int i = 0;
 		for (DocumentTasca c : tascaDocuments) {
 			c.setOrder(i);
@@ -799,14 +952,16 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 	@Override
 	@Transactional
 	public boolean tascaDocumentMourePosicio(
-			Long id, 
+			Long id,
+			Long expedientTipusId, 
 			int posicio) {
 		
 		boolean ret = false;
 		DocumentTasca tascaDocument = documentTascaRepository.findOne(id);
 		if (tascaDocument != null) {
 			List<DocumentTasca> documentsTasca = documentTascaRepository.findAmbTascaOrdenats(
-					tascaDocument.getTasca().getId());
+					tascaDocument.getTasca().getId(),
+					expedientTipusId);
 			int index = documentsTasca.indexOf(tascaDocument);
 			if(posicio != index) {	
 				tascaDocument = documentsTasca.get(index);
@@ -833,6 +988,7 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 	@Transactional(readOnly = true)
 	public PaginaDto<DocumentTascaDto> tascaDocumentFindPerDatatable(
 			Long tascaId,
+			Long expedientTipusId,
 			String filtre,
 			PaginacioParamsDto paginacioParams) {
 		logger.debug(
@@ -841,13 +997,24 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 				"filtre=" + filtre + ")");
 
 		Tasca tasca = tascaRepository.findOne(tascaId);
-		boolean herencia = tasca != null 
-							&& tasca.getDefinicioProces().getExpedientTipus() != null 
-							&& tasca.getDefinicioProces().getExpedientTipus().getExpedientTipusPare() != null;
-		Long expedientTipusId = herencia? tasca.getDefinicioProces().getExpedientTipus().getId() : null;
+		
+		// Consulta el tipus d'expedient
+		ExpedientTipus expedientTipus = null;
+		if (expedientTipusId != null)
+			expedientTipus = expedientTipusRepository.findById(expedientTipusId);
+		else {
+			expedientTipus = tasca.getDefinicioProces().getExpedientTipus();
+			if (expedientTipus != null)
+				expedientTipusId = expedientTipus.getId();
+		}
+		
+		// Herencia
+		boolean isDefinicioProcesHeretada = definicioProcesHelper.isTascaHeretada(tasca, expedientTipus);
+		
 
 		Page<DocumentTasca> page = documentTascaRepository.findByFiltrePaginat(
 				tascaId,
+				expedientTipusId,
 				filtre == null,
 				filtre,
 				paginacioHelper.toSpringDataPageable(
@@ -855,29 +1022,38 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 		
 		// Llista d'heretats
 		Set<Long> heretatsIds = new HashSet<Long>();
-		if (herencia) {
-			for (DocumentTasca dt : page.getContent())
-				if (dt.getDocument().getExpedientTipus() != null && ! expedientTipusId.equals(dt.getDocument().getExpedientTipus().getId()))
+		Set<Long> documentsHeretatsIds = new HashSet<Long>();
+		if (isDefinicioProcesHeretada) {
+			for (DocumentTasca dt : page.getContent()) {
+				if (definicioProcesHelper.isDocumentTascaHeretat(dt, expedientTipus))
 					heretatsIds.add(dt.getId());
+				if (definicioProcesHelper.isDefinicioProcesHeretada(dt.getDocument().getDefinicioProces(), expedientTipus))
+					documentsHeretatsIds.add(dt.getId());
+			}
 		}
 		
 		PaginaDto<DocumentTascaDto> pagina = paginacioHelper.toPaginaDto(
 				page,
 				DocumentTascaDto.class);
 
-		// Llistat d'elements sobreescrits
-		Set<String> sobreescritsCodis = new HashSet<String>();
-		if (herencia) {
+		Set<String> documentsSobreescritsCodis = new HashSet<String>();
+		if (isDefinicioProcesHeretada) {
+			// Llistat d'elements sobreescrits
 			for (Document d : documentRepository.findSobreescrits(expedientTipusId)) {
-				sobreescritsCodis.add(d.getCodi());
+				documentsSobreescritsCodis.add(d.getCodi());
 			}
-			// Completa l'informació del dto
 			for (DocumentTascaDto dto : pagina.getContingut()) {
+				// Determina si el documentTasca és heretat segons si el tipus d'expedient de la tasca és igual al tipus d'expedient pare del tipus d'expedient passat com a paràmetre
+				if (heretatsIds.contains(dto.getId()))
+					dto.setHeretat(true);
+				
+				// Completa l'informació del document del campTasca
+
 				// Sobreescriu
-				if (sobreescritsCodis.contains(dto.getDocument().getCodi()))
+				if (documentsSobreescritsCodis.contains(dto.getDocument().getCodi()))
 					dto.getDocument().setSobreescriu(true);
 				// Heretat
-				if (heretatsIds.contains(dto.getId()) && ! dto.getDocument().isSobreescriu())
+				if (documentsHeretatsIds.contains(dto.getId()) && ! dto.getDocument().isSobreescriu())
 					dto.getDocument().setHeretat(true);								
 			}
 		}
@@ -922,16 +1098,56 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 	@Override
 	@Transactional(readOnly = true)
 	public DocumentTascaDto tascaDocumentFindById(
+			Long expedientTipusId,
 			Long documentTascaId) {
 		logger.debug(
 				"Consultant el document tasca amb id (" +
 				"documentTascaId = " + documentTascaId + ")");
 		DocumentTasca documentTasca = documentTascaRepository.findOne(documentTascaId);
-
-		return conversioTipusHelper.convertir(
-				documentTasca,
+		if (documentTasca == null) {
+			throw new NoTrobatException(DocumentTasca.class, documentTascaId);
+		}
+		DocumentTascaDto dto = conversioTipusHelper.convertir(
+				documentTasca, 
 				DocumentTascaDto.class);
+
+		// Herencia
+		if (expedientTipusId != null) {
+			// Consulta el tipus d'expedient
+			ExpedientTipus expedientTipus = expedientTipusRepository.findById(expedientTipusId);
+			// Herència
+			dto.setHeretat(definicioProcesHelper.isDocumentTascaHeretat(documentTasca, expedientTipus));
+		}
+		return dto;
 	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public List<DocumentTascaDto> tascaDocumentFindAll(Long expedientTipusId, Long tascaId) {
+		logger.debug(
+				"Consultant tots els documents de la tasca amb id (" +
+				"tascaId = " + tascaId + ")");
+
+		List<DocumentTasca> documentsTasca = documentTascaRepository.findAmbTascaIdOrdenats(tascaId, expedientTipusId);
+		
+		List<DocumentTascaDto> dtos = new ArrayList<DocumentTascaDto>();
+		
+		// Consulta la tasca i el tipus d'expedient
+		ExpedientTipus expedientTipus = expedientTipusId != null ? 
+				expedientTipus = expedientTipusRepository.findById(expedientTipusId) 
+				: null;
+
+		DocumentTascaDto dto;
+		for (DocumentTasca documentTasca : documentsTasca) {
+			dto = conversioTipusHelper.convertir(
+					documentTasca, 
+					DocumentTascaDto.class);
+			// Herencia
+			dto.setHeretat(definicioProcesHelper.isDocumentTascaHeretat(documentTasca, expedientTipus)); 
+			dtos.add(dto);
+		}
+		return dtos;
+	}	
 	
 	@Override
 	@Transactional
@@ -948,8 +1164,15 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 		
 		entity.setOrder(firmaTascaRepository.getNextOrdre(tascaId));		
 		entity.setRequired(tascaFirma.isRequired());
-		entity.setTasca(tascaRepository.findOne(tascaId));
+		Tasca tasca = tascaRepository.findOne(tascaId);
+		entity.setTasca(tasca);
 		entity.setDocument(documentRepository.findOne(tascaFirma.getDocument().getId()));
+		if (tascaFirma.getExpedientTipusId() != null) {
+			ExpedientTipus expedientTipus = expedientTipusRepository.findById(tascaFirma.getExpedientTipusId());
+			// Només relaciona el camp tasca amb el tipus d'expedient si la tasca està heretada
+			if (definicioProcesHelper.isTascaHeretada(tasca, expedientTipus))
+				entity.setExpedientTipus(expedientTipus);
+		}
 		
 		return conversioTipusHelper.convertir(
 				firmaTascaRepository.save(entity),
@@ -972,7 +1195,7 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 	/** Funció per reasignar el valor d'ordre dins de les firmes d'una tasca de tipus registre. */
 	private void reordenarFirmesTasca(
 			Long tascaId) {
-		List<FirmaTasca> tascaFirmes = firmaTascaRepository.findAmbTascaIdOrdenats(tascaId);		
+		List<FirmaTasca> tascaFirmes = firmaTascaRepository.findAmbTascaIdOrdenats(tascaId, null);		
 		int i = 0;
 		for (FirmaTasca c : tascaFirmes) {
 			c.setOrder(i);
@@ -985,13 +1208,15 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 	@Transactional
 	public boolean tascaFirmaMourePosicio(
 			Long id, 
+			Long expedientTipusId, 
 			int posicio) {
 		
 		boolean ret = false;
 		FirmaTasca tascaFirma = firmaTascaRepository.findOne(id);
 		if (tascaFirma != null) {
 			List<FirmaTasca> firmesTasca = firmaTascaRepository.findAmbTascaIdOrdenats(
-					tascaFirma.getTasca().getId());
+					tascaFirma.getTasca().getId(),
+					expedientTipusId);
 			int index = firmesTasca.indexOf(tascaFirma);
 			if(posicio != index) {	
 				tascaFirma = firmesTasca.get(index);
@@ -1018,6 +1243,7 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 	@Transactional(readOnly = true)
 	public PaginaDto<FirmaTascaDto> tascaFirmaFindPerDatatable(
 			Long tascaId,
+			Long expedientTipusId,
 			String filtre,
 			PaginacioParamsDto paginacioParams) {
 		logger.debug(
@@ -1026,13 +1252,23 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 				"filtre=" + filtre + ")");
 
 		Tasca tasca = tascaRepository.findOne(tascaId);
-		boolean herencia = tasca != null 
-							&& tasca.getDefinicioProces().getExpedientTipus() != null 
-							&& tasca.getDefinicioProces().getExpedientTipus().getExpedientTipusPare() != null;
-		Long expedientTipusId = herencia? tasca.getDefinicioProces().getExpedientTipus().getId() : null;
+
+		// Consulta el tipus d'expedient
+		ExpedientTipus expedientTipus = null;
+		if (expedientTipusId != null)
+			expedientTipus = expedientTipusRepository.findById(expedientTipusId);
+		else {
+			expedientTipus = tasca.getDefinicioProces().getExpedientTipus();
+			if (expedientTipus != null)
+				expedientTipusId = expedientTipus.getId();
+		}
+		
+		// Herencia
+		boolean isDefinicioProcesHeretada = definicioProcesHelper.isTascaHeretada(tasca, expedientTipus);
 
 		Page<FirmaTasca> page = firmaTascaRepository.findByFiltrePaginat(
 				tascaId,
+				expedientTipusId,
 				filtre == null,
 				filtre,
 				paginacioHelper.toSpringDataPageable(
@@ -1040,32 +1276,41 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 
 		// Llista d'heretats
 		Set<Long> heretatsIds = new HashSet<Long>();
-		if (herencia) {
-			for (FirmaTasca ft : page.getContent())
-				if (ft.getDocument().getExpedientTipus() != null && ! expedientTipusId.equals(ft.getDocument().getExpedientTipus().getId()))
+		Set<Long> documentsHeretatsIds = new HashSet<Long>();
+		if (isDefinicioProcesHeretada) {
+			for (FirmaTasca ft : page.getContent()) {
+				if (definicioProcesHelper.isFirmaTascaHeretada(ft, expedientTipus))
 					heretatsIds.add(ft.getId());
+				if (definicioProcesHelper.isDefinicioProcesHeretada(ft.getDocument().getDefinicioProces(), expedientTipus))
+					documentsHeretatsIds.add(ft.getId());
+			}
 		}
 
 		PaginaDto<FirmaTascaDto> pagina = paginacioHelper.toPaginaDto(
 				page,
 				FirmaTascaDto.class);
-
-		// Llistat d'elements sobreescrits
-		Set<String> sobreescritsCodis = new HashSet<String>();
-		if (herencia) {
+		
+		Set<String> documentsSobreescritsCodis = new HashSet<String>();
+		if (isDefinicioProcesHeretada) {
+			// Llistat d'elements sobreescrits
 			for (Document d : documentRepository.findSobreescrits(expedientTipusId)) {
-				sobreescritsCodis.add(d.getCodi());
+				documentsSobreescritsCodis.add(d.getCodi());
 			}
-			// Completa l'informació del dto
 			for (FirmaTascaDto dto : pagina.getContingut()) {
+				// Determina si la firmaTasca és heretada segons si el tipus d'expedient de la tasca és igual al tipus d'expedient pare del tipus d'expedient passat com a paràmetre
+				if (heretatsIds.contains(dto.getId()))
+					dto.setHeretat(true);
+				
+				// Completa l'informació del camp de la firmaTasca
+
 				// Sobreescriu
-				if (sobreescritsCodis.contains(dto.getDocument().getCodi()))
+				if (documentsSobreescritsCodis.contains(dto.getDocument().getCodi()))
 					dto.getDocument().setSobreescriu(true);
 				// Heretat
-				if (heretatsIds.contains(dto.getId()) && ! dto.getDocument().isSobreescriu())
+				if (documentsHeretatsIds.contains(dto.getId()) && ! dto.getDocument().isSobreescriu())
 					dto.getDocument().setHeretat(true);								
 			}
-		}		
+		}
 		return pagina;
 	}		
 	
@@ -1119,15 +1364,55 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 	@Override
 	@Transactional(readOnly = true)
 	public FirmaTascaDto tascaFirmaFindById(
+			Long expedientTipusId,
 			Long firmaTascaId) {
 		logger.debug(
 				"Consultant el document tasca amb id (" +
 				"firmaTascaId = " + firmaTascaId + ")");
 		FirmaTasca firmaTasca = firmaTascaRepository.findOne(firmaTascaId);
-
-		return conversioTipusHelper.convertir(
-				firmaTasca,
+		if (firmaTasca == null) {
+			throw new NoTrobatException(FirmaTasca.class, firmaTascaId);
+		}
+		FirmaTascaDto dto = conversioTipusHelper.convertir(
+				firmaTasca, 
 				FirmaTascaDto.class);
+
+		// Herencia
+		if (expedientTipusId != null) {
+			// Consulta el tipus d'expedient
+			ExpedientTipus expedientTipus = expedientTipusRepository.findById(expedientTipusId);
+			// Herència
+			dto.setHeretat(definicioProcesHelper.isFirmaTascaHeretada(firmaTasca, expedientTipus));			
+		}
+		return dto;
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public List<FirmaTascaDto> tascaFirmaFindAll(Long expedientTipusId, Long tascaId) {
+		logger.debug(
+				"Consultant tots els firmas de la tasca amb id (" +
+				"tascaId = " + tascaId + ")");
+
+		List<FirmaTasca> firmesTasca = firmaTascaRepository.findAmbTascaIdOrdenats(tascaId, expedientTipusId);
+		
+		List<FirmaTascaDto> dtos = new ArrayList<FirmaTascaDto>();
+		
+		// Consulta la tasca i el tipus d'expedient
+		ExpedientTipus expedientTipus = expedientTipusId != null ? 
+				expedientTipus = expedientTipusRepository.findById(expedientTipusId) 
+				: null;
+
+		FirmaTascaDto dto;
+		for (FirmaTasca firmaTasca : firmesTasca) {
+			dto = conversioTipusHelper.convertir(
+					firmaTasca, 
+					FirmaTascaDto.class);
+			// Herencia
+			dto.setHeretat(definicioProcesHelper.isFirmaTascaHeretada(firmaTasca, expedientTipus)); 
+			dtos.add(dto);
+		}
+		return dtos;
 	}
 	
 	/**

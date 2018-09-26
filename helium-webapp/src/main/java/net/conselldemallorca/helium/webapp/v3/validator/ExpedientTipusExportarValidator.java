@@ -82,6 +82,7 @@ public class ExpedientTipusExportarValidator implements ConstraintValidator<Expe
 			
 			// Definició de procés inicial
 			if (expedientTipus.getJbpmProcessDefinitionKey() != null
+					&& !herencia
 					&& !command.getDefinicionsProces().contains(expedientTipus.getJbpmProcessDefinitionKey())) {
 				context.buildConstraintViolationWithTemplate(
 						MessageHelper.getInstance().getMessage(
@@ -278,6 +279,11 @@ public class ExpedientTipusExportarValidator implements ConstraintValidator<Expe
 							valid = false;
 						}
 				}
+			
+			// Herència
+			
+			// Camps, documents i signatures
+			
 		} else {
 			context.buildConstraintViolationWithTemplate(
 					MessageHelper.getInstance().getMessage(this.codiMissatge + ".expedientTipusIdNull", null));

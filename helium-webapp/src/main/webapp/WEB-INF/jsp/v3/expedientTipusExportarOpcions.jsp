@@ -422,5 +422,22 @@
 			</div>
 		</div>
 
+		<!-- Herència de tipus d'expedients -->		
+		<c:if test="${not empty command.expedientTipusPare}">
+		<div id="tasques" class="agrupacio">
+			<div class="panel-heading clicable" data-toggle="collapse" data-target="#panel_tasques">
+				<spring:message code="expedient.tipus.exportar.form.herencia" arguments="${command.expedientTipusPare}"></spring:message>
+				<div class="pull-right">
+					<span class="fa fa-chevron-down"></span>
+					<span class="fa fa-chevron-up" style="display: none;"></span>
+				</div>
+			</div>
+			<div id="panel_tasques" class="taula panel-body collapse">
+				<hel:inputCheckbox name="tasquesHerencia" textKey="expedient.tipus.exportar.form.herencia.tasques" labelSize="6"/>
+			</div>
+		</div>
+		</c:if>
+		
+
 	</c:if>
 		

@@ -9,7 +9,7 @@ import java.io.Serializable;
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
-public class CampTascaDto implements Serializable {
+public class CampTascaDto extends HeretableDto implements Serializable {
 
 	private Long id;
 	private boolean readFrom;
@@ -21,6 +21,12 @@ public class CampTascaDto implements Serializable {
 	private int buitCols;
 
 	private CampDto camp;
+	
+	/** Quan es crea una relació entre un camp i la definició de procés pot ser que el camp sigui 
+	 * del tipus d'expedient i la tasca sigui de la definició de procés del tipus expedient pare heretat. Aquest
+	 * camp fa referència al tipus d'expedient que posseix la relació camp-tasca.
+	 */
+	private Long expedientTipusId;
 
 	public Long getId() {
 		return id;
@@ -75,6 +81,12 @@ public class CampTascaDto implements Serializable {
 	}
 	public void setCamp(CampDto camp) {
 		this.camp = camp;
+	}
+	public Long getExpedientTipusId() {
+		return expedientTipusId;
+	}
+	public void setExpedientTipusId(Long expedientTipusId) {
+		this.expedientTipusId = expedientTipusId;
 	}
 	public static long getSerialversionuid() {
 		return serialVersionUID;

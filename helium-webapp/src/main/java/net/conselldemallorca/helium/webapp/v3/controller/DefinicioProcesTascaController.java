@@ -2,12 +2,10 @@ package net.conselldemallorca.helium.webapp.v3.controller;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -20,7 +18,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampTascaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.CampTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentTascaDto;
@@ -31,9 +28,6 @@ import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDto;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
-import net.conselldemallorca.helium.v3.core.api.service.DissenyService;
-import net.conselldemallorca.helium.v3.core.api.service.DocumentService;
-import net.conselldemallorca.helium.v3.core.api.service.ExpedientTipusService;
 import net.conselldemallorca.helium.webapp.v3.command.DefinicioProcesTascaCommand;
 import net.conselldemallorca.helium.webapp.v3.command.DefinicioProcesTascaDocumentCommand;
 import net.conselldemallorca.helium.webapp.v3.command.DefinicioProcesTascaFirmaCommand;
@@ -50,14 +44,7 @@ import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
  */
 @Controller(value = "definicioProcesTascaControllerV3")
 @RequestMapping("/v3/definicioProces")
-public class DefinicioProcesTascaController extends BaseDefinicioProcesController {
-	
-	@Autowired
-	ExpedientTipusService expedientTipusService;
-	@Autowired
-	DissenyService dissenyService;
-	@Autowired
-	DocumentService documentService;
+public class DefinicioProcesTascaController extends BaseTascaDissenyController {
 	
 	/** Pipella del tasques. */
 	@RequestMapping(value = "/{jbpmKey}/{definicioProcesId}/tasca")
@@ -94,6 +81,7 @@ public class DefinicioProcesTascaController extends BaseDefinicioProcesControlle
 				null,
 				definicioProcesService.tascaFindPerDatatable(
 						entornActual.getId(),
+						null,
 						definicioProcesId,
 						paginacioParams.getFiltre(),
 						paginacioParams),
@@ -107,7 +95,7 @@ public class DefinicioProcesTascaController extends BaseDefinicioProcesControlle
 			@PathVariable Long definicioProcesId,
 			@PathVariable Long tascaId,
 			Model model) {
-		TascaDto dto = definicioProcesService.tascaFindAmbId(tascaId);
+		TascaDto dto = definicioProcesService.tascaFindAmbId(null, tascaId);
 		DefinicioProcesTascaCommand command = DefinicioProcesTascaCommand.toDefinicioProcesTascaCommand(dto);	
 		command.setDefinicioProcesId(definicioProcesId);
 		command.setJbpmName(dto.getJbpmName());
@@ -139,6 +127,22 @@ public class DefinicioProcesTascaController extends BaseDefinicioProcesControlle
 	}
 	
 	
+	/** Omple dades comuns per totes les pàgines
+	 * 
+	 */
+	private void omplirModelComu(
+			String jbpmKey,
+			Long definicioProcesId,
+			Long tascaId,
+			Model model) {
+		
+		// Especifica les URLs per la pàgina
+		String basicUrl = "definicioProces/" + jbpmKey + "/" + definicioProcesId.toString() + "/tasca/" + tascaId;
+		model.addAttribute("basicUrl", basicUrl);
+		model.addAttribute("baseUrl", "/helium/v3/" + basicUrl);
+
+	}
+
 	// Manteniment de variables de la tasca
 	
 	/** Modal per veure els camps de la tasca de tipus filtre. */
@@ -177,6 +181,7 @@ public class DefinicioProcesTascaController extends BaseDefinicioProcesControlle
 				null,
 				definicioProcesService.tascaCampFindPerDatatable(
 						tascaId,
+						null,
 						paginacioParams.getFiltre(),
 						paginacioParams),
 				"id");
@@ -221,7 +226,7 @@ public class DefinicioProcesTascaController extends BaseDefinicioProcesControlle
 			@PathVariable String propietat,
 			@RequestParam Object valor) {
 		
-		CampTascaDto campTasca = definicioProcesService.tascaCampFindById(campTascaId);
+		CampTascaDto campTasca = definicioProcesService.tascaCampFindById(null, campTascaId);
 		if ("readFrom".equals(propietat)) {
 			campTasca.setReadFrom(Boolean.parseBoolean(valor.toString()));
 		} else if ("writeTo".equals(propietat)) {
@@ -279,7 +284,7 @@ public class DefinicioProcesTascaController extends BaseDefinicioProcesControlle
 			@PathVariable Long id,
 			@PathVariable int posicio) {
 		
-		return definicioProcesService.tascaCampMourePosicio(id, posicio);
+		return definicioProcesService.tascaCampMourePosicio(id, null, posicio);
 	}	
 	
 	/** Mètode per obtenir les possibles variables per al select a l'edició d'un registre via ajax. */
@@ -299,10 +304,10 @@ public class DefinicioProcesTascaController extends BaseDefinicioProcesControlle
 					true // amb herencia
 				);
 
-		return obtenirParellesVariables(definicioProcesId, variables, tascaId);
+		return obtenirParellesVariables(null, definicioProcesId, variables, tascaId);
 	}	
-		
-	
+			
+	/** Omple el model de dades per la pàgina de camps de les tasques. */
 	private void omplirModelVariables(
 			String jbpmKey,
 			Long definicioProcesId,
@@ -310,11 +315,12 @@ public class DefinicioProcesTascaController extends BaseDefinicioProcesControlle
 			Model model) {
 		model.addAttribute("jbpmKey", jbpmKey);
 		model.addAttribute("definicioProcesId", definicioProcesId);
-		model.addAttribute("tasca", definicioProcesService.tascaFindAmbId(tascaId));
+		model.addAttribute("tasca", definicioProcesService.tascaFindAmbId(null, tascaId));
 		
+		this.omplirModelComu(jbpmKey, definicioProcesId, tascaId, model);
+
 		// Obté el llistat de variables
 		DefinicioProcesDto definicioProces = definicioProcesService.findById(definicioProcesId);
-
 		List<CampDto> variables = dissenyService.findCampsOrdenatsPerCodi(
 					definicioProces.getExpedientTipus() != null ? definicioProces.getExpedientTipus().getId() : null,
 					definicioProcesId,
@@ -323,7 +329,8 @@ public class DefinicioProcesTascaController extends BaseDefinicioProcesControlle
 		// Afegeix al model les variables que són heretades o sobreescriuen
 		List<Long> campsHeretatsIds = new ArrayList<Long>();
 		List<Long> campsSobreescriuenIds = new ArrayList<Long>();
-		if (definicioProces.getExpedientTipus().getExpedientTipusPareId() != null) {
+		if (definicioProces.getExpedientTipus() != null 
+				&& definicioProces.getExpedientTipus().getExpedientTipusPareId() != null) {
 			for (CampDto v : variables) {
 				if (v.isHeretat())
 					campsHeretatsIds.add(v.getId());
@@ -335,56 +342,11 @@ public class DefinicioProcesTascaController extends BaseDefinicioProcesControlle
 		model.addAttribute("campsSobreescriuenIds", campsSobreescriuenIds);
 		// Construeix les parelles de variables
 		model.addAttribute("variables", obtenirParellesVariables(
+				null,
 				definicioProcesId,
 				variables,
 				tascaId));
-	}
-	
-	/**
-	 * Retorna les parelles codi i valor per a les possibles variables per als camps de les consultes.
-	 * Lleva les variables que s'han utilitzat ja en la tasca.
-	 * @param definicioProcesId
-	 * @param tascaId
-	 * @return
-	 */
-	private List<ParellaCodiValorDto> obtenirParellesVariables(
-			Long definicioProcesId,
-			List<CampDto> variables,
-			Long tascaId) {
-		List<ParellaCodiValorDto> resposta = new ArrayList<ParellaCodiValorDto>();
-		// Tasca els camps de la tasca segons el tipus
-		List<CampTascaDto> camps = definicioProcesService.tascaCampFindCampAmbTascaId(tascaId);
-		// Lleva les variables que ja pertanyin a algun camp
-		Iterator<CampDto> it = variables.iterator();
-		while (it.hasNext()) {
-			CampDto variable = it.next();
-			for (CampTascaDto camp : camps) {
-				if (variable.getId().equals(camp.getCamp().getId())) {
-					it.remove();
-					break;
-				}
-			}
-		}
-		// Si és la tasca inicial treu les variables de tipus acció
-		String startTaskName = definicioProcesService.consultarStartTaskName(definicioProcesId);
-		TascaDto tasca = definicioProcesService.tascaFindAmbId(tascaId);
-		if (startTaskName != null && tasca.getNom().equals(startTaskName)) {
-			it = variables.iterator();
-			CampDto camp;
-			while (it.hasNext()) {
-				camp = it.next();
-				if (camp.getTipus().equals(CampTipusDto.ACCIO))
-					it.remove();
-			}
-		}
-		// Crea les parelles de codi i valor
-		for (CampDto variable : variables) {
-			resposta.add(new ParellaCodiValorDto(
-					variable.getId().toString(), 
-					variable.getCodi() + " / " + variable.getEtiqueta()));
-		}			
-		return resposta;
-	}		
+	}	
 	
 	// Manteniment de documents de la tasca
 	
@@ -420,6 +382,7 @@ public class DefinicioProcesTascaController extends BaseDefinicioProcesControlle
 				null,
 				definicioProcesService.tascaDocumentFindPerDatatable(
 						tascaId,
+						null,
 						paginacioParams.getFiltre(),
 						paginacioParams),
 				"id");
@@ -464,7 +427,7 @@ public class DefinicioProcesTascaController extends BaseDefinicioProcesControlle
 			@PathVariable String propietat,
 			@RequestParam boolean valor) {
 		
-		DocumentTascaDto documentTasca = definicioProcesService.tascaDocumentFindById(documentTascaId);
+		DocumentTascaDto documentTasca = definicioProcesService.tascaDocumentFindById(null, documentTascaId);
 		if ("required".equals(propietat)) {
 			documentTasca.setRequired(valor);
 		} else if ("readOnly".equals(propietat)) {
@@ -514,7 +477,7 @@ public class DefinicioProcesTascaController extends BaseDefinicioProcesControlle
 			@PathVariable Long id,
 			@PathVariable int posicio) {
 		
-		return definicioProcesService.tascaDocumentMourePosicio(id, posicio);
+		return definicioProcesService.tascaDocumentMourePosicio(id, null, posicio);
 	}	
 	
 	/** Mètode per obtenir les possibles documents per al select a l'edició d'un registre via ajax. */
@@ -544,7 +507,9 @@ public class DefinicioProcesTascaController extends BaseDefinicioProcesControlle
 
 		model.addAttribute("jbpmKey", jbpmKey);
 		model.addAttribute("definicioProcesId", definicioProcesId);
-		model.addAttribute("tasca", definicioProcesService.tascaFindAmbId(tascaId));
+		model.addAttribute("tasca", definicioProcesService.tascaFindAmbId(null, tascaId));
+
+		this.omplirModelComu(jbpmKey, definicioProcesId, tascaId, model);
 
 		// Obté el llistat de documents
 		DefinicioProcesDto definicioProces = definicioProcesService.findById(definicioProcesId);
@@ -557,7 +522,8 @@ public class DefinicioProcesTascaController extends BaseDefinicioProcesControlle
 		// Afegeix al model els documents que són heretades o sobreescriuen
 		List<Long> documentsHeretatsIds = new ArrayList<Long>();
 		List<Long> documentsSobreescriuenIds = new ArrayList<Long>();
-		if (definicioProces.getExpedientTipus().getExpedientTipusPareId() != null) {
+		if (definicioProces.getExpedientTipus() != null 
+				&& definicioProces.getExpedientTipus().getExpedientTipusPareId() != null) {
 			for (DocumentDto d : documents) {
 				if (d.isHeretat())
 					documentsHeretatsIds.add(d.getId());
@@ -574,41 +540,6 @@ public class DefinicioProcesTascaController extends BaseDefinicioProcesControlle
 				documents,
 				tascaId));
 	}
-	
-	/**
-	 * Retorna les parelles codi i valor per a les possibles documents per als documents de les consultes.
-	 * Lleva les documents que s'han utilitzat ja en la tasca.
-	 * @param definicioProcesId
-	 * @param documents 
-	 * @param tascaId
-	 * @return
-	 */
-	private List<ParellaCodiValorDto> documentObtenirParellesDocuments(
-			Long definicioProcesId,
-			List<DocumentDto> documents, 
-			Long tascaId) {
-		List<ParellaCodiValorDto> resposta = new ArrayList<ParellaCodiValorDto>();
-		// Documents de la tasca existents
-		List<DocumentTascaDto> documentsTasca = definicioProcesService.tascaDocumentFindDocumentAmbTascaId(tascaId);
-		// Lleva les documents que ja pertanyin a algun document
-		Iterator<DocumentDto> it = documents.iterator();
-		while (it.hasNext()) {
-			DocumentDto document = it.next();
-			for (DocumentTascaDto documentTasca : documentsTasca) {
-				if (document.getId().equals(documentTasca.getDocument().getId())) {
-					it.remove();
-					break;
-				}
-			}
-		}
-		// Crea les parelles de codi i valor
-		for (DocumentDto document : documents) {
-			resposta.add(new ParellaCodiValorDto(
-					document.getId().toString(), 
-					document.getCodi() + " / " + document.getNom()));
-		}			
-		return resposta;
-	}	
 
 	// Manteniment de firmes de la tasca
 	
@@ -644,6 +575,7 @@ public class DefinicioProcesTascaController extends BaseDefinicioProcesControlle
 				null,
 				definicioProcesService.tascaFirmaFindPerDatatable(
 						tascaId,
+						null,
 						paginacioParams.getFiltre(),
 						paginacioParams),
 				"id");
@@ -688,7 +620,7 @@ public class DefinicioProcesTascaController extends BaseDefinicioProcesControlle
 			@PathVariable String propietat,
 			@RequestParam boolean valor) {
 		
-		FirmaTascaDto firmaTasca = definicioProcesService.tascaFirmaFindById(firmaTascaId);
+		FirmaTascaDto firmaTasca = definicioProcesService.tascaFirmaFindById(null, firmaTascaId);
 		if ("required".equals(propietat)) {
 			firmaTasca.setRequired(valor);
 			definicioProcesService.tascaFirmaUpdate(firmaTasca);
@@ -735,7 +667,7 @@ public class DefinicioProcesTascaController extends BaseDefinicioProcesControlle
 			@PathVariable Long id,
 			@PathVariable int posicio) {
 		
-		return definicioProcesService.tascaFirmaMourePosicio(id, posicio);
+		return definicioProcesService.tascaFirmaMourePosicio(id, null, posicio);
 	}	
 	
 	/** Mètode per obtenir els possibles firmes per al select a l'edició d'un registre via ajax. */
@@ -768,7 +700,9 @@ public class DefinicioProcesTascaController extends BaseDefinicioProcesControlle
 
 		model.addAttribute("jbpmKey", jbpmKey);
 		model.addAttribute("definicioProcesId", definicioProcesId);
-		model.addAttribute("tasca", definicioProcesService.tascaFindAmbId(tascaId));
+		model.addAttribute("tasca", definicioProcesService.tascaFindAmbId(null, tascaId));
+
+		this.omplirModelComu(jbpmKey, definicioProcesId, tascaId, model);
 
 		// Obté el llistat de documents
 		DefinicioProcesDto definicioProces = definicioProcesService.findById(definicioProcesId);
@@ -781,7 +715,8 @@ public class DefinicioProcesTascaController extends BaseDefinicioProcesControlle
 		// Afegeix al model els documents que són heretades o sobreescriuen
 		List<Long> documentsHeretatsIds = new ArrayList<Long>();
 		List<Long> documentsSobreescriuenIds = new ArrayList<Long>();
-		if (definicioProces.getExpedientTipus().getExpedientTipusPareId() != null) {
+		if (definicioProces.getExpedientTipus() != null 
+				&& definicioProces.getExpedientTipus().getExpedientTipusPareId() != null) {
 			for (DocumentDto d : documents) {
 				if (d.isHeretat())
 					documentsHeretatsIds.add(d.getId());
@@ -798,39 +733,5 @@ public class DefinicioProcesTascaController extends BaseDefinicioProcesControlle
 				documents,
 				tascaId));
 	}
-
-	/**
-	 * Retorna les parelles codi i valor per als possibles docuemnts per a les firmes de les tasques.
-	 * Lleva els documents que s'han utilitzat ja en la tasca.
-	 * @param definicioProcesId
-	 * @param tascaId
-	 * @return
-	 */
-	private List<ParellaCodiValorDto> firmaObtenirParellesDocuments(
-			Long definicioProcesId,
-			List<DocumentDto> documents,
-			Long tascaId) {
-		List<ParellaCodiValorDto> resposta = new ArrayList<ParellaCodiValorDto>();
-		// Documents de la tasca existents
-		List<FirmaTascaDto> firmesTasca = definicioProcesService.tascaFirmaFindAmbTascaId(tascaId);
-		// Lleva les firmes que ja pertanyin a algun firma
-		Iterator<DocumentDto> it = documents.iterator();
-		while (it.hasNext()) {
-			DocumentDto firma = it.next();
-			for (FirmaTascaDto firmaTasca : firmesTasca) {
-				if (firma.getId().equals(firmaTasca.getDocument().getId())) {
-					it.remove();
-					break;
-				}
-			}
-		}
-		// Crea les parelles de codi i valor
-		for (DocumentDto firma : documents) {
-			resposta.add(new ParellaCodiValorDto(
-					firma.getId().toString(), 
-					firma.getCodi() + " / " + firma.getNom()));
-		}			
-		return resposta;
-	}	
 	
 }

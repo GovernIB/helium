@@ -3,14 +3,15 @@
  */
 package net.conselldemallorca.helium.v3.core.api.dto;
 
-
 /**
  * DTO amb informació d'un document d'una tasca de la
  * definició de procés.
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
-public class DocumentTascaDto {
+public class DocumentTascaDto extends HeretableDto {
+
+	private static final long serialVersionUID = -8552509655331736854L;
 
 	private Long id;
 
@@ -19,6 +20,12 @@ public class DocumentTascaDto {
 	private int order;
 
 	private DocumentDto document;
+	
+	/** Quan es crea una relació entre un camp i la definició de procés pot ser que el camp sigui 
+	 * del tipus d'expedient i la tasca sigui de la definició de procés del tipus expedient pare heretat. Aquest
+	 * camp fa referència al tipus d'expedient que posseix la relació camp-tasca.
+	 */
+	private Long expedientTipusId;
 
 
 	public Long getId() {
@@ -50,6 +57,12 @@ public class DocumentTascaDto {
 	}
 	public void setDocument(DocumentDto document) {
 		this.document = document;
+	}
+	public Long getExpedientTipusId() {
+		return expedientTipusId;
+	}
+	public void setExpedientTipusId(Long expedientTipusId) {
+		this.expedientTipusId = expedientTipusId;
 	}
 
 }

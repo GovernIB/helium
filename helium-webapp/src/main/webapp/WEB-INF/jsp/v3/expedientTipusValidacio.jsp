@@ -167,6 +167,11 @@
 			error: function(e) {
 				console.log("Error canviant l'ordre: " + e);
 				$('#campValidacio').webutilDatatable('refresh');
+			},
+			complete: function() {
+				webutilRefreshMissatges();
+				$(spin).remove();
+				$(input).show();
 			}
 		});	
 	}
