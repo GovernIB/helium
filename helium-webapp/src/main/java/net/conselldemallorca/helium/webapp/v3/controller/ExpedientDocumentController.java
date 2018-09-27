@@ -305,6 +305,7 @@ public class ExpedientDocumentController extends BaseExpedientController {
 				model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_DATA, arxiu.getContingut());
 			}
 		} catch (SistemaExternException e) {
+			logger.error("Error descarregant fitxer", e);
 			MissatgesHelper.error(request, e.getPublicMessage());
 			model.addAttribute("pipellaActiva", "documents");
 			return "redirect:/v3/expedient/" + expedientId;
