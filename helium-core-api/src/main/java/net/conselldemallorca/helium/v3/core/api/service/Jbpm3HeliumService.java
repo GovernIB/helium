@@ -385,6 +385,21 @@ public interface Jbpm3HeliumService {
 			Date dataDocument) throws NoTrobatException, ValidacioException, TramitacioException;
 
 	/**
+	 * Firma el document amb el plugin de firma de servidor.
+	 * 
+	 * @param processInstanceId
+	 * @param documentCodi
+	 * @param motiu
+	 * @throws NoTrobatException
+	 * @throws ValidacioException
+	 * @throws TramitacioException
+	 */
+	public void documentFirmaServidor(
+			String processInstanceId,
+			String documentCodi,
+			String motiu) throws NoTrobatException, ValidacioException, TramitacioException;
+
+	/**
 	 * Obté el termini donada una instància de procés i el codi del termini.
 	 * 
 	 * @param processInstanceId

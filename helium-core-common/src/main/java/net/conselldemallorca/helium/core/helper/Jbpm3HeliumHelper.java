@@ -91,6 +91,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.ZonaperEventDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ZonaperExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.exception.SistemaExternException;
+import net.conselldemallorca.helium.v3.core.api.exception.ValidacioException;
 import net.conselldemallorca.helium.v3.core.api.registre.RegistreAnotacio;
 import net.conselldemallorca.helium.v3.core.api.service.Jbpm3HeliumService;
 import net.conselldemallorca.helium.v3.core.repository.AlertaRepository;
@@ -701,6 +702,17 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 				null,
 				null);
 		return generat;
+	}
+
+	@Override
+	public void documentFirmaServidor(
+			String processInstanceId,
+			String documentCodi,
+			String motiu) throws ValidacioException {
+		documentHelper.firmaServidor(
+				processInstanceId,
+				documentCodi,
+				motiu);
 	}
 
 	@Override

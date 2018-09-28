@@ -53,7 +53,7 @@
 				</configuration>
 			</plugin>
 			<!-- Comentar el següent plugin si es vol generar la llibreria helium-disseny.jar --> 
-			<!--  per a emprar al disseny d'expedients -->
+			<!--  per a emprar al disseny d'expedients --> 
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>

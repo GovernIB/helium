@@ -44,6 +44,7 @@ import net.conselldemallorca.helium.core.model.hibernate.Portasignatures.Transic
 import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.integracio.plugins.custodia.CustodiaPlugin;
 import net.conselldemallorca.helium.integracio.plugins.custodia.CustodiaPluginException;
+import net.conselldemallorca.helium.integracio.plugins.firma.FirmaPlugin;
 import net.conselldemallorca.helium.integracio.plugins.gesdoc.GestioDocumentalPlugin;
 import net.conselldemallorca.helium.integracio.plugins.persones.DadesPersona;
 import net.conselldemallorca.helium.integracio.plugins.persones.PersonesPlugin;
@@ -143,6 +144,7 @@ public class PluginHelper {
 	private PortasignaturesPlugin portasignaturesPlugin;
 	private CustodiaPlugin custodiaPlugin;
 	private SignaturaPlugin signaturaPlugin;
+	private FirmaPlugin firmaPlugin;
 	private IArxiuPlugin arxiuPlugin;
 
 
@@ -1847,7 +1849,6 @@ public class PluginHelper {
 							"documentId",
 							documentId));
 			logger.error(errorDescripcio,ex);
-			
 			throw SistemaExternException.tractarSistemaExternException(
 					expedient.getEntorn().getId(),
 					expedient.getEntorn().getCodi(), 
@@ -1972,6 +1973,61 @@ public class PluginHelper {
 					"(PLUGIN SIGNATURA. Validació de signatura: " + errorDescripcio + ")", 
 					ex);
 		}
+	}
+
+	public byte[] firmaServidor(
+			Expedient expedient,
+			DocumentStore documentStore,
+			ArxiuDto arxiu,
+			net.conselldemallorca.helium.integracio.plugins.firma.FirmaTipus firmaTipus,
+			String motiu) {
+		String accioDescripcio = "Firma en servidor de document";
+		IntegracioParametreDto[] parametres = new IntegracioParametreDto[] {
+				new IntegracioParametreDto(
+						"expedientIdentificador",
+						expedient.getIdentificador()),
+				new IntegracioParametreDto(
+						"expedientNumero",
+						expedient.getNumero()),
+				new IntegracioParametreDto(
+						"expedientTipusId",
+						expedient.getTipus().getId()),
+				new IntegracioParametreDto(
+						"expedientTipusCodi",
+						expedient.getTipus().getCodi()),
+				new IntegracioParametreDto(
+						"expedientTipusNom",
+						expedient.getTipus().getNom()),
+				new IntegracioParametreDto(
+						"documentCodi",
+						documentStore.getCodiDocument()),
+				new IntegracioParametreDto(
+						"arxiuNom",
+						arxiu.getNom()),
+				new IntegracioParametreDto(
+						"arxiuTamany",
+						arxiu.getTamany())
+		};
+		long t0 = System.currentTimeMillis();
+		try {
+			return getFirmaPlugin().firmar(
+					firmaTipus,
+					motiu,
+					arxiu.getNom(),
+					arxiu.getContingut());
+		} catch (Exception ex) {
+			String errorDescripcio = "No s'han pogut firmar el document: " + ex.getMessage();
+			monitorIntegracioHelper.addAccioError(
+					MonitorIntegracioHelper.INTCODI_FIRMA_SERV,
+					accioDescripcio,
+					IntegracioAccioTipusEnumDto.ENVIAMENT,
+					System.currentTimeMillis() - t0,
+					errorDescripcio,
+					ex,
+					parametres);
+			throw tractarExcepcioEnSistemaExtern(errorDescripcio, ex);
+		}
+		
 	}
 
 	public ContingutArxiu arxiuExpedientCrear(
@@ -2394,6 +2450,7 @@ public class PluginHelper {
 								documentContingut.getContingut());
 						documentDetalls.getContingut().setTamany(
 								documentContingut.getContingut().length);
+						documentDetalls.getContingut().setTipusMime("application/pdf");
 					}
 				}
 			}
@@ -3417,6 +3474,27 @@ public class PluginHelper {
 			}
 		}
 		return signaturaPlugin;
+	}
+	private FirmaPlugin getFirmaPlugin() {
+		if (firmaPlugin == null) {
+			String pluginClass = GlobalProperties.getInstance().getProperty("app.firma.plugin.class");
+			if (pluginClass != null && pluginClass.length() > 0) {
+				try {
+					Class<?> clazz = Class.forName(pluginClass);
+					firmaPlugin = (FirmaPlugin)clazz.newInstance();
+				} catch (Exception ex) {
+					tractarExcepcioEnSistemaExtern(
+							"Error al crear la instància del plugin de firma en servidor (" +
+							"pluginClass=" + pluginClass + ")",
+							ex);
+				}
+			} else {
+				tractarExcepcioEnSistemaExtern(
+						"No està configurada la classe per al plugin de firma en servidor",
+						null);
+			}
+		}
+		return firmaPlugin;
 	}
 	private IArxiuPlugin getArxiuPlugin() {
 		if (arxiuPlugin == null) {

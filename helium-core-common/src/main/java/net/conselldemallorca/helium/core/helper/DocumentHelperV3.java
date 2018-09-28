@@ -37,6 +37,7 @@ import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.hibernate.FirmaTasca;
 import net.conselldemallorca.helium.core.model.hibernate.Portasignatures;
 import net.conselldemallorca.helium.core.model.hibernate.Portasignatures.TipusEstat;
+import net.conselldemallorca.helium.core.model.hibernate.Registre;
 import net.conselldemallorca.helium.core.util.DocumentTokenUtils;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.core.util.OpenOfficeUtils;
@@ -67,6 +68,7 @@ import net.conselldemallorca.helium.v3.core.repository.DocumentTascaRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientRepository;
 import net.conselldemallorca.helium.v3.core.repository.FirmaTascaRepository;
 import net.conselldemallorca.helium.v3.core.repository.PortasignaturesRepository;
+import net.conselldemallorca.helium.v3.core.repository.RegistreRepository;
 
 /**
  * Helper per a gestionar els documents dels expedients
@@ -114,6 +116,8 @@ public class DocumentHelperV3 {
 	private ExceptionHelper exceptionHelper;
 	@Resource
 	private ExpedientRegistreHelper expedientRegistreHelper;
+	@Resource
+	private RegistreRepository registreRepository;
 
 	private PdfUtils pdfUtils;
 	private DocumentTokenUtils documentTokenUtils;
@@ -173,6 +177,24 @@ public class DocumentHelperV3 {
 			// resposta.setNom(documentArxiu.getContingut().getArxiuNom());
 			resposta.setContingut(documentArxiu.getContingut().getContingut());
 			resposta.setTipusMime(documentArxiu.getContingut().getTipusMime());
+			// Si els documents estan firmats amb PADES sempre tindran extensió PDF
+			boolean isFirmaPades = false;
+			if (documentArxiu.getFirmes() != null) {
+				for (Firma firma: documentArxiu.getFirmes()) {
+					if (FirmaTipus.PADES.equals(firma.getTipus())) {
+						isFirmaPades = true;
+						break;
+					}
+				}
+			}
+			if (isFirmaPades) {
+				if (resposta.getNom() != null && !resposta.getNom().toLowerCase().endsWith(".pdf")) {
+					String nomDoc = resposta.getNom();
+					int indexPunt = nomDoc.lastIndexOf(".");
+					nomDoc =  (indexPunt != -1 ? nomDoc.substring(0, indexPunt) :  nomDoc) + ".pdf";
+					resposta.setNom(nomDoc);
+				}
+			}
 		} else {
 			if (documentStore.isSignat() && isSignaturaFileAttached()) {
 				arxiuOrigenContingut = pluginHelper.custodiaObtenirSignaturesAmbArxiu(documentStore.getReferenciaCustodia());
@@ -318,7 +340,10 @@ public class DocumentHelperV3 {
 	public Long findDocumentStorePerInstanciaProcesAndDocumentCodi(
 			String processInstanceId,
 			String documentCodi) {
-			return getDocumentStoreIdDeVariableJbpm(null, processInstanceId, documentCodi);
+			return getDocumentStoreIdDeVariableJbpm(
+					null,
+					processInstanceId,
+					documentCodi);
 	}
 	
 	public ExpedientDocumentDto findDocumentPerDocumentStoreId(
@@ -1356,6 +1381,99 @@ public class DocumentHelperV3 {
 		}
 	}
 
+	public void firmaServidor(
+			String processInstanceId,
+			String documentCodi,
+			String motiu) {
+		Long documentStoreId = findDocumentStorePerInstanciaProcesAndDocumentCodi(
+				processInstanceId,
+				documentCodi);
+		DocumentStore documentStore = documentStoreRepository.findOne(documentStoreId);
+		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
+		ArxiuDto arxiuPerFirmar = getArxiuPerDocumentStoreId(
+				documentStoreId,
+				true,
+				(documentStore.getArxiuUuid() == null));
+		byte[] firma = pluginHelper.firmaServidor(
+				expedient,
+				documentStore,
+				arxiuPerFirmar,
+				net.conselldemallorca.helium.integracio.plugins.firma.FirmaTipus.PADES,
+				(motiu != null) ? motiu : "Firma en servidor HELIUM");
+		guardarDocumentFirmat(
+				processInstanceId,
+				documentCodi,
+				firma);
+	}
+
+	public void guardarDocumentFirmat(
+			String processInstanceId,
+			String documentCodi,
+			byte[] signatura) {
+		Document document = findDocumentPerInstanciaProcesICodi(
+				processInstanceId,
+				documentCodi);
+		Long documentStoreId = findDocumentStorePerInstanciaProcesAndDocumentCodi(
+				processInstanceId,
+				documentCodi);
+		DocumentStore documentStore = documentStoreRepository.findOne(documentStoreId);
+		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
+		if (documentStore.getArxiuUuid() != null) {
+			ArxiuDto pdfFirmat = new ArxiuDto();
+			pdfFirmat.setNom("firma_portafirmes.pdf");
+			pdfFirmat.setTipusMime("application/pdf");
+			pdfFirmat.setContingut(signatura);
+			pluginHelper.arxiuDocumentGuardarPdfFirmat(
+					expedient,
+					documentStore,
+					document.getNom(),
+					pdfFirmat);
+			es.caib.plugins.arxiu.api.Document documentArxiu = pluginHelper.arxiuDocumentInfo(
+					documentStore.getArxiuUuid(),
+					null,
+					false);
+			actualitzarNtiFirma(documentStore, documentArxiu);
+		} else {
+			if (expedient.isNtiActiu()) {
+				actualitzarNtiFirma(documentStore, null);
+			}
+			if (documentStore.getReferenciaCustodia() != null) {
+				pluginHelper.custodiaEsborrarSignatures(
+						documentStore.getReferenciaCustodia(),
+						expedient);
+			}
+			String referenciaCustodia = null;
+			try {
+				referenciaCustodia = pluginHelper.custodiaAfegirSignatura(
+						documentStore.getId(),
+						documentStore.getReferenciaFont(),
+						document.getArxiuNom(),
+						document.getCustodiaCodi(),
+						signatura);
+			} catch (SistemaExternException ex) {
+				// Si dona error perquè el document ja està arxivat l'esborra
+				// i el torna a crear.
+				logger.info("[PSIGN] Error guardant document a custòdia (" +
+						exceptionHelper.getMissageFinalCadenaExcepcions(ex) + ", " +
+						exceptionHelper.cercarMissatgeDinsCadenaExcepcions("ERROR_DOCUMENTO_ARCHIVADO", ex) + ") (" +
+						"docStoreId=" + documentStore.getId() + ", " +
+						"refCustòdia=" + referenciaCustodia + ")");
+				if (exceptionHelper.cercarMissatgeDinsCadenaExcepcions("ERROR_DOCUMENTO_ARCHIVADO", ex)) {
+					referenciaCustodia = documentStore.getId().toString();
+				} else {
+					throw ex;
+				}
+			}
+			documentStore.setReferenciaCustodia(referenciaCustodia);
+		}
+		documentStore.setSignat(true);
+		crearRegistreSignarDocument(
+				expedient.getId(),
+				documentStore.getProcessInstanceId(),
+				SecurityContextHolder.getContext().getAuthentication().getName(),
+				documentCodi);
+	}
+
 
 
 	private ExpedientDocumentDto crearDtoPerDocumentExpedient(
@@ -1813,7 +1931,7 @@ public class DocumentHelperV3 {
 					documentStore.getId());
 		}
 	}
-
+	
 	private void actualizarMetadadesNti(
 			Expedient expedient,
 			Document document,
@@ -1967,6 +2085,22 @@ public class DocumentHelperV3 {
 	private String getPropertyCustodiaVerificacioBaseUrl() {
 		return GlobalProperties.getInstance().getProperty(
 				"app.custodia.plugin.caib.verificacio.baseurl");
+	}
+
+	private Registre crearRegistreSignarDocument(
+			Long expedientId,
+			String processInstanceId,
+			String responsableCodi,
+			String documentCodi) {
+		Registre registre = new Registre(
+				new Date(),
+				expedientId,
+				responsableCodi,
+				Registre.Accio.MODIFICAR,
+				Registre.Entitat.INSTANCIA_PROCES,
+				processInstanceId);
+		registre.setMissatge("Signatura del document '" + documentCodi + "'");
+		return registreRepository.save(registre);
 	}
 
 	private static final Log logger = LogFactory.getLog(DocumentHelperV3.class);

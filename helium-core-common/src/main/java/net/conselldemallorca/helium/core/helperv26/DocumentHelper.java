@@ -244,7 +244,6 @@ public class DocumentHelper {
 		}
 	}
 
-	@SuppressWarnings("incomplete-switch")
 	public boolean signarDocumentTascaAmbToken(
 			String token,
 			byte[] signatura) {
@@ -483,6 +482,16 @@ public class DocumentHelper {
 			DocumentStore documentStore,
 			es.caib.plugins.arxiu.api.Document arxiuDocument) {
 		documentHelperV3.actualitzarNtiFirma(documentStore, arxiuDocument);
+	}
+
+	public void guardarDocumentFirmat(
+			DocumentStore documentStore,
+			byte[] signatura) throws Exception {
+		String documentCodi = documentStore.getJbpmVariable().substring(JbpmVars.PREFIX_DOCUMENT.length());
+		documentHelperV3.guardarDocumentFirmat(
+				documentStore.getProcessInstanceId(),
+				documentCodi,
+				signatura);
 	}
 
 
