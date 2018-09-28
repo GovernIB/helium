@@ -2394,6 +2394,7 @@ public class PluginHelper {
 								documentContingut.getContingut());
 						documentDetalls.getContingut().setTamany(
 								documentContingut.getContingut().length);
+						documentDetalls.getContingut().setTipusMime("application/pdf");
 					}
 				}
 			}

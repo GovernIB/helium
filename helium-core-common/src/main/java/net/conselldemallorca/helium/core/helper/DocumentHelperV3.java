@@ -173,6 +173,24 @@ public class DocumentHelperV3 {
 			// resposta.setNom(documentArxiu.getContingut().getArxiuNom());
 			resposta.setContingut(documentArxiu.getContingut().getContingut());
 			resposta.setTipusMime(documentArxiu.getContingut().getTipusMime());
+			// Si els documents estan firmats amb PADES sempre tindran extensió PDF
+			boolean isFirmaPades = false;
+			if (documentArxiu.getFirmes() != null) {
+				for (Firma firma: documentArxiu.getFirmes()) {
+					if (FirmaTipus.PADES.equals(firma.getTipus())) {
+						isFirmaPades = true;
+						break;
+					}
+				}
+			}
+			if (isFirmaPades) {
+				if (resposta.getNom() != null && !resposta.getNom().toLowerCase().endsWith(".pdf")) {
+					String nomDoc = resposta.getNom();
+					int indexPunt = nomDoc.lastIndexOf(".");
+					nomDoc =  (indexPunt != -1 ? nomDoc.substring(0, indexPunt) :  nomDoc) + ".pdf";
+					resposta.setNom(nomDoc);
+				}
+			}
 		} else {
 			if (documentStore.isSignat() && isSignaturaFileAttached()) {
 				arxiuOrigenContingut = pluginHelper.custodiaObtenirSignaturesAmbArxiu(documentStore.getReferenciaCustodia());
