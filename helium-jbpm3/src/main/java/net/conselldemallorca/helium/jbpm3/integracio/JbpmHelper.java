@@ -740,7 +740,10 @@ public class JbpmHelper {
 		final long id = Long.parseLong(taskInstanceId);
 		GetTaskInstanceCommand command = new GetTaskInstanceCommand(id);
 		TaskInstance taskInstance = (TaskInstance)commandService.execute(command);
-		List<Transition> outcomes = (List<Transition>)taskInstance.getTask().getTaskNode().getLeavingTransitions();
+		List<Transition> outcomes = null;
+		if (taskInstance.getTask().getTaskNode() != null) {
+			outcomes = (List<Transition>)taskInstance.getTask().getTaskNode().getLeavingTransitions();
+		}
 		if (outcomes != null) {
 			for (Transition transition: outcomes)
 				resultat.add(transition.getName());
