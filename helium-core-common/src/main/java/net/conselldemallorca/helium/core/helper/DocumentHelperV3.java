@@ -547,7 +547,7 @@ public class DocumentHelperV3 {
 					false,
 					true,
 					true,
-					true);
+					(documentStore.getArxiuUuid() == null));
 			boolean custodiat = false;
 			Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(documentStore.getProcessInstanceId());
 			String varDocumentCodi = documentStore.getJbpmVariable().substring(JbpmVars.PREFIX_DOCUMENT.length());

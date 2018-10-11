@@ -967,13 +967,14 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 	@Transactional(readOnly = true)
 	public ArxiuDto findArxiuAmbTokenPerSignar(String token) {
 		Long documentStoreId = documentHelper.getDocumentStoreIdPerToken(token);
+		DocumentStore documentStore = documentStoreRepository.findOne(documentStoreId);
 		DocumentDto dto = documentHelper.toDocumentDto(
 				documentStoreId,
 				false,
 				false,
 				true,
 				true,
-				true);
+				(documentStore == null || documentStore.getArxiuUuid() == null));
 		if (dto == null) {
 			return null;
 		}
@@ -983,13 +984,14 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 	@Override
 	@Transactional(readOnly = true)
 	public DocumentDto findDocumentAmbId(Long documentStoreId) {
+		DocumentStore documentStore = documentStoreRepository.findOne(documentStoreId);
 		DocumentDto dto = documentHelper.toDocumentDto(
 				documentStoreId,
 				false,
 				false,
 				true,
 				true,
-				true);
+				(documentStore == null || documentStore.getArxiuUuid() == null));
 		if (dto == null) {
 			throw new NoTrobatException(DocumentDto.class, documentStoreId);
 		}
