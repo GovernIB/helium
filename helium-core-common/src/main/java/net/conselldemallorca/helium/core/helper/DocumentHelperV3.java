@@ -548,7 +548,6 @@ public class DocumentHelperV3 {
 					true,
 					true,
 					(documentStore.getArxiuUuid() == null));
-			boolean custodiat = false;
 			Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(documentStore.getProcessInstanceId());
 			String varDocumentCodi = documentStore.getJbpmVariable().substring(JbpmVars.PREFIX_DOCUMENT.length());
 			if (documentStore.getArxiuUuid() != null) {
@@ -636,19 +635,18 @@ public class DocumentHelperV3 {
 //				documentStore.setReferenciaCustodia(referenciaCustodia);
 //			}
 ////////*****************************************/////
-			
-			if (custodiat) {
-				documentStore.setSignat(true);
-				JbpmTask task = tascaHelper.getTascaComprovacionsTramitacio(
-						tascaId,
-						true,
-						true);
-				String.valueOf(task.getTask().getId());
-				jbpmHelper.setTaskInstanceVariable(
-						tascaId,
-						JbpmVars.PREFIX_SIGNATURA + dto.getDocumentCodi(),
-						documentStore.getId());
-			}
+
+			// Guarda el valor en una variable jbpm
+			documentStore.setSignat(true);
+			JbpmTask task = tascaHelper.getTascaComprovacionsTramitacio(
+					tascaId,
+					true,
+					true);
+			String.valueOf(task.getTask().getId());
+			jbpmHelper.setTaskInstanceVariable(
+					tascaId,
+					JbpmVars.PREFIX_SIGNATURA + dto.getDocumentCodi(),
+					documentStore.getId());
 		}
 		return dto;
 	}
