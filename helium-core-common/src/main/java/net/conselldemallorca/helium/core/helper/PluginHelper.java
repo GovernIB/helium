@@ -2849,6 +2849,9 @@ public class PluginHelper {
 			NtiTipoDocumentalEnumDto ntiTipusDocumental,
 			DocumentEstat estat) {
 		es.caib.plugins.arxiu.api.Document document = new es.caib.plugins.arxiu.api.Document();
+		// Posa l'extensió al nom per a que es concateni al nom dins l'arxiu.
+		if (fitxer != null && fitxer.getExtensio() != null)
+			nom += "." + fitxer.getExtensio();
 		document.setNom(nom);
 		document.setIdentificador(identificador);
 		DocumentMetadades metadades = new DocumentMetadades();
