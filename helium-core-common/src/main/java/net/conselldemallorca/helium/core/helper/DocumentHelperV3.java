@@ -547,7 +547,7 @@ public class DocumentHelperV3 {
 					false,
 					true,
 					true,
-					true);
+					(documentStore.getArxiuUuid() == null));
 			boolean custodiat = false;
 			Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(documentStore.getProcessInstanceId());
 			String varDocumentCodi = documentStore.getJbpmVariable().substring(JbpmVars.PREFIX_DOCUMENT.length());
@@ -1134,7 +1134,7 @@ public class DocumentHelperV3 {
 								extensioDesti = getExtensioArxiuRegistrat();
 							}
 							dto.setVistaNom(dto.getArxiuNomSenseExtensio() + "." + extensioDesti);
-							if ("pdf".equalsIgnoreCase(extensioDesti)) {
+							if ("pdf".equalsIgnoreCase(extensioDesti) && documentStore.getArxiuUuid() == null) {
 								// Si és un PDF podem estampar
 								try {
 									ByteArrayOutputStream vistaContingut = new ByteArrayOutputStream();

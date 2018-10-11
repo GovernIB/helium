@@ -640,7 +640,7 @@ public class TascaServiceImpl implements TascaService {
 					false,
 					true,
 					true,
-					true);
+					(documentStore.getArxiuUuid() == null));
 		}
 		return document;
 	}
