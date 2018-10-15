@@ -1132,7 +1132,7 @@ public class DocumentHelperV3 {
 								extensioDesti = getExtensioArxiuRegistrat();
 							}
 							dto.setVistaNom(dto.getArxiuNomSenseExtensio() + "." + extensioDesti);
-							if ("pdf".equalsIgnoreCase(extensioDesti) && documentStore.getArxiuUuid() == null) {
+							if ("pdf".equalsIgnoreCase(extensioDesti)) {
 								// Si és un PDF podem estampar
 								try {
 									ByteArrayOutputStream vistaContingut = new ByteArrayOutputStream();
@@ -1141,12 +1141,13 @@ public class DocumentHelperV3 {
 									if (documentStore.getRegistreData() != null)
 										dataRegistre = df.format(documentStore.getRegistreData());
 									String numeroRegistre = documentStore.getRegistreNumero();
+									// S'invoca la estampació per convertir a PDF sense estampa.
 									getPdfUtils().estampar(
 											arxiuOrigenNom,
 											arxiuOrigenContingut,
-											(ambSegellSignatura) ? !documentStore.isSignat() : false,
-											(ambSegellSignatura) ? getUrlComprovacioSignatura(documentStoreId, dto.getTokenSignatura()): null,
-											documentStore.isRegistrat(),
+											false, // sense segell
+											null,
+											false, // sense segell
 											numeroRegistre,
 											dataRegistre,
 											documentStore.getRegistreOficinaNom(),
