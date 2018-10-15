@@ -877,6 +877,7 @@ public class ExpedientHelper {
 			Expedient expedient) {
 		verificarFinalitzacioProcessInstance(expedient.getProcessInstanceId());
 		List<String> processInstanceFinalitzatIds = ThreadLocalInfo.getProcessInstanceFinalitzatIds();
+		processInstanceFinalitzatIds.remove(expedient.getProcessInstanceId());
 		for (String processInstanceId: processInstanceFinalitzatIds) {
 			verificarFinalitzacioProcessInstance(processInstanceId);
 		}
