@@ -172,14 +172,18 @@ public class DocumentHelperV3 {
 			es.caib.plugins.arxiu.api.Document documentArxiu = pluginHelper.arxiuDocumentInfo(
 					documentStore.getArxiuUuid(),
 					null,
-					true);
+					true,
+					documentStore.isSignat());
 			resposta.setNom(documentStore.getArxiuNom());
 			// resposta.setNom(documentArxiu.getContingut().getArxiuNom());
 			resposta.setContingut(documentArxiu.getContingut().getContingut());
-			resposta.setTipusMime(documentArxiu.getContingut().getTipusMime());
+			resposta.setTipusMime(
+					documentArxiu.getContingut().getTipusMime() != null ? 
+							documentArxiu.getContingut().getTipusMime() : 
+								getContentType(documentStore.getArxiuNom()));
 			// Si els documents estan firmats amb PADES sempre tindran extensió PDF
 			boolean isFirmaPades = false;
-			if (documentArxiu.getFirmes() != null) {
+			if (documentStore.isSignat() && documentArxiu.getFirmes() != null) {
 				for (Firma firma: documentArxiu.getFirmes()) {
 					if (FirmaTipus.PADES.equals(firma.getTipus())) {
 						isFirmaPades = true;
@@ -563,7 +567,8 @@ public class DocumentHelperV3 {
 					es.caib.plugins.arxiu.api.Document documentArxiu = pluginHelper.arxiuDocumentInfo(
 							documentStore.getArxiuUuid(),
 							null,
-							false);
+							false,
+							true);
 					actualitzarNtiFirma(documentStore, documentArxiu);
 			} else {
 				if (expedient.isNtiActiu()) {
@@ -1098,7 +1103,8 @@ public class DocumentHelperV3 {
 					es.caib.plugins.arxiu.api.Document documentArxiu = pluginHelper.arxiuDocumentInfo(
 							documentStore.getArxiuUuid(),
 							null,
-							ambContingut);
+							ambContingut,
+							documentStore.isSignat());
 					String arxiuNom = documentStore.getArxiuNom();
 					// String arxiuNom = documentArxiu.getContingut().getArxiuNom();
 					byte[] arxiuContingut = documentArxiu.getContingut().getContingut();
@@ -1382,11 +1388,9 @@ public class DocumentHelperV3 {
 
 	public void firmaServidor(
 			String processInstanceId,
-			String documentCodi,
-			String motiu) {
-		Long documentStoreId = findDocumentStorePerInstanciaProcesAndDocumentCodi(
-				processInstanceId,
-				documentCodi);
+			Long documentStoreId,
+			String motiu,
+			boolean permetreSignar) {
 		DocumentStore documentStore = documentStoreRepository.findOne(documentStoreId);
 		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
 		ArxiuDto arxiuPerFirmar = getArxiuPerDocumentStoreId(
@@ -1401,22 +1405,29 @@ public class DocumentHelperV3 {
 				(motiu != null) ? motiu : "Firma en servidor HELIUM");
 		guardarDocumentFirmat(
 				processInstanceId,
-				documentCodi,
-				firma);
+				documentStoreId,
+				firma,
+				permetreSignar);
 	}
 
 	public void guardarDocumentFirmat(
 			String processInstanceId,
-			String documentCodi,
-			byte[] signatura) {
-		Document document = findDocumentPerInstanciaProcesICodi(
-				processInstanceId,
-				documentCodi);
-		Long documentStoreId = findDocumentStorePerInstanciaProcesAndDocumentCodi(
-				processInstanceId,
-				documentCodi);
+			Long documentStoreId,
+			byte[] signatura,
+			boolean permetreSignar) {
 		DocumentStore documentStore = documentStoreRepository.findOne(documentStoreId);
 		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
+		
+		Document document = findDocumentPerInstanciaProcesICodi(
+				expedient.getProcessInstanceId(),
+				documentStore.getCodiDocument());
+		String documentDescripcio;
+		if (documentStore.isAdjunt()) {
+			documentDescripcio = documentStore.getAdjuntTitol();
+		} else {
+			documentDescripcio = document.getNom();
+		}
+		
 		if (documentStore.getArxiuUuid() != null) {
 			ArxiuDto pdfFirmat = new ArxiuDto();
 			pdfFirmat.setNom("firma_portafirmes.pdf");
@@ -1425,12 +1436,13 @@ public class DocumentHelperV3 {
 			pluginHelper.arxiuDocumentGuardarPdfFirmat(
 					expedient,
 					documentStore,
-					document.getNom(),
+					documentDescripcio,
 					pdfFirmat);
 			es.caib.plugins.arxiu.api.Document documentArxiu = pluginHelper.arxiuDocumentInfo(
 					documentStore.getArxiuUuid(),
 					null,
-					false);
+					false,
+					true);
 			actualitzarNtiFirma(documentStore, documentArxiu);
 		} else {
 			if (expedient.isNtiActiu()) {
@@ -1446,8 +1458,8 @@ public class DocumentHelperV3 {
 				referenciaCustodia = pluginHelper.custodiaAfegirSignatura(
 						documentStore.getId(),
 						documentStore.getReferenciaFont(),
-						document.getArxiuNom(),
-						document.getCustodiaCodi(),
+						document != null ? document.getArxiuNom() : documentStore.getArxiuNom(),
+						document != null ? document.getCustodiaCodi() : documentStore.getReferenciaCustodia(),
 						signatura);
 			} catch (SistemaExternException ex) {
 				// Si dona error perquè el document ja està arxivat l'esborra
@@ -1465,12 +1477,12 @@ public class DocumentHelperV3 {
 			}
 			documentStore.setReferenciaCustodia(referenciaCustodia);
 		}
-		documentStore.setSignat(true);
+		documentStore.setSignat(permetreSignar);
 		crearRegistreSignarDocument(
 				expedient.getId(),
 				documentStore.getProcessInstanceId(),
 				SecurityContextHolder.getContext().getAuthentication().getName(),
-				documentCodi);
+				documentDescripcio);
 	}
 
 
@@ -1899,7 +1911,8 @@ public class DocumentHelperV3 {
 			es.caib.plugins.arxiu.api.Document documentArxiu = pluginHelper.arxiuDocumentInfo(
 					contingutArxiu.getIdentificador(),
 					null,
-					false);
+					false,
+					true);
 			documentStore.setNtiIdentificador(
 					documentArxiu.getMetadades().getIdentificador());
 		} else if (arxiuContingut != null) {
@@ -2065,7 +2078,7 @@ public class DocumentHelperV3 {
 		return null;
 	}
 
-	private String getContentType(String arxiuNom) {
+	public String getContentType(String arxiuNom) {
 		String fileNameDetect = tika.detect(arxiuNom);
         if (!fileNameDetect.equals(MimeTypes.OCTET_STREAM)) {
             return fileNameDetect;

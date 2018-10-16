@@ -294,7 +294,7 @@
 		<dependency>
 			<groupId>org.fundaciobit.plugins</groupId>
 			<artifactId>plugin-arxiu-caib</artifactId>
-			<version>1.0.2</version>
+			<version>1.0.3</version>
 			<exclusions>
 				<exclusion>
 					<groupId>log4j</groupId>

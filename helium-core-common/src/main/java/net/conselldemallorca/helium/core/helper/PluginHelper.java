@@ -37,7 +37,6 @@ import es.caib.plugins.arxiu.api.FirmaTipus;
 import es.caib.plugins.arxiu.api.IArxiuPlugin;
 import net.conselldemallorca.helium.core.model.hibernate.DocumentStore;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
-import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.hibernate.Portasignatures;
 import net.conselldemallorca.helium.core.model.hibernate.Portasignatures.TipusEstat;
 import net.conselldemallorca.helium.core.model.hibernate.Portasignatures.Transicio;
@@ -2052,16 +2051,15 @@ public class PluginHelper {
 		};
 		long t0 = System.currentTimeMillis();
 		try {
-			ExpedientTipus expedientTipus = expedient.getTipus();
 			ContingutArxiu expedientCreat = getArxiuPlugin().expedientCrear(
 					toArxiuExpedient(
 							expedient.getIdentificador(),
-							Arrays.asList(expedientTipus.getNtiOrgano()),
+							Arrays.asList(obtenirNtiOrgano(expedient)),
 							expedient.getDataInici(),
-							expedientTipus.getNtiClasificacion(),
-							expedient.getDataFi() != null,
+							obtenirNtiClasificacion(expedient),
+							false,
 							null,
-							expedientTipus.getNtiSerieDocumental(),
+							obtenirNtiSerieDocumental(expedient),
 							expedient.getArxiuUuid()));
 			monitorIntegracioHelper.addAccioOk(
 					MonitorIntegracioHelper.INTCODI_ARXIU,
@@ -2106,16 +2104,15 @@ public class PluginHelper {
 		};
 		long t0 = System.currentTimeMillis();
 		try {
-			ExpedientTipus expedientTipus = expedient.getTipus();
 			getArxiuPlugin().expedientModificar(
 					toArxiuExpedient(
 							expedient.getIdentificador(),
-							Arrays.asList(expedientTipus.getNtiOrgano()),
+							Arrays.asList(obtenirNtiOrgano(expedient)),
 							expedient.getDataInici(),
-							expedientTipus.getNtiClasificacion(),
+							obtenirNtiClasificacion(expedient),
 							expedient.getDataFi() != null,
 							null,
-							expedientTipus.getNtiSerieDocumental(),
+							obtenirNtiSerieDocumental(expedient),
 							expedient.getArxiuUuid()));
 			monitorIntegracioHelper.addAccioOk(
 					MonitorIntegracioHelper.INTCODI_ARXIU,
@@ -2302,11 +2299,11 @@ public class PluginHelper {
 								null,
 								null,
 								null,
-								documentStore.getNtiOrigen(),
-								Arrays.asList(expedient.getNtiOrgano()),
+								obtenirNtiOrigen(documentStore),
+								Arrays.asList(obtenirNtiOrgano(expedient)),
 								documentStore.getDataCreacio(),
-								documentStore.getNtiEstadoElaboracion(),
-								documentStore.getNtiTipoDocumental(),
+								obtenirNtiEstadoElaboracion(documentStore),
+								obtenirNtiTipoDocumental(documentStore),
 								DocumentEstat.ESBORRANY),
 						expedient.getArxiuUuid());
 			} else {
@@ -2318,11 +2315,11 @@ public class PluginHelper {
 								null,
 								null,
 								null,
-								documentStore.getNtiOrigen(),
-								Arrays.asList(expedient.getNtiOrgano()),
+								obtenirNtiOrigen(documentStore),
+								Arrays.asList(obtenirNtiOrgano(expedient)),
 								documentStore.getDataCreacio(),
-								documentStore.getNtiEstadoElaboracion(),
-								documentStore.getNtiTipoDocumental(),
+								obtenirNtiEstadoElaboracion(documentStore),
+								obtenirNtiTipoDocumental(documentStore),
 								DocumentEstat.ESBORRANY));
 			}
 			monitorIntegracioHelper.addAccioOk(
@@ -2383,11 +2380,11 @@ public class PluginHelper {
 							pdfFirmat,
 							null,
 							null,
-							documentStore.getNtiOrigen(),
-							Arrays.asList(expedient.getNtiOrgano()),
+							obtenirNtiOrigen(documentStore),
+							Arrays.asList(obtenirNtiOrgano(expedient)),
 							documentStore.getDataCreacio(),
-							documentStore.getNtiEstadoElaboracion(),
-							documentStore.getNtiTipoDocumental(),
+							obtenirNtiEstadoElaboracion(documentStore),
+							obtenirNtiTipoDocumental(documentStore),
 							DocumentEstat.DEFINITIU));
 			monitorIntegracioHelper.addAccioOk(
 					MonitorIntegracioHelper.INTCODI_ARXIU,
@@ -2413,7 +2410,8 @@ public class PluginHelper {
 	public es.caib.plugins.arxiu.api.Document arxiuDocumentInfo(
 			String arxiuUuid,
 			String versio,
-			boolean ambContingut) {
+			boolean ambContingut,
+			boolean isSignat) {
 		String accioDescripcio = "Consulta d'un document";
 		IntegracioParametreDto[] parametres = new IntegracioParametreDto[] {
 				new IntegracioParametreDto(
@@ -2434,7 +2432,7 @@ public class PluginHelper {
 					ambContingut);
 			if (ambContingut) {
 				boolean isFirmaPades = false;
-				if (documentDetalls.getFirmes() != null) {
+				if (isSignat && documentDetalls.getFirmes() != null) {
 					for (Firma firma: documentDetalls.getFirmes()) {
 						if (FirmaTipus.PADES.equals(firma.getTipus())) {
 							isFirmaPades = true;
@@ -3159,7 +3157,43 @@ public class PluginHelper {
 		document.setEstat(estat);
 		return document;
 	}
+	
+	private String obtenirNtiOrgano(Expedient expedient) {
+		if (expedient.getNtiOrgano() != null && !expedient.getNtiOrgano().isEmpty()) {
+			return expedient.getNtiOrgano();
+		} else {
+			return expedient.getTipus().getNtiOrgano();
+		}
+	}
+	
+	private String obtenirNtiClasificacion(Expedient expedient) {
+		if (expedient.getNtiClasificacion() != null && !expedient.getNtiClasificacion().isEmpty()) {
+			return expedient.getNtiClasificacion();
+		} else {
+			return expedient.getTipus().getNtiClasificacion();
+		}
+	}
 
+	private String obtenirNtiSerieDocumental(Expedient expedient) {
+		if (expedient.getNtiSerieDocumental() != null && !expedient.getNtiSerieDocumental().isEmpty()) {
+			return expedient.getNtiSerieDocumental();
+		} else {
+			return expedient.getTipus().getNtiSerieDocumental();
+		}
+	}
+	
+	private NtiOrigenEnumDto obtenirNtiOrigen(DocumentStore document) {
+		return document.getNtiOrigen() != null ? document.getNtiOrigen() : NtiOrigenEnumDto.ADMINISTRACIO;
+	}
+	
+	private NtiEstadoElaboracionEnumDto obtenirNtiEstadoElaboracion(DocumentStore document) {
+		return document.getNtiEstadoElaboracion() != null ? document.getNtiEstadoElaboracion() : NtiEstadoElaboracionEnumDto.ORIGINAL;
+	}
+	
+	private NtiTipoDocumentalEnumDto obtenirNtiTipoDocumental(DocumentStore document) {
+		return document.getNtiTipoDocumental() != null ? document.getNtiTipoDocumental() : NtiTipoDocumentalEnumDto.ALTRES;
+	}
+	
 	private DocumentPortasignatures getDocumentPortasignatures(
 			DocumentDto document,
 			Expedient expedient) {

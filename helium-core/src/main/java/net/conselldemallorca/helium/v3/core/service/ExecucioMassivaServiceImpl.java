@@ -649,6 +649,8 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 			label = messageHelper.getMessage("expedient.eines.reprendre_expedient");
 		} else if (tipus.equals(ExecucioMassivaTipus.FINALITZAR_EXPEDIENT)){
 			label = messageHelper.getMessage("expedient.eines.finalitzar_expedient");
+		} else if (tipus.equals(ExecucioMassivaTipus.MIGRAR_EXPEDIENT)){
+			label = messageHelper.getMessage("expedient.eines.migrar_expedient");
 		} else if (tipus.equals(ExecucioMassivaTipus.REASSIGNAR)){
 			label = messageHelper.getMessage("expedient.eines.reassignar.expedients");
 		} else if (tipus.equals(ExecucioMassivaTipus.PROPAGAR_PLANTILLES)){
@@ -830,6 +832,10 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 			} else if (tipus == ExecucioMassivaTipus.FINALITZAR_EXPEDIENT){
 				mesuresTemporalsHelper.mesuraIniciar("fi process instance", "massiva", expedient_s);
 				finalitzarExpedient(ome);
+				mesuresTemporalsHelper.mesuraCalcular("fi process instance", "massiva", expedient_s);
+			} else if (tipus == ExecucioMassivaTipus.MIGRAR_EXPEDIENT){
+				mesuresTemporalsHelper.mesuraIniciar("fi process instance", "massiva", expedient_s);
+				migrarExpedient(ome);
 				mesuresTemporalsHelper.mesuraCalcular("fi process instance", "massiva", expedient_s);
 			} else if (tipus == ExecucioMassivaTipus.REPRENDRE){
 				mesuresTemporalsHelper.mesuraIniciar("reprendre tramitació process instance", "massiva", expedient_s);
@@ -1564,6 +1570,22 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 			execucioMassivaExpedientRepository.save(ome);
 		} catch (Exception ex) {
 			logger.error("OPERACIO:" + ome.getId() + ". No s'ha pogut finalitzar l'expedient", ex);
+			throw ex;
+		}
+	}
+	
+	private void migrarExpedient(ExecucioMassivaExpedient ome) throws Exception {
+		Expedient exp = ome.getExpedient();
+		try {
+			ome.setDataInici(new Date());
+			if (exp.getTipus().isArxiuActiu() && exp.getArxiuUuid() == null)
+				expedientService.migrarArxiu(exp.getId());
+			ome.setEstat(ExecucioMassivaEstat.ESTAT_FINALITZAT);
+			ome.setDataFi(new Date());
+			execucioMassivaExpedientRepository.save(ome);
+		} catch (Exception ex) {
+			pluginHelper.arxiuExpedientEsborrar(exp.getArxiuUuid());
+			logger.error("OPERACIO:" + ome.getId() + ". No s'ha pogut MIGRAR", ex);
 			throw ex;
 		}
 	}

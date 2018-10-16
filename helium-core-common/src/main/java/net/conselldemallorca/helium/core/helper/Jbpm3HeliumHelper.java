@@ -713,10 +713,16 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 			String processInstanceId,
 			String documentCodi,
 			String motiu) throws ValidacioException {
+		
+		Long documentStoreId = documentHelper.findDocumentStorePerInstanciaProcesAndDocumentCodi(
+				processInstanceId, 
+				documentCodi);
+		
 		documentHelper.firmaServidor(
 				processInstanceId,
-				documentCodi,
-				motiu);
+				documentStoreId,
+				motiu,
+				true);
 	}
 
 	@Override

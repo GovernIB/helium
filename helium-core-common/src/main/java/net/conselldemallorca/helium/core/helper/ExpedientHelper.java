@@ -38,6 +38,8 @@ import net.conselldemallorca.helium.core.model.hibernate.Alerta;
 import net.conselldemallorca.helium.core.model.hibernate.Camp;
 import net.conselldemallorca.helium.core.model.hibernate.Camp.TipusCamp;
 import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
+import net.conselldemallorca.helium.core.model.hibernate.Document;
+import net.conselldemallorca.helium.core.model.hibernate.DocumentStore;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 import net.conselldemallorca.helium.core.model.hibernate.Estat;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
@@ -57,6 +59,7 @@ import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessInstance;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmToken;
+import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DadesDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
@@ -71,6 +74,7 @@ import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException
 import net.conselldemallorca.helium.v3.core.api.exception.ValidacioException;
 import net.conselldemallorca.helium.v3.core.repository.AlertaRepository;
 import net.conselldemallorca.helium.v3.core.repository.DefinicioProcesRepository;
+import net.conselldemallorca.helium.v3.core.repository.DocumentStoreRepository;
 import net.conselldemallorca.helium.v3.core.repository.EstatRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientTipusRepository;
@@ -99,6 +103,8 @@ public class ExpedientHelper {
 	private TerminiIniciatRepository terminiIniciatRepository;
 	@Resource
 	private RegistreRepository registreRepository;
+	@Resource
+	private DocumentStoreRepository documentStoreRepository;
 
 	@Resource
 	private EntornHelper entornHelper;
@@ -674,6 +680,97 @@ public class ExpedientHelper {
 				expedient.getTipus().getNom());
 	}
 	
+	@Transactional
+	public void migrarArxiu(Expedient expedient) {
+		ContingutArxiu expedientCreat = pluginHelper.arxiuExpedientCrear(expedient);
+		expedient.setArxiuUuid(
+				expedientCreat.getIdentificador());
+		// Consulta l'identificador NTI generat per l'arxiu i el modifica
+		// a dins l'expedient creat.
+		es.caib.plugins.arxiu.api.Expedient expedientArxiu = pluginHelper.arxiuExpedientInfo(
+				expedientCreat.getIdentificador());
+		expedient.setNtiIdentificador(
+				expedientArxiu.getMetadades().getIdentificador());
+		expedient.setArxiuActiu(true);
+		expedient.setNtiActiu(true);
+		
+		List<DocumentStore> documents = documentStoreRepository.findByProcessInstanceId(expedient.getProcessInstanceId());
+		
+		for (DocumentStore documentStore: documents) {
+			
+			Document document = documentHelper.findDocumentPerInstanciaProcesICodi(
+					expedient.getProcessInstanceId(),
+					documentStore.getCodiDocument());
+			String documentDescripcio;
+			if (documentStore.isAdjunt()) {
+				documentDescripcio = documentStore.getAdjuntTitol();
+			} else {
+				documentDescripcio = document.getNom();
+			}
+			ArxiuDto arxiu = documentHelper.getArxiuPerDocumentStoreId(
+					documentStore.getId(),
+					false,
+					false);
+			
+			if (arxiu.getTipusMime() == null)
+				arxiu.setTipusMime(documentHelper.getContentType(arxiu.getNom()));
+			
+			
+			ContingutArxiu contingutArxiu = pluginHelper.arxiuDocumentActualitzar(
+					expedient,
+					documentDescripcio,
+					documentStore,
+					arxiu);
+			documentStore.setArxiuUuid(contingutArxiu.getIdentificador());
+			es.caib.plugins.arxiu.api.Document documentArxiu = pluginHelper.arxiuDocumentInfo(
+					contingutArxiu.getIdentificador(),
+					null,
+					false,
+					true);
+			documentStore.setNtiIdentificador(
+					documentArxiu.getMetadades().getIdentificador());
+			
+			if (documentStore.isSignat()) {
+				
+				pluginHelper.arxiuDocumentGuardarPdfFirmat(
+						expedient,
+						documentStore,
+						documentDescripcio,
+						arxiu);
+				documentArxiu = pluginHelper.arxiuDocumentInfo(
+						documentStore.getArxiuUuid(),
+						null,
+						false,
+						true);
+				documentHelper.actualitzarNtiFirma(documentStore, documentArxiu);
+			} else if (expedient.getDataFi() != null) {
+				documentHelper.firmaServidor(
+						expedient.getProcessInstanceId(), 
+						documentStore.getId(), 
+						messageHelper.getMessage("document.controller.firma.servidor.default.message"),
+						false);
+			}
+			
+			documentStore.setArxiuContingut(null);
+			
+			if (expedient.getDataFi() != null)
+				pluginHelper.arxiuExpedientTancar(expedient.getArxiuUuid());
+		}
+	}
+	
+	public void firmarDoucmentsPerArxiuFiExpedient(Expedient expedient) {
+		List<DocumentStore> documents = documentStoreRepository.findByProcessInstanceId(expedient.getProcessInstanceId());
+		
+		for (DocumentStore documentStore: documents) {
+			if (!documentStore.isSignat())
+				documentHelper.firmaServidor(
+						expedient.getProcessInstanceId(), 
+						documentStore.getId(), 
+						messageHelper.getMessage("document.controller.firma.servidor.default.message"),
+						false);
+		}
+	}
+	
 	public void relacioCrear(
 			Expedient origen,
 			Expedient desti) {
@@ -1059,6 +1156,9 @@ public class ExpedientHelper {
 				
 				//tancam l'expedient de l'arxiu si escau
 				if (expedient.getTipus().isArxiuActiu() && expedient.getArxiuUuid() != null) {
+					//firmem els documents que no estan firmats
+					this.firmarDoucmentsPerArxiuFiExpedient(expedient);
+					
 					// Tanca l'expedient a l'arxiu.
 					pluginHelper.arxiuExpedientTancar(expedient.getArxiuUuid());
 				}

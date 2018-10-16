@@ -358,6 +358,25 @@ public class ExpedientV3Controller extends BaseExpedientController {
 				expedientService.getArxiuDetall(expedientId));
 		return "v3/expedientMetadadesNtiInfo";
 	}
+	
+	@RequestMapping(value = "/{expedientId}/migrarArxiu", method = RequestMethod.GET)
+	public String migrarArxiu(
+			HttpServletRequest request,
+			@PathVariable Long expedientId) {
+		try {
+			ExpedientDto expedient = expedientService.findAmbId(expedientId);
+			if (expedient.isPermisAdministration()) {
+				expedientService.migrarArxiu(expedient.getId());
+				MissatgesHelper.success(request, getMessage(request, "info.expedient.migrat.arxiu"));
+			} else {
+				MissatgesHelper.error(request, getMessage(request, "error.permisos.migrar.expedient.arxiu"));
+			}
+		} catch (Exception ex) {
+			logger.error("Error migrant l'expedient a l'arxiu: ", ex);
+			MissatgesHelper.error(request, getMessage(request, "error.migrar.expedient.arxiu") + ": " + ex.getLocalizedMessage());
+		}
+		return "redirect:/v3/expedient/" + expedientId;
+	}
 
 	@InitBinder
 	public void initBinder(WebDataBinder binder) {

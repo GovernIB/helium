@@ -71,7 +71,8 @@ public class ExpedientLog implements Serializable, GenericEntity<Long> {
 		EXPEDIENT_RETROCEDIR_TASQUES,
 		PROCES_LLAMAR_SUBPROCES,
 		EXPEDIENT_FINALITZAR,
-		EXPEDIENT_DESFINALITZAR}
+		EXPEDIENT_DESFINALITZAR,
+		EXPEDIENT_MIGRAR_ARXIU}			// 35
 
 	public enum ExpedientLogEstat {
 		NORMAL,
@@ -268,6 +269,7 @@ public class ExpedientLog implements Serializable, GenericEntity<Long> {
 				accioTipus.equals(ExpedientLogAccioTipus.EXPEDIENT_RETROCEDIR) ||
 				accioTipus.equals(ExpedientLogAccioTipus.EXPEDIENT_FINALITZAR) ||
 				accioTipus.equals(ExpedientLogAccioTipus.EXPEDIENT_DESFINALITZAR) ||
+				accioTipus.equals(ExpedientLogAccioTipus.EXPEDIENT_MIGRAR_ARXIU) ||
 				accioTipus.equals(ExpedientLogAccioTipus.EXPEDIENT_RETROCEDIR_TASQUES);
 	}
 

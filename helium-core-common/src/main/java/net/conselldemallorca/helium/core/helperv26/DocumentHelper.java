@@ -274,7 +274,8 @@ public class DocumentHelper {
 				es.caib.plugins.arxiu.api.Document documentArxiu = pluginHelper.arxiuDocumentInfo(
 						documentStore.getArxiuUuid(),
 						null,
-						false);
+						false,
+						true);
 				documentHelperV3.actualitzarNtiFirma(documentStore, documentArxiu);
 				custodiat = true;
 			} else if (pluginHelper.custodiaIsPluginActiu()) {
@@ -487,14 +488,12 @@ public class DocumentHelper {
 	public void guardarDocumentFirmat(
 			DocumentStore documentStore,
 			byte[] signatura) throws Exception {
-		String documentCodi = documentStore.getJbpmVariable().substring(JbpmVars.PREFIX_DOCUMENT.length());
 		documentHelperV3.guardarDocumentFirmat(
 				documentStore.getProcessInstanceId(),
-				documentCodi,
-				signatura);
+				documentStore.getId(),
+				signatura,
+				true);
 	}
-
-
 
 	private Long getDocumentStoreIdDeVariableJbpm(
 			String taskInstanceId,

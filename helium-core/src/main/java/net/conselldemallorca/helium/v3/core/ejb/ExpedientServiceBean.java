@@ -617,6 +617,12 @@ public class ExpedientServiceBean implements ExpedientService {
 	public void finalitzar(Long id) throws NoTrobatException, PermisDenegatException {
 		delegate.finalitzar(id);
 	}
+	
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public void migrarArxiu(Long id) throws NoTrobatException, PermisDenegatException {
+		delegate.migrarArxiu(id);
+	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
