@@ -116,7 +116,6 @@
 var finestraFirma;
 
 function refreshSignatures() {
-	finestraFirma.close();
 	window.location.href = '<c:url value="/modal/v3/tasca/${tasca.id}/signatura"/>';
 }
 

@@ -4,25 +4,19 @@
 	<script type="text/javascript">
 	// <![CDATA[
 	    $(document).ready(function() {
-	    	if ($('.alert-danger').length > 0) {
-				$('#tancarBtn').show();
-			} else {
-				setTimeout(
-						function() { 
-			    			opener.refreshSignatures();
-						}, 
-						2000);				
+	    	if ($('.alert-danger').length == 0) {
+    			opener.refreshSignatures();
 			}
 			$('#tancarBtn').click(function(e) {
-		    	opener.refreshSignatures();
-		    	e.preventDefault();
+		    	window.close();
 			})
 	    });
-	    
-	    
-	    
+	    // Quan es tanca la finestra refresca les signatures
+	    $( window ).unload(function() {
+	    	opener.refreshSignatures();
+		});	    
 	//]]>
 	</script>
 
-	<button id="tancarBtn" class="btn btn-default" style="display:none;"><spring:message code='comu.boto.tancar' /></button>
+	<button id="tancarBtn" class="btn btn-default"><spring:message code='comu.boto.tancar' /></button>
 	
