@@ -3478,13 +3478,13 @@ public class PluginHelper {
 					Class<?> clazz = Class.forName(pluginClass);
 					custodiaPlugin = (CustodiaPlugin)clazz.newInstance();
 				} catch (Exception ex) {
-					tractarExcepcioEnSistemaExtern(
+					throw tractarExcepcioEnSistemaExtern(
 							"Error al crear la instància del plugin de custòdia (" +
 							"pluginClass=" + pluginClass + ")",
 							ex);
 				}
 			} else {
-				tractarExcepcioEnSistemaExtern(
+				throw tractarExcepcioEnSistemaExtern(
 						"No està configurada la classe per al plugin de custòdia",
 						null);
 			}
@@ -3499,13 +3499,13 @@ public class PluginHelper {
 					Class<?> clazz = Class.forName(pluginClass);
 					signaturaPlugin = (SignaturaPlugin)clazz.newInstance();
 				} catch (Exception ex) {
-					tractarExcepcioEnSistemaExtern(
+					throw tractarExcepcioEnSistemaExtern(
 							"Error al crear la instància del plugin de signatura (" +
 							"pluginClass=" + pluginClass + ")",
 							ex);
 				}
 			} else {
-				tractarExcepcioEnSistemaExtern(
+				throw tractarExcepcioEnSistemaExtern(
 						"No està configurada la classe per al plugin de signatura",
 						null);
 			}
@@ -3520,13 +3520,13 @@ public class PluginHelper {
 					Class<?> clazz = Class.forName(pluginClass);
 					firmaPlugin = (FirmaPlugin)clazz.newInstance();
 				} catch (Exception ex) {
-					tractarExcepcioEnSistemaExtern(
+					throw tractarExcepcioEnSistemaExtern(
 							"Error al crear la instància del plugin de firma en servidor (" +
 							"pluginClass=" + pluginClass + ")",
 							ex);
 				}
 			} else {
-				tractarExcepcioEnSistemaExtern(
+				throw tractarExcepcioEnSistemaExtern(
 						"No està configurada la classe per al plugin de firma en servidor",
 						null);
 			}
