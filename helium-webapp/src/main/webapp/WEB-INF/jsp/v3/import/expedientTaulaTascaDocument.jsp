@@ -40,12 +40,10 @@
 							<a title="<spring:message code='comuns.descarregar' />" id="downloadUrl" href="${downloadUrl}">
 								<i class="fa fa-download"></i>
 							</a>
-						</c:if>												
+						</c:if>
 						<c:if test="${document.signat}">																					
-							<a 	data-rdt-link-modal="true" 
-								<c:if test="${not empty document.urlVerificacioCustodia}">data-rdt-link-modal-min-height="400"</c:if>
-								class="icon signature" 
-								href="${document.urlVerificacioCustodia}">
+							<a class="icon signature" 
+								href="<c:url value="/v3/expedient/${tasca.expedientId}/proces/${tasca.processInstanceId}/document/${document.documentStoreId}/descarregar"/>">
 								<span class="fa fa-certificate" title="<spring:message code='expedient.document.signat' />"></span>
 							</a>
 						</c:if>
