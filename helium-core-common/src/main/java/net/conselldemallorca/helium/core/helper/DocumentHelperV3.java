@@ -421,9 +421,12 @@ public class DocumentHelperV3 {
 				task.getTaskName());
 		List<TascaDocumentDto> resposta = new ArrayList<TascaDocumentDto>();
 		for (DocumentTasca documentTasca: documentsTasca) {
-			resposta.add(toTascaDocumentDto(
-					task,
-					documentTasca.getDocument(), documentTasca.isRequired(), documentTasca.isReadOnly()));
+			resposta.add(
+					toTascaDocumentDto(
+							task,
+							documentTasca.getDocument(),
+							documentTasca.isRequired(),
+							documentTasca.isReadOnly()));
 		}
 		return resposta;
 	}
@@ -1518,9 +1521,14 @@ public class DocumentHelperV3 {
 		dto.setDocumentNom(document.getNom());
 		dto.setSignat(documentStore.isSignat());
 		if (documentStore.isSignat()) {
-			dto.setSignaturaUrlVerificacio(
-					pluginHelper.custodiaObtenirUrlComprovacioSignatura(
-							documentStore.getId().toString()));
+			if (documentStore.getArxiuUuid() == null) {
+				dto.setSignaturaUrlVerificacio(
+						pluginHelper.custodiaObtenirUrlComprovacioSignatura(
+								documentStore.getId().toString()));
+			} else {
+				dto.setSignaturaUrlVerificacio(
+						getPropertyArxiuVerificacioBaseUrl() + documentStore.getNtiCsv());
+			}
 		}
 		dto.setRegistrat(documentStore.isRegistrat());
 		if (documentStore.isRegistrat()) {
@@ -1621,9 +1629,14 @@ public class DocumentHelperV3 {
 				dto.setSignat(documentStore.isSignat());
 				dto.setRegistrat(documentStore.isRegistrat());
 				if (documentStore.isSignat()) {
-					dto.setUrlVerificacioCustodia(
-							pluginHelper.custodiaObtenirUrlComprovacioSignatura(
-									documentStoreId.toString()));
+					if (documentStore.getArxiuUuid() == null) {
+						dto.setUrlVerificacioCustodia(
+								pluginHelper.custodiaObtenirUrlComprovacioSignatura(
+										documentStoreId.toString()));
+					} else {
+						dto.setSignaturaUrlVerificacio(
+								getPropertyArxiuVerificacioBaseUrl() + documentStore.getNtiCsv());
+					}
 				}
 				try {
 					dto.setTokenSignatura(getDocumentTokenUtils().xifrarToken(documentStoreId.toString()));
@@ -1638,7 +1651,7 @@ public class DocumentHelperV3 {
 					dto.setRegistreEntrada(documentStore.isRegistreEntrada());
 				}
 			}
-		}	
+		}
 		return dto;
 	}
 
@@ -2097,6 +2110,10 @@ public class DocumentHelperV3 {
 	private String getPropertyCustodiaVerificacioBaseUrl() {
 		return GlobalProperties.getInstance().getProperty(
 				"app.custodia.plugin.caib.verificacio.baseurl");
+	}
+	private String getPropertyArxiuVerificacioBaseUrl() {
+		return GlobalProperties.getInstance().getProperty(
+				"app.arxiu.verificacio.baseurl");
 	}
 
 	private Registre crearRegistreSignarDocument(

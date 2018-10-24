@@ -56,17 +56,18 @@
 					<label class="control-label col-xs-1 <c:if test="${document.required}">obligatori</c:if>">${document.documentNom}</label>
 					<c:choose>
 						<c:when test="${not empty document.tokenSignatura}">
-							<c:url value="/v3/tasca/${tasca.id}/document/${document.documentCodi}/descarregar" var="downloadUrl"></c:url>
-							<a title="<spring:message code='comuns.descarregar' />" class="icon" id="downloadUrl${document.id}" href="${downloadUrl}">
-								<i class="fa fa-download"></i>
-							</a>
-							
-							<c:if test="${document.signat}">																					
-								<a class="icon signature" 
-									href="<c:url value="/v3/expedient/${tasca.expedientId}/proces/${tasca.processInstanceId}/document/${document.documentStoreId}/descarregar"/>">
-									<span class="fa fa-certificate" title="<spring:message code='expedient.document.signat' />"></span>
-								</a>
-							</c:if>
+							<c:choose>
+								<c:when test="${not document.signat}">
+									<c:url value="/v3/tasca/${tasca.id}/document/${document.documentCodi}/descarregar" var="downloadUrl"></c:url>
+									<a title="<spring:message code="comuns.descarregar"/>" class="icon" id="downloadUrl${document.id}" href="${downloadUrl}">
+										<i class="fa fa-download"></i>
+									</a>
+								</c:when>
+								<c:otherwise>
+									<a class="icon signature" href="<c:url value="/v3/expedient/${tasca.expedientId}/proces/${tasca.processInstanceId}/document/${document.documentStoreId}/descarregar"/>"><span class="fa fa-download" title="<spring:message code="comuns.descarregar"/>"></span></a>
+									<a class="icon signature" href="${document.signaturaUrlVerificacio}" target="_blank"><span class="fa fa-certificate" title="<spring:message code="expedient.document.signat"/>"></span></a>
+								</c:otherwise>
+							</c:choose>
 							<c:if test="${document.registrat}">
 								<a 	data-rdt-link-modal="true" 
 									class="icon registre" 
@@ -74,7 +75,6 @@
 									<span class="fa fa-book" title="<spring:message code='expedient.document.registrat' />"></span>
 								</a>
 							</c:if>
-							
 							</h4>
 							<c:if test="${!bloquejarEdicioTasca}">
 								<div id="firmar${document.id}">

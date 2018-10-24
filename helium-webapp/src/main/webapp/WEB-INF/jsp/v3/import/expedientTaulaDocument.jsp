@@ -43,9 +43,9 @@
 								<c:if test="${document.adjunt}">
 									<span class="adjuntIcon icon fa fa-paperclip fa-2x"></span>
 								</c:if>
-								<c:if test="${document.arxiuActiu and document.signat}">
+								<%--c:if test="${document.arxiuActiu and document.signat}">
 									<span class="adjuntIcon icon fa fa-certificate fa-2x"></span>
-								</c:if>
+								</c:if--%>
 								<span class="extensionIcon">
 									${fn:toUpperCase(document.arxiuExtensio)}
 								</span>
@@ -66,35 +66,44 @@
 															<span class="fa fa-2x fa-pencil" title="<spring:message code='expedient.document.modificar' />"></span>
 													</a>
 												</c:if>
-												<c:if test="${document.signat and not document.arxiuActiu}">	
+												<c:if test="${document.signat}">
 													<c:choose>
-														<c:when test="${not empty document.signaturaUrlVerificacio}">
-															<a 	class="icon signature"
-															   	data-rdt-link-modal="true" 
-															   	data-rdt-link-modal-min-height="400" 
-															   	href="${document.signaturaUrlVerificacio}">
-																<span class="fa fa-2x fa-certificate" title="<spring:message code='expedient.document.signat' />"></span>
-															</a>
+														<c:when test="${not document.arxiuActiu}">
+															<c:choose>
+																<c:when test="${not empty document.signaturaUrlVerificacio}">
+																	<a 	class="icon signature"
+																	   	data-rdt-link-modal="true" 
+																	   	data-rdt-link-modal-min-height="400" 
+																	   	href="${document.signaturaUrlVerificacio}">
+																		<span class="fa fa-2x fa-certificate" title="<spring:message code='expedient.document.signat' />"></span>
+																	</a>
+																</c:when>
+																<c:otherwise>																			
+																	<a 	data-rdt-link-modal="true"
+																		class="icon signature" 
+																		href="<c:url value="../../v3/expedient/${expedientId}/proces/${document.processInstanceId}/document/${document.id}/signatura/verificar"/>?urlVerificacioCustodia=${document.signaturaUrlVerificacio}">
+																		<span class="fa fa-2x fa-certificate" title="<spring:message code='expedient.document.signat' />"></span>
+																	</a>
+																</c:otherwise>
+															</c:choose>
+															<c:if test="${expedient.permisDocManagement}">
+																<a 	class="icon signature fa-stack fa-2x" 
+																	data-rdt-link-confirm="<spring:message code='expedient.document.confirm_esborrar_signatures' />"
+																	data-rdt-link-ajax=true
+																	href='<c:url value="../../v3/expedient/${expedientId}/proces/${document.processInstanceId}/document/${document.id}/signatura/esborrar"/>' 
+																	data-rdt-link-callback="esborrarSignatura(${document.id});"
+																	title="<spring:message code='expedient.document.esborrar.signatures' />">
+																	<i class="fa fa-certificate fa-stack-1x"></i>
+																  	<i class="fa fa-ban fa-stack-2x text-danger"></i>
+																</a>
+															</c:if>
 														</c:when>
-														<c:otherwise>																			
-															<a 	data-rdt-link-modal="true"
-																class="icon signature" 
-																href="<c:url value="../../v3/expedient/${expedientId}/proces/${document.processInstanceId}/document/${document.id}/signatura/verificar"/>?urlVerificacioCustodia=${document.signaturaUrlVerificacio}">
-																<span class="fa fa-2x fa-certificate" title="<spring:message code='expedient.document.signat' />"></span>
+														<c:otherwise>
+															<a class="icon signature" href="${document.signaturaUrlVerificacio}" target="_blank">
+																<span class="fa fa-2x fa-certificate" title="<spring:message code="expedient.document.signat"/>"></span>
 															</a>
 														</c:otherwise>
 													</c:choose>
-													<c:if test="${expedient.permisDocManagement}">
-														<a 	class="icon signature fa-stack fa-2x" 
-															data-rdt-link-confirm="<spring:message code='expedient.document.confirm_esborrar_signatures' />"
-															data-rdt-link-ajax=true
-															href='<c:url value="../../v3/expedient/${expedientId}/proces/${document.processInstanceId}/document/${document.id}/signatura/esborrar"/>' 
-															data-rdt-link-callback="esborrarSignatura(${document.id});"
-															title="<spring:message code='expedient.document.esborrar.signatures' />">
-															<i class="fa fa-certificate fa-stack-1x"></i>
-														  	<i class="fa fa-ban fa-stack-2x text-danger"></i>
-														</a>
-													</c:if>
 												</c:if>
 												<c:if test="${document.registrat}">
 													<a 	data-rdt-link-modal="true" 
@@ -148,6 +157,14 @@
 													</c:choose>
 												</c:if>
 												<!-- FI FRAGMENT -->
+												<c:if test="${expedient.ntiActiu}">
+													<a	href="../../v3/expedient/${expedientId}/proces/${document.processInstanceId}/document/${document.id}/metadadesNti"
+														data-rdt-link-modal="true"
+														data-rdt-link-modal-min-height="500"
+														class="linkNti">
+														<span class="label label-info etiqueta-nti-arxiu"><c:choose><c:when test="${empty expedient.arxiuUuid}"><spring:message code="expedient.info.etiqueta.nti"/></c:when><c:otherwise><spring:message code="expedient.info.etiqueta.arxiu"/></c:otherwise></c:choose></span>
+													</a>
+												</c:if>
 											</td>
 										</tr>
 										<tr>
@@ -177,14 +194,6 @@
 									<c:otherwise>${document.adjuntTitol}</c:otherwise>
 								</c:choose>
 							</strong>
-							<c:if test="${expedient.ntiActiu}">
-								<a	href="../../v3/expedient/${expedientId}/proces/${document.processInstanceId}/document/${document.id}/metadadesNti"
-									data-rdt-link-modal="true"
-									data-rdt-link-modal-min-height="500"
-									class="linkNti">
-									<span class="label label-info etiqueta-nti-arxiu"><c:choose><c:when test="${empty expedient.arxiuUuid}"><spring:message code="expedient.info.etiqueta.nti"/></c:when><c:otherwise><spring:message code="expedient.info.etiqueta.arxiu"/></c:otherwise></c:choose></span>
-								</a>
-							</c:if>
 							<br/>
 						</td>
 					</tr>

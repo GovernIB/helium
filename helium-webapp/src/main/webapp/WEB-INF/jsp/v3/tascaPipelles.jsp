@@ -140,7 +140,6 @@ function refrescarAlertesFunction() {
 </script>
 </head>
 <body>
-
 	<c:if test="${not empty tasca.tascaMissatgeInfo}">
 		<div class="alert alert-info" role="alert">
 			<span class="fa fa-info-circle"></span>
@@ -153,8 +152,6 @@ function refrescarAlertesFunction() {
 			${tasca.tascaMissatgeWarn}
 		</div>
 	</c:if>
-	
-	
 	<c:if test="${not empty tasquesTramitar}">
 		<div id="tasquesTramitar">
 			<c:import url="import/tasquesMassiva.jsp">
@@ -226,7 +223,6 @@ function refrescarAlertesFunction() {
 			<div class="well"><span class="fa fa-info-circle"></span> <spring:message code="tasca.tramitacio.sense.pipelles"/></div>
 		</c:otherwise>
 	</c:choose>
-	
 	<c:if test="${!bloquejarEdicioTasca}">
 		<div id="guardarValidarTarea">
 			<%@ include file="campsTascaBotons.jsp" %>
