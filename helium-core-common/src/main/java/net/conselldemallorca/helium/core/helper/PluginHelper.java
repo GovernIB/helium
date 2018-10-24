@@ -2289,13 +2289,15 @@ public class PluginHelper {
 						arxiu.getTamany()));
 		long t0 = System.currentTimeMillis();
 		try {
+			String nomAmbExtensio = documentNom + "." + arxiu.getExtensio();
 			ContingutArxiu documentPerRetornar;
 			if (documentStore.getArxiuUuid() == null) {
 				documentPerRetornar = getArxiuPlugin().documentCrear(
 						toArxiuDocument(
 								null,
-								documentNom,
+								nomAmbExtensio,
 								arxiu,
+								null,
 								null,
 								null,
 								null,
@@ -2304,14 +2306,16 @@ public class PluginHelper {
 								documentStore.getDataCreacio(),
 								obtenirNtiEstadoElaboracion(documentStore),
 								obtenirNtiTipoDocumental(documentStore),
+								getExtensioPerArxiu(arxiu),
 								DocumentEstat.ESBORRANY),
 						expedient.getArxiuUuid());
 			} else {
 				documentPerRetornar = getArxiuPlugin().documentModificar(
 						toArxiuDocument(
 								documentStore.getArxiuUuid(),
-								documentNom,
+								nomAmbExtensio,
 								arxiu,
+								null,
 								null,
 								null,
 								null,
@@ -2320,6 +2324,7 @@ public class PluginHelper {
 								documentStore.getDataCreacio(),
 								obtenirNtiEstadoElaboracion(documentStore),
 								obtenirNtiTipoDocumental(documentStore),
+								getExtensioPerArxiu(arxiu),
 								DocumentEstat.ESBORRANY));
 			}
 			monitorIntegracioHelper.addAccioOk(
@@ -2347,7 +2352,7 @@ public class PluginHelper {
 			Expedient expedient,
 			DocumentStore documentStore,
 			String documentNom,
-			ArxiuDto pdfFirmat) {
+			ArxiuDto firmaPdf) {
 		String accioDescripcio = "Guardar PDF firmat com a document definitiu";
 		List<IntegracioParametreDto> parametres = new ArrayList<IntegracioParametreDto>();
 		parametres.add(
@@ -2360,31 +2365,33 @@ public class PluginHelper {
 						documentNom));
 		parametres.add(
 				new IntegracioParametreDto(
-						"fitxerPdfFirmatNom",
-						pdfFirmat.getNom()));
+						"firmaPdfFitxerNom",
+						firmaPdf.getNom()));
 		parametres.add(
 				new IntegracioParametreDto(
-						"fitxerPdfFirmatTipusMime",
-						pdfFirmat.getTipusMime()));
+						"firmaPdfFitxerTipusMime",
+						firmaPdf.getTipusMime()));
 		parametres.add(
 				new IntegracioParametreDto(
-						"fitxerPdfFirmatTamany",
-						new Long(pdfFirmat.getTamany()).toString()));
+						"firmaPdfFitxerTamany",
+						new Long(firmaPdf.getTamany()).toString()));
 		long t0 = System.currentTimeMillis();
 		try {
 			ContingutArxiu documentPerRetornar = getArxiuPlugin().documentModificar(
 					toArxiuDocument(
 							documentStore.getArxiuUuid(),
-							documentNom,
+							documentNom + ".pdf",
 							null,
-							pdfFirmat,
-							null,
+							firmaPdf,
+							FirmaTipus.PADES,
+							FirmaPerfil.EPES,
 							null,
 							obtenirNtiOrigen(documentStore),
 							Arrays.asList(obtenirNtiOrgano(expedient)),
 							documentStore.getDataCreacio(),
 							obtenirNtiEstadoElaboracion(documentStore),
 							obtenirNtiTipoDocumental(documentStore),
+							DocumentExtensio.PDF,
 							DocumentEstat.DEFINITIU));
 			monitorIntegracioHelper.addAccioOk(
 					MonitorIntegracioHelper.INTCODI_ARXIU,
@@ -2395,6 +2402,74 @@ public class PluginHelper {
 			return documentPerRetornar;
 		} catch (Exception ex) {
 			String errorDescripcio = "No s'ha pogut guardar el PDF firmat com a document definitiu: " + ex.getMessage();
+			monitorIntegracioHelper.addAccioError(
+					MonitorIntegracioHelper.INTCODI_ARXIU,
+					accioDescripcio,
+					IntegracioAccioTipusEnumDto.ENVIAMENT,
+					System.currentTimeMillis() - t0,
+					errorDescripcio,
+					ex,
+					parametres.toArray(new IntegracioParametreDto[parametres.size()]));
+			throw tractarExcepcioEnSistemaExtern(errorDescripcio, ex);
+		}
+	}
+
+	public ContingutArxiu arxiuDocumentGuardarFirmaCadesDetached(
+			Expedient expedient,
+			DocumentStore documentStore,
+			String documentNom,
+			ArxiuDto firmaCades) {
+		String accioDescripcio = "Guardar firma CAdES pel document";
+		List<IntegracioParametreDto> parametres = new ArrayList<IntegracioParametreDto>();
+		parametres.add(
+				new IntegracioParametreDto(
+						"id",
+						documentStore.getId().toString()));
+		parametres.add(
+				new IntegracioParametreDto(
+						"documentNom",
+						documentNom));
+		parametres.add(
+				new IntegracioParametreDto(
+						"firmaCadesFitxerNom",
+						firmaCades.getNom()));
+		parametres.add(
+				new IntegracioParametreDto(
+						"firmaCadesFitxerTipusMime",
+						firmaCades.getTipusMime()));
+		parametres.add(
+				new IntegracioParametreDto(
+						"firmaCadesFitxerTamany",
+						new Long(firmaCades.getTamany()).toString()));
+		long t0 = System.currentTimeMillis();
+		try {
+			ArxiuDto arxiu = new ArxiuDto();
+			arxiu.setNom(documentStore.getArxiuNom());
+			ContingutArxiu documentPerRetornar = getArxiuPlugin().documentModificar(
+					toArxiuDocument(
+							documentStore.getArxiuUuid(),
+							documentNom + "." + arxiu.getExtensio(),
+							null,
+							firmaCades,
+							FirmaTipus.CADES_DET,
+							FirmaPerfil.BES,
+							null,
+							obtenirNtiOrigen(documentStore),
+							Arrays.asList(obtenirNtiOrgano(expedient)),
+							documentStore.getDataCreacio(),
+							obtenirNtiEstadoElaboracion(documentStore),
+							obtenirNtiTipoDocumental(documentStore),
+							getExtensioPerArxiu(arxiu),
+							DocumentEstat.DEFINITIU));
+			monitorIntegracioHelper.addAccioOk(
+					MonitorIntegracioHelper.INTCODI_ARXIU,
+					accioDescripcio,
+					IntegracioAccioTipusEnumDto.ENVIAMENT,
+					System.currentTimeMillis() - t0,
+					parametres.toArray(new IntegracioParametreDto[parametres.size()]));
+			return documentPerRetornar;
+		} catch (Exception ex) {
+			String errorDescripcio = "No s'ha pogut guardar la firma CAdES pel document: " + ex.getMessage();
 			monitorIntegracioHelper.addAccioError(
 					MonitorIntegracioHelper.INTCODI_ARXIU,
 					accioDescripcio,
@@ -2837,21 +2912,18 @@ public class PluginHelper {
 			String identificador,
 			String nom,
 			ArxiuDto fitxer,
-			ArxiuDto firmaPdf,
-			List<ArxiuDto> firmes, 
+			ArxiuDto firma,
+			FirmaTipus firmaTipus,
+			FirmaPerfil firmaPerfil,
 			String ntiIdentificador,
 			NtiOrigenEnumDto ntiOrigen,
 			List<String> ntiOrgans,
 			Date ntiDataCaptura,
 			NtiEstadoElaboracionEnumDto ntiEstatElaboracio,
 			NtiTipoDocumentalEnumDto ntiTipusDocumental,
+			DocumentExtensio extensio,
 			DocumentEstat estat) {
 		es.caib.plugins.arxiu.api.Document document = new es.caib.plugins.arxiu.api.Document();
-		if (fitxer != null && firmaPdf == null) {
-			nom += "." + fitxer.getExtensio();
-		} else if (firmaPdf != null) {
-			nom += "." + firmaPdf.getExtensio();
-		}
 		document.setNom(nom);
 		document.setIdentificador(identificador);
 		DocumentMetadades metadades = new DocumentMetadades();
@@ -2953,98 +3025,22 @@ public class PluginHelper {
 			break;
 		}
 		metadades.setTipusDocumental(tipusDocumental);
-		DocumentExtensio extensio = null;
 		if (fitxer != null) {
-			String fitxerExtensio = fitxer.getExtensio();
-			String extensioAmbPunt = (fitxerExtensio.startsWith(".")) ? fitxerExtensio.toLowerCase() : "." + fitxerExtensio.toLowerCase();
-			extensio = DocumentExtensio.toEnum(extensioAmbPunt);
 			DocumentContingut contingut = new DocumentContingut();
 			contingut.setArxiuNom(fitxer.getNom());
 			contingut.setContingut(fitxer.getContingut());
 			contingut.setTipusMime(fitxer.getTipusMime());
 			document.setContingut(contingut);
 		}
-		if (firmaPdf != null) {
-			Firma firmaPades = new Firma();
-			firmaPades.setTipus(FirmaTipus.PADES);
-			firmaPades.setPerfil(FirmaPerfil.EPES);
-			firmaPades.setTipusMime("application/pdf");
-			firmaPades.setFitxerNom(firmaPdf.getNom());
-			firmaPades.setContingut(firmaPdf.getContingut());
-			document.setFirmes(Arrays.asList(firmaPades));
-			extensio = DocumentExtensio.PDF;
+		if (firma != null) {
+			Firma firmaArxiu = new Firma();
+			firmaArxiu.setFitxerNom(firma.getNom());
+			firmaArxiu.setContingut(firma.getContingut());
+			firmaArxiu.setTipusMime(firma.getTipusMime());
+			firmaArxiu.setTipus(firmaTipus);
+			firmaArxiu.setPerfil(firmaPerfil);
+			document.setFirmes(Arrays.asList(firmaArxiu));
 		}
-		/*if (firmes != null && firmes.size() > 0) {
-			if (document.getFirmes() == null)
-				document.setFirmes(new ArrayList<Firma>());
-			for (ArxiuFirmaDto firmaDto: firmes) {
-				Firma firma = new Firma();
-				firma.setContingut(firmaDto.getContingut());
-				firma.setCsvRegulacio(firmaDto.getCsvRegulacio());
-				firma.setFitxerNom(firmaDto.getFitxerNom());
-				if (firmaDto.getPerfil() != null) {
-					switch(firmaDto.getPerfil()) {
-					case BES:
-						firma.setPerfil(FirmaPerfil.BES);
-						break;
-					case EPES:
-						firma.setPerfil(FirmaPerfil.EPES);
-						break;
-					case LTV:
-						firma.setPerfil(FirmaPerfil.LTV);
-						break;
-					case T:
-						firma.setPerfil(FirmaPerfil.T);
-						break;
-					case C:
-						firma.setPerfil(FirmaPerfil.C);
-						break;
-					case X:
-						firma.setPerfil(FirmaPerfil.X);
-						break;
-					case XL:
-						firma.setPerfil(FirmaPerfil.XL);
-						break;
-					case A:
-						firma.setPerfil(FirmaPerfil.A);
-						break;
-					}
-				}
-				if (firmaDto.getTipus() != null) {
-					switch(firmaDto.getTipus()) {
-					case CSV:
-						firma.setTipus(FirmaTipus.CSV);
-						break;
-					case XADES_DET:
-						firma.setTipus(FirmaTipus.XADES_DET);
-						break;
-					case XADES_ENV:
-						firma.setTipus(FirmaTipus.XADES_ENV);
-						break;
-					case CADES_DET:
-						firma.setTipus(FirmaTipus.CADES_DET);
-						break;
-					case CADES_ATT:
-						firma.setTipus(FirmaTipus.CADES_ATT);
-						break;
-					case PADES:
-						firma.setTipus(FirmaTipus.PADES);
-						break;
-					case SMIME:
-						firma.setTipus(FirmaTipus.SMIME);
-						break;
-					case ODT:
-						firma.setTipus(FirmaTipus.ODT);
-						break;
-					case OOXML:
-						firma.setTipus(FirmaTipus.OOXML);
-						break;
-					}
-				}
-				firma.setTipusMime(firmaDto.getTipusMime());
-				document.getFirmes().add(firma);
-			}
-		}*/
 		if (extensio != null) {
 			metadades.setExtensio(extensio);
 			DocumentFormat format = null;
@@ -3316,6 +3312,12 @@ public class PluginHelper {
 				"unitatAdministrativa=" + anotacio.getAssumpteExtracte() + ", " +
 				"unitatAdministrativa=" + anotacio.getUnitatAdministrativa() + ", " +
 				"annexos=" + ((anotacio.getAnnexos() != null) ? anotacio.getAnnexos().size() : 0);
+	}
+
+	private DocumentExtensio getExtensioPerArxiu(ArxiuDto arxiu) {
+		String fitxerExtensio = arxiu.getExtensio();
+		String extensioAmbPunt = (fitxerExtensio.startsWith(".")) ? fitxerExtensio.toLowerCase() : "." + fitxerExtensio.toLowerCase();
+		return DocumentExtensio.toEnum(extensioAmbPunt);
 	}
 
 	private boolean isIdUsuariPerDni() {

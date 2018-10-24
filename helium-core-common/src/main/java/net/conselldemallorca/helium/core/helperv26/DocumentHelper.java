@@ -492,6 +492,7 @@ public class DocumentHelper {
 				documentStore.getProcessInstanceId(),
 				documentStore.getId(),
 				signatura,
+				true,
 				true);
 	}
 

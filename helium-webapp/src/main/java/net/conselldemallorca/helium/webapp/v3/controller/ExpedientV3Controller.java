@@ -141,7 +141,7 @@ public class ExpedientV3Controller extends BaseExpedientController {
 							request,
 							"info.expedient.finalitzat"));
 		} catch (Exception ex) {
-			MissatgesHelper.error(request, getMessage(request, "error.finalitzat.expedient") + ". " + ex.getMessage());
+			MissatgesHelper.error(request, getMessage(request, "expedient.error.finalitzant.expedient") + ". " + ex.getMessage());
 		}
 		return "redirect:/v3/expedient/" + expedientId;
 	}

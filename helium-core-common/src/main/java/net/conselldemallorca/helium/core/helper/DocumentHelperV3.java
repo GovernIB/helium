@@ -175,7 +175,6 @@ public class DocumentHelperV3 {
 					true,
 					documentStore.isSignat());
 			resposta.setNom(documentStore.getArxiuNom());
-			// resposta.setNom(documentArxiu.getContingut().getArxiuNom());
 			resposta.setContingut(documentArxiu.getContingut().getContingut());
 			resposta.setTipusMime(
 					documentArxiu.getContingut().getTipusMime() != null ? 
@@ -1404,12 +1403,13 @@ public class DocumentHelperV3 {
 				expedient,
 				documentStore,
 				arxiuPerFirmar,
-				net.conselldemallorca.helium.integracio.plugins.firma.FirmaTipus.PADES,
+				net.conselldemallorca.helium.integracio.plugins.firma.FirmaTipus.CADES,
 				(motiu != null) ? motiu : "Firma en servidor HELIUM");
 		guardarDocumentFirmat(
 				processInstanceId,
 				documentStoreId,
 				firma,
+				false,
 				permetreSignar);
 	}
 
@@ -1417,6 +1417,7 @@ public class DocumentHelperV3 {
 			String processInstanceId,
 			Long documentStoreId,
 			byte[] signatura,
+			boolean isPades,
 			boolean permetreSignar) {
 		DocumentStore documentStore = documentStoreRepository.findOne(documentStoreId);
 		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
@@ -1432,15 +1433,29 @@ public class DocumentHelperV3 {
 		}
 		
 		if (documentStore.getArxiuUuid() != null) {
-			ArxiuDto pdfFirmat = new ArxiuDto();
-			pdfFirmat.setNom("firma_portafirmes.pdf");
-			pdfFirmat.setTipusMime("application/pdf");
-			pdfFirmat.setContingut(signatura);
-			pluginHelper.arxiuDocumentGuardarPdfFirmat(
-					expedient,
-					documentStore,
-					documentDescripcio,
-					pdfFirmat);
+			//TODO: distinguir entre pades i cades
+			ArxiuDto arxiuFirmat = new ArxiuDto();
+			if (isPades) {
+				// PAdES
+				arxiuFirmat.setNom("firma_portafirmes.pdf");
+				arxiuFirmat.setTipusMime("application/pdf");
+				arxiuFirmat.setContingut(signatura);
+				pluginHelper.arxiuDocumentGuardarPdfFirmat(
+						expedient,
+						documentStore,
+						documentDescripcio,
+						arxiuFirmat);
+			} else {
+				// CAdES
+				arxiuFirmat.setNom("firma_portafirmes.csig");
+				arxiuFirmat.setTipusMime("application/octet-stream");
+				arxiuFirmat.setContingut(signatura);
+				pluginHelper.arxiuDocumentGuardarFirmaCadesDetached(
+						expedient,
+						documentStore,
+						documentDescripcio,
+						arxiuFirmat);
+			}
 			es.caib.plugins.arxiu.api.Document documentArxiu = pluginHelper.arxiuDocumentInfo(
 					documentStore.getArxiuUuid(),
 					null,

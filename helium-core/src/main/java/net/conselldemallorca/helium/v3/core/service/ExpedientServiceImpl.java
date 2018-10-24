@@ -1161,7 +1161,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 		//tancam l'expedient de l'arxiu si escau
 		if (expedient.isArxiuActiu()) {
 			//firmem els documents que no estan firmats
-			expedientHelper.firmarDoucmentsPerArxiuFiExpedient(expedient);
+			expedientHelper.firmarDocumentsPerArxiuFiExpedient(expedient);
 			
 			// Tanca l'expedient a l'arxiu.
 			pluginHelper.arxiuExpedientTancar(expedient.getArxiuUuid());

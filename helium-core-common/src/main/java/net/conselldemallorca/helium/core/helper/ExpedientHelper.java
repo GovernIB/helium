@@ -758,7 +758,7 @@ public class ExpedientHelper {
 		}
 	}
 	
-	public void firmarDoucmentsPerArxiuFiExpedient(Expedient expedient) {
+	public void firmarDocumentsPerArxiuFiExpedient(Expedient expedient) {
 		List<DocumentStore> documents = documentStoreRepository.findByProcessInstanceId(expedient.getProcessInstanceId());
 		
 		for (DocumentStore documentStore: documents) {
@@ -1157,7 +1157,7 @@ public class ExpedientHelper {
 				//tancam l'expedient de l'arxiu si escau
 				if (expedient.getTipus().isArxiuActiu() && expedient.getArxiuUuid() != null) {
 					//firmem els documents que no estan firmats
-					this.firmarDoucmentsPerArxiuFiExpedient(expedient);
+					this.firmarDocumentsPerArxiuFiExpedient(expedient);
 					
 					// Tanca l'expedient a l'arxiu.
 					pluginHelper.arxiuExpedientTancar(expedient.getArxiuUuid());
