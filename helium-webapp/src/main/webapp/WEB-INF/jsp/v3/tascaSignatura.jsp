@@ -86,7 +86,7 @@
 										
 										<c:if test="${numPluginsPassarela > 0}">
 											<div id="botons${document.id}" class="modal-botons-firma">
-												<button type="button" onclick="finestraFirma=window.open('<c:url value="/modal/v3/tasca/${tasca.id}/document/${document.id}/firmaPassarela"/>', 'Firma passarel.la', 'location=0,status=0,scrollbars=0,resizable=0,directories=0,toolbar=0,titlebar=0,width=800,height=450,top=200,left=200');" class="btn btn-default"><spring:message code="tasca.signa.signar.passarela"/></button>
+												<button type="button" onclick="obrirFinestraFirma('<c:url value="/modal/v3/tasca/${tasca.id}/document/${document.id}/firmaPassarela"/>');" class="btn btn-default"><spring:message code="tasca.signa.signar.passarela"/></button>
 											</div>
 										</c:if>
 										<c:if test="${numPluginsPassarela == 0}">
@@ -118,6 +118,20 @@ var finestraFirma;
 function refreshSignatures() {
 	window.location.href = '<c:url value="/modal/v3/tasca/${tasca.id}/signatura"/>';
 }
+
+function obrirFinestraFirma(url) {
+	// Obre la nova finestra per firmar
+	finestraFirma = window.open(url, 'Firma passarel.la', 'location=0,status=0,scrollbars=0,resizable=0,directories=0,toolbar=0,titlebar=0,width=800,height=450,top=200,left=200');
+	
+	// Comprova periòdicament si la finestra s'ha tancat
+	var timer = setInterval(function() { 
+	    if(finestraFirma.closed) {
+	        clearInterval(timer);
+	        refreshSignatures();
+	    }
+	}, 1000);
+}
+
 
 $(document).ready(function() {
 	

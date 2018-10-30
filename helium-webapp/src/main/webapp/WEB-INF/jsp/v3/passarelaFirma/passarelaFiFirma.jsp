@@ -4,17 +4,10 @@
 	<script type="text/javascript">
 	// <![CDATA[
 	    $(document).ready(function() {
-	    	if ($('.alert-danger').length == 0) {
-    			opener.refreshSignatures();
-			}
 			$('#tancarBtn').click(function(e) {
 		    	window.close();
 			})
 	    });
-	    // Quan es tanca la finestra refresca les signatures
-	    $( window ).unload(function() {
-	    	opener.refreshSignatures();
-		});	    
 	//]]>
 	</script>
 
