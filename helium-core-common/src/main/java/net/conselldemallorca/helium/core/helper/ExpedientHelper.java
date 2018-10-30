@@ -56,6 +56,7 @@ import net.conselldemallorca.helium.core.model.hibernate.TerminiIniciat;
 import net.conselldemallorca.helium.core.security.ExtendedPermission;
 import net.conselldemallorca.helium.core.util.ExpedientCamps;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
+import net.conselldemallorca.helium.core.util.PdfUtils;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessInstance;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmToken;
@@ -758,16 +759,47 @@ public class ExpedientHelper {
 		}
 	}
 	
+	/** Mètode per firmar els documents de l'expedient sense firma. Primer fa una validació
+	 * de que es pugui firmar.
+	 * 
+	 * @param expedient
+	 */
+	@Transactional
 	public void firmarDocumentsPerArxiuFiExpedient(Expedient expedient) {
+
 		List<DocumentStore> documents = documentStoreRepository.findByProcessInstanceId(expedient.getProcessInstanceId());
+		List<Long> documentsPerSignar = new ArrayList<Long>();
+		List<DocumentStore> documentsNoValids = new ArrayList<DocumentStore>();
 		
-		for (DocumentStore documentStore: documents) {
-			if (!documentStore.isSignat())
+		PdfUtils pdfUtils = documentHelper.getPdfUtils();
+		// Valida que els documents es puguin firmar
+		for (DocumentStore documentStore : documents) {
+			if (!documentStore.isSignat()) {
+				if (!pdfUtils.isArxiuConvertiblePdf(documentStore.getArxiuNom())) {
+					documentsNoValids.add(documentStore);
+				} else {
+					documentsPerSignar.add(documentStore.getId());
+				}
+			}
+		}
+		if (!documentsNoValids.isEmpty()) {
+			// Informa de l'error de validació
+			StringBuilder llistaDocuments = new StringBuilder();
+			for (DocumentStore d : documentsNoValids) {
+				if(llistaDocuments.length() > 0)
+					llistaDocuments.append(", ");
+				llistaDocuments.append(d.getArxiuNom());
+			}
+			throw new ValidacioException(messageHelper.getMessage("document.controller.firma.servidor.validacio.conversio.documents", new Object[]{ llistaDocuments.toString(), pdfUtils.getExtensionsConvertiblesPdf()}));
+		}
+		
+		// Firma en el servidor els documents pendents de firma
+		for (Long documentStoreId: documentsPerSignar) {
 				documentHelper.firmaServidor(
 						expedient.getProcessInstanceId(), 
-						documentStore.getId(), 
+						documentStoreId, 
 						messageHelper.getMessage("document.controller.firma.servidor.default.message"),
-						false);
+						true);
 		}
 	}
 	

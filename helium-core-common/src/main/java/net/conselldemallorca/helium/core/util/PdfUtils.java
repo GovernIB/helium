@@ -322,7 +322,7 @@ public class PdfUtils {
 	private String[] extensionsConvertiblesPdf = {
 			"pdf", "odt", "sxw", "rtf", "doc", "wpd", "txt", "ods",
 			"sxc", "xls", "csv", "tsv", "odp", "sxi", "ppt"};
-	private boolean isArxiuConvertiblePdf(String arxiuNom) {
+	public boolean isArxiuConvertiblePdf(String arxiuNom) {
 		String extensio = getArxiuExtensio(arxiuNom);
 		if (extensio != null) {
 			for (int i = 0; i < extensionsConvertiblesPdf.length; i++) {
@@ -331,6 +331,16 @@ public class PdfUtils {
 			}
 		}
 		return false;
+	}
+	
+	public String getExtensionsConvertiblesPdf() {
+		StringBuilder extensions = new StringBuilder();
+		for (int i = 0; i < extensionsConvertiblesPdf.length; i++) {
+			if (i > 0)
+				extensions.append(", ");
+			extensions.append(extensionsConvertiblesPdf[i]);
+		}
+		return extensions.toString();
 	}
 
 	private static final Log logger = LogFactory.getLog(PdfUtils.class);

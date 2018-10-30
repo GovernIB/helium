@@ -1399,18 +1399,59 @@ public class DocumentHelperV3 {
 				documentStoreId,
 				true,
 				(documentStore.getArxiuUuid() == null));
+		if (! "pdf".equals(arxiuPerFirmar.getExtensio())) {
+			// Transforma l'arxiu a PDF
+			arxiuPerFirmar = this.converteixPdf(arxiuPerFirmar);
+		}
 		byte[] firma = pluginHelper.firmaServidor(
 				expedient,
 				documentStore,
 				arxiuPerFirmar,
-				net.conselldemallorca.helium.integracio.plugins.firma.FirmaTipus.CADES,
+				net.conselldemallorca.helium.integracio.plugins.firma.FirmaTipus.PADES,
 				(motiu != null) ? motiu : "Firma en servidor HELIUM");
+
 		guardarDocumentFirmat(
 				processInstanceId,
 				documentStoreId,
 				firma,
-				false,
+				true,
 				permetreSignar);
+	}
+
+	/** Mètode per convertir un arxiu a pdf 
+	 * 
+	 * @param arxiu
+	 * @return
+	 */
+	private ArxiuDto converteixPdf(ArxiuDto arxiu) {
+		ArxiuDto arxiuPdf = new ArxiuDto();
+		arxiuPdf.setTipusMime("application/pdf");
+		try {
+			ByteArrayOutputStream baos = new ByteArrayOutputStream();
+			openOfficeUtils.convertir(
+					arxiu.getNom(),
+					arxiu.getContingut(),
+					"pdf",
+					baos);
+			arxiuPdf.setNom(
+					nomArxiuAmbExtensio(
+							arxiu.getNom(),
+							"pdf"));
+			arxiuPdf.setContingut(baos.toByteArray());
+		} catch (Exception ex) {
+			throw new SistemaExternConversioDocumentException(
+					null,
+					null, 
+					null, 
+					null, 
+					null, 
+					null, 
+					null, 
+					null, 
+					null, 
+					messageHelper.getMessage("error.document.conversio.externa"));
+		}
+		return arxiuPdf;
 	}
 
 	public void guardarDocumentFirmat(
@@ -1433,7 +1474,6 @@ public class DocumentHelperV3 {
 		}
 		
 		if (documentStore.getArxiuUuid() != null) {
-			//TODO: distinguir entre pades i cades
 			ArxiuDto arxiuFirmat = new ArxiuDto();
 			if (isPades) {
 				// PAdES
@@ -1609,6 +1649,17 @@ public class DocumentHelperV3 {
 		dto.setNtiCsv(documentStore.getNtiCsv());
 		dto.setNtiDefinicionGenCsv(documentStore.getNtiDefinicionGenCsv());
 		dto.setArxiuUuid(documentStore.getArxiuUuid());
+		dto.setSignat(documentStore.isSignat());
+		if (documentStore.isSignat()) {
+			if (documentStore.getArxiuUuid() == null) {
+				dto.setSignaturaUrlVerificacio(
+						pluginHelper.custodiaObtenirUrlComprovacioSignatura(
+								documentStore.getId().toString()));
+			} else {
+				dto.setSignaturaUrlVerificacio(
+						getPropertyArxiuVerificacioBaseUrl() + documentStore.getNtiCsv());
+			}
+		}
 		return dto;
 	}
 
@@ -1804,7 +1855,7 @@ public class DocumentHelperV3 {
 		return "true".equalsIgnoreCase(actiuConversioSignatura);
 	}
 
-	private PdfUtils getPdfUtils() {
+	public PdfUtils getPdfUtils() {
 		if (pdfUtils == null)
 			pdfUtils = new PdfUtils();
 		return pdfUtils;
