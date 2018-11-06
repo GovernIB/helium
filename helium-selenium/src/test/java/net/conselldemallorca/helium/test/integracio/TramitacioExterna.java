@@ -44,6 +44,7 @@ public class TramitacioExterna extends BaseTest {
 		if(trustStoreFilePath == null)
 			trustStoreFilePath = getTrustStoreFilePath();
 		System.setProperty("javax.net.ssl.trustStore", trustStoreFilePath);
+		System.setProperty("javax.net.ssl.trustStorePassword", "tecnologies");
 	}
 	
 	@After

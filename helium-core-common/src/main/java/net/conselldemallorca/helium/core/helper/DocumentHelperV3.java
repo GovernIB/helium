@@ -1516,8 +1516,8 @@ public class DocumentHelperV3 {
 				referenciaCustodia = pluginHelper.custodiaAfegirSignatura(
 						documentStore.getId(),
 						documentStore.getReferenciaFont(),
-						document != null ? document.getArxiuNom() : documentStore.getArxiuNom(),
-						document != null ? document.getCustodiaCodi() : documentStore.getReferenciaCustodia(),
+						documentStore.getArxiuNom(),
+						document.getCustodiaCodi(),
 						signatura);
 			} catch (SistemaExternException ex) {
 				// Si dona error perquè el document ja està arxivat l'esborra

@@ -71,11 +71,8 @@
 														<c:when test="${not document.arxiuActiu}">
 															<c:choose>
 																<c:when test="${not empty document.signaturaUrlVerificacio}">
-																	<a 	class="icon signature"
-																	   	data-rdt-link-modal="true" 
-																	   	data-rdt-link-modal-min-height="400" 
-																	   	href="${document.signaturaUrlVerificacio}">
-																		<span class="fa fa-2x fa-certificate" title="<spring:message code='expedient.document.signat' />"></span>
+																	<a class="icon signature" href="${document.signaturaUrlVerificacio}" target="_blank">
+																		<span class="fa fa-2x fa-certificate" title="<spring:message code="expedient.document.signat"/>"></span>
 																	</a>
 																</c:when>
 																<c:otherwise>																			
