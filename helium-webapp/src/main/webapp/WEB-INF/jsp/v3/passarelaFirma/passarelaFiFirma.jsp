@@ -5,7 +5,7 @@
 	// <![CDATA[
 	    $(document).ready(function() {
 			$('#tancarBtn').click(function(e) {
-		    	window.close();
+		    	top.window.close();
 			})
 	    });
 	//]]>
