@@ -539,7 +539,6 @@ public class DocumentHelperV3 {
 	}
 
 	public DocumentDto signarDocumentTascaAmbToken(
-			Long docId,
 			String tascaId,
 			String token,
 			byte[] signatura) throws Exception {
@@ -583,14 +582,14 @@ public class DocumentHelperV3 {
 				if (signatura != null && signatura.length > 0) {
 					try {
 						referenciaCustodia = pluginHelper.custodiaAfegirSignatura(
-								docId, 
+								documentStore.getId(), 
 								documentStore.getReferenciaFont(), 
 								dto.getArxiuNom(),
 								dto.getCustodiaCodi(),
 								signatura);
 								
 					} catch (Exception ex) {
-						logger.info(">>> [PSIGN] Processant error custòdia (" + exceptionHelper.getMissageFinalCadenaExcepcions(ex) + ", " + exceptionHelper.cercarMissatgeDinsCadenaExcepcions("ERROR_DOCUMENTO_ARCHIVADO", ex) + ") (psignaId=" + docId + ", docStoreId=" + documentStoreId + ", refCustòdia=" + referenciaCustodia + ")");
+						logger.info(">>> [PSIGN] Processant error custòdia (" + exceptionHelper.getMissageFinalCadenaExcepcions(ex) + ", " + exceptionHelper.cercarMissatgeDinsCadenaExcepcions("ERROR_DOCUMENTO_ARCHIVADO", ex) + ") (docStoreId=" + documentStoreId + ", refCustòdia=" + referenciaCustodia + ")");
 						if (exceptionHelper.cercarMissatgeDinsCadenaExcepcions("ERROR_DOCUMENTO_ARCHIVADO", ex)) {
 							referenciaCustodia = documentStoreId.toString();
 						} else {
@@ -607,42 +606,6 @@ public class DocumentHelperV3 {
 					documentStore.getProcessInstanceId(), 
 					SecurityContextHolder.getContext().getAuthentication().getName(), 
 					varDocumentCodi);
-			
-			
-/////*********** LOGICA ANTIGA *****************/////			
-//			if (pluginHelper.custodiaIsPluginActiu()) {
-//				String nomArxiu = getNomArxiuAmbExtensio(
-//						dto.getArxiuNom(),
-//						getExtensioArxiuSignat());		
-//				String referenciaCustodia = null;
-//				if (pluginHelper.custodiaIsValidacioImplicita()) {
-//					logger.info("signarDocumentTascaAmbToken : documentId: " + documentStore.getId() + ". gesdocId: " +documentStore.getReferenciaFont() + ". nomArxiuSignat: " + nomArxiu + ". codiTipusCustodia: " + dto.getCustodiaCodi()); 
-//					referenciaCustodia = pluginHelper.custodiaAfegirSignatura(
-//							documentStore.getId(),
-//							documentStore.getReferenciaFont(),
-//							nomArxiu,
-//							dto.getCustodiaCodi(),
-//							signatura);
-//					custodiat = true;
-//				} else {
-//					RespostaValidacioSignatura resposta = pluginHelper.signaturaVerificar(
-//							dto.getVistaContingut(),
-//							signatura,
-//							false);
-//					if (resposta.isEstatOk()) {
-//						referenciaCustodia = pluginHelper.custodiaAfegirSignatura(
-//								documentStore.getId(),
-//								documentStore.getReferenciaFont(),
-//								nomArxiu,
-//								dto.getCustodiaCodi(),
-//								signatura);
-//						custodiat = true;
-//					}
-//				}
-//				documentStore.setReferenciaCustodia(referenciaCustodia);
-//			}
-////////*****************************************/////
-
 			// Guarda el valor en una variable jbpm
 			documentStore.setSignat(true);
 			JbpmTask task = tascaHelper.getTascaComprovacionsTramitacio(

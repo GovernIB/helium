@@ -541,9 +541,7 @@ public class TascaTramitacioController extends BaseTascaController {
 						DocumentDto document = tascaService.getDocumentPerDocumentCodi(
 								tascaId, 
 								documentCodi);
-						
 						tascaService.signarDocumentTascaAmbToken(
-								document.getDocumentId(), 
 								tascaId, 
 								document.getTokenSignatura(), 
 								IOUtils.toByteArray(fis));
@@ -816,7 +814,6 @@ public class TascaTramitacioController extends BaseTascaController {
 			HttpServletRequest request,
 			@PathVariable String tascaId,
 			@RequestParam(value="taskId", required = true) String taskId,
-			@RequestParam(value="docId", required = true) Long docId,			
 			@RequestParam(value="token", required = true) String token,
 			@RequestParam(value="data", required = true) String[] data,
 			Model model) {
@@ -827,7 +824,6 @@ public class TascaTramitacioController extends BaseTascaController {
 				aData.append(dat);
 			}			
 			signat = tascaService.signarDocumentTascaAmbToken(
-					docId,
 					taskId,
 					token,
 					Base64.decodeBase64(aData.toString().getBytes()));
