@@ -203,6 +203,37 @@
 				</exclusion>
 			</exclusions>
 		</dependency-->
+		<!-- Dependències REGWEB3 -->
+		<dependency>
+            <groupId>es.caib.regweb3</groupId>
+            <artifactId>regweb3-utils</artifactId>
+            <version>3.0.8</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>es.caib.regweb3</groupId>
+            <artifactId>regweb3-ws-api</artifactId>
+            <version>3.0.8</version>
+            <scope>compile</scope>
+        </dependency>
+		<dependency>
+		    <groupId>wsdl4j</groupId>
+		    <artifactId>wsdl4j</artifactId>
+		    <version>1.6.2</version>
+		</dependency>
+		<!-- /Dependències REGWEB3 -->
+		<!-- Dependències Firma servidor -->
+		<dependency>
+			<groupId>org.fundaciobit.plugins</groupId>
+			<artifactId>plugin-signatureserver-api</artifactId>
+			<version>2.0.0</version>
+		</dependency>
+		<dependency>
+			<groupId>org.fundaciobit.plugins</groupId>
+			<artifactId>plugin-signatureserver-portafib</artifactId>
+			<version>2.0.0</version>
+		</dependency>
+		<!-- /Dependències Firma servidor -->
 		<dependency>
 			<groupId>${project.groupId}</groupId>
 			<artifactId>helium-plugin-api</artifactId>
@@ -213,27 +244,6 @@
 			<artifactId>helium-core-common</artifactId>
 			<version>${helium.version}</version>
 		</dependency>
-		
-		<dependency>
-            <groupId>es.caib.regweb3</groupId>
-            <artifactId>regweb3-utils</artifactId>
-            <version>3.0.8</version>
-            <scope>compile</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>es.caib.regweb3</groupId>
-            <artifactId>regweb3-ws-api</artifactId>
-            <version>3.0.8</version>
-            <scope>compile</scope>
-        </dependency>
-        
-		<dependency>
-		    <groupId>wsdl4j</groupId>
-		    <artifactId>wsdl4j</artifactId>
-		    <version>1.6.2</version>
-		</dependency>
-        
 	</dependencies>
 	<build>
 		<plugins>

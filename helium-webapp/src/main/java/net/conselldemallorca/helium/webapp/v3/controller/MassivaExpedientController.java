@@ -269,6 +269,16 @@ public class MassivaExpedientController extends BaseExpedientController {
 			Model model) {
 		return massivaPost(request, inici, correu, null, accio, null, null, model, null, null);
 	}
+	
+	@RequestMapping(value="migrarExpedientMas", method = RequestMethod.POST)
+	public String migrarExpedientMasPost(
+			HttpServletRequest request,
+			@RequestParam(value = "inici", required = false) String inici,
+			@RequestParam(value = "correu", required = false) boolean correu,
+			@RequestParam(value = "accio", required = true) String accio,
+			Model model) {
+		return massivaPost(request, inici, correu, null, accio, null, null, model, null, null);
+	}
 
 	@RequestMapping(value="massivaExecutarAccio", method = RequestMethod.POST)
 	public String execucioAccioCommandPost(
@@ -376,6 +386,10 @@ public class MassivaExpedientController extends BaseExpedientController {
 				MissatgesHelper.success(request, getMessage(request, "info.accio.massiu.reprendre_expedient", new Object[] {listIds.size()}));
 			} else if ("finalitzarExpedient".equals(accio)) {
 				dto.setTipus(ExecucioMassivaTipusDto.FINALITZAR_EXPEDIENT);
+				execucioMassivaService.crearExecucioMassiva(dto);
+				MissatgesHelper.success(request, getMessage(request, "info.accio.massiu.finalitzar_expedient", new Object[] {listIds.size()}));
+			} else if ("finalitzarExpedient".equals(accio)) {
+				dto.setTipus(ExecucioMassivaTipusDto.MIGRAR_EXPEDIENT);
 				execucioMassivaService.crearExecucioMassiva(dto);
 				MissatgesHelper.success(request, getMessage(request, "info.accio.massiu.finalitzar_expedient", new Object[] {listIds.size()}));
 			} else if ("executar".equals(accio)) {
@@ -671,7 +685,6 @@ public class MassivaExpedientController extends BaseExpedientController {
 		command.setDocId(docId);
 		model.addAttribute("inici", inici);
 		model.addAttribute("correu", correu);
-		// Mira si el tipus d'expedient té metadades NTI i tots els primer seleccionat
 		Set<Long> ids = recuperarIdsAccionesMasivas(request);
 		if (ids == null || ids.isEmpty()) {
 			MissatgesHelper.error(request, getMessage(request, "error.no.exp.selec"));
@@ -685,7 +698,9 @@ public class MassivaExpedientController extends BaseExpedientController {
 		if (docId == null) {
 			List<Long> listIds = new ArrayList<Long>(ids);
 			ExpedientDto expedient = expedientService.findAmbId(listIds.get(0));
+			// Mira si el tipus d'expedient té metadades NTI i tots els primer seleccionat
 			if (expedient.isNtiActiu()) {
+				model.addAttribute("metadades", true);
 				ntiHelper.omplirOrigen(model);
 				ntiHelper.omplirEstadoElaboracion(model);
 				ntiHelper.omplirTipoDocumental(model);

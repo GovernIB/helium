@@ -244,7 +244,6 @@ public class DocumentHelper {
 		}
 	}
 
-	@SuppressWarnings("incomplete-switch")
 	public boolean signarDocumentTascaAmbToken(
 			String token,
 			byte[] signatura) {
@@ -275,7 +274,8 @@ public class DocumentHelper {
 				es.caib.plugins.arxiu.api.Document documentArxiu = pluginHelper.arxiuDocumentInfo(
 						documentStore.getArxiuUuid(),
 						null,
-						false);
+						false,
+						true);
 				documentHelperV3.actualitzarNtiFirma(documentStore, documentArxiu);
 				custodiat = true;
 			} else if (pluginHelper.custodiaIsPluginActiu()) {
@@ -485,7 +485,16 @@ public class DocumentHelper {
 		documentHelperV3.actualitzarNtiFirma(documentStore, arxiuDocument);
 	}
 
-
+	public void guardarDocumentFirmat(
+			DocumentStore documentStore,
+			byte[] signatura) throws Exception {
+		documentHelperV3.guardarDocumentFirmat(
+				documentStore.getProcessInstanceId(),
+				documentStore.getId(),
+				signatura,
+				true,
+				true);
+	}
 
 	private Long getDocumentStoreIdDeVariableJbpm(
 			String taskInstanceId,

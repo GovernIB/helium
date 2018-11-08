@@ -26,15 +26,13 @@ public class DocumentExpedientCommand {
 	private String nom;
 	@NotNull
 	private Date data;
-	@NotNull
 	private NtiOrigenEnumDto ntiOrigen;
-	@NotNull
 	private NtiEstadoElaboracionEnumDto ntiEstadoElaboracion;
-	@NotNull
 	private NtiTipoDocumentalEnumDto ntiTipoDocumental;
 	private String ntiIdOrigen;
 	private MultipartFile arxiu;
 	private String arxiuNom;
+	private boolean ntiActiu;
 
 	public DocumentExpedientCommand() {}
 
@@ -103,6 +101,14 @@ public class DocumentExpedientCommand {
 	}
 	public void setArxiuNom(String arxiuNom) {
 		this.arxiuNom = arxiuNom;
+	}
+
+	public boolean isNtiActiu() {
+		return ntiActiu;
+	}
+
+	public void setNtiActiu(boolean ntiActiu) {
+		this.ntiActiu = ntiActiu;
 	}
 
 }

@@ -84,12 +84,10 @@
 				</div>
 				</div>
 				<div id="dades-nti" class="tab-pane">
-					<hel:inputSelect required="true" emptyOption="true" name="ntiTipusDocumental" textKey="document.metadades.nti.tipus.documental" optionItems="${ntiTipusDocumental}" optionValueAttribute="codi" optionTextAttribute="valor"/>
-					
-					<hel:inputSelect name="ntiTipoFirma" textKey="document.metadades.nti.tipus.firma" required="false" emptyOption="true" optionItems="${ntiTipoFirma}" optionValueAttribute="codi" optionTextAttribute="valor"/>
-					<hel:inputText name="ntiValorCsv" textKey="document.metadades.nti.valor.csv" disabled="${documentExpedientCommand.ntiTipoFirma != 'CSV'}"/>
-					<hel:inputText name="ntiDefGenCsv" textKey="document.metadades.nti.definicio.generacio.csv" disabled="${documentExpedientCommand.ntiTipoFirma != 'CSV'}"/>
-					<hel:inputText name="ntiIdOrigen" textKey="document.metadades.nti.identificador.doc.origen"/>
+					<hel:inputSelect name="ntiOrigen" textKey="document.metadades.nti.origen" optionItems="${ntiOrigen}" optionValueAttribute="codi" optionTextAttribute="valor" emptyOption="true" required="true"/>
+					<hel:inputSelect name="ntiEstadoElaboracion" textKey="document.metadades.nti.estado.elaboracion" optionItems="${ntiEstadoElaboracion}" optionValueAttribute="codi" optionTextAttribute="valor" emptyOption="true" required="true"/>
+					<hel:inputSelect name="ntiTipoDocumental" textKey="document.metadades.nti.tipo.documental" optionItems="${ntiTipoDocumental}" optionValueAttribute="codi" optionTextAttribute="valor" emptyOption="true" required="true"/>
+					<hel:inputText name="ntiIdOrigen" textKey="document.metadades.nti.iddoc.origen"/>
 				</div>
 			</div>
 

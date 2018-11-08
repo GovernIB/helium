@@ -37,6 +37,7 @@ import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.hibernate.FirmaTasca;
 import net.conselldemallorca.helium.core.model.hibernate.Portasignatures;
 import net.conselldemallorca.helium.core.model.hibernate.Portasignatures.TipusEstat;
+import net.conselldemallorca.helium.core.model.hibernate.Registre;
 import net.conselldemallorca.helium.core.util.DocumentTokenUtils;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.core.util.OpenOfficeUtils;
@@ -67,6 +68,7 @@ import net.conselldemallorca.helium.v3.core.repository.DocumentTascaRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientRepository;
 import net.conselldemallorca.helium.v3.core.repository.FirmaTascaRepository;
 import net.conselldemallorca.helium.v3.core.repository.PortasignaturesRepository;
+import net.conselldemallorca.helium.v3.core.repository.RegistreRepository;
 
 /**
  * Helper per a gestionar els documents dels expedients
@@ -114,6 +116,8 @@ public class DocumentHelperV3 {
 	private ExceptionHelper exceptionHelper;
 	@Resource
 	private ExpedientRegistreHelper expedientRegistreHelper;
+	@Resource
+	private RegistreRepository registreRepository;
 
 	private PdfUtils pdfUtils;
 	private DocumentTokenUtils documentTokenUtils;
@@ -169,11 +173,32 @@ public class DocumentHelperV3 {
 			es.caib.plugins.arxiu.api.Document documentArxiu = pluginHelper.arxiuDocumentInfo(
 					documentStore.getArxiuUuid(),
 					null,
-					true);
+					true,
+					documentStore.isSignat());
 			resposta.setNom(documentStore.getArxiuNom());
-			// resposta.setNom(documentArxiu.getContingut().getArxiuNom());
 			resposta.setContingut(documentArxiu.getContingut().getContingut());
-			resposta.setTipusMime(documentArxiu.getContingut().getTipusMime());
+			resposta.setTipusMime(
+					documentArxiu.getContingut().getTipusMime() != null ? 
+							documentArxiu.getContingut().getTipusMime() : 
+								getContentType(documentStore.getArxiuNom()));
+			// Si els documents estan firmats amb PADES sempre tindran extensió PDF
+			boolean isFirmaPades = false;
+			if (documentStore.isSignat() && documentArxiu.getFirmes() != null) {
+				for (Firma firma: documentArxiu.getFirmes()) {
+					if (FirmaTipus.PADES.equals(firma.getTipus())) {
+						isFirmaPades = true;
+						break;
+					}
+				}
+			}
+			if (isFirmaPades) {
+				if (resposta.getNom() != null && !resposta.getNom().toLowerCase().endsWith(".pdf")) {
+					String nomDoc = resposta.getNom();
+					int indexPunt = nomDoc.lastIndexOf(".");
+					nomDoc =  (indexPunt != -1 ? nomDoc.substring(0, indexPunt) :  nomDoc) + ".pdf";
+					resposta.setNom(nomDoc);
+				}
+			}
 		} else {
 			if (documentStore.isSignat() && isSignaturaFileAttached()) {
 				arxiuOrigenContingut = pluginHelper.custodiaObtenirSignaturesAmbArxiu(documentStore.getReferenciaCustodia());
@@ -322,7 +347,10 @@ public class DocumentHelperV3 {
 	public Long findDocumentStorePerInstanciaProcesAndDocumentCodi(
 			String processInstanceId,
 			String documentCodi) {
-			return getDocumentStoreIdDeVariableJbpm(null, processInstanceId, documentCodi);
+			return getDocumentStoreIdDeVariableJbpm(
+					null,
+					processInstanceId,
+					documentCodi);
 	}
 	
 	public ExpedientDocumentDto findDocumentPerDocumentStoreId(
@@ -397,9 +425,12 @@ public class DocumentHelperV3 {
 				task.getTaskName());
 		List<TascaDocumentDto> resposta = new ArrayList<TascaDocumentDto>();
 		for (DocumentTasca documentTasca: documentsTasca) {
-			resposta.add(toTascaDocumentDto(
-					task,
-					documentTasca.getDocument(), documentTasca.isRequired(), documentTasca.isReadOnly()));
+			resposta.add(
+					toTascaDocumentDto(
+							task,
+							documentTasca.getDocument(),
+							documentTasca.isRequired(),
+							documentTasca.isReadOnly()));
 		}
 		return resposta;
 	}
@@ -513,7 +544,6 @@ public class DocumentHelperV3 {
 	}
 
 	public DocumentDto signarDocumentTascaAmbToken(
-			Long docId,
 			String tascaId,
 			String token,
 			byte[] signatura) throws Exception {
@@ -527,8 +557,7 @@ public class DocumentHelperV3 {
 					false,
 					true,
 					true,
-					true);
-			boolean custodiat = false;
+					(documentStore.getArxiuUuid() == null));
 			Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(documentStore.getProcessInstanceId());
 			String varDocumentCodi = documentStore.getJbpmVariable().substring(JbpmVars.PREFIX_DOCUMENT.length());
 			if (documentStore.getArxiuUuid() != null) {
@@ -544,7 +573,8 @@ public class DocumentHelperV3 {
 					es.caib.plugins.arxiu.api.Document documentArxiu = pluginHelper.arxiuDocumentInfo(
 							documentStore.getArxiuUuid(),
 							null,
-							false);
+							false,
+							true);
 					actualitzarNtiFirma(documentStore, documentArxiu);
 			} else {
 				if (expedient.isNtiActiu()) {
@@ -557,14 +587,14 @@ public class DocumentHelperV3 {
 				if (signatura != null && signatura.length > 0) {
 					try {
 						referenciaCustodia = pluginHelper.custodiaAfegirSignatura(
-								docId, 
+								documentStore.getId(), 
 								documentStore.getReferenciaFont(), 
 								dto.getArxiuNom(),
 								dto.getCustodiaCodi(),
 								signatura);
 								
 					} catch (Exception ex) {
-						logger.info(">>> [PSIGN] Processant error custòdia (" + exceptionHelper.getMissageFinalCadenaExcepcions(ex) + ", " + exceptionHelper.cercarMissatgeDinsCadenaExcepcions("ERROR_DOCUMENTO_ARCHIVADO", ex) + ") (psignaId=" + docId + ", docStoreId=" + documentStoreId + ", refCustòdia=" + referenciaCustodia + ")");
+						logger.info(">>> [PSIGN] Processant error custòdia (" + exceptionHelper.getMissageFinalCadenaExcepcions(ex) + ", " + exceptionHelper.cercarMissatgeDinsCadenaExcepcions("ERROR_DOCUMENTO_ARCHIVADO", ex) + ") (docStoreId=" + documentStoreId + ", refCustòdia=" + referenciaCustodia + ")");
 						if (exceptionHelper.cercarMissatgeDinsCadenaExcepcions("ERROR_DOCUMENTO_ARCHIVADO", ex)) {
 							referenciaCustodia = documentStoreId.toString();
 						} else {
@@ -581,54 +611,17 @@ public class DocumentHelperV3 {
 					documentStore.getProcessInstanceId(), 
 					SecurityContextHolder.getContext().getAuthentication().getName(), 
 					varDocumentCodi);
-			
-			
-/////*********** LOGICA ANTIGA *****************/////			
-//			if (pluginHelper.custodiaIsPluginActiu()) {
-//				String nomArxiu = getNomArxiuAmbExtensio(
-//						dto.getArxiuNom(),
-//						getExtensioArxiuSignat());		
-//				String referenciaCustodia = null;
-//				if (pluginHelper.custodiaIsValidacioImplicita()) {
-//					logger.info("signarDocumentTascaAmbToken : documentId: " + documentStore.getId() + ". gesdocId: " +documentStore.getReferenciaFont() + ". nomArxiuSignat: " + nomArxiu + ". codiTipusCustodia: " + dto.getCustodiaCodi()); 
-//					referenciaCustodia = pluginHelper.custodiaAfegirSignatura(
-//							documentStore.getId(),
-//							documentStore.getReferenciaFont(),
-//							nomArxiu,
-//							dto.getCustodiaCodi(),
-//							signatura);
-//					custodiat = true;
-//				} else {
-//					RespostaValidacioSignatura resposta = pluginHelper.signaturaVerificar(
-//							dto.getVistaContingut(),
-//							signatura,
-//							false);
-//					if (resposta.isEstatOk()) {
-//						referenciaCustodia = pluginHelper.custodiaAfegirSignatura(
-//								documentStore.getId(),
-//								documentStore.getReferenciaFont(),
-//								nomArxiu,
-//								dto.getCustodiaCodi(),
-//								signatura);
-//						custodiat = true;
-//					}
-//				}
-//				documentStore.setReferenciaCustodia(referenciaCustodia);
-//			}
-////////*****************************************/////
-			
-			if (custodiat) {
-				documentStore.setSignat(true);
-				JbpmTask task = tascaHelper.getTascaComprovacionsTramitacio(
-						tascaId,
-						true,
-						true);
-				String.valueOf(task.getTask().getId());
-				jbpmHelper.setTaskInstanceVariable(
-						tascaId,
-						JbpmVars.PREFIX_SIGNATURA + dto.getDocumentCodi(),
-						documentStore.getId());
-			}
+			// Guarda el valor en una variable jbpm
+			documentStore.setSignat(true);
+			JbpmTask task = tascaHelper.getTascaComprovacionsTramitacio(
+					tascaId,
+					true,
+					true);
+			String.valueOf(task.getTask().getId());
+			jbpmHelper.setTaskInstanceVariable(
+					tascaId,
+					JbpmVars.PREFIX_SIGNATURA + dto.getDocumentCodi(),
+					documentStore.getId());
 		}
 		return dto;
 	}
@@ -1082,7 +1075,8 @@ public class DocumentHelperV3 {
 					es.caib.plugins.arxiu.api.Document documentArxiu = pluginHelper.arxiuDocumentInfo(
 							documentStore.getArxiuUuid(),
 							null,
-							ambContingut);
+							ambContingut,
+							documentStore.isSignat());
 					String arxiuNom = documentStore.getArxiuNom();
 					// String arxiuNom = documentArxiu.getContingut().getArxiuNom();
 					byte[] arxiuContingut = documentArxiu.getContingut().getContingut();
@@ -1125,12 +1119,13 @@ public class DocumentHelperV3 {
 									if (documentStore.getRegistreData() != null)
 										dataRegistre = df.format(documentStore.getRegistreData());
 									String numeroRegistre = documentStore.getRegistreNumero();
+									// S'invoca la estampació per convertir a PDF sense estampa.
 									getPdfUtils().estampar(
 											arxiuOrigenNom,
 											arxiuOrigenContingut,
-											(ambSegellSignatura) ? !documentStore.isSignat() : false,
-											(ambSegellSignatura) ? getUrlComprovacioSignatura(documentStoreId, dto.getTokenSignatura()): null,
-											documentStore.isRegistrat(),
+											false, // sense segell
+											null,
+											false, // sense segell
 											numeroRegistre,
 											dataRegistre,
 											documentStore.getRegistreOficinaNom(),
@@ -1363,6 +1358,161 @@ public class DocumentHelperV3 {
 		}
 	}
 
+	public void firmaServidor(
+			String processInstanceId,
+			Long documentStoreId,
+			String motiu,
+			boolean permetreSignar) {
+		DocumentStore documentStore = documentStoreRepository.findOne(documentStoreId);
+		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
+		ArxiuDto arxiuPerFirmar = getArxiuPerDocumentStoreId(
+				documentStoreId,
+				true,
+				(documentStore.getArxiuUuid() == null));
+		if (! "pdf".equals(arxiuPerFirmar.getExtensio())) {
+			// Transforma l'arxiu a PDF
+			arxiuPerFirmar = this.converteixPdf(arxiuPerFirmar);
+		}
+		byte[] firma = pluginHelper.firmaServidor(
+				expedient,
+				documentStore,
+				arxiuPerFirmar,
+				net.conselldemallorca.helium.integracio.plugins.firma.FirmaTipus.PADES,
+				(motiu != null) ? motiu : "Firma en servidor HELIUM");
+
+		guardarDocumentFirmat(
+				processInstanceId,
+				documentStoreId,
+				firma,
+				true,
+				permetreSignar);
+	}
+
+	/** Mètode per convertir un arxiu a pdf 
+	 * 
+	 * @param arxiu
+	 * @return
+	 */
+	private ArxiuDto converteixPdf(ArxiuDto arxiu) {
+		ArxiuDto arxiuPdf = new ArxiuDto();
+		arxiuPdf.setTipusMime("application/pdf");
+		try {
+			ByteArrayOutputStream baos = new ByteArrayOutputStream();
+			openOfficeUtils.convertir(
+					arxiu.getNom(),
+					arxiu.getContingut(),
+					"pdf",
+					baos);
+			arxiuPdf.setNom(
+					nomArxiuAmbExtensio(
+							arxiu.getNom(),
+							"pdf"));
+			arxiuPdf.setContingut(baos.toByteArray());
+		} catch (Exception ex) {
+			throw new SistemaExternConversioDocumentException(
+					null,
+					null, 
+					null, 
+					null, 
+					null, 
+					null, 
+					null, 
+					null, 
+					null, 
+					messageHelper.getMessage("error.document.conversio.externa"));
+		}
+		return arxiuPdf;
+	}
+
+	public void guardarDocumentFirmat(
+			String processInstanceId,
+			Long documentStoreId,
+			byte[] signatura,
+			boolean isPades,
+			boolean permetreSignar) {
+		DocumentStore documentStore = documentStoreRepository.findOne(documentStoreId);
+		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
+		
+		Document document = findDocumentPerInstanciaProcesICodi(
+				expedient.getProcessInstanceId(),
+				documentStore.getCodiDocument());
+		String documentDescripcio;
+		if (documentStore.isAdjunt()) {
+			documentDescripcio = documentStore.getAdjuntTitol();
+		} else {
+			documentDescripcio = document.getNom();
+		}
+		
+		if (documentStore.getArxiuUuid() != null) {
+			ArxiuDto arxiuFirmat = new ArxiuDto();
+			if (isPades) {
+				// PAdES
+				arxiuFirmat.setNom("firma_portafirmes.pdf");
+				arxiuFirmat.setTipusMime("application/pdf");
+				arxiuFirmat.setContingut(signatura);
+				pluginHelper.arxiuDocumentGuardarPdfFirmat(
+						expedient,
+						documentStore,
+						documentDescripcio,
+						arxiuFirmat);
+			} else {
+				// CAdES
+				arxiuFirmat.setNom("firma_portafirmes.csig");
+				arxiuFirmat.setTipusMime("application/octet-stream");
+				arxiuFirmat.setContingut(signatura);
+				pluginHelper.arxiuDocumentGuardarFirmaCadesDetached(
+						expedient,
+						documentStore,
+						documentDescripcio,
+						arxiuFirmat);
+			}
+			es.caib.plugins.arxiu.api.Document documentArxiu = pluginHelper.arxiuDocumentInfo(
+					documentStore.getArxiuUuid(),
+					null,
+					false,
+					true);
+			actualitzarNtiFirma(documentStore, documentArxiu);
+		} else {
+			if (expedient.isNtiActiu()) {
+				actualitzarNtiFirma(documentStore, null);
+			}
+			if (documentStore.getReferenciaCustodia() != null) {
+				pluginHelper.custodiaEsborrarSignatures(
+						documentStore.getReferenciaCustodia(),
+						expedient);
+			}
+			String referenciaCustodia = null;
+			try {
+				referenciaCustodia = pluginHelper.custodiaAfegirSignatura(
+						documentStore.getId(),
+						documentStore.getReferenciaFont(),
+						documentStore.getArxiuNom(),
+						document.getCustodiaCodi(),
+						signatura);
+			} catch (SistemaExternException ex) {
+				// Si dona error perquè el document ja està arxivat l'esborra
+				// i el torna a crear.
+				logger.info("[PSIGN] Error guardant document a custòdia (" +
+						exceptionHelper.getMissageFinalCadenaExcepcions(ex) + ", " +
+						exceptionHelper.cercarMissatgeDinsCadenaExcepcions("ERROR_DOCUMENTO_ARCHIVADO", ex) + ") (" +
+						"docStoreId=" + documentStore.getId() + ", " +
+						"refCustòdia=" + referenciaCustodia + ")");
+				if (exceptionHelper.cercarMissatgeDinsCadenaExcepcions("ERROR_DOCUMENTO_ARCHIVADO", ex)) {
+					referenciaCustodia = documentStore.getId().toString();
+				} else {
+					throw ex;
+				}
+			}
+			documentStore.setReferenciaCustodia(referenciaCustodia);
+		}
+		documentStore.setSignat(permetreSignar);
+		crearRegistreSignarDocument(
+				expedient.getId(),
+				documentStore.getProcessInstanceId(),
+				SecurityContextHolder.getContext().getAuthentication().getName(),
+				documentDescripcio);
+	}
+
 
 
 	private ExpedientDocumentDto crearDtoPerDocumentExpedient(
@@ -1396,9 +1546,14 @@ public class DocumentHelperV3 {
 		dto.setDocumentNom(document.getNom());
 		dto.setSignat(documentStore.isSignat());
 		if (documentStore.isSignat()) {
-			dto.setSignaturaUrlVerificacio(
-					pluginHelper.custodiaObtenirUrlComprovacioSignatura(
-							documentStore.getId().toString()));
+			if (documentStore.getArxiuUuid() == null) {
+				dto.setSignaturaUrlVerificacio(
+						pluginHelper.custodiaObtenirUrlComprovacioSignatura(
+								documentStore.getId().toString()));
+			} else {
+				dto.setSignaturaUrlVerificacio(
+						getPropertyArxiuVerificacioBaseUrl() + documentStore.getNtiCsv());
+			}
 		}
 		dto.setRegistrat(documentStore.isRegistrat());
 		if (documentStore.isRegistrat()) {
@@ -1464,6 +1619,17 @@ public class DocumentHelperV3 {
 		dto.setNtiCsv(documentStore.getNtiCsv());
 		dto.setNtiDefinicionGenCsv(documentStore.getNtiDefinicionGenCsv());
 		dto.setArxiuUuid(documentStore.getArxiuUuid());
+		dto.setSignat(documentStore.isSignat());
+		if (documentStore.isSignat()) {
+			if (documentStore.getArxiuUuid() == null) {
+				dto.setSignaturaUrlVerificacio(
+						pluginHelper.custodiaObtenirUrlComprovacioSignatura(
+								documentStore.getId().toString()));
+			} else {
+				dto.setSignaturaUrlVerificacio(
+						getPropertyArxiuVerificacioBaseUrl() + documentStore.getNtiCsv());
+			}
+		}
 		return dto;
 	}
 
@@ -1499,9 +1665,14 @@ public class DocumentHelperV3 {
 				dto.setSignat(documentStore.isSignat());
 				dto.setRegistrat(documentStore.isRegistrat());
 				if (documentStore.isSignat()) {
-					dto.setUrlVerificacioCustodia(
-							pluginHelper.custodiaObtenirUrlComprovacioSignatura(
-									documentStoreId.toString()));
+					if (documentStore.getArxiuUuid() == null) {
+						dto.setUrlVerificacioCustodia(
+								pluginHelper.custodiaObtenirUrlComprovacioSignatura(
+										documentStoreId.toString()));
+					} else {
+						dto.setSignaturaUrlVerificacio(
+								getPropertyArxiuVerificacioBaseUrl() + documentStore.getNtiCsv());
+					}
 				}
 				try {
 					dto.setTokenSignatura(getDocumentTokenUtils().xifrarToken(documentStoreId.toString()));
@@ -1516,7 +1687,7 @@ public class DocumentHelperV3 {
 					dto.setRegistreEntrada(documentStore.isRegistreEntrada());
 				}
 			}
-		}	
+		}
 		return dto;
 	}
 
@@ -1654,7 +1825,7 @@ public class DocumentHelperV3 {
 		return "true".equalsIgnoreCase(actiuConversioSignatura);
 	}
 
-	private PdfUtils getPdfUtils() {
+	public PdfUtils getPdfUtils() {
 		if (pdfUtils == null)
 			pdfUtils = new PdfUtils();
 		return pdfUtils;
@@ -1789,7 +1960,8 @@ public class DocumentHelperV3 {
 			es.caib.plugins.arxiu.api.Document documentArxiu = pluginHelper.arxiuDocumentInfo(
 					contingutArxiu.getIdentificador(),
 					null,
-					false);
+					false,
+					true);
 			documentStore.setNtiIdentificador(
 					documentArxiu.getMetadades().getIdentificador());
 		} else if (arxiuContingut != null) {
@@ -1820,7 +1992,7 @@ public class DocumentHelperV3 {
 					documentStore.getId());
 		}
 	}
-
+	
 	private void actualizarMetadadesNti(
 			Expedient expedient,
 			Document document,
@@ -1955,7 +2127,7 @@ public class DocumentHelperV3 {
 		return null;
 	}
 
-	private String getContentType(String arxiuNom) {
+	public String getContentType(String arxiuNom) {
 		String fileNameDetect = tika.detect(arxiuNom);
         if (!fileNameDetect.equals(MimeTypes.OCTET_STREAM)) {
             return fileNameDetect;
@@ -1974,6 +2146,26 @@ public class DocumentHelperV3 {
 	private String getPropertyCustodiaVerificacioBaseUrl() {
 		return GlobalProperties.getInstance().getProperty(
 				"app.custodia.plugin.caib.verificacio.baseurl");
+	}
+	private String getPropertyArxiuVerificacioBaseUrl() {
+		return GlobalProperties.getInstance().getProperty(
+				"app.arxiu.verificacio.baseurl");
+	}
+
+	private Registre crearRegistreSignarDocument(
+			Long expedientId,
+			String processInstanceId,
+			String responsableCodi,
+			String documentCodi) {
+		Registre registre = new Registre(
+				new Date(),
+				expedientId,
+				responsableCodi,
+				Registre.Accio.MODIFICAR,
+				Registre.Entitat.INSTANCIA_PROCES,
+				processInstanceId);
+		registre.setMissatge("Signatura del document '" + documentCodi + "'");
+		return registreRepository.save(registre);
 	}
 
 	private static final Log logger = LogFactory.getLog(DocumentHelperV3.class);

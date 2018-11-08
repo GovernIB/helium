@@ -424,7 +424,7 @@ public interface TascaService {
 
 	public void esborrarDocument(String taskInstanceId, String documentCodi, String user);
 
-	public boolean signarDocumentTascaAmbToken(Long docId, String tascaId, String token, byte[] signatura) throws Exception;
+	public boolean signarDocumentTascaAmbToken(String tascaId, String token, byte[] signatura) throws Exception;
 
 	public List<TascaDocumentDto> findDocumentsSignar(String id);
 

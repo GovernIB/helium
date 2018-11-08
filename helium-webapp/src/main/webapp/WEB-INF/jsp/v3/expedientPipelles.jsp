@@ -221,6 +221,12 @@ dd.subproc {
 		if (e.stopPropagation) e.stopPropagation();
 		return confirm("<spring:message code='expedient.accio.buidarlog.confirmacio' />");
 	}
+	function confirmarMigrarArxiu(e) {
+		var e = e || window.event;
+		e.cancelBubble = true;
+		if (e.stopPropagation) e.stopPropagation();
+		return confirm("<spring:message code='expedient.accio.migrararxiu.confirmacio' />");
+	}
 	/** Refresca l'estat i la data de fi de l'expedient quan hi ha accions sobre les tasques. */
 	function refrescarEstatExpedient() {
 		var getUrl = '<c:url value="/v3/expedient/${expedientId}/consultaEstat"/>';
@@ -399,6 +405,9 @@ dd.subproc {
 							</c:if>
 							<c:if test="${expedient.permisLogManage}">
 								<li><a href="<c:url value="../../v3/expedient/${expedientId}/buidalog"/>" onclick="return confirmarBuidarLogExpedient(event)"><span class="fa fa-eraser"></span>&nbsp;<spring:message code="expedient.info.accio.buidarlog"/></a></li>
+							</c:if>
+							<c:if test="${expedient.permisAdministration and expedient.tipus.arxiuActiu and empty expedient.arxiuUuid}">
+								<li><a href="<c:url value="../../v3/expedient/${expedientId}/migrarArxiu"/>" onclick="return confirmarMigrarArxiu(event)"><span class="fa fa-suitcase"></span>&nbsp;<spring:message code="expedient.info.accio.migrararxiu"/></a></li>
 							</c:if>
 						</ul>
 					</div>

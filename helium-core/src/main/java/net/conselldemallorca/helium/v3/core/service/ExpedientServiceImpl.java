@@ -1166,7 +1166,10 @@ public class ExpedientServiceImpl implements ExpedientService {
 		expedient.setDataFi(dataFinalitzacio);
 		
 		//tancam l'expedient de l'arxiu si escau
-		if (expedient.getTipus().isArxiuActiu()) {
+		if (expedient.isArxiuActiu()) {
+			//firmem els documents que no estan firmats
+			expedientHelper.firmarDocumentsPerArxiuFiExpedient(expedient);
+			
 			// Tanca l'expedient a l'arxiu.
 			pluginHelper.arxiuExpedientTancar(expedient.getArxiuUuid());
 		}
@@ -1177,6 +1180,37 @@ public class ExpedientServiceImpl implements ExpedientService {
 				Registre.Accio.FINALITZAR);
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@Transactional
+	public void migrarArxiu(Long id) {
+		logger.debug("Migrar l'expedient (id=" + id + ") a l'arxiu");
+		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
+				id,
+				new Permission[] {
+						ExtendedPermission.WRITE,
+						ExtendedPermission.ADMINISTRATION});
+		expedientLoggerHelper.afegirLogExpedientPerExpedient(
+				expedient.getId(),
+				ExpedientLogAccioTipus.EXPEDIENT_MIGRAR_ARXIU,
+				null);
+
+		if (!expedient.getTipus().isArxiuActiu())
+			throw new ValidacioException("Aquest expedient no es pot migrar perquè no el tipus d'expedient no té activada la intagració amb l'arxiu");
+		
+		if (expedient.getArxiuUuid() != null && !expedient.getArxiuUuid().isEmpty())
+			throw new ValidacioException("Aquest expedient ja està vinculat a l'arxiu amb la uuid: " + expedient.getArxiuUuid());
+		
+		try {
+			expedientHelper.migrarArxiu(expedient);
+		} catch (Exception ex) {
+			if (expedient.getArxiuUuid() != null && !expedient.getArxiuUuid().isEmpty())
+				pluginHelper.arxiuExpedientEsborrar(expedient.getArxiuUuid());
+		}
+		
+	}
 
 	/**
 	 * {@inheritDoc}

@@ -644,7 +644,7 @@ public class TascaServiceImpl implements TascaService {
 					false,
 					true,
 					true,
-					true);
+					(documentStore.getArxiuUuid() == null));
 		}
 		return document;
 	}
@@ -902,12 +902,11 @@ public class TascaServiceImpl implements TascaService {
 	@Override
 	@Transactional
 	public boolean signarDocumentTascaAmbToken(
-			Long docId, 
 			String tascaId,
 			String token,
 			byte[] signatura) throws Exception {
 		boolean signat = false;
-		DocumentDto dto = documentHelper.signarDocumentTascaAmbToken(docId, tascaId, token, signatura);
+		DocumentDto dto = documentHelper.signarDocumentTascaAmbToken(tascaId, token, signatura);
 		if (dto != null) {
 			expedientRegistreHelper.crearRegistreSignarDocument(
 					dto.getProcessInstanceId(),

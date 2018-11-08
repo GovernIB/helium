@@ -157,6 +157,8 @@ public class ExpedientDocumentController extends BaseExpedientController {
 			@Valid @ModelAttribute DocumentExpedientCommand command,
 			BindingResult bindingResult,
 			Model model) throws IOException {
+		ExpedientDto expedient = expedientService.findAmbId(expedientId);
+		command.setNtiActiu(expedient.isNtiActiu());
 		new DocumentModificarValidator(true).validate(command, bindingResult);
 		if (bindingResult.hasErrors()) {
         	model.addAttribute("documentsNoUtilitzats", getDocumentsNoUtilitzats(expedientId, processInstanceId));
@@ -238,6 +240,8 @@ public class ExpedientDocumentController extends BaseExpedientController {
 			@Valid @ModelAttribute DocumentExpedientCommand command,
 			BindingResult result,
 			Model model) throws IOException {
+		ExpedientDto expedient = expedientService.findAmbId(expedientId);
+		command.setNtiActiu(expedient.isNtiActiu());
 		new DocumentModificarValidator(false).validate(command, result);
 		ExpedientDocumentDto document = expedientDocumentService.findOneAmbInstanciaProces(
     			expedientId,
@@ -301,6 +305,7 @@ public class ExpedientDocumentController extends BaseExpedientController {
 				model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_DATA, arxiu.getContingut());
 			}
 		} catch (SistemaExternException e) {
+			logger.error("Error descarregant fitxer", e);
 			MissatgesHelper.error(request, e.getPublicMessage());
 			model.addAttribute("pipellaActiva", "documents");
 			return "redirect:/v3/expedient/" + expedientId;
@@ -541,6 +546,14 @@ public class ExpedientDocumentController extends BaseExpedientController {
 			DocumentExpedientCommand documentExpedientCommand = (DocumentExpedientCommand)command;
 			if (validarArxiu && (documentExpedientCommand.getArxiu() == null || documentExpedientCommand.getArxiu().isEmpty())) {
 				errors.rejectValue("arxiu", "not.blank");
+			}
+			if (documentExpedientCommand.isNtiActiu()) {
+				if (documentExpedientCommand.getNtiOrigen() == null)
+					errors.rejectValue("ntiOrigen", "not.blank");
+				if (documentExpedientCommand.getNtiEstadoElaboracion() == null)
+					errors.rejectValue("ntiEstadoElaboracion", "not.blank");
+				if (documentExpedientCommand.getNtiTipoDocumental() == null)
+					errors.rejectValue("ntiTipoDocumental", "not.blank");
 			}
  			if ("##adjuntar_arxiu##".equalsIgnoreCase(documentExpedientCommand.getDocumentCodi()) || documentExpedientCommand.getDocumentCodi() == null) {
  				ValidationUtils.rejectIfEmpty(errors, "nom", "not.blank");

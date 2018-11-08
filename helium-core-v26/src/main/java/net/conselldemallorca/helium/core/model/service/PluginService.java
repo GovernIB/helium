@@ -13,16 +13,13 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import com.codahale.metrics.MetricRegistry;
 
-import net.conselldemallorca.helium.core.common.JbpmVars;
 import net.conselldemallorca.helium.core.common.ThreadLocalInfo;
 import net.conselldemallorca.helium.core.helper.ExceptionHelper;
 import net.conselldemallorca.helium.core.helper.ExpedientHelper;
-import net.conselldemallorca.helium.core.helper.PluginHelper;
 import net.conselldemallorca.helium.core.helper.ProcesCallbackHelper;
 import net.conselldemallorca.helium.core.helperv26.DocumentHelper;
 import net.conselldemallorca.helium.core.model.dao.AlertaDao;
@@ -32,11 +29,9 @@ import net.conselldemallorca.helium.core.model.dao.DefinicioProcesDao;
 import net.conselldemallorca.helium.core.model.dao.DocumentStoreDao;
 import net.conselldemallorca.helium.core.model.dao.ExpedientDao;
 import net.conselldemallorca.helium.core.model.dao.LuceneDao;
-import net.conselldemallorca.helium.core.model.dao.PluginCustodiaDao;
 import net.conselldemallorca.helium.core.model.dao.PluginPersonaDao;
 import net.conselldemallorca.helium.core.model.dao.PluginPortasignaturesDao;
 import net.conselldemallorca.helium.core.model.dao.PluginTramitacioDao;
-import net.conselldemallorca.helium.core.model.dao.RegistreDao;
 import net.conselldemallorca.helium.core.model.dao.UsuariDao;
 import net.conselldemallorca.helium.core.model.dto.DocumentDto;
 import net.conselldemallorca.helium.core.model.dto.PersonaDto;
@@ -63,7 +58,6 @@ import net.conselldemallorca.helium.integracio.plugins.tramitacio.ResultatProces
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessInstance;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmToken;
-import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 
 
 /**
@@ -76,11 +70,9 @@ public class PluginService {
 
 	private PluginPersonaDao pluginPersonaDao;
 	private PluginPortasignaturesDao pluginPortasignaturesDao;
-	private PluginCustodiaDao pluginCustodiaDao;
 	private PluginTramitacioDao pluginTramitacioDao;
 	private UsuariDao usuariDao;
 	private ExpedientDao expedientDao;
-	private RegistreDao registreDao;
 	private DocumentStoreDao documentStoreDao;
 	private JbpmHelper jbpmDao;
 
@@ -101,8 +93,6 @@ public class PluginService {
 	private MetricRegistry metricRegistry;
 	private ProcesCallbackHelper procesCallbackHelper;
 
-	@Autowired
-	private PluginHelper pluginHelper;
 	@Autowired
 	private ExceptionHelper exceptionHelper;
 
@@ -415,20 +405,12 @@ public class PluginService {
 		this.pluginPortasignaturesDao = pluginPortasignaturesDao;
 	}
 	@Autowired
-	public void setPluginCustodiaDao(PluginCustodiaDao pluginCustodiaDao) {
-		this.pluginCustodiaDao = pluginCustodiaDao;
-	}
-	@Autowired
 	public void setPluginTramitacioDao(PluginTramitacioDao pluginTramitacioDao) {
 		this.pluginTramitacioDao = pluginTramitacioDao;
 	}
 	@Autowired
 	public void setExpedientDao(ExpedientDao expedientDao) {
 		this.expedientDao = expedientDao;
-	}
-	@Autowired
-	public void setRegistreDao(RegistreDao registreDao) {
-		this.registreDao = registreDao;
 	}
 	@Autowired
 	public void setDocumentStoreDao(DocumentStoreDao documentStoreDao) {
@@ -598,112 +580,94 @@ public class PluginService {
 		return resposta;
 	}
 	private void afegirDocumentCustodia(
-			Integer documentId,
+			Integer psignaId,
 			DocumentStore documentStore) throws Exception {
 		Long documentStoreId = documentStore.getId();
 		DocumentDto document = documentHelper.getDocumentSenseContingut(documentStoreId);
 		if (document != null) {
-			JbpmProcessInstance rootProcessInstance = jbpmDao.getRootProcessInstance(documentStore.getProcessInstanceId());
-			Expedient expedient = expedientDao.findAmbProcessInstanceId(rootProcessInstance.getId());
-			String varDocumentCodi = documentStore.getJbpmVariable().substring(JbpmVars.PREFIX_DOCUMENT.length());
-			List<byte[]> signatures = obtenirSignaturesDelPortasignatures(documentId);
-			if (signatures != null) {
-				if (documentStore.getArxiuUuid() != null) {
-					if (signatures.size() == 1) {
-						ArxiuDto pdfFirmat = new ArxiuDto();
-						pdfFirmat.setNom("firma.pdf");
-						pdfFirmat.setTipusMime("application/pdf");
-						pdfFirmat.setContingut(signatures.get(0));
-						pluginHelper.arxiuDocumentGuardarPdfFirmat(
-								expedient,
-								documentStore,
-								document.getDocumentNom(),
-								pdfFirmat);
-						es.caib.plugins.arxiu.api.Document documentArxiu = pluginHelper.arxiuDocumentInfo(
-								documentStore.getArxiuUuid(),
-								null,
-								false);
-						documentHelper.actualitzarNtiFirma(documentStore, documentArxiu);
-					} else {
-						throw new Exception("El nombre de signatures recuperades del portafirmes és " + signatures.size() + " en comptes de 1");
-					}
-				} else {
-					if (expedient.isNtiActiu()) {
-						documentHelper.actualitzarNtiFirma(documentStore, null);
-					}
-					//logger.info(">>> [PSIGN] Té signatures i comença custòdia (psignaId=" + documentId + ", docStoreId=" + documentStoreId + ", refCustòdia=" + docst.getReferenciaCustodia() + ")");
-					if (documentStore.getReferenciaCustodia() != null) {
-						//logger.info(">>> [PSIGN] Abans esborrar signatures (psignaId=" + documentId + ", docStoreId=" + documentStoreId + ", refCustòdia=" + docst.getReferenciaCustodia() + ")");
-						pluginCustodiaDao.esborrarSignatures(documentStore.getReferenciaCustodia());
-						//logger.info(">>> [PSIGN] Després esborrar signatures (psignaId=" + documentId + ", docStoreId=" + documentStoreId + ", refCustòdia=" + docst.getReferenciaCustodia() + ")");
-					}
-					String referenciaCustodia = null;
-					for (byte[] signatura: signatures) {
-						try {
-							//logger.info(">>> [PSIGN] Abans cridada custòdia 1 (psignaId=" + documentId + ", docStoreId=" + documentStoreId + ")");
-							referenciaCustodia = pluginCustodiaDao.afegirSignatura(
-									documentStoreId,
-									documentStore.getReferenciaFont(),
-									document.getArxiuNom(),
-									document.getCustodiaCodi(),
-									signatura);
-							//logger.info(">>> [PSIGN] Després cridada custòdia 1 (psignaId=" + documentId + ", docStoreId=" + documentStoreId + ", refCustòdia=" + referenciaCustodia + ")");
-						} catch (Exception ex) {
-							// Si dona error perquè el document ja està arxivat l'esborra
-							// i el torna a crear.
-							//logger.info(">>> [PSIGN] Error custòdia (" + ex.getCause().getMessage() + ") (psignaId=" + documentId + ", docStoreId=" + documentStoreId + ", refCustòdia=" + referenciaCustodia + ")");
-							/*if (cercarMissatgeDinsCadenaExcepcions("ERROR_DOCUMENTO_ARCHIVADO", ex)) {
-								logger.info(">>> [PSIGN] Abans cridada esborrar signatures (psignaId=" + documentId + ", docStoreId=" + documentStoreId + ", refCustòdia=" + referenciaCustodia + ")");
-								pluginCustodiaDao.esborrarSignatures(documentStoreId.toString());
-								logger.info(">>> [PSIGN] Després cridada esborrar signatures (psignaId=" + documentId + ", docStoreId=" + documentStoreId + ", refCustòdia=" + referenciaCustodia + ")");
-								logger.info(">>> [PSIGN] Abans cridada custòdia 2 (psignaId=" + documentId + ", docStoreId=" + documentStoreId + ", refCustòdia=" + referenciaCustodia + ")");
-								referenciaCustodia = pluginCustodiaDao.afegirSignatura(
-										documentStoreId,
-										docst.getReferenciaFont(),
-										document.getArxiuNom(),
-										document.getCustodiaCodi(),
-										signatura);
-								logger.info(">>> [PSIGN] Després cridada custòdia 2 (psignaId=" + documentId + ", docStoreId=" + documentStoreId + ", refCustòdia=" + referenciaCustodia + ")");
-							} else {
-								throw ex;
-							}*/
-							logger.info(">>> [PSIGN] Processant error custòdia (" + exceptionHelper.getMissageFinalCadenaExcepcions(ex) + ", " + exceptionHelper.cercarMissatgeDinsCadenaExcepcions("ERROR_DOCUMENTO_ARCHIVADO", ex) + ") (psignaId=" + documentId + ", docStoreId=" + documentStoreId + ", refCustòdia=" + referenciaCustodia + ")");
-							if (exceptionHelper.cercarMissatgeDinsCadenaExcepcions("ERROR_DOCUMENTO_ARCHIVADO", ex)) {
-								referenciaCustodia = documentStoreId.toString();
-							} else {
-								throw ex;
-							}
-						}
-					}
-					//logger.info(">>> [PSIGN] Fi procés custòdia 1 (psignaId=" + documentId + ", docStoreId=" + documentStoreId + ", refCustòdia=" + referenciaCustodia + ")");
-					documentStore.setReferenciaCustodia(referenciaCustodia);
-				}
-				documentStore.setSignat(true);
-				registreDao.crearRegistreSignarDocument(
-						expedient.getId(),
-						documentStore.getProcessInstanceId(),
-						SecurityContextHolder.getContext().getAuthentication().getName(),
-						varDocumentCodi);
-				//logger.info(">>> [PSIGN] Fi procés custòdia 2 (psignaId=" + documentId + ", docStoreId=" + documentStoreId + ", refCustòdia=" + referenciaCustodia + ")");
+			List<byte[]> signatures = pluginPortasignaturesDao.obtenirSignaturesDocument(
+					psignaId);
+			if (signatures != null && signatures.size() == 1) {
+				documentHelper.guardarDocumentFirmat(
+						documentStore,
+						signatures.get(0));
 			} else {
-				//logger.info(">>> [PSIGN] No té signatures (psignaId=" + documentId + ", docStoreId=" + documentStoreId + ", refCustòdia=" + docst.getReferenciaCustodia() + ")");
-				throw new Exception(getServiceUtils().getMessage("error.pluginService.capSignatura"));
+				if (signatures == null) {
+					throw new Exception(getServiceUtils().getMessage("error.pluginService.capSignatura"));
+				} else {
+					throw new Exception(
+							"El nombre de signatures del document és de " + signatures.size() + " en comptes de 1");
+				}
 			}
 		} else {
-			//logger.info(">>> [PSIGN] No s'ha trobat document (psignaId=" + documentId + ", docStoreId=" + documentStoreId + ")");
 			throw new IllegalStateException(getServiceUtils().getMessage("error.pluginService.noDisponible"));
 		}
-		//logger.info(">>> [PSIGN] Fi procés custòdia 3 (psignaId=" + documentId + ", docStoreId=" + documentStoreId + ")");
 	}
-	private List<byte[]> obtenirSignaturesDelPortasignatures(
-			Integer documentId) {
-		try {
-			return pluginPortasignaturesDao.obtenirSignaturesDocument(documentId);
-		} catch (Exception e) {
-			logger.error("Error obtenint el document del Portasignatures", e);
-			return null;
+	/*private void guardarDocumentFirmat(
+			DocumentStore documentStore,
+			List<byte[]> signatures) throws Exception {
+		JbpmProcessInstance rootProcessInstance = jbpmDao.getRootProcessInstance(documentStore.getProcessInstanceId());
+		Expedient expedient = expedientDao.findAmbProcessInstanceId(rootProcessInstance.getId());
+		String varDocumentCodi = documentStore.getJbpmVariable().substring(JbpmVars.PREFIX_DOCUMENT.length());
+		if (documentStore.getArxiuUuid() != null) {
+			if (signatures.size() == 1) {
+				ArxiuDto pdfFirmat = new ArxiuDto();
+				pdfFirmat.setNom("firma_portafirmes.pdf");
+				pdfFirmat.setTipusMime("application/pdf");
+				pdfFirmat.setContingut(signatures.get(0));
+				pluginHelper.arxiuDocumentGuardarPdfFirmat(
+						expedient,
+						documentStore,
+						document.getDocumentNom(),
+						pdfFirmat);
+				es.caib.plugins.arxiu.api.Document documentArxiu = pluginHelper.arxiuDocumentInfo(
+						documentStore.getArxiuUuid(),
+						null,
+						false);
+				documentHelper.actualitzarNtiFirma(documentStore, documentArxiu);
+			} else {
+				
+			}
+		} else {
+			if (expedient.isNtiActiu()) {
+				documentHelper.actualitzarNtiFirma(documentStore, null);
+			}
+			if (documentStore.getReferenciaCustodia() != null) {
+				pluginCustodiaDao.esborrarSignatures(documentStore.getReferenciaCustodia());
+			}
+			String referenciaCustodia = null;
+			for (byte[] signatura: signatures) {
+				try {
+					referenciaCustodia = pluginCustodiaDao.afegirSignatura(
+							documentStore.getId(),
+							documentStore.getReferenciaFont(),
+							document.getArxiuNom(),
+							document.getCustodiaCodi(),
+							signatura);
+				} catch (Exception ex) {
+					// Si dona error perquè el document ja està arxivat l'esborra
+					// i el torna a crear.
+					logger.info("[PSIGN] Error guardant document a custòdia (" +
+							exceptionHelper.getMissageFinalCadenaExcepcions(ex) + ", " +
+							exceptionHelper.cercarMissatgeDinsCadenaExcepcions("ERROR_DOCUMENTO_ARCHIVADO", ex) + ") (" +
+							"docStoreId=" + documentStore.getId() + ", " +
+							"refCustòdia=" + referenciaCustodia + ")");
+					if (exceptionHelper.cercarMissatgeDinsCadenaExcepcions("ERROR_DOCUMENTO_ARCHIVADO", ex)) {
+						referenciaCustodia = documentStore.getId().toString();
+					} else {
+						throw ex;
+					}
+				}
+			}
+			documentStore.setReferenciaCustodia(referenciaCustodia);
 		}
-	}
+		documentStore.setSignat(true);
+		registreDao.crearRegistreSignarDocument(
+				expedient.getId(),
+				documentStore.getProcessInstanceId(),
+				SecurityContextHolder.getContext().getAuthentication().getName(),
+				varDocumentCodi);
+	}*/
 
 	private boolean isSyncPersonesActiu() {
 		String syncActiu = GlobalProperties.getInstance().getProperty("app.persones.plugin.sync.actiu");

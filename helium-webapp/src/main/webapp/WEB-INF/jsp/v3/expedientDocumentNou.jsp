@@ -122,12 +122,14 @@ $(document).ready( function() {
 						</div>
 					</div>
 				</div>
-				<div id="dades-nti" class="tab-pane">
-					<hel:inputSelect name="ntiOrigen" textKey="document.metadades.nti.origen" optionItems="${ntiOrigen}" optionValueAttribute="codi" optionTextAttribute="valor" emptyOption="true" required="true"/>
-					<hel:inputSelect name="ntiEstadoElaboracion" textKey="document.metadades.nti.estado.elaboracion" optionItems="${ntiEstadoElaboracion}" optionValueAttribute="codi" optionTextAttribute="valor" emptyOption="true" required="true"/>
-					<hel:inputSelect name="ntiTipoDocumental" textKey="document.metadades.nti.tipo.documental" optionItems="${ntiTipoDocumental}" optionValueAttribute="codi" optionTextAttribute="valor" emptyOption="true" required="true"/>
-					<hel:inputText name="ntiIdOrigen" textKey="document.metadades.nti.iddoc.origen"/>
-				</div>
+				<c:if test="${expedient.ntiActiu}">
+					<div id="dades-nti" class="tab-pane">
+						<hel:inputSelect name="ntiOrigen" textKey="document.metadades.nti.origen" optionItems="${ntiOrigen}" optionValueAttribute="codi" optionTextAttribute="valor" emptyOption="true" required="true"/>
+						<hel:inputSelect name="ntiEstadoElaboracion" textKey="document.metadades.nti.estado.elaboracion" optionItems="${ntiEstadoElaboracion}" optionValueAttribute="codi" optionTextAttribute="valor" emptyOption="true" required="true"/>
+						<hel:inputSelect name="ntiTipoDocumental" textKey="document.metadades.nti.tipo.documental" optionItems="${ntiTipoDocumental}" optionValueAttribute="codi" optionTextAttribute="valor" emptyOption="true" required="true"/>
+						<hel:inputText name="ntiIdOrigen" textKey="document.metadades.nti.iddoc.origen"/>
+					</div>
+				</c:if>
 			</div>
 		</div>
 		<div id="modal-botons" class="well">

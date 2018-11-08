@@ -4,25 +4,12 @@
 	<script type="text/javascript">
 	// <![CDATA[
 	    $(document).ready(function() {
-	    	if ($('.alert-danger').length > 0) {
-				$('#tancarBtn').show();
-			} else {
-				setTimeout(
-						function() { 
-			    			opener.refreshSignatures();
-						}, 
-						2000);				
-			}
 			$('#tancarBtn').click(function(e) {
-		    	opener.refreshSignatures();
-		    	e.preventDefault();
+		    	top.window.close();
 			})
 	    });
-	    
-	    
-	    
 	//]]>
 	</script>
 
-	<button id="tancarBtn" class="btn btn-default" style="display:none;"><spring:message code='comu.boto.tancar' /></button>
+	<button id="tancarBtn" class="btn btn-default"><spring:message code='comu.boto.tancar' /></button>
 	

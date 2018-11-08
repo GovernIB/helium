@@ -487,7 +487,10 @@ public class ExpedientDto extends ControlPermisosDto implements Serializable {
 	public boolean getArxiuActiu() {
 		return arxiuActiu;
 	}
-	public void isArxiuActiu(boolean arxiuActiu) {
+	public boolean isArxiuActiu() {
+		return arxiuActiu;
+	}
+	public void setArxiuActiu(boolean arxiuActiu) {
 		this.arxiuActiu = arxiuActiu;
 	}
 	public String getArxiuUuid() {

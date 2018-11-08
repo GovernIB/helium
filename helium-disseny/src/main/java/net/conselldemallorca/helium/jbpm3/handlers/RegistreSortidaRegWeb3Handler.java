@@ -31,6 +31,8 @@ public class RegistreSortidaRegWeb3Handler extends BasicActionHandler {
 	public void setVarAssumpteTipusCodi(String varAssumpteTipusCodi) {}
 	public void setAssumpteCodi(String assumpteCodi) {}
 	public void setVarAssumpteCodi(String varAssumpteCodi) {}
+	public void setUsuariCodi(String usuariCodi) {}
+	public void setVarUsuariCodi(String varAssumpteCodi) {}
 	public void setInteressatTipus(String interessatTipus) {}
 	public void setVarInteressatTipus(String varInteressatTipus) {}
 	public void setInteressatDocumentTipus(String interessatDocumentTipus) {}

@@ -274,8 +274,8 @@ public class TascaServiceBean implements TascaService {
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public boolean signarDocumentTascaAmbToken(Long docId, String tascaId, String token, byte[] signatura) throws Exception {
-		return delegate.signarDocumentTascaAmbToken(docId, tascaId, token, signatura);
+	public boolean signarDocumentTascaAmbToken(String tascaId, String token, byte[] signatura) throws Exception {
+		return delegate.signarDocumentTascaAmbToken(tascaId, token, signatura);
 	}
 
 	@Override

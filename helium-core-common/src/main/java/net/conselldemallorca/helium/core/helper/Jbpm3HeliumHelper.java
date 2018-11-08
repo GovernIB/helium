@@ -31,6 +31,7 @@ import net.conselldemallorca.helium.core.model.hibernate.Area;
 import net.conselldemallorca.helium.core.model.hibernate.Camp;
 import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
 import net.conselldemallorca.helium.core.model.hibernate.Document;
+import net.conselldemallorca.helium.core.model.hibernate.DocumentStore;
 import net.conselldemallorca.helium.core.model.hibernate.Domini;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 import net.conselldemallorca.helium.core.model.hibernate.Enumeracio;
@@ -91,6 +92,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.ZonaperEventDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ZonaperExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.exception.SistemaExternException;
+import net.conselldemallorca.helium.v3.core.api.exception.ValidacioException;
 import net.conselldemallorca.helium.v3.core.api.registre.RegistreAnotacio;
 import net.conselldemallorca.helium.v3.core.api.service.Jbpm3HeliumService;
 import net.conselldemallorca.helium.v3.core.repository.AlertaRepository;
@@ -100,6 +102,7 @@ import net.conselldemallorca.helium.v3.core.repository.CampTascaRepository;
 import net.conselldemallorca.helium.v3.core.repository.CarrecRepository;
 import net.conselldemallorca.helium.v3.core.repository.DefinicioProcesRepository;
 import net.conselldemallorca.helium.v3.core.repository.DocumentRepository;
+import net.conselldemallorca.helium.v3.core.repository.DocumentStoreRepository;
 import net.conselldemallorca.helium.v3.core.repository.DocumentTascaRepository;
 import net.conselldemallorca.helium.v3.core.repository.DominiRepository;
 import net.conselldemallorca.helium.v3.core.repository.EntornRepository;
@@ -148,6 +151,8 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 	private EstatRepository estatRepository;
 	@Resource
 	private DocumentRepository documentRepository;
+	@Resource
+	private DocumentStoreRepository documentStoreRepository;
 	@Resource
 	private EnumeracioRepository enumeracioRepository;
 	@Resource
@@ -721,6 +726,23 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 				null,
 				null);
 		return generat;
+	}
+
+	@Override
+	public void documentFirmaServidor(
+			String processInstanceId,
+			String documentCodi,
+			String motiu) throws ValidacioException {
+		
+		Long documentStoreId = documentHelper.findDocumentStorePerInstanciaProcesAndDocumentCodi(
+				processInstanceId, 
+				documentCodi);
+		
+		documentHelper.firmaServidor(
+				processInstanceId,
+				documentStoreId,
+				motiu,
+				true);
 	}
 
 	@Override
@@ -1609,13 +1631,14 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 			Long processInstanceId,
 			String transicioOK,
 			String transicioKO) {
+		DocumentStore documentStore = documentStoreRepository.findOne(documentId);
 		DocumentDto document = documentHelper.toDocumentDto(
 				documentId,
 				false,
 				false,
 				true,
 				true,
-				true);
+				(documentStore == null || documentStore.getArxiuUuid() == null) );
 		List<DocumentDto> annexos = null;
 		if (annexosId != null) {
 			annexos = new ArrayList<DocumentDto>();
