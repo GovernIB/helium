@@ -634,10 +634,11 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 				"Creant nou camp per una tasca de la definició de procés (" +
 				"tascaId =" + tascaId + ", " +
 				"tascaCamp=" + tascaCamp + ")");
+		
 
 		CampTasca entity = new CampTasca();
 		
-		entity.setOrder(campTascaRepository.getNextOrdre(tascaId));		
+		entity.setOrder(campTascaRepository.getNextOrdre(tascaId, tascaCamp.getExpedientTipusId()));		
 		entity.setReadFrom(tascaCamp.isReadFrom());
 		entity.setWriteTo(tascaCamp.isWriteTo());
 		entity.setRequired(tascaCamp.isRequired());
@@ -669,18 +670,20 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 				"tascaCampId=" + tascaCampId +  ")");
 		
 		CampTasca tascaCamp = campTascaRepository.findOne(tascaCampId);
+		Long expedientTipusId = tascaCamp.getExpedientTipus() != null? tascaCamp.getExpedientTipus().getId() : null;
 		tascaCamp.getTasca().removeCamp(tascaCamp);
 		campTascaRepository.delete(tascaCamp);	
 		campTascaRepository.flush();
-		reordenarCampsTasca(tascaCamp.getTasca().getId());
+		reordenarCampsTasca(tascaCamp.getTasca().getId(), expedientTipusId);
 	}
 
 	/** Funció per reasignar el valor d'ordre dins dels camps d'una tasca de tipus registre. */
 	private void reordenarCampsTasca(
-			Long tascaId) {
+			Long tascaId,
+			Long expedientTipusId) {
 		List<CampTasca> tascaCamps = campTascaRepository.findAmbTascaIdOrdenats(
 				tascaId,
-				null);		
+				expedientTipusId);		
 		int i = 0;
 		for (CampTasca c : tascaCamps) {
 			c.setOrder(i);
@@ -797,18 +800,6 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 			}
 		}
 		return pagina;
-	}		
-	
-	@Override
-	@Transactional(readOnly = true)
-	public List<CampTascaDto> tascaCampFindCampAmbTascaId(
-			Long tascaId) {
-		logger.debug(
-				"Consultant els camps per una tasca (" +
-				"tascaId=" + tascaId + ")");
-		return conversioTipusHelper.convertirList(
-				campTascaRepository.findCampsTasca(tascaId), 
-				CampTascaDto.class);
 	}
 	
 	@Override
@@ -905,7 +896,7 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 
 		DocumentTasca entity = new DocumentTasca();
 		
-		entity.setOrder(documentTascaRepository.getNextOrdre(tascaId));		
+		entity.setOrder(documentTascaRepository.getNextOrdre(tascaId, tascaDocument.getExpedientTipusId()));		
 		entity.setRequired(tascaDocument.isRequired());
 		entity.setReadOnly(tascaDocument.isReadOnly());
 		Tasca tasca = tascaRepository.findOne(tascaId);
@@ -931,16 +922,20 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 				"tascaDocumentId=" + tascaDocumentId +  ")");
 		
 		DocumentTasca tascaDocument = documentTascaRepository.findOne(tascaDocumentId);
+		Long expedientTipusId = tascaDocument.getExpedientTipus() != null? tascaDocument.getExpedientTipus().getId() : null;
 		tascaDocument.getTasca().removeDocument(tascaDocument);
 		documentTascaRepository.delete(tascaDocument);	
 		documentTascaRepository.flush();
-		reordenarDocumentsTasca(tascaDocument.getTasca().getId());
+		reordenarDocumentsTasca(
+				tascaDocument.getTasca().getId(),
+				expedientTipusId);
 	}
 
 	/** Funció per reasignar el valor d'ordre dins dels documents d'una tasca de tipus registre. */
 	private void reordenarDocumentsTasca(
-			Long tascaId) {
-		List<DocumentTasca> tascaDocuments = documentTascaRepository.findAmbTascaOrdenats(tascaId, null);		
+			Long tascaId,
+			Long expedientTipusId) {
+		List<DocumentTasca> tascaDocuments = documentTascaRepository.findAmbTascaOrdenats(tascaId, expedientTipusId);		
 		int i = 0;
 		for (DocumentTasca c : tascaDocuments) {
 			c.setOrder(i);
@@ -1059,18 +1054,6 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 		}
 
 		return pagina;		
-	}		
-	
-	@Override
-	@Transactional(readOnly = true)
-	public List<DocumentTascaDto> tascaDocumentFindDocumentAmbTascaId(
-			Long tascaId) {
-		logger.debug(
-				"Consultant els documents per una tasca (" +
-				"tascaId=" + tascaId + ")");
-		return conversioTipusHelper.convertirList(
-				documentTascaRepository.findDocumentsTasca(tascaId), 
-				DocumentTascaDto.class);
 	}
 	
 	@Override
@@ -1162,7 +1145,7 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 
 		FirmaTasca entity = new FirmaTasca();
 		
-		entity.setOrder(firmaTascaRepository.getNextOrdre(tascaId));		
+		entity.setOrder(firmaTascaRepository.getNextOrdre(tascaId, tascaFirma.getExpedientTipusId()));		
 		entity.setRequired(tascaFirma.isRequired());
 		Tasca tasca = tascaRepository.findOne(tascaId);
 		entity.setTasca(tasca);
@@ -1187,15 +1170,19 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 				"tascaFirmaId=" + tascaFirmaId +  ")");
 		
 		FirmaTasca tascaFirma = firmaTascaRepository.findOne(tascaFirmaId);
+		Long expedientTipusId = tascaFirma.getExpedientTipus() != null? tascaFirma.getExpedientTipus().getId() : null;
 		firmaTascaRepository.delete(tascaFirma);	
 		firmaTascaRepository.flush();
-		reordenarFirmesTasca(tascaFirma.getTasca().getId());
+		reordenarFirmesTasca(
+				tascaFirma.getTasca().getId(), 
+				expedientTipusId);
 	}
 
 	/** Funció per reasignar el valor d'ordre dins de les firmes d'una tasca de tipus registre. */
 	private void reordenarFirmesTasca(
-			Long tascaId) {
-		List<FirmaTasca> tascaFirmes = firmaTascaRepository.findAmbTascaIdOrdenats(tascaId, null);		
+			Long tascaId,
+			Long expedientTipusId) {
+		List<FirmaTasca> tascaFirmes = firmaTascaRepository.findAmbTascaIdOrdenats(tascaId, expedientTipusId);		
 		int i = 0;
 		for (FirmaTasca c : tascaFirmes) {
 			c.setOrder(i);
@@ -1312,31 +1299,20 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 			}
 		}
 		return pagina;
-	}		
-	
-	@Override
-	@Transactional(readOnly = true)
-	public List<FirmaTascaDto> tascaFirmaFindAmbTascaId(
-			Long tascaId) {
-		logger.debug(
-				"Consultant les firmes per una tasca (" +
-				"tascaId=" + tascaId + ")");
-		return conversioTipusHelper.convertirList(
-				firmaTascaRepository.findFirmesTasca(tascaId), 
-				FirmaTascaDto.class);
 	}
 	
 	@Override
 	@Transactional(readOnly = true)
 	public FirmaTascaDto tascaFirmaFindAmbTascaDocument(
 			Long tascaId,
-			Long documentId) {
+			Long documentId,
+			Long expedientTipusId) {
 		logger.debug(
 				"Consultant la firma per una tasca i document(" +
 				"tascaId=" + tascaId +
 				", documentId=" + documentId + ")");
 		return conversioTipusHelper.convertir(
-				firmaTascaRepository.findAmbDocumentTasca(documentId, tascaId), 
+				firmaTascaRepository.findAmbDocumentTasca(documentId, tascaId, expedientTipusId), 
 				FirmaTascaDto.class);
 	}
 	

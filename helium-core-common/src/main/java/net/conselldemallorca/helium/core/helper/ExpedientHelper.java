@@ -889,6 +889,7 @@ public class ExpedientHelper {
 		}
 		return expedient;
 	}
+	
 	public DefinicioProces findDefinicioProcesByProcessInstanceId(
 			String processInstanceId) {
 		String processDefinitionId = jbpmHelper.getProcessInstance(processInstanceId).getProcessDefinitionId();

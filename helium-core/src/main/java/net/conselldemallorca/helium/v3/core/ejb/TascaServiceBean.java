@@ -256,8 +256,8 @@ public class TascaServiceBean implements TascaService {
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public TascaDocumentDto findDocument(String tascaId, Long docId) {
-		return delegate.findDocument(tascaId, docId);
+	public TascaDocumentDto findDocument(String tascaId, Long docId, Long expedientTipusId) {
+		return delegate.findDocument(tascaId, docId, expedientTipusId);
 	}
 
 	@Override

@@ -41,7 +41,7 @@ public class BaseTascaDissenyController extends BaseDissenyController {
 			Long tascaId) {
 		List<ParellaCodiValorDto> resposta = new ArrayList<ParellaCodiValorDto>();
 		// Tasca els camps de la tasca segons el tipus
-		List<CampTascaDto> camps = definicioProcesService.tascaCampFindCampAmbTascaId(tascaId);
+		List<CampTascaDto> camps = definicioProcesService.tascaCampFindAll(expedientTipusId, tascaId);
 		// Lleva les variables que ja pertanyin a algun camp
 		Iterator<CampDto> it = variables.iterator();
 		while (it.hasNext()) {
@@ -84,12 +84,12 @@ public class BaseTascaDissenyController extends BaseDissenyController {
 	 * @return
 	 */
 	protected List<ParellaCodiValorDto> documentObtenirParellesDocuments(
-			Long definicioProcesId,
+			Long expedientTipusId,
 			List<DocumentDto> documents, 
 			Long tascaId) {
 		List<ParellaCodiValorDto> resposta = new ArrayList<ParellaCodiValorDto>();
 		// Documents de la tasca existents
-		List<DocumentTascaDto> documentsTasca = definicioProcesService.tascaDocumentFindDocumentAmbTascaId(tascaId);
+		List<DocumentTascaDto> documentsTasca = definicioProcesService.tascaDocumentFindAll(expedientTipusId, tascaId);
 		// Lleva les documents que ja pertanyin a algun document
 		Iterator<DocumentDto> it = documents.iterator();
 		while (it.hasNext()) {
@@ -118,12 +118,12 @@ public class BaseTascaDissenyController extends BaseDissenyController {
 	 * @return
 	 */
 	protected List<ParellaCodiValorDto> firmaObtenirParellesDocuments(
-			Long definicioProcesId,
+			Long expedientTipusId,
 			List<DocumentDto> documents,
 			Long tascaId) {
 		List<ParellaCodiValorDto> resposta = new ArrayList<ParellaCodiValorDto>();
 		// Documents de la tasca existents
-		List<FirmaTascaDto> firmesTasca = definicioProcesService.tascaFirmaFindAmbTascaId(tascaId);
+		List<FirmaTascaDto> firmesTasca = definicioProcesService.tascaFirmaFindAll(expedientTipusId, tascaId);
 		// Lleva les firmes que ja pertanyin a algun firma
 		Iterator<DocumentDto> it = documents.iterator();
 		while (it.hasNext()) {

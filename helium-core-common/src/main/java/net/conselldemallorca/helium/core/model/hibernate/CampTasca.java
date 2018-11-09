@@ -29,8 +29,8 @@ import org.springmodules.validation.bean.conf.loader.annotation.handler.NotNull;
 @Entity
 @Table(	name="hel_camp_tasca",
 		uniqueConstraints={
-			@UniqueConstraint(columnNames={"camp_id", "tasca_id"}),
-			@UniqueConstraint(columnNames={"tasca_id", "ordre"})})
+			@UniqueConstraint(name = "hel_camptasca_camp_id_tasca_id_uk", columnNames={"expedient_tipus_id", "camp_id", "tasca_id"}),
+			@UniqueConstraint(name = "hel_camptasca_tasca_id_ordre_uk", columnNames={"expedient_tipus_id", "tasca_id", "ordre"})})
 @org.hibernate.annotations.Table(
 		appliesTo = "hel_camp_tasca",
 		indexes = {
@@ -179,6 +179,7 @@ public class CampTasca implements Serializable, GenericEntity<Long> {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
+		result = prime * result + ((expedientTipus == null) ? 0 : expedientTipus.hashCode());
 		result = prime * result + ((camp == null) ? 0 : camp.hashCode());
 		result = prime * result + ((tasca == null) ? 0 : tasca.hashCode());
 		return result;
@@ -192,6 +193,11 @@ public class CampTasca implements Serializable, GenericEntity<Long> {
 		if (getClass() != obj.getClass())
 			return false;
 		CampTasca other = (CampTasca) obj;
+		if (expedientTipus == null) {
+			if (other.expedientTipus != null)
+				return false;
+		} else if (!expedientTipus.equals(other.expedientTipus))
+			return false;
 		if (camp == null) {
 			if (other.camp != null)
 				return false;

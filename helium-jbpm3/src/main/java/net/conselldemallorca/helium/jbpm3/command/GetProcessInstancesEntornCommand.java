@@ -26,13 +26,14 @@ public class GetProcessInstancesEntornCommand extends AbstractGetObjectBaseComma
   public Object execute(JbpmContext jbpmContext) throws Exception
   {
     setJbpmContext(jbpmContext);
+
     StringBuffer queryText = new StringBuffer(
     		"select pi" + 
     		" from org.jbpm.graph.exe.ProcessInstance as pi,"
     		+ "	   net.conselldemallorca.helium.core.model.hibernate.Expedient e " +
     		" where pi.end = null " +
     		" and pi.processDefinition.name = :processDefinitionName " +
-    		" and e.processInstanceId = pi.id " +
+    		" and e.id = pi.expedient.id " +
     		" and e.entorn.id = :entornId " +
     		" order by pi.start desc");
 

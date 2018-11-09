@@ -521,10 +521,11 @@ public class TascaServiceImpl implements TascaService {
 	@Transactional(readOnly = true)
 	public TascaDocumentDto findDocument(
 			String tascaId,
-			Long docId) {
+			Long docId,
+			Long expedientTipusId) {
 		logger.debug("Consultant document de la tasca (" +
 				"docId=" + docId + ")");
-		return documentHelper.findDocumentPerId(tascaId, docId);
+		return documentHelper.findDocumentPerId(tascaId, docId, expedientTipusId);
 	}
 
 	@Override
@@ -551,8 +552,11 @@ public class TascaServiceImpl implements TascaService {
 				true,
 				true);
 		Tasca tasca = tascaHelper.findTascaByJbpmTask(task);
+		Long expedientTipusId = expedientTipusHelper.findIdByProcessInstanceId(task.getProcessInstanceId());
+
 		return campTascaRepository.countAmbTasca(
-				tasca.getId()) > 0;
+				tasca.getId(),
+				expedientTipusId) > 0;
 	}
 
 	@Override

@@ -491,12 +491,13 @@ public class DefinicioProcesTascaController extends BaseTascaDissenyController {
 			Model model) {
 		// Obté el llistat de documents
 		DefinicioProcesDto definicioProces = definicioProcesService.findById(definicioProcesId);
+		Long expedientTipusId = definicioProces.getExpedientTipus() != null? definicioProces.getExpedientTipus().getId() : null;
 		List<DocumentDto> documents = dissenyService.findDocumentsOrdenatsPerCodi(
 					definicioProces.getExpedientTipus() != null ? definicioProces.getExpedientTipus().getId() : null,
 					definicioProcesId
 					,true // amb herencia
 				);
-		return documentObtenirParellesDocuments(definicioProcesId, documents, tascaId);
+		return documentObtenirParellesDocuments(expedientTipusId, documents, tascaId);
 	}	
 			
 	private void omplirModelDocuments(
@@ -513,6 +514,7 @@ public class DefinicioProcesTascaController extends BaseTascaDissenyController {
 
 		// Obté el llistat de documents
 		DefinicioProcesDto definicioProces = definicioProcesService.findById(definicioProcesId);
+		Long expedientTipusId = definicioProces.getExpedientTipus() != null? definicioProces.getExpedientTipus().getId() : null;
 
 		List<DocumentDto> documents = dissenyService.findDocumentsOrdenatsPerCodi(
 					definicioProces.getExpedientTipus() != null ? definicioProces.getExpedientTipus().getId() : null,
@@ -536,7 +538,7 @@ public class DefinicioProcesTascaController extends BaseTascaDissenyController {
 		
 		// Construeix les parelles de documents
 		model.addAttribute("documents", documentObtenirParellesDocuments(
-				definicioProcesId,
+				expedientTipusId,
 				documents,
 				tascaId));
 	}
@@ -682,6 +684,7 @@ public class DefinicioProcesTascaController extends BaseTascaDissenyController {
 		
 		// Obté el llistat de documents
 		DefinicioProcesDto definicioProces = definicioProcesService.findById(definicioProcesId);
+		Long expedientTipusId = definicioProces.getExpedientTipus() != null? definicioProces.getExpedientTipus().getId() : null;
 
 		List<DocumentDto> documents = dissenyService.findDocumentsOrdenatsPerCodi(
 					definicioProces.getExpedientTipus() != null ? definicioProces.getExpedientTipus().getId() : null,
@@ -689,7 +692,7 @@ public class DefinicioProcesTascaController extends BaseTascaDissenyController {
 					,true // amb herencia
 				);
 
-		return firmaObtenirParellesDocuments(definicioProcesId, documents, tascaId);
+		return firmaObtenirParellesDocuments(expedientTipusId, documents, tascaId);
 	}	
 			
 	private void omplirModelFirmes(
@@ -706,6 +709,7 @@ public class DefinicioProcesTascaController extends BaseTascaDissenyController {
 
 		// Obté el llistat de documents
 		DefinicioProcesDto definicioProces = definicioProcesService.findById(definicioProcesId);
+		Long expedientTipusId = definicioProces.getExpedientTipus() != null? definicioProces.getExpedientTipus().getId() : null;
 
 		List<DocumentDto> documents = dissenyService.findDocumentsOrdenatsPerCodi(
 					definicioProces.getExpedientTipus() != null ? definicioProces.getExpedientTipus().getId() : null,
@@ -729,7 +733,7 @@ public class DefinicioProcesTascaController extends BaseTascaDissenyController {
 		
 		// Construeix les parelles de documents
 		model.addAttribute("documents", firmaObtenirParellesDocuments(
-				definicioProcesId,
+				expedientTipusId,
 				documents,
 				tascaId));
 	}

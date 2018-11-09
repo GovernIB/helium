@@ -51,6 +51,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExecucioMassivaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExecucioMassivaDto.ExecucioMassivaTipusDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.FirmaTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.FormulariExternDto;
@@ -69,6 +70,7 @@ import net.conselldemallorca.helium.v3.core.api.service.AplicacioService;
 import net.conselldemallorca.helium.v3.core.api.service.DefinicioProcesService;
 import net.conselldemallorca.helium.v3.core.api.service.ExecucioMassivaService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientDocumentService;
+import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
 import net.conselldemallorca.helium.v3.core.api.service.TascaService;
 import net.conselldemallorca.helium.webapp.mvc.ArxiuView;
 import net.conselldemallorca.helium.webapp.v3.command.PassarelaFirmaEnviarCommand;
@@ -96,6 +98,8 @@ public class TascaTramitacioController extends BaseTascaController {
 	public static final String VARIABLE_SESSIO_CAMP_FOCUS = "helCampFocus";
 	public static final String VARIABLE_COMMAND_TRAMITACIO = "variableCommandTramitacio";
 
+	@Autowired
+	protected ExpedientService expedientService;
 	@Autowired
 	protected ExpedientDocumentService expedientDocumentService;
 	@Autowired
@@ -472,8 +476,9 @@ public class TascaTramitacioController extends BaseTascaController {
 
 			// Troba la definició de la tasca
 			ExpedientTascaDto tasca = tascaService.findAmbIdPerTramitacio(tascaId);
+			ExpedientDto expedient = expedientService.findAmbId(tasca.getExpedientId());
 			// Troba el document de la tasca 
-			FirmaTascaDto firma = definicioProcesService.tascaFirmaFindAmbTascaDocument(tasca.getTascaId(), documentId);
+			FirmaTascaDto firma = definicioProcesService.tascaFirmaFindAmbTascaDocument(tasca.getTascaId(), documentId, expedient.getTipus().getId());
 			if (firma == null)
 				throw new NoTrobatException(FirmaTascaDto.class, "tascaId=" + tasca.getTascaId() + ", documentId = " + documentId);
 			// Recupera la informació del document
@@ -638,6 +643,7 @@ public class TascaTramitacioController extends BaseTascaController {
 			byte[] contingutArxiu = IOUtils.toByteArray(arxiu.getInputStream());
 			String nomArxiu = arxiu.getOriginalFilename();
 			ExpedientTascaDto tasca = tascaService.findAmbIdPerTramitacio(tascaId);
+			ExpedientDto expedient = expedientService.findAmbId(tasca.getExpedientId());
 			if (!tasca.isValidada()) {
 				MissatgesHelper.error(request, getMessage(request, "error.validar.dades"));
 			} else if (!expedientDocumentService.isExtensioPermesaPerTasca(
@@ -648,7 +654,7 @@ public class TascaTramitacioController extends BaseTascaController {
 			} else if (nomArxiu.isEmpty() || contingutArxiu.length == 0) {
 				MissatgesHelper.error(request, getMessage(request, "error.especificar.document"));
 			} else {
-				TascaDocumentDto doc = tascaService.findDocument(tascaId, documentId);
+				TascaDocumentDto doc = tascaService.findDocument(tascaId, documentId, expedient.getTipus().getId());
 				accioDocumentAdjuntar(
 						request,
 						tascaId,
@@ -684,6 +690,7 @@ public class TascaTramitacioController extends BaseTascaController {
 			byte[] contingutArxiu = IOUtils.toByteArray(arxiu.getInputStream());
 			String nomArxiu = arxiu.getOriginalFilename();
 			ExpedientTascaDto tasca = tascaService.findAmbIdPerTramitacio(tascaId);
+			ExpedientDto expedient = expedientService.findAmbId(tasca.getExpedientId());
 			if (!tasca.isValidada()) {
 				MissatgesHelper.error(request, getMessage(request, "error.validar.dades"));
 			} else if (!expedientDocumentService.isExtensioPermesaPerTasca(
@@ -694,7 +701,7 @@ public class TascaTramitacioController extends BaseTascaController {
 			} else if (nomArxiu.isEmpty() || contingutArxiu.length == 0) {
 				MissatgesHelper.error(request, getMessage(request, "error.especificar.document"));
 			} else {
-				TascaDocumentDto doc = tascaService.findDocument(tascaId, documentId);
+				TascaDocumentDto doc = tascaService.findDocument(tascaId, documentId, expedient.getTipus().getId());
 				accioDocumentAdjuntar(
 						request,
 						tascaId,

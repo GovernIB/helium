@@ -418,7 +418,7 @@ public interface TascaService {
 	
 	public DocumentDto getDocumentPerDocumentCodi(String tascaId, String documentCodi);
 	
-	public TascaDocumentDto findDocument(String tascaId, Long docId);
+	public TascaDocumentDto findDocument(String tascaId, Long docId, Long expedientTipusId);
 
 	public Long guardarDocumentTasca(Long entornId, String taskInstanceId, String documentCodi, Date documentData, String arxiuNom, byte[] arxiuContingut, String user);
 

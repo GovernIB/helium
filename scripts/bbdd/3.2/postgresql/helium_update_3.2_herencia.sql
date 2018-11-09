@@ -50,3 +50,43 @@ ALTER TABLE HEL_FIRMA_TASCA ADD
 
 CREATE INDEX HEL_FIRTASCA_EXTIP_I on HEL_FIRMA_TASCA
 (EXPEDIENT_TIPUS_ID);
+
+-- Esborra les restriccions úniques
+--	HEL_CAMP_TASCA(TASCA_ID, CAMP_ID), HEL_CAMP_TASCA(TASCA_ID, ORDRE)
+--	HEL_DOCUMENT_TASCA(TASCA_ID, DOCUMENT_ID), HEL_DOCUMENT_TASCA(TASCA_ID, ORDRE)
+--	HEL_FIRMA_TASCA(TASCA_ID, DOCUMENT_ID), HEL_FIRMA_TASCA(TASCA_ID, ORDRE)
+ CREATE OR REPLACE FUNCTION Borra_unique(p_taula TEXT, p_columna1 TEXT, p_columna2 TEXT) RETURNS void AS $$
+ DECLARE
+	taula TEXT := p_taula;
+	columna1 TEXT := p_columna1;
+	columna2 TEXT := p_columna2;
+	const_nom TEXT;
+ BEGIN
+	FOR const_nom IN
+		SELECT
+		    tc.constraint_name
+		FROM 
+		    information_schema.table_constraints AS tc 
+		    JOIN information_schema.key_column_usage AS cuColumna1
+		      ON tc.constraint_name = cuColumna1.constraint_name
+		    JOIN information_schema.constraint_column_usage AS cuColumna2
+		      ON tc.constraint_name = cuColumna2.constraint_name
+		WHERE 
+			tc.table_name = taula
+			AND cuColumna1.column_name = p_columna1
+			AND cuColumna2.column_name = p_columna2
+	LOOP
+		EXECUTE format('ALTER TABLE %I DROP CONSTRAINT IF EXISTS %I', taula, const_nom);
+		raise notice 'ALTER TABLE %I DROP CONSTRAINT IF EXISTS %I', taula, const_nom;
+	END LOOP;
+  END;
+  $$ LANGUAGE plpgsql;
+
+DO $$ BEGIN
+ PERFORM Borra_unique('hel_camp_tasca', 'tasca_id', 'camp_id');
+ PERFORM Borra_unique('hel_camp_tasca', 'tasca_id', 'ordre');
+ PERFORM Borra_unique('hel_document_tasca', 'tasca_id', 'document_id');
+ PERFORM Borra_unique('hel_document_tasca', 'tasca_id', 'ordre');
+ PERFORM Borra_unique('hel_firma_tasca', 'tasca_id', 'document_id');
+ PERFORM Borra_unique('hel_firma_tasca', 'tasca_id', 'ordre');
+END $$;

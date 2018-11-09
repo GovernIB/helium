@@ -278,13 +278,7 @@ public interface DefinicioProcesService {
 	 */
 	public boolean tascaCampMourePosicio(Long id, Long expedientTipusId, int posicio);
 
-	/** Consulta els camps utilitzats per a una tasca.
-	 * 
-	 * @param tascaId
-	 * @return
-	 */
-	public List<CampTascaDto> tascaCampFindCampAmbTascaId(Long tascaId);
-
+	
 	/** 
 	 * Retorna el camp tasca de la definició de procés donat el seu identificador.
 	 * 
@@ -382,13 +376,6 @@ public interface DefinicioProcesService {
 	 * @return Retorna true si ha anat bé o false si no té agrupació o la posició no és correcta.
 	 */
 	public boolean tascaDocumentMourePosicio(Long id, Long expedientTipusId, int posicio);
-
-	/** Consulta els documents utilitzats per a una tasca.
-	 * 
-	 * @param tascaId
-	 * @return
-	 */
-	public List<DocumentTascaDto> tascaDocumentFindDocumentAmbTascaId(Long tascaId);
 
 	/** 
 	 * Retorna el document tasca de la definició de procés donat el seu identificador. Té en compte l'herència del tipus d'expedient
@@ -491,20 +478,13 @@ public interface DefinicioProcesService {
 	 */
 	public boolean tascaFirmaMourePosicio(Long id, Long expedientTipusId, int posicio);
 
-	/** Consulta les firmes utilitzades per a una tasca.
-	 * 
-	 * @param tascaId
-	 * @return
-	 */
-	public List<FirmaTascaDto> tascaFirmaFindAmbTascaId(Long tascaId);
-
 	/** Consulta la firma utilitzades per a una tasca i un document concret.
 	 * 
 	 * @param tascaId
 	 * @param documentId
 	 * @return
 	 */
-	public FirmaTascaDto tascaFirmaFindAmbTascaDocument(Long tascaId, Long documentId);
+	public FirmaTascaDto tascaFirmaFindAmbTascaDocument(Long tascaId, Long documentId, Long expedientTipusId);
 
 	/** 
 	 * Retorna la firma tasca de la definició de procés donat el seu identificador.

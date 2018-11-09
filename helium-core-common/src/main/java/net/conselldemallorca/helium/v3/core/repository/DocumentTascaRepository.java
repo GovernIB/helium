@@ -21,21 +21,23 @@ import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
  */
 public interface DocumentTascaRepository extends JpaRepository<DocumentTasca, Long> {
 
-	/** Consulta el següent valor per a ordre de les agrupacions. */
+	/** Obté el següent odre per a un document d'una tasca.
+	 * 
+	 * @param tascaId
+	 * @param expedientTipusId
+	 * @return
+	 */
 	@Query(	"select coalesce( max( dt.order), -1) + 1 " +
 			"from DocumentTasca dt " +
 			"where " +
-			"    dt.tasca.id = :tascaId " )
-	public Integer getNextOrdre(@Param("tascaId") Long tascaId);
-
-	@Query("select dt from " +
-			"    DocumentTasca dt " +
-			"where " +
-			"    dt.tasca.id=:tascaId " +
-			"and dt.order=:order")
-	public DocumentTasca getAmbOrdre(
-			@Param("tascaId") Long tascaId,
-			@Param("order") int order);
+			"    dt.tasca.id = :tascaId " +
+					// Propis
+			"   and ( (dt.expedientTipus.id = :expedientTipusId or (dt.expedientTipus is null and dt.tasca.definicioProces.expedientTipus.id = :expedientTipusId)  ) " +
+			"			or " +
+					// Heretats
+			" 		  (dt.expedientTipus is null and dt.tasca.definicioProces.expedientTipus.id = (select etp.expedientTipusPare.id from ExpedientTipus etp where etp.id = :expedientTipusId)) " +
+			"       ) ")
+	public Integer getNextOrdre(@Param("tascaId") Long tascaId, @Param("expedientTipusId") Long expedientTipusId);
 
 	/** Consulta els documents de la tasca.
 	 * 
@@ -59,63 +61,58 @@ public interface DocumentTascaRepository extends JpaRepository<DocumentTasca, Lo
 			@Param("tascaId") Long tascaId,
 			@Param("expedientTipusId") Long expedientTipusId);
 	
-	@Query("select dt from " +
-			"    DocumentTasca dt " +
-			"where " +
-			"    dt.document.id=:documentId " +
-			"and dt.tasca.id=:tascaId")
-	public DocumentTasca findAmbDocumentTasca(
-			@Param("documentId") Long documentId,
-			@Param("tascaId") Long tascaId);
-
-	@Query(	"select " +
-			"    dt " +
-			"from " +
-			"    DocumentTasca dt " +
-			"where " +
-			"    dt.tasca.definicioProces.id=:definicioProcesId " +
-			"and dt.tasca.jbpmName=:jbpmName " +
-			"order by " +
-			"    dt.order")
-	public List<DocumentTasca> findAmbDefinicioProcesITascaJbpmNameOrdenats(
-			@Param("definicioProcesId") Long definicioProcesId,
-			@Param("jbpmName") String jbpmName);
 
 	@Query(	"select count(dt)" +
 			"from " +
 			"    DocumentTasca dt " +
 			"where " +
 			"    dt.tasca.definicioProces.id=:definicioProcesId " +
-			"and dt.tasca.jbpmName=:jbpmName")
+			"	and dt.tasca.jbpmName=:jbpmName "  +
+					// Propis
+			"   and ( (dt.expedientTipus.id = :expedientTipusId or (dt.expedientTipus is null and dt.tasca.definicioProces.expedientTipus.id = :expedientTipusId)  ) " +
+			"			or " +
+					// Heretats
+			" 		  (dt.expedientTipus is null and dt.tasca.definicioProces.expedientTipus.id = (select etp.expedientTipusPare.id from ExpedientTipus etp where etp.id = :expedientTipusId)) " +
+			"       ) ")
 	public Long countAmbDefinicioProcesITascaJbpmName(
 			@Param("definicioProcesId") Long definicioProcesId,
-			@Param("jbpmName") String jbpmName);
+			@Param("jbpmName") String jbpmName,
+			@Param("expedientTipusId") Long expedientTipusId);
 	
 	@Query(	"select count(dt)" +
 			"from " +
 			"    DocumentTasca dt " +
 			"where " +
 			"    dt.tasca.definicioProces.id=:definicioProcesId " +
-			"and " +
-			"    dt.tasca.jbpmName=:jbpmName " +
-			"and " +
-			"    dt.readOnly=false")
+			"	and dt.tasca.jbpmName=:jbpmName " +
+			"	and dt.readOnly=false " +
+					// Propis
+			"   and ( (dt.expedientTipus.id = :expedientTipusId or (dt.expedientTipus is null and dt.tasca.definicioProces.expedientTipus.id = :expedientTipusId)  ) " +
+			"			or " +
+					// Heretats
+			" 		  (dt.expedientTipus is null and dt.tasca.definicioProces.expedientTipus.id = (select etp.expedientTipusPare.id from ExpedientTipus etp where etp.id = :expedientTipusId)) " +
+			"       ) " )
 	public Long countAmbDefinicioProcesITascaJbpmNameINotReadOnly(
 			@Param("definicioProcesId") Long definicioProcesId,
-			@Param("jbpmName") String jbpmName);
-
-	@Query(	"select " +
-			"    dt " +
-			"from " +
+			@Param("jbpmName") String jbpmName,
+			@Param("expedientTipusId") Long expedientTipusId);
+	
+	@Query("select dt from " +
 			"    DocumentTasca dt " +
 			"where " +
-			"	 dt.document.id=:documentId " +
-			"and dt.tasca.definicioProces.id=:definicioProcesId " +
-			"and dt.tasca.jbpmName=:jbpmName ")
-	public DocumentTasca findAmbDefinicioProcesITascaJbpmNameDocumentId(
-			@Param("documentId") Long documentId,
-			@Param("definicioProcesId") Long definicioProcesId,
-			@Param("jbpmName") String jbpmName);
+			"    dt.tasca.id=:tascaId " +
+			"	and dt.document.codi=:documentCodi " +
+					// Propis
+			"   and ( (dt.expedientTipus.id = :expedientTipusId or (dt.expedientTipus is null and dt.tasca.definicioProces.expedientTipus.id = :expedientTipusId)  ) " +
+			"			or " +
+					// Heretats
+			" 		  (dt.expedientTipus is null and dt.tasca.definicioProces.expedientTipus.id = (select etp.expedientTipusPare.id from ExpedientTipus etp where etp.id = :expedientTipusId)) " +
+			"       ) ")
+	public DocumentTasca findAmbTascaCodi(
+			@Param("tascaId") Long tascaId, 
+			@Param("documentCodi") String documentCodi,
+			@Param("expedientTipusId") Long expedientTipusId);
+	
 	
 	/** Consulta els documents de la tasca.
 	 * 
@@ -141,6 +138,7 @@ public interface DocumentTascaRepository extends JpaRepository<DocumentTasca, Lo
 	@Query(	"from DocumentTasca dt " +
 			"where " +
 			"   dt.tasca.id = :tascaId " +
+						// Propis
 			"   and (dt.expedientTipus is null or dt.expedientTipus.id = :expedientTipusId " +
 						// Heretats
 			" 			or dt.expedientTipus.id = (select etp.expedientTipusPare.id from ExpedientTipus etp where etp.id = :expedientTipusId)) " +
@@ -151,13 +149,6 @@ public interface DocumentTascaRepository extends JpaRepository<DocumentTasca, Lo
 			@Param("esNullFiltre") boolean esNullFiltre,
 			@Param("filtre") String filtre,
 			Pageable pageable);
-
-	@Query("select dt " +
-			"from DocumentTasca dt " +
-			"where dt.tasca.id = :tascaId " +
-			"order by dt.order asc ")
-	List<DocumentTasca> findDocumentsTasca(
-			@Param("tascaId") Long tascaId);
 
 	/** Troba tots els documents relacionats amb l'expedient tipus. */
 	public List<DocumentTasca> findAllByExpedientTipus(ExpedientTipus expedientTipus);

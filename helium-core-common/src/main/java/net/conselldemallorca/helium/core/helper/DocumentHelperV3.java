@@ -38,6 +38,7 @@ import net.conselldemallorca.helium.core.model.hibernate.FirmaTasca;
 import net.conselldemallorca.helium.core.model.hibernate.Portasignatures;
 import net.conselldemallorca.helium.core.model.hibernate.Portasignatures.TipusEstat;
 import net.conselldemallorca.helium.core.model.hibernate.Registre;
+import net.conselldemallorca.helium.core.model.hibernate.Tasca;
 import net.conselldemallorca.helium.core.util.DocumentTokenUtils;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.core.util.OpenOfficeUtils;
@@ -69,6 +70,7 @@ import net.conselldemallorca.helium.v3.core.repository.ExpedientRepository;
 import net.conselldemallorca.helium.v3.core.repository.FirmaTascaRepository;
 import net.conselldemallorca.helium.v3.core.repository.PortasignaturesRepository;
 import net.conselldemallorca.helium.v3.core.repository.RegistreRepository;
+import net.conselldemallorca.helium.v3.core.repository.TascaRepository;
 
 /**
  * Helper per a gestionar els documents dels expedients
@@ -83,6 +85,8 @@ public class DocumentHelperV3 {
 	@Resource
 	private PlantillaHelper plantillaHelper;
 	@Resource
+	private TascaRepository tascaRepository;
+	@Resource
 	private DocumentRepository documentRepository;
 	@Resource
 	private DocumentStoreRepository documentStoreRepository;
@@ -96,6 +100,8 @@ public class DocumentHelperV3 {
 	private ConversioTipusHelper conversioTipusHelper;
 	@Resource
 	private ExpedientHelper expedientHelper;
+	@Resource
+	private ExpedientTipusHelper expedientTipusHelper;
 	@Resource
 	private TascaHelper tascaHelper;
 	@Resource
@@ -400,17 +406,19 @@ public class DocumentHelperV3 {
 		}
 	}
 		
-	public TascaDocumentDto findDocumentPerId(String tascaId, Long docId) {
+	public TascaDocumentDto findDocumentPerId(String tascaId, Long docId, Long expedientTipusId) {
 		JbpmTask task = tascaHelper.getTascaComprovacionsTramitacio(
 				tascaId,
 				true,
 				true);
 		DefinicioProces definicioProces = definicioProcesRepository.findByJbpmId(
 				task.getProcessDefinitionId());
-		DocumentTasca documentTasca = documentTascaRepository.findAmbDefinicioProcesITascaJbpmNameDocumentId(
-				docId,
-				definicioProces.getId(),
-				task.getTaskName());
+		Tasca tasca = tascaRepository.findByJbpmNameAndDefinicioProces(
+				task.getTaskName(),
+				definicioProces);
+		Document document = documentRepository.findOne(docId);
+
+		DocumentTasca documentTasca = documentTascaRepository.findAmbTascaCodi(tasca.getId(), document.getCodi(), expedientTipusId);
 		
 		return toTascaDocumentDto(
 					task,
@@ -420,9 +428,14 @@ public class DocumentHelperV3 {
 	public List<TascaDocumentDto> findDocumentsPerInstanciaTasca(JbpmTask task) {
 		DefinicioProces definicioProces = definicioProcesRepository.findByJbpmId(
 				task.getProcessDefinitionId());
-		List<DocumentTasca> documentsTasca = documentTascaRepository.findAmbDefinicioProcesITascaJbpmNameOrdenats(
-				definicioProces.getId(),
-				task.getTaskName());
+		Expedient exp = expedientHelper.findExpedientByProcessInstanceId(task.getProcessInstanceId());
+		Long expedientTipusId = exp != null ? exp.getTipus().getId() : null;
+		Tasca tasca = tascaRepository.findByJbpmNameAndDefinicioProces(
+				task.getTaskName(),
+				definicioProces);
+		List<DocumentTasca> documentsTasca = documentTascaRepository.findAmbTascaIdOrdenats(
+				tasca.getId(),
+				expedientTipusId);
 		List<TascaDocumentDto> resposta = new ArrayList<TascaDocumentDto>();
 		for (DocumentTasca documentTasca: documentsTasca) {
 			resposta.add(
@@ -438,24 +451,37 @@ public class DocumentHelperV3 {
 	public boolean hasDocumentsPerInstanciaTasca(JbpmTask task) {
 		DefinicioProces definicioProces = definicioProcesRepository.findByJbpmId(
 				task.getProcessDefinitionId());
+		Long expedientTipusId = expedientTipusHelper.findIdByProcessInstanceId(task.getProcessInstanceId());
+
 		return documentTascaRepository.countAmbDefinicioProcesITascaJbpmName(
 				definicioProces.getId(),
-				task.getTaskName()) > 0;
+				task.getTaskName(),
+				expedientTipusId) > 0;
 	}
 	
 	public boolean hasDocumentsNotReadOnlyPerInstanciaTasca(JbpmTask task) {
 		DefinicioProces definicioProces = definicioProcesRepository.findByJbpmId(
 				task.getProcessDefinitionId());
+		Long expedientTipusId = expedientTipusHelper.findIdByProcessInstanceId(task.getProcessInstanceId());
+
 		return documentTascaRepository.countAmbDefinicioProcesITascaJbpmNameINotReadOnly(
 				definicioProces.getId(),
-				task.getTaskName()) > 0;
+				task.getTaskName(),
+				expedientTipusId) > 0;
 	}
 
 	public List<TascaDocumentDto> findDocumentsPerInstanciaTascaSignar(JbpmTask task) {
 		List<TascaDocumentDto> resposta = new ArrayList<TascaDocumentDto>();
-		for (FirmaTasca firmaTasca: firmaTascaRepository.findAmbTascaOrdenats(
+
+		DefinicioProces definicioProces = definicioProcesRepository.findByJbpmId(
+				task.getProcessDefinitionId());
+		Expedient exp = expedientHelper.findExpedientByProcessInstanceId(task.getProcessInstanceId());
+		Long expedientTipusId = exp != null ? exp.getTipus().getId() : null;
+		Tasca tasca = tascaRepository.findByJbpmNameAndDefinicioProces(
 				task.getTaskName(),
-				task.getProcessDefinitionId())) {
+				definicioProces);
+		
+		for (FirmaTasca firmaTasca: firmaTascaRepository.findAmbTascaIdOrdenats(tasca.getId(), expedientTipusId)) {
 			resposta.add(toTascaDocumentDto(
 					task,
 					firmaTasca.getDocument(), firmaTasca.isRequired(), false));

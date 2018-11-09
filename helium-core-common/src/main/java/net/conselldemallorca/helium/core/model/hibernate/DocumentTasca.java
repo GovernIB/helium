@@ -29,8 +29,8 @@ import org.springmodules.validation.bean.conf.loader.annotation.handler.NotNull;
 @Entity
 @Table(	name="hel_document_tasca",
 		uniqueConstraints={
-			@UniqueConstraint(columnNames={"document_id", "tasca_id"}),
-			@UniqueConstraint(columnNames={"tasca_id", "ordre"})})
+			@UniqueConstraint(name = "hel_doctasca_camp_id_tasca_id_uk", columnNames={"expedient_tipus_id", "document_id", "tasca_id"}),
+			@UniqueConstraint(name = "hel_doctasca_tasca_id_ordre_uk", columnNames={"expedient_tipus_id", "tasca_id", "ordre"})})
 @org.hibernate.annotations.Table(
 		appliesTo = "hel_document_tasca",
 		indexes = {
@@ -139,6 +139,7 @@ public class DocumentTasca implements Serializable, GenericEntity<Long> {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
+		result = prime * result + ((expedientTipus == null) ? 0 : expedientTipus.hashCode());
 		result = prime * result
 				+ ((document == null) ? 0 : document.hashCode());
 		result = prime * result + ((tasca == null) ? 0 : tasca.hashCode());
@@ -153,6 +154,11 @@ public class DocumentTasca implements Serializable, GenericEntity<Long> {
 		if (getClass() != obj.getClass())
 			return false;
 		DocumentTasca other = (DocumentTasca) obj;
+		if (expedientTipus == null) {
+			if (other.expedientTipus != null)
+				return false;
+		} else if (!expedientTipus.equals(other.expedientTipus))
+			return false;
 		if (document == null) {
 			if (other.document != null)
 				return false;

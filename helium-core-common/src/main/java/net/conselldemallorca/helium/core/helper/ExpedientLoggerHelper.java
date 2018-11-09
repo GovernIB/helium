@@ -117,6 +117,8 @@ public class ExpedientLoggerHelper {
 	@Resource
 	private ExpedientHelper expedientHelper;
 	@Resource
+	private ExpedientTipusHelper expedientTipusHelper;
+	@Resource
 	private HerenciaHelper herenciaHelper;
 
 	@Resource
@@ -1020,9 +1022,11 @@ public class ExpedientLoggerHelper {
 								Tasca tasca = tascaRepository.findByJbpmNameAndDefinicioProcesJbpmId(
 										task.getTaskName(),
 										task.getProcessDefinitionId());
+								Long expedientTipusId = expedientTipusHelper.findIdByProcessInstanceId(task.getProcessInstanceId());
 								CampTasca campTasca = campTascaRepository.findAmbTascaCodi(
 										tasca.getId(),
-										logo.getName());
+										logo.getName(),
+										expedientTipusId);
 								if (campTasca != null) {
 									jbpmHelper.setTaskInstanceVariable(
 											task.getId(),

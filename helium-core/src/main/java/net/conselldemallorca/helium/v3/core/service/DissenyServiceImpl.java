@@ -277,10 +277,13 @@ public class DissenyServiceImpl implements DissenyService {
 	private DefinicioProcesExpedientDto getDefinicioProcesByEntornIdAmbJbpmId(Long entornId, String jbpmKey, ExpedientTipus expedientTipus) {
 		DefinicioProcesExpedientDto dto = new DefinicioProcesExpedientDto();
 		DefinicioProces definicioProces;
-		if (expedientTipus != null)
+		Long expedientTipusId = null;
+		if (expedientTipus != null) {
 			definicioProces = definicioProcesHelper.findDarreraVersioDefinicioProces(
 					expedientTipus, 
 					jbpmKey);
+			expedientTipusId = expedientTipus.getId();
+		}
 		else
 			definicioProces = definicioProcesRepository.findDarreraVersioAmbEntornIJbpmKey(entornId, jbpmKey);
 
@@ -306,7 +309,7 @@ public class DissenyServiceImpl implements DissenyService {
 						defProces.getId(), 
 						defProces.getJbpmId(),
 						jb.getName() + " v." + defProces.getVersio(), 
-						hasStartTask(definicioProces, hasStartTask), 
+						hasStartTask(definicioProces, hasStartTask, expedientTipusId), 
 						demanaNumeroTitol);
 				if (defProces.getVersio() == definicioProces.getVersio()) {
 					dto.setEtiqueta(jb.getName() + " v." + defProces.getVersio());
@@ -342,7 +345,7 @@ public class DissenyServiceImpl implements DissenyService {
 		if (definicioProces != null) {	
 			DefinicioProcesDto dto = conversioTipusHelper.convertir(definicioProces, DefinicioProcesDto.class);
 			Map<Long, Boolean> hasStartTask = new HashMap<Long, Boolean>();
-			dto.setHasStartTask(hasStartTask(definicioProces, hasStartTask));
+			dto.setHasStartTask(hasStartTask(definicioProces, hasStartTask, null));
 			return dto;
 		}
 		return null;
@@ -363,7 +366,7 @@ public class DissenyServiceImpl implements DissenyService {
 			if (definicioProces != null) {
 				DefinicioProcesDto dto = conversioTipusHelper.convertir(definicioProces, DefinicioProcesDto.class);
 				Map<Long, Boolean> hasStartTask = new HashMap<Long, Boolean>();
-				dto.setHasStartTask(hasStartTask(definicioProces, hasStartTask));
+				dto.setHasStartTask(hasStartTask(definicioProces, hasStartTask, expedientTipusId));
 				getAllDefinicioProcesOrderByVersio(dto, expedientTipus);
 				return dto;
 			}
@@ -371,7 +374,7 @@ public class DissenyServiceImpl implements DissenyService {
 		return null;
 	}
 	
-	private boolean hasStartTask(DefinicioProces definicioProces, Map<Long, Boolean> hasStartTask) {
+	private boolean hasStartTask(DefinicioProces definicioProces, Map<Long, Boolean> hasStartTask, Long expedientTipusId) {
 		Long definicioProcesId = definicioProces.getId();
 		Boolean result = hasStartTask.get(definicioProcesId);
 		if (result == null) {
@@ -383,7 +386,7 @@ public class DissenyServiceImpl implements DissenyService {
 						startTaskName,
 						definicioProces.getJbpmId());
 				if (tasca != null) {
-					List<CampTasca> camps = campTascaRepository.findAmbTascaOrdenats(tasca.getId());
+					List<CampTasca> camps = campTascaRepository.findAmbTascaOrdenats(tasca.getId(), expedientTipusId);
 					result = new Boolean(camps.size() > 0);
 				}
 			}

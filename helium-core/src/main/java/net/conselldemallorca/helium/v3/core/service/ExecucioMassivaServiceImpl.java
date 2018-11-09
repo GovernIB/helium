@@ -1012,8 +1012,9 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 		String accio = ome.getExecucioMassiva().getParam1();
 		String tasca = null;
 		String expedient = null;
+		ExpedientTascaDto task = tascaService.findAmbIdPerTramitacio(tascaId);
+		Long expedientTipusId = expedientTipusHelper.findIdByProcessInstanceId(task.getProcessInstanceId());
 		if (MesuresTemporalsHelper.isActiu()) {
-			ExpedientTascaDto task = tascaService.findAmbIdPerTramitacio(tascaId);
 			if (task != null) tasca = task.getTascaNom(); 
 			expedient = ome.getExpedient().getTipus().getNom();
 		}
@@ -1079,7 +1080,7 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 				mesuresTemporalsHelper.mesuraIniciar("Generar document", "massiva_tasca", expedient, tasca);
 				Object[] param2 = (Object[])deserialize(ome.getExecucioMassiva().getParam2());
 				Long documentId = (Long)param2[1];
-				TascaDocumentDto document = tascaService.findDocument(tascaId, documentId);
+				TascaDocumentDto document = tascaService.findDocument(tascaId, documentId, expedientTipusId);
 				expedientDocumentService.generarAmbPlantillaPerTasca(
 						tascaId,
 						document.getDocumentCodi());

@@ -20,43 +20,70 @@ import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
  * @author Limit Tecnologies <limit@limit.es>
  */
 public interface CampTascaRepository extends JpaRepository<CampTasca, Long> {
-	
-	@Query("select ct from " +
-			"    CampTasca ct " +
-			"where " +
-			"    ct.tasca.id=:tascaId " +
-			"and ct.order=:order")
-	public CampTasca getAmbOrdre(@Param("tascaId") Long tascaId, @Param("order") int order);
 
+	/** Troba els camps de tasca per a un id de tasca ordenats per ordre. Els camps són heretats (expedientTipusId null) o
+	 * del tipus d'expedient.
+	 * 
+	 * @param tascaId
+	 * @param expedientTipusId
+	 * @return
+	 */
 	@Query("select ct from " +
 			"    CampTasca ct " +
 			"where " +
 			"    ct.tasca.id=:tascaId " +
+					// Propis
+			"   and ( (ct.expedientTipus.id = :expedientTipusId or (ct.expedientTipus is null and ct.tasca.definicioProces.expedientTipus.id = :expedientTipusId)  ) " +
+			"			or " +
+					// Heretats
+			" 		  (ct.expedientTipus is null and ct.tasca.definicioProces.expedientTipus.id = (select etp.expedientTipusPare.id from ExpedientTipus etp where etp.id = :expedientTipusId)) " +
+			"       ) " +
 			"order by " +
-			"    ct.order")
-	public List<CampTasca> findAmbTascaOrdenats(@Param("tascaId") Long tascaId);
+			"    ct.order "
+			)
+	public List<CampTasca> findAmbTascaOrdenats(@Param("tascaId") Long tascaId, @Param("expedientTipusId") Long expedientTipusId);
 
+
+	/** Troba el camp tasca per codi de la variable. El camp és heretat (expedientTipusId null) o 
+	 * del tipus d'expedient.
+	 * 
+	 * @param tascaId
+	 * @param campCodi
+	 * @param expedientTipusId
+	 * @return
+	 */
 	@Query("select ct from " +
 			"    CampTasca ct " +
 			"where " +
 			"    ct.tasca.id=:tascaId " +
-			"and ct.camp.id=:campId")
-	public CampTasca findAmbTascaCamp(@Param("tascaId") Long tascaId, @Param("campId") Long campId);
+			"	and ct.camp.codi=:campCodi " +
+				// Propis
+			"   and ( (ct.expedientTipus.id = :expedientTipusId or (ct.expedientTipus is null and ct.tasca.definicioProces.expedientTipus.id = :expedientTipusId)  ) " +
+			"			or " +
+					// Heretats
+			" 		  (ct.expedientTipus is null and ct.tasca.definicioProces.expedientTipus.id = (select etp.expedientTipusPare.id from ExpedientTipus etp where etp.id = :expedientTipusId)) " +
+			"       ) ")
+	public CampTasca findAmbTascaCodi(@Param("tascaId") Long tascaId, @Param("campCodi") String campCodi, @Param("expedientTipusId") Long expedientTipusId);
 
-	@Query("select ct from " +
-			"    CampTasca ct " +
-			"where " +
-			"    ct.tasca.id=:tascaId " +
-			"and ct.camp.codi=:campCodi")
-	public CampTasca findAmbTascaCodi(@Param("tascaId") Long tascaId, @Param("campCodi") String campCodi);
-
+	/** Compta els camps de la tasca. Els camps són heretats (expedientTipusId null) o
+	 * del tipus d'expedient.
+	 * 
+	 * @param tascaId
+	 * @param expedientTipusId
+	 * @return
+	 */
 	@Query(	"select count(ct)" +
 			"from " +
 			"    CampTasca ct " +
 			"where " +
-			"    ct.tasca.id = :tascaId")
-	public long countAmbTasca(
-			@Param("tascaId") Long tascaId);
+			"    ct.tasca.id = :tascaId " +
+					// Propis
+			"   and ( (ct.expedientTipus.id = :expedientTipusId or (ct.expedientTipus is null and ct.tasca.definicioProces.expedientTipus.id = :expedientTipusId)  ) " +
+			"			or " +
+					// Heretats
+			" 		  (ct.expedientTipus is null and ct.tasca.definicioProces.expedientTipus.id = (select etp.expedientTipusPare.id from ExpedientTipus etp where etp.id = :expedientTipusId)) " + 
+			"       ) ")
+	public long countAmbTasca(@Param("tascaId") Long tascaId, @Param("expedientTipusId") Long expedientTipusId);
 	
 	/** Consulta els camps de la tasca.
 	 * 
@@ -97,21 +124,28 @@ public interface CampTascaRepository extends JpaRepository<CampTasca, Long> {
 			@Param("filtre") String filtre,
 			Pageable pageable);
 
-	@Query("select ct " +
-			"from CampTasca ct " +
-			"where ct.tasca.id = :tascaId " +
-			"order by ct.order asc ")
-	List<CampTasca> findCampsTasca(
-			@Param("tascaId") Long tascaId);
-	
 	/** Consulta el següent valor per a ordre de les agrupacions. */
 	@Query(	"select coalesce( max( ct.order), -1) + 1 " +
 			"from CampTasca ct " +
 			"where " +
-			"    ct.tasca.id = :tascaId " )
-	public Integer getNextOrdre(@Param("tascaId") Long tascaId);
+			"    ct.tasca.id = :tascaId "  +
+					// Propis
+			"   and ( (ct.expedientTipus.id = :expedientTipusId or (ct.expedientTipus is null and ct.tasca.definicioProces.expedientTipus.id = :expedientTipusId)  ) " +
+			"			or " +
+					// Heretats
+			" 		  (ct.expedientTipus is null and ct.tasca.definicioProces.expedientTipus.id = (select etp.expedientTipusPare.id from ExpedientTipus etp where etp.id = :expedientTipusId)) " + 
+			"       ) ")
+	public Integer getNextOrdre(@Param("tascaId") Long tascaId, @Param("expedientTipusId") Long expedientTipusId);
 
 	/** Troba tots els camps relacionats amb l'expedient tipus. */
+	@Query(	"from CampTasca ct " +
+			"where " +
+					// Propis
+			"   	( (ct.expedientTipus.id = :expedientTipusId or (ct.expedientTipus is null and ct.tasca.definicioProces.expedientTipus.id = :expedientTipusId)  ) " +
+			"			or " +
+					// Heretats
+			" 		  (ct.expedientTipus is null and ct.tasca.definicioProces.expedientTipus.id = (select etp.expedientTipusPare.id from ExpedientTipus etp where etp.id = :expedientTipusId)) " +
+			"       ) ")
 	public List<CampTasca> findAllByExpedientTipus(ExpedientTipus expedientTipus);
 		
 }

@@ -124,18 +124,18 @@ public class ExpedientTipusValidator implements ConstraintValidator<ExpedientTip
 				firmesHeretades = 0;
 				for (TascaDto t : definicioProcesService.tascaFindAll(dp.getId())) {
 					// Revisa les variables
-					for (CampTascaDto tc : definicioProcesService.tascaCampFindCampAmbTascaId(t.getId())){
+					for (CampTascaDto tc : definicioProcesService.tascaCampFindAll(command.getId(), t.getId())){
 						if (tc.getCamp().getExpedientTipus() != null 
 								&& !tc.getCamp().getExpedientTipus().getId().equals(dto.getId()))
 							variablesHeretades++;
 					}
 					// Revisa els documents
-					for (DocumentTascaDto td : definicioProcesService.tascaDocumentFindDocumentAmbTascaId(t.getId()))
+					for (DocumentTascaDto td : definicioProcesService.tascaDocumentFindAll(command.getId(), t.getId()))
 						if (td.getDocument().getExpedientTipus() != null 
 							&& !td.getDocument().getExpedientTipus().getId().equals(dto.getId()))
 							documentsHeretats++;
 					// Revisa les firmes
-					for (FirmaTascaDto tf : definicioProcesService.tascaFirmaFindAmbTascaId(t.getId()))
+					for (FirmaTascaDto tf : definicioProcesService.tascaFirmaFindAll(command.getId(), t.getId()))
 						if (tf.getDocument().getExpedientTipus() != null 
 							&& !tf.getDocument().getExpedientTipus().getId().equals(dto.getId()))
 							firmesHeretades++;

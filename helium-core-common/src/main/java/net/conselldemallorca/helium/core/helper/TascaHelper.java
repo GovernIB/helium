@@ -63,6 +63,8 @@ public class TascaHelper {
 	@Resource
 	private ExpedientHelper expedientHelper;
 	@Resource
+	private ExpedientTipusHelper expedientTipusHelper;
+	@Resource
 	private CampTascaRepository campTascaRepository;
 	@Resource
 	private JbpmHelper jbpmHelper;
@@ -651,7 +653,8 @@ public class TascaHelper {
 			JbpmTask task,
 			Tasca tasca,
 			Map<String, Object> variables) {
-		List<CampTasca> campsTasca = campTascaRepository.findAmbTascaOrdenats(tasca.getId());
+		Long expedientTipusId = expedientTipusHelper.findIdByProcessInstanceId(task.getProcessInstanceId());
+		List<CampTasca> campsTasca = campTascaRepository.findAmbTascaOrdenats(tasca.getId(), expedientTipusId);
 		for (CampTasca campTasca: campsTasca) {
 			if (campTasca.getCamp().isDominiCacheText()) {
 				Object campValor = variables.get(campTasca.getCamp().getCodi());

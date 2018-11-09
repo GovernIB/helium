@@ -195,6 +195,13 @@ public class ExpedientTipusHelper {
 		return expedientTipusRepository.findOne(piexp.getTipus().getId());
 	}
 
+	public Long findIdByProcessInstanceId(String processInstanceId) {
+		ExpedientTipus expedientTipus = this.findAmbProcessInstanceId(processInstanceId);
+		if (expedientTipus == null)
+			throw new NoTrobatException(ExpedientTipus.class, processInstanceId);
+		return expedientTipus.getId();
+	}
+
 	public List<ExpedientTipus> findAmbPermisRead(
 			Entorn entorn) {
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();

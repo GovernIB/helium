@@ -170,12 +170,6 @@ public class DefinicioProcesBean implements DefinicioProcesService {
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public List<CampTascaDto> tascaCampFindCampAmbTascaId(Long tascaId) {
-		return delegate.tascaCampFindCampAmbTascaId(tascaId);
-	}
-
-	@Override
-	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public CampTascaDto tascaCampFindById(Long expedientTipusId, Long campTascaId) {
 		return delegate.tascaCampFindById(expedientTipusId, campTascaId);
 	}
@@ -217,12 +211,6 @@ public class DefinicioProcesBean implements DefinicioProcesService {
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public boolean tascaDocumentMourePosicio(Long id, Long expedientTipusId, int posicio) {
 		return delegate.tascaDocumentMourePosicio(id, expedientTipusId, posicio);
-	}
-
-	@Override
-	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public List<DocumentTascaDto> tascaDocumentFindDocumentAmbTascaId(Long tascaId) {
-		return delegate.tascaDocumentFindDocumentAmbTascaId(tascaId);
 	}
 
 	@Override
@@ -269,17 +257,11 @@ public class DefinicioProcesBean implements DefinicioProcesService {
 	public boolean tascaFirmaMourePosicio(Long id, Long expedientTipusId, int posicio) {
 		return delegate.tascaFirmaMourePosicio(id, expedientTipusId, posicio);
 	}
-
-	@Override
-	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public List<FirmaTascaDto> tascaFirmaFindAmbTascaId(Long tascaId) {
-		return delegate.tascaFirmaFindAmbTascaId(tascaId);
-	}
 	
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public FirmaTascaDto tascaFirmaFindAmbTascaDocument(Long tascaId, Long documentId) {
-		return delegate.tascaFirmaFindAmbTascaDocument(tascaId, documentId);
+	public FirmaTascaDto tascaFirmaFindAmbTascaDocument(Long tascaId, Long documentId, Long expedientTipusId) {
+		return delegate.tascaFirmaFindAmbTascaDocument(tascaId, documentId, expedientTipusId);
 	}
 	
 	@Override

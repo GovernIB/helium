@@ -76,6 +76,8 @@ public class VariableHelper {
 	@Resource
 	private ExpedientHelper expedientHelper;
 	@Resource
+	private ExpedientTipusHelper expedientTipusHelper;
+	@Resource
 	private DominiHelper dominiHelper;
 	@Resource(name="expedientServiceV3")
 	private ExpedientService expedientService;
@@ -295,8 +297,9 @@ public class VariableHelper {
 
 	public List<TascaDadaDto> findDadesPerInstanciaTascaDto(ExpedientTascaDto tasca) {		
 		List<TascaDadaDto> resposta = new ArrayList<TascaDadaDto>();
-		
-		for (CampTasca campTasca: campTascaRepository.findAmbTascaOrdenats(tasca.getTascaId())) {
+		Tasca tascaEntity = tascaRepository.findOne(tasca.getTascaId());
+		Long expedientTipusId = tascaEntity.getDefinicioProces().getExpedientTipus() != null ? tascaEntity.getDefinicioProces().getExpedientTipus().getId() : null; 
+		for (CampTasca campTasca: campTascaRepository.findAmbTascaOrdenats(tasca.getTascaId(), expedientTipusId)) {
 			Camp camp = campTasca.getCamp();
 			
 			ExpedientDadaDto expedientDadaDto = getDadaPerVariableJbpm(
@@ -324,8 +327,9 @@ public class VariableHelper {
 	public List<TascaDadaDto> findDadesPerInstanciaTasca(
 			JbpmTask task) {
 		String tipusExp = null;
+		Expedient exp = expedientHelper.findExpedientByProcessInstanceId(task.getProcessInstanceId());
+		Long expedientTipusId = exp != null ? exp.getTipus().getId() : null;
 		if (MesuresTemporalsHelper.isActiu()) {
-			Expedient exp = expedientHelper.findExpedientByProcessInstanceId(task.getProcessInstanceId());
 			tipusExp = (exp != null ? exp.getTipus().getNom() : null);
 			mesuresTemporalsHelper.mesuraIniciar("Tasca DADES v3", "tasques", tipusExp, task.getTaskName());
 			mesuresTemporalsHelper.mesuraIniciar("Tasca DADES v3", "tasques", tipusExp, task.getTaskName(), "0");
@@ -335,13 +339,9 @@ public class VariableHelper {
 		Tasca tasca = tascaRepository.findByJbpmNameAndDefinicioProces(
 				task.getTaskName(),
 				definicioProces);
-		List<CampTasca> campsTasca = tasca.getCamps();
-//		Map<String, CampTasca> campsIndexatsPerCodi = new HashMap<String, CampTasca>();
-//		for (CampTasca campTasca: campsTasca) {
-//			campsIndexatsPerCodi.put(
-//					campTasca.getCamp().getCodi(),
-//					campTasca);
-//		}
+		List<CampTasca> campsTasca = campTascaRepository.findAmbTascaIdOrdenats(tasca.getId(), expedientTipusId);
+
+		
 		mesuresTemporalsHelper.mesuraCalcular("Tasca DADES v3", "tasques", tipusExp, task.getTaskName(), "0");
 		mesuresTemporalsHelper.mesuraIniciar("Tasca DADES v3", "tasques", tipusExp, task.getTaskName(), "1");
 		List<TascaDadaDto> resposta = new ArrayList<TascaDadaDto>();
@@ -387,9 +387,13 @@ public class VariableHelper {
 		Tasca tasca = tascaRepository.findByJbpmNameAndDefinicioProces(
 				task.getTaskName(),
 				definicioProces);
+		
+		Long expedientTipusId = expedientTipusHelper.findIdByProcessInstanceId(task.getProcessInstanceId());
+
 		CampTasca campTasca = campTascaRepository.findAmbTascaCodi(
 				tasca.getId(),
-				variableCodi);
+				variableCodi,
+				expedientTipusId);
 		Camp camp = null;
 		if (campTasca != null) {
 			camp = campTasca.getCamp();
