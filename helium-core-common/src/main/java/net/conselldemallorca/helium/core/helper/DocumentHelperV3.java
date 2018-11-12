@@ -1915,7 +1915,7 @@ public class DocumentHelperV3 {
 			NtiTipoDocumentalEnumDto ntiTipoDocumental,
 			String ntiIdDocumentoOrigen) {
 		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
-		if (arxiuNom != null) {
+		if (arxiuNom != null && !arxiuNom.equals("")) {
 			documentStore.setArxiuNom(arxiuNom);
 		}
 		// Actualitza les metadades NTI
