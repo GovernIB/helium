@@ -744,18 +744,14 @@ public class ExpedientHelper {
 						false,
 						true);
 				documentHelper.actualitzarNtiFirma(documentStore, documentArxiu);
-			} else if (expedient.getDataFi() != null) {
-				documentHelper.firmaServidor(
-						expedient.getProcessInstanceId(), 
-						documentStore.getId(), 
-						messageHelper.getMessage("document.controller.firma.servidor.default.message"),
-						false);
 			}
-			
-			documentStore.setArxiuContingut(null);
-			
-			if (expedient.getDataFi() != null)
-				pluginHelper.arxiuExpedientTancar(expedient.getArxiuUuid());
+			documentStore.setArxiuContingut(null);			
+		}
+		if (expedient.getDataFi() != null) {
+			// Firma el socuments
+			firmarDocumentsPerArxiuFiExpedient(expedient);
+			// Tanca l'expedient a l'arxiu
+			pluginHelper.arxiuExpedientTancar(expedient.getArxiuUuid());
 		}
 	}
 	

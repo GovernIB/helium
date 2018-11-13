@@ -1199,10 +1199,24 @@ public class ExpedientServiceImpl implements ExpedientService {
 		try {
 			expedientHelper.migrarArxiu(expedient);
 		} catch (Exception ex) {
-			if (expedient.getArxiuUuid() != null && !expedient.getArxiuUuid().isEmpty())
+			String errorDescripcio = "Error migrant l'expedient " + expedient.getTitol() + " a l'arxiu: " + ex.getMessage();
+			if (expedient.getArxiuUuid() != null && !expedient.getArxiuUuid().isEmpty()) {
+				logger.info("Es procedeix a esborrar l'expedient '" + expedient.getTitol() + "' amb uid '" + expedient.getArxiuUuid() + "' de l'arxiu per error en la migració.");
 				pluginHelper.arxiuExpedientEsborrar(expedient.getArxiuUuid());
+			}
+			throw new TramitacioException(
+					expedient.getEntorn().getId(), 
+					expedient.getEntorn().getCodi(), 
+					expedient.getEntorn().getNom(), 
+					expedient.getId(), 
+					expedient.getTitol(), 
+					expedient.getNumero(), 
+					expedient.getTipus().getId(), 
+					expedient.getTipus().getCodi(), 
+					expedient.getTipus().getNom(), 
+					errorDescripcio, 
+					ex);
 		}
-		
 	}
 
 	/**
