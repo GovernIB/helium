@@ -5,6 +5,7 @@ package net.conselldemallorca.helium.v3.core.service;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -76,6 +77,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.DominiDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EnumeracioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusEstadisticaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.MapeigSistraDto;
 import net.conselldemallorca.helium.v3.core.api.dto.MapeigSistraDto.TipusMapeig;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
@@ -3198,5 +3200,21 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 	}
 
 	private static final Logger logger = LoggerFactory.getLogger(ExpedientServiceImpl.class);
+
+	@Override
+	public List<ExpedientTipusEstadisticaDto> findEstadisticaByFiltre(
+			Date dataIniciInicial, 
+			Date dataIniciFinal,
+			Date dataFiInicial, 
+			Date dataFiFinal, 
+			Long entornId) {
+		// TODO Auto-generated method stub
+		Entorn entorn = entornHelper.getEntornComprovantPermisos(
+				entornId,
+				true,
+				true);
+		List<ExpedientTipusEstadisticaDto> et = expedientTipusRepository.findEstadisticaByFiltre();
+		return null;
+	}
 
 }

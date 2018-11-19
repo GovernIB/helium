@@ -387,7 +387,7 @@ public class MassivaExpedientController extends BaseExpedientController {
 				dto.setTipus(ExecucioMassivaTipusDto.FINALITZAR_EXPEDIENT);
 				execucioMassivaService.crearExecucioMassiva(dto);
 				MissatgesHelper.success(request, getMessage(request, "info.accio.massiu.finalitzar_expedient", new Object[] {listIds.size()}));
-			} else if ("finalitzarExpedient".equals(accio)) {
+			} else if ("migrarExpedient".equals(accio)) {
 				dto.setTipus(ExecucioMassivaTipusDto.MIGRAR_EXPEDIENT);
 				execucioMassivaService.crearExecucioMassiva(dto);
 				MissatgesHelper.success(request, getMessage(request, "info.accio.massiu.finalitzar_expedient", new Object[] {listIds.size()}));

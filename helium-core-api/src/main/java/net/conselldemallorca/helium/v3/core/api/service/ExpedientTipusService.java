@@ -1,5 +1,6 @@
 package net.conselldemallorca.helium.v3.core.api.service;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -11,6 +12,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.DominiDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EnumeracioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusEstadisticaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.MapeigSistraDto;
 import net.conselldemallorca.helium.v3.core.api.dto.MapeigSistraDto.TipusMapeig;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
@@ -1070,5 +1072,12 @@ public interface ExpedientTipusService {
 			String clasificacion,
 			String serieDocumental,
 			boolean arxiuActiu);	
+	
+	public List<ExpedientTipusEstadisticaDto> findEstadisticaByFiltre(
+			Date dataIniciInicial,
+			Date dataIniciFinal,
+			Date dataFiInicial,
+			Date dataFiFinal,
+			Long entornId);
 
 }
