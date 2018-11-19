@@ -464,7 +464,7 @@ public class DefinicioProcesHelper {
 			for(TascaExportacio tascaExportat : importacio.getTasques() )
 				if (importAll || command.getTasques().contains(tascaExportat.getJbpmName())){
 					tasca = tascaRepository.findByJbpmNameAndDefinicioProces(tascaExportat.getJbpmName(), definicio);
-					if (!definicioProcesExisteix || sobreEscriure) {
+					if (tasca != null && (!definicioProcesExisteix || sobreEscriure)) {
 						tasca.setNom(tascaExportat.getNom());
 						tasca.setTipus(TipusTasca.valueOf(tascaExportat.getTipus().toString()));
 						tasca.setMissatgeInfo(tascaExportat.getMissatgeInfo());
