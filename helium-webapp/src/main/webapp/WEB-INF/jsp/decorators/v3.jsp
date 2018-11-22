@@ -210,6 +210,7 @@
 									</c:if>
 									<c:if test="${dadesPersona.admin}"><li><a data-toggle="modal" data-maximized="true" href="<c:url value="/modal/v3/configuracio/festius"/>"><spring:message code='decorators.superior.festius' /></a></li></c:if>
 									<li><a data-toggle="modal" href="<c:url value="/modal/v3/configuracio/parametres"/>"><spring:message code='decorators.superior.parametres' /></a></li>
+									<li><a id="botoMetriques" href="<c:url value="/v3/estadistica"/>"><spring:message code='decorators.superior.estadistica' /></a></li>
 								</ul>
 								<script type="text/javascript">
 									$('#mesures a').heliumEvalLink({

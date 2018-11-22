@@ -5,7 +5,6 @@ package net.conselldemallorca.helium.v3.core.service;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -1518,6 +1517,25 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 				ExpedientTipusDto.class);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@Transactional
+	public List<ExpedientTipusDto> findAmbEntorn(
+			Long entornId) {
+		logger.debug(
+				"Consultant tipus d'expedient per un entorn (" +
+				"entornId=" + entornId + ")");
+		Entorn entorn = entornHelper.getEntornComprovantPermisos(
+				entornId,
+				true);
+		List<ExpedientTipus> tipuss = expedientTipusRepository.findByEntorn(entorn);
+		return conversioTipusHelper.convertirList(
+				tipuss,
+				ExpedientTipusDto.class);
+	}
+	
 	/**
 	 * {@inheritDoc}
 	 */
@@ -3203,18 +3221,33 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 
 	@Override
 	public List<ExpedientTipusEstadisticaDto> findEstadisticaByFiltre(
-			Date dataIniciInicial, 
-			Date dataIniciFinal,
-			Date dataFiInicial, 
-			Date dataFiFinal, 
-			Long entornId) {
+			Integer anyInicial, 
+			Integer anyFinal,
+			Long entornId,
+			Long expedientTipusId,
+			Boolean anulats) {
+
+
 		// TODO Auto-generated method stub
 		Entorn entorn = entornHelper.getEntornComprovantPermisos(
 				entornId,
-				true,
 				true);
-		List<ExpedientTipusEstadisticaDto> et = expedientTipusRepository.findEstadisticaByFiltre();
-		return null;
+		ExpedientTipus expedientTipus = null;
+		if(expedientTipusId != null) {
+			expedientTipus = expedientTipusRepository.findOne(expedientTipusId);
+		}
+		
+		List<ExpedientTipusEstadisticaDto> et = expedientTipusRepository.findEstadisticaByFiltre(
+				anyInicial == null,
+				anyInicial,
+				anyFinal == null,
+				anyFinal,
+				entorn,
+				expedientTipus == null,
+				expedientTipus,
+				anulats == null,
+				anulats);
+		return et;
 	}
 
 }

@@ -267,6 +267,19 @@ public interface ExpedientTipusService {
 			Long entornId) throws NoTrobatException;
 
 	/**
+	 * Retorna els tipus d'expedient d'un entorn.
+	 * 
+	 * @param entornId
+	 *            Atribut id de l'entorn.
+	 * @return Els tipus d'expedient de l'entorn.
+	 * @throws NoTrobatException
+	 *             Si no s'ha trobat el registre amb l'id especificat.
+	 */
+	public List<ExpedientTipusDto> findAmbEntorn(
+			Long entornId) throws NoTrobatException;
+
+	
+	/**
 	 * Retorna un tipus d'expedient donat el seu codi.
 	 * 
 	 * @param entornId
@@ -1074,10 +1087,10 @@ public interface ExpedientTipusService {
 			boolean arxiuActiu);	
 	
 	public List<ExpedientTipusEstadisticaDto> findEstadisticaByFiltre(
-			Date dataIniciInicial,
-			Date dataIniciFinal,
-			Date dataFiInicial,
-			Date dataFiFinal,
-			Long entornId);
+			Integer anyInicial, 
+			Integer anyFinal,
+			Long entornId,
+			Long expedientTipusId,
+			Boolean anulats);
 
 }

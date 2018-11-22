@@ -21,6 +21,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.DominiDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EnumeracioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusEstadisticaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.MapeigSistraDto;
 import net.conselldemallorca.helium.v3.core.api.dto.MapeigSistraDto.TipusMapeig;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
@@ -170,6 +171,13 @@ public class ExpedientTipusServiceBean implements ExpedientTipusService {
 		return findAmbEntornPermisCrear(entornId);
 	}
 
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public List<ExpedientTipusDto> findAmbEntorn(
+			Long entornId) throws NoTrobatException {
+		return findAmbEntorn(entornId);
+	}
+	
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public ExpedientTipusDto findAmbCodiPerValidarRepeticio(
@@ -600,6 +608,13 @@ public class ExpedientTipusServiceBean implements ExpedientTipusService {
 				clasificacion,
 				serieDocumental,
 				arxiuActiu);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public List<ExpedientTipusEstadisticaDto> findEstadisticaByFiltre(Integer dataIniciInicial, Integer dataIniciFinal,
+			Long entornId, Long expedientTipusId, Boolean anulats) {
+		return delegate.findEstadisticaByFiltre(dataIniciInicial, dataIniciFinal, entornId, expedientTipusId, anulats);
 	}
 
 }

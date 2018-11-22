@@ -4,6 +4,7 @@
 package net.conselldemallorca.helium.v3.core.repository;
 
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 
 import org.springframework.data.domain.Page;
@@ -62,42 +63,37 @@ public interface ExpedientTipusRepository extends JpaRepository<ExpedientTipus, 
 			@Param("filtre") String filtre,		
 			Pageable pageable);
 	
-//	@Query(	" select "
-////			+ " to_char(e.dataInici, 'YYYY') as expedientAny, "
-//			+ " et.nom as nom, "
-//			+ "	count(*) as totalYear "
-//			+ "	from ExpedientTipus et "
-////			+ "	inner join Entorn en on et.entorn = en "
-//			+ "	inner join Expedient e on e.tipus.id = et.id "
-////			+ "	where "
-////			+ "		e2.entorn = :entorn")
-////			+ "	and "
-////			+ "		to_char(e2.dataInici, 'YYYY') = to_char(e.dataInici, 'YYYY')) as total_year,"
-//			+ " group by "
-//			+ "		et.nom ")
-////			+ "		to_char(e.dataInici, 'YYYY')"
-////			+ "		et.nom")
 	
-	
-	@Query(	" select new net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusEstadisticaDto( "
-//			+ " to_char(e.dataInici, 'YYYY') as expedientAny, "
-			+ " et.nom)"
-//			+ "	e)"
-			+ "	from ExpedientTipus et "
-			+ "	left join et.expedients as e "
-//			+ "	where "
-//			+ "		e2.entorn = :entorn"
-//			+ "	and "
-//			+ "		to_char(e2.dataInici, 'YYYY') = to_char(e.dataInici, 'YYYY')) as total_year,"
-			+ " group by "
-			+ "		et.nom ")
-//			+ "		to_char(e.dataInici, 'YYYY')"
-//			+ "		et.nom")	
-	List<ExpedientTipusEstadisticaDto> findEstadisticaByFiltre();
-//			@Param("dataIniciInicial") Date dataIniciInicial, 
-//			@Param("dataIniciFinal") Date dataIniciFinal,
-//			@Param("dataFiInicial") Date dataFiInicial, 
-//			@Param("dataFiFinal") Date dataFiFinal, 
-//			@Param("entorn") Entorn entorn);
+    @Query(    " select new net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusEstadisticaDto( "
+            + "     et.id, "
+            + "     et.codi, "
+            + "     et.nom, "
+            + "     count(*), "
+            + "     to_char(e.dataInici, 'YYYY'))"
+            + "    	from Expedient e "
+            + "        inner join e.tipus as et  "
+            + "    	where "
+            + "     	et.entorn = :entorn"
+            + "    		and (:isNullExpedientTipus = true or et = :expedientTipus)"
+            + "			and (:isNullAnulat = true or e.anulat = :anulat) "
+//            + "			and to_char(e.dataInici, 'YYYY') between :dataIniciInicial and :dataIniciFinal "
+			+ "			and (:isNullDataIniciFinal = true or year(e.dataInici) <= :anyFinal) "
+			+ "			and (:isNullDataIniciInicial = true or year(e.dataInici) >= :anyInicial) "
+            + " group by "
+            + "        et.id, "
+            + "        et.codi, "
+            + "        et.nom, "
+            + "        to_char(e.dataInici, 'YYYY')")
+    List<ExpedientTipusEstadisticaDto> findEstadisticaByFiltre(
+            @Param("isNullDataIniciInicial") boolean isNullDataIniciInicial,
+            @Param("anyInicial") Integer anyInicial,
+            @Param("isNullDataIniciFinal") boolean isNullDataIniciFinal,
+            @Param("anyFinal") Integer anyFinal,
+            @Param("entorn") Entorn entorn,
+            @Param("isNullExpedientTipus") boolean isNullExpedientTipus,
+            @Param("expedientTipus") ExpedientTipus expedientTipus,
+            @Param("isNullAnulat") boolean isNullAnulat,
+            @Param("anulat") Boolean anulat
+            );
 
 }
