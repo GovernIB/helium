@@ -1105,7 +1105,9 @@ public class DocumentHelperV3 {
 							documentStore.isSignat());
 					String arxiuNom = documentStore.getArxiuNom();
 					// String arxiuNom = documentArxiu.getContingut().getArxiuNom();
-					byte[] arxiuContingut = documentArxiu.getContingut().getContingut();
+					byte[] arxiuContingut = null;
+					if (ambContingut)
+						arxiuContingut = documentArxiu.getContingut().getContingut();
 					// String arxiuTipusMime = documentArxiu.getContingut().getTipusMime();
 					if (ambContingutOriginal) {
 						dto.setArxiuNom(arxiuNom);

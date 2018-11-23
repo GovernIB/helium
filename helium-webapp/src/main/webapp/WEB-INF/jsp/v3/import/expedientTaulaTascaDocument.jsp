@@ -33,23 +33,15 @@
 						<label class="nom_document<c:if test="${document.required}"> obligatori</c:if>">${document.documentNom}</label>
 					</td>
 					<td class="tableDocumentsTd">
-						<c:choose>
-							<c:when test="${not document.signat}">
-								<c:url value="/v3/expedient/document/arxiuMostrar" var="downloadUrl"><c:param name="token" value="${document.tokenSignatura}"/></c:url>
-								<a title="<spring:message code='comuns.descarregar' />" id="downloadUrl" href="${downloadUrl}">
-									<i class="fa fa-download"></i>
-								</a>
-							</c:when>
-							<c:otherwise>
-								<a class="icon signature" href="<c:url value="/v3/expedient/${tasca.expedientId}/proces/${tasca.processInstanceId}/document/${document.documentStoreId}/descarregar"/>"><span class="fa fa-download" title="<spring:message code="comuns.descarregar"/>"></span></a>
+						<a class="icon signature" href="<c:url value="/v3/expedient/${tasca.expedientId}/proces/${tasca.processInstanceId}/document/${document.documentStoreId}/descarregar"/>"><span class="fa fa-download" title="<spring:message code="comuns.descarregar"/>"></span></a>
+						<c:if test="${document.signat}">
 								<c:if test="${not empty document.urlVerificacioCustodia}">
 									<a class="icon signature" href="${document.urlVerificacioCustodia}" target="_blank"><span class="fa fa-certificate" title="<spring:message code="expedient.document.signat"/>"></span></a>
 								</c:if>								
 								<c:if test="${not empty document.signaturaUrlVerificacio}">
 									<a class="icon signature" href="${document.signaturaUrlVerificacio}" target="_blank"><span class="fa fa-certificate" title="<spring:message code="expedient.document.signat"/>"></span></a>
 								</c:if>
-							</c:otherwise>
-						</c:choose>
+						</c:if>
 						<c:if test="${document.registrat}">
 							<a 	data-rdt-link-modal="true" 
 								class="icon registre" 
