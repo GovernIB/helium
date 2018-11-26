@@ -37,7 +37,7 @@
 		form .fila_reducida {padding-top: 0px;margin-bottom: 5px;}
 		#expedientConsultaCommand .row {margin-bottom: -5px;}
 		#taulaDades {display: block;overflow-x: auto;border-left: 0 none;border-right: 0 none;border-bottom: 0 none;}
-		.col-xs-13 {margin-left: -5px;margin-right: -15px;}
+		.col-xs-13 {/*margin-left: -5px;margin-right: -15px;*/}
 		.form-group {padding-right: 	15px;margin-left: 	10px !important;margin-bottom:	15px;}
 		.form-group input, .form-group textarea {width: 100%;}		
 		.form-group li > .select2-container {width: 100%;padding-right: 20px;}		
@@ -56,6 +56,8 @@
 		#btn_exportar {padding-right : 10px;}
 		.row {padding-bottom: 5px;}
 		.col-xs-3 {width: 17.5%;}
+		.col-sm-0 {position: relative; min-height: 1px; padding-right: 15px; padding-left: 15px;}
+		.mb-0 {margin-bottom:0;}
 		.control-label.col-xs-4 {width: auto !important;}
 		.col-xs-5 {padding-left: 0px !important;margin-right: -55px;}
 		.controls.form-group.col-xs-9 {margin-bottom: 0px !important;padding-bottom: 0px !important;}
@@ -184,7 +186,7 @@ $(document).ready(function() {
 					
 					<!--tanquem row i la tornem a obrir per a la següent fila-->
 					</div>
-					<div class="row">
+						<div class="row">
 					<!------------------------->
 				</c:if>
 				
@@ -203,12 +205,14 @@ $(document).ready(function() {
 				</c:if>
 			</c:forEach>
 			</div>
-		</div>		
+		</div>
 		<div class="row">
 			<div class="col-md-12">
 				<form:hidden path="nomesAlertes"/>
 				<form:hidden path="nomesTasquesPersonals"/>
 				<form:hidden path="nomesTasquesGrup"/>
+				<%-- <form:hidden path="nomesErrors"/> --%>
+				
 				<button style="display:none" type="submit" name="accio" value="filtrar"></button>
 				<div class="row">
 					<div class="col-md-6">
@@ -216,7 +220,8 @@ $(document).ready(function() {
 							<button id="nomesTasquesPersonalsCheck" data-path="nomesTasquesPersonals" title="<spring:message code="expedient.llistat.filtre.camp.personals"/>" class="btn btn-default<c:if test="${expedientConsultaCommand.nomesTasquesPersonals}"> active</c:if>" data-toggle="button"><span class="fa fa-user"></span></button>
 							<button id="nomesTasquesGrupCheck" data-path="nomesTasquesGrup" title="<spring:message code="expedient.llistat.filtre.camp.grup"/>" class="btn btn-default<c:if test="${expedientConsultaCommand.nomesTasquesGrup}"> active</c:if>" data-toggle="button"><span class="fa fa-users"></span></button>
 						</div>
-						<button id="nomesAlertesCheck" data-path="nomesAlertes" title="<spring:message code="expedient.llistat.filtre.camp.alertes"/>" class="btn btn-default<c:if test="${expedientConsultaCommand.nomesAlertes}"> active</c:if>" data-toggle="button"><span class="fa fa-exclamation-triangle"></span></button>
+						<%-- <button id="nomesErrorsCheck" data-path="nomesErrors" title="<spring:message code="expedient.llistat.filtre.camp.errors"/>" class="btn btn-default filtre-button<c:if test="${expedientConsultaCommand.nomesErrors}"> active</c:if>" data-toggle="button"><span class="fa fa-exclamation-triangle"></span></button> --%>
+						<button id="nomesAlertesCheck" data-path="nomesAlertes" title="<spring:message code="expedient.llistat.filtre.camp.alertes"/>" class="btn btn-default<c:if test="${expedientConsultaCommand.nomesAlertes}"> active</c:if>" data-toggle="button"><span class="fa  fa-envelope"></span></button>
 					</div>
 					<div class="col-md-6">
 						<div class="pull-right">

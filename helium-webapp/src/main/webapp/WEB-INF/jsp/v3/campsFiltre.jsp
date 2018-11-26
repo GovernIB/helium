@@ -10,22 +10,29 @@
 
 <div class="form-group<c:if test="${not empty campErrors}"> has-error</c:if>" style="margin-left: 0px !important;">
 
-	<label 	for="${campPath}" class="control-label top-label"
-			style="width: 100%; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;"
-			title="${campActual.campEtiqueta}">
-		${campActual.campEtiqueta}
-	</label>	
+ 	<c:if test="${campActual.campTipus != 'STRING' && campActual.campTipus != 'DATE'}">
+		<label 	for="${campPath}" class="control-label top-label"
+				style="width: 100%; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;"
+				title="${campActual.campEtiqueta}">
+			${campActual.campEtiqueta}
+		</label>
+	</c:if>
 
 	<div class="controls consulta-tipus-controls">
 		<c:choose>
 			<c:when test="${campActual.campTipus == 'STRING'}">
-					<form:input path="${campPath}" cssClass="form-control" id="${campPath}" data-required="false" />
+					<label class="control-label col-xs-4 hide" for="${campPath}[0]"><spring:message code="common.campfiltre.entre"/></label>
+					<div class="col-xs-13">
+						<form:input path="${campPath}" placeholder="${campActual.campEtiqueta}" cssClass="form-control" id="${campPath}" data-required="false" />
+					</div>
 			</c:when>
 			<c:when test="${campActual.campTipus == 'TEXTAREA'}">
-					<form:textarea path="${campPath}" cssClass="form-control" id="${campPath}" data-required="false" />
+					<label class="control-label col-xs-4 hide" for="${campPath}[0]"><spring:message code="common.campfiltre.entre"/></label>
+					<div class="col-xs-13">
+						<form:textarea path="${campPath}" cssClass="form-control" id="${campPath}" data-required="false" />
+					</div>
 			</c:when>
 			<c:when test="${campActual.campTipus == 'INTEGER'}">
-				<div class="col-xs-6">
 					<label class="control-label col-xs-4 hide" for="${campPath}[0]"><spring:message code="common.campfiltre.entre"/></label>
 					<div class="col-xs-13">
 						<form:input path="${campPath}[0]" cssClass="form-control text-right enter" id="${campPath}[0]" data-required="false"/>
@@ -36,7 +43,7 @@
 					<div class="col-xs-13">
 						<form:input path="${campPath}[1]" cssClass="form-control text-right enter" id="${campPath}[1]" data-required="false"/>
 					</div>
-				</div>
+				<!-- </div> -->
 			</c:when>
 			<c:when test="${campActual.campTipus == 'FLOAT'}">
 				<div class="col-xs-6">
@@ -67,7 +74,13 @@
 				</div>
 			</c:when>
 			<c:when test="${campActual.campTipus == 'DATE'}">
-				<div class="col-xs-6">
+			<div class="col-md-12">
+				<label 	for="${campPath}" class="control-label top-label"
+				style="width: 100%; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;"
+				title="${campActual.campEtiqueta}">
+					${campActual.campEtiqueta}
+				</label>
+				<div class="col-xs-6 ">
 					<label class="control-label col-xs-4 hide" for="${campPath}[0]"><spring:message code="common.campfiltre.entre"/></label>
 					<div class="col-xs-13">
 						<div class="input-group">
@@ -85,12 +98,14 @@
 						</div>
 					</div>
 				</div>
+				</div>
 			</c:when>
 			<c:when test="${campActual.campTipus == 'BOOLEAN'}">
 				<hel:inputSelect inline="true" name="${campPath}" emptyOption="true" optionItems="${valorsBoolea}" optionValueAttribute="codi" optionTextAttribute="valor"/>
 			</c:when>
 			<c:when test="${campActual.campTipus == 'SELECCIO'}">
 				<c:set var="EXPEDIENT_ESTAT" value="<%=net.conselldemallorca.helium.v3.core.api.dto.ExpedientCamps.EXPEDIENT_CAMP_ESTAT_JSP%>"></c:set>
+				<div class="col-xs-13">
 				<c:choose>
 					<c:when test="${campPath == EXPEDIENT_ESTAT}">
 						<hel:inputSelect inline="true" name="${campPath}" text="${campActual.campEtiqueta}" emptyOption="true" optionItems="${estats}" optionValueAttribute="codi" optionTextAttribute="nom"/>
@@ -99,6 +114,7 @@
 						<hel:inputSelect inline="true" name="${campPath}" text="${campActual.campEtiqueta}" emptyOption="true" optionItems="${campActual.varValor}" optionValueAttribute="codi" optionTextAttribute="valor"/>
 					</c:otherwise>
 				</c:choose>
+				</div>
 			</c:when>
 			<c:when test="${campActual.campTipus == 'TERMINI'}">
 					<div class="col-xs-4 tercpre">

@@ -69,7 +69,7 @@
 		</div>
 	</c:when>
 	<c:otherwise>
-		<div class="form-group<c:if test="${not empty campErrors}"> has-error</c:if>">
+		<div class="form-group<c:if test="${not empty campErrors}"> has-error</c:if> mb-0">
     		<label class="sr-only ${campClassRequired}" for="${campPath}">${campLabelText}</label>
 			<form:select path="${campPath}" cssClass="form-control" id="${campPath}" disabled="${disabled}">
 				<c:if test="${emptyOption == 'true'}">

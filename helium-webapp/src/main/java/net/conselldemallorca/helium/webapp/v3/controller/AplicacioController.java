@@ -56,6 +56,9 @@ public class AplicacioController {
 			} else if (preferencies.getListado() == 1) {
 				// Tareas
 				return "redirect:/v3/tasca";
+			} else if (preferencies.getConsultaId() != null) {
+				// Consulta per defecte
+				return "redirect:/v3/expedient/consulta/" + preferencies.getConsultaId();
 			} 
 		}
 		// Expedientes
