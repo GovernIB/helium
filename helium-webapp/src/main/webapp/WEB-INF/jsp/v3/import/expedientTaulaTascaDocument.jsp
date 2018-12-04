@@ -22,7 +22,6 @@
 //]]>
 </script>
 <td id="ra-document-${expedientId}-${document.id}">
-	${document.signaturaUrlVerificacio}
 	<c:choose>
 		<c:when test="${not empty document.error}">
 			<span class="fa fa-warning fa-2x" title="${document.error}"></span>
