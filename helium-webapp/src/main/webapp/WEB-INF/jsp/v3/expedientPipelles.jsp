@@ -282,7 +282,7 @@ dd.subproc {
 			<div id="expedient-info" class="well">
 				<h3>
 					<spring:message code="expedient.info.informacio"/>
-					<c:if test="${expedient.ntiActiu}">
+					<c:if test="${expedient.ntiActiu and expedient.permisAdministration}">
 						<a	href="<c:url value="../../v3/expedient/${expedient.id}/metadadesNti"/>"
 							data-rdt-link-modal="true"
 							data-rdt-link-modal-min-height="500"

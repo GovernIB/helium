@@ -117,6 +117,8 @@ public class MassivaTascaReassignacioController extends BaseExpedientController 
 			BindingResult result, 
 			SessionStatus status, 
 			Model model) {	
+		inici = inici.replaceAll("undefined,", "");
+		
 		model.addAttribute("inici", inici);
 		model.addAttribute("correu", correu);
 		model.addAttribute("massiva", massiva);		
@@ -138,9 +140,10 @@ public class MassivaTascaReassignacioController extends BaseExpedientController 
 
 		Date dInici = new Date();
 		if (inici != null) {
-			SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm");
 			try {
-				dInici = sdf.parse(inici);
+				SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm");
+				Date d = sdf.parse(inici);
+				dInici = d;
 			} catch (ParseException e) {}
 		}
 

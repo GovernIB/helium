@@ -1,6 +1,9 @@
 package net.conselldemallorca.helium.webapp.v3.controller;
 
+import java.util.List;
+
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -17,6 +20,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EnumeracioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusEnumeracioValorDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.service.EnumeracioService;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientTipusEnumeracioCommand;
@@ -178,6 +182,47 @@ public class ExpedientTipusEnumeracioController extends BaseExpedientTipusContro
 							new Object[] {ex.getLocalizedMessage()}));
 			return false;
 		}
+	}
+	
+	@RequestMapping(value = "/{expedientTipusId}/enumeracio/{enumeracioId}/valor/exportar", method = RequestMethod.GET)
+	@ResponseBody
+	public void exportarPost(
+			HttpServletRequest request,
+			HttpServletResponse response,
+			@PathVariable Long enumeracioId) {
+
+        	try {
+        		List<ExpedientTipusEnumeracioValorDto> enumeracioValors = enumeracioService.valorsFind(enumeracioId);
+        		
+        		String estatsString = "";
+        		for(ExpedientTipusEnumeracioValorDto enumeracio: enumeracioValors){
+        			estatsString +=
+        					enumeracio.getCodi()+";"+enumeracio.getNom()+";"+enumeracio.getOrdre()+"\n";
+        		}
+        		
+        		response.setHeader("Pragma", "");
+        		response.setHeader("Expires", "");
+        		response.setHeader("Cache-Control", "");
+        		response.setHeader("Content-Disposition", "attachment; filename=\""
+        				+ "enumeracions_exp.csv" + "\"");
+        		response.setContentType("text/plain");
+        		response.getOutputStream().write(estatsString.getBytes());
+        
+        	} catch(Exception e) {
+        		logger.error(e);
+        		MissatgesHelper.error(
+        				request,
+        				getMessage(
+        						request, 
+        						"expedient.tipus.enumeracio.valors.exportats",
+        						new Object[]{e.getLocalizedMessage()}));
+        	}
+    		MissatgesHelper.success(
+					request, 
+					getMessage(
+							request, 
+							"expedient.tipus.enumeracio.valors.exportats.error"));        			
+        
 	}
 	
 	private static final Log logger = LogFactory.getLog(ExpedientTipusEnumeracioController.class);

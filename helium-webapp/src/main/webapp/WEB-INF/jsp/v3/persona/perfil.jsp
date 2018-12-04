@@ -67,7 +67,12 @@
 				$('select[name=consultaId]').select2({placeholder: "<spring:message code='perfil.usuari.consulta.tipus'/>", allowClear: true});
 				$('select[name=consultaId]').val(null).trigger("change");
 			}
-		});	
+		});
+		
+		$('select[name=expedientTipusDefecteId]').trigger("change");
+		
+		
+		
 	});
 	</script>
 	<style type="text/css">

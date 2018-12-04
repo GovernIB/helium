@@ -39,12 +39,14 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import edu.emory.mathcs.backport.java.util.Arrays;
 import net.conselldemallorca.helium.core.model.service.PluginService;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.InstanciaProcesDto;
+import net.conselldemallorca.helium.v3.core.api.dto.NtiEstadoElaboracionEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PortasignaturesDto;
 import net.conselldemallorca.helium.v3.core.api.exception.SistemaExternException;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientDocumentService;
@@ -265,7 +267,7 @@ public class ExpedientDocumentController extends BaseExpedientController {
 					documentStoreId,
 					command.getData(),
 					arxiuNom,
-					arxiuContingut,
+					(arxiuContingut.length != 0)?arxiuContingut:null,
 					command.getNtiOrigen(),
 					command.getNtiEstadoElaboracion(),
 					command.getNtiTipoDocumental(),
@@ -278,7 +280,7 @@ public class ExpedientDocumentController extends BaseExpedientController {
 					command.getData(),
 					command.getNom(),
 					arxiuNom,
-					arxiuContingut,
+					(arxiuContingut.length != 0)?arxiuContingut:null,
 					command.getNtiOrigen(),
 					command.getNtiEstadoElaboracion(),
 					command.getNtiTipoDocumental(),
@@ -554,6 +556,8 @@ public class ExpedientDocumentController extends BaseExpedientController {
 					errors.rejectValue("ntiEstadoElaboracion", "not.blank");
 				if (documentExpedientCommand.getNtiTipoDocumental() == null)
 					errors.rejectValue("ntiTipoDocumental", "not.blank");
+				if(Arrays.asList(new NtiEstadoElaboracionEnumDto[] {NtiEstadoElaboracionEnumDto.COPIA_CF,NtiEstadoElaboracionEnumDto.COPIA_DP,NtiEstadoElaboracionEnumDto.COPIA_PR}).contains(documentExpedientCommand.getNtiEstadoElaboracion()) && documentExpedientCommand.getNtiIdOrigen() == null)
+					errors.rejectValue("ntiIdOrigen", "document.metadades.nti.iddoc.origen.validacio.copia");
 			}
  			if ("##adjuntar_arxiu##".equalsIgnoreCase(documentExpedientCommand.getDocumentCodi()) || documentExpedientCommand.getDocumentCodi() == null) {
  				ValidationUtils.rejectIfEmpty(errors, "nom", "not.blank");

@@ -1619,6 +1619,7 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 		}
 	}
 
+	
 	private void reassignarTasca(ExecucioMassivaExpedient ome) throws Exception {
 		String tascaId = ome.getTascaId();
 		try {

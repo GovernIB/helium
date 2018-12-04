@@ -14,6 +14,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.UsuariPreferenciesDto;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientConsultaCommand;
+import net.conselldemallorca.helium.webapp.v3.command.ExpedientTipusEstadisticaCommand;
 import net.conselldemallorca.helium.webapp.v3.command.TascaConsultaCommand;
 
 /**

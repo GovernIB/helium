@@ -156,6 +156,11 @@ public class PerfilesController extends BaseController {
 					expedientTipusConConsultas.add(expTip);
 				}
 			}
+//			if(preferencies.getExpedientTipusDefecteId() != null) {
+//				model.addAttribute("consultes", dissenyService.findConsultesActivesAmbEntornIExpedientTipusOrdenat(entornUsuari.getId(),preferencies.getExpedientTipusDefecteId()));
+//			}else {
+//				model.addAttribute("consultes", new ArrayList<ConsultaDto>());
+//			}
 		}
 		filtreCommand.setCabeceraReducida(preferencies.isCabeceraReducida());
 		filtreCommand.setEntornCodi(preferencies.getDefaultEntornCodi());
