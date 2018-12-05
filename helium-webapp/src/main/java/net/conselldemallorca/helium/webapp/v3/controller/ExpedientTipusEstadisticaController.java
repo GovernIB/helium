@@ -83,19 +83,21 @@ public class ExpedientTipusEstadisticaController extends BaseController {
 		Map<String, Map<String, Object>> ete = new TreeMap<String, Map<String, Object>>();
 		Map<String, Long> totalTipus = new  HashMap<String, Long>();
 		for(ExpedientTipusEstadisticaDto element : et) {
-			String nom = element.getCodi();
-			if(!titols.containsKey(nom))
-				titols.put(nom, element.getNom());
-			if(!ete.containsKey(nom))
-				ete.put(nom, new TreeMap<String,Object>());
-			if(!anys.contains(element.getAnyInici()))
-				anys.add(element.getAnyInici());
-			if(!totalTipus.containsKey(nom)) {				
-				totalTipus.put(nom, element.getN());
-			}else {
-				totalTipus.put(nom, totalTipus.get(nom) + element.getN());
+			if(filtreCommand.getExpedientTipusId() == null || filtreCommand.getExpedientTipusId().equals(element.getId())) {
+				String nom = element.getCodi();
+				if(!titols.containsKey(nom))
+					titols.put(nom, element.getNom());
+				if(!ete.containsKey(nom))
+					ete.put(nom, new TreeMap<String,Object>());
+				if(!anys.contains(element.getAnyInici()))
+					anys.add(element.getAnyInici());
+				if(!totalTipus.containsKey(nom)) {				
+					totalTipus.put(nom, element.getN());
+				}else {
+					totalTipus.put(nom, totalTipus.get(nom) + element.getN());
+				}
+				ete.get(nom).put(element.getAnyInici(), element.getN());
 			}
-			ete.get(nom).put(element.getAnyInici(), element.getN());
 		}
 		
 		//List<String> anys = generateSetOfAnys(filtreCommand.getDataIniciInicial(), filtreCommand.getDataIniciFinal());
@@ -109,7 +111,9 @@ public class ExpedientTipusEstadisticaController extends BaseController {
 		// Torna a posar el command al model
 		model.addAttribute(filtreCommand);
 		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
-		List<ExpedientTipusDto> expedientsTipus = expedientTipusService.findAmbEntorn(entornActual.getId());
+		List<ExpedientTipusDto> expedientsTipus = new ArrayList<ExpedientTipusDto>();
+		expedientsTipus.addAll(expedientTipusService.findAmbEntorn(entornActual.getId()));
+
 		model.addAttribute("expedientsTipus", expedientsTipus);
 
 		return "v3/estadisticaEntorns";

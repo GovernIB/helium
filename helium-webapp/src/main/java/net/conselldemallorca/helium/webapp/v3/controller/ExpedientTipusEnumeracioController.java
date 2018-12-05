@@ -214,14 +214,14 @@ public class ExpedientTipusEnumeracioController extends BaseExpedientTipusContro
         				request,
         				getMessage(
         						request, 
-        						"expedient.tipus.enumeracio.valors.exportats",
+        						"expedient.tipus.enumeracio.valors.exportats.error",
         						new Object[]{e.getLocalizedMessage()}));
         	}
     		MissatgesHelper.success(
 					request, 
 					getMessage(
 							request, 
-							"expedient.tipus.enumeracio.valors.exportats.error"));        			
+							"expedient.tipus.enumeracio.valors.exportats"));        			
         
 	}
 	

@@ -125,6 +125,11 @@ public class TascaLlistatV3Controller extends BaseController {
 			@Valid TascaConsultaCommand filtreCommand,
 			BindingResult bindingResult,
 			Model model) {
+		
+		SessionManager sessionManager = SessionHelper.getSessionManager(request);
+		Set<Long> ids = sessionManager.getSeleccioConsultaTasca();
+		ids.clear();
+		
 		try {
 			EntornDto entornActual = (EntornDto) SessionHelper.getAttribute(request, SessionHelper.VARIABLE_ENTORN_ACTUAL_V3);
 			ExpedientTascaDto tasca = tascaService.findAmbIdPerTramitacio(tascaId);

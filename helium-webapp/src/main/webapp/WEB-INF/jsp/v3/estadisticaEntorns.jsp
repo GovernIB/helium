@@ -149,6 +149,7 @@ $(document).ready(function() {
 			</tr>
 		 </thead>
 		  		<c:forEach items="${expedientsTipus}" var="items">
+		  			<c:if test="${ not empty tableData[items.codi] }">
 					<tr>
 						<th>${ items.codi }</th>
 						<th>${ items.nom } </th>
@@ -175,8 +176,8 @@ $(document).ready(function() {
 							</c:choose>
 						</th>
 					</tr>
+					</c:if>
 				</c:forEach>
-					
 						<c:set var = "totalTotal" value = "${0}"/>
 					<tr>
 					<th><spring:message code='expedient.tipus.taula.estadistica.totalany'/></th>
