@@ -28,6 +28,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
 import net.conselldemallorca.helium.v3.core.api.service.DissenyService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientTipusService;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientTipusEstadisticaCommand;
+import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
 
 /**
@@ -53,6 +54,15 @@ public class ExpedientTipusEstadisticaController extends BaseController {
 		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
 		List<ExpedientTipusDto> expedientsTipus = expedientTipusService.findAmbEntornPermisDissenyar(entornActual.getId());
 		model.addAttribute("expedientsTipus", expedientsTipus);
+		Boolean potAdministrarEntorn = SessionHelper.getSessionManager(request).getPotAdministrarEntorn();
+		if (!Boolean.TRUE.equals(potAdministrarEntorn)) {
+			MissatgesHelper.error(
+					request,
+					getMessage(
+							request,
+							"error.permis.administracio.entorn"));
+
+		}
 		return "v3/estadisticaEntorns";
 	}
 	

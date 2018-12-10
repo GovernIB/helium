@@ -3228,7 +3228,6 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 			Boolean anulats) {
 
 
-		// TODO Auto-generated method stub
 		Entorn entorn = entornHelper.getEntornComprovantPermisos(
 				entornId,
 				true);

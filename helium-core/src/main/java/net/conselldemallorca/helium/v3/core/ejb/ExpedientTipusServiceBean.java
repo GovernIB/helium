@@ -611,7 +611,7 @@ public class ExpedientTipusServiceBean implements ExpedientTipusService {
 	}
 
 	@Override
-	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	@RolesAllowed({"HEL_ADMIN"})
 	public List<ExpedientTipusEstadisticaDto> findEstadisticaByFiltre(Integer dataIniciInicial, Integer dataIniciFinal,
 			Long entornId, Long expedientTipusId, Boolean anulats) {
 		return delegate.findEstadisticaByFiltre(dataIniciInicial, dataIniciFinal, entornId, expedientTipusId, anulats);
