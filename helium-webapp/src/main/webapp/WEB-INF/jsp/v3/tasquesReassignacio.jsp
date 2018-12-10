@@ -106,8 +106,8 @@
 						</div>
 			
 						<div class="control-group form-group control-group-mid">
-							<input type="checkbox" id="correu" name="correu" <c:if test="${correu}">checked="checked"</c:if> value="${correu}"/>
-							<label for="correu"><spring:message code="expedient.massiva.correu"/></label>
+							<input type="checkbox" id="enviarCorreu" name="enviarCorreu" <c:if test="${enviarCorreu != null}">checked="checked"</c:if> value="enviarCorreu"/>
+							<label for="enviarCorreu"><spring:message code="expedient.massiva.correu"/></label>
 						</div>
 					</div>
 				</div>
