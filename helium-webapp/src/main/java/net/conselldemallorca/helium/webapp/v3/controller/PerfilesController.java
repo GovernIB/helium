@@ -164,11 +164,13 @@ public class PerfilesController extends BaseController {
 		}
 		filtreCommand.setCabeceraReducida(preferencies.isCabeceraReducida());
 		filtreCommand.setEntornCodi(preferencies.getDefaultEntornCodi());
-		if (preferencies.getConsultaId() != null) {
-			ConsultaDto consulta = dissenyService.findConsulteById(preferencies.getConsultaId());
-			if (consulta != null) {
-				filtreCommand.setConsultaId(preferencies.getConsultaId());		
-				filtreCommand.setExpedientTipusId(consulta.getExpedientTipus().getId());
+		if (preferencies.getExpedientTipusDefecteId() != null) {
+			filtreCommand.setExpedientTipusId(preferencies.getExpedientTipusDefecteId());
+			if (preferencies.getConsultaId() != null) {
+				ConsultaDto consulta = dissenyService.findConsulteById(preferencies.getConsultaId());
+				if (consulta != null) {
+					filtreCommand.setConsultaId(preferencies.getConsultaId());		
+				}				
 			}
 			model.addAttribute("consultes", dissenyService.findConsultesActivesAmbEntornIExpedientTipusOrdenat(entornUsuari.getId(),filtreCommand.getExpedientTipusId()));
 		} else {

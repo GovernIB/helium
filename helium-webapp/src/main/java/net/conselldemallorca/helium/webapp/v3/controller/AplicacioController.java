@@ -56,7 +56,8 @@ public class AplicacioController {
 			} else if (preferencies.getListado() == 1) {
 				// Tareas
 				return "redirect:/v3/tasca";
-			} else if (preferencies.getConsultaId() != null) {
+			} else if (preferencies.getConsultaId() != null && 
+						SessionHelper.getSessionManager(request).getEntornActual().getCodi().equals(preferencies.getDefaultEntornCodi())) {
 				// Consulta per defecte
 				return "redirect:/v3/expedient/consulta/" + preferencies.getConsultaId();
 			} 

@@ -48,6 +48,7 @@
 		});	
 
 		$('select[name=expedientTipusDefecteId]').on('change', function () {
+			console.log("hola");
 			$('select[name=consultaId]').empty();
 			$("select[name=consultaId]").append($('<option value=""></option>'));
 			if ($(this).val()) {
@@ -68,10 +69,11 @@
 				$('select[name=consultaId]').val(null).trigger("change");
 			}
 		});
-		
-		$('select[name=expedientTipusDefecteId]').trigger("change");
-		
-		
+		/*
+		if($("#consultaId > option").length == 1){
+			$('select[name=expedientTipusDefecteId]').trigger("change");	
+		}
+		*/
 		
 	});
 	</script>
