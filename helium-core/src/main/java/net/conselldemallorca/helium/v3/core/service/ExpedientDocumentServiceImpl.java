@@ -13,6 +13,7 @@ import javax.annotation.Resource;
 import org.json.simple.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.acls.model.Permission;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -54,6 +55,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.PortasignaturesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RespostaValidacioSignaturaDto;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
+import net.conselldemallorca.helium.v3.core.api.service.DocumentService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientDocumentService;
 import net.conselldemallorca.helium.v3.core.repository.CampRepository;
 import net.conselldemallorca.helium.v3.core.repository.DefinicioProcesRepository;
@@ -339,6 +341,18 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 				processInstanceId,
 				ExpedientLogAccioTipus.PROCES_DOCUMENT_MODIFICAR,
 				documentCodi);
+		
+		
+		ArxiuDto arxiu = arxiuFindAmbDocument(
+				expedientId,
+				processInstanceId,
+				documentStoreId);
+		
+		if(arxiuContingut == null)
+			arxiuContingut = arxiu.getContingut();
+		if(arxiuNom == null || arxiuNom.equals(""))
+			arxiuNom = arxiu.getNom();
+		
 		documentHelper.actualitzarDocument(
 				documentStoreId,
 				null,
@@ -351,6 +365,7 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 				ntiEstadoElaboracion,
 				ntiTipoDocumental,
 				ntiIdOrigen);
+		
 		indexHelper.expedientIndexLuceneUpdate(processInstanceId);
 		expedientRegistreHelper.crearRegistreModificarDocumentInstanciaProces(
 				expedient.getId(),
