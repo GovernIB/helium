@@ -207,7 +207,7 @@ public class ConsultaHelper {
 			Expedient expedient) {
 		String dadaIndexadaClau = null;
 		for (Camp camp: campsInforme) {
-			if (camp != null && camp.getDefinicioProces() != null) {
+			if (camp != null && (camp.getDefinicioProces() != null || camp.getExpedientTipus() != null)) {
 				if (camp.getExpedientTipus() == null)
 					// Definició de procés
 					dadaIndexadaClau = camp.getDefinicioProces().getJbpmKey() + "/" + camp.getCodi();
