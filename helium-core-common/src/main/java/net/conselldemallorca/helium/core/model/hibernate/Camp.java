@@ -100,16 +100,15 @@ public class Camp implements Serializable, GenericEntity<Long> {
 	private String consultaCampValor;
 	
 	
-	private boolean dominiCacheText;
-	private boolean dominiIntern;
+	private Boolean dominiCacheText;
+	private Boolean dominiIntern;
 	@MaxLength(255)
 	private String defprocJbpmKey;
 	@MaxLength(255)
 	private String jbpmAction;
 	private boolean multiple;
 	private boolean ocult;
-	private boolean isIgnored;
-
+	private boolean ignored;
 
 	private Consulta consulta;
 	private Domini domini;
@@ -223,10 +222,10 @@ public class Camp implements Serializable, GenericEntity<Long> {
 	}
 
 	@Column(name="domini_cache_text")
-	public boolean isDominiCacheText() {
+	public Boolean getDominiCacheText() {
 		return dominiCacheText;
 	}
-	public void setDominiCacheText(boolean dominiCacheText) {
+	public void setDominiCacheText(Boolean dominiCacheText) {
 		this.dominiCacheText = dominiCacheText;
 	}
 
@@ -264,13 +263,12 @@ public class Camp implements Serializable, GenericEntity<Long> {
 	
 	@Column(name="ignored")
 	public boolean isIgnored() {
-		return isIgnored;
+		return ignored;
 	}
-	public void setIgnored(boolean isIgnored) {
-		this.isIgnored = isIgnored;
+	public void setIgnored(boolean ignored) {
+		this.ignored = ignored;
 	}
 	
-
 	@ManyToOne(optional=true)
 	@JoinColumn(name="definicio_proces_id")
 	@ForeignKey(name="hel_defproc_camp_fk")
@@ -607,10 +605,10 @@ public class Camp implements Serializable, GenericEntity<Long> {
 	}
 
 	@Column(name="domini_intern")
-	public boolean isDominiIntern() {
+	public Boolean getDominiIntern() {
 		return dominiIntern;
 	}
-	public void setDominiIntern(boolean dominiIntern) {
+	public void setDominiIntern(Boolean dominiIntern) {
 		this.dominiIntern = dominiIntern;
 	}
 	

@@ -14,7 +14,14 @@ public class ReproDto {
 	private Long id;
 	private String nom;
 	private String valors;
+	private String tascaCodi;
 	
+	public String getTascaCodi() {
+		return tascaCodi;
+	}
+	public void setTascaCodi(String tascaCodi) {
+		this.tascaCodi = tascaCodi;
+	}
 	public Long getId() {
 		return id;
 	}

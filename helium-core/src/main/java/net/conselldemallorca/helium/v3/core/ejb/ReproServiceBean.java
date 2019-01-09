@@ -8,6 +8,8 @@ import javax.ejb.Stateless;
 import javax.interceptor.Interceptors;
 
 import net.conselldemallorca.helium.v3.core.api.dto.ReproDto;
+import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
+import net.conselldemallorca.helium.v3.core.api.exception.ValidacioException;
 import net.conselldemallorca.helium.v3.core.api.service.ReproService;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,8 +25,8 @@ public class ReproServiceBean implements ReproService {
 	
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public List<ReproDto> findReprosByUsuariTipusExpedient(Long expedientTipusId) {
-		return delegate.findReprosByUsuariTipusExpedient(expedientTipusId);
+	public List<ReproDto> findReprosByUsuariTipusExpedient(Long expedientTipusId, String tascaCodi) {
+		return delegate.findReprosByUsuariTipusExpedient(expedientTipusId, tascaCodi);
 	}
 
 	@Override
@@ -49,5 +51,12 @@ public class ReproServiceBean implements ReproService {
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public Map<String,Object> findValorsById(Long id) {
 		return delegate.findValorsById(id);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public ReproDto createTasca(Long expedientTipusId, Long tascaId, String nom, Map<String, Object> valors)
+			throws NoTrobatException, ValidacioException {
+		return delegate.createTasca(expedientTipusId, tascaId, nom, valors);
 	}
 }

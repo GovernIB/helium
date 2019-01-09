@@ -463,7 +463,7 @@ public class VariableHelper {
 		List<ParellaCodiValorDto> resposta = new ArrayList<ParellaCodiValorDto>();
 		TipusCamp tipus = camp.getTipus();
 		if (tipus.equals(TipusCamp.SELECCIO) || tipus.equals(TipusCamp.SUGGEST)) {
-			if (camp.isDominiIntern() || camp.getDomini() != null ) {
+			if (camp.getDominiIntern() || camp.getDomini() != null ) {
 				Map<String, Object> parametres = getParamsConsulta(
 						taskInstanceId,
 						processInstanceId,
@@ -473,7 +473,7 @@ public class VariableHelper {
 						valorsAddicionals);
 				List<FilaResultat> resultatConsultaDomini;
 				Domini domini;		
-				if (camp.isDominiIntern()) {
+				if (camp.getDominiIntern()) {
 					Entorn entorn;
 					if (camp.getDefinicioProces() != null)
 						entorn = camp.getDefinicioProces().getEntorn();
@@ -1041,7 +1041,7 @@ public class VariableHelper {
 			return null;
 		
 		//mirem si hi ha una variable amb la texte, utilitzant el prefix PREFIX_VAR_DESCRIPCIO
-		if (camp.isDominiCacheText()) {
+		if (camp.getDominiCacheText()) {
 			Object descVariable = getDescripcioVariable(taskInstanceId, processInstanceId, camp.getCodi());
 			if (descVariable != null) {
 				return new ParellaCodiValorDto(

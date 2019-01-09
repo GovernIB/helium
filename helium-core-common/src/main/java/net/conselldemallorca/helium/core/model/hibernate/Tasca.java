@@ -72,6 +72,7 @@ public class Tasca implements Serializable, GenericEntity<Long> {
 	private String formExtern;
 	private boolean tramitacioMassiva = false;
 	private boolean finalitzacioSegonPla = false;
+	private boolean ambRepro = false;
 
 	@NotNull
 	private DefinicioProces definicioProces;
@@ -189,6 +190,15 @@ public class Tasca implements Serializable, GenericEntity<Long> {
 	public void setFinalitzacioSegonPla(boolean finalitzacioSegonPla) {
 		this.finalitzacioSegonPla = finalitzacioSegonPla;
 	}
+	
+	@Column(name="amb_repro")
+	public boolean isAmbRepro() {
+		return ambRepro;
+	}
+	public void setAmbRepro(boolean ambRepro) {
+		this.ambRepro = ambRepro;
+	}
+	
 	@ManyToOne(optional=false)
 	@JoinColumn(name="definicio_proces_id")
 	@ForeignKey(name="hel_defproc_tasca_fk")

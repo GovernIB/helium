@@ -30,6 +30,7 @@ public class CampDto implements Serializable {
 	private boolean ocult;
 	private boolean ignored;
 	
+	
 	private DefinicioProcesDto definicioProces;
 	private ExpedientTipusDto expedientTipus;
 	
@@ -54,7 +55,7 @@ public class CampDto implements Serializable {
 	private String defprocJbpmKey;
 	private String jbpmAction;
 	
-	boolean dominiCacheText;
+	Boolean dominiCacheText;
 
 	/** Ordre dins la agrupació. */
 	private Integer ordre;
@@ -307,10 +308,10 @@ public class CampDto implements Serializable {
 	public void setDefprocJbpmKey(String defprocJbpmKey) {
 		this.defprocJbpmKey = defprocJbpmKey;
 	}
-	public boolean isDominiCacheText() {
+	public Boolean getDominiCacheText() {
 		return dominiCacheText;
 	}
-	public void setDominiCacheText(boolean dominiCacheText) {
+	public void setDominiCacheText(Boolean dominiCacheText) {
 		this.dominiCacheText = dominiCacheText;
 	}
 	public int getValidacioCount() {

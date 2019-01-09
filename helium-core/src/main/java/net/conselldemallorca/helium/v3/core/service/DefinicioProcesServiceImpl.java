@@ -501,6 +501,7 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 		entity.setFormExtern(tasca.getFormExtern());
 		entity.setTramitacioMassiva(tasca.isTramitacioMassiva());
 		entity.setFinalitzacioSegonPla(tasca.isFinalitzacioSegonPla());
+		entity.setAmbRepro(tasca.isAmbRepro());
 		
 		return conversioTipusHelper.convertir(
 				tascaRepository.save(entity),

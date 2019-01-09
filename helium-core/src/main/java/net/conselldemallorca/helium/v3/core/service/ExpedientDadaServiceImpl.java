@@ -330,7 +330,7 @@ public class ExpedientDadaServiceImpl implements ExpedientDadaService {
 					definicioProces,
 					varName);			
 		}
-		if (camp != null && camp.isDominiCacheText()) {
+		if (camp != null && camp.getDominiCacheText()) {
 			if (varValue != null) {
 				if (camp.getTipus().equals(TipusCamp.SELECCIO) ||
 					camp.getTipus().equals(TipusCamp.SUGGEST)) {

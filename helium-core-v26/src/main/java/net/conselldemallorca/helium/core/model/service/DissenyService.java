@@ -1241,8 +1241,8 @@ public class DissenyService {
                     (necessitaDadesExternes) ? camp.getConsultaCampValor() : null,
                     camp.isMultiple(),
                     camp.isOcult(),
-                    camp.isDominiIntern(),
-                    camp.isDominiCacheText(),
+                    camp.getDominiIntern(),
+                    camp.getDominiCacheText(),
                     (necessitaDadesExternes && camp.getEnumeracio() != null) ? camp.getEnumeracio().getCodi() : null,
                     (necessitaDadesExternes && camp.getDomini() != null) ? camp.getDomini().getCodi() : null,
                     (camp.getAgrupacio() != null) ? camp.getAgrupacio().getCodi() : null,
@@ -1991,7 +1991,7 @@ public class DissenyService {
 			}
 			if (camp != null && camp.getEnumeracio() != null) {
 				return dtoConverter.getResultatConsultaEnumeracio(definicioProces, campCodi, textInicial);
-			} else if (camp != null && (camp.getDomini() != null || camp.isDominiIntern())) {
+			} else if (camp != null && (camp.getDomini() != null || camp.getDominiIntern())) {
 				return dtoConverter.getResultatConsultaDomini(
 						definicioProces,
 						taskId,
@@ -2691,7 +2691,7 @@ public class DissenyService {
 			nou.setDominiCampText(camp.getDominiCampText());
 			nou.setDominiCampValor(camp.getDominiCampValor());
 			nou.setDominiParams(camp.getDominiParams());
-			nou.setDominiIntern(camp.isDominiIntern());
+			nou.setDominiIntern(camp.getDominiIntern());
 			nou.setEnumeracio(camp.getEnumeracio());
 			nou.setJbpmAction(camp.getJbpmAction());
 			nou.setOrdre(camp.getOrdre());

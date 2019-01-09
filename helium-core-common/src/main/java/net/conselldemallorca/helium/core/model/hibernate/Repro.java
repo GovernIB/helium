@@ -39,10 +39,27 @@ public class Repro implements Serializable {
 	@NotBlank
 	private String nom;
 	private String valors;
+	private String tascaCodi;
 	
+	
+
 	public Repro() {
 		super();
 	};
+	
+	public Repro(
+			String usuari, 
+			ExpedientTipus expedientTipus, 
+			String nom,
+			String valors,
+			String tascaCodi) {
+		super();
+		this.usuari = usuari;
+		this.expedientTipus = expedientTipus;
+		this.nom = nom;
+		this.valors = valors;
+		this.tascaCodi = tascaCodi;
+	}
 
 	public Repro(
 			String usuari, 
@@ -83,8 +100,16 @@ public class Repro implements Serializable {
 	public void setExpedientTipus(ExpedientTipus expedientTipus) {
 		this.expedientTipus = expedientTipus;
 	}
+	
+	@Column(name="tasca_codi", nullable=true)
+	public String getTascaCodi() {
+		return tascaCodi;
+	}
+	public void setTascaCodi(String tascaCodi) {
+		this.tascaCodi = tascaCodi;
+	}
 
-	@Column(name="nom", length=255, nullable=false)
+	@Column(name="nom", length=255, nullable=true)
 	public String getNom() {
 		return nom;
 	}

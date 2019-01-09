@@ -36,6 +36,7 @@ import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer;
 
 import net.conselldemallorca.helium.core.common.ThreadLocalInfo;
+import net.conselldemallorca.helium.core.helper.ConversioTipusHelper;
 import net.conselldemallorca.helium.core.helper.DocumentHelperV3;
 import net.conselldemallorca.helium.core.helper.EntornHelper;
 import net.conselldemallorca.helium.core.helper.ExpedientHelper;
@@ -88,6 +89,8 @@ import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
 import net.conselldemallorca.helium.v3.core.api.dto.SeleccioOpcioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDocumentDto;
+import net.conselldemallorca.helium.v3.core.api.dto.TascaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.TascaDto.TipusTascaDto;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.exception.SistemaExternException;
 import net.conselldemallorca.helium.v3.core.api.exception.TramitacioException;
@@ -170,7 +173,8 @@ public class TascaServiceImpl implements TascaService {
 	private FormulariExternHelper formulariExternHelper;
 	@Resource
 	private ExpedientLoggerHelper expedientLoggerHelper;
-	
+	@Resource
+	private ConversioTipusHelper conversioTipusHelper;
 	@Autowired
 	private TascaSegonPlaHelper tascaSegonPlaHelper;
 	@Autowired
@@ -731,7 +735,7 @@ public class TascaServiceImpl implements TascaService {
 			pidCalculat = task.getProcessInstanceId();
 		}
 		// Consulta els valors possibles
-		if (camp.getDomini() != null || camp.isDominiIntern()) {
+		if (camp.getDomini() != null || camp.getDominiIntern()) {
 			List<ParellaCodiValorDto> parellaCodiValorDto = variableHelper.getPossiblesValorsCamp(
 						camp,
 						registreCamp,
@@ -1712,5 +1716,10 @@ public class TascaServiceImpl implements TascaService {
 	}
 
 	private static final Logger logger = LoggerFactory.getLogger(TascaServiceImpl.class);
+
+	@Override
+	public TascaDto findTascaById(Long id) {
+		return conversioTipusHelper.convertir(tascaRepository.findById(id), TascaDto.class);
+	}
 
 }

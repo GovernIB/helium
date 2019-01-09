@@ -547,8 +547,8 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		                    (necessitaDadesExternes) ? camp.getConsultaCampValor() : null,
 		                    camp.isMultiple(),
 		                    camp.isOcult(),
-		                    camp.isDominiIntern(),
-		                    camp.isDominiCacheText(),
+		                    camp.getDominiIntern(),
+		                    camp.getDominiCacheText(),
 		                    (necessitaDadesExternes && camp.getEnumeracio() != null) ? camp.getEnumeracio().getCodi() : null,
 		                    (necessitaDadesExternes && camp.getDomini() != null) ? camp.getDomini().getCodi() : null,
 		                    (necessitaDadesExternes && camp.getConsulta() != null) ? camp.getConsulta().getCodi() : null,
@@ -2265,10 +2265,10 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 					nou.setDominiParams(camp.getDominiParams());
 					nou.setDominiCampText(camp.getDominiCampText());
 					nou.setDominiCampValor(camp.getDominiCampValor());
-					nou.setDominiCacheText(camp.isDominiCacheText());
+					nou.setDominiCacheText(camp.getDominiCacheText());
 					nou.setMultiple(camp.isMultiple());
 					nou.setOcult(camp.isOcult());
-					nou.setDominiIntern(camp.isDominiIntern());
+					nou.setDominiIntern(camp.getDominiIntern());
 					nou.setJbpmAction(camp.getJbpmAction());
 					if (camp.getTipus() == TipusCamp.ACCIO && camp.getDefinicioProces() != null)
 						nou.setDefprocJbpmKey(camp.getDefinicioProces().getJbpmKey());
@@ -2314,7 +2314,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 					}
 				}
 				camps.put(nou.getCodi(), nou);				
-				if (camp.getDomini() != null &&  !camp.isDominiIntern()) {
+				if (camp.getDomini() != null &&  !camp.getDominiIntern()) {
 					// Propaga el domini referenciat pel camp
 					Domini dominiEntorn = dominiRepository.findByEntornAndCodi(
 							entorn, 

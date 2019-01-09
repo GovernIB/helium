@@ -2969,7 +2969,7 @@ public class ExpedientService {
 		Camp camp = campDao.findAmbDefinicioProcesICodi(
 				definicioProces.getId(),
 				varName);
-		if (camp != null && camp.isDominiCacheText()) {
+		if (camp != null && camp.getDominiCacheText()) {
 			if (varValue != null) {
 				if (	camp.getTipus().equals(TipusCamp.SELECCIO) ||
 						camp.getTipus().equals(TipusCamp.SUGGEST)) {

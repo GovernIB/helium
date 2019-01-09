@@ -51,7 +51,7 @@ public class CampCommand {
 	private Long enumeracioId;
 	private Long dominiId;
 	private Long consultaId;
-	boolean dominiIntern;
+	Boolean dominiIntern;
 	
 	// Paràmetres del domini
 	@Size(max = 255, groups = {Creacio.class, Modificacio.class})
@@ -79,7 +79,7 @@ public class CampCommand {
 	@Size(max = 255, groups = {Creacio.class, Modificacio.class})
 	private String jbpmAction;
 	
-	boolean dominiCacheText;
+	Boolean dominiCacheText;
 
 
 	public Long getId() {
@@ -228,10 +228,10 @@ public class CampCommand {
 	public void setJbpmAction(String jbpmAction) {
 		this.jbpmAction = jbpmAction;
 	}
-	public boolean isDominiCacheText() {
+	public Boolean getDominiCacheText() {
 		return dominiCacheText;
 	}
-	public void setDominiCacheText(boolean dominiCacheText) {
+	public void setDominiCacheText(Boolean dominiCacheText) {
 		this.dominiCacheText = dominiCacheText;
 	}
 	public static CampDto asCampDto(CampCommand command) {
@@ -249,7 +249,7 @@ public class CampCommand {
 		dto.setDominiIdentificador(command.getDominiIdentificador());
 		dto.setMultiple(command.isMultiple());
 		dto.setOcult(command.isOcult());
-		dto.setIgnored(command.isIgnored());		
+		dto.setIgnored(command.isIgnored());
 		
 		// Dades consulta
 		if(command.getEnumeracioId() != null) {
@@ -284,7 +284,7 @@ public class CampCommand {
 		dto.setDefprocJbpmKey(command.getDefprocJbpmKey());
 		dto.setJbpmAction(command.getJbpmAction());
 		
-		dto.setDominiCacheText(command.isDominiCacheText());		
+		dto.setDominiCacheText(command.getDominiCacheText());		
 		
 		return dto;
 	}

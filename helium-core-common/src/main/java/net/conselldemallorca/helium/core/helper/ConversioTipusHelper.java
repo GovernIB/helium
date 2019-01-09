@@ -130,7 +130,7 @@ public class ConversioTipusHelper {
 								mapperFacade.map(
 										source.getConsulta(),
 										ConsultaDto.class));
-						target.setDominiIntern(source.isDominiIntern());
+						target.setDominiIntern(source.getDominiIntern());
 
 						// Paràmetres del domini
 						target.setDominiIdentificador(source.getDominiId());
@@ -147,7 +147,7 @@ public class ConversioTipusHelper {
 						target.setDefprocJbpmKey(source.getDefprocJbpmKey());
 						target.setJbpmAction(source.getJbpmAction());
 						
-						target.setDominiCacheText(source.isDominiCacheText());
+						target.setDominiCacheText(source.getDominiCacheText());
 						
 						target.setOrdre(source.getOrdre());
 						

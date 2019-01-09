@@ -469,6 +469,12 @@ public class TascaHelper {
 			boolean perTramitacio,
 			boolean ambPermisos) {
 		ExpedientTascaDto dto = new ExpedientTascaDto();
+		
+		DefinicioProces defp = definicioProcesRepository.findByJbpmId(task.getProcessDefinitionId());
+		
+		Tasca t = tascaRepository.findByJbpmNameAndDefinicioProces(task.getTaskName(), defp);
+		
+		dto.setAmbRepro(t.isAmbRepro());
 		dto.setId(task.getId());
 		DadesCacheTasca dadesCacheTasca = getDadesCacheTasca(
 				task,
@@ -555,6 +561,7 @@ public class TascaHelper {
 		dto.setExpedientId(expedientNoNull.getId());
 		dto.setExpedientIdentificador(expedientNoNull.getIdentificador());
 		dto.setExpedientTipusNom(expedientNoNull.getTipus().getNom());
+		dto.setExpedientTipusId(expedientNoNull.getTipus().getId());
 		if (task.getAssignee() != null) {
 			dto.setResponsable(
 					pluginHelper.personaFindAmbCodi(task.getAssignee()));
@@ -654,7 +661,7 @@ public class TascaHelper {
 			Map<String, Object> variables) {
 		List<CampTasca> campsTasca = campTascaRepository.findAmbTascaOrdenats(tasca.getId());
 		for (CampTasca campTasca: campsTasca) {
-			if (campTasca.getCamp().isDominiCacheText()) {
+			if (campTasca.getCamp().getDominiCacheText()) {
 				Object campValor = variables.get(campTasca.getCamp().getCodi());
 				if (	campTasca.getCamp().getTipus().equals(TipusCamp.SELECCIO) ||
 						campTasca.getCamp().getTipus().equals(TipusCamp.SUGGEST)) {
