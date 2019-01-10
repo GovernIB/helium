@@ -83,16 +83,16 @@ $(document).ready(function() {
 		$(".btn_date").click(function(){
 			$(this).prev(".date").trigger("focus");
 		});
-
+		$(".submit").click(function(event){
+			event.preventDefault();
+			console.log($(this).attr("url"));
+			$("#filtre").attr("action", $(this).attr("url")).submit();
+		});
 });
-
-
-
 </script>
 </head>
 
-<form:form action="" method="post" cssClass="well" commandName="expedientTipusEstadisticaCommand">
-		
+<form:form action="" id="filtre" method="post" cssClass="well" commandName="expedientTipusEstadisticaCommand">
 		<div class="row">
 			<div class="col-md-3">
 				<label><spring:message code="expedient.llistat.filtre.camp.expedient.tipus"/></label>
@@ -126,14 +126,13 @@ $(document).ready(function() {
 			<div class="col-md-12 d-flex align-items-end">
 				<div class="pull-right">
 					<input type="hidden" name="consultaRealitzada" value="true"/>
-					<button id="netejar" type="submit" name="accio" value="netejar" class="btn btn-default"><spring:message code="comu.filtre.netejar"/></button>
-					<button id="consultar" type="submit" name="accio" value="consultar" class="btn btn-primary"><span class="fa fa-filter"></span>&nbsp;<spring:message code="comu.filtre.filtrar"/></button>
+					<button id="exportar_excel" type="submit" class="btn btn-default submit" url="/helium/v3/estadistica/excel"><span class="fa fa-download"></span>&nbsp;<spring:message code="expedient.tipus.document.llistat.accio.descarregar"/></button>
+					<button id="netejar" type="submit" name="accio" value="netejar" class="btn btn-default submit" url=""><spring:message code="comu.filtre.netejar"/></button>
+					<button id="consultar" type="submit" name="accio" value="consultar" class="btn btn-primary submit" url=""><span class="fa fa-filter"></span>&nbsp;<spring:message code="comu.filtre.filtrar"/></button>
 				</div>
 			</div>
 		</div>
 </form:form>
-
-
 
 <div class="col-12" style="overflow: auto;">
 	<c:if test="${ not empty tableData}">
