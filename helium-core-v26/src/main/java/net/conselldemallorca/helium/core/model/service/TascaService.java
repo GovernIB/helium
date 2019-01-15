@@ -2515,7 +2515,7 @@ public class TascaService {
 				task.getProcessDefinitionId());
 		List<CampTasca> campsTasca = campTascaDao.findAmbTascaOrdenats(tasca.getId());
 		for (CampTasca campTasca: campsTasca) {
-			if (campTasca.getCamp().getDominiCacheText()) {
+			if (campTasca.getCamp().isDominiCacheText()) {
 				Object campValor = variables.get(campTasca.getCamp().getCodi());
 				if (campValor != null) {
 					if (	campTasca.getCamp().getTipus().equals(TipusCamp.SELECCIO) ||

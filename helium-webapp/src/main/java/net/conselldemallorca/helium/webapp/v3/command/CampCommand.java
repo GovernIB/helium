@@ -79,7 +79,7 @@ public class CampCommand {
 	@Size(max = 255, groups = {Creacio.class, Modificacio.class})
 	private String jbpmAction;
 	
-	Boolean dominiCacheText;
+	boolean dominiCacheText;
 
 
 	public Long getId() {
@@ -228,10 +228,10 @@ public class CampCommand {
 	public void setJbpmAction(String jbpmAction) {
 		this.jbpmAction = jbpmAction;
 	}
-	public Boolean getDominiCacheText() {
+	public boolean isDominiCacheText() {
 		return dominiCacheText;
 	}
-	public void setDominiCacheText(Boolean dominiCacheText) {
+	public void setDominiCacheText(boolean dominiCacheText) {
 		this.dominiCacheText = dominiCacheText;
 	}
 	public static CampDto asCampDto(CampCommand command) {
@@ -284,7 +284,7 @@ public class CampCommand {
 		dto.setDefprocJbpmKey(command.getDefprocJbpmKey());
 		dto.setJbpmAction(command.getJbpmAction());
 		
-		dto.setDominiCacheText(command.getDominiCacheText());		
+		dto.setDominiCacheText(command.isDominiCacheText());		
 		
 		return dto;
 	}

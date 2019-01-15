@@ -747,7 +747,7 @@ public class DtoConverter {
 			Map<String, DadaIndexadaDto> dadesExpedient,
 			List<Camp> campsInforme) {
 		for (Camp camp: campsInforme) {
-			if (!camp.getDominiCacheText() && (TipusCamp.SELECCIO.equals(camp.getTipus()) || TipusCamp.SUGGEST.equals(camp.getTipus()))) {
+			if (!camp.isDominiCacheText() && (TipusCamp.SELECCIO.equals(camp.getTipus()) || TipusCamp.SUGGEST.equals(camp.getTipus()))) {
 				if (camp.getEnumeracio() != null) {
 					String dadaIndexadaClau = camp.getDefinicioProces().getJbpmKey() + "/" + camp.getCodi();
 					DadaIndexadaDto dadaIndexada = dadesExpedient.get(dadaIndexadaClau);

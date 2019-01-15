@@ -23,9 +23,13 @@ public class PersonaInfo {
 	private String email;
 	private Sexe sexe;
 	private String relleu;
+	private String telefon;
 
 
 
+	public PersonaInfo() {
+		super();
+	}
 	public PersonaInfo(String codi, String nomSencer, String email, Sexe sexe) {
 		this.codi = codi;
 		this.setNomSencer(nomSencer);
@@ -125,7 +129,13 @@ public class PersonaInfo {
 	public void setRelleu(String relleu) {
 		this.relleu = relleu;
 	}
-
+	public String getTelefon() {
+		return telefon;
+	}
+	public void setTelefon(String telefon) {
+		this.telefon = telefon;
+	}
+	
 	@Override
 	public int hashCode() {
 		final int prime = 31;

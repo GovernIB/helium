@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import net.conselldemallorca.helium.core.helper.ConversioTipusHelper;
+import net.conselldemallorca.helium.core.helper.NotificacioHelper;
 import net.conselldemallorca.helium.core.helper.PaginacioHelper;
 import net.conselldemallorca.helium.core.model.hibernate.Document;
 import net.conselldemallorca.helium.core.model.hibernate.DocumentTasca;
@@ -46,6 +47,8 @@ public class DocumentServiceImpl implements DocumentService {
 	private PaginacioHelper paginacioHelper;
 	@Resource
 	private ConversioTipusHelper conversioTipusHelper;
+	@Resource
+	private NotificacioHelper notificacioHelper;
 
 	/**
 	 * {@inheritDoc}
@@ -89,6 +92,7 @@ public class DocumentServiceImpl implements DocumentService {
 		entity.setNom(document.getNom());
 		entity.setDescripcio(document.getDescripcio());
 		entity.setPlantilla(document.isPlantilla());
+		entity.setNotificable(document.isNotificable());
 		entity.setArxiuNom(document.getArxiuNom());
 		entity.setArxiuContingut(document.getArxiuContingut());
 		entity.setConvertirExtensio(document.getConvertirExtensio());
@@ -196,6 +200,7 @@ public class DocumentServiceImpl implements DocumentService {
 		entity.setNom(document.getNom());
 		entity.setDescripcio(document.getDescripcio());
 		entity.setPlantilla(document.isPlantilla());
+		entity.setNotificable(document.isNotificable());
 		entity.setArxiuNom(document.getArxiuNom());
 		if (actualitzarContingut) {
 			entity.setArxiuContingut(document.getArxiuContingut());

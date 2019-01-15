@@ -55,7 +55,7 @@ public class CampDto implements Serializable {
 	private String defprocJbpmKey;
 	private String jbpmAction;
 	
-	Boolean dominiCacheText;
+	boolean dominiCacheText;
 
 	/** Ordre dins la agrupació. */
 	private Integer ordre;
@@ -308,10 +308,10 @@ public class CampDto implements Serializable {
 	public void setDefprocJbpmKey(String defprocJbpmKey) {
 		this.defprocJbpmKey = defprocJbpmKey;
 	}
-	public Boolean getDominiCacheText() {
+	public boolean isDominiCacheText() {
 		return dominiCacheText;
 	}
-	public void setDominiCacheText(Boolean dominiCacheText) {
+	public void setDominiCacheText(boolean dominiCacheText) {
 		this.dominiCacheText = dominiCacheText;
 	}
 	public int getValidacioCount() {

@@ -10,6 +10,7 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
+import org.apache.commons.lang.exception.ExceptionUtils;
 import org.hibernate.Hibernate;
 import org.jbpm.graph.exe.ProcessInstanceExpedient;
 import org.slf4j.Logger;
@@ -31,6 +32,7 @@ import net.conselldemallorca.helium.core.model.hibernate.Area;
 import net.conselldemallorca.helium.core.model.hibernate.Camp;
 import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
 import net.conselldemallorca.helium.core.model.hibernate.Document;
+import net.conselldemallorca.helium.core.model.hibernate.DocumentNotificacio;
 import net.conselldemallorca.helium.core.model.hibernate.DocumentStore;
 import net.conselldemallorca.helium.core.model.hibernate.Domini;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
@@ -62,6 +64,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.AreaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CarrecDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DadesNotificacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentDissenyDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
@@ -84,6 +87,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.RegistreIdDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RegistreNotificacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RespostaJustificantDetallRecepcioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RespostaJustificantRecepcioDto;
+import net.conselldemallorca.helium.v3.core.api.dto.RespostaNotificacio;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TerminiDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TerminiIniciatDto;
@@ -1584,6 +1588,43 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 				numero,
 				clave,
 				codigo);
+	}
+	
+	@Override
+	public RespostaNotificacio altaNotificacio(DadesNotificacioDto dadesNotificacio) {
+		Expedient expedient = expedientRepository.findOne(dadesNotificacio.getExpedientId());
+		expedient.setTramitExpedientIdentificador(dadesNotificacio.getSeuExpedientIdentificadorEni());
+		DocumentNotificacio notificacio = notificacioElectronicaHelper.create(dadesNotificacio);
+		
+		RespostaNotificacio resposta = null; 
+				
+		try {
+			resposta = pluginHelper.altaNotificacio(
+					dadesNotificacio, 
+					expedient);
+			notificacio.updateEnviat(
+					new Date(),
+					resposta.getIdentificador(),
+					resposta.getReferencies().get(0).getReferencia());
+		} catch (Exception e) {
+			notificacio.updateEnviatError(
+					ExceptionUtils.getStackTrace(e), 
+					null);
+			throw new SistemaExternException(
+					expedient.getEntorn().getId(),
+					expedient.getEntorn().getCodi(), 
+					expedient.getEntorn().getNom(), 
+					expedient.getId(), 
+					expedient.getTitol(), 
+					expedient.getNumero(), 
+					expedient.getTipus().getId(), 
+					expedient.getTipus().getCodi(), 
+					expedient.getTipus().getNom(), 
+					"(Enviament de notificació)", 
+					e);
+		}
+		
+		return resposta;
 	}
 
 	@Override

@@ -100,8 +100,8 @@ public class Camp implements Serializable, GenericEntity<Long> {
 	private String consultaCampValor;
 	
 	
-	private Boolean dominiCacheText;
-	private Boolean dominiIntern;
+	private boolean dominiCacheText = false;
+	private boolean dominiIntern;
 	@MaxLength(255)
 	private String defprocJbpmKey;
 	@MaxLength(255)
@@ -222,10 +222,10 @@ public class Camp implements Serializable, GenericEntity<Long> {
 	}
 
 	@Column(name="domini_cache_text")
-	public Boolean getDominiCacheText() {
+	public boolean isDominiCacheText() {
 		return dominiCacheText;
 	}
-	public void setDominiCacheText(Boolean dominiCacheText) {
+	public void setDominiCacheText(boolean dominiCacheText) {
 		this.dominiCacheText = dominiCacheText;
 	}
 

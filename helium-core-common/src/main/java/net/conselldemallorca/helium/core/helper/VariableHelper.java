@@ -1041,7 +1041,7 @@ public class VariableHelper {
 			return null;
 		
 		//mirem si hi ha una variable amb la texte, utilitzant el prefix PREFIX_VAR_DESCRIPCIO
-		if (camp.getDominiCacheText()) {
+		if (camp.isDominiCacheText()) {
 			Object descVariable = getDescripcioVariable(taskInstanceId, processInstanceId, camp.getCodi());
 			if (descVariable != null) {
 				return new ParellaCodiValorDto(

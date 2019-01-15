@@ -216,7 +216,7 @@ public class TascaTramitacioController extends BaseTascaController {
 		return "v3/tascaForm";
 	}
 	
-	@RequestMapping(value = "/{tascaId}/fromRepro/{reproId}", method = RequestMethod.GET)
+	@RequestMapping(value = {"/{tascaId}/fromRepro/{reproId}","/{tascaId}/restaurar/fromRepro/{reproId}"}, method = RequestMethod.GET)
 	public String formRepro(
 			HttpServletRequest request,
 			@PathVariable String tascaId,
@@ -230,10 +230,8 @@ public class TascaTramitacioController extends BaseTascaController {
 		List<TascaDadaDto> tascaDades = tascaService.findDades(tascaId);
 		Map<String, Object> campsAddicionals = new HashMap<String, Object>();
 		Map<String, Class<?>> campsAddicionalsClasses = new HashMap<String, Class<?>>();
-		
 		if(variables == null)
 			return form(request, tascaId, model);
-		
 		Object commandValidar = TascaFormHelper.getCommandForCamps(
 				tascaDades,
 				variables,
@@ -242,10 +240,7 @@ public class TascaTramitacioController extends BaseTascaController {
 				false);
 		model.addAttribute("command", commandValidar);
 		SessionHelper.setAttribute(request,VARIABLE_COMMAND_TRAMITACIO+tascaId, commandValidar);
-		
-		
 		Map<String,Object> valors = null;
-		
 		if (!NodecoHelper.isNodeco(request)) {
 			return mostrarInformacioTascaPerPipelles(
 					request,
@@ -254,28 +249,17 @@ public class TascaTramitacioController extends BaseTascaController {
 					"form",
 					valors);
 		}
-		
 		emplenarModelFormulari(
 				request,
 				tascaId,
 				model,
 				null);
-		
-		//return "v3/tascaForm";
-		
-//		if (ModalHelper.isModal(request)) {
-//			return "redirect:/modal/v3/tasca/" + tascaId + "/form";
-//		} else {
-//			return "redirect:/v3/tasca/" + tascaId + "/form";
-//		}
-		
 		return mostrarInformacioTascaPerPipelles(
 				request,
 				tascaId,
 				model,
 				null,
 				null);
-
 	}
 
 	@RequestMapping(value = "/{tascaId}/guardar", method = RequestMethod.POST)

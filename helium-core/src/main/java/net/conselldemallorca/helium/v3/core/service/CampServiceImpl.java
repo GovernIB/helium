@@ -151,7 +151,7 @@ public class CampServiceImpl implements CampService {
 		entity.setDefprocJbpmKey(camp.getDefprocJbpmKey());
 		entity.setJbpmAction(camp.getJbpmAction());
 		
-		entity.setDominiCacheText(camp.getDominiCacheText());
+		entity.setDominiCacheText(camp.isDominiCacheText());
 
 		return conversioTipusHelper.convertir(
 				campRepository.save(entity),
@@ -220,7 +220,7 @@ public class CampServiceImpl implements CampService {
 		entity.setDefprocJbpmKey(camp.getDefprocJbpmKey());
 		entity.setJbpmAction(camp.getJbpmAction());
 
-		entity.setDominiCacheText(camp.getDominiCacheText());
+		entity.setDominiCacheText(camp.isDominiCacheText());
 		
 		return conversioTipusHelper.convertir(
 				campRepository.save(entity),

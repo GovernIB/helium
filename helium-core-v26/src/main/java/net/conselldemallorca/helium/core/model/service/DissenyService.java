@@ -1242,7 +1242,7 @@ public class DissenyService {
                     camp.isMultiple(),
                     camp.isOcult(),
                     camp.getDominiIntern(),
-                    camp.getDominiCacheText(),
+                    camp.isDominiCacheText(),
                     (necessitaDadesExternes && camp.getEnumeracio() != null) ? camp.getEnumeracio().getCodi() : null,
                     (necessitaDadesExternes && camp.getDomini() != null) ? camp.getDomini().getCodi() : null,
                     (camp.getAgrupacio() != null) ? camp.getAgrupacio().getCodi() : null,

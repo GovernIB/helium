@@ -41,6 +41,7 @@ public class MonitorIntegracioHelper {
 	public static final String INTCODI_PFIRMA_CB = "PFIRMA_CB";
 	public static final String INTCODI_FIRMA_SERV = "FIRMA_SERV";
 	public static final String INTCODI_ARXIU = "ARXIU";
+	public static final String INTCODI_NOTIB = "NOTIB";
 
 	private Map<String, LinkedList<IntegracioAccioDto>> accionsIntegracio = new HashMap<String, LinkedList<IntegracioAccioDto>>();
 	private Map<String, Integer> maxAccionsIntegracio = new HashMap<String, Integer>();
@@ -82,6 +83,9 @@ public class MonitorIntegracioHelper {
 		integracions.add(
 				novaIntegracio(
 						INTCODI_FIRMA_SERV));
+		integracions.add(
+				novaIntegracio(
+						INTCODI_NOTIB));
 		for (IntegracioDto integracio: integracions) {
 			LinkedList<IntegracioAccioDto> accions = accionsIntegracio.get(integracio.getCodi());
 			if (accions != null) {
@@ -246,6 +250,8 @@ public class MonitorIntegracioHelper {
 			integracio.setDescripcio("Arxiu digital");
 		} else if (INTCODI_FIRMA_SERV.equals(codi)) {
 			integracio.setDescripcio("Firma serv.");
+		} else if (INTCODI_NOTIB.equals(codi)) {
+			integracio.setDescripcio("Notificcació");
 		}
 		return integracio;
 	}

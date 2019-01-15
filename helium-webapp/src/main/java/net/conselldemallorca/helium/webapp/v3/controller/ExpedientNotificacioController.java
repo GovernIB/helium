@@ -25,6 +25,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.multipart.support.ByteArrayMultipartFileEditor;
 
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DadesNotificacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NotificacioDto;
 import net.conselldemallorca.helium.v3.core.api.exception.SistemaExternException;
@@ -48,19 +49,19 @@ public class ExpedientNotificacioController extends BaseExpedientController {
 	@Autowired
 	private ExpedientDocumentService expedientDocumentService;
 
-	@RequestMapping(value = "/{expedientId}/notificacions", method = RequestMethod.GET)
-	public String notificacions(
-			HttpServletRequest request,
-			@PathVariable Long expedientId,
-			Model model) {		
-		ExpedientDto expedient = expedientService.findAmbId(expedientId);
-		List<NotificacioDto> notificacions = expedientService.findNotificacionsPerExpedientId(expedient.getId());
-		
-		model.addAttribute("expedient",expedient);
-		model.addAttribute("notificacions",notificacions);
-		
-		return "v3/expedientNotificacio";
-	}
+//	@RequestMapping(value = "/{expedientId}/notificacions", method = RequestMethod.GET)
+//	public String notificacions(
+//			HttpServletRequest request,
+//			@PathVariable Long expedientId,
+//			Model model) {		
+//		ExpedientDto expedient = expedientService.findAmbId(expedientId);
+//		List<NotificacioDto> notificacions = expedientService.findNotificacionsPerExpedientId(expedient.getId());
+//		
+//		model.addAttribute("expedient",expedient);
+//		model.addAttribute("notificacions",notificacions);
+//		
+//		return "v3/expedientNotificacio";
+//	}
 	
 	@RequestMapping(value = "/{expedientId}/notificacio/{notificacioId}/info", method = RequestMethod.GET)
 	public String notificacioInfo(
@@ -131,6 +132,22 @@ public class ExpedientNotificacioController extends BaseExpedientController {
  			modalUrlTancar(true);
 		}
 		return "arxiuView";
+	}
+	
+	// Notificacions NOTIB
+	
+	@RequestMapping(value = "/{expedientId}/notificacions", method = RequestMethod.GET)
+	public String getNotificacions(
+			HttpServletRequest request,
+			@PathVariable Long expedientId,
+			Model model) {		
+		ExpedientDto expedient = expedientService.findAmbId(expedientId);
+		List<DadesNotificacioDto> notificacions = expedientService.findNotificacionsNotibPerExpedientId(expedient.getId());
+		
+		model.addAttribute("expedient",expedient);
+		model.addAttribute("notificacions",notificacions);
+		
+		return "v3/expedientNotificacioNotib";
 	}
 	
 	@InitBinder

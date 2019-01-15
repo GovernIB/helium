@@ -160,10 +160,7 @@ public class ExpedientTipusEstadisticaController extends BaseController {
 			HttpServletResponse response,
 			ExpedientTipusEstadisticaCommand filtreCommand,
 			BindingResult bindingResult,
-			@RequestParam(value = "accio", required = false) String accio,
 			Model model) {
-		if ("netejar".equals(accio))
-			filtreCommand = new ExpedientTipusEstadisticaCommand();
 		Boolean anulats = null;
 		if(filtreCommand.getMostrarAnulats().equals(MostrarAnulatsDto.NOMES_ANULATS))
 			anulats = true;

@@ -661,7 +661,7 @@ public class TascaHelper {
 			Map<String, Object> variables) {
 		List<CampTasca> campsTasca = campTascaRepository.findAmbTascaOrdenats(tasca.getId());
 		for (CampTasca campTasca: campsTasca) {
-			if (campTasca.getCamp().getDominiCacheText()) {
+			if (campTasca.getCamp().isDominiCacheText()) {
 				Object campValor = variables.get(campTasca.getCamp().getCodi());
 				if (	campTasca.getCamp().getTipus().equals(TipusCamp.SELECCIO) ||
 						campTasca.getCamp().getTipus().equals(TipusCamp.SUGGEST)) {
