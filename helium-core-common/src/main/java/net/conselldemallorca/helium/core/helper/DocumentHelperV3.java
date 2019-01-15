@@ -1428,9 +1428,16 @@ public class DocumentHelperV3 {
 		DocumentStore documentStore = documentStoreRepository.findOne(documentStoreId);
 		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
 		
-		Document document = findDocumentPerInstanciaProcesICodi(
+		Document document;
+		if (expedient.getTipus().isAmbInfoPropia())
+			document = findDocumentPerInstanciaProcesICodi(
 				expedient.getProcessInstanceId(),
 				documentStore.getCodiDocument());
+		else
+			document =  findDocumentPerInstanciaProcesICodi(
+					processInstanceId,
+					documentStore.getCodiDocument());
+		
 		String documentDescripcio;
 		if (documentStore.isAdjunt()) {
 			documentDescripcio = documentStore.getAdjuntTitol();
