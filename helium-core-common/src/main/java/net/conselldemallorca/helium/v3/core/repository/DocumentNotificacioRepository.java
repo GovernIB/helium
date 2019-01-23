@@ -23,5 +23,6 @@ public interface DocumentNotificacioRepository extends JpaRepository<DocumentNot
 			String referenciaEnviament);
 	
 	List<DocumentNotificacio> findByExpedientOrderByEnviatDataDesc(Expedient expedient);
+	List<DocumentNotificacio> findByExpedientAndDocumentId(Expedient expedient, Long documentStoreId); 
 
 }

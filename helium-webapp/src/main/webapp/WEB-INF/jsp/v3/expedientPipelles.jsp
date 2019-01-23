@@ -87,6 +87,7 @@ dd.subproc {
 	font-size: 12px;
 	padding-top: 4px;
 	float: right;
+	margin-left: 2px;
 }
 </style>
 

@@ -162,6 +162,10 @@
 														<span class="label label-info etiqueta-nti-arxiu"><c:choose><c:when test="${empty expedient.arxiuUuid}"><spring:message code="expedient.info.etiqueta.nti"/></c:when><c:otherwise><spring:message code="expedient.info.etiqueta.arxiu"/></c:otherwise></c:choose></span>
 													</a>
 												</c:if>
+												<c:if test="${document.notificat}">
+													<span class="label label-warning etiqueta-nti-arxiu"><spring:message code="expedient.document.info.etiqueta.notificat"/></span>
+												</c:if>
+												
 											</td>
 										</tr>
 										<tr>
