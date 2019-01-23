@@ -418,12 +418,15 @@ public class NotificacioAltaHandler extends BasicActionHandler implements Notifi
 					seuExpedientIdentificadorEni,
 					varSeuExpedientIdentificadorEni);
 		if (identificadorEni == null || identificadorEni.isEmpty()) {
+			identificadorEni = expedient.getNtiIdentificador();
+		}
+		if (identificadorEni == null || identificadorEni.isEmpty()) {
 			DateFormat sdf = new SimpleDateFormat("YYYY");
 			identificadorEni = 	"ES_" 
 								+ notibSeuOrgan + "_" 
 								+ (expedient.getDataInici() != null ? sdf.format(expedient.getDataInici()) : sdf.format(new Date())) + 
 								"_EXP_" 
-								+ String.format("%30s", expedient.getIdentificador()).replace(' ', '0');
+								+ formatIdentificadorEni(expedient.getNumeroIdentificador());
 		}
 //		expedient.setTramitExpedientIdentificador(identificadorEni);
 		dadesNotificacio.setSeuExpedientIdentificadorEni(identificadorEni);
@@ -755,6 +758,14 @@ public class NotificacioAltaHandler extends BasicActionHandler implements Notifi
 //			throw new JbpmException("No se ha podido retroceder la notificación electrónica del expediente", ex);
 //		}
 //	}
+	
+	private String formatIdentificadorEni(String identificador) {
+		String identificadorEni = String.format("%30s", identificador).replace(' ', '0').toUpperCase();
+		if (identificadorEni.length() > 30) {
+			return identificadorEni.substring(0, 12) + "..." + identificadorEni.substring(identificadorEni.length() - 13);
+		}
+		return identificadorEni;
+	}
     
 	private Object fromString(String s) throws IOException, ClassNotFoundException {
 		byte[] data = Base64.decode(s.getBytes());

@@ -29,6 +29,7 @@ import net.conselldemallorca.helium.core.common.JbpmVars;
 import net.conselldemallorca.helium.core.helperv26.MesuresTemporalsHelper;
 import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
 import net.conselldemallorca.helium.core.model.hibernate.Document;
+import net.conselldemallorca.helium.core.model.hibernate.DocumentNotificacio;
 import net.conselldemallorca.helium.core.model.hibernate.DocumentStore;
 import net.conselldemallorca.helium.core.model.hibernate.DocumentStore.DocumentFont;
 import net.conselldemallorca.helium.core.model.hibernate.DocumentTasca;
@@ -62,6 +63,7 @@ import net.conselldemallorca.helium.v3.core.api.exception.SistemaExternConversio
 import net.conselldemallorca.helium.v3.core.api.exception.SistemaExternException;
 import net.conselldemallorca.helium.v3.core.api.exception.ValidacioException;
 import net.conselldemallorca.helium.v3.core.repository.DefinicioProcesRepository;
+import net.conselldemallorca.helium.v3.core.repository.DocumentNotificacioRepository;
 import net.conselldemallorca.helium.v3.core.repository.DocumentRepository;
 import net.conselldemallorca.helium.v3.core.repository.DocumentStoreRepository;
 import net.conselldemallorca.helium.v3.core.repository.DocumentTascaRepository;
@@ -118,6 +120,8 @@ public class DocumentHelperV3 {
 	private ExpedientRegistreHelper expedientRegistreHelper;
 	@Resource
 	private RegistreRepository registreRepository;
+	@Resource
+	private DocumentNotificacioRepository documentNotificacioRepository; 
 
 	private PdfUtils pdfUtils;
 	private DocumentTokenUtils documentTokenUtils;
@@ -315,10 +319,12 @@ public class DocumentHelperV3 {
 							}
 						}
 						if (document != null) {
-							resposta.add(
-									crearDtoPerDocumentExpedient(
-											document,
-											documentStoreId));
+							ExpedientDocumentDto ed = crearDtoPerDocumentExpedient(
+									document,
+									documentStoreId);
+							List<DocumentNotificacio> enviaments = documentNotificacioRepository.findByExpedientAndDocumentId(expedient, documentStoreId);
+							ed.setNotificat(!enviaments.isEmpty());
+							resposta.add(ed);
 						} else {
 							ExpedientDocumentDto dto = new ExpedientDocumentDto();
 							dto.setId(documentStoreId);
@@ -329,10 +335,12 @@ public class DocumentHelperV3 {
 						}
 					} else if (var.startsWith(JbpmVars.PREFIX_ADJUNT)) {
 						// Afegeix l'adjunt
-						resposta.add(
-								crearDtoPerAdjuntExpedient(
-										getAdjuntIdDeVariableJbpm(var),
-										documentStoreId));
+						ExpedientDocumentDto ed = crearDtoPerAdjuntExpedient(
+								getAdjuntIdDeVariableJbpm(var),
+								documentStoreId);
+						List<DocumentNotificacio> enviaments = documentNotificacioRepository.findByExpedientAndDocumentId(expedient, documentStoreId);
+						ed.setNotificat(!enviaments.isEmpty());
+						resposta.add(ed);
 					}
 				}
 			}
@@ -1570,6 +1578,7 @@ public class DocumentHelperV3 {
 		dto.setNtiCsv(documentStore.getNtiCsv());
 		dto.setNtiDefinicionGenCsv(documentStore.getNtiDefinicionGenCsv());
 		dto.setArxiuUuid(documentStore.getArxiuUuid());
+		
 		return dto;
 	}
 
