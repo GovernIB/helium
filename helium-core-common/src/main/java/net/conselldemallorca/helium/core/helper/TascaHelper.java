@@ -442,7 +442,7 @@ public class TascaHelper {
 			ExpedientTascaDto tasca = toExpedientTascaDto(
 					task,
 					expedient,
-					true,
+					false,
 					false);
 //			if ((tasca.isCompleted() == completed) && (mostrarDeOtrosUsuarios || tasca.isAssignadaUsuariActual())) {
 			if (((completed && tasca.isCompleted()) || (notCompleted && !tasca.isCompleted()))
