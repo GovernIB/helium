@@ -51,7 +51,7 @@ public class CampCommand {
 	private Long enumeracioId;
 	private Long dominiId;
 	private Long consultaId;
-	Boolean dominiIntern;
+	boolean dominiIntern;
 	
 	// Paràmetres del domini
 	@Size(max = 255, groups = {Creacio.class, Modificacio.class})
