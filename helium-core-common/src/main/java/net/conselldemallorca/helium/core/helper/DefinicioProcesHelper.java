@@ -874,7 +874,7 @@ public class DefinicioProcesHelper {
 		                    (necessitaDadesExternes) ? camp.getConsultaCampValor() : null,
 		                    camp.isMultiple(),
 		                    camp.isOcult(),
-		                    camp.isDominiIntern(),
+		                    camp.getDominiIntern(),
 		                    camp.isDominiCacheText(),
 		                    (necessitaDadesExternes && camp.getEnumeracio() != null) ? camp.getEnumeracio().getCodi() : null,
 		                    (necessitaDadesExternes && camp.getDomini() != null) ? camp.getDomini().getCodi() : null,
@@ -1033,7 +1033,7 @@ public class DefinicioProcesHelper {
 			nou.setDominiCampText(camp.getDominiCampText());
 			nou.setDominiCampValor(camp.getDominiCampValor());
 			nou.setDominiParams(camp.getDominiParams());
-			nou.setDominiIntern(camp.isDominiIntern());
+			nou.setDominiIntern(camp.getDominiIntern());
 			nou.setEnumeracio(camp.getEnumeracio());
 			nou.setJbpmAction(camp.getJbpmAction());
 			nou.setOrdre(camp.getOrdre());

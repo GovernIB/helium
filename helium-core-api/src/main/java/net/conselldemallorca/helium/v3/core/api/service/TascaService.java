@@ -17,6 +17,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.SeleccioOpcioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDocumentDto;
+import net.conselldemallorca.helium.v3.core.api.dto.TascaDto;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
 import net.conselldemallorca.helium.v3.core.api.exception.SistemaExternException;
@@ -465,5 +466,13 @@ public interface TascaService {
 	public List<String[]> getMissatgesExecucioSegonPla(String tascaSegonPlaId);
 	
 	public void updateVariable(Long expedientId, String taskId, String codiVariable, Object valor) throws NotFoundException, IllegalStateException;
+	
+	/**
+	 * Retiorna la tasca de la ID especificada.
+	 * 
+	 * @param id
+	 * @return
+	 */
+	public TascaDto findTascaById(Long id);
 
 }

@@ -69,5 +69,11 @@ public interface TascaRepository extends JpaRepository<Tasca, Long> {
 			@Param("esNullFiltre") boolean esNullFiltre,
 			@Param("filtre") String filtre,		
 			Pageable pageable);
+	
+	@Query(	"from Tasca t " +
+			"where " +
+			"   t.id = :id ")
+	public Tasca findById(
+			@Param("id") Long id);
 
 }

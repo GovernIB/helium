@@ -30,6 +30,7 @@ public class CampDto implements Serializable {
 	private boolean ocult;
 	private boolean ignored;
 	
+	
 	private DefinicioProcesDto definicioProces;
 	private ExpedientTipusDto expedientTipus;
 	

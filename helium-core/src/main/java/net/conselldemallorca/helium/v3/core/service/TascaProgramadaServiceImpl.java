@@ -173,7 +173,9 @@ public class TascaProgramadaServiceImpl implements TascaProgramadaService {
 	
 	/*** ACTUALITZAR ESTAT NOTIFICACIONS ***/
 	@Override
-	@Scheduled(fixedDelayString = "${app.notificacions.comprovar.estat}")
+//	#1164 Comentam aquesta tasca programada, ja que ara les notificacions es faran amb Notib, 
+//	i no és necessari fer una consulta activa, ja que notib ens avisarà en cas de canvi.	
+//	@Scheduled(fixedDelayString = "${app.notificacions.comprovar.estat}")
 	public void comprovarEstatNotificacions() {
 		List<Notificacio> notificacionsPendentsRevisar = notificacioRepository.findByEstatAndTipusOrderByDataEnviamentAsc(DocumentEnviamentEstatEnumDto.ENVIAT, DocumentNotificacioTipusEnumDto.ELECTRONICA);
 		for (Notificacio notificacio: notificacionsPendentsRevisar) {

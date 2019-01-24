@@ -83,16 +83,16 @@ $(document).ready(function() {
 		$(".btn_date").click(function(){
 			$(this).prev(".date").trigger("focus");
 		});
-
+		$("#exportar_excel").click(function(event){
+			event.preventDefault();
+			console.log($(this).attr("url"));
+			$("#excel").submit();
+		});
 });
-
-
-
 </script>
 </head>
 
-<form:form action="" method="post" cssClass="well" commandName="expedientTipusEstadisticaCommand">
-		
+<form:form action="" id="filtre" method="post" cssClass="well" commandName="expedientTipusEstadisticaCommand">
 		<div class="row">
 			<div class="col-md-3">
 				<label><spring:message code="expedient.llistat.filtre.camp.expedient.tipus"/></label>
@@ -126,16 +126,27 @@ $(document).ready(function() {
 			<div class="col-md-12 d-flex align-items-end">
 				<div class="pull-right">
 					<input type="hidden" name="consultaRealitzada" value="true"/>
-					<button id="netejar" type="submit" name="accio" value="netejar" class="btn btn-default"><spring:message code="comu.filtre.netejar"/></button>
-					<button id="consultar" type="submit" name="accio" value="consultar" class="btn btn-primary"><span class="fa fa-filter"></span>&nbsp;<spring:message code="comu.filtre.filtrar"/></button>
+					<button id="exportar_excel" class="btn btn-default" url=""><span class="fa fa-download"></span>&nbsp;<spring:message code="expedient.tipus.document.llistat.accio.descarregar"/></button>
+					<button id="netejar" type="submit" name="accio" value="netejar" class="btn btn-default" url=""><spring:message code="comu.filtre.netejar"/></button>
+					<button id="consultar" type="submit" name="accio" value="consultar" class="btn btn-primary" url=""><span class="fa fa-filter"></span>&nbsp;<spring:message code="comu.filtre.filtrar"/></button>
 				</div>
 			</div>
 		</div>
 </form:form>
 
-
+<form:form id="excel" action="/helium/v3/estadistica/excel" method="post" commandName="expedientTipusEstadisticaCommand">
+	<input type="hidden" name="expedientTipusId" value="${expedientTipusEstadisticaCommand.expedientTipusId}"/>
+	<input type="hidden" name="anyInicial" value="${expedientTipusEstadisticaCommand.anyInicial}">
+	<input type="hidden" name="anyFinal" value="${expedientTipusEstadisticaCommand.anyFinal}">
+	<input type="hidden" name="mostrarAnulats" value="${expedientTipusEstadisticaCommand.mostrarAnulats}"/>
+</form:form>
 
 <div class="col-12" style="overflow: auto;">
+	<c:if test="${ empty tableData}">
+		<div class="alert alert-warning">
+		  <spring:message code='expedient.tipus.taula.estadistica.warning.senseresultats'/>
+		</div>
+	</c:if>
 	<c:if test="${ not empty tableData}">
 		<table id="estadistica" class="table table-striped table-bordered">
 		<thead>

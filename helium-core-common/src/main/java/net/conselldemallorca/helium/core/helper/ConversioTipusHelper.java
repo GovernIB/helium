@@ -71,6 +71,7 @@ public class ConversioTipusHelper {
 						target.setNom(source.getNom());
 						target.setDescripcio(source.getDescripcio());
 						target.setPlantilla(source.isPlantilla());
+						target.setNotificable(source.isNotificable());
 						target.setExpedientTipus(mapperFacade.map(
 								source.getExpedientTipus(), 
 								ExpedientTipusDto.class));
@@ -130,7 +131,7 @@ public class ConversioTipusHelper {
 								mapperFacade.map(
 										source.getConsulta(),
 										ConsultaDto.class));
-						target.setDominiIntern(source.isDominiIntern());
+						target.setDominiIntern(source.getDominiIntern());
 
 						// Paràmetres del domini
 						target.setDominiIdentificador(source.getDominiId());
@@ -272,6 +273,18 @@ public class ConversioTipusHelper {
 						target.setFormextContrasenya(source.getFormextContrasenya());
 						
 						target.setSistraTramitCodi(source.getSistraTramitCodi());
+						target.setNotibActiu(source.getNotibActiu());
+						target.setNotibSeuUnitatAdministrativa(source.getNotibSeuUnitatAdministrativa());
+						target.setNotibSeuCodiProcediment(source.getNotibSeuCodiProcediment());
+						target.setNotibSeuOficina(source.getNotibSeuOficina());
+						target.setNotibSeuLlibre(source.getNotibSeuLlibre());
+						target.setNotibSeuOrgan(source.getNotibSeuOrgan());
+						target.setNotibSeuIdioma(source.getNotibSeuIdioma());
+						target.setNotibAvisTitol(source.getNotibAvisTitol());
+						target.setNotibAvisText(source.getNotibAvisText());
+						target.setNotibAvisTextSms(source.getNotibAvisTextSms());
+						target.setNotibOficiTitol(source.getNotibOficiTitol());
+						target.setNotibOficiText(source.getNotibOficiText());
 
 						return target;
 					}
@@ -339,6 +352,20 @@ public class ConversioTipusHelper {
 							sequenciaAnyDefaultSorted.put(entry.getKey(), value);
 						}					
 						target.setSequenciaDefaultAny(sequenciaAnyDefaultSorted);
+						
+						target.setSistraTramitCodi(source.getSistraTramitCodi());
+						target.setNotibActiu(source.getNotibActiu());
+						target.setNotibSeuUnitatAdministrativa(source.getNotibSeuUnitatAdministrativa());
+						target.setNotibSeuCodiProcediment(source.getNotibSeuCodiProcediment());
+						target.setNotibSeuOficina(source.getNotibSeuOficina());
+						target.setNotibSeuLlibre(source.getNotibSeuLlibre());
+						target.setNotibSeuOrgan(source.getNotibSeuOrgan());
+						target.setNotibSeuIdioma(source.getNotibSeuIdioma());
+						target.setNotibAvisTitol(source.getNotibAvisTitol());
+						target.setNotibAvisText(source.getNotibAvisText());
+						target.setNotibAvisTextSms(source.getNotibAvisTextSms());
+						target.setNotibOficiTitol(source.getNotibOficiTitol());
+						target.setNotibOficiText(source.getNotibOficiText());
 						return target;
 					}
 				});

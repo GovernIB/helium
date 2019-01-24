@@ -85,7 +85,9 @@ public class ExpedientTascaDto extends ControlPermisosDto implements Comparable<
 	private PersonaDto delegacioPersona;
 
 	private Long expedientId;
+	private Long expedientTipusId;
 	private String expedientIdentificador;
+
 	private String processInstanceId;
 	private String expedientTipusNom;
 	private Long definicioProcesId;
@@ -94,9 +96,23 @@ public class ExpedientTascaDto extends ControlPermisosDto implements Comparable<
 	private List<PersonaDto> responsables;
 
 	private boolean assignadaUsuariActual;
+	private boolean ambRepro;
+
 
 	SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
-
+	
+	public boolean isAmbRepro() {
+		return ambRepro;
+	}
+	public void setAmbRepro(boolean ambRepro) {
+		this.ambRepro = ambRepro;
+	}
+	public Long getExpedientTipusId() {
+		return expedientTipusId;
+	}
+	public void setExpedientTipusId(Long expedientTipusId) {
+		this.expedientTipusId = expedientTipusId;
+	}
 	public String getId() {
 		return id;
 	}

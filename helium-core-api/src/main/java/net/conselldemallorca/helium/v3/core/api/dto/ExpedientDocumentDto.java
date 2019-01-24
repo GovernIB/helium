@@ -56,6 +56,8 @@ public class ExpedientDocumentDto implements Serializable {
 	private String ntiCsv;
 	private String ntiDefinicionGenCsv;
 	private String arxiuUuid;
+	
+	private boolean notificat;
 
 	public Long getId() {
 		return id;
@@ -293,6 +295,13 @@ public class ExpedientDocumentDto implements Serializable {
 		} else {
 			return null;
 		}
+	}
+
+	public boolean isNotificat() {
+		return notificat;
+	}
+	public void setNotificat(boolean notificat) {
+		this.notificat = notificat;
 	}
 
 	private static final long serialVersionUID = -4307890997577367155L;

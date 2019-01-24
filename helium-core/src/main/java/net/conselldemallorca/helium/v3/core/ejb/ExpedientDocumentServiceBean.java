@@ -305,5 +305,12 @@ public class ExpedientDocumentServiceBean implements ExpedientDocumentService {
 				processInstanceId,
 				documentStoreId);
 	}
+	
+	@Override
+	public void notificacioActualitzarEstat(
+			String identificador, 
+			String referenciaEnviament) {
+		delegate.notificacioActualitzarEstat(identificador, referenciaEnviament);
+	}
 
 }

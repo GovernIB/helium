@@ -342,7 +342,7 @@
 		<dependency>
 		    <groupId>com.fasterxml.jackson.core</groupId>
 		    <artifactId>jackson-databind</artifactId>
-		    <version>2.7.5</version>
+		    <version>2.7.9.5</version>
 		</dependency>
 		<dependency>
 			<groupId>org.fundaciobit.plugins</groupId>
@@ -476,6 +476,33 @@
 							<packagingExcludes>WEB-INF/classes/META-INF/resources/**</packagingExcludes>
 						</configuration>
 					</plugin>
+					<plugin>
+						<artifactId>maven-antrun-plugin</artifactId>
+						<version>1.7</version>
+						<executions>
+							<execution>
+								<phase>package</phase>
+								<configuration>
+									<tasks>
+										<echo> </echo>
+										<echo> </echo>
+										<echo>|      _____                      _ _          _     __                  _______ ____  __  __  _____       _______    |</echo>
+										<echo>|     / ____|                    (_) |        | |   / _|                |__   __/ __ \|  \/  |/ ____|   /\|__   __|   |</echo>
+										<echo>|    | |     ___  _ __ ___  _ __  _| | ___  __| |  | |_ ___  _ __          | | | |  | | \  / | |       /  \  | |      |</echo>
+										<echo>|    | |    / _ \| '_ ` _ \| '_ \| | |/ _ \/ _` |  |  _/ _ \| '__|         | | | |  | | |\/| | |      / /\ \ | |      |</echo>
+										<echo>|    | |___| (_) | | | | | | |_) | | |  __/ (_| |  | || (_) | |            | | | |__| | |  | | |____ / ____ \| |      |</echo>
+										<echo>|     \_____\___/|_| |_| |_| .__/|_|_|\___|\__,_|  |_| \___/|_|            |_|  \____/|_|  |_|\_____/_/    \_\_|      |</echo>
+										<echo>|                          | |                                                                                        |</echo>
+										<echo>|                          |_|                                                                                        |</echo>
+										<echo> </echo>                                                                  										
+									</tasks>
+								</configuration>
+								<goals>
+									<goal>run</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
 				</plugins>
 			</build>
 		</profile>
@@ -588,6 +615,33 @@
 								</resource>
 							</webResources>
 						</configuration>
+					</plugin>
+					<plugin>
+						<artifactId>maven-antrun-plugin</artifactId>
+						<version>1.7</version>
+						<executions>
+							<execution>
+								<phase>package</phase>
+								<configuration>
+									<tasks>
+										<echo> </echo>
+										<echo> </echo>
+										<echo>|      _____                      _ _          _     __                       _ ____   ____   _____ _____    |</echo>
+										<echo>|     / ____|                    (_) |        | |   / _|                     | |  _ \ / __ \ / ____/ ____|   |</echo>
+										<echo>|    | |     ___  _ __ ___  _ __  _| | ___  __| |  | |_ ___  _ __            | | |_) | |  | | (___| (___     |</echo>
+										<echo>|    | |    / _ \| '_ ` _ \| '_ \| | |/ _ \/ _` |  |  _/ _ \| '__|       _   | |  _ -| |  | |\___ \\___ \    |</echo>
+										<echo>|    | |___| (_) | | | | | | |_) | | |  __/ (_| |  | || (_) | |         | |__| | |_) | |__| |____) |___) |   |</echo>
+										<echo>|     \_____\___/|_| |_| |_| .__/|_|_|\___|\__,_|  |_| \___/|_|          \____/|____/ \____/|_____/_____/    |</echo>
+										<echo>|                          | |                                                                               |</echo>                                                                            
+										<echo>|                          |_|                                                                               |</echo>   
+										<echo> </echo>                                                                         										
+									</tasks>
+								</configuration>
+								<goals>
+									<goal>run</goal>
+								</goals>
+							</execution>
+						</executions>
 					</plugin>
 				</plugins>
 			</build>

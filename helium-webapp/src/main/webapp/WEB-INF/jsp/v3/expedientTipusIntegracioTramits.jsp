@@ -57,6 +57,7 @@
 				
 				<hr>
 				
+				<%-- 
 				<hel:inputCheckbox name="notificacionsActivades" textKey="expedient.tipus.integracio.tramits.notificacions.activar"/>
 				<div id="inputs_integracioNotificacios" style="display:${expedientTipusIntegracioTramitsCommand.notificacionsActivades? 'inline' : 'none'}">
 					<hel:inputText required="true" name="notificacioOrganCodi" textKey="expedient.tipus.integracio.notificacio.organCodi" />
@@ -69,7 +70,7 @@
 					<hel:inputText required="false" name="notificacioOficiTitol" textKey="expedient.tipus.integracio.notificacio.oficiTitol" />
 					<hel:inputTextarea required="false" name="notificacioOficiText" textKey="expedient.tipus.integracio.notificacio.oficiText" />
 				</div>
-				
+				--%>
 				
 				
 			</div>

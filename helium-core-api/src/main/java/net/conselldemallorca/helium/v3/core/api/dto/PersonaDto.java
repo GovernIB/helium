@@ -25,6 +25,7 @@ public class PersonaDto implements Serializable {
 	private String llinatge2;
 	private String dni;
 	private String email;
+	private String telefon;
 	private Sexe sexe;
 	private String relleu;
 	private String contrasenya;
@@ -123,6 +124,12 @@ public class PersonaDto implements Serializable {
 	}
 	public void setEmail(String email) {
 		this.email = email;
+	}
+	public String getTelefon() {
+		return telefon;
+	}
+	public void setTelefon(String telefon) {
+		this.telefon = telefon;
 	}
 	public Sexe getSexe() {
 		return sexe;

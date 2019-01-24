@@ -259,6 +259,11 @@ public class ExpedientDocumentController extends BaseExpedientController {
 		byte[] arxiuContingut = IOUtils.toByteArray(
 				command.getArxiu().getInputStream());
 		String arxiuNom = command.getArxiu().getOriginalFilename();
+		if(arxiuContingut == null || arxiuContingut.length == 0) {
+			ArxiuDto arxiu = expedientDocumentService.arxiuFindAmbDocument(expedientId, processInstanceId, documentStoreId);
+			arxiuContingut = arxiu.getContingut();
+			arxiuNom = arxiu.getNom();
+		}
 //		boolean esAdjunt = command.getNom() == null || command.getNom().isEmpty();
 		if (!document.isAdjunt()) {
 			expedientDocumentService.update(

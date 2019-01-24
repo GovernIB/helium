@@ -10,7 +10,7 @@
 
 <div class="form-group<c:if test="${not empty campErrors}"> has-error</c:if>" style="margin-left: 0px !important;">
 
- 	<c:if test="${campActual.campTipus != 'STRING' && campActual.campTipus != 'DATE'}">
+ 	<c:if test="${campActual.campTipus != 'DATE'}">
 		<label 	for="${campPath}" class="control-label top-label"
 				style="width: 100%; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;"
 				title="${campActual.campEtiqueta}">
@@ -23,7 +23,7 @@
 			<c:when test="${campActual.campTipus == 'STRING'}">
 					<label class="control-label col-xs-4 hide" for="${campPath}[0]"><spring:message code="common.campfiltre.entre"/></label>
 					<div class="col-xs-13">
-						<form:input path="${campPath}" placeholder="${campActual.campEtiqueta}" cssClass="form-control" id="${campPath}" data-required="false" />
+						<form:input path="${campPath}" cssClass="form-control" id="${campPath}" data-required="false" />
 					</div>
 			</c:when>
 			<c:when test="${campActual.campTipus == 'TEXTAREA'}">
@@ -74,13 +74,13 @@
 				</div>
 			</c:when>
 			<c:when test="${campActual.campTipus == 'DATE'}">
-			<div class="col-md-12">
+			<div class="col-md-12 p-0">
 				<label 	for="${campPath}" class="control-label top-label"
 				style="width: 100%; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;"
 				title="${campActual.campEtiqueta}">
 					${campActual.campEtiqueta}
 				</label>
-				<div class="col-xs-6 ">
+				<div class="col-xs-6 p-0 pr-2">
 					<label class="control-label col-xs-4 hide" for="${campPath}[0]"><spring:message code="common.campfiltre.entre"/></label>
 					<div class="col-xs-13">
 						<div class="input-group">
@@ -89,7 +89,7 @@
 						</div>
 					</div>
 				</div>
-				<div class="col-xs-6">
+				<div class="col-xs-6 p-0 pl-2">
 					<label class="control-label col-xs-4 hide" for="${campPath}[1]"><spring:message code="common.campfiltre.i"/></label>
 					<div class="col-xs-13">
 						<div class="input-group">

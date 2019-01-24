@@ -244,6 +244,34 @@
 			<artifactId>helium-core-common</artifactId>
 			<version>${helium.version}</version>
 		</dependency>
+		
+		<dependency>
+            <groupId>es.caib.regweb3</groupId>
+            <artifactId>regweb3-utils</artifactId>
+            <version>3.0.8</version>
+            <scope>compile</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>es.caib.regweb3</groupId>
+            <artifactId>regweb3-ws-api</artifactId>
+            <version>3.0.8</version>
+            <scope>compile</scope>
+        </dependency>
+        
+		<dependency>
+		    <groupId>wsdl4j</groupId>
+		    <artifactId>wsdl4j</artifactId>
+		    <version>1.6.2</version>
+		</dependency>
+        
+        <dependency>
+			<groupId>es.caib.notib</groupId>
+			<artifactId>notib-client</artifactId>
+			<version>0.1</version>
+			<scope>compile</scope>
+		</dependency>
+		
 	</dependencies>
 	<build>
 		<plugins>

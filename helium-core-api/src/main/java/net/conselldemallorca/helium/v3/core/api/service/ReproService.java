@@ -8,9 +8,10 @@ import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.exception.ValidacioException;
 
 public interface ReproService {
-	public List<ReproDto> findReprosByUsuariTipusExpedient(Long expedientTipusId);
+	public List<ReproDto> findReprosByUsuariTipusExpedient(Long expedientTipusId, String tascaCodi);
 	public ReproDto findById(Long id) throws NoTrobatException, ValidacioException;
 	public Map<String,Object> findValorsById(Long id) throws NoTrobatException;
 	public ReproDto create(Long expedientTipusId, String nom, Map<String, Object> valors) throws NoTrobatException, ValidacioException;
+	public ReproDto createTasca(Long expedientTipusId, Long tascaId, String nom, Map<String, Object> valors) throws NoTrobatException, ValidacioException;
 	public String deleteById(Long id) throws NoTrobatException;
 }

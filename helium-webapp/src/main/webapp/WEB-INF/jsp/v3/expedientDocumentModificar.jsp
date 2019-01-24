@@ -60,7 +60,7 @@ $(document).ready( function() {
 				alert(log);
 		}
 	});
-	$('#nomArxiu').on('click', function() {
+	$('#arxiuNom').on('click', function() {
 		$('input[name=arxiu]').click();
 	});
 	$('#ntiTipoFirma').on("change", function(e) {
@@ -138,7 +138,7 @@ function mostrarAmagarFile() {
 						<label class="control-label col-xs-4" for="arxiu"><spring:message code="expedient.document.arxiu"/></label>
 				        <div class="col-xs-8 arxiu">
 				            <div class="input-group">
-				            	<input type="text" id="arxiuNom" name="arxiuNom" class="form-control"/>
+				            	<input type="text" id="arxiuNom" name="arxiuNom" class="form-control" placeholder="${ document.arxiuNom }"/>
 				                <span class="input-group-btn">
 				                    <span class="btn btn-default btn-file">
 				                        <spring:message code='expedient.document.arxiu' />… <input type="file" id="arxiu" name="arxiu"/>

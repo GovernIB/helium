@@ -6,6 +6,10 @@ package net.conselldemallorca.helium.jbpm3.handlers;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import org.jbpm.JbpmException;
+import org.jbpm.graph.def.ActionHandler;
+import org.jbpm.graph.exe.ExecutionContext;
+
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.DocumentInfo;
 import net.conselldemallorca.helium.jbpm3.integracio.DominiCodiDescripcio;
 import net.conselldemallorca.helium.jbpm3.integracio.Jbpm3HeliumBridge;
@@ -16,10 +20,6 @@ import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TerminiDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TerminiIniciatDto;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
-
-import org.jbpm.JbpmException;
-import org.jbpm.graph.def.ActionHandler;
-import org.jbpm.graph.exe.ExecutionContext;
 
 /**
  * Handler base amb accés a la funcionalitat de Helium
@@ -198,6 +198,28 @@ abstract class AbstractHeliumActionHandler implements ActionHandler {
 					return (Integer) valor;
 				} else {
 					return new Integer(valor.toString());
+				}
+			}
+		}
+		return null;
+	}
+	
+	protected Boolean getValorOVariableBoolean(
+			ExecutionContext executionContext, Object value, String var) {
+		if (value != null) {
+			if (value instanceof Boolean) {
+				return (Boolean) value;
+			} else {
+				return new Boolean(value.toString());
+			}
+		}
+		if (var != null && var.length() > 0) {
+			Object valor = executionContext.getVariable(var);
+			if (valor != null) {
+				if (valor instanceof Boolean) {
+					return (Boolean) valor;
+				} else {
+					return new Boolean(valor.toString());
 				}
 			}
 		}

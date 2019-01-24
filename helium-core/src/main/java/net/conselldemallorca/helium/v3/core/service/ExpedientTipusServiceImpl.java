@@ -547,7 +547,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		                    (necessitaDadesExternes) ? camp.getConsultaCampValor() : null,
 		                    camp.isMultiple(),
 		                    camp.isOcult(),
-		                    camp.isDominiIntern(),
+		                    camp.getDominiIntern(),
 		                    camp.isDominiCacheText(),
 		                    (necessitaDadesExternes && camp.getEnumeracio() != null) ? camp.getEnumeracio().getCodi() : null,
 		                    (necessitaDadesExternes && camp.getDomini() != null) ? camp.getDomini().getCodi() : null,
@@ -2268,7 +2268,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 					nou.setDominiCacheText(camp.isDominiCacheText());
 					nou.setMultiple(camp.isMultiple());
 					nou.setOcult(camp.isOcult());
-					nou.setDominiIntern(camp.isDominiIntern());
+					nou.setDominiIntern(camp.getDominiIntern());
 					nou.setJbpmAction(camp.getJbpmAction());
 					if (camp.getTipus() == TipusCamp.ACCIO && camp.getDefinicioProces() != null)
 						nou.setDefprocJbpmKey(camp.getDefinicioProces().getJbpmKey());
@@ -2314,7 +2314,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 					}
 				}
 				camps.put(nou.getCodi(), nou);				
-				if (camp.getDomini() != null &&  !camp.isDominiIntern()) {
+				if (camp.getDomini() != null &&  !camp.getDominiIntern()) {
 					// Propaga el domini referenciat pel camp
 					Domini dominiEntorn = dominiRepository.findByEntornAndCodi(
 							entorn, 
@@ -3217,6 +3217,52 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 				ExpedientTipusDto.class);	
 	}
 
+	@Override
+	@Transactional
+	public ExpedientTipusDto updateIntegracioNotib(
+			Long expedientTipusId, 
+			String notibEmisor, 
+			String notibCodiProcediment,
+			String notibSeuUnitatAdministrativa, 
+			String notibSeuCodiProcediment,
+			String notibSeuOficina, 
+			String notibSeuLlibre, 
+			String notibSeuOrgan,
+			String notibSeuIdioma, 
+			String notibAvisTitol, 
+			String notibAvisText, 
+			String notibAvisTextSms,
+			String notibOficiTitol, 
+			String notibOficiText, 
+			boolean notibActiu) {
+
+		logger.debug("Modificant tipus d'expedient amb dades d'integracio amb Notib (expedientTipus=" + expedientTipusId + ")");
+		
+		ExpedientTipus expedientTipus = expedientTipusHelper.getExpedientTipusComprovantPermisDisseny(expedientTipusId);
+
+		if (!expedientTipus.isNtiActiu()) {
+			expedientTipus.setNtiOrgano(notibEmisor);
+			expedientTipus.setNtiClasificacion(notibCodiProcediment);
+		}
+		expedientTipus.setNotibSeuUnitatAdministrativa(notibSeuUnitatAdministrativa);
+		expedientTipus.setNotibSeuCodiProcediment(notibSeuCodiProcediment);
+		expedientTipus.setNotibSeuOficina(notibSeuOficina);
+		expedientTipus.setNotibSeuLlibre(notibSeuLlibre);
+		expedientTipus.setNotibSeuOrgan(notibSeuOrgan);
+		expedientTipus.setNotibSeuIdioma(notibSeuIdioma);
+		expedientTipus.setNotibAvisTitol(notibAvisTitol);
+		expedientTipus.setNotibAvisText(notibAvisText);
+		expedientTipus.setNotibAvisTextSms(notibAvisTextSms);
+		expedientTipus.setNotibOficiTitol(notibOficiTitol);
+		expedientTipus.setNotibOficiText(notibOficiText);
+		expedientTipus.setNotibActiu(notibActiu);
+		
+		return conversioTipusHelper.convertir(
+				expedientTipusRepository.save(expedientTipus),
+				ExpedientTipusDto.class);
+	}
+	
+	
 	private static final Logger logger = LoggerFactory.getLogger(ExpedientServiceImpl.class);
 
 	@Override
