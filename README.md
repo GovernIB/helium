@@ -25,7 +25,7 @@ Gestor d'expedients administratius / Gestor de expedientes administrativos
 
 **Captures de pantalla**
 
-![Disseny d'un expedient / Diseño de un expediente](https://github.com/GovernIB/maven/raw/binaris/helium/projectinfo_Attachments/screenshots/313771.jpg)<br/>
+![Disseny d'un expedient / Diseño de un expediente](https://github.com/GovernIB/maven/raw/binaris/helium/projectinfo_Attachments/screenshots/313772.jpg)<br/>
 Disseny d'un expedient / Diseño de un expediente
 
 
