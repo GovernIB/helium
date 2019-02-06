@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<server>
-	<mbean code="org.jboss.varia.property.SystemPropertiesService" name="jboss:type=Service,name=BootProperties">
-		<attribute name="Properties">
-			<!-- En /app/caib/helium/helium.properties -->
-			es.caib.helium.properties.path=file:///helium_config/global.properties
-		</attribute>
-	</mbean>
-</server>
