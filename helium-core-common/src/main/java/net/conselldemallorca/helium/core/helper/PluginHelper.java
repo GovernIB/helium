@@ -3178,6 +3178,7 @@ public class PluginHelper {
 			String arxiuUuid) {
 		es.caib.plugins.arxiu.api.Expedient expedient = new es.caib.plugins.arxiu.api.Expedient();
 		expedient.setNom(nom);
+		expedient.setIdentificador(arxiuUuid);
 		ExpedientMetadades metadades = new ExpedientMetadades();
 		metadades.setDataObertura(ntiDataObertura);
 		metadades.setClassificacio(ntiClassificacio);
