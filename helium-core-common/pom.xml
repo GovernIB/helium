@@ -365,9 +365,9 @@
 	</build>
 	<repositories>
 		<repository>
-			<id>github-governib-maven-repos</id>
-			<name>GovernIB Maven Repository</name>
-			<url>http://governib.github.io/maven/maven/</url>
-		</repository>
+             <id>github-governib-maven-repos</id>
+             <name>GitHub GovernIB Maven Repository</name>
+             <url>https://governib.github.io/maven/maven/</url>
+        </repository>
 	</repositories>
 </project>
