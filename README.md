@@ -21,21 +21,3 @@ Gestor d'expedients administratius / Gestor de expedientes administrativos
 * Programming Language: Java
 * Translations: Catalan
 * User Interface: Web-based
-
-
-**Captures de pantalla**
-
-![Disseny d'un expedient / Diseño de un expediente](https://github.com/GovernIB/maven/raw/binaris/helium/projectinfo_Attachments/screenshots/313772.jpg)<br/>
-Disseny d'un expedient / Diseño de un expediente
-
-
-![Disseny del workflow sobre Eclipse / Diseño del workflow sobre Eclipse](https://github.com/GovernIB/maven/raw/binaris/helium/projectinfo_Attachments/screenshots/313773.jpg)<br/>
-Disseny del workflow sobre Eclipse / Diseño del workflow sobre Eclipse
-
-
-![Formulari d'una tasca / Formulario de una tarea](https://github.com/GovernIB/maven/raw/binaris/helium/projectinfo_Attachments/screenshots/313769.jpg)<br/>
-Formulari d'una tasca / Formulario de una tarea
-
-
-![Llistat de tasques de l'expedient / Listado de tareas del expediente](https://github.com/GovernIB/maven/raw/binaris/helium/projectinfo_Attachments/screenshots/313775.jpg)<br/>
-Llistat de tasques de l'expedient / Listado de tareas del expediente
