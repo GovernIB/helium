@@ -151,16 +151,13 @@ public class ReproController extends BaseController {
 		try {
 			ExpedientTascaDto tasca = obtenirTascaInicial(entorn.getId(), expedientTipusId, definicioProcesId, new HashMap<String, Object>(), request);
 			List<TascaDadaDto> tascaDades = tascaService.findDadesPerTascaDto(tasca);
-			
 			Map<String, Object> valors = TascaFormHelper.getValorsFromCommand(
 					tascaDades,
 					command,
 					false,
 					true);
-			
-			repro = reproService.create(expedientTipus.getId(), nomRepro, valors);
+			repro = reproService.createTasca(expedientTipus.getId(), tasca.getTascaId(), nomRepro, valors);
 			MissatgesHelper.success(request, getMessage(request, "repro.missatge.repro") + " '" + nomRepro + "' " + getMessage(request, "repro.missatge.creat"));
-			
 		} catch (Exception ex) {
 			MissatgesHelper.error(
 					request, 
