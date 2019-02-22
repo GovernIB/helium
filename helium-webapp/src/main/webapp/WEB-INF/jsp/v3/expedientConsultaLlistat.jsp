@@ -195,7 +195,7 @@ $(document).ready(function() {
 					<div class="col-sm-${buitAbsCols}"></div>
 				</c:if>
 				
-				<div class="col-sm-${ampleCols}">
+				<div class="col-sm-${ampleCols > 0?ampleCols:12}">
 					<%@ include file="campsFiltre.jsp" %>
 				</div>
 				

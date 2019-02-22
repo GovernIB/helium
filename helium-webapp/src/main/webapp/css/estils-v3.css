@@ -261,3 +261,10 @@ form .btn-group > .btn-default:hover:HOVER {
 .pl-3{
 	padding-left:1rem !important;
 }
+.pl-15{
+	padding-left:15px !important;
+}
+
+.pr-15{
+	padding-right:15px !important;
+}

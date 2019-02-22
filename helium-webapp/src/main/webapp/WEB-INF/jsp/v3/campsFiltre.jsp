@@ -46,13 +46,13 @@
 				<!-- </div> -->
 			</c:when>
 			<c:when test="${campActual.campTipus == 'FLOAT'}">
-				<div class="col-xs-6">
+				<div class="col-xs-6 p-0 pr-15">
 					<label class="control-label col-xs-4 hide" for="${campPath}[0]"><spring:message code="common.campfiltre.entre"/></label>
 					<div class="col-xs-13">
 						<form:input path="${campPath}[0]" cssClass="form-control text-right float" id="${campPath}[0]" data-required="false"/>
 					</div>
 				</div>
-				<div class="col-xs-6">
+				<div class="col-xs-6 p-0 pl-15">
 					<label class="control-label col-xs-4 hide" for="${campPath}[1]"><spring:message code="common.campfiltre.i"/></label>
 					<div class="col-xs-13">
 						<form:input path="${campPath}[1]" cssClass="form-control text-right float" id="${campPath}[1]" data-required="false"/>
@@ -60,13 +60,13 @@
 				</div>
 			</c:when>
 			<c:when test="${campActual.campTipus == 'PRICE'}">
-				<div class="col-xs-6">
+				<div class="col-xs-6 p-0 pr-15">
 					<label class="control-label col-xs-4 hide" for="${campPath}[0]"><spring:message code="common.campfiltre.entre"/></label>
 					<div class="col-xs-13">
 						<form:input path="${campPath}[0]" cssClass="form-control text-right price" id="${campPath}[0]" data-required="false"/>
 					</div>
 				</div>
-				<div class="col-xs-6">
+				<div class="col-xs-6 p-0 pl-15">
 					<label class="control-label col-xs-4 hide" for="${campPath}[1]"><spring:message code="common.campfiltre.i"/></label>
 					<div class="col-xs-13">
 						<form:input path="${campPath}[1]" cssClass="form-control text-right price" id="${campPath}[1]" data-required="false"/>
@@ -80,7 +80,7 @@
 				title="${campActual.campEtiqueta}">
 					${campActual.campEtiqueta}
 				</label>
-				<div class="col-xs-6 p-0 pr-2">
+				<div class="col-xs-6 p-0 pr-15">
 					<label class="control-label col-xs-4 hide" for="${campPath}[0]"><spring:message code="common.campfiltre.entre"/></label>
 					<div class="col-xs-13">
 						<div class="input-group">
@@ -89,7 +89,7 @@
 						</div>
 					</div>
 				</div>
-				<div class="col-xs-6 p-0 pl-2">
+				<div class="col-xs-6 p-0 pl-15">
 					<label class="control-label col-xs-4 hide" for="${campPath}[1]"><spring:message code="common.campfiltre.i"/></label>
 					<div class="col-xs-13">
 						<div class="input-group">
