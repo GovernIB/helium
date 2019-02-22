@@ -28,7 +28,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.IntegracioParametreDto;
 @Component
 public class MonitorIntegracioHelper {
 
-	public static final int MAX_ACCIONS_PER_INTEGRACIO = 20;
+	public static final int MAX_ACCIONS_PER_INTEGRACIO = 50;
 
 	public static final String INTCODI_PERSONA = "PERSONA";
 	public static final String INTCODI_SISTRA = "SISTRA";
