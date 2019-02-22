@@ -3646,7 +3646,7 @@ public class PluginHelper {
 	private TramitacioPlugin getTramitacioPlugin() {
 		if (tramitacioPlugin == null) {
 			String pluginClass = GlobalProperties.getInstance().getProperty("app.tramitacio.plugin.class");
-			if (pluginClass != null && pluginClass.length() > 0) {
+			if (pluginClass == null || pluginClass.isEmpty()) {
 				String bantelUrl = GlobalProperties.getInstance().getProperty("app.bantel.entrades.url");
 				if (bantelUrl.contains("v1")) {
 					pluginClass = "net.conselldemallorca.helium.integracio.plugins.tramitacio.TramitacioPluginSistrav1";
