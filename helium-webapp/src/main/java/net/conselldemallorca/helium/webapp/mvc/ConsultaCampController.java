@@ -235,7 +235,9 @@ public class ConsultaCampController extends BaseController {
 									"\n<property name=\"ireport.x\" value=\"0\"/>" +
 									"\n<property name=\"ireport.y\" value=\"0\"/>";
 				for (Camp camp: camps) {
-					jasperReport = jasperReport + "\n<field name=\"" + camp.getCodiPerInforme() +"\" class=\"net.conselldemallorca.helium.report.FieldValue\"/>";
+					if(camp != null) {
+						jasperReport = jasperReport + "\n<field name=\"" + camp.getCodiPerInforme() +"\" class=\"net.conselldemallorca.helium.report.FieldValue\"/>";
+					}
 				}
 				jasperReport = jasperReport + 
 					"\n<title>" +
@@ -258,13 +260,15 @@ public class ConsultaCampController extends BaseController {
 				if (camps.size()>0) widthField = 800/camps.size();
 				int xPosition = 0;
 				for (Camp camp: camps) {
-					jasperReport = jasperReport + 
-							"\n<staticText>" + 
-								"\n<reportElement x=\""+xPosition+"\" y=\"2\" width=\""+widthField+"\" height=\"20\"/>" +
-								"\n<textElement/>" +
-								"\n<text><![CDATA[" + camp.getEtiqueta() + "]]></text>" +
-							"\n</staticText>";
-					xPosition = xPosition + widthField;
+					if(camp != null) {
+						jasperReport = jasperReport + 
+								"\n<staticText>" + 
+									"\n<reportElement x=\""+xPosition+"\" y=\"2\" width=\""+widthField+"\" height=\"20\"/>" +
+									"\n<textElement/>" +
+									"\n<text><![CDATA[" + camp.getEtiqueta() + "]]></text>" +
+								"\n</staticText>";
+						xPosition = xPosition + widthField;
+					}
 				}
 				
 				jasperReport = jasperReport +
@@ -275,13 +279,15 @@ public class ConsultaCampController extends BaseController {
 				
 				xPosition = 0;
 				for (Camp camp: camps) {
-					jasperReport = jasperReport + 		
-						"\n<textField>" +
-							"\n<reportElement x=\""+xPosition+"\" y=\"4\" width=\""+widthField+"\" height=\"20\"/>" +
-							"\n<textElement/>" +
-							"\n<textFieldExpression><![CDATA[$F{"+camp.getCodiPerInforme()+"}]]></textFieldExpression>" +
-						"\n</textField>";
-					xPosition = xPosition + widthField;
+					if(camp != null) {
+						jasperReport = jasperReport + 		
+							"\n<textField>" +
+								"\n<reportElement x=\""+xPosition+"\" y=\"4\" width=\""+widthField+"\" height=\"20\"/>" +
+								"\n<textElement/>" +
+								"\n<textFieldExpression><![CDATA[$F{"+camp.getCodiPerInforme()+"}]]></textFieldExpression>" +
+							"\n</textField>";
+						xPosition = xPosition + widthField;	
+					}
 				}
 				
 				jasperReport=jasperReport +

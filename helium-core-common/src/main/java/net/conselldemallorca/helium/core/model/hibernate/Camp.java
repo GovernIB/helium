@@ -422,10 +422,14 @@ public class Camp implements Serializable, GenericEntity<Long> {
 		if (codi.startsWith(ExpedientCamps.EXPEDIENT_PREFIX))
 			return codi.replace('$', '%');
 		else {
-			try {
-				return definicioProces.getJbpmKey() + "/" + codi;
-			} catch (Exception ex) {
-				return null;
+			if(definicioProces != null) {
+				try {
+					return definicioProces.getJbpmKey() + "/" + codi;
+				} catch (Exception ex) {
+					return null;
+				}
+			}else {
+				return expedientTipus.getJbpmProcessDefinitionKey() + "/" + codi;
 			}
 		}
 	}
