@@ -15,6 +15,7 @@ import org.hibernate.Hibernate;
 import org.jbpm.graph.exe.ProcessInstanceExpedient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.acls.model.Permission;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
@@ -41,9 +42,11 @@ import net.conselldemallorca.helium.core.model.hibernate.Estat;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.hibernate.Reassignacio;
+import net.conselldemallorca.helium.core.model.hibernate.Registre;
 import net.conselldemallorca.helium.core.model.hibernate.Tasca;
 import net.conselldemallorca.helium.core.model.hibernate.Termini;
 import net.conselldemallorca.helium.core.model.hibernate.TerminiIniciat;
+import net.conselldemallorca.helium.core.security.ExtendedPermission;
 import net.conselldemallorca.helium.core.util.EntornActual;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.integracio.plugins.registre.DadesAssumpte;
@@ -116,6 +119,7 @@ import net.conselldemallorca.helium.v3.core.repository.ExpedientRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientTipusRepository;
 import net.conselldemallorca.helium.v3.core.repository.FestiuRepository;
 import net.conselldemallorca.helium.v3.core.repository.ReassignacioRepository;
+import net.conselldemallorca.helium.v3.core.repository.RegistreRepository;
 import net.conselldemallorca.helium.v3.core.repository.TascaRepository;
 import net.conselldemallorca.helium.v3.core.repository.TerminiIniciatRepository;
 import net.conselldemallorca.helium.v3.core.repository.TerminiRepository;
@@ -137,6 +141,8 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 	private ExpedientTipusRepository expedientTipusRepository;
 	@Resource
 	private ExpedientRepository expedientRepository;
+	@Resource
+	private RegistreRepository registreRepository;
 	@Resource
 	private DefinicioProcesRepository definicioProcesRepository;
 	@Resource
@@ -2125,5 +2131,52 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 		resposta.setNumero(respostaPlugin.getNumero());
 		resposta.setData(respostaPlugin.getData());
 		return resposta;
+	}
+
+	@Override
+	public void finalitzarExpedient(Long id) throws Exception {
+		logger.debug("Finalitzar l'expedient (id=" + id + ")");
+		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
+				id,
+				new Permission[] {
+						ExtendedPermission.WRITE,
+						ExtendedPermission.ADMINISTRATION});
+		List<JbpmProcessInstance> processInstancesTree = jbpmHelper.getProcessInstanceTree(expedient.getProcessInstanceId());
+		String[] ids = new String[processInstancesTree.size()];
+		int i = 0;
+		for (JbpmProcessInstance pi: processInstancesTree)
+			ids[i++] = pi.getId();
+		
+		Date dataFinalitzacio = new Date();
+		jbpmHelper.finalitzarExpedient(ids, dataFinalitzacio);
+		expedient.setDataFi(dataFinalitzacio);
+		
+		//tancam l'expedient de l'arxiu si escau
+		if (expedient.isArxiuActiu()) {
+			//firmem els documents que no estan firmats
+			expedientHelper.firmarDocumentsPerArxiuFiExpedient(expedient);
+			
+			// Tanca l'expedient a l'arxiu.
+			pluginHelper.arxiuExpedientTancar(expedient.getArxiuUuid());
+		}
+		
+		crearRegistreExpedient(
+				expedient.getId(),
+				SecurityContextHolder.getContext().getAuthentication().getName(),
+				Registre.Accio.FINALITZAR);
+	}
+	
+	private Registre crearRegistreExpedient(
+			Long expedientId,
+			String responsableCodi,
+			Registre.Accio accio) {
+		Registre registre = new Registre(
+				new Date(),
+				expedientId,
+				responsableCodi,
+				accio,
+				Registre.Entitat.EXPEDIENT,
+				String.valueOf(expedientId));
+		return registreRepository.save(registre);
 	}
 }

@@ -1076,6 +1076,14 @@ public interface Jbpm3HeliumService {
 	 * @throws Exception
 	 */
 	public void desfinalitzarExpedient(String processInstanceId) throws Exception;
+	
+	/**
+	 * Finalitzar un expedient
+	 * 
+	 * @param expedientId
+	 * @throws Exception
+	 */
+	public void finalitzarExpedient(Long expedientId) throws Exception;
 
 	/**
 	 * Retorna una referència al registre de mètriques
