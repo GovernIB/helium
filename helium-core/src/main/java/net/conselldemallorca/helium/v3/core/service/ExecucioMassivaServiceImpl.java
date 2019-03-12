@@ -1584,7 +1584,6 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 			ome.setDataFi(new Date());
 			execucioMassivaExpedientRepository.save(ome);
 		} catch (Exception ex) {
-			pluginHelper.arxiuExpedientEsborrar(exp.getArxiuUuid());
 			logger.error("OPERACIO:" + ome.getId() + ". No s'ha pogut MIGRAR", ex);
 			throw ex;
 		}
