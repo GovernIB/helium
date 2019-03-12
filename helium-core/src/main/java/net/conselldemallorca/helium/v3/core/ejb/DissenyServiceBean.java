@@ -15,8 +15,10 @@ import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 
 import net.conselldemallorca.helium.core.extern.domini.FilaResultat;
 import net.conselldemallorca.helium.core.extern.domini.ParellaCodiValor;
+import net.conselldemallorca.helium.core.model.hibernate.ConsultaCamp.TipusConsultaCamp;
 import net.conselldemallorca.helium.v3.core.api.dto.AreaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ConsultaCampDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ConsultaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesExpedientDto;
@@ -326,4 +328,19 @@ public class DissenyServiceBean implements DissenyService {
 	public List<DocumentDto> findDocumentsOrdenatsPerCodi(Long expedientTipusId, Long definicioProcesId) {
 		return delegate.findDocumentsOrdenatsPerCodi(expedientTipusId, definicioProcesId);
 	}
+	
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public ConsultaDto getConsultaById(Long id) {
+		return delegate.getConsultaById(id);
+	}
+	
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public List<ConsultaCampDto> findCampsInformePerCampsConsulta(
+			ConsultaDto consulta,
+			boolean filtrarValorsPredefinits){
+		return delegate.findCampsInformePerCampsConsulta(consulta, filtrarValorsPredefinits);
+	}
+
 }

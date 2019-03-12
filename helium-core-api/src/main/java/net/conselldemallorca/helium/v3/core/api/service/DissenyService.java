@@ -12,6 +12,7 @@ import net.conselldemallorca.helium.core.extern.domini.FilaResultat;
 import net.conselldemallorca.helium.core.extern.domini.ParellaCodiValor;
 import net.conselldemallorca.helium.v3.core.api.dto.AreaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ConsultaCampDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ConsultaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesExpedientDto;
@@ -28,6 +29,8 @@ import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
 import net.conselldemallorca.helium.v3.core.api.exportacio.DefinicioProcesExportacio;
+
+
 
 
 
@@ -313,6 +316,11 @@ public interface DissenyService {
 	 */
 	public List<String> findAccionsJbpmOrdenades(Long definicioProcesId);
 	
+	public ConsultaDto getConsultaById(Long id);
+	
+	public List<ConsultaCampDto> findCampsInformePerCampsConsulta(
+			ConsultaDto consulta,
+			boolean filtrarValorsPredefinits);
 	
 	public List<DocumentDto> findDocumentsAmbDefinicioProcesOrdenatsPerCodi(Long definicioProcesId) throws NoTrobatException;
 }

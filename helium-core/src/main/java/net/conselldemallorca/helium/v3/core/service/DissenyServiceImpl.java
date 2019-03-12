@@ -45,6 +45,8 @@ import net.conselldemallorca.helium.core.model.hibernate.Area;
 import net.conselldemallorca.helium.core.model.hibernate.Camp;
 import net.conselldemallorca.helium.core.model.hibernate.CampTasca;
 import net.conselldemallorca.helium.core.model.hibernate.Consulta;
+import net.conselldemallorca.helium.core.model.hibernate.ConsultaCamp;
+import net.conselldemallorca.helium.core.model.hibernate.ConsultaCamp.TipusConsultaCamp;
 import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
 import net.conselldemallorca.helium.core.model.hibernate.Document;
 import net.conselldemallorca.helium.core.model.hibernate.Domini;
@@ -57,6 +59,7 @@ import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessDefinition;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessInstance;
 import net.conselldemallorca.helium.v3.core.api.dto.AreaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ConsultaCampDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ConsultaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesExpedientDto;
@@ -80,6 +83,7 @@ import net.conselldemallorca.helium.v3.core.repository.AccioRepository;
 import net.conselldemallorca.helium.v3.core.repository.AreaRepository;
 import net.conselldemallorca.helium.v3.core.repository.CampRepository;
 import net.conselldemallorca.helium.v3.core.repository.CampTascaRepository;
+import net.conselldemallorca.helium.v3.core.repository.ConsultaCampRepository;
 import net.conselldemallorca.helium.v3.core.repository.ConsultaRepository;
 import net.conselldemallorca.helium.v3.core.repository.DefinicioProcesRepository;
 import net.conselldemallorca.helium.v3.core.repository.DocumentRepository;
@@ -149,6 +153,10 @@ public class DissenyServiceImpl implements DissenyService {
 	private EnumeracioRepository enumeracioRepository;
 	@Resource
 	private DominiRepository dominiRepository;
+	@Resource
+	private ConsultaCampRepository consultaCampRepository;
+	
+	
 
 
 	@Transactional(readOnly=true)
@@ -1018,6 +1026,22 @@ public class DissenyServiceImpl implements DissenyService {
  		
  		return conversioTipusHelper.convertirList(documentRepository.findByDefinicioProcesOrderByCodiAsc(definicioProces), DocumentDto.class);
  	}
+	
+	@Transactional(readOnly=true)
+	@Override
+	public ConsultaDto getConsultaById(Long id) {
+		return conversioTipusHelper.convertir(consultaRepository.findById(id), ConsultaDto.class);
+	}
+	
+	@Transactional(readOnly=true)
+	@Override
+	public List<ConsultaCampDto> findCampsInformePerCampsConsulta(
+			ConsultaDto consulta,
+			boolean filtrarValorsPredefinits) {
+		List<ConsultaCamp> consultaCamps = consultaCampRepository.findCampsConsulta(consulta.getId(), TipusConsultaCamp.INFORME);		
+		
+		return conversioTipusHelper.convertirList(consultaCamps, ConsultaCampDto.class);
+	}
 
 	private static final Logger logger = LoggerFactory.getLogger(ExpedientServiceImpl.class);
 }
