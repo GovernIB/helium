@@ -23,7 +23,6 @@ import es.caib.notib.ws.notificacio.EntregaPostal;
 import es.caib.notib.ws.notificacio.EntregaPostalTipusEnum;
 import es.caib.notib.ws.notificacio.EntregaPostalViaTipusEnum;
 import es.caib.notib.ws.notificacio.EnviamentTipusEnum;
-import es.caib.notib.ws.notificacio.NotificaDomiciliConcretTipusEnumDto;
 import es.caib.notib.ws.notificacio.NotificacioService;
 import es.caib.notib.ws.notificacio.PagadorCie;
 import es.caib.notib.ws.notificacio.PagadorPostal;
@@ -59,9 +58,11 @@ public class NotificacioPluginNotib implements NotificacioPlugin {
 			}
 			notificacioNotib.setConcepte(notificacio.getConcepte());
 			notificacioNotib.setDescripcio(notificacio.getDescripcio());
-			notificacioNotib.setEnviamentDataProgramada(notificacio.getEnviamentDataProgramada());
+			notificacioNotib.setEnviamentDataProgramada(
+					toXmlGregorianCalendar(notificacio.getEnviamentDataProgramada()));
 			notificacioNotib.setRetard(notificacio.getRetard());
-			notificacioNotib.setCaducitat(notificacio.getCaducitat());
+			notificacioNotib.setCaducitat(
+					toXmlGregorianCalendar(notificacio.getCaducitat()));
 			Document document = new Document();
 			document.setArxiuNom(notificacio.getDocumentArxiuNom());
 			document.setContingutBase64(
@@ -77,7 +78,8 @@ public class NotificacioPluginNotib implements NotificacioPlugin {
 						notificacio.getPagadorPostalDir3Codi());
 				pagadorPostal.setContracteNum(
 						notificacio.getPagadorPostalContracteNum());
-				pagadorPostal.setContracteDataVigencia(notificacio.getPagadorPostalContracteDataVigencia());
+				pagadorPostal.setContracteDataVigencia(
+						toXmlGregorianCalendar(notificacio.getPagadorPostalContracteDataVigencia()));
 				pagadorPostal.setFacturacioClientCodi(
 						notificacio.getPagadorPostalFacturacioClientCodi());
 				notificacioNotib.setPagadorPostal(pagadorPostal);
@@ -86,7 +88,8 @@ public class NotificacioPluginNotib implements NotificacioPlugin {
 				PagadorCie pagadorCie = new PagadorCie();
 				pagadorCie.setDir3Codi(
 						notificacio.getPagadorCieDir3Codi());
-				pagadorCie.setContracteDataVigencia(notificacio.getPagadorCieContracteDataVigencia());
+				pagadorCie.setContracteDataVigencia(
+						toXmlGregorianCalendar(notificacio.getPagadorCieContracteDataVigencia()));
 				notificacioNotib.setPagadorCie(pagadorCie);
 			}
 			if (notificacio.getEnviaments() != null) {
@@ -104,16 +107,16 @@ public class NotificacioPluginNotib implements NotificacioPlugin {
 						EntregaPostal entregaPostal = new EntregaPostal();
 						switch (enviament.getEntregaPostalTipus()) {
 						case NACIONAL:
-							entregaPostal.setTipus(NotificaDomiciliConcretTipusEnumDto.NACIONAL);
+							entregaPostal.setTipus(EntregaPostalTipusEnum.NACIONAL);
 							break;
 						case ESTRANGER:
-							entregaPostal.setTipus(NotificaDomiciliConcretTipusEnumDto.ESTRANGER);
+							entregaPostal.setTipus(EntregaPostalTipusEnum.ESTRANGER);
 							break;
 						case APARTAT_CORREUS:
-							entregaPostal.setTipus(NotificaDomiciliConcretTipusEnumDto.APARTAT_CORREUS);
+							entregaPostal.setTipus(EntregaPostalTipusEnum.APARTAT_CORREUS);
 							break;
 						case SENSE_NORMALITZAR:
-							entregaPostal.setTipus(NotificaDomiciliConcretTipusEnumDto.SENSE_NORMALITZAR);
+							entregaPostal.setTipus(EntregaPostalTipusEnum.SENSE_NORMALITZAR);
 							break;
 						}
 						if (enviament.getEntregaPostalViaTipus() != null) {
