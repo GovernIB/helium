@@ -61,7 +61,6 @@ import net.conselldemallorca.helium.core.model.hibernate.Camp;
 import net.conselldemallorca.helium.core.model.hibernate.Consulta;
 import net.conselldemallorca.helium.core.model.hibernate.ConsultaCamp.TipusConsultaCamp;
 import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
-import net.conselldemallorca.helium.core.model.hibernate.Document;
 import net.conselldemallorca.helium.core.model.hibernate.DocumentNotificacio;
 import net.conselldemallorca.helium.core.model.hibernate.DocumentStore;
 import net.conselldemallorca.helium.core.model.hibernate.DocumentStore.DocumentFont;
@@ -1207,7 +1206,11 @@ public class ExpedientServiceImpl implements ExpedientService {
 			String errorDescripcio = "Error migrant l'expedient " + expedient.getTitol() + " a l'arxiu: " + ex.getMessage();
 			if (expedient.getArxiuUuid() != null && !expedient.getArxiuUuid().isEmpty()) {
 				logger.info("Es procedeix a esborrar l'expedient '" + expedient.getTitol() + "' amb uid '" + expedient.getArxiuUuid() + "' de l'arxiu per error en la migració.");
-				pluginHelper.arxiuExpedientEsborrar(expedient.getArxiuUuid());
+				try{
+					pluginHelper.arxiuExpedientEsborrar(expedient.getArxiuUuid());
+				} catch(Exception aex) {
+					logger.error("Error esborrant l'expedient '" + expedient.getTitol() + "' amb uid '" + expedient.getArxiuUuid() + "' de l'arxiu per error en la migració.", aex);
+				}
 			}
 			throw new TramitacioException(
 					expedient.getEntorn().getId(), 
