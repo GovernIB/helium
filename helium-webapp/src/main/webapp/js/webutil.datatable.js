@@ -444,7 +444,7 @@
 								$(this).parent().trigger('click');
 							});
 						}
-						if (event.type == 'click' && ids_server.length > 0)
+						if (e.type == 'click' && ids_server.length > 0)
 							editSelection(ids_server, 'add');
 						triggerSelectionChangeFunction();
 					}
@@ -460,7 +460,7 @@
 								$(this).parent().trigger('click');
 							});
 						}
-						if (event.type == 'click')
+						if (e.type == 'click')
 							editSelection(ids_server, 'remove');
 						triggerSelectionChangeFunction();
 					}

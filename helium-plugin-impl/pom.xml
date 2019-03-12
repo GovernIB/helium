@@ -119,7 +119,7 @@
 		<dependency>
 			<groupId>es.caib.portafib</groupId>
 			<artifactId>portafib-ws-api</artifactId>
-			<version>${portafib.version}</version>
+			<version>1.1</version>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.security</groupId>
