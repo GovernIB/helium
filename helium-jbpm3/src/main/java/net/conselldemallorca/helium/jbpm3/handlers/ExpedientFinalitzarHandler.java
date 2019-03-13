@@ -14,7 +14,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
  * @author Limit Tecnologies <limit@limit.es>
  *
  */
-public class ExpedientFinalitzarHandler extends AbstractHeliumActionHandler implements ExpedientBuidaLogHandlerInterface {
+public class ExpedientFinalitzarHandler extends AbstractHeliumActionHandler implements ExpedientFinalitzarHandlerInterface {
 
 	public void execute(ExecutionContext executionContext) throws Exception {
 		logger.debug("Inici execució handler finalitzar expedient");
