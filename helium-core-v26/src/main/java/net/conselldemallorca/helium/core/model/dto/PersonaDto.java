@@ -142,7 +142,6 @@ public class PersonaDto implements Serializable {
 	public void setAdmin(boolean admin) {
 		this.admin = admin;
 	}
-
 	public String getInicials() {
 		String[] parts = getNomSencer().split(" ");
 		StringBuilder sb = new StringBuilder();

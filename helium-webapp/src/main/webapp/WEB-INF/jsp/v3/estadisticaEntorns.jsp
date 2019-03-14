@@ -91,7 +91,7 @@ $(document).ready(function() {
 });
 </script>
 </head>
-
+<c:if test="${dadesPersona.admin || potAdministrarEntorn}">
 <form:form action="" id="filtre" method="post" cssClass="well" commandName="expedientTipusEstadisticaCommand">
 		<div class="row">
 			<div class="col-md-3">
@@ -213,5 +213,6 @@ $(document).ready(function() {
 		</table>
 	</c:if>
 </div>
+</c:if>
 
 

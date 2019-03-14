@@ -5,6 +5,7 @@ package net.conselldemallorca.helium.v3.core.api.service;
 
 import java.util.List;
 
+
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
@@ -152,5 +153,11 @@ public interface EntornService {
 	public PermisDto permisFindById(
 			Long entornId,
 			Long permisId);
+	
+	/**
+	 * Retorna una llista d'entorns sobre els que es tenen permisos d'administració
+	 * @return llista d'entorns
+	 */
+	public List<EntornDto> findActiusAmbPermisAdmin();
 
 }

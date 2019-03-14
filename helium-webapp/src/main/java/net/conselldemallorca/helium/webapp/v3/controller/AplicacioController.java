@@ -3,6 +3,8 @@
  */
 package net.conselldemallorca.helium.webapp.v3.controller;
 
+import java.util.ArrayList;
+
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +14,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import net.conselldemallorca.helium.core.helper.EntornHelper;
+import net.conselldemallorca.helium.core.model.dto.PersonaDto;
+import net.conselldemallorca.helium.core.util.EntornActual;
+import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.UsuariPreferenciesDto;
 import net.conselldemallorca.helium.v3.core.api.service.AdminService;
 import net.conselldemallorca.helium.v3.core.api.service.EntornService;
@@ -29,6 +35,8 @@ public class AplicacioController {
 	private AdminService adminService;
 	@Autowired
 	private EntornService entornService;
+	@Autowired
+	private EntornHelper entornHelper;
 
 
 	@RequestMapping(value = "/v3", method = RequestMethod.GET)
@@ -77,8 +85,11 @@ public class AplicacioController {
 	public String metricsView(
 			HttpServletRequest request,
 			Model model) {
+		PersonaDto persona = (PersonaDto)request.getSession().getAttribute("dadesPersona");
 		model.addAttribute("metriques", adminService.getMetrics());
-		model.addAttribute("entorns", entornService.findActiusAll());
+		model.addAttribute("entorns", 
+				(persona != null && persona.isAdmin())?entornService.findActiusAll():
+					(entornHelper.esAdminEntorn(EntornActual.getEntornId()))? entornService.findActiusAmbPermisAdmin():new ArrayList<EntornDto>());
 		return "v3/metrics";
 	}
 }

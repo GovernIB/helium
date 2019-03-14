@@ -148,11 +148,11 @@ public class SessionHelper {
 					request,
 					VARIABLE_PERMIS_ENTORN_DESIGN,
 					potDissenyarEntorn);
-		}
+		}	
 		public Boolean getPotAdministrarEntorn() {
 			return (Boolean)getAttribute(
 					request,
-					VARIABLE_PERMIS_ENTORN_DESIGN);
+					VARIABLE_PERMIS_ENTORN_ADMIN);
 		}
 		public void setPotAdministrarEntorn(Boolean potAdministrarEntorn) {
 			setAttribute(

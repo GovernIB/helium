@@ -14,6 +14,7 @@ import java.util.Map;
 import java.util.Set;
 
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
+import net.conselldemallorca.helium.core.util.EntornActual;
 import net.conselldemallorca.helium.v3.core.api.dto.IntervalEventDto;
 import net.conselldemallorca.helium.v3.core.api.dto.MesuraTemporalDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaCompleteDto;
@@ -107,13 +108,15 @@ public class MesuresTemporalsHelper {
 	}
 	
 	public void tascaCompletarIniciar(Expedient exp, String tascaId, String tascaNom) {
+		Long entornId = EntornActual.getEntornId();
 		tasquesComplete.put(tascaId, new TascaComplete(
 				tascaId, 
 				exp.getId(), 
 				exp.getTipus().getNom(), 
 				exp.getIdentificador(), 
 				tascaNom, 
-				new Date()));
+				new Date(),
+				entornId));
 	}
 	
 	public void tascaCompletarFinalitzar(String tascaId) {
@@ -283,6 +286,27 @@ public class MesuresTemporalsHelper {
 		List<TascaCompleteDto> resposta = new ArrayList<TascaCompleteDto>();
 		
 		for (TascaComplete tasca: tasquesComplete.values()) {
+			Double temps = Long.valueOf(fi - tasca.getInici().getTime()).doubleValue() / 1000.0;
+			TascaCompleteDto dto = new TascaCompleteDto();
+			dto.setExpedient(tasca.getExpedient());
+			dto.setExpedientId(tasca.getExpedientId());
+			dto.setInici(tasca.getInici());
+			dto.setTasca(tasca.getTasca());
+			dto.setTascaId(tasca.getTascaId());
+			dto.setTempsExecucio(temps);
+			dto.setTipusExpedient(tasca.getTipusExpedient());
+			resposta.add(dto);
+		}
+		return resposta;
+	}
+	
+	public List<TascaCompleteDto> getTasquesCompletarAdminEntiorn() {
+		fi = System.currentTimeMillis();
+		List<TascaCompleteDto> resposta = new ArrayList<TascaCompleteDto>();
+		Long entornId = EntornActual.getEntornId();
+		for (TascaComplete tasca: tasquesComplete.values()) {
+			if(!tasca.entornId.equals(entornId))
+				continue;
 			Double temps = Long.valueOf(fi - tasca.getInici().getTime()).doubleValue() / 1000.0;
 			TascaCompleteDto dto = new TascaCompleteDto();
 			dto.setExpedient(tasca.getExpedient());
@@ -548,13 +572,14 @@ public class MesuresTemporalsHelper {
 	protected class TascaComplete {
 		String tascaId;
 		Long expedientId;
+		Long entornId;
 		String tipusExpedient;
 		String expedient;
 		String tasca;
 		Date inici;
 		
 		public TascaComplete(String tascaId, Long expedientId, String tipusExpedient,
-				String expedient, String tasca, Date inici) {
+				String expedient, String tasca, Date inici, Long entornId) {
 			super();
 			this.tascaId = tascaId;
 			this.expedientId = expedientId;
@@ -562,6 +587,8 @@ public class MesuresTemporalsHelper {
 			this.expedient = expedient;
 			this.tasca = tasca;
 			this.inici = inici;
+			this.entornId = entornId;
+			
 		}
 
 		public String getTascaId() {
@@ -610,6 +637,14 @@ public class MesuresTemporalsHelper {
 
 		public void setInici(Date inici) {
 			this.inici = inici;
+		}
+
+		public Long getEntornId() {
+			return entornId;
+		}
+
+		public void setEntornId(Long entornId) {
+			this.entornId = entornId;
 		}
 		
 	}

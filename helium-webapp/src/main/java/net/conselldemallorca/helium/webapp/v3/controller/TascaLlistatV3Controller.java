@@ -32,12 +32,16 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 import edu.emory.mathcs.backport.java.util.Arrays;
+import net.conselldemallorca.helium.core.helper.EntornHelper;
+import net.conselldemallorca.helium.core.model.dto.PersonaDto;
+import net.conselldemallorca.helium.core.util.EntornActual;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
+import net.conselldemallorca.helium.v3.core.api.dto.TascaCompleteDto;
 import net.conselldemallorca.helium.v3.core.api.service.AdminService;
 import net.conselldemallorca.helium.v3.core.api.service.DissenyService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
@@ -70,6 +74,8 @@ public class TascaLlistatV3Controller extends BaseController {
 	private ExpedientService expedientService;
 	@Autowired
 	private ExpedientTipusService expedientTipusService;
+	@Autowired
+	private EntornHelper entornHelper;
 
 	@RequestMapping(method = RequestMethod.GET)
 	public String get(
@@ -322,8 +328,11 @@ public class TascaLlistatV3Controller extends BaseController {
 	@RequestMapping(value = "/pendentsCompletar", method = RequestMethod.GET)
 	public String tasquesCompletar(HttpServletRequest request, 
 			Model model) {		
-		model.addAttribute("tasques", adminService.getTasquesCompletar());
-		return "v3/pendentsCompletar"; 
+		PersonaDto persona = (PersonaDto)request.getSession().getAttribute("dadesPersona");
+		model.addAttribute("tasques", 
+				(persona.isAdmin())? adminService.getTasquesCompletar() :
+				(entornHelper.esAdminEntorn(EntornActual.getEntornId()))? adminService.getTasquesCompletarAdminEntorn() : new ArrayList<TascaCompleteDto>());
+		return "v3/pendentsCompletar";
 	}
 	
 	@ResponseBody

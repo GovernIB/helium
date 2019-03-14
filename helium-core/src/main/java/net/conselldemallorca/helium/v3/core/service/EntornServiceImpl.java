@@ -170,6 +170,18 @@ public class EntornServiceImpl implements EntornService {
 				+ "usuariActual=" + usuariActual + ")");
 		return usuariActualHelper.findEntornsActiusPermesos(usuariActual);
 	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@Transactional(readOnly = true)
+	public List<EntornDto> findActiusAmbPermisAdmin() {
+		String usuariActual = usuariActualHelper.getUsuariActual();
+		logger.debug("Consulta d'entorns amb accés per a l'usuari actual ("
+				+ "usuariActual=" + usuariActual + ")");
+		return usuariActualHelper.findEntornsActiusPermisAdmin();
+	}
 
 	/**
 	 * {@inheritDoc}

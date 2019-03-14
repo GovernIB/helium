@@ -40,6 +40,33 @@ public class UsuariActualHelper {
 
 
 
+	
+	public List<EntornDto> findEntornsActiusPermisAdmin() {
+		List<Entorn> entorns = entornRepository.findByActiuTrue();
+		permisosHelper.filterGrantedAny(
+				entorns,
+				new ObjectIdentifierExtractor<Entorn>() {
+					public Long getObjectIdentifier(Entorn entorn) {
+						return entorn.getId();
+					}
+				},
+				Entorn.class,
+				new Permission[] {BasePermission.ADMINISTRATION},
+				SecurityContextHolder.getContext().getAuthentication());
+		List<EntornDto> dtos = conversioTipusHelper.convertirList(
+				entorns,
+				EntornDto.class);
+		List<Long> ids = new ArrayList<Long>();
+		for (EntornDto dto: dtos) {
+			ids.add(dto.getId());
+		}
+		permisosHelper.omplirControlPermisosSegonsUsuariActual(
+				ids,
+				dtos,
+				Entorn.class);
+		return dtos;
+	}
+	
 	@Cacheable(value="entornsUsuariActual")
 	public List<EntornDto> findEntornsActiusPermesos(String usuariCodi) {
 		List<Entorn> entorns = entornRepository.findByActiuTrue();

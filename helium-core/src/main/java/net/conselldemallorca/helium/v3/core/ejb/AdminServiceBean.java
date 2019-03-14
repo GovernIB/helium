@@ -223,4 +223,22 @@ public class AdminServiceBean implements AdminService {
 		return delegate.findReassignacioById(id);
 	}
 
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public List<IntegracioDto> monitorIntegracioFindAllEntronActual() {
+		return delegate.monitorIntegracioFindAllEntronActual();
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public List<IntegracioAccioDto> monitorIntegracioFindAccionsByIntegracioEntornActual(String integracioCodi) {
+		return delegate.monitorIntegracioFindAccionsByIntegracioEntornActual(integracioCodi);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public List<TascaCompleteDto> getTasquesCompletarAdminEntorn() {
+		return delegate.getTasquesCompletarAdminEntorn();
+	}
+
 }

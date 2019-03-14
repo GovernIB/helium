@@ -43,6 +43,13 @@ public interface AdminService {
 	 * @return la llista d'integracions
 	 */
 	public List<IntegracioDto> monitorIntegracioFindAll();
+	
+	/**
+	 * Retorna el llistat de les integracions disponibles del entorn acual.
+	 * 
+	 * @return la llista d'integracions
+	 */
+	public List<IntegracioDto> monitorIntegracioFindAllEntronActual();
 
 	/**
 	 * Retorna les darreres accions de la integració especificada.
@@ -53,6 +60,15 @@ public interface AdminService {
 	public List<IntegracioAccioDto> monitorIntegracioFindAccionsByIntegracio(
 			String integracioCodi);
 
+	/**
+	 * Retorna les darreres accions de la integració especificada del entorn actual.
+	 * 
+	 * @param integracioCodi el codi de la integració a consultar
+	 * @return
+	 */
+	public List<IntegracioAccioDto> monitorIntegracioFindAccionsByIntegracioEntornActual(
+			String integracioCodi);
+	
 	/**
 	 * Retorna la llista de dominis d'un entorn
 	 * 
@@ -151,5 +167,7 @@ public interface AdminService {
 	public abstract void deleteReassignacio(Long id);
 
 	public abstract ReassignacioDto findReassignacioById(Long id);
+	
+	public abstract List<TascaCompleteDto> getTasquesCompletarAdminEntorn();
 
 }
