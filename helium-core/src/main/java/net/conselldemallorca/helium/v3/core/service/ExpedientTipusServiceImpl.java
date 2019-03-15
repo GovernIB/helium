@@ -27,6 +27,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import edu.emory.mathcs.backport.java.util.Collections;
 import net.conselldemallorca.helium.core.extern.domini.FilaResultat;
 import net.conselldemallorca.helium.core.extern.domini.ParellaCodiValor;
 import net.conselldemallorca.helium.core.helper.ConversioTipusHelper;
@@ -65,8 +66,10 @@ import net.conselldemallorca.helium.core.model.hibernate.SequenciaDefaultAny;
 import net.conselldemallorca.helium.core.model.hibernate.Termini;
 import net.conselldemallorca.helium.core.model.hibernate.Validacio;
 import net.conselldemallorca.helium.core.security.ExtendedPermission;
+import net.conselldemallorca.helium.core.util.EntornActual;
 import net.conselldemallorca.helium.core.util.ExpedientCamps;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
+import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessDefinition;
 import net.conselldemallorca.helium.v3.core.api.dto.CampTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ConsultaCampDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ConsultaCampDto.TipusConsultaCamp;
@@ -1232,12 +1235,13 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 				}
 		
 		// Definicions
+		//TODO:
 		DefinicioProces definicioProces;
 		if (command.getDefinicionsProces().size() > 0)
-			for(DefinicioProcesExportacio definicioExportat : importacio.getDefinicions() )
+			for(DefinicioProcesExportacio definicioExportat : ordenaDefinicionsProcess(importacio.getDefinicions()) )
 				if (command.getDefinicionsProces().contains(definicioExportat.getDefinicioProcesDto().getJbpmKey())){
 					definicioProces = definicioProcesHelper.importar(
-							entornId, 
+							entornId,
 							expedientTipus.getId(),
 							definicioExportat,
 							null /* no especifica el filtre per a la importació. */,
@@ -1335,7 +1339,38 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		return conversioTipusHelper.convertir(
 				expedientTipusRepository.save(expedientTipus),
 				ExpedientTipusDto.class);
-	}	
+	}
+	
+	@Transactional
+	private List<DefinicioProcesExportacio> ordenaDefinicionsProcess(List<DefinicioProcesExportacio> definicionsP) {
+		//TODO:
+		List<DefinicioProcesExportacio> definicioProcesExportacio = new ArrayList<DefinicioProcesExportacio>();
+		List<String> jbpmKeys = new ArrayList<String>();
+		for(DefinicioProcesExportacio defProc: definicionsP) {
+			DefinicioProces definicioProces = definicioProcesRepository.findDarreraVersioAmbEntornIJbpmKey(EntornActual.getEntornId(), 
+					defProc.getDefinicioProcesDto().getJbpmKey());
+			if(definicioProces != null) {
+				List<JbpmProcessDefinition> subprocessos = jbpmHelper.getSubProcessDefinitions(definicioProces.getJbpmId());
+				if(subprocessos == null || subprocessos.size() == 0) {
+					definicioProcesExportacio.add(defProc);
+					jbpmKeys.add(defProc.getDefinicioProcesDto().getJbpmKey());
+					continue;
+				}else {
+					int index = (jbpmKeys.size() == 0)?0:jbpmKeys.size()-1;
+					for(JbpmProcessDefinition subP :subprocessos) {
+						if(jbpmKeys.contains(subP.getKey()))
+							index = (jbpmKeys.indexOf(subP.getKey()) < index)?jbpmKeys.indexOf(subP.getKey()):index;
+					}
+					definicioProcesExportacio.add(index, defProc);
+					jbpmKeys.add(index,defProc.getDefinicioProcesDto().getJbpmKey());
+				}
+			}else {
+				definicioProcesExportacio.add(defProc);
+			}
+		}
+		Collections.reverse(definicioProcesExportacio);
+		return definicioProcesExportacio;
+	}
 
 	/**
 	 * {@inheritDoc}
