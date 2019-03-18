@@ -183,18 +183,29 @@ public abstract class BaseBackoffice {
 			}
 			try {
 				if (campHelium != null) {
-					logger.debug(
-							"Mapeig variable SISTRA-HELIUM (" +
-							"codiSistra=" + mapeig.getCodiSistra() + ", " +
-							"codiHelium=" + mapeig.getCodiHelium() + ", " +
-							"camp.codi=" + campHelium.getCodi() + ", " +
-							"camp.etiqueta=" + campHelium.getEtiqueta() + ", " +
-							"camp.tipus=" + campHelium.getTipus() + ", " +
-							"camp.dp.jbpmId=" + campHelium.getDefinicioProces().getJbpmId() + ", " +
-							"camp.dp.jbpmKey=" + campHelium.getDefinicioProces().getJbpmKey() + ", " +
-							"camp.dp.versio=" + campHelium.getDefinicioProces().getVersio() + ", " +
-							"camp.et.codi=" + campHelium.getDefinicioProces().getExpedientTipus().getCodi() + ", " +
-							"camp.et.nom=" + campHelium.getDefinicioProces().getExpedientTipus().getNom() + ")");
+					StringBuilder logMsg = new StringBuilder();
+					logMsg.append("Mapeig variable SISTRA-HELIUM (" +
+								"codiSistra=" + mapeig.getCodiSistra() + ", " +
+								"codiHelium=" + mapeig.getCodiHelium() + ", " +
+								"camp.codi=" + campHelium.getCodi() + ", " +
+								"camp.etiqueta=" + campHelium.getEtiqueta() + ", " +
+								"camp.tipus=" + campHelium.getTipus() + ", " );
+					
+					if (!expedientTipus.isAmbInfoPropia()) {						
+						logMsg.append("camp.dp.jbpmId=" + campHelium.getDefinicioProces().getJbpmId() + ", " +
+								"camp.dp.jbpmKey=" + campHelium.getDefinicioProces().getJbpmKey() + ", " +
+								"camp.dp.versio=" + campHelium.getDefinicioProces().getVersio() + ", ");
+						if (campHelium.getDefinicioProces().getExpedientTipus() != null) {
+							logMsg.append("camp.dp.et.codi=" + campHelium.getDefinicioProces().getExpedientTipus().getCodi() + ", " +
+										  "camp.dp.et.nom=" + campHelium.getDefinicioProces().getExpedientTipus().getNom() + ")");
+						}
+					}
+					else
+						logMsg.append(
+						"camp.et.codi=" + campHelium.getExpedientTipus().getCodi() + ", " +
+						"camp.et.nom=" + campHelium.getExpedientTipus().getNom() + ")");
+								
+					logger.debug(logMsg.toString());
 					Object valorSistra = valorVariableSistra(
 							tramit,
 							mapeig.getCodiHelium(),
