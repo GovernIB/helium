@@ -1,7 +1,5 @@
 package net.conselldemallorca.helium.v3.core.service;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -199,9 +197,15 @@ public class TascaProgramadaServiceImpl implements TascaProgramadaService {
 	
 	public static void saveError(Long operacioMassivaId, Throwable error, ExecucioMassivaTipus tipus) {
 		if (tipus != ExecucioMassivaTipus.ELIMINAR_VERSIO_DEFPROC) {
-			StringWriter out = new StringWriter();
-			logger.error(new PrintWriter(out));
-			errorsMassiva.put(operacioMassivaId, out.toString());
+			StringBuilder sb = new StringBuilder();
+			if (error != null) {
+				sb.append(error.getLocalizedMessage());
+				for (StackTraceElement element : error.getStackTrace()) {
+			        sb.append("\nat ");
+			        sb.append(element.toString());
+			    }
+			}
+			errorsMassiva.put(operacioMassivaId, sb.toString());
 		} else {
 			errorsMassiva.put(operacioMassivaId, error.getMessage());
 		}

@@ -694,6 +694,7 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 	}
 	
 	@Override
+	@Transactional
 	public void executarExecucioMassiva(Long ome_id) {
 		ExecucioMassivaExpedient ome = execucioMassivaExpedientRepository.findOne(ome_id);
 		if (ome == null)

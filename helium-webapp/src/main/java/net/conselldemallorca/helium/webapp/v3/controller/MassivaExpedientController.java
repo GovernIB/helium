@@ -390,7 +390,7 @@ public class MassivaExpedientController extends BaseExpedientController {
 			} else if ("migrarExpedient".equals(accio)) {
 				dto.setTipus(ExecucioMassivaTipusDto.MIGRAR_EXPEDIENT);
 				execucioMassivaService.crearExecucioMassiva(dto);
-				MissatgesHelper.success(request, getMessage(request, "info.accio.massiu.finalitzar_expedient", new Object[] {listIds.size()}));
+				MissatgesHelper.success(request, getMessage(request, "info.accio.massiu.migrar_expedient", new Object[] {listIds.size()}));
 			} else if ("executar".equals(accio)) {
 				new ExpedientScriptValidator().validate(command, result);
 				if (result.hasErrors()) {

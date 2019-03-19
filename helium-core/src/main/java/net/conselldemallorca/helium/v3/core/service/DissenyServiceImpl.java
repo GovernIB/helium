@@ -331,11 +331,11 @@ public class DissenyServiceImpl implements DissenyService {
 		if (jpd != null) {
 			List<JbpmProcessDefinition> subPds = jbpmHelper.getSubProcessDefinitions(jpd.getId());
 			if (subPds != null) {
-				for (JbpmProcessDefinition subPd: subPds) {
-					afegirJbpmIdProcesAmbSubprocessos(subPd, jbpmIds, true);
-					if (!jbpmIds.contains(subPd.getId()))
+				for (JbpmProcessDefinition subPd: subPds)
+					if (!jbpmIds.contains(subPd.getId())) {
 						jbpmIds.add(subPd.getId());
-				}
+						afegirJbpmIdProcesAmbSubprocessos(subPd, jbpmIds, true);
+					}
 			}
 			if (!jbpmIds.contains(jpd.getId()) && incloure)
 				jbpmIds.add(jpd.getId());
