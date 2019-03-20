@@ -56,13 +56,15 @@ public class DefinicioProcesDesplegarValidator implements ConstraintValidator<De
 				valid = false;
 			} 
 			if(command.isActualitzarExpedientsActius()) {
-				ExpedientTipusDto expedientTipusDto = expedientTipusService.findAmbIdPermisDissenyar(command.getEntornId(), command.getExpedientTipusId());
-				if(!expedientTipusDto.isPermisDefprocUpdate() && !expedientTipusDto.isPermisAdministration()) {
-					context.buildConstraintViolationWithTemplate(
-							MessageHelper.getInstance().getMessage( this.codiMissatge + ".permisos"))
-					.addNode("actualitzarExpedientsActius")
-					.addConstraintViolation();
-					valid = false;
+				if (command.getExpedientTipusId() != null) {
+					ExpedientTipusDto expedientTipusDto = expedientTipusService.findAmbIdPermisDissenyar(command.getEntornId(), command.getExpedientTipusId());
+					if(!expedientTipusDto.isPermisDefprocUpdate() && !expedientTipusDto.isPermisAdministration()) {
+						context.buildConstraintViolationWithTemplate(
+								MessageHelper.getInstance().getMessage( this.codiMissatge + ".permisos"))
+						.addNode("actualitzarExpedientsActius")
+						.addConstraintViolation();
+						valid = false;
+					}
 				}
 			}
 		} catch (IOException e) {

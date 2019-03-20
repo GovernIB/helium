@@ -475,6 +475,7 @@ public class DefinicioProcesHelper {
 						tasca.setFormExtern(tascaExportat.getFormExtern());
 						tasca.setTramitacioMassiva(tascaExportat.isTramitacioMassiva());
 						tasca.setFinalitzacioSegonPla(tascaExportat.isFinalitzacioSegonPla());
+						tasca.setAmbRepro(tascaExportat.isAmbRepro());
 						tascaRepository.save(tasca);
 						
 						// Si la tasca ja existia llavors esborra els camps, documents i firmes
@@ -806,6 +807,7 @@ public class DefinicioProcesHelper {
 					tascaExportacio.setFormExtern(tasca.getFormExtern());
 					tascaExportacio.setTramitacioMassiva(tasca.isTramitacioMassiva());
 					tascaExportacio.setFinalitzacioSegonPla(tasca.isFinalitzacioSegonPla());
+					tascaExportacio.setAmbRepro(tasca.isAmbRepro());
 					// Afegeix els camps de la tasca
 					for (CampTasca camp: tasca.getCamps()) {
 						tascaExportacio.addCamp(
@@ -1125,6 +1127,7 @@ public class DefinicioProcesHelper {
 				tascaDesti.setExpressioDelegacio(tascaOrigen.getExpressioDelegacio());
 				tascaDesti.setTramitacioMassiva(tascaOrigen.isTramitacioMassiva());
 				tascaDesti.setFinalitzacioSegonPla(tascaOrigen.isFinalitzacioSegonPla());
+				tascaDesti.setAmbRepro(tascaOrigen.isAmbRepro());
 				// Copia els camps de les tasques
 				for (CampTasca camp: tascaOrigen.getCamps()) {
 					CampTasca nouCamp = new CampTasca(
