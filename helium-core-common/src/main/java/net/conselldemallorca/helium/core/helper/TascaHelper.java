@@ -581,6 +581,13 @@ public class TascaHelper {
 					responsables.add(persona);
 				}
 			}
+			Collections.sort(
+					responsables, 
+					new Comparator<PersonaDto>() {
+						public int compare(PersonaDto p1, PersonaDto p2) {
+							return p1.getNom().compareToIgnoreCase(p2.getNom());
+						}
+					});
 			dto.setResponsables(responsables);
 		}
 		if (ambPermisos) {

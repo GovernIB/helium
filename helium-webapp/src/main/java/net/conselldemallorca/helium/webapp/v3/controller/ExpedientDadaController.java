@@ -634,28 +634,59 @@ public class ExpedientDadaController extends BaseExpedientController {
 		Long agrupacioId = null;
 		List<ExpedientDadaDto> dadesAgrupacio = new ArrayList<ExpedientDadaDto>();
 		for (ExpedientDadaDto dada: dadesInstancia) {
-			if (ambOcults || !dada.isCampOcult()) {
-				if ((agrupacioId == null && dada.getAgrupacioId() == null) || dada.getAgrupacioId().equals(agrupacioId)) {
+			if (ambOcults || !dada.isCampOcult()) { // if should show dades ocultes || if dada form current iteration should be shown
+				if ((agrupacioId == null && dada.getAgrupacioId() == null) || dada.getAgrupacioId().equals(agrupacioId)) { //if agrupacio of current dada iteration is still the same or if current dada iteration doesnt have agrupacio
 					dadesAgrupacio.add(dada);
-				} else {
+				} else { //if agrupacio of current dada iteration changed or first dada iteration
 					if (!dadesAgrupacio.isEmpty()) {
-						if (magrupacions.get(agrupacioId) != null)
-						Collections.sort(
-								dadesAgrupacio, 
-								new Comparator<ExpedientDadaDto>() {
-									public int compare(ExpedientDadaDto d1, ExpedientDadaDto d2) {
-										return d1.getOrdre() - d2.getOrdre();
-									}
-								});
-						dadesProces.put(magrupacions.get(agrupacioId), dadesAgrupacio);
-						dadesAgrupacio = new ArrayList<ExpedientDadaDto>();
+						if (magrupacions.get(agrupacioId) != null) { 
+							Collections.sort( //sort dades belonging to previous agrupation by ordre field
+									dadesAgrupacio, 
+									new Comparator<ExpedientDadaDto>() {
+										public int compare(ExpedientDadaDto d1, ExpedientDadaDto d2) {
+											return d1.getOrdre() - d2.getOrdre();
+										}
+									});
+						}
+						if (agrupacioId == null) { //if dades dont belong to any agrupacio sort them alphabeticaly
+							Collections.sort(
+									dadesAgrupacio, 
+									new Comparator<ExpedientDadaDto>() {
+										public int compare(ExpedientDadaDto d1, ExpedientDadaDto d2) {
+											return d1.getCampEtiqueta().compareToIgnoreCase(d2.getCampEtiqueta());
+										}
+									});
+						}
+						dadesProces.put(magrupacions.get(agrupacioId), dadesAgrupacio); // insert a mapping (key: agrupacio, value: dades of these agrupacio) into a map
+						dadesAgrupacio = new ArrayList<ExpedientDadaDto>(); //reset to fill later by dades of next agrupacio
 					}
-					agrupacioId = dada.getAgrupacioId();
-					dadesAgrupacio.add(dada);
+					agrupacioId = dada.getAgrupacioId();  //change agrupacio to the agrupacio of current dada iteration
+					dadesAgrupacio.add(dada); // add dada to new agrupacio
 				}
 			}
 		}
-		dadesProces.put(magrupacions.get(agrupacioId), dadesAgrupacio);
+		
+		
+		// sort dades of last agrupacio 
+		if (agrupacioId == null) { 
+			Collections.sort( 
+					dadesAgrupacio, 
+					new Comparator<ExpedientDadaDto>() {
+						public int compare(ExpedientDadaDto d1, ExpedientDadaDto d2) {
+							return d1.getOrdre() - d2.getOrdre();
+						}
+					});
+		} else {//if dades dont belong to any agrupacio sort them alphabeticaly
+			Collections.sort(
+					dadesAgrupacio, 
+					new Comparator<ExpedientDadaDto>() {
+						public int compare(ExpedientDadaDto d1, ExpedientDadaDto d2) {
+							return d1.getCampEtiqueta().compareToIgnoreCase(d2.getCampEtiqueta());
+						}
+					});
+		}
+		dadesProces.put(magrupacions.get(agrupacioId), dadesAgrupacio); // insert mapping for last agrupacio into a map
+		
 		return dadesProces;
 	}
 	
