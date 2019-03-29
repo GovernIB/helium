@@ -174,14 +174,14 @@
 					<div class="btn-group navbar-btn navbar-right">		
 						<a id="menuExpedients" class="btn btn-primary" href="<c:url value="/v3/expedient"/>"><spring:message code="decorator.menu.expedients"/></a>
 						<a id="menuTasques" class="btn btn-primary" href="<c:url value="/v3/tasca"/>"><spring:message code="decorator.menu.tasques"/></a>
-						<c:if test="${potDissenyarEntorn or potAdministrarEntorn}">
+						<c:if test="${potDissenyarEntorn or potDissenyarExpedientTipus}">
 							<div id="menuDisseny" class="btn-group" >
 								<button class="btn btn-primary dropdown-toggle" data-toggle="dropdown"><spring:message code="comuns.disseny"/> <span class="caret"></span></button>
 								<ul class="dropdown-menu">
-									<c:if test="${potDissenyarEntorn or potAdministrarEntorn}">
+									<c:if test="${potDissenyarEntorn or potDissenyarExpedientTipus}">
 										<li><a id="menuTipusExpedient" href="<c:url value="/v3/expedientTipus"/>"><spring:message code='decorator.menu.disseny.tipus.expedient' /></a></li>
 									</c:if>
-									<c:if test="${potAdministrarEntorn}">
+									<c:if test="${potDissenyarEntorn}">
 										<li><a id="menuDefinicioProces" href="<c:url value="/v3/definicioProces"/>"><spring:message code='decorators.entorn.defs_proces' /></a></li>
 										<li><a href="<c:url value="/v3/enumeracio"/>"><spring:message code='decorators.entorn.enumeracions' /></a></li>
 										<li><a href="<c:url value="/v3/domini"/>"><spring:message code='decorators.entorn.dominis' /></a></li>
