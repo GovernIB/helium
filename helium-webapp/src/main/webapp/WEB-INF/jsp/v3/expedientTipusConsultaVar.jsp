@@ -74,9 +74,7 @@
 	</form>
 	<div class="row">
 		<div class="col-sm-12">
-			<button id="btnCreate" class="btn btn-primary right" style="float: right;" type="submit" name="accio" value="crear" alt="<spring:message code='consulta.camps.mostrarxml' />" title="<spring:message code='consulta.camps.mostrarxml' />">
-				<a href="<c:url value="/v3/expedientTipus/${expedientTipusId}/consulta/reportDownload"><c:param name="consultaId" value="${consulta.id}"/></c:url>"><img src="<c:url value="/img/page_white_code.png"/>" border="0"/></a>
-			</button>
+			<a class="btn btn-primary right" style="float: right;" title="<spring:message code='consulta.camps.mostrarxml' />" alt="<spring:message code='consulta.camps.mostrarxml' />" href="<c:url value="/v3/expedientTipus/${expedientTipusId}/consulta/reportDownload"><c:param name="consultaId" value="${consulta.id}"/></c:url>"><img src="<c:url value="/img/page_white_code.png"/>" border="0"/></a>
 		</div>
 	</div>
 	<div style="height: 500px;">

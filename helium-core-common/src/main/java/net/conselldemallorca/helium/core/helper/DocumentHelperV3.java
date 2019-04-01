@@ -1952,9 +1952,9 @@ public class DocumentHelperV3 {
 		}
 		String documentDescripcio;
 		if (documentStore.isAdjunt()) {
-			documentDescripcio = documentStore.getAdjuntTitol();
+			documentDescripcio = inArxiu(documentStore.getAdjuntTitol() ,FilenameUtils.getExtension(arxiuNom), processInstanceId);
 		} else {
-			documentDescripcio = document.getNom();
+			documentDescripcio = inArxiu(document.getNom() ,FilenameUtils.getExtension(arxiuNom), processInstanceId);
 		}
 		if (expedient.isArxiuActiu()) {
 			// Actualitza el document a dins l'arxiu
@@ -2177,6 +2177,27 @@ public class DocumentHelperV3 {
 				processInstanceId);
 		registre.setMissatge("Signatura del document '" + documentCodi + "'");
 		return registreRepository.save(registre);
+	}
+	
+	private String inArxiu(String arxiuNom, String extensio, String processInstanceId){
+			Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
+			if(expedient.isArxiuActiu()) {
+			List<ContingutArxiu> continguts = pluginHelper.arxiuExpedientInfo(expedient.getArxiuUuid()).getContinguts();
+			int ocurrences = 0;
+			if(continguts != null) {
+				List<String> noms = new ArrayList<String>();
+				for(ContingutArxiu contingut : continguts) {
+					noms.add(contingut.getNom());
+				}
+				String nName = new String(arxiuNom);
+				while(noms.indexOf(nName + "." + extensio) >= 0) {
+					ocurrences ++;
+					nName = arxiuNom + " (" + ocurrences + ")";
+				}
+				return nName;
+			}
+		}
+		return arxiuNom;
 	}
 
 	private static final Log logger = LogFactory.getLog(DocumentHelperV3.class);
