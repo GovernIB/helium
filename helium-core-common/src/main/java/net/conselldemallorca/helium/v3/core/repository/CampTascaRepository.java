@@ -141,11 +141,11 @@ public interface CampTascaRepository extends JpaRepository<CampTasca, Long> {
 	@Query(	"from CampTasca ct " +
 			"where " +
 					// Propis
-			"   	( (ct.expedientTipus.id = :expedientTipusId or (ct.expedientTipus is null and ct.tasca.definicioProces.expedientTipus.id = :expedientTipusId)  ) " +
+			"   	( (ct.expedientTipus = :expedientTipus or (ct.expedientTipus is null and ct.tasca.definicioProces.expedientTipus = :expedientTipus)  ) " +
 			"			or " +
 					// Heretats
-			" 		  (ct.expedientTipus is null and ct.tasca.definicioProces.expedientTipus.id = (select etp.expedientTipusPare.id from ExpedientTipus etp where etp.id = :expedientTipusId)) " +
+			" 		  (ct.expedientTipus is null and ct.tasca.definicioProces.expedientTipus.id = (select etp.expedientTipusPare.id from ExpedientTipus etp where etp = :expedientTipus)) " +
 			"       ) ")
-	public List<CampTasca> findAllByExpedientTipus(ExpedientTipus expedientTipus);
+	public List<CampTasca> findAllByExpedientTipus(@Param("expedientTipus") ExpedientTipus expedientTipus);
 		
 }
