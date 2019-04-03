@@ -59,11 +59,13 @@ public class FirmaTasca implements Serializable, GenericEntity<Long> {
 			Document document,
 			Tasca tasca,
 			boolean required,
-			int order) {
+			int order,
+			ExpedientTipus expedientTipus) {
 		this.document = document;
 		this.tasca = tasca;
 		this.required = required;
 		this.order = order;
+		this.expedientTipus = expedientTipus;
 	}
 
 	@Id

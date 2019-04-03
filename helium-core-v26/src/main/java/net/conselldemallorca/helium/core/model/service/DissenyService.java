@@ -496,7 +496,9 @@ public class DissenyService {
 					readOnly,
 					campTascaDao.getNextOrder(tascaId),
 					12,
-					0);
+					0,
+					null
+					);
 			return campTascaDao.saveOrUpdate(campTasca);
 		}
 	}
@@ -632,7 +634,8 @@ public class DissenyService {
 					tascaDao.getById(tascaId, false),
 					required,
 					readOnly,
-					documentTascaDao.getNextOrder(tascaId));
+					documentTascaDao.getNextOrder(tascaId),
+					null);
 			return documentTascaDao.saveOrUpdate(documentTasca);
 		}
 	}
@@ -697,7 +700,8 @@ public class DissenyService {
 					documentDao.getById(documentId, false),
 					tascaDao.getById(tascaId, false),
 					required,
-					firmaTascaDao.getNextOrder(tascaId));
+					firmaTascaDao.getNextOrder(tascaId),
+					null);
 			return firmaTascaDao.saveOrUpdate(firmaTasca);
 		}
 	}
@@ -2789,7 +2793,8 @@ public class DissenyService {
 								camp.isReadOnly(),
 								camp.getOrder(),
 								camp.getAmpleCols(),
-								camp.getBuitCols());
+								camp.getBuitCols(),
+								null);
 						nova.addCamp(nouCamp);
 					}
 					// Copia els documents de la tasca
@@ -2799,7 +2804,8 @@ public class DissenyService {
 								nova,
 								document.isRequired(),
 								document.isReadOnly(),
-								document.getOrder());
+								document.getOrder(),
+								null);
 						nova.addDocument(nouDocument);
 					}
 					// Copia les firmes de la tasca
@@ -2808,7 +2814,8 @@ public class DissenyService {
 								documents.get(firma.getDocument().getCodi()),
 								nova,
 								firma.isRequired(),
-								firma.getOrder());
+								firma.getOrder(),
+								null);
 						nova.addFirma(novaFirma);
 					}
 					// Copia les validacions de la tasca
@@ -3106,7 +3113,8 @@ public class DissenyService {
 									campTasca.isReadOnly(),
 									campTasca.getOrder(),
 									12,
-									0);
+									0,
+									null);
 							campTascaDao.saveOrUpdate(nouct);
 							nova.addCamp(nouct);
 						}
@@ -3163,7 +3171,8 @@ public class DissenyService {
 									nova,
 									documentTasca.isRequired(),
 									documentTasca.isReadOnly(),
-									indexDoc++);
+									indexDoc++,
+									null);
 							documentTascaDao.saveOrUpdate(noudt);
 							documentsNous.add(noudt);
 						}
@@ -3191,7 +3200,8 @@ public class DissenyService {
 								documents.get(firmaTasca.getDocumentCodi()),
 								nova,
 								firmaTasca.isRequired(),
-								firmaTasca.getOrder());
+								firmaTasca.getOrder(),
+								null);
 						nova.addFirma(nouft);
 						firmaTascaDao.saveOrUpdate(nouft);
 					}

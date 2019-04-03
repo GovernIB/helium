@@ -1121,7 +1121,9 @@ public class DefinicioProcesHelper {
 							camp.isReadOnly(),
 							camp.getOrder(),
 							camp.getAmpleCols(),
-							camp.getBuitCols());
+							camp.getBuitCols(),
+							camp.getExpedientTipus());
+//					nouCamp.setExpedientTipus(camp.getExpedientTipus());
 					//campTascaRepository.save(nouCamp);
 					//campTascaRepository.flush();
 					tascaDesti.addCamp(nouCamp);
@@ -1135,7 +1137,9 @@ public class DefinicioProcesHelper {
 							tascaDesti,
 							document.isRequired(),
 							document.isReadOnly(),
-							document.getOrder());
+							document.getOrder(),
+							document.getExpedientTipus());
+//					nouDocument.setExpedientTipus(document.getExpedientTipus());
 					tascaDesti.addDocument(nouDocument);
 				}
 				// Copia les firmes de la tasca
@@ -1146,7 +1150,9 @@ public class DefinicioProcesHelper {
 									: documents.get(firma.getDocument().getCodi()), // document de la definició de procés
 							tascaDesti,
 							firma.isRequired(),
-							firma.getOrder());
+							firma.getOrder(),
+							firma.getExpedientTipus());
+//					novaFirma.setExpedientTipus(firma.getExpedientTipus());
 					tascaDesti.addFirma(novaFirma);
 				}
 				// Copia les validacions de la tasca

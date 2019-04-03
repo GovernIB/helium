@@ -68,7 +68,8 @@ public class CampTasca implements Serializable, GenericEntity<Long> {
 			boolean readOnly,
 			int order,
 			int ampleCols,
-			int buitCols) {
+			int buitCols,
+			ExpedientTipus expedientTipus) {
 		this.tasca = tasca;
 		this.camp = camp;
 		this.readFrom = readFrom;
@@ -78,6 +79,7 @@ public class CampTasca implements Serializable, GenericEntity<Long> {
 		this.order = order;
 		this.ampleCols = ampleCols;
 		this.buitCols = buitCols;
+		this.expedientTipus = expedientTipus;
 	}
 
 	@Id

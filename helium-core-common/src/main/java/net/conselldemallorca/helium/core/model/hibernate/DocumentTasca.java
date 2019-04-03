@@ -61,12 +61,14 @@ public class DocumentTasca implements Serializable, GenericEntity<Long> {
 			Tasca tasca,
 			boolean required,
 			boolean readOnly,
-			int order) {
+			int order,
+			ExpedientTipus expedientTipus) {
 		this.document = document;
 		this.tasca = tasca;
 		this.required = required;
 		this.readOnly = readOnly;
 		this.order = order;
+		this.expedientTipus = expedientTipus;
 	}
 
 	@Id
