@@ -640,6 +640,10 @@ public class DefinicioProcesController extends BaseDefinicioProcesController {
         				definicioProcesService.copiarDefinicioProces(
 	        					darreraDefinicioProces.getId(),
 	        					definicioProces.getId());
+    	        	// Invoca al mètode per relacionar les darreres definicions de procés
+        			if (definicioProces.getExpedientTipus() != null)
+        				definicioProcesService.relacionarDarreresVersions(definicioProces.getExpedientTipus().getId());
+    	        	
             		MissatgesHelper.success(request, getMessage( request, "definicio.proces.desplegar.form.success"));
             		if (command.isActualitzarExpedientsActius()) {
             				// Programació de la tasca d'actualització d'expedients actius

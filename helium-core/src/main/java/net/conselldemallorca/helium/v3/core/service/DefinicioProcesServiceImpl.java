@@ -1085,5 +1085,21 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 		entity.setAmpleCols(ample);
 		entity.setBuitCols(buit);
 	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@Transactional
+	public void relacionarDarreresVersions(Long expedientTipusId) {
+		logger.debug(
+				"Relacionant les darreres versions de les definicions de procés del tipus d'expedient (" +
+				"expedientTipusId = " + expedientTipusId + ")");
+		
+		ExpedientTipus expedientTipus = expedientTipusRepository.findById(expedientTipusId);
+		definicioProcesHelper.relacionarDarreresVersionsDefinicionsProces(expedientTipus.getDefinicionsProces());
+	}
+	
 	private static final Logger logger = LoggerFactory.getLogger(DefinicioProcesServiceImpl.class);
+
 }

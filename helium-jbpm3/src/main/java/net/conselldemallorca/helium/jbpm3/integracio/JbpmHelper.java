@@ -110,6 +110,7 @@ import net.conselldemallorca.helium.jbpm3.command.TakeTaskInstanceCommand;
 import net.conselldemallorca.helium.jbpm3.command.TokenActivarCommand;
 import net.conselldemallorca.helium.jbpm3.command.TokenRedirectCommand;
 import net.conselldemallorca.helium.jbpm3.command.UpdateHandlersCommand;
+import net.conselldemallorca.helium.jbpm3.command.UpdateSubprocessDefinitionCommand;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto.OrdreDireccioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto.OrdreDto;
@@ -2005,4 +2006,15 @@ public class JbpmHelper {
 		}
 		return ex;
 	}
+	
+	/** Cerca els nodes de tipus ProcessState del ProcessDefinitions dp1  i assegura que s'apuntin correctament cap al pd2 
+	 * si coincideix el nom del subprocés.
+	 * 
+	 * @param pd1
+	 * @param pd2
+	 */
+	public void updateSubprocessDefinition(ProcessDefinition pd1, ProcessDefinition pd2) {
+		UpdateSubprocessDefinitionCommand command = new UpdateSubprocessDefinitionCommand(pd1, pd2);
+		commandService.execute(command);
+	}	
 }

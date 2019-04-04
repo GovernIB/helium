@@ -299,4 +299,10 @@ public class DefinicioProcesBean implements DefinicioProcesService {
 	public String consultarStartTaskName(Long definicioProcesId) {
 		return delegate.consultarStartTaskName(definicioProcesId);
 	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public void relacionarDarreresVersions(Long expedientTipusId) {
+		delegate.relacionarDarreresVersions(expedientTipusId);
+	}
 }

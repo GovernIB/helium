@@ -482,6 +482,9 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 								command, 
 								ExpedientTipusExportacioCommandDto.class),
 	        			importacio);
+	        	// Invoca al mètode per relacionar les darreres definicions de procés
+	        	definicioProcesService.relacionarDarreresVersions(expedientTipus.getId());
+	        	
 	    		MissatgesHelper.success(
 						request, 
 						getMessage(

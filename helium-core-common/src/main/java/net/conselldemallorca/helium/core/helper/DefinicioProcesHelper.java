@@ -14,6 +14,8 @@ import java.util.zip.ZipOutputStream;
 
 import javax.annotation.Resource;
 
+import org.jbpm.graph.def.Node;
+import org.jbpm.graph.node.ProcessState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -191,6 +193,7 @@ public class DefinicioProcesHelper {
 						dpd.getVersion(),
 						entorn);
 				definicio.setExpedientTipus(expedientTipus);
+				expedientTipus.getDefinicionsProces().add(definicio);
 				definicio = definicioProcesRepository.saveAndFlush(definicio);
 				// Crea les tasques publicades
 				for (String nomTasca: jbpmHelper.getTaskNamesFromDeployedProcessDefinition(dpd)) {
@@ -548,16 +551,17 @@ public class DefinicioProcesHelper {
 						}
 					}
 				}
-		// Si el tipus d'expedient no tenia cap definició de procés inicial llavors la marca com inicial
-		if (expedientTipus != null
-				&& expedientTipus.getJbpmProcessDefinitionKey() == null
-				&& definicio != null) {
-			expedientTipus.setJbpmProcessDefinitionKey(definicio.getJbpmKey());
-			expedientTipusRepository.save(expedientTipus);
+		if (expedientTipus != null && definicio != null) {
+			// Si el tipus d'expedient no tenia cap definició de procés inicial llavors la marca com inicial
+			if (expedientTipus.getJbpmProcessDefinitionKey() == null) {
+				expedientTipus.setJbpmProcessDefinitionKey(definicio.getJbpmKey());
+				expedientTipusRepository.save(expedientTipus);
+			}			
+			expedientTipus.getDefinicionsProces().add(definicio);
 		}		
 		return definicio;
 	}
-	
+
 	/** Troba el domini per codi dins del tius d'expedient o l'entorn i el relaciona amb el camp. Si 
 	 * no el troba llença una excepció de no trobat.
 	 * @param camp
@@ -1180,6 +1184,30 @@ public class DefinicioProcesHelper {
 				tascaRepository.save(tascaDesti);
 			}
 		}		
+	}
+	
+	/** Mètode per relacionar la crida a les subdefinicions de procés per tal que es cridi la versió correcta en els nodes de tipus processState.
+	 * Només s'actualitzen entre elles les darreres versions de les definicions de procés, d'aquesta forma les versions anteriors queden de la mateixa
+	 * manera.
+	 * 
+	 * @param definicionsProces Llista de definicions de procés a relacionar les unes amb les altres i elles mateixes.
+	 */
+	@Transactional
+	public void relacionarDarreresVersionsDefinicionsProces(Set<DefinicioProces> definicionsProces) {
+		// Revisa les definicions de procés
+		Map<String, DefinicioProces> darreresDefinicionsProces = new HashMap<String, DefinicioProces>();
+		DefinicioProces aux;
+		for (DefinicioProces dp: definicionsProces) {
+			aux = darreresDefinicionsProces.get(dp.getJbpmKey());
+			if (aux == null || (aux.getVersio() < dp.getVersio()))
+				darreresDefinicionsProces.put(dp.getJbpmKey(), dp);
+		}
+		// Relaciona les darreres
+		for (DefinicioProces dp1: darreresDefinicionsProces.values())
+			for (DefinicioProces dp2 : darreresDefinicionsProces.values())
+				jbpmHelper.updateSubprocessDefinition(
+						jbpmHelper.getProcessDefinition(dp1.getJbpmId()).getProcessDefinition(), 
+						jbpmHelper.getProcessDefinition(dp2.getJbpmId()).getProcessDefinition());
 	}
 
 	private static final Logger logger = LoggerFactory.getLogger(DefinicioProcesHelper.class);
