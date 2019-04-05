@@ -106,7 +106,7 @@ public class ReproController extends BaseController {
 				}
 			}
 			return TascaFormHelper.getCommandForCamps(
-					tascaService.findDadesPerTascaDto(tasca),
+					tascaService.findDadesPerTascaDto(expedientTipusId, tasca),
 					valorsFormulariExtern,
 					campsAddicionals,
 					campsAddicionalsClasses,
@@ -133,7 +133,7 @@ public class ReproController extends BaseController {
 		
 		try {
 			ExpedientTascaDto tasca = obtenirTascaInicial(entorn.getId(), expedientTipusId, definicioProcesId, new HashMap<String, Object>(), request);
-			List<TascaDadaDto> tascaDades = tascaService.findDadesPerTascaDto(tasca);
+			List<TascaDadaDto> tascaDades = tascaService.findDadesPerTascaDto(expedientTipusId, tasca);
 			
 			Map<String, Object> valors = TascaFormHelper.getValorsFromCommand(
 					tascaDades,
