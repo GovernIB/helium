@@ -108,6 +108,8 @@ public class ExpedientHelper {
 	private DocumentStoreRepository documentStoreRepository;
 
 	@Resource
+	private ExpedientHelper expedientHelper;
+	@Resource
 	private EntornHelper entornHelper;
 	@Resource(name = "permisosHelperV3")
 	private PermisosHelper permisosHelper;
@@ -763,8 +765,19 @@ public class ExpedientHelper {
 	@Transactional
 	public void firmarDocumentsPerArxiuFiExpedient(Expedient expedient) {
 
-		List<DocumentStore> documents = documentStoreRepository.findByProcessInstanceId(expedient.getProcessInstanceId());
-		List<Long> documentsPerSignar = new ArrayList<Long>();
+		//List<DocumentStore> documents = documentStoreRepository.findByProcessInstanceId(expedient.getProcessInstanceId());
+		List<DocumentStore> documents = new ArrayList<DocumentStore>();
+		List<InstanciaProcesDto> arbreProcesInstance = expedientHelper.getArbreInstanciesProces(expedient.getProcessInstanceId());
+		
+		// Genera llista de tots els documents del expedient
+		for(InstanciaProcesDto procesInstance :arbreProcesInstance) {
+			documents.addAll(
+					documentStoreRepository.findByProcessInstanceId(procesInstance.getId())
+					);
+		}
+		
+		
+		List<DocumentStore> documentsPerSignar = new ArrayList<DocumentStore>();
 		List<DocumentStore> documentsNoValids = new ArrayList<DocumentStore>();
 		
 		PdfUtils pdfUtils = documentHelper.getPdfUtils();
@@ -774,7 +787,7 @@ public class ExpedientHelper {
 				if (!pdfUtils.isArxiuConvertiblePdf(documentStore.getArxiuNom())) {
 					documentsNoValids.add(documentStore);
 				} else {
-					documentsPerSignar.add(documentStore.getId());
+					documentsPerSignar.add(documentStore);
 				}
 			}
 		}
@@ -790,10 +803,11 @@ public class ExpedientHelper {
 		}
 		
 		// Firma en el servidor els documents pendents de firma
-		for (Long documentStoreId: documentsPerSignar) {
+		for (DocumentStore documentStore: documentsPerSignar) {
 				documentHelper.firmaServidor(
-						expedient.getProcessInstanceId(), 
-						documentStoreId, 
+						documentStore.getProcessInstanceId(),
+						//expedient.getProcessInstanceId(), 
+						documentStore.getId(), 
 						messageHelper.getMessage("document.controller.firma.servidor.default.message"),
 						true);
 		}

@@ -1373,8 +1373,9 @@ public class DocumentHelperV3 {
 				true,
 				(documentStore.getArxiuUuid() == null));
 		if (! "pdf".equals(arxiuPerFirmar.getExtensio())) {
+			arxiuPerFirmar.getNom();
 			// Transforma l'arxiu a PDF
-			arxiuPerFirmar = this.converteixPdf(arxiuPerFirmar);
+			arxiuPerFirmar = this.converteixPdf(arxiuPerFirmar);							
 		}
 		byte[] firma = pluginHelper.firmaServidor(
 				expedient,
@@ -1452,6 +1453,10 @@ public class DocumentHelperV3 {
 		} else {
 			documentDescripcio = document.getNom();
 		}
+		
+		documentDescripcio = inArxiu( documentDescripcio, 
+									"pdf",
+									processInstanceId);
 		
 		if (documentStore.getArxiuUuid() != null) {
 			ArxiuDto arxiuFirmat = new ArxiuDto();
