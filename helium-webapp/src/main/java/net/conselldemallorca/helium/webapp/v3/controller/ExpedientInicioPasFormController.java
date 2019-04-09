@@ -114,14 +114,14 @@ public class ExpedientInicioPasFormController extends BaseExpedientController {
 			}
 			if (valorsRepro == null || valorsRepro.isEmpty()) {
 				return TascaFormHelper.getCommandForCamps(
-						tascaService.findDadesPerTascaDto(tasca),
+						tascaService.findDadesPerTascaDto(expedientTipusId, tasca),
 						valorsFormulariExtern,
 						campsAddicionals,
 						campsAddicionalsClasses,
 						false);
 			} else {
 				return TascaFormHelper.getCommandForCamps(
-						tascaService.findDadesPerTascaDto(tasca),
+						tascaService.findDadesPerTascaDto(expedientTipusId, tasca),
 						valorsRepro,
 						campsAddicionals,
 						campsAddicionalsClasses,
@@ -146,7 +146,7 @@ public class ExpedientInicioPasFormController extends BaseExpedientController {
 		if (!model.containsAttribute("command") || model.asMap().get("command") == null)
 			model.addAttribute("command", populateCommand(request, expedientTipusId, definicioProcesId, model,null));
 		ExpedientTascaDto tasca = obtenirTascaInicial(entorn.getId(), expedientTipusId, definicioProcesId, new HashMap<String, Object>(), request);
-		List<TascaDadaDto> dades = tascaService.findDadesPerTascaDto(tasca);
+		List<TascaDadaDto> dades = tascaService.findDadesPerTascaDto(expedientTipusId, tasca);
 		List<ReproDto> repros = reproService.findReprosByUsuariTipusExpedient(expedientTipus.getId());
 		model.addAttribute("tasca", tasca);
 		model.addAttribute("dades", dades);
@@ -187,7 +187,7 @@ public class ExpedientInicioPasFormController extends BaseExpedientController {
 		EntornDto entorn = SessionHelper.getSessionManager(request).getEntornActual();
 		ExpedientTipusDto expedientTipus = dissenyService.getExpedientTipusById(expedientTipusId);
 		ExpedientTascaDto tasca = obtenirTascaInicial(entorn.getId(), expedientTipusId, definicioProcesId, new HashMap<String, Object>(), request);
-		List<TascaDadaDto> tascaDades = tascaService.findDadesPerTascaDto(tasca);
+		List<TascaDadaDto> tascaDades = tascaService.findDadesPerTascaDto(expedientTipusId, tasca);
 		List<ReproDto> repros = reproService.findReprosByUsuariTipusExpedient(expedientTipus.getId());
 		TascaFormValidatorHelper validator = new TascaFormValidatorHelper(
 				tascaService,

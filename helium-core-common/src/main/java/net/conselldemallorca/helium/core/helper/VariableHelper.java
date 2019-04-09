@@ -295,10 +295,11 @@ public class VariableHelper {
 		return dto;
 	}
 
-	public List<TascaDadaDto> findDadesPerInstanciaTascaDto(ExpedientTascaDto tasca) {		
+	public List<TascaDadaDto> findDadesPerInstanciaTascaDto(Long expedientTipusId, ExpedientTascaDto tasca) {		
 		List<TascaDadaDto> resposta = new ArrayList<TascaDadaDto>();
 		Tasca tascaEntity = tascaRepository.findOne(tasca.getTascaId());
-		Long expedientTipusId = tascaEntity.getDefinicioProces().getExpedientTipus() != null ? tascaEntity.getDefinicioProces().getExpedientTipus().getId() : null; 
+		if (expedientTipusId == null)
+			expedientTipusId = tascaEntity.getDefinicioProces().getExpedientTipus() != null ? tascaEntity.getDefinicioProces().getExpedientTipus().getId() : null; 
 		for (CampTasca campTasca: campTascaRepository.findAmbTascaOrdenats(tasca.getTascaId(), expedientTipusId)) {
 			Camp camp = campTasca.getCamp();
 			

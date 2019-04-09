@@ -513,8 +513,8 @@ public class TascaServiceImpl implements TascaService {
 
 	@Override
 	@Transactional(readOnly = true)
-	public List<TascaDadaDto> findDadesPerTascaDto(ExpedientTascaDto tasca) {
-		return variableHelper.findDadesPerInstanciaTascaDto(tasca);
+	public List<TascaDadaDto> findDadesPerTascaDto(Long expedientTipusId, ExpedientTascaDto tasca) {
+		return variableHelper.findDadesPerInstanciaTascaDto(expedientTipusId, tasca);
 	}
 
 	@Override

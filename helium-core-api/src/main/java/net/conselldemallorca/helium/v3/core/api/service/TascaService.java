@@ -395,7 +395,7 @@ public interface TascaService {
 			Long expedientTipusId,
 			Long definicioProcesId);
 
-	public List<TascaDadaDto> findDadesPerTascaDto(ExpedientTascaDto tasca);
+	public List<TascaDadaDto> findDadesPerTascaDto(Long expedientTipusId, ExpedientTascaDto tasca);
 	
 	public List<ExpedientTascaDto> findAmbIds(Set<Long> ids);
 
