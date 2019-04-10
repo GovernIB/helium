@@ -208,7 +208,8 @@ public class ReproController extends BaseController {
 			MissatgesHelper.error(request, getMessage(request, "repro.missatge.error.eliminat"));
 		}
 		
-		String referer = request.getHeader("Referer");
+		String referer = request.getHeader("Referer").replaceAll("/guardar(/)?$" , "");
+		
 	    return "redirect:"+ referer;
 	}
 	
@@ -288,7 +289,7 @@ public class ReproController extends BaseController {
 					": " + ex.getMessage());
 		}
 		//return tascaTramitacioController.pipelles(request, tascaTipusId.toString(), model);
-		String referer = request.getHeader("Referer").replaceAll("/fromRepro/.*" , "");
+		String referer = request.getHeader("Referer").replaceAll("/fromRepro/.*$" , "").replaceAll("/guardar(/)?$" , "");
 	    return "redirect:"+ referer + "/fromRepro/" + repro.getId();
 		//return tascaTramitacioController.formRepro(request, tasca.getId(), repro.getId(), model);
 	}
