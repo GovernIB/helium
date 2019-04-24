@@ -172,6 +172,8 @@ public class ExpedientTipus implements Serializable, GenericEntity<Long> {
 	private List<Document> documents = new ArrayList<Document>();
 	private List<Termini> terminis = new ArrayList<Termini>();
 	private List<Accio> accions = new ArrayList<Accio>();
+	private List<ExecucioMassiva> execucionsMassives  = new ArrayList<ExecucioMassiva>();
+	private List<Repro> repros  = new ArrayList<Repro>();
 	
 	private boolean ntiActiu;
 	@MaxLength(256)
@@ -809,6 +811,13 @@ public class ExpedientTipus implements Serializable, GenericEntity<Long> {
 		this.accions = accions;
 	}
 	
+	@OneToMany(mappedBy="expedientTipus", cascade={CascadeType.ALL})
+	public List<ExecucioMassiva> getExecucionsMassives() {
+		return execucionsMassives;
+	}
+	public void setExecucionsMassives(List<ExecucioMassiva> execucionsMassives) {
+		this.execucionsMassives = execucionsMassives;
+	}
 	@Column(name="nti_actiu")
 	public boolean isNtiActiu() {
 		return ntiActiu;
@@ -847,6 +856,14 @@ public class ExpedientTipus implements Serializable, GenericEntity<Long> {
 	}
 	public void setArxiuActiu(boolean arxiuActiu) {
 		this.arxiuActiu = arxiuActiu;
+	}
+	
+	@OneToMany(mappedBy="expedientTipus", cascade={CascadeType.ALL})
+	public List<Repro> getRepros() {
+		return repros;
+	}
+	public void setRepros(List<Repro> repros) {
+		this.repros = repros;
 	}
 
 	@Override
