@@ -4,6 +4,7 @@
 package net.conselldemallorca.helium.v3.core.api.service;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.springframework.security.acls.model.NotFoundException;
@@ -227,7 +228,9 @@ public interface DissenyService {
 	public DefinicioProcesVersioDto getByVersionsInstanciaProcesById(String processInstanceId) throws NoTrobatException;
 
 	public List<FilaResultat> consultaDominiIntern(String id, List<ParellaCodiValor> parametres) throws Exception;
-
+	
+	public List<FilaResultat> consultaDomini(Long id, String codiDomini, Map<String, Object> parametres);
+	
 	public DocumentDto documentFindOne(Long documentId) throws NoTrobatException;
 
 	public List<DocumentDto> documentFindAmbDefinicioProces(Long definicioProcesId) throws NoTrobatException;

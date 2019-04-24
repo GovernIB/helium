@@ -4,6 +4,7 @@
 package net.conselldemallorca.helium.v3.core.ejb;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.annotation.security.RolesAllowed;
@@ -15,7 +16,6 @@ import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 
 import net.conselldemallorca.helium.core.extern.domini.FilaResultat;
 import net.conselldemallorca.helium.core.extern.domini.ParellaCodiValor;
-import net.conselldemallorca.helium.core.model.hibernate.ConsultaCamp.TipusConsultaCamp;
 import net.conselldemallorca.helium.v3.core.api.dto.AreaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ConsultaCampDto;
@@ -341,6 +341,12 @@ public class DissenyServiceBean implements DissenyService {
 			ConsultaDto consulta,
 			boolean filtrarValorsPredefinits){
 		return delegate.findCampsInformePerCampsConsulta(consulta, filtrarValorsPredefinits);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public List<FilaResultat> consultaDomini(Long id, String codiDomini, Map<String, Object> parametres) {
+		return delegate.consultaDomini(id, codiDomini, parametres);
 	}
 
 }

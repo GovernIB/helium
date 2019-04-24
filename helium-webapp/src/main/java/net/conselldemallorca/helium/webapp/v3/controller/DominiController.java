@@ -1,5 +1,11 @@
 package net.conselldemallorca.helium.webapp.v3.controller;
 
+import java.math.BigDecimal;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
+import java.util.HashMap;
+import java.util.Map;
+
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
@@ -7,6 +13,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.propertyeditors.StringTrimmerEditor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -14,6 +22,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -22,6 +31,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.DominiDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.exception.ValidacioException;
+import net.conselldemallorca.helium.v3.core.api.service.DissenyService;
 import net.conselldemallorca.helium.v3.core.api.service.DominiService;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientTipusDominiCommand;
 import net.conselldemallorca.helium.webapp.v3.helper.ConversioTipusHelper;
@@ -40,6 +50,8 @@ public class DominiController extends BaseDissenyController {
 	
 	@Autowired
 	private DominiService dominiService;
+	@Autowired
+	private DissenyService dissenyService;
 	@Resource
 	private ConversioTipusHelper conversioTipusHelper;
 	
@@ -203,7 +215,64 @@ public class DominiController extends BaseDissenyController {
 		} else {
 			return "redirect:/v3";
 		}
-	}	
+	}
+	
+	/** Mètode per provar un domini */
+	@RequestMapping(value="/{dominiId}/test", method = RequestMethod.GET)
+	public String test(
+			HttpServletRequest request,
+			@PathVariable Long dominiId,
+			Model model) {
+		model.addAttribute("dominiId", dominiId);
+		return "v3/provaDomini";
+	}
+	
+	/** Mètode per provar un domini */
+	@RequestMapping(value="/{dominiId}/test", method = RequestMethod.POST, consumes="application/json", produces = "application/json") 
+	@ResponseBody
+	public ResponseEntity<Object> testS(
+			HttpServletRequest request,
+			@PathVariable Long dominiId,
+			Model model,
+			@RequestBody Cmd params) {
+		String[] codis = params.getCodi();
+		String[] tipus = params.getTipusParam();
+		String[] values = params.getPar();
+		Map<String, Object> parametres = new HashMap<String, Object>();
+		for(int i = 0; i<codis.length; i++) {
+			if(tipus[i].equals("string")){
+			    parametres.put(codis[i],values[i].toString());
+			}
+			if(tipus[i].equals("int")){
+			    parametres.put(codis[i],Long.parseLong(values[i]));
+			}
+			if(tipus[i].equals("float")){
+			    parametres.put(codis[i],Double.parseDouble(values[i]));
+			}
+			if(tipus[i].equals("boolean")){
+			    parametres.put(codis[i],Boolean.parseBoolean(values[i]));
+			}
+			if(tipus[i].equals("date")){
+			    String[] dataSplit = values[i].split("/");
+			    Calendar data = new GregorianCalendar();
+			    data.set(Integer.parseInt(dataSplit[2]),Integer.parseInt(dataSplit[1]),Integer.parseInt(dataSplit[0]));
+			    parametres.put(codis[i],data);
+			}
+			if(tipus[i].equals("price")){
+			    String dat = values[i];
+			    BigDecimal datBDecimal = new BigDecimal(new Double(dat));
+			    parametres.put(codis[i], datBDecimal);
+			}
+		}
+		try {
+			return new ResponseEntity<Object>(dissenyService.consultaDomini(dominiId,params.getCodiDomini(), parametres),HttpStatus.OK);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return new ResponseEntity<Object>(e,HttpStatus.BAD_REQUEST);
+		}
+	}
+	
+	
 
 	@InitBinder
 	public void initBinder(WebDataBinder binder) {
@@ -211,4 +280,47 @@ public class DominiController extends BaseDissenyController {
 	}
 
 	private static final Log logger = LogFactory.getLog(DominiController.class);
+}
+
+class Cmd{
+	private String codiDomini;
+	private String[] codi;
+	private String[] tipusParam;
+	private String[] par;
+	
+	public Cmd() {}
+	
+	public Cmd(String codiDomini, String[] codi, String[] tipusParam, String[] par) {
+		super();
+		this.codiDomini = codiDomini;
+		this.codi = codi;
+		this.tipusParam = tipusParam;
+		this.par = par;
+	}
+	public String getCodiDomini() {
+		return codiDomini;
+	}
+	public void setCodiDomini(String codiDomini) {
+		this.codiDomini = codiDomini;
+	}
+	public String[] getCodi() {
+		return codi;
+	}
+	public void setCodi(String[] codi) {
+		this.codi = codi;
+	}
+	public String[] getTipusParam() {
+		return tipusParam;
+	}
+	public void setTipusParam(String[] tipusParam) {
+		this.tipusParam = tipusParam;
+	}
+	public String[] getPar() {
+		return par;
+	}
+	public void setPar(String[] par) {
+		this.par = par;
+	}
+	
+	
 }

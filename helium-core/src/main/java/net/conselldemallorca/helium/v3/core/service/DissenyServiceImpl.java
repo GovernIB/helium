@@ -705,6 +705,16 @@ public class DissenyServiceImpl implements DissenyService {
 				id,
 				parametres);
 	}
+	
+	@Override
+	@Transactional(readOnly=true)
+	public List<FilaResultat> consultaDomini(
+			Long id,
+			String codiDomini,
+			Map<String, Object> parametres) {
+		Domini domini = dominiRepository.findOne(id);
+		return dominiHelper.consultar(domini, codiDomini,parametres);
+	}
 
 	@Override
 	@Transactional(readOnly = true)
