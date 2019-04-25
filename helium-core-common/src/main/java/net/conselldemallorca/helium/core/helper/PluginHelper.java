@@ -2284,6 +2284,15 @@ public class PluginHelper {
 			throw tractarExcepcioEnSistemaExtern(errorDescripcio, ex);
 		}
 	}
+	
+	public boolean arxiuExisteixExpedient(String arxiuUuid) {
+		try {
+			es.caib.plugins.arxiu.api.Expedient exp = getArxiuPlugin().expedientDetalls(arxiuUuid, null);
+			return exp != null;
+		} catch (Exception ex) {
+			return false;
+		}
+	}
 
 	public ContingutArxiu arxiuDocumentActualitzar(
 			Expedient expedient,
