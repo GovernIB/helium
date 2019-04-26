@@ -43,7 +43,8 @@ public class Domini implements Serializable, GenericEntity<Long> {
 
 	public enum TipusDomini {
 		CONSULTA_SQL,
-		CONSULTA_WS
+		CONSULTA_WS,
+		CONSULTA_REST
 	}
 	public enum TipusAuthDomini {
 		NONE,

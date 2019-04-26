@@ -52,6 +52,7 @@ import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.hibernate.Permis;
 import net.conselldemallorca.helium.core.model.hibernate.Usuari;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
+import net.conselldemallorca.helium.core.util.ws.RestClient;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmTask;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDadaDto;
@@ -188,6 +189,10 @@ public class DominiHelper {
 					resultat = consultaWs(domini, id, parametres);
 				else if (domini.getTipus().equals(TipusDomini.CONSULTA_SQL))
 					resultat = consultaSql(domini, parametres);
+				else if (domini.getTipus().equals(TipusDomini.CONSULTA_REST)) {
+					resultat = RestClient.get(domini, id,parametres);
+				}
+					
 				if (resultat == null)
 					resultat = new ArrayList<FilaResultat>();
 				if (domini.getCacheSegons() > 0) {

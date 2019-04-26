@@ -89,20 +89,21 @@
 		}
 		
 		function res(response){
-			$("#res-json").html(JSON.stringify(response, null, " "));
+			$("#res-json").html(JSON.stringify(response.objecte, null, " "));
 			var data = {};
-			response.forEach(function(element, index) {
+			response.objecte.forEach(function(element, index) {
 				element.columnes.forEach(function(e, i) {
 					if(data[e.codi] == undefined)
 						data[e.codi] = [];
 					data[e.codi].push(e.valor);
 				});
 			});
+			console.log(data);
 			var cols = [];
 			var length = 0;
 			var th = "";
 			for(var key in data){
-				length = data[key].length;
+				length = data[key].length >= length? data[key].length : length;
 				th += "<th>" + key + "</th>";
 				cols.push(key);
 			}
@@ -110,7 +111,8 @@
 			for(var i = 0; i < length; i++){
 				var td = "";
 				cols.forEach(function(element, index) {
-					td += "<td>" + data[element][i] + "</td>";
+					var val = (data[element][i] == undefined)?"":data[element][i];
+					td += "<td>" + val + "</td>";
 				});
 			$("#res-grid table").append("<tr>"+td+"</tr>");
 			} 
@@ -140,7 +142,7 @@
 					  res(response);
 		            },
 		          error: function (response) {
-		        	  $("#error").html('<div class="alert alert-danger">' + JSON.stringify(response, null, " ") + '</div>' );
+		        	  $("#error").html('<div class="alert alert-danger"><strong>' + response.statusText + '</strong>' + response.responseJSON.objecte + '</div>' );
 		          	},
 				  contentType:"application/json"
 			});

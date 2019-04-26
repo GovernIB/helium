@@ -34,6 +34,8 @@ import net.conselldemallorca.helium.v3.core.api.exception.ValidacioException;
 import net.conselldemallorca.helium.v3.core.api.service.DissenyService;
 import net.conselldemallorca.helium.v3.core.api.service.DominiService;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientTipusDominiCommand;
+import net.conselldemallorca.helium.webapp.v3.helper.AjaxHelper;
+import net.conselldemallorca.helium.webapp.v3.helper.AjaxHelper.AjaxFormResponse;
 import net.conselldemallorca.helium.webapp.v3.helper.ConversioTipusHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.DatatablesHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.DatatablesHelper.DatatablesResponse;
@@ -234,7 +236,8 @@ public class DominiController extends BaseDissenyController {
 			HttpServletRequest request,
 			@PathVariable Long dominiId,
 			Model model,
-			@RequestBody Cmd params) {
+			@RequestBody Cmd params,
+			BindingResult bindingResult) {
 		String[] codis = params.getCodi();
 		String[] tipus = params.getTipusParam();
 		String[] values = params.getPar();
@@ -265,10 +268,10 @@ public class DominiController extends BaseDissenyController {
 			}
 		}
 		try {
-			return new ResponseEntity<Object>(dissenyService.consultaDomini(dominiId,params.getCodiDomini(), parametres),HttpStatus.OK);
+			return new ResponseEntity<Object>(AjaxHelper.generarAjaxFormOk(dissenyService.consultaDomini(dominiId,params.getCodiDomini(), parametres)),HttpStatus.OK);
 		} catch (Exception e) {
 			e.printStackTrace();
-			return new ResponseEntity<Object>(e,HttpStatus.BAD_REQUEST);
+			return new ResponseEntity<Object>(AjaxHelper.generarAjaxFormErrors(e.getLocalizedMessage(), bindingResult),HttpStatus.BAD_REQUEST);
 		}
 	}
 	
