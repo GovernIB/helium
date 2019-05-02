@@ -1130,8 +1130,12 @@ public class ExpedientServiceImpl implements ExpedientService {
 		
 		//reobrim l'expedient de l'arxiu digital si escau
 		if (expedient.getTipus().isArxiuActiu() && expedient.getArxiuUuid() != null) {
-			// Obre de nou l'expedient tancat a l'arxiu.
-			pluginHelper.arxiuExpedientReobrir(expedient.getArxiuUuid());
+			if(pluginHelper.arxiuExisteixExpedient(expedient.getArxiuUuid())) {
+				// Obre de nou l'expedient tancat a l'arxiu.
+				pluginHelper.arxiuExpedientReobrir(expedient.getArxiuUuid());
+			}else {
+				expedientHelper.migrarArxiu(expedient);
+			}
 		}
 	}
 	
@@ -1164,11 +1168,17 @@ public class ExpedientServiceImpl implements ExpedientService {
 		
 		//tancam l'expedient de l'arxiu si escau
 		if (expedient.isArxiuActiu()) {
-			//firmem els documents que no estan firmats
-			expedientHelper.firmarDocumentsPerArxiuFiExpedient(expedient);
-			
-			// Tanca l'expedient a l'arxiu.
-			pluginHelper.arxiuExpedientTancar(expedient.getArxiuUuid());
+			List<ContingutArxiu> continguts = pluginHelper.arxiuExpedientInfo(expedient.getArxiuUuid()).getContinguts();
+			if(continguts == null || continguts.isEmpty()) {
+				// S'eborra l'expedient del arxiu si no te cap document.
+				pluginHelper.arxiuExpedientEsborrar(expedient.getArxiuUuid());
+			}else {
+				//firmem els documents que no estan firmats
+				expedientHelper.firmarDocumentsPerArxiuFiExpedient(expedient);
+				
+				// Tanca l'expedient a l'arxiu.
+				pluginHelper.arxiuExpedientTancar(expedient.getArxiuUuid());
+			}
 		}
 		
 		crearRegistreExpedient(
