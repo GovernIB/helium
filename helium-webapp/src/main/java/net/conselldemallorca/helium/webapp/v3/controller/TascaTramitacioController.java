@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.annotation.Resource;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
@@ -46,10 +47,12 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.support.SessionStatus;
 import org.springframework.web.multipart.commons.CommonsMultipartFile;
 
+import net.conselldemallorca.helium.core.helper.DocumentHelperV3;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExecucioMassivaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExecucioMassivaDto.ExecucioMassivaTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.FirmaTascaDto;
@@ -70,6 +73,7 @@ import net.conselldemallorca.helium.v3.core.api.service.AplicacioService;
 import net.conselldemallorca.helium.v3.core.api.service.DefinicioProcesService;
 import net.conselldemallorca.helium.v3.core.api.service.ExecucioMassivaService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientDocumentService;
+import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
 import net.conselldemallorca.helium.v3.core.api.service.ReproService;
 import net.conselldemallorca.helium.v3.core.api.service.TascaService;
 import net.conselldemallorca.helium.webapp.mvc.ArxiuView;
@@ -112,6 +116,10 @@ public class TascaTramitacioController extends BaseTascaController {
 	private PassarelaFirmaHelper passarelaFirmaHelper;
 	@Autowired
 	private ReproService reproService;
+	@Resource(name="documentHelperV3")
+	private DocumentHelperV3 documentHelper;
+	@Autowired
+	protected ExpedientService expedientService;
 	
 	@ModelAttribute("command")
 	public Object modelAttributeCommand(
@@ -710,6 +718,7 @@ public class TascaTramitacioController extends BaseTascaController {
 			byte[] contingutArxiu = IOUtils.toByteArray(arxiu.getInputStream());
 			String nomArxiu = arxiu.getOriginalFilename();
 			ExpedientTascaDto tasca = tascaService.findAmbIdPerTramitacio(tascaId);
+			ExpedientDto expedient = expedientService.findAmbId(tasca.getExpedientId());
 			if (!tasca.isValidada()) {
 				MissatgesHelper.error(request, getMessage(request, "error.validar.dades"));
 			} else if (!expedientDocumentService.isExtensioPermesaPerTasca(
@@ -719,6 +728,9 @@ public class TascaTramitacioController extends BaseTascaController {
 				MissatgesHelper.error(request, getMessage(request, "error.extensio.document"));
 			} else if (nomArxiu.isEmpty() || contingutArxiu.length == 0) {
 				MissatgesHelper.error(request, getMessage(request, "error.especificar.document"));
+				// Per evitar problemes amb el tancament del arxiu es valida que només es puguin pujar documents convertibles a pdf 
+			} else if(expedient.isArxiuActiu() && !documentHelper.getPdfUtils().isArxiuConvertiblePdf(nomArxiu)) {
+				MissatgesHelper.error(request, getMessage(request, "document.validacio.conversible.error"));
 			} else {
 				TascaDocumentDto doc = tascaService.findDocument(tascaId, documentId);
 				accioDocumentAdjuntar(

@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.annotation.Resource;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
@@ -40,6 +41,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import edu.emory.mathcs.backport.java.util.Arrays;
+import net.conselldemallorca.helium.core.helper.DocumentHelperV3;
 import net.conselldemallorca.helium.core.model.service.PluginService;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
@@ -73,6 +75,8 @@ public class ExpedientDocumentController extends BaseExpedientController {
 	private PluginService pluginService;
 	@Autowired
 	private NtiHelper ntiHelper;
+	@Resource(name="documentHelperV3")
+	private DocumentHelperV3 documentHelper;
 
 
 
@@ -161,7 +165,7 @@ public class ExpedientDocumentController extends BaseExpedientController {
 			Model model) throws IOException {
 		ExpedientDto expedient = expedientService.findAmbId(expedientId);
 		command.setNtiActiu(expedient.isNtiActiu());
-		new DocumentModificarValidator(true).validate(command, bindingResult);
+		new DocumentModificarValidator(true, expedient.isArxiuActiu()).validate(command, bindingResult);
 		if (bindingResult.hasErrors()) {
         	model.addAttribute("documentsNoUtilitzats", getDocumentsNoUtilitzats(expedientId, processInstanceId));
     		model.addAttribute("processInstanceId", processInstanceId);
@@ -244,7 +248,7 @@ public class ExpedientDocumentController extends BaseExpedientController {
 			Model model) throws IOException {
 		ExpedientDto expedient = expedientService.findAmbId(expedientId);
 		command.setNtiActiu(expedient.isNtiActiu());
-		new DocumentModificarValidator(false).validate(command, result);
+		new DocumentModificarValidator(false, expedient.isArxiuActiu()).validate(command, result);
 		ExpedientDocumentDto document = expedientDocumentService.findOneAmbInstanciaProces(
     			expedientId,
     			processInstanceId,
@@ -541,9 +545,11 @@ public class ExpedientDocumentController extends BaseExpedientController {
 
 	public class DocumentModificarValidator implements Validator {
 		private boolean validarArxiu;
-		public DocumentModificarValidator(boolean validarArxiu) {
+		private boolean arxiuActiu;
+		public DocumentModificarValidator(boolean validarArxiu, boolean arxiuActiu) {
 			super();
 			this.validarArxiu = validarArxiu;
+			this.arxiuActiu = arxiuActiu;
 		}
 		@SuppressWarnings({ "unchecked", "rawtypes" })
 		public boolean supports(Class clazz) {
@@ -564,6 +570,9 @@ public class ExpedientDocumentController extends BaseExpedientController {
 				if(Arrays.asList(new NtiEstadoElaboracionEnumDto[] {NtiEstadoElaboracionEnumDto.COPIA_CF,NtiEstadoElaboracionEnumDto.COPIA_DP,NtiEstadoElaboracionEnumDto.COPIA_PR}).contains(documentExpedientCommand.getNtiEstadoElaboracion()) && documentExpedientCommand.getNtiIdOrigen() == null)
 					errors.rejectValue("ntiIdOrigen", "document.metadades.nti.iddoc.origen.validacio.copia");
 			}
+			// Per evitar problemes amb el tancament del arxiu es valida que només es puguin pujar documents convertibles a pdf 
+			if(arxiuActiu && !documentHelper.getPdfUtils().isArxiuConvertiblePdf(documentExpedientCommand.getArxiuNom()))
+				errors.rejectValue("arxiu", "document.validacio.conversible.error");
  			if ("##adjuntar_arxiu##".equalsIgnoreCase(documentExpedientCommand.getDocumentCodi()) || documentExpedientCommand.getDocumentCodi() == null) {
  				ValidationUtils.rejectIfEmpty(errors, "nom", "not.blank");
  			}
