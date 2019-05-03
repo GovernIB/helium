@@ -2,6 +2,8 @@ package net.conselldemallorca.helium.webapp.v3.controller;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -24,6 +26,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.EnumeracioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusEnumeracioValorDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
+import net.conselldemallorca.helium.v3.core.api.exception.ValidacioException;
 import net.conselldemallorca.helium.v3.core.api.service.EnumeracioService;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientTipusEnumeracioValorCommand;
 import net.conselldemallorca.helium.webapp.v3.helper.ConversioTipusHelper;
@@ -172,16 +175,16 @@ public class ExpedientTipusEnumeracioValorController extends BaseExpedientTipusC
 			@PathVariable Long enumeracioId,
 			@Validated(ExpedientTipusEnumeracioValorCommand.Creacio.class) ExpedientTipusEnumeracioValorCommand command,
 			BindingResult bindingResult, Model model) {
-
-		if (bindingResult.hasErrors()) {
+		
+		if (valorExisteix(expedientTipusId, enumeracioId, command.getCodi()) || bindingResult.hasErrors()) {
 			model.addAttribute("mostraCreate", true);
 			ompleDadesModel(request, expedientTipusId, enumeracioId, model, false);
 			model.addAttribute("expedientTipusEnumeracioValorCommand", command);
         	return "v3/expedientTipusEnumeracioValors";
 		} else {
-		
-			ExpedientTipusEnumeracioValorDto dto = ExpedientTipusEnumeracioValorCommand.asExpedientTipusEnumeracioValorDto(command);
 			EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
+			ExpedientTipusEnumeracioValorDto dto = ExpedientTipusEnumeracioValorCommand.asExpedientTipusEnumeracioValorDto(command);
+			
 			
 			enumeracioService.valorsCreate(expedientTipusId, enumeracioId, entornActual.getId(), dto);
 			
@@ -219,7 +222,7 @@ public class ExpedientTipusEnumeracioValorController extends BaseExpedientTipusC
 				if (eliminarValorsAntics != null && eliminarValorsAntics) {
 					enumeracioService.enumeracioDeleteAllByEnumeracio(enumeracioId);
 				}
-				
+				List<ExpedientTipusEnumeracioValorDto> valors = new ArrayList<ExpedientTipusEnumeracioValorDto>();
 				BufferedReader br = new BufferedReader(new InputStreamReader(multipartFile.getInputStream()));
 				String linia = br.readLine();
 				while (linia != null) {
@@ -234,10 +237,18 @@ public class ExpedientTipusEnumeracioValorController extends BaseExpedientTipusC
 			        	}
 			        	enumeracioValors.setCodi(codi);
 			        	enumeracioValors.setNom(columnes[1]);
-			        	enumeracioService.valorsCreate(expedientTipusId, enumeracioId, entornActual.getId(), enumeracioValors);
+			        	if(valorExisteix(expedientTipusId, enumeracioId,codi))
+			        		throw new ValidacioException(
+			        				getMessage(
+											request,
+											"expedient.tipus.enumeracio.valors.importats.duplicat",
+											new Object[] {codi}));
+			        	valors.add(enumeracioValors);
 					}
 					linia = br.readLine();
 				}
+				for(ExpedientTipusEnumeracioValorDto valor : valors)
+					enumeracioService.valorsCreate(expedientTipusId, enumeracioId, entornActual.getId(), valor);
 				MissatgesHelper.success(
 						request,
 						getMessage(
@@ -250,10 +261,15 @@ public class ExpedientTipusEnumeracioValorController extends BaseExpedientTipusC
 					request,
 					getMessage(
 							request,
-							"expedient.tipus.enumeracio.valors.importats.error"));
+							"expedient.tipus.enumeracio.valors.importats.error", new Object[] {ex.getMessage()}));
         	return valors(request, expedientTipusId, enumeracioId, model);
         }
-	}	
+	}
+	
+	private boolean valorExisteix(Long expedientTipusId, Long enumeracioId, String codi) {
+		ExpedientTipusEnumeracioValorDto valor = enumeracioService.valorFindAmbCodi(expedientTipusId, enumeracioId, codi);
+		return valor != null;
+	}
 	
 	private void ompleDadesModel(
 			HttpServletRequest request,

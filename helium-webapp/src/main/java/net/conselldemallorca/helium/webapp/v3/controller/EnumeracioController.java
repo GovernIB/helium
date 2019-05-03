@@ -2,6 +2,7 @@ package net.conselldemallorca.helium.webapp.v3.controller;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.annotation.Resource;
@@ -378,7 +379,7 @@ public class EnumeracioController extends BaseDissenyController {
 				if (eliminarValorsAntics != null && eliminarValorsAntics) {
 					enumeracioService.enumeracioDeleteAllByEnumeracio(enumeracioId);
 				}
-				
+				List<ExpedientTipusEnumeracioValorDto> valors = new ArrayList<ExpedientTipusEnumeracioValorDto>();
 				BufferedReader br = new BufferedReader(new InputStreamReader(multipartFile.getInputStream()));
 				String linia = br.readLine();
 				while (linia != null) {
@@ -393,10 +394,18 @@ public class EnumeracioController extends BaseDissenyController {
 			        	}
 			        	enumeracioValors.setCodi(codi);
 			        	enumeracioValors.setNom(columnes[1]);
-			        	enumeracioService.valorsCreate(null, enumeracioId, entornActual.getId(), enumeracioValors);
+			        	if(valorExisteix(null, enumeracioId,codi))
+			        		throw new ValidacioException(
+			        				getMessage(
+											request,
+											"expedient.tipus.enumeracio.valors.importats.duplicat",
+											new Object[] {codi}));
+			        	valors.add(enumeracioValors);
 					}
 					linia = br.readLine();
 				}
+				for(ExpedientTipusEnumeracioValorDto valor : valors)
+					enumeracioService.valorsCreate(null, enumeracioId, entornActual.getId(), valor);
 				MissatgesHelper.success(
 						request,
 						getMessage(
@@ -408,7 +417,7 @@ public class EnumeracioController extends BaseDissenyController {
 					request,
 					getMessage(
 							request,
-							"expedient.tipus.enumeracio.valors.importats.error"));
+							"expedient.tipus.enumeracio.valors.importats.error", new Object[] {ex.getMessage()}));
         }
     	return valors(request, enumeracioId, model);
 	}	
@@ -453,6 +462,11 @@ public class EnumeracioController extends BaseDissenyController {
 							request, 
 							"expedient.tipus.enumeracio.valors.exportats.error"));        			
         
+	}
+	
+	private boolean valorExisteix(Long expedientTipusId, Long enumeracioId, String codi) {
+		ExpedientTipusEnumeracioValorDto valor = enumeracioService.valorFindAmbCodi(expedientTipusId, enumeracioId, codi);
+		return valor != null;
 	}
 	
 	private void ompleDadesModel(

@@ -41,7 +41,7 @@ public interface EnumeracioValorsRepository extends JpaRepository<EnumeracioValo
 			@Param("filtre") String filtre,		
 			Pageable pageable);
 	
-	public Enumeracio findByEnumeracioAndCodi(Enumeracio enumeracio, String codi);
+	public EnumeracioValors findByEnumeracioAndCodi(Enumeracio enumeracio, String codi);
 	
 	public List<EnumeracioValors> findByEnumeracioIdOrderByOrdreAsc(Long enumeracioId);
 	
