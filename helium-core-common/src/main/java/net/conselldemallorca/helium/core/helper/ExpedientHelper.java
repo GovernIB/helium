@@ -681,6 +681,16 @@ public class ExpedientHelper {
 				"Desfinalitzar",
 				"expedient",
 				expedient.getTipus().getNom());
+		
+		//reobrim l'expedient de l'arxiu digital si escau
+        if (expedient.getTipus().isArxiuActiu() && expedient.getArxiuUuid() != null) {
+	        if(pluginHelper.arxiuExisteixExpedient(expedient.getArxiuUuid())) {
+	            // Obre de nou l'expedient tancat a l'arxiu.
+	            pluginHelper.arxiuExpedientReobrir(expedient.getArxiuUuid());
+	        }else {
+                expedientHelper.migrarArxiu(expedient);
+	        }
+        }
 	}
 	
 	@Transactional
