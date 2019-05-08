@@ -221,11 +221,21 @@ public class TascaTramitacioController extends BaseTascaController {
 		return "v3/tascaForm";
 	}
 	
-	@RequestMapping(value = {"/{tascaId}/fromRepro/{reproId}","/{tascaId}/restaurar/fromRepro/{reproId}"}, method = RequestMethod.GET)
+	@RequestMapping(value = "/{tascaId}/fromRepro/{reproId}", method = RequestMethod.GET)
 	public String formRepro(
 			HttpServletRequest request,
 			@PathVariable String tascaId,
 			@PathVariable Long reproId,
+			Model model) {
+		return formReproAccio(request, tascaId, reproId, null, model);
+	}
+
+		@RequestMapping(value = "/{tascaId}/{accio}/fromRepro/{reproId}", method = RequestMethod.GET)
+	public String formReproAccio(
+			HttpServletRequest request,
+			@PathVariable String tascaId,
+			@PathVariable Long reproId,
+			@PathVariable String accio,
 			Model model) {
 		model.addAttribute("bloquejarEdicioTasca", tascaService.isEnSegonPla(tascaId));
 		ExpedientTascaDto tasca = tascaService.findAmbIdPerTramitacio(tascaId);

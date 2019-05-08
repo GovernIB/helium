@@ -13,23 +13,6 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
-import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
-import net.conselldemallorca.helium.v3.core.api.dto.FormulariExternDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ReproDto;
-import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.TascaDto;
-import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
-import net.conselldemallorca.helium.v3.core.api.service.DissenyService;
-import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
-import net.conselldemallorca.helium.v3.core.api.service.ReproService;
-import net.conselldemallorca.helium.v3.core.api.service.TascaService;
-import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
-import net.conselldemallorca.helium.webapp.v3.helper.ObjectTypeEditorHelper;
-import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
-import net.conselldemallorca.helium.webapp.v3.helper.TascaFormHelper;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,6 +30,21 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.support.SessionStatus;
+
+import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ReproDto;
+import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
+import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
+import net.conselldemallorca.helium.v3.core.api.service.DissenyService;
+import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
+import net.conselldemallorca.helium.v3.core.api.service.ReproService;
+import net.conselldemallorca.helium.v3.core.api.service.TascaService;
+import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
+import net.conselldemallorca.helium.webapp.v3.helper.ObjectTypeEditorHelper;
+import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
+import net.conselldemallorca.helium.webapp.v3.helper.TascaFormHelper;
 
 /**
  * Controlador per Repros
@@ -167,9 +165,8 @@ public class ReproController extends BaseController {
 					": " + ex.getMessage());
 		}
 		
-		String referer = request.getHeader("Referer").replaceAll("/fromRepro/.*" , "");
+		String referer = request.getHeader("Referer");
 	    return "redirect:"+ referer + "/fromRepro/" + repro.getId();
-//		return expedientInicioPasFormController.iniciarFormGet(request, expedientTipusId, definicioProcesId, model);
 	}
 	
 	@RequestMapping(value = "/{expedientTipusId}/{definicioProcesId}/borrarRepro/{reproId}", method = RequestMethod.POST)
@@ -208,8 +205,7 @@ public class ReproController extends BaseController {
 			MissatgesHelper.error(request, getMessage(request, "repro.missatge.error.eliminat"));
 		}
 		
-		String referer = request.getHeader("Referer").replaceAll("/guardar(/)?$" , "");
-		
+		String referer = request.getHeader("Referer");
 	    return "redirect:"+ referer;
 	}
 	
@@ -288,10 +284,8 @@ public class ReproController extends BaseController {
 					getMessage(request, "repro.missatge.error.creat") +
 					": " + ex.getMessage());
 		}
-		//return tascaTramitacioController.pipelles(request, tascaTipusId.toString(), model);
-		String referer = request.getHeader("Referer").replaceAll("/fromRepro/.*$" , "").replaceAll("/guardar(/)?$" , "");
+		String referer = request.getHeader("Referer");
 	    return "redirect:"+ referer + "/fromRepro/" + repro.getId();
-		//return tascaTramitacioController.formRepro(request, tasca.getId(), repro.getId(), model);
 	}
 	
 	private static final Log logger = LogFactory.getLog(ReproController.class);
