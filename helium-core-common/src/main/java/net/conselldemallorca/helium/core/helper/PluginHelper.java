@@ -3,15 +3,12 @@
  */
 package net.conselldemallorca.helium.core.helper;
 
-import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Properties;
 
 import javax.annotation.Resource;
@@ -2076,7 +2073,6 @@ public class PluginHelper {
 		};
 		long t0 = System.currentTimeMillis();
 		try {
-			ExpedientTipus expedientTipus = expedient.getTipus();
 			ContingutArxiu expedientCreat = getArxiuPlugin().expedientCrear(
 					toArxiuExpedient(
 							expedient.getIdentificador(),
@@ -3498,7 +3494,7 @@ public class PluginHelper {
 		documentPs.setTipus(document.getTipusDocPortasignatures());
 		documentPs.setSignat(document.isSignat());
 		documentPs.setReference(document.getId().toString());
-		System.out.println(">>> Afegit document portafirmes (" +
+		logger.debug("Afegit document portafirmes (" +
 				"arxiuNom=" + document.getVistaNom() + ", " +
 				"arxiuContingut=" + document.getVistaContingut().length + ", " +
 				"tipus=" + document.getTipusDocPortasignatures() + ", " +

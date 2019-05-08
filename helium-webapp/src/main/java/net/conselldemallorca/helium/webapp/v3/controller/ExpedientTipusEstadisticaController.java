@@ -1,6 +1,5 @@
 package net.conselldemallorca.helium.webapp.v3.controller;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -13,11 +12,9 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.poi.hssf.usermodel.HSSFCell;
 import org.apache.poi.hssf.usermodel.HSSFCellStyle;
-import org.apache.poi.hssf.usermodel.HSSFDataFormat;
 import org.apache.poi.hssf.usermodel.HSSFFont;
 import org.apache.poi.hssf.usermodel.HSSFRichTextString;
 import org.apache.poi.hssf.usermodel.HSSFRow;
@@ -26,7 +23,6 @@ import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.hssf.util.HSSFColor;
 import org.apache.poi.ss.usermodel.DataFormat;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.metadata.TableMetaDataContext;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -36,16 +32,11 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import net.conselldemallorca.helium.core.util.EntornActual;
-import net.conselldemallorca.helium.v3.core.api.dto.CampTipusDto;
-import net.conselldemallorca.helium.v3.core.api.dto.DadaIndexadaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientConsultaDissenyDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusEstadisticaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.MostrarAnulatsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
-import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
 import net.conselldemallorca.helium.v3.core.api.service.DissenyService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientTipusService;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientTipusEstadisticaCommand;

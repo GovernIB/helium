@@ -27,6 +27,7 @@ import javax.xml.ws.handler.soap.SOAPMessageContext;
 
 import org.apache.commons.lang.StringUtils;
 
+import es.caib.portafib.ws.api.v1.AnnexBean;
 import es.caib.portafib.ws.api.v1.FitxerBean;
 import es.caib.portafib.ws.api.v1.FluxDeFirmesWs;
 import es.caib.portafib.ws.api.v1.PeticioDeFirmaWs;
@@ -38,6 +39,7 @@ import es.caib.portafib.ws.api.v1.TipusDocumentInfoWs;
 import es.caib.portafib.ws.api.v1.WsI18NException;
 import es.caib.portafib.ws.api.v1.utils.PeticioDeFirmaUtils;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
+import net.conselldemallorca.helium.core.util.OpenOfficeUtils;
 import net.conselldemallorca.helium.integracio.plugins.portasignatures.wsdl.ImportanceEnum;
 
 /**
@@ -46,6 +48,8 @@ import net.conselldemallorca.helium.integracio.plugins.portasignatures.wsdl.Impo
  * @author Limit Tecnologies <limit@limit.es>
  */
 public class PortasignaturesPluginPortafib implements PortasignaturesPlugin {
+
+	private OpenOfficeUtils openOfficeUtils;
 
 	public Integer uploadDocument (
 			DocumentPortasignatures document,
@@ -105,6 +109,26 @@ public class PortasignaturesPluginPortafib implements PortasignaturesPlugin {
 			requestPeticioDeFirmaWs.setModeDeFirma(
 					new Boolean(false));
 			requestPeticioDeFirmaWs.setIdiomaID("ca");
+
+			// Afegeix els annexos
+			if (annexos != null) {
+				AnnexBean a;
+				FitxerBean f;
+				for (DocumentPortasignatures annex: annexos) {
+					a = new AnnexBean();
+					a.setAdjuntar(false);
+					a.setFirmar(isSignarAnnexos);
+					f = new FitxerBean();
+					f.setNom(annex.getArxiuNom());
+					f.setDescripcio(annex.getTitol());
+					f.setMime(getOpenOfficeUtils().getArxiuMimeType(annex.getArxiuNom()));
+					f.setData(annex.getArxiuContingut());
+					f.setTamany(annex.getArxiuContingut().length);
+					a.setFitxer(f);
+					requestPeticioDeFirmaWs.getAnnexs().add(a);
+				}
+			}
+
 			PeticioDeFirmaWs responsePeticioDeFirmaWs = getPeticioDeFirmaWs().createAndStartPeticioDeFirma(
 					requestPeticioDeFirmaWs);
 			return new Long(responsePeticioDeFirmaWs.getPeticioDeFirmaID()).intValue();
@@ -325,5 +349,13 @@ public class PortasignaturesPluginPortafib implements PortasignaturesPlugin {
 			}
 		}
 	}
+	
+	private OpenOfficeUtils getOpenOfficeUtils() {
+		if (openOfficeUtils == null) {
+			openOfficeUtils = new OpenOfficeUtils();
+		}
+		return openOfficeUtils;
+	}
+
 
 }
