@@ -30,7 +30,6 @@ import net.conselldemallorca.helium.v3.core.api.service.TascaService;
 import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.ModalHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
-import net.conselldemallorca.helium.webapp.v3.helper.TascaFormHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper.SessionManager;
 
 /**
@@ -74,17 +73,6 @@ public class BaseTascaController extends BaseController {
 				nomesLectura.add(dada);
 			}
 		}
-		
-//		TascaFormHelper.getCommandForCamps(tascaDades, valors, campsAddicionals, campsAddicionalsClasses, false);
-		
-		Object command = TascaFormHelper.getCommandForCamps(
-				tascaService.findDadesPerTascaDto(tasca),
-				valorsFormulariExtern,
-				null,
-				null,
-				false);
-		
-		//model.addAttribute("command", command);
 		
 		List<TascaDocumentDto> documents = tascaService.findDocuments(tascaId);
 		Iterator<TascaDocumentDto> itDocuments = documents.iterator();

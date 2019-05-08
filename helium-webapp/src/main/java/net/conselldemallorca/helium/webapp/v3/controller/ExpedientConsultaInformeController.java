@@ -59,7 +59,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import net.conselldemallorca.helium.report.FieldValue;
 import net.conselldemallorca.helium.v3.core.api.dto.CampTipusDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ConsultaCampDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ConsultaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DadaIndexadaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientCamps;
@@ -587,7 +586,6 @@ public class ExpedientConsultaInformeController extends BaseExpedientController 
 		// Afegeix l'ordre d'ordenació segons les columnes definides a la consulta
 		PaginacioParamsDto paginacio = PaginacioHelper.getPaginacioDtoTotsElsResultats();
 		List<TascaDadaDto> campsConsulta = expedientService.findConsultaInforme(consultaId);	
-		ConsultaDto consultaActual = expedientTipusService.consultaFindAmbId(consultaId);
 		
 		for (int i = 0; i < ExpedientConsultaInformeController.MAX_ORDER_COLUMNS; i++) {
 			if(i >= campsConsulta.size() || campsConsulta.isEmpty())
