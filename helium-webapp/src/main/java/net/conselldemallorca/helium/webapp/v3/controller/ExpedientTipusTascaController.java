@@ -160,6 +160,9 @@ public class ExpedientTipusTascaController extends BaseTascaDissenyController {
 			List<ParellaCodiValorDto> opcionsDefinicions = new ArrayList<ParellaCodiValorDto>();
 			for (DefinicioProcesDto definicio : definicions) {
 				opcionsDefinicions.add(new ParellaCodiValorDto(definicio.getId().toString(), definicio.getJbpmKey()));
+				// Si és la inicial es passa el seu id a la vista per a que la carregui
+				if (definicio.getJbpmKey().equals(expedientTipus.getJbpmProcessDefinitionKey()))
+					model.addAttribute("definicioInical", definicio.getId());
 			}
 			// Informa el model
 			model.addAttribute("definicions", opcionsDefinicions);

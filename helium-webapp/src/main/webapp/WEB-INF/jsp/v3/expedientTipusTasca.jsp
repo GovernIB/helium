@@ -122,6 +122,8 @@
 var definicionsHeretadesIds =  ${definicionsHeretadesIds};
 //Llistat d'identificadors de definicions que sobreescriuen
 var definicionsSobreescriuenIds =  ${definicionsSobreescriuenIds};
+// Definició de procés inicial
+var definicioInical = "${definicioInical}";
 
 // Funció per donar format als itemps de la select de definicions depenent de la herència
 function formatDefinicioSelectHerencia(item) {
@@ -160,6 +162,10 @@ $(document).ready(function() {
 		// Refresca els missatges
 		webutilRefreshMissatges();
   	});		
+	
+	// Carrega la definició inicial en la selecció
+	if (definicioInical)
+		$("#definicions").val(definicioInical).change();
 });
 
 
@@ -187,7 +193,7 @@ function refrescaVersions() {
 			for (i = 0; i < data.length; i++) {
 				$("#versions").append($("<option/>", {value: data[i].codi, text: data[i].valor}));
 			}
-			$("#versions").val('').change();
+			$("#versions").val(definicioProcesId).change();
 		},
 		error: function(e) {
 			console.log("Error obtenint les versions de les definicions de procés per l' id " + definicioProcesId + ": " + e);

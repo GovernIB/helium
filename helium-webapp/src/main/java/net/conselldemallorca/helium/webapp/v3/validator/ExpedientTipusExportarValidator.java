@@ -69,7 +69,6 @@ public class ExpedientTipusExportarValidator implements ConstraintValidator<Expe
 					command.getEntornId(), 
 					command.getId());
 			boolean herencia = expedientTipus.getExpedientTipusPareId() != null;
-			Long expedientTipusPareId = expedientTipus.getExpedientTipusPareId();
 			
 			// Conjunt d'enumeracions i dominis del tipus d'expedient per comprovar si les dependències són globals
 			// O no s'han escollit
@@ -316,7 +315,7 @@ public class ExpedientTipusExportarValidator implements ConstraintValidator<Expe
 		boolean valid = true;
 				
 		// Comprova les consultes
-		for (CampDto campDp : campService.findAllOrdenatsPerCodi(null, definicioProces.getId())) {
+		for (CampDto campDp : campService.findAllOrdenatsPerCodi(command.getId(), definicioProces.getId())) {
 			// Afegeix el codi del camp al conjunt de camps
 			campCodis.add(campDp.getCodi());
 			if (campDp.getConsulta() != null
@@ -360,8 +359,9 @@ public class ExpedientTipusExportarValidator implements ConstraintValidator<Expe
 		// Comprova les dependències de les tasques
 		for (TascaDto tasca : definicioProcesService.tascaFindAll(definicioProces.getId())){
 			// Camps
-			for (CampTascaDto campTasca : tasca.getCamps())
+			for (CampTascaDto campTasca : definicioProcesService.tascaCampFindAll(command.getId(), tasca.getId()))
 				if ( campTasca.getCamp().getExpedientTipus() != null // camp del tipus d'expedient
+						&& !campTasca.isHeretat() // No és hereteada
 						&& ! command.getVariables().contains(campTasca.getCamp().getCodi())) {
 					context.buildConstraintViolationWithTemplate(
 							MessageHelper.getInstance().getMessage(
@@ -374,8 +374,9 @@ public class ExpedientTipusExportarValidator implements ConstraintValidator<Expe
 					valid = false;
 				}
 			// Documents
-			for (DocumentTascaDto documentTasca : tasca.getDocuments())
+			for (DocumentTascaDto documentTasca : definicioProcesService.tascaDocumentFindAll(command.getId(), tasca.getId()))
 				if (documentTasca.getDocument().getExpedientTipus() != null // document del tipus d'expedient
+						&& ! documentTasca.isHeretat()
 						&& ! command.getDocuments().contains(documentTasca.getDocument().getCodi())) {
 					context.buildConstraintViolationWithTemplate(
 							MessageHelper.getInstance().getMessage(
@@ -388,8 +389,9 @@ public class ExpedientTipusExportarValidator implements ConstraintValidator<Expe
 					valid = false;
 				}
 			// Signatures
-			for (FirmaTascaDto firmaTasca : tasca.getFirmes())
+			for (FirmaTascaDto firmaTasca : definicioProcesService.tascaFirmaFindAll(command.getId(), tasca.getId()))
 				if ( firmaTasca.getDocument().getExpedientTipus() != null // document del tipus d'expedient
+						&& ! firmaTasca.isHeretat()
 						&& ! command.getDocuments().contains(firmaTasca.getDocument().getCodi())) {
 					context.buildConstraintViolationWithTemplate(
 							MessageHelper.getInstance().getMessage(
