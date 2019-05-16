@@ -43,6 +43,7 @@ import net.conselldemallorca.helium.v3.core.api.service.ExpedientDadaService;
 import net.conselldemallorca.helium.v3.core.repository.CampRepository;
 import net.conselldemallorca.helium.v3.core.repository.DefinicioProcesRepository;
 import net.conselldemallorca.helium.v3.core.repository.RegistreRepository;
+import net.conselldemallorca.helium.v3.core.repository.TascaRepository;
 
 
 /**
@@ -74,6 +75,8 @@ public class ExpedientDadaServiceImpl implements ExpedientDadaService {
 	private ExpedientLoggerHelper expedientLoggerHelper;
 	@Resource
 	private ExpedientDadaHelper expedientDadaHelper;
+	@Resource
+	private TascaRepository tascaRepository;
 
 
 
@@ -123,6 +126,7 @@ public class ExpedientDadaServiceImpl implements ExpedientDadaService {
 			String processInstanceId,
 			String varCodi,
 			Object varValor) {
+		
 		logger.debug("Modificant dada de la instància de procés (" +
 				"expedientId=" + expedientId + ", " +
 				"processInstanceId=" + processInstanceId + ", " +
@@ -133,6 +137,21 @@ public class ExpedientDadaServiceImpl implements ExpedientDadaService {
 				new Permission[] {
 						ExtendedPermission.DATA_MANAGE,
 						ExtendedPermission.ADMINISTRATION});
+		jbpmHelper.deleteProcessInstanceVariable(processInstanceId, varCodi);
+		// Esborra la descripció per variables que mantenen el valor de la consulta
+		Camp camp;
+		InstanciaProcesDto instanciaProces = expedientHelper.getInstanciaProcesById(processInstanceId);
+		DefinicioProces definicioProces = definicioProcesRepository.findOne(instanciaProces.getDefinicioProces().getId());
+		if (expedient.getTipus().isAmbInfoPropia()) {
+			// obtenir el camp amb expedient tipus codi i codi de la variable
+			camp = campRepository.findByExpedientTipusAndCodi(expedient.getTipus(), varCodi);
+		}else {
+			camp = campRepository.findByDefinicioProcesAndCodi(definicioProces, varCodi);
+		}
+					
+		if (camp.isDominiCacheText())
+			jbpmHelper.deleteProcessInstanceVariable(processInstanceId, JbpmVars.PREFIX_VAR_DESCRIPCIO + varCodi);
+		
 		expedientLoggerHelper.afegirLogExpedientPerProces(
 				processInstanceId,
 				ExpedientLogAccioTipus.PROCES_VARIABLE_MODIFICAR,
@@ -171,7 +190,7 @@ public class ExpedientDadaServiceImpl implements ExpedientDadaService {
 				"expedientId=" + expedientId + ", " +
 				"processInstanceId=" + processInstanceId + ", " +
 				"varCodi=" + varCodi + ")");
-		expedientHelper.getExpedientComprovantPermisos(
+		Expedient e = expedientHelper.getExpedientComprovantPermisos(
 				expedientId,
 				new Permission[] {
 						ExtendedPermission.DATA_MANAGE,
@@ -181,6 +200,20 @@ public class ExpedientDadaServiceImpl implements ExpedientDadaService {
 				ExpedientLogAccioTipus.PROCES_VARIABLE_ESBORRAR,
 				varCodi);
 		jbpmHelper.deleteProcessInstanceVariable(processInstanceId, varCodi);
+		// Esborra la descripció per variables que mantenen el valor de la consulta
+		Camp camp;
+		InstanciaProcesDto instanciaProces = expedientHelper.getInstanciaProcesById(processInstanceId);
+		DefinicioProces definicioProces = definicioProcesRepository.findOne(instanciaProces.getDefinicioProces().getId());
+		if (e.getTipus().isAmbInfoPropia()) {
+			// obtenir el camp amb expedient tipus codi i codi de la variable
+			camp = campRepository.findByExpedientTipusAndCodi(e.getTipus(), varCodi);
+		}else {
+			camp = campRepository.findByDefinicioProcesAndCodi(definicioProces, varCodi);
+		}
+					
+		if (camp.isDominiCacheText())
+			jbpmHelper.deleteProcessInstanceVariable(processInstanceId, JbpmVars.PREFIX_VAR_DESCRIPCIO + varCodi);
+		
 		indexHelper.expedientIndexLuceneDelete(processInstanceId, varCodi);
 		Registre registre = crearRegistreInstanciaProces(
 				expedientId,
@@ -337,8 +370,6 @@ public class ExpedientDadaServiceImpl implements ExpedientDadaService {
 					
 					String text;
 					try {
-						// Posem a false per a que refresqui  el valor de la consulta
-						camp.setDominiCacheText(false);
 						// Consultem el valor de la variable
 						text = variableHelper.getTextPerCamp(
 								camp, 
