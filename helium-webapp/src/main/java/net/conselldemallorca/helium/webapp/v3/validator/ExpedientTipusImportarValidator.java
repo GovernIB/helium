@@ -390,8 +390,9 @@ public class ExpedientTipusImportarValidator implements ConstraintValidator<Expe
 									definicioProcesJbpmKey); 
 				if (definicioProcesDto != null)
 					if ((definicioProcesDto.getExpedientTipus() != null // definició de procés lligada a un expedient
-						&&  (command.getId() == null 				// es vol importar a un nou tipus d'expedient
-							 || !definicioProcesDto.getExpedientTipus().getId().equals(command.getId()))) // es vol importar a un expedient diferent
+						&&  (!command.isSobreEscriure()					// Si no es sobrescriuen les dades
+							 && ( command.getId() == null 				// es vol importar a un nou tipus d'expedient
+							 || !definicioProcesDto.getExpedientTipus().getId().equals(command.getId())))) // es vol importar a un expedient diferent
 						) 
 					{	
 						context.buildConstraintViolationWithTemplate(

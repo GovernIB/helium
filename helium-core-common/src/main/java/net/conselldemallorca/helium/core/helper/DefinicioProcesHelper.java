@@ -787,7 +787,7 @@ public class DefinicioProcesHelper {
 					tascaExportacio.setTramitacioMassiva(tasca.isTramitacioMassiva());
 					tascaExportacio.setFinalitzacioSegonPla(tasca.isFinalitzacioSegonPla());
 					// Afegeix els camps de la tasca
-					for (CampTasca camp: tasca.getCamps()) {
+					for (CampTasca camp: campTascaRepository.findAmbTascaIdOrdenats(tasca.getId(), definicio.getExpedientTipus().getId())) {
 						tascaExportacio.addCamp(
 								new CampTascaExportacio(
 									camp.getCamp().getCodi(),
