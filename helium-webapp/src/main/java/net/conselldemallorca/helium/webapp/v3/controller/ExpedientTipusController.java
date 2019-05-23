@@ -454,18 +454,27 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 			@RequestParam(required = false) Long expedientTipusId,
 			Model model) {
 		
+		ExpedientTipusExportarCommand command = new ExpedientTipusExportarCommand();
+
 		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
 		ExpedientTipusDto expedientTipus = null;
-		if (expedientTipusId != null)
+		if (expedientTipusId != null) {
 			expedientTipus = expedientTipusService.findAmbIdPermisDissenyar(
 				entornActual.getId(),
 				expedientTipusId);
-
-		ExpedientTipusExportarCommand command = new ExpedientTipusExportarCommand();
-		command.setId(expedientTipusId);
+			if (expedientTipus.getExpedientTipusPareId() != null) {
+				ExpedientTipusDto expedientTipusPare = expedientTipusService.findAmbId(expedientTipus.getExpedientTipusPareId());
+				command.setExpedientTipusPare(expedientTipusPare.getCodi());
+				command.setTasquesHerencia(true);
+			}
+		}		
 		model.addAttribute("expedientTipus", expedientTipus);
-		model.addAttribute("command", command);
-
+		command.setId(expedientTipusId);
+		command.setIntegracioSistra(true);
+		command.setIntegracioForms(true);
+		model.addAttribute("command", command);		
+		model.addAttribute("inici", true); // per marcar tots els checboxs inicialment
+		
 		return "v3/expedientTipusImportarForm";
 	}	
 	

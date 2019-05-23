@@ -61,7 +61,7 @@ public class UpdateService {
 	public static final String VERSIO_ACTUAL_STR = "3.2.0";
 	public static final int VERSIO_ACTUAL_ORDRE = 320;
 
-	public static final String VERSIO_ACTUAL_RELEASE = "98.20190521_herencia";
+	public static final String VERSIO_ACTUAL_RELEASE = "98.20190523_herencia";
 
 	private VersioDao versioDao;
 	private PersonaDao personaDao;

@@ -38,6 +38,12 @@ public class ExpedientTipusExportacioCommandDto {
 	private List<String> redireccions;
 	private List<String> consultes;
 	
+	/** Indica el codi de l'expedient tipus pare del qual hereta */
+	private String expedientTipusPare;
+	/** Indica si exportar les dades de relación amb tasques heretades i variables*/
+	private boolean tasquesHerencia;
+
+	
 	public Long getId() {
 		return id;
 	}
@@ -149,4 +155,18 @@ public class ExpedientTipusExportacioCommandDto {
 	public void setConsultes(List<String> consultes) {
 		this.consultes = consultes;
 	}
+	public boolean isTasquesHerencia() {
+		return tasquesHerencia;
+	}
+	public void setTasquesHerencia(boolean tasquesHerencia) {
+		this.tasquesHerencia = tasquesHerencia;
+	}
+
+	public String getExpedientTipusPare() {
+		return expedientTipusPare;
+	}
+
+	public void setExpedientTipusPare(String expedientTipusPare) {
+		this.expedientTipusPare = expedientTipusPare;
+	}	
 }

@@ -52,6 +52,7 @@ import net.conselldemallorca.helium.core.model.hibernate.ConsultaCamp;
 import net.conselldemallorca.helium.core.model.hibernate.ConsultaCamp.TipusParamConsultaCamp;
 import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
 import net.conselldemallorca.helium.core.model.hibernate.Document;
+import net.conselldemallorca.helium.core.model.hibernate.DocumentTasca;
 import net.conselldemallorca.helium.core.model.hibernate.Domini;
 import net.conselldemallorca.helium.core.model.hibernate.Domini.TipusDomini;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
@@ -59,6 +60,7 @@ import net.conselldemallorca.helium.core.model.hibernate.Enumeracio;
 import net.conselldemallorca.helium.core.model.hibernate.EnumeracioValors;
 import net.conselldemallorca.helium.core.model.hibernate.Estat;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
+import net.conselldemallorca.helium.core.model.hibernate.FirmaTasca;
 import net.conselldemallorca.helium.core.model.hibernate.MapeigSistra;
 import net.conselldemallorca.helium.core.model.hibernate.Reassignacio;
 import net.conselldemallorca.helium.core.model.hibernate.SequenciaAny;
@@ -435,12 +437,37 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 				true);
 		ExpedientTipus entity = expedientTipusRepository.findOne(expedientTipusId);
 		
-		// Esborra primmer tots el camps de tasques
+		// Esborra primmer la relació de les variables del tipus d'expedient amb les definicions de procés
 		for (CampTasca ct :	campTascaRepository.findAllByExpedientTipus(entity)) {
-			ct.getCamp().removeCampTasca(ct);
-			campTascaRepository.delete(ct);
-			campTascaRepository.flush();
+			// Assegura que sigui un camp tasca propi
+			if (entity.equals(ct.getExpedientTipus())
+					|| (ct.getExpedientTipus() == null 
+					 		&& entity.equals(ct.getCamp().getExpedientTipus())))
+			{
+				ct.getCamp().removeCampTasca(ct);
+				campTascaRepository.delete(ct);
+			}
 		}		
+		for (DocumentTasca dt :	documentTascaRepository.findAllByExpedientTipus(entity)) {
+			// Assegura que sigui un camp tasca propi
+			if (entity.equals(dt.getExpedientTipus())
+					|| (dt.getExpedientTipus() == null 
+					 		&& entity.equals(dt.getDocument().getExpedientTipus())))
+			{
+				dt.getDocument().removeTasca(dt);
+				documentTascaRepository.delete(dt);
+			}
+		}
+		for (FirmaTasca ft :	firmaTascaRepository.findAllByExpedientTipus(entity)) {
+			// Assegura que sigui un camp tasca propi
+			if (entity.equals(ft.getExpedientTipus())
+					|| (ft.getExpedientTipus() == null 
+					 		&& entity.equals(ft.getDocument().getExpedientTipus())))
+			{
+				ft.getDocument().removeFirma(ft);
+				firmaTascaRepository.delete(ft);
+			}
+		}			
 		expedientTipusRepository.delete(entity);
 	}
 
@@ -749,8 +776,9 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		}	
 		
 		// Herència
-		
-		exportacio.setHerenciaTasques(definicioProcesHelper.getHerenciaTasques(tipus));
+		if (command.isTasquesHerencia())
+			// Exporta la informació de les dades d'herència
+			exportacio.setHerenciaTasques(definicioProcesHelper.getHerenciaTasques(tipus));
 		
 		return exportacio;
 	}	
@@ -1112,7 +1140,9 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 							registres.put(camp, campExportat);
 						}						
 					}
+					expedientTipus.getCamps().add(camp);
 					camps.put(camp.getCodi(), camp);
+					campRepository.saveAndFlush(camp);
 				}		
 			// Tracta els registres
 			CampExportacio campExportat;
@@ -1179,6 +1209,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 						document.setIgnored(documentExportat.isIgnored());
 						document.setNtiTipoDocumental(documentExportat.getNtiTipoDocumental());
 					}
+					expedientTipus.getDocuments().add(document);
 					documents.put(documentExportat.getCodi(), document);
 				}	
 		
@@ -1347,9 +1378,9 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 			if (consultes.containsKey(campExportat.getCodiConsulta()))
 				campConsulta.setConsulta(consultes.get(campExportat.getCodiConsulta()));
 		}
-		
-		
-		if (expedientTipusPare != null) {
+
+		// Herència
+		if (command.isTasquesHerencia() && expedientTipusPare != null) {
 			// Herencia
 			List<TascaExportacio> tasquesExportacio;
 			// Informacó de les tasques

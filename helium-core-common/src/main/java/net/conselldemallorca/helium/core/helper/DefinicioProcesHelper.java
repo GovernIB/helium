@@ -620,6 +620,7 @@ public class DefinicioProcesHelper {
 	 * @param expedientTipus
 	 * @param definicio
 	 */
+	@Transactional
 	private void relacionarCampTasca(
 			CampTasca campTasca, 
 			String codiCamp, 
@@ -629,8 +630,15 @@ public class DefinicioProcesHelper {
 		
 		Camp camp = null;
 		if (expedientTipus != null && isTipusExpedient) {
-			// Camp del tipus d'expedient
-			camp = campRepository.findByExpedientTipusAndCodi(expedientTipus.getId(), codiCamp, true);
+			// Mira primer en el tipus d'expedient
+			for (Camp c : expedientTipus.getCamps())
+				if (c.getCodi().equals(codiCamp)) {
+					camp = c;
+					break;
+				}
+			if (camp == null)
+				// Camp del tipus d'expedient
+				camp = campRepository.findByExpedientTipusAndCodi(expedientTipus.getId(), codiCamp, true);
 		} else {
 			// Camp de la definició de procés
 			camp = campRepository.findByDefinicioProcesAndCodi(definicio, codiCamp);
@@ -664,8 +672,15 @@ public class DefinicioProcesHelper {
 		
 		Document document = null;
 		if (expedientTipus != null && isTipusExpedient) {
-			// Camp del tipus d'expedient
-			document = documentRepository.findByExpedientTipusAndCodi(expedientTipus.getId(), codiDocument, true);
+			// Mira primer en el tipus d'expedient
+			for (Document d : expedientTipus.getDocuments())
+				if (d.getCodi().equals(codiDocument)) {
+					document = d;
+					break;
+				}
+			if (document == null)
+				// Camp del tipus d'expedient
+				document = documentRepository.findByExpedientTipusAndCodi(expedientTipus.getId(), codiDocument, true);
 		} else {
 			// Camp de la definició de procés
 			document = documentRepository.findByDefinicioProcesAndCodi(definicio, codiDocument);
@@ -699,8 +714,15 @@ public class DefinicioProcesHelper {
 		
 		Document document = null;
 		if (expedientTipus != null && isTipusExpedient) {
-			// Camp del tipus d'expedient
-			document = documentRepository.findByExpedientTipusAndCodi(expedientTipus.getId(), codiDocument, true);
+			// Mira primer en el tipus d'expedient
+			for (Document d : expedientTipus.getDocuments())
+				if (d.getCodi().equals(codiDocument)) {
+					document = d;
+					break;
+				}
+			if (document == null)
+				// Camp del tipus d'expedient
+				document = documentRepository.findByExpedientTipusAndCodi(expedientTipus.getId(), codiDocument, true);
 		} else {
 			// Camp de la definició de procés
 			document = documentRepository.findByDefinicioProcesAndCodi(definicio, codiDocument);
@@ -1280,7 +1302,8 @@ public class DefinicioProcesHelper {
 			TascaExportacio tascaExportacio;
 			// Troba tots els camps de tasca associats al tipus d'expedient
 			for (CampTasca campTasca : campTascaRepository.findAllByExpedientTipus(expedientTipus)) {
-				if (isTascaHeretada(campTasca.getTasca(), expedientTipus)) {
+				if (isTascaHeretada(campTasca.getTasca(), expedientTipus)
+						&& expedientTipus.equals(campTasca.getExpedientTipus())) {
 					// Afegeix tots els camps que calguin
 					tascaExportacio = this.getHerenciaTascaExportacio(tascaMap, herenciaTasques, campTasca.getTasca());
 					tascaExportacio.addCamp(new CampTascaExportacio(
@@ -1298,7 +1321,8 @@ public class DefinicioProcesHelper {
 			}
 			// Troba tots els documents de tasca assocats al tipus d'expedient
 			for (DocumentTasca documentTasca : documentTascaRepository.findAllByExpedientTipus(expedientTipus)) {
-				if (isTascaHeretada(documentTasca.getTasca(), expedientTipus)) {
+				if (isTascaHeretada(documentTasca.getTasca(), expedientTipus)
+						&& expedientTipus.equals(documentTasca.getExpedientTipus())) {
 					// Afegeix tots els camps que calguin
 					tascaExportacio = this.getHerenciaTascaExportacio(tascaMap, herenciaTasques, documentTasca.getTasca());
 					tascaExportacio.addDocument(new DocumentTascaExportacio(
@@ -1312,7 +1336,8 @@ public class DefinicioProcesHelper {
 			}
 			// Troba totes les firmes associades al tipus d'expedient
 			for (FirmaTasca firmaTasca : firmaTascaRepository.findAllByExpedientTipus(expedientTipus)) {
-				if (isTascaHeretada(firmaTasca.getTasca(), expedientTipus)) {
+				if (isTascaHeretada(firmaTasca.getTasca(), expedientTipus)
+						&& expedientTipus.equals(firmaTasca.getExpedientTipus())) {
 					// Afegeix tots els camps que calguin
 					tascaExportacio = this.getHerenciaTascaExportacio(tascaMap, herenciaTasques, firmaTasca.getTasca());
 					tascaExportacio.addFirma(new FirmaTascaExportacio(
@@ -1444,7 +1469,7 @@ public class DefinicioProcesHelper {
 			List<TascaExportacio> tasquesExportacio) {
 		// Troba la definició de procés
 		DefinicioProces definicioProces = this.findDarreraVersioDefinicioProces(expedientTipusPare, definicioProcesJbpmkey);
-		expedientTipusPare.getCamps();
+		
 		// Per cada tasca
 		Tasca tasca;
 		for (TascaExportacio tascaExportacio : tasquesExportacio) {
@@ -1464,9 +1489,10 @@ public class DefinicioProcesHelper {
 				if (campTasca == null) {
 					campTasca = new CampTasca();
 					campTasca.setTasca(tasca);
-					tasca.getCamps().add(campTasca);	
+					tasca.getCamps().add(campTasca);
 				}
 				// Actualitza la informació
+				campTasca.setExpedientTipus(expedientTipus);
 				campTasca.setOrder(campExportat.getOrder());	
 				campTasca.setAmpleCols(campExportat.getAmpleCols());
 				campTasca.setBuitCols(campExportat.getBuitCols());

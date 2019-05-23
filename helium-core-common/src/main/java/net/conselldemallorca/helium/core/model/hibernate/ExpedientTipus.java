@@ -761,6 +761,11 @@ public class ExpedientTipus  implements Serializable, GenericEntity<Long> {
 		if (getClass() != obj.getClass())
 			return false;
 		ExpedientTipus other = (ExpedientTipus) obj;
+		if (entorn == null) {
+			if (other.entorn != null)
+				return false;
+		} else if (!entorn.equals(other.entorn))
+			return false;
 		if (codi == null) {
 			if (other.codi != null)
 				return false;
