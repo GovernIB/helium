@@ -163,6 +163,7 @@
 			<url-pattern>/ws/DominiIntern</url-pattern>
 			<url-pattern>/ws/FormulariExtern</url-pattern>
 			<url-pattern>/ws/TramitacioService</url-pattern>
+			<url-pattern>/ws/v1/PortaFIBCallBack</url-pattern>
 			<!-- Integracio Notib -->
 			<url-pattern>/rest/notib</url-pattern>
 			<url-pattern>/rest/notib/notificaCanvi</url-pattern>

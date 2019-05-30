@@ -119,7 +119,15 @@ public class EndpointPublisherServlet extends HttpServlet {
 				auth != null ? auth : "",
 				"true".equalsIgnoreCase(ts) ? true : false,
 				"true".equalsIgnoreCase(log) ? true : false);
-		String selenium = GlobalProperties.getInstance().getProperty("app.selenium.ws.integracion");
+		// WS Callback PortaFIB V1.0
+		WsServerUtils.publish(
+				"/v1/PortaFIBCallBack",
+				context.getBean("portaFIBCallBackWsServiceV1"),
+				"", // user
+				"", // password
+				"", // auth
+				"true".equalsIgnoreCase(ts) ? true : false,
+				"true".equalsIgnoreCase(log) ? true : false);
     }
 
 }

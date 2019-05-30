@@ -27,10 +27,10 @@ import net.conselldemallorca.helium.core.model.service.ServiceProxy;
  */
 public class MCGDwsImpl implements es.indra.www.portafirmasmcgdws.mcgdws.MCGDws {
 
-	private static final int DOCUMENT_BLOQUEJAT = 0;
-	private static final int DOCUMENT_PENDENT = 1;
-	private static final int DOCUMENT_SIGNAT = 2;
-	private static final int DOCUMENT_REBUTJAT = 3;
+	public static final int DOCUMENT_BLOQUEJAT = 0;
+	public static final int DOCUMENT_PENDENT = 1;
+	public static final int DOCUMENT_SIGNAT = 2;
+	public static final int DOCUMENT_REBUTJAT = 3;
 
 	public CallbackResponse callback(CallbackRequest callbackRequest) throws java.rmi.RemoteException {
 		Integer document = callbackRequest.getApplication().getDocument().getId();
