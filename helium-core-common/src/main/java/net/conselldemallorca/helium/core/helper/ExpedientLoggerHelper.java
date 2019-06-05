@@ -31,6 +31,7 @@ import org.jbpm.context.log.VariableCreateLog;
 import org.jbpm.context.log.VariableDeleteLog;
 import org.jbpm.context.log.VariableLog;
 import org.jbpm.context.log.VariableUpdateLog;
+import org.jbpm.graph.def.Action;
 import org.jbpm.graph.def.Node;
 import org.jbpm.graph.def.Node.NodeType;
 import org.jbpm.graph.exe.Token;
@@ -769,17 +770,39 @@ public class ExpedientLoggerHelper {
 			mesuresTemporalsHelper.mesuraCalcular("Retrocedir" + (retrocedirPerTasques ? " per tasques" : ""), "expedient", expedientLog.getExpedient().getTipus().getNom(), null, "getAccionsJbpmPerRetrocedir");
 			mesuresTemporalsHelper.mesuraIniciar("Retrocedir" + (retrocedirPerTasques ? " per tasques" : ""), "expedient", expedientLog.getExpedient().getTipus().getNom(), null, "obtenir dades per retroces");
 			
-			// Emmagatzema els paràmetres per a retrocedir cada acció
-			Map<Long, String> paramsAccio = new HashMap<Long, String>();
+			// Emmagatzema els paràmetres per a retrocedir cada acció per parella [processInstanceId, action_name]
+			//Map<Long, String> paramsAccio = new HashMap<Long, String>();
+			Map<String, String> paramsAccio = new HashMap<String, String>();
+			String varName;
 			for (LogObjectDto logo: LogObjectDtos) {
 				if (logo.getTipus() == LogObjectDto.LOG_OBJECT_ACTION) {
-					String varName = BasicActionHandler.PARAMS_RETROCEDIR_VARIABLE_PREFIX + new Long(logo.getObjectId());
-					String params = (String)jbpmHelper.getProcessInstanceVariable(
+					String params;
+					String paramKey;
+					
+					paramKey = logo.getProcessInstanceId() + "_" + logo.getName();
+					
+					// Consulta les variables de retrocés guardades abans de la versió 3.2.106 amb action node id
+					varName = BasicActionHandler.PARAMS_RETROCEDIR_VARIABLE_PREFIX + new Long(logo.getObjectId());
+					params = (String)jbpmHelper.getProcessInstanceVariable(
 							new Long(logo.getProcessInstanceId()).toString(),
 							varName);
-					paramsAccio.put(new Long(logo.getObjectId()), params);
+					//paramsAccio.put(new Long(logo.getObjectId()), params);
+					if (params != null)
+						paramsAccio.put(paramKey, params);
+					
+					// Consulta les variables de retrocés guardades a partir de la versió 3.2.106 amb actionName
+					varName = BasicActionHandler.PARAMS_RETROCEDIR_VARIABLE_PREFIX + logo.getName();
+					params = (String)jbpmHelper.getProcessInstanceVariable(
+							new Long(logo.getProcessInstanceId()).toString(),
+							varName);
+					if (params != null && !paramsAccio.containsKey(paramKey))
+						paramsAccio.put(paramKey, params);
 				}
 			}
+			// Completa els paràmetres amb paràmetres que podrien tenir una relació amb un node Action d'una definició anterior a la versió 3.2.106
+			this.consultarParametresRetroaccio(
+					paramsAccio, 
+					LogObjectDtos);
 			
 			// comprovam si estem retrocedint únicament la tasca actual
 			if (jtask != null) {
@@ -1097,7 +1120,7 @@ public class ExpedientLoggerHelper {
 						logger.info(">>> [RETLOG] Executar accio inversa " + logo.getObjectId());
 					String pid = new Long(logo.getProcessInstanceId()).toString();
 					List<String> params = null;
-					String paramsStr = paramsAccio.get(new Long(logo.getObjectId()));
+					String paramsStr = paramsAccio.get(logo.getProcessInstanceId() + "_" + logo.getName());
 					if (paramsStr != null) {
 						params = new ArrayList<String>();
 						String[] parts = paramsStr.split(BasicActionHandler.PARAMS_RETROCEDIR_SEPARADOR);
@@ -1217,6 +1240,42 @@ public class ExpedientLoggerHelper {
 			if (elog.getId() != iniciadorId) elog.setIniciadorRetroces(iniciadorId);
 			// Retrocediex la informació de l'expedient
 		}
+	}
+
+	/** Completa el map de paràmetres <processInstanceId _ actionName, valor> amb els possibles paràmetres associats a accions
+	 * de definicions anteriors. En la versió 3.2.106 s'ha detectat que si un expedient canvia de versió llavors els nodes
+	 * action s'actualitzen i els paràmetres de retroacció amb un ID anterior no es troben bé.
+	 * 
+	 * @param paramsAccio
+	 * @param logObjectDtos
+	 */
+	private void consultarParametresRetroaccio(
+			Map<String, String> paramsAccio,
+			Collection<LogObjectDto> logObjectDtos) {
+		
+		Set<String> processInstancesConsultats = new HashSet<String>();
+		Map<String, Object> variables;
+		String processInstanceId;
+		String actionNodeId;
+		Action action;
+		for (LogObjectDto logo: logObjectDtos) {
+			if (logo.getTipus() == LogObjectDto.LOG_OBJECT_ACTION) {
+				processInstanceId = String.valueOf(logo.getProcessInstanceId());
+				if (!processInstancesConsultats.contains(processInstanceId)) {
+					processInstancesConsultats.add(processInstanceId);
+					variables = jbpmHelper.getProcessInstanceVariables(String.valueOf(logo.getProcessInstanceId()));
+					for (String variableName : variables.keySet())
+						if (variableName.startsWith(BasicActionHandler.PARAMS_RETROCEDIR_VARIABLE_PREFIX)) {
+							// Recupera la informació del node
+							actionNodeId = variableName.substring(BasicActionHandler.PARAMS_RETROCEDIR_VARIABLE_PREFIX.length(), variableName.length());
+							action = jbpmHelper.getActionById(Long.valueOf(actionNodeId));
+							if (action != null) {
+								paramsAccio.put(logo.getProcessInstanceId() + "_" + action.getName(), String.valueOf(variables.get(variableName)));
+							}
+						}
+				}
+			}
+		}		
 	}
 
 	public String getActorsPerReassignacioTasca(String taskInstanceId) {

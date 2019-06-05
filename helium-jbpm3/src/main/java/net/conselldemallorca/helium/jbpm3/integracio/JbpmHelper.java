@@ -30,6 +30,7 @@ import org.jbpm.command.GetTaskInstanceCommand;
 import org.jbpm.command.SignalCommand;
 import org.jbpm.command.TaskInstanceEndCommand;
 import org.jbpm.file.def.FileDefinition;
+import org.jbpm.graph.def.Action;
 import org.jbpm.graph.def.DelegationException;
 import org.jbpm.graph.def.Node;
 import org.jbpm.graph.def.Node.NodeType;
@@ -67,6 +68,7 @@ import net.conselldemallorca.helium.jbpm3.command.FindProcessInstanceLogsCommand
 import net.conselldemallorca.helium.jbpm3.command.FindProcessInstanceTimersCommand;
 import net.conselldemallorca.helium.jbpm3.command.FindTaskInstanceForTokenAndTaskCommand;
 import net.conselldemallorca.helium.jbpm3.command.FindTaskInstanceIdForTokenIdCommand;
+import net.conselldemallorca.helium.jbpm3.command.GetActionByIdCommand;
 import net.conselldemallorca.helium.jbpm3.command.GetExpedientsAfectatsListCommand;
 import net.conselldemallorca.helium.jbpm3.command.GetGroupTaskListCommand;
 import net.conselldemallorca.helium.jbpm3.command.GetPersonalTaskListCommand;
@@ -1524,6 +1526,12 @@ public class JbpmHelper {
 		return node;
 	}
 	
+	public Action getActionById(long nodeId) {
+		//adminService.mesuraIniciar("jBPM getNodeByName", "jbpmDao");
+		GetActionByIdCommand command = new GetActionByIdCommand(nodeId);
+		Action action = (Action)commandService.execute(command);
+		return action;
+	}	
 	
 	public boolean hasStartBetweenLogs(long begin, long end, long taskInstanceId) {
 		//adminService.mesuraIniciar("jBPM hasStartBetweenLogs", "jbpmDao");
