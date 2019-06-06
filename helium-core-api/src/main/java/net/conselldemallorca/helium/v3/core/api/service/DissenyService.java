@@ -243,6 +243,9 @@ public interface DissenyService {
 			Long definicioProcesId, 
 			String nom);	
 
+	/** Retorna el contingut del .par de la definició de procés. */
+	public byte[] getParContingut(Long definicioProcesId);
+
 	/**
 	 * Retorna els exepdients relacionats amb la definició de procés no utilitzada
 	 * 
@@ -300,6 +303,16 @@ public interface DissenyService {
 			Long entornId, 
 			String nomArxiu, 
 			byte[] contingut);
+	
+	/** Mètode per propagar els handlers d'una definició de procés origen a una definició de procés destí. 
+	 * S'utilitza per propagar els handlers de la darrera versió a les versions anteriors.
+	 * 
+	 * @param idDefinicioProcesOrignen
+	 * @param idsDefinicioProcesDesti
+	 */
+	public void propagarHandlers(
+			Long idDefinicioProcesOrignen, 
+			List<Long> idsDefinicioProcesDesti);
 
 	/** Obté el contingut d'una exportació donat el nom del fitxer amb la extensió i el contingut del mateix.
 	 * 
@@ -326,4 +339,5 @@ public interface DissenyService {
 			boolean filtrarValorsPredefinits);
 	
 	public List<DocumentDto> findDocumentsAmbDefinicioProcesOrdenatsPerCodi(Long definicioProcesId) throws NoTrobatException;
+
 }

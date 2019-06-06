@@ -16,7 +16,10 @@
 
 <c:choose>
 	<c:when test="${not empty definicioProces}">		
-		<table id="recursos-datatable" class="table table-bordered">
+	
+		<table id="recursos-datatable"
+				data-botons-template="#tableButtonsVariableTemplate" 
+			   	class="table table-bordered">
 			<thead>
 				<tr>
 					<th><spring:message code="definico.proces.recurs.columna.nom"></spring:message></th>
@@ -39,6 +42,9 @@
 				</c:forEach>
 			</tbody>
 		</table>
+		
+		<a id="descarregar_par" class="btn btn-primary" href='<c:url value="${jbpmKey}/${definicioProcesId}/recurs/par"></c:url>' style="margin-left: 10px;"><span class="fa fa-arrow-down"></span>&nbsp;<spring:message code="definico.proces.recurs.descarregar.par"/></a>
+		
 	</c:when>
 	<c:otherwise>
 		<div class="well well-small"><spring:message code='definicio.proces.detall.cap'/></div>
@@ -53,7 +59,10 @@ $(document).ready(function() {
 		paging:   false,
 		language: {
 			url: webutilContextPath() + '/js/datatables/i18n/datatables.' + '${idioma}' + '.json'
-		}			
+		}, 
+		preDrawCallback : function() {
+			$('#recursos-datatable_filter').append($('#descarregar_par'));
+		}
 	});
 });
 

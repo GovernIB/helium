@@ -249,6 +249,13 @@ public class DissenyServiceBean implements DissenyService {
 	public byte[] getRecursContingut(Long definicioProcesId, String nom) {
 		return delegate.getRecursContingut(definicioProcesId, nom);
 	}
+	
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public byte[] getParContingut(Long definicioProcesId) {
+		return delegate.getParContingut(definicioProcesId);
+	}
+
 
 	public PaginaDto<DefinicioProcesDto> findDefinicionsProcesNoUtilitzadesExpedientTipus(
 			Long entornId,
@@ -308,6 +315,14 @@ public class DissenyServiceBean implements DissenyService {
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public DefinicioProcesDto updateHandlers(Long entornId, String nomArxiu, byte[] contingut) {
 		return delegate.updateHandlers(entornId, nomArxiu, contingut);
+	}
+	
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public void propagarHandlers(
+			Long idDefinicioProcesOrigen, 
+			List<Long> idsDefinicioProcesDesti) {
+		delegate.propagarHandlers(idDefinicioProcesOrigen, idsDefinicioProcesDesti);
 	}
 
 	@Override

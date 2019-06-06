@@ -4,6 +4,7 @@
 package net.conselldemallorca.helium.v3.core.service;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -12,7 +13,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
+import java.util.zip.ZipOutputStream;
 
 import javax.annotation.Resource;
 
@@ -754,6 +757,35 @@ public class DissenyServiceImpl implements DissenyService {
 				nom);
 	}
 
+	/** Retorna el contingut del .par de la definició de procés. */
+	@Override
+	@Transactional(readOnly = true)
+	public byte[] getParContingut(Long definicioProcesId) {
+		
+		Set<String> recursosNoms = this.getRecursosNom(definicioProcesId);
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		ZipOutputStream out = new ZipOutputStream(baos);
+		byte[] recursContingut;
+		ZipEntry ze;
+		try {
+			for (String recursNom : recursosNoms) {
+				recursContingut = this.getRecursContingut(definicioProcesId, recursNom);
+				if (recursContingut != null) {
+					ze = new ZipEntry(recursNom);
+					out.putNextEntry(ze);
+					out.write(recursContingut);
+					out.closeEntry();
+				}
+			}
+			out.close();
+		} catch (Exception e) {
+			String errMsg = "Error construint el .par de la definició de procés " + definicioProcesId + ": " + e.getMessage();
+			logger.error(errMsg, e);
+			throw new RuntimeException(errMsg, e);
+		}
+		return baos.toByteArray();
+	}
+
 	
 	@Override
 	@Transactional(readOnly = true)
@@ -989,6 +1021,38 @@ public class DissenyServiceImpl implements DissenyService {
 		
 		return conversioTipusHelper.convertir(darrera, DefinicioProcesDto.class);
 
+	}	
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@Transactional
+	public void propagarHandlers(
+			Long idDefinicioProcesOrigen, 
+			List<Long> idsDefinicioProcesDesti) {
+		
+		DefinicioProces definicioProcesOrigen = definicioProcesRepository.findById(idDefinicioProcesOrigen);
+		
+		// Construeix la llista de handlers a partir del contingut del fitxer .par que acabin amb .class
+		JbpmProcessDefinition jbpmProcessDefinition = jbpmHelper.getProcessDefinition(definicioProcesOrigen.getJbpmId());
+		@SuppressWarnings("unchecked")
+		Map<String, byte[]> bytesMap = jbpmProcessDefinition.getProcessDefinition().getFileDefinition().getBytesMap();
+		Map<String, byte[]> handlers = new HashMap<String, byte[]>();
+		for (String nom : bytesMap.keySet()) 
+			if (nom.endsWith(".class")) {
+				handlers.put(nom, bytesMap.get(nom));
+			}
+
+		// Actualitza les definicions de procés destí
+		DefinicioProces definicioProcesDesti;
+		for (Long idDefinicioProcesDesti : idsDefinicioProcesDesti) {
+			definicioProcesDesti = definicioProcesRepository.findById(idDefinicioProcesDesti);
+			// Actualitza els handlers de la darrera versió de la definició de procés
+			jbpmHelper.updateHandlers(
+					Long.parseLong(definicioProcesDesti.getJbpmId()), 
+					handlers);	
+		}
 	}	
 	
 	/**
