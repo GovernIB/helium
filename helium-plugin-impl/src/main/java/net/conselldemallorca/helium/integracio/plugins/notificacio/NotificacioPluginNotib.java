@@ -13,20 +13,17 @@ import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 
 import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.codec.digest.DigestUtils;
 
+import es.caib.notib.client.NotificacioRestClient;
 import es.caib.notib.client.NotificacioRestClientFactory;
 import es.caib.notib.ws.notificacio.Certificacio;
-import es.caib.notib.ws.notificacio.Document;
+import es.caib.notib.ws.notificacio.DocumentV2;
 import es.caib.notib.ws.notificacio.EntregaDeh;
 import es.caib.notib.ws.notificacio.EntregaPostal;
-import es.caib.notib.ws.notificacio.EntregaPostalTipusEnum;
 import es.caib.notib.ws.notificacio.EntregaPostalViaTipusEnum;
 import es.caib.notib.ws.notificacio.EnviamentTipusEnum;
-import es.caib.notib.ws.notificacio.NotificacioService;
-import es.caib.notib.ws.notificacio.PagadorCie;
-import es.caib.notib.ws.notificacio.PagadorPostal;
-import es.caib.notib.ws.notificacio.ParametresSeu;
+import es.caib.notib.ws.notificacio.NotificaDomiciliConcretTipusEnumDto;
+import es.caib.notib.ws.notificacio.NotificacioV2;
 import es.caib.notib.ws.notificacio.RespostaAlta;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
 
@@ -38,14 +35,19 @@ import net.conselldemallorca.helium.core.util.GlobalProperties;
  */
 public class NotificacioPluginNotib implements NotificacioPlugin {
 
-	private NotificacioService notificacioService;
+	
+	private NotificacioRestClient clientV2;
 
 	@Override
 	public RespostaEnviar enviar(
 			Notificacio notificacio) throws NotificacioPluginException {
 		try {
-			es.caib.notib.ws.notificacio.Notificacio notificacioNotib = new es.caib.notib.ws.notificacio.Notificacio();
+			
+			NotificacioV2 notificacioNotib = new NotificacioV2();
+			
+			
 			notificacioNotib.setEmisorDir3Codi(notificacio.getEmisorDir3Codi());
+			notificacioNotib.setProcedimentCodi("");
 			if (notificacio.getEnviamentTipus() != null) {
 				switch (notificacio.getEnviamentTipus()) {
 				case COMUNICACIO:
@@ -63,35 +65,14 @@ public class NotificacioPluginNotib implements NotificacioPlugin {
 			notificacioNotib.setRetard(notificacio.getRetard());
 			notificacioNotib.setCaducitat(
 					toXmlGregorianCalendar(notificacio.getCaducitat()));
-			Document document = new Document();
+			DocumentV2 document = new DocumentV2();
 			document.setArxiuNom(notificacio.getDocumentArxiuNom());
 			document.setContingutBase64(
 					new String(Base64.encodeBase64(notificacio.getDocumentArxiuContingut())));
-			document.setHash(
-					new String(Base64.encodeBase64(
-							DigestUtils.sha256Hex(notificacio.getDocumentArxiuContingut()).getBytes())));
+
 			notificacioNotib.setDocument(document);
 			notificacioNotib.setProcedimentCodi(notificacio.getProcedimentCodi());
-			if (notificacio.getPagadorPostalDir3Codi() != null) {
-				PagadorPostal pagadorPostal = new PagadorPostal();
-				pagadorPostal.setDir3Codi(
-						notificacio.getPagadorPostalDir3Codi());
-				pagadorPostal.setContracteNum(
-						notificacio.getPagadorPostalContracteNum());
-				pagadorPostal.setContracteDataVigencia(
-						toXmlGregorianCalendar(notificacio.getPagadorPostalContracteDataVigencia()));
-				pagadorPostal.setFacturacioClientCodi(
-						notificacio.getPagadorPostalFacturacioClientCodi());
-				notificacioNotib.setPagadorPostal(pagadorPostal);
-			}
-			if (notificacio.getPagadorCieDir3Codi() != null) {
-				PagadorCie pagadorCie = new PagadorCie();
-				pagadorCie.setDir3Codi(
-						notificacio.getPagadorCieDir3Codi());
-				pagadorCie.setContracteDataVigencia(
-						toXmlGregorianCalendar(notificacio.getPagadorCieContracteDataVigencia()));
-				notificacioNotib.setPagadorCie(pagadorCie);
-			}
+						
 			if (notificacio.getEnviaments() != null) {
 				for (Enviament enviament: notificacio.getEnviaments()) {
 					es.caib.notib.ws.notificacio.Enviament enviamentNotib = new es.caib.notib.ws.notificacio.Enviament();
@@ -107,16 +88,16 @@ public class NotificacioPluginNotib implements NotificacioPlugin {
 						EntregaPostal entregaPostal = new EntregaPostal();
 						switch (enviament.getEntregaPostalTipus()) {
 						case NACIONAL:
-							entregaPostal.setTipus(EntregaPostalTipusEnum.NACIONAL);
+							entregaPostal.setTipus(NotificaDomiciliConcretTipusEnumDto.NACIONAL);
 							break;
 						case ESTRANGER:
-							entregaPostal.setTipus(EntregaPostalTipusEnum.ESTRANGER);
+							entregaPostal.setTipus(NotificaDomiciliConcretTipusEnumDto.ESTRANGER);
 							break;
 						case APARTAT_CORREUS:
-							entregaPostal.setTipus(EntregaPostalTipusEnum.APARTAT_CORREUS);
+							entregaPostal.setTipus(NotificaDomiciliConcretTipusEnumDto.APARTAT_CORREUS);
 							break;
 						case SENSE_NORMALITZAR:
-							entregaPostal.setTipus(EntregaPostalTipusEnum.SENSE_NORMALITZAR);
+							entregaPostal.setTipus(NotificaDomiciliConcretTipusEnumDto.SENSE_NORMALITZAR);
 							break;
 						}
 						if (enviament.getEntregaPostalViaTipus() != null) {
@@ -302,38 +283,8 @@ public class NotificacioPluginNotib implements NotificacioPlugin {
 					notificacioNotib.getEnviaments().add(enviamentNotib);
 				}
 			}
-			ParametresSeu parametresSeu = new ParametresSeu();
-			parametresSeu.setExpedientSerieDocumental(
-					notificacio.getSeuExpedientSerieDocumental());
-			parametresSeu.setProcedimentCodi(
-					notificacio.getSeuProcedimentCodi());
-			parametresSeu.setExpedientUnitatOrganitzativa(
-					notificacio.getSeuExpedientUnitatOrganitzativa());
-			parametresSeu.setExpedientIdentificadorEni(
-					notificacio.getSeuExpedientIdentificadorEni());
-			parametresSeu.setExpedientSerieDocumental(
-					notificacio.getSeuExpedientSerieDocumental());
-			parametresSeu.setExpedientTitol(
-					notificacio.getSeuExpedientTitol());
-			parametresSeu.setRegistreOficina(
-					notificacio.getSeuRegistreOficina());
-			parametresSeu.setRegistreLlibre(
-					notificacio.getSeuRegistreLlibre());
-			parametresSeu.setRegistreOrgan(
-					notificacio.getSeuRegistreOrgan());
-			parametresSeu.setIdioma(
-					notificacio.getSeuIdioma());
-			parametresSeu.setAvisTitol(
-					notificacio.getSeuAvisTitol());
-			parametresSeu.setAvisText(
-					notificacio.getSeuAvisText());
-			parametresSeu.setAvisTextMobil(
-					notificacio.getSeuAvisTextMobil());
-			parametresSeu.setOficiTitol(
-					notificacio.getSeuOficiTitol());
-			parametresSeu.setOficiText(
-					notificacio.getSeuOficiText());
-			notificacioNotib.setParametresSeu(parametresSeu);
+
+			
 			RespostaAlta respostaAlta = getNotificacioService().alta(notificacioNotib);
 			if (respostaAlta.isError()) {
 				throw new NotificacioPluginException(respostaAlta.getErrorDescripcio());
@@ -540,15 +491,15 @@ public class NotificacioPluginNotib implements NotificacioPlugin {
 		}
 		return p;
 	}
-
-	private NotificacioService getNotificacioService() {
-		if (notificacioService == null) {
-			notificacioService = NotificacioRestClientFactory.getRestClient(
+	
+	private NotificacioRestClient getNotificacioService() {
+		if (clientV2 == null) {
+			clientV2 = NotificacioRestClientFactory.getRestClientV2(
 					getUrl(),
 					getUsername(),
 					getPassword());
 		}
-		return notificacioService;
+		return clientV2;
 	}
 
 	private String getUrl() {
