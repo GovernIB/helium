@@ -1559,6 +1559,7 @@ public class DocumentHelperV3 {
 		dto.setDocumentId(document.getId());
 		dto.setDocumentCodi(document.getCodi());
 		dto.setDocumentNom(document.getNom());
+		dto.setNotificable(document.isNotificable());
 		dto.setSignat(documentStore.isSignat());
 		if (documentStore.isSignat()) {
 			if (documentStore.getArxiuUuid() == null) {

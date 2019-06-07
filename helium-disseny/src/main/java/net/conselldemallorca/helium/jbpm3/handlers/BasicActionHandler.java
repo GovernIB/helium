@@ -8,6 +8,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import net.conselldemallorca.helium.jbpm3.handlers.tipus.DadesNotificacio;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.DadesRegistreEntrada;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.DadesRegistreNotificacio;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.DadesRegistreSortida;
@@ -15,10 +16,12 @@ import net.conselldemallorca.helium.jbpm3.handlers.tipus.DocumentDisseny;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.DocumentInfo;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.ExpedientInfo;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.FilaResultat;
+import net.conselldemallorca.helium.jbpm3.handlers.tipus.Interessat;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.ParellaCodiValor;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.RespostaRegistre;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.Tramit;
 
+import org.jbpm.JbpmException;
 import org.jbpm.graph.def.ActionHandler;
 import org.jbpm.graph.exe.ExecutionContext;
 
@@ -204,6 +207,27 @@ public abstract class BasicActionHandler implements ActionHandler {
 	public void desarInformacioExecucio(
 			ExecutionContext executionContext,
 			String missatge) throws Exception {
+	}
+	
+	public void altaNotificacio(
+			DadesNotificacio dadesNotificacio,
+			Long expedientId) throws JbpmException {
+	}
+	
+	
+	public void interessatCrear(
+			Interessat interessat) {
+	}
+	
+	
+	public void interessatModificar(
+			Interessat interessat) {	
+	}
+	
+	
+	public void interessatEliminar(
+			String codi,
+			Long expedientId) {
 	}
 	
 	static final long serialVersionUID = 1L;

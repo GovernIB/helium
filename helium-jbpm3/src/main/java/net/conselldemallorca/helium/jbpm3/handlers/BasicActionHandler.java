@@ -28,6 +28,7 @@ import net.conselldemallorca.helium.jbpm3.handlers.tipus.DocumentDisseny;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.DocumentInfo;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.ExpedientInfo;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.FilaResultat;
+import net.conselldemallorca.helium.jbpm3.handlers.tipus.Interessat;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.ParellaCodiValor;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.PersonaInfo;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.ReferenciaRDSJustificante;
@@ -50,6 +51,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.EnviamentTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDadaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
+import net.conselldemallorca.helium.v3.core.api.dto.InteressatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RegistreAnnexDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RegistreAnotacioDto;
@@ -74,7 +76,7 @@ public abstract class BasicActionHandler extends AbstractHeliumActionHandler imp
 
 	public abstract void execute(ExecutionContext executionContext) throws Exception;
 
-
+	
 
 	/**
 	 * Retorna l'expedient associat al procés actual
@@ -538,6 +540,82 @@ public abstract class BasicActionHandler extends AbstractHeliumActionHandler imp
 				registreNumero, null);
 	}
 	
+	
+	/**
+	 * Crea un interessat
+	 * 
+	 * @param codi
+	 * @param expedientId
+	 * @return
+	 */
+	public void interessatCrear(
+			Interessat interessat) {
+		
+		InteressatDto interessatDto = new InteressatDto();
+
+		interessatDto.setCodi(interessat.getCodi());
+		interessatDto.setNom(interessat.getNom());
+		interessatDto.setNif(interessat.getNif());
+		interessatDto.setLlinatge1(interessat.getLlinatge1());
+		interessatDto.setLlinatge2(interessat.getLlinatge2());
+		interessatDto.setTipus(interessat.getTipus());
+		interessatDto.setEmail(interessat.getEmail());
+		interessatDto.setTelefon(interessat.getTelefon());
+		interessatDto.setExpedientId(interessat.getExpedientId());
+		
+		Jbpm3HeliumBridge.getInstanceService().interessatCrear(interessatDto);
+		
+	}
+	
+	/**
+	 * Modifica un interessat
+	 * 
+	 * @param codi
+	 * @param expedientId
+	 * @return
+	 */
+	public void interessatModificar(
+			Interessat interessat) {
+		
+		InteressatDto interessatDto = new InteressatDto();
+
+		interessatDto.setId(interessat.getId());
+		interessatDto.setCodi(interessat.getCodi());
+		interessatDto.setNom(interessat.getNom());
+		interessatDto.setNif(interessat.getNif());
+		interessatDto.setLlinatge1(interessat.getLlinatge1());
+		interessatDto.setLlinatge2(interessat.getLlinatge2());
+		interessatDto.setTipus(interessat.getTipus());
+		interessatDto.setEmail(interessat.getEmail());
+		interessatDto.setTelefon(interessat.getTelefon());
+		interessatDto.setExpedientId(interessat.getExpedientId());
+		
+		Jbpm3HeliumBridge.getInstanceService().interessatModificar(interessatDto);
+		
+	}
+	
+	/**
+	 * ELimina un interessat
+	 * 
+	 * @param codi
+	 * @param expedientId
+	 * @return
+	 */
+	public void interessatEliminar(
+			String codi,
+			Long expedientId) {
+		
+		InteressatDto interessatDto = new InteressatDto();
+
+		interessatDto.setCodi(codi);
+		interessatDto.setExpedientId(expedientId);
+		
+		Jbpm3HeliumBridge.getInstanceService().interessatEliminar(interessatDto);
+		
+	}
+	
+	
+	
 	// NOTIB -- Inici
 	
 	/**
@@ -547,7 +625,7 @@ public abstract class BasicActionHandler extends AbstractHeliumActionHandler imp
 	 * @param executionContext
 	 * @return
 	 */
-	public RespostaNotificacio altaNotificacio(
+	public void altaNotificacio(
 			DadesNotificacio dadesNotificacio,
 			Long expedientId) throws JbpmException {
 		DadesNotificacioDto notificacio = new DadesNotificacioDto();
@@ -660,7 +738,7 @@ public abstract class BasicActionHandler extends AbstractHeliumActionHandler imp
 		
 		RespostaNotificacio resposta = Jbpm3HeliumBridge.getInstanceService().altaNotificacio(notificacio);
 		
-		return resposta;
+//		return resposta;
 	}
 	
 	
@@ -993,7 +1071,7 @@ public abstract class BasicActionHandler extends AbstractHeliumActionHandler imp
 			return valor;
 		}
 	}
-
+	
 	static final long serialVersionUID = 1L;
 
 }

@@ -13,7 +13,6 @@ import javax.annotation.Resource;
 import org.json.simple.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.acls.model.Permission;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -27,6 +26,7 @@ import net.conselldemallorca.helium.core.helper.ExpedientHelper;
 import net.conselldemallorca.helium.core.helper.ExpedientLoggerHelper;
 import net.conselldemallorca.helium.core.helper.ExpedientRegistreHelper;
 import net.conselldemallorca.helium.core.helper.IndexHelper;
+import net.conselldemallorca.helium.core.helper.PaginacioHelper;
 import net.conselldemallorca.helium.core.helper.PluginHelper;
 import net.conselldemallorca.helium.core.helper.TascaHelper;
 import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
@@ -36,6 +36,7 @@ import net.conselldemallorca.helium.core.model.hibernate.DocumentStore;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientLog.ExpedientLogAccioTipus;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
+import net.conselldemallorca.helium.core.model.hibernate.Interessat;
 import net.conselldemallorca.helium.core.model.hibernate.Portasignatures;
 import net.conselldemallorca.helium.core.model.hibernate.Portasignatures.TipusEstat;
 import net.conselldemallorca.helium.core.model.hibernate.Portasignatures.Transicio;
@@ -46,23 +47,32 @@ import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDetallDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuFirmaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuFirmaPerfilEnumDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DadesEnviamentDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DadesNotificacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
+import net.conselldemallorca.helium.v3.core.api.dto.EnviamentTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDocumentDto;
+import net.conselldemallorca.helium.v3.core.api.dto.InteressatDto;
+import net.conselldemallorca.helium.v3.core.api.dto.NotificacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NtiEstadoElaboracionEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NtiOrigenEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NtiTipoDocumentalEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NtiTipoFirmaEnumDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PortasignaturesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RespostaValidacioSignaturaDto;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
-import net.conselldemallorca.helium.v3.core.api.service.DocumentService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientDocumentService;
 import net.conselldemallorca.helium.v3.core.repository.CampRepository;
 import net.conselldemallorca.helium.v3.core.repository.DefinicioProcesRepository;
 import net.conselldemallorca.helium.v3.core.repository.DocumentNotificacioRepository;
 import net.conselldemallorca.helium.v3.core.repository.DocumentRepository;
 import net.conselldemallorca.helium.v3.core.repository.DocumentStoreRepository;
+import net.conselldemallorca.helium.v3.core.repository.InteressatRepository;
+import net.conselldemallorca.helium.v3.core.repository.NotificacioRepository;
 import net.conselldemallorca.helium.v3.core.repository.PortasignaturesRepository;
 import net.conselldemallorca.helium.v3.core.repository.RegistreRepository;
 
@@ -89,6 +99,12 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 	private DocumentNotificacioRepository documentNotificacioRepository;
 	@Resource
 	private PortasignaturesRepository portasignaturesRepository;
+	@Resource
+	private InteressatRepository interessatRepository;
+	@Resource
+	private PaginacioHelper paginacioHelper;
+	@Resource
+	NotificacioRepository notificacioRepository;
 
 	@Resource
 	private PluginHelper pluginHelper;
@@ -108,6 +124,10 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 	private ExpedientLoggerHelper expedientLoggerHelper;
 	@Resource
 	private ExpedientRegistreHelper expedientRegistreHelper;
+//	@Resource
+//	private Jbpm3HeliumHelper jbpm3HeliumHelper;
+	@Resource
+	DocumentHelperV3 documentHelperV3;
 
 
 
@@ -236,7 +256,150 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 				arxiuNomAntic,
 				arxiuNom);
 	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@Transactional(readOnly = true)
+	public PaginaDto<NotificacioDto> findNotificacionsPerDatatable(
+			String filtre,
+			PaginacioParamsDto paginacioParams) {
+		logger.debug("Consultant notificacions per la datatable (" +
+				"filtre=" + filtre + ", " +
+				"paginacioParams=" + paginacioParams + ")");
+		PaginaDto<NotificacioDto> pagina = paginacioHelper.toPaginaDto(
+				notificacioRepository.findByFiltrePaginat(
+						filtre == null || "".equals(filtre),
+						filtre,
+						paginacioHelper.toSpringDataPageable(
+								paginacioParams)),
+				NotificacioDto.class);
+		return pagina;
+	}
 
+	
+	@Override
+	@Transactional
+	public void notificarDocument(
+			Long expedientId,
+			Long documentStoreId,
+			DadesNotificacioDto dadesNotificacioDto,
+			List<Long> interessatsIds) {
+
+		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
+				expedientId,
+				new Permission[] {
+						ExtendedPermission.DOC_MANAGE,
+						ExtendedPermission.ADMINISTRATION});
+
+		
+		DocumentDto documentDto = documentHelperV3.toDocumentDto(
+				documentStoreId,
+				true,
+				false,
+				false,
+				false,
+				false);
+		
+		ExpedientTipus expedientTipus = expedient.getTipus();
+		
+		String expedientTitol = expedient.getTitol();
+		String notibEmisor = expedientTipus.getNtiOrgano();
+		String notibSeuUnitatAdministrativa = expedientTipus.getNotibSeuUnitatAdministrativa();
+		if (notibSeuUnitatAdministrativa == null && expedient.getUnitatAdministrativa() != null)
+			notibSeuUnitatAdministrativa = String.valueOf(expedient.getUnitatAdministrativa());
+		String notibSeuOficina = expedientTipus.getNotibSeuOficina();
+		String notibSeuLlibre = expedientTipus.getNotibSeuLlibre();
+		String notibSeuOrgan = expedientTipus.getNotibSeuOrgan();
+		String notibSeuIdioma = expedientTipus.getNotibSeuIdioma();
+		if (notibSeuIdioma == null)
+			notibSeuIdioma = "ca";
+		String notibAvisTitol = expedientTipus.getNotibAvisTitol();
+		String notibAvisText = expedientTipus.getNotibAvisText();
+		String notibAvisTextSms = expedientTipus.getNotibAvisTextSms();
+		String notibOficiTitol = expedientTipus.getNotibOficiTitol();
+		String notibOficiText = expedientTipus.getNotibOficiText();
+		String notibSerieDocumental = expedientTipus.getNtiSerieDocumental();
+		String notibProcedimentCodi = expedientTipus.getNtiClasificacion();
+		String notibSeuProcedimentCodi = expedientTipus.getNotibSeuCodiProcediment();
+		
+		
+		dadesNotificacioDto.setSeuExpedientTitol(expedientTitol);
+		dadesNotificacioDto.setEmisorDir3Codi(notibEmisor);
+		dadesNotificacioDto.setSeuExpedientUnitatOrganitzativa(notibSeuUnitatAdministrativa);
+		dadesNotificacioDto.setSeuRegistreOficina(notibSeuOficina);
+		dadesNotificacioDto.setSeuRegistreLlibre(notibSeuLlibre);
+		dadesNotificacioDto.setSeuRegistreOrgan(notibSeuOrgan);
+		dadesNotificacioDto.setSeuAvisTitol(notibAvisTitol);
+		dadesNotificacioDto.setSeuAvisText(notibAvisText);
+		dadesNotificacioDto.setSeuAvisTextMobil(notibAvisTextSms);
+		dadesNotificacioDto.setSeuOficiTitol(notibOficiTitol);
+		dadesNotificacioDto.setSeuOficiText(notibOficiText);
+		dadesNotificacioDto.setSeuExpedientSerieDocumental(notibSerieDocumental);
+		dadesNotificacioDto.setProcedimentCodi(notibProcedimentCodi);
+		dadesNotificacioDto.setSeuProcedimentCodi(notibSeuProcedimentCodi);
+		
+		
+		dadesNotificacioDto.setExpedientId(expedientId);
+		dadesNotificacioDto.setEnviamentTipus(EnviamentTipusEnumDto.NOTIFICACIO);
+		
+//		List<DocumentDto> annexos = new ArrayList<DocumentDto>();
+//		DocumentDto annex = new DocumentDto();
+//		annex.setDocumentId(documentDto.getId());
+//		annex.setArxiuNom(documentDto.getArxiuNom());
+//		annex.setArxiuContingut(documentDto.getArxiuContingut());
+//		annexos.add(annex);
+		List<DocumentDto> annexos = new ArrayList<DocumentDto>();
+		dadesNotificacioDto.setAnnexos(annexos);
+	
+
+		dadesNotificacioDto.setDocumentId(documentDto.getId());
+		dadesNotificacioDto.setDocumentArxiuNom(documentDto.getArxiuNom());
+		dadesNotificacioDto.setDocumentArxiuContingut(documentDto.getArxiuContingut());
+		
+		
+		for(Long interessatId:  interessatsIds){
+			
+			Interessat interessatEntity = interessatRepository.findOne(interessatId);
+			
+			List<DadesEnviamentDto> enviaments = new ArrayList<DadesEnviamentDto>();
+			DadesEnviamentDto enviament = new DadesEnviamentDto();
+			
+			List<PersonaDto> destinataris = new ArrayList<PersonaDto>();
+			PersonaDto destinatari = new PersonaDto();
+			destinatari.setNom(interessatEntity.getNom());
+			destinatari.setLlinatge1(interessatEntity.getLlinatge1());
+			destinatari.setLlinatge2(interessatEntity.getLlinatge2());
+			destinatari.setDni(interessatEntity.getNif());
+			destinatari.setTelefon(interessatEntity.getTelefon());
+			destinatari.setEmail(interessatEntity.getEmail());
+			destinataris.add(destinatari);
+			enviament.setDestinataris(destinataris);
+			
+			
+			// Titular
+			PersonaDto titular = new PersonaDto();
+			titular.setDni(interessatEntity.getNif());
+			titular.setNom(interessatEntity.getNom());
+			titular.setLlinatge1(interessatEntity.getLlinatge1());
+			titular.setLlinatge1(interessatEntity.getLlinatge2());
+			titular.setLlinatge2(interessatEntity.getTelefon());
+			titular.setEmail(interessatEntity.getEmail());
+			enviament.setTitular(titular);
+			
+			
+			enviaments.add(enviament);
+
+			dadesNotificacioDto.setEnviaments(enviaments);
+			
+			pluginHelper.altaNotificacio(dadesNotificacioDto);
+		}
+	}
+	
+	
+	
+	
 	@Override
 	@Transactional
 	public void createAdjunt(

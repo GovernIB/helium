@@ -93,8 +93,8 @@ public class Tasca implements Serializable, GenericEntity<Long> {
 	}
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.TABLE, generator="gen_tasca")
-	@TableGenerator(name="gen_tasca", table="hel_idgen", pkColumnName="taula", valueColumnName="valor")
+	@GeneratedValue(strategy = GenerationType.TABLE, generator="gen_interessat")
+	@TableGenerator(name="gen_interessat", table="hel_idgen", pkColumnName="taula", valueColumnName="valor")
 	@Column(name="id")
 	public Long getId() {
 		return id;

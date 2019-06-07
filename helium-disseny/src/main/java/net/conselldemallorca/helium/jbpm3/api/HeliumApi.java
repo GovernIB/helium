@@ -4,8 +4,11 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import org.jbpm.JbpmException;
+
 import net.conselldemallorca.helium.jbpm3.handlers.exception.HeliumHandlerException;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.ActionInfo;
+import net.conselldemallorca.helium.jbpm3.handlers.tipus.DadesNotificacio;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.DadesRegistreEntrada;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.DadesRegistreNotificacio;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.DadesRegistreSortida;
@@ -13,6 +16,7 @@ import net.conselldemallorca.helium.jbpm3.handlers.tipus.DocumentInfo;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.EventInfo;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.ExpedientInfo;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.FilaResultat;
+import net.conselldemallorca.helium.jbpm3.handlers.tipus.Interessat;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.JustificantRecepcioInfo;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.NodeInfo;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.ParellaCodiValor;
@@ -400,5 +404,19 @@ public interface HeliumApi {
 	 * @param parametres Els paràmetres a guardar per la retroacció
 	 */
 	public void retrocedirGuardarParametres(List<String> parametres);
+	
+	public void altaNotificacio(
+			DadesNotificacio dadesNotificacio,
+			Long expedientId) throws JbpmException;
+	
+	public void interessatCrear(
+			Interessat interessat);
+	
+	public void interessatModificar(
+			Interessat interessat);
+	
+	public void interessatEliminar(
+			String codi,
+			Long expedientId);
 	
 }

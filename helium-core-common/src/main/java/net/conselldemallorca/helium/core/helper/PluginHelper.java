@@ -13,6 +13,7 @@ import java.util.Properties;
 
 import javax.annotation.Resource;
 
+import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -155,6 +156,8 @@ public class PluginHelper {
 	private MonitorIntegracioHelper monitorIntegracioHelper;
 	@Resource
 	private DocumentHelperV3 documentHelperV3;
+	@Resource
+	private NotificacioHelper notificacioElectronicaHelper;
 
 	private PersonesPlugin personesPlugin;
 	private TramitacioPlugin tramitacioPlugin;
@@ -2609,6 +2612,45 @@ public class PluginHelper {
 			throw tractarExcepcioEnSistemaExtern(errorDescripcio, ex);
 		}
 	}
+	
+	
+	public RespostaNotificacio altaNotificacio(DadesNotificacioDto dadesNotificacio) {
+		Expedient expedient = expedientRepository.findOne(dadesNotificacio.getExpedientId());
+//		expedient.setTramitExpedientIdentificador(dadesNotificacio.getSeuExpedientIdentificadorEni());
+		DocumentNotificacio notificacio = notificacioElectronicaHelper.create(dadesNotificacio);
+		
+		RespostaNotificacio resposta = null; 
+				
+		try {
+			resposta = altaNotificacio(
+					dadesNotificacio, 
+					expedient);
+			notificacio.updateEnviat(
+					new Date(),
+					resposta.getIdentificador(),
+					resposta.getReferencies().get(0).getReferencia());
+		} catch (Exception e) {
+			notificacio.updateEnviatError(
+					ExceptionUtils.getStackTrace(e), 
+					null);
+			throw new SistemaExternException(
+					expedient.getEntorn().getId(),
+					expedient.getEntorn().getCodi(), 
+					expedient.getEntorn().getNom(), 
+					expedient.getId(), 
+					expedient.getTitol(), 
+					expedient.getNumero(), 
+					expedient.getTipus().getId(), 
+					expedient.getTipus().getCodi(), 
+					expedient.getTipus().getNom(), 
+					"(Enviament de notificació)", 
+					e);
+		}
+		
+		return resposta;
+	}
+	
+	
 
 	// NOTIB -- Inici
 	//TODO:

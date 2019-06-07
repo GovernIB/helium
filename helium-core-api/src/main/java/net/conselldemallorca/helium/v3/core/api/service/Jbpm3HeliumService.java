@@ -25,6 +25,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDadaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.FestiuDto;
+import net.conselldemallorca.helium.v3.core.api.dto.InteressatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NotificacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ReassignacioDto;
@@ -1139,5 +1140,11 @@ public interface Jbpm3HeliumService {
 	 */
 	public void afegirInstanciaProcesPerVerificarFinalitzacio(
 			String processInstanceId);
+
+	public void interessatCrear(InteressatDto interessat);
+
+	void interessatModificar(InteressatDto interessat);
+
+	void interessatEliminar(InteressatDto interessat);
 
 }

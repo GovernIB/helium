@@ -658,7 +658,8 @@ public class NotificacioAltaHandler extends BasicActionHandler implements Notifi
 		enviaments.add(enviament);
 		dadesNotificacio.setEnviaments(enviaments);
 		
-		RespostaNotificacio resposta = altaNotificacio(dadesNotificacio, expedient.getId());
+//		RespostaNotificacio resposta = 
+		altaNotificacio(dadesNotificacio, expedient.getId());
 		
 //		if (resposta != null) {			
 //			
@@ -782,6 +783,10 @@ public class NotificacioAltaHandler extends BasicActionHandler implements Notifi
 		oos.close();
 		return new String(Base64.encode(baos.toByteArray()));
 	}
+	
+	
+	
+	
 
 	public void setEmisorDir3Codi(String emisorDir3Codi) {
 		this.emisorDir3Codi = emisorDir3Codi;

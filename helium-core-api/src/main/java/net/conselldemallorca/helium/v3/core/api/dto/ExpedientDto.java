@@ -7,6 +7,8 @@ import java.io.Serializable;
 import java.text.DecimalFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
+
 
 /**
  * DTO amb informació d'un expedient.
@@ -36,7 +38,8 @@ public class ExpedientDto extends ControlPermisosDto implements Serializable {
 	}
 
 	public ExpedientDto() {}
-
+	
+	
 	private Long id;
 	private String processInstanceId;
 	private String titol;
@@ -83,7 +86,10 @@ public class ExpedientDto extends ControlPermisosDto implements Serializable {
 
 	private String errorDesc;
 	private String errorFull;
-
+	
+	private List<InteressatDto> interessats;
+	private List<NotificacioDto> notificacions;
+	
 	private boolean errorsIntegracions;
 
 	private PersonaDto iniciadorPersona;
@@ -118,6 +124,12 @@ public class ExpedientDto extends ControlPermisosDto implements Serializable {
 	}
 	public void setId(Long id) {
 		this.id = id;
+	}
+	public List<NotificacioDto> getNotificacions() {
+		return notificacions;
+	}
+	public void setNotificacions(List<NotificacioDto> notificacions) {
+		this.notificacions = notificacions;
 	}
 	public String getProcessInstanceId() {
 		return processInstanceId;
@@ -499,6 +511,13 @@ public class ExpedientDto extends ControlPermisosDto implements Serializable {
 	public void setArxiuUuid(String arxiuUuid) {
 		this.arxiuUuid = arxiuUuid;
 	}
+	public List<InteressatDto> getInteressats() {
+		return interessats;
+	}
+	public void setInteressats(List<InteressatDto> interessats) {
+		this.interessats = interessats;
+	}
+
 
 	public String getEstatNom() {
 		if (getEstat() != null)
