@@ -4,6 +4,7 @@
 package net.conselldemallorca.helium.core.helper;
 
 import java.util.ArrayList;
+import net.conselldemallorca.helium.core.model.hibernate.Registre;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -15,12 +16,14 @@ import org.hibernate.Hibernate;
 import org.jbpm.graph.exe.ProcessInstanceExpedient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.acls.model.Permission;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.codahale.metrics.MetricRegistry;
+import net.conselldemallorca.helium.core.security.ExtendedPermission;
 
 import net.conselldemallorca.helium.core.common.ThreadLocalInfo;
 import net.conselldemallorca.helium.core.extern.domini.FilaResultat;
@@ -122,6 +125,7 @@ import net.conselldemallorca.helium.v3.core.repository.ReassignacioRepository;
 import net.conselldemallorca.helium.v3.core.repository.TascaRepository;
 import net.conselldemallorca.helium.v3.core.repository.TerminiIniciatRepository;
 import net.conselldemallorca.helium.v3.core.repository.TerminiRepository;
+import net.conselldemallorca.helium.v3.core.repository.RegistreRepository;
 
 /**
  * Service que implementa la funcionalitat necessària per
@@ -174,6 +178,9 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 	private DocumentTascaRepository documentTascaRepository;
 	@Resource
 	private TerminiRepository terminiRepository;
+	
+	@Resource
+	private RegistreRepository registreRepository;
 
 	
 	@Resource(name = "documentHelperV3")
@@ -1262,6 +1269,55 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 				expedient,
 				null);
 	}
+	
+	@Override
+	public void finalitzarExpedient(Long id) throws Exception {
+		logger.debug("Finalitzar l'expedient (id=" + id + ")");
+		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
+				id,
+				new Permission[] {
+						ExtendedPermission.WRITE,
+						ExtendedPermission.ADMINISTRATION});
+		List<JbpmProcessInstance> processInstancesTree = jbpmHelper.getProcessInstanceTree(expedient.getProcessInstanceId());
+		String[] ids = new String[processInstancesTree.size()];
+		int i = 0;
+		for (JbpmProcessInstance pi: processInstancesTree)
+			ids[i++] = pi.getId();
+		
+		Date dataFinalitzacio = new Date();
+		jbpmHelper.finalitzarExpedient(ids, dataFinalitzacio);
+		expedient.setDataFi(dataFinalitzacio);
+		
+		//tancam l'expedient de l'arxiu si escau
+		if (expedient.isArxiuActiu()) {
+			//firmem els documents que no estan firmats
+			expedientHelper.firmarDocumentsPerArxiuFiExpedient(expedient);
+			
+			// Tanca l'expedient a l'arxiu.
+			pluginHelper.arxiuExpedientTancar(expedient.getArxiuUuid());
+		}
+		
+		crearRegistreExpedient(
+				expedient.getId(),
+				SecurityContextHolder.getContext().getAuthentication().getName(),
+				Registre.Accio.FINALITZAR);
+	}
+	
+	private Registre crearRegistreExpedient(
+			Long expedientId,
+			String responsableCodi,
+			Registre.Accio accio) {
+		Registre registre = new Registre(
+				new Date(),
+				expedientId,
+				responsableCodi,
+				accio,
+				Registre.Entitat.EXPEDIENT,
+				String.valueOf(expedientId));
+		return registreRepository.save(registre);
+	}
+	
+	
 	
 	@Override
 	public boolean tokenActivar(long tokenId, boolean activar) {
