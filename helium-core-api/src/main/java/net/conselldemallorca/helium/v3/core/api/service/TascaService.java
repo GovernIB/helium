@@ -421,7 +421,18 @@ public interface TascaService {
 	
 	public TascaDocumentDto findDocument(String tascaId, Long docId);
 
-	public Long guardarDocumentTasca(Long entornId, String taskInstanceId, String documentCodi, Date documentData, String arxiuNom, byte[] arxiuContingut, String user);
+	public Long guardarDocumentTasca(
+			Long entornId, 
+			String taskInstanceId, 
+			String documentCodi, 
+			Date documentData, 
+			String arxiuNom, 
+			byte[] arxiuContingut,
+			String arxiuContentType, 
+			boolean ambFirma,
+			boolean firmaSeparada,
+			byte[] firmaContingut,
+			String user);
 
 	public void esborrarDocument(String taskInstanceId, String documentCodi, String user);
 

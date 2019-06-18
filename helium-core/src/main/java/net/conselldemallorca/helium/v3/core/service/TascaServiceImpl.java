@@ -90,7 +90,6 @@ import net.conselldemallorca.helium.v3.core.api.dto.SeleccioOpcioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.TascaDto.TipusTascaDto;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.exception.SistemaExternException;
 import net.conselldemallorca.helium.v3.core.api.exception.TramitacioException;
@@ -926,7 +925,23 @@ public class TascaServiceImpl implements TascaService {
 			Date documentData,
 			String arxiuNom,
 			byte[] arxiuContingut,
+			String arxiuContentType, 
+			boolean ambFirma,
+			boolean firmaSeparada,
+			byte[] firmaContingut,
 			String user) {
+		logger.debug("Crear document a dins la tasca (" +
+				"entornId=" + entornId + ", " +
+				"taskInstanceId=" + taskInstanceId + ", " +
+				"documentCodi=" + documentCodi + ", " +
+				"documentData=" + documentData + ", " +
+				"arxiuNom=" + arxiuNom + ", " +
+				"arxiuContingut=" + arxiuContingut + ", " +
+				"arxiuContentType=" + arxiuContentType + ", " +
+				"ambFirma=" + ambFirma + ", " +
+				"firmaSeparada=" + firmaSeparada + ", " +
+				"firmaContingut=" + firmaContingut + ", " +
+				"user=" + user + ")");
 		JbpmTask task = jbpmHelper.getTaskById(taskInstanceId);
 		DocumentStore documentStore = documentHelper.getDocumentStore(task, documentCodi);
 		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(task.getProcessInstanceId());
@@ -943,13 +958,17 @@ public class TascaServiceImpl implements TascaService {
 					documentCodi);
 		}
 		String arxiuNomAntic = (documentStore != null) ? documentStore.getArxiuNom() : null;
-		Long documentStoreId = documentHelper.crearOActualitzarDocument(
+		Long documentStoreId = documentHelper.crearActualitzarDocument(
 				taskInstanceId,
 				task.getProcessInstanceId(),
 				documentCodi,
 				documentData,
 				arxiuNom,
 				arxiuContingut,
+				arxiuContentType,
+				ambFirma,
+				firmaSeparada,
+				firmaContingut,
 				null,
 				null,
 				null,

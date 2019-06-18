@@ -42,6 +42,8 @@ public class PortaFIBCallbackTest {
 		PortaFIBEvent event = new PortaFIBEvent();
 		SigningRequest signingRequest = new SigningRequest();
 		signingRequest.setID(documentId);
+		signingRequest.setState(3);
+		signingRequest.setRejectionReason("Raó rebuig");
 		event.setSigningRequest(signingRequest);
 		event.setEventTypeID(estat);
 		

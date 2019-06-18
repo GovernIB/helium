@@ -7,8 +7,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 import javax.annotation.Resource;
@@ -16,6 +18,13 @@ import javax.annotation.Resource;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.fundaciobit.plugins.validatesignature.api.CertificateInfo;
+import org.fundaciobit.plugins.validatesignature.api.IValidateSignaturePlugin;
+import org.fundaciobit.plugins.validatesignature.api.SignatureDetailInfo;
+import org.fundaciobit.plugins.validatesignature.api.SignatureRequestedInformation;
+import org.fundaciobit.plugins.validatesignature.api.TimeStampInfo;
+import org.fundaciobit.plugins.validatesignature.api.ValidateSignatureRequest;
+import org.fundaciobit.plugins.validatesignature.api.ValidateSignatureResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
@@ -39,7 +48,6 @@ import es.caib.plugins.arxiu.api.IArxiuPlugin;
 import net.conselldemallorca.helium.core.model.hibernate.DocumentNotificacio;
 import net.conselldemallorca.helium.core.model.hibernate.DocumentStore;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
-import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.hibernate.Portasignatures;
 import net.conselldemallorca.helium.core.model.hibernate.Portasignatures.TipusEstat;
 import net.conselldemallorca.helium.core.model.hibernate.Portasignatures.Transicio;
@@ -101,6 +109,9 @@ import net.conselldemallorca.helium.integracio.plugins.tramitacio.Signatura;
 import net.conselldemallorca.helium.integracio.plugins.tramitacio.TramitacioPlugin;
 import net.conselldemallorca.helium.integracio.plugins.tramitacio.TramitacioPluginException;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ArxiuFirmaDetallDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ArxiuFirmaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ArxiuFirmaPerfilEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DadesEnviamentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DadesNotificacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
@@ -110,6 +121,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.IntegracioParametreDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NtiEstadoElaboracionEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NtiOrigenEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NtiTipoDocumentalEnumDto;
+import net.conselldemallorca.helium.v3.core.api.dto.NtiTipoFirmaEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ReferenciaNotificacio;
 import net.conselldemallorca.helium.v3.core.api.dto.RegistreAnnexDto;
@@ -170,6 +182,7 @@ public class PluginHelper {
 	private FirmaPlugin firmaPlugin;
 	private IArxiuPlugin arxiuPlugin;
 	private NotificacioPlugin notificacioPlugin;
+	private IValidateSignaturePlugin validaSignaturaPlugin;
 
 
 
@@ -2293,11 +2306,29 @@ public class PluginHelper {
 		}
 	}
 
-	public ContingutArxiu arxiuDocumentActualitzar(
+	public ContingutArxiu arxiuDocumentCrearActualitzar(
 			Expedient expedient,
 			String documentNom,
 			DocumentStore documentStore,
 			ArxiuDto arxiu) {
+		return arxiuDocumentCrearActualitzar(
+			expedient,
+			documentNom,
+			documentStore,
+			arxiu,
+			false,
+			false,
+			null);
+	}
+	
+	public ContingutArxiu arxiuDocumentCrearActualitzar(
+			Expedient expedient,
+			String documentNom,
+			DocumentStore documentStore,
+			ArxiuDto arxiu,
+			boolean ambFirma,
+			boolean firmaSeparada,
+			List<ArxiuFirmaDto> firmes) {
 		String accioDescripcio;
 		if (documentStore.getArxiuUuid() == null) {
 			accioDescripcio = "Creació de document";
@@ -2331,9 +2362,9 @@ public class PluginHelper {
 								null,
 								nomAmbExtensio,
 								arxiu,
-								null,
-								null,
-								null,
+								ambFirma,
+								firmaSeparada,
+								firmes,
 								null,
 								obtenirNtiOrigen(documentStore),
 								Arrays.asList(obtenirNtiOrgano(expedient)),
@@ -2341,7 +2372,7 @@ public class PluginHelper {
 								obtenirNtiEstadoElaboracion(documentStore),
 								obtenirNtiTipoDocumental(documentStore),
 								getExtensioPerArxiu(arxiu),
-								DocumentEstat.ESBORRANY),
+								(firmes != null ? DocumentEstat.DEFINITIU : DocumentEstat.ESBORRANY)),
 						expedient.getArxiuUuid());
 			} else {
 				documentPerRetornar = getArxiuPlugin().documentModificar(
@@ -2349,9 +2380,9 @@ public class PluginHelper {
 								documentStore.getArxiuUuid(),
 								nomAmbExtensio,
 								arxiu,
-								null,
-								null,
-								null,
+								ambFirma,
+								firmaSeparada,
+								firmes,
 								null,
 								obtenirNtiOrigen(documentStore),
 								Arrays.asList(obtenirNtiOrgano(expedient)),
@@ -2359,7 +2390,7 @@ public class PluginHelper {
 								obtenirNtiEstadoElaboracion(documentStore),
 								obtenirNtiTipoDocumental(documentStore),
 								getExtensioPerArxiu(arxiu),
-								DocumentEstat.ESBORRANY));
+								(firmes != null ? DocumentEstat.DEFINITIU : DocumentEstat.ESBORRANY)));
 			}
 			monitorIntegracioHelper.addAccioOk(
 					MonitorIntegracioHelper.INTCODI_ARXIU,
@@ -2914,8 +2945,6 @@ public class PluginHelper {
 	}
 	
 	// NOTIB -- Fi
-	
-	
 
 	private TramitDto toTramitDto(DadesTramit dadesTramit) {
 		TramitDto dto = conversioTipusHelper.convertir(
@@ -2962,6 +2991,149 @@ public class PluginHelper {
 			dto.setDocuments(documents);
 		}
 		return dto;
+	}
+	
+	/** Empra el plugin de validació de firmes d'@firma per obtenir la informació de les firmes
+	 * del document passat com a paràmetre. 
+	 * 
+	 * @param documentStore
+	 * 			Informació del document per poder posar informació al monitor d'integracions.
+	 * @param documentContingut
+	 * 			Contingut del document firmat. Si és attached llavors conté les pròpies firmes.
+	 * @param firmaContingut
+	 * 			Contingut de la firma en cas que sigui dettached.
+	 * @param contentType
+	 * 			Tipus MIME 
+	 * @return
+	 */
+	public List<ArxiuFirmaDto> validaSignaturaObtenirFirmes(
+			DocumentStore documentStore, 
+			byte[] documentContingut,
+			byte[] firmaContingut,
+			String contentType) {
+		String accioDescripcio = "Obtenir informació de document firmat";
+		Map<String, Object> accioParams = new HashMap<String, Object>();
+		accioParams.put("documentStore", documentStore != null ? 
+											"[id=" + documentStore.getId() + 
+											", codi=" + documentStore.getCodiDocument() +
+											", nom=" + documentStore.getArxiuNom() + "]"
+											: "null" );
+		accioParams.put("documentContingut.length", documentContingut != null? documentContingut.length : -1);
+		accioParams.put("firmaContingut.length", firmaContingut != null? firmaContingut.length : -1);
+		accioParams.put("contentType", contentType);		
+		long t0 = System.currentTimeMillis();
+		try {
+			ValidateSignatureRequest validationRequest = new ValidateSignatureRequest();
+			if (firmaContingut != null) {
+				validationRequest.setSignedDocumentData(documentContingut);
+				validationRequest.setSignatureData(firmaContingut);
+			} else {
+				validationRequest.setSignatureData(documentContingut);
+			}
+			SignatureRequestedInformation sri = new SignatureRequestedInformation();
+			sri.setReturnSignatureTypeFormatProfile(true);
+			sri.setReturnCertificateInfo(true);
+			sri.setReturnValidationChecks(false);
+			sri.setValidateCertificateRevocation(false);
+			sri.setReturnCertificates(false);
+			sri.setReturnTimeStampInfo(false);
+			validationRequest.setSignatureRequestedInformation(sri);
+			ValidateSignatureResponse validateSignatureResponse = getValidaSignaturaPlugin().validateSignature(validationRequest);
+			List<ArxiuFirmaDetallDto> detalls = new ArrayList<ArxiuFirmaDetallDto>();
+			List<ArxiuFirmaDto> firmes = new ArrayList<ArxiuFirmaDto>();
+			ArxiuFirmaDto firma = new ArxiuFirmaDto();
+			if (validateSignatureResponse.getSignatureDetailInfo() != null) {
+				for (SignatureDetailInfo signatureInfo: validateSignatureResponse.getSignatureDetailInfo()) {
+					ArxiuFirmaDetallDto detall = new ArxiuFirmaDetallDto();
+					signatureInfo.getSignDate();
+					TimeStampInfo timeStampInfo = signatureInfo.getTimeStampInfo();
+					if (timeStampInfo != null) {
+						detall.setData(timeStampInfo.getCreationTime());
+					} else {
+						detall.setData(signatureInfo.getSignDate());
+					}
+					CertificateInfo certificateInfo = signatureInfo.getCertificateInfo();
+					if (certificateInfo != null) {
+						detall.setResponsableNif(certificateInfo.getNifResponsable());
+						detall.setResponsableNom(certificateInfo.getNombreApellidosResponsable());
+						detall.setEmissorCertificat(certificateInfo.getOrganizacionEmisora());
+					}
+					detalls.add(detall);
+				}
+				firma.setAutofirma(false);
+				if (firmaContingut != null) {
+					firma.setContingut(firmaContingut);
+				} else {
+					firma.setContingut(documentContingut);
+				}
+				firma.setDetalls(detalls);
+				firma.setPerfil(toArxiuFirmaPerfilEnum(validateSignatureResponse.getSignProfile()));
+				firma.setTipus(toArxiuFirmaTipusEnum(
+						validateSignatureResponse.getSignType(),
+						validateSignatureResponse.getSignFormat()));
+				firma.setTipusMime(contentType);
+				firmes.add(firma);
+			}			
+			monitorIntegracioHelper.addAccioOk(
+					MonitorIntegracioHelper.INTCODI_VALIDASIG,
+					accioDescripcio,
+					IntegracioAccioTipusEnumDto.ENVIAMENT,
+					System.currentTimeMillis() - t0,
+					IntegracioParametreDto.toIntegracioParametres(accioParams));
+			
+			return firmes;
+		} catch (Exception ex) {
+			String errorDescripcio = ex.getMessage();
+			monitorIntegracioHelper.addAccioError(
+					MonitorIntegracioHelper.INTCODI_VALIDASIG,
+					accioDescripcio,
+					IntegracioAccioTipusEnumDto.ENVIAMENT,
+					System.currentTimeMillis() - t0,
+					errorDescripcio,
+					ex,
+					IntegracioParametreDto.toIntegracioParametres(accioParams));
+			throw tractarExcepcioEnSistemaExtern(errorDescripcio, ex);
+		}
+	}
+	
+	private ArxiuFirmaPerfilEnumDto toArxiuFirmaPerfilEnum(String perfil) {		
+		ArxiuFirmaPerfilEnumDto perfilFirma = null;
+		if("AdES-BES".equals(perfil)) {
+			perfilFirma = ArxiuFirmaPerfilEnumDto.BES;
+		} else if("AdES-EPES".equals(perfil)) {
+			perfilFirma = ArxiuFirmaPerfilEnumDto.EPES;
+		} else if("PAdES-LTV".equals(perfil)) {
+			perfilFirma = ArxiuFirmaPerfilEnumDto.LTV;
+		} else if("AdES-T".equals(perfil)) {
+			perfilFirma = ArxiuFirmaPerfilEnumDto.T;
+		} else if("AdES-C".equals(perfil)) {
+			perfilFirma = ArxiuFirmaPerfilEnumDto.C;
+		} else if("AdES-X".equals(perfil)) {
+			perfilFirma = ArxiuFirmaPerfilEnumDto.X;
+		} else if("AdES-XL".equals(perfil)) {
+			perfilFirma = ArxiuFirmaPerfilEnumDto.XL;
+		} else if("AdES-A".equals(perfil)) {
+			perfilFirma = ArxiuFirmaPerfilEnumDto.A;
+		}
+		return perfilFirma;
+	}
+	
+	private NtiTipoFirmaEnumDto toArxiuFirmaTipusEnum(
+			String tipus,
+			String format) {		
+		NtiTipoFirmaEnumDto tipusFirma = null;
+		if (tipus.equals("PAdES") || format.equals("implicit_enveloped/attached")) {
+			tipusFirma = NtiTipoFirmaEnumDto.PADES;
+		} else if (tipus.equals("XAdES") && format.equals("explicit/detached")) {
+			tipusFirma = NtiTipoFirmaEnumDto.XADES_DET;
+		} else if (tipus.equals("XAdES") && format.equals("implicit_enveloping/attached")) {
+			tipusFirma = NtiTipoFirmaEnumDto.XADES_ENV;
+		} else if (tipus.equals("CAdES") && format.equals("explicit/detached")) {
+			tipusFirma = NtiTipoFirmaEnumDto.CADES_DET;
+		} else if (tipus.equals("CAdES") && format.equals("implicit_enveloping/attached")) {
+			tipusFirma = NtiTipoFirmaEnumDto.CADES_ATT;
+		}
+		return tipusFirma;
 	}
 
 	private RegistreEntrada toRegistreEntrada(RegistreAnotacioDto anotacio) {
@@ -3241,6 +3413,9 @@ public class PluginHelper {
 		return expedient;
 	}
 
+	private static List<FirmaTipus> TIPUS_FIRMES_ATTACHED = Arrays.asList(FirmaTipus.CADES_ATT, FirmaTipus.PADES, FirmaTipus.XADES_ENV);
+
+	//TODO: mètode a estingir
 	private es.caib.plugins.arxiu.api.Document toArxiuDocument(
 			String identificador,
 			String nom,
@@ -3248,6 +3423,47 @@ public class PluginHelper {
 			ArxiuDto firma,
 			FirmaTipus firmaTipus,
 			FirmaPerfil firmaPerfil,
+			String ntiIdentificador,
+			NtiOrigenEnumDto ntiOrigen,
+			List<String> ntiOrgans,
+			Date ntiDataCaptura,
+			NtiEstadoElaboracionEnumDto ntiEstatElaboracio,
+			NtiTipoDocumentalEnumDto ntiTipusDocumental,
+			DocumentExtensio extensio,
+			DocumentEstat estat) {
+		List<ArxiuFirmaDto> firmes = null;
+		if (firma!= null) {
+			ArxiuFirmaDto arxiuFirma = new ArxiuFirmaDto();
+			arxiuFirma.setAutofirma(false);
+			arxiuFirma.setContingut(firma.getContingut());
+			arxiuFirma.setFitxerNom(firma.getNom());
+			arxiuFirma.setTipus(NtiTipoFirmaEnumDto.valueOf(firmaTipus.name()));
+			arxiuFirma.setPerfil(ArxiuFirmaPerfilEnumDto.valueOf(firmaPerfil.name()));
+			firmes = Arrays.asList(arxiuFirma);
+		}
+		return toArxiuDocument(
+				identificador,
+				nom,
+				fitxer,
+				firma != null,
+				firmaTipus != null && TIPUS_FIRMES_ATTACHED.contains(firmaTipus),
+				firmes, // firmes
+				ntiIdentificador,
+				ntiOrigen,
+				ntiOrgans,
+				ntiDataCaptura,
+				ntiEstatElaboracio,
+				ntiTipusDocumental,
+				extensio,
+				estat);
+	}
+	private es.caib.plugins.arxiu.api.Document toArxiuDocument(
+			String identificador,
+			String nom,
+			ArxiuDto fitxer,
+			boolean documentAmbFirma,
+			boolean firmaSeparada,
+			List<ArxiuFirmaDto> firmes,
 			String ntiIdentificador,
 			NtiOrigenEnumDto ntiOrigen,
 			List<String> ntiOrgans,
@@ -3358,21 +3574,44 @@ public class PluginHelper {
 			break;
 		}
 		metadades.setTipusDocumental(tipusDocumental);
+		// Contingut i firmes
+		DocumentContingut contingut = null;
 		if (fitxer != null) {
-			DocumentContingut contingut = new DocumentContingut();
-			contingut.setArxiuNom(fitxer.getNom());
-			contingut.setContingut(fitxer.getContingut());
-			contingut.setTipusMime(fitxer.getTipusMime());
-			document.setContingut(contingut);
-		}
-		if (firma != null) {
-			Firma firmaArxiu = new Firma();
-			firmaArxiu.setFitxerNom(firma.getNom());
-			firmaArxiu.setContingut(firma.getContingut());
-			firmaArxiu.setTipusMime(firma.getTipusMime());
-			firmaArxiu.setTipus(firmaTipus);
-			firmaArxiu.setPerfil(firmaPerfil);
-			document.setFirmes(Arrays.asList(firmaArxiu));
+			if (!documentAmbFirma) {
+				// Sense firma
+				contingut = new DocumentContingut();
+				contingut.setArxiuNom(fitxer.getNom());
+				contingut.setContingut(fitxer.getContingut());
+				contingut.setTipusMime(fitxer.getTipusMime());
+				document.setContingut(contingut);
+			} else if (!firmaSeparada && firmes != null && !firmes.isEmpty()) {
+				// Firma attached
+				Firma firma = new Firma();
+				ArxiuFirmaDto primeraFirma = firmes.get(0);
+				firma.setFitxerNom(fitxer.getNom());
+				firma.setContingut(fitxer.getContingut());
+				firma.setTipusMime(fitxer.getTipusMime());
+				setFirmaTipusPerfil(firma, primeraFirma);
+				firma.setCsvRegulacio(primeraFirma.getCsvRegulacio());
+				document.setFirmes(Arrays.asList(firma));
+			} else if (firmes != null) {
+				// Firma detached
+				contingut = new DocumentContingut();
+				contingut.setArxiuNom(fitxer.getNom());
+				contingut.setContingut(fitxer.getContingut());
+				contingut.setTipusMime(fitxer.getTipusMime());
+				document.setContingut(contingut);
+				document.setFirmes(new ArrayList<Firma>());
+				for (ArxiuFirmaDto firmaDto: firmes) {
+					Firma firma = new Firma();
+					firma.setFitxerNom(firmaDto.getFitxerNom());
+					firma.setContingut(firmaDto.getContingut());
+					firma.setTipusMime(firmaDto.getTipusMime());
+					setFirmaTipusPerfil(firma, firmaDto);
+					firma.setCsvRegulacio(firmaDto.getCsvRegulacio());
+					document.getFirmes().add(firma);
+				}
+			}
 		}
 		if (extensio != null) {
 			metadades.setExtensio(extensio);
@@ -3489,6 +3728,69 @@ public class PluginHelper {
 		return document;
 	}
 	
+	private void setFirmaTipusPerfil(
+			Firma firma,
+			ArxiuFirmaDto arxiuFirmaDto) {
+		if (arxiuFirmaDto.getTipus() != null) {
+			switch(arxiuFirmaDto.getTipus()) {
+			case CSV:
+				firma.setTipus(FirmaTipus.CSV);
+				break;
+			case XADES_DET:
+				firma.setTipus(FirmaTipus.XADES_DET);
+				break;
+			case XADES_ENV:
+				firma.setTipus(FirmaTipus.XADES_ENV);
+				break;
+			case CADES_DET:
+				firma.setTipus(FirmaTipus.CADES_DET);
+				break;
+			case CADES_ATT:
+				firma.setTipus(FirmaTipus.CADES_ATT);
+				break;
+			case PADES:
+				firma.setTipus(FirmaTipus.PADES);
+				break;
+			case SMIME:
+				firma.setTipus(FirmaTipus.SMIME);
+				break;
+			case ODT:
+				firma.setTipus(FirmaTipus.ODT);
+				break;
+			case OOXML:
+				firma.setTipus(FirmaTipus.OOXML);
+				break;
+			}
+		}
+		if (arxiuFirmaDto.getPerfil() != null) {
+			switch(arxiuFirmaDto.getPerfil()) {
+			case BES:
+				firma.setPerfil(FirmaPerfil.BES);
+				break;
+			case EPES:
+				firma.setPerfil(FirmaPerfil.EPES);
+				break;
+			case LTV:
+				firma.setPerfil(FirmaPerfil.LTV);
+				break;
+			case T:
+				firma.setPerfil(FirmaPerfil.T);
+				break;
+			case C:
+				firma.setPerfil(FirmaPerfil.C);
+				break;
+			case X:
+				firma.setPerfil(FirmaPerfil.X);
+				break;
+			case XL:
+				firma.setPerfil(FirmaPerfil.XL);
+				break;
+			case A:
+				firma.setPerfil(FirmaPerfil.A);
+				break;
+			}
+		}
+	}
 	private String obtenirNtiOrgano(Expedient expedient) {
 		if (expedient.getNtiOrgano() != null && !expedient.getNtiOrgano().isEmpty()) {
 			return expedient.getNtiOrgano();
@@ -3922,6 +4224,39 @@ public class PluginHelper {
 			}
 		}
 		return notificacioPlugin;
+	}
+	
+	private IValidateSignaturePlugin getValidaSignaturaPlugin() {		
+		if (validaSignaturaPlugin == null) {
+			//es.caib.ripea.plugin.validatesignature.class
+			String pluginClass = GlobalProperties.getInstance().getProperty("app.validatesignature.plugin.class");
+			if (pluginClass != null && pluginClass.length() > 0) {
+				try {					
+					Class<?> clazz = Class.forName(pluginClass);
+					if (GlobalProperties.getInstance().isLlegirSystem()) {
+						validaSignaturaPlugin = (IValidateSignaturePlugin)clazz.getDeclaredConstructor(
+								String.class).newInstance(
+								"app.");
+					} else {
+						validaSignaturaPlugin = (IValidateSignaturePlugin)clazz.getDeclaredConstructor(
+								String.class,
+								Properties.class).newInstance(
+								"app.",
+								GlobalProperties.getInstance().findAll());
+					}
+				} catch (Exception ex) {
+					throw tractarExcepcioEnSistemaExtern(
+							"Error al crear la instància del plugin de VALIDACIO SIGNATURES (" +
+							"pluginClass=" + pluginClass + ")",
+							ex);
+				}
+			} else {
+				throw tractarExcepcioEnSistemaExtern(
+						"No està configurada la classe per al plugin de VALIDACIO SIGNATURES",
+						null);
+			}
+		}
+		return validaSignaturaPlugin;
 	}
 
 	private SistemaExternException tractarExcepcioEnSistemaExtern(

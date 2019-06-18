@@ -729,7 +729,7 @@ public class ExpedientHelper {
 				arxiu.setTipusMime(documentHelper.getContentType(arxiu.getNom()));
 			
 			
-			ContingutArxiu contingutArxiu = pluginHelper.arxiuDocumentActualitzar(
+			ContingutArxiu contingutArxiu = pluginHelper.arxiuDocumentCrearActualitzar(
 					expedient,
 					documentDescripcio,
 					documentStore,

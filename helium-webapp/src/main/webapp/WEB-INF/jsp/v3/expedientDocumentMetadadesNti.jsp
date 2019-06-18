@@ -272,7 +272,7 @@
 							</tr>
 						</thead>
 						<tbody>
-							<c:forEach var="firma" items="${arxiuDetall.firmes}">
+							<c:forEach var="firma" items="${arxiuDetall.firmes}" varStatus="status">
 								<tr>
 									<td width="15%">${firma.tipus}</td>
 									<td width="10%">${firma.perfil}</td>
@@ -282,7 +282,9 @@
 												${firma.contingutComString}
 											</c:when>
 											<c:when test="${firma.tipus == 'XADES_DET' or firma.tipus == 'CADES_DET'}">
-												<button class="btn btn-default btn-sm"><span class="fa fa-download"></span></button>
+												<a href="<c:url value='/v3/expedient/${expedientId}/proces/${expedientDocument.processInstanceId}/document/${expedientDocument.id}/firma/${status.index}/descarregar'></c:url>" class="btn btn-default btn-sm pull-right">
+													<span class="fa fa-download"  title="<spring:message code="comu.boto.descarregar"/>"></span>
+												</a>
 											</c:when>
 											<c:otherwise>
 											</c:otherwise>

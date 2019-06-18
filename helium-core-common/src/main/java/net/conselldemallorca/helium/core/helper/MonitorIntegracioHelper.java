@@ -43,6 +43,7 @@ public class MonitorIntegracioHelper {
 	public static final String INTCODI_FIRMA_SERV = "FIRMA_SERV";
 	public static final String INTCODI_ARXIU = "ARXIU";
 	public static final String INTCODI_NOTIB = "NOTIB";
+	public static final String INTCODI_VALIDASIG = "VALIDASIG";
 
 	private Map<String, LinkedList<IntegracioAccioDto>> accionsIntegracio = new HashMap<String, LinkedList<IntegracioAccioDto>>();
 	private Map<String, Integer> maxAccionsIntegracio = new HashMap<String, Integer>();
@@ -87,6 +88,9 @@ public class MonitorIntegracioHelper {
 		integracions.add(
 				novaIntegracio(
 						INTCODI_NOTIB));
+		integracions.add(
+				novaIntegracio(
+						INTCODI_VALIDASIG));
 		for (IntegracioDto integracio: integracions) {
 			LinkedList<IntegracioAccioDto> accions = accionsIntegracio.get(integracio.getCodi());
 			if (accions != null) {
@@ -127,9 +131,6 @@ public class MonitorIntegracioHelper {
 		integracions.add(
 				novaIntegracio(
 						INTCODI_SISTRA));
-		/*integracions.add(
-				novaIntegracio(
-						INTCODI_GESDOC));*/
 		integracions.add(
 				novaIntegracio(
 						INTCODI_CONVDOC));
@@ -139,6 +140,9 @@ public class MonitorIntegracioHelper {
 		integracions.add(
 				novaIntegracio(
 						INTCODI_NOTIB));
+		integracions.add(
+				novaIntegracio(
+						INTCODI_VALIDASIG));
 		for (IntegracioDto integracio: integracions) {
 			Long entornId = EntornActual.getEntornId();
 			LinkedList<IntegracioAccioDto> accions = accionsIntegracio.get(integracio.getCodi());
@@ -324,7 +328,10 @@ public class MonitorIntegracioHelper {
 			integracio.setDescripcio("Firma serv.");
 		} else if (INTCODI_NOTIB.equals(codi)) {
 			integracio.setDescripcio("Notificcació");
+		} else if (INTCODI_VALIDASIG.equals(codi)) {
+			integracio.setDescripcio("Valida sign.");
 		}
+
 		return integracio;
 	}
 
