@@ -72,7 +72,8 @@
 														data-rdt-link-modal="true" 
 														data-rdt-link-modal-min-height="265" 
 														data-rdt-link-callback="recargarPanel(${document.processInstanceId});"
-														class="icon modificar" >
+														class="icon modificar" 
+														data-rdt-link-modal-maximize="true">
 															<span class="fa fa-2x fa-paper-plane" title="<spring:message code='expedient.document.notificar' />"></span>
 													</a>
 												</c:if>												

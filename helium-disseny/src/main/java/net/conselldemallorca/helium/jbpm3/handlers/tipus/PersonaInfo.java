@@ -24,6 +24,7 @@ public class PersonaInfo {
 	private Sexe sexe;
 	private String relleu;
 	private String telefon;
+	private String tipus;
 
 
 
@@ -43,7 +44,14 @@ public class PersonaInfo {
 		this.email = email;
 		this.sexe = sexe;
 	}
+	
 
+	public String getTipus() {
+		return tipus;
+	}
+	public void setTipus(String tipus) {
+		this.tipus = tipus;
+	}
 	public String getCodi() {
 		return codi;
 	}

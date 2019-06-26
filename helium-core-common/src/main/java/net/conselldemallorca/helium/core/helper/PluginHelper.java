@@ -53,11 +53,13 @@ import net.conselldemallorca.helium.integracio.plugins.notificacio.EntregaPostal
 import net.conselldemallorca.helium.integracio.plugins.notificacio.Enviament;
 import net.conselldemallorca.helium.integracio.plugins.notificacio.EnviamentReferencia;
 import net.conselldemallorca.helium.integracio.plugins.notificacio.EnviamentTipus;
+import net.conselldemallorca.helium.integracio.plugins.notificacio.InteressatTipusEnum;
 import net.conselldemallorca.helium.integracio.plugins.notificacio.Notificacio;
 import net.conselldemallorca.helium.integracio.plugins.notificacio.NotificacioPlugin;
 import net.conselldemallorca.helium.integracio.plugins.notificacio.Persona;
 import net.conselldemallorca.helium.integracio.plugins.notificacio.RespostaConsultaEstatEnviament;
 import net.conselldemallorca.helium.integracio.plugins.notificacio.RespostaEnviar;
+import net.conselldemallorca.helium.integracio.plugins.notificacio.ServeiTipusEnum;
 import net.conselldemallorca.helium.integracio.plugins.persones.DadesPersona;
 import net.conselldemallorca.helium.integracio.plugins.persones.PersonesPlugin;
 import net.conselldemallorca.helium.integracio.plugins.persones.PersonesPluginException;
@@ -158,6 +160,8 @@ public class PluginHelper {
 	private DocumentHelperV3 documentHelperV3;
 	@Resource
 	private NotificacioHelper notificacioElectronicaHelper;
+	@Resource
+	private UsuariActualHelper usuariActualHelper;
 
 	private PersonesPlugin personesPlugin;
 	private TramitacioPlugin tramitacioPlugin;
@@ -2616,7 +2620,7 @@ public class PluginHelper {
 	
 	public RespostaNotificacio altaNotificacio(DadesNotificacioDto dadesNotificacio) {
 		Expedient expedient = expedientRepository.findOne(dadesNotificacio.getExpedientId());
-//		expedient.setTramitExpedientIdentificador(dadesNotificacio.getSeuExpedientIdentificadorEni());
+		
 		DocumentNotificacio notificacio = notificacioElectronicaHelper.create(dadesNotificacio);
 		
 		RespostaNotificacio resposta = null; 
@@ -2624,7 +2628,7 @@ public class PluginHelper {
 		try {
 			resposta = altaNotificacio(
 					dadesNotificacio, 
-					expedient);
+					expedient.getId());
 			notificacio.updateEnviat(
 					new Date(),
 					resposta.getIdentificador(),
@@ -2656,7 +2660,7 @@ public class PluginHelper {
 	//TODO:
 	public RespostaNotificacio altaNotificacio(
 			DadesNotificacioDto dadesNotificacio,
-			Expedient expedient) {
+			Long expedientId) {
 		
 		String accioDescripcio = "Alta de notificació";
 		String nifDestinataris = "";
@@ -2668,16 +2672,7 @@ public class PluginHelper {
 		IntegracioParametreDto[] parametres = new IntegracioParametreDto[] {
 				new IntegracioParametreDto(
 						"expedientId",
-						expedient.getId()),
-				new IntegracioParametreDto(
-						"seuOrganCodi",
-						dadesNotificacio.getSeuRegistreOrgan()),
-				new IntegracioParametreDto(
-						"seuOficinaCodi",
-						dadesNotificacio.getSeuRegistreOficina()),
-				new IntegracioParametreDto(
-						"seuProcedimentCodi",
-						dadesNotificacio.getSeuProcedimentCodi()),
+						expedientId),
 				new IntegracioParametreDto(
 						"documentArxiuNom",
 						dadesNotificacio.getDocumentArxiuNom()),
@@ -2688,110 +2683,14 @@ public class PluginHelper {
 		long t0 = System.currentTimeMillis();
 		
 		try {
-			Notificacio notificacio = new Notificacio();
-			notificacio.setEmisorDir3Codi(dadesNotificacio.getEmisorDir3Codi());
-			if (dadesNotificacio.getEnviamentTipus() != null)
-				notificacio.setEnviamentTipus(EnviamentTipus.valueOf(dadesNotificacio.getEnviamentTipus().name()));
-			notificacio.setConcepte(dadesNotificacio.getConcepte());
-			notificacio.setDescripcio(dadesNotificacio.getDescripcio());
-			notificacio.setEnviamentDataProgramada(dadesNotificacio.getEnviamentDataProgramada());
-			notificacio.setRetard(dadesNotificacio.getRetard());
-			notificacio.setCaducitat(dadesNotificacio.getCaducitat());
-			notificacio.setDocumentArxiuNom(dadesNotificacio.getDocumentArxiuNom());
-			notificacio.setDocumentArxiuContingut(dadesNotificacio.getDocumentArxiuContingut());
-//			for (DocumentDto doc_annex: dadesNotificacio.getAnnexos()) {
-//				
-//			}
-			notificacio.setProcedimentCodi(dadesNotificacio.getProcedimentCodi());
-			notificacio.setPagadorPostalDir3Codi(dadesNotificacio.getPagadorPostalDir3Codi());
-			notificacio.setPagadorPostalContracteNum(dadesNotificacio.getPagadorPostalContracteNum());
-			notificacio.setPagadorPostalContracteDataVigencia(dadesNotificacio.getPagadorPostalContracteDataVigencia());
-			notificacio.setPagadorPostalFacturacioClientCodi(dadesNotificacio.getPagadorPostalFacturacioClientCodi());
-			notificacio.setPagadorCieDir3Codi(dadesNotificacio.getPagadorCieDir3Codi());
-			notificacio.setPagadorCieContracteDataVigencia(dadesNotificacio.getPagadorCieContracteDataVigencia());
+			Notificacio notificacio = conversioTipusHelper.convertir(dadesNotificacio, Notificacio.class);
 			
-			notificacio.setSeuProcedimentCodi(dadesNotificacio.getSeuProcedimentCodi());
-			notificacio.setSeuExpedientSerieDocumental(dadesNotificacio.getSeuExpedientSerieDocumental());
-			notificacio.setSeuExpedientUnitatOrganitzativa(dadesNotificacio.getSeuExpedientUnitatOrganitzativa());
-			notificacio.setSeuExpedientIdentificadorEni(dadesNotificacio.getSeuExpedientIdentificadorEni());
-			notificacio.setSeuExpedientTitol(dadesNotificacio.getSeuExpedientTitol());
-			notificacio.setSeuRegistreOficina(dadesNotificacio.getSeuRegistreOficina());
-			notificacio.setSeuRegistreLlibre(dadesNotificacio.getSeuRegistreLlibre());
-			notificacio.setSeuRegistreOrgan(dadesNotificacio.getSeuRegistreOrgan());
-			notificacio.setSeuIdioma(dadesNotificacio.getSeuIdioma());
-			notificacio.setSeuAvisTitol(dadesNotificacio.getSeuAvisTitol());
-			notificacio.setSeuAvisText(dadesNotificacio.getSeuAvisText());
-			notificacio.setSeuAvisTextMobil(dadesNotificacio.getSeuAvisTextMobil());
-			notificacio.setSeuOficiTitol(dadesNotificacio.getSeuOficiTitol());
-			notificacio.setSeuOficiText(dadesNotificacio.getSeuOficiText());
+			notificacio.setUsuariCodi(usuariActualHelper.getUsuariActual());
+//			notificacio.setUsuariCodi("e43110511r");
 			
-			List<Enviament> enviaments = new ArrayList<Enviament>();
-			for (DadesEnviamentDto dadesEnviament: dadesNotificacio.getEnviaments()) {
-				Enviament enviament = new Enviament();
-				
-				PersonaDto dadesTitular = dadesEnviament.getTitular();
-				Persona titular = new Persona();
-				titular.setNom(dadesTitular.getNom());
-				titular.setLlinatge1(dadesTitular.getLlinatge1());
-				titular.setLlinatge2(dadesTitular.getLlinatge2());
-				titular.setNif(dadesTitular.getDni());
-				titular.setTelefon(dadesTitular.getTelefon());;
-				titular.setEmail(dadesTitular.getEmail());
-				enviament.setTitular(titular);
-	
-				List<Persona> destinataris = new ArrayList<Persona>();
-				for (PersonaDto dadesDestinatari: dadesEnviament.getDestinataris()) {
-					
-					Persona destinatari = new Persona();
-					destinatari.setNom(dadesDestinatari.getNom());
-					destinatari.setLlinatge1(dadesDestinatari.getLlinatge1());
-					destinatari.setLlinatge2(dadesDestinatari.getLlinatge2());
-					destinatari.setNif(dadesDestinatari.getDni());
-					destinatari.setTelefon(dadesDestinatari.getTelefon());;
-					destinatari.setEmail(dadesDestinatari.getEmail());
-					
-					destinataris.add(destinatari);
-				}
-				enviament.setDestinataris(destinataris);
-				
-				if (dadesEnviament.getEntregaPostalTipus() != null)
-					enviament.setEntregaPostalTipus(EntregaPostalTipus.valueOf(dadesEnviament.getEntregaPostalTipus().name()));
-				if (dadesEnviament.getEntregaPostalViaTipus() != null)
-					enviament.setEntregaPostalViaTipus(EntregaPostalViaTipus.valueOf(dadesEnviament.getEntregaPostalViaTipus().name()));
-				enviament.setEntregaPostalViaNom(dadesEnviament.getEntregaPostalViaNom());
-				enviament.setEntregaPostalNumeroCasa(dadesEnviament.getEntregaPostalNumeroCasa());
-				enviament.setEntregaPostalNumeroQualificador(dadesEnviament.getEntregaPostalNumeroQualificador());
-				enviament.setEntregaPostalPuntKm(dadesEnviament.getEntregaPostalPuntKm());
-				enviament.setEntregaPostalApartatCorreus(dadesEnviament.getEntregaPostalApartatCorreus());
-				enviament.setEntregaPostalPortal(dadesEnviament.getEntregaPostalPortal());
-				enviament.setEntregaPostalEscala(dadesEnviament.getEntregaPostalEscala());
-				enviament.setEntregaPostalPlanta(dadesEnviament.getEntregaPostalPlanta());
-				enviament.setEntregaPostalPorta(dadesEnviament.getEntregaPostalPorta());
-				enviament.setEntregaPostalBloc(dadesEnviament.getEntregaPostalBloc());
-				enviament.setEntregaPostalComplement(dadesEnviament.getEntregaPostalComplement());
-				enviament.setEntregaPostalCodiPostal(dadesEnviament.getEntregaPostalCodiPostal());
-				enviament.setEntregaPostalPoblacio(dadesEnviament.getEntregaPostalPoblacio());
-				enviament.setEntregaPostalMunicipiCodi(dadesEnviament.getEntregaPostalMunicipiCodi());
-				enviament.setEntregaPostalProvinciaCodi(dadesEnviament.getEntregaPostalProvinciaCodi());
-				enviament.setEntregaPostalPaisCodi(dadesEnviament.getEntregaPostalPaisCodi());
-				enviament.setEntregaPostalLinea1(dadesEnviament.getEntregaPostalLinea1());
-				enviament.setEntregaPostalLinea2(dadesEnviament.getEntregaPostalLinea2());
-				enviament.setEntregaPostalCie(dadesEnviament.getEntregaPostalCie());
-				enviament.setEntregaPostalFormatSobre(dadesEnviament.getEntregaPostalFormatSobre());
-				enviament.setEntregaPostalFormatFulla(dadesEnviament.getEntregaPostalFormatFulla());
-				enviament.setEntregaDehObligat(dadesEnviament.isEntregaDehObligat());
-				enviament.setEntregaDehProcedimentCodi(dadesEnviament.getEntregaDehProcedimentCodi());
-				
-				enviaments.add(enviament);
-			}
-			notificacio.setEnviaments(enviaments);
 			RespostaEnviar respostaEnviar = getNotificacioPlugin().enviar(notificacio);
 			
-//			notificacio.updateEnviat(
-//					new Date(),
-//					respostaEnviar.getEstat().equals(NotificacioEstat.ENVIADA),
-//					respostaEnviar.getIdentificador(), 
-//					respostaEnviar.getReferencies().get(0).getReferencia());
+			
 			
 			RespostaNotificacio resposta = new RespostaNotificacio();
 			resposta.setIdentificador(respostaEnviar.getIdentificador());

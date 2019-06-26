@@ -1020,6 +1020,8 @@ public class DocumentHelperV3 {
 				dto.setDataCreacio(documentStore.getDataCreacio());
 				dto.setDataDocument(documentStore.getDataDocument());
 				dto.setArxiuNom(documentStore.getArxiuNom());
+				dto.setArxiuUuid(documentStore.getArxiuUuid());
+				dto.setArxiuCsv(documentStore.getNtiCsv());
 				dto.setProcessInstanceId(documentStore.getProcessInstanceId());
 				dto.setSignat(documentStore.isSignat());
 				dto.setAdjunt(documentStore.isAdjunt());

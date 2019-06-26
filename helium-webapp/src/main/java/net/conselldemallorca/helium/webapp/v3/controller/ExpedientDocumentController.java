@@ -23,7 +23,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.propertyeditors.CustomBooleanEditor;
 import org.springframework.beans.propertyeditors.CustomDateEditor;
 import org.springframework.beans.propertyeditors.CustomNumberEditor;
-import org.springframework.beans.propertyeditors.StringTrimmerEditor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
@@ -36,39 +35,37 @@ import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import edu.emory.mathcs.backport.java.util.Arrays;
-import net.conselldemallorca.helium.core.helper.ConversioTipusHelper;
 import net.conselldemallorca.helium.core.model.service.PluginService;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DadesEnviamentDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DadesEnviamentDto.EntregaPostalTipus;
+import net.conselldemallorca.helium.v3.core.api.dto.DadesEnviamentDto.EntregaPostalViaTipus;
 import net.conselldemallorca.helium.v3.core.api.dto.DadesNotificacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.InstanciaProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.InteressatDto;
-import net.conselldemallorca.helium.v3.core.api.dto.NotificacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NtiEstadoElaboracionEnumDto;
-import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PortasignaturesDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ServeiTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.exception.SistemaExternException;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientDocumentService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientInteressatService;
 import net.conselldemallorca.helium.webapp.mvc.ArxiuView;
 import net.conselldemallorca.helium.webapp.v3.command.DocumentExpedientCommand;
 import net.conselldemallorca.helium.webapp.v3.command.DocumentNotificacioCommand;
-import net.conselldemallorca.helium.webapp.v3.helper.DatatablesHelper;
+import net.conselldemallorca.helium.webapp.v3.helper.ConversioTipusHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.NodecoHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.NtiHelper;
-import net.conselldemallorca.helium.webapp.v3.helper.ObjectTypeEditorHelper;
-import net.conselldemallorca.helium.webapp.v3.helper.DatatablesHelper.DatatablesResponse;
 
 /**
  * Controlador per a la pàgina de documents de l'expedient.
@@ -88,7 +85,8 @@ public class ExpedientDocumentController extends BaseExpedientController {
 	private NtiHelper ntiHelper;
 	@Autowired
 	private ExpedientInteressatService expedientInteressatService;
-
+	@Autowired
+	private ConversioTipusHelper conversioTipusHelper;
 
 
 	@RequestMapping(value = "/{expedientId}/document", method = RequestMethod.GET)
@@ -327,23 +325,45 @@ public class ExpedientDocumentController extends BaseExpedientController {
 		
 		List<InteressatDto> interessats = expedientInteressatService.findByExpedient(
 				expedientId);
-
-		
-//		List<ParellaCodiValorDto> par = new ArrayList<ParellaCodiValorDto>(); 
-//		for(InteressatDto inter: interessats){
-//			ParellaCodiValorDto parellaCodiValorDto =  new ParellaCodiValorDto();
-//			parellaCodiValorDto.setCodi(inter.getCodi());
-//			parellaCodiValorDto.setValor(inter.getNom());
-//			par.add(parellaCodiValorDto);
-//		}
-		
-		 
-
-		
 		
 		model.addAttribute("interessats", interessats);
 		model.addAttribute("document", document);	
 		model.addAttribute("expedientId", expedientId);
+		
+		
+//		command.setConcepte("concepte");
+//		command.setServeiTipusEnum(ServeiTipusEnumDto.NORMAL);
+//		command.setGrupCodi("grupCodi");
+//		command.setEntregaPostalActiva(true);
+//		command.setEntregaPostalTipus(EntregaPostalTipus.APARTAT_CORREUS);
+//		command.setEntregaPostalViaTipus(EntregaPostalViaTipus.CAMI);
+//		command.setEntregaPostalViaNom("entregaPostalViaNom");
+//		command.setEntregaPostalNumeroCasa("entregaPostalNumeroCasa");
+//		command.setEntregaPostalNumeroQualificador("entregaPostalNumeroQualificador");
+//		command.setEntregaPostalPuntKm("entregaPostalPuntKm");
+//		command.setEntregaPostalApartatCorreus("entregaPostalApartatCorreus");
+//		command.setEntregaPostalPortal("entregaPostalPortal");
+//		command.setEntregaPostalEscala("entregaPostalEscala");
+//		command.setEntregaPostalPlanta("entregaPostalPlanta");
+//		command.setEntregaPostalPorta("entregaPostalPorta");
+//		command.setEntregaPostalBloc("entregaPostalBloc");
+//		command.setEntregaPostalComplement("entregaPostalComplement");
+//		command.setEntregaPostalCodiPostal("entregaPostalCodiPostal");
+//		command.setEntregaPostalPoblacio("entregaPostalPoblacio");
+//		command.setEntregaPostalMunicipiCodi("entregaPostalMunicipiCodi");
+//		command.setEntregaPostalProvinciaCodi("entregaPostalProvinciaCodi");
+//		command.setEntregaPostalPaisCodi("entregaPostalPaisCodi");
+//		command.setEntregaPostalLinea1("entregaPostalLinea1");
+//		command.setEntregaPostalLinea2("entregaPostalLinea2");
+//		command.setEntregaPostalCie(111);
+//		command.setEntregaPostalFormatSobre("entregaPostalFormatSobre");
+//		command.setEntregaPostalFormatFulla("entregaPostalFormatFulla");
+		
+		command.setEntregaDehObligat(true);
+		command.setEntregaDehProcedimentCodi("entregaDehProcedimentCodi");
+			
+		
+		
 
 		model.addAttribute("documentNotificacioCommand", command);
 		return "v3/expedientDocumentNotificar";
@@ -360,21 +380,100 @@ public class ExpedientDocumentController extends BaseExpedientController {
 			BindingResult result,
 			Model model) throws IOException {
 		
-//		if (result.hasErrors()) {
-//        	return "v3/expedientDocumentNotificar";
-//        }
+		if (result.hasErrors()) {
+        	return "v3/expedientDocumentNotificar";
+        }
+		
 		
 		DadesNotificacioDto dadesNotificacioDto = new DadesNotificacioDto();
-		dadesNotificacioDto.setConcepte(documentNotificacioCommand.getConcepte());
+		dadesNotificacioDto = conversioTipusHelper.convertir(documentNotificacioCommand, DadesNotificacioDto.class);
+
+		
+		DadesEnviamentDto dadesEnviamentDto = conversioTipusHelper.convertir(documentNotificacioCommand, DadesEnviamentDto.class);
 		
 		expedientDocumentService.notificarDocument(
 				expedientId,
 				documentStoreId,
 				dadesNotificacioDto,
-				documentNotificacioCommand.getInteressatsIds());
+				documentNotificacioCommand.getInteressatsIds(),
+				dadesEnviamentDto);
 		
 		MissatgesHelper.success(request, getMessage(request, "info.document.notificat"));
 		return modalUrlTancar(false);
+	}
+	
+	
+	@ModelAttribute("entregaPostalViaTipusEstats")
+	public List<ParellaCodiValorDto> populateEntregaPostalViaTipusEstat(HttpServletRequest request) {
+		List<ParellaCodiValorDto> resposta = new ArrayList<ParellaCodiValorDto>();
+		
+		resposta.add(new ParellaCodiValorDto(getMessage(request, "notifica.entregaPostal.via.tipus.enum.ALAMEDA"), EntregaPostalViaTipus.ALAMEDA));
+		resposta.add(new ParellaCodiValorDto(getMessage(request, "notifica.entregaPostal.via.tipus.enum.CALLE"), EntregaPostalViaTipus.CALLE));
+		resposta.add(new ParellaCodiValorDto(getMessage(request, "notifica.entregaPostal.via.tipus.enum.CAMINO"), EntregaPostalViaTipus.CAMINO));
+		resposta.add(new ParellaCodiValorDto(getMessage(request, "notifica.entregaPostal.via.tipus.enum.CARRER"), EntregaPostalViaTipus.CARRER));
+		resposta.add(new ParellaCodiValorDto(getMessage(request, "notifica.entregaPostal.via.tipus.enum.CARRETERA"), EntregaPostalViaTipus.CARRETERA));
+		resposta.add(new ParellaCodiValorDto(getMessage(request, "notifica.entregaPostal.via.tipus.enum.GLORIETA"), EntregaPostalViaTipus.GLORIETA));
+		resposta.add(new ParellaCodiValorDto(getMessage(request, "notifica.entregaPostal.via.tipus.enum.KALEA"), EntregaPostalViaTipus.KALEA));
+		resposta.add(new ParellaCodiValorDto(getMessage(request, "notifica.entregaPostal.via.tipus.enum.PASAJE"), EntregaPostalViaTipus.PASAJE));
+		resposta.add(new ParellaCodiValorDto(getMessage(request, "notifica.entregaPostal.via.tipus.enum.PASEO"), EntregaPostalViaTipus.PASEO));
+		resposta.add(new ParellaCodiValorDto(getMessage(request, "notifica.entregaPostal.via.tipus.enum.PLAÇA"), EntregaPostalViaTipus.PLAÇA));
+		resposta.add(new ParellaCodiValorDto(getMessage(request, "notifica.entregaPostal.via.tipus.enum.PLAZA"), EntregaPostalViaTipus.PLAZA));
+		resposta.add(new ParellaCodiValorDto(getMessage(request, "notifica.entregaPostal.via.tipus.enum.RAMBLA"), EntregaPostalViaTipus.RAMBLA));
+		resposta.add(new ParellaCodiValorDto(getMessage(request, "notifica.entregaPostal.via.tipus.enum.RONDA"), EntregaPostalViaTipus.RONDA));
+		resposta.add(new ParellaCodiValorDto(getMessage(request, "notifica.entregaPostal.via.tipus.enum.RUA"), EntregaPostalViaTipus.RUA));
+		resposta.add(new ParellaCodiValorDto(getMessage(request, "notifica.entregaPostal.via.tipus.enum.SECTOR"), EntregaPostalViaTipus.SECTOR));
+		resposta.add(new ParellaCodiValorDto(getMessage(request, "notifica.entregaPostal.via.tipus.enum.TRAVESIA"), EntregaPostalViaTipus.TRAVESIA));
+		resposta.add(new ParellaCodiValorDto(getMessage(request, "notifica.entregaPostal.via.tipus.enum.URBANIZACION"), EntregaPostalViaTipus.URBANIZACION));
+		resposta.add(new ParellaCodiValorDto(getMessage(request, "notifica.entregaPostal.via.tipus.enum.AVENIDA"), EntregaPostalViaTipus.AVENIDA));
+		resposta.add(new ParellaCodiValorDto(getMessage(request, "notifica.entregaPostal.via.tipus.enum.AVINGUDA"), EntregaPostalViaTipus.AVINGUDA));
+		resposta.add(new ParellaCodiValorDto(getMessage(request, "notifica.entregaPostal.via.tipus.enum.BARRIO"), EntregaPostalViaTipus.BARRIO));
+		resposta.add(new ParellaCodiValorDto(getMessage(request, "notifica.entregaPostal.via.tipus.enum.CALLEJA"), EntregaPostalViaTipus.CALLEJA));
+		resposta.add(new ParellaCodiValorDto(getMessage(request, "notifica.entregaPostal.via.tipus.enum.CAMI"), EntregaPostalViaTipus.CAMI));
+		resposta.add(new ParellaCodiValorDto(getMessage(request, "notifica.entregaPostal.via.tipus.enum.CAMPO"), EntregaPostalViaTipus.CAMPO));
+		resposta.add(new ParellaCodiValorDto(getMessage(request, "notifica.entregaPostal.via.tipus.enum.CARRERA"), EntregaPostalViaTipus.CARRERA));
+		resposta.add(new ParellaCodiValorDto(getMessage(request, "notifica.entregaPostal.via.tipus.enum.CUESTA"), EntregaPostalViaTipus.CUESTA));
+		resposta.add(new ParellaCodiValorDto(getMessage(request, "notifica.entregaPostal.via.tipus.enum.EDIFICIO"), EntregaPostalViaTipus.EDIFICIO));
+		resposta.add(new ParellaCodiValorDto(getMessage(request, "notifica.entregaPostal.via.tipus.enum.ENPARANTZA"), EntregaPostalViaTipus.ENPARANTZA));
+		resposta.add(new ParellaCodiValorDto(getMessage(request, "notifica.entregaPostal.via.tipus.enum.ESTRADA"), EntregaPostalViaTipus.ESTRADA));
+		resposta.add(new ParellaCodiValorDto(getMessage(request, "notifica.entregaPostal.via.tipus.enum.JARDINES"), EntregaPostalViaTipus.JARDINES));
+		resposta.add(new ParellaCodiValorDto(getMessage(request, "notifica.entregaPostal.via.tipus.enum.JARDINS"), EntregaPostalViaTipus.JARDINS));
+		resposta.add(new ParellaCodiValorDto(getMessage(request, "notifica.entregaPostal.via.tipus.enum.PARQUE"), EntregaPostalViaTipus.PARQUE));
+		resposta.add(new ParellaCodiValorDto(getMessage(request, "notifica.entregaPostal.via.tipus.enum.PASSEIG"), EntregaPostalViaTipus.PASSEIG));
+		resposta.add(new ParellaCodiValorDto(getMessage(request, "notifica.entregaPostal.via.tipus.enum.PRAZA"), EntregaPostalViaTipus.PRAZA));
+		resposta.add(new ParellaCodiValorDto(getMessage(request, "notifica.entregaPostal.via.tipus.enum.PLAZUELA"), EntregaPostalViaTipus.PLAZUELA));
+		resposta.add(new ParellaCodiValorDto(getMessage(request, "notifica.entregaPostal.via.tipus.enum.PLACETA"), EntregaPostalViaTipus.PLACETA));
+		resposta.add(new ParellaCodiValorDto(getMessage(request, "notifica.entregaPostal.via.tipus.enum.POBLADO"), EntregaPostalViaTipus.POBLADO));
+		resposta.add(new ParellaCodiValorDto(getMessage(request, "notifica.entregaPostal.via.tipus.enum.VIA"), EntregaPostalViaTipus.VIA));
+		resposta.add(new ParellaCodiValorDto(getMessage(request, "notifica.entregaPostal.via.tipus.enum.TRAVESSERA"), EntregaPostalViaTipus.TRAVESSERA));
+		resposta.add(new ParellaCodiValorDto(getMessage(request, "notifica.entregaPostal.via.tipus.enum.PASSATGE"), EntregaPostalViaTipus.PASSATGE));
+		resposta.add(new ParellaCodiValorDto(getMessage(request, "notifica.entregaPostal.via.tipus.enum.BULEVAR"), EntregaPostalViaTipus.BULEVAR));
+		resposta.add(new ParellaCodiValorDto(getMessage(request, "notifica.entregaPostal.via.tipus.enum.POLIGONO"), EntregaPostalViaTipus.POLIGONO));
+		resposta.add(new ParellaCodiValorDto(getMessage(request, "notifica.entregaPostal.via.tipus.enum.OTROS"), EntregaPostalViaTipus.OTROS));
+
+		return resposta;
+	}
+	
+	
+	
+	@ModelAttribute("entregaPostalTipusEstats")
+	public List<ParellaCodiValorDto> populatePostaTipusEstat(HttpServletRequest request) {
+		List<ParellaCodiValorDto> resposta = new ArrayList<ParellaCodiValorDto>();
+		resposta.add(new ParellaCodiValorDto(getMessage(request, "notifica.entregaPostal.tipus.enum.NACIONAL"), EntregaPostalTipus.NACIONAL));
+		resposta.add(new ParellaCodiValorDto(getMessage(request, "notifica.entregaPostal.enum.ESTRANGER"), EntregaPostalTipus.ESTRANGER));
+		resposta.add(new ParellaCodiValorDto(getMessage(request, "notifica.entregaPostal.enum.APARTAT_CORREUS"), EntregaPostalTipus.APARTAT_CORREUS));
+		resposta.add(new ParellaCodiValorDto(getMessage(request, "notifica.entregaPostal.enum.SENSE_NORMALITZAR"), EntregaPostalTipus.SENSE_NORMALITZAR));
+		return resposta;
+	}
+	
+	
+	
+	
+	@ModelAttribute("serveiTipusEstats")
+	public List<ParellaCodiValorDto> populateEstats(HttpServletRequest request) {
+		List<ParellaCodiValorDto> resposta = new ArrayList<ParellaCodiValorDto>();
+		resposta.add(new ParellaCodiValorDto(getMessage(request, "notifica.servei.tipus.enum.NORMAL"), ServeiTipusEnumDto.NORMAL));
+		resposta.add(new ParellaCodiValorDto(getMessage(request, "notifica.servei.tipus.enum.URGENT"), ServeiTipusEnumDto.URGENT));
+		return resposta;
 	}
 	
 

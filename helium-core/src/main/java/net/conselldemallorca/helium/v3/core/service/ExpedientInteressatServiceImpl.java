@@ -136,9 +136,13 @@ public class ExpedientInteressatServiceImpl implements ExpedientInteressatServic
 					Interessat.class,
 					interessatId);
 		}
-		return conversioTipusHelper.convertir(
+		
+		
+		InteressatDto convertir = conversioTipusHelper.convertir(
 				interessat,
 				InteressatDto.class);
+
+		return convertir;
 	}
 	
 

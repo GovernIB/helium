@@ -5,15 +5,25 @@ package net.conselldemallorca.helium.integracio.plugins.notificacio;
 
 import java.util.List;
 
+
 /**
  * Informació d'un enviament d'una notificació.
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
 public class Enviament {
-
-	private Persona titular;
+	
+	
 	private List<Persona> destinataris;
+
+	private boolean entregaDehObligat;
+	private String entregaDehProcedimentCodi;
+
+
+	
+	private ServeiTipusEnum serveiTipusEnum;
+	
+	private boolean entregaPostalActiva;
 	private EntregaPostalTipus entregaPostalTipus;
 	private EntregaPostalViaTipus  entregaPostalViaTipus;
 	private String entregaPostalViaNom;
@@ -37,9 +47,17 @@ public class Enviament {
 	private Integer entregaPostalCie;
 	private String entregaPostalFormatSobre;
 	private String entregaPostalFormatFulla;
-	private boolean entregaDehObligat;
-	private String entregaDehProcedimentCodi;
+	
+	private Persona titular;
 
+	
+
+	public ServeiTipusEnum getServeiTipusEnum() {
+		return serveiTipusEnum;
+	}
+	public void setServeiTipusEnum(ServeiTipusEnum serveiTipusEnum) {
+		this.serveiTipusEnum = serveiTipusEnum;
+	}
 	public Persona getTitular() {
 		return titular;
 	}
@@ -201,6 +219,12 @@ public class Enviament {
 	}
 	public void setEntregaDehProcedimentCodi(String entregaDehProcedimentCodi) {
 		this.entregaDehProcedimentCodi = entregaDehProcedimentCodi;
+	}
+	public boolean isEntregaPostalActiva() {
+		return entregaPostalActiva;
+	}
+	public void setEntregaPostalActiva(boolean entregaPostalActiva) {
+		this.entregaPostalActiva = entregaPostalActiva;
 	}
 
 }

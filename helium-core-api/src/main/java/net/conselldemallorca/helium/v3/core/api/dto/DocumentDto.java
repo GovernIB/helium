@@ -55,6 +55,9 @@ public class DocumentDto implements Serializable {
 	private byte[] signatContingut;
 	private String vistaNom;
 	private byte[] vistaContingut;
+	
+	private String arxiuCsv;
+	private String arxiuUuid;
 
 	private String convertirExtensio;
 	private String extensionsPermeses;
@@ -406,6 +409,18 @@ public class DocumentDto implements Serializable {
 	public void setIgnored(boolean ignored) {
 		this.ignored = ignored;
 	}
+	public String getArxiuCsv() {
+		return arxiuCsv;
+	}
+	public void setArxiuCsv(String arxiuCsv) {
+		this.arxiuCsv = arxiuCsv;
+	}
+	public String getArxiuUuid() {
+		return arxiuUuid;
+	}
+	public void setArxiuUuid(String arxiuUuid) {
+		this.arxiuUuid = arxiuUuid;
+	}	
 
 	public String getArxiuNomSenseExtensio() {
 		if (getArxiuNom() == null)

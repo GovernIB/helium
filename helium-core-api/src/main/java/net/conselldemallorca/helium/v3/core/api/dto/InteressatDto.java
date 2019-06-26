@@ -7,6 +7,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 
+
+
 /**
  * 
  * @author Limit Tecnologies <limit@limit.es>
@@ -19,12 +21,21 @@ public class InteressatDto {
 	private String nom;
 	private String llinatge1;  
 	private String llinatge2;  
-	private String tipus; 
+
 	private String email;  
 	private String telefon;
 	private Long expedientId;
 	
+	private InteressatTipusEnumDto tipus;
 	
+	
+
+	public InteressatTipusEnumDto getTipus() {
+		return tipus;
+	}
+	public void setTipus(InteressatTipusEnumDto tipus) {
+		this.tipus = tipus;
+	}
 	public Long getExpedientId() {
 		return expedientId;
 	}
@@ -68,12 +79,7 @@ public class InteressatDto {
 	public void setLlinatge2(String llinatge2) {
 		this.llinatge2 = llinatge2;
 	}
-	public String getTipus() {
-		return tipus;
-	}
-	public void setTipus(String tipus) {
-		this.tipus = tipus;
-	}
+
 	public String getEmail() {
 		return email;
 	}

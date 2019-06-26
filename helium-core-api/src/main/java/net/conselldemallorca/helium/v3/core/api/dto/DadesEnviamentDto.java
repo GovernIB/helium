@@ -64,8 +64,11 @@ public class DadesEnviamentDto {
 		OTROS
 	}
 	
+	private ServeiTipusEnumDto serveiTipusEnum;
 	private PersonaDto titular;
 	private List<PersonaDto> destinataris;
+	
+	private boolean entregaPostalActiva;
 	private EntregaPostalTipus entregaPostalTipus;
 	private EntregaPostalViaTipus  entregaPostalViaTipus;
 	private String entregaPostalViaNom;
@@ -91,7 +94,14 @@ public class DadesEnviamentDto {
 	private String entregaPostalFormatFulla;
 	private boolean entregaDehObligat;
 	private String entregaDehProcedimentCodi;
+	
 
+	public ServeiTipusEnumDto getServeiTipusEnum() {
+		return serveiTipusEnum;
+	}
+	public void setServeiTipusEnum(ServeiTipusEnumDto serveiTipusEnum) {
+		this.serveiTipusEnum = serveiTipusEnum;
+	}
 	public PersonaDto getTitular() {
 		return titular;
 	}
@@ -253,6 +263,12 @@ public class DadesEnviamentDto {
 	}
 	public void setEntregaDehProcedimentCodi(String entregaDehProcedimentCodi) {
 		this.entregaDehProcedimentCodi = entregaDehProcedimentCodi;
+	}
+	public boolean isEntregaPostalActiva() {
+		return entregaPostalActiva;
+	}
+	public void setEntregaPostalActiva(boolean entregaPostalActiva) {
+		this.entregaPostalActiva = entregaPostalActiva;
 	}
 
 }

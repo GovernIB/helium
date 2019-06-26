@@ -32,17 +32,29 @@ import net.conselldemallorca.helium.v3.core.api.dto.RespostaNotificacio;
 @SuppressWarnings({"serial", "unused"})
 public class NotificacioAltaHandler extends BasicActionHandler implements NotificacioAltaHandlerInterface { //, AccioExternaRetrocedirHandler {
 
+	private String caducitat;
+	private String varCaducitat;
+
+	private String concepte;
+	private String varConcepte;
+	
+	private String serveiTipus;
+	private String varServeiTipus;
+	
+	private String grupCodi;
+	private String varGrupCodi;
+	
+	private String descripcio;
+	private String varDescripcio;
+
+	private String document;
+	private String varDocument;
+	
 	private String emisorDir3Codi;
 	private String varEmisorDir3Codi;
 
 	private String enviamentTipus;	// Possibles valors: [NOTIFICACIO, COMUNICACIO]
 	private String varEnviamentTipus;
-	
-	private String concepte;
-	private String varConcepte;
-	
-	private String descripcio;
-	private String varDescripcio;
 	
 	private String enviamentDataProgramada;
 	private String varEnviamentDataProgramada;
@@ -50,80 +62,12 @@ public class NotificacioAltaHandler extends BasicActionHandler implements Notifi
 	private String retard;
 	private String varRetard;
 	
-	private String caducitat;
-	private String varCaducitat;
-	
-	private String document;
-	private String varDocument;
-	
-	private String annexos;
-	private String varAnnexos;
 	
 	private String procedimentCodi;
 	private String varProcedimentCodi;
 	
-	private String pagadorPostalDir3Codi;
-	private String varPagadorPostalDir3Codi;
-	
-	private String pagadorPostalContracteNum;
-	private String varPagadorPostalContracteNum;
-	
-	private String pagadorPostalContracteDataVigencia;
-	private String varPagadorPostalContracteDataVigencia;
-	
-	private String pagadorPostalFacturacioClientCodi;
-	private String varPagadorPostalFacturacioClientCodi;
-	
-	private String pagadorCieDir3Codi;
-	private String varPagadorCieDir3Codi;
-	
-	private String pagadorCieContracteDataVigencia;
-	private String varPagadorCieContracteDataVigencia;
-	
-	private String seuProcedimentCodi;
-	private String varSeuProcedimentCodi;
-	
-	private String seuExpedientSerieDocumental;
-	private String varSeuExpedientSerieDocumental;
-	
-	private String seuExpedientUnitatOrganitzativa; // UNITAT_ADMINISTRATIVA_SISTRA
-	private String varSeuExpedientUnitatOrganitzativa;
-	
-	private String seuExpedientIdentificadorEni;
-	private String varSeuExpedientIdentificadorEni;
-	
-	private String seuExpedientTitol; 
-	private String varSeuExpedientTitol;
-	
-	private String seuRegistreOficina; // OFICINA
-	private String varSeuRegistreOficina;
-	
-	private String seuRegistreLlibre; // LLIBRE
-	private String varSeuRegistreLlibre;
-	
-	private String seuRegistreOrgan; // ORGAN_CODI (falta)
-	private String varSeuRegistreOrgan;
-	
-	private String seuIdioma;
-	private String varSeuIdioma;
-	
-	private String seuAvisTitol;
-	private String varSeuAvisTitol;
-	
-	private String seuAvisText;
-	private String varSeuAvisText;
-	
-	private String seuAvisTextMobil;
-	private String varSeuAvisTextMobil;
-	
-	private String seuOficiTitol;
-	private String varSeuOficiTitol;
-	
-	private String seuOficiText;
-	private String varSeuOficiText;
-	
+
 	// ENVIAMENT
-	
 	// Titular
 	private String titularNif;
 	private String varTitularNif;
@@ -143,6 +87,9 @@ public class NotificacioAltaHandler extends BasicActionHandler implements Notifi
 	private String titularMobil;
 	private String varTitularMobil;
 	
+	private String titularTipus;
+	private String varTitularTipus;
+	
 	// Destinatari
 	private String destinatariNif;
 	private String varDestinatariNif;
@@ -161,6 +108,9 @@ public class NotificacioAltaHandler extends BasicActionHandler implements Notifi
 	
 	private String destinatariMobil;
 	private String varDestinatariMobil;
+	
+	private String destinatariTipus;
+	private String varDestinatariTipus;
 
 	// Dades d'entrega
 	private String entregaPostalTipus; // Possibles valors: [NACIONAL, ESTRANGER, APARTAT_CORREUS, SENSE_NORMALITZAR]
@@ -238,18 +188,7 @@ public class NotificacioAltaHandler extends BasicActionHandler implements Notifi
 	private String entregaDehProcedimentCodi;
 	private String varEntregaDehProcedimentCodi;
 	
-//	private boolean notibActiu;
-//	private String notibSeuUnitatAdministrativa;
-//	private String notibSeuOficina;
-//	private String notibSeuLlibre;
-//	private String notibSeuOrgan;
-//	private String notibSeuIdioma;
-//	private String notibAvisTitol;
-//	private String notibAvisText;
-//	private String notibAvisTextSms;
-//	private String notibOficiTitol;
-//	private String notibOficiText;
-	
+
 	public void execute(ExecutionContext executionContext) throws Exception {		
 		ExpedientDto expedient = getExpedientActual(executionContext);
 		ExpedientTipusDto expedientTipus = expedient.getTipus();
@@ -306,6 +245,15 @@ public class NotificacioAltaHandler extends BasicActionHandler implements Notifi
 				executionContext,
 				concepte,
 				varConcepte));
+		dadesNotificacio.setServeiTipus((String)getValorOVariable(
+				executionContext,
+				serveiTipus,
+				varServeiTipus));
+		dadesNotificacio.setGrupCodi((String)getValorOVariable(
+				executionContext,
+				grupCodi,
+				varGrupCodi));
+		
 		dadesNotificacio.setDescripcio((String)getValorOVariable(
 				executionContext,
 				descripcio,
@@ -334,7 +282,6 @@ public class NotificacioAltaHandler extends BasicActionHandler implements Notifi
 		if (doc != null && !doc.isEmpty()) {
 			documentInfo = getDocumentInfo(executionContext, doc, true);
 			if (documentInfo != null) {
-				dadesNotificacio.setDocumentId(documentInfo.getId());
 				dadesNotificacio.setDocumentArxiuNom(documentInfo.getArxiuNom());
 				dadesNotificacio.setDocumentArxiuContingut(documentInfo.getArxiuContingut());
 			} else {
@@ -342,81 +289,20 @@ public class NotificacioAltaHandler extends BasicActionHandler implements Notifi
 			}
 		}
 		
-// 		Actualment no enviem annexos
-		
-//		List<Long> anxs = null;
-//		String anxsCodis = (String)getValorOVariable(
-//				executionContext, 
-//				annexos,
-//				varAnnexos);
-//		if (anxsCodis != null) {
-//			anxs = new ArrayList<Long>();
-//			String[] codis = anxsCodis.split(",");
-//			for (String codi: codis) {
-//				DocumentInfo annexInfo = getDocumentInfo(executionContext, codi, true);
-//				if (annexInfo != null) {
-//					annexos_notificacio.add(annexInfo);
-//				} else {
-//					throw new JbpmException("No existeix cap annex amb documentCodi: " + codi + ".");
-//				}
-//			}
-//		}
-//		dadesNotificacio.setAnnexos(annexos_notificacio);
+
 		
 		String codiProcediment = (String)getValorOVariable(
 				executionContext,
 				procedimentCodi,
 				varProcedimentCodi);
 		dadesNotificacio.setProcedimentCodi(codiProcediment != null ? codiProcediment : notibProcedimentCodi);
-		dadesNotificacio.setPagadorPostalDir3Codi((String)getValorOVariable(
-				executionContext,
-				pagadorPostalDir3Codi,
-				varPagadorPostalDir3Codi));
-		dadesNotificacio.setPagadorPostalContracteNum((String)getValorOVariable(
-				executionContext,
-				pagadorPostalContracteNum,
-				varPagadorPostalContracteNum));
-		dadesNotificacio.setPagadorPostalContracteDataVigencia(getValorOVariableData(
-				executionContext,
-				pagadorPostalContracteDataVigencia,
-				varPagadorPostalContracteDataVigencia));
-		dadesNotificacio.setPagadorPostalFacturacioClientCodi((String)getValorOVariable(
-				executionContext,
-				pagadorPostalFacturacioClientCodi,
-				varPagadorPostalFacturacioClientCodi));
-		dadesNotificacio.setPagadorCieDir3Codi((String)getValorOVariable(
-				executionContext,
-				pagadorCieDir3Codi,
-				varPagadorCieDir3Codi));
-		dadesNotificacio.setPagadorCieContracteDataVigencia(getValorOVariableData(
-				executionContext,
-				pagadorCieContracteDataVigencia,
-				varPagadorCieContracteDataVigencia));
-		
-		String seuCodiProcediment = (String)getValorOVariable(
-				executionContext,
-				seuProcedimentCodi,
-				varSeuProcedimentCodi);
-		dadesNotificacio.setSeuProcedimentCodi(seuCodiProcediment != null ? seuCodiProcediment: notibSeuProcedimentCodi);
-		String seuSerieDocumental = (String)getValorOVariable(
-				executionContext,
-				seuExpedientSerieDocumental,
-				varSeuExpedientSerieDocumental);
-		dadesNotificacio.setSeuExpedientSerieDocumental(seuSerieDocumental != null ? seuSerieDocumental: notibSerieDocumental);
-		String seuUnitatOrganitzativa = (String)getValorOVariable(
-				executionContext,
-				seuExpedientUnitatOrganitzativa,
-				varSeuExpedientUnitatOrganitzativa);
-		dadesNotificacio.setSeuExpedientUnitatOrganitzativa(seuUnitatOrganitzativa != null ? seuUnitatOrganitzativa : notibSeuUnitatAdministrativa);
+	
+
 		
 		// Identificador expedient
 		String identificador = expedient.getId().toString();
 		String identificadorEni = expedient.getTramitExpedientIdentificador();
-		if (identificadorEni == null || identificadorEni.isEmpty())
-			identificadorEni = (String)getValorOVariable(
-					executionContext,
-					seuExpedientIdentificadorEni,
-					varSeuExpedientIdentificadorEni);
+
 		if (identificadorEni == null || identificadorEni.isEmpty()) {
 			identificadorEni = expedient.getNtiIdentificador();
 		}
@@ -428,58 +314,8 @@ public class NotificacioAltaHandler extends BasicActionHandler implements Notifi
 								"_EXP_" 
 								+ formatIdentificadorEni(expedient.getNumeroIdentificador());
 		}
-//		expedient.setTramitExpedientIdentificador(identificadorEni);
-		dadesNotificacio.setSeuExpedientIdentificadorEni(identificadorEni);
-		String expTitol = (String)getValorOVariable(
-				executionContext,
-				seuExpedientTitol,
-				varSeuExpedientTitol);
-		dadesNotificacio.setSeuExpedientTitol(expTitol != null ? expTitol : expedientTitol);
-		String seuOficina = (String)getValorOVariable(
-				executionContext,
-				seuRegistreOficina,
-				varSeuRegistreOficina);
-		dadesNotificacio.setSeuRegistreOficina(seuOficina != null ? seuOficina: notibSeuOficina);
-		String seuLlibre = (String)getValorOVariable(
-				executionContext,
-				seuRegistreLlibre,
-				varSeuRegistreLlibre);
-		dadesNotificacio.setSeuRegistreLlibre(seuLlibre != null ? seuLlibre : notibSeuLlibre);
-		String seuOrgan = (String)getValorOVariable(
-				executionContext,
-				seuRegistreOrgan,
-				varSeuRegistreOrgan);
-		dadesNotificacio.setSeuRegistreOrgan(seuOrgan != null? seuOrgan : notibSeuOrgan);
-		String idioma = (String)getValorOVariable(
-				executionContext,
-				seuIdioma,
-				varSeuIdioma);
-		dadesNotificacio.setSeuIdioma(idioma != null ? idioma : notibSeuIdioma);
-		String seuAvisTitolVal = (String)getValorOVariable(
-				executionContext,
-				seuAvisTitol,
-				varSeuAvisTitol);
-		dadesNotificacio.setSeuAvisTitol(seuAvisTitolVal != null ? seuAvisTitolVal : notibAvisTitol);
-		String seuAvisTextVal = (String)getValorOVariable(
-				executionContext,
-				seuAvisText,
-				varSeuAvisText);
-		dadesNotificacio.setSeuAvisText(seuAvisTextVal != null ? seuAvisTextVal : notibAvisText);
-		String seuAvisTextMobilVal = (String)getValorOVariable(
-				executionContext,
-				seuAvisTextMobil,
-				varSeuAvisTextMobil);
-		dadesNotificacio.setSeuAvisTextMobil(seuAvisTextMobilVal != null ? seuAvisTextMobilVal : notibAvisTextSms);
-		String seuOficiTitolVal = (String)getValorOVariable(
-				executionContext,
-				seuOficiTitol,
-				varSeuOficiTitol);
-		dadesNotificacio.setSeuOficiTitol(seuOficiTitolVal != null ? seuOficiTitolVal : notibOficiTitol);
-		String seuOficiTextVal = (String)getValorOVariable(
-				executionContext,
-				seuOficiText,
-				varSeuOficiText);
-		dadesNotificacio.setSeuOficiText(seuOficiTextVal != null ? seuOficiTextVal : notibOficiText);
+
+
 		
 		List<DadesEnviament> enviaments = new ArrayList<DadesEnviament>();
 		DadesEnviament enviament = new DadesEnviament();
@@ -501,6 +337,10 @@ public class NotificacioAltaHandler extends BasicActionHandler implements Notifi
 				executionContext,
 				titularNif,
 				varTitularNif));
+		titular.setTipus((String)getValorOVariable(
+				executionContext,
+				titularTipus,
+				varTitularTipus));
 		String mobil = (String)getValorOVariable(
 				executionContext,
 				titularMobil,
@@ -544,6 +384,10 @@ public class NotificacioAltaHandler extends BasicActionHandler implements Notifi
 				executionContext,
 				destinatariEmail,
 				varDestinatariEmail));
+		destinatari.setTipus((String)getValorOVariable(
+				executionContext,
+				destinatariTipus,
+				varDestinatariTipus));		
 		destinataris.add(destinatari);
 		enviament.setDestinataris(destinataris);
 			
@@ -852,180 +696,12 @@ public class NotificacioAltaHandler extends BasicActionHandler implements Notifi
 		this.varDocument = varDocument;
 	}
 
-	public void setAnnexos(String annexos) {
-		this.annexos = annexos;
-	}
-
-	public void setVarAnnexos(String varAnnexos) {
-		this.varAnnexos = varAnnexos;
-	}
-
 	public void setProcedimentCodi(String procedimentCodi) {
 		this.procedimentCodi = procedimentCodi;
 	}
 
 	public void setVarProcedimentCodi(String varProcedimentCodi) {
 		this.varProcedimentCodi = varProcedimentCodi;
-	}
-
-	public void setPagadorPostalDir3Codi(String pagadorPostalDir3Codi) {
-		this.pagadorPostalDir3Codi = pagadorPostalDir3Codi;
-	}
-
-	public void setVarPagadorPostalDir3Codi(String varPagadorPostalDir3Codi) {
-		this.varPagadorPostalDir3Codi = varPagadorPostalDir3Codi;
-	}
-
-	public void setPagadorPostalContracteNum(String pagadorPostalContracteNum) {
-		this.pagadorPostalContracteNum = pagadorPostalContracteNum;
-	}
-
-	public void setVarPagadorPostalContracteNum(String varPagadorPostalContracteNum) {
-		this.varPagadorPostalContracteNum = varPagadorPostalContracteNum;
-	}
-
-	public void setPagadorPostalContracteDataVigencia(String pagadorPostalContracteDataVigencia) {
-		this.pagadorPostalContracteDataVigencia = pagadorPostalContracteDataVigencia;
-	}
-
-	public void setVarPagadorPostalContracteDataVigencia(String varPagadorPostalContracteDataVigencia) {
-		this.varPagadorPostalContracteDataVigencia = varPagadorPostalContracteDataVigencia;
-	}
-
-	public void setPagadorPostalFacturacioClientCodi(String pagadorPostalFacturacioClientCodi) {
-		this.pagadorPostalFacturacioClientCodi = pagadorPostalFacturacioClientCodi;
-	}
-
-	public void setVarPagadorPostalFacturacioClientCodi(String varPagadorPostalFacturacioClientCodi) {
-		this.varPagadorPostalFacturacioClientCodi = varPagadorPostalFacturacioClientCodi;
-	}
-
-	public void setPagadorCieDir3Codi(String pagadorCieDir3Codi) {
-		this.pagadorCieDir3Codi = pagadorCieDir3Codi;
-	}
-
-	public void setVarPagadorCieDir3Codi(String varPagadorCieDir3Codi) {
-		this.varPagadorCieDir3Codi = varPagadorCieDir3Codi;
-	}
-
-	public void setPagadorCieContracteDataVigencia(String pagadorCieContracteDataVigencia) {
-		this.pagadorCieContracteDataVigencia = pagadorCieContracteDataVigencia;
-	}
-
-	public void setVarPagadorCieContracteDataVigencia(String varPagadorCieContracteDataVigencia) {
-		this.varPagadorCieContracteDataVigencia = varPagadorCieContracteDataVigencia;
-	}
-
-	public void setSeuProcedimentCodi(String seuProcedimentCodi) {
-		this.seuProcedimentCodi = seuProcedimentCodi;
-	}
-
-	public void setVarSeuProcedimentCodi(String varSeuProcedimentCodi) {
-		this.varSeuProcedimentCodi = varSeuProcedimentCodi;
-	}
-
-	public void setSeuExpedientSerieDocumental(String seuExpedientSerieDocumental) {
-		this.seuExpedientSerieDocumental = seuExpedientSerieDocumental;
-	}
-
-	public void setVarSeuExpedientSerieDocumental(String varSeuExpedientSerieDocumental) {
-		this.varSeuExpedientSerieDocumental = varSeuExpedientSerieDocumental;
-	}
-
-	public void setSeuExpedientUnitatOrganitzativa(String seuExpedientUnitatOrganitzativa) {
-		this.seuExpedientUnitatOrganitzativa = seuExpedientUnitatOrganitzativa;
-	}
-
-	public void setVarSeuExpedientUnitatOrganitzativa(String varSeuExpedientUnitatOrganitzativa) {
-		this.varSeuExpedientUnitatOrganitzativa = varSeuExpedientUnitatOrganitzativa;
-	}
-
-	public void setSeuExpedientIdentificadorEni(String seuExpedientIdentificadorEni) {
-		this.seuExpedientIdentificadorEni = seuExpedientIdentificadorEni;
-	}
-
-	public void setVarSeuExpedientIdentificadorEni(String varSeuExpedientIdentificadorEni) {
-		this.varSeuExpedientIdentificadorEni = varSeuExpedientIdentificadorEni;
-	}
-
-	public void setSeuExpedientTitol(String seuExpedientTitol) {
-		this.seuExpedientTitol = seuExpedientTitol;
-	}
-
-	public void setVarSeuExpedientTitol(String varSeuExpedientTitol) {
-		this.varSeuExpedientTitol = varSeuExpedientTitol;
-	}
-
-	public void setSeuRegistreOficina(String seuRegistreOficina) {
-		this.seuRegistreOficina = seuRegistreOficina;
-	}
-
-	public void setVarSeuRegistreOficina(String varSeuRegistreOficina) {
-		this.varSeuRegistreOficina = varSeuRegistreOficina;
-	}
-
-	public void setSeuRegistreLlibre(String seuRegistreLlibre) {
-		this.seuRegistreLlibre = seuRegistreLlibre;
-	}
-
-	public void setVarSeuRegistreLlibre(String varSeuRegistreLlibre) {
-		this.varSeuRegistreLlibre = varSeuRegistreLlibre;
-	}
-
-	public void setSeuRegistreOrgan(String seuRegistreOrgan) {
-		this.seuRegistreOrgan = seuRegistreOrgan;
-	}
-
-	public void setVarSeuRegistreOrgan(String varSeuRegistreOrgan) {
-		this.varSeuRegistreOrgan = varSeuRegistreOrgan;
-	}
-
-	public void setSeuIdioma(String seuIdioma) {
-		this.seuIdioma = seuIdioma;
-	}
-
-	public void setVarSeuIdioma(String varSeuIdioma) {
-		this.varSeuIdioma = varSeuIdioma;
-	}
-
-	public void setSeuAvisTitol(String seuAvisTitol) {
-		this.seuAvisTitol = seuAvisTitol;
-	}
-
-	public void setVarSeuAvisTitol(String varSeuAvisTitol) {
-		this.varSeuAvisTitol = varSeuAvisTitol;
-	}
-
-	public void setSeuAvisText(String seuAvisText) {
-		this.seuAvisText = seuAvisText;
-	}
-
-	public void setVarSeuAvisText(String varSeuAvisText) {
-		this.varSeuAvisText = varSeuAvisText;
-	}
-
-	public void setSeuAvisTextMobil(String seuAvisTextMobil) {
-		this.seuAvisTextMobil = seuAvisTextMobil;
-	}
-
-	public void setVarSeuAvisTextMobil(String varSeuAvisTextMobil) {
-		this.varSeuAvisTextMobil = varSeuAvisTextMobil;
-	}
-
-	public void setSeuOficiTitol(String seuOficiTitol) {
-		this.seuOficiTitol = seuOficiTitol;
-	}
-
-	public void setVarSeuOficiTitol(String varSeuOficiTitol) {
-		this.varSeuOficiTitol = varSeuOficiTitol;
-	}
-
-	public void setSeuOficiText(String seuOficiText) {
-		this.seuOficiText = seuOficiText;
-	}
-
-	public void setVarSeuOficiText(String varSeuOficiText) {
-		this.varSeuOficiText = varSeuOficiText;
 	}
 
 	public void setTitularNif(String titularNif) {

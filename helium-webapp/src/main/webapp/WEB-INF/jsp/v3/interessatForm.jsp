@@ -5,7 +5,7 @@
 <%@ taglib tagdir="/WEB-INF/tags/helium" prefix="hel"%>
 <c:set var="idioma"><%=org.springframework.web.servlet.support.RequestContextUtils.getLocale(request).getLanguage()%></c:set>
 <c:choose>
-	<c:when test="${empty interessatCommand.id}"><
+	<c:when test="${empty interessatCommand.id}">
 		<c:set var="titol"><spring:message code="interessat.form.titol.nou"/></c:set>
 		<c:set var="formAction">new</c:set>
 	</c:when>
@@ -26,6 +26,19 @@
 	<script src="<c:url value="/js/select2.min.js"/>"></script>
 	<script src="<c:url value="/js/select2-locales/select2_locale_${idioma}.js"/>"></script>	
 	<script src="<c:url value="/js/helium.modal.js"/>"></script>
+
+<script>
+	$(document).ready(function() {
+		$('#tipus').on('change', function() {
+	 		if (this.value == '<%=net.conselldemallorca.helium.v3.core.api.dto.InteressatTipusEnumDto.FISICA%>') {
+	 			$("label[for='llinatge1']").addClass('obligatori');
+	 	 	} else{
+	 	 		$("label[for='llinatge1']").removeClass('obligatori');
+	 	 	}
+		});
+	});
+</script>
+
 </head>
 <body>
 	<form:form cssClass="form-horizontal" action="${formAction}"  method="post" commandName="interessatCommand">
@@ -33,13 +46,23 @@
 		<hel:inputText required="true" name="codi" textKey="interessat.form.camp.codi" />
 		<hel:inputText required="true" name="nom" textKey="interessat.form.camp.nom" />
 		<hel:inputText required="true" name="nif" textKey="interessat.form.camp.nif" />
-		<hel:inputText name="llinatge1" textKey="interessat.form.camp.llinatge1" />
+		<c:choose>
+			<c:when test="${interessatCommand.tipus=='FISICA'}">
+				<hel:inputText name="llinatge1" textKey="interessat.form.camp.llinatge1" required="true"/>
+			</c:when>
+			<c:otherwise>
+				<hel:inputText name="llinatge1" textKey="interessat.form.camp.llinatge1"/>			
+			</c:otherwise>
+		</c:choose>
 		<hel:inputText name="llinatge2" textKey="interessat.form.camp.llinatge2" />
-		<hel:inputText name="tipus" textKey="interessat.form.camp.tipus" />
 		<hel:inputText name="email" textKey="interessat.form.camp.email" />		
 		<hel:inputText name="telefon" textKey="interessat.form.camp.telefon" />
 
-		
+		<hel:inputSelect required="true" name="tipus"
+			optionItems="${interessatTipusEstats}" optionValueAttribute="valor"
+			optionTextAttribute="codi" textKey="interessat.form.camp.tipus" />
+
+
 		<div id="modal-botons" class="well">
 			<button type="button" class="btn btn-default" data-modal-cancel="true">
 				<spring:message code="comu.boto.cancelar"/>

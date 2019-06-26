@@ -156,13 +156,14 @@ public class NotificacioHelper {
 		notificacio.setUsuariCodi(usuari);
 				
 		notificacio.setExpedient(expedientRepository.findOne(dadesNotificacio.getExpedientId()));
-		notificacio.setDocument(documentStoreRepository.findOne(dadesNotificacio.getDocumentId()));
 		if (dadesNotificacio.getEnviamentTipus() != null)
 			notificacio.setTipus(EnviamentTipusEnumDto.valueOf(dadesNotificacio.getEnviamentTipus().name()));
 		notificacio.setEmisorDir3Codi(dadesNotificacio.getEmisorDir3Codi());
 		notificacio.setDataProgramada(dadesNotificacio.getEnviamentDataProgramada());
 		notificacio.setRetard(dadesNotificacio.getRetard());
 		notificacio.setDataCaducitat(dadesNotificacio.getCaducitat());
+		
+		notificacio.setDocument(documentStoreRepository.findOne(dadesNotificacio.getDocumentId()));
 
 		// TODO: Només 1 enviament
 		DadesEnviamentDto dadesEnviament = dadesNotificacio.getEnviaments().get(0);
@@ -192,19 +193,8 @@ public class NotificacioHelper {
 		
 		notificacio.setConcepte(dadesNotificacio.getConcepte());
 		notificacio.setDescripcio(dadesNotificacio.getDescripcio());
-		notificacio.setSeuIdioma(dadesNotificacio.getSeuIdioma());
-		notificacio.setSeuAvisTitol(dadesNotificacio.getSeuAvisTitol());
-		notificacio.setSeuAvisText(dadesNotificacio.getSeuAvisText());
-		notificacio.setSeuAvisTextMobil(dadesNotificacio.getSeuAvisTextMobil());
-		notificacio.setSeuOficiTitol(dadesNotificacio.getSeuOficiTitol());
-		notificacio.setSeuOficiText(dadesNotificacio.getSeuOficiText());
-			
+
 		
-		List<DocumentStore> annexos = new ArrayList<DocumentStore>();
-		for (DocumentDto annex: dadesNotificacio.getAnnexos()) {
-			annexos.add(documentStoreRepository.findOne(annex.getId()));
-		}
-		notificacio.setAnnexos(annexos);
 		
 		return notificacio;
 	}
@@ -264,27 +254,11 @@ public class NotificacioHelper {
 		dadesNotificacio.setEnviaments(enviaments);
 		
 		dadesNotificacio.setEstat(notificacio.getEstat());
+
 		
 		dadesNotificacio.setConcepte(notificacio.getConcepte());
 		dadesNotificacio.setDescripcio(notificacio.getDescripcio());
-		dadesNotificacio.setSeuIdioma(notificacio.getSeuIdioma());
-		dadesNotificacio.setSeuAvisTitol(notificacio.getSeuAvisTitol());
-		dadesNotificacio.setSeuAvisText(notificacio.getSeuAvisText());
-		dadesNotificacio.setSeuAvisTextMobil(notificacio.getSeuAvisTextMobil());
-		dadesNotificacio.setSeuOficiTitol(notificacio.getSeuOficiTitol());
-		dadesNotificacio.setSeuOficiText(notificacio.getSeuOficiText());
-		
-//		List<DocumentDto> annexos = new ArrayList<DocumentDto>();
-//		for (DocumentStore annex: notificacio.getAnnexos()) {
-//			annexos.add(documentHelper.toDocumentDto(
-//					annex.getId(),
-//					false,
-//					false,
-//					false,
-//					false,
-//					fasle));
-//		}
-//		dadesNotificacio.setAnnexos(annexos);
+
 		
 		return dadesNotificacio;
 	}

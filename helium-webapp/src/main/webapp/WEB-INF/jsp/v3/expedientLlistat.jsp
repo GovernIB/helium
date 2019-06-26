@@ -419,7 +419,7 @@ function refrescaEstatSegonPla() {
 				<label><spring:message code="expedient.llistat.filtre.camp.anulats"/></label>
 				<div class="row">
 					<div class="col-md-12">
-						<hel:inputSelect inline="true" name="mostrarAnulats" optionItems="${anulats}" optionValueAttribute="valor" optionTextAttribute="codi"/>
+						<hel:inputSelect inline="true" name="mostrarAnulats" optionItems="${interessatTipus}" optionValueAttribute="valor" optionTextAttribute="codi"/>
 					</div>
 				</div>
 			</div>		

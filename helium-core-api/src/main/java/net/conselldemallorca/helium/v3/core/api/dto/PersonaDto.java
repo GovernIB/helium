@@ -29,6 +29,8 @@ public class PersonaDto implements Serializable {
 	private Sexe sexe;
 	private String relleu;
 	private String contrasenya;
+	private InteressatTipusEnumDto tipus;
+	private String nif;
 
 	public PersonaDto(String codi, String nomSencer, String email, Sexe sexe) {
 		this.codi = codi;
@@ -43,7 +45,14 @@ public class PersonaDto implements Serializable {
 		this.email = email;
 		this.sexe = sexe;
 	}
-
+	
+	
+	public InteressatTipusEnumDto getTipus() {
+		return tipus;
+	}
+	public void setTipus(InteressatTipusEnumDto tipus) {
+		this.tipus = tipus;
+	}
 	public String getCodi() {
 		return codi;
 	}
@@ -184,5 +193,12 @@ public class PersonaDto implements Serializable {
 		return true;
 	}
 	
+	public String getNif() {
+		return nif;
+	}
+	public void setNif(String nif) {
+		this.nif = nif;
+	}
+
 	private static final long serialVersionUID = 1L;
 }

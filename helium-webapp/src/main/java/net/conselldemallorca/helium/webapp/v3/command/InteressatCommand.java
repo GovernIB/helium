@@ -6,13 +6,12 @@ package net.conselldemallorca.helium.webapp.v3.command;
 import javax.validation.constraints.Size;
 
 import org.hibernate.validator.constraints.NotEmpty;
-import org.springmodules.validation.bean.conf.loader.annotation.handler.NotBlank;
 
+import net.conselldemallorca.helium.v3.core.api.dto.InteressatTipusEnumDto;
 import net.conselldemallorca.helium.webapp.v3.command.InteressatCommand.Creacio;
 import net.conselldemallorca.helium.webapp.v3.command.InteressatCommand.Modificacio;
-import net.conselldemallorca.helium.webapp.v3.validator.EntornCodiNoRepetit;
-import net.conselldemallorca.helium.webapp.v3.validator.ExpedientTipusConsulta;
 import net.conselldemallorca.helium.webapp.v3.validator.InteressatCodiNoRepetit;
+import net.conselldemallorca.helium.webapp.v3.validator.InteressatLlinatge;
 
 /**
  * Command que representa el formulari d'un entorn.
@@ -20,6 +19,7 @@ import net.conselldemallorca.helium.webapp.v3.validator.InteressatCodiNoRepetit;
  * @author Limit Tecnologies <limit@limit.es>
  */
 @InteressatCodiNoRepetit(groups = {Creacio.class, Modificacio.class})
+@InteressatLlinatge(groups = {Creacio.class, Modificacio.class})
 public class InteressatCommand {
 
 	private Long id;
@@ -30,15 +30,23 @@ public class InteressatCommand {
 	@Size(max = 255, groups = {Creacio.class, Modificacio.class})
 	private String nom;
 	@NotEmpty(groups = {Creacio.class, Modificacio.class})
-	@Size(max = 16, groups = {Creacio.class, Modificacio.class})
+	@Size(max = 9, groups = {Creacio.class, Modificacio.class})
 	private String nif;
 	private String llinatge1;  
 	private String llinatge2;  
-	private String tipus; 
+
 	private String email;  
 	private Long expedientId;
 	
+	private InteressatTipusEnumDto tipus;
 	
+
+	public InteressatTipusEnumDto getTipus() {
+		return tipus;
+	}
+	public void setTipus(InteressatTipusEnumDto tipus) {
+		this.tipus = tipus;
+	}
 	public Long getExpedientId() {
 		return expedientId;
 	}
@@ -62,12 +70,6 @@ public class InteressatCommand {
 	}
 	public void setLlinatge2(String llinatge2) {
 		this.llinatge2 = llinatge2;
-	}
-	public String getTipus() {
-		return tipus;
-	}
-	public void setTipus(String tipus) {
-		this.tipus = tipus;
 	}
 	public String getEmail() {
 		return email;

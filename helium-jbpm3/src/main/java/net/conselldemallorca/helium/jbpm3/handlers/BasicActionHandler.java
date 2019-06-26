@@ -52,6 +52,8 @@ import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDadaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.InteressatDto;
+import net.conselldemallorca.helium.v3.core.api.dto.InteressatTipusEnumDto;
+import net.conselldemallorca.helium.v3.core.api.dto.InteressatTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RegistreAnnexDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RegistreAnotacioDto;
@@ -60,6 +62,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.RegistreNotificacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RespostaJustificantDetallRecepcioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RespostaJustificantRecepcioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RespostaNotificacio;
+import net.conselldemallorca.helium.v3.core.api.dto.ServeiTipusEnumDto;
 
 
 
@@ -558,7 +561,7 @@ public abstract class BasicActionHandler extends AbstractHeliumActionHandler imp
 		interessatDto.setNif(interessat.getNif());
 		interessatDto.setLlinatge1(interessat.getLlinatge1());
 		interessatDto.setLlinatge2(interessat.getLlinatge2());
-		interessatDto.setTipus(interessat.getTipus());
+		interessatDto.setTipus(InteressatTipusEnumDto.valueOf(interessat.getTipus().toUpperCase()));
 		interessatDto.setEmail(interessat.getEmail());
 		interessatDto.setTelefon(interessat.getTelefon());
 		interessatDto.setExpedientId(interessat.getExpedientId());
@@ -585,7 +588,7 @@ public abstract class BasicActionHandler extends AbstractHeliumActionHandler imp
 		interessatDto.setNif(interessat.getNif());
 		interessatDto.setLlinatge1(interessat.getLlinatge1());
 		interessatDto.setLlinatge2(interessat.getLlinatge2());
-		interessatDto.setTipus(interessat.getTipus());
+		interessatDto.setTipus(InteressatTipusEnumDto.valueOf(interessat.getTipus().toUpperCase()));
 		interessatDto.setEmail(interessat.getEmail());
 		interessatDto.setTelefon(interessat.getTelefon());
 		interessatDto.setExpedientId(interessat.getExpedientId());
@@ -638,41 +641,12 @@ public abstract class BasicActionHandler extends AbstractHeliumActionHandler imp
 		notificacio.setEnviamentDataProgramada(dadesNotificacio.getEnviamentDataProgramada());
 		notificacio.setRetard(dadesNotificacio.getRetard());
 		notificacio.setCaducitat(dadesNotificacio.getCaducitat());
-		notificacio.setDocumentId(dadesNotificacio.getDocumentId());
 		notificacio.setDocumentArxiuNom(dadesNotificacio.getDocumentArxiuNom());
 		notificacio.setDocumentArxiuContingut(dadesNotificacio.getDocumentArxiuContingut());
-		List<DocumentDto> annexos = new ArrayList<DocumentDto>();
-		if (dadesNotificacio.getAnnexos() != null) {
-			for (DocumentInfo doc_annex: dadesNotificacio.getAnnexos()) {
-				DocumentDto annex = new DocumentDto();
-				annex.setDocumentId(doc_annex.getId());
-				annex.setArxiuNom(doc_annex.getArxiuNom());
-				annex.setArxiuContingut(doc_annex.getArxiuContingut());
-			}
-		}
-		notificacio.setAnnexos(annexos);
+		notificacio.setDocumentId(dadesNotificacio.getDocumentId());
+
+
 		notificacio.setProcedimentCodi(dadesNotificacio.getProcedimentCodi());
-		notificacio.setPagadorPostalDir3Codi(dadesNotificacio.getPagadorPostalDir3Codi());
-		notificacio.setPagadorPostalContracteNum(dadesNotificacio.getPagadorPostalContracteNum());
-		notificacio.setPagadorPostalContracteDataVigencia(dadesNotificacio.getPagadorPostalContracteDataVigencia());
-		notificacio.setPagadorPostalFacturacioClientCodi(dadesNotificacio.getPagadorPostalFacturacioClientCodi());
-		notificacio.setPagadorCieDir3Codi(dadesNotificacio.getPagadorCieDir3Codi());
-		notificacio.setPagadorCieContracteDataVigencia(dadesNotificacio.getPagadorCieContracteDataVigencia());
-		
-		notificacio.setSeuProcedimentCodi(dadesNotificacio.getSeuProcedimentCodi());
-		notificacio.setSeuExpedientSerieDocumental(dadesNotificacio.getSeuExpedientSerieDocumental());
-		notificacio.setSeuExpedientUnitatOrganitzativa(dadesNotificacio.getSeuExpedientUnitatOrganitzativa());
-		notificacio.setSeuExpedientIdentificadorEni(dadesNotificacio.getSeuExpedientIdentificadorEni());
-		notificacio.setSeuExpedientTitol(dadesNotificacio.getSeuExpedientTitol());
-		notificacio.setSeuRegistreOficina(dadesNotificacio.getSeuRegistreOficina());
-		notificacio.setSeuRegistreLlibre(dadesNotificacio.getSeuRegistreLlibre());
-		notificacio.setSeuRegistreOrgan(dadesNotificacio.getSeuRegistreOrgan());
-		notificacio.setSeuIdioma(dadesNotificacio.getSeuIdioma());
-		notificacio.setSeuAvisTitol(dadesNotificacio.getSeuAvisTitol());
-		notificacio.setSeuAvisText(dadesNotificacio.getSeuAvisText());
-		notificacio.setSeuAvisTextMobil(dadesNotificacio.getSeuAvisTextMobil());
-		notificacio.setSeuOficiTitol(dadesNotificacio.getSeuOficiTitol());
-		notificacio.setSeuOficiText(dadesNotificacio.getSeuOficiText());
 		
 		List<DadesEnviamentDto> enviaments = new ArrayList<DadesEnviamentDto>();
 		for (DadesEnviament dadesEnviament: dadesNotificacio.getEnviaments()) {
@@ -686,6 +660,7 @@ public abstract class BasicActionHandler extends AbstractHeliumActionHandler imp
 			titular.setDni(dadesTitular.getDni());
 			titular.setTelefon(dadesTitular.getTelefon());;
 			titular.setEmail(dadesTitular.getEmail());
+			titular.setTipus(InteressatTipusEnumDto.valueOf(dadesTitular.getTipus()));
 			enviament.setTitular(titular);
 
 			List<PersonaDto> destinataris = new ArrayList<PersonaDto>();
@@ -698,7 +673,7 @@ public abstract class BasicActionHandler extends AbstractHeliumActionHandler imp
 				destinatari.setDni(dadesDestinatari.getDni());
 				destinatari.setTelefon(dadesDestinatari.getTelefon());;
 				destinatari.setEmail(dadesDestinatari.getEmail());
-				
+				destinatari.setTipus(InteressatTipusEnumDto.valueOf(dadesDestinatari.getTipus()));
 				destinataris.add(destinatari);
 			}
 			enviament.setDestinataris(destinataris);
@@ -730,6 +705,9 @@ public abstract class BasicActionHandler extends AbstractHeliumActionHandler imp
 			enviament.setEntregaPostalFormatFulla(dadesEnviament.getEntregaPostalFormatFulla());
 			enviament.setEntregaDehObligat(dadesEnviament.isEntregaDehObligat());
 			enviament.setEntregaDehProcedimentCodi(dadesEnviament.getEntregaDehProcedimentCodi());
+			
+			enviament.setServeiTipusEnum(dadesNotificacio.getServeiTipus() != null ? ServeiTipusEnumDto.valueOf(dadesNotificacio.getServeiTipus()) : null);
+			
 			
 			enviaments.add(enviament);
 		}

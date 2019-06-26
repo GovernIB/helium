@@ -15,6 +15,7 @@ import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDetallDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DadesEnviamentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DadesNotificacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDocumentDto;
@@ -27,6 +28,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PortasignaturesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RespostaValidacioSignaturaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ServeiTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientDocumentService;
@@ -323,8 +325,10 @@ public class ExpedientDocumentServiceBean implements ExpedientDocumentService {
 			Long expedientId, 
 			Long documentStoreId, 
 			DadesNotificacioDto dadesNotificacioDto,
-			List<Long> interessatsIds) {
-		delegate.notificarDocument(expedientId, documentStoreId, dadesNotificacioDto, interessatsIds);		
+			List<Long> interessatsIds,
+			DadesEnviamentDto dadesEnviamentDto) {
+		delegate.notificarDocument(expedientId, documentStoreId, dadesNotificacioDto, interessatsIds,
+				dadesEnviamentDto);		
 	}
 
 	@Override

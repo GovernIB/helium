@@ -3,6 +3,9 @@
  */
 package net.conselldemallorca.helium.webapp.v3.controller;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.servlet.http.HttpServletRequest;
 
 import org.slf4j.Logger;
@@ -12,13 +15,17 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import es.caib.notib.ws.notificacio.InteressatTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.InteressatDto;
+import net.conselldemallorca.helium.v3.core.api.dto.MostrarAnulatsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientInteressatService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
 import net.conselldemallorca.helium.webapp.v3.command.InteressatCommand;
@@ -108,6 +115,7 @@ public class ExpedientInteressatV3Controller extends BaseExpedientController {
 			Model model) {
 		InteressatDto dto = expedientInteressatService.findOne(
 				interessatId);
+		
 		model.addAttribute(
 				conversioTipusHelper.convertir(
 						dto,
@@ -135,6 +143,18 @@ public class ExpedientInteressatV3Controller extends BaseExpedientController {
 					"interessat.controller.modificat");
         }
 	}
+	
+	
+	
+	@ModelAttribute("interessatTipusEstats")
+	public List<ParellaCodiValorDto> populateEstats(HttpServletRequest request) {
+		List<ParellaCodiValorDto> resposta = new ArrayList<ParellaCodiValorDto>();
+		resposta.add(new ParellaCodiValorDto(getMessage(request, "interessat.tipus.enum.ADMINISTRACIO"), InteressatTipusEnumDto.ADMINISTRACIO));
+		resposta.add(new ParellaCodiValorDto(getMessage(request, "interessat.tipus.enum.FISICA"), InteressatTipusEnumDto.FISICA));
+		resposta.add(new ParellaCodiValorDto(getMessage(request, "interessat.tipus.enum.JURIDICA"), InteressatTipusEnumDto.JURIDICA));
+		return resposta;
+	}
+	
 
 	@RequestMapping(value = "/{expedientId}/interessat/{interessatId}/delete", method = RequestMethod.GET)
 	public String delete(

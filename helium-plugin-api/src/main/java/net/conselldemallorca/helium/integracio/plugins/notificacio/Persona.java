@@ -3,6 +3,7 @@
  */
 package net.conselldemallorca.helium.integracio.plugins.notificacio;
 
+
 /**
  * Informació d'una persona per a un enviament.
  * 
@@ -16,7 +17,14 @@ public class Persona {
 	private String nif;
 	private String telefon;
 	private String email;
-
+	private InteressatTipusEnum tipus;
+	
+	public InteressatTipusEnum getTipus() {
+		return tipus;
+	}
+	public void setTipus(InteressatTipusEnum tipus) {
+		this.tipus = tipus;
+	}
 	public String getNom() {
 		return nom;
 	}

@@ -7,6 +7,8 @@ import java.io.Serializable;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -15,8 +17,9 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.TableGenerator;
 
-import org.hibernate.annotations.ForeignKey;
 import org.springmodules.validation.bean.conf.loader.annotation.handler.NotBlank;
+
+import net.conselldemallorca.helium.v3.core.api.dto.InteressatTipusEnumDto;
 
 /**
 
@@ -27,6 +30,9 @@ import org.springmodules.validation.bean.conf.loader.annotation.handler.NotBlank
 public class Interessat implements Serializable, GenericEntity<Long> {
 
 	
+	
+	private InteressatTipusEnumDto tipus;
+	
 	private Long id;
 	@NotBlank
 	private String codi;
@@ -36,24 +42,19 @@ public class Interessat implements Serializable, GenericEntity<Long> {
 	private String nom;
 	private String llinatge1;  
 	private String llinatge2;  
-	private String tipus; 
 	private String email;  
 	private String telefon; 
 	
-	Expedient expedient;
-	
+	private Expedient expedient;
 	
 
 	
-	
-	
-	
+
+
+
 	public Interessat() {
 		super();
 	}
-
-
-
 	public Interessat(
 			Long id, 
 			String codi,
@@ -61,7 +62,7 @@ public class Interessat implements Serializable, GenericEntity<Long> {
 			String nif, 
 			String llinatge1, 
 			String llinatge2, 
-			String tipus,
+			InteressatTipusEnumDto tipus,
 			String email, 
 			String telefon,
 			Expedient expedient) {
@@ -77,7 +78,6 @@ public class Interessat implements Serializable, GenericEntity<Long> {
 		this.telefon = telefon;
 		this.expedient = expedient;
 	}
-	
 	
 	
 	@Id
@@ -100,8 +100,13 @@ public class Interessat implements Serializable, GenericEntity<Long> {
 	public void setExpedient(Expedient expedient) {
 		this.expedient = expedient;
 	}
-	
-	
+
+	public InteressatTipusEnumDto getTipus() {
+		return tipus;
+	}
+	public void setTipus(InteressatTipusEnumDto tipus) {
+		this.tipus = tipus;
+	}
 	public String getCodi() {
 		return codi;
 	}
@@ -131,12 +136,6 @@ public class Interessat implements Serializable, GenericEntity<Long> {
 	}
 	public void setLlinatge2(String llinatge2) {
 		this.llinatge2 = llinatge2;
-	}
-	public String getTipus() {
-		return tipus;
-	}
-	public void setTipus(String tipus) {
-		this.tipus = tipus;
 	}
 	public String getEmail() {
 		return email;

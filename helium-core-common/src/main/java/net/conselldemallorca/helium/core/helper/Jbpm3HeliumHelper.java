@@ -1727,15 +1727,18 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 	@Override
 	public RespostaNotificacio altaNotificacio(DadesNotificacioDto dadesNotificacio) {
 		Expedient expedient = expedientRepository.findOne(dadesNotificacio.getExpedientId());
-		expedient.setTramitExpedientIdentificador(dadesNotificacio.getSeuExpedientIdentificadorEni());
+
 		DocumentNotificacio notificacio = notificacioElectronicaHelper.create(dadesNotificacio);
 		
 		RespostaNotificacio resposta = null; 
+		
+		dadesNotificacio.setDocumentArxiuUuid(notificacio.getDocument().getArxiuUuid());
+		dadesNotificacio.setDocumentArxiuCsv(notificacio.getDocument().getNtiCsv());
 				
 		try {
 			resposta = pluginHelper.altaNotificacio(
 					dadesNotificacio, 
-					expedient);
+					expedient.getId());
 			notificacio.updateEnviat(
 					new Date(),
 					resposta.getIdentificador(),

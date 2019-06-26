@@ -63,6 +63,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PortasignaturesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RespostaValidacioSignaturaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ServeiTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientDocumentService;
@@ -285,7 +286,8 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 			Long expedientId,
 			Long documentStoreId,
 			DadesNotificacioDto dadesNotificacioDto,
-			List<Long> interessatsIds) {
+			List<Long> interessatsIds,
+			DadesEnviamentDto dadesEnviamentDto) {
 
 		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
 				expedientId,
@@ -304,59 +306,17 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 		
 		ExpedientTipus expedientTipus = expedient.getTipus();
 		
-		String expedientTitol = expedient.getTitol();
-		String notibEmisor = expedientTipus.getNtiOrgano();
-		String notibSeuUnitatAdministrativa = expedientTipus.getNotibSeuUnitatAdministrativa();
-		if (notibSeuUnitatAdministrativa == null && expedient.getUnitatAdministrativa() != null)
-			notibSeuUnitatAdministrativa = String.valueOf(expedient.getUnitatAdministrativa());
-		String notibSeuOficina = expedientTipus.getNotibSeuOficina();
-		String notibSeuLlibre = expedientTipus.getNotibSeuLlibre();
-		String notibSeuOrgan = expedientTipus.getNotibSeuOrgan();
-		String notibSeuIdioma = expedientTipus.getNotibSeuIdioma();
-		if (notibSeuIdioma == null)
-			notibSeuIdioma = "ca";
-		String notibAvisTitol = expedientTipus.getNotibAvisTitol();
-		String notibAvisText = expedientTipus.getNotibAvisText();
-		String notibAvisTextSms = expedientTipus.getNotibAvisTextSms();
-		String notibOficiTitol = expedientTipus.getNotibOficiTitol();
-		String notibOficiText = expedientTipus.getNotibOficiText();
-		String notibSerieDocumental = expedientTipus.getNtiSerieDocumental();
-		String notibProcedimentCodi = expedientTipus.getNtiClasificacion();
-		String notibSeuProcedimentCodi = expedientTipus.getNotibSeuCodiProcediment();
-		
-		
-		dadesNotificacioDto.setSeuExpedientTitol(expedientTitol);
-		dadesNotificacioDto.setEmisorDir3Codi(notibEmisor);
-		dadesNotificacioDto.setSeuExpedientUnitatOrganitzativa(notibSeuUnitatAdministrativa);
-		dadesNotificacioDto.setSeuRegistreOficina(notibSeuOficina);
-		dadesNotificacioDto.setSeuRegistreLlibre(notibSeuLlibre);
-		dadesNotificacioDto.setSeuRegistreOrgan(notibSeuOrgan);
-		dadesNotificacioDto.setSeuAvisTitol(notibAvisTitol);
-		dadesNotificacioDto.setSeuAvisText(notibAvisText);
-		dadesNotificacioDto.setSeuAvisTextMobil(notibAvisTextSms);
-		dadesNotificacioDto.setSeuOficiTitol(notibOficiTitol);
-		dadesNotificacioDto.setSeuOficiText(notibOficiText);
-		dadesNotificacioDto.setSeuExpedientSerieDocumental(notibSerieDocumental);
-		dadesNotificacioDto.setProcedimentCodi(notibProcedimentCodi);
-		dadesNotificacioDto.setSeuProcedimentCodi(notibSeuProcedimentCodi);
-		
-		
+		dadesNotificacioDto.setEmisorDir3Codi(expedientTipus.getNtiOrgano());
+		dadesNotificacioDto.setProcedimentCodi(expedientTipus.getNtiClasificacion());
 		dadesNotificacioDto.setExpedientId(expedientId);
 		dadesNotificacioDto.setEnviamentTipus(EnviamentTipusEnumDto.NOTIFICACIO);
 		
-//		List<DocumentDto> annexos = new ArrayList<DocumentDto>();
-//		DocumentDto annex = new DocumentDto();
-//		annex.setDocumentId(documentDto.getId());
-//		annex.setArxiuNom(documentDto.getArxiuNom());
-//		annex.setArxiuContingut(documentDto.getArxiuContingut());
-//		annexos.add(annex);
-		List<DocumentDto> annexos = new ArrayList<DocumentDto>();
-		dadesNotificacioDto.setAnnexos(annexos);
-	
-
-		dadesNotificacioDto.setDocumentId(documentDto.getId());
 		dadesNotificacioDto.setDocumentArxiuNom(documentDto.getArxiuNom());
 		dadesNotificacioDto.setDocumentArxiuContingut(documentDto.getArxiuContingut());
+		dadesNotificacioDto.setDocumentArxiuUuid(documentDto.getArxiuUuid());
+		dadesNotificacioDto.setDocumentArxiuCsv(documentDto.getArxiuCsv());
+		
+		dadesNotificacioDto.setDocumentId(documentStoreId);
 		
 		
 		for(Long interessatId:  interessatsIds){
@@ -364,32 +324,33 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 			Interessat interessatEntity = interessatRepository.findOne(interessatId);
 			
 			List<DadesEnviamentDto> enviaments = new ArrayList<DadesEnviamentDto>();
-			DadesEnviamentDto enviament = new DadesEnviamentDto();
+			
 			
 			List<PersonaDto> destinataris = new ArrayList<PersonaDto>();
 			PersonaDto destinatari = new PersonaDto();
 			destinatari.setNom(interessatEntity.getNom());
 			destinatari.setLlinatge1(interessatEntity.getLlinatge1());
 			destinatari.setLlinatge2(interessatEntity.getLlinatge2());
-			destinatari.setDni(interessatEntity.getNif());
+			destinatari.setNif(interessatEntity.getNif());
 			destinatari.setTelefon(interessatEntity.getTelefon());
 			destinatari.setEmail(interessatEntity.getEmail());
+			destinatari.setTipus(interessatEntity.getTipus());
 			destinataris.add(destinatari);
-			enviament.setDestinataris(destinataris);
+			dadesEnviamentDto.setDestinataris(destinataris);
 			
 			
 			// Titular
 			PersonaDto titular = new PersonaDto();
-			titular.setDni(interessatEntity.getNif());
+			titular.setNif(interessatEntity.getNif());
 			titular.setNom(interessatEntity.getNom());
 			titular.setLlinatge1(interessatEntity.getLlinatge1());
 			titular.setLlinatge1(interessatEntity.getLlinatge2());
 			titular.setLlinatge2(interessatEntity.getTelefon());
 			titular.setEmail(interessatEntity.getEmail());
-			enviament.setTitular(titular);
+			titular.setTipus(interessatEntity.getTipus());
+			dadesEnviamentDto.setTitular(titular);
 			
-			
-			enviaments.add(enviament);
+			enviaments.add(dadesEnviamentDto);
 
 			dadesNotificacioDto.setEnviaments(enviaments);
 			

@@ -8,6 +8,7 @@ import java.util.List;
 
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDetallDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DadesEnviamentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DadesNotificacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDocumentDto;
@@ -20,6 +21,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PortasignaturesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RespostaValidacioSignaturaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ServeiTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
 import net.conselldemallorca.helium.v3.core.api.exception.SistemaExternException;
@@ -463,7 +465,8 @@ public interface ExpedientDocumentService {
 			Long expedientId, 
 			Long documentStoreId, 
 			DadesNotificacioDto dadesNotificacioDto, 
-			List<Long> interessatsIds);
+			List<Long> interessatsIds,
+			DadesEnviamentDto dadesEnviamentDto);
 
 	public PaginaDto<NotificacioDto> findNotificacionsPerDatatable(
 			String filtre, 
