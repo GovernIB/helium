@@ -97,7 +97,7 @@ public class NotificacioPluginNotib implements NotificacioPlugin {
 						entregaPostal.setCodiPostal(enviament.getEntregaPostalCodiPostal());
 						entregaPostal.setPoblacio(enviament.getEntregaPostalPoblacio());
 						entregaPostal.setMunicipiCodi(enviament.getEntregaPostalMunicipiCodi());
-						entregaPostal.setProvinciaCodi(enviament.getEntregaPostalProvinciaCodi());
+						entregaPostal.setProvincia(enviament.getEntregaPostalProvinciaCodi());
 						entregaPostal.setPaisCodi(enviament.getEntregaPostalPaisCodi());
 						entregaPostal.setLinea1(enviament.getEntregaPostalLinea1());
 						entregaPostal.setLinea2(enviament.getEntregaPostalLinea2());

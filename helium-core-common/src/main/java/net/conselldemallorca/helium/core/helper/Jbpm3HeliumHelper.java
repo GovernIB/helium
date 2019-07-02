@@ -1248,7 +1248,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 				"data=" + data + ", " +
 				"arxiuNom=" + arxiuNom + ", " +
 				"arxiuContingut=" + arxiuContingut + ")");
-		return documentHelper.crearOActualitzarDocument(
+		return documentHelper.crearActualitzarDocument(
 				null,
 				processInstanceId,
 				documentCodi,

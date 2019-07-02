@@ -1,13 +1,11 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
-
-<%-- SENSE US --%>
-
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <%@ taglib uri="http://www.springframework.org/tags" prefix="spring"%>
 <%@ taglib uri="http://www.springframework.org/tags/form" prefix="form" %>
 <%@ taglib uri="http://displaytag.sf.net/el" prefix="display" %>
+<%@ taglib tagdir="/WEB-INF/tags/helium" prefix="hel"%>
 
 <link href="<c:url value="/css/datepicker.css"/>" rel="stylesheet">
 <script src="<c:url value="/js/bootstrap-datepicker.js"/>"></script>
@@ -29,6 +27,7 @@
 	.documentTramitacio .div_timer .input-group {padding-left: 15px;}
 	.documentTramitacio .div_timer .input-group-addon {width: 5% !important;}
 	.documentTramitacio .comentari {padding-top: 30px;}
+	.documentTramitacio input[type='checkbox'] {position: relative;}
 </style>
 <c:if test="${not tasca.validada}">
 	<div class="alert alert-warning">	
@@ -65,7 +64,7 @@
 			</c:otherwise>
 		</c:choose>
 	
-		<form id="documentsForm" class="form-horizontal form-tasca" action="${tascaDocumentAction}" enctype="multipart/form-data" method="post">
+		<form id="documentsForm" class="form-horizontal form-tasca" action="${tascaDocumentAction}" enctype="multipart/form-data" method="post" data-document-id="${document.id}">
 			<input type="hidden" id="docId${document.id}" name="docId" value="${document.id}"/>
 			<div class="inlineLabels">
 				<h4 class="titol-missatge">
@@ -79,6 +78,23 @@
 							<i class="fa fa-file-text-o"></i>
 						</a>
 		 			</c:if>
+		 			
+		 			<c:if test="${not empty document.tokenSignatura and document.signat}">
+						<c:if test="${not empty document.urlVerificacioCustodia}">
+							<a class="icon signature" href="${document.urlVerificacioCustodia}" target="_blank"><span class="fa fa-certificate" title="<spring:message code="expedient.document.signat"/>"></span></a>
+						</c:if>								
+						<c:if test="${not empty document.signaturaUrlVerificacio}">
+							<a class="icon signature" href="${document.signaturaUrlVerificacio}" target="_blank"><span class="fa fa-certificate" title="<spring:message code="expedient.document.signat"/>"></span></a>
+						</c:if>
+					</c:if>
+					<c:if test="${document.registrat}">
+						<a 	data-rdt-link-modal="true" 
+							class="icon registre" 
+							href="<c:url value='/modal/v3/expedient/${tasca.expedientId}/proces/${tasca.processInstanceId}/document/${document.documentStoreId}/registre/verificar'/>">
+							<span class="fa fa-book" title="<spring:message code='expedient.document.registrat' />"></span>
+						</a>
+					</c:if>
+		 			
 					<a title="<spring:message code='comuns.descarregar' />" class="icon <c:if test="${empty document.tokenSignatura}">hide</c:if>" id="downloadUrl${document.id}" href="<c:url value='/v3/tasca/${tasca.id}/document/${document.documentCodi}/descarregar'/>">
 						<i class="fa fa-download"></i>
 					</a>
@@ -100,7 +116,7 @@
 			</div>
 			<c:if test="${tasca.validada and !bloquejarEdicioTasca}">
 				<div id="amagarFile${document.id}" class="form-group <c:if test="${not empty document.tokenSignatura}">hide</c:if>">
-					<label class="control-label col-xs-4" for="nom"><spring:message code='expedient.document.arxiu' /></label>
+					<label class="control-label col-xs-4" for="contingut${document.id}"><spring:message code='expedient.document.arxiu' /></label>
 			        <div class="col-xs-10 arxiu">
 			            <div class="input-group">
 			                <input id="contingut${document.id}" name="contingut" class="form-control input-file" />
@@ -111,6 +127,52 @@
 			                </span>
 			            </div>
 					</div>
+										
+					<div class="form-group">
+						<label class="control-label col-xs-4" for="ambFirma${document.id}">
+								<spring:message code="expedient.document.form.camp.amb.firma"></spring:message>
+						</label>
+						<div class="controls col-xs-8">
+							<div class="checkbox">
+					  			<label>
+									<input id="ambFirma${document.id}" name="ambFirma" class="span12" type="checkbox" value="true">
+								</label>
+							</div>
+						</div>
+					</div>
+					<div id="input-firma${document.id}" class="hidden">
+						
+						<div class="form-group">
+							<label class="control-label col-xs-4" for="tipusFirma${document.id}">
+								<spring:message code="expedient.document.form.camp.tipus.firma"></spring:message>
+							</label>
+							<div class="controls col-xs-8 btn-group" data-toggle="buttons">
+									<label class="btn btn-default active">
+												<input id="tipusFirma1${document.id}" name="tipusFirma" type="radio" value="ADJUNT" checked="checked"> Adjunta
+									</label>
+									<label class="btn btn-default">
+												<input id="tipusFirma2${document.id}" name="tipusFirma" type="radio" value="SEPARAT"> Separada
+									</label>
+							</div>
+						</div>
+
+						<div id="input-firma-arxiu${document.id}" class="hidden">
+							<div class="form-group">
+								<label class="control-label col-xs-4 obligatori" for="contingutFirma${document.id}"><spring:message code="expedient.document.form.camp.firma"/></label>
+						        <div class="col-xs-10 firma">
+						            <div class="input-group">
+						                <input id="contingutFirma${document.id}" name="contingutFirma" class="form-control input-file" />
+						                <span class="input-group-btn">
+						                    <span class="btn btn-default btn-file">
+						                        <spring:message code="expedient.document.arxiu"/>… <input type="file" id="firma${document.id}" name="firma" <c:if test="${not empty document.extensionsPermeses}">accept="${document.extensionsPermeses}"</c:if>>
+						                    </span>
+						                </span>
+						            </div>
+								</div>
+							</div>
+						</div>
+					</div>					
+					
 	        	</div>
 				<div id="div_timer${document.id}" class="div_timer form-group <c:if test="${not empty document.tokenSignatura}">hide</c:if>">
 			    	<div class="<c:if test="${not empty campErrors}"> has-error</c:if>">
@@ -167,6 +229,24 @@
 			$(this).blur();
 			$(this).parent().find('input[type="file"]').click();
 		});
+		
+		$('input[type=checkbox][name=ambFirma]').on('change', function() {
+			var documentId= $(this).closest('form').data('document-id');
+			if($(this).prop("checked") == true){
+				$('#input-firma' + documentId).removeClass('hidden');
+				$('input[type=radio][name=tipusFirma][id*=' + documentId + ']:checked').change();
+			} else {
+				$('#input-firma' + documentId).addClass('hidden');
+			}
+		});
+		$('input[type=radio][name=tipusFirma]').change(function() {
+			var documentId= $(this).closest('form').data('document-id');
+			if ($(this).val() == 'SEPARAT') {
+				$('#input-firma-arxiu' + documentId).removeClass('hidden');
+			} else {
+				$('#input-firma-arxiu' + documentId).addClass('hidden');
+			}
+		});		
 	});
 	
 	function checkFile(docId) {

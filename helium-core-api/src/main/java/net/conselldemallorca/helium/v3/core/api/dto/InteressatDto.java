@@ -3,12 +3,6 @@
  */
 package net.conselldemallorca.helium.v3.core.api.dto;
 
-import java.util.ArrayList;
-import java.util.List;
-
-
-
-
 /**
  * 
  * @author Limit Tecnologies <limit@limit.es>

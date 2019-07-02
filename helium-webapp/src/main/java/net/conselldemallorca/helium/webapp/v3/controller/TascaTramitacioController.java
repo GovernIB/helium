@@ -50,6 +50,7 @@ import org.springframework.web.multipart.commons.CommonsMultipartFile;
 import net.conselldemallorca.helium.core.helper.DocumentHelperV3;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DocumentTipusFirmaEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExecucioMassivaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
@@ -79,6 +80,7 @@ import net.conselldemallorca.helium.v3.core.api.service.TascaService;
 import net.conselldemallorca.helium.webapp.mvc.ArxiuView;
 import net.conselldemallorca.helium.webapp.v3.command.PassarelaFirmaEnviarCommand;
 import net.conselldemallorca.helium.webapp.v3.command.TascaConsultaCommand;
+import net.conselldemallorca.helium.webapp.v3.helper.EnumHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.ModalHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.NodecoHelper;
@@ -497,6 +499,11 @@ public class TascaTramitacioController extends BaseTascaController {
 		model.addAttribute("documents", documents);
 		model.addAttribute("tasca", tascaService.findAmbIdPerTramitacio(tascaId));
 		model.addAttribute("isModal", ModalHelper.isModal(request));
+		model.addAttribute(
+				"tipusFirmaOptions",
+				EnumHelper.getOptionsForEnum(
+						DocumentTipusFirmaEnumDto.class,
+						"enum.document.tipus.firma."));		
 		return "v3/tascaDocument";
 	}
 
@@ -721,82 +728,64 @@ public class TascaTramitacioController extends BaseTascaController {
 			HttpServletRequest request,
 			@PathVariable String tascaId,
 			@PathVariable Long documentId,
-			@RequestParam(value = "arxiu", required = false) final CommonsMultipartFile arxiu,	
+			@RequestParam(value = "arxiu", required = false) final CommonsMultipartFile arxiu,
+			@RequestParam(value = "ambFirma", required = false, defaultValue = "false") boolean ambFirma,
+			@RequestParam(value = "tipusFirma", required = false, defaultValue = "ADJUNT") DocumentTipusFirmaEnumDto tipusFirma,
+			@RequestParam(value = "firma", required = false) final CommonsMultipartFile firma,	
 			@RequestParam(value = "data", required = false) Date data,
 			Model model) {
 		try {
 			byte[] contingutArxiu = IOUtils.toByteArray(arxiu.getInputStream());
+			String arxiuContentType = arxiu.getContentType();
+			byte[] firmaContingut = null;
+			if (firma != null && firma.getSize() > 0) {
+				firmaContingut = IOUtils.toByteArray(firma.getInputStream());
+			}
 			String nomArxiu = arxiu.getOriginalFilename();
+
 			ExpedientTascaDto tasca = tascaService.findAmbIdPerTramitacio(tascaId);
 			ExpedientDto expedient = expedientService.findAmbId(tasca.getExpedientId());
+			// Validacions
+			boolean error = false;
 			if (!tasca.isValidada()) {
 				MissatgesHelper.error(request, getMessage(request, "error.validar.dades"));
-			} else if (!expedientDocumentService.isExtensioPermesaPerTasca(
-					tascaId,
-					documentId,
-					nomArxiu)) {
-				MissatgesHelper.error(request, getMessage(request, "error.extensio.document"));
-			} else if (nomArxiu.isEmpty() || contingutArxiu.length == 0) {
-				MissatgesHelper.error(request, getMessage(request, "error.especificar.document"));
-				// Per evitar problemes amb el tancament del arxiu es valida que només es puguin pujar documents convertibles a pdf 
-			} else if(expedient.isArxiuActiu() && !documentHelper.getPdfUtils().isArxiuConvertiblePdf(nomArxiu)) {
-				MissatgesHelper.error(request, getMessage(request, "document.validacio.conversible.error"));
-			} else {
-				TascaDocumentDto doc = tascaService.findDocument(tascaId, documentId);
-				accioDocumentAdjuntar(
-						request,
-						tascaId,
-						doc.getDocumentCodi(),
-						nomArxiu,
-						contingutArxiu,
-						(data == null) ? new Date() : data);
+				error = true;
 			}
-		} catch (Exception ex) {
-			MissatgesHelper.error(request, getMessage(request, "error.guardar.document") + ": " + ex.getLocalizedMessage());
-			logger.error("Error al adjuntar el document a la tasca(" +
-					"tascaId=" + tascaId + ", " +
-					"documentId=" + documentId + ")",
-					ex);
-		}
-		return mostrarInformacioTascaPerPipelles(
-				request,
-				tascaId,
-				model,
-				"document",
-				null);
-	}
-
-	@RequestMapping(value = "/{tascaId}/{tascaId2}/document/{documentId}/adjuntar", method = RequestMethod.POST)
-	public String documentAdjuntar2(
-			HttpServletRequest request,
-			@PathVariable String tascaId,
-			@PathVariable String tascaId2,
-			@PathVariable Long documentId,
-			@RequestParam(value = "arxiu", required = false) final CommonsMultipartFile arxiu,	
-			@RequestParam(value = "data", required = false) Date data,
-			Model model) {
-		try {
-			byte[] contingutArxiu = IOUtils.toByteArray(arxiu.getInputStream());
-			String nomArxiu = arxiu.getOriginalFilename();
-			ExpedientTascaDto tasca = tascaService.findAmbIdPerTramitacio(tascaId);
-			if (!tasca.isValidada()) {
-				MissatgesHelper.error(request, getMessage(request, "error.validar.dades"));
-			} else if (!expedientDocumentService.isExtensioPermesaPerTasca(
+			if (!expedientDocumentService.isExtensioPermesaPerTasca(
 					tascaId,
 					documentId,
 					nomArxiu)) {
 				MissatgesHelper.error(request, getMessage(request, "error.extensio.document"));
-			} else if (nomArxiu.isEmpty() || contingutArxiu.length == 0) {
+				error = true;
+			}
+			if (nomArxiu.isEmpty() || contingutArxiu.length == 0) {
 				MissatgesHelper.error(request, getMessage(request, "error.especificar.document"));
-			} else {
+				error = true;
+			} 
+			if (ambFirma 
+					&& DocumentTipusFirmaEnumDto.SEPARAT.equals(tipusFirma)
+					&& (firma == null || firma.isEmpty())) {
+				MissatgesHelper.error(request, getMessage(request, "error.especificar.document.firma"));
+				error = true;
+			} 
+			// Per evitar problemes amb el tancament del arxiu es valida que només es puguin pujar documents convertibles a pdf 
+			if(expedient.isArxiuActiu() && !documentHelper.getPdfUtils().isArxiuConvertiblePdf(nomArxiu)) {
+				MissatgesHelper.error(request, getMessage(request, "document.validacio.conversible.error"));
+				error = true;
+			} 
+			if (!error) {
 				TascaDocumentDto doc = tascaService.findDocument(tascaId, documentId);
 				accioDocumentAdjuntar(
 						request,
 						tascaId,
 						doc.getDocumentCodi(),
+						(data == null) ? new Date() : data,
 						nomArxiu,
 						contingutArxiu,
-						(data == null) ? new Date() : data).toString();
+						arxiuContentType,
+						ambFirma,
+						tipusFirma,
+						firmaContingut);
 			}
 		} catch (Exception ex) {
 			MissatgesHelper.error(request, getMessage(request, "error.guardar.document") + ": " + ex.getLocalizedMessage());
@@ -1518,16 +1507,20 @@ public class TascaTramitacioController extends BaseTascaController {
 			HttpServletRequest request,
 			String tascaId,
 			String documentCodi,
+			Date data,
 			String nomArxiu,
-			byte[] contingutArxiu,
-			Date data) {
+			byte[] contingutArxiu, 
+			String arxiuContentType, 
+			boolean ambFirma, 
+			DocumentTipusFirmaEnumDto tipusFirma, 
+			byte[] firmaContingut) {
 		Long documentStoreId = null;
 		EntornDto entorn = SessionHelper.getSessionManager(request).getEntornActual();
 		Map<String, Object> datosTramitacionMasiva = getDatosTramitacionMasiva(request);
-		if (datosTramitacionMasiva != null) {
-			try {				
-				String[] tascaIds = (String[]) datosTramitacionMasiva.get("tasquesTramitar");
-				// Guardamos el documento de la primera tarea
+		boolean firmaSeparada = DocumentTipusFirmaEnumDto.SEPARAT.equals(tipusFirma);
+		if (datosTramitacionMasiva == null) {
+			// Guarda el document per la tasca
+			try {
 				documentStoreId = tascaService.guardarDocumentTasca(
 						entorn.getId(),
 						tascaId,
@@ -1535,7 +1528,26 @@ public class TascaTramitacioController extends BaseTascaController {
 						(data == null) ? new Date() : data,
 						nomArxiu,
 						contingutArxiu,
+						arxiuContentType,
+						ambFirma,
+						firmaSeparada,
+						firmaContingut,
 						null);
+				MissatgesHelper.success(request, getMessage(request, "info.document.adjuntat"));
+			} catch (Exception ex) {
+				String descripcioTasca = getDescripcioTascaPerMissatgeUsuari(tascaId);
+				MissatgesHelper.error(
+	        			request,
+	        			getMessage(request, "error.guardar.document") + " " + descripcioTasca + ": " + 
+	        					(ex.getCause() != null ? ex.getCause().getMessage() : ex.getMessage()));
+				logger.error("No s'ha pogut guardar el document " + tascaId, ex);
+			}
+
+		} else {
+			// Programa l'execució massiva
+			try
+			{				
+				String[] tascaIds = (String[]) datosTramitacionMasiva.get("tasquesTramitar");
 //				Authentication auth = SecurityContextHolder.getContext().getAuthentication();				
 				ExecucioMassivaDto dto = new ExecucioMassivaDto();
 				dto.setDataInici((Date) datosTramitacionMasiva.get("inici"));
@@ -1544,12 +1556,16 @@ public class TascaTramitacioController extends BaseTascaController {
 				dto.setExpedientTipusId(null);
 				dto.setTipus(ExecucioMassivaTipusDto.EXECUTAR_TASCA);
 				dto.setParam1("DocGuardar");
-				Object[] params = new Object[5];
+				Object[] params = new Object[9];
 				params[0] = entorn.getId();				
 				params[1] = documentCodi;
 				params[2] = (data == null) ? (data == null) ? new Date() : data : data;
 				params[3] = contingutArxiu;
 				params[4] = nomArxiu;
+				params[5] = arxiuContentType;
+				params[6] = ambFirma;
+				params[7] = firmaSeparada;
+				params[8] = firmaContingut;
 //				params[5] = auth.getCredentials();
 //				List<String> rols = new ArrayList<String>();
 //				for (GrantedAuthority gauth : auth.getAuthorities()) {
@@ -1562,25 +1578,6 @@ public class TascaTramitacioController extends BaseTascaController {
 			} catch (Exception ex) {
 				MissatgesHelper.error(request, getMessage(request, "error.no.massiu"));
 				logger.error("No s'ha pogut guardar les dades del formulari massiu en la tasca " + tascaId, ex);
-			}
-		} else {
-			try {
-				documentStoreId = tascaService.guardarDocumentTasca(
-					entorn.getId(),
-					tascaId,
-					documentCodi,
-					data,
-					nomArxiu,
-					contingutArxiu,
-					null);
-				MissatgesHelper.success(request, getMessage(request, "info.document.adjuntat"));
-			} catch (Exception ex) {
-				String descripcioTasca = getDescripcioTascaPerMissatgeUsuari(tascaId);
-				MissatgesHelper.error(
-	        			request,
-	        			getMessage(request, "error.guardar.document") + " " + descripcioTasca + ": " + 
-	        					(ex.getCause() != null ? ex.getCause().getMessage() : ex.getMessage()));
-				logger.error("No s'ha pogut guardar el document " + tascaId, ex);
 			}
 		}
 		return documentStoreId;

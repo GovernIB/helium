@@ -263,8 +263,30 @@ public class TascaServiceBean implements TascaService {
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public Long guardarDocumentTasca(Long entornId, String taskInstanceId, String documentCodi, Date documentData, String arxiuNom, byte[] arxiuContingut, String user) {
-		return delegate.guardarDocumentTasca(entornId, taskInstanceId, documentCodi, documentData, arxiuNom, arxiuContingut, user);
+	public Long guardarDocumentTasca(
+			Long entornId, 
+			String taskInstanceId, 
+			String documentCodi, 
+			Date documentData, 
+			String arxiuNom, 
+			byte[] arxiuContingut, 
+			String arxiuContentType, 
+			boolean ambFirma,
+			boolean firmaSeparada,
+			byte[] firmaContingut,
+			String user) {
+		return delegate.guardarDocumentTasca(
+				entornId, 
+				taskInstanceId,
+				documentCodi, 
+				documentData, 
+				arxiuNom, 
+				arxiuContingut, 
+				arxiuContentType, 
+				ambFirma,
+				firmaSeparada,
+				firmaContingut,
+				user);
 	}
 
 	@Override
