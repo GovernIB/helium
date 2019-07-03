@@ -100,14 +100,22 @@ public class ExpedientV3Controller extends BaseExpedientController {
 	public String delete(
 			HttpServletRequest request,
 			@PathVariable Long expedientId) {
-		expedientService.delete(expedientId);
-		MissatgesHelper.success(
-				request,
-				getMessage(
-						request,
-						"info.expedient.esborrat"));
-			
-		return "redirect:/v3/expedient";
+
+		try {
+			expedientService.delete(expedientId);
+			MissatgesHelper.success(
+					request,
+					getMessage(
+							request,
+							"info.expedient.esborrat"));
+			return "redirect:/v3/expedient";
+		} catch (Exception e) {
+			String errMsg = getMessage(request, "error.esborrant.expedient", new Object[] {e.getMessage()});
+			logger.error(errMsg, e);
+			MissatgesHelper.error(request, errMsg);
+			String referer = request.getHeader("Referer");
+		    return "redirect:"+ referer;
+		}			
 	}
 
 	@RequestMapping(value = "/{expedientId}/reindexa", method = RequestMethod.GET)
@@ -307,12 +315,12 @@ public class ExpedientV3Controller extends BaseExpedientController {
 			Model model) {
 		try {
 			expedientService.desfinalitzar(expedientId);
-			MissatgesHelper.success(request, getMessage(request, "info.expedient.reprendre") );
-		} catch (Exception ex) {
-			MissatgesHelper.error(request, getMessage(request, "error.reprendre.expedient"));
-			logger.error(getMessage(request, "error.reprendre.expedient"), ex);
-		}
-		
+			MissatgesHelper.success(request, getMessage(request, "info.expedient.desfinalitzat") );
+		} catch (Exception e) {
+			String errMsg = getMessage(request, "error.desfinalitzant.expedient", new Object[] {e.getMessage()});
+			logger.error(errMsg, e);
+			MissatgesHelper.error(request, errMsg);
+		}		
 		return "redirect:/v3/expedient/" + expedientId;
 	}
 	
@@ -350,12 +358,18 @@ public class ExpedientV3Controller extends BaseExpedientController {
 			@PathVariable Long expedientId,
 			HttpServletRequest request,
 			Model model) {
-		model.addAttribute(
-				"expedient",
-				expedientService.findAmbId(expedientId));
-		model.addAttribute(
-				"arxiuDetall",
-				expedientService.getArxiuDetall(expedientId));
+		try {
+			model.addAttribute(
+					"expedient",
+					expedientService.findAmbId(expedientId));
+			model.addAttribute(
+					"arxiuDetall",
+					expedientService.getArxiuDetall(expedientId));
+		} catch (Exception e) {
+			String errMsg = getMessage(request, "error.consultant.informacio.expedient", new Object[] {e.getMessage()});
+			logger.error(errMsg, e);
+			MissatgesHelper.error(request, errMsg);
+		}			
 		return "v3/expedientMetadadesNtiInfo";
 	}
 	

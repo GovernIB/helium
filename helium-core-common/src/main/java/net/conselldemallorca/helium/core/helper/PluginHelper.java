@@ -2368,6 +2368,7 @@ public class PluginHelper {
 								documentStore.getDataCreacio(),
 								obtenirNtiEstadoElaboracion(documentStore),
 								obtenirNtiTipoDocumental(documentStore),
+								documentStore.getNtiIdDocumentoOrigen(),
 								getExtensioPerArxiu(arxiu),
 								(firmes != null ? DocumentEstat.DEFINITIU : DocumentEstat.ESBORRANY)),
 						expedient.getArxiuUuid());
@@ -2386,6 +2387,7 @@ public class PluginHelper {
 								documentStore.getDataCreacio(),
 								obtenirNtiEstadoElaboracion(documentStore),
 								obtenirNtiTipoDocumental(documentStore),
+								documentStore.getNtiIdDocumentoOrigen(),
 								getExtensioPerArxiu(arxiu),
 								(firmes != null ? DocumentEstat.DEFINITIU : DocumentEstat.ESBORRANY)));
 			}
@@ -2453,6 +2455,7 @@ public class PluginHelper {
 							documentStore.getDataCreacio(),
 							obtenirNtiEstadoElaboracion(documentStore),
 							obtenirNtiTipoDocumental(documentStore),
+							documentStore.getNtiIdDocumentoOrigen(),
 							DocumentExtensio.PDF,
 							DocumentEstat.DEFINITIU));
 			monitorIntegracioHelper.addAccioOk(
@@ -2521,6 +2524,7 @@ public class PluginHelper {
 							documentStore.getDataCreacio(),
 							obtenirNtiEstadoElaboracion(documentStore),
 							obtenirNtiTipoDocumental(documentStore),
+							documentStore.getNtiIdDocumentoOrigen(),
 							getExtensioPerArxiu(arxiu),
 							DocumentEstat.DEFINITIU));
 			monitorIntegracioHelper.addAccioOk(
@@ -3321,6 +3325,7 @@ public class PluginHelper {
 			Date ntiDataCaptura,
 			NtiEstadoElaboracionEnumDto ntiEstatElaboracio,
 			NtiTipoDocumentalEnumDto ntiTipusDocumental,
+			String ntiIdDocumentOrigen,
 			DocumentExtensio extensio,
 			DocumentEstat estat) {
 		List<ArxiuFirmaDto> firmes = null;
@@ -3346,6 +3351,7 @@ public class PluginHelper {
 				ntiDataCaptura,
 				ntiEstatElaboracio,
 				ntiTipusDocumental,
+				ntiIdDocumentOrigen,
 				extensio,
 				estat);
 	}
@@ -3362,6 +3368,7 @@ public class PluginHelper {
 			Date ntiDataCaptura,
 			NtiEstadoElaboracionEnumDto ntiEstatElaboracio,
 			NtiTipoDocumentalEnumDto ntiTipusDocumental,
+			String ntiIdDocumentOrigen, 
 			DocumentExtensio extensio,
 			DocumentEstat estat) {
 		es.caib.plugins.arxiu.api.Document document = new es.caib.plugins.arxiu.api.Document();
@@ -3399,6 +3406,7 @@ public class PluginHelper {
 			break;
 		}
 		metadades.setEstatElaboracio(estatElaboracio);
+		metadades.setIdentificadorOrigen(ntiIdDocumentOrigen);
 		DocumentTipus tipusDocumental = null;
 		switch (ntiTipusDocumental) {
 		case RESOLUCIO:

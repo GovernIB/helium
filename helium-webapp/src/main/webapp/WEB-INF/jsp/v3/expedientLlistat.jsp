@@ -540,7 +540,7 @@ function refrescaEstatSegonPla() {
 								{{if aturat && (permisStop)}}<li><a href="../v3/expedient/{{:id}}/reprendre" data-rdt-link-callback="recarregarTaula(taulaDades);" data-rdt-link-ajax="true" data-rdt-link-confirm="<spring:message code="expedient.eines.confirm_reprendre_tramitacio"/>"><span class="fa fa-play"></span>&nbsp;<spring:message code="expedient.llistat.accio.reprendre"/></a></li>{{/if}}
 								{{if !anulat && (permisCancel)}}<li><a href="../v3/expedient/{{:id}}/anular" data-rdt-link-modal="true"><span class="fa fa-times"></span>&nbsp;<spring:message code="expedient.llistat.accio.anular"/></a></li>{{/if}}
 								{{if anulat && (permisCancel)}}<li><a href="../v3/expedient/{{:id}}/activar" data-rdt-link-callback="recarregarTaula(taulaDades);" data-rdt-link-ajax="true" data-rdt-link-confirm="<spring:message code="expedient.consulta.confirm.desanular"/>"><span class="fa fa-check"></span>&nbsp;<spring:message code="expedient.llistat.accio.activar"/></a></li>{{/if}}
-								{{if permisDelete}}<li><a href="../v3/expedient/{{:id}}/delete" data-rdt-link-ajax="true" data-rdt-link-callback="recarregarTaula(taulaDades);" data-rdt-link-confirm="<spring:message code="expedient.llistat.confirmacio.esborrar"/>"><span class="fa fa-trash-o"></span>&nbsp;<spring:message code="expedient.llistat.accio.esborrar"/></a></li>{{/if}}
+								{{if permisDelete}}<li><a href="../v3/expedient/{{:id}}/delete" data-rdt-link-ajax="false" data-rdt-link-confirm="<spring:message code="expedient.llistat.confirmacio.esborrar"/>"><span class="fa fa-trash-o"></span>&nbsp;<spring:message code="expedient.llistat.accio.esborrar"/></a></li>{{/if}}
 							</ul>
 						</div>
 					</script>

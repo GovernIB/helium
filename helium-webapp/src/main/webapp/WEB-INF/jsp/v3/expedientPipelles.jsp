@@ -290,7 +290,7 @@ dd.subproc {
 							id="nti">
 							<span class="label label-info etiqueta-nti-arxiu">
 								<c:choose>
-									<c:when test="${empty expedient.arxiuUuid}"><spring:message code="expedient.info.etiqueta.nti"/></c:when>
+									<c:when test="${not expedient.arxiuActiu}"><spring:message code="expedient.info.etiqueta.nti"/></c:when>
 									<c:otherwise><spring:message code="expedient.info.etiqueta.arxiu"/></c:otherwise>
 								</c:choose>
 							</span>
@@ -409,7 +409,7 @@ dd.subproc {
 							</c:if>								
 
 							<c:if test="${expedient.permisDelete}">
-								<li><a href="<c:url value="../../v3/expedient/${expedientId}/delete"/>" data-rdt-link-confirm="<spring:message code="expedient.llistat.confirmacio.esborrar"/>"><span class="fa fa-trash-o"></span>&nbsp;<spring:message code="expedient.llistat.accio.esborrar"/></a></li>
+								<li><a href="<c:url value="../../v3/expedient/${expedientId}/delete"/>" data-rdt-link-ajax="false" data-rdt-link-confirm="<spring:message code="expedient.llistat.confirmacio.esborrar"/>"><span class="fa fa-trash-o"></span>&nbsp;<spring:message code="expedient.llistat.accio.esborrar"/></a></li>
 							</c:if>
 							
 							<li class="divider"></li>

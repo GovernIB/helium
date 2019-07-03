@@ -305,7 +305,7 @@ public class PdfUtils {
 			openOfficeUtils = new OpenOfficeUtils();
 		return openOfficeUtils;
 	}
-	private String getArxiuExtensio(String arxiuNom) {
+	private static String getArxiuExtensio(String arxiuNom) {
 		if (arxiuNom == null)
 			return null;
 		int indexPunt = arxiuNom.lastIndexOf(".");
@@ -319,10 +319,10 @@ public class PdfUtils {
 		return GlobalProperties.getInstance().getProperty("app.registre.segell.entitat");
 	}
 
-	private String[] extensionsConvertiblesPdf = {
+	private static String[] extensionsConvertiblesPdf = {
 			"pdf", "odt", "sxw", "rtf", "doc", "wpd", "txt", "ods",
 			"sxc", "xls", "csv", "tsv", "odp", "sxi", "ppt"};
-	public boolean isArxiuConvertiblePdf(String arxiuNom) {
+	public static boolean isArxiuConvertiblePdf(String arxiuNom) {
 		String extensio = getArxiuExtensio(arxiuNom);
 		if (extensio != null) {
 			for (int i = 0; i < extensionsConvertiblesPdf.length; i++) {
@@ -333,7 +333,7 @@ public class PdfUtils {
 		return false;
 	}
 	
-	public String getExtensionsConvertiblesPdf() {
+	public static String getExtensionsConvertiblesPdf() {
 		StringBuilder extensions = new StringBuilder();
 		for (int i = 0; i < extensionsConvertiblesPdf.length; i++) {
 			if (i > 0)

@@ -22,7 +22,7 @@ public class ExpedientFinalitzarHandler extends AbstractHeliumActionHandler impl
 		logger.debug("Finalitzant l'expedient (exp=" + expedient.getIdentificacioPerLogs() + ")");
 		try {
 			if(expedient != null )
-				Jbpm3HeliumBridge.getInstanceService().finalitzarExpedient(expedient.getId());
+				Jbpm3HeliumBridge.getInstanceService().finalitzarExpedient(expedient.getProcessInstanceId());
 		} catch (Exception ex) {
 			throw new JbpmException("Error al finalitzar expedient (ID= "+expedient.getId()+")", ex);
 		}
