@@ -44,8 +44,8 @@
 	<form:form cssClass="form-horizontal" action="${formAction}"  method="post" commandName="interessatCommand">
 		<form:hidden id="id" path="id"/>
 		<hel:inputText required="true" name="codi" textKey="interessat.form.camp.codi" />
-		<hel:inputText required="true" name="nom" textKey="interessat.form.camp.nom" />
 		<hel:inputText required="true" name="nif" textKey="interessat.form.camp.nif" />
+		<hel:inputText required="true" name="nom" textKey="interessat.form.camp.nom" />
 		<c:choose>
 			<c:when test="${interessatCommand.tipus=='FISICA'}">
 				<hel:inputText name="llinatge1" textKey="interessat.form.camp.llinatge1" required="true"/>

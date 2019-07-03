@@ -23,16 +23,20 @@
 	</div>
 		<table class="table" id="paramsWS">
 			<tr>
-				<th><button class="btn btn-primary" id="afegirParam"><i class="fa fa-plus"></i></button></th>
+				<th><spring:message code="expedient.tipus.domini.form.parametres"/></th>
 				<th><spring:message code="expedient.nova.data.codi"/></th>
 				<th><spring:message code="monitor.domini.columna.tipus"/></th>
 				<th><spring:message code="expedient.nova.data.valor"/></th>
 				<th></th>
 			</tr>
 		</table>
+		<button class="btn btn-primary" id="afegirParam" title="<spring:message code="expedient.tipus.domini.form.parametres.afegir"/>"><i class="fa fa-plus"></i></button>
 	</form>	
 		<div class="col">
-			<button class="btn btn-primary" style="float:right;margin-bottom: .5em;" onclick="enviar()"><spring:message code="expedient.tipus.domini.form.provar"/></button>
+			<button class="btn btn-primary" style="float:right;margin-bottom: .5em;" onclick="enviar()">
+				<span id="spinnerIcon" style="visibility:hidden;" class="fa fa-spinner fa-spin"></span>
+				<spring:message code="expedient.tipus.domini.form.provar"/>
+			</button>
 		</div>
 	<div class="row">
 	<br>
@@ -135,6 +139,7 @@
 					data["par"].push($(element).val());
 				}
             });
+			$('#spinnerIcon').css('visibility', 'visible');
 			$.ajax($("#testForm").attr("action"), {
 				  type: "POST",
 				  data: JSON.stringify(data),
@@ -144,7 +149,10 @@
 		          error: function (response) {
 		        	  $("#error").html('<div class="alert alert-danger"><strong>' + response.statusText + '</strong>' + response.responseJSON.objecte + '</div>' );
 		          	},
-				  contentType:"application/json"
+				  contentType:"application/json",
+				  complete: function() {
+					  $('#spinnerIcon').css('visibility', 'hidden');
+				  }
 			});
 		}
 		

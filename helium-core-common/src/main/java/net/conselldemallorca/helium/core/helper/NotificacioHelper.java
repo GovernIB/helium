@@ -153,10 +153,13 @@ public class NotificacioHelper {
 		if (usuari == null || usuari.isEmpty())
 			usuari = "Handler";
 		notificacio.setUsuariCodi(usuari);
+		notificacio.setTipus(dadesNotificacio.getEnviamentTipus());
 				
 		notificacio.setExpedient(expedientRepository.findOne(dadesNotificacio.getExpedientId()));
 		if (dadesNotificacio.getEnviamentTipus() != null)
-			notificacio.setTipus(EnviamentTipusEnumDto.valueOf(dadesNotificacio.getEnviamentTipus().name()));
+			notificacio.setTipus(dadesNotificacio.getEnviamentTipus());
+		else
+			notificacio.setTipus(EnviamentTipusEnumDto.NOTIFICACIO);
 		notificacio.setEmisorDir3Codi(dadesNotificacio.getEmisorDir3Codi());
 		notificacio.setDataProgramada(dadesNotificacio.getEnviamentDataProgramada());
 		notificacio.setRetard(dadesNotificacio.getRetard());
@@ -192,6 +195,8 @@ public class NotificacioHelper {
 		
 		notificacio.setConcepte(dadesNotificacio.getConcepte());
 		notificacio.setDescripcio(dadesNotificacio.getDescripcio());
+		
+
 
 		
 		

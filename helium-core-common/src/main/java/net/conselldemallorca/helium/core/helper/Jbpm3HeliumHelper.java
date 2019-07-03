@@ -1740,6 +1740,9 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 			String transicioOK,
 			String transicioKO) {
 		DocumentStore documentStore = documentStoreRepository.findOne(documentId);
+		// Valida que no sigui ja un document firmat
+		if (documentStore.isSignat()) 
+			throw new ValidacioException("No es pot enviar a firmar al Portasignatures un document que ja està signat");
 		DocumentDto document = documentHelper.toDocumentDto(
 				documentId,
 				false,

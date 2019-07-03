@@ -62,7 +62,6 @@ import net.conselldemallorca.helium.v3.core.api.dto.RegistreAnnexDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RegistreAnotacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RegistreIdDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RegistreNotificacioDto;
-import net.conselldemallorca.helium.v3.core.api.dto.RespostaNotificacio;
 import net.conselldemallorca.helium.v3.core.api.dto.ServeiTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
@@ -898,7 +897,7 @@ public class HeliumApiImpl implements HeliumApi {
 		notificacio.setEnviaments(enviaments);
 		
 		
-		RespostaNotificacio resposta = Jbpm3HeliumBridge.getInstanceService().altaNotificacio(notificacio);
+		Jbpm3HeliumBridge.getInstanceService().altaNotificacio(notificacio);
 	}
 	
 	public void interessatCrear(
@@ -916,8 +915,7 @@ public class HeliumApiImpl implements HeliumApi {
 		interessatDto.setTelefon(interessat.getTelefon());
 		interessatDto.setExpedientId(interessat.getExpedientId());
 		
-		Jbpm3HeliumBridge.getInstanceService().interessatCrear(interessatDto);
-		
+		Jbpm3HeliumBridge.getInstanceService().interessatCrear(interessatDto);	
 	}
 	
 	

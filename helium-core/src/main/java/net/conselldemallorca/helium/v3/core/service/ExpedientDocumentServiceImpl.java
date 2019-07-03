@@ -360,7 +360,7 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 			destinatari.setNom(interessatEntity.getNom());
 			destinatari.setLlinatge1(interessatEntity.getLlinatge1());
 			destinatari.setLlinatge2(interessatEntity.getLlinatge2());
-			destinatari.setNif(interessatEntity.getNif());
+			destinatari.setDni(interessatEntity.getNif());
 			destinatari.setTelefon(interessatEntity.getTelefon());
 			destinatari.setEmail(interessatEntity.getEmail());
 			destinatari.setTipus(interessatEntity.getTipus());
@@ -370,7 +370,7 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 			
 			// Titular
 			PersonaDto titular = new PersonaDto();
-			titular.setNif(interessatEntity.getNif());
+			titular.setDni(interessatEntity.getNif());
 			titular.setNom(interessatEntity.getNom());
 			titular.setLlinatge1(interessatEntity.getLlinatge1());
 			titular.setLlinatge1(interessatEntity.getLlinatge2());

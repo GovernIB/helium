@@ -23,17 +23,16 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import es.caib.notib.ws.notificacio.InteressatTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.InteressatDto;
-import net.conselldemallorca.helium.v3.core.api.dto.MostrarAnulatsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientInteressatService;
-import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
 import net.conselldemallorca.helium.webapp.v3.command.InteressatCommand;
 import net.conselldemallorca.helium.webapp.v3.command.InteressatCommand.Creacio;
 import net.conselldemallorca.helium.webapp.v3.command.InteressatCommand.Modificacio;
 import net.conselldemallorca.helium.webapp.v3.helper.ConversioTipusHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.DatatablesHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.DatatablesHelper.DatatablesResponse;
+import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
 
 /**
  * Controlador per a la pàgina d'informació de l'termini.
@@ -100,10 +99,8 @@ public class ExpedientInteressatV3Controller extends BaseExpedientController {
     				conversioTipusHelper.convertir(
     						command,
     						InteressatDto.class));
-			return getModalControllerReturnValueSuccess(
-					request,
-					"redirect:/v3/interessat",
-					"interessat.controller.creat");
+			MissatgesHelper.success(request, getMessage(request, "interessat.controller.creat") );
+			return modalUrlTancar(false);
         }
 	}
 
@@ -137,13 +134,10 @@ public class ExpedientInteressatV3Controller extends BaseExpedientController {
         			conversioTipusHelper.convertir(
     						command,
     						InteressatDto.class));
-			return getModalControllerReturnValueSuccess(
-					request,
-					"redirect:/v3/expedient/"+expedientId+"/interessat",
-					"interessat.controller.modificat");
+			MissatgesHelper.success(request, getMessage(request, "interessat.controller.modificat") );
+			return modalUrlTancar(false);
         }
 	}
-	
 	
 	
 	@ModelAttribute("interessatTipusEstats")
@@ -162,11 +156,15 @@ public class ExpedientInteressatV3Controller extends BaseExpedientController {
 			@PathVariable Long expedientId,
 			@PathVariable Long interessatId,
 			Model model) {
-		expedientInteressatService.delete(interessatId);
-		return this.getAjaxControllerReturnValueSuccess(
-				request,
-				"redirect:/v3/expedient/"+expedientId,
-				"interessat.controller.esborrat");
+		try {
+			expedientInteressatService.delete(interessatId);
+			MissatgesHelper.success(request, getMessage(request, "interessat.controller.esborrat"));
+		} catch (Exception ex) {
+			String errMsg = getMessage(request, "interessat.controller.esborrar.error", new Object[] {ex.getMessage()});
+			logger.error(errMsg, ex);
+			MissatgesHelper.error(request, errMsg);
+		}
+		return "redirect:/v3/expedient/"+expedientId+"?pipellaActiva=interessats";
 	}
 	
 	private static final Logger logger = LoggerFactory.getLogger(ExpedientInteressatV3Controller.class);

@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import edu.emory.mathcs.backport.java.util.Arrays;
 import net.conselldemallorca.helium.core.helper.DocumentHelperV3;
+import net.conselldemallorca.helium.core.util.PdfUtils;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentTipusFirmaEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NtiEstadoElaboracionEnumDto;
@@ -48,8 +49,8 @@ public class DocumentExpedientValidator implements ConstraintValidator<DocumentE
 			if (!command.getArxiu().isEmpty() 
 					&& expedient != null 
 					&& expedient.isArxiuActiu()
-					&& !documentHelper.getPdfUtils().isArxiuConvertiblePdf(command.getArxiuNom())) {
-				context.buildConstraintViolationWithTemplate(MessageHelper.getInstance().getMessage("document.validacio.conversible.error"))
+					&& !PdfUtils.isArxiuConvertiblePdf(command.getArxiuNom())) {
+				context.buildConstraintViolationWithTemplate(MessageHelper.getInstance().getMessage("document.validacio.convertible.error"))
 				.addNode("arxiu")
 				.addConstraintViolation();
 				valid = false;
@@ -93,14 +94,14 @@ public class DocumentExpedientValidator implements ConstraintValidator<DocumentE
 			.addConstraintViolation();
 			valid = false;				
 		}
-			if (("##adjuntar_arxiu##".equalsIgnoreCase(command.getDocumentCodi()) 
-					|| command.getDocumentCodi() == null)
-				&& (command.getNom() == null || "".equals(command.getNom().trim()))) {
-				context.buildConstraintViolationWithTemplate(MessageHelper.getInstance().getMessage("not.blank"))
-				.addNode("nom")
-				.addConstraintViolation();
-				valid = false;				
-			}		
+		if ((DocumentExpedientCommand.ADJUNTAR_ARXIU_CODI.equalsIgnoreCase(command.getDocumentCodi()) 
+				|| command.getDocumentCodi() == null)
+			&& (command.getNom() == null || "".equals(command.getNom().trim()))) {
+			context.buildConstraintViolationWithTemplate(MessageHelper.getInstance().getMessage("not.blank"))
+			.addNode("nom")
+			.addConstraintViolation();
+			valid = false;				
+		}		
 		if (!valid)
 			context.disableDefaultConstraintViolation();
 		

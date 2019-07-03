@@ -24,6 +24,9 @@ import net.conselldemallorca.helium.webapp.v3.validator.DocumentExpedient;
  */
 @DocumentExpedient(groups = {Create.class, Update.class})
 public class DocumentExpedientCommand {
+	
+	/** Cadena per diferenciar quan s'adjunta un document adjunt en comptes d'un document definit al tipus d'expedient. */
+	public static String ADJUNTAR_ARXIU_CODI = "##adjuntar_arxiu##";
 
 	@NotNull(groups = {Create.class, Update.class})
 	private Long expedientId;

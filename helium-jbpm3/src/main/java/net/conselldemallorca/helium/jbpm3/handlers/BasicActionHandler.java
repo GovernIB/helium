@@ -43,7 +43,6 @@ import net.conselldemallorca.helium.v3.core.api.dto.DadesEnviamentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DadesNotificacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentDissenyDto;
-import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DominiRespostaColumnaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DominiRespostaFilaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EnumeracioValorDto;
@@ -53,7 +52,6 @@ import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDadaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.InteressatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.InteressatTipusEnumDto;
-import net.conselldemallorca.helium.v3.core.api.dto.InteressatTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RegistreAnnexDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RegistreAnotacioDto;
@@ -61,7 +59,6 @@ import net.conselldemallorca.helium.v3.core.api.dto.RegistreIdDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RegistreNotificacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RespostaJustificantDetallRecepcioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RespostaJustificantRecepcioDto;
-import net.conselldemallorca.helium.v3.core.api.dto.RespostaNotificacio;
 import net.conselldemallorca.helium.v3.core.api.dto.ServeiTipusEnumDto;
 
 
@@ -706,7 +703,8 @@ public abstract class BasicActionHandler extends AbstractHeliumActionHandler imp
 			enviament.setEntregaDehObligat(dadesEnviament.isEntregaDehObligat());
 			enviament.setEntregaDehProcedimentCodi(dadesEnviament.getEntregaDehProcedimentCodi());
 			
-			enviament.setServeiTipusEnum(dadesNotificacio.getServeiTipus() != null ? ServeiTipusEnumDto.valueOf(dadesNotificacio.getServeiTipus()) : null);
+			// Per defecte tipus de servei normal.
+			enviament.setServeiTipusEnum(dadesNotificacio.getServeiTipus() != null ? ServeiTipusEnumDto.valueOf(dadesNotificacio.getServeiTipus()) : ServeiTipusEnumDto.NORMAL);
 			
 			
 			enviaments.add(enviament);
@@ -714,9 +712,7 @@ public abstract class BasicActionHandler extends AbstractHeliumActionHandler imp
 		notificacio.setEnviaments(enviaments);
 		
 		
-		RespostaNotificacio resposta = Jbpm3HeliumBridge.getInstanceService().altaNotificacio(notificacio);
-		
-//		return resposta;
+		Jbpm3HeliumBridge.getInstanceService().altaNotificacio(notificacio);
 	}
 	
 	
@@ -848,10 +844,6 @@ public abstract class BasicActionHandler extends AbstractHeliumActionHandler imp
 			if (i < parametres.size() - 1)
 				sb.append(PARAMS_RETROCEDIR_SEPARADOR);
 		}
-		executionContext.setVariable(
-				PARAMS_RETROCEDIR_VARIABLE_PREFIX + executionContext.getAction().getId(),
-				sb.toString());
-		
 		// Variable "prefix" + codi definicio de procés + codi acció + id dels logs
 		executionContext.setVariable(
 				PARAMS_RETROCEDIR_VARIABLE_PREFIX + executionContext.getAction().getName(),

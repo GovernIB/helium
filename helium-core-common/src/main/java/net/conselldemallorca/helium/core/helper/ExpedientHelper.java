@@ -665,7 +665,7 @@ public class ExpedientHelper {
 						ExtendedPermission.ADMINISTRATION});
 
 		mesuresTemporalsHelper.mesuraIniciar(
-				"Desfinalitzar",
+				"Finalitzar",
 				"expedient",
 				expedient.getTipus().getNom());
 

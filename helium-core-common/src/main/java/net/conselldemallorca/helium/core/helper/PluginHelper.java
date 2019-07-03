@@ -2713,13 +2713,8 @@ public class PluginHelper {
 		try {
 			Notificacio notificacio = conversioTipusHelper.convertir(dadesNotificacio, Notificacio.class);
 			
-			notificacio.setUsuariCodi(usuariActualHelper.getUsuariActual());
-//			notificacio.setUsuariCodi("e43110511r");
-			
+			notificacio.setUsuariCodi(usuariActualHelper.getUsuariActual());			
 			RespostaEnviar respostaEnviar = getNotificacioPlugin().enviar(notificacio);
-			
-			
-			
 			RespostaNotificacio resposta = new RespostaNotificacio();
 			resposta.setIdentificador(respostaEnviar.getIdentificador());
 			if (respostaEnviar.getEstat() != null)
@@ -2941,7 +2936,6 @@ public class PluginHelper {
 			if (validateSignatureResponse.getSignatureDetailInfo() != null) {
 				for (SignatureDetailInfo signatureInfo: validateSignatureResponse.getSignatureDetailInfo()) {
 					ArxiuFirmaDetallDto detall = new ArxiuFirmaDetallDto();
-					signatureInfo.getSignDate();
 					TimeStampInfo timeStampInfo = signatureInfo.getTimeStampInfo();
 					if (timeStampInfo != null) {
 						detall.setData(timeStampInfo.getCreationTime());
@@ -3311,7 +3305,7 @@ public class PluginHelper {
 
 	private static List<FirmaTipus> TIPUS_FIRMES_ATTACHED = Arrays.asList(FirmaTipus.CADES_ATT, FirmaTipus.PADES, FirmaTipus.XADES_ENV);
 
-	//TODO: mètode a estingir
+	/** Mètode per obtenir un objecte Document per crear o actualitzar a l'arxiu. */
 	private es.caib.plugins.arxiu.api.Document toArxiuDocument(
 			String identificador,
 			String nom,
@@ -3343,7 +3337,7 @@ public class PluginHelper {
 				nom,
 				fitxer,
 				firma != null,
-				firmaTipus != null && TIPUS_FIRMES_ATTACHED.contains(firmaTipus),
+				firmaTipus != null && !TIPUS_FIRMES_ATTACHED.contains(firmaTipus),
 				firmes, // firmes
 				ntiIdentificador,
 				ntiOrigen,
@@ -3355,6 +3349,8 @@ public class PluginHelper {
 				extensio,
 				estat);
 	}
+	
+	/**  Mètode per obtenir un objecte Document per crear o actualitzar a l'arxiu. Aquest mètode rep la llista de firmes. */
 	private es.caib.plugins.arxiu.api.Document toArxiuDocument(
 			String identificador,
 			String nom,
@@ -3476,26 +3472,40 @@ public class PluginHelper {
 		metadades.setTipusDocumental(tipusDocumental);
 		// Contingut i firmes
 		DocumentContingut contingut = null;
-		if (fitxer != null) {
-			if (!documentAmbFirma) {
-				// Sense firma
-				contingut = new DocumentContingut();
-				contingut.setArxiuNom(fitxer.getNom());
-				contingut.setContingut(fitxer.getContingut());
-				contingut.setTipusMime(fitxer.getTipusMime());
-				document.setContingut(contingut);
-			} else if (!firmaSeparada && firmes != null && !firmes.isEmpty()) {
-				// Firma attached
+		// Si no està firmat posa el contingut on toca
+		if (!documentAmbFirma && fitxer != null) {
+			// Sense firma
+			contingut = new DocumentContingut();
+			contingut.setArxiuNom(fitxer.getNom());
+			contingut.setContingut(fitxer.getContingut());
+			contingut.setTipusMime(fitxer.getTipusMime());
+			document.setContingut(contingut);
+		} else {
+			// Amb firma
+			if (!firmaSeparada) {
+				// attached
 				Firma firma = new Firma();
-				ArxiuFirmaDto primeraFirma = firmes.get(0);
-				firma.setFitxerNom(fitxer.getNom());
-				firma.setContingut(fitxer.getContingut());
-				firma.setTipusMime(fitxer.getTipusMime());
-				setFirmaTipusPerfil(firma, primeraFirma);
-				firma.setCsvRegulacio(primeraFirma.getCsvRegulacio());
+				ArxiuFirmaDto primeraFirma;
+				if (fitxer != null) {
+					firma.setFitxerNom(fitxer.getNom());
+					firma.setContingut(fitxer.getContingut());
+					firma.setTipusMime(fitxer.getTipusMime());
+					if (firmes != null && !firmes.isEmpty()) {
+						primeraFirma = firmes.get(0);
+						setFirmaTipusPerfil(firma, primeraFirma);
+						firma.setCsvRegulacio(primeraFirma.getCsvRegulacio());
+					}
+				} else if (firmes != null && !firmes.isEmpty()) {
+					primeraFirma = firmes.get(0);
+					setFirmaTipusPerfil(firma, primeraFirma);
+					firma.setFitxerNom(primeraFirma.getFitxerNom());
+					firma.setContingut(primeraFirma.getContingut());
+					firma.setTipusMime(primeraFirma.getTipusMime());
+					firma.setCsvRegulacio(primeraFirma.getCsvRegulacio());
+				}
 				document.setFirmes(Arrays.asList(firma));
-			} else if (firmes != null) {
-				// Firma detached
+			} else {
+				// detached
 				contingut = new DocumentContingut();
 				contingut.setArxiuNom(fitxer.getNom());
 				contingut.setContingut(fitxer.getContingut());

@@ -48,20 +48,6 @@ public class ExpedientNotificacioController extends BaseExpedientController {
 	private ExpedientService expedientService;
 	@Autowired
 	private ExpedientDocumentService expedientDocumentService;
-
-//	@RequestMapping(value = "/{expedientId}/notificacions", method = RequestMethod.GET)
-//	public String notificacions(
-//			HttpServletRequest request,
-//			@PathVariable Long expedientId,
-//			Model model) {		
-//		ExpedientDto expedient = expedientService.findAmbId(expedientId);
-//		List<NotificacioDto> notificacions = expedientService.findNotificacionsPerExpedientId(expedient.getId());
-//		
-//		model.addAttribute("expedient",expedient);
-//		model.addAttribute("notificacions",notificacions);
-//		
-//		return "v3/expedientNotificacio";
-//	}
 	
 	@RequestMapping(value = "/{expedientId}/notificacio/{notificacioId}/info", method = RequestMethod.GET)
 	public String notificacioInfo(

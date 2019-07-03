@@ -88,7 +88,16 @@ public class InteressatDto {
 	} 
 
 	public String getFullNom() {
-		return nom + " " + llinatge1 != null ? llinatge1 : "" + " " + llinatge2 != null ? llinatge2 : "";
+		StringBuilder fullNom = new StringBuilder(nom);
+		if (llinatge1 != null)
+			fullNom.append(" ").append(llinatge1);
+		if (llinatge2 != null)
+			fullNom.append(" ").append(llinatge2);
+		return fullNom.toString();
+	}
+	
+	public String getFullInfo() {
+		return nif + " - " + getFullNom();
 	}
 
 }

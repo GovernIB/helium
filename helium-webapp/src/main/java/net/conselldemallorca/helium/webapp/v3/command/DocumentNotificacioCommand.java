@@ -6,12 +6,13 @@ package net.conselldemallorca.helium.webapp.v3.command;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.validation.constraints.NotNull;
+
 import org.hibernate.validator.constraints.NotEmpty;
 
-import net.conselldemallorca.helium.v3.core.api.dto.ServeiTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DadesEnviamentDto.EntregaPostalTipus;
 import net.conselldemallorca.helium.v3.core.api.dto.DadesEnviamentDto.EntregaPostalViaTipus;
-import net.conselldemallorca.helium.webapp.v3.command.ExpedientTipusConsultaVarCommand.Creacio;
+import net.conselldemallorca.helium.v3.core.api.dto.ServeiTipusEnumDto;
 
 /**
  * 
@@ -19,9 +20,11 @@ import net.conselldemallorca.helium.webapp.v3.command.ExpedientTipusConsultaVarC
  */
 public class DocumentNotificacioCommand {
 
-	
+	@NotEmpty
 	private List<Long> interessatsIds = new ArrayList<Long>();
+	@NotEmpty
 	private String concepte;
+	@NotNull
 	private ServeiTipusEnumDto serveiTipusEnum;
 	private String grupCodi;
 	

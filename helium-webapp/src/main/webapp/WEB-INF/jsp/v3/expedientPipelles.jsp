@@ -479,7 +479,7 @@ dd.subproc {
 			<ul class="nav nav-tabs" role="tablist">
 				<li id="pipella-dades"><a href="#contingut-dades" role="tab" data-toggle="tab"><spring:message code="expedient.info.pipella.dades"/></a></li>
 				<li id="pipella-documents"><a href="#contingut-documents" role="tab" data-toggle="tab"><spring:message code="expedient.info.pipella.documents"/></a></li>
-				<li id="pipella-interessat"><a href="#contingut-interessat" role="tab" data-toggle="tab"><spring:message code="expedient.info.pipella.interessats"/></a></li>
+				<li id="pipella-interessats"><a href="#contingut-interessats" role="tab" data-toggle="tab"><spring:message code="expedient.info.pipella.interessats"/></a></li>
 				<li id="pipella-cronograma"><a href="#contingut-cronograma" role="tab" data-toggle="tab"><spring:message code="expedient.info.pipella.cronograma"/></a></li>
 				<li id="pipella-terminis"><a href="#contingut-terminis" role="tab" data-toggle="tab"><spring:message code="expedient.info.pipella.terminis"/></a></li>
 				<li id="pipella-tasques"><a href="#contingut-tasques" role="tab" data-toggle="tab"><spring:message code="expedient.info.pipella.tasques"/></a></li>
@@ -503,7 +503,7 @@ dd.subproc {
 				<div id="contingut-documents" class="tab-pane" data-href="<c:url value="/nodeco/v3/expedient/${expedient.id}/document"/>">
 					<div class="contingut-carregant"><span class="fa fa-circle-o-notch fa-spin fa-3x"></span></div>
 				</div>
-				<div id="contingut-interessat" class="tab-pane" data-href="<c:url value="/nodeco/v3/expedient/${expedient.id}/interessat"/>">
+				<div id="contingut-interessats" class="tab-pane" data-href="<c:url value="/nodeco/v3/expedient/${expedient.id}/interessat"/>">
 					<div class="contingut-carregant"><span class="fa fa-circle-o-notch fa-spin fa-3x"></span></div>
 				</div>				
 				<div id="contingut-cronograma" class="tab-pane" data-href="<c:url value="/nodeco/v3/expedient/${expedient.id}/timeline"/>">

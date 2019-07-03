@@ -3,7 +3,9 @@ package net.conselldemallorca.helium.webapp.v3.controller;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -176,7 +178,7 @@ public class ExpedientTipusEnumeracioValorController extends BaseExpedientTipusC
 			@Validated(ExpedientTipusEnumeracioValorCommand.Creacio.class) ExpedientTipusEnumeracioValorCommand command,
 			BindingResult bindingResult, Model model) {
 		
-		if (valorExisteix(expedientTipusId, enumeracioId, command.getCodi()) || bindingResult.hasErrors()) {
+		if (bindingResult.hasErrors()) {
 			model.addAttribute("mostraCreate", true);
 			ompleDadesModel(request, expedientTipusId, enumeracioId, model, false);
 			model.addAttribute("expedientTipusEnumeracioValorCommand", command);
@@ -223,6 +225,7 @@ public class ExpedientTipusEnumeracioValorController extends BaseExpedientTipusC
 					enumeracioService.enumeracioDeleteAllByEnumeracio(enumeracioId);
 				}
 				List<ExpedientTipusEnumeracioValorDto> valors = new ArrayList<ExpedientTipusEnumeracioValorDto>();
+				Set<String> valorsCodis = new HashSet<String>();
 				BufferedReader br = new BufferedReader(new InputStreamReader(multipartFile.getInputStream()));
 				String linia = br.readLine();
 				while (linia != null) {
@@ -237,12 +240,22 @@ public class ExpedientTipusEnumeracioValorController extends BaseExpedientTipusC
 			        	}
 			        	enumeracioValors.setCodi(codi);
 			        	enumeracioValors.setNom(columnes[1]);
-			        	if(valorExisteix(expedientTipusId, enumeracioId,codi))
+			        	// Comprova que no existeixi ja
+			        	if( enumeracioService.valorFindAmbCodi(expedientTipusId, enumeracioId, codi) != null)
 			        		throw new ValidacioException(
 			        				getMessage(
 											request,
 											"expedient.tipus.enumeracio.valors.importats.duplicat",
 											new Object[] {codi}));
+			        	// Valida que no s'importin dos codis
+			        	if (valorsCodis.contains(codi))
+			        		throw new ValidacioException(
+			        				getMessage(
+											request,
+											"expedient.tipus.enumeracio.valors.importats.duplicat",
+											new Object[] {codi}));
+			        	else
+			        		valorsCodis.add(codi);
 			        	valors.add(enumeracioValors);
 					}
 					linia = br.readLine();
@@ -264,11 +277,6 @@ public class ExpedientTipusEnumeracioValorController extends BaseExpedientTipusC
 							"expedient.tipus.enumeracio.valors.importats.error", new Object[] {ex.getMessage()}));
         	return valors(request, expedientTipusId, enumeracioId, model);
         }
-	}
-	
-	private boolean valorExisteix(Long expedientTipusId, Long enumeracioId, String codi) {
-		ExpedientTipusEnumeracioValorDto valor = enumeracioService.valorFindAmbCodi(expedientTipusId, enumeracioId, codi);
-		return valor != null;
 	}
 	
 	private void ompleDadesModel(

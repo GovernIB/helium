@@ -2,7 +2,6 @@ package net.conselldemallorca.helium.webapp.v3.controller;
 
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.StringWriter;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
@@ -22,6 +21,7 @@ import javax.validation.Valid;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang.exception.ExceptionUtils;
 import org.fundaciobit.plugins.signature.api.FileInfoSignature;
 import org.fundaciobit.plugins.signature.api.StatusSignature;
 import org.fundaciobit.plugins.signature.api.StatusSignaturesSet;
@@ -48,13 +48,14 @@ import org.springframework.web.bind.support.SessionStatus;
 import org.springframework.web.multipart.commons.CommonsMultipartFile;
 
 import net.conselldemallorca.helium.core.helper.DocumentHelperV3;
+import net.conselldemallorca.helium.core.util.PdfUtils;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentTipusFirmaEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExecucioMassivaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExecucioMassivaDto.ExecucioMassivaTipusDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.FirmaTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.FormulariExternDto;
@@ -649,15 +650,14 @@ public class TascaTramitacioController extends BaseTascaController {
 										request, 
 										"document.controller.firma.passarela.final.ok"));
 					} catch (Exception e) {
-						String message = getMessage(
+						String errMsg = getMessage(
 								request, 
-								"document.controller.firma.passarela.final.error.validacio");
-						StringWriter errors = new StringWriter();
-						message += errors.toString();
+								"document.controller.firma.passarela.final.error.validacio",
+								new Object[] {ExceptionUtils.getRootCauseMessage(e)});
+						logger.error("Error en la signatura del document. " + errMsg, e);
 						MissatgesHelper.error(
 								request,
-								message);
-						logger.error("Error en la signatura del document", e);
+								errMsg);
 					}
 				}
 			} else {
@@ -665,7 +665,8 @@ public class TascaTramitacioController extends BaseTascaController {
 						request,
 						getMessage(
 								request, 
-								"document.controller.firma.passarela.final.ok.statuserr"));
+								"document.controller.firma.passarela.final.ok.statuserr",
+								new Object[] {firmaStatus.getStatus(), firmaStatus.getErrorMsg()}));
 			}
 			break;
 		case StatusSignaturesSet.STATUS_FINAL_ERROR:
@@ -674,7 +675,10 @@ public class TascaTramitacioController extends BaseTascaController {
 					getMessage(
 							request, 
 							"document.controller.firma.passarela.final.error",
-							new Object[] {status.getErrorMsg()}));
+							new Object[] {
+									status.getErrorMsg() != null? status.getErrorMsg() : "",
+									status.getErrorException() != null? status.getErrorException().getMessage() : ""
+							}));
 			break;
 		case StatusSignaturesSet.STATUS_CANCELLED:
 			MissatgesHelper.warning(
@@ -769,8 +773,8 @@ public class TascaTramitacioController extends BaseTascaController {
 				error = true;
 			} 
 			// Per evitar problemes amb el tancament del arxiu es valida que només es puguin pujar documents convertibles a pdf 
-			if(expedient.isArxiuActiu() && !documentHelper.getPdfUtils().isArxiuConvertiblePdf(nomArxiu)) {
-				MissatgesHelper.error(request, getMessage(request, "document.validacio.conversible.error"));
+			if(expedient.isArxiuActiu() && !PdfUtils.isArxiuConvertiblePdf(nomArxiu)) {
+				MissatgesHelper.error(request, getMessage(request, "document.validacio.convertible.error"));
 				error = true;
 			} 
 			if (!error) {

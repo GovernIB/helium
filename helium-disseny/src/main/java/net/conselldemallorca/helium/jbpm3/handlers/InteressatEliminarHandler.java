@@ -1,8 +1,5 @@
 package net.conselldemallorca.helium.jbpm3.handlers;
 
-import java.util.Date;
-import java.util.List;
-
 import org.jbpm.graph.exe.ExecutionContext;
 
 /**

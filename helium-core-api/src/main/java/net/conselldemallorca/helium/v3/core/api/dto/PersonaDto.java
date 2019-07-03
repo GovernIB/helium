@@ -30,7 +30,6 @@ public class PersonaDto implements Serializable {
 	private String relleu;
 	private String contrasenya;
 	private InteressatTipusEnumDto tipus;
-	private String nif;
 
 	public PersonaDto(String codi, String nomSencer, String email, Sexe sexe) {
 		this.codi = codi;
@@ -191,13 +190,6 @@ public class PersonaDto implements Serializable {
 		} else if (!codi.equals(other.codi))
 			return false;
 		return true;
-	}
-	
-	public String getNif() {
-		return nif;
-	}
-	public void setNif(String nif) {
-		this.nif = nif;
 	}
 
 	private static final long serialVersionUID = 1L;

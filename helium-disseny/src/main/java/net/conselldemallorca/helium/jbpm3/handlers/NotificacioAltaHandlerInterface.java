@@ -33,6 +33,10 @@ public interface NotificacioAltaHandlerInterface extends ActionHandler {
 	public void setVarDocument(String varDocument); 
 	public void setProcedimentCodi(String procedimentCodi); 
 	public void setVarProcedimentCodi(String varProcedimentCodi); 
+	public void setServeiTipus(String serveiTipus); 
+	public void setVarServeiTipus(String varServeiTipus); 
+	public void setTitularTipus(String titularTipus); 
+	public void setVarTitularTipus(String varTitularTipus); 
 	public void setTitularNif(String titularNif); 
 	public void setVarTitularNif(String varTitularNif); 
 	public void setTitularNom(String titularNom); 
@@ -57,6 +61,8 @@ public interface NotificacioAltaHandlerInterface extends ActionHandler {
 	public void setVarDestinatariEmail(String varDestinatariEmail); 
 	public void setDestinatariMobil(String destinatariMobil); 
 	public void setVarDestinatariMobil(String varDestinatariMobil); 
+	public void setDestinatariTipus(String destinatariTipus);
+	public void setVarDestinatariTipus(String varDestinatariTipus);
 	public void setEntregaPostalTipus(String entregaPostalTipus); 
 	public void setVarEntregaPostalTipus(String varEntregaPostalTipus); 
 	public void setEntregaPostalViaTipus(String entregaPostalViaTipus); 

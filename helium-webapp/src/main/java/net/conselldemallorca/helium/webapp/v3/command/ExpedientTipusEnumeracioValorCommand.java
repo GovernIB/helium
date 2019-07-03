@@ -5,7 +5,11 @@ import javax.validation.constraints.Size;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusEnumeracioValorDto;
+import net.conselldemallorca.helium.webapp.v3.command.ExpedientTipusEnumeracioValorCommand.Creacio;
+import net.conselldemallorca.helium.webapp.v3.command.ExpedientTipusEnumeracioValorCommand.Modificacio;
+import net.conselldemallorca.helium.webapp.v3.validator.ExpedientTipusEnumeracioValor;
 
+@ExpedientTipusEnumeracioValor(groups = {Creacio.class, Modificacio.class})
 public class ExpedientTipusEnumeracioValorCommand {
 
 	private Long expedientTipusId;

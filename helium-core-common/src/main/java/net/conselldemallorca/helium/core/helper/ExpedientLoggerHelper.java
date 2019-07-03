@@ -22,6 +22,7 @@ import java.util.Set;
 
 import javax.annotation.Resource;
 
+import org.apache.commons.lang.math.NumberUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jbpm.bytes.ByteArray;
@@ -1268,7 +1269,7 @@ public class ExpedientLoggerHelper {
 						if (variableName.startsWith(BasicActionHandler.PARAMS_RETROCEDIR_VARIABLE_PREFIX)) {
 							// Recupera la informació del node
 							actionNodeId = variableName.substring(BasicActionHandler.PARAMS_RETROCEDIR_VARIABLE_PREFIX.length(), variableName.length());
-							action = jbpmHelper.getActionById(Long.valueOf(actionNodeId));
+							action = NumberUtils.isNumber(actionNodeId) ? jbpmHelper.getActionById(Long.valueOf(actionNodeId)) : null;
 							if (action != null) {
 								paramsAccio.put(logo.getProcessInstanceId() + "_" + action.getName(), String.valueOf(variables.get(variableName)));
 							}

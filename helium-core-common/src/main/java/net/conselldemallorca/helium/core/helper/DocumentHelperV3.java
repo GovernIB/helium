@@ -636,62 +636,7 @@ public class DocumentHelperV3 {
 		}
 	}
 
-	/*public DocumentDto getDocumentVista(
-			Long documentStoreId,
-			boolean perSignar,
-			boolean ambSegellSignatura) {
-		if (documentStoreId != null) {
-			return toDocumentDto(
-					documentStoreId,
-					false,
-					false,
-					true,
-					perSignar,
-					ambSegellSignatura);
-		} else {
-			return null;
-		}
-	}
-
-	public DocumentDto getDocumentSenseContinguta(
-			String taskInstanceId,
-			String processInstanceId,
-			String documentCodi,
-			boolean perSignarEnTasca,
-			boolean ambInfoPsigna) {
-		Long documentStoreId = getDocumentStoreIdDeVariableJbpm(taskInstanceId, processInstanceId, documentCodi);
-		if (documentStoreId != null) {
-			DocumentDto dto = toDocumentDto(
-					documentStoreId,
-					false,
-					false,
-					false,
-					false,
-					false);
-			if (perSignarEnTasca) {
-				try {
-					dto.setTokenSignaturaMultiple(getDocumentTokenUtils().xifrarTokenMultiple(
-							new String[] {
-									taskInstanceId,
-									documentStoreId.toString()}));
-				} catch (Exception ex) {
-					logger.error("No s'ha pogut generar el token pel document " + documentStoreId, ex);
-				}
-				if (dto.isSignat()) {
-					Object signatEnTasca = jbpmHelper.getTaskInstanceVariable(taskInstanceId, JbpmVars.PREFIX_SIGNATURA + dto.getDocumentCodi());
-					dto.setSignatEnTasca(signatEnTasca != null);
-				} else {
-					dto.setSignatEnTasca(false);
-				}
-			}
-			return dto;
-		} else {
-			return null;
-		}
-	}*/
-
 	
-	//TODO: mètode sense firmes a extingir
 	public Long crearDocument(
 			String taskInstanceId,
 			String processInstanceId,
@@ -714,7 +659,7 @@ public class DocumentHelperV3 {
 				null,
 				arxiuNom,
 				arxiuContingut,
-				null,
+				this.getContentType(arxiuNom),
 				false,	// amb firma
 				false,
 				null,
@@ -795,7 +740,7 @@ public class DocumentHelperV3 {
 					adjuntTitol,
 					arxiuNom,
 					arxiuContingut,
-					null,
+					this.getContentType(arxiuNom),
 					false,
 					false,
 					null,
@@ -2138,19 +2083,54 @@ public class DocumentHelperV3 {
 					documentArxiu.getMetadades().getIdentificador());
 			if(ambFirma)
 				this.actualitzarNtiFirma(documentStore, documentArxiu);
-		} else if (arxiuContingut != null) {
-			// Si el arxiuContingut no es null actualitza la gestió documental o la BBDD
-			if (pluginHelper.gestioDocumentalIsPluginActiu()) {
-				String referenciaFont = pluginHelper.gestioDocumentalCreateDocument(
-						expedient,
-						documentStore.getId().toString(),
-						documentDescripcio,
-						documentStore.getDataDocument(),
-						arxiuNom,
-						arxiuContingut);
-				documentStore.setReferenciaFont(referenciaFont);
-			} else {
-				documentStore.setArxiuContingut(arxiuContingut);
+		} else {
+			// Valida que si està firmat llavors tingui codi de custòdia per poder-lo guardar
+			String codiCustodia = document != null ? document.getCustodiaCodi() : null;
+			if (ambFirma && codiCustodia == null)
+				throw new ValidacioException("No es pot guardar un document firmat a custòdia sense codi de custòdia");
+			// Guarda el document
+			if (arxiuContingut != null) {
+				// Si el arxiuContingut no es null actualitza la gestió documental o la BBDD
+				if (pluginHelper.gestioDocumentalIsPluginActiu()) {
+					String referenciaFont = pluginHelper.gestioDocumentalCreateDocument(
+							expedient,
+							documentStore.getId().toString(),
+							documentDescripcio,
+							documentStore.getDataDocument(),
+							arxiuNom,
+							arxiuContingut);
+					documentStore.setReferenciaFont(referenciaFont);
+				} else {
+					documentStore.setArxiuContingut(arxiuContingut);
+				}
+			}
+			if (ambFirma) {
+				// Guarda la firma a custòdia
+				if (expedient.isNtiActiu()) {
+					actualitzarNtiFirma(documentStore, null);
+				}
+				if (documentStore.getReferenciaCustodia() != null) {
+					pluginHelper.custodiaEsborrarSignatures(documentStore.getReferenciaCustodia(), expedient);
+				}
+				String referenciaCustodia = null;
+				try {
+					referenciaCustodia = pluginHelper.custodiaAfegirSignatura(
+							documentStore.getId(), 
+							documentStore.getReferenciaFont(), 
+							arxiuNom,
+							document.getCustodiaCodi(),
+							firmes.get(0).getContingut());
+							
+				} catch (Exception ex) {
+					logger.info(">>> [PSIGN] Processant error custòdia (" + exceptionHelper.getMissageFinalCadenaExcepcions(ex) + ", " + exceptionHelper.cercarMissatgeDinsCadenaExcepcions("ERROR_DOCUMENTO_ARCHIVADO", ex) + ") (docStoreId=" + documentStore.getId() + ", refCustòdia=" + referenciaCustodia + ")");
+					if (exceptionHelper.cercarMissatgeDinsCadenaExcepcions("ERROR_DOCUMENTO_ARCHIVADO", ex)) {
+						referenciaCustodia = documentStore.getId().toString();
+					} else {
+						throw new RuntimeException(ex);
+					}
+				}
+				documentStore.setReferenciaCustodia(referenciaCustodia);
+				documentStore.setSignat(true);
 			}
 		}
 		// Guarda la referència al nou document a dins el jBPM
@@ -2361,8 +2341,8 @@ public class DocumentHelperV3 {
 	}
 	
 	private String inArxiu(String arxiuNom, String extensio, String processInstanceId){
-			Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
-			if(expedient.isArxiuActiu()) {
+		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
+		if(expedient.isArxiuActiu()) {
 			List<ContingutArxiu> continguts = pluginHelper.arxiuExpedientInfo(expedient.getArxiuUuid()).getContinguts();
 			int ocurrences = 0;
 			if(continguts != null) {

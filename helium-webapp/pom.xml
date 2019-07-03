@@ -228,6 +228,10 @@
 					<artifactId>bcmail-jdk14</artifactId>
 					<groupId>org.bouncycastle</groupId>
 				</exclusion>
+				<exclusion>
+					<artifactId>bctsp-jdk14</artifactId>
+					<groupId>org.bouncycastle</groupId>
+				</exclusion>
 			</exclusions>
 		</dependency>
 		<dependency>
@@ -384,6 +388,10 @@
 			<exclusions>
 				<exclusion>
 					<artifactId>bcprov-jdk15on</artifactId>
+					<groupId>org.bouncycastle</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>bcpkix-jdk15on</artifactId>
 					<groupId>org.bouncycastle</groupId>
 				</exclusion>
 			</exclusions>

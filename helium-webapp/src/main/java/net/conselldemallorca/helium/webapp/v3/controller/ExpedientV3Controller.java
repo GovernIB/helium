@@ -366,7 +366,7 @@ public class ExpedientV3Controller extends BaseExpedientController {
 					"arxiuDetall",
 					expedientService.getArxiuDetall(expedientId));
 		} catch (Exception e) {
-			String errMsg = getMessage(request, "error.consultant.informacio.expedient", new Object[] {e.getMessage()});
+			String errMsg = getMessage(request, "expedient.info.error.consulta.arxiu", new Object[] {e.getMessage()});
 			logger.error(errMsg, e);
 			MissatgesHelper.error(request, errMsg);
 		}			

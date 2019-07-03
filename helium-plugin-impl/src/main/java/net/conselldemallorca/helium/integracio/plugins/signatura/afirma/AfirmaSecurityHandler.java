@@ -19,6 +19,7 @@ import org.apache.axis.AxisFault;
 import org.apache.axis.MessageContext;
 import org.apache.axis.SOAPPart;
 import org.apache.axis.handlers.BasicHandler;
+import org.apache.ws.security.WSSecurityException;
 import org.apache.ws.security.message.WSSecHeader;
 import org.apache.ws.security.message.WSSecUsernameToken;
 import org.w3c.dom.Document;
@@ -55,7 +56,7 @@ public class AfirmaSecurityHandler extends BasicHandler {
 		}
 	}
 
-	private SOAPMessage createUserNameToken(Document soapEnvelopeRequest) throws IOException, SOAPException, TransformerException {
+	private SOAPMessage createUserNameToken(Document soapEnvelopeRequest) throws IOException, SOAPException, TransformerException, WSSecurityException {
 		WSSecHeader wsSecHeader = new WSSecHeader(null, false);
 		wsSecHeader.insertSecurityHeader(soapEnvelopeRequest);
 		

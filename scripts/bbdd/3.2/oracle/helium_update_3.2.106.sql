@@ -1,3 +1,6 @@
+-- #1253 Notificar un document a través de la interfície de Helium
+-- Nova taula per a la informació dels interessats
+
 CREATE TABLE HEL_INTERESSAT
 (
 	ID					NUMBER(19)               NOT NULL,

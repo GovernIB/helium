@@ -191,7 +191,7 @@ public class ExpedientDocumentController extends BaseExpedientController {
 			}
 			String arxiuNom = command.getArxiu().getOriginalFilename();
 			String documentCodi = null;
-			if (!"##adjuntar_arxiu##".equalsIgnoreCase(command.getDocumentCodi())) {
+			if (!DocumentExpedientCommand.ADJUNTAR_ARXIU_CODI.equalsIgnoreCase(command.getDocumentCodi())) {
 				documentCodi = command.getDocumentCodi();
 			}
 			try {
@@ -349,26 +349,16 @@ public class ExpedientDocumentController extends BaseExpedientController {
 			@PathVariable String processInstanceId,
 			@PathVariable Long documentStoreId,
 			Model model) {
-		ExpedientDocumentDto document = expedientDocumentService.findOneAmbInstanciaProces(
-				expedientId,
-				processInstanceId,
-				documentStoreId);
-		DocumentNotificacioCommand command = new DocumentNotificacioCommand();
-		
-		List<InteressatDto> interessats = expedientInteressatService.findByExpedient(
-				expedientId);
 
-		model.addAttribute("interessats", interessats);
-		model.addAttribute("document", document);	
-		model.addAttribute("expedientId", expedientId);
-		
+		DocumentNotificacioCommand command = new DocumentNotificacioCommand();
 		command.setEntregaDehObligat(true);
 		command.setEntregaDehProcedimentCodi("entregaDehProcedimentCodi");
-
 		model.addAttribute("documentNotificacioCommand", command);
+		
+		this.emplenarModelNotificacioDocument(expedientId, processInstanceId, documentStoreId, model);
+		
 		return "v3/expedientDocumentNotificar";
 	}
-	
 	
 	@RequestMapping(value="/{expedientId}/proces/{processInstanceId}/document/{documentStoreId}/notificar", method = RequestMethod.POST)
 	public String notificarPost(
@@ -379,29 +369,49 @@ public class ExpedientDocumentController extends BaseExpedientController {
 			@Validated DocumentNotificacioCommand documentNotificacioCommand,
 			BindingResult result,
 			Model model) throws IOException {
-		
-		if (result.hasErrors()) {
-        	return "v3/expedientDocumentNotificar";
+		if (!result.hasErrors()) {
+			try {
+				DadesNotificacioDto dadesNotificacioDto = conversioTipusHelper.convertir(
+						documentNotificacioCommand, 
+						DadesNotificacioDto.class);			
+				DadesEnviamentDto dadesEnviamentDto = conversioTipusHelper.convertir(
+						documentNotificacioCommand, 
+						DadesEnviamentDto.class);
+				
+				expedientDocumentService.notificarDocument(
+						expedientId,
+						documentStoreId,
+						dadesNotificacioDto,
+						documentNotificacioCommand.getInteressatsIds(),
+						dadesEnviamentDto);
+				
+				MissatgesHelper.success(request, getMessage(request, "info.document.notificat"));
+				return modalUrlTancar(false);
+			} catch(Exception e) {
+				String errMsg = getMessage(request, "info.document.notificar.error", new Object[] {e.getMessage()});
+				logger.error(errMsg, e);
+				MissatgesHelper.error(request, errMsg);
+			}
         }
-		
-		
-		DadesNotificacioDto dadesNotificacioDto = new DadesNotificacioDto();
-		dadesNotificacioDto = conversioTipusHelper.convertir(documentNotificacioCommand, DadesNotificacioDto.class);
-
-		
-		DadesEnviamentDto dadesEnviamentDto = conversioTipusHelper.convertir(documentNotificacioCommand, DadesEnviamentDto.class);
-		
-		expedientDocumentService.notificarDocument(
-				expedientId,
-				documentStoreId,
-				dadesNotificacioDto,
-				documentNotificacioCommand.getInteressatsIds(),
-				dadesEnviamentDto);
-		
-		MissatgesHelper.success(request, getMessage(request, "info.document.notificat"));
-		return modalUrlTancar(false);
+		this.emplenarModelNotificacioDocument(expedientId, processInstanceId, documentStoreId, model);
+    	return "v3/expedientDocumentNotificar";
 	}
 	
+	private void emplenarModelNotificacioDocument(
+			Long expedientId,
+			String processInstanceId,
+			Long documentStoreId,
+			Model model) {
+		ExpedientDocumentDto document = expedientDocumentService.findOneAmbInstanciaProces(
+				expedientId,
+				processInstanceId,
+				documentStoreId);
+		List<InteressatDto> interessats = expedientInteressatService.findByExpedient(
+				expedientId);
+		model.addAttribute("interessats", interessats);
+		model.addAttribute("document", document);	
+		model.addAttribute("expedientId", expedientId);
+	}
 	
 	@ModelAttribute("entregaPostalViaTipusEstats")
 	public List<ParellaCodiValorDto> populateEntregaPostalViaTipusEstat(HttpServletRequest request) {

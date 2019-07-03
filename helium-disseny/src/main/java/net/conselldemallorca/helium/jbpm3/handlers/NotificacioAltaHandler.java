@@ -1,8 +1,5 @@
 package net.conselldemallorca.helium.jbpm3.handlers;
 
-import java.util.Date;
-import java.util.List;
-
 import org.jbpm.graph.exe.ExecutionContext;
 
 /**
@@ -17,7 +14,6 @@ public class NotificacioAltaHandler extends BasicActionHandler implements Notifi
 	public NotificacioAltaHandler() {}
 
 	public void execute(ExecutionContext executionContext) throws Exception {}
-//	public void retrocedir(ExecutionContext context, List<String> parametres) throws Exception {}
 
 	public void setEmisorDir3Codi(String emisorDir3Codi) {}
 	public void setVarEmisorDir3Codi(String varEmisorDir3Codi) {}
@@ -77,6 +73,10 @@ public class NotificacioAltaHandler extends BasicActionHandler implements Notifi
 	public void setVarSeuOficiTitol(String varSeuOficiTitol) {}
 	public void setSeuOficiText(String seuOficiText) {}
 	public void setVarSeuOficiText(String varSeuOficiText) {}
+	public void setServeiTipus(String serveiTipus) {}
+	public void setVarServeiTipus(String varServeiTipus) {}
+	public void setTitularTipus(String titularTipus) {}
+	public void setVarTitularTipus(String varTitularTipus) {}
 	public void setTitularNif(String titularNif) {}
 	public void setVarTitularNif(String varTitularNif) {}
 	public void setTitularNom(String titularNom) {}
@@ -89,6 +89,8 @@ public class NotificacioAltaHandler extends BasicActionHandler implements Notifi
 	public void setVarTitularEmail(String varTitularEmail) {}
 	public void setTitularMobil(String titularMobil) {}
 	public void setVarTitularMobil(String varTitularMobil) {}
+	public void setDestinatariTipus(String destinatariTipus) {}
+	public void setVarDestinatariTipus(String varDestinatariTipus) {}
 	public void setDestinatariNif(String destinatariNif) {}
 	public void setVarDestinatariNif(String varDestinatariNif) {}
 	public void setDestinatariNom(String destinatariNom) {}
@@ -150,6 +152,5 @@ public class NotificacioAltaHandler extends BasicActionHandler implements Notifi
 	public void setEntregaDehObligat(String entregaDehObligat) {}
 	public void setVarEntregaDehObligat(String varEntregaDehObligat) {}
 	public void setEntregaDehProcedimentCodi(String entregaDehProcedimentCodi) {}
-	public void setVarEntregaDehProcedimentCodi(String varEntregaDehProcedimentCodi) {}
-	
+	public void setVarEntregaDehProcedimentCodi(String varEntregaDehProcedimentCodi) {}	
 }

@@ -30,6 +30,8 @@ import net.conselldemallorca.helium.core.model.hibernate.Estat;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.hibernate.SequenciaAny;
 import net.conselldemallorca.helium.core.model.hibernate.SequenciaDefaultAny;
+import net.conselldemallorca.helium.integracio.plugins.notificacio.InteressatTipusEnum;
+import net.conselldemallorca.helium.integracio.plugins.notificacio.Persona;
 import net.conselldemallorca.helium.v3.core.api.dto.CampAgrupacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampRegistreDto;
@@ -43,6 +45,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EnumeracioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.SequenciaAnyDto;
 import net.conselldemallorca.helium.v3.core.api.dto.SequenciaDefaultAnyDto;
 
@@ -415,6 +418,23 @@ public class ConversioTipusHelper {
 						return target;
 					}
 		});		
+		// Converteix la informació de PersonaDto de Helium a Persona de Notib per a les notificaciosn
+		mapperFactory.getConverterFactory().registerConverter(
+				new CustomConverter<PersonaDto, Persona>() {
+					@Override
+					public Persona convert(PersonaDto source, Type<? extends Persona> destinationClass) {
+						Persona target = new Persona();
+						target.setNom(source.getNom());
+						target.setLlinatge1(source.getLlinatge1());
+						target.setLlinatge2(source.getLlinatge2());
+						target.setNif(source.getDni());
+						target.setTelefon(source.getTelefon());
+						target.setEmail(source.getEmail());
+						if (source.getTipus() != null)
+						target.setTipus(InteressatTipusEnum.valueOf(source.getTipus().name()));
+						return target;
+					}
+		});			
 	}
 
 	public <T> T convertir(Object source, Class<T> targetType) {

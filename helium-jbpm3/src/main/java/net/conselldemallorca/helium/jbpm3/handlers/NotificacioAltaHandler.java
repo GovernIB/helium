@@ -30,7 +30,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.RespostaNotificacio;
  * @author Limit Tecnologies <limit@limit.es>
  */
 @SuppressWarnings({"serial", "unused"})
-public class NotificacioAltaHandler extends BasicActionHandler implements NotificacioAltaHandlerInterface { //, AccioExternaRetrocedirHandler {
+public class NotificacioAltaHandler extends BasicActionHandler implements NotificacioAltaHandlerInterface {
 
 	private String caducitat;
 	private String varCaducitat;
@@ -192,17 +192,7 @@ public class NotificacioAltaHandler extends BasicActionHandler implements Notifi
 	public void execute(ExecutionContext executionContext) throws Exception {		
 		ExpedientDto expedient = getExpedientActual(executionContext);
 		ExpedientTipusDto expedientTipus = expedient.getTipus();
-		
-//		if (expedient.getTramitExpedientIdentificador() == null || expedient.getTramitExpedientIdentificador().isEmpty()) {
-//			expedient.setTramitExpedientIdentificador(expedient.getId().toString());
-//			if (expedient.getTramitExpedientIdentificador() == null)
-//				throw new JbpmException(
-//						  "El expediente " + expedient.getIdentificador() + " no tiene número de sistra asociado."
-//						+ "Una notificación tiene que generarse dentro de un expediente, por tanto un paso "
-//						+ "previo a generar una notificación es haber publicado el expediente en la zona "
-//						+ "personal.");
-//		}
-		
+				
 		String expedientTitol = expedient.getTitol();
 		String notibEmisor = expedientTipus.getNtiOrgano();
 		String notibSeuUnitatAdministrativa = expedientTipus.getNotibSeuUnitatAdministrativa();
@@ -282,6 +272,7 @@ public class NotificacioAltaHandler extends BasicActionHandler implements Notifi
 		if (doc != null && !doc.isEmpty()) {
 			documentInfo = getDocumentInfo(executionContext, doc, true);
 			if (documentInfo != null) {
+				dadesNotificacio.setDocumentId(documentInfo.getId());
 				dadesNotificacio.setDocumentArxiuNom(documentInfo.getArxiuNom());
 				dadesNotificacio.setDocumentArxiuContingut(documentInfo.getArxiuContingut());
 			} else {
@@ -502,107 +493,8 @@ public class NotificacioAltaHandler extends BasicActionHandler implements Notifi
 		enviaments.add(enviament);
 		dadesNotificacio.setEnviaments(enviaments);
 		
-//		RespostaNotificacio resposta = 
 		altaNotificacio(dadesNotificacio, expedient.getId());
-		
-//		if (resposta != null) {			
-//			
-//			NotificacioDto notificacio = new NotificacioDto();
-//			notificacio.setEstat(DocumentEnviamentEstatEnumDto.ENVIAT);
-//			notificacio.setAssumpte(anotacio.getAnotacioAssumpte());
-//			notificacio.setRegistreNumero(resposta.getNumero());
-//			notificacio.setDataEnviament(resposta.getData());
-//			notificacio.setDataRecepcio(null);
-//			
-//			DocumentNotificacioDto documentNotificacio = new DocumentNotificacioDto();
-//			documentNotificacio.setId(documentInfo.getId());
-//			notificacio.setDocument(documentNotificacio);
-//			
-//			for (DocumentInfo annex_exp: annexos_expedient) {
-//				DocumentNotificacioDto documentAnnex = new DocumentNotificacioDto();
-//				documentAnnex.setId(annex_exp.getId());
-//				notificacio.getAnnexos().add(documentAnnex);
-//			}
-//			
-//			notificacio.setTipus(DocumentNotificacioTipusEnumDto.ELECTRONICA);
-//			notificacio.setInteressatDocumentTipus(InteressatDocumentTipusEnumDto.NIF); //pendent definir form
-//			notificacio.setInteressatDocumentNum(anotacio.getInteressatNif());
-//			notificacio.setInteressatNom(interessatNom);
-//			notificacio.setInteressatLlinatge1(interessatLlinatge1);
-//			notificacio.setInteressatLlinatge2(interessatLlinatge2);
-//			notificacio.setInteressatPaisCodi(anotacio.getInteressatPaisCodi());
-//			notificacio.setInteressatProvinciaCodi(anotacio.getInteressatProvinciaCodi());
-//			notificacio.setInteressatMunicipiCodi(anotacio.getInteressatMunicipiCodi());
-//			notificacio.setInteressatEmail(anotacio.getInteressatEmail());
-//			notificacio.setUnitatAdministrativa(anotacio.getExpedientUnitatAdministrativa());
-//			notificacio.setOrganCodi(anotacio.getOrganCodi());
-//			notificacio.setOficinaCodi(anotacio.getOficinaCodi());
-//			notificacio.setAvisTitol(anotacio.getNotificacioAvisTitol());
-//			notificacio.setAvisText(anotacio.getNotificacioAvisText());
-//			notificacio.setAvisTextSms(anotacio.getNotificacioAvisTextSms());
-//			notificacio.setOficiTitol(anotacio.getNotificacioOficiTitol());
-//			notificacio.setOficiText(anotacio.getNotificacioOficiText());
-//			notificacio.setIdioma(InteressatIdiomaEnumDto.valueOf(anotacio.getAnotacioIdiomaCodi().toUpperCase()));
-//			notificacio.setEnviamentData(null);
-//			notificacio.setEnviamentCount(1);
-//			notificacio.setEnviamentError(false);
-//			notificacio.setEnviamentErrorDescripcio(null);
-//			notificacio.setProcessamentData(null); //pendent definir
-//			notificacio.setProcessamentCount(0);
-//			notificacio.setProcessamentError(false);
-//			notificacio.setProcessamentErrorDescripcio(null);
-//			notificacio.setRdsCodi(resposta.getReferenciaRDSJustificante().getCodigo());
-//			notificacio.setRdsClau(resposta.getReferenciaRDSJustificante().getClave());
-//			
-//			Jbpm3HeliumBridge.getInstanceService().notificacioGuardar(
-//					expedient, 
-//					notificacio);
-//			List<String> parametres = new ArrayList<String>();
-//			
-//			DadesNotificacioElectronica dadesNotificacioElectronica = new DadesNotificacioElectronica();
-//			dadesNotificacioElectronica.setAnotacio(anotacio);
-//			dadesNotificacioElectronica.setAnnexos(annexos_notificacio);			
-//			parametres.add(toString(dadesNotificacioElectronica));
-//			
-//			guardarParametresPerRetrocedir(executionContext,parametres);
-//
-//			if (varNumeroRegistre != null)
-//				executionContext.setVariable(
-//						varNumeroRegistre,
-//						resposta.getNumero());
-//			if (varDataRegistre != null)
-//				executionContext.setVariable(
-//						varDataRegistre,
-//						resposta.getData());		
-//			if (varReferenciaRDSJustificanteClave != null)
-//				executionContext.setVariable(
-//						varReferenciaRDSJustificanteClave,
-//						resposta.getReferenciaRDSJustificante().getClave());
-//			if (varReferenciaRDSJustificanteCodigo != null)
-//				executionContext.setVariable(
-//						varReferenciaRDSJustificanteCodigo,
-//						resposta.getReferenciaRDSJustificante().getCodigo());
-//		}
 	}
-
-//	@Override
-//	public void retrocedir(ExecutionContext executionContext, List<String> parametres) throws Exception {
-//		try {
-//			DadesNotificacioElectronica dadesNotificacioElectronica = (DadesNotificacioElectronica) fromString(parametres.get(0));			
-//			dadesNotificacioElectronica.getAnotacio().setNotificacioAvisText("La notificación que se realizó anteriormente no es correcta.");
-//			RespostaRegistre resposta = registreNotificacio(executionContext,dadesNotificacioElectronica.getAnotacio(),dadesNotificacioElectronica.getAnnexos());
-//			if (resposta != null) {
-//				boolean borrado = Jbpm3HeliumBridge.getInstanceService().notificacioEsborrar(
-//						resposta.getNumero(),
-//						resposta.getReferenciaRDSJustificante().getClave(),
-//						resposta.getReferenciaRDSJustificante().getCodigo());
-//				if (!borrado)
-//					throw new JbpmException("No se ha podido borrar la notificación electrónica del expediente");
-//			}
-//		} catch (Exception ex) {
-//			throw new JbpmException("No se ha podido retroceder la notificación electrónica del expediente", ex);
-//		}
-//	}
 	
 	private String formatIdentificadorEni(String identificador) {
 		String identificadorEni = String.format("%30s", identificador).replace(' ', '0').toUpperCase();
@@ -627,10 +519,54 @@ public class NotificacioAltaHandler extends BasicActionHandler implements Notifi
 		oos.close();
 		return new String(Base64.encode(baos.toByteArray()));
 	}
-	
-	
-	
-	
+
+	public void setCaducitat(String caducitat) {
+		this.caducitat = caducitat;
+	}
+
+	public void setVarCaducitat(String varCaducitat) {
+		this.varCaducitat = varCaducitat;
+	}
+
+	public void setConcepte(String concepte) {
+		this.concepte = concepte;
+	}
+
+	public void setVarConcepte(String varConcepte) {
+		this.varConcepte = varConcepte;
+	}
+
+	public void setServeiTipus(String serveiTipus) {
+		this.serveiTipus = serveiTipus;
+	}
+
+	public void setVarServeiTipus(String varServeiTipus) {
+		this.varServeiTipus = varServeiTipus;
+	}
+
+	public void setGrupCodi(String grupCodi) {
+		this.grupCodi = grupCodi;
+	}
+
+	public void setVarGrupCodi(String varGrupCodi) {
+		this.varGrupCodi = varGrupCodi;
+	}
+
+	public void setDescripcio(String descripcio) {
+		this.descripcio = descripcio;
+	}
+
+	public void setVarDescripcio(String varDescripcio) {
+		this.varDescripcio = varDescripcio;
+	}
+
+	public void setDocument(String document) {
+		this.document = document;
+	}
+
+	public void setVarDocument(String varDocument) {
+		this.varDocument = varDocument;
+	}
 
 	public void setEmisorDir3Codi(String emisorDir3Codi) {
 		this.emisorDir3Codi = emisorDir3Codi;
@@ -648,22 +584,6 @@ public class NotificacioAltaHandler extends BasicActionHandler implements Notifi
 		this.varEnviamentTipus = varEnviamentTipus;
 	}
 
-	public void setConcepte(String concepte) {
-		this.concepte = concepte;
-	}
-
-	public void setVarConcepte(String varConcepte) {
-		this.varConcepte = varConcepte;
-	}
-
-	public void setDescripcio(String descripcio) {
-		this.descripcio = descripcio;
-	}
-
-	public void setVarDescripcio(String varDescripcio) {
-		this.varDescripcio = varDescripcio;
-	}
-
 	public void setEnviamentDataProgramada(String enviamentDataProgramada) {
 		this.enviamentDataProgramada = enviamentDataProgramada;
 	}
@@ -678,22 +598,6 @@ public class NotificacioAltaHandler extends BasicActionHandler implements Notifi
 
 	public void setVarRetard(String varRetard) {
 		this.varRetard = varRetard;
-	}
-
-	public void setCaducitat(String caducitat) {
-		this.caducitat = caducitat;
-	}
-
-	public void setVarCaducitat(String varCaducitat) {
-		this.varCaducitat = varCaducitat;
-	}
-
-	public void setDocument(String document) {
-		this.document = document;
-	}
-
-	public void setVarDocument(String varDocument) {
-		this.varDocument = varDocument;
 	}
 
 	public void setProcedimentCodi(String procedimentCodi) {
@@ -752,6 +656,14 @@ public class NotificacioAltaHandler extends BasicActionHandler implements Notifi
 		this.varTitularMobil = varTitularMobil;
 	}
 
+	public void setTitularTipus(String titularTipus) {
+		this.titularTipus = titularTipus;
+	}
+
+	public void setVarTitularTipus(String varTitularTipus) {
+		this.varTitularTipus = varTitularTipus;
+	}
+
 	public void setDestinatariNif(String destinatariNif) {
 		this.destinatariNif = destinatariNif;
 	}
@@ -798,6 +710,14 @@ public class NotificacioAltaHandler extends BasicActionHandler implements Notifi
 
 	public void setVarDestinatariMobil(String varDestinatariMobil) {
 		this.varDestinatariMobil = varDestinatariMobil;
+	}
+
+	public void setDestinatariTipus(String destinatariTipus) {
+		this.destinatariTipus = destinatariTipus;
+	}
+
+	public void setVarDestinatariTipus(String varDestinatariTipus) {
+		this.varDestinatariTipus = varDestinatariTipus;
 	}
 
 	public void setEntregaPostalTipus(String entregaPostalTipus) {
@@ -999,5 +919,5 @@ public class NotificacioAltaHandler extends BasicActionHandler implements Notifi
 	public void setVarEntregaDehProcedimentCodi(String varEntregaDehProcedimentCodi) {
 		this.varEntregaDehProcedimentCodi = varEntregaDehProcedimentCodi;
 	}
-
+	
 }

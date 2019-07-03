@@ -239,6 +239,14 @@
 					<artifactId>bcprov-jdk14</artifactId>
 					<groupId>org.bouncycastle</groupId>
 				</exclusion>
+				<exclusion>
+					<artifactId>bctsp-jdk14</artifactId>
+					<groupId>org.bouncycastle</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>bcmail-jdk14</artifactId>
+					<groupId>bouncycastle</groupId>
+				</exclusion>
 			</exclusions>
 		</dependency>
 		<!--dependency>

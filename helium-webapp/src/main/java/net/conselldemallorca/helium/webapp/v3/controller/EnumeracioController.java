@@ -3,7 +3,9 @@ package net.conselldemallorca.helium.webapp.v3.controller;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -275,10 +277,10 @@ public class EnumeracioController extends BaseDissenyController {
 			@Validated(ExpedientTipusEnumeracioValorCommand.Modificacio.class) ExpedientTipusEnumeracioValorCommand command,
 			BindingResult bindingResult, Model model) {
 
-		ompleDadesModel(request, enumeracioId, model, true);
 		if (bindingResult.hasErrors()) {
+			ompleDadesModel(request, enumeracioId, model, false);
 			model.addAttribute("expedientTipusEnumeracioValorCommand", command);
-			model.addAttribute("mostraUpdate", true);
+			model.addAttribute("mostraUpdate", true);			
 			return "v3/expedientTipusEnumeracioValors";
 		} else {		
 		
@@ -331,7 +333,8 @@ public class EnumeracioController extends BaseDissenyController {
 			HttpServletRequest request, 
 			@PathVariable Long enumeracioId,
 			@Validated(ExpedientTipusEnumeracioValorCommand.Creacio.class) ExpedientTipusEnumeracioValorCommand command,
-			BindingResult bindingResult, Model model) {
+			BindingResult bindingResult, 
+			Model model) {
 
 		if (bindingResult.hasErrors()) {
 			model.addAttribute("mostraCreate", true);
@@ -379,6 +382,7 @@ public class EnumeracioController extends BaseDissenyController {
 					enumeracioService.enumeracioDeleteAllByEnumeracio(enumeracioId);
 				}
 				List<ExpedientTipusEnumeracioValorDto> valors = new ArrayList<ExpedientTipusEnumeracioValorDto>();
+				Set<String> valorsCodis = new HashSet<String>();
 				BufferedReader br = new BufferedReader(new InputStreamReader(multipartFile.getInputStream()));
 				String linia = br.readLine();
 				while (linia != null) {
@@ -399,6 +403,15 @@ public class EnumeracioController extends BaseDissenyController {
 											request,
 											"expedient.tipus.enumeracio.valors.importats.duplicat",
 											new Object[] {codi}));
+			        	// Valida que no s'importin dos codis
+			        	if (valorsCodis.contains(codi))
+			        		throw new ValidacioException(
+			        				getMessage(
+											request,
+											"expedient.tipus.enumeracio.valors.importats.duplicat",
+											new Object[] {codi}));
+			        	else
+			        		valorsCodis.add(codi);
 			        	valors.add(enumeracioValors);
 					}
 					linia = br.readLine();

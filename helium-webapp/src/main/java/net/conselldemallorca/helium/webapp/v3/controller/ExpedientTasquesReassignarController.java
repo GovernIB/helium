@@ -7,6 +7,7 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -88,8 +89,9 @@ public class ExpedientTasquesReassignarController extends BaseExpedientControlle
 						expression);
 				MissatgesHelper.success(request, getMessage(request, "info.tasca.reassignada"));
 			} catch (Exception ex) {
-				MissatgesHelper.error(request, getMessage(request, "error.reassignar.tasca", new Object[] { tascaId } ));
-	        	logger.error("No s'ha pogut reassignar la tasca " + tascaId, ex);
+				String errMsg = getMessage(request, "expedient.tasca.accio.reassignar.errror", new Object[] {tascaId, ExceptionUtils.getRootCauseMessage(ex)} );
+				MissatgesHelper.error(request, errMsg);
+	        	logger.error(errMsg, ex);
 	        	return "v3/expedient/tasca/reassignar";
 			}
 		}
