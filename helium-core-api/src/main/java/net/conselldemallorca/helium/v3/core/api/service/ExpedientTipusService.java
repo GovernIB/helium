@@ -11,6 +11,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.DominiDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EnumeracioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusEstadisticaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.MapeigSistraDto;
 import net.conselldemallorca.helium.v3.core.api.dto.MapeigSistraDto.TipusMapeig;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
@@ -272,6 +273,19 @@ public interface ExpedientTipusService {
 	public List<ExpedientTipusDto> findAmbEntornPermisCrear(
 			Long entornId) throws NoTrobatException;
 
+	/**
+	 * Retorna els tipus d'expedient d'un entorn.
+	 * 
+	 * @param entornId
+	 *            Atribut id de l'entorn.
+	 * @return Els tipus d'expedient de l'entorn.
+	 * @throws NoTrobatException
+	 *             Si no s'ha trobat el registre amb l'id especificat.
+	 */
+	public List<ExpedientTipusDto> findAmbEntorn(
+			Long entornId) throws NoTrobatException;
+
+	
 	/**
 	 * Retorna un tipus d'expedient donat el seu codi.
 	 * 
@@ -1094,6 +1108,65 @@ public interface ExpedientTipusService {
 			String clasificacion,
 			String serieDocumental,
 			boolean arxiuActiu);	
+	
+	public List<ExpedientTipusEstadisticaDto> findEstadisticaByFiltre(
+			Integer anyInicial, 
+			Integer anyFinal,
+			Long entornId,
+			Long expedientTipusId,
+			Boolean anulats);
+	
+	/**
+	 * Modifica les dades de la integració amb NOTIB
+	 * 
+	 * @param expedientTipusId
+	 * 			Identificador del tipus d'expedient
+	 * @param notibEmisor
+	 * 			Codi de l'emisor
+	 * @param notibCodiProcediment
+	 * 			Codi del procediment SIA
+	 * @param notibSeuUnitatAdministrativa
+	 * 			Codi de la unitat administrativa a utilitzar a la seu
+	 * @param notibSeuOficina
+	 * 			Codi de la oficina a utilitzar a la seu
+	 * @param notibSeuLlibre
+	 * 			Codi del llibre a utilitzar a la seu
+	 * @param notibSeuOrgan
+	 * 			Codi de l'organ a utiitzar a la seu
+	 * @param notibSeuIdioma
+	 * 			Idioma a utilitzar a la seu
+	 * @param notibAvisTitol
+	 * 			Titol de l¡avís
+	 * @param notibAvisText
+	 * 			Text de l'avís
+	 * @param notibAvisTextSms
+	 * 			Text de l'avís a enviar via sms
+	 * @param notibOficiTitol
+	 * 			Titol de l'ofici
+	 * @param notibOficiText
+	 * 			Text de l'ofici
+	 * @param notibActiu
+	 * 			Indica si la integració amb Notib està activa
+	 * 
+	 * @return El tipus d'expedient modificat.
+	 * 
+	 */
+	public ExpedientTipusDto updateIntegracioNotib(
+			Long expedientTipusId, 
+			String notibEmisor, 
+			String notibCodiProcediment,
+			String notibSeuUnitatAdministrativa, 
+			String notibSeuCodiProcediment,
+			String notibSeuOficina, 
+			String notibSeuLlibre, 
+			String notibSeuOrgan,
+			String notibSeuIdioma, 
+			String notibAvisTitol, 
+			String notibAvisText, 
+			String notibAvisTextSms,
+			String notibOficiTitol, 
+			String notibOficiText, 
+			boolean notibActiu);	
 
 
 }

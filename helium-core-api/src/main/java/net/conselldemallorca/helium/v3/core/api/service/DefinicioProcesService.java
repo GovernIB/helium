@@ -558,4 +558,12 @@ public interface DefinicioProcesService {
 	 * @return
 	 */
 	public String consultarStartTaskName(Long definicioProcesId);
+
+	/** Mètode per relacionar correctament les darreres definicions de procés per a un tipus d'expedient
+	 * 
+	 * @param id
+	 */
+	public void relacionarDarreresVersions(Long expedientTipusId);
+
+
 }

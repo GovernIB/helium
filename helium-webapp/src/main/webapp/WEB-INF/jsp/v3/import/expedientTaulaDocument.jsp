@@ -66,6 +66,18 @@
 															<span class="fa fa-2x fa-pencil" title="<spring:message code='expedient.document.modificar' />"></span>
 													</a>
 												</c:if>
+												
+												<c:if test="${document.notificable}">
+													<a 	href="../../v3/expedient/${expedientId}/proces/${document.processInstanceId}/document/${document.id}/notificar"
+														data-rdt-link-modal="true" 
+														data-rdt-link-modal-min-height="265" 
+														data-rdt-link-callback="recargarPanel(${document.processInstanceId});"
+														class="icon modificar" 
+														data-rdt-link-modal-maximize="true">
+															<span class="fa fa-2x fa-paper-plane" title="<spring:message code='expedient.document.notificar' />"></span>
+													</a>
+												</c:if>												
+												
 												<c:if test="${document.signat}">
 													<c:choose>
 														<c:when test="${not document.arxiuActiu}">
@@ -153,8 +165,18 @@
 														</c:otherwise>
 													</c:choose>
 												</c:if>
+												
+												<c:if test="${not empty expedient.notificacions}">
+													<a	href="../../v3/expedient/${expedientId}/expedientNotificacions"
+														data-rdt-link-modal="true"
+														data-rdt-link-modal-min-height="500"
+														class="linkNti">
+														<span class="label label-success etiqueta-nti-arxiu"><spring:message code="expedient.info.etiqueta.notificacions"/></span>
+													</a>
+												</c:if>												
+												
 												<!-- FI FRAGMENT -->
-												<c:if test="${expedient.ntiActiu}">
+												<c:if test="${expedient.ntiActiu and expedient.permisAdministration}">
 													<a	href="../../v3/expedient/${expedientId}/proces/${document.processInstanceId}/document/${document.id}/metadadesNti"
 														data-rdt-link-modal="true"
 														data-rdt-link-modal-min-height="500"
@@ -162,6 +184,10 @@
 														<span class="label label-info etiqueta-nti-arxiu"><c:choose><c:when test="${empty expedient.arxiuUuid}"><spring:message code="expedient.info.etiqueta.nti"/></c:when><c:otherwise><spring:message code="expedient.info.etiqueta.arxiu"/></c:otherwise></c:choose></span>
 													</a>
 												</c:if>
+												<c:if test="${document.notificat}">
+													<span class="label label-warning etiqueta-nti-arxiu"><spring:message code="expedient.document.info.etiqueta.notificat"/></span>
+												</c:if>
+												
 											</td>
 										</tr>
 										<tr>

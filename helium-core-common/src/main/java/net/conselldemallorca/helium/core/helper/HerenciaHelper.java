@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 
 import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
+import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.v3.core.repository.DefinicioProcesRepository;
 
 /**
@@ -85,5 +86,10 @@ public class HerenciaHelper {
 				processDefinitionIdHeretada = dph.getJbpmId();
 		}						
 		return processDefinitionIdHeretada;
+	}
+	
+	/** Mètode estàtic per comprovar si un tipus d'expedient no és null i té herència */
+	public static boolean ambHerencia(ExpedientTipus expedientTipus) {
+		return expedientTipus != null && expedientTipus.isAmbHerencia();
 	}
 }

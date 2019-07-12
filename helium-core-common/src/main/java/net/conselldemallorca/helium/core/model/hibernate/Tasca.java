@@ -72,6 +72,7 @@ public class Tasca implements Serializable, GenericEntity<Long> {
 	private String formExtern;
 	private boolean tramitacioMassiva = false;
 	private boolean finalitzacioSegonPla = false;
+	private boolean ambRepro = false;
 
 	@NotNull
 	private DefinicioProces definicioProces;
@@ -92,8 +93,8 @@ public class Tasca implements Serializable, GenericEntity<Long> {
 	}
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.TABLE, generator="gen_tasca")
-	@TableGenerator(name="gen_tasca", table="hel_idgen", pkColumnName="taula", valueColumnName="valor")
+	@GeneratedValue(strategy = GenerationType.TABLE, generator="gen_interessat")
+	@TableGenerator(name="gen_interessat", table="hel_idgen", pkColumnName="taula", valueColumnName="valor")
 	@Column(name="id")
 	public Long getId() {
 		return id;
@@ -189,6 +190,15 @@ public class Tasca implements Serializable, GenericEntity<Long> {
 	public void setFinalitzacioSegonPla(boolean finalitzacioSegonPla) {
 		this.finalitzacioSegonPla = finalitzacioSegonPla;
 	}
+	
+	@Column(name="amb_repro")
+	public boolean isAmbRepro() {
+		return ambRepro;
+	}
+	public void setAmbRepro(boolean ambRepro) {
+		this.ambRepro = ambRepro;
+	}
+	
 	@ManyToOne(optional=false)
 	@JoinColumn(name="definicio_proces_id")
 	@ForeignKey(name="hel_defproc_tasca_fk")

@@ -30,6 +30,7 @@ public class CampDto extends HeretableDto implements Serializable {
 	private boolean ocult;
 	private boolean ignored;
 	
+	
 	private DefinicioProcesDto definicioProces;
 	private ExpedientTipusDto expedientTipus;
 	

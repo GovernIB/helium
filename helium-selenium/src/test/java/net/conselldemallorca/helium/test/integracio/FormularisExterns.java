@@ -56,7 +56,7 @@ public class FormularisExterns extends BaseExpedientTest {
 			String contextPath = "/" + applicationId;
 			File webApp = new File(mWorkingDir, applicationId);
 			File oldWebApp = new File(webApp.getAbsolutePath());
-			FileUtils.deleteDirectory(oldWebApp);
+			//FileUtils.deleteDirectory(oldWebApp);
 			StandardContext ctx = (StandardContext) mTomcat.addWebapp(mTomcat.getHost(), contextPath, webApp.getAbsolutePath());
 			// Configura el context
 		    ApplicationParameter p = new ApplicationParameter();

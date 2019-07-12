@@ -65,6 +65,11 @@
 			<scope>system</scope>
 			<systemPath>${basedir}/../helium-webapp/src/main/webapp/WEB-INF/lib/mcgdws.jar</systemPath>
 	  	</dependency>
+		<dependency>
+			<groupId>es.caib.portafib</groupId>
+			<artifactId>portafib-ws-callback-api</artifactId>
+			<version>${portafib.version}</version>
+		</dependency>
 	  	<dependency>
 			<groupId>axis</groupId>
 			<artifactId>axis</artifactId>
@@ -109,6 +114,14 @@
             	</exclusion>
             </exclusions>
         </dependency>
+        <!-- pels tests -->
+        <dependency>
+		    <groupId>org.slf4j</groupId>
+		    <artifactId>slf4j-simple</artifactId>
+		    <version>1.6.1</version>
+		    <scope>test</scope>
+		</dependency>
+
    	</dependencies>
 	<profiles>
 		<profile>

@@ -249,7 +249,7 @@ public class CampCommand {
 		dto.setDominiIdentificador(command.getDominiIdentificador());
 		dto.setMultiple(command.isMultiple());
 		dto.setOcult(command.isOcult());
-		dto.setIgnored(command.isIgnored());		
+		dto.setIgnored(command.isIgnored());
 		
 		// Dades consulta
 		if(command.getEnumeracioId() != null) {

@@ -93,5 +93,16 @@ public class EntornHelper {
 						ExtendedPermission.ADMINISTRATION},
 				auth);
 	}
+	
+	public boolean esAdminEntorn(
+			Long entornId) {
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		return permisosHelper.isGrantedAny(
+				entornId,
+				Entorn.class,
+				new Permission[] {
+						ExtendedPermission.ADMINISTRATION},
+				auth);
+	}
 
 }

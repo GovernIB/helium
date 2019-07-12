@@ -41,7 +41,7 @@ div.procesDocument:hover {
 			<c:set var="agrupacioFirst" value="${true}"/>
 			<c:set var="proces" value="${dadesProces.key}"/>
 			<div id="dataTable_documents_${proces.id}">
-				<c:if test="${expedient.permisDocManagement}">
+				<c:if test="${expedient.permisDocManagement && (empty expedient.dataFi || !expedient.arxiuActiu)}">
 					<div id="dataTables_new">
 						<div id="nou_document_${proces.id}" class="nou_document">
 							<a class="btn btn-default" 

@@ -45,8 +45,10 @@
 						<script id="cellTipusDomTemplate" type="text/x-jsrender">
 							{{if tipus == 'CONSULTA_SQL'}}
 								<spring:message code="expedient.tipus.domini.tipus.sql"/>
-							{{else}}
+							{{else tipus == 'CONSULTA_WS'}}
 								<spring:message code="expedient.tipus.domini.tipus.ws"/>
+							{{else}}
+								<spring:message code="expedient.tipus.domini.tipus.rest"/>								
 							{{/if}}
 						</script>
 					</th>
@@ -56,6 +58,7 @@
 								<button class="btn btn-primary" data-toggle="dropdown"><span class="fa fa-cog"></span>&nbsp;<spring:message code="comu.boto.accions"/>&nbsp;<span class="caret"></span></button>
 								<ul class="dropdown-menu">
 									<li><a data-toggle="modal" href="domini/{{:id}}/update"><span class="fa fa-pencil"></span>&nbsp;<spring:message code="comu.boto.modificar"/></a></li>
+									<li><a data-toggle="modal" data-maximized="true" href="domini/{{:id}}/test"><span class="fa fa-cog"></span>&nbsp;<spring:message code="expedient.tipus.domini.form.provar"/></a></li>
 									<li><a href="domini/{{:id}}/delete" data-toggle="ajax" data-confirm="<spring:message code="domini.llistat.confirm.esborra"/>"><span class="fa fa-trash-o"></span>&nbsp;<spring:message code="comu.boto.esborrar"/></a></li>
 								</ul>
 							</div>

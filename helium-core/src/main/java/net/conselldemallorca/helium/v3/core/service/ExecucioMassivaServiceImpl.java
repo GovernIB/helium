@@ -47,6 +47,7 @@ import net.conselldemallorca.helium.core.helper.DocumentHelperV3;
 import net.conselldemallorca.helium.core.helper.EntornHelper;
 import net.conselldemallorca.helium.core.helper.ExpedientHelper;
 import net.conselldemallorca.helium.core.helper.ExpedientTipusHelper;
+import net.conselldemallorca.helium.core.helper.HerenciaHelper;
 import net.conselldemallorca.helium.core.helper.IndexHelper;
 import net.conselldemallorca.helium.core.helper.MailHelper;
 import net.conselldemallorca.helium.core.helper.MessageHelper;
@@ -694,6 +695,7 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 	}
 	
 	@Override
+	@Transactional
 	public void executarExecucioMassiva(Long ome_id) {
 		ExecucioMassivaExpedient ome = execucioMassivaExpedientRepository.findOne(ome_id);
 		if (ome == null)
@@ -1055,13 +1057,29 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 			} else if ("DocGuardar".equals(accio)) {
 				mesuresTemporalsHelper.mesuraIniciar("Guardar document", "massiva_tasca", expedient, tasca);
 				Object[] param2 = (Object[])deserialize(ome.getExecucioMassiva().getParam2());
-				Long entornId = (Long)param2[0];
-				String codi = (String)param2[1];
-				Date data = (Date)param2[2];
-				byte[] contingut = (byte[])param2[3];
-				String nomArxiu = (String)param2[4];
+				Long entornId = (Long) this.getParam(param2, 0);
+				String codi = (String) this.getParam(param2, 1);
+				Date data = (Date) this.getParam(param2, 2);
+				byte[] contingut = (byte[]) this.getParam(param2, 3);
+				String nomArxiu = (String) this.getParam(param2, 4);
+				String arxiuContentType = (String) this.getParam(param2, 5);
+				Boolean ambFirma = (Boolean)this.getParam(param2, 6);
+				Boolean firmaSeparada = (Boolean)this.getParam(param2, 7);
+				byte[] firmaContingut = (byte[])this.getParam(param2, 8);
+				
 				if (tascaService.isTascaValidada(tascaId)) {
-					tascaService.guardarDocumentTasca(entornId, tascaId, codi, data, nomArxiu, contingut, ome.getExecucioMassiva().getUsuari());
+					tascaService.guardarDocumentTasca(
+							entornId, 
+							tascaId, 
+							codi, 
+							data, 
+							nomArxiu, 
+							contingut, 
+							arxiuContentType,
+							ambFirma != null? ambFirma.booleanValue() : false,
+							firmaSeparada != null? firmaSeparada : false,
+							firmaContingut,
+							ome.getExecucioMassiva().getUsuari());
 				} else {
 					throw new ValidacioException("OPERACIO:" + ome.getId() + ". No s'ha pogut guardar el document a la tasca. Perquè la tasca no està validada");
 				}
@@ -1109,6 +1127,16 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 		}
 	}
 	
+	/** Mètode per obtenir un paràmetre amb l'índex vigilant el número de paràmetres. Si no hi és retorna null.
+	 * 
+	 * @param parametres
+	 * @param index
+	 * @return Retorna el paràmetre o null si l'índex és major que la llista de paràmetres.
+	 */
+	private Object getParam(Object[] parametres, int index) {
+		return index < parametres.length ? parametres[index] : null;
+	}
+
 	private void actualitzarVersio(ExecucioMassivaExpedient ome) throws Exception {
 		try {
 			ome.setDataInici(new Date());
@@ -1332,11 +1360,11 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 			
 			DefinicioProces definicioProces = expedientHelper.findDefinicioProcesByProcessInstanceId(exp.getProcessInstanceId());
 			boolean infoPropia = definicioProces.getExpedientTipus() != null && definicioProces.getExpedientTipus().isAmbInfoPropia();
-			boolean herencia = infoPropia && definicioProces.getExpedientTipus().getExpedientTipusPare() != null;
+			boolean ambHerencia = HerenciaHelper.ambHerencia(definicioProces.getExpedientTipus());
 			Accio accio = null;
 			if (infoPropia) {
 				accio = accioRepository.findByExpedientTipusIdAndCodi(definicioProces.getExpedientTipus().getId(), accioCodi);
-				if (accio == null && herencia)
+				if (accio == null && ambHerencia)
 					accio = accioRepository.findByExpedientTipusIdAndCodi(definicioProces.getExpedientTipus().getExpedientTipusPare().getId(), accioCodi);					
 			} else {
 				accio = accioRepository.findByCodiAndDefinicioProces(accioCodi, definicioProces);
@@ -1406,6 +1434,10 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 			Date data = null;
 			String nom = null;
 			byte[] contingut = null;
+			String arxiuContentType = null;
+			boolean ambFirma = false;
+			boolean firmaSeparada = false;
+			byte[] firmaContingut = null;
 			NtiOrigenEnumDto ntiOrigen = null;
 			NtiEstadoElaboracionEnumDto ntiEstadoElaboracion = null;
 			NtiTipoDocumentalEnumDto ntiTipoDocumental = null;
@@ -1418,6 +1450,10 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 			if (params[5] != null) ntiEstadoElaboracion = (NtiEstadoElaboracionEnumDto)params[5];
 			if (params[6] != null) ntiTipoDocumental = (NtiTipoDocumentalEnumDto)params[6];
 			if (params[7] != null) ntiIdOrigen = (String)params[7];
+			if (params.length > 8) arxiuContentType = (String)this.getParam(params, 8);
+			if (params.length > 9) ambFirma = (Boolean)this.getParam(params, 9);
+			if (params.length > 10) firmaSeparada = (Boolean)this.getParam(params, 10);
+			if (params.length > 11) firmaContingut = (byte[])this.getParam(params, 11);
 			Document aux = null;
 			ExpedientDocumentDto doc = null;
 			if (docId != null) {
@@ -1437,13 +1473,17 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 								exp.getProcessInstanceId(),
 								aux.getCodi());
 						// L'actualitza o el crea a la instància de procés
-						documentHelper.crearOActualitzarDocument(
+						documentHelper.crearActualitzarDocument(
 								null,
 								exp.getProcessInstanceId(),
 								aux.getCodi(),
 								new Date(),
 								arxiu.getNom(),
 								arxiu.getContingut(),
+								arxiuContentType,
+								ambFirma,
+								firmaSeparada,
+								firmaContingut,
 								ntiOrigen,
 								ntiEstadoElaboracion,
 								ntiTipoDocumental,
@@ -1474,13 +1514,17 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 						throw new Exception("Document inexistent: no es pot modificar");
 					} else 	if (!doc.isSignat() && !doc.isRegistrat()) {
 						documentHelper.actualitzarDocument(
-								docId,
+								doc.getId(),
 								null,
 								exp.getProcessInstanceId(),
 								data,
 								null,
 								doc.getArxiuNom(),
 								null,
+								arxiuContentType,
+								ambFirma,
+								firmaSeparada,
+								firmaContingut,
 								ntiOrigen,
 								ntiEstadoElaboracion,
 								ntiTipoDocumental,
@@ -1494,7 +1538,7 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 				}
 			} else {
 				// Adjuntar document
-				if (docId == null) {
+				if (doc == null) {
 					mesuresTemporalsHelper.mesuraIniciar("Adjuntar document", "massiva", exp.getTipus().getNom());
 					documentHelper.crearDocument(
 							null,
@@ -1505,6 +1549,10 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 							nom,
 							fileName,
 							contingut,
+							arxiuContentType,
+							ambFirma,
+							firmaSeparada,
+							firmaContingut,
 							ntiOrigen,
 							ntiEstadoElaboracion,
 							ntiTipoDocumental,
@@ -1513,15 +1561,19 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 				// Modificar document
 				} else {
 					mesuresTemporalsHelper.mesuraIniciar("Modificar document", "massiva", exp.getTipus().getNom());
-					if (doc == null || (!doc.isSignat() && !doc.isRegistrat())) {
+					if (!doc.isSignat() && !doc.isRegistrat()) {
 						documentHelper.actualitzarDocument(
-								docId,
+								doc.getId(),
 								null,
 								exp.getProcessInstanceId(),
 								data,
 								null,
 								fileName,
 								contingut,
+								arxiuContentType,
+								ambFirma,
+								firmaSeparada,
+								firmaContingut,
 								ntiOrigen,
 								ntiEstadoElaboracion,
 								ntiTipoDocumental,
@@ -1596,7 +1648,6 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 			ome.setDataFi(new Date());
 			execucioMassivaExpedientRepository.save(ome);
 		} catch (Exception ex) {
-			pluginHelper.arxiuExpedientEsborrar(exp.getArxiuUuid());
 			logger.error("OPERACIO:" + ome.getId() + ". No s'ha pogut MIGRAR", ex);
 			throw ex;
 		}
@@ -1631,6 +1682,7 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 		}
 	}
 
+	
 	private void reassignarTasca(ExecucioMassivaExpedient ome) throws Exception {
 		String tascaId = ome.getTascaId();
 		try {

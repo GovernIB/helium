@@ -4,6 +4,7 @@
 package net.conselldemallorca.helium.v3.core.ejb;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.annotation.security.RolesAllowed;
@@ -17,6 +18,7 @@ import net.conselldemallorca.helium.core.extern.domini.FilaResultat;
 import net.conselldemallorca.helium.core.extern.domini.ParellaCodiValor;
 import net.conselldemallorca.helium.v3.core.api.dto.AreaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ConsultaCampDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ConsultaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesExpedientDto;
@@ -233,6 +235,13 @@ public class DissenyServiceBean implements DissenyService {
 	public byte[] getRecursContingut(Long definicioProcesId, String nom) {
 		return delegate.getRecursContingut(definicioProcesId, nom);
 	}
+	
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public byte[] getParContingut(Long definicioProcesId) {
+		return delegate.getParContingut(definicioProcesId);
+	}
+
 
 	public PaginaDto<DefinicioProcesDto> findDefinicionsProcesNoUtilitzadesExpedientTipus(
 			Long entornId,
@@ -293,6 +302,14 @@ public class DissenyServiceBean implements DissenyService {
 	public DefinicioProcesDto updateHandlers(Long entornId, String nomArxiu, byte[] contingut) {
 		return delegate.updateHandlers(entornId, nomArxiu, contingut);
 	}
+	
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public void propagarHandlers(
+			Long idDefinicioProcesOrigen, 
+			List<Long> idsDefinicioProcesDesti) {
+		delegate.propagarHandlers(idDefinicioProcesOrigen, idsDefinicioProcesDesti);
+	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
@@ -312,4 +329,25 @@ public class DissenyServiceBean implements DissenyService {
 	public List<DocumentDto> findDocumentsOrdenatsPerCodi(Long expedientTipusId, Long definicioProcesId, boolean herencia) {
 		return delegate.findDocumentsOrdenatsPerCodi(expedientTipusId, definicioProcesId, herencia);
 	}
+	
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public ConsultaDto getConsultaById(Long id) {
+		return delegate.getConsultaById(id);
+	}
+	
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public List<ConsultaCampDto> findCampsInformePerCampsConsulta(
+			ConsultaDto consulta,
+			boolean filtrarValorsPredefinits){
+		return delegate.findCampsInformePerCampsConsulta(consulta, filtrarValorsPredefinits);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public List<FilaResultat> consultaDomini(Long id, String codiDomini, Map<String, Object> parametres) {
+		return delegate.consultaDomini(id, codiDomini, parametres);
+	}
+
 }

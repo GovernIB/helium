@@ -3,20 +3,28 @@
  */
 package net.conselldemallorca.helium.webapp.v3.controller;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -229,6 +237,62 @@ public class ExpedientTipusDominiController extends BaseExpedientTipusController
 					request, 
 					getMessage(request, "expedient.tipus.domini.controller.eliminat.no"));
 			return false;
+		}
+	}
+	
+	/** Mètode per provar un domini */
+	@RequestMapping(value="domini/{dominiId}/test", method = RequestMethod.GET)
+	public String test(
+			HttpServletRequest request,
+			@PathVariable Long dominiId,
+			Model model) {
+		model.addAttribute("dominiId", dominiId);
+		return "v3/provaDomini";
+	}
+	
+	/** Mètode per provar un domini */
+	@RequestMapping(value="domini/{dominiId}/test", method = RequestMethod.POST, consumes="application/json", produces = "application/json") 
+	@ResponseBody
+	public ResponseEntity<Object> testS(
+			HttpServletRequest request,
+			@PathVariable Long dominiId,
+			Model model,
+			@RequestBody Cmd params) {
+		String[] codis = params.getCodi();
+		String[] tipus = params.getTipusParam();
+		String[] values = params.getPar();
+		Map<String, Object> parametres = new HashMap<String, Object>();
+		for(int i = 0; i<codis.length; i++) {
+
+			if(tipus[i].equals("string")){
+			    parametres.put(codis[i],values[i].toString());
+			}
+			if(tipus[i].equals("int")){
+			    parametres.put(codis[i],Long.parseLong(values[i]));
+			}
+			if(tipus[i].equals("float")){
+			    parametres.put(codis[i],Double.parseDouble(values[i]));
+			}
+			if(tipus[i].equals("boolean")){
+			    parametres.put(codis[i],Boolean.parseBoolean(values[i]));
+			}
+			if(tipus[i].equals("date")){
+			    String[] dataSplit = values[i].split("/");
+			    Calendar data = new GregorianCalendar();
+			    data.set(Integer.parseInt(dataSplit[2]),Integer.parseInt(dataSplit[1]),Integer.parseInt(dataSplit[0]));
+			    parametres.put(codis[i],data);
+			}
+			if(tipus[i].equals("price")){
+			    String dat = values[i];
+			    BigDecimal datBDecimal = new BigDecimal(new Double(dat));
+			    parametres.put(codis[i], datBDecimal);
+			}
+		}
+		try {
+			return new ResponseEntity<Object>(dissenyService.consultaDomini(dominiId,params.getCodiDomini(), parametres),HttpStatus.OK);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return new ResponseEntity<Object>(e,HttpStatus.BAD_REQUEST);
 		}
 	}
 	

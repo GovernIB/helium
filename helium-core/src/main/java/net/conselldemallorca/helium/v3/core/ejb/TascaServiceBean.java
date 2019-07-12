@@ -21,6 +21,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.SeleccioOpcioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDocumentDto;
+import net.conselldemallorca.helium.v3.core.api.dto.TascaDto;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.exception.ValidacioException;
 import net.conselldemallorca.helium.v3.core.api.service.TascaService;
@@ -262,8 +263,30 @@ public class TascaServiceBean implements TascaService {
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public Long guardarDocumentTasca(Long entornId, String taskInstanceId, String documentCodi, Date documentData, String arxiuNom, byte[] arxiuContingut, String user) {
-		return delegate.guardarDocumentTasca(entornId, taskInstanceId, documentCodi, documentData, arxiuNom, arxiuContingut, user);
+	public Long guardarDocumentTasca(
+			Long entornId, 
+			String taskInstanceId, 
+			String documentCodi, 
+			Date documentData, 
+			String arxiuNom, 
+			byte[] arxiuContingut, 
+			String arxiuContentType, 
+			boolean ambFirma,
+			boolean firmaSeparada,
+			byte[] firmaContingut,
+			String user) {
+		return delegate.guardarDocumentTasca(
+				entornId, 
+				taskInstanceId,
+				documentCodi, 
+				documentData, 
+				arxiuNom, 
+				arxiuContingut, 
+				arxiuContentType, 
+				ambFirma,
+				firmaSeparada,
+				firmaContingut,
+				user);
 	}
 
 	@Override
@@ -398,6 +421,12 @@ public class TascaServiceBean implements TascaService {
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public void completarMassiu(String tascaId, String outcome) throws NoTrobatException, ValidacioException {
 		delegate.completarMassiu(tascaId, outcome);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public TascaDto findTascaById(Long id) {
+		return delegate.findTascaById(id);
 	}
 
 }

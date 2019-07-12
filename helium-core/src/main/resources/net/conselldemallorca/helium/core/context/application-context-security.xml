@@ -28,6 +28,11 @@
 		<intercept-url pattern="/ws/DominiIntern" access="IS_AUTHENTICATED_ANONYMOUSLY" />
 		<intercept-url pattern="/ws/FormulariExtern" access="IS_AUTHENTICATED_ANONYMOUSLY" />
 		<intercept-url pattern="/ws/TramitacioService" access="IS_AUTHENTICATED_ANONYMOUSLY" />
+		<intercept-url pattern="/rest" access="IS_AUTHENTICATED_ANONYMOUSLY" />
+		<intercept-url pattern="/rest/" access="IS_AUTHENTICATED_ANONYMOUSLY" />
+		<intercept-url pattern="/rest/notib" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
+		<intercept-url pattern="/rest/notib/**" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
+		<intercept-url pattern="/rest/notib/notificaCanvi" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
 		<!-- Selenium-integraciones.begin -->
 		<intercept-url pattern="/ws/CustodiaDocumentos" access="IS_AUTHENTICATED_ANONYMOUSLY" />
 		<intercept-url pattern="/ws/portafirmas" access="IS_AUTHENTICATED_ANONYMOUSLY" />

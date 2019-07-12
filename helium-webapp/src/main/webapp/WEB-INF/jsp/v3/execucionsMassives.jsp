@@ -124,6 +124,14 @@
 			col_span = "col-md-1 no-padding";
 		}
 
+		// Funció per mostrar l'error amb salts de línia i caracters estranys
+		function escapeHtml(html){
+			  var text = document.createTextNode(html.replace(/\\n/g, '<br/>'));
+			  var p = document.createElement('p');
+			  p.appendChild(text);
+			  return p.innerHTML;
+			}
+
 	    $(document).ready(function(){
 		    
 			$("button[name=refrescar]").click(function() {
@@ -316,7 +324,7 @@
 						}
 						estat = texte_error + text_expedients;
 					} else {
-						estat = "<span class='fa fa-exclamation-circle'></span><label class='msg-error' data-msg-error='" + expedient.error + "' style='cursor: pointer;padding-left: 10px'><spring:message code='expedient.termini.estat.error'/></label>";					
+						estat = "<span class='fa fa-exclamation-circle'></span><label class='msg-error' data-msg-error='" + escapeHtml(expedient.error) + "' style='cursor: pointer;padding-left: 10px'><spring:message code='expedient.termini.estat.error'/></label>";					
 					}
 				} else {
 					estat = "<span class='fa fa-exclamation-circle'></span><label class='msg-error' data-msg-error='<spring:message code="expedient.tramitacio.massiva.error.desconegut"/>' style='cursor: pointer;padding-left: 10px'><spring:message code='expedient.termini.estat.error'/></label>";					
@@ -501,6 +509,7 @@
 			});
 			bindButtons();
 		}
+		
 	</script>
 </head>
 <body>	

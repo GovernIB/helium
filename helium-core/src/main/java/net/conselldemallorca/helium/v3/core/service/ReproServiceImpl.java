@@ -14,12 +14,14 @@ import net.conselldemallorca.helium.core.helper.ConversioTipusHelper;
 import net.conselldemallorca.helium.core.helper.UsuariActualHelper;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.hibernate.Repro;
+import net.conselldemallorca.helium.core.model.hibernate.Tasca;
 import net.conselldemallorca.helium.v3.core.api.dto.ReproDto;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.exception.ValidacioException;
 import net.conselldemallorca.helium.v3.core.api.service.ReproService;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientTipusRepository;
 import net.conselldemallorca.helium.v3.core.repository.ReproRepository;
+import net.conselldemallorca.helium.v3.core.repository.TascaRepository;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -40,14 +42,21 @@ public class ReproServiceImpl implements ReproService {
 	private ConversioTipusHelper conversioTipusHelper;
 	@Resource
 	private UsuariActualHelper usuariActualHelper;
+	@Resource
+	private TascaRepository tascaRepository;
 
 	@Transactional(readOnly=true)
 	@Override
-	public List<ReproDto> findReprosByUsuariTipusExpedient(Long expedientTipusId) {
+	public List<ReproDto> findReprosByUsuariTipusExpedient(Long expedientTipusId, String tascaCodi) {
+		
+		ExpedientTipus expedientTipus = expedientTipusRepository.findById(expedientTipusId);
+		
+		List<Repro> repros = reproRepository.findByUsuariAndExpedientTipusIdAndTascaCodiOrderByIdDesc(
+																									usuariActualHelper.getUsuariActual(), 
+																									expedientTipus, 
+																									tascaCodi);
 		return conversioTipusHelper.convertirList(
-				reproRepository.findByUsuariAndExpedientTipusIdOrderByIdDesc(
-						usuariActualHelper.getUsuariActual(), 
-						expedientTipusId), 
+				repros,
 				ReproDto.class);
 	}
 	
@@ -67,7 +76,8 @@ public class ReproServiceImpl implements ReproService {
 	public Map<String,Object> findValorsById(Long id) {
 		Repro repro = reproRepository.findOne(id);
 		if (repro == null)
-			throw new NoTrobatException(Repro.class, id);
+			return null;
+			//throw new NoTrobatException(Repro.class, id);
 		
 		byte[] bytes = DatatypeConverter.parseBase64Binary(repro.getValors());
 		ByteArrayInputStream bytesIn = new ByteArrayInputStream(bytes);
@@ -124,5 +134,38 @@ public class ReproServiceImpl implements ReproService {
 		String nom = repro.getNom();
 		reproRepository.delete(id);
 		return nom;
+	}
+
+	@Override
+	public ReproDto createTasca(Long expedientTipusId, Long tascaId, String nom, Map<String, Object> valors)
+			throws NoTrobatException, ValidacioException {
+		ExpedientTipus expedientTipus = expedientTipusRepository.findOne(expedientTipusId);
+		if (expedientTipus == null)
+			throw new NoTrobatException(ExpedientTipus.class, expedientTipusId);
+		
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+	    ObjectOutputStream oos;
+		try {
+			oos = new ObjectOutputStream(baos);
+			oos.writeObject(valors);
+		    byte[] buf = baos.toByteArray();
+		    baos.close();
+	        oos.close();
+	        
+//	        Tasca tasca = tascaRepository.findById(tascaId);
+	        
+	        Tasca tasca = tascaRepository.findOne(tascaId);
+	        
+	        String valors_s = DatatypeConverter.printBase64Binary(buf);
+			
+			if (valors_s.getBytes("UTF-8").length > 4000)
+				throw new ValidacioException("El contingut del formulari és massa llarg");
+			String usuariActual = usuariActualHelper.getUsuariActual();
+			Repro repro = new Repro(usuariActual, expedientTipus, nom, valors_s, tasca.getJbpmName());
+			Repro repro2 =  reproRepository.saveAndFlush(repro);
+			return conversioTipusHelper.convertir(repro2, ReproDto.class);
+		} catch (Exception e) {
+			throw new ValidacioException("Error recuperant els valros de la repro " + nom, e);
+		}
 	}
 }

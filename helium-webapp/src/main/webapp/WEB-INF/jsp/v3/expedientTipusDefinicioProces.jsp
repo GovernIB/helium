@@ -95,8 +95,6 @@
 		<script id="tableExpedientTipusDefinicioProcesButtonsTemplate" type="text/x-jsrender">
 			{{if ${potDissenyarExpedientTipusAdmin} }}
 				<div class="botons-titol text-right">
-					<a class="btn btn-default" data-toggle="modal" data-callback="callbackModaldefinicionsProces()" data-datatable-id="expedientTipusDefinicioProces" href="../definicioProces/importar?expedientTipusId=${expedientTipus.id}">
-						<span class="fa fa-sign-in"></span> <spring:message code="comu.importar"/></a>
 					<a class="btn btn-default" href="../definicioProces/desplegar?expedientTipusId=${expedientTipus.id}" data-toggle="modal" data-callback="callbackModaldefinicionsProces()">
 						<span class="fa fa-download"></span>&nbsp;<spring:message code="comu.filtre.desplegar"/></a>
 				</div>

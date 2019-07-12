@@ -33,6 +33,7 @@ public class TascaDto extends HeretableDto implements Serializable {
 	private String formExtern;
 	private boolean tramitacioMassiva = false;
 	private boolean finalitzacioSegonPla = false;
+	private boolean ambRepro = false;
 
 	private String jbpmName;
 	private List<CampTascaDto> camps = new ArrayList<CampTascaDto>();
@@ -139,7 +140,6 @@ public class TascaDto extends HeretableDto implements Serializable {
 	public void setFirmes(List<FirmaTascaDto> firmes) {
 		this.firmes = firmes;
 	}
-	
 	public int getCampsCount() {
 		return camps.size();
 	}
@@ -154,5 +154,11 @@ public class TascaDto extends HeretableDto implements Serializable {
 	}
 	public void setInicial(boolean inicial) {
 		this.inicial = inicial;
+	}
+	public boolean isAmbRepro() {
+		return ambRepro;
+	}
+	public void setAmbRepro(boolean ambRepros) {
+		this.ambRepro = ambRepros;
 	}
 }

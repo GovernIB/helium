@@ -21,6 +21,7 @@ import net.conselldemallorca.helium.core.helper.ConversioTipusHelper;
 import net.conselldemallorca.helium.core.helper.DefinicioProcesHelper;
 import net.conselldemallorca.helium.core.helper.EntornHelper;
 import net.conselldemallorca.helium.core.helper.ExpedientTipusHelper;
+import net.conselldemallorca.helium.core.helper.HerenciaHelper;
 import net.conselldemallorca.helium.core.helper.PaginacioHelper;
 import net.conselldemallorca.helium.core.model.hibernate.Camp;
 import net.conselldemallorca.helium.core.model.hibernate.CampTasca;
@@ -227,7 +228,7 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 		ExpedientTipus expedientTipus = expedientTipusId != null? expedientTipusHelper.getExpedientTipusComprovantPermisDissenyDelegat(expedientTipusId) : null;
 		
 		// Determina si hi ha herència 
-		boolean herencia = expedientTipus != null && expedientTipus.isAmbInfoPropia() && expedientTipus.getExpedientTipusPare() != null;
+		boolean ambHerencia = HerenciaHelper.ambHerencia(expedientTipus);
 
 		Page<DefinicioProces> page = definicioProcesRepository.findByFiltrePaginat(
 				entornId,
@@ -236,7 +237,7 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 				incloureGlobals,
 				filtre == null || "".equals(filtre), 
 				filtre != null? filtre : "", 
-				herencia,
+				ambHerencia,
 				paginacioHelper.toSpringDataPageable(
 						paginacioParams));
 		
@@ -277,11 +278,11 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 				processats.clear();
 
 				// Herencia				
-				if (herencia 
+				if (ambHerencia 
 						&& definicio.getExpedientTipus() != null
 						&& !expedientTipusId.equals(definicio.getExpedientTipus().getId()))
 					definicio.setHeretat(true);
-				if (herencia) {
+				if (ambHerencia) {
 					// Llista d'heretats
 					Set<Long> heretatsIds = new HashSet<Long>();
 					for (DefinicioProces dp : page.getContent())
@@ -618,6 +619,7 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 		entity.setFormExtern(tasca.getFormExtern());
 		entity.setTramitacioMassiva(tasca.isTramitacioMassiva());
 		entity.setFinalitzacioSegonPla(tasca.isFinalitzacioSegonPla());
+		entity.setAmbRepro(tasca.isAmbRepro());
 		
 		return conversioTipusHelper.convertir(
 				tascaRepository.save(entity),
@@ -1491,5 +1493,21 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 		entity.setAmpleCols(ample);
 		entity.setBuitCols(buit);
 	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@Transactional
+	public void relacionarDarreresVersions(Long expedientTipusId) {
+		logger.debug(
+				"Relacionant les darreres versions de les definicions de procés del tipus d'expedient (" +
+				"expedientTipusId = " + expedientTipusId + ")");
+		
+		ExpedientTipus expedientTipus = expedientTipusRepository.findById(expedientTipusId);
+		definicioProcesHelper.relacionarDarreresVersionsDefinicionsProces(expedientTipus.getDefinicionsProces());
+	}
+	
 	private static final Logger logger = LoggerFactory.getLogger(DefinicioProcesServiceImpl.class);
+
 }

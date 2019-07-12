@@ -23,9 +23,14 @@ public class PersonaInfo {
 	private String email;
 	private Sexe sexe;
 	private String relleu;
+	private String telefon;
+	private String tipus;
 
 
 
+	public PersonaInfo() {
+		super();
+	}
 	public PersonaInfo(String codi, String nomSencer, String email, Sexe sexe) {
 		this.codi = codi;
 		this.setNomSencer(nomSencer);
@@ -39,7 +44,14 @@ public class PersonaInfo {
 		this.email = email;
 		this.sexe = sexe;
 	}
+	
 
+	public String getTipus() {
+		return tipus;
+	}
+	public void setTipus(String tipus) {
+		this.tipus = tipus;
+	}
 	public String getCodi() {
 		return codi;
 	}
@@ -125,7 +137,13 @@ public class PersonaInfo {
 	public void setRelleu(String relleu) {
 		this.relleu = relleu;
 	}
-
+	public String getTelefon() {
+		return telefon;
+	}
+	public void setTelefon(String telefon) {
+		this.telefon = telefon;
+	}
+	
 	@Override
 	public int hashCode() {
 		final int prime = 31;

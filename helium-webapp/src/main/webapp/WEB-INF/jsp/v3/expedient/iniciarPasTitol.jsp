@@ -49,7 +49,7 @@
 			$('select[name=any]').on('change', function () {
 				if ($(this).val()) {
 					$.ajax({
-						url:'<c:url value="/v3/expedient/canviAny/"/>' + $(this).val() + '/${command.entornId}/${expedientTipus.id}',
+						url:'<c:url value="/v3/expedient/canviAny/"/>' + $(this).val() + '/${expedientInicioPasTitolCommand.entornId}/${expedientTipus.id}',
 					    type:'GET',
 					    dataType: 'json',
 					    success: function(json) {

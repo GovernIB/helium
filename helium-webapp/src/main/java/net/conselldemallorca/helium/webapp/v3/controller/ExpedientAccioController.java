@@ -12,6 +12,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.InstanciaProcesDto;
 import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
 import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
 
+import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.stereotype.Controller;
@@ -95,10 +96,11 @@ public class ExpedientAccioController extends BaseExpedientController {
 					procesId,
 					accioId);
 			nomAccio = accio.getNom();
+			Throwable t = ExceptionUtils.getRootCause(ex);
 			MissatgesHelper.error(
 	    			request,
-	    			getMessage(request, "error.executar.accio") + " " + nomAccio + ": " + ex.getMessage());
-			logger.error(getMessage(request, "error.executar.accio") +" "+ accioId + ": "+ ex.getLocalizedMessage(), ex);
+	    			getMessage(request, "error.executar.accio") + " " + nomAccio + ": " + t.getClass().getSimpleName() + ": "+ t.getMessage());
+			logger.error(getMessage(request, "error.executar.accio") +" "+ accioId + ": "+ t, ex);
 		}
 		model.addAttribute("pipellaActiva", "accions");
 		return "redirect:/v3/expedient/" + expedientId;

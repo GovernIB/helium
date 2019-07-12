@@ -17,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import net.conselldemallorca.helium.core.helper.ConversioTipusHelper;
 import net.conselldemallorca.helium.core.helper.ExpedientTipusHelper;
+import net.conselldemallorca.helium.core.helper.HerenciaHelper;
 import net.conselldemallorca.helium.core.helper.PaginacioHelper;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.hibernate.Termini;
@@ -236,14 +237,14 @@ public class TerminiServiceImpl implements TerminiService {
 		ExpedientTipus expedientTipus = expedientTipusId != null? expedientTipusHelper.getExpedientTipusComprovantPermisDissenyDelegat(expedientTipusId) : null;
 		
 		// Determina si hi ha herència 
-		boolean herencia = expedientTipus != null && expedientTipus.isAmbInfoPropia() && expedientTipus.getExpedientTipusPare() != null;
+		boolean ambHerencia = HerenciaHelper.ambHerencia(expedientTipus);
 		
 		Page<Termini> page = terminiRepository.findByFiltrePaginat(
 				expedientTipusId,
 				definicioProcesId,
 				filtre == null || "".equals(filtre), 
 				filtre, 
-				herencia,
+				ambHerencia,
 				paginacioHelper.toSpringDataPageable(
 						paginacioParams)); 
 		
@@ -251,7 +252,7 @@ public class TerminiServiceImpl implements TerminiService {
 				page,
 				TerminiDto.class);
 		
-		if (herencia) {
+		if (ambHerencia) {
 			// Llista d'heretats
 			Set<Long> heretatsIds = new HashSet<Long>();
 			for (Termini t : page.getContent())

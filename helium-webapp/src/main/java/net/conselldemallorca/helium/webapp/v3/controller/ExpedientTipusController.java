@@ -34,6 +34,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import net.conselldemallorca.helium.core.helper.EntornHelper;
 import net.conselldemallorca.helium.v3.core.api.dto.ConsultaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesExpedientDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesExpedientDto.IdAmbEtiqueta;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExecucioMassivaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExecucioMassivaDto.ExecucioMassivaTipusDto;
@@ -47,6 +49,7 @@ import net.conselldemallorca.helium.v3.core.api.exportacio.DefinicioProcesExport
 import net.conselldemallorca.helium.v3.core.api.exportacio.ExpedientTipusExportacio;
 import net.conselldemallorca.helium.v3.core.api.exportacio.ExpedientTipusExportacioCommandDto;
 import net.conselldemallorca.helium.v3.core.api.service.AplicacioService;
+import net.conselldemallorca.helium.v3.core.api.service.DefinicioProcesService;
 import net.conselldemallorca.helium.v3.core.api.service.DissenyService;
 import net.conselldemallorca.helium.v3.core.api.service.ExecucioMassivaService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientTipusService;
@@ -83,6 +86,8 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 	private AplicacioService aplicacioService;
 	@Autowired
 	private DissenyService dissenyService;
+	@Autowired
+	private DefinicioProcesService definicioProcesService;
 	@Autowired
 	private ConversioTipusHelper conversioTipusHelper;
 	@Autowired
@@ -546,6 +551,9 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 								command, 
 								ExpedientTipusExportacioCommandDto.class),
 	        			importacio);
+	        	// Invoca al mètode per relacionar les darreres definicions de procés
+	        	definicioProcesService.relacionarDarreresVersions(expedientTipus.getId());
+	        	
 	    		MissatgesHelper.success(
 						request, 
 						getMessage(
@@ -1159,6 +1167,128 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 			}
 		}
 		return "redirect:/v3/expedientTipus/"+expedientTipusId;
+	}	
+	
+	/** Acció del menú d'accions del tipus d'expedient per propagar els handlers de les darreres versions a les versions anteriors.
+	 * Obre una modal per escollir a quines versions propagar els handlers de les diferents definicions de procés del tipus d'expedient.
+	 */
+	@RequestMapping(value = "/{expedientTipusId}/propagarHandlers", method = RequestMethod.GET)
+	public String propagarHandlers(
+			HttpServletRequest request,
+			@PathVariable Long expedientTipusId,
+			@RequestParam(required = false) List<Long> definicionsSeleccionades,
+			Model model) {
+		
+		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
+		ExpedientTipusDto expedientTipus = expedientTipusService.findAmbIdPermisDissenyar(
+				entornActual.getId(),
+				expedientTipusId);
+		
+		// Llista per passar al model
+		List<DefinicioProcesExpedientDto> definicions = new ArrayList<DefinicioProcesExpedientDto>();
+		
+		// Recupera les darreres versions per la definició de procés no globals
+		List<DefinicioProcesDto> definicionsProces = definicioProcesService.findAll(entornActual.getId(), expedientTipusId, false);
+		// Per cada definició de procés cerca les seves versions
+		for (DefinicioProcesDto d : definicionsProces) {
+			DefinicioProcesExpedientDto definicio = dissenyService.getDefinicioProcesByEntorIdAndProcesId(
+					entornActual.getId(), 
+					d.getId());
+			// Treu el primer resultat que es correspon amb la darrera versió, no cal propagar-la
+			definicio.getListIdAmbEtiqueta().remove(0);
+			// L'objecte de tipus DefinicioProcesExpedientDto ja conté totes les versions
+			if (definicio.getJbpmKey().equals(expedientTipus.getJbpmProcessDefinitionKey()))
+				definicions.add(0, definicio);
+			else
+				definicions.add(definicio);
+		}
+		// Afegeix al model
+		model.addAttribute("expedientTipus", expedientTipus);
+		model.addAttribute("definicions", definicions);
+		if (definicionsSeleccionades == null) {
+			definicionsSeleccionades = new ArrayList<Long>();
+			model.addAttribute("inici", true); // per marcar tots els checboxs inicialment
+		}
+		model.addAttribute("definicionsSeleccionades", definicionsSeleccionades);
+
+		return "v3/expedientTipusPropagarHandlersForm";
+	}	
+	
+	/** Acció del menú d'accions del tipus d'expedient per propagar els handlers de les darreres versions a les versions anteriors.
+	 * Obre una modal per escollir a quines versions propagar els handlers de les diferents definicions de procés del tipus d'expedient.
+	 */
+	@RequestMapping(value = "/{expedientTipusId}/propagarHandlers", method = RequestMethod.POST)
+	public String propagarHandlersPost(
+			HttpServletRequest request,
+			@PathVariable Long expedientTipusId,
+			@RequestParam(required = false) List<Long> definicionsSeleccionades,
+			Model model) {
+		
+		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
+		expedientTipusService.findAmbIdPermisDissenyar(
+				entornActual.getId(),
+				expedientTipusId);
+		
+		if (definicionsSeleccionades == null || definicionsSeleccionades.size() == 0) {
+			MissatgesHelper.error(
+					request,
+					getMessage(
+							request, 
+							"expedient.tipus.propagar.handlers.cap.seleccionat.error"));
+			return this.propagarHandlers(
+					request, 
+					expedientTipusId, 
+					new ArrayList<Long>(), 
+					model);
+		}
+		
+		// Recupera les darreres versions per la definició de procés no globals
+		List<DefinicioProcesDto> darreresVersions = definicioProcesService.findAll(entornActual.getId(), expedientTipusId, false);
+		// Per cada definició de procés propaga els handlers a la llista de definicions seleccionades
+		List<Long> versionsSeleccionades;
+		for (DefinicioProcesDto darreraVersio : darreresVersions) {
+			DefinicioProcesExpedientDto definicio = dissenyService.getDefinicioProcesByEntorIdAndProcesId(
+					entornActual.getId(), 
+					darreraVersio.getId());
+			versionsSeleccionades = new ArrayList<Long>();
+			// Construeix la llista
+			for (IdAmbEtiqueta i : definicio.getListIdAmbEtiqueta())
+				if (definicionsSeleccionades.contains(i.getId()))
+					versionsSeleccionades.add(i.getId());
+			// Propaga els handlers
+			if (versionsSeleccionades.size() > 0)
+				try {
+					dissenyService.propagarHandlers(
+							darreraVersio.getId(), 
+							versionsSeleccionades);
+					MissatgesHelper.success(request, 
+							getMessage( 
+									request, 
+									"expedient.tipus.propagar.handlers.confirmacio",
+									new Object[] {
+											darreraVersio.getJbpmKey(),
+											versionsSeleccionades.size()
+									}));
+
+				} catch (Exception e) {
+					String msgErr = getMessage(
+							request, 
+							"expedient.tipus.propagar.handlers.error", 
+							new Object[] {
+									darreraVersio.getJbpmKey(),
+									e.getMessage()
+							});
+    				logger.error(msgErr, e);
+    				MissatgesHelper.error(
+    						request,
+    						msgErr);
+				}
+		}
+		return this.propagarHandlers(
+				request, 
+				expedientTipusId, 
+				definicionsSeleccionades,
+				model);
 	}	
 	
 	@InitBinder

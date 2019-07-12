@@ -235,6 +235,7 @@
 						<li id="pipella-nti"><a href="#contingut-metadadesnti" role="tab" data-toggle="tab"><spring:message code="expedient.tipus.pipelles.pipella.integracio.arxiu"/></a></li>
 						<li id="pipella-integracio-tramits"><a href="#contingut-integracio-tramits" role="tab" data-toggle="tab"><spring:message code="expedient.tipus.pipelles.pipella.integracio.sistra"/></a></li>
 						<li id="pipella-integracio-forms"><a href="#contingut-integracio-forms" role="tab" data-toggle="tab"><spring:message code="expedient.tipus.pipelles.pipella.integracio.forms"/></a></li>
+						<li id="pipella-integracio-notib"><a href="#contingut-integracio-notib" role="tab" data-toggle="tab"><spring:message code="expedient.tipus.pipelles.pipella.integracio.notib"/></a></li>
 						<li id="pipella-redireccions"><a href="#contingut-redireccions" role="tab" data-toggle="tab"><spring:message code="expedient.tipus.pipelles.pipella.redireccions"/></a></li>
 					</c:if>
 				</ul>
@@ -280,6 +281,9 @@
 					<div class="contingut-carregant"><span class="fa fa-circle-o-notch fa-spin fa-3x"></span></div>
 				</div>
 				<div id="contingut-integracio-forms" class="tab-pane" data-href="<c:url value="/nodeco/v3/expedientTipus/${expedientTipus.id}/integracioForms"/>">
+					<div class="contingut-carregant"><span class="fa fa-circle-o-notch fa-spin fa-3x"></span></div>
+				</div>
+				<div id="contingut-integracio-notib" class="tab-pane" data-href="<c:url value="/nodeco/v3/expedientTipus/${expedientTipus.id}/integracioNotib"/>">
 					<div class="contingut-carregant"><span class="fa fa-circle-o-notch fa-spin fa-3x"></span></div>
 				</div>
 				<div id="contingut-redireccions" class="tab-pane" data-href="<c:url value="/nodeco/v3/expedientTipus/${expedientTipus.id}/redireccions"/>">

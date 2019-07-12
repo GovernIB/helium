@@ -20,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 import net.conselldemallorca.helium.core.helper.ConversioTipusHelper;
 import net.conselldemallorca.helium.core.helper.EntornHelper;
 import net.conselldemallorca.helium.core.helper.ExpedientTipusHelper;
+import net.conselldemallorca.helium.core.helper.HerenciaHelper;
 import net.conselldemallorca.helium.core.helper.MessageHelper;
 import net.conselldemallorca.helium.core.helper.PaginacioHelper;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
@@ -88,7 +89,7 @@ public class EnumeracioServiceImpl implements EnumeracioService {
 		ExpedientTipus expedientTipus = expedientTipusId != null? expedientTipusHelper.getExpedientTipusComprovantPermisDissenyDelegat(expedientTipusId) : null;
 
 		// Determina si hi ha herència 
-		boolean herencia = expedientTipus != null && expedientTipus.isAmbInfoPropia() && expedientTipus.getExpedientTipusPare() != null;
+		boolean ambHerencia = HerenciaHelper.ambHerencia(expedientTipus);
 
 		Page<Enumeracio> page = enumeracioRepository.findByFiltrePaginat(
 				entornId,
@@ -97,7 +98,7 @@ public class EnumeracioServiceImpl implements EnumeracioService {
 				incloureGlobals,
 				filtre == null || "".equals(filtre),
 				filtre,
-				herencia,
+				ambHerencia,
 				paginacioHelper.toSpringDataPageable(paginacioParams));
 		
 		PaginaDto<EnumeracioDto> pagina = paginacioHelper.toPaginaDto(page, EnumeracioDto.class);
@@ -110,13 +111,13 @@ public class EnumeracioServiceImpl implements EnumeracioService {
 		Set<String> sobreescritsCodis = new HashSet<String>();
 		for (Enumeracio e : page.getContent()) {
 			enumeracionsIds.add(e.getId());
-			if (herencia
+			if (ambHerencia
 					&& !expedientTipusId.equals(e.getExpedientTipus().getId()))
 				heretatsIds.add(e.getId());				
 		}
 		if (enumeracionsIds.isEmpty())
 			enumeracionsIds.add(0L);
-		if (herencia) {
+		if (ambHerencia) {
 			for (Enumeracio e : enumeracioRepository.findSobreescrits(expedientTipus.getId()))
 				sobreescritsCodis.add(e.getCodi());
 		}
@@ -129,7 +130,7 @@ public class EnumeracioServiceImpl implements EnumeracioService {
 			for (EnumeracioDto dto : pagina.getContingut()) {
 				// Comptador de valors
 				dto.setNumValors(enumeracioValorsCountMap.containsKey(dto.getId()) ? enumeracioValorsCountMap.get(dto.getId()).intValue() : 0);
-				if(herencia) {
+				if(ambHerencia) {
 					// Sobreescriu
 					if (sobreescritsCodis.contains(dto.getCodi()))
 						dto.setSobreescriu(true);

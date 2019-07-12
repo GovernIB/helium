@@ -112,6 +112,12 @@ public class InstanciaProcesDto {
 		return resposta;
 	}
 
+	public Map<String, DocumentDto> getVarsDocuments() {
+		return varsDocuments;
+	}
+	public void setVarsDocuments(Map<String, DocumentDto> varsDocuments) {
+		this.varsDocuments = varsDocuments;
+	}
 	public boolean isFinalitzat() {
 		return dataFi != null;
 	}

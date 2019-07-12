@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import net.conselldemallorca.helium.core.model.dto.PersonaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.service.AdminService;
 import net.conselldemallorca.helium.v3.core.api.service.EntornService;
@@ -40,18 +41,20 @@ public class MonitorDominiController extends BaseController {
 			@RequestParam(value = "entornId", required = false) Long entornId,
 			Model model) {
 		Long entornActualId = entornId;
+		PersonaDto persona = (PersonaDto) request.getSession().getAttribute("dadesPersona");
 		if (entornActualId == null) {
 			EntornDto entornActual = (EntornDto)SessionHelper.getAttribute(
 					request,
 					SessionHelper.VARIABLE_ENTORN_ACTUAL_V3);
 			entornActualId = entornActual.getId();
 		}
+		
 		model.addAttribute(
 				"dominis",
 				adminService.monitorDominiFindByEntorn(entornActualId));
 		model.addAttribute(
 				"entorns",
-				entornService.findActiusAll());
+				(persona != null && persona.isAdmin())?entornService.findActiusAll():entornService.findActiusAmbPermisAdmin());
 		model.addAttribute(
 				"entornActualId",
 				entornActualId);

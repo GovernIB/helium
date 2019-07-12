@@ -4,9 +4,21 @@
 <%@ taglib uri="http://www.springframework.org/tags/form" prefix="form" %>
 <%@ taglib tagdir="/WEB-INF/tags/helium" prefix="hel"%>
 <c:set var="idioma"><%=org.springframework.web.servlet.support.RequestContextUtils.getLocale(request).getLanguage()%></c:set>
+
+<c:choose>
+	<c:when test="${empty document}"><
+		<c:set var="titol"><spring:message code="expedient.document.afegir"/></c:set>
+		<c:set var="formAction">new</c:set>
+	</c:when>
+	<c:otherwise>
+		<c:set var="titol"><spring:message code="expedient.document.modificar"/></c:set>
+		<c:set var="formAction">update</c:set>
+	</c:otherwise>
+</c:choose>
+
 <html>
 <head>
-	<title><spring:message code="expedient.document.afegir"/></title>
+	<title>${titol}</title>
 	<hel:modalHead/>
 	<script type="text/javascript" src="<c:url value="/js/jquery/jquery.keyfilter-1.8.js"/>"></script>
 	<script type="text/javascript" src="<c:url value="/js/jquery.price_format.1.8.min.js"/>"></script>
@@ -18,6 +30,7 @@
 	<script src="<c:url value="/js/moment.js"/>"></script>
 	<script src="<c:url value="/js/moment-with-locales.min.js"/>"></script>
 	<script src="<c:url value="/js/bootstrap-datetimepicker.js"/>"></script>
+	<script src="<c:url value="/js/webutil.common.js"/>"></script>
 	<link href="<c:url value="/css/bootstrap-datetimepicker.min.css"/>" rel="stylesheet">
 <style type="text/css">
 	.btn-file {position: relative; overflow: hidden;}
@@ -25,6 +38,14 @@
 	.col-xs-4 {width: 20%;}		
 	.col-xs-8 {width: 80%;}
 	#s2id_estatId {width: 100% !important;}
+	.titol-missatge {
+		margin-left: 3px;
+		padding-top: 10px;
+		padding-bottom: 10px;
+	}
+	.titol-missatge label {
+		padding-right: 10px;
+	}
 	.nav-tabs li.disabled a {
 	    pointer-events: none;
 	}
@@ -35,26 +56,12 @@
 </style>
 <script type="text/javascript">
 // <![CDATA[
-$(document).on('change', '.btn-file :file', function() {
-	var input = $(this),
-	numFiles = input.get(0).files ? input.get(0).files.length : 1,
-	label = input.val().replace(/\\/g, '/').replace(/.*\//, '');
-	input.trigger('fileselect', [numFiles, label]);
-});
-
 $(document).ready( function() {
-	$('.btn-file :file').on('fileselect', function(event, numFiles, label) {
-		var input = $(this).parents('.input-group').find(':text'),
-		log = numFiles > 1 ? numFiles + ' files selected' : label;
-		if( input.length ) {
-			input.val(log);
-		} else {
-			if( log )
-				alert(log);
-		}
-	});
 	$('#arxiuNom').on('click', function() {
 		$('input[name=arxiu]').click();
+	});
+	$('#firmaNom').on('click', function() {
+		$('input[name=firma]').click();
 	});
 	$('#documentCodi').on('click', function() {
 		var valor = $(this).val();
@@ -65,17 +72,61 @@ $(document).ready( function() {
 			$('#pipella-general a').click();
 		}
 	}).click();
+	// Errors en les pipelles
 	$('.tab-pane').each(function() {
-		if ($('.has-error', this).length > 0) 
+		if ($('.has-error', this).length > 0) {
 			$('a[href="#' + $(this).attr('id') + '"]').append(' <span class="fa fa-exclamation-triangle text-danger"/>');
+		}
+	});
+	
+	$('input[type=checkbox][name=ambFirma]').on('change', function() {
+		if($(this).prop("checked") == true){
+			$('#input-firma').removeClass('hidden');
+			$('input[tpe=radio][name=tipusFirma]:checked').change();
+		} else {
+			$('#input-firma').addClass('hidden');
+		}
+	});
+	$('input[type=radio][name=tipusFirma]').change(function() {
+		if ($(this).val() == 'SEPARAT') {
+			$('#input-firma-arxiu').removeClass('hidden');
+		} else {
+			$('#input-firma-arxiu').addClass('hidden');
+		}
+	});
+	
+	$('input[type=checkbox][name=ambFirma]').change();
+	$('input[type=radio][name=tipusFirma]:checked').change();
+	
+	$("#arxiu").change(function (){
+		$('#arxiuNom').val($(this).val().split('\\').pop());
+	});
+	$("#firma").change(function (){
+		$('#firmaNom').val($(this).val().split('\\').pop());
 	});
 }); 
+
+function mostrarAmagarFile() {
+	$("#amagarFile").removeClass("hide");
+	$("#downloadUrl").hide();
+	$("#removeUrl").hide();
+	$("#modificarArxiu").val(true);
+}
 // ]]>
 </script>
 </head>
 <body>
-	<form:form cssClass="form-horizontal form-tasca" action="new" enctype="multipart/form-data" method="post" commandName="documentExpedientCommand">
+	<c:url value="/v3/expedient/${expedientId}/proces/${document.processInstanceId}/document/${document.id}/descarregar" var="downloadUrl"/>
+	<form:form cssClass="form-horizontal form-tasca" action="${formAction}" enctype="multipart/form-data" method="post" commandName="documentExpedientCommand">
 		<div class="inlineLabels">
+			<form:hidden path="docId"/>
+			<form:hidden path="expedientId"/>
+			<form:hidden path="validarArxius"/>
+			<form:hidden path="codi"/>			
+			<input type="hidden" id="processInstanceId" name="processInstanceId" value="${document.processInstanceId}"/>
+			<input type="hidden" id="modificarArxiu" name="modificarArxiu" value="false"/>
+<c:choose>
+	<c:when test="${empty document}">
 			<div id="selDocument" class="form-group">
 				<label class="control-label col-xs-5 obligatori" for="documentCodi">Document</label>
 				<div id="elDocument_controls" class="col-xs-7">
@@ -92,6 +143,26 @@ $(document).ready( function() {
 					<c:if test="${not empty campErrors}"><p class="help-block"><span class="fa fa-exclamation-triangle"></span>&nbsp;<form:errors path="documentCodi"/></p></c:if>
 				</div>
 			</div>
+	</c:when>
+	<c:otherwise>
+			<h4 class="titol-missatge">
+				<label><c:choose><c:when test="${document.adjunt}">${document.adjuntTitol}</c:when><c:otherwise>${document.documentNom}</c:otherwise></c:choose></label>
+	 			<c:if test="${document.plantilla}"> 
+	 				<a title="<spring:message code='expedient.massiva.tasca.doc.generar' />" href="<c:url value="/modal/v3/expedient/${expedientId}/document/${document.processInstanceId}/${document.documentCodi}/generar"/>">
+	 					<i class="fa fa-file-text-o"></i>
+	 				</a>
+	 			</c:if> 
+ 				<c:if test="${empty document.signaturaPortasignaturesId && not document.signat}">
+					<a title="<spring:message code='comuns.descarregar' />" id="downloadUrl" href="${downloadUrl}">
+						<i class="fa fa-download"></i>
+					</a>
+					<a title="<spring:message code="expedient.massiva.tasca.doc.borrar"/>" id="removeUrl" name="removeUrl" href="#" onclick="return mostrarAmagarFile()">
+						<i class="fa fa-times"></i>
+					</a>
+				</c:if>
+			</h4>
+	</c:otherwise>
+</c:choose>
 			<c:if test="${expedient.ntiActiu}">
 				<div>
 					<ul class="nav nav-tabs" role="tablist">
@@ -100,6 +171,7 @@ $(document).ready( function() {
 					</ul>
 				</div>
 			</c:if>
+
 			<div class="tab-content">
 				<div id="dades-generals" class="tab-pane in active">	
 					<div id="titolArxiu">
@@ -111,7 +183,7 @@ $(document).ready( function() {
 						<label class="control-label col-xs-4 obligatori" for="arxiu"><spring:message code="expedient.document.arxiu"/></label>
 				        <div class="col-xs-8 arxiu">
 				            <div class="input-group">
-				            	<input type="text" id="arxiuNom" name="arxiuNom" class="form-control"/>
+				            	<input type="text" id="arxiuNom" name="arxiuNom" class="form-control" placeholder="${document.arxiuNom}"/>
 				                <span class="input-group-btn">
 				                    <span class="btn btn-default btn-file">
 				                        <spring:message code='expedient.document.arxiu' />… <input type="file" id="arxiu" name="arxiu"/>
@@ -121,7 +193,30 @@ $(document).ready( function() {
 							<c:if test="${not empty campErrors}"><p class="help-block"><span class="fa fa-exclamation-triangle"></span>&nbsp;<form:errors path="arxiu"/></p></c:if>
 						</div>
 					</div>
+
+					<hel:inputCheckbox name="ambFirma" textKey="expedient.document.form.camp.amb.firma"></hel:inputCheckbox>
+					<div id="input-firma" class="hidden">
+						<hel:inputRadio name="tipusFirma" textKey="expedient.document.form.camp.tipus.firma" botons="true" optionItems="${tipusFirmaOptions}" optionValueAttribute="value" optionTextKeyAttribute="text"/>
+						<div id="input-firma-arxiu" class="hidden">
+						<c:set var="campErrors"><form:errors path="firma"/></c:set>
+							<div class="form-group<c:if test="${not empty campErrors}"> has-error</c:if>">
+								<label class="control-label col-xs-4 obligatori" for="firma"><spring:message code="expedient.document.form.camp.firma"/></label>
+						        <div class="col-xs-8 firma">
+						            <div class="input-group">
+						            	<input type="text" id="firmaNom" name="firmaNom" class="form-control"/>
+						                <span class="input-group-btn">
+						                    <span class="btn btn-default btn-file">
+						                        <spring:message code='expedient.document.arxiu' />… <input type="file" id="firma" name="firma"/>
+						                    </span>
+						                </span>
+						            </div>
+									<c:if test="${not empty campErrors}"><p class="help-block"><span class="fa fa-exclamation-triangle"></span>&nbsp;<form:errors path="firma"/></p></c:if>
+								</div>
+							</div>
+						</div>
+					</div>					
 				</div>
+				
 				<c:if test="${expedient.ntiActiu}">
 					<div id="dades-nti" class="tab-pane">
 						<hel:inputSelect name="ntiOrigen" textKey="document.metadades.nti.origen" optionItems="${ntiOrigen}" optionValueAttribute="codi" optionTextAttribute="valor" emptyOption="true" required="true"/>
@@ -132,11 +227,23 @@ $(document).ready( function() {
 				</c:if>
 			</div>
 		</div>
+		<c:if test="${modificarArxiu}">
+<script type="text/javascript">mostrarAmagarFile();</script>
+		</c:if>
 		<div id="modal-botons" class="well">
 			<button type="button" class="btn btn-default modal-tancar" name="submit" value="cancel"><spring:message code="comu.boto.cancelar"/></button>
+<c:choose>
+	<c:when test="${empty document}">
 			<button class="btn btn-primary right" type="submit" name="accio" value="document_adjuntar">
 				<spring:message code='comuns.afegir' />
 			</button>
+	</c:when>
+	<c:otherwise>
+			<button class="btn btn-primary right" type="submit" name="accio" value="document_modificar">
+				<spring:message code='comuns.modificar' />
+			</button>
+	</c:otherwise>
+</c:choose>
 		</div>
 	</form:form>
 </body>

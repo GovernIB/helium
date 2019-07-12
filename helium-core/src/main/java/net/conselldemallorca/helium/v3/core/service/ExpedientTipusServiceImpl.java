@@ -36,6 +36,7 @@ import net.conselldemallorca.helium.core.helper.DominiHelper;
 import net.conselldemallorca.helium.core.helper.EntornHelper;
 import net.conselldemallorca.helium.core.helper.ExpedientHelper;
 import net.conselldemallorca.helium.core.helper.ExpedientTipusHelper;
+import net.conselldemallorca.helium.core.helper.HerenciaHelper;
 import net.conselldemallorca.helium.core.helper.MessageHelper;
 import net.conselldemallorca.helium.core.helper.PaginacioHelper;
 import net.conselldemallorca.helium.core.helper.PermisosHelper;
@@ -46,13 +47,11 @@ import net.conselldemallorca.helium.core.model.hibernate.Camp;
 import net.conselldemallorca.helium.core.model.hibernate.Camp.TipusCamp;
 import net.conselldemallorca.helium.core.model.hibernate.CampAgrupacio;
 import net.conselldemallorca.helium.core.model.hibernate.CampRegistre;
-import net.conselldemallorca.helium.core.model.hibernate.CampTasca;
 import net.conselldemallorca.helium.core.model.hibernate.Consulta;
 import net.conselldemallorca.helium.core.model.hibernate.ConsultaCamp;
 import net.conselldemallorca.helium.core.model.hibernate.ConsultaCamp.TipusParamConsultaCamp;
 import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
 import net.conselldemallorca.helium.core.model.hibernate.Document;
-import net.conselldemallorca.helium.core.model.hibernate.DocumentTasca;
 import net.conselldemallorca.helium.core.model.hibernate.Domini;
 import net.conselldemallorca.helium.core.model.hibernate.Domini.TipusDomini;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
@@ -60,7 +59,6 @@ import net.conselldemallorca.helium.core.model.hibernate.Enumeracio;
 import net.conselldemallorca.helium.core.model.hibernate.EnumeracioValors;
 import net.conselldemallorca.helium.core.model.hibernate.Estat;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
-import net.conselldemallorca.helium.core.model.hibernate.FirmaTasca;
 import net.conselldemallorca.helium.core.model.hibernate.MapeigSistra;
 import net.conselldemallorca.helium.core.model.hibernate.Reassignacio;
 import net.conselldemallorca.helium.core.model.hibernate.SequenciaAny;
@@ -78,6 +76,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.DominiDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EnumeracioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusEstadisticaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.MapeigSistraDto;
 import net.conselldemallorca.helium.v3.core.api.dto.MapeigSistraDto.TipusMapeig;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
@@ -437,37 +436,6 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 				true);
 		ExpedientTipus entity = expedientTipusRepository.findOne(expedientTipusId);
 		
-		// Esborra primmer la relació de les variables del tipus d'expedient amb les definicions de procés
-		for (CampTasca ct :	campTascaRepository.findAllByExpedientTipus(entity)) {
-			// Assegura que sigui un camp tasca propi
-			if (entity.equals(ct.getExpedientTipus())
-					|| (ct.getExpedientTipus() == null 
-					 		&& entity.equals(ct.getCamp().getExpedientTipus())))
-			{
-				ct.getCamp().removeCampTasca(ct);
-				campTascaRepository.delete(ct);
-			}
-		}		
-		for (DocumentTasca dt :	documentTascaRepository.findAllByExpedientTipus(entity)) {
-			// Assegura que sigui un camp tasca propi
-			if (entity.equals(dt.getExpedientTipus())
-					|| (dt.getExpedientTipus() == null 
-					 		&& entity.equals(dt.getDocument().getExpedientTipus())))
-			{
-				dt.getDocument().removeTasca(dt);
-				documentTascaRepository.delete(dt);
-			}
-		}
-		for (FirmaTasca ft :	firmaTascaRepository.findAllByExpedientTipus(entity)) {
-			// Assegura que sigui un camp tasca propi
-			if (entity.equals(ft.getExpedientTipus())
-					|| (ft.getExpedientTipus() == null 
-					 		&& entity.equals(ft.getDocument().getExpedientTipus())))
-			{
-				ft.getDocument().removeFirma(ft);
-				firmaTascaRepository.delete(ft);
-			}
-		}			
 		expedientTipusRepository.delete(entity);
 	}
 
@@ -535,10 +503,25 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 			sequenciaAnyDefaultMap.put(entry.getKey(), valueDto);
 		}					    
 		exportacio.setSequenciaDefaultAny(sequenciaAnyDefaultMap);
+		// Metadades NTI i Arxiu
 		exportacio.setNtiActiu(tipus.isNtiActiu());
 		exportacio.setNtiOrgano(tipus.getNtiOrgano());
 		exportacio.setNtiClasificacion(tipus.getNtiClasificacion());
 		exportacio.setNtiSerieDocumental(tipus.getNtiSerieDocumental());
+		exportacio.setArxiuActiu(tipus.isArxiuActiu());
+		// Integració amb NOTIB
+		exportacio.setNotibActiu(tipus.getNotibActiu());
+		exportacio.setNotibSeuUnitatAdministrativa(tipus.getNotibSeuUnitatAdministrativa());
+		exportacio.setNotibSeuCodiProcediment(tipus.getNotibSeuCodiProcediment());
+		exportacio.setNotibSeuOficina(tipus.getNotibSeuOficina());
+		exportacio.setNotibSeuLlibre(tipus.getNotibSeuLlibre());
+		exportacio.setNotibSeuOrgan(tipus.getNotibSeuOrgan());
+		exportacio.setNotibSeuIdioma(tipus.getNotibSeuIdioma());
+		exportacio.setNotibAvisTitol(tipus.getNotibAvisTitol());
+		exportacio.setNotibAvisText(tipus.getNotibAvisText());
+		exportacio.setNotibAvisTextSms(tipus.getNotibAvisTextSms());
+		exportacio.setNotibOficiTitol(tipus.getNotibOficiTitol());
+		exportacio.setNotibOficiText(tipus.getNotibOficiText());
 		// Integració amb forms
 		if (command.isIntegracioForms()) {
 			exportacio.setFormextUrl(tipus.getFormextUrl());
@@ -584,7 +567,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		                    (necessitaDadesExternes) ? camp.getConsultaCampValor() : null,
 		                    camp.isMultiple(),
 		                    camp.isOcult(),
-		                    camp.isDominiIntern(),
+		                    camp.getDominiIntern(),
 		                    camp.isDominiCacheText(),
 		                    (necessitaDadesExternes && camp.getEnumeracio() != null) ? camp.getEnumeracio().getCodi() : null,
 		                    (necessitaDadesExternes && camp.getDomini() != null) ? camp.getDomini().getCodi() : null,
@@ -859,10 +842,25 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 				}
 			}
 		}
+		// Metadades NTI i Arxiu
 		expedientTipus.setNtiActiu(importacio.isNtiActiu());
 		expedientTipus.setNtiOrgano(importacio.getNtiOrgano());
 		expedientTipus.setNtiClasificacion(importacio.getNtiClasificacion());
 		expedientTipus.setNtiSerieDocumental(importacio.getNtiSerieDocumental());
+		expedientTipus.setArxiuActiu(importacio.isArxiuActiu());
+		// Integració amb NOTIB
+		expedientTipus.setNotibActiu(importacio.getNotibActiu());
+		expedientTipus.setNotibSeuUnitatAdministrativa(importacio.getNotibSeuUnitatAdministrativa());
+		expedientTipus.setNotibSeuCodiProcediment(importacio.getNotibSeuCodiProcediment());
+		expedientTipus.setNotibSeuOficina(importacio.getNotibSeuOficina());
+		expedientTipus.setNotibSeuLlibre(importacio.getNotibSeuLlibre());
+		expedientTipus.setNotibSeuOrgan(importacio.getNotibSeuOrgan());
+		expedientTipus.setNotibSeuIdioma(importacio.getNotibSeuIdioma());
+		expedientTipus.setNotibAvisTitol(importacio.getNotibAvisTitol());
+		expedientTipus.setNotibAvisText(importacio.getNotibAvisText());
+		expedientTipus.setNotibAvisTextSms(importacio.getNotibAvisTextSms());
+		expedientTipus.setNotibOficiTitol(importacio.getNotibOficiTitol());
+		expedientTipus.setNotibOficiText(importacio.getNotibOficiText());
 		// Integració amb formularis externs
 		if (command.isIntegracioForms()) {
 			expedientTipus.setFormextUrl(importacio.getFormextUrl());
@@ -1284,17 +1282,18 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		
 		// Definicions
 		DefinicioProces definicioProces;
-		if (command.getDefinicionsProces().size() > 0)
+		if (command.getDefinicionsProces().size() > 0) {
 			for(DefinicioProcesExportacio definicioExportat : importacio.getDefinicions() )
 				if (command.getDefinicionsProces().contains(definicioExportat.getDefinicioProcesDto().getJbpmKey())){
 					definicioProces = definicioProcesHelper.importar(
-							entornId, 
+							entornId,
 							expedientTipus.getId(),
 							definicioExportat,
 							null /* no especifica el filtre per a la importació. */,
 							command.isSobreEscriure());
 					expedientTipus.addDefinicioProces(definicioProces);
 				}
+		}
 
 		// Consultes
 		Map<String, Consulta> consultes = new HashMap<String, Consulta>();
@@ -1398,8 +1397,8 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		return conversioTipusHelper.convertir(
 				expedientTipusRepository.save(expedientTipus),
 				ExpedientTipusDto.class);
-	}	
-
+	}
+	
 	/**
 	 * {@inheritDoc}
 	 */
@@ -1600,6 +1599,25 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 				ExpedientTipusDto.class);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@Transactional
+	public List<ExpedientTipusDto> findAmbEntorn(
+			Long entornId) {
+		logger.debug(
+				"Consultant tipus d'expedient per un entorn (" +
+				"entornId=" + entornId + ")");
+		Entorn entorn = entornHelper.getEntornComprovantPermisos(
+				entornId,
+				true);
+		List<ExpedientTipus> tipuss = expedientTipusRepository.findByEntorn(entorn);
+		return conversioTipusHelper.convertirList(
+				tipuss,
+				ExpedientTipusDto.class);
+	}
+	
 	/**
 	 * {@inheritDoc}
 	 */
@@ -1947,20 +1965,20 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 	public List<String> definicioProcesFindJbjmKey(
 			Long entornId,
 			Long expedientTipusId,
-			boolean herencia,
+			boolean ambHerencia,
 			boolean incloureGlobals) {
 		logger.debug(
 				"Consultant les jbpmKey de les definicions de processos per al tipus d'expedient (" +
 				"entornId=" + entornId + ", " +
 				"expedientTipusId=" + expedientTipusId + ", " +
-				"herencia=" + herencia + ", " +
+				"ambHerencia=" + ambHerencia + ", " +
 				"incloureGlobals=" + incloureGlobals + ")");
 		return definicioProcesRepository.findJbpmKeys(
 				entornId, 
 				expedientTipusId == null,
 				expedientTipusId,
 				incloureGlobals,
-				herencia);
+				ambHerencia);
 	}	
 
 	@Override
@@ -2111,11 +2129,11 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 					expedientTipusId);
 		
 		// Determina si hi ha herència 
-		boolean herencia = ambHerencia && expedientTipus.isAmbInfoPropia() && expedientTipus.getExpedientTipusPare() != null;
+		ambHerencia = ambHerencia && HerenciaHelper.ambHerencia(expedientTipus);
 		
 		// Consulta els estats
 		List<Estat> estats;
-		if (herencia)
+		if (ambHerencia)
 			estats = estatRepository.findAllAmbHerencia(expedientTipusId);
 		else
 			estats = estatRepository.findAll(expedientTipusId);				
@@ -2124,7 +2142,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 				estats,
 				EstatDto.class);		
 
-		if (herencia) {
+		if (ambHerencia) {
 			// Llista d'heretats
 			Set<Long> heretatsIds = new HashSet<Long>();
 			for (Estat e : estats)
@@ -2259,13 +2277,13 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		ExpedientTipus expedientTipus = expedientTipusHelper.getExpedientTipusComprovantPermisDissenyDelegat(expedientTipusId);
 
 		// Determina si hi ha herència 
-		boolean herencia = expedientTipus.isAmbInfoPropia() && expedientTipus.getExpedientTipusPare() != null;
+		boolean ambHerencia = HerenciaHelper.ambHerencia(expedientTipus);
 		
 		Page<Estat> page = estatRepository.findByFiltrePaginat(
 				expedientTipusId,
 				filtre == null || "".equals(filtre), 
 				filtre, 
-				herencia,
+				ambHerencia,
 				paginacioHelper.toSpringDataPageable(
 						paginacioParams)); 
 
@@ -2273,7 +2291,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 				page,
 				EstatDto.class);				
 
-		if (herencia) {
+		if (ambHerencia) {
 			// Llista d'heretats
 			Set<Long> heretatsIds = new HashSet<Long>();
 			for (Estat e : page.getContent())
@@ -2428,7 +2446,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 					nou.setDominiCacheText(camp.isDominiCacheText());
 					nou.setMultiple(camp.isMultiple());
 					nou.setOcult(camp.isOcult());
-					nou.setDominiIntern(camp.isDominiIntern());
+					nou.setDominiIntern(camp.getDominiIntern());
 					nou.setJbpmAction(camp.getJbpmAction());
 					if (camp.getTipus() == TipusCamp.ACCIO && camp.getDefinicioProces() != null)
 						nou.setDefprocJbpmKey(camp.getDefinicioProces().getJbpmKey());
@@ -2474,7 +2492,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 					}
 				}
 				camps.put(nou.getCodi(), nou);				
-				if (camp.getDomini() != null &&  !camp.isDominiIntern()) {
+				if (camp.getDomini() != null &&  !camp.getDominiIntern()) {
 					// Propaga el domini referenciat pel camp
 					Domini dominiEntorn = dominiRepository.findByEntornAndCodi(
 							entorn, 
@@ -3382,6 +3400,82 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 				ExpedientTipusDto.class);	
 	}
 
+	@Override
+	@Transactional
+	public ExpedientTipusDto updateIntegracioNotib(
+			Long expedientTipusId, 
+			String notibEmisor, 
+			String notibCodiProcediment,
+			String notibSeuUnitatAdministrativa, 
+			String notibSeuCodiProcediment,
+			String notibSeuOficina, 
+			String notibSeuLlibre, 
+			String notibSeuOrgan,
+			String notibSeuIdioma, 
+			String notibAvisTitol, 
+			String notibAvisText, 
+			String notibAvisTextSms,
+			String notibOficiTitol, 
+			String notibOficiText, 
+			boolean notibActiu) {
+
+		logger.debug("Modificant tipus d'expedient amb dades d'integracio amb Notib (expedientTipus=" + expedientTipusId + ")");
+		
+		ExpedientTipus expedientTipus = expedientTipusHelper.getExpedientTipusComprovantPermisDisseny(expedientTipusId);
+
+		if (!expedientTipus.isNtiActiu()) {
+			expedientTipus.setNtiOrgano(notibEmisor);
+			expedientTipus.setNtiClasificacion(notibCodiProcediment);
+		}
+		expedientTipus.setNotibSeuUnitatAdministrativa(notibSeuUnitatAdministrativa);
+		expedientTipus.setNotibSeuCodiProcediment(notibSeuCodiProcediment);
+		expedientTipus.setNotibSeuOficina(notibSeuOficina);
+		expedientTipus.setNotibSeuLlibre(notibSeuLlibre);
+		expedientTipus.setNotibSeuOrgan(notibSeuOrgan);
+		expedientTipus.setNotibSeuIdioma(notibSeuIdioma);
+		expedientTipus.setNotibAvisTitol(notibAvisTitol);
+		expedientTipus.setNotibAvisText(notibAvisText);
+		expedientTipus.setNotibAvisTextSms(notibAvisTextSms);
+		expedientTipus.setNotibOficiTitol(notibOficiTitol);
+		expedientTipus.setNotibOficiText(notibOficiText);
+		expedientTipus.setNotibActiu(notibActiu);
+		
+		return conversioTipusHelper.convertir(
+				expedientTipusRepository.save(expedientTipus),
+				ExpedientTipusDto.class);
+	}
+	
+	
 	private static final Logger logger = LoggerFactory.getLogger(ExpedientServiceImpl.class);
+
+	@Override
+	public List<ExpedientTipusEstadisticaDto> findEstadisticaByFiltre(
+			Integer anyInicial, 
+			Integer anyFinal,
+			Long entornId,
+			Long expedientTipusId,
+			Boolean anulats) {
+
+
+		Entorn entorn = entornHelper.getEntornComprovantPermisos(
+				entornId,
+				true);
+		ExpedientTipus expedientTipus = null;
+		if(expedientTipusId != null) {
+			expedientTipus = expedientTipusRepository.findOne(expedientTipusId);
+		}
+		
+		List<ExpedientTipusEstadisticaDto> et = expedientTipusRepository.findEstadisticaByFiltre(
+				anyInicial == null,
+				anyInicial,
+				anyFinal == null,
+				anyFinal,
+				entorn,
+				expedientTipus == null,
+				expedientTipus,
+				anulats == null,
+				anulats);
+		return et;
+	}
 
 }

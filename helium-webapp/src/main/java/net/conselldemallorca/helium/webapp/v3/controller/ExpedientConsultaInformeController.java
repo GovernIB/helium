@@ -41,6 +41,7 @@ import org.apache.poi.hssf.util.HSSFColor;
 import org.apache.poi.ss.usermodel.DataFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.propertyeditors.CustomBooleanEditor;
 import org.springframework.beans.propertyeditors.CustomDateEditor;
 import org.springframework.beans.propertyeditors.CustomNumberEditor;
@@ -65,8 +66,11 @@ import net.conselldemallorca.helium.v3.core.api.dto.ExpedientConsultaDissenyDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.MostrarAnulatsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto.OrdreDireccioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
+import net.conselldemallorca.helium.v3.core.api.service.ExpedientTipusService;
 import net.conselldemallorca.helium.webapp.v3.helper.InformeHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.InformeHelper.Estat;
 import net.conselldemallorca.helium.webapp.v3.helper.InformeHelper.InformeInfo;
@@ -92,6 +96,11 @@ public class ExpedientConsultaInformeController extends BaseExpedientController 
 	InformeHelper informeHelper;
 	@Resource
 	JasperReportsHelper jasperReportsHelper;
+	@Autowired
+	ExpedientTipusService expedientTipusService;
+
+	/** maxim  **/
+	private final static int MAX_ORDER_COLUMNS = 5;
 
 	@ModelAttribute("expedientInformeParametrosCommand")
 	public Object getFiltreParameterCommand(
@@ -573,6 +582,17 @@ public class ExpedientConsultaInformeController extends BaseExpedientController 
 		int inc = 2000;
 		PaginaDto<ExpedientConsultaDissenyDto> paginaExpedients;
 		List<Map<String, FieldValue>> dadesDataSource =  new ArrayList<Map<String, FieldValue>>();
+		
+		// Afegeix l'ordre d'ordenació segons les columnes definides a la consulta
+		PaginacioParamsDto paginacio = PaginacioHelper.getPaginacioDtoTotsElsResultats();
+		List<TascaDadaDto> campsConsulta = expedientService.findConsultaInforme(consultaId);	
+		
+		for (int i = 0; i < ExpedientConsultaInformeController.MAX_ORDER_COLUMNS; i++) {
+			if(i >= campsConsulta.size() || campsConsulta.isEmpty())
+				break;
+			paginacio.afegirOrdre(campsConsulta.get(i).getVarCodi(),OrdreDireccioDto.ASCENDENT);
+		}
+
 		while (n < total) {
 			expedientsIds = new HashSet<Long>(ids.subList(n, Math.min(n + inc, total)));
 			n = n + inc;
@@ -586,7 +606,7 @@ public class ExpedientConsultaInformeController extends BaseExpedientController 
 					(Boolean)PropertyUtils.getSimpleProperty(filtreCommand, "nomesAlertes"),
 					false, //nomesErrors
 					MostrarAnulatsDto.NO, //mostrarAnulats
-					PaginacioHelper.getPaginacioDtoTotsElsResultats());
+					paginacio);
 			dadesDataSource.addAll(
 					getDadesDatasource(request, paginaExpedients.getContingut()));
 		}
@@ -596,7 +616,7 @@ public class ExpedientConsultaInformeController extends BaseExpedientController 
 		ConsultaDto consulta = dissenyService.findConsulteById(consultaId);
 		String extensio = consulta.getInformeNom().substring(
 				consulta.getInformeNom().lastIndexOf(".") + 1).toLowerCase();
-		String nom = consulta.getInformeNom().substring(0,
+		String nom = consulta.getInformeNom().substring(0,	
 				consulta.getInformeNom().lastIndexOf("."));
 		
 		if ("zip".equals(extensio)) {

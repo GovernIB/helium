@@ -48,6 +48,7 @@
 		});	
 
 		$('select[name=expedientTipusDefecteId]').on('change', function () {
+			console.log("hola");
 			$('select[name=consultaId]').empty();
 			$("select[name=consultaId]").append($('<option value=""></option>'));
 			if ($(this).val()) {
@@ -67,7 +68,13 @@
 				$('select[name=consultaId]').select2({placeholder: "<spring:message code='perfil.usuari.consulta.tipus'/>", allowClear: true});
 				$('select[name=consultaId]').val(null).trigger("change");
 			}
-		});	
+		});
+		/*
+		if($("#consultaId > option").length == 1){
+			$('select[name=expedientTipusDefecteId]').trigger("change");	
+		}
+		*/
+		
 	});
 	</script>
 	<style type="text/css">

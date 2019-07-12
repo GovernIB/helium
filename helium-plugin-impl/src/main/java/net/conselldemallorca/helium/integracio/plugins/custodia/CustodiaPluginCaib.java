@@ -13,6 +13,7 @@ import java.util.Map;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.integracio.plugins.signatura.DadesCertificat;
 import net.conselldemallorca.helium.integracio.plugins.signatura.RespostaValidacioSignatura;
+import net.conselldemallorca.helium.v3.core.api.exception.ValidacioException;
 
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
@@ -39,6 +40,8 @@ public class CustodiaPluginCaib implements CustodiaPlugin {
 			String tipusDocument,
 			byte[] signatura) throws CustodiaPluginException {
 		try {
+			if (tipusDocument == null || "".equals(tipusDocument.trim()))
+				throw new ValidacioException("El codi per a la custòdia no pot estar buit a l'hora de guardar un document a custòdia amb el pluguin " + this.getClass().getSimpleName());
 			String custodiaId = getIdCustodia(id);
 			byte[] xml = getClienteCustodia().custodiarPDFFirmado(
 					new ByteArrayInputStream(signatura),

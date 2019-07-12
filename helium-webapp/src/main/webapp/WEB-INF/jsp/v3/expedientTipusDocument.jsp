@@ -59,15 +59,23 @@
 					</th>
 					<th data-col-name="nom"><spring:message code="expedient.tipus.document.llistat.columna.nom"/></th>
 					<th data-col-name="plantilla" data-template="#plantillaTemplate">
-					<spring:message code="expedient.tipus.document.llistat.columna.plantilla"/>
+						<spring:message code="expedient.tipus.document.llistat.columna.plantilla"/>
 						<script id="plantillaTemplate" type="text/x-jsrender">
 							{{if plantilla }}
 								<spring:message code="comu.check"></spring:message>
 							{{/if}}
 						</script>
 					</th>
+					<th data-col-name="notificable" data-template="#notificableTemplate">
+						<spring:message code="expedient.tipus.document.llistat.columna.notificable"/>
+						<script id="notificableTemplate" type="text/x-jsrender">
+							{{if notificable }}
+								<spring:message code="comu.check"></spring:message>
+							{{/if}}
+						</script>
+					</th>
 					<th data-col-name="arxiuNom" data-template="#arxiuTemplate">
-					<spring:message code="expedient.tipus.document.llistat.columna.arxiu"/>
+						<spring:message code="expedient.tipus.document.llistat.columna.arxiu"/>
 						<script id="arxiuTemplate" type="text/x-jsrender">
 							{{if arxiuNom != null }}
 								<div align="center">

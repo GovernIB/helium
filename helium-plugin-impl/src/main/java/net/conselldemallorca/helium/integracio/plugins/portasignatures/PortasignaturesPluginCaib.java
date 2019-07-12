@@ -322,7 +322,7 @@ public class PortasignaturesPluginCaib implements PortasignaturesPlugin {
 		attributes.setSignAnnexes(isSignarAnnexos);
 		// Cream les etapes i especificam el tipus de firma.
 		Steps steps = new Steps();
-		steps.setSignMode(SignModeEnum.attached);
+		steps.setSignMode(SignModeEnum.detached);
 		List<Step> stepList = new ArrayList<Step>();
 		for (PasSignatura pas: passesSignatura) {
 			// Cream una etapa amb un firmant.

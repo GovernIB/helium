@@ -65,7 +65,7 @@ public interface TerminiRepository extends JpaRepository<Termini, Long> {
 
 	@Query(	"from Termini t " +
 			"where " +
-			"	(:herencia = false " +
+			"	(:ambHerencia = false " +
 			"		or t.id not in ( " + 
 						// Llistat de sobreescrits
 			"			select ts.id " +
@@ -79,7 +79,7 @@ public interface TerminiRepository extends JpaRepository<Termini, Long> {
 			"	) " +
 			"   and (t.expedientTipus.id = :expedientTipusId " +
 						// Heretats
-			"			or (:herencia = true " +
+			"			or (:ambHerencia = true " +
 			"					and t.expedientTipus.id = (select etp.expedientTipusPare.id from ExpedientTipus etp where etp.id = :expedientTipusId) ) " + 
 			"			or  t.expedientTipus.id is null) " +
 			"   and (t.definicioProces.id = :definicioProcesId or t.definicioProces.id is null) " +
@@ -89,7 +89,7 @@ public interface TerminiRepository extends JpaRepository<Termini, Long> {
 			@Param("definicioProcesId") Long definicioProcesId,
 			@Param("esNullFiltre") boolean esNullFiltre,
 			@Param("filtre") String filtre,		
-			@Param("herencia") boolean herencia,
+			@Param("ambHerencia") boolean ambHerencia,
 			Pageable pageable);	
 	
 	/** Recupera la informació de tots els registres sobreescrits.*/

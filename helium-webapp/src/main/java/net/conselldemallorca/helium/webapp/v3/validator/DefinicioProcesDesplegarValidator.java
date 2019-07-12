@@ -2,15 +2,19 @@ package net.conselldemallorca.helium.webapp.v3.validator;
 
 import java.io.IOException;
 
+import javax.annotation.Resource;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
+import net.conselldemallorca.helium.core.helper.ExpedientTipusHelper;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.service.DefinicioProcesService;
 import net.conselldemallorca.helium.v3.core.api.service.DissenyService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientTipusService;
 import net.conselldemallorca.helium.webapp.v3.command.DefinicioProcesDesplegarCommand;
+import net.conselldemallorca.helium.webapp.v3.helper.ConversioTipusHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.MessageHelper;
 
 /**
@@ -26,6 +30,10 @@ public class DefinicioProcesDesplegarValidator implements ConstraintValidator<De
 	DefinicioProcesService definicioProcesService;
 	@Autowired
 	DissenyService dissenyService;
+	@Resource
+	ExpedientTipusHelper expedientTipusHelper;
+	@Resource
+	private ConversioTipusHelper conversioTipusHelper;
 	
 	@Override
 	public void initialize(DefinicioProcesDesplegar anotacio) {
@@ -43,6 +51,18 @@ public class DefinicioProcesDesplegarValidator implements ConstraintValidator<De
 				.addNode("file")
 				.addConstraintViolation();
 				valid = false;
+			} 
+			if(command.isActualitzarExpedientsActius()) {
+				if (command.getExpedientTipusId() != null) {
+					ExpedientTipusDto expedientTipusDto = expedientTipusService.findAmbIdPermisDissenyar(command.getEntornId(), command.getExpedientTipusId());
+					if(!expedientTipusDto.isPermisDefprocUpdate() && !expedientTipusDto.isPermisAdministration()) {
+						context.buildConstraintViolationWithTemplate(
+								MessageHelper.getInstance().getMessage( this.codiMissatge + ".permisos"))
+						.addNode("actualitzarExpedientsActius")
+						.addConstraintViolation();
+						valid = false;
+					}
+				}
 			}
 		} catch (IOException e) {
 			context.buildConstraintViolationWithTemplate(

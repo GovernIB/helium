@@ -447,4 +447,26 @@ public class AdminServiceImpl implements AdminService {
 
 	private static final Logger logger = LoggerFactory.getLogger(AdminServiceImpl.class);
 
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public List<IntegracioDto> monitorIntegracioFindAllEntronActual() {
+		logger.debug("Consultant la llista d'integracions disponibles");
+		return monitorIntegracioHelper.findAllEntornActual();
+	}
+
+	@Override
+	public List<IntegracioAccioDto> monitorIntegracioFindAccionsByIntegracioEntornActual(String integracioCodi) {
+		logger.debug("Consultant la llista d'accions per a la integració (" +
+				"integracioCodi=" + integracioCodi + ")");
+		return monitorIntegracioHelper.findAccionsByIntegracioCodiEntornActual(integracioCodi);
+	}
+
+	@Override
+	public List<TascaCompleteDto> getTasquesCompletarAdminEntorn() {
+		return mesuresTemporalsHelper.getTasquesCompletarAdminEntiorn();
+	}
+
 }

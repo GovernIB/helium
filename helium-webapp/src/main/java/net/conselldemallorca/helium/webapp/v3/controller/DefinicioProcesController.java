@@ -312,6 +312,34 @@ public class DefinicioProcesController extends BaseDefinicioProcesController {
 		return "arxiuView";
 	}	
 
+	/** Mètode per crear un .zip i descarregar el .par per una versió de la definició de procés.
+	 * 
+	 * @param request
+	 * @param jbmpKey
+	 * @param definicioProcesId
+	 * @param model
+	 * @return
+	 */
+	@RequestMapping(value = "/{jbmpKey}/{definicioProcesId}/recurs/par")
+	public String recursDescarregarPar(
+			HttpServletRequest request,
+			@PathVariable String jbmpKey,
+			@PathVariable Long definicioProcesId,
+			Model model) {
+		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
+		DefinicioProcesDto definicioProces = null;
+		if (entornActual != null) {
+			definicioProces = definicioProcesService.findById(definicioProcesId);
+			if (definicioProces != null) {
+				model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_FILENAME, definicioProces.getJbpmKey() + "_v." + definicioProces.getVersio() + ".par");
+				model.addAttribute(
+						ArxiuView.MODEL_ATTRIBUTE_DATA, 
+						dissenyService.getParContingut(definicioProcesId));
+			}
+		}		
+		return "arxiuView";
+	}	
+
 	/** Modal per exportar la informació del tipus d'expedient. */
 	@RequestMapping(value = "/{jbmpKey}/exportar", method = RequestMethod.GET)
 	public String exportar(
@@ -645,6 +673,10 @@ public class DefinicioProcesController extends BaseDefinicioProcesController {
         				definicioProcesService.copiarDefinicioProces(
 	        					darreraDefinicioProces.getId(),
 	        					definicioProces.getId());
+    	        	// Invoca al mètode per relacionar les darreres definicions de procés
+        			if (definicioProces.getExpedientTipus() != null)
+        				definicioProcesService.relacionarDarreresVersions(definicioProces.getExpedientTipus().getId());
+    	        	
             		MissatgesHelper.success(request, getMessage( request, "definicio.proces.desplegar.form.success"));
             		if (command.isActualitzarExpedientsActius()) {
             				// Programació de la tasca d'actualització d'expedients actius

@@ -14,7 +14,8 @@ public class DominiDto extends HeretableDto implements Serializable {
 
 	public enum TipusDomini {
 		CONSULTA_SQL,
-		CONSULTA_WS
+		CONSULTA_WS,
+		CONSULTA_REST
 	}
 	public enum TipusAuthDomini {
 		NONE,

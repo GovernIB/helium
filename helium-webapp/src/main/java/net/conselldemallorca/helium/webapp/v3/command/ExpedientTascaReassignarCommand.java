@@ -10,8 +10,10 @@ package net.conselldemallorca.helium.webapp.v3.command;
  */
 public class ExpedientTascaReassignarCommand {
 
-	private String taskId;
+	private String usuari;
+	private String grup;
 	private String expression;
+	
 
 	public ExpedientTascaReassignarCommand() {}
 
@@ -21,10 +23,22 @@ public class ExpedientTascaReassignarCommand {
 	public void setExpression(String expression) {
 		this.expression = expression;
 	}
-	public String getTaskId() {
-		return taskId;
+
+	public String getUsuari() {
+		return usuari;
 	}
-	public void setTaskId(String taskId) {
-		this.taskId = taskId;
+
+	public void setUsuari(String usuari) {
+		this.usuari = usuari;
 	}
+
+	public String getGrup() {
+		return grup;
+	}
+
+	public void setGrup(String grup) {
+		this.grup = grup;
+	}
+	
+	
 }

@@ -19,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import net.conselldemallorca.helium.core.helper.ConversioTipusHelper;
 import net.conselldemallorca.helium.core.helper.ExpedientTipusHelper;
+import net.conselldemallorca.helium.core.helper.HerenciaHelper;
 import net.conselldemallorca.helium.core.helper.PaginacioHelper;
 import net.conselldemallorca.helium.core.model.hibernate.Camp;
 import net.conselldemallorca.helium.core.model.hibernate.Camp.TipusCamp;
@@ -308,7 +309,7 @@ public class CampServiceImpl implements CampService {
 			Long expedientTipusId, 
 			Long definicioProcesId,
 			String codi,
-			boolean herencia) {
+			boolean ambHerencia) {
 		CampDto ret = null;
 		logger.debug(
 				"Consultant el camp del tipus d'expedient per codi per validar repetició (" +
@@ -321,7 +322,7 @@ public class CampServiceImpl implements CampService {
 			camp = campRepository.findByExpedientTipusAndCodi(
 					expedientTipusId, 
 					codi,
-					herencia);
+					ambHerencia);
 		else if (definicioProcesId != null)
 			camp = campRepository.findByDefinicioProcesAndCodi(
 					definicioProcesRepository.findById(definicioProcesId), 
@@ -356,7 +357,7 @@ public class CampServiceImpl implements CampService {
 		ExpedientTipus expedientTipus = expedientTipusId != null? expedientTipusHelper.getExpedientTipusComprovantPermisDissenyDelegat(expedientTipusId) : null;
 		
 		// Determina si hi ha herència 
-		boolean herencia = expedientTipus != null && expedientTipus.isAmbInfoPropia() && expedientTipus.getExpedientTipusPare() != null;
+		boolean ambHerencia = HerenciaHelper.ambHerencia(expedientTipus);
 		
 		PaginaDto<CampDto> pagina = paginacioHelper.toPaginaDto(
 				campRepository.findByFiltrePaginat(
@@ -367,7 +368,7 @@ public class CampServiceImpl implements CampService {
 						agrupacioId != null ? agrupacioId : 0L,
 						filtre == null || "".equals(filtre), 
 						filtre, 
-						herencia,
+						ambHerencia,
 						paginacioHelper.toSpringDataPageable(
 								paginacioParams)),
 				CampDto.class);
@@ -379,7 +380,7 @@ public class CampServiceImpl implements CampService {
 				totes,
 				agrupacioId == null,
 				agrupacioId,
-				herencia
+				ambHerencia
 				); 
 		List<Object[]> countMembres= campRepository.countMembres(
 				expedientTipusId,
@@ -387,12 +388,12 @@ public class CampServiceImpl implements CampService {
 				totes,
 				agrupacioId == null,
 				agrupacioId, 
-				herencia
+				ambHerencia
 				); 
 		
 		// Llistat d'elements sobreescrits
 		Set<String> sobreescritsCodis = new HashSet<String>();
-		if (herencia) {
+		if (ambHerencia) {
 			for (Camp c : campRepository.findSobreescrits(expedientTipusId)) {
 				sobreescritsCodis.add(c.getCodi());
 			}
@@ -422,7 +423,7 @@ public class CampServiceImpl implements CampService {
 					}
 				}
 			}
-			if (herencia) {
+			if (ambHerencia) {
 				// Sobreescriu
 				if (sobreescritsCodis.contains(dto.getCodi()))
 					dto.setSobreescriu(true);
@@ -488,13 +489,13 @@ public class CampServiceImpl implements CampService {
 	public List<CampAgrupacioDto> agrupacioFindAll(
 			Long expedientTipusId,
 			Long definicioProcesId,
-			boolean herencia) throws NoTrobatException, PermisDenegatException {
+			boolean ambHerencia) throws NoTrobatException, PermisDenegatException {
 		List<CampAgrupacio> agrupacions;
 		Set<Long> agrupacionsHeretadesIds = new HashSet<Long>();
 		Set<String> sobreescritsCodis = new HashSet<String>();
 		if (expedientTipusId != null) {
-			agrupacions = campAgrupacioRepository.findAmbExpedientTipusOrdenats(expedientTipusId, herencia);
-			if (herencia) {
+			agrupacions = campAgrupacioRepository.findAmbExpedientTipusOrdenats(expedientTipusId, ambHerencia);
+			if (ambHerencia) {
 				for(CampAgrupacio a : agrupacions)
 					if(!expedientTipusId.equals(a.getExpedientTipus().getId()))
 						agrupacionsHeretadesIds.add(a.getId());
@@ -508,7 +509,7 @@ public class CampServiceImpl implements CampService {
 									agrupacions, 
 									CampAgrupacioDto.class);
 		
-		if (herencia) {
+		if (ambHerencia) {
 			// Completa l'informació del dto
 			for(CampAgrupacioDto dto : agrupacionsDto) {
 				// Sobreescriu

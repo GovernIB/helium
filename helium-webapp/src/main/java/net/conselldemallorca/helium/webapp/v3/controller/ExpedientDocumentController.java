@@ -12,11 +12,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.annotation.Resource;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
-import javax.validation.Valid;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,9 +26,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.Errors;
-import org.springframework.validation.ValidationUtils;
-import org.springframework.validation.Validator;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -39,21 +36,36 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import net.conselldemallorca.helium.core.helper.DocumentHelperV3;
 import net.conselldemallorca.helium.core.model.service.PluginService;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ArxiuFirmaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DadesEnviamentDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DadesEnviamentDto.EntregaPostalTipus;
+import net.conselldemallorca.helium.v3.core.api.dto.DadesEnviamentDto.EntregaPostalViaTipus;
+import net.conselldemallorca.helium.v3.core.api.dto.DadesNotificacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DocumentTipusFirmaEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.InstanciaProcesDto;
+import net.conselldemallorca.helium.v3.core.api.dto.InteressatDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PortasignaturesDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ServeiTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.exception.SistemaExternException;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientDocumentService;
+import net.conselldemallorca.helium.v3.core.api.service.ExpedientInteressatService;
 import net.conselldemallorca.helium.webapp.mvc.ArxiuView;
 import net.conselldemallorca.helium.webapp.v3.command.DocumentExpedientCommand;
+import net.conselldemallorca.helium.webapp.v3.command.DocumentExpedientCommand.Create;
+import net.conselldemallorca.helium.webapp.v3.command.DocumentExpedientCommand.Update;
+import net.conselldemallorca.helium.webapp.v3.command.DocumentNotificacioCommand;
+import net.conselldemallorca.helium.webapp.v3.helper.ConversioTipusHelper;
+import net.conselldemallorca.helium.webapp.v3.helper.EnumHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.NodecoHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.NtiHelper;
-import net.conselldemallorca.helium.webapp.v3.helper.ObjectTypeEditorHelper;
 
 /**
  * Controlador per a la pàgina de documents de l'expedient.
@@ -71,7 +83,12 @@ public class ExpedientDocumentController extends BaseExpedientController {
 	private PluginService pluginService;
 	@Autowired
 	private NtiHelper ntiHelper;
-
+	@Autowired
+	private ExpedientInteressatService expedientInteressatService;
+	@Autowired
+	private ConversioTipusHelper conversioTipusHelper;
+	@Resource(name="documentHelperV3")
+	private DocumentHelperV3 documentHelper;
 
 
 	@RequestMapping(value = "/{expedientId}/document", method = RequestMethod.GET)
@@ -141,61 +158,78 @@ public class ExpedientDocumentController extends BaseExpedientController {
 			@PathVariable String processInstanceId,
 			Model model) {
 		DocumentExpedientCommand command = new DocumentExpedientCommand();
+		command.setExpedientId(expedientId);
 		command.setData(new Date());
+		command.setValidarArxius(true);
 		model.addAttribute("documentsNoUtilitzats", getDocumentsNoUtilitzats(expedientId, processInstanceId));
-		model.addAttribute("documentExpedientCommand", command);
 		model.addAttribute("processInstanceId", processInstanceId);
 		model.addAttribute("documentExpedientCommand", command);
 		emplenarModelNti(expedientId, model);
-		return "v3/expedientDocumentNou";
+		model.addAttribute(
+				"tipusFirmaOptions",
+				EnumHelper.getOptionsForEnum(
+						DocumentTipusFirmaEnumDto.class,
+						"enum.document.tipus.firma."));
+		return "v3/expedientDocumentForm";
 	}
 	@RequestMapping(value="/{expedientId}/proces/{processInstanceId}/document/new", method = RequestMethod.POST)
 	public String nouPost(
 			HttpServletRequest request,
 			@PathVariable Long expedientId,
 			@PathVariable String processInstanceId,
-			@Valid @ModelAttribute DocumentExpedientCommand command,
+			@Validated(Create.class) @ModelAttribute DocumentExpedientCommand command,
 			BindingResult bindingResult,
 			Model model) throws IOException {
 		ExpedientDto expedient = expedientService.findAmbId(expedientId);
 		command.setNtiActiu(expedient.isNtiActiu());
-		new DocumentModificarValidator(true).validate(command, bindingResult);
-		if (bindingResult.hasErrors()) {
-        	model.addAttribute("documentsNoUtilitzats", getDocumentsNoUtilitzats(expedientId, processInstanceId));
-    		model.addAttribute("processInstanceId", processInstanceId);
-    		emplenarModelNti(expedientId, model);
-        	return "v3/expedientDocumentNou";
-        }
-		byte[] arxiuContingut = IOUtils.toByteArray(
-				command.getArxiu().getInputStream());
-		String arxiuNom = command.getArxiu().getOriginalFilename();
-		if ("##adjuntar_arxiu##".equalsIgnoreCase(command.getDocumentCodi())) {
-			expedientDocumentService.createAdjunt(
-					expedientId,
-					processInstanceId,
-					command.getData(),
-					command.getNom(),
-					arxiuNom,
-					arxiuContingut,
-					command.getNtiOrigen(),
-					command.getNtiEstadoElaboracion(),
-					command.getNtiTipoDocumental(),
-					command.getNtiIdOrigen());
-		} else {
-			expedientDocumentService.create(
-					expedientId,
-					processInstanceId,
-					command.getDocumentCodi(),
-					command.getData(),
-					arxiuNom,
-					arxiuContingut,
-					command.getNtiOrigen(),
-					command.getNtiEstadoElaboracion(),
-					command.getNtiTipoDocumental(),
-					command.getNtiIdOrigen());
+		if (!bindingResult.hasErrors()) {
+			byte[] arxiuContingut = command.getArxiu().getBytes();
+			String arxiuContentType = command.getArxiu().getContentType();
+			byte[] firmaContingut = null;
+			if (command.getFirma() != null && command.getFirma().getSize() > 0) {
+				firmaContingut = command.getFirma().getBytes();
+			}
+			String arxiuNom = command.getArxiu().getOriginalFilename();
+			String documentCodi = null;
+			if (!DocumentExpedientCommand.ADJUNTAR_ARXIU_CODI.equalsIgnoreCase(command.getDocumentCodi())) {
+				documentCodi = command.getDocumentCodi();
+			}
+			try {
+				expedientDocumentService.create(
+						expedientId,
+						processInstanceId,
+						documentCodi, // null en el cas dels adjunts
+						command.getData(),
+						command.getNom(), // Títol en el cas dels adjunts
+						arxiuNom,
+						arxiuContingut,
+						arxiuContentType,
+						command.isAmbFirma(),
+						DocumentTipusFirmaEnumDto.SEPARAT.equals(command.getTipusFirma()),
+						firmaContingut,
+						command.getNtiOrigen(),
+						command.getNtiEstadoElaboracion(),
+						command.getNtiTipoDocumental(),
+						command.getNtiIdOrigen());
+				
+				MissatgesHelper.success(request, getMessage(request, "info.document.guardat") );
+				return modalUrlTancar(false);
+			} catch(Exception e) {
+				String errMsg = getMessage(request, "info.document.guardat.error", new Object[] {e.getMessage()});
+				logger.error(errMsg, e);
+				MissatgesHelper.error(request, errMsg);
+			}
 		}
-		MissatgesHelper.success(request, getMessage(request, "info.document.guardat") );
-		return modalUrlTancar(false);
+    	model.addAttribute("documentsNoUtilitzats", getDocumentsNoUtilitzats(expedientId, processInstanceId));
+		model.addAttribute("processInstanceId", processInstanceId);
+		model.addAttribute("documentExpedientCommand", command);
+		emplenarModelNti(expedientId, model);
+		model.addAttribute(
+				"tipusFirmaOptions",
+				EnumHelper.getOptionsForEnum(
+						DocumentTipusFirmaEnumDto.class,
+						"enum.document.tipus.firma."));
+    	return "v3/expedientDocumentForm";
 	}
 
 	@RequestMapping(value = "/{expedientId}/proces/{processInstanceId}/document/{documentStoreId}/update", method = RequestMethod.GET)
@@ -210,7 +244,9 @@ public class ExpedientDocumentController extends BaseExpedientController {
 				processInstanceId,
 				documentStoreId);
 		DocumentExpedientCommand command = new DocumentExpedientCommand();
+		command.setExpedientId(expedientId);
 		command.setDocId(document.getDocumentId());
+		command.setValidarArxius(false);
 		if (document.isAdjunt()) {
 			command.setNom(document.getAdjuntTitol());
 		} else {
@@ -228,7 +264,12 @@ public class ExpedientDocumentController extends BaseExpedientController {
 			command.setNtiIdOrigen(document.getNtiIdOrigen());
 		}
 		model.addAttribute("documentExpedientCommand", command);
-		return "v3/expedientDocumentModificar";
+		model.addAttribute(
+				"tipusFirmaOptions",
+				EnumHelper.getOptionsForEnum(
+						DocumentTipusFirmaEnumDto.class,
+						"enum.document.tipus.firma."));
+		return "v3/expedientDocumentForm";
 	}
 
 	@RequestMapping(value="/{expedientId}/proces/{processInstanceId}/document/{documentStoreId}/update", method = RequestMethod.POST)
@@ -237,56 +278,214 @@ public class ExpedientDocumentController extends BaseExpedientController {
 			@PathVariable Long expedientId,
 			@PathVariable String processInstanceId,
 			@PathVariable Long documentStoreId,
-			@Valid @ModelAttribute DocumentExpedientCommand command,
+			@Validated(Update.class) @ModelAttribute DocumentExpedientCommand command,
 			BindingResult result,
 			Model model) throws IOException {
 		ExpedientDto expedient = expedientService.findAmbId(expedientId);
 		command.setNtiActiu(expedient.isNtiActiu());
-		new DocumentModificarValidator(false).validate(command, result);
 		ExpedientDocumentDto document = expedientDocumentService.findOneAmbInstanciaProces(
     			expedientId,
     			processInstanceId,
     			documentStoreId);
-		if (result.hasErrors()) {
-			command.setArxiuNom(null);
-    		model.addAttribute("processInstanceId", processInstanceId);
-    		model.addAttribute("document", document);
-    		emplenarModelNti(expedientId, model);
-        	return "v3/expedientDocumentModificar";
-        }
-		byte[] arxiuContingut = IOUtils.toByteArray(
-				command.getArxiu().getInputStream());
-		String arxiuNom = command.getArxiu().getOriginalFilename();
-//		boolean esAdjunt = command.getNom() == null || command.getNom().isEmpty();
-		if (!document.isAdjunt()) {
-			expedientDocumentService.update(
-					expedientId,
-					processInstanceId,
-					documentStoreId,
-					command.getData(),
-					arxiuNom,
-					arxiuContingut,
-					command.getNtiOrigen(),
-					command.getNtiEstadoElaboracion(),
-					command.getNtiTipoDocumental(),
-					command.getNtiIdOrigen());
-		} else {
-			expedientDocumentService.updateAdjunt(
-					expedientId,
-					processInstanceId,
-					documentStoreId,
-					command.getData(),
-					command.getNom(),
-					arxiuNom,
-					arxiuContingut,
-					command.getNtiOrigen(),
-					command.getNtiEstadoElaboracion(),
-					command.getNtiTipoDocumental(),
-					command.getNtiIdOrigen());
+		if (!result.hasErrors()) {
+			try {
+				byte[] arxiuContingut = command.getArxiu().getBytes();
+				String arxiuNom = command.getArxiu().getOriginalFilename();
+				String arxiuContentType = command.getArxiu().getContentType();
+				if(arxiuContingut == null || arxiuContingut.length == 0) {
+					ArxiuDto arxiu = expedientDocumentService.arxiuFindAmbDocument(expedientId, processInstanceId, documentStoreId);
+					arxiuContingut = arxiu.getContingut();
+					arxiuNom = arxiu.getNom();
+				}
+				byte[] firmaContingut = null;
+				if (command.getFirma() != null && command.getFirma().getSize() > 0) {
+					firmaContingut = command.getFirma().getBytes();
+				}
+				expedientDocumentService.update(
+						expedientId,
+						processInstanceId,
+						documentStoreId,
+						command.getData(),
+						document.isAdjunt() ? // Títol en el cas dels adjunts 
+								command.getNom() 
+								: null, 
+						arxiuNom,
+						(arxiuContingut.length != 0) ? arxiuContingut : null,
+						arxiuContentType,
+						command.isAmbFirma(),
+						DocumentTipusFirmaEnumDto.SEPARAT.equals(command.getTipusFirma()),
+						firmaContingut,
+						command.getNtiOrigen(),
+						command.getNtiEstadoElaboracion(),
+						command.getNtiTipoDocumental(),
+						command.getNtiIdOrigen());
+				
+				MissatgesHelper.success(request, getMessage(request, "info.document.guardat"));
+				return modalUrlTancar(false);				
+			} catch(Exception e) {
+				String errMsg = getMessage(request, "info.document.guardat.error", new Object[] {e.getMessage()});
+				logger.error(errMsg, e);
+				MissatgesHelper.error(request, errMsg);				
+			}
 		}
-		MissatgesHelper.success(request, getMessage(request, "info.document.guardat"));
-		return modalUrlTancar(false);
+		// Retorna al formulari per mostrar errors
+		model.addAttribute("processInstanceId", processInstanceId);
+		model.addAttribute("document", document);
+		emplenarModelNti(expedientId, model);
+		model.addAttribute(
+				"tipusFirmaOptions",
+				EnumHelper.getOptionsForEnum(
+						DocumentTipusFirmaEnumDto.class,
+						"enum.document.tipus.firma."));
+    	return "v3/expedientDocumentForm";
 	}
+
+	
+	
+	@RequestMapping(value = "/{expedientId}/proces/{processInstanceId}/document/{documentStoreId}/notificar", method = RequestMethod.GET)
+	public String notificarGet(
+			HttpServletRequest request,
+			@PathVariable Long expedientId,
+			@PathVariable String processInstanceId,
+			@PathVariable Long documentStoreId,
+			Model model) {
+
+		DocumentNotificacioCommand command = new DocumentNotificacioCommand();
+		command.setEntregaDehObligat(true);
+		command.setEntregaDehProcedimentCodi("entregaDehProcedimentCodi");
+		model.addAttribute("documentNotificacioCommand", command);
+		
+		this.emplenarModelNotificacioDocument(expedientId, processInstanceId, documentStoreId, model);
+		
+		return "v3/expedientDocumentNotificar";
+	}
+	
+	@RequestMapping(value="/{expedientId}/proces/{processInstanceId}/document/{documentStoreId}/notificar", method = RequestMethod.POST)
+	public String notificarPost(
+			HttpServletRequest request,
+			@PathVariable Long expedientId,
+			@PathVariable String processInstanceId,
+			@PathVariable Long documentStoreId,
+			@Validated DocumentNotificacioCommand documentNotificacioCommand,
+			BindingResult result,
+			Model model) throws IOException {
+		if (!result.hasErrors()) {
+			try {
+				DadesNotificacioDto dadesNotificacioDto = conversioTipusHelper.convertir(
+						documentNotificacioCommand, 
+						DadesNotificacioDto.class);			
+				DadesEnviamentDto dadesEnviamentDto = conversioTipusHelper.convertir(
+						documentNotificacioCommand, 
+						DadesEnviamentDto.class);
+				
+				expedientDocumentService.notificarDocument(
+						expedientId,
+						documentStoreId,
+						dadesNotificacioDto,
+						documentNotificacioCommand.getInteressatsIds(),
+						dadesEnviamentDto);
+				
+				MissatgesHelper.success(request, getMessage(request, "info.document.notificat"));
+				return modalUrlTancar(false);
+			} catch(Exception e) {
+				String errMsg = getMessage(request, "info.document.notificar.error", new Object[] {e.getMessage()});
+				logger.error(errMsg, e);
+				MissatgesHelper.error(request, errMsg);
+			}
+        }
+		this.emplenarModelNotificacioDocument(expedientId, processInstanceId, documentStoreId, model);
+    	return "v3/expedientDocumentNotificar";
+	}
+	
+	private void emplenarModelNotificacioDocument(
+			Long expedientId,
+			String processInstanceId,
+			Long documentStoreId,
+			Model model) {
+		ExpedientDocumentDto document = expedientDocumentService.findOneAmbInstanciaProces(
+				expedientId,
+				processInstanceId,
+				documentStoreId);
+		List<InteressatDto> interessats = expedientInteressatService.findByExpedient(
+				expedientId);
+		model.addAttribute("interessats", interessats);
+		model.addAttribute("document", document);	
+		model.addAttribute("expedientId", expedientId);
+	}
+	
+	@ModelAttribute("entregaPostalViaTipusEstats")
+	public List<ParellaCodiValorDto> populateEntregaPostalViaTipusEstat(HttpServletRequest request) {
+		List<ParellaCodiValorDto> resposta = new ArrayList<ParellaCodiValorDto>();
+		
+		resposta.add(new ParellaCodiValorDto(getMessage(request, "notifica.entregaPostal.via.tipus.enum.ALAMEDA"), EntregaPostalViaTipus.ALAMEDA));
+		resposta.add(new ParellaCodiValorDto(getMessage(request, "notifica.entregaPostal.via.tipus.enum.CALLE"), EntregaPostalViaTipus.CALLE));
+		resposta.add(new ParellaCodiValorDto(getMessage(request, "notifica.entregaPostal.via.tipus.enum.CAMINO"), EntregaPostalViaTipus.CAMINO));
+		resposta.add(new ParellaCodiValorDto(getMessage(request, "notifica.entregaPostal.via.tipus.enum.CARRER"), EntregaPostalViaTipus.CARRER));
+		resposta.add(new ParellaCodiValorDto(getMessage(request, "notifica.entregaPostal.via.tipus.enum.CARRETERA"), EntregaPostalViaTipus.CARRETERA));
+		resposta.add(new ParellaCodiValorDto(getMessage(request, "notifica.entregaPostal.via.tipus.enum.GLORIETA"), EntregaPostalViaTipus.GLORIETA));
+		resposta.add(new ParellaCodiValorDto(getMessage(request, "notifica.entregaPostal.via.tipus.enum.KALEA"), EntregaPostalViaTipus.KALEA));
+		resposta.add(new ParellaCodiValorDto(getMessage(request, "notifica.entregaPostal.via.tipus.enum.PASAJE"), EntregaPostalViaTipus.PASAJE));
+		resposta.add(new ParellaCodiValorDto(getMessage(request, "notifica.entregaPostal.via.tipus.enum.PASEO"), EntregaPostalViaTipus.PASEO));
+		resposta.add(new ParellaCodiValorDto(getMessage(request, "notifica.entregaPostal.via.tipus.enum.PLAÇA"), EntregaPostalViaTipus.PLAÇA));
+		resposta.add(new ParellaCodiValorDto(getMessage(request, "notifica.entregaPostal.via.tipus.enum.PLAZA"), EntregaPostalViaTipus.PLAZA));
+		resposta.add(new ParellaCodiValorDto(getMessage(request, "notifica.entregaPostal.via.tipus.enum.RAMBLA"), EntregaPostalViaTipus.RAMBLA));
+		resposta.add(new ParellaCodiValorDto(getMessage(request, "notifica.entregaPostal.via.tipus.enum.RONDA"), EntregaPostalViaTipus.RONDA));
+		resposta.add(new ParellaCodiValorDto(getMessage(request, "notifica.entregaPostal.via.tipus.enum.RUA"), EntregaPostalViaTipus.RUA));
+		resposta.add(new ParellaCodiValorDto(getMessage(request, "notifica.entregaPostal.via.tipus.enum.SECTOR"), EntregaPostalViaTipus.SECTOR));
+		resposta.add(new ParellaCodiValorDto(getMessage(request, "notifica.entregaPostal.via.tipus.enum.TRAVESIA"), EntregaPostalViaTipus.TRAVESIA));
+		resposta.add(new ParellaCodiValorDto(getMessage(request, "notifica.entregaPostal.via.tipus.enum.URBANIZACION"), EntregaPostalViaTipus.URBANIZACION));
+		resposta.add(new ParellaCodiValorDto(getMessage(request, "notifica.entregaPostal.via.tipus.enum.AVENIDA"), EntregaPostalViaTipus.AVENIDA));
+		resposta.add(new ParellaCodiValorDto(getMessage(request, "notifica.entregaPostal.via.tipus.enum.AVINGUDA"), EntregaPostalViaTipus.AVINGUDA));
+		resposta.add(new ParellaCodiValorDto(getMessage(request, "notifica.entregaPostal.via.tipus.enum.BARRIO"), EntregaPostalViaTipus.BARRIO));
+		resposta.add(new ParellaCodiValorDto(getMessage(request, "notifica.entregaPostal.via.tipus.enum.CALLEJA"), EntregaPostalViaTipus.CALLEJA));
+		resposta.add(new ParellaCodiValorDto(getMessage(request, "notifica.entregaPostal.via.tipus.enum.CAMI"), EntregaPostalViaTipus.CAMI));
+		resposta.add(new ParellaCodiValorDto(getMessage(request, "notifica.entregaPostal.via.tipus.enum.CAMPO"), EntregaPostalViaTipus.CAMPO));
+		resposta.add(new ParellaCodiValorDto(getMessage(request, "notifica.entregaPostal.via.tipus.enum.CARRERA"), EntregaPostalViaTipus.CARRERA));
+		resposta.add(new ParellaCodiValorDto(getMessage(request, "notifica.entregaPostal.via.tipus.enum.CUESTA"), EntregaPostalViaTipus.CUESTA));
+		resposta.add(new ParellaCodiValorDto(getMessage(request, "notifica.entregaPostal.via.tipus.enum.EDIFICIO"), EntregaPostalViaTipus.EDIFICIO));
+		resposta.add(new ParellaCodiValorDto(getMessage(request, "notifica.entregaPostal.via.tipus.enum.ENPARANTZA"), EntregaPostalViaTipus.ENPARANTZA));
+		resposta.add(new ParellaCodiValorDto(getMessage(request, "notifica.entregaPostal.via.tipus.enum.ESTRADA"), EntregaPostalViaTipus.ESTRADA));
+		resposta.add(new ParellaCodiValorDto(getMessage(request, "notifica.entregaPostal.via.tipus.enum.JARDINES"), EntregaPostalViaTipus.JARDINES));
+		resposta.add(new ParellaCodiValorDto(getMessage(request, "notifica.entregaPostal.via.tipus.enum.JARDINS"), EntregaPostalViaTipus.JARDINS));
+		resposta.add(new ParellaCodiValorDto(getMessage(request, "notifica.entregaPostal.via.tipus.enum.PARQUE"), EntregaPostalViaTipus.PARQUE));
+		resposta.add(new ParellaCodiValorDto(getMessage(request, "notifica.entregaPostal.via.tipus.enum.PASSEIG"), EntregaPostalViaTipus.PASSEIG));
+		resposta.add(new ParellaCodiValorDto(getMessage(request, "notifica.entregaPostal.via.tipus.enum.PRAZA"), EntregaPostalViaTipus.PRAZA));
+		resposta.add(new ParellaCodiValorDto(getMessage(request, "notifica.entregaPostal.via.tipus.enum.PLAZUELA"), EntregaPostalViaTipus.PLAZUELA));
+		resposta.add(new ParellaCodiValorDto(getMessage(request, "notifica.entregaPostal.via.tipus.enum.PLACETA"), EntregaPostalViaTipus.PLACETA));
+		resposta.add(new ParellaCodiValorDto(getMessage(request, "notifica.entregaPostal.via.tipus.enum.POBLADO"), EntregaPostalViaTipus.POBLADO));
+		resposta.add(new ParellaCodiValorDto(getMessage(request, "notifica.entregaPostal.via.tipus.enum.VIA"), EntregaPostalViaTipus.VIA));
+		resposta.add(new ParellaCodiValorDto(getMessage(request, "notifica.entregaPostal.via.tipus.enum.TRAVESSERA"), EntregaPostalViaTipus.TRAVESSERA));
+		resposta.add(new ParellaCodiValorDto(getMessage(request, "notifica.entregaPostal.via.tipus.enum.PASSATGE"), EntregaPostalViaTipus.PASSATGE));
+		resposta.add(new ParellaCodiValorDto(getMessage(request, "notifica.entregaPostal.via.tipus.enum.BULEVAR"), EntregaPostalViaTipus.BULEVAR));
+		resposta.add(new ParellaCodiValorDto(getMessage(request, "notifica.entregaPostal.via.tipus.enum.POLIGONO"), EntregaPostalViaTipus.POLIGONO));
+		resposta.add(new ParellaCodiValorDto(getMessage(request, "notifica.entregaPostal.via.tipus.enum.OTROS"), EntregaPostalViaTipus.OTROS));
+
+		return resposta;
+	}
+	
+	
+	
+	@ModelAttribute("entregaPostalTipusEstats")
+	public List<ParellaCodiValorDto> populatePostaTipusEstat(HttpServletRequest request) {
+		List<ParellaCodiValorDto> resposta = new ArrayList<ParellaCodiValorDto>();
+		resposta.add(new ParellaCodiValorDto(getMessage(request, "notifica.entregaPostal.tipus.enum.NACIONAL"), EntregaPostalTipus.NACIONAL));
+		resposta.add(new ParellaCodiValorDto(getMessage(request, "notifica.entregaPostal.enum.ESTRANGER"), EntregaPostalTipus.ESTRANGER));
+		resposta.add(new ParellaCodiValorDto(getMessage(request, "notifica.entregaPostal.enum.APARTAT_CORREUS"), EntregaPostalTipus.APARTAT_CORREUS));
+		resposta.add(new ParellaCodiValorDto(getMessage(request, "notifica.entregaPostal.enum.SENSE_NORMALITZAR"), EntregaPostalTipus.SENSE_NORMALITZAR));
+		return resposta;
+	}
+	
+	
+	
+	
+	@ModelAttribute("serveiTipusEstats")
+	public List<ParellaCodiValorDto> populateEstats(HttpServletRequest request) {
+		List<ParellaCodiValorDto> resposta = new ArrayList<ParellaCodiValorDto>();
+		resposta.add(new ParellaCodiValorDto(getMessage(request, "notifica.servei.tipus.enum.NORMAL"), ServeiTipusEnumDto.NORMAL));
+		resposta.add(new ParellaCodiValorDto(getMessage(request, "notifica.servei.tipus.enum.URGENT"), ServeiTipusEnumDto.URGENT));
+		return resposta;
+	}
+	
 
 	@RequestMapping(value="/{expedientId}/proces/{processInstanceId}/document/{documentStoreId}/descarregar")
 	public String descarregar(
@@ -325,6 +524,7 @@ public class ExpedientDocumentController extends BaseExpedientController {
 				processInstanceId,
 				documentStoreId);
 		model.addAttribute("expedientDocument", expedientDocument);
+		model.addAttribute("expedientId", expedientId);
 		model.addAttribute(
 				"arxiuDetall",
 				expedientDocumentService.getArxiuDetall(
@@ -333,6 +533,51 @@ public class ExpedientDocumentController extends BaseExpedientController {
 						documentStoreId));
 		return "v3/expedientDocumentMetadadesNti";
 	}
+	
+	/** Mètode per descarregar una firma dettached des de la modal de dades de l'arxiu d'un document. */
+	@RequestMapping(value = "/{expedientId}/proces/{processInstanceId}/document/{documentStoreId}/firma/{firmaIndex}/descarregar", method = RequestMethod.GET)
+	public String descarregarFirma(
+			HttpServletRequest request,
+			@PathVariable Long expedientId,
+			@PathVariable String processInstanceId,
+			@PathVariable Long documentStoreId,
+			@PathVariable int firmaIndex,
+			Model model) {
+		try {
+			ArxiuFirmaDto arxiuFirma = expedientDocumentService.getArxiuFirma(
+					expedientId,
+					documentStoreId,
+					firmaIndex);
+			if (arxiuFirma != null) {
+				model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_FILENAME, arxiuFirma.getFitxerNom());
+				model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_DATA, arxiuFirma.getContingut());
+			}
+		} catch (SistemaExternException e) {
+			logger.error("Error descarregant l'arxiu de firma", e);
+			MissatgesHelper.error(request, e.getPublicMessage());
+			model.addAttribute("pipellaActiva", "documents");
+			return "redirect:/v3/expedient/" + expedientId;
+		}
+		return "arxiuView";
+
+	}
+
+	
+	
+	@RequestMapping(value = "/{expedientId}/expedientNotificacions", method = RequestMethod.GET)
+	public String notificacions(
+			HttpServletRequest request,
+			@PathVariable Long expedientId,
+			Model model) {
+		
+		ExpedientDto expedient = expedientService.findAmbId(expedientId);
+//		expedientId=new Long("1100");
+		List<DadesNotificacioDto> notificacions = expedientService.findNotificacionsNotibPerExpedientId(expedientId);
+		model.addAttribute("expedient", expedient);
+		model.addAttribute("notificacions", notificacions);
+
+		return "v3/notificacioLlistat";
+	}	
 
 	@RequestMapping(value = "/{expedientId}/proces/{processInstanceId}/document/{documentStoreId}/esborrar")
 	@ResponseBody
@@ -532,35 +777,6 @@ public class ExpedientDocumentController extends BaseExpedientController {
 		return "arxiuView";
 	}
 
-	public class DocumentModificarValidator implements Validator {
-		private boolean validarArxiu;
-		public DocumentModificarValidator(boolean validarArxiu) {
-			super();
-			this.validarArxiu = validarArxiu;
-		}
-		@SuppressWarnings({ "unchecked", "rawtypes" })
-		public boolean supports(Class clazz) {
-			return clazz.isAssignableFrom(Object.class);
-		}
-		public void validate(Object command, Errors errors) {
-			DocumentExpedientCommand documentExpedientCommand = (DocumentExpedientCommand)command;
-			if (validarArxiu && (documentExpedientCommand.getArxiu() == null || documentExpedientCommand.getArxiu().isEmpty())) {
-				errors.rejectValue("arxiu", "not.blank");
-			}
-			if (documentExpedientCommand.isNtiActiu()) {
-				if (documentExpedientCommand.getNtiOrigen() == null)
-					errors.rejectValue("ntiOrigen", "not.blank");
-				if (documentExpedientCommand.getNtiEstadoElaboracion() == null)
-					errors.rejectValue("ntiEstadoElaboracion", "not.blank");
-				if (documentExpedientCommand.getNtiTipoDocumental() == null)
-					errors.rejectValue("ntiTipoDocumental", "not.blank");
-			}
- 			if ("##adjuntar_arxiu##".equalsIgnoreCase(documentExpedientCommand.getDocumentCodi()) || documentExpedientCommand.getDocumentCodi() == null) {
- 				ValidationUtils.rejectIfEmpty(errors, "nom", "not.blank");
- 			}
-		}
-	}
-
 	@InitBinder
 	public void initBinder(WebDataBinder binder) {
 		binder.registerCustomEditor(
@@ -581,9 +797,6 @@ public class ExpedientDocumentController extends BaseExpedientController {
 		binder.registerCustomEditor(
 				Date.class,
 				new CustomDateEditor(new SimpleDateFormat("dd/MM/yyyy"), true));
-		binder.registerCustomEditor(
-				Object.class,
-				new ObjectTypeEditorHelper());
 	}
 
 	private List<DocumentDto> getDocumentsNoUtilitzats(Long expedientId, String procesId) {

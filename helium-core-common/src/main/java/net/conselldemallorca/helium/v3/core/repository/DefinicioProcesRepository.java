@@ -198,7 +198,7 @@ public interface DefinicioProcesRepository extends JpaRepository<DefinicioProces
 	 * @param incloureGlobals
 	 * @param esNullFiltre
 	 * @param filtre
-	 * @param herencia
+	 * @param ambHerencia
 	 * @param pageable
 	 * @return
 	 */
@@ -208,10 +208,10 @@ public interface DefinicioProcesRepository extends JpaRepository<DefinicioProces
 			"	and (:esNullExpedientTipusId = true " +
 			"			or (dp.expedientTipus.id = :expedientTipusId) " + 
 						// Heretats
-			"			or (:herencia = true " +
+			"			or (:ambHerencia = true " +
 			"					and dp.expedientTipus.id = (select etp.expedientTipusPare.id from ExpedientTipus etp where etp.id = :expedientTipusId) ) " + 
 			"			or (:incloureGlobals = true and dp.expedientTipus is null)) " +
-			"	and (:herencia = false " +
+			"	and (:ambHerencia = false " +
 			"		or dp.id not in ( " + 
 						// Llistat de sobreescrits
 			"			select dps.id " +
@@ -231,7 +231,7 @@ public interface DefinicioProcesRepository extends JpaRepository<DefinicioProces
 			"       	dps.entorn.id = :entornId " +
 			"			and (:esNullExpedientTipusId = true " +
 			"					or (dp.expedientTipus.id = :expedientTipusId) " +
-			"					or (:herencia = true " +
+			"					or (:ambHerencia = true " +
 			"							and dps.expedientTipus.id = (select etp.expedientTipusPare.id from ExpedientTipus etp where etp.id = :expedientTipusId) ) " + 
 			"					or (:incloureGlobals = true and dp.expedientTipus is null)) " +
 			"		    and dps.jbpmKey= dp.jbpmKey" +
@@ -244,7 +244,7 @@ public interface DefinicioProcesRepository extends JpaRepository<DefinicioProces
 			@Param("incloureGlobals") boolean incloureGlobals,
 			@Param("esNullFiltre") boolean esNullFiltre,
 			@Param("filtre") String filtre,		
-			@Param("herencia") boolean herencia,
+			@Param("ambHerencia") boolean ambHerencia,
 			Pageable pageable);	
 	
 	/** Consulta de les claus jbpmKeys de les definicions de procés per entorn 
@@ -257,7 +257,7 @@ public interface DefinicioProcesRepository extends JpaRepository<DefinicioProces
 	 * @param incloureGlobals
 	 * @param esNullFiltre
 	 * @param filtre
-	 * @param herencia
+	 * @param ambHerencia
 	 * @return
 	 */
 	@Query(	"select dp.jbpmKey " +
@@ -267,10 +267,10 @@ public interface DefinicioProcesRepository extends JpaRepository<DefinicioProces
 			"	and (:esNullExpedientTipusId = true " +
 			"			or (dp.expedientTipus.id = :expedientTipusId) " + 
 						// Heretats
-			"			or (:herencia = true " +
+			"			or (:ambHerencia = true " +
 			"					and dp.expedientTipus.id = (select etp.expedientTipusPare.id from ExpedientTipus etp where etp.id = :expedientTipusId) ) " + 
 			"			or (:incloureGlobals = true and dp.expedientTipus is null)) " +
-			"	and (:herencia = false " +
+			"	and (:ambHerencia = false " +
 			"		or dp.id not in ( " + 
 						// Llistat de sobreescrits
 			"			select dps.id " +
@@ -289,7 +289,7 @@ public interface DefinicioProcesRepository extends JpaRepository<DefinicioProces
 			"       	dps.entorn.id = :entornId " +
 			"			and (:esNullExpedientTipusId = true " +
 			"					or (dp.expedientTipus.id = :expedientTipusId) " +
-			"					or (:herencia = true " +
+			"					or (:ambHerencia = true " +
 			"							and dps.expedientTipus.id = (select etp.expedientTipusPare.id from ExpedientTipus etp where etp.id = :expedientTipusId) ) " + 
 			"					or (:incloureGlobals = true and dp.expedientTipus is null)) " +
 			"		    and dps.jbpmKey= dp.jbpmKey" +
@@ -300,7 +300,7 @@ public interface DefinicioProcesRepository extends JpaRepository<DefinicioProces
 			@Param("esNullExpedientTipusId") boolean esNullExpedientTipusId,
 			@Param("expedientTipusId") Long expedientTipusId,
 			@Param("incloureGlobals") boolean incloureGlobals,
-			@Param("herencia") boolean herencia);	
+			@Param("ambHerencia") boolean ambHerencia);	
 	
 	@Query(	"from DefinicioProces dp " +
 	"where " +
@@ -331,7 +331,7 @@ public interface DefinicioProcesRepository extends JpaRepository<DefinicioProces
 	 * @param incloureGlobals
 	 * @param esNullFiltre
 	 * @param filtre
-	 * @param herencia
+	 * @param ambHerencia
 	 * @return
 	 */
 	@Query(	"select dp " +
@@ -341,10 +341,10 @@ public interface DefinicioProcesRepository extends JpaRepository<DefinicioProces
 			"	and (:esNullExpedientTipusId = true " +
 			"			or (dp.expedientTipus.id = :expedientTipusId) " + 
 						// Heretats
-			"			or (:herencia = true " +
+			"			or (:ambHerencia = true " +
 			"					and dp.expedientTipus.id = (select etp.expedientTipusPare.id from ExpedientTipus etp where etp.id = :expedientTipusId) ) " + 
 			"			or (:incloureGlobals = true and dp.expedientTipus is null)) " +
-			"	and (:herencia = false " +
+			"	and (:ambHerencia = false " +
 			"		or dp.id not in ( " + 
 						// Llistat de sobreescrits
 			"			select dps.id " +
@@ -363,7 +363,7 @@ public interface DefinicioProcesRepository extends JpaRepository<DefinicioProces
 			"       	dps.entorn.id = :entornId " +
 			"			and (:esNullExpedientTipusId = true " +
 			"					or (dp.expedientTipus.id = :expedientTipusId) " +
-			"					or (:herencia = true " +
+			"					or (:ambHerencia = true " +
 			"							and dps.expedientTipus.id = (select etp.expedientTipusPare.id from ExpedientTipus etp where etp.id = :expedientTipusId) ) " + 
 			"					or (:incloureGlobals = true and dp.expedientTipus is null)) " +
 			"		    and dps.jbpmKey= dp.jbpmKey" +
@@ -374,7 +374,7 @@ public interface DefinicioProcesRepository extends JpaRepository<DefinicioProces
 			@Param("esNullExpedientTipusId") boolean esNullExpedientTipusId,
 			@Param("expedientTipusId") Long expedientTipusId,
 			@Param("incloureGlobals") boolean incloureGlobals,
-			@Param("herencia") boolean herencia);
+			@Param("ambHerencia") boolean ambHerencia);
 	
 	/** Recupera la informació de tots els registres sobreescrits.*/
 	@Query( "select dps " +

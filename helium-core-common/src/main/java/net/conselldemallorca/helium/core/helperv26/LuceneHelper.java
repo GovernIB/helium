@@ -666,7 +666,8 @@ public class LuceneHelper extends LuceneIndexSupport {
 	protected Sort getLuceneSort(
 			PaginacioParamsDto paginacioParams,
 			List<Camp> informeCamps) {
-		String sort = "expedient$identificador";
+//		String sort = "expedient$identificador";
+		String[] sort = new String[(paginacioParams.getOrdres().size() == 0)?1:paginacioParams.getOrdres().size()];
 		boolean asc = false;
 		if (paginacioParams != null) {
 			for (OrdreDto ordre: paginacioParams.getOrdres()) {
@@ -675,18 +676,36 @@ public class LuceneHelper extends LuceneIndexSupport {
 						net.conselldemallorca.helium.v3.core.api.dto.ExpedientCamps.EXPEDIENT_PREFIX_JSP,
 						net.conselldemallorca.helium.v3.core.api.dto.ExpedientCamps.EXPEDIENT_PREFIX);
 				if (ordre.getCamp().contains("dadesExpedient")) {
-					sort = clau.replace("/", ".").replace("dadesExpedient.", "").replace(".valorMostrar", "");
+					sort[paginacioParams.getOrdres().indexOf(ordre)] = clau.replace("/", ".").replace("dadesExpedient.", "").replace(".valorMostrar", "");
 				} else {
-					sort = clau.replace(".", net.conselldemallorca.helium.v3.core.api.dto.ExpedientCamps.EXPEDIENT_PREFIX_SEPARATOR);
+					sort[paginacioParams.getOrdres().indexOf(ordre)] = clau.replace(".", net.conselldemallorca.helium.v3.core.api.dto.ExpedientCamps.EXPEDIENT_PREFIX_SEPARATOR);
 				}
-				break;
+				
 			}
+			if(sort.length == 0)
+				sort[0] = "expedient$identificador";
 		}
 		return getLuceneSort(
 				sort,
 				asc,
 				informeCamps);
 	}
+	
+	protected Sort getLuceneSort(
+			String[] sort,
+			boolean asc,
+			List<Camp> informeCamps) {
+		if(sort.length == 1)
+			return getLuceneSort(sort[0],asc, informeCamps);
+		SortField[] sortFields = new SortField[sort.length];
+		Sort luceneSort = null;
+		for(int i = 0; i<sort.length; i++) {
+			sortFields[i] = new SortField(sort[i], 3);
+		}
+		luceneSort = new Sort(sortFields);
+		return luceneSort;
+	}
+	
 	protected Sort getLuceneSort(
 			String sort,
 			boolean asc,

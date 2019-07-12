@@ -156,14 +156,21 @@ public class PerfilesController extends BaseController {
 					expedientTipusConConsultas.add(expTip);
 				}
 			}
+//			if(preferencies.getExpedientTipusDefecteId() != null) {
+//				model.addAttribute("consultes", dissenyService.findConsultesActivesAmbEntornIExpedientTipusOrdenat(entornUsuari.getId(),preferencies.getExpedientTipusDefecteId()));
+//			}else {
+//				model.addAttribute("consultes", new ArrayList<ConsultaDto>());
+//			}
 		}
 		filtreCommand.setCabeceraReducida(preferencies.isCabeceraReducida());
 		filtreCommand.setEntornCodi(preferencies.getDefaultEntornCodi());
-		if (preferencies.getConsultaId() != null) {
-			ConsultaDto consulta = dissenyService.findConsulteById(preferencies.getConsultaId());
-			if (consulta != null) {
-				filtreCommand.setConsultaId(preferencies.getConsultaId());		
-				filtreCommand.setExpedientTipusId(consulta.getExpedientTipus().getId());
+		if (preferencies.getExpedientTipusDefecteId() != null) {
+			filtreCommand.setExpedientTipusId(preferencies.getExpedientTipusDefecteId());
+			if (preferencies.getConsultaId() != null) {
+				ConsultaDto consulta = dissenyService.findConsulteById(preferencies.getConsultaId());
+				if (consulta != null) {
+					filtreCommand.setConsultaId(preferencies.getConsultaId());		
+				}				
 			}
 			model.addAttribute("consultes", dissenyService.findConsultesActivesAmbEntornIExpedientTipusOrdenat(entornUsuari.getId(),filtreCommand.getExpedientTipusId()));
 		} else {

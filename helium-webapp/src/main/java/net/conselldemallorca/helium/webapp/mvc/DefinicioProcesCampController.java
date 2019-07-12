@@ -361,11 +361,11 @@ public class DefinicioProcesCampController extends BaseController {
 					ValidationUtils.rejectIfEmpty(errors, "jbpmAction", "not.blank");
 				}
 				if (camp.getTipus().equals(TipusCamp.SELECCIO) || camp.getTipus().equals(TipusCamp.SUGGEST)) {
-					if ((camp.getDomini() == null && !camp.isDominiIntern()) && camp.getEnumeracio() == null && camp.getConsulta() == null) {
+					if ((camp.getDomini() == null && !camp.getDominiIntern()) && camp.getEnumeracio() == null && camp.getConsulta() == null) {
 						errors.rejectValue("enumeracio", "error.camp.enumdomcons.buit");
 						errors.rejectValue("domini", "error.camp.enumdomcons.buit");
 						errors.rejectValue("consulta", "error.camp.enumdomcons.buit");
-					} else	if (camp.getDomini() != null && camp.isDominiIntern()){
+					} else	if (camp.getDomini() != null && camp.getDominiIntern()){
 							errors.rejectValue("domini", "error.camp.domini");
 							errors.rejectValue("dominiIntern", "error.camp.domini");
 					} else {
@@ -382,7 +382,7 @@ public class DefinicioProcesCampController extends BaseController {
 								errors.rejectValue("consulta", "error.camp.enumdomcons.tots");
 							}
 						} else {
-							if(camp.isDominiIntern()){
+							if(camp.getDominiIntern()){
 								if (camp.getEnumeracio() != null && camp.getConsulta() != null) {
 									errors.rejectValue("enumeracio", "error.camp.enumdomcons.tots");
 									errors.rejectValue("dominiIntern", "error.camp.enumdomcons.tots");

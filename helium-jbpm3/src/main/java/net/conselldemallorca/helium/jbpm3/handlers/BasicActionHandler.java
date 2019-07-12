@@ -10,7 +10,17 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import org.jbpm.JbpmException;
+import org.jbpm.context.exe.ContextInstance;
+import org.jbpm.graph.def.ActionHandler;
+import org.jbpm.graph.exe.ExecutionContext;
+import org.jbpm.graph.exe.Token;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+
 import net.conselldemallorca.helium.jbpm3.handlers.exception.ValidationException;
+import net.conselldemallorca.helium.jbpm3.handlers.tipus.DadesEnviament;
+import net.conselldemallorca.helium.jbpm3.handlers.tipus.DadesNotificacio;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.DadesRegistreEntrada;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.DadesRegistreNotificacio;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.DadesRegistreSortida;
@@ -18,7 +28,9 @@ import net.conselldemallorca.helium.jbpm3.handlers.tipus.DocumentDisseny;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.DocumentInfo;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.ExpedientInfo;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.FilaResultat;
+import net.conselldemallorca.helium.jbpm3.handlers.tipus.Interessat;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.ParellaCodiValor;
+import net.conselldemallorca.helium.jbpm3.handlers.tipus.PersonaInfo;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.ReferenciaRDSJustificante;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.RespostaRegistre;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.Tramit;
@@ -27,28 +39,27 @@ import net.conselldemallorca.helium.jbpm3.integracio.DominiCodiDescripcio;
 import net.conselldemallorca.helium.jbpm3.integracio.Jbpm3HeliumBridge;
 import net.conselldemallorca.helium.jbpm3.integracio.Termini;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DadesEnviamentDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DadesNotificacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentDissenyDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DominiRespostaColumnaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DominiRespostaFilaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EnumeracioValorDto;
+import net.conselldemallorca.helium.v3.core.api.dto.EnviamentTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDadaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
+import net.conselldemallorca.helium.v3.core.api.dto.InteressatDto;
+import net.conselldemallorca.helium.v3.core.api.dto.InteressatTipusEnumDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RegistreAnnexDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RegistreAnotacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RegistreIdDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RegistreNotificacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RespostaJustificantDetallRecepcioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RespostaJustificantRecepcioDto;
-
-import org.jbpm.JbpmException;
-import org.jbpm.context.exe.ContextInstance;
-import org.jbpm.graph.def.ActionHandler;
-import org.jbpm.graph.exe.ExecutionContext;
-import org.jbpm.graph.exe.Token;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
+import net.conselldemallorca.helium.v3.core.api.dto.ServeiTipusEnumDto;
 
 
 
@@ -65,7 +76,7 @@ public abstract class BasicActionHandler extends AbstractHeliumActionHandler imp
 
 	public abstract void execute(ExecutionContext executionContext) throws Exception;
 
-
+	
 
 	/**
 	 * Retorna l'expedient associat al procés actual
@@ -528,6 +539,184 @@ public abstract class BasicActionHandler extends AbstractHeliumActionHandler imp
 		return Jbpm3HeliumBridge.getInstanceService().registreNotificacioComprovarRecepcio(
 				registreNumero, null);
 	}
+	
+	
+	/**
+	 * Crea un interessat
+	 * 
+	 * @param codi
+	 * @param expedientId
+	 * @return
+	 */
+	public void interessatCrear(
+			Interessat interessat) {
+		
+		InteressatDto interessatDto = new InteressatDto();
+
+		interessatDto.setCodi(interessat.getCodi());
+		interessatDto.setNom(interessat.getNom());
+		interessatDto.setNif(interessat.getNif());
+		interessatDto.setLlinatge1(interessat.getLlinatge1());
+		interessatDto.setLlinatge2(interessat.getLlinatge2());
+		interessatDto.setTipus(InteressatTipusEnumDto.valueOf(interessat.getTipus().toUpperCase()));
+		interessatDto.setEmail(interessat.getEmail());
+		interessatDto.setTelefon(interessat.getTelefon());
+		interessatDto.setExpedientId(interessat.getExpedientId());
+		
+		Jbpm3HeliumBridge.getInstanceService().interessatCrear(interessatDto);
+		
+	}
+	
+	/**
+	 * Modifica un interessat
+	 * 
+	 * @param codi
+	 * @param expedientId
+	 * @return
+	 */
+	public void interessatModificar(
+			Interessat interessat) {
+		
+		InteressatDto interessatDto = new InteressatDto();
+
+		interessatDto.setId(interessat.getId());
+		interessatDto.setCodi(interessat.getCodi());
+		interessatDto.setNom(interessat.getNom());
+		interessatDto.setNif(interessat.getNif());
+		interessatDto.setLlinatge1(interessat.getLlinatge1());
+		interessatDto.setLlinatge2(interessat.getLlinatge2());
+		interessatDto.setTipus(InteressatTipusEnumDto.valueOf(interessat.getTipus().toUpperCase()));
+		interessatDto.setEmail(interessat.getEmail());
+		interessatDto.setTelefon(interessat.getTelefon());
+		interessatDto.setExpedientId(interessat.getExpedientId());
+		
+		Jbpm3HeliumBridge.getInstanceService().interessatModificar(interessatDto);
+		
+	}
+	
+	/**
+	 * ELimina un interessat
+	 * 
+	 * @param codi
+	 * @param expedientId
+	 * @return
+	 */
+	public void interessatEliminar(
+			String codi,
+			Long expedientId) {
+		
+		InteressatDto interessatDto = new InteressatDto();
+
+		interessatDto.setCodi(codi);
+		interessatDto.setExpedientId(expedientId);
+		
+		Jbpm3HeliumBridge.getInstanceService().interessatEliminar(interessatDto);
+		
+	}
+	
+	
+	
+	// NOTIB -- Inici
+	
+	/**
+	 * Fa una notificació telemàtica al ciutadà.
+	 * 
+	 * @param dadesRegistre
+	 * @param executionContext
+	 * @return
+	 */
+	public void altaNotificacio(
+			DadesNotificacio dadesNotificacio,
+			Long expedientId) throws JbpmException {
+		DadesNotificacioDto notificacio = new DadesNotificacioDto();
+		notificacio.setExpedientId(expedientId);
+		notificacio.setEmisorDir3Codi(dadesNotificacio.getEmisorDir3Codi());
+		if (dadesNotificacio.getEnviamentTipus() != null)
+			notificacio.setEnviamentTipus(EnviamentTipusEnumDto.valueOf(dadesNotificacio.getEnviamentTipus().name()));
+		notificacio.setConcepte(dadesNotificacio.getConcepte());
+		notificacio.setDescripcio(dadesNotificacio.getDescripcio());
+		notificacio.setEnviamentDataProgramada(dadesNotificacio.getEnviamentDataProgramada());
+		notificacio.setRetard(dadesNotificacio.getRetard());
+		notificacio.setCaducitat(dadesNotificacio.getCaducitat());
+		notificacio.setDocumentArxiuNom(dadesNotificacio.getDocumentArxiuNom());
+		notificacio.setDocumentArxiuContingut(dadesNotificacio.getDocumentArxiuContingut());
+		notificacio.setDocumentId(dadesNotificacio.getDocumentId());
+
+
+		notificacio.setProcedimentCodi(dadesNotificacio.getProcedimentCodi());
+		
+		List<DadesEnviamentDto> enviaments = new ArrayList<DadesEnviamentDto>();
+		for (DadesEnviament dadesEnviament: dadesNotificacio.getEnviaments()) {
+			DadesEnviamentDto enviament = new DadesEnviamentDto();
+			
+			PersonaInfo dadesTitular = dadesEnviament.getTitular();
+			PersonaDto titular = new PersonaDto();
+			titular.setNom(dadesTitular.getNom());
+			titular.setLlinatge1(dadesTitular.getLlinatge1());
+			titular.setLlinatge2(dadesTitular.getLlinatge2());
+			titular.setDni(dadesTitular.getDni());
+			titular.setTelefon(dadesTitular.getTelefon());;
+			titular.setEmail(dadesTitular.getEmail());
+			titular.setTipus(InteressatTipusEnumDto.valueOf(dadesTitular.getTipus()));
+			enviament.setTitular(titular);
+
+			List<PersonaDto> destinataris = new ArrayList<PersonaDto>();
+			for (PersonaInfo dadesDestinatari: dadesEnviament.getDestinataris()) {
+				
+				PersonaDto destinatari = new PersonaDto();
+				destinatari.setNom(dadesDestinatari.getNom());
+				destinatari.setLlinatge1(dadesDestinatari.getLlinatge1());
+				destinatari.setLlinatge2(dadesDestinatari.getLlinatge2());
+				destinatari.setDni(dadesDestinatari.getDni());
+				destinatari.setTelefon(dadesDestinatari.getTelefon());;
+				destinatari.setEmail(dadesDestinatari.getEmail());
+				destinatari.setTipus(InteressatTipusEnumDto.valueOf(dadesDestinatari.getTipus()));
+				destinataris.add(destinatari);
+			}
+			enviament.setDestinataris(destinataris);
+			
+			if (dadesEnviament.getEntregaPostalTipus() != null)
+				enviament.setEntregaPostalTipus(DadesEnviamentDto.EntregaPostalTipus.valueOf(dadesEnviament.getEntregaPostalTipus().name()));
+			if (dadesEnviament.getEntregaPostalViaTipus() != null)
+				enviament.setEntregaPostalViaTipus(DadesEnviamentDto.EntregaPostalViaTipus.valueOf(dadesEnviament.getEntregaPostalViaTipus().name()));
+			enviament.setEntregaPostalViaNom(dadesEnviament.getEntregaPostalViaNom());
+			enviament.setEntregaPostalNumeroCasa(dadesEnviament.getEntregaPostalNumeroCasa());
+			enviament.setEntregaPostalNumeroQualificador(dadesEnviament.getEntregaPostalNumeroQualificador());
+			enviament.setEntregaPostalPuntKm(dadesEnviament.getEntregaPostalPuntKm());
+			enviament.setEntregaPostalApartatCorreus(dadesEnviament.getEntregaPostalApartatCorreus());
+			enviament.setEntregaPostalPortal(dadesEnviament.getEntregaPostalPortal());
+			enviament.setEntregaPostalEscala(dadesEnviament.getEntregaPostalEscala());
+			enviament.setEntregaPostalPlanta(dadesEnviament.getEntregaPostalPlanta());
+			enviament.setEntregaPostalPorta(dadesEnviament.getEntregaPostalPorta());
+			enviament.setEntregaPostalBloc(dadesEnviament.getEntregaPostalBloc());
+			enviament.setEntregaPostalComplement(dadesEnviament.getEntregaPostalComplement());
+			enviament.setEntregaPostalCodiPostal(dadesEnviament.getEntregaPostalCodiPostal());
+			enviament.setEntregaPostalPoblacio(dadesEnviament.getEntregaPostalPoblacio());
+			enviament.setEntregaPostalMunicipiCodi(dadesEnviament.getEntregaPostalMunicipiCodi());
+			enviament.setEntregaPostalProvinciaCodi(dadesEnviament.getEntregaPostalProvinciaCodi());
+			enviament.setEntregaPostalPaisCodi(dadesEnviament.getEntregaPostalPaisCodi());
+			enviament.setEntregaPostalLinea1(dadesEnviament.getEntregaPostalLinea1());
+			enviament.setEntregaPostalLinea2(dadesEnviament.getEntregaPostalLinea2());
+			enviament.setEntregaPostalCie(dadesEnviament.getEntregaPostalCie());
+			enviament.setEntregaPostalFormatSobre(dadesEnviament.getEntregaPostalFormatSobre());
+			enviament.setEntregaPostalFormatFulla(dadesEnviament.getEntregaPostalFormatFulla());
+			enviament.setEntregaDehObligat(dadesEnviament.isEntregaDehObligat());
+			enviament.setEntregaDehProcedimentCodi(dadesEnviament.getEntregaDehProcedimentCodi());
+			
+			// Per defecte tipus de servei normal.
+			enviament.setServeiTipusEnum(dadesNotificacio.getServeiTipus() != null ? ServeiTipusEnumDto.valueOf(dadesNotificacio.getServeiTipus()) : ServeiTipusEnumDto.NORMAL);
+			
+			
+			enviaments.add(enviament);
+		}
+		notificacio.setEnviaments(enviaments);
+		
+		
+		Jbpm3HeliumBridge.getInstanceService().altaNotificacio(notificacio);
+	}
+	
+	
+	// NOTIB -- Fi
 
 	/**
 	 * Retorna el valor d'una variable
@@ -655,8 +844,9 @@ public abstract class BasicActionHandler extends AbstractHeliumActionHandler imp
 			if (i < parametres.size() - 1)
 				sb.append(PARAMS_RETROCEDIR_SEPARADOR);
 		}
+		// Variable "prefix" + codi definicio de procés + codi acció + id dels logs
 		executionContext.setVariable(
-				PARAMS_RETROCEDIR_VARIABLE_PREFIX + executionContext.getAction().getId(),
+				PARAMS_RETROCEDIR_VARIABLE_PREFIX + executionContext.getAction().getName(),
 				sb.toString());
 	}
 
@@ -851,7 +1041,7 @@ public abstract class BasicActionHandler extends AbstractHeliumActionHandler imp
 			return valor;
 		}
 	}
-
+	
 	static final long serialVersionUID = 1L;
 
 }

@@ -33,21 +33,23 @@
 						<label class="nom_document<c:if test="${document.required}"> obligatori</c:if>">${document.documentNom}</label>
 					</td>
 					<td class="tableDocumentsTd">
-						<a class="icon signature" href="<c:url value="/v3/expedient/${tasca.expedientId}/proces/${tasca.processInstanceId}/document/${document.documentStoreId}/descarregar"/>"><span class="fa fa-download" title="<spring:message code="comuns.descarregar"/>"></span></a>
-						<c:if test="${document.signat}">
+						<c:if test="${document.documentStoreId != null }">
+							<a href="<c:url value="/v3/expedient/${tasca.expedientId}/proces/${tasca.processInstanceId}/document/${document.documentStoreId}/descarregar"/>"><span class="fa fa-download" title="<spring:message code="comuns.descarregar"/>"></span></a>
+							<c:if test="${document.signat}">
 								<c:if test="${not empty document.urlVerificacioCustodia}">
 									<a class="icon signature" href="${document.urlVerificacioCustodia}" target="_blank"><span class="fa fa-certificate" title="<spring:message code="expedient.document.signat"/>"></span></a>
 								</c:if>								
 								<c:if test="${not empty document.signaturaUrlVerificacio}">
 									<a class="icon signature" href="${document.signaturaUrlVerificacio}" target="_blank"><span class="fa fa-certificate" title="<spring:message code="expedient.document.signat"/>"></span></a>
 								</c:if>
-						</c:if>
-						<c:if test="${document.registrat}">
-							<a 	data-rdt-link-modal="true" 
-								class="icon registre" 
-								href="<c:url value='/modal/v3/expedient/${expedientId}/verificarRegistre/${document.documentStoreId}/${document.documentCodi}'/>">
-								<span class="fa fa-book" title="<spring:message code='expedient.document.registrat' />"></span>
-							</a>
+							</c:if>
+							<c:if test="${document.registrat}">
+								<a 	data-rdt-link-modal="true" 
+									class="icon registre" 
+									href="<c:url value='/modal/v3/expedient/${expedientId}/verificarRegistre/${document.documentStoreId}/${document.documentCodi}'/>">
+									<span class="fa fa-book" title="<spring:message code='expedient.document.registrat' />"></span>
+								</a>
+							</c:if>
 						</c:if>
 					</td>
 				</tr>

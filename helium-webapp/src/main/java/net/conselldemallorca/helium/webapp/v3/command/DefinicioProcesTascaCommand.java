@@ -36,7 +36,14 @@ public class DefinicioProcesTascaCommand {
 	private String formExtern;
 	private boolean tramitacioMassiva = false;
 	private boolean finalitzacioSegonPla = false;
+	private boolean ambRepro = false;
 	
+	public boolean isAmbRepro() {
+		return ambRepro;
+	}
+	public void setAmbRepro(boolean ambRepro) {
+		this.ambRepro = ambRepro;
+	}
 	public Long getDefinicioProcesId() {
 		return definicioProcesId;
 	}
@@ -123,7 +130,7 @@ public class DefinicioProcesTascaCommand {
 		dto.setFormExtern(command.getFormExtern());
 		dto.setTramitacioMassiva(command.isTramitacioMassiva());
 		dto.setFinalitzacioSegonPla(command.isFinalitzacioSegonPla());
-		
+		dto.setAmbRepro(command.isAmbRepro());
 		return dto;
 	}
 	
@@ -140,7 +147,7 @@ public class DefinicioProcesTascaCommand {
 		command.setFormExtern(dto.getFormExtern());
 		command.setTramitacioMassiva(dto.isTramitacioMassiva());
 		command.setFinalitzacioSegonPla(dto.isFinalitzacioSegonPla());
-		
+		command.setAmbRepro(dto.isAmbRepro());
 		return command;
 	}
 	public interface Modificacio {}

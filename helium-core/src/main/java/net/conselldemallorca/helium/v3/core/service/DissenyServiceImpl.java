@@ -4,6 +4,7 @@
 package net.conselldemallorca.helium.v3.core.service;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -12,7 +13,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
+import java.util.zip.ZipOutputStream;
 
 import javax.annotation.Resource;
 
@@ -37,6 +40,7 @@ import net.conselldemallorca.helium.core.helper.EntornHelper;
 import net.conselldemallorca.helium.core.helper.ExpedientHelper;
 import net.conselldemallorca.helium.core.helper.ExpedientLoggerHelper;
 import net.conselldemallorca.helium.core.helper.ExpedientTipusHelper;
+import net.conselldemallorca.helium.core.helper.HerenciaHelper;
 import net.conselldemallorca.helium.core.helper.MessageHelper;
 import net.conselldemallorca.helium.core.helper.PaginacioHelper;
 import net.conselldemallorca.helium.core.helper.PermisosHelper;
@@ -46,6 +50,8 @@ import net.conselldemallorca.helium.core.model.hibernate.Area;
 import net.conselldemallorca.helium.core.model.hibernate.Camp;
 import net.conselldemallorca.helium.core.model.hibernate.CampTasca;
 import net.conselldemallorca.helium.core.model.hibernate.Consulta;
+import net.conselldemallorca.helium.core.model.hibernate.ConsultaCamp;
+import net.conselldemallorca.helium.core.model.hibernate.ConsultaCamp.TipusConsultaCamp;
 import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
 import net.conselldemallorca.helium.core.model.hibernate.Document;
 import net.conselldemallorca.helium.core.model.hibernate.Domini;
@@ -58,6 +64,7 @@ import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessDefinition;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessInstance;
 import net.conselldemallorca.helium.v3.core.api.dto.AreaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ConsultaCampDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ConsultaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesExpedientDto;
@@ -80,6 +87,7 @@ import net.conselldemallorca.helium.v3.core.repository.AccioRepository;
 import net.conselldemallorca.helium.v3.core.repository.AreaRepository;
 import net.conselldemallorca.helium.v3.core.repository.CampRepository;
 import net.conselldemallorca.helium.v3.core.repository.CampTascaRepository;
+import net.conselldemallorca.helium.v3.core.repository.ConsultaCampRepository;
 import net.conselldemallorca.helium.v3.core.repository.ConsultaRepository;
 import net.conselldemallorca.helium.v3.core.repository.DefinicioProcesRepository;
 import net.conselldemallorca.helium.v3.core.repository.DocumentRepository;
@@ -151,6 +159,10 @@ public class DissenyServiceImpl implements DissenyService {
 	private EnumeracioRepository enumeracioRepository;
 	@Resource
 	private DominiRepository dominiRepository;
+	@Resource
+	private ConsultaCampRepository consultaCampRepository;
+	
+	
 
 
 	@Transactional(readOnly=true)
@@ -327,11 +339,11 @@ public class DissenyServiceImpl implements DissenyService {
 		if (jpd != null) {
 			List<JbpmProcessDefinition> subPds = jbpmHelper.getSubProcessDefinitions(jpd.getId());
 			if (subPds != null) {
-				for (JbpmProcessDefinition subPd: subPds) {
-					afegirJbpmIdProcesAmbSubprocessos(subPd, jbpmIds, true);
-					if (!jbpmIds.contains(subPd.getId()))
+				for (JbpmProcessDefinition subPd: subPds)
+					if (!jbpmIds.contains(subPd.getId())) {
 						jbpmIds.add(subPd.getId());
-				}
+						afegirJbpmIdProcesAmbSubprocessos(subPd, jbpmIds, true);
+					}
 			}
 			if (!jbpmIds.contains(jpd.getId()) && incloure)
 				jbpmIds.add(jpd.getId());
@@ -651,7 +663,7 @@ public class DissenyServiceImpl implements DissenyService {
 	public List<CampDto> findCampsOrdenatsPerCodi(
 			Long expedientTipusId,
 			Long definicioProcesId,
-			boolean herencia) {
+			boolean ambHerencia) {
 		
 		ExpedientTipus expedientTipus = null;
 		DefinicioProces definicioProces = null;
@@ -672,8 +684,8 @@ public class DissenyServiceImpl implements DissenyService {
 		}
 		List<Camp> camps;
 		if (expedientTipus != null && expedientTipus.isAmbInfoPropia()) {
-			herencia = herencia && expedientTipus.getExpedientTipusPare() != null;
-			if (herencia) {
+			ambHerencia = HerenciaHelper.ambHerencia(expedientTipus);
+			if (ambHerencia) {
 				camps = campRepository.findByExpedientTipusAmbHerencia(expedientTipus.getId());
 				for(Camp c : camps)
 					if(!expedientTipusId.equals(c.getExpedientTipus().getId()))
@@ -689,7 +701,7 @@ public class DissenyServiceImpl implements DissenyService {
 			camps = new ArrayList<Camp>();
 		campsDto = conversioTipusHelper.convertirList(camps, CampDto.class);
 		
-		if (herencia) {
+		if (ambHerencia) {
 			// Completa l'informació del dto
 			for(CampDto dto : campsDto) {
 				// Sobreescriu
@@ -708,7 +720,7 @@ public class DissenyServiceImpl implements DissenyService {
 	public List<DocumentDto> findDocumentsOrdenatsPerCodi(
 			Long expedientTipusId,
 			Long definicioProcesId,
-			boolean herencia) {
+			boolean ambHerencia) {
 		
 		ExpedientTipus expedientTipus = null;
 		DefinicioProces definicioProces = null;
@@ -729,8 +741,8 @@ public class DissenyServiceImpl implements DissenyService {
 		}
 		List<Document> documents;
 		if (expedientTipus != null && expedientTipus.isAmbInfoPropia()) {
-			herencia = herencia && expedientTipus.getExpedientTipusPare() != null;
-			if (herencia) {
+			ambHerencia = ambHerencia && expedientTipus.getExpedientTipusPare() != null;
+			if (ambHerencia) {
 				documents = documentRepository.findByExpedientTipusAmbHerencia(expedientTipus.getId());
 				for(Document d : documents)
 					if(!expedientTipusId.equals(d.getExpedientTipus().getId()))
@@ -746,7 +758,7 @@ public class DissenyServiceImpl implements DissenyService {
 			documents = new ArrayList<Document>();
 		documentsDto = conversioTipusHelper.convertirList(documents, DocumentDto.class);
 
-		if (herencia) {
+		if (ambHerencia) {
 			// Completa l'informació del dto
 			for(DocumentDto dto : documentsDto) {
 				// Sobreescriu
@@ -768,6 +780,16 @@ public class DissenyServiceImpl implements DissenyService {
 		return dominiHelper.consultaDominiIntern(
 				id,
 				parametres);
+	}
+	
+	@Override
+	@Transactional(readOnly=true)
+	public List<FilaResultat> consultaDomini(
+			Long id,
+			String codiDomini,
+			Map<String, Object> parametres) {
+		Domini domini = dominiRepository.findOne(id);
+		return dominiHelper.consultar(domini, codiDomini,parametres);
 	}
 
 	@Override
@@ -806,6 +828,35 @@ public class DissenyServiceImpl implements DissenyService {
 		return jbpmHelper.getResourceBytes(
 				definicioProcesRepository.findOne(definicioProcesId).getJbpmId(), 
 				nom);
+	}
+
+	/** Retorna el contingut del .par de la definició de procés. */
+	@Override
+	@Transactional(readOnly = true)
+	public byte[] getParContingut(Long definicioProcesId) {
+		
+		Set<String> recursosNoms = this.getRecursosNom(definicioProcesId);
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		ZipOutputStream out = new ZipOutputStream(baos);
+		byte[] recursContingut;
+		ZipEntry ze;
+		try {
+			for (String recursNom : recursosNoms) {
+				recursContingut = this.getRecursContingut(definicioProcesId, recursNom);
+				if (recursContingut != null) {
+					ze = new ZipEntry(recursNom);
+					out.putNextEntry(ze);
+					out.write(recursContingut);
+					out.closeEntry();
+				}
+			}
+			out.close();
+		} catch (Exception e) {
+			String errMsg = "Error construint el .par de la definició de procés " + definicioProcesId + ": " + e.getMessage();
+			logger.error(errMsg, e);
+			throw new RuntimeException(errMsg, e);
+		}
+		return baos.toByteArray();
 	}
 
 	
@@ -1049,6 +1100,38 @@ public class DissenyServiceImpl implements DissenyService {
 	 * {@inheritDoc}
 	 */
 	@Override
+	@Transactional
+	public void propagarHandlers(
+			Long idDefinicioProcesOrigen, 
+			List<Long> idsDefinicioProcesDesti) {
+		
+		DefinicioProces definicioProcesOrigen = definicioProcesRepository.findById(idDefinicioProcesOrigen);
+		
+		// Construeix la llista de handlers a partir del contingut del fitxer .par que acabin amb .class
+		JbpmProcessDefinition jbpmProcessDefinition = jbpmHelper.getProcessDefinition(definicioProcesOrigen.getJbpmId());
+		@SuppressWarnings("unchecked")
+		Map<String, byte[]> bytesMap = jbpmProcessDefinition.getProcessDefinition().getFileDefinition().getBytesMap();
+		Map<String, byte[]> handlers = new HashMap<String, byte[]>();
+		for (String nom : bytesMap.keySet()) 
+			if (nom.endsWith(".class")) {
+				handlers.put(nom, bytesMap.get(nom));
+			}
+
+		// Actualitza les definicions de procés destí
+		DefinicioProces definicioProcesDesti;
+		for (Long idDefinicioProcesDesti : idsDefinicioProcesDesti) {
+			definicioProcesDesti = definicioProcesRepository.findById(idDefinicioProcesDesti);
+			// Actualitza els handlers de la darrera versió de la definició de procés
+			jbpmHelper.updateHandlers(
+					Long.parseLong(definicioProcesDesti.getJbpmId()), 
+					handlers);	
+		}
+	}	
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
 	public DefinicioProcesExportacio getDefinicioProcesExportacioFromContingut(
 			String fitxer, 
 			byte[] contingut) {
@@ -1090,6 +1173,22 @@ public class DissenyServiceImpl implements DissenyService {
  		
  		return conversioTipusHelper.convertirList(documentRepository.findByDefinicioProcesId(definicioProces.getId()), DocumentDto.class);
  	}
+	
+	@Transactional(readOnly=true)
+	@Override
+	public ConsultaDto getConsultaById(Long id) {
+		return conversioTipusHelper.convertir(consultaRepository.findById(id), ConsultaDto.class);
+	}
+	
+	@Transactional(readOnly=true)
+	@Override
+	public List<ConsultaCampDto> findCampsInformePerCampsConsulta(
+			ConsultaDto consulta,
+			boolean filtrarValorsPredefinits) {
+		List<ConsultaCamp> consultaCamps = consultaCampRepository.findCampsConsulta(consulta.getId(), TipusConsultaCamp.INFORME);		
+		
+		return conversioTipusHelper.convertirList(consultaCamps, ConsultaCampDto.class);
+	}
 
 	private static final Logger logger = LoggerFactory.getLogger(ExpedientServiceImpl.class);
 }

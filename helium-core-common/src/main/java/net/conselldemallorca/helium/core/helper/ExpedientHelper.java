@@ -108,6 +108,8 @@ public class ExpedientHelper {
 	private DocumentStoreRepository documentStoreRepository;
 
 	@Resource
+	private ExpedientHelper expedientHelper;
+	@Resource
 	private EntornHelper entornHelper;
 	@Resource(name = "permisosHelperV3")
 	private PermisosHelper permisosHelper;
@@ -656,6 +658,56 @@ public class ExpedientHelper {
 	}
 
 	@Transactional
+	public void finalitzar(long expedientId) {
+		
+		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
+				expedientId,
+				new Permission[] {
+						ExtendedPermission.WRITE,
+						ExtendedPermission.ADMINISTRATION});
+
+		mesuresTemporalsHelper.mesuraIniciar(
+				"Finalitzar",
+				"expedient",
+				expedient.getTipus().getNom());
+
+		expedientLoggerHelper.afegirLogExpedientPerExpedient(
+				expedient.getId(),
+				ExpedientLogAccioTipus.EXPEDIENT_FINALITZAR,
+				null);
+		
+		List<JbpmProcessInstance> processInstancesTree = jbpmHelper.getProcessInstanceTree(expedient.getProcessInstanceId());
+		String[] ids = new String[processInstancesTree.size()];
+		int i = 0;
+		for (JbpmProcessInstance pi: processInstancesTree)
+			ids[i++] = pi.getId();
+		
+		Date dataFinalitzacio = new Date();
+		jbpmHelper.finalitzarExpedient(ids, dataFinalitzacio);
+		expedient.setDataFi(dataFinalitzacio);
+
+		//tancam l'expedient de l'arxiu si escau
+		if (expedient.isArxiuActiu()) {
+			List<ContingutArxiu> continguts = pluginHelper.arxiuExpedientInfo(expedient.getArxiuUuid()).getContinguts();
+			if(continguts == null || continguts.isEmpty()) {
+				// S'eborra l'expedient del arxiu si no te cap document.
+				pluginHelper.arxiuExpedientEsborrar(expedient.getArxiuUuid());
+				expedient.setArxiuUuid(null);
+			}else {
+				//firmem els documents que no estan firmats
+				expedientHelper.firmarDocumentsPerArxiuFiExpedient(expedient);				
+				// Tanca l'expedient a l'arxiu.
+				pluginHelper.arxiuExpedientTancar(expedient.getArxiuUuid());
+			}
+		}
+		
+		crearRegistreExpedient(
+				expedient.getId(),
+				SecurityContextHolder.getContext().getAuthentication().getName(),
+				Registre.Accio.FINALITZAR);
+	}
+	
+	@Transactional
 	public void desfinalitzar(
 			Expedient expedient,
 			String usuari) {
@@ -681,10 +733,41 @@ public class ExpedientHelper {
 				"Desfinalitzar",
 				"expedient",
 				expedient.getTipus().getNom());
+		
+        if (expedient.isArxiuActiu()) {
+    		//reobrim l'expedient de l'arxiu digital si escau
+        	if (expedient.getArxiuUuid() != null
+        			&& pluginHelper.arxiuExisteixExpedient(expedient.getArxiuUuid())) {
+	            // Obre de nou l'expedient tancat a l'arxiu.
+	            pluginHelper.arxiuExpedientReobrir(expedient.getArxiuUuid());
+	        } else {
+	            // Migra l'expedient a l'arxiu
+	            expedientHelper.migrarArxiu(expedient);
+	        }
+        }
 	}
 	
 	@Transactional
 	public void migrarArxiu(Expedient expedient) {
+		
+		// Fa validacions prèvies
+		if (!expedient.getTipus().isArxiuActiu())
+			throw new ValidacioException("Aquest expedient no es pot migrar perquè no el tipus d'expedient no té activada la intagració amb l'arxiu");
+		
+		if (expedient.getArxiuUuid() != null && !expedient.getArxiuUuid().isEmpty())
+			throw new ValidacioException("Aquest expedient ja està vinculat a l'arxiu amb la uuid: " + expedient.getArxiuUuid());
+		
+		// Valida que els documents siguin convertibles
+		List<String> noConvertibles = new ArrayList<String>();
+		for (DocumentStore document: documentStoreRepository.findByProcessInstanceId(expedient.getProcessInstanceId())) {
+			if(!PdfUtils.isArxiuConvertiblePdf(document.getArxiuNom()))
+				noConvertibles.add(document.getArxiuNom());
+		}
+		if (!noConvertibles.isEmpty())
+			throw new ValidacioException("No es pot migrar l'expedient perquè conté els següents documents no convertibles a PDF per persistir-los a l'Arxiu: " + noConvertibles.toString());
+
+
+		// Migra a l'Arxiu
 		ContingutArxiu expedientCreat = pluginHelper.arxiuExpedientCrear(expedient);
 		expedient.setArxiuUuid(
 				expedientCreat.getIdentificador());
@@ -719,7 +802,7 @@ public class ExpedientHelper {
 				arxiu.setTipusMime(documentHelper.getContentType(arxiu.getNom()));
 			
 			
-			ContingutArxiu contingutArxiu = pluginHelper.arxiuDocumentActualitzar(
+			ContingutArxiu contingutArxiu = pluginHelper.arxiuDocumentCrearActualitzar(
 					expedient,
 					documentDescripcio,
 					documentStore,
@@ -765,18 +848,28 @@ public class ExpedientHelper {
 	@Transactional
 	public void firmarDocumentsPerArxiuFiExpedient(Expedient expedient) {
 
-		List<DocumentStore> documents = documentStoreRepository.findByProcessInstanceId(expedient.getProcessInstanceId());
-		List<Long> documentsPerSignar = new ArrayList<Long>();
+		//List<DocumentStore> documents = documentStoreRepository.findByProcessInstanceId(expedient.getProcessInstanceId());
+		List<DocumentStore> documents = new ArrayList<DocumentStore>();
+		List<InstanciaProcesDto> arbreProcesInstance = expedientHelper.getArbreInstanciesProces(expedient.getProcessInstanceId());
+		
+		// Genera llista de tots els documents del expedient
+		for(InstanciaProcesDto procesInstance :arbreProcesInstance) {
+			documents.addAll(
+					documentStoreRepository.findByProcessInstanceId(procesInstance.getId())
+					);
+		}
+		
+		
+		List<DocumentStore> documentsPerSignar = new ArrayList<DocumentStore>();
 		List<DocumentStore> documentsNoValids = new ArrayList<DocumentStore>();
 		
-		PdfUtils pdfUtils = documentHelper.getPdfUtils();
 		// Valida que els documents es puguin firmar
 		for (DocumentStore documentStore : documents) {
 			if (!documentStore.isSignat()) {
-				if (!pdfUtils.isArxiuConvertiblePdf(documentStore.getArxiuNom())) {
+				if (!PdfUtils.isArxiuConvertiblePdf(documentStore.getArxiuNom())) {
 					documentsNoValids.add(documentStore);
 				} else {
-					documentsPerSignar.add(documentStore.getId());
+					documentsPerSignar.add(documentStore);
 				}
 			}
 		}
@@ -788,14 +881,15 @@ public class ExpedientHelper {
 					llistaDocuments.append(", ");
 				llistaDocuments.append(d.getArxiuNom());
 			}
-			throw new ValidacioException(messageHelper.getMessage("document.controller.firma.servidor.validacio.conversio.documents", new Object[]{ llistaDocuments.toString(), pdfUtils.getExtensionsConvertiblesPdf()}));
+			throw new ValidacioException(messageHelper.getMessage("document.controller.firma.servidor.validacio.conversio.documents", new Object[]{ llistaDocuments.toString(), PdfUtils.getExtensionsConvertiblesPdf()}));
 		}
 		
 		// Firma en el servidor els documents pendents de firma
-		for (Long documentStoreId: documentsPerSignar) {
+		for (DocumentStore documentStore: documentsPerSignar) {
 				documentHelper.firmaServidor(
-						expedient.getProcessInstanceId(), 
-						documentStoreId, 
+						documentStore.getProcessInstanceId(),
+						//expedient.getProcessInstanceId(), 
+						documentStore.getId(), 
 						messageHelper.getMessage("document.controller.firma.servidor.default.message"),
 						true);
 		}

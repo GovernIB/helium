@@ -45,7 +45,8 @@
 			<hel:inputText name="formExtern" textKey="definicio.proces.tasca.form.formExtern" />
 			<hel:inputCheckbox name="expressioDelegacio" textKey="definicio.proces.tasca.form.expressioDelegacio" />
 			<hel:inputCheckbox name="tramitacioMassiva" textKey="definicio.proces.tasca.form.tramitacioMassiva" />
-			<hel:inputCheckbox name="finalitzacioSegonPla" textKey="definicio.proces.tasca.form.finalitzacioSegonPla" />		
+			<hel:inputCheckbox name="finalitzacioSegonPla" textKey="definicio.proces.tasca.form.finalitzacioSegonPla" />
+			<hel:inputCheckbox name="ambRepro" textKey="expedient.tipus.camp.form.camp.ambrepro" />
 		</div>
 		
 		<div id="modal-botons" class="well">

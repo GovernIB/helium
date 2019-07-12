@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import net.conselldemallorca.helium.core.model.dto.PersonaDto;
 import net.conselldemallorca.helium.v3.core.api.service.AdminService;
 import net.conselldemallorca.helium.webapp.v3.helper.DatatablesHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.DatatablesHelper.DatatablesResponse;
@@ -30,9 +31,11 @@ public class MonitorIntegracioController extends BaseController {
 	String get(
 			HttpServletRequest request,
 			Model model) {
+		PersonaDto persona = (PersonaDto)request.getSession().getAttribute("dadesPersona");
 		model.addAttribute(
 				"integracions",
-				adminService.monitorIntegracioFindAll());
+				(persona != null && persona.isAdmin())?
+				adminService.monitorIntegracioFindAll():adminService.monitorIntegracioFindAllEntronActual());
 		return "v3/monitorIntegracio";
 	}
 
@@ -42,10 +45,12 @@ public class MonitorIntegracioController extends BaseController {
 			HttpServletRequest request,
 			@PathVariable String integracioCodi,
 			Model model) {
+		PersonaDto persona = (PersonaDto)request.getSession().getAttribute("dadesPersona");
 		return DatatablesHelper.getDatatableResponse(
 				request,
 				null,
-				adminService.monitorIntegracioFindAccionsByIntegracio(integracioCodi));
+				(persona != null && persona.isAdmin())?
+						adminService.monitorIntegracioFindAccionsByIntegracio(integracioCodi):adminService.monitorIntegracioFindAccionsByIntegracioEntornActual(integracioCodi));
 	}
 
 }

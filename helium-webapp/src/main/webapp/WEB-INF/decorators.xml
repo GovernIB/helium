@@ -17,6 +17,7 @@
 		<pattern>/signatura/verificar*</pattern>
 		<pattern>/nodeco/*</pattern>
 		<pattern>/v3/metrics*</pattern>
+		<pattern>/rest/notib*</pattern>
 	</excludes>
 	<decorator name="v3" page="v3.jsp">
 		<pattern>/v3/*</pattern>

@@ -107,6 +107,7 @@
 								<c:if test="${ potDissenyarExpedientTipusDelegat}">
 									<li><a href="<c:url value="/v3/expedientTipus/${expedientTipus.id}/propagarPlantilles"/>" title="<spring:message code="exptipus.info.propagar.plantilles.info"/>" ><span class="fa fa-cog"></span>&nbsp;<spring:message code="exptipus.info.propagar.plantilles"/></a></li>
 									<li><a href="<c:url value="/v3/expedientTipus/${expedientTipus.id}/propagarConsultes"/>" title="<spring:message code="exptipus.info.propagar.consultes.info"/>" ><span class="fa fa-cog"></span>&nbsp;<spring:message code="exptipus.info.propagar.consultes"/></a></li>
+									<li><a data-toggle="modal" href="<c:url value="/v3/expedientTipus/${expedientTipus.id}/propagarHandlers"/>" title="<spring:message code="expedient.info.propagar.handlers.info"/>" ><span class="fa fa-cog"></span>&nbsp;<spring:message code="expedient.info.propagar.handlers"/> ...</a></li>
 								</c:if>
 								<c:if test="${potDissenyarEntorn or potAdministrarEntorn}">
 									<li class="divider"></li>

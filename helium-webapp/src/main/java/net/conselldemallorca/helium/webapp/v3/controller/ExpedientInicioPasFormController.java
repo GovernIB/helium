@@ -147,7 +147,7 @@ public class ExpedientInicioPasFormController extends BaseExpedientController {
 			model.addAttribute("command", populateCommand(request, expedientTipusId, definicioProcesId, model,null));
 		ExpedientTascaDto tasca = obtenirTascaInicial(entorn.getId(), expedientTipusId, definicioProcesId, new HashMap<String, Object>(), request);
 		List<TascaDadaDto> dades = tascaService.findDadesPerTascaDto(expedientTipusId, tasca);
-		List<ReproDto> repros = reproService.findReprosByUsuariTipusExpedient(expedientTipus.getId());
+		List<ReproDto> repros = reproService.findReprosByUsuariTipusExpedient(expedientTipus.getId(), tasca.getJbpmName());
 		model.addAttribute("tasca", tasca);
 		model.addAttribute("dades", dades);
 		model.addAttribute("repros", repros);
@@ -164,7 +164,6 @@ public class ExpedientInicioPasFormController extends BaseExpedientController {
 			@PathVariable Long definicioProcesId,
 			@PathVariable Long reproId,
 			Model model) {
-		
 		try {
 			Map<String,Object> valors = reproService.findValorsById(reproId);
 			model.addAttribute("command", populateCommand(request, expedientTipusId, definicioProcesId, model, valors));
@@ -188,7 +187,7 @@ public class ExpedientInicioPasFormController extends BaseExpedientController {
 		ExpedientTipusDto expedientTipus = dissenyService.getExpedientTipusById(expedientTipusId);
 		ExpedientTascaDto tasca = obtenirTascaInicial(entorn.getId(), expedientTipusId, definicioProcesId, new HashMap<String, Object>(), request);
 		List<TascaDadaDto> tascaDades = tascaService.findDadesPerTascaDto(expedientTipusId, tasca);
-		List<ReproDto> repros = reproService.findReprosByUsuariTipusExpedient(expedientTipus.getId());
+		List<ReproDto> repros = reproService.findReprosByUsuariTipusExpedient(expedientTipus.getId(), tasca.getJbpmName());
 		TascaFormValidatorHelper validator = new TascaFormValidatorHelper(
 				tascaService,
 				tascaDades);

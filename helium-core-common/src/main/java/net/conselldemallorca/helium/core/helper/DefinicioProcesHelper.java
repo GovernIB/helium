@@ -171,6 +171,7 @@ public class DefinicioProcesHelper {
 						dpd.getVersion(),
 						entorn);
 				definicio.setExpedientTipus(expedientTipus);
+				expedientTipus.getDefinicionsProces().add(definicio);
 				definicio = definicioProcesRepository.saveAndFlush(definicio);
 				// Crea les tasques publicades
 				for (String nomTasca: jbpmHelper.getTaskNamesFromDeployedProcessDefinition(dpd)) {
@@ -444,7 +445,7 @@ public class DefinicioProcesHelper {
 			for(TascaExportacio tascaExportat : importacio.getTasques() )
 				if (importAll || command.getTasques().contains(tascaExportat.getJbpmName())){
 					tasca = tascaRepository.findByJbpmNameAndDefinicioProces(tascaExportat.getJbpmName(), definicio);
-					if (!definicioProcesExisteix || sobreEscriure) {
+					if (tasca != null && (!definicioProcesExisteix || sobreEscriure)) {
 						tasca.setNom(tascaExportat.getNom());
 						tasca.setTipus(TipusTasca.valueOf(tascaExportat.getTipus().toString()));
 						tasca.setMissatgeInfo(tascaExportat.getMissatgeInfo());
@@ -455,6 +456,7 @@ public class DefinicioProcesHelper {
 						tasca.setFormExtern(tascaExportat.getFormExtern());
 						tasca.setTramitacioMassiva(tascaExportat.isTramitacioMassiva());
 						tasca.setFinalitzacioSegonPla(tascaExportat.isFinalitzacioSegonPla());
+						tasca.setAmbRepro(tascaExportat.isAmbRepro());
 						tascaRepository.save(tasca);
 						
 						// Si la tasca ja existia llavors esborra els camps, documents i firmes
@@ -527,16 +529,17 @@ public class DefinicioProcesHelper {
 						}
 					}
 				}
-		// Si el tipus d'expedient no tenia cap definició de procés inicial llavors la marca com inicial
-		if (expedientTipus != null
-				&& expedientTipus.getJbpmProcessDefinitionKey() == null
-				&& definicio != null) {
-			expedientTipus.setJbpmProcessDefinitionKey(definicio.getJbpmKey());
-			expedientTipusRepository.save(expedientTipus);
+		if (expedientTipus != null && definicio != null) {
+			// Si el tipus d'expedient no tenia cap definició de procés inicial llavors la marca com inicial
+			if (expedientTipus.getJbpmProcessDefinitionKey() == null) {
+				expedientTipus.setJbpmProcessDefinitionKey(definicio.getJbpmKey());
+				expedientTipusRepository.save(expedientTipus);
+			}			
+			expedientTipus.getDefinicionsProces().add(definicio);
 		}		
 		return definicio;
 	}
-	
+
 	/** Troba el domini per codi dins del tius d'expedient o l'entorn i el relaciona amb el camp. Si 
 	 * no el troba llença una excepció de no trobat.
 	 * @param camp
@@ -646,9 +649,9 @@ public class DefinicioProcesHelper {
 			if (camp == null && expedientTipus != null && expedientTipus.isAmbInfoPropia())
 				camp = campRepository.findByExpedientTipusAndCodi(expedientTipus.getId(), codiCamp, expedientTipus.getExpedientTipusPare() != null);
 		}
-		if (camp != null)
+		if (camp != null) {
 			campTasca.setCamp(camp);
-		else
+		} else
 			throw new DeploymentException(
 					messageHelper.getMessage(
 					"exportar.validacio.tasca.variable" + (isTipusExpedient ? ".expedientTipus" : ""), 
@@ -808,6 +811,7 @@ public class DefinicioProcesHelper {
 					tascaExportacio.setFormExtern(tasca.getFormExtern());
 					tascaExportacio.setTramitacioMassiva(tasca.isTramitacioMassiva());
 					tascaExportacio.setFinalitzacioSegonPla(tasca.isFinalitzacioSegonPla());
+					tascaExportacio.setAmbRepro(tasca.isAmbRepro());
 					// Afegeix els camps de la tasca
 					for (CampTasca camp: campTascaRepository.findAmbTascaIdOrdenats(tasca.getId(), definicio.getExpedientTipus().getId())) {
 						tascaExportacio.addCamp(
@@ -879,7 +883,7 @@ public class DefinicioProcesHelper {
 		                    (necessitaDadesExternes) ? camp.getConsultaCampValor() : null,
 		                    camp.isMultiple(),
 		                    camp.isOcult(),
-		                    camp.isDominiIntern(),
+		                    camp.getDominiIntern(),
 		                    camp.isDominiCacheText(),
 		                    (necessitaDadesExternes && camp.getEnumeracio() != null) ? camp.getEnumeracio().getCodi() : null,
 		                    (necessitaDadesExternes && camp.getDomini() != null) ? camp.getDomini().getCodi() : null,
@@ -1038,7 +1042,7 @@ public class DefinicioProcesHelper {
 			nou.setDominiCampText(camp.getDominiCampText());
 			nou.setDominiCampValor(camp.getDominiCampValor());
 			nou.setDominiParams(camp.getDominiParams());
-			nou.setDominiIntern(camp.isDominiIntern());
+			nou.setDominiIntern(camp.getDominiIntern());
 			nou.setEnumeracio(camp.getEnumeracio());
 			nou.setJbpmAction(camp.getJbpmAction());
 			nou.setOrdre(camp.getOrdre());
@@ -1130,6 +1134,7 @@ public class DefinicioProcesHelper {
 				tascaDesti.setExpressioDelegacio(tascaOrigen.getExpressioDelegacio());
 				tascaDesti.setTramitacioMassiva(tascaOrigen.isTramitacioMassiva());
 				tascaDesti.setFinalitzacioSegonPla(tascaOrigen.isFinalitzacioSegonPla());
+				tascaDesti.setAmbRepro(tascaOrigen.isAmbRepro());
 				// Copia els camps de les tasques
 				for (CampTasca camp: tascaOrigen.getCamps()) {
 					CampTasca nouCamp = new CampTasca(
@@ -1566,6 +1571,30 @@ public class DefinicioProcesHelper {
 			}			
 
 		}
+	}
+	
+		/** Mètode per relacionar la crida a les subdefinicions de procés per tal que es cridi la versió correcta en els nodes de tipus processState.
+	 * Només s'actualitzen entre elles les darreres versions de les definicions de procés, d'aquesta forma les versions anteriors queden de la mateixa
+	 * manera.
+	 * 
+	 * @param definicionsProces Llista de definicions de procés a relacionar les unes amb les altres i elles mateixes.
+	 */
+	@Transactional
+	public void relacionarDarreresVersionsDefinicionsProces(Set<DefinicioProces> definicionsProces) {
+		// Revisa les definicions de procés
+		Map<String, DefinicioProces> darreresDefinicionsProces = new HashMap<String, DefinicioProces>();
+		DefinicioProces aux;
+		for (DefinicioProces dp: definicionsProces) {
+			aux = darreresDefinicionsProces.get(dp.getJbpmKey());
+			if (aux == null || (aux.getVersio() < dp.getVersio()))
+				darreresDefinicionsProces.put(dp.getJbpmKey(), dp);
+		}
+		// Relaciona les darreres
+		for (DefinicioProces dp1: darreresDefinicionsProces.values())
+			for (DefinicioProces dp2 : darreresDefinicionsProces.values())
+				jbpmHelper.updateSubprocessDefinition(
+						jbpmHelper.getProcessDefinition(dp1.getJbpmId()).getProcessDefinition(), 
+						jbpmHelper.getProcessDefinition(dp2.getJbpmId()).getProcessDefinition());
 	}
 	
 	private static final Logger logger = LoggerFactory.getLogger(DefinicioProcesHelper.class);

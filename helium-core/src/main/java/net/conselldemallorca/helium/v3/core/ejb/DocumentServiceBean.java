@@ -85,4 +85,5 @@ public class DocumentServiceBean implements DocumentService {
 	public ArxiuDto getArxiu(Long documentId) throws NoTrobatException {
 		return delegate.getArxiu(documentId);
 	}
+
 }

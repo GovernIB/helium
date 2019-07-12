@@ -26,6 +26,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.OrderBy;
 import javax.persistence.Table;
 import javax.persistence.TableGenerator;
+import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 
 import org.hibernate.annotations.Fetch;
@@ -93,7 +94,33 @@ public class ExpedientTipus  implements Serializable, GenericEntity<Long> {
 	
 	private String diesNoLaborables;
 	
-	
+	// Integració NOTIB
+	private Boolean notibActiu;
+	@MaxLength(100)
+	private String notibSeuUnitatAdministrativa;
+	@MaxLength(100)
+	private String notibSeuCodiProcediment;
+	@MaxLength(100)
+	private String notibSeuOficina;
+	@MaxLength(100)
+	private String notibSeuLlibre;
+	@MaxLength(100)
+	private String notibSeuOrgan;
+	@MaxLength(256)
+	private String notibSeuIdioma;
+	@MaxLength(256)
+	private String notibAvisTitol;
+	@MaxLength(1024)
+	private String notibAvisText;
+	@MaxLength(200)
+	private String notibAvisTextSms;
+	@MaxLength(256)
+	private String notibOficiTitol;
+	@MaxLength(1024)
+	private String notibOficiText;
+		
+	// Integració SISTRA
+	//  - Notificacions
 	private boolean notificacionsActivades;
 	@MaxLength(100)
 	private String notificacioOrganCodi;
@@ -114,6 +141,7 @@ public class ExpedientTipus  implements Serializable, GenericEntity<Long> {
 	@MaxLength(1024)
 	private String notificacioOficiText;
 
+	//  - Tràmits
 	@MaxLength(64)
 	private String sistraTramitCodi;
 	@MaxLength(2048)
@@ -123,6 +151,7 @@ public class ExpedientTipus  implements Serializable, GenericEntity<Long> {
 	@MaxLength(2048)
 	private String sistraTramitMapeigAdjunts;
 
+	// Integració FORMS
 	@MaxLength(255)
 	private String formextUrl;
 	@MaxLength(255)
@@ -149,7 +178,9 @@ public class ExpedientTipus  implements Serializable, GenericEntity<Long> {
 	private List<Document> documents = new ArrayList<Document>();
 	private List<Termini> terminis = new ArrayList<Termini>();
 	private List<Accio> accions = new ArrayList<Accio>();
-	
+	private List<ExecucioMassiva> execucionsMassives  = new ArrayList<ExecucioMassiva>();
+	private List<Repro> repros  = new ArrayList<Repro>();
+
 	private boolean ntiActiu;
 	@MaxLength(256)
 	private String ntiOrgano;
@@ -350,6 +381,14 @@ public class ExpedientTipus  implements Serializable, GenericEntity<Long> {
 	public void setExpedientTipusPare(ExpedientTipus expedientTipusPare) {
 		this.expedientTipusPare = expedientTipusPare;
 	}
+	/** Propietat transcient calculada. Retorna true si és un tipus d'expedient amb informació pròpia i
+	 * té expedient tipus pare.
+	 * @return
+	 */
+	@Transient
+	public boolean isAmbHerencia() {
+		return this.isAmbInfoPropia() && this.getExpedientTipusPare() != null;
+	}
 	@Column(name="reindexacio_asincrona")
 	public boolean isReindexacioAsincrona() {
 		return reindexacioAsincrona;
@@ -477,6 +516,102 @@ public class ExpedientTipus  implements Serializable, GenericEntity<Long> {
 		this.sistraTramitMapeigAdjunts = sistraTramitMapeigAdjunts;
 	}
 
+	@Column(name="notib_actiu")
+	public Boolean getNotibActiu() {
+		return notibActiu;
+	}
+	public void setNotibActiu(Boolean notibActiu) {
+		this.notibActiu = notibActiu;
+	}
+	
+	@Column(name="notib_seu_unitatadmin", length = 100)
+	public String getNotibSeuUnitatAdministrativa() {
+		return notibSeuUnitatAdministrativa;
+	}
+	public void setNotibSeuUnitatAdministrativa(String notibSeuUnitatAdministrativa) {
+		this.notibSeuUnitatAdministrativa = notibSeuUnitatAdministrativa;
+	}
+	
+	@Column(name="notib_seu_codiprocediment", length = 100)
+	public String getNotibSeuCodiProcediment() {
+		return notibSeuCodiProcediment;
+	}
+	public void setNotibSeuCodiProcediment(String notibSeuCodiProcediment) {
+		this.notibSeuCodiProcediment = notibSeuCodiProcediment;
+	}
+	
+	@Column(name="notib_seu_oficina", length = 100)
+	public String getNotibSeuOficina() {
+		return notibSeuOficina;
+	}
+	public void setNotibSeuOficina(String notibSeuOficina) {
+		this.notibSeuOficina = notibSeuOficina;
+	}
+	
+	@Column(name="notib_seu_llibre", length = 100)
+	public String getNotibSeuLlibre() {
+		return notibSeuLlibre;
+	}
+	public void setNotibSeuLlibre(String notibSeuLlibre) {
+		this.notibSeuLlibre = notibSeuLlibre;
+	}
+	
+	@Column(name="notib_seu_organ", length = 100)
+	public String getNotibSeuOrgan() {
+		return notibSeuOrgan;
+	}
+	public void setNotibSeuOrgan(String notibSeuOrgan) {
+		this.notibSeuOrgan = notibSeuOrgan;
+	}
+	
+	@Column(name="notib_seu_idioma", length = 10)
+	public String getNotibSeuIdioma() {
+		return notibSeuIdioma;
+	}
+	public void setNotibSeuIdioma(String notibSeuIdioma) {
+		this.notibSeuIdioma = notibSeuIdioma;
+	}
+	
+	@Column(name="notib_avistitol", length = 100)
+	public String getNotibAvisTitol() {
+		return notibAvisTitol;
+	}
+	public void setNotibAvisTitol(String notibAvisTitol) {
+		this.notibAvisTitol = notibAvisTitol;
+	}
+	
+	@Column(name="notib_avistext", length = 1024)
+	public String getNotibAvisText() {
+		return notibAvisText;
+	}
+	public void setNotibAvisText(String notibAvisText) {
+		this.notibAvisText = notibAvisText;
+	}
+	
+	@Column(name="notib_avistextsms", length = 200)
+	public String getNotibAvisTextSms() {
+		return notibAvisTextSms;
+	}
+	public void setNotibAvisTextSms(String notibAvisTextSms) {
+		this.notibAvisTextSms = notibAvisTextSms;
+	}
+	
+	@Column(name="notib_oficititol", length = 256)
+	public String getNotibOficiTitol() {
+		return notibOficiTitol;
+	}
+	public void setNotibOficiTitol(String notibOficiTitol) {
+		this.notibOficiTitol = notibOficiTitol;
+	}
+	
+	@Column(name="notib_oficitext", length = 1024)
+	public String getNotibOficiText() {
+		return notibOficiText;
+	}
+	public void setNotibOficiText(String notibOficiText) {
+		this.notibOficiText = notibOficiText;
+	}
+	
 	@Column(name="formext_url", length=255)
 	public String getFormextUrl() {
 		return formextUrl;
@@ -705,6 +840,13 @@ public class ExpedientTipus  implements Serializable, GenericEntity<Long> {
 		this.accions = accions;
 	}
 	
+	@OneToMany(mappedBy="expedientTipus", cascade={CascadeType.ALL})
+	public List<ExecucioMassiva> getExecucionsMassives() {
+		return execucionsMassives;
+	}
+	public void setExecucionsMassives(List<ExecucioMassiva> execucionsMassives) {
+		this.execucionsMassives = execucionsMassives;
+	}
 	@Column(name="nti_actiu")
 	public boolean isNtiActiu() {
 		return ntiActiu;
@@ -744,7 +886,18 @@ public class ExpedientTipus  implements Serializable, GenericEntity<Long> {
 	public void setArxiuActiu(boolean arxiuActiu) {
 		this.arxiuActiu = arxiuActiu;
 	}
-
+	
+	@OneToMany(mappedBy="expedientTipus", fetch=FetchType.LAZY, cascade={CascadeType.ALL})
+	public List<Repro> getRepros() {
+		return repros;
+	}
+	public void setRepros(List<Repro> repros) {
+		this.repros = repros;
+	}
+	
+	public static long getSerialversionuid() {
+		return serialVersionUID;
+	}
 	@Override
 	public int hashCode() {
 		final int prime = 31;

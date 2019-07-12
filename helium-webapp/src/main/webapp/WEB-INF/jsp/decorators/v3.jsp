@@ -194,25 +194,40 @@
 								</ul>
 							</div>
 						</c:if>
-						<c:if test="${dadesPersona.admin}">
+						<c:if test="${dadesPersona.admin || potAdministrarEntorn}">
 							<div id="menuAdministracio" class="btn-group">
 								<button class="btn btn-primary dropdown-toggle" data-toggle="dropdown"><spring:message code="decorator.menu.administracio"/> <span class="caret"></span></button>
 								<ul class="dropdown-menu" id="mesures">
-									<c:if test="${globalProperties['app.expedient.monitor']}">
+									<c:if test="${ globalProperties['app.expedient.monitor'] && potAdministrarEntorn}">
 										<li><a data-toggle="modal" data-maximized="true" id="botoMonitor" href="<c:url value="/modal/v3/monitor"/>"><spring:message code='expedient.monitor' /></a></li>
 									</c:if>
-									<li><a data-toggle="modal" data-maximized="true" id="botoMetriques" href="<c:url value="/v3/metriques"/>"><spring:message code='expedient.metriques' /></a></li>
-									<li><a data-toggle="modal" data-maximized="true" href="<c:url value="/v3/monitorIntegracio"/>"><spring:message code='decorator.menu.administracio.monitor.integracio' /></a></li>
-									<li><a data-toggle="modal" data-maximized="true" href="<c:url value="/v3/monitorDomini"/>"><spring:message code='decorator.menu.administracio.monitor.domini' /></a></li>
-									<li><a data-toggle="modal" href="<c:url value="/modal/v3/tasca/pendentsCompletar"/>"><spring:message code='decorator.menu.administracio.tasques.execucio' /></a></li>
-									<li><a data-toggle="modal" data-maximized="true" href="<c:url value="/modal/v3/execucionsMassives/admin"/>"><spring:message code='comuns.massiu' /></a></li>
+									<c:if test="${dadesPersona.admin || potAdministrarEntorn}">
+										<li><a data-toggle="modal" data-maximized="true" id="botoMetriques" href="<c:url value="/v3/metriques"/>"><spring:message code='expedient.metriques' /></a></li>
+									</c:if>
+									<c:if test="${dadesPersona.admin || potAdministrarEntorn}">
+										<li><a data-toggle="modal" data-maximized="true" href="<c:url value="/v3/monitorIntegracio"/>"><spring:message code='decorator.menu.administracio.monitor.integracio' /></a></li>
+									</c:if>
+									<c:if test="${dadesPersona.admin || potAdministrarEntorn}">
+										<li><a data-toggle="modal" data-maximized="true" href="<c:url value="/v3/monitorDomini"/>"><spring:message code='decorator.menu.administracio.monitor.domini' /></a></li>
+									</c:if>
+									<c:if test="${dadesPersona.admin || potAdministrarEntorn}">
+										<li><a data-toggle="modal" href="<c:url value="/modal/v3/tasca/pendentsCompletar"/>"><spring:message code='decorator.menu.administracio.tasques.execucio' /></a></li>
+									</c:if>
+									<c:if test="${dadesPersona.admin || potAdministrarEntorn}">
+										<li><a data-toggle="modal" data-maximized="true" href="<c:url value="/modal/v3/execucionsMassives/admin"/>"><spring:message code='comuns.massiu' /></a></li>
+									</c:if>
 									<c:if test="${dadesPersona.admin}"><li><a href="<c:url value="/v3/entorn"/>"><spring:message code='decorators.superior.entorns' /></a></li></c:if>
 									<c:if test="${globalProperties['app.jbpm.identity.source'] == 'jbpm'}">
 										<c:if test="${dadesPersona.admin}"><li><a target="_BLANK" href="<c:url value="/carrec/jbpmConfigurats.html"/>"><spring:message code='comuns.carrecs' /></a></li></c:if>
 										<c:if test="${dadesPersona.admin}"><li><a target="_BLANK" href="<c:url value="/area/jbpmConfigurats.html"/>"><spring:message code='comuns.arees' /></a></li></c:if>
 									</c:if>
 									<c:if test="${dadesPersona.admin}"><li><a data-toggle="modal" data-maximized="true" href="<c:url value="/modal/v3/configuracio/festius"/>"><spring:message code='decorators.superior.festius' /></a></li></c:if>
-									<li><a data-toggle="modal" href="<c:url value="/modal/v3/configuracio/parametres"/>"><spring:message code='decorators.superior.parametres' /></a></li>
+									<c:if test="${dadesPersona.admin}">
+										<li><a data-toggle="modal" href="<c:url value="/modal/v3/configuracio/parametres"/>"><spring:message code='decorators.superior.parametres' /></a></li>
+									</c:if>
+									<c:if test="${dadesPersona.admin || potAdministrarEntorn}">
+										<li><a id="botoMetriques" href="<c:url value="/v3/estadistica"/>"><spring:message code='decorators.superior.estadistica' /></a></li>
+									</c:if>
 								</ul>
 								<script type="text/javascript">
 									$('#mesures a').heliumEvalLink({

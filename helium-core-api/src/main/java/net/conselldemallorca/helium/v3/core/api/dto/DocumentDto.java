@@ -21,6 +21,7 @@ public class DocumentDto extends HeretableDto implements Serializable {
 	private Date dataModificacio;
 	private Date dataDocument;
 	private boolean plantilla;
+	private boolean notificable;
 	private boolean required;
 	private boolean readOnly;
 
@@ -54,6 +55,9 @@ public class DocumentDto extends HeretableDto implements Serializable {
 	private byte[] signatContingut;
 	private String vistaNom;
 	private byte[] vistaContingut;
+	
+	private String arxiuCsv;
+	private String arxiuUuid;
 
 	private String convertirExtensio;
 	private String extensionsPermeses;
@@ -127,6 +131,12 @@ public class DocumentDto extends HeretableDto implements Serializable {
 	}
 	public void setPlantilla(boolean plantilla) {
 		this.plantilla = plantilla;
+	}
+	public boolean isNotificable() {
+		return notificable;
+	}
+	public void setNotificable(boolean notificable) {
+		this.notificable = notificable;
 	}
 	public boolean isRequired() {
 		return required;
@@ -399,6 +409,18 @@ public class DocumentDto extends HeretableDto implements Serializable {
 	public void setIgnored(boolean ignored) {
 		this.ignored = ignored;
 	}
+	public String getArxiuCsv() {
+		return arxiuCsv;
+	}
+	public void setArxiuCsv(String arxiuCsv) {
+		this.arxiuCsv = arxiuCsv;
+	}
+	public String getArxiuUuid() {
+		return arxiuUuid;
+	}
+	public void setArxiuUuid(String arxiuUuid) {
+		this.arxiuUuid = arxiuUuid;
+	}	
 
 	public String getArxiuNomSenseExtensio() {
 		if (getArxiuNom() == null)

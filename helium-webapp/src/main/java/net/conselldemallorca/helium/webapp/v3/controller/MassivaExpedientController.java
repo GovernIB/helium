@@ -31,6 +31,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.Errors;
 import org.springframework.validation.ValidationUtils;
 import org.springframework.validation.Validator;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -47,6 +48,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DocumentTipusFirmaEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExecucioMassivaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExecucioMassivaDto.ExecucioMassivaTipusDto;
@@ -67,11 +69,13 @@ import net.conselldemallorca.helium.v3.core.api.service.TascaService;
 import net.conselldemallorca.helium.webapp.mvc.ArxiuView;
 import net.conselldemallorca.helium.webapp.v3.command.CanviVersioProcesCommand;
 import net.conselldemallorca.helium.webapp.v3.command.DocumentExpedientCommand;
+import net.conselldemallorca.helium.webapp.v3.command.DocumentExpedientCommand.Create;
 import net.conselldemallorca.helium.webapp.v3.command.ExecucioAccioCommand;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientEinesAturarCommand;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientEinesReassignarCommand;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientEinesScriptCommand;
 import net.conselldemallorca.helium.webapp.v3.command.ModificarVariablesCommand;
+import net.conselldemallorca.helium.webapp.v3.helper.EnumHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.NtiHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.ObjectTypeEditorHelper;
@@ -388,10 +392,10 @@ public class MassivaExpedientController extends BaseExpedientController {
 				dto.setTipus(ExecucioMassivaTipusDto.FINALITZAR_EXPEDIENT);
 				execucioMassivaService.crearExecucioMassiva(dto);
 				MissatgesHelper.success(request, getMessage(request, "info.accio.massiu.finalitzar_expedient", new Object[] {listIds.size()}));
-			} else if ("finalitzarExpedient".equals(accio)) {
+			} else if ("migrarExpedient".equals(accio)) {
 				dto.setTipus(ExecucioMassivaTipusDto.MIGRAR_EXPEDIENT);
 				execucioMassivaService.crearExecucioMassiva(dto);
-				MissatgesHelper.success(request, getMessage(request, "info.accio.massiu.finalitzar_expedient", new Object[] {listIds.size()}));
+				MissatgesHelper.success(request, getMessage(request, "info.accio.massiu.migrar_expedient", new Object[] {listIds.size()}));
 			} else if ("executar".equals(accio)) {
 				new ExpedientScriptValidator().validate(command, result);
 				if (result.hasErrors()) {
@@ -506,11 +510,11 @@ public class MassivaExpedientController extends BaseExpedientController {
 		    			model.addAttribute("expedient", expedientAux);
 		    		}		        	
 		    		model.addAttribute(command);
-		        	return "v3/massivaInfoDocumentAdjunt";
+		        	return "v3/massivaInfoDocumentForm";
 		        }
 				dto.setTipus(ExecucioMassivaTipusDto.MODIFICAR_DOCUMENT);
-				Object[] params = new Object[8];
-				params[0] = ((DocumentExpedientCommand)command).getDocId(); //TODO: deixar com estava
+				Object[] params = new Object[12];
+				params[0] = ((DocumentExpedientCommand)command).getDocId();
 				params[1] = ((DocumentExpedientCommand)command).getData();
 				params[2] = ((DocumentExpedientCommand)command).getNom();
 				if (((DocumentExpedientCommand)command).getArxiu().getBytes().length > 0) {
@@ -521,6 +525,14 @@ public class MassivaExpedientController extends BaseExpedientController {
 				params[5] = ((DocumentExpedientCommand)command).getNtiEstadoElaboracion();
 				params[6] = ((DocumentExpedientCommand)command).getNtiTipoDocumental();
 				params[7] = ((DocumentExpedientCommand)command).getNtiIdOrigen();
+				if (((DocumentExpedientCommand)command).getArxiu().getBytes().length > 0) {
+					params[8] = ((DocumentExpedientCommand) command).getArxiu().getContentType();
+				}
+				params[9] = ((DocumentExpedientCommand)command).isAmbFirma();
+				params[10] = DocumentTipusFirmaEnumDto.SEPARAT.equals(((DocumentExpedientCommand)command).getTipusFirma());
+				if (((DocumentExpedientCommand)command).getFirma().getBytes().length > 0) {
+					params[11] = ((DocumentExpedientCommand) command).getFirma().getBytes();
+				}
 				dto.setParam2(execucioMassivaService.serialize(params));
 				execucioMassivaService.crearExecucioMassiva(dto);
 				MissatgesHelper.success(request, getMessage(request, "info.document.massiu.guardat", new Object[] {listIds.size()}));
@@ -529,11 +541,11 @@ public class MassivaExpedientController extends BaseExpedientController {
 				new DocumentModificarValidator().validate(command, result);
 		        if (result.hasErrors()) {
 		        	model.addAttribute("documentExpedientCommand", command);
-		        	return "v3/massivaInfoDocumentModificar";
+		        	return "v3/massivaInfoDocumentForm";
 		        }
 				dto.setTipus(ExecucioMassivaTipusDto.MODIFICAR_DOCUMENT);
 				Long docId = ((DocumentExpedientCommand) command).getDocId();
-				Object[] params = new Object[4];
+				Object[] params = new Object[12];
 				params[0] = docId;
 				
 				if (((DocumentExpedientCommand) command).getArxiu().getBytes().length > 0) {
@@ -550,7 +562,18 @@ public class MassivaExpedientController extends BaseExpedientController {
 					params[2] = "date";
 					params[3] = null;
 				}
-				
+				params[4] = ((DocumentExpedientCommand)command).getNtiOrigen();
+				params[5] = ((DocumentExpedientCommand)command).getNtiEstadoElaboracion();
+				params[6] = ((DocumentExpedientCommand)command).getNtiTipoDocumental();
+				params[7] = ((DocumentExpedientCommand)command).getNtiIdOrigen();
+				if (((DocumentExpedientCommand)command).getArxiu().getBytes().length > 0) {
+					params[8] = ((DocumentExpedientCommand) command).getArxiu().getContentType();
+				}
+				params[9] = ((DocumentExpedientCommand)command).isAmbFirma();
+				params[10] = DocumentTipusFirmaEnumDto.SEPARAT.equals(((DocumentExpedientCommand)command).getTipusFirma());
+				if (((DocumentExpedientCommand)command).getFirma().getBytes().length > 0) {
+					params[11] = ((DocumentExpedientCommand) command).getFirma().getBytes();
+				}
 				dto.setParam2(execucioMassivaService.serialize(params));
 				execucioMassivaService.crearExecucioMassiva(dto);
 				
@@ -680,6 +703,29 @@ public class MassivaExpedientController extends BaseExpedientController {
 			@RequestParam(value = "correu", required = false) boolean correu,
 			@RequestParam(value = "docId", required = false) Long docId,
 			Model model) {
+		return this.documentMassiuGet(request, model, inici, correu, docId, true);
+	}
+
+	@RequestMapping(value = "/{docId}/documentModificar", method = RequestMethod.GET)
+	public String documentModificarGet(
+			HttpServletRequest request,
+			@PathVariable Long docId,
+			@RequestParam(value = "inici", required = false) String inici,
+			@RequestParam(value = "correu", required = false) boolean correu,
+			Model model) {
+		return this.documentMassiuGet(request, model, inici, correu, docId, null);
+	}
+	
+	/** Mètode comú per adjuntar o modificar un document massivament. 
+	 * @param model 
+	 * @param request */
+	private String documentMassiuGet(
+			HttpServletRequest request, 
+			Model model, 
+			String inici, 
+			Boolean correu, 
+			Long docId, 
+			Boolean adjuntar) {
 		DocumentExpedientCommand command = new DocumentExpedientCommand();
 		command.setData(new Date());
 		command.setDocId(docId);
@@ -690,28 +736,46 @@ public class MassivaExpedientController extends BaseExpedientController {
 			MissatgesHelper.error(request, getMessage(request, "error.no.exp.selec"));
 			return "redirect:/v3";
 		}
+		DocumentDto documentDto = null;
 		if (docId != null) {
-			DocumentDto documentDto = documentService.findAmbId(null, docId);
+			documentDto = documentService.findAmbId(null, docId);
 			command.setNom(documentDto.getNom());
 		}
 		// NTI
-		if (docId == null) {
-			List<Long> listIds = new ArrayList<Long>(ids);
-			ExpedientDto expedient = expedientService.findAmbId(listIds.get(0));
-			// Mira si el tipus d'expedient té metadades NTI i tots els primer seleccionat
-			if (expedient.isNtiActiu()) {
-				model.addAttribute("metadades", true);
-				ntiHelper.omplirOrigen(model);
-				ntiHelper.omplirEstadoElaboracion(model);
-				ntiHelper.omplirTipoDocumental(model);
-				ntiHelper.omplirTipoFirma(model);
-				model.addAttribute("expedient", expedient);
+		List<Long> listIds = new ArrayList<Long>(ids);
+		ExpedientDto expedient = expedientService.findAmbId(listIds.get(0));
+		command.setExpedientId(expedient.getId());
+		command.setValidarArxius(true);
+		// Mira si el tipus d'expedient té metadades NTI i tots els primer seleccionat
+		if (expedient.isNtiActiu()) {
+			model.addAttribute("metadades", true);
+			ntiHelper.omplirOrigen(model);
+			ntiHelper.omplirEstadoElaboracion(model);
+			ntiHelper.omplirTipoDocumental(model);
+			ntiHelper.omplirTipoFirma(model);
+			model.addAttribute("expedient", expedient);
+			if (documentDto != null) {
+				command.setNtiEstadoElaboracion(documentDto.getNtiEstadoElaboracion());
+				command.setNtiOrigen(documentDto.getNtiOrigen());
+				command.setNtiTipoDocumental(documentDto.getNtiTipoDocumental());
 			}
 		}
-		model.addAttribute(command);
-		return "v3/massivaInfoDocumentAdjunt";
+		if (docId != null) {
+			DocumentDto document = dissenyService.documentFindOne(docId);
+			command.setNom(document.getDocumentNom());
+			command.setCodi(document.getCodi());
+			model.addAttribute("document", document);			
+		}
+		model.addAttribute(
+				"tipusFirmaOptions",
+				EnumHelper.getOptionsForEnum(
+						DocumentTipusFirmaEnumDto.class,
+						"enum.document.tipus.firma."));
+		model.addAttribute("adjuntar", adjuntar);
+		model.addAttribute("documentExpedientCommand", command);
+		return "v3/massivaInfoDocumentForm";
 	}
-
+	
 	@RequestMapping(value="/documentModificarMas", method = RequestMethod.POST)
 	public String documentAdjuntarMasPost(
 			HttpServletRequest request,
@@ -719,10 +783,17 @@ public class MassivaExpedientController extends BaseExpedientController {
 			@RequestParam(value = "correu", required = false) boolean correu,
 			@RequestParam(value = "accio", required = true) String accio,
 			SessionStatus status, 
-			@ModelAttribute DocumentExpedientCommand command, 
+			@Validated(Create.class) @ModelAttribute DocumentExpedientCommand command,
 			BindingResult result, 
-			Model model) {		
-		return massivaPost(request, inici, correu, command, accio, result, status, model, request.getParameter("arxiu"), null);
+			Model model) {	
+		if (result.hasErrors()) {
+			Map<String, Object> modelAnterior = model.asMap();
+			String ret = this.documentAdjuntGet(request, inici, correu, command.getDocId(), model);
+			model.addAttribute(command);
+			model.mergeAttributes(modelAnterior);
+			return ret;
+		}
+		return massivaPost(request, inici, correu, command, accio, result, status, model, request.getParameter("arxiuNom"), null);
 	}
 
 	@RequestMapping(value="/{docId}/documentModificarMas", method = RequestMethod.POST)
@@ -735,7 +806,12 @@ public class MassivaExpedientController extends BaseExpedientController {
 			BindingResult result, 
 			SessionStatus status, 
 			Model model) {		
-		return massivaPost(request, inici, correu, command, accio, result, status, model, request.getParameter("arxiu"), null);
+		if (result.hasErrors()) {
+			String ret = this.documentModificarGet(request, command.getDocId(), inici, correu, model);
+			model.addAttribute(command);
+			return ret;
+		}
+		return massivaPost(request, inici, correu, command, accio, result, status, model, request.getParameter("arxiuNom"), null);
 	}
 
 	@RequestMapping(value = "/documentGenerarMas", method = RequestMethod.GET)
@@ -770,26 +846,6 @@ public class MassivaExpedientController extends BaseExpedientController {
 			logger.error("Error generant el document " + docId, ex);
 		}
 		return "arxiuView";
-	}
-
-	@RequestMapping(value = "/{docId}/documentModificar", method = RequestMethod.GET)
-	public String documentModificarGet(
-			HttpServletRequest request,
-			@PathVariable Long docId,
-			@RequestParam(value = "inici", required = false) String inici,
-			@RequestParam(value = "correu", required = false) boolean correu,
-			Model model) {
-		DocumentDto document = dissenyService.documentFindOne(docId);
-		DocumentExpedientCommand command = new DocumentExpedientCommand();
-		command.setDocId(docId);
-		command.setNom(document.getDocumentNom());
-		command.setCodi(document.getCodi());
-		command.setData(new Date());
-		model.addAttribute("inici", inici);
-		model.addAttribute("correu", correu);
-		model.addAttribute("documentExpedientCommand", command);
-		model.addAttribute("document", document);		
-		return "v3/massivaInfoDocumentModificar";
 	}
 
 	@RequestMapping(value="/{campId}/modificarVariablesMas", method = RequestMethod.POST)

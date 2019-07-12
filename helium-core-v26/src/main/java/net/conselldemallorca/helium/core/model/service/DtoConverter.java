@@ -657,7 +657,7 @@ public class DtoConverter {
 				break;
 			}
 		}
-		if (camp != null && (camp.getDomini() != null || camp.isDominiIntern())) {
+		if (camp != null && (camp.getDomini() != null || camp.getDominiIntern())) {
 			Map<String, Object> params = getParamsConsulta(
 					taskId,
 					processInstanceId,
@@ -677,7 +677,7 @@ public class DtoConverter {
 			Camp camp,
 			Map<String, Object> params,
 			String textInicial) {
-		if (camp != null && (camp.getDomini() != null || camp.isDominiIntern())) {
+		if (camp != null && (camp.getDomini() != null || camp.getDominiIntern())) {
 			List<FilaResultat> resultat;
 			if (camp.getDomini() != null) {
 				resultat = dominiHelper.consultar(
@@ -948,7 +948,7 @@ public class DtoConverter {
 		ParellaCodiValor resposta = null;
 		TipusCamp tipus = camp.getTipus();
 		if (tipus.equals(TipusCamp.SELECCIO) || tipus.equals(TipusCamp.SUGGEST)) {
-			if (camp.getDomini() != null || camp.isDominiIntern()) {
+			if (camp.getDomini() != null || camp.getDominiIntern()) {
 				Map<String, Object> paramsConsulta = null;
 				paramsConsulta = getParamsConsulta(
 						taskId,

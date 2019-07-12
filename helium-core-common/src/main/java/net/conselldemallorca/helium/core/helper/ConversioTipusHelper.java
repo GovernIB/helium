@@ -32,6 +32,8 @@ import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.hibernate.FirmaTasca;
 import net.conselldemallorca.helium.core.model.hibernate.SequenciaAny;
 import net.conselldemallorca.helium.core.model.hibernate.SequenciaDefaultAny;
+import net.conselldemallorca.helium.integracio.plugins.notificacio.InteressatTipusEnum;
+import net.conselldemallorca.helium.integracio.plugins.notificacio.Persona;
 import net.conselldemallorca.helium.v3.core.api.dto.CampAgrupacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampRegistreDto;
@@ -47,6 +49,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.EnumeracioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.FirmaTascaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.SequenciaAnyDto;
 import net.conselldemallorca.helium.v3.core.api.dto.SequenciaDefaultAnyDto;
 
@@ -75,6 +78,7 @@ public class ConversioTipusHelper {
 						target.setNom(source.getNom());
 						target.setDescripcio(source.getDescripcio());
 						target.setPlantilla(source.isPlantilla());
+						target.setNotificable(source.isNotificable());
 						target.setExpedientTipus(mapperFacade.map(
 								source.getExpedientTipus(), 
 								ExpedientTipusDto.class));
@@ -134,7 +138,7 @@ public class ConversioTipusHelper {
 								mapperFacade.map(
 										source.getConsulta(),
 										ConsultaDto.class));
-						target.setDominiIntern(source.isDominiIntern());
+						target.setDominiIntern(source.getDominiIntern());
 
 						// Paràmetres del domini
 						target.setDominiIdentificador(source.getDominiId());
@@ -266,6 +270,7 @@ public class ConversioTipusHelper {
 						target.setAmbInfoPropia(source.isAmbInfoPropia());
 						target.setHeretable(source.isHeretable());
 						target.setExpedientTipusPareId(source.getExpedientTipusPare() != null ? source.getExpedientTipusPare().getId() : null );
+						target.setAmbHerencia(source.isAmbHerencia());
 						target.setReindexacioAsincrona(source.isReindexacioAsincrona());
 						target.setDiesNoLaborables(source.getDiesNoLaborables());
 						target.setNotificacionsActivades(source.isNotificacionsActivades());
@@ -314,6 +319,18 @@ public class ConversioTipusHelper {
 						target.setFormextContrasenya(source.getFormextContrasenya());
 						
 						target.setSistraTramitCodi(source.getSistraTramitCodi());
+						target.setNotibActiu(source.getNotibActiu());
+						target.setNotibSeuUnitatAdministrativa(source.getNotibSeuUnitatAdministrativa());
+						target.setNotibSeuCodiProcediment(source.getNotibSeuCodiProcediment());
+						target.setNotibSeuOficina(source.getNotibSeuOficina());
+						target.setNotibSeuLlibre(source.getNotibSeuLlibre());
+						target.setNotibSeuOrgan(source.getNotibSeuOrgan());
+						target.setNotibSeuIdioma(source.getNotibSeuIdioma());
+						target.setNotibAvisTitol(source.getNotibAvisTitol());
+						target.setNotibAvisText(source.getNotibAvisText());
+						target.setNotibAvisTextSms(source.getNotibAvisTextSms());
+						target.setNotibOficiTitol(source.getNotibOficiTitol());
+						target.setNotibOficiText(source.getNotibOficiText());
 
 						return target;
 					}
@@ -381,6 +398,20 @@ public class ConversioTipusHelper {
 							sequenciaAnyDefaultSorted.put(entry.getKey(), value);
 						}					
 						target.setSequenciaDefaultAny(sequenciaAnyDefaultSorted);
+						
+						target.setSistraTramitCodi(source.getSistraTramitCodi());
+						target.setNotibActiu(source.getNotibActiu());
+						target.setNotibSeuUnitatAdministrativa(source.getNotibSeuUnitatAdministrativa());
+						target.setNotibSeuCodiProcediment(source.getNotibSeuCodiProcediment());
+						target.setNotibSeuOficina(source.getNotibSeuOficina());
+						target.setNotibSeuLlibre(source.getNotibSeuLlibre());
+						target.setNotibSeuOrgan(source.getNotibSeuOrgan());
+						target.setNotibSeuIdioma(source.getNotibSeuIdioma());
+						target.setNotibAvisTitol(source.getNotibAvisTitol());
+						target.setNotibAvisText(source.getNotibAvisText());
+						target.setNotibAvisTextSms(source.getNotibAvisTextSms());
+						target.setNotibOficiTitol(source.getNotibOficiTitol());
+						target.setNotibOficiText(source.getNotibOficiText());
 						return target;
 					}
 				});
@@ -430,6 +461,23 @@ public class ConversioTipusHelper {
 						return target;
 					}
 		});
+		// Converteix la informació de PersonaDto de Helium a Persona de Notib per a les notificaciosn
+		mapperFactory.getConverterFactory().registerConverter(
+				new CustomConverter<PersonaDto, Persona>() {
+					@Override
+					public Persona convert(PersonaDto source, Type<? extends Persona> destinationClass) {
+						Persona target = new Persona();
+						target.setNom(source.getNom());
+						target.setLlinatge1(source.getLlinatge1());
+						target.setLlinatge2(source.getLlinatge2());
+						target.setNif(source.getDni());
+						target.setTelefon(source.getTelefon());
+						target.setEmail(source.getEmail());
+						if (source.getTipus() != null)
+						target.setTipus(InteressatTipusEnum.valueOf(source.getTipus().name()));
+						return target;
+					}
+		});			
 	}
 
 	public <T> T convertir(Object source, Class<T> targetType) {

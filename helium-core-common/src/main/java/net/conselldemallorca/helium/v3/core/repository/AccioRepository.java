@@ -26,10 +26,10 @@ public interface AccioRepository extends JpaRepository<Accio, Long> {
 			+ "from Accio a "
 			+ "where (a.expedientTipus.id = :expedientTipusId "
 				// Heretats
-			+ "			or (:herencia = true "
+			+ "			or (:ambHerencia = true "
 			+ "					and a.expedientTipus.id = (select etp.expedientTipusPare.id from ExpedientTipus etp where etp = :expedientTipusId))) "
 			+ " and a.oculta = false "
-			+ "	and (:herencia = false "
+			+ "	and (:ambHerencia = false "
 			+ "			or a.id not in ( " 
 						// Llistat de sobreescrits
 			+ "			select ass.id "
@@ -44,7 +44,7 @@ public interface AccioRepository extends JpaRepository<Accio, Long> {
 			+ "order by a.nom")
 	public List<Accio> findAmbExpedientTipusAndOcultaFalse(
 			@Param("expedientTipusId") Long expedientTipusId,
-			@Param("herencia") boolean herencia);
+			@Param("ambHerencia") boolean ambHerencia);
 		
 	Accio findByDefinicioProcesIdAndCodi(Long definicioProcesId, String codi);
 
@@ -52,7 +52,7 @@ public interface AccioRepository extends JpaRepository<Accio, Long> {
 	
 	@Query(	"from Accio a " +
 			"where " +
-			"	(:herencia = false " +
+			"	(:ambHerencia = false " +
 			"		or a.id not in ( " + 
 						// Llistat de sobreescrits
 			"			select ass.id " +
@@ -66,7 +66,7 @@ public interface AccioRepository extends JpaRepository<Accio, Long> {
 			"	) " +
 			"   and (a.expedientTipus.id = :expedientTipusId " +
 						// Heretats
-			"			or (:herencia = true " +
+			"			or (:ambHerencia = true " +
 			"					and a.expedientTipus.id = (select etp.expedientTipusPare.id from ExpedientTipus etp where etp.id = :expedientTipusId)) " +
 			"			or a.expedientTipus.id is null) " +
 			"   and (a.definicioProces.id = :definicioProcesId or a.definicioProces.id is null) " +
@@ -76,7 +76,7 @@ public interface AccioRepository extends JpaRepository<Accio, Long> {
 			@Param("definicioProcesId") Long definicioProcesId,
 			@Param("esNullFiltre") boolean esNullFiltre,
 			@Param("filtre") String filtre,		
-			@Param("herencia") boolean herencia, 
+			@Param("ambHerencia") boolean ambHerencia, 
 			Pageable pageable);
 
 	@Query("select a "

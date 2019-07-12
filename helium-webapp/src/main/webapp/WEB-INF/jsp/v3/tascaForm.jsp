@@ -13,6 +13,36 @@
 <script src="<c:url value="/js/locales/bootstrap-datepicker.ca.js"/>"></script>
 <!-- <script src="<c:url value="/js/jquery/jquery.meio.mask.min.js"/>"></script> -->
 <script src="<c:url value="/js/helium3Tasca.js"/>"></script>
+<style>
+		.reproForm {
+			margin: 2px;
+		}
+		.repro-group {
+			margin-right: 0px !important;
+			margin-bottom: 6px;
+		}
+		.repros {
+			z-index: 1000;
+		    float: right;
+		    bottom: 5px;
+		    position: fixed;
+		    right: 15px;
+		}	
+		.repros ul.dropdown-menu {
+			width: 250px;
+		}
+		li.flex {
+    		display: flex;
+		}
+		li.flex > a {
+			width: 100%;
+		}	
+		.borrarRepro {
+			position: absolute;
+		    right: 5px;
+		    padding: 0px 5px;
+		}
+	</style>
 
 <c:choose>
 	<c:when test="${not empty tasca.tascaFormExternCodi}">
@@ -147,4 +177,61 @@
 		</c:if>
 	</c:forEach>
 	</div>
+	
+	<!-- REPROS -->
+	<c:if test="${ tasca.ambRepro && !tasca.validada }">
+		<div class="btn-group repros dropup">
+		  <button type="button" class="btn btn-info dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+		    <spring:message code='repro.texte.repros' /> <span class="caret"></span>
+		  </button>
+		  <ul class="dropdown-menu dropdown-menu-right">
+			<li class="reproForm">
+					<div class="form-group repro-group">
+						<input id="nomRepro" name="nomRepro" type="text" class="form-control" placeholder="<spring:message code='repro.texte.nom' />">
+					</div>
+					<button id="guardarRepro" name="guardarRepro" value="guardar-repro" class="btn btn-primary" type="submit">
+						<spring:message code='repro.texte.guardar' />
+					</button>
+			</li>
+			<c:if test="${not empty repros}">
+				<li role="separator" class="divider"></li>
+			    <strong><li class="dropdown-header">---- <spring:message code='repro.texte.guardats' /> ----</li></strong>
+			    <c:forEach var="repro" items="${repros}">
+				    <li class="flex">
+				    	<a id="repro-${repro.id}" href="<c:url value="/modal/v3/tasca/"/>${tasca.id}/fromRepro/${repro.id}">${repro.nom}</a>
+				    	<button class="btn btn-danger borrarRepro" type="submit" data-reproid="${repro.id}"><i class="fa fa-trash-o" aria-hidden="true"></i></button>
+				    </li>
+			    </c:forEach>
+		    </c:if>
+		  </ul>
+		</div>
+	</c:if>
+	<!-- FI REPROS -->
 </form:form>
+
+<script>
+$('.dropdown-menu').find('.reproForm').click(function (e) {
+					e.stopPropagation();
+				});
+			
+				$('#guardarRepro').click(function(e) {
+					var e = e || window.event;
+					e.cancelBubble = true;
+					if (e.stopPropagation) e.stopPropagation();
+					if ($('#nomRepro').val() != '') {
+						$('#command').attr('action','<c:url value="/v3/repro/"/>${tasca.expedientTipusId}/${tasca.definicioProcesId}/saveRepro');
+						return true;
+					} else {
+						return false;
+					}
+				});
+	
+				$('.borrarRepro').click(function(e) {
+					var e = e || window.event;
+					e.cancelBubble = true;
+					if (e.stopPropagation) e.stopPropagation();
+					var reproId = $(this).data('reproid');
+					$('#command').attr('action','<c:url value="/v3/repro/"/>${tasca.expedientTipusId}/${tasca.definicioProcesId}/deleteRepro/' + reproId);
+					return true;
+				});
+</script>

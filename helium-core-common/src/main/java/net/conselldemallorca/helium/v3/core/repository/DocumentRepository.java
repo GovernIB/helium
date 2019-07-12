@@ -84,7 +84,7 @@ public interface DocumentRepository extends JpaRepository<Document, Long> {
 	
 	@Query (
 			"from Document d " + 
-			"where (:herencia = false " +
+			"where (:ambHerencia = false " +
 			"		or d.id not in ( " + 
 						// Llistat de sobreescrits
 			"			select ds.id " +
@@ -99,7 +99,7 @@ public interface DocumentRepository extends JpaRepository<Document, Long> {
 			"	) " +
 			"	and	(d.expedientTipus.id = :expedientTipusId " +
 						// Heretats
-			"			or ( :herencia = true and d.expedientTipus.id = ( " +	
+			"			or ( :ambHerencia = true and d.expedientTipus.id = ( " +	
 			"					select et.expedientTipusPare.id " + 
 			"					from ExpedientTipus et " + 
 			"					where et.id = :expedientTipusId))) " +
@@ -108,7 +108,7 @@ public interface DocumentRepository extends JpaRepository<Document, Long> {
 	Document findByExpedientTipusAndCodi(
 			@Param("expedientTipusId") Long expedientTipus, 
 			@Param("codi") String codi,
-			@Param("herencia") boolean herencia);
+			@Param("ambHerencia") boolean ambHerencia);
 	
 	
 	@Query(	"select " +
@@ -130,7 +130,7 @@ public interface DocumentRepository extends JpaRepository<Document, Long> {
 	
 	@Query(	"from Document d " +
 			"where " +
-			"	(:herencia = false " +
+			"	(:ambHerencia = false " +
 			"		or d.id not in ( " + 
 						// Llistat de sobreescrits
 			"			select ds.id " +
@@ -144,7 +144,7 @@ public interface DocumentRepository extends JpaRepository<Document, Long> {
 			"	) " +
 			"   and (d.expedientTipus.id = :expedientTipusId " +
 						// Heretats
-			"			or (:herencia = true " +
+			"			or (:ambHerencia = true " +
 			"					and d.expedientTipus.id = (select etp.expedientTipusPare.id from ExpedientTipus etp where etp.id = :expedientTipusId) ) " + 
 			"			or d.expedientTipus.id is null) " +
 			"   and (d.definicioProces.id = :definicioProcesId or d.definicioProces.id is null) " +
@@ -154,7 +154,7 @@ public interface DocumentRepository extends JpaRepository<Document, Long> {
 			@Param("definicioProcesId") Long definicioProcesId,
 			@Param("esNullFiltre") boolean esNullFiltre,
 			@Param("filtre") String filtre,		
-			@Param("herencia") boolean herencia,
+			@Param("ambHerencia") boolean ambHerencia,
 			Pageable pageable);
 			
 	@Query( "select ds " +

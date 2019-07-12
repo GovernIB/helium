@@ -52,6 +52,7 @@ import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.hibernate.Permis;
 import net.conselldemallorca.helium.core.model.hibernate.Usuari;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
+import net.conselldemallorca.helium.core.util.ws.RestClient;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmTask;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDadaDto;
@@ -188,6 +189,10 @@ public class DominiHelper {
 					resultat = consultaWs(domini, id, parametres);
 				else if (domini.getTipus().equals(TipusDomini.CONSULTA_SQL))
 					resultat = consultaSql(domini, parametres);
+				else if (domini.getTipus().equals(TipusDomini.CONSULTA_REST)) {
+					resultat = RestClient.get(domini, id,parametres);
+				}
+					
 				if (resultat == null)
 					resultat = new ArrayList<FilaResultat>();
 				if (domini.getCacheSegons() > 0) {
@@ -302,14 +307,14 @@ public class DominiHelper {
 		try {
 			logger.debug("Petició de domini de tipus Intern (" +
 					"id=" + domini.getId() + ", " +
-					"params=" + parametresToString(parametres) + ")");
+					"params=" + IntegracioParametreDto.parametresToString(parametres) + ")");
 			List<FilaResultat> resposta = consultaDominiIntern(id, paramsConsulta);
 			monitorDominiHelper.addAccioOk(
 					domini,
 					"Consulta domini intern (id=" + id + ")",
 					IntegracioAccioTipusEnumDto.ENVIAMENT,
 					System.currentTimeMillis() - t0,
-					toIntegracioParametres(parametres));
+					IntegracioParametreDto.toIntegracioParametres(parametres));
 			return resposta;
 		} catch (Exception ex) {
 			logger.error("ERROR SISTEMA DOMINI INTERN: ", ex);
@@ -320,7 +325,7 @@ public class DominiHelper {
 					System.currentTimeMillis() - t0,
 					ex.getMessage(),
 					ex,
-					toIntegracioParametres(parametres));
+					IntegracioParametreDto.toIntegracioParametres(parametres));
 			throw SistemaExternException.tractarSistemaExternException(
 					domini.getEntorn().getId(),
 					domini.getEntorn().getCodi(), 
@@ -354,7 +359,7 @@ public class DominiHelper {
 			logger.debug("Petició de domini de tipus WS (" +
 					"id=" + domini.getId() + ", " +
 					"codi=" + domini.getCodi() + ", " +
-					"params=" + parametresToString(parametres) + ")");
+					"params=" + IntegracioParametreDto.parametresToString(parametres) + ")");
 			puntControl = 1;
 			DominiHelium client = getClientWsFromDomini(domini);
 			puntControl = 2;
@@ -365,7 +370,7 @@ public class DominiHelper {
 					"Consulta WS (id=" + id + ")",
 					IntegracioAccioTipusEnumDto.ENVIAMENT,
 					System.currentTimeMillis() - t0,
-					toIntegracioParametres(parametres));
+					IntegracioParametreDto.toIntegracioParametres(parametres));
 			puntControl = 4;
 			return resposta;
 		} catch (Exception ex) {
@@ -378,7 +383,7 @@ public class DominiHelper {
 					System.currentTimeMillis() - t0,
 					ex.getMessage(),
 					ex,
-					toIntegracioParametres(parametres));
+					IntegracioParametreDto.toIntegracioParametres(parametres));
 			
 			throw SistemaExternException.tractarSistemaExternException(
 					domini.getEntorn().getId(),
@@ -403,7 +408,7 @@ public class DominiHelper {
 			logger.debug("Petició de domini de tipus SQL (" +
 					"id=" + domini.getId() + ", " +
 					"codi=" + domini.getCodi() + ", " +
-					"params=" + parametresToString(parametres) + ")");
+					"params=" + IntegracioParametreDto.parametresToString(parametres) + ")");
 			NamedParameterJdbcTemplate jdbcTemplate = getJdbcTemplateFromDomini(domini);
 			MapSqlParameterSource parameterSource = new MapSqlParameterSource(parametres) {
 				public boolean hasValue(String paramName) {
@@ -430,7 +435,7 @@ public class DominiHelper {
 					"Consulta SQL",
 					IntegracioAccioTipusEnumDto.ENVIAMENT,
 					System.currentTimeMillis() - t0,
-					toIntegracioParametres(parametres));
+					IntegracioParametreDto.toIntegracioParametres(parametres));
 			return resultat;
 		} catch (Exception ex) {
 			monitorDominiHelper.addAccioError(
@@ -440,7 +445,7 @@ public class DominiHelper {
 					System.currentTimeMillis() - t0,
 					ex.getMessage(),
 					ex,
-					toIntegracioParametres(parametres));
+					IntegracioParametreDto.toIntegracioParametres(parametres));
 			
 			if(ExceptionUtils.getRootCause(ex) != null && 
 					(ExceptionUtils.getRootCause(ex).getClass().getName().contains("Timeout") ||
@@ -553,39 +558,6 @@ public class DominiHelper {
 	private boolean isDesplegamentTomcat() {
 		String desplegamentTomcat = GlobalProperties.getInstance().getProperty("app.domini.desplegament.tomcat");
 		return "true".equalsIgnoreCase(desplegamentTomcat);
-	}
-
-	private String parametresToString(
-			Map<String, Object> parametres) {
-		String separador = ", ";
-		StringBuilder sb = new StringBuilder();
-		if (parametres != null) {
-			for (String key: parametres.keySet()) {
-				sb.append(key);
-				sb.append(":");
-				sb.append(parametres.get(key));
-				sb.append(separador);
-			}
-		}
-		if (sb.length() > 0)
-			sb.substring(0, sb.length() - separador.length());
-		return sb.toString();
-	}
-
-	private IntegracioParametreDto[] toIntegracioParametres(
-			Map<String, Object> params) {
-		if (params == null)
-			return null;
-		IntegracioParametreDto[] ips = new IntegracioParametreDto[params.size()];
-		int i = 0;
-		for (String clau: params.keySet()) {
-			Object valor = params.get(clau);
-			String valorStr = (valor != null) ? valor.toString() : null;
-			ips[i++] = new IntegracioParametreDto(
-					clau,
-					valorStr);
-		}
-		return ips;
 	}
 	
 	private Integer getDominiTimeout (Domini domini) {

@@ -25,9 +25,11 @@ public class PersonaDto implements Serializable {
 	private String llinatge2;
 	private String dni;
 	private String email;
+	private String telefon;
 	private Sexe sexe;
 	private String relleu;
 	private String contrasenya;
+	private InteressatTipusEnumDto tipus;
 
 	public PersonaDto(String codi, String nomSencer, String email, Sexe sexe) {
 		this.codi = codi;
@@ -42,7 +44,14 @@ public class PersonaDto implements Serializable {
 		this.email = email;
 		this.sexe = sexe;
 	}
-
+	
+	
+	public InteressatTipusEnumDto getTipus() {
+		return tipus;
+	}
+	public void setTipus(InteressatTipusEnumDto tipus) {
+		this.tipus = tipus;
+	}
 	public String getCodi() {
 		return codi;
 	}
@@ -124,6 +133,12 @@ public class PersonaDto implements Serializable {
 	public void setEmail(String email) {
 		this.email = email;
 	}
+	public String getTelefon() {
+		return telefon;
+	}
+	public void setTelefon(String telefon) {
+		this.telefon = telefon;
+	}
 	public Sexe getSexe() {
 		return sexe;
 	}
@@ -176,6 +191,6 @@ public class PersonaDto implements Serializable {
 			return false;
 		return true;
 	}
-	
+
 	private static final long serialVersionUID = 1L;
 }

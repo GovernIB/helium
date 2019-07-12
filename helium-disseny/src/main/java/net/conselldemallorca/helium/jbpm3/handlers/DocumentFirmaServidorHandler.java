@@ -11,6 +11,7 @@ import org.jbpm.graph.exe.ExecutionContext;
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
+@SuppressWarnings("serial")
 public class DocumentFirmaServidorHandler implements ActionHandler, DocumentFirmaServidorHandlerInterface {
 
 	public void execute(ExecutionContext executionContext) throws Exception {}

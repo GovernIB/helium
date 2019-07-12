@@ -48,8 +48,10 @@
 						<script id="cellTipusDomTemplate" type="text/x-jsrender">
 							{{if tipus == 'CONSULTA_SQL'}}
 								<spring:message code="expedient.tipus.domini.tipus.sql"/>
-							{{else}}
+							{{else tipus == 'CONSULTA_WS'}}
 								<spring:message code="expedient.tipus.domini.tipus.ws"/>
+							{{else}}
+								<spring:message code="expedient.tipus.domini.tipus.rest"/> 
 							{{/if}}
 						</script>
 					</th>
@@ -62,6 +64,7 @@
 									<li><a data-toggle="modal" href="${expedientTipus.id}/domini/{{:id}}/update"><span class="fa fa-search"></span>&nbsp;<spring:message code="comu.boto.visualitzar"/></a></li>
 								{{else}}
 									<li><a data-toggle="modal" data-callback="callbackModalDominis()" href="${expedientTipus.id}/domini/{{:id}}/update"><span class="fa fa-pencil"></span>&nbsp;<spring:message code="expedient.tipus.info.accio.modificar"/></a></li>
+									<li><a data-toggle="modal" data-maximized="true" href="domini/{{:id}}/test"><span class="fa fa-cog"></span>&nbsp;<spring:message code="expedient.tipus.domini.form.provar"/></a></li>
 									<li><a href="${expedientTipus.id}/domini/{{:id}}/delete" data-toggle="ajax" data-confirm="<spring:message code="expedient.tipus.camp.llistat.confirmacio.esborrar"/>"><span class="fa fa-trash-o"></span>&nbsp;<spring:message code="expedient.llistat.accio.esborrar"/></a></li>
 								{{/if}}
 							</ul>

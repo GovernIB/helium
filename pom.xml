@@ -23,6 +23,7 @@
 		<commons-lang.version>2.6</commons-lang.version>
 		<portafib.version>1.1.0</portafib.version>
 		<slf4j.version>1.5.8</slf4j.version>
+		<jackson.version>2.7.0</jackson.version>
 	</properties>
 	<modules>
 		<module>helium-core-api</module>
@@ -90,4 +91,17 @@
 			<url>file://${project.build.directory}/mvn-repo</url>
 		</repository>
 	</distributionManagement>
+	<repositories>
+		<repository>
+			<id>github_governib_maven</id>
+			<name>GitHub GovernIB Maven Repository</name>
+			<url>file://${project.build.directory}/mvn-repo</url>
+        </repository>
+		<repository>
+             <id>github-governib-maven-repos</id>
+             <name>GitHub GovernIB Maven Repository</name>
+             <url>https://governib.github.io/maven/maven/</url>
+        </repository>
+        
+	</repositories>
 </project>

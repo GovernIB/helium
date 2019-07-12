@@ -4,6 +4,7 @@
 package net.conselldemallorca.helium.v3.core.api.service;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.springframework.security.acls.model.NotFoundException;
@@ -12,6 +13,7 @@ import net.conselldemallorca.helium.core.extern.domini.FilaResultat;
 import net.conselldemallorca.helium.core.extern.domini.ParellaCodiValor;
 import net.conselldemallorca.helium.v3.core.api.dto.AreaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ConsultaCampDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ConsultaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesExpedientDto;
@@ -27,6 +29,8 @@ import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
 import net.conselldemallorca.helium.v3.core.api.exportacio.DefinicioProcesExportacio;
+
+
 
 
 
@@ -215,7 +219,9 @@ public interface DissenyService {
 	public DefinicioProcesVersioDto getByVersionsInstanciaProcesById(String processInstanceId) throws NoTrobatException;
 
 	public List<FilaResultat> consultaDominiIntern(String id, List<ParellaCodiValor> parametres) throws Exception;
-
+	
+	public List<FilaResultat> consultaDomini(Long id, String codiDomini, Map<String, Object> parametres);
+	
 	public DocumentDto documentFindOne(Long documentId) throws NoTrobatException;
 
 	public List<DocumentDto> documentFindAmbDefinicioProces(Long definicioProcesId) throws NoTrobatException;
@@ -227,6 +233,9 @@ public interface DissenyService {
 	public byte[] getRecursContingut(
 			Long definicioProcesId, 
 			String nom);	
+
+	/** Retorna el contingut del .par de la definició de procés. */
+	public byte[] getParContingut(Long definicioProcesId);
 
 	/**
 	 * Retorna els exepdients relacionats amb la definició de procés no utilitzada
@@ -286,6 +295,16 @@ public interface DissenyService {
 			Long entornId, 
 			String nomArxiu, 
 			byte[] contingut);
+	
+	/** Mètode per propagar els handlers d'una definició de procés origen a una definició de procés destí. 
+	 * S'utilitza per propagar els handlers de la darrera versió a les versions anteriors.
+	 * 
+	 * @param idDefinicioProcesOrignen
+	 * @param idsDefinicioProcesDesti
+	 */
+	public void propagarHandlers(
+			Long idDefinicioProcesOrignen, 
+			List<Long> idsDefinicioProcesDesti);
 
 	/** Obté el contingut d'una exportació donat el nom del fitxer amb la extensió i el contingut del mateix.
 	 * 
@@ -305,6 +324,12 @@ public interface DissenyService {
 	 */
 	public List<String> findAccionsJbpmOrdenades(Long definicioProcesId);
 	
+	public ConsultaDto getConsultaById(Long id);
+	
+	public List<ConsultaCampDto> findCampsInformePerCampsConsulta(
+			ConsultaDto consulta,
+			boolean filtrarValorsPredefinits);
 	
 	public List<DocumentDto> findDocumentsAmbDefinicioProcesOrdenatsPerCodi(Long definicioProcesId) throws NoTrobatException;
+
 }

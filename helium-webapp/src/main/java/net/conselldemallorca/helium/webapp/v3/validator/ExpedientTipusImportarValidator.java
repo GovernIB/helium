@@ -352,9 +352,8 @@ public class ExpedientTipusImportarValidator implements ConstraintValidator<Expe
 			Map<String, DocumentExportacio> documentsMap = new HashMap<String, DocumentExportacio>();
 			for (DocumentExportacio document : exportacio.getDocuments())
 				documentsMap.put(document.getCodi(), document);
-			DocumentExportacio document;
 			for (String documentCodi : command.getDocuments()) {
-				document = documentsMap.get(documentCodi);
+				DocumentExportacio document = documentsMap.get(documentCodi);
 				if (document.getCodiCampData() != null
 					&& !command.getVariables().contains(document.getCodiCampData())) {
 					context.buildConstraintViolationWithTemplate(
@@ -382,41 +381,6 @@ public class ExpedientTipusImportarValidator implements ConstraintValidator<Expe
 				
 				Set<String> campsDefinicioProces = new HashSet<String>();
 				campsDefinicionsProces.put(definicioProcesJbpmKey, campsDefinicioProces);
-				
-				// Comprova que no existeixi ja una definició de procés per a un altre tipus d'expedient diferent o pera l'entorn
-				DefinicioProcesDto definicioProcesDto = 
-						definicioProcesService.findByEntornIdAndJbpmKey(
-									entornActual.getId(), 
-									definicioProcesJbpmKey); 
-				if (definicioProcesDto != null)
-					if ((definicioProcesDto.getExpedientTipus() != null // definició de procés lligada a un expedient
-						&&  (!command.isSobreEscriure()					// Si no es sobrescriuen les dades
-							 && ( command.getId() == null 				// es vol importar a un nou tipus d'expedient
-							 || !definicioProcesDto.getExpedientTipus().getId().equals(command.getId())))) // es vol importar a un expedient diferent
-						) 
-					{	
-						context.buildConstraintViolationWithTemplate(
-								MessageHelper.getInstance().getMessage(
-										"exportar.validacio.definicio.desplegada.tipus.expedient", 
-										new Object[]{
-												definicioProcesJbpmKey,
-												definicioProcesDto.getExpedientTipus().getCodi(),
-												definicioProcesDto.getExpedientTipus().getNom()}))
-						.addNode("definicionsProces")
-						.addConstraintViolation();
-						valid = false;						
-					} 
-					else if (definicioProcesDto.getExpedientTipus() == null && command.getId() != null) // es vol importar una definició de procés de l'entorn
-					{ 
-						context.buildConstraintViolationWithTemplate(
-								MessageHelper.getInstance().getMessage(
-										"exportar.validacio.definicio.desplegada.entorn", 
-										new Object[]{
-												definicioProcesJbpmKey}))
-						.addNode("definicionsProces")
-						.addConstraintViolation();
-						valid = false;						
-					}
 				// Comprova les dependències de les variables
 				for (CampExportacio campExportacio : definicio.getCamps()) {
 					campsDefinicioProces.add(campExportacio.getCodi());
@@ -497,28 +461,37 @@ public class ExpedientTipusImportarValidator implements ConstraintValidator<Expe
 						}
 					}
 				}
+				// Llistat de documents de la definició de procés
+				Set<String> doumentsDefinicioProces = new HashSet<String>();
+				for (DocumentExportacio document : definicio.getDocuments())
+					doumentsDefinicioProces.add(document.getCodi());
 				// Comprova les dependències de les tasques
 				boolean campTrobat, documentTrobat;
 				for (TascaExportacio tasca : definicio.getTasques()){
 					// Camps
-					for (CampTascaExportacio campTasca : tasca.getCamps())
+					for (CampTascaExportacio campTasca : tasca.getCamps()) {
 						if (isAmbInfoPropia) {
-							// Mira entre les variables exportades
-							campTrobat = command.getVariables().contains(campTasca.getCampCodi()) ;
-							if (!campTrobat && expedientTipus != null)
-								// Mira en els camps del TE destí
-								campTrobat = campService.findAmbCodi( // La variable no es troba en el TE destí	
-										expedientTipus.getId(), 
-										null, 
-										campTasca.getCampCodi(), 
-										true) != null;
-							if (!campTrobat && herencia)
-								// Mira entre els camps heretats
-								campTrobat = campService.findAmbCodi(
-							  			expedientTipusPareId,
-							  			null,
-							  			campTasca.getCampCodi(), 
-							  			herencia) != null;
+							if (campTasca.isTipusExpedient()) {
+								// Mira entre les variables exportades
+								campTrobat = command.getVariables().contains(campTasca.getCampCodi()) ;
+								if (!campTrobat && expedientTipus != null)
+									// Mira en els camps del TE destí
+									campTrobat = campService.findAmbCodi( // La variable no es troba en el TE destí	
+											expedientTipus.getId(), 
+											null, 
+											campTasca.getCampCodi(), 
+											true) != null;
+								if (!campTrobat && herencia)
+									// Mira entre els camps heretats
+									campTrobat = campService.findAmbCodi(
+								  			expedientTipusPareId,
+								  			null,
+								  			campTasca.getCampCodi(), 
+								  			herencia) != null;
+							} else {
+								// Mira entre les variables de la definició de procés
+								campTrobat = campsDefinicioProces.contains(campTasca.getCampCodi());
+							}
 							if (!campTrobat) {
 								context.buildConstraintViolationWithTemplate(
 										MessageHelper.getInstance().getMessage(
@@ -531,25 +504,31 @@ public class ExpedientTipusImportarValidator implements ConstraintValidator<Expe
 								valid = false;
 							}
 						}
+					}
 					// Documents
-					for (DocumentTascaExportacio documentTasca : tasca.getDocuments())
+					for (DocumentTascaExportacio documentTasca : tasca.getDocuments()) {
 						if (isAmbInfoPropia) {
-							// Mira entre els documents exportats
-							documentTrobat = command.getDocuments().contains(documentTasca.getDocumentCodi()) ;
-							if (!documentTrobat && expedientTipus != null)
-								// Mira en els documents del TE destí
-								documentTrobat = documentService.findAmbCodi( // La variable no es troba en el TE destí	
-										expedientTipus.getId(), 
-										null, 
-										documentTasca.getDocumentCodi(), 
-										true) != null;
-							if (!documentTrobat && herencia)
-								// Mira entre els camps heretats
-								documentTrobat = documentService.findAmbCodi(
-							  			expedientTipusPareId,
-							  			null,
-							  			documentTasca.getDocumentCodi(), 
-							  			herencia) != null;
+							if (documentTasca.isTipusExpedient()) {
+								// Mira entre els documents exportats
+								documentTrobat = command.getDocuments().contains(documentTasca.getDocumentCodi()) ;
+								if (!documentTrobat && expedientTipus != null)
+									// Mira en els documents del TE destí
+									documentTrobat = documentService.findAmbCodi( // La variable no es troba en el TE destí	
+											expedientTipus.getId(), 
+											null, 
+											documentTasca.getDocumentCodi(), 
+											true) != null;
+								if (!documentTrobat && herencia)
+									// Mira entre els camps heretats
+									documentTrobat = documentService.findAmbCodi(
+								  			expedientTipusPareId,
+								  			null,
+								  			documentTasca.getDocumentCodi(), 
+								  			herencia) != null;
+							} else {
+								// Mira entre els documents de la definició de procés
+								documentTrobat = doumentsDefinicioProces.contains(documentTasca.getDocumentCodi());
+							}
 							if (!documentTrobat) {
 								context.buildConstraintViolationWithTemplate(
 										MessageHelper.getInstance().getMessage(
@@ -562,25 +541,31 @@ public class ExpedientTipusImportarValidator implements ConstraintValidator<Expe
 								valid = false;
 							}
 						}
+					}
 					// Signatures
 					for (FirmaTascaExportacio firmaTasca : tasca.getFirmes())
 						if (isAmbInfoPropia) {
-							// Mira entre els documents exportats
-							documentTrobat = command.getDocuments().contains(firmaTasca.getDocumentCodi()) ;
-							if (!documentTrobat && expedientTipus != null)
-								// Mira en els documents del TE destí
-								documentTrobat = documentService.findAmbCodi( // La variable no es troba en el TE destí	
-										expedientTipus.getId(), 
-										null, 
-										firmaTasca.getDocumentCodi(), 
-										true) != null;
-							if (!documentTrobat && herencia)
-								// Mira entre els camps heretats
-								documentTrobat = documentService.findAmbCodi(
-							  			expedientTipusPareId,
-							  			null,
-							  			firmaTasca.getDocumentCodi(), 
-							  			herencia) != null;
+							if (firmaTasca.isTipusExpedient()) {
+								// Mira entre els documents exportats
+								documentTrobat = command.getDocuments().contains(firmaTasca.getDocumentCodi()) ;
+								if (!documentTrobat && expedientTipus != null)
+									// Mira en els documents del TE destí
+									documentTrobat = documentService.findAmbCodi( // La variable no es troba en el TE destí	
+											expedientTipus.getId(), 
+											null, 
+											firmaTasca.getDocumentCodi(), 
+											true) != null;
+								if (!documentTrobat && herencia)
+									// Mira entre els camps heretats
+									documentTrobat = documentService.findAmbCodi(
+								  			expedientTipusPareId,
+								  			null,
+								  			firmaTasca.getDocumentCodi(), 
+								  			herencia) != null;
+							} else {
+								// Mira entre els documents de la definició de procés
+								documentTrobat = doumentsDefinicioProces.contains(firmaTasca.getDocumentCodi());								
+							}
 							if (!documentTrobat) {
 								context.buildConstraintViolationWithTemplate(
 										MessageHelper.getInstance().getMessage(
@@ -673,7 +658,6 @@ public class ExpedientTipusImportarValidator implements ConstraintValidator<Expe
 					definicionsProcesPareMap.put(dp.getJbpmKey(), dp);
 				}
 				List<TascaExportacio> tasquesExportacio;
-				DefinicioProcesDto definicioProcesPare;
 				for (String definicioProcesJbpmkey : exportacio.getHerenciaTasques().keySet()) {
 					// Comprova que la definició de procés existeix
 					if (!definicionsProcesPareMap.containsKey(definicioProcesJbpmkey)) {
@@ -685,19 +669,18 @@ public class ExpedientTipusImportarValidator implements ConstraintValidator<Expe
 						.addConstraintViolation();
 						valid = false;
 					}
-					definicioProcesPare = definicionsProcesPareMap.get(definicioProcesJbpmkey);
 					tasquesExportacio = exportacio.getHerenciaTasques().get(definicioProcesJbpmkey);
 					// Per cada tasca de l'exportació valida que les variables o els documents estiguin al tipus d'expedient
 					// del pare
 					for (TascaExportacio tascaExportacio : tasquesExportacio) {
 						for (CampTascaExportacio campTascaExportacio : tascaExportacio.getCamps()) {
-							// TODO: comprovar que es pot afegir la relació amb la variable pertinent
+							//TODO: comprovar que es pot afegir la relació amb la variable pertinent
 						}
 						for (DocumentTascaExportacio documentTascaExportacio : tascaExportacio.getDocuments()) {
-							// TODO: comprovar que es pot afegir la relació amb el document pertinent
+							//TODO: comprovar que es pot afegir la relació amb el document pertinent
 						}
 						for (FirmaTascaExportacio firmaTascaExportacio : tascaExportacio.getFirmes()) {
-							// TODO: comprovar que es pot afegir la relació amb el document pertinent
+							//TODO: comprovar que es pot afegir la relació amb el document pertinent
 						}
 					}
 				}

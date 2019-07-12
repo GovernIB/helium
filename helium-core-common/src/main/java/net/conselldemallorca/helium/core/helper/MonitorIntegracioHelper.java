@@ -14,6 +14,7 @@ import java.util.Map;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.springframework.stereotype.Component;
 
+import net.conselldemallorca.helium.core.util.EntornActual;
 import net.conselldemallorca.helium.v3.core.api.dto.IntegracioAccioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.IntegracioAccioEstatEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.IntegracioAccioTipusEnumDto;
@@ -28,7 +29,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.IntegracioParametreDto;
 @Component
 public class MonitorIntegracioHelper {
 
-	public static final int MAX_ACCIONS_PER_INTEGRACIO = 20;
+	public static final int MAX_ACCIONS_PER_INTEGRACIO = 50;
 
 	public static final String INTCODI_PERSONA = "PERSONA";
 	public static final String INTCODI_SISTRA = "SISTRA";
@@ -41,6 +42,8 @@ public class MonitorIntegracioHelper {
 	public static final String INTCODI_PFIRMA_CB = "PFIRMA_CB";
 	public static final String INTCODI_FIRMA_SERV = "FIRMA_SERV";
 	public static final String INTCODI_ARXIU = "ARXIU";
+	public static final String INTCODI_NOTIB = "NOTIB";
+	public static final String INTCODI_VALIDASIG = "VALIDASIG";
 
 	private Map<String, LinkedList<IntegracioAccioDto>> accionsIntegracio = new HashMap<String, LinkedList<IntegracioAccioDto>>();
 	private Map<String, Integer> maxAccionsIntegracio = new HashMap<String, Integer>();
@@ -82,6 +85,12 @@ public class MonitorIntegracioHelper {
 		integracions.add(
 				novaIntegracio(
 						INTCODI_FIRMA_SERV));
+		integracions.add(
+				novaIntegracio(
+						INTCODI_NOTIB));
+		integracions.add(
+				novaIntegracio(
+						INTCODI_VALIDASIG));
 		for (IntegracioDto integracio: integracions) {
 			LinkedList<IntegracioAccioDto> accions = accionsIntegracio.get(integracio.getCodi());
 			if (accions != null) {
@@ -95,10 +104,80 @@ public class MonitorIntegracioHelper {
 		}
 		return integracions;
 	}
+	
+	public List<IntegracioDto> findAllEntornActual() {
+		List<IntegracioDto> integracions = new ArrayList<IntegracioDto>();
+		integracions.add(
+				novaIntegracio(
+						INTCODI_ARXIU));
+		integracions.add(
+				novaIntegracio(
+						INTCODI_PERSONA));
+		integracions.add(
+				novaIntegracio(
+						INTCODI_FIRMA));
+		integracions.add(
+				novaIntegracio(
+						INTCODI_PFIRMA));
+		integracions.add(
+				novaIntegracio(
+						INTCODI_PFIRMA_CB));
+		integracions.add(
+				novaIntegracio(
+						INTCODI_CUSTODIA));
+		integracions.add(
+				novaIntegracio(
+						INTCODI_REGISTRE));
+		integracions.add(
+				novaIntegracio(
+						INTCODI_SISTRA));
+		integracions.add(
+				novaIntegracio(
+						INTCODI_CONVDOC));
+		integracions.add(
+				novaIntegracio(
+						INTCODI_FIRMA_SERV));
+		integracions.add(
+				novaIntegracio(
+						INTCODI_NOTIB));
+		integracions.add(
+				novaIntegracio(
+						INTCODI_VALIDASIG));
+		for (IntegracioDto integracio: integracions) {
+			Long entornId = EntornActual.getEntornId();
+			LinkedList<IntegracioAccioDto> accions = accionsIntegracio.get(integracio.getCodi());
+			LinkedList<IntegracioAccioDto> accionsFiltrats = new LinkedList<IntegracioAccioDto>();
+			if (accions != null) {
+				int numErrors = 0;
+				for (IntegracioAccioDto accio: accions) {
+					if(accio.getEntornId() != null && accio.getEntornId().equals(entornId)) {
+						accionsFiltrats.add(accio);
+						continue;
+					}
+						
+					if (accio.isEstatError())
+						numErrors++;
+				}
+				accionsIntegracio.put(integracio.getCodi(), accionsFiltrats);
+				integracio.setNumErrors(numErrors);
+			}
+		}
+		return integracions;
+	}
 
 	public synchronized List<IntegracioAccioDto> findAccionsByIntegracioCodi(
 			String integracioCodi) {
 		return getLlistaAccions(integracioCodi);
+	}
+	
+	public synchronized List<IntegracioAccioDto> findAccionsByIntegracioCodiEntornActual(
+			String integracioCodi) {
+		Long entornId = EntornActual.getEntornId();
+		LinkedList<IntegracioAccioDto> accionsFiltrats = new LinkedList<IntegracioAccioDto>();
+		for (IntegracioAccioDto accio: getLlistaAccions(integracioCodi))
+			if(accio.getEntornId() != null && accio.getEntornId().equals(entornId))
+				accionsFiltrats.add(accio);
+		return accionsFiltrats;
 	}
 
 	public void addAccioOk(
@@ -199,6 +278,7 @@ public class MonitorIntegracioHelper {
 		accio.setTempsResposta(tempsResposta);
 		accio.setTipus(tipus);
 		accio.setEstat(estat);
+		accio.setEntornId(EntornActual.getEntornId());
 		if (IntegracioAccioEstatEnumDto.ERROR.equals(estat)) {
 			accio.setErrorDescripcio(errorDescripcio);
 			if (throwable != null) {
@@ -246,7 +326,12 @@ public class MonitorIntegracioHelper {
 			integracio.setDescripcio("Arxiu digital");
 		} else if (INTCODI_FIRMA_SERV.equals(codi)) {
 			integracio.setDescripcio("Firma serv.");
+		} else if (INTCODI_NOTIB.equals(codi)) {
+			integracio.setDescripcio("Notificcació");
+		} else if (INTCODI_VALIDASIG.equals(codi)) {
+			integracio.setDescripcio("Valida sign.");
 		}
+
 		return integracio;
 	}
 

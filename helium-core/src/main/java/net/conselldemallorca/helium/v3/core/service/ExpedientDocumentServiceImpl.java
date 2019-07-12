@@ -1,4 +1,4 @@
-/**
+	/**
  * 
  */
 package net.conselldemallorca.helium.v3.core.service;
@@ -26,14 +26,17 @@ import net.conselldemallorca.helium.core.helper.ExpedientHelper;
 import net.conselldemallorca.helium.core.helper.ExpedientLoggerHelper;
 import net.conselldemallorca.helium.core.helper.ExpedientRegistreHelper;
 import net.conselldemallorca.helium.core.helper.IndexHelper;
+import net.conselldemallorca.helium.core.helper.PaginacioHelper;
 import net.conselldemallorca.helium.core.helper.PluginHelper;
 import net.conselldemallorca.helium.core.helper.TascaHelper;
 import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
 import net.conselldemallorca.helium.core.model.hibernate.Document;
+import net.conselldemallorca.helium.core.model.hibernate.DocumentNotificacio;
 import net.conselldemallorca.helium.core.model.hibernate.DocumentStore;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientLog.ExpedientLogAccioTipus;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
+import net.conselldemallorca.helium.core.model.hibernate.Interessat;
 import net.conselldemallorca.helium.core.model.hibernate.Portasignatures;
 import net.conselldemallorca.helium.core.model.hibernate.Portasignatures.TipusEstat;
 import net.conselldemallorca.helium.core.model.hibernate.Portasignatures.Transicio;
@@ -44,19 +47,29 @@ import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDetallDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuFirmaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuFirmaPerfilEnumDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DadesEnviamentDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DadesNotificacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
+import net.conselldemallorca.helium.v3.core.api.dto.EnviamentTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDocumentDto;
+import net.conselldemallorca.helium.v3.core.api.dto.NotificacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NtiEstadoElaboracionEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NtiOrigenEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NtiTipoDocumentalEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NtiTipoFirmaEnumDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PortasignaturesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RespostaValidacioSignaturaDto;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientDocumentService;
+import net.conselldemallorca.helium.v3.core.repository.DocumentNotificacioRepository;
 import net.conselldemallorca.helium.v3.core.repository.DocumentRepository;
 import net.conselldemallorca.helium.v3.core.repository.DocumentStoreRepository;
+import net.conselldemallorca.helium.v3.core.repository.InteressatRepository;
+import net.conselldemallorca.helium.v3.core.repository.NotificacioRepository;
 import net.conselldemallorca.helium.v3.core.repository.PortasignaturesRepository;
 import net.conselldemallorca.helium.v3.core.repository.RegistreRepository;
 
@@ -76,7 +89,15 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 	@Resource
 	private DocumentStoreRepository documentStoreRepository;
 	@Resource
+	private DocumentNotificacioRepository documentNotificacioRepository;
+	@Resource
 	private PortasignaturesRepository portasignaturesRepository;
+	@Resource
+	private InteressatRepository interessatRepository;
+	@Resource
+	private PaginacioHelper paginacioHelper;
+	@Resource
+	NotificacioRepository notificacioRepository;
 
 	@Resource
 	private PluginHelper pluginHelper;
@@ -96,6 +117,10 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 	private ExpedientLoggerHelper expedientLoggerHelper;
 	@Resource
 	private ExpedientRegistreHelper expedientRegistreHelper;
+//	@Resource
+//	private Jbpm3HeliumHelper jbpm3HeliumHelper;
+	@Resource
+	DocumentHelperV3 documentHelperV3;
 
 
 
@@ -106,8 +131,13 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 			String processInstanceId,
 			String documentCodi,
 			Date data,
+			String adjuntTitol,
 			String arxiuNom,
 			byte[] arxiuContingut,
+			String arxiuContentType,
+			boolean ambFirma,
+			boolean firmaSeparada,
+			byte[] firmaContingut,
 			NtiOrigenEnumDto ntiOrigen,
 			NtiEstadoElaboracionEnumDto ntiEstadoElaboracion,
 			NtiTipoDocumentalEnumDto ntiTipoDocumental,
@@ -117,8 +147,13 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 				"processInstanceId=" + processInstanceId + ", " +
 				"documentCodi=" + documentCodi + ", " +
 				"data=" + data + ", " +
+				"adjuntTitol=" + adjuntTitol + ", " +
 				"arxiuNom=" + arxiuNom + ", " +
 				"arxiuContingut=" + arxiuContingut + ", " +
+				"arxiuContentType=" + arxiuContentType + ", " +
+				"ambFirma=" + ambFirma + ", " +
+				"firmaSeparada=" + firmaSeparada + ", " +
+				"firmaContingut=" + firmaContingut + ", " +
 				"ntiOrigen=" + ntiOrigen + ", " +
 				"ntiEstadoElaboracion=" + ntiEstadoElaboracion + ", " +
 				"ntiTipoDocumental=" + ntiTipoDocumental + ", " +
@@ -131,19 +166,26 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 		expedientHelper.comprovarInstanciaProces(
 				expedient,
 				processInstanceId);
+		boolean isAdjunt = documentCodi == null;
 		expedientLoggerHelper.afegirLogExpedientPerProces(
 				processInstanceId,
-				ExpedientLogAccioTipus.PROCES_DOCUMENT_AFEGIR,
+				isAdjunt ? 
+						ExpedientLogAccioTipus.PROCES_DOCUMENT_ADJUNTAR 
+						: ExpedientLogAccioTipus.PROCES_DOCUMENT_AFEGIR,
 				documentCodi);
 		documentHelper.crearDocument(
 				null,
 				processInstanceId,
 				documentCodi,
 				data,
-				false,
-				null,
+				isAdjunt,
+				isAdjunt ? adjuntTitol : null,
 				arxiuNom,
 				arxiuContingut,
+				arxiuContentType,
+				ambFirma,
+				firmaSeparada,
+				firmaContingut,
 				ntiOrigen,
 				ntiEstadoElaboracion,
 				ntiTipoDocumental,
@@ -164,8 +206,13 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 			String processInstanceId,
 			Long documentStoreId,
 			Date data,
+			String adjuntTitol,
 			String arxiuNom,
 			byte[] arxiuContingut,
+			String arxiuContentType,
+			boolean ambFirma,
+			boolean firmaSeparada,
+			byte[] firmaContingut,
 			NtiOrigenEnumDto ntiOrigen,
 			NtiEstadoElaboracionEnumDto ntiEstadoElaboracion,
 			NtiTipoDocumentalEnumDto ntiTipoDocumental,
@@ -175,8 +222,13 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 				"processInstanceId=" + processInstanceId + ", " +
 				"documentStoreId=" + documentStoreId + ", " +
 				"data=" + data + ", " +
+				"adjuntTitol=" + adjuntTitol + ", " +
 				"arxiuNom=" + arxiuNom + ", " +
 				"arxiuContingut=" + arxiuContingut + ", " +
+				"arxiuContentType=" + arxiuContentType + ", " +
+				"ambFirma=" + ambFirma + ", " +
+				"firmaSeparada=" + firmaSeparada + ", " +
+				"firmaContingut=" + firmaContingut + ", " +
 				"ntiOrigen=" + ntiOrigen + ", " +
 				"ntiEstadoElaboracion=" + ntiEstadoElaboracion + ", " +
 				"ntiTipoDocumental=" + ntiTipoDocumental + ", " +
@@ -208,9 +260,13 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 				null,
 				processInstanceId,
 				data,
-				null,
+				documentStore.isAdjunt() ? adjuntTitol : null,
 				arxiuNom,
 				arxiuContingut,
+				arxiuContentType,
+				ambFirma,
+				firmaSeparada,
+				firmaContingut,
 				ntiOrigen,
 				ntiEstadoElaboracion,
 				ntiTipoDocumental,
@@ -224,269 +280,106 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 				arxiuNomAntic,
 				arxiuNom);
 	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@Transactional(readOnly = true)
+	public PaginaDto<NotificacioDto> findNotificacionsPerDatatable(
+			String filtre,
+			PaginacioParamsDto paginacioParams) {
+		logger.debug("Consultant notificacions per la datatable (" +
+				"filtre=" + filtre + ", " +
+				"paginacioParams=" + paginacioParams + ")");
+		PaginaDto<NotificacioDto> pagina = paginacioHelper.toPaginaDto(
+				notificacioRepository.findByFiltrePaginat(
+						filtre == null || "".equals(filtre),
+						filtre,
+						paginacioHelper.toSpringDataPageable(
+								paginacioParams)),
+				NotificacioDto.class);
+		return pagina;
+	}
 
+	
 	@Override
 	@Transactional
-	public void createAdjunt(
+	public void notificarDocument(
 			Long expedientId,
-			String processInstanceId,
-			Date data,
-			String adjuntTitol,
-			String arxiuNom,
-			byte[] arxiuContingut,
-			NtiOrigenEnumDto ntiOrigen,
-			NtiEstadoElaboracionEnumDto ntiEstadoElaboracion,
-			NtiTipoDocumentalEnumDto ntiTipoDocumental,
-			String ntiIdOrigen) {
-		logger.debug("Crear document adjunt a dins l'expedient (" +
-				"expedientId=" + expedientId + ", " +
-				"processInstanceId=" + processInstanceId + ", " +
-				"data=" + data + ", " +
-				"adjuntTitol=" + adjuntTitol + ", " +
-				"arxiuNom=" + arxiuNom + ", " +
-				"arxiuContingut=" + arxiuContingut + ", " +
-				"ntiOrigen=" + ntiOrigen + ", " +
-				"ntiEstadoElaboracion=" + ntiEstadoElaboracion + ", " +
-				"ntiTipoDocumental=" + ntiTipoDocumental + ", " +
-				"ntiIdOrigen=" + ntiIdOrigen + ")");
+			Long documentStoreId,
+			DadesNotificacioDto dadesNotificacioDto,
+			List<Long> interessatsIds,
+			DadesEnviamentDto dadesEnviamentDto) {
+
 		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
 				expedientId,
 				new Permission[] {
 						ExtendedPermission.DOC_MANAGE,
 						ExtendedPermission.ADMINISTRATION});
-		expedientHelper.comprovarInstanciaProces(
-				expedient,
-				processInstanceId);
-		String documentCodi = new Long(new Date().getTime()).toString();
-		expedientLoggerHelper.afegirLogExpedientPerProces(
-				processInstanceId,
-				ExpedientLogAccioTipus.PROCES_DOCUMENT_ADJUNTAR,
-				documentCodi);
-		documentHelper.crearDocument(
-				null,
-				processInstanceId,
-				documentCodi,
-				data,
-				true,
-				adjuntTitol,
-				arxiuNom,
-				arxiuContingut,
-				ntiOrigen,
-				ntiEstadoElaboracion,
-				ntiTipoDocumental,
-				ntiIdOrigen);
+
 		
-		indexHelper.expedientIndexLuceneUpdate(processInstanceId);
-		expedientRegistreHelper.crearRegistreCrearDocumentInstanciaProces(
-				expedient.getId(),
-				processInstanceId,
-				SecurityContextHolder.getContext().getAuthentication().getName(),
-				documentCodi,
-				arxiuNom);
-	}
-
-	@Override
-	@Transactional
-	public void updateAdjunt(
-			Long expedientId,
-			String processInstanceId,
-			Long documentStoreId,
-			Date data,
-			String adjuntTitol,
-			String arxiuNom,
-			byte[] arxiuContingut,
-			NtiOrigenEnumDto ntiOrigen,
-			NtiEstadoElaboracionEnumDto ntiEstadoElaboracion,
-			NtiTipoDocumentalEnumDto ntiTipoDocumental,
-			String ntiIdOrigen) {
-		logger.debug("Modificar document adjunt de l'expedient (" +
-				"expedientId=" + expedientId + ", " +
-				"processInstanceId=" + processInstanceId + ", " +
-				"documentStoreId=" + documentStoreId + ", " +
-				"data=" + data + ", " +
-				"adjuntTitol=" + adjuntTitol + ", " +
-				"arxiuNom=" + arxiuNom + ", " +
-				"arxiuContingut=" + arxiuContingut + ", " +
-				"ntiOrigen=" + ntiOrigen + ", " +
-				"ntiEstadoElaboracion=" + ntiEstadoElaboracion + ", " +
-				"ntiTipoDocumental=" + ntiTipoDocumental + ", " +
-				"ntiIdOrigen=" + ntiIdOrigen + ")");
-		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
-				expedientId,
-				new Permission[] {
-						ExtendedPermission.DOC_MANAGE,
-						ExtendedPermission.ADMINISTRATION});
-		expedientHelper.comprovarInstanciaProces(
-				expedient,
-				processInstanceId);
-		DocumentStore documentStore = documentStoreRepository.findByIdAndProcessInstanceId(
+		DocumentDto documentDto = documentHelperV3.toDocumentDto(
 				documentStoreId,
-				processInstanceId);
-		if (documentStore == null) {
-			throw new NoTrobatException(
-					DocumentStore.class, 
-					documentStoreId);
-		}
-		String documentCodi = documentStore.getCodiDocument();
-		String arxiuNomAntic = documentStore.getArxiuNom();
-		expedientLoggerHelper.afegirLogExpedientPerProces(
-				processInstanceId,
-				ExpedientLogAccioTipus.PROCES_DOCUMENT_MODIFICAR,
-				documentCodi);
-		documentHelper.actualitzarDocument(
-				documentStoreId,
-				null,
-				processInstanceId,
-				data,
-				adjuntTitol,
-				arxiuNom,
-				arxiuContingut,
-				ntiOrigen,
-				ntiEstadoElaboracion,
-				ntiTipoDocumental,
-				ntiIdOrigen);
-		indexHelper.expedientIndexLuceneUpdate(processInstanceId);
-		expedientRegistreHelper.crearRegistreModificarDocumentInstanciaProces(
-				expedient.getId(),
-				processInstanceId,
-				SecurityContextHolder.getContext().getAuthentication().getName(),
-				documentCodi,
-				arxiuNomAntic,
-				arxiuNom);
-	}
-
-	/*@Override
-	@Transactional
-	public void createOrUpdate(
-			Long expedientId,
-			String processInstanceId,
-			Long documentId,
-			Long documentStoreId,
-			String adjuntTitol,
-			String arxiuNom,
-			byte[] arxiuContingut,
-			Date data,
-			NtiOrigenEnumDto ntiOrigen,
-			NtiEstadoElaboracionEnumDto ntiEstadoElaboracion,
-			NtiTipoDocumentalEnumDto ntiTipoDocumental,
-			String ntiIdOrigen) {
-		logger.debug("Creant o modificant document de la instància de procés (" +
-				"expedientId=" + expedientId + ", " +
-				"processInstanceId=" + processInstanceId + ", " +
-				"documentId=" + documentId + ", " +
-				"documentStoreId=" + documentStoreId + ", " +
-				"titol=" + titol + ", " +
-				"arxiuNom=" + arxiuNom + ", " +
-				"arxiuContingut.length=" + ((arxiuContingut != null) ? arxiuContingut.length : "<null>") + ", " +
-				"data=" + data + ", " +
-				"ntiOrigen=" + ntiOrigen + ", " +
-				"ntiEstadoElaboracion=" + ntiEstadoElaboracion + ", " +
-				"ntiTipoDocumental=" + ntiTipoDocumental + ", " +
-				"ntiIdOrigen=" + ntiIdOrigen + ")");
-		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
-				expedientId,
-				new Permission[] {
-						ExtendedPermission.DOC_MANAGE,
-						ExtendedPermission.ADMINISTRATION});
-		expedientHelper.comprovarInstanciaProces(
-				expedient,
-				processInstanceId);
-		boolean creat = false;
-		String arxiuNomAntic = null;
-		boolean adjunt = false;
-		DocumentStore documentStore = null;
-		if (documentStoreId == null) {
-			creat = true;
-			adjunt = true;
-		} else {
-			documentStore = documentStoreRepository.findById(documentStoreId);
-			if (documentStore == null)
-				throw new NoTrobatException(DocumentStore.class, documentStoreId);
+				true,
+				false,
+				false,
+				false,
+				false);
+		
+		ExpedientTipus expedientTipus = expedient.getTipus();
+		
+		dadesNotificacioDto.setEmisorDir3Codi(expedientTipus.getNtiOrgano());
+		dadesNotificacioDto.setProcedimentCodi(expedientTipus.getNtiClasificacion());
+		dadesNotificacioDto.setExpedientId(expedientId);
+		dadesNotificacioDto.setEnviamentTipus(EnviamentTipusEnumDto.NOTIFICACIO);
+		
+		dadesNotificacioDto.setDocumentArxiuNom(documentDto.getArxiuNom());
+		dadesNotificacioDto.setDocumentArxiuContingut(documentDto.getArxiuContingut());
+		dadesNotificacioDto.setDocumentArxiuUuid(documentDto.getArxiuUuid());
+		dadesNotificacioDto.setDocumentArxiuCsv(documentDto.getArxiuCsv());
+		
+		dadesNotificacioDto.setDocumentId(documentStoreId);
+		
+		
+		for(Long interessatId:  interessatsIds){
 			
-			arxiuNomAntic = documentStore.getArxiuNom();
-			adjunt = documentStore.isAdjunt();
+			Interessat interessatEntity = interessatRepository.findOne(interessatId);
+			
+			List<DadesEnviamentDto> enviaments = new ArrayList<DadesEnviamentDto>();
+			
+			
+			List<PersonaDto> destinataris = new ArrayList<PersonaDto>();
+			PersonaDto destinatari = new PersonaDto();
+			destinatari.setNom(interessatEntity.getNom());
+			destinatari.setLlinatge1(interessatEntity.getLlinatge1());
+			destinatari.setLlinatge2(interessatEntity.getLlinatge2());
+			destinatari.setDni(interessatEntity.getNif());
+			destinatari.setTelefon(interessatEntity.getTelefon());
+			destinatari.setEmail(interessatEntity.getEmail());
+			destinatari.setTipus(interessatEntity.getTipus());
+			destinataris.add(destinatari);
+			dadesEnviamentDto.setDestinataris(destinataris);
+			
+			
+			// Titular
+			PersonaDto titular = new PersonaDto();
+			titular.setDni(interessatEntity.getNif());
+			titular.setNom(interessatEntity.getNom());
+			titular.setLlinatge1(interessatEntity.getLlinatge1());
+			titular.setLlinatge1(interessatEntity.getLlinatge2());
+			titular.setLlinatge2(interessatEntity.getTelefon());
+			titular.setEmail(interessatEntity.getEmail());
+			titular.setTipus(interessatEntity.getTipus());
+			dadesEnviamentDto.setTitular(titular);
+			
+			enviaments.add(dadesEnviamentDto);
+
+			dadesNotificacioDto.setEnviaments(enviaments);
+			
+			pluginHelper.altaNotificacio(dadesNotificacioDto);
 		}
-		DocumentDto document = null;
-		String codi = null;
-		if (documentId != null) {
-			document = getDocumentDtoPerDocumentId(documentId);
-			if (document == null) {
-				document = documentHelper.getDocumentSenseContingut(documentStoreId);
-			}		
-			if (document != null) {
-				adjunt = document.isAdjunt();
-				codi = document.getCodi();
-			}
-		}
-		if (codi == null && (document == null || document.isAdjunt())) { 
-			codi = new Long(new Date().getTime()).toString();
-		}
-		if (arxiuContingut == null && document != null) {
-			arxiuContingut = document.getArxiuContingut();
-			arxiuNom = document.getArxiuNom();
-		} else if (arxiuContingut == null && documentStore != null) {
-			arxiuContingut = documentStore.getArxiuContingut();
-			arxiuNom = documentStore.getArxiuNom();
-		}
-		if (document != null && document.isAdjunt()) {
-			expedientLoggerHelper.afegirLogExpedientPerProces(
-					processInstanceId,
-					ExpedientLogAccioTipus.PROCES_DOCUMENT_ADJUNTAR,
-					codi);			
-		} else if (creat) {
-				expedientLoggerHelper.afegirLogExpedientPerProces(
-						processInstanceId,
-						ExpedientLogAccioTipus.PROCES_DOCUMENT_AFEGIR,
-						codi);
-		} else {
-			expedientLoggerHelper.afegirLogExpedientPerProces(
-					processInstanceId,
-					ExpedientLogAccioTipus.PROCES_DOCUMENT_MODIFICAR,
-					codi);
-		}
-		if (documentStoreId != null && adjunt) {
-			documentHelper.actualitzarAdjunt(
-					documentStoreId,
-					processInstanceId,
-					codi,
-					titol,
-					data,
-					arxiuNom,
-					arxiuContingut,
-					adjunt);
-		} else {
-			documentHelper.actualitzarDocumenta(
-					null,
-					processInstanceId,
-					codi,
-					data,
-					arxiuNom,
-					arxiuContingut,
-					adjunt,
-					adjuntTitol,
-					ntiOrigen,
-					ntiEstadoElaboracion,
-					ntiTipoDocumental,
-					ntiIdOrigen);			
-		}
-		// Registra l'acció
-		if (creat) {
-			expedientRegistreHelper.crearRegistreCrearDocumentInstanciaProces(
-					expedient.getId(),
-					processInstanceId,
-					SecurityContextHolder.getContext().getAuthentication().getName(),
-					codi,
-					arxiuNom);
-		} else {
-			expedientRegistreHelper.crearRegistreModificarDocumentInstanciaProces(
-					expedient.getId(),
-					processInstanceId,
-					SecurityContextHolder.getContext().getAuthentication().getName(),
-					codi,
-					arxiuNomAntic,
-					arxiuNom);
-		}
-	}*/
+	}
 
 	/**
 	 * {@inheritDoc}
@@ -843,7 +736,7 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 					null,
 					arxiu.getNom(),
 					arxiu.getContingut(),
-					null,
+					null, // nti
 					null,
 					null,
 					null);
@@ -1174,83 +1067,128 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 				}
 			}
 			if (firmes != null) {
-				List<ArxiuFirmaDto> dtos = new ArrayList<ArxiuFirmaDto>();
-				for (Firma firma: firmes) {
-					ArxiuFirmaDto dto = new ArxiuFirmaDto();
-					if (firma.getTipus() != null) {
-						switch (firma.getTipus()) {
-						case CSV:
-							dto.setTipus(NtiTipoFirmaEnumDto.CSV);
-							break;
-						case XADES_DET:
-							dto.setTipus(NtiTipoFirmaEnumDto.XADES_DET);
-							break;
-						case XADES_ENV:
-							dto.setTipus(NtiTipoFirmaEnumDto.XADES_ENV);
-							break;
-						case CADES_DET:
-							dto.setTipus(NtiTipoFirmaEnumDto.CADES_DET);
-							break;
-						case CADES_ATT:
-							dto.setTipus(NtiTipoFirmaEnumDto.CADES_ATT);
-							break;
-						case PADES:
-							dto.setTipus(NtiTipoFirmaEnumDto.PADES);
-							break;
-						case SMIME:
-							dto.setTipus(NtiTipoFirmaEnumDto.SMIME);
-							break;
-						case ODT:
-							dto.setTipus(NtiTipoFirmaEnumDto.ODT);
-							break;
-						case OOXML:
-							dto.setTipus(NtiTipoFirmaEnumDto.OOXML);
-							break;
-						}
-					}
-					if (firma.getPerfil() != null) {
-						switch (firma.getPerfil()) {
-						case BES:
-							dto.setPerfil(ArxiuFirmaPerfilEnumDto.BES);
-							break;
-						case EPES:
-							dto.setPerfil(ArxiuFirmaPerfilEnumDto.EPES);
-							break;
-						case LTV:
-							dto.setPerfil(ArxiuFirmaPerfilEnumDto.LTV);
-							break;
-						case T:
-							dto.setPerfil(ArxiuFirmaPerfilEnumDto.T);
-							break;
-						case C:
-							dto.setPerfil(ArxiuFirmaPerfilEnumDto.C);
-							break;
-						case X:
-							dto.setPerfil(ArxiuFirmaPerfilEnumDto.X);
-							break;
-						case XL:
-							dto.setPerfil(ArxiuFirmaPerfilEnumDto.XL);
-							break;
-						case A:
-							dto.setPerfil(ArxiuFirmaPerfilEnumDto.A);
-							break;
-						}
-					}
-					dto.setFitxerNom(firma.getFitxerNom());
-					if (NtiTipoFirmaEnumDto.CSV.equals(dto.getTipus())) {
-						dto.setContingut(firma.getContingut());
-					}
-					dto.setTipusMime(firma.getTipusMime());
-					dto.setCsvRegulacio(firma.getCsvRegulacio());
-					dtos.add(dto);
-				}
-				arxiuDetall.setFirmes(dtos);
+				arxiuDetall.setFirmes(this.toArxiusFirmesDto(firmes));
 			}
 		}
 		return arxiuDetall;
 	}
 
 
+	@Override
+	@Transactional(readOnly = true)
+	public ArxiuFirmaDto getArxiuFirma(
+			Long expedientId, 
+			Long documentStoreId, 
+			int firmaIndex) {
+		logger.debug("Obtenint la firma de l'arxiu pel document (" +
+				"expedientId=" + expedientId + ", " +
+				"documentStoreId=" + documentStoreId + ", " +
+				"firmaIndex=" + firmaIndex + ")");
+
+		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
+				expedientId,
+				new Permission[] {
+						ExtendedPermission.DOC_MANAGE,
+						ExtendedPermission.ADMINISTRATION});
+		DocumentStore documentStore = documentStoreRepository.findOne(documentStoreId);
+		if (documentStore == null) {
+			throw new NoTrobatException(
+					DocumentStore.class, 
+					documentStoreId);
+		}
+		ArxiuFirmaDto arxiuFirma = null;
+		if (expedient.isArxiuActiu()) {
+			es.caib.plugins.arxiu.api.Document arxiuDocument = pluginHelper.arxiuDocumentInfo(
+					documentStore.getArxiuUuid(),
+					null,
+					true,
+					true);
+			List<Firma> firmes = arxiuDocument.getFirmes();
+			if (firmes != null) {
+				List<ArxiuFirmaDto> firmesDtos = this.toArxiusFirmesDto(firmes);
+				if (firmesDtos.size() > firmaIndex)
+					arxiuFirma = firmesDtos.get(firmaIndex);
+			}
+		}
+		return arxiuFirma;
+	}
+
+	/** Mètode comú per transformar la informació de les firmes.
+	 * 
+	 * @param firmes
+	 * @return
+	 */
+	private List<ArxiuFirmaDto> toArxiusFirmesDto(List<Firma> firmes) {
+		List<ArxiuFirmaDto> dtos = new ArrayList<ArxiuFirmaDto>();
+		for (Firma firma: firmes) {
+			ArxiuFirmaDto dto = new ArxiuFirmaDto();
+			if (firma.getTipus() != null) {
+				switch (firma.getTipus()) {
+				case CSV:
+					dto.setTipus(NtiTipoFirmaEnumDto.CSV);
+					break;
+				case XADES_DET:
+					dto.setTipus(NtiTipoFirmaEnumDto.XADES_DET);
+					break;
+				case XADES_ENV:
+					dto.setTipus(NtiTipoFirmaEnumDto.XADES_ENV);
+					break;
+				case CADES_DET:
+					dto.setTipus(NtiTipoFirmaEnumDto.CADES_DET);
+					break;
+				case CADES_ATT:
+					dto.setTipus(NtiTipoFirmaEnumDto.CADES_ATT);
+					break;
+				case PADES:
+					dto.setTipus(NtiTipoFirmaEnumDto.PADES);
+					break;
+				case SMIME:
+					dto.setTipus(NtiTipoFirmaEnumDto.SMIME);
+					break;
+				case ODT:
+					dto.setTipus(NtiTipoFirmaEnumDto.ODT);
+					break;
+				case OOXML:
+					dto.setTipus(NtiTipoFirmaEnumDto.OOXML);
+					break;
+				}
+			}
+			if (firma.getPerfil() != null) {
+				switch (firma.getPerfil()) {
+				case BES:
+					dto.setPerfil(ArxiuFirmaPerfilEnumDto.BES);
+					break;
+				case EPES:
+					dto.setPerfil(ArxiuFirmaPerfilEnumDto.EPES);
+					break;
+				case LTV:
+					dto.setPerfil(ArxiuFirmaPerfilEnumDto.LTV);
+					break;
+				case T:
+					dto.setPerfil(ArxiuFirmaPerfilEnumDto.T);
+					break;
+				case C:
+					dto.setPerfil(ArxiuFirmaPerfilEnumDto.C);
+					break;
+				case X:
+					dto.setPerfil(ArxiuFirmaPerfilEnumDto.X);
+					break;
+				case XL:
+					dto.setPerfil(ArxiuFirmaPerfilEnumDto.XL);
+					break;
+				case A:
+					dto.setPerfil(ArxiuFirmaPerfilEnumDto.A);
+					break;
+				}
+			}
+			dto.setFitxerNom(firma.getFitxerNom());
+			dto.setContingut(firma.getContingut());
+			dto.setTipusMime(firma.getTipusMime());
+			dto.setCsvRegulacio(firma.getCsvRegulacio());
+			dtos.add(dto);
+		}	
+		return dtos;
+	}
 
 	private String getExtensio(String arxiuNom) {
 		int index = arxiuNom.lastIndexOf('.');
@@ -1260,7 +1198,28 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 			return arxiuNom.substring(index + 1);
 		}
 	}
+	
+	@Transactional
+	@Override
+	public void notificacioActualitzarEstat(
+			String identificador, 
+			String referencia) {
+		
+		DocumentNotificacio notificacio = documentNotificacioRepository.findByEnviamentIdentificadorAndEnviamentReferencia(
+				identificador,
+				referencia);
+		if (notificacio == null) {
+			throw new NoTrobatException(DocumentNotificacio.class);
+		}
+		
+		try {
+			pluginHelper.notificacioActualitzarEstat(notificacio);
+		} catch (Exception ex) {
+			String errorDescripcio = "Error al accedir al plugin de notificacions";
+			logger.error(errorDescripcio, ex);
+			throw new RuntimeException(ex);
+		}
+	}
 
 	private static final Logger logger = LoggerFactory.getLogger(ExpedientDocumentServiceImpl.class);
-
 }

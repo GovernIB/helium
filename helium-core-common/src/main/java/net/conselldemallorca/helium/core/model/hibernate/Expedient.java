@@ -127,6 +127,10 @@ public class Expedient implements Serializable, GenericEntity<Long> {
 	private String errorFull;
 
 	private boolean errorsIntegracions;
+	
+	List<Interessat> interessats;
+
+	List<Notificacio> notificacions;
 
 	private Estat estat;
 	@NotNull
@@ -183,6 +187,9 @@ public class Expedient implements Serializable, GenericEntity<Long> {
 	public void setId(Long id) {
 		this.id = id;
 	}
+	
+	
+	
 
 	@Column(name="process_instance_id", length=255, nullable=false, unique=true)
 	public String getProcessInstanceId() {
@@ -542,6 +549,20 @@ public class Expedient implements Serializable, GenericEntity<Long> {
 	@OneToMany(mappedBy="expedient", cascade=CascadeType.REMOVE)
 	public Set<Alerta> getAlertes() {
 		return this.alertes;
+	}
+	@OneToMany(mappedBy="expedient", cascade=CascadeType.REMOVE, orphanRemoval=true)
+	public List<Interessat> getInteressats() {
+		return interessats;
+	}
+	public void setInteressats(List<Interessat> interessats) {
+		this.interessats = interessats;
+	}
+	@OneToMany(mappedBy="expedient", cascade=CascadeType.REMOVE)
+	public List<Notificacio> getNotificacions() {
+		return notificacions;
+	}
+	public void setNotificacions(List<Notificacio> notificacions) {
+		this.notificacions = notificacions;
 	}
 	public void setAlertes(Set<Alerta> alertes) {
 		this.alertes = alertes;

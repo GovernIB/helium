@@ -30,6 +30,7 @@ import org.jbpm.command.GetTaskInstanceCommand;
 import org.jbpm.command.SignalCommand;
 import org.jbpm.command.TaskInstanceEndCommand;
 import org.jbpm.file.def.FileDefinition;
+import org.jbpm.graph.def.Action;
 import org.jbpm.graph.def.DelegationException;
 import org.jbpm.graph.def.Node;
 import org.jbpm.graph.def.Node.NodeType;
@@ -67,6 +68,7 @@ import net.conselldemallorca.helium.jbpm3.command.FindProcessInstanceLogsCommand
 import net.conselldemallorca.helium.jbpm3.command.FindProcessInstanceTimersCommand;
 import net.conselldemallorca.helium.jbpm3.command.FindTaskInstanceForTokenAndTaskCommand;
 import net.conselldemallorca.helium.jbpm3.command.FindTaskInstanceIdForTokenIdCommand;
+import net.conselldemallorca.helium.jbpm3.command.GetActionByIdCommand;
 import net.conselldemallorca.helium.jbpm3.command.GetExpedientsAfectatsListCommand;
 import net.conselldemallorca.helium.jbpm3.command.GetGroupTaskListCommand;
 import net.conselldemallorca.helium.jbpm3.command.GetPersonalTaskListCommand;
@@ -110,6 +112,7 @@ import net.conselldemallorca.helium.jbpm3.command.TakeTaskInstanceCommand;
 import net.conselldemallorca.helium.jbpm3.command.TokenActivarCommand;
 import net.conselldemallorca.helium.jbpm3.command.TokenRedirectCommand;
 import net.conselldemallorca.helium.jbpm3.command.UpdateHandlersCommand;
+import net.conselldemallorca.helium.jbpm3.command.UpdateSubprocessDefinitionCommand;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto.OrdreDireccioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto.OrdreDto;
@@ -1529,6 +1532,12 @@ public class JbpmHelper {
 		return node;
 	}
 	
+	public Action getActionById(long nodeId) {
+		//adminService.mesuraIniciar("jBPM getNodeByName", "jbpmDao");
+		GetActionByIdCommand command = new GetActionByIdCommand(nodeId);
+		Action action = (Action)commandService.execute(command);
+		return action;
+	}	
 	
 	public boolean hasStartBetweenLogs(long begin, long end, long taskInstanceId) {
 		//adminService.mesuraIniciar("jBPM hasStartBetweenLogs", "jbpmDao");
@@ -2011,4 +2020,15 @@ public class JbpmHelper {
 		}
 		return ex;
 	}
+	
+	/** Cerca els nodes de tipus ProcessState del ProcessDefinitions dp1  i assegura que s'apuntin correctament cap al pd2 
+	 * si coincideix el nom del subprocés.
+	 * 
+	 * @param pd1
+	 * @param pd2
+	 */
+	public void updateSubprocessDefinition(ProcessDefinition pd1, ProcessDefinition pd2) {
+		UpdateSubprocessDefinitionCommand command = new UpdateSubprocessDefinitionCommand(pd1, pd2);
+		commandService.execute(command);
+	}	
 }

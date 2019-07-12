@@ -2,7 +2,6 @@ package net.conselldemallorca.helium.webapp.v3.controller;
 
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.StringWriter;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
@@ -14,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.annotation.Resource;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
@@ -21,6 +21,7 @@ import javax.validation.Valid;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang.exception.ExceptionUtils;
 import org.fundaciobit.plugins.signature.api.FileInfoSignature;
 import org.fundaciobit.plugins.signature.api.StatusSignature;
 import org.fundaciobit.plugins.signature.api.StatusSignaturesSet;
@@ -46,8 +47,11 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.support.SessionStatus;
 import org.springframework.web.multipart.commons.CommonsMultipartFile;
 
+import net.conselldemallorca.helium.core.helper.DocumentHelperV3;
+import net.conselldemallorca.helium.core.util.PdfUtils;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DocumentTipusFirmaEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExecucioMassivaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExecucioMassivaDto.ExecucioMassivaTipusDto;
@@ -57,6 +61,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.FirmaTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.FormulariExternDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ReproDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
@@ -71,10 +76,12 @@ import net.conselldemallorca.helium.v3.core.api.service.DefinicioProcesService;
 import net.conselldemallorca.helium.v3.core.api.service.ExecucioMassivaService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientDocumentService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
+import net.conselldemallorca.helium.v3.core.api.service.ReproService;
 import net.conselldemallorca.helium.v3.core.api.service.TascaService;
 import net.conselldemallorca.helium.webapp.mvc.ArxiuView;
 import net.conselldemallorca.helium.webapp.v3.command.PassarelaFirmaEnviarCommand;
 import net.conselldemallorca.helium.webapp.v3.command.TascaConsultaCommand;
+import net.conselldemallorca.helium.webapp.v3.helper.EnumHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.ModalHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.NodecoHelper;
@@ -110,10 +117,13 @@ public class TascaTramitacioController extends BaseTascaController {
 	private AplicacioService aplicacioService;
 	@Autowired 
 	private DefinicioProcesService definicioProcesService;
-
 	@Autowired
 	private PassarelaFirmaHelper passarelaFirmaHelper;
-
+	@Autowired
+	private ReproService reproService;
+	@Resource(name="documentHelperV3")
+	private DocumentHelperV3 documentHelper;
+	
 	@ModelAttribute("command")
 	public Object modelAttributeCommand(
 			HttpServletRequest request,
@@ -140,26 +150,25 @@ public class TascaTramitacioController extends BaseTascaController {
 			@PathVariable String tascaId,
 			Model model) {
 		SessionHelper.removeAttribute(request,VARIABLE_TRAMITACIO_MASSIVA);
-		
 		boolean bloquejarEdicioTasca = tascaService.isEnSegonPla(tascaId);
 		model.addAttribute("bloquejarEdicioTasca", bloquejarEdicioTasca);
+		
 		if (bloquejarEdicioTasca) {
 			MissatgesHelper.warning(request, getMessage(request, "expedient.tasca.segon.pla.bloquejada"));
 		}
 		
-		try {			
+		try {
 			return mostrarInformacioTascaPerPipelles(
 					request,
 					tascaId,
 					model,
+					null,
 					null);
 		} catch (Exception ex) {
 			MissatgesHelper.warning(request, getMessage(request, "expedient.tasca.segon.pla.finalitzada"));
 			if (ModalHelper.isModal(request)) {
 				return modalUrlTancar(false);
 			} else {
-//				String referer = request.getHeader("Referer");
-//				return "redirect:"+ referer;
 				return "v3/entitatNoDisponible";
 			}
 		    
@@ -174,11 +183,13 @@ public class TascaTramitacioController extends BaseTascaController {
 			Model model) {
 		SessionHelper.removeAttribute(request,VARIABLE_TRAMITACIO_MASSIVA);
 		model.addAttribute("bloquejarEdicioTasca", tascaService.isEnSegonPla(tascaId));
+		
 		return mostrarInformacioTascaPerPipelles(
 				request,
 				tascaId,
 				model,
-				pipellaActiva);
+				pipellaActiva,
+				null);
 	}
 
 	@RequestMapping(value = "/{tascaId}/form", method = RequestMethod.GET)
@@ -187,18 +198,84 @@ public class TascaTramitacioController extends BaseTascaController {
 			@PathVariable String tascaId,
 			Model model) {
 		model.addAttribute("bloquejarEdicioTasca", tascaService.isEnSegonPla(tascaId));
+		ExpedientTascaDto tasca = tascaService.findAmbIdPerTramitacio(tascaId);
+		List<ReproDto> repros = reproService.findReprosByUsuariTipusExpedient(tasca.getExpedientTipusId(), tasca.getJbpmName());
+		model.addAttribute("repros", repros);
+		
+		Map<String,Object> valors = null;
+				
 		if (!NodecoHelper.isNodeco(request)) {
 			return mostrarInformacioTascaPerPipelles(
 					request,
 					tascaId,
 					model,
-					"form");
+					"form",
+					valors);
+		}
+		
+		emplenarModelFormulari(
+				request,
+				tascaId,
+				model,
+				null);
+		
+		return "v3/tascaForm";
+	}
+	
+	@RequestMapping(value = "/{tascaId}/fromRepro/{reproId}", method = RequestMethod.GET)
+	public String formRepro(
+			HttpServletRequest request,
+			@PathVariable String tascaId,
+			@PathVariable Long reproId,
+			Model model) {
+		return formReproAccio(request, tascaId, reproId, null, model);
+	}
+
+		@RequestMapping(value = "/{tascaId}/{accio}/fromRepro/{reproId}", method = RequestMethod.GET)
+	public String formReproAccio(
+			HttpServletRequest request,
+			@PathVariable String tascaId,
+			@PathVariable Long reproId,
+			@PathVariable String accio,
+			Model model) {
+		model.addAttribute("bloquejarEdicioTasca", tascaService.isEnSegonPla(tascaId));
+		ExpedientTascaDto tasca = tascaService.findAmbIdPerTramitacio(tascaId);
+		List<ReproDto> repros = reproService.findReprosByUsuariTipusExpedient(tasca.getExpedientTipusId(), tasca.getJbpmName());
+		model.addAttribute("repros", repros);
+		Map<String,Object> variables = reproService.findValorsById(reproId);
+		List<TascaDadaDto> tascaDades = tascaService.findDades(tascaId);
+		Map<String, Object> campsAddicionals = new HashMap<String, Object>();
+		Map<String, Class<?>> campsAddicionalsClasses = new HashMap<String, Class<?>>();
+		if(variables == null)
+			return form(request, tascaId, model);
+		Object commandValidar = TascaFormHelper.getCommandForCamps(
+				tascaDades,
+				variables,
+				campsAddicionals,
+				campsAddicionalsClasses,
+				false);
+		model.addAttribute("command", commandValidar);
+		SessionHelper.setAttribute(request,VARIABLE_COMMAND_TRAMITACIO+tascaId, commandValidar);
+		Map<String,Object> valors = null;
+		if (!NodecoHelper.isNodeco(request)) {
+			return mostrarInformacioTascaPerPipelles(
+					request,
+					tascaId,
+					model,
+					"form",
+					valors);
 		}
 		emplenarModelFormulari(
 				request,
 				tascaId,
-				model);
-		return "v3/tascaForm";
+				model,
+				null);
+		return mostrarInformacioTascaPerPipelles(
+				request,
+				tascaId,
+				model,
+				null,
+				null);
 	}
 
 	@RequestMapping(value = "/{tascaId}/guardar", method = RequestMethod.POST)
@@ -227,10 +304,13 @@ public class TascaTramitacioController extends BaseTascaController {
 				tascaId);
 		status.setComplete();
 		
+		model.addAttribute("command", null);
+		
 		return mostrarInformacioTascaPerPipelles(
 				request,
 				tascaId,
 				model,
+				null,
 				null);
 	}
 
@@ -247,6 +327,7 @@ public class TascaTramitacioController extends BaseTascaController {
 					request,
 					tascaId,
 					model,
+					null,
 					null);
 		}
 		List<TascaDadaDto> tascaDades = tascaService.findDades(tascaId);
@@ -292,7 +373,8 @@ public class TascaTramitacioController extends BaseTascaController {
 				request,
 				tascaId,
 				model,
-				result.hasErrors() ? "form" : null);
+				result.hasErrors() ? "form" : null,
+				null);
 	}
 
 	@RequestMapping(value = "/{tascaId}/completar", method = RequestMethod.POST)
@@ -310,7 +392,8 @@ public class TascaTramitacioController extends BaseTascaController {
 					request,
 					tascaId,
 					model,
-					result.hasErrors() ? "form" : null);
+					(result.hasErrors() ? "form" : null),
+					null);
 		}
 		status.setComplete();
 		
@@ -343,7 +426,8 @@ public class TascaTramitacioController extends BaseTascaController {
 				request,
 				tascaId,
 				model,
-				"form");
+				"form",
+				null);
 	}
 
 	@RequestMapping(value = {
@@ -382,7 +466,8 @@ public class TascaTramitacioController extends BaseTascaController {
 				request,
 				tascaId,
 				model,
-				"form");
+				"form",
+				null);
 	}
 
 	@RequestMapping(value = "/{tascaId}/document", method = RequestMethod.GET)
@@ -396,7 +481,8 @@ public class TascaTramitacioController extends BaseTascaController {
 					request,
 					tascaId,
 					model,
-					"document");
+					"document",
+					null);
 		}
 		// Omple els documents per adjuntar i els de només lectura
 		List<TascaDocumentDto> documents = tascaService.findDocuments(tascaId);
@@ -412,6 +498,11 @@ public class TascaTramitacioController extends BaseTascaController {
 		model.addAttribute("documents", documents);
 		model.addAttribute("tasca", tascaService.findAmbIdPerTramitacio(tascaId));
 		model.addAttribute("isModal", ModalHelper.isModal(request));
+		model.addAttribute(
+				"tipusFirmaOptions",
+				EnumHelper.getOptionsForEnum(
+						DocumentTipusFirmaEnumDto.class,
+						"enum.document.tipus.firma."));		
 		return "v3/tascaDocument";
 	}
 
@@ -457,7 +548,8 @@ public class TascaTramitacioController extends BaseTascaController {
 					request,
 					tascaId,
 					model,
-					"signatura");
+					"signatura",
+					null);
 		}		
 		model.addAttribute("tasca", tascaService.findAmbIdPerTramitacio(tascaId));
 		model.addAttribute("signatures", tascaService.findDocumentsSignar(tascaId));
@@ -557,15 +649,14 @@ public class TascaTramitacioController extends BaseTascaController {
 										request, 
 										"document.controller.firma.passarela.final.ok"));
 					} catch (Exception e) {
-						String message = getMessage(
+						String errMsg = getMessage(
 								request, 
-								"document.controller.firma.passarela.final.error.validacio");
-						StringWriter errors = new StringWriter();
-						message += errors.toString();
+								"document.controller.firma.passarela.final.error.validacio",
+								new Object[] {ExceptionUtils.getRootCauseMessage(e)});
+						logger.error("Error en la signatura del document. " + errMsg, e);
 						MissatgesHelper.error(
 								request,
-								message);
-						logger.error("Error en la signatura del document", e);
+								errMsg);
 					}
 				}
 			} else {
@@ -573,7 +664,8 @@ public class TascaTramitacioController extends BaseTascaController {
 						request,
 						getMessage(
 								request, 
-								"document.controller.firma.passarela.final.ok.statuserr"));
+								"document.controller.firma.passarela.final.ok.statuserr",
+								new Object[] {firmaStatus.getStatus(), firmaStatus.getErrorMsg()}));
 			}
 			break;
 		case StatusSignaturesSet.STATUS_FINAL_ERROR:
@@ -582,7 +674,10 @@ public class TascaTramitacioController extends BaseTascaController {
 					getMessage(
 							request, 
 							"document.controller.firma.passarela.final.error",
-							new Object[] {status.getErrorMsg()}));
+							new Object[] {
+									status.getErrorMsg() != null? status.getErrorMsg() : "",
+									status.getErrorException() != null? status.getErrorException().getMessage() : ""
+							}));
 			break;
 		case StatusSignaturesSet.STATUS_CANCELLED:
 			MissatgesHelper.warning(
@@ -636,79 +731,64 @@ public class TascaTramitacioController extends BaseTascaController {
 			HttpServletRequest request,
 			@PathVariable String tascaId,
 			@PathVariable Long documentId,
-			@RequestParam(value = "arxiu", required = false) final CommonsMultipartFile arxiu,	
+			@RequestParam(value = "arxiu", required = false) final CommonsMultipartFile arxiu,
+			@RequestParam(value = "ambFirma", required = false, defaultValue = "false") boolean ambFirma,
+			@RequestParam(value = "tipusFirma", required = false, defaultValue = "ADJUNT") DocumentTipusFirmaEnumDto tipusFirma,
+			@RequestParam(value = "firma", required = false) final CommonsMultipartFile firma,	
 			@RequestParam(value = "data", required = false) Date data,
 			Model model) {
 		try {
 			byte[] contingutArxiu = IOUtils.toByteArray(arxiu.getInputStream());
-			String nomArxiu = arxiu.getOriginalFilename();
-			ExpedientTascaDto tasca = tascaService.findAmbIdPerTramitacio(tascaId);
-			ExpedientDto expedient = expedientService.findAmbId(tasca.getExpedientId());
-			if (!tasca.isValidada()) {
-				MissatgesHelper.error(request, getMessage(request, "error.validar.dades"));
-			} else if (!expedientDocumentService.isExtensioPermesaPerTasca(
-					tascaId,
-					documentId,
-					nomArxiu)) {
-				MissatgesHelper.error(request, getMessage(request, "error.extensio.document"));
-			} else if (nomArxiu.isEmpty() || contingutArxiu.length == 0) {
-				MissatgesHelper.error(request, getMessage(request, "error.especificar.document"));
-			} else {
-				TascaDocumentDto doc = tascaService.findDocument(tascaId, documentId, expedient.getTipus().getId());
-				accioDocumentAdjuntar(
-						request,
-						tascaId,
-						doc.getDocumentCodi(),
-						nomArxiu,
-						contingutArxiu,
-						(data == null) ? new Date() : data);
+			String arxiuContentType = arxiu.getContentType();
+			byte[] firmaContingut = null;
+			if (firma != null && firma.getSize() > 0) {
+				firmaContingut = IOUtils.toByteArray(firma.getInputStream());
 			}
-		} catch (Exception ex) {
-			MissatgesHelper.error(request, getMessage(request, "error.guardar.document") + ": " + ex.getLocalizedMessage());
-			logger.error("Error al adjuntar el document a la tasca(" +
-					"tascaId=" + tascaId + ", " +
-					"documentId=" + documentId + ")",
-					ex);
-		}
-		return mostrarInformacioTascaPerPipelles(
-				request,
-				tascaId,
-				model,
-				"document");
-	}
+			String nomArxiu = arxiu.getOriginalFilename();
 
-	@RequestMapping(value = "/{tascaId}/{tascaId2}/document/{documentId}/adjuntar", method = RequestMethod.POST)
-	public String documentAdjuntar2(
-			HttpServletRequest request,
-			@PathVariable String tascaId,
-			@PathVariable String tascaId2,
-			@PathVariable Long documentId,
-			@RequestParam(value = "arxiu", required = false) final CommonsMultipartFile arxiu,	
-			@RequestParam(value = "data", required = false) Date data,
-			Model model) {
-		try {
-			byte[] contingutArxiu = IOUtils.toByteArray(arxiu.getInputStream());
-			String nomArxiu = arxiu.getOriginalFilename();
 			ExpedientTascaDto tasca = tascaService.findAmbIdPerTramitacio(tascaId);
 			ExpedientDto expedient = expedientService.findAmbId(tasca.getExpedientId());
+			// Validacions
+			boolean error = false;
 			if (!tasca.isValidada()) {
 				MissatgesHelper.error(request, getMessage(request, "error.validar.dades"));
-			} else if (!expedientDocumentService.isExtensioPermesaPerTasca(
+				error = true;
+			}
+			if (!expedientDocumentService.isExtensioPermesaPerTasca(
 					tascaId,
 					documentId,
 					nomArxiu)) {
 				MissatgesHelper.error(request, getMessage(request, "error.extensio.document"));
-			} else if (nomArxiu.isEmpty() || contingutArxiu.length == 0) {
+				error = true;
+			}
+			if (nomArxiu.isEmpty() || contingutArxiu.length == 0) {
 				MissatgesHelper.error(request, getMessage(request, "error.especificar.document"));
-			} else {
+				error = true;
+			} 
+			if (ambFirma 
+					&& DocumentTipusFirmaEnumDto.SEPARAT.equals(tipusFirma)
+					&& (firma == null || firma.isEmpty())) {
+				MissatgesHelper.error(request, getMessage(request, "error.especificar.document.firma"));
+				error = true;
+			} 
+			// Per evitar problemes amb el tancament del arxiu es valida que només es puguin pujar documents convertibles a pdf 
+			if(expedient.isArxiuActiu() && !PdfUtils.isArxiuConvertiblePdf(nomArxiu)) {
+				MissatgesHelper.error(request, getMessage(request, "document.validacio.convertible.error"));
+				error = true;
+			} 
+			if (!error) {
 				TascaDocumentDto doc = tascaService.findDocument(tascaId, documentId, expedient.getTipus().getId());
 				accioDocumentAdjuntar(
 						request,
 						tascaId,
 						doc.getDocumentCodi(),
+						(data == null) ? new Date() : data,
 						nomArxiu,
 						contingutArxiu,
-						(data == null) ? new Date() : data).toString();
+						arxiuContentType,
+						ambFirma,
+						tipusFirma,
+						firmaContingut);
 			}
 		} catch (Exception ex) {
 			MissatgesHelper.error(request, getMessage(request, "error.guardar.document") + ": " + ex.getLocalizedMessage());
@@ -721,7 +801,8 @@ public class TascaTramitacioController extends BaseTascaController {
 				request,
 				tascaId,
 				model,
-				"document");
+				"document",
+				null);
 	}
 
 	@RequestMapping(value = "/{tascaId}/document/{documentCodi}/generar", method = RequestMethod.GET)
@@ -762,7 +843,8 @@ public class TascaTramitacioController extends BaseTascaController {
 				request,
 				tascaId,
 				model,
-				"document");
+				"document",
+				null);
 	}
 
 	@RequestMapping(value = "/{tascaId}/document/{documentCodi}/descarregar", method = RequestMethod.GET)
@@ -813,7 +895,8 @@ public class TascaTramitacioController extends BaseTascaController {
 				request,
 				tascaId,
 				model,
-				"document");
+				"document",
+				null);
 	}
 
 	@RequestMapping(value = "/{tascaId}/signarAmbToken", method = RequestMethod.POST)
@@ -856,7 +939,8 @@ public class TascaTramitacioController extends BaseTascaController {
 				request,
 				tascaId,
 				model,
-				"signatura");
+				"signatura",
+				null);
 	}
 
 	@RequestMapping(value = "/{tascaId}/formExtern", method = RequestMethod.GET)
@@ -944,12 +1028,11 @@ public class TascaTramitacioController extends BaseTascaController {
 				new ObjectTypeEditorHelper());
 	}
 
-
-
 	private void emplenarModelFormulari(
 			HttpServletRequest request,
 			String tascaId,
-			Model model) {		
+			Model model,
+			Map<String, Object> valorsFormulariExtern) {		
 		ExpedientTascaDto tasca = tascaService.findAmbIdPerTramitacio(tascaId);
 		model.addAttribute("tasca", tasca);
 		List<TascaDadaDto> dades = tascaService.findDades(tascaId);
@@ -985,7 +1068,7 @@ public class TascaTramitacioController extends BaseTascaController {
 		List<ParellaCodiValorDto> listTerminis = new ArrayList<ParellaCodiValorDto>();
 		for (int i = 0; i <= 12 ; i++)		
 			listTerminis.add(new ParellaCodiValorDto(String.valueOf(i), i));
-		model.addAttribute("listTerminis", listTerminis);	
+		model.addAttribute("listTerminis", listTerminis);
 		
 		Object tascaFormCommand = SessionHelper.getAttribute(request,VARIABLE_COMMAND_TRAMITACIO+tascaId);
 		SessionHelper.removeAttribute(request,VARIABLE_COMMAND_TRAMITACIO+tascaId);		
@@ -993,7 +1076,8 @@ public class TascaTramitacioController extends BaseTascaController {
 			tascaFormCommand = inicialitzarTascaFormCommand(
 					request,
 					tascaId,
-					model);
+					model,
+					valorsFormulariExtern);
 		} else {
 			Object bindingResult = SessionHelper.getAttribute(request,VARIABLE_COMMAND_BINDING_RESULT_TRAMITACIO+tascaId);
 			SessionHelper.removeAttribute(request,VARIABLE_COMMAND_BINDING_RESULT_TRAMITACIO+tascaId);
@@ -1010,12 +1094,14 @@ public class TascaTramitacioController extends BaseTascaController {
 	private Object inicialitzarTascaFormCommand(
 			HttpServletRequest request,
 			String tascaId,
-			Model model) {
+			Model model,
+			Map<String, Object> valorsFormulariExtern) {
 		Map<String, Object> campsAddicionals = new HashMap<String, Object>();
 		Map<String, Class<?>> campsAddicionalsClasses = new HashMap<String, Class<?>>();
+		
 		return TascaFormHelper.getCommandForCamps(
 				tascaService.findDades(tascaId),
-				null,
+				valorsFormulariExtern,
 				campsAddicionals,
 				campsAddicionalsClasses,
 				false);
@@ -1424,16 +1510,20 @@ public class TascaTramitacioController extends BaseTascaController {
 			HttpServletRequest request,
 			String tascaId,
 			String documentCodi,
+			Date data,
 			String nomArxiu,
-			byte[] contingutArxiu,
-			Date data) {
+			byte[] contingutArxiu, 
+			String arxiuContentType, 
+			boolean ambFirma, 
+			DocumentTipusFirmaEnumDto tipusFirma, 
+			byte[] firmaContingut) {
 		Long documentStoreId = null;
 		EntornDto entorn = SessionHelper.getSessionManager(request).getEntornActual();
 		Map<String, Object> datosTramitacionMasiva = getDatosTramitacionMasiva(request);
-		if (datosTramitacionMasiva != null) {
-			try {				
-				String[] tascaIds = (String[]) datosTramitacionMasiva.get("tasquesTramitar");
-				// Guardamos el documento de la primera tarea
+		boolean firmaSeparada = DocumentTipusFirmaEnumDto.SEPARAT.equals(tipusFirma);
+		if (datosTramitacionMasiva == null) {
+			// Guarda el document per la tasca
+			try {
 				documentStoreId = tascaService.guardarDocumentTasca(
 						entorn.getId(),
 						tascaId,
@@ -1441,7 +1531,26 @@ public class TascaTramitacioController extends BaseTascaController {
 						(data == null) ? new Date() : data,
 						nomArxiu,
 						contingutArxiu,
+						arxiuContentType,
+						ambFirma,
+						firmaSeparada,
+						firmaContingut,
 						null);
+				MissatgesHelper.success(request, getMessage(request, "info.document.adjuntat"));
+			} catch (Exception ex) {
+				String descripcioTasca = getDescripcioTascaPerMissatgeUsuari(tascaId);
+				MissatgesHelper.error(
+	        			request,
+	        			getMessage(request, "error.guardar.document") + " " + descripcioTasca + ": " + 
+	        					(ex.getCause() != null ? ex.getCause().getMessage() : ex.getMessage()));
+				logger.error("No s'ha pogut guardar el document " + tascaId, ex);
+			}
+
+		} else {
+			// Programa l'execució massiva
+			try
+			{				
+				String[] tascaIds = (String[]) datosTramitacionMasiva.get("tasquesTramitar");
 //				Authentication auth = SecurityContextHolder.getContext().getAuthentication();				
 				ExecucioMassivaDto dto = new ExecucioMassivaDto();
 				dto.setDataInici((Date) datosTramitacionMasiva.get("inici"));
@@ -1450,12 +1559,16 @@ public class TascaTramitacioController extends BaseTascaController {
 				dto.setExpedientTipusId(null);
 				dto.setTipus(ExecucioMassivaTipusDto.EXECUTAR_TASCA);
 				dto.setParam1("DocGuardar");
-				Object[] params = new Object[5];
+				Object[] params = new Object[9];
 				params[0] = entorn.getId();				
 				params[1] = documentCodi;
 				params[2] = (data == null) ? (data == null) ? new Date() : data : data;
 				params[3] = contingutArxiu;
 				params[4] = nomArxiu;
+				params[5] = arxiuContentType;
+				params[6] = ambFirma;
+				params[7] = firmaSeparada;
+				params[8] = firmaContingut;
 //				params[5] = auth.getCredentials();
 //				List<String> rols = new ArrayList<String>();
 //				for (GrantedAuthority gauth : auth.getAuthorities()) {
@@ -1468,25 +1581,6 @@ public class TascaTramitacioController extends BaseTascaController {
 			} catch (Exception ex) {
 				MissatgesHelper.error(request, getMessage(request, "error.no.massiu"));
 				logger.error("No s'ha pogut guardar les dades del formulari massiu en la tasca " + tascaId, ex);
-			}
-		} else {
-			try {
-				documentStoreId = tascaService.guardarDocumentTasca(
-					entorn.getId(),
-					tascaId,
-					documentCodi,
-					data,
-					nomArxiu,
-					contingutArxiu,
-					null);
-				MissatgesHelper.success(request, getMessage(request, "info.document.adjuntat"));
-			} catch (Exception ex) {
-				String descripcioTasca = getDescripcioTascaPerMissatgeUsuari(tascaId);
-				MissatgesHelper.error(
-	        			request,
-	        			getMessage(request, "error.guardar.document") + " " + descripcioTasca + ": " + 
-	        					(ex.getCause() != null ? ex.getCause().getMessage() : ex.getMessage()));
-				logger.error("No s'ha pogut guardar el document " + tascaId, ex);
 			}
 		}
 		return documentStoreId;

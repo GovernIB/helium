@@ -39,11 +39,13 @@ public class ExpedientTipusDto extends ControlPermisosDto implements Serializabl
 	private boolean ambInfoPropia;
 	private boolean heretable;
 	private Long expedientTipusPareId;
+	private boolean ambHerencia;
 	private String diesNoLaborables;
 	private boolean notificacionsActivades;
 	private String notificacioOrganCodi;
 	private String notificacioOficinaCodi;
 	private String notificacioUnitatAdministrativa;
+	private String notibSeuCodiProcediment;
 	private String notificacioCodiProcediment;
 	private String notificacioAvisTitol;
 	private String notificacioAvisText;
@@ -72,6 +74,19 @@ public class ExpedientTipusDto extends ControlPermisosDto implements Serializabl
 	private String ntiSerieDocumental;
 
 	private boolean arxiuActiu;
+	
+	// Integració NOTIB
+	private Boolean notibActiu;
+	private String notibSeuUnitatAdministrativa;
+	private String notibSeuOficina;
+	private String notibSeuLlibre;
+	private String notibSeuOrgan;
+	private String notibSeuIdioma;
+	private String notibAvisTitol;
+	private String notibAvisText;
+	private String notibAvisTextSms;
+	private String notibOficiTitol;
+	private String notibOficiText;
 
 
 
@@ -206,6 +221,12 @@ public class ExpedientTipusDto extends ControlPermisosDto implements Serializabl
 	}
 	public void setExpedientTipusPareId(Long expedientTipusPareId) {
 		this.expedientTipusPareId = expedientTipusPareId;
+	}
+	public boolean isAmbHerencia() {
+		return ambHerencia;
+	}
+	public void setAmbHerencia(boolean ambHerencia) {
+		this.ambHerencia = ambHerencia;
 	}
 	public String getDiesNoLaborables() {
 		return diesNoLaborables;
@@ -374,6 +395,79 @@ public class ExpedientTipusDto extends ControlPermisosDto implements Serializabl
 		this.arxiuActiu = arxiuActiu;
 	}
 
+	public Boolean getNotibActiu() {
+		return notibActiu;
+	}
+	public void setNotibActiu(Boolean notibActiu) {
+		this.notibActiu = notibActiu;
+	}
+	public String getNotibSeuUnitatAdministrativa() {
+		return notibSeuUnitatAdministrativa;
+	}
+	public void setNotibSeuUnitatAdministrativa(String notibSeuUnitatAdministrativa) {
+		this.notibSeuUnitatAdministrativa = notibSeuUnitatAdministrativa;
+	}
+	public String getNotibSeuCodiProcediment() {
+		return notibSeuCodiProcediment;
+	}
+	public void setNotibSeuCodiProcediment(String notibSeuCodiProcediment) {
+		this.notibSeuCodiProcediment = notibSeuCodiProcediment;
+	}
+	public String getNotibSeuOficina() {
+		return notibSeuOficina;
+	}
+	public void setNotibSeuOficina(String notibSeuOficina) {
+		this.notibSeuOficina = notibSeuOficina;
+	}
+	public String getNotibSeuLlibre() {
+		return notibSeuLlibre;
+	}
+	public void setNotibSeuLlibre(String notibSeuLlibre) {
+		this.notibSeuLlibre = notibSeuLlibre;
+	}
+	public String getNotibSeuOrgan() {
+		return notibSeuOrgan;
+	}
+	public void setNotibSeuOrgan(String notibSeuOrgan) {
+		this.notibSeuOrgan = notibSeuOrgan;
+	}
+	public String getNotibSeuIdioma() {
+		return notibSeuIdioma;
+	}
+	public void setNotibSeuIdioma(String notibSeuIdioma) {
+		this.notibSeuIdioma = notibSeuIdioma;
+	}
+	public String getNotibAvisTitol() {
+		return notibAvisTitol;
+	}
+	public void setNotibAvisTitol(String notibAvisTitol) {
+		this.notibAvisTitol = notibAvisTitol;
+	}
+	public String getNotibAvisText() {
+		return notibAvisText;
+	}
+	public void setNotibAvisText(String notibAvisText) {
+		this.notibAvisText = notibAvisText;
+	}
+	public String getNotibAvisTextSms() {
+		return notibAvisTextSms;
+	}
+	public void setNotibAvisTextSms(String notibAvisTextSms) {
+		this.notibAvisTextSms = notibAvisTextSms;
+	}
+	public String getNotibOficiTitol() {
+		return notibOficiTitol;
+	}
+	public void setNotibOficiTitol(String notibOficiTitol) {
+		this.notibOficiTitol = notibOficiTitol;
+	}
+	public String getNotibOficiText() {
+		return notibOficiText;
+	}
+	public void setNotibOficiText(String notibOficiText) {
+		this.notibOficiText = notibOficiText;
+	}
+	
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;

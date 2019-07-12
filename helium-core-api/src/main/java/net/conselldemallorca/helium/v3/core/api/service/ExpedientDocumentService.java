@@ -8,11 +8,17 @@ import java.util.List;
 
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDetallDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ArxiuFirmaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DadesEnviamentDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DadesNotificacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDocumentDto;
+import net.conselldemallorca.helium.v3.core.api.dto.NotificacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NtiEstadoElaboracionEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NtiOrigenEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NtiTipoDocumentalEnumDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PortasignaturesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RespostaValidacioSignaturaDto;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
@@ -35,13 +41,18 @@ public interface ExpedientDocumentService {
 	 * @param processInstanceId
 	 *             atribut id de la instància de procés.
 	 * @param documentCodi
-	 *             codi de document dins el disseny de l'expedient.
+	 *             codi de document dins el disseny de l'expedient. Si aquest paràmetre no està informat llavors es tractarà 
+	 *             el document com un adjunt i s'aprofitarà el títol pel nou document i es tractarà com a tal.
 	 * @param data
 	 *             data del document.
+	 * @param adjuntTitol
+	 *             Títol per l'adjunt en el cas que no s'informi del codi del document.
 	 * @param arxiuNom
 	 *             nom d'arxiu del document.
 	 * @param arxiuContingut
 	 *             contingut de l'arxiu del document.
+	 * @param arxiuContentType
+	 *             ContentType de l'arxiu.
 	 * @param ntiOrigen
 	 *             orígen NTI.
 	 * @param ntiEstadoElaboracion
@@ -57,8 +68,13 @@ public interface ExpedientDocumentService {
 			String processInstanceId,
 			String documentCodi,
 			Date data,
+			String adjuntTitol,
 			String arxiuNom,
 			byte[] arxiuContingut,
+			String arxiuContentType,
+			boolean ambFirma,
+			boolean firmaSeparada,
+			byte[] firmaContingut,
 			NtiOrigenEnumDto ntiOrigen,
 			NtiEstadoElaboracionEnumDto ntiEstadoElaboracion,
 			NtiTipoDocumentalEnumDto ntiTipoDocumental,
@@ -75,10 +91,14 @@ public interface ExpedientDocumentService {
 	 *             identificador del document a modificar.
 	 * @param data
 	 *             data del document.
+	 * @param adjuntTitol
+	 *             Títol per l'adjunt en cas que sigui un adjunt.
 	 * @param arxiuNom
 	 *             nom d'arxiu del document.
 	 * @param arxiuContingut
 	 *             contingut de l'arxiu del document.
+	 * @param arxiuContentType
+	 *             ContentType de l'arxiu.
 	 * @param ntiOrigen
 	 *             orígen NTI.
 	 * @param ntiEstadoElaboracion
@@ -94,135 +114,17 @@ public interface ExpedientDocumentService {
 			String processInstanceId,
 			Long documentStoreId,
 			Date data,
-			String arxiuNom,
-			byte[] arxiuContingut,
-			NtiOrigenEnumDto ntiOrigen,
-			NtiEstadoElaboracionEnumDto ntiEstadoElaboracion,
-			NtiTipoDocumentalEnumDto ntiTipoDocumental,
-			String ntiIdOrigen) throws NoTrobatException;
-
-	/**
-	 * Crea un nou document adjunt a dins la instància de procés.
-	 * 
-	 * @param expedientId
-	 *             atribut id de l'expedient.
-	 * @param processInstanceId
-	 *             atribut id de la instància de procés.
-	 * @param data
-	 *             data del document.
-	 * @param adjuntTitol
-	 *             títol del document adjunt.
-	 * @param arxiuNom
-	 *             nom d'arxiu del document.
-	 * @param arxiuContingut
-	 *             contingut de l'arxiu del document.
-	 * @param ntiOrigen
-	 *             orígen NTI.
-	 * @param ntiEstadoElaboracion
-	 *             estat d'elaboració NTI.
-	 * @param ntiTipoDocumental
-	 *             tipus de document NTI.
-	 * @param ntiIdOrigen
-	 *             identificador NTI Del document original.
-	 * @throws NoTrobatException
-	 */
-	public void createAdjunt(
-			Long expedientId,
-			String processInstanceId,
-			Date data,
 			String adjuntTitol,
 			String arxiuNom,
 			byte[] arxiuContingut,
+			String arxiuContentType,
+			boolean ambFirma,
+			boolean firmaSeparada,
+			byte[] firmaContingut,
 			NtiOrigenEnumDto ntiOrigen,
 			NtiEstadoElaboracionEnumDto ntiEstadoElaboracion,
 			NtiTipoDocumentalEnumDto ntiTipoDocumental,
 			String ntiIdOrigen) throws NoTrobatException;
-
-	/**
-	 * Modifica un document adjunt de la instància de procés.
-	 * 
-	 * @param expedientId
-	 *             atribut id de l'expedient.
-	 * @param processInstanceId
-	 *             atribut id de la instància de procés.
-	 * @param documentStoreId
-	 *             identificador del document a modificar.
-	 * @param data
-	 *             data del document.
-	 * @param adjuntTitol
-	 *             títol del document adjunt.
-	 * @param arxiuNom
-	 *             nom d'arxiu del document.
-	 * @param arxiuContingut
-	 *             contingut de l'arxiu del document.
-	 * @param ntiOrigen
-	 *             orígen NTI.
-	 * @param ntiEstadoElaboracion
-	 *             estat d'elaboració NTI.
-	 * @param ntiTipoDocumental
-	 *             tipus de document NTI.
-	 * @param ntiIdOrigen
-	 *             identificador NTI Del document original.
-	 * @throws NoTrobatException
-	 */
-	public void updateAdjunt(
-			Long expedientId,
-			String processInstanceId,
-			Long documentStoreId,
-			Date data,
-			String adjuntTitol,
-			String arxiuNom,
-			byte[] arxiuContingut,
-			NtiOrigenEnumDto ntiOrigen,
-			NtiEstadoElaboracionEnumDto ntiEstadoElaboracion,
-			NtiTipoDocumentalEnumDto ntiTipoDocumental,
-			String ntiIdOrigen) throws NoTrobatException;
-
-	/**
-	 * Crea o modifica un document de la instància de procés.
-	 * 
-	 * @param expedientId
-	 *             atribut id de l'expedient.
-	 * @param processInstanceId
-	 *             atribut id de la instància de procés.
-	 * @param documentId
-	 *             atribut id del document.
-	 * @param documentStoreId
-	 *             atribut id del document emmagatzemat.
-	 * @param titol
-	 *             títol del document.
-	 * @param arxiuNom
-	 *             nom d'arxiu del document.
-	 * @param arxiuContingut
-	 *             contingut de l'arxiu del document.
-	 * @param data
-	 *             data del document.
-	 * @param ntiOrigen
-	 *             orígen NTI.
-	 * @param ntiEstadoElaboracion
-	 *             estat d'elaboració NTI.
-	 * @param ntiTipoDocumental
-	 *             tipus de document NTI.
-	 * @param ntiIdOrigen
-	 *             identificador NTI Del document original.
-	 * @throws NoTrobatException
-	 *             Si no s'ha trobat l'element amb l'id especificat.
-	 * @throws PermisDenegatException
-	 *             Si no es tenen els permisos requerits per aquesta acció.
-	 */
-	/*public void createOrUpdatea(
-			Long expedientId,
-			String processInstanceId,
-			Long documentId,
-			Long documentStoreId,
-			String titol,
-			String arxiuNom,
-			byte[] arxiuContingut,
-			Date data,
-			NtiOrigenEnumDto ntiOrigen,
-			NtiEstadoElaboracionEnumDto ntiEstadoElaboracion,
-			NtiTipoDocumentalEnumDto ntiTipoDocumental,
-			String ntiIdOrigen) throws NoTrobatException, PermisDenegatException;*/
 
 	/**
 	 * Esborra un document d'una instància de procés.
@@ -449,5 +351,33 @@ public interface ExpedientDocumentService {
 			Long expedientId,
 			String processInstanceId,
 			Long documentStoreId);
+	
+	public void notificacioActualitzarEstat(
+			String identificador, 
+			String referenciaEnviament);
+
+	public void notificarDocument(
+			Long expedientId, 
+			Long documentStoreId, 
+			DadesNotificacioDto dadesNotificacioDto, 
+			List<Long> interessatsIds,
+			DadesEnviamentDto dadesEnviamentDto);
+
+	public PaginaDto<NotificacioDto> findNotificacionsPerDatatable(
+			String filtre, 
+			PaginacioParamsDto paginacioParams);
+
+	/** Mètode per obtenir una firma en concret d'un arxiu
+	 * 
+	 * @param expedientId
+	 * @param documentStoreId
+	 * @param firmaIndex
+	 * @return
+	 */
+	public ArxiuFirmaDto getArxiuFirma(
+			Long expedientId, 
+			Long documentStoreId, 
+			int firmaIndex);
+
 
 }

@@ -19,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.propertyeditors.StringTrimmerEditor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.WebDataBinder;
@@ -30,6 +31,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
+import net.conselldemallorca.helium.core.model.hibernate.Camp;
+import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
+import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.util.ExpedientCamps;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
@@ -43,6 +47,9 @@ import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
+import net.conselldemallorca.helium.v3.core.api.service.DissenyService;
+import net.conselldemallorca.helium.v3.core.repository.CampRepository;
+import net.conselldemallorca.helium.v3.core.repository.DefinicioProcesRepository;
 import net.conselldemallorca.helium.webapp.mvc.ArxiuView;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientTipusConsultaCommand;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientTipusConsultaParamCommand;
@@ -65,6 +72,15 @@ public class ExpedientTipusConsultaController extends BaseExpedientTipusControll
 
 	@Autowired
 	private ConversioTipusHelper conversioTipusHelper;
+	@Autowired
+	private DissenyService dissenyService;
+	@Autowired
+	private CampRepository campRepository;
+	@Autowired
+	private DefinicioProcesRepository definicioProcesRepository;
+	
+	
+	
 
 	@RequestMapping(value = "/{expedientTipusId}/consultes")
 	public String consultes(
@@ -300,6 +316,141 @@ public class ExpedientTipusConsultaController extends BaseExpedientTipusControll
 			Model model) {
 		
 		return this.variables(request, expedientTipusId, consultaId, model, TipusConsultaCamp.INFORME, null);
+	}
+	
+	@RequestMapping(value = "/{expedientTipusId}/consulta/reportDownload")
+	public String downloadAction(
+			HttpServletRequest request,
+			@RequestParam(value = "consultaId", required = true) Long consultaId,
+			ModelMap model) {
+		try {
+			ConsultaDto consulta = dissenyService.getConsultaById(consultaId);
+			List<ConsultaCampDto> consultaCamps = dissenyService.findCampsInformePerCampsConsulta(
+					consulta,
+					false);
+			List<Camp> camps = new ArrayList<Camp>();
+					
+			ExpedientTipus expedientTipus = new ExpedientTipus(); 
+			expedientTipus.setId(consulta.getExpedientTipus().getId());
+			
+			for(ConsultaCampDto consultaCamp: consultaCamps) {
+				if(consultaCamp.getDefprocJbpmKey() != null) {
+					DefinicioProces dp = definicioProcesRepository.findByJbpmKeyAndVersio(consultaCamp.getDefprocJbpmKey(), consultaCamp.getDefprocVersio());
+					Camp camp = campRepository.findByDefinicioProcesAndCodi(dp, consultaCamp.getCampCodi());
+					if(camp != null) {
+						camp.setExpedientTipus(expedientTipus);
+						camps.add(camp);	
+					} else {
+						logger.info("No s'ha trobat el camp amb el codi = [" + consultaCamp.getCampCodi() + "] i la definició de procés amb l'id = [" + dp.getId() + "]");
+					}
+				}else {
+					Camp camp = campRepository.findByExpedientTipusAndCodi(expedientTipus.getId(), consultaCamp.getCampCodi(), expedientTipus.getExpedientTipusPare() != null);
+					if(camp != null) {
+						camp.setExpedientTipus(expedientTipus);
+						camps.add(camp);	
+					} else {
+						logger.info("No s'ha trobat el camp amb el codi = [" + consultaCamp.getCampCodi() + "] i el tipus d'expedient amb l'id = [" + expedientTipus.getId() + "]");
+					}
+				}
+			}
+					
+			
+//			List<Camp> camps = conversioTipusHelper.convertirList(dissenyService.findCampsPerCampsConsulta(consulta, false), Camp.class);
+			/*List<ConsultaCamp> campsConsulta = dissenyService.findCampsConsulta(consultaId, tipus);
+			List<String> fieldNames = new ArrayList<String>();
+			for (ConsultaCamp camp: campsConsulta) {
+				String definicioProces = camp.getDefprocJbpmKey();
+				String codiVariable = camp.getCampCodi();
+				if (definicioProces!=null && codiVariable!=null)
+					fieldNames.add(definicioProces + "/"+ codiVariable);
+				else if (codiVariable!=null)
+					fieldNames.add(codiVariable);
+			}*/
+			String jasperReport = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + 
+							"<jasperReport xmlns=\"http://jasperreports.sourceforge.net/jasperreports\" " + 
+								"xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" " + 
+								"xsi:schemaLocation=\"http://jasperreports.sourceforge.net/jasperreports " + 
+								"http://jasperreports.sourceforge.net/xsd/jasperreport.xsd\" " + 
+								"name=\"report_basic\" language=\"groovy\" pageWidth=\"842\" pageHeight=\"595\" " + 
+								"orientation=\"Landscape\" columnWidth=\"802\" leftMargin=\"20\" " +
+								"rightMargin=\"20\" topMargin=\"20\" bottomMargin=\"20\">" +
+								"\n<property name=\"ireport.zoom\" value=\"1.0\"/>" +
+								"\n<property name=\"ireport.x\" value=\"0\"/>" +
+								"\n<property name=\"ireport.y\" value=\"0\"/>";
+			for (Camp camp: camps) {
+				jasperReport = jasperReport + "\n<field name=\"" + camp.getCodiPerInforme() +"\" class=\"net.conselldemallorca.helium.report.FieldValue\"/>";	
+			}
+			jasperReport = jasperReport + 
+				"\n<title>" +
+					"\n<band height=\"30\" splitType=\"Stretch\">" +
+						"\n<staticText>" +
+							"\n<reportElement x=\"0\" y=\"0\" width=\"750\" height=\"26\"/>" +
+							"\n<textElement>" +
+								"\n<font size=\"18\" isBold=\"true\"/>" +
+							"\n</textElement>" +
+							"\n<text>" + consulta.getNom() +"</text>" +
+						"\n</staticText>" +
+					"\n</band>" +
+				"\n</title>" +
+				"\n<pageHeader>" +
+					"\n<band height=\"30\" splitType=\"Stretch\"/> " +
+				"\n</pageHeader>" +
+				"\n<columnHeader>" +
+					"\n<band height=\"25\" splitType=\"Stretch\">";
+			int widthField = 0;
+			if (camps.size()>0) widthField = 800/camps.size();
+			int xPosition = 0;
+			for (Camp camp: camps) {
+				jasperReport = jasperReport + 
+						"\n<staticText>" + 
+							"\n<reportElement x=\""+xPosition+"\" y=\"2\" width=\""+widthField+"\" height=\"20\"/>" +
+							"\n<textElement/>" +
+							"\n<text><![CDATA[" + camp.getEtiqueta() + "]]></text>" +
+						"\n</staticText>";
+				xPosition = xPosition + widthField;
+			}
+			
+			jasperReport = jasperReport +
+						"\n</band>" +
+					"\n</columnHeader>" +
+					"\n<detail>" +
+						"\n<band height=\"24\" splitType=\"Stretch\">";
+			
+			xPosition = 0;
+			for (Camp camp: camps) {
+				jasperReport = jasperReport + 		
+					"\n<textField>" +
+						"\n<reportElement x=\""+xPosition+"\" y=\"4\" width=\""+widthField+"\" height=\"20\"/>" +
+						"\n<textElement/>" +
+						"\n<textFieldExpression><![CDATA[$F{"+camp.getCodiPerInforme()+"}]]></textFieldExpression>" +
+					"\n</textField>";
+				xPosition = xPosition + widthField;
+			}
+			jasperReport=jasperReport +
+					"\n</band>" +
+				"\n</detail>" +
+				"\n<columnFooter>" +
+					"\n<band height=\"25\" splitType=\"Stretch\"/>" +
+				"\n</columnFooter>" +
+				"\n<pageFooter>" +
+					"\n<band height=\"30\" splitType=\"Stretch\"/>" +
+				"\n</pageFooter>" +
+			 "\n</jasperReport>";
+			
+			String nomInforme = consulta.getInformeNom();
+			if (nomInforme==null) nomInforme = "report_"+consulta.getCodi()+".jrxml";
+			byte[] byteArray = jasperReport.getBytes();
+			model.addAttribute(
+					ArxiuView.MODEL_ATTRIBUTE_FILENAME,
+					nomInforme);
+			model.addAttribute(
+					ArxiuView.MODEL_ATTRIBUTE_DATA,
+					byteArray);
+			return "arxiuView";
+		} catch (Exception e) {
+			logger.error(e);
+			return "redirect:/consulta/llistat.html";
+		}
 	}
 	
 	/** Mètode privat comú per veure els camps de la consulta per tipus. */

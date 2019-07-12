@@ -13,6 +13,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.AreaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CarrecDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DadesNotificacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentDissenyDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
@@ -24,6 +25,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDadaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.FestiuDto;
+import net.conselldemallorca.helium.v3.core.api.dto.InteressatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NotificacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ReassignacioDto;
@@ -32,6 +34,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.RegistreIdDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RegistreNotificacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RespostaJustificantDetallRecepcioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RespostaJustificantRecepcioDto;
+import net.conselldemallorca.helium.v3.core.api.dto.RespostaNotificacio;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TerminiDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TerminiIniciatDto;
@@ -829,6 +832,8 @@ public interface Jbpm3HeliumService {
 
 	public RespostaJustificantDetallRecepcioDto notificacioElectronicaJustificantDetall(
 			String registreNumero) throws Exception;
+	
+	public RespostaNotificacio altaNotificacio(DadesNotificacioDto notificacio) throws SistemaExternException, NoTrobatException;
 
 	/**
 	 * 
@@ -1083,6 +1088,14 @@ public interface Jbpm3HeliumService {
 	 * @throws Exception
 	 */
 	public void desfinalitzarExpedient(String processInstanceId) throws Exception;
+	
+	/**
+	 * Finalitzar un expedient
+	 * 
+	 * @param processInstanceId
+	 * @throws Exception
+	 */
+	public void finalitzarExpedient(String processInstanceId) throws Exception;
 
 	/**
 	 * Retorna una referència al registre de mètriques
@@ -1138,5 +1151,11 @@ public interface Jbpm3HeliumService {
 	 */
 	public void afegirInstanciaProcesPerVerificarFinalitzacio(
 			String processInstanceId);
+
+	public void interessatCrear(InteressatDto interessat);
+
+	void interessatModificar(InteressatDto interessat);
+
+	void interessatEliminar(InteressatDto interessat);
 
 }

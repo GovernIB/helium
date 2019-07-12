@@ -14,6 +14,7 @@ import org.springframework.data.repository.query.Param;
 
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusEstadisticaDto;
 
 /**
  * Especifica els mètodes que s'han d'emprar per obtenir i modificar la
@@ -38,17 +39,6 @@ public interface ExpedientTipusRepository extends JpaRepository<ExpedientTipus, 
 
 	ExpedientTipus findById(Long expedientTipusId);
 
-	/*Entitat findByCif(String cif);
-
-	@Query(	"select " +
-			"    eu " +
-			"from " +
-			"    EntitatUsuari eu " +
-			"where " +
-			"    eu.entitat.id = ?1 " +
-			"and eu.usuari.nif = ?2")
-	EntitatUsuari findUsuariAmbNif(Long id, String nif);*/
-	
 	@Query(	"from ExpedientTipus e " +
 			"where " +
 			"    e.entorn = :entorn " +
@@ -70,5 +60,34 @@ public interface ExpedientTipusRepository extends JpaRepository<ExpedientTipus, 
 	
 	List<ExpedientTipus> findByExpedientTipusPareIdOrderByCodiAsc(Long expedientTipusPareId);
 
-
+    @Query(    " select new net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusEstadisticaDto( "
+            + "     et.id, "
+            + "     et.codi, "
+            + "     et.nom, "
+            + "     count(*), "
+            + "     to_char(e.dataInici, 'YYYY'))"
+            + "    	from Expedient e "
+            + "        inner join e.tipus as et  "
+            + "    	where "
+            + "     	et.entorn = :entorn"
+            + "    		and (:isNullExpedientTipus = true or et = :expedientTipus)"
+            + "			and (:isNullAnulat = true or e.anulat = :anulat) "
+			+ "			and (:isNullDataIniciFinal = true or year(e.dataInici) <= :anyFinal) "
+			+ "			and (:isNullDataIniciInicial = true or year(e.dataInici) >= :anyInicial) "
+            + " group by "
+            + "        et.id, "
+            + "        et.codi, "
+            + "        et.nom, "
+            + "        to_char(e.dataInici, 'YYYY')")
+    List<ExpedientTipusEstadisticaDto> findEstadisticaByFiltre(
+            @Param("isNullDataIniciInicial") boolean isNullDataIniciInicial,
+            @Param("anyInicial") Integer anyInicial,
+            @Param("isNullDataIniciFinal") boolean isNullDataIniciFinal,
+            @Param("anyFinal") Integer anyFinal,
+            @Param("entorn") Entorn entorn,
+            @Param("isNullExpedientTipus") boolean isNullExpedientTipus,
+            @Param("expedientTipus") ExpedientTipus expedientTipus,
+            @Param("isNullAnulat") boolean isNullAnulat,
+            @Param("anulat") Boolean anulat
+            );
 }

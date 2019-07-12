@@ -36,6 +36,7 @@ import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer;
 
 import net.conselldemallorca.helium.core.common.ThreadLocalInfo;
+import net.conselldemallorca.helium.core.helper.ConversioTipusHelper;
 import net.conselldemallorca.helium.core.helper.DocumentHelperV3;
 import net.conselldemallorca.helium.core.helper.EntornHelper;
 import net.conselldemallorca.helium.core.helper.ExpedientHelper;
@@ -89,6 +90,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
 import net.conselldemallorca.helium.v3.core.api.dto.SeleccioOpcioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDocumentDto;
+import net.conselldemallorca.helium.v3.core.api.dto.TascaDto;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.exception.SistemaExternException;
 import net.conselldemallorca.helium.v3.core.api.exception.TramitacioException;
@@ -173,7 +175,8 @@ public class TascaServiceImpl implements TascaService {
 	private ExpedientLoggerHelper expedientLoggerHelper;
 	@Resource
 	private HerenciaHelper herenciaHelper;
-	
+	@Resource
+	private ConversioTipusHelper conversioTipusHelper;
 	@Autowired
 	private TascaSegonPlaHelper tascaSegonPlaHelper;
 	@Autowired
@@ -739,7 +742,7 @@ public class TascaServiceImpl implements TascaService {
 			pidCalculat = task.getProcessInstanceId();
 		}
 		// Consulta els valors possibles
-		if (camp.getDomini() != null || camp.isDominiIntern()) {
+		if (camp.getDomini() != null || camp.getDominiIntern()) {
 			List<ParellaCodiValorDto> parellaCodiValorDto = variableHelper.getPossiblesValorsCamp(
 						camp,
 						registreCamp,
@@ -930,7 +933,23 @@ public class TascaServiceImpl implements TascaService {
 			Date documentData,
 			String arxiuNom,
 			byte[] arxiuContingut,
+			String arxiuContentType, 
+			boolean ambFirma,
+			boolean firmaSeparada,
+			byte[] firmaContingut,
 			String user) {
+		logger.debug("Crear document a dins la tasca (" +
+				"entornId=" + entornId + ", " +
+				"taskInstanceId=" + taskInstanceId + ", " +
+				"documentCodi=" + documentCodi + ", " +
+				"documentData=" + documentData + ", " +
+				"arxiuNom=" + arxiuNom + ", " +
+				"arxiuContingut=" + arxiuContingut + ", " +
+				"arxiuContentType=" + arxiuContentType + ", " +
+				"ambFirma=" + ambFirma + ", " +
+				"firmaSeparada=" + firmaSeparada + ", " +
+				"firmaContingut=" + firmaContingut + ", " +
+				"user=" + user + ")");
 		JbpmTask task = jbpmHelper.getTaskById(taskInstanceId);
 		DocumentStore documentStore = documentHelper.getDocumentStore(task, documentCodi);
 		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(task.getProcessInstanceId());
@@ -947,13 +966,17 @@ public class TascaServiceImpl implements TascaService {
 					documentCodi);
 		}
 		String arxiuNomAntic = (documentStore != null) ? documentStore.getArxiuNom() : null;
-		Long documentStoreId = documentHelper.crearOActualitzarDocument(
+		Long documentStoreId = documentHelper.crearActualitzarDocument(
 				taskInstanceId,
 				task.getProcessInstanceId(),
 				documentCodi,
 				documentData,
 				arxiuNom,
 				arxiuContingut,
+				arxiuContentType,
+				ambFirma,
+				firmaSeparada,
+				firmaContingut,
 				null,
 				null,
 				null,
@@ -1725,5 +1748,10 @@ public class TascaServiceImpl implements TascaService {
 	}
 
 	private static final Logger logger = LoggerFactory.getLogger(TascaServiceImpl.class);
+
+	@Override
+	public TascaDto findTascaById(Long id) {
+		return conversioTipusHelper.convertir(tascaRepository.findById(id), TascaDto.class);
+	}
 
 }

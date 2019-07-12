@@ -664,7 +664,7 @@ public class ExpedientDadaController extends BaseExpedientController {
 				// Esbrina la llista
 				if (dadesProces.containsKey(agrupacio)) { 
 					dades = dadesProces.get(agrupacio);
-				} else {
+				} else { //if agrupacio of current dada iteration changed or first dada iteration
 					dades = new ArrayList<ExpedientDadaDto>();
 					dadesProces.put(agrupacio, dades);
 				}

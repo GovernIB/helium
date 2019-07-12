@@ -216,6 +216,59 @@ form .btn-group > .btn-default:hover:HOVER {
 	margin-bottom: 0px;
 }
 
+/* Paddings i margins */
+/**************************/
+.p-0{
+	padding:0 !important;
+}
+.p-1{
+	padding:0.25rem !important;
+}
+.p-2{
+	padding:0.5rem !important;
+}
+
+.p-0{
+	padding:0 !important;
+}
+.p-1{
+	padding:0.25rem !important;
+}
+.p-2{
+	padding:0.5rem !important;
+}
+.pr-0{
+	padding-right:0 !important;
+}
+.pr-1{
+	padding-right:0.25rem !important;
+}
+.pr-2{
+	padding-right:0.5rem !important;
+}
+.pr-3{
+	padding-right:1rem !important;
+}
+.pl-0{
+	padding-left:0 !important;
+}
+.pl-1{
+	padding-left:0.25rem !important;
+}
+.pl-2{
+	padding-left:0.5rem !important;
+}
+.pl-3{
+	padding-left:1rem !important;
+}
+.pl-15{
+	padding-left:15px !important;
+}
+
+.pr-15{
+	padding-right:15px !important;
+}
+
 /* Per posar l'span de l'herència a la dreta flotant.*/
 span.herencia { 
 	float: right; 

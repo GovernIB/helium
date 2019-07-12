@@ -24,6 +24,7 @@
 
 	<bean id="tramitacioService" class="net.conselldemallorca.helium.ws.tramitacio.TramitacioServiceImpl"/>
 	<bean id="tramitacioV1" class="net.conselldemallorca.helium.ws.tramitacio.v1.TramitacioServiceImpl"/>
+	<bean id="portaFIBCallBackWsServiceV1" class="net.conselldemallorca.helium.ws.callbackportafib.PortaFIBCallBackWsImpl"/>
 	
 	<!-- Loggers for SOAP calls >
     <bean id="abstractLoggingInterceptor" class="org.apache.cxf.interceptor.AbstractLoggingInterceptor" abstract="true" />

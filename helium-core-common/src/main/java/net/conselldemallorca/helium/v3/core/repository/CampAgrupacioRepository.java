@@ -34,13 +34,13 @@ public interface CampAgrupacioRepository extends JpaRepository<CampAgrupacio, Lo
 			"where " +
 			"    (ca.expedientTipus.id=:expedientTipusId " +
 						// Heretats
-			"			or (:herencia = true " +
+			"			or (:ambHerencia = true " +
 			"					and ca.expedientTipus.id = (select etp.expedientTipusPare.id from ExpedientTipus etp where etp.id = :expedientTipusId) ) ) " +
 			"order by " +
 			"    ca.expedientTipus.id, ordre")
 	List<CampAgrupacio> findAmbExpedientTipusOrdenats(
 			@Param("expedientTipusId") Long expedientTipusId,
-			@Param("herencia") boolean herencia);
+			@Param("ambHerencia") boolean ambHerencia);
 
 	@Query("select ca from " +
 			"    CampAgrupacio ca " +

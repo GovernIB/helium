@@ -72,7 +72,7 @@ public class MassivaTascaReassignacioController extends BaseExpedientController 
 		}
 		if (massiva) {
 			model.addAttribute("inici", inici);
-			model.addAttribute("correu", correu);
+			model.addAttribute("enviarCorreu", correu);
 		}
 		model.addAttribute("massiva", massiva);		
 		model.addAttribute("reassignacioTasquesCommand", new ReassignacioTasquesCommand());
@@ -111,14 +111,16 @@ public class MassivaTascaReassignacioController extends BaseExpedientController 
 	public String accioReassignar(
 			HttpServletRequest request,
 			@RequestParam(value = "inici", required = false) String inici,
-			@RequestParam(value = "correu", required = false) boolean correu,
+			@RequestParam(value = "enviarCorreu", required = false) String enviarCorreu,
 			@RequestParam(value = "massiva", required = true) boolean massiva,
 			@ModelAttribute("reassignacioTasquesCommand") ReassignacioTasquesCommand reassignacioTasquesCommand,
 			BindingResult result, 
 			SessionStatus status, 
 			Model model) {	
+		inici = inici.replaceAll("undefined,", "");
+		
 		model.addAttribute("inici", inici);
-		model.addAttribute("correu", correu);
+		model.addAttribute("enviarCorreu", enviarCorreu);
 		model.addAttribute("massiva", massiva);		
 		
 		SessionManager sessionManager = SessionHelper.getSessionManager(request);
@@ -138,9 +140,10 @@ public class MassivaTascaReassignacioController extends BaseExpedientController 
 
 		Date dInici = new Date();
 		if (inici != null) {
-			SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm");
 			try {
-				dInici = sdf.parse(inici);
+				SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm");
+				Date d = sdf.parse(inici);
+				dInici = d;
 			} catch (ParseException e) {}
 		}
 
@@ -158,7 +161,7 @@ public class MassivaTascaReassignacioController extends BaseExpedientController 
 			
 			ExecucioMassivaDto dto = new ExecucioMassivaDto();
 			dto.setDataInici(dInici);
-			dto.setEnviarCorreu(correu);
+			dto.setEnviarCorreu(enviarCorreu != null);
 			Set<String> idsAsString = new HashSet<String>();
 			for (Long id: ids) {
 				idsAsString.add(id.toString());

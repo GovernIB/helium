@@ -119,7 +119,7 @@
 		<dependency>
 			<groupId>es.caib.portafib</groupId>
 			<artifactId>portafib-ws-api</artifactId>
-			<version>${portafib.version}</version>
+			<version>1.1</version>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.security</groupId>
@@ -244,6 +244,33 @@
 			<artifactId>helium-core-common</artifactId>
 			<version>${helium.version}</version>
 		</dependency>
+		
+		<dependency>
+            <groupId>es.caib.regweb3</groupId>
+            <artifactId>regweb3-utils</artifactId>
+            <version>3.0.8</version>
+            <scope>compile</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>es.caib.regweb3</groupId>
+            <artifactId>regweb3-ws-api</artifactId>
+            <version>3.0.8</version>
+            <scope>compile</scope>
+        </dependency>
+        
+		<dependency>
+		    <groupId>wsdl4j</groupId>
+		    <artifactId>wsdl4j</artifactId>
+		    <version>1.6.2</version>
+		</dependency>
+        
+        <dependency>
+			<groupId>es.caib.notib</groupId>
+			<artifactId>notib-client</artifactId>
+			<version>1.0.1</version>
+		</dependency>
+		
 	</dependencies>
 	<build>
 		<plugins>
@@ -285,9 +312,14 @@
 	</build>
 	<repositories>
 		<repository>
-			<id>maven-repos</id>
+			<id>github_governib_maven</id>
 			<name>GitHub GovernIB Maven Repository</name>
-			<url>http://GovernIB.github.io/maven/maven/</url>
-		</repository>
+			<url>file://${project.build.directory}/mvn-repo</url>
+        </repository>
+		<repository>
+             <id>github-governib-maven-repos</id>
+             <name>GitHub GovernIB Maven Repository</name>
+             <url>https://governib.github.io/maven/maven/</url>
+        </repository>
 	</repositories>
 </project>

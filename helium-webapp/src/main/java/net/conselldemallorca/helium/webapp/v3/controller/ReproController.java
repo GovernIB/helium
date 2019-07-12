@@ -13,20 +13,6 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
-import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
-import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
-import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
-import net.conselldemallorca.helium.v3.core.api.service.DissenyService;
-import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
-import net.conselldemallorca.helium.v3.core.api.service.ReproService;
-import net.conselldemallorca.helium.v3.core.api.service.TascaService;
-import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
-import net.conselldemallorca.helium.webapp.v3.helper.ObjectTypeEditorHelper;
-import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
-import net.conselldemallorca.helium.webapp.v3.helper.TascaFormHelper;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,6 +31,21 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.support.SessionStatus;
 
+import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ReproDto;
+import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
+import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
+import net.conselldemallorca.helium.v3.core.api.service.DissenyService;
+import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
+import net.conselldemallorca.helium.v3.core.api.service.ReproService;
+import net.conselldemallorca.helium.v3.core.api.service.TascaService;
+import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
+import net.conselldemallorca.helium.webapp.v3.helper.ObjectTypeEditorHelper;
+import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
+import net.conselldemallorca.helium.webapp.v3.helper.TascaFormHelper;
+
 /**
  * Controlador per Repros
  * 
@@ -55,8 +56,7 @@ import org.springframework.web.bind.support.SessionStatus;
 public class ReproController extends BaseController {
 	
 	@Autowired
-	private ExpedientInicioPasFormController expedientInicioPasFormController;
-
+	private ExpedientInicioPasFormController expedientInicioPasFormController;	
 	@Autowired
 	private ReproService reproService;
 	@Autowired
@@ -71,7 +71,8 @@ public class ReproController extends BaseController {
 	@SuppressWarnings("unchecked")
 	@ModelAttribute("command")
 	protected Object populateCommand(
-			HttpServletRequest request, 
+			HttpServletRequest request,
+			@RequestParam(value = "tascaId", required = false) Long tascaId,
 			@PathVariable Long expedientTipusId,
 			@PathVariable Long definicioProcesId,
 			Model model) {
@@ -79,23 +80,33 @@ public class ReproController extends BaseController {
 			Map<String, Object> campsAddicionals = new HashMap<String, Object>();
 			Map<String, Class<?>> campsAddicionalsClasses = new HashMap<String, Class<?>>();
 			EntornDto entorn = SessionHelper.getSessionManager(request).getEntornActual();
-			ExpedientTascaDto tasca = obtenirTascaInicial(
+			ExpedientTascaDto tasca;
+			if(tascaId != null) {				
+				tasca = this.tascaService.findAmbIdPerTramitacio(tascaId.toString());
+			}else{
+				tasca = obtenirTascaInicial(
 					entorn.getId(),
 					expedientTipusId,
 					definicioProcesId,
 					new HashMap<String, Object>(),
 					request);
+			}
+			
 			campsAddicionals.put("id", tasca.getId());
 			campsAddicionals.put("entornId", entorn.getId());
 			campsAddicionals.put("expedientTipusId", expedientTipusId);
 			campsAddicionals.put("definicioProcesId", definicioProcesId);
+			campsAddicionals.put("tascaId", (tascaId != null)?tascaId.toString():null);
 			campsAddicionalsClasses.put("id", String.class);
 			campsAddicionalsClasses.put("entornId", Long.class);
 			campsAddicionalsClasses.put("expedientTipusId", Long.class);
 			campsAddicionalsClasses.put("definicioProcesId", Long.class);
+			campsAddicionalsClasses.put("tascaId", String.class);
 			Map<String, Object> valorsFormulariExtern = null;
 			if (tasca.isFormExtern()) {
 				valorsFormulariExtern = tascaInicialService.obtenirValorsFormulariExternInicial(tasca.getId());
+				//FormulariExternDto formulariExtern = tascaService.var
+//				formulariExtern.
 				if (valorsFormulariExtern != null) {
 					request.getSession().setAttribute(
 							ExpedientIniciController.CLAU_SESSIO_FORM_VALORS,
@@ -121,7 +132,8 @@ public class ReproController extends BaseController {
 	@RequestMapping(value = "/{expedientTipusId}/{definicioProcesId}/guardarRepro", method = RequestMethod.POST)
 	public String guardarRepro(
 			HttpServletRequest request, 
-			@RequestParam(value = "nomRepro", required = true) String nomRepro, 
+			@RequestParam(value = "nomRepro", required = true) String nomRepro,
+			@RequestParam(value = "tascaId", required = false) Long tascaTipusId,
 			@PathVariable Long expedientTipusId,
 			@PathVariable Long definicioProcesId,
 			@ModelAttribute("command") Object command,
@@ -130,18 +142,16 @@ public class ReproController extends BaseController {
 			Model model) {
 		EntornDto entorn = SessionHelper.getSessionManager(request).getEntornActual();
 		ExpedientTipusDto expedientTipus = dissenyService.getExpedientTipusById(expedientTipusId);
-		
+		ReproDto repro = null;
 		try {
 			ExpedientTascaDto tasca = obtenirTascaInicial(entorn.getId(), expedientTipusId, definicioProcesId, new HashMap<String, Object>(), request);
 			List<TascaDadaDto> tascaDades = tascaService.findDadesPerTascaDto(expedientTipusId, tasca);
-			
 			Map<String, Object> valors = TascaFormHelper.getValorsFromCommand(
 					tascaDades,
 					command,
 					false,
 					true);
-			
-			reproService.create(expedientTipus.getId(), nomRepro, valors);
+			repro = reproService.createTasca(expedientTipus.getId(), tasca.getTascaId(), nomRepro, valors);
 			MissatgesHelper.success(request, getMessage(request, "repro.missatge.repro") + " '" + nomRepro + "' " + getMessage(request, "repro.missatge.creat"));
 		} catch (Exception ex) {
 			MissatgesHelper.error(
@@ -152,7 +162,8 @@ public class ReproController extends BaseController {
 					": " + ex.getMessage());
 		}
 		
-		return expedientInicioPasFormController.iniciarFormGet(request, expedientTipusId, definicioProcesId, model);
+		String referer = request.getHeader("Referer");
+	    return "redirect:"+ referer + "/fromRepro/" + repro.getId();
 	}
 	
 	@RequestMapping(value = "/{expedientTipusId}/{definicioProcesId}/borrarRepro/{reproId}", method = RequestMethod.POST)
@@ -172,6 +183,27 @@ public class ReproController extends BaseController {
 			MissatgesHelper.error(request, getMessage(request, "repro.missatge.error.eliminat"));
 		}
 		return expedientInicioPasFormController.iniciarFormGet(request, expedientTipusId, definicioProcesId, model);
+	}
+	
+	@RequestMapping(value = "/{expedientTipusId}/{definicioProcesId}/deleteRepro/{reproId}", method = RequestMethod.POST)
+	public String deleteReproTasca(
+			HttpServletRequest request, 
+			@PathVariable Long expedientTipusId,
+			@PathVariable Long definicioProcesId,
+			@PathVariable Long reproId,
+			@ModelAttribute("command") Object command,
+			BindingResult result,
+			SessionStatus status,
+			Model model) {
+		try {
+			String nomRepro = reproService.deleteById(reproId);
+			MissatgesHelper.success(request, getMessage(request, "repro.missatge.repro") + " '" + nomRepro + "' " + getMessage(request, "repro.missatge.eliminat"));
+		} catch (Exception ex) {
+			MissatgesHelper.error(request, getMessage(request, "repro.missatge.error.eliminat"));
+		}
+		
+		String referer = request.getHeader("Referer");
+	    return "redirect:"+ referer;
 	}
 	
 	private ExpedientTascaDto obtenirTascaInicial(Long entornId, Long expedientTipusId, Long definicioProcesId, Map<String, Object> valors, HttpServletRequest request) {
@@ -209,6 +241,45 @@ public class ReproController extends BaseController {
 		binder.registerCustomEditor(
 				Object.class,
 				new ObjectTypeEditorHelper());
+	}
+	
+	@RequestMapping(value = "/{expedientTipusId}/{definicioProcesId}/saveRepro", method = RequestMethod.POST)
+	public String guardarReproTasca(
+			HttpServletRequest request,
+			@RequestParam(value = "nomRepro", required = true) String nomRepro, 
+			@RequestParam(value = "tascaId", required = false) Long tascaTipusId,
+			@PathVariable Long expedientTipusId,
+			@PathVariable Long definicioProcesId,
+			@ModelAttribute("command") Object command,
+			BindingResult result,
+			SessionStatus status,
+			Model model) {
+		ExpedientTipusDto expedientTipus = dissenyService.getExpedientTipusById(expedientTipusId);
+		
+		ReproDto repro = null;
+		ExpedientTascaDto tasca = null;
+		try {
+			tasca = tascaService.findAmbIdPerTramitacio(tascaTipusId.toString());
+			List<TascaDadaDto> tascaDades = tascaService.findDadesPerTascaDto(expedientTipus.getId(), tasca);
+			
+			Map<String, Object> valors = TascaFormHelper.getValorsFromCommand(
+					tascaDades,
+					command,
+					false,
+					true);
+			
+			repro = reproService.createTasca(expedientTipus.getId(), tasca.getTascaId(), nomRepro, valors);
+			MissatgesHelper.success(request, getMessage(request, "repro.missatge.repro") + " '" + nomRepro + "' " + getMessage(request, "repro.missatge.creat"));
+		} catch (Exception ex) {
+			MissatgesHelper.error(
+					request, 
+					getMessage(request, "repro.missatge.repro") + 
+					" " + nomRepro + " " + 
+					getMessage(request, "repro.missatge.error.creat") +
+					": " + ex.getMessage());
+		}
+		String referer = request.getHeader("Referer");
+	    return "redirect:"+ referer + "/fromRepro/" + repro.getId();
 	}
 	
 	private static final Log logger = LogFactory.getLog(ReproController.class);

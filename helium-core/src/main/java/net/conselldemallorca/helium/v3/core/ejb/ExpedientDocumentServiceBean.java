@@ -15,11 +15,17 @@ import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDetallDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ArxiuFirmaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DadesEnviamentDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DadesNotificacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDocumentDto;
+import net.conselldemallorca.helium.v3.core.api.dto.NotificacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NtiEstadoElaboracionEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NtiOrigenEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NtiTipoDocumentalEnumDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PortasignaturesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RespostaValidacioSignaturaDto;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
@@ -45,8 +51,13 @@ public class ExpedientDocumentServiceBean implements ExpedientDocumentService {
 			String processInstanceId,
 			String documentCodi,
 			Date data,
+			String adjuntTitol,
 			String arxiuNom,
 			byte[] arxiuContingut,
+			String arxiuContentType,
+			boolean ambFirma,
+			boolean firmaSeparada,
+			byte[] firmaContingut,
 			NtiOrigenEnumDto ntiOrigen,
 			NtiEstadoElaboracionEnumDto ntiEstadoElaboracion,
 			NtiTipoDocumentalEnumDto ntiTipoDocumental,
@@ -56,8 +67,13 @@ public class ExpedientDocumentServiceBean implements ExpedientDocumentService {
 				processInstanceId,
 				documentCodi,
 				data,
+				adjuntTitol,
 				arxiuNom,
 				arxiuContingut,
+				arxiuContentType,
+				ambFirma,
+				firmaSeparada,
+				firmaContingut,
 				ntiOrigen,
 				ntiEstadoElaboracion,
 				ntiTipoDocumental,
@@ -71,8 +87,13 @@ public class ExpedientDocumentServiceBean implements ExpedientDocumentService {
 			String processInstanceId,
 			Long documentStoreId,
 			Date data,
+			String adjuntTitol,
 			String arxiuNom,
 			byte[] arxiuContingut,
+			String arxiuContentType,
+			boolean ambFirma,
+			boolean firmaSeparada,
+			byte[] firmaContingut,
 			NtiOrigenEnumDto ntiOrigen,
 			NtiEstadoElaboracionEnumDto ntiEstadoElaboracion,
 			NtiTipoDocumentalEnumDto ntiTipoDocumental,
@@ -82,62 +103,13 @@ public class ExpedientDocumentServiceBean implements ExpedientDocumentService {
 				processInstanceId,
 				documentStoreId,
 				data,
-				arxiuNom,
-				arxiuContingut,
-				ntiOrigen,
-				ntiEstadoElaboracion,
-				ntiTipoDocumental,
-				ntiIdOrigen);
-	}
-
-	@Override
-	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public void createAdjunt(
-			Long expedientId,
-			String processInstanceId,
-			Date data,
-			String adjuntTitol,
-			String arxiuNom,
-			byte[] arxiuContingut,
-			NtiOrigenEnumDto ntiOrigen,
-			NtiEstadoElaboracionEnumDto ntiEstadoElaboracion,
-			NtiTipoDocumentalEnumDto ntiTipoDocumental,
-			String ntiIdOrigen) {
-		delegate.createAdjunt(
-				expedientId,
-				processInstanceId,
-				data,
 				adjuntTitol,
 				arxiuNom,
 				arxiuContingut,
-				ntiOrigen,
-				ntiEstadoElaboracion,
-				ntiTipoDocumental,
-				ntiIdOrigen);
-	}
-
-	@Override
-	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public void updateAdjunt(
-			Long expedientId,
-			String processInstanceId,
-			Long documentStoreId,
-			Date data,
-			String adjuntTitol,
-			String arxiuNom,
-			byte[] arxiuContingut,
-			NtiOrigenEnumDto ntiOrigen,
-			NtiEstadoElaboracionEnumDto ntiEstadoElaboracion,
-			NtiTipoDocumentalEnumDto ntiTipoDocumental,
-			String ntiIdOrigen) {
-		delegate.updateAdjunt(
-				expedientId,
-				processInstanceId,
-				documentStoreId,
-				data,
-				adjuntTitol,
-				arxiuNom,
-				arxiuContingut,
+				arxiuContentType,
+				ambFirma,
+				firmaSeparada,
+				firmaContingut,
 				ntiOrigen,
 				ntiEstadoElaboracion,
 				ntiTipoDocumental,
@@ -304,6 +276,43 @@ public class ExpedientDocumentServiceBean implements ExpedientDocumentService {
 				expedientId,
 				processInstanceId,
 				documentStoreId);
+	}
+	
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public void notificacioActualitzarEstat(
+			String identificador, 
+			String referenciaEnviament) {
+		delegate.notificacioActualitzarEstat(identificador, referenciaEnviament);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public void notificarDocument(
+			Long expedientId, 
+			Long documentStoreId, 
+			DadesNotificacioDto dadesNotificacioDto,
+			List<Long> interessatsIds,
+			DadesEnviamentDto dadesEnviamentDto) {
+		delegate.notificarDocument(expedientId, documentStoreId, dadesNotificacioDto, interessatsIds,
+				dadesEnviamentDto);		
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public PaginaDto<NotificacioDto> findNotificacionsPerDatatable(
+			String filtre, 
+			PaginacioParamsDto paginacioParams) {
+		return delegate.findNotificacionsPerDatatable(
+				filtre,
+				paginacioParams);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public ArxiuFirmaDto getArxiuFirma(Long expedientId, Long documentStoreId, int firmaIndex) {
+		// TODO Auto-generated method stub
+		return delegate.getArxiuFirma(expedientId, documentStoreId, firmaIndex);
 	}
 
 }

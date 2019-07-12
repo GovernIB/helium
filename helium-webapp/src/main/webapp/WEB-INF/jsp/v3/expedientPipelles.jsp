@@ -87,6 +87,7 @@ dd.subproc {
 	font-size: 12px;
 	padding-top: 4px;
 	float: right;
+	margin-left: 2px;
 }
 </style>
 
@@ -260,14 +261,14 @@ dd.subproc {
 			<div id="expedient-info" class="well">
 				<h3>
 					<spring:message code="expedient.info.informacio"/>
-					<c:if test="${expedient.ntiActiu}">
+					<c:if test="${expedient.ntiActiu and expedient.permisAdministration}">
 						<a	href="<c:url value="../../v3/expedient/${expedient.id}/metadadesNti"/>"
 							data-rdt-link-modal="true"
 							data-rdt-link-modal-min-height="500"
 							id="nti">
 							<span class="label label-info etiqueta-nti-arxiu">
 								<c:choose>
-									<c:when test="${empty expedient.arxiuUuid}"><spring:message code="expedient.info.etiqueta.nti"/></c:when>
+									<c:when test="${not expedient.arxiuActiu}"><spring:message code="expedient.info.etiqueta.nti"/></c:when>
 									<c:otherwise><spring:message code="expedient.info.etiqueta.arxiu"/></c:otherwise>
 								</c:choose>
 							</span>
@@ -379,7 +380,7 @@ dd.subproc {
 							</c:if>								
 
 							<c:if test="${expedient.permisDelete}">
-								<li><a href="<c:url value="../../v3/expedient/${expedientId}/delete"/>" data-rdt-link-confirm="<spring:message code="expedient.llistat.confirmacio.esborrar"/>"><span class="fa fa-trash-o"></span>&nbsp;<spring:message code="expedient.llistat.accio.esborrar"/></a></li>
+								<li><a href="<c:url value="../../v3/expedient/${expedientId}/delete"/>" data-rdt-link-ajax="false" data-rdt-link-confirm="<spring:message code="expedient.llistat.confirmacio.esborrar"/>"><span class="fa fa-trash-o"></span>&nbsp;<spring:message code="expedient.llistat.accio.esborrar"/></a></li>
 							</c:if>
 							
 							<li class="divider"></li>
@@ -449,6 +450,7 @@ dd.subproc {
 			<ul class="nav nav-tabs" role="tablist">
 				<li id="pipella-dades"><a href="#contingut-dades" role="tab" data-toggle="tab"><spring:message code="expedient.info.pipella.dades"/></a></li>
 				<li id="pipella-documents"><a href="#contingut-documents" role="tab" data-toggle="tab"><spring:message code="expedient.info.pipella.documents"/></a></li>
+				<li id="pipella-interessats"><a href="#contingut-interessats" role="tab" data-toggle="tab"><spring:message code="expedient.info.pipella.interessats"/></a></li>
 				<li id="pipella-cronograma"><a href="#contingut-cronograma" role="tab" data-toggle="tab"><spring:message code="expedient.info.pipella.cronograma"/></a></li>
 				<li id="pipella-terminis"><a href="#contingut-terminis" role="tab" data-toggle="tab"><spring:message code="expedient.info.pipella.terminis"/></a></li>
 				<li id="pipella-tasques"><a href="#contingut-tasques" role="tab" data-toggle="tab"><spring:message code="expedient.info.pipella.tasques"/></a></li>
@@ -461,7 +463,7 @@ dd.subproc {
 				<c:if test="${numAccions > 0}">
 					<li id="pipella-accions"><a href="#contingut-accions" role="tab" data-toggle="tab"><spring:message code="expedient.info.pipella.accions"/></a></li>
 				</c:if>
-				<c:if test="${expedient.tipus.notificacionsActivades}">
+				<c:if test="${expedient.tipus.notibActiu}">
 					<li id="pipella-notificacions"><a href="#contingut-notificacions" role="tab" data-toggle="tab"><spring:message code="expedient.info.pipella.notificacions"/></a></li>
 				</c:if>
 			</ul>
@@ -472,6 +474,9 @@ dd.subproc {
 				<div id="contingut-documents" class="tab-pane" data-href="<c:url value="/nodeco/v3/expedient/${expedient.id}/document"/>">
 					<div class="contingut-carregant"><span class="fa fa-circle-o-notch fa-spin fa-3x"></span></div>
 				</div>
+				<div id="contingut-interessats" class="tab-pane" data-href="<c:url value="/nodeco/v3/expedient/${expedient.id}/interessat"/>">
+					<div class="contingut-carregant"><span class="fa fa-circle-o-notch fa-spin fa-3x"></span></div>
+				</div>				
 				<div id="contingut-cronograma" class="tab-pane" data-href="<c:url value="/nodeco/v3/expedient/${expedient.id}/timeline"/>">
 					<div class="contingut-carregant"><span class="fa fa-circle-o-notch fa-spin fa-3x"></span></div>
 				</div>
@@ -496,7 +501,7 @@ dd.subproc {
 						<div class="contingut-carregant"><span class="fa fa-circle-o-notch fa-spin fa-3x"></span></div>
 					</div>
 				</c:if>
-				<c:if test="${expedient.tipus.notificacionsActivades}">
+				<c:if test="${expedient.tipus.notibActiu}">
 					<div id="contingut-notificacions" class="tab-pane" data-href="<c:url value="/nodeco/v3/expedient/${expedient.id}/notificacions"/>">
 						<div class="contingut-carregant"><span class="fa fa-circle-o-notch fa-spin fa-3x"></span></div>
 					</div>

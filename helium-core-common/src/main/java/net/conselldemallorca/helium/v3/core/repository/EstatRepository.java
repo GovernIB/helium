@@ -75,7 +75,7 @@ public interface EstatRepository extends JpaRepository<Estat, Long> {
 
 	@Query(	"from Estat e " +
 			"where " +
-			"	(:herencia = false " +
+			"	(:ambHerencia = false " +
 			"		or e.id not in ( " + 
 						// Llistat de sobreescrits
 			"			select es.id " +
@@ -89,14 +89,14 @@ public interface EstatRepository extends JpaRepository<Estat, Long> {
 			"	) " +
 			"  	and (e.expedientTipus.id = :expedientTipusId " +
 						// Heretats
-			"			or (:herencia = true " +
+			"			or (:ambHerencia = true " +
 			"					and e.expedientTipus.id = (select etp.expedientTipusPare.id from ExpedientTipus etp where etp.id = :expedientTipusId) ) ) " +
 			"	and (:esNullFiltre = true or lower(e.codi) like lower('%'||:filtre||'%') or lower(e.nom) like lower('%'||:filtre||'%')) ")
 	Page<Estat> findByFiltrePaginat(
 			@Param("expedientTipusId") Long expedientTipusId,
 			@Param("esNullFiltre") boolean esNullFiltre,
 			@Param("filtre") String filtre,		
-			@Param("herencia") boolean herencia, 
+			@Param("ambHerencia") boolean ambHerencia, 
 			Pageable pageable);
 	
 	/** Troba tots els estats donat un tipus d'expedient sense tenir en compte l'herència. */

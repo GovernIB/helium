@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import net.conselldemallorca.helium.core.helper.ConversioTipusHelper;
 import net.conselldemallorca.helium.core.helper.EntornHelper;
 import net.conselldemallorca.helium.core.helper.ExpedientTipusHelper;
+import net.conselldemallorca.helium.core.helper.HerenciaHelper;
 import net.conselldemallorca.helium.core.helper.MessageHelper;
 import net.conselldemallorca.helium.core.helper.PaginacioHelper;
 import net.conselldemallorca.helium.core.model.hibernate.Domini;
@@ -84,7 +85,7 @@ public class DominiServiceImpl implements DominiService {
 		ExpedientTipus expedientTipus = expedientTipusId != null? expedientTipusHelper.getExpedientTipusComprovantPermisDissenyDelegat(expedientTipusId) : null;
 
 		// Determina si hi ha herència 
-		boolean herencia = expedientTipus != null && expedientTipus.isAmbInfoPropia() && expedientTipus.getExpedientTipusPare() != null;
+		boolean ambHerencia = HerenciaHelper.ambHerencia(expedientTipus);
 
 		Page<Domini> page = dominiRepository.findByFiltrePaginat(
 				entornId,
@@ -93,7 +94,7 @@ public class DominiServiceImpl implements DominiService {
 				incloureGlobals,
 				filtre == null || "".equals(filtre), 
 				filtre, 
-				herencia,
+				ambHerencia,
 				paginacioHelper.toSpringDataPageable(
 						paginacioParams));
 
@@ -101,7 +102,7 @@ public class DominiServiceImpl implements DominiService {
 				page,
 				DominiDto.class);		
 		
-		if (herencia) {
+		if (ambHerencia) {
 			// Llista d'heretats
 			Set<Long> heretatsIds = new HashSet<Long>();
 			for (Domini d : page.getContent()) 

@@ -21,9 +21,11 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ReproDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.service.DissenyService;
+import net.conselldemallorca.helium.v3.core.api.service.ReproService;
 import net.conselldemallorca.helium.v3.core.api.service.TascaService;
 import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.ModalHelper;
@@ -44,16 +46,22 @@ public class BaseTascaController extends BaseController {
 	protected TascaService tascaService;
 	@Autowired
 	protected DissenyService dissenyService;
+	@Autowired
+	private ReproService reproService;
+	
 
 	protected String mostrarInformacioTascaPerPipelles(
 			HttpServletRequest request,
 			String tascaId,
 			Model model,
-			String pipellaActiva) {
+			String pipellaActiva,
+			Map<String, Object> valorsFormulariExtern
+			) {
 		ExpedientTascaDto tasca = tascaService.findAmbIdPerTramitacio(tascaId);
+		List<ReproDto> repros = reproService.findReprosByUsuariTipusExpedient(tasca.getExpedientTipusId(), tasca.getJbpmName());
 		model.addAttribute("tasca", tasca);
 		model.addAttribute("expedientId", tasca.getExpedientId());
-		
+		model.addAttribute("repros", repros);
 		List<Object> nomesLectura = new ArrayList<Object>();
 		
 		List<TascaDadaDto> dades = tascaService.findDades(tascaId);
@@ -110,6 +118,97 @@ public class BaseTascaController extends BaseController {
 		Map<String, Object> datosTramitacionMasiva = getDatosTramitacionMasiva(request);
 		if (datosTramitacionMasiva != null) {
 			model.addAttribute("tasquesTramitar", datosTramitacionMasiva.get("tasquesTramitar"));
+		}
+		
+		//Si tenim error d'execució en segón pla, el mostrarem
+		if (tasca.getErrorFinalitzacio() != null && pipellaActiva != null) {
+			MissatgesHelper.error(request, "Error execució segon pla: " + tasca.getErrorFinalitzacio());
+		}
+		
+		if (pipellaActiva != null && 
+				(pipellaActiva.equalsIgnoreCase("document") && request.getMethod().equalsIgnoreCase("POST")) || 
+				request.getRequestURI().split("/")[request.getRequestURI().split("/").length -1].equalsIgnoreCase("esborrar")){
+			if (ModalHelper.isModal(request)) {
+				return "redirect:/modal/v3/tasca/" + tascaId + "/" + pipellaActiva;
+			} else {
+				return "redirect:/v3/tasca/" + tascaId + "/" + pipellaActiva;
+			}
+		}else{
+			return "v3/tascaPipelles";	
+		}
+	}
+	
+	protected String mostrarInformacioTascaPerPipellesAmbCommand(
+			HttpServletRequest request,
+			String tascaId,
+			Model model,
+			Object command,
+			String pipellaActiva) {
+		ExpedientTascaDto tasca = tascaService.findAmbIdPerTramitacio(tascaId);
+		List<ReproDto> repros = reproService.findReprosByUsuariTipusExpedient(tasca.getExpedientTipusId(), tasca.getJbpmName());
+		model.addAttribute("tasca", tasca);
+		model.addAttribute("expedientId", tasca.getExpedientId());
+		model.addAttribute("repros", repros);
+		List<Object> nomesLectura = new ArrayList<Object>();
+		
+		List<TascaDadaDto> dades = tascaService.findDades(tascaId);
+		Iterator<TascaDadaDto> itDades = dades.iterator();
+		while (itDades.hasNext()) {
+			TascaDadaDto dada = itDades.next();
+			if (dada.isReadOnly()) {				
+				setErrorValidate(request, tascaId, dada);
+				nomesLectura.add(dada);
+			}
+		}
+		
+		List<TascaDocumentDto> documents = tascaService.findDocuments(tascaId);
+		Iterator<TascaDocumentDto> itDocuments = documents.iterator();
+		while (itDocuments.hasNext()) {
+			TascaDocumentDto document = itDocuments.next();
+			if (document.isReadOnly() && document.getId() != null) {
+				nomesLectura.add(document);
+			}
+		}
+		
+		model.addAttribute("nomesLectura", nomesLectura);		
+		
+		String pipellaPerDefecte = null;
+		if (tascaService.hasFormulari(tascaId)) {
+			model.addAttribute(
+					"hasFormulari",
+					true);
+			pipellaPerDefecte = "form";
+		}
+		if (tascaService.hasDocumentsNotReadOnly(tascaId)) {
+			model.addAttribute(
+					"hasDocuments",
+					true);
+			if (pipellaPerDefecte == null || ( tasca.isValidada() && ! tasca.isDocumentsComplet()))
+				pipellaPerDefecte = "document";
+		}
+		if (tascaService.hasSignatures(tascaId)) {
+			model.addAttribute(
+					"hasSignatures",
+					true);
+			if (pipellaPerDefecte == null || ( tasca.isValidada() && tasca.isDocumentsComplet() && ! tasca.isSignaturesComplet()))
+				pipellaPerDefecte = "signatura";
+		}
+		if (pipellaActiva != null)
+			model.addAttribute("pipellaActiva", pipellaActiva);
+		else if (request.getParameter("pipellaActiva") != null)
+			model.addAttribute("pipellaActiva", request.getParameter("pipellaActiva").substring("pipella-".length()));
+		else {
+			model.addAttribute("pipellaActiva", pipellaPerDefecte != null ? pipellaPerDefecte : "form");
+		}
+		model.addAttribute("isModal", ModalHelper.isModal(request));
+		
+		Map<String, Object> datosTramitacionMasiva = getDatosTramitacionMasiva(request);
+		if (datosTramitacionMasiva != null) {
+			model.addAttribute("tasquesTramitar", datosTramitacionMasiva.get("tasquesTramitar"));
+		}
+		
+		if (command != null) {
+			model.addAttribute("command", command);
 		}
 		
 		//Si tenim error d'execució en segón pla, el mostrarem

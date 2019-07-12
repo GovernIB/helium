@@ -19,6 +19,9 @@ import org.jbpm.graph.exe.ExecutionContext;
 import org.jbpm.graph.exe.ProcessInstance;
 import org.jbpm.taskmgmt.exe.TaskInstance;
 
+import net.conselldemallorca.helium.jbpm3.api.HeliumActionHandler;
+import net.conselldemallorca.helium.jbpm3.api.HeliumApi;
+import net.conselldemallorca.helium.jbpm3.api.HeliumApiImpl;
 /*import net.conselldemallorca.helium.jbpm3.api.HeliumActionHandler;
 import net.conselldemallorca.helium.jbpm3.api.HeliumApi;
 import net.conselldemallorca.helium.jbpm3.api.HeliumApiImpl;*/
@@ -160,10 +163,10 @@ public class ExecuteActionCommand extends AbstractGetObjectBaseCommand {
 				Object actionHandler = action.getActionDelegation().getInstance();
 				if (actionHandler instanceof AccioExternaRetrocedirHandler) {
 					((AccioExternaRetrocedirHandler)actionHandler).retrocedir(context, params);
-				}/* else if (actionHandler instanceof HeliumActionHandler) {
+				} else if (actionHandler instanceof HeliumActionHandler) {
 					HeliumApi heliumApi = new HeliumApiImpl(context);
 					((HeliumActionHandler)actionHandler).retrocedir(heliumApi, params);
-				}*/
+				}
 			} finally {
 				Thread.currentThread().setContextClassLoader(surroundingClassLoader);
 			}

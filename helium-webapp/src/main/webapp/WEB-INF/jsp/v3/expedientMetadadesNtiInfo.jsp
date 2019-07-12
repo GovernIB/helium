@@ -15,7 +15,7 @@
 	<hel:modalHead/>
 </head>
 <body>
-	<c:if test="${not empty arxiuDetall}">
+	<c:if test="${expedient.arxiuActiu}">
 		<ul class="nav nav-tabs" role="tablist">
 			<li role="presentation" class="active"><a href="#nti" aria-controls="nti" role="tab" data-toggle="tab"><spring:message code="expedient.metadades.nti.tab.nti"/></a></li>
 			<li role="presentation"><a href="#arxiu" aria-controls="arxiu" role="tab" data-toggle="tab"><spring:message code="expedient.metadades.nti.tab.info"/></a></li>
@@ -88,7 +88,7 @@
 			</c:if>
 		</tbody>
 	</table>
-	<c:if test="${not empty arxiuDetall}">
+	<c:if test="${expedient.arxiuActiu}">
 			</div>
 			<div role="tabpanel" class="tab-pane" id="arxiu">
 				<table class="table table-striped table-bordered">

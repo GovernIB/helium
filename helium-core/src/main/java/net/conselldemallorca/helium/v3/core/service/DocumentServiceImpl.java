@@ -16,7 +16,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import net.conselldemallorca.helium.core.helper.ConversioTipusHelper;
+import net.conselldemallorca.helium.core.helper.NotificacioHelper;
 import net.conselldemallorca.helium.core.helper.ExpedientTipusHelper;
+import net.conselldemallorca.helium.core.helper.HerenciaHelper;
 import net.conselldemallorca.helium.core.helper.PaginacioHelper;
 import net.conselldemallorca.helium.core.model.hibernate.Document;
 import net.conselldemallorca.helium.core.model.hibernate.DocumentTasca;
@@ -54,6 +56,8 @@ public class DocumentServiceImpl implements DocumentService {
 	private PaginacioHelper paginacioHelper;
 	@Resource
 	private ConversioTipusHelper conversioTipusHelper;
+	@Resource
+	private NotificacioHelper notificacioHelper;
 
 	/**
 	 * {@inheritDoc}
@@ -73,14 +77,14 @@ public class DocumentServiceImpl implements DocumentService {
 
 		ExpedientTipus expedientTipus = expedientTipusId != null? expedientTipusHelper.getExpedientTipusComprovantPermisDissenyDelegat(expedientTipusId) : null;
 		// Determina si hi ha herència 
-		boolean herencia = expedientTipus != null && expedientTipus.isAmbInfoPropia() && expedientTipus.getExpedientTipusPare() != null;
+		boolean ambHerencia = HerenciaHelper.ambHerencia(expedientTipus);
 
 		Page<Document> page = documentRepository.findByFiltrePaginat(
 				expedientTipusId,
 				definicioProcesId,
 				filtre == null || "".equals(filtre),
 				filtre,
-				herencia,
+				ambHerencia,
 				paginacioHelper.toSpringDataPageable(
 						paginacioParams));
 		
@@ -88,7 +92,7 @@ public class DocumentServiceImpl implements DocumentService {
 						page,
 						DocumentDto.class);
 		// completa la informació d'herència
-		if (herencia) {
+		if (ambHerencia) {
 			// Llista d'heretats
 			Set<Long> heretatsIds = new HashSet<Long>();
 			for (Document d : page.getContent())
@@ -96,7 +100,7 @@ public class DocumentServiceImpl implements DocumentService {
 					heretatsIds.add(d.getId());
 			// Llistat d'elements sobreescrits
 			Set<String> sobreescritsCodis = new HashSet<String>();
-			if (herencia)
+			if (ambHerencia)
 				for (Document d : documentRepository.findSobreescrits(expedientTipus.getId())) 
 					sobreescritsCodis.add(d.getCodi());
 			// Completa l'informació del dto
@@ -130,6 +134,7 @@ public class DocumentServiceImpl implements DocumentService {
 		entity.setNom(document.getNom());
 		entity.setDescripcio(document.getDescripcio());
 		entity.setPlantilla(document.isPlantilla());
+		entity.setNotificable(document.isNotificable());
 		entity.setArxiuNom(document.getArxiuNom());
 		entity.setArxiuContingut(document.getArxiuContingut());
 		entity.setConvertirExtensio(document.getConvertirExtensio());
@@ -166,7 +171,7 @@ public class DocumentServiceImpl implements DocumentService {
 			Long expedientTipusId, 
 			Long definicioProcesId, 
 			String codi,
-			boolean herencia) {
+			boolean ambHerencia) {
 		DocumentDto ret = null; 
 		logger.debug(
 				"Consultant el document del tipus d'expedient per codi (" +
@@ -178,7 +183,7 @@ public class DocumentServiceImpl implements DocumentService {
 			document = documentRepository.findByExpedientTipusAndCodi(
 											expedientTipusId, 
 											codi,
-											herencia);
+											ambHerencia);
 		else if(definicioProcesId != null)
 			document = documentRepository.findByDefinicioProcesAndCodi(
 											definicioProcesRepository.findOne(definicioProcesId), 
@@ -262,6 +267,7 @@ public class DocumentServiceImpl implements DocumentService {
 		entity.setNom(document.getNom());
 		entity.setDescripcio(document.getDescripcio());
 		entity.setPlantilla(document.isPlantilla());
+		entity.setNotificable(document.isNotificable());
 		entity.setArxiuNom(document.getArxiuNom());
 		if (actualitzarContingut) {
 			entity.setArxiuContingut(document.getArxiuContingut());

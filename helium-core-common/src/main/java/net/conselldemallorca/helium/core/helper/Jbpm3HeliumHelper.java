@@ -10,6 +10,7 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
+import org.apache.commons.lang.exception.ExceptionUtils;
 import org.hibernate.Hibernate;
 import org.jbpm.graph.exe.ProcessInstanceExpedient;
 import org.slf4j.Logger;
@@ -31,6 +32,7 @@ import net.conselldemallorca.helium.core.model.hibernate.Area;
 import net.conselldemallorca.helium.core.model.hibernate.Camp;
 import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
 import net.conselldemallorca.helium.core.model.hibernate.Document;
+import net.conselldemallorca.helium.core.model.hibernate.DocumentNotificacio;
 import net.conselldemallorca.helium.core.model.hibernate.DocumentStore;
 import net.conselldemallorca.helium.core.model.hibernate.Domini;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
@@ -38,6 +40,7 @@ import net.conselldemallorca.helium.core.model.hibernate.Enumeracio;
 import net.conselldemallorca.helium.core.model.hibernate.Estat;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
+import net.conselldemallorca.helium.core.model.hibernate.Interessat;
 import net.conselldemallorca.helium.core.model.hibernate.Reassignacio;
 import net.conselldemallorca.helium.core.model.hibernate.Tasca;
 import net.conselldemallorca.helium.core.model.hibernate.Termini;
@@ -62,6 +65,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.AreaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CarrecDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DadesNotificacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentDissenyDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
@@ -74,6 +78,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDadaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.FestiuDto;
+import net.conselldemallorca.helium.v3.core.api.dto.InteressatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NotificacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ReassignacioDto;
@@ -84,6 +89,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.RegistreIdDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RegistreNotificacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RespostaJustificantDetallRecepcioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RespostaJustificantRecepcioDto;
+import net.conselldemallorca.helium.v3.core.api.dto.RespostaNotificacio;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TerminiDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TerminiIniciatDto;
@@ -111,7 +117,9 @@ import net.conselldemallorca.helium.v3.core.repository.EstatRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientTipusRepository;
 import net.conselldemallorca.helium.v3.core.repository.FestiuRepository;
+import net.conselldemallorca.helium.v3.core.repository.InteressatRepository;
 import net.conselldemallorca.helium.v3.core.repository.ReassignacioRepository;
+import net.conselldemallorca.helium.v3.core.repository.RegistreRepository;
 import net.conselldemallorca.helium.v3.core.repository.TascaRepository;
 import net.conselldemallorca.helium.v3.core.repository.TerminiIniciatRepository;
 import net.conselldemallorca.helium.v3.core.repository.TerminiRepository;
@@ -133,6 +141,8 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 	private ExpedientTipusRepository expedientTipusRepository;
 	@Resource
 	private ExpedientRepository expedientRepository;
+	@Resource
+	private InteressatRepository interessatRepository;
 	@Resource
 	private DefinicioProcesRepository definicioProcesRepository;
 	@Resource
@@ -165,6 +175,9 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 	private DocumentTascaRepository documentTascaRepository;
 	@Resource
 	private TerminiRepository terminiRepository;
+	
+	@Resource
+	private RegistreRepository registreRepository;
 
 	
 	@Resource(name = "documentHelperV3")
@@ -422,6 +435,79 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 				reassignacio,
 				ReassignacioDto.class);
 	}
+
+	
+	
+	@Override
+	public void interessatCrear(
+			InteressatDto interessat) {
+		
+		Expedient expedient = expedientRepository.findOne(interessat.getExpedientId());
+		
+		if (interessatRepository.findByCodiAndExpedient(interessat.getCodi(), expedient) != null) {
+			throw new ValidacioException("Ja existeix un interessat amb aquest codi");
+		}
+		
+		Interessat interessatEntity = new Interessat(
+				interessat.getId(),
+				interessat.getCodi(),
+				interessat.getNom(),
+				interessat.getNif(),
+				interessat.getLlinatge1(), 
+				interessat.getLlinatge2(), 
+				interessat.getTipus(),
+				interessat.getEmail(), 
+				interessat.getTelefon(),
+				expedient
+				);
+		
+		interessatRepository.save(interessatEntity);
+	}
+	
+	@Override
+	public void interessatModificar(
+			InteressatDto interessat) {
+		
+		Expedient expedient = expedientRepository.findOne(interessat.getExpedientId());
+		
+		if (interessatRepository.findByCodiAndExpedient(interessat.getCodi(), expedient) == null) {
+			throw new ValidacioException("Un interessat amb aquest codi no existeix");
+		}
+		
+		Interessat interessatEntity = interessatRepository.findByCodiAndExpedient(
+				interessat.getCodi(), 
+				expedient);
+		
+		interessatEntity.setNom(interessat.getNom());
+		interessatEntity.setNif(interessat.getNif());
+		interessatEntity.setLlinatge1(interessat.getLlinatge1());
+		interessatEntity.setLlinatge2(interessat.getLlinatge2());
+		interessatEntity.setTipus(interessat.getTipus());
+		interessatEntity.setEmail(interessat.getEmail());
+		interessatEntity.setTelefon(interessat.getTelefon());
+
+	}
+	
+	@Override
+	public void interessatEliminar(
+			InteressatDto interessat) {
+		
+		Expedient expedient = expedientRepository.findOne(interessat.getExpedientId());
+		
+		if (interessatRepository.findByCodiAndExpedient(interessat.getCodi(), expedient) == null) {
+			throw new ValidacioException("Un interessat amb aquest codi no existeix");
+		}
+		
+		Interessat interessatEntity = interessatRepository.findByCodiAndExpedient(
+				interessat.getCodi(), 
+				expedient);
+		List<Interessat> interessats = expedient.getInteressats();
+		interessats.remove(interessatEntity);
+		expedient.setInteressats(interessats);
+		interessatRepository.delete(interessatEntity);
+		
+	}
+	
 
 	@Override
 	public void alertaCrear(
@@ -1186,7 +1272,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 				"data=" + data + ", " +
 				"arxiuNom=" + arxiuNom + ", " +
 				"arxiuContingut=" + arxiuContingut + ")");
-		return documentHelper.crearOActualitzarDocument(
+		return documentHelper.crearActualitzarDocument(
 				null,
 				processInstanceId,
 				documentCodi,
@@ -1207,6 +1293,15 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 				expedient,
 				null);
 	}
+	
+	@Override
+	public void finalitzarExpedient(String processInstanceId) throws Exception {
+		logger.debug("Finalitzant expedient (processInstanceId=" + processInstanceId + ")");
+		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
+		expedientHelper.finalitzar(expedient.getId());
+	}
+	
+	
 	
 	@Override
 	public boolean tokenActivar(long tokenId, boolean activar) {
@@ -1612,6 +1707,46 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 				clave,
 				codigo);
 	}
+	
+	@Override
+	public RespostaNotificacio altaNotificacio(DadesNotificacioDto dadesNotificacio) {
+		Expedient expedient = expedientRepository.findOne(dadesNotificacio.getExpedientId());
+
+		DocumentNotificacio notificacio = notificacioElectronicaHelper.create(dadesNotificacio);
+		
+		RespostaNotificacio resposta = null; 
+		
+		dadesNotificacio.setDocumentArxiuUuid(notificacio.getDocument().getArxiuUuid());
+		dadesNotificacio.setDocumentArxiuCsv(notificacio.getDocument().getNtiCsv());
+				
+		try {
+			resposta = pluginHelper.altaNotificacio(
+					dadesNotificacio, 
+					expedient.getId());
+			notificacio.updateEnviat(
+					new Date(),
+					resposta.getIdentificador(),
+					resposta.getReferencies().get(0).getReferencia());
+		} catch (Exception e) {
+			notificacio.updateEnviatError(
+					ExceptionUtils.getStackTrace(e), 
+					null);
+			throw new SistemaExternException(
+					expedient.getEntorn().getId(),
+					expedient.getEntorn().getCodi(), 
+					expedient.getEntorn().getNom(), 
+					expedient.getId(), 
+					expedient.getTitol(), 
+					expedient.getNumero(), 
+					expedient.getTipus().getId(), 
+					expedient.getTipus().getCodi(), 
+					expedient.getTipus().getNom(), 
+					"(Enviament de notificació)", 
+					e);
+		}
+		
+		return resposta;
+	}
 
 	@Override
 	public void portasignaturesEnviar(
@@ -1632,6 +1767,9 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 			String transicioOK,
 			String transicioKO) {
 		DocumentStore documentStore = documentStoreRepository.findOne(documentId);
+		// Valida que no sigui ja un document firmat
+		if (documentStore.isSignat()) 
+			throw new ValidacioException("No es pot enviar a firmar al Portasignatures un document que ja està signat");
 		DocumentDto document = documentHelper.toDocumentDto(
 				documentId,
 				false,

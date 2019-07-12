@@ -505,6 +505,10 @@ function validado(validar) {
 	$('#command #guardarValidarTarea button').each(function(){
 		$(this).attr("disabled",false);
 	});
+	if(validar)
+		$('#command button[value=accio]').each(function(){
+			$(this).attr("disabled","disabled");
+		});
 }
 
 function cleanAction(action) {

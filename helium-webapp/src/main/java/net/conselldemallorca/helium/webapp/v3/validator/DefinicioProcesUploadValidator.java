@@ -5,19 +5,15 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
-import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
-import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
 import net.conselldemallorca.helium.v3.core.api.exportacio.DefinicioProcesExportacio;
 import net.conselldemallorca.helium.v3.core.api.service.DefinicioProcesService;
 import net.conselldemallorca.helium.webapp.v3.command.DefinicioProcesExportarCommand;
 import net.conselldemallorca.helium.webapp.v3.helper.MessageHelper;
-import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
 
 /**
  * Validador per a la càrrega d'un fitxer d'exportació
@@ -27,8 +23,6 @@ public class DefinicioProcesUploadValidator implements ConstraintValidator<Defin
 	
 	@Autowired
 	DefinicioProcesService definicioProcesService;
-	@Autowired
-	private HttpServletRequest request;
 	
 	@Override
 	public void initialize(DefinicioProcesUpload anotacio) {
