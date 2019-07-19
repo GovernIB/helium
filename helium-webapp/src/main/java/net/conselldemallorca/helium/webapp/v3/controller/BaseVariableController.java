@@ -74,7 +74,7 @@ public class BaseVariableController extends BaseDissenyController {
 								"expedient.tipus.camp.llistat.accio.esborrar.validacio.tasca.definicions",
 								new Object[] {
 										llistaToString(tasques, "jbpmName"),
-										llistaToString(definicionsProces, "jbpmKey")}));
+										llistaToString(definicionsProces, "idPerMostrar")}));
 			}
 			valid = false;
 		}
@@ -109,23 +109,32 @@ public class BaseVariableController extends BaseDissenyController {
 	 * @return
 	 */
 	private <T> String llistaToString(List<T> objectes, String propietat) {
-		StringBuilder str = new StringBuilder();
-		int N = objectes.size();
-		int i = 1;
+		List<String> textList = new ArrayList<String>();
 		String method = "get" + propietat.substring(0, 1).toUpperCase() + propietat.substring(1);
-		if (objectes != null && N > 0)
+		if (objectes != null && objectes.size() > 0)
 			for (T o : objectes) {
 				try {
 					// crida el .getCodi sobre l'objecte
-					str.append(o.getClass().getDeclaredMethod(method).invoke(o).toString());
+					textList.add(o.getClass().getDeclaredMethod(method).invoke(o).toString());
 				} catch (Exception e) {
 					logger.error("Error consultant el \"getCodi\" de l'objecte " + o, e);
 				}
-				if (i++ < N)
-					str.append(", ");
 			}
-		return str.toString();
+		return llistaToString(textList);
 	}	
+	
+	/** Mètode per retornar un string amb una llista separada per comes */
+	private String llistaToString(List<String> textList) {
+		StringBuilder str = new StringBuilder();
+		int N = textList.size();
+		int i = 1;
+		for (String text : textList) {
+			str.append(text);
+			if (i++ < N)
+				str.append(", ");
+		}
+		return str.toString();		
+	}
 	
 	protected void omplirModelAgrupacions(
 			HttpServletRequest request,

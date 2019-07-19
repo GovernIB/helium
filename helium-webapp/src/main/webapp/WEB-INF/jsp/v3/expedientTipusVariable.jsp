@@ -113,7 +113,7 @@
 									<li><a data-toggle="modal" href="${baseUrl}/variable/{{:id}}/update"><span class="fa fa-search"></span>&nbsp;<spring:message code="comu.boto.visualitzar"/></a></li>
 								{{else}}
 									<li><a data-toggle="modal" data-callback="callbackModalVariables()" href="${baseUrl}/variable/{{:id}}/update"><span class="fa fa-pencil"></span>&nbsp;<spring:message code="expedient.tipus.info.accio.modificar"/></a></li>
-									<li><a href="${baseUrl}/variable/{{:id}}/delete" data-toggle="ajax" data-confirm="<spring:message code="expedient.tipus.camp.llistat.confirmacio.esborrar"/>"><span class="fa fa-trash-o"></span>&nbsp;<spring:message code="expedient.llistat.accio.esborrar"/></a></li>
+									<li><a href="${baseUrl}/variable/{{:id}}/delete" data-toggle="ajax" data-callback="callbackModalVariables()" data-confirm="<spring:message code="expedient.tipus.camp.llistat.confirmacio.esborrar"/>"><span class="fa fa-trash-o"></span>&nbsp;<spring:message code="expedient.llistat.accio.esborrar"/></a></li>
 									<li class="divider"></li>
 									<li id="accioAgrupacions">
 										{{if agrupacio == null}}
@@ -172,7 +172,7 @@ $(document).ready(function() {
 	// Posa el text "Totes" pel botó de selecció de totes les variables
 	$('#expedientTipusVariable_length button[value="-1"]').text('<spring:message code="comu.totes"/>');
 
-	// Botons de modificar i eliminar agrupacions
+ 	// Botons de modificar i eliminar agrupacions
 	$('#agrupacioDelete').click(function(e) {
 		var getUrl = $(this).attr('href');
 		$.ajax({
@@ -188,6 +188,9 @@ $(document).ready(function() {
 				var msg = 'Error esborrant la agrupació'; 
 				alert(msg);
 				console.log(msg+': '+e);
+			},
+			complete: function() {
+				webutilRefreshMissatges();
 			}
 		});
 		e.stopImmediatePropagation();
@@ -217,7 +220,7 @@ $(document).ready(function() {
 			$('#expedientTipusVariable').DataTable().order([3, 'asc']);
 			$('#expedientTipusVariable').DataTable().column(2).visible(false);
 		}
-		refrescaTaula();
+		refrescaTaulaVariables();
 	});
 	// Afegeix format si l'item de la agrupació està heretat
 	$('#agrupacions').select2({
@@ -278,8 +281,6 @@ $(document).ready(function() {
 		  	// Canvia la ordenació
 			$('#expedientTipusVariable').DataTable().order([2, 'asc']);
 		}
-		// Refresca els missatges
-		webutilRefreshMissatges();
 	  });		
 });
 
@@ -290,12 +291,16 @@ function canviarPosicioVariable( id, pos) {
 		url: getUrl,
 		async: true,
 		success: function(result) {
-			refrescaTaula();
+			refrescaTaulaVariables();
 		},
 		error: function(e) {
 			console.log("Error canviant l'ordre: " + e);
-			refrescaTaula();
+			refrescaTaulaVariables();
+		},
+		complete: function() {
+			webutilRefreshMissatges();
 		}
+		
 	});	
 }
 
@@ -316,7 +321,7 @@ function obtenirId(pos){
 	return id2[1] ;
 }
 
-function refrescaTaula() {
+function refrescaTaulaVariables() {
 	var agrupacioId = $("#agrupacions").val();
 	$('#expedientTipusVariable').webutilDatatable('refresh-url', '${baseUrl}/variable/datatable?agrupacioId='+agrupacioId);		
 }
@@ -345,17 +350,19 @@ function refrescarAgrupacions() {
 		},
 		error: function(e) {
 			console.log("Error obtenint agrupacions: " + e);
-			refrescaTaula();
+			refrescaTaulaVariables();
 		}
 	});
 }
 
 function callbackModalVariables() {
-	refrescaTaula();
+	webutilRefreshMissatges();
+	refrescaTaulaVariables();
 }
 
 function callbackModalAgrupacions() {
 	refrescarAgrupacions();
+	webutilRefreshMissatges();
 }
 
 // ]]>

@@ -264,33 +264,33 @@ public class DefinicioProcesVariableController extends BaseVariableController {
 
 	@RequestMapping(value = "/{jbpmKey}/{definicioProcesId}/variable/{id}/delete", method = RequestMethod.GET)
 	@ResponseBody
-	public boolean delete(
+	public String delete(
 			HttpServletRequest request,
 			@PathVariable String jbpmKey,
 			@PathVariable Long definicioProcesId,
 			@PathVariable Long id,
 			Model model) {
 		
-		if (!validaEsborratCamp(request, id))
-			return false;		
-		try {
-			// Esborra la variable
-			campService.delete(id);
-			MissatgesHelper.success(
-					request,
-					getMessage(
-							request,
-							"expedient.tipus.camp.llistat.accio.esborrar.correcte"));
-			return true;
-		} catch(Exception e) {
-			MissatgesHelper.error(
-					request,
-					getMessage(
-							request,
-							"expedient.tipus.camp.llistat.accio.esborrar.error"));
-			logger.error("S'ha produit un error al intentar eliminar la variable amb id '" + id + "' de la definicio de procés amb id '" + definicioProcesId, e);
-			return false;
+		if (validaEsborratCamp(request, id)) {
+			try {
+				// Esborra la variable
+				campService.delete(id);
+				MissatgesHelper.success(
+						request,
+						getMessage(
+								request,
+								"expedient.tipus.camp.llistat.accio.esborrar.correcte"));
+			} catch(Exception e) {
+				MissatgesHelper.error(
+						request,
+						getMessage(
+								request,
+								"expedient.tipus.camp.llistat.accio.esborrar.error", 
+								new Object[] {e.getMessage()}));
+				logger.error("S'ha produit un error al intentar eliminar la variable amb id '" + id + "' de la definicio de procés amb id '" + definicioProcesId, e);
+			}
 		}
+		return "redirect:" + request.getHeader("Referer");
 	}
 	
 	// Mètodes pel manteniment de validacions de variables

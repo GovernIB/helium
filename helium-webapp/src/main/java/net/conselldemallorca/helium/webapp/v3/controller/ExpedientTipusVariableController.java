@@ -262,8 +262,9 @@ public class ExpedientTipusVariableController extends BaseVariableController {
 			@PathVariable Long id,
 			Model model) {
 		
-		if (!validaEsborratCamp(request, id))
-			return false;		
+		if (!validaEsborratCamp(request, id)) {
+			return false;
+		}
 		try {
 			// Esborra la variable
 			campService.delete(id);
@@ -274,14 +275,15 @@ public class ExpedientTipusVariableController extends BaseVariableController {
 							"expedient.tipus.camp.llistat.accio.esborrar.correcte"));
 			return true;
 		} catch(Exception e) {
+			logger.error("S'ha produit un error al intentar eliminar la variable amb id '" + id + "' del tipus d'expedient amb id '" + expedientTipusId, e);
 			MissatgesHelper.error(
 					request,
 					getMessage(
 							request,
-							"expedient.tipus.camp.llistat.accio.esborrar.error"));
-			logger.error("S'ha produit un error al intentar eliminar la variable amb id '" + id + "' del tipus d'expedient amb id '" + expedientTipusId, e);
-			return false;
+							"expedient.tipus.camp.llistat.accio.esborrar.error", 
+							new Object[] {e.getMessage()}));
 		}
+		return false;
 	}
 	
 	// Mètodes pel manteniment d'agrupacions
