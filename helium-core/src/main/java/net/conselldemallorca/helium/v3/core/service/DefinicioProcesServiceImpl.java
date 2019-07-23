@@ -4,8 +4,10 @@
 package net.conselldemallorca.helium.v3.core.service;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.annotation.Resource;
@@ -40,6 +42,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ConsultaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.FirmaTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
@@ -753,9 +756,6 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 				expedientTipusId = expedientTipus.getId();
 		}
 
-		// Herencia
-		boolean isDefinicioProcesHeretada = definicioProcesHelper.isTascaHeretada(tasca, expedientTipus);
-		
 		Page<CampTasca> page = campTascaRepository.findByFiltrePaginat(
 				tascaId,
 				expedientTipusId,
@@ -763,42 +763,39 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 				filtre,
 				paginacioHelper.toSpringDataPageable(
 						paginacioParams));
-		
-		// Llista d'heretats
-		Set<Long> heretatsIds = new HashSet<Long>();
-		Set<Long> campsHeretatsIds = new HashSet<Long>();
-		if (isDefinicioProcesHeretada) {
-			for (CampTasca ct : page.getContent()) {
-				if (definicioProcesHelper.isCampTascaHeretat(ct, expedientTipus))
-					heretatsIds.add(ct.getId());
-				if (definicioProcesHelper.isDefinicioProcesHeretada(ct.getCamp().getDefinicioProces(), expedientTipus))
-					campsHeretatsIds.add(ct.getId());
-			}
-		}
 
 		PaginaDto<CampTascaDto> pagina = paginacioHelper.toPaginaDto(
 				page,
 				CampTascaDto.class);
-
-		Set<String> campsSobreescritsCodis = new HashSet<String>();
-		if (isDefinicioProcesHeretada) {
-			// Llistat d'elements sobreescrits
-			for (Camp c : campRepository.findSobreescrits(expedientTipusId)) {
-				campsSobreescritsCodis.add(c.getCodi());
+		// Herencia		
+		if (HerenciaHelper.ambHerencia(expedientTipus)) {
+			// Consulta els sobreescrits
+			Map<String, Camp> sobreescrits = new HashMap<String, Camp>();
+			for (Camp c : campRepository.findSobreescrits(expedientTipusId))
+				sobreescrits.put(c.getCodi(), c);
+			// Construeix la llista d'heretats
+			Set<Long> heretatsIds = new HashSet<Long>();
+			Set<Long> campsHeretatsIds = new HashSet<Long>();
+			for (CampTasca ct : page.getContent()) {
+				if (definicioProcesHelper.isCampTascaHeretat(ct, expedientTipus))
+					heretatsIds.add(ct.getId());
+				if (definicioProcesHelper.isCampHeretat(ct.getCamp(), expedientTipus))
+					campsHeretatsIds.add(ct.getCamp().getId());
 			}
+			// Escriu les propietats als dtos
 			for (CampTascaDto dto : pagina.getContingut()) {
 				// Determina si el campTasca és heretat segons si el tipus d'expedient de la tasca és igual al tipus d'expedient pare del tipus d'expedient passat com a paràmetre
 				if (heretatsIds.contains(dto.getId()))
 					dto.setHeretat(true);
-				
 				// Completa l'informació del camp del campTasca
-
 				// Sobreescriu
-				if (campsSobreescritsCodis.contains(dto.getCamp().getCodi()))
+				if (sobreescrits.containsKey(dto.getCamp().getCodi())) {
+					dto.setCamp(conversioTipusHelper.convertir(sobreescrits.get(dto.getCamp().getCodi()), CampDto.class));
 					dto.getCamp().setSobreescriu(true);
+				}
 				// Heretat
-				if (campsHeretatsIds.contains(dto.getId()) && ! dto.getCamp().isSobreescriu())
-					dto.getCamp().setHeretat(true);								
+				if (campsHeretatsIds.contains(dto.getCamp().getId()) && ! dto.getCamp().isSobreescriu())
+					dto.getCamp().setHeretat(true);
 			}
 		}
 		return pagina;
@@ -1004,11 +1001,6 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 			if (expedientTipus != null)
 				expedientTipusId = expedientTipus.getId();
 		}
-		
-		// Herencia
-		boolean isDefinicioProcesHeretada = definicioProcesHelper.isTascaHeretada(tasca, expedientTipus);
-		
-
 		Page<DocumentTasca> page = documentTascaRepository.findByFiltrePaginat(
 				tascaId,
 				expedientTipusId,
@@ -1016,45 +1008,44 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 				filtre,
 				paginacioHelper.toSpringDataPageable(
 						paginacioParams)); 
-		
-		// Llista d'heretats
-		Set<Long> heretatsIds = new HashSet<Long>();
-		Set<Long> documentsHeretatsIds = new HashSet<Long>();
-		if (isDefinicioProcesHeretada) {
-			for (DocumentTasca dt : page.getContent()) {
-				if (definicioProcesHelper.isDocumentTascaHeretat(dt, expedientTipus))
-					heretatsIds.add(dt.getId());
-				if (definicioProcesHelper.isDefinicioProcesHeretada(dt.getDocument().getDefinicioProces(), expedientTipus))
-					documentsHeretatsIds.add(dt.getId());
-			}
-		}
-		
 		PaginaDto<DocumentTascaDto> pagina = paginacioHelper.toPaginaDto(
 				page,
 				DocumentTascaDto.class);
-
-		Set<String> documentsSobreescritsCodis = new HashSet<String>();
-		if (isDefinicioProcesHeretada) {
-			// Llistat d'elements sobreescrits
+		// Herencia
+		if (HerenciaHelper.ambHerencia(expedientTipus)) {
+			// Consulta els sobreescrits
+			Map<String, Document> sobreescrits = new HashMap<String, Document>();
+			for (Document d : documentRepository.findSobreescrits(expedientTipusId))
+				sobreescrits.put(d.getCodi(), d);
+			// Construeix la llista d'heretats
+			Set<Long> heretatsIds = new HashSet<Long>();
+			Set<Long> documentsHeretatsIds = new HashSet<Long>();
+			for (DocumentTasca ct : page.getContent()) {
+				if (definicioProcesHelper.isDocumentTascaHeretat(ct, expedientTipus))
+					heretatsIds.add(ct.getId());
+				if (definicioProcesHelper.isDocumentHeretat(ct.getDocument(), expedientTipus))
+					documentsHeretatsIds.add(ct.getDocument().getId());
+			}
+			Set<String> documentsSobreescritsCodis = new HashSet<String>();
 			for (Document d : documentRepository.findSobreescrits(expedientTipusId)) {
 				documentsSobreescritsCodis.add(d.getCodi());
 			}
+			// Escriu les propietats als dtos
 			for (DocumentTascaDto dto : pagina.getContingut()) {
 				// Determina si el documentTasca és heretat segons si el tipus d'expedient de la tasca és igual al tipus d'expedient pare del tipus d'expedient passat com a paràmetre
 				if (heretatsIds.contains(dto.getId()))
 					dto.setHeretat(true);
-				
 				// Completa l'informació del document del campTasca
-
 				// Sobreescriu
-				if (documentsSobreescritsCodis.contains(dto.getDocument().getCodi()))
+				if (sobreescrits.containsKey(dto.getDocument().getCodi())) {
+					dto.setDocument(conversioTipusHelper.convertir(sobreescrits.get(dto.getDocument().getCodi()), DocumentDto.class));
 					dto.getDocument().setSobreescriu(true);
+				}
 				// Heretat
-				if (documentsHeretatsIds.contains(dto.getId()) && ! dto.getDocument().isSobreescriu())
-					dto.getDocument().setHeretat(true);								
+				if (documentsHeretatsIds.contains(dto.getDocument().getId()) && ! dto.getDocument().isSobreescriu())
+					dto.getDocument().setHeretat(true);				
 			}
 		}
-
 		return pagina;		
 	}
 	
@@ -1251,10 +1242,6 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 			if (expedientTipus != null)
 				expedientTipusId = expedientTipus.getId();
 		}
-		
-		// Herencia
-		boolean isDefinicioProcesHeretada = definicioProcesHelper.isTascaHeretada(tasca, expedientTipus);
-
 		Page<FirmaTasca> page = firmaTascaRepository.findByFiltrePaginat(
 				tascaId,
 				expedientTipusId,
@@ -1262,42 +1249,37 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 				filtre,
 				paginacioHelper.toSpringDataPageable(
 						paginacioParams));
-
-		// Llista d'heretats
-		Set<Long> heretatsIds = new HashSet<Long>();
-		Set<Long> documentsHeretatsIds = new HashSet<Long>();
-		if (isDefinicioProcesHeretada) {
-			for (FirmaTasca ft : page.getContent()) {
-				if (definicioProcesHelper.isFirmaTascaHeretada(ft, expedientTipus))
-					heretatsIds.add(ft.getId());
-				if (definicioProcesHelper.isDefinicioProcesHeretada(ft.getDocument().getDefinicioProces(), expedientTipus))
-					documentsHeretatsIds.add(ft.getId());
-			}
-		}
-
 		PaginaDto<FirmaTascaDto> pagina = paginacioHelper.toPaginaDto(
 				page,
-				FirmaTascaDto.class);
-		
-		Set<String> documentsSobreescritsCodis = new HashSet<String>();
-		if (isDefinicioProcesHeretada) {
-			// Llistat d'elements sobreescrits
-			for (Document d : documentRepository.findSobreescrits(expedientTipusId)) {
-				documentsSobreescritsCodis.add(d.getCodi());
+				FirmaTascaDto.class);		// Herencia
+		if (HerenciaHelper.ambHerencia(expedientTipus)) {
+			// Consulta els sobreescrits
+			Map<String, Document> sobreescrits = new HashMap<String, Document>();
+			for (Document d : documentRepository.findSobreescrits(expedientTipusId))
+				sobreescrits.put(d.getCodi(), d);
+			// Construeix la llista d'heretats
+			Set<Long> heretatsIds = new HashSet<Long>();
+			Set<Long> documentsHeretatsIds = new HashSet<Long>();
+			for (FirmaTasca ct : page.getContent()) {
+				if (definicioProcesHelper.isFirmaTascaHeretada(ct, expedientTipus))
+					heretatsIds.add(ct.getId());
+				if (definicioProcesHelper.isDocumentHeretat(ct.getDocument(), expedientTipus))
+					documentsHeretatsIds.add(ct.getDocument().getId());
 			}
+			// Escriu les propietats als dtos
 			for (FirmaTascaDto dto : pagina.getContingut()) {
-				// Determina si la firmaTasca és heretada segons si el tipus d'expedient de la tasca és igual al tipus d'expedient pare del tipus d'expedient passat com a paràmetre
+				// Determina si el documentTasca és heretat segons si el tipus d'expedient de la tasca és igual al tipus d'expedient pare del tipus d'expedient passat com a paràmetre
 				if (heretatsIds.contains(dto.getId()))
 					dto.setHeretat(true);
-				
-				// Completa l'informació del camp de la firmaTasca
-
+				// Completa l'informació del document del campTasca
 				// Sobreescriu
-				if (documentsSobreescritsCodis.contains(dto.getDocument().getCodi()))
+				if (sobreescrits.containsKey(dto.getDocument().getCodi())) {
+					dto.setDocument(conversioTipusHelper.convertir(sobreescrits.get(dto.getDocument().getCodi()), DocumentDto.class));
 					dto.getDocument().setSobreescriu(true);
+				}
 				// Heretat
-				if (documentsHeretatsIds.contains(dto.getId()) && ! dto.getDocument().isSobreescriu())
-					dto.getDocument().setHeretat(true);								
+				if (documentsHeretatsIds.contains(dto.getDocument().getId()) && ! dto.getDocument().isSobreescriu())
+					dto.getDocument().setHeretat(true);				
 			}
 		}
 		return pagina;

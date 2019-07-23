@@ -9,6 +9,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -444,18 +445,31 @@ public class DocumentHelperV3 {
 				task.getProcessDefinitionId());
 		Expedient exp = expedientHelper.findExpedientByProcessInstanceId(task.getProcessInstanceId());
 		Long expedientTipusId = exp != null ? exp.getTipus().getId() : null;
+		ExpedientTipus expedientTipus = exp != null? expedientTipusHelper.findAmbProcessInstanceId(task.getProcessInstanceId()) : null;
 		Tasca tasca = tascaRepository.findByJbpmNameAndDefinicioProces(
 				task.getTaskName(),
 				definicioProces);
+
+		boolean ambHerencia = HerenciaHelper.ambHerencia(expedientTipus);
+		Map<String, Document> sobreescrits = new HashMap<String, Document>();
+		if (ambHerencia) {
+			for (Document d : documentRepository.findSobreescrits(expedientTipusId))
+				sobreescrits.put(d.getCodi(), d);
+		}
+
 		List<DocumentTasca> documentsTasca = documentTascaRepository.findAmbTascaIdOrdenats(
 				tasca.getId(),
 				expedientTipusId);
 		List<TascaDocumentDto> resposta = new ArrayList<TascaDocumentDto>();
+		Document document;
 		for (DocumentTasca documentTasca: documentsTasca) {
+			document = documentTasca.getDocument();
+			if (ambHerencia && sobreescrits.containsKey(document.getCodi()))
+				document = sobreescrits.get(document.getCodi());
 			resposta.add(
 					toTascaDocumentDto(
 							task,
-							documentTasca.getDocument(),
+							document,
 							documentTasca.isRequired(),
 							documentTasca.isReadOnly()));
 		}
@@ -491,14 +505,28 @@ public class DocumentHelperV3 {
 				task.getProcessDefinitionId());
 		Expedient exp = expedientHelper.findExpedientByProcessInstanceId(task.getProcessInstanceId());
 		Long expedientTipusId = exp != null ? exp.getTipus().getId() : null;
+		ExpedientTipus expedientTipus = exp != null? expedientTipusHelper.findAmbProcessInstanceId(task.getProcessInstanceId()) : null;
 		Tasca tasca = tascaRepository.findByJbpmNameAndDefinicioProces(
 				task.getTaskName(),
 				definicioProces);
 		
+		boolean ambHerencia = HerenciaHelper.ambHerencia(expedientTipus);
+		Map<String, Document> sobreescrits = new HashMap<String, Document>();
+		if (ambHerencia) {
+			for (Document d : documentRepository.findSobreescrits(expedientTipusId))
+				sobreescrits.put(d.getCodi(), d);
+		}
+
+		Document document;
 		for (FirmaTasca firmaTasca: firmaTascaRepository.findAmbTascaIdOrdenats(tasca.getId(), expedientTipusId)) {
+			document = firmaTasca.getDocument();
+			if (ambHerencia && sobreescrits.containsKey(document.getCodi()))
+				document = sobreescrits.get(document.getCodi());
 			resposta.add(toTascaDocumentDto(
 					task,
-					firmaTasca.getDocument(), firmaTasca.isRequired(), false));
+					document, 
+					firmaTasca.isRequired(), 
+					false));
 		}
 		return resposta;
 	}

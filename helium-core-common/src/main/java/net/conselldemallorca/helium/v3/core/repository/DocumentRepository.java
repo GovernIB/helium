@@ -157,7 +157,7 @@ public interface DocumentRepository extends JpaRepository<Document, Long> {
 			@Param("ambHerencia") boolean ambHerencia,
 			Pageable pageable);
 			
-	@Query( "select ds " +
+	@Query( "select d " +
 			"from Document d " +
 			"	join d.expedientTipus et with et.id = :expedientTipusId, " +
 			"	Document ds " +

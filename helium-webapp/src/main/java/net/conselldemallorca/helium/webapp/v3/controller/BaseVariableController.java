@@ -21,8 +21,10 @@ import org.springframework.web.bind.annotation.InitBinder;
 
 import net.conselldemallorca.helium.v3.core.api.dto.CampAgrupacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
+import net.conselldemallorca.helium.v3.core.api.dto.CampTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ConsultaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDto;
 import net.conselldemallorca.helium.v3.core.api.service.CampService;
@@ -62,19 +64,28 @@ public class BaseVariableController extends BaseDissenyController {
 								new Object[] {llistaToString(tasques, "jbpmName")}));
 			else 
 			{
-				// Esbrina de quines defincions són les tasques
-				List<DefinicioProcesDto> definicionsProces = new ArrayList<DefinicioProcesDto>();
-				for (TascaDto tasca : tasques)
-					definicionsProces.add(definicioProcesService.tascaFindDefinicioProcesDeTasca(tasca.getId()));
-				
+				// Esbrina de quines defincions són les tasques i construeix el missatge de validació
+				List<String> tasquesList = new ArrayList<String>();
+				DefinicioProcesDto definicio;
+				ExpedientTipusDto expedientTipus;
+				for (TascaDto tasca : tasques) {					
+					definicio = definicioProcesService.tascaFindDefinicioProcesDeTasca(tasca.getId());
+					expedientTipus = null;
+					for (CampTascaDto ct : tasca.getCamps())
+						if (ct.getCamp().getId().equals(id)){
+							if (ct.getExpedientTipusId() != null)
+								expedientTipus = expedientTipusService.findAmbId(ct.getExpedientTipusId());
+							else 
+								expedientTipus = definicio.getExpedientTipus();
+						}
+					tasquesList.add((expedientTipus != null ? expedientTipus.getCodi() + "." : "") + definicio.getIdPerMostrar() + "." + tasca.getJbpmName());
+				}
 				MissatgesHelper.error(
 						request, 
 						getMessage(
 								request,
-								"expedient.tipus.camp.llistat.accio.esborrar.validacio.tasca.definicions",
-								new Object[] {
-										llistaToString(tasques, "jbpmName"),
-										llistaToString(definicionsProces, "idPerMostrar")}));
+								"expedient.tipus.camp.llistat.accio.esborrar.validacio.tasca",
+								new Object[] {llistaToString(tasquesList)}));
 			}
 			valid = false;
 		}

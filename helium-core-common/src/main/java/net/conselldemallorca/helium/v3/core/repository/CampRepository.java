@@ -187,7 +187,7 @@ public interface CampRepository extends JpaRepository<Camp, Long> {
 			@Param("agrupacioId") Long agrupacioId,
 			@Param("ambHerencia") boolean ambHerencia);
 
-	@Query( "select cs " +
+	@Query( "select c " +
 			"from Camp c " +
 			"	join c.expedientTipus et with et.id = :expedientTipusId, " +
 			"	Camp cs " +

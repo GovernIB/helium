@@ -43,7 +43,7 @@
 			</tbody>
 		</table>
 		
-		<a id="descarregar_par" class="btn btn-primary" href='<c:url value="${jbpmKey}/${definicioProcesId}/recurs/par"></c:url>' style="margin-left: 10px;"><span class="fa fa-arrow-down"></span>&nbsp;<spring:message code="definico.proces.recurs.descarregar.par"/></a>
+		<a id="descarregar_par" class="btn btn-primary" href='<c:url value="/v3/definicioProces/${jbpmKey}/${definicioProcesId}/recurs/par"></c:url>' style="margin-left: 10px;"><span class="fa fa-arrow-down"></span>&nbsp;<spring:message code="definico.proces.recurs.descarregar.par"/></a>
 		
 	</c:when>
 	<c:otherwise>

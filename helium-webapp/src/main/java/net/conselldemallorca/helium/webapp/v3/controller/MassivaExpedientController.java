@@ -176,8 +176,11 @@ public class MassivaExpedientController extends BaseExpedientController {
 			model.addAttribute(new CanviVersioProcesCommand());
 			model.addAttribute(new ExpedientEinesAturarCommand());
 			model.addAttribute(new ModificarVariablesCommand());
-			if(!model.containsAttribute("documentExpedientCommand"))
-				model.addAttribute(new DocumentExpedientCommand());
+			if(!model.containsAttribute("documentExpedientCommand")) {
+				DocumentExpedientCommand documentExpedientCommand = new DocumentExpedientCommand();
+				documentExpedientCommand.setExpedientId(expedient.getId());
+				model.addAttribute(documentExpedientCommand);
+			}
 			model.addAttribute(new ExpedientEinesReassignarCommand());
 			model.addAttribute(
 					"accions",

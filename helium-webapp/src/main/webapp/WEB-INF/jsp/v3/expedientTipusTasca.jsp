@@ -88,12 +88,12 @@
 					</th>
 					<th data-col-name="documentsCount" data-template="#cellDocumentsTemplate" data-orderable="false" width="13%">
 						<script id="cellDocumentsTemplate" type="text/x-jsrender">
-							<a href="${baseUrl}/tasca/{{:id}}/document" data-toggle="modal" data-callback="callbackModalTasques()" class="btn btn-default"><spring:message code="definicio.proces.tasca.llistat.accio.documents"/>&nbsp;<span class="badge">{{:documentsCount}}</span></a>
+							<a href="${baseUrl}/tasca/{{:id}}/document" data-maximized="true" data-toggle="modal" data-callback="callbackModalTasques()" class="btn btn-default"><spring:message code="definicio.proces.tasca.llistat.accio.documents"/>&nbsp;<span class="badge">{{:documentsCount}}</span></a>
 						</script>
 					</th>
 					<th data-col-name="firmesCount" data-template="#cellSignaturesTemplate" data-orderable="false" width="13%">
 						<script id="cellSignaturesTemplate" type="text/x-jsrender">
-							<a href="${baseUrl}/tasca/{{:id}}/firma" data-toggle="modal" data-callback="callbackModalTasques()" class="btn btn-default"><spring:message code="definicio.proces.tasca.llistat.accio.signatures"/>&nbsp;<span class="badge">{{:firmesCount}}</span></a>
+							<a href="${baseUrl}/tasca/{{:id}}/firma" data-maximized="true" data-toggle="modal" data-callback="callbackModalTasques()" class="btn btn-default"><spring:message code="definicio.proces.tasca.llistat.accio.signatures"/>&nbsp;<span class="badge">{{:firmesCount}}</span></a>
 						</script>
 					</th>
 					<th data-col-name="id" data-template="#cellAccionsTascaTemplate" data-orderable="false" width="10%">

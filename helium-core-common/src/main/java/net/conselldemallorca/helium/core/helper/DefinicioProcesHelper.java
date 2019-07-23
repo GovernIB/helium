@@ -171,7 +171,8 @@ public class DefinicioProcesHelper {
 						dpd.getVersion(),
 						entorn);
 				definicio.setExpedientTipus(expedientTipus);
-				expedientTipus.getDefinicionsProces().add(definicio);
+				if (expedientTipus != null)
+					expedientTipus.getDefinicionsProces().add(definicio);
 				definicio = definicioProcesRepository.saveAndFlush(definicio);
 				// Crea les tasques publicades
 				for (String nomTasca: jbpmHelper.getTaskNamesFromDeployedProcessDefinition(dpd)) {
@@ -1402,6 +1403,34 @@ public class DefinicioProcesHelper {
 		return heretada;
 	}
 
+	/** Mètode per determinar si el camp passat per paràmetre està heretat pel tipus d'expedient.
+	 * Està heretat si:
+	 * - El tipus d'expedient del camp és igual al tipus d'expedient pare de l'expedient tippus passat com a paràmetre.
+	 * @param camp
+	 * @param expedientTipus
+	 * @return
+	 */
+	public boolean isCampHeretat(Camp camp, ExpedientTipus expedientTipus) {
+		return camp.getExpedientTipus() != null 
+				&& expedientTipus != null
+				&& expedientTipus.isAmbHerencia()
+				&& camp.getExpedientTipus().getId().equals(expedientTipus.getExpedientTipusPare().getId());
+	}
+	
+	/** Mètode per determinar si el document passat per paràmetre està heretat pel tipus d'expedient.
+	 * Està heretat si:
+	 * - El tipus d'expedient del document és igual al tipus d'expedient pare de l'expedient tippus passat com a paràmetre.
+	 * @param document
+	 * @param expedientTipus
+	 * @return
+	 */
+	public boolean isDocumentHeretat(Document document, ExpedientTipus expedientTipus) {
+		return document.getExpedientTipus() != null 
+				&& expedientTipus != null
+				&& expedientTipus.isAmbHerencia()
+				&& document.getExpedientTipus().getId().equals(expedientTipus.getExpedientTipusPare().getId());
+	}	
+	
 	/** Mètode per determinar si la tasca passada per paràmetre està heretada pel tipus d'expedient.
 	 *  Està heretada si:
 	 *  - El tipus d'expedient de la definició de procés de la tasca és el tipus d'expedient pare del tipus d'expedient.
@@ -1480,8 +1509,11 @@ public class DefinicioProcesHelper {
 		for (TascaExportacio tascaExportacio : tasquesExportacio) {
 			// Troba la tasca
 			tasca = tascaRepository.findByJbpmNameAndDefinicioProces(tascaExportacio.getJbpmName(), definicioProces);
+			if (tasca == null)
+				throw new DeploymentException(messageHelper.getMessage(
+						"exportar.validacio.tasca.no.trobada", 
+						new Object[] {tascaExportacio.getJbpmName(), definicioProces.getIdPerMostrar()}));
 			// Per cada camp de la exportació
-
 			// Camps de la tasca
 			for (CampTascaExportacio campExportat : tascaExportacio.getCamps()) {
 				// Primer mira si ja està relacionat, si no l'afegeix

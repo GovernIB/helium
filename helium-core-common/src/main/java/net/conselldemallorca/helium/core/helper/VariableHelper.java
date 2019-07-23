@@ -330,6 +330,7 @@ public class VariableHelper {
 		String tipusExp = null;
 		Expedient exp = expedientHelper.findExpedientByProcessInstanceId(task.getProcessInstanceId());
 		Long expedientTipusId = exp != null ? exp.getTipus().getId() : null;
+		ExpedientTipus expedientTipus = exp != null? expedientTipusHelper.findAmbProcessInstanceId(task.getProcessInstanceId()) : null;
 		if (MesuresTemporalsHelper.isActiu()) {
 			tipusExp = (exp != null ? exp.getTipus().getNom() : null);
 			mesuresTemporalsHelper.mesuraIniciar("Tasca DADES v3", "tasques", tipusExp, task.getTaskName());
@@ -341,8 +342,12 @@ public class VariableHelper {
 				task.getTaskName(),
 				definicioProces);
 		List<CampTasca> campsTasca = campTascaRepository.findAmbTascaIdOrdenats(tasca.getId(), expedientTipusId);
-
-		
+		boolean ambHerencia = HerenciaHelper.ambHerencia(expedientTipus);
+		Map<String, Camp> sobreescrits = new HashMap<String, Camp>();
+		if (ambHerencia) {
+			for (Camp c : campRepository.findSobreescrits(expedientTipusId))
+				sobreescrits.put(c.getCodi(), c);
+		}
 		mesuresTemporalsHelper.mesuraCalcular("Tasca DADES v3", "tasques", tipusExp, task.getTaskName(), "0");
 		mesuresTemporalsHelper.mesuraIniciar("Tasca DADES v3", "tasques", tipusExp, task.getTaskName(), "1");
 		List<TascaDadaDto> resposta = new ArrayList<TascaDadaDto>();
@@ -355,6 +360,9 @@ public class VariableHelper {
 		// al formulari no es mostraran.
 		for (CampTasca campTasca: campsTasca) {
 			Camp camp = campTasca.getCamp();
+			if (ambHerencia && sobreescrits.containsKey(camp.getCodi()))
+				camp = sobreescrits.get(camp.getCodi());
+			// Si el camp se sobreescriu llavors es passa el camp sobreescrit
 			Object varValor = varsInstanciaTasca.get(camp.getCodi());
 			ExpedientDadaDto expedientDadaDto = getDadaPerVariableJbpm(
 					camp,
@@ -389,15 +397,19 @@ public class VariableHelper {
 				task.getTaskName(),
 				definicioProces);
 		
-		Long expedientTipusId = expedientTipusHelper.findIdByProcessInstanceId(task.getProcessInstanceId());
-
+		ExpedientTipus expedientTipus = expedientTipusHelper.findAmbProcessInstanceId(task.getProcessInstanceId());
+		boolean ambHerencia = HerenciaHelper.ambHerencia(expedientTipus);
+		
 		CampTasca campTasca = campTascaRepository.findAmbTascaCodi(
 				tasca.getId(),
 				variableCodi,
-				expedientTipusId);
+				expedientTipus.getId());
 		Camp camp = null;
 		if (campTasca != null) {
-			camp = campTasca.getCamp();
+			if (ambHerencia)
+				camp = campRepository.findByExpedientTipusAndCodi(expedientTipus.getId(), campTasca.getCamp().getCodi(), ambHerencia);
+			else
+				camp = campTasca.getCamp();
 		} else {
 			return null;
 		}
