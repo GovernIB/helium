@@ -243,6 +243,16 @@ public class ExpedientDadaServiceImpl implements ExpedientDadaService {
 				varCodi,
 				true);
 	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@Transactional(readOnly = true)
+	public ExpedientDadaDto getDadaBuida(long campId) {
+		logger.debug("Consultant dada buida per un camp (campId=" + campId + ")");
+		return variableHelper.getDadaBuida(campId);
+	}
 
 	/**
 	 * {@inheritDoc}

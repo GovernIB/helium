@@ -234,32 +234,6 @@ public class TascaFormHelper {
 				false);
 	}
 	
-	/*public static TascaDadaDto toTascaDadaDto(ExpedientDadaDto expdada) {
-		TascaDadaDto tascaDada = new TascaDadaDto();
-		tascaDada.setCampTipus(expdada.getCampTipus());
-		tascaDada.setCampMultiple(expdada.isCampMultiple());
-		tascaDada.setVarCodi(expdada.getVarCodi());
-		tascaDada.setCampId(expdada.getCampId());
-		tascaDada.setText(expdada.getText());
-		tascaDada.setCampEtiqueta(expdada.getCampEtiqueta());
-		tascaDada.setRequired(expdada.isRequired());
-		tascaDada.setValidacions(expdada.getValidacions());
-		if (expdada.getMultipleDades() != null && !expdada.getMultipleDades().isEmpty()) {
-			List<TascaDadaDto> dadesMult = new ArrayList<TascaDadaDto>();
-			for(ExpedientDadaDto dadaMult : expdada.getMultipleDades()) {
-				dadesMult.add(toTascaDadaDto(dadaMult));
-			}
-			tascaDada.setMultipleDades(dadesMult);
-		}
-		if (expdada.getRegistreDades() != null && !expdada.getRegistreDades().isEmpty()) {
-			List<TascaDadaDto> dadesReg = new ArrayList<TascaDadaDto>();
-			for(ExpedientDadaDto dadaReg : expdada.getRegistreDades()) {
-				dadesReg.add(toTascaDadaDto(dadaReg));
-			}
-			tascaDada.setRegistreDades(dadesReg);
-		}
-		return tascaDada;
-	}*/
 	public static TascaDadaDto getTascaDadaDtoFromExpedientDadaDto(
 			ExpedientDadaDto expedientDadaDto) {
 		TascaDadaDto tascaDto = new TascaDadaDto();
@@ -383,8 +357,9 @@ public class TascaFormHelper {
 					// 3. Si el valor obtingut és null, llavors crearem un objecte Registre o Registre[1] amb els atributs buits, depenent de si és múltiple
 					if (valor == null) {
 						if (camp.isCampMultiple()) {
-							valorRegistre = Array.newInstance(registre.getClass(), 1);
-							((Object[])valorRegistre)[0] = registre;
+							valorRegistre = Array.newInstance(registre.getClass(), camp.isRequired() ? 1 : 0);
+							if (camp.isRequired())
+								((Object[])valorRegistre)[0] = registre;
 						} else {
 							valorRegistre = registre;
 						}
@@ -520,8 +495,9 @@ public class TascaFormHelper {
 					// En al cas de que el camp a emplenar els valor sigui tipus registre, calcularem el seu contingut a valorRegistre:
 					Object registre = registres.get(camp.getVarCodi());
 					if (camp.isCampMultiple()) {
-						valorRegistre = Array.newInstance(registre.getClass(), 1);
-						((Object[])valorRegistre)[0] = registre;
+						valorRegistre = Array.newInstance(registre.getClass(), camp.isRequired() ? 1 : 0);
+						if (camp.isRequired())
+							((Object[])valorRegistre)[0] = registre;
 					} else {
 						valorRegistre = registre;
 					}
@@ -591,8 +567,9 @@ public class TascaFormHelper {
 								command,
 								camp.getVarCodi());
 						if (valor == null) {
-							valorRegistre = Array.newInstance(registre.getClass(), 1);
-							((Object[])valorRegistre)[0] = registre;
+							valorRegistre = Array.newInstance(registre.getClass(), camp.isRequired() ? 1 : 0);
+							if (camp.isRequired())
+								((Object[])valorRegistre)[0] = registre;
 							setSimpleProperty(
 									command, 
 									camp.getVarCodi(),

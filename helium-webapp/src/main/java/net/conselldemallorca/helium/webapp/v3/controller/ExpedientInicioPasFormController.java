@@ -13,6 +13,24 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.propertyeditors.CustomBooleanEditor;
+import org.springframework.beans.propertyeditors.CustomDateEditor;
+import org.springframework.beans.propertyeditors.CustomNumberEditor;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.WebDataBinder;
+import org.springframework.web.bind.annotation.InitBinder;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.support.SessionStatus;
+
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
@@ -35,24 +53,6 @@ import net.conselldemallorca.helium.webapp.v3.helper.ObjectTypeEditorHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.TascaFormHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.TascaFormValidatorHelper;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.propertyeditors.CustomBooleanEditor;
-import org.springframework.beans.propertyeditors.CustomDateEditor;
-import org.springframework.beans.propertyeditors.CustomNumberEditor;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.WebDataBinder;
-import org.springframework.web.bind.annotation.InitBinder;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.support.SessionStatus;
 
 /**
  * Controlador pel pas de formulari de l'inici d'expedient
@@ -351,17 +351,46 @@ public class ExpedientInicioPasFormController extends BaseExpedientController {
 						true));
 		binder.registerCustomEditor(
 				Boolean.class,
-//				new CustomBooleanEditor(false));
 				new CustomBooleanEditor(true));
 		binder.registerCustomEditor(
 				Date.class,
 				new CustomDateEditor(new SimpleDateFormat("dd/MM/yyyy"), true));
-//		binder.registerCustomEditor(
-//				TerminiDto.class,
-//				new TerminiTypeEditorHelper());
 		binder.registerCustomEditor(
 				Object.class,
 				new ObjectTypeEditorHelper());
+	}
+	
+	/** Mètode per retornar l'HTML d'una nova fila per una variable de tipus registre múltiple
+	 * 
+	 */
+	@RequestMapping(value = "/iniciarForm/{expedientTipusId}/afegir/{campId}", method = RequestMethod.GET)
+	public String afegir(
+			HttpServletRequest request,
+			@PathVariable Long expedientTipusId,
+			@PathVariable Long definicioProcesId,
+			@PathVariable String varCodi,
+			@PathVariable String campId,
+			Model model) {
+		
+//		try {
+//			Map<String, Object> campsAddicionals = new HashMap<String, Object>();
+//			Map<String, Class<?>> campsAddicionalsClasses = new HashMap<String, Class<?>>();
+//			List<TascaDadaDto> llistTasca = new ArrayList<TascaDadaDto>();
+//			TascaDadaDto tascaDada = TascaFormHelper.getTascaDadaDtoFromExpedientDadaDto(
+//					expedientDadaService.findOnePerInstanciaProces(expedientId, procesId, varCodi));
+//			if (tascaDada.getError() != null)
+//				MissatgesHelper.error(request, tascaDada.getError());
+//			llistTasca.add(tascaDada);
+//			model.addAttribute("varCodi", varCodi);
+//			model.addAttribute("dada", tascaDada);
+//			Object command = TascaFormHelper.getCommandForCamps(llistTasca, null, campsAddicionals, campsAddicionalsClasses,
+//					false);
+//			model.addAttribute("modificarVariableCommand", command);
+//		} catch (UnsupportedEncodingException ex) {
+//			MissatgesHelper.error(request, ex.getMessage());
+//			logger.error("No s'ha pogut obtenir la informació de la dada " + varCodi + ": " + ex.getMessage(), ex);
+//		}
+		return "v3/campsTascaRegistreRow";
 	}
 
 	private static final Log logger = LogFactory.getLog(ExpedientIniciController.class);

@@ -396,29 +396,35 @@ $(function() {
 		var tr = $(this).closest('tr');
 		if (table.find('tbody tr').size() < 2) {
 			limpiarFila(tr);
+			// deshabilitar i amaga
+			$(tr).find(':input').prop("disabled", "disabled");
+			$(tr).hide();
 		} else {
 			tr.remove();
-			// Renumerar filas
-			table.find("tr.multiple").each(function(index){
-				$('input, textarea, select', this).each(function(){
-					var input = $(this);
-					if (input.attr("id") != null) {
-						var id = input.attr("id");
-						var id_pre = id.substr(0, id.lastIndexOf("["));
-						var id_post = id.substr(id.lastIndexOf("]") + 1);
-						input.attr({"id" : id_pre + "[" + index + "]" + id_post});
-					}
-					if (input.attr("name") != null) {
-						var nom = input.attr("name");
-						if (nom.indexOf("[") > -1) {
-							var nom_pre = nom.substr(0, nom.lastIndexOf("["));
-							var nom_post = nom.substr(nom.lastIndexOf("]") + 1);
-							input.attr({"name" : nom_pre + "[" + index + "]" + nom_post});
-						}
-					}
-				});
-			});
 		}
+		// Renumerar filas
+		renumerarFiles(table);
+		/*
+		table.find("tr.multiple").each(function(index){
+			$('input, textarea, select', this).each(function(){
+				var input = $(this);
+				if (input.attr("id") != null) {
+					var id = input.attr("id");
+					var id_pre = id.substr(0, id.lastIndexOf("["));
+					var id_post = id.substr(id.lastIndexOf("]") + 1);
+					input.attr({"id" : id_pre + "[" + index + "]" + id_post});
+				}
+				if (input.attr("name") != null) {
+					var nom = input.attr("name");
+					if (nom.indexOf("[") > -1) {
+						var nom_pre = nom.substr(0, nom.lastIndexOf("["));
+						var nom_post = nom.substr(nom.lastIndexOf("]") + 1);
+						input.attr({"name" : nom_pre + "[" + index + "]" + nom_post});
+					}
+				}
+			});
+		});
+		*/
 	});
 	
 	// Funcionalitats concretes
@@ -519,10 +525,39 @@ function cleanAction(action) {
 	}
 	return action;
 }
-function addField(idTable) {
+function addField(idTable, campId ) {
 	tabla = $('#' + idTable);
+	// Si no hi ha cap fila n'obté l'html
+	var newTr;
 	tr = $('tr:last', tabla);
-	var newTr = tr.clone();
+	if (tabla.find('tbody tr').size() == 0) {
+		// Si no hi ha cap filla n'obté una des del controlador
+		var trHtml = null;
+		$.ajax({
+			url: '/helium/v3/camptasca/' + campId + '/afegir',
+			success: function(data) {
+				trHtml = $(data, '.multiple').find('tr');
+			},
+			async: false
+		});
+		if (trHtml == null)
+			return;
+		newTr = $(trHtml);		
+	} else	if (tabla.find('tbody tr').size() == 1 
+			&& tr.is(":hidden") ) {
+		// Si n'hi ha una i està amagada llavors la mostra		
+		// habilita i mostra la fila buida
+		$(tr).find(':input').removeProp("disabled");
+		$(tr).show();
+		return;
+	} else {
+		// clona la darrera fila
+		var newTr = tr.clone();
+	}
+	// La afegeix a la taula
+	newTr.appendTo(tabla);
+	
+	// Prepara els events i les propietats de la nova fila
 	$('.select2-container', newTr).remove();
 	limpiarFila(newTr);
 	$('input, textarea, select', newTr).each(function(indice, valor){
@@ -551,9 +586,7 @@ function addField(idTable) {
 			}
 		}
 	});
-	newTr.appendTo(tabla);
-// Camp de tipus price
-	
+	// Camp de tipus price
 	newTr.find(".price").priceFormat({
 			prefix: '',
 			centsSeparator: ',',
@@ -600,6 +633,30 @@ function addField(idTable) {
 			newTr.remove();
 		}
 	});
+	renumerarFiles(tabla);
+}
+
+// Renumerar filas
+function renumerarFiles(table){
+	table.find("tr.multiple").each(function(index){
+		$('input, textarea, select', this).each(function(){
+			var input = $(this);
+			if (input.attr("id") != null) {
+				var id = input.attr("id");
+				var id_pre = id.substr(0, id.lastIndexOf("["));
+				var id_post = id.substr(id.lastIndexOf("]") + 1);
+				input.attr({"id" : id_pre + "[" + index + "]" + id_post});
+			}
+			if (input.attr("name") != null) {
+				var nom = input.attr("name");
+				if (nom.indexOf("[") > -1) {
+					var nom_pre = nom.substr(0, nom.lastIndexOf("["));
+					var nom_post = nom.substr(nom.lastIndexOf("]") + 1);
+					input.attr({"name" : nom_pre + "[" + index + "]" + nom_post});
+				}
+			}
+		});
+	});	
 }
 
 function limpiarFila(tr) {

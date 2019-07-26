@@ -41,14 +41,4 @@ public class NotibWsController {
 				notificacioCanvi.getIdentificador(), 
 				notificacioCanvi.getReferenciaEnviament());
 	}
-	
-//	public ResponseEntity<Void> canvi(@RequestBody NotificacioCanviClient notificacioCanvi, UriComponentsBuilder ucBuilder) {
-//		 
-//    	System.out.println("Rebut: \n"
-//				+ "\t\t identificador: " + notificacioCanvi.getIdentificador() + "\n"
-//				+ "\t\t referencia: " + notificacioCanvi.getReferenciaEnviament());
-//    	
-//        return new ResponseEntity<Void>(HttpStatus.OK);
-//    }
-
 }

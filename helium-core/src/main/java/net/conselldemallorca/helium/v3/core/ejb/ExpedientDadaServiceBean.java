@@ -79,6 +79,13 @@ public class ExpedientDadaServiceBean implements ExpedientDadaService {
 				processInstanceId,
 				varCodi);
 	}
+	
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public ExpedientDadaDto getDadaBuida(long campId) {
+		return delegate.getDadaBuida(campId);
+	}
+
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
@@ -99,5 +106,4 @@ public class ExpedientDadaServiceBean implements ExpedientDadaService {
 				expedientId,
 				processInstanceId);
 	}
-
 }

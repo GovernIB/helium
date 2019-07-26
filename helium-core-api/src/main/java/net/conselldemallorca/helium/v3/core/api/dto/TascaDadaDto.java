@@ -209,7 +209,6 @@ public class TascaDadaDto {
 		dada.setCampId(campId);
 		dada.setVarCodi(varCodi);
 		dada.setVarValor(varValor);
-		dada.setCampId(campId);
 		dada.setCampTipus(campTipus);
 		dada.setCampEtiqueta(campEtiqueta);
 		dada.setCampMultiple(campMultiple);

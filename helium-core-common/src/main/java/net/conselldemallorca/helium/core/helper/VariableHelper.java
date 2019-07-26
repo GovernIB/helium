@@ -235,6 +235,7 @@ public class VariableHelper {
 			String variableCodi) {
 		return getDadaPerInstanciaProces(processInstanceId, variableCodi, false);
 	}
+	
 	public ExpedientDadaDto getDadaPerInstanciaProces(
 			String processInstanceId,
 			String variableCodi, 
@@ -292,6 +293,20 @@ public class VariableHelper {
 					processInstanceId,
 					false);
 		}
+		return dto;
+	}
+	
+	public ExpedientDadaDto getDadaBuida(
+			long campId) {
+		Camp camp = campRepository.findOne(campId);
+		ExpedientDadaDto dto = getDadaPerVariableJbpm(
+					camp,
+					camp.getCodi(),
+					null,
+					null,
+					null,
+					null,
+					false);
 		return dto;
 	}
 

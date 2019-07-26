@@ -104,6 +104,19 @@ public interface ExpedientDadaService {
 			String varCodi) throws NoTrobatException, PermisDenegatException;
 
 	/**
+	 * Retorna una variable de la instància de procés segons l'identificador del camp.
+	 * 
+	 * @param campId
+	 *            Identificador de la variable..
+	 * @return la informació de la variable.
+	 * @throws NoTrobatException
+	 *             Si no s'ha trobat l'element amb l'id especificat.
+	 * @throws PermisDenegatException
+	 *             Si no es tenen els permisos adequats.
+	 */
+	public ExpedientDadaDto getDadaBuida(long campId);
+	
+	/**
 	 * Retorna les dades d'una instància de procés.
 	 * 
 	 * @param expedientId

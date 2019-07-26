@@ -103,12 +103,6 @@
 					</c:forEach>
 					<c:if test="${!dadaActual.readOnly && !tasca.validada}">
 						<td class="opciones">
-							<button 
-								class="btn fa fa-times eliminarFila" 
-								type="button" 
-								value="<spring:message code='comuns.esborrar' />" 
-								title="<spring:message code='comuns.esborrar' />">
-							</button>
 						</td>
 					</c:if>
 				</tr>
@@ -123,7 +117,7 @@
 				<button id="button_add_table_mult_${varStatusMain.index}"
 					type="button" 
 					class="btn btn-default pull-left btn_afegir"
-					onclick="return addField('table_mult_${varStatusMain.index}')">
+					onclick="return addField('table_mult_${varStatusMain.index}', '${dada.campId}')">
 						<spring:message code='comuns.afegir' />
 				</button>
 			</div>
