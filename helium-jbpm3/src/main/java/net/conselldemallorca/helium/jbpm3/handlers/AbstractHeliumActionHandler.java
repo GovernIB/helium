@@ -126,7 +126,10 @@ abstract class AbstractHeliumActionHandler implements ActionHandler {
 	protected String getProcessInstanceId(ExecutionContext executionContext) {
 		return new Long(executionContext.getProcessInstance().getId()).toString();
 	}
-
+	protected String getTaskInstanceId(ExecutionContext executionContext) {
+		return new Long(executionContext.getTaskInstance().getId()).toString();
+	}
+	
 	protected Date getVariableComData(ExecutionContext executionContext,
 			String var) {
 		Object obj = executionContext.getVariable(var);
