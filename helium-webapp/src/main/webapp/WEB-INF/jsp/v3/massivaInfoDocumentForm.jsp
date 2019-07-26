@@ -70,12 +70,6 @@ $(document).ready( function() {
 	$('#firmaNom').on('click', function() {
 		$('input[name=firma]').click();
 	});
-	// Errors en les pipelles
-	$('.tab-pane').each(function() {
-		if ($('.has-error', this).length > 0) {
-			$('a[href="#' + $(this).attr('id') + '"]').append(' <span class="fa fa-exclamation-triangle text-danger"/>');
-		}
-	});
 	$('input[type=checkbox][name=ambFirma]').on('change', function() {
 		if($(this).prop("checked") == true){
 			$('#input-firma').removeClass('hidden');
@@ -107,10 +101,11 @@ $(document).ready( function() {
 </script>
 </head>
 <body>
-	<form:form cssClass="form-horizontal form-tasca" action="documentModificarMas" enctype="multipart/form-data" method="post" commandName="documentExpedientCommand">
+	<form:form cssClass="form-horizontal form-tasca" action="documentMasForm" enctype="multipart/form-data" method="post" commandName="documentExpedientCommand">
 
 		<input id="inici" name="inici" value="${inici}" type="hidden"/>
 		<input id="correu" name="correu" value="${correu}" type="hidden"/>
+		<input id="adjuntar" name="adjuntar" value="${adjuntar}" type="hidden"/>
 		<form:hidden path="docId"/>
 		<form:hidden path="codi"/>
 		<form:hidden path="expedientId"/>

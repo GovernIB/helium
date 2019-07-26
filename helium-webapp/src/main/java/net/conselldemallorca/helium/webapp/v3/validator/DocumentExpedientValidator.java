@@ -94,9 +94,10 @@ public class DocumentExpedientValidator implements ConstraintValidator<DocumentE
 			.addConstraintViolation();
 			valid = false;				
 		}
-		if ((DocumentExpedientCommand.ADJUNTAR_ARXIU_CODI.equalsIgnoreCase(command.getDocumentCodi()) 
-				|| command.getDocumentCodi() == null)
-			&& (command.getNom() == null || "".equals(command.getNom().trim()))) {
+		if (command.getDocId() == null
+				&&(DocumentExpedientCommand.ADJUNTAR_ARXIU_CODI.equalsIgnoreCase(command.getDocumentCodi()) 
+						|| command.getDocumentCodi() == null)
+				&& (command.getNom() == null || "".equals(command.getNom().trim()))) {
 			context.buildConstraintViolationWithTemplate(MessageHelper.getInstance().getMessage("not.blank"))
 			.addNode("nom")
 			.addConstraintViolation();

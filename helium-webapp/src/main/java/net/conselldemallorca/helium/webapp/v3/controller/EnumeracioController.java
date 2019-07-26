@@ -458,6 +458,8 @@ public class EnumeracioController extends BaseDissenyController {
         				+ "enumeracions_exp.csv" + "\"");
         		response.setContentType("text/plain");
         		response.getOutputStream().write(estatsString.getBytes());
+        		// Marca refrescar la pàgina després d'1s
+        		response.setHeader("Refresh", "1; url = index");
         
         	} catch(Exception e) {
         		logger.error(e);
@@ -465,14 +467,14 @@ public class EnumeracioController extends BaseDissenyController {
         				request,
         				getMessage(
         						request, 
-        						"expedient.tipus.enumeracio.valors.exportats",
+        						"expedient.tipus.enumeracio.valors.exportats.error",
         						new Object[]{e.getLocalizedMessage()}));
         	}
     		MissatgesHelper.success(
 					request, 
 					getMessage(
 							request, 
-							"expedient.tipus.enumeracio.valors.exportats.error"));        			
+							"expedient.tipus.enumeracio.valors.exportats"));        			
         
 	}
 	
