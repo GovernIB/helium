@@ -208,11 +208,14 @@ public class HeliumApiImpl implements HeliumApi {
 	
 	@Override
 	public String getVariableText(String varCodi) {
+		String text = null;
 		if (isTaskInstanceExecution()) {
-			return getVariableInstanciaTascaText(varCodi);
-		} else {
-			return getVariableInstanciaProcesText(varCodi);
+			text = getVariableInstanciaTascaText(varCodi);
+		} 
+		if (!isTaskInstanceExecution() || text == null) {
+			text= getVariableInstanciaProcesText(varCodi);
 		}
+		return text;
 	}
 	
 	@Override

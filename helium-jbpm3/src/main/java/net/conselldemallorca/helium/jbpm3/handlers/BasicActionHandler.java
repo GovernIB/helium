@@ -743,11 +743,14 @@ public abstract class BasicActionHandler extends AbstractHeliumActionHandler imp
 	public String getVariableText(
 			ExecutionContext executionContext,
 			String varCodi) {
+		String text = null;
 		if (isTaskInstanceExecution(executionContext)) {
-			return getVariableInstanciaTascaText(executionContext, varCodi);
-		} else {
-			return getVariableInstanciaProcesText(executionContext, varCodi);
+			text = getVariableInstanciaTascaText(executionContext, varCodi);
+		} 
+		if (!isTaskInstanceExecution(executionContext) || text == null) {
+			text = getVariableInstanciaProcesText(executionContext, varCodi);
 		}
+		return text;
 	}
 	
 	/** Consulta en el executionContext si i ha cap instància de tasca activa i per tant si s'està
