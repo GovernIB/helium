@@ -153,10 +153,10 @@
 			 		$("a[name='document_modificar']").addClass('disabled');
 			 	} else {
 			 		$("a[name='document_modificar']").removeClass('disabled');
-			 		$("a[name='document_modificar']").attr("href","../../v3/expedient/massiva/"+docId+"/documentModificar?inici="+$("#inici").val()+"&correu="+$("#correu").is(":checked"));
+			 		$("a[name='document_modificar']").attr("href","../../v3/expedient/massiva/documentMassiu?inici="+$("#inici").val()+"&correu="+$("#correu").is(":checked")+"&docId="+docId+"&adjuntar=false");
 			 		$("button[value='document_esborrar']").prop('disabled', false);
 			 	}
-				$("a[name='document_adjuntar_massiu']").attr("href","../../v3/expedient/massiva/documentAdjunt?inici="+$("#inici").val()+"&correu="+$("#correu").is(":checked")+"&docId="+docId);
+				$("a[name='document_adjuntar_massiu']").attr("href","../../v3/expedient/massiva/documentMassiu?inici="+$("#inici").val()+"&correu="+$("#correu").is(":checked")+"&docId="+docId+"&adjuntar=true");
 			 	$("button[value='document_generar']").prop('disabled', !eval("docPlantilla." + doc));
 			});
 			$("button[value='document_esborrar']").prop('disabled', true);
@@ -199,7 +199,7 @@
 		input[type="checkbox"] {float: left;margin: 4px 10px 0 0;}
 		.label-titol .form-group, .col-sm-6 {margin-left: 0px}
 		.select2-container.form-control {width: calc(100% - 15px) !important;display: inline-block;}
-		#documentModificarMas button, #documentModificarMas a.btn {margin-left: 4.45px; margin-right: 4.45px;}
+		#documentMas button, #documentMas a.btn {margin-left: 4.45px; margin-right: 4.45px;}
 		#massivaCanviVersio label.control-label {font-weight: normal}
 		#massivaCanviVersio btn {font-weight: normal}
 		#massivaCanviVersio #subDefinicionsProces.form-group {padding-right: 15px;}
@@ -263,7 +263,7 @@
 							<option value="massivaExecutarAccio"><spring:message code='expedient.massiva.accions' /></option>
 							<option value="reindexarMas"><spring:message code='expedient.eines.reindexar.expedients' /></option>
 							<option value="modificarVariablesMasCommand"><spring:message code='expedient.massiva.modificar_variables' /></option>
-							<option value="documentModificarMas"><spring:message code='expedient.massiva.documents' /></option>
+							<option value="documentMas"><spring:message code='expedient.massiva.documents' /></option>
 							<option value="buidarlogMas"><spring:message code='expedient.eines.buidarlog.expedients' /></option>
 							<option value="reprendreExpedientMas"><spring:message code='expedient.eines.reprendre_expedients' /></option>
 							<option value="finalitzarExpedientMas"><spring:message code='expedient.eines.finalitzar_expedients' /></option>
@@ -495,9 +495,12 @@
 			<label class="control-label"><spring:message code='expedient.massiva.documents' /></label>
 			<div class="form-group">
 				<c:if test="${not empty documents}">
-					<form:form cssClass="form-horizontal form-tasca" id="documentModificarMas" name="documentModificarMas" action="massiva/documentModificarMas" method="post" commandName="documentExpedientCommand" onsubmit="return confirmarModificarDocument(event)">
+					<form:form cssClass="form-horizontal form-tasca" id="documentMas" name="documentMas" action="massiva/documentMas" method="post" commandName="documentExpedientCommand" onsubmit="return confirmarModificarDocument(event)">
+						<form:hidden path="expedientId"/>
+						
 						<form:hidden path="expedientId"/>
 						<hel:inputSelect inline="true" name="docId" textKey="expedient.massiva.documents" placeholderKey="expedient.consulta.select.document" optionItems="${documents}" optionValueAttribute="id" optionTextAttribute="documentNom" required="true" emptyOption="true"/>
+
 						<a data-rdt-link-modal-min-height="500" class="btn btn-primary right" name="document_modificar" href="#" data-rdt-link-modal="true"><spring:message code='comuns.modificar' /></a>
 						
 						<button class="btn btn-primary right" type="submit" name="accio" value="document_generar">
@@ -506,7 +509,7 @@
 						<button class="btn btn-primary right" type="submit" name="accio" value="document_esborrar">
 							<spring:message code='comuns.esborrar' />
 						</button>
-						<a data-rdt-link-modal-min-height="500" class="btn btn-primary right" name="document_adjuntar_massiu" href="../../v3/expedient/massiva/documentAdjunt" data-rdt-link-modal="true"><spring:message code='expedient.document.adjuntar_document_massiu' /></a>
+						<a data-rdt-link-modal-min-height="500" class="btn btn-primary right" name="document_adjuntar_massiu" href="../../v3/expedient/massiva/documentMassiu" data-rdt-link-modal="true"><spring:message code='expedient.document.adjuntar_document_massiu' /></a>
 					</form:form>
 				</c:if>
 				<c:if test="${empty documents}">
@@ -516,7 +519,7 @@
 		</div>
 	</div>
 	<script type="text/javascript">
-		$("#documentModificarMas a").heliumEvalLink({
+		$("#documentMas a").heliumEvalLink({
 			refrescarAlertes: true,
 			refrescarPagina: false
 		});

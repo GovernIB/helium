@@ -14,6 +14,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.NtiEstadoElaboracionEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NtiOrigenEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NtiTipoDocumentalEnumDto;
 import net.conselldemallorca.helium.webapp.v3.command.DocumentExpedientCommand.Create;
+import net.conselldemallorca.helium.webapp.v3.command.DocumentExpedientCommand.Massiu;
 import net.conselldemallorca.helium.webapp.v3.command.DocumentExpedientCommand.Update;
 import net.conselldemallorca.helium.webapp.v3.validator.DocumentExpedient;
 
@@ -22,7 +23,7 @@ import net.conselldemallorca.helium.webapp.v3.validator.DocumentExpedient;
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
-@DocumentExpedient(groups = {Create.class, Update.class})
+@DocumentExpedient(groups = {Create.class, Update.class, Massiu.class})
 public class DocumentExpedientCommand {
 	
 	/** Cadena per diferenciar quan s'adjunta un document adjunt en comptes d'un document definit al tipus d'expedient. */
@@ -160,4 +161,5 @@ public class DocumentExpedientCommand {
 
 	public interface Create {}
 	public interface Update {}
+	public interface Massiu {}
 }

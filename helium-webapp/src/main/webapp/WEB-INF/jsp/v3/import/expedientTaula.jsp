@@ -38,7 +38,9 @@
 	  	padding-right: 15px;
 	}
 	.var_dades.var_registre {overflow: auto}
- 	#grup-default-dades label.obligatori {background-position: right 7px;padding-right: 15px;} 
+ 	#grup-default-dades label.obligatori {background-position: right 7px;padding-right: 15px;}
+ 	.taula_registre {color: #666666 !important;}
+	.taula_registre thead label {color: #666666 !important; }
 </style>
 
 <c:set var="grupId" value="grup-default"/>

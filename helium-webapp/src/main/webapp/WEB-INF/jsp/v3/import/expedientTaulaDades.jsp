@@ -9,7 +9,7 @@
 		<c:choose>
 			<c:when test="${dadaTipusRegistre}">
 				<c:set var="registreFilesTaula" value="${dada.dadesRegistrePerTaula}"/>
-				<table class="table table-bordered table-condensed marTop6">
+				<table class="table table-bordered table-condensed marTop6 taula_registre">
 					<thead>
 						<tr>
 							<c:forEach var="dadaFila0" items="${registreFilesTaula[0].registreDades}">

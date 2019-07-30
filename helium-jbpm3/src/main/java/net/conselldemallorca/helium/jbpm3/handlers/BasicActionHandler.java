@@ -18,6 +18,7 @@ import org.jbpm.graph.exe.Token;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
+import net.conselldemallorca.helium.jbpm3.handlers.exception.HeliumHandlerException;
 import net.conselldemallorca.helium.jbpm3.handlers.exception.ValidationException;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.DadesEnviament;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.DadesNotificacio;
@@ -60,6 +61,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.RegistreNotificacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RespostaJustificantDetallRecepcioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RespostaJustificantRecepcioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ServeiTipusEnumDto;
+import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
 
 
 
@@ -741,6 +743,58 @@ public abstract class BasicActionHandler extends AbstractHeliumActionHandler imp
 	public String getVariableText(
 			ExecutionContext executionContext,
 			String varCodi) {
+		String text = null;
+		if (isTaskInstanceExecution(executionContext)) {
+			text = getVariableInstanciaTascaText(executionContext, varCodi);
+		} 
+		if (!isTaskInstanceExecution(executionContext) || text == null) {
+			text = getVariableInstanciaProcesText(executionContext, varCodi);
+		}
+		return text;
+	}
+	
+	/** Consulta en el executionContext si i ha cap instància de tasca activa i per tant si s'està
+	 * executant dins del context d'una tasca.
+	 * 
+	 * @param executionContext
+	 * @return
+	 */
+	public boolean isTaskInstanceExecution(ExecutionContext executionContext) {
+		return executionContext.getTaskInstance() != null;
+	}
+	
+	/** Retorna el valor text d'una variable cercant només en el context de la tasca.
+	 * 
+	 * @param executionContext
+	 * @param varCodi
+	 * @return
+	 * @throws HeliumHandlerException
+	 */
+	public String getVariableInstanciaTascaText(
+			ExecutionContext executionContext, 
+			String varCodi) throws HeliumHandlerException {
+		if (!isTaskInstanceExecution(executionContext)) {
+			throw new HeliumHandlerException("No taskInstance execution context.");
+		}
+		TascaDadaDto dto = Jbpm3HeliumBridge.getInstanceService().getDadaPerTaskInstance(
+				getProcessInstanceId(executionContext),
+				getTaskInstanceId(executionContext),
+				varCodi);
+		if (dto == null)
+			return null;
+		else
+			return dto.getText();
+	}
+	
+	/** Retorna el valor text d'una variable cercant només en el context del procés.
+	 * 
+	 * @param executionContext
+	 * @param varCodi
+	 * @return
+	 */
+	public String getVariableInstanciaProcesText(
+			ExecutionContext executionContext,
+			String varCodi) {
 		ExpedientDadaDto dto = Jbpm3HeliumBridge.getInstanceService().getDadaPerProcessInstance(
 				getProcessInstanceId(executionContext),
 				varCodi);
@@ -749,6 +803,7 @@ public abstract class BasicActionHandler extends AbstractHeliumActionHandler imp
 		else
 			return dto.getText();
 	}
+	
 	public String getTextPerVariableAmbDomini(
 			ExecutionContext executionContext,
 			String varCodi) {

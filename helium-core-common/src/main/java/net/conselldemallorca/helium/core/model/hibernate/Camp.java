@@ -609,10 +609,10 @@ public class Camp implements Serializable, GenericEntity<Long> {
 	}
 
 	@Column(name="domini_intern")
-	public Boolean getDominiIntern() {
+	public boolean getDominiIntern() {
 		return dominiIntern;
 	}
-	public void setDominiIntern(Boolean dominiIntern) {
+	public void setDominiIntern(boolean dominiIntern) {
 		this.dominiIntern = dominiIntern;
 	}
 	

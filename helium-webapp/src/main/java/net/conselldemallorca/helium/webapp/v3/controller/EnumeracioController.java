@@ -458,6 +458,8 @@ public class EnumeracioController extends BaseDissenyController {
         				+ "enumeracions_exp.csv" + "\"");
         		response.setContentType("text/plain");
         		response.getOutputStream().write(estatsString.getBytes());
+        		// Marca refrescar la pàgina després d'1s
+        		response.setHeader("Refresh", "1; url = index");
         
         	} catch(Exception e) {
         		logger.error(e);
