@@ -142,7 +142,7 @@
 							</c:if>
 							<c:if test="${not empty arxiuDetall.contingutArxiuNom}">
 								<tr>
-									<td width="30%"><strong><spring:message code="expedient.metadades.nti.camp.expedient.metadades.nti.nom"/></strong></td>
+									<td width="30%"><strong><spring:message code="expedient.metadades.nti.camp.contingut.arxiu.nom"/></strong></td>
 									<td>${arxiuDetall.contingutArxiuNom}</td>
 								</tr>
 							</c:if>

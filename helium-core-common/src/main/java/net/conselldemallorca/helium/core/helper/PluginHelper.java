@@ -3328,6 +3328,7 @@ public class PluginHelper {
 			arxiuFirma.setAutofirma(false);
 			arxiuFirma.setContingut(firma.getContingut());
 			arxiuFirma.setFitxerNom(firma.getNom());
+			arxiuFirma.setTipusMime(firma.getTipusMime());
 			arxiuFirma.setTipus(NtiTipoFirmaEnumDto.valueOf(firmaTipus.name()));
 			arxiuFirma.setPerfil(ArxiuFirmaPerfilEnumDto.valueOf(firmaPerfil.name()));
 			firmes = Arrays.asList(arxiuFirma);

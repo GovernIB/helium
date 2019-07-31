@@ -1589,7 +1589,8 @@ public class DocumentHelperV3 {
 			ArxiuDto arxiuFirmat = new ArxiuDto();
 			if (isPades) {
 				// PAdES
-				arxiuFirmat.setNom("firma_portafirmes.pdf");
+				String arxiuNom = inArxiu("firma_portafirmes", FilenameUtils.getExtension("firma_portafirmes.pdf"), processInstanceId);
+				arxiuFirmat.setNom(arxiuNom);
 				arxiuFirmat.setTipusMime("application/pdf");
 				arxiuFirmat.setContingut(signatura);
 				pluginHelper.arxiuDocumentGuardarPdfFirmat(
@@ -1599,7 +1600,8 @@ public class DocumentHelperV3 {
 						arxiuFirmat);
 			} else {
 				// CAdES
-				arxiuFirmat.setNom("firma_portafirmes.csig");
+				String firmaNom = inArxiu("firma_portafirmes.csig", FilenameUtils.getExtension("firma_portafirmes.csig"), processInstanceId);
+				arxiuFirmat.setNom(firmaNom);
 				arxiuFirmat.setTipusMime("application/octet-stream");
 				arxiuFirmat.setContingut(signatura);
 				pluginHelper.arxiuDocumentGuardarFirmaCadesDetached(
@@ -2412,9 +2414,17 @@ public class DocumentHelperV3 {
 					noms.add(contingut.getNom());
 				}
 				String nName = new String(arxiuNom);
-				while(noms.indexOf(nName + "." + extensio) >= 0) {
-					ocurrences ++;
-					nName = arxiuNom + " (" + ocurrences + ")";
+				//Si no troba el fitxer amb extensió el cerca sense
+				if (noms.indexOf(nName + "." + extensio) == -1) {
+					while(noms.indexOf(nName) >= 0) {
+						ocurrences ++;
+						nName = arxiuNom + " (" + ocurrences + ")";
+					}
+				} else {
+					while(noms.indexOf(nName + "." + extensio) >= 0) {
+						ocurrences ++;
+						nName = arxiuNom + " (" + ocurrences + ")";
+					}
 				}
 				return nName;
 			}
