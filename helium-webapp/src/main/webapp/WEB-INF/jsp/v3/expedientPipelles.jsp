@@ -342,13 +342,6 @@ dd.subproc {
 							</c:forEach>
 						</c:if>
 					</dd>
-<%-- 					<div id="canviDefinicioProcesJbpm" class="hide">
- 						<select id="definicioProcesVersio">
- 							<c:forEach var="opt" items="${definicioProces.listVersioAmbEtiqueta}">
- 								<option value="${opt.versio}" <c:if test="${opt.versio == definicioProces.versio}"> selected</c:if>>${opt.etiqueta}</option>
- 							</c:forEach>
- 						</select>
- 					</div> --%>
 				</dl>
 				<c:if test="${not empty relacionats}">
 					<h4 id="expedient-info-relacionats"><spring:message code="expedient.info.relacionats"/></h4>
@@ -414,7 +407,9 @@ dd.subproc {
 							
 							<li class="divider"></li>
 							<c:if test="${expedient.permisWrite}">
-								<li><a data-rdt-link-confirm="<spring:message code="expedient.eines.finalitzar"/>" href="<c:url value="../../v3/expedient/${expedientId}/finalitzar"/>"><span class="fa fa-power-off"></span>&nbsp;<spring:message code="expedient.info.accio.finalitzar"/></a></li>
+								<c:if test="${empty expedient.dataFi}">
+									<li><a data-rdt-link-confirm="<spring:message code="expedient.eines.finalitzar"/>" href="<c:url value="../../v3/expedient/${expedientId}/finalitzar"/>"><span class="fa fa-power-off"></span>&nbsp;<spring:message code="expedient.info.accio.finalitzar"/></a></li>
+								</c:if>
 							</c:if>
 							<c:if test="${expedient.permisWrite}">
 								<li><a data-rdt-link-modal="true" href="<c:url value="../../v3/expedient/${expedientId}/modificar"/>"><span class="fa fa-pencil"></span>&nbsp;<spring:message code="expedient.info.accio.modificar"/></a></li>

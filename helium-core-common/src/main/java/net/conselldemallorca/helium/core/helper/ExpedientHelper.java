@@ -686,25 +686,34 @@ public class ExpedientHelper {
 
 		//tancam l'expedient de l'arxiu si escau
 		if (expedient.isArxiuActiu()) {
-			List<ContingutArxiu> continguts = pluginHelper.arxiuExpedientInfo(expedient.getArxiuUuid()).getContinguts();
-			if(continguts == null || continguts.isEmpty()) {
-				// S'eborra l'expedient del arxiu si no te cap document.
-				pluginHelper.arxiuExpedientEsborrar(expedient.getArxiuUuid());
-				expedient.setArxiuUuid(null);
-			}else {
-				//firmem els documents que no estan firmats
-				expedientHelper.firmarDocumentsPerArxiuFiExpedient(expedient);				
-				// Tanca l'expedient a l'arxiu.
-				pluginHelper.arxiuExpedientTancar(expedient.getArxiuUuid());
-			}
-		}
-		
+			this.tancarExpedientArxiu(expedient);
+		}		
 		crearRegistreExpedient(
 				expedient.getId(),
 				SecurityContextHolder.getContext().getAuthentication().getName(),
 				Registre.Accio.FINALITZAR);
 	}
-	
+
+	/** Mètode comú per tancar l'expedient a l'Arxiu en el cas de finalitzar manualment un expedient o des de la verificació
+	 * i finalització d'una tasca. Si no té contingut l'esborra de l'arxiu i si en té firma els documents sense firma i el tanca.
+	 * 
+	 * @param expedient
+	 * 			Expedient amb la propietat isArxiuActiu a true.
+	 */
+	private void tancarExpedientArxiu(Expedient expedient) {
+		List<ContingutArxiu> continguts = pluginHelper.arxiuExpedientInfo(expedient.getArxiuUuid()).getContinguts();
+		if(continguts == null || continguts.isEmpty()) {
+			// S'eborra l'expedient del arxiu si no te cap document.
+			pluginHelper.arxiuExpedientEsborrar(expedient.getArxiuUuid());
+			expedient.setArxiuUuid(null);
+		}else {
+			//firmem els documents que no estan firmats
+			expedientHelper.firmarDocumentsPerArxiuFiExpedient(expedient);				
+			// Tanca l'expedient a l'arxiu.
+			pluginHelper.arxiuExpedientTancar(expedient.getArxiuUuid());
+		}
+	}
+
 	@Transactional
 	public void desfinalitzar(
 			Expedient expedient,
@@ -1277,12 +1286,8 @@ public class ExpedientHelper {
 				expedient.setDataFi(processInstance.getEnd());
 				
 				//tancam l'expedient de l'arxiu si escau
-				if (expedient.getTipus().isArxiuActiu() && expedient.getArxiuUuid() != null) {
-					//firmem els documents que no estan firmats
-					this.firmarDocumentsPerArxiuFiExpedient(expedient);
-					
-					// Tanca l'expedient a l'arxiu.
-					pluginHelper.arxiuExpedientTancar(expedient.getArxiuUuid());
+				if (expedient.isArxiuActiu()) {
+					this.tancarExpedientArxiu(expedient);
 				}
 			}
 			// Finalitzar terminis actius
