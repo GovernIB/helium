@@ -24,6 +24,7 @@ $(document).ready(function() {
 	});
 	$('#expedientTipusMetadadesNtiCommand').submit(function(e) {
 		$('#accioGuardarProcessant').show();
+		webutilRefreshMissatges();
 		$(this).webutilNetejarErrorsCamps();
 		var url = $(this).attr('action'); 
 		$.ajax({

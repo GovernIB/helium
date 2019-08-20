@@ -840,10 +840,7 @@ public class ExpedientHelper {
 			documentStore.setArxiuContingut(null);			
 		}
 		if (expedient.getDataFi() != null) {
-			// Firma el socuments
-			firmarDocumentsPerArxiuFiExpedient(expedient);
-			// Tanca l'expedient a l'arxiu
-			pluginHelper.arxiuExpedientTancar(expedient.getArxiuUuid());
+			this.tancarExpedientArxiu(expedient);
 		}
 	}
 	
