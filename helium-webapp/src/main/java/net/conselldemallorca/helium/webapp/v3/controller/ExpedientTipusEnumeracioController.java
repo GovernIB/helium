@@ -189,40 +189,29 @@ public class ExpedientTipusEnumeracioController extends BaseExpedientTipusContro
 	public void exportarPost(
 			HttpServletRequest request,
 			HttpServletResponse response,
-			@PathVariable Long enumeracioId) {
+			@PathVariable Long enumeracioId) throws Exception {
 
-        	try {
-        		List<ExpedientTipusEnumeracioValorDto> enumeracioValors = enumeracioService.valorsFind(enumeracioId);
-        		
-        		String estatsString = "";
-        		for(ExpedientTipusEnumeracioValorDto enumeracio: enumeracioValors){
-        			estatsString +=
-        					enumeracio.getCodi()+";"+enumeracio.getNom()+";"+enumeracio.getOrdre()+"\n";
-        		}
-        		
-        		response.setHeader("Pragma", "");
-        		response.setHeader("Expires", "");
-        		response.setHeader("Cache-Control", "");
-        		response.setHeader("Content-Disposition", "attachment; filename=\""
-        				+ "enumeracions_exp.csv" + "\"");
-        		response.setContentType("text/plain");
-        		response.getOutputStream().write(estatsString.getBytes());
-        
-        	} catch(Exception e) {
-        		logger.error(e);
-        		MissatgesHelper.error(
-        				request,
-        				getMessage(
-        						request, 
-        						"expedient.tipus.enumeracio.valors.exportats.error",
-        						new Object[]{e.getLocalizedMessage()}));
-        	}
-    		MissatgesHelper.success(
-					request, 
-					getMessage(
-							request, 
-							"expedient.tipus.enumeracio.valors.exportats"));        			
-        
+    	try {
+			EnumeracioDto enumeracio = enumeracioService.findAmbId(enumeracioId);
+    		List<ExpedientTipusEnumeracioValorDto> enumeracioValors = enumeracioService.valorsFind(enumeracioId);
+    		
+    		String estatsString = "";
+    		for(ExpedientTipusEnumeracioValorDto enumeracioValor: enumeracioValors){
+    			estatsString +=
+    					enumeracioValor.getCodi()+";"+enumeracioValor.getNom()+";"+enumeracioValor.getOrdre()+"\n";
+    		}
+    		
+    		response.setHeader("Pragma", "");
+    		response.setHeader("Expires", "");
+    		response.setHeader("Cache-Control", "");
+    		response.setHeader("Content-Disposition", "attachment; filename=\""
+    				+ enumeracio.getCodi() + ".csv" + "\"");
+    		response.setContentType("text/plain");
+    		response.getOutputStream().write(estatsString.getBytes());        
+    	} catch(Exception e) {
+    		logger.error("Error exportant valors per l'enumeració amb id " + enumeracioId, e);
+    		throw(e);
+    	}        
 	}
 	
 	private static final Log logger = LogFactory.getLog(ExpedientTipusEnumeracioController.class);
