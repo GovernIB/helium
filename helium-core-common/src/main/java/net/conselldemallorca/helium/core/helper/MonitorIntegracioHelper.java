@@ -327,7 +327,7 @@ public class MonitorIntegracioHelper {
 		} else if (INTCODI_FIRMA_SERV.equals(codi)) {
 			integracio.setDescripcio("Firma serv.");
 		} else if (INTCODI_NOTIB.equals(codi)) {
-			integracio.setDescripcio("Notificcació");
+			integracio.setDescripcio("Notificació");
 		} else if (INTCODI_VALIDASIG.equals(codi)) {
 			integracio.setDescripcio("Valida sign.");
 		}
