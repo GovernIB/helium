@@ -169,7 +169,7 @@
 		$('#btnImp').click(function(){
 			mostraFormulariImp();
 		});
-		
+				
 		// Quan es repinta la taula aplica la reordenació
 		$('#campValidacio').on('draw.dt', function() {
 			/* <c:if test="${!heretat}"> */

@@ -2739,7 +2739,7 @@ public class PluginHelper {
 			return resposta;
 			
 		} catch (Exception ex) {
-			String errorDescripcio = "No s'ha pogut esborrar el document: " + ex.getMessage();
+			String errorDescripcio = "No s'ha pogut enviar l'alta de notificació: " + ex.getMessage();
 			monitorIntegracioHelper.addAccioError(
 					MonitorIntegracioHelper.INTCODI_NOTIB,
 					accioDescripcio,

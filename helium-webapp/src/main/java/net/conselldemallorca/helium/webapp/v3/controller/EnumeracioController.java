@@ -440,42 +440,29 @@ public class EnumeracioController extends BaseDissenyController {
 	public void exportarPost(
 			HttpServletRequest request,
 			HttpServletResponse response,
-			@PathVariable Long enumeracioId) {
+			@PathVariable Long enumeracioId) throws Exception {
 
         	try {
+    			EnumeracioDto enumeracio = enumeracioService.findAmbId(null, enumeracioId);
         		List<ExpedientTipusEnumeracioValorDto> enumeracioValors = enumeracioService.valorsFind(enumeracioId);
         		
         		String estatsString = "";
-        		for(ExpedientTipusEnumeracioValorDto enumeracio: enumeracioValors){
+        		for(ExpedientTipusEnumeracioValorDto enumeracioValor: enumeracioValors){
         			estatsString +=
-        					enumeracio.getCodi()+";"+enumeracio.getNom()+";"+enumeracio.getOrdre()+"\n";
+        					enumeracioValor.getCodi()+";"+enumeracioValor.getNom()+";"+enumeracioValor.getOrdre()+"\n";
         		}
         		
         		response.setHeader("Pragma", "");
         		response.setHeader("Expires", "");
         		response.setHeader("Cache-Control", "");
         		response.setHeader("Content-Disposition", "attachment; filename=\""
-        				+ "enumeracions_exp.csv" + "\"");
+        				+ enumeracio.getCodi() + ".csv" + "\"");
         		response.setContentType("text/plain");
         		response.getOutputStream().write(estatsString.getBytes());
-        		// Marca refrescar la pàgina després d'1s
-        		response.setHeader("Refresh", "1; url = index");
-        
         	} catch(Exception e) {
-        		logger.error(e);
-        		MissatgesHelper.error(
-        				request,
-        				getMessage(
-        						request, 
-        						"expedient.tipus.enumeracio.valors.exportats.error",
-        						new Object[]{e.getLocalizedMessage()}));
-        	}
-    		MissatgesHelper.success(
-					request, 
-					getMessage(
-							request, 
-							"expedient.tipus.enumeracio.valors.exportats"));        			
-        
+        		logger.error("Error exportant valors per l'enumeració amb id " + enumeracioId, e);
+        		throw(e);
+        	}        
 	}
 	
 	private boolean valorExisteix(Long expedientTipusId, Long enumeracioId, String codi) {

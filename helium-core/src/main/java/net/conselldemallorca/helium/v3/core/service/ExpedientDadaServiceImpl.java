@@ -152,8 +152,7 @@ public class ExpedientDadaServiceImpl implements ExpedientDadaService {
 		}else {
 			camp = campRepository.findByDefinicioProcesAndCodi(definicioProces, varCodi);
 		}
-					
-		if (camp.isDominiCacheText())
+		if (camp != null && camp.isDominiCacheText())
 			jbpmHelper.deleteProcessInstanceVariable(processInstanceId, JbpmVars.PREFIX_VAR_DESCRIPCIO + varCodi);
 		
 		expedientLoggerHelper.afegirLogExpedientPerProces(
@@ -213,9 +212,8 @@ public class ExpedientDadaServiceImpl implements ExpedientDadaService {
 			camp = campRepository.findByExpedientTipusAndCodi(e.getTipus().getId(), varCodi, e.getTipus().getExpedientTipusPare() != null);
 		}else {
 			camp = campRepository.findByDefinicioProcesAndCodi(definicioProces, varCodi);
-		}
-					
-		if (camp.isDominiCacheText())
+		}			
+		if (camp != null && camp.isDominiCacheText())
 			jbpmHelper.deleteProcessInstanceVariable(processInstanceId, JbpmVars.PREFIX_VAR_DESCRIPCIO + varCodi);
 		
 		indexHelper.expedientIndexLuceneDelete(processInstanceId, varCodi);
