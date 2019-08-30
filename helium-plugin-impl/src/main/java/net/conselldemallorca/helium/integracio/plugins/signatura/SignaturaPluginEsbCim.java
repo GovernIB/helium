@@ -3,8 +3,11 @@
  */
 package net.conselldemallorca.helium.integracio.plugins.signatura;
 
+import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.xml.namespace.QName;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,7 +22,7 @@ import es.cim.ws.firma.v1.model.TypeCodigoError;
 import es.cim.ws.firma.v1.model.TypeFormatoFirma;
 import es.cim.ws.firma.v1.services.ServicioFirmaPortType;
 import net.conselldemallorca.helium.integracio.plugins.util.GlobalProperties;
-import net.conselldemallorca.helium.integracio.plugins.util.ws.WsClientUtils;
+import net.conselldemallorca.helium.integracio.plugins.util.WsClientHelper;
 
 /**
  * Implementació del plugin de signatura emprant els
@@ -82,24 +85,20 @@ public class SignaturaPluginEsbCim implements SignaturaPlugin {
 
 
 
-	private ServicioFirmaPortType getFirmaClient() {
+	private ServicioFirmaPortType getFirmaClient() throws MalformedURLException {
 		String url = GlobalProperties.getInstance().getProperty("app.signatura.plugin.url");
 		String userName = GlobalProperties.getInstance().getProperty("app.signatura.plugin.username");
 		String password = GlobalProperties.getInstance().getProperty("app.signatura.plugin.password");
-		Object wsClientProxy = WsClientUtils.getWsClientProxy(
-				ServicioFirmaPortType.class,
+		return WsClientHelper.generarClientWs(
 				url,
+				new QName("", ""),
 				userName,
 				password,
-				getWsClientAuthType(),
-				isWsClientGenerateTimestamp(),
-				isWsClientLogCalls(),
-				isWsClientDisableCnCheck(),
+				ServicioFirmaPortType.class,
 				null);
-		return (ServicioFirmaPortType)wsClientProxy;
 	}
 
-	private String getWsClientAuthType() {
+	/*private String getWsClientAuthType() {
 		String authType = GlobalProperties.getInstance().getProperty("app.signatura.plugin.ws.client.auth");
 		if (authType == null)
 			authType = GlobalProperties.getInstance().getProperty("app.ws.client.auth");
@@ -122,7 +121,7 @@ public class SignaturaPluginEsbCim implements SignaturaPlugin {
 		if (disableCnCheck == null)
 			disableCnCheck = GlobalProperties.getInstance().getProperty("app.ws.client.disable.cn.check");
 		return "true".equalsIgnoreCase(disableCnCheck);
-	}
+	}*/
 
 	private String getFormatSignatura() {
 		return GlobalProperties.getInstance().getProperty("app.signatura.plugin.format");

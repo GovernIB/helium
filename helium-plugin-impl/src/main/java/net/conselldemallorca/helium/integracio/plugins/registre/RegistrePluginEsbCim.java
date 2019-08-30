@@ -1,5 +1,7 @@
 package net.conselldemallorca.helium.integracio.plugins.registre;
 
+import java.net.MalformedURLException;
+
 import javax.xml.bind.JAXBElement;
 import javax.xml.namespace.QName;
 import javax.xml.ws.Holder;
@@ -27,7 +29,7 @@ import es.cim.ws.registro.v1.model.registro.RegistroSalidaResponse;
 import es.cim.ws.registro.v1.model.registro.TypeCodigoError;
 import es.cim.ws.registro.v1.services.ServicioRegistroPortType;
 import net.conselldemallorca.helium.integracio.plugins.util.GlobalProperties;
-import net.conselldemallorca.helium.integracio.plugins.util.ws.WsClientUtils;
+import net.conselldemallorca.helium.integracio.plugins.util.WsClientHelper;
 
 
 /**
@@ -281,24 +283,20 @@ public class RegistrePluginEsbCim implements RegistrePlugin {
 
 
 
-	private ServicioRegistroPortType getRegistroClient() {
+	private ServicioRegistroPortType getRegistroClient() throws MalformedURLException {
 		String url = GlobalProperties.getInstance().getProperty("app.registre.plugin.url");
 		String userName = GlobalProperties.getInstance().getProperty("app.registre.plugin.username");
 		String password = GlobalProperties.getInstance().getProperty("app.registre.plugin.password");
-		Object wsClientProxy = WsClientUtils.getWsClientProxy(
-				ServicioRegistroPortType.class,
+		return WsClientHelper.generarClientWs(
 				url,
+				new QName("", ""),
 				userName,
 				password,
-				getWsClientAuthType(),
-				isWsClientGenerateTimestamp(),
-				isWsClientLogCalls(),
-				isWsClientDisableCnCheck(),
+				ServicioRegistroPortType.class,
 				null);
-		return (ServicioRegistroPortType)wsClientProxy;
 	}
 
-	private String getWsClientAuthType() {
+	/*private String getWsClientAuthType() {
 		String authType = GlobalProperties.getInstance().getProperty("app.registre.plugin.ws.client.auth");
 		if (authType == null)
 			authType = GlobalProperties.getInstance().getProperty("app.ws.client.auth");
@@ -321,7 +319,7 @@ public class RegistrePluginEsbCim implements RegistrePlugin {
 		if (disableCnCheck == null)
 			disableCnCheck = GlobalProperties.getInstance().getProperty("app.ws.client.disable.cn.check");
 		return "true".equalsIgnoreCase(disableCnCheck);
-	}
+	}*/
 
 	private static final Logger logger = LoggerFactory.getLogger(RegistrePluginEsbCim.class);
 

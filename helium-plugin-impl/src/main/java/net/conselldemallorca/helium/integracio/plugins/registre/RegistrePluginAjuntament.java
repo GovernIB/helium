@@ -1,5 +1,6 @@
 package net.conselldemallorca.helium.integracio.plugins.registre;
 
+import java.net.MalformedURLException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -43,7 +44,7 @@ import es.caib.regweb.logic.interfaces.RegistroSalidaFacadeHome;
 import es.caib.regweb.logic.interfaces.ValoresFacade;
 import es.caib.regweb.logic.interfaces.ValoresFacadeHome;
 import net.conselldemallorca.helium.integracio.plugins.util.GlobalProperties;
-import net.conselldemallorca.helium.integracio.plugins.util.ws.WsClientUtils;
+import net.conselldemallorca.helium.integracio.plugins.util.WsClientHelper;
 
 
 /**
@@ -694,24 +695,20 @@ public class RegistrePluginAjuntament implements RegistrePlugin {
 		lc.login();
 	}*/
 
-	private BackofficeFacade getRegtelClient() {
+	private BackofficeFacade getRegtelClient() throws MalformedURLException {
 		String url = GlobalProperties.getInstance().getProperty("app.registre.plugin.url");
 		String userName = GlobalProperties.getInstance().getProperty("app.registre.plugin.username");
 		String password = GlobalProperties.getInstance().getProperty("app.registre.plugin.password");
-		Object wsClientProxy = WsClientUtils.getWsClientProxy(
-				BackofficeFacade.class,
+		return WsClientHelper.generarClientWs(
 				url,
+				new QName("", ""),
 				userName,
 				password,
-				getWsClientAuthType(),
-				isWsClientGenerateTimestamp(),
-				isWsClientLogCalls(),
-				isWsClientDisableCnCheck(),
+				BackofficeFacade.class,
 				null);
-		return (BackofficeFacade)wsClientProxy;
 	}
 
-	private String getWsClientAuthType() {
+	/*private String getWsClientAuthType() {
 		String authType = GlobalProperties.getInstance().getProperty("app.registre.plugin.ws.client.auth");
 		if (authType == null)
 			authType = GlobalProperties.getInstance().getProperty("app.ws.client.auth");
@@ -734,7 +731,7 @@ public class RegistrePluginAjuntament implements RegistrePlugin {
 		if (disableCnCheck == null)
 			disableCnCheck = GlobalProperties.getInstance().getProperty("app.ws.client.disable.cn.check");
 		return "true".equalsIgnoreCase(disableCnCheck);
-	}
+	}*/
 
 	private String getModelo() {
 		return GlobalProperties.getInstance().getProperty("app.registre.plugin.rds.model");

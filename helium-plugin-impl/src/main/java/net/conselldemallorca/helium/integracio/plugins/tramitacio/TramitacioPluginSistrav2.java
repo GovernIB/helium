@@ -3,13 +3,17 @@
  */
 package net.conselldemallorca.helium.integracio.plugins.tramitacio;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import javax.xml.bind.JAXBElement;
 import javax.xml.namespace.QName;
+import javax.xml.ws.BindingProvider;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,7 +43,6 @@ import es.caib.regtel.ws.v2.model.oficioremision.OficioRemision.TramiteSubsanaci
 import es.caib.regtel.ws.v2.model.oficioremision.OficioRemision.TramiteSubsanacion.ParametrosTramite;
 import es.caib.regtel.ws.v2.model.oficioremision.ParametroTramite;
 import es.caib.regtel.ws.v2.model.resultadoregistro.ResultadoRegistro;
-import es.caib.regtel.ws.v2.services.BackofficeFacade;
 import es.caib.regtel.ws.v2.services.BackofficeFacadeException;
 import es.caib.zonaper.ws.v2.model.configuracionavisosexpediente.ConfiguracionAvisosExpediente;
 import es.caib.zonaper.ws.v2.model.documentoexpediente.DocumentoExpediente;
@@ -56,7 +59,6 @@ import net.conselldemallorca.helium.integracio.plugins.registre.RespostaJustific
 import net.conselldemallorca.helium.integracio.plugins.registre.TramitSubsanacio;
 import net.conselldemallorca.helium.integracio.plugins.registre.TramitSubsanacioParametre;
 import net.conselldemallorca.helium.integracio.plugins.util.GlobalProperties;
-import net.conselldemallorca.helium.integracio.plugins.util.ws.WsClientUtils;
 
 /**
  * Implementació del plugin de tramitacio accedint a la v2
@@ -572,11 +574,11 @@ public class TramitacioPluginSistrav2 implements TramitacioPlugin {
 		}
 	}
 
-	private void crearZonaPers(String nif, String nom) throws es.caib.zonaper.ws.v2.services.BackofficeFacadeException, TramitacioPluginException {
+	private void crearZonaPers(String nif, String nom) throws es.caib.zonaper.ws.v2.services.BackofficeFacadeException, TramitacioPluginException, MalformedURLException {
 		crearZonaPers(nif, nom, null, null);
 	}
 	
-	private void crearZonaPers(String nif, String nom, String cognom1, String cognom2) throws es.caib.zonaper.ws.v2.services.BackofficeFacadeException, TramitacioPluginException {
+	private void crearZonaPers(String nif, String nom, String cognom1, String cognom2) throws es.caib.zonaper.ws.v2.services.BackofficeFacadeException, TramitacioPluginException, MalformedURLException {
 		if (!getZonaperClient().existeZonaPersonalUsuario(nif) && !getZonaperClient().existeZonaPersonalUsuario(nif.toUpperCase())) {
 			if (getZonaperClient().altaZonaPersonalUsuario(
 					nif.toUpperCase(), 
@@ -781,7 +783,7 @@ public class TramitacioPluginSistrav2 implements TramitacioPlugin {
 		return new Integer(GlobalProperties.getInstance().getProperty("app.registre.plugin.rds.versio"));
 	}
 
-	private es.caib.bantel.ws.v2.services.BackofficeFacade getBantelClient() {
+	private es.caib.bantel.ws.v2.services.BackofficeFacade getBantelClient() throws MalformedURLException {
 		String url = GlobalProperties.getInstance().getProperty("app.bantel.entrades.url");
 		if (url == null)
 			url = GlobalProperties.getInstance().getProperty("app.tramitacio.plugin.sistra.client.bantel.url");
@@ -791,20 +793,28 @@ public class TramitacioPluginSistrav2 implements TramitacioPlugin {
 		String password = GlobalProperties.getInstance().getProperty("app.bantel.entrades.password");
 		if (password == null)
 			password = GlobalProperties.getInstance().getProperty("app.tramitacio.plugin.sistra.client.bantel.password");
-		Object wsClientProxy = WsClientUtils.getWsClientProxy(
-				es.caib.bantel.ws.v2.services.BackofficeFacade.class,
-				url,
-				userName,
-				password,
-				getWsClientAuthType(),
-				isWsClientGenerateTimestamp(),
-				isWsClientLogCalls(),
-				isWsClientDisableCnCheck(),
-				null);
-		return (es.caib.bantel.ws.v2.services.BackofficeFacade)wsClientProxy;
+		URL wsdlUrl = new URL(url + "?wsdl");
+		es.caib.bantel.ws.v2.services.BackofficeFacadeService service = new es.caib.bantel.ws.v2.services.BackofficeFacadeService(
+				wsdlUrl,
+				new QName(
+						"urn:es:caib:bantel:ws:v2:services",
+						"BackofficeFacadeService"));
+		es.caib.bantel.ws.v2.services.BackofficeFacade backofficeFacade = service.getBackofficeFacade();
+		BindingProvider bp = (BindingProvider)backofficeFacade;
+		Map<String, Object> reqContext = bp.getRequestContext();
+		reqContext.put(
+				BindingProvider.ENDPOINT_ADDRESS_PROPERTY,
+				url);
+		reqContext.put(
+				BindingProvider.USERNAME_PROPERTY,
+				userName);
+		reqContext.put(
+				BindingProvider.PASSWORD_PROPERTY,
+				password);
+		return backofficeFacade;
 	}
 
-	private es.caib.zonaper.ws.v2.services.BackofficeFacade getZonaperClient() {
+	private es.caib.zonaper.ws.v2.services.BackofficeFacade getZonaperClient() throws MalformedURLException {
 		String url = GlobalProperties.getInstance().getProperty("app.zonaper.service.url");
 		if (url == null)
 			url = GlobalProperties.getInstance().getProperty("app.tramitacio.plugin.sistra.client.zonaper.url");
@@ -814,20 +824,28 @@ public class TramitacioPluginSistrav2 implements TramitacioPlugin {
 		String password = GlobalProperties.getInstance().getProperty("app.zonaper.service.password");
 		if (password == null)
 			password = GlobalProperties.getInstance().getProperty("app.tramitacio.plugin.sistra.client.zonaper.password");
-		Object wsClientProxy = WsClientUtils.getWsClientProxy(
-				es.caib.zonaper.ws.v2.services.BackofficeFacade.class,
-				url,
-				userName,
-				password,
-				getWsClientAuthType(),
-				isWsClientGenerateTimestamp(),
-				isWsClientLogCalls(),
-				isWsClientDisableCnCheck(),
-				null);
-		return (es.caib.zonaper.ws.v2.services.BackofficeFacade)wsClientProxy;
+		URL wsdlUrl = new URL(url + "?wsdl");
+		es.caib.zonaper.ws.v2.services.BackofficeFacadeService service = new es.caib.zonaper.ws.v2.services.BackofficeFacadeService(
+				wsdlUrl,
+				new QName(
+						"urn:es:caib:zonaper:ws:v2:services",
+						"BackofficeFacadeService"));
+		es.caib.zonaper.ws.v2.services.BackofficeFacade backofficeFacade = service.getBackofficeFacade();
+		BindingProvider bp = (BindingProvider)backofficeFacade;
+		Map<String, Object> reqContext = bp.getRequestContext();
+		reqContext.put(
+				BindingProvider.ENDPOINT_ADDRESS_PROPERTY,
+				url);
+		reqContext.put(
+				BindingProvider.USERNAME_PROPERTY,
+				userName);
+		reqContext.put(
+				BindingProvider.PASSWORD_PROPERTY,
+				password);
+		return backofficeFacade;
 	}
 
-	private es.caib.redose.ws.v2.services.BackofficeFacade getRedoseClient() {
+	private es.caib.redose.ws.v2.services.BackofficeFacade getRedoseClient() throws MalformedURLException {
 		String url = GlobalProperties.getInstance().getProperty("app.redose.service.url");
 		if (url == null)
 			url = GlobalProperties.getInstance().getProperty("app.tramitacio.plugin.sistra.client.redose.url");
@@ -837,20 +855,53 @@ public class TramitacioPluginSistrav2 implements TramitacioPlugin {
 		String password = GlobalProperties.getInstance().getProperty("app.redose.service.password");
 		if (password == null)
 			password = GlobalProperties.getInstance().getProperty("app.tramitacio.plugin.sistra.client.redose.password");
-		Object wsClientProxy = WsClientUtils.getWsClientProxy(
-				es.caib.redose.ws.v2.services.BackofficeFacade.class,
-				url,
-				userName,
-				password,
-				getWsClientAuthType(),
-				isWsClientGenerateTimestamp(),
-				isWsClientLogCalls(),
-				isWsClientDisableCnCheck(),
-				null);
-		return (es.caib.redose.ws.v2.services.BackofficeFacade)wsClientProxy;
+		URL wsdlUrl = new URL(url + "?wsdl");
+		es.caib.redose.ws.v2.services.BackofficeFacadeService service = new es.caib.redose.ws.v2.services.BackofficeFacadeService(
+				wsdlUrl,
+				new QName(
+						"urn:es:caib:redose:ws:v2:services",
+						"BackofficeFacadeService"));
+		es.caib.redose.ws.v2.services.BackofficeFacade backofficeFacade = service.getBackofficeFacade();
+		BindingProvider bp = (BindingProvider)backofficeFacade;
+		Map<String, Object> reqContext = bp.getRequestContext();
+		reqContext.put(
+				BindingProvider.ENDPOINT_ADDRESS_PROPERTY,
+				url);
+		reqContext.put(
+				BindingProvider.USERNAME_PROPERTY,
+				userName);
+		reqContext.put(
+				BindingProvider.PASSWORD_PROPERTY,
+				password);
+		return backofficeFacade;
 	}
 
-	private String getWsClientAuthType() {
+	private es.caib.regtel.ws.v2.services.BackofficeFacade getRegtelClient() throws MalformedURLException {
+		String url = GlobalProperties.getInstance().getProperty("app.tramitacio.plugin.sistra.client.regtel.url");
+		String userName = GlobalProperties.getInstance().getProperty("app.tramitacio.plugin.sistra.client.regtel.username");
+		String password = GlobalProperties.getInstance().getProperty("app.tramitacio.plugin.sistra.client.regtel.password");
+		URL wsdlUrl = new URL(url + "?wsdl");
+		es.caib.regtel.ws.v2.services.BackofficeFacadeService service = new es.caib.regtel.ws.v2.services.BackofficeFacadeService(
+				wsdlUrl,
+				new QName(
+						"urn:es:caib:regtel:ws:v2:services",
+						"BackofficeFacadeService"));
+		es.caib.regtel.ws.v2.services.BackofficeFacade backofficeFacade = service.getBackofficeFacade();
+		BindingProvider bp = (BindingProvider)backofficeFacade;
+		Map<String, Object> reqContext = bp.getRequestContext();
+		reqContext.put(
+				BindingProvider.ENDPOINT_ADDRESS_PROPERTY,
+				url);
+		reqContext.put(
+				BindingProvider.USERNAME_PROPERTY,
+				userName);
+		reqContext.put(
+				BindingProvider.PASSWORD_PROPERTY,
+				password);
+		return backofficeFacade;
+	}
+
+	/*private String getWsClientAuthType() {
 		String authType = GlobalProperties.getInstance().getProperty("app.tramitacio.plugin.sistra.client.auth");
 		if (authType == null)
 			authType = GlobalProperties.getInstance().getProperty("app.ws.client.auth");
@@ -873,24 +924,7 @@ public class TramitacioPluginSistrav2 implements TramitacioPlugin {
 		if (disableCnCheck == null)
 			disableCnCheck = GlobalProperties.getInstance().getProperty("app.ws.client.disable.cn.check");
 		return "true".equalsIgnoreCase(disableCnCheck);
-	}
-	
-	private BackofficeFacade getRegtelClient() {
-		String url = GlobalProperties.getInstance().getProperty("app.tramitacio.plugin.sistra.client.regtel.url");
-		String userName = GlobalProperties.getInstance().getProperty("app.tramitacio.plugin.sistra.client.regtel.username");
-		String password = GlobalProperties.getInstance().getProperty("app.tramitacio.plugin.sistra.client.regtel.password");
-		Object wsClientProxy = WsClientUtils.getWsClientProxy(
-				BackofficeFacade.class,
-				url,
-				userName,
-				password,
-				getWsClientAuthType(),
-				isWsClientGenerateTimestamp(),
-				isWsClientLogCalls(),
-				isWsClientDisableCnCheck(),
-				null);
-		return (BackofficeFacade)wsClientProxy;
-	}
+	}*/
 
 	private static final Logger logger = LoggerFactory.getLogger(TramitacioPluginSistrav2.class);
 }

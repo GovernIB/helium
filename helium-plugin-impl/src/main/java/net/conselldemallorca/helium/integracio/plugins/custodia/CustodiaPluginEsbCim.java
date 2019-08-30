@@ -3,8 +3,11 @@
  */
 package net.conselldemallorca.helium.integracio.plugins.custodia;
 
+import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.xml.namespace.QName;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,7 +24,7 @@ import es.cim.ws.documentos.v1.services.ServicioGestorDocumentalPortType;
 import net.conselldemallorca.helium.integracio.plugins.gesdoc.GestioDocumentalPluginException;
 import net.conselldemallorca.helium.integracio.plugins.signatura.RespostaValidacioSignatura;
 import net.conselldemallorca.helium.integracio.plugins.util.GlobalProperties;
-import net.conselldemallorca.helium.integracio.plugins.util.ws.WsClientUtils;
+import net.conselldemallorca.helium.integracio.plugins.util.WsClientHelper;
 
 /**
  * Implementació del plugin de custodia documental que guarda
@@ -107,24 +110,20 @@ public class CustodiaPluginEsbCim implements CustodiaPlugin {
 		return TypeFormatoFirma.fromValue(
 				GlobalProperties.getInstance().getProperty("app.custodia.plugin.esbcim.tipo.firma"));
 	}
-	private ServicioGestorDocumentalPortType getGestorDocumentalClient() {
+	private ServicioGestorDocumentalPortType getGestorDocumentalClient() throws MalformedURLException {
 		String url = GlobalProperties.getInstance().getProperty("app.gesdoc.plugin.url");
 		String userName = GlobalProperties.getInstance().getProperty("app.gesdoc.plugin.user");
 		String password = GlobalProperties.getInstance().getProperty("app.gesdoc.plugin.pass");
-		Object wsClientProxy = WsClientUtils.getWsClientProxy(
-				ServicioGestorDocumentalPortType.class,
+		return WsClientHelper.generarClientWs(
 				url,
+				new QName("", ""),
 				userName,
 				password,
-				getWsClientAuthType(),
-				isWsClientGenerateTimestamp(),
-				isWsClientLogCalls(),
-				isWsClientDisableCnCheck(),
+				ServicioGestorDocumentalPortType.class,
 				null);
-		return (ServicioGestorDocumentalPortType)wsClientProxy;
 	}
 
-	private String getWsClientAuthType() {
+	/*private String getWsClientAuthType() {
 		String authType = GlobalProperties.getInstance().getProperty("app.custodia.plugin.ws.client.auth");
 		if (authType == null)
 			authType = GlobalProperties.getInstance().getProperty("app.ws.client.auth");
@@ -147,7 +146,7 @@ public class CustodiaPluginEsbCim implements CustodiaPlugin {
 		if (disableCnCheck == null)
 			disableCnCheck = GlobalProperties.getInstance().getProperty("app.ws.client.disable.cn.check");
 		return "true".equalsIgnoreCase(disableCnCheck);
-	}
+	}*/
 
 	private static final Logger logger = LoggerFactory.getLogger(CustodiaPluginEsbCim.class);
 

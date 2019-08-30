@@ -3,8 +3,11 @@
  */
 package net.conselldemallorca.helium.integracio.plugins.gesdoc;
 
+import java.net.MalformedURLException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+
+import javax.xml.namespace.QName;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,7 +21,7 @@ import es.cim.ws.documentos.v1.model.gestordocumental.TypeCodigoError;
 import es.cim.ws.documentos.v1.model.gestordocumental.TypeRespuestaRefDocumento;
 import es.cim.ws.documentos.v1.services.ServicioGestorDocumentalPortType;
 import net.conselldemallorca.helium.integracio.plugins.util.GlobalProperties;
-import net.conselldemallorca.helium.integracio.plugins.util.ws.WsClientUtils;
+import net.conselldemallorca.helium.integracio.plugins.util.WsClientHelper;
 
 /**
  * Implementació del plugin de gestió documental emprant el
@@ -89,24 +92,20 @@ public class GestioDocumentalPluginEsbCim implements GestioDocumentalPlugin {
 
 
 
-	private ServicioGestorDocumentalPortType getGestorDocumentalClient() {
+	private ServicioGestorDocumentalPortType getGestorDocumentalClient() throws MalformedURLException {
 		String url = GlobalProperties.getInstance().getProperty("app.gesdoc.plugin.url");
 		String userName = GlobalProperties.getInstance().getProperty("app.gesdoc.plugin.user");
 		String password = GlobalProperties.getInstance().getProperty("app.gesdoc.plugin.pass");
-		Object wsClientProxy = WsClientUtils.getWsClientProxy(
-				ServicioGestorDocumentalPortType.class,
+		return WsClientHelper.generarClientWs(
 				url,
+				new QName("", ""),
 				userName,
 				password,
-				getWsClientAuthType(),
-				isWsClientGenerateTimestamp(),
-				isWsClientLogCalls(),
-				isWsClientDisableCnCheck(),
+				ServicioGestorDocumentalPortType.class,
 				null);
-		return (ServicioGestorDocumentalPortType)wsClientProxy;
 	}
 
-	private String getWsClientAuthType() {
+	/*private String getWsClientAuthType() {
 		String authType = GlobalProperties.getInstance().getProperty("app.gesdoc.plugin.ws.client.auth");
 		if (authType == null)
 			authType = GlobalProperties.getInstance().getProperty("app.ws.client.auth");
@@ -129,7 +128,7 @@ public class GestioDocumentalPluginEsbCim implements GestioDocumentalPlugin {
 		if (disableCnCheck == null)
 			disableCnCheck = GlobalProperties.getInstance().getProperty("app.ws.client.disable.cn.check");
 		return "true".equalsIgnoreCase(disableCnCheck);
-	}
+	}*/
 
 	private static final Logger logger = LoggerFactory.getLogger(GestioDocumentalPluginEsbCim.class);
 

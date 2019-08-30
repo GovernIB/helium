@@ -3,6 +3,8 @@
  */
 package net.conselldemallorca.helium.integracio.plugins.tramitacio;
 
+import java.net.MalformedURLException;
+
 import javax.xml.bind.JAXBElement;
 import javax.xml.namespace.QName;
 
@@ -27,7 +29,7 @@ import net.conselldemallorca.helium.integracio.plugins.registre.RespostaAnotacio
 import net.conselldemallorca.helium.integracio.plugins.registre.RespostaJustificantDetallRecepcio;
 import net.conselldemallorca.helium.integracio.plugins.registre.RespostaJustificantRecepcio;
 import net.conselldemallorca.helium.integracio.plugins.util.GlobalProperties;
-import net.conselldemallorca.helium.integracio.plugins.util.ws.WsClientUtils;
+import net.conselldemallorca.helium.integracio.plugins.util.WsClientHelper;
 
 /**
  * Implementació del plugin de tramitacio accedint al ESB del
@@ -209,7 +211,7 @@ public class TramitacioPluginEsbCim implements TramitacioPlugin {
 		return evento;
 	}
 
-	private ServicioTramitacionPortType getTramitacioClient() {
+	private ServicioTramitacionPortType getTramitacioClient() throws MalformedURLException {
 		String url = GlobalProperties.getInstance().getProperty("app.bantel.entrades.url");
 		if (url == null)
 			url = GlobalProperties.getInstance().getProperty("app.tramitacio.plugin.sistra.client.bantel.url");
@@ -219,20 +221,16 @@ public class TramitacioPluginEsbCim implements TramitacioPlugin {
 		String password = GlobalProperties.getInstance().getProperty("app.bantel.entrades.password");
 		if (password == null)
 			password = GlobalProperties.getInstance().getProperty("app.tramitacio.plugin.sistra.client.bantel.password");
-		Object wsClientProxy = WsClientUtils.getWsClientProxy(
-				ServicioTramitacionPortType.class,
+		return WsClientHelper.generarClientWs(
 				url,
+				new QName("", ""),
 				userName,
 				password,
-				getWsClientAuthType(),
-				isWsClientGenerateTimestamp(),
-				isWsClientLogCalls(),
-				isWsClientDisableCnCheck(),
+				ServicioTramitacionPortType.class,
 				null);
-		return (ServicioTramitacionPortType)wsClientProxy;
 	}
 
-	private ServicioGestorDocumentalPortType getGestorDocumentalClient() {
+	private ServicioGestorDocumentalPortType getGestorDocumentalClient() throws MalformedURLException {
 		String url = GlobalProperties.getInstance().getProperty("app.bantel.entrades.url");
 		if (url == null)
 			url = GlobalProperties.getInstance().getProperty("app.tramitacio.plugin.documents.url");
@@ -242,20 +240,16 @@ public class TramitacioPluginEsbCim implements TramitacioPlugin {
 		String password = GlobalProperties.getInstance().getProperty("app.bantel.entrades.password");
 		if (password == null)
 			password = GlobalProperties.getInstance().getProperty("app.tramitacio.plugin.documents.password");
-		Object wsClientProxy = WsClientUtils.getWsClientProxy(
-				ServicioGestorDocumentalPortType.class,
+		return WsClientHelper.generarClientWs(
 				url,
+				new QName("", ""),
 				userName,
 				password,
-				getWsClientAuthType(),
-				isWsClientGenerateTimestamp(),
-				isWsClientLogCalls(),
-				isWsClientDisableCnCheck(),
+				ServicioGestorDocumentalPortType.class,
 				null);
-		return (ServicioGestorDocumentalPortType)wsClientProxy;
 	}
 
-	private String getWsClientAuthType() {
+	/*private String getWsClientAuthType() {
 		String authType = GlobalProperties.getInstance().getProperty("app.tramitacio.plugin.sistra.client.auth");
 		if (authType == null)
 			authType = GlobalProperties.getInstance().getProperty("app.ws.client.auth");
@@ -278,7 +272,7 @@ public class TramitacioPluginEsbCim implements TramitacioPlugin {
 		if (disableCnCheck == null)
 			disableCnCheck = GlobalProperties.getInstance().getProperty("app.ws.client.disable.cn.check");
 		return "true".equalsIgnoreCase(disableCnCheck);
-	}
+	}*/
 
 	private static final Logger logger = LoggerFactory.getLogger(TramitacioPluginEsbCim.class);
 
