@@ -6,12 +6,9 @@ package net.conselldemallorca.helium.integracio.plugins.signatura;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.conselldemallorca.helium.core.util.GlobalProperties;
-import net.conselldemallorca.helium.core.util.ws.WsClientUtils;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.apache.ws.security.util.Base64;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.security.crypto.codec.Base64;
 
 import es.cim.ws.firma.v1.model.Certificado;
 import es.cim.ws.firma.v1.model.PeticionObtenerDatosCertificado;
@@ -21,7 +18,8 @@ import es.cim.ws.firma.v1.model.RespuestaValidarFirma;
 import es.cim.ws.firma.v1.model.TypeCodigoError;
 import es.cim.ws.firma.v1.model.TypeFormatoFirma;
 import es.cim.ws.firma.v1.services.ServicioFirmaPortType;
-
+import net.conselldemallorca.helium.integracio.plugins.util.GlobalProperties;
+import net.conselldemallorca.helium.integracio.plugins.util.ws.WsClientUtils;
 
 /**
  * Implementació del plugin de signatura emprant els
@@ -38,8 +36,8 @@ public class SignaturaPluginEsbCim implements SignaturaPlugin {
 		try {
 			RespostaValidacioSignatura resposta = new RespostaValidacioSignatura();
 			PeticionValidarFirma peticion = new PeticionValidarFirma();
-			peticion.setDatos(Base64.encode(document).getBytes());
-			peticion.setFirma(Base64.encode(signatura).getBytes());
+			peticion.setDatos(Base64.encode(document));
+			peticion.setFirma(Base64.encode(signatura));
 			peticion.setFormatoFirma(TypeFormatoFirma.valueOf(getFormatSignatura()));
 			RespuestaValidarFirma respuesta = getFirmaClient().validarFirma(peticion);
 			if (TypeCodigoError.OK.equals(respuesta.getCodigoError())) {
@@ -130,6 +128,6 @@ public class SignaturaPluginEsbCim implements SignaturaPlugin {
 		return GlobalProperties.getInstance().getProperty("app.signatura.plugin.format");
 	}
 
-	private static final Log logger = LogFactory.getLog(SignaturaPluginEsbCim.class);
+	private static final Logger logger = LoggerFactory.getLogger(SignaturaPluginEsbCim.class);
 
 }

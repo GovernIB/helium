@@ -6,13 +6,8 @@ package net.conselldemallorca.helium.integracio.plugins.custodia;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.conselldemallorca.helium.integracio.plugins.gesdoc.GestioDocumentalPluginException;
-import net.conselldemallorca.helium.integracio.plugins.signatura.RespostaValidacioSignatura;
-import net.conselldemallorca.helium.core.util.GlobalProperties;
-import net.conselldemallorca.helium.core.util.ws.WsClientUtils;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import es.cim.ws.documentos.v1.model.gestordocumental.AdjuntarFirmaDocumentoRequest;
 import es.cim.ws.documentos.v1.model.gestordocumental.AdjuntarFirmaDocumentoResponse;
@@ -23,6 +18,10 @@ import es.cim.ws.documentos.v1.model.gestordocumental.TypeFirma;
 import es.cim.ws.documentos.v1.model.gestordocumental.TypeFormatoFirma;
 import es.cim.ws.documentos.v1.model.gestordocumental.TypeListaFirmas;
 import es.cim.ws.documentos.v1.services.ServicioGestorDocumentalPortType;
+import net.conselldemallorca.helium.integracio.plugins.gesdoc.GestioDocumentalPluginException;
+import net.conselldemallorca.helium.integracio.plugins.signatura.RespostaValidacioSignatura;
+import net.conselldemallorca.helium.integracio.plugins.util.GlobalProperties;
+import net.conselldemallorca.helium.integracio.plugins.util.ws.WsClientUtils;
 
 /**
  * Implementació del plugin de custodia documental que guarda
@@ -150,6 +149,6 @@ public class CustodiaPluginEsbCim implements CustodiaPlugin {
 		return "true".equalsIgnoreCase(disableCnCheck);
 	}
 
-	private static final Log logger = LogFactory.getLog(CustodiaPluginEsbCim.class);
+	private static final Logger logger = LoggerFactory.getLogger(CustodiaPluginEsbCim.class);
 
 }

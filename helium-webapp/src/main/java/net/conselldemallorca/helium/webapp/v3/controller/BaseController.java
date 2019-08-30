@@ -13,6 +13,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.context.MessageSource;
 import org.springframework.context.MessageSourceAware;
+import org.springframework.context.NoSuchMessageException;
 import org.springframework.web.servlet.support.RequestContext;
 
 import com.fasterxml.jackson.core.SerializableString;
@@ -201,6 +202,20 @@ public class BaseController implements MessageSourceAware {
 		return getMessage(request, key, null);
 	}
 
+	protected String getMessage(String key, Object[] vars) {
+		try {
+			return messageSource.getMessage(
+					key,
+					vars,
+					null);
+		} catch (NoSuchMessageException ex) {
+			return "???" + key + "???";
+		}
+	}
+	protected String getMessage(String key) {
+		return getMessage(key, null);
+	}
+	
 	protected String redirectByModal(HttpServletRequest request, String url){
 		if (ModalHelper.isModal(request)){
 			url = "/modal" + url; 

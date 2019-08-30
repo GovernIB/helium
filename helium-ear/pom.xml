@@ -8,9 +8,6 @@
 	</parent>
 	<artifactId>helium-ear</artifactId>
 	<packaging>ear</packaging>
-	<properties>
-		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-	</properties>
 	<dependencies>
 		<dependency>
 			<groupId>org.hibernate</groupId>
@@ -56,13 +53,12 @@
 		<dependency>
 			<groupId>${project.groupId}</groupId>
 			<artifactId>helium-hibernate-entitymanager</artifactId>
-			<version>${helium.version}</version>
-			<type>jar</type>
+			<version>${project.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>${project.groupId}</groupId>
 			<artifactId>helium-webapp</artifactId>
-			<version>${helium.version}</version>
+			<version>${project.version}</version>
 			<type>war</type>
 		</dependency>
 		<dependency>

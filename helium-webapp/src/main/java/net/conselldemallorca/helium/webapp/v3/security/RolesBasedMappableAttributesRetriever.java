@@ -8,33 +8,30 @@ import java.util.Set;
 
 import javax.annotation.Resource;
 
-import net.conselldemallorca.helium.core.model.hibernate.AreaJbpmId;
-import net.conselldemallorca.helium.core.model.hibernate.Permis;
-import net.conselldemallorca.helium.core.model.service.OrganitzacioService;
-import net.conselldemallorca.helium.core.model.service.PermisService;
-import net.conselldemallorca.helium.core.util.GlobalProperties;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.authority.mapping.MappableAttributesRetriever;
 
+import net.conselldemallorca.helium.core.util.GlobalProperties;
+import net.conselldemallorca.helium.v3.core.api.dto.PermisHeliumDto;
+import net.conselldemallorca.helium.v3.core.api.service.OrganitzacioService;
+import net.conselldemallorca.helium.v3.core.api.service.PermisService;
+
 /**
- * Aconsegueix els rols que seran rellevants per a l'aplicació.
+ * Aconsegueix els rols que siguin rellevants per a l'aplicació.
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
 public class RolesBasedMappableAttributesRetriever implements MappableAttributesRetriever {
 
-	@Resource
+	@Autowired
 	private PermisService permisService;
 	@Resource
 	private OrganitzacioService organitzacioService;
 
 	private Set<String> defaultMappableAttributes;
 	private Set<String> mappableAttributes = new HashSet<String>();
-
-
 
 	public Set<String> getMappableAttributes() {
 		refrescarMappableAttributes();
@@ -45,13 +42,6 @@ public class RolesBasedMappableAttributesRetriever implements MappableAttributes
 		this.defaultMappableAttributes = defaultMappableAttributes;
 	}
 
-	@Autowired
-	public void setPermisService(PermisService permisService) {
-		this.permisService = permisService;
-	}
-
-
-
 	private void refrescarMappableAttributes() {
 		LOGGER.debug("Refrescant el llistat de rols per mapejar");
 		mappableAttributes.clear();
@@ -59,15 +49,15 @@ public class RolesBasedMappableAttributesRetriever implements MappableAttributes
 			mappableAttributes.addAll(defaultMappableAttributes);
 		String source = GlobalProperties.getInstance().getProperty("app.jbpm.identity.source");
 		if (source.equalsIgnoreCase("helium")) {
-			for (Permis permis: permisService.findAll()) {
+			for (PermisHeliumDto permis: permisService.findAll()) {
 				String codi = permis.getCodi();
 				if (!mappableAttributes.contains(codi))
 					mappableAttributes.add(codi);
 			}
 		} else {
-			for (AreaJbpmId group: organitzacioService.findDistinctJbpmGroups()) {
-				if (group != null && !mappableAttributes.contains(group.getCodi()))
-					mappableAttributes.add(group.getCodi());
+			for (String group: organitzacioService.findDistinctJbpmGroupNames()) {
+				if (group != null && !mappableAttributes.contains(group))
+					mappableAttributes.add(group);
 			}
 		}
 	}

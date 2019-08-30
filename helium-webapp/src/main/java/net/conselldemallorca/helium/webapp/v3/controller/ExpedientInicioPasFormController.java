@@ -69,12 +69,8 @@ public class ExpedientInicioPasFormController extends BaseExpedientController {
 	protected ExpedientService expedientService;
 	@Autowired
 	private ReproService reproService;
-	@Autowired
-	private net.conselldemallorca.helium.core.model.service.TascaService tascaInicialService;
 
-
-
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "unchecked", "unused" })
 	@ModelAttribute("command")
 	protected Object populateCommand(
 			HttpServletRequest request, 
@@ -102,7 +98,7 @@ public class ExpedientInicioPasFormController extends BaseExpedientController {
 			campsAddicionalsClasses.put("definicioProcesId", Long.class);
 			Map<String, Object> valorsFormulariExtern = null;
 			if (tasca.isFormExtern()) {
-				valorsFormulariExtern = tascaInicialService.obtenirValorsFormulariExternInicial(tasca.getId());
+				valorsFormulariExtern = null; //tascaInicialService.obtenirValorsFormulariExternInicial(tasca.getId());
 				if (valorsFormulariExtern != null) {
 					request.getSession().setAttribute(
 							ExpedientIniciController.CLAU_SESSIO_FORM_VALORS,

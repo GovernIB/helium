@@ -6,13 +6,13 @@ package net.conselldemallorca.helium.integracio.plugins.signatura;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.security.crypto.codec.Base64;
+
 import net.conselldemallorca.helium.integracio.plugins.signatura.afirma.AfirmaUtils;
 import net.conselldemallorca.helium.integracio.plugins.signatura.afirma.ValidarSignaturaResponse;
-import net.conselldemallorca.helium.core.util.GlobalProperties;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.apache.ws.security.util.Base64;
+import net.conselldemallorca.helium.integracio.plugins.util.GlobalProperties;
 
 
 /**
@@ -33,8 +33,8 @@ public class SignaturaPluginAfirma implements SignaturaPlugin {
 			boolean obtenirDadesCertificat) throws SignaturaPluginException {
 		try {
 			ValidarSignaturaResponse response = getAfirmaUtils().validarSignatura(
-					Base64.encode(document),
-					Base64.encode(signatura),
+					new String(Base64.encode(document)),
+					new String(Base64.encode(signatura)),
 					obtenirDadesCertificat);
 			RespostaValidacioSignatura resposta = new RespostaValidacioSignatura();
 			if (response.isEstatOk()) {
@@ -99,6 +99,6 @@ public class SignaturaPluginAfirma implements SignaturaPlugin {
 		return afirmaUtils;
 	}
 
-	private static final Log logger = LogFactory.getLog(SignaturaPluginAfirma.class);
+	private static final Logger logger = LoggerFactory.getLogger(SignaturaPluginAfirma.class);
 
 }

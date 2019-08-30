@@ -62,7 +62,7 @@ public class TascaProgramadaServiceImpl implements TascaProgramadaService {
 	private static Map<Long, String> errorsMassiva = new HashMap<Long, String>();
 	
 	@Override
-	@Scheduled(fixedDelayString = "${app.massiu.periode.noves}")
+	@Scheduled(fixedDelayString = "${config:app.massiu.periode.noves}")
 	public void comprovarExecucionsMassives() {
 		boolean active = true;
 		Long ultimaExecucioMassiva = null;
@@ -173,7 +173,7 @@ public class TascaProgramadaServiceImpl implements TascaProgramadaService {
 	@Override
 //	#1164 Comentam aquesta tasca programada, ja que ara les notificacions es faran amb Notib, 
 //	i no és necessari fer una consulta activa, ja que notib ens avisarà en cas de canvi.	
-//	@Scheduled(fixedDelayString = "${app.notificacions.comprovar.estat}")
+//	@Scheduled(fixedDelayString = "${config:app.notificacions.comprovar.estat}")
 	public void comprovarEstatNotificacions() {
 		List<Notificacio> notificacionsPendentsRevisar = notificacioRepository.findByEstatAndTipusOrderByDataEnviamentAsc(DocumentEnviamentEstatEnumDto.ENVIAT, DocumentNotificacioTipusEnumDto.ELECTRONICA);
 		for (Notificacio notificacio: notificacionsPendentsRevisar) {

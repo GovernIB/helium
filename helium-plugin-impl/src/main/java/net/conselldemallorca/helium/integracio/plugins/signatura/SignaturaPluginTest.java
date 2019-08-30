@@ -14,15 +14,10 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Vector;
 
-import net.conselldemallorca.helium.core.util.GlobalProperties;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.bouncycastle.asn1.ASN1InputStream;
 import org.bouncycastle.asn1.ASN1Sequence;
 import org.bouncycastle.asn1.ASN1Set;
 import org.bouncycastle.asn1.DERObjectIdentifier;
-import org.bouncycastle.asn1.pkcs.ContentInfo;
 import org.bouncycastle.asn1.pkcs.SignedData;
 import org.bouncycastle.asn1.x509.X509CertificateStructure;
 import org.bouncycastle.asn1.x509.X509Name;
@@ -30,10 +25,15 @@ import org.bouncycastle.cms.CMSSignedData;
 import org.bouncycastle.cms.SignerInformation;
 import org.bouncycastle.cms.SignerInformationStore;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.lowagie.text.pdf.AcroFields;
 import com.lowagie.text.pdf.PdfPKCS7;
 import com.lowagie.text.pdf.PdfReader;
+import com.sun.star.ucb.ContentInfo;
+
+import net.conselldemallorca.helium.integracio.plugins.util.GlobalProperties;
 
 
 /**
@@ -204,6 +204,6 @@ public class SignaturaPluginTest implements SignaturaPlugin {
 
 	private static final DERObjectIdentifier OID_NIF_RESPONSABLE = new DERObjectIdentifier("1.3.6.1.4.1.18838.1.1");
 
-	private static final Log logger = LogFactory.getLog(SignaturaPluginTest.class);
+	private static final Logger logger = LoggerFactory.getLogger(SignaturaPluginTest.class);
 
 }

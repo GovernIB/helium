@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans
+	xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="
+		http://www.springframework.org/schema/beans
+		http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+	<bean id="propertyPlaceholderConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="location" value="${es.caib.helium.properties.path}"/>
+		<property name="placeholderPrefix" value="${config:"/>
+		<property name="ignoreResourceNotFound" value="true"/>
+		<property name="ignoreUnresolvablePlaceholders" value="true"/>
+		<property name="valueSeparator" value="?"/>
+		<property name="systemPropertiesModeName" value="SYSTEM_PROPERTIES_MODE_OVERRIDE"/>
+	</bean>
+
+	<bean id="entityManagerFactory"
+		class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
+		<property name="dataSource" ref="dataSource" />
+		<property name="packagesToScan">
+			<list>
+				<value>net.conselldemallorca.helium.core.model.hibernate</value>
+				<value>net.conselldemallorca.helium.core.security.acl</value>
+				<value>net.conselldemallorca.helium.core.security.audit</value>
+				<value>net.conselldemallorca.helium.core.model.update</value>
+			</list>
+		</property>
+		<property name="jpaDialect">
+			<bean class="org.springframework.orm.jpa.vendor.HibernateJpaDialect" />
+		</property>
+		<property name="jpaVendorAdapter">
+			<bean class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter" />
+		</property>
+		<property name="jpaProperties">
+			<props>
+				<prop key="hibernate.dialect">${config:app.hibernate.dialect}</prop>
+				<prop key="hibernate.show_sql">${config:app.hibernate.show_sql}</prop>
+				<prop key="hibernate.hbm2ddl.auto">${config:app.hibernate.hbm2ddl.auto}</prop>
+				<prop key="hibernate.ejb.cfgfile">/net/conselldemallorca/helium/core/context/jbpm3.hibernate.cfg.xml</prop>
+				<prop key="hibernate.generate_statistics">${config:app.hibernate.generate_statistics?false}</prop>
+			</props>
+		</property>
+	</bean>
+	<bean id="transactionManager" class="org.springframework.orm.jpa.JpaTransactionManager">
+		<property name="entityManagerFactory" ref="entityManagerFactory" />
+	</bean>
+
+	<import resource="classpath:net/conselldemallorca/helium/core/context/application-context-model-jndi.xml" />
+	<import resource="classpath:net/conselldemallorca/helium/core/context/application-context-model.xml" />
+	<import resource="classpath:net/conselldemallorca/helium/core/context/application-context-model-acl.xml" />
+	<import resource="classpath:net/conselldemallorca/helium/core/context/application-context-model-security.xml" />
+	<import resource="classpath:net/conselldemallorca/helium/core/context/application-context-model-workflow.xml" />
+
+</beans>

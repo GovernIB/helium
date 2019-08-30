@@ -15,8 +15,8 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
-import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.integracio.plugins.persones.DadesPersona.Sexe;
+import net.conselldemallorca.helium.integracio.plugins.util.GlobalProperties;
 
 /**
  * Implementació de la interficie PersonesPlugin amb accés per JDBC.

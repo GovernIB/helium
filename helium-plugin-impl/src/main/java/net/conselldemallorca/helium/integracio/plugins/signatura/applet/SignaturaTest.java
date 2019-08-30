@@ -8,8 +8,8 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 
@@ -58,5 +58,5 @@ public class SignaturaTest {
 		}
 	}
 
-	private static final Log logger = LogFactory.getLog(SignaturaTest.class);
+	private static final Logger logger = LoggerFactory.getLogger(SignaturaTest.class);
 }

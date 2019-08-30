@@ -7,10 +7,8 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
-import net.conselldemallorca.helium.core.util.GlobalProperties;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
@@ -21,6 +19,7 @@ import es.caib.regweb.ws.model.ParametrosRegistroEntradaWS;
 import es.caib.regweb.ws.model.ParametrosRegistroSalidaWS;
 import es.caib.regweb.ws.services.regwebfacade.RegwebFacadeServiceLocator;
 import es.caib.regweb.ws.services.regwebfacade.RegwebFacade_PortType;
+import net.conselldemallorca.helium.integracio.plugins.util.GlobalProperties;
 
 
 /**
@@ -436,6 +435,6 @@ public class RegistrePluginRegwebWs implements RegistrePlugin {
 		return "2";
 	}
 
-	private static final Log logger = LogFactory.getLog(RegistrePluginRegwebWs.class);
+	private static final Logger logger = LoggerFactory.getLogger(RegistrePluginRegwebWs.class);
 
 }

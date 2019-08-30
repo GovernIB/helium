@@ -7,13 +7,13 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.conselldemallorca.helium.core.util.GlobalProperties;
+import org.alfresco.webservice.types.Reference;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import net.conselldemallorca.helium.integracio.plugins.signatura.RespostaValidacioSignatura;
 import net.conselldemallorca.helium.integracio.plugins.util.AlfrescoUtils;
-
-import org.alfresco.webservice.types.Reference;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import net.conselldemallorca.helium.integracio.plugins.util.GlobalProperties;
 
 /**
  * Implementació del plugin de custodia documental que guarda
@@ -186,6 +186,6 @@ public class CustodiaPluginAlfresco implements CustodiaPlugin {
 		return "true".equalsIgnoreCase(fileAttached);
 	}
 
-	private static final Log logger = LogFactory.getLog(CustodiaPluginAlfresco.class);
+	private static final Logger logger = LoggerFactory.getLogger(CustodiaPluginAlfresco.class);
 
 }

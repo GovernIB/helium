@@ -2,8 +2,8 @@ package net.conselldemallorca.helium.integracio.plugins.registre;
 
 import java.util.Date;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Implementació Mock del plugin de registre.
@@ -106,5 +106,6 @@ public class RegistrePluginMock implements RegistrePlugin{
 		return "2";
 	}*/
 	
-	private static final Log logger = LogFactory.getLog(RegistrePluginMock.class);
+	private static final Logger logger = LoggerFactory.getLogger(RegistrePluginMock.class);
+
 }

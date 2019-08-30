@@ -5,9 +5,6 @@ package net.conselldemallorca.helium.v3.core.api.dto;
 
 import java.util.Date;
 
-
-
-
 /**
  * DTO amb informació d'un document enviat al portasignatures
  * 

@@ -12,16 +12,7 @@
 	<packaging>war</packaging>
 	<name>helium-webapp Maven Webapp</name>
 	<url>http://maven.apache.org</url>
-	<properties>
-		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-	</properties>
 	<dependencies>
-		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<version>3.8.1</version>
-			<scope>test</scope>
-		</dependency>
 		<dependency>
 			<groupId>javax.servlet</groupId>
 			<artifactId>jstl</artifactId>
@@ -80,10 +71,6 @@
 					<groupId>org.springframework</groupId>
 				</exclusion>
 				<exclusion>
-					<artifactId>spring-web</artifactId>
-					<groupId>org.springframework</groupId>
-				</exclusion>
-				<exclusion>
 					<artifactId>spring-beans</artifactId>
 					<groupId>org.springframework</groupId>
 				</exclusion>
@@ -122,51 +109,46 @@
 					<artifactId>spring-tx</artifactId>
 					<groupId>org.springframework</groupId>
 				</exclusion>
+				<exclusion>
+					<groupId>org.springframework</groupId>
+					<artifactId>spring-jdbc</artifactId>
+				</exclusion>
 			</exclusions>
+		</dependency>
+		<dependency> 
+			<groupId>org.springframework.security</groupId>
+			<artifactId>spring-security-config</artifactId>
+			<version>${spring-security.version}</version>
+			<exclusions>
+				<exclusion>
+					<artifactId>spring-core</artifactId>
+					<groupId>org.springframework</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>spring-aop</artifactId>
+					<groupId>org.springframework</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>spring-context</artifactId>
+					<groupId>org.springframework</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>spring-beans</artifactId>
+					<groupId>org.springframework</groupId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>org.aspectj</groupId>
+			<artifactId>aspectjweaver</artifactId>
+			<version>1.6.2</version>
+			<type>jar</type>
+			<scope>compile</scope>
 		</dependency>
 		<dependency>
 			<groupId>opensymphony</groupId>
 			<artifactId>sitemesh</artifactId>
 			<version>2.4.2</version>
-			<type>jar</type>
-			<scope>compile</scope>
-		</dependency>
-		<dependency>
-			<groupId>displaytag</groupId>
-			<artifactId>displaytag</artifactId>
-			<version>1.2</version>
-			<type>jar</type>
-			<scope>compile</scope>
-			<exclusions>
-				<exclusion>
-					<artifactId>itext</artifactId>
-					<groupId>com.lowagie</groupId>
-				</exclusion>
-				<exclusion>
-					<artifactId>slf4j-log4j12</artifactId>
-					<groupId>org.slf4j</groupId>
-				</exclusion>
-				<exclusion>
-					<artifactId>jcl104-over-slf4j</artifactId>
-					<groupId>org.slf4j</groupId>
-				</exclusion>
-			</exclusions>
-		</dependency>
-		<dependency>
-			<groupId>displaytag</groupId>
-			<artifactId>displaytag-export-poi</artifactId>
-			<version>1.2</version>
-			<exclusions>
-				<exclusion>
-					<artifactId>poi</artifactId>
-					<groupId>org.apache.poi</groupId>
-				</exclusion>
-			</exclusions>
-		</dependency>
-		<dependency>
-			<groupId>org.directwebremoting</groupId>
-			<artifactId>dwr</artifactId>
-			<version>2.0.3</version>
 			<type>jar</type>
 			<scope>compile</scope>
 		</dependency>
@@ -181,18 +163,6 @@
 			<groupId>commons-lang</groupId>
 			<artifactId>commons-lang</artifactId>
 			<version>2.6</version>
-		</dependency>
-		<dependency>
-			<groupId>axis</groupId>
-			<artifactId>axis</artifactId>
-			<version>1.4</version>
-			<type>jar</type>
-			<exclusions>
-				<exclusion>
-					<artifactId>axis-wsdl4j</artifactId>
-					<groupId>axis</groupId>
-				</exclusion>
-			</exclusions>
 		</dependency>
 		<!--dependency>
 			<groupId>jaxen</groupId>
@@ -262,33 +232,40 @@
 		</dependency>
 		<dependency>
 			<groupId>${project.groupId}</groupId>
-			<artifactId>helium-core-v26</artifactId>
-			<version>${helium.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>${project.groupId}</groupId>
 			<artifactId>helium-core</artifactId>
-			<version>${helium.version}</version>
+			<version>${project.version}</version>
 		</dependency>
+		<!--
 		<dependency>
 			<groupId>${project.groupId}</groupId>
-			<artifactId>helium-ws</artifactId>
-			<version>${helium.version}</version>
+			<artifactId>helium-core-v26</artifactId>
+			<version>${project.version}</version>
 		</dependency>
+		-->
 		<!--dependency>
 			<groupId>${project.groupId}</groupId>
-			<artifactId>helium-selenium-integraciones</artifactId>
-			<version>${helium.version}</version>
-		</dependency-->
+			<artifactId>helium-ws</artifactId>
+			<version>${project.version}</version>
+		</dependency>
 		<dependency>
 			<groupId>${project.groupId}</groupId>
 			<artifactId>helium-plugin-api</artifactId>
-			<version>${helium.version}</version>
+			<version>${project.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>${project.groupId}</groupId>
 			<artifactId>helium-plugin-impl</artifactId>
-			<version>${helium.version}</version>
+			<version>${project.version}</version>
+		</dependency-->
+		<!--dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>helium-selenium-integraciones</artifactId>
+			<version>${project.version}</version>
+		</dependency-->
+		<dependency>
+			<groupId>es.caib.notib</groupId>
+			<artifactId>notib-client</artifactId>
+			<version>1.0.1</version>
 		</dependency>
 		<dependency>
 			<groupId>com.googlecode.json-simple</groupId>
@@ -401,6 +378,12 @@
 			<artifactId>plugin-signatureweb-miniappletinserver</artifactId>
 			<version>2.0.0</version>
 		</dependency>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>3.8.1</version>
+			<scope>test</scope>
+		</dependency>
 	</dependencies>
 	<profiles>
 		<profile>
@@ -432,6 +415,11 @@
 					<artifactId>cglib</artifactId>
 					<version>2.2</version>
 		    	</dependency>
+		    	<dependency>
+		    		<groupId>commons-collections</groupId>
+		    		<artifactId>commons-collections</artifactId>
+		    		<version>3.1</version>
+		    	</dependency>
 				<dependency>
 					<groupId>org.hibernate</groupId>
 					<artifactId>hibernate-validator</artifactId>
@@ -446,61 +434,16 @@
 				<dependency>
 					<groupId>${project.groupId}</groupId>
 					<artifactId>helium-core</artifactId>
-					<version>${helium.version}</version>
+					<version>${project.version}</version>
 				</dependency>
 				<dependency>
 					<groupId>${project.groupId}</groupId>
 					<artifactId>helium-hibernate-entitymanager</artifactId>
-					<version>${helium.version}</version>
+					<version>${project.version}</version>
 				</dependency>
 			</dependencies>
 			<build>
 				<plugins>
-					<plugin>
-						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-antrun-plugin</artifactId>
-						<version>1.6</version>
-						<executions>
-							<execution>
-								<id>filtrar.helium.servlet</id>
-								<phase>prepare-package</phase>
-								<configuration>
-									<target>
-										<copy file="${basedir}/src/main/webapp/WEB-INF/helium-servlet.xml"
-											todir="${basedir}/target/replace-dir/WEB-INF" overwrite="true" />
-										<replace file="${basedir}/target/replace-dir/WEB-INF/helium-servlet.xml">
-											<replacefilter>
-												<replacetoken><![CDATA[<!-- resources.mapping.webjar.tomcat.begin]]></replacetoken>
-												<replacevalue><![CDATA[<]]></replacevalue>
-											</replacefilter>
-											<replacefilter>
-												<replacetoken><![CDATA[resources.mapping.webjar.tomcat.end -->]]></replacetoken>
-												<replacevalue><![CDATA[>]]></replacevalue>
-											</replacefilter>
-											<replacefilter>
-												<replacetoken><![CDATA[<!-- resources.mapping.webjar.begin -->]]></replacetoken>
-												<replacevalue><![CDATA[<!--]]></replacevalue>
-											</replacefilter>
-											<replacefilter>
-												<replacetoken><![CDATA[<!-- resources.mapping.webjar.end -->]]></replacetoken>
-												<replacevalue><![CDATA[-->]]></replacevalue>
-											</replacefilter>
-										</replace>
-									</target>
-								</configuration>
-								<goals>
-									<goal>run</goal>
-								</goals>
-							</execution>
-						</executions>
-						<dependencies>
-							<dependency>
-								<groupId>ant-contrib</groupId>
-								<artifactId>ant-contrib</artifactId>
-								<version>20020829</version>
-							</dependency>
-						</dependencies>
-					</plugin>
 					<plugin>
 						<artifactId>maven-war-plugin</artifactId>
 						<configuration>
@@ -510,7 +453,6 @@
 					</plugin>
 					<plugin>
 						<artifactId>maven-antrun-plugin</artifactId>
-						<version>1.7</version>
 						<executions>
 							<execution>
 								<phase>package</phase>
@@ -591,51 +533,6 @@
 			<build>
 				<plugins>
 					<plugin>
-						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-antrun-plugin</artifactId>
-						<version>1.6</version>
-						<executions>
-							<execution>
-								<id>filtrar.helium.servlet</id>
-								<phase>prepare-package</phase>
-								<configuration>
-									<target>
-										<copy file="${basedir}/src/main/webapp/WEB-INF/helium-servlet.xml"
-											todir="${basedir}/target/replace-dir/WEB-INF" overwrite="true" />
-										<replace file="${basedir}/target/replace-dir/WEB-INF/helium-servlet.xml">
-											<replacefilter>
-												<replacetoken><![CDATA[<!-- resources.mapping.webjar.jboss.begin]]></replacetoken>
-												<replacevalue><![CDATA[<]]></replacevalue>
-											</replacefilter>
-											<replacefilter>
-												<replacetoken><![CDATA[resources.mapping.webjar.jboss.end -->]]></replacetoken>
-												<replacevalue><![CDATA[>]]></replacevalue>
-											</replacefilter>
-											<replacefilter>
-												<replacetoken><![CDATA[<!-- resources.mapping.webjar.begin -->]]></replacetoken>
-												<replacevalue><![CDATA[<!--]]></replacevalue>
-											</replacefilter>
-											<replacefilter>
-												<replacetoken><![CDATA[<!-- resources.mapping.webjar.end -->]]></replacetoken>
-												<replacevalue><![CDATA[-->]]></replacevalue>
-											</replacefilter>
-										</replace>
-									</target>
-								</configuration>
-								<goals>
-									<goal>run</goal>
-								</goals>
-							</execution>
-						</executions>
-						<dependencies>
-							<dependency>
-								<groupId>ant-contrib</groupId>
-								<artifactId>ant-contrib</artifactId>
-								<version>20020829</version>
-							</dependency>
-						</dependencies>
-					</plugin>
-					<plugin>
 						<artifactId>maven-war-plugin</artifactId>
 						<configuration>
 							<packagingExcludes>META-INF/context.xml,WEB-INF/classes/log4j.xml,WEB-INF/classes/META-INF/resources/**</packagingExcludes>
@@ -650,7 +547,6 @@
 					</plugin>
 					<plugin>
 						<artifactId>maven-antrun-plugin</artifactId>
-						<version>1.7</version>
 						<executions>
 							<execution>
 								<phase>package</phase>
@@ -682,147 +578,14 @@
 	<build>
 		<plugins>
 			<plugin>
-				<artifactId>maven-compiler-plugin</artifactId>
-				<configuration>
-					<fork>true</fork>
-					<compilerVersion>${java.version}</compilerVersion>
-					<source>${java.version}</source>
-					<target>${java.version}</target>
-				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-antrun-plugin</artifactId>
-				<version>1.6</version>
-				<executions>
-					<execution>
-						<id>filtrar.web.xml</id>
-						<phase>prepare-package</phase>
-						<configuration>
-							<target>
-								<property file="${basedir}/../build.properties" />
-								<copy file="${basedir}/src/main/webapp/WEB-INF/web.xml"
-									todir="${basedir}/target/replace-dir/WEB-INF" overwrite="true" />
-								<replace file="${basedir}/target/replace-dir/WEB-INF/web.xml" propertyFile="${basedir}/../build.properties">
-									<replacefilter token="@@web.realm.name@@" property="web.realm.name" />
-									<replacefilter token="@@cas.sso.server.base.url@@" property="cas.sso.server.base.url" />
-									<replacefilter token="@@cas.sso.service@@" property="cas.sso.service" />
-									<replacefilter token="@@cas.sso.server.name@@" property="cas.sso.server.name" />
-									<replacefilter token="@@cas.sso.roles.query.jndi@@" property="cas.sso.roles.query.jndi" />
-									<replacefilter token="@@cas.sso.roles.query.sql@@" property="cas.sso.roles.query.sql" />
-									<replacefilter token="@@web.session.timeout@@" property="web.session.timeout" />
-								</replace>
-								<replace file="${basedir}/target/replace-dir/WEB-INF/web.xml">
-									<replacefilter>
-										<replacetoken><![CDATA[<!-- session-timeout.begin --><!--]]></replacetoken>
-										<replacevalue><![CDATA[<session-timeout>]]></replacevalue>
-									</replacefilter>
-									<replacefilter>
-										<replacetoken><![CDATA[--><session-timeout>30</session-timeout><!-- session-timeout.end -->]]></replacetoken>
-										<replacevalue><![CDATA[</session-timeout>]]></replacevalue>
-									</replacefilter>
-								</replace>
-								<taskdef resource="net/sf/antcontrib/antcontrib.properties" classpathref="maven.plugin.classpath" />
-								<if>
-									<equals arg1="${cas.sso.active}" arg2="true" />
-									<then>
-										<replace file="${basedir}/target/replace-dir/WEB-INF/web.xml">
-											<replacefilter>
-												<replacetoken><![CDATA[<!-- cas.sso.begin ]]></replacetoken>
-												<replacevalue><![CDATA[<]]></replacevalue>
-											</replacefilter>
-											<replacefilter>
-												<replacetoken><![CDATA[ cas.sso.end -->]]></replacetoken>
-												<replacevalue><![CDATA[>]]></replacevalue>
-											</replacefilter>
-											<replacefilter>
-												<replacetoken><![CDATA[<!-- login-config.begin -->]]></replacetoken>
-												<replacevalue><![CDATA[<!--]]></replacevalue>
-											</replacefilter>
-											<replacefilter>
-												<replacetoken><![CDATA[<!-- login-config.end -->]]></replacetoken>
-												<replacevalue><![CDATA[-->]]></replacevalue>
-											</replacefilter>
-											<replacefilter>
-												<replacetoken><![CDATA[<!-- security-constraint.begin -->]]></replacetoken>
-												<replacevalue><![CDATA[<!--]]></replacevalue>
-											</replacefilter>
-											<replacefilter>
-												<replacetoken><![CDATA[<!-- security-constraint.end -->]]></replacetoken>
-												<replacevalue><![CDATA[-->]]></replacevalue>
-											</replacefilter>
-										</replace>
-										<if>
-											<equals arg1="${cas.sso.roles.source}" arg2="internal" />
-											<then>
-												<replace file="${basedir}/target/replace-dir/WEB-INF/web.xml">
-													<replacefilter>
-														<replacetoken><![CDATA[<- cas.sso.custom.sql.begin ->]]></replacetoken>
-														<replacevalue><![CDATA[<!--]]></replacevalue>
-													</replacefilter>
-													<replacefilter>
-														<replacetoken><![CDATA[<- cas.sso.custom.sql.end ->]]></replacetoken>
-														<replacevalue><![CDATA[-->]]></replacevalue>
-													</replacefilter>
-												</replace>
-											</then>
-										</if>
-										<if>
-											<equals arg1="${cas.sso.roles.source}" arg2="custom-sql" />
-											<then>
-												<replace file="${basedir}/target/replace-dir/WEB-INF/web.xml">
-													<replacefilter>
-														<replacetoken><![CDATA[<- cas.sso.custom.sql.begin ->]]></replacetoken>
-														<replacevalue><![CDATA[<!-- cas.sso.custom.sql.begin -->]]></replacevalue>
-													</replacefilter>
-													<replacefilter>
-														<replacetoken><![CDATA[<- cas.sso.custom.sql.end ->]]></replacetoken>
-														<replacevalue><![CDATA[<!-- cas.sso.custom.sql.end -->]]></replacevalue>
-													</replacefilter>
-												</replace>
-											</then>
-										</if>
-									</then>
-								</if>
-							</target>
-						</configuration>
-						<goals>
-							<goal>run</goal>
-						</goals>
-					</execution>
-				</executions>
-				<dependencies>
-					<dependency>
-						<groupId>ant-contrib</groupId>
-						<artifactId>ant-contrib</artifactId>
-						<version>20020829</version>
-					</dependency>
-				</dependencies>
-			</plugin>
-			<plugin>
 				<artifactId>maven-war-plugin</artifactId>
 				<configuration>
 					<warName>helium</warName>
-					<webXml>target/replace-dir/WEB-INF/web.xml</webXml>
-					<warSourceExcludes>META-INF/context.xml</warSourceExcludes>
 					<webResources>
 						<webResource>
 							<directory>${basedir}/src/main/webapp/WEB-INF</directory>
-							<excludes>
-								<exclude>helium-servlet.xml</exclude>
-							</excludes>
 							<includes>
 								<include>web.xml</include>
-							</includes>
-							<targetPath>WEB-INF</targetPath>
-							<filtering>true</filtering>
-						</webResource>
-						<webResource>
-							<directory>${basedir}/target/replace-dir/WEB-INF</directory>
-							<excludes>
-								<exclude>web.xml</exclude>
-							</excludes>
-							<includes>
 								<include>helium-servlet.xml</include>
 							</includes>
 							<targetPath>WEB-INF</targetPath>

@@ -28,6 +28,7 @@ import net.conselldemallorca.helium.core.helper.ExpedientRegistreHelper;
 import net.conselldemallorca.helium.core.helper.IndexHelper;
 import net.conselldemallorca.helium.core.helper.PaginacioHelper;
 import net.conselldemallorca.helium.core.helper.PluginHelper;
+import net.conselldemallorca.helium.core.helper.PortafirmesCallbackHelper;
 import net.conselldemallorca.helium.core.helper.TascaHelper;
 import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
 import net.conselldemallorca.helium.core.model.hibernate.Document;
@@ -117,10 +118,10 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 	private ExpedientLoggerHelper expedientLoggerHelper;
 	@Resource
 	private ExpedientRegistreHelper expedientRegistreHelper;
-//	@Resource
-//	private Jbpm3HeliumHelper jbpm3HeliumHelper;
 	@Resource
-	DocumentHelperV3 documentHelperV3;
+	private DocumentHelperV3 documentHelperV3;
+	@Resource
+	private PortafirmesCallbackHelper portafirmesCallbackHelper;
 
 
 
@@ -557,7 +558,7 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 	 */
 	@Override
 	@Transactional(readOnly = true)
-	public List<PortasignaturesDto> portasignaturesFindPendents(
+	public List<PortasignaturesDto> portafirmesFindPendents(
 			Long expedientId,
 			String processInstanceId) {
 		logger.debug("Consulta dels documents pendents del portafirmes (" +
@@ -602,6 +603,17 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 			resposta.add(dto);
 		}
 		return resposta;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean portafirmesReintentarProcessament(
+			int portafirmesDocumentId) {
+		logger.debug("Reintentant el processament del document pendent al portafirmes (" +
+				"portafirmesDocumentId=" + portafirmesDocumentId + ")");
+		return portafirmesCallbackHelper.processarDocumentPendentPortasignatures(portafirmesDocumentId);
 	}
 
 	/**

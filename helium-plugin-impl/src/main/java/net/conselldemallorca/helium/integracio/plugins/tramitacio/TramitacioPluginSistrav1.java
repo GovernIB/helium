@@ -11,15 +11,8 @@ import java.util.List;
 import javax.xml.bind.JAXBElement;
 import javax.xml.namespace.QName;
 
-import net.conselldemallorca.helium.core.util.GlobalProperties;
-import net.conselldemallorca.helium.core.util.ws.WsClientUtils;
-import net.conselldemallorca.helium.integracio.plugins.registre.RegistreNotificacio;
-import net.conselldemallorca.helium.integracio.plugins.registre.RespostaAnotacioRegistre;
-import net.conselldemallorca.helium.integracio.plugins.registre.RespostaJustificantDetallRecepcio;
-import net.conselldemallorca.helium.integracio.plugins.registre.RespostaJustificantRecepcio;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import es.caib.bantel.ws.v1.model.documentobte.DocumentoBTE;
 import es.caib.bantel.ws.v1.model.firmaws.FirmaWS;
@@ -33,6 +26,12 @@ import es.caib.zonaper.ws.v1.model.documentoexpediente.DocumentosExpediente;
 import es.caib.zonaper.ws.v1.model.eventoexpediente.EventoExpediente;
 import es.caib.zonaper.ws.v1.model.eventoexpediente.EventosExpediente;
 import es.caib.zonaper.ws.v1.model.expediente.Expediente;
+import net.conselldemallorca.helium.integracio.plugins.registre.RegistreNotificacio;
+import net.conselldemallorca.helium.integracio.plugins.registre.RespostaAnotacioRegistre;
+import net.conselldemallorca.helium.integracio.plugins.registre.RespostaJustificantDetallRecepcio;
+import net.conselldemallorca.helium.integracio.plugins.registre.RespostaJustificantRecepcio;
+import net.conselldemallorca.helium.integracio.plugins.util.GlobalProperties;
+import net.conselldemallorca.helium.integracio.plugins.util.ws.WsClientUtils;
 
 /**
  * Implementació del plugin de tramitacio accedint a la v1
@@ -464,5 +463,5 @@ public class TramitacioPluginSistrav1 implements TramitacioPlugin {
 		return "true".equalsIgnoreCase(disableCnCheck);
 	}
 
-	private static final Log logger = LogFactory.getLog(TramitacioPluginSistrav1.class);
+	private static final Logger logger = LoggerFactory.getLogger(TramitacioPluginSistrav1.class);
 }

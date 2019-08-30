@@ -176,12 +176,19 @@ public class ExpedientDocumentServiceBean implements ExpedientDocumentService {
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public List<PortasignaturesDto> portasignaturesFindPendents(
+	public List<PortasignaturesDto> portafirmesFindPendents(
 			Long expedientId,
 			String processInstanceId) {
-		return delegate.portasignaturesFindPendents(
+		return delegate.portafirmesFindPendents(
 				expedientId,
 				processInstanceId);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public boolean portafirmesReintentarProcessament(
+			int portafirmesDocumentId) {
+		return delegate.portafirmesReintentarProcessament(portafirmesDocumentId);
 	}
 
 	@Override

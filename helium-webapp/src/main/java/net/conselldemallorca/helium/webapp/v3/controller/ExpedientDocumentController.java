@@ -37,7 +37,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import net.conselldemallorca.helium.core.helper.DocumentHelperV3;
-import net.conselldemallorca.helium.core.model.service.PluginService;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuFirmaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DadesEnviamentDto;
@@ -56,7 +55,6 @@ import net.conselldemallorca.helium.v3.core.api.dto.ServeiTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.exception.SistemaExternException;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientDocumentService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientInteressatService;
-import net.conselldemallorca.helium.webapp.mvc.ArxiuView;
 import net.conselldemallorca.helium.webapp.v3.command.DocumentExpedientCommand;
 import net.conselldemallorca.helium.webapp.v3.command.DocumentExpedientCommand.Create;
 import net.conselldemallorca.helium.webapp.v3.command.DocumentExpedientCommand.Update;
@@ -66,6 +64,7 @@ import net.conselldemallorca.helium.webapp.v3.helper.EnumHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.NodecoHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.NtiHelper;
+import net.conselldemallorca.helium.webapp.view.ArxiuView;
 
 /**
  * Controlador per a la pàgina de documents de l'expedient.
@@ -78,9 +77,6 @@ public class ExpedientDocumentController extends BaseExpedientController {
 
 	@Autowired
 	private ExpedientDocumentService expedientDocumentService;
-	// TODO: eliminar la referencia al core 2.6 i passar el mètode processarDocumentPendentPortasignatures al pluginHelper
-	@Autowired
-	private PluginService pluginService;
 	@Autowired
 	private NtiHelper ntiHelper;
 	@Autowired
@@ -99,7 +95,7 @@ public class ExpedientDocumentController extends BaseExpedientController {
 		ExpedientDto expedient = expedientService.findAmbId(expedientId);
 		List<InstanciaProcesDto> arbreProcessos = expedientService.getArbreInstanciesProces(Long.parseLong(expedient.getProcessInstanceId()));
 		Map<InstanciaProcesDto, List<ExpedientDocumentDto>> documents = new LinkedHashMap<InstanciaProcesDto, List<ExpedientDocumentDto>>();
-		List<PortasignaturesDto> portasignaturesPendent = expedientDocumentService.portasignaturesFindPendents(
+		List<PortasignaturesDto> portasignaturesPendent = expedientDocumentService.portafirmesFindPendents(
 				expedientId,
 				expedient.getProcessInstanceId());
 		// Per a cada instància de procés ordenem les dades per agrupació  
@@ -140,7 +136,7 @@ public class ExpedientDocumentController extends BaseExpedientController {
 				expedientId,
 				processInstanceId);
 		Map<InstanciaProcesDto, List<ExpedientDocumentDto>> documents = new LinkedHashMap<InstanciaProcesDto, List<ExpedientDocumentDto>>();
-		List<PortasignaturesDto> portasignaturesPendent = expedientDocumentService.portasignaturesFindPendents(
+		List<PortasignaturesDto> portasignaturesPendent = expedientDocumentService.portafirmesFindPendents(
 				expedientId,
 				processInstanceId);
 		documents.put(instanciaProces, documentsProces);
@@ -730,7 +726,7 @@ public class ExpedientDocumentController extends BaseExpedientController {
 			@RequestParam(value = "psignaId", required = true) Integer psignaId,
 			Model model) {
 		// TODO: eliminar la referencia al core 2.6 i passar el mètode processarDocumentPendentPortasignatures al pluginHelper
-		if (pluginService.processarDocumentPendentPortasignatures(psignaId))
+		if (expedientDocumentService.portafirmesReintentarProcessament(psignaId))
 			MissatgesHelper.success(request, getMessage(request, "expedient.psigna.reintentar.ok"));
 		else
 			MissatgesHelper.error(request, getMessage(request, "expedient.psigna.reintentar.error"));

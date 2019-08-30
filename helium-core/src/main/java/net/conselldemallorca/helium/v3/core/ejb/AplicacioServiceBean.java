@@ -4,6 +4,7 @@
 package net.conselldemallorca.helium.v3.core.ejb;
 
 import java.util.List;
+import java.util.Properties;
 
 import javax.annotation.security.RolesAllowed;
 import javax.ejb.Stateless;
@@ -30,6 +31,15 @@ public class AplicacioServiceBean implements AplicacioService {
 	@Autowired
 	AplicacioService delegate;
 
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public String getVersioActual() {
+		return delegate.getVersioActual();
+	}
+	
 	/**
 	 * {@inheritDoc}
 	 */
@@ -64,6 +74,33 @@ public class AplicacioServiceBean implements AplicacioService {
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public PersonaDto findPersonaActual() throws NoTrobatException, SistemaExternException {
 		return delegate.findPersonaActual();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public Properties propertyFindByPrefix(String prefix) {
+		return delegate.propertyFindByPrefix(prefix);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public String propertyFindByNom(String nom) {
+		return delegate.propertyFindByNom(nom);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public Properties propertyFindAll() {
+		return delegate.propertyFindAll();
 	}
 
 }

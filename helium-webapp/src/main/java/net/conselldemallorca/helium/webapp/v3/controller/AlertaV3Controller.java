@@ -30,21 +30,19 @@ public class AlertaV3Controller extends BaseController {
 	@RequestMapping(value = "/{alertaId}/llegir", method = RequestMethod.GET)
 	public String llegir(HttpServletRequest request, @PathVariable Long alertaId, Model model) {
 		AlertaDto alerta = alertaService.marcarLlegida(alertaId);
-		
 		return "redirect:/modal/v3/expedient/" + alerta.getExpedient().getId() + "/alertes";
 	}
-	
+
 	@RequestMapping(value = "/{alertaId}/noLlegir", method = RequestMethod.GET)
 	public String noLlegir(HttpServletRequest request, @PathVariable Long alertaId, Model model) {
 		AlertaDto alerta = alertaService.marcarNoLlegida(alertaId);
-		
 		return "redirect:/modal/v3/expedient/" + alerta.getExpedient().getId() + "/alertes";
 	}
-	
+
 	@RequestMapping(value = "/{alertaId}/esborrar", method = RequestMethod.GET)
 	public String esborrar(HttpServletRequest request, @PathVariable Long alertaId, Model model) {
 		AlertaDto alerta = alertaService.marcarEsborrada(alertaId);
-		
 		return "redirect:/modal/v3/expedient/" + alerta.getExpedient().getId() + "/alertes";
 	}
+
 }

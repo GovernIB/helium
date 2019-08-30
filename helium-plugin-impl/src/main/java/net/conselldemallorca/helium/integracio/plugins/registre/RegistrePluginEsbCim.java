@@ -4,11 +4,8 @@ import javax.xml.bind.JAXBElement;
 import javax.xml.namespace.QName;
 import javax.xml.ws.Holder;
 
-import net.conselldemallorca.helium.core.util.GlobalProperties;
-import net.conselldemallorca.helium.core.util.ws.WsClientUtils;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import es.cim.ws.registro.v1.model.acuserecibo.AcuseRecibo;
 import es.cim.ws.registro.v1.model.aviso.Aviso;
@@ -29,6 +26,8 @@ import es.cim.ws.registro.v1.model.registro.RegistroSalida;
 import es.cim.ws.registro.v1.model.registro.RegistroSalidaResponse;
 import es.cim.ws.registro.v1.model.registro.TypeCodigoError;
 import es.cim.ws.registro.v1.services.ServicioRegistroPortType;
+import net.conselldemallorca.helium.integracio.plugins.util.GlobalProperties;
+import net.conselldemallorca.helium.integracio.plugins.util.ws.WsClientUtils;
 
 
 /**
@@ -324,6 +323,6 @@ public class RegistrePluginEsbCim implements RegistrePlugin {
 		return "true".equalsIgnoreCase(disableCnCheck);
 	}
 
-	private static final Log logger = LogFactory.getLog(RegistrePluginEsbCim.class);
+	private static final Logger logger = LoggerFactory.getLogger(RegistrePluginEsbCim.class);
 
 }

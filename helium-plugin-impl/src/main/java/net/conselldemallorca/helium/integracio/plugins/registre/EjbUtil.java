@@ -15,8 +15,8 @@ import javax.security.auth.callback.PasswordCallback;
 import javax.security.auth.callback.UnsupportedCallbackException;
 import javax.security.auth.login.LoginContext;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import es.caib.loginModule.auth.ControladorSesion;
 
@@ -134,6 +134,6 @@ public class EjbUtil {
 		}
 	}
 
-	private static final Log logger = LogFactory.getLog(EjbUtil.class);
+	private static final Logger logger = LoggerFactory.getLogger(EjbUtil.class);
 
 }

@@ -79,6 +79,7 @@ public class ExpedientTipusImportarValidator implements ConstraintValidator<Expe
 		codiMissatge = anotacio.message();
 	}
 
+	@SuppressWarnings("unused")
 	@Override
 	public boolean isValid(ExpedientTipusExportarCommand command, ConstraintValidatorContext context) {
 		boolean valid = true;

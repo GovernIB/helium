@@ -232,7 +232,7 @@ public interface ExpedientDocumentService {
 			Long documentStoreId) throws NoTrobatException, PermisDenegatException;
 
 	/**
-	 * Genera l'arxiu d'un document a partir de la seva plantilla.
+	 * Consulta els documents pendents del portafirmes.
 	 * 
 	 * @param expedientId
 	 *             atribut id de l'expedient.
@@ -242,9 +242,19 @@ public interface ExpedientDocumentService {
 	 * @throws NoTrobatException
 	 * @throws PermisDenegatException
 	 */
-	public List<PortasignaturesDto> portasignaturesFindPendents(
+	public List<PortasignaturesDto> portafirmesFindPendents(
 			Long expedientId,
 			String processInstanceId) throws NoTrobatException, PermisDenegatException;
+
+	/**
+	 * Reintenta el processament d'un document pendent de portafirmes.
+	 * 
+	 * @param portafirmesDocumentId
+	 *             id del document al portafirmes.
+	 * @return true si s'ha processat correctament o false en cas contrari
+	 */
+	public boolean portafirmesReintentarProcessament(
+			int portafirmesDocumentId);
 
 	/**
 	 * Genera l'arxiu d'un document a partir de la seva plantilla.

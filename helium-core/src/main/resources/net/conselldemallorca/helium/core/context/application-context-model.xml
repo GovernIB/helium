@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans
+	xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:jpa="http://www.springframework.org/schema/data/jpa"
+	xmlns:cache="http://www.springframework.org/schema/cache"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:task="http://www.springframework.org/schema/task"
+	xmlns:metrics="http://www.ryantenney.com/schema/metrics"
+	xsi:schemaLocation="
+		http://www.springframework.org/schema/beans
+		http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/tx
+		http://www.springframework.org/schema/tx/spring-tx.xsd
+		http://www.springframework.org/schema/context
+		http://www.springframework.org/schema/context/spring-context.xsd
+		http://www.springframework.org/schema/data/jpa
+		http://www.springframework.org/schema/data/jpa/spring-jpa.xsd
+		http://www.springframework.org/schema/cache
+		http://www.springframework.org/schema/cache/spring-cache.xsd
+		http://www.springframework.org/schema/aop
+		http://www.springframework.org/schema/aop/spring-aop.xsd
+		http://www.springframework.org/schema/task
+		http://www.springframework.org/schema/task/spring-task.xsd
+		http://www.ryantenney.com/schema/metrics
+		http://www.ryantenney.com/schema/metrics/metrics-3.0.xsd">
+
+	<aop:aspectj-autoproxy/>
+	<context:annotation-config />
+	<context:component-scan base-package="net.conselldemallorca.helium.core.model.dao"/>
+	<jpa:repositories base-package="net.conselldemallorca.helium.v3.core.repository" repository-impl-postfix="Repository"/>
+	<bean name="aclServiceDao" class="net.conselldemallorca.helium.core.security.AclServiceDao"/>
+	<!--context:component-scan base-package="net.conselldemallorca.helium.core.model.service"/-->
+	<context:component-scan base-package="net.conselldemallorca.helium.v3.core.service"/>
+	<context:component-scan base-package="net.conselldemallorca.helium.core.helper"/>
+	<context:component-scan base-package="net.conselldemallorca.helium.core.helperv26"/>
+
+	<!--jpa:auditing auditor-aware-ref="auditorAwareBean" />
+	<bean name="auditorAwareBean" class="es.caib.ripea.core.audit.RipeaAuditorAware"/-->
+
+	<!-- Transactions -->
+	<tx:annotation-driven transaction-manager="transactionManager"/>
+	<tx:advice id="transactionAdvice" transaction-manager="transactionManager">
+		<tx:attributes>
+			<tx:method name="get*" read-only="true"/>
+			<tx:method name="find*" read-only="true"/>
+			<tx:method name="*" propagation="REQUIRED"/>
+		</tx:attributes>
+	</tx:advice>
+	<!-- Transactions -->
+
+	<!-- Cache -->
+	<cache:annotation-driven />
+	<bean id="ehcache" class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean">
+		<property name="configLocation" value="classpath:net/conselldemallorca/helium/core/context/ehcache.xml"/>
+		<property name="shared" value="true"/>
+	</bean>
+	<bean id="cacheManager" class="org.springframework.cache.ehcache.EhCacheCacheManager">
+		<property name="cacheManager" ref="ehcache"/>
+	</bean>
+	<!-- /Cache -->
+
+	<!-- E-mail -->
+	<bean id="mailSender" class="org.springframework.mail.javamail.JavaMailSenderImpl">
+		<property name="session" ref="mailSession"/>
+	</bean>
+	<!-- /E-mail -->
+
+	<!-- Execució de tasques periòdiques -->
+	<task:annotation-driven scheduler="taskScheduler"/>
+	<task:scheduler id="taskScheduler" pool-size="10"/>
+	<!-- /Execució de tasques periòdiques -->
+
+	<!-- Lucene -->
+	<bean id="analyzer" class="org.apache.lucene.analysis.standard.StandardAnalyzer"/>
+	<bean id="fsDirectory" class="org.springmodules.lucene.index.support.FSDirectoryFactoryBean">
+		<property name="location" value="${config:app.lucene.fs.basedir}"/>
+		<property name="create" value="true"/>
+	</bean>
+	<bean id="indexFactory" class="org.springmodules.lucene.index.factory.concurrent.LockIndexFactory">
+		<property name="targetIndexFactory">
+			<bean class="org.springmodules.lucene.index.support.SimpleIndexFactoryBean">
+				<property name="directory" ref="${config:app.lucene.directory}"/>
+				<property name="analyzer" ref="analyzer"/>
+				<property name="resolveLock" value="true"/>
+				<property name="create" value="true"/>
+			</bean>
+		</property>
+	</bean>
+	<bean id="searcherFactory" class="org.springmodules.lucene.search.factory.SimpleSearcherFactory">
+		<property name="directory" ref="${config:app.lucene.directory}"/>
+	</bean>
+	<bean id="searchTemplate" class="org.springmodules.lucene.search.core.DefaultLuceneSearchTemplate">
+		<property name="searcherFactory" ref="searcherFactory"/>
+		<property name="analyzer" ref="analyzer"/>
+	</bean>
+	<!-- /Lucene -->
+
+	<!-- Metrics -->
+	<metrics:metric-registry id="metrics" />
+    <metrics:annotation-driven metric-registry="metrics" />
+    <metrics:register metric-registry="metrics">
+        <bean metrics:name="jvm.gc" class="com.codahale.metrics.jvm.GarbageCollectorMetricSet" />
+        <bean metrics:name="jvm.memory" class="com.codahale.metrics.jvm.MemoryUsageGaugeSet" />
+        <bean metrics:name="jvm.thread-states" class="com.codahale.metrics.jvm.ThreadStatesGaugeSet" />
+        <bean metrics:name="jvm.fd.usage" class="com.codahale.metrics.jvm.FileDescriptorRatioGauge" />
+    </metrics:register>
+	<!-- /Metrics -->
+
+	<bean id="sessionFactory" factory-bean="entityManagerFactory" factory-method="getSessionFactory"/>
+
+	<bean id="lobHandler" class="org.springframework.jdbc.support.lob.DefaultLobHandler" lazy-init="true"/>
+	<!--bean id="incidentThrowsAdvice" class="net.conselldemallorca.helium.core.model.exception.IncidentThrowsAdviceHelper"/>	
+	<aop:config>
+		<aop:pointcut id="serviceOperationCommon" expression="execution(* net.conselldemallorca.helium.core.model.service.*Service.*(..))"/>
+		<aop:advisor advice-ref="transactionAdvice" pointcut-ref="serviceOperationCommon" />
+		<aop:aspect id="afterThrowingAdvice" ref="incidentThrowsAdvice">
+			<aop:before method="before" pointcut="execution(* net.conselldemallorca.helium.core.model.service.ExpedientService*.*(..)) 
+												|| execution(* net.conselldemallorca.helium.core.model.service.TascaService*.*(..)) 
+												|| execution(* net.conselldemallorca.helium.v3.core.service.ExpedientService*.*(..)) 
+												|| execution(* net.conselldemallorca.helium.v3.core.service.TascaService*.*(..)) 
+												|| execution(* net.conselldemallorca.helium.jbpm3.spring.SpringJobExecutorThread.executeJob(..))" />
+			<aop:after-throwing method="afterThrowing" throwing="e" pointcut="execution(* net.conselldemallorca.helium.core.model.service.ExpedientService*.*(..)) 
+												|| execution(* net.conselldemallorca.helium.core.model.service.TascaService*.*(..))  
+												|| execution(* net.conselldemallorca.helium.v3.core.service.ExpedientService*.*(..)) 
+												|| execution(* net.conselldemallorca.helium.v3.core.service.TascaService*.*(..))" />
+			<aop:after-returning method="after" pointcut="execution(* net.conselldemallorca.helium.core.model.service.ExpedientService*.*(..)) 
+												|| execution(* net.conselldemallorca.helium.core.model.service.TascaService*.*(..)) 
+												|| execution(* net.conselldemallorca.helium.v3.core.service.ExpedientService*.*(..)) 
+												|| execution(* net.conselldemallorca.helium.v3.core.service.TascaService*.*(..)) 
+												|| execution(* net.conselldemallorca.helium.jbpm3.spring.SpringJobExecutorThread.executeJob(..))" />			
+		</aop:aspect>
+	</aop:config>
+	<bean id="actionLogger" class="net.conselldemallorca.helium.core.security.audit.HibernateActionLogger" lazy-init="true">
+		<property name="sessionFactory" ref="sessionFactory"/>
+	</bean-->
+	<bean id="passwordDigester" class="net.conselldemallorca.helium.core.util.PasswordDigester">
+		<constructor-arg value="MD5"/>
+	</bean>
+	<!--bean class="net.conselldemallorca.helium.core.model.update.Updater"/-->
+	<bean id="openOfficeUtils" class="net.conselldemallorca.helium.core.util.OpenOfficeUtils"/>
+	<bean id="mesuresTemporalsHelper" class="net.conselldemallorca.helium.core.helperv26.MesuresTemporalsHelper">
+		<constructor-arg type="java.lang.String" value="${config:app.mesura.temps.actiu?false}"/>
+		<constructor-arg type="java.lang.Integer" value="${config:app.mesura.temps.mesures?100}"/>
+	</bean>
+
+</beans>

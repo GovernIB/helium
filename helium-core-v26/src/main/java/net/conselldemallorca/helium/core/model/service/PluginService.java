@@ -20,7 +20,7 @@ import com.codahale.metrics.MetricRegistry;
 import net.conselldemallorca.helium.core.common.ThreadLocalInfo;
 import net.conselldemallorca.helium.core.helper.ExceptionHelper;
 import net.conselldemallorca.helium.core.helper.ExpedientHelper;
-import net.conselldemallorca.helium.core.helper.ProcesCallbackHelper;
+import net.conselldemallorca.helium.core.helper.PortafirmesCallbackHelper;
 import net.conselldemallorca.helium.core.helperv26.DocumentHelper;
 import net.conselldemallorca.helium.core.model.dao.AlertaDao;
 import net.conselldemallorca.helium.core.model.dao.CampDao;
@@ -91,7 +91,7 @@ public class PluginService {
 	private ServiceUtils serviceUtils;
 	private MessageSource messageSource;
 	private MetricRegistry metricRegistry;
-	private ProcesCallbackHelper procesCallbackHelper;
+	private PortafirmesCallbackHelper procesCallbackHelper;
 
 	@Autowired
 	private ExceptionHelper exceptionHelper;
@@ -469,7 +469,7 @@ public class PluginService {
 		this.metricRegistry = metricRegistry;
 	}
 	@Autowired
-	public void setProcesCallbackHelper(ProcesCallbackHelper procesCallbackHelper) {
+	public void setProcesCallbackHelper(PortafirmesCallbackHelper procesCallbackHelper) {
 		this.procesCallbackHelper = procesCallbackHelper;
 	}
 

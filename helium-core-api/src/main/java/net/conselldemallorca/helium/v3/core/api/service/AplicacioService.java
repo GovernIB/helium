@@ -4,6 +4,7 @@
 package net.conselldemallorca.helium.v3.core.api.service;
 
 import java.util.List;
+import java.util.Properties;
 
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.UsuariPreferenciesDto;
@@ -16,6 +17,13 @@ import net.conselldemallorca.helium.v3.core.api.exception.SistemaExternException
  * @author Limit Tecnologies <limit@limit.es>
  */
 public interface AplicacioService {
+
+	/**
+	 * Obté la versió actual de l'aplicació.
+	 * 
+	 * @return La versió actual.
+	 */
+	public String getVersioActual();
 
 	/**
 	 * Retorna les preferències de l'usuari actual.
@@ -48,5 +56,29 @@ public interface AplicacioService {
 	 * @return la llista de persones
 	 */
 	public List<PersonaDto> findPersonaLikeNomSencer(String text) throws SistemaExternException;
+
+	/**
+	 * Consulta les propietats de l'aplicació que tenen un
+	 * determinat prefix.
+	 * 
+	 * @param prefix el valor del prefix.
+	 * @return la llista de propietats
+	 */
+	public Properties propertyFindByPrefix(String prefix);
+
+	/**
+	 * Consulta la propietat de l'aplicació amb un nom determinat.
+	 * 
+	 * @param nom el valor del nom.
+	 * @return la llista de propietats
+	 */
+	public String propertyFindByNom(String nom);
+
+	/**
+	 * Consulta totes les propietats de l'aplicació.
+	 * 
+	 * @return la llista de propietats
+	 */
+	public Properties propertyFindAll();
 
 }

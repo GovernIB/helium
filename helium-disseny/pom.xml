@@ -7,9 +7,6 @@
 		<version>3.2</version>
 	</parent>
 	<artifactId>helium-disseny</artifactId>
-	<properties>
-		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-	</properties>
 	<dependencies>
 		<dependency>
 			<groupId>commons-lang</groupId>
@@ -20,8 +17,6 @@
 			<groupId>org.jbpm.jbpm3</groupId>
 			<artifactId>jbpm-jpdl</artifactId>
 			<version>3.3.1.GA</version>
-			<type>jar</type>
-			<scope>compile</scope>
 			<exclusions>
 				<exclusion>
 					<artifactId>jackrabbit-core</artifactId>
@@ -34,24 +29,8 @@
 			</exclusions>
 		</dependency>
 	</dependencies>
-	<repositories>
-		<repository>
-			<id>JBOSS</id>
-			<name>JBoss Repository</name>
-			<url>http://repository.jboss.org/nexus/content/groups/public/</url>
-		</repository>
-	</repositories>
 	<build>
 		<plugins>
-			<plugin>
-				<artifactId>maven-compiler-plugin</artifactId>
-				<configuration>
-					<fork>true</fork>
-					<compilerVersion>${java.version}</compilerVersion>
-					<source>${java.version}</source>
-					<target>${java.version}</target>
-				</configuration>
-			</plugin>
 			<!-- Comentar el següent plugin si es vol generar la llibreria helium-disseny.jar --> 
 			<!--  per a emprar al disseny d'expedients --> 
 			<plugin>
@@ -66,4 +45,11 @@
 			<!-- -->
 		</plugins>
 	</build>
+	<repositories>
+		<repository>
+			<id>JBOSS</id>
+			<name>JBoss Repository</name>
+			<url>http://repository.jboss.org/nexus/content/groups/public/</url>
+		</repository>
+	</repositories>
 </project>

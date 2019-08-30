@@ -12,10 +12,8 @@ import java.util.Vector;
 import javax.naming.Context;
 import javax.naming.InitialContext;
 
-import net.conselldemallorca.helium.core.util.GlobalProperties;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import es.caib.regweb.RegistroEntrada;
 import es.caib.regweb.RegistroEntradaHome;
@@ -23,6 +21,7 @@ import es.caib.regweb.RegistroSalida;
 import es.caib.regweb.RegistroSalidaHome;
 import es.caib.regweb.Valores;
 import es.caib.regweb.ValoresHome;
+import net.conselldemallorca.helium.integracio.plugins.util.GlobalProperties;
 
 
 /**
@@ -474,6 +473,6 @@ public class RegistrePluginRegwebCaib implements RegistrePlugin {
 		return "2";
 	}
 
-	private static final Log logger = LogFactory.getLog(RegistrePluginRegwebCaib.class);
+	private static final Logger logger = LoggerFactory.getLogger(RegistrePluginRegwebCaib.class);
 
 }

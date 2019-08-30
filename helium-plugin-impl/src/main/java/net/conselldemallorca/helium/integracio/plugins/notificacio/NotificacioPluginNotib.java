@@ -26,7 +26,7 @@ import es.caib.notib.ws.notificacio.NotificaDomiciliConcretTipusEnumDto;
 import es.caib.notib.ws.notificacio.NotificaServeiTipusEnumDto;
 import es.caib.notib.ws.notificacio.NotificacioV2;
 import es.caib.notib.ws.notificacio.RespostaAlta;
-import net.conselldemallorca.helium.core.util.GlobalProperties;
+import net.conselldemallorca.helium.integracio.plugins.util.GlobalProperties;
 
 /**
  * Implementació de del plugin d'enviament de notificacions
@@ -39,6 +39,7 @@ public class NotificacioPluginNotib implements NotificacioPlugin {
 	
 	private NotificacioRestClient clientV2;
 
+	@SuppressWarnings("incomplete-switch")
 	@Override
 	public RespostaEnviar enviar(
 			Notificacio notificacio) throws NotificacioPluginException {
@@ -160,6 +161,7 @@ public class NotificacioPluginNotib implements NotificacioPlugin {
 		}
 	}
 
+	@SuppressWarnings("incomplete-switch")
 	@Override
 	public RespostaConsultaEstatNotificacio consultarNotificacio(
 			String identificador) throws NotificacioPluginException {
@@ -192,6 +194,7 @@ public class NotificacioPluginNotib implements NotificacioPlugin {
 		}
 	}
 
+	@SuppressWarnings("incomplete-switch")
 	@Override
 	public RespostaConsultaEstatEnviament consultarEnviament(
 			String referencia) throws NotificacioPluginException {

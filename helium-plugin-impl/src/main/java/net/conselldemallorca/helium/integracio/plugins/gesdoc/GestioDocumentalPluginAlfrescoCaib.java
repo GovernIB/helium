@@ -14,8 +14,6 @@ import java.util.regex.Pattern;
 
 import javax.activation.MimetypesFileTypeMap;
 
-import net.conselldemallorca.helium.core.util.GlobalProperties;
-
 import org.alfresco.webservice.authentication.AuthenticationFault;
 import org.alfresco.webservice.content.Content;
 import org.alfresco.webservice.content.ContentFault;
@@ -39,8 +37,10 @@ import org.alfresco.webservice.util.Constants;
 import org.alfresco.webservice.util.ContentUtils;
 import org.alfresco.webservice.util.Utils;
 import org.alfresco.webservice.util.WebServiceFactory;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import net.conselldemallorca.helium.integracio.plugins.util.GlobalProperties;
 
 /**
  * Implementació del plugin de gestió documental amb Alfresco
@@ -295,6 +295,6 @@ public class GestioDocumentalPluginAlfrescoCaib implements GestioDocumentalPlugi
 		';', '&', '%', '+',
 		'\\'};
 	private static final Store ALFRESCO_STORE = new Store(Constants.WORKSPACE_STORE, "SpacesStore");
-	private static final Log logger = LogFactory.getLog(GestioDocumentalPluginAlfresco.class);
+	private static final Logger logger = LoggerFactory.getLogger(GestioDocumentalPluginAlfresco.class);
 
 }

@@ -1,4 +1,4 @@
-package net.conselldemallorca.helium.webapp.v3.controller;
+	package net.conselldemallorca.helium.webapp.v3.controller;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -43,7 +43,6 @@ import net.conselldemallorca.helium.v3.core.api.exportacio.DefinicioProcesExport
 import net.conselldemallorca.helium.v3.core.api.service.ExecucioMassivaService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientTipusService;
-import net.conselldemallorca.helium.webapp.mvc.ArxiuView;
 import net.conselldemallorca.helium.webapp.v3.command.DefinicioProcesDesplegarCommand;
 import net.conselldemallorca.helium.webapp.v3.command.DefinicioProcesDesplegarCommand.ACCIO_JBPM;
 import net.conselldemallorca.helium.webapp.v3.command.DefinicioProcesDesplegarCommand.Desplegament;
@@ -57,6 +56,7 @@ import net.conselldemallorca.helium.webapp.v3.helper.DatatablesHelper.Datatables
 import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.NodecoHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
+import net.conselldemallorca.helium.webapp.view.ArxiuView;
 
 /**
  * Controlador per al manteniment de les definicions de procés. Controla les pipelles del
@@ -301,7 +301,7 @@ public class DefinicioProcesController extends BaseDefinicioProcesController {
 		if (entornActual != null) {
 			definicioProces = definicioProcesService.findById(definicioProcesId);
 			if (definicioProces != null) {
-				model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_FILENAME,nom);
+				model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_FILENAME, nom);
 				model.addAttribute(
 						ArxiuView.MODEL_ATTRIBUTE_DATA, 
 						dissenyService.getRecursContingut(

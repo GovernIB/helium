@@ -9,9 +9,6 @@
 		<version>3.2</version>
 	</parent>
 	<artifactId>helium-plugin-impl</artifactId>
-	<properties>
-		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-	</properties>
 	<dependencies>
 		<dependency>
 			<groupId>es.caib</groupId>
@@ -235,62 +232,51 @@
 		</dependency>
 		<!-- /Dependències Firma servidor -->
 		<dependency>
-			<groupId>${project.groupId}</groupId>
-			<artifactId>helium-plugin-api</artifactId>
-			<version>${helium.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>${project.groupId}</groupId>
-			<artifactId>helium-core-common</artifactId>
-			<version>${helium.version}</version>
-		</dependency>
-		
-		<dependency>
             <groupId>es.caib.regweb3</groupId>
             <artifactId>regweb3-utils</artifactId>
             <version>3.0.8</version>
             <scope>compile</scope>
         </dependency>
-
         <dependency>
             <groupId>es.caib.regweb3</groupId>
             <artifactId>regweb3-ws-api</artifactId>
             <version>3.0.8</version>
             <scope>compile</scope>
         </dependency>
-        
 		<dependency>
 		    <groupId>wsdl4j</groupId>
 		    <artifactId>wsdl4j</artifactId>
 		    <version>1.6.2</version>
 		</dependency>
-        
         <dependency>
 			<groupId>es.caib.notib</groupId>
 			<artifactId>notib-client</artifactId>
 			<version>1.0.1</version>
 		</dependency>
-		
+		<dependency>
+			<groupId>commons-codec</groupId>
+			<artifactId>commons-codec</artifactId>
+			<version>1.13</version>
+		</dependency>
+		<dependency>
+			<groupId>com.artofsolving</groupId>
+			<artifactId>jodconverter</artifactId>
+			<version>2.2.1</version>
+		</dependency>
+		<dependency>
+			<groupId>com.lowagie</groupId>
+			<artifactId>itext</artifactId>
+			<version>2.1.7</version>
+		</dependency>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>helium-plugin-api</artifactId>
+			<version>${project.version}</version>
+		</dependency>
 	</dependencies>
-	<build>
+	<!--build>
 		<plugins>
 			<plugin>
-				<artifactId>maven-compiler-plugin</artifactId>
-				<configuration>
-					<fork>true</fork>
-					<compilerVersion>${java.version}</compilerVersion>
-					<source>${java.version}</source>
-					<target>${java.version}</target>
-				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-surefire-plugin</artifactId>
-				<configuration>
-					<skipTests>true</skipTests>
-				</configuration>
-			</plugin>
-			<!--plugin>
 				<artifactId>maven-jar-plugin</artifactId>
 				<executions>
 					<execution>
@@ -307,9 +293,9 @@
 						</configuration>
 					</execution>
 				</executions>
-			</plugin-->
+			</plugin>
 		</plugins>
-	</build>
+	</build-->
 	<repositories>
 		<repository>
 			<id>github_governib_maven</id>

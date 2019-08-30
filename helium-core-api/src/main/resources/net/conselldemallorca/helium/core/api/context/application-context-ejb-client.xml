@@ -9,33 +9,101 @@
 				http://www.springframework.org/schema/jee/spring-jee-3.0.xsd">
 
 	<jee:local-slsb
+			id="accioService"
+			jndi-name="helium/AccioServiceBean/local"
+			business-interface="net.conselldemallorca.helium.v3.core.api.service.AccioService"/>
+	<jee:local-slsb
 			id="adminService"
 			jndi-name="helium/AdminServiceBean/local"
 			business-interface="net.conselldemallorca.helium.v3.core.api.service.AdminService"/>
+	<jee:local-slsb
+			id="alertaService"
+			jndi-name="helium/AlertaServiceBean/local"
+			business-interface="net.conselldemallorca.helium.v3.core.api.service.AlertaService"/>
 	<jee:local-slsb
 			id="aplicacioService"
 			jndi-name="helium/AplicacioServiceBean/local"
 			business-interface="net.conselldemallorca.helium.v3.core.api.service.AplicacioService"/>
 	<jee:local-slsb
+			id="campService"
+			jndi-name="helium/CampServiceBean/local"
+			business-interface="net.conselldemallorca.helium.v3.core.api.service.CampService"/>
+	<jee:local-slsb
+			id="definicioProceService"
+			jndi-name="helium/DefinicioProceServiceBean/local"
+			business-interface="net.conselldemallorca.helium.v3.core.api.service.DefinicioProceService"/>
+	<jee:local-slsb
 			id="dissenyService"
 			jndi-name="helium/DissenyServiceBean/local"
 			business-interface="net.conselldemallorca.helium.v3.core.api.service.DissenyService"/>
+	<jee:local-slsb
+			id="documentService"
+			jndi-name="helium/DocumentServiceBean/local"
+			business-interface="net.conselldemallorca.helium.v3.core.api.service.DocumentService"/>
 	<jee:local-slsb
 			id="entornService"
 			jndi-name="helium/EntornServiceBean/local"
 			business-interface="net.conselldemallorca.helium.v3.core.api.service.EntornService"/>
 	<jee:local-slsb
+			id="enumeracioService"
+			jndi-name="helium/EnumeracioServiceBean/local"
+			business-interface="net.conselldemallorca.helium.v3.core.api.service.EnumeracioService"/>
+	<jee:local-slsb
 			id="execucioMassivaService"
 			jndi-name="helium/ExecucioMassivaServiceBean/local"
 			business-interface="net.conselldemallorca.helium.v3.core.api.service.ExecucioMassivaService"/>
+	<jee:local-slsb
+			id="expedientDadaService"
+			jndi-name="helium/ExpedientDadaServiceBean/local"
+			business-interface="net.conselldemallorca.helium.v3.core.api.service.ExpedientDadaService"/>
+	<jee:local-slsb
+			id="expedientDocumentService"
+			jndi-name="helium/ExpedientDocumentServiceBean/local"
+			business-interface="net.conselldemallorca.helium.v3.core.api.service.ExpedientDocumentService"/>
+	<jee:local-slsb
+			id="expedientInteressatService"
+			jndi-name="helium/ExpedientInteressatServiceBean/local"
+			business-interface="net.conselldemallorca.helium.v3.core.api.service.ExpedientInteressatService"/>
+	<jee:local-slsb
+			id="expedientRegistreService"
+			jndi-name="helium/ExpedientRegistreServiceBean/local"
+			business-interface="net.conselldemallorca.helium.v3.core.api.service.ExpedientRegistreService"/>
 	<jee:local-slsb
 			id="expedientService"
 			jndi-name="helium/ExpedientServiceBean/local"
 			business-interface="net.conselldemallorca.helium.v3.core.api.service.ExpedientService"/>
 	<jee:local-slsb
-			id="jbpm3HeliumService"
-			jndi-name="helium/Jbpm3HeliumServiceBean/local"
-			business-interface="net.conselldemallorca.helium.v3.core.api.service.Jbpm3HeliumService"/>
+			id="expedientTascaService"
+			jndi-name="helium/ExpedientTascaServiceBean/local"
+			business-interface="net.conselldemallorca.helium.v3.core.api.service.ExpedientTascaService"/>
+	<jee:local-slsb
+			id="expedientTerminiService"
+			jndi-name="helium/ExpedientTerminiServiceBean/local"
+			business-interface="net.conselldemallorca.helium.v3.core.api.service.ExpedientTerminiService"/>
+	<jee:local-slsb
+			id="expedientTipusService"
+			jndi-name="helium/ExpedientTipusServiceBean/local"
+			business-interface="net.conselldemallorca.helium.v3.core.api.service.ExpedientTipusService"/>
+	<jee:local-slsb
+			id="expedientTokenService"
+			jndi-name="helium/ExpedientTokenServiceBean/local"
+			business-interface="net.conselldemallorca.helium.v3.core.api.service.ExpedientTokenService"/>
+	<jee:local-slsb
+			id="organitzacioService"
+			jndi-name="helium/OrganitzacioServiceBean/local"
+			business-interface="net.conselldemallorca.helium.v3.core.api.service.OrganitzacioService"/>
+	<jee:local-slsb
+			id="permisService"
+			jndi-name="helium/PermisServiceBean/local"
+			business-interface="net.conselldemallorca.helium.v3.core.api.service.PermisService"/>
+	<jee:local-slsb
+			id="reproService"
+			jndi-name="helium/ReproServiceBean/local"
+			business-interface="net.conselldemallorca.helium.v3.core.api.service.ReproService"/>
+	<jee:local-slsb
+			id="tascaProgramadaService"
+			jndi-name="helium/TascaProgramadaServiceBean/local"
+			business-interface="net.conselldemallorca.helium.v3.core.api.service.TascaProgramadaService"/>
 	<jee:local-slsb
 			id="tascaService"
 			jndi-name="helium/TascaServiceBean/local"
@@ -45,8 +113,8 @@
 			jndi-name="helium/TerminiServiceBean/local"
 			business-interface="net.conselldemallorca.helium.v3.core.api.service.TerminiService"/>
 	<jee:local-slsb
-			id="tokenService"
-			jndi-name="helium/TokenServiceBean/local"
-			business-interface="net.conselldemallorca.helium.v3.core.api.service.TokenService"/>
+			id="validacioService"
+			jndi-name="helium/ValidacioServiceBean/local"
+			business-interface="net.conselldemallorca.helium.v3.core.api.service.ValidacioService"/>
 
 </beans>

@@ -3,11 +3,8 @@ package net.conselldemallorca.helium.integracio.plugins.registre;
 import javax.xml.bind.JAXBElement;
 import javax.xml.namespace.QName;
 
-import net.conselldemallorca.helium.core.util.GlobalProperties;
-import net.conselldemallorca.helium.core.util.ws.WsClientUtils;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import es.caib.regtel.ws.v2.model.acuserecibo.AcuseRecibo;
 import es.caib.regtel.ws.v2.model.aviso.Aviso;
@@ -22,12 +19,14 @@ import es.caib.regtel.ws.v2.model.documento.Documento;
 import es.caib.regtel.ws.v2.model.documento.Documentos;
 import es.caib.regtel.ws.v2.model.oficinaregistral.OficinaRegistral;
 import es.caib.regtel.ws.v2.model.oficioremision.OficioRemision;
-import es.caib.regtel.ws.v2.model.oficioremision.ParametroTramite;
 import es.caib.regtel.ws.v2.model.oficioremision.OficioRemision.TramiteSubsanacion;
 import es.caib.regtel.ws.v2.model.oficioremision.OficioRemision.TramiteSubsanacion.ParametrosTramite;
+import es.caib.regtel.ws.v2.model.oficioremision.ParametroTramite;
 import es.caib.regtel.ws.v2.model.resultadoregistro.ResultadoRegistro;
 import es.caib.regtel.ws.v2.services.BackofficeFacade;
 import es.caib.regtel.ws.v2.services.BackofficeFacadeException;
+import net.conselldemallorca.helium.integracio.plugins.util.GlobalProperties;
+import net.conselldemallorca.helium.integracio.plugins.util.ws.WsClientUtils;
 
 
 /**
@@ -513,6 +512,6 @@ public class RegistrePluginSistrav2 implements RegistrePlugin {
 		return new Integer(GlobalProperties.getInstance().getProperty("app.registre.plugin.rds.versio"));
 	}
 
-	private static final Log logger = LogFactory.getLog(RegistrePluginSistrav2.class);
+	private static final Logger logger = LoggerFactory.getLogger(RegistrePluginSistrav2.class);
 
 }

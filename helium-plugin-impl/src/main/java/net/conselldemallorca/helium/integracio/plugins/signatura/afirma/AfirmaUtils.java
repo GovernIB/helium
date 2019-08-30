@@ -11,12 +11,12 @@ import javax.xml.rpc.ServiceException;
 
 import org.apache.axis.client.Call;
 import org.apache.axis.client.Service;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Node;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Mètodes d'accés a les funcionalitats proporcionades pel
@@ -378,6 +378,6 @@ public class AfirmaUtils {
 		}
 	}
 	
-	private static final Log logger = LogFactory.getLog(AfirmaUtils.class);
+	private static final Logger logger = LoggerFactory.getLogger(AfirmaUtils.class);
 
 }

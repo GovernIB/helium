@@ -50,7 +50,6 @@ import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException
 import net.conselldemallorca.helium.v3.core.api.service.DissenyService;
 import net.conselldemallorca.helium.v3.core.repository.CampRepository;
 import net.conselldemallorca.helium.v3.core.repository.DefinicioProcesRepository;
-import net.conselldemallorca.helium.webapp.mvc.ArxiuView;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientTipusConsultaCommand;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientTipusConsultaParamCommand;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientTipusConsultaVarCommand;
@@ -60,6 +59,7 @@ import net.conselldemallorca.helium.webapp.v3.helper.DatatablesHelper.Datatables
 import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.NodecoHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
+import net.conselldemallorca.helium.webapp.view.ArxiuView;
 
 /**
  * Controlador per a les diferents consultes dels tipus d'expedient.
@@ -78,9 +78,6 @@ public class ExpedientTipusConsultaController extends BaseExpedientTipusControll
 	private CampRepository campRepository;
 	@Autowired
 	private DefinicioProcesRepository definicioProcesRepository;
-	
-	
-	
 
 	@RequestMapping(value = "/{expedientTipusId}/consultes")
 	public String consultes(

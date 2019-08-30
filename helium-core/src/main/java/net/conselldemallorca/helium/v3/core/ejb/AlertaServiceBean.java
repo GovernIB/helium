@@ -34,4 +34,18 @@ public class AlertaServiceBean implements AlertaService {
 	public AlertaDto marcarEsborrada(Long alertaId) {
 		return delegate.marcarEsborrada(alertaId);
 	}
+
+	@Override
+	public int countActivesAmbEntornIUsuari(
+			Long entornId,
+			String usuariCodi,
+			boolean llegides,
+			boolean noLlegides) {
+		return delegate.countActivesAmbEntornIUsuari(
+				entornId,
+				usuariCodi,
+				llegides,
+				noLlegides);
+	}
+
 }

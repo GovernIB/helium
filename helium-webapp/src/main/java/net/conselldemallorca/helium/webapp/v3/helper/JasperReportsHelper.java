@@ -18,10 +18,10 @@ import com.codahale.metrics.Counter;
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer;
 
-import net.conselldemallorca.helium.report.FieldValue;
-import net.conselldemallorca.helium.webapp.mvc.JasperReportsView;
+import net.conselldemallorca.helium.v3.core.api.report.FieldValue;
 import net.conselldemallorca.helium.webapp.v3.helper.InformeHelper.Estat;
 import net.conselldemallorca.helium.webapp.v3.helper.InformeHelper.InformeInfo;
+import net.conselldemallorca.helium.webapp.view.JasperReportsView;
 import net.sf.jasperreports.engine.JRException;
 import net.sf.jasperreports.engine.JRExporterParameter;
 import net.sf.jasperreports.engine.JRParameter;

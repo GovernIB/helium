@@ -38,9 +38,9 @@ import es.caib.portafib.ws.api.v1.PortaFIBUsuariEntitatWsService;
 import es.caib.portafib.ws.api.v1.TipusDocumentInfoWs;
 import es.caib.portafib.ws.api.v1.WsI18NException;
 import es.caib.portafib.ws.api.v1.utils.PeticioDeFirmaUtils;
-import net.conselldemallorca.helium.core.util.GlobalProperties;
-import net.conselldemallorca.helium.core.util.OpenOfficeUtils;
 import net.conselldemallorca.helium.integracio.plugins.portasignatures.wsdl.ImportanceEnum;
+import net.conselldemallorca.helium.integracio.plugins.util.GlobalProperties;
+import net.conselldemallorca.helium.integracio.plugins.util.OpenOfficeUtils;
 
 /**
  * Implementació del plugin de portasignatures per la CAIB.

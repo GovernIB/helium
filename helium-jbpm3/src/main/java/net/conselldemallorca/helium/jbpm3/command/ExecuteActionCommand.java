@@ -91,6 +91,7 @@ public class ExecuteActionCommand extends AbstractGetObjectBaseCommand {
 						FileDefinition fd = pdp.getFileDefinition();
 						if (fd != null) {
 							// Carrega els handlers en el process definition
+							@SuppressWarnings("unchecked")
 							Set<String> resources = fd.getBytesMap().keySet();
 							for (String resource : resources)
 								if (resource.endsWith(".class"))

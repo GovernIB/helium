@@ -3,7 +3,9 @@
  */
 package net.conselldemallorca.helium.v3.core.service;
 
+import java.io.IOException;
 import java.util.List;
+import java.util.Properties;
 
 import javax.annotation.Resource;
 
@@ -15,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import net.conselldemallorca.helium.core.helper.ConversioTipusHelper;
 import net.conselldemallorca.helium.core.helper.PluginHelper;
+import net.conselldemallorca.helium.core.helper.PropertiesHelper;
 import net.conselldemallorca.helium.core.helper.UsuariActualHelper;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.UsuariPreferenciesDto;
@@ -29,6 +32,8 @@ import net.conselldemallorca.helium.v3.core.repository.UsuariPreferenciesReposit
 @Service
 public class AplicacioServiceImpl implements AplicacioService {
 
+	private Properties versionProperties;
+
 	@Autowired
 	private UsuariPreferenciesRepository usuariPreferenciesRepository;
 
@@ -39,7 +44,19 @@ public class AplicacioServiceImpl implements AplicacioService {
 	@Autowired
 	private ConversioTipusHelper conversioTipusHelper;
 
-
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String getVersioActual() {
+		logger.debug("Obtenint versió actual de l'aplicació");
+		try {
+			return getVersionProperties().getProperty("app.version");
+		} catch (IOException ex) {
+			logger.error("No s'ha pogut llegir el fitxer version.properties", ex);
+			return "???";
+		}
+	}
 
 	/**
 	 * {@inheritDoc}
@@ -83,7 +100,43 @@ public class AplicacioServiceImpl implements AplicacioService {
 		return pluginHelper.personaFindLikeNomSencer(text);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public Properties propertyFindByPrefix(String prefix) {
+		logger.debug("Consulta del valor dels properties amb prefix (" +
+				"prefix=" + prefix + ")");
+		return PropertiesHelper.getProperties().findByPrefix(prefix);
+	}
 
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String propertyFindByNom(String nom) {
+		logger.debug("Consulta del valor del propertat amb nom");
+		return PropertiesHelper.getProperties().getProperty(nom);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public Properties propertyFindAll() {
+		logger.debug("Consulta del valor del propertat amb nom");
+		return PropertiesHelper.getProperties().findAll();
+	}
+
+	private Properties getVersionProperties() throws IOException {
+		if (versionProperties == null) {
+			versionProperties = new Properties();
+			versionProperties.load(
+					getClass().getResourceAsStream(
+							"/net/conselldemallorca/helium/core/version/version.properties"));
+		}
+		return versionProperties;
+	}
 
 	private static final Logger logger = LoggerFactory.getLogger(AplicacioServiceImpl.class);
 

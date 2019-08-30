@@ -225,6 +225,7 @@ public class ExpedientTipusEstadisticaController extends BaseController {
 		return totalAny;
 	}
 	
+	@SuppressWarnings("unchecked")
 	private void gererarExcel(
 			HttpServletRequest request,
 			HttpServletResponse response,

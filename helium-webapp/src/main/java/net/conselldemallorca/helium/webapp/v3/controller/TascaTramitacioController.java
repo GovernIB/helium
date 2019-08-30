@@ -78,7 +78,6 @@ import net.conselldemallorca.helium.v3.core.api.service.ExpedientDocumentService
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
 import net.conselldemallorca.helium.v3.core.api.service.ReproService;
 import net.conselldemallorca.helium.v3.core.api.service.TascaService;
-import net.conselldemallorca.helium.webapp.mvc.ArxiuView;
 import net.conselldemallorca.helium.webapp.v3.command.PassarelaFirmaEnviarCommand;
 import net.conselldemallorca.helium.webapp.v3.command.TascaConsultaCommand;
 import net.conselldemallorca.helium.webapp.v3.helper.EnumHelper;
@@ -92,6 +91,7 @@ import net.conselldemallorca.helium.webapp.v3.helper.TascaFormHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.TascaFormValidatorHelper;
 import net.conselldemallorca.helium.webapp.v3.passarelafirma.PassarelaFirmaConfig;
 import net.conselldemallorca.helium.webapp.v3.passarelafirma.PassarelaFirmaHelper;
+import net.conselldemallorca.helium.webapp.view.ArxiuView;
 
 /**
  * Controlador per a la tramitació de taques.

@@ -11,9 +11,6 @@ import java.io.Serializable;
  * @author Limit Tecnologies <limit@limit.es>
  */
 public class PersonaDto implements Serializable {
-	public PersonaDto() {
-		super();
-	}
 
 	public enum Sexe {
 		SEXE_HOME,
@@ -30,7 +27,11 @@ public class PersonaDto implements Serializable {
 	private String relleu;
 	private String contrasenya;
 	private InteressatTipusEnumDto tipus;
+	private boolean admin;
 
+	public PersonaDto() {
+		super();
+	}
 	public PersonaDto(String codi, String nomSencer, String email, Sexe sexe) {
 		this.codi = codi;
 		this.setNomSencer(nomSencer);
@@ -156,6 +157,12 @@ public class PersonaDto implements Serializable {
 	}
 	public void setContrasenya(String contrasenya) {
 		this.contrasenya = contrasenya;
+	}
+	public boolean isAdmin() {
+		return admin;
+	}
+	public void setAdmin(boolean admin) {
+		this.admin = admin;
 	}
 
 	public String getInicials() {

@@ -10,12 +10,12 @@ import java.rmi.RemoteException;
 
 import javax.xml.rpc.ServiceException;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import es.caib.signatura.cliente.custodia.CustodiaRequestBuilder;
 import es.caib.signatura.cliente.services.custodia.CustodiaService;
@@ -195,9 +195,9 @@ public class ClienteCustodiaCaib {
 				((CustodiaSoapBindingStub)custodiaPort).setPassword(password);
 			}
 		} catch (ServiceException sex) {
-			logger.error(sex);
+			logger.error("", sex);
 		} catch (MalformedURLException mux) {
-			logger.error(mux);
+			logger.error("", mux);
 		}
 	}
 
@@ -207,5 +207,6 @@ public class ClienteCustodiaCaib {
 				resultMajor.contains("ERROR"));
 	}
 
-	private static final Log logger = LogFactory.getLog(ClienteCustodiaCaib.class);
+	private static final Logger logger = LoggerFactory.getLogger(ClienteCustodiaCaib.class);
+
 }

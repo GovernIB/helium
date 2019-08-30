@@ -43,6 +43,7 @@ public abstract class SignaturaApplet extends Applet {
 
 	private JPanel jPanel = new JPanel();
 	private JButton jButtonSignar;
+	@SuppressWarnings("rawtypes")
 	private JComboBox jComboBoxCertificats;
 	private JLabel jLabelCertificat;
 	private JLabel jLabelContrasenya;
@@ -71,6 +72,7 @@ public abstract class SignaturaApplet extends Applet {
 
 
 
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private void initComponents() {
 		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
@@ -141,6 +143,7 @@ public abstract class SignaturaApplet extends Applet {
         }
     }
 
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private void initSignature() {
 		try {
 			initSigner();

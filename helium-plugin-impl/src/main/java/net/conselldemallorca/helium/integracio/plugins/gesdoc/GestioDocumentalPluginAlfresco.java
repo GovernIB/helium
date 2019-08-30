@@ -8,13 +8,13 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-import net.conselldemallorca.helium.core.util.GlobalProperties;
-import net.conselldemallorca.helium.integracio.plugins.util.AlfrescoUtils;
-
 import org.alfresco.webservice.types.Reference;
 import org.alfresco.webservice.util.Constants;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import net.conselldemallorca.helium.integracio.plugins.util.AlfrescoUtils;
+import net.conselldemallorca.helium.integracio.plugins.util.GlobalProperties;
 
 /**
  * Implementació del plugin de gestió documental amb Alfresco
@@ -453,6 +453,6 @@ public class GestioDocumentalPluginAlfresco implements GestioDocumentalPlugin {
 		';', '&', '%', '+',
 		'\\'};
 	private static final Store ALFRESCO_STORE = new Store(Constants.WORKSPACE_STORE, "SpacesStore");*/
-	private static final Log logger = LogFactory.getLog(GestioDocumentalPluginAlfresco.class);
+	private static final Logger logger = LoggerFactory.getLogger(GestioDocumentalPluginAlfresco.class);
 
 }

@@ -11,11 +11,11 @@ import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.conselldemallorca.helium.integracio.plugins.signatura.RespostaValidacioSignatura;
-import net.conselldemallorca.helium.core.util.GlobalProperties;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import net.conselldemallorca.helium.integracio.plugins.signatura.RespostaValidacioSignatura;
+import net.conselldemallorca.helium.integracio.plugins.util.GlobalProperties;
 
 /**
  * Implementació del plugin de custodia documental que guarda
@@ -116,6 +116,6 @@ public class CustodiaPluginFilesystem implements CustodiaPlugin {
 		return GlobalProperties.getInstance().getProperty("app.custodia.plugin.filesystem.basedir");
 	}
 
-	private static final Log logger = LogFactory.getLog(CustodiaPluginFilesystem.class);
+	private static final Logger logger = LoggerFactory.getLogger(CustodiaPluginFilesystem.class);
 
 }

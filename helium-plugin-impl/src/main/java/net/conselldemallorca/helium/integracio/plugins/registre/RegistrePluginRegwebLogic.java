@@ -12,10 +12,8 @@ import java.util.Vector;
 import javax.naming.Context;
 import javax.naming.InitialContext;
 
-import net.conselldemallorca.helium.core.util.GlobalProperties;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
@@ -27,6 +25,7 @@ import es.caib.regweb.logic.interfaces.RegistroSalidaFacade;
 import es.caib.regweb.logic.interfaces.RegistroSalidaFacadeHome;
 import es.caib.regweb.logic.interfaces.ValoresFacade;
 import es.caib.regweb.logic.interfaces.ValoresFacadeHome;
+import net.conselldemallorca.helium.integracio.plugins.util.GlobalProperties;
 
 /**
  * Implementació del plugin de registre per a la interficie logic del registre
@@ -539,6 +538,6 @@ public class RegistrePluginRegwebLogic implements RegistrePlugin {
 		return "2";
 	}
 
-	private static final Log logger = LogFactory.getLog(RegistrePluginRegwebLogic.class);
+	private static final Logger logger = LoggerFactory.getLogger(RegistrePluginRegwebLogic.class);
 
 }

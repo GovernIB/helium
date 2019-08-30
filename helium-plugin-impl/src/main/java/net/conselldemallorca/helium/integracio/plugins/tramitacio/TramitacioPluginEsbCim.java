@@ -6,15 +6,8 @@ package net.conselldemallorca.helium.integracio.plugins.tramitacio;
 import javax.xml.bind.JAXBElement;
 import javax.xml.namespace.QName;
 
-import net.conselldemallorca.helium.core.util.GlobalProperties;
-import net.conselldemallorca.helium.core.util.ws.WsClientUtils;
-import net.conselldemallorca.helium.integracio.plugins.registre.RegistreNotificacio;
-import net.conselldemallorca.helium.integracio.plugins.registre.RespostaAnotacioRegistre;
-import net.conselldemallorca.helium.integracio.plugins.registre.RespostaJustificantDetallRecepcio;
-import net.conselldemallorca.helium.integracio.plugins.registre.RespostaJustificantRecepcio;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import es.cim.ws.documentos.v1.model.gestordocumental.ObtenerVistaDocumentoRequest;
 import es.cim.ws.documentos.v1.model.gestordocumental.ObtenerVistaDocumentoResponse;
@@ -29,6 +22,12 @@ import es.cim.ws.tramitacion.v1.model.expediente.Expediente;
 import es.cim.ws.tramitacion.v1.model.tramitacion.PublicarEventoRequest;
 import es.cim.ws.tramitacion.v1.model.tramitacion.PublicarExpedienteRequest;
 import es.cim.ws.tramitacion.v1.services.ServicioTramitacionPortType;
+import net.conselldemallorca.helium.integracio.plugins.registre.RegistreNotificacio;
+import net.conselldemallorca.helium.integracio.plugins.registre.RespostaAnotacioRegistre;
+import net.conselldemallorca.helium.integracio.plugins.registre.RespostaJustificantDetallRecepcio;
+import net.conselldemallorca.helium.integracio.plugins.registre.RespostaJustificantRecepcio;
+import net.conselldemallorca.helium.integracio.plugins.util.GlobalProperties;
+import net.conselldemallorca.helium.integracio.plugins.util.ws.WsClientUtils;
 
 /**
  * Implementació del plugin de tramitacio accedint al ESB del
@@ -281,7 +280,7 @@ public class TramitacioPluginEsbCim implements TramitacioPlugin {
 		return "true".equalsIgnoreCase(disableCnCheck);
 	}
 
-	private static final Log logger = LogFactory.getLog(TramitacioPluginEsbCim.class);
+	private static final Logger logger = LoggerFactory.getLogger(TramitacioPluginEsbCim.class);
 
 	@Override
 	public boolean existeixExpedient(Long unidadAdministrativa, String identificadorExpediente)

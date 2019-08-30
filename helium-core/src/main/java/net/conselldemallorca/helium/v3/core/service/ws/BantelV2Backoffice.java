@@ -1,0 +1,78 @@
+/**
+ * 
+ */
+package net.conselldemallorca.helium.v3.core.service.ws;
+
+import javax.jws.WebService;
+
+import org.springframework.stereotype.Component;
+
+import es.caib.bantel.ws.v2.model.referenciaentrada.ReferenciasEntrada;
+import es.caib.bantel.ws.v2.services.BantelFacade;
+import es.caib.bantel.ws.v2.services.BantelFacadeException;
+import net.conselldemallorca.helium.integracio.plugins.tramitacio.DadesVistaDocument;
+
+/**
+ * Backoffice per a gestionar les entrades de BANTEL
+ * 
+ * @author Limit Tecnologies <limit@limit.es>
+ */
+@Component
+@WebService(endpointInterface = "es.caib.bantel.ws.v2.services.BantelFacade")
+public class BantelV2Backoffice extends BaseBackoffice implements BantelFacade {
+
+	public void avisoEntradas(ReferenciasEntrada numeroEntradas)
+			throws BantelFacadeException {
+		/*List<ReferenciaEntrada> entrades = numeroEntradas.getReferenciaEntrada();
+		for (ReferenciaEntrada referenciaEntrada: entrades) {
+			ObtenirDadesTramitRequest request = new ObtenirDadesTramitRequest();
+			request.setNumero(referenciaEntrada.getNumeroEntrada());
+			request.setClau(referenciaEntrada.getClaveAcceso());
+			boolean error = false;
+			DadesTramit dadesTramit = null;
+			try {
+				dadesTramit = ServiceProxy.getInstance().getPluginService().obtenirDadesTramit(request);
+				int numExpedients = processarTramit(dadesTramit);
+				logger.info("El tramit " + request + " ha creat " + numExpedients + " expedients");
+			} catch (Exception ex) {
+				logger.error("Error petició de processament tramit " + request + " amb identificador " + dadesTramit.getIdentificador() + " --> " + dadesTramit, ex);
+				error = true;
+			}
+			try {
+				ResultatProcesTramitRequest requestResultat = new ResultatProcesTramitRequest();
+				requestResultat.setNumeroEntrada(referenciaEntrada.getNumeroEntrada());
+				requestResultat.setClauAcces(referenciaEntrada.getClaveAcceso());
+				if (!error)
+					requestResultat.setResultatProces(ResultatProcesTipus.PROCESSAT);
+				else
+					requestResultat.setResultatProces(ResultatProcesTipus.ERROR);
+				logger.info("Comunicant el resultat de processar el tràmit " + request + ": " + requestResultat.getResultatProces());
+				ServiceProxy.getInstance().getPluginService().comunicarResultatProcesTramit(requestResultat);
+			} catch (Exception ex) {
+				logger.error("Error a l'hora de comunicar el resultat de processar el tramit " + request, ex);
+			}
+		}*/
+	}
+
+	protected DadesVistaDocument getVistaDocumentTramit(
+			long referenciaCodi,
+			String referenciaClau,
+			String plantillaTipus,
+			String idioma) {
+		/*ObtenirVistaDocumentRequest request = new ObtenirVistaDocumentRequest();
+		request.setReferenciaCodi(referenciaCodi);
+		request.setReferenciaClau(referenciaClau);
+		request.setPlantillaTipus(plantillaTipus);
+		request.setIdioma(idioma);
+		try {
+			return ServiceProxy.getInstance().getPluginService().obtenirVistaDocument(request);
+		} catch (Exception ex) {
+			logger.error("Error al obtenir el document del tramit " + request, ex);
+			return null;
+		}*/
+		return null;
+	}
+
+	//private static final Log logger = LogFactory.getLog(BantelV2Backoffice.class);
+
+}

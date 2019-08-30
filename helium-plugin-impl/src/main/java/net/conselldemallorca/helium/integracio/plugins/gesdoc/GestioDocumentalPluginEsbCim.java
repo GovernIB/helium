@@ -6,11 +6,8 @@ package net.conselldemallorca.helium.integracio.plugins.gesdoc;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import net.conselldemallorca.helium.core.util.GlobalProperties;
-import net.conselldemallorca.helium.core.util.ws.WsClientUtils;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import es.cim.ws.documentos.v1.model.gestordocumental.EliminarDocumentoRequest;
 import es.cim.ws.documentos.v1.model.gestordocumental.EliminarDocumentoResponse;
@@ -20,6 +17,8 @@ import es.cim.ws.documentos.v1.model.gestordocumental.ObtenerDocumentoResponse;
 import es.cim.ws.documentos.v1.model.gestordocumental.TypeCodigoError;
 import es.cim.ws.documentos.v1.model.gestordocumental.TypeRespuestaRefDocumento;
 import es.cim.ws.documentos.v1.services.ServicioGestorDocumentalPortType;
+import net.conselldemallorca.helium.integracio.plugins.util.GlobalProperties;
+import net.conselldemallorca.helium.integracio.plugins.util.ws.WsClientUtils;
 
 /**
  * Implementació del plugin de gestió documental emprant el
@@ -132,6 +131,6 @@ public class GestioDocumentalPluginEsbCim implements GestioDocumentalPlugin {
 		return "true".equalsIgnoreCase(disableCnCheck);
 	}
 
-	private static final Log logger = LogFactory.getLog(GestioDocumentalPluginEsbCim.class);
+	private static final Logger logger = LoggerFactory.getLogger(GestioDocumentalPluginEsbCim.class);
 
 }

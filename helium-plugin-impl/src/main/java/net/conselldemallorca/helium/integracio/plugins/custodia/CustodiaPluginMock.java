@@ -13,8 +13,8 @@ import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.integracio.plugins.signatura.RespostaValidacioSignatura;
+import net.conselldemallorca.helium.integracio.plugins.util.GlobalProperties;
 
 /**
  * Implementació mock del plugin de custodia documental que simula guardar
