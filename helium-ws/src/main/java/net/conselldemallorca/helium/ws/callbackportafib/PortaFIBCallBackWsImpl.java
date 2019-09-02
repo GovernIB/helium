@@ -96,10 +96,12 @@ public class PortaFIBCallBackWsImpl implements PortaFIBCallBackWs {
 				case MCGDwsImpl.DOCUMENT_BLOQUEJAT:
 					resposta = 1D;
 					accio = "Bloquejat";
+					processamentOk = true;
 					break;
 				case MCGDwsImpl.DOCUMENT_PENDENT:
 					resposta = 1D;
 					accio = "Pendent";
+					processamentOk = true;
 					break;
 				case MCGDwsImpl.DOCUMENT_SIGNAT:
 					accio = "Signat";
