@@ -16,6 +16,7 @@ import java.util.Properties;
 import javax.annotation.Resource;
 
 import org.apache.commons.lang.exception.ExceptionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.fundaciobit.plugins.validatesignature.api.CertificateInfo;
@@ -1543,7 +1544,7 @@ public class PluginHelper {
 							minSignatarisPas2,
 							personesPas3,
 							minSignatarisPas3),
-					expedient.getIdentificador(),
+					this.getRemitentNom(expedient.getIdentificador()),
 					importancia,
 					dataLimit);
 			monitorIntegracioHelper.addAccioOk(
@@ -1594,6 +1595,30 @@ public class PluginHelper {
 					"(PORTASIGNATURES. Enviar: " + errorDescripcio + ")", 
 					ex);
 		}
+	}
+
+	/** Llargada màxima acceptada pel WS del Portasignatures pel camp del remitent. */
+	private static final int PORTASIGNATURES_REMITENT_MAX_LENGTH = 100;
+	/** Mètode per obtenir el nom del remitent per l'enviament al portasignatures.
+	 * 
+	 * @return Retorna el nom de l'usuari actual, el codi o "Helium" en cas que no es trobi.
+	 */
+	private String getRemitentNom(String expedient) {
+		String remitent = "Helium. " + expedient;
+		try {
+			String codiUsuari = usuariActualHelper.getUsuariActual();
+			if (codiUsuari != null) {
+				PersonaDto persona = this.personaFindAmbCodi(codiUsuari);
+				if (persona != null && persona.getNomSencer() != null && !"".equals(persona.getNomSencer())) {
+					remitent = persona.getNomSencer();
+				} else {
+					remitent = codiUsuari;
+				}
+			}
+		} catch(Exception e) {
+			logger.error("Error consultant el nom per l'usuari actual:" + e.getMessage(), e);
+		}
+		return StringUtils.abbreviate(remitent, PORTASIGNATURES_REMITENT_MAX_LENGTH);
 	}
 
 	public void portasignaturesCancelar(
@@ -3748,6 +3773,7 @@ public class PluginHelper {
 		documentPs.setTipus(document.getTipusDocPortasignatures());
 		documentPs.setSignat(document.isSignat());
 		documentPs.setReference(document.getId().toString());
+		documentPs.setDescripcio(String.format("Document \"%s\" de l'expedient \"%s\"", document.getDocumentNom(), expedient.getIdentificador()));
 		logger.debug("Afegit document portafirmes (" +
 				"arxiuNom=" + document.getVistaNom() + ", " +
 				"arxiuContingut=" + document.getVistaContingut().length + ", " +

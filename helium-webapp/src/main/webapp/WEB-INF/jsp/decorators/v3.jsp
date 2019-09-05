@@ -171,8 +171,18 @@
 						</li>
 					</ul>
 					<div class="clearfix"></div>
-					<div class="btn-group navbar-btn navbar-right">		
-						<a id="menuExpedients" class="btn btn-primary" href="<c:url value="/v3/expedient"/>"><spring:message code="decorator.menu.expedients"/></a>
+					<div class="btn-group navbar-btn navbar-right">
+						<c:choose>
+							<c:when test="${entornActual.codi == preferenciesUsuari.defaultEntornCodi && preferenciesUsuari.consultaId != null}">
+								<c:url var="expedientsUrl" value="/v3/expedient/consulta/${preferenciesUsuari.consultaId}"/>
+							</c:when>
+							<c:otherwise>
+								<c:url var="expedientsUrl" value="/v3/expedient"/>
+							</c:otherwise>
+						</c:choose>
+
+						<a id="menuExpedients" class="btn btn-primary" href="${expedientsUrl}"><spring:message code="decorator.menu.expedients"/></a>
+					
 						<a id="menuTasques" class="btn btn-primary" href="<c:url value="/v3/tasca"/>"><spring:message code="decorator.menu.tasques"/></a>
 						<c:if test="${potDissenyarEntorn or potDissenyarExpedientTipus}">
 							<div id="menuDisseny" class="btn-group" >

@@ -16,6 +16,7 @@ public class DocumentPortasignatures {
 	private Integer tipus;
 	private boolean isSignat;
 	private String reference;
+	private String descripcio;
 
 
 
@@ -54,6 +55,12 @@ public class DocumentPortasignatures {
 	}
 	public void setReference(String reference) {
 		this.reference = reference;
+	}
+	public String getDescripcio() {
+		return descripcio;
+	}
+	public void setDescripcio(String descripcio) {
+		this.descripcio = descripcio;
 	}
 
 }
