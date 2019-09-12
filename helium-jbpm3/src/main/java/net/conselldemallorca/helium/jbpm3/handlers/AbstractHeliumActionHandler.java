@@ -95,6 +95,7 @@ abstract class AbstractHeliumActionHandler implements ActionHandler {
 				return null;
 			DocumentInfo resposta = new DocumentInfo();
 			resposta.setId(id);
+			resposta.setCodiDocument(document.getDocumentCodi());
 			if (document.isAdjunt()) {
 				resposta.setTitol(document.getAdjuntTitol());
 			} else {
