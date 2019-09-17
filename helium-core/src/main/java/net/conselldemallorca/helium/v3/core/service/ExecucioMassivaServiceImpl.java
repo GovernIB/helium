@@ -1358,7 +1358,8 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 			
 			DefinicioProces definicioProces = expedientHelper.findDefinicioProcesByProcessInstanceId(exp.getProcessInstanceId());
 			Accio accio = accioRepository.findByCodiAndDefinicioProces(accioCodi, definicioProces);
-			
+			if (accio == null)
+				throw new Exception("No s'ha trobat l'acció \"" + accioCodi + "\" a executar per l'expedient \"" + exp.getIdentificador() + "\" amb definició de procés \"" + definicioProces.getIdPerMostrar());			
 			expedientService.accioExecutar(exp.getId(), exp.getProcessInstanceId(), accio.getId());
 			ome.setEstat(ExecucioMassivaEstat.ESTAT_FINALITZAT);
 			ome.setDataFi(new Date());

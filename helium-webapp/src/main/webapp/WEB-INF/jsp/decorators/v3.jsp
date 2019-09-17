@@ -105,16 +105,19 @@
 	<decorator:head />
 </head>
 <body>
+	<h1>Timestamp: ${timestamp}</h1>
 	<!-- default v3 -->
 	<div class="navbar navbar-default navbar-fixed-top navbar-app <c:if test="${not preferenciesUsuari.cabeceraReducida}">nav-container</c:if><c:if test="${preferenciesUsuari.cabeceraReducida}">cabecera_reducida</c:if>" role="navigation">
-		<div class="container">
+		<div class="container container-v3">
 			<div class="navbar-header top-sep">
 				<div class="navbar-brand">
 					<div id="govern-logo" class="pull-left">
 						<img src="<c:url value="/img/govern-logo.png"/>" alt="Govern de les Illes Balears" />
 					</div>
 					<div id="app-logo" class="pull-left">
-						<img src="<c:url value="/img/logo-helium-w.png"/>" alt="Helium" />
+						<a href="<c:url value="/"/>">
+							<img src="<c:url value="/img/logo-helium-w.png"/>" alt="Helium" />
+						</a>
 					</div>
 				</div>
 			</div>
@@ -261,7 +264,7 @@
 			</div>
 		</div>
 	</div>
-	<div class="container container-main <c:if test="${preferenciesUsuari.cabeceraReducida}">cabecera_reducida-main</c:if>">
+	<div class="container container-v3 container-main <c:if test="${preferenciesUsuari.cabeceraReducida}">cabecera_reducida-main</c:if>">
 		<div class="panel panel-default">
 			<c:set var="decoratorMetaTitle"><decorator:getProperty property="meta.title"/></c:set>
 			<c:set var="screen"><decorator:getProperty property="meta.screen"/></c:set>
