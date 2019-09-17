@@ -419,6 +419,14 @@
         and ti.isOpen = true
     ]]>
   </query>
+<!-- Mateixa funció per trobar instàncies de tasques però sense filtrar per obertes i no suspeses -->
+  <query name="TaskMgmtSession.findAllTaskInstancesByTokenId">
+    <![CDATA[
+      select ti
+      from org.jbpm.taskmgmt.exe.TaskInstance ti
+      where ti.token.id = :tokenId
+    ]]>
+  </query>
 
   <query name="TaskMgmtSession.findTaskInstancesByProcessInstance">
     <![CDATA[

@@ -276,7 +276,7 @@ public class ChangeProcessInstanceVersionCommand extends AbstractProcessInstance
 
 	private void adjustTaskInstancesForToken(Token token) {
 		ProcessDefinition newDef = getNewProcessDefinition(token);
-		Iterator<TaskInstance> iter = getTasksForToken(token).iterator();
+		Iterator<TaskInstance> iter = getAllTasksForToken(token).iterator();
 		while (iter.hasNext()) {
 			TaskInstance ti = iter.next();
 
@@ -289,15 +289,7 @@ public class ChangeProcessInstanceVersionCommand extends AbstractProcessInstance
 			// Canviam el TaskMngmtInstance per a associar-lo a la nova definició de procés
 			ti.getTaskMgmtInstance().setTaskMgmtDefinition(newDef.getTaskMgmtDefinition());
 
-			log.debug("change dependent task-instance with id " + oldTask.getId());
-			
-//			// Canviam el processDefinition dels tasksMgmtInstance dels tasksInstance de la versió que s'intenta esborrar a la de la tasca.
-//			TaskMgmtDefinition tmd = ti.getTaskMgmtInstance().getTaskMgmtDefinition();
-//			tmd.setProcessDefinition(newDef);
-//			if (tmd.getStartTask() != null) {
-//				tmd.setStartTask(newDef.getTaskMgmtDefinition().getStartTask());
-//			}
-//			getJbpmContext().getSession().save(tmd);
+			log.debug("change dependent task-instance with id " + oldTask.getId());			
 		}
 		
 	}
@@ -465,19 +457,17 @@ public class ChangeProcessInstanceVersionCommand extends AbstractProcessInstance
 		}
 		return node;
 	}
-
-	/**
-	 * We may still have open tasks, even though their parent tokens have been
-	 * ended. So we'll simply get all tasks from this process instance and
-	 * cancel them if they are still active.
+	
+	/** 
+	 * Retorna totes les tasques d'un token estiguin o no obertes o suspeses
 	 * 
 	 */
-	private List getTasksForToken(Token token) {
-		Query query = getJbpmContext().getSession().getNamedQuery("TaskMgmtSession.findTaskInstancesByTokenId");
+	private List getAllTasksForToken(Token token) {
+		Query query = getJbpmContext().getSession().getNamedQuery("TaskMgmtSession.findAllTaskInstancesByTokenId");
 		query.setLong("tokenId", token.getId());
 		return query.list();
 
-	}
+	}	
 
 	public Map getNodeNameMapping() {
 		return nodeNameMapping;
