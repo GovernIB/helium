@@ -176,7 +176,7 @@
 												</c:if>												
 												
 												<!-- FI FRAGMENT -->
-												<c:if test="${expedient.ntiActiu and expedient.permisAdministration}">
+												<c:if test="${expedient.ntiActiu and expedient.permisRead}">
 													<a	href="../../v3/expedient/${expedientId}/proces/${document.processInstanceId}/document/${document.id}/metadadesNti"
 														data-rdt-link-modal="true"
 														data-rdt-link-modal-min-height="500"

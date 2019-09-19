@@ -105,7 +105,6 @@
 	<decorator:head />
 </head>
 <body>
-	<h1>Timestamp: ${timestamp}</h1>
 	<!-- default v3 -->
 	<div class="navbar navbar-default navbar-fixed-top navbar-app <c:if test="${not preferenciesUsuari.cabeceraReducida}">nav-container</c:if><c:if test="${preferenciesUsuari.cabeceraReducida}">cabecera_reducida</c:if>" role="navigation">
 		<div class="container container-v3">
