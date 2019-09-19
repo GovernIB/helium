@@ -61,7 +61,8 @@ public class UpdateService {
 	public static final String VERSIO_ACTUAL_STR = "3.2.0";
 	public static final int VERSIO_ACTUAL_ORDRE = 320;
 
-	public static final String VERSIO_ACTUAL_RELEASE = "106.3";
+	public static final String VERSIO_ACTUAL_RELEASE = "107";
+	public static final String VERSIO_ACTUAL_DATA = "2019.09.19";
 
 	private VersioDao versioDao;
 	private PersonaDao personaDao;
@@ -164,6 +165,11 @@ public class UpdateService {
 		} else {
 			return VERSIO_ACTUAL_STR;			
 		}
+	}
+	
+	/** Retorna la constant per posar la data a la versió. */
+	public String getVersioData() {
+		return UpdateService.VERSIO_ACTUAL_DATA;
 	}
 
 	public String getErrorUpdate() {

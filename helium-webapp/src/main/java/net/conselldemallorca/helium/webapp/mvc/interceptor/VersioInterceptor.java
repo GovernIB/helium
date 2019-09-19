@@ -21,6 +21,7 @@ import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 public class VersioInterceptor extends HandlerInterceptorAdapter {
 
 	public static final String APP_SCOPE_VAR_NOM = "versioNom";
+	public static final String APP_SCOPE_VAR_DATA = "versioData";
 	public static final String APP_SCOPE_VAR_ERROR = "versioError";
 
 	private UpdateService updateService;
@@ -34,6 +35,9 @@ public class VersioInterceptor extends HandlerInterceptorAdapter {
 			request.getSession().getServletContext().setAttribute(
 					APP_SCOPE_VAR_NOM,
 					updateService.getVersioActual());
+			request.getSession().getServletContext().setAttribute(
+					APP_SCOPE_VAR_DATA,
+					updateService.getVersioData());
 			request.getSession().getServletContext().setAttribute(
 					APP_SCOPE_VAR_ERROR,
 					updateService.getErrorUpdate());

@@ -317,7 +317,7 @@
 		</div>
 	</div>
     <div class="container container-foot">
-    	<div class="pull-left app-version"><p>Helium ${versioNom}</p></div>
+    	<div class="pull-left app-version"><p>Helium ${versioNom} <span style="color:rgba(0,0,0,0);">(${versioData})</span></p></div>
         <div class="pull-right govern-footer">
         	<p>
 	        	<img src="<c:url value="/img/govern-logo-neg.png"/>" hspace="5" width="129" height="30" alt="<spring:message code='decorator.logo.govern'/>" />

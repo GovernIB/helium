@@ -33,6 +33,8 @@ public class FindExpedientIdsFiltreCommand extends AbstractBaseCommand {
 	private Long tipusId;
 	private Date dataIniciInici;
 	private Date dataIniciFi;
+	private Date dataFiInici;
+	private Date dataFiFi;
 	private Long estatId;
 	private boolean nomesIniciats;
 	private boolean nomesFinalitzats;
@@ -61,6 +63,8 @@ public class FindExpedientIdsFiltreCommand extends AbstractBaseCommand {
 			Long tipusId,
 			Date dataIniciInici,
 			Date dataIniciFi,
+			Date dataFiInici,
+			Date dataFiFi,
 			Long estatId,
 			Double geoPosX,
 			Double geoPosY,
@@ -88,6 +92,8 @@ public class FindExpedientIdsFiltreCommand extends AbstractBaseCommand {
 		this.tipusId = tipusId;
 		this.dataIniciInici = dataIniciInici;
 		this.dataIniciFi = dataIniciFi;
+		this.dataFiInici = dataFiInici;
+		this.dataFiFi = dataFiFi;
 		this.estatId = estatId;
 		this.geoPosX = geoPosX;
 		this.geoPosY = geoPosY;
@@ -140,6 +146,12 @@ public class FindExpedientIdsFiltreCommand extends AbstractBaseCommand {
 		}
 		if (dataIniciFi != null) {
 			expedientQuerySb.append("and pie.dataInici <= :dataIniciFi ");
+		}
+		if (dataFiInici != null) {
+			expedientQuerySb.append("and pie.dataFi >= :dataFiInici ");
+		}
+		if (dataFiFi != null) {
+			expedientQuerySb.append("and pie.dataFi <= :dataFiFi ");
 		}
 		if (estatId != null) {
 			expedientQuerySb.append("and pie.estatId = :estatId and pie.dataFi is null ");
@@ -222,6 +234,8 @@ public class FindExpedientIdsFiltreCommand extends AbstractBaseCommand {
 				tipusId,
 				dataIniciInici,
 				dataIniciFi,
+				dataFiInici,
+				dataFiFi,
 				estatId,
 				geoPosX,
 				geoPosY,
@@ -303,6 +317,8 @@ public class FindExpedientIdsFiltreCommand extends AbstractBaseCommand {
 					tipusId,
 					dataIniciInici,
 					dataIniciFi,
+					dataFiInici,
+					dataFiFi,
 					estatId,
 					geoPosX,
 					geoPosY,
@@ -344,6 +360,8 @@ public class FindExpedientIdsFiltreCommand extends AbstractBaseCommand {
 			Long tipusId,
 			Date dataIniciInici,
 			Date dataIniciFi,
+			Date dataFiInici,
+			Date dataFiFi,
 			Long estatId,
 			Double geoPosX,
 			Double geoPosY,
@@ -375,6 +393,12 @@ public class FindExpedientIdsFiltreCommand extends AbstractBaseCommand {
 		}
 		if (dataIniciFi != null) {
 			query.setParameter("dataIniciFi", dataIniciFi);
+		}
+		if (dataFiInici != null) {
+			query.setParameter("dataFiInici", dataFiInici);
+		}
+		if (dataFiFi != null) {
+			query.setParameter("dataFiFi", dataFiFi);
 		}
 		if (estatId != null) {
 			query.setParameter("estatId", estatId);

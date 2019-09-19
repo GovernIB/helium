@@ -647,15 +647,10 @@ public class ExpedientServiceImpl implements ExpedientService {
 			}
 		}
 		// Calcula la data fi pel filtre
-		if (dataInici2 != null) {
-			Calendar cal = Calendar.getInstance();
-			cal.setTime(dataInici2);
-			cal.set(Calendar.HOUR_OF_DAY, 23);
-			cal.set(Calendar.MINUTE, 59);
-			cal.set(Calendar.SECOND, 59);
-			cal.set(Calendar.MILLISECOND, 999);
-			dataInici2.setTime(cal.getTime().getTime());
-		}
+		dataInici2 = this.ajustaFinalDia(dataInici2);
+		// Calcula la data finalització fi pel filtre
+		dataFi2 = this.ajustaFinalDia(dataFi2);
+		
 		// Obté la llista de tipus d'expedient permesos
 		List<Long> tipusPermesosIds = expedientTipusHelper.findIdsAmbPermisRead(entorn);
 		// Executa la consulta amb paginació
@@ -668,6 +663,8 @@ public class ExpedientServiceImpl implements ExpedientService {
 				expedientTipusId,
 				dataInici1,
 				dataInici2,
+				dataFi1,
+				dataFi2,
 				estatId,
 				geoPosX,
 				geoPosY,
@@ -701,6 +698,21 @@ public class ExpedientServiceImpl implements ExpedientService {
 				expedients,
 				expedientsIds.getCount(),
 				paginacioParams);
+	}
+
+	/** Ajusta el dia per a que estigui tot inclòs. Ajusta l'hora i els minuts fins al final del dia. */
+	private Date ajustaFinalDia(Date data) {
+		Date ret = null;
+		if (data != null) {
+			Calendar cal = Calendar.getInstance();
+			cal.setTime(data);
+			cal.set(Calendar.HOUR_OF_DAY, 23);
+			cal.set(Calendar.MINUTE, 59);
+			cal.set(Calendar.SECOND, 59);
+			cal.set(Calendar.MILLISECOND, 999);
+			ret = cal.getTime();
+		}	
+		return ret;
 	}
 
 	/** Classe per poder comparar la posició dels expedients segons la llista d'identificadors ordenada
@@ -789,15 +801,10 @@ public class ExpedientServiceImpl implements ExpedientService {
 			}
 		}
 		// Calcula la data fi pel filtre
-		if (dataInici2 != null) {
-			Calendar cal = Calendar.getInstance();
-			cal.setTime(dataInici2);
-			cal.set(Calendar.HOUR_OF_DAY, 23);
-			cal.set(Calendar.MINUTE, 59);
-			cal.set(Calendar.SECOND, 59);
-			cal.set(Calendar.MILLISECOND, 999);
-			dataInici2.setTime(cal.getTime().getTime());
-		}
+		dataInici2 = this.ajustaFinalDia(dataInici2);
+		// Calcula la data finalitzacio fi pel filtre
+		dataFi2 = this.ajustaFinalDia(dataFi2);
+
 		// Obté la llista de tipus d'expedient permesos
 		List<Long> tipusPermesosIds = expedientTipusHelper.findIdsAmbPermisRead(entorn);
 		// Executa la consulta amb paginació
@@ -810,6 +817,8 @@ public class ExpedientServiceImpl implements ExpedientService {
 				expedientTipusId,
 				dataInici1,
 				dataInici2,
+				dataFi1,
+				dataFi2,
 				estatId,
 				geoPosX,
 				geoPosY,
@@ -2156,6 +2165,8 @@ public class ExpedientServiceImpl implements ExpedientService {
 					null,
 					null,
 					null,
+					null,
+					null,
 					false,
 					false,
 					MostrarAnulatsDto.SI.equals(mostrarAnulats),
@@ -2287,6 +2298,8 @@ public class ExpedientServiceImpl implements ExpedientService {
 				null,
 				null,
 				expedientTipus.getId(),
+				null,
+				null,
 				null,
 				null,
 				null,
