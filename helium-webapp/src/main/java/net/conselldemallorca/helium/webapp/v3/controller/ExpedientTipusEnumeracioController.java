@@ -188,7 +188,7 @@ public class ExpedientTipusEnumeracioController extends BaseExpedientTipusContro
 	
 	@RequestMapping(value = "/{expedientTipusId}/enumeracio/{enumeracioId}/valor/exportar", method = RequestMethod.GET)
 	@ResponseBody
-	public void exportarPost(
+	public void exportar(
 			HttpServletRequest request,
 			HttpServletResponse response,
 			@PathVariable Long expedientTipusId,
@@ -204,6 +204,12 @@ public class ExpedientTipusEnumeracioController extends BaseExpedientTipusContro
     					enumeracioValor.getCodi()+";"+enumeracioValor.getNom()+";"+enumeracioValor.getOrdre()+"\n";
     		}
     		
+    		MissatgesHelper.success(
+					request, 
+					getMessage(
+							request, 
+							"expedient.tipus.enumeracio.valors.exportats"));        			
+    		
     		response.setHeader("Pragma", "");
     		response.setHeader("Expires", "");
     		response.setHeader("Cache-Control", "");
@@ -213,6 +219,12 @@ public class ExpedientTipusEnumeracioController extends BaseExpedientTipusContro
     		response.getOutputStream().write(estatsString.getBytes());        
     	} catch(Exception e) {
     		logger.error("Error exportant valors per l'enumeració amb id " + enumeracioId, e);
+    		MissatgesHelper.error(
+    				request,
+    				getMessage(
+    						request, 
+    						"expedient.tipus.enumeracio.valors.exportats.error",
+    						new Object[]{e.getLocalizedMessage()}));
     		throw(e);
     	}        
 	}

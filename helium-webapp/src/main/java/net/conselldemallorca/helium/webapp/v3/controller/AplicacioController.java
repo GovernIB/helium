@@ -58,7 +58,9 @@ public class AplicacioController {
 	public String index(HttpServletRequest request) {
 		UsuariPreferenciesDto preferencies = SessionHelper.getSessionManager(request).getPreferenciesUsuari();
 		if (preferencies != null) {
-			if (preferencies.getListado() == 2 && preferencies.getConsultaId() != null) {
+			if (preferencies.getListado() == 2 && 
+					preferencies.getConsultaId() != null && 
+					SessionHelper.getSessionManager(request).getEntornActual().getCodi().equals(preferencies.getDefaultEntornCodi())) {
 				// Informes
 				return "redirect:/v3/informe?consultaId="+preferencies.getConsultaId();
 			} else if (preferencies.getListado() == 1) {

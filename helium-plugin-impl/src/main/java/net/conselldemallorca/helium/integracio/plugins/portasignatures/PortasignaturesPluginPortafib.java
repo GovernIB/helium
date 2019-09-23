@@ -74,8 +74,8 @@ public class PortasignaturesPluginPortafib implements PortasignaturesPlugin {
 						"El tipus de document not pot estar buit." +
 						" Els tipus permesos son: " + getDocumentTipusStr());
 			}
-			// requestPeticioDeFirmaWs.setMotiu("Firma de document HELIUM");
 			requestPeticioDeFirmaWs.setRemitentNom(remitent);
+			requestPeticioDeFirmaWs.setDescripcio(document.getDescripcio());
 			if (importancia != null) {
 				ImportanceEnum importance = ImportanceEnum.fromString(importancia);
 				if (ImportanceEnum.low.equals(importance)) {

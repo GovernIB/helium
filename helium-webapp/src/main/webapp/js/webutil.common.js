@@ -6,7 +6,9 @@ function webutilModalTancarPath() {
 	return webutilContextPath() + '/modal/tancar';
 }
 function webutilRefreshMissatges() {
+	jQuery.ajaxSetup({async:false});
 	$('#contingut-alertes').load(webutilContextPath() + "/nodeco/v3/missatges");
+	jQuery.ajaxSetup({async:true});	
 }
 
 function webutilModalAdjustHeight() {
@@ -44,6 +46,40 @@ function userAborted(xhr) {
 	return !xhr.getAllResponseHeaders();
 }
 
+/** Funció per descarregar un arxiu i refrescar missatges */
+function webutilDownloadAndRefresh(arxiuUrl, event) {
+
+	// Fa la petició a la url de l'arxiu
+	$.get( arxiuUrl, { responseType: 'arraybuffer' })
+        .success(function (response, status, xhr) {
+        	// estableix el nom de la descàrrega i el tipus
+			var filename = "";
+            var disposition = xhr.getResponseHeader('Content-Disposition');
+            if (disposition && disposition.indexOf('attachment') !== -1) {
+                var filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
+                var matches = filenameRegex.exec(disposition);
+                if (matches != null && matches[1]) { 
+                  filename = matches[1].replace(/['"]/g, '');
+                }
+            }
+            // Crea un enllaç per obrir la descàrrega
+            var blob = new Blob([response], { type: disposition });
+            var link=document.createElement('a');
+            link.href=window.URL.createObjectURL(blob);
+            link.download= filename;
+            (document.body || document.documentElement).appendChild(link);
+            link.click();
+		}).always(function(){
+			webutilRefreshMissatges();
+		});
+	// Atura els events de l'enllaç
+	if (event != null) {
+		event.preventDefault();
+		event.stopPropagation();
+	}
+}
+
+
 $(document).ajaxError(function(event, jqxhr, ajaxSettings, thrownError) {
 	var message = "Error AJAX: [" + jqxhr.status + "] " + thrownError;
 	/*var statusErrorMap = {
@@ -71,8 +107,6 @@ $(document).ajaxError(function(event, jqxhr, ajaxSettings, thrownError) {
 		alert(message);
 	else
 		console.warn(message + ": User cancels request");
-
-	
 });
 
 (function($) {

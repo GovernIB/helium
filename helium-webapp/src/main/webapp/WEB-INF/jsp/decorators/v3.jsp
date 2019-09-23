@@ -110,14 +110,16 @@
 <body>
 	<!-- default v3 -->
 	<div class="navbar navbar-default navbar-fixed-top navbar-app <c:if test="${not preferenciesUsuari.cabeceraReducida}">nav-container</c:if><c:if test="${preferenciesUsuari.cabeceraReducida}">cabecera_reducida</c:if>" role="navigation">
-		<div class="container">
+		<div class="container container-v3">
 			<div class="navbar-header top-sep">
 				<div class="navbar-brand">
 					<div id="govern-logo" class="pull-left">
 						<img src="<c:url value="/img/govern-logo.png"/>" alt="Govern de les Illes Balears" />
 					</div>
 					<div id="app-logo" class="pull-left">
-						<img src="<c:url value="/img/logo-helium-w.png"/>" alt="Helium" />
+						<a href="<c:url value="/"/>">
+							<img src="<c:url value="/img/logo-helium-w.png"/>" alt="Helium" />
+						</a>
 					</div>
 				</div>
 			</div>
@@ -174,8 +176,18 @@
 						</li>
 					</ul>
 					<div class="clearfix"></div>
-					<div class="btn-group navbar-btn navbar-right">		
-						<a id="menuExpedients" class="btn btn-primary" href="<c:url value="/v3/expedient"/>"><spring:message code="decorator.menu.expedients"/></a>
+					<div class="btn-group navbar-btn navbar-right">
+						<c:choose>
+							<c:when test="${entornActual.codi == preferenciesUsuari.defaultEntornCodi && preferenciesUsuari.consultaId != null}">
+								<c:url var="expedientsUrl" value="/v3/expedient/consulta/${preferenciesUsuari.consultaId}"/>
+							</c:when>
+							<c:otherwise>
+								<c:url var="expedientsUrl" value="/v3/expedient"/>
+							</c:otherwise>
+						</c:choose>
+
+						<a id="menuExpedients" class="btn btn-primary" href="${expedientsUrl}"><spring:message code="decorator.menu.expedients"/></a>
+					
 						<a id="menuTasques" class="btn btn-primary" href="<c:url value="/v3/tasca"/>"><spring:message code="decorator.menu.tasques"/></a>
 						<c:if test="${potDissenyarEntorn or potDissenyarExpedientTipus}">
 							<div id="menuDisseny" class="btn-group" >
@@ -254,7 +266,7 @@
 			</div>
 		</div>
 	</div>
-	<div class="container container-main <c:if test="${preferenciesUsuari.cabeceraReducida}">cabecera_reducida-main</c:if>">
+	<div class="container container-v3 container-main <c:if test="${preferenciesUsuari.cabeceraReducida}">cabecera_reducida-main</c:if>">
 		<div class="panel panel-default">
 			<c:set var="decoratorMetaTitle"><decorator:getProperty property="meta.title"/></c:set>
 			<c:set var="screen"><decorator:getProperty property="meta.screen"/></c:set>
@@ -307,8 +319,8 @@
 			</div>
 		</div>
 	</div>
-    <div class="container container-foot">
-    	<div class="pull-left app-version"><p>Helium ${versioNom}</p></div>
+    <div class="container container-v3 container-foot">
+    	<div class="pull-left app-version"><p>Helium ${versioNom} <span style="color:rgba(0,0,0,0);">(${versioData})</span></p></div>
         <div class="pull-right govern-footer">
         	<p>
 	        	<img src="<c:url value="/img/govern-logo-neg.png"/>" hspace="5" width="129" height="30" alt="<spring:message code='decorator.logo.govern'/>" />

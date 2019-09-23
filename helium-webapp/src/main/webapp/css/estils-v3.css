@@ -39,6 +39,11 @@
 
 /* CONTINGUT */
 /*********************************************/
+.container-v3 {
+	width: 90% !important;
+	min-width: 1000px;
+}
+
 .container-main, .container-foot {
 	padding-right: 0;
 	padding-left: 0;

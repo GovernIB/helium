@@ -336,7 +336,7 @@ public class EnumeracioServiceImpl implements EnumeracioService {
 				"Consultant els valors de enumeracio(" +
 				"enumeracioId=" + enumeracioId);
 		
-		List<EnumeracioValors> resultats = enumeracioValorsRepository.findByEnumeracioId(
+		List<EnumeracioValors> resultats = enumeracioValorsRepository.findByEnumeracioIdOrderByOrdreAsc(
 				enumeracioId);
 		
 		return conversioTipusHelper.convertirList(
