@@ -66,7 +66,7 @@
 			<div class="botons-titol text-right">
 				<a id="nou_camp" class="btn btn-default" href="${expedientTipus.id}/estat/new" data-toggle="modal" data-callback="callbackModalEstats()" data-datatable-id="expedientTipusEstat"><span class="fa fa-plus"></span>&nbsp;<spring:message code="expedient.tipus.estat.nou"/></a>
 				<a id="importar_dades" class="btn btn-info" href="${expedientTipus.id}/estat/importar" data-toggle="modal" data-callback="callbackModalEstats()" data-datatable-id="expedientTipusEstat"><span class="fa fa-sign-in"></span>&nbsp;<spring:message code="comu.boto.importar.dades"/></a>
-				<a id="exportat_dades" class="btn btn-info" href="${expedientTipus.id}/estat/exportar" data-callback="callbackModalEstats()" data-datatable-id="expedientTipusEstat"><span class="fa fa-sign-out"></span>&nbsp;<spring:message code="comu.boto.exportar.dades"/></a>
+				<a id="exportar_dades" class="btn btn-info" href="${expedientTipus.id}/estat/exportar"><span class="fa fa-sign-out"></span>&nbsp;<spring:message code="comu.boto.exportar.dades"/></a>
 			</div>
 		</script>
 		<script id="rowhrefTemplateEstats" type="text/x-jsrender">${expedientTipus.id}/estat/{{:id}}/update</script>
@@ -101,6 +101,11 @@ $(document).ready(function() {
 	        $(this.cells[0]).removeClass('showDragHandle');
 	    });
 	});
+	
+	$('#exportar_dades').click(function(event) {
+		webutilDownloadAndRefresh($(this).attr('href'), event);
+	});
+
 });
 
 function callbackModalEstats() {

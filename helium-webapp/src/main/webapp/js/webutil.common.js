@@ -79,6 +79,13 @@ function webutilDownloadAndRefresh(arxiuUrl, event) {
 	}
 }
 
+/** Funció per deshabilitar els camps d'un formulari. Els de text tornen readonly y la resta disabled */
+function webutilDisableInputs(formulari) {
+	$(':input', formulari).attr('readonly', true);
+	$('select', formulari).attr('disabled', true);
+	$('input[type=checkbox]', formulari).attr('disabled', 'disabled');
+}
+
 
 $(document).ajaxError(function(event, jqxhr, ajaxSettings, thrownError) {
 	var message = "Error AJAX: [" + jqxhr.status + "] " + thrownError;

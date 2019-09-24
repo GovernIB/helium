@@ -74,7 +74,11 @@
 	
 	<script type="text/javascript">
 		// <![CDATA[
-		$(document).ready( function() {}); 
+		$(document).ready( function() {
+			//<c:if test="${heretat}">
+			webutilDisableInputs($('#expedientTipusEnumeracioCommand'));
+			//</c:if>
+		}); 
 		// ]]>
 	</script>	
 </body>

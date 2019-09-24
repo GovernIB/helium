@@ -277,10 +277,10 @@ public class ExpedientTipusEstatController extends BaseExpedientTipusController 
 	
 	@RequestMapping(value = "/{expedientTipusId}/estat/exportar", method = RequestMethod.GET)
 	@ResponseBody
-	public void exportarPost(
+	public void exportar(
 			HttpServletRequest request,
 			HttpServletResponse response,
-			@PathVariable Long expedientTipusId) {
+			@PathVariable Long expedientTipusId) throws Exception {
 
 
         	try {
@@ -294,6 +294,12 @@ public class ExpedientTipusEstatController extends BaseExpedientTipusController 
         					estat.getCodi()+";"+estat.getNom()+"\n";
         		}
         		
+        		MissatgesHelper.success(
+    					request, 
+    					getMessage(
+    							request, 
+    							"expedient.tipus.estat.exportar.controller.success"));        			
+
         		response.setHeader("Pragma", "");
         		response.setHeader("Expires", "");
         		response.setHeader("Cache-Control", "");
@@ -310,13 +316,8 @@ public class ExpedientTipusEstatController extends BaseExpedientTipusController 
         						request, 
         						"expedient.tipus.estat.exportar.controller.error",
         						new Object[]{e.getLocalizedMessage()}));
-        	}
-    		MissatgesHelper.success(
-					request, 
-					getMessage(
-							request, 
-							"expedient.tipus.estat.exportar.controller.success"));        			
-        
+        		throw(e);
+        	}        
 	}	
 
 	

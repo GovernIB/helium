@@ -78,6 +78,9 @@
 	<script type="text/javascript">
 		// <![CDATA[
 		$(document).ready(function() {			
+   			//<c:if test="${heretat}">
+			webutilDisableInputs($('#expedientTipusAccioCommand'));
+			//</c:if>
 		});
 		// ]]>
 	</script>			

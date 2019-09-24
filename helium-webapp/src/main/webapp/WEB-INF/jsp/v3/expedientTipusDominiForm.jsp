@@ -78,6 +78,7 @@
 		</div>
 		
 	<script type="text/javascript">
+		// <![CDATA[
 		$(document).ready(function() {
 			$("#cacheSegons").keyfilter(/^[-+]?[0-9]*$/);
 			$("#timeout").keyfilter(/^[-+]?[0-9]*$/);
@@ -124,7 +125,11 @@
 				}
 			});
 			$("#tipus").change();
+			//<c:if test="${heretat}">
+			webutilDisableInputs($('#expedientTipusDominiCommand'));
+			//</c:if>
 		});
+		// ]]>
 	</script>			
 
 	</form:form>

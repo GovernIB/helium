@@ -38,6 +38,7 @@
 	<script src="<c:url value="/js/select2-locales/select2_locale_${idioma}.js"/>"></script>	
 	<script src="<c:url value="/js/helium.modal.js"/>"></script>
 	<script type="text/javascript">
+		// <![CDATA[
 		$(document).ready(function() {
 			$("#anys").select2({
 			    width: 'resolve',
@@ -74,7 +75,12 @@
 				}
 			});
 			$("#duradaPredefinida").change();
-		});
+			
+   			//<c:if test="${heretat}">
+			webutilDisableInputs($('#expedientTipusTerminiCommand'));
+			//</c:if>
+	});
+		// ]]>
 	</script>
 	<style type="text/css">
 	.terSel {

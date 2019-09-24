@@ -94,6 +94,17 @@
 				</c:choose>
 			</c:if>
 		</div>
+
+	<script type="text/javascript">
+		// <![CDATA[
+		$(document).ready(function() {
+   			//<c:if test="${heretat}">
+			webutilDisableInputs($('#expedientTipusDocumentCommand'));
+			//</c:if>
+		});
+		// ]]>
+	</script>			
+		
 	</form:form>
 </body>
 </html>

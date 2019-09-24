@@ -136,6 +136,10 @@
 				$('#dominiIntern').prop('checked', false);
 				canviDadesConsulta();
 			});	
+			
+   			//<c:if test="${heretat}">
+			webutilDisableInputs($('#campCommand'));
+			//</c:if>
 		});
 
 		function disable(sel) {
