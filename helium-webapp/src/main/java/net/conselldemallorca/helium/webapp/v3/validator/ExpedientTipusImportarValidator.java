@@ -149,6 +149,13 @@ public class ExpedientTipusImportarValidator implements ConstraintValidator<Expe
 	    			enumeracionsTe.add(e.getCodi());
 	    		for (DominiDto d : expedientTipusService.dominiFindAll(expedientTipus.getId(), false))
 	    			dominisTe.add(d.getCodi());
+	    		if (expedientTipus.isAmbHerencia()) {
+	    			// Enumeracions i dominis heretats
+		    		for (EnumeracioDto e : expedientTipusService.enumeracioFindAll(expedientTipus.getExpedientTipusPareId(), false))
+		    			enumeracionsTe.add(e.getCodi());
+		    		for (DominiDto d : expedientTipusService.dominiFindAll(expedientTipus.getExpedientTipusPareId(), false))
+		    			dominisTe.add(d.getCodi());
+	    		}
     		}
 
     		// Si l'expedient destí està configurat amb info propia o la importació té info pròpia
@@ -453,7 +460,7 @@ public class ExpedientTipusImportarValidator implements ConstraintValidator<Expe
 									MessageHelper.getInstance().getMessage(
 											this.codiMissatge + ".definicio.variable.enumeracio.tipexp", 
 											new Object[] {	campExportacio.getCodi(),
-															definicioProcesJbpmKey, 
+															campExportacio.getCodiEnumeracio(), 
 															campExportacio.getCodiEnumeracio()}))
 							.addNode("definicionsProces")
 							.addConstraintViolation();

@@ -42,7 +42,6 @@ import com.codahale.metrics.Counter;
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer;
 
-import net.conselldemallorca.helium.core.helper.DissenyHelper;
 import net.conselldemallorca.helium.core.helper.DocumentHelperV3;
 import net.conselldemallorca.helium.core.helper.EntornHelper;
 import net.conselldemallorca.helium.core.helper.ExpedientHelper;
@@ -155,8 +154,6 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 	private MessageHelper messageHelper;
 	@Resource
 	private PluginHelper pluginHelper;
-	@Resource
-	private DissenyHelper dissenyHelper;
 	@Resource 
 	private DocumentHelperV3 documentHelperV3;
 	@Autowired
@@ -1271,7 +1268,7 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 			for (Document doc: definicioProces.getDocuments())
 				documentRepository.delete(doc.getId());
 			for (Termini termini: definicioProces.getTerminis())
-				dissenyHelper.deleteTermini(termini.getId());
+				terminiHelper.deleteTermini(termini.getId());
 			definicioProcesRepository.delete(definicioProces);
 		} else {
 			if (comprovarExpedientTipus(expedientTipusId, definicioProces.getId())) {
@@ -1281,7 +1278,7 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 				}
 				definicioProces.setDocuments(null);
 				for (Termini termini: definicioProces.getTerminis()) {
-					dissenyHelper.deleteTermini(termini.getId());
+					terminiHelper.deleteTermini(termini.getId());
 				}
 				definicioProces.setTerminis(null);
 				definicioProcesRepository.delete(definicioProces);

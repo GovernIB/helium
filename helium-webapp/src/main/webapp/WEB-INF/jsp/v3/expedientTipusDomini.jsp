@@ -63,10 +63,10 @@
 								{{if heretat}}
 									<li><a data-toggle="modal" href="${expedientTipus.id}/domini/{{:id}}/update"><span class="fa fa-search"></span>&nbsp;<spring:message code="comu.boto.visualitzar"/></a></li>
 								{{else}}
-									<li><a data-toggle="modal" data-callback="callbackModalDominis()" href="${expedientTipus.id}/domini/{{:id}}/update"><span class="fa fa-pencil"></span>&nbsp;<spring:message code="expedient.tipus.info.accio.modificar"/></a></li>
-									<li><a data-toggle="modal" data-maximized="true" href="domini/{{:id}}/test"><span class="fa fa-cog"></span>&nbsp;<spring:message code="expedient.tipus.domini.form.provar"/></a></li>
+									<li><a data-toggle="modal" href="${expedientTipus.id}/domini/{{:id}}/update"><span class="fa fa-pencil"></span>&nbsp;<spring:message code="expedient.tipus.info.accio.modificar"/></a></li>
 									<li><a href="${expedientTipus.id}/domini/{{:id}}/delete" data-toggle="ajax" data-confirm="<spring:message code="expedient.tipus.camp.llistat.confirmacio.esborrar"/>"><span class="fa fa-trash-o"></span>&nbsp;<spring:message code="expedient.llistat.accio.esborrar"/></a></li>
 								{{/if}}
+								<li><a data-toggle="modal" data-maximized="true" href="domini/{{:id}}/test"><span class="fa fa-cog"></span>&nbsp;<spring:message code="expedient.tipus.domini.form.provar"/></a></li>
 							</ul>
 						</div>
 					</script>
@@ -78,7 +78,7 @@
 		</table>
 		<script id="tableButtonsDominiTemplate" type="text/x-jsrender">
 			<div class="botons-titol text-right">
-				<a id="nou_camp" class="btn btn-default" href="${expedientTipus.id}/domini/new" data-toggle="modal" data-callback="callbackModalDominis()" data-datatable-id="expedientTipusDomini"><span class="fa fa-plus"></span>&nbsp;<spring:message code="expedient.tipus.domini.nou"/></a>
+				<a id="nou_camp" class="btn btn-default" href="${expedientTipus.id}/domini/new" data-toggle="modal" data-datatable-id="expedientTipusDomini"><span class="fa fa-plus"></span>&nbsp;<spring:message code="expedient.tipus.domini.nou"/></a>
 			</div>
 		</script>
 		<script id="rowhrefTemplateDominis" type="text/x-jsrender">${expedientTipus.id}/domini/{{:id}}/update</script>
@@ -89,17 +89,5 @@
 </c:choose>
 <script>
 $(document).ready(function() {
-	$('#expedientTipusDomini').on('draw.dt', function() {
-		// Refresca els missatges
-		webutilRefreshMissatges();		
-	});
 });
-
-function callbackModalDominis() {
-	refrescaTaula();
-}
-
-function refrescaTaula() {
-	$('#expedientTipusDomini').webutilDatatable('refresh');
-}
 </script>

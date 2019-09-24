@@ -35,7 +35,8 @@
 			padding-top: 148px;
 		}
 		.cabecera_reducida {height: 100px;}
-		.cabecera_reducida #govern-logo {margin-top: -5px;}
+		.cabecera_reducida #govern-logo {margin-top: -15px;}
+		.cabecera_reducida #govern-logo img {height: 60px;}
 		.cabecera_reducida #app-logo {margin-top: -5px;}
 		.cabecera_reducida #app-logo > img {width :80%;}
 		.cabecera_reducida .navbar-app .navbar-nav {padding-top: 4px;}
@@ -114,7 +115,7 @@
 			<div class="navbar-header top-sep">
 				<div class="navbar-brand">
 					<div id="govern-logo" class="pull-left">
-						<img src="<c:url value="/img/govern-logo.png"/>" alt="Govern de les Illes Balears" />
+						<img src="<c:url value="/img/govern-logo.png?"/>" alt="<spring:message code='decorator.logo.govern'/>" height="80px"/>
 					</div>
 					<div id="app-logo" class="pull-left">
 						<a href="<c:url value="/"/>">
@@ -323,7 +324,7 @@
     	<div class="pull-left app-version"><p>Helium ${versioNom} <span style="color:rgba(0,0,0,0);">(${versioData})</span></p></div>
         <div class="pull-right govern-footer">
         	<p>
-	        	<img src="<c:url value="/img/govern-logo-neg.png"/>" hspace="5" width="129" height="30" alt="<spring:message code='decorator.logo.govern'/>" />
+	        	<img src="<c:url value="/img/govern-logo-neg.png"/>" hspace="5" height="30" alt="<spring:message code='decorator.logo.govern'/>" />
 	        	<img src="<c:url value="/img/una_manera.png"/>" 	 hspace="5" height="30" alt="<spring:message code='decorator.logo.manera'/>" />
 	        	<img src="<c:url value="/img/feder7.png"/>" 	     hspace="5" height="35" alt="<spring:message code='decorator.logo.feder'/>" />
 	        	<img src="<c:url value="/img/uenegroma.png"/>"	     hspace="5" height="50" alt="<spring:message code='decorator.logo.ue'/>" />

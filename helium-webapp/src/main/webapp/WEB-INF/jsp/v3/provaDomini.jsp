@@ -46,10 +46,10 @@
   			<li class="active" id="grid"><a href="#">GRID</a></li>
  			<li id="json"><a href="#">JSON</a></li>
  		</ul>
-			<div id="res-grid">
+			<div id="res-grid" style="margin:10px;">
 				<table class="table"></table>
 			</div>
-			<pre id="res-json"></pre>
+			<pre id="res-json" style="margin:10px;"></pre>
 		</div>
 	</div>
 		
@@ -140,6 +140,9 @@
 				}
             });
 			$('#spinnerIcon').css('visibility', 'visible');
+			$('#res-grid table').empty();
+			$('#res-json').empty();
+			
 			$.ajax($("#testForm").attr("action"), {
 				  type: "POST",
 				  data: JSON.stringify(data),

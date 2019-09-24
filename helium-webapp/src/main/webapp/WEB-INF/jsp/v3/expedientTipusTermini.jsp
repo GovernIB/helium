@@ -65,7 +65,7 @@
 								{{if heretat}}
 									<li><a data-toggle="modal" href="${baseUrl}/termini/{{:id}}/update"><span class="fa fa-search"></span>&nbsp;<spring:message code="comu.boto.visualitzar"/></a></li>
 								{{else}}
-									<li><a data-toggle="modal" data-callback="callbackModalTerminis()" href="${baseUrl}/termini/{{:id}}/update"><span class="fa fa-pencil"></span>&nbsp;<spring:message code="expedient.tipus.info.accio.modificar"/></a></li>
+									<li><a data-toggle="modal" href="${baseUrl}/termini/{{:id}}/update"><span class="fa fa-pencil"></span>&nbsp;<spring:message code="expedient.tipus.info.accio.modificar"/></a></li>
 									<li><a href="${baseUrl}/termini/{{:id}}/delete" data-toggle="ajax" data-confirm="<spring:message code="expedient.tipus.camp.llistat.confirmacio.esborrar"/>"><span class="fa fa-trash-o"></span>&nbsp;<spring:message code="expedient.llistat.accio.esborrar"/></a></li>
 								{{/if}}
 							</ul>
@@ -82,7 +82,7 @@
 
 		<script id="tableButtonsTerminiTemplate" type="text/x-jsrender">
 			<div class="botons-titol text-right">
-				<a id="nou_camp" class="btn btn-default" href="${baseUrl}/termini/new" data-toggle="modal" data-callback="callbackModalTerminis()" data-datatable-id="expedientTipusTermini"><span class="fa fa-plus"></span>&nbsp;<spring:message code="defproc.termllist.nou_term"/></a>
+				<a id="nou_camp" class="btn btn-default" href="${baseUrl}/termini/new" data-toggle="modal" data-datatable-id="expedientTipusTermini"><span class="fa fa-plus"></span>&nbsp;<spring:message code="defproc.termllist.nou_term"/></a>
 			</div>
 		</script>
 		<script id="rowhrefTemplate" type="text/x-jsrender">${baseUrl}/termini/update/{{:id}}</script>
@@ -91,19 +91,7 @@
 		<div class="well well-small"><spring:message code='expedient.dada.expedient.cap'/></div>
 	</c:otherwise>
 </c:choose>
-<script>
-$(document).ready(function() {
-	$('#expedientTipusTermini').on('draw.dt', function() {
-		// Refresca els missatges
-		webutilRefreshMissatges();		
+	<script>
+	$(document).ready(function() {
 	});
-});
-
-function callbackModalTerminis() {
-	refrescaTaula();
-}
-
-function refrescaTaula() {
-	$('#expedientTipusTermini').webutilDatatable('refresh');
-}
-</script>
+	</script>

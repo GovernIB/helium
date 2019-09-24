@@ -16,20 +16,7 @@
 
 <c:choose>
 	<c:when test="${not empty expedientTipus || not empty definicioProcesId}">
-		
-		<c:if test="${not empty expedientTipus && empty definicioProcesId && !expedientTipus.ambInfoPropia}">
-			<div class="alert alert-warning">
-				<span class="fa fa-exclamation-triangle"></span>
-				<spring:message code="expedient.tipus.ambInfoPropia.avis" arguments="${ambInfoPropiaText}"></spring:message>
-			</div>
-		</c:if>
-		<c:if test="${not empty definicioProces && not empty definicioProces.expedientTipus && definicioProces.expedientTipus.ambInfoPropia}">
-			<div class="alert alert-warning">
-				<span class="fa fa-exclamation-triangle"></span>
-				<spring:message code="definicio.proces.ambInfoPropia.avis" arguments="${ambInfoPropiaText}"></spring:message>
-			</div>
-		</c:if>
-		
+				
 		<form class="well">
 			<div class="row">
 				<div class="col-sm-6">
@@ -83,25 +70,25 @@
 					</th>
 					<th data-col-name="campsCount" data-template="#cellFirmesTemplate" data-orderable="false" width="13%">
 						<script id="cellFirmesTemplate" type="text/x-jsrender">
-							<a href="${baseUrl}/tasca/{{:id}}/variable" data-maximized="true" data-toggle="modal" data-callback="callbackModalTasques()" class="btn btn-default"><spring:message code="definicio.proces.tasca.llistat.accio.variables"/>&nbsp;<span class="badge">{{:campsCount}}</span></a>
+							<a href="${baseUrl}/tasca/{{:id}}/variable" data-maximized="true" data-toggle="modal" class="btn btn-default"><spring:message code="definicio.proces.tasca.llistat.accio.variables"/>&nbsp;<span class="badge">{{:campsCount}}</span></a>
 						</script>
 					</th>
 					<th data-col-name="documentsCount" data-template="#cellDocumentsTemplate" data-orderable="false" width="13%">
 						<script id="cellDocumentsTemplate" type="text/x-jsrender">
-							<a href="${baseUrl}/tasca/{{:id}}/document" data-maximized="true" data-toggle="modal" data-callback="callbackModalTasques()" class="btn btn-default"><spring:message code="definicio.proces.tasca.llistat.accio.documents"/>&nbsp;<span class="badge">{{:documentsCount}}</span></a>
+							<a href="${baseUrl}/tasca/{{:id}}/document" data-maximized="true" data-toggle="modal" class="btn btn-default"><spring:message code="definicio.proces.tasca.llistat.accio.documents"/>&nbsp;<span class="badge">{{:documentsCount}}</span></a>
 						</script>
 					</th>
 					<th data-col-name="firmesCount" data-template="#cellSignaturesTemplate" data-orderable="false" width="13%">
 						<script id="cellSignaturesTemplate" type="text/x-jsrender">
-							<a href="${baseUrl}/tasca/{{:id}}/firma" data-maximized="true" data-toggle="modal" data-callback="callbackModalTasques()" class="btn btn-default"><spring:message code="definicio.proces.tasca.llistat.accio.signatures"/>&nbsp;<span class="badge">{{:firmesCount}}</span></a>
+							<a href="${baseUrl}/tasca/{{:id}}/firma" data-maximized="true" data-toggle="modal" class="btn btn-default"><spring:message code="definicio.proces.tasca.llistat.accio.signatures"/>&nbsp;<span class="badge">{{:firmesCount}}</span></a>
 						</script>
 					</th>
 					<th data-col-name="id" data-template="#cellAccionsTascaTemplate" data-orderable="false" width="10%">
 						<script id="cellAccionsTascaTemplate" type="text/x-jsrender">
 							{{if heretat }}
-								<a class="btn btn-default" data-toggle="modal" data-callback="callbackModalTasques()" href="${baseUrl}/tasca/{{:id}}/update"><span class="fa fa-search"></span>&nbsp;<spring:message code="comu.boto.visualitzar"/></a>
+								<a class="btn btn-default" data-toggle="modal" href="${baseUrl}/tasca/{{:id}}/update"><span class="fa fa-search"></span>&nbsp;<spring:message code="comu.boto.visualitzar"/></a>
 							{{else}}
-								<a class="btn btn-default" data-toggle="modal" data-callback="callbackModalTasques()" href="${baseUrl}/tasca/{{:id}}/update"><span class="fa fa-pencil"></span>&nbsp;<spring:message code="comu.boto.modificar"/></a>
+								<a class="btn btn-default" data-toggle="modal" href="${baseUrl}/tasca/{{:id}}/update"><span class="fa fa-pencil"></span>&nbsp;<spring:message code="comu.boto.modificar"/></a>
 							{{/if}}
 					</script>
 					</th>
@@ -156,12 +143,6 @@ $(document).ready(function() {
         formatResult: formatDefinicioSelectHerencia,
         formatSelection: formatDefinicioSelectHerencia
     });
-		
-	// Quan es repinta la taula actualitza els enllaços
-	$('#expedientTipusTasca').on('draw.dt', function() {
-		// Refresca els missatges
-		webutilRefreshMissatges();
-  	});		
 	
 	// Carrega la definició inicial en la selecció
 	if (definicioInical)
@@ -172,10 +153,6 @@ $(document).ready(function() {
 function refrescaTaula() {
 	var definicioProcesId = $("#versions").val();
 	$('#expedientTipusTasca').webutilDatatable('refresh-url', '${baseUrl}/tasca/datatable?definicioProcesId='+definicioProcesId);		
-}
-
-function callbackModalTasques() {
-	refrescaTaula();
 }
 
 function refrescaVersions() {

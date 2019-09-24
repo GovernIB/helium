@@ -92,7 +92,7 @@
 									{{if heretat}}
 										<li><a data-toggle="modal" href="${baseUrl}/document/{{:id}}/update"><span class="fa fa-search"></span>&nbsp;<spring:message code="comu.boto.visualitzar"/></a></li>
 									{{else}}
-										<li><a data-toggle="modal" data-callback="callbackModalDocuments()" href="${baseUrl}/document/{{:id}}/update"><span class="fa fa-pencil"></span>&nbsp;<spring:message code="expedient.tipus.info.accio.modificar"/></a></li>
+										<li><a data-toggle="modal" href="${baseUrl}/document/{{:id}}/update"><span class="fa fa-pencil"></span>&nbsp;<spring:message code="expedient.tipus.info.accio.modificar"/></a></li>
 									{{/if}}
 									{{if arxiuNom != null }}
 										<li><a href="${baseUrl}/document/{{:id}}/download" ><span class="fa fa-file"></span>&nbsp;<spring:message code="expedient.tipus.document.llistat.accio.descarregar"/></a></li>
@@ -115,7 +115,7 @@
 
 		<script id="tableButtonsDocumentTemplate" type="text/x-jsrender">
 			<div class="botons-titol text-right">
-				<a id="nou_camp" class="btn btn-default" href="${baseUrl}/document/new" data-toggle="modal" data-callback="callbackModalDocuments()" data-datatable-id="expedientTipusDomini"><span class="fa fa-plus"></span>&nbsp;<spring:message code="expedient.tipus.document.llistat.accio.nova"/></a>
+				<a id="nou_camp" class="btn btn-default" href="${baseUrl}/document/new" data-toggle="modal" data-datatable-id="expedientTipusDocument"><span class="fa fa-plus"></span>&nbsp;<spring:message code="expedient.tipus.document.llistat.accio.nova"/></a>
 			</div>
 		</script>
 		
@@ -129,19 +129,7 @@
 // <![CDATA[
             
 $(document).ready(function() {
-	$('#expedientTipusDocument').on('draw.dt', function() {
-		// Refresca els missatges
-		webutilRefreshMissatges();		
-	});
 });
-
-function refrescaTaulaDocuments() {
-	$('#expedientTipusDocument').webutilDatatable('refresh-url', '${baseUrl}/document/datatable');
-}
-
-function callbackModalDocuments() {
-	refrescaTaulaDocuments();
-}
 
 // ]]>
 </script>			

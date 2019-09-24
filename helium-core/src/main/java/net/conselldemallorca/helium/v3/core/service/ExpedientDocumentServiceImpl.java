@@ -766,12 +766,13 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(task.getProcessInstanceId());
 		ExpedientTipus expedientTipus = expedient.getTipus();
 
-		Document document = null;
-
+		// Troba el camp de la tasca
+		Document document = documentRepository.findOne(documentId);
 		if (expedientTipus.isAmbInfoPropia()) {
-			document = documentRepository.findByExpedientTipusAndIdAmbHerencia(
+			document = documentRepository.findByExpedientTipusAndCodi(
 					expedientTipus.getId(), 
-					documentId);
+					document.getCodi(),
+					expedientTipus.isAmbHerencia());
 		} else {
 			DefinicioProces definicioProces = expedientHelper.findDefinicioProcesByProcessInstanceId(
 					task.getProcessInstanceId());

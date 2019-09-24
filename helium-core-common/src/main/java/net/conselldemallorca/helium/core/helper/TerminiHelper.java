@@ -397,6 +397,18 @@ public class TerminiHelper {
 		return terminis;
 	}
 
+	/** Esborra el termini i el desassocia dels iniciats. */
+	public void deleteTermini(Long id) {
+		Termini vell = terminiRepository.findOne(id);
+		if (vell != null) {
+			for (TerminiIniciat iniciat: vell.getIniciats()) {
+				vell.removeIniciat(iniciat);
+				iniciat.setTermini(null);
+			}
+			terminiRepository.delete(vell);
+		}
+	}
+	
 	private void sumarDies(
 			Calendar cal, 
 			int numDies,

@@ -606,6 +606,14 @@ public class DefinicioProcesHelper {
 						enumeracio = e;
 						break;
 					}
+			if (enumeracio == null && expedientTipus.isAmbHerencia())
+				// Mira entre les enumeracions heretades
+				for (Enumeracio e : expedientTipus.getExpedientTipusPare().getEnumeracions())
+					if (e.getCodi().equals(codiEnumeracio)) {
+						enumeracio = e;
+						break;
+					}
+
 		}
 		if (enumeracio == null)
 			throw new DeploymentException(
@@ -1151,9 +1159,6 @@ public class DefinicioProcesHelper {
 							camp.getAmpleCols(),
 							camp.getBuitCols(),
 							camp.getExpedientTipus());
-//					nouCamp.setExpedientTipus(camp.getExpedientTipus());
-					//campTascaRepository.save(nouCamp);
-					//campTascaRepository.flush();
 					tascaDesti.addCamp(nouCamp);
 				}
 				// Copia els documents de la tasca
@@ -1167,7 +1172,6 @@ public class DefinicioProcesHelper {
 							document.isReadOnly(),
 							document.getOrder(),
 							document.getExpedientTipus());
-//					nouDocument.setExpedientTipus(document.getExpedientTipus());
 					tascaDesti.addDocument(nouDocument);
 				}
 				// Copia les firmes de la tasca
@@ -1180,7 +1184,6 @@ public class DefinicioProcesHelper {
 							firma.isRequired(),
 							firma.getOrder(),
 							firma.getExpedientTipus());
-//					novaFirma.setExpedientTipus(firma.getExpedientTipus());
 					tascaDesti.addFirma(novaFirma);
 				}
 				// Copia les validacions de la tasca

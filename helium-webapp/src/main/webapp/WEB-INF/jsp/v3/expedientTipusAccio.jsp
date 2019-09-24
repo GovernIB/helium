@@ -74,7 +74,7 @@
 								{{if heretat}}
 									<li><a data-toggle="modal" href="${baseUrl}/accio/{{:id}}/update"><span class="fa fa-search"></span>&nbsp;<spring:message code="comu.boto.visualitzar"/></a></li>
 								{{else}}
-									<li><a data-toggle="modal" data-callback="callbackModalAccions()" href="${baseUrl}/accio/{{:id}}/update"><span class="fa fa-pencil"></span>&nbsp;<spring:message code="expedient.tipus.info.accio.modificar"/></a></li>
+									<li><a data-toggle="modal" href="${baseUrl}/accio/{{:id}}/update"><span class="fa fa-pencil"></span>&nbsp;<spring:message code="expedient.tipus.info.accio.modificar"/></a></li>
 									<li><a href="${baseUrl}/accio/{{:id}}/delete" data-toggle="ajax" data-confirm="<spring:message code="expedient.tipus.accio.llistat.accio.esborrar.confirmacio"/>"><span class="fa fa-trash-o"></span>&nbsp;<spring:message code="expedient.llistat.accio.esborrar"/></a></li>
 								{{/if}}
 							</ul>
@@ -91,7 +91,7 @@
 
 		<script id="tableButtonsAccionsTemplate" type="text/x-jsrender">
 			<div class="botons-titol text-right">
-				<a id="nova_accio" class="btn btn-default" href="${baseUrl}/accio/new" data-toggle="modal" data-callback="callbackModalAccions()" data-datatable-id="expedientTipusAccio"><span class="fa fa-plus"></span>&nbsp;<spring:message code="expedient.tipus.accio.llistat.accio.nova"/></a>
+				<a id="nova_accio" class="btn btn-default" href="${baseUrl}/accio/new" data-toggle="modal" data-datatable-id="expedientTipusAccio"><span class="fa fa-plus"></span>&nbsp;<spring:message code="expedient.tipus.accio.llistat.accio.nova"/></a>
 			</div>
 		</script>
 	</c:when>
@@ -103,18 +103,7 @@
 <script type="text/javascript">
 // <![CDATA[            
 $(document).ready(function() {
-	$('#expedientTipusAccio').on('draw.dt', function() {
-		// Refresca els missatges
-		webutilRefreshMissatges();		
-	});
+
 });
-
-function callbackModalAccions() {
-	refrescaTaula();
-}
-
-function refrescaTaula() {
-	$('#expedientTipusAccio').webutilDatatable('refresh');
-}
 // ]]>
 </script>			

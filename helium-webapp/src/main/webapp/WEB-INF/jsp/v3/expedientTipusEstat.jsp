@@ -50,7 +50,7 @@
 								{{if heretat}}
 									<li><a data-toggle="modal" href="${expedientTipus.id}/estat/{{:id}}/update"><span class="fa fa-search"></span>&nbsp;<spring:message code="comu.boto.visualitzar"/></a></li>
 								{{else}}
-									<li><a data-toggle="modal" data-callback="callbackModalEstats()" href="${expedientTipus.id}/estat/{{:id}}/update"><span class="fa fa-pencil"></span>&nbsp;<spring:message code="expedient.tipus.info.accio.modificar"/></a></li>
+									<li><a data-toggle="modal" href="${expedientTipus.id}/estat/{{:id}}/update"><span class="fa fa-pencil"></span>&nbsp;<spring:message code="expedient.tipus.info.accio.modificar"/></a></li>
 									<li><a href="${expedientTipus.id}/estat/{{:id}}/delete" data-toggle="ajax" data-confirm="<spring:message code="expedient.tipus.estat.llistat.confirmacio.esborrar"/>"><span class="fa fa-trash-o"></span>&nbsp;<spring:message code="expedient.llistat.accio.esborrar"/></a></li>
 								{{/if}}
 							</ul>
@@ -64,8 +64,8 @@
 		</table>
 		<script id="tableButtonsEstatTemplate" type="text/x-jsrender">
 			<div class="botons-titol text-right">
-				<a id="nou_camp" class="btn btn-default" href="${expedientTipus.id}/estat/new" data-toggle="modal" data-callback="callbackModalEstats()" data-datatable-id="expedientTipusEstat"><span class="fa fa-plus"></span>&nbsp;<spring:message code="expedient.tipus.estat.nou"/></a>
-				<a id="importar_dades" class="btn btn-info" href="${expedientTipus.id}/estat/importar" data-toggle="modal" data-callback="callbackModalEstats()" data-datatable-id="expedientTipusEstat"><span class="fa fa-sign-in"></span>&nbsp;<spring:message code="comu.boto.importar.dades"/></a>
+				<a id="nou_camp" class="btn btn-default" href="${expedientTipus.id}/estat/new" data-toggle="modal" data-datatable-id="expedientTipusEstat"><span class="fa fa-plus"></span>&nbsp;<spring:message code="expedient.tipus.estat.nou"/></a>
+				<a id="importar_dades" class="btn btn-info" href="${expedientTipus.id}/estat/importar" data-toggle="modal" data-datatable-id="expedientTipusEstat"><span class="fa fa-sign-in"></span>&nbsp;<spring:message code="comu.boto.importar.dades"/></a>
 				<a id="exportar_dades" class="btn btn-info" href="${expedientTipus.id}/estat/exportar"><span class="fa fa-sign-out"></span>&nbsp;<spring:message code="comu.boto.exportar.dades"/></a>
 			</div>
 		</script>
@@ -108,11 +108,6 @@ $(document).ready(function() {
 
 });
 
-function callbackModalEstats() {
-	// Refresca els missatges
-	webutilRefreshMissatges();
-}
-
 function canviarPosicioEstat(id, pos) {
   	// Canvia la ordenació sempre amb ordre ascendent
 	$('#campValidacio').DataTable().order([3, 'asc']);
@@ -121,12 +116,9 @@ function canviarPosicioEstat(id, pos) {
 		type: 'GET',
 		url: getUrl,
 		async: true,
-		success: function(result) {
-			$('#expedientTipusEstat').webutilDatatable('refresh');
-		},
-		error: function(e) {
-			console.log("Error canviant l'ordre: " + e);
-			$('#expedientTipusEstat').webutilDatatable('refresh');
+		complete: function() {
+			webutilRefreshMissatges();
+			$('#expedientTipusEstat').webutilDatatable('refresh');				
 		}
 	});	
 }

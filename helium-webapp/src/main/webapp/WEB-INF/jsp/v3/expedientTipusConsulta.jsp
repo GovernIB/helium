@@ -112,7 +112,6 @@ $(document).ready(function() {
 	    }, function() {
 	        $(this.cells[0]).removeClass('showDragHandle');
 	    });	
-		webutilRefreshMissatges();
 	  });
 });
 
@@ -125,11 +124,12 @@ function canviarPosicioConsulta( id, pos) {
 		url: getUrl,
 		async: true,
 		success: function(result) {
-			$('#expedientTipusConsulta').webutilDatatable('refresh');
 		},
 		error: function(e) {
 			console.log("Error canviant l'ordre: " + e);
+		},complete: function() {
 			$('#expedientTipusConsulta').webutilDatatable('refresh');
+			webutilRefreshMissatges();
 		}
 	});	
 }

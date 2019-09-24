@@ -58,19 +58,6 @@ public interface DocumentRepository extends JpaRepository<Document, Long> {
 			"order by codi asc")
 	List<Document> findByExpedientTipusAmbHerencia(@Param("expedientTipusId") Long expedientTipus);
 	
-	/** Consulta per expedient tipus i id. Té en compte l'herència. */
-	@Query(	"from Document d " +
-			"where " +
-			"  	d.id = :id " +
-			"  	and (d.expedientTipus.id = :expedientTipusId " +
-			"			or d.expedientTipus.id = ( " + 
-			"				select et.expedientTipusPare.id " + 
-			"				from ExpedientTipus et " + 
-			"				where et.id = :expedientTipusId)) ")
-	public Document findByExpedientTipusAndIdAmbHerencia(
-			@Param("expedientTipusId") Long expedientTipusId,
-			@Param("id") Long id);
-	
 	/** Consulta per expedient tipus i el codi. Té en compte l'herència. */
 	@Query(	"from Document d " +
 			"where " +

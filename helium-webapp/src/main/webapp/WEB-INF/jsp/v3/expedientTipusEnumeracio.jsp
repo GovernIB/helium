@@ -23,9 +23,7 @@
 				data-ordering="true"
 				data-default-order="2"
 				data-rowhref-toggle="modal"
-				<c:if test="${expedientTipus.permisDesignAdmin}">
-					data-rowhref-template="#rowhrefTemplateEnumeracions"
-				</c:if> 
+				data-rowhref-template="#rowhrefTemplateEnumeracions"
 				data-botons-template="#tableButtonsEnumeracioTemplate"
 				class="table table-striped table-bordered table-hover">
 			<thead>
@@ -49,7 +47,7 @@
 					<th data-col-name="nom"><spring:message code="expedient.tipus.enumeracio.llistat.columna.titol"/></th>
 					<th data-col-name="numValors" data-template="#cellValorsTemplate" data-orderable="false" width="13%">
 						<script id="cellValorsTemplate" type="text/x-jsrender">
-							<a data-toggle="modal" data-callback="callbackModalEnumerats()" href="${expedientTipus.id}/enumeracio/{{:id}}/valors" class="btn btn-default"><span class="fa fa-bars"></span>&nbsp;<spring:message code="expedient.tipus.enumeracio.llistat.boto.valors"/>&nbsp;<span class="badge">{{:numValors}}</span></a>
+							<a data-toggle="modal" href="${expedientTipus.id}/enumeracio/{{:id}}/valors" class="btn btn-default"><span class="fa fa-bars"></span>&nbsp;<spring:message code="expedient.tipus.enumeracio.llistat.boto.valors"/>&nbsp;<span class="badge">{{:numValors}}</span></a>
 						</script>
 					</th>
 					<c:if test="${expedientTipus.permisDesignAdmin}">
@@ -80,7 +78,7 @@
 		<script id="tableButtonsEnumeracioTemplate" type="text/x-jsrender">
 			<c:if test="${expedientTipus.permisDesignAdmin}">
 				<div class="botons-titol text-right">
-					<a id="nou_camp" data-callback="callbackModalEnumerats()" class="btn btn-default" href="${expedientTipus.id}/enumeracio/new" data-toggle="modal" data-datatable-id="expedientEnumeracio"><span class="fa fa-plus"></span>&nbsp;<spring:message code="expedient.tipus.enumeracio.llistat.accio.nova"/></a>
+					<a id="nou_camp" class="btn btn-default" href="${expedientTipus.id}/enumeracio/new" data-toggle="modal" data-datatable-id="expedientEnumeracio"><span class="fa fa-plus"></span>&nbsp;<spring:message code="expedient.tipus.enumeracio.llistat.accio.nova"/></a>
 				</div>
 			</c:if>
 		</script>
@@ -92,19 +90,9 @@
 </c:choose>
 
 <script type="text/javascript">
-// <![CDATA[
-            
+// <![CDATA[         
 $(document).ready(function() {
+	
 });
-
-function refrescaTaula() {
-	$('#expedientEnumeracio').webutilDatatable('refresh-url', '${expedientTipus.id}/enumeracio/datatable');
-}
-
-function callbackModalEnumerats() {
-	refrescaTaula();
-	// Refresca els missatges
-	webutilRefreshMissatges();
-}
 // ]]>
 </script>	

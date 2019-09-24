@@ -305,10 +305,13 @@
 }(jQuery));
 
 function modalTancar(iframe, refrescar) {
+	debugger; 
 	$(iframe).parent().parent().parent().parent().data('modal-cancel', 'true');
 	$(iframe).parent().parent().parent().parent().modal('hide');
 	if (refrescar)	
 		window.parent.location.reload();
+	else if ('function' === typeof webutilRefreshMissatges)
+		webutilRefreshMissatges();
 }
 
 function modalAdjustHeight(iframe, height) {
