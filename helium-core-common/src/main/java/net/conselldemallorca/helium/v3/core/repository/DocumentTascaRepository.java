@@ -36,6 +36,9 @@ public interface DocumentTascaRepository extends JpaRepository<DocumentTasca, Lo
 			"			or " +
 					// Heretats
 			" 		  (dt.expedientTipus is null and dt.tasca.definicioProces.expedientTipus.id = (select etp.expedientTipusPare.id from ExpedientTipus etp where etp.id = :expedientTipusId)) " +
+			"			or " +
+					// Definició de procés global
+			" 		  (dt.tasca.definicioProces.expedientTipus is null) " +
 			"       ) ")
 	public Integer getNextOrdre(@Param("tascaId") Long tascaId, @Param("expedientTipusId") Long expedientTipusId);
 
@@ -54,6 +57,9 @@ public interface DocumentTascaRepository extends JpaRepository<DocumentTasca, Lo
 			"			or " +
 					// Heretats
 			" 		  (dt.expedientTipus is null and dt.tasca.definicioProces.expedientTipus.id = (select etp.expedientTipusPare.id from ExpedientTipus etp where etp.id = :expedientTipusId)) " +
+			"			or " +
+					// Definició de procés global
+			" 		  (dt.tasca.definicioProces.expedientTipus is null) " +
 			"       ) " +
 			"order by " +
 			"    dt.order")
@@ -73,6 +79,9 @@ public interface DocumentTascaRepository extends JpaRepository<DocumentTasca, Lo
 			"			or " +
 					// Heretats
 			" 		  (dt.expedientTipus is null and dt.tasca.definicioProces.expedientTipus.id = (select etp.expedientTipusPare.id from ExpedientTipus etp where etp.id = :expedientTipusId)) " +
+			"			or " +
+					// Definició de procés global
+			" 		  (dt.tasca.definicioProces.expedientTipus is null) " +
 			"       ) ")
 	public Long countAmbDefinicioProcesITascaJbpmName(
 			@Param("definicioProcesId") Long definicioProcesId,
@@ -91,6 +100,9 @@ public interface DocumentTascaRepository extends JpaRepository<DocumentTasca, Lo
 			"			or " +
 					// Heretats
 			" 		  (dt.expedientTipus is null and dt.tasca.definicioProces.expedientTipus.id = (select etp.expedientTipusPare.id from ExpedientTipus etp where etp.id = :expedientTipusId)) " +
+			"			or " +
+					// Definició de procés global
+			" 		  (dt.tasca.definicioProces.expedientTipus is null) " +
 			"       ) " )
 	public Long countAmbDefinicioProcesITascaJbpmNameINotReadOnly(
 			@Param("definicioProcesId") Long definicioProcesId,
@@ -107,6 +119,9 @@ public interface DocumentTascaRepository extends JpaRepository<DocumentTasca, Lo
 			"			or " +
 					// Heretats
 			" 		  (dt.expedientTipus is null and dt.tasca.definicioProces.expedientTipus.id = (select etp.expedientTipusPare.id from ExpedientTipus etp where etp.id = :expedientTipusId)) " +
+			"			or " +
+					// Definició de procés global
+			" 		  (dt.tasca.definicioProces.expedientTipus is null) " +
 			"       ) ")
 	public DocumentTasca findAmbTascaCodi(
 			@Param("tascaId") Long tascaId, 
@@ -128,6 +143,9 @@ public interface DocumentTascaRepository extends JpaRepository<DocumentTasca, Lo
 			"			or " +
 					// Heretats
 			" 		  (dt.expedientTipus is null and dt.tasca.definicioProces.expedientTipus.id = (select etp.expedientTipusPare.id from ExpedientTipus etp where etp.id = :expedientTipusId)) " +
+			"			or " +
+					// Definició de procés global
+			" 		  (dt.tasca.definicioProces.expedientTipus is null) " +
 			"       ) " +
 			"order by " +
 			"    dt.order")
@@ -141,7 +159,9 @@ public interface DocumentTascaRepository extends JpaRepository<DocumentTasca, Lo
 						// Propis
 			"   and (dt.expedientTipus is null or dt.expedientTipus.id = :expedientTipusId " +
 						// Heretats
-			" 			or dt.expedientTipus.id = (select etp.expedientTipusPare.id from ExpedientTipus etp where etp.id = :expedientTipusId)) " +
+			" 			or dt.expedientTipus.id = (select etp.expedientTipusPare.id from ExpedientTipus etp where etp.id = :expedientTipusId) " +
+						// Definició de procés global
+			"			or (dt.tasca.definicioProces.expedientTipus is null)) " +
 			"	and (:esNullFiltre = true or lower(dt.document.codi) like lower('%'||:filtre||'%') or lower(dt.document.nom) like lower('%'||:filtre||'%')) ")
 	public Page<DocumentTasca> findByFiltrePaginat(
 			@Param("tascaId") Long tascaId,

@@ -37,6 +37,9 @@ public interface CampTascaRepository extends JpaRepository<CampTasca, Long> {
 			"			or " +
 					// Heretats
 			" 		  (ct.expedientTipus is null and ct.tasca.definicioProces.expedientTipus.id = (select etp.expedientTipusPare.id from ExpedientTipus etp where etp.id = :expedientTipusId)) " +
+			"			or " +
+					// Definició de procés global
+			" 		  (ct.tasca.definicioProces.expedientTipus is null) " +
 			"       ) " +
 			"order by " +
 			"    ct.order "
@@ -62,6 +65,9 @@ public interface CampTascaRepository extends JpaRepository<CampTasca, Long> {
 			"			or " +
 					// Heretats
 			" 		  (ct.expedientTipus is null and ct.tasca.definicioProces.expedientTipus.id = (select etp.expedientTipusPare.id from ExpedientTipus etp where etp.id = :expedientTipusId)) " +
+			"			or " +
+					// Definició de procés global
+			" 		  (ct.tasca.definicioProces.expedientTipus is null) " +
 			"       ) ")
 	public CampTasca findAmbTascaCodi(@Param("tascaId") Long tascaId, @Param("campCodi") String campCodi, @Param("expedientTipusId") Long expedientTipusId);
 
@@ -82,6 +88,9 @@ public interface CampTascaRepository extends JpaRepository<CampTasca, Long> {
 			"			or " +
 					// Heretats
 			" 		  (ct.expedientTipus is null and ct.tasca.definicioProces.expedientTipus.id = (select etp.expedientTipusPare.id from ExpedientTipus etp where etp.id = :expedientTipusId)) " + 
+			"			or " +
+					// Definició de procés global
+			" 		  (ct.tasca.definicioProces.expedientTipus is null) " +
 			"       ) ")
 	public long countAmbTasca(@Param("tascaId") Long tascaId, @Param("expedientTipusId") Long expedientTipusId);
 	
@@ -99,6 +108,9 @@ public interface CampTascaRepository extends JpaRepository<CampTasca, Long> {
 			"			or " +
 					// Heretats
 			" 		  (ct.expedientTipus is null and ct.tasca.definicioProces.expedientTipus.id = (select etp.expedientTipusPare.id from ExpedientTipus etp where etp.id = :expedientTipusId)) " +
+			"			or " +
+					// Definició de procés global
+			" 		  (ct.tasca.definicioProces.expedientTipus is null) " +
 			"       ) " +
 			"order by " +
 			"    ct.order")
@@ -115,6 +127,9 @@ public interface CampTascaRepository extends JpaRepository<CampTasca, Long> {
 			"			or " +
 					// Heretats
 			" 		  (ct.expedientTipus is null and ct.tasca.definicioProces.expedientTipus.id = (select etp.expedientTipusPare.id from ExpedientTipus etp where etp.id = :expedientTipusId)) " +
+			"			or " +
+					// Definició de procés global
+			" 		  (ct.tasca.definicioProces.expedientTipus is null) " +
 			"       ) " +
 			"	and (:esNullFiltre = true or lower(ct.camp.codi) like lower('%'||:filtre||'%')) ")
 	public Page<CampTasca> findByFiltrePaginat(
@@ -134,6 +149,9 @@ public interface CampTascaRepository extends JpaRepository<CampTasca, Long> {
 			"			or " +
 					// Heretats
 			" 		  (ct.expedientTipus is null and ct.tasca.definicioProces.expedientTipus.id = (select etp.expedientTipusPare.id from ExpedientTipus etp where etp.id = :expedientTipusId)) " + 
+			"			or " +
+					// Definició de procés global
+			" 		  (ct.tasca.definicioProces.expedientTipus is null) " +
 			"       ) ")
 	public Integer getNextOrdre(@Param("tascaId") Long tascaId, @Param("expedientTipusId") Long expedientTipusId);
 

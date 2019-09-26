@@ -31,6 +31,9 @@ public interface FirmaTascaRepository extends JpaRepository<FirmaTasca, Long> {
 			"			or " +
 					// Heretats
 			" 		  (ft.expedientTipus is null and ft.tasca.definicioProces.expedientTipus.id = (select etp.expedientTipusPare.id from ExpedientTipus etp where etp.id = :expedientTipusId)) " +
+			"			or " +
+					// Definició de procés global
+			" 		  (ft.tasca.definicioProces.expedientTipus is null) " +
 			"       ) ")
 	public Integer getNextOrdre(@Param("tascaId") Long tascaId, @Param("expedientTipusId") Long expedientTipusId);
 	
@@ -47,6 +50,9 @@ public interface FirmaTascaRepository extends JpaRepository<FirmaTasca, Long> {
 			"			or " +
 					// Heretats
 			" 		  (ft.expedientTipus is null and ft.tasca.definicioProces.expedientTipus.id = (select etp.expedientTipusPare.id from ExpedientTipus etp where etp.id = :expedientTipusId)) " +
+			"			or " +
+					// Definició de procés global
+			" 		  (ft.tasca.definicioProces.expedientTipus is null) " +
 			"       ) " +
 			"order by ft.order")
 	public List<FirmaTasca> findAmbTascaIdOrdenats(
@@ -72,6 +78,9 @@ public interface FirmaTascaRepository extends JpaRepository<FirmaTasca, Long> {
 			"			or " +
 					// Heretats
 			" 		  (ft.expedientTipus is null and ft.tasca.definicioProces.expedientTipus.id = (select etp.expedientTipusPare.id from ExpedientTipus etp where etp.id = :expedientTipusId)) " +
+			"			or " +
+					// Definició de procés global
+			" 		  (ft.tasca.definicioProces.expedientTipus is null) " +
 			"       ) ")
 	FirmaTasca findAmbDocumentTasca(@Param("documentId") Long documentId, @Param("tascaId") Long tascaId, @Param("expedientTipusId") Long expedientTipusId);
 	
@@ -83,6 +92,9 @@ public interface FirmaTascaRepository extends JpaRepository<FirmaTasca, Long> {
 			"			or " +
 					// Heretats
 			" 		  (ft.expedientTipus is null and ft.tasca.definicioProces.expedientTipus.id = (select etp.expedientTipusPare.id from ExpedientTipus etp where etp.id = :expedientTipusId)) " +
+			"			or " +
+					// Definició de procés global
+			" 		  (ft.tasca.definicioProces.expedientTipus is null) " +
 			"       ) " +
 			"	and (:esNullFiltre = true or lower(ft.document.codi) like lower('%'||:filtre||'%') or lower(ft.document.nom) like lower('%'||:filtre||'%')) ")
 	public Page<FirmaTasca> findByFiltrePaginat(
