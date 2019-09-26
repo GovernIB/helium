@@ -11,6 +11,8 @@ public class ExpedientTipusDefinicioProcesIncorporarCommand {
 	
 	private Long definicioProcesId;
 	private boolean sobreescriure;
+	/** Indica si canviar la relació de les tasques cap a la informació definida a nivell de tipus d'expedient. */
+	private boolean tasques;
 	
 	public Long getDefinicioProcesId() {
 		return definicioProcesId;
@@ -24,6 +26,12 @@ public class ExpedientTipusDefinicioProcesIncorporarCommand {
 	public void setSobreescriure(boolean sobreescriure) {
 		this.sobreescriure = sobreescriure;
 	}
-	
+	public boolean isTasques() {
+		return tasques;
+	}
+	public void setTasques(boolean tasques) {
+		this.tasques = tasques;
+	}
+
 	public interface Incorporar {}
 }

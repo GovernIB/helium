@@ -307,8 +307,8 @@ public class ExpedientTipusServiceBean implements ExpedientTipusService {
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public void definicioProcesIncorporar(Long expedientTipusId, Long id, boolean sobreescriure) throws ExportException {
-		delegate.definicioProcesIncorporar(expedientTipusId, id, sobreescriure);
+	public void definicioProcesIncorporar(Long expedientTipusId, Long id, boolean sobreescriure, boolean tasques) throws ExportException {
+		delegate.definicioProcesIncorporar(expedientTipusId, id, sobreescriure, tasques);
 	}
 
 	@Override

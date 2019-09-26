@@ -74,6 +74,11 @@
 							{{if document.sobreescriu }}
 								<span class="label label-warning" title="<spring:message code="expedient.tipus.camp.llistat.codi.sobreescriu"/>">S</span>
 							{{/if}}
+							{{if document.expedientTipus != null}}
+								<span class="label label-info pull-right" title="Tipus Expedient">TE</span>
+							{{else}}
+								<span class="label label-warning pull-right" title="Definició de Procés">DP</span>
+							{{/if}}
 						</script>
 					</th>
 					<th data-col-name="required" data-template="#celldefinicioProcesTascaFirmaRequiredTemplate" data-orderable="false">

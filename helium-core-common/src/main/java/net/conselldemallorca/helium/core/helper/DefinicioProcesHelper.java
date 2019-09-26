@@ -633,7 +633,7 @@ public class DefinicioProcesHelper {
 	 * @param definicio
 	 */
 	@Transactional
-	private void relacionarCampTasca(
+	public void relacionarCampTasca(
 			CampTasca campTasca, 
 			String codiCamp, 
 			boolean isTipusExpedient,
@@ -675,7 +675,7 @@ public class DefinicioProcesHelper {
 	 * @param expedientTipus
 	 * @param definicio
 	 */
-	private void relacionarDocumentTasca(
+	public void relacionarDocumentTasca(
 			DocumentTasca documentTasca, 
 			String codiDocument, 
 			boolean isTipusExpedient,
@@ -717,7 +717,7 @@ public class DefinicioProcesHelper {
 	 * @param expedientTipus
 	 * @param definicio
 	 */
-	private void relacionarFirmaTasca(
+	public void relacionarFirmaTasca(
 			FirmaTasca firmaTasca, 
 			String codiDocument, 
 			boolean isTipusExpedient,

@@ -47,11 +47,13 @@ import net.conselldemallorca.helium.core.model.hibernate.Camp;
 import net.conselldemallorca.helium.core.model.hibernate.Camp.TipusCamp;
 import net.conselldemallorca.helium.core.model.hibernate.CampAgrupacio;
 import net.conselldemallorca.helium.core.model.hibernate.CampRegistre;
+import net.conselldemallorca.helium.core.model.hibernate.CampTasca;
 import net.conselldemallorca.helium.core.model.hibernate.Consulta;
 import net.conselldemallorca.helium.core.model.hibernate.ConsultaCamp;
 import net.conselldemallorca.helium.core.model.hibernate.ConsultaCamp.TipusParamConsultaCamp;
 import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
 import net.conselldemallorca.helium.core.model.hibernate.Document;
+import net.conselldemallorca.helium.core.model.hibernate.DocumentTasca;
 import net.conselldemallorca.helium.core.model.hibernate.Domini;
 import net.conselldemallorca.helium.core.model.hibernate.Domini.TipusDomini;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
@@ -59,10 +61,12 @@ import net.conselldemallorca.helium.core.model.hibernate.Enumeracio;
 import net.conselldemallorca.helium.core.model.hibernate.EnumeracioValors;
 import net.conselldemallorca.helium.core.model.hibernate.Estat;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
+import net.conselldemallorca.helium.core.model.hibernate.FirmaTasca;
 import net.conselldemallorca.helium.core.model.hibernate.MapeigSistra;
 import net.conselldemallorca.helium.core.model.hibernate.Reassignacio;
 import net.conselldemallorca.helium.core.model.hibernate.SequenciaAny;
 import net.conselldemallorca.helium.core.model.hibernate.SequenciaDefaultAny;
+import net.conselldemallorca.helium.core.model.hibernate.Tasca;
 import net.conselldemallorca.helium.core.model.hibernate.Termini;
 import net.conselldemallorca.helium.core.model.hibernate.Validacio;
 import net.conselldemallorca.helium.core.security.ExtendedPermission;
@@ -2359,16 +2363,18 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 	@Transactional
 	public void definicioProcesIncorporar(
 			Long expedientTipusId, 
-			Long id,
-			boolean sobreescriure) throws ExportException {
+			Long definicioProcesId,
+			boolean sobreescriure,
+			boolean tasques) throws ExportException {
 		logger.debug(
 				"Importació la informació de la definicio de proces al tipus d'expedient(" +
 				"expedientTipusId=" + expedientTipusId +  ", " + 
-				"definicioProcesId=" + id +  ", " + 
-				"sobreescriure=" + sobreescriure + ")");
+				"definicioProcesId=" + definicioProcesId +  ", " + 
+				"sobreescriure=" + sobreescriure +  ", " + 
+				"tasques=" + tasques + ")");
 		ExpedientTipus expedientTipus = expedientTipusHelper.getExpedientTipusComprovantPermisDisseny(expedientTipusId);
 		Entorn entorn = expedientTipus.getEntorn();
-		DefinicioProces definicioProces = definicioProcesRepository.findOne(id);
+		DefinicioProces definicioProces = definicioProcesRepository.findOne(definicioProcesId);
 		if (expedientTipus != null 
 				&& definicioProces != null) {
 			// Propaga les agrupacions
@@ -2605,6 +2611,50 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 					nou.setAlertaCompletat(termini.isAlertaCompletat());
 					nou.setManual(termini.isManual());
 				}	
+			}
+			
+			if (tasques 
+					&& definicioProces.getExpedientTipus() != null 
+					&& definicioProces.getExpedientTipus().equals(expedientTipus)) {
+				
+				// Canvia variables, documents i signatures per a que apuntin a les dades del tipus d'expedient
+				
+				for (Tasca tasca : definicioProces.getTasques() ) {
+					// Relaciona les variables
+					for (CampTasca campTasca : tasca.getCamps())  {
+						if (campTasca.getCamp().getExpedientTipus() == null) {
+							definicioProcesHelper.relacionarCampTasca(
+									campTasca, 
+									campTasca.getCamp().getCodi(), 
+									true, 
+									expedientTipus, 
+									definicioProces);
+						}
+					}
+					// Relaciona els documents
+					for (DocumentTasca documentTasca : tasca.getDocuments())  {
+						if (documentTasca.getDocument().getExpedientTipus() == null) {
+							definicioProcesHelper.relacionarDocumentTasca(
+									documentTasca, 
+									documentTasca.getDocument().getCodi(), 
+									true, 
+									expedientTipus, 
+									definicioProces);
+						}
+					}
+					// Relaciona les firmes
+					for (FirmaTasca firmaTasca : tasca.getFirmes())  {
+						if (firmaTasca.getDocument().getExpedientTipus() == null) {
+							definicioProcesHelper.relacionarFirmaTasca(
+									firmaTasca, 
+									firmaTasca.getDocument().getCodi(), 
+									true, 
+									expedientTipus, 
+									definicioProces);
+						}
+					}
+				}
+				
 			}
 		}
 	}	

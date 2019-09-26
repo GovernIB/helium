@@ -22,7 +22,8 @@
 	<form:form cssClass="form-horizontal" action="${formAction}" enctype="multipart/form-data" method="post" commandName="expedientTipusDefinicioProcesImportarCommand">
 		<div>        
 			<hel:inputSelect name="definicioProcesId" required="false" emptyOption="true" textKey="expedient.tipus.definicioProces.incorporar.versio" placeholderKey="expedient.tipus.definicioProces.incorporar.versio.placeholder" optionItems="${versions}" optionValueAttribute="codi" optionTextAttribute="valor"/>
-			<hel:inputCheckbox name="sobreescriure" textKey="expedient.tipus.definicioProces.incorporar.sobreescriure" />
+			<hel:inputCheckbox name="sobreescriure" textKey="expedient.tipus.definicioProces.incorporar.sobreescriure" comment="expedient.tipus.definicioProces.incorporar.sobreescriure.info"/>
+			<hel:inputCheckbox name="tasques" textKey="expedient.tipus.definicioProces.incorporar.tasques" disabled="${!potCanviarTasques}" comment="expedient.tipus.definicioProces.incorporar.tasques.info" />
 		</div>
 		
 		<div id="modal-botons" class="well">

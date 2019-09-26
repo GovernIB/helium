@@ -531,12 +531,14 @@ public interface ExpedientTipusService {
 	 * @param expedientTipusId
 	 * @param id Identificador del tipus d'expedient.
 	 * @param sobreescriure Indica si les variables se sobreesciuran al tipus d'expedient o es deixaran sense sobreescriure.
+	 * @param tasques Indica que es relacionin les variables, documents i signatures de la tasca amb les definides a nivell de tipus d'expedient.
 	 * @throws Llença una excepció si no s'ha pogut acomplir alguna dependència o ha succeït algun error.
 	 */
 	public void definicioProcesIncorporar(
 			Long expedientTipusId, 
-			Long id, 
-			boolean sobreescriure) throws ExportException;
+			Long definicioProcesId, 
+			boolean sobreescriure,
+			boolean tasques) throws ExportException;
 
 	/**
 	 * Crea una nova reassignacio.

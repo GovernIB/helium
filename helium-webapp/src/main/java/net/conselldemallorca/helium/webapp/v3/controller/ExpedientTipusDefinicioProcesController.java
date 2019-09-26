@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesExpedientDto.IdAmbEtiqueta;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
@@ -128,8 +129,13 @@ public class ExpedientTipusDefinicioProcesController extends BaseExpedientTipusC
 		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
 		ExpedientTipusDefinicioProcesIncorporarCommand command = new ExpedientTipusDefinicioProcesIncorporarCommand();
 		command.setSobreescriure(false);
+		command.setTasques(false);		
 		model.addAttribute("expedientTipusDefinicioProcesImportarCommand", command);
 		model.addAttribute("versions", obtenirParellesVersions(entornActual.getId(), id));
+
+		DefinicioProcesDto definicioProces = definicioProcesService.findById(id);
+		model.addAttribute("potCanviarTasques", definicioProces.getExpedientTipus() != null 
+												&& definicioProces.getExpedientTipus().getId().equals(expedientTipusId));
 
 		return "v3/expedientTipusDefinicioProcesIncorporarForm";
 	}
@@ -145,6 +151,9 @@ public class ExpedientTipusDefinicioProcesController extends BaseExpedientTipusC
         if (bindingResult.hasErrors()) {
     		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
     		model.addAttribute("versions", obtenirParellesVersions(entornActual.getId(), id));
+    		model.addAttribute("definicioProces", definicioProcesService.findById(id));
+    		DefinicioProcesDto definicioProces = definicioProcesService.findById(id);
+    		model.addAttribute("potCanviarTasques", expedientTipusId.equals(definicioProces.getExpedientTipus().getId()));
         	return "v3/expedientTipusDefinicioProcesIncorporarForm";
         } else {
         	if (command.getDefinicioProcesId() == null)
@@ -153,7 +162,8 @@ public class ExpedientTipusDefinicioProcesController extends BaseExpedientTipusC
             	expedientTipusService.definicioProcesIncorporar(
             			expedientTipusId, 
             			command.getDefinicioProcesId(),
-            			command.isSobreescriure());
+            			command.isSobreescriure(),
+            			command.isTasques());
     	    		MissatgesHelper.success(
     						request, 
     						getMessage(
