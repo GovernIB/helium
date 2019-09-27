@@ -15,7 +15,7 @@ import net.conselldemallorca.helium.core.util.ws.WsClientUtils;
  */
 public class PortaFIBCallbackTest {
 
-	private static final String ENDPOINT_ADDRESS = "http://localhost:8080/helium/ws/v1/PortaFIBCallBack";
+	private static final String ENDPOINT_ADDRESS = "http://10.35.3.231:8080/helium/ws/v1/PortaFIBCallBack";
 	private static final String USERNAME = "admin";
 	private static final String PASSWORD = "admin15";
 
@@ -28,7 +28,7 @@ public class PortaFIBCallbackTest {
 			//   60 - DOCUMENT_FIRMAT;
 			//   70 - DOCUMENT_REBUTJAT;
 			//   80 - DOCUMENT_PAUSAT;
-			long psignaDocumentId = 60452;
+			long psignaDocumentId = 82326;
 			int estat = 60;
 			new PortaFIBCallbackTest().testCallback(
 					psignaDocumentId, 

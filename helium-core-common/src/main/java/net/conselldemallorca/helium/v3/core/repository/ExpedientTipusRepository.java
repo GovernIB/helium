@@ -90,4 +90,11 @@ public interface ExpedientTipusRepository extends JpaRepository<ExpedientTipus, 
             @Param("isNullAnulat") boolean isNullAnulat,
             @Param("anulat") Boolean anulat
             );
+
+    /** Per consultar el tipus d'expedient configurat pel codi procediment
+     * 
+     * @param distribucioCodiProcediment
+     * @return
+     */
+	List<ExpedientTipus> findByDistribucioCodiProcediment(String distribucioCodiProcediment);
 }

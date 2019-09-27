@@ -475,6 +475,12 @@
 			<groupId>org.bouncycastle</groupId>
 			<version>1.45</version>
 		</dependency>
+		<!-- Distribucio -->
+		<dependency>
+			<groupId>es.caib.distribucio</groupId>
+			<artifactId>distribucio-ws-client</artifactId>
+			<version>0.9</version>
+		</dependency>
 	</dependencies>
 	<build>
 		<plugins>

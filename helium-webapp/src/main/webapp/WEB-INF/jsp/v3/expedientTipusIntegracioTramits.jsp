@@ -17,7 +17,7 @@
 	<c:when test="${not empty expedientTipus}">
 
 		<form:form cssClass="form-horizontal" enctype="multipart/form-data" method="post" commandName="expedientTipusIntegracioTramitsCommand">
-			<div>        
+			<div style="height: 400px">        
 				<input type="hidden" id="id" name="id" value="${expedientTipusIntegracioTramitsCommand.id}"/>
 				<hel:inputCheckbox name="actiu" textKey="expedient.tipus.integracio.tramits.activar"/>
 				<div id="inputs_integracioTramits" style="display:${expedientTipusIntegracioTramitsCommand.actiu? 'inline' : 'none'}">
@@ -110,6 +110,7 @@ $(document).ready(function() {
 		}
 	});
 	$('#expedientTipusIntegracioTramitsCommand').submit(function(e){
+		$('#contingut-alertes').empty();
 		$('#accioGuardarProcessant').show();
 		$(this).webutilNetejarErrorsCamps();
 		var url = $(this).attr('action'); 

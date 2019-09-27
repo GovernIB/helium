@@ -383,6 +383,33 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 	 */
 	@Override
 	@Transactional
+	public ExpedientTipusDto updateIntegracioDistribucio(
+			Long entornId, 
+			Long expedientTipusId, 
+			boolean actiu, 
+			String codiProcediment) {
+		logger.debug(
+				"Modificant tipus d'expedient amb dades d'integracio amb distribucio externs (" +
+				"entornId=" + entornId + ", " +
+				"expedientTipus=" + expedientTipusId + ", " +
+				"actiu=" + actiu + ", " +
+				"codiProcediment=" + codiProcediment + ")");
+		
+		ExpedientTipus entity = expedientTipusHelper.getExpedientTipusComprovantPermisDisseny(expedientTipusId);
+		
+		entity.setDistribucioActiu(actiu);
+		entity.setDistribucioCodiProcediment(codiProcediment);
+
+		return conversioTipusHelper.convertir(
+				expedientTipusRepository.save(entity),
+				ExpedientTipusDto.class);	
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@Transactional
 	public ExpedientTipusDto updateIntegracioTramits(
 			Long entornId, 
 			Long expedientTipusId, 
@@ -3451,9 +3478,6 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 				ExpedientTipusDto.class);
 	}
 	
-	
-	private static final Logger logger = LoggerFactory.getLogger(ExpedientServiceImpl.class);
-
 	@Override
 	public List<ExpedientTipusEstadisticaDto> findEstadisticaByFiltre(
 			Integer anyInicial, 
@@ -3483,5 +3507,30 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 				anulats);
 		return et;
 	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@Transactional(readOnly = true)
+	public ExpedientTipusDto findPerDistribucio(String codiProcediment) {
+		logger.debug(
+				"Consultant el tipus d'expedient actiu per a un codi de procediment de Distribucio (" +
+				"codiProcediment = " + codiProcediment + ")");
+		ExpedientTipus expedientTipus = null;
+		List<ExpedientTipus> expedientsTipus = expedientTipusRepository.findByDistribucioCodiProcediment(codiProcediment);
+		// Busca el primer que estigui actiu
+		for (ExpedientTipus e : expedientsTipus) {
+			if(e.isDistribucioActiu()) {
+				expedientTipus = e;
+				break;
+			}
+		}
+		return conversioTipusHelper.convertir(
+				expedientTipus,
+				ExpedientTipusDto.class);
+	}	
+
+	private static final Logger logger = LoggerFactory.getLogger(ExpedientServiceImpl.class);
 
 }

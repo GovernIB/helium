@@ -103,24 +103,30 @@ public class AjaxHelper {
 			super();
 			this.objecte = objecte;
 			if (bindingResult != null) {
+				String errMsg;
 				this.errorsGlobals = new ArrayList<AjaxFormError>();
 				for (ObjectError objectError: bindingResult.getGlobalErrors()) {
+					errMsg = objectError.getDefaultMessage() != null ?
+								objectError.getDefaultMessage()
+								: MessageHelper.getInstance().getMessage(
+										objectError.getCode(),
+										objectError.getArguments());
 					errorsGlobals.add(
 							new AjaxFormError(
 									objectError.getObjectName(),
-									MessageHelper.getInstance().getMessage(
-											objectError.getCode(),
-											objectError.getArguments())));
+									errMsg));
 				}
 				this.errorsCamps = new ArrayList<AjaxFormError>();
 				for (FieldError fieldError: bindingResult.getFieldErrors()) {
+					errMsg = fieldError.getDefaultMessage() != null ?
+							fieldError.getDefaultMessage()
+							: MessageHelper.getInstance().getMessage(
+									fieldError.getCode(),
+									fieldError.getArguments());
 					errorsCamps.add(
 							new AjaxFormError(
 									fieldError.getField(),
-									MessageHelper.getInstance().getMessage(
-											fieldError.getCodes(),
-											fieldError.getArguments(),
-											null)));
+									errMsg));
 				}
 				this.estat = AjaxFormEstatEnum.ERROR;
 			} else {

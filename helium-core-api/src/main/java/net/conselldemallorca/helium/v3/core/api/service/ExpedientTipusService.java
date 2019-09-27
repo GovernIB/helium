@@ -100,6 +100,27 @@ public interface ExpedientTipusService {
 			String url, 
 			String usuari, 
 			String contrasenya);		
+	
+	/** 
+	 * Modifica les dades del tipus d'expedient referents a la integració amb DISTRIBUCIO.
+	 * 
+	 * @param entornId
+	 * @param expedientTipusId
+	 * @param actiu
+	 * @param codiProcediment
+	 * 
+	 * @return El tipus d'expedient modificat.
+	 * 
+	 * @throws NoTrobatException
+	 *             Si no s'ha trobat el registre amb l'id especificat.
+	 * @throws PermisDenegatException
+	 *             Si no es tenen els permisos necessaris.
+	 */
+	public ExpedientTipusDto updateIntegracioDistribucio(
+			Long entornId, 
+			Long expedientTipusId, 
+			boolean actiu, 
+			String codiProcediment);	
 
 	/** 
 	 * Modifica les dades del tipus d'expedient referents amb la integració amb els tràmits de 
@@ -1137,7 +1158,15 @@ public interface ExpedientTipusService {
 			Long expedientTipusId, 
 			String notibEmisor, 
 			String notibCodiProcediment,
-			boolean notibActiu);	
+			boolean notibActiu);
+
+	/** Mètode per trobar els tipus d'expedients segons els criteris per a la integració amb Distribucio.
+	 * 
+	 * @param codiProcediment
+	 * 			Filtra pels expedients tipus que tinguin codi procediment i el flag Actiu. Només n'hauria de retornar un
+	 * @return
+	 */
+	public ExpedientTipusDto findPerDistribucio(String codiProcediment);	
 
 
 }

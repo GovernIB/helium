@@ -89,6 +89,11 @@ public class ExpedientTipusIntegracioFormsController extends BaseExpedientTipusC
 				bindingResult.rejectValue("url", "NotEmpty");
 			}
 	        if (bindingResult.hasErrors()) {
+		        MissatgesHelper.error(
+						request, 
+						getMessage(
+								request, 
+								"expedient.tipus.integracio.forms.validacio"));
 	        	response = AjaxHelper.generarAjaxFormErrors(command, bindingResult);
 	        } else {
 	        	if (command.isActiu())

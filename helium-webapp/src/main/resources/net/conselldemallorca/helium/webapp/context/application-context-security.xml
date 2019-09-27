@@ -24,6 +24,7 @@
 		<sec:intercept-url pattern="/ws/FormulariExtern" access="IS_AUTHENTICATED_ANONYMOUSLY" />
 		<sec:intercept-url pattern="/ws/TramitacioService" access="IS_AUTHENTICATED_ANONYMOUSLY" />
 		<sec:intercept-url pattern="/ws/v1/PortaFIBCallBack" access="IS_AUTHENTICATED_ANONYMOUSLY" />
+		<sec:intercept-url pattern="/ws/distribucio/backoffice" access="IS_AUTHENTICATED_ANONYMOUSLY" />
 		<sec:intercept-url pattern="/rest" access="IS_AUTHENTICATED_ANONYMOUSLY" />
 		<sec:intercept-url pattern="/rest/" access="IS_AUTHENTICATED_ANONYMOUSLY" />
 		<sec:intercept-url pattern="/rest/notib" access="IS_AUTHENTICATED_ANONYMOUSLY"/>

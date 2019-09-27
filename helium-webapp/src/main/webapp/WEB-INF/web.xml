@@ -178,6 +178,8 @@
 			<url-pattern>/signatura/verificarExtern.html</url-pattern>
 			<url-pattern>/signatura/arxiu.html</url-pattern>
 			<url-pattern>/rol/test.html</url-pattern>
+			<!-- Integració Distribucio -->
+			<url-pattern>/ws/distribucio/backoffice</url-pattern>
 		</web-resource-collection>
 	</security-constraint>
 	<!-- security-constraint.end -->

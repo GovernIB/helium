@@ -120,6 +120,11 @@ public class ExpedientTipusIntegracioTramitsController extends BaseExpedientTipu
 			// Validació en el controlador
 			this.validarCommand(command, bindingResult);
 	        if (bindingResult.hasErrors()) {
+		        MissatgesHelper.error(
+						request, 
+						getMessage(
+								request, 
+								"expedient.tipus.integracio.tramits.validacio"));
 	        	response = AjaxHelper.generarAjaxFormErrors(command, bindingResult);
 	        } else {
         		expedientTipusService.updateIntegracioTramits(

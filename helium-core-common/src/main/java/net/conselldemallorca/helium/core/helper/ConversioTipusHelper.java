@@ -390,6 +390,9 @@ public class ConversioTipusHelper {
 						
 						target.setSistraTramitCodi(source.getSistraTramitCodi());
 						target.setNotibActiu(source.getNotibActiu());
+						
+						target.setDistribucioActiu(source.isDistribucioActiu());
+						target.setDistribucioCodiProcediment(source.getDistribucioCodiProcediment());
 						return target;
 					}
 				});

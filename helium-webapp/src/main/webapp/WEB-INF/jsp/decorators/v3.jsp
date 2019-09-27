@@ -188,7 +188,10 @@
 						</c:choose>
 
 						<a id="menuExpedients" class="btn btn-primary" href="${expedientsUrl}"><spring:message code="decorator.menu.expedients"/></a>
-					
+
+						<!-- TODO: mostrar només als usuaris que puguin relacionar expedients -->
+						<a id="menuAnotacions" class="btn btn-primary" href="<c:url value="/v3/anotacio"/>"><spring:message code="decorator.menu.anotacions"/></a>
+											
 						<a id="menuTasques" class="btn btn-primary" href="<c:url value="/v3/tasca"/>"><spring:message code="decorator.menu.tasques"/></a>
 						<c:if test="${potDissenyarEntorn or potDissenyarExpedientTipus}">
 							<div id="menuDisseny" class="btn-group" >

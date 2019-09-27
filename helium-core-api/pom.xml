@@ -52,6 +52,11 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
+		<dependency>
+			<groupId>commons-lang</groupId>
+  			<artifactId>commons-lang</artifactId>
+  			<version>2.5</version>
+		</dependency>
 	</dependencies>
 	<build>
 		<plugins>
@@ -63,6 +68,31 @@
 					<source>${java.version}</source>
 					<target>${java.version}</target>
 				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>jaxws-maven-plugin</artifactId>
+				<version>2.4.1</version>
+				<executions>
+					<execution>
+						<id>generate-reports-ws-code</id>
+						<phase>generate-sources</phase>
+						<goals>
+							<goal>wsimport</goal>
+						</goals>
+						<configuration>
+							<wsdlUrls>
+								<wsdlUrl>${basedir}/src/main/resources/net/conselldemallorca/helium/core/api/wsdl/backoffice-distribucio.wsdl</wsdlUrl>
+							</wsdlUrls>
+							<vmArgs>
+								<vmArg>-Djavax.xml.accessExternalSchema=all</vmArg>
+							</vmArgs>
+							<verbose>true</verbose>
+							<sourceDestDir>${basedir}/src/main/java</sourceDestDir>
+							<packageName>net.conselldemallorca.helium.ws.backoffice.distribucio</packageName>
+						</configuration>
+					</execution>					
+				</executions>
 			</plugin>
 		</plugins>
 	</build>

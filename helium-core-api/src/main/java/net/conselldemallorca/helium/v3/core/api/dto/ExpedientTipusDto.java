@@ -78,6 +78,9 @@ public class ExpedientTipusDto extends ControlPermisosDto implements Serializabl
 	// Integració NOTIB
 	private Boolean notibActiu;
 
+	// Integració DISTRIBUCIO
+	private boolean distribucioActiu;
+	private String distribucioCodiProcediment;
 
 
 	public Long getId() {
@@ -396,6 +399,18 @@ public class ExpedientTipusDto extends ControlPermisosDto implements Serializabl
 	}
 	public void setNotibSeuCodiProcediment(String notibSeuCodiProcediment) {
 		this.notibSeuCodiProcediment = notibSeuCodiProcediment;
+	}
+	public boolean isDistribucioActiu() {
+		return distribucioActiu;
+	}
+	public void setDistribucioActiu(boolean distribucioActiu) {
+		this.distribucioActiu = distribucioActiu;
+	}
+	public String getDistribucioCodiProcediment() {
+		return distribucioCodiProcediment;
+	}
+	public void setDistribucioCodiProcediment(String distribucioCodiProcediment) {
+		this.distribucioCodiProcediment = distribucioCodiProcediment;
 	}
 	
 	public int hashCode() {

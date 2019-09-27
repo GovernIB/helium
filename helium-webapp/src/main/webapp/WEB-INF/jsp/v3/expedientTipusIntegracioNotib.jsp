@@ -22,6 +22,7 @@ $(document).ready(function() {
 		}
 	});
 	$('#expedientTipusIntegracioNotibCommand').submit(function(e){
+		$('#contingut-alertes').empty();
 		$('#accioGuardarProcessant').show();
 		$(this).webutilNetejarErrorsCamps();
 		var url = $(this).attr('action'); 

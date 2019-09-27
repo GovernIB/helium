@@ -53,8 +53,8 @@ $(document).ready(function() {
 			<div style="height: 400px">        
 				<hel:inputCheckbox name="actiu" textKey="expedient.tipus.metadades.nti.actiu"/>
 				<div id="inputs_metadadesNti">
-					<hel:inputText name="organo" textKey="expedient.tipus.metadades.nti.organo" readonly="${not expedientTipusMetadadesNtiCommand.actiu}"/>
-					<hel:inputText name="clasificacion" textKey="expedient.tipus.metadades.nti.clasificacion" readonly="${not expedientTipusMetadadesNtiCommand.actiu}"/>
+					<hel:inputText name="organo" required="true" textKey="expedient.tipus.metadades.nti.organo" readonly="${not expedientTipusMetadadesNtiCommand.actiu}"/>
+					<hel:inputText name="clasificacion" required="true" textKey="expedient.tipus.metadades.nti.clasificacion" readonly="${not expedientTipusMetadadesNtiCommand.actiu}"/>
 					<hel:inputText name="serieDocumental" textKey="expedient.tipus.metadades.nti.serie.documental" readonly="${not expedientTipusMetadadesNtiCommand.actiu}"/>
 					<hel:inputCheckbox name="arxiuActiu" textKey="expedient.tipus.metadades.nti.arxiu.actiu" disabled="${not expedientTipusMetadadesNtiCommand.actiu}"/>
 				</div>

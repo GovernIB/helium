@@ -642,5 +642,24 @@ public class ExpedientTipusServiceBean implements ExpedientTipusService {
 				notibCodiProcediment, 
 				notibActiu);
 	}
+	
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public ExpedientTipusDto updateIntegracioDistribucio(
+			Long entornId, 
+			Long expedientTipusId, 
+			boolean actiu, 
+			String codiProcediment) {
+		return delegate.updateIntegracioDistribucio(entornId, expedientTipusId, actiu, codiProcediment);
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public ExpedientTipusDto findPerDistribucio(String codiProcediment) {
+		return delegate.findPerDistribucio(codiProcediment);
+	}
 
 }

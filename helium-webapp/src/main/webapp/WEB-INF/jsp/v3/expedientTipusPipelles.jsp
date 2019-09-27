@@ -234,6 +234,7 @@
 						<li id="pipella-consultes"><a href="#contingut-consultes" role="tab" data-toggle="tab"><spring:message code="expedient.tipus.pipelles.pipella.consultes"/></a></li>
 						<li id="pipella-nti"><a href="#contingut-metadadesnti" role="tab" data-toggle="tab"><spring:message code="expedient.tipus.pipelles.pipella.integracio.arxiu"/></a></li>
 						<li id="pipella-integracio-tramits"><a href="#contingut-integracio-tramits" role="tab" data-toggle="tab"><spring:message code="expedient.tipus.pipelles.pipella.integracio.sistra"/></a></li>
+						<li id="pipella-integracio-distribucio"><a href="#contingut-integracio-distribucio" role="tab" data-toggle="tab"><spring:message code="expedient.tipus.pipelles.pipella.integracio.distribucio"/></a></li>
 						<li id="pipella-integracio-forms"><a href="#contingut-integracio-forms" role="tab" data-toggle="tab"><spring:message code="expedient.tipus.pipelles.pipella.integracio.forms"/></a></li>
 						<li id="pipella-integracio-notib"><a href="#contingut-integracio-notib" role="tab" data-toggle="tab"><spring:message code="expedient.tipus.pipelles.pipella.integracio.notib"/></a></li>
 						<li id="pipella-redireccions"><a href="#contingut-redireccions" role="tab" data-toggle="tab"><spring:message code="expedient.tipus.pipelles.pipella.redireccions"/></a></li>
@@ -278,6 +279,9 @@
 					<div class="contingut-carregant"><span class="fa fa-circle-o-notch fa-spin fa-3x"></span></div>
 				</div>
 				<div id="contingut-integracio-tramits" class="tab-pane" data-href="<c:url value="/nodeco/v3/expedientTipus/${expedientTipus.id}/integracioTramits"/>">
+					<div class="contingut-carregant"><span class="fa fa-circle-o-notch fa-spin fa-3x"></span></div>
+				</div>
+				<div id="contingut-integracio-distribucio" class="tab-pane" data-href="<c:url value="/nodeco/v3/expedientTipus/${expedientTipus.id}/integracioDistribucio"/>">
 					<div class="contingut-carregant"><span class="fa fa-circle-o-notch fa-spin fa-3x"></span></div>
 				</div>
 				<div id="contingut-integracio-forms" class="tab-pane" data-href="<c:url value="/nodeco/v3/expedientTipus/${expedientTipus.id}/integracioForms"/>">

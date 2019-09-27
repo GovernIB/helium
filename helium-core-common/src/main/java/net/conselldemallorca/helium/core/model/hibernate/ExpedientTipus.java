@@ -136,6 +136,11 @@ public class ExpedientTipus  implements Serializable, GenericEntity<Long> {
 	private String formextUsuari;
 	@MaxLength(25)
 	private String formextContrasenya;
+	
+	// Integració DISTRIBUCIO
+	private boolean distribucioActiu;
+	@MaxLength(200)
+	private String distribucioCodiProcediment;
 
 	@NotNull
 	private Entorn entorn;
@@ -510,6 +515,22 @@ public class ExpedientTipus  implements Serializable, GenericEntity<Long> {
 		this.formextUrl = formextUrl;
 	}
 
+	@Column(name="distribucio_actiu")
+	public boolean isDistribucioActiu() {
+		return distribucioActiu;
+	}
+	public void setDistribucioActiu(boolean distribucioActiu) {
+		this.distribucioActiu = distribucioActiu;
+	}
+
+	@Column(name="distribucio_codi_procediment", length=200)
+	public String getDistribucioCodiProcediment() {
+		return distribucioCodiProcediment;
+	}
+	public void setDistribucioCodiProcediment(String distribucioCodiProcediment) {
+		this.distribucioCodiProcediment = distribucioCodiProcediment;
+	}
+	
 	@Column(name="formext_usuari", length=255)
 	public String getFormextUsuari() {
 		return formextUsuari;

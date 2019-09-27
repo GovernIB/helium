@@ -56,6 +56,7 @@ $(document).ready(function() {
 		}
 	})
 	$('#expedientTipusIntegracioFormsCommand').submit(function(e){
+		$('#contingut-alertes').empty();
 		$('#accioGuardarProcessant').show();
 		$(this).webutilNetejarErrorsCamps();
 		var url = $(this).attr('action'); 

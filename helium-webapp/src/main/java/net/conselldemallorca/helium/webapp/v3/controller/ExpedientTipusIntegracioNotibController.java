@@ -77,6 +77,11 @@ public class ExpedientTipusIntegracioNotibController extends BaseExpedientTipusC
 		if (entornActual != null) {
 			
 	        if (bindingResult.hasErrors()) {
+		        MissatgesHelper.error(
+						request, 
+						getMessage(
+								request, 
+								"expedient.tipus.integracio.notib.validacio"));
 	        	response = AjaxHelper.generarAjaxFormErrors(command, bindingResult);
 	        } else {
 	        	expedientTipusService.updateIntegracioNotib(

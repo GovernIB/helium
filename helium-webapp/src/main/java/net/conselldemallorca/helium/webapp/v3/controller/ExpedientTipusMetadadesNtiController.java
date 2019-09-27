@@ -78,6 +78,11 @@ public class ExpedientTipusMetadadesNtiController extends BaseExpedientTipusCont
 				bindingResult.rejectValue("clasificacion", "NotEmpty");
 			}
 			if (bindingResult.hasErrors()) {
+		        MissatgesHelper.error(
+						request, 
+						getMessage(
+								request, 
+								"expedient.tipus.metadades.nti.validacio"));
 				response = AjaxHelper.generarAjaxFormErrors(command, bindingResult);
 			} else {
 				expedientTipusService.updateMetadadesNti(

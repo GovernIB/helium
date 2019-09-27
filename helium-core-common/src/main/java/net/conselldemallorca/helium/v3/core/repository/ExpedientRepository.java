@@ -343,4 +343,12 @@ public interface ExpedientRepository extends JpaRepository<Expedient, Long> {
 			"where e.processInstanceId = :processInstanceId")
 	Long findExpedientTipusIdByProcessInstanceId(String processInstanceId);
 
+	/** Mètode per buscar un expedient per a un tipus d'expedient i un número d'expedient per veure si coincideix amb cap anotació de registre.
+	 * 
+	 * @param tipus
+	 * @param numero
+	 * @return
+	 */
+	Expedient findByTipusAndNumero(ExpedientTipus tipus, String numero);
+
 }

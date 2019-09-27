@@ -128,6 +128,15 @@ public class EndpointPublisherServlet extends HttpServlet {
 				"", // auth
 				"true".equalsIgnoreCase(ts) ? true : false,
 				"true".equalsIgnoreCase(log) ? true : false);
+		// WS Backoffice integració amb Distribucio
+		WsServerUtils.publish(
+				"/distribucio/backoffice",
+				context.getBean("backofficeService"),
+				"", // user
+				"", // password
+				"", // auth
+				"true".equalsIgnoreCase(ts) ? true : false,
+				"true".equalsIgnoreCase(log) ? true : false);
     }
 
 }
