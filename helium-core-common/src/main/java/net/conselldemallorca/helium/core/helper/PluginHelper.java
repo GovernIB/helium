@@ -3767,14 +3767,15 @@ public class PluginHelper {
 			DocumentDto document,
 			Expedient expedient) {
 		DocumentPortasignatures documentPs = new DocumentPortasignatures();
-		documentPs.setTitol(
-				expedient.getIdentificador() + ": " + document.getDocumentNom());
+		// Llargada màxima pel títol 255. Abreuja l'identificador de l'expedient a 90 i tot plegat a 255
+		documentPs.setTitol(StringUtils.abbreviate(StringUtils.abbreviate(expedient.getIdentificador(), 90) + ": " + document.getDocumentNom(), 254));
 		documentPs.setArxiuNom(document.getVistaNom());
 		documentPs.setArxiuContingut(document.getVistaContingut());
 		documentPs.setTipus(document.getTipusDocPortasignatures());
 		documentPs.setSignat(document.isSignat());
 		documentPs.setReference(document.getId().toString());
-		documentPs.setDescripcio(String.format("Document \"%s\" de l'expedient \"%s\"", document.getDocumentNom(), expedient.getIdentificador()));
+		// Llargada màxima per la descripciól 255. Abreuja l'identificador de l'expedient a 90 i tot plegat a 255
+		documentPs.setDescripcio(StringUtils.abbreviate(String.format("Document \"%s\" de l'expedient \"%s\"", document.getDocumentNom(), StringUtils.abbreviate(expedient.getIdentificador(), 90)), 254));
 		logger.debug("Afegit document portafirmes (" +
 				"arxiuNom=" + document.getVistaNom() + ", " +
 				"arxiuContingut=" + document.getVistaContingut().length + ", " +

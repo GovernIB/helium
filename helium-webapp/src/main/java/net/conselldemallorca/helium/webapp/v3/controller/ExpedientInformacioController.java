@@ -7,7 +7,6 @@ import java.util.Date;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.propertyeditors.CustomBooleanEditor;
@@ -20,6 +19,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.Errors;
 import org.springframework.validation.ValidationUtils;
 import org.springframework.validation.Validator;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -32,6 +32,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
 import net.conselldemallorca.helium.v3.core.api.service.AplicacioService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientEditarCommand;
+import net.conselldemallorca.helium.webapp.v3.command.ExpedientEditarCommand.Editar;
 import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.ObjectTypeEditorHelper;
 
@@ -73,7 +74,7 @@ public class ExpedientInformacioController extends BaseExpedientController {
 	public String modificar(
 			HttpServletRequest request, 
 			@PathVariable Long expedientId, 
-			@Valid ExpedientEditarCommand command,
+			@Validated(Editar.class) ExpedientEditarCommand command,
 			BindingResult bindingResult,
 			Model model) {
 		new ExpedientEditarValidator().validate(command, bindingResult);

@@ -3,6 +3,7 @@
  */
 package net.conselldemallorca.helium.webapp.v3.command;
 
+import javax.validation.constraints.Size;
 
 /**
  * Command per iniciar un expedient
@@ -14,6 +15,7 @@ public class ExpedientInicioPasTitolCommand {
 	private Long entornId;
 	private Long expedientTipusId;
 	private String numero;
+	@Size(max = 255, groups = {Inici.class})
 	private String titol;
 	private String responsableCodi;
 	private Integer any;
@@ -64,4 +66,6 @@ public class ExpedientInicioPasTitolCommand {
 	public void setAny(Integer any) {
 		this.any = any;
 	}
+	
+	public interface Inici{};
 }

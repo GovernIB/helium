@@ -5,6 +5,8 @@ package net.conselldemallorca.helium.webapp.v3.command;
 
 import java.util.Date;
 
+import javax.validation.constraints.Size;
+
 /**
  * Command per editar la informació dels expedients
  * 
@@ -14,6 +16,7 @@ public class ExpedientEditarCommand {
 
 	private Long expedientId;
 	private String numero;
+	@Size( max = 255, groups = {Editar.class})
 	private String titol;
 	private String iniciadorCodi;
 	private String responsableCodi;
@@ -104,5 +107,7 @@ public class ExpedientEditarCommand {
 	public void setResponsableNomSencer(String responsableNomSencer) {
 		this.responsableNomSencer = responsableNomSencer;
 	}
+	
+	public interface Editar {};
 
 }
