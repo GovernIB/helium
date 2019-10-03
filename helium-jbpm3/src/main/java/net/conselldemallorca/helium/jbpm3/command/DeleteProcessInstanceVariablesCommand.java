@@ -31,17 +31,6 @@ public class DeleteProcessInstanceVariablesCommand extends AbstractBaseCommand {
 		if (processInstance != null && variables != null) {
 			for (int i = 0; i < variables.length; i++) {
 				processInstance.getContextInstance().deleteVariable(variables[i]);
-				//processInstance.getContextInstance().get(variables[i])  getVariable(variables[i]);
-//				Query query2 = jbpmContext.getSession().createQuery(
-//						  "delete org.jbpm.context.exe.VariableInstance "
-//						+ "where id in ("
-//						+ "		select vi.id "
-//						+ "		from org.jbpm.context.exe.VariableInstance as vi "
-//						+ "		where vi.processInstance = :processInstance"
-//						+ "		and vi.name = :name)");
-//				query2.setEntity("processInstance", processInstance);
-//				query2.setString("name", variables[i]);
-//				query2.executeUpdate();
 			}
 		}
 		

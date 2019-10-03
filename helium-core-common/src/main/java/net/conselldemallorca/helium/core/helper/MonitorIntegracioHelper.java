@@ -33,13 +33,13 @@ public class MonitorIntegracioHelper {
 
 	public static final String INTCODI_PERSONA = "PERSONA";
 	public static final String INTCODI_SISTRA = "SISTRA";
+	public static final String INTCODI_DISTRIBUCIO = "DISTRIBUCIO";
 	public static final String INTCODI_PFIRMA = "PFIRMA";
 	public static final String INTCODI_FIRMA = "FIRMA";
 	public static final String INTCODI_CUSTODIA = "CUSTODIA";
 	public static final String INTCODI_REGISTRE = "REGISTRE";
 	public static final String INTCODI_GESDOC = "GESDOC";
 	public static final String INTCODI_CONVDOC = "CONVDOC";
-	public static final String INTCODI_PFIRMA_CB = "PFIRMA_CB";
 	public static final String INTCODI_FIRMA_SERV = "FIRMA_SERV";
 	public static final String INTCODI_ARXIU = "ARXIU";
 	public static final String INTCODI_NOTIB = "NOTIB";
@@ -49,48 +49,8 @@ public class MonitorIntegracioHelper {
 	private Map<String, Integer> maxAccionsIntegracio = new HashMap<String, Integer>();
 
 
-
 	public List<IntegracioDto> findAll() {
-		List<IntegracioDto> integracions = new ArrayList<IntegracioDto>();
-		integracions.add(
-				novaIntegracio(
-						INTCODI_ARXIU));
-		integracions.add(
-				novaIntegracio(
-						INTCODI_PERSONA));
-		integracions.add(
-				novaIntegracio(
-						INTCODI_FIRMA));
-		integracions.add(
-				novaIntegracio(
-						INTCODI_PFIRMA));
-		integracions.add(
-				novaIntegracio(
-						INTCODI_PFIRMA_CB));
-		integracions.add(
-				novaIntegracio(
-						INTCODI_CUSTODIA));
-		integracions.add(
-				novaIntegracio(
-						INTCODI_REGISTRE));
-		integracions.add(
-				novaIntegracio(
-						INTCODI_SISTRA));
-		/*integracions.add(
-				novaIntegracio(
-						INTCODI_GESDOC));*/
-		integracions.add(
-				novaIntegracio(
-						INTCODI_CONVDOC));
-		integracions.add(
-				novaIntegracio(
-						INTCODI_FIRMA_SERV));
-		integracions.add(
-				novaIntegracio(
-						INTCODI_NOTIB));
-		integracions.add(
-				novaIntegracio(
-						INTCODI_VALIDASIG));
+		List<IntegracioDto> integracions = this.getLlistaIntegracions();
 		for (IntegracioDto integracio: integracions) {
 			LinkedList<IntegracioAccioDto> accions = accionsIntegracio.get(integracio.getCodi());
 			if (accions != null) {
@@ -106,43 +66,7 @@ public class MonitorIntegracioHelper {
 	}
 	
 	public List<IntegracioDto> findAllEntornActual() {
-		List<IntegracioDto> integracions = new ArrayList<IntegracioDto>();
-		integracions.add(
-				novaIntegracio(
-						INTCODI_ARXIU));
-		integracions.add(
-				novaIntegracio(
-						INTCODI_PERSONA));
-		integracions.add(
-				novaIntegracio(
-						INTCODI_FIRMA));
-		integracions.add(
-				novaIntegracio(
-						INTCODI_PFIRMA));
-		integracions.add(
-				novaIntegracio(
-						INTCODI_PFIRMA_CB));
-		integracions.add(
-				novaIntegracio(
-						INTCODI_CUSTODIA));
-		integracions.add(
-				novaIntegracio(
-						INTCODI_REGISTRE));
-		integracions.add(
-				novaIntegracio(
-						INTCODI_SISTRA));
-		integracions.add(
-				novaIntegracio(
-						INTCODI_CONVDOC));
-		integracions.add(
-				novaIntegracio(
-						INTCODI_FIRMA_SERV));
-		integracions.add(
-				novaIntegracio(
-						INTCODI_NOTIB));
-		integracions.add(
-				novaIntegracio(
-						INTCODI_VALIDASIG));
+		List<IntegracioDto> integracions = this.getLlistaIntegracions();
 		for (IntegracioDto integracio: integracions) {
 			Long entornId = EntornActual.getEntornId();
 			LinkedList<IntegracioAccioDto> accions = accionsIntegracio.get(integracio.getCodi());
@@ -158,7 +82,6 @@ public class MonitorIntegracioHelper {
 					if (accio.isEstatError())
 						numErrors++;
 				}
-				accionsIntegracio.put(integracio.getCodi(), accionsFiltrats);
 				integracio.setNumErrors(numErrors);
 			}
 		}
@@ -233,6 +156,24 @@ public class MonitorIntegracioHelper {
 	}
 
 
+	private List<IntegracioDto> getLlistaIntegracions() {
+		List<IntegracioDto> integracions = new ArrayList<IntegracioDto>();
+		
+		integracions.add(new IntegracioDto(INTCODI_ARXIU, "Arxiu digital"));
+		integracions.add(new IntegracioDto(INTCODI_PERSONA, "SEYCON"));
+		integracions.add(new IntegracioDto(INTCODI_FIRMA, "Firma digital"));
+		integracions.add(new IntegracioDto(INTCODI_PFIRMA, "Portafib"));
+		integracions.add(new IntegracioDto(INTCODI_CUSTODIA, "Custòdia"));
+		integracions.add(new IntegracioDto(INTCODI_REGISTRE, "REGWEB"));
+		integracions.add(new IntegracioDto(INTCODI_SISTRA, "SISTRA"));
+		integracions.add(new IntegracioDto(INTCODI_DISTRIBUCIO, "DISTRIBUCIO"));
+		integracions.add(new IntegracioDto(INTCODI_CONVDOC, "Conversió doc."));
+		integracions.add(new IntegracioDto(INTCODI_FIRMA_SERV, "Firma serv."));
+		integracions.add(new IntegracioDto(INTCODI_NOTIB, "Notificació"));
+		integracions.add(new IntegracioDto(INTCODI_VALIDASIG, "Valida sign."));
+		
+		return integracions;
+	}
 
 	private LinkedList<IntegracioAccioDto> getLlistaAccions(
 			String integracioCodi) {
@@ -299,40 +240,4 @@ public class MonitorIntegracioHelper {
 		}
 		accions.add(accio);
 	}
-
-	private IntegracioDto novaIntegracio(
-			String codi) {
-		IntegracioDto integracio = new IntegracioDto();
-		integracio.setCodi(codi);
-		if (INTCODI_REGISTRE.equals(codi)) {
-			integracio.setDescripcio("REGWEB");
-		} else if (INTCODI_FIRMA.equals(codi)) {
-			integracio.setDescripcio("Firma digital");
-		} else if (INTCODI_PFIRMA.equals(codi)) {
-			integracio.setDescripcio("Portafib");
-		} else if (INTCODI_CUSTODIA.equals(codi)) {
-			integracio.setDescripcio("Custòdia");
-		} else if (INTCODI_GESDOC.equals(codi)) {
-			integracio.setDescripcio("Gestió doc.");
-		} else if (INTCODI_CONVDOC.equals(codi)) {
-			integracio.setDescripcio("Conversió doc.");
-		} else if (INTCODI_PERSONA.equals(codi)) {
-			integracio.setDescripcio("SEYCON");
-		} else if (INTCODI_SISTRA.equals(codi)) {
-			integracio.setDescripcio("SISTRA");
-		} else if (INTCODI_PFIRMA_CB.equals(codi)) {
-			integracio.setDescripcio("Portafib CB");
-		} else if (INTCODI_ARXIU.equals(codi)) {
-			integracio.setDescripcio("Arxiu digital");
-		} else if (INTCODI_FIRMA_SERV.equals(codi)) {
-			integracio.setDescripcio("Firma serv.");
-		} else if (INTCODI_NOTIB.equals(codi)) {
-			integracio.setDescripcio("Notificació");
-		} else if (INTCODI_VALIDASIG.equals(codi)) {
-			integracio.setDescripcio("Valida sign.");
-		}
-
-		return integracio;
-	}
-
 }

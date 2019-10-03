@@ -65,8 +65,10 @@ public class Anotacio implements Serializable, GenericEntity<Long> {
 	
 	/** Estat de l'anotació a Helium. */
 	/** Identificador de l'anotació a Distribucio per relacionar la informació amb la petició de distribució */
-	@Column(name = "distribucio_id", length = 200, nullable = false)
+	@Column(name = "distribucio_id", length = 80, nullable = false)
 	private String distribucioId;
+	@Column(name = "distribucio_clau_acces", length = 200, nullable = false)
+	private String distribucioClauAcces;
 	@Enumerated
 	@Column(name = "estat", nullable = false)
 	private AnotacioEstatEnumDto estat;
@@ -173,6 +175,7 @@ public class Anotacio implements Serializable, GenericEntity<Long> {
 
 	public static Builder getBuilder(
 			String distribucioId,
+			String distribucioClauAcces,
 			Date dataRecepcio,
 			AnotacioEstatEnumDto estat,
 			String assumpteTipusCodi,
@@ -187,6 +190,7 @@ public class Anotacio implements Serializable, GenericEntity<Long> {
 			Expedient expedient) {
 		return new Builder(
 				distribucioId,
+				distribucioClauAcces,
 				dataRecepcio,
 				estat,
 				assumpteTipusCodi,
@@ -212,6 +216,7 @@ public class Anotacio implements Serializable, GenericEntity<Long> {
 
 		Builder(
 				String distribucioId,
+				String distribucioClauAcces,
 				Date dataRecepcio,
 				AnotacioEstatEnumDto estat,
 				String assumpteTipusCodi,
@@ -226,6 +231,7 @@ public class Anotacio implements Serializable, GenericEntity<Long> {
 				Expedient expedient) {
 			built = new Anotacio();
 			built.distribucioId = distribucioId;
+			built.distribucioClauAcces = distribucioClauAcces;
 			built.dataRecepcio = dataRecepcio;
 			built.estat = estat;
 			built.assumpteTipusCodi = assumpteTipusCodi;
@@ -685,6 +691,12 @@ public class Anotacio implements Serializable, GenericEntity<Long> {
 	}
 	public void setDistribucioId(String distribucioId) {
 		this.distribucioId = distribucioId;
+	}
+	public String getDistribucioClauAcces() {
+		return distribucioClauAcces;
+	}
+	public void setDistribucioClauAcces(String distribucioClauAcces) {
+		this.distribucioClauAcces = distribucioClauAcces;
 	}
 	public AnotacioEstatEnumDto getEstat() {
 		return estat;

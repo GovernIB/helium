@@ -202,8 +202,19 @@ public class ExpedientTipusHelper {
 		return expedientTipus.getId();
 	}
 
-	public List<ExpedientTipus> findAmbPermisRead(
-			Entorn entorn) {
+	/** Consulta tots els tipus d'expedients per a un etorn filtrant per aquells on l'usuari
+	 * tingui algun dels permisos especificats
+	 * @param entorn
+	 * 			Entorn actual
+	 * @param permisos
+	 * 			Llistat de permisos
+	 * @return
+	 * 			Retorna la llista de tipus d'expedients sobre els quals l'usuari tingui algun dels permisos especificats com
+	 * a paràmetre, per a retornar un tipus d'expedient basta que l'usuari tingui algun dels permisos de la llista, no tots.
+	 */
+	public List<ExpedientTipus> findAmbPermisos(
+			Entorn entorn,
+			Permission[] permisos) {
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		List<ExpedientTipus> tipusPermesos = this.findAmbEntorn(entorn);
 		permisosHelper.filterGrantedAny(
@@ -214,11 +225,28 @@ public class ExpedientTipusHelper {
 					}
 				},
 				ExpedientTipus.class,
-				new Permission[] {
-					ExtendedPermission.READ,
-					ExtendedPermission.ADMINISTRATION},
+				permisos,
 				auth);
 		return tipusPermesos;
+	}
+	
+	public List<Long> findIdsAmbPermisos(
+			Entorn entorn,
+			Permission[] permisos) {
+		List<ExpedientTipus> tipusPermesos = findAmbPermisos(entorn, permisos);
+		List<Long> ids = new ArrayList<Long>();
+		for (ExpedientTipus tipus: tipusPermesos) {
+			ids.add(tipus.getId());
+		}
+		return ids;
+	}
+	
+	public List<ExpedientTipus> findAmbPermisRead(
+			Entorn entorn) {
+		return this.findAmbPermisos(
+				entorn, new Permission[] {
+				ExtendedPermission.READ,
+				ExtendedPermission.ADMINISTRATION});
 	}
 
 	public List<Long> findIdsAmbPermisRead(

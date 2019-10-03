@@ -152,6 +152,13 @@ public class ExpedientTipusServiceBean implements ExpedientTipusService {
 	
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public List<ExpedientTipusDto> findAmbEntornPermisAnotacio(
+			Long entornId) throws NoTrobatException {
+		return findAmbEntornPermisAnotacio(entornId);
+	}
+	
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public ExpedientTipusDto findAmbIdPermisDissenyar(
 			Long entornId,
 			Long expedientTipusId) {
@@ -649,8 +656,9 @@ public class ExpedientTipusServiceBean implements ExpedientTipusService {
 			Long entornId, 
 			Long expedientTipusId, 
 			boolean actiu, 
-			String codiProcediment) {
-		return delegate.updateIntegracioDistribucio(entornId, expedientTipusId, actiu, codiProcediment);
+			String codiProcediment,
+			String codiAssumpte) {
+		return delegate.updateIntegracioDistribucio(entornId, expedientTipusId, actiu, codiProcediment, codiAssumpte);
 	}
 	
 	/**
@@ -658,8 +666,17 @@ public class ExpedientTipusServiceBean implements ExpedientTipusService {
 	 */
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public ExpedientTipusDto findPerDistribucio(String codiProcediment) {
-		return delegate.findPerDistribucio(codiProcediment);
+	public ExpedientTipusDto findPerDistribucio(String codiProcediment, String codiAssumpte) {
+		return delegate.findPerDistribucio(codiProcediment, codiAssumpte);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public ExpedientTipusDto findPerDistribucioValidacio(String codiProcediment, String codiAssumpte) {
+		return delegate.findPerDistribucioValidacio(codiProcediment, codiAssumpte);
 	}
 
 }

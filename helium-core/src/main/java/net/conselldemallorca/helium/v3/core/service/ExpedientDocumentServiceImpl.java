@@ -48,7 +48,6 @@ import net.conselldemallorca.helium.jbpm3.integracio.JbpmTask;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDetallDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuFirmaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ArxiuFirmaPerfilEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DadesEnviamentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DadesEnviamentDto.EntregaPostalTipus;
 import net.conselldemallorca.helium.v3.core.api.dto.DadesNotificacioDto;
@@ -59,7 +58,6 @@ import net.conselldemallorca.helium.v3.core.api.dto.NotificacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NtiEstadoElaboracionEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NtiOrigenEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NtiTipoDocumentalEnumDto;
-import net.conselldemallorca.helium.v3.core.api.dto.NtiTipoFirmaEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
@@ -1089,7 +1087,7 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 				}
 			}
 			if (firmes != null) {
-				arxiuDetall.setFirmes(this.toArxiusFirmesDto(firmes));
+				arxiuDetall.setFirmes(PluginHelper.toArxiusFirmesDto(firmes));
 			}
 		}
 		return arxiuDetall;
@@ -1127,89 +1125,12 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 					true);
 			List<Firma> firmes = arxiuDocument.getFirmes();
 			if (firmes != null) {
-				List<ArxiuFirmaDto> firmesDtos = this.toArxiusFirmesDto(firmes);
+				List<ArxiuFirmaDto> firmesDtos = PluginHelper.toArxiusFirmesDto(firmes);
 				if (firmesDtos.size() > firmaIndex)
 					arxiuFirma = firmesDtos.get(firmaIndex);
 			}
 		}
 		return arxiuFirma;
-	}
-
-	/** Mètode comú per transformar la informació de les firmes.
-	 * 
-	 * @param firmes
-	 * @return
-	 */
-	private List<ArxiuFirmaDto> toArxiusFirmesDto(List<Firma> firmes) {
-		List<ArxiuFirmaDto> dtos = new ArrayList<ArxiuFirmaDto>();
-		for (Firma firma: firmes) {
-			ArxiuFirmaDto dto = new ArxiuFirmaDto();
-			if (firma.getTipus() != null) {
-				switch (firma.getTipus()) {
-				case CSV:
-					dto.setTipus(NtiTipoFirmaEnumDto.CSV);
-					break;
-				case XADES_DET:
-					dto.setTipus(NtiTipoFirmaEnumDto.XADES_DET);
-					break;
-				case XADES_ENV:
-					dto.setTipus(NtiTipoFirmaEnumDto.XADES_ENV);
-					break;
-				case CADES_DET:
-					dto.setTipus(NtiTipoFirmaEnumDto.CADES_DET);
-					break;
-				case CADES_ATT:
-					dto.setTipus(NtiTipoFirmaEnumDto.CADES_ATT);
-					break;
-				case PADES:
-					dto.setTipus(NtiTipoFirmaEnumDto.PADES);
-					break;
-				case SMIME:
-					dto.setTipus(NtiTipoFirmaEnumDto.SMIME);
-					break;
-				case ODT:
-					dto.setTipus(NtiTipoFirmaEnumDto.ODT);
-					break;
-				case OOXML:
-					dto.setTipus(NtiTipoFirmaEnumDto.OOXML);
-					break;
-				}
-			}
-			if (firma.getPerfil() != null) {
-				switch (firma.getPerfil()) {
-				case BES:
-					dto.setPerfil(ArxiuFirmaPerfilEnumDto.BES);
-					break;
-				case EPES:
-					dto.setPerfil(ArxiuFirmaPerfilEnumDto.EPES);
-					break;
-				case LTV:
-					dto.setPerfil(ArxiuFirmaPerfilEnumDto.LTV);
-					break;
-				case T:
-					dto.setPerfil(ArxiuFirmaPerfilEnumDto.T);
-					break;
-				case C:
-					dto.setPerfil(ArxiuFirmaPerfilEnumDto.C);
-					break;
-				case X:
-					dto.setPerfil(ArxiuFirmaPerfilEnumDto.X);
-					break;
-				case XL:
-					dto.setPerfil(ArxiuFirmaPerfilEnumDto.XL);
-					break;
-				case A:
-					dto.setPerfil(ArxiuFirmaPerfilEnumDto.A);
-					break;
-				}
-			}
-			dto.setFitxerNom(firma.getFitxerNom());
-			dto.setContingut(firma.getContingut());
-			dto.setTipusMime(firma.getTipusMime());
-			dto.setCsvRegulacio(firma.getCsvRegulacio());
-			dtos.add(dto);
-		}	
-		return dtos;
 	}
 
 	private String getExtensio(String arxiuNom) {

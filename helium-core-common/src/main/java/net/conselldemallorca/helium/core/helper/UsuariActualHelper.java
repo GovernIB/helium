@@ -14,6 +14,7 @@ import org.springframework.security.acls.domain.BasePermission;
 import org.springframework.security.acls.model.Permission;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
@@ -109,6 +110,24 @@ public class UsuariActualHelper {
 		} else {
 			throw new AuthenticationCredentialsNotFoundException(null);
 		}
+	}
+	
+	/** Consulta si l'usuari actual és administrador d'Helium */
+	public boolean isAdministrador() {
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		return isAdministrador(auth);
+	}
+	
+	public static boolean isAdministrador(Authentication auth) {
+		boolean isAdministrador = false;
+		List<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>(auth.getAuthorities());
+		for (GrantedAuthority grantedAuthority : authorities) {
+	        if ("ROLE_ADMIN".equals(grantedAuthority.getAuthority())) {
+	            isAdministrador = true;
+	            break;
+	        }
+	    }
+		return isAdministrador;
 	}
 
 }

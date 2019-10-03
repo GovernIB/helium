@@ -141,6 +141,8 @@ public class ExpedientTipus  implements Serializable, GenericEntity<Long> {
 	private boolean distribucioActiu;
 	@MaxLength(200)
 	private String distribucioCodiProcediment;
+	@MaxLength(20)
+	private String distribucioCodiAssumpte;
 
 	@NotNull
 	private Entorn entorn;
@@ -515,7 +517,7 @@ public class ExpedientTipus  implements Serializable, GenericEntity<Long> {
 		this.formextUrl = formextUrl;
 	}
 
-	@Column(name="distribucio_actiu")
+	@Column(name="distr_actiu")
 	public boolean isDistribucioActiu() {
 		return distribucioActiu;
 	}
@@ -523,12 +525,20 @@ public class ExpedientTipus  implements Serializable, GenericEntity<Long> {
 		this.distribucioActiu = distribucioActiu;
 	}
 
-	@Column(name="distribucio_codi_procediment", length=200)
+	@Column(name="distr_codi_procediment", length=200)
 	public String getDistribucioCodiProcediment() {
 		return distribucioCodiProcediment;
 	}
 	public void setDistribucioCodiProcediment(String distribucioCodiProcediment) {
 		this.distribucioCodiProcediment = distribucioCodiProcediment;
+	}
+	
+	@Column(name="distr_codi_assumpte", length=200)
+	public String getDistribucioCodiAssumpte() {
+		return distribucioCodiAssumpte;
+	}
+	public void setDistribucioCodiAssumpte(String distribucioCodiAssumpte) {
+		this.distribucioCodiAssumpte = distribucioCodiAssumpte;
 	}
 	
 	@Column(name="formext_usuari", length=255)

@@ -81,6 +81,7 @@ public class ExpedientTipusDto extends ControlPermisosDto implements Serializabl
 	// Integració DISTRIBUCIO
 	private boolean distribucioActiu;
 	private String distribucioCodiProcediment;
+	private String distribucioCodiAssumpte;
 
 
 	public Long getId() {
@@ -413,6 +414,12 @@ public class ExpedientTipusDto extends ControlPermisosDto implements Serializabl
 		this.distribucioCodiProcediment = distribucioCodiProcediment;
 	}
 	
+	public String getDistribucioCodiAssumpte() {
+		return distribucioCodiAssumpte;
+	}
+	public void setDistribucioCodiAssumpte(String distribucioCodiAssumpte) {
+		this.distribucioCodiAssumpte = distribucioCodiAssumpte;
+	}
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;

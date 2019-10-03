@@ -30,32 +30,28 @@ public class ExpedientTipusIntegracioDistribucioValidator implements ConstraintV
 		boolean valid = true;
 		
 		if (command.isActiu()) {
-			if (command.getCodiProcediment() == null || "".equals(command.getCodiProcediment().trim())) {
-				// Comprova que el codi de procediment no sigui null
-				context.buildConstraintViolationWithTemplate(
-						MessageHelper.getInstance().getMessage("NotEmpty", null))
+			// Comprova que no hi hagi cap altre tipus d'expedient a l'entorn actiu pel mateix codi de procediment i codi de tipus d'assumpte
+			ExpedientTipusDto expedientTipus = expedientTipusService.findPerDistribucioValidacio(command.getCodiProcediment(), command.getCodiAssumpte());
+			if (expedientTipus != null 
+					&& expedientTipus.isDistribucioActiu() 
+					&& !expedientTipus.getId().equals(command.getId())) 
+			{
+				String errMsg = // expedient.tipus.integracio.distribucio.validacio.codiProcediment.repetit=Ja existeix el tipus d''expedient "{0} - {1}" a l''entorn "{2} - {3}" actiu per la combinació [codi procediment="{4}", codi assumpte="{5}"]
+						MessageHelper.getInstance().getMessage(codiMissatge, new Object[] {
+								expedientTipus.getCodi(),
+								expedientTipus.getNom(),
+								expedientTipus.getEntorn().getCodi(),
+								expedientTipus.getEntorn().getNom(),
+								command.getCodiProcediment(),
+								command.getCodiAssumpte()
+						});
+				context.buildConstraintViolationWithTemplate(errMsg)
 						.addNode("codiProcediment")
 						.addConstraintViolation();
+				context.buildConstraintViolationWithTemplate(errMsg)
+				.addNode("codiAssumpte")
+				.addConstraintViolation();
 				valid = false;
-			} else {
-				// Comprova que no hi hagi cap altre tipus d'expedient a l'entorn actiu pel mateix codi de procediment
-				ExpedientTipusDto expedientTipus = expedientTipusService.findPerDistribucio(command.getCodiProcediment()); 
-				if (expedientTipus != null 
-						&& expedientTipus.isDistribucioActiu() 
-						&& !expedientTipus.getId().equals(command.getId())) {
-					context.buildConstraintViolationWithTemplate(
-							// expedient.tipus.integracio.distribucio.validacio.codiProcediment.repetit=Ja existeix el tipus d''expedient "{0} - {1}" a l''entorn "{2} - {3}" actiu pel codi de procediment "{4}"
-							MessageHelper.getInstance().getMessage(codiMissatge, new Object[] {
-									expedientTipus.getCodi(),
-									expedientTipus.getNom(),
-									expedientTipus.getEntorn().getCodi(),
-									expedientTipus.getEntorn().getNom(),
-									command.getCodiProcediment()
-							}))
-							.addNode("codiProcediment")
-							.addConstraintViolation();
-					valid = false;
-				}
 			}
 		}
 		if (!valid)

@@ -6,10 +6,8 @@ package net.conselldemallorca.helium.webapp.v3.controller;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
@@ -17,7 +15,6 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.json.simple.JSONValue;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.propertyeditors.CustomBooleanEditor;
 import org.springframework.beans.propertyeditors.CustomDateEditor;
 import org.springframework.beans.propertyeditors.CustomNumberEditor;
@@ -39,14 +36,12 @@ import org.springframework.web.bind.support.SessionStatus;
 
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto.IniciadorTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
 import net.conselldemallorca.helium.v3.core.api.exception.TramitacioHandlerException;
 import net.conselldemallorca.helium.v3.core.api.exception.TramitacioValidacioException;
 import net.conselldemallorca.helium.v3.core.api.exception.ValidacioException;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
+import net.conselldemallorca.helium.webapp.v3.command.AnotacioAcceptarCommand;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientInicioPasTitolCommand;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientInicioPasTitolCommand.Inici;
 import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
@@ -60,10 +55,8 @@ import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
  */
 @Controller
 @RequestMapping("/v3/expedient")
-public class ExpedientInicioPasTitolController extends BaseExpedientController {
+public class ExpedientInicioPasTitolController extends BaseExpedientIniciController {
 
-	@Autowired
-	protected ExpedientService expedientService;
 
 	@RequestMapping(value = "/iniciarTitol/{expedientTipusId}/{definicioProcesId}", method = RequestMethod.GET)
 	public String iniciarTitolGet(
@@ -74,16 +67,26 @@ public class ExpedientInicioPasTitolController extends BaseExpedientController {
 		definicioProcesToModel(expedientTipusId, definicioProcesId, model);
 		EntornDto entorn = SessionHelper.getSessionManager(request).getEntornActual();
 		ExpedientTipusDto expedientTipus = dissenyService.getExpedientTipusById(expedientTipusId);
+
 		ExpedientInicioPasTitolCommand command = new ExpedientInicioPasTitolCommand();
-		command.setAny(Calendar.getInstance().get(Calendar.YEAR));
+		command.setEntornId(entorn.getId());
 		command.setExpedientTipusId(expedientTipusId);
-		command.setNumero(expedientService.getNumeroExpedientActual(entorn.getId(), expedientTipusId, command.getAny()));
 		command.setResponsableCodi(expedientTipus.getResponsableDefecteCodi());
 		command.setExpedientTipusId(expedientTipus.getId());
-		model.addAttribute("anysSeleccionables", getAnysSeleccionables());
-		command.setEntornId(entorn.getId());
+
+		Integer any = (Integer)request.getSession().getAttribute(CLAU_SESSIO_ANY);
+		String numero = (String)request.getSession().getAttribute(CLAU_SESSIO_NUMERO);
+		String titol = (String)request.getSession().getAttribute(CLAU_SESSIO_TITOL);
+		command.setAny(any != null ? any : Calendar.getInstance().get(Calendar.YEAR));
+		command.setNumero(numero != null && !numero.isEmpty() ? numero : expedientService.getNumeroExpedientActual(entorn.getId(), expedientTipusId, command.getAny()));
+		command.setTitol(titol);
+
 		model.addAttribute(command);
+		model.addAttribute("anysSeleccionables", getAnysSeleccionables());
 		model.addAttribute("expedientTipus", expedientTipus);
+		// Pot ser que vingui del formulari d'acceptar i crear un expedient per a una anotació de Distribució
+		model.addAttribute("anotacioAcceptarCommand", (AnotacioAcceptarCommand) request.getSession().getAttribute(CLAU_SESSIO_ANOTACIO));
+
 		return "v3/expedient/iniciarPasTitol";
 	}
 
@@ -115,6 +118,7 @@ public class ExpedientInicioPasTitolController extends BaseExpedientController {
 			} else {
 				definicioProces = dissenyService.findDarreraDefinicioProcesForExpedientTipus(expedientInicioPasTitolCommand.getExpedientTipusId());
 			}
+			AnotacioAcceptarCommand anotacioAcceptarCommand = (AnotacioAcceptarCommand) request.getSession().getAttribute(CLAU_SESSIO_ANOTACIO);
 			if (result.hasErrors() || validator == null) {
 				if (validator != null)
 					MissatgesHelper.error(request, result, getMessage(request, "error.validacio"));
@@ -124,20 +128,24 @@ public class ExpedientInicioPasTitolController extends BaseExpedientController {
 				model.addAttribute("expedientTipus", expedientTipus);
 				model.addAttribute("entornId", expedientInicioPasTitolCommand.getEntornId());
 				model.addAttribute("responsableCodi", expedientTipus.getResponsableDefecteCodi());
+				model.addAttribute("anotacioAcceptarCommand", (AnotacioAcceptarCommand) request.getSession().getAttribute(CLAU_SESSIO_ANOTACIO));
 				return "v3/expedient/iniciarPasTitol";
 			}
 			try {
-				ExpedientDto iniciat= iniciarExpedient(
-							request, 
+				@SuppressWarnings("unchecked")
+				Map<String, Object> valors = (Map<String, Object>) request.getSession().getAttribute(CLAU_SESSIO_FORM_VALORS);
+
+				super.iniciarExpedient(
+							request,
 							expedientInicioPasTitolCommand.getEntornId(), 
 							expedientInicioPasTitolCommand.getExpedientTipusId(), 
 							definicioProcesId, 
 							expedientInicioPasTitolCommand.getNumero(), 
 							expedientInicioPasTitolCommand.getTitol(), 
-							expedientInicioPasTitolCommand.getAny());
+							expedientInicioPasTitolCommand.getAny(),
+							valors,
+							anotacioAcceptarCommand);
 				
-				MissatgesHelper.success(request, getMessage(request, "info.expedient.iniciat", new Object[] { iniciat.getIdentificador() }));
-				ExpedientIniciController.netejarSessio(request);
 			} catch (Exception ex) {
 				if (ex instanceof ValidacioException) {
 					MissatgesHelper.error(
@@ -163,42 +171,11 @@ public class ExpedientInicioPasTitolController extends BaseExpedientController {
 		return modalUrlTancar();
 	}
 
-	@SuppressWarnings("unchecked")
-	protected synchronized ExpedientDto iniciarExpedient(
-			HttpServletRequest request,
-			Long entornId,
-			Long expedientTipusId,
-			Long definicioProcesId,
-			String numero,
-			String titol,
-			Integer any) {
-		Map<String, Object> valorsSessio = (Map<String, Object>) request.getSession().getAttribute(ExpedientIniciController.CLAU_SESSIO_FORM_VALORS);
-		return expedientService.create(
-				entornId,
-				null,
-				expedientTipusId,
-				definicioProcesId,
-				any,
-				numero,
-				titol,
-				null, null, null, null, false, null, null, null, null, null, null, false, null, null, false,
-				valorsSessio, null, IniciadorTipusDto.INTERN, null, null, null, null);
-	}
-
 	@RequestMapping(value = "/canviAny/{anySel}/{entornId}/{expedientTipusId}", method = RequestMethod.GET)
 	@ResponseBody
 	public String getExpedientTipus(HttpServletRequest request, @PathVariable int anySel, @PathVariable Long entornId, @PathVariable Long expedientTipusId) {
 		String number = expedientService.getNumeroExpedientActual(entornId, expedientTipusId, anySel);
 		return JSONValue.toJSONString(number);
-	}
-
-	public List<ParellaCodiValorDto> getAnysSeleccionables() {
-		List<ParellaCodiValorDto> anys = new ArrayList<ParellaCodiValorDto>();
-		int anyActual = Calendar.getInstance().get(Calendar.YEAR);
-		for (int i = 0; i < 10; i++) {
-			anys.add(new ParellaCodiValorDto(String.valueOf(anyActual - i), anyActual - i));
-		}
-		return anys;
 	}
 
 	protected class ExpedientInicioPasTitolValidator implements Validator {

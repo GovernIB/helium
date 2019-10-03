@@ -200,13 +200,6 @@ public class ExpedientTipusEstadisticaController extends BaseController {
 		expedientsTipus.addAll(expedientTipusService.findAmbEntorn(entornActual.getId()));
 
 		gererarExcel(request, response, estadistica, expedientsTipus);
-		
-//				form(
-//					request,
-//					filtreCommand,
-//					bindingResult,
-//					"",
-//					model);
 	}
 	
 	private Map<String, Object> totalPerAny(Map<String, Map<String, Object>> ete){

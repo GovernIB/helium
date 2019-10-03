@@ -30,6 +30,14 @@ public class EntornHelper {
 	private PermisosHelper permisosHelper;
 
 
+	/** Consulta l'entorn per id sense comprovar permisos
+	 * 
+	 * @param entornId
+	 * @return
+	 */
+	public Entorn getEntorn(Long entornId) {
+		return entornRepository.findOne(entornId);
+	}
 
 	public Entorn getEntornComprovantPermisos(
 			Long entornId,
@@ -104,5 +112,4 @@ public class EntornHelper {
 						ExtendedPermission.ADMINISTRATION},
 				auth);
 	}
-
 }

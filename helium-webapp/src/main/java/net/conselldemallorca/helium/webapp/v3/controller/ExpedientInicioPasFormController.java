@@ -3,8 +3,6 @@ package net.conselldemallorca.helium.webapp.v3.controller;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -33,21 +31,16 @@ import org.springframework.web.bind.support.SessionStatus;
 
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto.IniciadorTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ReproDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.exception.TramitacioHandlerException;
 import net.conselldemallorca.helium.v3.core.api.exception.TramitacioValidacioException;
 import net.conselldemallorca.helium.v3.core.api.exception.ValidacioException;
-import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
 import net.conselldemallorca.helium.v3.core.api.service.ReproService;
-import net.conselldemallorca.helium.v3.core.api.service.TascaService;
-import net.conselldemallorca.helium.webapp.v3.command.ExpedientInicioPasTitolCommand;
+import net.conselldemallorca.helium.webapp.v3.command.AnotacioAcceptarCommand;
 import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.ObjectTypeEditorHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
@@ -61,12 +54,8 @@ import net.conselldemallorca.helium.webapp.v3.helper.TascaFormValidatorHelper;
  */
 @Controller
 @RequestMapping("/v3/expedient")
-public class ExpedientInicioPasFormController extends BaseExpedientController {
+public class ExpedientInicioPasFormController extends BaseExpedientIniciController {
 
-	@Autowired
-	protected TascaService tascaService;
-	@Autowired
-	protected ExpedientService expedientService;
 	@Autowired
 	private ReproService reproService;
 	@Autowired
@@ -105,11 +94,11 @@ public class ExpedientInicioPasFormController extends BaseExpedientController {
 				valorsFormulariExtern = tascaInicialService.obtenirValorsFormulariExternInicial(tasca.getId());
 				if (valorsFormulariExtern != null) {
 					request.getSession().setAttribute(
-							ExpedientIniciController.CLAU_SESSIO_FORM_VALORS,
+							CLAU_SESSIO_FORM_VALORS,
 							valorsFormulariExtern);
 				} else {
 					valorsFormulariExtern = (Map<String, Object>)request.getSession().getAttribute(
-							ExpedientIniciController.CLAU_SESSIO_FORM_VALORS);
+							CLAU_SESSIO_FORM_VALORS);
 				}
 			}
 			if (valorsRepro == null || valorsRepro.isEmpty()) {
@@ -154,6 +143,8 @@ public class ExpedientInicioPasFormController extends BaseExpedientController {
 		model.addAttribute("entornId", entorn.getId());
 		model.addAttribute("expedientTipus", expedientTipus);
 		model.addAttribute("responsableCodi", expedientTipus.getResponsableDefecteCodi());
+		// Pot ser que vingui del formulari d'acceptar i crear un expedient per a una anotació de Distribució
+		model.addAttribute("anotacioAcceptarCommand", (AnotacioAcceptarCommand) request.getSession().getAttribute(CLAU_SESSIO_ANOTACIO));
 		return "v3/expedient/iniciarPasForm";
 	}
 	
@@ -206,6 +197,7 @@ public class ExpedientInicioPasFormController extends BaseExpedientController {
 			definicioProces = dissenyService.findDarreraDefinicioProcesForExpedientTipus(expedientTipusId);
 		}
 		model.addAttribute("definicioProces", definicioProces);
+		AnotacioAcceptarCommand anotacioAcceptarCommand = (AnotacioAcceptarCommand) request.getSession().getAttribute(CLAU_SESSIO_ANOTACIO);
 		if (result.hasErrors()) {
 			MissatgesHelper.error(request, getMessage(request, "error.validacio"));
 			model.addAttribute(command);
@@ -215,36 +207,30 @@ public class ExpedientInicioPasFormController extends BaseExpedientController {
 			model.addAttribute("entornId", entorn.getId());
 			model.addAttribute("expedientTipus", expedientTipus);
 			model.addAttribute("responsableCodi", expedientTipus.getResponsableDefecteCodi());
+			model.addAttribute("anotacioAcceptarCommand", (AnotacioAcceptarCommand) request.getSession().getAttribute(CLAU_SESSIO_ANOTACIO));
 			return "v3/expedient/iniciarPasForm";
 		}
 		// Si l'expedient ha de demanar titol i/o número redirigeix al pas per demanar aquestes dades
 		if (expedientTipus.isDemanaNumero() || expedientTipus.isDemanaTitol() || expedientTipus.isSeleccionarAny()) {
-			ExpedientInicioPasTitolCommand expedientInicioPasTitolCommand = new ExpedientInicioPasTitolCommand();
-			expedientInicioPasTitolCommand.setAny(Calendar.getInstance().get(Calendar.YEAR));
-			expedientInicioPasTitolCommand.setExpedientTipusId(expedientTipusId);
-			expedientInicioPasTitolCommand.setNumero(expedientService.getNumeroExpedientActual(entorn.getId(), expedientTipusId, expedientInicioPasTitolCommand.getAny()));
-			expedientInicioPasTitolCommand.setResponsableCodi(expedientTipus.getResponsableDefecteCodi());
-			expedientInicioPasTitolCommand.setEntornId(entorn.getId());
-			model.addAttribute(expedientInicioPasTitolCommand);
-			model.addAttribute("anysSeleccionables", getAnysSeleccionables());
-			model.addAttribute("expedientTipus", expedientTipus);
-			request.getSession().setAttribute(
-					ExpedientIniciController.CLAU_SESSIO_FORM_VALORS,
-					valors);
-			return "v3/expedient/iniciarPasTitol";
+			return redirectByModal(request, "/v3/expedient/iniciarTitol/" + expedientTipusId + "/" + definicioProces.getId());
+//			return expedientInicioPasTitolController.iniciarTitolGet(
+//					request, 
+//					expedientTipusId, 
+//					definicioProcesId, 
+//					model);
 		} else {
 			try {
-				ExpedientDto iniciat = iniciarExpedient(
+				super.iniciarExpedient(
+						request,
 						entorn.getId(),
 						expedientTipusId,
 						definicioProcesId,
-						(String)request.getSession().getAttribute(ExpedientIniciController.CLAU_SESSIO_NUMERO),
-						(String)request.getSession().getAttribute(ExpedientIniciController.CLAU_SESSIO_TITOL),
-						(Integer)request.getSession().getAttribute(ExpedientIniciController.CLAU_SESSIO_ANY),
-						valors);
+						(String)request.getSession().getAttribute(CLAU_SESSIO_NUMERO),
+						(String)request.getSession().getAttribute(CLAU_SESSIO_TITOL),
+						(Integer)request.getSession().getAttribute(CLAU_SESSIO_ANY),
+						valors,
+						anotacioAcceptarCommand);
 				
-				MissatgesHelper.success(request, getMessage(request, "info.expedient.iniciat", new Object[] { iniciat.getIdentificador() }));
-				ExpedientIniciController.netejarSessio(request);
 			} catch (Exception ex) {
 				if (ex instanceof ValidacioException) {
 					MissatgesHelper.error(
@@ -279,38 +265,6 @@ public class ExpedientInicioPasFormController extends BaseExpedientController {
 		return modalUrlTancar();
 	}
 
-	private synchronized ExpedientDto iniciarExpedient(
-			Long entornId,
-			Long expedientTipusId,
-			Long definicioProcesId,
-			String numero,
-			String titol,
-			Integer any,
-			Map<String, Object> valors) {
-		return expedientService.create(
-				entornId,
-				null,
-				expedientTipusId,
-				definicioProcesId,
-				any,
-				numero,
-				titol,
-				null, null, null, null, false, null, null, null, null, null, null, false, null, null, false,
-				valors,
-				null,
-				IniciadorTipusDto.INTERN,
-				null, null, null, null);
-	}
-
-	public List<ParellaCodiValorDto> getAnysSeleccionables() {
-		List<ParellaCodiValorDto> anys = new ArrayList<ParellaCodiValorDto>();
-		int anyActual = Calendar.getInstance().get(Calendar.YEAR);
-		for (int i = 0; i < 10; i++) {
-			anys.add(new ParellaCodiValorDto(String.valueOf(anyActual - i), anyActual - i));
-		}
-		return anys;
-	}
-
 	protected ExpedientTascaDto obtenirTascaInicial(
 			Long entornId,
 			Long expedientTipusId,
@@ -318,8 +272,8 @@ public class ExpedientInicioPasFormController extends BaseExpedientController {
 			Map<String, Object> valors,
 			HttpServletRequest request) {
 		ExpedientTascaDto tasca = expedientService.getStartTask(entornId, expedientTipusId, definicioProcesId, valors);
-		tasca.setId((String) request.getSession().getAttribute(ExpedientIniciController.CLAU_SESSIO_TASKID));
-		Object validat = request.getSession().getAttribute(ExpedientIniciController.CLAU_SESSIO_FORM_VALIDAT);
+		tasca.setId((String) request.getSession().getAttribute(CLAU_SESSIO_TASKID));
+		Object validat = request.getSession().getAttribute(CLAU_SESSIO_FORM_VALIDAT);
 		tasca.setValidada(validat != null);
 		return tasca;
 	}

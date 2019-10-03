@@ -18,16 +18,16 @@
 <c:set var="campErrors"><form:errors path="${campPath}"/></c:set>
 <c:set var="campLabelSize"><c:choose><c:when test="${not empty labelSize}">${labelSize}</c:when><c:otherwise>4</c:otherwise></c:choose></c:set>
 <c:set var="campInputSize">${12 - campLabelSize}</c:set>
+<c:set var="campClassRequired"><c:if test="${required}">obligatori</c:if></c:set>
 <c:choose>
 	<c:when test="${not inline}">
 <div class="form-group<c:if test="${not empty campErrors}"> has-error</c:if>">
-	<label class="control-label col-xs-${campLabelSize}" for="${campPath}">
+	<label class="control-label col-xs-${campLabelSize} ${campClassRequired}" for="${campPath}">
 		<c:choose>
 			<c:when test="${not empty textKey}"><spring:message code="${textKey}"/></c:when>
 			<c:when test="${not empty text}">${text}</c:when>
 			<c:otherwise>${campPath}</c:otherwise>
 		</c:choose>
-			<c:if test="${required}">*</c:if>
 	</label>
 	<div class="controls col-xs-${campInputSize} btn-group" data-toggle="buttons">
 		
@@ -49,7 +49,7 @@
 			</c:choose>
 			</label>
 		</c:forEach>
-		<c:if test="${not empty campErrors}"><p class="help-block"><span class="fa fa-exclamation-triangle"></span>&nbsp;<form:errors path="${campPath}"/></p></c:if>
+		<c:if test="${not empty campErrors}"><p class="help-block">&nbsp;<span class="fa fa-exclamation-triangle"></span>&nbsp;<form:errors path="${campPath}"/></p></c:if>
 	</div>
 </div>
 	</c:when>

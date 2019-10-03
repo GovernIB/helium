@@ -90,6 +90,10 @@ public interface ExpedientService {
 	 * @param ntiTipoFirma
 	 * @param ntiValorCsv
 	 * @param ntiDefGenCsv
+	 * @param anotacioId
+	 * 			Id de la petició d'anotació de registre que s'associarà a l'expedient.
+	 * @param anotacioInteressatsAssociar
+	 * 			Indica si associar o no els interessats de l'anotació a l'expedient.
 	 * 
 	 * @return El nou expedient creat.
 	 * @throws NotFoundException
@@ -126,7 +130,9 @@ public interface ExpedientService {
 			String iniciadorCodi,
 			String responsableCodi,
 			Map<String, DadesDocumentDto> documents,
-			List<DadesDocumentDto> adjunts) throws NoTrobatException;
+			List<DadesDocumentDto> adjunts,
+			Long anotacioId,
+			boolean anotacioInteressatsAssociar) throws NoTrobatException;
 
 	/**
 	 * Modifica la informació d'un expedient.
@@ -361,6 +367,17 @@ public interface ExpedientService {
 			boolean nomesAlertes,
 			boolean nomesErrors,
 			MostrarAnulatsDto mostrarAnulats);
+	
+	/** Mètode per cercar expedients pel suggest d'expedients. Filtra pel tipus d'expedient i busca
+	 * el text dins del número o el títol de l'expedient.
+	 * @param expedientTipusId
+	 * @param text
+	 * @throws NotAllowedException
+	 *             Si no es tenen permisos per a accedir als elements
+	 *             especificats mitjançant el seu id (entorn, tipus, estat).
+	 * @return Retorna la llista d'expedients el número o títol dels quals contenen el text
+	 */
+	public List<ExpedientDto> findPerSuggest(Long expedientTipusId, String text);
 	
 	/**
 	 * Retorna l'arxiu amb la imatge de la definició de procés.

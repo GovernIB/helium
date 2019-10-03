@@ -62,6 +62,8 @@ public class ExpedientTipusIntegracioDistribucioController extends BaseExpedient
 			command.setId(expedientTipusId);
 			command.setActiu(expedientTipus.isDistribucioActiu());
 			command.setCodiProcediment(expedientTipus.getDistribucioCodiProcediment());
+			command.setCodiAssumpte(expedientTipus.getDistribucioCodiAssumpte());
+			
 			model.addAttribute("expedientTipusIntegracioDistribucioCommand", command);
 		}
 		
@@ -93,7 +95,8 @@ public class ExpedientTipusIntegracioDistribucioController extends BaseExpedient
 	        				entornActual.getId(),
 	        				expedientTipusId,
 	        				command.isActiu(),
-	        				command.getCodiProcediment());
+	        				command.getCodiProcediment(),
+	        				command.getCodiAssumpte());
 		        MissatgesHelper.success(
 						request, 
 						getMessage(

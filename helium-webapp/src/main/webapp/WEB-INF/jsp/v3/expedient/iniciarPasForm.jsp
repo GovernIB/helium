@@ -102,13 +102,12 @@
 		<form:hidden path="expedientTipusId"/>
 		<form:hidden path="definicioProcesId"/>
 
-		<!-- 
-		<spring:hasBindErrors name="command">
-            <c:forEach items="${errors.allErrors}" var="error">
-               - ${error} <br>
-            </c:forEach>
-		</spring:hasBindErrors>
-		 -->
+		<c:if test="${anotacioAcceptarCommand != null}">
+			<div class="alert alert-info">
+				<span class="fa fa-info-circle"></span>
+				<spring:message code="anotacio.form.acceptar.crear.info"></spring:message>
+			</div>
+		</c:if>
 		
 		<c:set var="ampleLabel">120px</c:set>
  		<c:set var="ampleInput">calc(100% - ${ampleLabel})</c:set>

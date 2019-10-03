@@ -21,6 +21,8 @@ public class ExpedientTipusIntegracioDistribucioCommand {
 	private boolean actiu;
 	@Size(max = 200, groups = {Modificacio.class})
 	private String codiProcediment;
+	@Size(max = 20, groups = {Modificacio.class})
+	private String codiAssumpte;
 
 	public Long getId() {
 		return id;
@@ -40,5 +42,12 @@ public class ExpedientTipusIntegracioDistribucioCommand {
 	public void setCodiProcediment(String codiProcediment) {
 		this.codiProcediment = codiProcediment;
 	}
+	public String getCodiAssumpte() {
+		return codiAssumpte;
+	}
+	public void setCodiAssumpte(String codiAssumpte) {
+		this.codiAssumpte = codiAssumpte;
+	}
+	
 	public interface Modificacio {}
 }

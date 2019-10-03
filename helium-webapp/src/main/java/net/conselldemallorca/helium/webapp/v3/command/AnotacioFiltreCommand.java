@@ -16,14 +16,14 @@ import net.conselldemallorca.helium.v3.core.api.dto.AnotacioEstatEnumDto;
  */
 public class AnotacioFiltreCommand {
 
-	private String procediment;
+	private String codiProcediment;
 	private String codiAssumpte;
 	private String numeroExpedient;
 	private String numero;
 	private String extracte;
-	private String origen;
 	private Date dataInicial;
 	private Date dataFinal;
+	private Long expedientTipusId;
 	private AnotacioEstatEnumDto estat;
 
 	@Override
@@ -31,12 +31,12 @@ public class AnotacioFiltreCommand {
 		return ToStringBuilder.reflectionToString(this);
 	}
 
-	public String getProcediment() {
-		return procediment;
+	public String getCodiProcediment() {
+		return codiProcediment;
 	}
 
-	public void setProcediment(String procediment) {
-		this.procediment = procediment;
+	public void setCodiProcediment(String codiProcediment) {
+		this.codiProcediment = codiProcediment;
 	}
 
 	public String getCodiAssumpte() {
@@ -71,14 +71,6 @@ public class AnotacioFiltreCommand {
 		this.extracte = extracte;
 	}
 
-	public String getOrigen() {
-		return origen;
-	}
-
-	public void setOrigen(String origen) {
-		this.origen = origen;
-	}
-
 	public Date getDataInicial() {
 		return dataInicial;
 	}
@@ -93,6 +85,14 @@ public class AnotacioFiltreCommand {
 
 	public void setDataFinal(Date dataFinal) {
 		this.dataFinal = dataFinal;
+	}
+
+	public Long getExpedientTipusId() {
+		return expedientTipusId;
+	}
+
+	public void setExpedientTipusId(Long expedientTipusId) {
+		this.expedientTipusId = expedientTipusId;
 	}
 
 	public AnotacioEstatEnumDto getEstat() {

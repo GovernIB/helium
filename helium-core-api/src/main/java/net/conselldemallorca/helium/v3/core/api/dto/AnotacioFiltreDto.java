@@ -14,27 +14,28 @@ import org.apache.commons.lang.builder.ToStringBuilder;
  */
 public class AnotacioFiltreDto {
 
-	private String procediment;
+	private String codiProcediment;
 	private String codiAssumpte;
 	private String numeroExpedient;
 	private String numero;
 	private String extracte;
-	private String origen;
 	private Date dataInicial;
 	private Date dataFinal;
 	private AnotacioEstatEnumDto estat;
+	private Long expedientTipusId;
+	private Long expedientId;
 
 	@Override
 	public String toString() {
 		return ToStringBuilder.reflectionToString(this);
 	}
 
-	public String getProcediment() {
-		return procediment;
+	public String getCodiProcediment() {
+		return codiProcediment;
 	}
 
-	public void setProcediment(String procediment) {
-		this.procediment = procediment;
+	public void setCodiProcediment(String codiProcediment) {
+		this.codiProcediment = codiProcediment;
 	}
 
 	public String getCodiAssumpte() {
@@ -69,14 +70,6 @@ public class AnotacioFiltreDto {
 		this.extracte = extracte;
 	}
 
-	public String getOrigen() {
-		return origen;
-	}
-
-	public void setOrigen(String origen) {
-		this.origen = origen;
-	}
-
 	public Date getDataInicial() {
 		return dataInicial;
 	}
@@ -99,5 +92,19 @@ public class AnotacioFiltreDto {
 
 	public void setEstat(AnotacioEstatEnumDto estat) {
 		this.estat = estat;
+	}
+	public Long getExpedientTipusId() {
+		return expedientTipusId;
+	}
+
+	public void setExpedientTipusId(Long expedientTipusId) {
+		this.expedientTipusId = expedientTipusId;
+	}
+
+	public Long getExpedientId() {
+		return this.expedientId;
+	}
+	public void setExpedientId(Long expedientId) {
+		this.expedientId = expedientId;
 	}
 }

@@ -22,8 +22,6 @@ import javax.persistence.TableGenerator;
 import org.hibernate.annotations.ForeignKey;
 import org.hibernate.annotations.Index;
 
-import es.caib.distribucio.ws.backofficeintegracio.DocumentTipus;
-import es.caib.distribucio.ws.backofficeintegracio.InteressatTipus;
 
 /**
  * Classe del model de dades que representa un interessat
@@ -55,7 +53,7 @@ public class AnotacioInteressat implements Serializable, GenericEntity<Long> {
 	private String documentNumero;
 	@Enumerated(EnumType.STRING)
 	@Column(name = "doc_tipus", length = 15)
-	private DocumentTipus documentTipus;
+	private String documentTipus;
 	@Column(name = "email", length = 160)
 	private String email;
 	@Column(name = "llinatge1", length = 30)
@@ -84,7 +82,7 @@ public class AnotacioInteressat implements Serializable, GenericEntity<Long> {
 	private String telefon;
 	@Enumerated(EnumType.STRING)
 	@Column(name = "tipus", length = 40, nullable = false)
-	private InteressatTipus tipus;
+	private String tipus;
 
 	@ManyToOne(cascade = CascadeType.ALL)
 	@JoinColumn(name = "representant_id")
@@ -107,7 +105,7 @@ public class AnotacioInteressat implements Serializable, GenericEntity<Long> {
 	}
 	
 	public static Builder getBuilder(
-			InteressatTipus tipus) {
+			String tipus) {
 		return new Builder(
 				tipus);
 	}
@@ -116,7 +114,7 @@ public class AnotacioInteressat implements Serializable, GenericEntity<Long> {
 		AnotacioInteressat built;
 
 		Builder(
-				InteressatTipus tipus) {
+				String tipus) {
 			built = new AnotacioInteressat();
 			built.tipus = tipus;
 		}
@@ -137,7 +135,7 @@ public class AnotacioInteressat implements Serializable, GenericEntity<Long> {
 			built.documentNumero = documentNumero;
 			return this;
 		}
-		public Builder documentTipus(DocumentTipus documentTipus) {
+		public Builder documentTipus(String documentTipus) {
 			built.documentTipus = documentTipus;
 			return this;
 		}
@@ -240,10 +238,10 @@ public class AnotacioInteressat implements Serializable, GenericEntity<Long> {
 	public void setDocumentNumero(String documentNumero) {
 		this.documentNumero = documentNumero;
 	}
-	public DocumentTipus getDocumentTipus() {
+	public String getDocumentTipus() {
 		return documentTipus;
 	}
-	public void setDocumentTipus(DocumentTipus documentTipus) {
+	public void setDocumentTipus(String documentTipus) {
 		this.documentTipus = documentTipus;
 	}
 	public String getEmail() {
@@ -306,10 +304,10 @@ public class AnotacioInteressat implements Serializable, GenericEntity<Long> {
 	public void setTelefon(String telefon) {
 		this.telefon = telefon;
 	}
-	public InteressatTipus getTipus() {
+	public String getTipus() {
 		return tipus;
 	}
-	public void setTipus(InteressatTipus tipus) {
+	public void setTipus(String tipus) {
 		this.tipus = tipus;
 	}
 

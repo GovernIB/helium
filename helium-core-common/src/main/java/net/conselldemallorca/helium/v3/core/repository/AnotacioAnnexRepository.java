@@ -8,7 +8,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import net.conselldemallorca.helium.core.model.hibernate.AnotacioAnnex;
 
 /**
- * Repository per treballar amb entitats de tipus AnotacioAnnex pels annexos de les anotacions provinents de Distribucio.
+ * Repository per treballar amb entitats de tipus AnotacioAnnexDto pels annexos de les anotacions provinents de Distribucio.
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */

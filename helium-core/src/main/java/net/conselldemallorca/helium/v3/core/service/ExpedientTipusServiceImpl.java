@@ -16,6 +16,7 @@ import java.util.TreeSet;
 
 import javax.annotation.Resource;
 
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -42,6 +43,7 @@ import net.conselldemallorca.helium.core.helper.PaginacioHelper;
 import net.conselldemallorca.helium.core.helper.PermisosHelper;
 import net.conselldemallorca.helium.core.helper.PermisosHelper.ObjectIdentifierExtractor;
 import net.conselldemallorca.helium.core.helper.PluginHelper;
+import net.conselldemallorca.helium.core.helper.UsuariActualHelper;
 import net.conselldemallorca.helium.core.model.hibernate.Accio;
 import net.conselldemallorca.helium.core.model.hibernate.Camp;
 import net.conselldemallorca.helium.core.model.hibernate.Camp.TipusCamp;
@@ -387,18 +389,21 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 			Long entornId, 
 			Long expedientTipusId, 
 			boolean actiu, 
-			String codiProcediment) {
+			String codiProcediment,
+			String codiAssumpte) {
 		logger.debug(
 				"Modificant tipus d'expedient amb dades d'integracio amb distribucio externs (" +
 				"entornId=" + entornId + ", " +
 				"expedientTipus=" + expedientTipusId + ", " +
 				"actiu=" + actiu + ", " +
-				"codiProcediment=" + codiProcediment + ")");
+				"codiProcediment=" + codiProcediment + ", " +
+				"codiAssumpte=" + codiAssumpte + ")");
 		
 		ExpedientTipus entity = expedientTipusHelper.getExpedientTipusComprovantPermisDisseny(expedientTipusId);
 		
 		entity.setDistribucioActiu(actiu);
 		entity.setDistribucioCodiProcediment(codiProcediment);
+		entity.setDistribucioCodiAssumpte(codiAssumpte);
 
 		return conversioTipusHelper.convertir(
 				expedientTipusRepository.save(entity),
@@ -1510,6 +1515,40 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 							ExtendedPermission.DESIGN_ADMIN,
 							ExtendedPermission.DESIGN_DELEG,
 							ExtendedPermission.ADMINISTRATION},
+					auth);
+		}
+		return conversioTipusHelper.convertirList(
+				tipuss,
+				ExpedientTipusDto.class);
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@Transactional
+	public List<ExpedientTipusDto> findAmbEntornPermisAnotacio(
+			Long entornId) {
+		logger.debug(
+				"Consultant tipus d'expedient per un entorn i amb permisos sobre antotacions (" +
+				"entornId=" + entornId + ")");
+		Entorn entorn = entornHelper.getEntornComprovantPermisos(
+				entornId,
+				true);
+		List<ExpedientTipus> tipuss = expedientTipusRepository.findByEntorn(entorn);
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		if (!UsuariActualHelper.isAdministrador(auth)) {
+			permisosHelper.filterGrantedAny(
+					tipuss,
+					new ObjectIdentifierExtractor<ExpedientTipus>() {
+						@Override
+						public Long getObjectIdentifier(ExpedientTipus expedientTipus) {
+							return expedientTipus.getId();
+						}
+					},
+					ExpedientTipus.class,
+					new Permission[] {
+							ExtendedPermission.RELATE},
 					auth);
 		}
 		return conversioTipusHelper.convertirList(
@@ -3513,24 +3552,61 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 	 */
 	@Override
 	@Transactional(readOnly = true)
-	public ExpedientTipusDto findPerDistribucio(String codiProcediment) {
+	public ExpedientTipusDto findPerDistribucio(String codiProcediment, String codiAssumpte) {
 		logger.debug(
 				"Consultant el tipus d'expedient actiu per a un codi de procediment de Distribucio (" +
-				"codiProcediment = " + codiProcediment + ")");
+				"codiProcediment = " + codiProcediment + ", " + 
+				"codiAssumpte = " + codiAssumpte + ")");
 		ExpedientTipus expedientTipus = null;
-		List<ExpedientTipus> expedientsTipus = expedientTipusRepository.findByDistribucioCodiProcediment(codiProcediment);
-		// Busca el primer que estigui actiu
-		for (ExpedientTipus e : expedientsTipus) {
-			if(e.isDistribucioActiu()) {
-				expedientTipus = e;
-				break;
-			}
-		}
+
+		// Consulta els diferents tipus d'expedients aplicables el codi procediment i el codi assumpte
+		List<ExpedientTipus> expedientsTipus = expedientTipusRepository.findPerDistribuir(
+					codiProcediment == null ? "" : codiProcediment,
+					codiAssumpte == null ? "" : codiAssumpte);
+		
+		// Si hi ha més d'un resultat retorna el primer
+		if (!expedientsTipus.isEmpty())
+			expedientTipus = expedientsTipus.get(0);
+		
 		return conversioTipusHelper.convertir(
 				expedientTipus,
 				ExpedientTipusDto.class);
 	}	
 
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@Transactional(readOnly = true)
+	public ExpedientTipusDto findPerDistribucioValidacio(String codiProcediment, String codiAssumpte) {
+		logger.debug(
+				"Consultant el tipus d'expedient actiu per a un codi de procediment de Distribucio per validar que no es repeteixin (" +
+				"codiProcediment = " + codiProcediment + ", " + 
+				"codiAssumpte = " + codiAssumpte + ")");
+		ExpedientTipus expedientTipus = null;
+
+		// Consulta els diferents tipus d'expedients aplicables el codi procediment i el codi assumpte
+		List<ExpedientTipus> expedientsTipus = expedientTipusRepository.findPerDistribuirValidacio(
+					codiProcediment == null || codiProcediment.isEmpty(),
+					codiProcediment,
+					codiAssumpte == null || codiAssumpte.isEmpty(),
+					codiAssumpte);
+		
+		// Revisa el llistat per veure si n'hi ha cap que coincideixi exactament amb els valors nulls o valors informats
+		for (ExpedientTipus et : expedientsTipus) {
+			if (et.isDistribucioActiu()
+					&& StringUtils.equals(codiProcediment, et.getDistribucioCodiProcediment())
+					&& StringUtils.equals(codiAssumpte, et.getDistribucioCodiAssumpte())) {
+				expedientTipus = et;
+				break;
+			}
+		}		
+		return conversioTipusHelper.convertir(
+				expedientTipus,
+				ExpedientTipusDto.class);
+	}
+	
 	private static final Logger logger = LoggerFactory.getLogger(ExpedientServiceImpl.class);
 
 }

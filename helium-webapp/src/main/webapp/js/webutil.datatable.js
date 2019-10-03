@@ -129,6 +129,8 @@
 					if (plugin.settings.rowhrefTemplate) {
 						if (plugin.settings.rowhrefToggle)
 							$(row).attr('data-toggle', plugin.settings.rowhrefToggle);
+						if (plugin.settings.rowhrefMaximized)
+							$(row).attr('data-maximized', plugin.settings.rowhrefMaximized);
 						$(row).attr(
 								'data-href',
 								$(plugin.settings.rowhrefTemplate).render(data));

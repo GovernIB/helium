@@ -91,10 +91,44 @@ public interface ExpedientTipusRepository extends JpaRepository<ExpedientTipus, 
             @Param("anulat") Boolean anulat
             );
 
-    /** Per consultar el tipus d'expedient configurat pel codi procediment
-     * 
-     * @param distribucioCodiProcediment
-     * @return
-     */
-	List<ExpedientTipus> findByDistribucioCodiProcediment(String distribucioCodiProcediment);
+	/** Mètode per cercar un tipus d'expedient activat per distribuir anotacions de registre i configurat segons el codi
+	 * de procediment o el codi del tipus d'assumpte.
+	 * 
+	 * @param codiProcediment
+	 * @param codiAssumpte
+	 * @return
+	 */
+	@Query(	"from " +
+			"    ExpedientTipus et " +
+			"where " +
+			"	et.distribucioActiu = true " + 
+			"and ((et.distribucioCodiProcediment is null) or (et.distribucioCodiProcediment = :codiProcediment)) " + 
+			"and ((et.distribucioCodiAssumpte is null) or (et.distribucioCodiAssumpte = :codiAssumpte)) " +
+			"order by " + 
+			"	et.distribucioCodiProcediment asc NULLS LAST, " +
+			"	et.distribucioCodiAssumpte asc NULLS LAST ")
+	List<ExpedientTipus> findPerDistribuir(
+			@Param("codiProcediment") String codiProcediment, 
+			@Param("codiAssumpte") String codiAssumpte);
+	
+	/** Mètode per cercar un tipus d'expedient per validar la configuració de distribució segons els valors
+	 * del codi de procediment i el codi d'assumpte.
+	 * 
+	 * @param codiProcediment
+	 * @param esNullCodiProcediment
+	 * @param codiAssumpte
+	 * @param esNullCodiAssumpte
+	 * @return
+	 */
+	@Query(	"from " +
+			"    ExpedientTipus et " +
+			"where " +
+			"	et.distribucioActiu = true " + 
+			"and ((:esNullCodiProcediment = true and et.distribucioCodiProcediment is null) or (et.distribucioCodiProcediment like :codiProcediment)) " + 
+			"and ((:esNullCodiAssumpte = true and et.distribucioCodiAssumpte is null) or (et.distribucioCodiAssumpte like :codiAssumpte)) ")
+	List<ExpedientTipus> findPerDistribuirValidacio(
+			@Param("esNullCodiProcediment") boolean esNullCodiProcediment, 
+			@Param("codiProcediment") String codiProcediment,
+			@Param("esNullCodiAssumpte") boolean esNullCodiAssumpte,
+			@Param("codiAssumpte") String codiAssumpte);
 }

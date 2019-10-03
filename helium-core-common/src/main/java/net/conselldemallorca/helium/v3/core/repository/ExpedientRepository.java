@@ -55,6 +55,21 @@ public interface ExpedientRepository extends JpaRepository<Expedient, Long> {
 			@Param("esNullTitol") boolean esNullTitol,
 			@Param("titol") String titol);
 	
+	/** Mètode per buscar els expedients d'un tipus d'expedient el número o el títol dels quals continguin el text de cerca. Serveix
+	 * pel suggest d'expedients.
+	 * 
+	 * @return
+	 */
+	@Query(	"select e " +
+			"from Expedient e " +
+			"where " +
+			"   e.tipus.id = :expedientTipusId " +
+			"	and ((lower(e.titol) like lower('%'||:text||'%')) " + 
+			"		 or (e.numero like '%'||:text||'%')) ")
+	List<Expedient> findByTipusAndNumeroOrTitol(
+			@Param("expedientTipusId") Long expedientTipusId,
+			@Param("text") String text);
+
 	Expedient findByEntornAndTipusAndNumero(
 			Entorn entorn,
 			ExpedientTipus tipus,

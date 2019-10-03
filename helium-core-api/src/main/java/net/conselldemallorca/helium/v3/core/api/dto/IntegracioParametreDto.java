@@ -45,7 +45,7 @@ public class IntegracioParametreDto {
 	
 	/// Mètodes estàtics de suport a la creació de paràmetres
 	
-	/** Retorna un script descriptiu amb el contingut dels paràmetres
+	/** Retorna un string descriptiu amb el contingut dels paràmetres
 	 * 
 	 * @param parametres
 	 * @return

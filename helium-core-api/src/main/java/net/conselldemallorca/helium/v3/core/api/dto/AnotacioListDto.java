@@ -8,7 +8,7 @@ import java.util.Date;
 
 
 /**
- * DTO amb informació d'una enumeració pel llistat d'anotacions.
+ * DTO amb informació d'una anotació de Distribució pel llistat d'anotacions.
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
@@ -90,7 +90,7 @@ public class AnotacioListDto implements Serializable {
 		return assumpteCodiCodi;
 	}
 	public void setAssumpteCodiCodi(String assumpteCodiCodi) {
-		this.assumpteCodiCodi = assumpteCodiCodi;
+		this.assumpteCodiCodi= assumpteCodiCodi;
 	}
 	public Date getData() {
 		return data;

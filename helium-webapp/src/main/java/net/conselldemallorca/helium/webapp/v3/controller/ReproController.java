@@ -109,11 +109,11 @@ public class ReproController extends BaseController {
 //				formulariExtern.
 				if (valorsFormulariExtern != null) {
 					request.getSession().setAttribute(
-							ExpedientIniciController.CLAU_SESSIO_FORM_VALORS,
+							BaseExpedientIniciController.CLAU_SESSIO_FORM_VALORS,
 							valorsFormulariExtern);
 				} else {
 					valorsFormulariExtern = (Map<String, Object>)request.getSession().getAttribute(
-							ExpedientIniciController.CLAU_SESSIO_FORM_VALORS);
+							BaseExpedientIniciController.CLAU_SESSIO_FORM_VALORS);
 				}
 			}
 			return TascaFormHelper.getCommandForCamps(
@@ -208,8 +208,8 @@ public class ReproController extends BaseController {
 	
 	private ExpedientTascaDto obtenirTascaInicial(Long entornId, Long expedientTipusId, Long definicioProcesId, Map<String, Object> valors, HttpServletRequest request) {
 		ExpedientTascaDto tasca = expedientService.getStartTask(entornId, expedientTipusId, definicioProcesId, valors);
-		tasca.setId((String) request.getSession().getAttribute(ExpedientIniciController.CLAU_SESSIO_TASKID));
-		Object validat = request.getSession().getAttribute(ExpedientIniciController.CLAU_SESSIO_FORM_VALIDAT);
+		tasca.setId((String) request.getSession().getAttribute(BaseExpedientIniciController.CLAU_SESSIO_TASKID));
+		Object validat = request.getSession().getAttribute(BaseExpedientIniciController.CLAU_SESSIO_FORM_VALIDAT);
 		tasca.setValidada(validat != null);
 		return tasca;
 	}
@@ -230,14 +230,10 @@ public class ReproController extends BaseController {
 						true));
 		binder.registerCustomEditor(
 				Boolean.class,
-//				new CustomBooleanEditor(false));
 				new CustomBooleanEditor(true));
 		binder.registerCustomEditor(
 				Date.class,
 				new CustomDateEditor(new SimpleDateFormat("dd/MM/yyyy"), true));
-//		binder.registerCustomEditor(
-//				TerminiDto.class,
-//				new TerminiTypeEditorHelper());
 		binder.registerCustomEditor(
 				Object.class,
 				new ObjectTypeEditorHelper());

@@ -35,7 +35,6 @@ import es.caib.plugins.arxiu.api.ContingutArxiu;
 import es.caib.plugins.arxiu.api.ExpedientMetadades;
 import net.conselldemallorca.helium.core.common.ExpedientCamps;
 import net.conselldemallorca.helium.core.common.JbpmVars;
-import net.conselldemallorca.helium.core.common.ThreadLocalInfo;
 import net.conselldemallorca.helium.core.helper.ConsultaHelper;
 import net.conselldemallorca.helium.core.helper.ConversioTipusHelper;
 import net.conselldemallorca.helium.core.helper.DocumentHelperV3;
@@ -238,8 +237,6 @@ public class ExpedientServiceImpl implements ExpedientService {
 	@Resource
 	private HerenciaHelper herenciaHelper;
 
-
-
 	/**
 	 * {@inheritDoc}
 	 */
@@ -273,50 +270,51 @@ public class ExpedientServiceImpl implements ExpedientService {
 			String iniciadorCodi,
 			String responsableCodi,
 			Map<String, DadesDocumentDto> documents,
-			List<DadesDocumentDto> adjunts) {
+			List<DadesDocumentDto> adjunts,
+			Long anotacioId,
+			boolean anotacioInteressatsAssociar) {
 		logger.debug("Creant nou expedient (" +
 				"entornId=" + entornId + ", " +
 				"usuari=" + usuari + ", " +
 				"expedientTipusId=" + expedientTipusId + ", " +
 				"definicioProcesId=" + definicioProcesId + ", " +
 				"any=" + any + ", " +
-				"numero=" + numero + ", " +
-				"titol=" + titol + ")");
+				"titol=" + titol + ", " +
+				"anotacioId=" + anotacioId + ", " +
+				"anotacioInteressatsAssociar=" + anotacioInteressatsAssociar + ")");
+		
 		Expedient expedient = null;
 		try {
-			// Accés sincronitzat a la transacció
-			synchronized(this) {
-				// Es crida la creació a través del helper per evitar errors de concurrència de creació de dos expedients
-				// a la vegada que ja s'ha donat el cas.
-				expedient = expedientHelper.iniciar(
-						entornId, 
-						usuari, 
-						expedientTipusId, 
-						definicioProcesId, 
-						any, 
-						numero, 
-						titol, 
-						registreNumero, 
-						registreData, 
-						unitatAdministrativa, 
-						idioma, 
-						autenticat, 
-						tramitadorNif, 
-						tramitadorNom, 
-						interessatNif, 
-						interessatNom, 
-						representantNif, 
-						representantNom, 
-						avisosHabilitats, 
-						avisosEmail, 
-						avisosMobil, 
-						notificacioTelematicaHabilitada, 
-						variables, transitionName, 
-						iniciadorTipus, iniciadorCodi, 
-						responsableCodi, 
-						documents, 
-						adjunts);
-			}
+			// Es crida la creació a través del helper per evitar errors de concurrència de creació de dos expedients
+			// a la vegada que ja s'ha donat el cas.
+			expedient = expedientHelper.iniciar(
+					entornId, 
+					usuari, 
+					expedientTipusId, 
+					definicioProcesId, 
+					any, 
+					numero, 
+					titol, 
+					registreNumero, 
+					registreData, 
+					unitatAdministrativa, 
+					idioma, 
+					autenticat, 
+					tramitadorNif, 
+					tramitadorNom, 
+					interessatNif, 
+					interessatNom, 
+					representantNif, 
+					representantNom, 
+					avisosHabilitats, 
+					avisosEmail, 
+					avisosMobil, 
+					notificacioTelematicaHabilitada, 
+					variables, transitionName, 
+					iniciadorTipus, iniciadorCodi, 
+					responsableCodi, 
+					documents, 
+					adjunts);
 			// Retorna la informació de l'expedient que s'ha iniciat
 			ExpedientDto dto = conversioTipusHelper.convertir(
 					expedient,
@@ -344,11 +342,9 @@ public class ExpedientServiceImpl implements ExpedientService {
 					ex.getCause());
 		} catch (ValidationException ex) {
 			throw new TramitacioValidacioException("Error de validació en Handler", ex);
-		} finally {
-			ThreadLocalInfo.setExpedient(null);
 		}
 	}
-	
+
 
 	/**
 	 * {@inheritDoc}
@@ -757,7 +753,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 		}
 
 	}
-
+	
 	/**
 	 * {@inheritDoc}
 	 */
@@ -859,6 +855,28 @@ public class ExpedientServiceImpl implements ExpedientService {
 				false);
 		return expedientsIds.getLlista();
 	}
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@Transactional(readOnly = true)
+	public List<ExpedientDto> findPerSuggest(Long expedientTipusId, String text) {
+		logger.debug("Consulta suggest d'expedients (" +
+				"expedientTipusId=" + expedientTipusId + ", " +
+				"text=" + text + ")");
+		List<Expedient> expedients = null;
+		if (expedientTipusId != null) {
+			// Comprova l'accés al tipus d'expedient
+			expedientTipusHelper.getExpedientTipusComprovantPermisLectura(
+					expedientTipusId);
+			expedients = expedientRepository.findByTipusAndNumeroOrTitol(expedientTipusId, text); 
+		}
+		return conversioTipusHelper.convertirList(
+				expedients,
+				ExpedientDto.class);
+	}
+
+	
 	
 	/**
 	 * {@inheritDoc}

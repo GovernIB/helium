@@ -321,6 +321,10 @@ public class ConversioTipusHelper {
 						target.setSistraTramitCodi(source.getSistraTramitCodi());
 						target.setNotibActiu(source.getNotibActiu());
 						
+						target.setDistribucioActiu(source.isDistribucioActiu());
+						target.setDistribucioCodiProcediment(source.getDistribucioCodiProcediment());
+						target.setDistribucioCodiAssumpte(source.getDistribucioCodiAssumpte());
+						
 						return target;
 					}
 				});
@@ -393,6 +397,7 @@ public class ConversioTipusHelper {
 						
 						target.setDistribucioActiu(source.isDistribucioActiu());
 						target.setDistribucioCodiProcediment(source.getDistribucioCodiProcediment());
+						target.setDistribucioCodiAssumpte(source.getDistribucioCodiAssumpte());
 						return target;
 					}
 				});

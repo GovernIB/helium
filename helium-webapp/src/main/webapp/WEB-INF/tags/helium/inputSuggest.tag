@@ -36,8 +36,8 @@
 			</label>
 			<div class="controls col-xs-${12 - labelSize}">
 				<c:choose>
-					<c:when test='${multiple}'><input type="text" id="${campId}" name="${campPath}" class="form-control suggest" <c:if test="${disabled}">disabled </c:if>value="${command[campPath][campIndex]}" style="width: 100%"/></c:when>
-					<c:otherwise><form:input path="${campPath}" cssClass="form-control suggest" id="${campPath}" disabled="${disabled}" styleClass="width: 100%"/></c:otherwise>
+					<c:when test='${multiple}'><input type="text" id="${campId}" name="${campPath}" class="form-control suggest" <c:if test="${disabled}">disabled </c:if>value="${command[campPath][campIndex]}" style="width: 100%"  data-url-llistat="${urlConsultaLlistat}" data-url-inicial="${urlConsultaInicial}"/></c:when>
+					<c:otherwise><form:input path="${campPath}" cssClass="form-control suggest" id="${campPath}" disabled="${disabled}" styleClass="width: 100%"  data-url-llistat="${urlConsultaLlistat}" data-url-inicial="${urlConsultaInicial}"/></c:otherwise>
 				</c:choose>
 				<c:if test="${not empty campErrors}"><p class="help-block"><span class="fa fa-exclamation-triangle"></span>&nbsp;<form:errors path="${campPath}"/></p></c:if>
 			</div>
@@ -45,8 +45,8 @@
 	</c:when>
 	<c:otherwise>
 		<c:choose>
-			<c:when test='${multiple}'><input type="text" id="${campId}" name="${campPath}" class="form-control suggest" <c:if test="${disabled}">disabled </c:if>value="${command[campPath][campIndex]}"/></c:when>
-			<c:otherwise><form:input path="${campPath}" cssClass="form-control suggest" id="${campPath}" disabled="${disabled}"/></c:otherwise>
+			<c:when test='${multiple}'><input type="text" id="${campId}" name="${campPath}" class="form-control suggest" <c:if test="${disabled}">disabled </c:if>value="${command[campPath][campIndex]}"  data-url-llistat="${urlConsultaLlistat}" data-url-inicial="${urlConsultaInicial}"/></c:when>
+			<c:otherwise><form:input path="${campPath}" cssClass="form-control suggest" id="${campPath}" disabled="${disabled}"  data-url-llistat="${urlConsultaLlistat}" data-url-inicial="${urlConsultaInicial}"/></c:otherwise>
 		</c:choose>
 	</c:otherwise>
 </c:choose>
@@ -59,7 +59,7 @@ $(document).ready(function() {
 	    allowClear: true,
 	    ajax: {
 	        url: function (value) {
-	        	return "${urlConsultaLlistat}/" + value;
+	        	return $(this).data('urlLlistat') + "/" + value;
 	        },
 	        dataType: 'json',
 	        results: function (data, page) {
@@ -72,7 +72,7 @@ $(document).ready(function() {
 	    },
 	    initSelection: function(element, callback) {
 	    	if ($(element).val()) {
-		    	$.ajax("${urlConsultaInicial}/" + $(element).val(), {
+		    	$.ajax($(element).data('urlInicial') + "/" + $(element).val(), {
 	                dataType: "json"
 	            }).done(function(data) {
 	            	callback({id: data.codi, text: data.nom});

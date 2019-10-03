@@ -120,7 +120,8 @@ public interface ExpedientTipusService {
 			Long entornId, 
 			Long expedientTipusId, 
 			boolean actiu, 
-			String codiProcediment);	
+			String codiProcediment,
+			String codiAssumpte);	
 
 	/** 
 	 * Modifica les dades del tipus d'expedient referents amb la integració amb els tràmits de 
@@ -243,6 +244,20 @@ public interface ExpedientTipusService {
 	 *             Si no s'ha trobat el registre amb l'id especificat.
 	 */
 	public List<ExpedientTipusDto> findAmbEntornPermisDissenyar(
+			Long entornId) throws NoTrobatException;
+	
+	/**
+	 * Retorna els tipus d'expedient d'un entorn sobre els quals l'usuari pot processar anotacions.
+	 * 
+	 * @param entornId
+	 *            Atribut id de l'entorn.
+	 * @param expedientTipusId
+	 *            Atribut id del tipus d'expedient.
+	 * @return Els tipus d'expedient amb permisos sobre anotacions.
+	 * @throws NoTrobatException
+	 *             Si no s'ha trobat el registre amb l'id especificat.
+	 */
+	public List<ExpedientTipusDto> findAmbEntornPermisAnotacio(
 			Long entornId) throws NoTrobatException;
 
 	/**
@@ -1160,13 +1175,27 @@ public interface ExpedientTipusService {
 			String notibCodiProcediment,
 			boolean notibActiu);
 
-	/** Mètode per trobar els tipus d'expedients segons els criteris per a la integració amb Distribucio.
+	/** Mètode per trobar el tipus d'expedient segons els criteris per a la integració amb Distribucio. Serveix
+	 * per trobar el tipus d'expedient que està configurat segons el codi procediment i el codi d'assumpte. 
 	 * 
 	 * @param codiProcediment
-	 * 			Filtra pels expedients tipus que tinguin codi procediment i el flag Actiu. Només n'hauria de retornar un
+	 * @param codiAssumpte 
 	 * @return
+	 *  Retorna el tipus d'expedient configurat per a la combinació de codi procediment i codi tipus assumpte
 	 */
-	public ExpedientTipusDto findPerDistribucio(String codiProcediment);	
+	public ExpedientTipusDto findPerDistribucio(String codiProcediment, String codiAssumpte);	
+	
+	/** Mètode per trobar un tipus d'expedient configurat segons els criteris de codi de procediment i codi assumpte per
+	 * validar que no hi hagi cap altre configurat amb els mateixos valors.
+	 * 
+	 * @param codiProcediment
+	 * @param codiAssumpte 
+	 * @return
+	 *  Retorna el tipus d'expedient configurat per a la combinació de codi procediment i codi tipus assumpte
+	 */
+	public ExpedientTipusDto findPerDistribucioValidacio(String codiProcediment, String codiAssumpte);	
+
+	
 
 
 }

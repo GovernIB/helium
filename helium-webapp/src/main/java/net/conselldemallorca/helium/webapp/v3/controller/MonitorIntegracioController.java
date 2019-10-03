@@ -35,7 +35,7 @@ public class MonitorIntegracioController extends BaseController {
 		model.addAttribute(
 				"integracions",
 				(persona != null && persona.isAdmin())?
-				adminService.monitorIntegracioFindAll():adminService.monitorIntegracioFindAllEntronActual());
+				adminService.monitorIntegracioFindAll() : adminService.monitorIntegracioFindAllEntronActual());
 		return "v3/monitorIntegracio";
 	}
 

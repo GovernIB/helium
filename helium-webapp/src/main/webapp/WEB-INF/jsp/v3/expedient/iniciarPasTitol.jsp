@@ -68,6 +68,14 @@
 		<form:hidden path="entornId"/>
 		<form:hidden path="expedientTipusId"/>
 		<input type="hidden" name="definicioProcesId" value="${definicioProces.id}"/>
+
+		<c:if test="${anotacioAcceptarCommand != null}">
+			<div class="alert alert-info">
+				<span class="fa fa-info-circle"></span>
+				<spring:message code="anotacio.form.acceptar.crear.info"></spring:message>
+			</div>
+		</c:if>
+
 		<c:if test="${expedientTipus.teNumero and expedientTipus.demanaNumero}">
 			<div class="controls fila_reducida">
 				<hel:inputText required="true" text="" name="numero" textKey="expedient.consulta.numero" placeholderKey="expedient.consulta.numero" inline="false"/>
@@ -75,7 +83,7 @@
 		</c:if>
 		<c:if test="${expedientTipus.teTitol and expedientTipus.demanaTitol}">
 			<div class="control-group fila_reducida">			
-				<hel:inputTextarea required="true" name="titol" textKey="expedient.consulta.titol" placeholderKey="expedient.consulta.titol"/>
+				<hel:inputText required="true" name="titol" textKey="expedient.consulta.titol" placeholderKey="expedient.consulta.titol"/>
 			</div>
 		</c:if>
 		<c:if test="${expedientTipus.seleccionarAny}">

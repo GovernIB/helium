@@ -22,7 +22,8 @@
 				<input type="hidden" id="id" name="id" value="${expedientTipusIntegracioDistribucioCommand.id}"/>
 				<hel:inputCheckbox name="actiu" textKey="expedient.tipus.integracio.distribucio.activar"/>
 				<div id="inputs_integracioDistribucio" style="display:${expedientTipusIntegracioDistribucioCommand.actiu? 'inline' : 'none'}">
-					<hel:inputText required="true" name="codiProcediment" textKey="expedient.tipus.integracio.distribucio.codiProcediment" />
+					<hel:inputText name="codiProcediment" textKey="expedient.tipus.integracio.distribucio.codiProcediment" />
+					<hel:inputText name="codiAssumpte" textKey="expedient.tipus.integracio.distribucio.codiAssumpte" />
 				</div>
 			</div>
 			

@@ -83,7 +83,9 @@ public class ExpedientServiceBean implements ExpedientService {
 			String iniciadorCodi,
 			String responsableCodi,
 			Map<String, DadesDocumentDto> documents,
-			List<DadesDocumentDto> adjunts) {
+			List<DadesDocumentDto> adjunts,
+			Long anotacioId,
+			boolean anotacioInteressatsAssociar) {
 		return delegate.create(
 				entornId,
 				usuari,
@@ -113,7 +115,9 @@ public class ExpedientServiceBean implements ExpedientService {
 				iniciadorCodi,
 				responsableCodi,
 				documents,
-				adjunts);
+				adjunts,
+				anotacioId,
+				anotacioInteressatsAssociar);
 	}
 
 	@Override
@@ -255,6 +259,12 @@ public class ExpedientServiceBean implements ExpedientService {
 				nomesAlertes,
 				nomesErrors,
 				mostrarAnulats);
+	}
+	
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public List<ExpedientDto> findPerSuggest(Long expedientTipusId, String text) {
+		return delegate.findPerSuggest(expedientTipusId, text);
 	}
 
 	@Override

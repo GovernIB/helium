@@ -581,7 +581,7 @@ public class ExpedientDto extends ControlPermisosDto implements Serializable {
 		return infoAturat != null;
 	}
 	public String getIdentificacioPerLogs() {
-		return null;
+		return getIdentificadorLimitat();
 	}
 	
 	public boolean isAmbErrors () {

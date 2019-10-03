@@ -78,7 +78,7 @@ public class PortaFIBCallBackWsImpl implements PortaFIBCallBackWs {
 		default:
 			String errorDescripcio = "No es reconeix el codi d'estat (" + estat + ")";
 			monitorIntegracioHelper.addAccioError(
-					MonitorIntegracioHelper.INTCODI_PFIRMA_CB,
+					MonitorIntegracioHelper.INTCODI_PFIRMA,
 					accioDescripcio,
 					IntegracioAccioTipusEnumDto.RECEPCIO,
 					System.currentTimeMillis() - t0,
@@ -129,7 +129,7 @@ public class PortaFIBCallBackWsImpl implements PortaFIBCallBackWs {
 			if (!processamentOk)
 				throw new Exception("El document no s'ha processat correctament (id=" + documentId + ", estat=" + estat + "-Signat, resposta=" + resposta + ")");
 			monitorIntegracioHelper.addAccioOk(
-					MonitorIntegracioHelper.INTCODI_PFIRMA_CB, 
+					MonitorIntegracioHelper.INTCODI_PFIRMA, 
 					accioDescripcio, 
 					IntegracioAccioTipusEnumDto.RECEPCIO, 
 					System.currentTimeMillis() - t0, 
@@ -139,7 +139,7 @@ public class PortaFIBCallBackWsImpl implements PortaFIBCallBackWs {
 			String errorDescripcio = "El procés petició callback del portasignatures no ha finalitzat correctament";
 			parametres.add(new IntegracioParametreDto("processamentOk", processamentOk));
 			monitorIntegracioHelper.addAccioError(
-					MonitorIntegracioHelper.INTCODI_PFIRMA_CB,
+					MonitorIntegracioHelper.INTCODI_PFIRMA,
 					accioDescripcio,
 					IntegracioAccioTipusEnumDto.RECEPCIO,
 					System.currentTimeMillis() - t0,
