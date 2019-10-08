@@ -526,11 +526,14 @@ public class ExpedientServiceImpl implements ExpedientService {
 	public Long findIdAmbProcessInstanceId(String processInstanceId) {
 		return expedientRepository.findIdByProcessInstanceId(processInstanceId);
 	}
-	
+
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	@Transactional(readOnly = true)
-	public ExpedientDto findAmbId(Long id) {
-		logger.debug("Consultant l'expedient (id=" + id + ")");
+	public ExpedientDto findAmbIdAmbPermis(Long id) {
+		logger.debug("Consultant l'expedient amb permis lectura (id=" + id + ")");
 		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
 				id,
 				true,
@@ -549,6 +552,19 @@ public class ExpedientServiceImpl implements ExpedientService {
 		expedientHelper.omplirPermisosExpedient(expedientDto);
 		expedientHelper.trobarAlertesExpedient(expedientDto);
 		return expedientDto;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@Transactional(readOnly = true)
+	public ExpedientDto findAmbId(Long id) {
+		logger.debug("Consultant l'expedient sense comprovar permisos (id=" + id + ")");
+		Expedient expedient = expedientRepository.findOne(id);
+		return conversioTipusHelper.convertir(
+				expedient,
+				ExpedientDto.class);
 	}
 
 	/**
@@ -1277,7 +1293,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 				false);
 		List<ExpedientDto> list = new ArrayList<ExpedientDto>();
 		for (Expedient relacionat: expedient.getRelacionsOrigen()) {			
-			list.add(findAmbId(relacionat.getId()));
+			list.add(findAmbIdAmbPermis(relacionat.getId()));
 		}
 		return list;
 	}

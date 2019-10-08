@@ -55,7 +55,7 @@ public class ExpedientNotificacioController extends BaseExpedientController {
 			@PathVariable Long expedientId,
 			@PathVariable Long notificacioId,
 			Model model) {		
-		ExpedientDto expedient = expedientService.findAmbId(expedientId);
+		ExpedientDto expedient = expedientService.findAmbIdAmbPermis(expedientId);
 		NotificacioDto notificacio = expedientService.findNotificacioPerId(notificacioId);
 		
 		model.addAttribute("expedient",expedient);
@@ -70,7 +70,7 @@ public class ExpedientNotificacioController extends BaseExpedientController {
 			@PathVariable Long expedientId,
 			@PathVariable Long notificacioId,
 			Model model) {		
-		expedientService.findAmbId(expedientId);
+		expedientService.findAmbIdAmbPermis(expedientId);
 		NotificacioDto notificacio = expedientService.findNotificacioPerId(notificacioId);
 		
 		model.addAttribute("notificacio",notificacio);
@@ -84,7 +84,7 @@ public class ExpedientNotificacioController extends BaseExpedientController {
 			@PathVariable Long expedientId,
 			@PathVariable Long notificacioId,
 			Model model) {		
-		expedientService.findAmbId(expedientId);
+		expedientService.findAmbIdAmbPermis(expedientId);
 		expedientService.notificacioReprocessar(notificacioId);
 		MissatgesHelper.success(
 				request,
@@ -127,7 +127,7 @@ public class ExpedientNotificacioController extends BaseExpedientController {
 			HttpServletRequest request,
 			@PathVariable Long expedientId,
 			Model model) {		
-		ExpedientDto expedient = expedientService.findAmbId(expedientId);
+		ExpedientDto expedient = expedientService.findAmbIdAmbPermis(expedientId);
 		List<DadesNotificacioDto> notificacions = expedientService.findNotificacionsNotibPerExpedientId(expedient.getId());
 		
 		model.addAttribute("expedient",expedient);

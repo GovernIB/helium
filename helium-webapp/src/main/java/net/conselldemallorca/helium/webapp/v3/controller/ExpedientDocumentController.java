@@ -96,7 +96,7 @@ public class ExpedientDocumentController extends BaseExpedientController {
 			HttpServletRequest request,
 			@PathVariable Long expedientId,
 			Model model) {
-		ExpedientDto expedient = expedientService.findAmbId(expedientId);
+		ExpedientDto expedient = expedientService.findAmbIdAmbPermis(expedientId);
 		List<InstanciaProcesDto> arbreProcessos = expedientService.getArbreInstanciesProces(Long.parseLong(expedient.getProcessInstanceId()));
 		Map<InstanciaProcesDto, List<ExpedientDocumentDto>> documents = new LinkedHashMap<InstanciaProcesDto, List<ExpedientDocumentDto>>();
 		List<PortasignaturesDto> portasignaturesPendent = expedientDocumentService.portasignaturesFindPendents(
@@ -133,7 +133,7 @@ public class ExpedientDocumentController extends BaseExpedientController {
 			@PathVariable Long expedientId,
 			@PathVariable String processInstanceId,
 			Model model) {
-		ExpedientDto expedient = expedientService.findAmbId(expedientId);
+		ExpedientDto expedient = expedientService.findAmbIdAmbPermis(expedientId);
 
 		InstanciaProcesDto instanciaProces = expedientService.getInstanciaProcesById(processInstanceId);
 		List<ExpedientDocumentDto> documentsProces = expedientDocumentService.findAmbInstanciaProces(
@@ -180,7 +180,7 @@ public class ExpedientDocumentController extends BaseExpedientController {
 			@Validated(Create.class) @ModelAttribute DocumentExpedientCommand command,
 			BindingResult bindingResult,
 			Model model) throws IOException {
-		ExpedientDto expedient = expedientService.findAmbId(expedientId);
+		ExpedientDto expedient = expedientService.findAmbIdAmbPermis(expedientId);
 		command.setNtiActiu(expedient.isNtiActiu());
 		if (!bindingResult.hasErrors()) {
 			byte[] arxiuContingut = command.getArxiu().getBytes();
@@ -281,7 +281,7 @@ public class ExpedientDocumentController extends BaseExpedientController {
 			@Validated(Update.class) @ModelAttribute DocumentExpedientCommand command,
 			BindingResult result,
 			Model model) throws IOException {
-		ExpedientDto expedient = expedientService.findAmbId(expedientId);
+		ExpedientDto expedient = expedientService.findAmbIdAmbPermis(expedientId);
 		command.setNtiActiu(expedient.isNtiActiu());
 		ExpedientDocumentDto document = expedientDocumentService.findOneAmbInstanciaProces(
     			expedientId,
@@ -570,7 +570,7 @@ public class ExpedientDocumentController extends BaseExpedientController {
 			@PathVariable Long expedientId,
 			Model model) {
 		
-		ExpedientDto expedient = expedientService.findAmbId(expedientId);
+		ExpedientDto expedient = expedientService.findAmbIdAmbPermis(expedientId);
 //		expedientId=new Long("1100");
 		List<DadesNotificacioDto> notificacions = expedientService.findNotificacionsNotibPerExpedientId(expedientId);
 		model.addAttribute("expedient", expedient);
@@ -801,7 +801,7 @@ public class ExpedientDocumentController extends BaseExpedientController {
 
 	private List<DocumentDto> getDocumentsNoUtilitzats(Long expedientId, String procesId) {
 		InstanciaProcesDto instanciaProces = expedientService.getInstanciaProcesById(procesId);
-		ExpedientDto expedient = expedientService.findAmbId(expedientId);
+		ExpedientDto expedient = expedientService.findAmbIdAmbPermis(expedientId);
 		List<DocumentDto> documents = dissenyService.findDocumentsOrdenatsPerCodi(
 				expedient.getTipus().getId(),
 				instanciaProces.getDefinicioProces().getId());
@@ -825,7 +825,7 @@ public class ExpedientDocumentController extends BaseExpedientController {
 	private ExpedientDto emplenarModelNti(
 			Long expedientId,
 			Model model) {
-		ExpedientDto expedient = expedientService.findAmbId(expedientId);
+		ExpedientDto expedient = expedientService.findAmbIdAmbPermis(expedientId);
 		model.addAttribute("expedient", expedient);
 		if (expedient.isNtiActiu()) {
 			ntiHelper.omplirOrigen(model);

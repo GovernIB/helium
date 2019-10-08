@@ -140,7 +140,7 @@ public class TascaLlistatV3Controller extends BaseController {
 			EntornDto entornActual = (EntornDto) SessionHelper.getAttribute(request, SessionHelper.VARIABLE_ENTORN_ACTUAL_V3);
 			ExpedientTascaDto tasca = tascaService.findAmbIdPerTramitacio(tascaId);
 			filtreCommand.setConsultaTramitacioMassivaTascaId(tasca.getId());
-			ExpedientDto expedient = expedientService.findAmbId(tasca.getExpedientId());
+			ExpedientDto expedient = expedientService.findAmbIdAmbPermis(tasca.getExpedientId());
 			filtreCommand.setExpedientTipusId(expedient.getTipus().getId());
 			if (filtreCommand.getExpedientTipusId() != null) {
 				model.addAttribute(

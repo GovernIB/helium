@@ -161,6 +161,12 @@ public class ExpedientServiceBean implements ExpedientService {
 	
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public ExpedientDto findAmbIdAmbPermis(Long id) {
+		return delegate.findAmbIdAmbPermis(id);
+	}
+	
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public ExpedientDto findAmbId(Long id) {
 		return delegate.findAmbId(id);
 	}

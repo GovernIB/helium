@@ -35,7 +35,7 @@ public class DocumentExpedientValidator implements ConstraintValidator<DocumentE
 	public boolean isValid(DocumentExpedientCommand command, ConstraintValidatorContext context) {
 
 		boolean valid = true;
-		ExpedientDto expedient = expedientService.findAmbId(command.getExpedientId());
+		ExpedientDto expedient = expedientService.findAmbIdAmbPermis(command.getExpedientId());
 		boolean ntiActiu = expedient.isNtiActiu();
 		
 		if (command.isValidarArxius()) {
