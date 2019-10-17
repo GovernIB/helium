@@ -63,21 +63,20 @@ import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto.OrdreDto;
  */
 @Component
 public class LuceneHelper extends LuceneIndexSupport {
+
 	public static final String CLAU_EXPEDIENT_ID = "H3l1um#expedient.id";
 
 	private static final int NUMDIGITS_PART_SENCERA = 15;
 	private static final int NUMDIGITS_PART_DECIMAL = 6;
 	private static final String PATRO_DATES_INDEX = "yyyyMMddHHmmSS";
-
 	private static final String VALOR_CAMP_BUIT = "H3l1um#camp.buit";
 	protected static final String VALOR_DOMINI_SUFIX = "@text@";
-	
 	private static final String MIN_VALUE = "0000";
 	private static final String MAX_VALUE = "99999999999999999999999999999999999999999999999";
+	private static final String LUCENE_ESCAPE_CHARS = " |\\+|\'|\\(|\\)|\\[|\\]|\\&|\\!|\\*|\\{|\\}|\\?|\\:|\\^|\\~|\"|\\\\";
+	private static final String EXPEDIENT_NUMERO_SEPARADOR = ";";
 	
 	protected LuceneSearchTemplate searchTemplate;
-	
-	private static final String LUCENE_ESCAPE_CHARS = " |\\+|\'|\\(|\\)|\\[|\\]|\\&|\\!|\\*|\\{|\\}|\\?|\\:|\\^|\\~|\"|\\\\";
 
 	@Resource
 	protected MesuresTemporalsHelper mesuresTemporalsHelper;
@@ -691,7 +690,6 @@ public class LuceneHelper extends LuceneIndexSupport {
 				informeCamps);
 	}
 	
-	@SuppressWarnings("deprecation")
 	protected Sort getLuceneSort(
 			String[] sort,
 			boolean asc,
@@ -756,7 +754,16 @@ public class LuceneHelper extends LuceneIndexSupport {
 					} else if (ExpedientCamps.EXPEDIENT_CAMP_NUMERO.equals(codiCamp) || ExpedientCamps.EXPEDIENT_CAMP_TITOL.equals(codiCamp) || ExpedientCamps.EXPEDIENT_CAMP_COMENTARI.equals(codiCamp) || ExpedientCamps.EXPEDIENT_CAMP_INFOATUR.equals(codiCamp)) {
 						String valorIndex = ((String) valorFiltre).toLowerCase();
 						if (valorIndex != null && valorIndex.length() > 0) {
-							return queryPerStringAmbWildcards(codiCamp, valorIndex);
+							if (ExpedientCamps.EXPEDIENT_CAMP_NUMERO.equals(codiCamp) && valorIndex.contains(EXPEDIENT_NUMERO_SEPARADOR)) {
+								String[] parts = valorIndex.split(EXPEDIENT_NUMERO_SEPARADOR);
+								BooleanQuery bquery = new BooleanQuery();
+								for (String part: parts) {
+									bquery.add(new BooleanClause(queryPerStringAmbWildcards(codiCamp, part.trim()), BooleanClause.Occur.SHOULD));
+								}
+								return bquery;
+							} else {
+								return queryPerStringAmbWildcards(codiCamp, valorIndex);
+							}
 						}
 					} else if (ExpedientCamps.EXPEDIENT_CAMP_DATA_INICI.equals(codiCamp)) {
 						Date valorInicial = ((Date[]) valorFiltre)[0];
@@ -832,7 +839,6 @@ public class LuceneHelper extends LuceneIndexSupport {
 	
 	private Query queryPerStringAmbWildcards(String codi, String termes) {		
 		BooleanQuery booleanQuery = new BooleanQuery();
-		
 		String[] termesTots = termes.trim().split(LUCENE_ESCAPE_CHARS);
 		for (String terme : termesTots) {
 			if (terme.equals(termesTots[0])) {
@@ -858,7 +864,6 @@ public class LuceneHelper extends LuceneIndexSupport {
 				);					
 			}
 		}
-		
 		return booleanQuery;
 	}
 

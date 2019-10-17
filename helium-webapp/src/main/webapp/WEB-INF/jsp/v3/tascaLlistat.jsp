@@ -21,12 +21,10 @@
 	<script src="<c:url value="/js/helium.datatable.js"/>"></script>
 	<script src="<c:url value="/js/select2.min.js"/>"></script>
 	<script src="<c:url value="/js/select2-locales/select2_locale_${idioma}.js"/>"></script>
-	
 	<script src="<c:url value="/js/moment.js"/>"></script>
 	<script src="<c:url value="/js/moment-with-locales.min.js"/>"></script>
 	<script src="<c:url value="/js/bootstrap-datetimepicker.js"/>"></script>
 	<link href="<c:url value="/css/bootstrap-datetimepicker.min.css"/>" rel="stylesheet">
-	
 <script type="text/javascript">
 	var tascaIdPerAgafar;
 	$(document).ready(function() {
@@ -46,6 +44,14 @@
 				<c:if test="${tascaConsultaCommand.consultaTramitacioMassivaTascaId != null}">
 					$('#tramitacioMassivaCount').html(seleccio.length);
 				</c:if>
+				if (seleccio && seleccio.length) {
+					$('#liTramitacioMassiva a').attr('href', 'tasca/' + seleccio[0] + '/massiva');
+					$('#liTramitacioMassiva').removeClass('disabled');
+					$('#liTramitacioMassiva').removeAttr('title');
+				} else {
+					$('#liTramitacioMassiva').addClass('disabled');
+					$('#liTramitacioMassiva').attr('title', "<spring:message code='tasca.llistat.accio.massiva.no.seleccio'/>");
+				}
 			},
 			drawCallback: function() {
 				$('.tasca-accio-agafar').click(function() {
@@ -56,7 +62,12 @@
 				}
 				tascaIdPerAgafar = null;
 				filtreActiu();
-				
+				var tasca = $('#tasca').val();
+				if (tasca) {
+					$('#liTramitacioMassiva').css('display', 'block');
+				} else {
+					$('#liTramitacioMassiva').css('display', 'none');
+				}
 				if ( $('#expedientTipusId').val() == "") {
 					$('#botoReassignment').addClass('disabled');
 					$('#liReassignment').attr('title', "<spring:message code='expedient.llistat.accio.reassignar.expedient.tipus.buit'/>");
@@ -116,10 +127,12 @@
 					}, 500);
 				} else {
 					//tasques per expedientTipus
-					$.get('tasca/tasques/${entornId}/' + value)				
-					.done(function(data) {
+					$.get('tasca/tasques/${entornId}/' + value).done(function(data) {
 						for (var i = 0; i < data.length; i++) {
-							$('#tasca').append('<option value="' + data[i].codi + '">' + data[i].valor + '</option>');
+							$('#tasca').append('<option value="' + data[i].codi + '">[' + data[i].codi + '] ' + data[i].valor + '</option>');
+						}
+						if ('${tascaConsultaCommand.tasca}' !== '') {
+							$('#tasca').select2('val', '${tascaConsultaCommand.tasca}');
 						}
 						//Es fa el submit del formulari per cercar automàticament per tipus de d'expedient
 						$('#consultar').trigger('click');
@@ -274,7 +287,6 @@
 			$('#tascaConsultaCommand').removeClass("filtrat");
 		}
 	}
-	
 	function marcarTotesVisibles(val){
 		if(!val && $('#taulaDades th input[type=checkbox]')[0].checked || val && !$('#taulaDades th input[type=checkbox]')[0].checked )
         	$('#taulaDades th input[type=checkbox]').trigger("click");
@@ -385,8 +397,6 @@
 							<div class="col-md-6 btn-group">
 								<button id="nomesTasquesPersonalsCheck" data-path="nomesTasquesPersonals" title="<spring:message code="tasca.llistat.filtre.camp.personals"/>" class="btn btn-default filtre-button<c:if test="${tascaConsultaCommand.nomesTasquesPersonals}"> active</c:if>" data-toggle="button"><span class="fa fa-user"></span></button>
 								<button id="nomesTasquesGrupCheck" data-path="nomesTasquesGrup" title="<spring:message code="tasca.llistat.filtre.camp.grup"/>" class="btn btn-default filtre-button<c:if test="${tascaConsultaCommand.nomesTasquesGrup}"> active</c:if>" data-toggle="button"><span class="fa fa-users"></span></button>
-								
-								
 								<c:choose>
 									<c:when test="${expedientTipus.permisTaskSupervision}">
 										<button id="nomesTasquesMevesCheck" data-path="nomesTasquesMeves" title="<spring:message code="expedient.llistat.filtre.camp.meves"/>" class="btn btn-default filtre-button<c:if test="${tascaConsultaCommand.nomesTasquesMeves}"> active</c:if>" data-toggle="button"><span class="fa fa-map-marker"></span></button>
@@ -395,7 +405,6 @@
 										<button id="nomesTasquesMevesCheck" data-path="nomesTasquesMeves" title="<spring:message code="expedient.llistat.filtre.camp.meves"/>" class="btn btn-default filtre-button<c:if test="${tascaConsultaCommand.nomesTasquesMeves}"> active</c:if>" data-toggle="button" disabled><span class="fa fa-map-marker"></span></button>
 									</c:otherwise>
 								</c:choose>
-								
 							</div>
 							<div class="col-md-6">
 								<div class="pull-right">
@@ -473,7 +482,7 @@
 				<th data-rdt-property="createTime" data-rdt-type="datetime" data-rdt-sorting="desc" data-rdt-visible="true"><spring:message code="tasca.llistat.columna.creada"/></th>
 				<th data-rdt-property="dueDate" data-rdt-type="date" data-rdt-visible="true"><spring:message code="tasca.llistat.columna.limit"/></th>
 				<th data-rdt-property="prioritat" data-rdt-visible="false"><spring:message code="tasca.llistat.columna.prioritat"/></th>
-				<th data-rdt-property="id" data-rdt-template="cellAccionsTemplate" data-rdt-context="true" data-rdt-visible="<c:out value="${tascaConsultaCommand.consultaTramitacioMassivaTascaId == null}"/>" data-rdt-sortable="false" data-rdt-nowrap="true" width="10%">
+				<th data-rdt-property="id" data-rdt-template="cellAccionsTemplate" data-rdt-context="true" data-rdt-visible="<c:out value="${tascaConsultaCommand.consultaTramitacioMassivaTascaId == null}"/>" data-rdt-sortable="false" data-rdt-nowrap="true" width="1%">
 					<script id="cellAccionsTemplate" type="text/x-jsrender">
  						<div id="dropdown-menu-{{:id}}" class="dropdown navbar-right">
  							<button class="btn btn-primary" data-toggle="dropdown"><span class="fa fa-cog"></span>&nbsp;<spring:message code="comu.boto.accions"/>&nbsp;<span class="caret"></span></button>
@@ -540,8 +549,10 @@
 						<a id="botoNetejarSeleccio" class="btn btn-default" href="../v3/tasca/seleccioNetejar" data-rdt-link-ajax="true" title="<spring:message code="expedient.llistat.accio.seleccio.netejar"/>"><span class="fa fa-square-o"></span></a>
 						<button class="btn btn-default" data-toggle="dropdown"><span class="fa fa-cog"></span>&nbsp;<spring:message code="comu.boto.accions"/>&nbsp;<span id="reasignacioMassivaCount" class="badge">&nbsp;&nbsp;</span>&nbsp;<span class="caret"></span></button>
   						<ul class="dropdown-menu">
+							<li id="liTramitacioMassiva" class="disabled"><a href="<c:url value="tasca//massiva"/>"><spring:message code="expedient.llistat.tramitacio.massiva"/></a></li>
   							<li id="liReassignment"><a id="botoReassignment" class="btn" href="../v3/tasca/massivaReassignacioTasca" onclick="botoMassiuClick(this)" data-rdt-link-modal="true"><spring:message code="tasca.llistat.reassignacions.massiva"/></a></li>
   							<li><a id="botoAgafar" href="<c:url value="../v3/tasca/seleccioAgafar"/>" data-rdt-link-ajax="true"><spring:message code="tasca.llistat.agafar.seleccionats"/></a></li>
+							<li><a id="botoAllibrerar" href="<c:url value="../v3/tasca/seleccioAlliberar"/>" data-rdt-link-ajax="true"><spring:message code="tasca.llistat.alliberar.seleccionats"/></a></li>
   						</ul>
 					</c:when>
 					<c:otherwise>
@@ -549,9 +560,10 @@
 						<a id="botoNetejarSeleccio" class="btn btn-default" onclick="marcarTotesVisibles(false)" title="<spring:message code="expedient.llistat.accio.seleccio.netejar"/>"><span class="fa fa-square-o"></span></a>
 						<button class="btn btn-default" data-toggle="dropdown"><span class="fa fa-cog"></span>&nbsp;<spring:message code="comu.boto.accions"/>&nbsp;<span id="reasignacioMassivaCount" class="badge">&nbsp;&nbsp;</span>&nbsp;<span class="caret"></span></button>
  						<ul class="dropdown-menu">
+							<li><a href="<c:url value="../../../v3/tasca/massivaTramitacioTasca"/>" onclick="botoMassiuClick(this)" data-rdt-link-modal="true" data-rdt-link-modal-maximize="true"><spring:message code="expedient.llistat.tramitacio.massiva"/></a></li>
 							<li id="liReassignment"><a id="botoReassignment" class="btn" href="<c:url value="../../../v3/tasca/massivaReassignacioTasca"/>" onclick="botoMassiuClick(this)" data-rdt-link-modal="true"><spring:message code="tasca.llistat.reassignacions.massiva"/></a></li>
- 							<li><a href="<c:url value="../../../v3/tasca/massivaTramitacioTasca"/>" onclick="botoMassiuClick(this)" data-rdt-link-modal="true" data-rdt-link-modal-maximize="true"><spring:message code="expedient.llistat.tramitacio.massiva"/>&nbsp;<span id="tramitacioMassivaCount" class="badge">&nbsp;</span></a></li>
  							<li><a id="botoAgafar" href="<c:url value="../../../v3/tasca/seleccioAgafar"/>" data-rdt-link-ajax="true"><spring:message code="tasca.llistat.agafar.seleccionats"/></a></li>
+							<li><a id="botoAllibrerar" href="<c:url value="../v3/tasca/seleccioAlliberar"/>" data-rdt-link-ajax="true"><spring:message code="tasca.llistat.alliberar.seleccionats"/></a></li>
  						</ul>
 					</c:otherwise>
 				</c:choose>	

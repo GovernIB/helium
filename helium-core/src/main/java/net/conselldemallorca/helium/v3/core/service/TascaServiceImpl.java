@@ -391,7 +391,7 @@ public class TascaServiceImpl implements TascaService {
 				MetricRegistry.name(
 						TascaService.class,
 						"llistat"));
-		final Timer.Context contextTotal = timerTotal.time();
+		final Timer.Context contextTimerTotal = timerTotal.time();
 		Counter countTotal = metricRegistry.counter(
 				MetricRegistry.name(
 						TascaService.class,
@@ -402,7 +402,7 @@ public class TascaServiceImpl implements TascaService {
 						TascaService.class,
 						"llistat",
 						entorn.getCodi()));
-		final Timer.Context contextEntorn = timerEntorn.time();
+		final Timer.Context contextTimerEntorn = timerEntorn.time();
 		Counter countEntorn = metricRegistry.counter(
 				MetricRegistry.name(
 						TascaService.class,
@@ -410,73 +410,106 @@ public class TascaServiceImpl implements TascaService {
 						entorn.getCodi()));
 		countEntorn.inc();
 		try {
-			// Comprova l'accés al tipus d'expedient
-			if (expedientTipusId != null) {
-				expedientTipusHelper.getExpedientTipusComprovantPermisLectura(
-						expedientTipusId);
-			}
-			// Si no hi ha tipexp seleccionat o no es te permis SUPERVISION
-			// a damunt el tipexp es filtra per l'usuari actual.
-			if (nomesTasquesMeves || expedientTipusId == null || !expedientTipusHelper.comprovarPermisSupervisio(expedientTipusId)) {
-				responsable = SecurityContextHolder.getContext().getAuthentication().getName();
-			}
-			if (tramitacioMassivaTascaId != null) {
-				JbpmTask task = tascaHelper.getTascaComprovacionsTramitacio(
-						tramitacioMassivaTascaId,
+			final Timer timerConsultaTotal = metricRegistry.timer(
+					MetricRegistry.name(
+							TascaService.class,
+							"llistat.consulta"));
+			final Timer.Context contextTimerConsultaTotal = timerConsultaTotal.time();
+			final Timer timerConsultaEntorn = metricRegistry.timer(
+					MetricRegistry.name(
+							TascaService.class,
+							"llistat.consulta",
+							entorn.getCodi()));
+			final Timer.Context contextTimerConsultaEntorn = timerConsultaEntorn.time();
+			ResultatConsultaPaginadaJbpm<JbpmTask> paginaTasks = null;
+			try {
+				// Comprova l'accés al tipus d'expedient
+				if (expedientTipusId != null) {
+					expedientTipusHelper.getExpedientTipusComprovantPermisLectura(
+							expedientTipusId);
+				}
+				// Si no hi ha tipexp seleccionat o no es te permis SUPERVISION
+				// a damunt el tipexp es filtra per l'usuari actual.
+				if (nomesTasquesMeves || expedientTipusId == null || !expedientTipusHelper.comprovarPermisSupervisio(expedientTipusId)) {
+					responsable = SecurityContextHolder.getContext().getAuthentication().getName();
+				}
+				if (tramitacioMassivaTascaId != null) {
+					JbpmTask task = tascaHelper.getTascaComprovacionsTramitacio(
+							tramitacioMassivaTascaId,
+							true,
+							true);
+					tasca = task.getTaskName();
+				}
+				// Calcula la data d'creacio fi pel filtre
+				if (dataCreacioFi != null) {
+					Calendar cal = Calendar.getInstance();
+					cal.setTime(dataCreacioFi);
+					cal.add(Calendar.DATE, 1);
+					dataCreacioFi.setTime(cal.getTime().getTime());
+				}
+				// Calcula la data limit fi pel filtre
+				if (dataLimitFi != null) {
+					Calendar cal = Calendar.getInstance();
+					cal.setTime(dataLimitFi);
+					cal.add(Calendar.DATE, 1);
+					dataLimitFi.setTime(cal.getTime().getTime());
+				}
+				boolean mostrarAssignadesUsuari = (nomesTasquesPersonals && !nomesTasquesGrup) || (!nomesTasquesPersonals && !nomesTasquesGrup);
+				boolean mostrarAssignadesGrup = (nomesTasquesGrup && !nomesTasquesPersonals) || (!nomesTasquesPersonals && !nomesTasquesGrup);
+				paginaTasks = jbpmHelper.tascaFindByFiltrePaginat(
+						entornId,
+						responsable,
+						tasca,
+						titol,
+						null,
+						expedient,
+						null, //expedientNumero,
+						expedientTipusId,
+						dataCreacioInici,
+						dataCreacioFi,
+						prioritat,
+						dataLimitInici,
+						dataLimitFi,
+						mostrarAssignadesUsuari,
+						mostrarAssignadesGrup,
 						true,
-						true);
-				tasca = task.getTaskName();
+						paginacioParams);
+			} finally {
+				contextTimerConsultaTotal.stop();
+				contextTimerConsultaEntorn.stop();
 			}
-			// Calcula la data d'creacio fi pel filtre
-			if (dataCreacioFi != null) {
-				Calendar cal = Calendar.getInstance();
-				cal.setTime(dataCreacioFi);
-				cal.add(Calendar.DATE, 1);
-				dataCreacioFi.setTime(cal.getTime().getTime());
+			final Timer timerConversionTotal = metricRegistry.timer(
+					MetricRegistry.name(
+							TascaService.class,
+							"llistat.conversio"));
+			final Timer.Context contextTimerConversioTotal = timerConversionTotal.time();
+			final Timer timerConversioEntorn = metricRegistry.timer(
+					MetricRegistry.name(
+							TascaService.class,
+							"llistat.conversio",
+							entorn.getCodi()));
+			final Timer.Context contextTimerConversioEntorn = timerConversioEntorn.time();
+			try {
+				return paginacioHelper.toPaginaDto(
+						paginaTasks.getLlista(),
+						paginaTasks.getCount(),
+						paginacioParams,
+						new Converter<JbpmTask, ExpedientTascaDto>() {
+							public ExpedientTascaDto convert(JbpmTask task) {
+								return tascaHelper.toExpedientTascaDto(
+										task,
+										null,
+										false,
+										true);
+							}
+						});
+			} finally {
+				contextTimerConversioTotal.stop();
+				contextTimerConversioEntorn.stop();
 			}
-			// Calcula la data limit fi pel filtre
-			if (dataLimitFi != null) {
-				Calendar cal = Calendar.getInstance();
-				cal.setTime(dataLimitFi);
-				cal.add(Calendar.DATE, 1);
-				dataLimitFi.setTime(cal.getTime().getTime());
-			}
-			boolean mostrarAssignadesUsuari = (nomesTasquesPersonals && !nomesTasquesGrup) || (!nomesTasquesPersonals && !nomesTasquesGrup);
-			boolean mostrarAssignadesGrup = (nomesTasquesGrup && !nomesTasquesPersonals) || (!nomesTasquesPersonals && !nomesTasquesGrup);
-			ResultatConsultaPaginadaJbpm<JbpmTask> paginaTasks = jbpmHelper.tascaFindByFiltrePaginat(
-					entornId,
-					responsable,
-					tasca,
-					titol,
-					null,
-					expedient,
-					null, //expedientNumero,
-					expedientTipusId,
-					dataCreacioInici,
-					dataCreacioFi,
-					prioritat,
-					dataLimitInici,
-					dataLimitFi,
-					mostrarAssignadesUsuari,
-					mostrarAssignadesGrup,
-					true,
-					paginacioParams);
-			return paginacioHelper.toPaginaDto(
-					paginaTasks.getLlista(),
-					paginaTasks.getCount(),
-					paginacioParams,
-					new Converter<JbpmTask, ExpedientTascaDto>() {
-						public ExpedientTascaDto convert(JbpmTask task) {
-							return tascaHelper.toExpedientTascaDto(
-									task,
-									null,
-									false,
-									true);
-						}
-					});
 		} finally {
-			contextTotal.stop();
-			contextEntorn.stop();
+			contextTimerTotal.stop();
+			contextTimerEntorn.stop();
 		}
 	}
 

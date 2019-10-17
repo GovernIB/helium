@@ -209,7 +209,8 @@ public class GetRootProcessInstancesForActiveTasksCommand extends AbstractGetObj
 		}
 		
 		if (titol != null && !"".equals(titol)) {
-			hql += " and upper(ti.description) like '%@#@TITOL@#@%'||:titol||'%@#@ENTORNID@#@%' ";
+			//hql += " and upper(ti.description) like '%@#@TITOL@#@%'||:titol||'%@#@ENTORNID@#@%' ";
+			hql += " and upper(ti.description) like '%'||:titol||'%' ";
 		}	
 
 		if ("createTime".equals(sort) || "dataCreacio".equals(sort)) {

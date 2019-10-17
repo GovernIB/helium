@@ -469,11 +469,8 @@ public class TascaHelper {
 			boolean perTramitacio,
 			boolean ambPermisos) {
 		ExpedientTascaDto dto = new ExpedientTascaDto();
-		
 		DefinicioProces defp = definicioProcesRepository.findByJbpmId(task.getProcessDefinitionId());
-		
 		Tasca t = tascaRepository.findByJbpmNameAndDefinicioProces(task.getTaskName(), defp);
-		
 		dto.setAmbRepro(t.isAmbRepro());
 		dto.setId(task.getId());
 		DadesCacheTasca dadesCacheTasca = getDadesCacheTasca(
@@ -494,7 +491,6 @@ public class TascaHelper {
 		dto.setCancelled(task.isCancelled());
 		dto.setSuspended(task.isSuspended());
 		dto.setTascaTramitacioMassiva(dadesCacheTasca.isTramitacioMassiva());
-		
 		Tasca tasca = findTascaByJbpmTask(task);
 		if (tasca != null) {
 			dto.setTascaFinalitzacioSegonPla(tasca.isFinalitzacioSegonPla());
@@ -507,7 +503,6 @@ public class TascaHelper {
 				dto.setErrorFinalitzacio(infoSegonPla.getError());
 			}
 		}
-		
 		Expedient expedientNoNull = expedient;
 		if (expedientNoNull == null) {
 			expedientNoNull = expedientHelper.findExpedientByProcessInstanceId(
