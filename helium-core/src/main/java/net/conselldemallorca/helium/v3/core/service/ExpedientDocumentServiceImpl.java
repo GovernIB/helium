@@ -48,6 +48,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuFirmaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuFirmaPerfilEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DadesEnviamentDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DadesEnviamentDto.EntregaPostalTipus;
 import net.conselldemallorca.helium.v3.core.api.dto.DadesNotificacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EnviamentTipusEnumDto;
@@ -309,9 +310,8 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 			Long expedientId,
 			Long documentStoreId,
 			DadesNotificacioDto dadesNotificacioDto,
-			List<Long> interessatsIds,
-			DadesEnviamentDto dadesEnviamentDto) {
-
+			List<Long> interessatsIds) {
+		DadesEnviamentDto dadesEnviamentDto = new DadesEnviamentDto();
 		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
 				expedientId,
 				new Permission[] {
@@ -361,7 +361,6 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 			destinataris.add(destinatari);
 			dadesEnviamentDto.setDestinataris(destinataris);
 			
-			
 			// Titular
 			PersonaDto titular = new PersonaDto();
 			titular.setDni(interessatEntity.getNif());
@@ -373,12 +372,30 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 			titular.setTipus(interessatEntity.getTipus());
 			dadesEnviamentDto.setTitular(titular);
 			
+			// Entrega postal
+			if (interessatEntity.isEntregaPostal()) {
+				dadesEnviamentDto.setEntregaPostalActiva(interessatEntity.isEntregaPostal());
+				dadesEnviamentDto.setEntregaPostalTipus(EntregaPostalTipus.valueOf(interessatEntity.getEntregaTipus().name()));
+				dadesEnviamentDto.setEntregaPostalLinea1(interessatEntity.getLinia1());
+				dadesEnviamentDto.setEntregaPostalLinea2(interessatEntity.getLinia2());
+				if (interessatEntity.getCodiPostal() != null)
+					dadesEnviamentDto.setEntregaPostalCodiPostal(interessatEntity.getCodiPostal());
+				else
+					dadesEnviamentDto.setEntregaPostalCodiPostal("00000");
+			}
+			// Entrega DEH
+			if (interessatEntity.isEntregaDeh()) {
+				dadesEnviamentDto.setEntregaDehActiva(interessatEntity.isEntregaDeh());
+				dadesEnviamentDto.setEntregaDehProcedimentCodi(expedientTipus.getNtiClasificacion());
+				dadesEnviamentDto.setEntregaDehObligat(interessatEntity.isEntregaDehObligat());
+			}
+			dadesEnviamentDto.setServeiTipusEnum(dadesNotificacioDto.getServeiTipusEnum());
+			
 			enviaments.add(dadesEnviamentDto);
 
 			dadesNotificacioDto.setEnviaments(enviaments);
-			
-			pluginHelper.altaNotificacio(dadesNotificacioDto);
 		}
+		pluginHelper.altaNotificacio(dadesNotificacioDto);
 	}
 
 	/**

@@ -12,7 +12,6 @@ function webutilRefreshMissatges() {
 }
 
 function webutilModalAdjustHeight() {
-	debugger;
 	$html = $(document.documentElement);
 	$iframe = $(window.frameElement);
 	var modalobj = $iframe.parent().parent().parent();

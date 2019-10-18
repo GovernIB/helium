@@ -8,9 +8,11 @@
 <%@ attribute name="placeholder" required="false" rtexprvalue="true"%>
 <%@ attribute name="placeholderKey" required="false" rtexprvalue="true"%>
 <%@ attribute name="inline" required="false" rtexprvalue="true"%>
+<%@ attribute name="comment" required="false" rtexprvalue="true"%>
 <%@ attribute name="disabled" required="false" rtexprvalue="true"%>
 <%@ attribute name="labelSize" required="false" rtexprvalue="true"%>
 <c:if test="${empty labelSize}"><c:set var="labelSize" value="${4}"/></c:if>
+<c:if test="${empty labelSize}"><c:set var="emptyLabelSize" value=""/></c:if>
 <c:set var="campClassRequired"><c:if test="${required}">obligatori</c:if></c:set>
 <c:set var="campPath" value="${name}"/>
 <c:set var="campErrors"><form:errors path="${campPath}"/></c:set>
@@ -29,6 +31,9 @@
 					</div>
 				</div>
 				<c:if test="${not empty campErrors}"><p class="help-block"><span class="fa fa-exclamation-triangle"></span>&nbsp;<form:errors path="${campPath}"/></p></c:if>
+				<c:if test="${not empty comment}">
+					<p class="comment col-xs-${12 - emptyLabelSize} col-xs-offset-${emptyLabelSize}"><spring:message code="${comment}"/></p>
+				</c:if>
 			</div>
 		</div>
 	</c:when>
@@ -41,6 +46,9 @@
 					<span class="input-group-addon btn_date" style="width:auto"><span class="fa fa-calendar"></span></span>
 				</div>
 			</div>
+			<c:if test="${not empty comment}">
+				<p class="comment col-xs-${12 - emptyLabelSize} col-xs-offset-${emptyLabelSize}"><spring:message code="${comment}"/></p>
+			</c:if>	
 		</div>
 	</c:otherwise>
 </c:choose>

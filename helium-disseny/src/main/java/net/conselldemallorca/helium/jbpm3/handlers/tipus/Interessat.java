@@ -21,7 +21,13 @@ public class Interessat {
 	private String telefon;
 	private String codiDesti;
 	private Long expedientId;
-	
+	private boolean entregaPostal;
+	private String entregaTipus;
+	private String linia1;
+	private String linia2;
+	private String codiPostal;
+	private boolean entregaDeh;
+	private boolean entregaDehObligat;
 
 	public Long getId() {
 		return id;
@@ -89,6 +95,48 @@ public class Interessat {
 	}
 	public void setCodiDesti(String codiDesti) {
 		this.codiDesti = codiDesti;
+	}
+	public boolean isEntregaPostal() {
+		return entregaPostal;
+	}
+	public void setEntregaPostal(boolean entregaPostal) {
+		this.entregaPostal = entregaPostal;
+	}
+	public String getEntregaTipus() {
+		return entregaTipus;
+	}
+	public void setEntregaTipus(String entregaTipus) {
+		this.entregaTipus = entregaTipus;
+	}
+	public String getLinia1() {
+		return linia1;
+	}
+	public void setLinia1(String linia1) {
+		this.linia1 = linia1;
+	}
+	public String getLinia2() {
+		return linia2;
+	}
+	public void setLinia2(String linia2) {
+		this.linia2 = linia2;
+	}
+	public String getCodiPostal() {
+		return codiPostal;
+	}
+	public void setCodiPostal(String codiPostal) {
+		this.codiPostal = codiPostal;
+	}
+	public boolean isEntregaDeh() {
+		return entregaDeh;
+	}
+	public void setEntregaDeh(boolean entregaDeh) {
+		this.entregaDeh = entregaDeh;
+	}
+	public boolean isEntregaDehObligat() {
+		return entregaDehObligat;
+	}
+	public void setEntregaDehObligat(boolean entregaDehObligat) {
+		this.entregaDehObligat = entregaDehObligat;
 	}
 	
 

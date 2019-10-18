@@ -87,6 +87,9 @@ public class NotificacioAltaHandler extends BasicActionHandler implements Notifi
 	private String titularMobil;
 	private String varTitularMobil;
 	
+	private String titularCodiDir3;
+	private String varTitularCodiDir3;
+	
 	private String titularTipus;
 	private String varTitularTipus;
 	
@@ -109,10 +112,16 @@ public class NotificacioAltaHandler extends BasicActionHandler implements Notifi
 	private String destinatariMobil;
 	private String varDestinatariMobil;
 	
+	private String destinatariCodiDir3;
+	private String varDestinatariCodiDir3;
+	
 	private String destinatariTipus;
 	private String varDestinatariTipus;
 
 	// Dades d'entrega
+	private String entregaPostalActiva;
+	private String varEntregaPostalActiva;
+	
 	private String entregaPostalTipus; // Possibles valors: [NACIONAL, ESTRANGER, APARTAT_CORREUS, SENSE_NORMALITZAR]
 	private String varEntregaPostalTipus;
 	
@@ -181,6 +190,9 @@ public class NotificacioAltaHandler extends BasicActionHandler implements Notifi
 	
 	private String entregaPostalFormatFulla;
 	private String varEntregaPostalFormatFulla;
+	
+	private String entregaDehActiva;
+	private String varEntregaDehActiva;
 	
 	private String entregaDehObligat;
 	private String varEntregaDehObligat;
@@ -328,6 +340,10 @@ public class NotificacioAltaHandler extends BasicActionHandler implements Notifi
 				executionContext,
 				titularNif,
 				varTitularNif));
+		titular.setCodiDir3((String)getValorOVariable(
+				executionContext,
+				titularCodiDir3,
+				varTitularCodiDir3));
 		titular.setTipus((String)getValorOVariable(
 				executionContext,
 				titularTipus,
@@ -375,6 +391,10 @@ public class NotificacioAltaHandler extends BasicActionHandler implements Notifi
 				executionContext,
 				destinatariEmail,
 				varDestinatariEmail));
+		destinatari.setCodiDir3((String)getValorOVariable(
+				executionContext,
+				destinatariCodiDir3,
+				varDestinatariCodiDir3));
 		destinatari.setTipus((String)getValorOVariable(
 				executionContext,
 				destinatariTipus,
@@ -390,6 +410,11 @@ public class NotificacioAltaHandler extends BasicActionHandler implements Notifi
 		if (strEntragaPostalTipus != null && !strEntragaPostalTipus.isEmpty())
 			enviament.setEntregaPostalTipus(DadesEnviament.EntregaPostalTipus.valueOf(strEntragaPostalTipus));
 		
+		Boolean postalActiva = getValorOVariableBoolean(
+				executionContext,
+				entregaPostalActiva,
+				varEntregaPostalActiva);
+		enviament.setEntregaPostalActiva(postalActiva);
 		String strEntregaPostalViaTipus = (String)getValorOVariable(
 				executionContext,
 				entregaPostalViaTipus,
@@ -480,10 +505,15 @@ public class NotificacioAltaHandler extends BasicActionHandler implements Notifi
 				executionContext,
 				entregaPostalFormatFulla,
 				varEntregaPostalFormatFulla));
+		Boolean dehActiva = getValorOVariableBoolean(
+				executionContext,
+				entregaDehActiva,
+				varEntregaDehActiva);
 		Boolean dehObligat = getValorOVariableBoolean(
 				executionContext,
 				entregaDehObligat,
 				varEntregaDehObligat);
+		enviament.setEntregaDehActiva(dehActiva);
 		enviament.setEntregaDehObligat(dehObligat != null ? dehObligat : false);
 		enviament.setEntregaDehProcedimentCodi((String)getValorOVariable(
 				executionContext,
@@ -718,6 +748,38 @@ public class NotificacioAltaHandler extends BasicActionHandler implements Notifi
 
 	public void setVarDestinatariTipus(String varDestinatariTipus) {
 		this.varDestinatariTipus = varDestinatariTipus;
+	}
+
+	public void setTitularCodiDir3(String titularCodiDir3) {
+		this.titularCodiDir3 = titularCodiDir3;
+	}
+
+	public void setVarTitularCodiDir3(String varTitularCodiDir3) {
+		this.varTitularCodiDir3 = varTitularCodiDir3;
+	}
+
+	public void setDestinatariCodiDir3(String destinatariCodiDir3) {
+		this.destinatariCodiDir3 = destinatariCodiDir3;
+	}
+
+	public void setVarDestinatariCodiDir3(String varDestinatariCodiDir3) {
+		this.varDestinatariCodiDir3 = varDestinatariCodiDir3;
+	}
+
+	public void setEntregaPostalActiva(String entregaPostalActiva) {
+		this.entregaPostalActiva = entregaPostalActiva;
+	}
+
+	public void setVarEntregaPostalActiva(String varEntregaPostalActiva) {
+		this.varEntregaPostalActiva = varEntregaPostalActiva;
+	}
+
+	public void setEntregaDehActiva(String entregaDehActiva) {
+		this.entregaDehActiva = entregaDehActiva;
+	}
+
+	public void setVarEntregaDehActiva(String varEntregaDehActiva) {
+		this.varEntregaDehActiva = varEntregaDehActiva;
 	}
 
 	public void setEntregaPostalTipus(String entregaPostalTipus) {

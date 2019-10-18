@@ -60,7 +60,26 @@ public class InteressatModificarHandler extends BasicActionHandler implements In
 	private String telefon;
 	private String varTelefon;
 	
+	private String entregaPostal;
+	private String varEntregaPostal;
 	
+	private String entregaTipus;
+	private String varEntregaTipus;
+	
+	private String linia1;
+	private String varLinia1;
+	
+	private String linia2;
+	private String varLinia2;
+	
+	private String codiPostal;
+	private String varCodiPostal;
+	
+	private String entregaDeh;
+	private String varEntregaDeh;
+	
+	private String entregaDehObligat;
+	private String varEntregaDehObligat;
 	
 	public void execute(ExecutionContext executionContext) {
 		
@@ -100,7 +119,34 @@ public class InteressatModificarHandler extends BasicActionHandler implements In
 				executionContext,
 				telefon,
 				varTelefon));
-		
+		interessat.setEntregaPostal((Boolean)getValorOVariableBoolean(
+				executionContext,
+				entregaPostal,
+				varEntregaPostal));
+		interessat.setEntregaTipus((String)getValorOVariable(
+				executionContext,
+				entregaTipus,
+				varEntregaTipus));
+		interessat.setLinia1((String)getValorOVariable(
+				executionContext,
+				linia1,
+				varLinia1));
+		interessat.setLinia2((String)getValorOVariable(
+				executionContext,
+				linia2,
+				varLinia2));
+		interessat.setEntregaDeh((Boolean)getValorOVariableBoolean(
+				executionContext,
+				entregaDeh,
+				varEntregaDeh));
+		interessat.setEntregaDehObligat((Boolean)getValorOVariableBoolean(
+				executionContext,
+				entregaDehObligat,
+				varEntregaDehObligat));
+		interessat.setCodiPostal((String)getValorOVariable(
+				executionContext, 
+				codiPostal, 
+				varCodiPostal));
 		interessat.setExpedientId(expedient.getId());
 	
 		interessatModificar(interessat);
@@ -156,6 +202,47 @@ public class InteressatModificarHandler extends BasicActionHandler implements In
 	public void setVarTelefon(String varTelefon) {
 		this.varTelefon = varTelefon;
 	}
-	
+	public void setEntregaPostal(String entregaPostal) {
+		this.entregaPostal = entregaPostal;
+	}
+	public void setVarEntregaPostal(String varEntregaPostal) {
+		this.varEntregaPostal = varEntregaPostal;
+	}
+	public void setEntregaTipus(String entregaTipus) {
+		this.entregaTipus = entregaTipus;
+	}
+	public void setVarEntregaTipus(String varEntregaTipus) {
+		this.varEntregaTipus = varEntregaTipus;
+	}
+	public void setLinia1(String linia1) {
+		this.linia1 = linia1;
+	}
+	public void setVarLinia1(String varLinia1) {
+		this.varLinia1 = varLinia1;
+	}
+	public void setLinia2(String linia2) {
+		this.linia2 = linia2;
+	}
+	public void setCodiPostal(String codiPostal) {
+		this.codiPostal = codiPostal;
+	}
+	public void setVarCodiPostal(String varCodiPostal) {
+		this.varCodiPostal = varCodiPostal;
+	}
+	public void setVarLinia2(String varLinia2) {
+		this.varLinia2 = varLinia2;
+	}
+	public void setEntregaDeh(String entregaDeh) {
+		this.entregaDeh = entregaDeh;
+	}
+	public void setVarEntregaDeh(String varEntregaDeh) {
+		this.varEntregaDeh = varEntregaDeh;
+	}
+	public void setEntregaDehObligat(String entregaDehObligat) {
+		this.entregaDehObligat = entregaDehObligat;
+	}
+	public void setVarEntregaDehObligat(String varEntregaDehObligat) {
+		this.varEntregaDehObligat = varEntregaDehObligat;
+	}
 	
 }

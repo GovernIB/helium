@@ -17,7 +17,9 @@ import javax.persistence.TableGenerator;
 
 import org.springmodules.validation.bean.conf.loader.annotation.handler.NotBlank;
 
+import net.conselldemallorca.helium.v3.core.api.dto.DadesEnviamentDto.EntregaPostalTipus;
 import net.conselldemallorca.helium.v3.core.api.dto.InteressatTipusEnumDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ServeiTipusEnumDto;
 
 /**
 
@@ -42,13 +44,16 @@ public class Interessat implements Serializable, GenericEntity<Long> {
 	private String llinatge2;  
 	private String email;  
 	private String telefon; 
+
+	private boolean entregaPostal;
+	private EntregaPostalTipus entregaTipus;
+	private String linia1;
+	private String linia2;
+	private String codiPostal;
+	private boolean entregaDeh;
+	private boolean entregaDehObligat;
 	
 	private Expedient expedient;
-	
-
-	
-
-
 
 	public Interessat() {
 		super();
@@ -63,7 +68,14 @@ public class Interessat implements Serializable, GenericEntity<Long> {
 			InteressatTipusEnumDto tipus,
 			String email, 
 			String telefon,
-			Expedient expedient) {
+			Expedient expedient,
+			boolean entregaPostal,
+			EntregaPostalTipus entregaTipus,
+			String linia1,
+			String linia2,
+			String codiPostal,
+			boolean entregaDeh,
+			boolean entregaDehObligat) {
 		super();
 		this.id = id;
 		this.codi = codi;
@@ -75,6 +87,13 @@ public class Interessat implements Serializable, GenericEntity<Long> {
 		this.email = email;
 		this.telefon = telefon;
 		this.expedient = expedient;
+		this.entregaPostal = entregaPostal;
+		this.entregaTipus = entregaTipus;
+		this.linia1 = linia1;
+		this.linia2 = linia2;
+		this.codiPostal = codiPostal;
+		this.entregaDeh = entregaDeh;
+		this.entregaDehObligat = entregaDehObligat;
 	}
 	
 	
@@ -146,6 +165,48 @@ public class Interessat implements Serializable, GenericEntity<Long> {
 	}
 	public void setTelefon(String telefon) {
 		this.telefon = telefon;
+	}
+	public boolean isEntregaPostal() {
+		return entregaPostal;
+	}
+	public void setEntregaPostal(boolean entregaPostal) {
+		this.entregaPostal = entregaPostal;
+	}
+	public EntregaPostalTipus getEntregaTipus() {
+		return entregaTipus;
+	}
+	public void setEntregaTipus(EntregaPostalTipus entregaTipus) {
+		this.entregaTipus = entregaTipus;
+	}
+	public String getLinia1() {
+		return linia1;
+	}
+	public void setLinia1(String linia1) {
+		this.linia1 = linia1;
+	}
+	public String getLinia2() {
+		return linia2;
+	}
+	public void setLinia2(String linia2) {
+		this.linia2 = linia2;
+	}
+	public String getCodiPostal() {
+		return codiPostal;
+	}
+	public void setCodiPostal(String codiPostal) {
+		this.codiPostal = codiPostal;
+	}
+	public boolean isEntregaDeh() {
+		return entregaDeh;
+	}
+	public void setEntregaDeh(boolean entregaDeh) {
+		this.entregaDeh = entregaDeh;
+	}
+	public boolean isEntregaDehObligat() {
+		return entregaDehObligat;
+	}
+	public void setEntregaDehObligat(boolean entregaDehObligat) {
+		this.entregaDehObligat = entregaDehObligat;
 	}
 	private static final long serialVersionUID = 1L;
 

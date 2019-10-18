@@ -30,5 +30,16 @@ public interface InteressatCrearHandlerInterface extends ActionHandler {
 	public void setVarEmail(String varEmail);
 	public void setTelefon(String telefon);
 	public void setVarTelefon(String varTelefon);
-
+	public void setEntregaPostal(String entregaPostal);
+	public void setVarEntregaPostal(String varEntregaPostal);
+	public void setEntregaTipus(String entregaTipus);
+	public void setVarEntregaTipus(String varEntregaTipus);
+	public void setLinia1(String linia1);
+	public void setVarLinia1(String varLinia1);
+	public void setLinia2(String linia2);
+	public void setVarLinia2(String varLinia2);
+	public void setEntregaDeh(String entregaDeh);
+	public void setVarEntregaDeh(String varEntregaDeh);
+	public void setEntregaDehObligat(String entregaDehObligat);
+	public void setVarEntregaDehObligat(String varEntregaDehObligat);
 }

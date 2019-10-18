@@ -14,6 +14,7 @@
 <%@ attribute name="maxValue" required="false" rtexprvalue="true"%>
 <%@ attribute name="minValue" required="false" rtexprvalue="true"%>
 <c:if test="${empty labelSize}"><c:set var="labelSize" value="${4}"/></c:if>
+<c:if test="${empty labelSize}"><c:set var="emptyLabelSize" value=""/></c:if>
 <c:set var="campPath" value="${name}"/>
 <c:set var="campErrors"><form:errors path="${campPath}"/></c:set>
 <c:set var="campLabelText"><c:choose><c:when test="${not empty textKey}"><spring:message code="${textKey}"/></c:when><c:when test="${not empty text}">${text}</c:when><c:otherwise>${campPath}</c:otherwise></c:choose></c:set>
@@ -28,10 +29,10 @@
 			<div class="col-xs-${12 - labelSize}">
 				<form:input type="number" min="${min}" max="${max}" path="${campPath}" cssClass="form-control" id="${campPath}" disabled="${disabled}" placeholder="${campPlaceholder}"/>
 				<c:if test="${not empty campErrors}"><p class="help-block"><span class="fa fa-exclamation-triangle"></span>&nbsp;<form:errors path="${campPath}"/></p></c:if>
+				<c:if test="${not empty comment}">
+					<p class="comment col-xs-${12 - emptyLabelSize} col-xs-offset-${emptyLabelSize}"><spring:message code="${comment}"/></p>
+				</c:if>
 			</div>
-			<c:if test="${not empty comment}">
-				<p class="comment col-xs-${12 - labelSize} col-xs-offset-${labelSize}"><spring:message code="${comment}"/></p>
-			</c:if>
 		</div>
 	</c:when>
 	<c:otherwise>

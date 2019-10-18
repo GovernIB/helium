@@ -3,6 +3,8 @@
  */
 package net.conselldemallorca.helium.v3.core.api.dto;
 
+import net.conselldemallorca.helium.v3.core.api.dto.DadesEnviamentDto.EntregaPostalTipus;
+
 /**
  * 
  * @author Limit Tecnologies <limit@limit.es>
@@ -19,10 +21,15 @@ public class InteressatDto {
 	private String email;  
 	private String telefon;
 	private Long expedientId;
-	
 	private InteressatTipusEnumDto tipus;
 	
-	
+	private Boolean entregaPostal;
+	private EntregaPostalTipus entregaTipus;
+	private String linia1;
+	private String linia2;
+	private String codiPostal;
+	private Boolean entregaDeh;
+	private Boolean entregaDehObligat;
 
 	public InteressatTipusEnumDto getTipus() {
 		return tipus;
@@ -87,6 +94,48 @@ public class InteressatDto {
 		this.telefon = telefon;
 	} 
 
+	public Boolean getEntregaPostal() {
+		return entregaPostal;
+	}
+	public void setEntregaPostal(Boolean entregaPostal) {
+		this.entregaPostal = entregaPostal;
+	}
+	public EntregaPostalTipus getEntregaTipus() {
+		return entregaTipus;
+	}
+	public void setEntregaTipus(EntregaPostalTipus entregaTipus) {
+		this.entregaTipus = entregaTipus;
+	}
+	public String getLinia1() {
+		return linia1;
+	}
+	public void setLinia1(String linia1) {
+		this.linia1 = linia1;
+	}
+	public String getLinia2() {
+		return linia2;
+	}
+	public void setLinia2(String linia2) {
+		this.linia2 = linia2;
+	}
+	public String getCodiPostal() {
+		return codiPostal;
+	}
+	public void setCodiPostal(String codiPostal) {
+		this.codiPostal = codiPostal;
+	}
+	public Boolean getEntregaDeh() {
+		return entregaDeh;
+	}
+	public void setEntregaDeh(Boolean entregaDeh) {
+		this.entregaDeh = entregaDeh;
+	}
+	public Boolean getEntregaDehObligat() {
+		return entregaDehObligat;
+	}
+	public void setEntregaDehObligat(Boolean entregaDehObligat) {
+		this.entregaDehObligat = entregaDehObligat;
+	}
 	public String getFullNom() {
 		StringBuilder fullNom = new StringBuilder(nom);
 		if (llinatge1 != null)

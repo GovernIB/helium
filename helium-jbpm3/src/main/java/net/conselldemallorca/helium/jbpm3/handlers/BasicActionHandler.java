@@ -41,6 +41,7 @@ import net.conselldemallorca.helium.jbpm3.integracio.Jbpm3HeliumBridge;
 import net.conselldemallorca.helium.jbpm3.integracio.Termini;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DadesEnviamentDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DadesEnviamentDto.EntregaPostalTipus;
 import net.conselldemallorca.helium.v3.core.api.dto.DadesNotificacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentDissenyDto;
@@ -564,7 +565,13 @@ public abstract class BasicActionHandler extends AbstractHeliumActionHandler imp
 		interessatDto.setEmail(interessat.getEmail());
 		interessatDto.setTelefon(interessat.getTelefon());
 		interessatDto.setExpedientId(interessat.getExpedientId());
-		
+		interessatDto.setEntregaPostal(interessat.isEntregaPostal());
+		interessatDto.setEntregaTipus(EntregaPostalTipus.valueOf(interessat.getEntregaTipus()));
+		interessatDto.setLinia1(interessat.getLinia1());
+		interessatDto.setLinia2(interessat.getLinia2());
+		interessatDto.setCodiPostal(interessat.getCodiPostal());
+		interessatDto.setEntregaDeh(interessat.isEntregaDeh());
+		interessatDto.setEntregaDehObligat(interessat.isEntregaDehObligat());
 		Jbpm3HeliumBridge.getInstanceService().interessatCrear(interessatDto);
 		
 	}
@@ -591,7 +598,13 @@ public abstract class BasicActionHandler extends AbstractHeliumActionHandler imp
 		interessatDto.setEmail(interessat.getEmail());
 		interessatDto.setTelefon(interessat.getTelefon());
 		interessatDto.setExpedientId(interessat.getExpedientId());
-		
+		interessatDto.setEntregaPostal(interessat.isEntregaPostal());
+		interessatDto.setEntregaTipus(EntregaPostalTipus.valueOf(interessat.getEntregaTipus()));
+		interessatDto.setLinia1(interessat.getLinia1());
+		interessatDto.setLinia2(interessat.getLinia2());
+		interessatDto.setCodiPostal(interessatDto.getCodiPostal());
+		interessatDto.setEntregaDeh(interessat.isEntregaDeh());
+		interessatDto.setEntregaDehObligat(interessat.isEntregaDehObligat());
 		Jbpm3HeliumBridge.getInstanceService().interessatModificar(interessatDto);
 		
 	}
@@ -659,6 +672,7 @@ public abstract class BasicActionHandler extends AbstractHeliumActionHandler imp
 			titular.setDni(dadesTitular.getDni());
 			titular.setTelefon(dadesTitular.getTelefon());;
 			titular.setEmail(dadesTitular.getEmail());
+			titular.setCodiDir3(dadesTitular.getCodiDir3());
 			titular.setTipus(InteressatTipusEnumDto.valueOf(dadesTitular.getTipus()));
 			enviament.setTitular(titular);
 
@@ -672,6 +686,7 @@ public abstract class BasicActionHandler extends AbstractHeliumActionHandler imp
 				destinatari.setDni(dadesDestinatari.getDni());
 				destinatari.setTelefon(dadesDestinatari.getTelefon());;
 				destinatari.setEmail(dadesDestinatari.getEmail());
+				destinatari.setCodiDir3(dadesDestinatari.getCodiDir3());
 				destinatari.setTipus(InteressatTipusEnumDto.valueOf(dadesDestinatari.getTipus()));
 				destinataris.add(destinatari);
 			}
@@ -681,6 +696,7 @@ public abstract class BasicActionHandler extends AbstractHeliumActionHandler imp
 				enviament.setEntregaPostalTipus(DadesEnviamentDto.EntregaPostalTipus.valueOf(dadesEnviament.getEntregaPostalTipus().name()));
 			if (dadesEnviament.getEntregaPostalViaTipus() != null)
 				enviament.setEntregaPostalViaTipus(DadesEnviamentDto.EntregaPostalViaTipus.valueOf(dadesEnviament.getEntregaPostalViaTipus().name()));
+			enviament.setEntregaPostalActiva(dadesEnviament.isEntregaPostalActiva());
 			enviament.setEntregaPostalViaNom(dadesEnviament.getEntregaPostalViaNom());
 			enviament.setEntregaPostalNumeroCasa(dadesEnviament.getEntregaPostalNumeroCasa());
 			enviament.setEntregaPostalNumeroQualificador(dadesEnviament.getEntregaPostalNumeroQualificador());
@@ -702,6 +718,7 @@ public abstract class BasicActionHandler extends AbstractHeliumActionHandler imp
 			enviament.setEntregaPostalCie(dadesEnviament.getEntregaPostalCie());
 			enviament.setEntregaPostalFormatSobre(dadesEnviament.getEntregaPostalFormatSobre());
 			enviament.setEntregaPostalFormatFulla(dadesEnviament.getEntregaPostalFormatFulla());
+			enviament.setEntregaDehActiva(dadesEnviament.isEntregaDehActiva());
 			enviament.setEntregaDehObligat(dadesEnviament.isEntregaDehObligat());
 			enviament.setEntregaDehProcedimentCodi(dadesEnviament.getEntregaDehProcedimentCodi());
 			

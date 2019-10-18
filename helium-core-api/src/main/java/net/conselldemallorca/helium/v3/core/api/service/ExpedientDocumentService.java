@@ -9,7 +9,6 @@ import java.util.List;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDetallDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuFirmaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.DadesEnviamentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DadesNotificacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDocumentDto;
@@ -360,8 +359,7 @@ public interface ExpedientDocumentService {
 			Long expedientId, 
 			Long documentStoreId, 
 			DadesNotificacioDto dadesNotificacioDto, 
-			List<Long> interessatsIds,
-			DadesEnviamentDto dadesEnviamentDto);
+			List<Long> interessatsIds);
 
 	public PaginaDto<NotificacioDto> findNotificacionsPerDatatable(
 			String filtre, 

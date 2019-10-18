@@ -15,7 +15,9 @@ public class RespostaEnviar {
 	public enum NotificacioEstat {
 		PENDENT,
 		ENVIADA,
-		FINALITZADA
+		FINALITZADA,
+		REGISTRADA,
+		PROCESSADA
 	}
 	
 	private String identificador;

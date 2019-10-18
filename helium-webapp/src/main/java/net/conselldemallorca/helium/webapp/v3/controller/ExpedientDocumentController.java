@@ -40,7 +40,6 @@ import net.conselldemallorca.helium.core.helper.DocumentHelperV3;
 import net.conselldemallorca.helium.core.model.service.PluginService;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuFirmaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.DadesEnviamentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DadesEnviamentDto.EntregaPostalTipus;
 import net.conselldemallorca.helium.v3.core.api.dto.DadesEnviamentDto.EntregaPostalViaTipus;
 import net.conselldemallorca.helium.v3.core.api.dto.DadesNotificacioDto;
@@ -351,8 +350,8 @@ public class ExpedientDocumentController extends BaseExpedientController {
 			Model model) {
 
 		DocumentNotificacioCommand command = new DocumentNotificacioCommand();
-		command.setEntregaDehObligat(true);
-		command.setEntregaDehProcedimentCodi("entregaDehProcedimentCodi");
+//		command.setEntregaDehObligat(true);
+//		command.setEntregaDehProcedimentCodi("entregaDehProcedimentCodi");
 		model.addAttribute("documentNotificacioCommand", command);
 		
 		this.emplenarModelNotificacioDocument(expedientId, processInstanceId, documentStoreId, model);
@@ -373,17 +372,13 @@ public class ExpedientDocumentController extends BaseExpedientController {
 			try {
 				DadesNotificacioDto dadesNotificacioDto = conversioTipusHelper.convertir(
 						documentNotificacioCommand, 
-						DadesNotificacioDto.class);			
-				DadesEnviamentDto dadesEnviamentDto = conversioTipusHelper.convertir(
-						documentNotificacioCommand, 
-						DadesEnviamentDto.class);
+						DadesNotificacioDto.class);		
 				
 				expedientDocumentService.notificarDocument(
 						expedientId,
 						documentStoreId,
 						dadesNotificacioDto,
-						documentNotificacioCommand.getInteressatsIds(),
-						dadesEnviamentDto);
+						documentNotificacioCommand.getInteressatsIds());
 				
 				MissatgesHelper.success(request, getMessage(request, "info.document.notificat"));
 				return modalUrlTancar(false);

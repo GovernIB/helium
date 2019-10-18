@@ -111,6 +111,7 @@ public class NotificacioPluginNotib implements NotificacioPlugin {
 						EntregaDeh entregaDeh = new EntregaDeh();
 						entregaDeh.setObligat(enviament.isEntregaDehObligat());
 						entregaDeh.setProcedimentCodi(enviament.getEntregaDehProcedimentCodi());
+						enviamentNotib.setEntregaDehActiva(enviament.isEntregaDehActiva());
 						enviamentNotib.setEntregaDeh(entregaDeh);
 					}
 					notificacioNotib.getEnviaments().add(enviamentNotib);
@@ -134,6 +135,14 @@ public class NotificacioPluginNotib implements NotificacioPlugin {
 						break;
 					case FINALITZADA:
 						resposta.setEstat(NotificacioEstat.FINALITZADA);
+						break;
+					case REGISTRADA:
+						resposta.setEstat(NotificacioEstat.REGISTRADA);
+						break;
+					case PROCESSADA:
+						resposta.setEstat(NotificacioEstat.PROCESSADA);
+						break;
+					default:
 						break;
 					}
 				}
@@ -179,6 +188,11 @@ public class NotificacioPluginNotib implements NotificacioPlugin {
 						break;
 					case FINALITZADA:
 						resposta.setEstat(NotificacioEstat.FINALITZADA);
+						break;
+					case REGISTRADA:
+						resposta.setEstat(NotificacioEstat.REGISTRADA);
+						break;
+					default:
 						break;
 					}
 				}
@@ -265,6 +279,8 @@ public class NotificacioPluginNotib implements NotificacioPlugin {
 						break;
 					case SENSE_INFORMACIO:
 						resposta.setEstat(EnviamentEstat.SENSE_INFORMACIO);
+						break;
+					default:
 						break;
 					}
 				}

@@ -3,14 +3,18 @@
  */
 package net.conselldemallorca.helium.webapp.v3.command;
 
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 import org.hibernate.validator.constraints.NotEmpty;
 
+import net.conselldemallorca.helium.v3.core.api.dto.DadesEnviamentDto.EntregaPostalTipus;
 import net.conselldemallorca.helium.v3.core.api.dto.InteressatTipusEnumDto;
 import net.conselldemallorca.helium.webapp.v3.command.InteressatCommand.Creacio;
 import net.conselldemallorca.helium.webapp.v3.command.InteressatCommand.Modificacio;
 import net.conselldemallorca.helium.webapp.v3.validator.InteressatCodiNoRepetit;
+import net.conselldemallorca.helium.webapp.v3.validator.InteressatEmail;
+import net.conselldemallorca.helium.webapp.v3.validator.InteressatLinies;
 import net.conselldemallorca.helium.webapp.v3.validator.InteressatLlinatge;
 
 /**
@@ -18,6 +22,8 @@ import net.conselldemallorca.helium.webapp.v3.validator.InteressatLlinatge;
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
+@InteressatLinies(groups = {Creacio.class, Modificacio.class})
+@InteressatEmail(groups = {Creacio.class, Modificacio.class})
 @InteressatCodiNoRepetit(groups = {Creacio.class, Modificacio.class})
 @InteressatLlinatge(groups = {Creacio.class, Modificacio.class})
 public class InteressatCommand {
@@ -37,10 +43,22 @@ public class InteressatCommand {
 
 	private String email;  
 	private Long expedientId;
-	
+
+	@NotNull
 	private InteressatTipusEnumDto tipus;
 	
-
+	private Boolean entregaPostal;
+	private EntregaPostalTipus entregaTipus;
+	@Size(max=50)
+	private String linia1;
+	@Size(max=50)
+	private String linia2;
+	@Size(max=5)
+	private String codiPostal;
+	private Boolean entregaDeh;
+	private Boolean entregaDehObligat;
+	
+	
 	public InteressatTipusEnumDto getTipus() {
 		return tipus;
 	}
@@ -103,9 +121,51 @@ public class InteressatCommand {
 	public void setNom(String nom) {
 		this.nom = nom;
 	}
-	
+	public Boolean getEntregaPostal() {
+		return entregaPostal;
+	}
+	public void setEntregaPostal(Boolean entregaPostal) {
+		this.entregaPostal = entregaPostal;
+	}
+	public EntregaPostalTipus getEntregaTipus() {
+		return entregaTipus;
+	}
+	public void setEntregaTipus(EntregaPostalTipus entregaTipus) {
+		this.entregaTipus = entregaTipus;
+	}
+	public String getLinia1() {
+		return linia1;
+	}
+	public void setLinia1(String linia1) {
+		this.linia1 = linia1;
+	}
+	public String getLinia2() {
+		return linia2;
+	}
+	public void setLinia2(String linia2) {
+		this.linia2 = linia2;
+	}
+	public String getCodiPostal() {
+		return codiPostal;
+	}
+	public void setCodiPostal(String codiPostal) {
+		this.codiPostal = codiPostal;
+	}
+	public Boolean getEntregaDeh() {
+		return entregaDeh;
+	}
+	public void setEntregaDeh(Boolean entregaDeh) {
+		this.entregaDeh = entregaDeh;
+	}
+	public Boolean getEntregaDehObligat() {
+		return entregaDehObligat;
+	}
+	public void setEntregaDehObligat(Boolean entregaDehObligat) {
+		this.entregaDehObligat = entregaDehObligat;
+	}
 
-	
+
+
 	public interface Creacio {}
 	public interface Modificacio {}
 

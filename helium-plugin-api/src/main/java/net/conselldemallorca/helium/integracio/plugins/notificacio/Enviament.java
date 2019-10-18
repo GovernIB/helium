@@ -16,6 +16,7 @@ public class Enviament {
 	
 	private List<Persona> destinataris;
 
+	private boolean entregaDehActiva;
 	private boolean entregaDehObligat;
 	private String entregaDehProcedimentCodi;
 
@@ -207,6 +208,12 @@ public class Enviament {
 	}
 	public void setEntregaPostalFormatFulla(String entregaPostalFormatFulla) {
 		this.entregaPostalFormatFulla = entregaPostalFormatFulla;
+	}
+	public boolean isEntregaDehActiva() {
+		return entregaDehActiva;
+	}
+	public void setEntregaDehActiva(boolean entregaDehActiva) {
+		this.entregaDehActiva = entregaDehActiva;
 	}
 	public boolean isEntregaDehObligat() {
 		return entregaDehObligat;
