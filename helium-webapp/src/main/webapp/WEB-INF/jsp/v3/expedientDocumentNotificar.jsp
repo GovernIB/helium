@@ -20,7 +20,11 @@
 	<script src="<c:url value="/js/moment-with-locales.min.js"/>"></script>
 	<script src="<c:url value="/js/bootstrap-datetimepicker.js"/>"></script>
 	<link href="<c:url value="/css/bootstrap-datetimepicker.min.css"/>" rel="stylesheet">
-
+<style type="text/css">
+#s2id_interessatsIds, #s2id_serveiTipusEnum {
+	width: 100% !important;
+}
+</style>
 <script>
 $(document).ready(function() {
 
@@ -44,10 +48,14 @@ $(document).ready(function() {
 
 		<hel:inputSelect required="true" name="interessatsIds" multiple="true" textKey="expedient.document.notificar.form.camp.interessats.variable" placeholderKey="expedient.document.notificar.form.camp.interessats.placeholder" optionItems="${interessats}" optionValueAttribute="id" optionTextAttribute="fullInfo"/>
 		<hel:inputText required="true" name="concepte" textKey="expedient.document.notificar.form.camp.concepte" />
-		<hel:inputSelect required="true" name="serveiTipusEnum" optionItems="${serveiTipusEstats}" optionValueAttribute="valor" optionTextAttribute="codi" textKey="expedient.document.notificar.form.camp.serveiTipus" />
+		<hel:inputSelect required="true" name="serveiTipusEnum" optionItems="${serveiTipusEstats}" optionValueAttribute="valor" optionTextAttribute="codi" textKey="expedient.document.notificar.form.camp.serveiTipus"/>
+		<hel:inputTextarea name="descripcio" textKey="expedient.document.notificar.form.camp.descripcio"></hel:inputTextarea>
+		<hel:inputDate name="enviamentDataProgramada" textKey="expedient.document.notificar.form.camp.dataprogramada" comment="notificacio.form.camp.data.programada.comment"/>
+		<hel:inputDate name="caducitat" textKey="expedient.document.notificar.form.camp.datacaducitat" comment="notificacio.form.camp.data.caducitat.comment"/>
+		<hel:inputNumber name="retard" textKey="expedient.document.notificar.form.camp.retard" comment="notificacio.form.camp.retard.comment"/>
 		<hel:inputText name="grupCodi" textKey="expedient.document.notificar.form.camp.grupCodi" />
 		
-<%-- 		<hel:inputCheckbox name="entregaPostalActiva" textKey="expedient.document.notificar.form.camp.entregaPostalActiva" /> --%>
+		<hel:inputCheckbox name="entregaPostalActiva" textKey="expedient.document.notificar.form.camp.entregaPostalActiva" />
 		
 <!-- 		<div id="entregaPostal" class="hidden"> -->
 <%-- 			<hel:inputSelect required="true" name="entregaPostalViaTipus" optionItems="${entregaPostalViaTipusEstats}" optionValueAttribute="valor" optionTextAttribute="codi" textKey="expedient.document.notificar.form.camp.entregaPostalViaTipus" /> --%>

@@ -24,6 +24,7 @@ public class PersonaInfo {
 	private Sexe sexe;
 	private String relleu;
 	private String telefon;
+	private String codiDir3;
 	private String tipus;
 
 
@@ -46,6 +47,12 @@ public class PersonaInfo {
 	}
 	
 
+	public String getCodiDir3() {
+		return codiDir3;
+	}
+	public void setCodiDir3(String codiDir3) {
+		this.codiDir3 = codiDir3;
+	}
 	public String getTipus() {
 		return tipus;
 	}

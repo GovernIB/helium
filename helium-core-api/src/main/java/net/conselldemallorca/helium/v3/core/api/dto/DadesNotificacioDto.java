@@ -26,6 +26,7 @@ public class DadesNotificacioDto {
 	private String emisorDir3Codi;
 	private Date enviamentDataProgramada;
 	private EnviamentTipusEnumDto enviamentTipus;
+	private ServeiTipusEnumDto serveiTipusEnum;
 	private List<DadesEnviamentDto> enviaments;
 	private String procedimentCodi;
 	private Integer retard;
@@ -95,6 +96,12 @@ public class DadesNotificacioDto {
 	}
 	public void setEmisorDir3Codi(String emisorDir3Codi) {
 		this.emisorDir3Codi = emisorDir3Codi;
+	}
+	public ServeiTipusEnumDto getServeiTipusEnum() {
+		return serveiTipusEnum;
+	}
+	public void setServeiTipusEnum(ServeiTipusEnumDto serveiTipusEnum) {
+		this.serveiTipusEnum = serveiTipusEnum;
 	}
 	public EnviamentTipusEnumDto getEnviamentTipus() {
 		return enviamentTipus;

@@ -46,6 +46,7 @@ import net.conselldemallorca.helium.jbpm3.integracio.Jbpm3HeliumBridge;
 import net.conselldemallorca.helium.jbpm3.integracio.Termini;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DadesEnviamentDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DadesEnviamentDto.EntregaPostalTipus;
 import net.conselldemallorca.helium.v3.core.api.dto.DadesNotificacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DominiRespostaColumnaDto;
@@ -848,6 +849,7 @@ public class HeliumApiImpl implements HeliumApi {
 			titular.setDni(dadesTitular.getDni());
 			titular.setTelefon(dadesTitular.getTelefon());;
 			titular.setEmail(dadesTitular.getEmail());
+			titular.setCodiDir3(dadesTitular.getCodiDir3());
 			titular.setTipus(InteressatTipusEnumDto.valueOf(dadesTitular.getTipus()));
 			enviament.setTitular(titular);
 
@@ -861,11 +863,13 @@ public class HeliumApiImpl implements HeliumApi {
 				destinatari.setDni(dadesDestinatari.getDni());
 				destinatari.setTelefon(dadesDestinatari.getTelefon());;
 				destinatari.setEmail(dadesDestinatari.getEmail());
+				destinatari.setCodiDir3(dadesDestinatari.getCodiDir3());
 				destinatari.setTipus(InteressatTipusEnumDto.valueOf(dadesDestinatari.getTipus()));
 				destinataris.add(destinatari);
 			}
 			enviament.setDestinataris(destinataris);
 			
+			enviament.setEntregaPostalActiva(dadesEnviament.isEntregaPostalActiva());
 			if (dadesEnviament.getEntregaPostalTipus() != null)
 				enviament.setEntregaPostalTipus(DadesEnviamentDto.EntregaPostalTipus.valueOf(dadesEnviament.getEntregaPostalTipus().name()));
 			if (dadesEnviament.getEntregaPostalViaTipus() != null)
@@ -891,6 +895,7 @@ public class HeliumApiImpl implements HeliumApi {
 			enviament.setEntregaPostalCie(dadesEnviament.getEntregaPostalCie());
 			enviament.setEntregaPostalFormatSobre(dadesEnviament.getEntregaPostalFormatSobre());
 			enviament.setEntregaPostalFormatFulla(dadesEnviament.getEntregaPostalFormatFulla());
+			enviament.setEntregaDehActiva(dadesEnviament.isEntregaDehActiva());
 			enviament.setEntregaDehObligat(dadesEnviament.isEntregaDehObligat());
 			enviament.setEntregaDehProcedimentCodi(dadesEnviament.getEntregaDehProcedimentCodi());
 			enviament.setServeiTipusEnum(dadesNotificacio.getServeiTipus() != null ? ServeiTipusEnumDto.valueOf(dadesNotificacio.getServeiTipus()) : null);
@@ -917,7 +922,13 @@ public class HeliumApiImpl implements HeliumApi {
 		interessatDto.setEmail(interessat.getEmail());
 		interessatDto.setTelefon(interessat.getTelefon());
 		interessatDto.setExpedientId(interessat.getExpedientId());
-		
+		interessatDto.setEntregaPostal(interessat.isEntregaPostal());
+		interessatDto.setEntregaTipus(EntregaPostalTipus.valueOf(interessat.getEntregaTipus()));
+		interessatDto.setLinia1(interessat.getLinia1());
+		interessatDto.setLinia2(interessat.getLinia2());
+		interessatDto.setCodiPostal(interessat.getCodiPostal());
+		interessatDto.setEntregaDeh(interessat.isEntregaDeh());
+		interessatDto.setEntregaDehObligat(interessat.isEntregaDehObligat());
 		Jbpm3HeliumBridge.getInstanceService().interessatCrear(interessatDto);	
 	}
 	
@@ -937,7 +948,13 @@ public class HeliumApiImpl implements HeliumApi {
 		interessatDto.setEmail(interessat.getEmail());
 		interessatDto.setTelefon(interessat.getTelefon());
 		interessatDto.setExpedientId(interessat.getExpedientId());
-		
+		interessatDto.setEntregaPostal(interessat.isEntregaPostal());
+		interessatDto.setEntregaTipus(EntregaPostalTipus.valueOf(interessat.getEntregaTipus()));
+		interessatDto.setLinia1(interessat.getLinia1());
+		interessatDto.setLinia2(interessat.getLinia2());
+		interessatDto.setCodiPostal(interessat.getCodiPostal());
+		interessatDto.setEntregaDeh(interessat.isEntregaDeh());
+		interessatDto.setEntregaDehObligat(interessat.isEntregaDehObligat());
 		Jbpm3HeliumBridge.getInstanceService().interessatModificar(interessatDto);
 		
 	}

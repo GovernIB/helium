@@ -30,6 +30,7 @@ public class PersonaDto implements Serializable {
 	private String relleu;
 	private String contrasenya;
 	private InteressatTipusEnumDto tipus;
+	private String codiDir3;
 
 	public PersonaDto(String codi, String nomSencer, String email, Sexe sexe) {
 		this.codi = codi;
@@ -46,6 +47,12 @@ public class PersonaDto implements Serializable {
 	}
 	
 	
+	public String getCodiDir3() {
+		return codiDir3;
+	}
+	public void setCodiDir3(String codiDir3) {
+		this.codiDir3 = codiDir3;
+	}
 	public InteressatTipusEnumDto getTipus() {
 		return tipus;
 	}

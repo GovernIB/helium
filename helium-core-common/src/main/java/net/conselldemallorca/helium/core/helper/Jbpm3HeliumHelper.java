@@ -458,8 +458,14 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 				interessat.getTipus(),
 				interessat.getEmail(), 
 				interessat.getTelefon(),
-				expedient
-				);
+				expedient,
+				interessat.getEntregaPostal(),
+				interessat.getEntregaTipus(),
+				interessat.getLinia1(),
+				interessat.getLinia2(),
+				interessat.getCodiPostal(),
+				interessat.getEntregaDeh(),
+				interessat.getEntregaDehObligat());
 		
 		interessatRepository.save(interessatEntity);
 	}
@@ -485,7 +491,13 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 		interessatEntity.setTipus(interessat.getTipus());
 		interessatEntity.setEmail(interessat.getEmail());
 		interessatEntity.setTelefon(interessat.getTelefon());
-
+		interessatEntity.setEntregaPostal(interessat.getEntregaPostal());
+		interessatEntity.setEntregaTipus(interessat.getEntregaTipus());
+		interessatEntity.setLinia1(interessat.getLinia1());
+		interessatEntity.setLinia2(interessat.getLinia2());
+		interessatEntity.setCodiPostal(interessat.getCodiPostal());
+		interessatEntity.setEntregaDeh(interessat.getEntregaDeh());
+		interessatEntity.setEntregaDehObligat(interessat.getEntregaDehObligat());
 	}
 	
 	@Override

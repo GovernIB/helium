@@ -292,10 +292,8 @@ public class ExpedientDocumentServiceBean implements ExpedientDocumentService {
 			Long expedientId, 
 			Long documentStoreId, 
 			DadesNotificacioDto dadesNotificacioDto,
-			List<Long> interessatsIds,
-			DadesEnviamentDto dadesEnviamentDto) {
-		delegate.notificarDocument(expedientId, documentStoreId, dadesNotificacioDto, interessatsIds,
-				dadesEnviamentDto);		
+			List<Long> interessatsIds) {
+		delegate.notificarDocument(expedientId, documentStoreId, dadesNotificacioDto, interessatsIds);		
 	}
 
 	@Override

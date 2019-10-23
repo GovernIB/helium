@@ -62,8 +62,14 @@ public class ExpedientInteressatServiceImpl implements ExpedientInteressatServic
 				interessat.getTipus(),
 				interessat.getEmail(), 
 				interessat.getTelefon(),
-				expedient
-				);
+				expedient,
+				interessat.getEntregaPostal(),
+				interessat.getEntregaTipus(),
+				interessat.getLinia1(),
+				interessat.getLinia2(),
+				interessat.getCodiPostal(),
+				interessat.getEntregaDeh(),
+				interessat.getEntregaDehObligat());
 
 		return conversioTipusHelper.convertir(
 				interessatRepository.save(interessatEntity),
@@ -88,7 +94,14 @@ public class ExpedientInteressatServiceImpl implements ExpedientInteressatServic
 		interessatEntity.setTipus(interessat.getTipus());
 		interessatEntity.setEmail(interessat.getEmail());
 		interessatEntity.setTelefon(interessat.getTelefon());
-		
+		interessatEntity.setEntregaPostal(interessat.getEntregaPostal());
+		interessatEntity.setEntregaTipus(interessat.getEntregaTipus());
+		interessatEntity.setLinia1(interessat.getLinia1());
+		interessatEntity.setLinia2(interessat.getLinia2());
+		interessatEntity.setCodiPostal(interessat.getCodiPostal());
+		interessatEntity.setEntregaDeh(interessat.getEntregaDeh());
+		interessatEntity.setEntregaDehObligat(interessat.getEntregaDehObligat());
+
 		return conversioTipusHelper.convertir(
 				interessatEntity,
 				InteressatDto.class);

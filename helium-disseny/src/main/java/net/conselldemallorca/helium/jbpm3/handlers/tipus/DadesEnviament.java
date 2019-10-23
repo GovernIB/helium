@@ -66,6 +66,7 @@ public class DadesEnviament {
 	
 	private PersonaInfo titular;
 	private List<PersonaInfo> destinataris;
+	private boolean entregaPostalActiva;
 	private EntregaPostalTipus entregaPostalTipus;
 	private EntregaPostalViaTipus  entregaPostalViaTipus;
 	private String entregaPostalViaNom;
@@ -89,6 +90,7 @@ public class DadesEnviament {
 	private Integer entregaPostalCie;
 	private String entregaPostalFormatSobre;
 	private String entregaPostalFormatFulla;
+	private boolean entregaDehActiva;
 	private boolean entregaDehObligat;
 	private String entregaDehProcedimentCodi;
 
@@ -253,6 +255,18 @@ public class DadesEnviament {
 	}
 	public void setEntregaDehProcedimentCodi(String entregaDehProcedimentCodi) {
 		this.entregaDehProcedimentCodi = entregaDehProcedimentCodi;
+	}
+	public boolean isEntregaPostalActiva() {
+		return entregaPostalActiva;
+	}
+	public void setEntregaPostalActiva(boolean entregaPostalActiva) {
+		this.entregaPostalActiva = entregaPostalActiva;
+	}
+	public boolean isEntregaDehActiva() {
+		return entregaDehActiva;
+	}
+	public void setEntregaDehActiva(boolean entregaDehActiva) {
+		this.entregaDehActiva = entregaDehActiva;
 	}
 
 }

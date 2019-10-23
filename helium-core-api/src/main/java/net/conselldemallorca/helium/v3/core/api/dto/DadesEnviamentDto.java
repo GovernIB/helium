@@ -92,6 +92,7 @@ public class DadesEnviamentDto {
 	private Integer entregaPostalCie;
 	private String entregaPostalFormatSobre;
 	private String entregaPostalFormatFulla;
+	private boolean entregaDehActiva;
 	private boolean entregaDehObligat;
 	private String entregaDehProcedimentCodi;
 	
@@ -251,6 +252,12 @@ public class DadesEnviamentDto {
 	}
 	public void setEntregaPostalFormatFulla(String entregaPostalFormatFulla) {
 		this.entregaPostalFormatFulla = entregaPostalFormatFulla;
+	}
+	public boolean isEntregaDehActiva() {
+		return entregaDehActiva;
+	}
+	public void setEntregaDehActiva(boolean entregaDehActiva) {
+		this.entregaDehActiva = entregaDehActiva;
 	}
 	public boolean isEntregaDehObligat() {
 		return entregaDehObligat;
