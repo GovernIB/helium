@@ -131,16 +131,14 @@ public class TascaLlistatV3Controller extends BaseController {
 			@Valid TascaConsultaCommand filtreCommand,
 			BindingResult bindingResult,
 			Model model) {
-		
-		SessionManager sessionManager = SessionHelper.getSessionManager(request);
+		/*SessionManager sessionManager = SessionHelper.getSessionManager(request);
 		Set<Long> ids = sessionManager.getSeleccioConsultaTasca();
-		ids.clear();
-		
+		ids.clear();*/
 		try {
 			EntornDto entornActual = (EntornDto) SessionHelper.getAttribute(request, SessionHelper.VARIABLE_ENTORN_ACTUAL_V3);
 			ExpedientTascaDto tasca = tascaService.findAmbIdPerTramitacio(tascaId);
 			filtreCommand.setConsultaTramitacioMassivaTascaId(tasca.getId());
-			ExpedientDto expedient = expedientService.findAmbId(tasca.getExpedientId());
+			ExpedientDto expedient = expedientService.findAmbIdAmbPermis(tasca.getExpedientId());
 			filtreCommand.setExpedientTipusId(expedient.getTipus().getId());
 			if (filtreCommand.getExpedientTipusId() != null) {
 				model.addAttribute(
@@ -152,10 +150,10 @@ public class TascaLlistatV3Controller extends BaseController {
 			SessionHelper.getSessionManager(request).setFiltreConsultaTasca(filtreCommand);
 			return "v3/tascaLlistat";
 		} catch (Exception e) {
+			MissatgesHelper.error(request, e.getMessage());
 			filtreCommand.setConsultaTramitacioMassivaTascaId(null);
 			SessionHelper.getSessionManager(request).setFiltreConsultaTasca(filtreCommand);
 			return "redirect:../../../v3/tasca";
-//			return "v3/tascaLlistat";
 		}
 	}
 
@@ -401,7 +399,41 @@ public class TascaLlistatV3Controller extends BaseController {
 			sessionManager.getSeleccioConsultaTasca().clear();
 		}		
 		return idsAgafats;
-	}	
+	}
+	
+	@RequestMapping(value = "/seleccioAlliberar")
+	@ResponseBody
+	public Set<Long> seleccioAlliberar(HttpServletRequest request) {
+		SessionManager sessionManager = SessionHelper.getSessionManager(request);
+		Set<Long> ids = sessionManager.getSeleccioConsultaTasca();
+		Set<Long> idsAgafats = new HashSet<Long>();
+		if (ids == null || ids.isEmpty()) {
+			MissatgesHelper.error(request, getMessage(request, "error.no.tasc.selec"));
+		} else {
+			Set<Long> idsError = new HashSet<Long>();
+			for (Long tascaId : ids) {
+				try {
+					tascaService.alliberar(tascaId.toString());
+					idsAgafats.add(tascaId);
+				} catch (Exception ex) {
+					idsError.add(tascaId);
+				}
+			}
+			if (idsAgafats.size() > 0)
+				MissatgesHelper.success(request, getMessage(request, "tasca.llistat.alliberar.seleccionats.success", new Object[] {idsAgafats.size(), ids.size()} ));
+			if (idsError.size() > 0)
+				for(ExpedientTascaDto tascaError : tascaService.findAmbIds(idsError))
+					MissatgesHelper.error(request, getMessage(
+														request, 
+														"tasca.llistat.alliberar.seleccionats.error", 
+														new Object[] {
+																tascaError.getTitol(),
+																tascaError.getExpedientIdentificador()} ));
+			// Neteja la selecció
+			sessionManager.getSeleccioConsultaTasca().clear();
+		}		
+		return idsAgafats;
+	}
 
 	protected static final Log logger = LogFactory.getLog(TascaLlistatV3Controller.class);
 

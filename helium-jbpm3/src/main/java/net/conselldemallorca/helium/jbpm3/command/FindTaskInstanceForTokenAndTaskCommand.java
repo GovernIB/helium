@@ -11,8 +11,7 @@ import org.jbpm.graph.exe.Token;
 import org.jbpm.taskmgmt.exe.TaskInstance;
 
 /**
- * Command per a cercar instancies de tasca actives que
- * pertanyen a la mateixa tasca.
+ * Command per a cercar una tasca per token i nom.
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
@@ -30,8 +29,8 @@ public class FindTaskInstanceForTokenAndTaskCommand extends AbstractGetObjectBas
 
 	public Object execute(JbpmContext jbpmContext) throws Exception {
 		Token token = jbpmContext.getToken(tokenId);
-		Collection<TaskInstance> unfinishedTasks = jbpmContext.getProcessInstance(token.getProcessInstance().getId()).getTaskMgmtInstance().getUnfinishedTasks(token);
-		for (TaskInstance task: unfinishedTasks) {
+		Collection<TaskInstance> tasks = jbpmContext.getProcessInstance(token.getProcessInstance().getId()).getTaskMgmtInstance().getTaskInstances();
+		for (TaskInstance task: tasks) {
 			if (task.getTask().getName().equals(taskName))
 				return task;
 		}

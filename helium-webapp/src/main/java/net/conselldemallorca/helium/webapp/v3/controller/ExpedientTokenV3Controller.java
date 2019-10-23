@@ -62,7 +62,7 @@ public class ExpedientTokenV3Controller extends BaseExpedientController {
 			HttpServletRequest request, 
 			@PathVariable Long expedientId, 
 			Model model) {
-		ExpedientDto expedient = expedientService.findAmbId(expedientId);	
+		ExpedientDto expedient = expedientService.findAmbIdAmbPermis(expedientId);	
 		List<InstanciaProcesDto> arbreProcessos = expedientService.getArbreInstanciesProces(Long.parseLong(expedient.getProcessInstanceId()));
 		Map<InstanciaProcesDto, List<TokenDto>> tokens = new LinkedHashMap<InstanciaProcesDto, List<TokenDto>>();
 		for (InstanciaProcesDto instanciaProces: arbreProcessos) {
@@ -86,7 +86,7 @@ public class ExpedientTokenV3Controller extends BaseExpedientController {
 			@PathVariable Long expedientId,
 			@PathVariable String procesId,
 			Model model) {
-		ExpedientDto expedient = expedientService.findAmbId(expedientId);
+		ExpedientDto expedient = expedientService.findAmbIdAmbPermis(expedientId);
 		InstanciaProcesDto instanciaProces = expedientService.getInstanciaProcesById(procesId);
 		Map<InstanciaProcesDto, List<TokenDto>> tokens = new LinkedHashMap<InstanciaProcesDto, List<TokenDto>>();
 		tokens.put(

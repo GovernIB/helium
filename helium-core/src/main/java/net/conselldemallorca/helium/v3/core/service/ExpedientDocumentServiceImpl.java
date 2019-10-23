@@ -13,6 +13,7 @@ import javax.annotation.Resource;
 import org.json.simple.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.acls.domain.BasePermission;
 import org.springframework.security.acls.model.Permission;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -925,8 +926,7 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
 				expedientId,
 				new Permission[] {
-						ExtendedPermission.DOC_MANAGE,
-						ExtendedPermission.ADMINISTRATION});
+						BasePermission.READ});
 		expedientHelper.comprovarInstanciaProces(
 				expedient,
 				processInstanceId);

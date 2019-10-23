@@ -47,7 +47,7 @@ public class ExpedientExecucionsController extends BaseExpedientController {
 	public String execucions(HttpServletRequest request, @PathVariable Long expedientId, Model model) {
 		model.addAttribute("expedientId", expedientId);
 		ExpedientEinesScriptCommand expedientEinesScriptCommand = new ExpedientEinesScriptCommand();
-		ExpedientDto expedient = expedientService.findAmbId(expedientId);
+		ExpedientDto expedient = expedientService.findAmbIdAmbPermis(expedientId);
 		List<InstanciaProcesDto> arbreProcessos = expedientService.getArbreInstanciesProces(Long.parseLong(expedient.getProcessInstanceId()));
 		model.addAttribute("processos", arbreProcessos);
 		model.addAttribute(expedientEinesScriptCommand);
@@ -65,7 +65,7 @@ public class ExpedientExecucionsController extends BaseExpedientController {
 		EntornDto entorn = SessionHelper.getSessionManager(request).getEntornActual();
 		new ExpedientScriptValidator().validate(expedientEinesScriptCommand, result);
 		if (result.hasErrors()) {
-			ExpedientDto expedient = expedientService.findAmbId(expedientId);
+			ExpedientDto expedient = expedientService.findAmbIdAmbPermis(expedientId);
 			List<InstanciaProcesDto> arbreProcessos = expedientService.getArbreInstanciesProces(Long.parseLong(expedient.getProcessInstanceId()));
 			model.addAttribute("processos", arbreProcessos);
 			model.addAttribute("expedientId", expedientId);

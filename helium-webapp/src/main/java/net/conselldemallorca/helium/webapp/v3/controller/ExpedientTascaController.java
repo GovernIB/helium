@@ -50,7 +50,7 @@ public class ExpedientTascaController extends BaseExpedientController {
 			HttpServletRequest request,
 			@PathVariable Long expedientId,
 			Model model) {
-		ExpedientDto expedient = expedientService.findAmbId(expedientId);
+		ExpedientDto expedient = expedientService.findAmbIdAmbPermis(expedientId);
 		if (expedient.isPermisAdministration() || expedient.isPermisRead() || expedient.isPermisSupervision()) {
 			List<InstanciaProcesDto> arbreProcessos = expedientService.getArbreInstanciesProces(Long.parseLong(expedient.getProcessInstanceId()));
 			Map<InstanciaProcesDto, List<ExpedientTascaDto>> tasques = new LinkedHashMap<InstanciaProcesDto, List<ExpedientTascaDto>>();
@@ -73,7 +73,7 @@ public class ExpedientTascaController extends BaseExpedientController {
 			@PathVariable String tascaId,
 			@PathVariable String procesId,
 			Model model) {
-		ExpedientDto expedient = expedientService.findAmbId(expedientId);
+		ExpedientDto expedient = expedientService.findAmbIdAmbPermis(expedientId);
 		InstanciaProcesDto instanciaProces = expedientService.getInstanciaProcesById(procesId);
 		List<ExpedientTascaDto> dadesInstancia = expedientTascaService.findAmbInstanciaProces(
 				expedientId,
@@ -91,7 +91,7 @@ public class ExpedientTascaController extends BaseExpedientController {
 			HttpServletRequest request,
 			@PathVariable Long expedientId,
 			Model model) {
-		ExpedientDto expedient = expedientService.findAmbId(expedientId);
+		ExpedientDto expedient = expedientService.findAmbIdAmbPermis(expedientId);
 		if (expedient.isPermisAdministration() || expedient.isPermisRead() || expedient.isPermisSupervision()) {
 			List<InstanciaProcesDto> arbreProcessos = expedientService.getArbreInstanciesProces(Long.parseLong(expedient.getProcessInstanceId()));
 			Map<InstanciaProcesDto, List<ExpedientTascaDto>> tasques = new LinkedHashMap<InstanciaProcesDto, List<ExpedientTascaDto>>();
@@ -142,7 +142,7 @@ public class ExpedientTascaController extends BaseExpedientController {
 						nomesTasquesGrup));
 		model.addAttribute(
 				"expedient",
-				expedientService.findAmbId(expedientId));	
+				expedientService.findAmbIdAmbPermis(expedientId));	
 		return "v3/expedientTasquesPendents";
 	}
 
@@ -152,7 +152,7 @@ public class ExpedientTascaController extends BaseExpedientController {
 			@PathVariable Long expedientId,
 			@PathVariable String tascaId,
 			Model model) {
-		model.addAttribute("expedient", expedientService.findAmbId(expedientId));
+		model.addAttribute("expedient", expedientService.findAmbIdAmbPermis(expedientId));
 		model.addAttribute("tasca", tascaService.findAmbIdPerExpedient(tascaId, expedientId));
 		return "v3/expedientTascaPendent";
 	}

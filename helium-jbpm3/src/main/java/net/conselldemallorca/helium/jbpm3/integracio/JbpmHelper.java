@@ -1483,6 +1483,8 @@ public class JbpmHelper {
 		TaskInstance ti = (TaskInstance)commandService.execute(commandGetTask);
 		FindTaskInstanceForTokenAndTaskCommand command = new FindTaskInstanceForTokenAndTaskCommand(tokenId, ti.getTask().getName());
 		JbpmTask resultat = new JbpmTask((TaskInstance)commandService.execute(command));
+		if (resultat.getTask() == null)
+			resultat.setTask(ti);
 		//adminService.mesuraCalcular("jBPM findEquivalentTaskInstance", "jbpmDao");
 		return resultat;
 	}

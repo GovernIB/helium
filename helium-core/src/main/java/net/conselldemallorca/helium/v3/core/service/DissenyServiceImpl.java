@@ -604,17 +604,18 @@ public class DissenyServiceImpl implements DissenyService {
 						entornId,
 						tipus.getId()));
 			}
-			if (ids.size() > 0)
+			if (ids.size() > 0) {
 				tasques.addAll(
 						tascaRepository.findIdNomByExpedientTipusOrderByExpedientTipusNomAndNomAsc(ids));
-		} else {
-			ExpedientTipus expedientTipus = expedientTipusRepository.findOne(expedientTipusId);
-			if (expedientTipus != null && expedientTipus.getJbpmProcessDefinitionKey() != null) {
-				ids.addAll(definicioProcesRepository.findIdsDarreraVersioAmbEntornIdIExpedientTipusId(
-						expedientTipus.getEntorn().getId(),
-						expedientTipus.getId()));
-				tasques.addAll(tascaRepository.findIdNomByDefinicioProcesIdsOrderByNomAsc(ids));
 			}
+		}
+		ExpedientTipus expedientTipus = expedientTipusRepository.findOne(expedientTipusId);
+		if (expedientTipus != null && expedientTipus.getJbpmProcessDefinitionKey() != null) {
+			ids.addAll(definicioProcesRepository.findIdsDarreraVersioAmbEntornIdIExpedientTipusId(
+					expedientTipus.getEntorn().getId(),
+					expedientTipus.getId()));
+			tasques.addAll(
+					tascaRepository.findIdNomByDefinicioProcesIdsOrderByNomAsc(ids));
 		}
 		List<ParellaCodiValorDto> lista = new ArrayList<ParellaCodiValorDto>();
 		for (Object[] tasca: tasques) {

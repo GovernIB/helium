@@ -222,7 +222,7 @@ public class ExpedientV3Controller extends BaseExpedientController {
 			@PathVariable Long expedientId,
 			ModelMap model) {
 		try {
-			ExpedientDto expedient = expedientService.findAmbId(expedientId);
+			ExpedientDto expedient = expedientService.findAmbIdAmbPermis(expedientId);
 			DefinicioProcesExpedientDto definicioProces = dissenyService.getDefinicioProcesByTipusExpedientById(expedient.getTipus().getId());
 			List<DefinicioProcesExpedientDto> subDefinicioProces = dissenyService.getSubprocessosByProces(expedient.getTipus().getId(), definicioProces.getJbpmId());
 			CanviVersioProcesCommand canviVersioProcesCommand = new CanviVersioProcesCommand();
@@ -247,7 +247,7 @@ public class ExpedientV3Controller extends BaseExpedientController {
 			@RequestParam(value = "accio", required = true) String accio,
 			ModelMap model) {
 		try {
-			ExpedientDto expedient = expedientService.findAmbId(expedientId);
+			ExpedientDto expedient = expedientService.findAmbIdAmbPermis(expedientId);
 			DefinicioProcesExpedientDto definicioProces = dissenyService.getDefinicioProcesByTipusExpedientById(expedient.getTipus().getId());
 			List<DefinicioProcesExpedientDto> subDefinicioProces = dissenyService.getSubprocessosByProces(expedient.getTipus().getId(), definicioProces.getJbpmId());
 			expedientService.procesDefinicioProcesCanviVersio(
@@ -294,7 +294,7 @@ public class ExpedientV3Controller extends BaseExpedientController {
 			HttpServletRequest request,
 			@PathVariable Long expedientId) {
 		try {
-			ExpedientDto expedient = expedientService.findAmbId(expedientId);
+			ExpedientDto expedient = expedientService.findAmbIdAmbPermis(expedientId);
 			if (expedient.isPermisLogManage()) {
 				expedientRegistreService.registreBuidarLog(
 						expedient.getId());
@@ -338,7 +338,7 @@ public class ExpedientV3Controller extends BaseExpedientController {
 		// Objecte amb les propietats de retorn
 		Map<String, Object> data = new HashMap<String, Object>();
 		// Recupera l'informació de l'expedient
-		ExpedientDto expedient = expedientService.findAmbId(expedientId);
+		ExpedientDto expedient = expedientService.findAmbIdAmbPermis(expedientId);
 		Date dataFi = expedient.getDataFi();
 		String estat;
 		if (dataFi == null) {
@@ -361,7 +361,7 @@ public class ExpedientV3Controller extends BaseExpedientController {
 		try {
 			model.addAttribute(
 					"expedient",
-					expedientService.findAmbId(expedientId));
+					expedientService.findAmbIdAmbPermis(expedientId));
 			model.addAttribute(
 					"arxiuDetall",
 					expedientService.getArxiuDetall(expedientId));
@@ -378,7 +378,7 @@ public class ExpedientV3Controller extends BaseExpedientController {
 			HttpServletRequest request,
 			@PathVariable Long expedientId) {
 		try {
-			ExpedientDto expedient = expedientService.findAmbId(expedientId);
+			ExpedientDto expedient = expedientService.findAmbIdAmbPermis(expedientId);
 			if (expedient.isPermisAdministration()) {
 				expedientService.migrarArxiu(expedient.getId());
 				MissatgesHelper.success(request, getMessage(request, "info.expedient.migrat.arxiu"));

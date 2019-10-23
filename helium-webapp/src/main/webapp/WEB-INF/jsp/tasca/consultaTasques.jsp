@@ -68,7 +68,6 @@ function selTots(){
 </script>
 </head>
 <body>
-
 	<div class="missatgesGris">
 		<c:choose>
 			<c:when test="${empty expedientTipus}">
@@ -99,7 +98,6 @@ function selTots(){
 			</c:otherwise>
 		</c:choose>
 	</div>
-
 	<c:if test="${not empty expedientTipus}">
 		<form:form action="consultaTasquesResultat.html" commandName="commandFiltre" cssClass="uniForm" method="post">
 			<input type="hidden" name="texpedientId" id="texpedientId" value="${expedientTipus.id}">

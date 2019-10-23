@@ -129,7 +129,8 @@ public class FindTaskInstanceIdsFiltreCommand extends AbstractBaseCommand {
 			taskQuerySb.append("and ti.task.name = :taskName ");
 		}
 		if (titol != null && !titol.isEmpty()) {
-			taskQuerySb.append("and upper(ti.description) like '%@#@TITOL@#@%'||:titol||'%@#@ENTORNID@#@%' ");
+			//taskQuerySb.append("and upper(ti.description) like '%@#@TITOL@#@%'||:titol||'%@#@ENTORNID@#@%' ");
+			taskQuerySb.append("and upper(ti.description) like '%'||:titol||'%' ");
 		}
 		if (expedientId != null) {
 			taskQuerySb.append("and ti.processInstance.expedient.id = :expedientId ");

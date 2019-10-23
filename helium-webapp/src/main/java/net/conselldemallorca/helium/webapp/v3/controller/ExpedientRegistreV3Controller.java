@@ -45,7 +45,7 @@ public class ExpedientRegistreV3Controller extends BaseExpedientController {
 			@PathVariable Long expedientId, 
 			@RequestParam(value = "tipus_retroces", required = false) Integer tipus_retroces,
 			Model model) {
-		ExpedientDto expedient = expedientService.findAmbId(expedientId);		
+		ExpedientDto expedient = expedientService.findAmbIdAmbPermis(expedientId);		
 		boolean detall = tipus_retroces != null && tipus_retroces == 0;
 		model.addAttribute(
 				"tasques",

@@ -69,7 +69,7 @@ public class ExpedientRelacionatController extends BaseExpedientController {
 			ExpedientRelacionarCommand command, 
 			BindingResult result, 
 			SessionStatus status) {
-		ExpedientDto expedientOrig = expedientService.findAmbId(expedientId);
+		ExpedientDto expedientOrig = expedientService.findAmbIdAmbPermis(expedientId);
 		try {
 			expedientService.relacioCreate(
 					expedientId,

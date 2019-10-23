@@ -662,13 +662,13 @@ public class ExpedientLoggerHelper {
 			int indent) {
 		DateFormat df = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
 		
-		String logInfo = "              ";
+		StringBuilder logInfo = new StringBuilder("              ");
 		for (int i = 0; i < indent; i++) {
-			logInfo = logInfo + "║  ";
+			logInfo.append("║  ");
 		}
-		logInfo = logInfo + "╠═>";
-		logInfo = logInfo + "[" + df.format(log.getDate()) + "] [" + log.getId() + "] " + log + "(" + log.getClass().getName() + ")";
-		logger.info(logInfo);
+		logInfo.append("╠═>");
+		logInfo.append("[").append(df.format(log.getDate())).append("] [").append(log.getId()).append("] ").append(log).append("(").append(log.getClass().getName()).append(")");
+		logger.info(logInfo.toString());
 		
 		for (ProcessLog l: logs) {
 			if (l.getParent() != null && l.getParent().getId() == log.getId()) {
@@ -778,7 +778,6 @@ public class ExpedientLoggerHelper {
 			mesuresTemporalsHelper.mesuraIniciar("Retrocedir" + (retrocedirPerTasques ? " per tasques" : ""), "expedient", expedientLog.getExpedient().getTipus().getNom(), null, "obtenir dades per retroces");
 			
 			// Emmagatzema els paràmetres per a retrocedir cada acció per parella [processInstanceId, action_name]
-			//Map<Long, String> paramsAccio = new HashMap<Long, String>();
 			Map<String, String> paramsAccio = new HashMap<String, String>();
 			String varName;
 			for (LogObjectDto logo: LogObjectDtos) {
@@ -793,7 +792,6 @@ public class ExpedientLoggerHelper {
 					params = (String)jbpmHelper.getProcessInstanceVariable(
 							new Long(logo.getProcessInstanceId()).toString(),
 							varName);
-					//paramsAccio.put(new Long(logo.getObjectId()), params);
 					if (params != null)
 						paramsAccio.put(paramKey, params);
 					
@@ -1276,15 +1274,17 @@ public class ExpedientLoggerHelper {
 				if (!processInstancesConsultats.contains(processInstanceId)) {
 					processInstancesConsultats.add(processInstanceId);
 					variables = jbpmHelper.getProcessInstanceVariables(String.valueOf(logo.getProcessInstanceId()));
-					for (String variableName : variables.keySet())
-						if (variableName.startsWith(BasicActionHandler.PARAMS_RETROCEDIR_VARIABLE_PREFIX)) {
-							// Recupera la informació del node
-							actionNodeId = variableName.substring(BasicActionHandler.PARAMS_RETROCEDIR_VARIABLE_PREFIX.length(), variableName.length());
-							action = NumberUtils.isNumber(actionNodeId) ? jbpmHelper.getActionById(Long.valueOf(actionNodeId)) : null;
-							if (action != null) {
-								paramsAccio.put(logo.getProcessInstanceId() + "_" + action.getName(), String.valueOf(variables.get(variableName)));
+					if (variables != null) {
+						for (String variableName : variables.keySet())
+							if (variableName.startsWith(BasicActionHandler.PARAMS_RETROCEDIR_VARIABLE_PREFIX)) {
+								// Recupera la informació del node
+								actionNodeId = variableName.substring(BasicActionHandler.PARAMS_RETROCEDIR_VARIABLE_PREFIX.length(), variableName.length());
+								action = NumberUtils.isNumber(actionNodeId) ? jbpmHelper.getActionById(Long.valueOf(actionNodeId)) : null;
+								if (action != null) {
+									paramsAccio.put(logo.getProcessInstanceId() + "_" + action.getName(), String.valueOf(variables.get(variableName)));
+								}
 							}
-						}
+					}
 				}
 			}
 		}		

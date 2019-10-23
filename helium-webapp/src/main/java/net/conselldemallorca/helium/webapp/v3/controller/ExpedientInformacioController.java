@@ -58,7 +58,7 @@ public class ExpedientInformacioController extends BaseExpedientController {
 			HttpServletRequest request,
 			@PathVariable Long expedientId,
 			ModelMap model)  {
-		ExpedientDto expedient = expedientService.findAmbId(expedientId);
+		ExpedientDto expedient = expedientService.findAmbIdAmbPermis(expedientId);
 		model.addAttribute("expedient", expedient);
 		List<EstatDto> estats = expedientTipusService.estatFindAll(
 				expedient.getTipus().getId(),
@@ -79,7 +79,7 @@ public class ExpedientInformacioController extends BaseExpedientController {
 			Model model) {
 		new ExpedientEditarValidator().validate(command, bindingResult);
 		if (bindingResult.hasErrors()) {
-			ExpedientDto expedient = expedientService.findAmbId(expedientId);
+			ExpedientDto expedient = expedientService.findAmbIdAmbPermis(expedientId);
 			model.addAttribute("expedient", expedient);
 			List<EstatDto> estats = expedientTipusService.estatFindAll(expedient.getTipus().getId(), true);
 			estats.add(new EstatDto(ESTAT_FINALITZAT_ID, "-1", getMessage(request, "expedient.consulta.finalitzat")));
@@ -115,7 +115,7 @@ public class ExpedientInformacioController extends BaseExpedientController {
 
 		public void validate(Object target, Errors errors) {
 			ExpedientEditarCommand command = (ExpedientEditarCommand) target;
-			ExpedientDto expedient = expedientService.findAmbId(command.getExpedientId());
+			ExpedientDto expedient = expedientService.findAmbIdAmbPermis(command.getExpedientId());
 			if (expedient.getTipus().isTeTitol())
 				ValidationUtils.rejectIfEmpty(errors, "titol", "not.blank");
 			if (expedient.getTipus().isTeNumero())

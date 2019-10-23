@@ -92,14 +92,127 @@ public class FindJbpmTasksFiltreCommand extends AbstractBaseCommand {
 		this.asc = asc;
 		this.nomesCount = nomesCount;
 	}
-	
-	private String triaTaula (boolean desactivarOptimitzarLlistatTasques)  {
-		if (nomesPendents && !desactivarOptimitzarLlistatTasques)
-			return "MvTaskInstance";
-		else
-			return "TaskInstance";
+
+	@SuppressWarnings("unchecked")
+	public Object execute(JbpmContext jbpmContext) throws Exception {
+		String desactivarOptimitzacioLlistatTascaString = (String)Jbpm3HeliumBridge.getInstanceService().getHeliumProperty("app.llistat.tasques.optimitzacio.desactivada");
+		boolean desactivarOptimitzarLlistatTasques = "true".equalsIgnoreCase(desactivarOptimitzacioLlistatTascaString);
+		StringBuilder taskQuerySb = consulta1(desactivarOptimitzarLlistatTasques);
+		Query queryCount = jbpmContext.getSession().createQuery(
+				"select count(distinct ti.id) " + taskQuerySb.toString());
+		setQueryParams(
+				queryCount,
+				entornId,
+				actorId,
+				taskName,
+				titol,
+				expedientId,
+				expedientTitol,
+				expedientNumero,
+				expedientTipusId,
+				dataCreacioInici,
+				dataCreacioFi,
+				prioritat,
+				dataLimitInici,
+				dataLimitFi,
+				0,
+				-1);
+		int count = ((Long)queryCount.uniqueResult()).intValue();
+		StringBuilder taskQuerySb2 = null;
+		if (actorId != null && mostrarAssignadesUsuari && mostrarAssignadesGrup && !desactivarOptimitzarLlistatTasques) {
+			taskQuerySb2 = consulta2(desactivarOptimitzarLlistatTasques);
+			Query queryCount2 = jbpmContext.getSession().createQuery(
+					"select count(distinct ti.id) " + taskQuerySb2.toString());
+			setQueryParams(
+					queryCount2,
+					entornId,
+					actorId,
+					taskName,
+					titol,
+					expedientId,
+					expedientTitol,
+					expedientNumero,
+					expedientTipusId,
+					dataCreacioInici,
+					dataCreacioFi,
+					prioritat,
+					dataLimitInici,
+					dataLimitFi,
+					0,
+					-1);
+			count += ((Long)queryCount2.uniqueResult()).intValue();
+		}
+		if (!nomesCount) {
+			taskQuerySb.insert(0, "select tki from org.jbpm.taskmgmt.exe.TaskInstance tki where tki.id in (select distinct ti.id ");
+			taskQuerySb.append(") ");
+			//afegim les ids del segon subconjunt si aquest subconjunt existeix
+			if (taskQuerySb2 != null && !taskQuerySb2.toString().isEmpty())
+				taskQuerySb.append(" or tki.id in (select distinct ti.id " + taskQuerySb2.toString() + ")");
+			List<String> sortColumns = new ArrayList<String>();
+			if (sort != null) {
+				/*sorts:
+				titol
+				expedientTitol
+				expedientTipusNom
+				dataCreacio
+				prioritat
+				dataLimit*/
+				// Per defecte: dataCreacio desc
+				taskQuerySb.append("order by ");
+				if ("titol".equals(sort)) {
+					sortColumns.add("tki.description");
+				} else if ("expedientTitol".equals(sort)) {
+					sortColumns.add("tki.processInstance.expedient.numero");
+					sortColumns.add("tki.processInstance.expedient.titol");
+				} else if ("expedientTipusNom".equals(sort)) {
+					sortColumns.add("tki.processInstance.expedient.tipus.nom");
+				} else if ("dataCreacio".equals(sort)) {
+					sortColumns.add("tki.create");
+				} else if ("prioritat".equals(sort)) {
+					sortColumns.add("tki.priority");
+				} else if ("dataLimit".equals(sort)) {
+					sortColumns.add("tki.dueDate");
+				}
+				boolean sortFirst = true;
+				for (String sortColumn: sortColumns) {
+					if (!sortFirst)
+						taskQuerySb.append(", ");
+					taskQuerySb.append(sortColumn);
+					taskQuerySb.append((asc) ? " asc" : " desc");
+					sortFirst = false;
+				}
+			}
+			Query queryTaskInstances = jbpmContext.getSession().createQuery(taskQuerySb.toString());
+			setQueryParams(
+					queryTaskInstances,
+					entornId,
+					actorId,
+					taskName,
+					titol,
+					expedientId,
+					expedientTitol,
+					expedientNumero,
+					expedientTipusId,
+					dataCreacioInici,
+					dataCreacioFi,
+					prioritat,
+					dataLimitInici,
+					dataLimitFi,
+					firstResult,
+					maxResults);
+			List<TaskInstance> resultat = (List<TaskInstance>)queryTaskInstances.list();
+			List<JbpmTask> tasks = new ArrayList<JbpmTask>();
+			for (TaskInstance task: resultat) {
+				tasks.add(new JbpmTask(task));
+			}
+			return new ResultatConsultaPaginadaJbpm<JbpmTask>(
+					count,
+					tasks);
+		} else {
+			return new ResultatConsultaPaginadaJbpm<JbpmTask>(count);
+		}
 	}
-	
+
 	private StringBuilder consulta1 (boolean desactivarOptimitzarLlistatTasques) {
 		StringBuilder taskQuerySb = new StringBuilder();
 		if (actorId != null) {
@@ -141,7 +254,8 @@ public class FindJbpmTasksFiltreCommand extends AbstractBaseCommand {
 			taskQuerySb.append("and ti.task.name = :taskName ");
 		}
 		if (titol != null && !titol.isEmpty()) {
-			taskQuerySb.append("and upper(ti.description) like '%@#@TITOL@#@%'||:titol||'%@#@ENTORNID@#@%' ");
+			//taskQuerySb.append("and upper(ti.description) like '%@#@TITOL@#@%'||:titol||'%@#@ENTORNID@#@%' ");
+			taskQuerySb.append("and upper(ti.description) like '%'||:titol||'%' ");
 		}
 		if (expedientId != null) {
 			taskQuerySb.append("and ti.processInstance.expedient.id = :expedientId ");
@@ -224,7 +338,8 @@ public class FindJbpmTasksFiltreCommand extends AbstractBaseCommand {
 			taskQuerySb.append("and ti.task.name = :taskName ");
 		}
 		if (titol != null && !titol.isEmpty()) {
-			taskQuerySb.append("and upper(ti.description) like '%@#@TITOL@#@%'||:titol||'%@#@ENTORNID@#@%' ");
+			//taskQuerySb.append("and upper(ti.description) like '%@#@TITOL@#@%'||:titol||'%@#@ENTORNID@#@%' ");
+			taskQuerySb.append("and upper(ti.description) like '%'||:titol||'%' ");
 		}
 		if (expedientId != null) {
 			taskQuerySb.append("and ti.processInstance.expedient.id = :expedientId ");
@@ -269,131 +384,11 @@ public class FindJbpmTasksFiltreCommand extends AbstractBaseCommand {
 		return taskQuerySb;
 	}
 
-	@SuppressWarnings("unchecked")
-	public Object execute(JbpmContext jbpmContext) throws Exception {
-		
-		String desactivarOptimitzacioLlistatTascaString = (String)Jbpm3HeliumBridge.getInstanceService().getHeliumProperty("app.llistat.tasques.optimitzacio.desactivada");
-		boolean desactivarOptimitzarLlistatTasques = "true".equalsIgnoreCase(desactivarOptimitzacioLlistatTascaString);
-		
-		StringBuilder taskQuerySb = consulta1(desactivarOptimitzarLlistatTasques);
-		
-		Query queryCount = jbpmContext.getSession().createQuery(
-				"select count(distinct ti.id) " + taskQuerySb.toString());
-		setQueryParams(
-				queryCount,
-				entornId,
-				actorId,
-				taskName,
-				titol,
-				expedientId,
-				expedientTitol,
-				expedientNumero,
-				expedientTipusId,
-				dataCreacioInici,
-				dataCreacioFi,
-				prioritat,
-				dataLimitInici,
-				dataLimitFi,
-				0,
-				-1);
-		int count = ((Long)queryCount.uniqueResult()).intValue();
-		
-		StringBuilder taskQuerySb2 = null;
-		if (actorId != null && mostrarAssignadesUsuari && mostrarAssignadesGrup && !desactivarOptimitzarLlistatTasques) {
-			taskQuerySb2 = consulta2(desactivarOptimitzarLlistatTasques);
-			Query queryCount2 = jbpmContext.getSession().createQuery(
-					"select count(distinct ti.id) " + taskQuerySb2.toString());
-			setQueryParams(
-					queryCount2,
-					entornId,
-					actorId,
-					taskName,
-					titol,
-					expedientId,
-					expedientTitol,
-					expedientNumero,
-					expedientTipusId,
-					dataCreacioInici,
-					dataCreacioFi,
-					prioritat,
-					dataLimitInici,
-					dataLimitFi,
-					0,
-					-1);
-			count += ((Long)queryCount2.uniqueResult()).intValue();
-		}
-		
-		if (!nomesCount) {
-			taskQuerySb.insert(0, "select tki from org.jbpm.taskmgmt.exe.TaskInstance tki where tki.id in (select distinct ti.id ");
-			taskQuerySb.append(") ");
-			
-			//afegim les ids del segon subconjunt si aquest subconjunt existeix
-			if (taskQuerySb2 != null && !taskQuerySb2.toString().isEmpty())
-				taskQuerySb.append(" or tki.id in (select distinct ti.id " + taskQuerySb2.toString() + ")");
-			
-			List<String> sortColumns = new ArrayList<String>();
-			if (sort != null) {
-				/*sorts:
-				titol
-				expedientTitol
-				expedientTipusNom
-				dataCreacio
-				prioritat
-				dataLimit*/
-				// Per defecte: dataCreacio desc
-				taskQuerySb.append("order by ");
-				if ("titol".equals(sort)) {
-					sortColumns.add("tki.description");
-				} else if ("expedientTitol".equals(sort)) {
-					sortColumns.add("tki.processInstance.expedient.numero");
-					sortColumns.add("tki.processInstance.expedient.titol");
-				} else if ("expedientTipusNom".equals(sort)) {
-					sortColumns.add("tki.processInstance.expedient.tipus.nom");
-				} else if ("dataCreacio".equals(sort)) {
-					sortColumns.add("tki.create");
-				} else if ("prioritat".equals(sort)) {
-					sortColumns.add("tki.priority");
-				} else if ("dataLimit".equals(sort)) {
-					sortColumns.add("tki.dueDate");
-				}
-				boolean sortFirst = true;
-				for (String sortColumn: sortColumns) {
-					if (!sortFirst)
-						taskQuerySb.append(", ");
-					taskQuerySb.append(sortColumn);
-					taskQuerySb.append((asc) ? " asc" : " desc");
-					sortFirst = false;
-				}
-			}
-			Query queryTaskInstances = jbpmContext.getSession().createQuery(taskQuerySb.toString());
-			setQueryParams(
-					queryTaskInstances,
-					entornId,
-					actorId,
-					taskName,
-					titol,
-					expedientId,
-					expedientTitol,
-					expedientNumero,
-					expedientTipusId,
-					dataCreacioInici,
-					dataCreacioFi,
-					prioritat,
-					dataLimitInici,
-					dataLimitFi,
-					firstResult,
-					maxResults);
-			List<TaskInstance> resultat = (List<TaskInstance>)queryTaskInstances.list();
-			List<JbpmTask> tasks = new ArrayList<JbpmTask>();
-			for (TaskInstance task: resultat) {
-				tasks.add(new JbpmTask(task));
-			}
-			return new ResultatConsultaPaginadaJbpm<JbpmTask>(
-					count,
-					tasks);
-		} else {
-			return new ResultatConsultaPaginadaJbpm<JbpmTask>(count);
-		}
+	private String triaTaula (boolean desactivarOptimitzarLlistatTasques)  {
+		if (nomesPendents && !desactivarOptimitzarLlistatTasques)
+			return "MvTaskInstance";
+		else
+			return "TaskInstance";
 	}
 
 	private void setQueryParams(

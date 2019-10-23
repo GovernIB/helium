@@ -38,7 +38,7 @@ public class BaseExpedientController extends BaseController {
 			Long expedientId,
 			Model model,
 			String pipellaActiva) {
-		ExpedientDto expedient = expedientService.findAmbId(expedientId);
+		ExpedientDto expedient = expedientService.findAmbIdAmbPermis(expedientId);
 		model.addAttribute("expedient", expedient);
 		model.addAttribute("participants", expedientService.findParticipants(expedientId));
 		model.addAttribute("relacionats", expedientService.relacioFindAmbExpedient(expedientId));

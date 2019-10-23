@@ -159,7 +159,7 @@ public class MassivaExpedientController extends BaseExpedientController {
 			return "redirect:/v3";
 		} else {
 			List<Long> listIds = new ArrayList<Long>(ids);			
-			ExpedientDto expedient = expedientService.findAmbId(listIds.get(0));
+			ExpedientDto expedient = expedientService.findAmbIdAmbPermis(listIds.get(0));
 			model.addAttribute("consultaId", consultaId);
 			model.addAttribute("numExpedients", ids.size());
 			model.addAttribute("inici", null);
@@ -368,7 +368,7 @@ public class MassivaExpedientController extends BaseExpedientController {
 		dto.setDataInici(dInici);
 		dto.setEnviarCorreu(correu);
 		dto.setExpedientIds(listIds);
-		ExpedientDto expedientAux = expedientService.findAmbId(listIds.get(0));
+		ExpedientDto expedientAux = expedientService.findAmbIdAmbPermis(listIds.get(0));
 		dto.setExpedientTipusId(expedientAux.getTipus().getId());
 		
 		try {					
@@ -438,7 +438,7 @@ public class MassivaExpedientController extends BaseExpedientController {
 				params[0] = ((CanviVersioProcesCommand) command).getDefinicioProcesId();
 				params[1] = ((CanviVersioProcesCommand) command).getSubprocesId();
 								
-				ExpedientDto expedient = expedientService.findAmbId(listIds.get(0));
+				ExpedientDto expedient = expedientService.findAmbIdAmbPermis(listIds.get(0));
 				DefinicioProcesExpedientDto definicioProces = dissenyService.getDefinicioProcesByTipusExpedientById(expedient.getTipus().getId());
 				List<DefinicioProcesExpedientDto> supProcessos = dissenyService.getSubprocessosByProces(expedient.getTipus().getId(), definicioProces.getJbpmId());
 
@@ -550,7 +550,7 @@ public class MassivaExpedientController extends BaseExpedientController {
 			} else if ("modificar_variable".equals(accio)) {
 				EntornDto entorn = SessionHelper.getSessionManager(request).getEntornActual();
 
-				ExpedientDto expedient = expedientService.findAmbId(listIds.get(0));
+				ExpedientDto expedient = expedientService.findAmbIdAmbPermis(listIds.get(0));
 				String varCodi = null;
 				String processInstanceId = expedient.getProcessInstanceId();
 				for (CampDto camp : expedientService.getCampsInstanciaProcesById(
@@ -617,7 +617,7 @@ public class MassivaExpedientController extends BaseExpedientController {
 			Map<String, Class<?>> campsAddicionalsClasses = new HashMap<String, Class<?>>();
 			Set<Long> ids = recuperarIdsAccionesMasivas(request);
 			List<Long> listIds = new ArrayList<Long>(ids);			
-			ExpedientDto expedient = expedientService.findAmbId(listIds.get(0));
+			ExpedientDto expedient = expedientService.findAmbIdAmbPermis(listIds.get(0));
 			CampDto campo = null;
 			for (CampDto camp : expedientService.getCampsInstanciaProcesById(
 					expedient.getTipus().getId(),
@@ -707,7 +707,7 @@ public class MassivaExpedientController extends BaseExpedientController {
 		}
 		// NTI
 		List<Long> listIds = new ArrayList<Long>(ids);
-		ExpedientDto expedient = expedientService.findAmbId(listIds.get(0));
+		ExpedientDto expedient = expedientService.findAmbIdAmbPermis(listIds.get(0));
 		command.setExpedientId(expedient.getId());
 		command.setValidarArxius(true);
 		// Mira si el tipus d'expedient té metadades NTI i tots els primer seleccionat

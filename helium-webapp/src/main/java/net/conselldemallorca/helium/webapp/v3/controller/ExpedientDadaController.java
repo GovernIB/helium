@@ -119,7 +119,7 @@ public class ExpedientDadaController extends BaseExpedientController {
 			@PathVariable String procesId,
 			@RequestParam(value = "ambOcults", required = false) Boolean ambOcults,
 			Model model) {
-		ExpedientDto expedient = expedientService.findAmbId(expedientId);
+		ExpedientDto expedient = expedientService.findAmbIdAmbPermis(expedientId);
 		model.addAttribute("expedient", expedient);
 		ambOcults = (ambOcults == null || !expedient.isPermisAdministration()) ? false : ambOcults;
 		model.addAttribute("ambOcults", ambOcults);
@@ -526,7 +526,7 @@ public class ExpedientDadaController extends BaseExpedientController {
 			Long expedientId,
 			boolean ambOcults,
 			Model model) {
-		ExpedientDto expedient = expedientService.findAmbId(expedientId);
+		ExpedientDto expedient = expedientService.findAmbIdAmbPermis(expedientId);
 		// Obtenim l'arbre de processos, per a poder mostrar la informació de tots els processos
 		List<InstanciaProcesDto> arbreProcessos = expedientService.getArbreInstanciesProces(Long.parseLong(expedient.getProcessInstanceId()));
 		Map<InstanciaProcesDto, Map<CampAgrupacioDto, List<ExpedientDadaDto>>> dades = new LinkedHashMap<InstanciaProcesDto, Map<CampAgrupacioDto,List<ExpedientDadaDto>>>();
@@ -560,7 +560,7 @@ public class ExpedientDadaController extends BaseExpedientController {
 	private List<CampDto> getCampsNoUtilitzats(Long expedientId, String procesInstanceId) {
 		InstanciaProcesDto instanciaProces = expedientService.getInstanciaProcesById(procesInstanceId);
 		List<CampDto> campsNoUtilitzats = new ArrayList<CampDto>();
-		ExpedientDto expedient = expedientService.findAmbId(expedientId);
+		ExpedientDto expedient = expedientService.findAmbIdAmbPermis(expedientId);
 		List<CampDto> camps = dissenyService.findCampsOrdenatsPerCodi(
 					expedient.getTipus().getId(),
 					instanciaProces.getDefinicioProces().getId(),

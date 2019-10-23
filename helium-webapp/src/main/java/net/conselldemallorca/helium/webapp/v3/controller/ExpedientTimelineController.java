@@ -37,7 +37,7 @@ public class ExpedientTimelineController extends BaseExpedientController {
 			HttpServletRequest request, 
 			@PathVariable Long expedientId, 
 			ModelMap model) {
-		ExpedientDto expedient = expedientService.findAmbId(expedientId);
+		ExpedientDto expedient = expedientService.findAmbIdAmbPermis(expedientId);
 		model.addAttribute("expedient", expedient);
 		model.addAttribute("arbreProcessos", expedientService.getArbreInstanciesProces(Long.parseLong(expedient.getProcessInstanceId())));
 		model.addAttribute("instanciaProces", expedientService.getInstanciaProcesById(expedient.getProcessInstanceId()));
@@ -49,7 +49,7 @@ public class ExpedientTimelineController extends BaseExpedientController {
 			HttpServletRequest request, 
 			@PathVariable Long expedientId,
 			ModelMap model) {
-		ExpedientDto expedient = expedientService.findAmbId(expedientId);
+		ExpedientDto expedient = expedientService.findAmbIdAmbPermis(expedientId);
 		model.addAttribute(
 				"instanciaProces",
 				expedientService.getInstanciaProcesById(expedient.getProcessInstanceId()));

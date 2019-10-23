@@ -3,7 +3,6 @@
  */
 package net.conselldemallorca.helium.jbpm3.command;
 
-import org.hibernate.Query;
 import org.jbpm.JbpmContext;
 import org.jbpm.command.AbstractBaseCommand;
 import org.jbpm.graph.exe.ProcessInstance;
@@ -29,14 +28,6 @@ public class DeleteProcessInstanceVariablesCommand extends AbstractBaseCommand {
 
 	public Object execute(JbpmContext jbpmContext) throws Exception {
 		ProcessInstance processInstance = jbpmContext.getProcessInstance(id);
-		Query query = jbpmContext.getSession().createQuery(
-				  "delete org.jbpm.logging.log.ProcessLog "
-				+ "where id in ("
-				+ "		select pl.id "
-				+ "		from org.jbpm.logging.log.ProcessLog as pl "
-				+ "		where pl.token.processInstance = :processInstance)");
-		query.setEntity("processInstance", processInstance);
-		query.executeUpdate();
 		if (processInstance != null && variables != null) {
 			for (int i = 0; i < variables.length; i++) {
 				processInstance.getContextInstance().deleteVariable(variables[i]);

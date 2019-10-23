@@ -197,7 +197,18 @@ public interface ExpedientService {
 	 * @throws NotAllowedException
 	 *             Si no es tenen els permisos adequats.
 	 */
-	public ExpedientDto findAmbId(Long id);
+	public ExpedientDto findAmbIdAmbPermis(Long id);
+	
+	/**
+	 * Retorna un expedient donat el seu id sense comprovar permisos.
+	 * 
+	 * @param id
+	 *            Atribut id de l'expedient que es vol consultar.
+	 * @return L'expedient.
+	 * @throws NotFoundException
+	 *             Si no s'ha trobat cap expedient amb l'id especificat.
+	 */
+	public ExpedientDto findAmbId(Long expedientId);
 
 	/**
 	 * Retorna varios expedients donat el seu id.
