@@ -150,6 +150,7 @@ public class TascaLlistatV3Controller extends BaseController {
 			SessionHelper.getSessionManager(request).setFiltreConsultaTasca(filtreCommand);
 			return "v3/tascaLlistat";
 		} catch (Exception e) {
+			MissatgesHelper.error(request, e.getMessage());
 			filtreCommand.setConsultaTramitacioMassivaTascaId(null);
 			SessionHelper.getSessionManager(request).setFiltreConsultaTasca(filtreCommand);
 			return "redirect:../../../v3/tasca";

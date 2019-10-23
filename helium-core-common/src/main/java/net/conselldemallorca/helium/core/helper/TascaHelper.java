@@ -471,7 +471,8 @@ public class TascaHelper {
 		ExpedientTascaDto dto = new ExpedientTascaDto();
 		DefinicioProces defp = definicioProcesRepository.findByJbpmId(task.getProcessDefinitionId());
 		Tasca t = tascaRepository.findByJbpmNameAndDefinicioProces(task.getTaskName(), defp);
-		dto.setAmbRepro(t.isAmbRepro());
+		if (t != null)
+			dto.setAmbRepro(t.isAmbRepro());
 		dto.setId(task.getId());
 		DadesCacheTasca dadesCacheTasca = getDadesCacheTasca(
 				task,
