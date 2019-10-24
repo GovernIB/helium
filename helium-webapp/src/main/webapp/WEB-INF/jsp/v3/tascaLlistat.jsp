@@ -563,7 +563,7 @@
 							<li><a href="<c:url value="../../../v3/tasca/massivaTramitacioTasca"/>" onclick="botoMassiuClick(this)" data-rdt-link-modal="true" data-rdt-link-modal-maximize="true"><spring:message code="expedient.llistat.tramitacio.massiva"/></a></li>
 							<li id="liReassignment"><a id="botoReassignment" class="btn" href="<c:url value="../../../v3/tasca/massivaReassignacioTasca"/>" onclick="botoMassiuClick(this)" data-rdt-link-modal="true"><spring:message code="tasca.llistat.reassignacions.massiva"/></a></li>
  							<li><a id="botoAgafar" href="<c:url value="../../../v3/tasca/seleccioAgafar"/>" data-rdt-link-ajax="true"><spring:message code="tasca.llistat.agafar.seleccionats"/></a></li>
-							<li><a id="botoAllibrerar" href="<c:url value="../v3/tasca/seleccioAlliberar"/>" data-rdt-link-ajax="true"><spring:message code="tasca.llistat.alliberar.seleccionats"/></a></li>
+							<li><a id="botoAllibrerar" href="<c:url value="/v3/tasca/seleccioAlliberar"/>" data-rdt-link-ajax="true"><spring:message code="tasca.llistat.alliberar.seleccionats"/></a></li>
  						</ul>
 					</c:otherwise>
 				</c:choose>	
