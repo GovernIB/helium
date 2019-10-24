@@ -63,7 +63,6 @@ public class UpdateService {
 
 	public static final String VERSIO_ACTUAL_RELEASE = "108_rc1_notib";
 	public static final String VERSIO_ACTUAL_DATA = "2019.10.23";
-	
 
 	private VersioDao versioDao;
 	private PersonaDao personaDao;
