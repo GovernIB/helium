@@ -320,18 +320,7 @@ public class ConversioTipusHelper {
 						
 						target.setSistraTramitCodi(source.getSistraTramitCodi());
 						target.setNotibActiu(source.getNotibActiu());
-						target.setNotibSeuUnitatAdministrativa(source.getNotibSeuUnitatAdministrativa());
-						target.setNotibSeuCodiProcediment(source.getNotibSeuCodiProcediment());
-						target.setNotibSeuOficina(source.getNotibSeuOficina());
-						target.setNotibSeuLlibre(source.getNotibSeuLlibre());
-						target.setNotibSeuOrgan(source.getNotibSeuOrgan());
-						target.setNotibSeuIdioma(source.getNotibSeuIdioma());
-						target.setNotibAvisTitol(source.getNotibAvisTitol());
-						target.setNotibAvisText(source.getNotibAvisText());
-						target.setNotibAvisTextSms(source.getNotibAvisTextSms());
-						target.setNotibOficiTitol(source.getNotibOficiTitol());
-						target.setNotibOficiText(source.getNotibOficiText());
-
+						
 						return target;
 					}
 				});
@@ -401,17 +390,6 @@ public class ConversioTipusHelper {
 						
 						target.setSistraTramitCodi(source.getSistraTramitCodi());
 						target.setNotibActiu(source.getNotibActiu());
-						target.setNotibSeuUnitatAdministrativa(source.getNotibSeuUnitatAdministrativa());
-						target.setNotibSeuCodiProcediment(source.getNotibSeuCodiProcediment());
-						target.setNotibSeuOficina(source.getNotibSeuOficina());
-						target.setNotibSeuLlibre(source.getNotibSeuLlibre());
-						target.setNotibSeuOrgan(source.getNotibSeuOrgan());
-						target.setNotibSeuIdioma(source.getNotibSeuIdioma());
-						target.setNotibAvisTitol(source.getNotibAvisTitol());
-						target.setNotibAvisText(source.getNotibAvisText());
-						target.setNotibAvisTextSms(source.getNotibAvisTextSms());
-						target.setNotibOficiTitol(source.getNotibOficiTitol());
-						target.setNotibOficiText(source.getNotibOficiText());
 						return target;
 					}
 				});

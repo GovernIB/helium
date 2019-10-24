@@ -5,7 +5,9 @@ import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -38,6 +40,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import net.conselldemallorca.helium.core.helper.DocumentHelperV3;
 import net.conselldemallorca.helium.core.model.service.PluginService;
+import net.conselldemallorca.helium.core.util.PdfUtils;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuFirmaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DadesEnviamentDto.EntregaPostalTipus;
@@ -350,12 +353,23 @@ public class ExpedientDocumentController extends BaseExpedientController {
 			Model model) {
 
 		DocumentNotificacioCommand command = new DocumentNotificacioCommand();
-//		command.setEntregaDehObligat(true);
-//		command.setEntregaDehProcedimentCodi("entregaDehProcedimentCodi");
+		Calendar caducitat = new GregorianCalendar();
+		caducitat.setTime(new Date());
+		caducitat.add(Calendar.DATE, 1);
+		command.setCaducitat(caducitat.getTime());
 		model.addAttribute("documentNotificacioCommand", command);
 		
-		this.emplenarModelNotificacioDocument(expedientId, processInstanceId, documentStoreId, model);
+		ExpedientDocumentDto document = this.emplenarModelNotificacioDocument(expedientId, processInstanceId, documentStoreId, model);
 		
+		// Validar que l'arxiu sigui convertible a pdf o zip
+		if (!PdfUtils.isArxiuConvertiblePdf(document.getArxiuNom())
+				&& !"zip".equals((document.getArxiuExtensio() != null ? document.getArxiuExtensio().toLowerCase() :  ""))) {
+			MissatgesHelper.error(request, 
+					getMessage(request, 
+							"expedient.document.notificar.validacio.no.notificable",
+							new Object[] {PdfUtils.getExtensionsConvertiblesPdf()}));
+			return modalUrlTancar(false);
+		}
 		return "v3/expedientDocumentNotificar";
 	}
 	
@@ -392,7 +406,7 @@ public class ExpedientDocumentController extends BaseExpedientController {
     	return "v3/expedientDocumentNotificar";
 	}
 	
-	private void emplenarModelNotificacioDocument(
+	private ExpedientDocumentDto emplenarModelNotificacioDocument(
 			Long expedientId,
 			String processInstanceId,
 			Long documentStoreId,
@@ -406,6 +420,8 @@ public class ExpedientDocumentController extends BaseExpedientController {
 		model.addAttribute("interessats", interessats);
 		model.addAttribute("document", document);	
 		model.addAttribute("expedientId", expedientId);
+
+		return document;
 	}
 	
 	@ModelAttribute("entregaPostalViaTipusEstats")

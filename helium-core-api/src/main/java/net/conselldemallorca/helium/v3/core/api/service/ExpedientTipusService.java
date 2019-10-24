@@ -1127,26 +1127,6 @@ public interface ExpedientTipusService {
 	 * 			Codi de l'emisor
 	 * @param notibCodiProcediment
 	 * 			Codi del procediment SIA
-	 * @param notibSeuUnitatAdministrativa
-	 * 			Codi de la unitat administrativa a utilitzar a la seu
-	 * @param notibSeuOficina
-	 * 			Codi de la oficina a utilitzar a la seu
-	 * @param notibSeuLlibre
-	 * 			Codi del llibre a utilitzar a la seu
-	 * @param notibSeuOrgan
-	 * 			Codi de l'organ a utiitzar a la seu
-	 * @param notibSeuIdioma
-	 * 			Idioma a utilitzar a la seu
-	 * @param notibAvisTitol
-	 * 			Titol de l¡avís
-	 * @param notibAvisText
-	 * 			Text de l'avís
-	 * @param notibAvisTextSms
-	 * 			Text de l'avís a enviar via sms
-	 * @param notibOficiTitol
-	 * 			Titol de l'ofici
-	 * @param notibOficiText
-	 * 			Text de l'ofici
 	 * @param notibActiu
 	 * 			Indica si la integració amb Notib està activa
 	 * 
@@ -1157,17 +1137,6 @@ public interface ExpedientTipusService {
 			Long expedientTipusId, 
 			String notibEmisor, 
 			String notibCodiProcediment,
-			String notibSeuUnitatAdministrativa, 
-			String notibSeuCodiProcediment,
-			String notibSeuOficina, 
-			String notibSeuLlibre, 
-			String notibSeuOrgan,
-			String notibSeuIdioma, 
-			String notibAvisTitol, 
-			String notibAvisText, 
-			String notibAvisTextSms,
-			String notibOficiTitol, 
-			String notibOficiText, 
 			boolean notibActiu);	
 
 

@@ -54,20 +54,7 @@ public class ExpedientTipusIntegracioNotibController extends BaseExpedientTipusC
 			
 			command.setNotibEmisor(expedientTipus.getNtiOrgano());
 			command.setNotibCodiProcediment(expedientTipus.getNtiClasificacion());
-			
-			command.setNotibSeuUnitatAdministrativa(expedientTipus.getNotibSeuUnitatAdministrativa());
-			command.setNotibSeuCodiProcediment(expedientTipus.getNotibSeuCodiProcediment());
-			command.setNotibSeuOficina(expedientTipus.getNotibSeuOficina());
-			command.setNotibSeuLlibre(expedientTipus.getNotibSeuLlibre());
-			command.setNotibSeuOrgan(expedientTipus.getNotibSeuOrgan());
-			command.setNotibSeuIdioma(expedientTipus.getNotibSeuIdioma());
-			command.setNotibAvisTitol(expedientTipus.getNotibAvisTitol());
-			command.setNotibAvisText(expedientTipus.getNotibAvisText());
-			command.setNotibAvisTextSms(expedientTipus.getNotibAvisTextSms());
-			command.setNotibOficiTitol(expedientTipus.getNotibOficiTitol());
-			command.setNotibOficiText(expedientTipus.getNotibOficiText());
 			command.setNotibActiu(expedientTipus.getNotibActiu());
-			command.setNtiActiu(expedientTipus.isNtiActiu());
 			
 			model.addAttribute("expedientTipusIntegracioNotibCommand", command);
 		}
@@ -96,17 +83,6 @@ public class ExpedientTipusIntegracioNotibController extends BaseExpedientTipusC
 	        			expedientTipusId,
 	        			command.getNotibEmisor(),
 	        			command.getNotibCodiProcediment(),
-	        			command.getNotibSeuUnitatAdministrativa(),
-	        			command.getNotibSeuCodiProcediment(),
-	        			command.getNotibSeuOficina(),
-	        			command.getNotibSeuLlibre(),
-	        			command.getNotibSeuOrgan(),
-	        			command.getNotibSeuIdioma(),
-	        			command.getNotibAvisTitol(),
-	        			command.getNotibAvisText(),
-	        			command.getNotibAvisTextSms(),
-	        			command.getNotibOficiTitol(),
-	        			command.getNotibOficiText(),
 	        			command.getNotibActiu());
 	        	
 		        MissatgesHelper.success(

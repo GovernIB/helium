@@ -570,6 +570,7 @@ public class DocumentHelperV3 {
 				false,
 				false,
 				false,
+				false, // Per notificar
 				false);
 		if (pluginHelper.custodiaPotObtenirInfoSignatures()) {
 			return conversioTipusHelper.convertirList(pluginHelper.custodiaDadesValidacioSignatura(
@@ -614,6 +615,7 @@ public class DocumentHelperV3 {
 					false,
 					true,
 					true,
+					false, // Per notificar
 					(documentStore.getArxiuUuid() == null));
 			Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(documentStore.getProcessInstanceId());
 			String varDocumentCodi = documentStore.getJbpmVariable().substring(JbpmVars.PREFIX_DOCUMENT.length());
@@ -1135,6 +1137,7 @@ public class DocumentHelperV3 {
 			boolean ambContingutSignat,
 			boolean ambContingutVista,
 			boolean perSignar,
+			boolean perNotificar,
 			boolean ambSegellSignatura) {
 		if (documentStoreId != null) {
 			DocumentStore documentStore = documentStoreRepository.findOne(documentStoreId);
@@ -1406,6 +1409,18 @@ public class DocumentHelperV3 {
 							dto.setVistaNom(arxiuOrigenNom);
 							dto.setVistaContingut(arxiuOrigenContingut);
 						}
+					}
+				}
+				if (perNotificar) {
+					// Si és per notificar s'ha de passar a PDF si no és .zip ni .pdf
+					String extensio = dto.getArxiuExtensio() != null? dto.getArxiuExtensio().toLowerCase() : "";
+					if ( ! PdfUtils.isArxiuConvertiblePdf(dto.getArxiuNom()) && ! "zip".equals(extensio))
+						throw new ValidacioException("No es pot notificar el document \"" + dto.getNom() + "\" perquè l'arxiu no és de tipus .ZIP ni és convertible a .PDF (" + PdfUtils.getExtensionsConvertiblesPdf() + ")" );
+					// Si no és .zip ni .pdf transforma el contingut a PDF
+					if (!"zip".equals(extensio) && !"pdf".equals(extensio)) {
+						dto.setArxiuContingut(getPdfUtils().convertirPdf(dto.getArxiuNom(), dto.getArxiuContingut()));
+						dto.setArxiuNom(dto.getArxiuNomSenseExtensio() + ".pdf");
+						dto.setContentType("application/pdf");
 					}
 				}
 				if (documentStore.isRegistrat()) {

@@ -684,6 +684,7 @@ public class TascaServiceImpl implements TascaService {
 					false,
 					true,
 					true,
+					false, // Per notificar
 					(documentStore.getArxiuUuid() == null));
 		}
 		return document;

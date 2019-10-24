@@ -515,17 +515,6 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		exportacio.setArxiuActiu(tipus.isArxiuActiu());
 		// Integració amb NOTIB
 		exportacio.setNotibActiu(tipus.getNotibActiu());
-		exportacio.setNotibSeuUnitatAdministrativa(tipus.getNotibSeuUnitatAdministrativa());
-		exportacio.setNotibSeuCodiProcediment(tipus.getNotibSeuCodiProcediment());
-		exportacio.setNotibSeuOficina(tipus.getNotibSeuOficina());
-		exportacio.setNotibSeuLlibre(tipus.getNotibSeuLlibre());
-		exportacio.setNotibSeuOrgan(tipus.getNotibSeuOrgan());
-		exportacio.setNotibSeuIdioma(tipus.getNotibSeuIdioma());
-		exportacio.setNotibAvisTitol(tipus.getNotibAvisTitol());
-		exportacio.setNotibAvisText(tipus.getNotibAvisText());
-		exportacio.setNotibAvisTextSms(tipus.getNotibAvisTextSms());
-		exportacio.setNotibOficiTitol(tipus.getNotibOficiTitol());
-		exportacio.setNotibOficiText(tipus.getNotibOficiText());
 		// Integració amb forms
 		if (command.isIntegracioForms()) {
 			exportacio.setFormextUrl(tipus.getFormextUrl());
@@ -854,17 +843,6 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		expedientTipus.setArxiuActiu(importacio.isArxiuActiu());
 		// Integració amb NOTIB
 		expedientTipus.setNotibActiu(importacio.getNotibActiu());
-		expedientTipus.setNotibSeuUnitatAdministrativa(importacio.getNotibSeuUnitatAdministrativa());
-		expedientTipus.setNotibSeuCodiProcediment(importacio.getNotibSeuCodiProcediment());
-		expedientTipus.setNotibSeuOficina(importacio.getNotibSeuOficina());
-		expedientTipus.setNotibSeuLlibre(importacio.getNotibSeuLlibre());
-		expedientTipus.setNotibSeuOrgan(importacio.getNotibSeuOrgan());
-		expedientTipus.setNotibSeuIdioma(importacio.getNotibSeuIdioma());
-		expedientTipus.setNotibAvisTitol(importacio.getNotibAvisTitol());
-		expedientTipus.setNotibAvisText(importacio.getNotibAvisText());
-		expedientTipus.setNotibAvisTextSms(importacio.getNotibAvisTextSms());
-		expedientTipus.setNotibOficiTitol(importacio.getNotibOficiTitol());
-		expedientTipus.setNotibOficiText(importacio.getNotibOficiText());
 		// Integració amb formularis externs
 		if (command.isIntegracioForms()) {
 			expedientTipus.setFormextUrl(importacio.getFormextUrl());
@@ -3456,17 +3434,6 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 			Long expedientTipusId, 
 			String notibEmisor, 
 			String notibCodiProcediment,
-			String notibSeuUnitatAdministrativa, 
-			String notibSeuCodiProcediment,
-			String notibSeuOficina, 
-			String notibSeuLlibre, 
-			String notibSeuOrgan,
-			String notibSeuIdioma, 
-			String notibAvisTitol, 
-			String notibAvisText, 
-			String notibAvisTextSms,
-			String notibOficiTitol, 
-			String notibOficiText, 
 			boolean notibActiu) {
 
 		logger.debug("Modificant tipus d'expedient amb dades d'integracio amb Notib (expedientTipus=" + expedientTipusId + ")");
@@ -3477,17 +3444,6 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 			expedientTipus.setNtiOrgano(notibEmisor);
 			expedientTipus.setNtiClasificacion(notibCodiProcediment);
 		}
-		expedientTipus.setNotibSeuUnitatAdministrativa(notibSeuUnitatAdministrativa);
-		expedientTipus.setNotibSeuCodiProcediment(notibSeuCodiProcediment);
-		expedientTipus.setNotibSeuOficina(notibSeuOficina);
-		expedientTipus.setNotibSeuLlibre(notibSeuLlibre);
-		expedientTipus.setNotibSeuOrgan(notibSeuOrgan);
-		expedientTipus.setNotibSeuIdioma(notibSeuIdioma);
-		expedientTipus.setNotibAvisTitol(notibAvisTitol);
-		expedientTipus.setNotibAvisText(notibAvisText);
-		expedientTipus.setNotibAvisTextSms(notibAvisTextSms);
-		expedientTipus.setNotibOficiTitol(notibOficiTitol);
-		expedientTipus.setNotibOficiText(notibOficiText);
 		expedientTipus.setNotibActiu(notibActiu);
 		
 		return conversioTipusHelper.convertir(

@@ -47,6 +47,31 @@ public class PdfUtils {
 	private OpenOfficeUtils openOfficeUtils;
 
 
+	public byte[] convertirPdf(
+			String arxiuNom,
+			byte[] arxiuContingut) {
+		byte[] contingut = null;
+		try {
+			ByteArrayOutputStream outputConversio = null;
+			outputConversio = new ByteArrayOutputStream();
+			getOpenOfficeUtils().convertir(
+					arxiuNom,
+					arxiuContingut,
+					"pdf",
+					outputConversio);
+			if (outputConversio != null)
+				contingut = outputConversio.toByteArray();
+		} catch (Exception ex) {
+			/**
+			 * Retornem una SistemaExternOpenOfficeException buida, només amb
+			 * l'excepció original per tal que els mètodes que criden aquesta
+			 * funció puguin distingir quin tipus d'error hi ha hagut
+			 * (pdf o openoffice)
+			 */
+			throw new SistemaExternConversioDocumentException(ex);
+		}
+		return contingut;
+	}
 
 	public void estampar(
 			String arxiuNom,

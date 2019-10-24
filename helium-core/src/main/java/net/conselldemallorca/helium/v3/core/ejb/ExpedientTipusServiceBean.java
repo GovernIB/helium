@@ -622,46 +622,24 @@ public class ExpedientTipusServiceBean implements ExpedientTipusService {
 	}
 	
 	@Override
-	@RolesAllowed({"HEL_ADMIN"})
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public List<ExpedientTipusEstadisticaDto> findEstadisticaByFiltre(Integer dataIniciInicial, Integer dataIniciFinal,
 			Long entornId, Long expedientTipusId, Boolean anulats) {
 		return delegate.findEstadisticaByFiltre(dataIniciInicial, dataIniciFinal, entornId, expedientTipusId, anulats);
 	}
 
 	@Override
-	@RolesAllowed({"HEL_ADMIN"})
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public ExpedientTipusDto updateIntegracioNotib(
 			Long expedientTipusId, 
 			String notibEmisor, 
 			String notibCodiProcediment,
-			String notibSeuUnitatAdministrativa, 
-			String notibSeuCodiProcediment,
-			String notibSeuOficina, 
-			String notibSeuLlibre, 
-			String notibSeuOrgan,
-			String notibSeuIdioma, 
-			String notibAvisTitol, 
-			String notibAvisText, 
-			String notibAvisTextSms,
-			String notibOficiTitol, 
-			String notibOficiText, 
 			boolean notibActiu) {
 
 		return delegate.updateIntegracioNotib(
 				expedientTipusId, 
 				notibEmisor, 
 				notibCodiProcediment, 
-				notibSeuUnitatAdministrativa, 
-				notibSeuCodiProcediment,
-				notibSeuOficina, 
-				notibSeuLlibre, 
-				notibSeuOrgan, 
-				notibSeuIdioma, 
-				notibAvisTitol, 
-				notibAvisText, 
-				notibAvisTextSms, 
-				notibOficiTitol, 
-				notibOficiText, 
 				notibActiu);
 	}
 

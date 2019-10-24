@@ -120,8 +120,9 @@ public class NotificacioPluginNotib implements NotificacioPlugin {
 
 			RespostaAlta respostaAlta = getNotificacioService().alta(notificacioNotib);
 			
-			
-			if (respostaAlta.isError()) {
+			if (respostaAlta.isError() 
+					&& (respostaAlta.getReferencies() == null || respostaAlta.getReferencies().isEmpty())) 
+			{
 				throw new NotificacioPluginException(respostaAlta.getErrorDescripcio());
 			} else {
 				RespostaEnviar resposta = new RespostaEnviar();

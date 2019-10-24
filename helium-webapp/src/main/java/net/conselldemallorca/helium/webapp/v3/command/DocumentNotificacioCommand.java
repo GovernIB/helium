@@ -29,6 +29,7 @@ public class DocumentNotificacioCommand {
 	
 	private String descripcio;
 	private Date enviamentDataProgramada;
+	@NotNull
 	private Date caducitat;
 	private int retard;
 	private boolean entregaPostalActiva;

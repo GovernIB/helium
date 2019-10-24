@@ -326,6 +326,7 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 				false,
 				false,
 				false,
+				true, // Per notificar
 				false);
 		
 		ExpedientTipus expedientTipus = expedient.getTipus();
@@ -341,16 +342,13 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 		dadesNotificacioDto.setDocumentArxiuCsv(documentDto.getArxiuCsv());
 		
 		dadesNotificacioDto.setDocumentId(documentStoreId);
-		
-		
+				
 		for(Long interessatId:  interessatsIds){
 			
 			Interessat interessatEntity = interessatRepository.findOne(interessatId);
-			
 			List<DadesEnviamentDto> enviaments = new ArrayList<DadesEnviamentDto>();
-			
-			
 			List<PersonaDto> destinataris = new ArrayList<PersonaDto>();
+			// Destinatari
 			PersonaDto destinatari = new PersonaDto();
 			destinatari.setNom(interessatEntity.getNom());
 			destinatari.setLlinatge1(interessatEntity.getLlinatge1());
@@ -361,18 +359,16 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 			destinatari.setTipus(interessatEntity.getTipus());
 			destinataris.add(destinatari);
 			dadesEnviamentDto.setDestinataris(destinataris);
-			
 			// Titular
 			PersonaDto titular = new PersonaDto();
 			titular.setDni(interessatEntity.getNif());
 			titular.setNom(interessatEntity.getNom());
 			titular.setLlinatge1(interessatEntity.getLlinatge1());
-			titular.setLlinatge1(interessatEntity.getLlinatge2());
-			titular.setLlinatge2(interessatEntity.getTelefon());
+			titular.setLlinatge2(interessatEntity.getLlinatge2());
+			titular.setTelefon(interessatEntity.getTelefon());
 			titular.setEmail(interessatEntity.getEmail());
 			titular.setTipus(interessatEntity.getTipus());
 			dadesEnviamentDto.setTitular(titular);
-			
 			// Entrega postal
 			if (interessatEntity.isEntregaPostal()) {
 				dadesEnviamentDto.setEntregaPostalActiva(interessatEntity.isEntregaPostal());
@@ -391,9 +387,7 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 				dadesEnviamentDto.setEntregaDehObligat(interessatEntity.isEntregaDehObligat());
 			}
 			dadesEnviamentDto.setServeiTipusEnum(dadesNotificacioDto.getServeiTipusEnum());
-			
 			enviaments.add(dadesEnviamentDto);
-
 			dadesNotificacioDto.setEnviaments(enviaments);
 		}
 		pluginHelper.altaNotificacio(dadesNotificacioDto);
@@ -879,6 +873,7 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 					false,
 					true,
 					false,
+					false, // Per notificar
 					false);
 		} else {
 			dto = documentHelper.toDocumentDto(
@@ -887,6 +882,7 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 					false,
 					false,
 					false,
+					false, // Per notificar
 					false);
 		}
 		if (dto == null) {
@@ -906,6 +902,7 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 				false,
 				true,
 				true,
+				false, // Per notificar
 				(documentStore == null || documentStore.getArxiuUuid() == null));
 		if (dto == null) {
 			return null;
@@ -923,6 +920,7 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 				false,
 				true,
 				true,
+				false, // Per notificar
 				(documentStore == null || documentStore.getArxiuUuid() == null));
 		if (dto == null) {
 			throw new NoTrobatException(DocumentDto.class, documentStoreId);

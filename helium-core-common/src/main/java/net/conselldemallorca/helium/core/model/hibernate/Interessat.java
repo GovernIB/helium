@@ -19,7 +19,6 @@ import org.springmodules.validation.bean.conf.loader.annotation.handler.NotBlank
 
 import net.conselldemallorca.helium.v3.core.api.dto.DadesEnviamentDto.EntregaPostalTipus;
 import net.conselldemallorca.helium.v3.core.api.dto.InteressatTipusEnumDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ServeiTipusEnumDto;
 
 /**
 

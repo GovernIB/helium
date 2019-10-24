@@ -54,24 +54,8 @@ $(document).ready(function() {
 			<div>				
 				<hel:inputCheckbox name="notibActiu" textKey="expedient.tipus.integracio.tramits.notificacions.activar"/>
 				<div id="inputs-notib" style="display:${expedientTipusIntegracioNotibCommand.notibActiu? 'inline' : 'none'}">
-
-					<hel:inputText required="true" name="notibEmisor" textKey="expedient.tipus.integracio.notib.organisme.emisor" readonly="${expedientTipusIntegracioNotibCommand.ntiActiu}"/>
-					<hel:inputText required="true" name="notibCodiProcediment" textKey="expedient.tipus.integracio.notib.sia.codiprocediment"  readonly="${expedientTipusIntegracioNotibCommand.ntiActiu}"/>
-					
-					<hel:inputText required="true" name="notibSeuUnitatAdministrativa" textKey="expedient.tipus.integracio.notib.exp.unitatorganitzativa" />
-					<hel:inputText required="true" name="notibSeuCodiProcediment" textKey="expedient.tipus.integracio.notib.sistra.codiprocediment" />
-					<hel:inputText required="true" name="notibSeuOficina" textKey="expedient.tipus.integracio.notib.reg.oficina" />
-					<hel:inputText required="true" name="notibSeuLlibre" textKey="expedient.tipus.integracio.notib.reg.llibre" />
-					<hel:inputText required="true" name="notibSeuOrgan" textKey="expedient.tipus.integracio.notib.reg.organ" />
-					
-					<hel:inputSelect name="notibSeuIdioma" textKey="expedient.tipus.integracio.notib.idioma" placeholderKey="expedient.tipus.integracio.notib.idioma" optionItems="${seuIdioma}" optionTextAttribute="codi" optionValueAttribute="valor"/>
-					
-					<hel:inputText required="false" name="notibAvisTitol" textKey="expedient.tipus.integracio.notib.avis.titol" />
-					<hel:inputTextarea required="false" name="notibAvisText" textKey="expedient.tipus.integracio.notib.avis.text" />
-					<hel:inputText required="false" name="notibAvisTextSms" textKey="expedient.tipus.integracio.notib.avis.textmobil" />
-					
-					<hel:inputText required="false" name="notibOficiTitol" textKey="expedient.tipus.integracio.notib.ofici.titol" />
-					<hel:inputTextarea required="false" name="notibOficiText" textKey="expedient.tipus.integracio.notib.ofici.text" />
+					<hel:inputText required="true" name="notibEmisor" textKey="expedient.tipus.integracio.notib.organisme.emisor" readonly="${expedientTipus.ntiActiu}"/>
+					<hel:inputText required="true" name="notibCodiProcediment" textKey="expedient.tipus.integracio.notib.sia.codiprocediment"  readonly="${expedientTipus.ntiActiu}"/>
 				</div>
 			</div>
 			

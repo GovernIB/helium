@@ -207,23 +207,8 @@ public class NotificacioAltaHandler extends BasicActionHandler implements Notifi
 				
 		String expedientTitol = expedient.getTitol();
 		String notibEmisor = expedientTipus.getNtiOrgano();
-		String notibSeuUnitatAdministrativa = expedientTipus.getNotibSeuUnitatAdministrativa();
-		if (notibSeuUnitatAdministrativa == null && expedient.getUnitatAdministrativa() != null)
-			notibSeuUnitatAdministrativa = String.valueOf(expedient.getUnitatAdministrativa());
-		String notibSeuOficina = expedientTipus.getNotibSeuOficina();
-		String notibSeuLlibre = expedientTipus.getNotibSeuLlibre();
-		String notibSeuOrgan = expedientTipus.getNotibSeuOrgan();
-		String notibSeuIdioma = expedientTipus.getNotibSeuIdioma();
-		if (notibSeuIdioma == null)
-			notibSeuIdioma = "ca";
-		String notibAvisTitol = expedientTipus.getNotibAvisTitol();
-		String notibAvisText = expedientTipus.getNotibAvisText();
-		String notibAvisTextSms = expedientTipus.getNotibAvisTextSms();
-		String notibOficiTitol = expedientTipus.getNotibOficiTitol();
-		String notibOficiText = expedientTipus.getNotibOficiText();
 		String notibSerieDocumental = expedientTipus.getNtiSerieDocumental();
 		String notibProcedimentCodi = expedientTipus.getNtiClasificacion();
-		String notibSeuProcedimentCodi = expedientTipus.getNotibSeuCodiProcediment();
 		
 		DadesNotificacio dadesNotificacio = new DadesNotificacio();
 		
@@ -312,7 +297,7 @@ public class NotificacioAltaHandler extends BasicActionHandler implements Notifi
 		if (identificadorEni == null || identificadorEni.isEmpty()) {
 			DateFormat sdf = new SimpleDateFormat("YYYY");
 			identificadorEni = 	"ES_" 
-								+ notibSeuOrgan + "_" 
+								+ notibProcedimentCodi + "_" 
 								+ (expedient.getDataInici() != null ? sdf.format(expedient.getDataInici()) : sdf.format(new Date())) + 
 								"_EXP_" 
 								+ formatIdentificadorEni(expedient.getNumeroIdentificador());

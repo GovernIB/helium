@@ -1247,6 +1247,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 						false,
 						false,
 						false,
+						false, // Per notificar
 						false),
 				DocumentDto.class);
 	}
@@ -1261,6 +1262,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 				false,
 				false,
 				false,
+				false, // Per notificar
 				false);
 		if (document == null) {
 			return null;
@@ -1788,6 +1790,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 				false,
 				true,
 				true,
+				false, // Per notificar
 				(documentStore == null || documentStore.getArxiuUuid() == null) );
 		List<DocumentDto> annexos = null;
 		if (annexosId != null) {
@@ -1799,6 +1802,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 						false,
 						true,
 						false,
+						false, // Per notificar
 						false);
 				if (docDto != null){
 					annexos.add(docDto);

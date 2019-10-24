@@ -700,6 +700,7 @@ public class PlantillaHelper {
 												false,
 												false,
 												false,
+												false, // Per notificar
 												false);
 								}
 								return new BeanModel(
@@ -730,6 +731,7 @@ public class PlantillaHelper {
 										false,
 										false,
 										false,
+										false, // Per notificar
 										false);
 							}
 							return new ArrayModel(
