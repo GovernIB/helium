@@ -17,6 +17,7 @@ import javax.servlet.jsp.jstl.core.LoopTagStatus;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.NotReadablePropertyException;
 import org.springframework.validation.Errors;
 import org.springframework.validation.FieldError;
 import org.springframework.validation.ValidationUtils;
@@ -174,9 +175,22 @@ public class TascaFormValidatorHelper implements Validator {
 			}
 			// Només valida amb expressions si no hi ha errors previs
 			if (validarExpresions && !errors.hasErrors()) {
-				getValidatorPerExpressions(tascaDades, command).validate(
-						getCommandPerValidadorExpressions(command),
-						errors);
+				try {
+					getValidatorPerExpressions(tascaDades, command).validate(
+							getCommandPerValidadorExpressions(command, null),
+							errors);
+				} catch (NotReadablePropertyException ex) {
+					// Si dona un error de que no troba una propietat l'afegeix amb el
+					// valor null i torna a intentar la validació.
+					int iinici = ex.getMessage().indexOf("'");
+					if (iinici != -1) {
+						int ifi = ex.getMessage().indexOf("'", iinici + 1);
+						String property = ex.getMessage().substring(iinici + 1, ifi);
+						getValidatorPerExpressions(tascaDades, command).validate(
+								getCommandPerValidadorExpressions(command, property),
+								errors);
+					}
+				}
 			}
 			logger.debug(errors.toString());
 		} catch (Exception ex) {
@@ -445,7 +459,8 @@ public class TascaFormValidatorHelper implements Validator {
 	}
 
 	private Object getCommandPerValidadorExpressions(
-			Object commandOriginal) throws IllegalAccessException, InvocationTargetException, NoSuchMethodException {
+			Object commandOriginal,
+			String propietatAddicional) throws IllegalAccessException, InvocationTargetException, NoSuchMethodException {
 		// Crea una còpia del command amb els strings que sigin NULL amb valor buit
 		// per evitar excepcions en les expressions VALANG
 		BeanGenerator bg = new BeanGenerator();
@@ -454,12 +469,16 @@ public class TascaFormValidatorHelper implements Validator {
 				bg.addProperty(descriptor.getName(), descriptor.getPropertyType());
 			}
 		}
+		if (propietatAddicional != null) {
+			bg.addProperty(propietatAddicional, String.class);
+		}
 		Object command = bg.create();
 		for (PropertyDescriptor descriptor: PropertyUtils.getPropertyDescriptors(commandOriginal)) {
 			if (!"class".equals(descriptor.getName())) {
 				Object valor = PropertyUtils.getProperty(commandOriginal, descriptor.getName());
-				if (String.class.equals(descriptor.getPropertyType()) && valor == null)
+				if (String.class.equals(descriptor.getPropertyType()) && valor == null) {
 					valor = "";
+				}
 				PropertyUtils.setProperty(
 						command,
 						descriptor.getName(),
