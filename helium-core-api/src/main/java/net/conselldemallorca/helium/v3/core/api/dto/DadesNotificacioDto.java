@@ -74,7 +74,7 @@ public class DadesNotificacioDto {
 		this.enviatData = enviatData;
 	}
 	public Boolean getError() {
-		return error;
+		return error != null ? error.booleanValue() : false;
 	}
 	public void setError(Boolean error) {
 		this.error = error;

@@ -10,7 +10,6 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
-import org.apache.commons.lang.exception.ExceptionUtils;
 import org.hibernate.Hibernate;
 import org.jbpm.graph.exe.ProcessInstanceExpedient;
 import org.slf4j.Logger;
@@ -82,6 +81,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.InteressatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NotificacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ReassignacioDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ReferenciaNotificacio;
 import net.conselldemallorca.helium.v3.core.api.dto.ReferenciaRDSJustificanteDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RegistreAnnexDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RegistreAnotacioDto;
@@ -90,6 +90,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.RegistreNotificacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RespostaJustificantDetallRecepcioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RespostaJustificantRecepcioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RespostaNotificacio;
+import net.conselldemallorca.helium.v3.core.api.dto.RespostaNotificacio.NotificacioEstat;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TerminiDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TerminiIniciatDto;
@@ -1696,12 +1697,12 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 	public void notificacioGuardar(
 			ExpedientDto expedient,
 			NotificacioDto notificacio) {
-//		logger.debug("Guardant una notificació de l'expedient (" +
-//				"expedientId=" + expedientId + ", " +
-//				"numero=" + numero + ", " +
-//				"data=" + data + ", " +
-//				"RDSClave=" + RDSClave + ", " +
-//				"RDSCodigo=" + RDSCodigo + ")");
+		logger.debug("Guardant una notificació de l'expedient (" +
+				"expedientId=" + expedient.getId() + ", " +
+				"numero=" + notificacio.getRegistreNumero() + ", " +
+				"data=" + notificacio.getEnviamentData() + ", " +
+				"RDSClave=" + notificacio.getRdsClau() + ", " +
+				"RDSCodigo=" + notificacio.getRdsCodi() + ")");
 		notificacioElectronicaHelper.create(
 				expedient,
 				notificacio);
@@ -1725,39 +1726,22 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 	@Override
 	public RespostaNotificacio altaNotificacio(DadesNotificacioDto dadesNotificacio) {
 		Expedient expedient = expedientRepository.findOne(dadesNotificacio.getExpedientId());
-
-		DocumentNotificacio notificacio = notificacioElectronicaHelper.create(dadesNotificacio);
 		
-		RespostaNotificacio resposta = null; 
+		// Notifica i guarda la informació
+		DocumentNotificacio notificacio = notificacioElectronicaHelper.altaNotificacio(expedient, dadesNotificacio);
 		
-		dadesNotificacio.setDocumentArxiuUuid(notificacio.getDocument().getArxiuUuid());
-		dadesNotificacio.setDocumentArxiuCsv(notificacio.getDocument().getNtiCsv());
-				
-		try {
-			resposta = pluginHelper.altaNotificacio(
-					dadesNotificacio, 
-					expedient.getId());
-			notificacio.updateEnviat(
-					new Date(),
-					resposta.getIdentificador(),
-					resposta.getReferencies().get(0).getReferencia());
-		} catch (Exception e) {
-			notificacio.updateEnviatError(
-					ExceptionUtils.getStackTrace(e), 
-					null);
-			throw new SistemaExternException(
-					expedient.getEntorn().getId(),
-					expedient.getEntorn().getCodi(), 
-					expedient.getEntorn().getNom(), 
-					expedient.getId(), 
-					expedient.getTitol(), 
-					expedient.getNumero(), 
-					expedient.getTipus().getId(), 
-					expedient.getTipus().getCodi(), 
-					expedient.getTipus().getNom(), 
-					"(Enviament de notificació)", 
-					e);
-		}
+		// Transforma la informació a una resposta
+		RespostaNotificacio resposta = new RespostaNotificacio(); 
+		resposta.setEstat(NotificacioEstat.valueOf(notificacio.getEstat().name()));
+		resposta.setIdentificador(notificacio.getEnviamentIdentificador());
+		List<ReferenciaNotificacio> referencies = new ArrayList<ReferenciaNotificacio>();
+		// TODO DANIEL: obtenir totes les referencies per cada enviament
+		//for (notificacio.getEnviaments)
+		ReferenciaNotificacio referencia = new ReferenciaNotificacio();
+		referencia.setTitularNif(notificacio.getTitularNif());
+		referencia.setReferencia(notificacio.getEnviamentReferencia());
+		referencies.add(referencia);
+		resposta.setReferencies(referencies);
 		
 		return resposta;
 	}
@@ -2240,9 +2224,6 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 		return expedient.getEntorn();
 	}
 
-	private static final Logger logger = LoggerFactory.getLogger(Jbpm3HeliumHelper.class);
-
-
 	@Override
 	public List<DefinicioProcesDto> findSubDefinicionsProces(Long definicioProcesId) {
 		List<DefinicioProcesDto> resposta = new ArrayList<DefinicioProcesDto>();
@@ -2270,4 +2251,6 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 		resposta.setData(respostaPlugin.getData());
 		return resposta;
 	}
+
+	private static final Logger logger = LoggerFactory.getLogger(Jbpm3HeliumHelper.class);
 }

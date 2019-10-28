@@ -27,6 +27,7 @@ import net.conselldemallorca.helium.core.helper.ExpedientHelper;
 import net.conselldemallorca.helium.core.helper.ExpedientLoggerHelper;
 import net.conselldemallorca.helium.core.helper.ExpedientRegistreHelper;
 import net.conselldemallorca.helium.core.helper.IndexHelper;
+import net.conselldemallorca.helium.core.helper.NotificacioHelper;
 import net.conselldemallorca.helium.core.helper.PaginacioHelper;
 import net.conselldemallorca.helium.core.helper.PluginHelper;
 import net.conselldemallorca.helium.core.helper.TascaHelper;
@@ -119,10 +120,10 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 	private ExpedientLoggerHelper expedientLoggerHelper;
 	@Resource
 	private ExpedientRegistreHelper expedientRegistreHelper;
-//	@Resource
-//	private Jbpm3HeliumHelper jbpm3HeliumHelper;
 	@Resource
-	DocumentHelperV3 documentHelperV3;
+	private DocumentHelperV3 documentHelperV3;
+	@Resource
+	private NotificacioHelper notificacioHelper;
 
 
 
@@ -307,19 +308,21 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 	
 	@Override
 	@Transactional
-	public void notificarDocument(
+	public DadesNotificacioDto notificarDocument(
 			Long expedientId,
 			Long documentStoreId,
 			DadesNotificacioDto dadesNotificacioDto,
 			List<Long> interessatsIds) {
-		DadesEnviamentDto dadesEnviamentDto = new DadesEnviamentDto();
+
+		// Comprova els permisos
 		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
 				expedientId,
 				new Permission[] {
 						ExtendedPermission.DOC_MANAGE,
 						ExtendedPermission.ADMINISTRATION});
-
 		
+		// Prepara les dades d'enviament
+		DadesEnviamentDto dadesEnviamentDto = new DadesEnviamentDto();		
 		DocumentDto documentDto = documentHelperV3.toDocumentDto(
 				documentStoreId,
 				true,
@@ -327,10 +330,8 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 				false,
 				false,
 				true, // Per notificar
-				false);
-		
+				false);		
 		ExpedientTipus expedientTipus = expedient.getTipus();
-		
 		dadesNotificacioDto.setEmisorDir3Codi(expedientTipus.getNtiOrgano());
 		dadesNotificacioDto.setProcedimentCodi(expedientTipus.getNtiClasificacion());
 		dadesNotificacioDto.setExpedientId(expedientId);
@@ -343,10 +344,11 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 		
 		dadesNotificacioDto.setDocumentId(documentStoreId);
 				
+		// Afegeix un enviament per interessat a la notificació
+		List<DadesEnviamentDto> enviaments = new ArrayList<DadesEnviamentDto>();
 		for(Long interessatId:  interessatsIds){
-			
+
 			Interessat interessatEntity = interessatRepository.findOne(interessatId);
-			List<DadesEnviamentDto> enviaments = new ArrayList<DadesEnviamentDto>();
 			List<PersonaDto> destinataris = new ArrayList<PersonaDto>();
 			// Destinatari
 			PersonaDto destinatari = new PersonaDto();
@@ -388,9 +390,13 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 			}
 			dadesEnviamentDto.setServeiTipusEnum(dadesNotificacioDto.getServeiTipusEnum());
 			enviaments.add(dadesEnviamentDto);
-			dadesNotificacioDto.setEnviaments(enviaments);
 		}
-		pluginHelper.altaNotificacio(dadesNotificacioDto);
+		dadesNotificacioDto.setEnviaments(enviaments);
+		
+		// Notifica i guarda la informació
+		DocumentNotificacio notificacio = notificacioHelper.altaNotificacio(expedient, dadesNotificacioDto);
+		
+		return notificacioHelper.toDadesNotificacioDto(notificacio);
 	}
 
 	/**

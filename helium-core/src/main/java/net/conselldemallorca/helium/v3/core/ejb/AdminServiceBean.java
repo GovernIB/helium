@@ -13,7 +13,10 @@ import javax.interceptor.Interceptors;
 
 import net.conselldemallorca.helium.v3.core.api.dto.DominiDto;
 import net.conselldemallorca.helium.v3.core.api.dto.IntegracioAccioDto;
+import net.conselldemallorca.helium.v3.core.api.dto.IntegracioAccioEstatEnumDto;
+import net.conselldemallorca.helium.v3.core.api.dto.IntegracioAccioTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.IntegracioDto;
+import net.conselldemallorca.helium.v3.core.api.dto.IntegracioParametreDto;
 import net.conselldemallorca.helium.v3.core.api.dto.MesuraTemporalDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ReassignacioDto;
@@ -90,6 +93,23 @@ public class AdminServiceBean implements AdminService {
 	public List<IntegracioAccioDto> monitorDominiFindAccionsByDomini(
 			Long dominiId) {
 		return delegate.monitorDominiFindAccionsByDomini(dominiId);
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public void monitorAddAccio(
+			String integracioCodi,
+			String descripcio,
+			IntegracioAccioTipusEnumDto tipus,
+			IntegracioAccioEstatEnumDto estat,
+			long tempsResposta,
+			String errorDescripcio,
+			Throwable throwable,
+			List<IntegracioParametreDto> parametres) {
+		delegate.monitorAddAccio(integracioCodi, descripcio, tipus, estat, tempsResposta, errorDescripcio, throwable, parametres);
 	}
 
 	/**

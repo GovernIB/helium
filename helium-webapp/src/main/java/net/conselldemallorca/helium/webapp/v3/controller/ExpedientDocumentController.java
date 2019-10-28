@@ -388,13 +388,17 @@ public class ExpedientDocumentController extends BaseExpedientController {
 						documentNotificacioCommand, 
 						DadesNotificacioDto.class);		
 				
-				expedientDocumentService.notificarDocument(
+				DadesNotificacioDto dadesNotificacio = expedientDocumentService.notificarDocument(
 						expedientId,
 						documentStoreId,
 						dadesNotificacioDto,
 						documentNotificacioCommand.getInteressatsIds());
+
+				if (! dadesNotificacio.getError())
+					MissatgesHelper.success(request, getMessage(request, "info.document.notificat"));
+				else
+					MissatgesHelper.warning(request, getMessage(request, "info.document.notificar.avis", new Object[] {dadesNotificacio.getErrorDescripcio()}));
 				
-				MissatgesHelper.success(request, getMessage(request, "info.document.notificat"));
 				return modalUrlTancar(false);
 			} catch(Exception e) {
 				String errMsg = getMessage(request, "info.document.notificar.error", new Object[] {e.getMessage()});

@@ -49,10 +49,7 @@
 							</c:choose>
 						</td>
 						<td>
-							<c:if test="${notificacio.error}">
-								<button type="button" class="btn btn-lg btn-danger" data-toggle="popover" title="Error" data-content="${notificacio.errorDescripcio}"><spring:message code="expedient.notificacio.estat.processat_error"/></button>
-<%-- 								<span class="label label-danger" data-toggle="tooltip" title="${notificacio.errorDescripcio}"><spring:message code="expedient.notificacio.estat.processat_error"/></span> --%>
-							</c:if>
+							${notificacio.errorDescripcio}
 						</td>
 						<td>${notificacio.enviaments[0].titular.nomSencer}</td>
 						<td><c:if test="${not empty notificacio.enviaments[0].destinataris[0]}">${notificacio.enviaments[0].destinataris[0].nomSencer}</c:if></td>
@@ -81,12 +78,6 @@
 </c:choose>
 <script type="text/javascript">
 	// <![CDATA[
-		$("#notificacioInfo,#notificacioError").heliumEvalLink({
-			refrescarPagina: false,
-			refrescarAlertes: false ,
-			refrescarTaula: false
-		});
-		$('[data-toggle="tooltip"]').tooltip();
-		$('[data-toggle="popover"]').popover();
+
 	//]]>
 	</script>

@@ -9,7 +9,10 @@ import java.util.Set;
 
 import net.conselldemallorca.helium.v3.core.api.dto.DominiDto;
 import net.conselldemallorca.helium.v3.core.api.dto.IntegracioAccioDto;
+import net.conselldemallorca.helium.v3.core.api.dto.IntegracioAccioEstatEnumDto;
+import net.conselldemallorca.helium.v3.core.api.dto.IntegracioAccioTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.IntegracioDto;
+import net.conselldemallorca.helium.v3.core.api.dto.IntegracioParametreDto;
 import net.conselldemallorca.helium.v3.core.api.dto.MesuraTemporalDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ReassignacioDto;
@@ -88,6 +91,24 @@ public interface AdminService {
 	public List<IntegracioAccioDto> monitorDominiFindAccionsByDomini(
 			Long dominiId) throws NoTrobatException;
 
+	/** Mètode per afegir una acció des de la capa de la vista a través del servei
+	 * 
+	 * @param integracioCodi
+	 * @param descripcio
+	 * @param tipus
+	 * @param tempsResposta
+	 * @param parametres
+	 */
+	public void monitorAddAccio(
+			String integracioCodi,
+			String descripcio,
+			IntegracioAccioTipusEnumDto tipus,
+			IntegracioAccioEstatEnumDto estat,
+			long tempsResposta,
+			String errorDescripcio,
+			Throwable throwable,
+			List<IntegracioParametreDto> parametres);
+	
 	/**
 	 * Consulta les mesures temporals per família.
 	 * 

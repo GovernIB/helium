@@ -12,10 +12,14 @@ import java.util.List;
  */
 public class RespostaEnviar {
 
+	
+	private boolean error;
+	private String errorDescripcio;
 	private String identificador;
 	private NotificacioEstat estat;
 	private List<EnviamentReferencia> referencies;
 
+	
 	public String getIdentificador() {
 		return identificador;
 	}
@@ -34,5 +38,16 @@ public class RespostaEnviar {
 	public void setReferencies(List<EnviamentReferencia> referencies) {
 		this.referencies = referencies;
 	}
-
+	public boolean isError() {
+		return error;
+	}
+	public void setError(boolean error) {
+		this.error = error;
+	}
+	public String getErrorDescripcio() {
+		return errorDescripcio;
+	}
+	public void setErrorDescripcio(String errorDescripcio) {
+		this.errorDescripcio = errorDescripcio;
+	}
 }

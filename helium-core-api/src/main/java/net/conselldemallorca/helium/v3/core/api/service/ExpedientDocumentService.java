@@ -355,7 +355,7 @@ public interface ExpedientDocumentService {
 			String identificador, 
 			String referenciaEnviament);
 
-	public void notificarDocument(
+	public DadesNotificacioDto notificarDocument(
 			Long expedientId, 
 			Long documentStoreId, 
 			DadesNotificacioDto dadesNotificacioDto, 

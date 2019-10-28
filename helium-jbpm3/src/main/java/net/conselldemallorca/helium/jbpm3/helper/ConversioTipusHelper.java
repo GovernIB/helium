@@ -7,22 +7,36 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.AutenticacioTipus;
+import net.conselldemallorca.helium.jbpm3.handlers.tipus.DadesEnviament;
+import net.conselldemallorca.helium.jbpm3.handlers.tipus.DadesNotificacio;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.DetalleAviso;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.DocumentPresencial;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.DocumentTelematic;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.DocumentTramit;
+import net.conselldemallorca.helium.jbpm3.handlers.tipus.EnviamentReferencia;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.ExpedientInfo;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.ExpedientInfo.IniciadorTipus;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.JustificantRecepcioInfo;
+import net.conselldemallorca.helium.jbpm3.handlers.tipus.PersonaInfo;
+import net.conselldemallorca.helium.jbpm3.handlers.tipus.RespostaEnviar;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.Signatura;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.TipoAviso;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.TipoConfirmacionAviso;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.TipoEstadoNotificacion;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.Tramit;
+import net.conselldemallorca.helium.v3.core.api.dto.DadesEnviamentDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DadesNotificacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DetalleAvisoDto;
+import net.conselldemallorca.helium.v3.core.api.dto.EnviamentTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
+import net.conselldemallorca.helium.v3.core.api.dto.InteressatTipusEnumDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ReferenciaNotificacio;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto.IniciadorTipusDto;
+import net.conselldemallorca.helium.v3.core.api.dto.RespostaNotificacio.NotificacioEstat;
 import net.conselldemallorca.helium.v3.core.api.dto.RespostaJustificantDetallRecepcioDto;
+import net.conselldemallorca.helium.v3.core.api.dto.RespostaNotificacio;
+import net.conselldemallorca.helium.v3.core.api.dto.ServeiTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TramitDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TramitDocumentDto.TramitDocumentSignaturaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TramitDto;
@@ -250,101 +264,128 @@ public class ConversioTipusHelper {
 //				token.isSuspended(),
 //				token.getLockOwner());
 //	}
-	
-//	private static TokenInfo toTokenInfo(Token token, Map<Long, TokenInfo> tokens) {
-//		if (token == null)
-//			return null;
-//		
-//		if (tokens.containsKey(token.getId())) { 
-//			return tokens.get(token.getId());
-//		} else {
-//			Map<String, TokenInfo> tokensFills = new HashMap<String, TokenInfo>();
-//			for (Entry<String, Token> entry: token.getChildren().entrySet()) {
-//				Token fill = entry.getValue();
-//				if (tokens.containsKey(fill.getId())) {
-//					tokensFills.put(entry.getKey(), tokensFills.get(fill.getId()));
-//				} else { 
-//					TokenInfo tokenFill = toTokenInfo(fill, tokens);
-//					tokens.put(fill.getId(), tokenFill);
-//					tokensFills.put(entry.getKey(), tokenFill);
-//				}
-//			}
-//			TokenInfo tokenInfo = new TokenInfo(
-//					token.getId(),
-//					token.getName(),
-//					token.getStart(),
-//					token.getEnd(),
-//					token.getNode(),
-//					token.getNodeEnter(),
-//					token.getProcessInstance(),
-//					token.getParent(),
-//					token.getChildren(),
-//					token.getSubProcessInstance(),
-//					token.isAbleToReactivateParent(),
-//					token.isTerminatedImplicitly(),
-//					token.isSuspended(),
-//					token.getLockOwner());
-//			tokens.put(token.getId(), tokenInfo);
-//			return tokenInfo;
-//		}
-//	}
 
+	public static DadesNotificacioDto toDadesNotificacioDto(Long expedientId, DadesNotificacio dadesNotificacio) {
 		
-//	public static NodeInfo toNodeInfo(Node node) {
-//		if (node == null)
-//			return null;
-//		
-//		List<TransitionInfo> leavingTransitions = new ArrayList<TransitionInfo>();
-//		Set<TransitionInfo> arrivingTransitions = new HashSet<TransitionInfo>();
-//		
-//		for (Transition t: node.getLeavingTransitions()) {
-//			leavingTransitions.add(toTransitionInfo(t));
-//		}
-//		for (Transition t: node.getArrivingTransitions()) {
-//			arrivingTransitions.add(toTransitionInfo(t));
-//		}
-//		
-//		NodeInfo nodeInfo = new NodeInfo(
-//				node.getId(),
-//				node.getName(),
-//				node.getDescription(),
-//				leavingTransitions,
-//				arrivingTransitions,
-//				toActionInfo(node.getAction()),
-//				node.isAsync(),
-//				node.isAsyncExclusive());
-//		return nodeInfo;
-//	}
-//	
-//	public static ProcessDefinitionInfo toProcessDefinitionInfo(ProcessDefinition processDefinition) {
-//		return null;
-//	}
-//
-//	public static ProcessInstanceInfo toProcessInstanceInfo(ProcessInstance processInstance) {
-//		return null;
-//	}
-//
-//	public static ActionInfo toActionInfo(Action action) {
-//		return null;
-//	}
-//
-//	public static EventInfo toEventInfo(Event event) {
-//		return null;
-//	}
-//
-//	public static TransitionInfo toTransitionInfo(Transition transition) {
-//		return null;
-//	}
-//
-//	public static TaskInfo toTaskInfo(Task task) {
-//		return null;
-//	}
-//
-//	public static TaskInstanceInfo toTaskInstanceInfo(TaskInstance taskInstance) {
-//		return null;
-//	}
-//
-//	public static TimerInfo toTimerInfo(Timer timer) {
-//		return null;
-//	}
+		DadesNotificacioDto notificacio = new DadesNotificacioDto();
+		notificacio.setExpedientId(expedientId);
+		notificacio.setEmisorDir3Codi(dadesNotificacio.getEmisorDir3Codi());
+		if (dadesNotificacio.getEnviamentTipus() != null)
+			notificacio.setEnviamentTipus(EnviamentTipusEnumDto.valueOf(dadesNotificacio.getEnviamentTipus().name()));
+		notificacio.setConcepte(dadesNotificacio.getConcepte());
+		notificacio.setDescripcio(dadesNotificacio.getDescripcio());
+		notificacio.setEnviamentDataProgramada(dadesNotificacio.getEnviamentDataProgramada());
+		notificacio.setRetard(dadesNotificacio.getRetard());
+		notificacio.setCaducitat(dadesNotificacio.getCaducitat());
+		notificacio.setDocumentArxiuNom(dadesNotificacio.getDocumentArxiuNom());
+		notificacio.setDocumentArxiuContingut(dadesNotificacio.getDocumentArxiuContingut());
+		notificacio.setDocumentId(dadesNotificacio.getDocumentId());
+
+
+		notificacio.setProcedimentCodi(dadesNotificacio.getProcedimentCodi());
+		
+		List<DadesEnviamentDto> enviaments = new ArrayList<DadesEnviamentDto>();
+		for (DadesEnviament dadesEnviament: dadesNotificacio.getEnviaments()) {
+			DadesEnviamentDto enviament = new DadesEnviamentDto();
+			
+			PersonaInfo dadesTitular = dadesEnviament.getTitular();
+			PersonaDto titular = new PersonaDto();
+			titular.setNom(dadesTitular.getNom());
+			titular.setLlinatge1(dadesTitular.getLlinatge1());
+			titular.setLlinatge2(dadesTitular.getLlinatge2());
+			titular.setDni(dadesTitular.getDni());
+			titular.setTelefon(dadesTitular.getTelefon());;
+			titular.setEmail(dadesTitular.getEmail());
+			titular.setCodiDir3(dadesTitular.getCodiDir3());
+			titular.setTipus(InteressatTipusEnumDto.valueOf(dadesTitular.getTipus()));
+			enviament.setTitular(titular);
+
+			List<PersonaDto> destinataris = new ArrayList<PersonaDto>();
+			for (PersonaInfo dadesDestinatari: dadesEnviament.getDestinataris()) {
+				
+				PersonaDto destinatari = new PersonaDto();
+				destinatari.setNom(dadesDestinatari.getNom());
+				destinatari.setLlinatge1(dadesDestinatari.getLlinatge1());
+				destinatari.setLlinatge2(dadesDestinatari.getLlinatge2());
+				destinatari.setDni(dadesDestinatari.getDni());
+				destinatari.setTelefon(dadesDestinatari.getTelefon());;
+				destinatari.setEmail(dadesDestinatari.getEmail());
+				destinatari.setCodiDir3(dadesDestinatari.getCodiDir3());
+				destinatari.setTipus(InteressatTipusEnumDto.valueOf(dadesDestinatari.getTipus()));
+				destinataris.add(destinatari);
+			}
+			enviament.setDestinataris(destinataris);
+			
+			enviament.setEntregaPostalActiva(dadesEnviament.isEntregaPostalActiva());
+			if (dadesEnviament.getEntregaPostalTipus() != null)
+				enviament.setEntregaPostalTipus(DadesEnviamentDto.EntregaPostalTipus.valueOf(dadesEnviament.getEntregaPostalTipus().name()));
+			if (dadesEnviament.getEntregaPostalViaTipus() != null)
+				enviament.setEntregaPostalViaTipus(DadesEnviamentDto.EntregaPostalViaTipus.valueOf(dadesEnviament.getEntregaPostalViaTipus().name()));
+			enviament.setEntregaPostalViaNom(dadesEnviament.getEntregaPostalViaNom());
+			enviament.setEntregaPostalNumeroCasa(dadesEnviament.getEntregaPostalNumeroCasa());
+			enviament.setEntregaPostalNumeroQualificador(dadesEnviament.getEntregaPostalNumeroQualificador());
+			enviament.setEntregaPostalPuntKm(dadesEnviament.getEntregaPostalPuntKm());
+			enviament.setEntregaPostalApartatCorreus(dadesEnviament.getEntregaPostalApartatCorreus());
+			enviament.setEntregaPostalPortal(dadesEnviament.getEntregaPostalPortal());
+			enviament.setEntregaPostalEscala(dadesEnviament.getEntregaPostalEscala());
+			enviament.setEntregaPostalPlanta(dadesEnviament.getEntregaPostalPlanta());
+			enviament.setEntregaPostalPorta(dadesEnviament.getEntregaPostalPorta());
+			enviament.setEntregaPostalBloc(dadesEnviament.getEntregaPostalBloc());
+			enviament.setEntregaPostalComplement(dadesEnviament.getEntregaPostalComplement());
+			enviament.setEntregaPostalCodiPostal(dadesEnviament.getEntregaPostalCodiPostal());
+			enviament.setEntregaPostalPoblacio(dadesEnviament.getEntregaPostalPoblacio());
+			enviament.setEntregaPostalMunicipiCodi(dadesEnviament.getEntregaPostalMunicipiCodi());
+			enviament.setEntregaPostalProvinciaCodi(dadesEnviament.getEntregaPostalProvinciaCodi());
+			enviament.setEntregaPostalPaisCodi(dadesEnviament.getEntregaPostalPaisCodi());
+			enviament.setEntregaPostalLinea1(dadesEnviament.getEntregaPostalLinea1());
+			enviament.setEntregaPostalLinea2(dadesEnviament.getEntregaPostalLinea2());
+			enviament.setEntregaPostalCie(dadesEnviament.getEntregaPostalCie());
+			enviament.setEntregaPostalFormatSobre(dadesEnviament.getEntregaPostalFormatSobre());
+			enviament.setEntregaPostalFormatFulla(dadesEnviament.getEntregaPostalFormatFulla());
+			enviament.setEntregaDehActiva(dadesEnviament.isEntregaDehActiva());
+			enviament.setEntregaDehObligat(dadesEnviament.isEntregaDehObligat());
+			enviament.setEntregaDehProcedimentCodi(dadesEnviament.getEntregaDehProcedimentCodi());
+			
+			// Per defecte tipus de servei normal.
+			enviament.setServeiTipusEnum(dadesNotificacio.getServeiTipus() != null ? ServeiTipusEnumDto.valueOf(dadesNotificacio.getServeiTipus()) : ServeiTipusEnumDto.NORMAL);
+			
+			enviaments.add(enviament);
+		}
+		notificacio.setEnviaments(enviaments);
+		
+		return notificacio;
+	}
+
+	public static RespostaEnviar toRespostaEnviar(RespostaNotificacio respostaNotificacio) {
+		RespostaEnviar resposta = new RespostaEnviar();
+		switch(respostaNotificacio.getEstat()) {
+		case ENVIADA:
+			respostaNotificacio.setEstat(NotificacioEstat.ENVIADA);
+			break;
+		case FINALITZADA:
+			respostaNotificacio.setEstat(NotificacioEstat.FINALITZADA);
+			break;
+		case PENDENT:
+			respostaNotificacio.setEstat(NotificacioEstat.PENDENT);
+			break;
+		case PROCESSADA:
+			respostaNotificacio.setEstat(NotificacioEstat.PROCESSADA);
+			break;
+		case REGISTRADA:
+			respostaNotificacio.setEstat(NotificacioEstat.REGISTRADA);
+			break;
+		}
+		resposta.setIdentificador(respostaNotificacio.getIdentificador());
+		List<EnviamentReferencia> referencies = new ArrayList<EnviamentReferencia>();
+		for (ReferenciaNotificacio referenciaNotificacio : respostaNotificacio.getReferencies()) {
+			EnviamentReferencia enviamentReferencia = new EnviamentReferencia();
+			enviamentReferencia.setReferencia(referenciaNotificacio.getReferencia());
+			enviamentReferencia.setTitularNif(referenciaNotificacio.getTitularNif());
+			referencies.add(enviamentReferencia);
+		}
+		resposta.setReferencies(referencies);
+	
+		return resposta;
+
+	}
 }

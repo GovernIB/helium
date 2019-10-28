@@ -4,6 +4,7 @@
 package net.conselldemallorca.helium.core.helper;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import javax.annotation.Resource;
@@ -12,11 +13,13 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import net.conselldemallorca.helium.core.model.hibernate.DocumentNotificacio;
 import net.conselldemallorca.helium.core.model.hibernate.DocumentStore;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.model.hibernate.Notificacio;
+import net.conselldemallorca.helium.integracio.plugins.notificacio.RespostaEnviar;
 import net.conselldemallorca.helium.integracio.plugins.registre.RespostaJustificantRecepcio;
 import net.conselldemallorca.helium.v3.core.api.dto.DadesEnviamentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DadesNotificacioDto;
@@ -27,13 +30,14 @@ import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NotificacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NotificacioEnviamentEstatEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
+import net.conselldemallorca.helium.v3.core.api.exception.SistemaExternException;
 import net.conselldemallorca.helium.v3.core.repository.DocumentNotificacioRepository;
 import net.conselldemallorca.helium.v3.core.repository.DocumentStoreRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientRepository;
 import net.conselldemallorca.helium.v3.core.repository.NotificacioRepository;
 
 /**
- * Helper per a gestionar els entorns.
+ * Helper per a les notificacions a la safata telemàtica de SISTRA i pel NOTIB.
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
@@ -128,10 +132,59 @@ public class NotificacioHelper {
 	// Notificació NOTIB
 	//////////////////////////////////////////////////////////////////////////////////////////////////////
 	
-	public DocumentNotificacio create(
-			DadesNotificacioDto notificacioDto) {
-		DocumentNotificacio notificacio = toDocumentNotificacio(notificacioDto);
-		return documentNotificacioRepository.save(notificacio);
+	/** Mètode per realitzar una alta de notificació al NOTIB. La guarda a la taula de notificacions de document i retorna
+	 * les dades de la notificació.
+	 * 
+	 * @param expedient
+	 * @param dadesNotificacioDto
+	 * @return
+	 */
+	@Transactional
+	public DocumentNotificacio altaNotificacio(
+			Expedient expedient,
+			DadesNotificacioDto dadesNotificacioDto) {
+		
+		RespostaEnviar resposta = null; 
+		try {
+			resposta = pluginHelper.altaNotificacio(expedient, dadesNotificacioDto);
+		} catch (Exception e) {
+			throw new SistemaExternException(
+					expedient.getEntorn().getId(),
+					expedient.getEntorn().getCodi(), 
+					expedient.getEntorn().getNom(), 
+					expedient.getId(), 
+					expedient.getTitol(), 
+					expedient.getNumero(), 
+					expedient.getTipus().getId(), 
+					expedient.getTipus().getCodi(), 
+					expedient.getTipus().getNom(), 
+					"(Enviament de notificació)", 
+					e);
+		}		
+		DocumentNotificacio notificacio = toDocumentNotificacio(dadesNotificacioDto);
+		documentNotificacioRepository.save(notificacio);
+
+		notificacio.setError(resposta.isError());
+		notificacio.setErrorDescripcio(resposta.getErrorDescripcio());
+		notificacio.setEnviamentIdentificador(resposta.getIdentificador());
+		notificacio.setEnviatData(new Date());
+		try {
+			notificacio.setEstat(NotificacioEnviamentEstatEnumDto.valueOf(resposta.getEstat().name()));
+		} catch(Exception e) {
+			notificacio.setError(true);
+			notificacio.setErrorDescripcio("No s'ha pogut reconèixer l'estat \"" + resposta.getEstat() + "\" de la resposta");
+		}
+		// Guarda la refererència de l'enviament
+		notificacio.setEnviamentReferencia(resposta.getReferencies().get(0).getReferencia());
+		//TODO DANIEL: Posar les referències per cada interessat.
+//		for (EnviamentReferencia enviamentReferencia : respostaEnviar.getReferencies()) {
+//			for (DocumentEnviamentInteressatEntity documentEnviamentInteressatEntity : notificacioEntity.getDocumentEnviamentInteressats()) {
+//				if(documentEnviamentInteressatEntity.getInteressat().getDocumentNum().equals(enviamentReferencia.getTitularNif())) {
+//					documentEnviamentInteressatEntity.updateEnviamentReferencia(enviamentReferencia.getReferencia());
+//				}
+//			}
+//		}
+		return notificacio;
 	}
 	
 	public List<DocumentNotificacio> findNotificacionsNotibPerExpedientId(Long expedientId) {
@@ -258,7 +311,8 @@ public class NotificacioHelper {
 		dadesNotificacio.setEnviaments(enviaments);
 		
 		dadesNotificacio.setEstat(notificacio.getEstat());
-
+		dadesNotificacio.setError(notificacio.isError());
+		dadesNotificacio.setErrorDescripcio(notificacio.getErrorDescripcio());
 		
 		dadesNotificacio.setConcepte(notificacio.getConcepte());
 		dadesNotificacio.setDescripcio(notificacio.getDescripcio());

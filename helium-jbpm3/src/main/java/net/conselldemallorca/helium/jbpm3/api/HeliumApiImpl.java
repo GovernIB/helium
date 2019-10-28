@@ -15,7 +15,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import net.conselldemallorca.helium.jbpm3.handlers.exception.HeliumHandlerException;
 import net.conselldemallorca.helium.jbpm3.handlers.exception.ValidationException;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.ActionInfo;
-import net.conselldemallorca.helium.jbpm3.handlers.tipus.DadesEnviament;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.DadesNotificacio;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.DadesRegistreEntrada;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.DadesRegistreNotificacio;
@@ -28,10 +27,10 @@ import net.conselldemallorca.helium.jbpm3.handlers.tipus.Interessat;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.JustificantRecepcioInfo;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.NodeInfo;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.ParellaCodiValor;
-import net.conselldemallorca.helium.jbpm3.handlers.tipus.PersonaInfo;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.ProcessDefinitionInfo;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.ProcessInstanceInfo;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.ReferenciaRDSJustificante;
+import net.conselldemallorca.helium.jbpm3.handlers.tipus.RespostaEnviar;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.RespostaRegistre;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.TaskInfo;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.TaskInstanceInfo;
@@ -45,25 +44,22 @@ import net.conselldemallorca.helium.jbpm3.integracio.DominiCodiDescripcio;
 import net.conselldemallorca.helium.jbpm3.integracio.Jbpm3HeliumBridge;
 import net.conselldemallorca.helium.jbpm3.integracio.Termini;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
-import net.conselldemallorca.helium.v3.core.api.dto.DadesEnviamentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DadesEnviamentDto.EntregaPostalTipus;
 import net.conselldemallorca.helium.v3.core.api.dto.DadesNotificacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DominiRespostaColumnaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DominiRespostaFilaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EnumeracioValorDto;
-import net.conselldemallorca.helium.v3.core.api.dto.EnviamentTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDadaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.InteressatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.InteressatTipusEnumDto;
-import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RegistreAnnexDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RegistreAnotacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RegistreIdDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RegistreNotificacioDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ServeiTipusEnumDto;
+import net.conselldemallorca.helium.v3.core.api.dto.RespostaNotificacio;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 
@@ -774,138 +770,15 @@ public class HeliumApiImpl implements HeliumApi {
 			return valor;
 		}
 	}
-//	private DocumentInfo getDocumentInfo(
-//			ExecutionContext executionContext,
-//			String documentCodi,
-//			boolean ambArxiu) {
-//		String varCodi = Jbpm3HeliumBridge.getInstanceService().getCodiVariablePerDocumentCodi(documentCodi);
-//		Object valor = executionContext.getVariable(varCodi);
-//		if (valor == null)
-//			return null;
-//		if (valor instanceof Long) {
-//			Long documentStoreId = (Long) valor;
-////			return ConversioTipusHelper.toDocumentInfo(Jbpm3HeliumBridge.getInstanceService().getDocumentInfo(documentStoreId), ambArxiu);
-//			DocumentDto document = Jbpm3HeliumBridge.getInstanceService().getDocumentInfo(documentStoreId);
-//			if (document == null)
-//				return null;
-//			DocumentInfo resposta = new DocumentInfo();
-//			resposta.setId(documentStoreId);
-//			if (document.isAdjunt()) {
-//				resposta.setTitol(document.getAdjuntTitol());
-//			} else {
-//				resposta.setTitol(document.getDocumentNom());
-//			}
-//			resposta.setDataCreacio(document.getDataCreacio());
-//			resposta.setDataDocument(document.getDataDocument());
-//			resposta.setSignat(document.isSignat());
-//			if (document.isRegistrat()) {
-//				resposta.setRegistrat(true);
-//				resposta.setRegistreNumero(document.getRegistreNumero());
-//				resposta.setRegistreData(document.getRegistreData());
-//				resposta.setRegistreOficinaCodi(document.getRegistreOficinaCodi());
-//				resposta.setRegistreOficinaNom(document.getRegistreOficinaNom());
-//				resposta.setRegistreEntrada(document.isRegistreEntrada());
-//			}
-//			if (ambArxiu) {
-//				ArxiuDto arxiu = Jbpm3HeliumBridge.getInstanceService().getArxiuPerMostrar(documentStoreId);
-//				resposta.setArxiuNom(arxiu.getNom());
-//				resposta.setArxiuContingut(arxiu.getContingut());
-//			}
-//			return resposta;
-//		} else {
-//			throw new HeliumHandlerException("La referencia al document \"" + documentCodi + "\" no es del tipus correcte");
-//		}
-//	}
 
 	@Override
-	public void altaNotificacio(DadesNotificacio dadesNotificacio, Long expedientId) throws JbpmException {
+	public RespostaEnviar altaNotificacio(DadesNotificacio dadesNotificacio, Long expedientId) throws JbpmException {
 
-		DadesNotificacioDto notificacio = new DadesNotificacioDto();
-		notificacio.setExpedientId(expedientId);
-		notificacio.setEmisorDir3Codi(dadesNotificacio.getEmisorDir3Codi());
-		if (dadesNotificacio.getEnviamentTipus() != null)
-			notificacio.setEnviamentTipus(EnviamentTipusEnumDto.valueOf(dadesNotificacio.getEnviamentTipus().name()));
-		notificacio.setConcepte(dadesNotificacio.getConcepte());
-		notificacio.setDescripcio(dadesNotificacio.getDescripcio());
-		notificacio.setEnviamentDataProgramada(dadesNotificacio.getEnviamentDataProgramada());
-		notificacio.setRetard(dadesNotificacio.getRetard());
-		notificacio.setCaducitat(dadesNotificacio.getCaducitat());
-		notificacio.setDocumentArxiuNom(dadesNotificacio.getDocumentArxiuNom());
-		notificacio.setDocumentArxiuContingut(dadesNotificacio.getDocumentArxiuContingut());
-		notificacio.setDocumentId(dadesNotificacio.getDocumentId());
-
-
-		notificacio.setProcedimentCodi(dadesNotificacio.getProcedimentCodi());
+		DadesNotificacioDto notificacio = ConversioTipusHelper.toDadesNotificacioDto(expedientId, dadesNotificacio);
 		
-		List<DadesEnviamentDto> enviaments = new ArrayList<DadesEnviamentDto>();
-		for (DadesEnviament dadesEnviament: dadesNotificacio.getEnviaments()) {
-			DadesEnviamentDto enviament = new DadesEnviamentDto();
-			
-			PersonaInfo dadesTitular = dadesEnviament.getTitular();
-			PersonaDto titular = new PersonaDto();
-			titular.setNom(dadesTitular.getNom());
-			titular.setLlinatge1(dadesTitular.getLlinatge1());
-			titular.setLlinatge2(dadesTitular.getLlinatge2());
-			titular.setDni(dadesTitular.getDni());
-			titular.setTelefon(dadesTitular.getTelefon());;
-			titular.setEmail(dadesTitular.getEmail());
-			titular.setCodiDir3(dadesTitular.getCodiDir3());
-			titular.setTipus(InteressatTipusEnumDto.valueOf(dadesTitular.getTipus()));
-			enviament.setTitular(titular);
-
-			List<PersonaDto> destinataris = new ArrayList<PersonaDto>();
-			for (PersonaInfo dadesDestinatari: dadesEnviament.getDestinataris()) {
-				
-				PersonaDto destinatari = new PersonaDto();
-				destinatari.setNom(dadesDestinatari.getNom());
-				destinatari.setLlinatge1(dadesDestinatari.getLlinatge1());
-				destinatari.setLlinatge2(dadesDestinatari.getLlinatge2());
-				destinatari.setDni(dadesDestinatari.getDni());
-				destinatari.setTelefon(dadesDestinatari.getTelefon());;
-				destinatari.setEmail(dadesDestinatari.getEmail());
-				destinatari.setCodiDir3(dadesDestinatari.getCodiDir3());
-				destinatari.setTipus(InteressatTipusEnumDto.valueOf(dadesDestinatari.getTipus()));
-				destinataris.add(destinatari);
-			}
-			enviament.setDestinataris(destinataris);
-			
-			enviament.setEntregaPostalActiva(dadesEnviament.isEntregaPostalActiva());
-			if (dadesEnviament.getEntregaPostalTipus() != null)
-				enviament.setEntregaPostalTipus(DadesEnviamentDto.EntregaPostalTipus.valueOf(dadesEnviament.getEntregaPostalTipus().name()));
-			if (dadesEnviament.getEntregaPostalViaTipus() != null)
-				enviament.setEntregaPostalViaTipus(DadesEnviamentDto.EntregaPostalViaTipus.valueOf(dadesEnviament.getEntregaPostalViaTipus().name()));
-			enviament.setEntregaPostalViaNom(dadesEnviament.getEntregaPostalViaNom());
-			enviament.setEntregaPostalNumeroCasa(dadesEnviament.getEntregaPostalNumeroCasa());
-			enviament.setEntregaPostalNumeroQualificador(dadesEnviament.getEntregaPostalNumeroQualificador());
-			enviament.setEntregaPostalPuntKm(dadesEnviament.getEntregaPostalPuntKm());
-			enviament.setEntregaPostalApartatCorreus(dadesEnviament.getEntregaPostalApartatCorreus());
-			enviament.setEntregaPostalPortal(dadesEnviament.getEntregaPostalPortal());
-			enviament.setEntregaPostalEscala(dadesEnviament.getEntregaPostalEscala());
-			enviament.setEntregaPostalPlanta(dadesEnviament.getEntregaPostalPlanta());
-			enviament.setEntregaPostalPorta(dadesEnviament.getEntregaPostalPorta());
-			enviament.setEntregaPostalBloc(dadesEnviament.getEntregaPostalBloc());
-			enviament.setEntregaPostalComplement(dadesEnviament.getEntregaPostalComplement());
-			enviament.setEntregaPostalCodiPostal(dadesEnviament.getEntregaPostalCodiPostal());
-			enviament.setEntregaPostalPoblacio(dadesEnviament.getEntregaPostalPoblacio());
-			enviament.setEntregaPostalMunicipiCodi(dadesEnviament.getEntregaPostalMunicipiCodi());
-			enviament.setEntregaPostalProvinciaCodi(dadesEnviament.getEntregaPostalProvinciaCodi());
-			enviament.setEntregaPostalPaisCodi(dadesEnviament.getEntregaPostalPaisCodi());
-			enviament.setEntregaPostalLinea1(dadesEnviament.getEntregaPostalLinea1());
-			enviament.setEntregaPostalLinea2(dadesEnviament.getEntregaPostalLinea2());
-			enviament.setEntregaPostalCie(dadesEnviament.getEntregaPostalCie());
-			enviament.setEntregaPostalFormatSobre(dadesEnviament.getEntregaPostalFormatSobre());
-			enviament.setEntregaPostalFormatFulla(dadesEnviament.getEntregaPostalFormatFulla());
-			enviament.setEntregaDehActiva(dadesEnviament.isEntregaDehActiva());
-			enviament.setEntregaDehObligat(dadesEnviament.isEntregaDehObligat());
-			enviament.setEntregaDehProcedimentCodi(dadesEnviament.getEntregaDehProcedimentCodi());
-			enviament.setServeiTipusEnum(dadesNotificacio.getServeiTipus() != null ? ServeiTipusEnumDto.valueOf(dadesNotificacio.getServeiTipus()) : null);
-			
-			enviaments.add(enviament);
-		}
-		notificacio.setEnviaments(enviaments);
+		RespostaNotificacio respostaNotificacio = Jbpm3HeliumBridge.getInstanceService().altaNotificacio(notificacio);
 		
-		
-		Jbpm3HeliumBridge.getInstanceService().altaNotificacio(notificacio);
+		return ConversioTipusHelper.toRespostaEnviar(respostaNotificacio);		
 	}
 	
 	public void interessatCrear(

@@ -13,6 +13,18 @@ import java.util.concurrent.TimeUnit;
 
 import javax.annotation.Resource;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.codahale.metrics.MetricRegistry;
+import com.codahale.metrics.json.MetricsModule;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import net.conselldemallorca.helium.core.helper.ConversioTipusHelper;
 import net.conselldemallorca.helium.core.helper.HibernateHelper;
 import net.conselldemallorca.helium.core.helper.MailHelper;
@@ -28,7 +40,10 @@ import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DominiDto;
 import net.conselldemallorca.helium.v3.core.api.dto.IntegracioAccioDto;
+import net.conselldemallorca.helium.v3.core.api.dto.IntegracioAccioEstatEnumDto;
+import net.conselldemallorca.helium.v3.core.api.dto.IntegracioAccioTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.IntegracioDto;
+import net.conselldemallorca.helium.v3.core.api.dto.IntegracioParametreDto;
 import net.conselldemallorca.helium.v3.core.api.dto.MesuraTemporalDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto.Sexe;
@@ -42,18 +57,6 @@ import net.conselldemallorca.helium.v3.core.repository.EntornRepository;
 import net.conselldemallorca.helium.v3.core.repository.PersonaRepository;
 import net.conselldemallorca.helium.v3.core.repository.ReassignacioRepository;
 import net.conselldemallorca.helium.v3.core.repository.UsuariPreferenciesRepository;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import com.codahale.metrics.MetricRegistry;
-import com.codahale.metrics.json.MetricsModule;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * Servei per gestionar la configuració de l'aplicació.
@@ -194,6 +197,41 @@ public class AdminServiceImpl implements AdminService {
 			}
 		}
 		return monitorDominiHelper.findAccionsByDomini(dominiId);
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void monitorAddAccio(
+			String integracioCodi,
+			String descripcio,
+			IntegracioAccioTipusEnumDto tipus,
+			IntegracioAccioEstatEnumDto estat,
+			long tempsResposta,
+			String errorDescripcio,
+			Throwable throwable,
+			List<IntegracioParametreDto> parametres) {
+		
+		switch(estat) {
+		case ERROR:
+			monitorIntegracioHelper.addAccioError(
+					integracioCodi, 
+					descripcio, 
+					tipus, 
+					tempsResposta, 
+					errorDescripcio, 
+					(IntegracioParametreDto[]) parametres.toArray());
+			break;
+		case OK:
+			monitorIntegracioHelper.addAccioOk(
+					integracioCodi, 
+					errorDescripcio, 
+					tipus, 
+					tempsResposta,  
+					(IntegracioParametreDto[]) parametres.toArray());
+			break;
+		}
 	}
 
 	/**

@@ -22,6 +22,7 @@ import net.conselldemallorca.helium.jbpm3.handlers.tipus.NodeInfo;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.ParellaCodiValor;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.ProcessDefinitionInfo;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.ProcessInstanceInfo;
+import net.conselldemallorca.helium.jbpm3.handlers.tipus.RespostaEnviar;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.RespostaRegistre;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.TaskInfo;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.TaskInstanceInfo;
@@ -405,7 +406,7 @@ public interface HeliumApi {
 	 */
 	public void retrocedirGuardarParametres(List<String> parametres);
 	
-	public void altaNotificacio(
+	public RespostaEnviar altaNotificacio(
 			DadesNotificacio dadesNotificacio,
 			Long expedientId) throws JbpmException;
 	

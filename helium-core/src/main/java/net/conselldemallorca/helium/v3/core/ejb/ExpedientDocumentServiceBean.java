@@ -16,7 +16,6 @@ import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDetallDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuFirmaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.DadesEnviamentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DadesNotificacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDocumentDto;
@@ -288,12 +287,12 @@ public class ExpedientDocumentServiceBean implements ExpedientDocumentService {
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public void notificarDocument(
+	public DadesNotificacioDto notificarDocument(
 			Long expedientId, 
 			Long documentStoreId, 
 			DadesNotificacioDto dadesNotificacioDto,
 			List<Long> interessatsIds) {
-		delegate.notificarDocument(expedientId, documentStoreId, dadesNotificacioDto, interessatsIds);		
+		return delegate.notificarDocument(expedientId, documentStoreId, dadesNotificacioDto, interessatsIds);		
 	}
 
 	@Override

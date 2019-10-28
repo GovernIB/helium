@@ -158,6 +158,8 @@ public class NotificacioPluginNotib implements NotificacioPlugin {
 					}
 					resposta.setReferencies(referencies);
 				}
+				resposta.setError(respostaAlta.isError());
+				resposta.setErrorDescripcio(respostaAlta.getErrorDescripcio());
 				return resposta;
 			}
 		} catch (Exception ex) {

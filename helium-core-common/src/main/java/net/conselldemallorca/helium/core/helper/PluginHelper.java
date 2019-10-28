@@ -15,7 +15,6 @@ import java.util.Properties;
 
 import javax.annotation.Resource;
 
-import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -57,7 +56,6 @@ import net.conselldemallorca.helium.integracio.plugins.custodia.CustodiaPlugin;
 import net.conselldemallorca.helium.integracio.plugins.custodia.CustodiaPluginException;
 import net.conselldemallorca.helium.integracio.plugins.firma.FirmaPlugin;
 import net.conselldemallorca.helium.integracio.plugins.gesdoc.GestioDocumentalPlugin;
-import net.conselldemallorca.helium.integracio.plugins.notificacio.EnviamentReferencia;
 import net.conselldemallorca.helium.integracio.plugins.notificacio.Notificacio;
 import net.conselldemallorca.helium.integracio.plugins.notificacio.NotificacioPlugin;
 import net.conselldemallorca.helium.integracio.plugins.notificacio.RespostaConsultaEstatEnviament;
@@ -119,13 +117,11 @@ import net.conselldemallorca.helium.v3.core.api.dto.NtiOrigenEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NtiTipoDocumentalEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NtiTipoFirmaEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ReferenciaNotificacio;
 import net.conselldemallorca.helium.v3.core.api.dto.RegistreAnnexDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RegistreAnotacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RegistreIdDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RegistreNotificacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RegistreNotificacioDto.RegistreNotificacioTramitSubsanacioParametreDto;
-import net.conselldemallorca.helium.v3.core.api.dto.RespostaNotificacio;
 import net.conselldemallorca.helium.v3.core.api.dto.TramitDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TramitDocumentDto.TramitDocumentSignaturaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TramitDto;
@@ -2671,49 +2667,9 @@ public class PluginHelper {
 	}
 	
 	
-	public RespostaNotificacio altaNotificacio(DadesNotificacioDto dadesNotificacio) {
-		Expedient expedient = expedientRepository.findOne(dadesNotificacio.getExpedientId());
+	public RespostaEnviar altaNotificacio(Expedient expedient, DadesNotificacioDto dadesNotificacio) {
 		
-		DocumentNotificacio notificacio = notificacioElectronicaHelper.create(dadesNotificacio);
-		
-		RespostaNotificacio resposta = null; 
-				
-		try {
-			resposta = altaNotificacio(
-					dadesNotificacio, 
-					expedient.getId());
-			notificacio.updateEnviat(
-					new Date(),
-					resposta.getIdentificador(),
-					resposta.getReferencies().get(0).getReferencia());
-		} catch (Exception e) {
-			notificacio.updateEnviatError(
-					ExceptionUtils.getStackTrace(e), 
-					null);
-			throw new SistemaExternException(
-					expedient.getEntorn().getId(),
-					expedient.getEntorn().getCodi(), 
-					expedient.getEntorn().getNom(), 
-					expedient.getId(), 
-					expedient.getTitol(), 
-					expedient.getNumero(), 
-					expedient.getTipus().getId(), 
-					expedient.getTipus().getCodi(), 
-					expedient.getTipus().getNom(), 
-					"(Enviament de notificació)", 
-					e);
-		}
-		
-		return resposta;
-	}
-	
-	
-
-	// NOTIB -- Inici
-	//TODO:
-	public RespostaNotificacio altaNotificacio(
-			DadesNotificacioDto dadesNotificacio,
-			Long expedientId) {
+		RespostaEnviar resposta;
 		
 		String accioDescripcio = "Alta de notificació";
 		String nifDestinataris = "";
@@ -2724,8 +2680,11 @@ public class PluginHelper {
 			nifDestinataris = nifDestinataris.substring(0, nifDestinataris.length() - 2);
 		IntegracioParametreDto[] parametres = new IntegracioParametreDto[] {
 				new IntegracioParametreDto(
-						"expedientId",
-						expedientId),
+						"expedient.id",
+						expedient.getId()),
+				new IntegracioParametreDto(
+						"expedient",
+						expedient.getIdentificadorLimitat()),
 				new IntegracioParametreDto(
 						"documentArxiuNom",
 						dadesNotificacio.getDocumentArxiuNom()),
@@ -2737,22 +2696,10 @@ public class PluginHelper {
 		
 		try {
 			Notificacio notificacio = conversioTipusHelper.convertir(dadesNotificacio, Notificacio.class);
-			
-			notificacio.setUsuariCodi(usuariActualHelper.getUsuariActual());			
-			RespostaEnviar respostaEnviar = getNotificacioPlugin().enviar(notificacio);
-			RespostaNotificacio resposta = new RespostaNotificacio();
-			resposta.setIdentificador(respostaEnviar.getIdentificador());
-			if (respostaEnviar.getEstat() != null)
-				resposta.setEstat(RespostaNotificacio.NotificacioEstat.valueOf(respostaEnviar.getEstat().name()));
-			
-			List<ReferenciaNotificacio> referencies = new ArrayList<ReferenciaNotificacio>();
-			for (EnviamentReferencia referencia: respostaEnviar.getReferencies()) {
-				ReferenciaNotificacio ref = new ReferenciaNotificacio();
-				ref.setTitularNif(referencia.getTitularNif());
-				ref.setReferencia(referencia.getReferencia());
-				referencies.add(ref);
-			}
-			resposta.setReferencies(referencies);
+			// Informa de l'estat actual
+			notificacio.setUsuariCodi(usuariActualHelper.getUsuariActual());		
+			// Invoca el servei
+			resposta = getNotificacioPlugin().enviar(notificacio);
 			
 			monitorIntegracioHelper.addAccioOk(
 					MonitorIntegracioHelper.INTCODI_NOTIB,
@@ -2760,9 +2707,6 @@ public class PluginHelper {
 					IntegracioAccioTipusEnumDto.ENVIAMENT,
 					System.currentTimeMillis() - t0,
 					parametres);
-
-			return resposta;
-			
 		} catch (Exception ex) {
 			String errorDescripcio = "No s'ha pogut enviar l'alta de notificació: " + ex.getMessage();
 			monitorIntegracioHelper.addAccioError(
@@ -2775,8 +2719,10 @@ public class PluginHelper {
 					parametres);
 			throw tractarExcepcioEnSistemaExtern(errorDescripcio, ex);
 		}
-		
+		return resposta;
 	}
+	
+
 	
 	public void notificacioActualitzarEstat(
 			DocumentNotificacio notificacio) {
