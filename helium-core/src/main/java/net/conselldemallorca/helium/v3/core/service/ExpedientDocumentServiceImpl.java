@@ -947,7 +947,8 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
 				expedientId,
 				new Permission[] {
-						BasePermission.READ});
+						BasePermission.READ,
+						BasePermission.ADMINISTRATION});
 		expedientHelper.comprovarInstanciaProces(
 				expedient,
 				processInstanceId);
