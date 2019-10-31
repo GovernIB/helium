@@ -495,14 +495,6 @@ public class PluginService {
 								token.getProcessInstanceId(),
 								ExpedientLogAccioTipus.PROCES_DOCUMENT_SIGNAR,
 								new Boolean(true).toString());
-						if (documentStore.getReferenciaCustodia() == null) {
-							if (portasignatures.getDataCustodiaIntent() == null)
-								portasignatures.setDataCustodiaIntent(new Date());
-							afegirDocumentCustodia(
-									portasignatures.getDocumentId(),
-									documentStore);
-							portasignatures.setDataCustodiaOk(new Date());
-						}
 						if (portasignatures.getDataSignalIntent() == null)
 							portasignatures.setDataSignalIntent(new Date());
 						jbpmDao.signalToken(
@@ -513,6 +505,16 @@ public class PluginService {
 						getServiceUtils().expedientIndexLuceneUpdate(
 								token.getProcessInstanceId());
 						
+						// Guarda el document
+						if (documentStore.getReferenciaCustodia() == null) {
+							if (portasignatures.getDataCustodiaIntent() == null)
+								portasignatures.setDataCustodiaIntent(new Date());
+							afegirDocumentCustodia(
+									portasignatures.getDocumentId(),
+									documentStore);
+							portasignatures.setDataCustodiaOk(new Date());
+						}						
+
 						//Actualitzem l'estat de l'expedient, ja que si tot el procés de firma i de custòdia
 						// ha anat bé, es possible que s'avanci cap al node "fi"
 						JbpmProcessInstance rootProcessInstance = jbpmDao.getRootProcessInstance(
@@ -521,6 +523,7 @@ public class PluginService {
 						expedientHelper.verificarFinalitzacioExpedient(
 								expedient);
 						resposta = true;
+
 					} catch (PluginException pex) {
 						errorProcesPsigna(
 								portasignatures,

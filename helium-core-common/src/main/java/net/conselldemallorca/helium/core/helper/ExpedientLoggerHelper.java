@@ -894,7 +894,7 @@ public class ExpedientLoggerHelper {
 //						boolean enterNode = (nodeRetrocedir == logo.getLogId());
 //						JbpmTask jtask = jbpmHelper.getTaskById(expedientLog.getTargetId());
 						Node ndesti = jbpmHelper.getNodeByName(logo.getProcessInstanceId(), desti);
-						boolean enterNode = retrocedirPerTasques && (ndesti.getId() == jtask.getTask().getTask().getTaskNode().getId()); // és la tasca a la que volem retrocedir!!
+						boolean enterNode = retrocedirPerTasques && (jtask != null && ndesti.getId() == jtask.getTask().getTask().getTaskNode().getId()); // és la tasca a la que volem retrocedir!!
 						boolean executeNode = (!jbpmHelper.isProcessStateNodeJoinOrFork( //(!jbpmHelper.isProcessStateNode(
 								logo.getProcessInstanceId(),
 								(String)logo.getValorInicial()));
