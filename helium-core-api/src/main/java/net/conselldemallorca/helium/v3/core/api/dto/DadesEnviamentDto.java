@@ -3,6 +3,7 @@
  */
 package net.conselldemallorca.helium.v3.core.api.dto;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -95,7 +96,8 @@ public class DadesEnviamentDto {
 	private boolean entregaDehActiva;
 	private boolean entregaDehObligat;
 	private String entregaDehProcedimentCodi;
-	
+	private NotificacioEnviamentEstatEnumDto estat;
+	private Date estatData;
 
 	public ServeiTipusEnumDto getServeiTipusEnum() {
 		return serveiTipusEnum;
@@ -277,5 +279,16 @@ public class DadesEnviamentDto {
 	public void setEntregaPostalActiva(boolean entregaPostalActiva) {
 		this.entregaPostalActiva = entregaPostalActiva;
 	}
-
+	public NotificacioEnviamentEstatEnumDto getEstat() {
+		return estat;
+	}
+	public void setEstat(NotificacioEnviamentEstatEnumDto estat) {
+		this.estat = estat;
+	}
+	public Date getEstatData() {
+		return estatData;
+	}
+	public void setEstatData(Date estatData) {
+		this.estatData = estatData;
+	}
 }

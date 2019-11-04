@@ -382,32 +382,39 @@ public class ExpedientDocumentController extends BaseExpedientController {
 			@Validated DocumentNotificacioCommand documentNotificacioCommand,
 			BindingResult result,
 			Model model) throws IOException {
-		if (!result.hasErrors()) {
-			try {
-				DadesNotificacioDto dadesNotificacioDto = conversioTipusHelper.convertir(
-						documentNotificacioCommand, 
-						DadesNotificacioDto.class);		
-				
-				DadesNotificacioDto dadesNotificacio = expedientDocumentService.notificarDocument(
+		if (result.hasErrors()) {
+			this.emplenarModelNotificacioDocument(expedientId, processInstanceId, documentStoreId, model);
+	    	return "v3/expedientDocumentNotificar";
+		}
+		try {
+			DadesNotificacioDto dadesNotificacioDto = conversioTipusHelper.convertir(
+					documentNotificacioCommand, 
+					DadesNotificacioDto.class);		
+			
+			// Dona d'alta una notificació per interessat
+			DadesNotificacioDto dadesNotificacio;
+			InteressatDto interessat;
+			for (Long interessatId : documentNotificacioCommand.getInteressatsIds()) {
+				interessat = expedientInteressatService.findOne(interessatId);
+				// Alta de la notificació
+				dadesNotificacio = expedientDocumentService.notificarDocument(
 						expedientId,
 						documentStoreId,
 						dadesNotificacioDto,
-						documentNotificacioCommand.getInteressatsIds());
-
+						interessatId,
+						documentNotificacioCommand.getRepresentantId());
+				// Missatge del resultat
 				if (! dadesNotificacio.getError())
-					MissatgesHelper.success(request, getMessage(request, "info.document.notificat"));
+					MissatgesHelper.success(request, getMessage(request, "info.document.notificat", new Object[] {interessat.getFullInfo()}));
 				else
-					MissatgesHelper.warning(request, getMessage(request, "info.document.notificar.avis", new Object[] {dadesNotificacio.getErrorDescripcio()}));
-				
-				return modalUrlTancar(false);
-			} catch(Exception e) {
-				String errMsg = getMessage(request, "info.document.notificar.error", new Object[] {e.getMessage()});
-				logger.error(errMsg, e);
-				MissatgesHelper.error(request, errMsg);
+					MissatgesHelper.warning(request, getMessage(request, "info.document.notificar.avis", new Object[] {interessat.getFullInfo(), dadesNotificacio.getErrorDescripcio()}));
 			}
-        }
-		this.emplenarModelNotificacioDocument(expedientId, processInstanceId, documentStoreId, model);
-    	return "v3/expedientDocumentNotificar";
+		} catch(Exception e) {
+			String errMsg = getMessage(request, "info.document.notificar.error", new Object[] {e.getMessage()});
+			logger.error(errMsg, e);
+			MissatgesHelper.error(request, errMsg);
+		}
+		return modalUrlTancar(false);
 	}
 	
 	private ExpedientDocumentDto emplenarModelNotificacioDocument(

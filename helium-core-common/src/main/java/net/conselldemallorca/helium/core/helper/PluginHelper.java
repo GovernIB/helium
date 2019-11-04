@@ -59,6 +59,7 @@ import net.conselldemallorca.helium.integracio.plugins.gesdoc.GestioDocumentalPl
 import net.conselldemallorca.helium.integracio.plugins.notificacio.Notificacio;
 import net.conselldemallorca.helium.integracio.plugins.notificacio.NotificacioPlugin;
 import net.conselldemallorca.helium.integracio.plugins.notificacio.RespostaConsultaEstatEnviament;
+import net.conselldemallorca.helium.integracio.plugins.notificacio.RespostaConsultaEstatNotificacio;
 import net.conselldemallorca.helium.integracio.plugins.notificacio.RespostaEnviar;
 import net.conselldemallorca.helium.integracio.plugins.persones.DadesPersona;
 import net.conselldemallorca.helium.integracio.plugins.persones.PersonesPlugin;
@@ -112,6 +113,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.IntegracioAccioTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.IntegracioParametreDto;
+import net.conselldemallorca.helium.v3.core.api.dto.NotificacioEstatEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NtiEstadoElaboracionEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NtiOrigenEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NtiTipoDocumentalEnumDto;
@@ -2722,13 +2724,9 @@ public class PluginHelper {
 		return resposta;
 	}
 	
-
-	
 	public void notificacioActualitzarEstat(
 			DocumentNotificacio notificacio) {
 		Expedient expedient = notificacio.getExpedient();
-		DocumentStore document = notificacio.getDocument();
-		DocumentStore certificacio = notificacio.getEnviamentCertificacio();
 		
 		String accioDescripcio = "Consulta d'estat d'una notificació electrònica";
 		
@@ -2736,6 +2734,67 @@ public class PluginHelper {
 				new IntegracioParametreDto("expedientId", expedient.getId()),
 				new IntegracioParametreDto("expedientTitol", expedient.getTitol()),
 				new IntegracioParametreDto("expedientTipusId", expedient.getTipus().getId()),
+				new IntegracioParametreDto("identificador", notificacio.getEnviamentIdentificador()),
+				new IntegracioParametreDto("referencia", notificacio.getEnviamentReferencia())
+		};
+		long t0 = System.currentTimeMillis();
+		
+		try {
+			RespostaConsultaEstatNotificacio resposta = getNotificacioPlugin().consultarNotificacio(notificacio.getEnviamentIdentificador());
+			switch(resposta.getEstat()){
+				case ENVIADA:
+					notificacio.setEstat(NotificacioEstatEnumDto.ENVIADA);
+					break;
+				case FINALITZADA:
+					notificacio.setEstat(NotificacioEstatEnumDto.FINALITZADA);
+					break;
+				case PENDENT:
+					notificacio.setEstat(NotificacioEstatEnumDto.PENDENT);
+					break;
+				case PROCESSADA:
+					notificacio.setEstat(NotificacioEstatEnumDto.PROCESSADA);
+					break;
+				case REGISTRADA:
+					notificacio.setEstat(NotificacioEstatEnumDto.REGISTRADA);
+					break;
+			}
+			notificacio.setError(resposta.isError());
+			notificacio.setErrorDescripcio(resposta.getErrorDescripcio());
+					
+			monitorIntegracioHelper.addAccioOk(
+					MonitorIntegracioHelper.INTCODI_NOTIB,
+					accioDescripcio,
+					IntegracioAccioTipusEnumDto.RECEPCIO,
+					System.currentTimeMillis() - t0,
+					parametres);
+			
+		} catch (Exception ex) {
+			String errorDescripcio = "No s'ha pogut consultar l'estat de la notificació: " + ex.getMessage();
+			monitorIntegracioHelper.addAccioError(
+					MonitorIntegracioHelper.INTCODI_NOTIB,
+					accioDescripcio,
+					IntegracioAccioTipusEnumDto.RECEPCIO,
+					System.currentTimeMillis() - t0,
+					errorDescripcio,
+					ex,
+					parametres);
+			throw tractarExcepcioEnSistemaExtern(errorDescripcio, ex);
+		}
+	}
+	
+	public void notificacioActualitzarEstatEnviament(
+			DocumentNotificacio notificacio) {
+		Expedient expedient = notificacio.getExpedient();
+		DocumentStore document = notificacio.getDocument();
+		DocumentStore certificacio = notificacio.getEnviamentCertificacio();
+		
+		String accioDescripcio = "Consulta d'estat de l'enviament d'una notificació electrònica";
+		
+		IntegracioParametreDto[] parametres = new IntegracioParametreDto[] {
+				new IntegracioParametreDto("expedientId", expedient.getId()),
+				new IntegracioParametreDto("expedientTitol", expedient.getTitol()),
+				new IntegracioParametreDto("expedientTipusId", expedient.getTipus().getId()),
+				new IntegracioParametreDto("identificador", notificacio.getEnviamentIdentificador()),
 				new IntegracioParametreDto("referencia", notificacio.getEnviamentReferencia())
 		};
 		long t0 = System.currentTimeMillis();
@@ -2783,7 +2842,9 @@ public class PluginHelper {
 					resposta.getEstatOrigen(),
 					resposta.getCertificacioData(),
 					resposta.getCertificacioOrigen(),
-					documentStoreRepository.findOne(gestioDocumentalId));
+					gestioDocumentalId != null ? documentStoreRepository.findOne(gestioDocumentalId) : null,
+					resposta.isError(),
+					resposta.getErrorDescripcio());
 					
 			monitorIntegracioHelper.addAccioOk(
 					MonitorIntegracioHelper.INTCODI_NOTIB,

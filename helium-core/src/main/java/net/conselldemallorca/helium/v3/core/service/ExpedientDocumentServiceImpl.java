@@ -312,7 +312,8 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 			Long expedientId,
 			Long documentStoreId,
 			DadesNotificacioDto dadesNotificacioDto,
-			List<Long> interessatsIds) {
+			Long interessatId,
+			Long representantId) {
 
 		// Comprova els permisos
 		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
@@ -343,56 +344,57 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 		dadesNotificacioDto.setDocumentArxiuCsv(documentDto.getArxiuCsv());
 		
 		dadesNotificacioDto.setDocumentId(documentStoreId);
-				
-		// Afegeix un enviament per interessat a la notificació
-		List<DadesEnviamentDto> enviaments = new ArrayList<DadesEnviamentDto>();
-		for(Long interessatId:  interessatsIds){
+					
+		// De moment envia només a un interessat titular però es pot crear un enviament per cada titular amb la llista de destinataris		
+		Interessat interessatEntity	= interessatRepository.findOne(interessatId);
 
-			Interessat interessatEntity = interessatRepository.findOne(interessatId);
-			List<PersonaDto> destinataris = new ArrayList<PersonaDto>();
-			// Destinatari
+		// Afegeix un enviament per interessat a la notificació com a titular de la mateixa
+		List<DadesEnviamentDto> enviaments = new ArrayList<DadesEnviamentDto>();
+		// Titular
+		PersonaDto titular = new PersonaDto();
+		titular.setDni(interessatEntity.getNif());
+		titular.setNom(interessatEntity.getNom());
+		titular.setLlinatge1(interessatEntity.getLlinatge1());
+		titular.setLlinatge2(interessatEntity.getLlinatge2());
+		titular.setTelefon(interessatEntity.getTelefon());
+		titular.setEmail(interessatEntity.getEmail());
+		titular.setTipus(interessatEntity.getTipus());
+		dadesEnviamentDto.setTitular(titular);
+		// Destinataris
+		List<PersonaDto> destinataris = new ArrayList<PersonaDto>();
+		if (representantId != null) {
+			Interessat representantEntity = interessatRepository.findOne(representantId);
 			PersonaDto destinatari = new PersonaDto();
-			destinatari.setNom(interessatEntity.getNom());
-			destinatari.setLlinatge1(interessatEntity.getLlinatge1());
-			destinatari.setLlinatge2(interessatEntity.getLlinatge2());
-			destinatari.setDni(interessatEntity.getNif());
-			destinatari.setTelefon(interessatEntity.getTelefon());
-			destinatari.setEmail(interessatEntity.getEmail());
-			destinatari.setTipus(interessatEntity.getTipus());
+			destinatari.setNom(representantEntity.getNom());
+			destinatari.setLlinatge1(representantEntity.getLlinatge1());
+			destinatari.setLlinatge2(representantEntity.getLlinatge2());
+			destinatari.setDni(representantEntity.getNif());
+			destinatari.setTelefon(representantEntity.getTelefon());
+			destinatari.setEmail(representantEntity.getEmail());
+			destinatari.setTipus(representantEntity.getTipus());
 			destinataris.add(destinatari);
-			dadesEnviamentDto.setDestinataris(destinataris);
-			// Titular
-			PersonaDto titular = new PersonaDto();
-			titular.setDni(interessatEntity.getNif());
-			titular.setNom(interessatEntity.getNom());
-			titular.setLlinatge1(interessatEntity.getLlinatge1());
-			titular.setLlinatge2(interessatEntity.getLlinatge2());
-			titular.setTelefon(interessatEntity.getTelefon());
-			titular.setEmail(interessatEntity.getEmail());
-			titular.setTipus(interessatEntity.getTipus());
-			dadesEnviamentDto.setTitular(titular);
-			// Entrega postal
-			if (interessatEntity.isEntregaPostal()) {
-				dadesEnviamentDto.setEntregaPostalActiva(interessatEntity.isEntregaPostal());
-				dadesEnviamentDto.setEntregaPostalTipus(EntregaPostalTipus.valueOf(interessatEntity.getEntregaTipus().name()));
-				dadesEnviamentDto.setEntregaPostalLinea1(interessatEntity.getLinia1());
-				dadesEnviamentDto.setEntregaPostalLinea2(interessatEntity.getLinia2());
-				if (interessatEntity.getCodiPostal() != null)
-					dadesEnviamentDto.setEntregaPostalCodiPostal(interessatEntity.getCodiPostal());
-				else
-					dadesEnviamentDto.setEntregaPostalCodiPostal("00000");
-			}
-			// Entrega DEH
-			if (interessatEntity.isEntregaDeh()) {
-				dadesEnviamentDto.setEntregaDehActiva(interessatEntity.isEntregaDeh());
-				dadesEnviamentDto.setEntregaDehProcedimentCodi(expedientTipus.getNtiClasificacion());
-				dadesEnviamentDto.setEntregaDehObligat(interessatEntity.isEntregaDehObligat());
-			}
-			dadesEnviamentDto.setServeiTipusEnum(dadesNotificacioDto.getServeiTipusEnum());
-			enviaments.add(dadesEnviamentDto);
 		}
+		dadesEnviamentDto.setDestinataris(destinataris);
+		// Entrega postal
+		if (interessatEntity.isEntregaPostal()) {
+			dadesEnviamentDto.setEntregaPostalActiva(interessatEntity.isEntregaPostal());
+			dadesEnviamentDto.setEntregaPostalTipus(EntregaPostalTipus.valueOf(interessatEntity.getEntregaTipus().name()));
+			dadesEnviamentDto.setEntregaPostalLinea1(interessatEntity.getLinia1());
+			dadesEnviamentDto.setEntregaPostalLinea2(interessatEntity.getLinia2());
+			if (interessatEntity.getCodiPostal() != null)
+				dadesEnviamentDto.setEntregaPostalCodiPostal(interessatEntity.getCodiPostal());
+			else
+				dadesEnviamentDto.setEntregaPostalCodiPostal("00000");
+		}
+		// Entrega DEH
+		if (interessatEntity.isEntregaDeh()) {
+			dadesEnviamentDto.setEntregaDehActiva(interessatEntity.isEntregaDeh());
+			dadesEnviamentDto.setEntregaDehProcedimentCodi(expedientTipus.getNtiClasificacion());
+			dadesEnviamentDto.setEntregaDehObligat(interessatEntity.isEntregaDehObligat());
+		}
+		dadesEnviamentDto.setServeiTipusEnum(dadesNotificacioDto.getServeiTipusEnum());
+		enviaments.add(dadesEnviamentDto);
 		dadesNotificacioDto.setEnviaments(enviaments);
-		
 		// Notifica i guarda la informació
 		DocumentNotificacio notificacio = notificacioHelper.altaNotificacio(expedient, dadesNotificacioDto);
 		
@@ -1236,6 +1238,7 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 		}
 		
 		try {
+			pluginHelper.notificacioActualitzarEstatEnviament(notificacio);
 			pluginHelper.notificacioActualitzarEstat(notificacio);
 		} catch (Exception ex) {
 			String errorDescripcio = "Error al accedir al plugin de notificacions";

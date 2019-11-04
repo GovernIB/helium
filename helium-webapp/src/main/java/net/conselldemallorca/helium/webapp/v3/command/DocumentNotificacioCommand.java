@@ -21,6 +21,7 @@ public class DocumentNotificacioCommand {
 
 	@NotEmpty
 	private List<Long> interessatsIds = new ArrayList<Long>();
+	private Long representantId = null;
 	@NotEmpty
 	private String concepte;
 	@NotNull
@@ -81,6 +82,12 @@ public class DocumentNotificacioCommand {
 	}
 	public void setInteressatsIds(List<Long> interessatsIds) {
 		this.interessatsIds = interessatsIds;
+	}
+	public Long getRepresentantId() {
+		return representantId;
+	}
+	public void setRepresentantId(Long representantId) {
+		this.representantId = representantId;
 	}
 	public String getConcepte() {
 		return concepte;

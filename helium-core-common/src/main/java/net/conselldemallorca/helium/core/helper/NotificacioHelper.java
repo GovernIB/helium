@@ -28,7 +28,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.DocumentNotificacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EnviamentTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NotificacioDto;
-import net.conselldemallorca.helium.v3.core.api.dto.NotificacioEnviamentEstatEnumDto;
+import net.conselldemallorca.helium.v3.core.api.dto.NotificacioEstatEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
 import net.conselldemallorca.helium.v3.core.api.exception.SistemaExternException;
 import net.conselldemallorca.helium.v3.core.repository.DocumentNotificacioRepository;
@@ -169,7 +169,7 @@ public class NotificacioHelper {
 		notificacio.setEnviamentIdentificador(resposta.getIdentificador());
 		notificacio.setEnviatData(new Date());
 		try {
-			notificacio.setEstat(NotificacioEnviamentEstatEnumDto.valueOf(resposta.getEstat().name()));
+			notificacio.setEstat(NotificacioEstatEnumDto.valueOf(resposta.getEstat().name()));
 		} catch(Exception e) {
 			notificacio.setError(true);
 			notificacio.setErrorDescripcio("No s'ha pogut reconèixer l'estat \"" + resposta.getEstat() + "\" de la resposta");
@@ -244,15 +244,11 @@ public class NotificacioHelper {
 			notificacio.setDestinatariEmail(dadesDestinatari.getEmail());
 		}
 			
-		notificacio.setEstat(NotificacioEnviamentEstatEnumDto.PENDENT);
+		notificacio.setEstat(NotificacioEstatEnumDto.PENDENT);
 		
 		notificacio.setConcepte(dadesNotificacio.getConcepte());
 		notificacio.setDescripcio(dadesNotificacio.getDescripcio());
-		
 
-
-		
-		
 		return notificacio;
 	}
 	public DadesNotificacioDto toDadesNotificacioDto(DocumentNotificacio notificacio) {
@@ -283,6 +279,8 @@ public class NotificacioHelper {
 		// TODO: Només 1 enviament
 		List<DadesEnviamentDto> enviaments = new ArrayList<DadesEnviamentDto>();
 		DadesEnviamentDto dadesEnviament = new DadesEnviamentDto();
+		dadesEnviament.setEstat(notificacio.getEnviamentDatatEstat());
+		dadesEnviament.setEstatData(notificacio.getEnviamentDatatData());
 
 		// Titular
 		PersonaDto titular = new PersonaDto();
@@ -316,7 +314,6 @@ public class NotificacioHelper {
 		
 		dadesNotificacio.setConcepte(notificacio.getConcepte());
 		dadesNotificacio.setDescripcio(notificacio.getDescripcio());
-
 		
 		return dadesNotificacio;
 	}

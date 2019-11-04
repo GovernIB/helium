@@ -21,6 +21,7 @@ import es.caib.notib.ws.notificacio.DocumentV2;
 import es.caib.notib.ws.notificacio.EntregaDeh;
 import es.caib.notib.ws.notificacio.EntregaPostal;
 import es.caib.notib.ws.notificacio.EntregaPostalViaTipusEnum;
+import es.caib.notib.ws.notificacio.EnviamentEstatEnum;
 import es.caib.notib.ws.notificacio.EnviamentTipusEnum;
 import es.caib.notib.ws.notificacio.NotificaDomiciliConcretTipusEnumDto;
 import es.caib.notib.ws.notificacio.NotificaServeiTipusEnumDto;
@@ -173,40 +174,42 @@ public class NotificacioPluginNotib implements NotificacioPlugin {
 	}
 
 	@Override
-	public RespostaConsultaEstatNotificacio consultarNotificacio(
-			String identificador) throws NotificacioPluginException {
+	public RespostaConsultaEstatNotificacio consultarNotificacio(String identificador) throws NotificacioPluginException {
+		RespostaConsultaEstatNotificacio resposta = null;
 		try {
 			es.caib.notib.ws.notificacio.RespostaConsultaEstatNotificacio respostaConsultaEstat = getNotificacioService().consultaEstatNotificacio(identificador);
-			if (respostaConsultaEstat.isError()) {
-				throw new NotificacioPluginException(respostaConsultaEstat.getErrorDescripcio());
-			} else {
-				RespostaConsultaEstatNotificacio resposta = new RespostaConsultaEstatNotificacio();
-				if (respostaConsultaEstat.getEstat() != null) {
-					switch (respostaConsultaEstat.getEstat()) {
-					case PENDENT:
-						resposta.setEstat(NotificacioEstat.PENDENT);
-						break;
-					case ENVIADA:
-						resposta.setEstat(NotificacioEstat.ENVIADA);
-						break;
-					case FINALITZADA:
-						resposta.setEstat(NotificacioEstat.FINALITZADA);
-						break;
-					case REGISTRADA:
-						resposta.setEstat(NotificacioEstat.REGISTRADA);
-						break;
-					default:
-						break;
-					}
+			resposta = new RespostaConsultaEstatNotificacio();
+			if (respostaConsultaEstat.getEstat() != null) {
+				switch (respostaConsultaEstat.getEstat()) {
+				case PENDENT:
+					resposta.setEstat(NotificacioEstat.PENDENT);
+					break;
+				case ENVIADA:
+					resposta.setEstat(NotificacioEstat.ENVIADA);
+					break;
+				case FINALITZADA:
+					resposta.setEstat(NotificacioEstat.FINALITZADA);
+					break;
+				case REGISTRADA:
+					resposta.setEstat(NotificacioEstat.REGISTRADA);
+					break;
+				case PROCESSADA:
+					resposta.setEstat(NotificacioEstat.PROCESSADA);
+					break;
+				default:
+					break;
 				}
-				return resposta;
 			}
+			resposta.setError(respostaConsultaEstat.isError());
+			resposta.setErrorData(respostaConsultaEstat.getErrorData() != null ? respostaConsultaEstat.getErrorData().toGregorianCalendar().getTime() : null);
+			resposta.setErrorDescripcio(respostaConsultaEstat.getErrorDescripcio());
 		} catch (Exception ex) {
 			throw new NotificacioPluginException(
 					"No s'ha pogut consultar l'estat de la notificació (" +
 					"identificador=" + identificador + ")",
 					ex);
 		}
+		return resposta;
 	}
 
 	@Override
@@ -214,97 +217,30 @@ public class NotificacioPluginNotib implements NotificacioPlugin {
 			String referencia) throws NotificacioPluginException {
 		try {
 			es.caib.notib.ws.notificacio.RespostaConsultaEstatEnviament respostaConsultaEstat = getNotificacioService().consultaEstatEnviament(referencia);
-			if (respostaConsultaEstat.isError()) {
-				throw new NotificacioPluginException(respostaConsultaEstat.getErrorDescripcio());
-			} else {
-				RespostaConsultaEstatEnviament resposta = new RespostaConsultaEstatEnviament();
-				if (respostaConsultaEstat.getEstat() != null) {
-					switch (respostaConsultaEstat.getEstat()) {
-					case NOTIB_ENVIADA:
-						resposta.setEstat(EnviamentEstat.NOTIB_ENVIADA);
-						break;
-					case NOTIB_PENDENT:
-						resposta.setEstat(EnviamentEstat.NOTIB_PENDENT);
-						break;
-					case ABSENT:
-						resposta.setEstat(EnviamentEstat.ABSENT);
-						break;
-					case ADRESA_INCORRECTA:
-						resposta.setEstat(EnviamentEstat.ADRESA_INCORRECTA);
-						break;
-					case DESCONEGUT:
-						resposta.setEstat(EnviamentEstat.DESCONEGUT);
-						break;
-					case ENTREGADA_OP:
-						resposta.setEstat(EnviamentEstat.ENTREGADA_OP);
-						break;
-					case ENVIADA_CI:
-						resposta.setEstat(EnviamentEstat.ENVIADA_CI);
-						break;
-					case ENVIADA_DEH:
-						resposta.setEstat(EnviamentEstat.ENVIADA_DEH);
-						break;
-					case ENVIAMENT_PROGRAMAT:
-						resposta.setEstat(EnviamentEstat.ENVIAMENT_PROGRAMAT);
-						break;
-					case ERROR_ENTREGA:
-						resposta.setEstat(EnviamentEstat.ERROR_ENTREGA);
-						break;
-					case EXPIRADA:
-						resposta.setEstat(EnviamentEstat.EXPIRADA);
-						break;
-					case EXTRAVIADA:
-						resposta.setEstat(EnviamentEstat.EXTRAVIADA);
-						break;
-					case LLEGIDA:
-						resposta.setEstat(EnviamentEstat.LLEGIDA);
-						break;
-					case MORT:
-						resposta.setEstat(EnviamentEstat.MORT);
-						break;
-					case NOTIFICADA:
-						resposta.setEstat(EnviamentEstat.NOTIFICADA);
-						break;
-					case PENDENT_CIE:
-						resposta.setEstat(EnviamentEstat.PENDENT_CIE);
-						break;
-					case PENDENT_DEH:
-						resposta.setEstat(EnviamentEstat.PENDENT_DEH);
-						break;
-					case PENDENT_ENVIAMENT:
-						resposta.setEstat(EnviamentEstat.PENDENT_ENVIAMENT);
-						break;
-					case PENDENT_SEU:
-						resposta.setEstat(EnviamentEstat.PENDENT_SEU);
-						break;
-					case REBUTJADA:
-						resposta.setEstat(EnviamentEstat.REBUTJADA);
-						break;
-					case SENSE_INFORMACIO:
-						resposta.setEstat(EnviamentEstat.SENSE_INFORMACIO);
-						break;
-					default:
-						break;
-					}
-				}
-				resposta.setEstatData(toDate(respostaConsultaEstat.getEstatData()));
-				resposta.setEstatDescripcio(respostaConsultaEstat.getEstatDescripcio());
-				resposta.setEstatOrigen(respostaConsultaEstat.getEstatOrigen());
-				resposta.setReceptorNif(respostaConsultaEstat.getReceptorNif());
-				resposta.setReceptorNom(respostaConsultaEstat.getReceptorNom());
-				if (respostaConsultaEstat.getCertificacio() != null) {
-					Certificacio certificacio = respostaConsultaEstat.getCertificacio();
-					resposta.setCertificacioData(toDate(certificacio.getData()));
-					resposta.setCertificacioOrigen(certificacio.getOrigen());
-					resposta.setCertificacioContingut(
-							Base64.decodeBase64(certificacio.getContingutBase64().getBytes()));
-					resposta.setCertificacioHash(certificacio.getHash());
-					resposta.setCertificacioMetadades(certificacio.getMetadades());
-					resposta.setCertificacioCsv(certificacio.getCsv());
-					resposta.setCertificacioTipusMime(certificacio.getTipusMime());
-				}
-				return resposta;
+
+			RespostaConsultaEstatEnviament resposta = new RespostaConsultaEstatEnviament();
+			
+			resposta.setEstat(toEnviamentEstat(respostaConsultaEstat.getEstat()));
+			resposta.setEstatData(toDate(respostaConsultaEstat.getEstatData()));
+			resposta.setEstatDescripcio(respostaConsultaEstat.getEstatDescripcio());
+			resposta.setEstatOrigen(respostaConsultaEstat.getEstatOrigen());
+			resposta.setReceptorNif(respostaConsultaEstat.getReceptorNif());
+			resposta.setReceptorNom(respostaConsultaEstat.getReceptorNom());
+			if (respostaConsultaEstat.getCertificacio() != null) {
+				Certificacio certificacio = respostaConsultaEstat.getCertificacio();
+				resposta.setCertificacioData(toDate(certificacio.getData()));
+				resposta.setCertificacioOrigen(certificacio.getOrigen());
+				resposta.setCertificacioContingut(
+						Base64.decodeBase64(certificacio.getContingutBase64().getBytes()));
+				resposta.setCertificacioHash(certificacio.getHash());
+				resposta.setCertificacioMetadades(certificacio.getMetadades());
+				resposta.setCertificacioCsv(certificacio.getCsv());
+				resposta.setCertificacioTipusMime(certificacio.getTipusMime());
 			}
+			resposta.setError(respostaConsultaEstat.isError());
+			resposta.setErrorDescripcio(respostaConsultaEstat.getErrorDescripcio());
+			
+			return resposta;
 		} catch (Exception ex) {
 			throw new NotificacioPluginException(
 					"No s'ha pogut consultar l'estat de l'enviament (" +
@@ -314,6 +250,79 @@ public class NotificacioPluginNotib implements NotificacioPlugin {
 	}
 
 
+	private EnviamentEstat toEnviamentEstat(EnviamentEstatEnum estat) {
+		EnviamentEstat enviamentEstat = null;
+		if (estat != null) {
+			switch (estat) {
+			case NOTIB_ENVIADA:
+				enviamentEstat = EnviamentEstat.NOTIB_ENVIADA;
+				break;
+			case NOTIB_PENDENT:
+				enviamentEstat = EnviamentEstat.NOTIB_PENDENT;
+				break;
+			case ABSENT:
+				enviamentEstat = EnviamentEstat.ABSENT;
+				break;
+			case ADRESA_INCORRECTA:
+				enviamentEstat = EnviamentEstat.ADRESA_INCORRECTA;
+				break;
+			case DESCONEGUT:
+				enviamentEstat = EnviamentEstat.DESCONEGUT;
+				break;
+			case ENTREGADA_OP:
+				enviamentEstat = EnviamentEstat.ENTREGADA_OP;
+				break;
+			case ENVIADA_CI:
+				enviamentEstat = EnviamentEstat.ENVIADA_CI;
+				break;
+			case ENVIADA_DEH:
+				enviamentEstat = EnviamentEstat.ENVIADA_DEH;
+				break;
+			case ENVIAMENT_PROGRAMAT:
+				enviamentEstat = EnviamentEstat.ENVIAMENT_PROGRAMAT;
+				break;
+			case ERROR_ENTREGA:
+				enviamentEstat = EnviamentEstat.ERROR_ENTREGA;
+				break;
+			case EXPIRADA:
+				enviamentEstat = EnviamentEstat.EXPIRADA;
+				break;
+			case EXTRAVIADA:
+				enviamentEstat = EnviamentEstat.EXTRAVIADA;
+				break;
+			case LLEGIDA:
+				enviamentEstat = EnviamentEstat.LLEGIDA;
+				break;
+			case MORT:
+				enviamentEstat = EnviamentEstat.MORT;
+				break;
+			case NOTIFICADA:
+				enviamentEstat = EnviamentEstat.NOTIFICADA;
+				break;
+			case PENDENT_CIE:
+				enviamentEstat = EnviamentEstat.PENDENT_CIE;
+				break;
+			case PENDENT_DEH:
+				enviamentEstat = EnviamentEstat.PENDENT_DEH;
+				break;
+			case PENDENT_ENVIAMENT:
+				enviamentEstat = EnviamentEstat.PENDENT_ENVIAMENT;
+				break;
+			case PENDENT_SEU:
+				enviamentEstat = EnviamentEstat.PENDENT_SEU;
+				break;
+			case REBUTJADA:
+				enviamentEstat = EnviamentEstat.REBUTJADA;
+				break;
+			case SENSE_INFORMACIO:
+				enviamentEstat = EnviamentEstat.SENSE_INFORMACIO;
+				break;
+			default:
+				break;
+			}
+		}
+		return enviamentEstat;
+	}
 
 	private XMLGregorianCalendar toXmlGregorianCalendar(Date date) throws DatatypeConfigurationException {
 		if (date == null) {

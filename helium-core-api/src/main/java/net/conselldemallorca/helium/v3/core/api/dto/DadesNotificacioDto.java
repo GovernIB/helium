@@ -32,7 +32,7 @@ public class DadesNotificacioDto {
 	private Integer retard;
 	private String grupCodi;
 	private Long documentId;
-	private NotificacioEnviamentEstatEnumDto estat;
+	private NotificacioEstatEnumDto estat;
 	private Date enviatData;
 	private Boolean error;
 	private String errorDescripcio;
@@ -61,10 +61,10 @@ public class DadesNotificacioDto {
 	public void setDocumentId(Long documentId) {
 		this.documentId = documentId;
 	}
-	public NotificacioEnviamentEstatEnumDto getEstat() {
+	public NotificacioEstatEnumDto getEstat() {
 		return estat;
 	}
-	public void setEstat(NotificacioEnviamentEstatEnumDto estat) {
+	public void setEstat(NotificacioEstatEnumDto estat) {
 		this.estat = estat;
 	}
 	public Date getEnviatData() {

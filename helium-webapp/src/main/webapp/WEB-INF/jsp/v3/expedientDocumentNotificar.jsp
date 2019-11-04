@@ -46,7 +46,8 @@ $(document).ready(function() {
 	<form:form cssClass="form-horizontal form-tasca" action="notificar"  method="post" commandName="documentNotificacioCommand">
 		
 
-		<hel:inputSelect required="true" name="interessatsIds" multiple="true" textKey="expedient.document.notificar.form.camp.interessats.variable" placeholderKey="expedient.document.notificar.form.camp.interessats.placeholder" optionItems="${interessats}" optionValueAttribute="id" optionTextAttribute="fullInfo"/>
+		<hel:inputSelect required="true" name="interessatsIds" multiple="true" textKey="expedient.document.notificar.form.camp.titulars" placeholderKey="expedient.document.notificar.form.camp.titulars.placeholder" comment="expedient.document.notificar.form.camp.titulars.info" optionItems="${interessats}" optionValueAttribute="id" optionTextAttribute="fullInfo"/>
+		<hel:inputSelect required="false" name="representantId" multiple="false" emptyOption="true" textKey="expedient.document.notificar.form.camp.representant" placeholderKey="expedient.document.notificar.form.camp.representant.placeholder" comment="expedient.document.notificar.form.camp.representant.info" optionItems="${interessats}" optionValueAttribute="id" optionTextAttribute="fullInfo"/>
 		<hel:inputText required="true" name="concepte" textKey="expedient.document.notificar.form.camp.concepte" />
 		<hel:inputSelect required="true" name="serveiTipusEnum" optionItems="${serveiTipusEstats}" optionValueAttribute="valor" optionTextAttribute="codi" textKey="expedient.document.notificar.form.camp.serveiTipus"/>
 		<hel:inputTextarea name="descripcio" textKey="expedient.document.notificar.form.camp.descripcio"></hel:inputTextarea>
