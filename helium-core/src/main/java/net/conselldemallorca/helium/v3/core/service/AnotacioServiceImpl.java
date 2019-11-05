@@ -26,6 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 import edu.emory.mathcs.backport.java.util.Arrays;
 import es.caib.distribucio.backoffice.utils.ArxiuPluginListener;
 import es.caib.distribucio.backoffice.utils.ArxiuResultat;
+import es.caib.distribucio.backoffice.utils.ArxiuResultatAnnex;
 import es.caib.distribucio.backoffice.utils.BackofficeUtils;
 import es.caib.distribucio.backoffice.utils.BackofficeUtilsImpl;
 import es.caib.distribucio.core.api.exception.SistemaExternException;
@@ -334,6 +335,7 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 		
 		// Si l'expedient està integrat amb l'arxiu s'utlitzarà la llibreria d'utilitats de backoffice de Distribució per moure tots els annexos i incorporar
 		// la informació dels interessats.
+		ArxiuResultat resultat = null;
 		if (expedient.isArxiuActiu()) {
 			// Utilitza la llibreria d'utilitats de Distribució per incorporar la informació de l'anotació directament a l'expedient dins l'Arxiu
 			es.caib.plugins.arxiu.api.Expedient expedientArxiu = pluginHelper.arxiuExpedientInfo(expedient.getArxiuUuid());
@@ -346,7 +348,6 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 			es.caib.distribucio.ws.backofficeintegracio.AnotacioRegistreId idWs = new AnotacioRegistreId();
 			idWs.setClauAcces(anotacio.getDistribucioClauAcces());
 			idWs.setIndetificador(anotacio.getDistribucioId());
-			ArxiuResultat resultat;
 			try {
 				AnotacioRegistreEntrada anotacioRegistreEntrada = distribucioHelper.consulta(idWs);
 				resultat = backofficeUtils.crearExpedientAmbAnotacioRegistre(expedientArxiu, anotacioRegistreEntrada);
@@ -363,28 +364,7 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 		for ( AnotacioAnnex annex : anotacio.getAnnexos() ) {
 			
 			// Incorpora cada annex de forma separada per evitar excepcions i continuar amb els altres
-			this.incorporarAnnex(expedient, anotacio, annex);
-						
-//			try {
-//				logger.debug("Creant l'annex (annex=" + adjuntTitol + ") a l'expedient " + expedient.getIdentificador());
-//				documentHelper.crearDocument(
-//						null, 
-//						expedient.getProcessInstanceId(), 
-//						null, 
-//						annex.getNtiFechaCaptura(), 
-//						true, 
-//						adjuntTitol, 
-//						annex.getNom(), 
-//						annex.getContingut(), 
-//						annex.getNtiOrigen(), 
-//						annex.getNtiEstadoElaboracion(), 
-//						annex.getNtiTipoDocumental(), 
-//						null);
-//			} catch(Exception e) {
-//				String errMsg = "Error creant l'annex (annex=" + adjuntTitol + ") a l'expedient " + expedient.getIdentificador(); e.getMessage();
-//				logger.error(errMsg, e);
-//				//TODO DANIEL: Incorporar de forma independent de manera que pugui anar incorporant la resta
-//			}
+			this.incorporarAnnex(expedient, anotacio, annex, resultat);						
 		}
 		
 		if (associarInteressats) {
@@ -460,10 +440,11 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 	 * @param anotacio 
 	 * @param expedient 
 	 * @param annex 
+	 * @param resultat 
 	 */
 	//@Override
 	@Transactional(propagation = Propagation.REQUIRES_NEW)
-	public void incorporarAnnex(Expedient expedient, Anotacio anotacio, AnotacioAnnex annex) {
+	public void incorporarAnnex(Expedient expedient, Anotacio anotacio, AnotacioAnnex annex, ArxiuResultat resultat) {
 		
 		// El títol contindrà el número de l'anotació
 		String adjuntTitol = anotacio.getIdentificador() + "/" + annex.getNom();
@@ -471,7 +452,19 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 		try {
 			if (expedient.isArxiuActiu()) {
 				// Crea un document al DocumentStore amb la informació de l'annex sense contingut
-
+				ArxiuResultatAnnex resultatAnnex = resultat.getResultatAnnex(annex.getUuid());
+				// Consulta si s'acaba de moure
+				switch(resultatAnnex.getAccio()) {
+				case ERROR:
+					annex.setEstat(AnotacioAnnexEstatEnumDto.PENDENT);
+					annex.setError(resultatAnnex.getErrorCodi() + " - " + resultatAnnex.getErrorMessage());
+					break;
+				case EXISTENT:
+				case MOGUT:
+					annex.setEstat(AnotacioAnnexEstatEnumDto.MOGUT);
+					annex.setUuid(resultatAnnex.getIdentificadorAnnex());					
+					// TODO DANIEL: Guardar l'annex com un nou document del document store amb l'uuid i sense contingut
+				}
 			} else {
 				// Recupera el contingut del document i crea un document a Helium
 				byte[] contingut = annex.getContingut();

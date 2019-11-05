@@ -484,7 +484,7 @@
 		<dependency>
 			<groupId>es.caib.distribucio</groupId>
 			<artifactId>distribucio-backoffice-utils</artifactId>
-			<version>0.9</version>
+			<version>0.9.26</version>
 		</dependency>
 	</dependencies>
 	<build>
