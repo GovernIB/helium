@@ -131,7 +131,7 @@ public class ExpedientIniciController extends BaseExpedientController {
 							definicioProces.getId());
 				MissatgesHelper.success(request, getMessage(request, "info.expedient.iniciat", new Object[] { iniciat.getIdentificador() }));
 				ExpedientIniciController.netejarSessio(request);
-				return modalUrlTancar();
+				return modalUrlTancar(false);
 			} catch (ValidacioException ex) {
 				MissatgesHelper.error(
 	        			request,

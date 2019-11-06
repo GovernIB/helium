@@ -269,7 +269,7 @@ public class ExpedientInicioPasFormController extends BaseExpedientController {
 				return "v3/expedient/iniciarPasForm";
 			}
 		}
-		return modalUrlTancar();
+		return modalUrlTancar(false);
 	}
 
 	private synchronized ExpedientDto iniciarExpedient(

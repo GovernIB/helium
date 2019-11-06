@@ -160,7 +160,7 @@ public class ExpedientInicioPasTitolController extends BaseExpedientController {
 				logger.error("No s'ha pogut iniciar l'expedient", ex);
 			}
 		}
-		return modalUrlTancar();
+		return modalUrlTancar(false);
 	}
 
 	@SuppressWarnings("unchecked")
