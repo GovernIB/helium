@@ -1387,11 +1387,16 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 				"Consultant definicioProces amb id i amb permisos de disseny (" +
 				"entornId=" + entornId + ", " +
 				"definicioProcesId = " + definicioProcesId + ")");
-		// Comprova l'accés
-		entornHelper.getEntornComprovantPermisos(entornId, false, true);
 		// Recupera la definició de procés per id
 		DefinicioProces definicioProces = definicioProcesRepository.findById(
 				definicioProcesId);
+		// Control d'accés
+		if (definicioProces.getExpedientTipus() != null)			
+			expedientTipusHelper.getExpedientTipusComprovantPermisDisseny(
+					definicioProces.getExpedientTipus().getId());
+		else
+			entornHelper.getEntornComprovantPermisos(EntornActual.getEntornId(), true, true);
+
 		return conversioTipusHelper.convertir(
 				definicioProces,
 				DefinicioProcesDto.class);

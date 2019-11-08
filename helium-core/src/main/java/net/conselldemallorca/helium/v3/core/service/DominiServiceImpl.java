@@ -25,6 +25,7 @@ import net.conselldemallorca.helium.core.model.hibernate.Domini;
 import net.conselldemallorca.helium.core.model.hibernate.Domini.OrigenCredencials;
 import net.conselldemallorca.helium.core.model.hibernate.Domini.TipusAuthDomini;
 import net.conselldemallorca.helium.core.model.hibernate.Domini.TipusDomini;
+import net.conselldemallorca.helium.core.util.EntornActual;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.v3.core.api.dto.DominiDto;
@@ -142,10 +143,19 @@ public class DominiServiceImpl implements DominiService {
 				"entornId =" + entornId + ", " +
 				"domini=" + domini + ")");
 		
-		Entorn entorn = entornHelper.getEntornComprovantPermisos(entornId, true, true);
 		ExpedientTipus expedientTipus = null;
 		if (expedientTipusId != null)
 			expedientTipus = expedientTipusRepository.findOne(expedientTipusId);
+		
+		Entorn entorn;
+		// Control d'accés
+		if (expedientTipus != null) {			
+			expedientTipusHelper.getExpedientTipusComprovantPermisDisseny(
+					expedientTipus.getId());
+			entorn = expedientTipus.getEntorn();
+		} else
+			entorn = entornHelper.getEntornComprovantPermisos(EntornActual.getEntornId(), true, true);
+		
 		
 		Domini entity = new Domini();
 		entity.setEntorn(entorn);
