@@ -104,8 +104,6 @@ public class ReproController extends BaseController {
 			Map<String, Object> valorsFormulariExtern = null;
 			if (tasca.isFormExtern()) {
 				valorsFormulariExtern = tascaInicialService.obtenirValorsFormulariExternInicial(tasca.getId());
-				//FormulariExternDto formulariExtern = tascaService.var
-//				formulariExtern.
 				if (valorsFormulariExtern != null) {
 					request.getSession().setAttribute(
 							ExpedientIniciController.CLAU_SESSIO_FORM_VALORS,
@@ -162,7 +160,7 @@ public class ReproController extends BaseController {
 		}
 		
 		String referer = request.getHeader("Referer");
-	    return "redirect:"+ UriBuilder.fromUri(referer).replaceQueryParam("reproId", repro.getId()).build();
+	    return "redirect:"+ UriBuilder.fromUri(referer).replaceQueryParam("reproId", repro != null ? repro.getId() : "").build();
 	}
 	
 	@RequestMapping(value = "/{expedientTipusId}/{definicioProcesId}/borrarRepro/{reproIdEsborrar}", method = RequestMethod.POST)
@@ -231,14 +229,10 @@ public class ReproController extends BaseController {
 						true));
 		binder.registerCustomEditor(
 				Boolean.class,
-//				new CustomBooleanEditor(false));
 				new CustomBooleanEditor(true));
 		binder.registerCustomEditor(
 				Date.class,
 				new CustomDateEditor(new SimpleDateFormat("dd/MM/yyyy"), true));
-//		binder.registerCustomEditor(
-//				TerminiDto.class,
-//				new TerminiTypeEditorHelper());
 		binder.registerCustomEditor(
 				Object.class,
 				new ObjectTypeEditorHelper());
@@ -280,7 +274,7 @@ public class ReproController extends BaseController {
 					": " + ex.getMessage());
 		}
 		String referer = request.getHeader("Referer");
-	    return "redirect:"+ UriBuilder.fromUri(referer).replaceQueryParam("reproId", repro.getId()).build();
+	    return "redirect:"+ UriBuilder.fromUri(referer).replaceQueryParam("reproId", repro != null? repro.getId() : "").build();
 	}
 	
 	private static final Log logger = LogFactory.getLog(ReproController.class);

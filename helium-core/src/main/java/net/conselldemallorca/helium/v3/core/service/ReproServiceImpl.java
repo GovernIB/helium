@@ -10,6 +10,11 @@ import java.util.Map;
 import javax.annotation.Resource;
 import javax.xml.bind.DatatypeConverter;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import net.conselldemallorca.helium.core.helper.ConversioTipusHelper;
 import net.conselldemallorca.helium.core.helper.UsuariActualHelper;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
@@ -22,9 +27,6 @@ import net.conselldemallorca.helium.v3.core.api.service.ReproService;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientTipusRepository;
 import net.conselldemallorca.helium.v3.core.repository.ReproRepository;
 import net.conselldemallorca.helium.v3.core.repository.TascaRepository;
-
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Servei per gestionar els terminis dels expedients
@@ -75,10 +77,10 @@ public class ReproServiceImpl implements ReproService {
 	@Override
 	public Map<String,Object> findValorsById(Long id) {
 		Repro repro = reproRepository.findOne(id);
-		if (repro == null)
-			return null;
-			//throw new NoTrobatException(Repro.class, id);
-		
+		if (repro == null) {
+			logger.warn("No s'ha trobat la repro amb id " + id + " a findValorsById");
+			return null;	
+		}
 		byte[] bytes = DatatypeConverter.parseBase64Binary(repro.getValors());
 		ByteArrayInputStream bytesIn = new ByteArrayInputStream(bytes);
         ObjectInputStream ois;
@@ -91,7 +93,9 @@ public class ReproServiceImpl implements ReproService {
 	        
 	        return (Map<String,Object>)valors;
 		} catch (Exception e) {
-			throw new ValidacioException("Error recuperant els valros de la repro " + repro.getNom(), e);
+			String errMsg = "Error recuperant els valors de la repro " + repro.getNom() + ": " + e.getMessage();
+			logger.error(errMsg, e);
+			throw new RuntimeException(errMsg, e);
 		}
 	}
 	
@@ -120,7 +124,9 @@ public class ReproServiceImpl implements ReproService {
 			reproRepository.saveAndFlush(repro);
 			return conversioTipusHelper.convertir(repro, ReproDto.class);
 		} catch (Exception e) {
-			throw new ValidacioException("Error recuperant els valros de la repro " + nom, e);
+			String errMsg = "Error guardant la repro " + nom + ": " + e.getMessage();
+			logger.error(errMsg, e);
+			throw new RuntimeException(errMsg, e);
 		}
 	}
 	
@@ -151,11 +157,8 @@ public class ReproServiceImpl implements ReproService {
 		    byte[] buf = baos.toByteArray();
 		    baos.close();
 	        oos.close();
-	        
-//	        Tasca tasca = tascaRepository.findById(tascaId);
-	        
+
 	        Tasca tasca = tascaRepository.findOne(tascaId);
-	        
 	        String valors_s = DatatypeConverter.printBase64Binary(buf);
 			
 			if (valors_s.getBytes("UTF-8").length > 4000)
@@ -165,7 +168,11 @@ public class ReproServiceImpl implements ReproService {
 			Repro repro2 =  reproRepository.saveAndFlush(repro);
 			return conversioTipusHelper.convertir(repro2, ReproDto.class);
 		} catch (Exception e) {
-			throw new ValidacioException("Error recuperant els valros de la repro " + nom, e);
+			String errMsg = "Error guardant la repro " + nom + ": " + e.getMessage();
+			logger.error(errMsg, e);
+			throw new RuntimeException(errMsg, e);
 		}
 	}
+	
+	private static final Log logger = LogFactory.getLog(ReproServiceImpl.class);
 }

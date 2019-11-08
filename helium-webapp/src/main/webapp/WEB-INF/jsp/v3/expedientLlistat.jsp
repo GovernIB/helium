@@ -146,8 +146,6 @@ $(document).ready(function() {
 		} else {
 			$('#estatText').append('<option value="<%=net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto.EstatTipusDto.INICIAT%>"><spring:message code="comu.estat.iniciat"/></option>');
 			$('#estatText').append('<option value="<%=net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto.EstatTipusDto.FINALITZAT%>"><spring:message code="comu.estat.finalitzat"/></option>');
-			//Es fa el submit del formulari per cercar automàticament per tipus de d'expedient
-			//$('#consultar').trigger('click');
 		}
 	});
 
