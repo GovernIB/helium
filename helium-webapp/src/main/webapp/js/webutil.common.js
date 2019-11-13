@@ -110,7 +110,7 @@ $(document).ajaxError(function(event, jqxhr, ajaxSettings, thrownError) {
 		message = "Unknown Error: (" + jqxhr.status + ", " + thrownError + ")";
 	}*/
 	if (!userAborted(jqxhr))
-		alert(message);
+		console.error(message);
 	else
 		console.warn(message + ": User cancels request");
 });
