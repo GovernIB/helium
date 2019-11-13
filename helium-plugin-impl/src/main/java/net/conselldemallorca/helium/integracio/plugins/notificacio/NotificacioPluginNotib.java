@@ -351,7 +351,17 @@ public class NotificacioPluginNotib implements NotificacioPlugin {
 			p.setTelefon(persona.getTelefon());
 			p.setEmail(persona.getEmail());
 			p.setInteressatTipus(es.caib.notib.ws.notificacio.InteressatTipusEnumDto.valueOf(persona.getTipus().name()));
-			
+			switch(persona.getTipus()){
+			case ADMINISTRACIO:
+				p.setRaoSocial(p.getNom());
+				p.setDir3Codi(p.getNif());
+				break;
+			case JURIDICA:
+				p.setRaoSocial(p.getNom());
+				break;
+			default:
+				break;			
+			}
 		}
 		return p;
 	}

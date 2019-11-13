@@ -350,7 +350,6 @@ public class NotificacioAltaHandler extends BasicActionHandler implements Notifi
 		enviament.setTitular(titular);
 		
 		List<PersonaInfo> destinataris = new ArrayList<PersonaInfo>();
-				
 		PersonaInfo destinatari = new PersonaInfo();
 		destinatari.setNom((String)getValorOVariable(
 				executionContext,
@@ -383,8 +382,11 @@ public class NotificacioAltaHandler extends BasicActionHandler implements Notifi
 		destinatari.setTipus((String)getValorOVariable(
 				executionContext,
 				destinatariTipus,
-				varDestinatariTipus));		
-		destinataris.add(destinatari);
+				varDestinatariTipus));
+		// El destinatari no és obligatori, s'afegeix si s'ha escollit el tipus
+		if (destinatari.getTipus() != null) {
+			destinataris.add(destinatari);
+		}
 		enviament.setDestinataris(destinataris);
 			
 		String strEntragaPostalTipus = (String)getValorOVariable(
