@@ -20,6 +20,8 @@ public interface InteressatCrearHandlerInterface extends ActionHandler {
 	public void setVarNom(String varNom);
 	public void setNif(String nif);
 	public void setVarNif(String varNif);
+	public void setDir3Codi(String dir3Codi);
+	public void setVarDir3Codi(String varDir3Codi);
 	public void setLlinatge1(String llinatge1);
 	public void setVarLlinatge1(String varLlinatge1);
 	public void setLlinatge2(String llinatge2);

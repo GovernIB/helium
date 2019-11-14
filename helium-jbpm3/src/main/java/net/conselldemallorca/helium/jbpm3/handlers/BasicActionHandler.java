@@ -554,6 +554,7 @@ public abstract class BasicActionHandler extends AbstractHeliumActionHandler imp
 		interessatDto.setCodi(interessat.getCodi());
 		interessatDto.setNom(interessat.getNom());
 		interessatDto.setNif(interessat.getNif());
+		interessatDto.setDir3Codi(interessat.getDir3Codi());
 		interessatDto.setLlinatge1(interessat.getLlinatge1());
 		interessatDto.setLlinatge2(interessat.getLlinatge2());
 		interessatDto.setTipus(InteressatTipusEnumDto.valueOf(interessat.getTipus().toUpperCase()));
@@ -587,6 +588,7 @@ public abstract class BasicActionHandler extends AbstractHeliumActionHandler imp
 		interessatDto.setCodi(interessat.getCodi());
 		interessatDto.setNom(interessat.getNom());
 		interessatDto.setNif(interessat.getNif());
+		interessatDto.setDir3Codi(interessat.getDir3Codi());
 		interessatDto.setLlinatge1(interessat.getLlinatge1());
 		interessatDto.setLlinatge2(interessat.getLlinatge2());
 		interessatDto.setTipus(InteressatTipusEnumDto.valueOf(interessat.getTipus().toUpperCase()));

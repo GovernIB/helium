@@ -57,6 +57,7 @@ public class ExpedientInteressatServiceImpl implements ExpedientInteressatServic
 				interessat.getCodi(),
 				interessat.getNom(),
 				interessat.getNif(),
+				interessat.getDir3Codi(),
 				interessat.getLlinatge1(), 
 				interessat.getLlinatge2(), 
 				interessat.getTipus(),
@@ -88,6 +89,7 @@ public class ExpedientInteressatServiceImpl implements ExpedientInteressatServic
 		interessatEntity.setCodi(interessat.getCodi());
 		interessatEntity.setNom(interessat.getNom());
 		interessatEntity.setNif(interessat.getNif());
+		interessatEntity.setDir3Codi(interessat.getDir3Codi());
 		interessatEntity.setNif(interessat.getNif());
 		interessatEntity.setLlinatge1(interessat.getLlinatge1());  
 		interessatEntity.setLlinatge2(interessat.getLlinatge2());

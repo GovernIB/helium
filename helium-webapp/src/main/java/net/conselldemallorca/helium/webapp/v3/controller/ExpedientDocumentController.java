@@ -48,6 +48,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.DadesEnviamentDto.EntregaPos
 import net.conselldemallorca.helium.v3.core.api.dto.DadesNotificacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentTipusFirmaEnumDto;
+import net.conselldemallorca.helium.v3.core.api.dto.EnviamentTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.InstanciaProcesDto;
@@ -357,6 +358,7 @@ public class ExpedientDocumentController extends BaseExpedientController {
 		caducitat.setTime(new Date());
 		caducitat.add(Calendar.DATE, 1);
 		command.setCaducitat(caducitat.getTime());
+		command.setEnviamentTipus(EnviamentTipusEnumDto.NOTIFICACIO);
 		model.addAttribute("documentNotificacioCommand", command);
 		
 		ExpedientDocumentDto document = this.emplenarModelNotificacioDocument(expedientId, processInstanceId, documentStoreId, model);
@@ -413,6 +415,8 @@ public class ExpedientDocumentController extends BaseExpedientController {
 			String errMsg = getMessage(request, "info.document.notificar.error", new Object[] {e.getMessage()});
 			logger.error(errMsg, e);
 			MissatgesHelper.error(request, errMsg);
+			this.emplenarModelNotificacioDocument(expedientId, processInstanceId, documentStoreId, model);
+			return "v3/expedientDocumentNotificar";
 		}
 		return modalUrlTancar(false);
 	}
@@ -505,6 +509,14 @@ public class ExpedientDocumentController extends BaseExpedientController {
 		List<ParellaCodiValorDto> resposta = new ArrayList<ParellaCodiValorDto>();
 		resposta.add(new ParellaCodiValorDto(getMessage(request, "notifica.servei.tipus.enum.NORMAL"), ServeiTipusEnumDto.NORMAL));
 		resposta.add(new ParellaCodiValorDto(getMessage(request, "notifica.servei.tipus.enum.URGENT"), ServeiTipusEnumDto.URGENT));
+		return resposta;
+	}
+
+	@ModelAttribute("enviamentTipusEstats")
+	public List<ParellaCodiValorDto> populateEnviamentTipus(HttpServletRequest request) {
+		List<ParellaCodiValorDto> resposta = new ArrayList<ParellaCodiValorDto>();
+		resposta.add(new ParellaCodiValorDto(getMessage(request, "notifica.enviament.tipus.enum.COMUNICACIO"), EnviamentTipusEnumDto.COMUNICACIO));
+		resposta.add(new ParellaCodiValorDto(getMessage(request, "notifica.enviament.tipus.enum.NOTIFICACIO"), EnviamentTipusEnumDto.NOTIFICACIO));
 		return resposta;
 	}
 	

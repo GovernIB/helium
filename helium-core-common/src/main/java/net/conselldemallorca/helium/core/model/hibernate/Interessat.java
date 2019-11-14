@@ -37,6 +37,8 @@ public class Interessat implements Serializable, GenericEntity<Long> {
 	private String codi;
 	@NotBlank
 	private String nif;
+	@Column(name = "dir3codi", length = 9)
+	private String dir3Codi;
 	@NotBlank
 	private String nom;
 	private String llinatge1;  
@@ -62,6 +64,7 @@ public class Interessat implements Serializable, GenericEntity<Long> {
 			String codi,
 			String nom, 
 			String nif, 
+			String dir3codi,
 			String llinatge1, 
 			String llinatge2, 
 			InteressatTipusEnumDto tipus,
@@ -80,6 +83,7 @@ public class Interessat implements Serializable, GenericEntity<Long> {
 		this.codi = codi;
 		this.nom = nom;
 		this.nif = nif;
+		this.dir3Codi = dir3codi;
 		this.llinatge1 = llinatge1;
 		this.llinatge2 = llinatge2;
 		this.tipus = tipus;
@@ -134,6 +138,12 @@ public class Interessat implements Serializable, GenericEntity<Long> {
 	}
 	public void setNif(String nif) {
 		this.nif = nif;
+	}
+	public String getDir3Codi() {
+		return dir3Codi;
+	}
+	public void setDir3Codi(String dir3Codi) {
+		this.dir3Codi = dir3Codi;
 	}
 	public String getNom() {
 		return nom;

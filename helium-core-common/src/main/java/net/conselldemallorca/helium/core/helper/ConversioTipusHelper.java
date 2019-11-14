@@ -445,14 +445,24 @@ public class ConversioTipusHelper {
 					@Override
 					public Persona convert(PersonaDto source, Type<? extends Persona> destinationClass) {
 						Persona target = new Persona();
-						target.setNom(source.getNom());
-						target.setLlinatge1(source.getLlinatge1());
-						target.setLlinatge2(source.getLlinatge2());
-						target.setNif(source.getDni());
+						if (source.getTipus() != null) {
+							target.setTipus(InteressatTipusEnum.valueOf(source.getTipus().name()));
+							target.setNif(source.getDni());
+							target.setNom(source.getNom());
+							switch(target.getTipus()) {
+								case ADMINISTRACIO:
+									target.setCodiDir3(source.getCodiDir3());
+									break;
+								case FISICA:
+									target.setLlinatge1(source.getLlinatge1());
+									target.setLlinatge2(source.getLlinatge2());
+									break;
+								default:
+									break;							
+							}
+						}
 						target.setTelefon(source.getTelefon());
 						target.setEmail(source.getEmail());
-						if (source.getTipus() != null)
-						target.setTipus(InteressatTipusEnum.valueOf(source.getTipus().name()));
 						return target;
 					}
 		});			

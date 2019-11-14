@@ -14,6 +14,7 @@ public class InteressatDto {
 	private Long id;
 	private String codi;
 	private String nif;
+	private String dir3Codi;
 	private String nom;
 	private String llinatge1;  
 	private String llinatge2;  
@@ -61,6 +62,12 @@ public class InteressatDto {
 	}
 	public void setNif(String nif) {
 		this.nif = nif;
+	}
+	public String getDir3Codi() {
+		return dir3Codi;
+	}
+	public void setDir3Codi(String dir3Codi) {
+		this.dir3Codi = dir3Codi;
 	}
 	public String getNom() {
 		return nom;
@@ -146,7 +153,12 @@ public class InteressatDto {
 	}
 	
 	public String getFullInfo() {
-		return nif + " - " + getFullNom();
+		String codiDocument;
+		if (tipus != null && InteressatTipusEnumDto.ADMINISTRACIO.equals(tipus))
+			codiDocument = dir3Codi;
+		else
+			codiDocument = nif;
+		return codiDocument + " - " + getFullNom();
 	}
 
 }

@@ -4,7 +4,9 @@
 package net.conselldemallorca.helium.webapp.v3.controller;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -68,7 +70,10 @@ public class ExpedientInteressatV3Controller extends BaseExpedientController {
 			HttpServletRequest request,
 			@PathVariable Long expedientId,
 			Model model) {
-		PaginacioParamsDto paginacioParams = DatatablesHelper.getPaginacioDtoFromRequest(request);
+		
+		Map<String, String[]> mapeigOrdenacions = new HashMap<String, String[]>();
+		mapeigOrdenacions.put("fullNom", new String[] {"nom", "llinatge1", "llinatge2"});
+		PaginacioParamsDto paginacioParams = DatatablesHelper.getPaginacioDtoFromRequest(request, null, mapeigOrdenacions);
 		
 		return DatatablesHelper.getDatatableResponse(
 				request,

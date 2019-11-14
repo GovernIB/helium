@@ -11,6 +11,7 @@
 			<thead>
 				<tr>
 					<th><spring:message code="expedient.notificacio.data_enviament"/></th>
+					<th><spring:message code="expedient.notificacio.enviamentTipus"/></th>
 					<th><spring:message code="expedient.notificacio.concepte"/></th>
 					<th><spring:message code="expedient.notificacio.estat.notificacio"/></th>
 					<th><spring:message code="expedient.notificacio.estat.enviament"/></th>
@@ -25,6 +26,7 @@
 				<c:forEach items="${notificacions}" var="notificacio">
 					<tr>
 						<td><fmt:formatDate value="${notificacio.enviatData}" pattern="dd/MM/yyyy HH:mm:ss"></fmt:formatDate></td>
+					    <td><spring:message code="notifica.enviament.tipus.enum.${notificacio.enviamentTipus}"/></td>
 					    <td>${notificacio.concepte}</td>
 						<td>
 							<span title="<spring:message code="notificacio.etst.enum.${notificacio.estat}.info"/>">

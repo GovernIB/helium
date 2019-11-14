@@ -48,7 +48,8 @@ public class NotificacioPluginNotib implements NotificacioPlugin {
 			
 			DocumentV2 document = new DocumentV2();
 			document.setArxiuNom(notificacio.getDocumentArxiuNom());
-			document.setContingutBase64(new String(Base64.encodeBase64(notificacio.getDocumentArxiuContingut())));
+			if (notificacio.getDocumentArxiuContingut() != null)
+				document.setContingutBase64(new String(Base64.encodeBase64(notificacio.getDocumentArxiuContingut())));
 			document.setUuid(notificacio.getDocumentArxiuUuid());
 			document.setCsv(notificacio.getDocumentArxiuCsv());
 			
@@ -317,7 +318,26 @@ public class NotificacioPluginNotib implements NotificacioPlugin {
 			case SENSE_INFORMACIO:
 				enviamentEstat = EnviamentEstat.SENSE_INFORMACIO;
 				break;
-			default:
+			case ANULADA:
+				enviamentEstat = EnviamentEstat.ANULADA;
+				break;
+			case ENVIADA:
+				enviamentEstat = EnviamentEstat.ENVIADA;
+				break;
+			case ENVIAT_SIR:
+				enviamentEstat = EnviamentEstat.ENVIAT_SIR;
+				break;
+			case FINALITZADA:
+				enviamentEstat = EnviamentEstat.FINALITZADA;
+				break;
+			case PENDENT:
+				enviamentEstat = EnviamentEstat.PENDENT;
+				break;
+			case PROCESSADA:
+				enviamentEstat = EnviamentEstat.PROCESSADA;
+				break;
+			case REGISTRADA:
+				enviamentEstat = EnviamentEstat.REGISTRADA;
 				break;
 			}
 		}
@@ -344,23 +364,21 @@ public class NotificacioPluginNotib implements NotificacioPlugin {
 		es.caib.notib.ws.notificacio.Persona p = null;
 		if (persona != null) {
 			p = new es.caib.notib.ws.notificacio.Persona();
-			p.setNif(persona.getNif());
-			p.setNom(persona.getNom());
-			p.setLlinatge1(persona.getLlinatge1());
-			p.setLlinatge2(persona.getLlinatge2());
 			p.setTelefon(persona.getTelefon());
 			p.setEmail(persona.getEmail());
 			p.setInteressatTipus(es.caib.notib.ws.notificacio.InteressatTipusEnumDto.valueOf(persona.getTipus().name()));
+			p.setNif(persona.getNif());
+			p.setNom(persona.getNom());
 			switch(persona.getTipus()){
-			case ADMINISTRACIO:
-				p.setRaoSocial(p.getNom());
-				p.setDir3Codi(p.getNif());
+			case FISICA:
+				p.setLlinatge1(persona.getLlinatge1());
+				p.setLlinatge2(persona.getLlinatge2());
 				break;
-			case JURIDICA:
-				p.setRaoSocial(p.getNom());
+			case ADMINISTRACIO:
+				p.setDir3Codi(persona.getCodiDir3());
 				break;
 			default:
-				break;			
+				break;
 			}
 		}
 		return p;

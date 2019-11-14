@@ -336,7 +336,7 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 		dadesNotificacioDto.setEmisorDir3Codi(expedientTipus.getNtiOrgano());
 		dadesNotificacioDto.setProcedimentCodi(expedientTipus.getNtiClasificacion());
 		dadesNotificacioDto.setExpedientId(expedientId);
-		dadesNotificacioDto.setEnviamentTipus(EnviamentTipusEnumDto.NOTIFICACIO);
+		dadesNotificacioDto.setEnviamentTipus(dadesNotificacioDto.getEnviamentTipus());
 		
 		dadesNotificacioDto.setDocumentArxiuNom(documentDto.getArxiuNom());
 		dadesNotificacioDto.setDocumentArxiuContingut(documentDto.getArxiuContingut());
@@ -353,6 +353,7 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 		// Titular
 		PersonaDto titular = new PersonaDto();
 		titular.setDni(interessatEntity.getNif());
+		titular.setCodiDir3(interessatEntity.getDir3Codi());
 		titular.setNom(interessatEntity.getNom());
 		titular.setLlinatge1(interessatEntity.getLlinatge1());
 		titular.setLlinatge2(interessatEntity.getLlinatge2());
@@ -369,6 +370,7 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 			destinatari.setLlinatge1(representantEntity.getLlinatge1());
 			destinatari.setLlinatge2(representantEntity.getLlinatge2());
 			destinatari.setDni(representantEntity.getNif());
+			destinatari.setCodiDir3(representantEntity.getDir3Codi());
 			destinatari.setTelefon(representantEntity.getTelefon());
 			destinatari.setEmail(representantEntity.getEmail());
 			destinatari.setTipus(representantEntity.getTipus());

@@ -454,6 +454,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 				interessat.getCodi(),
 				interessat.getNom(),
 				interessat.getNif(),
+				interessat.getDir3Codi(),
 				interessat.getLlinatge1(), 
 				interessat.getLlinatge2(), 
 				interessat.getTipus(),

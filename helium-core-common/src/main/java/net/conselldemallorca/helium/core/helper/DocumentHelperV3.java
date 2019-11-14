@@ -1421,7 +1421,9 @@ public class DocumentHelperV3 {
 						dto.setArxiuContingut(getPdfUtils().convertirPdf(dto.getArxiuNom(), dto.getArxiuContingut()));
 						dto.setArxiuNom(dto.getArxiuNomSenseExtensio() + ".pdf");
 						dto.setContentType("application/pdf");
+						//TODO: no posar a null i deixar el contingut com a null quan estigui a l'arxiu i regweb no falli
 					}
+					dto.setArxiuUuid(null);
 				}
 				if (documentStore.isRegistrat()) {
 					dto.setRegistreData(documentStore.getRegistreData());

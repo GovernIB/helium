@@ -11,6 +11,7 @@ import javax.validation.constraints.NotNull;
 
 import org.hibernate.validator.constraints.NotEmpty;
 
+import net.conselldemallorca.helium.v3.core.api.dto.EnviamentTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ServeiTipusEnumDto;
 
 /**
@@ -29,6 +30,8 @@ public class DocumentNotificacioCommand {
 	private String grupCodi;
 	
 	private String descripcio;
+	@NotNull
+	private EnviamentTipusEnumDto enviamentTipus;
 	private Date enviamentDataProgramada;
 	@NotNull
 	private Date caducitat;
@@ -100,6 +103,12 @@ public class DocumentNotificacioCommand {
 	}
 	public void setDescripcio(String descripcio) {
 		this.descripcio = descripcio;
+	}
+	public EnviamentTipusEnumDto getEnviamentTipus() {
+		return enviamentTipus;
+	}
+	public void setEnviamentTipus(EnviamentTipusEnumDto enviamentTipus) {
+		this.enviamentTipus = enviamentTipus;
 	}
 	public Date getEnviamentDataProgramada() {
 		return enviamentDataProgramada;

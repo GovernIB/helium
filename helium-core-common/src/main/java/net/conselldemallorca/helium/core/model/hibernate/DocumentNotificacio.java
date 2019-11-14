@@ -826,9 +826,7 @@ public class DocumentNotificacio implements Serializable, GenericEntity<Long> {
 			DocumentStore enviamentCertificacio,
 			boolean error,
 			String errorDescripcio) {
-		this.enviamentDatatEstat = enviamentDatatEstat != null?
-										NotificacioEnviamentEstatEnumDto.valueOf(enviamentDatatEstat.toString())
-										: null;
+		this.enviamentDatatEstat = NotificacioEnviamentEstatEnumDto.valueOf(enviamentDatatEstat.toString());
 		this.enviamentDatatData = enviamentDatatData;
 		this.enviamentDatatOrigen = enviamentDatatOrigen;
 		this.enviamentCertificacioData = enviamentCertificacioData;

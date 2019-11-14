@@ -44,6 +44,9 @@ public class InteressatCrearHandler extends BasicActionHandler implements Intere
 	
 	private String nif;
 	private String varNif;
+
+	private String dir3Codi;
+	private String varDir3Codi;
 	
 	private String llinatge1;  
 	private String varLlinatge1; 
@@ -172,6 +175,18 @@ public class InteressatCrearHandler extends BasicActionHandler implements Intere
 	}
 	public void setVarNif(String varNif) {
 		this.varNif = varNif;
+	}
+	public String getDir3Codi() {
+		return dir3Codi;
+	}
+	public void setDir3Codi(String dir3Codi) {
+		this.dir3Codi = dir3Codi;
+	}
+	public String getVarDir3Codi() {
+		return varDir3Codi;
+	}
+	public void setVarDir3Codi(String varDir3Codi) {
+		this.varDir3Codi = varDir3Codi;
 	}
 	public void setLlinatge1(String llinatge1) {
 		this.llinatge1 = llinatge1;

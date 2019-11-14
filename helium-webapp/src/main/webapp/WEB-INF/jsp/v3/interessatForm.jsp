@@ -33,15 +33,33 @@
 }
 </style>
 <script>
+
+var $ADMINISTRACIO = '<%=net.conselldemallorca.helium.v3.core.api.dto.InteressatTipusEnumDto.ADMINISTRACIO%>';
+var $FISICA = '<%=net.conselldemallorca.helium.v3.core.api.dto.InteressatTipusEnumDto.FISICA%>';
+var $JURIDICA = '<%=net.conselldemallorca.helium.v3.core.api.dto.InteressatTipusEnumDto.JURIDICA%>';
+
+function ajustarTipus(tipus) {
+  	if (tipus == $ADMINISTRACIO) {
+ 		$("label[for='dir3Codi']").addClass('obligatori');
+  		$("label[for='nif']").removeClass('obligatori');
+ 	} else{
+  		$("label[for='dir3Codi']").removeClass('obligatori');
+ 		$("label[for='nif']").addClass('obligatori');
+  	}
+  	if (tipus == $FISICA) {
+ 		$("label[for='llinatge1']").addClass('obligatori');
+ 	} else{
+  		$("label[for='llinatge1']").removeClass('obligatori');
+  	}
+}
+
 $(document).ready(function() {
-	$('#tipus').on('change', function() {
-	 	if (this.value == '<%=net.conselldemallorca.helium.v3.core.api.dto.InteressatTipusEnumDto.FISICA%>') {
-	 		$("label[for='llinatge1']").addClass('obligatori');
-	 	} else{
-	  		$("label[for='llinatge1']").removeClass('obligatori');
-	  	}
-	});
+
 	
+ 	$('#tipus').on('change', function() {
+		ajustarTipus(this.value);
+	});
+ 	
 	$('input[type=checkbox][name=entregaDeh]').on('change', function() {
 		if($(this).prop("checked") == true){
 			$('#entregaDehObligatDiv').removeClass('hidden');
@@ -51,7 +69,6 @@ $(document).ready(function() {
 			$('#entregaDehObligatDiv').addClass('hidden');
 			$("label[for='email']").removeClass('obligatori');				
 		}
-		webutilModalAdjustHeight();
 	});			
 	
 	$('input[type=checkbox][name=entregaDehObligat]').on('change', function() {
@@ -60,8 +77,8 @@ $(document).ready(function() {
 		} else {
 			$('#entregaDeh').removeAttr('disabled');
 		}
-		webutilModalAdjustHeight();
 	});		
+
 	
 	$('input[type=checkbox][name=entregaPostal]').on('change', function() {
 		if($(this).prop("checked") == true){
@@ -69,9 +86,9 @@ $(document).ready(function() {
 			webutilModalAdjustHeight();
 		} else {
 			$('#entrgePostalForm').addClass('hidden');		
-			webutilModalAdjustHeight();
 		}
 	});	
+
 	$('input[type=checkbox][name=entregaPostal').trigger('change');
 
 	var select2Options = {theme: 'bootstrap'};
@@ -85,7 +102,9 @@ $(document).ready(function() {
 	$('input[type=checkbox][name=entregaDeh').trigger('change');
 	$('input[type=checkbox][name=entregaDehObligat').trigger('change');	
 
-	
+
+	$('#tipus').change();
+
 });
 </script>
 
@@ -93,22 +112,29 @@ $(document).ready(function() {
 <body>
 	<form:form cssClass="form-horizontal" action="${formAction}"  method="post" commandName="interessatCommand">
 		<form:hidden id="id" path="id"/>
+			
+		<div class="row">
+			<div class="col-xs-12">
+				<hel:inputText required="true" name="codi" textKey="interessat.form.camp.codi" labelSize="2" />
+			</div>
+		</div>
 		<hel:inputSelect required="true" name="tipus"
 			optionItems="${interessatTipusEstats}" optionValueAttribute="valor"
 			optionTextAttribute="codi" textKey="interessat.form.camp.tipus" labelSize="2" />
-			
 		<div class="row">
 			<div class="col-xs-6">
-				<hel:inputText required="true" name="codi" textKey="interessat.form.camp.codi" />
+				<hel:inputText required="false" name="nif" textKey="interessat.form.camp.nif" />
 			</div>
 			<div class="col-xs-6">
-				<hel:inputText required="true" name="nif" textKey="interessat.form.camp.nif" />
+				<hel:inputText required="false" name="dir3Codi" textKey="interessat.form.camp.dir3codi" />
 			</div>
 		</div>
 		<div class="row">
-			<div class="col-xs-6">
-				<hel:inputText required="true" name="nom" textKey="interessat.form.camp.nom" />
+			<div class="col-xs-12">
+				<hel:inputText required="true" name="nom" textKey="interessat.form.camp.nom" labelSize="2" />
 			</div>
+		</div>
+		<div class="row">
 			<div class="col-xs-6">
 			<c:choose>
 				<c:when test="${interessatCommand.tipus=='FISICA'}">
@@ -119,16 +145,14 @@ $(document).ready(function() {
 				</c:otherwise>
 			</c:choose>
 			</div>
+			<div class="col-xs-6">
+				<hel:inputText name="llinatge2" textKey="interessat.form.camp.llinatge2" />
+			</div>
 		</div>
 		<div class="row">
-		<div class="col-xs-6">
-			<hel:inputText name="llinatge2" textKey="interessat.form.camp.llinatge2" />
-		</div>
-		<div class="col-xs-6">
-			<hel:inputText name="email" textKey="interessat.form.camp.email" />		
-		</div>
-		</div>
-		<div class="row">
+			<div class="col-xs-6">
+				<hel:inputText name="email" textKey="interessat.form.camp.email" />		
+			</div>
 			<div class="col-xs-6">
 				<hel:inputText name="telefon" textKey="interessat.form.camp.telefon" />
 			</div>
