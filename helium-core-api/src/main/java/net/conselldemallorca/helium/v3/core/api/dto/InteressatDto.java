@@ -102,7 +102,7 @@ public class InteressatDto {
 	} 
 
 	public Boolean getEntregaPostal() {
-		return entregaPostal;
+		return entregaPostal != null ? entregaPostal : false;
 	}
 	public void setEntregaPostal(Boolean entregaPostal) {
 		this.entregaPostal = entregaPostal;
@@ -132,13 +132,13 @@ public class InteressatDto {
 		this.codiPostal = codiPostal;
 	}
 	public Boolean getEntregaDeh() {
-		return entregaDeh;
+		return entregaDeh != null ? entregaDeh : false;
 	}
 	public void setEntregaDeh(Boolean entregaDeh) {
 		this.entregaDeh = entregaDeh;
 	}
 	public Boolean getEntregaDehObligat() {
-		return entregaDehObligat;
+		return entregaDehObligat != null ? entregaDehObligat : false;
 	}
 	public void setEntregaDehObligat(Boolean entregaDehObligat) {
 		this.entregaDehObligat = entregaDehObligat;

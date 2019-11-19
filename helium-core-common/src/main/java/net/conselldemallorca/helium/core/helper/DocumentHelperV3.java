@@ -834,13 +834,16 @@ public class DocumentHelperV3 {
 					DocumentStore.class, 
 					documentStoreId);
 		}
+		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
+		List<DocumentNotificacio> enviaments = documentNotificacioRepository.findByExpedientAndDocumentId(expedient, documentStoreId);
+		if (enviaments != null && enviaments.size() > 0)
+			throw new ValidacioException("No es pot modificar un document amb " + enviaments.size() + " enviaments");
 		documentStore.setDataDocument(documentData);
 		documentStore.setDataModificacio(new Date());
 		if (documentStore.isAdjunt()) {
 			documentStore.setAdjuntTitol(adjuntTitol);
 		}
 		if (arxiuContingut != null && pluginHelper.gestioDocumentalIsPluginActiu()) {
-			Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
 			pluginHelper.gestioDocumentalDeleteDocument(
 					documentStore.getReferenciaFont(),
 					expedient);
@@ -984,6 +987,9 @@ public class DocumentHelperV3 {
 		DocumentStore documentStore = documentStoreRepository.findOne(documentStoreId);
 		if (documentStore != null) {
 			Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
+			List<DocumentNotificacio> enviaments = documentNotificacioRepository.findByExpedientAndDocumentId(expedient, documentStoreId);
+			if (enviaments != null && enviaments.size() > 0)
+				throw new ValidacioException("No es pot esborrar un document amb " + enviaments.size() + " enviaments");
 			if (expedient.isArxiuActiu()) {
 				if (documentStore.isSignat()) {
 					throw new ValidacioException("No es pot esborrar un document firmat");

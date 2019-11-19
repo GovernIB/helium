@@ -123,10 +123,11 @@ public class InteressatCrearHandler extends BasicActionHandler implements Intere
 				executionContext,
 				telefon,
 				varTelefon));
-		interessat.setEntregaPostal((Boolean)getValorOVariableBoolean(
+		Boolean entregaPostalVal = getValorOVariableBoolean(
 				executionContext,
 				entregaPostal,
-				varEntregaPostal));
+				varEntregaPostal);
+		interessat.setEntregaPostal(entregaPostalVal != null? entregaPostalVal.booleanValue() : false);
 		interessat.setEntregaTipus((String)getValorOVariable(
 				executionContext,
 				entregaTipus,
@@ -139,14 +140,16 @@ public class InteressatCrearHandler extends BasicActionHandler implements Intere
 				executionContext,
 				linia2,
 				varLinia2));
-		interessat.setEntregaDeh((Boolean)getValorOVariableBoolean(
+		Boolean entregaDehVal = getValorOVariableBoolean(
 				executionContext,
 				entregaDeh,
-				varEntregaDeh));
-		interessat.setEntregaDehObligat((Boolean)getValorOVariableBoolean(
+				varEntregaDeh);
+		interessat.setEntregaDeh(entregaDehVal != null ? entregaDehVal.booleanValue() : false);
+		Boolean entregaDehObligatVal = getValorOVariableBoolean(
 				executionContext,
 				entregaDehObligat,
-				varEntregaDehObligat));
+				varEntregaDehObligat);
+		interessat.setEntregaDehObligat(entregaDehObligatVal != null ? entregaDehObligatVal.booleanValue() : false);
 		interessat.setCodiPostal((String)getValorOVariable(
 				executionContext, 
 				codiPostal, 

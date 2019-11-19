@@ -41,10 +41,8 @@ var $JURIDICA = '<%=net.conselldemallorca.helium.v3.core.api.dto.InteressatTipus
 function ajustarTipus(tipus) {
   	if (tipus == $ADMINISTRACIO) {
  		$("label[for='dir3Codi']").addClass('obligatori');
-  		$("label[for='nif']").removeClass('obligatori');
  	} else{
   		$("label[for='dir3Codi']").removeClass('obligatori');
- 		$("label[for='nif']").addClass('obligatori');
   	}
   	if (tipus == $FISICA) {
  		$("label[for='llinatge1']").addClass('obligatori');
@@ -123,7 +121,7 @@ $(document).ready(function() {
 			optionTextAttribute="codi" textKey="interessat.form.camp.tipus" labelSize="2" />
 		<div class="row">
 			<div class="col-xs-6">
-				<hel:inputText required="false" name="nif" textKey="interessat.form.camp.nif" />
+				<hel:inputText required="true" name="nif" textKey="interessat.form.camp.nif" />
 			</div>
 			<div class="col-xs-6">
 				<hel:inputText required="false" name="dir3Codi" textKey="interessat.form.camp.dir3codi" />

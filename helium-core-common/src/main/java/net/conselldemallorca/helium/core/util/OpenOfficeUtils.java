@@ -16,6 +16,7 @@ import java.util.concurrent.TimeoutException;
 import javax.activation.MimetypesFileTypeMap;
 
 import net.conselldemallorca.helium.v3.core.api.exception.SistemaExternTimeoutException;
+import net.conselldemallorca.helium.v3.core.api.exception.ValidacioException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

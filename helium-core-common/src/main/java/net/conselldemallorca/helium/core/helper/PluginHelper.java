@@ -2741,23 +2741,30 @@ public class PluginHelper {
 		
 		try {
 			RespostaConsultaEstatNotificacio resposta = getNotificacioPlugin().consultarNotificacio(notificacio.getEnviamentIdentificador());
-			switch(resposta.getEstat()){
-				case ENVIADA:
-					notificacio.setEstat(NotificacioEstatEnumDto.ENVIADA);
-					break;
-				case FINALITZADA:
-					notificacio.setEstat(NotificacioEstatEnumDto.FINALITZADA);
-					break;
-				case PENDENT:
-					notificacio.setEstat(NotificacioEstatEnumDto.PENDENT);
-					break;
-				case PROCESSADA:
-					notificacio.setEstat(NotificacioEstatEnumDto.PROCESSADA);
-					break;
-				case REGISTRADA:
-					notificacio.setEstat(NotificacioEstatEnumDto.REGISTRADA);
-					break;
+			// Revisa que no sigui una resposta amb error de consulta
+			if (resposta.getEstat() == null && resposta.isError()) {
+				throw new net.conselldemallorca.helium.integracio.plugins.SistemaExternException("Resposta d'error en de la consulta de la notificació \"" + notificacio.getEnviamentIdentificador() + "\" al NOTIB: resposta.errorDescripcio= " + resposta.getErrorDescripcio());
 			}
+
+			if (resposta.getEstat() != null) {
+				switch(resposta.getEstat()){
+					case ENVIADA:
+						notificacio.setEstat(NotificacioEstatEnumDto.ENVIADA);
+						break;
+					case FINALITZADA:
+						notificacio.setEstat(NotificacioEstatEnumDto.FINALITZADA);
+						break;
+					case PENDENT:
+						notificacio.setEstat(NotificacioEstatEnumDto.PENDENT);
+						break;
+					case PROCESSADA:
+						notificacio.setEstat(NotificacioEstatEnumDto.PROCESSADA);
+						break;
+					case REGISTRADA:
+						notificacio.setEstat(NotificacioEstatEnumDto.REGISTRADA);
+						break;
+				}
+			} 
 			notificacio.setError(resposta.isError());
 			notificacio.setErrorDescripcio(resposta.getErrorDescripcio());
 					
@@ -2769,7 +2776,7 @@ public class PluginHelper {
 					parametres);
 			
 		} catch (Exception ex) {
-			String errorDescripcio = "No s'ha pogut consultar l'estat de la notificació: " + ex.getMessage();
+			String errorDescripcio = "No s'ha pogut consultar l'estat de la notificació amb identificador " + notificacio.getEnviamentIdentificador() + ": " + ex.getMessage();
 			monitorIntegracioHelper.addAccioError(
 					MonitorIntegracioHelper.INTCODI_NOTIB,
 					accioDescripcio,
@@ -2800,8 +2807,11 @@ public class PluginHelper {
 		long t0 = System.currentTimeMillis();
 		
 		try {
-			RespostaConsultaEstatEnviament resposta = getNotificacioPlugin().consultarEnviament(
-					notificacio.getEnviamentReferencia());
+			RespostaConsultaEstatEnviament resposta = getNotificacioPlugin().consultarEnviament(notificacio.getEnviamentReferencia());
+			// Revisa que no sigui una resposta amb error de consulta
+			if (resposta.getEstat() == null && resposta.isError()) {
+				throw new net.conselldemallorca.helium.integracio.plugins.SistemaExternException("Resposta d'error en de la consulta de l'enviament \"" + notificacio.getEnviamentReferencia() + "\" al NOTIB: resposta.errorDescripcio= " + resposta.getErrorDescripcio());
+			}
 			Long gestioDocumentalId = certificacio != null ? certificacio.getId() : null;
 			if (resposta.getCertificacioData() != null) {
 				byte[] certificacioContingut = resposta.getCertificacioContingut();
@@ -2836,15 +2846,19 @@ public class PluginHelper {
 				}
 			}
 			
-			notificacio.updateEnviamentEstat(
-					resposta.getEstat(),
-					resposta.getEstatData(),
-					resposta.getEstatOrigen(),
-					resposta.getCertificacioData(),
-					resposta.getCertificacioOrigen(),
-					gestioDocumentalId != null ? documentStoreRepository.findOne(gestioDocumentalId) : null,
-					resposta.isError(),
-					resposta.getErrorDescripcio());
+			if (resposta.getEstat() != null) {
+				notificacio.updateEnviamentEstat(
+						resposta.getEstat(),
+						resposta.getEstatData(),
+						resposta.getEstatOrigen(),
+						resposta.getCertificacioData(),
+						resposta.getCertificacioOrigen(),
+						gestioDocumentalId != null ? documentStoreRepository.findOne(gestioDocumentalId) : null,
+						resposta.isError(),
+						resposta.getErrorDescripcio());
+			} else {
+				throw new Exception("L'estat de la resposta és null i no es pot tractar.");
+			}
 					
 			monitorIntegracioHelper.addAccioOk(
 					MonitorIntegracioHelper.INTCODI_NOTIB,
@@ -2854,7 +2868,7 @@ public class PluginHelper {
 					parametres);
 			
 		} catch (Exception ex) {
-			String errorDescripcio = "No s'ha pogut consultar l'estat de la notificació: " + ex.getMessage();
+			String errorDescripcio = "No s'ha pogut consultar l'estat de la notificació amb referència " + notificacio.getEnviamentReferencia() + ": " + ex.getMessage();
 			monitorIntegracioHelper.addAccioError(
 					MonitorIntegracioHelper.INTCODI_NOTIB,
 					accioDescripcio,

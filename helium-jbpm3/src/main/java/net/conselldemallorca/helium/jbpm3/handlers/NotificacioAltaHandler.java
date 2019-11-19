@@ -20,6 +20,8 @@ import net.conselldemallorca.helium.jbpm3.handlers.tipus.DadesEnviament;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.DadesNotificacio;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.DocumentInfo;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.PersonaInfo;
+import net.conselldemallorca.helium.jbpm3.integracio.Jbpm3HeliumBridge;
+import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RespostaNotificacio;
@@ -267,11 +269,19 @@ public class NotificacioAltaHandler extends BasicActionHandler implements Notifi
 				document,
 				varDocument);
 		if (doc != null && !doc.isEmpty()) {
-			documentInfo = getDocumentInfo(executionContext, doc, true);
+			documentInfo = getDocumentInfo(executionContext, doc, false);
 			if (documentInfo != null) {
-				dadesNotificacio.setDocumentId(documentInfo.getId());
-				dadesNotificacio.setDocumentArxiuNom(documentInfo.getArxiuNom());
-				dadesNotificacio.setDocumentArxiuContingut(documentInfo.getArxiuContingut());
+				DocumentDto document = Jbpm3HeliumBridge
+							.getInstanceService().getDocumentInfo(documentInfo.getId(),
+																	true, // Amb contingut
+																	false,
+																	false,
+																	false,
+																	true, // Per notificar
+																	false);
+				dadesNotificacio.setDocumentId(document.getId());
+				dadesNotificacio.setDocumentArxiuNom(document.getArxiuNom());
+				dadesNotificacio.setDocumentArxiuContingut(document.getArxiuContingut());
 			} else {
 				throw new JbpmException("No existia ningún documento con documentCodi: " + varDocument + ".");
 			}
@@ -397,11 +407,11 @@ public class NotificacioAltaHandler extends BasicActionHandler implements Notifi
 		if (strEntragaPostalTipus != null && !strEntragaPostalTipus.isEmpty())
 			enviament.setEntregaPostalTipus(DadesEnviament.EntregaPostalTipus.valueOf(strEntragaPostalTipus));
 		
-		Boolean postalActiva = getValorOVariableBoolean(
+		Boolean entregaPostalActivaVal = getValorOVariableBoolean(
 				executionContext,
 				entregaPostalActiva,
 				varEntregaPostalActiva);
-		enviament.setEntregaPostalActiva(postalActiva);
+		enviament.setEntregaPostalActiva(entregaPostalActivaVal != null ? entregaPostalActivaVal.booleanValue() : false);
 		String strEntregaPostalViaTipus = (String)getValorOVariable(
 				executionContext,
 				entregaPostalViaTipus,
@@ -492,16 +502,16 @@ public class NotificacioAltaHandler extends BasicActionHandler implements Notifi
 				executionContext,
 				entregaPostalFormatFulla,
 				varEntregaPostalFormatFulla));
-		Boolean dehActiva = getValorOVariableBoolean(
+		Boolean entregaDehActivaVal = getValorOVariableBoolean(
 				executionContext,
 				entregaDehActiva,
 				varEntregaDehActiva);
-		Boolean dehObligat = getValorOVariableBoolean(
+		enviament.setEntregaDehActiva(entregaDehActivaVal != null? entregaDehActivaVal.booleanValue() : false );
+		Boolean entregaDehObligatVal = getValorOVariableBoolean(
 				executionContext,
 				entregaDehObligat,
 				varEntregaDehObligat);
-		enviament.setEntregaDehActiva(dehActiva);
-		enviament.setEntregaDehObligat(dehObligat != null ? dehObligat : false);
+		enviament.setEntregaDehObligat(entregaDehObligatVal != null ? entregaDehObligatVal : false);
 		enviament.setEntregaDehProcedimentCodi((String)getValorOVariable(
 				executionContext,
 				entregaDehProcedimentCodi,

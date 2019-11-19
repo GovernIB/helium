@@ -24,6 +24,7 @@ import com.lowagie.text.pdf.PdfReader;
 import com.lowagie.text.pdf.PdfStamper;
 
 import net.conselldemallorca.helium.v3.core.api.exception.SistemaExternConversioDocumentException;
+import net.conselldemallorca.helium.v3.core.api.exception.ValidacioException;
 
 /**
  * Classe per converir documents a PDF.
@@ -50,7 +51,9 @@ public class PdfUtils {
 	public byte[] convertirPdf(
 			String arxiuNom,
 			byte[] arxiuContingut) {
-		byte[] contingut = null;
+		if (arxiuContingut == null) {
+			throw new ValidacioException("No e pot enviar a convertir a PDF un contingut nul.");
+		}		byte[] contingut = null;
 		try {
 			ByteArrayOutputStream outputConversio = null;
 			outputConversio = new ByteArrayOutputStream();

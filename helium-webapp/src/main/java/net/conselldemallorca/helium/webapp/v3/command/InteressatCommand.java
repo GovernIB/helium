@@ -29,6 +29,7 @@ public class InteressatCommand {
 	@NotEmpty(groups = {Creacio.class, Modificacio.class})
 	@Size(max = 255, groups = {Creacio.class, Modificacio.class})
 	private String nom;
+	@NotEmpty(groups = {Creacio.class, Modificacio.class})
 	@Size(max = 9, groups = {Creacio.class, Modificacio.class})
 	private String nif;
 	@Size(max = 9, groups = {Creacio.class, Modificacio.class})

@@ -644,6 +644,22 @@ public interface Jbpm3HeliumService {
 	public DocumentDto getDocumentInfo(Long documentStoreId);
 
 	/**
+	 * Obté informació d'un document d'un expedient d'Helium.
+	 * 
+	 * @param documentCodi
+	 * @return
+	 */
+	public DocumentDto getDocumentInfo(
+			Long documentStoreId,
+			boolean ambContingutOriginal,
+			boolean ambContingutSignat,
+			boolean ambContingutVista,
+			boolean perSignar,
+			boolean perNotificar,
+			boolean ambSegellSignatura);
+
+	
+	/**
 	 * Obté l'arxiu d'un document d'un expedient d'Helium.
 	 * @param documentStoreId
 	 * @return

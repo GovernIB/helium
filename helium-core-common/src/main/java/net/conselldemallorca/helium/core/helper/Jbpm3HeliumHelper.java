@@ -78,6 +78,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDadaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.FestiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.InteressatDto;
+import net.conselldemallorca.helium.v3.core.api.dto.InteressatTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NotificacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ReassignacioDto;
@@ -443,6 +444,8 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 	public void interessatCrear(
 			InteressatDto interessat) {
 		
+		this.validaInteressat(interessat);
+
 		Expedient expedient = expedientRepository.findOne(interessat.getExpedientId());
 		
 		if (interessatRepository.findByCodiAndExpedient(interessat.getCodi(), expedient) != null) {
@@ -476,6 +479,8 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 	public void interessatModificar(
 			InteressatDto interessat) {
 		
+		this.validaInteressat(interessat);
+
 		Expedient expedient = expedientRepository.findOne(interessat.getExpedientId());
 		
 		if (interessatRepository.findByCodiAndExpedient(interessat.getCodi(), expedient) == null) {
@@ -502,6 +507,71 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 		interessatEntity.setEntregaDehObligat(interessat.getEntregaDehObligat());
 	}
 	
+	
+	private void validaInteressat(InteressatDto interessat) throws ValidacioException{
+		List<String> errors = new ArrayList<String>();
+		
+		if (interessat.getTipus() != null) {
+			switch (interessat.getTipus()) {
+			case ADMINISTRACIO:
+				if (interessat.getDir3Codi() == null || interessat.getDir3Codi().isEmpty()) {
+					// Codi DIR3 per administracions
+					errors.add("El codi DIR3 és obligatori per interessats de tipus Administració");
+				}
+				break;
+			case FISICA:
+			case JURIDICA:
+				break;
+			}
+		}
+		// Camps obligatoris
+		if (interessat.getCodi() == null || interessat.getCodi().isEmpty())
+			errors.add("El codi és obligatori");
+		if (interessat.getNif() == null || interessat.getNif().isEmpty())
+			errors.add("El NIF/CIF/DNI és obligatori");
+		if (interessat.getNom() == null || interessat.getNom().isEmpty())
+			errors.add("El nom/raó social és obligatori");
+		if (interessat.getTipus() == null)
+			errors.add("El tipus d'interessat és obligatori");
+		
+		// Llinatge1 per persones físiques
+		if (interessat.getTipus() == InteressatTipusEnumDto.FISICA && (interessat.getLlinatge1() == null || interessat.getLlinatge1().isEmpty())) {			
+			errors.add("Si el tipus de persona és física llavors el llinatge és obligatori");
+		}
+		
+		// Línies entrega postal
+		if (interessat.getEntregaPostal()) {
+			if(interessat.getTipus() == null) {
+				errors.add("El tipus d'entrega postal és obligatori si està habilidada l'entrega postal");
+			}
+			if(interessat.getLinia1() == null || interessat.getLinia1().isEmpty()) {
+				errors.add("La línia 1 és obligatòria si està habilitada l'entrega postal");
+			}
+			if (interessat.getLinia2() == null || interessat.getLinia2().isEmpty()) {
+				errors.add("La línia 2 és obligatòria si està habilitada l'entrega postal");
+			}
+			if (interessat.getCodiPostal() == null || interessat.getCodiPostal().isEmpty()) {
+				errors.add("El codi postal és obligatori si està habilitada l'entrega postal");
+			}
+		}
+		// email per entregues DEH
+		if (interessat.getEntregaDeh() && (interessat.getEmail() == null || interessat.getEmail().isEmpty())) {
+			errors.add("L'email és obligatori si està habilitada l'entrega a la Direcció Electrònica Hablitada (DEH)");
+		}
+
+		if (!errors.isEmpty()) {
+			StringBuilder errorMsg = new StringBuilder("Errors de validació de l'interessat: [");
+			for (int i = 0; i < errors.size(); i++) {
+				errorMsg.append(errors.get(i));
+				if (i < errors.size() -1)
+					errorMsg.append(", ");
+			}
+			errorMsg.append("]");
+			throw new ValidacioException(errorMsg.toString());
+		}
+
+	}
+
 	@Override
 	public void interessatEliminar(
 			InteressatDto interessat) {
@@ -1242,15 +1312,40 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 	public DocumentDto getDocumentInfo(Long documentStoreId) {
 		logger.debug("Obtenint informació del document (" +
 				"documentStoreId=" + documentStoreId + ")");
-		return conversioTipusHelper.convertir(
-				documentHelper.toDocumentDto(
+		return this.getDocumentInfo(
 						documentStoreId,
 						false,
 						false,
 						false,
 						false,
 						false, // Per notificar
-						false),
+						false);
+	}
+
+	@Override
+	public DocumentDto getDocumentInfo(Long documentStoreId,
+			boolean ambContingutOriginal,
+			boolean ambContingutSignat,
+			boolean ambContingutVista,
+			boolean perSignar,
+			boolean perNotificar,
+			boolean ambSegellSignatura) {
+		logger.debug("Obtenint informació del document (" +
+				"documentStoreId=" + documentStoreId + ", " + 
+				"ambContingutOriginal=" + ambContingutOriginal + ", " + 
+				"ambContingutSignat=" + ambContingutSignat + ", " + 
+				"ambContingutVista=" + ambContingutVista + ", " + 
+				"perSignar=" + perSignar + ", " + 
+				"ambSegellSignatura=" + ambSegellSignatura + ")");
+		return conversioTipusHelper.convertir(
+				documentHelper.toDocumentDto(
+						documentStoreId,
+						ambContingutOriginal,
+						ambContingutSignat,
+						ambContingutVista,
+						ambContingutVista,
+						perNotificar, // Per notificar
+						ambSegellSignatura),
 				DocumentDto.class);
 	}
 

@@ -132,6 +132,7 @@ import net.conselldemallorca.helium.v3.core.repository.AlertaRepository;
 import net.conselldemallorca.helium.v3.core.repository.CampRepository;
 import net.conselldemallorca.helium.v3.core.repository.ConsultaRepository;
 import net.conselldemallorca.helium.v3.core.repository.DefinicioProcesRepository;
+import net.conselldemallorca.helium.v3.core.repository.DocumentNotificacioRepository;
 import net.conselldemallorca.helium.v3.core.repository.DocumentRepository;
 import net.conselldemallorca.helium.v3.core.repository.DocumentStoreRepository;
 import net.conselldemallorca.helium.v3.core.repository.EnumeracioRepository;
@@ -194,6 +195,8 @@ public class ExpedientServiceImpl implements ExpedientService {
 	private PortasignaturesRepository portasignaturesRepository;
 	@Resource
 	private NotificacioRepository notificacioRepository;
+	@Resource
+	private DocumentNotificacioRepository documentNotificacioRepository;
 
 	@Resource
 	private ExpedientHelper expedientHelper;
@@ -498,6 +501,10 @@ public class ExpedientServiceImpl implements ExpedientService {
 						pluginHelper.custodiaEsborrarSignatures(documentStore.getReferenciaCustodia(), expedient);
 					} catch (Exception ignored) {}
 				}
+				List<DocumentNotificacio> enviaments = documentNotificacioRepository.findByExpedientAndDocumentId(expedient, documentStore.getId());
+				if (enviaments != null && enviaments.size() > 0)
+					documentNotificacioRepository.delete(enviaments);
+
 				if (documentStore.getFont().equals(DocumentFont.ALFRESCO))
 					pluginHelper.gestioDocumentalDeleteDocument(
 							documentStore.getReferenciaFont(), expedient);

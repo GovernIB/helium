@@ -19,12 +19,12 @@
 					<th><spring:message code="expedient.notificacio.destinatari"/></th>
 					<th><spring:message code="expedient.notificacio.document"/></th>
 					<th><spring:message code="expedient.notificacio.justificant"/></th>
-<!-- 					<th></th> -->
+ 					<th></th>
 				</tr>
 			</thead>
 			<tbody>
 				<c:forEach items="${notificacions}" var="notificacio">
-					<tr>
+					<tr id="tr_notificacio_${notificacio.id}">
 						<td><fmt:formatDate value="${notificacio.enviatData}" pattern="dd/MM/yyyy HH:mm:ss"></fmt:formatDate></td>
 					    <td><spring:message code="notifica.enviament.tipus.enum.${notificacio.enviamentTipus}"/></td>
 					    <td>${notificacio.concepte}</td>
@@ -84,6 +84,14 @@
 								</a>
 							</c:if>
 						</td>
+						<td>
+							<a id="refrescar_estat_enviament_${notificacio.id}" 
+								href="<c:url value="/v3/expedient/${expedient.id}/notificacions/${notificacio.id}/consultarEstat"/>" 
+								class="btn-refrescar-estat-enviament btn btn-default"
+								title="<spring:message code="expedient.notificacio.consultar.estat.info"/>">
+									<span class="fa fa-refresh"></span>
+							</a>
+						</td>
 					</tr>
 				</c:forEach>
 			</tbody>
@@ -95,6 +103,10 @@
 </c:choose>
 <script type="text/javascript">
 	// <![CDATA[
-
+	$(document).ready(function() {
+		$('.btn-refrescar-estat-enviament').click(function(e) {
+			$(this).find('span').addClass('fa-spin');
+		})
+	});
 	//]]>
-	</script>
+</script>

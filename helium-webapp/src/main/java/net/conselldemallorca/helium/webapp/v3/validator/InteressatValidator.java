@@ -62,14 +62,6 @@ public class InteressatValidator implements ConstraintValidator<Interessat, Inte
 				break;
 			case FISICA:
 			case JURIDICA:
-				// Nif per persones físiques i jurídiques
-				if (command.getNif() == null || command.getNif().isEmpty()) {
-					context.buildConstraintViolationWithTemplate(
-							MessageHelper.getInstance().getMessage("interessat.validacio.nif.obligatori")).
-					addNode("nif").
-					addConstraintViolation();
-					valid = false;
-				}
 				break;
 			}
 		}

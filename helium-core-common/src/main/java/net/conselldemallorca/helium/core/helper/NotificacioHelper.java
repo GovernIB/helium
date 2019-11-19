@@ -254,6 +254,7 @@ public class NotificacioHelper {
 	public DadesNotificacioDto toDadesNotificacioDto(DocumentNotificacio notificacio) {
 		DadesNotificacioDto dadesNotificacio = new DadesNotificacioDto();
 		
+		dadesNotificacio.setId(notificacio.getId());
 		dadesNotificacio.setExpedientId(notificacio.getExpedient().getId());
 		DocumentStore document = documentStoreRepository.findOne(notificacio.getDocument().getId());
 		dadesNotificacio.setDocumentId(document.getId());
@@ -314,6 +315,9 @@ public class NotificacioHelper {
 		
 		dadesNotificacio.setConcepte(notificacio.getConcepte());
 		dadesNotificacio.setDescripcio(notificacio.getDescripcio());
+		
+		dadesNotificacio.setEnviamentReferencia(notificacio.getEnviamentReferencia());
+		dadesNotificacio.setEnviamentIdentificador(notificacio.getEnviamentIdentificador());
 		
 		return dadesNotificacio;
 	}
