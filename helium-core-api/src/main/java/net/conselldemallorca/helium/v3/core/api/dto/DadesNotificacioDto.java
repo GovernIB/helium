@@ -20,6 +20,7 @@ public class DadesNotificacioDto {
 	private Date caducitat;
 	private String concepte;
 	private String descripcio;
+	private String documentNom;
 	private String documentArxiuNom;
 	private byte[] documentArxiuContingut;
 	private String documentArxiuUuid;
@@ -147,6 +148,12 @@ public class DadesNotificacioDto {
 	}
 	public void setCaducitat(Date caducitat) {
 		this.caducitat = caducitat;
+	}
+	public String getDocumentNom() {
+		return documentNom;
+	}
+	public void setDocumentNom(String documentNom) {
+		this.documentNom = documentNom;
 	}
 	public String getDocumentArxiuNom() {
 		return documentArxiuNom;

@@ -169,7 +169,7 @@ public class DocumentNotificacio implements Serializable, GenericEntity<Long> {
 	private String enviamentDatatOrigen;
 	
 	@Column(name = "env_cert_data")
-	@Temporal(TemporalType.DATE)
+	@Temporal(TemporalType.TIMESTAMP)
 	private Date enviamentCertificacioData;
 	
 	@Column(name = "env_cert_origen", length = 20)

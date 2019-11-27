@@ -58,6 +58,8 @@ public class NotificacioHelper {
 	ConversioTipusHelper conversioTipusHelper;
 	@Resource
 	private PluginHelper pluginHelper;
+	@Resource
+	private DocumentHelperV3 documentHelperV3;
 
 
 	// Notificació SISTRA
@@ -259,11 +261,13 @@ public class NotificacioHelper {
 		DocumentStore document = documentStoreRepository.findOne(notificacio.getDocument().getId());
 		dadesNotificacio.setDocumentId(document.getId());
 		dadesNotificacio.setDocumentArxiuNom(document.getArxiuNom());
-		
+		if (!document.isAdjunt()) {
+			dadesNotificacio.setDocumentNom(documentHelperV3.findDocumentPerDocumentStoreId(document.getProcessInstanceId(), document.getId()).getDocumentNom());
+		}
 		if (notificacio.getEnviamentCertificacio() != null) {
 			DocumentStore justificant = documentStoreRepository.findOne(notificacio.getEnviamentCertificacio().getId());
 			dadesNotificacio.setJustificantId(justificant.getId());
-			dadesNotificacio.setJustificantArxiuNom(justificant.getArxiuNom());
+			dadesNotificacio.setJustificantArxiuNom(justificant.getAdjuntTitol() != null? justificant.getAdjuntTitol() : justificant.getArxiuNom());
 		}
 		
 		dadesNotificacio.setEnviatData(notificacio.getEnviatData());

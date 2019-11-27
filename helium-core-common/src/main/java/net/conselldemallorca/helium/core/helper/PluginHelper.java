@@ -16,6 +16,7 @@ import java.util.Properties;
 import javax.annotation.Resource;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.time.DateUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.fundaciobit.plugins.validatesignature.api.CertificateInfo;
@@ -110,6 +111,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.ArxiuFirmaPerfilEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DadesEnviamentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DadesNotificacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.IntegracioAccioTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.IntegracioParametreDto;
@@ -2815,29 +2817,36 @@ public class PluginHelper {
 			Long gestioDocumentalId = certificacio != null ? certificacio.getId() : null;
 			if (resposta.getCertificacioData() != null) {
 				byte[] certificacioContingut = resposta.getCertificacioContingut();
-				if (gestioDocumentalId != null && notificacio.getEnviamentCertificacioData().before(resposta.getCertificacioData())) {
+				// Cetificació Títol: [títol document notificat] - Justificant [NIF interessat]
+				ExpedientDocumentDto expedientDocument = documentHelperV3.findDocumentPerDocumentStoreId(document.getProcessInstanceId(), document.getId());
+				String certificacioTitol = expedientDocument.getDocumentNom() + " - Justificant " + notificacio.getTitularNif();
+				String certificacioArxiuExtensio = resposta.getCertificacioTipusMime() != null 
+													&& resposta.getCertificacioTipusMime().toLowerCase().contains("xml") ?
+															  "xml"
+															: "pdf";
+				String certificacioArxiuNom = "certificacio_" + notificacio.getEnviamentReferencia() + "." + certificacioArxiuExtensio;				
+				if (gestioDocumentalId != null && notificacio.getEnviamentCertificacioData().before(DateUtils.truncate(resposta.getCertificacioData(), Calendar.SECOND))) {
 					gestioDocumentalId = documentHelperV3.actualitzarDocument(
 							gestioDocumentalId, 
 							null, 
 							expedient.getProcessInstanceId(), 
 							resposta.getCertificacioData(), 
-							document.getCodiDocument() + "_certificacio", 
-							document.getCodiDocument() + "_certificacio.pdf", 
+							certificacioTitol, 
+							certificacioArxiuNom,  
 							certificacioContingut, 
 							NtiOrigenEnumDto.ADMINISTRACIO, 
 							NtiEstadoElaboracionEnumDto.ALTRES, 
 							NtiTipoDocumentalEnumDto.CERTIFICAT, 
 							null);
-				}
-				if (gestioDocumentalId == null || notificacio.getEnviamentCertificacioData().before(resposta.getCertificacioData())) {
+				} else if (gestioDocumentalId == null) {
 					gestioDocumentalId = documentHelperV3.crearDocument(
 							null, 
 							expedient.getProcessInstanceId(), 
 							null, 
 							resposta.getCertificacioData(), 
 							true, 
-							document.getCodiDocument() + "_certificacio", 
-							document.getCodiDocument() + "_certificacio.pdf", 
+							certificacioTitol, 
+							certificacioArxiuNom, 
 							certificacioContingut, 
 							NtiOrigenEnumDto.ADMINISTRACIO, 
 							NtiEstadoElaboracionEnumDto.ALTRES, 

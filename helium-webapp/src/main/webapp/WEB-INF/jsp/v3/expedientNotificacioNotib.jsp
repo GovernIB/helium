@@ -71,17 +71,19 @@
 							</c:if>
 						</td>
 						<td>
-							<a href="<c:url value="/v3/expedient/${expedient.id}/proces/${expedient.processInstanceId}/document/${notificacio.documentId}/descarregar"/>">
-								${notificacio.documentArxiuNom}
-								<span class="fa fa-download fa-lg" title="Descarregar document"></span>
+							<a href="<c:url value="/v3/expedient/${expedient.id}/proces/${expedient.processInstanceId}/document/${notificacio.documentId}/descarregar"/>"
+								title="<spring:message code="expedient.notificacio.descarregar.doc"/> ${notificacio.documentArxiuNom}">
+								${notificacio.documentNom != null? notificacio.documentNom : notificacio.documentArxiuNom}
+								<span class="fa fa-download fa-lg"></span>
 							</a>
 						</td>
 						<td>
 							<c:if test="${not empty notificacio.justificantId}">
+								<center>
 								<a href="<c:url value="/v3/expedient/${expedient.id}/proces/${expedient.processInstanceId}/document/${notificacio.justificantId}/descarregar"/>">
-									${notificacio.justificantArxiuNom}
-									<span class="fa fa-download fa-lg" title="Descarregar document"></span>
+									<span class="fa fa-download fa-lg" title="${notificacio.justificantArxiuNom}"></span>
 								</a>
+								</center>
 							</c:if>
 						</td>
 						<td>
