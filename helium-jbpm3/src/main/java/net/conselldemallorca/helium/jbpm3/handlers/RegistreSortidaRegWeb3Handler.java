@@ -35,6 +35,8 @@ public class RegistreSortidaRegWeb3Handler extends AbstractHeliumActionHandler {
 	
 //	Info de l'Assentament
 	
+	private String entitatCodi;
+	private String varEntitatCodi;
 	private String organOrigen;
 	private String varOrganOrigen;
 	private String oficinaCodi;
@@ -156,6 +158,10 @@ public class RegistreSortidaRegWeb3Handler extends AbstractHeliumActionHandler {
 		RegistreAnotacio anotacio = new RegistreAnotacio();
 		
 //		Info de l'Assentament
+		anotacio.setEntitatCodi((String)getValorOVariable(
+				executionContext,
+				entitatCodi,
+				varEntitatCodi));
 		anotacio.setOrgan((String)getValorOVariable(
 				executionContext,
 				organOrigen,
@@ -190,8 +196,9 @@ public class RegistreSortidaRegWeb3Handler extends AbstractHeliumActionHandler {
 				executionContext,
 				usuariCodi,
 				varUsuariCodi);
-		
-		anotacio.setUsuariCodi(usuari != null ? usuari : Jbpm3HeliumBridge.getInstanceService().getUsuariCodiActual());
+		if (usuari == null)
+			usuari = Jbpm3HeliumBridge.getInstanceService().getUsuariCodiActual();
+		anotacio.setUsuariCodi(usuari);
 		
 		ExpedientDto expedient = getExpedientActual(executionContext);
 		anotacio.setExpedientNumero(expedient.getIdentificador());
@@ -471,6 +478,26 @@ public class RegistreSortidaRegWeb3Handler extends AbstractHeliumActionHandler {
 
 	public void setOrganOrigen(String organOrigen) {
 		this.organOrigen = organOrigen;
+	}
+
+
+	public String getEntitatCodi() {
+		return entitatCodi;
+	}
+
+
+	public void setEntitatCodi(String entitatCodi) {
+		this.entitatCodi = entitatCodi;
+	}
+
+
+	public String getVarEntitatCodi() {
+		return varEntitatCodi;
+	}
+
+
+	public void setVarEntitatCodi(String varEntitatCodi) {
+		this.varEntitatCodi = varEntitatCodi;
 	}
 
 

@@ -3177,6 +3177,7 @@ public class PluginHelper {
 		registreAssentament.setNumero(anotacio.getNumero());
 		registreAssentament.setData(anotacio.getData());
 		registreAssentament.setIdentificador(anotacio.getIdentificador());
+		registreAssentament.setEntitatCodi(anotacio.getEntitatCodi());
 		registreAssentament.setOrgan(anotacio.getOrgan());
 		registreAssentament.setOrganDescripcio(anotacio.getOrganDescripcio());
 		registreAssentament.setOficinaCodi(anotacio.getOficinaCodi());

@@ -17,6 +17,7 @@ public class RegistreAssentament {
 	private int numero;
 	private Date data;
 	private String identificador;
+	private String entitatCodi;
 	private String organ;
 	private String organDescripcio;
 	private String oficinaCodi;
@@ -66,6 +67,12 @@ public class RegistreAssentament {
 	}
 	public void setIdentificador(String identificador) {
 		this.identificador = identificador;
+	}
+	public String getEntitatCodi() {
+		return entitatCodi;
+	}
+	public void setEntitatCodi(String entitatCodi) {
+		this.entitatCodi = entitatCodi;
 	}
 	public String getOrgan() {
 		return organ;

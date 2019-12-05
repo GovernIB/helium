@@ -85,8 +85,10 @@ public class ExpedientExecucionsController extends BaseExpedientController {
 				return "redirect:/v3/expedient/" + expedientId;
 		} catch (Exception ex) {
 			Long entornId = entorn.getId();
-			logger.error("ENTORNID:"+entornId+" NUMEROEXPEDIENT:"+expedientId+" No s'ha pogut executar l'script", ex);
-			MissatgesHelper.error(request, getMessage(request, "error.executar.script") +": "+ expedientEinesScriptCommand.getScript());
+			Throwable t = (ex.getCause() != null? ex.getCause() : ex);
+			String errMsg = getMessage(request, "error.executar.script") + ": " + t.getClass() + ": " + t.getMessage();
+			logger.error("ENTORNID:" + entornId + " NUMEROEXPEDIENT:" + expedientId + errMsg, ex);
+			MissatgesHelper.error(request, errMsg);
         }
 		return modalUrlTancar();
 	}

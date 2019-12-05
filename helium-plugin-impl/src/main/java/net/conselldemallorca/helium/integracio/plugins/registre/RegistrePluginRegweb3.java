@@ -13,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import es.caib.regweb3.ws.api.v3.AnexoWs;
+import es.caib.regweb3.ws.api.v3.AsientoRegistralWs;
 import es.caib.regweb3.ws.api.v3.CodigoAsuntoWs;
 import es.caib.regweb3.ws.api.v3.DatosInteresadoWs;
 import es.caib.regweb3.ws.api.v3.IdentificadorWs;
@@ -20,13 +21,11 @@ import es.caib.regweb3.ws.api.v3.InteresadoWs;
 import es.caib.regweb3.ws.api.v3.LibroWs;
 import es.caib.regweb3.ws.api.v3.OficinaWs;
 import es.caib.regweb3.ws.api.v3.OrganismoWs;
+import es.caib.regweb3.ws.api.v3.RegWebAsientoRegistralWs;
 import es.caib.regweb3.ws.api.v3.RegWebInfoWs;
 import es.caib.regweb3.ws.api.v3.RegWebRegistroEntradaWs;
-import es.caib.regweb3.ws.api.v3.RegWebRegistroSalidaWs;
 import es.caib.regweb3.ws.api.v3.RegistroEntradaResponseWs;
 import es.caib.regweb3.ws.api.v3.RegistroEntradaWs;
-import es.caib.regweb3.ws.api.v3.RegistroSalidaResponseWs;
-import es.caib.regweb3.ws.api.v3.RegistroSalidaWs;
 import es.caib.regweb3.ws.api.v3.TipoAsuntoWs;
 import es.caib.regweb3.ws.api.v3.WsI18NException;
 import es.caib.regweb3.ws.api.v3.WsValidationException;
@@ -46,37 +45,27 @@ public class RegistrePluginRegweb3 extends RegWeb3Utils implements RegistrePlugi
 			RegistreAssentament registreSortida,
 			String aplicacioNom,
 			String aplicacioVersio) throws RegistrePluginException {
+
+		RegWebAsientoRegistralWs registroSalidaApi = this.getAsientoRegistralWsClient();
 		
-		RegWebRegistroSalidaWs registroSalidaApi = null;
-		try {
-			registroSalidaApi = getRegistroSalidaApi();
-		} catch (Exception e) {
-        	logger.error("Error al registrar l'anotació de registre de sortida", e);
-        	throw new RegistrePluginException("Error al registrar l'anotació de registre de sortida", e);
-		}
+		AsientoRegistralWs registroSalidaWs = new AsientoRegistralWs();
 		
-		RegistroSalidaWs registroSalidaWs = new RegistroSalidaWs();
-		
-		
-        registroSalidaWs.setOrigen(registreSortida.getOrgan());
-        registroSalidaWs.setOficina(registreSortida.getOficinaCodi());
-        registroSalidaWs.setLibro(registreSortida.getLlibreCodi());
-        registroSalidaWs.setExtracto(registreSortida.getExtracte());
-        registroSalidaWs.setDocFisica(registreSortida.getDocumentacioFisicaCodi() != null ? new Long(registreSortida.getDocumentacioFisicaCodi()) : (long)3);
-        registroSalidaWs.setIdioma(registreSortida.getIdiomaCodi());
-        registroSalidaWs.setTipoAsunto(registreSortida.getAssumpteTipusCodi());
+    	registroSalidaWs.setTipoRegistro(2L); // Assentament de tipus sortida
+        registroSalidaWs.setUnidadTramitacionOrigenCodigo(registreSortida.getOrgan());
+        registroSalidaWs.setEntidadRegistralOrigenCodigo(registreSortida.getOficinaCodi());
+        registroSalidaWs.setLibroCodigo(registreSortida.getLlibreCodi());
+        registroSalidaWs.setResumen(registreSortida.getExtracte());
+        registroSalidaWs.setTipoDocumentacionFisicaCodigo(registreSortida.getDocumentacioFisicaCodi() != null ? new Long(registreSortida.getDocumentacioFisicaCodi()) : (long)3);
+        registroSalidaWs.setIdioma(this.getIdioma(registreSortida.getIdiomaCodi()));
         registroSalidaWs.setAplicacion(aplicacioNom);
         registroSalidaWs.setVersion(aplicacioVersio);
         registroSalidaWs.setCodigoUsuario(registreSortida.getUsuariCodi());
-        registroSalidaWs.setContactoUsuario(registreSortida.getUsuariContacte());
-        registroSalidaWs.setNumExpediente(registreSortida.getExpedientNumero());
-        registroSalidaWs.setNumTransporte(registreSortida.getTransportNumero());
+        registroSalidaWs.setNumeroExpediente(registreSortida.getExpedientNumero());
         registroSalidaWs.setObservaciones(registreSortida.getObservacions());
-        registroSalidaWs.setRefExterna(registreSortida.getReferencia());
+        registroSalidaWs.setReferenciaExterna(registreSortida.getReferencia());
         registroSalidaWs.setCodigoAsunto(registreSortida.getAssumpteCodi());
         registroSalidaWs.setTipoTransporte(registreSortida.getTransportTipusCodi());
         registroSalidaWs.setObservaciones(registreSortida.getObservacions());
-
         registroSalidaWs.setExpone(registreSortida.getExposa());
         registroSalidaWs.setSolicita(registreSortida.getSolicita());
 
@@ -153,10 +142,19 @@ public class RegistrePluginRegweb3 extends RegWeb3Utils implements RegistrePlugi
        
         RespostaAnotacioRegistre resposta = null;
         try {
-            IdentificadorWs identificadorWs = registroSalidaApi.altaRegistroSalida(registroSalidaWs);
+            AsientoRegistralWs identificadorWs = registroSalidaApi.crearAsientoRegistral(
+            		null,	//idSesion 
+            		registreSortida.getEntitatCodi(), //entidad, codi Dir3 de l'entitat on es vol fer l'assentament 
+            		registroSalidaWs, 
+            		null, 	//tipoOperacion 1 notificació, 2 comunicació
+            		null,	// justificant
+            		null 	// Distribuir
+            		);
             resposta = new RespostaAnotacioRegistre();
-            resposta.setData(identificadorWs.getFecha());
-            resposta.setNumero(identificadorWs.getNumero().toString());
+            resposta.setData(identificadorWs.getFechaRegistro());
+            resposta.setNumero(String.valueOf(identificadorWs.getNumeroRegistro()));
+            if (resposta.getNumero() == null || "0".equals(resposta.getNumero()))
+            	throw new Exception("En la resposta del registre no s'ha assignat un número de registre vàlid: " + resposta.getNumero());
             resposta.setNumeroRegistroFormateado(identificadorWs.getNumeroRegistroFormateado());
             resposta.setErrorCodi(RespostaAnotacioRegistre.ERROR_CODI_OK);
         } catch (WsI18NException e) {
@@ -175,20 +173,20 @@ public class RegistrePluginRegweb3 extends RegWeb3Utils implements RegistrePlugi
 	public RespostaConsultaRegistre obtenirRegistreSortida(String numRegistre, String usuariCodi, String entitatCodi)
 			throws RegistrePluginException {
 
-		RegWebRegistroSalidaWs registroSalidaApi = null;
+		RegWebAsientoRegistralWs registroSalidaApi = this.getAsientoRegistralWsClient();
+		
 		RespostaConsultaRegistre resposta = new RespostaConsultaRegistre();
 		
 		try {
-			registroSalidaApi = getRegistroSalidaApi();
 			
-            RegistroSalidaResponseWs registroSalida = registroSalidaApi.obtenerRegistroSalida(numRegistre, usuariCodi, entitatCodi);
+			AsientoRegistralWs registroSalida = registroSalidaApi.obtenerAsientoRegistral(entitatCodi, numRegistre, 2L, false);
             
             resposta.setRegistreNumero(registroSalida.getNumeroRegistroFormateado());
             resposta.setRegistreData(registroSalida.getFechaRegistro());
             resposta.setEntitatCodi(registroSalida.getEntidadCodigo());
             resposta.setEntitatDenominacio(registroSalida.getEntidadDenominacion());
-            resposta.setOficinaCodi(registroSalida.getOficinaCodigo());
-            resposta.setOficinaDenominacio(registroSalida.getOficinaDenominacion());
+            resposta.setOficinaCodi("");	//Desapareix el codi d'oficina per Regweb3
+            resposta.setOficinaDenominacio(""); 	//Desapareix el codi d'oficina per Regweb3
             
 		} catch (WsI18NException e) {
             String msg = WsClientUtils.toString(e);
@@ -211,21 +209,7 @@ public class RegistrePluginRegweb3 extends RegWeb3Utils implements RegistrePlugi
 			String entitat,
 			boolean anular) throws RegistrePluginException {
 		
-		RegWebRegistroSalidaWs registroSalidaApi = null;
-		
-		try {
-			registroSalidaApi = getRegistroSalidaApi();
-			
-			registroSalidaApi.anularRegistroSalida(
-					registreNumero, 			// Numero de l'assentament formatejat
-					usuari, 					// Codi de l'usuari que vol realitzar l'operació
-					entitat, 					// Codi DIR3 de l'entitat al que pertany l'usuari
-					anular);					// Indica si s'ha d'anular o no l'assentament.
-			
-		} catch (Exception e) {
-        	logger.error("Error al intentar anular el registre de sortida", e);
-			throw new RegistrePluginException("Error al intentar anular el registre de sortida", e);
-		}
+		throw new RegistrePluginException("Regweb3 no permet anul·lar a través del WS");		
 	}
 	
 	@Override
@@ -455,21 +439,8 @@ public class RegistrePluginRegweb3 extends RegWeb3Utils implements RegistrePlugi
 			String entitat,
 			boolean anular) throws RegistrePluginException {
 		
-		RegWebRegistroEntradaWs registroEntradaApi = null;
-		
-		try {
-			registroEntradaApi = getRegistroEntradaApi();
-			
-			registroEntradaApi.anularRegistroEntrada(
-					registreNumero, 			// Numero de l'assentament formatejat
-					usuari, 					// Codi de l'usuari que vol realitzar l'operació
-					entitat, 					// Codi DIR3 de l'entitat al que pertany l'usuari
-					anular);					// Indica si s'ha d'anular o no l'assentament.
-			
-		} catch (Exception e) {
-        	logger.error("Error al intentar anular el registre d'entrada", e);
-			throw new RegistrePluginException("Error al intentar anular el registre d'entrada", e);
-		}
+		throw new RegistrePluginException("Regweb3 no permet anul·lar a través del WS");		
+
 	}
 	
 	@Override
@@ -627,5 +598,18 @@ public class RegistrePluginRegweb3 extends RegWeb3Utils implements RegistrePlugi
 		return organismes;
 	}
 	
+	
+	private RegWebAsientoRegistralWs getAsientoRegistralWsClient() throws RegistrePluginException {
+		RegWebAsientoRegistralWs registroSalidaApi = null;
+		try {
+			registroSalidaApi = getRegistroSalidaApi();
+		} catch (Exception e) {
+			String errMsg = "Error obtenint el client WS d'assentaments registrals del Regweb3: " + e.getMessage();
+        	logger.error(errMsg, e);
+        	throw new RegistrePluginException(errMsg, e);
+		}
+		return registroSalidaApi;
+	}
+
 	private static final Logger logger = LoggerFactory.getLogger(RegistrePluginRegweb3.class);
 }
