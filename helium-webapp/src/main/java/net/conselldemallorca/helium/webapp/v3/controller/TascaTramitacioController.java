@@ -267,7 +267,7 @@ public class TascaTramitacioController extends BaseTascaController {
 		
 		model.addAttribute("command", null);
 		
-		return "redirect:/modal/v3/tasca/" + tascaId;
+		return this.getRedireccioInici(request, tascaId);
 	}
 
 	@RequestMapping(value = "/{tascaId}/validar", method = RequestMethod.POST)
@@ -325,7 +325,7 @@ public class TascaTramitacioController extends BaseTascaController {
 		SessionHelper.setAttribute(request,VARIABLE_COMMAND_TRAMITACIO+tascaId, command);
 		SessionHelper.setAttribute(request,VARIABLE_COMMAND_BINDING_RESULT_TRAMITACIO+tascaId, result);
 		
-		return "redirect:/modal/v3/tasca/" + tascaId;
+		return this.getRedireccioInici(request, tascaId);
 	}
 
 	@RequestMapping(value = "/{tascaId}/completar", method = RequestMethod.POST)
@@ -373,7 +373,7 @@ public class TascaTramitacioController extends BaseTascaController {
         	logger.error("No s'ha pogut restaurar el formulari en la tasca " + tascaId, ex);
         }
 		status.setComplete();
-		return "redirect:/modal/v3/tasca/" + tascaId;
+		return this.getRedireccioInici(request, tascaId);
 	}
 
 	@RequestMapping(value = {
@@ -422,7 +422,7 @@ public class TascaTramitacioController extends BaseTascaController {
 			@PathVariable String tascaId,
 			Model model) {
 		
-		return "redirect:/modal/v3/tasca/" + tascaId;
+		return this.getRedireccioInici(request, tascaId);
 	}
 
 	@RequestMapping(value = "/{tascaId}/document", method = RequestMethod.GET)
@@ -1693,6 +1693,24 @@ public class TascaTramitacioController extends BaseTascaController {
 	private String getDescripcioTascaPerMissatgeUsuari(
 			ExpedientTascaDto tasca) {
 		return tasca.getTitol() + " - " + tasca.getExpedientIdentificador();
+	}
+	
+	/** Retorna una redirecció amb a l'inici de la tramitació de la tasca normal o massivament depenent de si té dades
+	 * de tramitació massiva per evitar que es perdin.
+	 * 
+	 * @param request
+	 * @param tascaId
+	 * @return
+	 */
+	private String getRedireccioInici(HttpServletRequest request, String tascaId) {
+		String ret;
+		Map<String, Object> dadesTramitacionMasiva = getDatosTramitacionMasiva(request);
+		if (dadesTramitacionMasiva != null) {
+			ret = "redirect:/modal/v3/tasca/" + tascaId + "/form";
+		} else {
+			ret = "redirect:/modal/v3/tasca/" + tascaId;
+		}
+		return ret;
 	}
 
 	private static final Logger logger = LoggerFactory.getLogger(TascaTramitacioController.class);
