@@ -1111,7 +1111,7 @@ public class TascaTramitacioController extends BaseTascaController {
 				ExecucioMassivaDto dto = new ExecucioMassivaDto();
 				dto.setDataInici((Date) datosTramitacionMasiva.get("inici"));
 				dto.setEnviarCorreu((Boolean) datosTramitacionMasiva.get("correu"));
-				dto.setTascaIds(tascaIds);
+				dto.setTascaIds((String[])ArrayUtils.removeElement(tascaIds, tascaId));
 				// dto.setExpedientTipusId(expTipusId);
 				dto.setTipus(ExecucioMassivaTipusDto.EXECUTAR_TASCA);
 				dto.setParam1("Restaurar");
@@ -1476,7 +1476,49 @@ public class TascaTramitacioController extends BaseTascaController {
 		EntornDto entorn = SessionHelper.getSessionManager(request).getEntornActual();
 		Map<String, Object> datosTramitacionMasiva = getDatosTramitacionMasiva(request);
 		boolean firmaSeparada = DocumentTipusFirmaEnumDto.SEPARAT.equals(tipusFirma);
-		if (datosTramitacionMasiva == null) {
+		if (datosTramitacionMasiva != null)	{
+			// Programa l'execució massiva
+			try
+			{				
+				String[] tascaIds = (String[]) datosTramitacionMasiva.get("tasquesTramitar");
+				ExecucioMassivaDto dto = new ExecucioMassivaDto();
+				dto.setDataInici((Date) datosTramitacionMasiva.get("inici"));
+				dto.setEnviarCorreu((Boolean) datosTramitacionMasiva.get("correu"));
+				dto.setTascaIds((String[])ArrayUtils.removeElement(tascaIds, tascaId));					
+				dto.setExpedientTipusId(null);
+				dto.setTipus(ExecucioMassivaTipusDto.EXECUTAR_TASCA);
+				dto.setParam1("DocGuardar");
+				Object[] params = new Object[9];
+				params[0] = entorn.getId();				
+				params[1] = documentCodi;
+				params[2] = (data == null) ? (data == null) ? new Date() : data : data;
+				params[3] = contingutArxiu;
+				params[4] = nomArxiu;
+				params[5] = arxiuContentType;
+				params[6] = ambFirma;
+				params[7] = firmaSeparada;
+				params[8] = firmaContingut;
+				dto.setParam2(execucioMassivaService.serialize(params));
+				execucioMassivaService.crearExecucioMassiva(dto);
+								
+				documentStoreId = tascaService.guardarDocumentTasca(
+						entorn.getId(),
+						tascaId,
+						documentCodi,
+						(data == null) ? new Date() : data,
+						nomArxiu,
+						contingutArxiu,
+						arxiuContentType,
+						ambFirma,
+						firmaSeparada,
+						firmaContingut,
+						null);
+				MissatgesHelper.success(request, getMessage(request, "info.tasca.massiu.document.guardar", new Object[] {tascaIds.length}));
+			} catch (Exception ex) {
+				MissatgesHelper.error(request, getMessage(request, "error.no.massiu"));
+				logger.error("No s'ha pogut guardar les dades del formulari massiu en la tasca " + tascaId, ex);
+			}
+		} else {
 			// Guarda el document per la tasca
 			try {
 				documentStoreId = tascaService.guardarDocumentTasca(
@@ -1501,42 +1543,6 @@ public class TascaTramitacioController extends BaseTascaController {
 				logger.error("No s'ha pogut guardar el document " + tascaId, ex);
 			}
 
-		} else {
-			// Programa l'execució massiva
-			try
-			{				
-				String[] tascaIds = (String[]) datosTramitacionMasiva.get("tasquesTramitar");
-//				Authentication auth = SecurityContextHolder.getContext().getAuthentication();				
-				ExecucioMassivaDto dto = new ExecucioMassivaDto();
-				dto.setDataInici((Date) datosTramitacionMasiva.get("inici"));
-				dto.setEnviarCorreu((Boolean) datosTramitacionMasiva.get("correu"));
-				dto.setTascaIds(tascaIds);					
-				dto.setExpedientTipusId(null);
-				dto.setTipus(ExecucioMassivaTipusDto.EXECUTAR_TASCA);
-				dto.setParam1("DocGuardar");
-				Object[] params = new Object[9];
-				params[0] = entorn.getId();				
-				params[1] = documentCodi;
-				params[2] = (data == null) ? (data == null) ? new Date() : data : data;
-				params[3] = contingutArxiu;
-				params[4] = nomArxiu;
-				params[5] = arxiuContentType;
-				params[6] = ambFirma;
-				params[7] = firmaSeparada;
-				params[8] = firmaContingut;
-//				params[5] = auth.getCredentials();
-//				List<String> rols = new ArrayList<String>();
-//				for (GrantedAuthority gauth : auth.getAuthorities()) {
-//					rols.add(gauth.getAuthority());
-//				}
-//				params[6] = rols;
-				dto.setParam2(execucioMassivaService.serialize(params));
-				execucioMassivaService.crearExecucioMassiva(dto);
-				MissatgesHelper.success(request, getMessage(request, "info.tasca.massiu.document.guardar", new Object[] {tascaIds.length}));
-			} catch (Exception ex) {
-				MissatgesHelper.error(request, getMessage(request, "error.no.massiu"));
-				logger.error("No s'ha pogut guardar les dades del formulari massiu en la tasca " + tascaId, ex);
-			}
 		}
 		return documentStoreId;
 	}
@@ -1550,23 +1556,16 @@ public class TascaTramitacioController extends BaseTascaController {
 			try {
 				String[] tascaIds = (String[]) datosTramitacionMasiva.get("tasquesTramitar");
 				EntornDto entorn = SessionHelper.getSessionManager(request).getEntornActual();
-//				Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 				ExecucioMassivaDto dto = new ExecucioMassivaDto();
 				dto.setDataInici((Date) datosTramitacionMasiva.get("inici"));
 				dto.setEnviarCorreu((Boolean) datosTramitacionMasiva.get("correu"));
-				dto.setTascaIds(tascaIds);					
+				dto.setTascaIds((String[])ArrayUtils.removeElement(tascaIds, tascaId));					
 				dto.setExpedientTipusId(null);
 				dto.setTipus(ExecucioMassivaTipusDto.EXECUTAR_TASCA);
 				dto.setParam1("DocEsborrar");
 				Object[] params = new Object[2];
 				params[0] = entorn.getId();				
 				params[1] = documentCodi;
-//				params[2] = auth.getCredentials();
-//				List<String> rols = new ArrayList<String>();
-//				for (GrantedAuthority gauth : auth.getAuthorities()) {
-//					rols.add(gauth.getAuthority());
-//				}
-//				params[3] = rols;
 				dto.setParam2(execucioMassivaService.serialize(params));
 				execucioMassivaService.crearExecucioMassiva(dto);
 				
@@ -1619,10 +1618,10 @@ public class TascaTramitacioController extends BaseTascaController {
 				ExecucioMassivaDto dto = new ExecucioMassivaDto();
 				dto.setDataInici((Date) datosTramitacionMasiva.get("inici"));
 				dto.setEnviarCorreu((Boolean) datosTramitacionMasiva.get("correu"));
-				dto.setTascaIds(tascaIds);					
+				dto.setTascaIds((String[])ArrayUtils.removeElement(tascaIds, tascaId));					
 				dto.setExpedientTipusId(null);
 				dto.setTipus(ExecucioMassivaTipusDto.EXECUTAR_TASCA);
-				dto.setParam1("DocGuardar");
+				dto.setParam1("DocGenerar");
 				Object[] params = new Object[5];
 				params[0] = entorn.getId();
 				params[1] = documentCodi;
@@ -1633,28 +1632,12 @@ public class TascaTramitacioController extends BaseTascaController {
 						documentCodi);
 				// Si és null vol dir que s'ha auto ajuntat i s'ha de fer per la resta de tasques
 				if (generat == null) {
-					if (tascaIds != null && tascaIds.length > 0)
-						// Genera el document plantilla per a la resta de tasques
-						for (String t : tascaIds)
-							if (t.compareToIgnoreCase(tascaId) != 0)
-								expedientDocumentService.generarAmbPlantillaPerTasca(
-										t,
-										documentCodi);
-				} else {
-					params[3] = generat.getContingut();
-					params[4] = generat.getNom();
+					dto.setParam2(execucioMassivaService.serialize(params));
+					execucioMassivaService.crearExecucioMassiva(dto);
+					MissatgesHelper.success(
+							request,
+							getMessage(request, "info.tasca.massiu.document.generar", new Object[] {tascaIds.length}));
 				}
-//				params[5] = auth.getCredentials();
-//				List<String> rols = new ArrayList<String>();
-//				for (GrantedAuthority gauth : auth.getAuthorities()) {
-//					rols.add(gauth.getAuthority());
-//				}
-//				params[6] = rols;
-				dto.setParam2(execucioMassivaService.serialize(params));
-				execucioMassivaService.crearExecucioMassiva(dto);
-				MissatgesHelper.success(
-						request,
-						getMessage(request, "info.tasca.massiu.document.generar", new Object[] {tascaIds.length}));
 			} catch (SistemaExternConversioDocumentException ex) {
 				MissatgesHelper.error(request, getMessage(request, "error.no.massiu") + " : " + ex.getPublicMessage());
 				logger.error("No s'ha pogut generar el document massiu en la tasca " + tascaId, ex);
