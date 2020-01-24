@@ -157,7 +157,20 @@ public class RegistreSortidaRegWeb3Handler extends AbstractHeliumActionHandler {
 			throw new JbpmException("El plugin de registre no està configurat");
 		RegistreAnotacio anotacio = new RegistreAnotacio();
 		
-//		Info de l'Assentament
+		ExpedientDto expedient = getExpedientActual(executionContext);
+		anotacio.setExpedientNumero(expedient.getNumero());
+
+		String documentCodi = (String)getValorOVariable(
+				executionContext,
+				codiDocument,
+				varCodiDocument);
+		
+		DocumentInfo documentInfo = getDocumentInfo(
+				executionContext,
+				documentCodi,
+				true);
+
+		// Info de l'Assentament
 		anotacio.setEntitatCodi((String)getValorOVariable(
 				executionContext,
 				entitatCodi,
@@ -175,10 +188,15 @@ public class RegistreSortidaRegWeb3Handler extends AbstractHeliumActionHandler {
 				llibreCodi,
 				varLlibreCodi));
 		
-		anotacio.setExtracte((String)getValorOVariable(
+		// Extracte
+		String anotacioExtracte = (String)getValorOVariable(
 				executionContext,
 				extracte,
-				varExtracte));
+				varExtracte);
+		if (anotacioExtracte == null || anotacioExtracte.isEmpty())
+			anotacioExtracte = 	this.buildExtracte(expedient, documentInfo);
+		
+		anotacio.setExtracte(anotacioExtracte);
 		anotacio.setDocumentacioFisicaCodi((String)getValorOVariable(
 				executionContext,
 				documentacioFisicaCodi,
@@ -200,8 +218,6 @@ public class RegistreSortidaRegWeb3Handler extends AbstractHeliumActionHandler {
 			usuari = Jbpm3HeliumBridge.getInstanceService().getUsuariCodiActual();
 		anotacio.setUsuariCodi(usuari);
 		
-		ExpedientDto expedient = getExpedientActual(executionContext);
-		anotacio.setExpedientNumero(expedient.getIdentificador());
 		
 //		Info de l'interessat
 		RegistreInteressat interessat = new RegistreInteressat();
@@ -372,17 +388,7 @@ public class RegistreSortidaRegWeb3Handler extends AbstractHeliumActionHandler {
 				idiomaCodi,
 				varIdiomaCodi);
 		anotacio.setIdiomaCodi((idiomaExtracte != null) ? idiomaExtracte : "ca");
-		
-		String documentCodi = (String)getValorOVariable(
-				executionContext,
-				codiDocument,
-				varCodiDocument);
-		
-		DocumentInfo documentInfo = getDocumentInfo(
-				executionContext,
-				documentCodi,
-				true);
-		
+				
 		/**Dades complementàries de document**/
 		documentInfo.setTipusDocument((String)getValorOVariable(
 				executionContext,
@@ -438,6 +444,42 @@ public class RegistreSortidaRegWeb3Handler extends AbstractHeliumActionHandler {
 	}
 
 	
+	/** Construeix un extracte del tipus: 
+	 * 	"[259/2019] Títol llarg...: Títol del document que ..."
+	 * 
+	 * @param expedient
+	 * @param documentInfo
+	 * @return
+	 */
+	private String buildExtracte(ExpedientDto expedient, DocumentInfo documentInfo) {
+		StringBuilder extracte = new StringBuilder();
+		// Número i títol
+		if (expedient.getNumero() != null && ! expedient.getNumero().isEmpty())
+			extracte.append("[").append(expedient.getNumero()).append("]");
+		if (expedient.getTitol() != null && ! expedient.getTitol().isEmpty()) {
+			if (extracte.length() > 0)
+				extracte.append(" ");
+			extracte.append(this.abreuja(expedient.getTitol(), 50));
+		}
+		if (extracte.length() > 0)
+			extracte.append(": ");
+		if (documentInfo.getTitol() != null )
+			extracte.append(documentInfo.getTitol());
+		else if (documentInfo.getCodiDocument() != null)
+			extracte.append(documentInfo.getCodiDocument());
+		
+		return this.abreuja(extracte.toString(), 250);
+	}
+	
+	/** Escurça un text. */
+	private String abreuja(String text, int maxim) {
+		if (text.length() > maxim && maxim - 3 > 0) {
+			text = text.substring(0, maxim - 3) + "...";
+		}
+		return text;
+	}
+
+
 	/**
 	 * Registra un document de sortida
 	 * 
