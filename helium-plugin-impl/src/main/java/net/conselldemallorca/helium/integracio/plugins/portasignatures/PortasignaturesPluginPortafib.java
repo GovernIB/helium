@@ -28,6 +28,8 @@ import javax.xml.ws.handler.soap.SOAPMessageContext;
 import org.apache.commons.lang.StringUtils;
 
 import es.caib.portafib.ws.api.v1.AnnexBean;
+import es.caib.portafib.ws.api.v1.BlocDeFirmesWs;
+import es.caib.portafib.ws.api.v1.FirmaBean;
 import es.caib.portafib.ws.api.v1.FitxerBean;
 import es.caib.portafib.ws.api.v1.FluxDeFirmesWs;
 import es.caib.portafib.ws.api.v1.PeticioDeFirmaWs;
@@ -37,7 +39,6 @@ import es.caib.portafib.ws.api.v1.PortaFIBUsuariEntitatWs;
 import es.caib.portafib.ws.api.v1.PortaFIBUsuariEntitatWsService;
 import es.caib.portafib.ws.api.v1.TipusDocumentInfoWs;
 import es.caib.portafib.ws.api.v1.WsI18NException;
-import es.caib.portafib.ws.api.v1.utils.PeticioDeFirmaUtils;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.core.util.OpenOfficeUtils;
 import net.conselldemallorca.helium.integracio.plugins.portasignatures.wsdl.ImportanceEnum;
@@ -212,6 +213,7 @@ public class PortasignaturesPluginPortafib implements PortasignaturesPlugin {
 			fluxWs = getPeticioDeFirmaWs().instantiatePlantillaFluxDeFirmes(
 					new Long(plantillaFluxId).longValue());
 		} else {
+			/*
 			int numNifs = 0;
 			if (passes.size() > 0) {
 				numNifs = passes.get(0).getSignataris().length;
@@ -226,6 +228,30 @@ public class PortasignaturesPluginPortafib implements PortasignaturesPlugin {
 			fluxWs = PeticioDeFirmaUtils.constructFluxDeFirmesWsUsingBlocDeFirmes(
 					getUsuariEntitatWs(),
 					nifs);
+			*/
+			PortaFIBUsuariEntitatWs usuariEntitatAPI = getUsuariEntitatWs();
+			fluxWs = new FluxDeFirmesWs();
+			fluxWs.setNom("Flux Helium " + System.nanoTime());
+
+			PasSignatura pas;
+		    BlocDeFirmesWs bloc;
+		    String signatari;
+		    String usuariEntitat;
+			for(int i = 0; i < passes.size(); i++) {
+				pas = passes.get(i);
+				bloc = new BlocDeFirmesWs();
+			    bloc.setMinimDeFirmes(pas.getMinSignataris());
+			    bloc.setOrdre(i);
+			    for (int j = 0; j<pas.getSignataris().length; j++) {
+			    	signatari = pas.getSignataris()[j];
+			    	// Cercar usuariEntitat associat al nif
+			    	usuariEntitat = usuariEntitatAPI.getUsuariEntitatIDInMyEntitatByAdministrationID(signatari);
+				    FirmaBean firma = new FirmaBean();
+				    firma.setDestinatariID(usuariEntitat);
+				    bloc.getFirmes().add(firma);
+			    }
+			    fluxWs.getBlocsDeFirmes().add(bloc);
+			}
 		}
 		return fluxWs;
 	}
