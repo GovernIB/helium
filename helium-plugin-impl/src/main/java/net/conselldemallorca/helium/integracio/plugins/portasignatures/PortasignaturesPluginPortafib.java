@@ -213,22 +213,6 @@ public class PortasignaturesPluginPortafib implements PortasignaturesPlugin {
 			fluxWs = getPeticioDeFirmaWs().instantiatePlantillaFluxDeFirmes(
 					new Long(plantillaFluxId).longValue());
 		} else {
-			/*
-			int numNifs = 0;
-			if (passes.size() > 0) {
-				numNifs = passes.get(0).getSignataris().length;
-			}
-			String[][] nifs = new String[numNifs][passes.size()];
-			for (int i = 0; i < passes.size(); i++) {
-				PasSignatura fluxBloc = passes.get(i);
-				for (int j = 0; j < fluxBloc.getSignataris().length; j++) {
-					nifs[j][i] = fluxBloc.getSignataris()[j];
-				}
-			}
-			fluxWs = PeticioDeFirmaUtils.constructFluxDeFirmesWsUsingBlocDeFirmes(
-					getUsuariEntitatWs(),
-					nifs);
-			*/
 			PortaFIBUsuariEntitatWs usuariEntitatAPI = getUsuariEntitatWs();
 			fluxWs = new FluxDeFirmesWs();
 			fluxWs.setNom("Flux Helium " + System.nanoTime());

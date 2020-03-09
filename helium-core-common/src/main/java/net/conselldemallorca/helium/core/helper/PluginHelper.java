@@ -2430,6 +2430,9 @@ public class PluginHelper {
 					IntegracioAccioTipusEnumDto.ENVIAMENT,
 					System.currentTimeMillis() - t0,
 					parametres.toArray(new IntegracioParametreDto[parametres.size()]));
+			if (documentPerRetornar != null &&  documentPerRetornar.getIdentificador() == null) {
+				logger.warn("L'identificador retornat per l'Arxiu pel document \"" + documentNom + "\" de l'expedient \"" + expedient.getIdentificador() + "\" és null.");
+			}
 			return documentPerRetornar;
 		} catch (Exception ex) {
 			String errorDescripcio = "No s'ha pogut actualitzar la informació del document: " + ex.getMessage();

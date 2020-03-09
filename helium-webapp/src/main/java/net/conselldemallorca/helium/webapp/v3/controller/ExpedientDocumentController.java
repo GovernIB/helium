@@ -553,18 +553,24 @@ public class ExpedientDocumentController extends BaseExpedientController {
 			@PathVariable String processInstanceId,
 			@PathVariable Long documentStoreId,
 			Model model) {
-		ExpedientDocumentDto expedientDocument = expedientDocumentService.findOneAmbInstanciaProces(
-				expedientId,
-				processInstanceId,
-				documentStoreId);
-		model.addAttribute("expedientDocument", expedientDocument);
-		model.addAttribute("expedientId", expedientId);
-		model.addAttribute(
-				"arxiuDetall",
-				expedientDocumentService.getArxiuDetall(
-						expedientId,
-						processInstanceId,
-						documentStoreId));
+		try {
+			ExpedientDocumentDto expedientDocument = expedientDocumentService.findOneAmbInstanciaProces(
+					expedientId,
+					processInstanceId,
+					documentStoreId);
+			model.addAttribute("expedientDocument", expedientDocument);
+			model.addAttribute("expedientId", expedientId);
+			model.addAttribute(
+					"arxiuDetall",
+					expedientDocumentService.getArxiuDetall(
+							expedientId,
+							processInstanceId,
+							documentStoreId));			
+		} catch(Exception e) {
+			String errMsg = "Error consultant les dades de l'Arxiu del document: " + e.getMessage(); 
+			logger.error(errMsg, e);
+			MissatgesHelper.error(request, errMsg);
+		}
 		return "v3/expedientDocumentMetadadesNti";
 	}
 	
