@@ -2416,6 +2416,14 @@ public class PluginHelper {
 								getExtensioPerArxiu(arxiu),
 								(firmes != null ? DocumentEstat.DEFINITIU : DocumentEstat.ESBORRANY)));
 			}
+			// Paràmetres de resposta
+			parametres.add(
+					new IntegracioParametreDto(
+							"resposta",
+							documentPerRetornar != null));
+			new IntegracioParametreDto(
+					"respostaIdentificador",
+					(documentPerRetornar != null ? documentPerRetornar.getIdentificador() : "-"));
 			monitorIntegracioHelper.addAccioOk(
 					MonitorIntegracioHelper.INTCODI_ARXIU,
 					accioDescripcio,
@@ -3342,7 +3350,7 @@ public class PluginHelper {
 			String serieDocumental,
 			String arxiuUuid) {
 		es.caib.plugins.arxiu.api.Expedient expedient = new es.caib.plugins.arxiu.api.Expedient();
-		expedient.setNom(nom);
+		expedient.setNom(this.treureCaractersEstranys(nom));
 		expedient.setIdentificador(arxiuUuid);
 		ExpedientMetadades metadades = new ExpedientMetadades();
 		metadades.setDataObertura(ntiDataObertura);
@@ -3357,6 +3365,15 @@ public class PluginHelper {
 		metadades.setSerieDocumental(serieDocumental);
 		expedient.setMetadades(metadades);
 		return expedient;
+	}
+
+	private String treureCaractersEstranys(String nom) {
+		String nomRevisat;
+		if (nom != null)
+			nomRevisat = nom.trim().replace("&", "&amp;").replaceAll("[~\"#%*:<\n\r\t>/?/|\\\\ ]", "_");
+		else 
+			nomRevisat = null;
+		return nomRevisat;
 	}
 
 	private static List<FirmaTipus> TIPUS_FIRMES_ATTACHED = Arrays.asList(FirmaTipus.CADES_ATT, FirmaTipus.PADES, FirmaTipus.XADES_ENV);
