@@ -485,7 +485,14 @@ public class DefinicioProcesTascaController extends BaseTascaDissenyController {
 			@PathVariable Long id,
 			@PathVariable int posicio) {
 		
-		return definicioProcesService.tascaDocumentMourePosicio(id, null, posicio);
+		DefinicioProcesDto definicioProces = definicioProcesService.findById(definicioProcesId);
+
+		return definicioProcesService.tascaDocumentMourePosicio(
+				id, 
+				definicioProces.getExpedientTipus() != null ? 
+						definicioProces.getExpedientTipus().getId() // Pertany a un tipus d'expedient 
+						: null, // Global 
+				posicio);
 	}	
 	
 	/** Mètode per obtenir les possibles documents per al select a l'edició d'un registre via ajax. */
@@ -677,7 +684,13 @@ public class DefinicioProcesTascaController extends BaseTascaDissenyController {
 			@PathVariable Long id,
 			@PathVariable int posicio) {
 		
-		return definicioProcesService.tascaFirmaMourePosicio(id, null, posicio);
+		DefinicioProcesDto definicioProces = definicioProcesService.findById(definicioProcesId);
+		
+		return definicioProcesService.tascaFirmaMourePosicio(id, 
+															definicioProces.getExpedientTipus() != null ? 
+																	definicioProces.getExpedientTipus().getId() // Pertany a un tipus d'expedient 
+																	: null, // Global 
+															posicio);
 	}	
 	
 	/** Mètode per obtenir els possibles firmes per al select a l'edició d'un registre via ajax. */

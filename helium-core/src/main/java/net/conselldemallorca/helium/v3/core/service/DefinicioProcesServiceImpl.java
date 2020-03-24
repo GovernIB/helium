@@ -953,6 +953,11 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 		boolean ret = false;
 		DocumentTasca tascaDocument = documentTascaRepository.findOne(id);
 		if (tascaDocument != null) {
+			if (expedientTipusId == null) {
+				Tasca tasca = tascaRepository.findById(tascaDocument.getTasca().getId());
+				if (tasca.getDefinicioProces().getExpedientTipus() != null)
+					expedientTipusId = tasca.getDefinicioProces().getExpedientTipus().getId();
+			}
 			List<DocumentTasca> documentsTasca = documentTascaRepository.findAmbTascaOrdenats(
 					tascaDocument.getTasca().getId(),
 					expedientTipusId);
@@ -1194,6 +1199,11 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 		boolean ret = false;
 		FirmaTasca tascaFirma = firmaTascaRepository.findOne(id);
 		if (tascaFirma != null) {
+			if (expedientTipusId == null) {
+				Tasca tasca = tascaRepository.findById(tascaFirma.getTasca().getId());
+				if (tasca.getDefinicioProces().getExpedientTipus() != null)
+					expedientTipusId = tasca.getDefinicioProces().getExpedientTipus().getId();
+			}
 			List<FirmaTasca> firmesTasca = firmaTascaRepository.findAmbTascaIdOrdenats(
 					tascaFirma.getTasca().getId(),
 					expedientTipusId);
