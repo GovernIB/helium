@@ -7,14 +7,6 @@ import java.util.List;
 
 import javax.jws.WebService;
 
-import net.conselldemallorca.helium.core.model.service.ServiceProxy;
-import net.conselldemallorca.helium.integracio.plugins.tramitacio.DadesTramit;
-import net.conselldemallorca.helium.integracio.plugins.tramitacio.DadesVistaDocument;
-import net.conselldemallorca.helium.integracio.plugins.tramitacio.ObtenirDadesTramitRequest;
-import net.conselldemallorca.helium.integracio.plugins.tramitacio.ObtenirVistaDocumentRequest;
-import net.conselldemallorca.helium.integracio.plugins.tramitacio.ResultatProcesTipus;
-import net.conselldemallorca.helium.integracio.plugins.tramitacio.ResultatProcesTramitRequest;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -22,6 +14,13 @@ import es.caib.bantel.ws.v2.model.referenciaentrada.ReferenciaEntrada;
 import es.caib.bantel.ws.v2.model.referenciaentrada.ReferenciasEntrada;
 import es.caib.bantel.ws.v2.services.BantelFacade;
 import es.caib.bantel.ws.v2.services.BantelFacadeException;
+import net.conselldemallorca.helium.core.model.service.ServiceProxy;
+import net.conselldemallorca.helium.integracio.plugins.tramitacio.DadesTramit;
+import net.conselldemallorca.helium.integracio.plugins.tramitacio.DadesVistaDocument;
+import net.conselldemallorca.helium.integracio.plugins.tramitacio.ObtenirDadesTramitRequest;
+import net.conselldemallorca.helium.integracio.plugins.tramitacio.ObtenirVistaDocumentRequest;
+import net.conselldemallorca.helium.integracio.plugins.tramitacio.ResultatProcesTipus;
+import net.conselldemallorca.helium.integracio.plugins.tramitacio.ResultatProcesTramitRequest;
 
 /**
  * Backoffice per a gestionar les entrades de BANTEL
@@ -43,6 +42,7 @@ public class BantelV2Backoffice extends BaseBackoffice implements BantelFacade {
 			boolean error = false;
 			DadesTramit dadesTramit = null;
 			try {
+				logger.info("Processant el tramit " + request);
 				dadesTramit = ServiceProxy.getInstance().getPluginService().obtenirDadesTramit(request);
 				int numExpedients = processarTramit(dadesTramit);
 				logger.info("El tramit " + request + " ha creat " + numExpedients + " expedients");
