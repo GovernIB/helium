@@ -339,8 +339,6 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 		
 		dadesNotificacioDto.setDocumentArxiuNom(documentDto.getArxiuNom());
 		dadesNotificacioDto.setDocumentArxiuContingut(documentDto.getArxiuContingut());
-		dadesNotificacioDto.setDocumentArxiuUuid(documentDto.getArxiuUuid());
-		dadesNotificacioDto.setDocumentArxiuCsv(documentDto.getArxiuCsv());
 		
 		dadesNotificacioDto.setDocumentId(documentStoreId);
 					
