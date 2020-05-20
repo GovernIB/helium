@@ -1305,7 +1305,7 @@ public class ExpedientHelper {
 	}
 
 	@Transactional
-	public Expedient iniciar(
+	public synchronized Expedient iniciar(
 			Long entornId,
 			String usuari,
 			Long expedientTipusId,
@@ -1336,9 +1336,7 @@ public class ExpedientHelper {
 			Map<String, DadesDocumentDto> documents,
 			List<DadesDocumentDto> adjunts) {
 		Expedient expedient = new Expedient();
-		Entorn entorn = entornHelper.getEntornComprovantPermisos(
-				entornId,
-				true);
+		Entorn entorn = entornHelper.getEntorn(entornId);
 		if (usuari != null)
 			comprovarUsuari(usuari);
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -1477,7 +1475,7 @@ public class ExpedientHelper {
 		}
 		//MesurarTemps.diferenciaImprimirStdoutIReiniciar(mesuraTempsIncrementalPrefix, "7");
 		JbpmProcessInstance processInstance = jbpmHelper.startProcessInstanceById(
-				usuariBo,
+				IniciadorTipusDto.INTERN.equals(iniciadorTipus) ?  usuariBo : null,
 				definicioProces.getJbpmId(),
 				variables);
 		expedient.setProcessInstanceId(processInstance.getId());
@@ -1614,9 +1612,7 @@ public class ExpedientHelper {
 			Long entornId,
 			Long expedientTipusId,
 			Integer any) {
-		Entorn entorn = entornHelper.getEntornComprovantPermisos(
-				entornId,
-				true);
+		Entorn entorn = entornHelper.getEntorn(entornId);
 		ExpedientTipus expedientTipus = expedientTipusRepository.findOne(expedientTipusId);
 		return this.getNumeroExpedientActualAux(
 				entorn,

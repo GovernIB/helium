@@ -5,16 +5,17 @@ package net.conselldemallorca.helium.core.helper;
 
 import javax.annotation.Resource;
 
+import org.springframework.security.acls.model.Permission;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 import net.conselldemallorca.helium.core.security.ExtendedPermission;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
 import net.conselldemallorca.helium.v3.core.repository.EntornRepository;
-
-import org.springframework.security.acls.model.Permission;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Component;
 
 /**
  * Helper per a gestionar els entorns.
@@ -30,6 +31,10 @@ public class EntornHelper {
 	private PermisosHelper permisosHelper;
 
 
+	@Transactional
+	public Entorn getEntorn(Long entornId) {
+		return this.entornRepository.findOne(entornId);
+	}
 
 	public Entorn getEntornComprovantPermisos(
 			Long entornId,
