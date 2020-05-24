@@ -309,8 +309,13 @@ public class ExpedientDocumentServiceBean implements ExpedientDocumentService {
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public ArxiuFirmaDto getArxiuFirma(Long expedientId, Long documentStoreId, int firmaIndex) {
-		// TODO Auto-generated method stub
 		return delegate.getArxiuFirma(expedientId, documentStoreId, firmaIndex);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public void migrarArxiu(Long expedientId, Long documentStoreId) throws NoTrobatException, PermisDenegatException {
+		delegate.migrarArxiu(expedientId, documentStoreId);
 	}
 
 }

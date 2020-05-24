@@ -388,5 +388,20 @@ public interface ExpedientDocumentService {
 			Long documentStoreId, 
 			int firmaIndex);
 
+	/**
+	 * Migra el document a l'arxiu
+	 * 
+	 * @param documentStoreId
+	 *            Atribut documentStoreId del document.
+	 * @throws NoTrobatException
+	 *             Si no s'ha trobat cap document amb el documentStoreId especificat.
+	 * @throws PermisDenegatException
+	 *             Si no es tenen els permisos adequats.
+	 */
+	public void migrarArxiu(
+			Long expedientId,
+			Long documentStoreId) throws NoTrobatException, PermisDenegatException;
+
+
 
 }

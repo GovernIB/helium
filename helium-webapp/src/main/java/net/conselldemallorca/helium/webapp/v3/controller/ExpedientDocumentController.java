@@ -18,6 +18,7 @@ import javax.annotation.Resource;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,6 +60,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.ServeiTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.exception.SistemaExternException;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientDocumentService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientInteressatService;
+import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
 import net.conselldemallorca.helium.webapp.mvc.ArxiuView;
 import net.conselldemallorca.helium.webapp.v3.command.DocumentExpedientCommand;
 import net.conselldemallorca.helium.webapp.v3.command.DocumentExpedientCommand.Create;
@@ -554,24 +556,53 @@ public class ExpedientDocumentController extends BaseExpedientController {
 			@PathVariable Long documentStoreId,
 			Model model) {
 		try {
+			ExpedientDto expedient = expedientService.findAmbIdAmbPermis(expedientId);
 			ExpedientDocumentDto expedientDocument = expedientDocumentService.findOneAmbInstanciaProces(
 					expedientId,
 					processInstanceId,
 					documentStoreId);
 			model.addAttribute("expedientDocument", expedientDocument);
 			model.addAttribute("expedientId", expedientId);
-			model.addAttribute(
-					"arxiuDetall",
-					expedientDocumentService.getArxiuDetall(
-							expedientId,
-							processInstanceId,
-							documentStoreId));			
+			if (expedient.isArxiuActiu()) {
+				if (!StringUtils.isEmpty(expedientDocument.getArxiuUuid())) {
+					model.addAttribute(
+							"arxiuDetall",
+							expedientDocumentService.getArxiuDetall(
+									expedientId,
+									processInstanceId,
+									documentStoreId));
+				} else {
+					model.addAttribute("errorArxiuNoUuid", Boolean.TRUE);
+				}
+			}
 		} catch(Exception e) {
 			String errMsg = "Error consultant les dades de l'Arxiu del document: " + e.getMessage(); 
 			logger.error(errMsg, e);
 			MissatgesHelper.error(request, errMsg);
 		}
 		return "v3/expedientDocumentMetadadesNti";
+	}
+
+	/** Mètode per incoporar el document a l'Arxiu en el cas que l'expedient estigui integrat però el document no. Acció des
+	 * de la modal de metadades NTI del document.
+	 * @return Retorna cap a la pàgina de metadades nti del document.
+	 */
+	@RequestMapping(value = "/{expedientId}/proces/{processInstanceId}/document/{documentStoreId}/incoporarArxiu", method = RequestMethod.POST)
+	public String incoporarArxiu(
+			HttpServletRequest request,
+			@PathVariable Long expedientId,
+			@PathVariable String processInstanceId,
+			@PathVariable Long documentStoreId,
+			Model model) {
+		try {
+			expedientDocumentService.migrarArxiu(expedientId, documentStoreId);
+			MissatgesHelper.success(request, getMessage(request, "expedient.document.arxiu.migrar.success"));
+		} catch(Exception e) {
+			String errMsg = "Error incorporant el document a l'Arxiu: " + e.getMessage(); 
+			logger.error(errMsg, e);
+			MissatgesHelper.error(request, errMsg);
+		}
+		return "redirect:" + request.getHeader("Referer");
 	}
 	
 	/** Mètode per descarregar una firma dettached des de la modal de dades de l'arxiu d'un document. */

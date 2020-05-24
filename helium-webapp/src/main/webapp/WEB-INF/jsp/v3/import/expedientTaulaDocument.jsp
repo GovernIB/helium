@@ -181,7 +181,19 @@
 														data-rdt-link-modal="true"
 														data-rdt-link-modal-min-height="500"
 														class="linkNti">
-														<span class="label label-info etiqueta-nti-arxiu"><c:choose><c:when test="${empty expedient.arxiuUuid}"><spring:message code="expedient.info.etiqueta.nti"/></c:when><c:otherwise><spring:message code="expedient.info.etiqueta.arxiu"/></c:otherwise></c:choose></span>
+														<span class="label label-info etiqueta-nti-arxiu">
+															<c:choose>
+																<c:when test="${empty expedient.arxiuUuid}">
+																	<spring:message code="expedient.info.etiqueta.nti"/>
+																</c:when>
+																<c:otherwise>
+																	<spring:message code="expedient.info.etiqueta.arxiu"/>
+																	<c:if test="${empty document.arxiuUuid}"> 
+																		<span class="fa fa-warning text-danger" title="<spring:message code='expedient.document.arxiu.error.uuidnoexistent' />"></span>
+																	</c:if>
+																</c:otherwise>
+															</c:choose>
+														</span>
 													</a>
 												</c:if>
 												<c:if test="${document.notificat}">
