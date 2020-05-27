@@ -10,6 +10,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DominiDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EnumeracioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto.EstatTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusEstadisticaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.MapeigSistraDto;
@@ -1117,6 +1118,18 @@ public interface ExpedientTipusService {
 			Long entornId,
 			Long expedientTipusId,
 			Boolean anulats);
+	
+	public List<ExpedientTipusEstadisticaDto> findEstadisticaByFiltre(
+			Integer anyInicial, 
+			Integer anyFinal,
+			Long entornId,
+			Long expedientTipusId,
+			Boolean anulats,
+			String numero,
+			String titol,
+			EstatTipusDto estatTipus,
+			Boolean aturat
+			);
 	
 	/**
 	 * Modifica les dades de la integració amb NOTIB

@@ -13,6 +13,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
+import net.conselldemallorca.helium.core.model.hibernate.Estat;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusEstadisticaDto;
 
@@ -89,5 +90,49 @@ public interface ExpedientTipusRepository extends JpaRepository<ExpedientTipus, 
             @Param("expedientTipus") ExpedientTipus expedientTipus,
             @Param("isNullAnulat") boolean isNullAnulat,
             @Param("anulat") Boolean anulat
+            );
+    
+    @Query(    " select new net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusEstadisticaDto( "
+            + "     et.id, "
+            + "     et.codi, "
+            + "     et.nom, "
+            + "     count(*), "
+            + "     to_char(e.dataInici, 'YYYY'))"
+            + "    	from Expedient e "
+            + "        inner join e.tipus as et  "
+            + "    	where "
+            + "     	et.entorn = :entorn"
+            + "    		and (:isNullExpedientTipus = true or et = :expedientTipus)"
+            + "			and (:isNullAnulat = true or e.anulat = :anulat) "
+			+ "			and (:isNullDataIniciFinal = true or year(e.dataInici) <= :anyFinal) "
+			+ "			and (:isNullDataIniciInicial = true or year(e.dataInici) >= :anyInicial) "
+			+ "			and (:isNullNumero = true or lower(e.numero) like lower('%'||:numero||'%') ) "
+			+ "			and (:isNullTitol = true or lower(e.titol) like lower('%'||:titol||'%') ) "
+			+ "			and (:nomesIniciats = false or e.dataFi is null) "
+			+ "			and (:nomesFinalitzats = false or e.dataFi is not null) "
+            + "			and (:isNullAturat = true or true = :aturat) "
+            + " group by "
+            + "        et.id, "
+            + "        et.codi, "
+            + "        et.nom, "
+            + "        to_char(e.dataInici, 'YYYY')")
+    List<ExpedientTipusEstadisticaDto> findEstadisticaByFiltre(
+            @Param("isNullDataIniciInicial") boolean isNullDataIniciInicial,
+            @Param("anyInicial") Integer anyInicial,
+            @Param("isNullDataIniciFinal") boolean isNullDataIniciFinal,
+            @Param("anyFinal") Integer anyFinal,
+            @Param("entorn") Entorn entorn,
+            @Param("isNullExpedientTipus") boolean isNullExpedientTipus,
+            @Param("expedientTipus") ExpedientTipus expedientTipus,
+            @Param("isNullAnulat") boolean isNullAnulat,
+            @Param("anulat") Boolean anulat,
+            @Param("isNullNumero") boolean isNullNumero,
+            @Param("numero") String numero, 
+            @Param("isNullTitol") boolean isNullTitol,
+            @Param("titol") String titol, 
+            @Param("nomesIniciats") boolean nomesIniciats,
+			@Param("nomesFinalitzats") boolean nomesFinalitzats,
+            @Param("isNullAturat") boolean isNullAturat,
+            @Param("aturat") Boolean aturat
             );
 }

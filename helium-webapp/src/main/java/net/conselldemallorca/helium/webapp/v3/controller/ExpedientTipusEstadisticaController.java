@@ -33,6 +33,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import net.conselldemallorca.helium.core.util.EntornActual;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
+import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusEstadisticaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.MostrarAnulatsDto;
@@ -99,11 +100,22 @@ public class ExpedientTipusEstadisticaController extends BaseController {
 		if(filtreCommand.getMostrarAnulats().equals(MostrarAnulatsDto.NO))
 			anulats = false;
 		List<ExpedientTipusEstadisticaDto> et = expedientTipusService.findEstadisticaByFiltre(
+																							filtreCommand.getAnyInicial(), 
+																							filtreCommand.getAnyFinal(), 
+																							EntornActual.getEntornId(), 
+																							filtreCommand.getExpedientTipusId(), 
+																							anulats, 
+																							filtreCommand.getNumero(), 
+																							filtreCommand.getTitol(), 
+																							filtreCommand.getEstatTipus(), 
+																							filtreCommand.getAturat());
+				/*findEstadisticaByFiltre(
 																				filtreCommand.getAnyInicial(), 
 																				filtreCommand.getAnyFinal(), 
 																				EntornActual.getEntornId(), 
 																				filtreCommand.getExpedientTipusId(), 
-																				anulats);
+																				anulats,
+																				);*/
 		TreeSet<String> anys = new TreeSet<String>();
 		Map<String, String> titols = new HashMap<String, String>();  
 		Map<String, Map<String, Object>> ete = new TreeMap<String, Map<String, Object>>();
@@ -141,6 +153,32 @@ public class ExpedientTipusEstadisticaController extends BaseController {
 		expedientsTipus.addAll(expedientTipusService.findAmbEntorn(entornActual.getId()));
 
 		model.addAttribute("expedientsTipus", expedientsTipus);
+		
+		List<EstatDto> estats = new ArrayList<EstatDto>();
+		
+		estats.add(
+				0,
+				new EstatDto(
+						0L,
+						"INICIAT",
+						getMessage(
+								request,
+								"expedient.consulta.iniciat")));
+		estats.add(
+				new EstatDto(
+						-1L,
+						"FINALITZAT",
+						getMessage(
+								request,
+								"expedient.consulta.finalitzat")));
+		model.addAttribute(
+				"estatsList",
+				estats);
+		
+		/*for(ExpedientTipusDto etip : expedientsTipus) {
+			List<EstatDto> e = expedientTipusService.estatFindAll(etip.getId(), true);
+			estats.addAll(e);
+		}*/
 
 		return "v3/estadisticaEntorns";
 	}
@@ -157,12 +195,22 @@ public class ExpedientTipusEstadisticaController extends BaseController {
 			anulats = true;
 		if(filtreCommand.getMostrarAnulats().equals(MostrarAnulatsDto.NO))
 			anulats = false;
-		List<ExpedientTipusEstadisticaDto> et = expedientTipusService.findEstadisticaByFiltre(
+		/*List<ExpedientTipusEstadisticaDto> et = expedientTipusService.findEstadisticaByFiltre(
 																				filtreCommand.getAnyInicial(), 
 																				filtreCommand.getAnyFinal(), 
 																				EntornActual.getEntornId(), 
 																				filtreCommand.getExpedientTipusId(), 
-																				anulats);
+																				anulats);*/
+		List<ExpedientTipusEstadisticaDto> et = expedientTipusService.findEstadisticaByFiltre(
+																			filtreCommand.getAnyInicial(), 
+																			filtreCommand.getAnyFinal(), 
+																			EntornActual.getEntornId(), 
+																			filtreCommand.getExpedientTipusId(), 
+																			anulats, 
+																			filtreCommand.getNumero(), 
+																			filtreCommand.getTitol(), 
+																			filtreCommand.getEstatTipus(), 
+																			filtreCommand.getAturat());
 		TreeSet<String> anys = new TreeSet<String>();
 		Map<String, String> titols = new HashMap<String, String>();  
 		Map<String, Map<String, Object>> ete = new TreeMap<String, Map<String, Object>>();
@@ -386,6 +434,15 @@ public class ExpedientTipusEstadisticaController extends BaseController {
 		resposta.add(new ParellaCodiValorDto(getMessage(request, "enum.no"), MostrarAnulatsDto.NO));
 		resposta.add(new ParellaCodiValorDto(getMessage(request, "enum.si"), MostrarAnulatsDto.SI));
 		resposta.add(new ParellaCodiValorDto(getMessage(request, "enum.si.only"), MostrarAnulatsDto.NOMES_ANULATS));
+		return resposta;
+	}
+	
+	@ModelAttribute("aturats")
+	public List<ParellaCodiValorDto> populateAturats(HttpServletRequest request) {
+		List<ParellaCodiValorDto> resposta = new ArrayList<ParellaCodiValorDto>();
+		resposta.add(new ParellaCodiValorDto(getMessage(request, "enum.no"), false));
+		resposta.add(new ParellaCodiValorDto(getMessage(request, "enum.si"), true));
+		resposta.add(new ParellaCodiValorDto(getMessage(request, "comu.totes"), null));
 		return resposta;
 	}
 }
