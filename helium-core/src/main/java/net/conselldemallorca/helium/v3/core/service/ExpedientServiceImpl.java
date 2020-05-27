@@ -314,8 +314,10 @@ public class ExpedientServiceImpl implements ExpedientService {
 						avisosEmail, 
 						avisosMobil, 
 						notificacioTelematicaHabilitada, 
-						variables, transitionName, 
-						iniciadorTipus, iniciadorCodi, 
+						variables, 
+						transitionName, 
+						iniciadorTipus, 
+						iniciadorCodi, 
 						responsableCodi, 
 						documents, 
 						adjunts);
