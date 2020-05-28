@@ -35,7 +35,7 @@
 				data-paging-enabled="true"
 				data-info-type="search+button"
 				data-ordering="true"
-				data-default-order="2"
+				data-default-order="1"
 				data-length-menu='[[10,25,50,-1],["10","25","50","<spring:message code="comu.totes"/>"]]'
 				data-rowhref-toggle="modal"
 				data-rowhref-template="#rowhrefTemplateTasques" 
