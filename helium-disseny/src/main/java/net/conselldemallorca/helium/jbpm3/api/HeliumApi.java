@@ -275,6 +275,36 @@ public interface HeliumApi {
 	 * @throws HeliumHandlerException Si no es troba la enumeracio amb el codi indicat es produirà una excepció
 	 */
 	public List<ParellaCodiValor> consultaEnumeracio(String codiEnumeracio) throws HeliumHandlerException;
+	
+	/** Consulta el valor text per a un codi d'una enumeració
+	 * 
+	 * @param executionContext
+	 * @param codiEnumeracio
+	 * 			Codi de l'enumeració per trobar l'enumeració.
+	 * @param codi
+	 * 			Codi de la parella codi-valor de l'enumeració.
+	 * @return
+	 * 			Retorna el text del camp valor de l'enumeració o null si no s'ha trobat.
+	 */
+	public String enumeracioGetValor(
+			String codiEnumeracio, 
+			String codi) throws HeliumHandlerException;
+	
+	/** Modifica el valor text per a un codi d'una enumeració.
+	 * 
+	 * @param executionContext
+	 * @param codiEnumeracio
+	 * 			Codi de l'enumeració per trobar l'enumeració.
+	 * @param codi
+	 * 			Codi de la parella codi-valor de l'enumeració.
+	 * @param valor
+	 * 			Cadena de text pel nom de l'enumeració corresponent al codi.
+	 */
+	public void enumeracioSetValor(
+			String codiEnumeracio,
+			String codi,
+			String valor) throws HeliumHandlerException;
+
 	/**
 	 * Realitza una consulta d'expedients donat un filtre i retorna el resultat. 
 	 * Per motius de rendiment, el nombre d'expedients retornats no podrà excedir de 100

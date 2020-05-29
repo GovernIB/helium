@@ -52,6 +52,20 @@ public abstract class BasicActionHandler implements ActionHandler {
 			String codiEnumeracio) {
 		return new ArrayList<ParellaCodiValor>();
 	}
+	
+	public String enumeracioGetValor(
+			ExecutionContext executionContext,
+			String codiEnumeracio,
+			String codi) {			
+		return null;
+	}
+	
+	public void enumeracioSetValor(
+			ExecutionContext executionContext,
+			String codiEnumeracio,
+			String codi,
+			String valor) {
+	}	
 
 	public List<ExpedientInfo> consultaExpedients(
 			ExecutionContext executionContext,

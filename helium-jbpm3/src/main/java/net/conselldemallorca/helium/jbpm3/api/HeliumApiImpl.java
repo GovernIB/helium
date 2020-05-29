@@ -383,6 +383,43 @@ public class HeliumApiImpl implements HeliumApi {
 	}
 	
 	@Override
+	public String enumeracioGetValor(
+			String codiEnumeracio,
+			String codi) throws HeliumHandlerException {
+			
+		String valor = null;
+		List<ParellaCodiValor> valorsEnumeracio = this.consultaEnumeracio(codiEnumeracio);
+		for (ParellaCodiValor p : valorsEnumeracio) {
+			if (p.getCodi().equals(codi)) {
+				valor = p.getValor() != null ? p.getValor().toString() : null;
+				break;
+			}
+		}
+		return valor;
+	}
+	
+	/** Modifica el valor text per a un codi d'una enumeració.
+	 * 
+	 * @param executionContext
+	 * @param codiEnumeracio
+	 * 			Codi de l'enumeració per trobar l'enumeració.
+	 * @param codi
+	 * 			Codi de la parella codi-valor de l'enumeració.
+	 * @param valor
+	 * 			Cadena de text pel nom de l'enumeració corresponent al codi.
+	 */
+	public void enumeracioSetValor(
+			String codiEnumeracio,
+			String codi,
+			String valor) {
+		Jbpm3HeliumBridge.getInstanceService().enumeracioSetValor(
+						getProcessInstanceId(),
+						codiEnumeracio,
+						codi,
+						valor);
+	}
+	
+	@Override
 	public List<ExpedientInfo> consultaExpedients(
 			String titol,
 			String numero,
