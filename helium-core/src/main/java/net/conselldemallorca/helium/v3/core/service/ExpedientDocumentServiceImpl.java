@@ -18,7 +18,9 @@ import org.springframework.security.acls.model.Permission;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
+import es.caib.plugins.arxiu.api.ContingutArxiu;
 import es.caib.plugins.arxiu.api.DocumentMetadades;
 import es.caib.plugins.arxiu.api.Firma;
 import net.conselldemallorca.helium.core.helper.ConversioTipusHelper;
@@ -43,6 +45,7 @@ import net.conselldemallorca.helium.core.model.hibernate.Portasignatures;
 import net.conselldemallorca.helium.core.model.hibernate.Portasignatures.TipusEstat;
 import net.conselldemallorca.helium.core.model.hibernate.Portasignatures.Transicio;
 import net.conselldemallorca.helium.core.security.ExtendedPermission;
+import net.conselldemallorca.helium.core.util.PdfUtils;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmTask;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDetallDto;
@@ -66,6 +69,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.PortasignaturesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RespostaValidacioSignaturaDto;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
+import net.conselldemallorca.helium.v3.core.api.exception.ValidacioException;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientDocumentService;
 import net.conselldemallorca.helium.v3.core.repository.DocumentNotificacioRepository;
 import net.conselldemallorca.helium.v3.core.repository.DocumentRepository;
@@ -963,6 +967,8 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 		}
 		ArxiuDetallDto arxiuDetall = null;
 		if (expedient.isArxiuActiu()) {
+			if (StringUtils.isEmpty(documentStore.getArxiuUuid()))
+				throw new ValidacioException("El document no té UUID d'Arxiu per consultar el detall");
 			arxiuDetall = new ArxiuDetallDto();
 			es.caib.plugins.arxiu.api.Document arxiuDocument = pluginHelper.arxiuDocumentInfo(
 					documentStore.getArxiuUuid(),
@@ -1244,6 +1250,90 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 			logger.error(errorDescripcio, ex);
 			throw new RuntimeException(ex);
 		}
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@Transactional
+	public void migrarArxiu(Long expedientId, Long documentStoreId) {
+		logger.debug("Migrar el document (documentStoreId=" + documentStoreId + ") a l'arxiu");
+
+		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
+				expedientId,
+				new Permission[] {
+						ExtendedPermission.WRITE,
+						ExtendedPermission.ADMINISTRATION});
+		DocumentStore documentStore = documentStoreRepository.findOne(documentStoreId);
+		try {
+			// Fa validacions prèvies
+			if (!expedient.isArxiuActiu())
+				throw new ValidacioException("Aquest docment no es pot migrar perquè l'expedient no té activada la intagració amb l'arxiu");
+			
+			if (expedient.getArxiuUuid() == null || expedient.getArxiuUuid().isEmpty())
+				throw new ValidacioException("Aquest no està integrat a l'arxiu");
+			
+			// Valida que els documents siguin convertibles
+			if(!PdfUtils.isArxiuConvertiblePdf(documentStore.getArxiuNom()))
+				throw new ValidacioException("No es pot migrar el document perquè no és convertible a PDF");
+
+				
+			Document document = documentHelper.findDocumentPerInstanciaProcesICodi(
+					expedient.getProcessInstanceId(),
+					documentStore.getCodiDocument());
+			String documentDescripcio;
+			if (documentStore.isAdjunt()) {
+				documentDescripcio = documentStore.getAdjuntTitol();
+			} else {
+				documentDescripcio = document.getNom();
+			}
+			ArxiuDto arxiu = documentHelper.getArxiuPerDocumentStoreId(
+					documentStore.getId(),
+					false,
+					false);
+				
+			if (arxiu.getTipusMime() == null)
+				arxiu.setTipusMime(documentHelper.getContentType(arxiu.getNom()));
+				
+				
+			ContingutArxiu contingutArxiu = pluginHelper.arxiuDocumentCrearActualitzar(
+					expedient,
+					documentDescripcio,
+					documentStore,
+					arxiu);
+			documentStore.setArxiuUuid(contingutArxiu.getIdentificador());
+			es.caib.plugins.arxiu.api.Document documentArxiu = pluginHelper.arxiuDocumentInfo(
+					contingutArxiu.getIdentificador(),
+					null,
+					false,
+					true);
+			documentStore.setNtiIdentificador(
+					documentArxiu.getMetadades().getIdentificador());
+				
+			if (documentStore.isSignat()) {
+				
+				pluginHelper.arxiuDocumentGuardarPdfFirmat(
+						expedient,
+						documentStore,
+						documentDescripcio,
+						arxiu);
+				documentArxiu = pluginHelper.arxiuDocumentInfo(
+						documentStore.getArxiuUuid(),
+						null,
+						false,
+						true);
+				documentHelper.actualitzarNtiFirma(documentStore, documentArxiu);
+			}
+			documentStore.setArxiuContingut(null);
+		} catch (Exception ex) {
+			String errorDescripcio = "Error migrant el document " + documentStore.getArxiuNom() + " de l'expedeient " + expedient.getTitol() + " a l'arxiu: " + ex.getMessage();
+			logger.error(errorDescripcio, ex);
+			throw new RuntimeException(
+					errorDescripcio,
+					ex);
+		}
+		
 	}
 
 	private static final Logger logger = LoggerFactory.getLogger(ExpedientDocumentServiceImpl.class);

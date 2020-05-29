@@ -1335,6 +1335,7 @@ public class ExpedientHelper {
 			String responsableCodi,
 			Map<String, DadesDocumentDto> documents,
 			List<DadesDocumentDto> adjunts) {
+		
 		Expedient expedient = new Expedient();
 		Entorn entorn = entornHelper.getEntorn(entornId);
 		if (usuari != null)
@@ -1462,8 +1463,9 @@ public class ExpedientHelper {
 				expedient.setTitol("[Sense títol]");
 		}
 		mesuresTemporalsHelper.mesuraCalcular("Iniciar", "expedient", expedientTipus.getNom(), null, "Actualitzar any i sequencia");
-		mesuresTemporalsHelper.mesuraIniciar("Iniciar", "expedient", expedientTipus.getNom(), null, "Iniciar instancia de proces");
+		
 		// Inicia l'instància de procés jBPM
+		mesuresTemporalsHelper.mesuraIniciar("Iniciar", "expedient", expedientTipus.getNom(), null, "Iniciar instancia de proces");
 		ThreadLocalInfo.setExpedient(expedient);
 		DefinicioProces definicioProces = null;
 		if (definicioProcesId != null) {
@@ -1479,51 +1481,14 @@ public class ExpedientHelper {
 				definicioProces.getJbpmId(),
 				variables);
 		expedient.setProcessInstanceId(processInstance.getId());
+		
 		mesuresTemporalsHelper.mesuraCalcular("Iniciar", "expedient", expedientTipus.getNom(), null, "Iniciar instancia de proces");
-		mesuresTemporalsHelper.mesuraIniciar("Iniciar", "expedient", expedientTipus.getNom(), null, "Desar el nou expedient");
+		
 		// Emmagatzema el nou expedient
+		mesuresTemporalsHelper.mesuraIniciar("Iniciar", "expedient", expedientTipus.getNom(), null, "Desar el nou expedient");
 		Expedient expedientPerRetornar = expedientRepository.saveAndFlush(expedient);
 		mesuresTemporalsHelper.mesuraCalcular("Iniciar", "expedient", expedientTipus.getNom(), null, "Desar el nou expedient");
-		mesuresTemporalsHelper.mesuraIniciar("Iniciar", "expedient", expedientTipus.getNom(), null, "Afegir documents");
-		// Afegim els documents
-		if (documents != null){
-			for (Map.Entry<String, DadesDocumentDto> doc: documents.entrySet()) {
-				if (doc.getValue() != null) {
-					documentHelper.crearDocument(
-							null,
-							expedient.getProcessInstanceId(),
-							doc.getValue().getCodi(),
-							doc.getValue().getData(),
-							false,
-							null,
-							doc.getValue().getArxiuNom(),
-							doc.getValue().getArxiuContingut(),
-							null,
-							null,
-							null,
-							null);
-				}
-			}
-		}
-		// Afegim els adjunts
-		if (adjunts != null) {
-			for (DadesDocumentDto adjunt: adjunts) {
-				documentHelper.crearDocument(
-						null,
-						expedient.getProcessInstanceId(),
-						null,
-						adjunt.getData(),
-						true,
-						adjunt.getTitol(),
-						adjunt.getArxiuNom(),
-						adjunt.getArxiuContingut(),
-						null,
-						null,
-						null,
-						null);
-			}
-		}
-		mesuresTemporalsHelper.mesuraCalcular("Iniciar", "expedient", expedientTipus.getNom(), null, "Afegir documents");
+
 		// Verificar la ultima vegada que l'expedient va modificar el seu estat
 		mesuresTemporalsHelper.mesuraIniciar("Iniciar", "expedient", expedientTipus.getNom(), null, "Afegir log");
 		ExpedientLog log = expedientLoggerHelper.afegirLogExpedientPerProces(
@@ -1532,15 +1497,7 @@ public class ExpedientHelper {
 				null);
 		log.setEstat(ExpedientLogEstat.IGNORAR);
 		mesuresTemporalsHelper.mesuraCalcular("Iniciar", "expedient", expedientTipus.getNom(), null, "Afegir log");
-		mesuresTemporalsHelper.mesuraIniciar("Iniciar", "expedient", expedientTipus.getNom(), null, "Iniciar flux");
-		// Actualitza les variables del procés
-		jbpmHelper.signalProcessInstance(expedient.getProcessInstanceId(), transitionName);
-		mesuresTemporalsHelper.mesuraCalcular("Iniciar", "expedient", expedientTipus.getNom(), null, "Iniciar flux");
-		mesuresTemporalsHelper.mesuraIniciar("Iniciar", "expedient", expedientTipus.getNom(), null, "Indexar expedient");
-		// Indexam l'expedient
-		logger.debug("Indexant nou expedient (id=" + expedient.getProcessInstanceId() + ")");
-		indexHelper.expedientIndexLuceneCreate(expedient.getProcessInstanceId());
-		mesuresTemporalsHelper.mesuraCalcular("Iniciar", "expedient", expedientTipus.getNom(), null, "Indexar expedient");
+
 		mesuresTemporalsHelper.mesuraIniciar("Iniciar", "expedient", expedientTipus.getNom(), null, "Crear registre i convertir expedient");
 		// Registra l'inici de l'expedient
 		crearRegistreExpedient(
@@ -1548,14 +1505,18 @@ public class ExpedientHelper {
 				usuariBo,
 				Registre.Accio.INICIAR);
 		mesuresTemporalsHelper.mesuraCalcular("Iniciar", "expedient", expedientTipus.getNom(), null, "Crear registre i convertir expedient");
+					
+		// Crear expedient a l'Arxiu
 		mesuresTemporalsHelper.mesuraIniciar("Iniciar", "expedient", expedientTipus.getNom(), null, "Metadades NTI i creació a dins l'arxiu");
 		if (expedientTipus.isNtiActiu()) {
 			expedientPerRetornar.setNtiIdentificador(
 					generarNtiIdentificador(expedientPerRetornar));
 		}
+		String arxiuUuid = null;
 		if (expedientTipus.isArxiuActiu()) {
 			// Crea l'expedient a l'arxiu i actualitza l'identificador.
 			ContingutArxiu expedientCreat = pluginHelper.arxiuExpedientCrear(expedientPerRetornar);
+			arxiuUuid = expedientCreat.getIdentificador();
 			expedientPerRetornar.setArxiuUuid(
 					expedientCreat.getIdentificador());
 			// Consulta l'identificador NTI generat per l'arxiu i el modifica
@@ -1567,6 +1528,72 @@ public class ExpedientHelper {
 			expedientPerRetornar.setArxiuActiu(true);
 		}
 		mesuresTemporalsHelper.mesuraCalcular("Iniciar", "expedient", expedientTipus.getNom(), null, "Metadades NTI i creació a dins l'arxiu");
+		
+		
+		try {
+			// Afegim els documents
+			mesuresTemporalsHelper.mesuraIniciar("Iniciar", "expedient", expedientTipus.getNom(), null, "Afegir documents");
+			if (documents != null){
+				for (Map.Entry<String, DadesDocumentDto> doc: documents.entrySet()) {
+					if (doc.getValue() != null) {
+						documentHelper.crearDocument(
+								null,
+								expedient.getProcessInstanceId(),
+								doc.getValue().getCodi(),
+								doc.getValue().getData(),
+								false,
+								null,
+								doc.getValue().getArxiuNom(),
+								doc.getValue().getArxiuContingut(),
+								null,
+								null,
+								null,
+								null);
+					}
+				}
+			}
+			// Afegim els adjunts
+			if (adjunts != null) {
+				for (DadesDocumentDto adjunt: adjunts) {
+					documentHelper.crearDocument(
+							null,
+							expedient.getProcessInstanceId(),
+							null,
+							adjunt.getData(),
+							true,
+							adjunt.getTitol(),
+							adjunt.getArxiuNom(),
+							adjunt.getArxiuContingut(),
+							null,
+							null,
+							null,
+							null);
+				}
+			}
+			mesuresTemporalsHelper.mesuraCalcular("Iniciar", "expedient", expedientTipus.getNom(), null, "Afegir documents");
+			
+			mesuresTemporalsHelper.mesuraIniciar("Iniciar", "expedient", expedientTipus.getNom(), null, "Iniciar flux");
+			// Actualitza les variables del procés
+			jbpmHelper.signalProcessInstance(expedient.getProcessInstanceId(), transitionName);
+			mesuresTemporalsHelper.mesuraCalcular("Iniciar", "expedient", expedientTipus.getNom(), null, "Iniciar flux");
+			mesuresTemporalsHelper.mesuraIniciar("Iniciar", "expedient", expedientTipus.getNom(), null, "Indexar expedient");
+			// Indexam l'expedient
+			logger.debug("Indexant nou expedient (id=" + expedient.getProcessInstanceId() + ")");
+			indexHelper.expedientIndexLuceneCreate(expedient.getProcessInstanceId());
+			mesuresTemporalsHelper.mesuraCalcular("Iniciar", "expedient", expedientTipus.getNom(), null, "Indexar expedient");
+
+			
+		} catch(Exception e) {
+			// Rollback de la creació de l'expedient a l'arxiu
+			if (arxiuUuid != null)
+				try {
+					logger.info("Rollback de la creació de l'expedient a l'Arxiu " + expedientPerRetornar.getIdentificador() + " amb uuid " + arxiuUuid);
+				} catch(Exception re) {
+					logger.error("Error esborrant l'expedient " + expedientPerRetornar.getIdentificador() + " amb uuid " + arxiuUuid + " :" + re.getMessage());
+				}
+			throw new RuntimeException("Error iniciant l'expedient " + expedientTipus.getNom(), e);
+		}
+		
 		mesuresTemporalsHelper.mesuraCalcular("Iniciar", "expedient", expedientTipus.getNom());
 		return expedientPerRetornar;
 	}

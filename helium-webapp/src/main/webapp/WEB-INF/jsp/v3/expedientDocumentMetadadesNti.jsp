@@ -16,6 +16,26 @@
 	<hel:modalHead/>
 </head>
 <body>
+	<!-- Formulari per incoporar el document a l'Arxiu si es detecta error de no Uuid -->
+	<c:if test="${errorArxiuNoUuid}">
+		<div class="row alert alert-danger" style="margin: 0px; margin-bottom: 10px;">
+			<div class="col-sm-10">
+				<p><spring:message code="expedient.document.arxiu.error.uuidnoexistent.info"/></p>
+			</div>
+			<div class="col-sm-2">
+				<form action="incoporarArxiu" method="post">
+					<button id="incorporarArxiuButton" 
+						type="submit" 
+						class="btn btn-default"
+						title="<spring:message code='expedient.document.arxiu.migrar.arxiu'></spring:message>">
+						<span class="fa fa-upload"></span>
+						<spring:message code="comu.boto.migrar"></spring:message>
+					</button>
+				<form>
+			</div>
+		</div>
+	</c:if>
+
 	<c:if test="${not empty arxiuDetall}">
 		<ul class="nav nav-tabs" role="tablist">
 			<li role="presentation" class="active"><a href="#nti" aria-controls="nti" role="tab" data-toggle="tab"><spring:message code="expedient.metadades.nti.tab.nti"/></a></li>
@@ -311,6 +331,8 @@
 			</c:if>
 		</div>
 	</c:if>
+		
+	
 	<div id="modal-botons" class="well">
 		<button type="button" class="btn btn-default modal-tancar" name="submit" value="cancel"><spring:message code="comu.boto.tancar"/></button>
 	</div>
