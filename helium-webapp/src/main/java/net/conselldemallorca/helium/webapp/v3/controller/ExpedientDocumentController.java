@@ -60,7 +60,6 @@ import net.conselldemallorca.helium.v3.core.api.dto.ServeiTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.exception.SistemaExternException;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientDocumentService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientInteressatService;
-import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
 import net.conselldemallorca.helium.webapp.mvc.ArxiuView;
 import net.conselldemallorca.helium.webapp.v3.command.DocumentExpedientCommand;
 import net.conselldemallorca.helium.webapp.v3.command.DocumentExpedientCommand.Create;
