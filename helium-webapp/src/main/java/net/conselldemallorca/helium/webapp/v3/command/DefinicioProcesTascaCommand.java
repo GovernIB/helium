@@ -138,6 +138,8 @@ public class DefinicioProcesTascaCommand {
 		DefinicioProcesTascaCommand command = new DefinicioProcesTascaCommand();
 		
 		command.setId(dto.getId());
+		command.setDefinicioProcesId(dto.getDefinicioProcesId());
+		command.setJbpmName(dto.getJbpmName());
 		command.setNom(dto.getNom());
 		command.setMissatgeInfo(dto.getMissatgeInfo());
 		command.setMissatgeWarn(dto.getMissatgeWarn());
