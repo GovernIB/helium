@@ -6,6 +6,8 @@ import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashSet;
@@ -94,6 +96,32 @@ public class ExpedientDocumentController extends BaseExpedientController {
 	@Resource(name="documentHelperV3")
 	private DocumentHelperV3 documentHelper;
 
+	/** comparador per ordenar documents per codi de document primer i per títol de l'adjunt si són adjunts després.
+	 *
+	 */
+	protected class  ExpedientDocumentDtoComparador implements Comparator<ExpedientDocumentDto>{
+
+		/** Compara primer per codi de document i si són annexs i no en tenen llavors per títol de l'annex. */
+		@Override
+		public int compare(ExpedientDocumentDto doc1, ExpedientDocumentDto doc2) {
+			int ret;
+			// Compara per codi de document primer
+			if (doc1.getDocumentCodi() != null && doc2.getDocumentCodi() != null)
+				ret = doc1.getDocumentCodi().compareTo(doc2.getDocumentCodi());
+			else if (doc1.getDocumentCodi() != null)
+				ret = -1;
+			else if (doc2.getDocumentCodi() != null)
+				ret = 1;
+			else 
+				// els annexos van darrera ordenats per adjuntTitol contemplant que pugui ser null
+				ret = (doc1.getAdjuntTitol() == null ? 
+						(doc2.getAdjuntTitol() == null ? 0 : 1) 
+						: (doc2.getAdjuntTitol() == null ? 
+								-1 
+								: doc1.getAdjuntTitol().compareTo(doc2.getAdjuntTitol())));
+			return ret;
+		}
+	}
 
 	@RequestMapping(value = "/{expedientId}/document", method = RequestMethod.GET)
 	public String document(
@@ -114,7 +142,10 @@ public class ExpedientDocumentController extends BaseExpedientController {
 				documentsInstancia = expedientDocumentService.findAmbInstanciaProces(
 						expedientId,
 						instanciaProces.getId());
+				// Ordena els documents per codi de document i si són annexos i no en tenen llavors van darrera ordenats per nom
+				Collections.sort(documentsInstancia, new ExpedientDocumentDtoComparador());	
 			}
+			
 			documents.put(instanciaProces, documentsInstancia);
 		}
 		model.addAttribute("expedient", expedient);
@@ -143,6 +174,8 @@ public class ExpedientDocumentController extends BaseExpedientController {
 		List<ExpedientDocumentDto> documentsProces = expedientDocumentService.findAmbInstanciaProces(
 				expedientId,
 				processInstanceId);
+		// Ordena els documents per codi de document i si són annexos i no en tenen llavors van darrera ordenats per nom
+		Collections.sort(documentsProces, new ExpedientDocumentDtoComparador());
 		Map<InstanciaProcesDto, List<ExpedientDocumentDto>> documents = new LinkedHashMap<InstanciaProcesDto, List<ExpedientDocumentDto>>();
 		List<PortasignaturesDto> portasignaturesPendent = expedientDocumentService.portasignaturesFindPendents(
 				expedientId,
