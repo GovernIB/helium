@@ -96,7 +96,7 @@
 		
 		<c:set var="comptadorCols">${comptadorCols + ampleBuit}</c:set>
 		
-		<c:if test="${comptadorCols > 12}">
+		<c:if test="${comptadorCols > 13}">
 			<c:set var="comptadorCols">${comptadorCols - 12}</c:set>
 			
 			<!--tanquem row i la tornem a obrir per a la següent fila-->
@@ -110,7 +110,7 @@
 			<div class="col-xs-${buitAbsCols}"></div>
 		</c:if>
 		
-		<div class="col-xs-${ampleCols}">
+		<div class="col-xs-${ampleCols}" title="ampleCols-${ampleCols} buitCols-${buitCols}" >
 			<c:set var="inline" value="${false}"/>
 			<c:set var="isRegistre" value="${false}"/>
 			<c:set var="isMultiple" value="${false}"/>
