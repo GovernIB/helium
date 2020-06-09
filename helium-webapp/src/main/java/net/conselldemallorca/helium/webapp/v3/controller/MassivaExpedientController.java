@@ -489,7 +489,8 @@ public class MassivaExpedientController extends BaseExpedientController {
 				Object[] params = new Object[12];
 				params[0] = ((DocumentExpedientCommand)command).getDocId();
 				params[1] = ((DocumentExpedientCommand)command).getData();
-				params[2] = ((DocumentExpedientCommand)command).getNom();
+				String titol = ((DocumentExpedientCommand)command).getNom();
+				params[2] = (titol != null)? titol : ((DocumentExpedientCommand)command).getCodi();
 				if (((DocumentExpedientCommand)command).getArxiu().getBytes().length > 0) {
 					dto.setParam1(multipartName);
 					params[3] = ((DocumentExpedientCommand) command).getArxiu().getBytes();
