@@ -122,7 +122,7 @@
 							<input type="checkbox" class="checkbox checkboxmul" data-required="${dada.required}" <c:if test="${command[campNom][campIndex]}">checked</c:if>/>
 						</div>
 					</c:when>
-					<c:otherwise><form:checkbox path="${campCodi}" id="${campCodi}" data-required="${dada.required}" cssClass="checkbox"/></c:otherwise>
+					<c:otherwise><form:checkbox path="${campCodi}" id="${campCodi}" data-required="${dada.required}" style="max-width: 27px;" cssClass="checkbox"/></c:otherwise>
 				</c:choose>
 			</c:if>
 			
