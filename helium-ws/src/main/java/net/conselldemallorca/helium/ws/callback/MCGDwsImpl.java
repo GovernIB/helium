@@ -9,8 +9,8 @@ package net.conselldemallorca.helium.ws.callback;
 
 import java.io.StringWriter;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import es.indra.www.portafirmasmcgdws.mcgdws.AttributesState;
 import es.indra.www.portafirmasmcgdws.mcgdws.CallbackRequest;
@@ -91,6 +91,6 @@ public class MCGDwsImpl implements es.indra.www.portafirmasmcgdws.mcgdws.MCGDws 
 		return callbackResponse;
 	}
 
-	private static final Log logger = LogFactory.getLog(MCGDwsImpl.class);
+	private static final Logger logger = LoggerFactory.getLogger(MCGDwsImpl.class);
 
 }
