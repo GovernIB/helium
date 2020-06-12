@@ -63,6 +63,9 @@ public class ExpedientTipusExportacio implements Serializable {
 	
 	// Integració amb NOTIB
 	private Boolean notibActiu;
+	private String notibEmisor;
+	private String notibCodiProcediment;
+
 	
 	private List<EstatExportacio> estats = new ArrayList<EstatExportacio>();
 	private List<CampExportacio> camps = new ArrayList<CampExportacio>();
@@ -290,7 +293,19 @@ public class ExpedientTipusExportacio implements Serializable {
 	public void setNotibActiu(Boolean notibActiu) {
 		this.notibActiu = notibActiu;
 	}
-
+	public String getNotibCodiEmissor() {
+		return notibEmisor;
+	}
+	public void setNotibEmisor(String notibEmisor) {
+		this.notibEmisor = notibEmisor;
+	}
+	public String getNotibCodiProcediment() {
+		return notibCodiProcediment;
+	}
+	public void setNotibCodiProcediment(String notibCodiProcediment) {
+		this.notibCodiProcediment = notibCodiProcediment;
+	}
+	
 	public void setArxiuActiu(boolean arxiuActiu) {
 		this.arxiuActiu = arxiuActiu;
 	}

@@ -320,6 +320,8 @@ public class ConversioTipusHelper {
 						
 						target.setSistraTramitCodi(source.getSistraTramitCodi());
 						target.setNotibActiu(source.getNotibActiu());
+						target.setNotibEmisor(source.getNotibEmisor());
+						target.setNotibCodiProcediment(source.getNotibCodiProcediment());
 						
 						return target;
 					}
@@ -390,6 +392,9 @@ public class ConversioTipusHelper {
 						
 						target.setSistraTramitCodi(source.getSistraTramitCodi());
 						target.setNotibActiu(source.getNotibActiu());
+						target.setNotibEmisor(source.getNotibEmisor());
+						target.setNotibCodiProcediment(source.getNotibCodiProcediment());
+
 						return target;
 					}
 				});

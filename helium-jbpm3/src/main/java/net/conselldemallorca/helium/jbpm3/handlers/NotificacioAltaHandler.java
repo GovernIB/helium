@@ -208,9 +208,8 @@ public class NotificacioAltaHandler extends BasicActionHandler implements Notifi
 		ExpedientTipusDto expedientTipus = expedient.getTipus();
 				
 		String expedientTitol = expedient.getTitol();
-		String notibEmisor = expedientTipus.getNtiOrgano();
-		String notibSerieDocumental = expedientTipus.getNtiSerieDocumental();
-		String notibProcedimentCodi = expedientTipus.getNtiClasificacion();
+		String notibEmisor = expedientTipus.getNotibEmisor();
+		String notibProcedimentCodi = expedientTipus.getNotibCodiProcediment();
 		
 		DadesNotificacio dadesNotificacio = new DadesNotificacio();
 		

@@ -336,8 +336,8 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 				true, // Per notificar
 				false);		
 		ExpedientTipus expedientTipus = expedient.getTipus();
-		dadesNotificacioDto.setEmisorDir3Codi(expedientTipus.getNtiOrgano());
-		dadesNotificacioDto.setProcedimentCodi(expedientTipus.getNtiClasificacion());
+		dadesNotificacioDto.setEmisorDir3Codi(expedientTipus.getNotibEmisor());
+		dadesNotificacioDto.setProcedimentCodi(expedientTipus.getNotibCodiProcediment());
 		dadesNotificacioDto.setExpedientId(expedientId);
 		dadesNotificacioDto.setEnviamentTipus(dadesNotificacioDto.getEnviamentTipus());
 		
