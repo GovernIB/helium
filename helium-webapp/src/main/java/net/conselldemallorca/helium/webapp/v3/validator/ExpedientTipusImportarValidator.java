@@ -339,11 +339,15 @@ public class ExpedientTipusImportarValidator implements ConstraintValidator<Expe
 			}
 
 			// Integració amb tràmits de Sistra
-			if (command.isIntegracioSistra()) {
-				// Comprova que totes les variables mapejades s'exportin
+			if (isAmbInfoPropia && command.isIntegracioSistra()) {
+				
+				// Comprova que totes les variables o documents mapejats s'exportin
 				for (MapeigSistraExportacio mapeig : exportacio.getSistraMapejos())
-					if (mapeig.getTipus() != TipusMapeig.Adjunt ) {
-						if (isAmbInfoPropia && !command.getVariables().contains(mapeig.getCodiHelium())) {
+				{
+					// Variables
+					if (TipusMapeig.Variable.equals(mapeig.getTipus())) {
+						if (!command.getVariables().contains(mapeig.getCodiHelium()))
+						{
 							context.buildConstraintViolationWithTemplate(
 									MessageHelper.getInstance().getMessage(
 											this.codiMissatge + ".mapeigSistra.variable", 
@@ -352,7 +356,22 @@ public class ExpedientTipusImportarValidator implements ConstraintValidator<Expe
 							.addConstraintViolation();
 							valid = false;
 						}
+						
+					// Documents
+					}else if (TipusMapeig.Document.equals(mapeig.getTipus())) {
+						if (!command.getDocuments().contains(mapeig.getCodiHelium()))
+						{
+							context.buildConstraintViolationWithTemplate(
+									MessageHelper.getInstance().getMessage(
+											this.codiMissatge + ".mapeigSistra.document", 
+											new Object[] {mapeig.getCodiHelium(), mapeig.getCodiSistra()}))
+							.addNode("integracioSistra")
+							.addConstraintViolation();
+							valid = false;
+						}
 					}
+				}
+					
 			}
 			
 			// Documents
