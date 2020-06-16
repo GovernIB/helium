@@ -1315,6 +1315,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 	}
 
 	/**
+	 * Processament d'un script en un expedient.
 	 * {@inheritDoc}
 	 */
 	@Override
@@ -1322,21 +1323,29 @@ public class ExpedientServiceImpl implements ExpedientService {
 	public void procesScriptExec(
 			Long expedientId,
 			String processInstanceId,
-			String script) {
+			String script) throws PermisDenegatException, NoTrobatException{
 		logger.debug("Executa script sobre l'expedient (" +
 				"expedientId=" + expedientId + ", " +
 				"processInstanceId=" + processInstanceId + ", " +
 				"script=" + script + ")");
+		
+		// Obtenim expedient comprovant que esté permisos per executar scripts i administrar
 		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
 				expedientId,
 				new Permission[] {
 						ExtendedPermission.SCRIPT_EXE,
 						ExtendedPermission.ADMINISTRATION});
+
 		expedientHelper.comprovarInstanciaProces(expedient, processInstanceId);
+		
 		if (MesuresTemporalsHelper.isActiu()) {
 			mesuresTemporalsHelper.mesuraIniciar("Executar SCRIPT", "expedient", expedient.getTipus().getNom());
 		}
+		
+		// executa l'script
 		jbpmHelper.evaluateScript(processInstanceId, script, new HashSet<String>());
+		
+		
 		expedientHelper.verificarFinalitzacioExpedient(expedient);
 		indexHelper.expedientIndexLuceneUpdate(processInstanceId);
 		expedientLoggerHelper.afegirLogExpedientPerProces(

@@ -1101,11 +1101,20 @@ public class ExpedientHelper {
 				true);
 	}
 
+	/**
+	 * 
+	 * @param expedient
+	 */
 	public void verificarFinalitzacioExpedient(
 			Expedient expedient) {
+		// actualitza l'expedient si el seu procés està finalitzat
 		verificarFinalitzacioProcessInstance(expedient.getProcessInstanceId());
+		
+		// Obté la llista de totes les instancies de processos finalitzats excepte l'actual
 		List<String> processInstanceFinalitzatIds = ThreadLocalInfo.getProcessInstanceFinalitzatIds();
 		processInstanceFinalitzatIds.remove(expedient.getProcessInstanceId());
+
+		// actualitza tots els expedients processos finalitzats
 		for (String processInstanceId: processInstanceFinalitzatIds) {
 			verificarFinalitzacioProcessInstance(processInstanceId);
 		}
@@ -1276,9 +1285,16 @@ public class ExpedientHelper {
 		return GlobalProperties.getInstance().getProperty("app.numexp.expression");
 	}
 
+	/**
+	 * No verifica res, actualitza l'expedient si el procés està finalitzat
+	 * 
+	 * @param processInstanceId Identificador de la instancia del procés de l'expedient
+	 */
 	private void verificarFinalitzacioProcessInstance(
 			String processInstanceId) {
 		JbpmProcessInstance processInstance = jbpmHelper.getRootProcessInstance(processInstanceId);
+		
+		// Si el procés està finalitzat
 		if (processInstance.getEnd() != null) {
 			// Actualitzar data de fi de l'expedient
 			Expedient expedient = expedientRepository.findByProcessInstanceId(processInstanceId);
