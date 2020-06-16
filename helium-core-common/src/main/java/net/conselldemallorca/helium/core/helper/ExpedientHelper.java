@@ -30,6 +30,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import es.caib.plugins.arxiu.api.ContingutArxiu;
+import es.caib.plugins.arxiu.api.ExpedientEstat;
+import es.caib.plugins.arxiu.api.ExpedientMetadades;
 import net.conselldemallorca.helium.core.common.ThreadLocalInfo;
 import net.conselldemallorca.helium.core.helper.PermisosHelper.ObjectIdentifierExtractor;
 import net.conselldemallorca.helium.core.helperv26.LuceneHelper;
@@ -710,9 +712,13 @@ public class ExpedientHelper {
 			expedient.setArxiuUuid(null);
 		}else {
 			//firmem els documents que no estan firmats
-			expedientHelper.firmarDocumentsPerArxiuFiExpedient(expedient);				
+			expedientHelper.firmarDocumentsPerArxiuFiExpedient(expedient);	
+			
 			// Tanca l'expedient a l'arxiu.
-			pluginHelper.arxiuExpedientTancar(expedient.getArxiuUuid());
+			ExpedientMetadades metadades = pluginHelper.arxiuExpedientInfo(expedient.getArxiuUuid()).getMetadades();
+			if(metadades.getEstat() != ExpedientEstat.TANCAT) {
+				pluginHelper.arxiuExpedientTancar(expedient.getArxiuUuid());
+			}
 		}
 	}
 

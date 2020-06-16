@@ -2194,11 +2194,6 @@ public class PluginHelper {
 		}
 	}
 	
-	/**
-	 * Si l'expedient no està tancat a l'arxiu el tanca
-	 * 
-	 * @param arxiuUuid
-	 */
 	public void arxiuExpedientTancar(
 			String arxiuUuid) {
 		String accioDescripcio = "Tancar l'expedient";
@@ -2209,16 +2204,13 @@ public class PluginHelper {
 		};
 		long t0 = System.currentTimeMillis();
 		try {
-			ExpedientMetadades metadades = getArxiuPlugin().expedientDetalls(arxiuUuid, null).getMetadades();
-			if(metadades.getEstat() != ExpedientEstat.TANCAT) {
-				getArxiuPlugin().expedientTancar(arxiuUuid);
-				monitorIntegracioHelper.addAccioOk(
-						MonitorIntegracioHelper.INTCODI_ARXIU,
-						accioDescripcio,
-						IntegracioAccioTipusEnumDto.ENVIAMENT,
-						System.currentTimeMillis() - t0,
-						parametres);
-			}
+			getArxiuPlugin().expedientTancar(arxiuUuid);
+			monitorIntegracioHelper.addAccioOk(
+					MonitorIntegracioHelper.INTCODI_ARXIU,
+					accioDescripcio,
+					IntegracioAccioTipusEnumDto.ENVIAMENT,
+					System.currentTimeMillis() - t0,
+					parametres);
 		} catch (Exception ex) {
 			String errorDescripcio = "No s'ha pogut tancar l'expedient a l'arxiu: " + ex.getMessage();
 			monitorIntegracioHelper.addAccioError(
