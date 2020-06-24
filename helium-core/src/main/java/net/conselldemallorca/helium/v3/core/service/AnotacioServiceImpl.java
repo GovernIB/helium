@@ -24,11 +24,11 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import edu.emory.mathcs.backport.java.util.Arrays;
-import es.caib.distribucio.backoffice.utils.ArxiuPluginListener;
-import es.caib.distribucio.backoffice.utils.ArxiuResultat;
-import es.caib.distribucio.backoffice.utils.ArxiuResultatAnnex;
-import es.caib.distribucio.backoffice.utils.BackofficeUtils;
-import es.caib.distribucio.backoffice.utils.BackofficeUtilsImpl;
+import es.caib.distribucio.backoffice.utils.arxiu.ArxiuPluginListener;
+import es.caib.distribucio.backoffice.utils.arxiu.ArxiuResultat;
+import es.caib.distribucio.backoffice.utils.arxiu.ArxiuResultatAnnex;
+import es.caib.distribucio.backoffice.utils.arxiu.BackofficeArxiuUtils;
+import es.caib.distribucio.backoffice.utils.arxiu.BackofficeArxiuUtilsImpl;
 import es.caib.distribucio.core.api.exception.SistemaExternException;
 import es.caib.distribucio.ws.backofficeintegracio.AnotacioRegistreEntrada;
 import es.caib.distribucio.ws.backofficeintegracio.AnotacioRegistreId;
@@ -49,7 +49,6 @@ import net.conselldemallorca.helium.core.helper.UsuariActualHelper;
 import net.conselldemallorca.helium.core.model.hibernate.Anotacio;
 import net.conselldemallorca.helium.core.model.hibernate.AnotacioAnnex;
 import net.conselldemallorca.helium.core.model.hibernate.AnotacioInteressat;
-import net.conselldemallorca.helium.core.model.hibernate.DocumentStore;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.hibernate.Interessat;
@@ -339,7 +338,7 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 		if (expedient.isArxiuActiu()) {
 			// Utilitza la llibreria d'utilitats de Distribució per incorporar la informació de l'anotació directament a l'expedient dins l'Arxiu
 			es.caib.plugins.arxiu.api.Expedient expedientArxiu = pluginHelper.arxiuExpedientInfo(expedient.getArxiuUuid());
-			BackofficeUtils backofficeUtils = new BackofficeUtilsImpl(pluginHelper.getArxiuPlugin());
+			BackofficeArxiuUtils backofficeUtils = new BackofficeArxiuUtilsImpl(pluginHelper.getArxiuPlugin());
 			// Posarà els annexos en la carpeta de l'anotació
 			backofficeUtils.setCarpeta(anotacio.getIdentificador());
 			// S'enregistraran els events al monitor d'integració
@@ -359,8 +358,6 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 		}
 		
 		// Associa tots els annexos de l'anotació com annexos de l'expedient
-		AnotacioAnnexEstatEnumDto estat;
-		DocumentStore documentStore;
 		for ( AnotacioAnnex annex : anotacio.getAnnexos() ) {
 			
 			// Incorpora cada annex de forma separada per evitar excepcions i continuar amb els altres
@@ -382,6 +379,7 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 							interessat.getDocumentNumero(), // Codi
 							interessat.getNom() != null? interessat.getNom() : interessat.getRaoSocial(),
 							interessat.getDocumentNumero(),
+							interessat.getOrganCodi(), //codiDir3
 							interessat.getLlinatge1(), 
 							interessat.getLlinatge2(), 
 							this.getInteressatTipus(interessat),

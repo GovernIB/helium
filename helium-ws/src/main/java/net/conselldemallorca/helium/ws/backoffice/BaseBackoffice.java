@@ -110,7 +110,9 @@ public abstract class BaseBackoffice {
 							new Long(tramit.getClauAcces()).toString()),
 					null,
 					getDocumentsInicials(expedientTipus, tramit),
-					getDocumentsAdjunts(expedientTipus, tramit));
+					getDocumentsAdjunts(expedientTipus, tramit),
+					null, // tramitId,
+					false);
 			logger.info("S'ha creat un expedient del tipus " + expedientTipus.getCodi() + ": " + expedientNou.getIdentificador());
 		}
 		return candidats.size();
