@@ -97,8 +97,6 @@ public class DefinicioProcesTascaController extends BaseTascaDissenyController {
 			Model model) {
 		TascaDto dto = definicioProcesService.tascaFindAmbId(null, tascaId);
 		DefinicioProcesTascaCommand command = DefinicioProcesTascaCommand.toDefinicioProcesTascaCommand(dto);	
-		command.setDefinicioProcesId(definicioProcesId);
-		command.setJbpmName(dto.getJbpmName());
 		model.addAttribute("definicioProcesTascaCommand", command);
 		return "v3/definicioProcesTascaForm";
 	}
@@ -284,7 +282,13 @@ public class DefinicioProcesTascaController extends BaseTascaDissenyController {
 			@PathVariable Long id,
 			@PathVariable int posicio) {
 		
-		return definicioProcesService.tascaCampMourePosicio(id, null, posicio);
+		DefinicioProcesDto definicioProces = definicioProcesService.findById(definicioProcesId);
+		
+		return definicioProcesService.tascaCampMourePosicio(id, 
+															definicioProces.getExpedientTipus() != null ? 
+																	definicioProces.getExpedientTipus().getId() // Pertany a un tipus d'expedient 
+																	: null, // Global 
+															posicio);
 	}	
 	
 	/** Mètode per obtenir les possibles variables per al select a l'edició d'un registre via ajax. */
@@ -298,13 +302,14 @@ public class DefinicioProcesTascaController extends BaseTascaDissenyController {
 			Model model) {
 
 		DefinicioProcesDto definicioProces = definicioProcesService.findById(definicioProcesId);
+		Long expedientTipusId = definicioProces.getExpedientTipus() != null? definicioProces.getExpedientTipus().getId() : null;
 		List<CampDto> variables = dissenyService.findCampsOrdenatsPerCodi(
-					definicioProces.getExpedientTipus() != null ? definicioProces.getExpedientTipus().getId() : null,
+				expedientTipusId,
 					definicioProcesId,
 					true // amb herencia
 				);
 
-		return obtenirParellesVariables(null, definicioProcesId, variables, tascaId);
+		return obtenirParellesVariables(expedientTipusId, definicioProcesId, variables, tascaId);
 	}	
 			
 	/** Omple el model de dades per la pàgina de camps de les tasques. */
@@ -321,8 +326,9 @@ public class DefinicioProcesTascaController extends BaseTascaDissenyController {
 
 		// Obté el llistat de variables
 		DefinicioProcesDto definicioProces = definicioProcesService.findById(definicioProcesId);
+		Long expedientTipusId = definicioProces.getExpedientTipus() != null ? definicioProces.getExpedientTipus().getId() : null;
 		List<CampDto> variables = dissenyService.findCampsOrdenatsPerCodi(
-					definicioProces.getExpedientTipus() != null ? definicioProces.getExpedientTipus().getId() : null,
+					expedientTipusId,
 					definicioProcesId,
 					true // amb herencia
 				);
@@ -342,7 +348,7 @@ public class DefinicioProcesTascaController extends BaseTascaDissenyController {
 		model.addAttribute("campsSobreescriuenIds", campsSobreescriuenIds);
 		// Construeix les parelles de variables
 		model.addAttribute("variables", obtenirParellesVariables(
-				null,
+				expedientTipusId,
 				definicioProcesId,
 				variables,
 				tascaId));
@@ -477,7 +483,14 @@ public class DefinicioProcesTascaController extends BaseTascaDissenyController {
 			@PathVariable Long id,
 			@PathVariable int posicio) {
 		
-		return definicioProcesService.tascaDocumentMourePosicio(id, null, posicio);
+		DefinicioProcesDto definicioProces = definicioProcesService.findById(definicioProcesId);
+
+		return definicioProcesService.tascaDocumentMourePosicio(
+				id, 
+				definicioProces.getExpedientTipus() != null ? 
+						definicioProces.getExpedientTipus().getId() // Pertany a un tipus d'expedient 
+						: null, // Global 
+				posicio);
 	}	
 	
 	/** Mètode per obtenir les possibles documents per al select a l'edició d'un registre via ajax. */
@@ -669,7 +682,13 @@ public class DefinicioProcesTascaController extends BaseTascaDissenyController {
 			@PathVariable Long id,
 			@PathVariable int posicio) {
 		
-		return definicioProcesService.tascaFirmaMourePosicio(id, null, posicio);
+		DefinicioProcesDto definicioProces = definicioProcesService.findById(definicioProcesId);
+		
+		return definicioProcesService.tascaFirmaMourePosicio(id, 
+															definicioProces.getExpedientTipus() != null ? 
+																	definicioProces.getExpedientTipus().getId() // Pertany a un tipus d'expedient 
+																	: null, // Global 
+															posicio);
 	}	
 	
 	/** Mètode per obtenir els possibles firmes per al select a l'edició d'un registre via ajax. */

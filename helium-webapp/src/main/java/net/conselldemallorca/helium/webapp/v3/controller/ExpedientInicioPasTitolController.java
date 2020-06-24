@@ -168,7 +168,7 @@ public class ExpedientInicioPasTitolController extends BaseExpedientIniciControl
 				logger.error("No s'ha pogut iniciar l'expedient", ex);
 			}
 		}
-		return modalUrlTancar();
+		return modalUrlTancar(false);
 	}
 
 	@RequestMapping(value = "/canviAny/{anySel}/{entornId}/{expedientTipusId}", method = RequestMethod.GET)

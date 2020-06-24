@@ -11,61 +11,88 @@
 			<thead>
 				<tr>
 					<th><spring:message code="expedient.notificacio.data_enviament"/></th>
+					<th><spring:message code="expedient.notificacio.enviamentTipus"/></th>
 					<th><spring:message code="expedient.notificacio.concepte"/></th>
-					<th><spring:message code="expedient.notificacio.estat"/></th>
-					<th><spring:message code="expedient.notificacio.error"/></th>
+					<th><spring:message code="expedient.notificacio.estat.notificacio"/></th>
+					<th><spring:message code="expedient.notificacio.estat.enviament"/></th>
 					<th><spring:message code="expedient.notificacio.titular"/></th>
 					<th><spring:message code="expedient.notificacio.destinatari"/></th>
 					<th><spring:message code="expedient.notificacio.document"/></th>
 					<th><spring:message code="expedient.notificacio.justificant"/></th>
-<!-- 					<th></th> -->
+ 					<th></th>
 				</tr>
 			</thead>
 			<tbody>
 				<c:forEach items="${notificacions}" var="notificacio">
-					<tr>
+					<tr id="tr_notificacio_${notificacio.id}">
 						<td><fmt:formatDate value="${notificacio.enviatData}" pattern="dd/MM/yyyy HH:mm:ss"></fmt:formatDate></td>
+					    <td><spring:message code="notifica.enviament.tipus.enum.${notificacio.enviamentTipus}"/></td>
 					    <td>${notificacio.concepte}</td>
 						<td>
-							<c:choose>
-							<c:when test="${notificacio.estat == 'PENDENT'}">
-								<span class="label label-warning"><spring:message code="expedient.notificacio.estat.pendent"/></span>
-							</c:when>
-							<c:when test="${notificacio.estat == 'ENVIADA'}">
-								<span class="label label-warning"><spring:message code="expedient.notificacio.estat.enviat"/></span>
-							</c:when>
-							<c:when test="${notificacio.estat == 'PROCESSADA'}">
-								<span class="label label-success"><spring:message code="expedient.notificacio.estat.processat_ok"/></span>
-							</c:when>
-							<c:when test="${notificacio.estat == 'REBUTJADA'}">
-								<span class="label label-danger"><spring:message code="expedient.notificacio.estat.rebutjat"/></span>
-							</c:when>
-							<c:when test="${notificacio.estat == 'CANCELADA'}">
-								<span class="label label-danger"><spring:message code="expedient.notificacio.estat.cancelat"/></span>
-							</c:when>
-							<c:otherwise>
-								<span class="label label-default">${notificacio.estat}</span>
-							</c:otherwise>
-							</c:choose>
+							<span title="<spring:message code="notificacio.etst.enum.${notificacio.estat}.info"/>">
+								<c:choose>
+								<c:when test="${notificacio.estat == 'PENDENT'}">
+									<span class="fa fa-clock-o"></span>
+								</c:when>
+								<c:when test="${notificacio.estat == 'ENVIADA'}">
+									<span class="fa fa-send-o"></span>
+									<span class="label label-warning"></span>
+								</c:when>
+								<c:when test="${notificacio.estat == 'REGISTRADA'}">
+									<span class="fa fa-file-o"></span>
+								</c:when>
+								<c:when test="${notificacio.estat == 'FINALITZADA'}">
+									<span class="fa fa-check"></span>
+								</c:when>							
+								<c:when test="${notificacio.estat == 'PROCESSADA'}">
+									<span class="fa fa-check-circle"></span>
+								</c:when>
+								</c:choose>
+								<spring:message code="notificacio.etst.enum.${notificacio.estat}"/>
+							</span>
 						</td>
 						<td>
-							${notificacio.errorDescripcio}
+							<c:if test="${notificacio.error }">
+								<span class="fa fa-warning text-danger" title="${notificacio.errorDescripcio}"></span>
+							</c:if>
+							<c:if test="${not empty notificacio.enviaments[0].estat}">
+								<spring:message code="notificacio.enviament.estat.enum.${notificacio.enviaments[0].estat}"/>
+							</c:if>
+							<c:if test="${notificacio.enviaments[0].estatData != null}">
+								<br/><span class="text-muted small">
+										<fmt:formatDate value="${notificacio.enviaments[0].estatData}" pattern="dd/MM/yyyy HH:mm:ss"></fmt:formatDate>
+									</span>
+							</c:if>
 						</td>
-						<td>${notificacio.enviaments[0].titular.nomSencer}</td>
-						<td><c:if test="${not empty notificacio.enviaments[0].destinataris[0]}">${notificacio.enviaments[0].destinataris[0].nomSencer}</c:if></td>
+						<td>${notificacio.enviaments[0].titular.dni} - ${notificacio.enviaments[0].titular.nomSencer}</td>
 						<td>
-							<a href="<c:url value="/v3/expedient/${expedient.id}/proces/${expedient.processInstanceId}/document/${notificacio.documentId}/descarregar"/>">
-								${notificacio.documentArxiuNom}
-								<span class="fa fa-download fa-lg" title="Descarregar document"></span>
+							<c:if test="${not empty notificacio.enviaments[0].destinataris[0]}">
+								${notificacio.enviaments[0].destinataris[0].dni} - ${notificacio.enviaments[0].destinataris[0].nomSencer}
+							</c:if>
+						</td>
+						<td>
+							<a href="<c:url value="/v3/expedient/${expedient.id}/proces/${expedient.processInstanceId}/document/${notificacio.documentId}/descarregar"/>"
+								title="<spring:message code="expedient.notificacio.descarregar.doc"/> ${notificacio.documentArxiuNom}">
+								${notificacio.documentNom != null? notificacio.documentNom : notificacio.documentArxiuNom}
+								<span class="fa fa-download fa-lg"></span>
 							</a>
 						</td>
 						<td>
 							<c:if test="${not empty notificacio.justificantId}">
+								<center>
 								<a href="<c:url value="/v3/expedient/${expedient.id}/proces/${expedient.processInstanceId}/document/${notificacio.justificantId}/descarregar"/>">
-									${notificacio.justificantArxiuNom}
-									<span class="fa fa-download fa-lg" title="Descarregar document"></span>
+									<span class="fa fa-download fa-lg" title="${notificacio.justificantArxiuNom}"></span>
 								</a>
+								</center>
 							</c:if>
+						</td>
+						<td>
+							<a id="refrescar_estat_enviament_${notificacio.id}" 
+								href="<c:url value="/v3/expedient/${expedient.id}/notificacions/${notificacio.id}/consultarEstat"/>" 
+								class="btn-refrescar-estat-enviament btn btn-default"
+								title="<spring:message code="expedient.notificacio.consultar.estat.info"/>">
+									<span class="fa fa-refresh"></span>
+							</a>
 						</td>
 					</tr>
 				</c:forEach>
@@ -78,6 +105,10 @@
 </c:choose>
 <script type="text/javascript">
 	// <![CDATA[
-
+	$(document).ready(function() {
+		$('.btn-refrescar-estat-enviament').click(function(e) {
+			$(this).find('span').addClass('fa-spin');
+		})
+	});
 	//]]>
-	</script>
+</script>

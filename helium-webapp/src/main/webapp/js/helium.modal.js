@@ -309,8 +309,8 @@ function modalTancar(iframe, refrescar) {
 	$(iframe).parent().parent().parent().parent().modal('hide');
 	if (refrescar)	
 		window.parent.location.reload();
-	else if ('function' === typeof webutilRefreshMissatges)
-		webutilRefreshMissatges();
+	//else if ('function' === typeof webutilRefreshMissatges)
+	//	webutilRefreshMissatges();
 }
 
 function modalAdjustHeight(iframe, height) {

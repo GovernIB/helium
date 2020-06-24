@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.core.UriBuilder;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -55,8 +56,6 @@ import net.conselldemallorca.helium.webapp.v3.helper.TascaFormHelper;
 @RequestMapping("/v3/repro")
 public class ReproController extends BaseController {
 	
-	@Autowired
-	private ExpedientInicioPasFormController expedientInicioPasFormController;	
 	@Autowired
 	private ReproService reproService;
 	@Autowired
@@ -105,8 +104,6 @@ public class ReproController extends BaseController {
 			Map<String, Object> valorsFormulariExtern = null;
 			if (tasca.isFormExtern()) {
 				valorsFormulariExtern = tascaInicialService.obtenirValorsFormulariExternInicial(tasca.getId());
-				//FormulariExternDto formulariExtern = tascaService.var
-//				formulariExtern.
 				if (valorsFormulariExtern != null) {
 					request.getSession().setAttribute(
 							BaseExpedientIniciController.CLAU_SESSIO_FORM_VALORS,
@@ -163,26 +160,28 @@ public class ReproController extends BaseController {
 		}
 		
 		String referer = request.getHeader("Referer");
-	    return "redirect:"+ referer + "/fromRepro/" + repro.getId();
+	    return "redirect:"+ UriBuilder.fromUri(referer).replaceQueryParam("reproId", repro != null ? repro.getId() : "").build();
 	}
 	
-	@RequestMapping(value = "/{expedientTipusId}/{definicioProcesId}/borrarRepro/{reproId}", method = RequestMethod.POST)
+	@RequestMapping(value = "/{expedientTipusId}/{definicioProcesId}/borrarRepro/{reproIdEsborrar}", method = RequestMethod.POST)
 	public String deleteRepro(
 			HttpServletRequest request, 
 			@PathVariable Long expedientTipusId,
 			@PathVariable Long definicioProcesId,
-			@PathVariable Long reproId,
+			@PathVariable Long reproIdEsborrar,
 			@ModelAttribute("command") Object command,
 			BindingResult result,
 			SessionStatus status,
 			Model model) {
+				
 		try {
-			String nomRepro = reproService.deleteById(reproId);
+			String nomRepro = reproService.deleteById(reproIdEsborrar);
 			MissatgesHelper.success(request, getMessage(request, "repro.missatge.repro") + " '" + nomRepro + "' " + getMessage(request, "repro.missatge.eliminat"));
 		} catch (Exception ex) {
 			MissatgesHelper.error(request, getMessage(request, "repro.missatge.error.eliminat"));
 		}
-		return expedientInicioPasFormController.iniciarFormGet(request, expedientTipusId, definicioProcesId, model);
+		String referer = request.getHeader("Referer");
+	    return "redirect:"+ UriBuilder.fromUri(referer).replaceQueryParam("reproId", "").build();
 	}
 	
 	@RequestMapping(value = "/{expedientTipusId}/{definicioProcesId}/deleteRepro/{reproId}", method = RequestMethod.POST)
@@ -203,7 +202,7 @@ public class ReproController extends BaseController {
 		}
 		
 		String referer = request.getHeader("Referer");
-	    return "redirect:"+ referer;
+	    return "redirect:"+ UriBuilder.fromUri(referer).replaceQueryParam("reproId", "").build();
 	}
 	
 	private ExpedientTascaDto obtenirTascaInicial(Long entornId, Long expedientTipusId, Long definicioProcesId, Map<String, Object> valors, HttpServletRequest request) {
@@ -275,7 +274,7 @@ public class ReproController extends BaseController {
 					": " + ex.getMessage());
 		}
 		String referer = request.getHeader("Referer");
-	    return "redirect:"+ referer + "/fromRepro/" + repro.getId();
+	    return "redirect:"+ UriBuilder.fromUri(referer).replaceQueryParam("reproId", repro != null? repro.getId() : "").build();
 	}
 	
 	private static final Log logger = LogFactory.getLog(ReproController.class);

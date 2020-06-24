@@ -16,6 +16,7 @@ import java.util.Properties;
 import javax.annotation.Resource;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.time.DateUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.fundaciobit.plugins.validatesignature.api.CertificateInfo;
@@ -59,6 +60,7 @@ import net.conselldemallorca.helium.integracio.plugins.gesdoc.GestioDocumentalPl
 import net.conselldemallorca.helium.integracio.plugins.notificacio.Notificacio;
 import net.conselldemallorca.helium.integracio.plugins.notificacio.NotificacioPlugin;
 import net.conselldemallorca.helium.integracio.plugins.notificacio.RespostaConsultaEstatEnviament;
+import net.conselldemallorca.helium.integracio.plugins.notificacio.RespostaConsultaEstatNotificacio;
 import net.conselldemallorca.helium.integracio.plugins.notificacio.RespostaEnviar;
 import net.conselldemallorca.helium.integracio.plugins.persones.DadesPersona;
 import net.conselldemallorca.helium.integracio.plugins.persones.PersonesPlugin;
@@ -109,9 +111,11 @@ import net.conselldemallorca.helium.v3.core.api.dto.ArxiuFirmaPerfilEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DadesEnviamentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DadesNotificacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.IntegracioAccioTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.IntegracioParametreDto;
+import net.conselldemallorca.helium.v3.core.api.dto.NotificacioEstatEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NtiEstadoElaboracionEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NtiOrigenEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NtiTipoDocumentalEnumDto;
@@ -2412,12 +2416,23 @@ public class PluginHelper {
 								getExtensioPerArxiu(arxiu),
 								(firmes != null ? DocumentEstat.DEFINITIU : DocumentEstat.ESBORRANY)));
 			}
+			// Paràmetres de resposta
+			parametres.add(
+					new IntegracioParametreDto(
+							"resposta",
+							documentPerRetornar != null));
+			new IntegracioParametreDto(
+					"respostaIdentificador",
+					(documentPerRetornar != null ? documentPerRetornar.getIdentificador() : "-"));
 			monitorIntegracioHelper.addAccioOk(
 					MonitorIntegracioHelper.INTCODI_ARXIU,
 					accioDescripcio,
 					IntegracioAccioTipusEnumDto.ENVIAMENT,
 					System.currentTimeMillis() - t0,
 					parametres.toArray(new IntegracioParametreDto[parametres.size()]));
+			if (documentPerRetornar != null &&  documentPerRetornar.getIdentificador() == null) {
+				logger.warn("L'identificador retornat per l'Arxiu pel document \"" + documentNom + "\" de l'expedient \"" + expedient.getIdentificador() + "\" és null.");
+			}
 			return documentPerRetornar;
 		} catch (Exception ex) {
 			String errorDescripcio = "No s'ha pogut actualitzar la informació del document: " + ex.getMessage();
@@ -2722,13 +2737,9 @@ public class PluginHelper {
 		return resposta;
 	}
 	
-
-	
 	public void notificacioActualitzarEstat(
 			DocumentNotificacio notificacio) {
 		Expedient expedient = notificacio.getExpedient();
-		DocumentStore document = notificacio.getDocument();
-		DocumentStore certificacio = notificacio.getEnviamentCertificacio();
 		
 		String accioDescripcio = "Consulta d'estat d'una notificació electrònica";
 		
@@ -2736,54 +2747,39 @@ public class PluginHelper {
 				new IntegracioParametreDto("expedientId", expedient.getId()),
 				new IntegracioParametreDto("expedientTitol", expedient.getTitol()),
 				new IntegracioParametreDto("expedientTipusId", expedient.getTipus().getId()),
+				new IntegracioParametreDto("identificador", notificacio.getEnviamentIdentificador()),
 				new IntegracioParametreDto("referencia", notificacio.getEnviamentReferencia())
 		};
 		long t0 = System.currentTimeMillis();
 		
 		try {
-			RespostaConsultaEstatEnviament resposta = getNotificacioPlugin().consultarEnviament(
-					notificacio.getEnviamentReferencia());
-			Long gestioDocumentalId = certificacio != null ? certificacio.getId() : null;
-			if (resposta.getCertificacioData() != null) {
-				byte[] certificacioContingut = resposta.getCertificacioContingut();
-				if (gestioDocumentalId != null && notificacio.getEnviamentCertificacioData().before(resposta.getCertificacioData())) {
-					gestioDocumentalId = documentHelperV3.actualitzarDocument(
-							gestioDocumentalId, 
-							null, 
-							expedient.getProcessInstanceId(), 
-							resposta.getCertificacioData(), 
-							document.getCodiDocument() + "_certificacio", 
-							document.getCodiDocument() + "_certificacio.pdf", 
-							certificacioContingut, 
-							NtiOrigenEnumDto.ADMINISTRACIO, 
-							NtiEstadoElaboracionEnumDto.ALTRES, 
-							NtiTipoDocumentalEnumDto.CERTIFICAT, 
-							null);
-				}
-				if (gestioDocumentalId == null || notificacio.getEnviamentCertificacioData().before(resposta.getCertificacioData())) {
-					gestioDocumentalId = documentHelperV3.crearDocument(
-							null, 
-							expedient.getProcessInstanceId(), 
-							null, 
-							resposta.getCertificacioData(), 
-							true, 
-							document.getCodiDocument() + "_certificacio", 
-							document.getCodiDocument() + "_certificacio.pdf", 
-							certificacioContingut, 
-							NtiOrigenEnumDto.ADMINISTRACIO, 
-							NtiEstadoElaboracionEnumDto.ALTRES, 
-							NtiTipoDocumentalEnumDto.CERTIFICAT, 
-							null);
-				}
+			RespostaConsultaEstatNotificacio resposta = getNotificacioPlugin().consultarNotificacio(notificacio.getEnviamentIdentificador());
+			// Revisa que no sigui una resposta amb error de consulta
+			if (resposta.getEstat() == null && resposta.isError()) {
+				throw new net.conselldemallorca.helium.integracio.plugins.SistemaExternException("Resposta d'error en de la consulta de la notificació \"" + notificacio.getEnviamentIdentificador() + "\" al NOTIB: resposta.errorDescripcio= " + resposta.getErrorDescripcio());
 			}
-			
-			notificacio.updateEnviamentEstat(
-					resposta.getEstat(),
-					resposta.getEstatData(),
-					resposta.getEstatOrigen(),
-					resposta.getCertificacioData(),
-					resposta.getCertificacioOrigen(),
-					documentStoreRepository.findOne(gestioDocumentalId));
+
+			if (resposta.getEstat() != null) {
+				switch(resposta.getEstat()){
+					case ENVIADA:
+						notificacio.setEstat(NotificacioEstatEnumDto.ENVIADA);
+						break;
+					case FINALITZADA:
+						notificacio.setEstat(NotificacioEstatEnumDto.FINALITZADA);
+						break;
+					case PENDENT:
+						notificacio.setEstat(NotificacioEstatEnumDto.PENDENT);
+						break;
+					case PROCESSADA:
+						notificacio.setEstat(NotificacioEstatEnumDto.PROCESSADA);
+						break;
+					case REGISTRADA:
+						notificacio.setEstat(NotificacioEstatEnumDto.REGISTRADA);
+						break;
+				}
+			} 
+			notificacio.setError(resposta.isError());
+			notificacio.setErrorDescripcio(resposta.getErrorDescripcio());
 					
 			monitorIntegracioHelper.addAccioOk(
 					MonitorIntegracioHelper.INTCODI_NOTIB,
@@ -2793,7 +2789,106 @@ public class PluginHelper {
 					parametres);
 			
 		} catch (Exception ex) {
-			String errorDescripcio = "No s'ha pogut consultar l'estat de la notificació: " + ex.getMessage();
+			String errorDescripcio = "No s'ha pogut consultar l'estat de la notificació amb identificador " + notificacio.getEnviamentIdentificador() + ": " + ex.getMessage();
+			monitorIntegracioHelper.addAccioError(
+					MonitorIntegracioHelper.INTCODI_NOTIB,
+					accioDescripcio,
+					IntegracioAccioTipusEnumDto.RECEPCIO,
+					System.currentTimeMillis() - t0,
+					errorDescripcio,
+					ex,
+					parametres);
+			throw tractarExcepcioEnSistemaExtern(errorDescripcio, ex);
+		}
+	}
+	
+	public void notificacioActualitzarEstatEnviament(
+			DocumentNotificacio notificacio) {
+		Expedient expedient = notificacio.getExpedient();
+		DocumentStore document = notificacio.getDocument();
+		DocumentStore certificacio = notificacio.getEnviamentCertificacio();
+		
+		String accioDescripcio = "Consulta d'estat de l'enviament d'una notificació electrònica";
+		
+		IntegracioParametreDto[] parametres = new IntegracioParametreDto[] {
+				new IntegracioParametreDto("expedientId", expedient.getId()),
+				new IntegracioParametreDto("expedientTitol", expedient.getTitol()),
+				new IntegracioParametreDto("expedientTipusId", expedient.getTipus().getId()),
+				new IntegracioParametreDto("identificador", notificacio.getEnviamentIdentificador()),
+				new IntegracioParametreDto("referencia", notificacio.getEnviamentReferencia())
+		};
+		long t0 = System.currentTimeMillis();
+		
+		try {
+			RespostaConsultaEstatEnviament resposta = getNotificacioPlugin().consultarEnviament(notificacio.getEnviamentReferencia());
+			// Revisa que no sigui una resposta amb error de consulta
+			if (resposta.getEstat() == null && resposta.isError()) {
+				throw new net.conselldemallorca.helium.integracio.plugins.SistemaExternException("Resposta d'error en de la consulta de l'enviament \"" + notificacio.getEnviamentReferencia() + "\" al NOTIB: resposta.errorDescripcio= " + resposta.getErrorDescripcio());
+			}
+			Long gestioDocumentalId = certificacio != null ? certificacio.getId() : null;
+			if (resposta.getCertificacioData() != null) {
+				byte[] certificacioContingut = resposta.getCertificacioContingut();
+				// Cetificació Títol: [títol document notificat] - Justificant [NIF interessat]
+				ExpedientDocumentDto expedientDocument = documentHelperV3.findDocumentPerDocumentStoreId(document.getProcessInstanceId(), document.getId());
+				String certificacioTitol = expedientDocument.getDocumentNom() + " - Justificant " + notificacio.getTitularNif();
+				String certificacioArxiuExtensio = resposta.getCertificacioTipusMime() != null 
+													&& resposta.getCertificacioTipusMime().toLowerCase().contains("xml") ?
+															  "xml"
+															: "pdf";
+				String certificacioArxiuNom = "certificacio_" + notificacio.getEnviamentReferencia() + "." + certificacioArxiuExtensio;				
+				if (gestioDocumentalId != null && notificacio.getEnviamentCertificacioData().before(DateUtils.truncate(resposta.getCertificacioData(), Calendar.SECOND))) {
+					gestioDocumentalId = documentHelperV3.actualitzarDocument(
+							gestioDocumentalId, 
+							null, 
+							expedient.getProcessInstanceId(), 
+							resposta.getCertificacioData(), 
+							certificacioTitol, 
+							certificacioArxiuNom,  
+							certificacioContingut, 
+							NtiOrigenEnumDto.ADMINISTRACIO, 
+							NtiEstadoElaboracionEnumDto.ALTRES, 
+							NtiTipoDocumentalEnumDto.CERTIFICAT, 
+							null);
+				} else if (gestioDocumentalId == null) {
+					gestioDocumentalId = documentHelperV3.crearDocument(
+							null, 
+							expedient.getProcessInstanceId(), 
+							null, 
+							resposta.getCertificacioData(), 
+							true, 
+							certificacioTitol, 
+							certificacioArxiuNom, 
+							certificacioContingut, 
+							NtiOrigenEnumDto.ADMINISTRACIO, 
+							NtiEstadoElaboracionEnumDto.ALTRES, 
+							NtiTipoDocumentalEnumDto.CERTIFICAT, 
+							null);
+				}
+			}
+			
+			if (resposta.getEstat() != null) {
+				notificacio.updateEnviamentEstat(
+						resposta.getEstat(),
+						resposta.getEstatData(),
+						resposta.getEstatOrigen(),
+						resposta.getCertificacioData(),
+						resposta.getCertificacioOrigen(),
+						gestioDocumentalId != null ? documentStoreRepository.findOne(gestioDocumentalId) : null,
+						resposta.isError(),
+						resposta.getErrorDescripcio());
+			} else {
+				throw new Exception("L'estat de la resposta és null i no es pot tractar.");
+			}
+					
+			monitorIntegracioHelper.addAccioOk(
+					MonitorIntegracioHelper.INTCODI_NOTIB,
+					accioDescripcio,
+					IntegracioAccioTipusEnumDto.RECEPCIO,
+					System.currentTimeMillis() - t0,
+					parametres);
+			
+		} catch (Exception ex) {
+			String errorDescripcio = "No s'ha pogut consultar l'estat de la notificació amb referència " + notificacio.getEnviamentReferencia() + ": " + ex.getMessage();
 			monitorIntegracioHelper.addAccioError(
 					MonitorIntegracioHelper.INTCODI_NOTIB,
 					accioDescripcio,
@@ -3093,6 +3188,7 @@ public class PluginHelper {
 		registreAssentament.setNumero(anotacio.getNumero());
 		registreAssentament.setData(anotacio.getData());
 		registreAssentament.setIdentificador(anotacio.getIdentificador());
+		registreAssentament.setEntitatCodi(anotacio.getEntitatCodi());
 		registreAssentament.setOrgan(anotacio.getOrgan());
 		registreAssentament.setOrganDescripcio(anotacio.getOrganDescripcio());
 		registreAssentament.setOficinaCodi(anotacio.getOficinaCodi());
@@ -3257,7 +3353,7 @@ public class PluginHelper {
 			String serieDocumental,
 			String arxiuUuid) {
 		es.caib.plugins.arxiu.api.Expedient expedient = new es.caib.plugins.arxiu.api.Expedient();
-		expedient.setNom(nom);
+		expedient.setNom(this.treureCaractersEstranys(nom));
 		expedient.setIdentificador(arxiuUuid);
 		ExpedientMetadades metadades = new ExpedientMetadades();
 		metadades.setDataObertura(ntiDataObertura);
@@ -3272,6 +3368,15 @@ public class PluginHelper {
 		metadades.setSerieDocumental(serieDocumental);
 		expedient.setMetadades(metadades);
 		return expedient;
+	}
+
+	private String treureCaractersEstranys(String nom) {
+		String nomRevisat;
+		if (nom != null)
+			nomRevisat = nom.trim().replace("&", "&amp;").replaceAll("[~\"#%*:<\n\r\t>/?/|\\\\ ]", "_");
+		else 
+			nomRevisat = null;
+		return nomRevisat;
 	}
 
 	private static List<FirmaTipus> TIPUS_FIRMES_ATTACHED = Arrays.asList(FirmaTipus.CADES_ATT, FirmaTipus.PADES, FirmaTipus.XADES_ENV);

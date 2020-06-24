@@ -18,6 +18,7 @@ public class Persona {
 	private String telefon;
 	private String email;
 	private InteressatTipusEnum tipus;
+	private String codiDir3;
 	
 	public InteressatTipusEnum getTipus() {
 		return tipus;
@@ -60,6 +61,12 @@ public class Persona {
 	}
 	public void setEmail(String email) {
 		this.email = email;
+	}
+	public String getCodiDir3() {
+		return codiDir3;
+	}
+	public void setCodiDir3(String codiDir3) {
+		this.codiDir3 = codiDir3;
 	}
 
 }

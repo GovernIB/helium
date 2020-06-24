@@ -61,8 +61,8 @@ public class UpdateService {
 	public static final String VERSIO_ACTUAL_STR = "3.2.0";
 	public static final int VERSIO_ACTUAL_ORDRE = 320;
 
-	public static final String VERSIO_ACTUAL_RELEASE = "108_rc2_notib_backoffice";
-	public static final String VERSIO_ACTUAL_DATA = "2019.10.28";
+	public static final String VERSIO_ACTUAL_RELEASE = "108.3_notib_backoffice";
+	public static final String VERSIO_ACTUAL_DATA = "2020.06.24";
 
 	private VersioDao versioDao;
 	private PersonaDao personaDao;

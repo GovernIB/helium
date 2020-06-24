@@ -13,6 +13,7 @@ public class Interessat {
 	private Long id;
 	private String codi;
 	private String nif;
+	private String dir3Codi;
 	private String nom;
 	private String llinatge1;
 	private String llinatge2;
@@ -53,6 +54,12 @@ public class Interessat {
 	}
 	public void setNif(String nif) {
 		this.nif = nif;
+	}
+	public String getDir3Codi() {
+		return dir3Codi;
+	}
+	public void setDir3Codi(String dir3Codi) {
+		this.dir3Codi = dir3Codi;
 	}
 	public String getNom() {
 		return nom;

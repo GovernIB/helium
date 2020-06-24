@@ -101,8 +101,6 @@ public class ExecuteActionCommand extends AbstractGetObjectBaseCommand {
 				}
 			}
 		}
-		if (action == null)
-			throw new JbpmException("No es troba l'acció a executar: { id=" + id + ", actionName=" + actionName + ", isTaskInstance=" + isTaskInstance + ", processDefinitionPareId=" + processDefinitionPareId);
 		if (!goBack) {
 			if (isTaskInstance) {
 				ExecutionContext ec = new ExecutionContext(ti.getToken());

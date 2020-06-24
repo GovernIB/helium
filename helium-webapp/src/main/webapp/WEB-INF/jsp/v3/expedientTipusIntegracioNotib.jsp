@@ -55,8 +55,8 @@ $(document).ready(function() {
 			<div>				
 				<hel:inputCheckbox name="notibActiu" textKey="expedient.tipus.integracio.tramits.notificacions.activar"/>
 				<div id="inputs-notib" style="display:${expedientTipusIntegracioNotibCommand.notibActiu? 'inline' : 'none'}">
-					<hel:inputText required="true" name="notibEmisor" textKey="expedient.tipus.integracio.notib.organisme.emisor" readonly="${expedientTipus.ntiActiu}"/>
-					<hel:inputText required="true" name="notibCodiProcediment" textKey="expedient.tipus.integracio.notib.sia.codiprocediment"  readonly="${expedientTipus.ntiActiu}"/>
+					<hel:inputText required="true" name="notibEmisor" textKey="expedient.tipus.integracio.notib.organisme.emisor"/>
+					<hel:inputText required="true" name="notibCodiProcediment" textKey="expedient.tipus.integracio.notib.sia.codiprocediment"/>
 				</div>
 			</div>
 			

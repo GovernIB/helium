@@ -8,16 +8,6 @@ import java.util.List;
 
 import javax.jws.WebService;
 
-import net.conselldemallorca.helium.core.model.service.ServiceProxy;
-import net.conselldemallorca.helium.integracio.plugins.tramitacio.AutenticacioTipus;
-import net.conselldemallorca.helium.integracio.plugins.tramitacio.DadesTramit;
-import net.conselldemallorca.helium.integracio.plugins.tramitacio.DadesVistaDocument;
-import net.conselldemallorca.helium.integracio.plugins.tramitacio.DocumentPresencial;
-import net.conselldemallorca.helium.integracio.plugins.tramitacio.DocumentTelematic;
-import net.conselldemallorca.helium.integracio.plugins.tramitacio.DocumentTramit;
-import net.conselldemallorca.helium.integracio.plugins.tramitacio.ObtenirVistaDocumentRequest;
-import net.conselldemallorca.helium.integracio.plugins.tramitacio.Signatura;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -32,6 +22,15 @@ import es.cim.ws.backoffice.v1.model.datosdocumentotelematico.FirmaWS;
 import es.cim.ws.backoffice.v1.model.documentoentrada.DocumentoEntrada;
 import es.cim.ws.backoffice.v1.model.entrada.Entrada;
 import es.cim.ws.backoffice.v1.services.Backoffice;
+import net.conselldemallorca.helium.core.model.service.ServiceProxy;
+import net.conselldemallorca.helium.integracio.plugins.tramitacio.AutenticacioTipus;
+import net.conselldemallorca.helium.integracio.plugins.tramitacio.DadesTramit;
+import net.conselldemallorca.helium.integracio.plugins.tramitacio.DadesVistaDocument;
+import net.conselldemallorca.helium.integracio.plugins.tramitacio.DocumentPresencial;
+import net.conselldemallorca.helium.integracio.plugins.tramitacio.DocumentTelematic;
+import net.conselldemallorca.helium.integracio.plugins.tramitacio.DocumentTramit;
+import net.conselldemallorca.helium.integracio.plugins.tramitacio.ObtenirVistaDocumentRequest;
+import net.conselldemallorca.helium.integracio.plugins.tramitacio.Signatura;
 
 /**
  * Backoffice per a gestionar la recepció de tramits provinents

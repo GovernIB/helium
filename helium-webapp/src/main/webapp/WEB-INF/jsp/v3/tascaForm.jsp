@@ -198,7 +198,7 @@
 			    <strong><li class="dropdown-header">---- <spring:message code='repro.texte.guardats' /> ----</li></strong>
 			    <c:forEach var="repro" items="${repros}">
 				    <li class="flex">
-				    	<a id="repro-${repro.id}" href="<c:url value="/modal/v3/tasca/"/>${tasca.id}/fromRepro/${repro.id}">${repro.nom}</a>
+				    	<a id="repro-${repro.id}" href="<c:url value="/modal/v3/tasca/"/>${tasca.id}?reproId=${repro.id}">${repro.nom}</a>
 				    	<button class="btn btn-danger borrarRepro" type="submit" data-reproid="${repro.id}"><i class="fa fa-trash-o" aria-hidden="true"></i></button>
 				    </li>
 			    </c:forEach>

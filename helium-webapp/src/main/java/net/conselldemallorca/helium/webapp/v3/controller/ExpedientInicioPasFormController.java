@@ -128,7 +128,16 @@ public class ExpedientInicioPasFormController extends BaseExpedientIniciControll
 			HttpServletRequest request,
 			@PathVariable Long expedientTipusId,
 			@PathVariable Long definicioProcesId,
+			@RequestParam(required=false) Long reproId,
 			Model model) {
+		if (reproId != null) {
+			try {
+				Map<String,Object> valors = reproService.findValorsById(reproId);
+				model.addAttribute("command", populateCommand(request, expedientTipusId, definicioProcesId, model, valors));
+			} catch (Exception e) {
+				MissatgesHelper.error(request, getMessage(request, "repro.missatge.error.carregat"));
+			}
+		}
 		definicioProcesToModel(expedientTipusId, definicioProcesId, model);
 		EntornDto entorn = SessionHelper.getSessionManager(request).getEntornActual();
 		ExpedientTipusDto expedientTipus = dissenyService.getExpedientTipusById(expedientTipusId);
@@ -146,22 +155,6 @@ public class ExpedientInicioPasFormController extends BaseExpedientIniciControll
 		// Pot ser que vingui del formulari d'acceptar i crear un expedient per a una anotació de Distribució
 		model.addAttribute("anotacioAcceptarCommand", (AnotacioAcceptarCommand) request.getSession().getAttribute(CLAU_SESSIO_ANOTACIO));
 		return "v3/expedient/iniciarPasForm";
-	}
-	
-	@RequestMapping(value = "/iniciarForm/{expedientTipusId}/{definicioProcesId}/fromRepro/{reproId}", method = RequestMethod.GET)
-	public String getRepro(
-			HttpServletRequest request, 
-			@PathVariable Long expedientTipusId,
-			@PathVariable Long definicioProcesId,
-			@PathVariable Long reproId,
-			Model model) {
-		try {
-			Map<String,Object> valors = reproService.findValorsById(reproId);
-			model.addAttribute("command", populateCommand(request, expedientTipusId, definicioProcesId, model, valors));
-		} catch (Exception e) {
-			MissatgesHelper.error(request, getMessage(request, "repro.missatge.error.carregat"));
-		}
-		return iniciarFormGet(request, expedientTipusId, definicioProcesId, model);
 	}
 
 	@RequestMapping(value = "/iniciarForm/{expedientTipusId}/{definicioProcesId}", method = RequestMethod.POST)
@@ -262,7 +255,7 @@ public class ExpedientInicioPasFormController extends BaseExpedientIniciControll
 				return "v3/expedient/iniciarPasForm";
 			}
 		}
-		return modalUrlTancar();
+		return modalUrlTancar(false);
 	}
 
 	protected ExpedientTascaDto obtenirTascaInicial(

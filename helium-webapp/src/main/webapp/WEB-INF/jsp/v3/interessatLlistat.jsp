@@ -21,7 +21,7 @@
 			data-paging-enabled="true"
 			data-info-type="search+button"
 			data-ordering="true"
-			data-default-order="1"
+			data-default-order="0"
 			data-rowhref-template="#rowhrefTemplateInteressats"
 			data-botons-template="#tableButtonsInteressatTemplate"
 			data-rowhref-toggle="modal" 
@@ -29,11 +29,10 @@
 		<thead>
 			<tr>
 				<th data-col-name="codi" width="20%"><spring:message code="interessat.llistat.columna.codi"/></th>
-				<th data-col-name="nom"><spring:message code="interessat.llistat.columna.nom"/></th>
-				<th data-col-name="nif"><spring:message code="interessat.llistat.columna.nif"/></th>
-				<th data-col-name="llinatge1"><spring:message code="interessat.llistat.columna.llinatge1"/></th>
-				<th data-col-name="llinatge2"><spring:message code="interessat.llistat.columna.llinatge2"/></th>
 				<th data-col-name="tipus"><spring:message code="interessat.llistat.columna.tipus"/></th>
+				<th data-col-name="nif"><spring:message code="interessat.llistat.columna.nif"/></th>
+				<th data-col-name="dir3Codi"><spring:message code="interessat.llistat.columna.dir3Codi"/></th>
+				<th data-col-name="fullNom"><spring:message code="interessat.llistat.columna.nom"/></th>
 				<th data-col-name="email"><spring:message code="interessat.llistat.columna.email"/></th>
 				<th data-col-name="telefon"><spring:message code="interessat.llistat.columna.telefon"/></th>
 				

@@ -213,6 +213,9 @@ public class AdminServiceImpl implements AdminService {
 			Throwable throwable,
 			List<IntegracioParametreDto> parametres) {
 		
+		IntegracioParametreDto[] params = new IntegracioParametreDto[parametres.size()];
+		for (int i = 0; i < parametres.size(); i ++)
+			params[i] = parametres.get(i);
 		switch(estat) {
 		case ERROR:
 			monitorIntegracioHelper.addAccioError(
@@ -221,7 +224,7 @@ public class AdminServiceImpl implements AdminService {
 					tipus, 
 					tempsResposta, 
 					errorDescripcio, 
-					(IntegracioParametreDto[]) parametres.toArray());
+					params);
 			break;
 		case OK:
 			monitorIntegracioHelper.addAccioOk(
@@ -229,7 +232,7 @@ public class AdminServiceImpl implements AdminService {
 					errorDescripcio, 
 					tipus, 
 					tempsResposta,  
-					(IntegracioParametreDto[]) parametres.toArray());
+					params);
 			break;
 		}
 	}

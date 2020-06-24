@@ -85,7 +85,6 @@ import net.conselldemallorca.helium.v3.core.api.dto.NtiEstadoElaboracionEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NtiOrigenEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NtiTipoDocumentalEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.TascaDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.exception.ExecucioMassivaException;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.exception.ValidacioException;
@@ -1012,7 +1011,6 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 		String tasca = null;
 		String expedient = null;
 		ExpedientTascaDto task = tascaService.findAmbIdPerTramitacio(tascaId);
-		Long expedientTipusId = expedientTipusHelper.findIdByProcessInstanceId(task.getProcessInstanceId());
 		if (MesuresTemporalsHelper.isActiu()) {
 			if (task != null) tasca = task.getTascaNom(); 
 			expedient = ome.getExpedient().getTipus().getNom();
@@ -1094,11 +1092,10 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 			} else if ("DocGenerar".equals(accio)) {
 				mesuresTemporalsHelper.mesuraIniciar("Generar document", "massiva_tasca", expedient, tasca);
 				Object[] param2 = (Object[])deserialize(ome.getExecucioMassiva().getParam2());
-				Long documentId = (Long)param2[1];
-				TascaDocumentDto document = tascaService.findDocument(tascaId, documentId, expedientTipusId);
+				String documentCodi = (String)param2[1];
 				expedientDocumentService.generarAmbPlantillaPerTasca(
 						tascaId,
-						document.getDocumentCodi());
+						documentCodi);
 				mesuresTemporalsHelper.mesuraCalcular("Generar document", "massiva_tasca", expedient, tasca);
 			}
 

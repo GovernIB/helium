@@ -33,6 +33,7 @@ import org.hibernate.annotations.ForeignKey;
 import net.conselldemallorca.helium.integracio.plugins.notificacio.EnviamentEstat;
 import net.conselldemallorca.helium.v3.core.api.dto.EnviamentTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NotificacioEnviamentEstatEnumDto;
+import net.conselldemallorca.helium.v3.core.api.dto.NotificacioEstatEnumDto;
 
 /**
  * Objecte de domini que representa una notificació electronica de un expedient.
@@ -158,7 +159,8 @@ public class DocumentNotificacio implements Serializable, GenericEntity<Long> {
 	private String enviamentReferencia;
 	
 	@Column(name = "env_dat_estat", length = 20)
-	private String enviamentDatatEstat;
+	@Enumerated(EnumType.STRING)
+	private NotificacioEnviamentEstatEnumDto enviamentDatatEstat;
 	
 	@Column(name = "env_dat_data")
 	private Date enviamentDatatData;
@@ -167,7 +169,7 @@ public class DocumentNotificacio implements Serializable, GenericEntity<Long> {
 	private String enviamentDatatOrigen;
 	
 	@Column(name = "env_cert_data")
-	@Temporal(TemporalType.DATE)
+	@Temporal(TemporalType.TIMESTAMP)
 	private Date enviamentCertificacioData;
 	
 	@Column(name = "env_cert_origen", length = 20)
@@ -182,7 +184,7 @@ public class DocumentNotificacio implements Serializable, GenericEntity<Long> {
 	
 	@Column(name = "estat", nullable = false)
 	@Enumerated(EnumType.STRING)
-	private NotificacioEnviamentEstatEnumDto estat;
+	private NotificacioEstatEnumDto estat;
 	
 	@Column(name = "enviat_data")
 	@Temporal(TemporalType.TIMESTAMP)
@@ -428,11 +430,11 @@ public class DocumentNotificacio implements Serializable, GenericEntity<Long> {
 		this.destinatariEmail = destinatariEmail;
 	}
 
-	public NotificacioEnviamentEstatEnumDto getEstat() {
+	public NotificacioEstatEnumDto getEstat() {
 		return estat;
 	}
 
-	public void setEstat(NotificacioEnviamentEstatEnumDto estat) {
+	public void setEstat(NotificacioEstatEnumDto estat) {
 		this.estat = estat;
 	}
 
@@ -676,11 +678,11 @@ public class DocumentNotificacio implements Serializable, GenericEntity<Long> {
 		this.enviamentReferencia = enviamentReferencia;
 	}
 
-	public String getEnviamentDatatEstat() {
+	public NotificacioEnviamentEstatEnumDto getEnviamentDatatEstat() {
 		return enviamentDatatEstat;
 	}
 
-	public void setEnviamentDatatEstat(String enviamentDatatEstat) {
+	public void setEnviamentDatatEstat(NotificacioEnviamentEstatEnumDto enviamentDatatEstat) {
 		this.enviamentDatatEstat = enviamentDatatEstat;
 	}
 
@@ -738,7 +740,7 @@ public class DocumentNotificacio implements Serializable, GenericEntity<Long> {
 			String enviamentReferencia) {
 		this.enviamentIdentificador = enviamentIdentificador;
 		this.enviamentReferencia = enviamentReferencia;
-		this.estat = NotificacioEnviamentEstatEnumDto.ENVIADA;
+		this.estat = NotificacioEstatEnumDto.ENVIADA;
 		this.enviatData = enviatData;
 		this.error = false;
 		this.errorDescripcio = null;
@@ -749,7 +751,7 @@ public class DocumentNotificacio implements Serializable, GenericEntity<Long> {
 	
 	public void updateEnviat(
 			Date enviatData) {
-		this.estat = NotificacioEnviamentEstatEnumDto.ENVIADA;
+		this.estat = NotificacioEstatEnumDto.ENVIADA;
 		this.enviatData = enviatData;
 		this.error = false;
 		this.errorDescripcio = null;
@@ -760,7 +762,7 @@ public class DocumentNotificacio implements Serializable, GenericEntity<Long> {
 	public void updateEnviatError(
 			String errorDescripcio,
 			Date intentProximData) {
-		this.estat = NotificacioEnviamentEstatEnumDto.PENDENT;
+		this.estat = NotificacioEstatEnumDto.PENDENT;
 		this.error = true;
 		this.errorDescripcio = StringUtils.abbreviate(errorDescripcio, ERROR_DESC_TAMANY);
 		this.enviatData = null;
@@ -772,7 +774,7 @@ public class DocumentNotificacio implements Serializable, GenericEntity<Long> {
 	public void updateProcessat(
 			boolean processat,
 			Date processatData) {
-		this.estat = (processat) ? NotificacioEnviamentEstatEnumDto.PROCESSADA : NotificacioEnviamentEstatEnumDto.REBUTJADA;
+		this.estat = (processat) ? NotificacioEstatEnumDto.PROCESSADA : NotificacioEstatEnumDto.ENVIADA;
 		this.processatData = processatData;
 		this.error = false;
 		this.errorDescripcio = null;
@@ -783,7 +785,7 @@ public class DocumentNotificacio implements Serializable, GenericEntity<Long> {
 	public void updateProcessatError(
 			String errorDescripcio,
 			Date intentProximData) {
-		this.estat = NotificacioEnviamentEstatEnumDto.ENVIADA;
+		this.estat = NotificacioEstatEnumDto.ENVIADA;
 		this.error = true;
 		this.errorDescripcio = StringUtils.abbreviate(errorDescripcio, ERROR_DESC_TAMANY);
 		this.processatData = null;
@@ -794,7 +796,7 @@ public class DocumentNotificacio implements Serializable, GenericEntity<Long> {
 
 	public void updateCancelat(
 			Date cancelatData) {
-		this.estat = NotificacioEnviamentEstatEnumDto.CANCELADA;
+		this.estat = NotificacioEstatEnumDto.FINALITZADA;
 		this.cancelatData = cancelatData;
 		this.error = false;
 		this.errorDescripcio = null;
@@ -804,7 +806,7 @@ public class DocumentNotificacio implements Serializable, GenericEntity<Long> {
 	}
 
 	protected void inicialitzar() {
-		this.estat = NotificacioEnviamentEstatEnumDto.PENDENT;
+		this.estat = NotificacioEstatEnumDto.PENDENT;
 		this.enviatData = null;
 		this.processatData = null;
 		this.cancelatData = null;
@@ -821,27 +823,31 @@ public class DocumentNotificacio implements Serializable, GenericEntity<Long> {
 			String enviamentDatatOrigen,
 			Date enviamentCertificacioData,
 			String enviamentCertificacioOrigen,
-			DocumentStore enviamentCertificacio) {
-		this.enviamentDatatEstat = enviamentDatatEstat.name();
+			DocumentStore enviamentCertificacio,
+			boolean error,
+			String errorDescripcio) {
+		this.enviamentDatatEstat = NotificacioEnviamentEstatEnumDto.valueOf(enviamentDatatEstat.toString());
 		this.enviamentDatatData = enviamentDatatData;
 		this.enviamentDatatOrigen = enviamentDatatOrigen;
 		this.enviamentCertificacioData = enviamentCertificacioData;
 		this.enviamentCertificacioOrigen = enviamentCertificacioOrigen;
 		this.enviamentCertificacio = enviamentCertificacio;
+		this.error = error;
+		this.errorDescripcio = errorDescripcio;
 		switch (enviamentDatatEstat) {
-		case LLEGIDA:
-		case NOTIFICADA:
-			updateProcessat(true, enviamentDatatData);
-			break;
-		case EXPIRADA:
-		case REBUTJADA:
-			updateProcessat(false, enviamentDatatData);
-			break;
-		case NOTIB_ENVIADA:
-			updateEnviat(enviamentDatatData);
-			break;
-		default:
-			break;
+			case LLEGIDA:
+			case NOTIFICADA:
+				updateProcessat(true, enviamentDatatData);
+				break;
+			case EXPIRADA:
+			case REBUTJADA:
+				updateProcessat(false, enviamentDatatData);
+				break;
+			case NOTIB_ENVIADA:
+				updateEnviat(enviamentDatatData);
+				break;
+			default:
+				break;
 		}
 	}
 

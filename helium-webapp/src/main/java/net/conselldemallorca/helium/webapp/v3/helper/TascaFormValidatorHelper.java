@@ -175,22 +175,27 @@ public class TascaFormValidatorHelper implements Validator {
 			}
 			// Només valida amb expressions si no hi ha errors previs
 			if (validarExpresions && !errors.hasErrors()) {
-				try {
-					getValidatorPerExpressions(tascaDades, command).validate(
-							getCommandPerValidadorExpressions(command, null),
-							errors);
-				} catch (NotReadablePropertyException ex) {
-					// Si dona un error de que no troba una propietat l'afegeix amb el
-					// valor null i torna a intentar la validació.
-					int iinici = ex.getMessage().indexOf("'");
-					if (iinici != -1) {
-						int ifi = ex.getMessage().indexOf("'", iinici + 1);
-						String property = ex.getMessage().substring(iinici + 1, ifi);
+				boolean errorPropietatNoPresent;
+				String propietatAddicional = null;
+				Object commandPerValidadorExpressions = command;
+				do {
+					errorPropietatNoPresent = false;
+					try {
+						commandPerValidadorExpressions = getCommandPerValidadorExpressions(commandPerValidadorExpressions, propietatAddicional); 
 						getValidatorPerExpressions(tascaDades, command).validate(
-								getCommandPerValidadorExpressions(command, property),
+								commandPerValidadorExpressions,
 								errors);
+					} catch (NotReadablePropertyException ex) {
+						// Si dona un error de que no troba una propietat l'afegeix amb el valor "" i torna a intentar la validació.
+						int iinici = ex.getMessage().indexOf("'");
+						if (iinici != -1) {
+							int ifi = ex.getMessage().indexOf("'", iinici + 1);
+							propietatAddicional = ex.getMessage().substring(iinici + 1, ifi);
+							errorPropietatNoPresent = true;
+						} else
+							errorPropietatNoPresent = false;
 					}
-				}
+				} while(errorPropietatNoPresent);
 			}
 			logger.debug(errors.toString());
 		} catch (Exception ex) {
@@ -484,6 +489,12 @@ public class TascaFormValidatorHelper implements Validator {
 						descriptor.getName(),
 						valor);
 			}
+		}
+		if (propietatAddicional != null) {
+			PropertyUtils.setProperty(
+					command,
+					propietatAddicional,
+					"");
 		}
 		return command;
 	}

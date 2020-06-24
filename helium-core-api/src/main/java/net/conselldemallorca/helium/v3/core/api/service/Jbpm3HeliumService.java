@@ -604,6 +604,25 @@ public interface Jbpm3HeliumService {
 			String enumeracioCodi) throws NoTrobatException, NoTrobatException;
 
 	/**
+	 * Fixa el valor pel camp de l'enumeració corresponent al codi.
+	 * 
+	 * @param processInstanceId
+	 * @param enumeracioCodi
+	 * @param codi
+	 * 			Codi de l'entrada a l'enumeració.
+	 * @param valor
+	 * 			Valor per fixar a l'enumeració.
+	 * @throws ExpedientNotFoundException
+	 * @throws EnumeracioNotFoundException
+	 * @throws NotFoundException
+	 */
+	public void enumeracioSetValor(
+			String processInstanceId,
+			String enumeracioCodi,
+			String codi,
+			String valor) throws NoTrobatException;
+
+	/**
 	 * Retorna els camps del formulari d'una tasca.
 	 * 
 	 * @param taskInstanceId
@@ -643,6 +662,22 @@ public interface Jbpm3HeliumService {
 	 */
 	public DocumentDto getDocumentInfo(Long documentStoreId);
 
+	/**
+	 * Obté informació d'un document d'un expedient d'Helium.
+	 * 
+	 * @param documentCodi
+	 * @return
+	 */
+	public DocumentDto getDocumentInfo(
+			Long documentStoreId,
+			boolean ambContingutOriginal,
+			boolean ambContingutSignat,
+			boolean ambContingutVista,
+			boolean perSignar,
+			boolean perNotificar,
+			boolean ambSegellSignatura);
+
+	
 	/**
 	 * Obté l'arxiu d'un document d'un expedient d'Helium.
 	 * @param documentStoreId

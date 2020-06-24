@@ -44,6 +44,9 @@ public class InteressatCrearHandler extends BasicActionHandler implements Intere
 	
 	private String nif;
 	private String varNif;
+
+	private String dir3Codi;
+	private String varDir3Codi;
 	
 	private String llinatge1;  
 	private String varLlinatge1; 
@@ -120,10 +123,11 @@ public class InteressatCrearHandler extends BasicActionHandler implements Intere
 				executionContext,
 				telefon,
 				varTelefon));
-		interessat.setEntregaPostal((Boolean)getValorOVariableBoolean(
+		Boolean entregaPostalVal = getValorOVariableBoolean(
 				executionContext,
 				entregaPostal,
-				varEntregaPostal));
+				varEntregaPostal);
+		interessat.setEntregaPostal(entregaPostalVal != null? entregaPostalVal.booleanValue() : false);
 		interessat.setEntregaTipus((String)getValorOVariable(
 				executionContext,
 				entregaTipus,
@@ -136,14 +140,16 @@ public class InteressatCrearHandler extends BasicActionHandler implements Intere
 				executionContext,
 				linia2,
 				varLinia2));
-		interessat.setEntregaDeh((Boolean)getValorOVariableBoolean(
+		Boolean entregaDehVal = getValorOVariableBoolean(
 				executionContext,
 				entregaDeh,
-				varEntregaDeh));
-		interessat.setEntregaDehObligat((Boolean)getValorOVariableBoolean(
+				varEntregaDeh);
+		interessat.setEntregaDeh(entregaDehVal != null ? entregaDehVal.booleanValue() : false);
+		Boolean entregaDehObligatVal = getValorOVariableBoolean(
 				executionContext,
 				entregaDehObligat,
-				varEntregaDehObligat));
+				varEntregaDehObligat);
+		interessat.setEntregaDehObligat(entregaDehObligatVal != null ? entregaDehObligatVal.booleanValue() : false);
 		interessat.setCodiPostal((String)getValorOVariable(
 				executionContext, 
 				codiPostal, 
@@ -172,6 +178,18 @@ public class InteressatCrearHandler extends BasicActionHandler implements Intere
 	}
 	public void setVarNif(String varNif) {
 		this.varNif = varNif;
+	}
+	public String getDir3Codi() {
+		return dir3Codi;
+	}
+	public void setDir3Codi(String dir3Codi) {
+		this.dir3Codi = dir3Codi;
+	}
+	public String getVarDir3Codi() {
+		return varDir3Codi;
+	}
+	public void setVarDir3Codi(String varDir3Codi) {
+		this.varDir3Codi = varDir3Codi;
 	}
 	public void setLlinatge1(String llinatge1) {
 		this.llinatge1 = llinatge1;

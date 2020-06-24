@@ -77,6 +77,8 @@ public class ExpedientTipusDto extends ControlPermisosDto implements Serializabl
 	
 	// Integració NOTIB
 	private Boolean notibActiu;
+	private String notibEmisor;
+	private String notibCodiProcediment;
 
 	// Integració DISTRIBUCIO
 	private boolean distribucioActiu;
@@ -394,6 +396,18 @@ public class ExpedientTipusDto extends ControlPermisosDto implements Serializabl
 	}
 	public void setNotibActiu(Boolean notibActiu) {
 		this.notibActiu = notibActiu;
+	}
+	public String getNotibEmisor() {
+		return notibEmisor;
+	}
+	public void setNotibEmisor(String notibEmisor) {
+		this.notibEmisor = notibEmisor;
+	}
+	public String getNotibCodiProcediment() {
+		return notibCodiProcediment;
+	}
+	public void setNotibCodiProcediment(String notibCodiProcediment) {
+		this.notibCodiProcediment = notibCodiProcediment;
 	}
 	public String getNotibSeuCodiProcediment() {
 		return notibSeuCodiProcediment;

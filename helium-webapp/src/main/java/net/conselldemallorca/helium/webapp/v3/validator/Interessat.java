@@ -13,17 +13,23 @@ import javax.validation.Constraint;
 import javax.validation.Payload;
 
 /**
- * Command per a validar que el codi d'interessat no estigui repetit.
+ * Command per a validar els interessats. Valida:
+ * - Que no hi hagi un interessat amb el mateix codi
+ * - Que el llinatge1 sigui obligatori per persones físiques.
+ * - Que el nif sigui obligatori per persones físiques i jurídiques.
+ * - Que el codi dir3 sigui obligatori per administracions
+ * - Que les línies estiguin informades si està la entrega postal activa
+ * - Que l'email estigui informat per entreges deh
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Documented
-@Constraint(validatedBy = InteressatCodiNoRepetitValidator.class)
+@Constraint(validatedBy = InteressatValidator.class)
 @Target({ ElementType.TYPE, ElementType.ANNOTATION_TYPE })
 @Retention(RetentionPolicy.RUNTIME)
-public @interface InteressatCodiNoRepetit {
+public @interface Interessat {
 
-	String message() default "interessat.validacio.codi.repetit";
+	String message() default "interessat.validacio.llinatge.obligatori";
 
 	Class<?>[] groups() default {};
 

@@ -197,7 +197,6 @@ public class ExpedientTipusTascaController extends BaseTascaDissenyController {
 		
 		TascaDto dto = definicioProcesService.tascaFindAmbId(expedientTipusId, tascaId);
 		DefinicioProcesTascaCommand command = DefinicioProcesTascaCommand.toDefinicioProcesTascaCommand(dto);	
-		command.setDefinicioProcesId(dto.getDefinicioProcesId());
 		model.addAttribute("definicioProcesTascaCommand", command);
 		model.addAttribute("heretat", dto.isHeretat());
 		return "v3/definicioProcesTascaForm";	
@@ -446,7 +445,7 @@ public class ExpedientTipusTascaController extends BaseTascaDissenyController {
 		// Obté el llistat de variables
 		List<CampDto> variables = dissenyService.findCampsOrdenatsPerCodi(
 					expedientTipusId,
-					null,
+					tasca.getDefinicioProcesId(),
 					true // amb herencia
 				);
 		// Afegeix al model les variables que són heretades o sobreescriuen
@@ -665,7 +664,7 @@ public class ExpedientTipusTascaController extends BaseTascaDissenyController {
 		// Obté el llistat de documents
 		List<DocumentDto> documents = dissenyService.findDocumentsOrdenatsPerCodi(
 					expedientTipusId,
-					null,
+					tasca.getDefinicioProcesId(),
 					true // amb herencia
 				);
 		// Afegeix al model els documents que són heretades o sobreescriuen
@@ -882,7 +881,7 @@ public class ExpedientTipusTascaController extends BaseTascaDissenyController {
 		// Obté el llistat de documents
 		List<DocumentDto> documents = dissenyService.findDocumentsOrdenatsPerCodi(
 					expedientTipusId,
-					null,
+					tasca.getDefinicioProcesId(),
 					true // amb herencia
 				);
 		// Afegeix al model els documents que són heretades o sobreescriuen

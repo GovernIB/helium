@@ -355,11 +355,22 @@ public interface ExpedientDocumentService {
 			String identificador, 
 			String referenciaEnviament);
 
+	/** Mètode per donar d'alta una notificació electrònica per un interessat. De moment crea
+	 * una notificació per un interessat amb la possibilitat d'afegir un representant com a destinatari.
+	 * 
+	 * @param expedientId
+	 * @param documentStoreId
+	 * @param dadesNotificacioDto
+	 * @param interessatsId
+	 * @param representantId
+	 * @return
+	 */
 	public DadesNotificacioDto notificarDocument(
 			Long expedientId, 
 			Long documentStoreId, 
 			DadesNotificacioDto dadesNotificacioDto, 
-			List<Long> interessatsIds);
+			Long interessatsIds, 
+			Long representantId);
 
 	public PaginaDto<NotificacioDto> findNotificacionsPerDatatable(
 			String filtre, 
@@ -376,6 +387,21 @@ public interface ExpedientDocumentService {
 			Long expedientId, 
 			Long documentStoreId, 
 			int firmaIndex);
+
+	/**
+	 * Migra el document a l'arxiu
+	 * 
+	 * @param documentStoreId
+	 *            Atribut documentStoreId del document.
+	 * @throws NoTrobatException
+	 *             Si no s'ha trobat cap document amb el documentStoreId especificat.
+	 * @throws PermisDenegatException
+	 *             Si no es tenen els permisos adequats.
+	 */
+	public void migrarArxiu(
+			Long expedientId,
+			Long documentStoreId) throws NoTrobatException, PermisDenegatException;
+
 
 
 }

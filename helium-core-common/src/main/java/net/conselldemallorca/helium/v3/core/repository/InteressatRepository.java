@@ -29,7 +29,13 @@ public interface InteressatRepository extends JpaRepository<Interessat, Long> {
 	@Query(	"from Interessat i " +
 			"where " +
 			"   i.expedient = :expedient " +
-			"  and   (:esNullFiltre = true or lower(i.nom) like lower('%'||:filtre||'%') or lower(i.codi) like lower('%'||:filtre||'%')) ")
+			"  and   (:esNullFiltre = true " + 
+			" 			or (lower(i.nom) like lower('%'||:filtre||'%')) " +
+			" 			or (lower(i.llinatge1) like lower('%'||:filtre||'%')) " +
+			" 			or (lower(i.llinatge2) like lower('%'||:filtre||'%')) " +
+			" 			or (lower(i.nif) like lower('%'||:filtre||'%')) " +
+			" 			or (lower(i.dir3Codi) like lower('%'||:filtre||'%')) " +
+			" 			or (lower(i.codi) like lower('%'||:filtre||'%'))) ")
 	Page<ExpedientTipus> findByFiltrePaginat(
 			@Param("expedient") Expedient expedient,
 			@Param("esNullFiltre") boolean esNullFiltre,

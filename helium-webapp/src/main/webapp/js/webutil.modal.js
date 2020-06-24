@@ -177,7 +177,10 @@
 						$('div.tooltip').remove();
 					});
 				});
-				modalobj.on('hidden.bs.modal', function () {
+				modalobj.on('hide.bs.modal', function () {
+					if (settings.refreshMissatges) {
+						webutilRefreshMissatges();
+					}
 					if (settings.dataTableId) {
 						$('#' + settings.dataTableId).webutilDatatable('refresh');
 					}

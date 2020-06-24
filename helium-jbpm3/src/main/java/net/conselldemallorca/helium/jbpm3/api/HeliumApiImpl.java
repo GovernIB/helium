@@ -44,7 +44,6 @@ import net.conselldemallorca.helium.jbpm3.integracio.DominiCodiDescripcio;
 import net.conselldemallorca.helium.jbpm3.integracio.Jbpm3HeliumBridge;
 import net.conselldemallorca.helium.jbpm3.integracio.Termini;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
-import net.conselldemallorca.helium.v3.core.api.dto.DadesEnviamentDto.EntregaPostalTipus;
 import net.conselldemallorca.helium.v3.core.api.dto.DadesNotificacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DominiRespostaColumnaDto;
@@ -54,7 +53,6 @@ import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDadaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.InteressatDto;
-import net.conselldemallorca.helium.v3.core.api.dto.InteressatTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RegistreAnnexDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RegistreAnotacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RegistreIdDto;
@@ -385,6 +383,43 @@ public class HeliumApiImpl implements HeliumApi {
 	}
 	
 	@Override
+	public String enumeracioGetValor(
+			String codiEnumeracio,
+			String codi) throws HeliumHandlerException {
+			
+		String valor = null;
+		List<ParellaCodiValor> valorsEnumeracio = this.consultaEnumeracio(codiEnumeracio);
+		for (ParellaCodiValor p : valorsEnumeracio) {
+			if (p.getCodi().equals(codi)) {
+				valor = p.getValor() != null ? p.getValor().toString() : null;
+				break;
+			}
+		}
+		return valor;
+	}
+	
+	/** Modifica el valor text per a un codi d'una enumeració.
+	 * 
+	 * @param executionContext
+	 * @param codiEnumeracio
+	 * 			Codi de l'enumeració per trobar l'enumeració.
+	 * @param codi
+	 * 			Codi de la parella codi-valor de l'enumeració.
+	 * @param valor
+	 * 			Cadena de text pel nom de l'enumeració corresponent al codi.
+	 */
+	public void enumeracioSetValor(
+			String codiEnumeracio,
+			String codi,
+			String valor) {
+		Jbpm3HeliumBridge.getInstanceService().enumeracioSetValor(
+						getProcessInstanceId(),
+						codiEnumeracio,
+						codi,
+						valor);
+	}
+	
+	@Override
 	public List<ExpedientInfo> consultaExpedients(
 			String titol,
 			String numero,
@@ -474,7 +509,6 @@ public class HeliumApiImpl implements HeliumApi {
 			return null;
 		if (valor instanceof Long) {
 			Long documentStoreId = (Long) valor;
-//			return ConversioTipusHelper.toDocumentInfo(Jbpm3HeliumBridge.getInstanceService().getDocumentInfo(documentStoreId));
 			DocumentDto document = Jbpm3HeliumBridge.getInstanceService().getDocumentInfo(documentStoreId);
 			if (document == null)
 				return null;
@@ -784,24 +818,7 @@ public class HeliumApiImpl implements HeliumApi {
 	public void interessatCrear(
 			Interessat interessat) {
 		
-		InteressatDto interessatDto = new InteressatDto();
-
-		interessatDto.setCodi(interessat.getCodi());
-		interessatDto.setNom(interessat.getNom());
-		interessatDto.setNif(interessat.getNif());
-		interessatDto.setLlinatge1(interessat.getLlinatge1());
-		interessatDto.setLlinatge2(interessat.getLlinatge2());
-		interessatDto.setTipus(InteressatTipusEnumDto.valueOf(interessat.getTipus().toUpperCase()));
-		interessatDto.setEmail(interessat.getEmail());
-		interessatDto.setTelefon(interessat.getTelefon());
-		interessatDto.setExpedientId(interessat.getExpedientId());
-		interessatDto.setEntregaPostal(interessat.isEntregaPostal());
-		interessatDto.setEntregaTipus(EntregaPostalTipus.valueOf(interessat.getEntregaTipus()));
-		interessatDto.setLinia1(interessat.getLinia1());
-		interessatDto.setLinia2(interessat.getLinia2());
-		interessatDto.setCodiPostal(interessat.getCodiPostal());
-		interessatDto.setEntregaDeh(interessat.isEntregaDeh());
-		interessatDto.setEntregaDehObligat(interessat.isEntregaDehObligat());
+		InteressatDto interessatDto = ConversioTipusHelper.toInteressatDto(interessat);
 		Jbpm3HeliumBridge.getInstanceService().interessatCrear(interessatDto);	
 	}
 	
@@ -809,25 +826,7 @@ public class HeliumApiImpl implements HeliumApi {
 	public void interessatModificar(
 			Interessat interessat) {
 		
-		InteressatDto interessatDto = new InteressatDto();
-
-		interessatDto.setId(interessat.getId());
-		interessatDto.setCodi(interessat.getCodi());
-		interessatDto.setNom(interessat.getNom());
-		interessatDto.setNif(interessat.getNif());
-		interessatDto.setLlinatge1(interessat.getLlinatge1());
-		interessatDto.setLlinatge2(interessat.getLlinatge2());
-		interessatDto.setTipus(InteressatTipusEnumDto.valueOf(interessat.getTipus().toUpperCase()));
-		interessatDto.setEmail(interessat.getEmail());
-		interessatDto.setTelefon(interessat.getTelefon());
-		interessatDto.setExpedientId(interessat.getExpedientId());
-		interessatDto.setEntregaPostal(interessat.isEntregaPostal());
-		interessatDto.setEntregaTipus(EntregaPostalTipus.valueOf(interessat.getEntregaTipus()));
-		interessatDto.setLinia1(interessat.getLinia1());
-		interessatDto.setLinia2(interessat.getLinia2());
-		interessatDto.setCodiPostal(interessat.getCodiPostal());
-		interessatDto.setEntregaDeh(interessat.isEntregaDeh());
-		interessatDto.setEntregaDehObligat(interessat.isEntregaDehObligat());
+		InteressatDto interessatDto = ConversioTipusHelper.toInteressatDto(interessat);
 		Jbpm3HeliumBridge.getInstanceService().interessatModificar(interessatDto);
 		
 	}

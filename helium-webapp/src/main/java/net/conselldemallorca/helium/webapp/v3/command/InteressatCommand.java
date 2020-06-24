@@ -12,20 +12,14 @@ import net.conselldemallorca.helium.v3.core.api.dto.DadesEnviamentDto.EntregaPos
 import net.conselldemallorca.helium.v3.core.api.dto.InteressatTipusEnumDto;
 import net.conselldemallorca.helium.webapp.v3.command.InteressatCommand.Creacio;
 import net.conselldemallorca.helium.webapp.v3.command.InteressatCommand.Modificacio;
-import net.conselldemallorca.helium.webapp.v3.validator.InteressatCodiNoRepetit;
-import net.conselldemallorca.helium.webapp.v3.validator.InteressatEmail;
-import net.conselldemallorca.helium.webapp.v3.validator.InteressatLinies;
-import net.conselldemallorca.helium.webapp.v3.validator.InteressatLlinatge;
+import net.conselldemallorca.helium.webapp.v3.validator.Interessat;
 
 /**
  * Command que representa el formulari d'un entorn.
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
-@InteressatLinies(groups = {Creacio.class, Modificacio.class})
-@InteressatEmail(groups = {Creacio.class, Modificacio.class})
-@InteressatCodiNoRepetit(groups = {Creacio.class, Modificacio.class})
-@InteressatLlinatge(groups = {Creacio.class, Modificacio.class})
+@Interessat(groups = {Creacio.class, Modificacio.class})
 public class InteressatCommand {
 
 	private Long id;
@@ -38,6 +32,8 @@ public class InteressatCommand {
 	@NotEmpty(groups = {Creacio.class, Modificacio.class})
 	@Size(max = 9, groups = {Creacio.class, Modificacio.class})
 	private String nif;
+	@Size(max = 9, groups = {Creacio.class, Modificacio.class})
+	private String dir3Codi;
 	private String llinatge1;  
 	private String llinatge2;  
 
@@ -76,6 +72,12 @@ public class InteressatCommand {
 	}
 	public void setNif(String nif) {
 		this.nif = nif;
+	}
+	public String getDir3Codi() {
+		return dir3Codi;
+	}
+	public void setDir3Codi(String dir3Codi) {
+		this.dir3Codi = dir3Codi;
 	}
 	public String getLlinatge1() {
 		return llinatge1;

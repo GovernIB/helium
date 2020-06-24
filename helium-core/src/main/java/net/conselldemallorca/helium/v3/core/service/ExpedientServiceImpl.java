@@ -131,6 +131,7 @@ import net.conselldemallorca.helium.v3.core.repository.AlertaRepository;
 import net.conselldemallorca.helium.v3.core.repository.CampRepository;
 import net.conselldemallorca.helium.v3.core.repository.ConsultaRepository;
 import net.conselldemallorca.helium.v3.core.repository.DefinicioProcesRepository;
+import net.conselldemallorca.helium.v3.core.repository.DocumentNotificacioRepository;
 import net.conselldemallorca.helium.v3.core.repository.DocumentRepository;
 import net.conselldemallorca.helium.v3.core.repository.DocumentStoreRepository;
 import net.conselldemallorca.helium.v3.core.repository.EnumeracioRepository;
@@ -193,6 +194,8 @@ public class ExpedientServiceImpl implements ExpedientService {
 	private PortasignaturesRepository portasignaturesRepository;
 	@Resource
 	private NotificacioRepository notificacioRepository;
+	@Resource
+	private DocumentNotificacioRepository documentNotificacioRepository;
 
 	@Resource
 	private ExpedientHelper expedientHelper;
@@ -285,36 +288,41 @@ public class ExpedientServiceImpl implements ExpedientService {
 		
 		Expedient expedient = null;
 		try {
-			// Es crida la creació a través del helper per evitar errors de concurrència de creació de dos expedients
-			// a la vegada que ja s'ha donat el cas.
-			expedient = expedientHelper.iniciar(
-					entornId, 
-					usuari, 
-					expedientTipusId, 
-					definicioProcesId, 
-					any, 
-					numero, 
-					titol, 
-					registreNumero, 
-					registreData, 
-					unitatAdministrativa, 
-					idioma, 
-					autenticat, 
-					tramitadorNif, 
-					tramitadorNom, 
-					interessatNif, 
-					interessatNom, 
-					representantNif, 
-					representantNom, 
-					avisosHabilitats, 
-					avisosEmail, 
-					avisosMobil, 
-					notificacioTelematicaHabilitada, 
-					variables, transitionName, 
-					iniciadorTipus, iniciadorCodi, 
-					responsableCodi, 
-					documents, 
-					adjunts);
+			// Accés sincronitzat a la transacció
+			synchronized(this) {
+				// Es crida la creació a través del helper per evitar errors de concurrència de creació de dos expedients
+				// a la vegada que ja s'ha donat el cas.
+				expedient = expedientHelper.iniciar(
+						entornId, 
+						usuari, 
+						expedientTipusId, 
+						definicioProcesId, 
+						any, 
+						numero, 
+						titol, 
+						registreNumero, 
+						registreData, 
+						unitatAdministrativa, 
+						idioma, 
+						autenticat, 
+						tramitadorNif, 
+						tramitadorNom, 
+						interessatNif, 
+						interessatNom, 
+						representantNif, 
+						representantNom, 
+						avisosHabilitats, 
+						avisosEmail, 
+						avisosMobil, 
+						notificacioTelematicaHabilitada, 
+						variables, 
+						transitionName, 
+						iniciadorTipus, 
+						iniciadorCodi, 
+						responsableCodi, 
+						documents, 
+						adjunts);
+			}
 			// Retorna la informació de l'expedient que s'ha iniciat
 			ExpedientDto dto = conversioTipusHelper.convertir(
 					expedient,
@@ -494,6 +502,10 @@ public class ExpedientServiceImpl implements ExpedientService {
 						pluginHelper.custodiaEsborrarSignatures(documentStore.getReferenciaCustodia(), expedient);
 					} catch (Exception ignored) {}
 				}
+				List<DocumentNotificacio> enviaments = documentNotificacioRepository.findByExpedientAndDocumentId(expedient, documentStore.getId());
+				if (enviaments != null && enviaments.size() > 0)
+					documentNotificacioRepository.delete(enviaments);
+
 				if (documentStore.getFont().equals(DocumentFont.ALFRESCO))
 					pluginHelper.gestioDocumentalDeleteDocument(
 							documentStore.getReferenciaFont(), expedient);

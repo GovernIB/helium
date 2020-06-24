@@ -125,7 +125,7 @@ public class ExpedientIniciController extends BaseExpedientIniciController {
 							(Integer)request.getSession().getAttribute(CLAU_SESSIO_ANY),
 							null,
 							anotacioAcceptarCommand);
-				return modalUrlTancar();
+				return modalUrlTancar(false);
 			} catch (ValidacioException ex) {
 				MissatgesHelper.error(
 	        			request,

@@ -69,8 +69,8 @@
 			<div class="inlineLabels">
 				<h4 class="titol-missatge">
 					<label class="control-label col-xs-1 <c:if test="${document.required}">obligatori</c:if>">${document.documentNom}</label>
-		 			<c:if test="${not empty document.arxiuNom and document.arxiuContingutDefinit and tasca.validada}">
-						<a 	class="icon" 
+		 			<c:if test="${not empty document.arxiuNom and document.arxiuContingutDefinit and tasca.validada and empty document.tokenSignatura}">
+						<a 	class="icon"
 							id="plantilla${document.id}" 
 							href="${documentGenerarAction}"
 							<c:if test="${document.plantilla and document.adjuntarAuto}">data-rdt-link-confirm="<spring:message code='expedient.tasca.doc.generar.confirm' />"</c:if>

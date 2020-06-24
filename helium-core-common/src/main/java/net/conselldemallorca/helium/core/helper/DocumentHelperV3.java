@@ -834,13 +834,16 @@ public class DocumentHelperV3 {
 					DocumentStore.class, 
 					documentStoreId);
 		}
+		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
+		List<DocumentNotificacio> enviaments = documentNotificacioRepository.findByExpedientAndDocumentId(expedient, documentStoreId);
+		if (enviaments != null && enviaments.size() > 0)
+			throw new ValidacioException("No es pot modificar un document amb " + enviaments.size() + " enviaments");
 		documentStore.setDataDocument(documentData);
 		documentStore.setDataModificacio(new Date());
 		if (documentStore.isAdjunt()) {
 			documentStore.setAdjuntTitol(adjuntTitol);
 		}
 		if (arxiuContingut != null && pluginHelper.gestioDocumentalIsPluginActiu()) {
-			Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
 			pluginHelper.gestioDocumentalDeleteDocument(
 					documentStore.getReferenciaFont(),
 					expedient);
@@ -984,6 +987,9 @@ public class DocumentHelperV3 {
 		DocumentStore documentStore = documentStoreRepository.findOne(documentStoreId);
 		if (documentStore != null) {
 			Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
+			List<DocumentNotificacio> enviaments = documentNotificacioRepository.findByExpedientAndDocumentId(expedient, documentStoreId);
+			if (enviaments != null && enviaments.size() > 0)
+				throw new ValidacioException("No es pot esborrar un document amb " + enviaments.size() + " enviaments");
 			if (expedient.isArxiuActiu()) {
 				if (documentStore.isSignat()) {
 					throw new ValidacioException("No es pot esborrar un document firmat");
@@ -1421,7 +1427,9 @@ public class DocumentHelperV3 {
 						dto.setArxiuContingut(getPdfUtils().convertirPdf(dto.getArxiuNom(), dto.getArxiuContingut()));
 						dto.setArxiuNom(dto.getArxiuNomSenseExtensio() + ".pdf");
 						dto.setContentType("application/pdf");
+						//TODO: no posar a null i deixar el contingut com a null quan estigui a l'arxiu i regweb no falli
 					}
+					dto.setArxiuUuid(null);
 				}
 				if (documentStore.isRegistrat()) {
 					dto.setRegistreData(documentStore.getRegistreData());
@@ -1814,7 +1822,10 @@ public class DocumentHelperV3 {
 		dto.setAdjuntarAuto(document.isAdjuntarAuto());
 		dto.setArxiuNom(document.getArxiuNom());
 		dto.setArxiuContingutDefinit(document.getArxiuContingut() != null && document.getArxiuContingut().length > 0);
-		Long documentStoreId = getDocumentStoreIdDeVariableJbpm(String.valueOf(task.getTask().getId()), task.getProcessInstanceId(), document.getCodi());
+		Long documentStoreId = getDocumentStoreIdDeVariableJbpm(
+					String.valueOf(task.getTask().getId()), 
+					null, // busca només per tasca task.getProcessInstanceId(), 
+					document.getCodi());
 		if (documentStoreId != null) {
 			DocumentStore documentStore = documentStoreRepository.findOne(documentStoreId);
 			if (documentStore != null) {

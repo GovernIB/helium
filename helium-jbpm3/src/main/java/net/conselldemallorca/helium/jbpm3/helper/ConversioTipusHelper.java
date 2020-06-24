@@ -16,6 +16,7 @@ import net.conselldemallorca.helium.jbpm3.handlers.tipus.DocumentTramit;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.EnviamentReferencia;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.ExpedientInfo;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.ExpedientInfo.IniciadorTipus;
+import net.conselldemallorca.helium.jbpm3.handlers.tipus.Interessat;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.JustificantRecepcioInfo;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.PersonaInfo;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.RespostaEnviar;
@@ -33,6 +34,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.InteressatTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ReferenciaNotificacio;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto.IniciadorTipusDto;
+import net.conselldemallorca.helium.v3.core.api.dto.InteressatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RespostaNotificacio.NotificacioEstat;
 import net.conselldemallorca.helium.v3.core.api.dto.RespostaJustificantDetallRecepcioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RespostaNotificacio;
@@ -40,7 +42,9 @@ import net.conselldemallorca.helium.v3.core.api.dto.ServeiTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TramitDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TramitDocumentDto.TramitDocumentSignaturaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TramitDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DadesEnviamentDto.EntregaPostalTipus;
 import net.conselldemallorca.helium.v3.core.api.dto.TramitDto.TramitAutenticacioTipusDto;
+import net.conselldemallorca.helium.v3.core.api.exception.ValidacioException;
 
 /**
  * Helper per a convertir entre diferents formats de documents.
@@ -388,4 +392,45 @@ public class ConversioTipusHelper {
 		return resposta;
 
 	}
+
+	
+	public static InteressatDto toInteressatDto(Interessat interessat) {
+		InteressatDto interessatDto = new InteressatDto();
+
+		interessatDto.setCodi(interessat.getCodi());
+		interessatDto.setNom(interessat.getNom());
+		interessatDto.setNif(interessat.getNif());
+		interessatDto.setDir3Codi(interessat.getDir3Codi());
+		interessatDto.setLlinatge1(interessat.getLlinatge1());
+		interessatDto.setLlinatge2(interessat.getLlinatge2());
+		if (interessat.getTipus() != null && !interessat.getTipus().isEmpty()) {
+			try {
+				interessatDto.setTipus(InteressatTipusEnumDto.valueOf(interessat.getTipus().toUpperCase()));
+			} catch(Exception e) {
+				throw new ValidacioException("No es reconeix el tipus \"" + interessat.getTipus() + "\", " +
+										     "els possibles tipus són : " + InteressatTipusEnumDto.FISICA + ", " + 
+										     								InteressatTipusEnumDto.ADMINISTRACIO + " i " + 
+										     								InteressatTipusEnumDto.JURIDICA, e);
+			}
+		}
+		interessatDto.setEmail(interessat.getEmail());
+		interessatDto.setTelefon(interessat.getTelefon());
+		interessatDto.setExpedientId(interessat.getExpedientId());
+		interessatDto.setEntregaPostal(interessat.isEntregaPostal());
+		if (interessat.getEntregaTipus() != null && !interessat.getEntregaTipus().isEmpty()) {
+			try {
+				interessatDto.setEntregaTipus(EntregaPostalTipus.valueOf(interessat.getTipus().toUpperCase()));
+			} catch(Exception e) {
+				throw new ValidacioException("No es reconeix el tipus \"" + interessat.getTipus() + "\", " +
+										     "els possibles tipus són : " + EntregaPostalTipus.SENSE_NORMALITZAR, e);
+			}
+		}
+		interessatDto.setLinia1(interessat.getLinia1());
+		interessatDto.setLinia2(interessat.getLinia2());
+		interessatDto.setCodiPostal(interessat.getCodiPostal());
+		interessatDto.setEntregaDeh(interessat.isEntregaDeh());
+		interessatDto.setEntregaDehObligat(interessat.isEntregaDehObligat());
+
+		return interessatDto;
+	}	
 }

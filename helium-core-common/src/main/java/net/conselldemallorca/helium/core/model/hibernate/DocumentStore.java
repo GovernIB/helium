@@ -404,8 +404,6 @@ public class DocumentStore implements Serializable, GenericEntity<Long> {
 		return !isRegistreEntrada();
 	}
 
-
-
 	@Override
 	public int hashCode() {
 		final int prime = 31;

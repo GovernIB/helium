@@ -11,6 +11,8 @@ import org.apache.commons.io.IOUtils;
 //import org.fundaciobit.genapp.common.utils.Utils;
 
 import es.caib.regweb3.utils.RegwebConstantes;
+import es.caib.regweb3.ws.api.v3.RegWebAsientoRegistralWs;
+import es.caib.regweb3.ws.api.v3.RegWebAsientoRegistralWsService;
 import es.caib.regweb3.ws.api.v3.RegWebHelloWorldWithSecurityWs;
 import es.caib.regweb3.ws.api.v3.RegWebHelloWorldWithSecurityWsService;
 import es.caib.regweb3.ws.api.v3.RegWebHelloWorldWs;
@@ -21,8 +23,6 @@ import es.caib.regweb3.ws.api.v3.RegWebPersonasWs;
 import es.caib.regweb3.ws.api.v3.RegWebPersonasWsService;
 import es.caib.regweb3.ws.api.v3.RegWebRegistroEntradaWs;
 import es.caib.regweb3.ws.api.v3.RegWebRegistroEntradaWsService;
-import es.caib.regweb3.ws.api.v3.RegWebRegistroSalidaWs;
-import es.caib.regweb3.ws.api.v3.RegWebRegistroSalidaWsService;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
 
 /**
@@ -37,30 +37,12 @@ public abstract class RegWeb3Utils implements RegwebConstantes {
   public static final String HELLO_WORLD_WITH_SECURITY = "RegWebHelloWorldWithSecurity";
   
   public static final String REGWEB3_PERSONAS = "RegWebPersonas";
-  public static final String REGWEB3_REGISTRO_ENTRADA = "RegWebRegistroEntrada";
-  public static final String REGWEB3_REGISTRO_SALIDA = "RegWebRegistroSalida";
+  public static final String REGWEB3_REGISTRO_ENTRADA = "RegWebAsientoRegistral";
+  public static final String REGWEB3_REGISTRO_SALIDA = "RegWebAsientoRegistral";
   public static final String REGWEB3_INFO = "RegWebInfo";
-
-  // TODO GEN APP ADD OTHERS
-  
+ 
   private static Properties testProperties = new Properties();
-  
-//  static {
-//    // Traduccions
-//    try {
-//      Class.forName(I18NUtils.class.getName());
-//    } catch (ClassNotFoundException e) {
-//      e.printStackTrace();
-//    }
-//
-//    // Propietats del Servidor
-//    try {
-//        System.out.println(new File(".").getAbsolutePath());
-//      testProperties.load(new FileInputStream("test.properties"));
-//    } catch (Exception e) {
-//      e.printStackTrace();
-//    }
-//  }
+ 
   
  
 
@@ -69,7 +51,6 @@ public abstract class RegWeb3Utils implements RegwebConstantes {
   }
 
   public static String getAppUserName() {
-//    return testProperties.getProperty("test_usr");
     return GlobalProperties.getInstance().getProperty("app.registre.plugin.ws.usuari");
   }
 
@@ -182,16 +163,15 @@ public abstract class RegWeb3Utils implements RegwebConstantes {
         return api;
     }
 
-    public static RegWebRegistroSalidaWs getRegistroSalidaApi() throws Exception  {
+    public static RegWebAsientoRegistralWs getRegistroSalidaApi() throws Exception  {
         final String endpoint = getEndPoint(REGWEB3_REGISTRO_SALIDA);
 
         final URL wsdl = new URL(endpoint + "?wsdl");
-        RegWebRegistroSalidaWsService service = new RegWebRegistroSalidaWsService(wsdl);
-
-        RegWebRegistroSalidaWs api = service.getRegWebRegistroSalidaWs();
-
+        
+        RegWebAsientoRegistralWsService asientoService =  new RegWebAsientoRegistralWsService(wsdl);
+        RegWebAsientoRegistralWs api = asientoService.getRegWebAsientoRegistralWs();
         configAddressUserPassword(getAppUserName(), getAppPassword(), endpoint, api);
-
+        
         return api;
     }
 
@@ -323,6 +303,36 @@ public abstract class RegWeb3Utils implements RegwebConstantes {
 //
 //      return anexos;
 //    }
-
+    
+    /**
+     *     Idioma de l’assentament.
+     *         1: Català
+     *         2: Castellà
+     *         3: Galleg
+     *         4: Euskera
+     *         5: Anglès
+     *         6: Altres
+     * @param idiomaCodi
+     * @return
+     */
+    protected Long getIdioma(String idiomaCodi) {
+    	Long idioma = 1L;
+    	if (idiomaCodi != null && !idiomaCodi.isEmpty()) {
+	    	if ("ca".equals(idiomaCodi)) {
+	    		idioma = 1L;
+	    	} else if ("es".equals(idiomaCodi)) {
+	    		idioma = 2L;
+	    	} else if ("gl".equals(idiomaCodi)) {
+	    		idioma = 3L;
+	    	} else if ("eu".equals(idiomaCodi)) {
+	    		idioma = 4L;
+	    	} else if ("en".equals(idiomaCodi)) {
+	    		idioma = 5L;
+	    	} else {
+	    		idioma = 6L;
+	    	}
+    	}
+    	return idioma;
+    }
   
 }

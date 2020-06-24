@@ -291,8 +291,9 @@ public class ExpedientDocumentServiceBean implements ExpedientDocumentService {
 			Long expedientId, 
 			Long documentStoreId, 
 			DadesNotificacioDto dadesNotificacioDto,
-			List<Long> interessatsIds) {
-		return delegate.notificarDocument(expedientId, documentStoreId, dadesNotificacioDto, interessatsIds);		
+			Long interessatsId,
+			Long representantId) {
+		return delegate.notificarDocument(expedientId, documentStoreId, dadesNotificacioDto, interessatsId, representantId);		
 	}
 
 	@Override
@@ -308,8 +309,13 @@ public class ExpedientDocumentServiceBean implements ExpedientDocumentService {
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public ArxiuFirmaDto getArxiuFirma(Long expedientId, Long documentStoreId, int firmaIndex) {
-		// TODO Auto-generated method stub
 		return delegate.getArxiuFirma(expedientId, documentStoreId, firmaIndex);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public void migrarArxiu(Long expedientId, Long documentStoreId) throws NoTrobatException, PermisDenegatException {
+		delegate.migrarArxiu(expedientId, documentStoreId);
 	}
 
 }

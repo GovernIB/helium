@@ -52,10 +52,17 @@ public class ExpedientTipusIntegracioNotibController extends BaseExpedientTipusC
 			
 			ExpedientTipusIntegracioNotibCommand command = new ExpedientTipusIntegracioNotibCommand();			
 			
-			command.setNotibEmisor(expedientTipus.getNtiOrgano());
-			command.setNotibCodiProcediment(expedientTipus.getNtiClasificacion());
 			command.setNotibActiu(expedientTipus.getNotibActiu());
-			
+			command.setNotibEmisor(expedientTipus.getNotibEmisor());
+			command.setNotibCodiProcediment(expedientTipus.getNotibCodiProcediment());
+			// Valors d'inicialització
+			if (!Boolean.TRUE.equals(expedientTipus.getNotibActiu()) 
+					&& expedientTipus.isNtiActiu()) {
+				if (expedientTipus.getNotibEmisor() == null || expedientTipus.getNotibEmisor().isEmpty())
+					command.setNotibEmisor(expedientTipus.getNtiOrgano());
+				if (expedientTipus.getNotibCodiProcediment() == null || expedientTipus.getNotibCodiProcediment().isEmpty())
+				command.setNotibCodiProcediment(expedientTipus.getNtiClasificacion());
+			}
 			model.addAttribute("expedientTipusIntegracioNotibCommand", command);
 		}
 		

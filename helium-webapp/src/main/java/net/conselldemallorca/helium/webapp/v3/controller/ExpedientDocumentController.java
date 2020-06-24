@@ -6,6 +6,8 @@ import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashSet;
@@ -18,6 +20,7 @@ import javax.annotation.Resource;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,6 +51,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.DadesEnviamentDto.EntregaPos
 import net.conselldemallorca.helium.v3.core.api.dto.DadesNotificacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentTipusFirmaEnumDto;
+import net.conselldemallorca.helium.v3.core.api.dto.EnviamentTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.InstanciaProcesDto;
@@ -92,6 +96,32 @@ public class ExpedientDocumentController extends BaseExpedientController {
 	@Resource(name="documentHelperV3")
 	private DocumentHelperV3 documentHelper;
 
+	/** comparador per ordenar documents per codi de document primer i per títol de l'adjunt si són adjunts després.
+	 *
+	 */
+	protected class  ExpedientDocumentDtoComparador implements Comparator<ExpedientDocumentDto>{
+
+		/** Compara primer per codi de document i si són annexs i no en tenen llavors per títol de l'annex. */
+		@Override
+		public int compare(ExpedientDocumentDto doc1, ExpedientDocumentDto doc2) {
+			int ret;
+			// Compara per codi de document primer
+			if (doc1.getDocumentCodi() != null && doc2.getDocumentCodi() != null)
+				ret = doc1.getDocumentCodi().compareTo(doc2.getDocumentCodi());
+			else if (doc1.getDocumentCodi() != null)
+				ret = -1;
+			else if (doc2.getDocumentCodi() != null)
+				ret = 1;
+			else 
+				// els annexos van darrera ordenats per adjuntTitol contemplant que pugui ser null
+				ret = (doc1.getAdjuntTitol() == null ? 
+						(doc2.getAdjuntTitol() == null ? 0 : 1) 
+						: (doc2.getAdjuntTitol() == null ? 
+								-1 
+								: doc1.getAdjuntTitol().compareTo(doc2.getAdjuntTitol())));
+			return ret;
+		}
+	}
 
 	@RequestMapping(value = "/{expedientId}/document", method = RequestMethod.GET)
 	public String document(
@@ -112,7 +142,10 @@ public class ExpedientDocumentController extends BaseExpedientController {
 				documentsInstancia = expedientDocumentService.findAmbInstanciaProces(
 						expedientId,
 						instanciaProces.getId());
+				// Ordena els documents per codi de document i si són annexos i no en tenen llavors van darrera ordenats per nom
+				Collections.sort(documentsInstancia, new ExpedientDocumentDtoComparador());	
 			}
+			
 			documents.put(instanciaProces, documentsInstancia);
 		}
 		model.addAttribute("expedient", expedient);
@@ -141,6 +174,8 @@ public class ExpedientDocumentController extends BaseExpedientController {
 		List<ExpedientDocumentDto> documentsProces = expedientDocumentService.findAmbInstanciaProces(
 				expedientId,
 				processInstanceId);
+		// Ordena els documents per codi de document i si són annexos i no en tenen llavors van darrera ordenats per nom
+		Collections.sort(documentsProces, new ExpedientDocumentDtoComparador());
 		Map<InstanciaProcesDto, List<ExpedientDocumentDto>> documents = new LinkedHashMap<InstanciaProcesDto, List<ExpedientDocumentDto>>();
 		List<PortasignaturesDto> portasignaturesPendent = expedientDocumentService.portasignaturesFindPendents(
 				expedientId,
@@ -357,6 +392,7 @@ public class ExpedientDocumentController extends BaseExpedientController {
 		caducitat.setTime(new Date());
 		caducitat.add(Calendar.DATE, 1);
 		command.setCaducitat(caducitat.getTime());
+		command.setEnviamentTipus(EnviamentTipusEnumDto.NOTIFICACIO);
 		model.addAttribute("documentNotificacioCommand", command);
 		
 		ExpedientDocumentDto document = this.emplenarModelNotificacioDocument(expedientId, processInstanceId, documentStoreId, model);
@@ -382,32 +418,41 @@ public class ExpedientDocumentController extends BaseExpedientController {
 			@Validated DocumentNotificacioCommand documentNotificacioCommand,
 			BindingResult result,
 			Model model) throws IOException {
-		if (!result.hasErrors()) {
-			try {
-				DadesNotificacioDto dadesNotificacioDto = conversioTipusHelper.convertir(
-						documentNotificacioCommand, 
-						DadesNotificacioDto.class);		
-				
-				DadesNotificacioDto dadesNotificacio = expedientDocumentService.notificarDocument(
+		if (result.hasErrors()) {
+			this.emplenarModelNotificacioDocument(expedientId, processInstanceId, documentStoreId, model);
+	    	return "v3/expedientDocumentNotificar";
+		}
+		try {
+			DadesNotificacioDto dadesNotificacioDto = conversioTipusHelper.convertir(
+					documentNotificacioCommand, 
+					DadesNotificacioDto.class);		
+			
+			// Dona d'alta una notificació per interessat
+			DadesNotificacioDto dadesNotificacio;
+			InteressatDto interessat;
+			for (Long interessatId : documentNotificacioCommand.getInteressatsIds()) {
+				interessat = expedientInteressatService.findOne(interessatId);
+				// Alta de la notificació
+				dadesNotificacio = expedientDocumentService.notificarDocument(
 						expedientId,
 						documentStoreId,
 						dadesNotificacioDto,
-						documentNotificacioCommand.getInteressatsIds());
-
+						interessatId,
+						documentNotificacioCommand.getRepresentantId());
+				// Missatge del resultat
 				if (! dadesNotificacio.getError())
-					MissatgesHelper.success(request, getMessage(request, "info.document.notificat"));
+					MissatgesHelper.success(request, getMessage(request, "info.document.notificat", new Object[] {interessat.getFullInfo()}));
 				else
-					MissatgesHelper.warning(request, getMessage(request, "info.document.notificar.avis", new Object[] {dadesNotificacio.getErrorDescripcio()}));
-				
-				return modalUrlTancar(false);
-			} catch(Exception e) {
-				String errMsg = getMessage(request, "info.document.notificar.error", new Object[] {e.getMessage()});
-				logger.error(errMsg, e);
-				MissatgesHelper.error(request, errMsg);
+					MissatgesHelper.warning(request, getMessage(request, "info.document.notificar.avis", new Object[] {interessat.getFullInfo(), dadesNotificacio.getErrorDescripcio()}));
 			}
-        }
-		this.emplenarModelNotificacioDocument(expedientId, processInstanceId, documentStoreId, model);
-    	return "v3/expedientDocumentNotificar";
+		} catch(Exception e) {
+			String errMsg = getMessage(request, "info.document.notificar.error", new Object[] {e.getMessage()});
+			logger.error(errMsg, e);
+			MissatgesHelper.error(request, errMsg);
+			this.emplenarModelNotificacioDocument(expedientId, processInstanceId, documentStoreId, model);
+			return "v3/expedientDocumentNotificar";
+		}
+		return modalUrlTancar(false);
 	}
 	
 	private ExpedientDocumentDto emplenarModelNotificacioDocument(
@@ -500,6 +545,14 @@ public class ExpedientDocumentController extends BaseExpedientController {
 		resposta.add(new ParellaCodiValorDto(getMessage(request, "notifica.servei.tipus.enum.URGENT"), ServeiTipusEnumDto.URGENT));
 		return resposta;
 	}
+
+	@ModelAttribute("enviamentTipusEstats")
+	public List<ParellaCodiValorDto> populateEnviamentTipus(HttpServletRequest request) {
+		List<ParellaCodiValorDto> resposta = new ArrayList<ParellaCodiValorDto>();
+		resposta.add(new ParellaCodiValorDto(getMessage(request, "notifica.enviament.tipus.enum.COMUNICACIO"), EnviamentTipusEnumDto.COMUNICACIO));
+		resposta.add(new ParellaCodiValorDto(getMessage(request, "notifica.enviament.tipus.enum.NOTIFICACIO"), EnviamentTipusEnumDto.NOTIFICACIO));
+		return resposta;
+	}
 	
 
 	@RequestMapping(value="/{expedientId}/proces/{processInstanceId}/document/{documentStoreId}/descarregar")
@@ -534,19 +587,54 @@ public class ExpedientDocumentController extends BaseExpedientController {
 			@PathVariable String processInstanceId,
 			@PathVariable Long documentStoreId,
 			Model model) {
-		ExpedientDocumentDto expedientDocument = expedientDocumentService.findOneAmbInstanciaProces(
-				expedientId,
-				processInstanceId,
-				documentStoreId);
-		model.addAttribute("expedientDocument", expedientDocument);
-		model.addAttribute("expedientId", expedientId);
-		model.addAttribute(
-				"arxiuDetall",
-				expedientDocumentService.getArxiuDetall(
-						expedientId,
-						processInstanceId,
-						documentStoreId));
+		try {
+			ExpedientDto expedient = expedientService.findAmbIdAmbPermis(expedientId);
+			ExpedientDocumentDto expedientDocument = expedientDocumentService.findOneAmbInstanciaProces(
+					expedientId,
+					processInstanceId,
+					documentStoreId);
+			model.addAttribute("expedientDocument", expedientDocument);
+			model.addAttribute("expedientId", expedientId);
+			if (expedient.isArxiuActiu()) {
+				if (!StringUtils.isEmpty(expedientDocument.getArxiuUuid())) {
+					model.addAttribute(
+							"arxiuDetall",
+							expedientDocumentService.getArxiuDetall(
+									expedientId,
+									processInstanceId,
+									documentStoreId));
+				} else {
+					model.addAttribute("errorArxiuNoUuid", Boolean.TRUE);
+				}
+			}
+		} catch(Exception e) {
+			String errMsg = "Error consultant les dades de l'Arxiu del document: " + e.getMessage(); 
+			logger.error(errMsg, e);
+			MissatgesHelper.error(request, errMsg);
+		}
 		return "v3/expedientDocumentMetadadesNti";
+	}
+
+	/** Mètode per incoporar el document a l'Arxiu en el cas que l'expedient estigui integrat però el document no. Acció des
+	 * de la modal de metadades NTI del document.
+	 * @return Retorna cap a la pàgina de metadades nti del document.
+	 */
+	@RequestMapping(value = "/{expedientId}/proces/{processInstanceId}/document/{documentStoreId}/incoporarArxiu", method = RequestMethod.POST)
+	public String incoporarArxiu(
+			HttpServletRequest request,
+			@PathVariable Long expedientId,
+			@PathVariable String processInstanceId,
+			@PathVariable Long documentStoreId,
+			Model model) {
+		try {
+			expedientDocumentService.migrarArxiu(expedientId, documentStoreId);
+			MissatgesHelper.success(request, getMessage(request, "expedient.document.arxiu.migrar.success"));
+		} catch(Exception e) {
+			String errMsg = "Error incorporant el document a l'Arxiu: " + e.getMessage(); 
+			logger.error(errMsg, e);
+			MissatgesHelper.error(request, errMsg);
+		}
+		return "redirect:" + request.getHeader("Referer");
 	}
 	
 	/** Mètode per descarregar una firma dettached des de la modal de dades de l'arxiu d'un document. */

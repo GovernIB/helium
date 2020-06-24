@@ -11,6 +11,8 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.propertyeditors.CustomBooleanEditor;
 import org.springframework.beans.propertyeditors.CustomDateEditor;
@@ -135,6 +137,40 @@ public class ExpedientNotificacioController extends BaseExpedientController {
 		
 		return "v3/expedientNotificacioNotib";
 	}
+
+	@RequestMapping(value = "/{expedientId}/notificacions/{notificacioId}/consultarEstat", method = RequestMethod.GET)
+	public String consultarEstat(
+			HttpServletRequest request,
+			@PathVariable Long expedientId,
+			@PathVariable Long notificacioId,
+			Model model) {		
+		ExpedientDto expedient = expedientService.findAmbIdAmbPermis(expedientId);
+		List<DadesNotificacioDto> notificacions = expedientService.findNotificacionsNotibPerExpedientId(expedient.getId());
+		DadesNotificacioDto notificacio = null;
+		for (DadesNotificacioDto n : notificacions) {
+			if (notificacioId.equals(n.getId())) {
+				notificacio = n;
+				break;
+			}
+		}
+		
+		if (notificacio != null) {
+			try {
+				// Processa el canvi d'estat
+				expedientDocumentService.notificacioActualitzarEstat(
+						notificacio.getEnviamentIdentificador(), 
+						notificacio.getEnviamentReferencia());
+				MissatgesHelper.success(request, getMessage(request, "expedient.notificacio.consultar.estat.success"));
+			} catch (Exception e) {				
+				String errMsg = getMessage(request, "expedient.notificacio.consultar.estat.error", new Object[] {e.getMessage()});
+				logger.error(errMsg, e);
+				MissatgesHelper.error(request, errMsg);
+			}
+		} else {
+			MissatgesHelper.error(request, getMessage(request, "expedient.notificacio.consultar.estat.not.found", new Object[] {notificacioId}));
+		}
+		return "redirect:/v3/expedient/" + expedientId +"?pipellaActiva=notificacions";
+	}
 	
 	@InitBinder
 	public void initBinder(WebDataBinder binder) {
@@ -164,4 +200,5 @@ public class ExpedientNotificacioController extends BaseExpedientController {
 				new ObjectTypeEditorHelper());
 	}
 
+	private static final Log logger = LogFactory.getLog(ExpedientNotificacioController.class);
 }

@@ -39,7 +39,6 @@ import net.conselldemallorca.helium.jbpm3.integracio.DominiCodiDescripcio;
 import net.conselldemallorca.helium.jbpm3.integracio.Jbpm3HeliumBridge;
 import net.conselldemallorca.helium.jbpm3.integracio.Termini;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
-import net.conselldemallorca.helium.v3.core.api.dto.DadesEnviamentDto.EntregaPostalTipus;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentDissenyDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DominiRespostaColumnaDto;
@@ -49,7 +48,6 @@ import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDadaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.InteressatDto;
-import net.conselldemallorca.helium.v3.core.api.dto.InteressatTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RegistreAnnexDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RegistreAnotacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RegistreIdDto;
@@ -152,6 +150,54 @@ public abstract class BasicActionHandler extends AbstractHeliumActionHandler imp
 			}
 		}
 		return resposta;
+	}
+	
+	/** Consulta el valor text per a un codi d'una enumeració
+	 * 
+	 * @param executionContext
+	 * @param codiEnumeracio
+	 * 			Codi de l'enumeració per trobar l'enumeració.
+	 * @param codi
+	 * 			Codi de la parella codi-valor de l'enumeració.
+	 * @return
+	 * 			Retorna el text del camp valor de l'enumeració o null si no s'ha trobat.
+	 */
+	public String enumeracioGetValor(
+			ExecutionContext executionContext,
+			String codiEnumeracio,
+			String codi) {
+			
+		String valor = null;
+		List<ParellaCodiValor> valorsEnumeracio = this.consultaEnumeracio(executionContext, codiEnumeracio);
+		for (ParellaCodiValor p : valorsEnumeracio) {
+			if (p.getCodi().equals(codi)) {
+				valor = p.getValor() != null ? p.getValor().toString() : null;
+				break;
+			}
+		}
+		return valor;
+	}
+	
+	/** Modifica el valor text per a un codi d'una enumeració.
+	 * 
+	 * @param executionContext
+	 * @param codiEnumeracio
+	 * 			Codi de l'enumeració per trobar l'enumeració.
+	 * @param codi
+	 * 			Codi de la parella codi-valor de l'enumeració.
+	 * @param valor
+	 * 			Cadena de text pel nom de l'enumeració corresponent al codi.
+	 */
+	public void enumeracioSetValor(
+			ExecutionContext executionContext,
+			String codiEnumeracio,
+			String codi,
+			String valor) {
+		Jbpm3HeliumBridge.getInstanceService().enumeracioSetValor(
+						getProcessInstanceId(executionContext),
+						codiEnumeracio,
+						codi,
+						valor);
 	}
 
 	/**
@@ -549,26 +595,8 @@ public abstract class BasicActionHandler extends AbstractHeliumActionHandler imp
 	public void interessatCrear(
 			Interessat interessat) {
 		
-		InteressatDto interessatDto = new InteressatDto();
-
-		interessatDto.setCodi(interessat.getCodi());
-		interessatDto.setNom(interessat.getNom());
-		interessatDto.setNif(interessat.getNif());
-		interessatDto.setLlinatge1(interessat.getLlinatge1());
-		interessatDto.setLlinatge2(interessat.getLlinatge2());
-		interessatDto.setTipus(InteressatTipusEnumDto.valueOf(interessat.getTipus().toUpperCase()));
-		interessatDto.setEmail(interessat.getEmail());
-		interessatDto.setTelefon(interessat.getTelefon());
-		interessatDto.setExpedientId(interessat.getExpedientId());
-		interessatDto.setEntregaPostal(interessat.isEntregaPostal());
-		interessatDto.setEntregaTipus(EntregaPostalTipus.valueOf(interessat.getEntregaTipus()));
-		interessatDto.setLinia1(interessat.getLinia1());
-		interessatDto.setLinia2(interessat.getLinia2());
-		interessatDto.setCodiPostal(interessat.getCodiPostal());
-		interessatDto.setEntregaDeh(interessat.isEntregaDeh());
-		interessatDto.setEntregaDehObligat(interessat.isEntregaDehObligat());
+		InteressatDto interessatDto = ConversioTipusHelper.toInteressatDto(interessat);
 		Jbpm3HeliumBridge.getInstanceService().interessatCrear(interessatDto);
-		
 	}
 	
 	/**
@@ -581,29 +609,10 @@ public abstract class BasicActionHandler extends AbstractHeliumActionHandler imp
 	public void interessatModificar(
 			Interessat interessat) {
 		
-		InteressatDto interessatDto = new InteressatDto();
-
-		interessatDto.setId(interessat.getId());
-		interessatDto.setCodi(interessat.getCodi());
-		interessatDto.setNom(interessat.getNom());
-		interessatDto.setNif(interessat.getNif());
-		interessatDto.setLlinatge1(interessat.getLlinatge1());
-		interessatDto.setLlinatge2(interessat.getLlinatge2());
-		interessatDto.setTipus(InteressatTipusEnumDto.valueOf(interessat.getTipus().toUpperCase()));
-		interessatDto.setEmail(interessat.getEmail());
-		interessatDto.setTelefon(interessat.getTelefon());
-		interessatDto.setExpedientId(interessat.getExpedientId());
-		interessatDto.setEntregaPostal(interessat.isEntregaPostal());
-		interessatDto.setEntregaTipus(EntregaPostalTipus.valueOf(interessat.getEntregaTipus()));
-		interessatDto.setLinia1(interessat.getLinia1());
-		interessatDto.setLinia2(interessat.getLinia2());
-		interessatDto.setCodiPostal(interessatDto.getCodiPostal());
-		interessatDto.setEntregaDeh(interessat.isEntregaDeh());
-		interessatDto.setEntregaDehObligat(interessat.isEntregaDehObligat());
+		InteressatDto interessatDto = ConversioTipusHelper.toInteressatDto(interessat);
 		Jbpm3HeliumBridge.getInstanceService().interessatModificar(interessatDto);
-		
 	}
-	
+
 	/**
 	 * ELimina un interessat
 	 * 

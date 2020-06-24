@@ -17,6 +17,8 @@ public class RegistreSortidaRegWeb3Handler extends BasicActionHandler {
 	
 	public void execute(ExecutionContext executionContext) throws Exception {}
 	
+	public void setEntitatCodi(String entitatCodi) {}
+	public void setVarEntitatCodi(String varEntitatCodi) {}
 	public void setOrganOrigen(String organOrigen) {}
 	public void setVarOrganOrigen(String varOrganOrigen) {}
 	public void setOficinaCodi(String oficinaCodi) {}

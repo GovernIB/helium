@@ -10,6 +10,11 @@ import java.util.Map;
 import javax.annotation.Resource;
 import javax.xml.bind.DatatypeConverter;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import net.conselldemallorca.helium.core.helper.ConversioTipusHelper;
 import net.conselldemallorca.helium.core.helper.UsuariActualHelper;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
@@ -23,9 +28,6 @@ import net.conselldemallorca.helium.v3.core.repository.ExpedientTipusRepository;
 import net.conselldemallorca.helium.v3.core.repository.ReproRepository;
 import net.conselldemallorca.helium.v3.core.repository.TascaRepository;
 
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 /**
  * Servei per gestionar els terminis dels expedients
  * 
@@ -34,6 +36,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service("reproServiceV3")
 public class ReproServiceImpl implements ReproService {
 	
+	private static final int MAX_VALOR_LENGTH = 20000;
 	@Resource
 	private ReproRepository reproRepository;
 	@Resource
@@ -75,10 +78,10 @@ public class ReproServiceImpl implements ReproService {
 	@Override
 	public Map<String,Object> findValorsById(Long id) {
 		Repro repro = reproRepository.findOne(id);
-		if (repro == null)
-			return null;
-			//throw new NoTrobatException(Repro.class, id);
-		
+		if (repro == null) {
+			logger.warn("No s'ha trobat la repro amb id " + id + " a findValorsById");
+			return null;	
+		}
 		byte[] bytes = DatatypeConverter.parseBase64Binary(repro.getValors());
 		ByteArrayInputStream bytesIn = new ByteArrayInputStream(bytes);
         ObjectInputStream ois;
@@ -91,37 +94,23 @@ public class ReproServiceImpl implements ReproService {
 	        
 	        return (Map<String,Object>)valors;
 		} catch (Exception e) {
-			throw new ValidacioException("Error recuperant els valros de la repro " + repro.getNom(), e);
+			String errMsg = "Error recuperant els valors de la repro " + repro.getNom() + ": " + e.getMessage();
+			logger.error(errMsg, e);
+			throw new RuntimeException(errMsg, e);
 		}
 	}
 	
 	@Transactional
 	@Override
-	public ReproDto create(Long expedientTipusId, String nom, Map<String, Object> valors) {
-		ExpedientTipus expedientTipus = expedientTipusRepository.findOne(expedientTipusId);
-		if (expedientTipus == null)
-			throw new NoTrobatException(ExpedientTipus.class, expedientTipusId);
+	public ReproDto create(
+			Long expedientTipusId, 
+			String nom, 
+			Map<String, Object> valors) {
 		
-		ByteArrayOutputStream baos = new ByteArrayOutputStream();
-	    ObjectOutputStream oos;
-		try {
-			oos = new ObjectOutputStream(baos);
-			oos.writeObject(valors);
-		    byte[] buf = baos.toByteArray();
-		    baos.close();
-	        oos.close();
-	        
-	        String valors_s = DatatypeConverter.printBase64Binary(buf);
-			
-			if (valors_s.getBytes("UTF-8").length > 4000)
-				throw new ValidacioException("El contingut del formulari és massa llarg");
-			String usuariActual = usuariActualHelper.getUsuariActual();
-			Repro repro = new Repro(usuariActual, expedientTipus, nom, valors_s);
-			reproRepository.saveAndFlush(repro);
-			return conversioTipusHelper.convertir(repro, ReproDto.class);
-		} catch (Exception e) {
-			throw new ValidacioException("Error recuperant els valros de la repro " + nom, e);
-		}
+		return this.createRepro(expedientTipusId,
+				null,
+				nom,
+				valors);
 	}
 	
 	@Transactional
@@ -136,13 +125,38 @@ public class ReproServiceImpl implements ReproService {
 		return nom;
 	}
 
+	@Transactional
 	@Override
-	public ReproDto createTasca(Long expedientTipusId, Long tascaId, String nom, Map<String, Object> valors)
-			throws NoTrobatException, ValidacioException {
+	public ReproDto createTasca(
+			Long expedientTipusId, 
+			Long tascaId, 
+			String nom, 
+			Map<String, Object> valors) throws NoTrobatException, ValidacioException {
+		
+		return this.createRepro(expedientTipusId,
+				tascaId,
+				nom,
+				valors);
+	}
+	
+	/** Mètode comú per a la creació de repros de formularis inicials i tasques.
+	 * 
+	 * @param expedientTipusId
+	 * @param tascaId
+	 * @param nom
+	 * @param valors
+	 * @return
+	 */
+	private ReproDto createRepro(
+			Long expedientTipusId, 
+			Long tascaId, 
+			String nom, 
+			Map<String, Object> valors) {
+		
+		Repro repro = null;
 		ExpedientTipus expedientTipus = expedientTipusRepository.findOne(expedientTipusId);
 		if (expedientTipus == null)
 			throw new NoTrobatException(ExpedientTipus.class, expedientTipusId);
-		
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 	    ObjectOutputStream oos;
 		try {
@@ -151,21 +165,25 @@ public class ReproServiceImpl implements ReproService {
 		    byte[] buf = baos.toByteArray();
 		    baos.close();
 	        oos.close();
-	        
-//	        Tasca tasca = tascaRepository.findById(tascaId);
-	        
-	        Tasca tasca = tascaRepository.findOne(tascaId);
-	        
+
 	        String valors_s = DatatypeConverter.printBase64Binary(buf);
-			
-			if (valors_s.getBytes("UTF-8").length > 4000)
+	        String tascaCodi = null;
+	        if (tascaId != null) {
+		        Tasca tasca = tascaRepository.findOne(tascaId);
+		        tascaCodi = tasca.getJbpmName();
+	        }			
+			if (valors_s.getBytes("UTF-8").length > ReproServiceImpl.MAX_VALOR_LENGTH)
 				throw new ValidacioException("El contingut del formulari és massa llarg");
 			String usuariActual = usuariActualHelper.getUsuariActual();
-			Repro repro = new Repro(usuariActual, expedientTipus, nom, valors_s, tasca.getJbpmName());
-			Repro repro2 =  reproRepository.saveAndFlush(repro);
-			return conversioTipusHelper.convertir(repro2, ReproDto.class);
+			repro = new Repro(usuariActual, expedientTipus, nom, valors_s, tascaCodi);		
+			reproRepository.save(repro);
 		} catch (Exception e) {
-			throw new ValidacioException("Error recuperant els valros de la repro " + nom, e);
+			String errMsg = "Error guardant la repro " + nom + ": " + e.getMessage();
+			logger.error(errMsg, e);
+			throw new RuntimeException(errMsg, e);
 		}
+		return conversioTipusHelper.convertir(repro, ReproDto.class);
 	}
+
+	private static final Log logger = LogFactory.getLog(ReproServiceImpl.class);
 }

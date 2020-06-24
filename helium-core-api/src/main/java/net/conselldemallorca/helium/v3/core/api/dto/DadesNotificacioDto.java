@@ -15,10 +15,12 @@ import org.apache.commons.lang.builder.ToStringBuilder;
  */
 
 public class DadesNotificacioDto {
-
+	
+	private Long id;
 	private Date caducitat;
 	private String concepte;
 	private String descripcio;
+	private String documentNom;
 	private String documentArxiuNom;
 	private byte[] documentArxiuContingut;
 	private String documentArxiuUuid;
@@ -32,7 +34,7 @@ public class DadesNotificacioDto {
 	private Integer retard;
 	private String grupCodi;
 	private Long documentId;
-	private NotificacioEnviamentEstatEnumDto estat;
+	private NotificacioEstatEnumDto estat;
 	private Date enviatData;
 	private Boolean error;
 	private String errorDescripcio;
@@ -40,9 +42,17 @@ public class DadesNotificacioDto {
 	private String justificantArxiuNom;
 	private Long expedientId;
 	private boolean entregaPostalActiva;
+	private String enviamentIdentificador;
+	private String enviamentReferencia;
 
 
 	
+	public Long getId() {
+		return id;
+	}
+	public void setId(Long id) {
+		this.id = id;
+	}
 	public Long getJustificantId() {
 		return justificantId;
 	}
@@ -61,10 +71,10 @@ public class DadesNotificacioDto {
 	public void setDocumentId(Long documentId) {
 		this.documentId = documentId;
 	}
-	public NotificacioEnviamentEstatEnumDto getEstat() {
+	public NotificacioEstatEnumDto getEstat() {
 		return estat;
 	}
-	public void setEstat(NotificacioEnviamentEstatEnumDto estat) {
+	public void setEstat(NotificacioEstatEnumDto estat) {
 		this.estat = estat;
 	}
 	public Date getEnviatData() {
@@ -139,6 +149,12 @@ public class DadesNotificacioDto {
 	public void setCaducitat(Date caducitat) {
 		this.caducitat = caducitat;
 	}
+	public String getDocumentNom() {
+		return documentNom;
+	}
+	public void setDocumentNom(String documentNom) {
+		this.documentNom = documentNom;
+	}
 	public String getDocumentArxiuNom() {
 		return documentArxiuNom;
 	}
@@ -191,6 +207,18 @@ public class DadesNotificacioDto {
 	}
 	public void setEntregaPostalActiva(boolean entregaPostalActiva) {
 		this.entregaPostalActiva = entregaPostalActiva;
+	}
+	public String getEnviamentIdentificador() {
+		return enviamentIdentificador;
+	}
+	public void setEnviamentIdentificador(String enviamentIdentificador) {
+		this.enviamentIdentificador = enviamentIdentificador;
+	}
+	public String getEnviamentReferencia() {
+		return enviamentReferencia;
+	}
+	public void setEnviamentReferencia(String enviamentReferencia) {
+		this.enviamentReferencia = enviamentReferencia;
 	}
 
 
