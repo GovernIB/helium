@@ -305,6 +305,7 @@ public class TascaTramitacioController extends BaseTascaController {
 				tascaId)) {
 			// Recarrega les dades guardades
 			tascaDades = tascaService.findDades(tascaId);
+			validator.setTascaDades(tascaDades); // Actualitzam les dades de la tasca al validador
 			Map<String, Object> campsAddicionals = new HashMap<String, Object>();
 			Map<String, Class<?>> campsAddicionalsClasses = new HashMap<String, Class<?>>();
 			Object commandValidar = TascaFormHelper.getCommandForCamps(
