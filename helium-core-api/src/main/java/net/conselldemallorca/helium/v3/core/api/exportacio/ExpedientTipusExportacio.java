@@ -61,11 +61,16 @@ public class ExpedientTipusExportacio implements Serializable {
 	private String ntiSerieDocumental;
 	private boolean arxiuActiu;
 	
+	// Integració DISTRIBUCIO
+	private boolean distribucioActiu;
+	private String distribucioCodiProcediment;
+	private String distribucioCodiAssumpte;
+	
 	// Integració amb NOTIB
 	private Boolean notibActiu;
 	private String notibEmisor;
 	private String notibCodiProcediment;
-
+	
 	
 	private List<EstatExportacio> estats = new ArrayList<EstatExportacio>();
 	private List<CampExportacio> camps = new ArrayList<CampExportacio>();
@@ -286,6 +291,27 @@ public class ExpedientTipusExportacio implements Serializable {
 	public boolean isArxiuActiu() {
 		return arxiuActiu;
 	}
+	
+	// Integració DISTRIBUCIO
+	
+	public boolean isDistribucioActiu() {
+		return distribucioActiu;
+	}
+	public void setDistribucioActiu(boolean distribucioActiu) {
+		this.distribucioActiu = distribucioActiu;
+	}
+	public String getDistribucioCodiProcediment() {
+		return distribucioCodiProcediment;
+	}
+	public void setDistribucioCodiProcediment(String distribucioCodiProcediment) {
+		this.distribucioCodiProcediment = distribucioCodiProcediment;
+	}
+	public String getDistribucioCodiAssumpte() {
+		return distribucioCodiAssumpte;
+	}
+	public void setDistribucioCodiAssumpte(String distribucioCodiAssumpte) {
+		this.distribucioCodiAssumpte = distribucioCodiAssumpte;
+	}
 	// Integració NOTIB
 	public Boolean getNotibActiu() {
 		return notibActiu;
@@ -293,7 +319,7 @@ public class ExpedientTipusExportacio implements Serializable {
 	public void setNotibActiu(Boolean notibActiu) {
 		this.notibActiu = notibActiu;
 	}
-	public String getNotibCodiEmissor() {
+	public String getNotibEmisor() {
 		return notibEmisor;
 	}
 	public void setNotibEmisor(String notibEmisor) {

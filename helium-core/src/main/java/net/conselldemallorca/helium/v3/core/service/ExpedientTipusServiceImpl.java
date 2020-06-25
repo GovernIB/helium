@@ -545,6 +545,10 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		exportacio.setNtiClasificacion(tipus.getNtiClasificacion());
 		exportacio.setNtiSerieDocumental(tipus.getNtiSerieDocumental());
 		exportacio.setArxiuActiu(tipus.isArxiuActiu());
+		// Integracio amb DISTRIBUCIO
+		exportacio.setDistribucioActiu(tipus.isDistribucioActiu());
+		exportacio.setDistribucioCodiAssumpte(tipus.getDistribucioCodiAssumpte());
+		exportacio.setDistribucioCodiProcediment(tipus.getDistribucioCodiProcediment());
 		// Integració amb NOTIB
 		exportacio.setNotibActiu(tipus.getNotibActiu());
 		exportacio.setNotibEmisor(tipus.getNotibEmisor());
@@ -875,9 +879,13 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		expedientTipus.setNtiClasificacion(importacio.getNtiClasificacion());
 		expedientTipus.setNtiSerieDocumental(importacio.getNtiSerieDocumental());
 		expedientTipus.setArxiuActiu(importacio.isArxiuActiu());
+		// Integracio amb DISTRIBUCIO
+		expedientTipus.setDistribucioActiu(importacio.isDistribucioActiu());
+		expedientTipus.setDistribucioCodiAssumpte(importacio.getDistribucioCodiAssumpte());
+		expedientTipus.setDistribucioCodiProcediment(importacio.getDistribucioCodiProcediment());
 		// Integració amb NOTIB
 		expedientTipus.setNotibActiu(importacio.getNotibActiu());
-		expedientTipus.setNotibEmisor(importacio.getNotibCodiEmissor());
+		expedientTipus.setNotibEmisor(importacio.getNotibEmisor());
 		expedientTipus.setNotibCodiProcediment(importacio.getNotibCodiProcediment());
 		// Integració amb formularis externs
 		if (command.isIntegracioForms()) {
