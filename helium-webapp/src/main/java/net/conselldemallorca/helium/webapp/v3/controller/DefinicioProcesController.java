@@ -55,6 +55,7 @@ import net.conselldemallorca.helium.webapp.v3.helper.ConversioTipusHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.DatatablesHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.DatatablesHelper.DatatablesResponse;
 import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
+import net.conselldemallorca.helium.webapp.v3.helper.ModalHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.NodecoHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
 
@@ -417,16 +418,29 @@ public class DefinicioProcesController extends BaseDefinicioProcesController {
 					dto);        	
 			return "v3/definicioProcesExportarForm";
         } else {
-			model.addAttribute("filename", dto.getJbpmKey() +"_v" + dto.getVersio() + ".exp");
-			DefinicioProcesExportacio definicioProcesExportacio = 
-					definicioProcesService.exportar(
-							entornActual.getId(),
-							command.getId(),
-							conversioTipusHelper.convertir(
-									command, 
-									DefinicioProcesExportacioCommandDto.class));
-			model.addAttribute("data", definicioProcesExportacio);
-			return "serialitzarView";        	
+        	try {
+        		model.addAttribute("filename", dto.getJbpmKey() +"_v" + dto.getVersio() + ".exp");
+        		DefinicioProcesExportacio definicioProcesExportacio = 
+        				definicioProcesService.exportar(
+        						entornActual.getId(),
+        						command.getId(),
+        						conversioTipusHelper.convertir(
+        								command, 
+        								DefinicioProcesExportacioCommandDto.class));
+        		model.addAttribute("data", definicioProcesExportacio);
+        		return "serialitzarView";
+        	} catch(Exception e) {
+        		model.addAttribute("command", command);
+        		this.omplirModelFormulariExportacio(
+    					entornActual.getId(),
+    					command.getId(),
+    					model,
+    					dto);
+        		MissatgesHelper.error(
+    					request,
+    					"Error exportant : " + e.getMessage());
+        		return "v3/definicioProcesExportarForm";
+        	}
         }
 	}
 	

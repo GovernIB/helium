@@ -31,8 +31,54 @@
 			padding : 5px 5px;
 		}
 	</style>
+	<script type="text/javascript">
+		$(function() {
+			// Petició POST per al formulari exportar-form per descarregar la exportació per AJAX
+			$('#exportar-form').on('submit', function(e) {
+				window.parent.$('button#submit-expexport').attr('disabled', true);
+				console.log(e);
+				var form = this;
+		        e.preventDefault(); // Desactiva el comportament normal del formulari al fer 'submit'
+		        var fd = new FormData(this);
+		        var xhr = new XMLHttpRequest();
+		        xhr.onreadystatechange = function(){
+	                var headers = xhr.getResponseHeader('Content-Disposition'); // Es guarden els headers de la resposta
+	                var filenameRegex = "filename[^;=\n]*=((['\"]).*?\2|[^;\n]*)"; // Regex per extreure el nom del fixer retornat
+				    
+				    // Es recupera el filename
+				    var match = String(headers).match(filenameRegex);
+				    var fileName;
+				    if(match) fileName = match[1].replace(/"/g, '');
+		            if (this.readyState == 4 && this.status == 200 && fileName){
+		                
+		                var blob = this.response;
+		                var link=document.createElement('a');
+		                link.href=window.URL.createObjectURL(blob);
+		                link.download=fileName; // S'afegeix el filename al enllaç del blob
+		                link.click();
+		                window.parent.modalTancar(window.frameElement, false);
+			            window.parent.$('button#submit-expexport').attr('disabled', false);
+			            console.log('enabled');
+		            } else {
+		            	if(this.response) {
+		                	this.response.text().then(function(text) {
+			  					document.activeElement.innerHTML = text;
+			  					$('#modal-botons').hide();
+			  					$('#submit-expexport').click();
+		                	});
+	                	}
+	                	window.parent.$('button#submit-dpexport').attr('disabled', false);
+		            }
+		        }
+		        xhr.open('POST', $("#exportar-form").attr("action"));
+		        xhr.responseType = 'blob';
+		        xhr.setRequestHeader('Accept', 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9')
+		        xhr.send(fd);
+		    });
+		});
+	</script>
 </head>
-<body>		
+<body>
 	<form:form id="exportar-form" cssClass="form-horizontal" action="exportar" enctype="multipart/form-data" method="post" commandName="command" style="min-height: 500px;">
 		
 		<div class="inlineLabels">
@@ -134,13 +180,12 @@
 		</div>
 				
 		<%@include file="expedientTipusExportarOpcions.jsp"%>
-
-
+	
 		<div id="modal-botons" class="well">
 			<button type="button" class="btn btn-default" data-modal-cancel="true">
 				<spring:message code="comu.boto.cancelar"/>
 			</button>
-			<button type="submit" class="btn btn-success right">
+			<button id="submit-expexport" type="submit" class="btn btn-success right">
 				<span class="fa fa-sign-out"></span> <spring:message code="comu.filtre.exportar"/>
 			</button>
 		</div>
