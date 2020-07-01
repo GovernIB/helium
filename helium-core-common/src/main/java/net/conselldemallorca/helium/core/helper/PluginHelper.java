@@ -3052,6 +3052,81 @@ public class PluginHelper {
 		}
 	}
 	
+	
+	/** Empra el plugin de validació de firmes d'@firma per obtenir els detalls d'una firma d'un document. 
+	 * 
+	 * @param documentContingut
+	 * 			Contingut del document firmat. Si és attached llavors conté les pròpies firmes.
+	 * @param firmaContingut
+	 * 			Contingut de la firma en cas que sigui dettached.
+	 * @return
+	 */
+	public List<ArxiuFirmaDetallDto> validaSignaturaObtenirDetalls(
+			byte[] documentContingut,
+			byte[] firmaContingut) {
+		String accioDescripcio = "Obtenir informació de document firmat";
+		Map<String, Object> accioParams = new HashMap<String, Object>();
+		accioParams.put("documentContingut.length", documentContingut != null? documentContingut.length : -1);
+		accioParams.put("firmaContingut.length", firmaContingut != null? firmaContingut.length : -1);
+		long t0 = System.currentTimeMillis();
+		try {
+			ValidateSignatureRequest validationRequest = new ValidateSignatureRequest();
+			if (firmaContingut != null) {
+				validationRequest.setSignedDocumentData(documentContingut);
+				validationRequest.setSignatureData(firmaContingut);
+			} else {
+				validationRequest.setSignatureData(documentContingut);
+			}
+			SignatureRequestedInformation sri = new SignatureRequestedInformation();
+			sri.setReturnSignatureTypeFormatProfile(true);
+			sri.setReturnCertificateInfo(true);
+			sri.setReturnValidationChecks(false);
+			sri.setValidateCertificateRevocation(false);
+			sri.setReturnCertificates(false);
+			sri.setReturnTimeStampInfo(true);
+			validationRequest.setSignatureRequestedInformation(sri);
+			ValidateSignatureResponse validateSignatureResponse = getValidaSignaturaPlugin().validateSignature(validationRequest);
+			List<ArxiuFirmaDetallDto> detalls = new ArrayList<ArxiuFirmaDetallDto>();
+			if (validateSignatureResponse.getSignatureDetailInfo() != null) {
+				for (SignatureDetailInfo signatureInfo: validateSignatureResponse.getSignatureDetailInfo()) {
+					ArxiuFirmaDetallDto detall = new ArxiuFirmaDetallDto();
+					TimeStampInfo timeStampInfo = signatureInfo.getTimeStampInfo();
+					if (timeStampInfo != null) {
+						detall.setData(timeStampInfo.getCreationTime());
+					} else {
+						detall.setData(signatureInfo.getSignDate());
+					}
+					CertificateInfo certificateInfo = signatureInfo.getCertificateInfo();
+					if (certificateInfo != null) {
+						detall.setResponsableNif(certificateInfo.getNifResponsable());
+						detall.setResponsableNom(certificateInfo.getNombreApellidosResponsable());
+						detall.setEmissorCertificat(certificateInfo.getOrganizacionEmisora());
+					}
+					detalls.add(detall);
+				}
+			}			
+			monitorIntegracioHelper.addAccioOk(
+					MonitorIntegracioHelper.INTCODI_VALIDASIG,
+					accioDescripcio,
+					IntegracioAccioTipusEnumDto.ENVIAMENT,
+					System.currentTimeMillis() - t0,
+					IntegracioParametreDto.toIntegracioParametres(accioParams));
+			
+			return detalls;
+		} catch (Exception ex) {
+			String errorDescripcio = ex.getMessage();
+			monitorIntegracioHelper.addAccioError(
+					MonitorIntegracioHelper.INTCODI_VALIDASIG,
+					accioDescripcio,
+					IntegracioAccioTipusEnumDto.ENVIAMENT,
+					System.currentTimeMillis() - t0,
+					errorDescripcio,
+					ex,
+					IntegracioParametreDto.toIntegracioParametres(accioParams));
+			throw tractarExcepcioEnSistemaExtern(errorDescripcio, ex);
+		}
+	}
+	
 	private ArxiuFirmaPerfilEnumDto toArxiuFirmaPerfilEnum(String perfil) {		
 		ArxiuFirmaPerfilEnumDto perfilFirma = null;
 		if("AdES-BES".equals(perfil)) {

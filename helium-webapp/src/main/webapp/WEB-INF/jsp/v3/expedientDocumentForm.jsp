@@ -167,7 +167,7 @@ function mostrarAmagarFile() {
 				<div>
 					<ul class="nav nav-tabs" role="tablist">
 						<li id="pipella-general" class="active"><a href="#dades-generals" role="tab" data-toggle="tab"><spring:message code="expedient.document.pipella.general"/></a></li>
-						<li id="pipella-nti"><a href="#dades-nti" role="tab" data-toggle="tab"><spring:message code="expedient.document.pipella.nti"/></a></li>
+						<li id="pipella-nti"><a href="#dades-nti" role="tab" data-toggle="tab" class="obligatori"><spring:message code="expedient.document.pipella.nti"/></a></li>
 					</ul>
 				</div>
 			</c:if>

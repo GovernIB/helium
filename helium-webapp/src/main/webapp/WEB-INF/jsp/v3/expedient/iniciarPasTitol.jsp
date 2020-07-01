@@ -83,7 +83,7 @@
 		</c:if>
 		<c:if test="${expedientTipus.teTitol and expedientTipus.demanaTitol}">
 			<div class="control-group fila_reducida">			
-				<hel:inputText required="true" name="titol" textKey="expedient.consulta.titol" placeholderKey="expedient.consulta.titol"/>
+				<hel:inputTextarea required="true" name="titol" textKey="expedient.consulta.titol" placeholderKey="expedient.consulta.titol"/>
 			</div>
 		</c:if>
 		<c:if test="${expedientTipus.seleccionarAny}">

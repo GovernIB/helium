@@ -28,7 +28,7 @@
 		<tbody>
 			<tr>
 				<td><strong><spring:message code="anotacio.annex.detalls.camp.firmaTipus"/></strong></td>
-				<td><spring:message code="document.nti.tipfir.enum.${firma.tipus}"/></td>
+				<td><spring:message code="nti.tipo.firma.${firma.tipus}"/></td>
 			</tr>
 			<tr>
 				<td><strong><spring:message code="anotacio.annex.detalls.camp.firmaPerfil"/></strong></td>

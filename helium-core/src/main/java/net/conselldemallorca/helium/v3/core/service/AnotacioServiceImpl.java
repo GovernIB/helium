@@ -59,11 +59,13 @@ import net.conselldemallorca.helium.v3.core.api.dto.AnotacioEstatEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.AnotacioFiltreDto;
 import net.conselldemallorca.helium.v3.core.api.dto.AnotacioListDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ArxiuFirmaDetallDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuFirmaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DadesEnviamentDto.EntregaPostalTipus;
 import net.conselldemallorca.helium.v3.core.api.dto.IntegracioAccioTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.IntegracioParametreDto;
 import net.conselldemallorca.helium.v3.core.api.dto.InteressatTipusEnumDto;
+import net.conselldemallorca.helium.v3.core.api.dto.NtiTipoFirmaEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
@@ -688,7 +690,7 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 	@Override
 	@Transactional(readOnly = true)
 	public List<ArxiuFirmaDto> getAnnexFirmes(Long annexId) {
-		
+
 		 List<ArxiuFirmaDto> firmes = new ArrayList<ArxiuFirmaDto>();
 		// Recupera l'annex
 		AnotacioAnnex annex = anotacioAnnexRepository.findOne(annexId);
@@ -705,9 +707,52 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 				true);
 		if (document != null && document.getFirmes() != null) {
 			firmes = PluginHelper.toArxiusFirmesDto(document.getFirmes());
+			// Detalls de les firmes 
+			for (ArxiuFirmaDto firma : firmes) {
+				
+				try {
+					byte[] documentContingut = document.getContingut().getContingut();
+					byte[] firmaContingut = documentContingut;
+					if (NtiTipoFirmaEnumDto.XADES_DET.equals(firma.getTipus()) ||
+							NtiTipoFirmaEnumDto.CADES_DET.equals(firma.getTipus())) {
+						firmaContingut = firma.getContingut();
+					}
+					List<ArxiuFirmaDetallDto> detalls = pluginHelper.validaSignaturaObtenirDetalls(
+							documentContingut, 
+							firmaContingut);
+					firma.setDetalls(detalls);
+				} catch(Exception e) {
+					logger.error("Error validant la firma " + firma.getFitxerNom() + " pel document " + document.getNom() + " de l'annex " + annexId + ": " + e.getMessage(), e);
+				}
+			}
 		}
 		
 		return firmes;
+		
+		/*
+		 List<ArxiuFirmaDto> firmes = new ArrayList<ArxiuFirmaDto>();
+		// Recupera l'annex
+		AnotacioAnnex annex = anotacioAnnexRepository.findOne(annexId);
+		if (annex == null)
+			throw new NoTrobatException(AnotacioAnnex.class, annexId);
+		// Comprova l'accés
+		this.comprovaPermisLectura(annex.getAnotacio());
+		// Recupera el contingut de l'Arxiu
+		es.caib.plugins.arxiu.api.Document document = pluginHelper.arxiuDocumentInfo(
+				annex.getUuid(),
+				null,
+				true,
+				true);
+		if (document != null && document.getFirmes() != null && document.getFirmes().size() > 0) {
+			for(int i = 0; i<document.getFirmes().size(); i++)
+			firmes.addAll(pluginHelper.validaSignaturaObtenirFirmes(
+									null, 
+									document.getContingut().getContingut(), 
+									null,//document.getFirmes().get(0).getContingut(),
+									document.getContingut().getTipusMime()));
+		}		
+		return firmes;
+		*/
 	}
 	
 	private static final Logger logger = LoggerFactory.getLogger(AnotacioServiceImpl.class);
