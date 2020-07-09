@@ -34,6 +34,7 @@ public class TascaDto extends HeretableDto implements Serializable {
 	private boolean tramitacioMassiva = false;
 	private boolean finalitzacioSegonPla = false;
 	private boolean ambRepro = false;
+	private boolean mostrarAgrupacions = false;
 
 	private String jbpmName;
 	private List<CampTascaDto> camps = new ArrayList<CampTascaDto>();
@@ -161,4 +162,11 @@ public class TascaDto extends HeretableDto implements Serializable {
 	public void setAmbRepro(boolean ambRepros) {
 		this.ambRepro = ambRepros;
 	}
+	public boolean isMostrarAgrupacions() {
+		return mostrarAgrupacions;
+	}
+	public void setMostrarAgrupacions(boolean mostrarAgrupacions) {
+		this.mostrarAgrupacions = mostrarAgrupacions;
+	}
+	
 }

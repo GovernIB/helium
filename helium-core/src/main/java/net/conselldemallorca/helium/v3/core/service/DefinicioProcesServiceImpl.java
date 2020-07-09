@@ -623,6 +623,7 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 		entity.setTramitacioMassiva(tasca.isTramitacioMassiva());
 		entity.setFinalitzacioSegonPla(tasca.isFinalitzacioSegonPla());
 		entity.setAmbRepro(tasca.isAmbRepro());
+		entity.setMostrarAgrupacions(tasca.isMostrarAgrupacions());
 		
 		return conversioTipusHelper.convertir(
 				tascaRepository.save(entity),
