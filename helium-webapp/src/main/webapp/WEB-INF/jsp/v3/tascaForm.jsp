@@ -86,25 +86,29 @@
 	<c:set var="ampleLabel">130px</c:set>
 	<c:set var="ampleInput">calc(100% - ${ampleLabel})</c:set>
 	<c:set var="comptadorCols">0</c:set>
-	<div class="container-fluid">
 	<c:forEach var="entry" items="${dadesMap}">
 	
 	<c:choose>
 	    <c:when test="${not empty entry.key}">
+	    	<fieldset>
+				<legend>${entry.key.nom}</legend>
+	    	</fieldset>
+	    
+	    	<!-- 
 			<div class="panel panel-default">
 				<div id="-grup-25361-titol" class="panel-heading clicable grup tauladades" data-toggle="collapse" data-target="#-grup-${entry.key.id}-dades" aria-expanded="true">
 				${entry.key.nom}
 				<div class="pull-right"><span class="icona-collapse fa fa-chevron-up"></span></div>
 				</div>
 				<div id="-grup-${entry.key.id}-dades" class="clear panel-body-grup collapse in" aria-expanded="true" style="padding: 0.75rem !important;">
+	    	 -->
 	    </c:when>
 	    <c:otherwise>
-	    	<div class="col">
-	        <div class="clear panel-body-grup collapse in" aria-expanded="true" style="padding: 0.75rem !important;">
 	    </c:otherwise>
 	</c:choose>
 	
 	<div class="row">
+		<!------------------------->
     <c:forEach var="dada" items="${entry.value}" varStatus="varStatusMain">
         <c:set var="ampleCols">${dada.ampleCols}</c:set>
         <c:set var="buitCols">${dada.buitCols}</c:set>
@@ -113,8 +117,8 @@
 
                 <c:set var="comptadorCols">${comptadorCols + ampleBuit}</c:set>
 
-                <c:if test="${comptadorCols > 13}">
-                    <c:set var="comptadorCols">${comptadorCols - 12}</c:set>
+                <c:if test="${comptadorCols > 12}">
+                    <c:set var="comptadorCols">${buitAbsCols}</c:set>
 
                     <!--tanquem row i la tornem a obrir per a la següent fila-->
                     </div>
@@ -127,7 +131,7 @@
                     <div class="col-xs-${buitAbsCols}"></div>
                 </c:if>
 
-                <div class="col-xs-${ampleCols}" title="ampleCols-${ampleCols} buitCols-${buitCols}">
+                <div class="col-xs-${ampleCols}" title="ampleCols-${ampleCols} buitCols-${buitCols} buitAbsCols-${buitAbsCols} comptadorCols-${comptadorCols}">
                     <c:set var="inline" value="${false}" />
                     <c:set var="isRegistre" value="${false}" />
                     <c:set var="isMultiple" value="${false}" />
@@ -211,11 +215,21 @@
                 <c:if test="${buitCols > 0}">
                     <div class="col-xs-${buitAbsCols}"></div>
                 </c:if>
+                
+                <c:if test="${comptadorCols == 12}">
+                    <c:set var="comptadorCols">0</c:set>
+
+                    <!--tanquem row i la tornem a obrir per a la següent fila-->
+                    </div>
+                    <div class="row">
+                        <!------------------------->
+                </c:if>
+                
             </c:forEach>
             <br>
            </div>
 	</div>
-	</div>
+
 </c:forEach>
 </div>
 	
