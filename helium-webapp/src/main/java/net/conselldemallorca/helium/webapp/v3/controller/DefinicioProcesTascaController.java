@@ -97,8 +97,6 @@ public class DefinicioProcesTascaController extends BaseTascaDissenyController {
 			Model model) {
 		TascaDto dto = definicioProcesService.tascaFindAmbId(null, tascaId);
 		DefinicioProcesTascaCommand command = DefinicioProcesTascaCommand.toDefinicioProcesTascaCommand(dto);	
-		command.setDefinicioProcesId(definicioProcesId);
-		command.setJbpmName(dto.getJbpmName());
 		model.addAttribute("definicioProcesTascaCommand", command);
 		return "v3/definicioProcesTascaForm";
 	}

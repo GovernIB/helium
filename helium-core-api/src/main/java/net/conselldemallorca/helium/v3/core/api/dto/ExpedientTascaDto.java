@@ -97,6 +97,7 @@ public class ExpedientTascaDto extends ControlPermisosDto implements Comparable<
 
 	private boolean assignadaUsuariActual;
 	private boolean ambRepro;
+	private boolean mostrarAgrupacions;
 
 
 	SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
@@ -106,6 +107,12 @@ public class ExpedientTascaDto extends ControlPermisosDto implements Comparable<
 	}
 	public void setAmbRepro(boolean ambRepro) {
 		this.ambRepro = ambRepro;
+	}
+	public boolean isMostrarAgrupacions() {
+		return mostrarAgrupacions;
+	}
+	public void setMostrarAgrupacions(boolean mostrarAgrupacions) {
+		this.mostrarAgrupacions = mostrarAgrupacions;
 	}
 	public Long getExpedientTipusId() {
 		return expedientTipusId;

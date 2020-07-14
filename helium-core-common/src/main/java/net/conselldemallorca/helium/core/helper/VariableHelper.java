@@ -24,6 +24,7 @@ import net.conselldemallorca.helium.core.extern.domini.ParellaCodiValor;
 import net.conselldemallorca.helium.core.helperv26.MesuresTemporalsHelper;
 import net.conselldemallorca.helium.core.model.hibernate.Camp;
 import net.conselldemallorca.helium.core.model.hibernate.Camp.TipusCamp;
+import net.conselldemallorca.helium.core.model.hibernate.CampAgrupacio;
 import net.conselldemallorca.helium.core.model.hibernate.CampRegistre;
 import net.conselldemallorca.helium.core.model.hibernate.CampTasca;
 import net.conselldemallorca.helium.core.model.hibernate.ConsultaCamp.TipusConsultaCamp;
@@ -41,6 +42,7 @@ import net.conselldemallorca.helium.jbpm3.handlers.BasicActionHandler;
 import net.conselldemallorca.helium.jbpm3.integracio.DominiCodiDescripcio;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmTask;
+import net.conselldemallorca.helium.v3.core.api.dto.CampAgrupacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDadaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
@@ -326,6 +328,7 @@ public class VariableHelper {
 					tasca.getId(),
 					null,
 					false);
+			CampAgrupacio agrupacio = camp.getAgrupacio();
 			resposta.add(
 					getTascaDadaDtoFromExpedientDadaDto(
 							expedientDadaDto,
@@ -335,7 +338,8 @@ public class VariableHelper {
 							campTasca.isWriteTo(),
 							campTasca.isRequired(),
 							campTasca.getAmpleCols(),
-							campTasca.getBuitCols()));
+							campTasca.getBuitCols(),
+							agrupacio));
 		}
 		return resposta;
 	}
@@ -387,6 +391,7 @@ public class VariableHelper {
 					task.getId(),
 					task.getProcessInstanceId(),
 					false);
+			CampAgrupacio agrupacio = camp.getAgrupacio();
 			resposta.add(
 					getTascaDadaDtoFromExpedientDadaDto(
 							expedientDadaDto,
@@ -396,7 +401,8 @@ public class VariableHelper {
 							campTasca.isWriteTo(),
 							campTasca.isRequired(),
 							campTasca.getAmpleCols(),
-							campTasca.getBuitCols()));
+							campTasca.getBuitCols(),
+							agrupacio));
 		}
 		mesuresTemporalsHelper.mesuraCalcular("Tasca DADES v3", "tasques", tipusExp, task.getTaskName(), "2");
 		mesuresTemporalsHelper.mesuraCalcular("Tasca DADES v3", "tasques", tipusExp, task.getTaskName());
@@ -450,6 +456,7 @@ public class VariableHelper {
 					task.getId(),
 					task.getProcessInstanceId(),
 					false);
+			CampAgrupacio agrupacio = (camp != null)?camp.getAgrupacio() : null;
 			return getTascaDadaDtoFromExpedientDadaDto(
 							dto,
 							campTasca.getCamp(),
@@ -458,7 +465,8 @@ public class VariableHelper {
 							campTasca.isWriteTo(),
 							campTasca.isRequired(),
 							campTasca.getAmpleCols(),
-							campTasca.getBuitCols());
+							campTasca.getBuitCols(),
+							agrupacio);
 		} else {
 			return null;
 		}
@@ -657,7 +665,9 @@ public class VariableHelper {
 			boolean writeTo,
 			boolean required,
 			int ampleCols,
-			int buitCols) {
+			int buitCols,
+			CampAgrupacio agrupacio) {
+		CampAgrupacioDto agrupacioDto = null;
 		TascaDadaDto tascaDadaDto = new TascaDadaDto();
 		tascaDadaDto.setVarCodi(expedientDadaDto.getVarCodi());
 		tascaDadaDto.setVarValor(expedientDadaDto.getVarValor());
@@ -667,6 +677,17 @@ public class VariableHelper {
 		tascaDadaDto.setCampMultiple(expedientDadaDto.isCampMultiple());
 		tascaDadaDto.setCampOcult(expedientDadaDto.isCampOcult());
 		tascaDadaDto.setLlistar(expedientDadaDto.isLlistar());
+		
+		if(agrupacio != null) {
+			agrupacioDto = new CampAgrupacioDto(
+					agrupacio.getId(),
+					agrupacio.getCodi(),
+					agrupacio.getNom(),
+					agrupacio.getDescripcio(),
+					agrupacio.getOrdre());
+		}
+		
+		tascaDadaDto.setAgrupacio(agrupacioDto);
 		if (camp != null) {
 			tascaDadaDto.setReadOnly(readOnly);
 			tascaDadaDto.setReadFrom(readFrom);
@@ -691,7 +712,8 @@ public class VariableHelper {
 						writeTo,
 						required,
 						ampleCols,
-						buitCols);
+						buitCols,
+						agrupacio);
 				// Si es un campo readonly quitamos la validación de los campos requeridos que contenga
 				tascaDada.setRequired(readOnly ? false : dto.isRequired());
 				multipleDades.add(tascaDada);
@@ -709,6 +731,7 @@ public class VariableHelper {
 						break;
 					}
 				}
+				//CampAgrupacio agrupacio = camp.getAgrupacio();
 				TascaDadaDto tascaDada = getTascaDadaDtoFromExpedientDadaDto(
 						dto,
 						registreCamp.getMembre(),
@@ -717,7 +740,8 @@ public class VariableHelper {
 						false,
 						registreCamp.isObligatori(),
 						12,
-						0);
+						0,
+						agrupacio);
 				// Si es un campo readonly quitamos la validación de los campos requeridos que contenga
 				//tascaDada.setRequired(readOnly ? false : dto.isRequired());
 				registreDades.add(tascaDada);

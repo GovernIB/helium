@@ -151,6 +151,54 @@ public abstract class BasicActionHandler extends AbstractHeliumActionHandler imp
 		}
 		return resposta;
 	}
+	
+	/** Consulta el valor text per a un codi d'una enumeració
+	 * 
+	 * @param executionContext
+	 * @param codiEnumeracio
+	 * 			Codi de l'enumeració per trobar l'enumeració.
+	 * @param codi
+	 * 			Codi de la parella codi-valor de l'enumeració.
+	 * @return
+	 * 			Retorna el text del camp valor de l'enumeració o null si no s'ha trobat.
+	 */
+	public String enumeracioGetValor(
+			ExecutionContext executionContext,
+			String codiEnumeracio,
+			String codi) {
+			
+		String valor = null;
+		List<ParellaCodiValor> valorsEnumeracio = this.consultaEnumeracio(executionContext, codiEnumeracio);
+		for (ParellaCodiValor p : valorsEnumeracio) {
+			if (p.getCodi().equals(codi)) {
+				valor = p.getValor() != null ? p.getValor().toString() : null;
+				break;
+			}
+		}
+		return valor;
+	}
+	
+	/** Modifica el valor text per a un codi d'una enumeració.
+	 * 
+	 * @param executionContext
+	 * @param codiEnumeracio
+	 * 			Codi de l'enumeració per trobar l'enumeració.
+	 * @param codi
+	 * 			Codi de la parella codi-valor de l'enumeració.
+	 * @param valor
+	 * 			Cadena de text pel nom de l'enumeració corresponent al codi.
+	 */
+	public void enumeracioSetValor(
+			ExecutionContext executionContext,
+			String codiEnumeracio,
+			String codi,
+			String valor) {
+		Jbpm3HeliumBridge.getInstanceService().enumeracioSetValor(
+						getProcessInstanceId(executionContext),
+						codiEnumeracio,
+						codi,
+						valor);
+	}
 
 	/**
 	 * Retorna el resultat d'una consulta d'expedients

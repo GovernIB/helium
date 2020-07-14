@@ -516,6 +516,8 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		exportacio.setArxiuActiu(tipus.isArxiuActiu());
 		// Integració amb NOTIB
 		exportacio.setNotibActiu(tipus.getNotibActiu());
+		exportacio.setNotibEmisor(tipus.getNotibEmisor());
+		exportacio.setNotibCodiProcediment(tipus.getNotibCodiProcediment());
 		// Integració amb forms
 		if (command.isIntegracioForms()) {
 			exportacio.setFormextUrl(tipus.getFormextUrl());
@@ -638,7 +640,8 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 							document.getDescripcio(),
 							document.getArxiuContingut(),
 							document.getArxiuNom(),
-							document.isPlantilla());
+							document.isPlantilla(),
+							document.isNotificable());
 					documentExportacio.setCustodiaCodi(document.getCustodiaCodi());
 					documentExportacio.setContentType(document.getContentType());
 					documentExportacio.setTipusDocPortasignatures(document.getTipusDocPortasignatures());
@@ -844,6 +847,8 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		expedientTipus.setArxiuActiu(importacio.isArxiuActiu());
 		// Integració amb NOTIB
 		expedientTipus.setNotibActiu(importacio.getNotibActiu());
+		expedientTipus.setNotibEmisor(importacio.getNotibCodiEmissor());
+		expedientTipus.setNotibCodiProcediment(importacio.getNotibCodiProcediment());
 		// Integració amb formularis externs
 		if (command.isIntegracioForms()) {
 			expedientTipus.setFormextUrl(importacio.getFormextUrl());
@@ -1179,6 +1184,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 						document.setArxiuNom(documentExportat.getArxiuNom());
 						document.setArxiuContingut(documentExportat.getArxiuContingut());
 						document.setPlantilla(documentExportat.isPlantilla());
+						document.setNotificable(documentExportat.isNotificable());
 						document.setCustodiaCodi(documentExportat.getCustodiaCodi());
 						document.setContentType(documentExportat.getContentType());
 						document.setTipusDocPortasignatures(documentExportat.getTipusDocPortasignatures());
@@ -3441,11 +3447,11 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		
 		ExpedientTipus expedientTipus = expedientTipusHelper.getExpedientTipusComprovantPermisDisseny(expedientTipusId);
 
-		if (!expedientTipus.isNtiActiu()) {
-			expedientTipus.setNtiOrgano(notibEmisor);
-			expedientTipus.setNtiClasificacion(notibCodiProcediment);
-		}
 		expedientTipus.setNotibActiu(notibActiu);
+		if (notibActiu) {
+			expedientTipus.setNotibEmisor(notibEmisor);
+			expedientTipus.setNotibCodiProcediment(notibCodiProcediment);
+		}
 		
 		return conversioTipusHelper.convertir(
 				expedientTipusRepository.save(expedientTipus),

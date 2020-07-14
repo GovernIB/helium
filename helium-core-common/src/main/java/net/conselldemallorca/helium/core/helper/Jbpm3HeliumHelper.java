@@ -36,6 +36,7 @@ import net.conselldemallorca.helium.core.model.hibernate.DocumentStore;
 import net.conselldemallorca.helium.core.model.hibernate.Domini;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 import net.conselldemallorca.helium.core.model.hibernate.Enumeracio;
+import net.conselldemallorca.helium.core.model.hibernate.EnumeracioValors;
 import net.conselldemallorca.helium.core.model.hibernate.Estat;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
@@ -115,6 +116,7 @@ import net.conselldemallorca.helium.v3.core.repository.DocumentTascaRepository;
 import net.conselldemallorca.helium.v3.core.repository.DominiRepository;
 import net.conselldemallorca.helium.v3.core.repository.EntornRepository;
 import net.conselldemallorca.helium.v3.core.repository.EnumeracioRepository;
+import net.conselldemallorca.helium.v3.core.repository.EnumeracioValorsRepository;
 import net.conselldemallorca.helium.v3.core.repository.EstatRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientTipusRepository;
@@ -167,6 +169,8 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 	private DocumentStoreRepository documentStoreRepository;
 	@Resource
 	private EnumeracioRepository enumeracioRepository;
+	@Resource
+	private EnumeracioValorsRepository enumeracioValorsRepository;
 	@Resource
 	private TascaRepository tascaRepository;
 	@Resource
@@ -1250,6 +1254,38 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 		return conversioTipusHelper.convertirList(
 				enumeracio.getEnumeracioValors(),
 				EnumeracioValorDto.class);
+	}
+	
+
+	@Override
+	public void enumeracioSetValor(
+			String processInstanceId,
+			String enumeracioCodi,
+			String codi,
+			String valor) throws NoTrobatException {
+		logger.debug("Fixant el valor d'una enumeració (" +
+				"processInstanceId=" + processInstanceId + ", " +
+				"enumeracioCodi=" + enumeracioCodi + ", " +
+				"codi=" + codi + ", " +
+				"valor=" + valor + ")");
+		Expedient expedient = getExpedientDonatProcessInstanceId(processInstanceId);
+		Enumeracio enumeracio = enumeracioRepository.findByEntornAndExpedientTipusAndCodi(
+				expedient.getEntorn(),
+				expedient.getTipus(),
+				enumeracioCodi);
+		if (enumeracio == null) {
+			enumeracio = enumeracioRepository.findByEntornAndCodi(
+					expedient.getEntorn(),
+					enumeracioCodi);
+		}
+		if (enumeracio == null)
+			throw new NoTrobatException(Enumeracio.class, enumeracioCodi);
+		
+		EnumeracioValors enumeracioValor = enumeracioValorsRepository.findByEnumeracioAndCodi(enumeracio, codi);
+		if (enumeracioValor == null)
+			throw new NoTrobatException(EnumeracioValors.class, codi);
+		enumeracioValor.setNom(valor);		
+		enumeracioValorsRepository.save(enumeracioValor);
 	}
 
 	@Override

@@ -166,19 +166,22 @@ public abstract class BaseBackoffice {
 								"camp.etiqueta=" + campHelium.getEtiqueta() + ", " +
 								"camp.tipus=" + campHelium.getTipus() + ", " );
 					
-					if (!expedientTipus.isAmbInfoPropia()) {						
-						logMsg.append("camp.dp.jbpmId=" + campHelium.getDefinicioProces().getJbpmId() + ", " +
-								"camp.dp.jbpmKey=" + campHelium.getDefinicioProces().getJbpmKey() + ", " +
-								"camp.dp.versio=" + campHelium.getDefinicioProces().getVersio() + ", ");
-						if (campHelium.getDefinicioProces().getExpedientTipus() != null) {
-							logMsg.append("camp.dp.et.codi=" + campHelium.getDefinicioProces().getExpedientTipus().getCodi() + ", " +
-										  "camp.dp.et.nom=" + campHelium.getDefinicioProces().getExpedientTipus().getNom() + ")");
+					if (!expedientTipus.isAmbInfoPropia()) {		
+						if (campHelium.getDefinicioProces() != null) {							
+							logMsg.append("camp.dp.jbpmId=" + campHelium.getDefinicioProces().getJbpmId() + ", " +
+									"camp.dp.jbpmKey=" + campHelium.getDefinicioProces().getJbpmKey() + ", " +
+									"camp.dp.versio=" + campHelium.getDefinicioProces().getVersio() + ", ");
+							if (campHelium.getDefinicioProces().getExpedientTipus() != null) {
+								logMsg.append("camp.dp.et.codi=" + campHelium.getDefinicioProces().getExpedientTipus().getCodi() + ", " +
+											  "camp.dp.et.nom=" + campHelium.getDefinicioProces().getExpedientTipus().getNom() + ")");
+							}
 						}
 					}
-					else
+					else  if (campHelium.getExpedientTipus() != null) {
 						logMsg.append(
 						"camp.et.codi=" + campHelium.getExpedientTipus().getCodi() + ", " +
 						"camp.et.nom=" + campHelium.getExpedientTipus().getNom() + ")");
+					}
 								
 					logger.debug(logMsg.toString());
 					Object valorSistra = valorVariableSistra(

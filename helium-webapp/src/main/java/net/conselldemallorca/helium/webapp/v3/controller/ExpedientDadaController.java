@@ -673,6 +673,25 @@ public class ExpedientDadaController extends BaseExpedientController {
 			}
 		}
 		
+		for (Map.Entry<CampAgrupacioDto, List<ExpedientDadaDto>> entry : dadesProces.entrySet()) {
+		    Collections.sort(entry.getValue(), new Comparator<ExpedientDadaDto>() {
+		    	@Override
+		    	public int compare(ExpedientDadaDto a1, ExpedientDadaDto a2) {
+		    		// El null va davant
+		    		if (a1 == null && a2 == null)
+		    			return 0;
+		    		else if (a1 == null)
+		    			return -1;
+		    		else if (a2 == null )
+		    			return 1;
+		    		else {
+		    			// Si no retorna l'ordre normal
+		    			return Integer.compare(a1.getOrdre(), a2.getOrdre());
+		    		}
+		    	}
+		    });
+		}
+		
 		return dadesProces;	
 	}
 

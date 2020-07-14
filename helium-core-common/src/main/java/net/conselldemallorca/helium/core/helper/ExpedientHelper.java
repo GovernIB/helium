@@ -1610,6 +1610,8 @@ public class ExpedientHelper {
 			if (arxiuUuid != null)
 				try {
 					logger.info("Rollback de la creació de l'expedient a l'Arxiu " + expedientPerRetornar.getIdentificador() + " amb uuid " + arxiuUuid);
+					// Esborra l'expedient de l'arxiu
+					pluginHelper.arxiuExpedientEsborrar(arxiuUuid);
 				} catch(Exception re) {
 					logger.error("Error esborrant l'expedient " + expedientPerRetornar.getIdentificador() + " amb uuid " + arxiuUuid + " :" + re.getMessage());
 				}

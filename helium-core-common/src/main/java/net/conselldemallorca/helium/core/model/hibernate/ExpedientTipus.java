@@ -96,6 +96,12 @@ public class ExpedientTipus  implements Serializable, GenericEntity<Long> {
 	
 	// Integració NOTIB
 	private Boolean notibActiu;
+	/** codi DIR3 de l'organimse emissor. */
+	@MaxLength(256)
+	private String notibEmisor;
+	@MaxLength(9)
+	private String notibCodiProcediment;
+
 		
 	// Integració SISTRA
 	//  - Notificacions
@@ -494,12 +500,33 @@ public class ExpedientTipus  implements Serializable, GenericEntity<Long> {
 		this.sistraTramitMapeigAdjunts = sistraTramitMapeigAdjunts;
 	}
 
+	/// Integració amb el NOTIB
+	
 	@Column(name="notib_actiu")
 	public Boolean getNotibActiu() {
 		return notibActiu;
 	}
+	
 	public void setNotibActiu(Boolean notibActiu) {
 		this.notibActiu = notibActiu;
+	}
+	
+	/** Codi DIR3 de l'organisme emissor. */
+	@Column(name="notib_emisor", length=256)
+	public String getNotibEmisor() {
+		return notibEmisor;
+	}
+	public void setNotibEmisor(String notibEmisor) {
+		this.notibEmisor = notibEmisor;
+	}
+		
+	@Column(name="notib_codi_procediment", length=9)
+	public String getNotibCodiProcediment() {
+		return notibCodiProcediment;
+	}
+	
+	public void setNotibCodiProcediment(String notibCodiProcediment) {
+		this.notibCodiProcediment = notibCodiProcediment;
 	}
 		
 	@Column(name="formext_url", length=255)

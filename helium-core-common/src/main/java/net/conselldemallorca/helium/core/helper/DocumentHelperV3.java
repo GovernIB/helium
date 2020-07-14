@@ -1822,7 +1822,11 @@ public class DocumentHelperV3 {
 		dto.setAdjuntarAuto(document.isAdjuntarAuto());
 		dto.setArxiuNom(document.getArxiuNom());
 		dto.setArxiuContingutDefinit(document.getArxiuContingut() != null && document.getArxiuContingut().length > 0);
-		Long documentStoreId = getDocumentStoreIdDeVariableJbpm(String.valueOf(task.getTask().getId()), task.getProcessInstanceId(), document.getCodi());
+		Long documentStoreId;
+		documentStoreId = getDocumentStoreIdDeVariableJbpm(
+				String.valueOf(task.getTask().getId()), 
+				readonly ? task.getProcessInstanceId() : null, // Si és readonly no es troba a la tasca però sí es pot llegir del procés 
+				document.getCodi());
 		if (documentStoreId != null) {
 			DocumentStore documentStore = documentStoreRepository.findOne(documentStoreId);
 			if (documentStore != null) {

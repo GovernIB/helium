@@ -73,6 +73,7 @@ public class Tasca implements Serializable, GenericEntity<Long> {
 	private boolean tramitacioMassiva = false;
 	private boolean finalitzacioSegonPla = false;
 	private boolean ambRepro = false;
+	private boolean mostrarAgrupacions = false;
 
 	@NotNull
 	private DefinicioProces definicioProces;
@@ -197,6 +198,14 @@ public class Tasca implements Serializable, GenericEntity<Long> {
 	}
 	public void setAmbRepro(boolean ambRepro) {
 		this.ambRepro = ambRepro;
+	}
+
+	@Column(name="mostrar_agrupacions")
+	public boolean isMostrarAgrupacions() {
+		return mostrarAgrupacions;
+	}
+	public void setMostrarAgrupacions(boolean mostrarAgrupacions) {
+		this.mostrarAgrupacions = mostrarAgrupacions;
 	}
 	
 	@ManyToOne(optional=false)

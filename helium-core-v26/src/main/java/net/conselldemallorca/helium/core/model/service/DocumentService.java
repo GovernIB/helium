@@ -476,6 +476,15 @@ public class DocumentService {
 			boolean forsarAdjuntarAuto,
 			boolean adjuntarAuto,
 			String user) {
+		logger.warn("S'està generant una plantilla des del mètode antic. Això pot provocar problemes per expedients integrats amb l'Arxiu. [" + 
+			" entornId = " + entornId +
+			" documentId = " + documentId +
+			" taskInstanceId = " + taskInstanceId +
+			" processInstanceId = " + processInstanceId +
+			" forsarAdjuntarAuto = " + forsarAdjuntarAuto +
+			" adjuntarAuto = " + adjuntarAuto +
+			" user = " + user + "]");
+
 		Document document = documentDao.getById(documentId, false);
 		DocumentDto resposta = new DocumentDto();
 		resposta.setDataCreacio(new Date());
