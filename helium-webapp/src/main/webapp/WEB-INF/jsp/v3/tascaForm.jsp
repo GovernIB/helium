@@ -131,7 +131,7 @@
                     <div class="col-xs-${buitAbsCols}"></div>
                 </c:if>
 
-                <div class="col-xs-${ampleCols}" title="ampleCols-${ampleCols} buitCols-${buitCols} buitAbsCols-${buitAbsCols} comptadorCols-${comptadorCols}">
+                <div class="col-xs-${ampleCols}">
                     <c:set var="inline" value="${false}" />
                     <c:set var="isRegistre" value="${false}" />
                     <c:set var="isMultiple" value="${false}" />
