@@ -53,6 +53,7 @@ import net.conselldemallorca.helium.core.model.hibernate.Permis;
 import net.conselldemallorca.helium.core.model.hibernate.Usuari;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.core.util.ws.RestClient;
+import net.conselldemallorca.helium.integracio.plugins.unitat.UnitatOrganica;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmTask;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDadaDto;
@@ -600,6 +601,10 @@ public class DominiHelper {
 		} else if ("PERSONES_AMB_CARREC".equals(id)) {
 			/* Per suprimir */
 			return personesAmbCarrec(parametersMap);
+		} else if ("UNITAT_PER_CODI".equals(id)) {
+			return unitatOrganica(parametersMap);
+		} else if ("UNITAT_PER_ARREL".equals(id)) {
+			return unitatsOrganiques(parametersMap);
 		}
 		return new ArrayList<FilaResultat>();
 	}
@@ -690,6 +695,49 @@ public class DominiHelper {
 				(String)parametres.get("persona"));
 		for (Carrec carrec: carrecs) {
 			resposta.add(novaFilaCarrec(persona, carrec));
+		}
+		return resposta;
+	}
+	
+	public List<FilaResultat> unitatOrganica(Map<String, Object> parametres) {
+		List<FilaResultat> resposta = new ArrayList<FilaResultat>();
+		String codi = (String)parametres.get("unitat");
+		UnitatOrganica uo = pluginHelper.findUnitatOrganica(codi);
+		if(uo != null) {
+			FilaResultat fila = new FilaResultat();
+			fila.addColumna(new ParellaCodiValor("codiDenominacio", uo.getCodi() + " - " + uo.getDenominacio()));
+			fila.addColumna(new ParellaCodiValor("codi", uo.getCodi()));
+			fila.addColumna(new ParellaCodiValor("denominacio", uo.getDenominacio()));
+			fila.addColumna(new ParellaCodiValor("tipusEntitatPublica", uo.getTipusEntitatPublica()));
+			fila.addColumna(new ParellaCodiValor("tipusUnitatOrganica", uo.getTipusUnitatOrganica()));
+			fila.addColumna(new ParellaCodiValor("sigles", uo.getSigles()));
+			fila.addColumna(new ParellaCodiValor("codiUnitatSuperior", uo.getCodiUnitatSuperior()));
+			fila.addColumna(new ParellaCodiValor("codiUnitatArrel", uo.getCodiUnitatArrel()));
+			fila.addColumna(new ParellaCodiValor("estat", uo.getEstat()));
+			resposta.add(fila);
+		}
+		return resposta;
+	}
+	
+	public List<FilaResultat> unitatsOrganiques(Map<String, Object> parametres) {
+		List<FilaResultat> resposta = new ArrayList<FilaResultat>();
+		String unitatArrel = (String)parametres.get("unitatArrel");
+		List<UnitatOrganica> uos = pluginHelper.findUnitatsOrganiques(unitatArrel);
+		if(uos != null && uos.size() > 1) {
+			uos.remove(0);
+		}
+		for(UnitatOrganica uo : uos) {
+			FilaResultat fila = new FilaResultat();
+			fila.addColumna(new ParellaCodiValor("codiDenominacio", uo.getCodi() + " - " + uo.getDenominacio()));
+			fila.addColumna(new ParellaCodiValor("codi", uo.getCodi()));
+			fila.addColumna(new ParellaCodiValor("denominacio", uo.getDenominacio()));
+			fila.addColumna(new ParellaCodiValor("tipusEntitatPublica", uo.getTipusEntitatPublica()));
+			fila.addColumna(new ParellaCodiValor("tipusUnitatOrganica", uo.getTipusUnitatOrganica()));
+			fila.addColumna(new ParellaCodiValor("sigles", uo.getSigles()));
+			fila.addColumna(new ParellaCodiValor("codiUnitatSuperior", uo.getCodiUnitatSuperior()));
+			fila.addColumna(new ParellaCodiValor("codiUnitatArrel", uo.getCodiUnitatArrel()));
+			fila.addColumna(new ParellaCodiValor("estat", uo.getEstat()));
+			resposta.add(fila);
 		}
 		return resposta;
 	}

@@ -55,6 +55,7 @@ import net.conselldemallorca.helium.core.model.hibernate.Persona;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.core.util.NombreEnCastella;
 import net.conselldemallorca.helium.core.util.NombreEnCatala;
+import net.conselldemallorca.helium.integracio.plugins.unitat.UnitatOrganica;
 import net.conselldemallorca.helium.jbpm3.integracio.DominiCodiDescripcio;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmTask;
@@ -737,6 +738,23 @@ public class PlantillaHelper {
 							return new ArrayModel(
 									resposta,
 									new DefaultObjectWrapper());
+						}
+						return new SimpleScalar("[Arguments incorrectes]");
+					}
+				});
+		model.put(
+				"unitatOrganica",
+				new TemplateMethodModel() {
+					public TemplateModel exec(List args) throws TemplateModelException {
+						if (args.size() >= 1) {
+							Object arg0 = args.get(0);
+							if ((arg0 != null) && (arg0 instanceof String)) {
+								String codi = (String)arg0;
+								UnitatOrganica unitat = pluginHelper.findUnitatOrganica(codi);
+								return new BeanModel(
+										unitat,
+										new DefaultObjectWrapper());
+							}
 						}
 						return new SimpleScalar("[Arguments incorrectes]");
 					}

@@ -6,12 +6,14 @@ import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 
 import javax.annotation.Resource;
 import javax.servlet.ServletException;
@@ -50,6 +52,7 @@ import org.springframework.web.multipart.commons.CommonsMultipartFile;
 import net.conselldemallorca.helium.core.helper.DocumentHelperV3;
 import net.conselldemallorca.helium.core.util.PdfUtils;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
+import net.conselldemallorca.helium.v3.core.api.dto.CampAgrupacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentTipusFirmaEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
@@ -305,6 +308,7 @@ public class TascaTramitacioController extends BaseTascaController {
 				tascaId)) {
 			// Recarrega les dades guardades
 			tascaDades = tascaService.findDades(tascaId);
+			validator.setTascaDades(tascaDades); // Actualitzam les dades de la tasca al validador
 			Map<String, Object> campsAddicionals = new HashMap<String, Object>();
 			Map<String, Class<?>> campsAddicionalsClasses = new HashMap<String, Class<?>>();
 			Object commandValidar = TascaFormHelper.getCommandForCamps(
@@ -1002,6 +1006,35 @@ public class TascaTramitacioController extends BaseTascaController {
 						"class=" + dada.getJavaClassMultiple() + ")");
 			}
 		}*/
+		
+		Map<CampAgrupacioDto, List<TascaDadaDto>> mapDades = new TreeMap<CampAgrupacioDto, List<TascaDadaDto>>(
+				// Comparador d'ordre d'agrupacions, primer la null, després heretades i finalment pròpies
+				new Comparator<CampAgrupacioDto>() {
+                    @Override
+                    public int compare(CampAgrupacioDto a1, CampAgrupacioDto a2) {
+                    	// El null va davant
+                    	if (a1 == null && a2 == null)
+                    		return 0;
+                    	else if (a1 == null)
+                    		return -1;
+                    	else if (a2 == null )
+                    		return 1;
+                    	else {
+                    		// Després van els heretats
+                    		if (a1.isHeretat() && a2.isHeretat())
+                    			return Integer.compare(a1.getOrdre(), a2.getOrdre());
+                    		else if (a1.isHeretat() && !a2.isHeretat())
+                    			return -1;
+                    		else if (!a1.isHeretat() && a2.isHeretat())
+                    			return 1;
+                    		else
+                    			// Si no retorna l'ordre normal
+                    			return Integer.compare(a1.getOrdre(), a2.getOrdre());
+                    	}
+                    }
+                });
+		
+		
 		Iterator<TascaDadaDto> itDades = dades.iterator();
 		while (itDades.hasNext()) {
 			TascaDadaDto dada = itDades.next();
@@ -1009,7 +1042,27 @@ public class TascaTramitacioController extends BaseTascaController {
 				itDades.remove();
 			}
 		}
+		
+		if(tasca.isMostrarAgrupacions()) {
+			TreeMap<Long, CampAgrupacioDto> agrupacions = new TreeMap<Long, CampAgrupacioDto>();
+			mapDades.put(null, new ArrayList<TascaDadaDto>());
+			for(TascaDadaDto dada : dades) {
+				CampAgrupacioDto agrupacio = null;
+				if(dada.getAgrupacio() != null) {
+					if(!agrupacions.containsKey(dada.getAgrupacio().getId())) {
+						agrupacions.put(dada.getAgrupacio().getId(), dada.getAgrupacio());
+						mapDades.put(dada.getAgrupacio(), new ArrayList<TascaDadaDto>());
+					}
+					agrupacio = agrupacions.get(dada.getAgrupacio().getId());
+				}
+				mapDades.get(agrupacio).add(dada);
+			}
+		} else {
+			mapDades.put(null, dades);
+		}
 		model.addAttribute("dades", dades);
+		model.addAttribute("dadesMap", mapDades);
+		
 		if (tasca.getTascaRecursForm() != null && tasca.getTascaRecursForm().length() > 0) {
 			try {
 				byte[] contingut = dissenyService.getDeploymentResource(

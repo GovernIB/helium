@@ -30,6 +30,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import es.caib.plugins.arxiu.api.ContingutArxiu;
+import es.caib.plugins.arxiu.api.ExpedientEstat;
+import es.caib.plugins.arxiu.api.ExpedientMetadades;
 import net.conselldemallorca.helium.core.common.ThreadLocalInfo;
 import net.conselldemallorca.helium.core.helper.PermisosHelper.ObjectIdentifierExtractor;
 import net.conselldemallorca.helium.core.helperv26.LuceneHelper;
@@ -710,9 +712,13 @@ public class ExpedientHelper {
 			expedient.setArxiuUuid(null);
 		}else {
 			//firmem els documents que no estan firmats
-			expedientHelper.firmarDocumentsPerArxiuFiExpedient(expedient);				
+			expedientHelper.firmarDocumentsPerArxiuFiExpedient(expedient);	
+			
 			// Tanca l'expedient a l'arxiu.
-			pluginHelper.arxiuExpedientTancar(expedient.getArxiuUuid());
+			ExpedientMetadades metadades = pluginHelper.arxiuExpedientInfo(expedient.getArxiuUuid()).getMetadades();
+			if(metadades.getEstat() != ExpedientEstat.TANCAT) {
+				pluginHelper.arxiuExpedientTancar(expedient.getArxiuUuid());
+			}
 		}
 	}
 
@@ -1101,11 +1107,20 @@ public class ExpedientHelper {
 				true);
 	}
 
+	/**
+	 * 
+	 * @param expedient
+	 */
 	public void verificarFinalitzacioExpedient(
 			Expedient expedient) {
+		// actualitza l'expedient si el seu procés està finalitzat
 		verificarFinalitzacioProcessInstance(expedient.getProcessInstanceId());
+		
+		// Obté la llista de totes les instancies de processos finalitzats excepte l'actual
 		List<String> processInstanceFinalitzatIds = ThreadLocalInfo.getProcessInstanceFinalitzatIds();
 		processInstanceFinalitzatIds.remove(expedient.getProcessInstanceId());
+
+		// actualitza tots els expedients processos finalitzats
 		for (String processInstanceId: processInstanceFinalitzatIds) {
 			verificarFinalitzacioProcessInstance(processInstanceId);
 		}
@@ -1276,9 +1291,16 @@ public class ExpedientHelper {
 		return GlobalProperties.getInstance().getProperty("app.numexp.expression");
 	}
 
+	/**
+	 * No verifica res, actualitza l'expedient si el procés està finalitzat
+	 * 
+	 * @param processInstanceId Identificador de la instancia del procés de l'expedient
+	 */
 	private void verificarFinalitzacioProcessInstance(
 			String processInstanceId) {
 		JbpmProcessInstance processInstance = jbpmHelper.getRootProcessInstance(processInstanceId);
+		
+		// Si el procés està finalitzat
 		if (processInstance.getEnd() != null) {
 			// Actualitzar data de fi de l'expedient
 			Expedient expedient = expedientRepository.findByProcessInstanceId(processInstanceId);
@@ -1589,6 +1611,8 @@ public class ExpedientHelper {
 			if (arxiuUuid != null)
 				try {
 					logger.info("Rollback de la creació de l'expedient a l'Arxiu " + expedientPerRetornar.getIdentificador() + " amb uuid " + arxiuUuid);
+					// Esborra l'expedient de l'arxiu
+					pluginHelper.arxiuExpedientEsborrar(arxiuUuid);
 				} catch(Exception re) {
 					logger.error("Error esborrant l'expedient " + expedientPerRetornar.getIdentificador() + " amb uuid " + arxiuUuid + " :" + re.getMessage());
 				}

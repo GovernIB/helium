@@ -10,6 +10,7 @@ import java.util.Date;
 import java.util.List;
 
 
+
 /**
  * DTO amb informació d'una dada de d'una tasca.
  * 
@@ -46,6 +47,8 @@ public class TascaDadaDto {
 	private int buitCols;
 
 	private boolean llistar;  // Si s'ha de llistar dins camp tipus registre
+	
+	CampAgrupacioDto agrupacio;
 	
 
 	public TascaDadaDto(String codi, CampTipusDto tipus, String etiqueta) {
@@ -192,6 +195,14 @@ public class TascaDadaDto {
 	}
 	public void setLlistar(boolean llistar) {
 		this.llistar = llistar;
+	}
+	
+	public CampAgrupacioDto getAgrupacio() {
+		return agrupacio;
+	}
+
+	public void setAgrupacio(CampAgrupacioDto agrupacio) {
+		this.agrupacio = agrupacio;
 	}
 
 	public Object[] getMultipleValor() {

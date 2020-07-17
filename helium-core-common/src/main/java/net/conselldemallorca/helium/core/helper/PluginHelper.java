@@ -104,6 +104,8 @@ import net.conselldemallorca.helium.integracio.plugins.tramitacio.PublicarExpedi
 import net.conselldemallorca.helium.integracio.plugins.tramitacio.Signatura;
 import net.conselldemallorca.helium.integracio.plugins.tramitacio.TramitacioPlugin;
 import net.conselldemallorca.helium.integracio.plugins.tramitacio.TramitacioPluginException;
+import net.conselldemallorca.helium.integracio.plugins.unitat.UnitatOrganica;
+import net.conselldemallorca.helium.integracio.plugins.unitat.UnitatsOrganiquesPlugin;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuFirmaDetallDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuFirmaDto;
@@ -181,6 +183,7 @@ public class PluginHelper {
 	private IArxiuPlugin arxiuPlugin;
 	private NotificacioPlugin notificacioPlugin;
 	private IValidateSignaturePlugin validaSignaturaPlugin;
+	private UnitatsOrganiquesPlugin unitatsOrganitzativesPlugin;
 
 
 
@@ -4018,6 +4021,48 @@ public class PluginHelper {
 		String extensioAmbPunt = (fitxerExtensio.startsWith(".")) ? fitxerExtensio.toLowerCase() : "." + fitxerExtensio.toLowerCase();
 		return DocumentExtensio.toEnum(extensioAmbPunt);
 	}
+	
+	/**
+	 * Metode per cercar Unitat Orgànica per codi
+	 * @param codi 
+	 * 	<i> Codi d'unitat orgànica </i>
+	 * @return
+	 */
+	public UnitatOrganica findUnitatOrganica(String codi) {
+		if( codi != null) {
+			try {
+				return getUnitatsOrganitzativesPlugin().findAmbCodi(codi);
+			} catch (net.conselldemallorca.helium.integracio.plugins.SistemaExternException e) {
+				throw tractarExcepcioEnSistemaExtern(
+						"Error cercant unitats orgàniques amb codi: ( " + codi + " )",
+						e);
+			}
+		} else {
+			throw tractarExcepcioEnSistemaExtern(
+					"No s'ha especificat el codi de la unitat", null);
+		}
+	}
+	
+	/**
+	 * Metode per cercar Unitats Orgàniques per codi d'unitata pare
+	 * @param superior 
+	 * 	<i> Codi d'unitat orgànica pare </i>
+	 * @return
+	 */
+	public List<UnitatOrganica> findUnitatsOrganiques(String arrel) {
+		if( arrel != null) {
+			try {
+				return getUnitatsOrganitzativesPlugin().findAmbPare(arrel);
+			} catch (net.conselldemallorca.helium.integracio.plugins.SistemaExternException e) {
+				throw tractarExcepcioEnSistemaExtern(
+						"Error cercant unitats orgàniques amb unitat arrel: ( " + arrel + " )",
+						e);
+			}
+		} else {
+			throw tractarExcepcioEnSistemaExtern(
+					"No s'ha especificat el codi de la unitat arrel", null);
+		}
+	}
 
 	private boolean isIdUsuariPerDni() {
 		return "dni".equalsIgnoreCase(GlobalProperties.getInstance().getProperty("app.portasignatures.plugin.usuari.id"));
@@ -4321,6 +4366,28 @@ public class PluginHelper {
 			}
 		}
 		return validaSignaturaPlugin;
+	}
+	
+	private UnitatsOrganiquesPlugin getUnitatsOrganitzativesPlugin() {
+		if (unitatsOrganitzativesPlugin == null) {
+			String pluginClass = GlobalProperties.getInstance().getProperty("app.unitats.organiques.dir3.plugin.service.class");
+			if (pluginClass != null && pluginClass.length() > 0) {
+				try {
+					Class<?> clazz = Class.forName(pluginClass);
+					unitatsOrganitzativesPlugin = (UnitatsOrganiquesPlugin)clazz.newInstance();
+				} catch (Exception ex) {
+					throw tractarExcepcioEnSistemaExtern(
+							"Error al crear la instància del plugin de unitats orgàniques (" +
+							"pluginClass=" + pluginClass + ")",
+							ex);
+				}
+			} else {
+				throw tractarExcepcioEnSistemaExtern(
+						"No està configurada la classe per al plugin de unitats orgàniques",
+						null);
+			}
+		}
+		return unitatsOrganitzativesPlugin;
 	}
 
 	private SistemaExternException tractarExcepcioEnSistemaExtern(

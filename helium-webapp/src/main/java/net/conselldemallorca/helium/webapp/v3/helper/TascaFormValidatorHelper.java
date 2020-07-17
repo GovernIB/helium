@@ -498,6 +498,10 @@ public class TascaFormValidatorHelper implements Validator {
 		}
 		return command;
 	}
+	
+	public void setTascaDades(List<TascaDadaDto> tascaDades) {
+		this.tascaDades = tascaDades;
+	}
 
 	private static final Log logger = LogFactory.getLog(TascaFormValidatorHelper.class);
 

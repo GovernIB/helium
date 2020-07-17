@@ -220,6 +220,7 @@ public class EnumeracioServiceImpl implements EnumeracioService {
 		else
 			entornHelper.getEntornComprovantPermisos(entity.getEntorn().getId(), true, true);
 
+		// Si l'enumerat esta associat a alguna variable no es pot eliminar
 		if (entity.getCamps()!=null && entity.getCamps().size()>0) {
 			throw new ValidacioException(messageHelper.getMessage("expedient.tipus.enumeracio.controller.eliminat.us"));
 		}
@@ -476,10 +477,6 @@ public class EnumeracioServiceImpl implements EnumeracioService {
 		else
 			entornHelper.getEntornComprovantPermisos(entity.getEntorn().getId(), true, true);
 		
-		if (entity.getCamps()!=null && entity.getCamps().size()>0) {
-			throw new ValidacioException(messageHelper.getMessage("expedient.tipus.enumeracio.controller.eliminat.us"));
-		}
-
 		List<EnumeracioValors> valors = enumeracioValorsRepository.findByEnumeracioOrdenat(entity.getId());
 		if (valors!=null) {
 			for (int o=0; o<valors.size(); o++) {

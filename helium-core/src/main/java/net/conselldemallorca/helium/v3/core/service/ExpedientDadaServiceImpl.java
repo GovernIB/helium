@@ -216,7 +216,15 @@ public class ExpedientDadaServiceImpl implements ExpedientDadaService {
 		if (camp != null && camp.isDominiCacheText())
 			jbpmHelper.deleteProcessInstanceVariable(processInstanceId, JbpmVars.PREFIX_VAR_DESCRIPCIO + varCodi);
 		
-		indexHelper.expedientIndexLuceneDelete(processInstanceId, varCodi);
+		//indexHelper.expedientIndexLuceneDelete(processInstanceId, varCodi);
+		
+		//indexHelper.expedientIndexLuceneUpdate(processInstanceId);
+		if (e.getTipus().isAmbInfoPropia()) {
+			indexHelper.expedientIndexLuceneDelete(processInstanceId, varCodi);
+		} else {
+			indexHelper.expedientIndexLuceneDelete(processInstanceId, definicioProces.getJbpmKey() + "." + varCodi);
+		}
+		
 		Registre registre = crearRegistreInstanciaProces(
 				expedientId,
 				processInstanceId,

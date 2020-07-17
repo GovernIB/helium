@@ -17,6 +17,7 @@ public class DocumentExportacio implements Serializable {
 	private String codi;
 	private String nom;
 	private boolean plantilla;
+	private boolean notificable;
 	private String descripcio;
 	private byte[] arxiuContingut;
 	private String arxiuNom;
@@ -36,13 +37,15 @@ public class DocumentExportacio implements Serializable {
 			String descripcio,
 			byte[] arxiuContingut,
 			String arxiuNom,
-			boolean plantilla) {
+			boolean plantilla,
+			boolean notificable) {
 		this.codi = codi;
 		this.nom = nom;
 		this.descripcio = descripcio;
 		this.arxiuContingut = arxiuContingut;
 		this.arxiuNom = arxiuNom;
 		this.plantilla = plantilla;
+		this.setNotificable(notificable);
 	}	
 
 	public String getCodi() {
@@ -67,6 +70,14 @@ public class DocumentExportacio implements Serializable {
 
 	public void setPlantilla(boolean plantilla) {
 		this.plantilla = plantilla;
+	}
+
+	public boolean isNotificable() {
+		return notificable;
+	}
+
+	public void setNotificable(boolean notificable) {
+		this.notificable = notificable;
 	}
 
 	public String getDescripcio() {

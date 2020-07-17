@@ -257,6 +257,9 @@
  							<c:when test="${psignaPendentActual.estat == 'PROCESSAT' && psignaPendentActual.error}">
  								<span class="pull-right" id="psignaEstat">REBUTJAT</span>
  							</c:when>
+ 							<c:when test="${psignaPendentActual.estat != 'PROCESSAT' && psignaPendentActual.error && not empty psignaPendentActual.errorProcessant}">
+ 								<span class="pull-right" id="psignaEstat">PENDENT</span>
+ 							</c:when>
  							<c:otherwise>
  								<span class="pull-right" id="psignaEstat">${psignaPendentActual.estat}</span>
  							</c:otherwise>

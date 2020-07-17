@@ -30,6 +30,7 @@ public class TascaExportacio implements Serializable {
 	private boolean tramitacioMassiva;
 	private boolean finalitzacioSegonPla;
 	private boolean ambRepro;
+	private boolean mostrarAgrupacions = false;
 	
 
 	private Set<CampTascaExportacio> camps = new HashSet<CampTascaExportacio>();
@@ -118,6 +119,14 @@ public class TascaExportacio implements Serializable {
 
 	public void setAmbRepro(boolean ambRepro) {
 		this.ambRepro = ambRepro;
+	}
+	
+	public boolean isMostrarAgrupacions() {
+		return mostrarAgrupacions;
+	}
+
+	public void setMostrarAgrupacions(boolean mostrarAgrupacions) {
+		this.mostrarAgrupacions = mostrarAgrupacions;
 	}
 
 	public void setFinalitzacioSegonPla(boolean finalitzacioSegonPla) {

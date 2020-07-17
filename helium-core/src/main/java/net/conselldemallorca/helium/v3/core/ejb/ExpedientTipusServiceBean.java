@@ -20,6 +20,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DominiDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EnumeracioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto.EstatTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusEstadisticaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.MapeigSistraDto;
@@ -677,6 +678,22 @@ public class ExpedientTipusServiceBean implements ExpedientTipusService {
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public ExpedientTipusDto findPerDistribucioValidacio(String codiProcediment, String codiAssumpte) {
 		return delegate.findPerDistribucioValidacio(codiProcediment, codiAssumpte);
+	}
+
+	@Override
+	public List<ExpedientTipusEstadisticaDto> findEstadisticaByFiltre(Integer anyInicial, Integer anyFinal,
+			Long entornId, Long expedientTipusId, Boolean anulats, String numero, String titol, EstatTipusDto estatTipus,
+			Boolean aturat) {
+		return delegate.findEstadisticaByFiltre(
+				anyInicial, 
+				anyFinal, 
+				entornId, 
+				expedientTipusId, 
+				anulats, 
+				numero, 
+				titol, 
+				estatTipus, 
+				aturat);
 	}
 
 }

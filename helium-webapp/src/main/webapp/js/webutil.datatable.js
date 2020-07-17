@@ -421,11 +421,27 @@
 					for (var d = 0; d < selectedRowsData.length; d++) {
 						ids.push(selectedRowsData[d]['DT_Id']);
 					}
-					$taula.trigger(
+					
+					if(ids.length == 0) {
+						$.ajax({
+							type: 'GET',
+							url: 'selectionDp/clear',
+							data: { },
+							success: function(resposta) {
+								$(plugin.settings.selectionCounter).html(resposta.length);
+								window[$taula.data('id') + '_selected_ids'] = resposta;
+							}
+						});
+					}else {
+						editSelection(ids, 'add');
+					}
+					
+					/*$taula.trigger(
 							'selectionchange.dataTable',
-							[ids]);
+							[ids]);*/
 				};
 				$taula.on('select.dt', function (e, dt, type, indexes) {
+					console.log('click');
 					if (window[$taula.data('id') + '_prevent_next_select'] && event.type != 'click') {
 //						event.preventDefault();
 //						return false;
@@ -463,6 +479,8 @@
 							});
 						}
 						if (e.type == 'click')
+							editSelection(ids_server, 'remove');
+						if (e.type == 'deselect')
 							editSelection(ids_server, 'remove');
 						triggerSelectionChangeFunction();
 					}

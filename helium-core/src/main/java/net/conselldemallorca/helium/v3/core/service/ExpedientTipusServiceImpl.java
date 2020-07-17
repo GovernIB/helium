@@ -76,6 +76,7 @@ import net.conselldemallorca.helium.core.util.ExpedientCamps;
 import net.conselldemallorca.helium.v3.core.api.dto.CampTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ConsultaCampDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ConsultaCampDto.TipusConsultaCamp;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto.EstatTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ConsultaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DominiDto;
@@ -675,7 +676,8 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 							document.getDescripcio(),
 							document.getArxiuContingut(),
 							document.getArxiuNom(),
-							document.isPlantilla());
+							document.isPlantilla(),
+							document.isNotificable());
 					documentExportacio.setCustodiaCodi(document.getCustodiaCodi());
 					documentExportacio.setContentType(document.getContentType());
 					documentExportacio.setTipusDocPortasignatures(document.getTipusDocPortasignatures());
@@ -1222,6 +1224,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 						document.setArxiuNom(documentExportat.getArxiuNom());
 						document.setArxiuContingut(documentExportat.getArxiuContingut());
 						document.setPlantilla(documentExportat.isPlantilla());
+						document.setNotificable(documentExportat.isNotificable());
 						document.setCustodiaCodi(documentExportat.getCustodiaCodi());
 						document.setContentType(documentExportat.getContentType());
 						document.setTipusDocPortasignatures(documentExportat.getTipusDocPortasignatures());
@@ -3621,4 +3624,58 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 	
 	private static final Logger logger = LoggerFactory.getLogger(ExpedientServiceImpl.class);
 
+	@Override
+	public List<ExpedientTipusEstadisticaDto> findEstadisticaByFiltre(
+			Integer anyInicial, 
+			Integer anyFinal,
+			Long entornId, 
+			Long expedientTipusId, 
+			Boolean anulats, 
+			String numero, 
+			String titol, 
+			EstatTipusDto estatTipus,
+			Boolean aturat) {
+		
+		/*Estat estat = null;
+		if (estatId != null) {
+			estat = estatRepository.findByExpedientTipusAndIdAmbHerencia(
+					expedientTipusId, 
+					estatId);
+			if (estat == null) {
+				logger.debug("No s'ha trobat l'estat (expedientTipusId=" + expedientTipusId + ", estatId=" + estatId + ")");
+				throw new NoTrobatException(Estat.class,estatId);
+			}
+		}*/
+		Entorn entorn = entornHelper.getEntornComprovantPermisos(
+				entornId,
+				true);
+		ExpedientTipus expedientTipus = null;
+		if(expedientTipusId != null) {
+			expedientTipus = expedientTipusRepository.findOne(expedientTipusId);
+		}
+		
+		
+		return expedientTipusRepository.findEstadisticaByFiltre(
+											anyInicial == null,
+											anyInicial,
+											anyFinal == null,
+											anyFinal,
+											entorn,
+											expedientTipus == null,
+											expedientTipus,
+											anulats == null,
+											anulats,
+											numero == null,
+											numero, 
+											titol == null,
+											titol, 
+											EstatTipusDto.INICIAT.equals(estatTipus),
+											EstatTipusDto.FINALITZAT.equals(estatTipus),
+											aturat == null,
+											aturat);
+	}
+
+	private static final Logger logger = LoggerFactory.getLogger(ExpedientServiceImpl.class);
+	// TODO Daniel: Mirar per a què serveix aquesta propietat
+	private static final String aturat = null;
 }

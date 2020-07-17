@@ -95,8 +95,20 @@ $(document).ready(function() {
 <form:form action="" id="filtre" method="post" cssClass="well" commandName="expedientTipusEstadisticaCommand">
 		<div class="row">
 			<div class="col-md-3">
-				<label><spring:message code="expedient.llistat.filtre.camp.expedient.tipus"/></label>
+				<hel:inputText name="numero" textKey="expedient.llistat.filtre.camp.numero" placeholderKey="expedient.llistat.filtre.camp.numero" inline="true"/>
+			</div>
+			<div class="col-md-3">
+				<hel:inputText name="titol" textKey="expedient.llistat.filtre.camp.titol" placeholderKey="expedient.llistat.filtre.camp.titol" inline="true"/>
+			</div>
+			<div class="col-md-3">
 				<hel:inputSelect emptyOption="true" name="expedientTipusId" textKey="expedient.llistat.filtre.camp.expedient.tipus" placeholderKey="expedient.llistat.filtre.camp.expedient.tipus" optionItems="${expedientsTipus}" optionValueAttribute="id" optionTextAttribute="nom" disabled="${not empty expedientTipusActual}" inline="true"/>
+			</div>
+			<div class="col-md-3">
+				<hel:inputSelect emptyOption="true" name="estatText" textKey="expedient.llistat.filtre.camp.estat" placeholderKey="expedient.llistat.filtre.camp.estat" optionItems="${estatsList}" optionValueAttribute="codi" optionTextAttribute="nom" inline="true"/>
+			</div>
+			<div class="col-md-3">
+				<label><spring:message code="expedient.info.aturat"/></label>
+				<hel:inputSelect emptyOption="true" name="aturat" textKey="expedient.info.aturat" optionItems="${aturats}" optionValueAttribute="valor" optionTextAttribute="codi" placeholderKey="expedient.info.aturat" inline="true"/>
 			</div>
 			<div class="col-md-6">
 				<label><spring:message code="expedient.llistat.filtre.camp.data.inici"/></label>

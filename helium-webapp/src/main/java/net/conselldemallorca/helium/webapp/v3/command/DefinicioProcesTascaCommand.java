@@ -37,7 +37,15 @@ public class DefinicioProcesTascaCommand {
 	private boolean tramitacioMassiva = false;
 	private boolean finalitzacioSegonPla = false;
 	private boolean ambRepro = false;
+	private boolean mostrarAgrupacions = false;
 	
+	
+	public boolean isMostrarAgrupacions() {
+		return mostrarAgrupacions;
+	}
+	public void setMostrarAgrupacions(boolean mostrarAgrupacions) {
+		this.mostrarAgrupacions = mostrarAgrupacions;
+	}
 	public boolean isAmbRepro() {
 		return ambRepro;
 	}
@@ -131,6 +139,7 @@ public class DefinicioProcesTascaCommand {
 		dto.setTramitacioMassiva(command.isTramitacioMassiva());
 		dto.setFinalitzacioSegonPla(command.isFinalitzacioSegonPla());
 		dto.setAmbRepro(command.isAmbRepro());
+		dto.setMostrarAgrupacions(command.isMostrarAgrupacions());
 		return dto;
 	}
 	
@@ -150,6 +159,7 @@ public class DefinicioProcesTascaCommand {
 		command.setTramitacioMassiva(dto.isTramitacioMassiva());
 		command.setFinalitzacioSegonPla(dto.isFinalitzacioSegonPla());
 		command.setAmbRepro(dto.isAmbRepro());
+		command.setMostrarAgrupacions(dto.isMostrarAgrupacions());
 		return command;
 	}
 	public interface Modificacio {}

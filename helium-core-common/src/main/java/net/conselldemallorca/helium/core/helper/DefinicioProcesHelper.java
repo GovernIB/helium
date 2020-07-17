@@ -358,6 +358,7 @@ public class DefinicioProcesHelper {
 						document.setArxiuNom(documentExportat.getArxiuNom());
 						document.setArxiuContingut(documentExportat.getArxiuContingut());
 						document.setPlantilla(documentExportat.isPlantilla());
+						document.setNotificable(documentExportat.isNotificable());
 						document.setCustodiaCodi(documentExportat.getCustodiaCodi());
 						document.setContentType(documentExportat.getContentType());
 						document.setTipusDocPortasignatures(documentExportat.getTipusDocPortasignatures());
@@ -458,6 +459,7 @@ public class DefinicioProcesHelper {
 						tasca.setTramitacioMassiva(tascaExportat.isTramitacioMassiva());
 						tasca.setFinalitzacioSegonPla(tascaExportat.isFinalitzacioSegonPla());
 						tasca.setAmbRepro(tascaExportat.isAmbRepro());
+						tasca.setMostrarAgrupacions(tascaExportat.isMostrarAgrupacions());
 						tascaRepository.save(tasca);
 						
 						// Si la tasca ja existia llavors esborra els camps, documents i firmes
@@ -821,6 +823,7 @@ public class DefinicioProcesHelper {
 					tascaExportacio.setTramitacioMassiva(tasca.isTramitacioMassiva());
 					tascaExportacio.setFinalitzacioSegonPla(tasca.isFinalitzacioSegonPla());
 					tascaExportacio.setAmbRepro(tasca.isAmbRepro());
+					tascaExportacio.setMostrarAgrupacions(tasca.isMostrarAgrupacions());
 					// Afegeix els camps de la tasca
 					for (CampTasca camp: campTascaRepository.findAmbTascaIdOrdenats(tasca.getId(), definicio.getExpedientTipus().getId())) {
 						tascaExportacio.addCamp(
@@ -941,7 +944,8 @@ public class DefinicioProcesHelper {
 							document.getDescripcio(),
 							document.getArxiuContingut(),
 							document.getArxiuNom(),
-							document.isPlantilla());
+							document.isPlantilla(),
+							document.isNotificable());
 					documentExportacio.setCustodiaCodi(document.getCustodiaCodi());
 					documentExportacio.setContentType(document.getContentType());
 					documentExportacio.setTipusDocPortasignatures(document.getTipusDocPortasignatures());
@@ -1144,6 +1148,7 @@ public class DefinicioProcesHelper {
 				tascaDesti.setTramitacioMassiva(tascaOrigen.isTramitacioMassiva());
 				tascaDesti.setFinalitzacioSegonPla(tascaOrigen.isFinalitzacioSegonPla());
 				tascaDesti.setAmbRepro(tascaOrigen.isAmbRepro());
+				tascaDesti.setMostrarAgrupacions(tascaOrigen.isMostrarAgrupacions());
 				// Copia els camps de les tasques
 				for (CampTasca camp: tascaOrigen.getCamps()) {
 					CampTasca nouCamp = new CampTasca(

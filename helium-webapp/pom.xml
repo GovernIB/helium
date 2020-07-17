@@ -409,7 +409,7 @@
 				<file>
 					<exists>appserv_tomcat</exists>
 				</file>
-				<activeByDefault>false</activeByDefault>
+				<activeByDefault>true</activeByDefault>
 			</activation>
 			<properties>
 				<application.context>application-context-tomcat.xml</application.context>
@@ -544,7 +544,7 @@
 				<file>
 					<missing>appserv_tomcat</missing>
 				</file>
-				<activeByDefault>true</activeByDefault>
+				<activeByDefault>false</activeByDefault>
 			</activation>
 			<properties>
 				<application.context>application-context-jboss.xml</application.context>
