@@ -1867,7 +1867,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 		resposta.setEstat(NotificacioEstat.valueOf(notificacio.getEstat().name()));
 		resposta.setIdentificador(notificacio.getEnviamentIdentificador());
 		List<ReferenciaNotificacio> referencies = new ArrayList<ReferenciaNotificacio>();
-		// TODO DANIEL: obtenir totes les referencies per cada enviament
+		// TODO: obtenir totes les referencies per cada enviament
 		//for (notificacio.getEnviaments)
 		ReferenciaNotificacio referencia = new ReferenciaNotificacio();
 		referencia.setTitularNif(notificacio.getTitularNif());

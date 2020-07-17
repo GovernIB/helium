@@ -178,7 +178,7 @@ public class NotificacioHelper {
 		}
 		// Guarda la refererència de l'enviament
 		notificacio.setEnviamentReferencia(resposta.getReferencies().get(0).getReferencia());
-		//TODO DANIEL: Posar les referències per cada interessat.
+		//TODO: Posar les referències per cada interessat.
 //		for (EnviamentReferencia enviamentReferencia : respostaEnviar.getReferencies()) {
 //			for (DocumentEnviamentInteressatEntity documentEnviamentInteressatEntity : notificacioEntity.getDocumentEnviamentInteressats()) {
 //				if(documentEnviamentInteressatEntity.getInteressat().getDocumentNum().equals(enviamentReferencia.getTitularNif())) {

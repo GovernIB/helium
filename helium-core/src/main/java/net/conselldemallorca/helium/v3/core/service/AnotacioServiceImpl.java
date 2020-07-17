@@ -412,7 +412,6 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 		}
 		
 		// Canvia l'estat del registre a la BBDD
-		// TODO DANIEL: MARCAR COM A PROCESSADA SI TOTS ELS ANNEXOS S'HAN PASSAT CORRECTAMENT
 		anotacio.setEstat(AnotacioEstatEnumDto.PROCESSADA);
 		anotacio.setDataProcessament(new Date());
 		try {
@@ -442,7 +441,6 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 	 * @param annex 
 	 * @param resultat 
 	 */
-	//@Override
 	@Transactional(propagation = Propagation.REQUIRES_NEW)
 	public void incorporarAnnex(Expedient expedient, Anotacio anotacio, AnotacioAnnex annex, ArxiuResultat resultat) {
 		
@@ -463,7 +461,6 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 				case MOGUT:
 					annex.setEstat(AnotacioAnnexEstatEnumDto.MOGUT);
 					annex.setUuid(resultatAnnex.getIdentificadorAnnex());					
-					// TODO DANIEL: Guardar l'annex com un nou document del document store amb l'uuid i sense contingut
 				}
 			} else {
 				// Recupera el contingut del document i crea un document a Helium

@@ -3622,8 +3622,6 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 				ExpedientTipusDto.class);
 	}
 	
-	private static final Logger logger = LoggerFactory.getLogger(ExpedientServiceImpl.class);
-
 	@Override
 	public List<ExpedientTipusEstadisticaDto> findEstadisticaByFiltre(
 			Integer anyInicial, 
@@ -3676,6 +3674,4 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 	}
 
 	private static final Logger logger = LoggerFactory.getLogger(ExpedientServiceImpl.class);
-	// TODO Daniel: Mirar per a què serveix aquesta propietat
-	private static final String aturat = null;
 }
