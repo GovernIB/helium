@@ -92,7 +92,7 @@ public class AnotacioAnnex implements Serializable, GenericEntity<Long> {
 	private NtiTipoDocumentalEnumDto ntiTipoDocumental;
 	@Column(name = "observacions", length = 50)
 	private String observacions;
-	@Column(name = "sicres_tipo_doc", length = 20 , nullable = false)
+	@Column(name = "sicres_tipo_doc", length = 20)
 	private String sicresTipoDocumento;
 	@Column(name = "sicres_validez_doc", length = 30)
 	private String sicresValidezDocumento;

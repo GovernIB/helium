@@ -72,7 +72,9 @@ public class ExpedientLog implements Serializable, GenericEntity<Long> {
 		PROCES_LLAMAR_SUBPROCES,
 		EXPEDIENT_FINALITZAR,
 		EXPEDIENT_DESFINALITZAR,
-		EXPEDIENT_MIGRAR_ARXIU}			// 35
+		EXPEDIENT_MIGRAR_ARXIU,			// 35
+		ANOTACIO_RELACIONAR
+		}			
 
 	public enum ExpedientLogEstat {
 		NORMAL,

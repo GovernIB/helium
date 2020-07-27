@@ -39,6 +39,7 @@ import net.conselldemallorca.helium.core.helper.DistribucioHelper;
 import net.conselldemallorca.helium.core.helper.DocumentHelperV3;
 import net.conselldemallorca.helium.core.helper.EntornHelper;
 import net.conselldemallorca.helium.core.helper.ExpedientHelper;
+import net.conselldemallorca.helium.core.helper.ExpedientLoggerHelper;
 import net.conselldemallorca.helium.core.helper.ExpedientTipusHelper;
 import net.conselldemallorca.helium.core.helper.MessageHelper;
 import net.conselldemallorca.helium.core.helper.MonitorIntegracioHelper;
@@ -50,8 +51,11 @@ import net.conselldemallorca.helium.core.model.hibernate.Anotacio;
 import net.conselldemallorca.helium.core.model.hibernate.AnotacioAnnex;
 import net.conselldemallorca.helium.core.model.hibernate.AnotacioInteressat;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
+import net.conselldemallorca.helium.core.model.hibernate.ExpedientLog;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.hibernate.Interessat;
+import net.conselldemallorca.helium.core.model.hibernate.ExpedientLog.ExpedientLogAccioTipus;
+import net.conselldemallorca.helium.core.model.hibernate.ExpedientLog.ExpedientLogEstat;
 import net.conselldemallorca.helium.core.security.ExtendedPermission;
 import net.conselldemallorca.helium.v3.core.api.dto.AnotacioAnnexEstatEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.AnotacioDto;
@@ -119,6 +123,8 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 	private MonitorIntegracioHelper monitorIntegracioHelper;
 	@Resource
 	private PluginHelper pluginHelper;
+	@Resource
+	private ExpedientLoggerHelper expedientLoggerHelper;
 
 	/**
 	 * {@inheritDoc}
@@ -428,7 +434,16 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 			logger.error(errMsg, e);
 			throw new RuntimeException(errMsg, e);
 		}
-				
+		
+		// Afegeix el log a l'expedient
+		ExpedientLog expedientLog = expedientLoggerHelper.afegirLogExpedientPerExpedient(
+				expedient.getId(),
+				ExpedientLogAccioTipus.ANOTACIO_RELACIONAR,
+				anotacio.getIdentificador()
+				);
+		expedientLog.setEstat(ExpedientLogEstat.IGNORAR);
+
+		
 		return conversioTipusHelper.convertir(
 				anotacio, 
 				AnotacioDto.class);

@@ -357,10 +357,10 @@ tr.clicable {
 									
 										<div class="alert well-sm alert-danger alert-dismissable" style="margin-bottom: 0px;">
 											<span class="fa fa-exclamation-triangle"></span>
-											<spring:message code="expedientPeticio.detalls.annex.error" />
+											<spring:message code="anotacio.annex.detalls.annex.error" />
 											<a href="<c:url value="/expedientPeticio/${annex.id}/${peticio.id}/reintentar"/>"
 												class="btn btn-xs btn-default pull-right"><span class="fa fa-refresh"></span>
-												<spring:message code="expedientPeticio.detalls.annex.accio.reintentar" /></a>
+												<spring:message code="anotacio.annex.detalls.annex.accio.reintentar" /></a>
 										</div>
 										<pre style="height: 200px; background-color: white; margin-bottom: 0px;">${annex.error}</pre>
 									</c:if>

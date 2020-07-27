@@ -229,13 +229,15 @@ public class AnotacioController extends BaseExpedientController {
 						command.getId(),
 						command.getExpedientTipusId(),
 						command.getExpedientId());
-				ret = getModalControllerReturnValueSuccess(
-						request,
-						"redirect:/v3/anotacio",
-						"anotacio.form.acceptar.guardar.success",
-						new Object[] {
-								command.getExpedientId(),
-								anotacio.getIdentificador()});
+				MissatgesHelper.success(
+						request, 
+						getMessage(
+								request, 
+								"anotacio.form.acceptar.guardar.success",
+								new Object[] {
+										command.getExpedientId(),
+										anotacio.getIdentificador()}));
+				ret = this.modalUrlTancar(false); 
 				break;
 			case CREAR:
 				// Afegeix la informació de l'anotació a la sessió i redirigeix cap al formulari de creació
@@ -258,29 +260,35 @@ public class AnotacioController extends BaseExpedientController {
 						command.getExpedientTipusId(),
 						command.getExpedientId(),
 						command.isAssociarInteressats());
-				ret = getModalControllerReturnValueSuccess(
-						request,
-						"redirect:/v3/anotacio",
-						"anotacio.form.acceptar.incorporar.success",
-						new Object[] {
-								command.getExpedientId(),
-								anotacio.getIdentificador()});
+				MissatgesHelper.success(
+						request, 
+						getMessage(
+								request, 
+								"anotacio.form.acceptar.incorporar.success",
+								new Object[] {
+										anotacio.getIdentificador(),
+										anotacio.getExpedient().getIdentificadorLimitat()}));
+				ret = this.modalUrlTancar(false); 
 				break;		
 			default:
-				ret = getModalControllerReturnValueSuccess(
-						request,
-						"redirect:/v3/anotacio",
-						"anotacio.form.acceptar.noaccio",
-						new Object[] {
-								command.getExpedientId(),
-								anotacio.getIdentificador()});				
+				MissatgesHelper.success(
+						request, 
+						getMessage(
+								request, 
+								"anotacio.form.acceptar.noaccio",
+								new Object[] {
+										command.getExpedientId(),
+										anotacio.getIdentificador()}));
+				ret = this.modalUrlTancar(false); 
 			}
 		} catch (Exception e) {
-			ret = getModalControllerReturnValueError(
-					request,
-					"redirect:/v3/anotacio",
-					"anotacio.form.acceptar.error",
-					new Object[] {command.getAccio(), e.getMessage()});
+			MissatgesHelper.error(
+					request, 
+					getMessage(
+							request, 
+							"anotacio.form.acceptar.error",
+							new Object[] {command.getAccio(), e.getMessage()}));
+			ret = this.modalUrlTancar(false);
 		}
 		return ret;
 	}
