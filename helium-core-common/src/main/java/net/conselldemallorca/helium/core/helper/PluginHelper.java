@@ -2716,6 +2716,8 @@ public class PluginHelper {
 			Notificacio notificacio = conversioTipusHelper.convertir(dadesNotificacio, Notificacio.class);
 			// Informa de l'estat actual
 			notificacio.setUsuariCodi(usuariActualHelper.getUsuariActual());		
+			// Informa el número d'expedient
+			notificacio.setNumExpedient(expedient.getNumero());
 			// Invoca el servei
 			resposta = getNotificacioPlugin().enviar(notificacio);
 			

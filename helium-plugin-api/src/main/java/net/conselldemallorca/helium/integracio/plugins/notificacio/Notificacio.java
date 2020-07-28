@@ -31,6 +31,7 @@ public class Notificacio {
 	private String procedimentCodi;
 	private Integer retard;
 	private String usuariCodi;
+	private String numExpedient;
 	
 
 	public String getGrupCodi() {
@@ -111,24 +112,28 @@ public class Notificacio {
 	public void setProcedimentCodi(String procedimentCodi) {
 		this.procedimentCodi = procedimentCodi;
 	}
-
 	public List<Enviament> getEnviaments() {
 		return enviaments;
 	}
 	public void setEnviaments(List<Enviament> enviaments) {
 		this.enviaments = enviaments;
 	}
-
-
-	@Override
-	public String toString() {
-		return ToStringBuilder.reflectionToString(this);
-	}
 	public String getUsuariCodi() {
 		return usuariCodi;
 	}
 	public void setUsuariCodi(String usuariCodi) {
 		this.usuariCodi = usuariCodi;
+	}
+	public String getNumExpedient() {
+		return numExpedient;
+	}
+	public void setNumExpedient(String numExpedient) {
+		this.numExpedient = numExpedient;
+	}
+
+	@Override
+	public String toString() {
+		return ToStringBuilder.reflectionToString(this);
 	}
 
 }

@@ -67,7 +67,7 @@ public class NotificacioPluginNotib implements NotificacioPlugin {
 			notificacioNotib.setProcedimentCodi(notificacio.getProcedimentCodi());
 			notificacioNotib.setGrupCodi(notificacio.getGrupCodi());
 			notificacioNotib.setUsuariCodi(notificacio.getUsuariCodi());
-			
+			notificacioNotib.setNumExpedient(notificacio.getNumExpedient());
 						
 			if (notificacio.getEnviaments() != null) {
 				for (Enviament enviament: notificacio.getEnviaments()) {
