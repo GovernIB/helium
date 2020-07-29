@@ -171,7 +171,6 @@ public class ExpedientInicioPasFormController extends BaseExpedientIniciControll
 		ExpedientTipusDto expedientTipus = dissenyService.getExpedientTipusById(expedientTipusId);
 		ExpedientTascaDto tasca = obtenirTascaInicial(entorn.getId(), expedientTipusId, definicioProcesId, new HashMap<String, Object>(), request);
 		List<TascaDadaDto> tascaDades = tascaService.findDadesPerTascaDto(expedientTipusId, tasca);
-		List<ReproDto> repros = reproService.findReprosByUsuariTipusExpedient(expedientTipus.getId(), tasca.getJbpmName());
 		TascaFormValidatorHelper validator = new TascaFormValidatorHelper(
 				tascaService,
 				tascaDades);
@@ -196,7 +195,7 @@ public class ExpedientInicioPasFormController extends BaseExpedientIniciControll
 			model.addAttribute(command);
 			model.addAttribute("tasca", tasca);
 			model.addAttribute("dades", tascaDades);
-			model.addAttribute("repros", repros);
+			model.addAttribute("repros", reproService.findReprosByUsuariTipusExpedient(expedientTipus.getId(), tasca.getJbpmName()));
 			model.addAttribute("entornId", entorn.getId());
 			model.addAttribute("expedientTipus", expedientTipus);
 			model.addAttribute("responsableCodi", expedientTipus.getResponsableDefecteCodi());
@@ -205,12 +204,12 @@ public class ExpedientInicioPasFormController extends BaseExpedientIniciControll
 		}
 		// Si l'expedient ha de demanar titol i/o número redirigeix al pas per demanar aquestes dades
 		if (expedientTipus.isDemanaNumero() || expedientTipus.isDemanaTitol() || expedientTipus.isSeleccionarAny()) {
+			// Passa els valors per sessió
+			request.getSession().setAttribute(
+					ExpedientIniciController.CLAU_SESSIO_FORM_VALORS,
+					valors);
+			// Redirigeix al formulari del títol
 			return redirectByModal(request, "/v3/expedient/iniciarTitol/" + expedientTipusId + "/" + definicioProces.getId());
-//			return expedientInicioPasTitolController.iniciarTitolGet(
-//					request, 
-//					expedientTipusId, 
-//					definicioProcesId, 
-//					model);
 		} else {
 			try {
 				super.iniciarExpedient(
@@ -248,7 +247,7 @@ public class ExpedientInicioPasFormController extends BaseExpedientIniciControll
 				model.addAttribute(command);
 				model.addAttribute("tasca", tasca);
 				model.addAttribute("dades", tascaDades);
-				model.addAttribute("repros", repros);
+				model.addAttribute("repros", reproService.findReprosByUsuariTipusExpedient(expedientTipus.getId(), tasca.getJbpmName()));
 				model.addAttribute("entornId", entorn.getId());
 				model.addAttribute("expedientTipus", expedientTipus);
 				model.addAttribute("responsableCodi", expedientTipus.getResponsableDefecteCodi());
