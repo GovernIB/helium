@@ -52,10 +52,10 @@ import net.conselldemallorca.helium.core.model.hibernate.AnotacioAnnex;
 import net.conselldemallorca.helium.core.model.hibernate.AnotacioInteressat;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientLog;
-import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
-import net.conselldemallorca.helium.core.model.hibernate.Interessat;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientLog.ExpedientLogAccioTipus;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientLog.ExpedientLogEstat;
+import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
+import net.conselldemallorca.helium.core.model.hibernate.Interessat;
 import net.conselldemallorca.helium.core.security.ExtendedPermission;
 import net.conselldemallorca.helium.v3.core.api.dto.AnotacioAnnexEstatEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.AnotacioDto;
@@ -740,31 +740,74 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 		}
 		
 		return firmes;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@Transactional
+	public void reintentarAnnex(Long anotacioId, Long annexId) throws Exception {
 		
-		/*
-		 List<ArxiuFirmaDto> firmes = new ArrayList<ArxiuFirmaDto>();
-		// Recupera l'annex
-		AnotacioAnnex annex = anotacioAnnexRepository.findOne(annexId);
+		logger.debug(
+				"Reintentant el processament de l'annex (" +
+				"anotacioId=" + anotacioId + ", annexId=" + annexId + ")");
+
+		Anotacio anotacio = anotacioRepository.findOne(anotacioId);
+		// Comprova els permisos
+		this.comprovaPermisAccio(anotacio);
+		if (anotacio.getExpedient() == null)
+			throw new Exception("No es pot processar l'annex perquè l'anotació no té cap expedient associat.");
+		Expedient expedient = anotacio.getExpedient();
+		AnotacioAnnex annex = null;
+		for(AnotacioAnnex a : anotacio.getAnnexos()){
+			if (a.getId().equals(annexId)) {
+				annex = a;
+				break;
+			}
+		}
 		if (annex == null)
-			throw new NoTrobatException(AnotacioAnnex.class, annexId);
-		// Comprova l'accés
-		this.comprovaPermisLectura(annex.getAnotacio());
-		// Recupera el contingut de l'Arxiu
-		es.caib.plugins.arxiu.api.Document document = pluginHelper.arxiuDocumentInfo(
-				annex.getUuid(),
-				null,
-				true,
-				true);
-		if (document != null && document.getFirmes() != null && document.getFirmes().size() > 0) {
-			for(int i = 0; i<document.getFirmes().size(); i++)
-			firmes.addAll(pluginHelper.validaSignaturaObtenirFirmes(
-									null, 
-									document.getContingut().getContingut(), 
-									null,//document.getFirmes().get(0).getContingut(),
-									document.getContingut().getTipusMime()));
-		}		
-		return firmes;
-		*/
+			throw new Exception("No s'ha trobat l'annex amb id " + annexId + " a l'anotació " + anotacio.getIdentificador() + " amb id " + anotacioId);
+		
+		// Reintenta la incorporació
+		ArxiuResultat resultat = new ArxiuResultat();
+		
+		if (expedient.isArxiuActiu()) {			
+			// Utilitza la llibreria d'utilitats de Distribució per incorporar la informació de l'anotació directament a l'expedient dins l'Arxiu
+			es.caib.plugins.arxiu.api.Expedient expedientArxiu = pluginHelper.arxiuExpedientInfo(expedient.getArxiuUuid());
+			BackofficeArxiuUtils backofficeUtils = new BackofficeArxiuUtilsImpl(pluginHelper.getArxiuPlugin());
+			// Posarà els annexos en la carpeta de l'anotació
+			backofficeUtils.setCarpeta(anotacio.getIdentificador());
+			// S'enregistraran els events al monitor d'integració
+			backofficeUtils.setArxiuPluginListener(this);
+			// Prepara la consulta a Distribució
+			es.caib.distribucio.ws.backofficeintegracio.AnotacioRegistreId idWs = new AnotacioRegistreId();
+			idWs.setClauAcces(anotacio.getDistribucioClauAcces());
+			idWs.setIndetificador(anotacio.getDistribucioId());
+			AnotacioRegistreEntrada anotacioRegistreEntrada;
+			try {
+				anotacioRegistreEntrada = distribucioHelper.consulta(idWs);
+				resultat = backofficeUtils.crearExpedientAmbAnotacioRegistre(expedientArxiu, anotacioRegistreEntrada);
+			} catch(Exception e) {
+				String errMsg = "Error consultant l'anotació de registre \"" + anotacio.getIdentificador() + "\" a Distribució: " + e.getMessage();
+				logger.error(errMsg, e);
+				throw new SistemaExternException(errMsg, e);
+			}
+			try {
+				resultat = backofficeUtils.crearExpedientAmbAnotacioRegistre(expedientArxiu, anotacioRegistreEntrada);
+			} catch(Exception e) {
+				String errMsg = "Error reprocessant la informació de l'anotació de registre \"" + anotacio.getIdentificador() + "\" de Distribució: " + e.getMessage();
+				logger.error(errMsg, e);
+				throw new Exception(errMsg, e);
+			}
+		}
+		this.incorporarAnnex(anotacio.getExpedient(), anotacio, annex, resultat);
+
+		logger.debug(
+				"Reintent de processament de l'annex (" +
+				"anotacioId=" + anotacioId + " " + anotacio.getIdentificador() + ", annexId=" + annexId + 
+				" " + annex.getNom() + ", annexEstat=" + annex.getEstat() + ", annexError=" + annex.getError() + ")");
+
 	}
 	
 	private static final Logger logger = LoggerFactory.getLogger(AnotacioServiceImpl.class);

@@ -84,4 +84,10 @@ public class AnotacioServiceBean implements AnotacioService {
 	public List<ArxiuFirmaDto> getAnnexFirmes(Long annexId) {
 		return delegate.getAnnexFirmes(annexId);
 	}
+	
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public void reintentarAnnex(Long anotacioId, Long annexId) throws Exception {
+		delegate.reintentarAnnex(anotacioId, annexId);
+	}
 }

@@ -83,4 +83,13 @@ public interface AnotacioService {
 	 * @return
 	 */
 	public List<ArxiuFirmaDto> getAnnexFirmes(Long annexId);
+	
+	/** Reintenta el processament d'un annex per incorporar-lo a Helium.
+	 * 
+	 * @param anotacioId
+	 * @param annexId
+	 * @throws Llença excepció en cas de no anar bé.
+	 * @return
+	 */
+	public void reintentarAnnex(Long anotacioId, Long annexId) throws Exception;
 }

@@ -14,6 +14,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.propertyeditors.CustomDateEditor;
 import org.springframework.beans.propertyeditors.StringTrimmerEditor;
@@ -447,20 +449,36 @@ public class AnotacioController extends BaseExpedientController {
 			@PathVariable Long anotacioId,
 			@PathVariable Long annexId,
 			Model model) throws IOException {
+		boolean success = false;
+		String error = null;
+		Exception ex = null;
 		try {
 			ArxiuDto arxiu = anotacioService.getAnnexContingut(annexId);
 			if (arxiu != null) {
 				model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_FILENAME, arxiu.getNom());
 				model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_DATA, arxiu.getContingut());
 			}
+			success = true;
 		} catch (SistemaExternException e) {
-			MissatgesHelper.error(request, e.getPublicMessage());
-			return "redirect:/v3/expedient/";
+			error = e.getPublicMessage();	
+			ex = e;
 		} catch (Exception e) {
-			MissatgesHelper.error(request, e.getMessage());
-			return "redirect:/v3/expedient/";
+			error = e.getMessage();
+			ex = e;
 		}
-		return "arxiuView";
+		if (success)
+			return "arxiuView";
+		else {
+			String errMsg = getMessage(
+					request, 
+					"anotacio.annex.descarregar.error",
+					new Object[] {error});
+			logger.error(errMsg, ex);
+			MissatgesHelper.error(
+					request, 
+					errMsg);
+			return "redirect:" + request.getHeader("referer");
+		}
 	}
 	
 	@RequestMapping(value = "/{anotacioId}/annex/{annexId}/firmaInfo", method = RequestMethod.GET)
@@ -480,6 +498,26 @@ public class AnotacioController extends BaseExpedientController {
 		}
 		return "v3/anotacioAnnexFirmes";
 	}
+
+	/** Mètode per reintentar el processament de l'annex per guardar-lo a Helium dins l'arxiu o la BBDD 
+	 * des de la taula d'annexos de l'expedient. */
+	@RequestMapping(value = "/{anotacioId}/annex/{annexId}/reintentar", method = RequestMethod.GET)
+	public String reintentarAnnex(
+			HttpServletRequest request,
+			@PathVariable Long anotacioId,
+			@PathVariable Long annexId) {
+		try {
+			this.anotacioService.reintentarAnnex(anotacioId, annexId);
+			MissatgesHelper.success(
+					request, 
+					getMessage(request, "anotacio.annex.reintentar.success"));
+		} catch (Exception e) {
+			MissatgesHelper.error(
+					request, 
+					getMessage(request, "anotacio.annex.reintentar.error", new Object[] {e.getMessage()}));
+		}
+		return "redirect:/modal/v3/anotacio/" + anotacioId;
+	}	
 	
 
 	/** Posa els valors de l'enumeració estats en el model */
@@ -528,4 +566,6 @@ public class AnotacioController extends BaseExpedientController {
 	    dateFormat.setLenient(false);
 	    binder.registerCustomEditor(Date.class, new CustomDateEditor(dateFormat, true));
 	}
+
+	private static final Log logger = LogFactory.getLog(AnotacioController.class);
 }
