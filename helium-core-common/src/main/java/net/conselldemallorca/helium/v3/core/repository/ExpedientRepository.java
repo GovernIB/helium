@@ -343,4 +343,13 @@ public interface ExpedientRepository extends JpaRepository<Expedient, Long> {
 			"where e.processInstanceId = :processInstanceId")
 	Long findExpedientTipusIdByProcessInstanceId(String processInstanceId);
 
+	/** Consulta els expedients inicats a partir del codi de l'iniciador. Serveix
+	 * per comprovar si s'ha iniciat algun expedient per Sistra amb el mateix número d'entrada
+	 * i clau d'accés.
+	 * @param iniciadorCodi En el cas de sistra és la combinació entre el número d'entrada i la clau
+	 * d'accés.
+	 * @return
+	 */
+	List<Expedient> findByIniciadorCodi(String iniciadorCodi);
+
 }

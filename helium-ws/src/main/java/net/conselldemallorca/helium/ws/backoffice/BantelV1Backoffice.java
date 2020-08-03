@@ -39,12 +39,24 @@ public class BantelV1Backoffice extends BaseBackoffice implements BantelFacade {
 			request.setClau(referenciaEntrada.getClaveAcceso());
 			logger.info("Petició de processament tramit " + request);
 			boolean error = false;
+			DadesTramit dadesTramit = null;
 			try {
-				DadesTramit dadesTramit = ServiceProxy.getInstance().getPluginService().obtenirDadesTramit(request);
-				int numExpedients = processarTramit(dadesTramit);
-				logger.info("El tramit " + request + " ha creat " + numExpedients + " expedients");
+				// Se sincronitza per consultar primer si ja existeix l'expedient
+				synchronized(this) {
+					logger.info("Processant el tramit " + request);
+					dadesTramit = ServiceProxy.getInstance().getPluginService().obtenirDadesTramit(request);
+					// Comprova sija existeix l'expedient a partir del tràmit
+					boolean existeix = existeixExpedient(dadesTramit.getNumero(),
+														String.valueOf(dadesTramit.getClauAcces()));
+					if (!existeix) {
+						int numExpedients = processarTramit(dadesTramit);
+						logger.info("El tramit " + request + " ha creat " + numExpedients + " expedients");
+					} else {
+						logger.info("Ja existeix un altre expedient donat d'alta pel tramit " + request);
+					}
+				}
 			} catch (Exception ex) {
-				logger.error("Error a l'hora de processar el tramit " + request, ex);
+				logger.error("Error petició de processament tramit " + request + " amb identificador " + dadesTramit.getIdentificador() + " --> " + dadesTramit, ex);
 				error = true;
 			}
 			try {

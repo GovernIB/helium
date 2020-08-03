@@ -935,5 +935,18 @@ public interface ExpedientService {
 	 * @return la informació de l'expedient emmagatzemada a dins l'arxiu
 	 */
 	public ArxiuDetallDto getArxiuDetall(Long expedientId);
+	
+	/**
+	 * Consulta expedients per a un número Sistra
+	 * 
+	 * @param id
+	 *            Atribut id de l'expedient que es vol consultar.
+	 * @return L'expedient.
+	 * @throws NotFoundException
+	 *             Si no s'ha trobat cap expedient amb l'id especificat.
+	 * @throws NotAllowedException
+	 *             Si no es tenen els permisos adequats.
+	 */
+	public List<ExpedientDto> findAmbIniciadorCodi(String responsableCodi);
 
 }
