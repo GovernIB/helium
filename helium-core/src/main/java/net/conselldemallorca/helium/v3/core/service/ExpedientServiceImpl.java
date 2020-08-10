@@ -2495,7 +2495,15 @@ public class ExpedientServiceImpl implements ExpedientService {
 	}
 
 
+	@Transactional(readOnly = true)
+	@Override
+	public List<ExpedientDto> findAmbIniciadorCodi(String iniciadorCodi) {
+		logger.debug("Consultant expedients per iniciadorCodi (iniciadorCodi=" + iniciadorCodi + ")");
+		List<Expedient> expedients = expedientRepository.findByIniciadorCodi(iniciadorCodi);
+		return conversioTipusHelper.convertirList(expedients, ExpedientDto.class);
+	}
 
+		
 	private Registre crearRegistreExpedient(
 			Long expedientId,
 			String responsableCodi,

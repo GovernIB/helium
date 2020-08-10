@@ -68,6 +68,17 @@ public abstract class BaseBackoffice {
 	private DissenyService dissenyService;
 
 
+	/** Comprova ja existeix l'expedient a partir del tràmit. Consulta per codi
+	 * @param numero 
+	 * 
+	 * @return
+	 */
+	public boolean existeixExpedient(String numeroEntrada, String clauAcces) {
+		boolean existeix = false;
+		List<ExpedientDto> expedients = expedientService.findAmbIniciadorCodi(Expedient.crearIniciadorCodiPerSistra(numeroEntrada, clauAcces));
+		existeix = expedients.size() > 0;
+		return existeix;
+	}
 
 	public int processarTramit(DadesTramit tramit) throws Exception {
 		List<ExpedientTipus> candidats = dissenyService.findExpedientTipusAmbSistraTramitCodi(tramit.getIdentificador());
