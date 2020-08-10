@@ -70,13 +70,6 @@ public class PerfilesController extends BaseController {
 		for (EntornDto entorn: entornService.findActiusAmbPermisAcces()) {
 			if (entorn.getCodi().equals(entornCodi)) {
 				List<ExpedientTipusDto> expedientsTipus = dissenyService.findExpedientTipusAmbPermisReadUsuariActual(entorn.getId());
-//				Iterator<ExpedientTipusDto> it = expedientsTipus.iterator();
-//				while (it.hasNext()) {
-//					ExpedientTipusDto expTip = it.next();
-//					if (expTip.getConsultes().isEmpty()) {
-//						it.remove();
-//					}
-//				}
 				return expedientsTipus;
 
 			}
@@ -134,7 +127,7 @@ public class PerfilesController extends BaseController {
 	
 	private PersonaUsuariCommand getFiltreCommand(HttpServletRequest request, Model model) {		
 		PersonaUsuariCommand filtreCommand = new PersonaUsuariCommand();
-		UsuariPreferenciesDto preferencies = SessionHelper.getSessionManager(request).getPreferenciesUsuari();
+		UsuariPreferenciesDto preferencies = aplicacioService.getUsuariPreferencies();
 		if (preferencies == null)
 			preferencies = new UsuariPreferenciesDto();
 		EntornDto entornUsuari = null;
@@ -145,9 +138,14 @@ public class PerfilesController extends BaseController {
 				break;
 			}
 		}
+		// Comprova que l'usuari pugi accedir a l'entorn que té configurat
+		if (preferencies.getDefaultEntornCodi() != null && entornUsuari == null) {
+			MissatgesHelper.error(request, getMessage(request, "info.perfil.entorn.error", new Object[] {preferencies.getDefaultEntornCodi()}));			
+		}
+		filtreCommand.setEntornCodi(preferencies.getDefaultEntornCodi());
+		
 		List<ExpedientTipusDto> expedientTipusConConsultas = new ArrayList<ExpedientTipusDto>();
-//		if (entornUsuari == null)
-//			entornUsuari = SessionHelper.getSessionManager(request).getEntornActual();
+		ExpedientTipusDto expedientTipusUsuari = null;
 		if (entornUsuari != null) {
 			List<ExpedientTipusDto> expedientTipus = dissenyService.findExpedientTipusAmbPermisReadUsuariActual(entornUsuari.getId());
 			model.addAttribute("expedientTipus", expedientTipus);
@@ -155,28 +153,40 @@ public class PerfilesController extends BaseController {
 				if (!expTip.getConsultes().isEmpty()) {
 					expedientTipusConConsultas.add(expTip);
 				}
+				if (preferencies.getExpedientTipusDefecteId() != null 
+						&& expTip.getId().equals(preferencies.getExpedientTipusDefecteId())) {
+					expedientTipusUsuari = expTip;
+				}
 			}
-//			if(preferencies.getExpedientTipusDefecteId() != null) {
-//				model.addAttribute("consultes", dissenyService.findConsultesActivesAmbEntornIExpedientTipusOrdenat(entornUsuari.getId(),preferencies.getExpedientTipusDefecteId()));
-//			}else {
-//				model.addAttribute("consultes", new ArrayList<ConsultaDto>());
-//			}
-		}
-		filtreCommand.setCabeceraReducida(preferencies.isCabeceraReducida());
-		filtreCommand.setEntornCodi(preferencies.getDefaultEntornCodi());
-		if (preferencies.getExpedientTipusDefecteId() != null) {
-			filtreCommand.setExpedientTipusId(preferencies.getExpedientTipusDefecteId());
-			if (preferencies.getConsultaId() != null) {
-				ConsultaDto consulta = dissenyService.findConsulteById(preferencies.getConsultaId());
-				if (consulta != null) {
-					filtreCommand.setConsultaId(preferencies.getConsultaId());		
-				}				
-			}
-			model.addAttribute("consultes", dissenyService.findConsultesActivesAmbEntornIExpedientTipusOrdenat(entornUsuari.getId(),filtreCommand.getExpedientTipusId()));
-		} else {
-			model.addAttribute("consultes", new ArrayList<ConsultaDto>());
 		}
 		model.addAttribute("expedientTipusConConsultas", expedientTipusConConsultas);
+		List<ConsultaDto> consultes = null;
+		if (preferencies.getExpedientTipusDefecteId() != null) {
+			// Comprova que l'usuari pugui accedir al tipus d'expedient configurat
+			if (expedientTipusUsuari == null) {
+				MissatgesHelper.error(request, getMessage(request, "info.perfil.tipus.error", new Object[] {preferencies.getExpedientTipusDefecteId()}));
+			} else {
+				filtreCommand.setExpedientTipusId(preferencies.getExpedientTipusDefecteId());
+				consultes = dissenyService.findConsultesActivesAmbEntornIExpedientTipusOrdenat(entornUsuari.getId(),filtreCommand.getExpedientTipusId());
+				if (preferencies.getConsultaId() != null) {
+					ConsultaDto consultaUsuari = null;
+					for (ConsultaDto c : consultes) {
+						if (c.getId().equals(preferencies.getConsultaId())) {
+							consultaUsuari = c;
+							break;
+						}
+					}
+					if (consultaUsuari == null) {
+						MissatgesHelper.error(request, getMessage(request, "info.perfil.consulta.error", new Object[] {preferencies.getConsultaId()}));						
+						filtreCommand.setConsultaId(null);
+					} else {
+						filtreCommand.setConsultaId(preferencies.getConsultaId());
+					}
+				}
+			}
+		}
+		model.addAttribute("consultes", consultes != null ? consultes : new ArrayList<ConsultaDto>());
+		filtreCommand.setCabeceraReducida(preferencies.isCabeceraReducida());
 		filtreCommand.setFiltroExpedientesActivos(preferencies.isFiltroTareasActivas());
 		filtreCommand.setListado(preferencies.getListado());
 		filtreCommand.setNumElementosPagina(preferencies.getNumElementosPagina());

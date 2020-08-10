@@ -73,7 +73,7 @@ public class PersonaUsuariCommand {
 		this.expedientTipusId = expedienTipusId;
 	}
 	public String getEntornCodi() {
-		return entornCodi;
+		return entornCodi != null && !entornCodi.isEmpty() ? entornCodi : null;
 	}
 	public void setEntornCodi(String entornCodi) {
 		this.entornCodi = entornCodi;

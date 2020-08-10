@@ -44,6 +44,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
 import net.conselldemallorca.helium.webapp.v3.datatables.DatatablesPagina;
+import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.ObjectTypeEditorHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.PaginacioHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
@@ -102,7 +103,14 @@ public class ExpedientConsultaLlistatController extends BaseExpedientController 
 			HttpServletRequest request,
 			@PathVariable Long consultaId,
 			Model model) {
-		ConsultaDto consulta = dissenyService.findConsulteById(consultaId);
+		ConsultaDto consulta;
+		try {
+			consulta = dissenyService.findConsulteById(consultaId);			
+		} catch (Exception e) {
+			MissatgesHelper.error(request, "Error accedint a la consulta amb id " + consultaId + ": " + e.getMessage() + ". Si és la consulta per defecte revisi el seu perfil.");
+			return "redirect:/v3/expedient";
+		}
+		
 		model.addAttribute(
 				"consulta",
 				consulta);
