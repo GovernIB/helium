@@ -247,9 +247,11 @@ $(document).ready(function() {
 					<spring:message code="expedient.llistat.columna.expedient"/>
 					<script id="cellReindexacioTemplate" type="text/x-jsrender">
 					{{:expedient_identificador}}
-					{{if reindexarData != null && reindexarData != ''}}
+					{{if reindexarData || reindexarError}}
 						<div class="pull-right">
-							<span class="fa fa-refresh" title="<spring:message code="expedient.consulta.reindexacio.asincrona"/>"></span>
+							<span class="fa fa-refresh {{if reindexarError}}text-danger {{/if}}" 
+							title="{{if reindexarData}}<spring:message code="expedient.consulta.reindexacio.asincrona"/>{{/if}}
+								   {{if reindexarError}}<spring:message code="expedient.consulta.reindexacio.error.full"/>{{/if}}"></span>
 						</div>
 					{{/if}}
 					</script>
@@ -287,6 +289,7 @@ $(document).ready(function() {
 				</th>
 				</c:forEach>
 				<th data-rdt-property="reindexarData" data-rdt-visible="false"></th>
+				<th data-rdt-property="reindexarError" data-rdt-visible="false"></th>
 				<th data-rdt-property="tipus" data-rdt-visible="false"></th>
 				<th data-rdt-property="infoAturat" data-rdt-visible="false"></th>
 				<th data-rdt-property="estat" data-rdt-visible="false"></th>
@@ -446,7 +449,7 @@ $(document).ready(function() {
 				    	return false;
 				    }
 				}
-			});
+			});			
 		});
 		
 		/** Inicia asíncronament la generació de l'informe. */

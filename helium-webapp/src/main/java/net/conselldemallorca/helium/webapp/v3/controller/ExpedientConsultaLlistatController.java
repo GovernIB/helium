@@ -214,6 +214,7 @@ public class ExpedientConsultaLlistatController extends BaseExpedientController 
 			HttpServletRequest request,
 			@PathVariable Long consultaId,
 			Model model) throws IllegalAccessException, InvocationTargetException, NoSuchMethodException {
+
 		Object filtreCommand = SessionHelper.getAttribute(
 				request,
 				SessionHelper.VARIABLE_FILTRE_CONSULTA_TIPUS + consultaId);

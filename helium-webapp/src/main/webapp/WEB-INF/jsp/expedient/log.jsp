@@ -224,7 +224,7 @@ jQuery(document).ready(function(){
 			</c:choose>
 			<c:if test="${numBloquejos gt 0}">B</c:if>
 		</display:column>
-		<c:if test="${registre.estat == 'BLOCAR'}">Hola<c:set var="numBloquejos" value="${numBloquejos - 1}"/></c:if>
+		<c:if test="${registre.estat == 'BLOCAR'}"><c:set var="numBloquejos" value="${numBloquejos - 1}"/></c:if>
 	</display:table>
 
 </body>

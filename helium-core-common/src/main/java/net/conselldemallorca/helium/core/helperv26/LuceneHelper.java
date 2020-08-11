@@ -564,7 +564,7 @@ public class LuceneHelper extends LuceneIndexSupport {
 				return new Long(document.get(ExpedientCamps.EXPEDIENT_CAMP_ID));
 			}
 		});
-		if (resposta.size() > 0) {
+		if (resposta.size() == 1) {
 			getLuceneIndexTemplate().updateDocument(termIdFromExpedient(expedient), new DocumentModifier() {
 				public Document updateDocument(Document document) {
 					return updateDocumentFromExpedient(document, expedient, definicionsProces, camps, valors, textDominis, finalitzat);
@@ -572,6 +572,11 @@ public class LuceneHelper extends LuceneIndexSupport {
 			});
 		} else {
 			boolean indexarExpedient = true;
+			// Comrpovem si hi ha més d'un resultat
+			if (resposta.size() > 1) {
+				logger.debug("S'han trobat " + resposta.size() + " entrades a Lucene per l'id " + expedient.getId() + ". Es procedeix a esborrar primer.");
+				this.deleteExpedient(expedient);
+			}
 			if (comprovarIniciant) {
 				Expedient expedientIniciant = ThreadLocalInfo.getExpedient();
 				logger.debug("Creant expedient a l'index Lucene: mirant si indexar (" +
@@ -624,7 +629,8 @@ public class LuceneHelper extends LuceneIndexSupport {
 						} catch (Exception ex) {
 							StringBuilder sb = new StringBuilder();
 							getClassAsString(sb, valorsProces.get(camp.getCodi()));
-							logger.error("No s'ha pogut indexar el camp (definicioProces=" + definicioProces.getJbpmKey() + "(v." + definicioProces.getVersio() + ")" + ", camp=" + camp.getCodi() + ", tipus=" + camp.getTipus() + ", multiple=" + camp.isMultiple() + ") amb un valor (tipus=" + sb.toString() + ")");
+							logger.error("No s'ha pogut indexar el camp (definicioProces=" + definicioProces.getJbpmKey() + "(v." + definicioProces.getVersio() + ")" + ", camp=" + camp.getCodi() + ", tipus=" + camp.getTipus() + ", multiple=" + camp.isMultiple() + ") amb un valor (tipus=" + sb.toString() + 
+										 ") per l'expedient " + (expedient != null ? expedient.getIdentificador()  + (expedient.getTipus() != null ? " (" + expedient.getTipus().getCodi() + ")" : null ) : null) );
 						}
 					}
 				}
@@ -736,12 +742,17 @@ public class LuceneHelper extends LuceneIndexSupport {
 			List<Camp> informeCamps) {
 		Sort luceneSort = null;
 		if (sort != null && sort.length() > 0) {
-			if (ExpedientCamps.EXPEDIENT_CAMP_TITOL.equals(sort)) {
+			if (ExpedientCamps.EXPEDIENT_CAMP_ID.equals(sort)) {
+				luceneSort = new Sort(new SortField(sort, SortField.LONG, !asc));
+			} else if (ExpedientCamps.EXPEDIENT_CAMP_TITOL.equals(sort)) {
 				sort = sort + "_no_analyzed";
+				luceneSort = new Sort(new SortField(sort, SortField.STRING, !asc));
 			} else if (ExpedientCamps.EXPEDIENT_CAMP_NUMERO.equals(sort)) {
 				sort = sort + "_no_analyzed";
+				luceneSort = new Sort(new SortField(sort, SortField.STRING, !asc));
 			} else if (ExpedientCamps.EXPEDIENT_CAMP_COMENTARI.equals(sort)) {
 				sort = sort + "_no_analyzed";
+				luceneSort = new Sort(new SortField(sort, SortField.STRING, !asc));
 			} else {
 				for (Camp camp: informeCamps) {
 					if (camp != null && sort.endsWith(camp.getCodi()) && (camp.getTipus().equals(TipusCamp.STRING) || camp.getTipus().equals(TipusCamp.TEXTAREA))) {
@@ -752,13 +763,14 @@ public class LuceneHelper extends LuceneIndexSupport {
 				String campOrdenacio = null;
 				if ("expedient$identificador".equals(sort)) {
 					campOrdenacio = ExpedientCamps.EXPEDIENT_CAMP_ID;
+					luceneSort = new Sort(new SortField(campOrdenacio, SortField.LONG, !asc));
 				} else {
 					campOrdenacio = sort;
+					luceneSort = new Sort(new SortField(campOrdenacio, SortField.STRING, !asc));
 				}
-				luceneSort = new Sort(new SortField(campOrdenacio, SortField.STRING, !asc));
 			}
 		} else {
-			luceneSort = new Sort(new SortField(ExpedientCamps.EXPEDIENT_CAMP_ID, SortField.STRING, !asc));
+			luceneSort = new Sort(new SortField(ExpedientCamps.EXPEDIENT_CAMP_ID, SortField.LONG, !asc));
 		}
 		return luceneSort;
 	}

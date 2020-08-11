@@ -54,6 +54,9 @@ public class ExpedientConsultaDissenyDto {
 	public Date getReindexarData () {
 		return expedient.getReindexarData();
 	}
+	public boolean isReindexarError () {
+		return expedient.isReindexarError();
+	}
 	public ExpedientDto getExpedient() {
 		return expedient;
 	}
