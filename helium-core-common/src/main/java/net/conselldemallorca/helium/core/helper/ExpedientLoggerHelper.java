@@ -456,7 +456,8 @@ public class ExpedientLoggerHelper {
 			if (found) {
 				// Ara
 //				if (retrocedirPerTasques) {
-					 if (elog.isTargetTasca() && tokenRetroces != null) {
+					 if ((elog.isTargetTasca() || elog.isTargetProces()) 
+							 && tokenRetroces != null) {
 						 // Si la tasca seleccionada es del token arrel, llavors 
 						 // totes les tasques posteriors s'han de incloure
 						 if (tokenRetroces.isRoot() && tokenRetroces.getProcessInstance().getSuperProcessToken() == null) { //processos.get(tokenRetroces.getProcessInstance().getId()) == null) { 

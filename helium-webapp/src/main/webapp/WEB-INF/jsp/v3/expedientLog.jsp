@@ -74,6 +74,28 @@ $(document).ready(function() {
 										return;
 									}
 								}
+							} else if (elem.indexOf("Procés") == 0) {
+								var t = "/";
+								for (i = 0; i < tokens.length; i++){
+									if (tokens[i] != "" && t != "/") t = t + "/";
+									t = t + tokens[i];
+									subt = t + "/";
+									if (tok == t || tok == subt) {
+										$(this).addClass("registre_a_retrocedir");
+										return;
+									}
+								}
+								var t = "/";
+								var subt = "";
+								for (i = 0; i < toks.length; i++){
+									if (toks[i] != "" && t != "/") t = t + "/";
+									t = t + toks[i];
+									subt = t + "/";
+									if (token == t || token == subt) {
+										$(this).addClass("registre_a_retrocedir");
+										return;
+									}
+								}
 							}
 						}
 					});
