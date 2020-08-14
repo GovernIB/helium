@@ -49,12 +49,18 @@
 		<div class="alert alert-warning">
 			<span class="fa fa-refresh"></span>
 			<spring:message code="expedient.lucene.reindexacio.asincrona.data" arguments="${expedient.reindexarData}"/>
-		</div>
+			<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+				<span aria-hidden="true">&times;</span>
+			</button>
+  		</div>
 	</c:if>
 	<c:if test="${expedient.reindexarError}">
 		<div class="alert alert-danger">
 			<span class="fa fa-refresh"></span>
 			<spring:message code="expedient.lucene.reindexacio.error"/>.
+			<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+				<span aria-hidden="true">&times;</span>
+			</button>
 		</div>
 	</c:if>
 
