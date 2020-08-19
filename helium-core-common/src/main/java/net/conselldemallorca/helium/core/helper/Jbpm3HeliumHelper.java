@@ -215,7 +215,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 	private MesuresTemporalsHelper mesuresTemporalsHelper;
 
 	@Resource
-	private IndexHelper serviceUtils;
+	private IndexHelper indexHelper;
 
 	@Resource
 	private MetricRegistry metricRegistry;
@@ -283,7 +283,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 	public void luceneDeleteExpedient(String processInstanceId) {
 		logger.debug("Esborra expedient donada una instància de procés (" +
 				"processInstanceId=" + processInstanceId + ")");
-		serviceUtils.expedientIndexLuceneDelete(processInstanceId);
+		indexHelper.expedientIndexLuceneDelete(processInstanceId);
 	}
 	
 	@Override
@@ -838,7 +838,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 			String processInstanceId) {
 		logger.debug("Reindexant expedient (processInstanceId=" + processInstanceId + ")");
 		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
-		serviceUtils.expedientIndexLuceneRecrear(expedient);
+		indexHelper.expedientIndexLuceneRecrear(expedient);
 	}
 
 	@Override

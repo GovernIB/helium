@@ -247,16 +247,17 @@ $(document).ready(function() {
 					<spring:message code="expedient.llistat.columna.expedient"/>
 					<script id="cellReindexacioTemplate" type="text/x-jsrender">
 					{{:expedient_identificador}}
-					{{if reindexarData || reindexarError}}
+					{{if reindexarData || reindexarError || reindexarCampError }}
 						<div class="pull-right">
-							<span class="fa fa-refresh {{if reindexarError}}text-danger {{/if}}" 
+							<span class="fa fa-refresh {{if reindexarError || reindexarCampError }}text-danger {{/if}}" 
 							title="{{if reindexarData}}<spring:message code="expedient.consulta.reindexacio.asincrona"/>{{/if}}
-								   {{if reindexarError}}<spring:message code="expedient.consulta.reindexacio.error.full"/>{{/if}}"></span>
+								   {{if reindexarError}}<spring:message code="expedient.consulta.reindexacio.error.full"/>{{/if}}
+								   {{if reindexarCampError}}<spring:message code="expedient.consulta.reindexacio.error.camp"/>{{/if}}"></span>
 						</div>
 					{{/if}}
 					</script>
 				</th>
-				<c:forEach var="camp" items="${campsInforme}">
+				<c:forEach var="camp" items="${campsInforme}" varStatus="status">
 					<th <c:if test="${camp.varCodi == 'expedient__exp__estat'}">data-rdt-template="cellEstatTemplate"</c:if> data-rdt-property="dadesExpedient.${camp.varCodi}.valorMostrar" data-visible=true >
 					${camp.campEtiqueta}
 					<c:if test="${camp.varCodi == 'expedient__exp__estat'}">
@@ -284,12 +285,14 @@ $(document).ready(function() {
 									{{/if}}						
 								{{/if}}
 							</div>
+							{{:error}}
 						</script>
 					</c:if>
 				</th>
 				</c:forEach>
 				<th data-rdt-property="reindexarData" data-rdt-visible="false"></th>
 				<th data-rdt-property="reindexarError" data-rdt-visible="false"></th>
+				<th data-rdt-property="reindexarCampError" data-rdt-visible="false"></th>
 				<th data-rdt-property="tipus" data-rdt-visible="false"></th>
 				<th data-rdt-property="infoAturat" data-rdt-visible="false"></th>
 				<th data-rdt-property="estat" data-rdt-visible="false"></th>
@@ -307,6 +310,7 @@ $(document).ready(function() {
 				<th data-rdt-property="errorFull" data-rdt-visible="false"></th>
 				<th data-rdt-property="errorsIntegracions" data-rdt-visible="false"></th>	
 				<th data-rdt-property="ambErrors" data-rdt-visible="false"></th>		
+				<th data-rdt-property="reindexarData" data-rdt-visible="false"></th>
 				<th data-rdt-property="id" data-rdt-context="true" data-rdt-template="cellAccionsTemplate" data-rdt-visible="true" data-rdt-sortable="false" data-rdt-nowrap="true" width="10%">
 					<script id="cellAccionsTemplate" type="text/x-jsrender">
 						<div class="dropdown">

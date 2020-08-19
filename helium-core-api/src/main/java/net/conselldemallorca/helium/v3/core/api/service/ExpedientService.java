@@ -15,6 +15,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.AlertaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDetallDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DadaIndexadaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DadesDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DadesNotificacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesExpedientDto;
@@ -890,6 +891,8 @@ public interface ExpedientService {
 
 	public boolean isDiferentsTipusExpedients(Set<Long> ids);
 
+	public List<Map<String, DadaIndexadaDto>> luceneGetDades(long expedientId);
+	
 	public boolean luceneReindexarExpedient(Long expedientId) throws PermisDenegatException, NoTrobatException;
 
 	public boolean existsExpedientAmbEntornTipusITitol(Long entornId, Long expedientTipusId, String titol);

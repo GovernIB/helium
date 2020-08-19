@@ -29,6 +29,7 @@ import net.conselldemallorca.helium.jbpm3.integracio.DominiCodiDescripcio;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessInstance;
 import net.conselldemallorca.helium.jbpm3.integracio.Registre;
+import net.conselldemallorca.helium.v3.core.api.dto.DadaIndexadaDto;
 import net.conselldemallorca.helium.v3.core.api.exception.IndexacioException;
 import net.conselldemallorca.helium.v3.core.api.service.TascaService;
 import net.conselldemallorca.helium.v3.core.repository.CampRepository;
@@ -225,7 +226,7 @@ public class IndexHelper {
 		Counter countTipExp = metricRegistry.counter(MetricRegistry.name(LuceneHelper.class, "lucene.update.count", expedient.getEntorn().getCodi(), expedient.getTipus().getCodi()));
 		
 		boolean ctxDadesStoped = false;
-				
+		boolean actualitzat = false;		
 		try {
 			// Incrementam els comptadors de les mètriques
 			countTotal.inc();
@@ -256,7 +257,7 @@ public class IndexHelper {
 			contextIndexarEntorn = timerIndexarEntorn.time();
 			contextIndexarTipExp = timerIndexarTipExp.time();
 			
-			luceneHelper.updateExpedientCamps(
+			actualitzat = luceneHelper.updateExpedientCamps(
 					expedient,
 					mapDefinicioProces,
 					mapCamps,
@@ -285,7 +286,7 @@ public class IndexHelper {
 			}
 			expedient.setReindexarData(null);
 		}
-		expedient.setReindexarError(false);
+		expedient.setReindexarError(!actualitzat);
 		expedientRepository.saveAndFlush(expedient);
 	}
 
@@ -355,7 +356,8 @@ public class IndexHelper {
 		Counter countTotal = metricRegistry.counter(MetricRegistry.name(LuceneHelper.class, "lucene.recreate.count"));
 		Counter countEntorn = metricRegistry.counter(MetricRegistry.name(LuceneHelper.class, "lucene.recreate.count", expedient.getEntorn().getCodi()));
 		Counter countTipExp = metricRegistry.counter(MetricRegistry.name(LuceneHelper.class, "lucene.recreate.count", expedient.getEntorn().getCodi(), expedient.getTipus().getCodi()));
-		
+
+		boolean actualitzat = false;
 		boolean ctxDadesStoped = false;
 //		boolean ctxLuceneStoped = false;
 		
@@ -391,7 +393,7 @@ public class IndexHelper {
 			contextIndexarTipExp = timerIndexarTipExp.time();
 			
 			luceneHelper.deleteExpedient(expedient);
-			luceneHelper.createExpedient(
+			actualitzat = luceneHelper.createExpedient(
 					expedient,
 					mapDefinicioProces,
 					mapCamps,
@@ -443,7 +445,7 @@ public class IndexHelper {
 //			contextMongoTipExp.stop();
 			expedient.setReindexarData(null);
 		}
-		expedient.setReindexarError(false);
+		expedient.setReindexarError(!actualitzat);
 		expedientRepository.saveAndFlush(expedient);
 	}
 
@@ -616,5 +618,24 @@ public class IndexHelper {
 		} else {
 			return valor;
 		}
+	}
+	
+	/** Obté les dades de l'índex per a un expedient en concret.
+	 * 
+	 * @param processInstanceId
+	 * @return 
+	 */
+	public List<Map<String, DadaIndexadaDto>> expedientIndexLuceneGetDades(String processInstanceId) {
+		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
+		List<Camp> informeCamps = new ArrayList<Camp>();
+		Map<String, Set<Camp>> camps = getMapCamps(processInstanceId);
+		for (String clau: camps.keySet()) {
+			for (Camp camp: camps.get(clau))
+				informeCamps.add(camp);
+		}
+		informeCamps.addAll(
+				expedientHelper.findAllCampsExpedientConsulta());
+		
+		return luceneHelper.expedientIndexLuceneGetDades(expedient, informeCamps);
 	}
 }

@@ -154,7 +154,7 @@ public class LuceneHelper extends LuceneIndexSupport {
 		thread.start();
 	}
 
-	public synchronized void createExpedient(
+	public synchronized boolean createExpedient(
 			Expedient expedient,
 			Map<String, DefinicioProces> definicionsProces,
 			Map<String, Set<Camp>> camps,
@@ -165,7 +165,7 @@ public class LuceneHelper extends LuceneIndexSupport {
 		logger.debug("Creant expedient a l'index Lucene (" +
 				"id=" + expedient.getId() + ")");
 		mesuresTemporalsHelper.mesuraIniciar("Lucene: createExpedient", "lucene", expedient.getTipus().getNom());
-		createOrUpdateExpedientIndex(
+		boolean success = createOrUpdateExpedientIndex(
 				expedient,
 				definicionsProces,
 				camps,
@@ -174,6 +174,7 @@ public class LuceneHelper extends LuceneIndexSupport {
 				finalitzat,
 				comprovarIniciant);
 		mesuresTemporalsHelper.mesuraCalcular("Lucene: createExpedient", "lucene", expedient.getTipus().getNom());
+		return success;
 	}
 
 	public synchronized boolean updateExpedientCapsalera(
@@ -549,7 +550,7 @@ public class LuceneHelper extends LuceneIndexSupport {
 
 
 
-	private void createOrUpdateExpedientIndex(
+	private boolean createOrUpdateExpedientIndex(
 			final Expedient expedient,
 			final Map<String, DefinicioProces> definicionsProces,
 			final Map<String, Set<Camp>> camps,
@@ -557,6 +558,7 @@ public class LuceneHelper extends LuceneIndexSupport {
 			final Map<String, Map<String, String>> textDominis,
 			final boolean finalitzat,
 			final boolean comprovarIniciant) {
+		final Map<String, String> errors = new HashMap<String, String>();
 		checkIndexOk();
 		@SuppressWarnings("unchecked")
 		List<Long> resposta = searchTemplate.search(new TermQuery(termIdFromExpedient(expedient)), new HitExtractor() {
@@ -567,7 +569,7 @@ public class LuceneHelper extends LuceneIndexSupport {
 		if (resposta.size() == 1) {
 			getLuceneIndexTemplate().updateDocument(termIdFromExpedient(expedient), new DocumentModifier() {
 				public Document updateDocument(Document document) {
-					return updateDocumentFromExpedient(document, expedient, definicionsProces, camps, valors, textDominis, finalitzat);
+					return updateDocumentFromExpedient(document, expedient, definicionsProces, camps, valors, textDominis, finalitzat, errors);
 				}
 			});
 		} else {
@@ -587,15 +589,24 @@ public class LuceneHelper extends LuceneIndexSupport {
 			}
 			if (indexarExpedient) {
 				logger.debug("Creant expedient a l'index Lucene: indexació realitzada (id=" + expedient.getId() + ")");
-				Document document = updateDocumentFromExpedient(null, expedient, definicionsProces, camps, valors, textDominis, finalitzat);
+				Document document = updateDocumentFromExpedient(null, expedient, definicionsProces, camps, valors, textDominis, finalitzat, errors);
 				getLuceneIndexTemplate().addDocument(document);
 			} else {
 				logger.debug("Creant expedient a l'index Lucene: indexació abortada (id=" + expedient.getId() + ")");
 			}
 		}
+		return errors.isEmpty();
 	}
 
-	private Document updateDocumentFromExpedient(Document docLucene, Expedient expedient, Map<String, DefinicioProces> definicionsProces, Map<String, Set<Camp>> camps, Map<String, Map<String, Object>> valors, Map<String, Map<String, String>> textDominis, boolean finalitzat) {
+	private Document updateDocumentFromExpedient(
+			Document docLucene, 
+			Expedient expedient, 
+			Map<String, DefinicioProces> definicionsProces, 
+			Map<String, Set<Camp>> camps, 
+			Map<String, Map<String, Object>> valors, 
+			Map<String, Map<String, String>> textDominis, 
+			boolean finalitzat,
+			Map<String, String> errors) {
 		boolean isUpdate = (docLucene != null);
 		Document document = (docLucene != null) ? docLucene : new Document();
 		createOrUpdateDocumentField(document, new Field(ExpedientCamps.EXPEDIENT_CAMP_ENTORN, expedient.getEntorn().getCodi(), Field.Store.YES, Field.Index.NOT_ANALYZED), isUpdate);
@@ -629,8 +640,11 @@ public class LuceneHelper extends LuceneIndexSupport {
 						} catch (Exception ex) {
 							StringBuilder sb = new StringBuilder();
 							getClassAsString(sb, valorsProces.get(camp.getCodi()));
-							logger.error("No s'ha pogut indexar el camp (definicioProces=" + definicioProces.getJbpmKey() + "(v." + definicioProces.getVersio() + ")" + ", camp=" + camp.getCodi() + ", tipus=" + camp.getTipus() + ", multiple=" + camp.isMultiple() + ") amb un valor (tipus=" + sb.toString() + 
-										 ") per l'expedient " + (expedient != null ? expedient.getIdentificador()  + (expedient.getTipus() != null ? " (" + expedient.getTipus().getCodi() + ")" : null ) : null) );
+							String errMsg = "No s'ha pogut indexar el camp (definicioProces=" + definicioProces.getJbpmKey() + "(v." + definicioProces.getVersio() + ")" + ", camp=" + camp.getCodi() + ", tipus=" + camp.getTipus() + ", multiple=" + camp.isMultiple() + ") amb un valor (tipus=" + sb.toString() + 
+									 ") per l'expedient " + (expedient != null ? expedient.getIdentificador()  + (expedient.getTipus() != null ? " (" + expedient.getTipus().getCodi() + ")" : null ) : null) + ": " + ex.getMessage() ;
+							logger.error(errMsg);
+							//TODO Daniel: afegir error en la reindexació de camps. Es podria aprofitar un camp de lucene per posar els codis dels camps que no s'han pogut reindexar o retornar un objecte resultat.
+							errors.put("camp.getCodi()", errMsg);
 						}
 					}
 				}
@@ -1009,10 +1023,10 @@ public class LuceneHelper extends LuceneIndexSupport {
 							}
 							if (coincideix) {
 								for (String valorIndex : fila.get(codi)) {
+									DadaIndexadaDto dadaCamp = null;
 									try {
 										Object valor = valorCampPerIndex(camp, valorIndex);
 										if (valor != null) {
-											DadaIndexadaDto dadaCamp;
 											if (codi.startsWith(ExpedientCamps.EXPEDIENT_PREFIX)) {
 												dadaCamp = new DadaIndexadaDto(camp.getCodi(), camp.getEtiqueta());
 											} else {
@@ -1037,6 +1051,9 @@ public class LuceneHelper extends LuceneIndexSupport {
 										}
 									} catch (Exception ex) {
 										logger.error("Error al obtenir el valor de l'índex pel camp " + codi, ex);
+										//TODO Daniel: Afegir el campd de dada indexada però amb error recuperant el valor
+										if (dadaCamp != null)
+											dadaCamp.setError(ex.getMessage());
 									}
 								}
 								break;
@@ -1234,6 +1251,29 @@ public class LuceneHelper extends LuceneIndexSupport {
 		} else {
 			sb.append(o.getClass().getName());
 		}
+	}
+	
+	public List<Map<String, DadaIndexadaDto>> expedientIndexLuceneGetDades(
+			Expedient expedient, 
+			List<Camp> informeCamps) {
+		checkIndexOk();
+			    
+		Query query = queryFromCampFiltre(
+				ExpedientCamps.EXPEDIENT_CAMP_ID,
+				expedient.getId().toString(),
+				null);
+		
+		List<Map<String, DadaIndexadaDto>> resultats = 
+				getDadesExpedientPerConsulta(
+						expedient.getEntorn().getCodi(), 
+						query, 
+						informeCamps, 
+						true, 
+						null, 
+						true, 
+						0, 
+						10);
+		return resultats;
 	}
 
 	protected static final Log logger = LogFactory.getLog(LuceneHelper.class);

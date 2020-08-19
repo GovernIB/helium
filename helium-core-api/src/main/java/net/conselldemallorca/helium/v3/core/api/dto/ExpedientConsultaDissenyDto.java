@@ -108,4 +108,15 @@ public class ExpedientConsultaDissenyDto {
 	public boolean isPermisAdministration() {
 		return expedient.permisAdministration;
 	}
+	/** Retorna true si hi ha cap dada amb error de reindexació.*/
+	public boolean isReindexarCampError() {
+		boolean error = false;
+		for(DadaIndexadaDto dada : getDadesExpedient().values()) {
+			if (dada.getError() != null) {
+				error = true;
+				break;
+			}
+		}
+		return error;
+	}
 }

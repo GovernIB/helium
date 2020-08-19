@@ -422,6 +422,22 @@ public class ExpedientServiceImpl implements ExpedientService {
 				execucioDinsHandler);
 	}
 
+
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public List<Map<String, DadaIndexadaDto>> luceneGetDades(long expedientId) {
+		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
+				expedientId,
+				true,
+				false,
+				false,
+				false);
+		return indexHelper.expedientIndexLuceneGetDades(expedient.getProcessInstanceId());
+	}
+
 	/**
 	 * {@inheritDoc}
 	 */

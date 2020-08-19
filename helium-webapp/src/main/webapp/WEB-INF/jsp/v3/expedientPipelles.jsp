@@ -112,7 +112,7 @@ dd.subproc {
 		<c:set var="refrescaSegonPlaPeriode" value="${globalProperties['app.segonpla.refrescar.auto.periode'] != null ? globalProperties['app.segonpla.refrescar.auto.periode'] : 10}"/>
 		<c:if test="${refrescaSegonPla}">
 			setInterval(refrescaEstatSegonPla, (${refrescaSegonPlaPeriode} * 1000));
-		</c:if>
+		</c:if>		
 	});
 	function refrescaEstatSegonPla() {
 		var tasquesSegonPlaIds = [];
@@ -261,6 +261,7 @@ dd.subproc {
 			<div id="expedient-info" class="well">
 				<h3>
 					<spring:message code="expedient.info.informacio"/>
+					
 					<c:if test="${expedient.ntiActiu and expedient.permisRead}">
 						<a	href="<c:url value="../../v3/expedient/${expedient.id}/metadadesNti"/>"
 							data-rdt-link-modal="true"
@@ -274,6 +275,8 @@ dd.subproc {
 							</span>
 						</a>
 					</c:if>
+				
+					
 				</h3>
 				<dl>
 					<c:if test="${expedient.tipus.teNumero}">
@@ -293,12 +296,22 @@ dd.subproc {
 						<dd><fmt:formatDate value="${expedient.dataFi}" pattern="dd/MM/yyyy HH:mm"/></dd>
 					</block>
 					<dt><spring:message code="expedient.info.camp.estat"/></dt>
-					<dd id="expedientEstat">
-						<c:choose>
-							<c:when test="${not empty expedient.dataFi}"><spring:message code="comu.estat.finalitzat"/></c:when>
-							<c:when test="${not empty expedient.estat}">${expedient.estat.nom}</c:when>
-							<c:otherwise><spring:message code="comu.estat.iniciat"/></c:otherwise>
-						</c:choose>					
+					<dd>
+						<span id="expedientEstat">
+							<c:choose>
+								<c:when test="${not empty expedient.dataFi}"><spring:message code="comu.estat.finalitzat"/></c:when>
+								<c:when test="${not empty expedient.estat}">${expedient.estat.nom}</c:when>
+								<c:otherwise><spring:message code="comu.estat.iniciat"/></c:otherwise>
+							</c:choose>
+						</span>
+						<!-- per marcar l'expedient amb error de sincronització -->
+						<c:if test="${not empty expedient.reindexarData || expedient.reindexarError}">
+							<a id="lucene" data-toggle="modal" data-maximized="true" href="<c:url value="/v3/expedient/lucene/${expedientId}"/>">	
+								<span class="fa fa-refresh <c:if test='${expedient.reindexarError}'>text-danger</c:if> pull-right"
+									title="<c:if test='${expedient.reindexarData != null}'> <spring:message code='expedient.consulta.reindexacio.asincrona.data' arguments='${expedient.reindexarData}'/>. </c:if>
+										   <c:if test='${expedient.reindexarError}'> <spring:message code='expedient.consulta.reindexacio.error.full'/>. </c:if>"></span>
+						   </a>
+						</c:if>
 					</dd>
 					<dt><spring:message code="expedient.info.camp.defproc"/></dt>
 					<dd class="proces">	
@@ -366,8 +379,7 @@ dd.subproc {
 										<li><a data-rdt-link-confirm="<spring:message code="expedient.eines.confirm_reprendre_tramitacio"/>" href="<c:url value="../../v3/expedient/${expedientId}/reprendre"/>"><span class="fa fa-play"></span>&nbsp;<spring:message code="expedient.info.accio.reprendre"/></a></li>
 									</c:otherwise>
 								</c:choose>
-							</c:if>								
-							
+							</c:if>															
 							<c:if test="${expedient.permisCancel}">
 								<c:choose>
 									<c:when test="${not expedient.anulat}">
@@ -519,6 +531,8 @@ dd.subproc {
 			</div>
 		</div>
 	</div>
+	
+
 	<script type="text/javascript">
 	// <![CDATA[
 	    $("#canviversio").heliumEvalLink({
