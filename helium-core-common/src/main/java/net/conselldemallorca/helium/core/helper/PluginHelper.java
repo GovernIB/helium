@@ -2072,11 +2072,18 @@ public class PluginHelper {
 		};
 		long t0 = System.currentTimeMillis();
 		try {
-			return getFirmaPlugin().firmar(
+			byte[] firma = getFirmaPlugin().firmar(
 					firmaTipus,
 					motiu,
 					arxiu.getNom(),
 					arxiu.getContingut());
+			monitorIntegracioHelper.addAccioOk(
+					MonitorIntegracioHelper.INTCODI_FIRMA_SERV,
+					accioDescripcio,
+					IntegracioAccioTipusEnumDto.ENVIAMENT,
+					System.currentTimeMillis() - t0,
+					parametres);
+			return firma;
 		} catch (Exception ex) {
 			String errorDescripcio = "No s'han pogut firmar el document: " + ex.getMessage();
 			monitorIntegracioHelper.addAccioError(
@@ -2089,7 +2096,6 @@ public class PluginHelper {
 					parametres);
 			throw tractarExcepcioEnSistemaExtern(errorDescripcio, ex);
 		}
-		
 	}
 
 	public ContingutArxiu arxiuExpedientCrear(

@@ -31,5 +31,6 @@ public class ExpedientCamps {
 	public static final String EXPEDIENT_CAMP_DATA_INICI = EXPEDIENT_PREFIX + "dataInici";
 	public static final String EXPEDIENT_CAMP_TIPUS = EXPEDIENT_PREFIX + "tipus";
 	public static final String EXPEDIENT_CAMP_ESTAT = EXPEDIENT_PREFIX + "estat";
+	public static final String EXPEDIENT_CAMP_ERRORS_REINDEXACIO = EXPEDIENT_PREFIX + "errorsReindexacio";
 
 }

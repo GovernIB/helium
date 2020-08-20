@@ -94,7 +94,7 @@ public class ServiceUtils {
 		Expedient expedient = expedientDao.findAmbProcessInstanceId(rootProcessInstance.getId());
 		Map<String, Set<Camp>> mapCamps = getMapCamps(expedient.getProcessInstanceId());
 		Map<String, Map<String, Object>> mapValors = getMapValors(expedient.getProcessInstanceId());
-		luceneDao.createExpedient(
+		boolean success = luceneDao.createExpedient(
 				expedient,
 				getMapDefinicionsProces(expedient.getProcessInstanceId()),
 				mapCamps,
@@ -102,6 +102,8 @@ public class ServiceUtils {
 				getMapValorsDomini(mapCamps, mapValors),
 				isExpedientFinalitzat(expedient),
 				false);
+		expedient.setReindexarError(!success);
+		expedientDao.saveOrUpdate(expedient);
 	}
 	
 	public void expedientIndexLuceneUpdate(
@@ -201,7 +203,7 @@ public class ServiceUtils {
 		luceneDao.deleteExpedient(expedient);
 		Map<String, Set<Camp>> mapCamps = getMapCamps(rootProcessInstance.getId());
 		Map<String, Map<String, Object>> mapValors = getMapValors(rootProcessInstance.getId());
-		luceneDao.createExpedient(
+		boolean success = luceneDao.createExpedient(
 				expedient,
 				getMapDefinicionsProces(rootProcessInstance.getId()),
 				mapCamps,
@@ -209,6 +211,8 @@ public class ServiceUtils {
 				getMapValorsDomini(mapCamps, mapValors),
 				isExpedientFinalitzat(expedient),
 				false);
+		expedient.setReindexarError(!success);
+		expedientDao.saveOrUpdate(expedient);
 	}
 	public void expedientIndexLuceneDelete(String processInstanceId) {
 		JbpmProcessInstance rootProcessInstance = jbpmHelper.getRootProcessInstance(processInstanceId);

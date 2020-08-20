@@ -1026,6 +1026,8 @@ public class ExpedientHelper {
 				getCampExpedient(ExpedientCamps.EXPEDIENT_CAMP_DATA_INICI));
 		resposta.add(
 				getCampExpedient(ExpedientCamps.EXPEDIENT_CAMP_ESTAT));
+		resposta.add(
+				getCampExpedient(ExpedientCamps.EXPEDIENT_CAMP_ERRORS_REINDEXACIO));
 		return resposta;
 	}
 
@@ -1268,6 +1270,13 @@ public class ExpedientHelper {
 			campExpedient.setCodi(campCodi);
 			campExpedient.setTipus(TipusCamp.SELECCIO);
 			campExpedient.setEtiqueta(messageHelper.getMessage("etiqueta.exp.estat"));
+			return campExpedient;
+		}
+		if (ExpedientCamps.EXPEDIENT_CAMP_ERRORS_REINDEXACIO.equals(campCodi)) {
+			Camp campExpedient = new Camp();
+			campExpedient.setCodi(campCodi);
+			campExpedient.setTipus(TipusCamp.STRING);
+			campExpedient.setEtiqueta(messageHelper.getMessage("etiqueta.exp.errorsReindexacio"));
 			return campExpedient;
 		}
 		return null;

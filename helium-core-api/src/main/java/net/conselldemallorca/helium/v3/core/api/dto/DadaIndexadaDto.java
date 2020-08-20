@@ -29,7 +29,6 @@ public class DadaIndexadaDto {
 	private List<String> valorIndexMultiple;
 	private List<String> valorMostrarMultiple;
 	
-	//TODO Daniel: indicar si la dada indexada té error o no s'ha pogut carregar bé
 	/** S'informa amb el missatge d'error en cas de produir-se a l'hora de consultar la dada indexada. */
 	private String error = null;
 

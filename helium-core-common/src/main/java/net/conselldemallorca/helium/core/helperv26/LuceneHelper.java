@@ -41,6 +41,8 @@ import org.springmodules.lucene.index.support.LuceneIndexSupport;
 import org.springmodules.lucene.search.core.HitExtractor;
 import org.springmodules.lucene.search.core.LuceneSearchTemplate;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import net.conselldemallorca.helium.core.common.ThreadLocalInfo;
 import net.conselldemallorca.helium.core.model.hibernate.Camp;
 import net.conselldemallorca.helium.core.model.hibernate.Camp.TipusCamp;
@@ -100,7 +102,8 @@ public class LuceneHelper extends LuceneIndexSupport {
 				"id=" + expedient.getId() + ")");
 		Thread thread = new Thread() {
 			public void run() {
-				createExpedient(expedient, definicionsProces, camps, valors, textDominis, finalitzat, comprovarIniciant);
+				boolean success = createExpedient(expedient, definicionsProces, camps, valors, textDominis, finalitzat, comprovarIniciant);
+				expedient.setReindexarError(!success);
 			}
 		};
 		thread.start();
@@ -112,7 +115,8 @@ public class LuceneHelper extends LuceneIndexSupport {
 				"id=" + expedient.getId() + ")");
 		Thread thread = new Thread() {
 			public void run() {
-				updateExpedientCapsalera(expedient, finalitzat);
+				boolean success = updateExpedientCapsalera(expedient, finalitzat);
+				expedient.setReindexarError(!success);
 			}
 		};
 		thread.start();
@@ -128,7 +132,8 @@ public class LuceneHelper extends LuceneIndexSupport {
 				"id=" + expedient.getId() + ")");
 		Thread thread = new Thread() {
 			public void run() {
-				updateExpedientCamps(expedient, definicionsProces, camps, valors, textDominis, finalitzat);
+				boolean success = updateExpedientCamps(expedient, definicionsProces, camps, valors, textDominis, finalitzat);
+				expedient.setReindexarError(!success);
 			}
 		};
 		thread.start();
@@ -183,8 +188,9 @@ public class LuceneHelper extends LuceneIndexSupport {
 		logger.debug("Actualitzant capsalera expedient a l'index Lucene (" +
 				"id=" + expedient.getId() + ")");
 		mesuresTemporalsHelper.mesuraIniciar("Lucene: updateExpedientCapsalera", "lucene", expedient.getTipus().getNom());
+		boolean success;
 		try {
-			createOrUpdateExpedientIndex(
+			success = createOrUpdateExpedientIndex(
 					expedient,
 					null,
 					null,
@@ -192,12 +198,12 @@ public class LuceneHelper extends LuceneIndexSupport {
 					null,
 					finalitzat,
 					true);
-			return true;
 		} catch (Exception ex) {
 			logger.error("Error actualitzant l'índex per l'expedient " + expedient.getId(), ex);
 			mesuresTemporalsHelper.mesuraCalcular("Lucene: updateExpedientCapsalera", "lucene", expedient.getTipus().getNom());
-			return false;
+			success = false;
 		}
+		return success;
 	}
 
 	public synchronized boolean updateExpedientCamps(
@@ -210,8 +216,9 @@ public class LuceneHelper extends LuceneIndexSupport {
 		logger.debug("Actualitzant informació de l'expedient a l'index Lucene (" +
 				"id=" + expedient.getId() + ")");
 		mesuresTemporalsHelper.mesuraIniciar("Lucene: updateExpedientCamps", "lucene", expedient.getTipus().getNom());
+		boolean success;
 		try {
-			createOrUpdateExpedientIndex(
+			success = createOrUpdateExpedientIndex(
 					expedient,
 					definicionsProces,
 					camps,
@@ -220,12 +227,12 @@ public class LuceneHelper extends LuceneIndexSupport {
 					finalitzat,
 					true);
 			mesuresTemporalsHelper.mesuraCalcular("Lucene: updateExpedientCamps", "lucene", expedient.getTipus().getNom());
-			return true;
 		} catch (Exception ex) {
 			logger.error("Error actualitzant l'índex per l'expedient " + expedient.getId(), ex);
 			mesuresTemporalsHelper.mesuraCalcular("Lucene: updateExpedientCamps", "lucene", expedient.getTipus().getNom());
-			return false;
+			success = false;
 		}
+		return success;
 	}
 	
 	/** Mètode per esborrar un sol camp de l'índex del document. */
@@ -643,13 +650,19 @@ public class LuceneHelper extends LuceneIndexSupport {
 							String errMsg = "No s'ha pogut indexar el camp (definicioProces=" + definicioProces.getJbpmKey() + "(v." + definicioProces.getVersio() + ")" + ", camp=" + camp.getCodi() + ", tipus=" + camp.getTipus() + ", multiple=" + camp.isMultiple() + ") amb un valor (tipus=" + sb.toString() + 
 									 ") per l'expedient " + (expedient != null ? expedient.getIdentificador()  + (expedient.getTipus() != null ? " (" + expedient.getTipus().getCodi() + ")" : null ) : null) + ": " + ex.getMessage() ;
 							logger.error(errMsg);
-							//TODO Daniel: afegir error en la reindexació de camps. Es podria aprofitar un camp de lucene per posar els codis dels camps que no s'han pogut reindexar o retornar un objecte resultat.
-							errors.put("camp.getCodi()", errMsg);
+							errors.put(camp.getCodi(), errMsg);
 						}
 					}
 				}
 			}
 		}
+		// Crea un camp al documents pels errors
+		try {			
+			createOrUpdateDocumentField(document, new Field(ExpedientCamps.EXPEDIENT_CAMP_ERRORS_REINDEXACIO, new ObjectMapper().writeValueAsString(errors != null ? errors : new HashMap<String, String>()), Field.Store.YES, Field.Index.NO), isUpdate);
+		} catch (Exception e) {
+			logger.error("Error guardant errors de reindexació els camps " + errors + " per l'expedient " + expedient.getId() + " " + expedient.getIdentificador());
+		}
+		
 		return document;
 	}
 
@@ -1051,7 +1064,6 @@ public class LuceneHelper extends LuceneIndexSupport {
 										}
 									} catch (Exception ex) {
 										logger.error("Error al obtenir el valor de l'índex pel camp " + codi, ex);
-										//TODO Daniel: Afegir el campd de dada indexada però amb error recuperant el valor
 										if (dadaCamp != null)
 											dadaCamp.setError(ex.getMessage());
 									}

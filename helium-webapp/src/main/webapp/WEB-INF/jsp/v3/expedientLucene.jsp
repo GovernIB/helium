@@ -35,7 +35,7 @@
 				language: {
 					url: webutilContextPath() + '/js/datatables/i18n/datatables.' + solveLanguage() + '.json'
 				},
-				order: [[1, 'asc'],[2, 'asc']]
+				order: [[4, 'desc'],[0, 'asc'],[1, 'asc']]
 			});
 		});
 		
@@ -45,11 +45,16 @@
 
 	<!-- per marcar l'expedient amb error de sincronització -->
 	
-	<c:if test="${not empty expedient.reindexarData || expedient.reindexarError}">
-		<div class="alert <c:if test='${expedient.reindexarError}'>alert-danger</c:if>">
+	<c:if test="${not empty expedient.reindexarData}">
+		<div class="alert alert-warning">
 			<span class="fa fa-refresh"></span>
-			<c:if test="${expedient.reindexarData != null}"> <spring:message code="expedient.lucene.reindexacio.asincrona.data" arguments="${expedient.reindexarData}"/>. </c:if>
-			<c:if test="${expedient.reindexarError}"> <spring:message code="expedient.lucene.reindexacio.error"/>. </c:if>
+			<spring:message code="expedient.lucene.reindexacio.asincrona.data" arguments="${expedient.reindexarData}"/>
+		</div>
+	</c:if>
+	<c:if test="${expedient.reindexarError}">
+		<div class="alert alert-danger">
+			<span class="fa fa-refresh"></span>
+			<spring:message code="expedient.lucene.reindexacio.error"/>.
 		</div>
 	</c:if>
 
@@ -57,29 +62,24 @@
 			class="table table-striped table-bordered table-hover">
 		<thead>
 			<tr>
-				<th rowspan="2">Error</th>
 				<th rowspan="2" title="Expedient, tipus d'expedient o definició de procés">Tipus</th>
+				<th rowspan="2">Codi</th>
 				<th rowspan="2">Etiqueta</th>
 				<th rowspan="2">Agrupació</th>
-				<th colspan="3">Dades Lucene</th>
+				<th rowspan="2">Error</th>
+				<th colspan="2">Dades indexades</th>
+				<th colspan="2">Dades expedient</th>
 			</tr>
 			<tr>
-				<th>Dada</th>
 				<th>Valor indexat</th>
-				<th>Valor mostrar</th>
+				<th>Valor a mostrar</th>
+				<th>Valor expedient</th>
+				<th>Multiple</th>
 			</tr>
 		</thead>
 		<tbody>
 			<c:forEach items="${dades}" var="dada" varStatus="procesosStatus">
-			<tr class="row_checkbox <c:if test='${dada.error}'>danger</c:if>">
-				<td align="center">
-					<c:if test="${dada.error}">
-						<div class="pull-right">
-							<span class="fa fa-warning text-danger" 
-							title="${dada.errorDescripcio}"></span>
-						</div>
-					</c:if>					
-				</td>
+			<tr class="row_checkbox <c:if test='${not empty dada.errorReindexacio}'>danger</c:if>">
 				<td align="center">
 					<c:choose>
 					    <c:when test="${dada.tipus == 'EX' }">
@@ -89,24 +89,60 @@
 							<span class="label label-info" title="Tipus Expedient">TE</span>
 					    </c:when>    
 					    <c:when test="${dada.tipus == 'DP' }">
-							<span class="label label-warning" title='Definició de Procés "${dada.dadaIndexada.definicioProcesCodi }"'>DP</span>
+							<span class="label label-warning" title='Definició de Procés "${dada.definicioProces }"'>DP</span>
 					    </c:when>    
 					    <c:otherwise>
 							<span class="label label-default">${dada.tipus}</span>
 					    </c:otherwise>
 					</c:choose>	
 				</td>
-				<td>${dada.dadaIndexada.etiqueta}</td>
-				<td>Agrupació</td>
-				<td>${dada.dadaIndexada.campCodi}</td>
-				<td>
-					${dada.dadaIndexada.valorIndex}
+				<td>${dada.codi}</td>
+				<td>${dada.etiqueta}</td>
+				<td>${dada.agrupacio}</td>
+				<td align="center">
+					<c:if test="${not empty dada.errorReindexacio}">
+						<span class="fa fa-warning text-danger" title="${dada.errorReindexacio}"></span>
+					</c:if>					
+					<c:if test="${dada.valorDiferent}">
+						<span class="fa fa-warning text-warning" title="El valor indexat difereix del valor de l'expedient"></span>
+					</c:if>					
 				</td>
-				<td>${dada.dadaIndexada.valorMostrar}</td>
+				<td>
+					${dada.valorIndex}
+				</td>
+				<td class="<c:if test='${dada.valorDiferent}'>danger</c:if>">
+					${dada.valorMostrar}
+				</td>
+				<td class="<c:if test='${dada.valorDiferent}'>danger</c:if>">
+					${dada.valorJbpm}
+				</td>
+				<td align="center">
+					<c:if test="${dada.multiple}">&check;</c:if>
+				</td>
 			</tr>
 			</c:forEach>			
 		</tbody>
 	</table>
+	
+	<c:if test="${expedient.permisWrite}">
+		<a data-rdt-link-confirm="<spring:message code="expedient.accio.reindexa.confirmacio"/>" href="<c:url value="/v3/expedient/lucene/${expedient.id}/reindexa"/>"></a>
+	</c:if>
+
+	<form:form cssClass="form-horizontal form-tasca" id="reindexarForm" name="reindexarForm" action="${expedient.id}/reindexa" method="get" >
+		<div id="modal-botons">
+			<c:if test="${expedient.permisWrite}">
+				<button type="submit" class="btn btn-warning" id="submit" name="submit" value="submit">
+					<span class="fa fa-refresh"></span>&nbsp;<spring:message code="expedient.info.accio.reindexa"/>
+				</button>
+			</c:if>
+			<button type="button" class="btn btn-default modal-tancar" name="submit" value="cancel" data-modal-cancel="true">
+				<spring:message code="comu.boto.tancar"/>
+			</button>			
+		</div>
+	</form:form> 		
+	
+	
+	
 
 </body>
 </html>

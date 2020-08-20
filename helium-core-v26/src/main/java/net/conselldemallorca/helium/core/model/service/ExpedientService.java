@@ -690,9 +690,11 @@ public class ExpedientService {
 					LogInfo.GRUP + "#@#" + expedient.getGrupCodi());
 			expedient.setGrupCodi(grupCodi);
 		}
-		luceneDao.updateExpedientCapsalera(
+		boolean success = luceneDao.updateExpedientCapsalera(
 				expedient,
 				getServiceUtils().isExpedientFinalitzat(expedient));
+		expedient.setReindexarError(!success);
+		expedientDao.saveOrUpdate(expedient);
 		String informacioNova = getInformacioExpedient(expedient);
 		registreDao.crearRegistreModificarExpedient(
 				expedient.getId(),

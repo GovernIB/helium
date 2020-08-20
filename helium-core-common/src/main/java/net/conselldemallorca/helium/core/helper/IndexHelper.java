@@ -95,7 +95,6 @@ public class IndexHelper {
 		boolean ctxDadesStoped = false;
 		
 		try {
-			
 			// Incrementam els comptadors de les mètriques
 			countTotal.inc();
 			countEntorn.inc();
@@ -125,7 +124,7 @@ public class IndexHelper {
 			contextIndexarEntorn = timerIndexarEntorn.time();
 			contextIndexarTipExp = timerIndexarTipExp.time();
 			
-			luceneHelper.createExpedient(
+			boolean success = luceneHelper.createExpedient(
 					expedient,
 					mapDefinicioProces,
 					mapCamps,
@@ -133,6 +132,8 @@ public class IndexHelper {
 					mapValorsDomini,
 					isExpedientFinalitzat,
 					false);
+			expedient.setReindexarError(!success);
+			expedientRepository.saveAndFlush(expedient);
 		} catch (Exception ex) {
 			throw new IndexacioException("Crear Indexació", ex);
 		} finally {

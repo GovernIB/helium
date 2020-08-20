@@ -1221,9 +1221,14 @@ public class ExpedientLoggerHelper {
 					if (debugRetroces)
 						logger.info(">>> [RETVAR] Carregar variable del procés " + camp.getCamp().getCodi() + " a la tasca " + task.getTaskName() + " (" + task.getId() + ")");
 					String codi = camp.getCamp().getCodi();
-					ti.setVariableLocally(
-							codi,
-							ci.getVariable(codi));
+					Object valor = ci.getVariable(codi);
+					if (valor != null) {
+						ti.setVariableLocally(
+								codi,
+								ci.getVariable(codi));						
+					} else {
+						ti.deleteVariableLocally(codi);
+					}
 				}
 			}
 			for (DocumentTasca document: getDocumentsPerTaskInstance(ti)) {
