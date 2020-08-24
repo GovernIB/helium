@@ -358,6 +358,8 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 			try {
 				AnotacioRegistreEntrada anotacioRegistreEntrada = distribucioHelper.consulta(idWs);
 				resultat = backofficeUtils.crearExpedientAmbAnotacioRegistre(expedientArxiu, anotacioRegistreEntrada);
+				if (resultat.getErrorCodi() != 0)
+					throw new Exception("Error creant l'expedient amb la llibreria d'utilitats de Distribucio: " + resultat.getErrorCodi() + " " + resultat.getErrorMessage());
 			} catch(Exception e) {
 				String errMsg = "Error consultant l'anotació de registre \"" + anotacio.getIdentificador() + "\" de Distribució:_" + e.getMessage();
 				logger.error(errMsg, e);
@@ -430,7 +432,7 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 					Estat.PROCESSADA,
 					"Anotació incorporada a l'expedient d'Helium " + expedient.getIdentificadorLimitat());
 		} catch (Exception e) {
-			String errMsg = "Error comunicant l'estat de rebutjada a Distribucio:" + e.getMessage();
+			String errMsg = "Error comunicant l'estat de processada a Distribucio:" + e.getMessage();
 			logger.error(errMsg, e);
 			throw new RuntimeException(errMsg, e);
 		}
@@ -541,9 +543,10 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 	@Override
 	public void event(String metode, Map<String, String> parametres, boolean correcte, String error, Exception e, long timeMs) {
 		
-		List<IntegracioParametreDto> parametresMonitor = new ArrayList<IntegracioParametreDto>();
+		IntegracioParametreDto[] parametresMonitor = new IntegracioParametreDto[parametres.size()];
+		int i = 0;
 		for (String nom : parametres.keySet())
-			parametresMonitor.add(new IntegracioParametreDto(nom, parametres.get(nom)));
+			parametresMonitor[i++] = new IntegracioParametreDto(nom, parametres.get(nom));
 		
 		if (correcte) {
 			monitorIntegracioHelper.addAccioOk(
@@ -551,7 +554,7 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 					"Invocació al mètode del plugin d'Arxiu " + metode, 
 					IntegracioAccioTipusEnumDto.ENVIAMENT,
 					timeMs, 
-					(IntegracioParametreDto[]) parametresMonitor.toArray());
+					parametresMonitor);
 		} else {
 			monitorIntegracioHelper.addAccioError(
 					MonitorIntegracioHelper.INTCODI_ARXIU, 
@@ -560,7 +563,7 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 					timeMs,
 					error, 
 					e, 
-					(IntegracioParametreDto[]) parametresMonitor.toArray());	
+					parametresMonitor);	
 		}
 	}
 

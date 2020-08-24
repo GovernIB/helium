@@ -631,13 +631,6 @@ public class ExpedientTipusServiceBean implements ExpedientTipusService {
 	
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public List<ExpedientTipusEstadisticaDto> findEstadisticaByFiltre(Integer dataIniciInicial, Integer dataIniciFinal,
-			Long entornId, Long expedientTipusId, Boolean anulats) {
-		return delegate.findEstadisticaByFiltre(dataIniciInicial, dataIniciFinal, entornId, expedientTipusId, anulats);
-	}
-
-	@Override
-	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public ExpedientTipusDto updateIntegracioNotib(
 			Long expedientTipusId, 
 			String notibEmisor, 
@@ -681,19 +674,28 @@ public class ExpedientTipusServiceBean implements ExpedientTipusService {
 	}
 
 	@Override
-	public List<ExpedientTipusEstadisticaDto> findEstadisticaByFiltre(Integer anyInicial, Integer anyFinal,
-			Long entornId, Long expedientTipusId, Boolean anulats, String numero, String titol, EstatTipusDto estatTipus,
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public List<ExpedientTipusEstadisticaDto> findEstadisticaByFiltre(
+			Integer anyInicial, 
+			Integer anyFinal,
+			Long entornId, 
+			Long expedientTipusId, 
+			Boolean anulats, 
+			String numero, 
+			String titol, 
+			EstatTipusDto estatTipus,
+			Long estatId,
 			Boolean aturat) {
 		return delegate.findEstadisticaByFiltre(
 				anyInicial, 
 				anyFinal, 
 				entornId, 
-				expedientTipusId, 
+				expedientTipusId,
 				anulats, 
 				numero, 
 				titol, 
-				estatTipus, 
+				estatTipus,
+				estatId,
 				aturat);
 	}
-
 }

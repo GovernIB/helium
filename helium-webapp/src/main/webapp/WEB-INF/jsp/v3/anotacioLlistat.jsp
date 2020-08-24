@@ -77,14 +77,14 @@
 	</div>
 
 	</form:form>
-	
+
 	<table	id="anotacio"
 			data-toggle="datatable"
 			data-url="<c:url value="anotacio/datatable"/>"
 			data-paging-enabled="true"
 			data-ordering="true"
 			data-default-order="1"
-			data-default-desc="asc"
+			data-default-dir="desc"
 			data-rowhref-template="#rowhrefTemplate"
 			data-rowhref-toggle="modal"
 			data-rowhref-maximized="true"

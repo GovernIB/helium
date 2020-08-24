@@ -13,7 +13,6 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
-import net.conselldemallorca.helium.core.model.hibernate.Estat;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusEstadisticaDto;
 
@@ -60,37 +59,6 @@ public interface ExpedientTipusRepository extends JpaRepository<ExpedientTipus, 
 	List<ExpedientTipus> findHeretablesByEntorn( @Param("entorn") Entorn entorn);
 	
 	List<ExpedientTipus> findByExpedientTipusPareIdOrderByCodiAsc(Long expedientTipusPareId);
-
-    @Query(    " select new net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusEstadisticaDto( "
-            + "     et.id, "
-            + "     et.codi, "
-            + "     et.nom, "
-            + "     count(*), "
-            + "     to_char(e.dataInici, 'YYYY'))"
-            + "    	from Expedient e "
-            + "        inner join e.tipus as et  "
-            + "    	where "
-            + "     	et.entorn = :entorn"
-            + "    		and (:isNullExpedientTipus = true or et = :expedientTipus)"
-            + "			and (:isNullAnulat = true or e.anulat = :anulat) "
-			+ "			and (:isNullDataIniciFinal = true or year(e.dataInici) <= :anyFinal) "
-			+ "			and (:isNullDataIniciInicial = true or year(e.dataInici) >= :anyInicial) "
-            + " group by "
-            + "        et.id, "
-            + "        et.codi, "
-            + "        et.nom, "
-            + "        to_char(e.dataInici, 'YYYY')")
-    List<ExpedientTipusEstadisticaDto> findEstadisticaByFiltre(
-            @Param("isNullDataIniciInicial") boolean isNullDataIniciInicial,
-            @Param("anyInicial") Integer anyInicial,
-            @Param("isNullDataIniciFinal") boolean isNullDataIniciFinal,
-            @Param("anyFinal") Integer anyFinal,
-            @Param("entorn") Entorn entorn,
-            @Param("isNullExpedientTipus") boolean isNullExpedientTipus,
-            @Param("expedientTipus") ExpedientTipus expedientTipus,
-            @Param("isNullAnulat") boolean isNullAnulat,
-            @Param("anulat") Boolean anulat
-            );
 
 	/** Mètode per cercar un tipus d'expedient activat per distribuir anotacions de registre i configurat segons el codi
 	 * de procediment o el codi del tipus d'assumpte.
@@ -152,6 +120,7 @@ public interface ExpedientTipusRepository extends JpaRepository<ExpedientTipus, 
 			+ "			and (:nomesIniciats = false or e.dataFi is null) "
 			+ "			and (:nomesFinalitzats = false or e.dataFi is not null) "
             + "			and (:isNullAturat = true or true = :aturat) "
+            + "			and (:isEstatIdNull = true or e.estat.id = :estatId) "
             + " group by "
             + "        et.id, "
             + "        et.codi, "
@@ -173,6 +142,8 @@ public interface ExpedientTipusRepository extends JpaRepository<ExpedientTipus, 
             @Param("titol") String titol, 
             @Param("nomesIniciats") boolean nomesIniciats,
 			@Param("nomesFinalitzats") boolean nomesFinalitzats,
+			@Param("isEstatIdNull") boolean isEstatIdNull,
+			@Param("estatId") Long estatId,
             @Param("isNullAturat") boolean isNullAturat,
             @Param("aturat") Boolean aturat
             );

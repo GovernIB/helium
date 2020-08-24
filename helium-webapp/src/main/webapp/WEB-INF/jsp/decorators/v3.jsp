@@ -189,11 +189,12 @@
 
 						<a id="menuExpedients" class="btn btn-primary" href="${expedientsUrl}"><spring:message code="decorator.menu.expedients"/></a>
 
+						<a id="menuTasques" class="btn btn-primary" href="<c:url value="/v3/tasca"/>"><spring:message code="decorator.menu.tasques"/></a>
+
 						<c:if test="${dadesPersona.admin || potProcessarAnotacions}">
 							<a id="menuAnotacions" class="btn btn-primary" href="<c:url value="/v3/anotacio"/>"><spring:message code="decorator.menu.anotacions"/></a>
 						</c:if>
 											
-						<a id="menuTasques" class="btn btn-primary" href="<c:url value="/v3/tasca"/>"><spring:message code="decorator.menu.tasques"/></a>
 						<c:if test="${potDissenyarEntorn or potDissenyarExpedientTipus}">
 							<div id="menuDisseny" class="btn-group" >
 								<button class="btn btn-primary dropdown-toggle" data-toggle="dropdown"><spring:message code="comuns.disseny"/> <span class="caret"></span></button>

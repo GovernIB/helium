@@ -701,8 +701,10 @@ public class DominiHelper {
 	
 	public List<FilaResultat> unitatOrganica(Map<String, Object> parametres) {
 		List<FilaResultat> resposta = new ArrayList<FilaResultat>();
+		UnitatOrganica uo = null;
 		String codi = (String)parametres.get("unitat");
-		UnitatOrganica uo = pluginHelper.findUnitatOrganica(codi);
+		if (codi != null)
+			uo = pluginHelper.findUnitatOrganica(codi);
 		if(uo != null) {
 			FilaResultat fila = new FilaResultat();
 			fila.addColumna(new ParellaCodiValor("codiDenominacio", uo.getCodi() + " - " + uo.getDenominacio()));

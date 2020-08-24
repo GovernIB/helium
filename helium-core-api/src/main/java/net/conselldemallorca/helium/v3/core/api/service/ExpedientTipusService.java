@@ -1147,14 +1147,7 @@ public interface ExpedientTipusService {
 			String clasificacion,
 			String serieDocumental,
 			boolean arxiuActiu);	
-	
-	public List<ExpedientTipusEstadisticaDto> findEstadisticaByFiltre(
-			Integer anyInicial, 
-			Integer anyFinal,
-			Long entornId,
-			Long expedientTipusId,
-			Boolean anulats);
-	
+		
 	public List<ExpedientTipusEstadisticaDto> findEstadisticaByFiltre(
 			Integer anyInicial, 
 			Integer anyFinal,
@@ -1164,6 +1157,7 @@ public interface ExpedientTipusService {
 			String numero,
 			String titol,
 			EstatTipusDto estatTipus,
+			Long estatId,
 			Boolean aturat
 			);
 	

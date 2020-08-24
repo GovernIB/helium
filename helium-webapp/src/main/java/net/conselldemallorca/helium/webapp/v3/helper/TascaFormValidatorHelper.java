@@ -359,13 +359,14 @@ public class TascaFormValidatorHelper implements Validator {
 			} else if (camp.isCampMultiple()) {
 				Integer index = 0;
 				for (TascaDadaDto registreDada : camp.getMultipleDades()) {
-					// Crida la validació per cada dada múltiple
-					this.getValidadorPerCamp(
-							registreDada, //
-							camp, // registre
-							index++,
-							command, 
-							beanValidationConfiguration);
+					if (registreDada.getVarValor() != null)
+						// Crida la validació per cada dada múltiple
+						this.getValidadorPerCamp(
+								registreDada, //
+								camp, // registre
+								index++,
+								command, 
+								beanValidationConfiguration);
 				}
 			}				
 		}

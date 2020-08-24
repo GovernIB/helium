@@ -856,8 +856,8 @@ public abstract class BasicActionHandler extends AbstractHeliumActionHandler imp
 	 * 
 	 * @param processInstanceId
 	 */
-	public void instanciaProcesReindexar(long processInstanceId) {
-		Jbpm3HeliumBridge.getInstanceService().expedientReindexar(
+	public boolean instanciaProcesReindexar(long processInstanceId) {
+		return Jbpm3HeliumBridge.getInstanceService().expedientReindexar(
 				new Long(processInstanceId).toString());
 	}
 

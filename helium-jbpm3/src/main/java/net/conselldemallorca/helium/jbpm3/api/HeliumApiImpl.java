@@ -749,12 +749,14 @@ public class HeliumApiImpl implements HeliumApi {
 	}
 	
 	@Override
-	public void expedientReindexar() {
+	public boolean expedientReindexar() {
+		boolean success;
 		try {
-			Jbpm3HeliumBridge.getInstanceService().expedientReindexar(getProcessInstanceId());
+			success = Jbpm3HeliumBridge.getInstanceService().expedientReindexar(getProcessInstanceId());
 		} catch (Exception ex) {
 			throw new HeliumHandlerException("No s'ha pogut reindexar l'expedient", ex);
 		}
+		return success;
 	}
 	
 	@Override

@@ -366,8 +366,9 @@ public interface Jbpm3HeliumService {
 	 * @param processInstanceId
 	 * @throws ProcessInstanceNotFoundException
 	 * @throws ExpedientNotFoundException
+	 * @return Retorna true si no hi ha hagut cap error en la reindexació i false si hi ha hagut algun error i l'expedient ha quedat amb estat d'error.
 	 */
-	public void expedientReindexar(
+	public boolean expedientReindexar(
 			String processInstanceId) throws NoTrobatException;
 	
 	/**

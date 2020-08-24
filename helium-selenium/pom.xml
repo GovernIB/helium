@@ -58,7 +58,6 @@
 		    <artifactId>cxf-rt-frontend-jaxws</artifactId>
 		    <version>${cxf.version}</version>
 		</dependency>
-		
 		<dependency>
 		    <groupId>org.apache.cxf</groupId>
 		    <artifactId>cxf-rt-transports-http</artifactId>
@@ -142,6 +141,13 @@
     	  	<artifactId>sikulixapi</artifactId>
       		<version>1.1.0</version>
     	</dependency>	
+    	
+    	<!-- Spring -->
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-context</artifactId>
+			<version>${spring.version}</version>
+		</dependency>
 	</dependencies>
 	<build>
 		<plugins>

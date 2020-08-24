@@ -169,20 +169,24 @@ $(document).ready(function() {
 		refrescarAlertes: true,
 		refrescarPagina: false,
 		ajaxRefrescarAlertes: true,
-		alertesRefreshUrl: '<c:url value="/nodeco/v3/missatges"/>'
+		alertesRefreshUrl: '<c:url value="/nodeco/v3/missatges"/>',
+		callback: refrescarEstatExpedient()
 	});
 	$('.var-edit').heliumEvalLink({
 		refrescarAlertes: true,
 		refrescarPagina: false,
 		ajaxRefrescarAlertes: true,
-		alertesRefreshUrl: '<c:url value="/nodeco/v3/missatges"/>'
+		alertesRefreshUrl: '<c:url value="/nodeco/v3/missatges"/>',
+		callback: refrescarEstatExpedient()
 	});
 	$('.btnNovaDada a').heliumEvalLink({
 		refrescarAlertes: true,
 		refrescarPagina: false,
 		ajaxRefrescarAlertes: true,
-		alertesRefreshUrl: '<c:url value="/nodeco/v3/missatges"/>'
+		alertesRefreshUrl: '<c:url value="/nodeco/v3/missatges"/>',
+		callback: refrescarEstatExpedient()
 	});
+	refrescarEstatExpedient();
 });
 
 function updateBadges() {
@@ -199,17 +203,20 @@ function updatePanell() {
 		refrescarAlertes: true,
 		refrescarPagina: false,
 		ajaxRefrescarAlertes: true,
-		alertesRefreshUrl: '<c:url value="/nodeco/v3/missatges"/>'
+		alertesRefreshUrl: '<c:url value="/nodeco/v3/missatges"/>',
+		callback: refrescarEstatExpedient()
 	});
 	$('.var-edit', panell).heliumEvalLink({
 		refrescarAlertes: true,
 		refrescarPagina: false,
 		ajaxRefrescarAlertes: true,
-		alertesRefreshUrl: '<c:url value="/nodeco/v3/missatges"/>'
+		alertesRefreshUrl: '<c:url value="/nodeco/v3/missatges"/>',
+		callback: refrescarEstatExpedient()
 	});
 	$('.icon', panell).heliumEvalLink({
 		refrescarAlertes: true,
-		refrescarPagina: false
+		refrescarPagina: false,
+		callback: refrescarEstatExpedient()
 	});
 }
 </script>

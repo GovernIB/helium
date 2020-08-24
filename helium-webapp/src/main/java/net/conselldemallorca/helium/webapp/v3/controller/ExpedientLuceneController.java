@@ -225,12 +225,19 @@ public class ExpedientLuceneController extends BaseExpedientController {
 			@PathVariable Long expedientId, 
 			Model model) {
 		try {
-			expedientService.luceneReindexarExpedient(expedientId);
-			MissatgesHelper.success(
-					request,
-					getMessage(
-							request,
-							"info.expedient.reindexat"));
+			if (expedientService.luceneReindexarExpedient(expedientId))
+				MissatgesHelper.success(
+						request,
+						getMessage(
+								request,
+								"info.expedient.reindexat"));
+			else
+				MissatgesHelper.error(
+						request,
+						getMessage(
+								request,
+								"info.expedient.reindexat.error"));
+				
 		} catch (Exception ex) {
 			MissatgesHelper.error(request, getMessage(request, "error.reindexar.expedient") + ". " + ex.getMessage());
 		}

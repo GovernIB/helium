@@ -451,8 +451,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 				false,
 				false);
 		
-		indexHelper.expedientIndexLuceneRecrear(expedient);
-		return true;
+		return indexHelper.expedientIndexLuceneRecrear(expedient);
 	}
 	
 	/**

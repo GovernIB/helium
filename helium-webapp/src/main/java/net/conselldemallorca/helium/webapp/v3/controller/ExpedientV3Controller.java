@@ -124,12 +124,18 @@ public class ExpedientV3Controller extends BaseExpedientController {
 			@PathVariable Long expedientId, 
 			Model model) {
 		try {
-			expedientService.luceneReindexarExpedient(expedientId);
-			MissatgesHelper.success(
-					request,
-					getMessage(
-							request,
-							"info.expedient.reindexat"));
+			if (expedientService.luceneReindexarExpedient(expedientId))
+				MissatgesHelper.success(
+						request,
+						getMessage(
+								request,
+								"info.expedient.reindexat"));
+			else 
+				MissatgesHelper.error(
+						request,
+						getMessage(
+								request,
+								"info.expedient.reindexat.error"));
 		} catch (Exception ex) {
 			MissatgesHelper.error(request, getMessage(request, "error.reindexar.expedient") + ". " + ex.getMessage());
 		}
@@ -350,6 +356,17 @@ public class ExpedientV3Controller extends BaseExpedientController {
 		}
 		data.put("estat", estat);
 		data.put("dataFi", dataFi != null? sdf.format(dataFi) : null);
+		data.put("ambErrors", expedient.isAmbErrors());
+		data.put("aturat", expedient.isAturat());
+		data.put("anulat", expedient.isAnulat());
+		data.put("anulatComentari", expedient.getComentariAnulat());
+		data.put("alertesTotals", expedient.getAlertesTotals());
+		data.put("alertesPendents", expedient.getAlertesPendents());
+		data.put("reindexarData", (expedient.getReindexarData() != null) ?
+				sdf.format(expedient.getReindexarData())
+				: null);
+		data.put("reindexarError", expedient.isReindexarError());
+		
 		return data;
 	}
 

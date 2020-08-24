@@ -1456,6 +1456,8 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 						exp.getProcessInstanceId(),
 						aux.getCodi());
 			}
+			String documentCodi = aux != null ? aux.getCodi() : null;
+			boolean isAdjunt = documentCodi == null;
 			if (contingut == null) {
 				// Autogenerar
 				if (nom.equals("generate")) {
@@ -1470,7 +1472,7 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 						documentHelper.crearActualitzarDocument(
 								null,
 								exp.getProcessInstanceId(),
-								aux.getCodi(),
+								documentCodi,
 								new Date(),
 								arxiu.getNom(),
 								arxiu.getContingut(),
@@ -1537,10 +1539,10 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 					documentHelper.crearDocument(
 							null,
 							exp.getProcessInstanceId(),
-							null,
+							documentCodi,
 							data,
-							true,
-							nom,
+							isAdjunt,
+							isAdjunt ? nom : null,
 							fileName,
 							contingut,
 							arxiuContentType,
@@ -1593,9 +1595,13 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 		Expedient exp = ome.getExpedient();
 		try {
 			ome.setDataInici(new Date());
-			//indexHelper.expedientIndexLuceneUpdate(exp.getProcessInstanceId(), true);
-			expedientService.luceneReindexarExpedient(exp.getId());
-			ome.setEstat(ExecucioMassivaEstat.ESTAT_FINALITZAT);
+			if (expedientService.luceneReindexarExpedient(exp.getId()))
+				ome.setEstat(ExecucioMassivaEstat.ESTAT_FINALITZAT);
+			else {
+				ome.setEstat(ExecucioMassivaEstat.ESTAT_ERROR);
+				ome.setError("No s'ha reindexat tot l'expedient correctament, cal entrar a revisar les dades");
+				ome.setAuxText("El procés de reindexació ha retornat que no s'ha reindexar totalment l'expeient, cal entrar en la gestió de l'expedient per revisar les dades");
+			}
 			ome.setDataFi(new Date());
 			execucioMassivaExpedientRepository.saveAndFlush(ome);
 		} catch (Exception ex) {

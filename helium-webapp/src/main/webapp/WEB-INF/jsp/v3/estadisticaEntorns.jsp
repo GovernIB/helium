@@ -88,6 +88,23 @@ $(document).ready(function() {
 			console.log($(this).attr("url"));
 			$("#excel").submit();
 		});
+
+		$('#expedientTipusId').on('change', function() {
+			var tipus = $(this).val();
+			if (!tipus)
+				tipus = '0';
+			$('#estat').select2('val', '', true);
+			$('#estat option[value!=""]').remove();
+			$.get('<c:url value="/v3/estadistica/estatsPerTipus/"/>' + tipus)
+			.done(function(data) {
+				for (var i = 0; i < data.length; i++) {
+					$('#estat').append('<option value="' + data[i].codi + '">' + data[i].valor + '</option>');
+				}
+			})
+			.fail(function() {
+				alert("<spring:message code="expedient.llistat.estats.ajax.error"/>");
+			});
+		});
 });
 </script>
 </head>
@@ -104,7 +121,7 @@ $(document).ready(function() {
 				<hel:inputSelect emptyOption="true" name="expedientTipusId" textKey="expedient.llistat.filtre.camp.expedient.tipus" placeholderKey="expedient.llistat.filtre.camp.expedient.tipus" optionItems="${expedientsTipus}" optionValueAttribute="id" optionTextAttribute="nom" disabled="${not empty expedientTipusActual}" inline="true"/>
 			</div>
 			<div class="col-md-3">
-				<hel:inputSelect emptyOption="true" name="estatText" textKey="expedient.llistat.filtre.camp.estat" placeholderKey="expedient.llistat.filtre.camp.estat" optionItems="${estatsList}" optionValueAttribute="codi" optionTextAttribute="nom" inline="true"/>
+				<hel:inputSelect emptyOption="true" name="estat" textKey="expedient.llistat.filtre.camp.estat" placeholderKey="expedient.llistat.filtre.camp.estat" optionItems="${estats}" optionValueAttribute="codi" optionTextAttribute="valor" inline="true"/>
 			</div>
 			<div class="col-md-3">
 				<label><spring:message code="expedient.info.aturat"/></label>

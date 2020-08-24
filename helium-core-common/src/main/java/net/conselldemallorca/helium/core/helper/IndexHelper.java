@@ -331,7 +331,7 @@ public class IndexHelper {
 		}
 	}
 
-	public void expedientIndexLuceneRecrear(Expedient expedient) {
+	public boolean expedientIndexLuceneRecrear(Expedient expedient) {
 		// Mètriques - Timers
 		Timer.Context contextDadesTotal = null;
 		Timer.Context contextDadesEntorn = null;
@@ -448,6 +448,7 @@ public class IndexHelper {
 		}
 		expedient.setReindexarError(!actualitzat);
 		expedientRepository.saveAndFlush(expedient);
+		return actualitzat;
 	}
 
 	/** Mètode per esborrar una camp específic de l'índex. */

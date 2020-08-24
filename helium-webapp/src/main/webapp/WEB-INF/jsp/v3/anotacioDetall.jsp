@@ -333,7 +333,7 @@ tr.clicable {
 							    $("#collapse-registre-firmes-<c:out value='${annex.id}'/>").on('show.bs.collapse', function(data){  	
 								    if (!$(this).data("loaded")) {
 								        var annexId = $(this).data("annexId");
-								        $(this).append("<div style='text-align: center; margin-bottom: 60px; margin-top: 60px;''><span class='fa fa-circle-o-notch fa-spin fa-3x'/></div>");
+								        $(this).append("<div style='text-align: center; margin-bottom: 60px; margin-top: 60px;''><span class='fa fa-circle-o-notch fa-spin fa-3x' title='<spring:message code="anotacio.annex.detalls.annex.firmes.consultant" />'/></div>");
 								        $(this).load('<c:url value="/nodeco/v3/anotacio/${anotacio.id}/annex/"/>' + ${annex.id} + '/firmaInfo');
 								        $(this).data("loaded", true);
 								    }
@@ -383,6 +383,15 @@ tr.clicable {
 									<tr>
 										<td><strong><spring:message code="anotacio.annex.detalls.camp.sicres.tipus.document"/></strong></td>
 										<td><c:if test="${not empty annex.sicresTipoDocumento}"><spring:message code="anotacio.annex.detalls.camp.sicresTipusDocument.${annex.sicresTipoDocumento}"/></c:if></td>
+									</tr>
+									<tr>
+										<td><strong><spring:message code="anotacio.annex.detalls.camp.arxiu.uuid"/></strong></td>
+										<td>
+											${annex.uuid}
+											<c:if test="${annex.uuid == null }">
+												<span class="fa fa-warning text-warning" title="<spring:message code="anotacio.annex.detalls.camp.arxiu.uuid.buit.avis"/>"></span>
+											</c:if>
+										</td>
 									</tr>
 								
 									<c:if test="${not empty annex.observacions}">

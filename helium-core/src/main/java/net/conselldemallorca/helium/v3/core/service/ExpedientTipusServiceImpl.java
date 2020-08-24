@@ -21,6 +21,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.security.acls.domain.BasePermission;
 import org.springframework.security.acls.model.Permission;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -1563,6 +1564,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 					},
 					ExpedientTipus.class,
 					new Permission[] {
+							BasePermission.ADMINISTRATION,
 							ExtendedPermission.RELATE},
 					auth);
 		}
@@ -3532,36 +3534,6 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 				ExpedientTipusDto.class);
 	}
 	
-	@Override
-	public List<ExpedientTipusEstadisticaDto> findEstadisticaByFiltre(
-			Integer anyInicial, 
-			Integer anyFinal,
-			Long entornId,
-			Long expedientTipusId,
-			Boolean anulats) {
-
-
-		Entorn entorn = entornHelper.getEntornComprovantPermisos(
-				entornId,
-				true);
-		ExpedientTipus expedientTipus = null;
-		if(expedientTipusId != null) {
-			expedientTipus = expedientTipusRepository.findOne(expedientTipusId);
-		}
-		
-		List<ExpedientTipusEstadisticaDto> et = expedientTipusRepository.findEstadisticaByFiltre(
-				anyInicial == null,
-				anyInicial,
-				anyFinal == null,
-				anyFinal,
-				entorn,
-				expedientTipus == null,
-				expedientTipus,
-				anulats == null,
-				anulats);
-		return et;
-	}
-	
 	/**
 	 * {@inheritDoc}
 	 */
@@ -3632,18 +3604,10 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 			String numero, 
 			String titol, 
 			EstatTipusDto estatTipus,
+			Long estatId,
 			Boolean aturat) {
 		
-		/*Estat estat = null;
-		if (estatId != null) {
-			estat = estatRepository.findByExpedientTipusAndIdAmbHerencia(
-					expedientTipusId, 
-					estatId);
-			if (estat == null) {
-				logger.debug("No s'ha trobat l'estat (expedientTipusId=" + expedientTipusId + ", estatId=" + estatId + ")");
-				throw new NoTrobatException(Estat.class,estatId);
-			}
-		}*/
+		
 		Entorn entorn = entornHelper.getEntornComprovantPermisos(
 				entornId,
 				true);
@@ -3651,7 +3615,22 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		if(expedientTipusId != null) {
 			expedientTipus = expedientTipusRepository.findOne(expedientTipusId);
 		}
-		
+		// Comprova l'accés a l'estat
+		Estat estat = null;
+		if (estatId != null) {
+			if (estatId > 0) {
+				estat = estatRepository.findByExpedientTipusAndIdAmbHerencia(
+						expedientTipus.getId(), 
+						estatId);
+				if (estat == null) {
+					logger.debug("No s'ha trobat l'estat (expedientTipusId=" + expedientTipusId + ", estatId=" + estatId + ")");
+					throw new NoTrobatException(Estat.class,estatId);
+				}
+			} else {
+				// Estat iniciat o finaltizat
+				estatId = null;
+			}
+		}		
 		
 		return expedientTipusRepository.findEstadisticaByFiltre(
 											anyInicial == null,
@@ -3669,6 +3648,8 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 											titol, 
 											EstatTipusDto.INICIAT.equals(estatTipus),
 											EstatTipusDto.FINALITZAT.equals(estatTipus),
+											estatId == null,
+											estatId,
 											aturat == null,
 											aturat);
 	}

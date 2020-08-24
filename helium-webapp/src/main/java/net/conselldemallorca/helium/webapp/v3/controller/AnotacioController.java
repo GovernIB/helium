@@ -392,21 +392,28 @@ public class AnotacioController extends BaseExpedientController {
 			model.addAttribute("anotacio", anotacio);			
 			return "v3/anotacioRebutjar";
 		}		
+		String ret;
 		try {
 			anotacioService.rebutjar(
 					anotacioId, 
 					command.getObservacions());
+			MissatgesHelper.success(
+					request, 
+					getMessage(
+							request, 
+							"anotacio.form.rebutjar.accio.rebutjar.success"));
+			ret = this.modalUrlTancar(false);
 		} catch(Exception e) {
-			return getModalControllerReturnValueError(
-					request,
-					"redirect:/v3/anotacio",
-					"anotacio.form.rebutjar.accio.rebutjar.error",
-					new Object[] {e.getMessage()});
+			model.addAttribute("anotacio", anotacio);
+			MissatgesHelper.error(
+					request, 
+					getMessage(
+							request, 
+							"anotacio.form.rebutjar.accio.rebutjar.error",
+							new Object[] {e.getMessage()}));
+			ret = "v3/anotacioRebutjar";
 		}
-		return getModalControllerReturnValueSuccess(
-				request,
-				"redirect:/v3/anotacio",
-				"anotacio.form.rebutjar.accio.rebutjar.success");
+		return ret; 
 	}
 	
 	/** Mètode per esborrar una petició d'anotació pendent. Comprova que estigui pendent.

@@ -415,8 +415,9 @@ public interface HeliumApi {
 	public void expedientReprendre() throws HeliumHandlerException;
 	/**
 	 * Executa una reindexació de l'expedient actual
+	 * @return Retorna true si no hi ha hagut cap error en la reindexació i false si hi ha hagut algun error i l'expedient ha quedat amb estat d'error.
 	 */
-	public void expedientReindexar();
+	public boolean expedientReindexar();
 	/**
 	 * Redirigeix un token de l'expedient cap a un node determinat
 	 * 

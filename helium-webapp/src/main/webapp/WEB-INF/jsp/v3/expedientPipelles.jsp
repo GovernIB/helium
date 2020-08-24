@@ -127,6 +127,11 @@ dd.subproc {
 		<c:if test="${refrescaSegonPla}">
 			setInterval(refrescaEstatSegonPla, (${refrescaSegonPlaPeriode} * 1000));
 		</c:if>
+		<c:if test="${expedient.reindexarData != null}">
+		setTimeout( function(){ 
+				refrescarEstatExpedient();
+		 	}  , 5000 );
+		</c:if>
 	});
 	function refrescaEstatSegonPla() {
 		var tasquesSegonPlaIds = [];
@@ -244,6 +249,8 @@ dd.subproc {
 	}
 	/** Refresca l'estat i la data de fi de l'expedient quan hi ha accions sobre les tasques. */
 	function refrescarEstatExpedient() {
+		console.log('refrescarEstatExpedient');
+		
 		var getUrl = '<c:url value="/v3/expedient/${expedientId}/consultaEstat"/>';
 		$.ajax({
 			type: 'GET',
@@ -259,6 +266,27 @@ dd.subproc {
 				$('#expedientDataFi').find('dd').html(data.dataFi);
 				// estat
 				$('#expedientEstat').html(data.estat);
+				// Reindexació
+				if(data.reindexarData || data.reindexarError) {
+					let title = "";
+					if (data.reindexarData) {
+						title = "<spring:message code='expedient.consulta.reindexacio.asincrona.amb.data'/> " + data.reindexarData + ". ";
+						// Programa un refresc de l'estat
+						setTimeout( function(){ 
+							refrescarEstatExpedient();
+					 	}  , 5000 );
+					}
+					if (data.reindexarError) {
+						title ="<spring:message code='expedient.consulta.reindexacio.error.full'/>.";
+						$('#reindexarEstat span').addClass('text-danger');
+					} else {
+						$('#reindexarEstat span').removeClass('text-danger');
+					}
+					$('#reindexarEstat span').attr('title', title);
+					$('#reindexarEstat').show();
+				} else {
+					$('#reindexarEstat').hide();
+				}
 			},
 			error: function(e) {
 				console.log("Error refrescant l'estat de l'expedient: " + e);
@@ -327,13 +355,11 @@ dd.subproc {
 									</c:if>
 							</c:if>
 							<!-- per marcar l'expedient amb error de sincronització -->
-							<c:if test="${not empty expedient.reindexarData || expedient.reindexarError}">
-								<a id="lucene" data-toggle="modal" data-maximized="true" href="<c:url value="/v3/expedient/lucene/${expedientId}"/>">	
-									<span class="fa fa-refresh <c:if test='${expedient.reindexarError}'>text-danger</c:if> pull-right"
-										title="<c:if test='${expedient.reindexarData != null}'> <spring:message code='expedient.consulta.reindexacio.asincrona.data' arguments='${expedient.reindexarData}'/>. </c:if>
-											   <c:if test='${expedient.reindexarError}'> <spring:message code='expedient.consulta.reindexacio.error.full'/>. </c:if>"></span>
-							   </a>
-							</c:if>
+							<a id ="reindexarEstat" style="display:${(not empty expedient.reindexarData || expedient.reindexarError) ? 'inline' : 'none'};" data-toggle="modal" data-maximized="true" href="<c:url value="/v3/expedient/lucene/${expedientId}"/>">
+								<span class="fa fa-refresh <c:if test='${expedient.reindexarError}'>text-danger</c:if> pull-right"
+									title="<c:if test='${expedient.reindexarData != null}'> <spring:message code='expedient.consulta.reindexacio.asincrona.data' arguments='${expedient.reindexarData}'/>. </c:if>
+										   <c:if test='${expedient.reindexarError}'> <spring:message code='expedient.consulta.reindexacio.error.full'/>. </c:if>"></span>
+						    </a>
 						</span>
 					</dd>
 					<dt><spring:message code="expedient.info.camp.defproc"/></dt>

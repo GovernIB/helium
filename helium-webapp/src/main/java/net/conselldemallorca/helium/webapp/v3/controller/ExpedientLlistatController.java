@@ -217,7 +217,7 @@ public class ExpedientLlistatController extends BaseExpedientController {
 	}
 
 	@ModelAttribute("anulats")
-	public List<ParellaCodiValorDto> populateEstats(HttpServletRequest request) {
+	public List<ParellaCodiValorDto> populateAnulats(HttpServletRequest request) {
 		List<ParellaCodiValorDto> resposta = new ArrayList<ParellaCodiValorDto>();
 		resposta.add(new ParellaCodiValorDto(getMessage(request, "enum.no"), MostrarAnulatsDto.NO));
 		resposta.add(new ParellaCodiValorDto(getMessage(request, "enum.si"), MostrarAnulatsDto.SI));

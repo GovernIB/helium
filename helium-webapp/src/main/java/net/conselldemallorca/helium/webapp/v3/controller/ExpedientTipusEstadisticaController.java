@@ -27,13 +27,16 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import net.conselldemallorca.helium.core.util.EntornActual;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto.EstatTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusEstadisticaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.MostrarAnulatsDto;
@@ -76,7 +79,7 @@ public class ExpedientTipusEstadisticaController extends BaseController {
 							"error.permis.administracio.entorn"));
 
 		}
-		
+			
 		ExpedientTipusEstadisticaCommand filtreCommand = new ExpedientTipusEstadisticaCommand();
 		
 		
@@ -107,15 +110,9 @@ public class ExpedientTipusEstadisticaController extends BaseController {
 																							anulats, 
 																							filtreCommand.getNumero(), 
 																							filtreCommand.getTitol(), 
-																							filtreCommand.getEstatTipus(), 
+																							this.getEstatTipus(filtreCommand.getEstat()), 
+																							this.getEstatId(filtreCommand.getEstat()),
 																							filtreCommand.getAturat());
-				/*findEstadisticaByFiltre(
-																				filtreCommand.getAnyInicial(), 
-																				filtreCommand.getAnyFinal(), 
-																				EntornActual.getEntornId(), 
-																				filtreCommand.getExpedientTipusId(), 
-																				anulats,
-																				);*/
 		TreeSet<String> anys = new TreeSet<String>();
 		Map<String, String> titols = new HashMap<String, String>();  
 		Map<String, Map<String, Object>> ete = new TreeMap<String, Map<String, Object>>();
@@ -154,34 +151,84 @@ public class ExpedientTipusEstadisticaController extends BaseController {
 
 		model.addAttribute("expedientsTipus", expedientsTipus);
 		
-		List<EstatDto> estats = new ArrayList<EstatDto>();
+		// Estats
+		model.addAttribute("estats", this.getEstatsModel(request, filtreCommand.getExpedientTipusId()));
 		
-		estats.add(
-				0,
-				new EstatDto(
-						0L,
-						"INICIAT",
-						getMessage(
-								request,
-								"expedient.consulta.iniciat")));
-		estats.add(
-				new EstatDto(
-						-1L,
-						"FINALITZAT",
-						getMessage(
-								request,
-								"expedient.consulta.finalitzat")));
-		model.addAttribute(
-				"estatsList",
-				estats);
 		
-		/*for(ExpedientTipusDto etip : expedientsTipus) {
-			List<EstatDto> e = expedientTipusService.estatFindAll(etip.getId(), true);
-			estats.addAll(e);
-		}*/
-
 		return "v3/estadisticaEntorns";
 	}
+	
+	/** Obté la llista de parelles codi valor pel model d'estats amb l'estat inicialitzat i finalitzat
+	 * 
+	 * @param request Petició per saber l'idioma dels missatges.
+	 * @param expedientTipusId
+	 * @return
+	 */
+	private List<ParellaCodiValorDto> getEstatsModel(HttpServletRequest request, Long expedientTipusId) {
+		List<ParellaCodiValorDto> estats = new ArrayList<ParellaCodiValorDto>();
+		// INICIAT
+		estats.add(new ParellaCodiValorDto(EstatTipusDto.INICIAT.toString(), getMessage(
+								request,
+								"expedient.consulta.iniciat")));
+		if (expedientTipusId != null 
+				&& expedientTipusId > 0) {		
+			// Estats tipus d'expedient
+			for(EstatDto e : expedientTipusService.estatFindAll(expedientTipusId, true)){
+				estats.add(new ParellaCodiValorDto(String.valueOf(e.getId()), e.getNom()));
+			}
+		}
+		// FINALITZAT
+		estats.add(new ParellaCodiValorDto(EstatTipusDto.FINALITZAT.toString(), getMessage(
+				request,
+				"expedient.consulta.finalitzat")));
+		return estats;
+	}
+
+	/** Mètode per consultar els estats per tipus d'expedient quan canviï la selecció del tipus d'expedient.
+	 * 
+	 * @param request
+	 * @param expedientTipusId
+	 * @return
+	 */
+	@RequestMapping(value = "/estatsPerTipus/{expedientTipusId}", method = RequestMethod.GET)
+	@ResponseBody
+	public List<ParellaCodiValorDto> estatsPerExpedientTipus(
+			HttpServletRequest request,
+			@PathVariable Long expedientTipusId) {
+		return this.getEstatsModel(request, expedientTipusId);
+	}
+
+
+	/** Si estat és un identificador llavors retorna tipus CUSTOM, si no el corresponent a INICIAT o FINALITZAT.
+	 * 
+	 * @param estat Conté el text del tipus o l'id.
+	 * @return
+	 */
+	private EstatTipusDto getEstatTipus(String estat) {
+		EstatTipusDto estatTipus;
+		try {
+			estatTipus = EstatTipusDto.valueOf(estat);
+		} catch(Exception e) {
+			estatTipus = EstatTipusDto.CUSTOM;
+		}
+		return estatTipus;
+	}
+
+	/** Si estat conté un identificador llavors el retorna, si no null.
+	 * 
+	 * @param estat
+	 * @return
+	 */
+	private Long getEstatId(String estat) {
+		Long estatId;
+		try {
+			estatId = Long.parseLong(estat);
+		} catch (Exception e) {
+			estatId = null;
+		}
+		return estatId;
+	}
+
 	
 	@RequestMapping(value = "excel", method = RequestMethod.POST)
 	public void excel(
@@ -195,12 +242,6 @@ public class ExpedientTipusEstadisticaController extends BaseController {
 			anulats = true;
 		if(filtreCommand.getMostrarAnulats().equals(MostrarAnulatsDto.NO))
 			anulats = false;
-		/*List<ExpedientTipusEstadisticaDto> et = expedientTipusService.findEstadisticaByFiltre(
-																				filtreCommand.getAnyInicial(), 
-																				filtreCommand.getAnyFinal(), 
-																				EntornActual.getEntornId(), 
-																				filtreCommand.getExpedientTipusId(), 
-																				anulats);*/
 		List<ExpedientTipusEstadisticaDto> et = expedientTipusService.findEstadisticaByFiltre(
 																			filtreCommand.getAnyInicial(), 
 																			filtreCommand.getAnyFinal(), 
@@ -209,7 +250,8 @@ public class ExpedientTipusEstadisticaController extends BaseController {
 																			anulats, 
 																			filtreCommand.getNumero(), 
 																			filtreCommand.getTitol(), 
-																			filtreCommand.getEstatTipus(), 
+																			this.getEstatTipus(filtreCommand.getEstat()), 
+																			this.getEstatId(filtreCommand.getEstat()),
 																			filtreCommand.getAturat());
 		TreeSet<String> anys = new TreeSet<String>();
 		Map<String, String> titols = new HashMap<String, String>();  
@@ -422,7 +464,7 @@ public class ExpedientTipusEstadisticaController extends BaseController {
 	}
 				
 	@ModelAttribute("anulats")
-	public List<ParellaCodiValorDto> populateEstats(HttpServletRequest request) {
+	public List<ParellaCodiValorDto> populateAnulats(HttpServletRequest request) {
 		List<ParellaCodiValorDto> resposta = new ArrayList<ParellaCodiValorDto>();
 		resposta.add(new ParellaCodiValorDto(getMessage(request, "enum.no"), MostrarAnulatsDto.NO));
 		resposta.add(new ParellaCodiValorDto(getMessage(request, "enum.si"), MostrarAnulatsDto.SI));
