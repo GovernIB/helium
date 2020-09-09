@@ -154,7 +154,7 @@ $(document).ready(function() {
 			</div>
 			<div class="col-md-12 d-flex align-items-end">
 				<div class="pull-right">
-					<input type="hidden" name="consultaRealitzada" value="true"/>
+					<button id="consultar" type="submit" name="accio" value="consultar" class="btn btn-primary" url="" style="display: none;"><span class="fa fa-filter"></span>&nbsp;<spring:message code="comu.filtre.filtrar"/></button>
 					<button id="exportar_excel" class="btn btn-default" url=""><span class="fa fa-download"></span>&nbsp;<spring:message code="expedient.tipus.document.llistat.accio.descarregar"/></button>
 					<button id="netejar" type="submit" name="accio" value="netejar" class="btn btn-default" url=""><spring:message code="comu.filtre.netejar"/></button>
 					<button id="consultar" type="submit" name="accio" value="consultar" class="btn btn-primary" url=""><span class="fa fa-filter"></span>&nbsp;<spring:message code="comu.filtre.filtrar"/></button>

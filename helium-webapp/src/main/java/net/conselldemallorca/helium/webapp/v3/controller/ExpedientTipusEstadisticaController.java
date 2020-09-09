@@ -1,5 +1,6 @@
 package net.conselldemallorca.helium.webapp.v3.controller;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -61,47 +62,50 @@ public class ExpedientTipusEstadisticaController extends BaseController {
 	@Autowired
 	protected DissenyService dissenyService;
 
-
-	@RequestMapping(method = RequestMethod.GET)
-	public String llistat(
+	/** Resposta GET i POST de la pàgina i formulari d'estadístiques.
+	 * 
+	 * @param request
+	 * @param model
+	 * @return Retorna com si fos una crida post de consulta.
+	 */
+	@RequestMapping(method = {RequestMethod.GET, RequestMethod.POST})
+	public String estadistiques(
 			HttpServletRequest request,
+			ExpedientTipusEstadisticaCommand filtreCommand,
+			@RequestParam(value = "accio", required = false) String accio,
 			Model model) {
-		model.addAttribute(new ExpedientTipusEstadisticaCommand());		
-		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
-		List<ExpedientTipusDto> expedientsTipus = expedientTipusService.findAmbEntornPermisDissenyar(entornActual.getId());
-		model.addAttribute("expedientsTipus", expedientsTipus);
+		
+		if (accio != null && "netejar".equals(accio))
+			filtreCommand = new ExpedientTipusEstadisticaCommand();
+		
+		// Torna a omplir el model
+		model.addAttribute("expedientTipusEstadisticaCommand", filtreCommand);		
+		// Valida l'accés a l'entorn
 		Boolean potAdministrarEntorn = SessionHelper.getSessionManager(request).getPotAdministrarEntorn();
-		if (!Boolean.TRUE.equals(potAdministrarEntorn)) {
+		if (potAdministrarEntorn != null && !potAdministrarEntorn) {
 			MissatgesHelper.error(
 					request,
 					getMessage(
 							request,
 							"error.permis.administracio.entorn"));
+			return "v3/estadisticaEntorns";
 
 		}
-			
-		ExpedientTipusEstadisticaCommand filtreCommand = new ExpedientTipusEstadisticaCommand();
-		
-		
-		return form(request, filtreCommand,null,"",model);
-	}
-	
-	@RequestMapping(method = RequestMethod.POST)
-	public String form(
-			HttpServletRequest request,
-			ExpedientTipusEstadisticaCommand filtreCommand,
-			BindingResult bindingResult,
-			@RequestParam(value = "accio", required = false) String accio,
-			Model model) {
-		
-		if ("netejar".equals(accio))
-			filtreCommand = new ExpedientTipusEstadisticaCommand();
+		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
+		// Afegeix els diferents tipus d'expedient al model
+		List<ExpedientTipusDto> expedientsTipus = expedientTipusService.findAmbEntornPermisDissenyar(entornActual.getId());
+		model.addAttribute("expedientsTipus", expedientsTipus);
+		// Estats
+		model.addAttribute("estats", this.getEstatsModel(request, filtreCommand.getExpedientTipusId()));
+
 		
 		Boolean anulats = null;
-		if(filtreCommand.getMostrarAnulats().equals(MostrarAnulatsDto.NOMES_ANULATS))
-			anulats = true;
-		if(filtreCommand.getMostrarAnulats().equals(MostrarAnulatsDto.NO))
-			anulats = false;
+		if (filtreCommand.getMostrarAnulats() != null) {
+			if(filtreCommand.getMostrarAnulats().equals(MostrarAnulatsDto.NOMES_ANULATS))
+				anulats = true;
+			else if(filtreCommand.getMostrarAnulats().equals(MostrarAnulatsDto.NO))
+				anulats = false;			
+		}
 		List<ExpedientTipusEstadisticaDto> et = expedientTipusService.findEstadisticaByFiltre(
 																							filtreCommand.getAnyInicial(), 
 																							filtreCommand.getAnyFinal(), 
@@ -113,47 +117,8 @@ public class ExpedientTipusEstadisticaController extends BaseController {
 																							this.getEstatTipus(filtreCommand.getEstat()), 
 																							this.getEstatId(filtreCommand.getEstat()),
 																							filtreCommand.getAturat());
-		TreeSet<String> anys = new TreeSet<String>();
-		Map<String, String> titols = new HashMap<String, String>();  
-		Map<String, Map<String, Object>> ete = new TreeMap<String, Map<String, Object>>();
-		Map<String, Long> totalTipus = new  HashMap<String, Long>();
-		for(ExpedientTipusEstadisticaDto element : et) {
-			if(filtreCommand.getExpedientTipusId() == null || filtreCommand.getExpedientTipusId().equals(element.getId())) {
-				String nom = element.getCodi();
-				if(!titols.containsKey(nom))
-					titols.put(nom, element.getNom());
-				if(!ete.containsKey(nom))
-					ete.put(nom, new TreeMap<String,Object>());
-				if(!anys.contains(element.getAnyInici()))
-					anys.add(element.getAnyInici());
-				if(!totalTipus.containsKey(nom)) {				
-					totalTipus.put(nom, element.getN());
-				}else {
-					totalTipus.put(nom, totalTipus.get(nom) + element.getN());
-				}
-				ete.get(nom).put(element.getAnyInici(), element.getN());
-			}
-		}
-		
-		//List<String> anys = generateSetOfAnys(filtreCommand.getDataIniciInicial(), filtreCommand.getDataIniciFinal());
-		Map<String, Object> totalAny =  totalPerAny(ete);
-		request.setAttribute("tableData", ete);
-		request.setAttribute("totalTipus", totalTipus);
-		request.setAttribute("anys", anys);
-		request.setAttribute("totalAny", totalAny);
-		request.setAttribute("titols", titols);
-		
-		// Torna a posar el command al model
-		model.addAttribute(filtreCommand);
-		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
-		List<ExpedientTipusDto> expedientsTipus = new ArrayList<ExpedientTipusDto>();
-		expedientsTipus.addAll(expedientTipusService.findAmbEntorn(entornActual.getId()));
-
-		model.addAttribute("expedientsTipus", expedientsTipus);
-		
-		// Estats
-		model.addAttribute("estats", this.getEstatsModel(request, filtreCommand.getExpedientTipusId()));
-		
+		Map<String, Object> estadistica = this.calcEstadistiques(et);
+		model.addAllAttributes(estadistica);
 		
 		return "v3/estadisticaEntorns";
 	}
@@ -205,12 +170,13 @@ public class ExpedientTipusEstadisticaController extends BaseController {
 	 * @return
 	 */
 	private EstatTipusDto getEstatTipus(String estat) {
-		EstatTipusDto estatTipus;
-		try {
-			estatTipus = EstatTipusDto.valueOf(estat);
-		} catch(Exception e) {
-			estatTipus = EstatTipusDto.CUSTOM;
-		}
+		EstatTipusDto estatTipus = null;
+		if (estat != null && !estat.isEmpty())
+			try {
+				estatTipus = EstatTipusDto.valueOf(estat);
+			} catch(Exception e) {
+				estatTipus = EstatTipusDto.CUSTOM;
+			}
 		return estatTipus;
 	}
 
@@ -220,12 +186,13 @@ public class ExpedientTipusEstadisticaController extends BaseController {
 	 * @return
 	 */
 	private Long getEstatId(String estat) {
-		Long estatId;
-		try {
-			estatId = Long.parseLong(estat);
-		} catch (Exception e) {
-			estatId = null;
-		}
+		Long estatId = null;
+		if (estat != null && !estat.isEmpty())
+			try {
+				estatId = Long.parseLong(estat);
+			} catch (Exception e) {
+				estatId = null;
+			}
 		return estatId;
 	}
 
@@ -237,28 +204,60 @@ public class ExpedientTipusEstadisticaController extends BaseController {
 			ExpedientTipusEstadisticaCommand filtreCommand,
 			BindingResult bindingResult,
 			Model model) {
+		
+		// Valida l'accés a l'entorn
+		Boolean potAdministrarEntorn = SessionHelper.getSessionManager(request).getPotAdministrarEntorn();
+		if (potAdministrarEntorn != null && !potAdministrarEntorn) {
+			try {
+				response.sendRedirect("/helium/v3/estadistica");
+			} catch (IOException e) {
+				throw new RuntimeException("Error de permís generant l'XLS d'estadístiques.", e);
+			}
+			return;
+		}
+		
 		Boolean anulats = null;
-		if(filtreCommand.getMostrarAnulats().equals(MostrarAnulatsDto.NOMES_ANULATS))
-			anulats = true;
-		if(filtreCommand.getMostrarAnulats().equals(MostrarAnulatsDto.NO))
-			anulats = false;
+		if (filtreCommand.getMostrarAnulats() != null) {
+			if(filtreCommand.getMostrarAnulats().equals(MostrarAnulatsDto.NOMES_ANULATS))
+				anulats = true;
+			else if(filtreCommand.getMostrarAnulats().equals(MostrarAnulatsDto.NO))
+				anulats = false;			
+		}
 		List<ExpedientTipusEstadisticaDto> et = expedientTipusService.findEstadisticaByFiltre(
-																			filtreCommand.getAnyInicial(), 
-																			filtreCommand.getAnyFinal(), 
-																			EntornActual.getEntornId(), 
-																			filtreCommand.getExpedientTipusId(), 
-																			anulats, 
-																			filtreCommand.getNumero(), 
-																			filtreCommand.getTitol(), 
-																			this.getEstatTipus(filtreCommand.getEstat()), 
-																			this.getEstatId(filtreCommand.getEstat()),
-																			filtreCommand.getAturat());
+																							filtreCommand.getAnyInicial(), 
+																							filtreCommand.getAnyFinal(), 
+																							EntornActual.getEntornId(), 
+																							filtreCommand.getExpedientTipusId(), 
+																							anulats, 
+																							filtreCommand.getNumero(), 
+																							filtreCommand.getTitol(), 
+																							this.getEstatTipus(filtreCommand.getEstat()), 
+																							this.getEstatId(filtreCommand.getEstat()),
+																							filtreCommand.getAturat());
+		// Calcula les estadístiques a partir de les dades
+		Map<String, Object> estadistica = this.calcEstadistiques(et);
+		
+		// Genera l'a fulla
+		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
+		List<ExpedientTipusDto> expedientsTipus = expedientTipusService.findAmbEntorn(entornActual.getId());
+		generarExcel(request, response, estadistica, expedientsTipus);
+	}
+	
+	/** Calcula les estadístiques i posa les dades en diferents entrades en un Map<String, Object>
+	 * 
+	 * @param et Dades per calcular les estadístiques per entorn.
+	 * @return
+	 */
+	private Map<String, Object> calcEstadistiques(List<ExpedientTipusEstadisticaDto> et) {
+
+		Map<String, Object> estadistica = new HashMap<String, Object>();
+		
 		TreeSet<String> anys = new TreeSet<String>();
 		Map<String, String> titols = new HashMap<String, String>();  
 		Map<String, Map<String, Object>> ete = new TreeMap<String, Map<String, Object>>();
 		Map<String, Long> totalTipus = new  HashMap<String, Long>();
 		for(ExpedientTipusEstadisticaDto element : et) {
-			if(filtreCommand.getExpedientTipusId() == null || filtreCommand.getExpedientTipusId().equals(element.getId())) {
+//			if(filtreCommand.getExpedientTipusId() == null || filtreCommand.getExpedientTipusId().equals(element.getId())) {
 				String nom = element.getCodi();
 				if(!titols.containsKey(nom))
 					titols.put(nom, element.getNom());
@@ -272,26 +271,19 @@ public class ExpedientTipusEstadisticaController extends BaseController {
 					totalTipus.put(nom, totalTipus.get(nom) + element.getN());
 				}
 				ete.get(nom).put(element.getAnyInici(), element.getN());
-			}
+//			}
 		}
 		
 		Map<String, Object> totalAny =  totalPerAny(ete);
-		Map<String, Object> estadistica =  new HashMap<String, Object>();
+		estadistica =  new HashMap<String, Object>();
 		estadistica.put("tableData", ete);
 		estadistica.put("totalTipus", totalTipus);
 		estadistica.put("anys", anys);
 		estadistica.put("totalAny", totalAny);
 		estadistica.put("titols", titols);
-		
-		// Torna a posar el command al model
-		model.addAttribute(filtreCommand);
-		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
-		List<ExpedientTipusDto> expedientsTipus = new ArrayList<ExpedientTipusDto>();
-		expedientsTipus.addAll(expedientTipusService.findAmbEntorn(entornActual.getId()));
-
-		gererarExcel(request, response, estadistica, expedientsTipus);
+		return estadistica;
 	}
-	
+
 	private Map<String, Object> totalPerAny(Map<String, Map<String, Object>> ete){
 		Map<String, Object> totalAny = new HashMap<String, Object>();
 		for(Map.Entry<String, Map<String, Object>> entry : ete.entrySet()) {
@@ -308,7 +300,8 @@ public class ExpedientTipusEstadisticaController extends BaseController {
 		return totalAny;
 	}
 	
-	private void gererarExcel(
+	@SuppressWarnings("unchecked")
+	private void generarExcel(
 			HttpServletRequest request,
 			HttpServletResponse response,
 			Map<String, Object> estadistica,

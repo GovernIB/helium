@@ -119,7 +119,7 @@ public interface ExpedientTipusRepository extends JpaRepository<ExpedientTipus, 
 			+ "			and (:isNullTitol = true or lower(e.titol) like lower('%'||:titol||'%') ) "
 			+ "			and (:nomesIniciats = false or e.dataFi is null) "
 			+ "			and (:nomesFinalitzats = false or e.dataFi is not null) "
-            + "			and (:isNullAturat = true or true = :aturat) "
+            + "			and (:isNullAturat = true or (:aturat = true and e.infoAturat is not null) or (:aturat = false and e.infoAturat is null)) "
             + "			and (:isEstatIdNull = true or e.estat.id = :estatId) "
             + " group by "
             + "        et.id, "
