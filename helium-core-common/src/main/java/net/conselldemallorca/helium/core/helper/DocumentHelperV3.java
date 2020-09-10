@@ -617,69 +617,22 @@ public class DocumentHelperV3 {
 					true,
 					false, // Per notificar
 					(documentStore.getArxiuUuid() == null));
-			Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(documentStore.getProcessInstanceId());
-			String varDocumentCodi = documentStore.getJbpmVariable().substring(JbpmVars.PREFIX_DOCUMENT.length());
-			if (documentStore.getArxiuUuid() != null) {
-					ArxiuDto pdfFirmat = new ArxiuDto();
-					pdfFirmat.setNom("firma.pdf");
-					pdfFirmat.setTipusMime("application/pdf");
-					pdfFirmat.setContingut(signatura);
-					String documentNom  = inArxiu(dto.getDocumentNom(), "pdf", expedient.getProcessInstanceId());
-					pluginHelper.arxiuDocumentGuardarPdfFirmat(
-							expedient,
-							documentStore,
-							documentNom,
-							pdfFirmat);
-					es.caib.plugins.arxiu.api.Document documentArxiu = pluginHelper.arxiuDocumentInfo(
-							documentStore.getArxiuUuid(),
-							null,
-							false,
-							true);
-					actualitzarNtiFirma(documentStore, documentArxiu);
-			} else {
-				if (expedient.isNtiActiu()) {
-					actualitzarNtiFirma(documentStore, null);
-				}
-				if (documentStore.getReferenciaCustodia() != null) {
-					pluginHelper.custodiaEsborrarSignatures(documentStore.getReferenciaCustodia(), expedient);
-				}
-				String referenciaCustodia = null;
-				if (signatura != null && signatura.length > 0) {
-					try {
-						referenciaCustodia = pluginHelper.custodiaAfegirSignatura(
-								documentStore.getId(), 
-								documentStore.getReferenciaFont(), 
-								dto.getArxiuNom(),
-								dto.getCustodiaCodi(),
-								signatura);
-								
-					} catch (Exception ex) {
-						logger.info(">>> [PSIGN] Processant error custòdia (" + exceptionHelper.getMissageFinalCadenaExcepcions(ex) + ", " + exceptionHelper.cercarMissatgeDinsCadenaExcepcions("ERROR_DOCUMENTO_ARCHIVADO", ex) + ") (docStoreId=" + documentStoreId + ", refCustòdia=" + referenciaCustodia + ")");
-						if (exceptionHelper.cercarMissatgeDinsCadenaExcepcions("ERROR_DOCUMENTO_ARCHIVADO", ex)) {
-							referenciaCustodia = documentStoreId.toString();
-						} else {
-							throw ex;
-						}
-					}
-				}
-				//logger.info(">>> [PSIGN] Fi procés custòdia 1 (psignaId=" + documentId + ", docStoreId=" + documentStoreId + ", refCustòdia=" + referenciaCustodia + ")");
-				documentStore.setReferenciaCustodia(referenciaCustodia);
-			}
-			documentStore.setSignat(true);
 			
-			expedientRegistreHelper.crearRegistreSignarDocument(
-					documentStore.getProcessInstanceId(), 
-					SecurityContextHolder.getContext().getAuthentication().getName(), 
-					varDocumentCodi);
+			// Guarda la firma asociada al documetn
+			this.guardarDocumentFirmat(
+					documentStore.getProcessInstanceId(),
+					documentStore.getId(),
+					signatura,
+					true,
+					true);
+
 			// Guarda el valor en una variable jbpm
-			documentStore.setSignat(true);
 			JbpmTask task = tascaHelper.getTascaComprovacionsTramitacio(
 					tascaId,
 					true,
 					true);
-			String.valueOf(task.getTask().getId());
 			jbpmHelper.setTaskInstanceVariable(
-					tascaId,
+					task.getId(),
 					JbpmVars.PREFIX_SIGNATURA + dto.getDocumentCodi(),
 					documentStore.getId());
 		}
