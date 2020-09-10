@@ -1072,15 +1072,14 @@ public class ExpedientHelper {
 				expedientIds,
 				expedients);
 	}
-	public void trobarAlertesExpedient(ExpedientDto dto) {
-		Expedient expedient = this.getExpedientComprovantPermisos(
+	public void trobarAlertesExpedient(Expedient expedient, ExpedientDto dto) {
+		/*Expedient expedient = this.getExpedientComprovantPermisos(
 				dto.getId(),
 				true,
 				false,
 				false,
-				false);
+				false);*/
 		List<Alerta> alertes = alertaRepository.findByExpedientAndDataEliminacioNull(expedient);
-		
 		long pendents = 0L;
 		if (!alertes.isEmpty()) {
 			dto.setAlertesTotals(new Long(alertes.size()));
@@ -1091,7 +1090,6 @@ public class ExpedientHelper {
 			}
 			dto.setAlertesPendents(pendents);
 		}
-		
 	}
 
 	public String getNumeroExpedientDefaultActual(

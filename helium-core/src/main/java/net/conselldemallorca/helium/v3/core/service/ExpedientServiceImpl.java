@@ -576,7 +576,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 			expedientDto.setTipus(conversioTipusHelper.convertir(expedient.getTipus(), ExpedientTipusDto.class));
 		}
 		expedientHelper.omplirPermisosExpedient(expedientDto);
-		expedientHelper.trobarAlertesExpedient(expedientDto);
+		expedientHelper.trobarAlertesExpedient(expedient, expedientDto);
 		return expedientDto;
 	}
 	
