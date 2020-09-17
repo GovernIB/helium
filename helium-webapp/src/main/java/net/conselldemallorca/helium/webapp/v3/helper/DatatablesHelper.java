@@ -344,7 +344,11 @@ public class DatatablesHelper {
 			if (request.getParameter("length") != null)
 				length = Integer.parseInt(request.getParameter("length"));
 			if (request.getParameter("search[value]") != null)
-				searchValue = request.getParameter("search[value]");
+				try {
+					searchValue = new String(request.getParameter("search[value]").getBytes("ISO-8859-1"), "UTF-8");
+				} catch(Exception e) {
+					searchValue = request.getParameter("search[value]");
+				}
 			if (request.getParameter("search[regex]") != null)
 				searchRegex = Boolean.parseBoolean(request.getParameter("search[regex]"));
 			for (int i = 0;; i++) {
