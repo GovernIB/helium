@@ -21,25 +21,32 @@ public class RolesBasedPreAuthenticatedWebAuthenticationDetailsSource extends J2
 
 	MappableAttributesRetriever mappableAttributesRetriever;
 
+	/** Objecte privat de sincronització */
+	private Object syncObj = new Object();
+
 	public RolesBasedPreAuthenticatedWebAuthenticationDetailsSource() {
 		super();
 	}
 
 	@Override
 	protected Collection<String> getUserRoles(HttpServletRequest request) {
-		Set<String> roles = mappableAttributesRetriever.getMappableAttributes();
         Set<String> j2eeUserRolesList = new HashSet<String>();
-        for (String role: roles) {
-            if (request.isUserInRole(role)) {
-                j2eeUserRolesList.add(role);
+        synchronized(this.syncObj) {
+    		Set<String> roles = mappableAttributesRetriever.getMappableAttributes();
+            for (String role: roles) {
+                if (request.isUserInRole(role)) {
+                    j2eeUserRolesList.add(role);
+                }
             }
         }
         return j2eeUserRolesList;
     }
 	@Override
 	public void setMappableRolesRetriever(MappableAttributesRetriever mappableAttributesRetriever) {
-        this.mappableAttributesRetriever = mappableAttributesRetriever;
-        this.j2eeMappableRoles = new HashSet<String>();
+		synchronized(this.syncObj) {
+	        this.mappableAttributesRetriever = mappableAttributesRetriever;
+	        this.j2eeMappableRoles = new HashSet<String>();
+		}
     }
 
 }
