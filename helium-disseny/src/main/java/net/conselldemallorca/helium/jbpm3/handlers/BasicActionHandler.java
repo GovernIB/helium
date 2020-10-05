@@ -175,7 +175,10 @@ public abstract class BasicActionHandler implements ActionHandler {
 			List<String> parametres) {}
 
 	public void instanciaProcesReindexar(ExecutionContext executionContext) {}
-	public void instanciaProcesReindexar(long processInstanceId) {}
+	
+	public boolean instanciaProcesReindexar(long processInstanceId) { 
+		return false;
+	}
 
 	public boolean tokenActivar(long tokenId, boolean activar) {
 		return false;
