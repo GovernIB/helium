@@ -210,7 +210,7 @@ public class FindExpedientIdsFiltreCommand extends AbstractBaseCommand {
 		}
 		expedientQuerySb.append("and (((:mostrarAnulats = true or pie.anulat = false) and :mostrarNomesAnulats = false) or (:mostrarNomesAnulats = true and pie.anulat = true)) ");
 		if (nomesErrors) {
-			expedientQuerySb.append("and (pie.errorDesc is not null or (pie.errorsIntegs is not null and pie.errorsIntegs > 0)) ");
+			expedientQuerySb.append("and (pie.errorDesc is not null or (pie.errorsIntegs is not null and pie.errorsIntegs > 0)) or (pie.reindexarError is not null and pie.reindexarError > 0)");
 		}
 		if (nomesAlertes) {
 			expedientQuerySb.append(

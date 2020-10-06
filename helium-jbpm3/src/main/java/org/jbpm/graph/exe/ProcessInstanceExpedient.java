@@ -35,6 +35,7 @@ public class ProcessInstanceExpedient implements Identifiable, Serializable {
 	private boolean anulat;
 	private String errorDesc;
 	private boolean errorsIntegs;
+	private boolean reindexarError;
 	private String processInstanceId;
 	private boolean ambRetroaccio;
 
@@ -129,6 +130,12 @@ public class ProcessInstanceExpedient implements Identifiable, Serializable {
 	}
 	public void setErrorsIntegs(boolean errorsIntegs) {
 		this.errorsIntegs = errorsIntegs;
+	}
+	public boolean isReindexarError() {
+		return reindexarError;
+	}
+	public void setReindexarError(boolean reindexarError) {
+		this.reindexarError = reindexarError;
 	}
 	public String getProcessInstanceId() {
 		return processInstanceId;

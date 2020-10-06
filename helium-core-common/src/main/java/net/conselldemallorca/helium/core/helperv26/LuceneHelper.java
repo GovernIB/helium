@@ -83,6 +83,8 @@ public class LuceneHelper extends LuceneIndexSupport {
 	@Resource
 	protected MesuresTemporalsHelper mesuresTemporalsHelper;
 
+	/** Objecte de sincronització per accedir al LuceneIndex. */
+	private static Object syncObj = new Object();
 
 
 	// TODO Ha d'estar actiu mentre els expedients no es reindexin totalment
@@ -90,76 +92,7 @@ public class LuceneHelper extends LuceneIndexSupport {
 	// que no sortiran als resultats de les consultes per tipus.
 	protected static final boolean PEGAT_ENTORN_ACTIU = true;
 
-	public synchronized void createExpedientAsync(
-			final Expedient expedient,
-			final Map<String, DefinicioProces> definicionsProces,
-			final Map<String, Set<Camp>> camps,
-			final Map<String, Map<String, Object>> valors,
-			final Map<String, Map<String, String>> textDominis,
-			final boolean finalitzat,
-			final boolean comprovarIniciant) {
-		logger.debug("Creant expedient a l'index Lucene (ASYNC) (" +
-				"id=" + expedient.getId() + ")");
-		Thread thread = new Thread() {
-			public void run() {
-				boolean success = createExpedient(expedient, definicionsProces, camps, valors, textDominis, finalitzat, comprovarIniciant);
-				expedient.setReindexarError(!success);
-			}
-		};
-		thread.start();
-	}
-	public synchronized void updateExpedientCapsaleraAsync(
-			final Expedient expedient,
-			final boolean finalitzat) {
-		logger.debug("Actualitzant capsalera expedient a l'index Lucene (ASYNC) (" +
-				"id=" + expedient.getId() + ")");
-		Thread thread = new Thread() {
-			public void run() {
-				boolean success = updateExpedientCapsalera(expedient, finalitzat);
-				expedient.setReindexarError(!success);
-			}
-		};
-		thread.start();
-	}
-	public synchronized void updateExpedientCampsAsync(
-			final Expedient expedient,
-			final Map<String, DefinicioProces> definicionsProces,
-			final Map<String, Set<Camp>> camps,
-			final Map<String, Map<String, Object>> valors,
-			final Map<String, Map<String, String>> textDominis,
-			final boolean finalitzat) {
-		logger.debug("Actualitzant camps de l'expedient a l'index Lucene (ASYNC) (" +
-				"id=" + expedient.getId() + ")");
-		Thread thread = new Thread() {
-			public void run() {
-				boolean success = updateExpedientCamps(expedient, definicionsProces, camps, valors, textDominis, finalitzat);
-				expedient.setReindexarError(!success);
-			}
-		};
-		thread.start();
-	}
-	public synchronized void deleteExpedientAsync(
-			final Expedient expedient) {
-		logger.debug("Esborrant expedient de l'index Lucene (ASYNC) (" +
-				"id=" + expedient.getId() + ")");
-		Thread thread = new Thread() {
-			public void run() {
-				deleteExpedient(expedient);
-			}
-		};
-		thread.start();
-	}
-	public synchronized void deleteAllAsync() {
-		logger.debug("Esborrant tota la informació de l'index Lucene (ASYNC)");
-		Thread thread = new Thread() {
-			public void run() {
-				deleteAll();
-			}
-		};
-		thread.start();
-	}
-
-	public synchronized boolean createExpedient(
+	public boolean createExpedient(
 			Expedient expedient,
 			Map<String, DefinicioProces> definicionsProces,
 			Map<String, Set<Camp>> camps,
@@ -182,7 +115,7 @@ public class LuceneHelper extends LuceneIndexSupport {
 		return success;
 	}
 
-	public synchronized boolean updateExpedientCapsalera(
+	public boolean updateExpedientCapsalera(
 			final Expedient expedient,
 			final boolean finalitzat) {
 		logger.debug("Actualitzant capsalera expedient a l'index Lucene (" +
@@ -206,7 +139,7 @@ public class LuceneHelper extends LuceneIndexSupport {
 		return success;
 	}
 
-	public synchronized boolean updateExpedientCamps(
+	public boolean updateExpedientCamps(
 			final Expedient expedient,
 			final Map<String, DefinicioProces> definicionsProces,
 			final Map<String, Set<Camp>> camps,
@@ -236,20 +169,22 @@ public class LuceneHelper extends LuceneIndexSupport {
 	}
 	
 	/** Mètode per esborrar un sol camp de l'índex del document. */
-	public synchronized boolean deleteExpedientCamp(
+	public boolean deleteExpedientCamp(
 			final Expedient expedient, 
 			final String camp) {
 		logger.debug("Esborrant camp l'expedient a l'index Lucene (" +
 				"id=" + expedient.getId() + ", camp=" + camp +")");
 		mesuresTemporalsHelper.mesuraIniciar("Lucene: deleteExpedientCamp", "lucene", expedient.getTipus().getNom());
-		checkIndexOk();
 		try {
-			getLuceneIndexTemplate().updateDocument(termIdFromExpedient(expedient), new DocumentModifier() {
-				public Document updateDocument(Document document) {
-					removeDocumentField(document, camp);
-					return document;
-				}
-			});
+			synchronized(syncObj) {
+				checkIndexOk();
+				getLuceneIndexTemplate().updateDocument(termIdFromExpedient(expedient), new DocumentModifier() {
+					public Document updateDocument(Document document) {
+						removeDocumentField(document, camp);
+						return document;
+					}
+				});
+			}
 			mesuresTemporalsHelper.mesuraCalcular("Lucene: deleteExpedientCamp", "lucene", expedient.getTipus().getNom());
 			return true;
 		} catch (Exception ex) {
@@ -259,29 +194,15 @@ public class LuceneHelper extends LuceneIndexSupport {
 		}
 	}
 
-	public synchronized void deleteExpedient(Expedient expedient) {
+	public void deleteExpedient(Expedient expedient) {
 		logger.debug("Esborrant informació de l'expedient de l'index Lucene (" +
 				"id=" + expedient.getId() + ")");
 		mesuresTemporalsHelper.mesuraIniciar("Lucene: deleteExpedient", "lucene", expedient.getTipus().getNom());
-		checkIndexOk();
-		getLuceneIndexTemplate().deleteDocuments(termIdFromExpedient(expedient));
+		synchronized(syncObj) {
+			checkIndexOk();
+			getLuceneIndexTemplate().deleteDocuments(termIdFromExpedient(expedient));
+		}
 		mesuresTemporalsHelper.mesuraCalcular("Lucene: deleteExpedient", "lucene", expedient.getTipus().getNom());
-	}
-
-	@SuppressWarnings("unchecked")
-	public synchronized void deleteAll() {
-		logger.debug("Esborrant tota la informació de l'index Lucene");
-		mesuresTemporalsHelper.mesuraIniciar("Lucene: deleteAll", "lucene");
-		checkIndexOk();
-		List<Integer> documentsTots = searchTemplate.search(new MatchAllDocsQuery(), new HitExtractor() {
-			public Object mapHit(int id, Document document, float score) {
-				return new Integer(id);
-			}
-		});
-		for (Integer id : documentsTots)
-			getLuceneIndexTemplate().deleteDocument(id.intValue());
-		getLuceneIndexTemplate().optimize();
-		mesuresTemporalsHelper.mesuraCalcular("Lucene: deleteAll", "lucene");
 	}
 
 	@SuppressWarnings("unchecked")
@@ -294,7 +215,7 @@ public class LuceneHelper extends LuceneIndexSupport {
 				"entornCodi=" + entorn.getCodi() + ", " +
 				"tipusCodi=" + expedientTipus.getCodi() + ")");
 		mesuresTemporalsHelper.mesuraIniciar("Lucene: findNomesIds", "lucene");
-		checkIndexOk();
+		//checkIndexOk();
 		Query query = getLuceneQuery(entorn, expedientTipus, filtreCamps, filtreValors);
 		List<Long> resposta = searchTemplate.search(query, new HitExtractor() {
 			public Object mapHit(int id, Document document, float score) {
@@ -337,7 +258,7 @@ public class LuceneHelper extends LuceneIndexSupport {
 				"entornCodi=" + entorn.getCodi() + ", " +
 				"tipusCodi=" + expedientTipus.getCodi() + ")");
 		mesuresTemporalsHelper.mesuraIniciar("Lucene: findAmbDadesExpedientPaginatV3", "lucene");
-		checkIndexOk();
+		//checkIndexOk();
 		Query query = getLuceneQuery(
 				entorn,
 				expedientTipus,
@@ -391,7 +312,7 @@ public class LuceneHelper extends LuceneIndexSupport {
 				"entornCodi=" + entornCodi + ", " +
 				"llistaExpedientIds=" + llistaExpedientIds.size() + ")");
 		mesuresTemporalsHelper.mesuraIniciar("Lucene: findAmbDadesExpedientV3", "lucene");
-		checkIndexOk();
+		//checkIndexOk();
 		BooleanQuery bquery = new BooleanQuery();
 		for (Long id : llistaExpedientIds) {
 			bquery.add(new TermQuery(new Term(ExpedientCamps.EXPEDIENT_CAMP_ID, id.toString())), BooleanClause.Occur.SHOULD);
@@ -402,6 +323,7 @@ public class LuceneHelper extends LuceneIndexSupport {
 		return resultat;
 	}
 
+	@SuppressWarnings("unchecked")
 	public Object[] findPaginatAmbDadesV3(
 			final Entorn entorn,
 			ExpedientTipus expedientTipus,
@@ -410,7 +332,7 @@ public class LuceneHelper extends LuceneIndexSupport {
 			Map<String, Object> filtreValors,
 			List<Camp> informeCamps,
 			PaginacioParamsDto paginacioParams) {
-		checkIndexOk();
+		//checkIndexOk();
 		Query query = getLuceneQuery(
 				entorn,
 				expedientTipus,
@@ -430,7 +352,6 @@ public class LuceneHelper extends LuceneIndexSupport {
 				informeCamps);
 		final long[] count = new long[1];
 		HitExtractor hitExtractor = new HitExtractor() {
-			@SuppressWarnings("unchecked")
 			public Map<String, List<String>> mapHit(
 					int id,
 					Document document,
@@ -464,7 +385,6 @@ public class LuceneHelper extends LuceneIndexSupport {
 				return valorsDocument;
 			}
 		};
-		@SuppressWarnings("unchecked")
 		final List<Map<String, List<String>>> resultats = searchTemplate.search(
 				query,
 				hitExtractor,
@@ -487,6 +407,7 @@ public class LuceneHelper extends LuceneIndexSupport {
 		};
 	}
 
+	@SuppressWarnings("unchecked")
 	public Object[] findPaginatNomesIdsV3(
 			final Entorn entorn,
 			ExpedientTipus expedientTipus,
@@ -494,7 +415,7 @@ public class LuceneHelper extends LuceneIndexSupport {
 			List<Camp> filtreCamps,
 			Map<String, Object> filtreValors,
 			PaginacioParamsDto paginacioParams) {
-		checkIndexOk();
+		//checkIndexOk();
 		Query query = getLuceneQuery(
 				entorn,
 				expedientTipus,
@@ -531,7 +452,6 @@ public class LuceneHelper extends LuceneIndexSupport {
 				return valorsDocument;
 			}
 		};
-		@SuppressWarnings("unchecked")
 		final List<Long> resultats = searchTemplate.search(
 				query,
 				hitExtractor,
@@ -556,7 +476,7 @@ public class LuceneHelper extends LuceneIndexSupport {
 	}
 
 
-
+	@SuppressWarnings("unchecked")
 	private boolean createOrUpdateExpedientIndex(
 			final Expedient expedient,
 			final Map<String, DefinicioProces> definicionsProces,
@@ -566,41 +486,42 @@ public class LuceneHelper extends LuceneIndexSupport {
 			final boolean finalitzat,
 			final boolean comprovarIniciant) {
 		final Map<String, String> errors = new HashMap<String, String>();
-		checkIndexOk();
-		@SuppressWarnings("unchecked")
-		List<Long> resposta = searchTemplate.search(new TermQuery(termIdFromExpedient(expedient)), new HitExtractor() {
-			public Object mapHit(int id, Document document, float score) {
-				return new Long(document.get(ExpedientCamps.EXPEDIENT_CAMP_ID));
-			}
-		});
-		if (resposta.size() == 1) {
-			getLuceneIndexTemplate().updateDocument(termIdFromExpedient(expedient), new DocumentModifier() {
-				public Document updateDocument(Document document) {
-					return updateDocumentFromExpedient(document, expedient, definicionsProces, camps, valors, textDominis, finalitzat, errors);
+		synchronized(syncObj) {
+			checkIndexOk();
+			List<Long> resposta = searchTemplate.search(new TermQuery(termIdFromExpedient(expedient)), new HitExtractor() {
+				public Object mapHit(int id, Document document, float score) {
+					return new Long(document.get(ExpedientCamps.EXPEDIENT_CAMP_ID));
 				}
 			});
-		} else {
-			boolean indexarExpedient = true;
-			// Comrpovem si hi ha més d'un resultat
-			if (resposta.size() > 1) {
-				logger.debug("S'han trobat " + resposta.size() + " entrades a Lucene per l'id " + expedient.getId() + ". Es procedeix a esborrar primer.");
-				this.deleteExpedient(expedient);
-			}
-			if (comprovarIniciant) {
-				Expedient expedientIniciant = ThreadLocalInfo.getExpedient();
-				logger.debug("Creant expedient a l'index Lucene: mirant si indexar (" +
-						"id=" + expedient.getId() + ", " +
-						"expedientIniciant=" + expedientIniciant + ", " +
-						"expedientIniciant.id=" + ((expedientIniciant != null) ? expedientIniciant.getId() : null) + ")");
-				indexarExpedient = (expedientIniciant == null || !expedientIniciant.getId().equals(expedient.getId()));
-			}
-			if (indexarExpedient) {
-				logger.debug("Creant expedient a l'index Lucene: indexació realitzada (id=" + expedient.getId() + ")");
-				Document document = updateDocumentFromExpedient(null, expedient, definicionsProces, camps, valors, textDominis, finalitzat, errors);
-				getLuceneIndexTemplate().addDocument(document);
+			if (resposta.size() == 1) {
+				getLuceneIndexTemplate().updateDocument(termIdFromExpedient(expedient), new DocumentModifier() {
+					public Document updateDocument(Document document) {
+						return updateDocumentFromExpedient(document, expedient, definicionsProces, camps, valors, textDominis, finalitzat, errors);
+					}
+				});
 			} else {
-				logger.debug("Creant expedient a l'index Lucene: indexació abortada (id=" + expedient.getId() + ")");
-			}
+				boolean indexarExpedient = true;
+				// Comrpovem si hi ha més d'un resultat
+				if (resposta.size() > 1) {
+					logger.debug("S'han trobat " + resposta.size() + " entrades a Lucene per l'id " + expedient.getId() + ". Es procedeix a esborrar primer.");
+					this.deleteExpedient(expedient);
+				}
+				if (comprovarIniciant) {
+					Expedient expedientIniciant = ThreadLocalInfo.getExpedient();
+					logger.debug("Creant expedient a l'index Lucene: mirant si indexar (" +
+							"id=" + expedient.getId() + ", " +
+							"expedientIniciant=" + expedientIniciant + ", " +
+							"expedientIniciant.id=" + ((expedientIniciant != null) ? expedientIniciant.getId() : null) + ")");
+					indexarExpedient = (expedientIniciant == null || !expedientIniciant.getId().equals(expedient.getId()));
+				}
+				if (indexarExpedient) {
+					logger.debug("Creant expedient a l'index Lucene: indexació realitzada (id=" + expedient.getId() + ")");
+					Document document = updateDocumentFromExpedient(null, expedient, definicionsProces, camps, valors, textDominis, finalitzat, errors);
+					getLuceneIndexTemplate().addDocument(document);
+				} else {
+					logger.debug("Creant expedient a l'index Lucene: indexació abortada (id=" + expedient.getId() + ")");
+				}
+			}			
 		}
 		return errors.isEmpty();
 	}
@@ -935,8 +856,10 @@ public class LuceneHelper extends LuceneIndexSupport {
 		return new Term(ExpedientCamps.EXPEDIENT_CAMP_ID, expedient.getId().toString());
 	}
 
-	protected synchronized void checkIndexOk() {
-		getLuceneIndexTemplate().addDocuments(new ArrayList<Document>());
+	protected void checkIndexOk() {
+		synchronized(syncObj) {
+			getLuceneIndexTemplate().addDocuments(new ArrayList<Document>());
+		}
 	}
 
 	@SuppressWarnings("unchecked")
@@ -1268,7 +1191,7 @@ public class LuceneHelper extends LuceneIndexSupport {
 	public List<Map<String, DadaIndexadaDto>> expedientIndexLuceneGetDades(
 			Expedient expedient, 
 			List<Camp> informeCamps) {
-		checkIndexOk();
+		//checkIndexOk();
 			    
 		Query query = queryFromCampFiltre(
 				ExpedientCamps.EXPEDIENT_CAMP_ID,

@@ -182,7 +182,7 @@ public class ServiceUtils {
 			Expedient expedient = expedientDao.findAmbProcessInstanceId(rootProcessInstance.getId());
 			Map<String, Set<Camp>> mapCamps = getMapCamps(rootProcessInstance.getId());
 			Map<String, Map<String, Object>> mapValors = getMapValors(rootProcessInstance.getId());
-			luceneDao.updateExpedientCampsAsync(
+			luceneDao.updateExpedientCamps(
 					expedient,
 					getMapDefinicionsProces(rootProcessInstance.getId()),
 					mapCamps,
