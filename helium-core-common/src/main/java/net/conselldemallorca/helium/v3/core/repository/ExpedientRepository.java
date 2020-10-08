@@ -7,16 +7,16 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
-import net.conselldemallorca.helium.core.model.hibernate.Entorn;
-import net.conselldemallorca.helium.core.model.hibernate.Estat;
-import net.conselldemallorca.helium.core.model.hibernate.Expedient;
-import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
-
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+
+import net.conselldemallorca.helium.core.model.hibernate.Entorn;
+import net.conselldemallorca.helium.core.model.hibernate.Estat;
+import net.conselldemallorca.helium.core.model.hibernate.Expedient;
+import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 
 /**
  * Especifica els mètodes que s'han d'emprar per obtenir i modificar la
@@ -374,5 +374,43 @@ public interface ExpedientRepository extends JpaRepository<Expedient, Long> {
 	 * @return
 	 */
 	List<Expedient> findByIniciadorCodi(String iniciadorCodi);
+
+
+	/** Compta els expedients amb error de reindexació per a un tipus d'expedient concret.
+	 * 
+	 * @param expedientTipusId
+	 * @return
+	 */
+	@Query("select count(e) " +
+			"from Expedient e " +
+			"where e.tipus.id = :expedientTipusId " +
+			" 		and e.anulat = false " +
+			"		and e.reindexarData is not null")
+	public Long countPendentReindexacio(@Param("expedientTipusId") Long expedientTipusId);
+	
+	/** Compta el númer d'expedients amb error de reindexació per a un tipus d'expedient concret.
+	 * 
+	 * @param expedientTipusId
+	 * @return
+	 */
+	@Query("select count(e) " +
+			"from Expedient e " +
+			"where e.tipus.id = :expedientTipusId " +
+			" 		and e.anulat = false " +
+			"		and e.reindexarError = true ")
+	public Long countErrorsReindexacio(@Param("expedientTipusId") Long expedientTipusId);
+
+	/** Consulta els identificadors dels expedients amb error de reindexació per a un tipus d'expedient concret.
+	 * 
+	 * @param expedientTipusId
+	 * @return
+	 */
+	@Query("select e.id " +
+			"from Expedient e " +
+			"where e.tipus.id = :expedientTipusId " +
+			" 		and e.anulat = false " +
+			"		and e.reindexarError = true ")
+	public List<Long> findIdsErrorsReindexacio(@Param("expedientTipusId") Long expedientTipusId);
+
 
 }

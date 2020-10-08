@@ -81,7 +81,26 @@
 			margin-left: 0px !important;
 		}
 	</style>
-<script>
+
+<script type="text/javascript">
+// <![CDATA[
+
+
+// Per comprovar que només es fa una vegada
+var comprovacio_numero = 0;
+/* Abans de realitzar la consulta comprova si hi ha expedients amb error o pendents
+de reindexació i mostra o oculta les advertències de reindexacions. */
+function comprovarPendentsReindexacio() {
+	if (comprovacio_numero % 2 == 0) {
+		//console.log("Consultant alertes de reindexació...");
+		jQuery.ajaxSetup({async:false});
+		$('#contingut-alertes-reindexacio').load(webutilContextPath() + "/nodeco/v3/expedient/consulta/${consulta.id}/alertes");
+		jQuery.ajaxSetup({async:true});	
+		//console.log("Alertes reindexació consultades");
+	}
+	comprovacio_numero++;
+}
+
 $(document).ready(function() {	
 	$("#taulaDades").heliumDataTable({
 		ajaxSourceUrl: "<c:url value="/v3/expedient/consulta/${consulta.id}/datatable"/>",
@@ -154,12 +173,23 @@ $(document).ready(function() {
 			$("input#nomesTasquesPersonals", $formulari).val(false);
 		}
 		$(this).blur();
+				
 		$("button#consultar", $formulari).click();
 	});
+
+	// Abans de pintar la taula es comproven alertes de reindexació
+	$("#taulaDades").on('preDraw', function() {
+		comprovarPendentsReindexacio();
+	});
 });
+
+// ]]>
 </script>
 </head>
-<body>		
+<body>
+	<!-- Alertes per expedients pendents de reindexació asíncrona o per error de reindexació -->
+	<div id="contingut-alertes-reindexacio"></div>
+	
 	<form:form method="post" action="" cssClass="well form-horizontal form-tasca" commandName="expedientConsultaCommand">
 		<form:hidden path="consultaId"/>
 		<div class="control-group fila_reducida">

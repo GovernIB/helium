@@ -2430,6 +2430,33 @@ public class ExpedientServiceImpl implements ExpedientService {
 	 */
 	@Override
 	@Transactional(readOnly = true)
+	public Long consultaCountPendentsReindexacio(Long expedientTipusId) {
+		return expedientRepository.countPendentReindexacio(expedientTipusId);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@Transactional(readOnly = true)
+	public Long consultaCountErrorsReindexacio(Long expedientTipusId) {
+		return expedientRepository.countErrorsReindexacio(expedientTipusId);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@Transactional(readOnly = true)
+	public List<Long> consultaIdsErrorReindexació(Long expedientTipusId) {
+		return expedientRepository.findIdsErrorsReindexacio(expedientTipusId);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@Transactional(readOnly = true)
 	public boolean existsExpedientAmbEntornTipusINumero(Long entornId, Long expedientTipusId, String numero) {
 		return expedientRepository.findByEntornIdAndTipusIdAndNumero(
 				entornId,

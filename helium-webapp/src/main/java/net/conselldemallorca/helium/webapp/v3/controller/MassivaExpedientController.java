@@ -130,7 +130,6 @@ public class MassivaExpedientController extends BaseExpedientController {
 		try {
 			Set<Long> ids = recuperarIdsAccionesMasivas(request);
 			expedients = expedientService.findAmbIds(ids);
-			model.addAttribute("expedients", expedientService.findAmbIds(ids));
 		} catch (Exception e) {
 			expedients = new ArrayList<ExpedientDto>();
 			MissatgesHelper.error(request, getMessage(request, "error.no.massiu.expedients"));
