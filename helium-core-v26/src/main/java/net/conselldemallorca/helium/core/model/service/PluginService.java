@@ -401,13 +401,8 @@ public class PluginService {
 								new Boolean(true).toString());
 						if (portasignatures.getDataSignalIntent() == null)
 							portasignatures.setDataSignalIntent(new Date());
-						jbpmDao.signalToken(
-								tokenId.longValue(),
-								portasignatures.getTransicioOK());
 						portasignatures.setDataSignalOk(new Date());
 						portasignatures.setEstat(TipusEstat.PROCESSAT);
-						getServiceUtils().expedientIndexLuceneUpdate(
-								token.getProcessInstanceId());
 						
 						// Guarda el document
 						if (documentStore.getReferenciaCustodia() == null) {
@@ -418,6 +413,10 @@ public class PluginService {
 									documentStore);
 							portasignatures.setDataCustodiaOk(new Date());
 						}						
+						// Avança el flux
+						jbpmDao.signalToken(
+								tokenId.longValue(),
+								portasignatures.getTransicioOK());
 
 						//Actualitzem l'estat de l'expedient, ja que si tot el procés de firma i de custòdia
 						// ha anat bé, es possible que s'avanci cap al node "fi"
@@ -426,6 +425,11 @@ public class PluginService {
 						Expedient expedient = expedientDao.findAmbProcessInstanceId(rootProcessInstance.getId());
 						expedientHelper.verificarFinalitzacioExpedient(
 								expedient);
+						
+						// Reindexa els possibles canvis
+						getServiceUtils().expedientIndexLuceneUpdate(
+								token.getProcessInstanceId());
+
 						resposta = true;
 
 					} catch (PluginException pex) {
