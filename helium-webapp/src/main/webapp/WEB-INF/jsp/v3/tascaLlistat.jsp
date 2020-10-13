@@ -111,6 +111,8 @@
 		})
 		<c:if test="${entornId != null}">
 			$('#expedientTipusId').on('change', function() {
+				// Activa o desactiva les tasques
+				$('#tasca').prop('disabled', $(this).val() == '');
 				// Neteja la selecció de tasques
 				$('#botoNetejarSeleccio').trigger('click');
 				var tipus = $(this).val();

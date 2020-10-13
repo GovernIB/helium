@@ -614,6 +614,8 @@ public class DissenyServiceImpl implements DissenyService {
 			ids.addAll(definicioProcesRepository.findIdsDarreraVersioAmbEntornIdIExpedientTipusId(
 					expedientTipus.getEntorn().getId(),
 					expedientTipus.getId()));
+			if (ids.isEmpty())
+				ids.add(0L);
 			tasques.addAll(
 					tascaRepository.findIdNomByDefinicioProcesIdsOrderByNomAsc(ids));
 		}
