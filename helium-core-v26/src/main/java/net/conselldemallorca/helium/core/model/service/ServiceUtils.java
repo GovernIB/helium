@@ -177,12 +177,13 @@ public class ServiceUtils {
 							expedientDeLaTasca.getTipus().getCodi()));
 			countTipexp.inc();
 		}
+		boolean success = false;
 		try {
 			JbpmProcessInstance rootProcessInstance = jbpmHelper.getRootProcessInstance(processInstanceId);
 			Expedient expedient = expedientDao.findAmbProcessInstanceId(rootProcessInstance.getId());
 			Map<String, Set<Camp>> mapCamps = getMapCamps(rootProcessInstance.getId());
 			Map<String, Map<String, Object>> mapValors = getMapValors(rootProcessInstance.getId());
-			luceneDao.updateExpedientCamps(
+			success = luceneDao.updateExpedientCamps(
 					expedient,
 					getMapDefinicionsProces(rootProcessInstance.getId()),
 					mapCamps,
@@ -190,6 +191,7 @@ public class ServiceUtils {
 					getMapValorsDomini(mapCamps, mapValors),
 					isExpedientFinalitzat(expedient));
 		} finally {
+			expedientDeLaTasca.setReindexarError(!success);
 			if (perTasca) {
 				contextTotal.stop();
 				contextEntorn.stop();

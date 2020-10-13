@@ -456,12 +456,8 @@ public class IndexHelper {
 		
 		JbpmProcessInstance rootProcessInstance = jbpmHelper.getRootProcessInstance(processInstanceId);
 		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(rootProcessInstance.getId());
-		try {
-			luceneHelper.deleteExpedientCamp(expedient, camp);
-		} catch (Exception ex) {
-			throw new IndexacioException("Update Indexació", ex);
-		}
-		
+		boolean success = luceneHelper.deleteExpedientCamp(expedient, camp);
+		expedient.setReindexarError(!success);		
 	}
 
 	private Map<String, Object> getVariablesJbpmProcesValor(
