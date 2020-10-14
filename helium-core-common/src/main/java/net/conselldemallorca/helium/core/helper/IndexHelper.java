@@ -132,8 +132,7 @@ public class IndexHelper {
 					mapValorsDomini,
 					isExpedientFinalitzat,
 					false);
-			expedient.setReindexarError(!success);
-			expedientRepository.saveAndFlush(expedient);
+			expedientRepository.setReindexarErrorData(expedient.getId(), !success, null);
 		} catch (Exception ex) {
 			throw new IndexacioException("Crear Indexació", ex);
 		} finally {
@@ -166,8 +165,7 @@ public class IndexHelper {
 		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
 		if (expedient.getTipus().isReindexacioAsincrona() && !isExecucioMassiva) {
 			if (expedient.getReindexarData() == null) {
-				expedient.setReindexarData(new Date());
-				expedientRepository.save(expedient);
+				expedientRepository.setReindexarErrorData(expedient.getId(), expedient.isReindexarError(),  new Date());
 			}
 		} else {
 			expedientIndexLuceneUpdate(
@@ -180,7 +178,7 @@ public class IndexHelper {
 	public void expedientIndexLuceneUpdate(
 			String processInstanceId,
 			boolean perTasca,
-			Expedient expedientDeLaTasca) {
+			final Expedient expedientDeLaTasca) {
 		
 		JbpmProcessInstance rootProcessInstance = jbpmHelper.getRootProcessInstance(processInstanceId);
 		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(rootProcessInstance.getId());
@@ -285,10 +283,8 @@ public class IndexHelper {
 				contextIndexarEntorn.stop();
 				contextIndexarTipExp.stop();
 			}
-			expedient.setReindexarData(null);
 		}
-		expedient.setReindexarError(!actualitzat);
-		expedientRepository.saveAndFlush(expedient);
+		expedientRepository.setReindexarErrorData(expedient.getId(), !actualitzat, null);
 	}
 
 	public void expedientIndexLuceneDelete(String processInstanceId) {
@@ -444,10 +440,8 @@ public class IndexHelper {
 //			contextMongoTotal.stop();
 //			contextMongoEntorn.stop();
 //			contextMongoTipExp.stop();
-			expedient.setReindexarData(null);
 		}
-		expedient.setReindexarError(!actualitzat);
-		expedientRepository.saveAndFlush(expedient);
+		expedientRepository.setReindexarErrorData(expedient.getId(), !actualitzat, null);
 		return actualitzat;
 	}
 
@@ -457,7 +451,7 @@ public class IndexHelper {
 		JbpmProcessInstance rootProcessInstance = jbpmHelper.getRootProcessInstance(processInstanceId);
 		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(rootProcessInstance.getId());
 		boolean success = luceneHelper.deleteExpedientCamp(expedient, camp);
-		expedient.setReindexarError(!success);		
+		expedientRepository.setReindexarErrorData(expedient.getId(), !success, null);
 	}
 
 	private Map<String, Object> getVariablesJbpmProcesValor(

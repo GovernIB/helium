@@ -93,7 +93,7 @@ public class LuceneHelper extends LuceneIndexSupport {
 	protected static final boolean PEGAT_ENTORN_ACTIU = true;
 
 	public boolean createExpedient(
-			Expedient expedient,
+			final Expedient expedient,
 			Map<String, DefinicioProces> definicionsProces,
 			Map<String, Set<Camp>> camps,
 			Map<String, Map<String, Object>> valors,
@@ -194,7 +194,7 @@ public class LuceneHelper extends LuceneIndexSupport {
 		}
 	}
 
-	public void deleteExpedient(Expedient expedient) {
+	public void deleteExpedient(final Expedient expedient) {
 		logger.debug("Esborrant informació de l'expedient de l'index Lucene (" +
 				"id=" + expedient.getId() + ")");
 		mesuresTemporalsHelper.mesuraIniciar("Lucene: deleteExpedient", "lucene", expedient.getTipus().getNom());
@@ -528,7 +528,7 @@ public class LuceneHelper extends LuceneIndexSupport {
 
 	private Document updateDocumentFromExpedient(
 			Document docLucene, 
-			Expedient expedient, 
+			final Expedient expedient, 
 			Map<String, DefinicioProces> definicionsProces, 
 			Map<String, Set<Camp>> camps, 
 			Map<String, Map<String, Object>> valors, 
@@ -1189,7 +1189,7 @@ public class LuceneHelper extends LuceneIndexSupport {
 	}
 	
 	public List<Map<String, DadaIndexadaDto>> expedientIndexLuceneGetDades(
-			Expedient expedient, 
+			final Expedient expedient, 
 			List<Camp> informeCamps) {
 		//checkIndexOk();
 			    

@@ -128,7 +128,7 @@ public class TascaProgramadaServiceImpl implements TascaProgramadaService {
 		Timer.Context contextTotal = null;
 		Timer.Context contextEntorn = null;
 		Timer.Context contextTipexp = null;
-		
+
 		try {
 			
 			final Timer timerTotal = metricRegistry.timer(MetricRegistry.name(TascaProgramadaService.class, "reindexacio.asincrona.expedient"));
@@ -156,11 +156,7 @@ public class TascaProgramadaServiceImpl implements TascaProgramadaService {
 			logger.error(
 					"Error reindexant l'expedient " + expedient.getIdentificador(),
 					ex);
-			expedient.setReindexarError(true);
-		} finally {
-			expedient.setReindexarData(null);
-			expedientRepository.save(expedient);
-			
+		} finally {			
 			contextTotal.stop();
 			contextEntorn.stop();
 			contextTipexp.stop();

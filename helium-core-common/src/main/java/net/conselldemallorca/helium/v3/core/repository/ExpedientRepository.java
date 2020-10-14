@@ -10,6 +10,7 @@ import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -411,6 +412,12 @@ public interface ExpedientRepository extends JpaRepository<Expedient, Long> {
 			" 		and e.anulat = false " +
 			"		and e.reindexarError = true ")
 	public List<Long> findIdsErrorsReindexacio(@Param("expedientTipusId") Long expedientTipusId);
+	
+	
+	/** Mètode per modificar només l'error de reindexació i posar la data de reindexació a null per evitar modificar la resta de l'expedient. */
+	@Modifying
+	@Query("update Expedient e set e.reindexarError = :error, e.reindexarData = :data where e.id = :id")
+	public int setReindexarErrorData(@Param("id") Long id, @Param("error") boolean error, @Param("data") Date data);
 
 
 }
