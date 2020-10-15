@@ -3458,9 +3458,12 @@ public class PluginHelper {
 
 	private String treureCaractersEstranys(String nom) {
 		String nomRevisat;
-		if (nom != null)
+		if (nom != null) {
 			nomRevisat = nom.trim().replace("&", "&amp;").replaceAll("[~\"#%*:<\n\r\t>/?/|\\\\ ]", "_");
-		else 
+			// L'Arxiu no admet un punt al final del nom #1418
+			if (nomRevisat.endsWith("."))
+				nomRevisat = nomRevisat.substring(0, nomRevisat.length() - 1) + "_";
+		} else
 			nomRevisat = null;
 		return nomRevisat;
 	}
