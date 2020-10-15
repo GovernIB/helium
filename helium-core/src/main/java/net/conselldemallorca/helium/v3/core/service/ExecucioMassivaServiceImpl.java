@@ -54,6 +54,7 @@ import net.conselldemallorca.helium.core.helper.PermisosHelper;
 import net.conselldemallorca.helium.core.helper.PluginHelper;
 import net.conselldemallorca.helium.core.helper.TascaHelper;
 import net.conselldemallorca.helium.core.helper.TerminiHelper;
+import net.conselldemallorca.helium.core.helper.UsuariActualHelper;
 import net.conselldemallorca.helium.core.helperv26.MesuresTemporalsHelper;
 import net.conselldemallorca.helium.core.model.hibernate.Accio;
 import net.conselldemallorca.helium.core.model.hibernate.Camp;
@@ -171,7 +172,9 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 	private PermisosHelper permisosHelper;
 	@Resource(name = "documentHelperV3")
 	private DocumentHelperV3 documentHelper;
-	
+	@Resource
+	private UsuariActualHelper usuariActualHelper;
+
 	@Autowired
 	private TascaService tascaService;
 	@Autowired
@@ -276,7 +279,11 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 					execucioMassiva.addExpedient(eme);
 				}
 			}
-			execucioMassiva.setEntorn(EntornActual.getEntornId());
+			// Entorn
+			Long entornId = expedientTipus != null && expedientTipus.getEntorn() != null ? 
+					expedientTipus.getEntorn().getId() 
+					: EntornActual.getEntornId();
+			execucioMassiva.setEntorn(entornId);
 			
 			if (expedients || (dto.getDefProcIds() != null && dto.getDefProcIds().length > 0)) {
 				
@@ -318,7 +325,7 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 	@SuppressWarnings("unchecked")
 	@Transactional(readOnly = true)
 	@Override
-	public String getJsonExecucionsMassivesByUser(int results, boolean viewAll) {		
+	public String getJsonExecucionsMassives(int results, String  nivell) {		
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		
 		int page = results < 0 ? 0 : results;
@@ -326,10 +333,21 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 		Pageable paginacio = new PageRequest(page,10, Direction.DESC, "dataInici");		
 		List<ExecucioMassiva> execucions = null;
 		
-		if (viewAll){
-			execucions = execucioMassivaRepository.findByEntornOrderByDataIniciDesc(EntornActual.getEntornId(), paginacio);
-		}else{
-			execucions = execucioMassivaRepository.findByUsuariAndEntornOrderByDataIniciDesc(auth.getName(), EntornActual.getEntornId(), paginacio);
+		// Revisa el nivell que pot veure
+		if (nivell != null && "admin".equals(nivell)) {
+			// nivell admin
+			if (usuariActualHelper.isAdministrador()) {
+				// hel_admin
+				execucions = execucioMassivaRepository.findAll(paginacio).getContent();
+			} else {
+				// admin entorn
+				execucions = execucioMassivaRepository.findByEntornOrderByDataIniciDesc(EntornActual.getEntornId(), paginacio);				
+			}
+		}
+		else 
+		{
+			// nivell user
+			execucions = execucioMassivaRepository.findByUsuariAndEntornOrderByDataIniciDesc(auth.getName(), EntornActual.getEntornId(), paginacio);			
 		}
 		
 		//Recuperem els resultats
@@ -369,6 +387,11 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 					mjson.put("id", id);
 					mjson.put("tipus", execucio.getTipus() != null ? execucio.getTipus().toString() : "");
 					mjson.put("expedientTipusId", execucio.getExpedientTipus() != null ? execucio.getExpedientTipus().getId() : "");
+					mjson.put("expedientTipusCodi", execucio.getExpedientTipus() != null ? execucio.getExpedientTipus().getCodi() : "");
+					mjson.put("expedientTipusNom", execucio.getExpedientTipus() != null ? execucio.getExpedientTipus().getNom() : "");
+					mjson.put("entornId", execucio.getExpedientTipus() != null && execucio.getExpedientTipus().getEntorn() != null ? execucio.getExpedientTipus().getEntorn().getId() : "");
+					mjson.put("entornCodi", execucio.getExpedientTipus() != null && execucio.getExpedientTipus().getEntorn() != null ? execucio.getExpedientTipus().getEntorn().getCodi() : "");
+					mjson.put("entornNom", execucio.getExpedientTipus() != null && execucio.getExpedientTipus().getEntorn() != null ? execucio.getExpedientTipus().getEntorn().getNom() : "");
 					mjson.put("text", JSONValue.escape(getTextExecucioMassiva(execucio, tasca)));
 					
 					mjson.put("error", error);

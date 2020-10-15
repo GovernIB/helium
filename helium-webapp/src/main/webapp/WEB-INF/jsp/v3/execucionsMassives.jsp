@@ -13,7 +13,14 @@
 	<title>
 		<c:choose>
 			<c:when test="${nivell == 'admin'}">
-				<spring:message code='comuns.massiu.entorn' />
+				<c:choose>
+					<c:when test="${dadesPersona.admin}">
+						<spring:message code='comuns.massiu.helium' />
+					</c:when>
+					<c:otherwise>
+						<spring:message code='comuns.massiu.entorn' arguments='${entornActual.nom}' />
+					</c:otherwise>
+				</c:choose>
 			</c:when>
 			<c:otherwise>
 				<spring:message code='comuns.massiu.usuari' />
@@ -118,11 +125,6 @@
 		var page = 0;
 		var numResults = 10;
 		var nivell = "${nivell}";
-		var col_span = "col-md-2";
-		
-		if (nivell == "admin"){
-			col_span = "col-md-1 no-padding";
-		}
 
 		// Funció per mostrar l'error amb salts de línia i caracters estranys
 		function escapeHtml(html){
@@ -272,15 +274,16 @@
 	    }
 	    
 	    function createTit(execucio) {
+	    	var title = execucio.text + "\nEntorn: " + execucio.entornCodi + " - " + execucio.entornNom + " \nExpedient tipus: " + execucio.expedientTipusCodi + " - " + execucio.expedientTipusNom;  
+	    	
 	    	var text =	
 	    		'<div id="mass_' + execucio.id + '" href="#collapse_' + execucio.id + '" data-toggle="collapse" class="panel-heading clicable grup">' +
 	    		'<div class="row pull-left massiu-dades">' +
-	    		'<div class="col-md-3"><span class="desc-limit" title="' + execucio.text + '">' + execucio.text + '</span></div>' +
+	    		'<div class="col-md-3"><span class="desc-limit" title="' + title + '">' + execucio.text + '</span></div>' +
 				'<div class="col-md-2 one-line"><div><span class="mass-badge badge in-line-badge">' + execucio.total + '</span></div> <div class="massiu-dades" id="pbar_' + execucio.id + '"><span class="plabel" id="plabel_' + execucio.id + '">' + execucio.executades + '%</span></div></div>' +
-				//'<div class="col-md-1">' + execucio.ok + '</div>' + 
 				'<div class="mass-error col-md-1">' + execucio.error + '</div>' + 
-				'<div class="' + col_span + '">' + execucio.data + '</div>' + 
-				'<div class="mass-data-fi ' + col_span + '">' + (execucio.dataFi != undefined ? execucio.dataFi : '') + '</div>' +
+				'<div class="col-md-2">' + execucio.data + '</div>' + 
+				'<div class="mass-data-fi col-md-2">' + (execucio.dataFi != undefined ? execucio.dataFi : '') + '</div>' +
 				'<div class="col-md-2">' + execucio.usuari + '</div>' + 
 				'</div>';
 			if (execucio.total > 0) {
@@ -386,8 +389,8 @@
 										'<div class="col-md-2"><strong><spring:message code="expedient.tramitacio.massiva.header.execucio"/></strong></div>' +
 										//'<div class="col-md-1"><strong><spring:message code="expedient.tramitacio.massiva.header.ok"/></strong></div>' +
 										'<div class="col-md-1"><strong><spring:message code="expedient.tramitacio.massiva.header.error"/></strong></div>' +
-										'<div class="' + col_span + '"><strong><spring:message code="expedient.tramitacio.massiva.header.dataInici"/></strong></div>' +
-										'<div class="' + col_span + '"><strong><spring:message code="expedient.tramitacio.massiva.header.dataFi"/></strong></div>' +
+										'<div class="col-md-2"><strong><spring:message code="expedient.tramitacio.massiva.header.dataInici"/></strong></div>' +
+										'<div class="col-md-2"><strong><spring:message code="expedient.tramitacio.massiva.header.dataFi"/></strong></div>' +
 										'<div class="col-md-2"><strong><spring:message code="expedient.tramitacio.massiva.header.usuari"/></strong></div>' + 
 									'</div>'+ 
 									'<div class="pull-right">' +

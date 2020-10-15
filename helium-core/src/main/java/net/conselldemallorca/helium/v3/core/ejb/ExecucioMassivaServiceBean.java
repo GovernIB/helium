@@ -52,8 +52,8 @@ public class ExecucioMassivaServiceBean implements ExecucioMassivaService {
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public String getJsonExecucionsMassivesByUser(int numResults, boolean viewAll) {
-		return delegate.getJsonExecucionsMassivesByUser(numResults,viewAll);
+	public String getJsonExecucionsMassives(int numResults, String nivell) {
+		return delegate.getJsonExecucionsMassives(numResults, nivell);
 	}
 	
 	@Override

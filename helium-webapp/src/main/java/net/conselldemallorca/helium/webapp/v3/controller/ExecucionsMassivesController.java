@@ -7,9 +7,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import net.conselldemallorca.helium.v3.core.api.service.ExecucioMassivaService;
-import net.conselldemallorca.helium.webapp.mvc.util.BaseController;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -19,6 +16,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+
+import net.conselldemallorca.helium.v3.core.api.service.ExecucioMassivaService;
+import net.conselldemallorca.helium.webapp.mvc.util.BaseController;
 
 /**
  * Controlador per la execucions massives
@@ -37,7 +37,7 @@ public class ExecucionsMassivesController extends BaseController {
 			HttpServletRequest request,
 			@PathVariable String nivell, 
 			Model model) {
-		model.addAttribute("nivell",nivell);
+		model.addAttribute("nivell", nivell);
 		return "v3/execucionsMassives";
 	}
 	
@@ -50,7 +50,9 @@ public class ExecucionsMassivesController extends BaseController {
 			@PathVariable String nivell, 
 			ModelMap model, 
 			HttpSession session)  throws ServletException, IOException {
-		return execucioMassivaService.getJsonExecucionsMassivesByUser(numResults,(nivell.equalsIgnoreCase("admin") && request.isUserInRole("ROLE_ADMIN")));
+		
+		return execucioMassivaService.getJsonExecucionsMassives(numResults, nivell);
+
 	}
 	
 	/**

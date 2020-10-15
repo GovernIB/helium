@@ -24,7 +24,14 @@ public interface ExecucioMassivaService {
 
 	public void cancelarExecucio(Long id) throws ValidacioException;
 
-	public String getJsonExecucionsMassivesByUser(int numResults, boolean viewAll) throws NoTrobatException;
+	/** Per obtenir les dades JSON de les execucions massives
+	 * 
+	 * @param numResults Número de pàgina començant per la 0 i retornant 10 resultats.
+	 * @param nivell Per indicar si veure dades a nivell d'usuari o a nivell d'administrador. Possibles valors "admin" o "user"
+	 * @return
+	 * @throws NoTrobatException
+	 */
+	public String getJsonExecucionsMassives(int numResults, String nivell) throws NoTrobatException;
 	
 	public String getExecucioMassivaDetall(Long execucioMassivaId) throws NoTrobatException, SistemaExternException;
 	

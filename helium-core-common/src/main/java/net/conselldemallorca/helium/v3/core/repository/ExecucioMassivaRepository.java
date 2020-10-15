@@ -19,9 +19,12 @@ import org.springframework.data.repository.query.Param;
  * @author Limit Tecnologies <limit@limit.es>
  */
 public interface ExecucioMassivaRepository extends JpaRepository<ExecucioMassiva, Long> {
+
+	/** Llistat per usuari i entorn. */
+	public List<ExecucioMassiva> findByUsuariAndEntornOrderByDataIniciDesc(String usuari, Long entorn, Pageable pageable);
 	
-	List<ExecucioMassiva> findByUsuariAndEntornOrderByDataIniciDesc(String usuari, Long entorn, Pageable pageable);
-	List<ExecucioMassiva> findByEntornOrderByDataIniciDesc(Long entorn, Pageable pageable);
+	/** Llistat per administradors de l'entorn. */
+	public List<ExecucioMassiva> findByEntornOrderByDataIniciDesc(Long entorn, Pageable pageable);	
 	
 	@Query("select min(id) " +
 			"from 	ExecucioMassiva " +
