@@ -168,6 +168,20 @@ $(document).ready(function() {
 	// És un cas especial de redirecció des de l'iniciar de la v2.6 amb l'acció d'iniciar expedient
 	if (window.location.href.includes("accio=iniciar"))
 		$('#iniciar-expediente').find('a').click();
+	
+	// A vegades es creen dos inputs type hidden i s'envia accio=netejar,consultar #1258
+	$('#netejar').click(function() {
+		if ($(':input[name=accio][type=hidden]').length > 1 ) {
+				var i = 0;
+				$(':input[name=accio][type=hidden]').each(function(){
+					if (i == 0) {
+						$(this).val('netejar');
+					} else {
+						$(this).remove();
+					}
+				});
+		}
+	});
 });
 
 
@@ -426,7 +440,7 @@ function refrescaEstatSegonPla() {
 				<form:hidden path="nomesErrors"/>
 				<form:hidden path="nomesTasquesPersonals"/>
 				<form:hidden path="nomesTasquesGrup"/>
-				<button style="display:none" type="submit" name="accio" value="consultar"></button>
+				<button id="consultarOcult" style="display:none" type="submit" name="accio" value="consultar"></button>
 				<div class="row">
 					<div class="col-md-6">
 						<div class="btn-group">
