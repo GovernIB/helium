@@ -1,5 +1,6 @@
 package net.conselldemallorca.helium.v3.core.service;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -19,6 +20,7 @@ import com.codahale.metrics.Counter;
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer;
 
+import net.conselldemallorca.helium.core.helper.ExpedientHelper;
 import net.conselldemallorca.helium.core.helper.IndexHelper;
 import net.conselldemallorca.helium.core.helper.NotificacioHelper;
 import net.conselldemallorca.helium.core.helper.TascaProgramadaHelper;
@@ -58,6 +60,8 @@ public class TascaProgramadaServiceImpl implements TascaProgramadaService {
 	private ExecucioMassivaService execucioMassivaService;
 	@Resource
 	private IndexHelper indexHelper;
+	@Resource
+	private ExpedientHelper expedientHelper;
 	@Resource
 	private NotificacioHelper notificacioHelper;
 	@Resource
@@ -126,7 +130,13 @@ public class TascaProgramadaServiceImpl implements TascaProgramadaService {
 		boolean fi = reindexacions.isEmpty();
 		// Llistat d'expedients reindexats per no reindexar dues vegades
 		Set<Long> expedientsIdsReindexats;			
+		Date darreraData = null;
 		while(!fi) {
+			// Busca la darrera data per buscar si es programen noves reindexacions per un expedient a partir de la darrera data.
+			for (ExpedientReindexacio reindexacio : reindexacions) {
+				if (darreraData == null || darreraData.before(reindexacio.getDataReindexacio()))
+					darreraData = reindexacio.getDataReindexacio();
+			}
 			// Llistat d'expedients reindexats per no reindexa el mateix expedient dues vegades en la mateixa iteració
 			expedientsIdsReindexats = new HashSet<Long>(); 
 			// Itera per les diferent reindexacions
@@ -134,6 +144,17 @@ public class TascaProgramadaServiceImpl implements TascaProgramadaService {
 				if (!expedientsIdsReindexats.contains(reindexacio.getExpedientId())) {
 					expedientsIdsReindexats.add(reindexacio.getExpedientId());
 					tascaProgramadaHelper.reindexarExpedient(reindexacio.getExpedientId());
+					
+					// Comprova si mentres s'ha reindexat s'ha programat una nova reindexació per fixar la nova data a l'expedient
+					Date dataReindexacio = expedientReindexacioRepository.findSeguentReindexacioData(reindexacio.getExpedientId(), darreraData);
+					if (dataReindexacio != null) {
+						try {
+							tascaProgramadaHelper.actualitzarExpedientReindexacioData(reindexacio.getExpedientId(), dataReindexacio);
+						}catch(Exception e) {
+							logger.error("Error actualtizant les dades de reindexació per l'expedient " + reindexacio.getExpedientId() + ": " + e.getMessage(), e);
+						}
+
+					}
 				}
 				expedientReindexacioRepository.delete(reindexacio);
 			}
@@ -141,14 +162,23 @@ public class TascaProgramadaServiceImpl implements TascaProgramadaService {
 			reindexacions = expedientReindexacioRepository.findAll();
 			fi = reindexacions.isEmpty();	
 		}
-			
-		/*
-		List<Long> expedientIds = expedientRepository.findAmbDataReindexacio();
-		
-		for (Long expedientId: expedientIds) {
-			tascaProgramadaHelper.reindexarExpedient(expedientId);
+	}
+	
+	/** Mètode  per acutalitzar les dades de reindexació d'un expedient dins d'una transacció. Serveix per
+	 * informar la data de reindexació asíncrona en el cas que s'hagi reindexat però que s'hagi tornat a programar
+	 * una reindexació posterior.
+	 * 
+	 * @param expedientId
+	 * @param dataReindexacio
+	 */
+	@Transactional
+	public void actualitzarExpedientReindexacioData(Long expedientId, Date dataReindexacio) {
+		try {
+			Expedient expedient = expedientRepository.findOne(expedientId);
+			expedientRepository.setReindexarErrorData(expedientId, expedient.isReindexarError(), dataReindexacio);			
+		}catch(Exception e) {
+			logger.error("Error actualtizant les dades de reindexació per l'expedient " + expedientId + ": " + e.getMessage(), e);
 		}
-		*/		
 	}
 	
 	@Override

@@ -1743,16 +1743,6 @@ public class ExpedientHelper {
 	    String org = expedient.getNtiOrgano();
 	    return "ES_" + org + "_" + any + "_EXP_HEL" + id;
 	}
-	
-	/** Mètode per modificar la informació de la reindexació sense modificar la resta de l'expedient
-	 * 
-	 * @param expedientId Identificador de l'expedient
-	 * @param isError Marca si l'expedient té error de reindexació.
-	 * @param dataReindexacioAsincrona Per fixar la data de reindexació asíncrona.
-	 */
-	public void setDadesReindexacio(Long expedientId, boolean isError, Date dataReindexacioAsincrona) {
-		expedientRepository.setReindexarErrorData(expedientId, isError, dataReindexacioAsincrona);
-	}
 
 	private static final Logger logger = LoggerFactory.getLogger(ExpedientHelper.class);
 }
