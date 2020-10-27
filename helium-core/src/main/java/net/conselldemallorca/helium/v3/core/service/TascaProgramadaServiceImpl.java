@@ -1,8 +1,10 @@
 package net.conselldemallorca.helium.v3.core.service;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.annotation.Resource;
 
@@ -23,6 +25,7 @@ import net.conselldemallorca.helium.core.helper.TascaProgramadaHelper;
 import net.conselldemallorca.helium.core.model.hibernate.ExecucioMassiva.ExecucioMassivaTipus;
 import net.conselldemallorca.helium.core.model.hibernate.ExecucioMassivaExpedient;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
+import net.conselldemallorca.helium.core.model.hibernate.ExpedientReindexacio;
 import net.conselldemallorca.helium.core.model.hibernate.Notificacio;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentEnviamentEstatEnumDto;
@@ -31,6 +34,7 @@ import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.service.ExecucioMassivaService;
 import net.conselldemallorca.helium.v3.core.api.service.TascaProgramadaService;
 import net.conselldemallorca.helium.v3.core.repository.ExecucioMassivaExpedientRepository;
+import net.conselldemallorca.helium.v3.core.repository.ExpedientReindexacioRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientRepository;
 import net.conselldemallorca.helium.v3.core.repository.NotificacioRepository;
 
@@ -46,6 +50,8 @@ public class TascaProgramadaServiceImpl implements TascaProgramadaService {
 	private ExecucioMassivaExpedientRepository execucioMassivaExpedientRepository;
 	@Resource
 	private ExpedientRepository expedientRepository;
+	@Resource
+	private ExpedientReindexacioRepository expedientReindexacioRepository;
 	@Resource
 	private NotificacioRepository notificacioRepository;
 	@Autowired
@@ -104,17 +110,45 @@ public class TascaProgramadaServiceImpl implements TascaProgramadaService {
 	}
 	
 	/*** REINDEXACIO ASÍNCRONA ***/
+	
+	/** Comprovació cada 10 segons si hi ha expedients pendents de reindexació asíncrona segons la taula
+	 * hel_expedient_reindexacio. Cada cop que s'executa va consultant si en queden de pendents fins la 
+	 * propera execució.
+	 */
 	@Override
-	@Scheduled(fixedDelay=15000)
+	@Scheduled(fixedDelay=10000)
 	public void comprovarReindexacioAsincrona() {
 		Counter countMetodeAsincronTotal = metricRegistry.counter(MetricRegistry.name(TascaProgramadaService.class, "reindexacio.asincrona.metode.count"));
 		countMetodeAsincronTotal.inc();
 		
+		// Consulta les reindexacions pendents
+		List<ExpedientReindexacio> reindexacions = expedientReindexacioRepository.findAll();
+		boolean fi = reindexacions.isEmpty();
+		// Llistat d'expedients reindexats per no reindexar dues vegades
+		Set<Long> expedientsIdsReindexats;			
+		while(!fi) {
+			// Llistat d'expedients reindexats per no reindexa el mateix expedient dues vegades en la mateixa iteració
+			expedientsIdsReindexats = new HashSet<Long>(); 
+			// Itera per les diferent reindexacions
+			for(ExpedientReindexacio reindexacio : reindexacions) {
+				if (!expedientsIdsReindexats.contains(reindexacio.getExpedientId())) {
+					expedientsIdsReindexats.add(reindexacio.getExpedientId());
+					tascaProgramadaHelper.reindexarExpedient(reindexacio.getExpedientId());
+				}
+				expedientReindexacioRepository.delete(reindexacio);
+			}
+			// torna a consultar les reindexacions
+			reindexacions = expedientReindexacioRepository.findAll();
+			fi = reindexacions.isEmpty();	
+		}
+			
+		/*
 		List<Long> expedientIds = expedientRepository.findAmbDataReindexacio();
 		
 		for (Long expedientId: expedientIds) {
 			tascaProgramadaHelper.reindexarExpedient(expedientId);
 		}
+		*/		
 	}
 	
 	@Override
@@ -156,6 +190,7 @@ public class TascaProgramadaServiceImpl implements TascaProgramadaService {
 			logger.error(
 					"Error reindexant l'expedient " + expedient.getIdentificador(),
 					ex);
+			expedientRepository.setReindexarErrorData(expedientId, true, null);
 		} finally {			
 			contextTotal.stop();
 			contextEntorn.stop();
