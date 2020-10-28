@@ -836,6 +836,12 @@ public interface ExpedientService {
 	 */
 	public List<Long> consultaIdsErrorReindexació(Long expedientTipusId);
 
+	/** Consulta els identificadors dels expedients pendents de reindexació no anul·lats per a un tipus d'expedient.
+	 * 
+	 * @param expedientTipusId
+	 * @return
+	 */
+	public List<Long> consultaIdsPendentReindexació(Long expedientTipusId);
 
 	
 	public List<TascaDadaDto> findConsultaFiltre(Long consultaId);

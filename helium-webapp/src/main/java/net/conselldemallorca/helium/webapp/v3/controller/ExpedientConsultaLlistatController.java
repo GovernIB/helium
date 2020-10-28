@@ -380,14 +380,50 @@ public class ExpedientConsultaLlistatController extends BaseExpedientController 
 			if (!ids.isEmpty())
 				expedients = expedientService.findAmbIds(new HashSet<Long>(ids));
 		} catch (Exception e) {
-			logger.error("Error consultat expedients amb error reindexació per la consulta " + consultaId, e);
+			String errMsg = "Error consultant expedients amb error reindexació per la consulta " + consultaId + ": " + e.getMessage();
+			logger.error(errMsg, e);
+			model.addAttribute("error", errMsg);
 		}
 		model.addAttribute("expedients", expedients);
+		model.addAttribute("dataComprovacio", new SimpleDateFormat("dd-MM-yyyy HH:mm:ss").format(new Date()));
 
 		return "v3/expedientConsultaErrorsReindexacio";
 	}
 	
 
+	/** Mètode per consultar via Ajax el llistat d'expedients pendents de reindexació.
+	 * Aquest contingut es consulta expandint la alerta d'expedients pendent de reindexació en la pàgina
+	 * de la consulta.
+	 * @param request
+	 * @param consultaId
+	 * @param model
+	 * @return
+	 */
+	@RequestMapping(value = "/{consultaId}/expedientsPendentsReindexacio")	
+	public String expedientsPendentsReindexacio(
+			HttpServletRequest request,
+			@PathVariable Long consultaId,
+			Model model) {
+
+		ConsultaDto consulta = dissenyService.findConsulteById(consultaId);
+
+		// Consulta si hi ha expedients amb error de reindexació o pendents de reindexar
+		List<ExpedientDto> expedients = new ArrayList<ExpedientDto>();
+		try {
+			List<Long> ids = expedientService.consultaIdsPendentReindexació(consulta.getExpedientTipus().getId());
+			if (!ids.isEmpty())
+				expedients = expedientService.findAmbIds(new HashSet<Long>(ids));
+		} catch (Exception e) {
+			String errMsg = "Error consultant expedients pendents de reindexació per la consulta " + consultaId + ": " + e.getMessage();
+			logger.error(errMsg, e);
+			model.addAttribute("error", errMsg);
+		}
+		model.addAttribute("expedients", expedients);
+		model.addAttribute("dataComprovacio", new SimpleDateFormat("dd-MM-yyyy HH:mm:ss").format(new Date()));
+
+		return "v3/expedientConsultaErrorsReindexacio";
+	}
+	
 	private Map<String, Object> processarValorsFiltre(
 			Object filtreCommand,
 			List<TascaDadaDto> dadesFiltre,

@@ -2457,6 +2457,15 @@ public class ExpedientServiceImpl implements ExpedientService {
 	 */
 	@Override
 	@Transactional(readOnly = true)
+	public List<Long> consultaIdsPendentReindexació(Long expedientTipusId) {
+		return expedientRepository.findIdsPendentsReindexacio(expedientTipusId);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@Transactional(readOnly = true)
 	public boolean existsExpedientAmbEntornTipusINumero(Long entornId, Long expedientTipusId, String numero) {
 		return expedientRepository.findByEntornIdAndTipusIdAndNumero(
 				entornId,

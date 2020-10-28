@@ -25,6 +25,7 @@ import net.conselldemallorca.helium.core.model.hibernate.Camp.TipusCamp;
 import net.conselldemallorca.helium.core.model.hibernate.CampRegistre;
 import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
+import net.conselldemallorca.helium.core.model.hibernate.ExpedientReindexacio;
 import net.conselldemallorca.helium.jbpm3.integracio.DominiCodiDescripcio;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessInstance;
@@ -34,6 +35,7 @@ import net.conselldemallorca.helium.v3.core.api.exception.IndexacioException;
 import net.conselldemallorca.helium.v3.core.api.service.TascaService;
 import net.conselldemallorca.helium.v3.core.repository.CampRepository;
 import net.conselldemallorca.helium.v3.core.repository.DefinicioProcesRepository;
+import net.conselldemallorca.helium.v3.core.repository.ExpedientReindexacioRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientRepository;
 
 /**
@@ -54,6 +56,8 @@ public class IndexHelper {
 	private CampRepository campRepository;
 	@Resource
 	private ExpedientRepository expedientRepository;
+	@Resource
+	private ExpedientReindexacioRepository expedientReindexacioRepository;
 	@Resource
 	private LuceneHelper luceneHelper;
 //	@Resource
@@ -167,6 +171,11 @@ public class IndexHelper {
 			if (expedient.getReindexarData() == null) {
 				expedientRepository.setReindexarErrorData(expedient.getId(), expedient.isReindexarError(),  new Date());
 			}
+			// Encua la reindexació
+			ExpedientReindexacio reindexacio = new ExpedientReindexacio();
+			reindexacio.setExpedientId(expedient.getId());
+			reindexacio.setDataReindexacio(new Date());
+			expedientReindexacioRepository.save(reindexacio);
 		} else {
 			expedientIndexLuceneUpdate(
 					processInstanceId,
