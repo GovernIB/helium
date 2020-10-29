@@ -6,9 +6,12 @@ package net.conselldemallorca.helium.v3.core.repository;
 import java.util.Collection;
 import java.util.List;
 
+import javax.persistence.LockModeType;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -38,6 +41,14 @@ public interface ExpedientTipusRepository extends JpaRepository<ExpedientTipus, 
 	ExpedientTipus findByEntornAndId(Entorn entorn, Long id);
 
 	ExpedientTipus findById(Long expedientTipusId);
+
+	/** Per consultar l'expedient tipus amb bloqueig de BBDD per actualitzar les seqüències de números
+	 * @param expedientTipusId
+	 * @return
+	 */
+	@Lock(LockModeType.PESSIMISTIC_WRITE)
+	@Query("from ExpedientTipus where id = :expedientTipusId")
+	public ExpedientTipus findByIdAmbBloqueig(@Param("expedientTipusId") Long expedientTipusId);
 
 	@Query(	"from ExpedientTipus e " +
 			"where " +

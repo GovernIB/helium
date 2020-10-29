@@ -1334,7 +1334,7 @@ public class ExpedientHelper {
 	}
 
 	@Transactional
-	public synchronized Expedient iniciar(
+	public Expedient iniciar(
 			Long entornId,
 			String usuari,
 			Long expedientTipusId,
@@ -1371,7 +1371,10 @@ public class ExpedientHelper {
 			comprovarUsuari(usuari);
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		String usuariBo = (usuari != null) ? usuari : auth.getName();
-		ExpedientTipus expedientTipus = expedientTipusRepository.findById(expedientTipusId);
+
+		// Consulta de l'expedient tipus amb bloqueig del registre #1423
+		ExpedientTipus expedientTipus = expedientTipusRepository.findByIdAmbBloqueig(expedientTipusId);
+		
 		if (expedientTipus == null) {
 			throw new NoTrobatException(ExpedientTipus.class, expedientTipusId);
 		}

@@ -35,7 +35,6 @@ import net.conselldemallorca.helium.core.model.hibernate.Document;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 import net.conselldemallorca.helium.core.model.hibernate.Estat;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
-import net.conselldemallorca.helium.core.model.hibernate.Expedient.IniciadorTipus;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.service.DissenyService;
 import net.conselldemallorca.helium.core.model.service.DocumentService;
@@ -48,8 +47,8 @@ import net.conselldemallorca.helium.core.util.EntornActual;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
-import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto.OrdreDireccioDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService.FiltreAnulat;
 
 /**
@@ -67,6 +66,8 @@ public class TramitacioServiceImpl implements TramitacioService {
 	private EntornService entornService;
 	private DissenyService dissenyService;
 	private ExpedientService expedientService;
+	@Autowired
+	private net.conselldemallorca.helium.v3.core.api.service.ExpedientService expedientV3Service;
 	private TascaService tascaService;
 	private net.conselldemallorca.helium.v3.core.api.service.TascaService tascaServiceV3;
 	private DocumentService documentService;
@@ -108,44 +109,45 @@ public class TramitacioServiceImpl implements TramitacioService {
 							parella.getValor());
 			}
 		}
+		// Informació de l'inici d'expedient pels logs
+		String expLog = "[entorn=" +  entorn + ", expedientTipus=" + expedientTipus + ", numero=" + numero + ", titol=" + titol + "]";
 		try {
-			// Cridada sincronitzada al mètode transaccional
-			ExpedientDto expedient;
-			synchronized (ExpedientService.getObjecteSincronitzacio(et.getId())) {
-				expedient = expedientService.iniciar(
-						e.getId(),
-						null,
-						et.getId(),
-						null,
-						null,
-						numero,
-						titol,
-						null,
-						null,
-						null,
-						null,
-						false,
-						null,
-						null,
-						null,
-						null,
-						null,
-						null,
-						false,
-						null,
-						null,
-						false,
-						variables,
-						null,
-						IniciadorTipus.INTERN,
-						null,
-						null,
-						null,
-						null);
-			}
+			net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto expedient = expedientV3Service.create(
+					e.getId(),
+					null,
+					et.getId(),
+					null,
+					null,
+					numero,
+					titol,
+					null,
+					null,
+					null,
+					null,
+					false,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					false,
+					null,
+					null,
+					false,
+					variables,
+					null,
+					net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto.IniciadorTipusDto.INTERN,
+					null,
+					null,
+					null,
+					null,
+					null,
+					false);
+			logger.info("Expedient iniciat a través del WS de tramitació externa V1 " + expLog);
 			return expedient.getProcessInstanceId();
 		} catch (Exception ex) {
-			logger.error("No s'han pogut iniciar l'expedient", ex);
+			logger.error("Error iniciant l'expedient a través del WS de tramitació externa V1 "  + expLog + ": " + ex.getMessage(), ex);
 			throw new TramitacioException("No s'han pogut iniciar l'expedient: " + ex.getMessage());
 		}
 	}

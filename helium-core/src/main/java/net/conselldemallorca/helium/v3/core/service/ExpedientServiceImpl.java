@@ -244,7 +244,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public synchronized ExpedientDto create(
+	public ExpedientDto create(
 			Long entornId,
 			String usuari,
 			Long expedientTipusId,
@@ -288,41 +288,38 @@ public class ExpedientServiceImpl implements ExpedientService {
 		
 		Expedient expedient = null;
 		try {
-			// Accés sincronitzat a la transacció
-			synchronized(this) {
-				// Es crida la creació a través del helper per evitar errors de concurrència de creació de dos expedients
-				// a la vegada que ja s'ha donat el cas.
-				expedient = expedientHelper.iniciar(
-						entornId, 
-						usuari, 
-						expedientTipusId, 
-						definicioProcesId, 
-						any, 
-						numero, 
-						titol, 
-						registreNumero, 
-						registreData, 
-						unitatAdministrativa, 
-						idioma, 
-						autenticat, 
-						tramitadorNif, 
-						tramitadorNom, 
-						interessatNif, 
-						interessatNom, 
-						representantNif, 
-						representantNom, 
-						avisosHabilitats, 
-						avisosEmail, 
-						avisosMobil, 
-						notificacioTelematicaHabilitada, 
-						variables, 
-						transitionName, 
-						iniciadorTipus, 
-						iniciadorCodi, 
-						responsableCodi, 
-						documents, 
-						adjunts);
-			}
+			// Es crida la creació a través del helper per evitar errors de concurrència de creació de dos expedients
+			// a la vegada que ja s'ha donat el cas.
+			expedient = expedientHelper.iniciar(
+					entornId, 
+					usuari, 
+					expedientTipusId, 
+					definicioProcesId, 
+					any, 
+					numero, 
+					titol, 
+					registreNumero, 
+					registreData, 
+					unitatAdministrativa, 
+					idioma, 
+					autenticat, 
+					tramitadorNif, 
+					tramitadorNom, 
+					interessatNif, 
+					interessatNom, 
+					representantNif, 
+					representantNom, 
+					avisosHabilitats, 
+					avisosEmail, 
+					avisosMobil, 
+					notificacioTelematicaHabilitada, 
+					variables, 
+					transitionName, 
+					iniciadorTipus, 
+					iniciadorCodi, 
+					responsableCodi, 
+					documents, 
+					adjunts);
 			// Retorna la informació de l'expedient que s'ha iniciat
 			ExpedientDto dto = conversioTipusHelper.convertir(
 					expedient,

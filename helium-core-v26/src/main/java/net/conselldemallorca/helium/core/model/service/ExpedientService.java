@@ -3049,17 +3049,5 @@ public class ExpedientService {
 
 	public boolean tokenActivar(long tokenId, boolean activar) {
 		return jbpmHelper.tokenActivar(tokenId, activar);
-	}
-	
-	/** Map amb els objectes de sincronització per cada tipus d'expedient involucrat. */
-	private static Map<Long, Object> objectesSincronitzacio = new HashMap<Long, Object>();
-	
-	/** Mètode per obtenir un objecte per a sincronitzar la alta de l'expedient segons el tipus d'expedient. */
-	public static Object getObjecteSincronitzacio(Long expedientTipusId) {
-		synchronized (objectesSincronitzacio) {
-			if (! objectesSincronitzacio.containsKey(expedientTipusId))
-				objectesSincronitzacio.put(expedientTipusId, new Object());
-		}
-		return objectesSincronitzacio.get(expedientTipusId);
-	}
+	}	
 }
