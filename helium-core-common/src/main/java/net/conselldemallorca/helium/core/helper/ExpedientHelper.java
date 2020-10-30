@@ -8,8 +8,10 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 import javax.annotation.Resource;
@@ -797,6 +799,7 @@ public class ExpedientHelper {
 		
 		List<DocumentStore> documents = documentStoreRepository.findByProcessInstanceId(expedient.getProcessInstanceId());
 		
+		Set<String> documentsExistents = new HashSet<String>();
 		for (DocumentStore documentStore: documents) {
 			
 			Document document = documentHelper.findDocumentPerInstanciaProcesICodi(
@@ -808,6 +811,7 @@ public class ExpedientHelper {
 			} else {
 				documentDescripcio = document.getNom();
 			}
+			
 			ArxiuDto arxiu = documentHelper.getArxiuPerDocumentStoreId(
 					documentStore.getId(),
 					false,
@@ -816,6 +820,22 @@ public class ExpedientHelper {
 			if (arxiu.getTipusMime() == null)
 				arxiu.setTipusMime(documentHelper.getContentType(arxiu.getNom()));
 			
+			// Si la descripició no acaba amb l'extensió l'afegeix
+			String extensio = "." + arxiu.getExtensio();
+			if (documentDescripcio.endsWith(extensio))
+				documentDescripcio += extensio;
+			
+			// Corregeix el nom si ja hi ha un altre document amb el mateix nom i posant l'extensio
+			if (documentsExistents.contains(documentDescripcio)) {
+				int occurrences = 1;
+				String novaDescripcio;
+				do {
+					// descripcio.ext := descripcio (1).ext
+					novaDescripcio = documentDescripcio.substring(documentDescripcio.lastIndexOf(extensio), documentDescripcio.length()-1) + " (" + occurrences++ + ")" + extensio;
+				} while (documentsExistents.contains(novaDescripcio));
+				documentDescripcio = novaDescripcio;
+			}
+			documentsExistents.add(documentDescripcio);
 			
 			ContingutArxiu contingutArxiu = pluginHelper.arxiuDocumentCrearActualitzar(
 					expedient,
