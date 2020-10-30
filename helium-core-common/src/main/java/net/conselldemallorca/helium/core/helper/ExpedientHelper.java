@@ -809,7 +809,8 @@ public class ExpedientHelper {
 			if (documentStore.isAdjunt()) {
 				documentDescripcio = documentStore.getAdjuntTitol();
 			} else {
-				documentDescripcio = document.getNom();
+				// El document pot ser null si s'ha esborrat al tipus d'exedient
+				documentDescripcio = document != null ? document.getNom() : documentStore.getCodiDocument();
 			}
 			
 			ArxiuDto arxiu = documentHelper.getArxiuPerDocumentStoreId(
