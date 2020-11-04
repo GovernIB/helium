@@ -126,39 +126,64 @@ public class TascaProgramadaServiceImpl implements TascaProgramadaService {
 		countMetodeAsincronTotal.inc();		
 		// Consulta les reindexacions pendents
 		List<ExpedientReindexacio> reindexacions = expedientReindexacioRepository.findAll();
-		boolean fi = reindexacions.isEmpty();
+		// Consulta els expedients amb data de reindexació per comprovar si estan a la cua
+		List<Long> expedientIdsAmbReindexarData = expedientRepository.findIdsPendentsReindexacio();
+
+		boolean fi = reindexacions.isEmpty() && expedientIdsAmbReindexarData.isEmpty();
 		// Llistat d'expedients reindexats per no reindexar dues vegades
-		Set<Long> expedientsIdsReindexats;			
+		Set<Long> expedientsIdsReindexats;
 		Date darreraData = null;
 		while(!fi) {
+			
 			// Busca la darrera data per buscar si es programen noves reindexacions per un expedient a partir de la darrera data.
+			// També revisa si hi ha expedients amb data de reindexació que no estan a la cua
 			for (ExpedientReindexacio reindexacio : reindexacions) {
 				if (darreraData == null || darreraData.before(reindexacio.getDataReindexacio()))
 					darreraData = reindexacio.getDataReindexacio();
+				// Esborra l'id de la llista d'expedients amb data de reindexació
+				expedientIdsAmbReindexarData.remove(reindexacio.getExpedientId());
 			}
-			// Llistat d'expedients reindexats per no reindexa el mateix expedient dues vegades en la mateixa iteració
-			expedientsIdsReindexats = new HashSet<Long>(); 
-			// Itera per les diferent reindexacions
-			for(ExpedientReindexacio reindexacio : reindexacions) {
-				if (!expedientsIdsReindexats.contains(reindexacio.getExpedientId())) {
-					expedientsIdsReindexats.add(reindexacio.getExpedientId());
-					tascaProgramadaHelper.reindexarExpedient(reindexacio.getExpedientId());
-					
-					// Comprova si mentres s'ha reindexat s'ha programat una nova reindexació per fixar la nova data a l'expedient
-					Date dataReindexacio = expedientReindexacioRepository.findSeguentReindexacioData(reindexacio.getExpedientId(), darreraData);
-					if (dataReindexacio != null) {
-						try {
-							tascaProgramadaHelper.actualitzarExpedientReindexacioData(reindexacio.getExpedientId(), dataReindexacio);
-						}catch(Exception e) {
-							logger.error("Error actualtizant les dades de reindexació per l'expedient " + reindexacio.getExpedientId() + ": " + e.getMessage(), e);
-						}
-
-					}
+			if (!expedientIdsAmbReindexarData.isEmpty()) {
+				// Afegeix els expedients a la cua de reindexació
+				Expedient expedient;
+				ExpedientReindexacio novaReindexacio;
+				for (Long expedientId : expedientIdsAmbReindexarData) {
+					expedient = expedientRepository.findOne(expedientId);
+					novaReindexacio = new ExpedientReindexacio();
+					novaReindexacio.setExpedientId(expedientId);
+					novaReindexacio.setDataReindexacio(expedient.getReindexarData());
+					expedientReindexacioRepository.save(novaReindexacio);
 				}
-				expedientReindexacioRepository.delete(reindexacio);
+			} else {
+				// Continua amb les reindexacions
+				
+				// Llistat d'expedients reindexats per no reindexa el mateix expedient dues vegades en la mateixa iteració
+				expedientsIdsReindexats = new HashSet<Long>(); 
+				// Itera per les diferent reindexacions
+				for(ExpedientReindexacio reindexacio : reindexacions) {
+					if (!expedientsIdsReindexats.contains(reindexacio.getExpedientId())) {
+						expedientsIdsReindexats.add(reindexacio.getExpedientId());
+						tascaProgramadaHelper.reindexarExpedient(reindexacio.getExpedientId());
+						
+						// Comprova si mentres s'ha reindexat s'ha programat una nova reindexació per fixar la nova data a l'expedient
+						Date dataReindexacio = expedientReindexacioRepository.findSeguentReindexacioData(reindexacio.getExpedientId(), darreraData);
+						if (dataReindexacio != null) {
+							try {
+								tascaProgramadaHelper.actualitzarExpedientReindexacioData(reindexacio.getExpedientId(), dataReindexacio);
+							}catch(Exception e) {
+								logger.error("Error actualtizant les dades de reindexació per l'expedient " + reindexacio.getExpedientId() + ": " + e.getMessage(), e);
+							}
+
+						}
+					}
+					expedientReindexacioRepository.delete(reindexacio);
+				}				
 			}
-			// torna a consultar les reindexacions
+
+			// torna a consultar les reindexacions i els expedients amb data de reindexació
 			reindexacions = expedientReindexacioRepository.findAll();
+			expedientIdsAmbReindexarData = expedientRepository.findIdsPendentsReindexacio();
+			
 			fi = reindexacions.isEmpty();	
 		}
 	}

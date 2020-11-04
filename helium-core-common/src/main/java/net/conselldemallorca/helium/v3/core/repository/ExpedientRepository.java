@@ -426,6 +426,18 @@ public interface ExpedientRepository extends JpaRepository<Expedient, Long> {
 			"		and e.reindexarData is not null")
 	public List<Long> findIdsPendentsReindexacio(@Param("expedientTipusId") Long expedientTipusId);
 	
+	/** Consulta els identificadors dels expedients pendents de reindexació 
+	 * sense tipus d'expedient en concret.
+	 * 
+	 * @param expedientTipusId
+	 * @return
+	 */
+	@Query("select e.id " +
+			"from Expedient e " +
+			"where e.anulat = false " +
+			"		and e.reindexarData is not null")
+	public List<Long> findIdsPendentsReindexacio();
+
 	/** Consulta els identificadors dels expedients amb error de reindexació o pendents per a un tipus d'expedient concret.
 	 * 
 	 * @param expedientTipusId

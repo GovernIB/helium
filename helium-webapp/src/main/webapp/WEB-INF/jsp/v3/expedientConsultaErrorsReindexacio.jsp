@@ -11,7 +11,7 @@
 <br/>
 <c:choose>
 	<c:when test="${error != null }">
-		 <span class="fa fa-exclamation-triangle text-danger"></span> &nbsp; ${error }
+		 <span class="fa fa-exclamation-triangle text-danger"></span> &nbsp; ${error}
 	</c:when>
 	<c:otherwise>
 		<spring:message code="comu.darrera.actualitzacio"></spring:message>: ${dataComprovacio}

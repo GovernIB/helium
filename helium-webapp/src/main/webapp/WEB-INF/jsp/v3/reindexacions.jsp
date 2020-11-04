@@ -4,7 +4,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <%@ taglib tagdir="/WEB-INF/tags/helium" prefix="hel"%>
-<c:set var="idioma"><%=org.springframework.web.servlet.support.RequestContextUtils.getLocale(request).getLanguage()%></c:set>
+<c:set var="idioma">ca</c:set>
 
 <html>
 <head>
@@ -191,7 +191,7 @@
 						});
 				});				
 			} else {
-				$('#tipusEntorn').html("(Cap)");
+				$('#tipusEntorn').html("(<spring:message code="comu.cap"/>)");
 			}
 
 
@@ -212,44 +212,44 @@
 			<div class="alert alert-danger">
 				<span class="fa fa-warning"></span>
 				<button type="button" class="close-alertes" data-dismiss="alert" aria-hidden="true"><span class="fa fa-times"></span></button>
-				<span id="div-error-text">Error </span>
+				<span id="div-error-text"></span>
 			</div>
 		</div>
 
 	
-		<h4>Data consulta: <strong><span id="data">-</span></strong></h4>
+		<h4><spring:message code="reindexacions.dataConsulta"/>: <strong><span id="data">-</span></strong></h4>
 
-		<h4>Expedients pendents en cua de reindexació: <strong><span id="cua">-</span></strong></h4>		
+		<h4><spring:message code="reindexacions.pendentsCua"/>: <strong><span id="cua">-</span></strong></h4>		
 
 		<table id="dades-taula"
 				class="table table-striped table-bordered table-hover">
 			<thead>
 				<tr>
-					<th colspan="2">Entorn</th>
-					<th colspan="2">Tipus d'expedient</th>
+					<th colspan="2"><spring:message code="reindexacions.columna.entorn"/></th>
+					<th colspan="2"><spring:message code="reindexacions.columna.tipus"/></th>
 					<th colspan="2"></th>
 				</tr>
 				<tr>
-					<th>Codi</th>
-					<th width="30%">Nom</th>
-					<th>Codi</th>
-					<th width="30%">Nom</th>
-					<th># Errors</th>
-					<th># Pendents</th>
+					<th><spring:message code="reindexacions.columna.codi"/></th>
+					<th width="30%"><spring:message code="reindexacions.columna.nom"/></th>
+					<th><spring:message code="reindexacions.columna.codi"/></th>
+					<th width="30%"><spring:message code="reindexacions.columna.nom"/></th>
+					<th># <spring:message code="reindexacions.columna.errors"/></th>
+					<th># <spring:message code="reindexacions.columna.pendents"/></th>
 				</tr>
 			</thead>
 			<tbody>
 			</tbody>
 			<tfoot>
 				<tr>
-					<td colspan="4"><strong>Total</strong></td>
+					<td colspan="4"><strong><spring:message code="reindexacions.columna.total"/></strong></td>
 					<td id="td-errors-total" class="text-right text-danger" style="font-weight: bold;">-</td>
 					<td id="td-pendents-total" class="text-right" style="font-weight: bold;">-</td>
 				</tr>
 			</tfoot>
 		</table>
 		
-		<h4>Llistat d'expedients pel tipus seleccionat: <strong><span id="tipusEntorn">(cap)</span></strong></h4>
+		<h4><spring:message code="reindexacions.llistatTipusSeleccionat"/>: <strong><span id="tipusEntorn">(<spring:message code="comu.cap"/>)</span></strong></h4>
 		
 		<div id="divExpedientsAmbErrorOPendents">
 
