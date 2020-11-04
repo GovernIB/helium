@@ -232,6 +232,9 @@
 										<li><a data-toggle="modal" href="<c:url value="/modal/v3/tasca/pendentsCompletar"/>"><spring:message code='decorator.menu.administracio.tasques.execucio' /></a></li>
 									</c:if>
 									<c:if test="${dadesPersona.admin || potAdministrarEntorn}">
+										<li><a data-toggle="modal" data-maximized="true" href="<c:url value="/modal/v3/reindexacions"/>"><spring:message code='decorator.menu.administracio.reindexacions' /></a></li>
+									</c:if>
+									<c:if test="${dadesPersona.admin || potAdministrarEntorn}">
 										<li><a data-toggle="modal" data-maximized="true" href="<c:url value="/modal/v3/execucionsMassives/admin"/>"><spring:message code='comuns.massiu' /></a></li>
 									</c:if>
 									<c:if test="${dadesPersona.admin}"><li><a href="<c:url value="/v3/entorn"/>"><spring:message code='decorators.superior.entorns' /></a></li></c:if>

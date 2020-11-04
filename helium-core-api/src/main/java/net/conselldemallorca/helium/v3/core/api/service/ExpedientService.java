@@ -812,37 +812,7 @@ public interface ExpedientService {
 			boolean nomesAlertes,
 			boolean nomesErrors,
 			MostrarAnulatsDto mostrarAnulats,
-			PaginacioParamsDto paginacioParams);
-
-	
-	/** Consulta el número d'expedients penedents de reindexació no anul·lats per a un tipus d'expedient.
-	 * 
-	 * @param expedientTipusId
-	 * @return
-	 */
-	public Long consultaCountPendentsReindexacio(Long expedientTipusId);
-
-	/** Consulta el número d'expedients amb error de reindexació no anul·lats per a un tipus d'expedient.
-	 * 
-	 * @param expedientTipusId
-	 * @return
-	 */
-	public Long consultaCountErrorsReindexacio(Long expedientTipusId);
-
-	/** Consulta els identificadors dels expedients amb error de reindexació no anul·lats per a un tipus d'expedient.
-	 * 
-	 * @param expedientTipusId
-	 * @return
-	 */
-	public List<Long> consultaIdsErrorReindexació(Long expedientTipusId);
-
-	/** Consulta els identificadors dels expedients pendents de reindexació no anul·lats per a un tipus d'expedient.
-	 * 
-	 * @param expedientTipusId
-	 * @return
-	 */
-	public List<Long> consultaIdsPendentReindexació(Long expedientTipusId);
-
+			PaginacioParamsDto paginacioParams);	
 	
 	public List<TascaDadaDto> findConsultaFiltre(Long consultaId);
 

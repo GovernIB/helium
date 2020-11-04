@@ -4,6 +4,7 @@
 package net.conselldemallorca.helium.v3.core.repository;
 
 import java.util.Date;
+import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -34,5 +35,26 @@ public interface ExpedientReindexacioRepository extends JpaRepository<ExpedientR
 	public Date findSeguentReindexacioData(
 			@Param("expedientId") Long expedientId, 
 			@Param("darreraData") Date darreraData);
+	
+	
 
+
+	/** Mètode per consultar els diferent identificadors de tipus d'expedient amb reindexacions pendents o errors de reindexació.
+	 * 
+	 * @return Retorna una llista d'objectes amb els resultats: 
+	 * List<Object[] {expedientTipusId, errors, pendents>
+	 */
+	@Query("select e.tipus.id, " +
+			"		sum(case when e.reindexarError = true then 1 else 0 end), " +
+			"		sum(case when e.reindexarData is not null then 1 else 0 end) " +
+			"from Expedient e " +
+			"where (:esNulEntornId = true or e.tipus.entorn.id = :entornId) " +
+			"		and e.anulat = false " + 
+			"		and (e.reindexarError = true or e.reindexarData is not null) " +
+			"group by e.tipus.id ")
+	public List<Object[]> getDades(
+			@Param("esNulEntornId") boolean esNulEntornId,
+			@Param("entornId") Long entornId);
+
+	
 }

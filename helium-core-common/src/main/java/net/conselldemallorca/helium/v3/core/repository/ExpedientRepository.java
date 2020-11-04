@@ -413,6 +413,7 @@ public interface ExpedientRepository extends JpaRepository<Expedient, Long> {
 			"		and e.reindexarError = true ")
 	public List<Long> findIdsErrorsReindexacio(@Param("expedientTipusId") Long expedientTipusId);
 	
+	
 	/** Consulta els identificadors dels expedients pendents de reindexació per a un tipus d'expedient concret.
 	 * 
 	 * @param expedientTipusId
@@ -425,6 +426,18 @@ public interface ExpedientRepository extends JpaRepository<Expedient, Long> {
 			"		and e.reindexarData is not null")
 	public List<Long> findIdsPendentsReindexacio(@Param("expedientTipusId") Long expedientTipusId);
 	
+	/** Consulta els identificadors dels expedients amb error de reindexació o pendents per a un tipus d'expedient concret.
+	 * 
+	 * @param expedientTipusId
+	 * @return
+	 */
+	@Query("select e.id " +
+			"from Expedient e " +
+			"where e.tipus.id = :expedientTipusId " +
+			" 		and e.anulat = false " +
+			"		and (e.reindexarError = true or e.reindexarData is not null) ")
+	public List<Long> findIdsReindexacio(@Param("expedientTipusId") long expedientTipusId);
+
 	/** Mètode per modificar només l'error de reindexació i posar la data de reindexació a null per evitar modificar la resta de l'expedient. */
 	@Modifying
 	@Query("update Expedient e set e.reindexarError = :error, e.reindexarData = :data where e.id = :id")

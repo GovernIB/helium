@@ -19,8 +19,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
 import org.apache.commons.beanutils.PropertyUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.propertyeditors.CustomBooleanEditor;
 import org.springframework.beans.propertyeditors.CustomDateEditor;
 import org.springframework.beans.propertyeditors.CustomNumberEditor;
@@ -41,12 +40,11 @@ import net.conselldemallorca.helium.v3.core.api.dto.ConsultaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientCamps;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientConsultaDissenyDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.MostrarAnulatsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
-import net.conselldemallorca.helium.webapp.mvc.ExpedientConsultaController;
+import net.conselldemallorca.helium.v3.core.api.service.ExpedientReindexacioService;
 import net.conselldemallorca.helium.webapp.v3.datatables.DatatablesPagina;
 import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.ObjectTypeEditorHelper;
@@ -64,6 +62,8 @@ import net.conselldemallorca.helium.webapp.v3.helper.TascaFormHelper;
 @RequestMapping("/v3/expedient/consulta")
 public class ExpedientConsultaLlistatController extends BaseExpedientController {
 
+	@Autowired
+	ExpedientReindexacioService expedientReindexacioService;
 
 	@ModelAttribute("expedientConsultaCommand")
 	public Object getFiltreCommand(
@@ -334,6 +334,8 @@ public class ExpedientConsultaLlistatController extends BaseExpedientController 
 	 * d'expedient de la consutla conté expedients pendents de reindexar o amb errors
 	 * de reindexació. Retorna el contingut per pintar l'HTML de les alertes de reindexació
 	 * en la pàgina de consultes.
+	 * Les alertes poden carregar la llista d'expedients amb error o pendents de reindexació
+	 * via ajax a partir del ReindexacioController
 	 * @param request
 	 * @param consultaId
 	 * @param model
@@ -348,80 +350,13 @@ public class ExpedientConsultaLlistatController extends BaseExpedientController 
 		ConsultaDto consulta = dissenyService.findConsulteById(consultaId);
 
 		// Consulta si hi ha expedients amb error de reindexació o pendents de reindexar
-		Long errorsReindexacio = expedientService.consultaCountErrorsReindexacio(consulta.getExpedientTipus().getId());
-		Long pendentsReindexacio = expedientService.consultaCountPendentsReindexacio(consulta.getExpedientTipus().getId());
-		model.addAttribute("consultaId", consultaId);
+		Long errorsReindexacio = expedientReindexacioService.consultaCountErrorsReindexacio(consulta.getExpedientTipus().getId());
+		Long pendentsReindexacio = expedientReindexacioService.consultaCountPendentsReindexacio(consulta.getExpedientTipus().getId());
+		model.addAttribute("tipusId", consulta.getExpedientTipus().getId());
 		model.addAttribute("errorsReindexacio", errorsReindexacio);
 		model.addAttribute("pendentsReindexacio", pendentsReindexacio);
 
 		return "v3/expedientConsultaAlertes";
-	}
-
-	/** Mètode per consultar via Ajax el llistat d'expedients amb errors de reindexació.
-	 * Aquest contingut es consulta expandint la alerta d'expedients amb errors en la pàgina
-	 * de la consulta.
-	 * @param request
-	 * @param consultaId
-	 * @param model
-	 * @return
-	 */
-	@RequestMapping(value = "/{consultaId}/expedientsErrorsReindexacio")	
-	public String expedientsErrorReindexacio(
-			HttpServletRequest request,
-			@PathVariable Long consultaId,
-			Model model) {
-
-		ConsultaDto consulta = dissenyService.findConsulteById(consultaId);
-
-		// Consulta si hi ha expedients amb error de reindexació o pendents de reindexar
-		List<ExpedientDto> expedients = new ArrayList<ExpedientDto>();
-		try {
-			List<Long> ids = expedientService.consultaIdsErrorReindexació(consulta.getExpedientTipus().getId());
-			if (!ids.isEmpty())
-				expedients = expedientService.findAmbIds(new HashSet<Long>(ids));
-		} catch (Exception e) {
-			String errMsg = "Error consultant expedients amb error reindexació per la consulta " + consultaId + ": " + e.getMessage();
-			logger.error(errMsg, e);
-			model.addAttribute("error", errMsg);
-		}
-		model.addAttribute("expedients", expedients);
-		model.addAttribute("dataComprovacio", new SimpleDateFormat("dd-MM-yyyy HH:mm:ss").format(new Date()));
-
-		return "v3/expedientConsultaErrorsReindexacio";
-	}
-	
-
-	/** Mètode per consultar via Ajax el llistat d'expedients pendents de reindexació.
-	 * Aquest contingut es consulta expandint la alerta d'expedients pendent de reindexació en la pàgina
-	 * de la consulta.
-	 * @param request
-	 * @param consultaId
-	 * @param model
-	 * @return
-	 */
-	@RequestMapping(value = "/{consultaId}/expedientsPendentsReindexacio")	
-	public String expedientsPendentsReindexacio(
-			HttpServletRequest request,
-			@PathVariable Long consultaId,
-			Model model) {
-
-		ConsultaDto consulta = dissenyService.findConsulteById(consultaId);
-
-		// Consulta si hi ha expedients amb error de reindexació o pendents de reindexar
-		List<ExpedientDto> expedients = new ArrayList<ExpedientDto>();
-		try {
-			List<Long> ids = expedientService.consultaIdsPendentReindexació(consulta.getExpedientTipus().getId());
-			if (!ids.isEmpty())
-				expedients = expedientService.findAmbIds(new HashSet<Long>(ids));
-		} catch (Exception e) {
-			String errMsg = "Error consultant expedients pendents de reindexació per la consulta " + consultaId + ": " + e.getMessage();
-			logger.error(errMsg, e);
-			model.addAttribute("error", errMsg);
-		}
-		model.addAttribute("expedients", expedients);
-		model.addAttribute("dataComprovacio", new SimpleDateFormat("dd-MM-yyyy HH:mm:ss").format(new Date()));
-
-		return "v3/expedientConsultaErrorsReindexacio";
 	}
 	
 	private Map<String, Object> processarValorsFiltre(
@@ -448,6 +383,4 @@ public class ExpedientConsultaLlistatController extends BaseExpedientController 
 		}
 		return valorsPerService;
 	}
-
-	private static final Log logger = LogFactory.getLog(ExpedientConsultaController.class);
 }

@@ -488,31 +488,7 @@ public class ExpedientServiceBean implements ExpedientService {
 				nomesErrors,
 				mostrarAnulats,
 				paginacioParams);
-	}
-	
-	@Override
-	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public Long consultaCountPendentsReindexacio(Long expedientTipusId) {
-		return delegate.consultaCountPendentsReindexacio(expedientTipusId);
-	}
-
-	@Override
-	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public Long consultaCountErrorsReindexacio(Long expedientTipusId) {
-		return delegate.consultaCountPendentsReindexacio(expedientTipusId);
-	}
-
-	@Override
-	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public List<Long> consultaIdsErrorReindexació(Long expedientTipusId) {
-		return delegate.consultaIdsErrorReindexació(expedientTipusId);
-	}
-
-	@Override
-	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public List<Long> consultaIdsPendentReindexació(Long expedientTipusId) {
-		return delegate.consultaIdsPendentReindexació(expedientTipusId);
-	}
+	}	
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})

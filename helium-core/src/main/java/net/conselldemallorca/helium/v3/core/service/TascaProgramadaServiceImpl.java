@@ -123,8 +123,7 @@ public class TascaProgramadaServiceImpl implements TascaProgramadaService {
 	@Scheduled(fixedDelay=10000)
 	public void comprovarReindexacioAsincrona() {
 		Counter countMetodeAsincronTotal = metricRegistry.counter(MetricRegistry.name(TascaProgramadaService.class, "reindexacio.asincrona.metode.count"));
-		countMetodeAsincronTotal.inc();
-		
+		countMetodeAsincronTotal.inc();		
 		// Consulta les reindexacions pendents
 		List<ExpedientReindexacio> reindexacions = expedientReindexacioRepository.findAll();
 		boolean fi = reindexacions.isEmpty();
