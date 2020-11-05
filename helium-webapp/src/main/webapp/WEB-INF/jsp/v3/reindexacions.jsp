@@ -42,12 +42,23 @@
 	    // Per saber quin es carrega
 	    var tipusId = null;
 	    var tipusEntorn = null;
+	    var cancelar = false;
 	    
 		$(document).ready( function() {	
 			
 			$("button[name=refrescar]").click(function() {
 				carregaDades();
 			});
+			$("#reindexarBtn").click(function() {
+				(async() => {
+					reindexarExpedients();
+				})();
+			});
+			$('#reindexarCancelarBtn').click(function() {
+				$('#reindexarCancelarBtnText').html("<spring:message code="reindexacions.boto.reindexarCancelar.cancelant"/>");
+				cancelar = true;
+			})
+
 			carregaDades();			
 		});
 		
@@ -178,23 +189,109 @@
 		function carregarExpedients(tipusId, tipusEntorn) {			
 			
 			$('#divExpedientsAmbErrorOPendents').empty();
+			$('#reindexarBtn').attr('disabled', 'disabled');
+			
 			if (tipusId && tipusEntorn) {
 				$('#tipusEntorn').html(tipusEntorn);
 				$('#divExpedientsAmbErrorOPendents').html($('#divCarregant').html());
-				$('#divExpedientsAmbErrorOPendents').load('/helium/nodeco/v3/reindexacions/' + tipusId + '/expedients', 
+				$('#divExpedientsAmbErrorOPendents').load('/helium/nodeco/v3/reindexacions/tipus/' + tipusId + '/expedients', 
 					function() {
 						$('#divExpedientsAmbErrorOPendents').find('#taulaExpedients').DataTable({
-							'oLanguage': {
-								'sUrl': webutilContextPath() + '/js/datatables/i18n/datatables.ca.json'
+							paging: false,
+							language: {
+								url: webutilContextPath() + '/js/datatables/i18n/datatables.ca.json'
 							},
-							'aaSorting': [[1, 'asc']]
+							order: [[1, 'asc']]
 						});
+						if ($('#divExpedientsAmbErrorOPendents').find('.reindexacio-error').length > 0)
+							$('#reindexarBtn').removeAttr('disabled');
 				});				
 			} else {
 				$('#tipusEntorn').html("(<spring:message code="comu.cap"/>)");
 			}
 
 
+		}
+		
+		async function reindexarExpedients() {
+
+			// Botó de reindexar
+			var $reindexarBtn = $('#reindexarBtn');
+			$reindexarBtn.attr("disabled", "disabled");
+			
+			var $errors = $('#divExpedientsAmbErrorOPendents').find('.reindexacio-error');
+			// Obté la llista d'identificadors com un array
+			var expedientsErrorIds = [];
+			$errors.each(function () {
+				$(this).empty();
+				expedientsErrorIds.push($(this).attr('id'));
+			});
+			
+			var comptador = 0;
+			var total = $errors.length;
+
+			// Informació de la reindexació i botó cancel·lar
+			$('#reindexarComptador').html(comptador);
+			$('#reindexarTotal').html(total);
+			$('#reindexarCancelarBtn').removeAttr("disabled");
+			$('#reindexarCancelarBtnText').html("<spring:message code="reindexacions.boto.reindexarCancelar"/>");
+			$('#reindexarInfo').show();
+
+			cancelar = false;
+
+			for (var i = 0; i < expedientsErrorIds.length; ++i) {
+
+				var $span = $('#' + expedientsErrorIds[i]);
+				  
+				// buida per si té icona d'error anterior
+				$span.empty();
+				// Posa a rodar les icones d'error
+				$span.addClass('fa-spin');
+				var expedientId = $span.data("expedientId");
+				var resultat = await reindexarExpedientAsync(expedientId);				
+				comptador++;
+				$('#reindexarComptador').html(comptador);
+				if (cancelar)
+					i = $errors.length;
+			}
+						
+			$reindexarBtn.removeAttr("disabled", "disabled");
+			$('#reindexarInfo').hide();
+		}
+		
+		function reindexarExpedientAsync(expedientId) {
+			return new Promise(function (resolve, reject) {
+				// crida a la reindexació
+				$.ajax({
+		            url : '<c:url value="/v3/reindexacions/expedient/"/>' + expedientId + '/reindexar' ,
+		            type : 'GET',
+		            dataType : 'json',
+		            success : function(data) {
+		            	reindexacioTractarResultat(expedientId, data.error, data.missatge);
+		            },
+		            error: function (request, status, error) {
+		            	reindexacioTractarResultat(expedientId, true, request.responseText);
+		            },
+		            complete: function() {
+		            	resolve(true);
+		            }
+		        });
+			});
+		}
+		
+		function reindexacioTractarResultat(expedientId, error, missatge) {
+			$span = $("#reindexacio-error-" + expedientId);
+			$span.attr("title", missatge);
+			if (error) {
+				$span.append("<li class='fa fa-exclamation-triangle'/>");
+			} else {
+				$span.removeClass("reindexacio-error")
+				$span.removeClass("text-danger")
+				$span.addClass("text-success");
+				$span.append("<li class='fa fa-check'/>");
+			}
+			// Deixa de fer rodar la icona
+        	$span.removeClass("fa-spin");
 		}
 		
 	// ]]>
@@ -217,10 +314,23 @@
 		</div>
 
 	
-		<h4><spring:message code="reindexacions.dataConsulta"/>: <strong><span id="data">-</span></strong></h4>
-
-		<h4><spring:message code="reindexacions.pendentsCua"/>: <strong><span id="cua">-</span></strong></h4>		
-
+		<div class="row">
+			<div class="col-md-4">
+				<h4><spring:message code="reindexacions.dataConsulta"/>:</h4>
+				<h4><spring:message code="reindexacions.pendentsCua"/>:</h4>		
+			</div>
+			<div class="col-md-2">
+				<h4><strong><span id="data">-</span></strong></h4>
+				<h4><strong><span id="cua">-</span></strong></h4>		
+			</div>
+			<div class="col-md-6 push-bottom">
+				<div class="btn-group">
+					<button id="pausa" title="hola hola" class="btn btn-default filtre-button active" data-toggle="button" aria-pressed="true"><span class="fa fa-play"></span></button>
+					<button id="pausa" title="hola hola" class="btn btn-default filtre-button" data-toggle="button"><span class="fa fa-pause text-danger"></span></button>
+				</div>
+			</div>
+		</div>
+		
 		<table id="dades-taula"
 				class="table table-striped table-bordered table-hover">
 			<thead>
@@ -249,12 +359,32 @@
 			</tfoot>
 		</table>
 		
-		<h4><spring:message code="reindexacions.llistatTipusSeleccionat"/>: <strong><span id="tipusEntorn">(<spring:message code="comu.cap"/>)</span></strong></h4>
-		
+		<div class="row">
+			<div class="col-md-8">
+				<h4><spring:message code="reindexacions.llistatTipusSeleccionat"/>: <strong><span id="tipusEntorn">(<spring:message code="comu.cap"/>)</span></strong></h4>
+			</div>
+			<div class="col-md-1">
+				<button type="button" class="btn btn-primary" id="reindexarBtn" disabled="true" title="<spring:message code="reindexacions.boto.reindexaErrors.title"/>">
+					<span class="fa fa-refresh"></span>&nbsp;<spring:message code="reindexacions.boto.reindexaErrors"/>
+				</button>
+			</div>
+			<div class="col-md-2 row" id="reindexarInfo"  style="display:none;">				
+				<div class="col-md-6">
+					<h4>(<span id="reindexarComptador">-</span> / <span id="reindexarTotal">-</span>)</h4>
+				</div>
+				<div class="col-md-6">
+					<button type="button" class="btn btn-warning" id="reindexarCancelarBtn" title="<spring:message code="reindexacions.boto.reindexarCancelar.title"/>">
+						<span class="fa fa-stop"></span>&nbsp;
+						<span id="reindexarCancelarBtnText"><spring:message code="reindexacions.boto.reindexarCancelar"/></span>
+					</button>
+				</div>
+			</div>
+		</div>
+
 		<div id="divExpedientsAmbErrorOPendents">
 
-		</div>		
-		
+		</div>
+
 		
 	</div>
 	<div id="modal-botons" class="well">

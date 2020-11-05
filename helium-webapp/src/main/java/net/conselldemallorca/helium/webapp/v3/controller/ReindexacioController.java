@@ -25,6 +25,7 @@ import net.conselldemallorca.helium.core.util.EntornActual;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientReindexacioService;
+import net.conselldemallorca.helium.webapp.v3.helper.AjaxHelper.AjaxResponse;
 
 /**
  * Controlador per a la pàgina de monitoratge de reindexacions pendents
@@ -105,7 +106,7 @@ public class ReindexacioController extends BaseExpedientController {
 	 * @param model
 	 * @return
 	 */
-	@RequestMapping(value = "/{tipusId}/expedientsErrorsReindexacio")
+	@RequestMapping(value = "/tipus/{tipusId}/expedientsErrorsReindexacio")
 	public String expedientsErrorReindexacio(
 			HttpServletRequest request,
 			@PathVariable Long tipusId,
@@ -137,7 +138,7 @@ public class ReindexacioController extends BaseExpedientController {
 	 * @param model
 	 * @return
 	 */
-	@RequestMapping(value = "/{tipusId}/expedientsPendentsReindexacio")	
+	@RequestMapping(value = "/tipus/{tipusId}/expedientsPendentsReindexacio")	
 	public String expedientsPendentsReindexacio(
 			HttpServletRequest request,
 			@PathVariable Long tipusId,
@@ -169,7 +170,7 @@ public class ReindexacioController extends BaseExpedientController {
 	 * @param model
 	 * @return
 	 */
-	@RequestMapping(value = "/{tipusId}/expedients")	
+	@RequestMapping(value = "/tipus/{tipusId}/expedients")	
 	public String expedients(
 			HttpServletRequest request,
 			@PathVariable Long tipusId,
@@ -190,6 +191,31 @@ public class ReindexacioController extends BaseExpedientController {
 		model.addAttribute("dataComprovacio", new SimpleDateFormat("dd-MM-yyyy HH:mm:ss").format(new Date()));
 
 		return "v3/expedientConsultaErrorsReindexacio";
+	}
+	
+	/** Mètode ajax per reindexar un expedient.
+
+	 * @param request
+	 * @return Retonra un objecte json amb el resultat de la reindexació
+	 */
+	@RequestMapping(value = "expedient/{expedientId}/reindexar", method = RequestMethod.GET)
+	@ResponseBody
+	public AjaxResponse expedientReindexar(
+			HttpServletRequest request,
+			@PathVariable Long expedientId) {
+		
+		AjaxResponse ajaxResponse = new AjaxResponse();
+		try {
+			boolean success = expedientService.luceneReindexarExpedient(expedientId);
+			ajaxResponse.setError(!success);
+			ajaxResponse.setMissatge(getMessage(
+					request,
+					"info.expedient.reindexat" + (success ? "" : ".error")));
+		} catch (Exception ex) {
+			ajaxResponse.setError(true);
+			ajaxResponse.setMissatge(getMessage(request, "error.reindexar.expedient") + ". " + ex.getMessage());
+		}
+		return ajaxResponse;
 	}
 
 	private static final Log logger = LogFactory.getLog(ReindexacioController.class);

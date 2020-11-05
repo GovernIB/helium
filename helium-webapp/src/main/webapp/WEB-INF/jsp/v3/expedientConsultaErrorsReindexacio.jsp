@@ -32,9 +32,11 @@
 						
 							<c:if test="${expedient.reindexarData != null || expedient.reindexarError}">
 								<div class="pull-right">
-									<span class="fa fa-refresh ${expedient.reindexarError ? 'text-danger' : ''}" 
-									title="<c:if test="${expedient.reindexarData != null}"><spring:message code="expedient.consulta.reindexacio.asincrona"/></c:if>
-										   <c:if test="${expedient.reindexarError}"><spring:message code="expedient.consulta.reindexacio.error.full"/></c:if>"></span>
+									<span	id="reindexacio-error-${expedient.id}"
+											data-expedient-id="${expedient.id}" 
+											class="fa fa-refresh ${expedient.reindexarError ? 'text-danger reindexacio-error' : ''}" 
+											title="<c:if test="${expedient.reindexarData != null}"><spring:message code="expedient.consulta.reindexacio.asincrona"/></c:if><c:if test="${expedient.reindexarError}"><spring:message code="expedient.consulta.reindexacio.error.full"/></c:if>">
+									</span>
 								</div>
 							</c:if>
 					</td>

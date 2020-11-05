@@ -94,6 +94,27 @@ public class AjaxHelper {
 				new Boolean(true));
 	}
 
+	/** Classe genèrica per respostes ajax.
+	 */
+	public static class AjaxResponse {
+		
+		private boolean error = false;
+		private String missatge = "";
+		
+		public boolean isError() {
+			return error;
+		}
+		public void setError(boolean error) {
+			this.error = error;
+		}
+		public String getMissatge() {
+			return missatge;
+		}
+		public void setMissatge(String missatge) {
+			this.missatge = missatge;
+		}
+	}
+	
 	public static class AjaxFormResponse {
 		private Object objecte;
 		private AjaxFormEstatEnum estat;

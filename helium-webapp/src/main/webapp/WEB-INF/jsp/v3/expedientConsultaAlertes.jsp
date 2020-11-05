@@ -52,7 +52,7 @@
 				icona.toggleClass('fa-chevron-up');
 				if (!errorsCarregats) {
 					$('#collapseErrorsReindexacio').empty().html($('#alertaPendentsErrorsCarregant').html());
-					$('#collapseErrorsReindexacio').load('<c:url value="/nodeco/v3/reindexacions/${tipusId}/expedientsErrorsReindexacio"/>', 
+					$('#collapseErrorsReindexacio').load('<c:url value="/nodeco/v3/reindexacions/tipus/${tipusId}/expedientsErrorsReindexacio"/>', 
 						function() {
 							$('#collapseErrorsReindexacio').find('#taulaExpedients').DataTable({
 								'oLanguage': {
@@ -74,7 +74,7 @@
 				icona.toggleClass('fa-chevron-up');
 				if (!pendentsCarregats) {
 					$('#collapsePendentsReindexacio').empty().html($('#alertaPendentsErrorsCarregant').html());
-					$('#collapsePendentsReindexacio').load('<c:url value="/nodeco/v3/reindexacions/${tipusId}/expedientsPendentsReindexacio"/>', function() {
+					$('#collapsePendentsReindexacio').load('<c:url value="/nodeco/v3/reindexacions/tipus/${tipusId}/expedientsPendentsReindexacio"/>', function() {
 						$('#collapsePendentsReindexacio').find('table').dataTable({
 							'oLanguage': {
 								'sUrl': webutilContextPath() + '/js/datatables/i18n/datatables.ca.json'
