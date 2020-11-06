@@ -30,6 +30,21 @@ public class TascaProgramadaServiceBean implements TascaProgramadaService {
 	public void comprovarReindexacioAsincrona() {
 		delegate.comprovarReindexacioAsincrona();
 	}
+	
+	@Override
+	@RolesAllowed({"HEL_ADMIN"})
+	public void setReindexarAsincronament(boolean reindexar) {
+		delegate.setReindexarAsincronament(reindexar);
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public boolean isReindexarAsincronament() {
+		return delegate.isReindexarAsincronament();
+	}
+
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})

@@ -4,8 +4,10 @@
 package net.conselldemallorca.helium.webapp.v3.helper;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.servlet.RequestDispatcher;
@@ -100,6 +102,7 @@ public class AjaxHelper {
 		
 		private boolean error = false;
 		private String missatge = "";
+		private Map<String, Object> dades = new HashMap<String, Object>();
 		
 		public boolean isError() {
 			return error;
@@ -112,6 +115,9 @@ public class AjaxHelper {
 		}
 		public void setMissatge(String missatge) {
 			this.missatge = missatge;
+		}
+		public Map<String, Object> getDades() {
+			return dades;
 		}
 	}
 	

@@ -11,6 +11,46 @@ function webutilRefreshMissatges() {
 	jQuery.ajaxSetup({async:true});	
 }
 
+function webutilEsborrarAlertes(divAlertes) {
+	if (!divAlertes) {		
+		divAlertes = '#contingut-alertes';
+	}
+	$(divAlertes).empty();
+}
+
+function webutilAlertaSuccess(missatge, divAlertes) {
+	if (!divAlertes) {
+		divAlertes = '#contingut-alertes';		
+	}
+	var $div = $('<div>', {'class': 'alert alert-success'});
+	$div.html('<span class="fa fa-check"></span>&nbsp;<button type="button" class="close-alertes" data-dismiss="alert" aria-hidden="true"><span class="fa fa-times"></span></button>');
+	$div.append(missatge);	
+	$(divAlertes).append($div);
+	return $div;
+}
+
+function webutilAlertaWarning(missatge, divAlertes) {
+	if (!divAlertes) {
+		divAlertes = '#contingut-alertes';		
+	}
+	var $div = $('<div>', {'class': 'alert alert-warning'});
+	$div.html('<span class="fa fa-warning"></span>&nbsp;<button type="button" class="close-alertes" data-dismiss="alert" aria-hidden="true"><span class="fa fa-times"></span></button>');
+	$div.append(missatge);	
+	$(divAlertes).append($div);
+	return $div;
+}
+
+function webutilAlertaError(missatge, divAlertes) {
+	if (!divAlertes) {
+		divAlertes = '#contingut-alertes';		
+	}
+	var $div = $('<div>', {'class': 'alert alert-danger'});
+	$div.html('<span class="fa fa-warning"></span>&nbsp;<button type="button" class="close-alertes" data-dismiss="alert" aria-hidden="true"><span class="fa fa-times"></span></button>');
+	$div.append(missatge);	
+	$(divAlertes).append($div);
+	return $div;
+}
+
 function webutilModalAdjustHeight() {
 	$html = $(document.documentElement);
 	$iframe = $(window.frameElement);

@@ -25,6 +25,7 @@ import net.conselldemallorca.helium.core.util.EntornActual;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientReindexacioService;
+import net.conselldemallorca.helium.v3.core.api.service.TascaProgramadaService;
 import net.conselldemallorca.helium.webapp.v3.helper.AjaxHelper.AjaxResponse;
 
 /**
@@ -39,7 +40,10 @@ public class ReindexacioController extends BaseExpedientController {
 	
 	@Autowired
 	ExpedientReindexacioService expedientReindexacioService;
-	
+
+	@Autowired
+	TascaProgramadaService tascaProgramadaService;
+
 	@RequestMapping(method = RequestMethod.GET)
 	public String get(
 			HttpServletRequest request,
@@ -64,6 +68,8 @@ public class ReindexacioController extends BaseExpedientController {
 		ret.put("data", new SimpleDateFormat("dd/MM/yyyy HH:mm:ss").format(new Date()));
 		// Cua
 		ret.put("cua", expedientReindexacioService.countPendentReindexacioAsincrona());
+		// Estat actual de la reindexació
+		ret.put("reindexant", tascaProgramadaService.isReindexarAsincronament());
 
 		// Filtre per entorn
 		PersonaDto persona = (PersonaDto)request.getSession().getAttribute("dadesPersona");
@@ -218,5 +224,47 @@ public class ReindexacioController extends BaseExpedientController {
 		return ajaxResponse;
 	}
 
+	/** Mètode per aturar o reemprendre la tasca en 2n pla de reindexacions asíncrones.
+
+	 * @param request
+	 * @param accio Acció per paràmetre, pot ser "aturar" o "iniciar".
+	 * @return Retonra un objecte json amb el resultat de la reindexació
+	 */
+	@RequestMapping(value = "reindexacionsAsincrones/{accio}", method = RequestMethod.GET)
+	@ResponseBody
+	public AjaxResponse reindexacionsAsincrones(
+			HttpServletRequest request,
+			@PathVariable String accio) {
+		
+		AjaxResponse ajaxResponse = new AjaxResponse();
+		
+		// Comprovació que sigui un usuari administrador
+		PersonaDto persona = (PersonaDto)request.getSession().getAttribute("dadesPersona");
+		if (!persona.isAdmin()) {
+			ajaxResponse.setError(true);
+			ajaxResponse.setMissatge("Només un usuari administrador pot iniciar o aturar les reindexacions");
+		}
+
+		boolean reindexar = !"aturar".equals(accio);
+		try {
+			boolean isReindexar = tascaProgramadaService.isReindexarAsincronament();
+			if (reindexar != isReindexar) {
+				tascaProgramadaService.setReindexarAsincronament(reindexar);
+				ajaxResponse.setMissatge("La tasca de reindexació s'ha " + (reindexar ? "iniciat" : "aturat") + " correctament.");
+			} else {
+				ajaxResponse.setMissatge("La tasca de reindexació assíncrona ja estava " + (reindexar ? "iniciada" : "aturada"));
+			}
+			ajaxResponse.getDades().put("reindexar", tascaProgramadaService.isReindexarAsincronament());
+		} catch(Exception e) {
+			String errMsg = "Error fixant la propietat de reindexació a " + reindexar + ": " + e.getMessage();
+			logger.error(errMsg, e);
+			ajaxResponse.setError(true);
+			ajaxResponse.setMissatge(errMsg);
+		}
+				
+		return ajaxResponse;
+	}
+
+	
 	private static final Log logger = LogFactory.getLog(ReindexacioController.class);
 }

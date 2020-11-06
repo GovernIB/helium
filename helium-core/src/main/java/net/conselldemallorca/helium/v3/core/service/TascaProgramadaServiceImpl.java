@@ -115,6 +115,9 @@ public class TascaProgramadaServiceImpl implements TascaProgramadaService {
 	
 	/*** REINDEXACIO ASÍNCRONA ***/
 	
+	/** Variable privada per activar o descativar les reindexacions asíncrones. */
+	private boolean reindexarAsíncronament = true;
+	
 	/** Comprovació cada 10 segons si hi ha expedients pendents de reindexació asíncrona segons la taula
 	 * hel_expedient_reindexacio. Cada cop que s'executa va consultant si en queden de pendents fins la 
 	 * propera execució.
@@ -122,8 +125,16 @@ public class TascaProgramadaServiceImpl implements TascaProgramadaService {
 	@Override
 	@Scheduled(fixedDelay=10000)
 	public void comprovarReindexacioAsincrona() {
+		
 		Counter countMetodeAsincronTotal = metricRegistry.counter(MetricRegistry.name(TascaProgramadaService.class, "reindexacio.asincrona.metode.count"));
 		countMetodeAsincronTotal.inc();		
+		
+		// comprova que la propietat de reindexació estigui a true
+		if (!this.isReindexarAsincronament()) {
+			logger.warn("Actualment la tasca de reindexació asíncrona està aturada. Activi-la des del menú 'Adminsitrador > Reindexacions asíncrones'");
+			return;
+		}
+		
 		// Consulta les reindexacions pendents
 		List<ExpedientReindexacio> reindexacions = expedientReindexacioRepository.findAll();
 		// Consulta els expedients amb data de reindexació per comprovar si estan a la cua
@@ -177,16 +188,37 @@ public class TascaProgramadaServiceImpl implements TascaProgramadaService {
 						}
 					}
 					expedientReindexacioRepository.delete(reindexacio);
-				}				
+					// Comprova si s'han aturat les reindexacions
+					if (!this.isReindexarAsincronament())
+						break;
+				}	
 			}
 
 			// torna a consultar les reindexacions i els expedients amb data de reindexació
 			reindexacions = expedientReindexacioRepository.findAll();
 			expedientIdsAmbReindexarData = expedientRepository.findIdsPendentsReindexacio();
 			
-			fi = reindexacions.isEmpty();	
+			fi = reindexacions.isEmpty() || !this.isReindexarAsincronament();	
 		}
 	}
+	
+	/** Mètode per iniciar o aturar les reindexacions asíncrones. Si es marca a false la tasca
+	 * en segon pla no reindexarà i si es torna a posar a true es marcarà.
+	 */
+	@Override
+	public void setReindexarAsincronament(boolean reindexar) {
+		logger.info((reindexar ? "Iniciant" :"Aturant") + " la tasca de reindexació en 2n pla. Actualment està " + (this.isReindexarAsincronament() ? "iniciada" : "aturada"));
+		this.reindexarAsíncronament = reindexar;
+	}
+
+	/** Mètode per consultar l'estat acutal de la propietat que marca si reindexar asíncronament.
+	 * 
+	 */
+	@Override
+	public boolean isReindexarAsincronament() {
+		return this.reindexarAsíncronament;
+	}
+
 	
 	/** Mètode  per acutalitzar les dades de reindexació d'un expedient dins d'una transacció. Serveix per
 	 * informar la data de reindexació asíncrona en el cas que s'hagi reindexat però que s'hagi tornat a programar
@@ -303,4 +335,5 @@ public class TascaProgramadaServiceImpl implements TascaProgramadaService {
 	}
 	
 	private static final Log logger = LogFactory.getLog(TascaProgramadaService.class);
+
 }

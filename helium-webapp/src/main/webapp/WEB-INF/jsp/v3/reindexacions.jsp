@@ -45,15 +45,25 @@
 	    var cancelar = false;
 	    
 		$(document).ready( function() {	
-			
+						
+			// Botó per aturar les reindexacions asíncrones en 2n pla o tornar-les a posar en marxa
+			$("#aturarReindexacionsBtn").click(function(){
+				aturarIniciarReindexacionsAsincrones("aturar");
+			});
+			$("#iniciarReindexacionsBtn").click(function(){
+				aturarIniciarReindexacionsAsincrones("reemprendre");
+			});
+			// Botó per recarregar les dades
 			$("button[name=refrescar]").click(function() {
 				carregaDades();
 			});
+			// Botó per reindexar expedients amb error
 			$("#reindexarBtn").click(function() {
 				(async() => {
 					reindexarExpedients();
 				})();
 			});
+			// Botó per cancel·lar les reindexacions d'expedients amb error
 			$('#reindexarCancelarBtn').click(function() {
 				$('#reindexarCancelarBtnText').html("<spring:message code="reindexacions.boto.reindexarCancelar.cancelant"/>");
 				cancelar = true;
@@ -62,10 +72,43 @@
 			carregaDades();			
 		});
 		
+		function aturarIniciarReindexacionsAsincrones(accio) {
+			
+			// Confirmació
+			if (accio == "aturar" && !confirm("<spring:message code="reindexacions.boto.aturar.confirm"/>"))
+				return false;
+
+			// Adapta els controls
+			webutilEsborrarAlertes();
+			$('#iniciarReindexacionsBtn,#aturarReindexacionsBtn').attr('disabled', 'disabled');
+			
+			// Consulta les dades
+			$.ajax({
+	            url : '<c:url value="/v3/reindexacions/reindexacionsAsincrones"/>/' + accio,
+	            type : 'GET',
+	            dataType : 'json',
+	            success : function(data) {
+	            	if (data.error) {
+	            		webutilAlertaError(data.missatge);
+	            	} else {
+	            		webutilAlertaSuccess(data.missatge);
+	            		adequarControlsReindexacio(data.dades.reindexar);
+	            	}
+	            },
+	            error: function (request, status, error) {
+	            	// Mostra l'error
+	            	webutilAlertaError(request.responseText);
+            		adequarControlsReindexacio(null);
+	            },
+	            complete: function() {
+	            	$('#iniciarReindexacionsBtn,#aturarReindexacionsBtn').removeAttr('disabled');
+	            }
+	        });			
+		}
+		
 		function carregaDades() {
 			// Adapta el gràfic dels controls
-			$('#div-error').hide();
-			$('#div-error-text').empty();
+			webutilEsborrarAlertes();
 			$('#td-errors-total,#td-pendents-total').html('-');
 			$('#divExpedientsAmbErrorOPendents').empty();
 			$('#data').html('-');
@@ -81,8 +124,7 @@
 	            },
 	            error: function (request, status, error) {
 	            	// Mostra l'error
-					$('#div-error-text').html(request.responseText);
-					$('#div-error').show();
+	            	webutilAlertaError(request.responseText);
 	            },
 	            complete: function() {
 	            	// Treu els spinners
@@ -95,7 +137,9 @@
 			
 			// Carrega les dades de la cua i la data
 			$("#data").html(data.data);
-			$("#cua").html(data.cua);
+			$("#cua").html(data.cua);			
+			// Adequa els botons d'iniciar i aturar reindexacio segons l'estat
+			adequarControlsReindexacio(data.reindexant);
 			
 			// Carrega les dades a la taula
 			
@@ -184,6 +228,20 @@
 			});	
 			
 		    carregarExpedients(tipusId, tipusEntorn);
+		}
+		
+		// Adequar visualment els botons per iniciar o aturar la reindexació i advertència segons l'estat
+		function adequarControlsReindexacio(isReindexant) {
+			webutilEsborrarAlertes('#reindexarAlerta');
+			$('#iniciarReindexacionsBtn,#aturarReindexacionsBtn').removeClass("active");
+			if( typeof(isReindexant) !== 'undefined') {
+				if (isReindexant == true) {
+					$('#iniciarReindexacionsBtn').addClass("active");
+				} else {
+					$('#aturarReindexacionsBtn').addClass("active");
+					webutilAlertaWarning("<spring:message code="reindexacions.advertencia.aturat"/>", '#reindexarAlerta');
+				}			
+			}
 		}
 		
 		function carregarExpedients(tipusId, tipusEntorn) {			
@@ -304,15 +362,8 @@
 			<div class="contingut-carregant text-center"><span class="fa fa-circle-o-notch fa-spin fa-3x"></span></div>
 		</div>
 		
-		<!-- div ocult per mostrar en cas d'error -->
-		<div id="div-error" style="display:none">
-			<div class="alert alert-danger">
-				<span class="fa fa-warning"></span>
-				<button type="button" class="close-alertes" data-dismiss="alert" aria-hidden="true"><span class="fa fa-times"></span></button>
-				<span id="div-error-text"></span>
-			</div>
+		<div id="contingut-alertes">
 		</div>
-
 	
 		<div class="row">
 			<div class="col-md-4">
@@ -323,11 +374,13 @@
 				<h4><strong><span id="data">-</span></strong></h4>
 				<h4><strong><span id="cua">-</span></strong></h4>		
 			</div>
-			<div class="col-md-6 push-bottom">
+			<div class="col-md-1 push-bottom" style="<c:if test="${!dadesPersona.admin}">display: none</c:if>">
 				<div class="btn-group">
-					<button id="pausa" title="hola hola" class="btn btn-default filtre-button active" data-toggle="button" aria-pressed="true"><span class="fa fa-play"></span></button>
-					<button id="pausa" title="hola hola" class="btn btn-default filtre-button" data-toggle="button"><span class="fa fa-pause text-danger"></span></button>
+					<button id="iniciarReindexacionsBtn" title="<spring:message code="reindexacions.boto.aturar"/>" class="btn btn-default filtre-button active" data-toggle="button" aria-pressed="true"><span class="fa fa-play"></span></button>
+					<button id="aturarReindexacionsBtn" title="hola hola" class="btn btn-default filtre-button" data-toggle="button"><span class="fa fa-stop text-danger"></span></button>
 				</div>
+			</div>
+			<div class="col-md-5" id="reindexarAlerta">
 			</div>
 		</div>
 		
