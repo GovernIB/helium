@@ -96,7 +96,6 @@
 					window.parent.$('#importarProcessant').show();
 					// Completa les dades del formulari amb el contingut del fitxer per enviar dins del commmand
 					var formData = new FormData($form[0]);
-		            formData.append('file', $('#file')[0].files[0]);		            
 					// Fa el post per ajax per mantenir la selecció del fitxer
 					var url = $form.attr('action'); 
 				    $.ajax({
@@ -113,6 +112,7 @@
 					            return myXhr;
 					        },
 					        beforeSend: function(){
+					        	webutilEsborrarAlertes();
 								$('progress').show();
 								$('#carregant').show();
 								$('#carregarButton').hide();
@@ -138,7 +138,9 @@
 							},
 					        error: function(err){
 								webutilRefreshMissatges();
-					        	console.log('Error ' + err.status + ': ' + err.statusText)
+					        	var errorMsg = 'Error ' + err.status + ': ' + err.statusText;
+					        	console.log(errorMsg)
+					        	webutilAlertaError(errorMsg);
 					        }
 					});
 				}
@@ -238,6 +240,7 @@
 				        },
 				        //Ajax events
 				        beforeSend: function(){
+				        	webutilEsborrarAlertes();
 				        	$('#importarOpcions').empty();
 							$('#carregarButton').hide();
 							$('progress').show();
@@ -249,13 +252,14 @@
 							actualitzarOpcions();
 				        },
 				        error: function(err){
-				        	console.log('Error ' + err.status + ': ' + err.statusText)
+				        	var errorMsg = 'Error ' + err.status + ': ' + err.statusText;
+				        	console.log(errorMsg)
+				        	webutilAlertaError(errorMsg);
 				        },
 				        complete: function() {
 				        	$('#carregarButton').show();
 							$('progress').hide();
 							$('#carregant').hide();
-							webutilRefreshMissatges();
 				        },
 				        //Options to tell jQuery not to process data or worry about content-type.
 				        cache: false,
