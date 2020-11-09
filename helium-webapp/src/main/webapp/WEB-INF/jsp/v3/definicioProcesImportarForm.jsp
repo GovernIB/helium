@@ -100,7 +100,6 @@
 					window.parent.$('#importarProcessant').show();
 					// Completa les dades del formulari amb el contingut del fitxer per enviar dins del commmand
 					var formData = new FormData($form[0]);
-		            formData.append('file', $('#file')[0].files[0]);		            
 					// Fa el post per ajax per mantenir la selecció del fitxer
 					var url = $form.attr('action'); 
 				    $.ajax({
