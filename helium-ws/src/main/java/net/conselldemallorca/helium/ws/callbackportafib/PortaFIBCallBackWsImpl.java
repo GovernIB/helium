@@ -19,6 +19,8 @@ import es.caib.portafib.ws.callback.api.v1.CallBackFault;
 import es.caib.portafib.ws.callback.api.v1.PortaFIBCallBackWs;
 import es.caib.portafib.ws.callback.api.v1.PortaFIBEvent;
 import net.conselldemallorca.helium.core.helper.MonitorIntegracioHelper;
+import net.conselldemallorca.helium.core.helper.PortasignaturesHelper;
+import net.conselldemallorca.helium.core.model.hibernate.Portasignatures;
 import net.conselldemallorca.helium.core.model.service.PluginService;
 import net.conselldemallorca.helium.core.model.service.ServiceProxy;
 import net.conselldemallorca.helium.v3.core.api.dto.IntegracioAccioTipusEnumDto;
@@ -41,6 +43,8 @@ public class PortaFIBCallBackWsImpl implements PortaFIBCallBackWs {
 
 	@Autowired
 	private MonitorIntegracioHelper monitorIntegracioHelper;
+	@Autowired
+	private PortasignaturesHelper portasignaturesHelper;
 
 
 	@Override
@@ -86,67 +90,77 @@ public class PortaFIBCallBackWsImpl implements PortaFIBCallBackWs {
 					(IntegracioParametreDto[]) parametres.toArray());
 			throw new CallBackException(errorDescripcio, new CallBackFault());
 		}
-
-		Double resposta = -1D;
-		boolean processamentOk = false;
-		String accio = null;
-		try {
-			PluginService pluginService = ServiceProxy.getInstance().getPluginService();
-			switch (estat) {
-				case MCGDwsImpl.DOCUMENT_BLOQUEJAT:
-					resposta = 1D;
-					accio = "Bloquejat";
-					processamentOk = true;
-					break;
-				case MCGDwsImpl.DOCUMENT_PENDENT:
-					resposta = 1D;
-					accio = "Pendent";
-					processamentOk = true;
-					break;
-				case MCGDwsImpl.DOCUMENT_SIGNAT:
-					accio = "Signat";
-					processamentOk = pluginService.processarDocumentCallbackPortasignatures(
-							documentId.intValue(),
-							false,
-							null);
-					resposta = (processamentOk) ? 1D : -1D;
-					break;
-				case MCGDwsImpl.DOCUMENT_REBUTJAT:
-					accio = "Rebutjat";
-					String motiu = null;
-					if (event.getSigningRequest() != null )
-						motiu = event.getSigningRequest().getRejectionReason();
-					processamentOk = pluginService.processarDocumentCallbackPortasignatures(
-							documentId.intValue(),
-							true,
-							motiu);
-					resposta = (processamentOk) ? 1D : -1D;
-					break;
-				default:
-					break;
+		
+		// Comprova si existeix la petició
+		Portasignatures portasignatures = portasignaturesHelper.getByDocumentId(documentId.intValue());
+		if (portasignatures != null) {
+			Double resposta = -1D;
+			boolean processamentOk = false;
+			String accio = null;
+			try {
+				PluginService pluginService = ServiceProxy.getInstance().getPluginService();
+				switch (estat) {
+					case MCGDwsImpl.DOCUMENT_BLOQUEJAT:
+						resposta = 1D;
+						accio = "Bloquejat";
+						processamentOk = true;
+						break;
+					case MCGDwsImpl.DOCUMENT_PENDENT:
+						resposta = 1D;
+						accio = "Pendent";
+						processamentOk = true;
+						break;
+					case MCGDwsImpl.DOCUMENT_SIGNAT:
+						accio = "Signat";
+						processamentOk = pluginService.processarDocumentCallbackPortasignatures(
+								documentId.intValue(),
+								false,
+								null);
+						resposta = (processamentOk) ? 1D : -1D;
+						break;
+					case MCGDwsImpl.DOCUMENT_REBUTJAT:
+						accio = "Rebutjat";
+						String motiu = null;
+						if (event.getSigningRequest() != null )
+							motiu = event.getSigningRequest().getRejectionReason();
+						processamentOk = pluginService.processarDocumentCallbackPortasignatures(
+								documentId.intValue(),
+								true,
+								motiu);
+						resposta = (processamentOk) ? 1D : -1D;
+						break;
+					default:
+						break;
+				}
+				logger.info("Fi procés petició callback portasignatures (id=" + documentId + ", estat=" + estat + "-" + accio + ", resposta=" + resposta + ")");
+				if (!processamentOk)
+					throw new Exception("El document no s'ha processat correctament (id=" + documentId + ", estat=" + estat + "-Signat, resposta=" + resposta + ")");
+			} catch (Exception ex) {
+				logger.error("Error procés petició callback portasignatures (id=" + documentId + ", estat=" + estat + ", resposta=" + resposta + "): " + ex.getMessage());
+				String errorDescripcio = "El procés petició callback del portasignatures no ha finalitzat correctament";
+				parametres.add(new IntegracioParametreDto("processamentOk", processamentOk));
+				monitorIntegracioHelper.addAccioError(
+						MonitorIntegracioHelper.INTCODI_PFIRMA,
+						accioDescripcio,
+						IntegracioAccioTipusEnumDto.RECEPCIO,
+						System.currentTimeMillis() - t0,
+						errorDescripcio,
+						Arrays.copyOf(parametres.toArray(), parametres.size(), IntegracioParametreDto[].class));
+				throw new CallBackException(errorDescripcio, new CallBackFault());
 			}
-			logger.info("Fi procés petició callback portasignatures (id=" + documentId + ", estat=" + estat + "-" + accio + ", resposta=" + resposta + ")");
-			if (!processamentOk)
-				throw new Exception("El document no s'ha processat correctament (id=" + documentId + ", estat=" + estat + "-Signat, resposta=" + resposta + ")");
-			monitorIntegracioHelper.addAccioOk(
-					MonitorIntegracioHelper.INTCODI_PFIRMA, 
-					accioDescripcio, 
-					IntegracioAccioTipusEnumDto.RECEPCIO, 
-					System.currentTimeMillis() - t0, 
-					Arrays.copyOf(parametres.toArray(), parametres.size(), IntegracioParametreDto[].class));
-		} catch (Exception ex) {
-			logger.error("Error procés petició callback portasignatures (id=" + documentId + ", estat=" + estat + ", resposta=" + resposta + "): " + ex.getMessage());
-			String errorDescripcio = "El procés petició callback del portasignatures no ha finalitzat correctament";
-			parametres.add(new IntegracioParametreDto("processamentOk", processamentOk));
-			monitorIntegracioHelper.addAccioError(
-					MonitorIntegracioHelper.INTCODI_PFIRMA,
-					accioDescripcio,
-					IntegracioAccioTipusEnumDto.RECEPCIO,
-					System.currentTimeMillis() - t0,
-					errorDescripcio,
-					Arrays.copyOf(parametres.toArray(), parametres.size(), IntegracioParametreDto[].class));
-			throw new CallBackException(errorDescripcio, new CallBackFault());
+		} else {
+			// Avís als logs en comtpes de retorna error #1413
+			String warnMsg = "Petició amb id " + documentId + " no trobada a Helium.";
+			parametres.add(new IntegracioParametreDto("advertencia", warnMsg));
+			logger.warn(warnMsg);
 		}
+		monitorIntegracioHelper.addAccioOk(
+				MonitorIntegracioHelper.INTCODI_PFIRMA, 
+				accioDescripcio, 
+				IntegracioAccioTipusEnumDto.RECEPCIO, 
+				System.currentTimeMillis() - t0, 
+				Arrays.copyOf(parametres.toArray(), parametres.size(), IntegracioParametreDto[].class));
+
 	}
 
 	private static final Logger logger = LoggerFactory.getLogger(PortaFIBCallBackWsImpl.class);

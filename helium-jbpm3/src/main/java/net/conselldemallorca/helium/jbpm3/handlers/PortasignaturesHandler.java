@@ -4,13 +4,13 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import net.conselldemallorca.helium.jbpm3.integracio.Jbpm3HeliumBridge;
-import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jbpm.JbpmException;
 import org.jbpm.graph.exe.ExecutionContext;
+
+import net.conselldemallorca.helium.jbpm3.integracio.Jbpm3HeliumBridge;
+import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
 
 /**
  * Handler per fer la integració amb portasignatures.
@@ -18,7 +18,7 @@ import org.jbpm.graph.exe.ExecutionContext;
  * @author Limit Tecnologies <limit@limit.es>
  */
 @SuppressWarnings("serial")
-public class PortasignaturesHandler extends AbstractHeliumActionHandler implements PortasignaturesHandlerInterface {
+public class PortasignaturesHandler extends BasicActionHandler implements AccioExternaRetrocedirHandler, PortasignaturesHandlerInterface {
 
 	private String varResponsableCodi;
 	private String responsableCodi;
@@ -75,7 +75,7 @@ public class PortasignaturesHandler extends AbstractHeliumActionHandler implemen
 						anxs.add(anxId);
 				}
 			}
-			Jbpm3HeliumBridge.getInstanceService().portasignaturesEnviar(
+			Integer documentId = Jbpm3HeliumBridge.getInstanceService().portasignaturesEnviar(
 					documentStoreId,
 					anxs,
 					persona,
@@ -92,6 +92,11 @@ public class PortasignaturesHandler extends AbstractHeliumActionHandler implemen
 					executionContext.getProcessInstance().getId(),
 					(String)getValorOVariable(executionContext, transicioOK, varTransicioOK),
 					(String)getValorOVariable(executionContext, transicioKO, varTransicioKO));
+			
+			// Guarda l'identificador pel cas de fer retroacció
+			List<String> parametresRetroaccio = new ArrayList<String>();
+			parametresRetroaccio.add(String.valueOf(documentId));
+			this.guardarParametresPerRetrocedir(executionContext, parametresRetroaccio);
 		} catch (Exception e) {
 			logger.error("Error PortasignaturesHandler. ", e);
 			throw new JbpmException("No s'ha pogut enviar el document al portasignatures", e);
@@ -212,7 +217,25 @@ public class PortasignaturesHandler extends AbstractHeliumActionHandler implemen
 		else
 			return 0;
 	}
+	
+	/** Crida a eliminar la petició de firma del portasignatures.
+	 * 
+	 */
+	@Override
+	public void retrocedir(ExecutionContext executionContext, List<String> parametres) throws Exception {		
+		Integer documentId = -1;
+		try {
+			if (parametres != null && parametres.size() > 0 ) {
+				documentId = Integer.valueOf(parametres.get(0));
+				List<Integer> documentsIds = new ArrayList<Integer>();
+				documentsIds.add(documentId);
+				Jbpm3HeliumBridge.getInstanceService().portasignaturesEliminar(documentsIds);
+				System.out.println("PortasignaturesHandler: Retrocedida la petició de firma al portafirmes " + documentId+ " correctament");
+			}
+		} catch (Exception e) {
+			logger.error("PortasignaturesHandler: Error retrocedint la petició de firma al portafirmes " + documentId + ": " + e.getMessage(), e);
+		}
+	}
 
 	private static final Log logger = LogFactory.getLog(PortasignaturesHandler.class);
-
 }

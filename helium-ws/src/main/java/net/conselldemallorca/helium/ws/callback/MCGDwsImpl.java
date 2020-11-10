@@ -37,6 +37,7 @@ public class MCGDwsImpl implements es.indra.www.portafirmasmcgdws.mcgdws.MCGDws 
 		AttributesState estat = callbackRequest.getApplication().getDocument().getAttributes().getState();
 		logger.info("Inici procés petició callback portasignatures (id=" + document + ", estat=" + estat.getValue() + ")");
 		CallbackResponse callbackResponse = new CallbackResponse();
+		callbackResponse.setVersion("1.0");
 		try {
 			PluginService pluginService = ServiceProxy.getInstance().getPluginService();
 			Double resposta = -1D;
@@ -73,12 +74,10 @@ public class MCGDwsImpl implements es.indra.www.portafirmasmcgdws.mcgdws.MCGDws 
 			} catch (Exception ex) {
 				logger.error("Error procés petició callback portasignatures (id=" + document + ", estat=" + estat.getValue() + ", resposta=" + resposta + "): " + ex.getMessage());
 			}
-			callbackResponse.setVersion("1.0");
 			callbackResponse.setLogMessages(new LogMessage[0]);
 			callbackResponse.set_return(resposta.doubleValue());
 		} catch (Exception e) {
 			logger.error("Error obtenint l'estat del document.", e);
-			callbackResponse.setVersion("1.0");
 			LogMessage logMessage = new LogMessage();
 			logMessage.setCode("-1");
 			logMessage.setSeverity("High");

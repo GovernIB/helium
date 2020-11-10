@@ -871,7 +871,7 @@ public interface Jbpm3HeliumService {
 	
 	public RespostaNotificacio altaNotificacio(DadesNotificacioDto notificacio) throws SistemaExternException, NoTrobatException;
 
-	/**
+	/** Envia un document al portasignatures.
 	 * 
 	 * @param documentId
 	 * @param annexosId
@@ -889,8 +889,10 @@ public interface Jbpm3HeliumService {
 	 * @param processInstanceId
 	 * @param transicioOK
 	 * @param transicioKO
+	 * 
+	 * @return Retorna l'identificador del document donat pel portasignatures.
 	 */
-	public void portasignaturesEnviar(
+	public Integer portasignaturesEnviar(
 			Long documentId,
 			List<Long> annexosId,
 			PersonaDto persona,

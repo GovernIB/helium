@@ -30,6 +30,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import es.caib.plugins.arxiu.api.ContingutArxiu;
 import es.caib.plugins.arxiu.api.ContingutOrigen;
@@ -46,6 +47,7 @@ import es.caib.plugins.arxiu.api.Firma;
 import es.caib.plugins.arxiu.api.FirmaPerfil;
 import es.caib.plugins.arxiu.api.FirmaTipus;
 import es.caib.plugins.arxiu.api.IArxiuPlugin;
+import net.conselldemallorca.helium.core.helper.PortasignaturesHelper.PortasignaturesRollback;
 import net.conselldemallorca.helium.core.model.hibernate.DocumentNotificacio;
 import net.conselldemallorca.helium.core.model.hibernate.DocumentStore;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
@@ -1568,7 +1570,14 @@ public class PluginHelper {
 			portasignatures.setExpedient(expedient);
 			portasignatures.setProcessInstanceId(processInstanceId.toString());
 			portasignaturesRepository.save(portasignatures);
+			
+			// Programa la eliminació del document en cas d'error posterior
+			PortasignaturesRollback portasignaturesRollback = 
+					new PortasignaturesHelper.PortasignaturesRollback(resposta, this);
+			TransactionSynchronizationManager.registerSynchronization(portasignaturesRollback);
+			
 			return resposta;
+			
 		} catch (Exception ex) {
 			String errorDescripcio = "No s'han pogut enviar el document al portafirmes (" +
 					"documentId=" + (document == null ? "NULL" : document.getId()) + ", " +
@@ -4418,10 +4427,6 @@ public class PluginHelper {
 				ex);
 	}
 
-	private static final Log logger = LogFactory.getLog(PluginHelper.class);
-
-
-
 	/** Mètode comú per transformar la informació de les firmes.
 	 * 
 	 * @param firmes
@@ -4500,4 +4505,5 @@ public class PluginHelper {
 		return dtos;
 	}
 
+	private static final Log logger = LogFactory.getLog(PluginHelper.class);
 }

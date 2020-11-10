@@ -159,7 +159,7 @@ public class TerminiService {
 	@Scheduled(cron="0 */10 * * * *")
 	public void comprovarTerminisIniciats() {
 		
-		logger.debug("Inici de la comprovació de terminis");
+		//logger.debug("Inici de la comprovació de terminis");
 		List<TerminiIniciat> iniciatsActiusAlertesPrevies = terminiIniciatDao.findIniciatsAmbAlertesPrevies();
 		List<TerminiIniciat> iniciatsActiusAlertesFinals = terminiIniciatDao.findIniciatsAmbAlertesFinals();
 		for (TerminiIniciat terminiIniciat: iniciatsActiusAlertesFinals) {
@@ -209,8 +209,7 @@ public class TerminiService {
 				terminiIniciat.setAlertaPrevia(true);
 			}
 		}
-		logger.debug("Fi de la comprovació de terminis");
-		
+		//logger.debug("Fi de la comprovació de terminis");
 	}
 
 	public void modificarTerminiIniciat(

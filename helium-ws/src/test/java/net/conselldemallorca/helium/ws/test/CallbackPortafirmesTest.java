@@ -15,7 +15,9 @@ import es.indra.www.portafirmasmcgdws.mcgdws.Application;
 import es.indra.www.portafirmasmcgdws.mcgdws.Attributes;
 import es.indra.www.portafirmasmcgdws.mcgdws.AttributesState;
 import es.indra.www.portafirmasmcgdws.mcgdws.CallbackRequest;
+import es.indra.www.portafirmasmcgdws.mcgdws.CallbackResponse;
 import es.indra.www.portafirmasmcgdws.mcgdws.Document;
+import es.indra.www.portafirmasmcgdws.mcgdws.LogMessage;
 import es.indra.www.portafirmasmcgdws.mcgdws.MCGDws;
 import es.indra.www.portafirmasmcgdws.mcgdws.MCGDwsService;
 import es.indra.www.portafirmasmcgdws.mcgdws.MCGDwsServiceLocator;
@@ -26,14 +28,15 @@ import es.indra.www.portafirmasmcgdws.mcgdws.MCGDwsServiceLocator;
  */
 public class CallbackPortafirmesTest {
 
-	private static final String SERVICE_URL = "http://localhost:8080/helium/services/MCGDWS";
-	private static final int psignaDocumentId = 60452;
+	private static final String SERVICE_URL = "http://10.35.3.111:8080/helium/services/MCGDWS";
+	private static final int psignaDocumentId = 123;
 
 	public static void main(String[] args) {
 		try {
 			new CallbackPortafirmesTest().testCallback();
 		} catch (Exception ex) {
-			ex.printStackTrace();
+			System.err.println("Error capturat en el test: " + ex.getMessage());
+			ex.printStackTrace(System.err);
 		}
 	}
 
@@ -57,7 +60,13 @@ public class CallbackPortafirmesTest {
 		String urlEndPoint =  SERVICE_URL;
 		MCGDwsService service = new MCGDwsServiceLocator();
 		MCGDws ws = service.getMCGDWS(new URL(urlEndPoint));
-		ws.callback(callbackRequest);
+		CallbackResponse resposta = ws.callback(callbackRequest);
+		System.out.println("Resposta rebuda: " + resposta.get_return());
+		if (resposta.getLogMessages() != null) {
+			for (LogMessage log : resposta.getLogMessages()) {
+				System.out.println(log.getCode() + " " + log.getSeverity() + " " + log.getTitle() + ": " + log.getDescription());
+			}
+		}
 	}
 
 }

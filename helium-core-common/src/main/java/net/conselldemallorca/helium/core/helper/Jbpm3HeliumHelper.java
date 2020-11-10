@@ -1879,7 +1879,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 	}
 
 	@Override
-	public void portasignaturesEnviar(
+	public Integer portasignaturesEnviar(
 			Long documentId,
 			List<Long> annexosId,
 			PersonaDto persona,
@@ -1925,7 +1925,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 				}
 			}
 		}
-		pluginHelper.portasignaturesEnviar(
+		return pluginHelper.portasignaturesEnviar(
 				document,
 				annexos,
 				persona,
