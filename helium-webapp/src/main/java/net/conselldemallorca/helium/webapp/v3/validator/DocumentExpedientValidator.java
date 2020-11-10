@@ -57,28 +57,12 @@ public class DocumentExpedientValidator implements ConstraintValidator<DocumentE
 			}
 		}
 		if (ntiActiu) {
-			if (command.getNtiOrigen() == null) {
-				context.buildConstraintViolationWithTemplate(MessageHelper.getInstance().getMessage("not.blank"))
-				.addNode("ntiOrigen")
-				.addConstraintViolation();
-				valid = false;				
-			}
-			if (command.getNtiEstadoElaboracion() == null) {
-				context.buildConstraintViolationWithTemplate(MessageHelper.getInstance().getMessage("not.blank"))
-				.addNode("ntiEstadoElaboracion")
-				.addConstraintViolation();
-				valid = false;				
-			}
-			if (command.getNtiTipoDocumental() == null) {
-				context.buildConstraintViolationWithTemplate(MessageHelper.getInstance().getMessage("not.blank"))
-				.addNode("ntiTipoDocumental")
-				.addConstraintViolation();
-				valid = false;				
-			}
-			if(Arrays.asList(new NtiEstadoElaboracionEnumDto[] {
-					NtiEstadoElaboracionEnumDto.COPIA_CF,
-					NtiEstadoElaboracionEnumDto.COPIA_DP,
-					NtiEstadoElaboracionEnumDto.COPIA_PR}).contains(command.getNtiEstadoElaboracion()) && command.getNtiIdOrigen() == null) {
+			if(command.getNtiEstadoElaboracion() != null
+					&& Arrays.asList(new NtiEstadoElaboracionEnumDto[] {
+						NtiEstadoElaboracionEnumDto.COPIA_CF,
+						NtiEstadoElaboracionEnumDto.COPIA_DP,
+						NtiEstadoElaboracionEnumDto.COPIA_PR}).contains(command.getNtiEstadoElaboracion()) 
+					&& command.getNtiIdOrigen() == null) {
 				context.buildConstraintViolationWithTemplate(MessageHelper.getInstance().getMessage("document.metadades.nti.iddoc.origen.validacio.copia"))
 				.addNode("ntiIdOrigen")
 				.addConstraintViolation();

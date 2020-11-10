@@ -56,6 +56,15 @@
 </style>
 <script type="text/javascript">
 // <![CDATA[
+var dadesNti = [];
+<c:forEach items="${documentsNoUtilitzats}" var="d">
+dadesNti['${d.codi}'] = new Object();
+dadesNti['${d.codi}'].ntiOrigen = '${d.ntiOrigen}';
+dadesNti['${d.codi}'].ntiEstadoElaboracion = '${d.ntiEstadoElaboracion}';
+dadesNti['${d.codi}'].ntiTipoDocumental = '${d.ntiTipoDocumental}';
+</c:forEach>
+
+
 $(document).ready( function() {
 	$('#arxiuNom').on('click', function() {
 		$('input[name=arxiu]').click();
@@ -72,6 +81,18 @@ $(document).ready( function() {
 			$('#pipella-general a').click();
 		}
 	}).click();
+	// Carrega dades nti per defecte
+	$('#documentCodi').change(function() {
+		var documentCodi = $(this).val();
+		if (dadesNti[documentCodi]) {
+			$('#ntiOrigen').val(dadesNti[documentCodi].ntiOrigen).change();
+			$('#ntiEstadoElaboracion').val(dadesNti[documentCodi].ntiEstadoElaboracion).change();
+			$('#ntiTipoDocumental').val(dadesNti[documentCodi].ntiTipoDocumental).change();
+		} else {
+			$('#ntiOrigen,#ntiEstadoElaboracion,ntiTipoDocumental').val('').change();			
+		}
+	});
+	
 	// Errors en les pipelles
 	$('.tab-pane').each(function() {
 		if ($('.has-error', this).length > 0) {
@@ -167,7 +188,7 @@ function mostrarAmagarFile() {
 				<div>
 					<ul class="nav nav-tabs" role="tablist">
 						<li id="pipella-general" class="active"><a href="#dades-generals" role="tab" data-toggle="tab"><spring:message code="expedient.document.pipella.general"/></a></li>
-						<li id="pipella-nti"><a href="#dades-nti" role="tab" data-toggle="tab" class="obligatori"><spring:message code="expedient.document.pipella.nti"/></a></li>
+						<li id="pipella-nti"><a href="#dades-nti" role="tab" data-toggle="tab"><spring:message code="expedient.document.pipella.nti"/></a></li>
 					</ul>
 				</div>
 			</c:if>
@@ -219,9 +240,9 @@ function mostrarAmagarFile() {
 				
 				<c:if test="${expedient.ntiActiu}">
 					<div id="dades-nti" class="tab-pane">
-						<hel:inputSelect name="ntiOrigen" textKey="document.metadades.nti.origen" optionItems="${ntiOrigen}" optionValueAttribute="codi" optionTextAttribute="valor" emptyOption="true" required="true"/>
-						<hel:inputSelect name="ntiEstadoElaboracion" textKey="document.metadades.nti.estado.elaboracion" optionItems="${ntiEstadoElaboracion}" optionValueAttribute="codi" optionTextAttribute="valor" emptyOption="true" required="true"/>
-						<hel:inputSelect name="ntiTipoDocumental" textKey="document.metadades.nti.tipo.documental" optionItems="${ntiTipoDocumental}" optionValueAttribute="codi" optionTextAttribute="valor" emptyOption="true" required="true"/>
+						<hel:inputSelect name="ntiOrigen" textKey="document.metadades.nti.origen" optionItems="${ntiOrigen}" optionValueAttribute="codi" optionTextAttribute="valor" emptyOption="true" comment="expedient.tipus.document.form.camp.nti.origen.comentari"/>
+						<hel:inputSelect name="ntiEstadoElaboracion" textKey="document.metadades.nti.estado.elaboracion" optionItems="${ntiEstadoElaboracion}" optionValueAttribute="codi" optionTextAttribute="valor" emptyOption="true" comment="expedient.tipus.document.form.camp.nti.estado.elaboracion.comentari"/>
+						<hel:inputSelect name="ntiTipoDocumental" textKey="document.metadades.nti.tipo.documental" optionItems="${ntiTipoDocumental}" optionValueAttribute="codi" optionTextAttribute="valor" emptyOption="true" comment="expedient.tipus.document.form.camp.nti.tipo.documental.comentari"/>
 						<hel:inputText name="ntiIdOrigen" textKey="document.metadades.nti.iddoc.origen"/>
 					</div>
 				</c:if>

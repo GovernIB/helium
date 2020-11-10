@@ -62,10 +62,10 @@
 					</c:choose>
 				</form:select>
 				<c:if test="${not empty campErrors}"><p class="help-block"><span class="fa fa-exclamation-triangle"></span>&nbsp;<form:errors path="${campPath}"/></p></c:if>
+				<c:if test="${not empty comment}">
+					<p class="comment"><spring:message code="${comment}"/></p>
+				</c:if>
 			</div>
-			<c:if test="${not empty comment}">
-				<p class="comment col-xs-${12 - labelSize} col-xs-offset-${labelSize}"><spring:message code="${comment}"/></p>
-			</c:if>
 		</div>
 	</c:when>
 	<c:otherwise>
