@@ -3,6 +3,8 @@
  */
 package net.conselldemallorca.helium.v3.core.repository;
 
+import java.util.List;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import net.conselldemallorca.helium.core.model.hibernate.AnotacioAnnex;
@@ -13,5 +15,8 @@ import net.conselldemallorca.helium.core.model.hibernate.AnotacioAnnex;
  * @author Limit Tecnologies <limit@limit.es>
  */
 public interface AnotacioAnnexRepository extends JpaRepository<AnotacioAnnex, Long> {
+
+	/** Troba la llista d'annexos per un expedient. */
+	List<AnotacioAnnex> findByAnotacioExpedientId(Long id);
 
 }

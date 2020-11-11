@@ -17,5 +17,5 @@ public enum ArxiuFirmaPerfilEnumDto {
 	C,
 	X,
 	XL,
-	A;
+	A;	
 }

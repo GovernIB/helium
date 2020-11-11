@@ -186,6 +186,7 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 				isAdjunt ? adjuntTitol : null,
 				arxiuNom,
 				arxiuContingut,
+				null, // arxiuUuid
 				arxiuContentType,
 				ambFirma,
 				firmaSeparada,

@@ -46,6 +46,8 @@ public class AnotacioDto implements Serializable {
 
 	private List<AnotacioInteressatDto> interessats = new ArrayList<AnotacioInteressatDto>();
 	private List<AnotacioAnnexDto> annexos = new ArrayList<AnotacioAnnexDto>();
+	// Per mostrar errors d'annexos al llistat
+	private boolean errorAnnexos;
 
 	private String aplicacioCodi;
 	private String aplicacioVersio;
@@ -81,6 +83,7 @@ public class AnotacioDto implements Serializable {
 	private String usuariNom;
 	private String destiCodi;
 	private String destiDescripcio;
+
 	
 	
 	public Long getId() {
@@ -160,6 +163,12 @@ public class AnotacioDto implements Serializable {
 	}
 	public void setAnnexos(List<AnotacioAnnexDto> annexos) {
 		this.annexos = annexos;
+	}
+	public boolean isErrorAnnexos() {
+		return errorAnnexos;
+	}
+	public void setErrorAnnexos(boolean errorAnnexos) {
+		this.errorAnnexos = errorAnnexos;
 	}
 	public String getAplicacioCodi() {
 		return aplicacioCodi;

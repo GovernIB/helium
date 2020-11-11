@@ -62,7 +62,7 @@ tr.clicable {
 		</li>
 		<li role="presentation">
 			<a href="#annexos" aria-controls="annexos" role="tab" data-toggle="tab">
-				<c:if test="${isErrorDocuments}"><span class="fa fa-warning text-danger"></span></c:if>
+				<c:if test="${anotacio.errorAnnexos}"><span class="fa fa-warning text-danger"></span></c:if>
 				<spring:message code="anotacio.detalls.pipella.annexos"/>&nbsp;
 				<span class="badge">${fn:length(anotacio.annexos)}</span>
 			</a>
@@ -346,6 +346,9 @@ tr.clicable {
 								<h3 class="panel-title">
 									<span class="fa fa-file"></span>
 									${annex.titol}
+									<c:if test="${annex.error != null }">
+										<span class="fa fa-warning text-danger" title="<spring:message code="anotacio.annex.detalls.annex.error" arguments="${annex.error}"/>"></span>
+									</c:if>
 									<button class="btn btn-default btn-xs pull-right" data-toggle="collapse" data-target="#collapse-annex-${status.index}"><span class="fa fa-chevron-down"></span></button>
 								</h3>
 							</div>
@@ -357,7 +360,7 @@ tr.clicable {
 									
 										<div class="alert well-sm alert-danger alert-dismissable" style="margin-bottom: 0px;">
 											<span class="fa fa-exclamation-triangle"></span>
-											<spring:message code="anotacio.annex.detalls.annex.error" />
+											<spring:message code="anotacio.annex.detalls.annex.processament.error" />
 											<a href="<c:url value="/v3/anotacio/${anotacio.id}/annex/${annex.id}/reintentar"/>"
 												class="btn btn-xs btn-default pull-right"><span class="fa fa-refresh"></span>
 												<spring:message code="anotacio.annex.detalls.annex.accio.reintentar" /></a>

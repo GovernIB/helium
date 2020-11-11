@@ -23,6 +23,7 @@ import javax.persistence.Table;
 import javax.persistence.TableGenerator;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.persistence.Transient;
 
 import org.hibernate.annotations.ForeignKey;
 import org.hibernate.annotations.Index;
@@ -722,5 +723,19 @@ public class Anotacio implements Serializable, GenericEntity<Long> {
 	public void setRebuigMotiu(String rebuigMotiu) {
 		this.rebuigMotiu = rebuigMotiu;
 	}
+	
+	/** Per informar a la llista d'anotacions si té error d'annexos. */
+	@Transient
+	public boolean 	isErrorAnnexos() {
+		boolean errorAnnexos = false;
+		for (AnotacioAnnex annex : this.getAnnexos()) {
+			if (annex.getError() != null) {
+				errorAnnexos = true;
+				break;
+			}
+		}
+		return errorAnnexos;
+	}
+	
 	private static final long serialVersionUID = 1815997738055924981L;
 }

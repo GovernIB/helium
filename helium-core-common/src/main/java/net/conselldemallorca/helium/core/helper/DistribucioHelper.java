@@ -27,11 +27,13 @@ import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.integracio.plugins.SistemaExternException;
 import net.conselldemallorca.helium.v3.core.api.dto.AnotacioEstatEnumDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ArxiuFirmaPerfilEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.IntegracioAccioTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.IntegracioParametreDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NtiEstadoElaboracionEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NtiOrigenEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NtiTipoDocumentalEnumDto;
+import net.conselldemallorca.helium.v3.core.api.dto.NtiTipoFirmaEnumDto;
 import net.conselldemallorca.helium.v3.core.repository.AnotacioAnnexRepository;
 import net.conselldemallorca.helium.v3.core.repository.AnotacioInteressatRepository;
 import net.conselldemallorca.helium.v3.core.repository.AnotacioRepository;
@@ -330,8 +332,14 @@ public class DistribucioHelper {
 				sicresValidezDocumento(annex.getSicresValidezDocumento() != null? annex.getSicresValidezDocumento().toString() : null).
 				tipusMime(annex.getTipusMime()).
 				uuid(annex.getUuid()).
-				firmaNom(annex.getFirmaNom()).
 				build();
+		annexEntity.setFirmaContingut(annex.getFirmaContingut());
+		annexEntity.setFirmaNom(annex.getFirmaNom());
+		if (annex.getFirmaPerfil() != null)
+			annexEntity.setFirmaPerfil(ArxiuFirmaPerfilEnumDto.valueOf(annex.getFirmaPerfil().toString()));
+		annexEntity.setFirmaTamany(annex.getFirmaTamany());
+		if (annex.getFirmaTipus() != null)
+			annexEntity.setFirmaTipus(NtiTipoFirmaEnumDto.valueOf(annex.getFirmaTipus().toString()));
 		return anotacioAnnexRepository.save(annexEntity);	
 	}
 

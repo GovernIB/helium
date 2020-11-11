@@ -28,6 +28,7 @@ import es.caib.plugins.arxiu.api.Firma;
 import es.caib.plugins.arxiu.api.FirmaTipus;
 import net.conselldemallorca.helium.core.common.JbpmVars;
 import net.conselldemallorca.helium.core.helperv26.MesuresTemporalsHelper;
+import net.conselldemallorca.helium.core.model.hibernate.AnotacioAnnex;
 import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
 import net.conselldemallorca.helium.core.model.hibernate.Document;
 import net.conselldemallorca.helium.core.model.hibernate.DocumentNotificacio;
@@ -65,6 +66,7 @@ import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.exception.SistemaExternConversioDocumentException;
 import net.conselldemallorca.helium.v3.core.api.exception.SistemaExternException;
 import net.conselldemallorca.helium.v3.core.api.exception.ValidacioException;
+import net.conselldemallorca.helium.v3.core.repository.AnotacioAnnexRepository;
 import net.conselldemallorca.helium.v3.core.repository.DefinicioProcesRepository;
 import net.conselldemallorca.helium.v3.core.repository.DocumentNotificacioRepository;
 import net.conselldemallorca.helium.v3.core.repository.DocumentRepository;
@@ -130,6 +132,8 @@ public class DocumentHelperV3 {
 	private RegistreRepository registreRepository;
 	@Resource
 	private DocumentNotificacioRepository documentNotificacioRepository; 
+	@Resource
+	private AnotacioAnnexRepository anotacioAnnexRepository;
 
 	private PdfUtils pdfUtils;
 	private DocumentTokenUtils documentTokenUtils;
@@ -318,6 +322,10 @@ public class DocumentHelperV3 {
 		} else {
 			documents = documentRepository.findByDefinicioProcesId(definicioProces.getId());
 		}
+		// Consulta els annexos de les anotacions de registre i les guarda en un Map<Long documentStoreId, Anotacio>
+		Map<Long, AnotacioAnnex> mapAnotacions = new HashMap<Long, AnotacioAnnex>();
+		for (AnotacioAnnex annex : anotacioAnnexRepository.findByAnotacioExpedientId(expedient.getId()))
+			mapAnotacions.put(annex.getDocumentStoreId(), annex);
 		// Consulta els documents de l'instància de procés
 		Map<String, Object> varsInstanciaProces = jbpmHelper.getProcessInstanceVariables(processInstanceId);
 		if (varsInstanciaProces != null) {
@@ -341,6 +349,7 @@ public class DocumentHelperV3 {
 									documentStoreId);
 							List<DocumentNotificacio> enviaments = documentNotificacioRepository.findByExpedientAndDocumentId(expedient, documentStoreId);
 							ed.setNotificat(!enviaments.isEmpty());
+							ed.setAnotacioId(null); // De moment només arriben per anotació els annexos
 							resposta.add(ed);
 						} else {
 							ExpedientDocumentDto dto = new ExpedientDocumentDto();
@@ -355,8 +364,12 @@ public class DocumentHelperV3 {
 						ExpedientDocumentDto ed = crearDtoPerAdjuntExpedient(
 								getAdjuntIdDeVariableJbpm(var),
 								documentStoreId);
-						List<DocumentNotificacio> enviaments = documentNotificacioRepository.findByExpedientAndDocumentId(expedient, documentStoreId);
-						ed.setNotificat(!enviaments.isEmpty());
+						ed.setNotificat(false); // De moment els annexos no es notifiquen
+						AnotacioAnnex annex = mapAnotacions.get(ed.getId());
+						if (annex != null) {
+							ed.setAnotacioId(annex.getAnotacio().getId());
+							ed.setAnotacioIdentificador(annex.getAnotacio().getIdentificador());
+						}
 						resposta.add(ed);
 					}
 				}
@@ -674,6 +687,7 @@ public class DocumentHelperV3 {
 				adjuntTitol,
 				arxiuNom,
 				arxiuContingut,
+				null, // arxiuUuid
 				this.getContentType(arxiuNom),
 				false,	// amb firma
 				false,
@@ -693,6 +707,7 @@ public class DocumentHelperV3 {
 			String adjuntTitol,
 			String arxiuNom,
 			byte[] arxiuContingut,
+			String arxiuUuid,
 			String arxiuContentType,
 			boolean ambFirma,
 			boolean firmaSeparada,
@@ -724,6 +739,7 @@ public class DocumentHelperV3 {
 				processInstanceId,
 				arxiuNom,
 				arxiuContingut,
+				arxiuUuid,
 				arxiuContentType,
 				ambFirma,
 				firmaSeparada,
@@ -808,6 +824,7 @@ public class DocumentHelperV3 {
 				processInstanceId,
 				arxiuNom,
 				arxiuContingut,
+				null, //arxiuUuid
 				arxiuContentType,
 				ambFirma,
 				firmaSeparada,
@@ -884,6 +901,7 @@ public class DocumentHelperV3 {
 					null,
 					arxiuNom,
 					arxiuContingut,
+					null, // arxiuUuid
 					arxiuContentType,
 					ambFirma,
 					firmaSeparada,
@@ -2045,6 +2063,7 @@ public class DocumentHelperV3 {
 	 * @param processInstanceId
 	 * @param arxiuNom
 	 * @param arxiuContingut
+	 * @param arxiuUuid En cas que l'arxiu ja existeixi a l'Arxiu
 	 * @param arxiuContentType
 	 * @param ambFirma
 	 * @param firmaSeparada
@@ -2060,6 +2079,7 @@ public class DocumentHelperV3 {
 			String processInstanceId,
 			String arxiuNom,
 			byte[] arxiuContingut,
+			String arxiuUuid,
 			String arxiuContentType,
 			boolean ambFirma,
 			boolean firmaSeparada,
@@ -2086,48 +2106,70 @@ public class DocumentHelperV3 {
 					ntiTipoDocumental,
 					ntiIdDocumentoOrigen);
 		}
-		String documentDescripcio;
-		if (documentStore.isAdjunt()) {
-			documentDescripcio = inArxiu(documentStore.getAdjuntTitol() ,FilenameUtils.getExtension(arxiuNom), processInstanceId);
-		} else {
-			documentDescripcio = inArxiu(document.getNom() ,FilenameUtils.getExtension(arxiuNom), processInstanceId);
-		}
-		
-		// Valida firmes
 		List<ArxiuFirmaDto> firmes = null;
+		es.caib.plugins.arxiu.api.Document documentArxiu = null;
 		if (ambFirma) {
-			// Obté les firmes
-			firmes = validaFirmaDocument(
-					documentStore, 
-					arxiuContingut,
-					firmaContingut,
-					arxiuContentType);
+			// Obté les firmes del plugin de validació a partir del contingut
+			if (arxiuUuid == null) {
+				// Valida firmes
+				firmes = validaFirmaDocument(
+						documentStore, 
+						arxiuContingut,
+						firmaContingut,
+						arxiuContentType);
+			} else {
+				// Obté les firmes de l'Arxiu
+				documentArxiu = pluginHelper.arxiuDocumentInfo(
+						arxiuUuid,
+						null,
+						false,
+						true);
+				firmes =PluginHelper.toArxiusFirmesDto(documentArxiu.getFirmes());
+			}
 		}
+		String documentDescripcio = documentStore.isAdjunt() ? documentStore.getAdjuntTitol() : document.getNom();
 		if (expedient.isArxiuActiu()) {
-			// Actualitza el document a dins l'arxiu
-			ArxiuDto arxiu = new ArxiuDto(
-					arxiuNom,
-					arxiuContingut,
-					arxiuContentType);
-			ContingutArxiu contingutArxiu = pluginHelper.arxiuDocumentCrearActualitzar(
-					expedient,
-					documentDescripcio,
-					documentStore,
-					arxiu,
-					ambFirma,
-					firmaSeparada,
-					firmes);
-			documentStore.setArxiuUuid(contingutArxiu.getIdentificador());
-			es.caib.plugins.arxiu.api.Document documentArxiu = pluginHelper.arxiuDocumentInfo(
-					contingutArxiu.getIdentificador(),
-					null,
-					false,
-					true);
-			documentStore.setNtiIdentificador(
-					documentArxiu.getMetadades().getIdentificador());
-			if(ambFirma)
+			// Document integrat amb l'Arxiu
+			if (arxiuUuid == null) {
+				// Actualitza el document a dins l'arxiu
+				ArxiuDto arxiu = new ArxiuDto(
+						arxiuNom,
+						arxiuContingut,
+						arxiuContentType);
+				// Canvia la descripció per no coincidir amb cap document amb el mateix nom a l'Arxiu
+				documentDescripcio = inArxiu(documentDescripcio ,FilenameUtils.getExtension(arxiuNom), processInstanceId);
+				
+				ContingutArxiu contingutArxiu = pluginHelper.arxiuDocumentCrearActualitzar(
+						expedient,
+						documentDescripcio,
+						documentStore,
+						arxiu,
+						ambFirma,
+						firmaSeparada,
+						firmes);
+				documentStore.setArxiuUuid(contingutArxiu.getIdentificador());
+				documentArxiu = pluginHelper.arxiuDocumentInfo(
+						contingutArxiu.getIdentificador(),
+						null,
+						false,
+						true);
+			} else {
+				documentStore.setArxiuUuid(arxiuUuid);
+				if (documentArxiu == null)
+					documentArxiu = pluginHelper.arxiuDocumentInfo(
+							arxiuUuid,
+							null,
+							false,
+							true);
+				documentStore.setNtiIdentificador(documentArxiu.getMetadades().getIdentificador());
+			}
+			if(ambFirma) {
 				this.actualitzarNtiFirma(documentStore, documentArxiu);
+			}
+			documentStore.setSignat(firmes != null && firmes.size() > 0);
 		} else {
+			// No integrat amb l'Arxiu
+			
 			// Valida que si està firmat llavors tingui codi de custòdia per poder-lo guardar
 			String codiCustodia = document != null ? document.getCustodiaCodi() : null;
 			if (ambFirma && codiCustodia == null)
@@ -2139,7 +2181,7 @@ public class DocumentHelperV3 {
 					String referenciaFont = pluginHelper.gestioDocumentalCreateDocument(
 							expedient,
 							documentStore.getId().toString(),
-							documentDescripcio,
+							arxiuNom,
 							documentStore.getDataDocument(),
 							arxiuNom,
 							arxiuContingut);

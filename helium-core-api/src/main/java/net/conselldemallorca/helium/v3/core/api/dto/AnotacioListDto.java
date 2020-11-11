@@ -44,6 +44,9 @@ public class AnotacioListDto implements Serializable {
 	private String oficinaCodi;
 	private String oficinaDescripcio;
 	
+	// Per mostrar errors d'annexos al llistat
+	private boolean errorAnnexos;
+	
 	public Long getId() {
 		return id;
 	}
@@ -158,6 +161,12 @@ public class AnotacioListDto implements Serializable {
 	public void setOficinaDescripcio(String oficinaDescripcio) {
 		this.oficinaDescripcio = oficinaDescripcio;
 	}
-	
+	public boolean isErrorAnnexos() {
+		return errorAnnexos;
+	}
+	public void setErrorAnnexos(boolean errorAnnexos) {
+		this.errorAnnexos = errorAnnexos;
+	}
+
 	private static final long serialVersionUID = 2160387490004131252L;	
 }

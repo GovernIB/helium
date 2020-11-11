@@ -29,6 +29,7 @@ import es.caib.distribucio.backoffice.utils.arxiu.ArxiuResultat;
 import es.caib.distribucio.backoffice.utils.arxiu.ArxiuResultatAnnex;
 import es.caib.distribucio.backoffice.utils.arxiu.BackofficeArxiuUtils;
 import es.caib.distribucio.backoffice.utils.arxiu.BackofficeArxiuUtilsImpl;
+import es.caib.distribucio.backoffice.utils.arxiu.ArxiuResultatAnnex.AnnexAccio;
 import es.caib.distribucio.core.api.exception.SistemaExternException;
 import es.caib.distribucio.ws.backofficeintegracio.AnotacioRegistreEntrada;
 import es.caib.distribucio.ws.backofficeintegracio.AnotacioRegistreId;
@@ -125,7 +126,7 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 	private PluginHelper pluginHelper;
 	@Resource
 	private ExpedientLoggerHelper expedientLoggerHelper;
-
+	
 	/**
 	 * {@inheritDoc}
 	 */
@@ -368,8 +369,7 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 		}
 		
 		// Associa tots els annexos de l'anotació com annexos de l'expedient
-		for ( AnotacioAnnex annex : anotacio.getAnnexos() ) {
-			
+		for ( AnotacioAnnex annex : anotacio.getAnnexos() ) {			
 			// Incorpora cada annex de forma separada per evitar excepcions i continuar amb els altres
 			this.incorporarAnnex(expedient, anotacio, annex, resultat);						
 		}
@@ -465,8 +465,9 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 		String adjuntTitol = anotacio.getIdentificador() + "/" + annex.getNom();
 		logger.debug("Incorporant l'annex (annex=" + adjuntTitol + ") a l'expedient " + expedient.getIdentificador());
 		try {
+			byte[] contingut = null;
+			String arxiuUuid = null;
 			if (expedient.isArxiuActiu()) {
-				// Crea un document al DocumentStore amb la informació de l'annex sense contingut
 				ArxiuResultatAnnex resultatAnnex = resultat.getResultatAnnex(annex.getUuid());
 				// Consulta si s'acaba de moure
 				switch(resultatAnnex.getAccio()) {
@@ -477,18 +478,22 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 				case EXISTENT:
 				case MOGUT:
 					annex.setEstat(AnotacioAnnexEstatEnumDto.MOGUT);
-					annex.setUuid(resultatAnnex.getIdentificadorAnnex());					
+					annex.setUuid(resultatAnnex.getIdentificadorAnnex());
+					arxiuUuid = annex.getUuid();
 				}
 			} else {
 				// Recupera el contingut del document i crea un document a Helium
-				byte[] contingut = annex.getContingut();
+				contingut = annex.getContingut();
 				if (contingut == null) {
 					// Recupera el contingut de l'Arxiu
 					Document documentArxiu = pluginHelper.arxiuDocumentInfo(annex.getUuid(), null, true, true);
 					contingut = documentArxiu.getContingut() != null? documentArxiu.getContingut().getContingut() : null;
 				}
+				annex.setEstat(AnotacioAnnexEstatEnumDto.MOGUT);
+			}
+			if (AnotacioAnnexEstatEnumDto.MOGUT.equals(annex.getEstat())) {
 				// Crea un document a Helium 
-				documentHelper.crearDocument(
+				Long documentStoreId = documentHelper.crearDocument(
 						null, 
 						expedient.getProcessInstanceId(), 
 						null, 
@@ -497,16 +502,17 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 						annex.getTitol(), 
 						annex.getNom(), 
 						contingut, 
+						arxiuUuid,
 						annex.getTipusMime(), 
-						false, //firmat, de moment guardarem sense firma 
+						annex.getFirmaTipus() != null,  
 						false, //firmaSeparada, 
 						null, //firmaContingut, 
 						annex.getNtiOrigen(), 
 						annex.getNtiEstadoElaboracion(), 
 						annex.getNtiTipoDocumental(), 
 						annex.getNtiOrigen() != null ? annex.getNtiOrigen().toString() : null);
+				annex.setDocumentStoreId(documentStoreId);
 			}
-			annex.setEstat(AnotacioAnnexEstatEnumDto.MOGUT);
 		} catch(Exception e) {
 			annex.setError("Error incorporant l'annex a l'expedient: " + e.getMessage());
 			annex.setEstat(AnotacioAnnexEstatEnumDto.PENDENT);
@@ -774,6 +780,7 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 		
 		// Reintenta la incorporació
 		ArxiuResultat resultat = new ArxiuResultat();
+		annex.setError(null);
 		
 		if (expedient.isArxiuActiu()) {			
 			// Utilitza la llibreria d'utilitats de Distribució per incorporar la informació de l'anotació directament a l'expedient dins l'Arxiu
@@ -792,16 +799,9 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 				anotacioRegistreEntrada = distribucioHelper.consulta(idWs);
 				resultat = backofficeUtils.crearExpedientAmbAnotacioRegistre(expedientArxiu, anotacioRegistreEntrada);
 			} catch(Exception e) {
-				String errMsg = "Error consultant l'anotació de registre \"" + anotacio.getIdentificador() + "\" a Distribució: " + e.getMessage();
-				logger.error(errMsg, e);
-				throw new SistemaExternException(errMsg, e);
-			}
-			try {
-				resultat = backofficeUtils.crearExpedientAmbAnotacioRegistre(expedientArxiu, anotacioRegistreEntrada);
-			} catch(Exception e) {
 				String errMsg = "Error reprocessant la informació de l'anotació de registre \"" + anotacio.getIdentificador() + "\" de Distribució: " + e.getMessage();
 				logger.error(errMsg, e);
-				throw new Exception(errMsg, e);
+				throw new SistemaExternException(errMsg, e);
 			}
 		}
 		this.incorporarAnnex(anotacio.getExpedient(), anotacio, annex, resultat);
@@ -810,7 +810,21 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 				"Reintent de processament de l'annex (" +
 				"anotacioId=" + anotacioId + " " + anotacio.getIdentificador() + ", annexId=" + annexId + 
 				" " + annex.getNom() + ", annexEstat=" + annex.getEstat() + ", annexError=" + annex.getError() + ")");
-
+		
+		// Depenent del resultat llença excepció
+		boolean error = false;
+		StringBuilder errorMsg = new StringBuilder();
+		if (resultat.getErrorCodi() != 0) {
+			error = true;
+			errorMsg.append("Error reprocessant l'anotació l'expedient amb la llibreria d'utilitats de Distribucio: " + resultat.getErrorCodi() + " " + resultat.getErrorMessage());
+		}
+		ArxiuResultatAnnex resultatAnnex = resultat.getResultatAnnex(annex.getUuid());
+		if (AnnexAccio.ERROR.equals(resultatAnnex.getAccio())) {
+			error = true;
+			errorMsg.append(resultatAnnex.getErrorCodi() + " - " + resultatAnnex.getErrorMessage());
+		}
+		if (error)
+			throw new Exception(errorMsg.toString());
 	}
 	
 	private static final Logger logger = LoggerFactory.getLogger(AnotacioServiceImpl.class);

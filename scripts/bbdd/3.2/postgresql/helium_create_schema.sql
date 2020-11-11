@@ -1539,9 +1539,9 @@ CREATE TABLE HEL_ANOTACIO_ANNEX (
 	ID 						BIGINT 		NOT NULL, 
 	CONTINGUT BLOB,
 	FIRMA_CONTINGUT BLOB,
-	FIRMA_PERFIL character varying (4),
+	FIRMA_PERFIL character varying (30),
 	FIRMA_TAMANY integer,
-	FIRMA_TIPUS character varying (4),
+	FIRMA_TIPUS character varying (30),
 	NOM character varying (80) NOT NULL,
 	FIRMA_NOM character varying(80),
 	NTI_FECHA_CAPTURA timestamp without time zone NOT NULL,
@@ -1557,7 +1557,8 @@ CREATE TABLE HEL_ANOTACIO_ANNEX (
 	ANOTACIO_ID BIGINT NOT NULL,
 	ESTAT character varying (20),
 	ERROR character varying (4000),
-	NTI_ESTADO_ELABORACIO character varying(50) NOT NULL
+	NTI_ESTADO_ELABORACIO character varying(50) NOT NULL,
+	DOCUMENT_STORE_ID bigint
 );
 
 

@@ -61,6 +61,10 @@ public class ExpedientDocumentDto implements Serializable {
 	
 	private boolean notificat;
 	
+	/** Per marcar a la pipella de documents si prové d'una anotació. */
+	private Long anotacioId = null;
+	private String anotacioIdentificador = null;
+	
 	public boolean isNotificable() {
 		return notificable;
 	}
@@ -311,6 +315,20 @@ public class ExpedientDocumentDto implements Serializable {
 	}
 	public void setNotificat(boolean notificat) {
 		this.notificat = notificat;
+	}
+
+	public Long getAnotacioId() {
+		return anotacioId;
+	}
+	public void setAnotacioId(Long anotacioId) {
+		this.anotacioId = anotacioId;
+	}
+
+	public String getAnotacioIdentificador() {
+		return anotacioIdentificador;
+	}
+	public void setAnotacioIdentificador(String anotacioNumero) {
+		this.anotacioIdentificador = anotacioNumero;
 	}
 
 	private static final long serialVersionUID = -4307890997577367155L;

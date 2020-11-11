@@ -70,12 +70,12 @@ public class AnotacioAnnex implements Serializable, GenericEntity<Long> {
 	@Column(name = "firma_contingut")
 	private byte[] firmaContingut;
 	@Enumerated(EnumType.STRING)
-	@Column(name = "firma_perfil", length = 4)
+	@Column(name = "firma_perfil", length = 30)
 	private ArxiuFirmaPerfilEnumDto firmaPerfil;
 	@Column(name = "firma_tamany")
 	private long firmaTamany;
 	@Enumerated(EnumType.STRING)
-	@Column(name = "firma_tipus", length = 4)
+	@Column(name = "firma_tipus", length = 30)
 	private NtiTipoFirmaEnumDto firmaTipus;
 	@Column(name = "firma_nom", length = 80)
 	private String firmaNom;
@@ -118,6 +118,10 @@ public class AnotacioAnnex implements Serializable, GenericEntity<Long> {
 	@JoinColumn(name = "anotacio_id")
 	@ForeignKey(name = "hel_interessat_anotacio_fk")
 	private Anotacio anotacio;
+	
+	/** Valor del document store quan l'annex s'incorpora a un expedient. */
+	@Column(name = "document_store_id")
+	private Long documentStoreId = null;
 	
 	public Long getId() {
 		return id;
@@ -347,5 +351,12 @@ public class AnotacioAnnex implements Serializable, GenericEntity<Long> {
 		this.firmaNom = firmaNom;
 	}
 	
+	public Long getDocumentStoreId() {
+		return documentStoreId;
+	}
+	public void setDocumentStoreId(Long documentStoreId) {
+		this.documentStoreId = documentStoreId;
+	}
+
 	private static final long serialVersionUID = 1864495018202820415L;	
 }

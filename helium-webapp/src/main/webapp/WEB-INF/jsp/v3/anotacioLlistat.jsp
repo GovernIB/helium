@@ -127,6 +127,9 @@
 							<button class="btn btn-primary" data-toggle="dropdown"><span class="fa fa-cog"></span>&nbsp;<spring:message code="comu.boto.accions"/>&nbsp;<span class="caret"></span></button>
 							<ul class="dropdown-menu">
 								<li><a href="<c:url value="/v3/anotacio/{{:id}}"/>" data-toggle="modal" data-maximized="true"><span class="fa fa-info-circle"></span>&nbsp;<spring:message code="comu.boto.detalls"/></a></li>
+								{{if expedient != null }}
+									<li><a href="<c:url value="/v3/expedient/{{:expedient.id}}"/>"><span class="fa fa-folder-open"></span>&nbsp;<spring:message code="anotacio.llistat.accio.expedient"/></a></li>
+								{{/if}}
 								{{if estat == 'PENDENT'}}
 									<li><a href="<c:url value="/v3/anotacio/{{:id}}/acceptar"/>" data-maximized="true" data-toggle="modal"><span class="fa fa-check"></span>&nbsp;<spring:message code="comu.boto.acceptar"/></a></li>
 									<li><a href="<c:url value="/v3/anotacio/{{:id}}/rebutjar"/>" data-toggle="modal" data-min-height="1200"><span class="fa fa-times"></span>&nbsp;<spring:message code="comu.boto.rebutjar"/></a></li>

@@ -326,11 +326,11 @@
 			</exclusions>
 		</dependency>
 		-->
-		<!-- plugin-arxiu-caib 2.0.5 --> 
+		<!-- plugin-arxiu-caib 2.0.7.1 --> 
 		<dependency>
 			<groupId>org.fundaciobit.pluginsib.arxiu</groupId>
 			<artifactId>pluginsib-arxiu-caib</artifactId>
-			<version>2.0.5</version>
+			<version>2.0.7.1</version>
 			<exclusions>
 				<exclusion>
 					<groupId>log4j</groupId>

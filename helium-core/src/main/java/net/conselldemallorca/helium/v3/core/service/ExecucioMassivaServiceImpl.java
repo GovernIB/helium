@@ -1568,6 +1568,7 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 							isAdjunt ? nom : null,
 							fileName,
 							contingut,
+							null, // arxiuUuid
 							arxiuContentType,
 							ambFirma,
 							firmaSeparada,
