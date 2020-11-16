@@ -823,7 +823,7 @@ public class ExpedientHelper {
 			
 			// Si la descripició no acaba amb l'extensió l'afegeix
 			String extensio = "." + arxiu.getExtensio();
-			if (documentDescripcio.endsWith(extensio))
+			if (!documentDescripcio.endsWith(extensio))
 				documentDescripcio += extensio;
 			
 			// Corregeix el nom si ja hi ha un altre document amb el mateix nom i posant l'extensio
@@ -832,7 +832,7 @@ public class ExpedientHelper {
 				String novaDescripcio;
 				do {
 					// descripcio.ext := descripcio (1).ext
-					novaDescripcio = documentDescripcio.substring(documentDescripcio.lastIndexOf(extensio), documentDescripcio.length()-1) + " (" + occurrences++ + ")" + extensio;
+					novaDescripcio = documentDescripcio.substring(0, documentDescripcio.lastIndexOf(extensio)) + " (" + occurrences++ + ")" + extensio;
 				} while (documentsExistents.contains(novaDescripcio));
 				documentDescripcio = novaDescripcio;
 			}

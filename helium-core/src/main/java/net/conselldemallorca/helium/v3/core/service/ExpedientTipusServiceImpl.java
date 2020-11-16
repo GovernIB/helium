@@ -845,6 +845,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 						command.getId());
 			}
 		if (!expedientTipusExisteix || command.isDadesBasiques()) {
+			expedientTipus.setNom(importacio.getNom());
 			expedientTipus.setAmbInfoPropia(importacio.isAmbInfoPropia());
 			expedientTipus.setTeTitol(importacio.isTeTitol());
 			expedientTipus.setDemanaTitol(importacio.isDemanaTitol());

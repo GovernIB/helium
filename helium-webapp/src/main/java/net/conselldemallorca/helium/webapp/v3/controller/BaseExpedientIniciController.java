@@ -99,6 +99,13 @@ public class BaseExpedientIniciController extends BaseExpedientController {
 						getMessage(	request, 
 									"anotacio.form.acceptar.incorporar.success",
 									new Object[] { anotacio.getIdentificador(), iniciat.getNumeroIdentificador()}));
+				// Comprova si hi ha cap annex amb error per advertir a l'usuari
+				if (anotacio.isErrorAnnexos())
+					MissatgesHelper.warning(
+							request, 
+							getMessage(	request, 
+										"anotacio.form.acceptar.incorporar.errorAnnexos",
+										new Object[] { anotacio.getIdentificador(), iniciat.getNumeroIdentificador()}));
 			} catch (Exception e) {
 				MissatgesHelper.error(
 						request, 

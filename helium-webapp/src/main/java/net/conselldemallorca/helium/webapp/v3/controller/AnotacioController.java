@@ -270,6 +270,13 @@ public class AnotacioController extends BaseExpedientController {
 								new Object[] {
 										anotacio.getIdentificador(),
 										anotacio.getExpedient().getIdentificadorLimitat()}));
+				// Comprova si hi ha cap annex amb error per advertir a l'usuari
+				if (anotacio.isErrorAnnexos())
+					MissatgesHelper.warning(
+							request, 
+							getMessage(	request, 
+										"anotacio.form.acceptar.incorporar.errorAnnexos",
+										new Object[] { anotacio.getIdentificador(), anotacio.getExpedient().getIdentificadorLimitat()}));
 				ret = this.modalUrlTancar(false); 
 				break;		
 			default:
