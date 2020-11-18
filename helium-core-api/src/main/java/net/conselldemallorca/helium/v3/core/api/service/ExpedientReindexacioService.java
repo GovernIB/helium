@@ -51,7 +51,7 @@ public interface ExpedientReindexacioService {
 	public List<Long> consultaIdsExpedients(long expedientTipusId);
 
 	
-	/** Mètode per comptar els registres pendents en la cua de reindexació. */
+	/** Mètode per consultar el número d'expedients diferents pendents de reindexació. */
 	public Long countPendentReindexacioAsincrona();
 
 	/** Mètode per consultar les dades de reindexació en forma de llista per tipus d'expedient.

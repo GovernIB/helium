@@ -89,7 +89,7 @@ public class ExpedientReindexacioServiceImpl implements ExpedientReindexacioServ
 	@Transactional(readOnly = true)
 	public Long countPendentReindexacioAsincrona() {
 		
-		return expedientReindexacioRepository.count();
+		return expedientReindexacioRepository.countExpedientsPendents();
 	}
 
 	/**

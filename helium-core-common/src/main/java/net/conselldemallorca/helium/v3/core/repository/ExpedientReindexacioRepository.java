@@ -55,6 +55,16 @@ public interface ExpedientReindexacioRepository extends JpaRepository<ExpedientR
 	public List<Object[]> getDades(
 			@Param("esNulEntornId") boolean esNulEntornId,
 			@Param("entornId") Long entornId);
+	
+	/** Compta el número d'expedients diferents que hi ha en la cua de reindexació
+	 * asíncrona. Pot ser que un expedient estigui més d'una vegada pels diferents canvis
+	 * pendents de reindexar però compta com una vegada.
+	 * 
+	 * @return
+	 */
+	@Query("select count(distinct expedientId) " +
+		   "from ExpedientReindexacio ")
+	public Long countExpedientsPendents();
 
 	
 }
