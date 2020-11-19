@@ -330,6 +330,18 @@ public interface HeliumApi {
 			boolean finalitzat);
 	
 	/**
+	 * Retorna el resultat d'una consulta d'expedients a partir del filtre de dades indexades.
+	 * 
+	 * @param expedientTipusCodi Tipus d'expedient sobre la que realitzar la consulta
+	 * @param filtreValors Parelles de codi variable i valor per filtrar.
+	 * @return
+	 * @throws JbpmException En cas de validació errònia de paràmetres.
+	 */
+	public List<ExpedientInfo> consultaExpedientsDadesIndexades(
+			String expedientTipusCodi,
+			Map<String, Object> filtreValors);
+	
+	/**
 	 * Envia un correu electrònic amb la possibilitat d'adjuntar documents de l'expedient
 	 * 
 	 * @param recipients Llista de destinataris

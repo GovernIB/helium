@@ -464,6 +464,45 @@ public class HeliumApiImpl implements HeliumApi {
 		}
 	}
 	
+	/**
+	 * Retorna el resultat d'una consulta d'expedients a partir del filtre de dades de Lucene.
+	 * 
+	 * @param expedientTipusCodi
+	 * @param filtreValors
+	 * @return
+	 * @throws HeliumHandlerException En cas de validació errònia de paràmetres.
+	 */
+	@Override
+	public List<ExpedientInfo> consultaExpedientsDadesIndexades(
+			String expedientTipusCodi,
+			Map<String, Object> filtreValors) {
+		// Validacions
+		if(expedientTipusCodi == null) throw new HeliumHandlerException("El paràmetre expedientTipusCodi no pot ser null");
+		if(filtreValors == null || filtreValors.isEmpty()) throw new JbpmException("Els paràmetres del filtre no poden ser null o estar buits");
+		
+		List<ExpedientInfo> resposta = new ArrayList<ExpedientInfo>();
+		try {
+			Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+			if (auth != null) {
+				ExpedientDto expedient = getExpedientActual();
+
+				// Consulta d'expedients
+				List<ExpedientDto> resultats = Jbpm3HeliumBridge.getInstanceService().findExpedientsConsultaDadesIndexades(
+						expedient.getEntorn().getId(),
+						expedientTipusCodi,
+						filtreValors);
+				// Construcció de la resposta
+				for (ExpedientDto dto: resultats)
+					resposta.add(ConversioTipusHelper.toExpedientInfo(dto));				
+			} else {
+				throw new HeliumHandlerException("No hi ha usuari autenticat");
+			}
+		} catch (Exception ex) {
+			throw new HeliumHandlerException("Error en la consulta d'expedients", ex);
+		}
+		return resposta;
+	}
+
 	@Override
 	public void enviarEmail(
 			List<String> recipients,

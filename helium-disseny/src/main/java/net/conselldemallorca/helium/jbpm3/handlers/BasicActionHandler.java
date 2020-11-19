@@ -80,6 +80,14 @@ public abstract class BasicActionHandler implements ActionHandler {
 
 		return new ArrayList<ExpedientInfo>();
 	}
+	
+	public List<ExpedientInfo> consultaExpedientsDadesIndexades(
+			ExecutionContext executionContext,
+			String expedientTipusCodi,
+			Map<String, Object> filtreValors) {
+		return new ArrayList<ExpedientInfo>();
+	}
+
 
 	public DocumentInfo getDocument(
 			ExecutionContext executionContext,

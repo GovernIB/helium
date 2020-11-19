@@ -1073,7 +1073,22 @@ public interface Jbpm3HeliumService {
 			boolean nomesIniciats,
 			boolean nomesFinalitzats) throws NoTrobatException;
 
-	
+	/** Consulta els expedients filtrats a partir de les dades reindexades
+	 * @param filtreValors 
+	 * @param expedientTipusCodi 
+	 * @param entornId 
+	 * 
+	 * @return Retorna el llistat d'expedients que compleixen amb el criteri.
+	 * 
+	 * @throws EntornNotFoundException
+	 * @throws ExpedientTipusNotFoundException
+	 * @throws EstatNotFoundException
+	 */
+	public List<ExpedientDto> findExpedientsConsultaDadesIndexades(
+			Long entornId, 
+			String expedientTipusCodi, 
+			Map<String, Object> filtreValors);
+
 	/**
 	 * Inicialitza les definicions de procés per a que estiguin disponibles per als handlers
 	 */

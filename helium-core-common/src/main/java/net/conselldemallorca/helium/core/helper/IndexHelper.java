@@ -24,8 +24,10 @@ import net.conselldemallorca.helium.core.model.hibernate.Camp;
 import net.conselldemallorca.helium.core.model.hibernate.Camp.TipusCamp;
 import net.conselldemallorca.helium.core.model.hibernate.CampRegistre;
 import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
+import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientReindexacio;
+import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.jbpm3.integracio.DominiCodiDescripcio;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessInstance;
@@ -638,5 +640,18 @@ public class IndexHelper {
 				expedientHelper.findAllCampsExpedientConsulta());
 		
 		return luceneHelper.expedientIndexLuceneGetDades(expedient, informeCamps);
+	}
+
+	/** Consulta els identificadors del expedints a partir dels valors de filtre de lucene. */
+	public List<Long> findExpedientsIdsByFiltre(
+			final Entorn entorn,
+			final ExpedientTipus expedientTipus,
+			List<Camp> filtreCamps,
+			Map<String, Object> filtreValors) 
+	{
+		
+		List<Long> resposta = luceneHelper.findNomesIds(entorn, expedientTipus, filtreCamps, filtreValors);
+
+		return resposta;
 	}
 }

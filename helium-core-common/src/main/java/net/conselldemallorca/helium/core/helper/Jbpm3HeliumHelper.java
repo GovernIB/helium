@@ -5,8 +5,10 @@ package net.conselldemallorca.helium.core.helper;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.annotation.Resource;
 
@@ -2228,6 +2230,67 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 						nomesIniciats,
 						nomesFinalitzats),
 				ExpedientDto.class);
+	}
+	
+	@Override
+	public List<ExpedientDto> findExpedientsConsultaDadesIndexades(
+			Long entornId, 
+			String expedientTipusCodi, 
+			Map<String, Object> filtreValors) {
+		logger.debug("Consultant expedients a Lucene (" +
+				"entornId=" + entornId + ", " +
+				"expedientTipusCodi=" + expedientTipusCodi + ", " +
+				"filtreValors=" + filtreValors + ")");
+		List<ExpedientDto> resposta = new ArrayList<ExpedientDto>();
+		
+		Entorn entorn = entornRepository.findOne(entornId);
+		if (entorn == null)
+			throw new NoTrobatException(Entorn.class, entornId);
+		// comprovar l'accés a l'entorn
+		ExpedientTipus expedientTipus = expedientTipusRepository.findByEntornAndCodi(entorn, expedientTipusCodi);
+		if (expedientTipus == null)
+			throw new NoTrobatException(ExpedientTipus.class, expedientTipusCodi);
+		// comprovar l'accés al tipus d'expedient
+
+		// Construeix la llista de camps
+		Map<String, Camp> campsIndexatsPerCodi = new HashMap<String, Camp>();
+		Set<Camp> camps = null;
+		if (expedientTipus.isAmbInfoPropia()) {
+			if (expedientTipus.getExpedientTipusPare() != null) {
+				// Camps heretats
+				for (Camp camp: expedientTipus.getExpedientTipusPare().getCamps())
+					campsIndexatsPerCodi.put(camp.getCodi(), camp);
+			}
+			camps = expedientTipus.getCamps();
+		} else {
+			// Troba la definició de procés principial
+			for (DefinicioProces definicioProces : expedientTipus.getDefinicionsProces())
+				if (expedientTipus.getJbpmProcessDefinitionKey() != null 
+				&& expedientTipus.getJbpmProcessDefinitionKey().equals(definicioProces.getJbpmKey())) {
+					camps = definicioProces.getCamps();
+					break;
+				}
+		}
+		// Els camps del TE o de la DP sobreescriuen els heretats
+		if (camps != null)
+			for (Camp camp: camps)
+				campsIndexatsPerCodi.put(camp.getCodi(), camp);
+		List<Camp> filtreCamps = new ArrayList<Camp>(campsIndexatsPerCodi.values());
+
+		// consultar a l'índex
+		List<Long> expedientsIds = indexHelper.findExpedientsIdsByFiltre(
+				entorn,
+				expedientTipus,
+				filtreCamps,
+				filtreValors);
+		Expedient expedient;
+		for (Long expedientId : expedientsIds) {
+			expedient = expedientHelper.findAmbEntornIId(entornId, expedientId);
+			if (expedient != null 
+					&& !expedient.isAnulat())
+				resposta.add(conversioTipusHelper.convertir(expedient, ExpedientDto.class));
+		}
+		return resposta;
 	}
 
 	@Override
