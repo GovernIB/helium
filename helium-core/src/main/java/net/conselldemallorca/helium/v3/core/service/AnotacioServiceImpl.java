@@ -31,6 +31,7 @@ import es.caib.distribucio.backoffice.utils.arxiu.BackofficeArxiuUtils;
 import es.caib.distribucio.backoffice.utils.arxiu.BackofficeArxiuUtilsImpl;
 import es.caib.distribucio.backoffice.utils.arxiu.ArxiuResultatAnnex.AnnexAccio;
 import es.caib.distribucio.core.api.exception.SistemaExternException;
+import es.caib.distribucio.ws.backofficeintegracio.Annex;
 import es.caib.distribucio.ws.backofficeintegracio.AnotacioRegistreEntrada;
 import es.caib.distribucio.ws.backofficeintegracio.AnotacioRegistreId;
 import es.caib.distribucio.ws.backofficeintegracio.Estat;
@@ -345,6 +346,7 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 		// la informació dels interessats.
 		ArxiuResultat resultat = null;
 		if (expedient.isArxiuActiu()) {
+
 			// Utilitza la llibreria d'utilitats de Distribució per incorporar la informació de l'anotació directament a l'expedient dins l'Arxiu
 			es.caib.plugins.arxiu.api.Expedient expedientArxiu = pluginHelper.arxiuExpedientInfo(expedient.getArxiuUuid());
 			BackofficeArxiuUtils backofficeUtils = new BackofficeArxiuUtilsImpl(pluginHelper.getArxiuPlugin());
@@ -361,11 +363,14 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 				resultat = backofficeUtils.crearExpedientAmbAnotacioRegistre(expedientArxiu, anotacioRegistreEntrada);
 				if (resultat.getErrorCodi() != 0)
 					throw new Exception("Error creant l'expedient amb la llibreria d'utilitats de Distribucio: " + resultat.getErrorCodi() + " " + resultat.getErrorMessage());
+				
 			} catch(Exception e) {
 				String errMsg = "Error consultant l'anotació de registre \"" + anotacio.getIdentificador() + "\" de Distribució:_" + e.getMessage();
 				logger.error(errMsg, e);
 				throw new SistemaExternException(errMsg, e);
 			}
+		} else {
+			resultat = new ArxiuResultat();
 		}
 		
 		// Associa tots els annexos de l'anotació com annexos de l'expedient
@@ -427,10 +432,12 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 			AnotacioRegistreId anotacioRegistreId = new AnotacioRegistreId();
 			anotacioRegistreId.setClauAcces(anotacio.getDistribucioClauAcces());
 			anotacioRegistreId.setIndetificador(anotacio.getDistribucioId());
+			/* TODO
 			distribucioHelper.canviEstat(
 					anotacioRegistreId,
 					Estat.PROCESSADA,
 					"Anotació incorporada a l'expedient d'Helium " + expedient.getIdentificadorLimitat());
+			*/
 		} catch (Exception e) {
 			String errMsg = "Error comunicant l'estat de processada a Distribucio:" + e.getMessage();
 			logger.error(errMsg, e);
@@ -461,6 +468,7 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 	@Transactional(propagation = Propagation.REQUIRES_NEW)
 	public void incorporarAnnex(Expedient expedient, Anotacio anotacio, AnotacioAnnex annex, ArxiuResultat resultat) {
 		
+		ArxiuResultatAnnex resultatAnnex = null;
 		// El títol contindrà el número de l'anotació
 		String adjuntTitol = anotacio.getIdentificador() + "/" + annex.getNom();
 		logger.debug("Incorporant l'annex (annex=" + adjuntTitol + ") a l'expedient " + expedient.getIdentificador());
@@ -468,7 +476,7 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 			byte[] contingut = null;
 			String arxiuUuid = null;
 			if (expedient.isArxiuActiu()) {
-				ArxiuResultatAnnex resultatAnnex = resultat.getResultatAnnex(annex.getUuid());
+				resultatAnnex = resultat.getResultatAnnex(annex.getUuid());
 				// Consulta si s'acaba de moure
 				switch(resultatAnnex.getAccio()) {
 				case ERROR:
@@ -482,6 +490,10 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 					arxiuUuid = annex.getUuid();
 				}
 			} else {
+				Annex a = new Annex();
+				a.setUuid(annex.getUuid());
+				resultatAnnex = new ArxiuResultatAnnex();
+				resultat.addResultatAnnex(a, resultatAnnex);
 				// Recupera el contingut del document i crea un document a Helium
 				contingut = annex.getContingut();
 				if (contingut == null) {
@@ -489,7 +501,9 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 					Document documentArxiu = pluginHelper.arxiuDocumentInfo(annex.getUuid(), null, true, true);
 					contingut = documentArxiu.getContingut() != null? documentArxiu.getContingut().getContingut() : null;
 				}
-				annex.setEstat(AnotacioAnnexEstatEnumDto.MOGUT);
+				annex.setEstat(AnotacioAnnexEstatEnumDto.MOGUT);					
+				// Posa el resultat per evitar error
+				resultatAnnex.setAccio(AnnexAccio.MOGUT);
 			}
 			if (AnotacioAnnexEstatEnumDto.MOGUT.equals(annex.getEstat())) {
 				// Crea un document a Helium 
@@ -504,7 +518,7 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 						contingut, 
 						arxiuUuid,
 						annex.getTipusMime(), 
-						annex.getFirmaTipus() != null,  
+						expedient.isArxiuActiu() && annex.getFirmaTipus() != null,  
 						false, //firmaSeparada, 
 						null, //firmaContingut, 
 						annex.getNtiOrigen(), 
@@ -516,6 +530,12 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 		} catch(Exception e) {
 			annex.setError("Error incorporant l'annex a l'expedient: " + e.getMessage());
 			annex.setEstat(AnotacioAnnexEstatEnumDto.PENDENT);
+			if (resultatAnnex != null) {
+				resultatAnnex.setAccio(AnnexAccio.ERROR);
+				resultatAnnex.setErrorCodi(-1);
+				resultatAnnex.setException(e);
+				resultatAnnex.setErrorMessage("Error recuperant el contingut de l'annex: " + e.getMessage());
+			}
 		}
 	}
 

@@ -188,6 +188,7 @@ public class AnotacioController extends BaseExpedientController {
 			anotacioAcceptarCommand.setAccio(AnotacioAccioEnumDto.CREAR);
 			anotacioAcceptarCommand.setNumero(expedientService.getNumeroExpedientActual(EntornActual.getEntornId(), expedientTipusId, anotacioAcceptarCommand.getAny()));
 		}
+		anotacioAcceptarCommand.setAssociarInteressats(true);
 		model.addAttribute("anotacio", anotacio);
 		model.addAttribute("anotacioAcceptarCommand", anotacioAcceptarCommand);
 		
