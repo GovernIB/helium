@@ -1631,12 +1631,12 @@ public class ExpedientHelper {
 			jbpmHelper.signalProcessInstance(expedient.getProcessInstanceId(), transitionName);
 			mesuresTemporalsHelper.mesuraCalcular("Iniciar", "expedient", expedientTipus.getNom(), null, "Iniciar flux");
 			mesuresTemporalsHelper.mesuraIniciar("Iniciar", "expedient", expedientTipus.getNom(), null, "Indexar expedient");
+			// Comprova si després de l'inici ja està en un node fi
+			this.verificarFinalitzacioExpedient(expedientPerRetornar);
 			// Indexam l'expedient
 			logger.debug("Indexant nou expedient (id=" + expedient.getProcessInstanceId() + ")");
 			indexHelper.expedientIndexLuceneCreate(expedient.getProcessInstanceId());
-			mesuresTemporalsHelper.mesuraCalcular("Iniciar", "expedient", expedientTipus.getNom(), null, "Indexar expedient");
-
-			
+			mesuresTemporalsHelper.mesuraCalcular("Iniciar", "expedient", expedientTipus.getNom(), null, "Indexar expedient");			
 		} catch(Exception e) {
 			// Rollback de la creació de l'expedient a l'arxiu
 			if (arxiuUuid != null)
