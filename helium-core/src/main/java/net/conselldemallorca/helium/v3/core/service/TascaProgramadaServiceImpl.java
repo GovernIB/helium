@@ -242,45 +242,47 @@ public class TascaProgramadaServiceImpl implements TascaProgramadaService {
 	public void reindexarExpedient (Long expedientId) {
 		
 		Expedient expedient = expedientRepository.findOne(expedientId);
-		if (expedient == null)
-			throw new NoTrobatException(Expedient.class, expedientId);
-		
-		Timer.Context contextTotal = null;
-		Timer.Context contextEntorn = null;
-		Timer.Context contextTipexp = null;
+		if (expedient != null) {
+			
+			Timer.Context contextTotal = null;
+			Timer.Context contextEntorn = null;
+			Timer.Context contextTipexp = null;
 
-		try {
+			try {
+				
+				final Timer timerTotal = metricRegistry.timer(MetricRegistry.name(TascaProgramadaService.class, "reindexacio.asincrona.expedient"));
+				final Timer timerEntorn = metricRegistry.timer(MetricRegistry.name(TascaProgramadaService.class, "reindexacio.asincrona.expedient", expedient.getEntorn().getCodi()));
+				final Timer timerTipexp = metricRegistry.timer(MetricRegistry.name(TascaProgramadaService.class, "reindexacio.asincrona.expedient", expedient.getEntorn().getCodi(), expedient.getTipus().getCodi()));
+				
+				Counter countTotal = metricRegistry.counter(MetricRegistry.name(TascaProgramadaService.class, "reindexacio.asincrona.expedient.count"));
+				Counter countEntorn = metricRegistry.counter(MetricRegistry.name(TascaProgramadaService.class, "reindexacio.asincrona.expedient.count", expedient.getEntorn().getCodi()));
+				Counter countTipexp = metricRegistry.counter(MetricRegistry.name(TascaProgramadaService.class, "reindexacio.asincrona.expedient.count", expedient.getEntorn().getCodi(), expedient.getTipus().getCodi()));
 			
-			final Timer timerTotal = metricRegistry.timer(MetricRegistry.name(TascaProgramadaService.class, "reindexacio.asincrona.expedient"));
-			final Timer timerEntorn = metricRegistry.timer(MetricRegistry.name(TascaProgramadaService.class, "reindexacio.asincrona.expedient", expedient.getEntorn().getCodi()));
-			final Timer timerTipexp = metricRegistry.timer(MetricRegistry.name(TascaProgramadaService.class, "reindexacio.asincrona.expedient", expedient.getEntorn().getCodi(), expedient.getTipus().getCodi()));
-			
-			Counter countTotal = metricRegistry.counter(MetricRegistry.name(TascaProgramadaService.class, "reindexacio.asincrona.expedient.count"));
-			Counter countEntorn = metricRegistry.counter(MetricRegistry.name(TascaProgramadaService.class, "reindexacio.asincrona.expedient.count", expedient.getEntorn().getCodi()));
-			Counter countTipexp = metricRegistry.counter(MetricRegistry.name(TascaProgramadaService.class, "reindexacio.asincrona.expedient.count", expedient.getEntorn().getCodi(), expedient.getTipus().getCodi()));
-		
-			countTotal.inc();
-			countEntorn.inc();
-			countTipexp.inc();
-			
-			contextTotal = timerTotal.time();
-			contextEntorn = timerEntorn.time();
-			contextTipexp = timerTipexp.time();
-			
-			indexHelper.expedientIndexLuceneUpdate(
-					expedient.getProcessInstanceId(),
-					false,
-					null);
-			
-		} catch (Exception ex) {
-			logger.error(
-					"Error reindexant l'expedient " + expedient.getIdentificador(),
-					ex);
-			expedientRepository.setReindexarErrorData(expedientId, true, null);
-		} finally {			
-			contextTotal.stop();
-			contextEntorn.stop();
-			contextTipexp.stop();
+				countTotal.inc();
+				countEntorn.inc();
+				countTipexp.inc();
+				
+				contextTotal = timerTotal.time();
+				contextEntorn = timerEntorn.time();
+				contextTipexp = timerTipexp.time();
+				
+				indexHelper.expedientIndexLuceneUpdate(
+						expedient.getProcessInstanceId(),
+						false,
+						null);
+				
+			} catch (Exception ex) {
+				logger.error(
+						"Error reindexant l'expedient " + expedient.getIdentificador(),
+						ex);
+				expedientRepository.setReindexarErrorData(expedientId, true, null);
+			} finally {			
+				contextTotal.stop();
+				contextEntorn.stop();
+				contextTipexp.stop();
+			}			
+		} else {
+			logger.warn("No s'ha trobat l'expedient amb id " + expedientId + " per reindexar.");
 		}
 	}
 
