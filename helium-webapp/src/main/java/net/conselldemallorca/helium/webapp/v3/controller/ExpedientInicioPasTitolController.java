@@ -100,6 +100,7 @@ public class ExpedientInicioPasTitolController extends BaseExpedientIniciControl
 			BindingResult result, 
 			SessionStatus status, 
 			Model model) {
+		boolean success = false;
 		if ("iniciar".equals(accio)) {
 			ExpedientTipusDto expedientTipus = dissenyService.getExpedientTipusById(expedientInicioPasTitolCommand.getExpedientTipusId());
 			
@@ -122,6 +123,46 @@ public class ExpedientInicioPasTitolController extends BaseExpedientIniciControl
 			if (result.hasErrors() || validator == null) {
 				if (validator != null)
 					MissatgesHelper.error(request, result, getMessage(request, "error.validacio"));
+			} else {
+				try {
+					@SuppressWarnings("unchecked")
+					Map<String, Object> valors = (Map<String, Object>) request.getSession().getAttribute(CLAU_SESSIO_FORM_VALORS);
+
+					super.iniciarExpedient(
+								request,
+								expedientInicioPasTitolCommand.getEntornId(), 
+								expedientInicioPasTitolCommand.getExpedientTipusId(), 
+								definicioProcesId, 
+								expedientInicioPasTitolCommand.getNumero(), 
+								expedientInicioPasTitolCommand.getTitol(), 
+								expedientInicioPasTitolCommand.getAny(),
+								valors,
+								anotacioAcceptarCommand);
+					success = true;
+					
+				} catch (Exception ex) {
+					if (ex instanceof ValidacioException) {
+						MissatgesHelper.error(
+			        			request,
+			        			getMessage(request, "error.validacio.tasca") + " : " + ex.getMessage());
+					}  else if (ex instanceof TramitacioValidacioException) {
+						MissatgesHelper.error(
+			        			request,
+			        			getMessage(request, "error.validacio.tasca") + " : " + ex.getMessage());
+					} else if (ex instanceof TramitacioHandlerException) {
+						MissatgesHelper.error(
+			        			request,
+			        			getMessage(request, "error.iniciar.expedient") + " : " + ((TramitacioHandlerException)ex).getPublicMessage());
+					} else {
+						MissatgesHelper.error(
+			        			request,
+			        			getMessage(request, "error.iniciar.expedient") + ": " + 
+			        					(ex.getCause() != null ? ex.getCause().getMessage() : ex.getMessage()));
+			        }
+					logger.error("No s'ha pogut iniciar l'expedient", ex);
+				}				
+			}
+			if (!success) {
 				model.addAttribute(expedientInicioPasTitolCommand);
 				model.addAttribute("definicioProces", definicioProces);
 				model.addAttribute("anysSeleccionables", getAnysSeleccionables());
@@ -129,46 +170,12 @@ public class ExpedientInicioPasTitolController extends BaseExpedientIniciControl
 				model.addAttribute("entornId", expedientInicioPasTitolCommand.getEntornId());
 				model.addAttribute("responsableCodi", expedientTipus.getResponsableDefecteCodi());
 				model.addAttribute("anotacioAcceptarCommand", (AnotacioAcceptarCommand) request.getSession().getAttribute(CLAU_SESSIO_ANOTACIO));
-				return "v3/expedient/iniciarPasTitol";
-			}
-			try {
-				@SuppressWarnings("unchecked")
-				Map<String, Object> valors = (Map<String, Object>) request.getSession().getAttribute(CLAU_SESSIO_FORM_VALORS);
-
-				super.iniciarExpedient(
-							request,
-							expedientInicioPasTitolCommand.getEntornId(), 
-							expedientInicioPasTitolCommand.getExpedientTipusId(), 
-							definicioProcesId, 
-							expedientInicioPasTitolCommand.getNumero(), 
-							expedientInicioPasTitolCommand.getTitol(), 
-							expedientInicioPasTitolCommand.getAny(),
-							valors,
-							anotacioAcceptarCommand);
-				
-			} catch (Exception ex) {
-				if (ex instanceof ValidacioException) {
-					MissatgesHelper.error(
-		        			request,
-		        			getMessage(request, "error.validacio.tasca") + " : " + ex.getMessage());
-				}  else if (ex instanceof TramitacioValidacioException) {
-					MissatgesHelper.error(
-		        			request,
-		        			getMessage(request, "error.validacio.tasca") + " : " + ex.getMessage());
-				} else if (ex instanceof TramitacioHandlerException) {
-					MissatgesHelper.error(
-		        			request,
-		        			getMessage(request, "error.iniciar.expedient") + " : " + ((TramitacioHandlerException)ex).getPublicMessage());
-				} else {
-					MissatgesHelper.error(
-		        			request,
-		        			getMessage(request, "error.iniciar.expedient") + ": " + 
-		        					(ex.getCause() != null ? ex.getCause().getMessage() : ex.getMessage()));
-		        }
-				logger.error("No s'ha pogut iniciar l'expedient", ex);
 			}
 		}
-		return modalUrlTancar(false);
+		if (success)
+			return modalUrlTancar(false);
+		else 
+			return "v3/expedient/iniciarPasTitol";
 	}
 
 	@RequestMapping(value = "/canviAny/{anySel}/{entornId}/{expedientTipusId}", method = RequestMethod.GET)
