@@ -147,8 +147,8 @@ public class RegistrePluginRegweb3 extends RegWeb3Utils implements RegistrePlugi
             		registreSortida.getEntitatCodi(), //entidad, codi Dir3 de l'entitat on es vol fer l'assentament 
             		registroSalidaWs, 
             		null, 	//tipoOperacion 1 notificació, 2 comunicació
-            		null,	// justificant
-            		null 	// Distribuir
+            		false,	// justificant
+            		false 	// Distribuir
             		);
             resposta = new RespostaAnotacioRegistre();
             resposta.setData(identificadorWs.getFechaRegistro());
