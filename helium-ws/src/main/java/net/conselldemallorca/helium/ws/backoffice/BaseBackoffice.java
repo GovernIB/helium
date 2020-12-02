@@ -169,9 +169,9 @@ public abstract class BaseBackoffice {
 					break;
 				}
 			}
-			try {
-				if (campHelium != null) {
-					StringBuilder logMsg = new StringBuilder();
+			if (campHelium != null) {
+				StringBuilder logMsg = new StringBuilder();
+				try {
 					logMsg.append("Mapeig variable SISTRA-HELIUM (" +
 								"codiSistra=" + mapeig.getCodiSistra() + ", " +
 								"codiHelium=" + mapeig.getCodiHelium() + ", " +
@@ -207,9 +207,9 @@ public abstract class BaseBackoffice {
 					resposta.put(
 							mapeig.getCodiHelium(),
 							valorHelium);
+				} catch (Exception ex) {
+					logger.error("Error en el mapeig de camp. " + logMsg.toString() + ":" + ex.getMessage());
 				}
-			} catch (Exception ex) {
-				logger.error("Error llegint dades del document de SISTRA", ex);
 			}
 		}
 		
