@@ -442,8 +442,8 @@ $(function() {
 		}
 	});
 	$(".btn_accio").click(function() {
-		if (confirm($(this).data("confirmacio"))) {
-			
+		if (confirm($(this).data("confirmacio"))) {			
+			modalDivCarregantDades(true);
 			$("#command").attr('action', $("#command").attr('action') + "/accio");
 			$("#command").append('<input type="hidden" id="accioCamp" name="accioCamp" value="'+$(this).data("action")+'"/>');
 			var boto = $(this);

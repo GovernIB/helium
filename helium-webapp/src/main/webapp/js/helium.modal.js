@@ -25,6 +25,7 @@
 					'			</div>' +
 					'			<div class="modal-body" style="padding:0">' +
 					'				<iframe frameborder="0" height="100' + ((settings.maximize) ? '%' : '') + '" width="100%" scrolling="auto"></iframe>' +
+					'				<div class="div-dades-carregant" style="display:none;"><span class="fa fa-circle-o-notch fa-spin fa-3x"></span></div>' +
 					'			</div>' +
 					'			<div class="modal-footer">' +
 					'			</div>' +
@@ -47,6 +48,7 @@
 						"src",
 						modalUrl);
 				$('iframe', modalobj).load(function() {
+					$('.modal-body .div-dades-carregant').hide();
 					// Copiar el titol de la modal
 					var titol = $(this).contents().find("title").html();
 					$('.modal-header h4', $(this).parent().parent()).html(titol);
@@ -348,7 +350,7 @@ function modalRefrescarElements(
 			});
 		} else {
 			clon.on('click', function () {
-				element.click();
+				element.click(); 
 				return false;
 			});
 		}
@@ -389,7 +391,12 @@ function modalRefrescarElements(
 		modalAdjustMinHeight($(iframe), settings.minHeight);
 	}
 	// Elimina els tool tips que hagin pogut quedar
-	$('div.tooltip').remove();
+	$('div.tooltip').remove();	
+	// En fer submit dels formularis mostrar una roda carregant
+	$("form", $(iframe).contents()).submit(function( event ) {
+		$('.modal-body .div-dades-carregant').show();
+		$('.btn', $('.modal-footer')).prop('disabled', 'disabled');
+	});
 }
 
 function modalAjaxErrorFunction(jqXHR, exception) {
@@ -424,4 +431,14 @@ function modalExecuteFunctionByName(functionName, context /*, args */) {
 	if (context[func] === undefined)
 		return false;
 	return context[func].apply(this, args);
+}
+
+function modalDivCarregantDades(mostrar) {
+	if (mostrar) {
+		$('.modal-body .div-dades-carregant', window.parent.document).show();
+		$('.btn', $('.modal-footer', window.parent.document)).prop('disabled', 'disabled');
+	} else {
+		$('.modal-body .div-dades-carregant', window.parent.document).hide();
+		$('.btn', $('.modal-footer', window.parent.document)).removeProp('disabled');
+	}
 }

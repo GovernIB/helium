@@ -168,7 +168,7 @@ function multipleAdd(elem, field) {
 	return true;
 }
 
-function accioCampExecutar(elem, field) {
+function accioCampExecutar(elem, field) {	
 	if (confirm("<fmt:message key='js.helforms.confirmacio' />")) {
 		var fieldField = document.getElementById("helAccioCamp");
 		if (fieldField == null) {

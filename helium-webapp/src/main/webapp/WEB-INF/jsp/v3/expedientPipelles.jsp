@@ -248,9 +248,7 @@ dd.subproc {
 		return confirm("<spring:message code='expedient.accio.migrararxiu.confirmacio' />");
 	}
 	/** Refresca l'estat i la data de fi de l'expedient quan hi ha accions sobre les tasques. */
-	function refrescarEstatExpedient() {
-		console.log('refrescarEstatExpedient');
-		
+	function refrescarEstatExpedient() {		
 		var getUrl = '<c:url value="/v3/expedient/${expedientId}/consultaEstat"/>';
 		$.ajax({
 			type: 'GET',

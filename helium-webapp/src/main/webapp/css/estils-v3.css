@@ -165,6 +165,26 @@ p.help-block {
     top: 50%;
 }
 
+.div-dades-carregant {
+	min-width: 100%;
+	min-height: 300px;
+	background-color: #e8e8e8;
+	height: 100%;
+	left: 0;
+	opacity: 0.5;
+	position: absolute;
+	top: 0;
+	width: 100%;
+	z-index: 99999;
+}
+
+.div-dades-carregant span {
+    left: 50%;
+    opacity: 0.85;
+    position: absolute;
+    top: 50%;
+}
+
 .dropdown-menu {
 	overflow: auto;
 }

@@ -117,6 +117,7 @@ $(document).ready(function() {
 			$("#command").append( '<input type="hidden" id="pipellaActiva" name="pipellaActiva" value="'+$('#tasca-pipelles li[class=active]').attr('id')+'"/>' );
 		}
 		$("#command").attr('action', "${tascaFormAction}/" + $(this).attr('value'));
+		modalDivCarregantDades(true);
 		$("#command").submit();
 	});
 	<%-- Mostrar primera pipella activa --%>

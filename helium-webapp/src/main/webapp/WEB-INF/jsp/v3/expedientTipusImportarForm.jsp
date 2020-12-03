@@ -64,7 +64,7 @@
 				$(document).ready( function() {
 					// Quan se selecciona un fitxer es mostra el botó de carregar el contingut.
 					$('#file').change(function() {
-						window.parent.$('button[type="submit"]').attr('disabled', 'disabled');
+						window.parent.$('button[name="importarButton"]').attr('disabled', 'disabled');
 						$('progress').hide();
 						$('#importarOpcions').empty();
 						if ($(this).val() != "") 
@@ -74,7 +74,7 @@
 						importarUpload();
 					})						
 					// Submit del formulari per Ajax
-					$('button[type="submit"]').click(function(e){
+					$('button[name=importarButton]').click(function(e){
 						e.preventDefault();
 						e.stopPropagation();
 						importarFormPostSubmit();
@@ -91,7 +91,7 @@
 					$('.has-error').removeClass('has-error');
 					$('p.help-block').remove();
 					// Adequa el botó de submit posat el el parent per webutil.modal.js
-					window.parent.$('button[type="submit"]').attr('disabled', 'disabled');
+					window.parent.$('button[name=importarButton]').attr('disabled', 'disabled');
 					window.parent.$('#importarIcon').hide();
 					window.parent.$('#importarProcessant').show();
 					// Completa les dades del formulari amb el contingut del fitxer per enviar dins del commmand
@@ -129,7 +129,7 @@
 					        	}
 				           	},
 							complete: function(){
-								window.parent.$('button[type="submit"]').removeAttr('disabled');
+								window.parent.$('button[name=importarButton]').removeAttr('disabled');
 								window.parent.$('#importarProcessant').hide();
 								window.parent.$('#importarIcon').show();
 								$('progress').hide();
@@ -248,7 +248,7 @@
 				        },
 				        success: function(data){
 				        	$('#importarOpcions').html(data);
-							window.parent.$('button[type="submit"]').removeAttr('disabled');
+							window.parent.$('button[name=importarButton]').removeAttr('disabled');
 							actualitzarOpcions();
 				        },
 				        error: function(err){
@@ -315,7 +315,7 @@
 			<button type="button" class="btn btn-default" data-modal-cancel="true">
 				<spring:message code="comu.boto.cancelar"/>
 			</button>
-			<button id="importarButton" type="submit" class="btn btn-success right">
+			<button name="importarButton" type="button" class="btn btn-success right">
 				<span id="importarProcessant" style="display:none;">
 					<span class="fa fa-spinner fa-spin fa-fw" title="<spring:message code="comu.processant"/>..."></span><span class="sr-only">&hellip;</span>
 				</span>			

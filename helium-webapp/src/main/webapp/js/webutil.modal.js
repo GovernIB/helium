@@ -53,7 +53,10 @@
 								'					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>' +
 								'					<h4 class="modal-title"></h4>' +
 								'				</div>' +
-								'				<div class="modal-body" style="padding:0"><iframe frameborder="0" height="100" width="100%"></iframe></div>' +
+								'				<div class="modal-body" style="padding:0">' +
+								'					<iframe frameborder="0" height="100" width="100%"></iframe>' +
+								'					<div class="div-dades-carregant" style="display:none;"><span class="fa fa-circle-o-notch fa-spin fa-3x"></span></div>' +
+								'				</div>' +
 								'				<div class="modal-footer"></div>' +
 								'			</div>' +
 								'		</div>' +
@@ -119,6 +122,10 @@
 						iframe.css('height', '' + settings.height + 'px');
 					iframe.attr("src", settings.contentUrl);
 					iframe.load(function() {
+						$('.modal-body .div-dades-carregant').hide();
+						if(!iframe.attr("hidden")){
+							iframe.show();
+						}
 						// Copiar el titol de la modal
 						var titol = $(this).contents().find("title").html();
 						$('.modal-header h4', $(this).parent().parent()).html(titol);
@@ -175,6 +182,11 @@
 						}
 						// Elimina els tool tips que hagin pogut quedar
 						$('div.tooltip').remove();
+						// En fer submit dels formularis mostrar una roda carregant
+						$("form", iframe.contents()).submit(function( event ) {
+							$('.modal-body .div-dades-carregant').show();
+							$('.btn', $('.modal-footer')).prop('disabled', 'disabled');
+						});
 					});
 				});
 				modalobj.on('hide.bs.modal', function () {
