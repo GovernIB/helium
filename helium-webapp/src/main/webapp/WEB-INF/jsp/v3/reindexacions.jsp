@@ -376,8 +376,8 @@
 			</div>
 			<div class="col-md-6 push-bottom" style="<c:if test="${!dadesPersona.admin}">display: none</c:if>">
 				<div class="btn-group">
-					<button id="iniciarReindexacionsBtn" title="<spring:message code="reindexacions.boto.reempendre"/>" class="btn btn-default filtre-button active" data-toggle="button" aria-pressed="true"><span class="fa fa-play"></span></button>
-					<button id="aturarReindexacionsBtn" title="<spring:message code="reindexacions.boto.aturar"/>" class="btn btn-default filtre-button" data-toggle="button"><span class="fa fa-stop text-danger"></span></button>
+					<button id="iniciarReindexacionsBtn" data-placement="bottom" title="<spring:message code="reindexacions.boto.reempendre"/>" class="btn btn-default filtre-button active" data-toggle="button" aria-pressed="true"><span class="fa fa-play"></span></button>
+					<button id="aturarReindexacionsBtn" data-placement="bottom" title="<spring:message code="reindexacions.boto.aturar"/>" class="btn btn-default filtre-button" data-toggle="button"><span class="fa fa-stop text-danger"></span></button>
 				</div>
 				<div id="reindexarAlerta">
 				</div>
