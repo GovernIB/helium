@@ -43,6 +43,9 @@ public class Entorn implements Serializable, GenericEntity<Long>, Auditable {
 	@MaxLength(255)
 	private String descripcio;
 	private boolean actiu;
+	// Opcions de visualització de la capçalera
+	private String colorFons;
+	private String colorLletra;
 
 	private Set<DefinicioProces> definicionsProces = new HashSet<DefinicioProces>();
 	private Set<ExpedientTipus> expedientTipus = new HashSet<ExpedientTipus>();
@@ -183,8 +186,20 @@ public class Entorn implements Serializable, GenericEntity<Long>, Auditable {
 		getConsultes().remove(consulta);
 	}
 
-
-
+	@Column(name="color_fons", length = 255)
+	public String getColorFons() {
+		return colorFons;
+	}
+	public void setColorFons(String colorFons) {
+		this.colorFons = colorFons;
+	}
+	@Column(name="color_lletra", length = 255)
+	public String getColorLletra() {
+		return colorLletra;
+	}
+	public void setColorLletra(String colorLletra) {
+		this.colorLletra = colorLletra;
+	}
 	@Override
 	public int hashCode() {
 		final int prime = 31;

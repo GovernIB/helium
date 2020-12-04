@@ -27,6 +27,9 @@ public class EntornCommand {
 	@Size(max = 255, groups = {Creacio.class, Modificacio.class})
 	private String nom;
 	private String descripcio;
+	// Opcions de visualització de la capçalera
+	private String colorFons;
+	private String colorLletra;
 
 	public Long getId() {
 		return id;
@@ -51,6 +54,19 @@ public class EntornCommand {
 	}
 	public void setDescripcio(String descripcio) {
 		this.descripcio = descripcio;
+	}
+
+	public String getColorFons() {
+		return colorFons;
+	}
+	public void setColorFons(String colorFons) {
+		this.colorFons = colorFons;
+	}
+	public String getColorLletra() {
+		return colorLletra;
+	}
+	public void setColorLletra(String colorLletra) {
+		this.colorLletra = colorLletra;
 	}
 
 	public interface Creacio {}

@@ -67,6 +67,8 @@ public class EntornServiceImpl implements EntornService {
 		entity.setNom(entorn.getNom());
 		entity.setDescripcio(entorn.getDescripcio());
 		entity.setActiu(true);
+		entity.setColorFons(entorn.getColorFons());
+		entity.setColorLletra(entorn.getColorLletra());
 		return conversioTipusHelper.convertir(
 				entornRepository.save(entity),
 				EntornDto.class);
@@ -83,6 +85,9 @@ public class EntornServiceImpl implements EntornService {
 		Entorn entity = comprovarEntorn(entorn.getId());
 		entity.setNom(entorn.getNom());
 		entity.setDescripcio(entorn.getDescripcio());
+		entity.setColorFons(entorn.getColorFons());
+		entity.setColorLletra(entorn.getColorLletra());
+		usuariActualHelper.netejarCacheUsuariTots();
 		return conversioTipusHelper.convertir(
 				entity,
 				EntornDto.class);
@@ -98,6 +103,7 @@ public class EntornServiceImpl implements EntornService {
 		logger.debug("Esborrant entorn (entornId=" + entornId + ")");
 		Entorn entorn = comprovarEntorn(entornId);
 		entornRepository.delete(entorn);
+		usuariActualHelper.netejarCacheUsuariTots();
 	}
 
 	/**

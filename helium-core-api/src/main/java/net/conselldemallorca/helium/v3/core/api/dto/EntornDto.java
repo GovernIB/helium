@@ -20,6 +20,10 @@ public class EntornDto extends ControlPermisosDto implements Serializable {
 
 	private int permisCount = 0;
 
+	// Opcions de visualització de la capçalera
+	private String colorFons;
+	private String colorLletra;
+
 	public Long getId() {
 		return id;
 	}
@@ -55,6 +59,19 @@ public class EntornDto extends ControlPermisosDto implements Serializable {
 	}
 	public void setPermisCount(int permisCount) {
 		this.permisCount = permisCount;
+	}
+
+	public String getColorFons() {
+		return colorFons;
+	}
+	public void setColorFons(String colorFons) {
+		this.colorFons = colorFons;
+	}
+	public String getColorLletra() {
+		return colorLletra;
+	}
+	public void setColorLletra(String colorLletra) {
+		this.colorLletra = colorLletra;
 	}
 
 	private static final long serialVersionUID = 2677183498182144912L;

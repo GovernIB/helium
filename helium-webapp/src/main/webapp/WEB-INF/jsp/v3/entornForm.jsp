@@ -26,13 +26,153 @@
 	<script src="<c:url value="/js/select2.min.js"/>"></script>
 	<script src="<c:url value="/js/select2-locales/select2_locale_${idioma}.js"/>"></script>	
 	<script src="<c:url value="/js/helium.modal.js"/>"></script>
+
+
+<c:choose>
+	<c:when test="${!empty globalProperties['app.capsalera.color.fons']}">
+		<c:set var="colorFonsDefault">${globalProperties['app.capsalera.color.fons']}}</c:set>
+	</c:when>
+	<c:otherwise>
+		<c:set var="colorFonsDefault">#ff9523</c:set>
+	</c:otherwise>
+</c:choose>
+<c:choose>
+	<c:when test="${entornCommand.colorFons!=null  && not empty entornCommand.colorFons}">
+		<c:set var="colorFons">${entornCommand.colorFons}</c:set>
+	</c:when>
+	<c:otherwise>
+		<c:set var="colorFons">${colorFonsDefault}</c:set>
+	</c:otherwise>
+</c:choose>
+
+<c:choose>
+	<c:when test="${!empty globalProperties['app.capsalera.color.lletra']}">
+		<c:set var="colorLletraDefault">${globalProperties['app.capsalera.color.lletra']}}</c:set>
+	</c:when>
+	<c:otherwise>
+		<c:set var="colorLletraDefault">#ffffff</c:set>
+	</c:otherwise>
+</c:choose>
+<c:choose>
+	<c:when test="${entornCommand.colorLletra!=null  && not empty entornCommand.colorLletra}">
+		<c:set var="colorLletra">${entornCommand.colorLletra}</c:set>
+	</c:when>
+	<c:otherwise>
+		<c:set var="colorLletra">${colorLletraDefault}</c:set>
+	</c:otherwise>
+</c:choose>
+
+
+<style>
+	.cercle {
+		border-radius: 50%;
+		width: 30px;
+		height: 30px;
+		position: absolute;
+		right: -25px;
+		top: 2px;
+		border: 0.5px solid gray;
+		cursor: pointer;
+	}
+</style>
+<script type="text/javascript">
+	$(document).ready(function() {
+		// Color de Fons
+		$('#colorFons').change(function(e) {
+			var colorFons;
+			if ($(this).val() != "")
+				colorFons = $(this).val();
+			else
+				colorFons = '${colorFonsDefault}';
+			$('#cercleColorFons').css('background', colorFons);
+			$('#divExemple').css('background', colorFons);
+		});
+		$('#cercleColorFons').click(function(e) {
+			var colorFons;
+			if ($('#colorFons').val() != "")
+				colorFons = $('#colorFons').val();
+			else
+				colorFons = '${colorFonsDefault}';
+			document.getElementById("html5ColorFonsPicker").value = colorFons; 
+			$('#html5ColorFonsPicker').click();
+		});
+		$('#html5ColorFonsPicker').change(function(e) {
+			$('#colorFons').val($(this).val()).trigger('change');
+		});
+		// Color de Lletra
+		$('#colorLletra').change(function(e) {
+			var colorLletra;
+			if ($(this).val() != "")
+				colorLletra = $(this).val();
+			else
+				colorLletra = '${colorLletraDefault}';
+			$('#cercleColorLletra').css('background', colorLletra);
+			$('#divExemple').css('color', colorLletra);
+		});
+		$('#cercleColorLletra').click(function(e) {
+			var colorLletra;
+			if ($('#colorLletra').val() != "")
+				colorLletra = $('#colorLletra').val();
+			else
+				colorLletra = '${colorLletraDefault}';
+			document.getElementById("html5ColorLletraPicker").value = colorLletra; 
+			$('#html5ColorLletraPicker').click();
+		});
+		$('#html5ColorLletraPicker').change(function(e) {
+			$('#colorLletra').val($(this).val()).trigger('change');
+		});
+	});
+</script>	
+
 </head>
 <body>
 	<form:form cssClass="form-horizontal" action="${formAction}" enctype="multipart/form-data" method="post" commandName="entornCommand">
 		<form:hidden id="id" path="id"/>
-		<hel:inputText required="true" name="codi" textKey="entorn.form.camp.codi" disabled="${not empty entornCommand.id}"/>
-		<hel:inputText required="true" name="nom" textKey="entorn.form.camp.nom" />
-		<hel:inputTextarea name="descripcio" textKey="entorn.form.camp.descripcio" />
+		<div class="row">
+			<div class="col-sm-11">
+				<hel:inputText required="true" name="codi" textKey="entorn.form.camp.codi" disabled="${not empty entornCommand.id}"/>
+				<hel:inputText required="true" name="nom" textKey="entorn.form.camp.nom" />
+				<hel:inputTextarea name="descripcio" textKey="entorn.form.camp.descripcio" />
+		
+				<fieldset>
+					<legend><spring:message code="entorn.form.legend.visualitzacio"></spring:message></legend>
+					<div class="alert alert-info">
+						<span class="fa fa-exclamation-triangle"></span>
+						<spring:message code="entorn.form.visualitzacio.avis"></spring:message>
+					</div>
+					<div class="row">
+						<div class="col-sm-12">
+							<hel:inputText name="colorFons" textKey="entorn.form.camp.colorFons" placeholder="${colorFonsDefault}"/>
+							<div id="cercleColorFons" class="cercle" style="background: ${colorFons};"></div>
+							<input type="color" id="html5ColorFonsPicker" style="display: none;" />
+						</div>
+						<div class="col-sm-12">
+							<hel:inputText name="colorLletra" textKey="entorn.form.camp.colorLletra"placeholder="${colorLletraDefault}"/>		
+							<div id="cercleColorLletra" class="cercle" style="background: ${colorLletra}"></div>
+							<input type="color" id="html5ColorLletraPicker" style="display: none;" />
+						</div>
+		 			</div>
+		 			<div class="row">
+		 			 	<div class="col-sm-4"></div>
+		 			 	<div id="divExemple" 
+		 			 			class="col-sm-8" 
+		 			 			style="background: ${colorFons}; 
+		 			 					color: ${colorLletra};
+										font-size: larger;
+										text-align: right;
+										left: 15px;
+										height: 75px;
+										padding-top: 10px;">
+							<span class="fa fa-cubes"></span> <span class="text-limit w475">${entornActual.nom }</span>
+							<br/><span class="fa fa-cube"></span> Exemple
+						</div>
+		 			</div>
+				</fieldset>
+			</div>
+		</div>
+		
+		
+		
 		<div id="modal-botons" class="well">
 			<button type="button" class="btn btn-default" data-modal-cancel="true">
 				<spring:message code="comu.boto.cancelar"/>

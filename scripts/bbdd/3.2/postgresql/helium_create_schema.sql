@@ -437,7 +437,9 @@ CREATE TABLE HEL_ENTORN
   ACTIU       BOOLEAN,
   CODI        VARCHAR(64)                 NOT NULL,
   DESCRIPCIO  VARCHAR(255),
-  NOM         VARCHAR(255)                NOT NULL
+  NOM         VARCHAR(255)                NOT NULL,
+  COLOR_FONS  VARCHAR(255) ,
+  COLOR_LLETRA  VARCHAR(255) 
 );
 
 

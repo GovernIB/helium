@@ -1,0 +1,4 @@
+-- #1435 Mostrar una roda mentre s'està processant una anotació de registre
+
+ALTER TABLE HEL_ENTORN ADD COLOR_FONS VARCHAR2(255 CHAR);
+ALTER TABLE HEL_ENTORN ADD COLOR_LLETRA VARCHAR2(255 CHAR);

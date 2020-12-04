@@ -94,6 +94,68 @@
 		.dada-heretada{
 			color:gray !important; 
 		}
+		
+		
+<c:choose>
+	<c:when test="${entornActual.colorFons!=null  && not empty entornActual.colorFons}">
+		.navbar-app {
+			background-color: ${entornActual.colorFons} !important;
+		}
+		.navbar-app .list-inline li.dropdown>a {
+			background-color: ${entornActual.colorFons} !important;
+		}
+	</c:when>
+	<c:otherwise>
+		<c:if test="${!empty globalProperties['app.capsalera.color.fons']}">
+			.navbar-app {
+				background-color: ${globalProperties['app.capsalera.color.fons']} !important;
+			}		
+			.navbar-app .list-inline li.dropdown>a { 
+				background-color: ${globalProperties['app.capsalera.color.fons']} !important;
+			}
+		</c:if>		
+	</c:otherwise>
+</c:choose>
+		
+<c:choose>
+	<c:when test="${entornActual.colorLletra!=null  && not empty entornActual.colorLletra}">
+		.navbar-app .list-inline li.dropdown>a {
+			color: ${entornActual.colorLletra};
+		}
+		.caret-white {
+			border-top-color: ${entornActual.colorLletra} !important;
+		}
+		.list-inline.pull-right {
+			color: ${entornActual.colorLletra} !important;
+		}
+		.navbar-app .list-inline li {
+			border-right-color: ${entornActual.colorLletra} !important;
+		}
+		#govern-logo {
+			border-right-color: ${entornActual.colorLletra} !important;
+		}
+	</c:when>
+	<c:otherwise>
+		<c:if test="${globalProperties['app.capsalera.color.lletra'] !=null  && not empty globalProperties['app.capsalera.color.lletra']}">
+			.navbar-app .list-inline li.dropdown>a {
+				color: ${globalProperties['app.capsalera.color.lletra']};
+			}	
+			.caret-white {
+				border-top-color: ${globalProperties['app.capsalera.color.lletra']} !important;
+			}	
+			.list-inline.pull-right {
+				color: ${globalProperties['app.capsalera.color.lletra']} !important;
+			}
+			.navbar-app .list-inline li {
+				border-right-color: ${globalProperties['app.capsalera.color.lletra']} !important;
+			}
+			#govern-logo {
+				border-right-color: ${globalProperties['app.capsalera.color.lletra']} !important;
+			}
+		</c:if>
+	</c:otherwise>
+</c:choose>
+
 	</style>
 	<script type="text/javascript">
 		$(document).ready(function(){

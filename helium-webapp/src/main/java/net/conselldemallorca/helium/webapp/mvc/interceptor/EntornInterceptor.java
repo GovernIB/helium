@@ -217,6 +217,8 @@ public class EntornInterceptor extends HandlerInterceptorAdapter {
 		ent.setCodi(entorn.getCodi());
 		ent.setNom(entorn.getNom());
 		ent.setActiu(true);
+		ent.setColorFons(entorn.getColorFons());
+		ent.setColorLletra(entorn.getColorLletra());
 		SessionHelper.setAttribute(
 				request,
 				SessionHelper.VARIABLE_ENTORN_ACTUAL,
