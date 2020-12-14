@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import net.conselldemallorca.helium.core.model.dto.PersonaDto;
 import net.conselldemallorca.helium.core.util.EntornActual;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientReindexacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientReindexacioService;
 import net.conselldemallorca.helium.v3.core.api.service.TascaProgramadaService;
@@ -66,6 +67,19 @@ public class ReindexacioController extends BaseExpedientController {
 		Map<String, Object> ret = new HashMap<String, Object>();
 		// Data
 		ret.put("data", new SimpleDateFormat("dd/MM/yyyy HH:mm:ss").format(new Date()));
+		// Dades reindexació
+		Map<String, Object> dadesReindexacio = expedientReindexacioService.getDadesReindexacio();
+		int cuaTotal = (Integer) dadesReindexacio.get("cuaTotal");
+		Long cuaExpedients = (Long) dadesReindexacio.get("cuaExpedients");
+		ExpedientReindexacioDto primer = dadesReindexacio.containsKey("primer") ? (ExpedientReindexacioDto) dadesReindexacio.get("primer") : null;
+		ExpedientReindexacioDto darrer = dadesReindexacio.containsKey("darrer") ? (ExpedientReindexacioDto) dadesReindexacio.get("darrer") : null;
+		@SuppressWarnings("unchecked")
+		List<ExpedientReindexacioDto> cuaLlista = (List<ExpedientReindexacioDto>) dadesReindexacio.get("cuaLlista");
+		ret.put("cuaTotal", cuaTotal);
+		ret.put("cuaExpedients", cuaExpedients);
+		ret.put("primer", primer);
+		ret.put("darrer", darrer);
+		ret.put("cuaLlista", cuaLlista);
 		// Cua
 		ret.put("cua", expedientReindexacioService.countPendentReindexacioAsincrona());
 		// Estat actual de la reindexació

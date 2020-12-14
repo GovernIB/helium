@@ -5,7 +5,6 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <%@ taglib tagdir="/WEB-INF/tags/helium" prefix="hel"%>
 <c:set var="idioma">ca</c:set>
-
 <html>
 <head>
 	<title>
@@ -31,10 +30,53 @@
 	<script src="<c:url value="/js/webutil.common.js"/>"></script>
 	<script src="<c:url value="/js/webutil.datatable.js"/>"></script>
 	<script src="<c:url value="/js/webutil.modal.js"/>"></script>
-	<style>
+	<script src="<c:url value="/js/moment.js"/>"></script>
+	<script src="<c:url value="/js/moment-with-locales.min.js"/>"></script>
+	<style type="text/css">
 		.row_selected {
 			background-color: lightgray !important;			
-		};
+		}
+		.cua_llista {
+			width: 100%;
+			min-height: 35px;
+			border-radius: 5px;
+			padding: 5px;
+			background-color: #d3d3d3;
+			color: #000;
+			box-shadow: 0 3px 5px rgba(0, 0, 0, 0.125) inset;
+			outline: 0 none;
+			margin-left: 0px;
+			margin-right: 0px;
+		}
+		.div_dada {
+			background-color: #55c155;
+			height: 25px;
+			width: 1px;
+			float: left;
+			transition: background 0.5s;
+		}
+		.div_resum {
+			height: 5px;
+			width: 150px;
+			margin:0px auto;
+			position: relative;
+			top: -28px;			
+		}
+		.div_dada_seleccionat {
+			background-color: green;
+		}
+		.div_dada_esborrat {
+			background-color: gray;
+		}
+		.text_esborrat {
+			color: gray;
+		}
+		.div_dada_afegit {
+			background-color: yellow;
+		}
+		.text_afegit {
+			color: yellow;
+		}
 	</style>
 	<script type="text/javascript">
 	// <![CDATA[
@@ -112,7 +154,12 @@
 			$('#td-errors-total,#td-pendents-total').html('-');
 			$('#divExpedientsAmbErrorOPendents').empty();
 			$('#data').html('-');
-			$('#cua').html('-');
+			$('#cuaTotal,#cuaTotalResum').html('-');
+			$('#cuaEsborrats,#cuaNous').html('-');
+			$('#cuaEsborratsResum,#cuaNousResum').html('');
+			$('#cuaExpedients').html('-');
+			$('#primer').html('-');
+			$('#darrer').html('-');
 			$("button[name=refrescar]", window.parent.document).attr('disabled', true).find('.fa-refresh').addClass("fa-spin");
 			// Consulta les dades
 			$.ajax({
@@ -137,7 +184,7 @@
 			
 			// Carrega les dades de la cua i la data
 			$("#data").html(data.data);
-			$("#cua").html(data.cua);			
+
 			// Adequa els botons d'iniciar i aturar reindexacio segons l'estat
 			adequarControlsReindexacio(data.reindexant);
 			
@@ -226,8 +273,10 @@
 				},
 				order: [[4, 'desc'],[5, 'desc']]
 			});	
-			
 		    carregarExpedients(tipusId, tipusEntorn);
+		    
+		    // Pinta la cua
+		    carregarCua(data);
 		}
 		
 		// Adequar visualment els botons per iniciar o aturar la reindexació i advertència segons l'estat
@@ -269,6 +318,77 @@
 			}
 
 
+		}
+				
+		var cuaInicial = true;
+		var expedientReindexacioIds = [];
+		
+		function carregarCua(data) {
+			
+			$("#cuaTotal,#cuaTotalResum").html(data.cuaTotal);
+			$("#cuaExpedients").html(data.cuaExpedients); 
+			$("#primer").html(data.primer != null ? (moment(new Date(data.primer.dataReindexacio)).format("DD/MM/YYYY HH:mm:ss")) : "-");
+			$("#darrer").html(data.darrer != null ? (moment(new Date(data.darrer.dataReindexacio)).format("DD/MM/YYYY HH:mm:ss")) : "-");
+
+			var $div;
+			expedientReindexacioIds = [];
+			for (i = 0; i < data.cuaLlista.length; i++) {
+				expedientReindexacioIds.push(data.cuaLlista[i].id.toString());
+			}
+			var nous = 0;
+			var esborrats = 0;
+			// Elimina els que no estiguin a la llista
+			$('#cuaLlista div').each(function() {
+				if(expedientReindexacioIds.indexOf($(this).attr('id')) < 0) {
+					$(this).addClass('div_dada_esborrat');
+					esborrats++;
+				}
+			})
+			// Afegeix els nous a la llista
+			for (i = 0; i < data.cuaLlista.length; i++) {
+				if ($('#cuaLlista div#' + data.cuaLlista[i].id).length == 0) {
+					nous++;
+					// Afegeix l'element a la cua
+				    let $div = $("<div>");
+				    $div.attr("id", data.cuaLlista[i].id);
+				    $div.data("expedientId", data.cuaLlista[i].expedientId);
+				    $div.addClass("col");
+				    $div.addClass("div_dada");
+				    if (!cuaInicial)
+				    	$div.addClass("div_dada_afegit");
+				    $div.attr("title", "Id: " + data.cuaLlista[i].id +
+				    					"\nExpedientId: " + data.cuaLlista[i].expedientId +
+				    					"\nData reindexació: " + moment(new Date(data.cuaLlista[i].dataReindexacio)).format("DD/MM/YYYY HH:mm:ss"));
+
+				    $div.on('mouseover', $(document), function() {
+				    	var expedientId = $(this).data("expedientId");
+				    	$("#cuaLlista div")
+				    		.removeClass('div_dada_seleccionat')
+				    		.each(function() {
+				    			if ($(this).data("expedientId") == expedientId)
+				    				$(this).addClass("div_dada_seleccionat");
+				    		});
+				    });
+					$("#cuaLlista").append($div);	
+				}
+			}
+			if (!cuaInicial) {
+				$('#cuaEsborrats').html(esborrats);
+				if (esborrats > 0)
+					$('#cuaEsborratsResum').html('-'+esborrats);
+				$('#cuaNous').html(nous);
+				if (nous > 0)
+					$('#cuaNousResum').html('+'+nous);
+			}
+			cuaInicial = false;
+
+			setTimeout(function(){ 
+				// Esborra els marcats per esborrar
+				$('#cuaLlista div.div_dada_esborrat').hide('slow', function(){ $('#cuaLlista div.div_dada_esborrat').remove(); });
+				// Posa els nous com a normal
+				$('#cuaLlista div.div_dada_afegit').removeClass('div_dada_afegit');
+				$('#cuaLlista div.div_dada_seleccionat').removeClass('div_dada_seleccionat');
+			}, 1000);
 		}
 		
 		async function reindexarExpedients() {
@@ -368,22 +488,74 @@
 		<div class="row">
 			<div class="col-md-4">
 				<h4><spring:message code="reindexacions.dataConsulta"/>:</h4>
-				<h4><spring:message code="reindexacions.pendentsCua"/>:</h4>		
 			</div>
 			<div class="col-md-2">
 				<h4><strong><span id="data">-</span></strong></h4>
-				<h4><strong><span id="cua">-</span></strong></h4>		
 			</div>
-			<div class="col-md-6 push-bottom" style="<c:if test="${!dadesPersona.admin}">display: none</c:if>">
+			<div class="col-md-1" style="<c:if test="${!dadesPersona.admin}">display: none</c:if>">
 				<div class="btn-group">
 					<button id="iniciarReindexacionsBtn" data-placement="bottom" title="<spring:message code="reindexacions.boto.reempendre"/>" class="btn btn-default filtre-button active" data-toggle="button" aria-pressed="true"><span class="fa fa-play"></span></button>
 					<button id="aturarReindexacionsBtn" data-placement="bottom" title="<spring:message code="reindexacions.boto.aturar"/>" class="btn btn-default filtre-button" data-toggle="button"><span class="fa fa-stop text-danger"></span></button>
 				</div>
+			</div>
+			<div class="col-md-5" style="<c:if test="${!dadesPersona.admin}">display: none</c:if>">
 				<div id="reindexarAlerta">
 				</div>
 			</div>
 		</div>
+
+		<div class="row">
+			<div class="col-md-12">
+				<h4><spring:message code="reindexacions.cua"/></h4>
+			</div>
+		</div>
+
+		<!-- div per dibuixar la barra de la cua -->		
+		<div class="row">
+			<div class="col-sm-12" style="text-align: center;">
+				<div id="cuaLlista" class="row cua_llista">
+				</div>
+				<div id="cuaResum" class="div_resum">
+					<strong>
+						<span id="cuaTotalResum">-</span>
+						<span id="cuaEsborratsResum" class="text_esborrat"></span>
+						<span id="cuaNousResum" class="text_afegit"></span>
+					</strong>
+				</div>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-sm-12">
+				<table class="table table-bordered" role="grid" style="width: 100%;">
+					<thead>
+						<tr role="row">
+							<th style="width: 15%"># Elements</th>
+							<th style="width: 15%"># Esborrats</th>
+							<th style="width: 15%"># Nous</th>
+							<th style="width: 15%"># Expedients diferents</th>
+							<th style="width: 20%">Data primer</th>
+							<th style="width: 20%">Data darrer</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr role="row">
+							<td class="text-right"><strong><span id="cuaTotal">-</span></strong></td>
+							<td class="text-right"><span id="cuaEsborrats">-</span></td>
+							<td class="text-right"><span id="cuaNous">-</span></td>
+							<td class="text-right"><span id="cuaExpedients">-</span></td>
+							<td><span id="primer">-</span></td>
+							<td><span id="darrer">-</span></td>
+						</tr>
+				</table>
+			</div>
+		</div>
 		
+		<!-- Taula d'errors o pendent de reindexació per tipus d'expedient -->
+		<div class="row">
+			<div class="col-md-12">
+				<h4><spring:message code="reindexacions.taula"/></h4>
+			</div>
+		</div>
 		<table id="dades-taula"
 				class="table table-striped table-bordered table-hover">
 			<thead>

@@ -3,14 +3,20 @@
  */
 package net.conselldemallorca.helium.v3.core.service;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.annotation.Resource;
 
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import net.conselldemallorca.helium.core.helper.ConversioTipusHelper;
+import net.conselldemallorca.helium.core.model.hibernate.ExpedientReindexacio;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientReindexacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientReindexacioService;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientReindexacioRepository;
@@ -90,6 +96,33 @@ public class ExpedientReindexacioServiceImpl implements ExpedientReindexacioServ
 	public Long countPendentReindexacioAsincrona() {
 		
 		return expedientReindexacioRepository.countExpedientsPendents();
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@Transactional(readOnly = true)
+	public Map<String, Object> getDadesReindexacio() {
+		
+		Map<String, Object> dades = new HashMap<String, Object>();
+		Sort sort = new Sort(Direction.ASC, "id");
+		List<ExpedientReindexacio> llista = expedientReindexacioRepository.findAll(sort);
+		// Total d'elements a la cua
+		dades.put("cuaTotal", llista.size());
+		// Expedients diferents a la cua
+		dades.put("cuaExpedients", expedientReindexacioRepository.countExpedientsPendents());
+		if (!llista.isEmpty()) {
+			dades.put("primer", conversioTipusHelper.convertir(llista.get(0), ExpedientReindexacioDto.class));
+			dades.put("darrer", conversioTipusHelper.convertir(llista.get(llista.size()-1), ExpedientReindexacioDto.class));
+		} else {
+			dades.put("primer", null);
+			dades.put("darrer", null);			
+		}
+		List<ExpedientReindexacioDto> llistaDto = conversioTipusHelper.convertirList(llista, ExpedientReindexacioDto.class);
+		dades.put("cuaLlista", llistaDto);
+		
+		return dades;
 	}
 
 	/**

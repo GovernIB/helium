@@ -4,6 +4,7 @@
 package net.conselldemallorca.helium.v3.core.ejb;
 
 import java.util.List;
+import java.util.Map;
 
 import javax.annotation.security.RolesAllowed;
 import javax.ejb.Stateless;
@@ -57,7 +58,12 @@ public class ExpedientReindexacioServiceBean implements ExpedientReindexacioServ
 		return delegate.consultaIdsExpedients(expedientTipusId);
 	}
 
-	
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public Map<String, Object> getDadesReindexacio() {
+		return delegate.getDadesReindexacio();
+	}
+
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public Long countPendentReindexacioAsincrona() {

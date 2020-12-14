@@ -4,6 +4,7 @@
 package net.conselldemallorca.helium.v3.core.api.service;
 
 import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -51,6 +52,16 @@ public interface ExpedientReindexacioService {
 	public List<Long> consultaIdsExpedients(long expedientTipusId);
 
 	
+	/** Mètode per consultar diferents dades de la cua de reindexació. En un Map<String, Object>
+	 * retorna la següent informació:
+	 * - "cuaTotal": Integer : Nombre total d'elements a la cua
+	 * - "cuaExpedients" : Long : Número d'expedients diferents a la cua
+	 * - "primer" : ExpedientReindexacioDto : Primer element de la cua o null si està buida
+	 * - "darrer" : ExpedientReindexacioDto : Darrer element de la cua o null si està buida
+	 * - "cuaLlista" : List<ExpedientReindexacioDto> : Elements de la cua
+	 */
+	public Map<String, Object> getDadesReindexacio();
+
 	/** Mètode per consultar el número d'expedients diferents pendents de reindexació. */
 	public Long countPendentReindexacioAsincrona();
 

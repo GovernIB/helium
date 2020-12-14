@@ -20,7 +20,7 @@
 			<thead>
 				<tr>
 					<th><spring:message code="expedient.llistat.columna.expedient"/></th>
-					<th><spring:message code="expedient.llistat.columna.iniciat"/></th>
+					<th><spring:message code="expedient.llistat.columna.reindexarData"/></th>
 					<th><spring:message code="expedient.llistat.columna.estat"/></th>
 				</tr>
 			</thead>
@@ -40,7 +40,7 @@
 								</div>
 							</c:if>
 					</td>
-					<td><fmt:formatDate value="${expedient.dataInici}" pattern="dd/MM/yyyy HH:mm"/></td>
+					<td><fmt:formatDate value="${expedient.reindexarData}" pattern="dd/MM/yyyy HH:mm"/></td>
 					<td>${expedient.estatNom}</td>
 				</tr>
 			</c:forEach>	

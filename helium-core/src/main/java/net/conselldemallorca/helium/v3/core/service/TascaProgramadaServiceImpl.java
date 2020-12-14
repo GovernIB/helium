@@ -12,6 +12,8 @@ import javax.annotation.Resource;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -136,7 +138,8 @@ public class TascaProgramadaServiceImpl implements TascaProgramadaService {
 		}
 		
 		// Consulta les reindexacions pendents
-		List<ExpedientReindexacio> reindexacions = expedientReindexacioRepository.findAll();
+		Sort sort = new Sort(Direction.ASC, "id");
+		List<ExpedientReindexacio> reindexacions = expedientReindexacioRepository.findAll(sort);
 		// Consulta els expedients amb data de reindexació per comprovar si estan a la cua
 		List<Long> expedientIdsAmbReindexarData = expedientRepository.findIdsPendentsReindexacio();
 
@@ -195,7 +198,7 @@ public class TascaProgramadaServiceImpl implements TascaProgramadaService {
 			}
 
 			// torna a consultar les reindexacions i els expedients amb data de reindexació
-			reindexacions = expedientReindexacioRepository.findAll();
+			reindexacions = expedientReindexacioRepository.findAll(sort);
 			expedientIdsAmbReindexarData = expedientRepository.findIdsPendentsReindexacio();
 			
 			fi = reindexacions.isEmpty() || !this.isReindexarAsincronament();	
