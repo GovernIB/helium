@@ -293,6 +293,7 @@ public interface DissenyService {
 	 */
 	public DefinicioProcesDto updateHandlers(
 			Long entornId, 
+			Long expedientTipusId,
 			String nomArxiu, 
 			byte[] contingut);
 	

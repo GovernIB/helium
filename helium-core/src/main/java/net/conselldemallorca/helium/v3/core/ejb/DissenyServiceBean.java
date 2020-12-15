@@ -299,8 +299,8 @@ public class DissenyServiceBean implements DissenyService {
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public DefinicioProcesDto updateHandlers(Long entornId, String nomArxiu, byte[] contingut) {
-		return delegate.updateHandlers(entornId, nomArxiu, contingut);
+	public DefinicioProcesDto updateHandlers(Long entornId, Long expedientTipusId, String nomArxiu, byte[] contingut) {
+		return delegate.updateHandlers(entornId, expedientTipusId, nomArxiu, contingut);
 	}
 	
 	@Override

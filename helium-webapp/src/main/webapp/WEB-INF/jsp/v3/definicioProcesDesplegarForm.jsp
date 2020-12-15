@@ -49,7 +49,7 @@
 				}); 	
 				
 				function actualitzaControls() {
-					$("#actualitzarExpedientsActius,#etiqueta,#expedientTipusId").prop('disabled', $("#accio").val() != "JBPM_DESPLEGAR");
+					$("#actualitzarExpedientsActius,#etiqueta").prop('disabled', $("#accio").val() != "JBPM_DESPLEGAR");
 				}
 				// ]]>
 			</script>			

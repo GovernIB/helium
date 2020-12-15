@@ -85,6 +85,31 @@ public interface DefinicioProcesRepository extends JpaRepository<DefinicioProces
 	DefinicioProces findDarreraVersioAmbTipusExpedientIJbpmKey(
 		@Param("expedientTipusId") Long expedientTipusId,
 		@Param("jbpmKey") String jbpmKey);	
+	
+	/** Troba la darrera versió de la definició de procés global per codi jbpm per a un entorn.
+	 * Les definicions de procés globals no tenen cap expedient tipus associat.
+	 * @param expedientTipusId
+	 * @param jbpmProcessDefinitionKey
+	 * @return
+	 */
+	@Query(	"from " +
+			"    DefinicioProces dp " +
+			"where " +
+			"    dp.entorn.id = :entornId" +
+			"	 and dp.jbpmKey = :jbpmKey " +
+			" 	 and dp.versio = (" +
+			"    	select " +
+			"       	 max(dps.versio) " +
+			"    	from " +
+			"        	DefinicioProces dps " +
+			"    	where " +
+			"       	dps.entorn.id = :entornId" +
+			"       	and dps.expedientTipus is null " +
+			"    		and dps.jbpmKey = :jbpmKey) ")
+	DefinicioProces findDarreraVersioGlobalAmbJbpmKey(
+		@Param("entornId") Long entornId,
+		@Param("jbpmKey") String jbpmKey);	
+	
 
 	/** Troba el llistat de darreres versions de la definició de procés filtrant per entorn, tipus d'expedient si s'escau
 	 * i amb la possibilitat d'incloure les definicions de procés globals.

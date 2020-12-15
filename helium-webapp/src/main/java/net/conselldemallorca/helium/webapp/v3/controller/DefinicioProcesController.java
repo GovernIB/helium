@@ -721,17 +721,29 @@ public class DefinicioProcesController extends BaseDefinicioProcesController {
         			DefinicioProcesDto definicioProces = null;
         			try {
         				definicioProces = dissenyService.updateHandlers(
-							entornActual.getId(), 
+							entornActual.getId(),
+							command.getExpedientTipusId(),
         					command.getFile().getOriginalFilename(),
     						command.getFile().getBytes());
-                		MissatgesHelper.success(request, 
-                				getMessage( 
-                						request, 
-                						"definicio.proces.actualitzar.confirmacio",
-                						new Object[] {
-                								definicioProces.getJbpmKey(),
-                								definicioProces.getVersio()
-                						}));
+        				if (definicioProces.getExpedientTipus() != null)
+	                		MissatgesHelper.success(request, 
+	                				getMessage( 
+	                						request, 
+	                						"definicio.proces.actualitzar.confirmacio.expedientTipus",
+	                						new Object[] {
+	                								definicioProces.getJbpmKey(),
+	                								definicioProces.getVersio(),
+	                								definicioProces.getExpedientTipus().getCodi(),
+	                								definicioProces.getExpedientTipus().getNom() }));
+        				else
+	                		MissatgesHelper.success(request, 
+	                				getMessage( 
+	                						request, 
+	                						"definicio.proces.actualitzar.confirmacio.global",
+	                						new Object[] {
+	                								definicioProces.getJbpmKey(),
+	                								definicioProces.getVersio() }));
+
         			} catch (Exception e) {
         				logger.error("Error : (" + e.getClass() + ") " + e.getLocalizedMessage());
         				MissatgesHelper.error(

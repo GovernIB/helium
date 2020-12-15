@@ -1056,6 +1056,7 @@ public class DissenyServiceImpl implements DissenyService {
 	@Transactional
 	public DefinicioProcesDto updateHandlers(
 			Long entornId, 
+			Long expedientTipusId,
 			String nomArxiu,
 			byte[] contingut) {
 		// Comprova el nom de l'arxiu
@@ -1075,12 +1076,20 @@ public class DissenyServiceImpl implements DissenyService {
 		}
 		JbpmProcessDefinition jbpmProcessDefinition = new JbpmProcessDefinition(processDefinition);
     	// Recuperar la darrera versió de la definició de procés
-		DefinicioProces darrera = definicioProcesRepository.findDarreraVersioAmbEntornIJbpmKey(
-				entornId,
-				jbpmProcessDefinition.getKey());
-		if (darrera == null)
+		DefinicioProces darrera;
+		if (expedientTipusId != null) {
+			// per expedientTipus
+			darrera = definicioProcesRepository.findDarreraVersioAmbTipusExpedientIJbpmKey(expedientTipusId, jbpmProcessDefinition.getKey());
+		} else {
+			// global
+			darrera = definicioProcesRepository.findDarreraVersioGlobalAmbJbpmKey(entornId, jbpmProcessDefinition.getKey());
+		}			
+		if (darrera == null) {
 			throw new DeploymentException(
-					messageHelper.getMessage("definicio.proces.actualitzar.error.jbpmKey", new Object[] {jbpmProcessDefinition.getKey()}));
+					messageHelper.getMessage(
+							"definicio.proces.actualitzar.error.jbpmKey." + (expedientTipusId != null ? "expedientTipus" : "global"), 
+							new Object[] {jbpmProcessDefinition.getKey()}));
+		}
 		
 		// Construeix la llista de handlers a partir del contingut del fitxer .par que acabin amb .class
 		@SuppressWarnings("unchecked")
