@@ -303,3 +303,10 @@ span.herencia {
     top: -16px;
     position: relative;
 }
+
+.checkbox_hiddenInfo {
+  visibility: hidden;
+}
+.inputCheckbox:hover .checkbox_hiddenInfo {
+  visibility: visible;
+}

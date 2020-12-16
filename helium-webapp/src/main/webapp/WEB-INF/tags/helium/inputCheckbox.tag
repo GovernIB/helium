@@ -6,6 +6,7 @@
 <%@ attribute name="textKey" required="false" rtexprvalue="true"%>
 <%@ attribute name="inline" required="false" rtexprvalue="true"%>
 <%@ attribute name="comment" required="false" rtexprvalue="true"%>
+<%@ attribute name="info" required="false" rtexprvalue="true"%>
 <%@ attribute name="labelSize" required="false" rtexprvalue="true"%>
 <%@ attribute name="disabled" required="false" rtexprvalue="true"%>
 <%@ attribute name="readonly" required="false" rtexprvalue="true"%>
@@ -15,13 +16,16 @@
 <c:set var="campErrors"><form:errors path="${campPath}"/></c:set>
 <c:choose>
 	<c:when test="${not inline}">
-<div class="form-group<c:if test="${not empty campErrors}"> has-error</c:if>">
-	<label class="control-label col-xs-${labelSize}" for="${campPath}">
+<div class="form-group<c:if test="${not empty campErrors}"> has-error</c:if> inputCheckbox">
+	<label class="control-label col-xs-${labelSize} checkbox" for="${campPath}">
 		<c:choose>
 			<c:when test="${not empty textKey}"><spring:message code="${textKey}"/></c:when>
 			<c:when test="${not empty text}">${text}</c:when>
 			<c:otherwise>${campPath}</c:otherwise>
 		</c:choose>
+		<c:if test="${not empty info}">
+			<span class="fa fa-info-circle text-info checkbox_hiddenInfo" title="<spring:message code="${info}"/>"></span>
+		</c:if>		
 	</label>
 	<div class="controls col-xs-${12 - labelSize}">
 		<div class="checkbox">
@@ -37,13 +41,16 @@
 </div>
 	</c:when>
 	<c:otherwise>
-		<label class="checkbox">
+		<label class="checkbox inputCheckbox">
 			<form:checkbox path="${campPath}" id="${campPath}" readonly="${readonly}" disabled="${disabled}"/>
 			<c:choose>
 				<c:when test="${not empty textKey}"><spring:message code="${textKey}"/></c:when>
 				<c:when test="${not empty text}">${text}</c:when>
 				<c:otherwise>${campPath}</c:otherwise>
 			</c:choose>
+			<c:if test="${not empty info}">
+				<span class="fa fa-info-circle text-info checkbox_hiddenInfo" title="<spring:message code="${info}"/>"></span>
+			</c:if>
 		</label>
 	</c:otherwise>
 </c:choose>
