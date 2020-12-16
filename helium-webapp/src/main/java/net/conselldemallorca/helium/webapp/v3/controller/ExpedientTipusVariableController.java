@@ -262,7 +262,7 @@ public class ExpedientTipusVariableController extends BaseVariableController {
 			@PathVariable Long id,
 			Model model) {
 		
-		if (!validaEsborratCamp(request, id)) {
+		if (!validaEsborratCamp(request, expedientTipusId, id)) {
 			return false;
 		}
 		try {

@@ -958,13 +958,15 @@ public class CampServiceImpl implements CampService {
 
 	@Override
 	@Transactional(readOnly = true)
-	public List<ConsultaDto> findConsultesPerCamp(Long campId) {
+	public List<ConsultaDto> findConsultesPerCamp(Long expedientTipusId, Long campId) {
 		logger.debug(
 				"Consultant les consultes pel camp (" +
-				"campId =" + campId +")");
+				"expedientTipusId =" + expedientTipusId + 
+				", campId =" + campId +")");
 		
 		Camp camp = campRepository.findOne(campId);
 		List<ConsultaCamp> consultaCamps = consultaCampRepository.findPerCamp(
+				expedientTipusId,
 				camp.getCodi() != null? camp.getCodi() : "",
 				camp.getDefinicioProces() != null ? camp.getDefinicioProces().getJbpmKey() : "",
 				camp.getDefinicioProces() != null ? camp.getDefinicioProces().getVersio() : -1);

@@ -47,7 +47,7 @@ public class BaseVariableController extends BaseDissenyController {
 	/** Mètode per validar si una variable (camp) es pot esborrar o s'utilitza en registres,
 	 * tasques o consultes.
 	 */
-	protected boolean validaEsborratCamp(HttpServletRequest request, Long id) {
+	protected boolean validaEsborratCamp(HttpServletRequest request, Long expedientTipusId, Long id) {
 		// Valida que la variable no s'utilitzi en cap registre o consulta
 		boolean valid = true;
 		// Recupera la informació del camp
@@ -90,7 +90,7 @@ public class BaseVariableController extends BaseDissenyController {
 			valid = false;
 		}
 		// Valida que no pertany a cap consulta
-		List<ConsultaDto> consultes = campService.findConsultesPerCamp(id);
+		List<ConsultaDto> consultes = campService.findConsultesPerCamp(expedientTipusId, id);
 		if (consultes.size() > 0) {
 			MissatgesHelper.error(
 					request, 

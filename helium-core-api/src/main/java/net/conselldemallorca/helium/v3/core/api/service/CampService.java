@@ -407,12 +407,13 @@ public interface CampService {
 	 */
 	public List<TascaDto> findTasquesPerCamp(Long campId);
 
-	/** Retorna la llista de consultes que continguin el camp.
+	/** Retorna la llista de consultes que continguin el camp del tipus d'expedient.
 	 * 
+	 * @param expedientTipusId 
 	 * @param campId
 	 * @return
 	 */
-	public List<ConsultaDto> findConsultesPerCamp(Long campId);
+	public List<ConsultaDto> findConsultesPerCamp(Long expedientTipusId, Long campId);
 
 	/** Retorna la llista de registres que continguin el camp.
 	 * 

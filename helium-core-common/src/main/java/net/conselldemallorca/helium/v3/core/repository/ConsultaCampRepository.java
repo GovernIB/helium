@@ -69,12 +69,21 @@ public interface ConsultaCampRepository extends JpaRepository<ConsultaCamp, Long
 			TipusConsultaCamp tipus, 
 			String campCodi);	
 	
-	/** Mètode per consultar totes les consultes que contenen un camp determinat.*/
+	/** Mètode per consultar totes les consultes que contenen un camp determinat per un tipus d'expedient
+	 * 
+	 * @param expedientTipusId
+	 * @param campCodi
+	 * @param defProckey
+	 * @param defProcVersio
+	 * @return
+	 */
 	@Query(	"from ConsultaCamp cc " +
-			"where cc.campCodi = :campCodi " +
+			"where cc.consulta.expedientTipus.id = :expedientTipusId " +
+			"	and cc.campCodi = :campCodi " +
 			"	and ((cc.defprocJbpmKey is null and :defProckey is null) or (cc.defprocJbpmKey = :defProckey)) " +
 			" 	and cc.defprocVersio = :defProcVersio ")
 	List<ConsultaCamp> findPerCamp(
+			@Param("expedientTipusId") Long expedientTipusId, 
 			@Param("campCodi") String campCodi,
 			@Param("defProckey") String defProckey,
 			@Param("defProcVersio") int defProcVersio);

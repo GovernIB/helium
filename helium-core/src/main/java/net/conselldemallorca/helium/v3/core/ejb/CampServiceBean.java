@@ -209,8 +209,8 @@ public class CampServiceBean implements CampService {
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public List<ConsultaDto> findConsultesPerCamp(Long campId) {
-		return delegate.findConsultesPerCamp(campId);
+	public List<ConsultaDto> findConsultesPerCamp(Long expedientTipusId, Long campId) {
+		return delegate.findConsultesPerCamp(expedientTipusId, campId);
 	}
 
 	@Override
