@@ -283,7 +283,7 @@
 		<input type="hidden" name="id" id="id" value="${command.id}" />
 
 		<c:if test="${command.id != null}">
-			<hel:inputCheckbox name="sobreEscriure" textKey="definicio.proces.importar.form.opcions.sobreEscriure" labelSize="6" />
+			<hel:inputCheckbox name="sobreEscriure" textKey="definicio.proces.importar.form.opcions.sobreEscriure" info="definicio.proces.importar.form.opcions.sobreEscriure.info" labelSize="6" />
 		</c:if>
 		
 		<h4>1 <spring:message code="definicio.proces.importar.form.carregar"/></h4>

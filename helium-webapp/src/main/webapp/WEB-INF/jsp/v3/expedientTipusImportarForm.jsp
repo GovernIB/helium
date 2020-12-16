@@ -284,8 +284,8 @@
 		<input type="hidden" name="id" id="id" value="${command.id}" />
 
 		<c:if test="${command.id != null}">
-			<hel:inputCheckbox name="sobreEscriure" textKey="expedient.tipus.importar.form.opcions.sobreEscriure" labelSize="6" />
-			<hel:inputCheckbox name="dadesBasiques" textKey="expedient.tipus.importar.form.opcions.dadesBasiques" labelSize="6" />
+			<hel:inputCheckbox name="sobreEscriure" textKey="expedient.tipus.importar.form.opcions.sobreEscriure" labelSize="6" info="expedient.tipus.importar.form.opcions.sobreEscriure.info" />
+			<hel:inputCheckbox name="dadesBasiques" textKey="expedient.tipus.importar.form.opcions.dadesBasiques" labelSize="6" info="expedient.tipus.importar.form.opcions.dadesBasiques.info" />
 		</c:if>
 		
 		<h4>1 <spring:message code="expedient.tipus.importar.form.carregar"/></h4>

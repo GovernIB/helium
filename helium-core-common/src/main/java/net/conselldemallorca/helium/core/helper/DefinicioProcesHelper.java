@@ -155,9 +155,24 @@ public class DefinicioProcesHelper {
 
 		// si el command és null s'importa tot
 		boolean importAll = command == null;
-		boolean definicioProcesExisteix = command != null && command.getId() != null;
+		boolean definicioProcesExisteix = false;
+		if(command != null) {
+			definicioProcesExisteix = command.getId() != null;
+		} else {
+			// Busca la darrera versió de la definició de procés pel tipus d'expedient
+			if (expedientTipusId != null) {
+				DefinicioProces darreraVersio =
+							definicioProcesRepository.findDarreraVersioAmbTipusExpedientIJbpmKey(expedientTipusId, 
+																								importacio.getDefinicioProcesDto().getJbpmKey());
+				if (darreraVersio != null) {
+					definicioProcesExisteix = true;
+					// informa el command per reaprofitar l'id.
+					command = new DefinicioProcesExportacioCommandDto();
+					command.setId(darreraVersio.getId());
+				}
+			}
+		}
 		DefinicioProces definicio;
-
 		if ( ! definicioProcesExisteix) {
 			// Nova definició de procés
 			JbpmProcessDefinition dpd = jbpmHelper.desplegar(

@@ -24,7 +24,7 @@
 			<c:otherwise>${campPath}</c:otherwise>
 		</c:choose>
 		<c:if test="${not empty info}">
-			<span class="fa fa-info-circle text-info checkbox_hiddenInfo" title="<spring:message code="${info}"/>"></span>
+			<span class="fa fa-info-circle text-info checkbox_hiddenInfo" data-placement="bottom" title="<spring:message code="${info}"/>"></span>
 		</c:if>		
 	</label>
 	<div class="controls col-xs-${12 - labelSize}">
@@ -49,7 +49,7 @@
 				<c:otherwise>${campPath}</c:otherwise>
 			</c:choose>
 			<c:if test="${not empty info}">
-				<span class="fa fa-info-circle text-info checkbox_hiddenInfo" title="<spring:message code="${info}"/>"></span>
+				<span class="fa fa-info-circle text-info checkbox_hiddenInfo" data-placement="bottom" title="<spring:message code="${info}"/>"></span>
 			</c:if>
 		</label>
 	</c:otherwise>
