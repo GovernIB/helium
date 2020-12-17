@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import net.conselldemallorca.helium.core.util.EntornActual;
 import net.conselldemallorca.helium.v3.core.api.dto.CampAgrupacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampRegistreDto;
@@ -271,7 +272,9 @@ public class DefinicioProcesVariableController extends BaseVariableController {
 			@PathVariable Long id,
 			Model model) {
 		
-		if (validaEsborratCamp(request, id)) {
+		DefinicioProcesDto definicioProces = definicioProcesService.findAmbIdAndEntorn(EntornActual.getEntornId(), definicioProcesId);
+		Long expedientTipusId = definicioProces.getExpedientTipus() != null ? definicioProces.getExpedientTipus().getId() : null;
+		if (validaEsborratCamp(request, expedientTipusId, id)) {
 			try {
 				// Esborra la variable
 				campService.delete(id);
