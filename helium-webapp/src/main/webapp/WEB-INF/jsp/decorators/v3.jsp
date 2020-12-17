@@ -155,7 +155,19 @@
 		</c:if>
 	</c:otherwise>
 </c:choose>
-
+		
+		.arrow-top {
+			display: none;
+			position: fixed;
+			bottom: 80px; 
+			right: 5px;
+			width: 35px;
+			height: 35px;
+			background-color: #ddd;
+			font-size: 25px;
+			text-align: center;
+			cursor: pointer;
+		}
 	</style>
 	<script type="text/javascript">
 		$(document).ready(function(){
@@ -166,6 +178,18 @@
 			}
 			
 			$('[title]').tooltip({container: 'body'});
+			
+			$('#topBtn').click(function(){
+				// Scroll a l'inici
+				window.scrollTo({ top: 0, behavior: 'smooth' });
+			})
+		}).scroll(function() {
+			var y = $(this).scrollTop();
+			if (y > 750) {
+			$('.arrow-top').fadeIn();
+			} else {
+			 $('.arrow-top').fadeOut();
+			}
 		});
 	</script>
 	<decorator:head />
@@ -409,5 +433,8 @@
         </div>
     </div>
 
+	<div id="topBtn" class="arrow-top" title="<spring:message code="decorator.arrow-top"/>">
+		<span class="fa fa-4 fa-angle-double-up"></span>
+	</div>
 </body>
 </html>
