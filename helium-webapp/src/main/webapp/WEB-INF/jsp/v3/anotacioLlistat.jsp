@@ -103,7 +103,7 @@
 					<spring:message code="anotacio.llistat.columna.expedientTipus"/>
 					<script id="cellAnotacioExpedientTipusTemplate" type="text/x-jsrender">
 						{{if expedientTipus != null }}
-							{{:expedientTipus.nom}}
+							{{:expedientTipus.codi}}
 							<span class="fa fa-info-circle" 
 								title="{{:expedientTipus.codi}} - {{:expedientTipus.nom}} 
 (Entrorn {{:expedientTipus.entorn.codi}} - {{:expedientTipus.entorn.nom}})"></span> 
