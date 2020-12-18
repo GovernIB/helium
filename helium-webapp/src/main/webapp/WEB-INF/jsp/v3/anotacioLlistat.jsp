@@ -95,9 +95,8 @@
 				<th data-col-name="id" data-visible="false"/>
 				<th data-col-name="data" data-converter="datetime"><spring:message code="anotacio.llistat.columna.data"/></th>
 				<th data-col-name="identificador"><spring:message code="anotacio.llistat.columna.identificador"/></th>
-				<th data-col-name="extracte"><spring:message code="anotacio.llistat.columna.extracte"/></th>
+				<th data-col-name="extracte" data-renderer="maxLength(50)"><spring:message code="anotacio.llistat.columna.extracte"/></th>
 				<th data-col-name="procedimentCodi"><spring:message code="anotacio.llistat.columna.procedimentCodi"/></th>
-				<th data-col-name="assumpteCodiCodi"><spring:message code="anotacio.llistat.columna.assumpteCodiCodi"/></th>
 				<th data-col-name="expedientNumero"><spring:message code="anotacio.llistat.columna.expedientNumero"/></th>
 				<th data-col-name="dataRecepcio" data-converter="datetime"><spring:message code="anotacio.llistat.columna.dataRecepcio"/></th>				
 				<th data-col-name="expedientTipus.codi" data-template="#cellAnotacioExpedientTipusTemplate">
@@ -124,6 +123,11 @@
 					<spring:message code="anotacio.llistat.columna.estat"/>
 					<script id="cellEstatExpedientTemplate" type="text/x-jsrender">
 						{{:estat}}
+						{{if dataProcessament}}
+							<br/><span class="text-muted small">
+									{{:~formatTemplateDate(dataProcessament)}} 
+								</span>
+						{{/if}}
 						{{if errorAnnexos}}
 							<div class="pull-right">
 								<span class="fa fa-exclamation-triangle text-danger" 
@@ -132,7 +136,7 @@
 						{{/if}}
 					</script>
 				</th>
-				<th data-col-name="dataProcessament" data-converter="datetime"><spring:message code="anotacio.llistat.columna.dataProcessament"/></th>
+				<th data-col-name="dataProcessament" data-visible="false"/></th>
 				<th data-col-name="id" data-template="#cellAnotacioAccioTemplate" data-orderable="false" width="10%">
 					<script id="cellAnotacioAccioTemplate" type="text/x-jsrender">
 						<div class="dropdown">
@@ -158,7 +162,13 @@
 	
 	<script type="text/javascript">
 	// <![CDATA[
-	            
+
+	   $.views.helpers({
+		   formatTemplateDate: function (d) {
+			   return moment(new Date(d)).format("DD/MM/YYYY HH:mm:ss");
+		    }
+		});
+		            
 	$(document).ready(function() {
 	});
 	
