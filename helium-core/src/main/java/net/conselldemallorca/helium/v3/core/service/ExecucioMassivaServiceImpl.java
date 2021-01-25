@@ -352,9 +352,10 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 		
 		//Recuperem els resultats
 		final int ID = 0;
-		final int ERROR = 1;
-		final int PENDENT = 2;
-		final int TOTAL = 3;
+		final int FINALITZAT = 1;
+		final int ERROR = 2;
+		final int PENDENT = 3;
+		final int TOTAL = 4;
 		
 		JSONArray ljson = new JSONArray();	
 		
@@ -378,10 +379,11 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 					String tasca = "";
 					
 					Long id = (Long)comptadorTrobat[ID];
+					Long finalitzat = (Long)comptadorTrobat[FINALITZAT];
 					Long error = (Long)comptadorTrobat[ERROR];
+					Long processat = (error + finalitzat);
 					Long pendent = (Long)comptadorTrobat[PENDENT];
 					Long total = (Long)comptadorTrobat[TOTAL];
-					Long ok = (total - error - pendent);
 					
 					Map<String, Serializable> mjson = new LinkedHashMap<String, Serializable>();
 					mjson.put("id", id);
@@ -394,9 +396,10 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 					mjson.put("entornNom", execucio.getExpedientTipus() != null && execucio.getExpedientTipus().getEntorn() != null ? execucio.getExpedientTipus().getEntorn().getNom() : "");
 					mjson.put("text", JSONValue.escape(getTextExecucioMassiva(execucio, tasca)));
 					
+					mjson.put("finalitzat", finalitzat);
 					mjson.put("error", error);
 					mjson.put("pendent", pendent);
-					mjson.put("ok", ok);
+					mjson.put("processat", processat);
 					mjson.put("total", total);
 					
 					mjson.put("executades", getPercent((total - pendent), total));
@@ -469,7 +472,7 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 		List<ExecucioMassivaExpedient> expedients = execucio.getExpedients();
 		JSONArray ljson_exp = new JSONArray();
 		String tasca = "";
-		Long success = 0L;
+		Long finalitzat = 0L;
 		Long danger = 0L;
 		Long pendent = 0L;
 		if (!expedients.isEmpty()) {
@@ -518,10 +521,10 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 					if (error != null)
 						error = error.replace("'", "&#8217;").replace("\"", "&#8220;");
 					danger++;
+				} else if (expedient.getEstat() == ExecucioMassivaEstat.ESTAT_FINALITZAT) {
+					finalitzat++;
 				} else if (expedient.getDataFi() == null && ExecucioMassivaEstat.ESTAT_PENDENT.equals(expedient.getEstat())){
 					pendent++;
-				} else {
-					success++;
 				}
 				mjson_exp.put("error", JSONValue.escape(error));
 				ljson_exp.add(mjson_exp);
@@ -536,7 +539,8 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 		long total = (long) expedients.size();
 		mjson.put("error", danger);
 		mjson.put("pendent", pendent);
-		mjson.put("ok", success);
+		mjson.put("finalitzat", finalitzat);
+		mjson.put("processat", finalitzat + danger);
 		mjson.put("total", total);
 		mjson.put("data", sdf.format(execucio.getDataInici()));
 		mjson.put("executades", getPercent((total - pendent), total));

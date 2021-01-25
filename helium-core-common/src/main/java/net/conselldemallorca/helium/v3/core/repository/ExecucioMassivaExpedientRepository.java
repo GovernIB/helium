@@ -35,6 +35,7 @@ public interface ExecucioMassivaExpedientRepository extends JpaRepository<Execuc
 			@Param("execucioMassivaId") Long execucioMassivaId);
 
 	@Query("select e.execucioMassiva.id, " +
+			"sum(case when e.estat = 0 then 1 else 0 end) as finalitzat, " + // ExecucioMassivaExpedient.ExecucioMassivaEstat.ESTAT_FINALITZAT
 			"sum(case when e.estat = 1 then 1 else 0 end) as error, " +	// ExecucioMassivaExpedient.ExecucioMassivaEstat.ESTAT_ERROR
 			"sum(case when e.estat = 2 then 1 else 0 end) as pendent, " + // ExecucioMassivaExpedient.ExecucioMassivaEstat.ESTAT_PENDENT
 			"count(*) as total " +

@@ -279,12 +279,13 @@
 	    	var text =	
 	    		'<div id="mass_' + execucio.id + '" href="#collapse_' + execucio.id + '" data-toggle="collapse" class="panel-heading clicable grup">' +
 	    		'<div class="row pull-left massiu-dades">' +
-	    		'<div class="col-md-3"><span class="desc-limit" title="' + title + '">' + execucio.text + '</span></div>' +
+	    		'<div class="col-md-2"><span class="desc-limit" title="' + title + '">' + execucio.text + '</span></div>' +
 				'<div class="col-md-2 one-line"><div><span class="mass-badge badge in-line-badge">' + execucio.total + '</span></div> <div class="massiu-dades" id="pbar_' + execucio.id + '"><span class="plabel" id="plabel_' + execucio.id + '">' + execucio.executades + '%</span></div></div>' +
+				'<div class="mass-processat col-md-1">' + execucio.processat + '</div>' + 
 				'<div class="mass-error col-md-1">' + execucio.error + '</div>' + 
 				'<div class="col-md-2">' + execucio.data + '</div>' + 
 				'<div class="mass-data-fi col-md-2">' + (execucio.dataFi != undefined ? execucio.dataFi : '') + '</div>' +
-				'<div class="col-md-2">' + execucio.usuari + '</div>' + 
+				'<div class="col-md-1">' + execucio.usuari + '</div>' + 
 				'</div>';
 			if (execucio.total > 0) {
 				text +=	'<div class="pull-right">' +
@@ -385,9 +386,9 @@
 							} else {
 								content = '<div class="panel panel-default panel-heading special-margin">' +
 									'<div class="row massiu-dades">' +
-										'<div class="col-md-3"><strong><spring:message code="expedient.tramitacio.massiva.header.nom"/></strong></div>' +
+										'<div class="col-md-2"><strong><spring:message code="expedient.tramitacio.massiva.header.nom"/></strong></div>' +
 										'<div class="col-md-2"><strong><spring:message code="expedient.tramitacio.massiva.header.execucio"/></strong></div>' +
-										//'<div class="col-md-1"><strong><spring:message code="expedient.tramitacio.massiva.header.ok"/></strong></div>' +
+										'<div class="col-md-1"><strong><spring:message code="expedient.tramitacio.massiva.header.processats"/></strong></div>' +
 										'<div class="col-md-1"><strong><spring:message code="expedient.tramitacio.massiva.header.error"/></strong></div>' +
 										'<div class="col-md-2"><strong><spring:message code="expedient.tramitacio.massiva.header.dataInici"/></strong></div>' +
 										'<div class="col-md-2"><strong><spring:message code="expedient.tramitacio.massiva.header.dataFi"/></strong></div>' +
@@ -500,6 +501,7 @@
 			}
 			
 			$('#mass_' + execucio.id + ' .massiu-dades .mass-badge').text(execucio.total);
+			$('#mass_' + execucio.id + ' .massiu-dades .mass-processat').text(execucio.processat);
 			$('#mass_' + execucio.id + ' .massiu-dades .mass-error').text(execucio.error);
 			$('#mass_' + execucio.id + ' .massiu-dades .mass-data-fi').text(execucio.dataFi != undefined ? execucio.dataFi : '');
 
