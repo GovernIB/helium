@@ -394,13 +394,8 @@ $(function() {
 	$("#command").on("click", ".eliminarFila", function() {
 		var table = $(this).closest('table');
 		var tr = $(this).closest('tr');
-		if (table.find('tbody tr').size() < 2) {
-			limpiarFila(tr);
-			// deshabilitar i amaga
-			$(tr).find(':input').prop("disabled", "disabled");
-			$(tr).hide();
-		} else {
-			tr.remove();
+		if (tr) {
+			tr.remove();			
 		}
 		// Renumerar filas
 		renumerarFiles(table);
@@ -534,7 +529,7 @@ function addField(idTable, campId ) {
 		// Si no hi ha cap filla n'obté una des del controlador
 		var trHtml = null;
 		$.ajax({
-			url: '/helium/v3/camptasca/' + campId + '/afegir',
+			url: '/helium/nodeco/v3/camptasca/' + campId + '/afegir',
 			success: function(data) {
 				trHtml = $(data, '.multiple').find('tr');
 			},
@@ -542,7 +537,7 @@ function addField(idTable, campId ) {
 		});
 		if (trHtml == null)
 			return;
-		newTr = $(trHtml);		
+		newTr = trHtml;
 	} else	if (tabla.find('tbody tr').size() == 1 
 			&& tr.is(":hidden") ) {
 		// Si n'hi ha una i està amagada llavors la mostra		
@@ -552,7 +547,7 @@ function addField(idTable, campId ) {
 		return;
 	} else {
 		// clona la darrera fila
-		var newTr = tr.clone();
+		newTr = tr.clone();
 	}
 	// La afegeix a la taula
 	newTr.appendTo(tabla);

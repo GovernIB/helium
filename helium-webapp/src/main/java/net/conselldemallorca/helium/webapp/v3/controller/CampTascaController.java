@@ -56,7 +56,6 @@ public class CampTascaController extends BaseExpedientController {
 			Map<String, Class<?>> campsAddicionalsClasses = new HashMap<String, Class<?>>();
 			List<TascaDadaDto> llistTasca = new ArrayList<TascaDadaDto>();
 			TascaDadaDto tascaDada = TascaFormHelper.getTascaDadaDtoFromExpedientDadaDto(
-					//expedientDadaService.findOnePerInstanciaProces(expedientId, procesId, varCodi)
 					expedientDadaService.getDadaBuida(campId)
 			);
 			if (tascaDada.getError() != null)
@@ -66,7 +65,11 @@ public class CampTascaController extends BaseExpedientController {
 			model.addAttribute("dada", tascaDada);
 			Object command = TascaFormHelper.getCommandForCamps(llistTasca, null, campsAddicionals,
 					campsAddicionalsClasses, false);
-			model.addAttribute("modificarVariableCommand", command);
+			TascaFormHelper.ompleMultiplesBuits(
+					command,
+					llistTasca, 
+					false);
+			model.addAttribute("command", command);
 		} catch (Exception ex) {
 			MissatgesHelper.error(request, ex.getMessage());
 			logger.error("No s'ha pogut obtenir la informació del camp amb id " + campId + ": " + ex.getMessage(), ex);

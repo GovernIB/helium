@@ -119,8 +119,8 @@ public class TascaFormHelper {
 				    					else
 				    						va = obtenirValorTermini(pre_va);
 				    				}
-			    					valorSenseBuits.add(va);
 			    				}
+		    					valorSenseBuits.add(va);
 			    			}
 		    			Object newArray = null;
 		    			if (!valorSenseBuits.isEmpty()) {

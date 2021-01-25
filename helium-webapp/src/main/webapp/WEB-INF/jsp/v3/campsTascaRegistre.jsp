@@ -117,7 +117,7 @@
 				<button id="button_add_table_mult_${varStatusMain.index}"
 					type="button" 
 					class="btn btn-default pull-left btn_afegir"
-					onclick="return addField('table_mult_${varStatusMain.index}', '${dada.campId}')">
+					onclick="return addField('table_mult_${varStatusMain.index}', '${dadaActual.campId}')">
 						<spring:message code='comuns.afegir' />
 				</button>
 			</div>
