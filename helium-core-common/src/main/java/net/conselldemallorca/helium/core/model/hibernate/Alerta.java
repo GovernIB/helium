@@ -111,7 +111,7 @@ public class Alerta implements Serializable, GenericEntity<Long> {
 		this.dataCreacio = dataCreacio;
 	}
 
-	@Column(name="destinatari", nullable=false)
+	@Column(name="destinatari", nullable=true)
 	public String getDestinatari() {
 		return destinatari;
 	}

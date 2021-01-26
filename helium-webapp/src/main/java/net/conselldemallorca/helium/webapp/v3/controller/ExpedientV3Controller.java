@@ -178,7 +178,7 @@ public class ExpedientV3Controller extends BaseExpedientController {
 	private Map<String, String> getNomPersonaPerAlertes(List<AlertaDto> alertes) {
 		Map<String, String> resposta = new HashMap<String, String>();
 		for (AlertaDto alerta: alertes) {
-			if (resposta.get(alerta.getDestinatari()) == null) {
+			if (alerta.getDestinatari() != null && resposta.get(alerta.getDestinatari()) == null) {
 				PersonaDto persona = aplicacioService.findPersonaAmbCodi(alerta.getDestinatari());
 				if (persona != null)
 					resposta.put(persona.getCodi(), persona.getNomSencer());
