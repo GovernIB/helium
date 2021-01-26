@@ -46,8 +46,14 @@ public class ExecucioMassivaServiceBean implements ExecucioMassivaService {
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public void cancelarExecucio(Long id) {
-		delegate.cancelarExecucio(id);
+	public int cancelarExecucioMassiva(Long id) {
+		return delegate.cancelarExecucioMassiva(id);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public void cancelarExecucioMassivaExpedient(Long id) {
+		delegate.cancelarExecucioMassivaExpedient(id);
 	}
 
 	@Override

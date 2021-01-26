@@ -22,7 +22,19 @@ public interface ExecucioMassivaService {
 	
 	public byte[] serialize(Object obj);
 
-	public void cancelarExecucio(Long id) throws ValidacioException;
+	/** Mètode per cancelar totes les execucions massives d'expedients per a una execució massiva
+	 * 
+	 * @param id Identificador de l'execució massiva.
+	 * @return Retorna el número d'execucions massives d'expedients en estat pendent cancel·lats.
+	 */
+	public int cancelarExecucioMassiva(Long id);
+
+	/** Cancel·la l'execució d'una execució massiva d'expedient específica
+	 * 
+	 * @param id
+	 * @throws ValidacioException
+	 */
+	public void cancelarExecucioMassivaExpedient(Long id) throws ValidacioException;
 
 	/** Per obtenir les dades JSON de les execucions massives
 	 * 

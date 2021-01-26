@@ -6,12 +6,12 @@ package net.conselldemallorca.helium.v3.core.repository;
 import java.util.Date;
 import java.util.List;
 
-import net.conselldemallorca.helium.core.model.hibernate.ExecucioMassiva;
-import net.conselldemallorca.helium.core.model.hibernate.ExecucioMassivaExpedient;
-
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+
+import net.conselldemallorca.helium.core.model.hibernate.ExecucioMassiva;
+import net.conselldemallorca.helium.core.model.hibernate.ExecucioMassivaExpedient;
 
 /**
  * Dao pels objectes del tipus ExecucioMassivaExpedient.
@@ -61,4 +61,8 @@ public interface ExecucioMassivaExpedientRepository extends JpaRepository<Execuc
 			"where	e.execucioMassiva.id = :nextMassiu " +
 			"   and	e.dataFi is null ")
 	public Long findNextExecucioMassivaExpedient(@Param("nextMassiu") Long nextMassiu);
+
+	/** Troba totes les execucions massives amb bloqueig per procedir a cancel·lar-les. */
+	@Query("from ExecucioMassivaExpedient e where e.execucioMassiva.id = :emId")
+	public List<ExecucioMassivaExpedient> findByExecucioMassivaId(@Param("emId") Long emId);
 }

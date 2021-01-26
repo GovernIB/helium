@@ -7,6 +7,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -19,6 +21,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import net.conselldemallorca.helium.v3.core.api.service.ExecucioMassivaService;
 import net.conselldemallorca.helium.webapp.mvc.util.BaseController;
+import net.conselldemallorca.helium.webapp.v3.helper.AjaxHelper.AjaxResponse;
 
 /**
  * Controlador per la execucions massives
@@ -71,6 +74,33 @@ public class ExecucionsMassivesController extends BaseController {
 	}
 	
 	/**
+	 * Mètode per cancel·lar les execucions massives de tots els expedients d'una execució massiva.
+	 * @throws Exception 
+	 */
+	@RequestMapping(value = "cancelExecucioMassiva", method = RequestMethod.POST)
+	@ResponseBody
+	public AjaxResponse cancelExecucioMassiva(
+			@RequestParam(value = "id") Long id, 
+			HttpServletRequest request, 
+			HttpServletResponse response, 
+			ModelMap model, 
+			HttpSession session
+		) throws Exception {
+		
+		AjaxResponse ajaxResponse = new AjaxResponse();
+		try {
+			int n = execucioMassivaService.cancelarExecucioMassiva(id);
+			ajaxResponse.setMissatge("L'execució massiva amb id " + id + " s'ha cancel·lat correctament per " + n + " expedients pendents.");
+		} catch (Exception ex) {
+			String errMsg = "No s'han pogut cancel·lar les execucions massives d'expedients per l'execució massiva amb id " + id + ": " + ex.getMessage();
+			logger.error(errMsg, ex);
+			ajaxResponse.setError(true);
+			ajaxResponse.setMissatge(errMsg);			
+		}
+		return ajaxResponse;
+	}
+	
+	/**
 	 * Refresca las barras de progreso de detalle de las acciones masivas
 	 * @throws Exception 
 	 */
@@ -83,6 +113,8 @@ public class ExecucionsMassivesController extends BaseController {
 			ModelMap model, 
 			HttpSession session
 		) throws Exception {
-		execucioMassivaService.cancelarExecucio(idExp);
+		execucioMassivaService.cancelarExecucioMassivaExpedient(idExp);
 	}
+	
+	private static final Log logger = LogFactory.getLog(ExecucionsMassivesController.class);	
 }

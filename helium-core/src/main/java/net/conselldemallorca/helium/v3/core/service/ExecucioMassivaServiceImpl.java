@@ -306,10 +306,43 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 				throw new ValidacioException("S'ha intentat crear una execució massiva sense assignar expedients.");
 		}
 	}
+
+	@Transactional
+	@Override
+	public int cancelarExecucioMassiva(Long id) {
+		int n = 0;
+		try {
+			// Comprova el permís de lectura sobre l'expedient o d'administració sobre Helium
+			ExecucioMassiva execucioMassiva = execucioMassivaRepository.findOne(id);
+			if (execucioMassiva == null)
+				throw new NoTrobatException(ExecucioMassiva.class, id);
+			Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+			if (!UsuariActualHelper.isAdministrador(auth)) {
+				expedientTipusHelper.getExpedientTipusComprovantPermisLectura(execucioMassiva.getExpedientTipus().getId());
+			}
+			// Cancel·la les execucions massives d'expedients pendents
+			List<ExecucioMassivaExpedient> execucionsMassivesExpedients = 
+					execucioMassivaExpedientRepository.findByExecucioMassivaId(id);
+			Date dataFi = new Date();
+			for (ExecucioMassivaExpedient e : execucionsMassivesExpedients) {
+				if (e.getDataFi() == null && ExecucioMassivaEstat.ESTAT_PENDENT.equals(e.getEstat())) {
+					e.setEstat(ExecucioMassivaEstat.ESTAT_CANCELAT);
+					e.setDataFi(dataFi);
+					n++;
+				}
+			}
+			logger.info("S'han cancel·lat " + n + " execucions d'expedients de " + execucionsMassivesExpedients.size() + " execucions per l'execució massiva amb id " + id);
+		} catch (Exception ex) {
+			String errMsg = "No s'han pogut cancel·lar les execucions massives d'expedients per l'execució massiva amb id " + id + ": " + ex.getMessage();
+			logger.error(errMsg, ex);
+			throw new RuntimeException(errMsg, ex);
+		}
+		return n;
+	}
 	
 	@Transactional
 	@Override
-	public void cancelarExecucio(Long id) {
+	public void cancelarExecucioMassivaExpedient(Long id) {
 		ExecucioMassivaExpedient eme = null;
 		try {
 			eme = execucioMassivaExpedientRepository.findOne(id);

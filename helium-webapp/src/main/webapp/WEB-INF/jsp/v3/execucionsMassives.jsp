@@ -280,9 +280,11 @@
 	    		'<div id="mass_' + execucio.id + '" href="#collapse_' + execucio.id + '" data-toggle="collapse" class="panel-heading clicable grup">' +
 	    		'<div class="row pull-left massiu-dades">' +
 	    		'<div class="col-md-2"><span class="desc-limit" title="' + title + '">' + execucio.text + '</span></div>' +
-				'<div class="col-md-2 one-line"><div><span class="mass-badge badge in-line-badge">' + execucio.total + '</span></div> <div class="massiu-dades" id="pbar_' + execucio.id + '"><span class="plabel" id="plabel_' + execucio.id + '">' + execucio.executades + '%</span></div></div>' +
-				'<div class="mass-processat col-md-1">' + execucio.processat + '</div>' + 
-				'<div class="mass-error col-md-1">' + execucio.error + '</div>' + 
+				'<div class="col-md-2 one-line"><div><span class="mass-badge badge in-line-badge">' + execucio.total + '</span></div> ' + 
+												'<div class="massiu-dades" id="pbar_' + execucio.id + '"><span class="plabel" id="plabel_' + execucio.id + '">' + execucio.executades + '%</span></div> ' + 
+												'<div class="mass-cancelar" style="position: absolute; right: -10px; display: ' + (execucio.executades == 100 ? 'none' : 'inline') + '"><a id="mass_cancelar_' + execucio.id + '" class="btn btn-default btn-xs" data-id="' + execucio.id + '" title="<spring:message code="comu.boto.cancelar"/>"><span class="fa fa-stop text-danger"></span></a></div></div>' +
+				'<div class="mass-processat col-md-1 text-right">' + execucio.processat + '</div>' + 
+				'<div class="mass-error col-md-1 text-right">' + execucio.error + '</div>' + 
 				'<div class="col-md-2">' + execucio.data + '</div>' + 
 				'<div class="mass-data-fi col-md-2">' + (execucio.dataFi != undefined ? execucio.dataFi : '') + '</div>' +
 				'<div class="col-md-1">' + execucio.usuari + '</div>' + 
@@ -365,8 +367,39 @@
 		
 		function cancelarExpedientMassiveAct(url,id) {
 			$.post(url, { idExp: id }, function(data){
-				refreshExecucionsMassives();
+				carregaExecucionsMassives();
 			});
+		}
+		
+		function cancelarExecucioMassiva(id) {
+			// Confirmació
+			if (!confirm("<spring:message code="expedient.tramitacio.massiva.cancelar.confirm"/>"))
+				return false;
+
+			webutilEsborrarAlertes();
+			$a = $('#mass_cancelar_' + id);
+			$a.attr('disabled', 'disabled');
+			$.ajax({
+	            url : '<c:url value="/v3/execucionsMassives/cancelExecucioMassiva"/>', 
+	            type : 'POST',
+	            data : {id : id},
+	            dataType : 'json',
+	            success : function(data) {
+	            	if (data.error) {
+	            		webutilAlertaError(data.missatge);
+	            	} else {
+	            		webutilAlertaSuccess(data.missatge);
+	            		carregaExecucionsMassives(page, true)
+	            	}
+	            },
+	            error: function (request, status, error) {
+	            	// Mostra l'error
+	            	webutilAlertaError(request.responseText);
+	            },
+	            complete: function() {
+					$a.removeAttr('disabled');
+	            }
+	        });	
 		}
 		
 		function carregaExecucionsMassives(numResultats,header) {
@@ -450,6 +483,11 @@
 							createBar("pbar_" + execucio.id, execucio.executades);
 						}
 						
+						$('.mass-cancelar a').click(function(event) {
+							cancelarExecucioMassiva($(this).data('id'));
+							event.preventDefault();
+							return false;
+						});
 					    $("#accordio_massiva .panel-heading").click(function() {
 					    	$(this).find(".icona-collapse").toggleClass('fa-chevron-down');
 					    	$(this).find(".icona-collapse").toggleClass('fa-chevron-up');
@@ -504,7 +542,11 @@
 			$('#mass_' + execucio.id + ' .massiu-dades .mass-processat').text(execucio.processat);
 			$('#mass_' + execucio.id + ' .massiu-dades .mass-error').text(execucio.error);
 			$('#mass_' + execucio.id + ' .massiu-dades .mass-data-fi').text(execucio.dataFi != undefined ? execucio.dataFi : '');
-
+			if (execucio.executades == 100)
+				$('#mass_' + execucio.id + ' .mass-cancelar').hide();
+			else
+				$('#mass_' + execucio.id + ' .mass-cancelar').show();
+			
 			createBar("pbar_" + execucio.id, execucio.executades);
 
 			$(".msg-error").unbind();
