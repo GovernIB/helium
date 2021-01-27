@@ -149,6 +149,10 @@ public class ExpedientTipus  implements Serializable, GenericEntity<Long> {
 	private String distribucioCodiProcediment;
 	@MaxLength(20)
 	private String distribucioCodiAssumpte;
+	/** Indica si processar automàticament l'anotació de registre associada. */
+	private boolean distribucioProcesAuto;
+	/** Indica si s'ha d'aplicar la integració amb SISTRA quan es processi l'anotació. */
+	private boolean distribucioSistra;
 
 	@NotNull
 	private Entorn entorn;
@@ -552,6 +556,22 @@ public class ExpedientTipus  implements Serializable, GenericEntity<Long> {
 		this.distribucioActiu = distribucioActiu;
 	}
 
+	@Column(name="distr_proces_auto")
+	public boolean isDistribucioProcesAuto() {
+		return distribucioProcesAuto;
+	}
+	public void setDistribucioProcesAuto(boolean distribucioProcesAuto) {
+		this.distribucioProcesAuto = distribucioProcesAuto;
+	}
+	
+	@Column(name="distr_sistra")
+	public boolean isDistribucioSistra() {
+		return distribucioSistra;
+	}
+	public void setDistribucioSistra(boolean distribucioSistra) {
+		this.distribucioSistra = distribucioSistra;
+	}
+	
 	@Column(name="distr_codi_procediment", length=200)
 	public String getDistribucioCodiProcediment() {
 		return distribucioCodiProcediment;

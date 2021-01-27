@@ -24,6 +24,8 @@
 				<div id="inputs_integracioDistribucio" style="display:${expedientTipusIntegracioDistribucioCommand.actiu? 'inline' : 'none'}">
 					<hel:inputText name="codiProcediment" textKey="expedient.tipus.integracio.distribucio.codiProcediment" />
 					<hel:inputText name="codiAssumpte" textKey="expedient.tipus.integracio.distribucio.codiAssumpte" />
+					<hel:inputCheckbox name="procesAuto" textKey="expedient.tipus.integracio.distribucio.procesAuto" info="expedient.tipus.integracio.distribucio.procesAuto.comment"/>
+					<hel:inputCheckbox name="sistra" textKey="expedient.tipus.integracio.distribucio.sistra" info="expedient.tipus.integracio.distribucio.sistra.comment"/>
 				</div>
 			</div>
 			

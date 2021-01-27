@@ -84,6 +84,8 @@ public class ExpedientTipusDto extends ControlPermisosDto implements Serializabl
 	private boolean distribucioActiu;
 	private String distribucioCodiProcediment;
 	private String distribucioCodiAssumpte;
+	private boolean distribucioProcesAuto;
+	private boolean distribucioSistra;
 
 
 	public Long getId() {
@@ -433,6 +435,18 @@ public class ExpedientTipusDto extends ControlPermisosDto implements Serializabl
 	}
 	public void setDistribucioCodiAssumpte(String distribucioCodiAssumpte) {
 		this.distribucioCodiAssumpte = distribucioCodiAssumpte;
+	}
+	public boolean isDistribucioProcesAuto() {
+		return distribucioProcesAuto;
+	}
+	public void setDistribucioProcesAuto(boolean distribucioProcesAuto) {
+		this.distribucioProcesAuto = distribucioProcesAuto;
+	}
+	public boolean isDistribucioSistra() {
+		return distribucioSistra;
+	}
+	public void setDistribucioSistra(boolean distribucioSistra) {
+		this.distribucioSistra = distribucioSistra;
 	}
 	public int hashCode() {
 		final int prime = 31;

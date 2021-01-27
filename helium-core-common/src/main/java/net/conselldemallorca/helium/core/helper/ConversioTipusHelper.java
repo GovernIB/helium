@@ -326,6 +326,8 @@ public class ConversioTipusHelper {
 						target.setDistribucioActiu(source.isDistribucioActiu());
 						target.setDistribucioCodiProcediment(source.getDistribucioCodiProcediment());
 						target.setDistribucioCodiAssumpte(source.getDistribucioCodiAssumpte());
+						target.setDistribucioProcesAuto(source.isDistribucioProcesAuto());
+						target.setDistribucioSistra(source.isDistribucioSistra());
 						
 						return target;
 					}
@@ -402,6 +404,8 @@ public class ConversioTipusHelper {
 						target.setDistribucioActiu(source.isDistribucioActiu());
 						target.setDistribucioCodiProcediment(source.getDistribucioCodiProcediment());
 						target.setDistribucioCodiAssumpte(source.getDistribucioCodiAssumpte());
+						target.setDistribucioProcesAuto(source.isDistribucioProcesAuto());
+						target.setDistribucioSistra(source.isDistribucioSistra());
 						return target;
 					}
 				});

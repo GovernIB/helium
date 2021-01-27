@@ -392,20 +392,26 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 			Long expedientTipusId, 
 			boolean actiu, 
 			String codiProcediment,
-			String codiAssumpte) {
+			String codiAssumpte,
+			boolean procesAuto,
+			boolean sistra) {
 		logger.debug(
 				"Modificant tipus d'expedient amb dades d'integracio amb distribucio externs (" +
 				"entornId=" + entornId + ", " +
 				"expedientTipus=" + expedientTipusId + ", " +
 				"actiu=" + actiu + ", " +
 				"codiProcediment=" + codiProcediment + ", " +
-				"codiAssumpte=" + codiAssumpte + ")");
+				"codiAssumpte=" + codiAssumpte + ", " +
+				"procesAuto=" + procesAuto + ", " +
+				"sistra=" + sistra + ")");
 		
 		ExpedientTipus entity = expedientTipusHelper.getExpedientTipusComprovantPermisDisseny(expedientTipusId);
 		
 		entity.setDistribucioActiu(actiu);
 		entity.setDistribucioCodiProcediment(codiProcediment);
 		entity.setDistribucioCodiAssumpte(codiAssumpte);
+		entity.setDistribucioProcesAuto(procesAuto);
+		entity.setDistribucioSistra(sistra);
 
 		return conversioTipusHelper.convertir(
 				expedientTipusRepository.save(entity),
@@ -551,6 +557,8 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		exportacio.setDistribucioActiu(tipus.isDistribucioActiu());
 		exportacio.setDistribucioCodiAssumpte(tipus.getDistribucioCodiAssumpte());
 		exportacio.setDistribucioCodiProcediment(tipus.getDistribucioCodiProcediment());
+		exportacio.setDistribucioProcesAuto(tipus.isDistribucioProcesAuto());
+		exportacio.setDistribucioSistra(tipus.isDistribucioSistra());
 		// Integració amb NOTIB
 		exportacio.setNotibActiu(tipus.getNotibActiu());
 		exportacio.setNotibEmisor(tipus.getNotibEmisor());
@@ -887,6 +895,8 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		expedientTipus.setDistribucioActiu(importacio.isDistribucioActiu());
 		expedientTipus.setDistribucioCodiAssumpte(importacio.getDistribucioCodiAssumpte());
 		expedientTipus.setDistribucioCodiProcediment(importacio.getDistribucioCodiProcediment());
+		expedientTipus.setDistribucioProcesAuto(importacio.isDistribucioProcesAuto());
+		expedientTipus.setDistribucioSistra(importacio.isDistribucioSistra());
 		// Integració amb NOTIB
 		expedientTipus.setNotibActiu(importacio.getNotibActiu());
 		expedientTipus.setNotibEmisor(importacio.getNotibEmisor());

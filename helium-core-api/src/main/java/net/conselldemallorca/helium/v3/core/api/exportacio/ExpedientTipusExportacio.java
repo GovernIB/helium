@@ -65,6 +65,8 @@ public class ExpedientTipusExportacio implements Serializable {
 	private boolean distribucioActiu;
 	private String distribucioCodiProcediment;
 	private String distribucioCodiAssumpte;
+	private boolean distribucioProcesAuto;
+	private boolean distribucioSistra;
 	
 	// Integració amb NOTIB
 	private Boolean notibActiu;
@@ -311,6 +313,18 @@ public class ExpedientTipusExportacio implements Serializable {
 	}
 	public void setDistribucioCodiAssumpte(String distribucioCodiAssumpte) {
 		this.distribucioCodiAssumpte = distribucioCodiAssumpte;
+	}
+	public boolean isDistribucioProcesAuto() {
+		return distribucioProcesAuto;
+	}
+	public void setDistribucioProcesAuto(boolean distribucioProcesAuto) {
+		this.distribucioProcesAuto = distribucioProcesAuto;
+	}
+	public boolean isDistribucioSistra() {
+		return distribucioSistra;
+	}
+	public void setDistribucioSistra(boolean distribucioSistra) {
+		this.distribucioSistra = distribucioSistra;
 	}
 	// Integració NOTIB
 	public Boolean getNotibActiu() {

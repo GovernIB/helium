@@ -23,6 +23,8 @@ public class ExpedientTipusIntegracioDistribucioCommand {
 	private String codiProcediment;
 	@Size(max = 20, groups = {Modificacio.class})
 	private String codiAssumpte;
+	private boolean procesAuto;
+	private boolean sistra;
 
 	public Long getId() {
 		return id;
@@ -49,5 +51,18 @@ public class ExpedientTipusIntegracioDistribucioCommand {
 		this.codiAssumpte = codiAssumpte;
 	}
 	
+	public boolean isProcesAuto() {
+		return procesAuto;
+	}
+	public void setProcesAuto(boolean procesAuto) {
+		this.procesAuto = procesAuto;
+	}
+	public boolean isSistra() {
+		return sistra;
+	}
+	public void setSistra(boolean sistra) {
+		this.sistra = sistra;
+	}
+
 	public interface Modificacio {}
 }

@@ -109,6 +109,8 @@ public interface ExpedientTipusService {
 	 * @param expedientTipusId
 	 * @param actiu
 	 * @param codiProcediment
+	 * @param procesAuto Indica si processar automàticament
+	 * @param sistra Indica si aplicar la integració i el mapeig de SISTRA
 	 * 
 	 * @return El tipus d'expedient modificat.
 	 * 
@@ -122,7 +124,9 @@ public interface ExpedientTipusService {
 			Long expedientTipusId, 
 			boolean actiu, 
 			String codiProcediment,
-			String codiAssumpte);	
+			String codiAssumpte,
+			boolean procesAuto,
+			boolean sistra);	
 
 	/** 
 	 * Modifica les dades del tipus d'expedient referents amb la integració amb els tràmits de 
