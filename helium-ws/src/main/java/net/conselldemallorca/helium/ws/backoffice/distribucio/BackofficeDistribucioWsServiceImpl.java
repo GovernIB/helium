@@ -12,7 +12,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import es.caib.distribucio.ws.backofficeintegracio.AnotacioRegistreEntrada;
 import net.conselldemallorca.helium.core.helper.ConversioTipusHelper;
 import net.conselldemallorca.helium.core.helper.DistribucioHelper;
 import net.conselldemallorca.helium.core.helper.MonitorIntegracioHelper;
@@ -75,16 +74,80 @@ public class BackofficeDistribucioWsServiceImpl implements Backoffice {
 					anotacio = anotacions.get(0);
 				}
 				if (anotacio == null) {
+					
+					distribucioHelper.processarAnotacio(idWs);
+					
+					/*
+					// begin transaction
+					
 					// si la petició no està a BBDD consulta la petició i la guarda a BBDD
 					AnotacioRegistreEntrada anotacioRegistreEntrada = distribucioHelper.consulta(idWs);
+
 					// Guarda l'anotació
-					distribucioHelper.guardarAnotacio(id, anotacioRegistreEntrada);
-					// Notifica a Distribucio que s'ha rebut correctament
-					distribucioHelper.canviEstat(
-							idWs, 
-							es.caib.distribucio.ws.backofficeintegracio.Estat.REBUDA,
-							"Petició rebuda a Helium.");
+					Anotacio anotacioCreada = distribucioHelper.guardarAnotacio(id, anotacioRegistreEntrada);
+					// Comprova si l'anotació s'ha associat amb un tipus d'expedient amb processament automàtic
+					ExpedientTipus expedientTipus = anotacioCreada.getExpedientTipus();
+					if (expedientTipus != null 
+							&& expedientTipus.isDistribucioProcesAuto()) {
+						if (expedientTipus.isDistribucioSistra()) {
+							
+						}
+						// Crear l'expedient
+						Expedient expedient = expedientHelper.iniciar(
+								expedientTipus.getEntorn().getId(), //entornId
+								null, //usuari, 
+								expedientTipus.getId(), //expedientTipusId, 
+								null, //definicioProcesId,
+								null, //any, 
+								null, //numero, 
+								null, //titol, 
+								null, //registreNumero, 
+								null, //registreData, 
+								null, //unitatAdministrativa, 
+								null, //idioma, 
+								false, //autenticat, 
+								null, //tramitadorNif, 
+								null, //tramitadorNom, 
+								null, //interessatNif, 
+								null, //interessatNom, 
+								null, //representantNif, 
+								null, //representantNom, 
+								false, //avisosHabilitats, 
+								null, //avisosEmail, 
+								null, //avisosMobil, 
+								false, //notificacioTelematicaHabilitada, 
+								null, //variables, 
+								null, //transitionName, 
+								IniciadorTipusDto.INTERN, //IniciadorTipus 
+								null, //iniciadorCodi, 
+								null, //responsableCodi, 
+								null, //documents, 
+								null); //adjunts);
+						// Incorporporar l'anotació a l'expedient
+						anotacioService.incorporarExpedient(
+								anotacioCreada.getId(), 
+								expedientTipus.getId(), 
+								expedient.getId(), 
+								true);
+						// Canvi d'estat a processada
+						// Notifica a Distribucio que s'ha rebut correctament
+						distribucioHelper.canviEstat(
+								idWs, 
+								es.caib.distribucio.ws.backofficeintegracio.Estat.PROCESSADA,
+								"Petició processada a Helium.");
+					} else {
+						// Notifica a Distribucio que s'ha rebut correctament
+						distribucioHelper.canviEstat(
+								idWs, 
+								es.caib.distribucio.ws.backofficeintegracio.Estat.REBUDA,
+								"Petició rebuda a Helium.");
+						
+					}
 					logger.info("Rebuda correctament la petició d'anotació de registre amb id de Distribucio =" + id);
+					
+					// commit transaction
+					 */
+					
 				} else {
 					// Si la petició ja existeix torna a comunicar el seu estat
 					es.caib.distribucio.ws.backofficeintegracio.Estat estat = es.caib.distribucio.ws.backofficeintegracio.Estat.PENDENT;

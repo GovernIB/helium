@@ -262,7 +262,8 @@ public class AnotacioController extends BaseExpedientController {
 						command.getId(),
 						command.getExpedientTipusId(),
 						command.getExpedientId(),
-						command.isAssociarInteressats());
+						command.isAssociarInteressats(),
+						true);
 				MissatgesHelper.success(
 						request, 
 						getMessage(

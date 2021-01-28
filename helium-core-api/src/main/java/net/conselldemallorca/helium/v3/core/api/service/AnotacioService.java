@@ -55,8 +55,15 @@ public interface AnotacioService {
 	 * @param expedientTipusId
 	 * @param expedientId
 	 * @param associarInteressats Indica si incloure els interessats als interessats de l'expedient.
+	 * @param comprovarPermis Indica si comprovar o no permisos de l'usuari actual ja que pot ser que la 
+	 * 			incorporació sigui automàtica des de la recepció de l'anotació.
 	 */
-	public AnotacioDto incorporarExpedient(Long anotacioId, Long expedientTipusId, Long expedientId, boolean associarInteressats);
+	public AnotacioDto incorporarExpedient(
+			Long anotacioId, 
+			Long expedientTipusId, 
+			Long expedientId, 
+			boolean associarInteressats,
+			boolean comprovarPermis);
 	
 	/**
 	 * Esborra una petició d'anotació de registre de Distribucio

@@ -52,6 +52,14 @@ public interface MapeigSistraRepository extends JpaRepository<MapeigSistra, Long
 			@Param("tipus") TipusMapeig tipus,
 			Pageable pageable);
 
+	@Query(	"from MapeigSistra m " +
+			"where " +
+			"   m.expedientTipus.id = :expedientTipusId " +
+			"   and m.tipus = :tipus ")
+	List<MapeigSistra> findByFiltre(
+			@Param("expedientTipusId") Long expedientTipusId,
+			@Param("tipus") TipusMapeig tipus);
+	
 	MapeigSistra findByExpedientTipusAndCodiHelium(ExpedientTipus expedientTipus, String codiHelium);
 
 	MapeigSistra findByExpedientTipusAndCodiSistra(ExpedientTipus expedientTipus, String codiSistra);

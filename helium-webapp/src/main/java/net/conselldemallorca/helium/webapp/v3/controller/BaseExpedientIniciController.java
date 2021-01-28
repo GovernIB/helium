@@ -93,7 +93,8 @@ public class BaseExpedientIniciController extends BaseExpedientController {
 						anotacioAcceptarCommand.getId(),
 						iniciat.getTipus().getId(),
 						iniciat.getId(),
-						anotacioAcceptarCommand.isAssociarInteressats());
+						anotacioAcceptarCommand.isAssociarInteressats(),
+						true);
 				MissatgesHelper.success(
 						request, 
 						getMessage(	request, 

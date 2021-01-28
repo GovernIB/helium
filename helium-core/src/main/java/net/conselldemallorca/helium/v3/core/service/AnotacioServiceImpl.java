@@ -315,16 +315,20 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 			Long anotacioId, 
 			Long expedientTipusId, 
 			Long expedientId, 
-			boolean associarInteressats) {
+			boolean associarInteressats,
+			boolean comprovarPermis) {
 		logger.debug(
 				"Incorporant la petició d'anotació de registre a un expedient(" +
 				"anotacioId=" + anotacioId + ", " +
 				"expedientTipusId=" + expedientTipusId + ", " +
-				"expedientId=" + expedientId + ")");
+				"expedientId=" + expedientId + ", " +
+				"associarInteressats=" + associarInteressats + ", " +
+				"comprovarPermis=" + comprovarPermis + ")");
 				
 		Anotacio anotacio = anotacioRepository.findOne(anotacioId);
 		// Comprova els permisos
-		this.comprovaPermisAccio(anotacio);
+		if (comprovarPermis)
+			this.comprovaPermisAccio(anotacio);
 		// Comprova que està pendent
 		if (! AnotacioEstatEnumDto.PENDENT.equals(anotacio.getEstat())) {
 			throw new RuntimeException("L'anotació " + anotacio.getIdentificador() + " no es pot actualitzar perquè està en estat " + anotacio.getEstat());

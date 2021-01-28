@@ -3,15 +3,21 @@
  */
 package net.conselldemallorca.helium.core.helper;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import es.caib.distribucio.ws.backofficeintegracio.Annex;
 import es.caib.distribucio.ws.backofficeintegracio.AnotacioRegistreEntrada;
+import es.caib.distribucio.ws.backofficeintegracio.AnotacioRegistreId;
 import es.caib.distribucio.ws.backofficeintegracio.BackofficeIntegracio;
 import es.caib.distribucio.ws.backofficeintegracio.Estat;
 import es.caib.distribucio.ws.backofficeintegracio.Interessat;
@@ -24,22 +30,31 @@ import net.conselldemallorca.helium.core.model.hibernate.AnotacioAnnex;
 import net.conselldemallorca.helium.core.model.hibernate.AnotacioInteressat;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
+import net.conselldemallorca.helium.core.model.hibernate.MapeigSistra;
+import net.conselldemallorca.helium.core.model.hibernate.MapeigSistra.TipusMapeig;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.integracio.plugins.SistemaExternException;
 import net.conselldemallorca.helium.v3.core.api.dto.AnotacioEstatEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuFirmaPerfilEnumDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DadesDocumentDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto.IniciadorTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.IntegracioAccioTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.IntegracioParametreDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NtiEstadoElaboracionEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NtiOrigenEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NtiTipoDocumentalEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NtiTipoFirmaEnumDto;
+import net.conselldemallorca.helium.v3.core.api.service.AnotacioService;
+import net.conselldemallorca.helium.v3.core.api.service.DissenyService;
 import net.conselldemallorca.helium.v3.core.repository.AnotacioAnnexRepository;
 import net.conselldemallorca.helium.v3.core.repository.AnotacioInteressatRepository;
 import net.conselldemallorca.helium.v3.core.repository.AnotacioRepository;
+import net.conselldemallorca.helium.v3.core.repository.DocumentRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientTipusRepository;
-import net.conselldemallorca.helium.ws.backoffice.distribucio.AnotacioRegistreId;
+import net.conselldemallorca.helium.v3.core.repository.MapeigSistraRepository;
 
 /**
  * Mètodes comuns per cridar WebService de Distribucio
@@ -50,21 +65,30 @@ import net.conselldemallorca.helium.ws.backoffice.distribucio.AnotacioRegistreId
 public class DistribucioHelper {
 
 	@Autowired
-	AnotacioRepository anotacioRepository;
+	private AnotacioRepository anotacioRepository;
 	@Autowired
-	AnotacioAnnexRepository anotacioAnnexRepository;
+	private AnotacioAnnexRepository anotacioAnnexRepository;
 	@Autowired
-	AnotacioInteressatRepository anotacioInteressatRepository;
+	private AnotacioInteressatRepository anotacioInteressatRepository;
 	@Autowired
-	ExpedientTipusRepository expedientTipusRepository;
+	private ExpedientTipusRepository expedientTipusRepository;
 	@Autowired
-	ExpedientRepository expedientRepository;
+	private ExpedientRepository expedientRepository;
+	@Autowired
+	private MapeigSistraRepository mapeigSistraRepository;
+	@Autowired
+	private DocumentRepository documentRepository;
+	
+	
+	@Autowired
+	private ExpedientHelper expedientHelper;
+	@Autowired
+	private AnotacioService anotacioService;
+	@Autowired
+	private DissenyService dissenyService;
 	
 	@Autowired
 	private MonitorIntegracioHelper monitorIntegracioHelper;
-
-
-	/// Invocació al WS
 	
 	/** Referència al client del WS de Distribució */
 	private BackofficeIntegracio wsClient = null;
@@ -179,7 +203,7 @@ public class DistribucioHelper {
 	 * @param anotacio
 	 */
 	@Transactional
-	public Anotacio guardarAnotacio(AnotacioRegistreId id, AnotacioRegistreEntrada anotacioEntrada) {
+	public Anotacio guardarAnotacio(AnotacioRegistreId idWs, AnotacioRegistreEntrada anotacioEntrada) {
 		
 		ExpedientTipus expedientTipus = null;
 		Expedient expedient = null;
@@ -198,8 +222,8 @@ public class DistribucioHelper {
 		}
 		// Crea l'anotació
 		Anotacio anotacioEntity = Anotacio.getBuilder(
-				id.getIndetificador(),
-				id.getClauAcces(),
+				idWs.getIndetificador(),
+				idWs.getClauAcces(),
 				new Date(),
 				AnotacioEstatEnumDto.PENDENT,
 				anotacioEntrada.getAssumpteTipusCodi(),
@@ -393,4 +417,155 @@ public class DistribucioHelper {
 		}
 		return ntiOrigenEnumDto;
 	}
+
+	/** Processa la petició dins d'una mateixa transacció per consultar l'anotació, guardar-la, processar-la
+	 * automàticament si cal i comunicar l'esta.
+	 * 
+	 * @param idWs
+	 */
+	@Transactional
+	public void processarAnotacio(AnotacioRegistreId idWs) throws Exception{
+
+		// si la petició no està a BBDD consulta la petició i la guarda a BBDD
+		AnotacioRegistreEntrada anotacioRegistreEntrada = this.consulta(idWs);
+
+		// Guarda l'anotació
+		Anotacio anotacioCreada = this.guardarAnotacio(idWs, anotacioRegistreEntrada);
+
+		// Comprova si l'anotació s'ha associat amb un tipus d'expedient amb processament automàtic
+		ExpedientTipus expedientTipus = anotacioCreada.getExpedientTipus();
+		if (expedientTipus != null 
+				&& expedientTipus.isDistribucioProcesAuto()) {
+			Map<String, Object> variables = null;
+			Map<String, DadesDocumentDto> documents = null;
+			List<DadesDocumentDto> adjunts = null;
+			
+			if (expedientTipus.isDistribucioSistra()) {
+				// Extreu documents i variables segons el mapeig sistra
+				variables = new HashMap<String, Object>();
+				documents = this.getDocumentsInicials(expedientTipus, anotacioCreada);
+				adjunts = new ArrayList<DadesDocumentDto>();
+			}
+			// Crear l'expedient
+			Expedient expedient = expedientHelper.iniciar(
+					expedientTipus.getEntorn().getId(), //entornId
+					null, //usuari, 
+					expedientTipus.getId(), //expedientTipusId, 
+					null, //definicioProcesId,
+					null, //any, 
+					null, //numero, 
+					null, //titol, 
+					null, //registreNumero, 
+					null, //registreData, 
+					null, //unitatAdministrativa, 
+					null, //idioma, 
+					false, //autenticat, 
+					null, //tramitadorNif, 
+					null, //tramitadorNom, 
+					null, //interessatNif, 
+					null, //interessatNom, 
+					null, //representantNif, 
+					null, //representantNom, 
+					false, //avisosHabilitats, 
+					null, //avisosEmail, 
+					null, //avisosMobil, 
+					false, //notificacioTelematicaHabilitada, 
+					variables, //variables, 
+					null, //transitionName, 
+					IniciadorTipusDto.INTERN, //IniciadorTipus 
+					null, //iniciadorCodi, 
+					null, //responsableCodi, 
+					documents, //documents, 
+					adjunts); //adjunts);
+			
+			// Incorporporar l'anotació a l'expedient
+			anotacioService.incorporarExpedient(
+					anotacioCreada.getId(), 
+					expedientTipus.getId(), 
+					expedient.getId(),
+					true,
+					false);
+			
+			// Canvi d'estat a processada
+			// Notifica a Distribucio que s'ha rebut correctament
+			this.canviEstat(
+					idWs, 
+					es.caib.distribucio.ws.backofficeintegracio.Estat.PROCESSADA,
+					"Petició processada a Helium.");
+		} else {
+			// Notifica a Distribucio que s'ha rebut correctament
+			this.canviEstat(
+					idWs, 
+					es.caib.distribucio.ws.backofficeintegracio.Estat.REBUDA,
+					"Petició rebuda a Helium.");
+			
+		}
+		logger.info("Rebuda correctament la petició d'anotació de registre amb id de Distribucio =" + idWs);
+	}
+
+	private Map<String, DadesDocumentDto> getDocumentsInicials(ExpedientTipus expedientTipus, Anotacio anotacio) {
+		
+		List<MapeigSistra> mapeigsSistra = mapeigSistraRepository.findByFiltre(expedientTipus.getId(), TipusMapeig.Document);
+		if (mapeigsSistra.size() == 0)
+			return null;
+		boolean trobat = false;
+		Map<String, DadesDocumentDto> resposta = new HashMap<String, DadesDocumentDto>();
+		List<DocumentDto> documents = getDocuments(expedientTipus);
+		
+		for (MapeigSistra mapeig : mapeigsSistra){
+			trobat = true;
+			DocumentDto docHelium = null;
+			for (DocumentDto document : documents){
+				if (document.getCodi().equalsIgnoreCase(mapeig.getCodiHelium())){
+					docHelium = document;
+					break;
+				}
+			}
+			try {
+				if (docHelium != null) {
+					DadesDocumentDto document = documentSistra(anotacio, mapeig.getCodiSistra(), docHelium);
+					if (document != null) {
+						resposta.put(mapeig.getCodiHelium(), document);
+					}
+				}
+			} catch (Exception ex) {
+				logger.error("Error llegint dades del document de SISTRA", ex);
+			}
+		}
+		if (trobat)
+			return resposta;
+		else
+			return null;
+		
+	}
+	
+	private DadesDocumentDto documentSistra(
+			Anotacio anotacio,
+			String varSistra,
+			DocumentDto varHelium) throws Exception {
+		DadesDocumentDto resposta = null;
+		for (AnotacioAnnex document: anotacio.getAnnexos()) {
+			if (varSistra.equalsIgnoreCase(document.getTitol())) {
+				resposta = new DadesDocumentDto();
+				resposta.setIdDocument(varHelium.getId());
+				resposta.setCodi(varHelium.getCodi());
+				resposta.setData(anotacio.getData());
+				resposta.setArxiuNom(document.getNom());
+				resposta.setArxiuContingut(document.getContingut());
+				break;
+			}
+		}
+		return resposta;
+	}
+	private List<DocumentDto> getDocuments(ExpedientTipus expedientTipus) {
+		DefinicioProcesDto definicioProces = dissenyService.findDarreraDefinicioProcesForExpedientTipus(expedientTipus.getId());
+		List<DocumentDto> documents = dissenyService.findDocumentsOrdenatsPerCodi(
+				expedientTipus.getId(), 
+				definicioProces != null ? definicioProces.getId() : null, 
+				true);
+		return documents;
+	}
+
+
+	private static final Logger logger = LoggerFactory.getLogger(DistribucioHelper.class);
 }
