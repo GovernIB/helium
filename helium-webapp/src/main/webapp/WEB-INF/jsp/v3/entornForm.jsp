@@ -161,10 +161,13 @@
 										font-size: larger;
 										text-align: right;
 										left: 15px;
-										height: 75px;
+										height: 100px;
 										padding-top: 10px;">
 							<span class="fa fa-cubes"></span> <span class="text-limit w475">${entornActual.nom }</span>
 							<br/><span class="fa fa-cube"></span> Exemple
+							<br/><div class="btn-group pull-right">
+								<a class="btn btn-primary">Expedients</a>
+							</div>
 						</div>
 		 			</div>
 				</fieldset>

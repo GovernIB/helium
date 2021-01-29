@@ -3,6 +3,8 @@
  */
 package net.conselldemallorca.helium.core.helper;
 
+import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -15,6 +17,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import es.caib.distribucio.backoffice.utils.sistra.BackofficeSistra2Utils;
+import es.caib.distribucio.backoffice.utils.sistra.BackofficeSistra2UtilsImpl;
+import es.caib.distribucio.backoffice.utils.sistra.formulario.Campo;
+import es.caib.distribucio.backoffice.utils.sistra.formulario.Formulario;
+import es.caib.distribucio.backoffice.utils.sistra.formulario.Valor;
 import es.caib.distribucio.ws.backofficeintegracio.Annex;
 import es.caib.distribucio.ws.backofficeintegracio.AnotacioRegistreEntrada;
 import es.caib.distribucio.ws.backofficeintegracio.AnotacioRegistreId;
@@ -28,6 +35,10 @@ import es.caib.distribucio.ws.client.BackofficeIntegracioWsClientFactory;
 import net.conselldemallorca.helium.core.model.hibernate.Anotacio;
 import net.conselldemallorca.helium.core.model.hibernate.AnotacioAnnex;
 import net.conselldemallorca.helium.core.model.hibernate.AnotacioInteressat;
+import net.conselldemallorca.helium.core.model.hibernate.Camp;
+import net.conselldemallorca.helium.core.model.hibernate.Camp.TipusCamp;
+import net.conselldemallorca.helium.core.model.hibernate.CampRegistre;
+import net.conselldemallorca.helium.core.model.hibernate.CampTasca;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.hibernate.MapeigSistra;
@@ -40,6 +51,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.DadesDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto.IniciadorTipusDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.IntegracioAccioTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.IntegracioParametreDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NtiEstadoElaboracionEnumDto;
@@ -48,10 +60,11 @@ import net.conselldemallorca.helium.v3.core.api.dto.NtiTipoDocumentalEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NtiTipoFirmaEnumDto;
 import net.conselldemallorca.helium.v3.core.api.service.AnotacioService;
 import net.conselldemallorca.helium.v3.core.api.service.DissenyService;
+import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
 import net.conselldemallorca.helium.v3.core.repository.AnotacioAnnexRepository;
 import net.conselldemallorca.helium.v3.core.repository.AnotacioInteressatRepository;
 import net.conselldemallorca.helium.v3.core.repository.AnotacioRepository;
-import net.conselldemallorca.helium.v3.core.repository.DocumentRepository;
+import net.conselldemallorca.helium.v3.core.repository.CampTascaRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientTipusRepository;
 import net.conselldemallorca.helium.v3.core.repository.MapeigSistraRepository;
@@ -75,9 +88,9 @@ public class DistribucioHelper {
 	@Autowired
 	private ExpedientRepository expedientRepository;
 	@Autowired
-	private MapeigSistraRepository mapeigSistraRepository;
+	private CampTascaRepository campTascaRepository;
 	@Autowired
-	private DocumentRepository documentRepository;
+	private MapeigSistraRepository mapeigSistraRepository;
 	
 	
 	@Autowired
@@ -86,13 +99,16 @@ public class DistribucioHelper {
 	private AnotacioService anotacioService;
 	@Autowired
 	private DissenyService dissenyService;
+	@Autowired
+	private ExpedientService expedientService;
+	
 	
 	@Autowired
 	private MonitorIntegracioHelper monitorIntegracioHelper;
 	
 	/** Referència al client del WS de Distribució */
 	private BackofficeIntegracio wsClient = null;
-	
+		
 	/** Mètode per obtenir la instància del client del WS de Distribucio.
 	 * 
 	 * @return
@@ -442,9 +458,9 @@ public class DistribucioHelper {
 			
 			if (expedientTipus.isDistribucioSistra()) {
 				// Extreu documents i variables segons el mapeig sistra
-				variables = new HashMap<String, Object>();
+				variables = this.getDadesInicials(expedientTipus, anotacioCreada);
 				documents = this.getDocumentsInicials(expedientTipus, anotacioCreada);
-				adjunts = new ArrayList<DadesDocumentDto>();
+				adjunts = this.getDocumentsAdjunts(expedientTipus, anotacioCreada);
 			}
 			// Crear l'expedient
 			Expedient expedient = expedientHelper.iniciar(
@@ -501,6 +517,155 @@ public class DistribucioHelper {
 			
 		}
 		logger.info("Rebuda correctament la petició d'anotació de registre amb id de Distribucio =" + idWs);
+	}
+
+	/** S'accepten documents xml tècnics de Sistra de formularis. Per cada document tècnic, si està mapejat
+	 * i és un XML que concorda amb l' XSD del formulari llavors es mapegen les dades de la forma ANNEX_TITOL.CAMPO_ID amb
+	 * la llibreria d'utilitats de Distribucio per fitxers tècnics de SISTRA. Les variables poden ser simples
+	 * o múltiples.
+	 * <ul><li> Annexos <--> Mapeig <--> Variables tasca inicial</li>
+	 * <li>[titol, annex] <--> [Mapeig] <--> [codi_helium, camp_tasca]</li></ul>
+	 * @param expedientTipus
+	 * @param anotacio
+	 * @return
+	 */
+	private Map<String, Object> getDadesInicials(ExpedientTipus expedientTipus, Anotacio anotacio) {
+		
+		// Resposta<codi_helium, valor_helium>
+		Map<String, Object> resposta = new HashMap<String, Object>();
+
+		// Llista d'annexos tipus XML
+		Map<String, AnotacioAnnex> annexos = new HashMap<String, AnotacioAnnex>();
+		for (AnotacioAnnex annex : anotacio.getAnnexos()) {
+			if (annex.getNom().toLowerCase().endsWith(".xml")) // Filtra només XML's
+				annexos.put(annex.getTitol(), annex);
+		}
+		// Obtenir una llista de variables inicials de la tasca
+		Map<String, CampTasca> campsTasca = new HashMap<String, CampTasca>();
+		for (CampTasca camp : getCampsStartTask(expedientTipus)) {
+			campsTasca.put(camp.getCamp().getCodi(), camp);
+		}
+		// Obtenir mapejos
+		List<MapeigSistra> mapejosSistra = mapeigSistraRepository.findByFiltre(expedientTipus.getId(), TipusMapeig.Variable);
+		if (mapejosSistra.size() == 0)
+			return null;
+
+		// Llista de formularis <annex_titol, formulari>
+		Map<String, Formulario> formularis = new HashMap<String, Formulario>();
+		// Per cada mapeig Sistra
+		for (MapeigSistra mapeig : mapejosSistra) {
+			// Codi Sistra = ANNEX_TITOL.CAMP_CODI
+			String[] codiSistra = mapeig.getCodiSistra().split(".");
+			if (codiSistra.length >= 2) {
+				String annexTitol = codiSistra[0];
+				String campoId = codiSistra[1];
+				CampTasca campTasca = campsTasca.get(mapeig.getCodiHelium());
+				if (annexos.containsKey(annexTitol) && campTasca != null) {
+					// Recupera la informació del formulari de l'annex
+					Formulario formulari = formularis.get(annexTitol);
+					if (formulari == null) {
+						formulari = this.getFormulario(annexos.get(annexTitol));
+						formularis.put(annexTitol, formulari);
+					}
+					if (formulari != null) {
+						for (Campo campo : formulari.getCampos()) {
+							if (campo.getId().equals(campoId)) {
+								Object valorHelium = this.valorVariableHelium(campo, campTasca);
+								resposta.put(mapeig.getCodiHelium(), valorHelium);
+								break;
+							}
+						}
+					}
+				}
+			}
+		}		
+		return resposta;
+	}
+	
+	
+	private Object valorVariableHelium(Campo campo, CampTasca campTasca) {
+		Object valorHelium = null;
+		Camp camp = campTasca.getCamp();
+		if (camp.getTipus().equals(TipusCamp.REGISTRE)) {
+			// Camp registre
+			Object[] dadesRegistre = new Object[camp.getRegistreMembres().size()];
+			for (int i = 0; i < camp.getRegistreMembres().size(); i++) {
+				CampRegistre campRegistre = camp.getRegistreMembres().get(i);
+				for (Valor valor : campo.getValores()) {
+					if (campRegistre.getMembre().getCodi().equals(valor.getCodigo())) {
+						dadesRegistre[i] = valorPerHeliumSimple(valor.getValue(), campRegistre.getMembre());
+					}
+				}
+			}
+			if (camp.isMultiple()) {
+				Object[] valorsHelium = new Object[1];
+				valorsHelium[0] = dadesRegistre;
+				valorHelium = valorsHelium;
+			} else {
+				valorHelium = dadesRegistre;
+			}
+		} else {
+			// Camp
+			if (camp.isMultiple()) {
+				// Multiple
+				Object[] valorsHelium = new Object[campo.getValores().size()];
+				for (int i = 0; i < campo.getValores().size(); i++) {
+					valorsHelium[i] = valorPerHeliumSimple(campo.getValores().get(i).getValue(), camp);
+				}
+				valorHelium = valorsHelium;
+			} else {
+				// Simple
+				String valorSistra = campo.getValores().size() > 0 ? campo.getValores().get(0).getValue() : null;
+				valorHelium = valorPerHeliumSimple(valorSistra, camp);
+			}
+		}
+		return valorHelium;
+	}
+	
+	private Object valorPerHeliumSimple(String valor, Camp camp) {
+		try {
+			if (camp == null) {
+			} else if (camp.getTipus().equals(TipusCamp.DATE)) {
+				return new SimpleDateFormat("dd/MM/yyyy").parse(valor);
+			} else if (camp.getTipus().equals(TipusCamp.BOOLEAN)) {
+				return new Boolean(valor);
+			} else if (camp.getTipus().equals(TipusCamp.PRICE)) {
+				return new BigDecimal(valor);
+			} else if (camp.getTipus().equals(TipusCamp.INTEGER)) {
+				return new Long(valor);
+			} else if (camp.getTipus().equals(TipusCamp.FLOAT)) {
+				return new Double(valor);
+			}
+			return valor;
+		} catch (Exception ex) {
+			return null;
+		}
+	}
+
+	private Formulario getFormulario(AnotacioAnnex anotacioAnnex) {
+		Formulario formulario = null;
+		if (anotacioAnnex != null) {
+			try {	
+				BackofficeSistra2Utils sistraUtils = new BackofficeSistra2UtilsImpl();
+				formulario = sistraUtils.parseXmlFormulario(anotacioAnnex.getContingut());
+			} catch (Exception e) {
+				logger.error("Error obtenint les dades del formulari per l'annex de Sistra2 " + anotacioAnnex.getTitol() + " de l'anotació " + anotacioAnnex.getId() + " " + anotacioAnnex.getAnotacio().getIdentificador() + " " + anotacioAnnex.getAnotacio().getExtracte());
+			}
+		}
+		return formulario;
+	}
+
+	private List<CampTasca> getCampsStartTask(ExpedientTipus expedientTipus) {
+		ExpedientTascaDto startTask = expedientService.getStartTask(
+				expedientTipus.getEntorn().getId(),
+				expedientTipus.getId(),
+				null,
+				null);
+		if (startTask != null) {
+			return campTascaRepository.findAmbTascaIdOrdenats(startTask.getTascaId(), expedientTipus.getId());
+		} else {
+			return new ArrayList<CampTasca>();
+		}
 	}
 
 	private Map<String, DadesDocumentDto> getDocumentsInicials(ExpedientTipus expedientTipus, Anotacio anotacio) {
@@ -564,6 +729,47 @@ public class DistribucioHelper {
 				definicioProces != null ? definicioProces.getId() : null, 
 				true);
 		return documents;
+	}
+
+	private List<DadesDocumentDto> getDocumentsAdjunts(ExpedientTipus expedientTipus, Anotacio anotacio) {
+
+		List<MapeigSistra> mapeigsSistra = mapeigSistraRepository.findByFiltre(expedientTipus.getId(), TipusMapeig.Adjunt);
+		if (mapeigsSistra.size() == 0)
+			return null;
+		
+		boolean trobat = false;
+		List<DadesDocumentDto> resposta = new ArrayList<DadesDocumentDto>();
+
+		for (MapeigSistra mapeig : mapeigsSistra){
+			if (MapeigSistra.TipusMapeig.Adjunt.equals(mapeig.getTipus())){
+				trobat = true;
+				try {
+					resposta.addAll(documentsSistraAdjunts(anotacio, mapeig.getCodiHelium()));
+				} catch (Exception ex) {
+					logger.error("Error llegint dades del document de SISTRA", ex);
+				}
+			}
+		}
+		
+		if (trobat)
+			return resposta;
+		else
+			return null;
+	}
+	
+	private List<DadesDocumentDto> documentsSistraAdjunts(Anotacio anotacio, String codiHelium) {
+		List<DadesDocumentDto> resposta = new ArrayList<DadesDocumentDto>();
+		for (AnotacioAnnex document: anotacio.getAnnexos()) {
+			if (document.getTitol().equalsIgnoreCase(codiHelium)) {
+				DadesDocumentDto docResposta = new DadesDocumentDto();
+				docResposta.setTitol(document.getTitol());
+				docResposta.setData(anotacio.getData());
+				docResposta.setArxiuNom(document.getNom());
+				docResposta.setArxiuContingut(document.getContingut());
+				resposta.add(docResposta);
+			}
+		}
+		return resposta;
 	}
 
 
