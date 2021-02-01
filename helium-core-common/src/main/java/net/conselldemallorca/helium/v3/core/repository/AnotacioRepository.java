@@ -98,5 +98,8 @@ public interface AnotacioRepository extends JpaRepository<Anotacio, Long> {
 	
 	/** Mètode per recuperar les peticions d'anotació per id de Distribucio. */
 	List<Anotacio> findByDistribucioId(String distribucioId);
+	
+	/** Mètode per recuperr les anotacions associades a un expedient. */
+	List<Anotacio> findByExpedientId(Long expedientId);
 
 }

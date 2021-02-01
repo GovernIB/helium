@@ -86,7 +86,7 @@ public class ExpedientServiceBean implements ExpedientService {
 			Map<String, DadesDocumentDto> documents,
 			List<DadesDocumentDto> adjunts,
 			Long anotacioId,
-			boolean anotacioInteressatsAssociar) {
+			boolean anotacioInteressatsAssociar) throws Exception {
 		return delegate.create(
 				entornId,
 				usuari,

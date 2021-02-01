@@ -13,11 +13,10 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
-import net.conselldemallorca.helium.v3.core.api.dto.AnotacioAccioEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.AnotacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto.IniciadorTipusDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
 import net.conselldemallorca.helium.v3.core.api.service.AnotacioService;
 import net.conselldemallorca.helium.v3.core.api.service.TascaService;
 import net.conselldemallorca.helium.webapp.v3.command.AnotacioAcceptarCommand;
@@ -57,8 +56,10 @@ public class BaseExpedientIniciController extends BaseExpedientController {
 	 * @param expedientTipusId
 	 * @param definicioProcesId
 	 * @return
+	 * 
+	 * @throws Exception Hi poden haver excepcions no controlades amb sistemes externs.
 	 */
-	protected ExpedientDto iniciarExpedient(
+	protected ExpedientDto iniciarExpedient (
 			HttpServletRequest request,
 			Long entornId,
 			Long expedientTipusId,
@@ -67,55 +68,33 @@ public class BaseExpedientIniciController extends BaseExpedientController {
 			String titol,
 			Integer any,
 			Map<String, Object> valors,
-			AnotacioAcceptarCommand anotacioAcceptarCommand) {
+			AnotacioAcceptarCommand anotacioAcceptarCommand) throws Exception  {
 		
 		ExpedientDto iniciat = expedientService.create(
-					entornId,
-					null,
-					expedientTipusId,
-					definicioProcesId,
-					any,
-					numero,
-					titol,
-					null, null, null, null, false, null, null, null, null, null, null, false, null, null, false, 
-					valors, 
-					null,
-					IniciadorTipusDto.INTERN,
-					null, null, null, null,
-					anotacioAcceptarCommand != null? anotacioAcceptarCommand.getId() : null,
-					anotacioAcceptarCommand != null? anotacioAcceptarCommand.isAssociarInteressats() : false);
-		MissatgesHelper.success(request, getMessage(request, "info.expedient.iniciat", new Object[] { iniciat.getIdentificador() }));
+				entornId,
+				null,
+				expedientTipusId,
+				definicioProcesId,
+				any,
+				numero,
+				titol,
+				null, null, null, null, false, null, null, null, null, null, null, false, null, null, false, 
+				valors, 
+				null,
+				IniciadorTipusDto.INTERN,
+				null, null, null, null,
+				anotacioAcceptarCommand != null? anotacioAcceptarCommand.getId() : null,
+				anotacioAcceptarCommand != null? anotacioAcceptarCommand.isAssociarInteressats() : false);
 
-		// Si passa informació de l'anotació associa l'anotació a l'expedient
+		MissatgesHelper.success(request, getMessage(request, "info.expedient.iniciat", new Object[] { iniciat.getIdentificador() }));
 		if (anotacioAcceptarCommand != null) {
-			try {
-				AnotacioDto anotacio = anotacioService.incorporarExpedient(
-						anotacioAcceptarCommand.getId(),
-						iniciat.getTipus().getId(),
-						iniciat.getId(),
-						anotacioAcceptarCommand.isAssociarInteressats(),
-						true);
+			AnotacioDto anotacio = anotacioService.findAmbId(anotacioAcceptarCommand.getId());
 				MissatgesHelper.success(
 						request, 
 						getMessage(	request, 
 									"anotacio.form.acceptar.incorporar.success",
 									new Object[] { anotacio.getIdentificador(), iniciat.getNumeroIdentificador()}));
-				// Comprova si hi ha cap annex amb error per advertir a l'usuari
-				if (anotacio.isErrorAnnexos())
-					MissatgesHelper.warning(
-							request, 
-							getMessage(	request, 
-										"anotacio.form.acceptar.incorporar.errorAnnexos",
-										new Object[] { anotacio.getIdentificador(), iniciat.getNumeroIdentificador()}));
-			} catch (Exception e) {
-				MissatgesHelper.error(
-						request, 
-						getMessage(	request, 
-									"anotacio.form.acceptar.error",
-									new Object[] { AnotacioAccioEnumDto.CREAR, e.getMessage()}));				
-			}
-		}
-		
+		}		
 		// Esborra els valors temporals de la sessió
 		netejarSessio(request);
 			

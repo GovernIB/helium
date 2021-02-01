@@ -31,12 +31,14 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import es.caib.distribucio.ws.backofficeintegracio.AnotacioRegistreId;
 import es.caib.plugins.arxiu.api.ContingutArxiu;
 import es.caib.plugins.arxiu.api.ExpedientMetadades;
 import net.conselldemallorca.helium.core.common.ExpedientCamps;
 import net.conselldemallorca.helium.core.common.JbpmVars;
 import net.conselldemallorca.helium.core.helper.ConsultaHelper;
 import net.conselldemallorca.helium.core.helper.ConversioTipusHelper;
+import net.conselldemallorca.helium.core.helper.DistribucioHelper;
 import net.conselldemallorca.helium.core.helper.DocumentHelperV3;
 import net.conselldemallorca.helium.core.helper.EntornHelper;
 import net.conselldemallorca.helium.core.helper.ExpedientHelper;
@@ -57,6 +59,7 @@ import net.conselldemallorca.helium.core.helperv26.LuceneHelper;
 import net.conselldemallorca.helium.core.helperv26.MesuresTemporalsHelper;
 import net.conselldemallorca.helium.core.model.hibernate.Accio;
 import net.conselldemallorca.helium.core.model.hibernate.Alerta;
+import net.conselldemallorca.helium.core.model.hibernate.Anotacio;
 import net.conselldemallorca.helium.core.model.hibernate.Camp;
 import net.conselldemallorca.helium.core.model.hibernate.Consulta;
 import net.conselldemallorca.helium.core.model.hibernate.ConsultaCamp.TipusConsultaCamp;
@@ -87,6 +90,7 @@ import net.conselldemallorca.helium.jbpm3.integracio.JbpmTask;
 import net.conselldemallorca.helium.jbpm3.integracio.ResultatConsultaPaginadaJbpm;
 import net.conselldemallorca.helium.v3.core.api.dto.AccioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.AlertaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.AnotacioEstatEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuContingutDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuContingutTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDetallDto;
@@ -125,9 +129,11 @@ import net.conselldemallorca.helium.v3.core.api.exception.TramitacioException;
 import net.conselldemallorca.helium.v3.core.api.exception.TramitacioHandlerException;
 import net.conselldemallorca.helium.v3.core.api.exception.TramitacioValidacioException;
 import net.conselldemallorca.helium.v3.core.api.exception.ValidacioException;
+import net.conselldemallorca.helium.v3.core.api.service.AnotacioService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
 import net.conselldemallorca.helium.v3.core.repository.AccioRepository;
 import net.conselldemallorca.helium.v3.core.repository.AlertaRepository;
+import net.conselldemallorca.helium.v3.core.repository.AnotacioRepository;
 import net.conselldemallorca.helium.v3.core.repository.CampRepository;
 import net.conselldemallorca.helium.v3.core.repository.ConsultaRepository;
 import net.conselldemallorca.helium.v3.core.repository.DefinicioProcesRepository;
@@ -196,6 +202,8 @@ public class ExpedientServiceImpl implements ExpedientService {
 	private NotificacioRepository notificacioRepository;
 	@Resource
 	private DocumentNotificacioRepository documentNotificacioRepository;
+	@Resource
+	private AnotacioRepository anotacioRepository;
 
 	@Resource
 	private ExpedientHelper expedientHelper;
@@ -239,11 +247,16 @@ public class ExpedientServiceImpl implements ExpedientService {
 	private MonitorIntegracioHelper monitorIntegracioHelper;
 	@Resource
 	private HerenciaHelper herenciaHelper;
+	@Resource
+	private DistribucioHelper distribucioHelper;
+	@Resource
+	private AnotacioService anotacioService;
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
+	@Transactional
 	public ExpedientDto create(
 			Long entornId,
 			String usuari,
@@ -275,7 +288,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 			Map<String, DadesDocumentDto> documents,
 			List<DadesDocumentDto> adjunts,
 			Long anotacioId,
-			boolean anotacioInteressatsAssociar) {
+			boolean anotacioInteressatsAssociar) throws Exception {
 		logger.debug("Creant nou expedient (" +
 				"entornId=" + entornId + ", " +
 				"usuari=" + usuari + ", " +
@@ -287,7 +300,25 @@ public class ExpedientServiceImpl implements ExpedientService {
 				"anotacioInteressatsAssociar=" + anotacioInteressatsAssociar + ")");
 		
 		Expedient expedient = null;
+		Anotacio anotacio = null;
 		try {
+			if (anotacioId != null) {
+				anotacio = anotacioRepository.findOne(anotacioId);
+				ExpedientTipus expedientTipus = expedientTipusRepository.findById(expedientTipusId);				
+				if (expedientTipus.isDistribucioSistra()) {
+					// Extreu documents i variables segons el mapeig sistra
+					if (variables == null)
+						variables = new HashMap<String, Object>();
+					variables.putAll(distribucioHelper.getDadesInicials(expedientTipus, anotacio));
+					if (documents == null) 
+						documents = new HashMap<String, DadesDocumentDto>();
+					documents.putAll(distribucioHelper.getDocumentsInicials(expedientTipus, anotacio));
+					if (adjunts == null)
+						adjunts = new ArrayList<DadesDocumentDto>();
+					adjunts.addAll(distribucioHelper.getDocumentsAdjunts(expedientTipus, anotacio));
+				}
+			}
+			
 			// Es crida la creació a través del helper per evitar errors de concurrència de creació de dos expedients
 			// a la vegada que ja s'ha donat el cas.
 			expedient = expedientHelper.iniciar(
@@ -320,6 +351,33 @@ public class ExpedientServiceImpl implements ExpedientService {
 					responsableCodi, 
 					documents, 
 					adjunts);
+
+			if (anotacioId != null) {
+				// Incorporporar l'anotació a l'expedient
+				anotacioService.incorporarExpedient(
+						anotacio.getId(), 
+						expedientTipusId, 
+						expedient.getId(),
+						anotacioInteressatsAssociar,
+						true);
+				
+				// Canvi d'estat a processada
+				// Notifica a Distribucio que s'ha rebut correctament
+				AnotacioRegistreId idWs = new AnotacioRegistreId();
+				idWs.setClauAcces(anotacio.getDistribucioClauAcces());
+				idWs.setIndetificador(anotacio.getDistribucioId());
+				try {
+					distribucioHelper.canviEstat(
+							idWs, 
+							es.caib.distribucio.ws.backofficeintegracio.Estat.PROCESSADA,
+							"Petició processada a Helium.");
+				} catch (Exception e) {
+					String errMsg = "Error comunicant l'estat de processada a Distribucio:" + e.getMessage();
+					logger.error(errMsg, e);
+					throw new RuntimeException(errMsg, e);					
+				}
+			}
+
 			// Retorna la informació de l'expedient que s'ha iniciat
 			ExpedientDto dto = conversioTipusHelper.convertir(
 					expedient,
@@ -492,6 +550,14 @@ public class ExpedientServiceImpl implements ExpedientService {
 		}
 		for (Notificacio notificacio: notificacioRepository.findByExpedientOrderByDataEnviamentDesc(expedient)) {
 			notificacioRepository.delete(notificacio);
+		}
+		for (Anotacio anotacio: anotacioRepository.findByExpedientId(expedient.getId())) {
+			if (AnotacioEstatEnumDto.PROCESSADA.equals(anotacio.getEstat()) )
+				// Si les anotacions estan processades s'esborren
+				anotacioRepository.delete(anotacio);
+			else
+				// Altrament les desrelaciona de l'expedient
+				anotacio.setExpedient(null);
 		}
 		
 		// Ordena per id de menor a major per evitar errors de dependències

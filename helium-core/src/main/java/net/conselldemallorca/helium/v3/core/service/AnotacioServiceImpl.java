@@ -436,12 +436,10 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 			AnotacioRegistreId anotacioRegistreId = new AnotacioRegistreId();
 			anotacioRegistreId.setClauAcces(anotacio.getDistribucioClauAcces());
 			anotacioRegistreId.setIndetificador(anotacio.getDistribucioId());
-			/* TODO
 			distribucioHelper.canviEstat(
 					anotacioRegistreId,
 					Estat.PROCESSADA,
 					"Anotació incorporada a l'expedient d'Helium " + expedient.getIdentificadorLimitat());
-			*/
 		} catch (Exception e) {
 			String errMsg = "Error comunicant l'estat de processada a Distribucio:" + e.getMessage();
 			logger.error(errMsg, e);

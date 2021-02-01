@@ -36,7 +36,6 @@ public class StartProcessInstanceCommand extends NewProcessInstanceCommand imple
 			ExpedientDto expedientIniciant = Jbpm3HeliumBridge.getInstanceService().getExpedientIniciant();
 			if (expedientIniciant != null) {
 				expedientIniciant.setProcessInstanceId(new Long(processInstance.getId()).toString());
-//				if (expedientIniciant.getTipus().isAmbRetroaccio())
 				if (expedientIniciant.isAmbRetroaccio())
 					jbpmContext.addAutoSaveProcessInstance(processInstance);
 			}

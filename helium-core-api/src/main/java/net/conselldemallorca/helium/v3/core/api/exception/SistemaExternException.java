@@ -70,6 +70,12 @@ public class SistemaExternException extends HeliumException {
 		this.publicMessage = "Error en la comunicació amb el sistema extern '" + sistemaExtern + "': " + causa;
 	}
 	
+	public SistemaExternException(String sistemaExtern, String causa, Throwable cause) {
+		super(causa, cause);
+		this.sistemaExtern = sistemaExtern;
+		this.publicMessage = "Error en la comunicació amb el sistema extern '" + sistemaExtern + "': " + causa;
+	}
+
 	public SistemaExternException(Throwable cause) {
 		super(cause);
 	}

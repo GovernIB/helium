@@ -11,6 +11,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.annotation.Resource;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,7 +46,6 @@ import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.hibernate.MapeigSistra;
 import net.conselldemallorca.helium.core.model.hibernate.MapeigSistra.TipusMapeig;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
-import net.conselldemallorca.helium.integracio.plugins.SistemaExternException;
 import net.conselldemallorca.helium.v3.core.api.dto.AnotacioEstatEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuFirmaPerfilEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DadesDocumentDto;
@@ -58,6 +59,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.NtiEstadoElaboracionEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NtiOrigenEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NtiTipoDocumentalEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NtiTipoFirmaEnumDto;
+import net.conselldemallorca.helium.v3.core.api.exception.SistemaExternException;
 import net.conselldemallorca.helium.v3.core.api.service.AnotacioService;
 import net.conselldemallorca.helium.v3.core.api.service.DissenyService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
@@ -106,9 +108,13 @@ public class DistribucioHelper {
 	@Autowired
 	private MonitorIntegracioHelper monitorIntegracioHelper;
 	
+	@Resource
+	private PluginHelper pluginHelper;
+
 	/** Referència al client del WS de Distribució */
 	private BackofficeIntegracio wsClient = null;
 		
+
 	/** Mètode per obtenir la instància del client del WS de Distribucio.
 	 * 
 	 * @return
@@ -169,7 +175,7 @@ public class DistribucioHelper {
 					errorDescripcio,
 					ex,
 					parametres);
-			throw new SistemaExternException(errorDescripcio, ex);
+			throw new SistemaExternException(MonitorIntegracioHelper.INTCODI_DISTRIBUCIO, errorDescripcio, ex);
 		}
 	}
 
@@ -207,7 +213,7 @@ public class DistribucioHelper {
 					errorDescripcio,
 					ex,
 					parametres);
-			throw new SistemaExternException(errorDescripcio, ex);
+			throw new SistemaExternException(MonitorIntegracioHelper.INTCODI_DISTRIBUCIO, errorDescripcio, ex);
 		}
 		return anotacioRegistreEntrada;
 	}
@@ -450,50 +456,53 @@ public class DistribucioHelper {
 
 		// Comprova si l'anotació s'ha associat amb un tipus d'expedient amb processament automàtic
 		ExpedientTipus expedientTipus = anotacioCreada.getExpedientTipus();
+		Expedient expedient = anotacioCreada.getExpedient();
 		if (expedientTipus != null 
 				&& expedientTipus.isDistribucioProcesAuto()) {
-			Map<String, Object> variables = null;
-			Map<String, DadesDocumentDto> documents = null;
-			List<DadesDocumentDto> adjunts = null;
 			
-			if (expedientTipus.isDistribucioSistra()) {
-				// Extreu documents i variables segons el mapeig sistra
-				variables = this.getDadesInicials(expedientTipus, anotacioCreada);
-				documents = this.getDocumentsInicials(expedientTipus, anotacioCreada);
-				adjunts = this.getDocumentsAdjunts(expedientTipus, anotacioCreada);
+			if (expedient == null) {
+				Map<String, Object> variables = null;
+				Map<String, DadesDocumentDto> documents = null;
+				List<DadesDocumentDto> adjunts = null;
+				
+				if (expedientTipus.isDistribucioSistra()) {
+					// Extreu documents i variables segons el mapeig sistra
+					variables = this.getDadesInicials(expedientTipus, anotacioCreada);
+					documents = this.getDocumentsInicials(expedientTipus, anotacioCreada);
+					adjunts = this.getDocumentsAdjunts(expedientTipus, anotacioCreada);
+				}
+				// Crear l'expedient
+				expedient = expedientHelper.iniciar(
+						expedientTipus.getEntorn().getId(), //entornId
+						null, //usuari, 
+						expedientTipus.getId(), //expedientTipusId, 
+						null, //definicioProcesId,
+						null, //any, 
+						null, //numero, 
+						null, //titol, 
+						null, //registreNumero, 
+						null, //registreData, 
+						null, //unitatAdministrativa, 
+						null, //idioma, 
+						false, //autenticat, 
+						null, //tramitadorNif, 
+						null, //tramitadorNom, 
+						null, //interessatNif, 
+						null, //interessatNom, 
+						null, //representantNif, 
+						null, //representantNom, 
+						false, //avisosHabilitats, 
+						null, //avisosEmail, 
+						null, //avisosMobil, 
+						false, //notificacioTelematicaHabilitada, 
+						variables, //variables, 
+						null, //transitionName, 
+						IniciadorTipusDto.INTERN, //IniciadorTipus 
+						null, //iniciadorCodi, 
+						null, //responsableCodi, 
+						documents, //documents, 
+						adjunts); //adjunts);
 			}
-			// Crear l'expedient
-			Expedient expedient = expedientHelper.iniciar(
-					expedientTipus.getEntorn().getId(), //entornId
-					null, //usuari, 
-					expedientTipus.getId(), //expedientTipusId, 
-					null, //definicioProcesId,
-					null, //any, 
-					null, //numero, 
-					null, //titol, 
-					null, //registreNumero, 
-					null, //registreData, 
-					null, //unitatAdministrativa, 
-					null, //idioma, 
-					false, //autenticat, 
-					null, //tramitadorNif, 
-					null, //tramitadorNom, 
-					null, //interessatNif, 
-					null, //interessatNom, 
-					null, //representantNif, 
-					null, //representantNom, 
-					false, //avisosHabilitats, 
-					null, //avisosEmail, 
-					null, //avisosMobil, 
-					false, //notificacioTelematicaHabilitada, 
-					variables, //variables, 
-					null, //transitionName, 
-					IniciadorTipusDto.INTERN, //IniciadorTipus 
-					null, //iniciadorCodi, 
-					null, //responsableCodi, 
-					documents, //documents, 
-					adjunts); //adjunts);
-			
 			// Incorporporar l'anotació a l'expedient
 			anotacioService.incorporarExpedient(
 					anotacioCreada.getId(), 
@@ -529,8 +538,12 @@ public class DistribucioHelper {
 	 * @param anotacio
 	 * @return
 	 */
-	private Map<String, Object> getDadesInicials(ExpedientTipus expedientTipus, Anotacio anotacio) {
+	public Map<String, Object> getDadesInicials(ExpedientTipus expedientTipus, Anotacio anotacio) {
 		
+		logger.debug("Mapeig de documents SISTRA2-Helium per l'anotació " + anotacio.getIdentificador() + 
+												" i el tipus d'expedient " + expedientTipus.getCodi() + " - " + expedientTipus.getNom() + 
+												" de l'entorn " + expedientTipus.getEntorn().getCodi() + " - " + expedientTipus.getEntorn().getNom() + ": {");
+
 		// Resposta<codi_helium, valor_helium>
 		Map<String, Object> resposta = new HashMap<String, Object>();
 
@@ -547,19 +560,21 @@ public class DistribucioHelper {
 		}
 		// Obtenir mapejos
 		List<MapeigSistra> mapejosSistra = mapeigSistraRepository.findByFiltre(expedientTipus.getId(), TipusMapeig.Variable);
-		if (mapejosSistra.size() == 0)
-			return null;
 
 		// Llista de formularis <annex_titol, formulari>
 		Map<String, Formulario> formularis = new HashMap<String, Formulario>();
 		// Per cada mapeig Sistra
 		for (MapeigSistra mapeig : mapejosSistra) {
+			
+			
 			// Codi Sistra = ANNEX_TITOL.CAMP_CODI
-			String[] codiSistra = mapeig.getCodiSistra().split(".");
+			String[] codiSistra = mapeig.getCodiSistra().split("\\.");
 			if (codiSistra.length >= 2) {
 				String annexTitol = codiSistra[0];
 				String campoId = codiSistra[1];
 				CampTasca campTasca = campsTasca.get(mapeig.getCodiHelium());
+				logger.debug("{" + mapeig.getCodiHelium() + " (" + campTasca.getCamp().getTipus() + ") - ");
+				
 				if (annexos.containsKey(annexTitol) && campTasca != null) {
 					// Recupera la informació del formulari de l'annex
 					Formulario formulari = formularis.get(annexTitol);
@@ -570,15 +585,23 @@ public class DistribucioHelper {
 					if (formulari != null) {
 						for (Campo campo : formulari.getCampos()) {
 							if (campo.getId().equals(campoId)) {
-								Object valorHelium = this.valorVariableHelium(campo, campTasca);
-								resposta.put(mapeig.getCodiHelium(), valorHelium);
+								logger.debug(campo.getId() + "(" + campo.getTipo() + "): ");
+								Object valorHelium;
+								try {
+									valorHelium = this.valorVariableHelium(campo, campTasca);
+									resposta.put(mapeig.getCodiHelium(), valorHelium);
+									logger.debug(valorHelium != null ? valorHelium.toString() : "");
+								} catch (Exception ex) {
+									logger.error("Error en el mapeig de variable SISTRA2 " + expedientTipus.getCodi() + " " + mapeig.getCodiHelium() + "-" + mapeig.getCodiSistra() + ": " + ex.getMessage(), ex);
+								}
 								break;
 							}
 						}
 					}
 				}
 			}
-		}		
+			logger.debug("}");			
+		}
 		return resposta;
 	}
 	
@@ -647,9 +670,25 @@ public class DistribucioHelper {
 		if (anotacioAnnex != null) {
 			try {	
 				BackofficeSistra2Utils sistraUtils = new BackofficeSistra2UtilsImpl();
-				formulario = sistraUtils.parseXmlFormulario(anotacioAnnex.getContingut());
+				byte[] contingut = null;
+				if (anotacioAnnex.getContingut() != null) {
+					contingut = anotacioAnnex.getContingut();
+				} else if (anotacioAnnex.getUuid() != null){
+					// Recupera el contingut de l'Arxiu
+					es.caib.plugins.arxiu.api.Document document = pluginHelper.arxiuDocumentInfo(
+							anotacioAnnex.getUuid(),
+							null,
+							true,
+							anotacioAnnex.getFirmaTipus() != null);
+					if (document != null && document.getContingut() != null)
+						contingut = document.getContingut().getContingut();
+				}
+				if (contingut != null)
+					formulario = sistraUtils.parseXmlFormulario(contingut);
+				else 
+					logger.error("No s'ha pogut consultar el contingut pel document SISTRA2 " + anotacioAnnex.getTitol() + " de l'anotacio " + anotacioAnnex.getAnotacio().getId() + " " + anotacioAnnex.getAnotacio().getIdentificador() + " perquè el contingut és null");
 			} catch (Exception e) {
-				logger.error("Error obtenint les dades del formulari per l'annex de Sistra2 " + anotacioAnnex.getTitol() + " de l'anotació " + anotacioAnnex.getId() + " " + anotacioAnnex.getAnotacio().getIdentificador() + " " + anotacioAnnex.getAnotacio().getExtracte());
+				logger.error("Error obtenint les dades del formulari per l'annex de Sistra2 " + anotacioAnnex.getTitol() + " de l'anotació " + anotacioAnnex.getAnotacio().getId() + " " + anotacioAnnex.getAnotacio().getIdentificador() + " " + anotacioAnnex.getAnotacio().getExtracte() + ": " + e.getMessage(), e);
 			}
 		}
 		return formulario;
@@ -668,17 +707,19 @@ public class DistribucioHelper {
 		}
 	}
 
-	private Map<String, DadesDocumentDto> getDocumentsInicials(ExpedientTipus expedientTipus, Anotacio anotacio) {
+	public Map<String, DadesDocumentDto> getDocumentsInicials(ExpedientTipus expedientTipus, Anotacio anotacio) {
 		
+		Map<String, DadesDocumentDto> resposta = new HashMap<String, DadesDocumentDto>();
 		List<MapeigSistra> mapeigsSistra = mapeigSistraRepository.findByFiltre(expedientTipus.getId(), TipusMapeig.Document);
 		if (mapeigsSistra.size() == 0)
 			return null;
-		boolean trobat = false;
-		Map<String, DadesDocumentDto> resposta = new HashMap<String, DadesDocumentDto>();
+
 		List<DocumentDto> documents = getDocuments(expedientTipus);
-		
+		logger.debug("Mapeig de documents SISTRA2-Helium per l'anotació " + anotacio.getIdentificador() + 
+												" i el tipus d'expedient " + expedientTipus.getCodi() + " - " + expedientTipus.getNom() + 
+												" de l'entorn " + expedientTipus.getEntorn().getCodi() + " - " + expedientTipus.getEntorn().getNom() + ": {");
 		for (MapeigSistra mapeig : mapeigsSistra){
-			trobat = true;
+			logger.debug("{" + mapeig.getCodiHelium() + " - ");
 			DocumentDto docHelium = null;
 			for (DocumentDto document : documents){
 				if (document.getCodi().equalsIgnoreCase(mapeig.getCodiHelium())){
@@ -691,17 +732,15 @@ public class DistribucioHelper {
 					DadesDocumentDto document = documentSistra(anotacio, mapeig.getCodiSistra(), docHelium);
 					if (document != null) {
 						resposta.put(mapeig.getCodiHelium(), document);
+						logger.debug(document.getCodi());
 					}
 				}
 			} catch (Exception ex) {
-				logger.error("Error llegint dades del document de SISTRA", ex);
+				logger.error("Error en el mapeig de document SISTRA2 " + expedientTipus.getCodi() + " " + mapeig.getCodiHelium() + "-" + mapeig.getCodiSistra() + ": " + ex.getMessage(), ex);
 			}
+			logger.debug("}");
 		}
-		if (trobat)
-			return resposta;
-		else
-			return null;
-		
+		return resposta;		
 	}
 	
 	private DadesDocumentDto documentSistra(
@@ -731,30 +770,28 @@ public class DistribucioHelper {
 		return documents;
 	}
 
-	private List<DadesDocumentDto> getDocumentsAdjunts(ExpedientTipus expedientTipus, Anotacio anotacio) {
+	public List<DadesDocumentDto> getDocumentsAdjunts(ExpedientTipus expedientTipus, Anotacio anotacio) {
 
-		List<MapeigSistra> mapeigsSistra = mapeigSistraRepository.findByFiltre(expedientTipus.getId(), TipusMapeig.Adjunt);
-		if (mapeigsSistra.size() == 0)
-			return null;
-		
-		boolean trobat = false;
+		logger.debug("Mapeig de documents adjunts SISTRA2-Helium per l'anotació " + anotacio.getIdentificador() + 
+				" i el tipus d'expedient " + expedientTipus.getCodi() + " - " + expedientTipus.getNom() + 
+				" de l'entorn " + expedientTipus.getEntorn().getCodi() + " - " + expedientTipus.getEntorn().getNom() + ": {");
+
 		List<DadesDocumentDto> resposta = new ArrayList<DadesDocumentDto>();
 
+		List<MapeigSistra> mapeigsSistra = mapeigSistraRepository.findByFiltre(expedientTipus.getId(), TipusMapeig.Adjunt);
+	
 		for (MapeigSistra mapeig : mapeigsSistra){
+			logger.debug("{" + mapeig.getCodiSistra());
 			if (MapeigSistra.TipusMapeig.Adjunt.equals(mapeig.getTipus())){
-				trobat = true;
 				try {
 					resposta.addAll(documentsSistraAdjunts(anotacio, mapeig.getCodiHelium()));
 				} catch (Exception ex) {
-					logger.error("Error llegint dades del document de SISTRA", ex);
+					logger.error("Error en el mapeig d'adjunt SISTRA2 " + expedientTipus.getCodi() + " " + mapeig.getCodiSistra() + ": " + ex.getMessage(), ex);
 				}
 			}
-		}
-		
-		if (trobat)
-			return resposta;
-		else
-			return null;
+			logger.debug("}");
+		}		
+		return resposta;
 	}
 	
 	private List<DadesDocumentDto> documentsSistraAdjunts(Anotacio anotacio, String codiHelium) {

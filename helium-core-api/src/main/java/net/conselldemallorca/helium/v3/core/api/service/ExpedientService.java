@@ -97,6 +97,7 @@ public interface ExpedientService {
 	 * 			Indica si associar o no els interessats de l'anotació a l'expedient.
 	 * 
 	 * @return El nou expedient creat.
+	 * @throws net.conselldemallorca.helium.integracio.plugins.SistemaExternException 
 	 * @throws NotFoundException
 	 *             Si no s'ha trobat cap expedient amb l'id especificat.
 	 * @throws NotAllowedException
@@ -133,7 +134,7 @@ public interface ExpedientService {
 			Map<String, DadesDocumentDto> documents,
 			List<DadesDocumentDto> adjunts,
 			Long anotacioId,
-			boolean anotacioInteressatsAssociar) throws NoTrobatException;
+			boolean anotacioInteressatsAssociar) throws Exception;
 
 	/**
 	 * Modifica la informació d'un expedient.
