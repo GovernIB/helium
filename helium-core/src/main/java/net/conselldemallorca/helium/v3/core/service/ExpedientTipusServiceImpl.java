@@ -105,6 +105,7 @@ import net.conselldemallorca.helium.v3.core.api.exportacio.CampExportacio;
 import net.conselldemallorca.helium.v3.core.api.exportacio.ConsultaCampExportacio;
 import net.conselldemallorca.helium.v3.core.api.exportacio.ConsultaExportacio;
 import net.conselldemallorca.helium.v3.core.api.exportacio.DefinicioProcesExportacio;
+import net.conselldemallorca.helium.v3.core.api.exportacio.DefinicioProcesExportacioCommandDto;
 import net.conselldemallorca.helium.v3.core.api.exportacio.DocumentExportacio;
 import net.conselldemallorca.helium.v3.core.api.exportacio.DominiExportacio;
 import net.conselldemallorca.helium.v3.core.api.exportacio.EnumeracioExportacio;
@@ -1326,11 +1327,22 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		if (command.getDefinicionsProces().size() > 0) {
 			for(DefinicioProcesExportacio definicioExportat : importacio.getDefinicions() )
 				if (command.getDefinicionsProces().contains(definicioExportat.getDefinicioProcesDto().getJbpmKey())){
+					DefinicioProcesExportacioCommandDto definicioProcessCommand = null;
+					// Busca la darrera versió de la definició de procés pel tipus d'expedient
+					if (expedientTipusId != null) {
+						DefinicioProces darreraVersio =
+									definicioProcesRepository.findDarreraVersioAmbTipusExpedientIJbpmKey(expedientTipusId, 
+											definicioExportat.getDefinicioProcesDto().getJbpmKey());
+						if (darreraVersio != null) {
+							definicioProcessCommand = new DefinicioProcesExportacioCommandDto();
+							definicioProcessCommand.setId(darreraVersio.getId());
+						}
+					}
 					definicioProces = definicioProcesHelper.importar(
 							entornId,
 							expedientTipus.getId(),
 							definicioExportat,
-							null /* no especifica el filtre per a la importació. */,
+							definicioProcessCommand /* si existeix llavors no desplega */,
 							command.isSobreEscriure());
 					expedientTipus.addDefinicioProces(definicioProces);
 				}
