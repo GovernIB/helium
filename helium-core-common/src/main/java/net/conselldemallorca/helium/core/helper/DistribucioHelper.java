@@ -513,17 +513,26 @@ public class DistribucioHelper {
 			
 			// Canvi d'estat a processada
 			// Notifica a Distribucio que s'ha rebut correctament
-			this.canviEstat(
-					idWs, 
-					es.caib.distribucio.ws.backofficeintegracio.Estat.PROCESSADA,
-					"Petició processada a Helium.");
+			try {
+				this.canviEstat(
+						idWs, 
+						es.caib.distribucio.ws.backofficeintegracio.Estat.PROCESSADA,
+						"Anotació incorporada a l'expedient d'Helium " + expedient.getIdentificadorLimitat());
+			} catch(Exception e) {
+				String errMsg = "Error comunicant l'estat de processada a Distribucio:" + e.getMessage();
+				logger.warn(errMsg, e);				
+			}
 		} else {
 			// Notifica a Distribucio que s'ha rebut correctament
-			this.canviEstat(
-					idWs, 
-					es.caib.distribucio.ws.backofficeintegracio.Estat.REBUDA,
-					"Petició rebuda a Helium.");
-			
+			try {
+				this.canviEstat(
+						idWs, 
+						es.caib.distribucio.ws.backofficeintegracio.Estat.REBUDA,
+						"Petició rebuda a Helium.");
+			} catch(Exception e) {
+				String errMsg = "Error comunicant l'estat de rebuda a Distribucio:" + e.getMessage();
+				logger.warn(errMsg, e);				
+			}			
 		}
 		logger.info("Rebuda correctament la petició d'anotació de registre amb id de Distribucio =" + idWs);
 	}

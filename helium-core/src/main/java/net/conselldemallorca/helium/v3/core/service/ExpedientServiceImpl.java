@@ -360,22 +360,6 @@ public class ExpedientServiceImpl implements ExpedientService {
 						expedient.getId(),
 						anotacioInteressatsAssociar,
 						true);
-				
-				// Canvi d'estat a processada
-				// Notifica a Distribucio que s'ha rebut correctament
-				AnotacioRegistreId idWs = new AnotacioRegistreId();
-				idWs.setClauAcces(anotacio.getDistribucioClauAcces());
-				idWs.setIndetificador(anotacio.getDistribucioId());
-				try {
-					distribucioHelper.canviEstat(
-							idWs, 
-							es.caib.distribucio.ws.backofficeintegracio.Estat.PROCESSADA,
-							"Petició processada a Helium.");
-				} catch (Exception e) {
-					String errMsg = "Error comunicant l'estat de processada a Distribucio:" + e.getMessage();
-					logger.error(errMsg, e);
-					throw new RuntimeException(errMsg, e);					
-				}
 			}
 
 			// Retorna la informació de l'expedient que s'ha iniciat
