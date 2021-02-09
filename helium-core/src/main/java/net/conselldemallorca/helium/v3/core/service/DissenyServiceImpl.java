@@ -636,7 +636,7 @@ public class DissenyServiceImpl implements DissenyService {
 						String val1 = p1.getValor() == null ? "" : (String)p1.getValor();
 						String val2 = p2.getValor() == null ? "" : (String)p2.getValor();
 						int result = val1.compareTo(val2);
-						return result != 0 ? result : p1.getCodi().compareTo(p2.getCodi());
+						return result == 0 ? result : p1.getCodi().compareTo(p2.getCodi());
 					}
 				});
 		return lista;
