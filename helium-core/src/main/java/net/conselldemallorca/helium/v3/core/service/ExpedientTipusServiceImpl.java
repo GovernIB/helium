@@ -1328,13 +1328,15 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 				if (command.getDefinicionsProces().contains(definicioExportat.getDefinicioProcesDto().getJbpmKey())){
 					// Id de la definició de procés sobre la qual s'importa la informacó
 					Long definicioProcesId = null;
-					// Busca la darrera versió de la definició de procés pel tipus d'expedient
-					if (expedientTipusId != null) {
-						DefinicioProces darreraVersio =
-									definicioProcesRepository.findDarreraVersioAmbTipusExpedientIJbpmKey(expedientTipusId, 
-											definicioExportat.getDefinicioProcesDto().getJbpmKey());
-						if (darreraVersio != null) {
-							definicioProcesId = darreraVersio.getId();
+					if (!command.isDesplegarDefinicions()) {
+						// Busca la darrera versió de la definició de procés pel tipus d'expedient
+						if (expedientTipusId != null) {
+							DefinicioProces darreraVersio =
+										definicioProcesRepository.findDarreraVersioAmbTipusExpedientIJbpmKey(expedientTipusId, 
+												definicioExportat.getDefinicioProcesDto().getJbpmKey());
+							if (darreraVersio != null) {
+								definicioProcesId = darreraVersio.getId();
+							}
 						}
 					}
 					definicioProces = definicioProcesHelper.importar(

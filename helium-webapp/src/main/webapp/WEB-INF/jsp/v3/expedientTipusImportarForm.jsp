@@ -286,6 +286,7 @@
 		<c:if test="${command.id != null}">
 			<hel:inputCheckbox name="sobreEscriure" textKey="expedient.tipus.importar.form.opcions.sobreEscriure" labelSize="6" info="expedient.tipus.importar.form.opcions.sobreEscriure.info" />
 			<hel:inputCheckbox name="dadesBasiques" textKey="expedient.tipus.importar.form.opcions.dadesBasiques" labelSize="6" info="expedient.tipus.importar.form.opcions.dadesBasiques.info" />
+			<hel:inputCheckbox name="desplegarDefinicions" textKey="expedient.tipus.importar.form.opcions.desplegarDefinicions" labelSize="6" info="expedient.tipus.importar.form.opcions.desplegarDefinicions.info" />
 		</c:if>
 		
 		<h4>1 <spring:message code="expedient.tipus.importar.form.carregar"/></h4>

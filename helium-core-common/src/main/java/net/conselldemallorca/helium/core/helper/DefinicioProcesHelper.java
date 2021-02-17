@@ -133,9 +133,10 @@ public class DefinicioProcesHelper {
 	 * @param entornId
 	 * @param expedientTipusId
 	 * @param definicioProcesId
-	 * 			Definició de procés sobre la qual s'importen les dades
+	 * 			Definició de procés sobre la qual s'importen les dades. Si és null llavors es desplega una nova versió.
 	 * @param importacio
 	 * @param command
+	 * 			Command amb la informació que s'ha d'imortar. Si és null llavors s'importa tota la informació
 	 * @param sobreEscriure Indica si actualitzar o no les entitats amb el mateix codi
 	 * @return
 	 */
