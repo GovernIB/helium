@@ -77,12 +77,12 @@ import net.conselldemallorca.helium.core.util.ExpedientCamps;
 import net.conselldemallorca.helium.v3.core.api.dto.CampTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ConsultaCampDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ConsultaCampDto.TipusConsultaCamp;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto.EstatTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ConsultaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DominiDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EnumeracioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto.EstatTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusEstadisticaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.MapeigSistraDto;
@@ -105,7 +105,6 @@ import net.conselldemallorca.helium.v3.core.api.exportacio.CampExportacio;
 import net.conselldemallorca.helium.v3.core.api.exportacio.ConsultaCampExportacio;
 import net.conselldemallorca.helium.v3.core.api.exportacio.ConsultaExportacio;
 import net.conselldemallorca.helium.v3.core.api.exportacio.DefinicioProcesExportacio;
-import net.conselldemallorca.helium.v3.core.api.exportacio.DefinicioProcesExportacioCommandDto;
 import net.conselldemallorca.helium.v3.core.api.exportacio.DocumentExportacio;
 import net.conselldemallorca.helium.v3.core.api.exportacio.DominiExportacio;
 import net.conselldemallorca.helium.v3.core.api.exportacio.EnumeracioExportacio;
@@ -1327,22 +1326,23 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		if (command.getDefinicionsProces().size() > 0) {
 			for(DefinicioProcesExportacio definicioExportat : importacio.getDefinicions() )
 				if (command.getDefinicionsProces().contains(definicioExportat.getDefinicioProcesDto().getJbpmKey())){
-					DefinicioProcesExportacioCommandDto definicioProcessCommand = null;
+					// Id de la definició de procés sobre la qual s'importa la informacó
+					Long definicioProcesId = null;
 					// Busca la darrera versió de la definició de procés pel tipus d'expedient
 					if (expedientTipusId != null) {
 						DefinicioProces darreraVersio =
 									definicioProcesRepository.findDarreraVersioAmbTipusExpedientIJbpmKey(expedientTipusId, 
 											definicioExportat.getDefinicioProcesDto().getJbpmKey());
 						if (darreraVersio != null) {
-							definicioProcessCommand = new DefinicioProcesExportacioCommandDto();
-							definicioProcessCommand.setId(darreraVersio.getId());
+							definicioProcesId = darreraVersio.getId();
 						}
 					}
 					definicioProces = definicioProcesHelper.importar(
 							entornId,
 							expedientTipus.getId(),
+							definicioProcesId,
 							definicioExportat,
-							definicioProcessCommand /* si existeix llavors no desplega */,
+							null,
 							command.isSobreEscriure());
 					expedientTipus.addDefinicioProces(definicioProces);
 				}

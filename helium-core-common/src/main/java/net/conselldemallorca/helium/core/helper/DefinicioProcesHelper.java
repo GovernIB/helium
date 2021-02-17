@@ -132,6 +132,8 @@ public class DefinicioProcesHelper {
 	 * 
 	 * @param entornId
 	 * @param expedientTipusId
+	 * @param definicioProcesId
+	 * 			Definició de procés sobre la qual s'importen les dades
 	 * @param importacio
 	 * @param command
 	 * @param sobreEscriure Indica si actualitzar o no les entitats amb el mateix codi
@@ -141,6 +143,7 @@ public class DefinicioProcesHelper {
 	public DefinicioProces importar(
 			Long entornId, 
 			Long expedientTipusId, 
+			Long definicioProcesId,
 			DefinicioProcesExportacio importacio,
 			DefinicioProcesExportacioCommandDto command,
 			boolean sobreEscriure) {
@@ -155,7 +158,7 @@ public class DefinicioProcesHelper {
 
 		// si el command és null s'importa tot
 		boolean importAll = command == null;
-		boolean definicioProcesExisteix = command != null && command.getId() != null;
+		boolean definicioProcesExisteix = definicioProcesId != null;
 		DefinicioProces definicio;
 		if ( ! definicioProcesExisteix) {
 			// Nova definició de procés
@@ -195,7 +198,7 @@ public class DefinicioProcesHelper {
 				throw new DeploymentException(
 						messageHelper.getMessage("exportar.validacio.definicio.deploy.error"));
 		} else {
-			definicio = definicioProcesRepository.findById(command.getId());
+			definicio = definicioProcesRepository.findById(definicioProcesId);
 		}
 
 		// Copia la informació importada
