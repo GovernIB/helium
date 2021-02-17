@@ -91,4 +91,16 @@ public class ExecucioMassivaServiceBean implements ExecucioMassivaService {
 	public void actualitzaUltimaOperacio(Long ome_id) {
 		delegate.actualitzaUltimaOperacio(ome_id);
 	}
+	
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public void rependreExecucioMassiva(Long id) {
+		delegate.rependreExecucioMassiva(id);
+	}
+	
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public void rependreExecucioMassivaExpedient(Long id) {
+		delegate.rependreExecucioMassivaExpedient(id);
+	}
 }

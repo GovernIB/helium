@@ -14,6 +14,7 @@ import net.conselldemallorca.helium.v3.core.api.exception.ValidacioException;
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
+
 public interface ExecucioMassivaService {
 
 	public void crearExecucioMassiva(ExecucioMassivaDto dto) throws NoTrobatException, ValidacioException;
@@ -28,6 +29,15 @@ public interface ExecucioMassivaService {
 	 * @return Retorna el número d'execucions massives d'expedients en estat pendent cancel·lats.
 	 */
 	public int cancelarExecucioMassiva(Long id);
+	
+	
+	/**
+	 * Mètode per rependre totes les execucions massives d'expediens per una execució massiva prèviament cancel·lada.
+	 * @param id
+	 */
+	public void rependreExecucioMassiva(Long id);
+	
+	void rependreExecucioMassivaExpedient(Long id);
 
 	/** Cancel·la l'execució d'una execució massiva d'expedient específica
 	 * 
