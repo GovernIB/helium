@@ -582,9 +582,9 @@ public class DistribucioHelper {
 				String annexTitol = codiSistra[0];
 				String campoId = codiSistra[1];
 				CampTasca campTasca = campsTasca.get(mapeig.getCodiHelium());
-				logger.debug("{" + mapeig.getCodiHelium() + " (" + campTasca.getCamp().getTipus() + ") - ");
 				
 				if (annexos.containsKey(annexTitol) && campTasca != null) {
+					logger.debug("{" + mapeig.getCodiHelium() + " (" + campTasca.getCamp().getTipus() + ") - ");
 					// Recupera la informació del formulari de l'annex
 					Formulario formulari = formularis.get(annexTitol);
 					if (formulari == null) {
