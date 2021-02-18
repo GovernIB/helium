@@ -3,4 +3,4 @@ server:
 
 spring:
   application:
-    name: notib-gateway
+    name: helium-gateway
