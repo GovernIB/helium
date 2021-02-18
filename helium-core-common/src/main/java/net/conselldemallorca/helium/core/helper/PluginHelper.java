@@ -3,6 +3,7 @@
  */
 package net.conselldemallorca.helium.core.helper;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -172,6 +173,8 @@ public class PluginHelper {
 	private NotificacioHelper notificacioElectronicaHelper;
 	@Resource
 	private UsuariActualHelper usuariActualHelper;
+	@Resource
+	private AlertaHelper alertaHelper;
 
 	private PersonesPlugin personesPlugin;
 	private TramitacioPlugin tramitacioPlugin;
@@ -2800,7 +2803,14 @@ public class PluginHelper {
 			} 
 			notificacio.setError(resposta.isError());
 			notificacio.setErrorDescripcio(resposta.getErrorDescripcio());
-					
+			
+            // Si hi ha error en la reposta generar una alerta a l'expedient
+            if (resposta.isError()) {
+                String errMsg = "NOTIB ha comunicat un error en l'entivament de la notificació/comunicació amb dada " + new SimpleDateFormat("dd/MM/yyyy HH:mm:ss").format(notificacio.getEnviatData()) +
+                        " pel titular " + notificacio.getTitularNif() + ": " + notificacio.getErrorDescripcio();
+                expedient.addAlerta(alertaHelper.crearAlerta(expedient.getEntorn(), expedient, new Date(), null, errMsg));
+            } 
+	
 			monitorIntegracioHelper.addAccioOk(
 					MonitorIntegracioHelper.INTCODI_NOTIB,
 					accioDescripcio,
