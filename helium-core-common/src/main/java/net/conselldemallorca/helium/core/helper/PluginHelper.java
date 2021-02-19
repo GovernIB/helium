@@ -49,6 +49,7 @@ import es.caib.plugins.arxiu.api.FirmaPerfil;
 import es.caib.plugins.arxiu.api.FirmaTipus;
 import es.caib.plugins.arxiu.api.IArxiuPlugin;
 import net.conselldemallorca.helium.core.helper.PortasignaturesHelper.PortasignaturesRollback;
+import net.conselldemallorca.helium.core.model.hibernate.Alerta;
 import net.conselldemallorca.helium.core.model.hibernate.DocumentNotificacio;
 import net.conselldemallorca.helium.core.model.hibernate.DocumentStore;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
@@ -2808,7 +2809,16 @@ public class PluginHelper {
             if (resposta.isError()) {
                 String errMsg = "NOTIB ha comunicat un error en l'enviament de la notificació/comunicació amb dada " + new SimpleDateFormat("dd/MM/yyyy HH:mm:ss").format(notificacio.getEnviatData()) +
                         " pel titular " + notificacio.getTitularNif() + ": " + notificacio.getErrorDescripcio();
-                expedient.addAlerta(alertaHelper.crearAlerta(expedient.getEntorn(), expedient, new Date(), null, errMsg));
+                boolean existeix = false;
+                // Comprova que no hi hagi ja una alerta amb la mateixa descripció
+                for (Alerta alerta : expedient.getAlertes()) {
+                	if (errMsg.equals(alerta.getText()) && !alerta.isEliminada()) {
+                		existeix = true;
+                	}
+                }
+                if (!existeix) {
+                	expedient.addAlerta(alertaHelper.crearAlerta(expedient.getEntorn(), expedient, new Date(), null, errMsg));
+                }
             } 
 	
 			monitorIntegracioHelper.addAccioOk(
