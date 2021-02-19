@@ -2806,7 +2806,7 @@ public class PluginHelper {
 			
             // Si hi ha error en la reposta generar una alerta a l'expedient
             if (resposta.isError()) {
-                String errMsg = "NOTIB ha comunicat un error en l'entivament de la notificació/comunicació amb dada " + new SimpleDateFormat("dd/MM/yyyy HH:mm:ss").format(notificacio.getEnviatData()) +
+                String errMsg = "NOTIB ha comunicat un error en l'enviament de la notificació/comunicació amb dada " + new SimpleDateFormat("dd/MM/yyyy HH:mm:ss").format(notificacio.getEnviatData()) +
                         " pel titular " + notificacio.getTitularNif() + ": " + notificacio.getErrorDescripcio();
                 expedient.addAlerta(alertaHelper.crearAlerta(expedient.getEntorn(), expedient, new Date(), null, errMsg));
             } 
