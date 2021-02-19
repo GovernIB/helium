@@ -34,6 +34,7 @@ import es.caib.distribucio.ws.backofficeintegracio.NtiEstadoElaboracion;
 import es.caib.distribucio.ws.backofficeintegracio.NtiOrigen;
 import es.caib.distribucio.ws.backofficeintegracio.NtiTipoDocumento;
 import es.caib.distribucio.ws.client.BackofficeIntegracioWsClientFactory;
+import es.caib.plugins.arxiu.api.Document;
 import net.conselldemallorca.helium.core.model.hibernate.Anotacio;
 import net.conselldemallorca.helium.core.model.hibernate.AnotacioAnnex;
 import net.conselldemallorca.helium.core.model.hibernate.AnotacioInteressat;
@@ -759,12 +760,22 @@ public class DistribucioHelper {
 		DadesDocumentDto resposta = null;
 		for (AnotacioAnnex document: anotacio.getAnnexos()) {
 			if (varSistra.equalsIgnoreCase(document.getTitol())) {
-				resposta = new DadesDocumentDto();
-				resposta.setIdDocument(varHelium.getId());
-				resposta.setCodi(varHelium.getCodi());
-				resposta.setData(anotacio.getData());
-				resposta.setArxiuNom(document.getNom());
-				resposta.setArxiuContingut(document.getContingut());
+				byte[] contingut = document.getContingut();
+				if (document.getContingut() == null &&  document.getUuid() != null) {
+					// Recupera el contingut de l'Arxiu
+					Document documentArxiu = pluginHelper.arxiuDocumentInfo(document.getUuid(), null, true, true);
+					contingut = documentArxiu.getContingut() != null? documentArxiu.getContingut().getContingut() : null;
+				}
+				if (contingut != null) {
+					resposta = new DadesDocumentDto();
+					resposta.setArxiuContingut(contingut);				
+					resposta.setIdDocument(varHelium.getId());
+					resposta.setCodi(varHelium.getCodi());
+					resposta.setData(anotacio.getData());
+					resposta.setArxiuNom(document.getNom());					
+				} else {
+					logger.warn("El contingut pel document " + document.getNom() + " de l'annocació " + anotacio.getExpedientNumero() + " es null i no es pot completar el mapeig de document SISTRA2 " + varSistra + " -> " + varHelium.getCodi());
+				}
 				break;
 			}
 		}
