@@ -94,7 +94,7 @@ public class InteressatValidator implements ConstraintValidator<Interessat, Inte
 					.addConstraintViolation();
 				valid = false;
 			}
-			if (command.getEntregaPostal() && (command.getCodiPostal() == null || command.getCodiPostal().isEmpty())) {
+			if (command.getEntregaPostal() && (command.getCodiPostal() == null || command.getCodiPostal().isEmpty() || command.getCodiPostal().length() > 5)) {
 				context
 					.buildConstraintViolationWithTemplate(
 							MessageHelper.getInstance().getMessage("interessat.form.valid.linia"))
