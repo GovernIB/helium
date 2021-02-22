@@ -19,6 +19,7 @@ public class ExpedientTipusExportacioCommandDto {
 	// Camps per a la importació
 	private boolean dadesBasiques;
 	private boolean sobreEscriure;
+	private boolean desplegarDefinicions;
 	/** Codi per a la nova importació. */
 	private String codi;
 	
@@ -62,6 +63,12 @@ public class ExpedientTipusExportacioCommandDto {
 	}
 	public void setSobreEscriure(boolean sobreEscriure) {
 		this.sobreEscriure = sobreEscriure;
+	}
+	public boolean isDesplegarDefinicions() {
+		return desplegarDefinicions;
+	}
+	public void setDesplegarDefinicions(boolean desplegarDefinicions) {
+		this.desplegarDefinicions = desplegarDefinicions;
 	}
 	public String getCodi() {
 		return codi;
