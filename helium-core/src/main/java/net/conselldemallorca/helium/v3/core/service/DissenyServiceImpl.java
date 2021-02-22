@@ -356,8 +356,9 @@ public class DissenyServiceImpl implements DissenyService {
 		DefinicioProces definicioProces = definicioProcesRepository.findById(id);
 		if (definicioProces != null) {	
 			DefinicioProcesDto dto = conversioTipusHelper.convertir(definicioProces, DefinicioProcesDto.class);
+			Long expedientTipusId = definicioProces.getExpedientTipus() != null ? definicioProces.getExpedientTipus().getId() : null;
 			Map<Long, Boolean> hasStartTask = new HashMap<Long, Boolean>();
-			dto.setHasStartTask(hasStartTask(definicioProces, hasStartTask, null));
+			dto.setHasStartTask(hasStartTask(definicioProces, hasStartTask, expedientTipusId));
 			return dto;
 		}
 		return null;
