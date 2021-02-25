@@ -1,0 +1,538 @@
+openapi: 3.0.3
+servers: 
+  - url: http://pendent.de.definir.es
+    description: Servidor de desenvolupament
+info:
+  description: Microservei de Dominis de HeliumMS
+  version: "1.0.0"
+  title: HeliumMS Dominis API
+  contact:
+    name: Limit Tecnologies
+    email: limit@limit.es
+tags:
+  - name: Disseny
+    description: Operacions securitzades disponibles per usuaris dissenyadors
+  - name: Consulta
+    description: Operacions disponibles per tots els usuaris 
+paths:
+  /api/v1/entorns/{entornId}/dominis:
+    get:
+      tags:
+        - Disseny
+        - Consulta
+      operationId: listDominisV1
+      summary: Cerca de dominis
+      # Descripció amb markdown :)
+      description: |
+        Obté una página de la cerca dels **dominis** del sistema.
+        
+        La cerca pot rebre paràmetres per
+        - ordenar
+        - paginar
+        - filtrar (utilitzant sintaxi rsql)
+      parameters:
+        - $ref: '#/components/parameters/EntornIdPathParam'
+        - $ref: '#/components/parameters/FiltreParam'
+        - $ref: '#/components/parameters/TipusExpedientParam'
+        - $ref: '#/components/parameters/TipusExpedientPareParam'
+        - $ref: '#/components/parameters/PageNumberParam'
+        - $ref: '#/components/parameters/PageSizeParam'
+        - $ref: '#/components/parameters/SortParam'
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DominiPagedList'
+        '204':
+          description: No content
+        '400':
+          description: Bad input parameter
+    post:
+      tags:
+        - Disseny
+      operationId: createDominiV1
+      summary: Crea un nou domini
+      description: Afegiex un nou domini al sistema
+      parameters: 
+        - $ref: '#/components/parameters/EntornIdPathParam'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Domini'
+        description: Domini a crear
+      responses:
+        '201':
+          description: Domini created
+          headers:
+            Location:
+              description: Adressa del domini creat
+              schema:
+                type: string
+                format: uri
+                example: http://example.com/v1/dominis/{assignedIdValue}
+        '400':
+          description: Bad request
+        '409':
+          description: Conflicte. Ja existeix el domini
+  /api/v1/entorns/{entornId}/dominis/{dominiId}:
+    get:
+      tags:
+        - Disseny
+        - Consulta
+      operationId: getDominiV1
+      summary: Consulta un domini donat el seu identificador
+      description: Retorna les dades del domini amb l'identificador informat al paràmetre `dominiId`
+      parameters: 
+        - $ref: '#/components/parameters/EntornIdPathParam'
+        - $ref: '#/components/parameters/DominiIdPathParam'
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Domini'
+        '404':
+          description: Not found
+    put:
+      tags:
+        - Disseny
+      operationId: updateDominiV1
+      summary: Modifica un domini donat el seu identificador
+      description: Modifica el domini amb l'identificador passat al paràmetre `dominiId`, amb les totes dades de l'objecte Domini passat al body de la petició
+      parameters:
+        - $ref: '#/components/parameters/EntornIdPathParam'
+        - $ref: '#/components/parameters/DominiIdPathParam'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Domini'
+      responses:
+        '204':
+          description: Domini actualitzat
+        '404':
+          description: Not found
+        '409':
+          description: Conflicte
+        #'304':
+        #  description: 'Domini no modificat. Els atributs passats coincidien amb els actuals del domini'
+    patch:
+      tags:
+        - Disseny
+      operationId: patchDominiV1
+      summary: Actualitza camps concrets d'un domini donat el seu identificador
+      description: |
+        Modifica els camps del domini amb l'identificador passat al paràmetre `dominiId`, amb els camps de l'objecte Domini passat al body de la petició.  
+        Només modifica els camps informats en l'objecte. Els camps no inclosos en l'objecte no seran modificats.
+      parameters:
+        - $ref: '#/components/parameters/EntornIdPathParam'
+        - $ref: '#/components/parameters/DominiIdPathParam'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Domini'
+      responses:
+        '204':
+          description: Domini actualitzat
+        '404':
+          description: Not found
+        '409':
+          description: Conflicte
+        #'304':
+        #  description: 'Domini no modificat. Els atributs passats coincidien amb els actuals del domini'
+    delete:
+      tags:
+        - Disseny
+      operationId: deleteDominiV1
+      summary: Elimina un domini donat el seu identificador
+      description: Elimina el domini amb l'identificador passat al paràmetre `dominiId`
+      parameters:
+        - $ref: '#/components/parameters/EntornIdPathParam'
+        - $ref: '#/components/parameters/DominiIdPathParam'
+      responses:
+        '200':
+          description: Ok
+        '404':
+          description: Not found
+  /api/v1/entorns/{entornId}/dominis/{dominiId}/resultats:
+    get:
+      tags: 
+        - Consulta
+      summary: Consulta un domini
+      description: |
+        Realitza la consulta del domini amb l'identificador passat al paràmetre `dominiId`.  
+        Per a realitzar la consulta utilitza la configuració del domini, juntament amb els paràmetres passats.  
+        Els paràmetres es passaran com un mapa amb la clau de tipus string, i un valor de tipus objecte
+#      security:
+#        - openId:
+#          - tothom
+      operationId: consultaDominiV1
+      parameters: 
+        - $ref: '#/components/parameters/EntornIdPathParam'
+        - $ref: '#/components/parameters/DominiIdPathParam'
+        - name: identificador
+          in: query
+          description: identificador del domini al sistema remot
+          required: false
+          schema:
+            type: string
+        - name: parametres
+          in: query
+          description: Map<String, Object> amb els paràmetres que es volen passar en la consulta del domini
+          schema:
+            type: object
+            additionalProperties: true
+            example: 
+              codi1: Valor1
+              codi2: Valor2
+      responses:
+        '200':
+          description: 'Ok'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResultatDomini'
+  /api/v1/expedientTipus/{expedientTipusId}/dominis:
+    get:
+      tags:
+      - Consulta
+      summary: Consulta un domini
+      description: |
+        Obté una pàgina de la cerca dels **dominis** d'un entorn.
+
+        La cerca pot rebre paràmetres per
+        - ordenar
+        - paginar
+        - filtrar (utilitzant sintaxi rsql)
+      operationId: llistaDominiByExpedientTipus
+      parameters:
+      - $ref: '#/components/parameters/ExpedientTipusIdPathParam'
+      - $ref: '#/components/parameters/FiltreParam'
+      - $ref: '#/components/parameters/PageNumberParam'
+      - $ref: '#/components/parameters/PageSizeParam'
+      - $ref: '#/components/parameters/SortParam'
+      responses:
+        "200":
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DominiPagedList'
+        "204":
+          description: No content
+        "400":
+          description: Bad input parameter
+  /api/v1/expedientTipus/{expedientTipusId}/dominis/{codi}:
+    get:
+      tags:
+      - Consulta
+      summary: Consulta un domini d'un tipus d'expedient
+      description: |
+        Obté el domini de tipus d'expedient donat el tipus d'expedient al que pertany, i el seu codi.
+        En cas d'informar el tipus d'expedient pare es tindrà en compte la herència
+      operationId: getDominiByExpedientTipusAndCodi
+      parameters:
+      - $ref: '#/components/parameters/ExpedientTipusIdPathParam'
+      - $ref: '#/components/parameters/DominiCodiPathParam'
+      - $ref: '#/components/parameters/TipusExpedientPareParam'
+      responses:
+        "200":
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Domini'
+        "204":
+          description: No content
+        "400":
+          description: Bad input parameter
+#security: 
+#  - openId: 
+#    - HEL_SUPER
+#    - HEL_ADMIN
+#    - HEL_USER
+#    - tothom
+components:
+#  securitySchemes:
+#    openId:   
+#      type: openIdConnect
+#      openIdConnectUrl: https://example.com/.well-known/openid-configuration
+  schemas:
+    Domini:
+      type: object
+      required:
+        - codi
+        - nom
+      properties:
+        id:
+          type: integer
+          format: int64
+          readOnly: true
+          example: 1234
+        codi:
+          type: string
+          maxLength: 64
+          example: codi_domini
+        nom:
+          type: string
+          maxLength: 255
+          example: nom_domini
+        tipus:
+          type: string
+          enum:
+            - CONSULTA_SQL
+            - CONSULTA_WS
+            - CONSULTA_REST
+          example: CONSULTA_REST
+        url:
+          type: string
+          format: uri
+          maxLength: 255
+          example: http://example.com/nom_domini
+        tipusAuth:
+          type: string
+          enum: 
+            - NONE
+            - HTTP_BASIC
+            - USERNAMETOKEN
+          example: HTTP_BASIC
+        origenCredencials:
+          type: string
+          enum: 
+            - ATRIBUTS
+            - PROPERTIES
+          example: PROPERTIES
+        usuari:
+          type: string
+          maxLength: 255
+          example: codi_usuari
+        contrasenya:
+          type: string
+          format: password
+          maxLength: 255
+          example: password
+        sql:
+          type: string
+          maxLength: 1024
+          example: select camp_1, camp_2, camp_3 from taula where camp_4 = :parametre
+        jndiDatasource:
+          type: string
+          maxLength: 255
+          example: java:/es.caib.example.db
+        descripcio:
+          type: string
+          maxLength: 255
+          example: Text descriptiu del domini
+        cacheSegons:
+          type: integer
+          description: En cas de posar el valor 0 ???
+        timeout:
+          type: integer
+          description: En cas de posar el valor 0 ???
+        ordreParams:
+          type: string
+          maxLength: 255
+        entorn:
+          type: integer
+          format: int64
+          description: Identificador de l'entorn al que pertany el domini
+        expedientTipus:
+          type: integer
+          format: int64
+          description: Identificador del tipus d'expedient al que pertany el domini. Si el domini és global aquest identificador serà null.
+    ResultatDomini:
+      type: array
+      items:
+        $ref: '#/components/schemas/FilaResultat'
+    FilaResultat:
+      type: array
+      items: 
+        $ref: '#/components/schemas/ParellaCodiValor'
+    ParellaCodiValor:
+      properties:
+        codi:
+          type: string
+        valor:
+          type: string
+      type: object
+    DominiList:
+      type: array
+      items:
+        $ref: '#/components/schemas/Domini'
+    DominiPagedList:
+      type: object
+      properties:
+        content:
+          $ref: '#/components/schemas/DominiList'
+      allOf:
+      - $ref: '#/components/schemas/PagedResponse'
+    PagedResponse:
+      type: object
+      properties:
+        pageable:
+          $ref: '#/components/schemas/PagedResponse_pageable'
+        totalPages:
+          type: integer
+          format: int32
+        last:
+          type: boolean
+        totalElements:
+          type: integer
+          format: int32
+        size:
+          type: integer
+          format: int32
+        number:
+          type: integer
+          format: int32
+        numberOfElements:
+          type: integer
+          format: int32
+        sort:
+          $ref: '#/components/schemas/PagedResponse_pageable_sort'
+        first:
+          type: boolean
+    PagedResponse_pageable:
+      type: object
+      properties:
+        sort:
+          $ref: '#/components/schemas/PagedResponse_pageable_sort'
+        offset:
+          type: integer
+          format: int32
+        pageNumber:
+          type: integer
+          format: int32
+        pageSize:
+          type: integer
+          format: int32
+        paged:
+          type: boolean
+        unpaged:
+          type: boolean
+    PagedResponse_pageable_sort:
+      type: object
+      properties:
+        sorted:
+          type: boolean
+        unsorted:
+          type: boolean
+  parameters:
+    DominiIdPathParam:
+      name: dominiId
+      in: path
+      description: Identificador del domini
+      required: true
+      style: simple
+      explode: false
+      schema:
+        type: integer
+        format: int64
+    DominiCodiPathParam:
+      name: codi
+      in: path
+      description: Codi del domini
+      required: true
+      style: simple
+      explode: false
+      schema:
+        type: string
+    EntornIdPathParam:
+      name: entornId
+      in: path
+      description: Identificador de l'entorn
+      required: true
+      style: simple
+      explode: false
+      schema:
+        type: integer
+        format: int64
+    ExpedientTipusIdPathParam:
+      name: expedientTipusId
+      in: path
+      description: Identificador del tipus d'expedient
+      required: true
+      style: simple
+      explode: false
+      schema:
+        type: integer
+        format: int64
+    FiltreParam:
+      name: filtre
+      in: query
+      description: cadena amb format rsql per a definir el filtre a aplicar a la consulta
+      required: false
+      style: form
+      explode: true
+      schema:
+        type: string
+    GlobalParam:
+      name: globals
+      in: query
+      description: Iindica si ha de retornar únicament dominis globals
+      required: false
+      style: form
+      explode: true
+      schema:
+        type: boolean
+    TipusExpedientParam:
+      name: expedientTipusId
+      in: query
+      description: Identificador del tipus d'expedient al que pertany el domini
+      required: false
+      style: form
+      explode: true
+      schema:
+        type: integer
+        format: int64
+    TipusExpedientPareParam:
+      name: expedientTipusPareId
+      in: query
+      description: Identificador del tipus d'expedient pare al que pertany el domini (en cas d\'herència)
+      required: false
+      style: form
+      explode: true
+      schema:
+        type: integer
+        format: int64
+    PageNumberParam:
+      name: page
+      in: query
+      description: número de pagina a retornar en cas de desitjar paginació
+      required: false
+      style: form
+      explode: true
+      schema:
+        minimum: 0
+        type: integer
+        format: int32
+        default: 0
+    PageSizeParam:
+      name: size
+      in: query
+      description: mida de la pàgina a retornat en cas de desitjar paginació
+      required: false
+      style: form
+      explode: true
+      schema:
+        minimum: 0
+        type: integer
+        format: int32
+        default: 25
+    SortParam:
+      name: sort
+      in: query
+      description: ordre a aplicar a la consulta
+      required: false
+      style: form
+      explode: true
+      schema:
+        type: string
