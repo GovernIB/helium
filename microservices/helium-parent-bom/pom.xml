@@ -39,7 +39,7 @@
         <spock.version>2.0-M4-groovy-3.0</spock.version>
         <spring-boot-admin.version>2.3.1</spring-boot-admin.version>
         <spring-cloud.version>2020.0.1</spring-cloud.version>
-        <docker.image.prefix>limitms</docker.image.prefix>
+        <docker.image.prefix>mshelium</docker.image.prefix>
         <docker.image.name>${project.artifactId}</docker.image.name>
     </properties>
 
