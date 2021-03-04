@@ -1384,7 +1384,7 @@ public class ExpedientHelper {
 			String iniciadorCodi,
 			String responsableCodi,
 			Map<String, DadesDocumentDto> documents,
-			List<DadesDocumentDto> adjunts) {
+			List<DadesDocumentDto> adjunts) throws Exception {
 		
 		Expedient expedient = new Expedient();
 		Entorn entorn = entornHelper.getEntorn(entornId);
@@ -1647,7 +1647,7 @@ public class ExpedientHelper {
 				} catch(Exception re) {
 					logger.error("Error esborrant l'expedient " + expedientPerRetornar.getIdentificador() + " amb uuid " + arxiuUuid + " :" + re.getMessage());
 				}
-			throw new RuntimeException("Error iniciant l'expedient " + expedientTipus.getNom(), e);
+			throw e;
 		}
 		
 		mesuresTemporalsHelper.mesuraCalcular("Iniciar", "expedient", expedientTipus.getNom());
