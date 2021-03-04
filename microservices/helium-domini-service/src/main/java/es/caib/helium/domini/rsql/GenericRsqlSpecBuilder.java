@@ -47,7 +47,7 @@ public class GenericRsqlSpecBuilder<T> {
 
 	private Specification<T> createSpecification(final ComparisonNode comparisonNode) {
 		return Specification.where(
-				new GenericRsqlSpecification<>(
+				new GenericRsqlSpecification<T>(
 						comparisonNode.getSelector(),
 						comparisonNode.getOperator(),
 						comparisonNode.getArguments()));

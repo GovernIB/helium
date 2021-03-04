@@ -23,6 +23,7 @@ public class DominiSpecifications {
                 cb.equal(domini.get("expedientTipus"), expedientTipus)
         );
     }
+    
 //    public static Specification<Domini> isGlobal() {
 //        return (domini, cq, cb) -> cb.isNull(domini.get("expedientTipus"));
 //    }
@@ -80,18 +81,6 @@ public class DominiSpecifications {
             if (incloureGlobals)
                 expTipus = cb.or(expTipus, cb.isNull(domini.get("expedientTipus")));
 
-//            if (incloureGlobals) {
-//                expTipus = cb.or(
-//                        cb.equal(domini.get("expedientTipus"), expedientTipus),
-//                        cb.equal(domini.get("expedientTipus"), expedientTipusPare),
-//                        cb.isNull(domini.get("expedientTipus"))
-//                );
-//            } else {
-//                expTipus = cb.or(
-//                        cb.equal(domini.get("expedientTipus"), expedientTipus),
-//                        cb.equal(domini.get("expedientTipus"), expedientTipusPare)
-//                );
-//            }
             return cb.and(
                     cb.equal(domini.get("entorn"), entorn),
                     dominiId,

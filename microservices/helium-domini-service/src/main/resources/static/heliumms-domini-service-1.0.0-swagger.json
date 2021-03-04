@@ -21,14 +21,14 @@
     "description" : "Operacions disponibles per tots els usuaris"
   } ],
   "paths" : {
-    "/api/v1/entorns/{entornId}/dominis" : {
+    "/api/v1/dominis" : {
       "get" : {
         "tags" : [ "Disseny", "Consulta" ],
         "operationId" : "listDominisV1",
         "summary" : "Cerca de dominis",
         "description" : "Obté una página de la cerca dels **dominis** del sistema.\n\nLa cerca pot rebre paràmetres per\n- ordenar\n- paginar\n- filtrar (utilitzant sintaxi rsql)\n",
         "parameters" : [ {
-          "$ref" : "#/components/parameters/EntornIdPathParam"
+          "$ref" : "#/components/parameters/EntornParam"
         }, {
           "$ref" : "#/components/parameters/FiltreParam"
         }, {
@@ -66,9 +66,6 @@
         "operationId" : "createDominiV1",
         "summary" : "Crea un nou domini",
         "description" : "Afegiex un nou domini al sistema",
-        "parameters" : [ {
-          "$ref" : "#/components/parameters/EntornIdPathParam"
-        } ],
         "requestBody" : {
           "required" : true,
           "content" : {
@@ -103,15 +100,13 @@
         }
       }
     },
-    "/api/v1/entorns/{entornId}/dominis/{dominiId}" : {
+    "/api/v1/dominis/{dominiId}" : {
       "get" : {
         "tags" : [ "Disseny", "Consulta" ],
         "operationId" : "getDominiV1",
         "summary" : "Consulta un domini donat el seu identificador",
         "description" : "Retorna les dades del domini amb l'identificador informat al paràmetre `dominiId`",
         "parameters" : [ {
-          "$ref" : "#/components/parameters/EntornIdPathParam"
-        }, {
           "$ref" : "#/components/parameters/DominiIdPathParam"
         } ],
         "responses" : {
@@ -136,8 +131,6 @@
         "summary" : "Modifica un domini donat el seu identificador",
         "description" : "Modifica el domini amb l'identificador passat al paràmetre `dominiId`, amb les totes dades de l'objecte Domini passat al body de la petició",
         "parameters" : [ {
-          "$ref" : "#/components/parameters/EntornIdPathParam"
-        }, {
           "$ref" : "#/components/parameters/DominiIdPathParam"
         } ],
         "requestBody" : {
@@ -168,8 +161,6 @@
         "summary" : "Actualitza camps concrets d'un domini donat el seu identificador",
         "description" : "Modifica els camps del domini amb l'identificador passat al paràmetre `dominiId`, amb els camps de l'objecte Domini passat al body de la petició.  \nNomés modifica els camps informats en l'objecte. Els camps no inclosos en l'objecte no seran modificats.\n",
         "parameters" : [ {
-          "$ref" : "#/components/parameters/EntornIdPathParam"
-        }, {
           "$ref" : "#/components/parameters/DominiIdPathParam"
         } ],
         "requestBody" : {
@@ -200,8 +191,6 @@
         "summary" : "Elimina un domini donat el seu identificador",
         "description" : "Elimina el domini amb l'identificador passat al paràmetre `dominiId`",
         "parameters" : [ {
-          "$ref" : "#/components/parameters/EntornIdPathParam"
-        }, {
           "$ref" : "#/components/parameters/DominiIdPathParam"
         } ],
         "responses" : {
@@ -214,15 +203,13 @@
         }
       }
     },
-    "/api/v1/entorns/{entornId}/dominis/{dominiId}/resultats" : {
+    "/api/v1/dominis/{dominiId}/resultats" : {
       "get" : {
         "tags" : [ "Consulta" ],
         "summary" : "Consulta un domini",
         "description" : "Realitza la consulta del domini amb l'identificador passat al paràmetre `dominiId`.  \nPer a realitzar la consulta utilitza la configuració del domini, juntament amb els paràmetres passats.  \nEls paràmetres es passaran com un mapa amb la clau de tipus string, i un valor de tipus objecte\n",
         "operationId" : "consultaDominiV1",
         "parameters" : [ {
-          "$ref" : "#/components/parameters/EntornIdPathParam"
-        }, {
           "$ref" : "#/components/parameters/DominiIdPathParam"
         }, {
           "name" : "identificador",
@@ -259,11 +246,81 @@
         }
       }
     },
+    "/api/v1/entorn/{entornId}/dominis" : {
+      "get" : {
+        "tags" : [ "Consulta" ],
+        "summary" : "Consulta un domini",
+        "description" : "Obté una pàgina de la cerca dels **dominis** d'un entorn.\n\nLa cerca pot rebre paràmetres per\n- ordenar\n- paginar\n- filtrar (utilitzant sintaxi rsql)\n\nNo té en compte la herència\n",
+        "operationId" : "llistaDominiByEntorn",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/EntornIdPathParam"
+        }, {
+          "$ref" : "#/components/parameters/FiltreParam"
+        }, {
+          "$ref" : "#/components/parameters/PageNumberParam"
+        }, {
+          "$ref" : "#/components/parameters/PageSizeParam"
+        }, {
+          "$ref" : "#/components/parameters/SortParam"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Ok",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/DominiPagedList"
+                }
+              }
+            }
+          },
+          "204" : {
+            "description" : "No content"
+          },
+          "400" : {
+            "description" : "Bad input parameter"
+          }
+        }
+      }
+    },
+    "/api/v1/entorn/{entornId}/dominis/{codi}" : {
+      "get" : {
+        "tags" : [ "Consulta" ],
+        "summary" : "Consulta un domini d'un tipus d'expedient",
+        "description" : "Obté el domini de tipus d'expedient donat el tipus d'expedient al que pertany, i el seu codi.\nEn cas d'informar el tipus d'expedient pare es tindrà en compte la herència\n",
+        "operationId" : "getDominiByEntornAndCodi",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/EntornIdPathParam"
+        }, {
+          "$ref" : "#/components/parameters/DominiCodiPathParam"
+        }, {
+          "$ref" : "#/components/parameters/TipusExpedientPareParam"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Ok",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Domini"
+                }
+              }
+            }
+          },
+          "204" : {
+            "description" : "No content"
+          },
+          "400" : {
+            "description" : "Bad input parameter"
+          }
+        }
+      }
+    },
     "/api/v1/expedientTipus/{expedientTipusId}/dominis" : {
       "get" : {
         "tags" : [ "Consulta" ],
         "summary" : "Consulta un domini",
-        "description" : "Obté una pàgina de la cerca dels **dominis** d'un entorn.\n\nLa cerca pot rebre paràmetres per\n- ordenar\n- paginar\n- filtrar (utilitzant sintaxi rsql)\n",
+        "description" : "Obté una pàgina de la cerca dels **dominis** d'un entorn.\n\nLa cerca pot rebre paràmetres per\n- ordenar\n- paginar\n- filtrar (utilitzant sintaxi rsql)\n\nNo té en compte la herència\n",
         "operationId" : "llistaDominiByExpedientTipus",
         "parameters" : [ {
           "$ref" : "#/components/parameters/ExpedientTipusIdPathParam"
@@ -581,6 +638,18 @@
         "required" : true,
         "style" : "simple",
         "explode" : false,
+        "schema" : {
+          "type" : "integer",
+          "format" : "int64"
+        }
+      },
+      "EntornParam" : {
+        "name" : "entornId",
+        "in" : "query",
+        "description" : "Identificador de l'entorn",
+        "required" : true,
+        "style" : "form",
+        "explode" : true,
         "schema" : {
           "type" : "integer",
           "format" : "int64"

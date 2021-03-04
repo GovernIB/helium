@@ -2,27 +2,27 @@ package es.caib.helium.domini.service;
 
 import es.caib.helium.domini.model.DominiDto;
 import es.caib.helium.domini.model.PagedList;
+import es.caib.helium.domini.model.ResultatDomini;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
+import java.util.Map;
+
 public interface DominiService {
 
-    public DominiDto createDomini(DominiDto domini);
+    DominiDto createDomini(DominiDto domini);
 
-    public void updateDomini(
-            Long entornId,
+    void updateDomini(
             Long dominiId,
             DominiDto domini);
 
-    public void delete(
-            Long entornId,
+    void delete(
             Long dominiId);
 
-    public DominiDto getById(
-            Long entornId,
+    DominiDto getById(
             Long dominiId);
 
-    public PagedList<DominiDto> listDominis(
+    PagedList<DominiDto> listDominis(
             Long entornId,
             Long expedientTipusId,
             Long expedientTipusPareId,
@@ -30,21 +30,37 @@ public interface DominiService {
             Pageable pageable,
             Sort sort);
 
-//    public DominiDto getByEntornAndCodi(Long entorn, String codi);
-
-    // Dominis per tipus d'expedient
-
+    // Dominis per entorn
     // //////////////////////////////////////////////
 
-    public DominiDto getByExpedientTipusAndCodi(
+    DominiDto getByEntornAndCodi(
+            Long entorn,
+            String codi);
+
+    PagedList<DominiDto> listDominisByEntorn(
+            Long entornId,
+            String filtre,
+            Pageable pageable,
+            Sort sort);
+
+    // Dominis per tipus d'expedient
+    // //////////////////////////////////////////////
+
+    DominiDto getByExpedientTipusAndCodi(
             Long expedientTipus,
             Long expedientTipusPare,
             String codi);
 
 
-    public PagedList<DominiDto> listDominisByExpedientTipus(
+    PagedList<DominiDto> listDominisByExpedientTipus(
             Long expedientTipusId,
             String filtreRsql,
             Pageable pageable,
             Sort sort);
+
+
+    ResultatDomini consultaDomini(
+            Long dominiId,
+            String identificador,
+            Map<String, Object> parametres);
 }

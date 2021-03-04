@@ -1,9 +1,15 @@
 package es.caib.helium.domini.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.validation.annotation.Validated;
+
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlType;
 
 /**
  * ParellaCodiValor
@@ -11,18 +17,19 @@ import org.springframework.validation.annotation.Validated;
 @Validated
 @Data
 @NoArgsConstructor
+@AllArgsConstructor
 @Builder
-@javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2021-02-12T13:24:13.511Z[GMT]")
-
-
+@XmlAccessorType(XmlAccessType.FIELD)
+@XmlType(name = "parellaCodiValor", propOrder = {
+        "codi",
+        "valor"
+})
 public class ParellaCodiValor   {
 
-//  @JsonProperty("codi")
-//  @Schema(description = "")
-//  private String codi = null;
-//
-//  @JsonProperty("valor")
-//  @Schema(description = "")
-//  private String valor = null;
+  @JsonProperty("codi")
+  private String codi = null;
+
+  @JsonProperty("valor")
+  private Object valor = null;
 
 }

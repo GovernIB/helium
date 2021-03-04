@@ -15,7 +15,7 @@ tags:
   - name: Consulta
     description: Operacions disponibles per tots els usuaris 
 paths:
-  /api/v1/entorns/{entornId}/dominis:
+  /api/v1/dominis:
     get:
       tags:
         - Disseny
@@ -31,7 +31,7 @@ paths:
         - paginar
         - filtrar (utilitzant sintaxi rsql)
       parameters:
-        - $ref: '#/components/parameters/EntornIdPathParam'
+        - $ref: '#/components/parameters/EntornParam'
         - $ref: '#/components/parameters/FiltreParam'
         - $ref: '#/components/parameters/TipusExpedientParam'
         - $ref: '#/components/parameters/TipusExpedientPareParam'
@@ -55,8 +55,6 @@ paths:
       operationId: createDominiV1
       summary: Crea un nou domini
       description: Afegiex un nou domini al sistema
-      parameters: 
-        - $ref: '#/components/parameters/EntornIdPathParam'
       requestBody:
         required: true
         content:
@@ -78,7 +76,7 @@ paths:
           description: Bad request
         '409':
           description: Conflicte. Ja existeix el domini
-  /api/v1/entorns/{entornId}/dominis/{dominiId}:
+  /api/v1/dominis/{dominiId}:
     get:
       tags:
         - Disseny
@@ -87,7 +85,6 @@ paths:
       summary: Consulta un domini donat el seu identificador
       description: Retorna les dades del domini amb l'identificador informat al paràmetre `dominiId`
       parameters: 
-        - $ref: '#/components/parameters/EntornIdPathParam'
         - $ref: '#/components/parameters/DominiIdPathParam'
       responses:
         '200':
@@ -105,7 +102,6 @@ paths:
       summary: Modifica un domini donat el seu identificador
       description: Modifica el domini amb l'identificador passat al paràmetre `dominiId`, amb les totes dades de l'objecte Domini passat al body de la petició
       parameters:
-        - $ref: '#/components/parameters/EntornIdPathParam'
         - $ref: '#/components/parameters/DominiIdPathParam'
       requestBody:
         required: true
@@ -131,7 +127,6 @@ paths:
         Modifica els camps del domini amb l'identificador passat al paràmetre `dominiId`, amb els camps de l'objecte Domini passat al body de la petició.  
         Només modifica els camps informats en l'objecte. Els camps no inclosos en l'objecte no seran modificats.
       parameters:
-        - $ref: '#/components/parameters/EntornIdPathParam'
         - $ref: '#/components/parameters/DominiIdPathParam'
       requestBody:
         required: true
@@ -155,14 +150,13 @@ paths:
       summary: Elimina un domini donat el seu identificador
       description: Elimina el domini amb l'identificador passat al paràmetre `dominiId`
       parameters:
-        - $ref: '#/components/parameters/EntornIdPathParam'
         - $ref: '#/components/parameters/DominiIdPathParam'
       responses:
         '200':
           description: Ok
         '404':
           description: Not found
-  /api/v1/entorns/{entornId}/dominis/{dominiId}/resultats:
+  /api/v1/dominis/{dominiId}/resultats:
     get:
       tags: 
         - Consulta
@@ -176,7 +170,6 @@ paths:
 #          - tothom
       operationId: consultaDominiV1
       parameters: 
-        - $ref: '#/components/parameters/EntornIdPathParam'
         - $ref: '#/components/parameters/DominiIdPathParam'
         - name: identificador
           in: query
@@ -200,6 +193,62 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ResultatDomini'
+  /api/v1/entorn/{entornId}/dominis:
+    get:
+      tags:
+      - Consulta
+      summary: Consulta un domini
+      description: |
+        Obté una pàgina de la cerca dels **dominis** d'un entorn.
+
+        La cerca pot rebre paràmetres per
+        - ordenar
+        - paginar
+        - filtrar (utilitzant sintaxi rsql)
+        
+        No té en compte la herència
+      operationId: llistaDominiByEntorn
+      parameters:
+      - $ref: '#/components/parameters/EntornIdPathParam'
+      - $ref: '#/components/parameters/FiltreParam'
+      - $ref: '#/components/parameters/PageNumberParam'
+      - $ref: '#/components/parameters/PageSizeParam'
+      - $ref: '#/components/parameters/SortParam'
+      responses:
+        "200":
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DominiPagedList'
+        "204":
+          description: No content
+        "400":
+          description: Bad input parameter
+  /api/v1/entorn/{entornId}/dominis/{codi}:
+    get:
+      tags:
+      - Consulta
+      summary: Consulta un domini d'un tipus d'expedient
+      description: |
+        Obté el domini de tipus d'expedient donat el tipus d'expedient al que pertany, i el seu codi.
+        En cas d'informar el tipus d'expedient pare es tindrà en compte la herència
+      operationId: getDominiByEntornAndCodi
+      parameters:
+      - $ref: '#/components/parameters/EntornIdPathParam'
+      - $ref: '#/components/parameters/DominiCodiPathParam'
+      - $ref: '#/components/parameters/TipusExpedientPareParam'
+      responses:
+        "200":
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Domini'
+        "204":
+          description: No content
+        "400":
+          description: Bad input parameter
   /api/v1/expedientTipus/{expedientTipusId}/dominis:
     get:
       tags:
@@ -212,6 +261,8 @@ paths:
         - ordenar
         - paginar
         - filtrar (utilitzant sintaxi rsql)
+        
+        No té en compte la herència
       operationId: llistaDominiByExpedientTipus
       parameters:
       - $ref: '#/components/parameters/ExpedientTipusIdPathParam'
@@ -462,6 +513,16 @@ components:
       required: true
       style: simple
       explode: false
+      schema:
+        type: integer
+        format: int64
+    EntornParam:
+      name: entornId
+      in: query
+      description: Identificador de l'entorn
+      required: true
+      style: form
+      explode: true
       schema:
         type: integer
         format: int64

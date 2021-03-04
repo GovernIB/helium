@@ -20,10 +20,88 @@
     </properties>
 
     <dependencies>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web-services</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.ws</groupId>
+            <artifactId>spring-ws-security</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.ws.security</groupId>
+            <artifactId>wss4j</artifactId>
+            <version>1.6.19</version>
+        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>wsdl4j</groupId>-->
+<!--            <artifactId>wsdl4j</artifactId>-->
+<!--        </dependency>-->
+<!--        <dependency>-->
+<!--            <groupId>javax.activation</groupId>-->
+<!--            <artifactId>javax.activation-api</artifactId>-->
+<!--            <version>1.2.0</version>-->
+<!--        </dependency>-->
+
+        <dependency>
+            <groupId>com.hazelcast</groupId>
+            <artifactId>hazelcast</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.hazelcast</groupId>
+            <artifactId>hazelcast-eureka-one</artifactId>
+            <version>2.0.1</version>
+        </dependency>
         <dependency>
             <groupId>com.oracle.database.jdbc</groupId>
             <artifactId>ojdbc10</artifactId>
             <scope>runtime</scope>
         </dependency>
     </dependencies>
+
+<!--    <profiles>-->
+<!--        <profile>-->
+<!--            <id>java11</id>-->
+<!--            <activation>-->
+<!--                <jdk>[11,)</jdk>-->
+<!--            </activation>-->
+
+<!--            <dependencies>-->
+<!--                <dependency>-->
+<!--                    <groupId>org.glassfish.jaxb</groupId>-->
+<!--                    <artifactId>jaxb-runtime</artifactId>-->
+<!--                </dependency>-->
+<!--            </dependencies>-->
+<!--        </profile>-->
+<!--    </profiles>-->
+
+<!--    <build>-->
+<!--        <plugins>-->
+<!--            <plugin>-->
+<!--                <groupId>org.springframework.boot</groupId>-->
+<!--                <artifactId>spring-boot-maven-plugin</artifactId>-->
+<!--            </plugin>-->
+<!--            &lt;!&ndash; tag::wsdl[] &ndash;&gt;-->
+<!--            <plugin>-->
+<!--                <groupId>org.jvnet.jaxb2.maven2</groupId>-->
+<!--                <artifactId>maven-jaxb2-plugin</artifactId>-->
+<!--                <version>0.14.0</version>-->
+<!--                <executions>-->
+<!--                    <execution>-->
+<!--                        <goals>-->
+<!--                            <goal>generate</goal>-->
+<!--                        </goals>-->
+<!--                    </execution>-->
+<!--                </executions>-->
+<!--                <configuration>-->
+<!--                    <schemaDirectory>src/main/resources/es/caib/helium/domini/ws/</schemaDirectory>-->
+<!--                    <schemaIncludes>-->
+<!--                        <include>domini-schema.xsd</include>-->
+<!--                    </schemaIncludes>-->
+<!--                    <generatePackage>es.caib.helium.domini.ws</generatePackage>-->
+<!--                </configuration>-->
+<!--            </plugin>-->
+<!--        </plugins>-->
+<!--    </build>-->
 </project>

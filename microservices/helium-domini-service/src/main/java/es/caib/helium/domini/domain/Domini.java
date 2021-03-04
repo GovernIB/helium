@@ -119,10 +119,10 @@ public class Domini implements Persistable<Long> {
 		return id != null;
 	}
 
-//	@Transient
-//	public boolean isDominiIntern() {
-//		return id == null || id.equals(0L);
-//	}
+	@Transient
+	public boolean isDominiIntern() {
+		return id == null || id.equals(0L);
+	}
 
 	private static final long serialVersionUID = 1L;
 

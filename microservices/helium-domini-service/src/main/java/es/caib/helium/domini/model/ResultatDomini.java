@@ -9,5 +9,5 @@ import java.util.ArrayList;
 @Validated
 @EqualsAndHashCode
 @ToString
-public class ResultatDomini extends ArrayList<ParellaCodiValor> {
+public class ResultatDomini extends ArrayList<FilaResultat> {
 }

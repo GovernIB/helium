@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema elementFormDefault="unqualified"
+           targetNamespace="http://domini.integracio.helium.conselldemallorca.net/"
+           version="1.0"
+           xmlns:tns="http://domini.integracio.helium.conselldemallorca.net/"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    <xs:element name="consultaDomini" type="tns:consultaDomini"/>
+    <xs:element name="consultaDominiResponse" type="tns:consultaDominiResponse"/>
+    <xs:complexType name="consultaDomini">
+        <xs:sequence>
+            <xs:element minOccurs="0" name="arg0" type="xs:string"/>
+            <xs:element maxOccurs="unbounded" minOccurs="0" name="arg1" type="tns:parellaCodiValor"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="parellaCodiValor">
+        <xs:sequence>
+            <xs:element minOccurs="0" name="codi" type="xs:string"/>
+            <xs:element minOccurs="0" name="valor" type="xs:anyType"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="consultaDominiResponse">
+        <xs:sequence>
+            <xs:element maxOccurs="unbounded" minOccurs="0" name="return" type="tns:filaResultat"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="filaResultat">
+        <xs:sequence>
+            <xs:element maxOccurs="unbounded" minOccurs="0" name="columnes" nillable="true" type="tns:parellaCodiValor"/>
+        </xs:sequence>
+    </xs:complexType>
+</xs:schema>
