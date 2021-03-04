@@ -20,7 +20,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.fundaciobit.plugins.validatesignature.api.CertificateInfo;
+import org.fundaciobit.plugins.certificate.InformacioCertificat;
+//import org.fundaciobit.plugins.validatesignature.api.CertificateInfo;
 import org.fundaciobit.plugins.validatesignature.api.IValidateSignaturePlugin;
 import org.fundaciobit.plugins.validatesignature.api.SignatureDetailInfo;
 import org.fundaciobit.plugins.validatesignature.api.SignatureRequestedInformation;
@@ -140,6 +141,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.ZonaperExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.exception.SistemaExternException;
 import net.conselldemallorca.helium.v3.core.api.registre.RegistreAnnex;
+import net.conselldemallorca.helium.v3.core.api.registre.RegistreAnnexNtiTipusDocumentEnum;
 import net.conselldemallorca.helium.v3.core.api.registre.RegistreAnotacio;
 import net.conselldemallorca.helium.v3.core.api.registre.RegistreInteressat;
 import net.conselldemallorca.helium.v3.core.repository.DocumentStoreRepository;
@@ -2090,6 +2092,7 @@ public class PluginHelper {
 					motiu,
 					arxiu.getNom(),
 					arxiu.getContingut());
+//					RegistreAnnexNtiTipusDocumentEnum.valueOf(documentStore.getNtiTipoDocumental().name()).getValor());
 			monitorIntegracioHelper.addAccioOk(
 					MonitorIntegracioHelper.INTCODI_FIRMA_SERV,
 					accioDescripcio,
@@ -3048,11 +3051,14 @@ public class PluginHelper {
 					} else {
 						detall.setData(signatureInfo.getSignDate());
 					}
-					CertificateInfo certificateInfo = signatureInfo.getCertificateInfo();
+//					CertificateInfo certificateInfo = signatureInfo.getCertificateInfo();
+					InformacioCertificat certificateInfo = signatureInfo.getCertificateInfo();
 					if (certificateInfo != null) {
 						detall.setResponsableNif(certificateInfo.getNifResponsable());
-						detall.setResponsableNom(certificateInfo.getNombreApellidosResponsable());
-						detall.setEmissorCertificat(certificateInfo.getOrganizacionEmisora());
+//						detall.setResponsableNom(certificateInfo.getNombreApellidosResponsable());
+//						detall.setEmissorCertificat(certificateInfo.getOrganizacionEmisora());
+						detall.setResponsableNom(certificateInfo.getNomCompletResponsable());
+						detall.setEmissorCertificat(certificateInfo.getEmissorOrganitzacio());
 					}
 					detalls.add(detall);
 				}
@@ -3136,11 +3142,14 @@ public class PluginHelper {
 					} else {
 						detall.setData(signatureInfo.getSignDate());
 					}
-					CertificateInfo certificateInfo = signatureInfo.getCertificateInfo();
+//					CertificateInfo certificateInfo = signatureInfo.getCertificateInfo();
+					InformacioCertificat certificateInfo = signatureInfo.getCertificateInfo();
 					if (certificateInfo != null) {
 						detall.setResponsableNif(certificateInfo.getNifResponsable());
-						detall.setResponsableNom(certificateInfo.getNombreApellidosResponsable());
-						detall.setEmissorCertificat(certificateInfo.getOrganizacionEmisora());
+//						detall.setResponsableNom(certificateInfo.getNombreApellidosResponsable());
+//						detall.setEmissorCertificat(certificateInfo.getOrganizacionEmisora());
+						detall.setResponsableNom(certificateInfo.getNomCompletResponsable());
+						detall.setEmissorCertificat(certificateInfo.getEmissorOrganitzacio());
 					}
 					detalls.add(detall);
 				}
