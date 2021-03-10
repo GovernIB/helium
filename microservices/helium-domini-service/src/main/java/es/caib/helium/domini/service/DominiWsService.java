@@ -10,5 +10,5 @@ public interface DominiWsService {
     ResultatDomini consultaDomini(
             Domini domini,
             String identificador,
-            Map<String, Object> parametres);
+            Map<String, String> parametres);
 }

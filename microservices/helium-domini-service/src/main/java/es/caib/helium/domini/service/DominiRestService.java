@@ -10,6 +10,6 @@ public interface DominiRestService {
     ResultatDomini consultaDomini(
             Domini domini,
             String identificador,
-            Map<String, Object> parametres);
+            Map<String, String> parametres);
 
 }

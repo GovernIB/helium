@@ -9,13 +9,13 @@
 package es.caib.helium.domini.ws;
 
 import es.caib.helium.domini.model.FilaResultat;
+import es.caib.helium.domini.model.ResultatDomini;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
-import java.util.ArrayList;
-import java.util.List;
 
 
 /**
@@ -37,6 +37,7 @@ import java.util.List;
  * 
  * 
  */
+@XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "consultaDominiResponse", propOrder = {
     "_return"
@@ -44,7 +45,8 @@ import java.util.List;
 public class ConsultaDominiResponse {
 
     @XmlElement(name = "return")
-    protected List<FilaResultat> _return;
+//    protected List<FilaResultat> _return;
+    protected ResultatDomini _return;
 
     /**
      * Gets the value of the return property.
@@ -68,9 +70,15 @@ public class ConsultaDominiResponse {
      *
      *
      */
-    public List<FilaResultat> getReturn() {
+//    public List<FilaResultat> getReturn() {
+//        if (_return == null) {
+//            _return = new ArrayList<FilaResultat>();
+//        }
+//        return this._return;
+//    }
+    public ResultatDomini getReturn() {
         if (_return == null) {
-            _return = new ArrayList<FilaResultat>();
+            _return = new ResultatDomini();
         }
         return this._return;
     }

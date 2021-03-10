@@ -13,7 +13,6 @@ import org.apache.ws.security.WSConstants;
 import org.apache.ws.security.handler.WSHandlerConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
-import org.springframework.stereotype.Component;
 import org.springframework.ws.client.core.WebServiceTemplate;
 import org.springframework.ws.client.core.support.WebServiceGatewaySupport;
 import org.springframework.ws.client.support.interceptor.ClientInterceptor;
@@ -25,7 +24,7 @@ import java.util.List;
 import java.util.Map;
 
 @Slf4j
-@Component
+//@Component
 public class DominiWsServiceImpl extends WebServiceGatewaySupport implements DominiWsService {
 
     @Autowired
@@ -34,7 +33,7 @@ public class DominiWsServiceImpl extends WebServiceGatewaySupport implements Dom
     public ResultatDomini consultaDomini(
             Domini domini,
             String identificador,
-            Map<String, Object> parametres) {
+            Map<String, String> parametres) {
 
         // TODO: Afegir monitor d' integracions
 
@@ -72,6 +71,7 @@ public class DominiWsServiceImpl extends WebServiceGatewaySupport implements Dom
                 .marshalSendAndReceive(
                         domini.getUrl(),
                         request);
+
 
         return (ResultatDomini) response.getReturn();
     }

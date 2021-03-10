@@ -133,15 +133,21 @@ public class DominiController {
     @GetMapping(value = "/{dominiId}/resultats")
     public ResponseEntity<ResultatDomini> consultaDominiV1(
             @PathVariable("dominiId") Long dominiId,
-            @RequestParam(value = "identificador", required = false) String identificador,
-            @RequestParam(value = "parametres", required = false) Map<String, Object> parametres) {
+//            @RequestParam(value = "identificador", required = false) String identificador,
+            @RequestParam(required = false) Map<String, String> parametres) {
 
-            return new ResponseEntity<ResultatDomini>(
-                    dominiService.consultaDomini(
-                            dominiId,
-                            identificador,
-                            parametres),
-                    HttpStatus.OK);
+        String identificador = null;
+        if (parametres != null) {
+            identificador = parametres.get("identificador");
+            parametres.remove("identificador");
+        }
+
+        return new ResponseEntity(
+                dominiService.consultaDomini(
+                        dominiId,
+                        identificador,
+                        parametres),
+                HttpStatus.OK);
 
     }
 

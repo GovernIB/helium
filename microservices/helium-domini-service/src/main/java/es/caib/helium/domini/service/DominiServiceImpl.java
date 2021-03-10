@@ -15,6 +15,8 @@ import es.caib.helium.domini.repository.DominiRepository;
 import es.caib.helium.domini.repository.DominiSpecifications;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
@@ -30,6 +32,7 @@ import java.util.Optional;
 
 @Slf4j
 @RequiredArgsConstructor
+@ConfigurationProperties(prefix = "es.caib.helium", ignoreUnknownFields = true)
 @Service
 public class DominiServiceImpl implements DominiService {
 
@@ -43,6 +46,10 @@ public class DominiServiceImpl implements DominiService {
     private final DominiWsService dominiWsService;
     private final DominiSqlService dominiSqlService;
     private final DominiRestService dominiRestService;
+
+    @Value("${es.caib.helium.domini.intern.user}") String domini_intern_user;
+    @Value("${es.caib.helium.domini.intern.password}") String domini_intern_pass;
+    @Value("${es.caib.helium.domini.intern.service.host}") String domini_intern_url;
 
     @Override
     @Transactional
@@ -290,10 +297,21 @@ public class DominiServiceImpl implements DominiService {
     public ResultatDomini consultaDomini(
             Long dominiId,
             String identificador,
-            Map<String, Object> parametres) {
+            Map<String, String> parametres) {
 
         ResultatDomini resultat = null;
-        Domini domini = getDominiById(dominiId);
+        Domini domini;
+        if (dominiId == 0)
+            domini = Domini.builder()
+                    .id(0L)
+                    .url(domini_intern_url)
+                    .timeout(0)
+                    .tipusAuth(TipusAuthEnum.NONE)
+                    .usuari(domini_intern_user)
+                    .contrasenya(domini_intern_pass)
+                    .build();  // Domini intern
+        else
+            domini = getDominiById(dominiId);
 
         IMap<String, ResultatDominiCache> dominiCache = hazelcastInstance.getMap(CACHE_DOMINI_ID);
         String cacheKey = getCacheKey(domini.getId(), identificador, parametres);
@@ -315,13 +333,15 @@ public class DominiServiceImpl implements DominiService {
                     resultat = dominiRestService.consultaDomini(domini, identificador, parametres);
                 }
             } catch (Exception ex) {
+                String errorMsg = "Error consultat el domini " +
+                        "id=" + domini.getId() + ", " +
+                        "codi=" + domini.getCodi() + ", " +
+                        "identificador=" + identificador + ", " +
+                        "params=" + parametresToString(parametres) + "). ";
+                log.error(errorMsg, ex);
                 throw new ResponseStatusException(
                         HttpStatus.INTERNAL_SERVER_ERROR,
-                        "Error consultat el domini " +
-                                "id=" + domini.getId() + ", " +
-                                "codi=" + domini.getCodi() + ", " +
-                                "identificador=" + identificador + ", " +
-                                "params=" + parametresToString(parametres) + "). " + ex.getMessage());
+                        errorMsg + ex.getMessage());
             }
 
             if (resultat == null)
@@ -363,22 +383,22 @@ public class DominiServiceImpl implements DominiService {
 
     private String getCacheKey(
             Long dominiId,
-            String dominiWsId,
-            Map<String, Object> parametres) {
+            String identificador,
+            Map<String, String> parametres) {
         StringBuilder sb = new StringBuilder();
         sb.append(dominiId.toString());
         sb.append(CACHE_KEY_SEPARATOR);
-        sb.append(dominiWsId);
+        sb.append(identificador != null ? identificador : "<null>");
         sb.append(CACHE_KEY_SEPARATOR);
         if (parametres != null) {
             for (String clau: parametres.keySet()) {
                 sb.append(clau);
                 sb.append(CACHE_KEY_SEPARATOR);
-                Object valor = parametres.get(clau);
+                String valor = parametres.get(clau);
                 if (valor == null)
                     sb.append("<null>");
                 else
-                    sb.append(valor.toString());
+                    sb.append(valor);
                 sb.append(CACHE_KEY_SEPARATOR);
             }
         }
@@ -386,7 +406,7 @@ public class DominiServiceImpl implements DominiService {
     }
 
     private String parametresToString(
-            Map<String, Object> parametres) {
+            Map<String, String> parametres) {
         String separador = ", ";
         StringBuilder sb = new StringBuilder();
         if (parametres != null) {

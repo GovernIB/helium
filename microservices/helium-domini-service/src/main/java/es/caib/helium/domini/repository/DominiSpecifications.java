@@ -46,16 +46,16 @@ public class DominiSpecifications {
                 );
     }
 
-    public static Specification<Domini> isSobreescrit(Long expedientTipus, Long expedientTipusPare) {
-        return (domini, cq, cb) -> {
-            Root<Domini> domini2 = cq.from(Domini.class);
-            return cb.and(
-                    cb.equal(domini.get("codi"), domini2.get("codi")),
-                    cb.equal(domini.get("expedientTipus"), expedientTipus),
-                    cb.equal(domini2.get("expedientTipus"), expedientTipusPare)
-            );
-        };
-    }
+//    public static Specification<Domini> isSobreescrit(Long expedientTipus, Long expedientTipusPare) {
+//        return (domini, cq, cb) -> {
+//            Root<Domini> domini2 = cq.from(Domini.class);
+//            return cb.and(
+//                    cb.equal(domini.get("codi"), domini2.get("codi")),
+//                    cb.equal(domini.get("expedientTipus"), expedientTipus),
+//                    cb.equal(domini2.get("expedientTipus"), expedientTipusPare)
+//            );
+//        };
+//    }
 
     public static Specification<Domini> dominisAmbHerencia(
             Long entorn,

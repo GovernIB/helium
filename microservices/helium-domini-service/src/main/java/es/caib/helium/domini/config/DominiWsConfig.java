@@ -1,6 +1,8 @@
 package es.caib.helium.domini.config;
 
 import es.caib.helium.domini.service.DominiWsServiceImpl;
+import es.caib.helium.domini.ws.ConsultaDomini;
+import es.caib.helium.domini.ws.ConsultaDominiResponse;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.oxm.jaxb.Jaxb2Marshaller;
@@ -11,11 +13,12 @@ public class DominiWsConfig {
     @Bean
     public Jaxb2Marshaller marshaller() {
         Jaxb2Marshaller marshaller = new Jaxb2Marshaller();
-        // this package must match the package in the <generatePackage> specified in
-        // pom.xml
-        marshaller.setContextPaths(
-                "es.caib.helium.domini.ws",
-                "es.caib.helium.domini.model");
+//        marshaller.setContextPath("es.caib.helium.domini.ws");
+//        marshaller.setPackagesToScan("es.caib.helium.domini.ws", "es.caib.helium.domini.model");
+        marshaller.setClassesToBeBound(new Class[] {
+                ConsultaDomini.class,
+                ConsultaDominiResponse.class
+        });
         return marshaller;
     }
 

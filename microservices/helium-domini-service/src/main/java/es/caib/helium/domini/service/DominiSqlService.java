@@ -10,6 +10,6 @@ public interface DominiSqlService {
 
     ResultatDomini consultaDomini(
             Domini domini,
-            Map<String, Object> parametres) throws NamingException;
+            Map<String, String> parametres) throws NamingException;
 
 }

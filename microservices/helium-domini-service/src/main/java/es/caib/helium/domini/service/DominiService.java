@@ -62,5 +62,5 @@ public interface DominiService {
     ResultatDomini consultaDomini(
             Long dominiId,
             String identificador,
-            Map<String, Object> parametres);
+            Map<String, String> parametres);
 }
