@@ -9,6 +9,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -27,7 +29,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @RunWith(SpringRunner.class)
 @DataJpaTest
-class DominiRepositoryIT {
+class DominiRepositoryTest {
 
     @Autowired
     private TestEntityManager entityManager;
@@ -79,6 +81,16 @@ class DominiRepositoryIT {
                 .build();
 
     }
+
+    // Dominis existents:
+    // |------------------|-----------------|
+    // | Entorn 1         | Entorn 2        |
+    // |------------------|-----------------|
+    // | Domini 1:        | Domini 2:       |
+    // | - Domini_codi    | - Domini_codi   |
+    // | - expTip 2       | - expTip 3      |
+    // |------------------|-----------------|
+
 
     // FindByEntornAndId
     // ------------------------------------------------------------------
@@ -212,14 +224,13 @@ class DominiRepositoryIT {
 
     @Nested
     @DisplayName("Llista de dominis utilitzant especificacions")
-    class DominiRepositoryListIT {
+    class DominiRepositorySpecificationTest {
 
-        private Domini domini3;
         private Domini domini4;
 
         @BeforeEach
         void setUp() {
-            domini3 = Domini.builder()
+            Domini domini3 = Domini.builder()
                     .codi("Domini_codi_b")
                     .nom("Domini_nom3")
                     .tipus(TipusDominiEnum.CONSULTA_REST)
@@ -263,10 +274,25 @@ class DominiRepositoryIT {
             entityManager.persistAndFlush(domini4);
         }
 
+        // Dominis existents:
+        // |------------------|-----------------|
+        // | Entorn 1         | Entorn 2        |
+        // |------------------|-----------------|
+        // | Domini 1:        | Domini 2:       |
+        // | - Domini_codi    | - Domini_codi   |
+        // | - expTip 2       | - expTip 3      |
+        // |------------------|-----------------|
+        // | Domini 3:        | Domini 4:       |
+        // | - Domini_codi_b  | - Domini_codi_b |
+        // | - expTip 2       | - expTip null   |
+        // |------------------|-----------------|
+
+
         @Test
         @DisplayName("Llista tots")
         void whenFindAll_thenReturnDominiList() {
 
+            // Existeixen 4 dominis en total
             List<Domini> llista = dominiRepository.findAll();
 
             assertNotNull(llista);
@@ -282,6 +308,7 @@ class DominiRepositoryIT {
         @DisplayName("Llista amb especificacions - entorn")
         void whenBelongsToEntorn_thenReturnDominiList() {
 
+            // Hi ha 2 dominis a l'entorn 1
             List<Domini> llista = dominiRepository.findAll(DominiSpecifications.belongsToEntorn(domini.getEntorn()));
 
             assertNotNull(llista);
@@ -297,6 +324,7 @@ class DominiRepositoryIT {
         @DisplayName("Llista amb especificacions - entorn inexistent")
         void whenNoBelongsToEntorn_thenReturnEmptyList() {
 
+            // No hi ha cap domini a l'entorn 0
             List<Domini> llista = dominiRepository.findAll(DominiSpecifications.belongsToEntorn(0L));
             assertThat(llista).isEmpty();
 
@@ -309,6 +337,7 @@ class DominiRepositoryIT {
         @DisplayName("Llista amb especificacions - expedient tipus")
         void whenBelongsToExpedientTipus_thenReturnDominiList() {
 
+            // Els dominis 1 i 3 pertanyen al tipus d'expedient 2 (tot i que són d'entorns diferents)
             List<Domini> llista = dominiRepository.findAll(DominiSpecifications.belongsToExpedientTipus(domini.getExpedientTipus()));
 
             assertNotNull(llista);
@@ -324,6 +353,7 @@ class DominiRepositoryIT {
         @DisplayName("Llista amb especificacions - expedient tipus inexistent")
         void whenNoBelongsToExpedientTipus_thenReturnEmptyList() {
 
+            // No hi ha cap domini a l'expedient tipus 0
             List<Domini> llista = dominiRepository.findAll(DominiSpecifications.belongsToExpedientTipus(0L));
             assertThat(llista).isEmpty();
 
@@ -336,6 +366,7 @@ class DominiRepositoryIT {
         @DisplayName("Llista amb especificacions - expedient tipus + entorn")
         void whenBelongsToExpedientTipusAndEntorn_thenReturnDominiList() {
 
+            // Només hi ha el domini 2 amb expedient tipus 3 a l'entorn 2
             List<Domini> llista = dominiRepository.findAll(
                     DominiSpecifications.belongsToExpedientTipus(
                             domini2.getEntorn(),
@@ -357,6 +388,7 @@ class DominiRepositoryIT {
         @DisplayName("Llista amb especificacions - expedient tipus + entorn inexistent")
         void whenNoBelongsToExpedientTipusAndEntorn_thenReturnEmptyList() {
 
+            // No hi ha cap domini a l'entorn 0
             List<Domini> llista = dominiRepository.findAll(
                     DominiSpecifications.belongsToExpedientTipus(0L, 0L));
             assertThat(llista).isEmpty();
@@ -370,6 +402,7 @@ class DominiRepositoryIT {
         @DisplayName("Llista amb especificacions - global")
         void whenGlobal_thenReturnDominiList() {
 
+            // Hi ha el domini 4 global a l'entorn 2
             List<Domini> llista = dominiRepository.findAll(
                     DominiSpecifications.isGlobal(domini4.getEntorn()));
 
@@ -389,6 +422,7 @@ class DominiRepositoryIT {
         @DisplayName("Llista amb especificacions - global buit")
         void whenGlobalBuit_thenReturnEmptyList() {
 
+            // No hi ha cap domini global a l'entorn 1
             List<Domini> llista = dominiRepository.findAll(
                     DominiSpecifications.isGlobal(domini.getEntorn()));
             assertThat(llista).isEmpty();
@@ -402,6 +436,8 @@ class DominiRepositoryIT {
         @DisplayName("Llista amb especificacions - expedient tipus o global")
         void whenBelongsToExpedientTipusOrGlobal_thenReturnDominiList() {
 
+            // Consultam els dominis de l'entorn 2 i expedient tipus 3
+            // Ha de trobar els dominis 4 (global) i 2
             List<Domini> llista = dominiRepository.findAll(
                     DominiSpecifications.belongsToExpedientTipusOrIsGlobal(
                             domini2.getEntorn(),
@@ -426,21 +462,303 @@ class DominiRepositoryIT {
         @DisplayName("Llista amb especificacions - expedient tipus o global buit")
         void whenNoBelongsToExpedientTipusOrGlobal_thenReturnEmptyList() {
 
+            // No existeix cap domini en l'entorn 0
             List<Domini> llista = dominiRepository.findAll(
                     DominiSpecifications.belongsToExpedientTipusOrIsGlobal(0L, 0L));
             assertThat(llista).isEmpty();
 
         }
 
-        // dominisAmbHerencia
-        // ------------------------------------------------------------------
+        // Dominis amb Herencia
 
-        // dominisSenseHerencia
-        // ------------------------------------------------------------------
+        @Nested
+        @DisplayName("Llista de dominis amb herencia utilitzant especificacions")
+        class DominiRepositorySpecificationHerenciaTest {
 
-        // dominisList
-        // ------------------------------------------------------------------
+            @BeforeEach
+            void setUp() {
+                Domini domini5 = Domini.builder()
+                        .codi("Domini_codi")
+                        .nom("Domini_nom5")
+                        .tipus(TipusDominiEnum.CONSULTA_REST)
+                        .url("http://localhost:8080/api/rest5")
+                        .tipusAuth(TipusAuthEnum.NONE)
+                        .origenCredencials(OrigenCredencialsEnum.ATRIBUTS)
+                        .usuari("usuari5")
+                        .contrasenya("password5")
+                        .sql("select * from hel_domini5")
+                        .jndiDatasource("java:/es.caib.helium.db5")
+                        .descripcio("Domini_descripcio5")
+                        .cacheSegons(3605)
+                        .timeout(305)
+                        .ordreParams("none5")
+                        .entorn(2L)
+                        .expedientTipus(1L)
+                        .build();
 
+                entityManager.persistAndFlush(domini5);
+            }
+
+            // Dominis existents:
+            // |------------------|-----------------|
+            // | Entorn 1         | Entorn 2        |
+            // |------------------|-----------------|
+            // | Domini 1:        | Domini 2:       |
+            // | - Domini_codi    | - Domini_codi   |
+            // | - expTip 2       | - expTip 3      |
+            // |------------------|-----------------|
+            // | Domini 3:        | Domini 4:       |
+            // | - Domini_codi_b  | - Domini_codi_b |
+            // | - expTip 2       | - expTip null   |
+            // |------------------|-----------------|
+            // |                  | Domini 5:       |
+            // |                  | - Domini_codi   |
+            // |                  | - expTip 1      |
+            // |------------------|-----------------|
+
+
+            // dominisAmbHerencia
+            // ------------------------------------------------------------------
+
+            // Consultam els dominis de l'entorn 2, i utilitzam el tipus d'expedient 3
+            @ParameterizedTest(name = "{displayName} - [{index}] {arguments}")
+            @DisplayName("Llista amb especificacions - dominis amb herencia")
+            @CsvSource({
+                    // Descripcio, Entorn, Expedient tipus, Expedient tipus pare, Incloure globals
+                    "Sobrescrit amb globals, 2, 3, 1, true",
+                    "Sobrescrit sense globals, 2, 3, 1, false",
+                    "Heretat amb globals, 2, 0, 3, true",
+                    "Heretat sense globals, 2, 0, 3, false, "
+            })
+            void whenDominisSenseHerencia_thenReturnDominiList(
+                    String descripcio,
+                    Long entorn,
+                    Long expedientTipus,
+                    Long expedientTipusPare,
+                    boolean incloureGlobals) {
+
+                System.out.println("Executant test: " + descripcio);
+                List<Domini> llista = dominiRepository.findAll(
+                        DominiSpecifications.dominisAmbHerencia(
+                                entorn,
+                                expedientTipus,
+                                expedientTipusPare,
+                                incloureGlobals));
+
+                assertNotNull(llista);
+                assertThat(llista).isNotEmpty();
+
+                checkDominisAmbHerencia(entorn, expedientTipus, expedientTipusPare, incloureGlobals, llista);
+            }
+
+            @Test
+            @DisplayName("Llista amb especificacions - dominis amb herencia inexistent")
+            void whenInvalidDominisAmbHerencia_thenReturnNull() {
+
+                // No existeix cap domini en l'entorn 0
+                List<Domini> llista = dominiRepository.findAll(
+                        DominiSpecifications.dominisAmbHerencia(
+                                0L,
+                                0L,
+                                0L,
+                                true));
+                assertTrue(llista.isEmpty());
+            }
+
+            // dominisSenseHerencia
+            // ------------------------------------------------------------------
+
+            // Consultam els dominis de l'entorn 2, i utilitzam el tipus d'expedient 3
+            @ParameterizedTest(name = "{displayName} - [{index}] {arguments}")
+            @DisplayName("Llista amb especificacions - dominis sense herencia")
+            @CsvSource({
+                    // Descripcio, Entorn, Expedient tipus, Incloure globals
+                    "Entorn + Global, 2, , true",
+                    "TipusExp + Global, 2, 3, true",
+                    "Global, 2, , false",
+                    "TipusExp, 2, 3, false"
+            })
+            void whenDominisSenseHerencia_thenReturnDominiList(
+                    String descripcio,
+                    Long entorn,
+                    Long expedientTipus,
+                    boolean incloureGlobals) {
+
+                System.out.println("Executant test: " + descripcio);
+
+                List<Domini> llista = dominiRepository.findAll(
+                        DominiSpecifications.dominisSenseHerencia(
+                                entorn,
+                                expedientTipus,
+                                incloureGlobals));
+
+                assertNotNull(llista);
+                assertThat(llista).isNotEmpty();
+
+                checkDominisSenseHerencia(entorn, expedientTipus, incloureGlobals, llista);
+            }
+
+            @Test
+            @DisplayName("Llista amb especificacions - dominis sense herencia inexistent")
+            void whenInvalidDominisSenseHerencia_thenReturnNull() {
+
+                // No existeix cap domini en l'entorn 0
+                List<Domini> llista = dominiRepository.findAll(
+                        DominiSpecifications.dominisSenseHerencia(
+                                0L,
+                                0L,
+                                true));
+                assertTrue(llista.isEmpty());
+            }
+
+            // dominisList
+            // ------------------------------------------------------------------
+            // Consultam els dominis de l'entorn 2, i utilitzam el tipus d'expedient 3
+            @ParameterizedTest(name = "{displayName} - [{index}] {arguments}")
+            @DisplayName("Llista amb especificacions - dominis")
+            @CsvSource({
+                    // Entorn, Expedient tipus, Incloure globals
+                    "No Herencia. Entorn + Global, 2, , , true",
+                    "No Herencia. TipusExp + Global, 2, 3, , true",
+                    "No Herencia. Global, 2, , , false",
+                    "No Herencia. TipusExp, 2, 3, , false",
+                    "Sobrescrit amb globals, 2, 3, 1, true",
+                    "Sobrescrit sense globals, 2, 3, 1, false",
+                    "Heretat amb globals, 2, 0, 3, true",
+                    "Heretat sense globals, 2, 0, 3, false"
+            })
+            void whenDominisList_thenReturnDominiList(
+                    String descripcio,
+                    Long entorn,
+                    Long expedientTipus,
+                    Long expedientTipusPare,
+                    boolean incloureGlobals) {
+
+                System.out.println("Executant test: " + descripcio);
+
+                List<Domini> llista = dominiRepository.findAll(
+                        DominiSpecifications.dominisList(
+                                entorn,
+                                expedientTipus,
+                                expedientTipusPare,
+                                incloureGlobals));
+
+                assertNotNull(llista);
+                assertThat(llista).isNotEmpty();
+
+                if (expedientTipusPare == null) {
+                    checkDominisSenseHerencia(entorn, expedientTipus, incloureGlobals, llista);
+                } else {
+                    checkDominisAmbHerencia(entorn, expedientTipus, expedientTipusPare, incloureGlobals, llista);
+                }
+            }
+
+            @Test
+            @DisplayName("Llista amb especificacions - dominis inexistent")
+            void whenInvalidDominisList_thenReturnNull() {
+
+                // No existeix cap domini en l'entorn 0
+                List<Domini> llista = dominiRepository.findAll(
+                        DominiSpecifications.dominisList(
+                                0L,
+                                0L,
+                                0L,
+                                true));
+                assertTrue(llista.isEmpty());
+            }
+
+            private void checkDominisAmbHerencia(
+                    Long entorn,
+                    Long expedientTipus,
+                    Long expedientTipusPare,
+                    boolean incloureGlobals, List<Domini> llista) {
+
+                Long zero = 0L;
+                Condition<Domini> expTipus = new Condition<>(d -> expedientTipus.equals(d.getExpedientTipus()), "expTipus");
+                Condition<Domini> expTipusPare = new Condition<>(d -> expedientTipusPare.equals(d.getExpedientTipus()), "expTipusPare");
+                Condition<Domini> global = new Condition<>(d -> d.getExpedientTipus() == null, "global");
+
+                // Incloem globals
+                if (incloureGlobals) {
+                    // - Amb domini sobrescrit
+                    if (!zero.equals(expedientTipus)) {
+                        assertThat(llista.size()).isEqualTo(2);
+                        for (Domini d: llista) {
+                            assertAll(
+                                    () -> assertThat(d).is(anyOf(expTipus, global)),
+                                    () -> assertThat(d.getEntorn()).isEqualTo(entorn)
+                            );
+                        }
+                        // - Amb domini NO sobrescrit
+                    } else {
+                        assertThat(llista.size()).isEqualTo(2);
+                        for (Domini d: llista) {
+                            assertAll(
+                                    () -> assertThat(d).is(anyOf(expTipusPare, global)),
+                                    () -> assertThat(d.getEntorn()).isEqualTo(entorn)
+                            );
+                        }
+                    }
+
+                    // No incloem globals
+                } else {
+                    // - Amb domini sobrescrit
+                    if (!zero.equals(expedientTipus)) {
+                        assertThat(llista.size()).isEqualTo(1);
+                        assertThat(llista.get(0).getEntorn()).isEqualTo(entorn);
+                        assertThat(llista.get(0).getExpedientTipus()).isEqualTo(expedientTipus);
+                        // - Amb domini NO sobrescrit
+                    } else {
+                        assertThat(llista.size()).isEqualTo(1);
+                        assertThat(llista.get(0).getEntorn()).isEqualTo(entorn);
+                        assertThat(llista.get(0).getExpedientTipus()).isEqualTo(expedientTipusPare);
+                    }
+                }
+            }
+
+            private void checkDominisSenseHerencia(Long entorn, Long expedientTipus, boolean incloureGlobals, List<Domini> llista) {
+                // Incloem globals
+                if (incloureGlobals) {
+
+                    // - Sense expedient tipus: ha de trobar tots els dominis de l'entorn (2, 4 i 5)
+                    if (expedientTipus == null) {
+                        assertThat(llista.size()).isEqualTo(3);
+                        for (Domini d : llista) {
+                            assertThat(d.getEntorn()).isEqualTo(entorn);
+                        }
+
+                    // - Amb expedient tipus 3: ha de trobar únicament els domini 2 i 4 (global)
+                    } else {
+                        Condition<Domini> expTipus = new Condition<>(d -> expedientTipus.equals(d.getExpedientTipus()), "expTipus");
+                        Condition<Domini> global = new Condition<>(d -> d.getExpedientTipus() == null, "global");
+
+                        assertThat(llista.size()).isEqualTo(2);
+                        for (Domini d : llista) {
+                            assertAll(
+                                    () -> assertThat(d).is(anyOf(expTipus, global)),
+                                    () -> assertThat(d.getEntorn()).isEqualTo(entorn)
+                            );
+                        }
+                    }
+
+                // No incloem globals
+                } else {
+
+                    // - Sense expedient tipus: ha de trobar només els dominis globals (Domini 4)
+                    if (expedientTipus == null) {
+                        assertThat(llista.size()).isEqualTo(1);
+                        assertThat(llista.get(0).getEntorn()).isEqualTo(entorn);
+                        assertThat(llista.get(0).getExpedientTipus()).isNull();
+
+                    // - Amb expedient tipus 3: ha de trobar únicament el domini 2
+                    } else {
+                        assertThat(llista.size()).isEqualTo(1);
+                        assertThat(llista.get(0).getEntorn()).isEqualTo(entorn);
+                        assertThat(llista.get(0).getExpedientTipus()).isEqualTo(expedientTipus);
+                    }
+                }
+            }
+        }
     }
 
 

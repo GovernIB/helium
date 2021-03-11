@@ -31,7 +31,7 @@ import javax.validation.constraints.Size;
 @Builder
 @Entity
 @Table(	name="hel_domini",
-		uniqueConstraints={@UniqueConstraint(columnNames = {"codi", "entorn_id"})},
+		uniqueConstraints={@UniqueConstraint(columnNames = {"codi", "entorn_id", "expedient_tipus_id"})},
 		indexes = {
 			@Index(name = "hel_domini_entorn_i", columnList = "entorn_id"),
 			@Index(name = "hel_domini_exptip_i", columnList = "expedient_tipus_id")
