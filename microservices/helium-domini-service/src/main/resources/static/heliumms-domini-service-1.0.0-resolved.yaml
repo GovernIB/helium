@@ -247,7 +247,7 @@ paths:
       tags:
       - Consulta
       summary: Consulta un domini
-      description: "Realitza la consulta del domini amb l'identificador passat al paràmetre `dominiId`.  \nPer a realitzar la consulta utilitza la configuració del domini, juntament amb els paràmetres passats.  \nEls paràmetres es passaran com un mapa amb la clau de tipus string, i un valor de tipus objecte\n"
+      description: "Realitza la consulta del domini amb l'identificador passat al paràmetre `dominiId`.  \nPer a realitzar la consulta utilitza la configuració del domini, juntament amb els paràmetres passats.  \nEls paràmetres es passaran com un mapa amb la clau de tipus string, i un valor en format string.\n- Si l'identificador de domini = 0 es tractarà com a un domini intern.\n- En la consulta de dominis interns, és obligatori informar el codi de l'entorn en un paràmetre de nom `entorn`\n- En la consulta de dominis SQL, si es passa algun paràmetre que no sigui de tipus string, s'haurà d'especificar el seu tipus utilitzant un altre paràmetre amb el mateix nom, acabat amb -tipus.  \n  Ex. paràmetre de nom num, valor 24 i tipus enter:  *num=24&num-tipus=int*\n  Els tipus de dades possibles son:\n  - int\n  - float\n  - boolean\n  - date\n  - price  \n  \n  En cas de no especificar el tipus es considera de tipus string.\n"
       operationId: consultaDominiV1
       parameters:
       - name: dominiId
@@ -617,16 +617,18 @@ components:
       items:
         $ref: '#/components/schemas/FilaResultat'
     FilaResultat:
-      type: array
-      items:
-        $ref: '#/components/schemas/ParellaCodiValor'
+      properties:
+        columnes:
+          type: array
+          items:
+            $ref: '#/components/schemas/ParellaCodiValor'
     ParellaCodiValor:
       type: object
       properties:
         codi:
           type: string
         valor:
-          type: string
+          type: object
     DominiList:
       type: array
       items:
