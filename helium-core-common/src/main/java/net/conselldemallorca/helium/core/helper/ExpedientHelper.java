@@ -1724,6 +1724,9 @@ public class ExpedientHelper {
 					numero);
 			increment++;
 		} while (expedient != null);
+		if (increment > 1) {
+			expedientTipus.updateSequencia(any, increment -1);
+		}
 		return numero;
 	}
 	
