@@ -191,7 +191,8 @@ public class ServiceUtils {
 					getMapValorsDomini(mapCamps, mapValors),
 					isExpedientFinalitzat(expedient));
 		} finally {
-			expedientDeLaTasca.setReindexarError(!success);
+			if (expedientDeLaTasca != null)
+				expedientDeLaTasca.setReindexarError(!success);
 			if (perTasca) {
 				contextTotal.stop();
 				contextEntorn.stop();
