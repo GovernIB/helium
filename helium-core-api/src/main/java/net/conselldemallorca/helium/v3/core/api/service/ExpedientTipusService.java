@@ -264,6 +264,16 @@ public interface ExpedientTipusService {
 	 */
 	public List<ExpedientTipusDto> findAmbEntornPermisAnotacio(
 			Long entornId) throws NoTrobatException;
+	
+	/**
+	 * Retorna els tipus d'expedient d'un entorn sobre els quals l'usuari pot executar scripts.
+	 * 
+	 * @param entornId
+	 *            Atribut id de l'entorn.
+	 * @return Els tipus d'expedient amb permisos d'execució d'script.
+	 */
+	public List<ExpedientTipusDto> findAmbEntornPermisExecucioScript(
+			Long entornId) throws NoTrobatException;
 
 	/**
 	 * Retorna un tipus d'expedient donat el seu id per a dissenyar.

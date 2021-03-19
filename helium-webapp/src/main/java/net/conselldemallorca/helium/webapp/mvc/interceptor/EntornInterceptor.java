@@ -246,6 +246,10 @@ public class EntornInterceptor extends HandlerInterceptorAdapter {
 				SessionHelper.VARIABLE_PERMIS_ANOTACIONS_PROCESSAR, 
 				!expedientTipusService.findAmbEntornPermisAnotacio(entorn.getId()).isEmpty());
 		SessionHelper.setAttribute(
+				request, 
+				SessionHelper.VARIABLE_PERMIS_SCRIPTS_EXECUTAR,
+				!expedientTipusService.findAmbEntornPermisExecucioScript(entorn.getId()).isEmpty());
+		SessionHelper.setAttribute(
 				request,
 				SessionHelper.VARIABLE_PREFERENCIES_USUARI,
 				aplicacioService.getUsuariPreferencies());
