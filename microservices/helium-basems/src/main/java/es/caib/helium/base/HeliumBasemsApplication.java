@@ -14,6 +14,7 @@ public class HeliumBasemsApplication {
 
     public static void main(String[] args) {
         SpringApplication.run(HeliumBasemsApplication.class, args);
+        System.setProperty("oracle.jdbc.timezoneAsRegion", "false");
     }
 
 }
