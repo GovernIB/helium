@@ -10,7 +10,7 @@
     </parent>
     <groupId>es.caib.helium</groupId>
     <artifactId>heliium-config-server</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.1</version>
     <name>heliium-config-server</name>
     <description>Config Server per Helium</description>
 
