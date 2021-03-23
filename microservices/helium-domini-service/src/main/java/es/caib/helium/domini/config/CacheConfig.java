@@ -7,7 +7,14 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 
+/**
+ * Classe de configuració de la caché distribuïda
+ *
+ * Configuració per a execució amb spring-cloud i amb docker compose
+ */
+@Profile(value = {"spring-cloud", "compose"})
 @Configuration
 public class CacheConfig {
 

@@ -3,10 +3,15 @@ package es.caib.helium.domini.config;
 import es.caib.helium.domini.service.DominiWsServiceImpl;
 import es.caib.helium.domini.ws.ConsultaDomini;
 import es.caib.helium.domini.ws.ConsultaDominiResponse;
+import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.oxm.jaxb.Jaxb2Marshaller;
+import org.springframework.web.client.RestTemplate;
 
+/**
+ * Classe de configuració per aaccés a serveis SOAP
+ */
 @Configuration
 public class DominiWsConfig {
 
@@ -29,5 +34,10 @@ public class DominiWsConfig {
         client.setMarshaller(marshaller);
         client.setUnmarshaller(marshaller);
         return client;
+    }
+
+    @Bean
+    public RestTemplate restTemplate(RestTemplateBuilder restTemplateBuilder) {
+        return restTemplateBuilder.build();
     }
 }

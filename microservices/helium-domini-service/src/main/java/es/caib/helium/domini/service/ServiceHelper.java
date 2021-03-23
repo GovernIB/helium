@@ -28,9 +28,9 @@ import java.util.stream.Collectors;
 
 public class ServiceHelper {
 
-    public static <T> Page<T> getEntityPage(
-            BaseRepository repository,
-            Specification spec,
+    public static <E, PK> Page<E> getEntityPage(
+            BaseRepository<E, PK> repository,
+            Specification<E> spec,
             String filtreRsql,
             Pageable pageable,
             Sort sort,
@@ -38,7 +38,7 @@ public class ServiceHelper {
 
         if (filtreRsql != null && !filtreRsql.isBlank()) {
             try {
-                Specification<T> rsqlSpec = getRsqlSpecification(filtreRsql);
+                Specification<E> rsqlSpec = getRsqlSpecification(filtreRsql);
                 if (spec != null)
                     spec = Specification.where(spec).and(rsqlSpec);
                 else
@@ -51,25 +51,25 @@ public class ServiceHelper {
         if (spec != null) {
             if (pageable.isUnpaged()) {
                 sort = addDefaultSort(sort, dtoClass);
-                List<T> resultList = repository.findAll(spec, sort);
-                return new PageImpl(resultList, pageable, resultList.size());
+                List<E> resultList = repository.findAll(spec, sort);
+                return new PageImpl<>(resultList, pageable, resultList.size());
             } else {
                 return repository.findAll(spec, processPageable(pageable, dtoClass));
             }
         } else {
             if (pageable.isUnpaged()) {
                 sort = addDefaultSort(sort, dtoClass);
-                List<T> resultList = repository.findAll(sort);
-                return new PageImpl(resultList, pageable, resultList.size());
+                List<E> resultList = repository.findAll(sort);
+                return new PageImpl<>(resultList, pageable, resultList.size());
             } else {
                 return repository.findAll(processPageable(pageable, dtoClass));
             }
         }
     }
 
-    public static <E, D> PagedList<D> getDtoPage(
-            BaseRepository repository,
-            Specification spec,
+    public static <E, D, PK> PagedList<D> getDtoPage(
+            BaseRepository<E, PK> repository,
+            Specification<E> spec,
             String filtreRsql,
             Pageable pageable,
             Sort sort,
@@ -77,14 +77,14 @@ public class ServiceHelper {
             BaseMapper<E, D> mapper) {
         Page<E> page = getEntityPage(repository, spec, filtreRsql, pageable, sort, dtoClass);
 
-        return  new PagedList<D>(
+        return new PagedList<>(
                 page.getContent()
                         .stream()
                         .map(mapper::entityToDto)
                         .collect(Collectors.toList()),
 //                PageRequest.of(
-//                        dominiPage.getPageable().getPageNumber(),
-//                        dominiPage.getPageable().getPageSize()),
+//                        pageable.getPageNumber(),
+//                        pageable.getPageSize()),
                 page.getPageable(),
                 page.getTotalElements()
         );
@@ -107,7 +107,7 @@ public class ServiceHelper {
         if (sort == null || sort.isEmpty()) {
             DefaultSort defaultOrderAnnotation = dtoClass.getAnnotation(DefaultSort.class);
             if (defaultOrderAnnotation != null && defaultOrderAnnotation.sortFields().length > 0) {
-                List<Sort.Order> orders = new ArrayList<Sort.Order>();
+                List<Sort.Order> orders = new ArrayList<>();
                 for (DefaultOrder defOrder: defaultOrderAnnotation.sortFields()) {
                     orders.add(new Sort.Order(defOrder.direction(), defOrder.field()));
                 }
@@ -123,8 +123,7 @@ public class ServiceHelper {
         operators.add(RsqlSearchOperation.NOT_EQUAL_IGNORE_CASE.getOperator());
         operators.add(RsqlSearchOperation.IS_NULL.getOperator());
         operators.add(RsqlSearchOperation.IS_NOT_NULL.getOperator());
-        Node rootNode = new RSQLParser(operators).parse(rsqlFilter.toString());
-        Specification<T> spec = rootNode.accept(new CustomRsqlVisitor<T>());
-        return spec;
+        Node rootNode = new RSQLParser(operators).parse(rsqlFilter);
+        return rootNode.accept(new CustomRsqlVisitor<>());
     }
 }

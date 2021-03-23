@@ -1,9 +1,7 @@
 package es.caib.helium.domini.repository;
 
+import es.caib.helium.domini.DominiTestHelper;
 import es.caib.helium.domini.domain.Domini;
-import es.caib.helium.domini.model.OrigenCredencialsEnum;
-import es.caib.helium.domini.model.TipusAuthEnum;
-import es.caib.helium.domini.model.TipusDominiEnum;
 import org.assertj.core.api.Condition;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -11,11 +9,9 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
-import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
-import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.List;
 import java.util.Optional;
@@ -27,9 +23,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@RunWith(SpringRunner.class)
 @DataJpaTest
-class DominiRepositoryTest {
+class DominiRepositoryIT {
 
     @Autowired
     private TestEntityManager entityManager;
@@ -42,44 +37,8 @@ class DominiRepositoryTest {
 
     @BeforeEach
     void setUp() {
-        domini = Domini.builder()
-                .codi("Domini_codi")
-                .nom("Domini_nom")
-                .tipus(TipusDominiEnum.CONSULTA_REST)
-                .url("http://localhost:8080/api/rest")
-                .tipusAuth(TipusAuthEnum.HTTP_BASIC)
-                .origenCredencials(OrigenCredencialsEnum.ATRIBUTS)
-                .usuari("usuari")
-                .contrasenya("password")
-                .sql("select * from hel_domini")
-                .jndiDatasource("java:/es.caib.helium.db")
-                .descripcio("Domini_descripcio")
-                .cacheSegons(3600)
-                .timeout(300)
-                .ordreParams("none")
-                .entorn(1L)
-                .expedientTipus(2L)
-                .build();
-
-        domini2 = Domini.builder()
-                .codi("Domini_codi")
-                .nom("Domini_nom2")
-                .tipus(TipusDominiEnum.CONSULTA_WS)
-                .url("http://localhost:8080/api/rest2")
-                .tipusAuth(TipusAuthEnum.USERNAMETOKEN)
-                .origenCredencials(OrigenCredencialsEnum.PROPERTIES)
-                .usuari("usuari2")
-                .contrasenya("password2")
-                .sql("select * from hel_domini2")
-                .jndiDatasource("java:/es.caib.helium.db2")
-                .descripcio("Domini_descripcio2")
-                .cacheSegons(3602)
-                .timeout(302)
-                .ordreParams("none2")
-                .entorn(2L)
-                .expedientTipus(3L)
-                .build();
-
+        domini = DominiTestHelper.generateDomini(1, "Domini_codi", 1L, 2L);
+        domini2 = DominiTestHelper.generateDomini(2, "Domini_codi", 2L, 3L);
     }
 
     // Dominis existents:
@@ -121,6 +80,7 @@ class DominiRepositoryTest {
     @DisplayName("Consulta per entorn i codi")
     void whenFindByEntornAndCodi_thenReturnDomini() {
 
+        domini.setExpedientTipus(null);
         entityManager.persistAndFlush(domini);
 
         Optional<Domini> trobat = dominiRepository.findByEntornAndCodi(
@@ -224,49 +184,14 @@ class DominiRepositoryTest {
 
     @Nested
     @DisplayName("Llista de dominis utilitzant especificacions")
-    class DominiRepositorySpecificationTest {
+    class DominiRepositorySpecificationIT {
 
         private Domini domini4;
 
         @BeforeEach
         void setUp() {
-            Domini domini3 = Domini.builder()
-                    .codi("Domini_codi_b")
-                    .nom("Domini_nom3")
-                    .tipus(TipusDominiEnum.CONSULTA_REST)
-                    .url("http://localhost:8080/api/rest")
-                    .tipusAuth(TipusAuthEnum.HTTP_BASIC)
-                    .origenCredencials(OrigenCredencialsEnum.ATRIBUTS)
-                    .usuari("usuari3")
-                    .contrasenya("password3")
-                    .sql("select * from hel_domini3")
-                    .jndiDatasource("java:/es.caib.helium.db3")
-                    .descripcio("Domini_descripcio3")
-                    .cacheSegons(3603)
-                    .timeout(303)
-                    .ordreParams("none3")
-                    .entorn(1L)
-                    .expedientTipus(2L)
-                    .build();
-
-            domini4 = Domini.builder()
-                    .codi("Domini_codi_b")
-                    .nom("Domini_nom2")
-                    .tipus(TipusDominiEnum.CONSULTA_WS)
-                    .url("http://localhost:8080/api/rest2")
-                    .tipusAuth(TipusAuthEnum.USERNAMETOKEN)
-                    .origenCredencials(OrigenCredencialsEnum.PROPERTIES)
-                    .usuari("usuari2")
-                    .contrasenya("password2")
-                    .sql("select * from hel_domini2")
-                    .jndiDatasource("java:/es.caib.helium.db2")
-                    .descripcio("Domini_descripcio2")
-                    .cacheSegons(3602)
-                    .timeout(302)
-                    .ordreParams("none2")
-                    .entorn(2L)
-                    .expedientTipus(null)
-                    .build();
+            Domini domini3 = DominiTestHelper.generateDomini(3, "Domini_codi_b", 1L, 2L);
+            domini4 = DominiTestHelper.generateDomini(4, "Domini_codi_b", 2L, null);
 
             entityManager.persistAndFlush(domini);
             entityManager.persistAndFlush(domini2);
@@ -473,29 +398,11 @@ class DominiRepositoryTest {
 
         @Nested
         @DisplayName("Llista de dominis amb herencia utilitzant especificacions")
-        class DominiRepositorySpecificationHerenciaTest {
+        class DominiRepositorySpecificationHerenciaIT {
 
             @BeforeEach
             void setUp() {
-                Domini domini5 = Domini.builder()
-                        .codi("Domini_codi")
-                        .nom("Domini_nom5")
-                        .tipus(TipusDominiEnum.CONSULTA_REST)
-                        .url("http://localhost:8080/api/rest5")
-                        .tipusAuth(TipusAuthEnum.NONE)
-                        .origenCredencials(OrigenCredencialsEnum.ATRIBUTS)
-                        .usuari("usuari5")
-                        .contrasenya("password5")
-                        .sql("select * from hel_domini5")
-                        .jndiDatasource("java:/es.caib.helium.db5")
-                        .descripcio("Domini_descripcio5")
-                        .cacheSegons(3605)
-                        .timeout(305)
-                        .ordreParams("none5")
-                        .entorn(2L)
-                        .expedientTipus(1L)
-                        .build();
-
+                Domini domini5 = DominiTestHelper.generateDomini(5, "Domini_codi", 2L, 1L);
                 entityManager.persistAndFlush(domini5);
             }
 

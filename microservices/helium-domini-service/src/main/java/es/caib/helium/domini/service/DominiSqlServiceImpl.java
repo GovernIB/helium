@@ -5,6 +5,7 @@ import es.caib.helium.domini.model.FilaResultat;
 import es.caib.helium.domini.model.ParellaCodiValor;
 import es.caib.helium.domini.model.ResultatDomini;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.env.Environment;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -29,7 +30,8 @@ public class DominiSqlServiceImpl implements DominiSqlService {
 
     private final Environment environment;
 
-    private final Map<Long, NamedParameterJdbcTemplate> jdbcTemplates = new HashMap<>();
+    @Setter
+    private Map<Long, NamedParameterJdbcTemplate> jdbcTemplates = new HashMap<>();
 
     @Override
     public ResultatDomini consultaDomini(
@@ -89,7 +91,7 @@ public class DominiSqlServiceImpl implements DominiSqlService {
                     case "date":
                         String[] dataSplit = valor.split("/");
                         Calendar data = new GregorianCalendar();
-                        data.set(Integer.parseInt(dataSplit[2]),Integer.parseInt(dataSplit[1]),Integer.parseInt(dataSplit[0]));
+                        data.set(Integer.parseInt(dataSplit[2]),Integer.parseInt(dataSplit[1]) - 1,Integer.parseInt(dataSplit[0]));
                         return data.getTime();
                     case "price":
                         return new BigDecimal(Double.parseDouble(valor));

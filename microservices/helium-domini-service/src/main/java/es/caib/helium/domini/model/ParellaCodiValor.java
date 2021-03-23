@@ -10,6 +10,7 @@ import org.springframework.validation.annotation.Validated;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlType;
+import java.io.Serializable;
 
 /**
  * ParellaCodiValor
@@ -24,7 +25,7 @@ import javax.xml.bind.annotation.XmlType;
         "codi",
         "valor"
 })
-public class ParellaCodiValor   {
+public class ParellaCodiValor implements Serializable {
 
   @JsonProperty("codi")
   private String codi = null;

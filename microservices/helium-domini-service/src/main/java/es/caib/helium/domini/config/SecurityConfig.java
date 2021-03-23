@@ -2,6 +2,11 @@ package es.caib.helium.domini.config;
 
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 
+/**
+ * Classe de configuració de la securització.
+ *
+ * Actualment està sense securització
+ */
 //@Configuration
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 

@@ -133,7 +133,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Domini'
+              $ref: '#/components/schemas/PatchBody'
       responses:
         '204':
           description: Domini actualitzat
@@ -152,8 +152,8 @@ paths:
       parameters:
         - $ref: '#/components/parameters/DominiIdPathParam'
       responses:
-        '200':
-          description: Ok
+        '204':
+          description: Ok. No content
         '404':
           description: Not found
   /api/v1/dominis/{dominiId}/resultats:
@@ -241,10 +241,9 @@ paths:
     get:
       tags:
       - Consulta
-      summary: Consulta un domini d'un tipus d'expedient
+      summary: Consulta un domini global d'un entorn
       description: |
-        Obté el domini de tipus d'expedient donat el tipus d'expedient al que pertany, i el seu codi.
-        En cas d'informar el tipus d'expedient pare es tindrà en compte la herència
+        Obté el domini global donat l'entorn al que pertany, i el seu codi.
       operationId: getDominiByEntornAndCodi
       parameters:
       - $ref: '#/components/parameters/EntornIdPathParam'
@@ -490,6 +489,35 @@ components:
           type: boolean
         unsorted:
           type: boolean
+    PatchBody:
+      type: array
+      items:
+        $ref: '#/components/schemas/PatchDocument'
+    PatchDocument: 
+      description: Document amb format JSONPatch (definit al RFC 6902) 
+      required:
+       - "op"
+       - "path"
+      properties: 
+       op: 
+        type: string 
+        description: Operació a realitzar 
+        enum:
+         - "add"
+         - "remove"
+         - "replace"
+         - "move"
+         - "copy"
+         - "test"
+       path: 
+        type: string 
+        description: Una ruta de l'objecte a modificar 
+       value: 
+        type: object 
+        description: El valor a utilitzar en la operació.
+       from: 
+        type: string 
+        description: UUna ruta de l'objecte a modificar
   parameters:
     DominiIdPathParam:
       name: dominiId

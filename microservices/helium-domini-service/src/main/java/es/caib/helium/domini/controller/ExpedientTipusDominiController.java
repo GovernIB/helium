@@ -40,6 +40,10 @@ public class ExpedientTipusDominiController {
             final Pageable pageable,
             final Sort sort) {
 
+        log.debug("[CTR] llistant dominis per tipus expedient: \n" +
+                "expedientTipusId: " + expedientTipusId +
+                "filtre: " + filtreRsql);
+
         PagedList<DominiDto> dominiList = dominiService.listDominisByExpedientTipus(
                 expedientTipusId,
                 filtreRsql,
@@ -55,6 +59,10 @@ public class ExpedientTipusDominiController {
             @PathVariable("expedientTipusId") Long expedientTipusId,
             @PathVariable("codi") String codi,
             @RequestParam(value = "expedientTipusPareId", required = false) Long expedientTipusPareId) {
+
+        log.debug("[CTR] get domini per expedientTipus i codi: " +
+                "expedientTipusId: " + expedientTipusId +
+                "codi: " + codi);
 
         return new ResponseEntity<>(
                 dominiService.getByExpedientTipusAndCodi(expedientTipusId, expedientTipusPareId, codi),

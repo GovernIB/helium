@@ -4,12 +4,13 @@ import lombok.Data;
 import lombok.ToString;
 import org.springframework.validation.annotation.Validated;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 
 @Validated
 @Data
 @ToString
-public class ResultatDominiCache {
+public class ResultatDominiCache implements Serializable {
 
     private LocalDateTime dataCreacio;
     private ResultatDomini resultatDomini;

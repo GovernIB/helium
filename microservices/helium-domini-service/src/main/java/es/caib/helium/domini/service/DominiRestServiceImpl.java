@@ -3,8 +3,8 @@ package es.caib.helium.domini.service;
 import es.caib.helium.domini.domain.Domini;
 import es.caib.helium.domini.model.ResultatDomini;
 import es.caib.helium.domini.model.TipusAuthEnum;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -20,15 +20,15 @@ import java.util.Collections;
 import java.util.Map;
 
 @Slf4j
-//@RequiredArgsConstructor
+@RequiredArgsConstructor
 @Component
 public class DominiRestServiceImpl implements DominiRestService {
 
     private final RestTemplate restTemplate;
 
-    public DominiRestServiceImpl(RestTemplateBuilder restTemplateBuilder) {
-        this.restTemplate = restTemplateBuilder.build();
-    }
+//    public DominiRestServiceImpl(RestTemplateBuilder restTemplateBuilder) {
+//        this.restTemplate = restTemplateBuilder.build();
+//    }
 
     @Override
     public ResultatDomini consultaDomini(

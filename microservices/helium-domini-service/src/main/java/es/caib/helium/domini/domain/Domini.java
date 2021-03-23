@@ -31,7 +31,7 @@ import javax.validation.constraints.Size;
 @Builder
 @Entity
 @Table(	name="hel_domini",
-		uniqueConstraints={@UniqueConstraint(columnNames = {"codi", "entorn_id", "expedient_tipus_id"})},
+		uniqueConstraints={@UniqueConstraint(columnNames = {"codi", "entorn_id", "expedient_tipus_id"}, name="hel_domini_uk")},
 		indexes = {
 			@Index(name = "hel_domini_entorn_i", columnList = "entorn_id"),
 			@Index(name = "hel_domini_exptip_i", columnList = "expedient_tipus_id")
@@ -41,7 +41,6 @@ public class Domini implements Persistable<Long> {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "hel_domini_gen")
-	@Column(name="id")
 	private Long id;
 
 	@NotBlank
@@ -107,12 +106,6 @@ public class Domini implements Persistable<Long> {
 
 	@Column(name="expedient_tipus_id")
 	private Long expedientTipus;
-
-//	@OneToMany(mappedBy="domini")
-//	private Set<Camp> camps = new HashSet<Camp>();
-//	public void addCamp(Camp camp) {
-//		getCamps().add(camp);
-//	}
 
 	@Override
 	public boolean isNew() {

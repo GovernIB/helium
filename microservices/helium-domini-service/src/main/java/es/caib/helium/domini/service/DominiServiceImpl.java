@@ -14,9 +14,11 @@ import es.caib.helium.domini.model.TipusDominiEnum;
 import es.caib.helium.domini.repository.DominiRepository;
 import es.caib.helium.domini.repository.DominiSpecifications;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.core.env.Environment;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
@@ -25,14 +27,18 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import javax.validation.ValidationException;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Slf4j
 @RequiredArgsConstructor
-@ConfigurationProperties(prefix = "es.caib.helium", ignoreUnknownFields = true)
+@ConfigurationProperties(prefix = "es.caib.helium") //, ignoreUnknownFields = true)
 @Service
 public class DominiServiceImpl implements DominiService {
 
@@ -46,10 +52,13 @@ public class DominiServiceImpl implements DominiService {
     private final DominiWsService dominiWsService;
     private final DominiSqlService dominiSqlService;
     private final DominiRestService dominiRestService;
+    private final Environment environment;
 
-    @Value("${es.caib.helium.domini.intern.user}") String domini_intern_user;
-    @Value("${es.caib.helium.domini.intern.password}") String domini_intern_pass;
-    @Value("${es.caib.helium.domini.intern.service.host}") String domini_intern_url;
+//    @Value("${es.caib.helium.domini.intern.user}") String domini_intern_user;
+//    @Value("${es.caib.helium.domini.intern.password}") String domini_intern_pass;
+    @Setter
+    @Value("${es.caib.helium.domini.intern.service.host}")
+    private String domini_intern_url;
 
     @Override
     @Transactional
@@ -57,56 +66,62 @@ public class DominiServiceImpl implements DominiService {
             DominiDto dominiDto) {
 //            throws PermisDenegatException {
 
-        log.debug("Creant nou domini (domini=" + dominiDto + ")");
-
         // TODO: Comprovar permisos sobre tipus d' expedient i entorn ??
 
-        return dominiMapper.entityToDto(dominiRepository.save(dominiMapper.dtoToEntity(dominiDto)));
+        log.debug("[SRV] Creant nou domini (domini=" + dominiDto + ")");
+        Domini domini = dominiMapper.dtoToEntity(dominiDto);
+        log.debug("[SRV] Validant domini");
+        validateDomini(domini);
+        return dominiMapper.entityToDto(dominiRepository.save(domini));
 
     }
 
     @Override
     @Transactional
-    public void updateDomini(
+    public DominiDto updateDomini(
             Long dominiId,
             DominiDto dominiDto) {
 //            throws NoTrobatException, PermisDenegatException {
 
-        log.debug("Modificant el domini existent (" +
+        log.debug("[SRV] Modificant el domini existent (" +
                 "dominiId=" + dominiId + ", " +
                 "domini =" + dominiDto + ")");
+
+        // TODO: Comprovar permisos sobre tipus d'expedient i entorn ??
 
         Domini domini = getDominiById(dominiId);
 
 //        Optional<Domini> dominiOptional = dominiRepository.findById(dominiId);
-//
 //        dominiOptional.ifPresentOrElse(
 //                domini -> {
-
-                    // TODO: Comprovar permisos sobre tipus d'expedient i entorn ??
-
-                    domini.setCodi(dominiDto.getCodi());
-                    domini.setNom(dominiDto.getNom());
-                    domini.setDescripcio(dominiDto.getDescripcio());
-                    if (dominiDto.getTipus() != null)
-                        domini.setTipus(TipusDominiEnum.valueOf(dominiDto.getTipus().name()));
-                    domini.setUrl(dominiDto.getUrl());
-                    if (dominiDto.getTipusAuth() != null)
-                        domini.setTipusAuth(TipusAuthEnum.valueOf(dominiDto.getTipusAuth().name()));
-                    if (dominiDto.getOrigenCredencials() != null)
-                        domini.setOrigenCredencials(OrigenCredencialsEnum.valueOf(dominiDto.getOrigenCredencials().name()));
-                    domini.setUsuari(dominiDto.getUsuari());
-                    domini.setContrasenya(dominiDto.getContrasenya());
-                    domini.setSql(dominiDto.getSql());
-                    domini.setJndiDatasource(dominiDto.getJndiDatasource());
-                    domini.setCacheSegons(dominiDto.getCacheSegons());
-                    domini.setTimeout(dominiDto.getTimeout());
-                    domini.setOrdreParams(dominiDto.getOrdreParams());
-                    dominiRepository.save(domini);
 //                }, () -> {
 //                    throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Not found. Id: " + dominiId);
 //                }
 //        );
+
+        domini.setCodi(dominiDto.getCodi());
+        domini.setNom(dominiDto.getNom());
+        domini.setDescripcio(dominiDto.getDescripcio());
+        if (dominiDto.getTipus() != null)
+            domini.setTipus(TipusDominiEnum.valueOf(dominiDto.getTipus().name()));
+        domini.setUrl(dominiDto.getUrl());
+        if (dominiDto.getTipusAuth() != null)
+            domini.setTipusAuth(TipusAuthEnum.valueOf(dominiDto.getTipusAuth().name()));
+        if (dominiDto.getOrigenCredencials() != null)
+            domini.setOrigenCredencials(OrigenCredencialsEnum.valueOf(dominiDto.getOrigenCredencials().name()));
+        domini.setUsuari(dominiDto.getUsuari());
+        domini.setContrasenya(dominiDto.getContrasenya());
+        domini.setSql(dominiDto.getSql());
+        domini.setJndiDatasource(dominiDto.getJndiDatasource());
+        domini.setCacheSegons(dominiDto.getCacheSegons());
+        domini.setTimeout(dominiDto.getTimeout());
+        domini.setOrdreParams(dominiDto.getOrdreParams());
+
+        log.debug("[SRV] Validant domini");
+        validateDomini(domini);
+
+        return dominiMapper.entityToDto(dominiRepository.save(domini));
+
     }
 
     @Override
@@ -114,25 +129,12 @@ public class DominiServiceImpl implements DominiService {
     public void delete(
             Long dominiId) {
 
-        log.debug("Esborrant el domini (dominiId=" + dominiId +  ")");
+        log.debug("[SRV] Esborrant el domini (dominiId=" + dominiId +  ")");
 
-        Domini domini = getDominiById(dominiId);
-        dominiRepository.delete(domini);
-
-//        Optional<Domini> dominiOptional = dominiRepository.findById(dominiId);
-//
-//        dominiOptional.ifPresentOrElse(
-//                domini -> {
-//
-//                    // TODO: Comprovar permisos sobre tipus d'expedient i entorn ??
-//                    // TODO: Comprovar si el domini està sent utilitzat en algun camp
-//
-//                    dominiRepository.delete(domini);
-//                }, () -> {
-//                    throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Not found. Id: " + dominiId);
-//                }
-//        );
-
+        // TODO: Comprovar permisos sobre tipus d'expedient i entorn ??
+        // TODO: Comprovar si el domini està sent utilitzat en algun camp
+        getDominiById(dominiId);
+        dominiRepository.delete(dominiId);
     }
 
     @Override
@@ -140,12 +142,15 @@ public class DominiServiceImpl implements DominiService {
     public DominiDto getById(
             Long dominiId) {
 
+        log.debug("[SRV] Obtenint domini amb Id: " + dominiId);
+
         Domini domini = getDominiById(dominiId);
         return dominiMapper.entityToDto(domini);
 
     }
 
     @Override
+    @Transactional(readOnly = true)
     public PagedList<DominiDto> listDominis(
             Long entornId,
             Long expedientTipus,
@@ -153,6 +158,12 @@ public class DominiServiceImpl implements DominiService {
             String filtreRsql,
             Pageable pageable,
             Sort sort) {
+
+        log.debug("[SRV] Obtenint llistat de dominis. \n" +
+                "entornId: " + entornId + "\n" +
+                "expedientTipus: " + expedientTipus + "\n" +
+                "expedientTipusPare: " + expedientTipusPare + "\n" +
+                "filtre: " + filtreRsql + "\n");
 
         Specification<Domini> spec = DominiSpecifications.dominisList(
                 entornId,
@@ -172,29 +183,43 @@ public class DominiServiceImpl implements DominiService {
 
     }
 
+    private void validateDomini(Domini domini) throws ValidationException {
+        Map<String, String> errors = new HashMap<>();
+
+        if (domini.getCodi() == null|| domini.getCodi().isBlank())
+            errors.put("codi", "El camp no pot ser null");
+        if (domini.getNom() == null|| domini.getNom().isBlank())
+            errors.put("nom", "El camp no pot ser null");
+        if (domini.getEntorn() == null|| domini.getEntorn() <= 0L)
+            errors.put("entorn", "El camp no pot ser null");
+        if (domini.getUrl() == null || domini.getUrl().isBlank())
+            errors.put("url", "El camp no pot ser null");
+        if (domini.getTipus() == null)
+            errors.put("tipus", "El camp no pot ser null. Valors admesos: [CONSULTA_SQL, CONSULTA_WS, CONSULTA_REST]");
+        else if (TipusDominiEnum.CONSULTA_SQL.equals(domini.getTipus())) {
+            if (domini.getSql() == null || domini.getSql().isBlank())
+                errors.put("sql", "El camp no pot ser null per a dominis de tipus SQL");
+        }
+        if (domini.getTipusAuth() != null && !TipusAuthEnum.NONE.equals(domini.getTipusAuth())) {
+            if (domini.getUsuari() == null || domini.getUsuari().isBlank())
+                errors.put("usuari", "El camp no pot ser null per a dominis amb autenticació");
+            if (domini.getContrasenya() == null || domini.getContrasenya().isBlank())
+                errors.put("contrasenya", "El camp no pot ser null per a dominis amb autenticació");
+        }
+
+        if (!errors.isEmpty()) {
+            throw new ValidationException("Error de validació del domini: " + parametresToString(errors));
+        }
+    }
 
     // Dominis per entorn
     // //////////////////////////////////////////////
-
-//    @Override
-//    public DominiDto getByEntornAndId(Long entornId, Long dominiId) {
-//
-//        log.debug("Obtenint domini per entornId: " + entornId + ", id: " + dominiId);
-//        Optional<Domini> dominiOptional = dominiRepository.findByEntornAndId(entornId, dominiId);
-//
-//        if (dominiOptional.isPresent()) {
-//            log.debug("Trobat domini amb entornId=" + entornId + ", id: " + dominiId);
-//            return dominiMapper.entityToDto(dominiOptional.get());
-//        } else {
-//            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Not found. EntornId=" + entornId + ", Id: " + dominiId);
-//        }
-//    }
 
     @Override
     @Transactional(readOnly = true)
     public DominiDto getByEntornAndCodi(Long entorn, String codi) {
 
-        log.debug("Obtenint domini amb entorn: " + entorn + ", codi: " + codi);
+        log.debug("[SRV] Obtenint domini amb entorn: " + entorn + ", codi: " + codi);
         Optional<Domini> dominiOptional = dominiRepository.findByEntornAndCodi(entorn, codi);
 
         if (dominiOptional.isPresent()) {
@@ -213,6 +238,9 @@ public class DominiServiceImpl implements DominiService {
             Pageable pageable,
             Sort sort) {
 
+        log.debug("[SRV] Obtenint llistat de dominis èr entorn. \n" +
+                "entornId: " + entorn + "\n" +
+                "filtre: " + filtreRsql + "\n");
         Specification<Domini> spec = DominiSpecifications.belongsToEntorn(entorn);
 
         return ServiceHelper.getDtoPage(
@@ -236,7 +264,7 @@ public class DominiServiceImpl implements DominiService {
             Long expedientTipusPare,
             String codi) {
 
-        log.debug("Obtenint domini amb ExpedientTipus: " + expedientTipus + ", ExpedientTipusPare: " + expedientTipusPare + ", Codi: " + codi);
+        log.debug("[SRV] Obtenint domini amb ExpedientTipus: " + expedientTipus + ", ExpedientTipusPare: " + expedientTipusPare + ", Codi: " + codi);
         Optional<Domini> dominiOptional;
 
         if (expedientTipusPare != null)
@@ -264,6 +292,10 @@ public class DominiServiceImpl implements DominiService {
             Pageable pageable,
             Sort sort) {
 
+        log.debug("[SRV] Obtenint llistat de dominis per tipus d'expedient. \n" +
+                "expedientTipus: " + expedientTipus + "\n" +
+                "filtre: " + filtreRsql + "\n");
+
         Specification<Domini> spec = DominiSpecifications.belongsToExpedientTipus(expedientTipus);
 
         return ServiceHelper.getDtoPage(
@@ -284,6 +316,7 @@ public class DominiServiceImpl implements DominiService {
             log.debug("Trobat domini amb id: " + dominiId);
             return dominiOptional.get();
         } else {
+            log.error("[SRV] Delete: No existeix cap domini amb id=" + dominiId);
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Not found. Id: " + dominiId);
         }
     }
@@ -294,24 +327,40 @@ public class DominiServiceImpl implements DominiService {
     // //////////////////////////////////////////////
 
     @Override
+    @Transactional(readOnly = true)
     public ResultatDomini consultaDomini(
             Long dominiId,
             String identificador,
             Map<String, String> parametres) {
 
+        log.debug("[SRV] Realitzant consulta de domini. \n" +
+                "dominiId: " + dominiId + "\n" +
+                "identificador: " + identificador + "\n" +
+                "parametres: " + parametresToString(parametres));
         ResultatDomini resultat = null;
         Domini domini;
-        if (dominiId == 0)
+
+        if (dominiId == 0) {
             domini = Domini.builder()
                     .id(0L)
                     .url(domini_intern_url)
                     .timeout(0)
                     .tipusAuth(TipusAuthEnum.NONE)
-                    .usuari(domini_intern_user)
-                    .contrasenya(domini_intern_pass)
+//                    .usuari(domini_intern_user)
+//                    .contrasenya(domini_intern_pass)
                     .build();  // Domini intern
-        else
+        } else {
             domini = getDominiById(dominiId);
+            // Posam l'usuari i contrasenya a utilitzar en la consulta, depenent de l'origen
+            if (domini.getTipusAuth() != null && !TipusAuthEnum.NONE.equals(domini.getTipusAuth())) {
+                if (OrigenCredencialsEnum.PROPERTIES.equals(domini.getOrigenCredencials())) {
+                    domini.setUsuari(environment.getProperty(domini.getUsuari()));
+                    domini.setContrasenya(environment.getProperty(domini.getContrasenya()));
+                }
+            }
+        }
+
+        assert domini.getId() != null;
 
         IMap<String, ResultatDominiCache> dominiCache = hazelcastInstance.getMap(CACHE_DOMINI_ID);
         String cacheKey = getCacheKey(domini.getId(), identificador, parametres);
@@ -332,6 +381,8 @@ public class DominiServiceImpl implements DominiService {
                     log.debug("Petició de domini de tipus REST (id=" + domini.getId() + ", identificador= " + identificador + ", params=" + parametresToString(parametres) + ")");
                     resultat = dominiRestService.consultaDomini(domini, identificador, parametres);
                 }
+            } catch (ResponseStatusException rex) {
+                throw rex;
             } catch (Exception ex) {
                 String errorMsg = "Error consultat el domini " +
                         "id=" + domini.getId() + ", " +
@@ -388,38 +439,26 @@ public class DominiServiceImpl implements DominiService {
         StringBuilder sb = new StringBuilder();
         sb.append(dominiId.toString());
         sb.append(CACHE_KEY_SEPARATOR);
-        sb.append(identificador != null ? identificador : "<null>");
+        sb.append(Objects.requireNonNullElse(identificador, "<null>"));
         sb.append(CACHE_KEY_SEPARATOR);
         if (parametres != null) {
             for (String clau: parametres.keySet()) {
                 sb.append(clau);
                 sb.append(CACHE_KEY_SEPARATOR);
                 String valor = parametres.get(clau);
-                if (valor == null)
-                    sb.append("<null>");
-                else
-                    sb.append(valor);
+                sb.append(Objects.requireNonNullElse(valor, "<null>"));
                 sb.append(CACHE_KEY_SEPARATOR);
             }
         }
         return sb.toString();
     }
 
-    private String parametresToString(
-            Map<String, String> parametres) {
-        String separador = ", ";
-        StringBuilder sb = new StringBuilder();
-        if (parametres != null) {
-            for (String key: parametres.keySet()) {
-                sb.append(key);
-                sb.append(":");
-                sb.append(parametres.get(key));
-                sb.append(separador);
-            }
-        }
-        if (sb.length() > 0)
-            sb.substring(0, sb.length() - separador.length());
-        return sb.toString();
+    private String parametresToString(Map<String, String> parametres) {
+        if (parametres == null)
+            return "";
+        return parametres.entrySet().stream()
+                .map(e -> e.getKey() + "=" + e.getValue())
+                .collect(Collectors.joining(", ", "{ ", " }"));
     }
 
 }

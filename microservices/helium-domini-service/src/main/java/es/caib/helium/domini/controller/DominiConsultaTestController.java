@@ -15,6 +15,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Controlador amb un domini REST d'exemple, que retorna com a resposta una llista de 3 FilaResultat
+ * on a cada FilaResultat es troben com a columnes els paràmetres rebuts
+ */
 @RestController
 @Slf4j
 @AllArgsConstructor
@@ -23,9 +27,17 @@ public class DominiConsultaTestController {
 
     public static final String API_PATH = "/api/domini/rest";
 
+    /**
+     * Domini REST de test
+     *
+     * @param allParams Mapa amb els paràmetres passats per a la consulta de les dades del domini
+     * @return Retorna com a resposta una llista de 3 FilaResultat on a cada FilaResultat es troben com a columnes els
+     * paràmetres rebuts en el paràmetre {@code allParams}
+     */
     @GetMapping(produces = { "application/json" })
     public ResponseEntity<List<FilaResultat>> dominisRestTest(@RequestParam Map<String,String> allParams) {
 
+        log.debug("[CTR] Executant consulta de test");
         List<FilaResultat> resultats = new ArrayList<>();
         FilaResultat fila = new FilaResultat();
         for (Map.Entry<String, String> entry: allParams.entrySet()) {

@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Null;
 import javax.validation.constraints.Size;
 
@@ -40,7 +41,7 @@ public class DominiDto {
 	@Size(max = 255)
 	private String nom = null;
 
-	@NotBlank
+	@NotNull
 	@JsonProperty("tipus")
 	@Schema(example = "CONSULTA_REST", description = "")
 	private TipusDominiEnum tipus = null;
@@ -95,7 +96,7 @@ public class DominiDto {
 	@Size(max = 255)
 	private String ordreParams = null;
 
-	@NotBlank
+	@NotNull
 	@JsonProperty("entorn")
 	@Schema(description = "Identificador de l'entorn al que pertany el domini")
 	private Long entorn = null;

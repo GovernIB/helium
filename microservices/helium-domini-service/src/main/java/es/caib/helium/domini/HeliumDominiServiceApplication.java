@@ -13,6 +13,11 @@ public class HeliumDominiServiceApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(HeliumDominiServiceApplication.class, args);
+		System.setProperty("oracle.jdbc.timezoneAsRegion", "false");
 	}
 
+//	@Bean
+//	public PlatformTransactionManager transactionManager(EntityManagerFactory entityManagerFactory) {
+//		return new JpaTransactionManager(entityManagerFactory);
+//	}
 }

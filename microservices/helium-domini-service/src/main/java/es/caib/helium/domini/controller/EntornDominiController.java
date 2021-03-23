@@ -34,11 +34,15 @@ public class EntornDominiController {
 
 
     @GetMapping(produces = { "application/json" })
-    public ResponseEntity<PagedList> listDominisV1(
+    public ResponseEntity<PagedList> listDominisByEntorn(
             @PathVariable("entornId") Long entornId,
             @RequestParam(value = "filtre", required = false) String filtre,
             final Pageable pageable,
             final Sort sort) {
+
+        log.debug("[CTR] llistant dominis per entorn: \n" +
+                "entornId: " + entornId +
+                "filtre: " + filtre);
 
         PagedList<DominiDto> dominiList = dominiService.listDominisByEntorn(
                 entornId,
@@ -54,6 +58,10 @@ public class EntornDominiController {
     public ResponseEntity<DominiDto> getDominiByEntornAndCodi(
             @PathVariable("entornId") Long entornId,
             @PathVariable("codi") String codi) {
+
+        log.debug("[CTR] get domini global per entorn i codi: " +
+                "entornId: " + entornId +
+                "codi: " + codi);
 
         return new ResponseEntity<>(dominiService.getByEntornAndCodi(entornId, codi), HttpStatus.OK);
     }

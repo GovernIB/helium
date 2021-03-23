@@ -16,7 +16,7 @@
             <providers>
                 <timestamp>
                     <timeZone>GMT+1</timeZone>
-                    <pattern>dd/MM/yyyy HH:mm:ss.SSS</pattern>
+<!--                    <pattern>dd/MM/yyyy HH:mm:ss.SSS</pattern>-->
                 </timestamp>
                 <version/>
                 <logLevel/>
@@ -63,13 +63,21 @@
                 <pattern>
                     <omitEmptyFields>true</omitEmptyFields>
                     <pattern>
+<!--                        {-->
+<!--                        "trace": {-->
+<!--                            "trace_id": "%mdc{X-B3-TraceId}",-->
+<!--                            "span_id": "%mdc{X-B3-SpanId}",-->
+<!--                            "parent_span_id": "%mdc{X-B3-ParentSpanId}",-->
+<!--                            "exportable": "%mdc{X-Span-Export}"-->
+<!--                            }-->
+<!--                        }-->
                         {
                         "trace": {
-                        "trace_id": "%mdc{X-B3-TraceId}",
-                        "span_id": "%mdc{X-B3-SpanId}",
-                        "parent_span_id": "%mdc{X-B3-ParentSpanId}",
-                        "exportable": "%mdc{X-Span-Export}"
-                        }
+                            "trace_id": "%mdc{traceId}",
+                            "span_id": "%mdc{spanId}",
+                            "parent_span_id": "%mdc{parentId}",
+                            "exportable": "%mdc{spanExportable}"
+                            }
                         }
                     </pattern>
                 </pattern>

@@ -12,7 +12,7 @@ public interface DominiService {
 
     DominiDto createDomini(DominiDto domini);
 
-    void updateDomini(
+    DominiDto updateDomini(
             Long dominiId,
             DominiDto domini);
 
