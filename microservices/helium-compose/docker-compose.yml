@@ -23,41 +23,43 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock:ro                       # Additional information about containers
     user: root                                                             # Allow access to log files and docker.sock
     restart: on-failure
-  jms:
-    image: vromero/activemq-artemis
-    ports:
-      - 8161:8161
-      - 61616:61616
+#  jms:
+#    image: vromero/activemq-artemis
+#    ports:
+#      - 8161:8161
+#      - 61616:61616
   zipkin:
     image: openzipkin/zipkin
     ports:
       - 9411:9411
-  eureka:
+  helium-eureka:
     image: mshelium/helium-eureka
     ports:
       - 8761:8761
-  config:
+  helium-config-service:
     image: mshelium/heliium-config-server
     ports:
       - 8888:8888
     depends_on:
-      - eureka
+      - helium-eureka
     environment:
-      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://helium:H3lEurek4@eureka:8761/eureka/
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://helium:H3lEurek4@helium-eureka:8761/eureka/
       EUREKA_INSTANCE_PREFER_IP_ADDRESS: 'true'
   helium-domini-service:
     image: mshelium/helium-domini-service
     ports:
       - 8082:8082
     depends_on:
-      - eureka
-      - config
-#      - jms
+      - helium-eureka
+      - helium-config-service
     environment:
-      SPRING_PROFILES_ACTIVE: spring-cloud
-      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://helium:H3lEurek4@eureka:8761/eureka/
-      SPRING_ZIPKIN_BASEURL: http://zipkin
-      SPRING_DATASOURCE_URL: jdbc:oracle:thin:@//host.docker.internal:49161/xe
+      eureka.client.service-url.defaultZone: http://helium:H3lEurek4@helium-eureka:8761/eureka
+      SPRING_PROFILES_ACTIVE: compose
+      spring.zipkin.enabled: 'true'
+      spring.zipkin.base-url: http://zipkin:9411/
+      SPRING_DATASOURCE_URL: jdbc:oracle:thin:@//${DOCKER_GATEWAY_HOST:-host.docker.internal}:49161/xe
+#      SPRING_DATASOURCE_USERNAME: hel_domini
+#      SPRING_DATASOURCE_PASSWORD: hel_domini
 #      SPRING_ARTEMIS_HOST: jms
       EUREKA_INSTANCE_PREFER_IP_ADDRESS: 'true'
     restart: on-failure
@@ -65,21 +67,21 @@ services:
       collect_logs_with_filebeat: "true"
       decode_log_event_to_json_object: "true"
 
-  gateway:
-    image: mshelium/helium-gateway
-    ports:
-      - 9090:9090
-    depends_on:
-      - eureka
-      - config
-#      - inventory
-#      - beer-service
-#      - order-service
-#      - inventory-failover
-    restart: on-failure
-    environment:
-      SPRING_PROFILES_ACTIVE: spring-cloud
-      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://helium:H3lEurek4@eureka:8761/eureka/
-    labels:
-      collect_logs_with_filebeat: "true"
-      decode_log_event_to_json_object: "true"
+#  gateway:
+#    image: mshelium/helium-gateway
+#    ports:
+#      - 9090:9090
+#    depends_on:
+#      - helium-eureka
+#      - helium-config-service
+##      - helium-domini-service
+#    restart: on-failure
+#    environment:
+#      SPRING_PROFILES_ACTIVE: spring-cloud
+#      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://helium:H3lEurek4@eureka:8761/eureka/
+#    labels:
+#      collect_logs_with_filebeat: "true"
+#      decode_log_event_to_json_object: "true"
+volumes:
+  esdata:
+    driver: local
