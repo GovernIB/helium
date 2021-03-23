@@ -82,7 +82,7 @@ public class AreaMembresController extends BaseController {
 		if (entorn != null) {
 			return "area/membres";
 		} else {
-			missatgeError(request, getMessage("error.no.entorn.selec") );
+			missatgeError(request, getMessage("error.no.entorn.selec"));
 			return "redirect:/index.html";
 		}
 	}

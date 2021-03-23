@@ -5,6 +5,8 @@ package net.conselldemallorca.helium.v3.core.repository;
 
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -19,6 +21,37 @@ import net.conselldemallorca.helium.core.model.hibernate.CarrecJbpmId;
  * @author Limit Tecnologies <limit@limit.es>
  */
 public interface CarrecJbpmIdRepository extends JpaRepository<CarrecJbpmId, Long> {
+	
+	@Query(	"from CarrecJbpmId c " +
+			"where " +
+			"    (:esNullFiltre = true or lower(c.codi) like lower('%'||:filtre||'%') "
+			+ "		or lower(c.nomHome) like lower('%'||:filtre||'%'))"
+			+ "		or lower(c.nomDona) like lower('%'||:filtre||'%'))"
+			+ " 	or lower(c.descripcio) like lower('%'||:filtre||'%') ")
+	Page<CarrecJbpmId> findConfigurats(
+			@Param("esNullFiltre") boolean esNullFiltre,
+			@Param("filtre") String filtre,		
+			Pageable pageable);
+
+	@Query("select " +
+				"    distinct m.role," +
+				"    m.group.name " +
+				"from " +
+				"    org.jbpm.identity.Membership m " +
+				"where " +
+				"    (:esNullFiltre = true or lower(m.role) like lower('%'||:filtre||'%') " +
+				" 		or lower(m.group.name) like lower('%'||:filtre||'%'))" +
+				"    and (m.role, m.group.name) not in (" +
+				"        select " +
+				"            c.codi," +
+				"            c.grup " +
+				"        from " +
+				"            CarrecJbpmId c) ")
+	List<Object[]> findSenseConfigurar(
+			@Param("esNullFiltre") boolean esNullFiltre,
+			@Param("filtre") String filtre);		
+	
+	CarrecJbpmId findById(Long id);
 
 	CarrecJbpmId findByCodi(String codi);
 
