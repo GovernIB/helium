@@ -10,7 +10,7 @@
     </parent>
     <groupId>es.caib.helium</groupId>
     <artifactId>helium-eureka</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.1</version>
     <name>helium-eureka</name>
     <description>Eureka Service Discovery per Helium</description>
 
