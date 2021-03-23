@@ -3,6 +3,7 @@
  */
 package net.conselldemallorca.helium.v3.core.api.dto;
 
+import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto.Sexe;
 
 /**
  * DTO amb informació d'un càrrec.
@@ -19,6 +20,10 @@ public class CarrecDto {
 	private String tractamentDona;
 	private String descripcio;
 	private String personaCodi;
+	
+	private Sexe personaSexe;
+	private Long areaId;
+	private EntornAreaDto area;
 
 	public Long getId() {
 		return id;
@@ -68,5 +73,24 @@ public class CarrecDto {
 	public void setPersonaCodi(String personaCodi) {
 		this.personaCodi = personaCodi;
 	}
-
+	public Long getAreaId() {
+		return areaId;
+	}
+	public void setAreaId(Long areaId) {
+		this.areaId = areaId;
+	}
+	public Sexe getPersonaSexe() {
+		return personaSexe;
+	}
+	public void setPersonaSexe(Sexe personaSexe) {
+		this.personaSexe = personaSexe;
+	}
+	
+	public EntornAreaDto getArea() {
+		return area;
+	}
+	public void setArea(EntornAreaDto area) {
+		this.area = area;
+	}
+	
 }

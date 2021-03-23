@@ -298,6 +298,16 @@
 								</ul>
 							</div>
 						</c:if>
+						<c:if test="${true}">
+							<div id="menuOrganitzacio" class="btn-group">
+								<button class="btn btn-primary dropdown-toggle" data-toggle="dropdown"><spring:message code="decorator.menu.organitzacio"/> <span class="caret"></span></button>
+								<ul class="dropdown-menu" id="organitzacio">
+									<li><a href="<c:url value="/v3/entorn-area"/>"><spring:message code='comuns.arees' /></a></li>
+									<li><a href="<c:url value="/v3/entorn-tipus-area"/>"><spring:message code='comuns.tipusArea' /></a></li>
+									<li><a href="<c:url value="/v3/entorn-carrec"/>"><spring:message code='comuns.carrecs' /></a></li>
+								</ul>
+							</div>
+						</c:if>
 						<c:if test="${dadesPersona.admin || potAdministrarEntorn}">
 							<div id="menuAdministracio" class="btn-group">
 								<button class="btn btn-primary dropdown-toggle" data-toggle="dropdown"><spring:message code="decorator.menu.administracio"/> <span class="caret"></span></button>
@@ -325,8 +335,8 @@
 									</c:if>
 									<c:if test="${dadesPersona.admin}"><li><a href="<c:url value="/v3/entorn"/>"><spring:message code='decorators.superior.entorns' /></a></li></c:if>
 									<c:if test="${globalProperties['app.jbpm.identity.source'] == 'jbpm'}">
-										<c:if test="${dadesPersona.admin}"><li><a target="_BLANK" href="<c:url value="/carrec/jbpmConfigurats.html"/>"><spring:message code='comuns.carrecs' /></a></li></c:if>
-										<c:if test="${dadesPersona.admin}"><li><a target="_BLANK" href="<c:url value="/area/jbpmConfigurats.html"/>"><spring:message code='comuns.arees' /></a></li></c:if>
+										<c:if test="${dadesPersona.admin}"><li><a href="<c:url value="/v3/carrec"/>"><spring:message code='comuns.carrecs' /></a></li></c:if>
+										<c:if test="${dadesPersona.admin}"><li><a href="<c:url value="/v3/area"/>"><spring:message code='comuns.arees' /></a></li></c:if>
 									</c:if>
 									<c:if test="${dadesPersona.admin}"><li><a data-toggle="modal" data-maximized="true" href="<c:url value="/modal/v3/configuracio/festius"/>"><spring:message code='decorators.superior.festius' /></a></li></c:if>
 									<c:if test="${dadesPersona.admin}">
