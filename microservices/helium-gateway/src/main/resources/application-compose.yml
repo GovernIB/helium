@@ -1,0 +1,25 @@
+eureka:
+  client:
+    register-with-eureka: false
+    service-url:
+      defaultZone: http://helium:H3lEurek4@helium-eureka:8761/eureka
+
+spring:
+  cloud:
+    gateway:
+      globalcors:
+        corsConfigurations:
+          '[/**]':
+            allowedOrigins: "*"
+            allowedMethods:
+              - GET
+              - POST
+              - DELETE
+              - PUT
+              - PATCH
+              - OPTIONS
+    routes:
+      - id: helium-domini-service
+        uri: lb://helium-domini-service
+        predicates:
+          - Path=/api/v1/dominis/**
