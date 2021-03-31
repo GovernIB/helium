@@ -7,9 +7,12 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.io.StringWriter;
+import java.math.BigDecimal;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -19,6 +22,7 @@ import javax.annotation.Resource;
 
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
+import org.apache.commons.lang.time.DateUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jbpm.db.GraphSession;
@@ -42,6 +46,7 @@ import com.codahale.metrics.Counter;
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer;
 
+import net.conselldemallorca.helium.core.helper.DefinicioProcesHelper;
 import net.conselldemallorca.helium.core.helper.DocumentHelperV3;
 import net.conselldemallorca.helium.core.helper.EntornHelper;
 import net.conselldemallorca.helium.core.helper.ExpedientHelper;
@@ -72,6 +77,7 @@ import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.hibernate.Persona;
 import net.conselldemallorca.helium.core.model.hibernate.Termini;
+import net.conselldemallorca.helium.core.util.CsvHelper;
 import net.conselldemallorca.helium.core.util.EntornActual;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
@@ -167,6 +173,8 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 	@Resource
 	private ExpedientTipusHelper expedientTipusHelper;
 	@Resource
+	private DefinicioProcesHelper definicioProcesHelper;
+	@Resource
 	private IndexHelper indexHelper;
 	@Resource(name = "permisosHelperV3")
 	private PermisosHelper permisosHelper;
@@ -194,8 +202,9 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 		if ((dto.getExpedientIds() != null && !dto.getExpedientIds().isEmpty())
 				|| (dto.getTascaIds() != null && dto.getTascaIds().length > 0)
 				|| (dto.getProcInstIds() != null && !dto.getProcInstIds().isEmpty())
-				|| (dto.getDefProcIds() != null && dto.getDefProcIds().length > 0)) {
-			String log = "Creació d'execució massiva (dataInici=" + dto.getDataInici();
+				|| (dto.getDefProcIds() != null && dto.getDefProcIds().length > 0)
+				|| (ExecucioMassivaTipusDto.ALTA_MASSIVA.equals(dto.getTipus()) && dto.getContingutCsv() != null)) {
+			String log = "Creació d'execució massiva (" + dto.getTipus() + ", dataInici=" + dto.getDataInici();
 			if (dto.getExpedientTipusId() != null)
 				log += ", expedientTipusId=" + dto.getExpedientTipusId();
 			log += ", numExpedients=";
@@ -203,6 +212,8 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 				log += dto.getExpedientIds().size();
 			else if (dto.getProcInstIds() != null)
 				log += dto.getProcInstIds().size();
+			else if (dto.getContingutCsv() != null)
+				log += dto.getContingutCsv().length - 1;
 			else
 				log += "0";
 			log += ")";
@@ -244,8 +255,6 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 							ordre++);
 					execucioMassiva.addExpedient(eme);
 					expedients = true;
-					if (expedientTipus == null && expedient != null)
-						expedientTipus = expedient.getTipus();
 				}
 			} else if (dto.getProcInstIds() != null) {
 				for (String procinstId : dto.getProcInstIds()) {
@@ -263,6 +272,15 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 					ExecucioMassivaExpedient eme = new ExecucioMassivaExpedient(execucioMassiva, defProcId, ordre++);
 					execucioMassiva.addExpedient(eme);
 				}
+			} else if (dto.getContingutCsv() != null && dto.getContingutCsv().length > 1) {
+				// Alta massiva per CSV
+				DefinicioProces definicioProces = definicioProcesHelper.findDarreraVersioDefinicioProces(expedientTipus, expedientTipus.getJbpmProcessDefinitionKey());
+				for (int i =0; i<dto.getContingutCsv().length-1; i++) {
+					ExecucioMassivaExpedient eme = new ExecucioMassivaExpedient(execucioMassiva, definicioProces.getId(), ordre++);
+					execucioMassiva.addExpedient(eme);
+					expedients = true;					
+				}
+				
 			}
 			// Entorn
 			Long entornId = expedientTipus != null && expedientTipus.getEntorn() != null
@@ -845,14 +863,16 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 			expedient = ome.getExpedient();
 		} else if (tipus != ExecucioMassivaTipus.ELIMINAR_VERSIO_DEFPROC
 				&& tipus != ExecucioMassivaTipus.PROPAGAR_PLANTILLES
-				&& tipus != ExecucioMassivaTipus.PROPAGAR_CONSULTES) {
+				&& tipus != ExecucioMassivaTipus.PROPAGAR_CONSULTES
+				&& tipus != ExecucioMassivaTipus.ALTA_MASSIVA) {
 			expedient = expedientHelper.findExpedientByProcessInstanceId(ome.getProcessInstanceId());
 		}
 
 		ExpedientTipus expedientTipus;
 		if (expedient == null && (tipus == ExecucioMassivaTipus.ELIMINAR_VERSIO_DEFPROC
 				|| tipus == ExecucioMassivaTipus.PROPAGAR_PLANTILLES
-				|| tipus == ExecucioMassivaTipus.PROPAGAR_CONSULTES))
+				|| tipus == ExecucioMassivaTipus.PROPAGAR_CONSULTES
+				|| tipus == ExecucioMassivaTipus.ALTA_MASSIVA))
 			expedientTipus = exm.getExpedientTipus();
 		else
 			expedientTipus = expedient.getTipus();
@@ -965,6 +985,10 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 				mesuresTemporalsHelper.mesuraIniciar("Propagar consultes", "massiva", expedient_s);
 				propagarConsultes(ome);
 				mesuresTemporalsHelper.mesuraCalcular("Propagar consultes", "massiva", expedient_s);
+			} else if (tipus == ExecucioMassivaTipus.ALTA_MASSIVA) {
+				mesuresTemporalsHelper.mesuraIniciar("Alta massiva CSV", "massiva", expedient_s);
+				altaMassivaCsv(ome);
+				mesuresTemporalsHelper.mesuraCalcular("Alta massiva CSV", "massiva", expedient_s);				
 			}
 			SecurityContextHolder.getContext().setAuthentication(orgAuthentication);
 		} catch (Exception ex) {
@@ -1882,6 +1906,173 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 					+ ". No s'han pogut propagar els documents plantilla de la definició de procés", ex);
 			throw ex;
 		}
+	}
+	
+	/**
+	 * Dona d'alta un expedient a partir de la informació CSV guardada en el paràmetre2 de l'execució
+	 * massiva i el número d'ordre. Un cop donat d'alta informa l'id d'expedient de l'execució
+	 * massiva.
+	 */
+	private void altaMassivaCsv(ExecucioMassivaExpedient ome) throws Exception {
+		ExecucioMassivaEstat estat = ExecucioMassivaEstat.ESTAT_FINALITZAT;
+		ome.setDataInici(new Date());
+		StringBuilder errText = new StringBuilder();
+		try {
+			ExpedientTipus expedientTipus = ome.getExecucioMassiva().getExpedientTipus();
+			DefinicioProces definicioProces = null;
+			if (!expedientTipus.isAmbInfoPropia() && ome.getDefinicioProcesId() != null) {
+				definicioProces = definicioProcesRepository.findById(ome.getDefinicioProcesId());
+			}
+			String [][] contingutCsv;
+			try {
+				CsvHelper csvHelper = new CsvHelper();
+				contingutCsv = csvHelper.parse(ome.getExecucioMassiva().getParam2());				
+			} catch(Exception e) {
+				logger.error("Alta masiva CSV error :" + ome.getId()
+				+ ". No s'ha pogut recuperar el contingut del CSV: " + e.getMessage());
+				throw e;
+			}
+			int index = ome.getOrdre() + 1;
+			// Any
+			Integer any = null;
+			try {
+				any = Integer.parseInt(contingutCsv[index][0]);
+			} catch (Exception e) {
+				errText.append("Error en el format de l'any de l'expedient. ");
+				logger.error("Alta masiva CSV error :" + ome.getId()
+				+ ". Error convertint \"" + contingutCsv[index][0] + "\" a enter per l'any d'inici de l'expedient: " + e.getMessage());
+			}
+			// Número
+			String numero = contingutCsv[index][1];
+			// Títol
+			String titol = contingutCsv[index][2];
+			// Variables
+			Map<String, Object> variables = new HashMap<String, Object>();
+			String codi;
+			String valor;
+			Object valorHelium;
+			for (int i = 3; i < contingutCsv[0].length; i++) {
+				codi = contingutCsv[0][i];
+				valor = contingutCsv[index][i];
+				try {
+					valorHelium = this.getValorSimpleHelium(expedientTipus, definicioProces, codi, valor);
+					variables.put(codi, valorHelium);
+				} catch (Exception e) {
+					logger.error("Error interpretant el text \"" + valor + "\" com a data en l'alta massiva d'expedients per CSV pel camp " +
+							codi + " del tipus d'expedient " + expedientTipus.getCodi() + " - " + expedientTipus.getNom() );
+				}
+			}
+			// Alta de l'expedient
+			Expedient expedient = expedientHelper.iniciar(
+					expedientTipus.getEntorn().getId(), 
+					ome.getExecucioMassiva().getUsuari(), 
+					expedientTipus.getId(), 
+					ome.getDefinicioProcesId(), 
+					any, 
+					numero, 
+					titol, 
+					null, 
+					null, 
+					null, 
+					null, 
+					false, 
+					null, 
+					null, 
+					null, 
+					null, 
+					null, 
+					null, 
+					false, 
+					null, 
+					null, 
+					false, 
+					variables, 
+					null, 
+					net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto.IniciadorTipusDto.INTERN,
+					null,
+					null,
+					null,
+					null);
+			ome.setExpedient(expedient);
+			ome.setAuxText("Expedient " + expedient.getIdentificador() + " creat correctament per CSV");
+		} catch (Exception ex) {
+			estat = ExecucioMassivaEstat.ESTAT_ERROR;
+			String errMsg = "Error no controlat en l'execució massiva d'alta d'expedient per CSV: " + ex.getMessage();
+			logger.error(errMsg, ex);
+			errText.append(errMsg);
+		}
+		ome.setError(errText.length() > 0 ? errText.toString() : null);
+		ome.setDataFi(new Date());
+		ome.setEstat(estat);
+		execucioMassivaExpedientRepository.save(ome);
+	}
+
+	/** Obté el valor simple d'Helium a partir del codi i valor d'una variable per un tipus d'expedient.
+	 * 
+	 * @param expedientTipus Expedient tipus que pot tenir informació a nivell de tipus o de definició.
+	 * @param definicioProces Definició de procés on buscar el camp si el tipus no té informació a nivell de tipus d'expedient.
+	 * @param codi Codi de la variable
+	 * @param valor Valor en text
+	 * @return Retorna el valor segons el tipus de variable simple.
+	 * @throws ParseException Error en el cas de no poder interpretar un enter, booleà, data o decimal.
+	 */
+	private Object getValorSimpleHelium(
+			ExpedientTipus expedientTipus, 
+			DefinicioProces definicioProces,
+			String codi, 
+			String valor) throws ParseException {
+		Object valorHelium = null;
+		if (expedientTipus != null && valor != null) {
+			// Obté la definció del camp
+			Camp camp;
+			if (expedientTipus.isAmbInfoPropia())
+				camp = campRepository.findByExpedientTipusAndCodi(
+						expedientTipus.getId(), 
+						codi,
+						expedientTipus.getExpedientTipusPare() != null);
+			else {
+				camp = campRepository.findByDefinicioProcesAndCodi(
+						definicioProces,
+						codi);			
+			}
+			if (camp != null) {
+				switch(camp.getTipus()) {
+				case BOOLEAN:
+					valor = valor.toLowerCase().trim();
+					valorHelium  = new Boolean("s".equals(valor) || "true".equals(valor));
+					break;
+				case DATE:
+					valorHelium = DateUtils.parseDate(valor, new String[]{
+							"y-M-d",
+							"y-M-d H:m:s",
+							"y-M-d H:m:s.S",
+							"d/M/y",
+							"d/M/y H:m:s",
+							"d/M/y H:m:s.S",
+							});
+					break;
+				case FLOAT:
+					valorHelium = Double.parseDouble(valor.replace(",", "."));
+					break;
+				case PRICE:
+					valorHelium = new BigDecimal(valor.replace(",", "."));
+					break;
+				case INTEGER:
+					valorHelium = Integer.parseInt(valor);
+				case STRING:
+				case SELECCIO:
+				case SUGGEST:
+				case TEXTAREA:
+					valorHelium = valor;
+					break;
+				default:
+					valorHelium = null;
+					break;
+				
+				}
+			}
+		}
+		return valorHelium;
 	}
 
 	private double getPercent(Long value, Long total) {

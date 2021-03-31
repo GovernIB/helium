@@ -31,7 +31,8 @@ public class ExecucioMassivaDto {
 		PROPAGAR_PLANTILLES,
 		PROPAGAR_CONSULTES,
 		FINALITZAR_EXPEDIENT,
-		MIGRAR_EXPEDIENT
+		MIGRAR_EXPEDIENT,
+		ALTA_MASSIVA
 	}
 
 	private Long id;
@@ -49,6 +50,7 @@ public class ExecucioMassivaDto {
 	private String[] tascaIds;
 	private List<String> procInstIds;
 	private Long[] defProcIds;
+	private String[][] contingutCsv;
 
 	public Long getId() {
 		return id;
@@ -127,5 +129,11 @@ public class ExecucioMassivaDto {
 	}
 	public void setDefProcIds(Long[] defProcIds) {
 		this.defProcIds = defProcIds;
+	}
+	public String[][] getContingutCsv() {
+		return contingutCsv;
+	}
+	public void setContingutCsv(String[][] contingutCsv) {
+		this.contingutCsv = contingutCsv;
 	}
 }

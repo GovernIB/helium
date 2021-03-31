@@ -29,6 +29,7 @@ import org.springframework.security.acls.model.Permission;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import es.caib.plugins.arxiu.api.ContingutArxiu;
@@ -1354,7 +1355,7 @@ public class ExpedientHelper {
 		}
 	}
 
-	@Transactional
+	@Transactional(propagation = Propagation.REQUIRES_NEW)
 	public Expedient iniciar(
 			Long entornId,
 			String usuari,

@@ -1,64 +1,48 @@
 package net.conselldemallorca.helium.webapp.v3.command;
 
-import javax.validation.constraints.Size;
+import javax.validation.constraints.NotNull;
 
-import org.hibernate.validator.constraints.NotEmpty;
+import org.springframework.web.multipart.MultipartFile;
 
-import net.conselldemallorca.helium.v3.core.api.dto.EnumeracioDto;
-import net.conselldemallorca.helium.webapp.v3.command.ExpedientAltaMassivaCommand.Creacio;
-import net.conselldemallorca.helium.webapp.v3.command.ExpedientAltaMassivaCommand.Modificacio;
-import net.conselldemallorca.helium.webapp.v3.validator.Codi;
-import net.conselldemallorca.helium.webapp.v3.validator.ExpedientTipusEnumeracio;
+import net.conselldemallorca.helium.webapp.v3.command.ExpedientAltaMassivaCommand.AltaMassiva;
+import net.conselldemallorca.helium.webapp.v3.validator.ExpedientAltaMassiva;
 
 /** Command pel formulari d'alta massiva d'expedients a partir d'una fulla CSV.
  * 
  */
-@ExpedientTipusEnumeracio(groups = {Creacio.class, Modificacio.class})
+@ExpedientAltaMassiva(groups = {AltaMassiva.class})
 public class ExpedientAltaMassivaCommand {
 
-	private Long expedientTipusId;
-	private Long id;
-	@NotEmpty(groups = {Creacio.class, Modificacio.class})
-	@Size(max = 64, groups = {Creacio.class, Modificacio.class})
-	@Codi(groups = {Creacio.class, Modificacio.class})
-	private String codi;
-	@NotEmpty(groups = {Creacio.class, Modificacio.class})
-	@Size(max = 255, groups = {Creacio.class, Modificacio.class})
-	private String nom;
-
+	
+	// Informació per l'alta massiva
+	@NotNull(groups = {AltaMassiva.class})
+	private Long expedientTipusId = null;
+	// Arxiu CSV
+	private MultipartFile file;
+	
+	/** Propietat on parsejar el CSV durant la validació en el @ExpedientAltaMassivaValidator */
+	private String[][] contingutCsv = null;;
+	
 	public Long getExpedientTipusId() {
 		return expedientTipusId;
 	}
 	public void setExpedientTipusId(Long expedientTipusId) {
 		this.expedientTipusId = expedientTipusId;
 	}
-	public Long getId() {
-		return id;
+	
+	public MultipartFile getFile() {
+		return file;
 	}
-	public void setId(Long id) {
-		this.id = id;
-	}
-	public String getCodi() {
-		return codi;
-	}
-	public void setCodi(String codi) {
-		this.codi = codi;
-	}
-	public String getNom() {
-		return nom;
-	}
-	public void setNom(String nom) {
-		this.nom = nom;
+	public void setFile(MultipartFile file) {
+		this.file = file;
 	}
 	
-	public static EnumeracioDto asEnumeracioDto(ExpedientAltaMassivaCommand command) {
-		EnumeracioDto dto = new EnumeracioDto();
-		dto.setId(command.getId());
-		dto.setCodi(command.getCodi());
-		dto.setNom(command.getNom());
-		return dto;
-	}	
-	
-	public interface Creacio {}
-	public interface Modificacio {}
+	public interface AltaMassiva {}
+
+	public String[][] getContingutCsv() {
+		return contingutCsv;
+	}
+	public void setContingutCsv(String[][] contingutCsv) {
+		this.contingutCsv = contingutCsv;
+	}
 }
