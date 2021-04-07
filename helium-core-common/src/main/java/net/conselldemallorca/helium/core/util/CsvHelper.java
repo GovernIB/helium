@@ -3,6 +3,7 @@ package net.conselldemallorca.helium.core.util;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -57,6 +58,29 @@ public class CsvHelper {
 		return resultat;
 	}
 
+	/** Mètode per escriure en un arxiu CSV per files i columnes el contingut
+	 * passat com a paràmetre.
+	 * 
+	 * @param informacioCsv
+	 * @return
+	 * @throws UnsupportedEncodingException 
+	 */
+	public byte[] toCsv(String[][] informacioCsv) throws UnsupportedEncodingException {
+		StringBuilder csvBuilder = new StringBuilder();
+		for (int i=0; i<informacioCsv.length; i++) {
+			for(int j=0; j<informacioCsv[i].length; j++) {
+				if (informacioCsv[i][j] != null)
+					csvBuilder.append("\"").append(informacioCsv[i][j]).append("\"");
+				if (j<informacioCsv[i].length+1)
+					csvBuilder.append(separador);
+			}
+			if (i<informacioCsv.length + 1)
+				csvBuilder.append("\n");
+		}
+		return csvBuilder.toString().getBytes(codificacio);
+	}
+
+
 	public String getSeparador() {
 		return separador;
 	}
@@ -80,5 +104,4 @@ public class CsvHelper {
 	public void setTextEnCorxets(boolean textEnCorxets) {
 		this.textEnCorxets = textEnCorxets;
 	}
-
 }

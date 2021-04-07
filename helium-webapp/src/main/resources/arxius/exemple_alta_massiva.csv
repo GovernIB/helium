@@ -1,0 +1,3 @@
+Any;Número;Títol;var_string;var_float;var_data;var_preu;var_bool
+2020;;Expedient 1;Text 1;1.1;01/02/21;1234.56;false
+2021;;Expedient 2;Text 2;2,2;2021-03-01 12:3:4.567;-65;S

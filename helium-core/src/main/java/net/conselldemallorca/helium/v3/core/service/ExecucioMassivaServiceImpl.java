@@ -11,6 +11,7 @@ import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -46,6 +47,7 @@ import com.codahale.metrics.Counter;
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer;
 
+import net.conselldemallorca.helium.core.helper.ConversioTipusHelper;
 import net.conselldemallorca.helium.core.helper.DefinicioProcesHelper;
 import net.conselldemallorca.helium.core.helper.DocumentHelperV3;
 import net.conselldemallorca.helium.core.helper.EntornHelper;
@@ -85,6 +87,7 @@ import net.conselldemallorca.helium.jbpm3.integracio.JbpmTask;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExecucioMassivaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExecucioMassivaDto.ExecucioMassivaTipusDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExecucioMassivaListDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.InstanciaProcesDto;
@@ -182,6 +185,8 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 	private DocumentHelperV3 documentHelper;
 	@Resource
 	private UsuariActualHelper usuariActualHelper;
+	@Resource
+	private ConversioTipusHelper conversioTipusHelper;
 
 	@Autowired
 	private TascaService tascaService;
@@ -309,6 +314,22 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 				throw new ValidacioException("S'ha intentat crear una execució massiva sense assignar expedients.");
 		}
 	}
+
+	@Transactional(readOnly = true)
+	@Override
+	public ExecucioMassivaDto findAmbId(Long execucioMassivaId) {
+		ExecucioMassivaDto ret = null;
+		logger.debug(
+				"Consultant l'execucio massiva per id (" +
+				"execucioMassivaId=" + execucioMassivaId + ")");
+		ExecucioMassiva execucioMassiva = execucioMassivaRepository.findOne(execucioMassivaId);
+		if (execucioMassiva != null)
+			ret = conversioTipusHelper.convertir(
+					execucioMassiva,
+					ExecucioMassivaDto.class);
+		return ret;
+	}
+
 
 	@Transactional
 	@Override
@@ -809,6 +830,9 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 		} else if (tipus.equals(ExecucioMassivaTipus.PROPAGAR_CONSULTES)) {
 			label = messageHelper.getMessage("expedient.eines.propagar.consultes",
 					new Object[] { execucioMassiva.getExpedientTipus().getCodi() });
+		} else if (tipus.equals(ExecucioMassivaTipus.ALTA_MASSIVA)) {
+			label = messageHelper.getMessage("expedient.massiva.altaMassiva",
+					new Object[] { execucioMassiva.getExpedientTipus().getCodi() });
 		} else {
 			label = tipus.name();
 		}
@@ -1104,6 +1128,80 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 		ome.setError(error);
 		execucioMassivaExpedientRepository.save(ome);
 	}
+	
+	@Override
+	@Transactional
+	public ExecucioMassivaListDto getDarreraAltaMassiva(Long expedientTipusId) {
+
+		ExecucioMassivaListDto ret = null;
+		logger.debug(
+				"Consultant la darrera alta massiva per tipus d'expedient (" +
+				"expedientTipusId=" + expedientTipusId + ")");
+		Long execucioMassivaId = execucioMassivaRepository.getMinExecucioMassivaByExpedientTipusId(
+				expedientTipusId, 
+				ExecucioMassiva.ExecucioMassivaTipus.ALTA_MASSIVA);
+		if (execucioMassivaId != null) {
+			ExecucioMassiva execucioMassiva = execucioMassivaRepository.findOne(execucioMassivaId);
+			ret = conversioTipusHelper.convertir(execucioMassiva, ExecucioMassivaListDto.class);
+			
+			List<Object[]> resultats = execucioMassivaExpedientRepository.findResultatsExecucionsMassives(Arrays.asList(execucioMassiva));
+			if (resultats.size() > 0) {
+				Long finalitzat = (Long) resultats.get(0)[1];
+				Long error = (Long) resultats.get(0)[2];
+				Long processat = (error + finalitzat);
+				Long pendent = (Long) resultats.get(0)[3];
+				Long total = (Long) resultats.get(0)[4];
+				
+				ret.setFinalitzat(finalitzat);
+				ret.setError(error);
+				ret.setProcessat(processat);
+				ret.setPendent(pendent);
+				ret.setTotal(total);
+			}
+			
+		}
+		return ret;
+	}	
+	
+	
+	@Override
+	@Transactional
+	public String[][] getResultatAltaMassiva(Long execucioMassivaId) {
+
+		String[][] resultat = null;
+		logger.debug(
+				"Consultant el resultat de l'alta massiva (" +
+				"execucioMassivaId=" + execucioMassivaId + ")");
+		
+		List<String[]> files = new ArrayList<String[]>();
+		// 1a fila amb els títols per les columnes
+		String[] fila = new String[6];
+		fila[0] = "Id";
+		fila[1] = "Identificador";
+		fila[2] = "Número";
+		fila[3] = "Títol";
+		fila[4] = "ProcessId";
+		fila[5] = "Error";
+		files.add(fila);
+		for (ExecucioMassivaExpedient eme : execucioMassivaExpedientRepository.findByExecucioMassivaId(execucioMassivaId)) {
+			fila = new String[6];
+			if (eme.getExpedient() != null) {
+				fila[0] = eme.getExpedient().getId().toString();
+				fila[1] = eme.getExpedient().getIdentificador();
+				fila[2] = eme.getExpedient().getNumero();
+				fila[3] = eme.getExpedient().getTitol();
+				fila[4] = eme.getExpedient().getProcessInstanceId();
+			}
+			fila[5] = eme.getError();
+			files.add(fila);
+		}
+	    resultat = new String[files.size()][];
+	    for (int i = 0; i < files.size(); i++) {
+	    	resultat[i] = files.get(i);
+	    }
+		return resultat;
+	}
+
 
 	private void programarEliminarDp(Long dpId, Long expedientTipusId) throws Exception {
 		Date dInici = new Date();
@@ -2084,5 +2182,4 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 	}
 
 	private static final Log logger = LogFactory.getLog(ExecucioMassivaService.class);
-
 }

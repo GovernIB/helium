@@ -63,6 +63,6 @@ public interface ExecucioMassivaExpedientRepository extends JpaRepository<Execuc
 	public Long findNextExecucioMassivaExpedient(@Param("nextMassiu") Long nextMassiu);
 
 	/** Troba totes les execucions massives amb bloqueig per procedir a cancel·lar-les. */
-	@Query("from ExecucioMassivaExpedient e where e.execucioMassiva.id = :emId")
+	@Query("from ExecucioMassivaExpedient e where e.execucioMassiva.id = :emId order by e.ordre")
 	public List<ExecucioMassivaExpedient> findByExecucioMassivaId(@Param("emId") Long emId);
 }

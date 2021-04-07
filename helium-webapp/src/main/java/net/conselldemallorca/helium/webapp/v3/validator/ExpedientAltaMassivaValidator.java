@@ -1,6 +1,7 @@
 package net.conselldemallorca.helium.webapp.v3.validator;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -14,8 +15,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import net.conselldemallorca.helium.core.util.CsvHelper;
 import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExecucioMassivaListDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.service.DissenyService;
+import net.conselldemallorca.helium.v3.core.api.service.ExecucioMassivaService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientTipusService;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientAltaMassivaCommand;
 import net.conselldemallorca.helium.webapp.v3.helper.MessageHelper;
@@ -30,6 +33,8 @@ public class ExpedientAltaMassivaValidator implements ConstraintValidator<Expedi
 	@Autowired
 	ExpedientTipusService expedientTipusService;
 	@Autowired
+	ExecucioMassivaService execucioMassivaService;
+	@Autowired
 	DissenyService dissenyService;
 	
 	/** Màxim de 10.000 expedients per alta programada. */
@@ -43,9 +48,25 @@ public class ExpedientAltaMassivaValidator implements ConstraintValidator<Expedi
 	@Override
 	public boolean isValid(ExpedientAltaMassivaCommand command, ConstraintValidatorContext context) {
 		boolean valid = true;
-		String[][] contingutCsv = null;
 		
+		String[][] contingutCsv = null;
 		try {
+			// Valida que no hi hagi ja una alta massiva en progrés
+			if (command.getExpedientTipusId() != null) {
+				ExecucioMassivaListDto darreraExecucioMassiva = execucioMassivaService.getDarreraAltaMassiva(command.getExpedientTipusId());
+				if (darreraExecucioMassiva != null && darreraExecucioMassiva.getDataFi() == null) {
+					context.buildConstraintViolationWithTemplate(
+							MessageHelper.getInstance().getMessage( this.codiMissatge + ".alta.en.proces", new Object[]{
+									new SimpleDateFormat("dd/MM/yyyy HH:mm:ss").format(darreraExecucioMassiva.getDataInici()),
+									darreraExecucioMassiva.getUsuari(),
+									darreraExecucioMassiva.getTotal()
+							}))
+					.addNode("expedientTipusId")
+					.addConstraintViolation();
+					valid = false;
+				}
+			}
+			// Valida l'arxiu
 			if (command.getFile().getBytes() == null || command.getFile().getBytes().length == 0) {
 				context.buildConstraintViolationWithTemplate(
 						MessageHelper.getInstance().getMessage( this.codiMissatge + ".arxiu.buit"))
