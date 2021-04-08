@@ -534,7 +534,15 @@ public class ExpedientServiceImpl implements ExpedientService {
 		for (Notificacio notificacio: notificacioRepository.findByExpedientOrderByDataEnviamentDesc(expedient)) {
 			notificacioRepository.delete(notificacio);
 		}
-		for (Anotacio anotacio: anotacioRepository.findByExpedientId(expedient.getId())) {
+		List<Anotacio> anotacions;
+		try {
+			anotacions = anotacioRepository.findByExpedientId(expedient.getId());
+		} catch(Exception e) {
+			//#1480 Error esborrant expedients a PRO
+			logger.error("Error consultant les anotacions per l'expedient " + expedient.getId() + ": " + e.getMessage());
+			anotacions = new ArrayList<Anotacio>();
+		}
+		for (Anotacio anotacio : anotacions) {
 			if (AnotacioEstatEnumDto.PROCESSADA.equals(anotacio.getEstat()) )
 				// Si les anotacions estan processades s'esborren
 				anotacioRepository.delete(anotacio);

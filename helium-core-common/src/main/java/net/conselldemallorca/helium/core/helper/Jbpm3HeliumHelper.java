@@ -1955,7 +1955,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 			ExpedientDto expedient,
 			ZonaperExpedientDto dadesExpedient) {
 		
-			String identificador = expedient.getNumeroIdentificador();
+			String identificador = expedient.getNumeroDefault();
 			String clau = new Long(System.currentTimeMillis()).toString();
 			dadesExpedient.setExpedientIdentificador(identificador);
 			dadesExpedient.setExpedientClau(clau);
