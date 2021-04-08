@@ -1335,6 +1335,8 @@ public class TramitacioServiceImpl implements TramitacioService {
 					documentCodi);
 			if (document == null)
 				throw new TramitacioException("No s'ha pogut trobar el document amb codi " + documentCodi);
+			if (data == null)
+				data = new Date();
 			return documentService.guardarDocumentProces(
 					processInstanceId,
 					documentCodi,
