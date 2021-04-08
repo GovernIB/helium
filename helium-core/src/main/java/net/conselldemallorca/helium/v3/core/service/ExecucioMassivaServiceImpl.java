@@ -1143,6 +1143,8 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 		if (execucioMassivaId != null) {
 			ExecucioMassiva execucioMassiva = execucioMassivaRepository.findOne(execucioMassivaId);
 			ret = conversioTipusHelper.convertir(execucioMassiva, ExecucioMassivaListDto.class);
+			if (execucioMassiva.getExpedientTipus() != null )
+				ret.setExpedientTipusId(execucioMassiva.getExpedientTipus().getId() );
 			
 			List<Object[]> resultats = execucioMassivaExpedientRepository.findResultatsExecucionsMassives(Arrays.asList(execucioMassiva));
 			if (resultats.size() > 0) {
@@ -2049,6 +2051,8 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 			String codi;
 			String valor;
 			Object valorHelium;
+			List<String> variablesErronies = new ArrayList<String>();
+			
 			for (int i = 3; i < contingutCsv[0].length; i++) {
 				codi = contingutCsv[0][i];
 				valor = contingutCsv[index][i];
@@ -2056,43 +2060,54 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 					valorHelium = this.getValorSimpleHelium(expedientTipus, definicioProces, codi, valor);
 					variables.put(codi, valorHelium);
 				} catch (Exception e) {
-					logger.error("Error interpretant el text \"" + valor + "\" com a data en l'alta massiva d'expedients per CSV pel camp " +
-							codi + " del tipus d'expedient " + expedientTipus.getCodi() + " - " + expedientTipus.getNom() );
+					variablesErronies.add(codi);
 				}
 			}
-			// Alta de l'expedient
-			Expedient expedient = expedientHelper.iniciar(
-					expedientTipus.getEntorn().getId(), 
-					ome.getExecucioMassiva().getUsuari(), 
-					expedientTipus.getId(), 
-					ome.getDefinicioProcesId(), 
-					any, 
-					numero, 
-					titol, 
-					null, 
-					null, 
-					null, 
-					null, 
-					false, 
-					null, 
-					null, 
-					null, 
-					null, 
-					null, 
-					null, 
-					false, 
-					null, 
-					null, 
-					false, 
-					variables, 
-					null, 
-					net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto.IniciadorTipusDto.INTERN,
-					null,
-					null,
-					null,
-					null);
-			ome.setExpedient(expedient);
-			ome.setAuxText("Expedient " + expedient.getIdentificador() + " creat correctament per CSV");
+			if (variablesErronies.size() > 0) {
+				// Informar variables errònies al resultat.
+				estat = ExecucioMassivaEstat.ESTAT_ERROR;
+				errText.append("Error en el format de les següents variables: [");
+				for (int i = 0; i < variablesErronies.size(); i++) {
+					errText.append(variablesErronies.get(i));
+					if (i < variablesErronies.size() + 1)
+						errText.append(", ");
+				}
+				errText.append("].");
+			} else {
+				// Alta de l'expedient
+				Expedient expedient = expedientHelper.iniciar(
+						expedientTipus.getEntorn().getId(), 
+						ome.getExecucioMassiva().getUsuari(), 
+						expedientTipus.getId(), 
+						ome.getDefinicioProcesId(), 
+						any, 
+						numero, 
+						titol, 
+						null, 
+						null, 
+						null, 
+						null, 
+						false, 
+						null, 
+						null, 
+						null, 
+						null, 
+						null, 
+						null, 
+						false, 
+						null, 
+						null, 
+						false, 
+						variables, 
+						null, 
+						net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto.IniciadorTipusDto.INTERN,
+						null,
+						null,
+						null,
+						null);
+				ome.setExpedient(expedient);
+				ome.setAuxText("Expedient " + expedient.getIdentificador() + " creat correctament per CSV");
+			}
 		} catch (Exception ex) {
 			estat = ExecucioMassivaEstat.ESTAT_ERROR;
 			String errMsg = "Error no controlat en l'execució massiva d'alta d'expedient per CSV: " + ex.getMessage();
@@ -2141,12 +2156,12 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 					break;
 				case DATE:
 					valorHelium = DateUtils.parseDate(valor, new String[]{
-							"y-M-d",
-							"y-M-d H:m:s",
-							"y-M-d H:m:s.S",
-							"d/M/y",
-							"d/M/y H:m:s",
-							"d/M/y H:m:s.S",
+							"yyyy-MM-dd",
+							"yyyy-MM-dd HH:mm:ss",
+							"yyyy-MM-dd HH:mm:ss.S",
+							"dd/MM/yyyy",
+							"dd/MM/yyyy HH:mm:ss",
+							"dd/MM/yyyy HH:mm:ss.S",
 							});
 					break;
 				case FLOAT:

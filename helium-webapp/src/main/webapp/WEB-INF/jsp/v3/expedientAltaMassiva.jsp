@@ -107,9 +107,9 @@
 
 		
 		<div id="modal-botons" class="well">
-			<button type="submit" class="btn btn-primary right" name="altaMassiva" accio="altaMassiva" disabled="disabled"><i class="fa fa-file-o"></i> <spring:message code="expedient.iniciar.alta.csv"></spring:message></button>
-			<button class="btn btn-success right" name="refrescar" disabled="disabled"><i class="fa fa-refresh"></i> <spring:message code="comu.boto.refrescar"></spring:message></button>
-			<button class="btn btn-success right" name="resultats" disabled="disabled"><i class="fa fa-download"></i> <spring:message code="expedient.alta.massiva.resultats"></spring:message></button>
+			<button type="submit" class="btn btn-primary right" name="altaMassiva" accio="altaMassiva" disabled="disabled"><i class="fa fa-file-o"></i> <spring:message code="expedient.alta.massiva.processar"></spring:message></button>
+			<button class="btn btn-success right" name="refrescar"><i class="fa fa-refresh"></i> <spring:message code="comu.boto.refrescar"></spring:message></button>
+			<button class="btn btn-success right" name="resultats"><i class="fa fa-download"></i> <spring:message code="expedient.alta.massiva.resultats"></spring:message></button>
 			<button type="button" class="btn btn-default right" data-modal-cancel="true"><spring:message code="comu.boto.cancelar"/></button>
 		</div>
 
@@ -147,7 +147,7 @@
 			// Botó per descarregar els resultats
 			$("button[name=resultats]").click(function(e) {
 				if (darreraExecucioMassiva) {
-					$(this).attr('disabled', true).find('.fa-download').removeClass('fa-download').addClass('fa-refresh').addClass('fa-spin')
+					$("button[name=resultats]", window.parent.document).attr('disabled', true).find('.fa-download').removeClass('fa-download').addClass('fa-refresh').addClass('fa-spin')
 					var resultatsUrl = '<c:url value="/v3/expedient/altaMassiva"/>/' + darreraExecucioMassiva.id + '/resultat';
 					webutilDownloadAndRefresh(resultatsUrl, e, resultatsCallbackFunction);
 				} else {
@@ -162,8 +162,7 @@
 		}); 
 		
 		function resultatsCallbackFunction() {
-			$("button[name=resultats]", window.parent.document).attr('disabled', false).find('.fa-refresh').removeClass("fa-spin").removeClass('fa-refresh').addClass('fa-download');
-
+			$("button[name=resultats]", window.parent.document).removeAttr('disabled').find('.fa-refresh').removeClass("fa-spin").removeClass('fa-refresh').addClass('fa-download');
 		}
 		
 		function carregaDades() {
@@ -204,7 +203,7 @@
 				// Carrega les dades a la taula
 				if (data.execucioMassiva) {
 					$('#total').html(data.execucioMassiva.total);
-					var tpcExecutat = data.execucioMassiva.finalitzat * 100 / data.execucioMassiva.total;
+					var tpcExecutat = data.execucioMassiva.processat * 100 / data.execucioMassiva.total;
 					$('#tpcExecutatBar').css('width', tpcExecutat + '%');
 					$('#tpcExecutat').html(tpcExecutat + '%');
 					$('#processats').html(data.execucioMassiva.processat);
