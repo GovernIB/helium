@@ -33,36 +33,52 @@ public class ServiceHelper {
             Specification<E> spec,
             String filtreRsql,
             Pageable pageable,
-            Sort sort,
-            Class<?> dtoClass) {
+            Sort sort) {
 
-        if (filtreRsql != null && !filtreRsql.isBlank()) {
-            try {
-                Specification<E> rsqlSpec = getRsqlSpecification(filtreRsql);
-                if (spec != null)
-                    spec = Specification.where(spec).and(rsqlSpec);
-                else
-                    spec = rsqlSpec;
-            } catch (RSQLParserException ex) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Bad Request. Filtre RSQL incorrecte (" + filtreRsql + "). Error: " + ex.getMessage());
-            }
-        }
+        spec = joinRsqlAndSpecification(spec, filtreRsql);
 
         if (spec != null) {
             if (pageable.isUnpaged()) {
-                sort = addDefaultSort(sort, dtoClass);
                 List<E> resultList = repository.findAll(spec, sort);
                 return new PageImpl<>(resultList, pageable, resultList.size());
             } else {
-                return repository.findAll(spec, processPageable(pageable, dtoClass));
+                return repository.findAll(spec, pageable);
             }
         } else {
             if (pageable.isUnpaged()) {
-                sort = addDefaultSort(sort, dtoClass);
                 List<E> resultList = repository.findAll(sort);
                 return new PageImpl<>(resultList, pageable, resultList.size());
             } else {
-                return repository.findAll(processPageable(pageable, dtoClass));
+                return repository.findAll(pageable);
+            }
+        }
+    }
+
+    public static <E, PK> Page<E> getEntityPage(
+            BaseRepository<E, PK> repository,
+            Specification<E> spec,
+            String filtreRsql,
+            Pageable pageable,
+            Sort sort,
+            Class<?> classWithSort) {
+
+        spec = joinRsqlAndSpecification(spec, filtreRsql);
+
+        if (spec != null) {
+            if (pageable.isUnpaged()) {
+                sort = addDefaultSort(sort, classWithSort);
+                List<E> resultList = repository.findAll(spec, sort);
+                return new PageImpl<>(resultList, pageable, resultList.size());
+            } else {
+                return repository.findAll(spec, processPageable(pageable, classWithSort));
+            }
+        } else {
+            if (pageable.isUnpaged()) {
+                sort = addDefaultSort(sort, classWithSort);
+                List<E> resultList = repository.findAll(sort);
+                return new PageImpl<>(resultList, pageable, resultList.size());
+            } else {
+                return repository.findAll(processPageable(pageable, classWithSort));
             }
         }
     }
@@ -91,9 +107,34 @@ public class ServiceHelper {
 
     }
 
-    private static Pageable processPageable(Pageable pageable, Class<?> dtoClass) {
+    public static <T>Specification<T> getRsqlSpecification(String rsqlFilter) {
+        Set<ComparisonOperator> operators = RSQLOperators.defaultOperators();
+        operators.add(RsqlSearchOperation.EQUAL_IGNORE_CASE.getOperator());
+        operators.add(RsqlSearchOperation.NOT_EQUAL_IGNORE_CASE.getOperator());
+        operators.add(RsqlSearchOperation.IS_NULL.getOperator());
+        operators.add(RsqlSearchOperation.IS_NOT_NULL.getOperator());
+        Node rootNode = new RSQLParser(operators).parse(rsqlFilter);
+        return rootNode.accept(new CustomRsqlVisitor<>());
+    }
+
+    public static <E> Specification<E> joinRsqlAndSpecification(Specification<E> spec, String filtreRsql) {
+        if (filtreRsql != null && !filtreRsql.isBlank()) {
+            try {
+                Specification<E> rsqlSpec = getRsqlSpecification(filtreRsql);
+                if (spec != null)
+                    spec = Specification.where(spec).and(rsqlSpec);
+                else
+                    spec = rsqlSpec;
+            } catch (RSQLParserException ex) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Bad Request. Filtre RSQL incorrecte (" + filtreRsql + "). Error: " + ex.getMessage());
+            }
+        }
+        return spec;
+    }
+
+    private static Pageable processPageable(Pageable pageable, Class<?> classWithSort) {
         if (pageable.isPaged()) {
-            Sort sort = addDefaultSort(pageable.getSort(), dtoClass);
+            Sort sort = addDefaultSort(pageable.getSort(), classWithSort);
             return PageRequest.of(
                     pageable.getPageNumber(),
                     pageable.getPageSize(),
@@ -103,9 +144,9 @@ public class ServiceHelper {
         }
     }
 
-    private static Sort addDefaultSort(Sort sort, Class<?> dtoClass) {
+    private static Sort addDefaultSort(Sort sort, Class<?> classWithSort) {
         if (sort == null || sort.isEmpty()) {
-            DefaultSort defaultOrderAnnotation = dtoClass.getAnnotation(DefaultSort.class);
+            DefaultSort defaultOrderAnnotation = classWithSort.getAnnotation(DefaultSort.class);
             if (defaultOrderAnnotation != null && defaultOrderAnnotation.sortFields().length > 0) {
                 List<Sort.Order> orders = new ArrayList<>();
                 for (DefaultOrder defOrder: defaultOrderAnnotation.sortFields()) {
@@ -115,15 +156,5 @@ public class ServiceHelper {
             }
         }
         return sort;
-    }
-
-    private static <T>Specification<T> getRsqlSpecification(String rsqlFilter) {
-        Set<ComparisonOperator> operators = RSQLOperators.defaultOperators();
-        operators.add(RsqlSearchOperation.EQUAL_IGNORE_CASE.getOperator());
-        operators.add(RsqlSearchOperation.NOT_EQUAL_IGNORE_CASE.getOperator());
-        operators.add(RsqlSearchOperation.IS_NULL.getOperator());
-        operators.add(RsqlSearchOperation.IS_NOT_NULL.getOperator());
-        Node rootNode = new RSQLParser(operators).parse(rsqlFilter);
-        return rootNode.accept(new CustomRsqlVisitor<>());
     }
 }

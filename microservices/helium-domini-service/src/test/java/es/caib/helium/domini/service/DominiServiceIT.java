@@ -33,7 +33,6 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlConfig;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.HashMap;
@@ -46,7 +45,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @ActiveProfiles("test")
-@ExtendWith({SpringExtension.class, WireMockExtension.class})
+@ExtendWith({WireMockExtension.class})
 @SpringBootTest
 @TestPropertySource(locations = "classpath:application-test.properties")
 class DominiServiceIT {
