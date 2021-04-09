@@ -23,3 +23,8 @@ spring:
         uri: lb://helium-domini-service
         predicates:
           - Path=/api/v1/dominis/**
+          
+      - id: helium-dada-service
+        uri: lb://helium-dada-service
+        predicates:
+          -Path=/api/v1/dades/**

@@ -44,6 +44,7 @@ public class DominiSqlServiceImpl implements DominiSqlService {
                 return true;
             }
         };
+        
         ResultatDomini resultat = new ResultatDomini();
         List<FilaResultat> files = jdbcTemplate.query(
                 domini.getSql(),
