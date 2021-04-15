@@ -38,8 +38,12 @@ public class ExpedientTipusExportarCommand {
 	
 
 	// Camps per a la importació
+	/** Incloure o no dades bàsiques com títol, seqüències i altres dades de capçalera del tipus d'expedient. */
 	private boolean dadesBasiques;
+	/** Assenyala si sobreescriure les dades que ja existeixin amb el mateix codi */
 	private boolean sobreEscriure;
+	/** Determina si s'han de desplegar el .par de les definicions de procés quan aquestes ja existeixen. */
+	private boolean desplegarDefinicions;
 	@Codi(groups = {Importacio.class})
 	/** Codi per a la importació sobre un nou tipus d'expedient. */
 	private String codi;
@@ -114,6 +118,14 @@ public class ExpedientTipusExportarCommand {
 
 	public String getCodi() {
 		return codi;
+	}
+
+	public boolean isDesplegarDefinicions() {
+		return desplegarDefinicions;
+	}
+
+	public void setDesplegarDefinicions(boolean desplegarDefinicions) {
+		this.desplegarDefinicions = desplegarDefinicions;
 	}
 
 	public void setCodi(String codi) {

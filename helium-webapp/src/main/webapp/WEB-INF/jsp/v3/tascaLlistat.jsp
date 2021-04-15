@@ -433,8 +433,8 @@
 		<thead>
 			<tr data-toggle="context" data-target="#context-menu">
 				<th data-rdt-property="id" width="4%" data-rdt-sortable="false" data-rdt-visible="true"></th>
-				<th data-rdt-property="titol" data-rdt-template="cellPersonalGroupTemplate" data-rdt-visible="true" >
-					<spring:message code="tasca.llistat.columna.titol"/>
+				<th data-rdt-property="titol" data-rdt-sortable="false" data-rdt-template="cellPersonalGroupTemplate" data-rdt-visible="true" >
+					<spring:message code="tasca.llistat.columna.titol.tasca"/>
 					<script id="cellPersonalGroupTemplate" type="text/x-jsrender">
 						{{:titol}}
 						{{if !agafada && responsables != null}}

@@ -34,6 +34,7 @@ import es.caib.distribucio.ws.backofficeintegracio.NtiEstadoElaboracion;
 import es.caib.distribucio.ws.backofficeintegracio.NtiOrigen;
 import es.caib.distribucio.ws.backofficeintegracio.NtiTipoDocumento;
 import es.caib.distribucio.ws.client.BackofficeIntegracioWsClientFactory;
+import es.caib.plugins.arxiu.api.Document;
 import net.conselldemallorca.helium.core.model.hibernate.Anotacio;
 import net.conselldemallorca.helium.core.model.hibernate.AnotacioAnnex;
 import net.conselldemallorca.helium.core.model.hibernate.AnotacioInteressat;
@@ -513,17 +514,26 @@ public class DistribucioHelper {
 			
 			// Canvi d'estat a processada
 			// Notifica a Distribucio que s'ha rebut correctament
-			this.canviEstat(
-					idWs, 
-					es.caib.distribucio.ws.backofficeintegracio.Estat.PROCESSADA,
-					"Petició processada a Helium.");
+			try {
+				this.canviEstat(
+						idWs, 
+						es.caib.distribucio.ws.backofficeintegracio.Estat.PROCESSADA,
+						"Anotació incorporada a l'expedient d'Helium " + expedient.getIdentificadorLimitat());
+			} catch(Exception e) {
+				String errMsg = "Error comunicant l'estat de processada a Distribucio:" + e.getMessage();
+				logger.warn(errMsg, e);				
+			}
 		} else {
 			// Notifica a Distribucio que s'ha rebut correctament
-			this.canviEstat(
-					idWs, 
-					es.caib.distribucio.ws.backofficeintegracio.Estat.REBUDA,
-					"Petició rebuda a Helium.");
-			
+			try {
+				this.canviEstat(
+						idWs, 
+						es.caib.distribucio.ws.backofficeintegracio.Estat.REBUDA,
+						"Petició rebuda a Helium.");
+			} catch(Exception e) {
+				String errMsg = "Error comunicant l'estat de rebuda a Distribucio:" + e.getMessage();
+				logger.warn(errMsg, e);				
+			}			
 		}
 		logger.info("Rebuda correctament la petició d'anotació de registre amb id de Distribucio =" + idWs);
 	}
@@ -573,9 +583,9 @@ public class DistribucioHelper {
 				String annexTitol = codiSistra[0];
 				String campoId = codiSistra[1];
 				CampTasca campTasca = campsTasca.get(mapeig.getCodiHelium());
-				logger.debug("{" + mapeig.getCodiHelium() + " (" + campTasca.getCamp().getTipus() + ") - ");
 				
 				if (annexos.containsKey(annexTitol) && campTasca != null) {
+					logger.debug("{" + mapeig.getCodiHelium() + " (" + campTasca.getCamp().getTipus() + ") - ");
 					// Recupera la informació del formulari de l'annex
 					Formulario formulari = formularis.get(annexTitol);
 					if (formulari == null) {
@@ -750,12 +760,22 @@ public class DistribucioHelper {
 		DadesDocumentDto resposta = null;
 		for (AnotacioAnnex document: anotacio.getAnnexos()) {
 			if (varSistra.equalsIgnoreCase(document.getTitol())) {
-				resposta = new DadesDocumentDto();
-				resposta.setIdDocument(varHelium.getId());
-				resposta.setCodi(varHelium.getCodi());
-				resposta.setData(anotacio.getData());
-				resposta.setArxiuNom(document.getNom());
-				resposta.setArxiuContingut(document.getContingut());
+				byte[] contingut = document.getContingut();
+				if (document.getContingut() == null &&  document.getUuid() != null) {
+					// Recupera el contingut de l'Arxiu
+					Document documentArxiu = pluginHelper.arxiuDocumentInfo(document.getUuid(), null, true, true);
+					contingut = documentArxiu.getContingut() != null? documentArxiu.getContingut().getContingut() : null;
+				}
+				if (contingut != null) {
+					resposta = new DadesDocumentDto();
+					resposta.setArxiuContingut(contingut);				
+					resposta.setIdDocument(varHelium.getId());
+					resposta.setCodi(varHelium.getCodi());
+					resposta.setData(anotacio.getData());
+					resposta.setArxiuNom(document.getNom());					
+				} else {
+					logger.warn("El contingut pel document " + document.getNom() + " de l'annocació " + anotacio.getExpedientNumero() + " es null i no es pot completar el mapeig de document SISTRA2 " + varSistra + " -> " + varHelium.getCodi());
+				}
 				break;
 			}
 		}
