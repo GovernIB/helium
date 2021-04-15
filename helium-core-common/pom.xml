@@ -387,6 +387,12 @@
 			<version>${helium.version}</version>
 		</dependency>
 
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>helium-ms</artifactId>
+			<version>${helium.version}</version>
+		</dependency>
+
 		<!--  plugin-validatesignature-afirmacxf 1.0.2 -->
 		<dependency>
 			<groupId>org.fundaciobit.plugins</groupId>

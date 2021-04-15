@@ -32,6 +32,8 @@ import net.conselldemallorca.helium.core.model.hibernate.Domini.TipusDomini;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.util.EntornActual;
+import net.conselldemallorca.helium.ms.domini.DominiMs;
+import net.conselldemallorca.helium.ms.domini.client.model.DominiPagedList;
 import net.conselldemallorca.helium.v3.core.api.dto.DominiDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
@@ -72,6 +74,9 @@ public class DominiServiceImpl implements DominiService {
 	@Autowired
 	DominiHelper dominiHelper;
 	
+	@Autowired
+	private DominiMs dominiMs;
+	
 	/**
 	 * {@inheritDoc}
 	 */
@@ -106,6 +111,8 @@ public class DominiServiceImpl implements DominiService {
 				paginacioHelper.toSpringDataPageable(
 						paginacioParams));
 
+		this.testDominiMs();
+		
 		PaginaDto<DominiDto> pagina = paginacioHelper.toPaginaDto(
 				page,
 				DominiDto.class);		
@@ -136,6 +143,19 @@ public class DominiServiceImpl implements DominiService {
 		return pagina;	
 	}
 	
+	private void testDominiMs() {
+			// Consulta una llista de dominis
+			Long entornId = 2L;
+			String filtre = null;
+			Long expedientTipusId = null;
+			Long expedientTipusPareId = null;
+			Integer page = null;
+			Integer size = null;
+			String sort = null;
+			DominiPagedList dominisPagina = dominiMs.listDominisV1(entornId, filtre, expedientTipusId, expedientTipusPareId, page, size, sort);
+			System.out.println("Pàgina de dominis: " + dominisPagina);
+	}
+
 	@Override
 	@Transactional
 	public DominiDto create(
@@ -349,7 +369,6 @@ public class DominiServiceImpl implements DominiService {
 			Long dominiId, 
 			String dominiWsId,
 			Map<String, Object> params) {
-		// TODO Auto-generated method stub
 		logger.debug(
 				"Consulta domini (" +
 						"entornId=" + entornId + ", " +

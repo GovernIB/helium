@@ -42,6 +42,7 @@
 		<module>helium-selenium</module>
 		<module>helium-selenium-webapp</module>
 		<module>helium-ws-client</module>
+		<module>helium-ms</module>
 	</modules>
 	<build>
 		<plugins>
