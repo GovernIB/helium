@@ -12,7 +12,7 @@ import es.caib.helium.dada.domain.Dada;
 
 public interface DadaRepository extends MongoRepository<Dada, String> {
 	
-	@Query(value = "{valor: {$elemMatch: {camps: {$elemMatch: {codi: \"codi\"}}}}}")
+//	@Query(value = "{valor: {$elemMatch: {camps: {$elemMatch: {codi: \"codi\"}}}}}")
 	public Page<Dada> findAll(Pageable pageable);
 
 	public Optional<List<Dada>> findByExpedientId(Long expedientId);

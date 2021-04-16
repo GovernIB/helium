@@ -1,19 +1,27 @@
-package es.caib.helium.dada.model;
+package es.caib.helium.dada.domain;
 
 import java.util.Date;
+import java.util.List;
 
 import javax.validation.constraints.NotNull;
+
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
-@Getter 
+@Getter
 @Setter
 @ToString
-public class ExpedientDto {
-	
+@Document
+public class Expedient {
+	 
+	@Id
 	private String id;
+	@NotNull
+	private Long expedientId;
 	@NotNull
 	private Long entornId;
 	@NotNull
@@ -21,9 +29,11 @@ public class ExpedientDto {
 	private String numero;
 	private String titol;
 	@NotNull
-	private long procesPrincipalId;
-	private int estat;
+	private Long procesPrincipalId;
+	private Integer estatId;
 	@NotNull
 	private Date dataInici;
 	private Date dataFi;
+	
+	private List<Dada> dades;
 }

@@ -95,3 +95,26 @@ db.createCollection("dada", {
 	validationLevel: "strict",
 	validationAction: "error"
 })
+
+
+/*
+       {
+            "camps" : [ 
+                {
+                    "codi" : "codi",
+                    "tipus" : "String",
+                    "multiple" : true,
+                    "valor" : [ 
+                        {
+                            "valor" : "valorProva",
+                            "valorText" : "TextProva"
+                        }, 
+                        {
+                            "valor" : "valorProva1",
+                            "valorText" : "TextProva1"
+                        }
+                    ]
+                }
+            ]
+        },
+*/
