@@ -1218,28 +1218,21 @@ public class TascaTramitacioController extends BaseTascaController {
 		Map<String, Object> datosTramitacionMasiva = getDatosTramitacionMasiva(request);
 		if (datosTramitacionMasiva != null) {
 			try {
+				ExpedientTascaDto tasca = tascaService.findAmbIdPerTramitacio(tascaId);
 				tascaService.guardar(tascaId, variables);
 				
 				String[] tascaIds = (String[]) datosTramitacionMasiva.get("tasquesTramitar");
 				EntornDto entorn = SessionHelper.getSessionManager(request).getEntornActual();
-//				Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 				ExecucioMassivaDto dto = new ExecucioMassivaDto();
 				dto.setDataInici((Date) datosTramitacionMasiva.get("inici"));
 				dto.setEnviarCorreu((Boolean) datosTramitacionMasiva.get("correu"));
-//				dto.setTascaIds(tascaIds);
 				dto.setTascaIds((String[])ArrayUtils.removeElement(tascaIds, tascaId));
-//				dto.setExpedientTipusId(expTipusId);
+				dto.setExpedientTipusId(tasca.getExpedientTipusId());
 				dto.setTipus(ExecucioMassivaTipusDto.EXECUTAR_TASCA);
 				dto.setParam1("Guardar");
 				Object[] params = new Object[2];
 				params[0] = entorn.getId();
 				params[1] = variables;
-//				params[2] = auth.getCredentials();
-//				List<String> rols = new ArrayList<String>();
-//				for (GrantedAuthority gauth : auth.getAuthorities()) {
-//					rols.add(gauth.getAuthority());
-//				}
-//				params[3] = rols;
 				dto.setParam2(execucioMassivaService.serialize(params));
 				execucioMassivaService.crearExecucioMassiva(dto);
 				MissatgesHelper.success(request, getMessage(request, "info.tasca.massiu.guardar", new Object[] {tascaIds.length}));
