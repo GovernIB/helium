@@ -20,8 +20,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.fundaciobit.plugins.certificate.InformacioCertificat;
-//import org.fundaciobit.plugins.validatesignature.api.CertificateInfo;
+import org.fundaciobit.plugins.validatesignature.api.CertificateInfo;
 import org.fundaciobit.plugins.validatesignature.api.IValidateSignaturePlugin;
 import org.fundaciobit.plugins.validatesignature.api.SignatureDetailInfo;
 import org.fundaciobit.plugins.validatesignature.api.SignatureRequestedInformation;
@@ -3051,14 +3050,11 @@ public class PluginHelper {
 					} else {
 						detall.setData(signatureInfo.getSignDate());
 					}
-//					CertificateInfo certificateInfo = signatureInfo.getCertificateInfo();
-					InformacioCertificat certificateInfo = signatureInfo.getCertificateInfo();
+					CertificateInfo certificateInfo = signatureInfo.getCertificateInfo();
 					if (certificateInfo != null) {
 						detall.setResponsableNif(certificateInfo.getNifResponsable());
-//						detall.setResponsableNom(certificateInfo.getNombreApellidosResponsable());
-//						detall.setEmissorCertificat(certificateInfo.getOrganizacionEmisora());
-						detall.setResponsableNom(certificateInfo.getNomCompletResponsable());
-						detall.setEmissorCertificat(certificateInfo.getEmissorOrganitzacio());
+						detall.setResponsableNom(certificateInfo.getNombreApellidosResponsable());
+						detall.setEmissorCertificat(certificateInfo.getOrganizacionEmisora());
 					}
 					detalls.add(detall);
 				}
@@ -3142,14 +3138,11 @@ public class PluginHelper {
 					} else {
 						detall.setData(signatureInfo.getSignDate());
 					}
-//					CertificateInfo certificateInfo = signatureInfo.getCertificateInfo();
-					InformacioCertificat certificateInfo = signatureInfo.getCertificateInfo();
+					CertificateInfo certificateInfo = signatureInfo.getCertificateInfo();
 					if (certificateInfo != null) {
 						detall.setResponsableNif(certificateInfo.getNifResponsable());
-//						detall.setResponsableNom(certificateInfo.getNombreApellidosResponsable());
-//						detall.setEmissorCertificat(certificateInfo.getOrganizacionEmisora());
-						detall.setResponsableNom(certificateInfo.getNomCompletResponsable());
-						detall.setEmissorCertificat(certificateInfo.getEmissorOrganitzacio());
+						detall.setResponsableNom(certificateInfo.getNombreApellidosResponsable());
+						detall.setEmissorCertificat(certificateInfo.getOrganizacionEmisora());
 					}
 					detalls.add(detall);
 				}

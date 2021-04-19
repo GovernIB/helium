@@ -117,7 +117,7 @@
 		<dependency>
 			<groupId>org.freemarker</groupId>
 			<artifactId>freemarker</artifactId>
-			<version>2.3.16</version>
+			<version>2.3.23</version>
 		</dependency>
 		<dependency>
 			<groupId>ma.glasnost.orika</groupId>
@@ -389,20 +389,24 @@
 
 		<!--  plugin-validatesignature-afirmacxf 1.0.2 -->
 		<dependency>
-<!-- 			<groupId>org.fundaciobit.plugins</groupId> -->
-<!-- 			<artifactId>plugin-validatesignature-api</artifactId> -->
-<!-- 			<version>1.0.0</version> -->
-			<groupId>org.fundaciobit.pluginsib.validatesignature</groupId>
+ 			<groupId>org.fundaciobit.plugins</groupId>
+			<artifactId>plugin-validatesignature-api</artifactId>
+			<version>1.0.0</version>
+<!--
+ 			<groupId>org.fundaciobit.pluginsib.validatesignature</groupId>
 			<artifactId>pluginsib-validatesignature-api</artifactId>
 			<version>2.0.0</version>
-		</dependency>
-		<dependency>
-<!-- 			<groupId>org.fundaciobit.plugins</groupId> -->
-<!-- 			<artifactId>plugin-validatesignature-afirmacxf</artifactId> -->
-<!-- 			<version>1.0.1</version> -->
+-->
+ 		</dependency>
+ 		<dependency>
+	 	 	<groupId>org.fundaciobit.plugins</groupId>
+			<artifactId>plugin-validatesignature-afirmacxf</artifactId>
+			<version>1.0.1</version>
+<!--
 			<groupId>org.fundaciobit.pluginsib.validatesignature</groupId>
 			<artifactId>pluginsib-validatesignature-afirmacxf</artifactId>
 			<version>2.0.5</version>
+-->			
 			<exclusions>
 				<exclusion>
 					<groupId>xerces</groupId>
