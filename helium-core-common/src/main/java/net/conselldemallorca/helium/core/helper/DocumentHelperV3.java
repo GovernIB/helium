@@ -24,6 +24,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
 import es.caib.plugins.arxiu.api.ContingutArxiu;
+import es.caib.plugins.arxiu.api.DocumentEstat;
 import es.caib.plugins.arxiu.api.Firma;
 import es.caib.plugins.arxiu.api.FirmaTipus;
 import net.conselldemallorca.helium.core.common.JbpmVars;
@@ -1576,23 +1577,50 @@ public class DocumentHelperV3 {
 			documentDescripcio = document.getNom();
 		}
 		
-		documentDescripcio = inArxiu( documentDescripcio, 
-									"pdf",
-									processInstanceId);
+		if (expedient.getTipus().isArxiuActiu()) {
+			documentDescripcio = inArxiu( documentDescripcio, 
+					"pdf",
+					processInstanceId);
+		}
 		
 		if (documentStore.getArxiuUuid() != null) {
+			
 			ArxiuDto arxiuFirmat = new ArxiuDto();
+			es.caib.plugins.arxiu.api.Document documentArxiu;
+			
 			if (isPades) {
 				// PAdES
-				String arxiuNom = inArxiu("firma_portafirmes", FilenameUtils.getExtension("firma_portafirmes.pdf"), processInstanceId);
-				arxiuFirmat.setNom(arxiuNom);
-				arxiuFirmat.setTipusMime("application/pdf");
-				arxiuFirmat.setContingut(signatura);
-				pluginHelper.arxiuDocumentGuardarPdfFirmat(
-						expedient,
-						documentStore,
-						documentDescripcio,
-						arxiuFirmat);
+				
+				// Consulta l'arxiu per si ja està definitiu no intentar guardar sobre el mateix
+				documentArxiu = pluginHelper.arxiuDocumentInfo(
+						documentStore.getArxiuUuid(), 
+						null, 
+						false, 
+						true);
+				if (documentArxiu != null 
+						&& DocumentEstat.DEFINITIU.equals(documentArxiu.getEstat())) 
+				{
+					// El document ja està firmat a l'Arxiu, es guarda amb un altre uuid
+					documentStore.setArxiuUuid(null);
+					ContingutArxiu documentCreat = pluginHelper.arxiuDocumentCrearActualitzar(
+							expedient, 
+							documentDescripcio, 
+							documentStore, 
+							new ArxiuDto(documentArxiu.getNom(), signatura, "application/pdf"));
+					documentStore.setArxiuUuid(documentCreat.getIdentificador());
+
+				} else {
+					// S'actualitza el document existent
+					String arxiuNom = inArxiu("firma_portafirmes", FilenameUtils.getExtension("firma_portafirmes.pdf"), processInstanceId);
+					arxiuFirmat.setNom(arxiuNom);
+					arxiuFirmat.setTipusMime("application/pdf");
+					arxiuFirmat.setContingut(signatura);
+					pluginHelper.arxiuDocumentGuardarPdfFirmat(
+							expedient,
+							documentStore,
+							documentDescripcio,
+							arxiuFirmat);
+				}				
 			} else {
 				// CAdES
 				String firmaNom = inArxiu("firma_portafirmes.csig", FilenameUtils.getExtension("firma_portafirmes.csig"), processInstanceId);
@@ -1605,11 +1633,13 @@ public class DocumentHelperV3 {
 						documentDescripcio,
 						arxiuFirmat);
 			}
-			es.caib.plugins.arxiu.api.Document documentArxiu = pluginHelper.arxiuDocumentInfo(
+			// Actualitza la informació al document store
+			documentArxiu = pluginHelper.arxiuDocumentInfo(
 					documentStore.getArxiuUuid(),
 					null,
 					false,
 					true);
+			documentStore.setNtiIdentificador(documentArxiu.getMetadades().getIdentificador());
 			actualitzarNtiFirma(documentStore, documentArxiu);
 		} else {
 			if (expedient.isNtiActiu()) {

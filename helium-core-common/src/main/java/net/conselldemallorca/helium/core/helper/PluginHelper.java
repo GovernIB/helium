@@ -140,7 +140,6 @@ import net.conselldemallorca.helium.v3.core.api.dto.ZonaperExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.exception.SistemaExternException;
 import net.conselldemallorca.helium.v3.core.api.registre.RegistreAnnex;
-import net.conselldemallorca.helium.v3.core.api.registre.RegistreAnnexNtiTipusDocumentEnum;
 import net.conselldemallorca.helium.v3.core.api.registre.RegistreAnotacio;
 import net.conselldemallorca.helium.v3.core.api.registre.RegistreInteressat;
 import net.conselldemallorca.helium.v3.core.repository.DocumentStoreRepository;
