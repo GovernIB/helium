@@ -959,15 +959,18 @@ public class DocumentHelperV3 {
 			Long documentStoreId) {
 		DocumentStore documentStore = documentStoreRepository.findOne(documentStoreId);
 		if (documentStore != null) {
+			boolean esborrarDocument = true;
 			Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
 			List<DocumentNotificacio> enviaments = documentNotificacioRepository.findByExpedientAndDocumentId(expedient, documentStoreId);
 			if (enviaments != null && enviaments.size() > 0)
-				throw new ValidacioException("No es pot esborrar un document amb " + enviaments.size() + " enviaments");
+				// si té enviaments no s'esborra el document per a que es pugui consultar des de l'anotació.
+				esborrarDocument = false;
 			if (expedient.isArxiuActiu()) {
 				if (documentStore.isSignat()) {
 					throw new ValidacioException("No es pot esborrar un document firmat");
 				} else {
-					pluginHelper.arxiuDocumentEsborrar(documentStore.getArxiuUuid());
+					if (esborrarDocument)
+						pluginHelper.arxiuDocumentEsborrar(documentStore.getArxiuUuid());
 				}
 			} else {
 				if (documentStore.isSignat()) {
@@ -977,7 +980,7 @@ public class DocumentHelperV3 {
 								expedientHelper.findExpedientByProcessInstanceId(processInstanceId));
 					}
 				}
-				if (documentStore.getFont().equals(DocumentFont.ALFRESCO)) {
+				if (esborrarDocument && documentStore.getFont().equals(DocumentFont.ALFRESCO)) {
 					pluginHelper.gestioDocumentalDeleteDocument(
 							documentStore.getReferenciaFont(),
 							expedientHelper.findExpedientByProcessInstanceId(processInstanceId));
@@ -999,7 +1002,8 @@ public class DocumentHelperV3 {
 					}
 				}
 			}
-			documentStoreRepository.delete(documentStoreId);
+			if (esborrarDocument)
+				documentStoreRepository.delete(documentStoreId);
 		}
 		if (taskInstanceId != null) {
 			jbpmHelper.deleteTaskInstanceVariable(
