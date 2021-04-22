@@ -1392,7 +1392,7 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 	 */
 	@Override
 	@Transactional(readOnly = true)
-	public DefinicioProcesDto findAmbIdAndEntorn(
+	public DefinicioProcesDto findAmbIdPermisDissenyar(
 			Long entornId,
 			Long definicioProcesId) {
 		logger.debug(
@@ -1414,6 +1414,32 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 				DefinicioProcesDto.class);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@Transactional(readOnly = true)
+	public DefinicioProcesDto findAmbIdPermisDissenyarDelegat(
+			Long entornId,
+			Long definicioProcesId) {
+		logger.debug(
+				"Consultant definicioProces amb id i amb permisos de disseny delegat (" +
+				"entornId=" + entornId + ", " +
+				"definicioProcesId = " + definicioProcesId + ")");
+		// Recupera la definició de procés per id
+		DefinicioProces definicioProces = definicioProcesRepository.findById(
+				definicioProcesId);
+		// Control d'accés
+		if (definicioProces.getExpedientTipus() != null)			
+			expedientTipusHelper.getExpedientTipusComprovantPermisDissenyDelegat(
+					definicioProces.getExpedientTipus().getId());
+		else
+			entornHelper.getEntornComprovantPermisos(EntornActual.getEntornId(), true, true);
+
+		return conversioTipusHelper.convertir(
+				definicioProces,
+				DefinicioProcesDto.class);
+	}
 	// MANTENIMENT DE CONSULTES
 
 	@Override

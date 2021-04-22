@@ -69,7 +69,7 @@ public class DefinicioProcesTerminiController extends BaseDefinicioProcesControl
 		}
 		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
 		if (entornActual != null) {
-			DefinicioProcesDto definicioProces = definicioProcesService.findAmbIdAndEntorn(entornActual.getId(),
+			DefinicioProcesDto definicioProces = definicioProcesService.findAmbIdPermisDissenyar(entornActual.getId(),
 					definicioProcesId);
 			model.addAttribute("definicioProces", definicioProces);
 			model.addAttribute("baseUrl", ("/helium/v3/definicioProces/" + definicioProces.getJbpmKey() + "/" + definicioProces.getId().toString()));
