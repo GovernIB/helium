@@ -3,15 +3,23 @@
  */
 package net.conselldemallorca.helium.v3.core.service;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.annotation.Resource;
-
+import net.conselldemallorca.helium.core.api.WorkflowEngineApi;
+import net.conselldemallorca.helium.core.helper.ConversioTipusHelper;
+import net.conselldemallorca.helium.core.helper.DefinicioProcesHelper;
+import net.conselldemallorca.helium.core.helper.EntornHelper;
+import net.conselldemallorca.helium.core.helper.ExpedientTipusHelper;
+import net.conselldemallorca.helium.core.helper.HerenciaHelper;
+import net.conselldemallorca.helium.core.helper.PaginacioHelper;
+import net.conselldemallorca.helium.core.model.hibernate.*;
+import net.conselldemallorca.helium.core.util.EntornActual;
+import net.conselldemallorca.helium.v3.core.api.dto.*;
+import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
+import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
+import net.conselldemallorca.helium.v3.core.api.exportacio.DefinicioProcesExportacio;
+import net.conselldemallorca.helium.v3.core.api.exportacio.DefinicioProcesExportacioCommandDto;
+import net.conselldemallorca.helium.v3.core.api.service.DefinicioProcesService;
+import net.conselldemallorca.helium.v3.core.api.service.Jbpm3HeliumService;
+import net.conselldemallorca.helium.v3.core.repository.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,55 +27,13 @@ import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import net.conselldemallorca.helium.core.helper.ConversioTipusHelper;
-import net.conselldemallorca.helium.core.helper.DefinicioProcesHelper;
-import net.conselldemallorca.helium.core.helper.EntornHelper;
-import net.conselldemallorca.helium.core.helper.ExpedientTipusHelper;
-import net.conselldemallorca.helium.core.helper.HerenciaHelper;
-import net.conselldemallorca.helium.core.helper.PaginacioHelper;
-import net.conselldemallorca.helium.core.model.hibernate.Camp;
-import net.conselldemallorca.helium.core.model.hibernate.CampTasca;
-import net.conselldemallorca.helium.core.model.hibernate.Consulta;
-import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
-import net.conselldemallorca.helium.core.model.hibernate.Document;
-import net.conselldemallorca.helium.core.model.hibernate.DocumentTasca;
-import net.conselldemallorca.helium.core.model.hibernate.Entorn;
-import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
-import net.conselldemallorca.helium.core.model.hibernate.FirmaTasca;
-import net.conselldemallorca.helium.core.model.hibernate.Tasca;
-import net.conselldemallorca.helium.core.model.hibernate.Termini;
-import net.conselldemallorca.helium.core.util.EntornActual;
-import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
-import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
-import net.conselldemallorca.helium.v3.core.api.dto.CampTascaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ConsultaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
-import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
-import net.conselldemallorca.helium.v3.core.api.dto.DocumentTascaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.FirmaTascaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
-import net.conselldemallorca.helium.v3.core.api.dto.TascaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.TerminiDto;
-import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
-import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
-import net.conselldemallorca.helium.v3.core.api.exportacio.DefinicioProcesExportacio;
-import net.conselldemallorca.helium.v3.core.api.exportacio.DefinicioProcesExportacioCommandDto;
-import net.conselldemallorca.helium.v3.core.api.service.DefinicioProcesService;
-import net.conselldemallorca.helium.v3.core.api.service.Jbpm3HeliumService;
-import net.conselldemallorca.helium.v3.core.repository.CampAgrupacioRepository;
-import net.conselldemallorca.helium.v3.core.repository.CampRegistreRepository;
-import net.conselldemallorca.helium.v3.core.repository.CampRepository;
-import net.conselldemallorca.helium.v3.core.repository.CampTascaRepository;
-import net.conselldemallorca.helium.v3.core.repository.ConsultaRepository;
-import net.conselldemallorca.helium.v3.core.repository.DefinicioProcesRepository;
-import net.conselldemallorca.helium.v3.core.repository.DocumentRepository;
-import net.conselldemallorca.helium.v3.core.repository.DocumentTascaRepository;
-import net.conselldemallorca.helium.v3.core.repository.EnumeracioRepository;
-import net.conselldemallorca.helium.v3.core.repository.ExpedientTipusRepository;
-import net.conselldemallorca.helium.v3.core.repository.FirmaTascaRepository;
-import net.conselldemallorca.helium.v3.core.repository.TascaRepository;
-import net.conselldemallorca.helium.v3.core.repository.TerminiRepository;
+import javax.annotation.Resource;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Implementació del servei per a gestionar definicions de procés.
@@ -95,12 +61,6 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 	private FirmaTascaRepository firmaTascaRepository;
 	@Resource
 	private TerminiRepository terminiRepository;
-	@Resource
-	private CampAgrupacioRepository campAgrupacioRepository;
-	@Resource
-	private EnumeracioRepository enumeracioRepository;
-	@Resource
-	private CampRegistreRepository campRegistreRepository;
 	@Autowired
 	protected Jbpm3HeliumService jbpm3HeliumService;
 	@Autowired
@@ -113,7 +73,7 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 	@Resource
 	private ExpedientTipusHelper expedientTipusHelper;
 	@Resource
-	private JbpmHelper jbpmHelper;
+	private WorkflowEngineApi workflowEngineApi;
 	@Resource
 	private ConversioTipusHelper conversioTipusHelper;
 	@Resource
@@ -395,7 +355,7 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 		else
 			entornHelper.getEntornComprovantPermisos(EntornActual.getEntornId(), true, true);
 
-		jbpmHelper.esborrarDesplegament(
+		workflowEngineApi.esborrarDesplegament(
 				definicioProces.getJbpmId());
 		// 
 		definicioProcesRepository.delete(definicioProces);
@@ -436,7 +396,7 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 		DefinicioProces definicioProces = definicioProcesRepository.findById(definicioProcesId);
 		if (definicioProces == null)
 			throw new NoTrobatException(DefinicioProces.class, definicioProcesId);
-		return jbpmHelper.getStartTaskName(definicioProces.getJbpmId());		
+		return workflowEngineApi.getStartTaskName(definicioProces.getJbpmId());
 	}
 	
 	/**
@@ -468,7 +428,7 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 		
 		// Marca la tasca com a incicial
 		DefinicioProces definicioProces = definicioProcesRepository.findOne(definicioProcesId);		
-		String startTaskName = jbpmHelper.getStartTaskName(definicioProces.getJbpmId());
+		String startTaskName = workflowEngineApi.getStartTaskName(definicioProces.getJbpmId());
 		if (startTaskName != null)
 			for (TascaDto tasca : pagina.getContingut())
 				if(tasca.getNom().equals(startTaskName)) {

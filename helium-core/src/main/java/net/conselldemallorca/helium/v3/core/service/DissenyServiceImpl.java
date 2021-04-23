@@ -3,6 +3,37 @@
  */
 package net.conselldemallorca.helium.v3.core.service;
 
+import edu.emory.mathcs.backport.java.util.Collections;
+import net.conselldemallorca.helium.core.api.WProcessDefinition;
+import net.conselldemallorca.helium.core.api.WProcessInstance;
+import net.conselldemallorca.helium.core.api.WorkflowEngineApi;
+import net.conselldemallorca.helium.core.extern.domini.FilaResultat;
+import net.conselldemallorca.helium.core.extern.domini.ParellaCodiValor;
+import net.conselldemallorca.helium.core.helper.*;
+import net.conselldemallorca.helium.core.helper.PermisosHelper.ObjectIdentifierExtractor;
+import net.conselldemallorca.helium.core.model.hibernate.*;
+import net.conselldemallorca.helium.core.model.hibernate.ConsultaCamp.TipusConsultaCamp;
+import net.conselldemallorca.helium.core.security.ExtendedPermission;
+import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessDefinition;
+import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessInstance;
+import net.conselldemallorca.helium.v3.core.api.dto.*;
+import net.conselldemallorca.helium.v3.core.api.exception.DeploymentException;
+import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
+import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
+import net.conselldemallorca.helium.v3.core.api.exportacio.DefinicioProcesExportacio;
+import net.conselldemallorca.helium.v3.core.api.service.DissenyService;
+import net.conselldemallorca.helium.v3.core.repository.*;
+import org.jbpm.graph.def.ProcessDefinition;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.security.acls.model.Permission;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import javax.annotation.Resource;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
@@ -16,88 +47,6 @@ import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
-
-import javax.annotation.Resource;
-
-import org.jbpm.graph.def.ProcessDefinition;
-import org.jbpm.graph.exe.ProcessInstanceExpedient;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.cache.annotation.Cacheable;
-import org.springframework.security.acls.model.Permission;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import edu.emory.mathcs.backport.java.util.Collections;
-import net.conselldemallorca.helium.core.extern.domini.FilaResultat;
-import net.conselldemallorca.helium.core.extern.domini.ParellaCodiValor;
-import net.conselldemallorca.helium.core.helper.ConversioTipusHelper;
-import net.conselldemallorca.helium.core.helper.DefinicioProcesHelper;
-import net.conselldemallorca.helium.core.helper.DominiHelper;
-import net.conselldemallorca.helium.core.helper.EntornHelper;
-import net.conselldemallorca.helium.core.helper.ExpedientHelper;
-import net.conselldemallorca.helium.core.helper.ExpedientLoggerHelper;
-import net.conselldemallorca.helium.core.helper.ExpedientTipusHelper;
-import net.conselldemallorca.helium.core.helper.HerenciaHelper;
-import net.conselldemallorca.helium.core.helper.MessageHelper;
-import net.conselldemallorca.helium.core.helper.PaginacioHelper;
-import net.conselldemallorca.helium.core.helper.PermisosHelper;
-import net.conselldemallorca.helium.core.helper.PermisosHelper.ObjectIdentifierExtractor;
-import net.conselldemallorca.helium.core.helperv26.MesuresTemporalsHelper;
-import net.conselldemallorca.helium.core.model.hibernate.Area;
-import net.conselldemallorca.helium.core.model.hibernate.Camp;
-import net.conselldemallorca.helium.core.model.hibernate.CampTasca;
-import net.conselldemallorca.helium.core.model.hibernate.Consulta;
-import net.conselldemallorca.helium.core.model.hibernate.ConsultaCamp;
-import net.conselldemallorca.helium.core.model.hibernate.ConsultaCamp.TipusConsultaCamp;
-import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
-import net.conselldemallorca.helium.core.model.hibernate.Document;
-import net.conselldemallorca.helium.core.model.hibernate.Domini;
-import net.conselldemallorca.helium.core.model.hibernate.Entorn;
-import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
-import net.conselldemallorca.helium.core.model.hibernate.Tasca;
-import net.conselldemallorca.helium.core.security.ExtendedPermission;
-import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
-import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessDefinition;
-import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessInstance;
-import net.conselldemallorca.helium.v3.core.api.dto.AreaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ConsultaCampDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ConsultaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
-import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesExpedientDto;
-import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesVersioDto;
-import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
-import net.conselldemallorca.helium.v3.core.api.dto.DominiDto;
-import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
-import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
-import net.conselldemallorca.helium.v3.core.api.dto.PermisDto;
-import net.conselldemallorca.helium.v3.core.api.exception.DeploymentException;
-import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
-import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
-import net.conselldemallorca.helium.v3.core.api.exportacio.DefinicioProcesExportacio;
-import net.conselldemallorca.helium.v3.core.api.service.DissenyService;
-import net.conselldemallorca.helium.v3.core.repository.AccioRepository;
-import net.conselldemallorca.helium.v3.core.repository.AreaRepository;
-import net.conselldemallorca.helium.v3.core.repository.CampRepository;
-import net.conselldemallorca.helium.v3.core.repository.CampTascaRepository;
-import net.conselldemallorca.helium.v3.core.repository.ConsultaCampRepository;
-import net.conselldemallorca.helium.v3.core.repository.ConsultaRepository;
-import net.conselldemallorca.helium.v3.core.repository.DefinicioProcesRepository;
-import net.conselldemallorca.helium.v3.core.repository.DocumentRepository;
-import net.conselldemallorca.helium.v3.core.repository.DominiRepository;
-import net.conselldemallorca.helium.v3.core.repository.EntornRepository;
-import net.conselldemallorca.helium.v3.core.repository.EnumeracioRepository;
-import net.conselldemallorca.helium.v3.core.repository.EstatRepository;
-import net.conselldemallorca.helium.v3.core.repository.ExpedientTipusRepository;
-import net.conselldemallorca.helium.v3.core.repository.TascaRepository;
-import net.conselldemallorca.helium.v3.core.repository.TerminiIniciatRepository;
 
 /**
  * Servei per gestionar les tasques de disseny.
@@ -114,15 +63,9 @@ public class DissenyServiceImpl implements DissenyService {
 	@Resource
 	private MessageHelper messageHelper;
 	@Resource
-	private ExpedientLoggerHelper expedientLoggerHelper;
-	@Resource
-	private TerminiIniciatRepository terminiIniciatRepository;
-	@Resource
-	private JbpmHelper jbpmHelper;
+	private WorkflowEngineApi workflowEngineApi;
 	@Resource
 	private DefinicioProcesRepository definicioProcesRepository;
-	@Resource
-	private MesuresTemporalsHelper mesuresTemporalsHelper;
 	@Resource
 	private EntornHelper entornHelper;
 	@Resource
@@ -131,8 +74,6 @@ public class DissenyServiceImpl implements DissenyService {
 	private CampRepository campRepository;
 	@Resource
 	private ExpedientTipusRepository expedientTipusRepository;
-	@Resource
-	private EstatRepository estatRepository;
 	@Resource
 	private ConsultaRepository consultaRepository;
 	@Resource
@@ -144,8 +85,6 @@ public class DissenyServiceImpl implements DissenyService {
 	@Resource
 	private CampTascaRepository campTascaRepository;
 	@Resource
-	private AccioRepository accioRepository;
-	@Resource
 	private AreaRepository areaRepository;
 	@Resource
 	private DominiHelper dominiHelper;
@@ -155,8 +94,6 @@ public class DissenyServiceImpl implements DissenyService {
 	private PaginacioHelper paginacioHelper;
 	@Resource
 	private DocumentRepository documentRepository;
-	@Resource
-	private EnumeracioRepository enumeracioRepository;
 	@Resource
 	private DominiRepository dominiRepository;
 	@Resource
@@ -185,7 +122,7 @@ public class DissenyServiceImpl implements DissenyService {
 		logger.debug("Consulta de les accions JBPM d'una definicio de proces(" +
 					"defincioProcesId = " + definicioProcesId + ")");
 		DefinicioProces definicioProces = definicioProcesRepository.findById(definicioProcesId);
-		List<String> accions = jbpmHelper.listActions(definicioProces.getJbpmId());
+		List<String> accions = workflowEngineApi.listActions(definicioProces.getJbpmId());
 		Collections.sort(accions);
 		return accions;
 	}
@@ -193,8 +130,8 @@ public class DissenyServiceImpl implements DissenyService {
 	
 	private void getAllDefinicioProcesOrderByVersio (DefinicioProcesDto definicioProcesDto, ExpedientTipus expedientTipus) {	
 		
-		JbpmProcessDefinition jb = jbpmHelper.getProcessDefinition(definicioProcesDto.getJbpmId());
-		definicioProcesDto.setEtiqueta(jb.getProcessDefinition().getName()+" v."+jb.getVersion());
+		WProcessDefinition jb = workflowEngineApi.getProcessDefinition(null, definicioProcesDto.getJbpmId());
+		definicioProcesDto.setEtiqueta(jb.getName()+" v."+jb.getVersion());
 		
 		List<DefinicioProces> mateixaKeyIEntorn = definicioProcesHelper.findVersionsDefinicioProces(
 				definicioProcesDto.getEntorn().getId(),
@@ -215,7 +152,7 @@ public class DissenyServiceImpl implements DissenyService {
 	@Transactional(readOnly=true)
 	@Override
 	public DefinicioProcesVersioDto getByVersionsInstanciaProcesById(String processInstanceId) {
-		JbpmProcessInstance pi = jbpmHelper.getProcessInstance(processInstanceId);
+		WProcessInstance pi = workflowEngineApi.getProcessInstance(processInstanceId);
 		if (pi == null)
 			throw new NoTrobatException(JbpmProcessInstance.class, processInstanceId);
 
@@ -226,7 +163,7 @@ public class DissenyServiceImpl implements DissenyService {
 		DefinicioProcesVersioDto dto = new DefinicioProcesVersioDto();
 		dto.setId(definicioProces.getId());
 		dto.setVersio(definicioProces.getVersio());
-		dto.setEtiqueta(pi.getProcessInstance().getProcessDefinition().getName() + " v." + definicioProces.getVersio());
+		dto.setEtiqueta(pi.getProcessDefinitionName() + " v." + definicioProces.getVersio());
 		
 		return dto;
 	}
@@ -241,7 +178,7 @@ public class DissenyServiceImpl implements DissenyService {
 															expedientTipus, 
 															expedientTipus.getJbpmProcessDefinitionKey());
 			if (definicioProces != null) {
-				JbpmProcessDefinition jb = jbpmHelper.getProcessDefinition(definicioProces.getJbpmId());
+				WProcessDefinition jb = workflowEngineApi.getProcessDefinition(null, definicioProces.getJbpmId());
 				return getDefinicioProcesByEntornIdAmbJbpmId(
 						definicioProces.getEntorn().getId(), 
 						jb.getKey(), 
@@ -258,7 +195,7 @@ public class DissenyServiceImpl implements DissenyService {
 			Long procesId) {		
 		DefinicioProces definicioProces = definicioProcesRepository.findById(procesId);
 		if (definicioProces != null) {
-			JbpmProcessDefinition jb = jbpmHelper.getProcessDefinition(definicioProces.getJbpmId());
+			WProcessDefinition jb = workflowEngineApi.getProcessDefinition(null, definicioProces.getJbpmId());
 			return getDefinicioProcesByEntornIdAmbJbpmId(
 					definicioProces.getEntorn().getId(), 
 					jb.getKey(), 
@@ -277,10 +214,13 @@ public class DissenyServiceImpl implements DissenyService {
 			throw new NoTrobatException(DefinicioProces.class, jbpmId);
 		
 		List<String> jbpmIds = new ArrayList<String>(); 
-		afegirJbpmIdProcesAmbSubprocessos(jbpmHelper.getProcessDefinition(jbpmId), jbpmIds, false);
+		afegirJbpmIdProcesAmbSubprocessos(
+				workflowEngineApi.getProcessDefinition(null, jbpmId),
+				jbpmIds,
+				false);
 		List<DefinicioProcesExpedientDto> subprocessos = new ArrayList<DefinicioProcesExpedientDto>();
 		for(String id: jbpmIds){
-			JbpmProcessDefinition jb = jbpmHelper.getProcessDefinition(id);
+			WProcessDefinition jb = workflowEngineApi.getProcessDefinition(null, id);
 			subprocessos.add(getDefinicioProcesByEntornIdAmbJbpmId(definicioProces.getEntorn().getId(), jb.getKey(), expedientTipus));
 		}
 		return subprocessos;
@@ -300,7 +240,7 @@ public class DissenyServiceImpl implements DissenyService {
 			definicioProces = definicioProcesRepository.findDarreraVersioAmbEntornIJbpmKey(entornId, jbpmKey);
 
 		if (definicioProces != null) {
-			JbpmProcessDefinition jb = jbpmHelper.getProcessDefinition(definicioProces.getJbpmId());			
+			WProcessDefinition jb = workflowEngineApi.getProcessDefinition(null, definicioProces.getJbpmId());
 			dto.setId(definicioProces.getId());
 			dto.setJbpmId(definicioProces.getJbpmId());
 			dto.setJbpmKey(definicioProces.getJbpmKey());
@@ -333,13 +273,13 @@ public class DissenyServiceImpl implements DissenyService {
 	}
 	
 	private void afegirJbpmIdProcesAmbSubprocessos(
-			JbpmProcessDefinition jpd,
+			WProcessDefinition jpd,
 			List<String> jbpmIds, 
 			Boolean incloure) {
 		if (jpd != null) {
-			List<JbpmProcessDefinition> subPds = jbpmHelper.getSubProcessDefinitions(jpd.getId());
+			List<WProcessDefinition> subPds = workflowEngineApi.getSubProcessDefinitions(null, jpd.getId());
 			if (subPds != null) {
-				for (JbpmProcessDefinition subPd: subPds)
+				for (WProcessDefinition subPd: subPds)
 					if (!jbpmIds.contains(subPd.getId())) {
 						jbpmIds.add(subPd.getId());
 						afegirJbpmIdProcesAmbSubprocessos(subPd, jbpmIds, true);
@@ -391,7 +331,7 @@ public class DissenyServiceImpl implements DissenyService {
 		Boolean result = hasStartTask.get(definicioProcesId);
 		if (result == null) {
 			result = new Boolean(false);
-			String startTaskName = jbpmHelper.getStartTaskName(
+			String startTaskName = workflowEngineApi.getStartTaskName(
 					definicioProces.getJbpmId());
 			if (startTaskName != null) {
 				Tasca tasca = tascaRepository.findByJbpmNameAndDefinicioProcesJbpmId(
@@ -574,7 +514,7 @@ public class DissenyServiceImpl implements DissenyService {
 		if (definicioProces == null)
 			throw new NoTrobatException(DefinicioProces.class, definicioProcesId);
 		
-		return jbpmHelper.getResourceBytes(
+		return workflowEngineApi.getResourceBytes(
 				definicioProces.getJbpmId(),
 				resourceName);
 	}
@@ -642,7 +582,7 @@ public class DissenyServiceImpl implements DissenyService {
 		return lista;
 	}
 	
-	@Transactional(readOnly=true)
+//	@Transactional(readOnly=true)
 	private List<ExpedientTipusDto> getExpedientTipusAmbEntorn(Entorn entorn) {
 		List<ExpedientTipusDto> tipus = conversioTipusHelper.convertirList(expedientTipusRepository.findByEntornOrderByCodiAsc(entorn), ExpedientTipusDto.class);
 		permisosHelper.filterGrantedAny(
@@ -821,14 +761,14 @@ public class DissenyServiceImpl implements DissenyService {
 		Set<String> resposta = null;
 		DefinicioProces definicioProces = definicioProcesRepository.findOne(definicioProcesId);
 		if (definicioProces != null)
-			resposta = jbpmHelper.getResourceNames(definicioProces.getJbpmId());
+			resposta = workflowEngineApi.getResourceNames(definicioProces.getJbpmId());
 		return resposta;
 	}
 
 	@Override
 	@Transactional(readOnly = true)
 	public byte[] getRecursContingut(Long definicioProcesId, String nom) {
-		return jbpmHelper.getResourceBytes(
+		return workflowEngineApi.getResourceBytes(
 				definicioProcesRepository.findOne(definicioProcesId).getJbpmId(), 
 				nom);
 	}
@@ -877,7 +817,7 @@ public class DissenyServiceImpl implements DissenyService {
 
 		expedientTipusHelper.getExpedientTipusComprovantPermisDisseny(expedientTipusId);
 		
-		List<String> noUtilitzades = jbpmHelper.findDefinicionsProcesIdNoUtilitzadesByExpedientTipusId(expedientTipusId);
+		List<String> noUtilitzades = workflowEngineApi.findDefinicionsProcesIdNoUtilitzadesByExpedientTipusId(expedientTipusId);
 		if (noUtilitzades != null && !noUtilitzades.isEmpty()) {
 			PaginaDto<DefinicioProcesDto> pagina = paginacioHelper.toPaginaDto(
 					definicioProcesRepository.findAmbExpedientTipusIJbpmIds(
@@ -899,7 +839,7 @@ public class DissenyServiceImpl implements DissenyService {
 		
 		expedientTipusHelper.getExpedientTipusComprovantPermisDisseny(expedientTipusId);
 				
-		List<String> noUtilitzades = jbpmHelper.findDefinicionsProcesIdNoUtilitzadesByExpedientTipusId(expedientTipusId);
+		List<String> noUtilitzades = workflowEngineApi.findDefinicionsProcesIdNoUtilitzadesByExpedientTipusId(expedientTipusId);
 		List<Long> result = new ArrayList<Long>();
 		if (noUtilitzades != null && !noUtilitzades.isEmpty()) {
 			result = definicioProcesRepository.findIdsAmbExpedientTipusIJbpmIds(
@@ -928,24 +868,11 @@ public class DissenyServiceImpl implements DissenyService {
 						expedientTipusId), 
 						ExpedientTipusDto.class);
 		
-		List<ProcessInstanceExpedient> afectats = jbpmHelper.findExpedientsAfectatsPerDefinicionsProcesNoUtilitzada(
+		List<ExpedientDto> afectats = workflowEngineApi.findExpedientsAfectatsPerDefinicionsProcesNoUtilitzada(
 				expedientTipusId,
 				jbpmId);
 		
 		List<ExpedientDto> expedients = new ArrayList<ExpedientDto>();
-		
-		for (ProcessInstanceExpedient pie : afectats) {
-			ExpedientDto exp = new ExpedientDto();
-			exp.setId(pie.getId());
-			exp.setTipus(expedientTipus);
-			exp.setTitol(pie.getTitol());
-			exp.setNumero(pie.getNumero());
-			exp.setNumeroDefault(pie.getNumeroDefault());
-			exp.setDataInici(pie.getDataInici());
-			exp.setDataFi(pie.getDataFi());
-			exp.setProcessInstanceId(pie.getProcessInstanceId());
-			expedients.add(exp);
-		}
 		
 		PaginaDto<ExpedientDto> pagina = paginacioHelper.toPaginaDto(
 				expedients,
@@ -964,13 +891,13 @@ public class DissenyServiceImpl implements DissenyService {
 		
 		expedientTipusHelper.getExpedientTipusComprovantPermisDisseny(expedientTipusId);
 				
-		List<ProcessInstanceExpedient> afectats = jbpmHelper.findExpedientsAfectatsPerDefinicionsProcesNoUtilitzada(
+		List<ExpedientDto> afectats = workflowEngineApi.findExpedientsAfectatsPerDefinicionsProcesNoUtilitzada(
 				expedientTipusId,
 				jbpmId);
 		
 		List<Long> ids = new ArrayList<Long>();
 		
-		for (ProcessInstanceExpedient pie : afectats) {
+		for (ExpedientDto pie : afectats) {
 			ids.add(pie.getId());
 		}
 		
@@ -1100,7 +1027,7 @@ public class DissenyServiceImpl implements DissenyService {
 				handlers.put(nom, bytesMap.get(nom));
 			}
 		// Actualitza els handlers de la darrera versió de la definició de procés
-		jbpmHelper.updateHandlers(
+		workflowEngineApi.updateDeploymentActions(
 				Long.parseLong(darrera.getJbpmId()), 
 				handlers);
 		
@@ -1120,9 +1047,9 @@ public class DissenyServiceImpl implements DissenyService {
 		DefinicioProces definicioProcesOrigen = definicioProcesRepository.findById(idDefinicioProcesOrigen);
 		
 		// Construeix la llista de handlers a partir del contingut del fitxer .par que acabin amb .class
-		JbpmProcessDefinition jbpmProcessDefinition = jbpmHelper.getProcessDefinition(definicioProcesOrigen.getJbpmId());
+		WProcessDefinition wProcessDefinition = workflowEngineApi.getProcessDefinition(null, definicioProcesOrigen.getJbpmId());
 		@SuppressWarnings("unchecked")
-		Map<String, byte[]> bytesMap = jbpmProcessDefinition.getProcessDefinition().getFileDefinition().getBytesMap();
+		Map<String, byte[]> bytesMap = wProcessDefinition.getFiles();
 		Map<String, byte[]> handlers = new HashMap<String, byte[]>();
 		for (String nom : bytesMap.keySet()) 
 			if (nom.endsWith(".class")) {
@@ -1134,9 +1061,9 @@ public class DissenyServiceImpl implements DissenyService {
 		for (Long idDefinicioProcesDesti : idsDefinicioProcesDesti) {
 			definicioProcesDesti = definicioProcesRepository.findById(idDefinicioProcesDesti);
 			// Actualitza els handlers de la darrera versió de la definició de procés
-			jbpmHelper.updateHandlers(
+			workflowEngineApi.updateDeploymentActions(
 					Long.parseLong(definicioProcesDesti.getJbpmId()), 
-					handlers);	
+					handlers);
 		}
 	}	
 	

@@ -1,22 +1,31 @@
 package net.conselldemallorca.helium.v3.core.service;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.Serializable;
-import java.io.StringWriter;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.annotation.Resource;
-
+import com.codahale.metrics.Counter;
+import com.codahale.metrics.MetricRegistry;
+import com.codahale.metrics.Timer;
+import net.conselldemallorca.helium.core.api.WTaskInstance;
+import net.conselldemallorca.helium.core.api.WorkflowEngineApi;
+import net.conselldemallorca.helium.core.helper.*;
+import net.conselldemallorca.helium.core.helperv26.MesuresTemporalsHelper;
+import net.conselldemallorca.helium.core.model.hibernate.*;
+import net.conselldemallorca.helium.core.model.hibernate.ConsultaCamp.TipusConsultaCamp;
+import net.conselldemallorca.helium.core.model.hibernate.ExecucioMassiva.ExecucioMassivaTipus;
+import net.conselldemallorca.helium.core.model.hibernate.ExecucioMassivaExpedient.ExecucioMassivaEstat;
+import net.conselldemallorca.helium.core.util.EntornActual;
+import net.conselldemallorca.helium.core.util.GlobalProperties;
+import net.conselldemallorca.helium.v3.core.api.dto.*;
+import net.conselldemallorca.helium.v3.core.api.dto.ExecucioMassivaDto.ExecucioMassivaTipusDto;
+import net.conselldemallorca.helium.v3.core.api.exception.ExecucioMassivaException;
+import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
+import net.conselldemallorca.helium.v3.core.api.exception.ValidacioException;
+import net.conselldemallorca.helium.v3.core.api.service.ExecucioMassivaService;
+import net.conselldemallorca.helium.v3.core.api.service.ExpedientDadaService;
+import net.conselldemallorca.helium.v3.core.api.service.ExpedientDocumentService;
+import net.conselldemallorca.helium.v3.core.api.service.ExpedientRegistreService;
+import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
+import net.conselldemallorca.helium.v3.core.api.service.ExpedientTascaService;
+import net.conselldemallorca.helium.v3.core.api.service.TascaService;
+import net.conselldemallorca.helium.v3.core.repository.*;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
@@ -38,76 +47,21 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.codahale.metrics.Counter;
-import com.codahale.metrics.MetricRegistry;
-import com.codahale.metrics.Timer;
-
-import net.conselldemallorca.helium.core.helper.DocumentHelperV3;
-import net.conselldemallorca.helium.core.helper.EntornHelper;
-import net.conselldemallorca.helium.core.helper.ExpedientHelper;
-import net.conselldemallorca.helium.core.helper.ExpedientTipusHelper;
-import net.conselldemallorca.helium.core.helper.HerenciaHelper;
-import net.conselldemallorca.helium.core.helper.IndexHelper;
-import net.conselldemallorca.helium.core.helper.MailHelper;
-import net.conselldemallorca.helium.core.helper.MessageHelper;
-import net.conselldemallorca.helium.core.helper.PermisosHelper;
-import net.conselldemallorca.helium.core.helper.PluginHelper;
-import net.conselldemallorca.helium.core.helper.TascaHelper;
-import net.conselldemallorca.helium.core.helper.TerminiHelper;
-import net.conselldemallorca.helium.core.helper.UsuariActualHelper;
-import net.conselldemallorca.helium.core.helperv26.MesuresTemporalsHelper;
-import net.conselldemallorca.helium.core.model.hibernate.Accio;
-import net.conselldemallorca.helium.core.model.hibernate.Camp;
-import net.conselldemallorca.helium.core.model.hibernate.Consulta;
-import net.conselldemallorca.helium.core.model.hibernate.ConsultaCamp;
-import net.conselldemallorca.helium.core.model.hibernate.ConsultaCamp.TipusConsultaCamp;
-import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
-import net.conselldemallorca.helium.core.model.hibernate.Document;
-import net.conselldemallorca.helium.core.model.hibernate.Entorn;
-import net.conselldemallorca.helium.core.model.hibernate.ExecucioMassiva;
-import net.conselldemallorca.helium.core.model.hibernate.ExecucioMassiva.ExecucioMassivaTipus;
-import net.conselldemallorca.helium.core.model.hibernate.ExecucioMassivaExpedient;
-import net.conselldemallorca.helium.core.model.hibernate.ExecucioMassivaExpedient.ExecucioMassivaEstat;
-import net.conselldemallorca.helium.core.model.hibernate.Expedient;
-import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
-import net.conselldemallorca.helium.core.model.hibernate.Persona;
-import net.conselldemallorca.helium.core.model.hibernate.Termini;
-import net.conselldemallorca.helium.core.util.EntornActual;
-import net.conselldemallorca.helium.core.util.GlobalProperties;
-import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
-import net.conselldemallorca.helium.jbpm3.integracio.JbpmTask;
-import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExecucioMassivaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExecucioMassivaDto.ExecucioMassivaTipusDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDocumentDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.InstanciaProcesDto;
-import net.conselldemallorca.helium.v3.core.api.dto.NtiEstadoElaboracionEnumDto;
-import net.conselldemallorca.helium.v3.core.api.dto.NtiOrigenEnumDto;
-import net.conselldemallorca.helium.v3.core.api.dto.NtiTipoDocumentalEnumDto;
-import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
-import net.conselldemallorca.helium.v3.core.api.exception.ExecucioMassivaException;
-import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
-import net.conselldemallorca.helium.v3.core.api.exception.ValidacioException;
-import net.conselldemallorca.helium.v3.core.api.service.ExecucioMassivaService;
-import net.conselldemallorca.helium.v3.core.api.service.ExpedientDadaService;
-import net.conselldemallorca.helium.v3.core.api.service.ExpedientDocumentService;
-import net.conselldemallorca.helium.v3.core.api.service.ExpedientRegistreService;
-import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
-import net.conselldemallorca.helium.v3.core.api.service.ExpedientTascaService;
-import net.conselldemallorca.helium.v3.core.api.service.TascaService;
-import net.conselldemallorca.helium.v3.core.repository.AccioRepository;
-import net.conselldemallorca.helium.v3.core.repository.CampRepository;
-import net.conselldemallorca.helium.v3.core.repository.ConsultaCampRepository;
-import net.conselldemallorca.helium.v3.core.repository.ConsultaRepository;
-import net.conselldemallorca.helium.v3.core.repository.DefinicioProcesRepository;
-import net.conselldemallorca.helium.v3.core.repository.DocumentRepository;
-import net.conselldemallorca.helium.v3.core.repository.EntornRepository;
-import net.conselldemallorca.helium.v3.core.repository.ExecucioMassivaExpedientRepository;
-import net.conselldemallorca.helium.v3.core.repository.ExecucioMassivaRepository;
-import net.conselldemallorca.helium.v3.core.repository.ExpedientRepository;
-import net.conselldemallorca.helium.v3.core.repository.ExpedientTipusRepository;
-import net.conselldemallorca.helium.v3.core.repository.PersonaRepository;
+import javax.annotation.Resource;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
+import java.io.StringWriter;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Servei per a gestionar la tramitació massiva d'expedients.
@@ -147,7 +101,7 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 	@Resource
 	private TerminiHelper terminiHelper;
 	@Resource
-	private JbpmHelper jbpmHelper;
+	private WorkflowEngineApi workflowEngineApi;
 	@Resource
 	private TascaHelper tascaHelper;
 	@Resource
@@ -240,7 +194,7 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 				}
 			} else if (dto.getTascaIds() != null) {
 				for (String tascaId: dto.getTascaIds()) {
-					JbpmTask task = tascaHelper.getTascaComprovacionsTramitacio(
+					WTaskInstance task = tascaHelper.getTascaComprovacionsTramitacio(
 							tascaId,
 							false,
 							false);
@@ -511,12 +465,9 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 		if (!expedients.isEmpty()) {
 			ExecucioMassivaExpedient em = expedients.get(0);
 			if (em.getTascaId() != null) {
-				JbpmTask task = jbpmHelper.getTaskById(em.getTascaId());					
+				WTaskInstance task = workflowEngineApi.getTaskById(em.getTascaId());
 				if (task != null){
-					if (task.isCacheActiu())
-						tasca = task.getFieldFromDescription("titol");
-					else
-						tasca = task.getTaskName();
+					tasca = task.getTitol();
 				}
 			}
 			for (ExecucioMassivaExpedient expedient: expedients) {
@@ -593,7 +544,7 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 
 
 
-	@Transactional(readOnly = true)
+//	@Transactional(readOnly = true)
 	private DefinicioProces getDefinicioProces(ExecucioMassiva exe) {
 		DefinicioProces definicioProces = null;
 		try {
@@ -1316,12 +1267,12 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 	}
 	
 	@CacheEvict(value = "consultaCache", allEntries=true)
-	private void undeploy(
+	public void undeploy(
 			Entorn entorn,
 			Long expedientTipusId,
 			DefinicioProces definicioProces) {
 		if (expedientTipusId == null) {
-			jbpmHelper.esborrarDesplegament(definicioProces.getJbpmId());
+			workflowEngineApi.esborrarDesplegament(definicioProces.getJbpmId());
 			for (Document doc: definicioProces.getDocuments())
 				documentRepository.delete(doc.getId());
 			for (Termini termini: definicioProces.getTerminis())
@@ -1329,7 +1280,7 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 			definicioProcesRepository.delete(definicioProces);
 		} else {
 			if (comprovarExpedientTipus(expedientTipusId, definicioProces.getId())) {
-				jbpmHelper.esborrarDesplegament(definicioProces.getJbpmId());
+				workflowEngineApi.esborrarDesplegament(definicioProces.getJbpmId());
 				for (Document doc: definicioProces.getDocuments()) {
 					documentRepository.delete(doc);
 				}
@@ -1732,7 +1683,7 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 		Expedient exp = ome.getExpedient();
 		try {
 			ome.setDataInici(new Date());
-			expedientRegistreService.registreBuidarLog(
+			expedientRegistreService.eliminaInformacioRetroaccio(
 					exp.getId());
 			ome.setEstat(ExecucioMassivaEstat.ESTAT_FINALITZAT);
 			ome.setDataFi(new Date());
@@ -1748,9 +1699,9 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 		String tascaId = ome.getTascaId();
 		try {
 			ome.setDataInici(new Date());
-			JbpmTask tasca = tascaHelper.getTascaComprovacionsTramitacio(tascaId, false, false);
+			WTaskInstance tasca = tascaHelper.getTascaComprovacionsTramitacio(tascaId, false, false);
 			if (tasca != null && tasca.isOpen()) {
-				ProcessInstanceExpedient piexp = jbpmHelper.expedientFindByProcessInstanceId(
+				ExpedientDto piexp = workflowEngineApi.expedientFindByProcessInstanceId(
 						tasca.getProcessInstanceId());
 				expedientTascaService.reassignar(
 						piexp.getId(),

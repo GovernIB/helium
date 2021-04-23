@@ -3,25 +3,6 @@
  */
 package net.conselldemallorca.helium.core.helper;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.Writer;
-import java.math.BigDecimal;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-
-import javax.annotation.Resource;
-
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Component;
-
 import freemarker.core.Environment;
 import freemarker.core.NonStringException;
 import freemarker.ext.beans.ArrayModel;
@@ -39,26 +20,16 @@ import freemarker.template.TemplateMethodModel;
 import freemarker.template.TemplateMethodModelEx;
 import freemarker.template.TemplateModel;
 import freemarker.template.TemplateModelException;
+import net.conselldemallorca.helium.core.api.WTaskInstance;
+import net.conselldemallorca.helium.core.api.WorkflowEngineApi;
 import net.conselldemallorca.helium.core.common.JbpmVars;
 import net.conselldemallorca.helium.core.extern.domini.FilaResultat;
-import net.conselldemallorca.helium.core.model.hibernate.Area;
-import net.conselldemallorca.helium.core.model.hibernate.AreaJbpmId;
-import net.conselldemallorca.helium.core.model.hibernate.Carrec;
-import net.conselldemallorca.helium.core.model.hibernate.CarrecJbpmId;
-import net.conselldemallorca.helium.core.model.hibernate.Document;
-import net.conselldemallorca.helium.core.model.hibernate.DocumentStore;
-import net.conselldemallorca.helium.core.model.hibernate.Domini;
-import net.conselldemallorca.helium.core.model.hibernate.Entorn;
-import net.conselldemallorca.helium.core.model.hibernate.Expedient;
-import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
-import net.conselldemallorca.helium.core.model.hibernate.Persona;
+import net.conselldemallorca.helium.core.model.hibernate.*;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.core.util.NombreEnCastella;
 import net.conselldemallorca.helium.core.util.NombreEnCatala;
 import net.conselldemallorca.helium.integracio.plugins.unitat.UnitatOrganica;
 import net.conselldemallorca.helium.jbpm3.integracio.DominiCodiDescripcio;
-import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
-import net.conselldemallorca.helium.jbpm3.integracio.JbpmTask;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDadaDto;
@@ -78,6 +49,23 @@ import net.conselldemallorca.helium.v3.core.repository.EntornRepository;
 import net.sf.jooreports.templates.DocumentTemplate;
 import net.sf.jooreports.templates.DocumentTemplateException;
 import net.sf.jooreports.templates.DocumentTemplateFactory;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Component;
+
+import javax.annotation.Resource;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.Writer;
+import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 
 /**
  * Helper per a generar documents mitjançant plantilles fetes amb ODT
@@ -111,7 +99,7 @@ public class PlantillaHelper {
 	@Resource(name="documentHelperV3")
 	private DocumentHelperV3 documentHelper;
 	@Resource
-	private JbpmHelper jbpmhelper;
+	private WorkflowEngineApi workflowEngineApi;
 	@Resource
 	private VariableHelper variableHelper;
 	@Resource
@@ -136,7 +124,7 @@ public class PlantillaHelper {
 				Map<String, Object> model = new HashMap<String, Object>();
 				afegirDadesProcesAlModel(processInstanceId, model);
 				if (taskInstanceId != null) {
-					JbpmTask task = jbpmhelper.getTaskById(taskInstanceId);
+					WTaskInstance task = workflowEngineApi.getTaskById(taskInstanceId);
 					expedientDto = expedientHelper.toExpedientDto(expedient);
 					tasca = tascaHelper.toExpedientTascaDto(
 							task,
@@ -144,7 +132,7 @@ public class PlantillaHelper {
 							true,
 							false);
 					afegirDadesTascaAlModel(task, model);
-					responsableCodi = task.getAssignee();
+					responsableCodi = task.getActorId();
 				} else {
 					expedientDto = expedientHelper.toExpedientDto(expedient);
 					Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -239,7 +227,7 @@ public class PlantillaHelper {
 	}
 
 	private void afegirDadesTascaAlModel(
-			JbpmTask task,
+			WTaskInstance task,
 			Map<String, Object> model) {
 		List<TascaDadaDto> dades = variableHelper.findDadesPerInstanciaTasca(task);
 		for (TascaDadaDto dada: dades) {
@@ -317,9 +305,9 @@ public class PlantillaHelper {
 								String codi = (String)arg0;
 								Object valor = null;
 								if (taskId != null)
-									valor = jbpmhelper.getTaskInstanceVariable(taskId, codi);
+									valor = workflowEngineApi.getTaskInstanceVariable(taskId, codi);
 								if (valor == null)
-									valor = jbpmhelper.getProcessInstanceVariable(processInstanceId, codi);
+									valor = workflowEngineApi.getProcessInstanceVariable(processInstanceId, codi);
 								if (valor == null)
 									return new SimpleScalar(null);
 								if (valor instanceof Object[])

@@ -3,12 +3,22 @@
  */
 package net.conselldemallorca.helium.v3.core.service;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
-import javax.annotation.Resource;
-
+import net.conselldemallorca.helium.core.api.WProcessInstance;
+import net.conselldemallorca.helium.core.api.WTaskInstance;
+import net.conselldemallorca.helium.core.api.WorkflowEngineApi;
+import net.conselldemallorca.helium.core.api.WorkflowRetroaccioApi;
+import net.conselldemallorca.helium.core.helper.ExpedientHelper;
+import net.conselldemallorca.helium.core.helper.PermisosHelper;
+import net.conselldemallorca.helium.core.helper.TascaHelper;
+import net.conselldemallorca.helium.core.model.hibernate.Expedient;
+import net.conselldemallorca.helium.core.model.hibernate.Registre;
+import net.conselldemallorca.helium.core.security.ExtendedPermission;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
+import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
+import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
+import net.conselldemallorca.helium.v3.core.api.exception.ValidacioException;
+import net.conselldemallorca.helium.v3.core.api.service.ExpedientTascaService;
+import net.conselldemallorca.helium.v3.core.repository.RegistreRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.acls.model.Permission;
@@ -16,24 +26,10 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import net.conselldemallorca.helium.core.helper.ExpedientHelper;
-import net.conselldemallorca.helium.core.helper.ExpedientLoggerHelper;
-import net.conselldemallorca.helium.core.helper.PermisosHelper;
-import net.conselldemallorca.helium.core.helper.TascaHelper;
-import net.conselldemallorca.helium.core.model.hibernate.Expedient;
-import net.conselldemallorca.helium.core.model.hibernate.ExpedientLog;
-import net.conselldemallorca.helium.core.model.hibernate.ExpedientLog.ExpedientLogAccioTipus;
-import net.conselldemallorca.helium.core.model.hibernate.Registre;
-import net.conselldemallorca.helium.core.security.ExtendedPermission;
-import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
-import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessInstance;
-import net.conselldemallorca.helium.jbpm3.integracio.JbpmTask;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
-import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
-import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
-import net.conselldemallorca.helium.v3.core.api.exception.ValidacioException;
-import net.conselldemallorca.helium.v3.core.api.service.ExpedientTascaService;
-import net.conselldemallorca.helium.v3.core.repository.RegistreRepository;
+import javax.annotation.Resource;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 
 /**
@@ -50,13 +46,13 @@ public class ExpedientTascaServiceImpl implements ExpedientTascaService {
 	@Resource
 	private ExpedientHelper expedientHelper;
 	@Resource
-	private ExpedientLoggerHelper expedientLoggerHelper;
-	@Resource
 	private TascaHelper tascaHelper;
 	@Resource(name = "permisosHelperV3")
 	private PermisosHelper permisosHelper;
 	@Resource
-	private JbpmHelper jbpmHelper;
+	private WorkflowEngineApi workflowEngineApi;
+	@Resource
+	private WorkflowRetroaccioApi workflowRetroaccioApi;
 
 
 
@@ -127,7 +123,7 @@ public class ExpedientTascaServiceImpl implements ExpedientTascaService {
 						ExtendedPermission.SUPERVISION,
 						ExtendedPermission.ADMINISTRATION});
 		List<ExpedientTascaDto> resposta = new ArrayList<ExpedientTascaDto>();
-		for (JbpmProcessInstance jpi: jbpmHelper.getProcessInstanceTree(expedient.getProcessInstanceId())) {
+		for (WProcessInstance jpi: workflowEngineApi.getProcessInstanceTree(expedient.getProcessInstanceId())) {
 			resposta.addAll(
 					tascaHelper.findTasquesPerExpedientPerInstanciaProces(
 							jpi.getId(),
@@ -154,14 +150,14 @@ public class ExpedientTascaServiceImpl implements ExpedientTascaService {
 						ExtendedPermission.TASK_MANAGE,
 						ExtendedPermission.ADMINISTRATION});
 		if (!expedient.isAnulat()) {
-			JbpmTask task = tascaHelper.comprovarTascaPertanyExpedient(
+			WTaskInstance task = tascaHelper.comprovarTascaPertanyExpedient(
 							tascaId,
 							expedient);
-			expedientLoggerHelper.afegirLogExpedientPerProces(
+			workflowRetroaccioApi.afegirInformacioRetroaccioPerProces(
 					task.getProcessInstanceId(),
-					ExpedientLogAccioTipus.TASCA_CANCELAR,
+					WorkflowRetroaccioApi.ExpedientRetroaccioTipus.TASCA_CANCELAR,
 					null);
-			jbpmHelper.cancelTaskInstance(String.valueOf(tascaId));
+			workflowEngineApi.cancelTaskInstance(String.valueOf(tascaId));
 			crearRegistreTasca(
 					expedientId,
 					String.valueOf(tascaId),
@@ -187,14 +183,14 @@ public class ExpedientTascaServiceImpl implements ExpedientTascaService {
 						ExtendedPermission.TASK_MANAGE,
 						ExtendedPermission.ADMINISTRATION});
 		if (!expedient.isAnulat()) {
-			JbpmTask task = tascaHelper.comprovarTascaPertanyExpedient(
+			WTaskInstance task = tascaHelper.comprovarTascaPertanyExpedient(
 					tascaId,
 					expedient);
-			expedientLoggerHelper.afegirLogExpedientPerProces(
+			workflowRetroaccioApi.afegirInformacioRetroaccioPerProces(
 					task.getProcessInstanceId(),
-					ExpedientLogAccioTipus.TASCA_SUSPENDRE,
+					WorkflowRetroaccioApi.ExpedientRetroaccioTipus.TASCA_SUSPENDRE,
 					null);
-			jbpmHelper.suspendTaskInstance(String.valueOf(tascaId));
+			workflowEngineApi.suspendTaskInstance(String.valueOf(tascaId));
 			crearRegistreTasca(
 					expedientId,
 					String.valueOf(tascaId),
@@ -220,14 +216,14 @@ public class ExpedientTascaServiceImpl implements ExpedientTascaService {
 						ExtendedPermission.TASK_MANAGE,
 						ExtendedPermission.ADMINISTRATION});
 		if (!expedient.isAnulat()) {
-			JbpmTask task = tascaHelper.comprovarTascaPertanyExpedient(
+			WTaskInstance task = tascaHelper.comprovarTascaPertanyExpedient(
 					tascaId,
 					expedient);
-			expedientLoggerHelper.afegirLogExpedientPerProces(
+			workflowRetroaccioApi.afegirInformacioRetroaccioPerProces(
 					task.getProcessInstanceId(),
-					ExpedientLogAccioTipus.TASCA_CONTINUAR,
+					WorkflowRetroaccioApi.ExpedientRetroaccioTipus.TASCA_CONTINUAR,
 					null);
-			jbpmHelper.resumeTaskInstance(String.valueOf(tascaId));
+			workflowEngineApi.resumeTaskInstance(String.valueOf(tascaId));
 			crearRegistreTasca(
 					expedientId,
 					String.valueOf(tascaId),
@@ -255,19 +251,20 @@ public class ExpedientTascaServiceImpl implements ExpedientTascaService {
 						ExtendedPermission.TASK_ASSIGN,
 						ExtendedPermission.REASSIGNMENT,
 						ExtendedPermission.ADMINISTRATION});
-		tascaHelper.comprovarTascaPertanyExpedient(
+		WTaskInstance task = tascaHelper.comprovarTascaPertanyExpedient(
 				tascaId,
 				expedient);
-		String previousActors = expedientLoggerHelper.getActorsPerReassignacioTasca(tascaId);
-		ExpedientLog expedientLog = null;
-		expedientLog = expedientLoggerHelper.afegirLogExpedientPerTasca(
+		String previousActors = task.getStringActors(); //expedientLoggerHelper.getActorsPerReassignacioTasca(tascaId);
+		Long informacioRetroaccioId = workflowRetroaccioApi.afegirInformacioRetroaccioPerTasca(
 				tascaId,
-				ExpedientLogAccioTipus.TASCA_REASSIGNAR,
+				WorkflowRetroaccioApi.ExpedientRetroaccioTipus.TASCA_REASSIGNAR,
 				null);
 		if (!expedient.isAturat()) {
-			jbpmHelper.reassignTaskInstance(tascaId, expressio, expedient.getEntorn().getId());
-			String currentActors = expedientLoggerHelper.getActorsPerReassignacioTasca(tascaId);
-			expedientLog.setAccioParams(previousActors + "::" + currentActors);
+			task = workflowEngineApi.reassignTaskInstance(tascaId, expressio, expedient.getEntorn().getId());
+			String currentActors = task.getStringActors(); //expedientLoggerHelper.getActorsPerReassignacioTasca(tascaId);
+			workflowRetroaccioApi.actualitzaParametresAccioInformacioRetroaccio(
+					informacioRetroaccioId,
+					previousActors + "::" + currentActors);
 			String usuari = SecurityContextHolder.getContext().getAuthentication().getName();
 			crearRegistreReassignarTasca(
 					expedient.getId(),

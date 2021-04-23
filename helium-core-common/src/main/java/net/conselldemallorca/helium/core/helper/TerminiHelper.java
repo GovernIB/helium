@@ -3,15 +3,7 @@
  */
 package net.conselldemallorca.helium.core.helper;
 
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-
-import javax.annotation.Resource;
-
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Component;
-
+import net.conselldemallorca.helium.core.api.WorkflowEngineApi;
 import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
@@ -20,13 +12,19 @@ import net.conselldemallorca.helium.core.model.hibernate.Registre;
 import net.conselldemallorca.helium.core.model.hibernate.Termini;
 import net.conselldemallorca.helium.core.model.hibernate.TerminiIniciat;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
-import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
 import net.conselldemallorca.helium.v3.core.api.dto.TerminiIniciatDto;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.repository.FestiuRepository;
 import net.conselldemallorca.helium.v3.core.repository.RegistreRepository;
 import net.conselldemallorca.helium.v3.core.repository.TerminiIniciatRepository;
 import net.conselldemallorca.helium.v3.core.repository.TerminiRepository;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Component;
+
+import javax.annotation.Resource;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
 
 /**
  * Helper per a enviament de correus
@@ -45,7 +43,7 @@ public class TerminiHelper {
 	@Resource
 	private FestiuRepository festiuRepository;
 	@Resource
-	private JbpmHelper jbpmHelper;
+	private WorkflowEngineApi workflowEngineApi;
 	@Resource
 	private ConversioTipusHelper conversioTipusHelper;
 	@Resource
@@ -464,14 +462,14 @@ public class TerminiHelper {
 	private void suspendTimers(TerminiIniciat terminiIniciat) {
 		long[] timerIds = terminiIniciat.getTimerIdsArray();
 		for (int i = 0; i < timerIds.length; i++)
-			jbpmHelper.suspendTimer(
+			workflowEngineApi.suspendTimer(
 					timerIds[i],
 					new Date(Long.MAX_VALUE));
 	}
 	private void resumeTimers(TerminiIniciat terminiIniciat) {
 		long[] timerIds = terminiIniciat.getTimerIdsArray();
 		for (int i = 0; i < timerIds.length; i++)
-			jbpmHelper.resumeTimer(
+			workflowEngineApi.resumeTimer(
 					timerIds[i],
 					terminiIniciat.getDataFi());
 	}

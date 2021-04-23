@@ -3,15 +3,38 @@
  */
 package net.conselldemallorca.helium.v3.core.service;
 
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.GregorianCalendar;
-import java.util.List;
-import java.util.Map;
-
-import javax.annotation.Resource;
-
+import edu.emory.mathcs.backport.java.util.Arrays;
+import es.caib.distribucio.backoffice.utils.arxiu.ArxiuPluginListener;
+import es.caib.distribucio.backoffice.utils.arxiu.ArxiuResultat;
+import es.caib.distribucio.backoffice.utils.arxiu.ArxiuResultatAnnex;
+import es.caib.distribucio.backoffice.utils.arxiu.ArxiuResultatAnnex.AnnexAccio;
+import es.caib.distribucio.backoffice.utils.arxiu.BackofficeArxiuUtils;
+import es.caib.distribucio.backoffice.utils.arxiu.BackofficeArxiuUtilsImpl;
+import es.caib.distribucio.core.api.exception.SistemaExternException;
+import es.caib.distribucio.ws.backofficeintegracio.Annex;
+import es.caib.distribucio.ws.backofficeintegracio.AnotacioRegistreEntrada;
+import es.caib.distribucio.ws.backofficeintegracio.AnotacioRegistreId;
+import es.caib.distribucio.ws.backofficeintegracio.Estat;
+import es.caib.plugins.arxiu.api.Document;
+import net.conselldemallorca.helium.core.api.WorkflowRetroaccioApi;
+import net.conselldemallorca.helium.core.helper.*;
+import net.conselldemallorca.helium.core.model.hibernate.Anotacio;
+import net.conselldemallorca.helium.core.model.hibernate.AnotacioAnnex;
+import net.conselldemallorca.helium.core.model.hibernate.AnotacioInteressat;
+import net.conselldemallorca.helium.core.model.hibernate.Expedient;
+import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
+import net.conselldemallorca.helium.core.model.hibernate.Interessat;
+import net.conselldemallorca.helium.core.security.ExtendedPermission;
+import net.conselldemallorca.helium.v3.core.api.dto.*;
+import net.conselldemallorca.helium.v3.core.api.dto.DadesEnviamentDto.EntregaPostalTipus;
+import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
+import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
+import net.conselldemallorca.helium.v3.core.api.service.AnotacioService;
+import net.conselldemallorca.helium.v3.core.repository.AnotacioAnnexRepository;
+import net.conselldemallorca.helium.v3.core.repository.AnotacioRepository;
+import net.conselldemallorca.helium.v3.core.repository.ExpedientRepository;
+import net.conselldemallorca.helium.v3.core.repository.ExpedientTipusRepository;
+import net.conselldemallorca.helium.v3.core.repository.InteressatRepository;
 import org.apache.commons.lang3.ArrayUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,65 +46,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import edu.emory.mathcs.backport.java.util.Arrays;
-import es.caib.distribucio.backoffice.utils.arxiu.ArxiuPluginListener;
-import es.caib.distribucio.backoffice.utils.arxiu.ArxiuResultat;
-import es.caib.distribucio.backoffice.utils.arxiu.ArxiuResultatAnnex;
-import es.caib.distribucio.backoffice.utils.arxiu.BackofficeArxiuUtils;
-import es.caib.distribucio.backoffice.utils.arxiu.BackofficeArxiuUtilsImpl;
-import es.caib.distribucio.backoffice.utils.arxiu.ArxiuResultatAnnex.AnnexAccio;
-import es.caib.distribucio.core.api.exception.SistemaExternException;
-import es.caib.distribucio.ws.backofficeintegracio.Annex;
-import es.caib.distribucio.ws.backofficeintegracio.AnotacioRegistreEntrada;
-import es.caib.distribucio.ws.backofficeintegracio.AnotacioRegistreId;
-import es.caib.distribucio.ws.backofficeintegracio.Estat;
-import es.caib.plugins.arxiu.api.Document;
-import net.conselldemallorca.helium.core.helper.ConversioTipusHelper;
-import net.conselldemallorca.helium.core.helper.DistribucioHelper;
-import net.conselldemallorca.helium.core.helper.DocumentHelperV3;
-import net.conselldemallorca.helium.core.helper.EntornHelper;
-import net.conselldemallorca.helium.core.helper.ExpedientHelper;
-import net.conselldemallorca.helium.core.helper.ExpedientLoggerHelper;
-import net.conselldemallorca.helium.core.helper.ExpedientTipusHelper;
-import net.conselldemallorca.helium.core.helper.MessageHelper;
-import net.conselldemallorca.helium.core.helper.MonitorIntegracioHelper;
-import net.conselldemallorca.helium.core.helper.PaginacioHelper;
-import net.conselldemallorca.helium.core.helper.PermisosHelper;
-import net.conselldemallorca.helium.core.helper.PluginHelper;
-import net.conselldemallorca.helium.core.helper.UsuariActualHelper;
-import net.conselldemallorca.helium.core.model.hibernate.Anotacio;
-import net.conselldemallorca.helium.core.model.hibernate.AnotacioAnnex;
-import net.conselldemallorca.helium.core.model.hibernate.AnotacioInteressat;
-import net.conselldemallorca.helium.core.model.hibernate.Expedient;
-import net.conselldemallorca.helium.core.model.hibernate.ExpedientLog;
-import net.conselldemallorca.helium.core.model.hibernate.ExpedientLog.ExpedientLogAccioTipus;
-import net.conselldemallorca.helium.core.model.hibernate.ExpedientLog.ExpedientLogEstat;
-import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
-import net.conselldemallorca.helium.core.model.hibernate.Interessat;
-import net.conselldemallorca.helium.core.security.ExtendedPermission;
-import net.conselldemallorca.helium.v3.core.api.dto.AnotacioAnnexEstatEnumDto;
-import net.conselldemallorca.helium.v3.core.api.dto.AnotacioDto;
-import net.conselldemallorca.helium.v3.core.api.dto.AnotacioEstatEnumDto;
-import net.conselldemallorca.helium.v3.core.api.dto.AnotacioFiltreDto;
-import net.conselldemallorca.helium.v3.core.api.dto.AnotacioListDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ArxiuFirmaDetallDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ArxiuFirmaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.DadesEnviamentDto.EntregaPostalTipus;
-import net.conselldemallorca.helium.v3.core.api.dto.IntegracioAccioTipusEnumDto;
-import net.conselldemallorca.helium.v3.core.api.dto.IntegracioParametreDto;
-import net.conselldemallorca.helium.v3.core.api.dto.InteressatTipusEnumDto;
-import net.conselldemallorca.helium.v3.core.api.dto.NtiTipoFirmaEnumDto;
-import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
-import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
-import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
-import net.conselldemallorca.helium.v3.core.api.service.AnotacioService;
-import net.conselldemallorca.helium.v3.core.repository.AnotacioAnnexRepository;
-import net.conselldemallorca.helium.v3.core.repository.AnotacioRepository;
-import net.conselldemallorca.helium.v3.core.repository.ExpedientRepository;
-import net.conselldemallorca.helium.v3.core.repository.ExpedientTipusRepository;
-import net.conselldemallorca.helium.v3.core.repository.InteressatRepository;
+import javax.annotation.Resource;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Implementació del servei per a gestionar anotacions de distribució.
@@ -126,7 +97,7 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 	@Resource
 	private PluginHelper pluginHelper;
 	@Resource
-	private ExpedientLoggerHelper expedientLoggerHelper;
+	private WorkflowRetroaccioApi workflowRetroaccioApi;
 	
 	/**
 	 * {@inheritDoc}
@@ -447,14 +418,12 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 		}
 		
 		// Afegeix el log a l'expedient
-		ExpedientLog expedientLog = expedientLoggerHelper.afegirLogExpedientPerExpedient(
+		workflowRetroaccioApi.afegirInformacioRetroaccioPerExpedient(
 				expedient.getId(),
-				ExpedientLogAccioTipus.ANOTACIO_RELACIONAR,
-				anotacio.getIdentificador()
-				);
-		expedientLog.setEstat(ExpedientLogEstat.IGNORAR);
+				WorkflowRetroaccioApi.ExpedientRetroaccioTipus.ANOTACIO_RELACIONAR,
+				anotacio.getIdentificador(),
+				WorkflowRetroaccioApi.ExpedientRetroaccioEstat.IGNORAR);
 
-		
 		return conversioTipusHelper.convertir(
 				anotacio, 
 				AnotacioDto.class);

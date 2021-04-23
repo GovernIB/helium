@@ -3,22 +3,21 @@
  */
 package net.conselldemallorca.helium.jbpm3.command;
 
+import net.conselldemallorca.helium.core.api.WorkflowEngineApi;
+import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto.OrdreDireccioDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto.OrdreDto;
+import net.conselldemallorca.helium.core.api.LlistatIds;
+import org.hibernate.Query;
+import org.jbpm.JbpmContext;
+import org.jbpm.command.AbstractGetObjectBaseCommand;
+import org.jbpm.command.Command;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
-import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper.MostrarTasquesDto;
-import net.conselldemallorca.helium.jbpm3.integracio.LlistatIds;
-import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto.OrdreDireccioDto;
-import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto.OrdreDto;
-
-import org.hibernate.Query;
-import org.jbpm.JbpmContext;
-import org.jbpm.command.AbstractGetObjectBaseCommand;
-import org.jbpm.command.Command;
 
 /**
  * Command per obtenir la llista de tasques personals 
@@ -100,7 +99,7 @@ public class GetRootProcessInstancesForActiveTasksCommand extends AbstractGetObj
 		}
 	}
 
-	public GetRootProcessInstancesForActiveTasksCommand(String actorId, String titol, String tascaSel, List<Long> idsPIExpedients, Date dataCreacioInici, Date dataCreacioFi, Integer prioritat, Date dataLimitInici, Date dataLimitFi, String sort, boolean asc, MostrarTasquesDto mostrarTasques) {
+	public GetRootProcessInstancesForActiveTasksCommand(String actorId, String titol, String tascaSel, List<Long> idsPIExpedients, Date dataCreacioInici, Date dataCreacioFi, Integer prioritat, Date dataLimitInici, Date dataLimitFi, String sort, boolean asc, WorkflowEngineApi.MostrarTasquesDto mostrarTasques) {
 		super();
 		this.actorId = actorId;
 		this.idsPIExpedients = idsPIExpedients;
@@ -111,9 +110,9 @@ public class GetRootProcessInstancesForActiveTasksCommand extends AbstractGetObj
 		this.prioritat = prioritat;
 		this.dataLimitInici = dataLimitInici;
 		this.dataLimitFi = dataLimitFi;
-		this.mostrarTasquesTots = mostrarTasques == MostrarTasquesDto.MOSTRAR_TASQUES_TOTS;
-		this.mostrarTasquesNomesGroup = mostrarTasques == MostrarTasquesDto.MOSTRAR_TASQUES_NOMES_GROUPS;
-		this.mostrarTasquesNomesPersonals = mostrarTasques == MostrarTasquesDto.MOSTRAR_TASQUES_NOMES_PERSONALS;
+		this.mostrarTasquesTots = mostrarTasques == WorkflowEngineApi.MostrarTasquesDto.MOSTRAR_TASQUES_TOTS;
+		this.mostrarTasquesNomesGroup = mostrarTasques == WorkflowEngineApi.MostrarTasquesDto.MOSTRAR_TASQUES_NOMES_GROUPS;
+		this.mostrarTasquesNomesPersonals = mostrarTasques == WorkflowEngineApi.MostrarTasquesDto.MOSTRAR_TASQUES_NOMES_PERSONALS;
 		this.sort = sort;
 		this.asc = asc;
 	}

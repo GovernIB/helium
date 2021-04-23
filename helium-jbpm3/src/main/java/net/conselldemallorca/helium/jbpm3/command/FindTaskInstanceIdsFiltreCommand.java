@@ -3,15 +3,15 @@
  */
 package net.conselldemallorca.helium.jbpm3.command;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
+import net.conselldemallorca.helium.core.api.LlistatIds;
 import org.hibernate.Query;
 import org.jbpm.JbpmContext;
 import org.jbpm.command.AbstractBaseCommand;
 
-import net.conselldemallorca.helium.jbpm3.integracio.LlistatIds;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
 
 /**
  * Command per a trobar els logs associats a una instància de procés

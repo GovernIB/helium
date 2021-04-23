@@ -1,24 +1,9 @@
 package net.conselldemallorca.helium.webapp.v3.helper;
 
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-
-import javax.servlet.http.HttpServletResponse;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
 import com.codahale.metrics.Counter;
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer;
-
-import net.conselldemallorca.helium.report.FieldValue;
+import net.conselldemallorca.helium.core.report.FieldValue;
 import net.conselldemallorca.helium.webapp.mvc.JasperReportsView;
 import net.conselldemallorca.helium.webapp.v3.helper.InformeHelper.Estat;
 import net.conselldemallorca.helium.webapp.v3.helper.InformeHelper.InformeInfo;
@@ -40,6 +25,18 @@ import net.sf.jasperreports.engine.export.JRXmlExporter;
 import net.sf.jasperreports.engine.export.oasis.JROdtExporter;
 import net.sf.jasperreports.engine.fill.AsynchronousFillHandle;
 import net.sf.jasperreports.engine.fill.JRFileVirtualizer;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import javax.servlet.http.HttpServletResponse;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 /**
  * Vista per a generar un report amb Jasper Reports

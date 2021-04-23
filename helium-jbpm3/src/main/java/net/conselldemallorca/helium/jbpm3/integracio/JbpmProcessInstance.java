@@ -3,9 +3,10 @@
  */
 package net.conselldemallorca.helium.jbpm3.integracio;
 
-import java.util.Date;
-
+import net.conselldemallorca.helium.core.api.WProcessInstance;
 import org.jbpm.graph.exe.ProcessInstance;
+
+import java.util.Date;
 
 
 /**
@@ -13,7 +14,7 @@ import org.jbpm.graph.exe.ProcessInstance;
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
-public class JbpmProcessInstance {
+public class JbpmProcessInstance implements WProcessInstance {
 
 	private ProcessInstance processInstance;
 
@@ -31,31 +32,52 @@ public class JbpmProcessInstance {
 		this.processInstance = processDefinition;
 	}
 
+	@Override
 	public String getId() {
 		return new Long(processInstance.getId()).toString();
 	}
 
-	public Date getStart() {
+	@Override
+	public Date getStartTime() {
 		return processInstance.getStart();
 	}
 
-	public Date getEnd() {
+	@Override
+	public Date getEndTime() {
 		if (processInstance == null)
 			return null;
 		return processInstance.getEnd();
 	}
 
+	@Override
 	public String getParentProcessInstanceId() {
 		if (processInstance.getSuperProcessToken() != null)
 			return new Long(processInstance.getSuperProcessToken().getProcessInstance().getId()).toString();
 		return null;
 	}
 
+	@Override
 	public String getProcessDefinitionId() {
 		return new Long(processInstance.getProcessDefinition().getId()).toString();
 	}
+
+	@Override
 	public String getDescription() {
 		return processInstance.getKey();
+	}
+
+	@Override
+	public String getProcessDefinitionName() {
+		if (processInstance == null)
+			return null;
+		return processInstance.getProcessDefinition().getName();
+	}
+
+	@Override
+	public Long getExpedientId() {
+		if (processInstance == null)
+			return null;
+		return processInstance.getExpedient().getId();
 	}
 
 }
