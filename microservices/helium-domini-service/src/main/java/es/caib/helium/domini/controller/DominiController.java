@@ -175,7 +175,6 @@ public class DominiController {
             @PathVariable("dominiId") Long dominiId) {
 
         log.debug("[CTR] get domini: " + dominiId);
-
         return new ResponseEntity<>(dominiService.getById(dominiId), HttpStatus.OK);
 
     }

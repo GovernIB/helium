@@ -325,7 +325,8 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 		
 		DefinicioProces importat = definicioProcesHelper.importar(
 				entornId, 
-				expedientTipusId, 
+				expedientTipusId,
+				definicioProcesId,
 				importacio, 
 				command,
 				command != null ? command.isSobreEscriure() : true);

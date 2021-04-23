@@ -15,9 +15,9 @@ import net.conselldemallorca.helium.core.util.ws.WsClientUtils;
  */
 public class PortaFIBCallbackTest {
 
-	private static final String ENDPOINT_ADDRESS = "http://10.35.3.111:8080/helium/ws/v1/PortaFIBCallBack";
-	private static final String USERNAME = "admin";
-	private static final String PASSWORD = "admin15";
+	private static String ENDPOINT_ADDRESS = "http://10.35.3.231:8080/helium/ws/v1/PortaFIBCallBack";
+	private static String USERNAME = "admin";
+	private static String PASSWORD = "admin15";
 
 
 	public static void main(String[] args) {

@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>es.caib.helium</groupId>
+		<artifactId>helium-mongomvc-service-bom</artifactId>
+		<version>1.0</version>
+	</parent>
+
+	<groupId>es.caib.helium</groupId>
+	<artifactId>helium-dada-service</artifactId>
+	<version>1.0.0</version>
+	<name>helium-dada-service</name>
+	<description>Servei de dades</description>
+
+	<properties>
+		<maven.compiler.source>11</maven.compiler.source>
+		<maven.compiler.target>11</maven.compiler.target>
+		<rsql.version>2.1.0</rsql.version>
+	</properties>
+
+	<dependencies>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-mongodb</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.mongodb</groupId>
+			<artifactId>mongo-java-driver</artifactId>
+			<version>3.12.8</version>
+			<scope>runtime</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.hibernate.ogm</groupId>
+			<artifactId>hibernate-ogm-mongodb</artifactId>
+			<version>5.4.0.Final</version>
+		</dependency>
+		<dependency>
+			<groupId>org.jboss.narayana.jta</groupId>
+			<artifactId>narayana-jta</artifactId>
+			<version>5.9.2.Final</version>
+		</dependency>
+	</dependencies>
+</project>

@@ -3,6 +3,7 @@
  */
 package net.conselldemallorca.helium.v3.core.api.exportacio;
 
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -22,12 +23,12 @@ public class DefinicioProcesExportacioCommandDto {
 	private String codi;
 	
 	// Camps comuns per exportació i importació
-	private List<String> tasques;
-	private List<String> variables;
-	private List<String> agrupacions;
-	private List<String> documents;
-	private List<String> terminis;
-	private List<String> accions;
+	private List<String> tasques = new ArrayList<String>();
+	private List<String> variables = new ArrayList<String>();
+	private List<String> agrupacions = new ArrayList<String>();
+	private List<String> documents = new ArrayList<String>();
+	private List<String> terminis = new ArrayList<String>();
+	private List<String> accions = new ArrayList<String>();
 	
 	public Long getId() {
 		return id;

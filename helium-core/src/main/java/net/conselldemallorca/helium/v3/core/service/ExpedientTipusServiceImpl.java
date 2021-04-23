@@ -77,12 +77,12 @@ import net.conselldemallorca.helium.core.util.ExpedientCamps;
 import net.conselldemallorca.helium.v3.core.api.dto.CampTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ConsultaCampDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ConsultaCampDto.TipusConsultaCamp;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto.EstatTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ConsultaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DominiDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EnumeracioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto.EstatTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusEstadisticaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.MapeigSistraDto;
@@ -1326,11 +1326,25 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		if (command.getDefinicionsProces().size() > 0) {
 			for(DefinicioProcesExportacio definicioExportat : importacio.getDefinicions() )
 				if (command.getDefinicionsProces().contains(definicioExportat.getDefinicioProcesDto().getJbpmKey())){
+					// Id de la definició de procés sobre la qual s'importa la informacó
+					Long definicioProcesId = null;
+					if (!command.isDesplegarDefinicions()) {
+						// Busca la darrera versió de la definició de procés pel tipus d'expedient
+						if (expedientTipusId != null) {
+							DefinicioProces darreraVersio =
+										definicioProcesRepository.findDarreraVersioAmbTipusExpedientIJbpmKey(expedientTipusId, 
+												definicioExportat.getDefinicioProcesDto().getJbpmKey());
+							if (darreraVersio != null) {
+								definicioProcesId = darreraVersio.getId();
+							}
+						}
+					}
 					definicioProces = definicioProcesHelper.importar(
 							entornId,
 							expedientTipus.getId(),
+							definicioProcesId,
 							definicioExportat,
-							null /* no especifica el filtre per a la importació. */,
+							null,
 							command.isSobreEscriure());
 					expedientTipus.addDefinicioProces(definicioProces);
 				}

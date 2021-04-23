@@ -239,8 +239,7 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 					observacions);
 		} catch (Exception e) {
 			String errMsg = "Error comunicant l'estat de rebutjada a Distribucio:" + e.getMessage();
-			logger.error(errMsg, e);
-			throw new RuntimeException(errMsg, e);
+			logger.warn(errMsg, e);
 		}
 	}
 
@@ -413,8 +412,7 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 					"Anotació incorporada a l'expedient d'Helium " + expedient.getIdentificadorLimitat());
 		} catch (Exception e) {
 			String errMsg = "Error comunicant l'estat de processada a Distribucio:" + e.getMessage();
-			logger.error(errMsg, e);
-			throw new RuntimeException(errMsg, e);
+			logger.warn(errMsg, e);
 		}
 		
 		// Afegeix el log a l'expedient

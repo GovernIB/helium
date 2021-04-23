@@ -1,0 +1,706 @@
+openapi: 3.0.3
+servers: 
+  # Added by API Auto Mocking Plugin
+  # Added by API Auto Mocking Plugin
+  - description: SwaggerHub API Auto Mocking
+    url: https://virtserver.swaggerhub.com/josepg-limit/heliumms-dades-service/1.0.0
+  - description: SwaggerHub API Auto Mocking
+    url: https://virtserver.swaggerhub.com/josepg-limit/hliumms-dades-service/1.0.0
+  - url: http://pendent.de.definir.es
+    description: Servidor de desenvolupament
+info:
+  description: Microservei de Dades de HeliumMS tant per la tramitació de l'expedient com per les consultes predefinides.
+  version: "1.0.0"
+  title: HeliumMS Dades API
+  contact:
+    name: Limit Tecnologies
+    email: limit@limit.es
+#security: 
+#  - openId: 
+#    - HEL_SUPER
+#    - HEL_ADMIN
+#    - HEL_USER
+#    - tothom
+paths:
+  /api/v1/expedients:
+    post:
+      summary: Serveix per donar d'alta les dades de capçalera d'un expedient
+      description: Mètode per donar d'alta les dades de capçalera d'un expedient.
+      tags: 
+        - Gestió
+      operationId: setExpedient
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Expedient'
+        description: Dades a crear per les dades de capçalera de l`expedient
+      responses:
+        '201':
+          description: Dades creades
+        '400':
+          description: Bad request
+
+  /api/v1/expedients/{expedientId}:
+    get:
+      summary: Obté les dades de capçalera d'un expedient
+      description: Recupera les dades de capçalera guardades per un expedient amb un identificador concret.
+      tags:
+        - Lectura
+      operationId: getExpedient
+      parameters: 
+        - $ref: '#/components/parameters/ExpedientIdPathParam'
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Expedient'
+        '404':
+          description: Not found
+  
+    put:
+      tags:
+        - Gestió
+      operationId: updateExpedient
+      summary: Modifica les dades de capçalera d'un expedient donat el seu identificador
+      description: Modifica les dades de capçalera d'un expedent l'identificador passat al paràmetre `expedientId`, amb les totes dades de l'objecte Expedient passat al body de la petició
+      parameters:
+        - $ref: '#/components/parameters/ExpedientIdPathParam'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Expedient'
+      responses:
+        '204':
+          description: Expedient actualitzat
+        '404':
+          description: Not found
+        '409':
+          description: Conflicte
+
+    patch:
+      tags:
+        - Gestió
+      operationId: patchExpedient
+      summary: Actualitza camps concrets de la capçalera d'un expedient donat el seu identificador
+      description: |
+        Modifica els camps de la capçalera d'un expedient l'identificador passat al paràmetre `expedientId`, amb els camps de l'objecte Expedient passat al body de la petició.  
+        Només modifica els camps informats en l'objecte. Els camps no inclosos en l'objecte no seran modificats.
+      parameters:
+        - $ref: '#/components/parameters/ExpedientIdPathParam'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Expedient'
+      responses:
+        '204':
+          description: Expedient actualitzat
+        '404':
+          description: Not found
+        '409':
+          description: Conflicte
+    delete:
+      tags:
+        - Gestió
+      operationId: deleteExpedient
+      summary: Elimina un expedient donat el seu identificador
+      description: Elimina l'expedient amb l'identificador passat al paràmetre `expedientId`
+      parameters:
+        - $ref: '#/components/parameters/ExpedientIdPathParam'
+      responses:
+        '200':
+          description: Ok
+        '404':
+          description: Not found
+          
+        
+  /api/v1/expedients/{expedientId}/dades:
+    parameters:
+      - $ref: '#/components/parameters/ExpedientIdPathParam'
+    get:
+      summary: Obté les dades de l'expedient i de la definició de procés principal.
+      description: Obté el llistat de totes les dades guardades per l'expedient i les dades que coincideixin també com a guardades amb l'identificador del procés principal de l'expedient. L'identificador del procés principal s'informe a l'alta de l'expedient `setExpedient` i les dades es poden donar d'alta a nivell d'expedient o a nivell de procés.
+      tags: 
+        - Lectura
+      operationId: getDades
+      parameters: 
+        - $ref: '#/components/parameters/ExpedientIdPathParam'
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DadaResponseList'
+        '204':
+          description: No content
+        '404':
+          description: Not found si l'expedient no existeix
+    post:
+      summary: Serveix per guardar una llista de dades o sobreescriure-les si ja existien
+      description: Com a entrada rep una llista de dades a guardar per l'expedient diferenciades per codi i també les dades de l'expedient.
+      tags: 
+        - Gestió
+      operationId: setDades
+      parameters: 
+        - $ref: '#/components/parameters/ProcesIdParam'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DadaList'
+        description: Dades a crear per l'expedient
+      responses:
+        '201':
+          description: Dades creades
+        '400':
+          description: Bad request
+
+  /api/v1/expedients/{expedientId}/dades/{codi}:
+    get:
+      tags:
+        - Lectura
+      operationId: getDada
+      summary: Obté la informació d'una dada en concret identificada per codi.
+      description: Consulta la informació guardada per una dada en concret.
+      parameters: 
+        - $ref: '#/components/parameters/ExpedientIdPathParam'
+        - $ref: '#/components/parameters/CodiPathParam'
+      responses:
+        "200":
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DadaResponse'
+        "204":
+          description: No content
+        "400":
+          description: Bad input parameter
+          
+    put:
+      summary: Modifica la dada amb el codi del paràmetre `codi`, amb els camps de l'objecte Dada passat al body de la petició.
+      tags:
+        - Gestió
+      operationId: setDada
+      parameters:
+        - $ref: '#/components/parameters/ExpedientIdPathParam'
+        - $ref: '#/components/parameters/CodiPathParam'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Dada'
+      responses:
+        '204':
+          description: Dada actualitzada
+        '404':
+          description: Not found
+        '409':
+          description: Conflicte
+    delete:
+      tags:
+        - Gestió
+      operationId: deleteDada
+      summary: Elimina una dada donada el seu codi
+      description: Elimina la dada de l`expedient segons el codi passat com a paràmetre.
+      parameters:
+        - $ref: '#/components/parameters/ExpedientIdPathParam'
+        - $ref: '#/components/parameters/CodiPathParam'
+      responses:
+        '200':
+          description: Ok
+        '404':
+          description: Not found      
+
+# Mètodes a nivell de proces
+
+  /api/v1/expedients/{expedientId}/proces/{procesId}/dades:
+    parameters:
+      - $ref: '#/components/parameters/ExpedientIdPathParam'
+      - $ref: '#/components/parameters/ProcesIdPathParam'
+    get:
+      summary: Obté les dades de l'expedient i de la definició d'un procés en concret.
+      description: Obté el llistat de totes les dades guardades per l'expedient i les dades que coincideixin també com a guardades amb l'identificador del procés principal de l'expedient.
+      tags: 
+        - Lectura
+      operationId: getProcessDades
+      parameters: 
+        - $ref: '#/components/parameters/ExpedientIdPathParam'
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DadaResponseList'
+        '204':
+          description: No content
+        '404':
+          description: Not found si l'expedient no existeix
+    post:
+      summary: Serveix per guardar una llista de dades o sobreescriure-les si ja existien en un procés en concret.
+      description: Com a entrada rep una llista de dades a guardar per l'expedient diferenciades per codi i també les dades de l'expedient.
+      tags: 
+        - Gestió
+      operationId: setProcessDades
+      parameters: 
+        - $ref: '#/components/parameters/ProcesIdParam'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DadaList'
+        description: Dades a crear per l'expedient
+      responses:
+        '201':
+          description: Dades creades
+        '400':
+          description: Bad request
+
+  /api/v1/expedients/{expedientId}/proces/{procesId}/dades/{codi}:
+    get:
+      tags:
+        - Lectura
+      operationId: getProcessDada
+      summary: Obté la informació d'una dada en concret identificada per codi per un procés en concret.
+      description: Consulta la informació guardada per una dada en concret.
+      parameters: 
+        - $ref: '#/components/parameters/ExpedientIdPathParam'
+        - $ref: '#/components/parameters/ProcesIdPathParam'
+        - $ref: '#/components/parameters/CodiPathParam'
+      responses:
+        "200":
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DadaResponse'
+        "204":
+          description: No content
+        "400":
+          description: Bad input parameter
+          
+    put:
+      summary: Modifica la dada amb el codi del paràmetre `codi`, amb els camps de l'objecte Dada passat al body de la petició per un procés en concret.
+      tags:
+        - Gestió
+      operationId: setProcessDada
+      parameters:
+        - $ref: '#/components/parameters/ExpedientIdPathParam'
+        - $ref: '#/components/parameters/ProcesIdPathParam'
+        - $ref: '#/components/parameters/CodiPathParam'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Dada'
+      responses:
+        '204':
+          description: Dada actualitzada
+        '404':
+          description: Not found
+        '409':
+          description: Conflicte
+    delete:
+      tags:
+        - Gestió
+      operationId: deleteProcessDada
+      summary: Elimina una dada donada el seu codi per un procés en concret.
+      description: Elimina la dada de l`expedient segons el codi passat com a paràmetre.
+      parameters:
+        - $ref: '#/components/parameters/ExpedientIdPathParam'
+        - $ref: '#/components/parameters/ProcesIdPathParam'
+        - $ref: '#/components/parameters/CodiPathParam'
+      responses:
+        '200':
+          description: Ok
+        '404':
+          description: Not found
+          
+
+# Mètodes de consulta
+
+  /api/v1/consulta/resultats:
+    get:
+      tags:
+        - Consulta
+      operationId: consulta
+      description: Permet fer una consulta paginada filtrant per valors de camps de forma genèrica i escollint les columnes pel resultat.
+      summary: Consulta de les dades dels expedients per tipus d'expedient filtrades, paginades, ordenades i amb selecció de columnes.
+        Els paràmetres per filtrar per valors es passaran com un mapa amb la clau de tipus string, i un valor en format string.
+        Les columnes seleccionades es pasaran com una llista de codis de variables a retornar. Per defecte es retornaran l'identificador de l'expedient, el número, el títol, la data d'alta i l'estat.
+      parameters:
+        - $ref: '#/components/parameters/EntornIdParam'
+        - $ref: '#/components/parameters/ExpedientTipusIdParam'
+        - $ref: '#/components/parameters/FiltreValorList'
+        - $ref: '#/components/parameters/columnaList'
+        - $ref: '#/components/parameters/FiltreParam'
+        - $ref: '#/components/parameters/PageNumberParam'
+        - $ref: '#/components/parameters/PageSizeParam'
+        - $ref: '#/components/parameters/SortParam'
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DadaResponsePagedList'
+        '204':
+          description: No content
+        '400':
+          description: Bad input parameter
+components:
+  schemas:
+  
+    Expedient:
+      type: object
+      required:
+        - id
+        - numero
+        - entornId
+        - expedientTipusId
+        - procesPrincipalId
+        - dataInici
+      properties:
+        id:
+          title: Identificador
+          type: integer
+          format: int64
+          example: 1234
+        entornId:
+          title: Identificador de l'entorn
+          type: integer
+          format: int64
+          example: 1234
+        expedientTipusId:
+          title: Identificador del tipus d'expedient
+          type: integer
+          format: int64
+          example: 1234
+        numero:
+          title: Número de l'expedient
+          type: string
+          maxLength: 64
+          example: PRE 123/2021
+        titol:
+          title: Títol de l'expedient
+          type: string
+          maxLength: 255
+          example: Expedient de prova
+        procesPrincipalId:
+          title: Identificador del procés principal
+          type: string
+          maxLength: 255
+          example: 1234
+        estat:
+          title: Codi de l'estat de l'expedien
+          type: string
+          maxLength: 255
+          example: iniciat
+        dataInici:
+          title: Data d'inici de l'expedient
+          type: string
+          example: 15/03/2021 15:30:30.00
+        dataFi:
+          title: Data de finalització de l'expedient
+          type: string
+          example: 15/03/2021 15:30:30.00
+
+    Dada:
+      type: object
+      required: 
+        - codi
+        - multiple
+        - tipus
+      properties:
+        codi:
+          title: codi
+          description: Codi identificador de la dada a l'expedient. No pot començar per majúscula o _ i no pot contenir punt .
+          maxLength: 64
+          type: string
+        tipus:
+          type: string
+          description: Especifica el tipus de dada contingut. Si el tipus de valor és `REGISTRE` llavors el valor serà de tipus `ValorRegistre`, per qualsevol altre tipus serà `ValorSimple`. 
+          enum:
+            - STRING
+            - TERMINI
+            - PREU
+            - INTEGER
+            - BOOLEAN
+            - REGISTRE
+          example: STRING
+        multiple:
+          type: boolean
+          description: Indica si el valor de la variable és múltiple. En el cas que sigui múltiple llavors la propietat `valor` pot contenir 0..N valors, en cas contrari serà nula o contindrà només un element a la llista de valors
+        valor:
+          description: El valor pot ser null o una llista de valors. Si la dada és múltiple llavors pot tenir 0 o N valors i si és simple serà null o tindrà 1 element a la llista. Els valors poden ser de tipus `ValorSimple` o `ValorRegistre` segons si el tipus de la dada és REGISTRE o una altre tipus.
+          type: array
+          items:
+            oneOf:
+              - $ref: '#/components/schemas/ValorSimple'
+              - $ref: '#/components/schemas/ValorRegistre'
+            
+    ValorSimple:
+      type: object
+      description: Tipus d'objecte per guardar un valor simple amb valor i text a mostrar.
+      properties:
+        valor:
+          type: string
+          description: Camp del valor simple amb el valor en format string segons el tipus de dada.
+        valorText:
+          type: string
+          description: Camp del valor mostrat amb text. En el cas de les variables de tipus selecció té el valor consultat al domini o enumeració.
+    
+    ValorRegistre:
+      type: object
+      description: Tipus d'objecte per guardar el valor per un registre amb diferents camps.
+      properties:
+        camps:
+          description: Llista amb les diferents dades que composen el registre.
+          type: array
+          items:
+            $ref: '#/components/schemas/Dada'
+            
+    DadaList:
+      type: object
+      properties:
+        content:
+          $ref: '#/components/schemas/Dada'
+      description: Llistat de dades.
+          
+
+    DadaResponse:
+      description: Objecte de resposta en les consultes de les dades. Extén l'objecte `Dada` amb els camps per indicar si la dada conté algun tipus d'error.
+      allOf:
+        - $ref: '#/components/schemas/Dada'
+        - type: object
+          properties:
+            error:
+              type: boolean
+              description: Indica si la dada conté algun error.
+            errorText:
+              type: string
+              description: Text amb la descripció de l'error.
+  
+    DadaResponseList:
+      type: array
+      items:
+        $ref: '#/components/schemas/DadaResponse'
+      description: Llista da dades consultades.
+      
+    DadaResponsePagedList:
+      type: object
+      properties:
+        content:
+          $ref: '#/components/schemas/DadaResponseList'
+      allOf:
+      - $ref: '#/components/schemas/PagedResponse'  
+      description: Pàgina de dades consultades.  
+  
+    PagedResponse:
+      type: object
+      properties:
+        pageable:
+          $ref: '#/components/schemas/PagedResponse_pageable'
+        totalPages:
+          type: integer
+          format: int32
+        last:
+          type: boolean
+        totalElements:
+          type: integer
+          format: int32
+        size:
+          type: integer
+          format: int32
+        number:
+          type: integer
+          format: int32
+        numberOfElements:
+          type: integer
+          format: int32
+        sort:
+          $ref: '#/components/schemas/PagedResponse_pageable_sort'
+        first:
+          type: boolean
+      description: Resposta paginada
+    PagedResponse_pageable:
+      type: object
+      properties:
+        sort:
+          $ref: '#/components/schemas/PagedResponse_pageable_sort'
+        offset:
+          type: integer
+          format: int32
+        pageNumber:
+          type: integer
+          format: int32
+        pageSize:
+          type: integer
+          format: int32
+        paged:
+          type: boolean
+        unpaged:
+          type: boolean
+      description: Informació de paginació d'una resposta paginada.
+    PagedResponse_pageable_sort:
+      type: object
+      properties:
+        sorted:
+          type: boolean
+        unsorted:
+          type: boolean
+      description: |-
+        Informació d'ordenació
+        d'una resposta paginada.
+        
+    ParellaCodiValor:
+      properties:
+        codi:
+          type: string
+        valor:
+          type: string
+      type: object
+
+  parameters:
+  
+    EntornIdParam:
+      name: entornId
+      in: query
+      description: Identificador de l'entorn
+      required: true
+      style: form
+      schema:
+        type: integer
+        format: int64
+        
+    ExpedientTipusIdParam:
+      name: expedientTipusId
+      in: query
+      description: Identificador del tipus d'expedient
+      required: true
+      style: form
+      schema:
+        type: integer
+        format: int64
+
+    ExpedientIdPathParam:
+      name: expedientId
+      in: path
+      description: Identificador de l'exedient al path de la URL.
+      required: true
+      style: simple
+      schema:
+        type: integer
+        format: int64
+
+    CodiPathParam:
+      name: codi
+      in: path
+      description: Codi de la variable.
+      required: true
+      style: simple
+      schema:
+        type: string
+
+    ProcesIdParam:
+      name: procesId
+      in: query
+      description: Codi del procés. S´usa a l´hora d´afegir dades a l´expedient indicant l´identificacor del procés principal de l´expedient.
+      required: true
+      style: form
+      schema:
+        type: string
+
+    ProcesIdPathParam:
+      name: procesId
+      in: path
+      description: Codi del procés pel qual es consultes o s'estableixen les dades.
+      required: true
+      style: simple
+      schema:
+        type: string
+        
+    FiltreValorList:
+      name: filtreValors
+      in: query
+      description: Llista de parelles codi-valor per filtrar.
+      schema: 
+        type: array
+        items: 
+          $ref: '#/components/schemas/ParellaCodiValor'
+          
+    columnaList:
+      name: columnes
+      in: query
+      description: Llista de columnes sol·licitades per la resposta.
+      schema: 
+        type: array
+        items: 
+          type: 
+            string
+
+    FiltreParam:
+      name: filtre
+      in: query
+      description: cadena amb format rsql per a definir el filtre a aplicar a la consulta
+      required: false
+      style: form
+      explode: true
+      schema:
+        type: string
+        
+    PageNumberParam:
+      name: page
+      in: query
+      description: número de pagina a retornar en cas de desitjar paginació
+      required: false
+      style: form
+      explode: true
+      schema:
+        minimum: 0
+        type: integer
+        format: int32
+        default: 0
+    PageSizeParam:
+      name: size
+      in: query
+      description: mida de la pàgina a retornat en cas de desitjar paginació
+      required: false
+      style: form
+      explode: true
+      schema:
+        minimum: 0
+        type: integer
+        format: int32
+        default: 25
+    SortParam:
+      name: sort
+      in: query
+      description: ordre a aplicar a la consulta
+      required: false
+      style: form
+      explode: true
+      schema:
+        type: string
+tags:
+  - name: Disseny
+    description: Operacions securitzades disponibles per usuaris dissenyadors
+  - name: Consulta
+    description: Operacions disponibles per tots els usuaris
+  - name: Lectura
+    description: Operacions amb permís de lectura sobre el tipus d'expedient
+  - name: Gestió
+    description: Operacions d'escriptura sobre l`expedient amb permís normalment per tipus d'expedient o entorn

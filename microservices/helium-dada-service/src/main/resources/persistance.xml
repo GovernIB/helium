@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- <persistence-unit name="ogm-mongodb" transaction-type="JTA"> -->
+<!--     <provider>org.hibernate.ogm.jpa.HibernateOgmPersistence</provider> -->
+<!--     <properties> -->
+<!--         <property name="hibernate.ogm.datastore.provider" value="MONGODB" /> -->
+<!--         <property name="hibernate.ogm.datastore.database" value="hel_dada" /> -->
+<!--         <property name="hibernate.ogm.datastore.create_database" value="true" /> -->
+<!--     </properties> -->
+<!-- </persistence-unit> -->

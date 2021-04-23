@@ -90,8 +90,11 @@ public class DefinicioProcesHelper {
 	 * 
 	 * @param entornId
 	 * @param expedientTipusId
+	 * @param definicioProcesId
+	 * 			Definició de procés sobre la qual s'importen les dades. Si és null llavors es desplega una nova versió.
 	 * @param importacio
 	 * @param command
+	 * 			Command amb la informació que s'ha d'imortar. Si és null llavors s'importa tota la informació
 	 * @param sobreEscriure Indica si actualitzar o no les entitats amb el mateix codi
 	 * @return
 	 */
@@ -99,6 +102,7 @@ public class DefinicioProcesHelper {
 	public DefinicioProces importar(
 			Long entornId, 
 			Long expedientTipusId, 
+			Long definicioProcesId,
 			DefinicioProcesExportacio importacio,
 			DefinicioProcesExportacioCommandDto command,
 			boolean sobreEscriure) {
@@ -113,23 +117,7 @@ public class DefinicioProcesHelper {
 
 		// si el command és null s'importa tot
 		boolean importAll = command == null;
-		boolean definicioProcesExisteix = false;
-		if(command != null) {
-			definicioProcesExisteix = command.getId() != null;
-		} else {
-			// Busca la darrera versió de la definició de procés pel tipus d'expedient
-			if (expedientTipusId != null) {
-				DefinicioProces darreraVersio =
-							definicioProcesRepository.findDarreraVersioAmbTipusExpedientIJbpmKey(expedientTipusId, 
-																								importacio.getDefinicioProcesDto().getJbpmKey());
-				if (darreraVersio != null) {
-					definicioProcesExisteix = true;
-					// informa el command per reaprofitar l'id.
-					command = new DefinicioProcesExportacioCommandDto();
-					command.setId(darreraVersio.getId());
-				}
-			}
-		}
+		boolean definicioProcesExisteix = definicioProcesId != null;
 		DefinicioProces definicio;
 		if ( ! definicioProcesExisteix) {
 			// Nova definició de procés
@@ -171,7 +159,7 @@ public class DefinicioProcesHelper {
 				throw new DeploymentException(
 						messageHelper.getMessage("exportar.validacio.definicio.deploy.error"));
 		} else {
-			definicio = definicioProcesRepository.findById(command.getId());
+			definicio = definicioProcesRepository.findById(definicioProcesId);
 		}
 
 		// Copia la informació importada

@@ -33,7 +33,7 @@ import org.springmodules.validation.bean.conf.loader.annotation.handler.NotNull;
  */
 @Entity
 @Table(	name="hel_domini",
-		uniqueConstraints={@UniqueConstraint(columnNames={"codi", "entorn_id"})})
+		uniqueConstraints={@UniqueConstraint(columnNames={"codi", "expedient_tipus_id", "entorn_id"})})
 @org.hibernate.annotations.Table(
 		appliesTo = "hel_domini",
 		indexes = {

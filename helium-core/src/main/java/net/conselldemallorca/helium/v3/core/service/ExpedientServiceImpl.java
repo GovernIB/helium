@@ -248,22 +248,6 @@ public class ExpedientServiceImpl implements ExpedientService {
 						expedient.getId(),
 						anotacioInteressatsAssociar,
 						true);
-				
-				// Canvi d'estat a processada
-				// Notifica a Distribucio que s'ha rebut correctament
-				AnotacioRegistreId idWs = new AnotacioRegistreId();
-				idWs.setClauAcces(anotacio.getDistribucioClauAcces());
-				idWs.setIndetificador(anotacio.getDistribucioId());
-				try {
-					distribucioHelper.canviEstat(
-							idWs, 
-							es.caib.distribucio.ws.backofficeintegracio.Estat.PROCESSADA,
-							"Petició processada a Helium.");
-				} catch (Exception e) {
-					String errMsg = "Error comunicant l'estat de processada a Distribucio:" + e.getMessage();
-					logger.error(errMsg, e);
-					throw new RuntimeException(errMsg, e);					
-				}
 			}
 
 			// Retorna la informació de l'expedient que s'ha iniciat
@@ -439,7 +423,15 @@ public class ExpedientServiceImpl implements ExpedientService {
 		for (Notificacio notificacio: notificacioRepository.findByExpedientOrderByDataEnviamentDesc(expedient)) {
 			notificacioRepository.delete(notificacio);
 		}
-		for (Anotacio anotacio: anotacioRepository.findByExpedientId(expedient.getId())) {
+		List<Anotacio> anotacions;
+		try {
+			anotacions = anotacioRepository.findByExpedientId(expedient.getId());
+		} catch(Exception e) {
+			//#1480 Error esborrant expedients a PRO
+			logger.error("Error consultant les anotacions per l'expedient " + expedient.getId() + ": " + e.getMessage());
+			anotacions = new ArrayList<Anotacio>();
+		}
+		for (Anotacio anotacio : anotacions) {
 			if (AnotacioEstatEnumDto.PROCESSADA.equals(anotacio.getEstat()) )
 				// Si les anotacions estan processades s'esborren
 				anotacioRepository.delete(anotacio);

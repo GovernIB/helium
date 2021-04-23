@@ -144,6 +144,9 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 	
 	@Resource
 	private DefinicioProcesHelper definicioProcesHelper;
+	
+	@Resource 
+	private AlertaHelper alertaHelper;
 
 
 
@@ -535,13 +538,8 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 		Expedient expedient = expedientRepository.findOne(expedientId);
 		if (expedient == null)
 			throw new NoTrobatException(Expedient.class, expedientId);
-		Alerta alerta = new Alerta();
-		alerta.setEntorn(entorn);
-		alerta.setExpedient(expedient);
-		alerta.setDataCreacio(data);
-		alerta.setDestinatari(usuariCodi);
-		alerta.setText(text);
-		alertaRepository.save(alerta);
+		
+		alertaHelper.crearAlerta(entorn, expedient, data, usuariCodi, text);
 	}
 
 	@Override
@@ -1874,7 +1872,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 			ExpedientDto expedient,
 			ZonaperExpedientDto dadesExpedient) {
 		
-			String identificador = expedient.getNumeroIdentificador();
+			String identificador = expedient.getNumeroDefault();
 			String clau = new Long(System.currentTimeMillis()).toString();
 			dadesExpedient.setExpedientIdentificador(identificador);
 			dadesExpedient.setExpedientClau(clau);
