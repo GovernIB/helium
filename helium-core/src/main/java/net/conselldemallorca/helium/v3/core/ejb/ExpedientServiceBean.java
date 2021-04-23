@@ -671,4 +671,10 @@ public class ExpedientServiceBean implements ExpedientService {
 	public List<ExpedientDto> findAmbIniciadorCodi(String responsableCodi) {
 		return delegate.findAmbIniciadorCodi(responsableCodi);
 	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public byte[] getZipDocumentacio(Long expedientId) {
+		return delegate.getZipDocumentacio(expedientId);
+	}
 }

@@ -970,4 +970,11 @@ public interface ExpedientService {
 	 */
 	public List<ExpedientDto> findAmbIniciadorCodi(String responsableCodi);
 
+	/** Crea un .zip amb la documentació de l'expedient.
+	 * 
+	 * @param expedientId
+	 * @return Retorna el contingut del zip.
+	 */
+	public byte[] getZipDocumentacio(Long expedientId);
+
 }

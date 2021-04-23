@@ -879,6 +879,26 @@ public class ExpedientDocumentController extends BaseExpedientController {
 		}
 		return "arxiuView";
 	}
+	
+	/** Recupera el contingut de tots els documents i crea un comprimit per a la descàrrega.
+	 * 
+	 */
+	@RequestMapping(value = "/{expedientId}/document/descarregarZip", method = RequestMethod.GET)
+	public String descarregarZipDocumentacio(
+			HttpServletRequest request,
+			@PathVariable Long expedientId,
+			Model model)  {
+		try {
+			ExpedientDto expedient = expedientService.findAmbIdAmbPermis(expedientId);
+			model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_FILENAME, expedient.getIdentificador() + ".zip");
+			model.addAttribute(
+					ArxiuView.MODEL_ATTRIBUTE_DATA,
+					expedientService.getZipDocumentacio(expedientId));
+		} catch(Exception e) {
+			MissatgesHelper.error(request, getMessage(request, "expedient.document.descarregar.zip.error", new Object[]{ e.getMessage() } ));
+		}
+		return "arxiuView";
+	}
 
 	@InitBinder
 	public void initBinder(WebDataBinder binder) {

@@ -34,6 +34,7 @@ div.procesDocument:hover {
 }
 #dataTables_new {padding-top: 5px;padding-bottom: 10px;}
 </style>
+
 <c:choose>
 	<c:when test="${not empty documents}">
 		<c:set var="procesFirst" value="${true}"/>
