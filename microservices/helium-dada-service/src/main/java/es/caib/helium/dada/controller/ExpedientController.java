@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import es.caib.helium.dada.domain.Dada;
 import es.caib.helium.dada.domain.Expedient;
-import es.caib.helium.dada.model.ConsultaResultats;
+import es.caib.helium.dada.model.Consulta;
 import es.caib.helium.dada.model.PagedList;
 import es.caib.helium.dada.service.ExpedientService;
 import lombok.AllArgsConstructor;
@@ -36,35 +36,36 @@ public class ExpedientController {
 	private final ExpedientService expedientService;
 
 	@PostMapping(value = "consulta/resultats", consumes = "application/json")
-	public ResponseEntity<PagedList<Expedient>> consultaResultats(
-			@RequestParam("entornId") Integer entornId,
+	public ResponseEntity<PagedList<Expedient>> consultaResultats(@RequestParam("entornId") Integer entornId,
 			@RequestParam("expedientTipusId") Integer expedientTipusId,
-//
-//			@@RequestParam("columnes") List<String> columnes,
-//			
-			@RequestParam("page") Integer page,
-			@RequestParam("size") Integer size,
-			@RequestBody ConsultaResultats body
-			) {
-		return new ResponseEntity<PagedList<Expedient>>(expedientService.consultaResultats(body.getFiltreValors(), entornId, expedientTipusId, body.getOrdre(), page, size), HttpStatus.OK);
+			@RequestParam("page") Integer page, @RequestParam("size") Integer size,
+			@RequestBody Consulta body) {
+		
+		body.setEntornId(entornId);
+		body.setExpedientTipusId(expedientTipusId);
+		body.setPage(page);
+		body.setSize(size);
+		return new ResponseEntity<PagedList<Expedient>>(expedientService.consultaResultats(body), HttpStatus.OK);
 	}
 
 	@PostMapping(value = "consulta/resultats/llistat", consumes = "application/json")
-	public ResponseEntity<List<Expedient>> consultaResultatsLlistat(
-			@RequestParam("entornId") Integer entornId,
+	public ResponseEntity<List<Expedient>> consultaResultatsLlistat(@RequestParam("entornId") Integer entornId,
 			@RequestParam("expedientTipusId") Integer expedientTipusId,
-//
-//			@@RequestParam("columnes") List<String> columnes,
-//			
-			@RequestBody ConsultaResultats body
-			) {
-		return new ResponseEntity<List<Expedient>>(expedientService.consultaResultats(body.getFiltreValors(), entornId, expedientTipusId, body.getOrdre()), HttpStatus.OK);
+			@RequestParam("columnes") List<String> columnes,
+			@RequestBody Consulta body) {
+		
+		body.setEntornId(entornId);
+		body.setExpedientTipusId(expedientTipusId);
+		return new ResponseEntity<List<Expedient>>(
+				expedientService.consultaResultatsLlistat(body),
+				HttpStatus.OK);
 	}
 
 	// Gestió dades capçalera de l'expedient
 
 	@GetMapping(value = "{expedientId}", produces = { "application/json" })
 	public ResponseEntity<Expedient> getExpedient(@PathVariable("expedientId") Long expedientId) {
+		
 		var expedient = expedientService.findByExpedientId(expedientId);
 		if (expedient == null) {
 			return new ResponseEntity<Expedient>(HttpStatus.NOT_FOUND);
@@ -74,25 +75,27 @@ public class ExpedientController {
 
 	@PostMapping(consumes = { "application/json" })
 	public ResponseEntity<Void> createExpedient(@Valid @RequestBody Expedient expedient, BindingResult errors) {
-		
+
 		if (errors.hasErrors()) {
 			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 		}
-		
+
 		expedientService.createExpedient(expedient);
 		return new ResponseEntity<>(HttpStatus.CREATED);
 	}
 
 	@PostMapping(value = "crear/expedients", consumes = { "application/json" })
-	public ResponseEntity<Void> createExpedients(@RequestBody List<Expedient> expedients) {
+	public ResponseEntity<Void> createExpedients(@Valid @RequestBody List<Expedient> expedients) {
+		
 		expedientService.createExpedients(expedients);
 		return new ResponseEntity<>(HttpStatus.CREATED);
 	}
 
 	@DeleteMapping(value = "{expedientId}")
 	public ResponseEntity<Void> deleteExpedient(@PathVariable("expedientId") Long expedientId) {
+		
 		// TODO si es borra la informació de la capçalera s'ha de borrar les dades
-		if (expedientService.deleteExpedient(expedientId)) { 
+		if (expedientService.deleteExpedient(expedientId)) {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
 		return new ResponseEntity<>(HttpStatus.OK);
@@ -100,14 +103,18 @@ public class ExpedientController {
 
 	@DeleteMapping(value = "borrar/expedients")
 	public ResponseEntity<Void> deleteExpedients(@RequestParam("expedients") List<Long> expedients) {
+		
 		// TODO si es borra la informació de la capçalera s'ha de borrar les dades
-		expedientService.deleteExpedients(expedients);
+		if (expedientService.deleteExpedients(expedients)) {
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		}
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
 
 	@PutMapping(value = "{expedientId}")
 	public ResponseEntity<Void> putExpedient(@Valid @RequestBody Expedient expedient,
 			@PathVariable("expedientId") Long expedientId) {
+		
 		if (!expedientService.putExpedient(expedientId, expedient)) {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
@@ -116,14 +123,16 @@ public class ExpedientController {
 	}
 
 	@PutMapping(value = "put/expedients")
-	public ResponseEntity<Void> putExpedients(@RequestBody List<Expedient> expedients) {
+	public ResponseEntity<Void> putExpedients(@Valid @RequestBody List<Expedient> expedients) {
 		expedientService.putExpedients(expedients);
+		
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
 
 	@PatchMapping(value = "{expedientId}")
 	public ResponseEntity<Void> patchExpedient(@RequestBody Expedient expedient,
 			@PathVariable("expedientId") Long expedientId) {
+		
 		if (!expedientService.patchExpedient(expedientId, expedient)) {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
@@ -132,6 +141,7 @@ public class ExpedientController {
 
 	@PatchMapping(value = "patch/expedients")
 	public ResponseEntity<Void> patchExpedients(@RequestBody List<Expedient> expedients) {
+		
 		expedientService.patchExpedients(expedients);
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
@@ -140,12 +150,12 @@ public class ExpedientController {
 
 	@GetMapping(value = "{expedientId}/dades")
 	public ResponseEntity<List<Dada>> getDades(@PathVariable("expedientId") Long expedientId) {
-		
+
 		var dades = expedientService.getDades(expedientId);
 		if (!dades.isEmpty()) {
 			return new ResponseEntity<List<Dada>>(dades, HttpStatus.OK);
 		}
-		
+
 		if (expedientService.findByExpedientId(expedientId) == null) {
 			return new ResponseEntity<List<Dada>>(HttpStatus.NOT_FOUND);
 		}
@@ -155,10 +165,10 @@ public class ExpedientController {
 	@GetMapping(value = "{expedientId}/dades/{codi}")
 	public ResponseEntity<Dada> getDades(@PathVariable("expedientId") Long expedientId,
 			@Valid @PathVariable("codi") String codi) {
-		
+
 		var dada = expedientService.getDadaByCodi(expedientId, codi);
 		if (dada == null) {
-			return new ResponseEntity<Dada>(dada, HttpStatus.NO_CONTENT); 
+			return new ResponseEntity<Dada>(dada, HttpStatus.NO_CONTENT);
 		}
 		return new ResponseEntity<Dada>(dada, HttpStatus.OK);
 	}
@@ -166,12 +176,12 @@ public class ExpedientController {
 	@GetMapping(value = "{expedientId}/proces/{procesId}/dades")
 	public ResponseEntity<List<Dada>> getDadesByProces(@PathVariable("expedientId") Long expedientId,
 			@PathVariable("procesId") Long procesId) {
-		
+
 		var dades = expedientService.getDadesByProces(expedientId, procesId);
 		if (!dades.isEmpty()) {
 			return new ResponseEntity<List<Dada>>(dades, HttpStatus.OK);
 		}
-		
+
 		if (expedientService.findByExpedientId(expedientId) == null) {
 			return new ResponseEntity<List<Dada>>(HttpStatus.NOT_FOUND);
 		}
@@ -181,7 +191,7 @@ public class ExpedientController {
 	@GetMapping(value = "{expedientId}/proces/{procesId}/dades/{codi}")
 	public ResponseEntity<Dada> getDadesByProcesAndCodi(@PathVariable("expedientId") Long expedientId,
 			@PathVariable("procesId") Long procesId, @PathVariable("codi") String codi) {
-		
+
 		var dada = expedientService.getDadaByProcesAndCodi(expedientId, procesId, codi);
 		if (dada == null) {
 			return new ResponseEntity<Dada>(dada, HttpStatus.NO_CONTENT);
@@ -192,29 +202,29 @@ public class ExpedientController {
 	@PostMapping(value = "{expedientId}/dades", consumes = "application/json")
 	public ResponseEntity<Void> createDadaByExpedientId(@PathVariable("expedientId") Long expedientId,
 			@QueryParam("procesId") Long procesId, @Valid @RequestBody List<Dada> dada, BindingResult errors) {
-		
+
 		if (errors.hasErrors()) {
 			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 		}
- 		expedientService.createDades(expedientId, procesId, dada);
+		expedientService.createDades(expedientId, procesId, dada);
 		return new ResponseEntity<>(HttpStatus.CREATED);
 	}
 
 	@PutMapping(value = "{expedientId}/dades/{codi}", consumes = "application/json")
 	public ResponseEntity<Void> putDadaByExpedientIdAndCodi(@PathVariable("expedientId") Long expedientId,
-			@PathVariable("codi") String codi, @RequestBody Dada dada) {
-		
+			@PathVariable("codi") String codi, @Valid @RequestBody Dada dada) {
+
 		if (!expedientService.putDadaByExpedientIdAndCodi(expedientId, codi, dada)) {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
-		//TODO Swagger 409 Conflict?
+		// TODO Swagger 409 Conflict?
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
 
 	@DeleteMapping(value = "{expedientId}/dades/{codi}")
 	public ResponseEntity<Void> deleteDadaByExpedientIdAndCodi(@PathVariable("expedientId") Long expedientId,
 			@PathVariable("codi") String codi) {
-		
+
 		if (!expedientService.deleteDadaByExpedientIdAndCodi(expedientId, codi)) {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
@@ -223,7 +233,8 @@ public class ExpedientController {
 
 	@PostMapping(value = "{expedientId}/proces/{procesId}/dades", consumes = "application/json")
 	public ResponseEntity<Void> postDadaByExpedientIdProcesIdAndCodi(@PathVariable("expedientId") Long expedientId,
-			@PathVariable("procesId") Long procesId, @RequestBody List<Dada> dades) {
+			@PathVariable("procesId") Long procesId, @Valid @RequestBody List<Dada> dades) {
+		
 		if (dades.isEmpty()) {
 			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 		}
@@ -233,8 +244,8 @@ public class ExpedientController {
 
 	@PutMapping(value = "{expedientId}/proces/{procesId}/dades/{codi}", consumes = "application/json")
 	public ResponseEntity<Void> putDadaByExpedientIdProcesIdAndCodi(@PathVariable("expedientId") Long expedientId,
-			@PathVariable("procesId") Long procesId, @PathVariable("codi") String codi, @RequestBody Dada dada) {
-		
+			@PathVariable("procesId") Long procesId, @PathVariable("codi") String codi, @Valid @RequestBody Dada dada) {
+
 		if (!expedientService.putDadaByExpedientIdProcesIdAndCodi(expedientId, procesId, codi, dada)) {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
@@ -243,10 +254,9 @@ public class ExpedientController {
 	}
 
 	@DeleteMapping(value = "{expedientId}/proces/{procesId}/dades/{codi}")
-	public ResponseEntity<Void> deleteDadaByExpedientIdAndProcesIdAndCodi(
-			@PathVariable("expedientId") Long expedientId, @PathVariable("procesId") Long procesId,
-			@PathVariable("codi") String codi) {
-		
+	public ResponseEntity<Void> deleteDadaByExpedientIdAndProcesIdAndCodi(@PathVariable("expedientId") Long expedientId,
+			@PathVariable("procesId") Long procesId, @PathVariable("codi") String codi) {
+
 		if (!expedientService.deleteDadaByExpedientIdAndProcesIdAndCodi(expedientId, procesId, codi)) {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}

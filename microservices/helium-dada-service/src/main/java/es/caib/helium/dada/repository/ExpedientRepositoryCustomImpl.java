@@ -3,7 +3,6 @@ package es.caib.helium.dada.repository;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
@@ -12,18 +11,24 @@ import org.springframework.data.domain.Sort.Order;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.aggregation.AggregationOperation;
+import org.springframework.data.mongodb.core.aggregation.ArrayOperators.Filter;
+import org.springframework.data.mongodb.core.aggregation.ArrayOperators.In;
+import org.springframework.data.mongodb.core.aggregation.Fields;
 import org.springframework.data.mongodb.core.aggregation.MatchOperation;
+import org.springframework.data.mongodb.core.aggregation.ProjectionOperation;
 import org.springframework.data.mongodb.core.aggregation.SortOperation;
 import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.repository.Query;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.ObjectUtils;
 
 import es.caib.helium.dada.domain.Expedient;
-import es.caib.helium.dada.model.Filtre;
+import es.caib.helium.dada.model.Columna;
+import es.caib.helium.dada.model.Consulta;
 import es.caib.helium.dada.model.FiltreCapcalera;
 import es.caib.helium.dada.model.FiltreValor;
-import es.caib.helium.dada.model.Ordre;
 import es.caib.helium.enums.Capcalera;
-import es.caib.helium.enums.Coleccions;
+import es.caib.helium.enums.Collections;
 import es.caib.helium.enums.Dada;
 import es.caib.helium.enums.DireccioOrdre;
 
@@ -37,30 +42,45 @@ public class ExpedientRepositoryCustomImpl implements ExpedientRepositoryCustom 
 	}
 
 	@Override
-	public List<Expedient> findByFiltres(Map<String, Filtre> filtres, Integer entornId, Integer expedientTipusId,
-			List<Ordre> ordre, Integer page, Integer size) {
-		return mongoTemplate.aggregate(
-				Aggregation.newAggregation(prepararFiltres(filtres, entornId, expedientTipusId, ordre, page, size)),
-				Expedient.class, Expedient.class).getMappedResults();
+	public List<Expedient> findByFiltres(Consulta consulta) {
+		return mongoTemplate
+				.aggregate(Aggregation.newAggregation(prepararFiltres(consulta)), Expedient.class, Expedient.class)
+				.getMappedResults();
 	}
 
-	private List<AggregationOperation> prepararFiltres(Map<String, Filtre> filtres, Integer entornId,
-			Integer expedientTipusId, List<Ordre> ordre, Integer page, Integer size) {
-//
-//		if (filtres.isEmpty()) {
-//			return new ArrayList<>();
-//		}
+	@Override
+	@Transactional
+	public void esborrarExpedientCascade(Long expedientId) {
+		List<Long> expedients = new ArrayList<>();
+		expedients.add(expedientId);
+		esborrarExpedientsCascade(expedients);
+	}
+
+	@Override
+	@Transactional
+	public void esborrarExpedientsCascade(List<Long> expedients) {
+		var query = new Query();
+		var criteria = new Criteria();
+		criteria.and(Capcalera.EXPEDIENT_ID.getCamp()).in(expedients);
+		query.addCriteria(criteria);
+		mongoTemplate.remove(query, Expedient.class, Collections.EXPEDIENT.getNom());
+		mongoTemplate.remove(query, Dada.class, Collections.DADA.getNom());
+	}
+
+	private List<AggregationOperation> prepararFiltres(Consulta consulta) {
 
 		// Pipeline per l'agregació (db.expedient.aggregate([])
 		List<AggregationOperation> operations = new ArrayList<>();
-		operations.add(crearFiltreEntornIdTipusId(entornId, expedientTipusId));
-
-		var valors = filtres.values();
+		if (consulta.getEntornId() != null && consulta.getExpedientTipusId() != null) {
+			operations.add(crearFiltreEntornIdTipusId(consulta.getEntornId(), consulta.getExpedientTipusId()));
+		}
+		var valors = consulta.getFiltreValors().values();
 		var filtreCapcaleraCreat = false;
 		List<FiltreValor> filtresValor = new ArrayList<>();
 		for (var filtre : valors) {
 			// Si hi han 2 filtres capçalera, només es queda el primer que li passa
 			if (filtre instanceof FiltreCapcalera && !filtreCapcaleraCreat) {
+				// $match filtresCapcalera
 				operations.add(crearFiltreCapcalera((FiltreCapcalera) filtre));
 				filtreCapcaleraCreat = true;
 			} else if (filtre instanceof FiltreValor) {
@@ -68,45 +88,87 @@ public class ExpedientRepositoryCustomImpl implements ExpedientRepositoryCustom 
 			}
 		}
 
-		operations.add(Aggregation.lookup(Coleccions.DADA.getNom(), Capcalera.EXPEDIENT_ID.getCamp(), Capcalera.EXPEDIENT_ID.getCamp(),
-				Capcalera.DADES.getCamp()));
+		// $lookup
+		operations.add(Aggregation.lookup(Collections.DADA.getNom(), Capcalera.EXPEDIENT_ID.getCamp(),
+				Capcalera.EXPEDIENT_ID.getCamp(), Capcalera.DADES.getCamp()));
 
+		// $match filtresValor
 		if (filtresValor.size() > 0) {
 			operations.add(crearFiltresValor(filtresValor));
 		}
 
-		if (ordre.size() > 0) {
-			operations.add(crearSortOperation(ordre));
+		// $project $sort
+		if (consulta.getColumnes() != null && consulta.getColumnes().size() > 0) {
+			prepararColumnes(consulta.getColumnes(), operations);
 		}
 
-		if (page != null && size != null) {
-			operations.add(Aggregation.skip(page > 0 ? ((page - 1) * size) : 0l));
-			operations.add(Aggregation.limit(size));
+		// $skip $limit
+		if (consulta.getPage() != null && consulta.getSize() != null) {
+			operations.add(
+					Aggregation.skip(consulta.getPage() > 0 ? ((consulta.getPage() - 1) * consulta.getSize()) : 0l));
+			operations.add(Aggregation.limit(consulta.getSize()));
 		}
+
 		return operations;
 	}
 
-	private SortOperation crearSortOperation(List<Ordre> ordres) {
+	private void prepararColumnes(List<Columna> columnes, List<AggregationOperation> operations) {
 
-		ordres.sort((foo, bar) -> Integer.compare(foo.getOrdre(), bar.getOrdre()));
-		List<Order> orders = new ArrayList<>();
-		for (var ordre : ordres) {
-			if (ordre.getColumna() == null || ordre.getColumna().isEmpty()) { // TODO comprovar que no vingui la id
+		List<String> cols = new ArrayList<>();
+		List<Columna> ordres = new ArrayList<>();
+		List<String> codisDadaValor = new ArrayList<>();
+		cols.add(Capcalera.ID.getCamp());
+		for (var columna : columnes) {
+			// Columna de capçalera
+			if (ObjectUtils.containsConstant(Capcalera.values(), columna.getNom())) {
+				var col = Capcalera.valueOf(columna.getNom().toUpperCase()).getCamp();
+				cols.add(col);
+				if (columna.getOrdre() != null) {
+					columna.setNom(col);
+					ordres.add(columna);
+				}
 				continue;
 			}
-			if (ordre.getTipus().equals(Coleccions.EXPEDIENT)) {
-				orders.add(new Order(ordre.getDireccio().equals(DireccioOrdre.ASC) ? Direction.ASC : Direction.DESC,
-						ordre.getColumna()));
+
+			// La columna és tipus DadaValor es busca pel seu codi
+			codisDadaValor.add(columna.getNom());
+			if (columna.getOrdre() != null) {
+				columna.setNom(Dada.CODI.getCamp());
+				ordres.add(columna);
 			}
-			
-			// TODO falta la part que no son camps de capçalera
+		}
+		ProjectionOperation projection = Aggregation.project(Fields.fields(cols.toArray(new String[cols.size()])))
+				.and(Filter.filter("dades").as("dades")
+						.by(In.arrayOf(codisDadaValor).containsValue("$$dades." + Dada.CODI.getCamp())))
+				.as("dades");
+		operations.add(projection);
+		operations.add(crearSortOperation(ordres));
+	}
+
+	private SortOperation crearSortOperation(List<Columna> ordres) {
+
+		ordres.sort((foo, bar) -> Integer.compare(foo.getOrdre().getOrdre(), bar.getOrdre().getOrdre()));
+		List<Order> orders = new ArrayList<>();
+		for (var ordre : ordres) {
+			if (ordre.getNom() == null || ordre.getNom().isEmpty() || ordre.getNom().equals("_id")
+					|| ordre.getNom().equals("id")) {
+				continue;
+			}
+			if (ordre.getOrdre().getTipus().equals(Collections.EXPEDIENT)) {
+				orders.add(new Order(
+						ordre.getOrdre().getDireccio().equals(DireccioOrdre.ASC) ? Direction.ASC : Direction.DESC,
+						ordre.getNom()));
+			} else {
+				System.out.println("ORDE TIPUS DADA ---> " + ordre.getNom());
+				// TODO falta la part que no son camps de capçalera
 //			db.expedient.aggregate([
 //			                        {$sort: {"expedientId": -1, "_id": 1}},
 //			                        {$match: {entornId: 1}},
 //			                        {$match: {tipusId: 3}}
 //			                    ])
+			}
 		}
-		orders.add(new Order(Direction.ASC, "_id"));
+		orders.add(new Order(Direction.ASC, Capcalera.ID.getCamp()));
 		return Aggregation.sort(Sort.by(orders));
 	}
 

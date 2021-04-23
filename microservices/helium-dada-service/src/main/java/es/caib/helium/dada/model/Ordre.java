@@ -1,7 +1,7 @@
 package es.caib.helium.dada.model;
 
 import es.caib.helium.enums.DireccioOrdre;
-import es.caib.helium.enums.Coleccions;
+import es.caib.helium.enums.Collections;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -11,8 +11,7 @@ import lombok.ToString;
 @ToString
 public class Ordre {
 	
-	private String columna;
 	private int ordre;
 	private DireccioOrdre direccio;
-	private Coleccions tipus;
+	private Collections tipus;
 }

@@ -1,0 +1,28 @@
+package es.caib.helium.dada.model;
+
+import java.util.List;
+import java.util.Map;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
+
+@Getter
+@Setter
+@ToString
+public class Consulta {
+	
+	@JsonIgnore
+	private Integer entornId;
+	@JsonIgnore
+	private Integer expedientTipusId;
+	@JsonIgnore
+	private Integer page;
+	@JsonIgnore
+	private Integer size;
+	
+	private Map<String,Filtre> filtreValors;
+	private List<Columna> columnes;
+}

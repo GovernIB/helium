@@ -5,7 +5,7 @@ import lombok.Getter;
 @Getter
 public enum Capcalera {
 
-	id("_id"),
+	ID("id"),
 	EXPEDIENT_ID("expedientId"),
 	ENTORN_ID("entornId"),
 	TIPUS_ID("tipusId"),

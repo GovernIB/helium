@@ -1,21 +1,17 @@
 package es.caib.helium.dada.service;
 
 import java.util.List;
-import java.util.Map;
 
 import es.caib.helium.dada.domain.Dada;
 import es.caib.helium.dada.domain.Expedient;
-import es.caib.helium.dada.model.Filtre;
-import es.caib.helium.dada.model.Ordre;
+import es.caib.helium.dada.model.Consulta;
 import es.caib.helium.dada.model.PagedList;
 
 public interface ExpedientService {
 
-	PagedList<Expedient> consultaResultats(Map<String, Filtre> filtreValors, Integer entornId, Integer expedientTipusId,
-			List<Ordre> ordre, Integer page, Integer size);
+	PagedList<Expedient> consultaResultats(Consulta consulta);
 
-	List<Expedient> consultaResultats(Map<String, Filtre> filtreValors, Integer entornId, Integer expedientTipusId,
-			List<Ordre> ordre);
+	List<Expedient> consultaResultatsLlistat(Consulta consulta);
 
 	public Expedient findByExpedientId(Long expedientId);
 
@@ -25,7 +21,7 @@ public interface ExpedientService {
 
 	public boolean deleteExpedient(Long expedientId);
 
-	public void deleteExpedients(List<Long> expedientsId);
+	public boolean deleteExpedients(List<Long> expedientsId);
 
 	public boolean putExpedient(Long expedientId, Expedient expedient);
 

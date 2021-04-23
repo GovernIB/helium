@@ -61,12 +61,11 @@ db.createCollection("dada", {
 				"expedientId": { bsonType: "long"},
 				"procesId": { bsonType: "long"},
 				codi: { bsonType: "string", maxLength: 255 },
-				tipus: { bsonType: "string", maxLength: 255 },
+				tipus: { enum: ["Long", "String", "Date", "Float", "Termini", "Preu", "Integer", "Boolean", "Registre"]},
 				multiple: { bsonType: "bool" },
 				valor: {
-					bsonType: ["array"],
-                                        properties: {"_class" : {bsonType: "string"}},
-					/*anyOf: [
+					bsonType: "array",
+					items: {bsonType: "object", anyOf: [
 						{
 							bsonType: "object",
 							required: ["valor", "valorText"],
@@ -82,12 +81,37 @@ db.createCollection("dada", {
 							required: ["camps"],
 							additionalProperties: false,
 							properties: {
-								"_id": { bsonType: "objectId" },
-								"_class": { bsonType: "string" },
-								camps: { bsonType: "array" }
-							}
-						} 
-					]*/
+                                "_class": { bsonType: "string" },
+                                camps: { 
+                                    bsonType: "array",
+                                    items: {
+                                        bsonType: "object",
+                                        required: ["codi", "tipus", "multiple", "valor"],
+                                        additionalProperties: false,
+                                        properties: {
+                                            "_class": { bsonType: "string" },
+                                            codi: { bsonType: "string", maxLength: 255 },
+                                            tipus: { enum: ["Long", "String", "Date", "Float", "Termini", "Preu", "Integer", "Boolean", "Registre"], maxLength: 255 },
+                                            multiple: { bsonType: "bool" },
+                                            valor: {
+                                                bsonType: "array", 
+                                                items: {
+                                                    bsonType: "object",
+                                                    required: ["valor", "valorText"],
+                                                    additionalProperties: false,
+                                                    properties: {
+                                                        "_class": { bsonType: "string" },
+                                                        valor: { bsonType: "string", maxLength: 255},
+                                                        valorText: { bsonType: "string", maxLength: 255}
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    } 
+                            }
+                        }
+						}]
+                    }
 				},
 			},
 		}
@@ -95,26 +119,3 @@ db.createCollection("dada", {
 	validationLevel: "strict",
 	validationAction: "error"
 })
-
-
-/*
-       {
-            "camps" : [ 
-                {
-                    "codi" : "codi",
-                    "tipus" : "String",
-                    "multiple" : true,
-                    "valor" : [ 
-                        {
-                            "valor" : "valorProva",
-                            "valorText" : "TextProva"
-                        }, 
-                        {
-                            "valor" : "valorProva1",
-                            "valorText" : "TextProva1"
-                        }
-                    ]
-                }
-            ]
-        },
-*/

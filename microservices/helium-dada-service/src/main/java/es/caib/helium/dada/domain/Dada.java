@@ -10,6 +10,7 @@ import javax.validation.constraints.NotNull;
 
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import es.caib.helium.enums.Tipus;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -22,8 +23,10 @@ public class Dada {
 
 	@Id
 	private String id;
+	@NotNull
 	private String codi;
-	private String tipus;
+	@NotNull
+	private Tipus tipus;
 	private boolean multiple;
 	private List<Valor> valor;
 	
