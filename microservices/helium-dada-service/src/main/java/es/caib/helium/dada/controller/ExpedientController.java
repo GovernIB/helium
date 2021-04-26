@@ -94,7 +94,6 @@ public class ExpedientController {
 	@DeleteMapping(value = "{expedientId}")
 	public ResponseEntity<Void> deleteExpedient(@PathVariable("expedientId") Long expedientId) {
 		
-		// TODO si es borra la informació de la capçalera s'ha de borrar les dades
 		if (expedientService.deleteExpedient(expedientId)) {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
@@ -104,7 +103,6 @@ public class ExpedientController {
 	@DeleteMapping(value = "borrar/expedients")
 	public ResponseEntity<Void> deleteExpedients(@RequestParam("expedients") List<Long> expedients) {
 		
-		// TODO si es borra la informació de la capçalera s'ha de borrar les dades
 		if (expedientService.deleteExpedients(expedients)) {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
