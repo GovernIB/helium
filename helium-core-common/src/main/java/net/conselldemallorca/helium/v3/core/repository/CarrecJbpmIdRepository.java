@@ -41,6 +41,7 @@ public interface CarrecJbpmIdRepository extends JpaRepository<CarrecJbpmId, Long
 				"where " +
 				"    (:esNullFiltre = true or lower(m.role) like lower('%'||:filtre||'%') " +
 				" 		or lower(m.group.name) like lower('%'||:filtre||'%'))" +
+				"    and m.role is not null " +
 				"    and (m.role, m.group.name) not in (" +
 				"        select " +
 				"            c.codi," +

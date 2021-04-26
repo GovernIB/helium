@@ -1,5 +1,7 @@
 package net.conselldemallorca.helium.v3.core.service;
 
+import java.util.List;
+
 import javax.annotation.Resource;
 
 import org.slf4j.Logger;
@@ -35,13 +37,14 @@ public class EntornAreaMembreServiceImpl implements EntornAreaMembreService {
 	private PaginacioHelper paginacioHelper;
 	
 	@Override
-	public PaginaDto<AreaMembreDto> findPerDatatable(PaginacioParamsDto paginacioParams) {
+	public PaginaDto<AreaMembreDto> findPerDatatable(Long entornAreaId, PaginacioParamsDto paginacioParams) {
 		String filtre = paginacioParams.getFiltre();
 		paginacioParams.getOrdres().remove(0);
 		paginacioParams.afegirOrdre("codi", OrdreDireccioDto.ASCENDENT);
 		logger.debug("Consultant arees per la datatable (filtre= " + filtre + ", paginacioParams=" + paginacioParams + ")");
 		PaginaDto<AreaMembreDto>  pagina = paginacioHelper.toPaginaDto(
 				areaMembreRepository.findByFiltrePaginat(
+						entornAreaId, 
 						filtre == null || "".equals(filtre),
 						filtre,
 						paginacioHelper.toSpringDataPageable(
@@ -50,9 +53,9 @@ public class EntornAreaMembreServiceImpl implements EntornAreaMembreService {
 		pagina.getContingut();
 		
 		for (AreaMembreDto membre : pagina.getContingut()) {
-			Carrec c = carrecRepository.findByPersonaCodi(membre.getCodi());
-			if (c != null) {
-			membre.setCarrec(c.getCodi());
+			List<Carrec> carrecs = carrecRepository.findByPersonaCodi(membre.getCodi());
+			if (carrecs.size() > 0) {
+				membre.setCarrec(carrecs.get(0).getCodi());
 			}
 		}
 		return pagina;

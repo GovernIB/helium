@@ -62,8 +62,11 @@ public class AreaServiceImpl implements AreaService {
 				filtre
 				);
 		List<AreaJbpmId> arees = new ArrayList<AreaJbpmId>();
-		int mida = paginacioParams.getPaginaTamany() < noConfigurades.size() ? paginacioParams.getPaginaTamany() : noConfigurades.size();
-		for (int foo=0;foo<mida; foo++) {
+		int paginaNum = paginacioParams.getPaginaNum();
+		int tamany = paginacioParams.getPaginaTamany();
+		int inici = paginaNum * tamany;
+		int fi = Math.min(noConfigurades.size(), inici + tamany);
+		for (int foo=inici; foo < fi; foo++) {
 			AreaJbpmId area = new AreaJbpmId();
 			area.setCodi(noConfigurades.get(foo));
 			arees.add(area);

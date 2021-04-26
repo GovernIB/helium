@@ -11,7 +11,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
  */
 public interface EntornAreaMembreService {
 	
-	public PaginaDto<AreaMembreDto> findPerDatatable(PaginacioParamsDto paginacioParams); 
+	public PaginaDto<AreaMembreDto> findPerDatatable(Long entornAreaId, PaginacioParamsDto paginacioParams); 
 	
 	public AreaMembreDto findAmbCodiAndAreaId(String codi, Long areaId);
 

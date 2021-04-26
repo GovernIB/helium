@@ -51,7 +51,7 @@ public interface CarrecRepository extends JpaRepository<Carrec, Long> {
 	
 	List<Carrec> findByEntornId(Long entornId);
 
-	Carrec findByPersonaCodi(String personaCodi);
+	List<Carrec> findByPersonaCodi(String personaCodi);
 
 	Carrec findByEntornIdAndId(Long entornId, Long id);
 	

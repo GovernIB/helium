@@ -417,8 +417,6 @@
 	            data : {id : id},
 	            dataType : 'json',
 	            success : function(data) {
-	            	console.log("foo");
-	            	console.log("data.error");
 	            	if (data.error) {
 	            		webutilAlertaError(data.missatge);
 	            	} else {
@@ -586,10 +584,14 @@
 			$('#mass_' + execucio.id + ' .massiu-dades .mass-data-fi').text(execucio.dataFi != undefined ? execucio.dataFi : '');
 			if (execucio.executades == 100) {
 				$('#mass_' + execucio.id + ' .mass-cancelar').hide();
-				$('#mass_' + execucio.id + ' .mass-rependre').hide();
 			} else {
 				$('#mass_' + execucio.id + ' .mass-cancelar').show();	
+			}
+			if (execucio.processat < execucio.total && execucio.dataFi) {
+				// Cancel·lada
 				$('#mass_' + execucio.id + ' .mass-rependre').show();
+			} else {
+				$('#mass_' + execucio.id + ' .mass-rependre').hide();
 			}
 			
 			createBar("pbar_" + execucio.id, execucio.executades);

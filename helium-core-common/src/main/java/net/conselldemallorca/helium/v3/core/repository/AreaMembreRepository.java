@@ -22,9 +22,11 @@ public interface AreaMembreRepository extends JpaRepository<AreaMembre, Long> {
 	
 	@Query(	"from AreaMembre am " +
 			"where " +
-			"    (:esNullFiltre = true or lower(am.codi) like lower('%'||:filtre||'%') "
-			+ "		or lower(am.codi) like lower('%'||:filtre||'%'))")
+			"    am.area.id = :entornAreaId " + 
+			"    and (:esNullFiltre = true or lower(am.codi) like lower('%'||:filtre||'%') " +
+			"		or lower(am.codi) like lower('%'||:filtre||'%'))")
 	Page<Area> findByFiltrePaginat(
+			@Param("entornAreaId") Long entornAreaId,
 			@Param("esNullFiltre") boolean esNullFiltre,
 			@Param("filtre") String filtre,		
 			Pageable pageable);

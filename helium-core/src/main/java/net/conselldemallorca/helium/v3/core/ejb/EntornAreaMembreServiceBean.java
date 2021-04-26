@@ -26,8 +26,8 @@ public class EntornAreaMembreServiceBean implements EntornAreaMembreService {
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public PaginaDto<AreaMembreDto> findPerDatatable(PaginacioParamsDto paginacioParams) {
-		return delegate.findPerDatatable(paginacioParams);
+	public PaginaDto<AreaMembreDto> findPerDatatable(Long entornAreaId, PaginacioParamsDto paginacioParams) {
+		return delegate.findPerDatatable(entornAreaId, paginacioParams);
 	}
 
 	@Override

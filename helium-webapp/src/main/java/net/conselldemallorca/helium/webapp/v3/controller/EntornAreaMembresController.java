@@ -63,7 +63,10 @@ public class EntornAreaMembresController extends BaseController {
 	
 	@RequestMapping(value = "{entornAreaId}/membres/datatable", method = RequestMethod.GET)
 	@ResponseBody
-	DatatablesResponse datatable(HttpServletRequest request, Model model) {
+	DatatablesResponse datatable(
+			@PathVariable Long entornAreaId,
+			HttpServletRequest request, 
+			Model model) {
 		
 		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
 		if (entornActual == null) {
@@ -72,7 +75,7 @@ public class EntornAreaMembresController extends BaseController {
 		}
 
 		PaginacioParamsDto paginacioParams = DatatablesHelper.getPaginacioDtoFromRequest(request);
-		return DatatablesHelper.getDatatableResponse(request, null, entornAreaMembreService.findPerDatatable(paginacioParams));
+		return DatatablesHelper.getDatatableResponse(request, null, entornAreaMembreService.findPerDatatable(entornAreaId, paginacioParams));
 	}
 	
 	@RequestMapping(value = "{entornAreaId}/membres/new", method = RequestMethod.GET)
