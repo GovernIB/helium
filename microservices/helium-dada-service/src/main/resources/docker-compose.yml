@@ -6,8 +6,8 @@ services:
     ports: 
       - "30001:27017"
     volumes:
-      - ./mongo/data1/db:/data/db 
-      - ./mongo/data1/configdb:/data/configdb
+      - /mongo/data1/db:/data/db 
+      - /mongo/data1/configdb:/data/configdb
     networks: 
       - database-mongo
 
@@ -18,8 +18,8 @@ services:
     ports: 
       - "30002:27017"
     volumes:
-      - ./mongo/data2/db:/data/db 
-      - ./mongo/data2/configdb:/data/configdb
+      - /mongo/data2/db:/data/db 
+      - /mongo/data2/configdb:/data/configdb
     networks: 
       - database-mongo
 
@@ -30,8 +30,8 @@ services:
     ports: 
       - "30003:27017"
     volumes:
-      - ./mongo/data3/db:/data/db 
-      - ./mongo/data3/configdb:/data/configdb
+      - /mongo/data3/db:/data/db 
+      - /mongo/data3/configdb:/data/configdb
     networks: 
       - database-mongo
       
