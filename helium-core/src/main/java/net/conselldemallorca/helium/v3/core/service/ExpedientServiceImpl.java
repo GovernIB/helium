@@ -537,8 +537,13 @@ public class ExpedientServiceImpl implements ExpedientService {
 			notificacioRepository.delete(notificacio);
 		}
 		// Crida esborrar anotacions en un mètode transaccional apart per evitar errors
-		anotacioService.esborrarAnotacionsExpedient(expedient.getId());
-		
+		try {
+			anotacioService.esborrarAnotacionsExpedient(expedient.getId());
+		} catch(Exception e) {
+			//#1480 Error esborrant expedients a PRO
+			logger.error("Error esborrant les anotacions per l'expedient " + expedient.getId() + ": " + e.getMessage());
+		}
+
 		// Ordena per id de menor a major per evitar errors de dependències
 		Collections.sort(
 				processInstancesTree,
@@ -577,7 +582,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 		}
 		expedientRepository.delete(expedient);
 		luceneHelper.deleteExpedient(expedient);
-		if (expedient.getArxiuUuid() != null) {
+		if (expedient.getArxiuUuid() != null && pluginHelper.arxiuExisteixExpedient(expedient.getArxiuUuid())) {			
 			pluginHelper.arxiuExpedientEsborrar(expedient.getArxiuUuid());
 		}
 		crearRegistreExpedient(

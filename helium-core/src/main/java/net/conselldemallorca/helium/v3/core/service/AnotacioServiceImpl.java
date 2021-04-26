@@ -27,9 +27,9 @@ import edu.emory.mathcs.backport.java.util.Arrays;
 import es.caib.distribucio.backoffice.utils.arxiu.ArxiuPluginListener;
 import es.caib.distribucio.backoffice.utils.arxiu.ArxiuResultat;
 import es.caib.distribucio.backoffice.utils.arxiu.ArxiuResultatAnnex;
+import es.caib.distribucio.backoffice.utils.arxiu.ArxiuResultatAnnex.AnnexAccio;
 import es.caib.distribucio.backoffice.utils.arxiu.BackofficeArxiuUtils;
 import es.caib.distribucio.backoffice.utils.arxiu.BackofficeArxiuUtilsImpl;
-import es.caib.distribucio.backoffice.utils.arxiu.ArxiuResultatAnnex.AnnexAccio;
 import es.caib.distribucio.core.api.exception.SistemaExternException;
 import es.caib.distribucio.ws.backofficeintegracio.Annex;
 import es.caib.distribucio.ws.backofficeintegracio.AnotacioRegistreEntrada;
@@ -847,6 +847,30 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 			throw new Exception(errorMsg.toString());
 	}
 	
-	private static final Logger logger = LoggerFactory.getLogger(AnotacioServiceImpl.class);
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@Transactional(propagation=Propagation.REQUIRES_NEW, noRollbackFor=Exception.class)
+	public void esborrarAnotacionsExpedient(Long expedientId) {
+		logger.debug(
+				"Esborrant o deslligant les anotacions de l'expedient (" +
+				"expedientId=" + expedientId + ")");
+		try {
+			List<Anotacio> anotacions = anotacioRepository.findByExpedientId(expedientId);
+			for (Anotacio anotacio : anotacions) {
+				if (AnotacioEstatEnumDto.PROCESSADA.equals(anotacio.getEstat()) )
+					// Si les anotacions estan processades s'esborren
+					anotacioRepository.delete(anotacio);
+				else
+					// Altrament les desrelaciona de l'expedient
+					anotacio.setExpedient(null);
+			}
+		} catch(Exception e) {
+			//#1480 Error esborrant expedients a PRO
+			logger.error("Error consultant i deslligant les anotacions per l'expedient " + expedientId + ": " + e.getMessage(), e);
+		}		
+	}
 
+	private static final Logger logger = LoggerFactory.getLogger(AnotacioServiceImpl.class);
 }
