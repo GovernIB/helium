@@ -83,9 +83,18 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
+		<!-- Eliminar dependència core 2.6
 		<dependency>
 			<groupId>${project.groupId}</groupId>
 			<artifactId>helium-core-v26</artifactId>
+			<version>${helium.version}</version>
+			<type>jar</type>
+			<scope>compile</scope>
+		</dependency>
+		 -->
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>helium-core</artifactId>
 			<version>${helium.version}</version>
 			<type>jar</type>
 			<scope>compile</scope>

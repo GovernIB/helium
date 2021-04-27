@@ -26,26 +26,28 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import net.conselldemallorca.helium.core.model.dto.DefinicioProcesDto;
+import net.conselldemallorca.helium.core.helper.PluginHelper;
 import net.conselldemallorca.helium.core.model.hibernate.Camp;
 import net.conselldemallorca.helium.core.model.hibernate.Camp.TipusCamp;
 import net.conselldemallorca.helium.core.model.hibernate.CampTasca;
-import net.conselldemallorca.helium.core.model.hibernate.Document;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
-import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.hibernate.MapeigSistra;
-import net.conselldemallorca.helium.core.model.service.DissenyService;
 import net.conselldemallorca.helium.core.util.EntornActual;
 import net.conselldemallorca.helium.integracio.plugins.tramitacio.AutenticacioTipus;
-import net.conselldemallorca.helium.integracio.plugins.tramitacio.DadesTramit;
 import net.conselldemallorca.helium.integracio.plugins.tramitacio.DadesVistaDocument;
-import net.conselldemallorca.helium.integracio.plugins.tramitacio.DocumentTelematic;
-import net.conselldemallorca.helium.integracio.plugins.tramitacio.DocumentTramit;
 import net.conselldemallorca.helium.v3.core.api.dto.DadesDocumentDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto.IniciadorTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
+import net.conselldemallorca.helium.v3.core.api.dto.MapeigSistraDto;
+import net.conselldemallorca.helium.v3.core.api.dto.TramitDocumentDto;
+import net.conselldemallorca.helium.v3.core.api.dto.TramitDto;
+import net.conselldemallorca.helium.v3.core.api.service.DissenyService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
+import net.conselldemallorca.helium.v3.core.api.service.ExpedientTipusService;
 import net.conselldemallorca.helium.v3.core.repository.CampTascaRepository;
 import net.conselldemallorca.helium.v3.core.repository.DocumentRepository;
 
@@ -59,6 +61,9 @@ public abstract class BaseBackoffice {
 	@Autowired
 	private ExpedientService expedientService;
 	
+	@Autowired
+	private ExpedientTipusService expedientTipusService;
+
 	@Resource
 	private DocumentRepository documentRepository;
 	
@@ -67,6 +72,8 @@ public abstract class BaseBackoffice {
 
 	private DissenyService dissenyService;
 
+	@Autowired
+	protected PluginHelper pluginHelper;
 
 	/** Comprova ja existeix l'expedient a partir del tràmit. Consulta per codi
 	 * @param numero 
@@ -80,11 +87,11 @@ public abstract class BaseBackoffice {
 		return existeix;
 	}
 
-	public int processarTramit(DadesTramit tramit) throws Exception {
-		List<ExpedientTipus> candidats = dissenyService.findExpedientTipusAmbSistraTramitCodi(tramit.getIdentificador());
-		for (ExpedientTipus expedientTipus: candidats) {
+	public int processarTramit(TramitDto tramit) throws Exception {
+		List<ExpedientTipusDto> candidats = expedientTipusService.findAmbSistraTramitCodi(tramit.getIdentificador());
+		for (ExpedientTipusDto expedientTipus: candidats) {
 			String expedientTitol = null;
-			if (expedientTipus.getTeTitol())
+			if (expedientTipus.isTeTitol())
 				expedientTitol = tramit.getNumero();
 
 			EntornActual.setEntornId(expedientTipus.getEntorn().getId());
@@ -150,17 +157,17 @@ public abstract class BaseBackoffice {
 
 
 	private Map<String, Object> getDadesInicials(
-			ExpedientTipus expedientTipus,
-			DadesTramit tramit) {
+			ExpedientTipusDto expedientTipus,
+			TramitDto tramit) {
 		
-		List<MapeigSistra> mapeigsSistra = dissenyService.findMapeigSistraVariablesAmbExpedientTipus(expedientTipus.getId());
+		List<MapeigSistraDto> mapeigsSistra = expedientTipusService.mapeigFindAll(expedientTipus.getId());
 		if (mapeigsSistra.size() == 0)
 			return null;
 		
 		boolean trobat = false;
 		Map<String, Object> resposta = new HashMap<String, Object>();
 		List<CampTasca> campsTasca = getCampsStartTask(expedientTipus);
-		for (MapeigSistra mapeig: mapeigsSistra){
+		for (MapeigSistraDto mapeig: mapeigsSistra){
 			trobat = true;
 			Camp campHelium = null;
 			for (CampTasca campTasca: campsTasca) {
@@ -221,21 +228,21 @@ public abstract class BaseBackoffice {
 	}
 
 	private Map<String, DadesDocumentDto> getDocumentsInicials(
-			ExpedientTipus expedientTipus,
-			DadesTramit tramit) {
+			ExpedientTipusDto expedientTipus,
+			TramitDto tramit) {
 
-		List<MapeigSistra> mapeigsSistra = dissenyService.findMapeigSistraDocumentsAmbExpedientTipus(expedientTipus.getId());
+		List<MapeigSistraDto> mapeigsSistra = expedientTipusService.mapeigFindAll(expedientTipus.getId());
 		if (mapeigsSistra.size() == 0)
 			return null;
 		
 		boolean trobat = false;
 		Map<String, DadesDocumentDto> resposta = new HashMap<String, DadesDocumentDto>();
-		List<Document> documents = getDocuments(expedientTipus);
+		List<DocumentDto> documents = getDocuments(expedientTipus);
 		
-		for (MapeigSistra mapeig : mapeigsSistra){
+		for (MapeigSistraDto mapeig : mapeigsSistra){
 			trobat = true;
-			Document docHelium = null;
-			for (Document document : documents){
+			DocumentDto docHelium = null;
+			for (DocumentDto document : documents){
 				if (document.getCodi().equalsIgnoreCase(mapeig.getCodiHelium())){
 					docHelium = document;
 					break;
@@ -262,17 +269,17 @@ public abstract class BaseBackoffice {
 
 
 	private List<DadesDocumentDto> getDocumentsAdjunts(
-			ExpedientTipus expedientTipus,
-			DadesTramit tramit) {
+			ExpedientTipusDto expedientTipus,
+			TramitDto tramit) {
 		
-		List<MapeigSistra> mapeigsSistra = dissenyService.findMapeigSistraAdjuntsAmbExpedientTipus(expedientTipus.getId());
+		List<MapeigSistraDto> mapeigsSistra = expedientTipusService.mapeigFindAll(expedientTipus.getId());
 		if (mapeigsSistra.size() == 0)
 			return null;
 		
 		boolean trobat = false;
 		List<DadesDocumentDto> resposta = new ArrayList<DadesDocumentDto>();
 
-		for (MapeigSistra mapeig : mapeigsSistra){
+		for (MapeigSistraDto mapeig : mapeigsSistra){
 			if (MapeigSistra.TipusMapeig.Adjunt.equals(mapeig.getTipus())){
 				trobat = true;
 				try {
@@ -290,7 +297,7 @@ public abstract class BaseBackoffice {
 	}
 
 	private Object valorVariableSistra(
-			DadesTramit tramit,
+			TramitDto tramit,
 			String varHelium,
 			String varSistra) throws Exception {
 		String[] parts = varSistra.split("\\.");
@@ -298,9 +305,9 @@ public abstract class BaseBackoffice {
 		int instancia = new Integer(parts[1]).intValue();
 		String finestraCodi = parts[2];
 		String campCodi = parts[3];
-		for (DocumentTramit doc: tramit.getDocuments()) {
+		for (TramitDocumentDto doc: tramit.getDocuments()) {
 			if (documentCodi.equalsIgnoreCase(doc.getIdentificador()) && doc.getInstanciaNumero() == instancia) {
-				org.w3c.dom.Document document = xmlToDocument(new ByteArrayInputStream(doc.getDocumentTelematic().getArxiuContingut()));
+				org.w3c.dom.Document document = xmlToDocument(new ByteArrayInputStream(doc.getTelematicArxiuContingut()));
 				XPathFactory factory = XPathFactory.newInstance();
 				XPath xpath = factory.newXPath();
 				Element node= (Element) xpath.evaluate(
@@ -353,24 +360,23 @@ public abstract class BaseBackoffice {
 	}
 	
 	private DadesDocumentDto documentSistra(
-			DadesTramit tramit,
+			TramitDto tramit,
 			String varSistra,
-			Document varHelium) throws Exception {
+			DocumentDto varHelium) throws Exception {
 		DadesDocumentDto resposta = null;
-		for (DocumentTramit document: tramit.getDocuments()) {
-			if (varSistra.equalsIgnoreCase(document.getIdentificador()) && document.getDocumentTelematic() != null) {
+		for (TramitDocumentDto document: tramit.getDocuments()) {
+			if (varSistra.equalsIgnoreCase(document.getIdentificador()) && document.isTelematic()) {
 				resposta = new DadesDocumentDto();
 				resposta.setIdDocument(varHelium.getId());
 				resposta.setCodi(varHelium.getCodi());
 				resposta.setData(tramit.getData());
-				DocumentTelematic documentTelematic = document.getDocumentTelematic();
-				if (documentTelematic.getEstructurat() != null && documentTelematic.getEstructurat().booleanValue()) {
-					resposta.setArxiuNom(documentTelematic.getArxiuNom());
-					resposta.setArxiuContingut(documentTelematic.getArxiuContingut());
+				if (document.getTelematicEstructurat() != null ? document.getTelematicEstructurat().booleanValue() : false) {
+					resposta.setArxiuNom(document.getTelematicArxiuNom());
+					resposta.setArxiuContingut(document.getTelematicArxiuContingut());
 				} else {
 					DadesVistaDocument vista = getVistaDocumentTramit(
-							documentTelematic.getReferenciaCodi(),
-							documentTelematic.getReferenciaClau(),
+							document.getTelematicReferenciaCodi(),
+							document.getTelematicReferenciaClau(),
 							null,
 							null);
 					resposta.setArxiuNom(vista.getArxiuNom());
@@ -382,22 +388,21 @@ public abstract class BaseBackoffice {
 		return resposta;
 	}
 	private List<DadesDocumentDto> documentsSistraAdjunts(
-			DadesTramit tramit,
+			TramitDto tramit,
 			String varSistra) throws Exception {
 		List<DadesDocumentDto> resposta = new ArrayList<DadesDocumentDto>();
-		for (DocumentTramit document: tramit.getDocuments()) {
-			if (document.getIdentificador().equalsIgnoreCase(varSistra) && document.getDocumentTelematic() != null) {
+		for (TramitDocumentDto document: tramit.getDocuments()) {
+			if (document.getIdentificador().equalsIgnoreCase(varSistra) && document.isTelematic()) {
 				DadesDocumentDto docResposta = new DadesDocumentDto();
 				docResposta.setTitol(document.getNom());
 				docResposta.setData(tramit.getData());
-				DocumentTelematic documentTelematic = document.getDocumentTelematic();
-				if (documentTelematic.getEstructurat() != null && documentTelematic.getEstructurat().booleanValue()) {
-					docResposta.setArxiuNom(documentTelematic.getArxiuNom());
-					docResposta.setArxiuContingut(documentTelematic.getArxiuContingut());
+				if (document.getTelematicEstructurat() != null ? document.getTelematicEstructurat().booleanValue() : false ) {
+					docResposta.setArxiuNom(document.getTelematicArxiuNom());
+					docResposta.setArxiuContingut(document.getTelematicArxiuContingut());
 				} else {
 					DadesVistaDocument vista = getVistaDocumentTramit(
-							documentTelematic.getReferenciaCodi(),
-							documentTelematic.getReferenciaClau(),
+							document.getTelematicReferenciaCodi(),
+							document.getTelematicReferenciaClau(),
 							null,
 							null);
 					docResposta.setArxiuNom(vista.getArxiuNom());
@@ -475,7 +480,7 @@ public abstract class BaseBackoffice {
 		}
 	}
 
-	private List<CampTasca> getCampsStartTask(ExpedientTipus expedientTipus) {
+	private List<CampTasca> getCampsStartTask(ExpedientTipusDto expedientTipus) {
 		ExpedientTascaDto startTask = expedientService.getStartTask(
 				expedientTipus.getEntorn().getId(),
 				expedientTipus.getId(),
@@ -487,14 +492,15 @@ public abstract class BaseBackoffice {
 		return new ArrayList<CampTasca>();
 	}
 
-	private List<Document> getDocuments(ExpedientTipus expedientTipus) {
-		List<Document> documents;
-		if (expedientTipus.isAmbInfoPropia()) {
-			documents = documentRepository.findByExpedientTipusAmbHerencia(expedientTipus.getId());
-		} else {
-			DefinicioProcesDto definicioProces = dissenyService.findDarreraAmbExpedientTipus(expedientTipus.getId());
-			documents = dissenyService.findDocumentsAmbDefinicioProces(definicioProces.getId());
-		}
+	private List<DocumentDto> getDocuments(ExpedientTipusDto expedientTipus) {
+		DefinicioProcesDto definicioProces =
+				expedientTipus.isAmbInfoPropia() ?
+					null
+					: dissenyService.findDarreraDefinicioProcesForExpedientTipus(expedientTipus.getId());
+		List<DocumentDto> documents = dissenyService.findDocumentsOrdenatsPerCodi(
+				expedientTipus.getId(), 
+				definicioProces != null ? definicioProces.getId() : null,
+						true);
 		return documents;
 	}
 	private static final Log logger = LogFactory.getLog(BaseBackoffice.class);

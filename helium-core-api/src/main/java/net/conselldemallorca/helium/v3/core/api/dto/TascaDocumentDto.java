@@ -19,6 +19,7 @@ public class TascaDocumentDto {
 
 	private String documentCodi;
 	private String documentNom;
+	private String documentDescripcio;
 
 	private boolean required;
 	private boolean readOnly;
@@ -94,6 +95,14 @@ public class TascaDocumentDto {
 	public void setDocumentNom(String documentNom) {
 		this.documentNom = documentNom;
 	}
+	public String getDocumentDescripcio() {
+		return documentDescripcio;
+	}
+
+	public void setDocumentDescripcio(String documentDescripcio) {
+		this.documentDescripcio = documentDescripcio;
+	}
+
 	public boolean isRequired() {
 		return required;
 	}

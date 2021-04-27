@@ -158,4 +158,12 @@ public interface ExpedientTipusRepository extends JpaRepository<ExpedientTipus, 
             @Param("isNullAturat") boolean isNullAturat,
             @Param("aturat") Boolean aturat
             );
+
+    /** Consulta de la llista de tipus d'expedients configurats per a u
+     * codi de tràmit SISTRA.
+     * 
+     * @param tramitCodi
+     * @return
+     */
+	List<ExpedientTipus> findByTramitCodi(String tramitCodi);
 }

@@ -31,6 +31,11 @@ public class TascaDadaDto {
 	private String jbpmAction;
 	private String observacions;
 	private String definicioProcesKey;
+	
+	private String dominiId;
+	private String dominiParams;
+	private String dominiCampValor;
+	private String dominiCampText;
 
 	private String text;
 	private List<TascaDadaDto> multipleDades;
@@ -312,6 +317,38 @@ public class TascaDadaDto {
 
 	public void setDefinicioProcesKey(String definicioProcesKey) {
 		this.definicioProcesKey = definicioProcesKey;
+	}
+
+	public String getDominiId() {
+		return dominiId;
+	}
+
+	public void setDominiId(String dominiId) {
+		this.dominiId = dominiId;
+	}
+
+	public String getDominiParams() {
+		return dominiParams;
+	}
+
+	public void setDominiParams(String dominiParams) {
+		this.dominiParams = dominiParams;
+	}
+
+	public String getDominiCampValor() {
+		return dominiCampValor;
+	}
+
+	public void setDominiCampValor(String dominiCampValor) {
+		this.dominiCampValor = dominiCampValor;
+	}
+
+	public String getDominiCampText() {
+		return dominiCampText;
+	}
+
+	public void setDominiCampText(String dominiCampText) {
+		this.dominiCampText = dominiCampText;
 	}
 
 	public String getCampParamsConcatenats() {

@@ -60,9 +60,10 @@ public interface ExpedientDocumentService {
 	 *             tipus de document NTI.
 	 * @param ntiIdOrigen
 	 *             identificador NTI Del document original.
+	 * @return Retorna el document store id creat.
 	 * @throws NoTrobatException
 	 */
-	public void create(
+	public Long create(
 			Long expedientId,
 			String processInstanceId,
 			String documentCodi,
@@ -402,6 +403,28 @@ public interface ExpedientDocumentService {
 			Long expedientId,
 			Long documentStoreId) throws NoTrobatException, PermisDenegatException;
 
-
+	/** Mètode per guardar un document a un procés. Es comrova si existeix i si no el crea.
+	 * 
+	 * @param expedientId
+	 * @param processInstanceId
+	 * @param documentCodi
+	 * @param adjuntTitol
+	 * @param documentData
+	 * @param arxiuNom
+	 * @param arxiuContingut
+	 * @param isAdjunt
+	 * @param user
+	 * @return
+	 */
+	public Long guardarDocumentProces(
+			Long expedientId, 
+			String processInstanceId, 
+			String documentCodi, 
+			String adjuntTitol,
+			Date documentData,
+			String arxiuNom,
+			byte[] arxiuContingut,
+			boolean isAdjunt,
+			String user);
 
 }

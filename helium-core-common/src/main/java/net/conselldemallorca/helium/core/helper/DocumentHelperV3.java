@@ -15,10 +15,6 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
-import net.conselldemallorca.helium.core.api.WProcessDefinition;
-import net.conselldemallorca.helium.core.api.WProcessInstance;
-import net.conselldemallorca.helium.core.api.WTaskInstance;
-import net.conselldemallorca.helium.core.api.WorkflowEngineApi;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -30,6 +26,10 @@ import org.springframework.stereotype.Component;
 import es.caib.plugins.arxiu.api.ContingutArxiu;
 import es.caib.plugins.arxiu.api.Firma;
 import es.caib.plugins.arxiu.api.FirmaTipus;
+import net.conselldemallorca.helium.core.api.WProcessDefinition;
+import net.conselldemallorca.helium.core.api.WProcessInstance;
+import net.conselldemallorca.helium.core.api.WTaskInstance;
+import net.conselldemallorca.helium.core.api.WorkflowEngineApi;
 import net.conselldemallorca.helium.core.common.JbpmVars;
 import net.conselldemallorca.helium.core.helperv26.MesuresTemporalsHelper;
 import net.conselldemallorca.helium.core.model.hibernate.AnotacioAnnex;
@@ -51,8 +51,6 @@ import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.core.util.OpenOfficeUtils;
 import net.conselldemallorca.helium.core.util.PdfUtils;
 import net.conselldemallorca.helium.integracio.plugins.signatura.RespostaValidacioSignatura;
-import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessDefinition;
-import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessInstance;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuFirmaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
@@ -1553,6 +1551,17 @@ public class DocumentHelperV3 {
 	}
 
 	public void guardarDocumentFirmat(
+			DocumentStore documentStore,
+			byte[] signatura) throws Exception {
+		this.guardarDocumentFirmat(
+				documentStore.getProcessInstanceId(),
+				documentStore.getId(),
+				signatura,
+				true,
+				true);
+	}
+
+	public void guardarDocumentFirmat(
 			String processInstanceId,
 			Long documentStoreId,
 			byte[] signatura,
@@ -1789,6 +1798,7 @@ public class DocumentHelperV3 {
 		dto.setVarCodi(varCodi);
 		dto.setDocumentCodi(document.getCodi());
 		dto.setDocumentNom(document.getNom());
+		dto.setDocumentDescripcio(document.getDescripcio());
 		dto.setRequired(required);
 		dto.setReadOnly(readonly);
 		dto.setPlantilla(document.isPlantilla());
@@ -2455,6 +2465,27 @@ public class DocumentHelperV3 {
 			}
 		}
 		return arxiuNom;
+	}
+	
+	public DocumentDto getDocumentSenseContingut(
+			Long documentStoreId) {
+		if (documentStoreId != null) {
+			DocumentDto dto;
+			try {
+				dto = this.toDocumentDto(
+						documentStoreId,
+						false, 
+						false, 
+						false, 
+						false, 
+						false, 
+						false);
+				return dto;
+			} catch (Exception e) {
+				logger.error(e);
+			}			
+		} 
+		return null;
 	}
 
 	private static final Log logger = LogFactory.getLog(DocumentHelperV3.class);

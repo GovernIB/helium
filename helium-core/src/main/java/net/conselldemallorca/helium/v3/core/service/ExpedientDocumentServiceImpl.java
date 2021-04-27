@@ -106,7 +106,7 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 
 	@Override
 	@Transactional
-	public void create(
+	public Long create(
 			Long expedientId,
 			String processInstanceId,
 			String documentCodi,
@@ -153,7 +153,7 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 						WorkflowRetroaccioApi.ExpedientRetroaccioTipus.PROCES_DOCUMENT_ADJUNTAR :
 						WorkflowRetroaccioApi.ExpedientRetroaccioTipus.PROCES_DOCUMENT_AFEGIR,
 				documentCodi);
-		documentHelper.crearDocument(
+		Long documentStoreId = documentHelper.crearDocument(
 				null,
 				processInstanceId,
 				documentCodi,
@@ -178,6 +178,7 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 				SecurityContextHolder.getContext().getAuthentication().getName(),
 				documentCodi,
 				arxiuNom);
+		return documentStoreId;
 	}
 
 	@Override
@@ -1234,5 +1235,71 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 		
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@Transactional
+	public Long guardarDocumentProces(
+			Long expedientId, 
+			String processInstanceId, 
+			String documentCodi,
+			String adjuntTitol, 
+			Date documentData, 
+			String arxiuNom, 
+			byte[] arxiuContingut, 
+			boolean isAdjunt,
+			String user) {
+
+		Long documentStoreId = null;
+		ExpedientDocumentDto document;
+		if (!isAdjunt)
+			document = this.findOneAmbInstanciaProces(
+    			expedientId,
+    			processInstanceId,
+    			documentCodi);
+		else
+			document = null;
+		if (document == null) {
+			// Crear
+			documentStoreId = this.create(
+					expedientId,
+					processInstanceId,
+					isAdjunt ? null : documentCodi, // null en el cas dels adjunts
+					documentData,
+					isAdjunt ? adjuntTitol : null, // Títol en el cas dels adjunts
+					arxiuNom,
+					arxiuContingut,
+					null,
+					false,
+					false,
+					null,
+					null,
+					null,
+					null,
+					null);
+		} else {
+			// Actualitzar
+			this.update(
+					expedientId,
+					processInstanceId,
+					expedientId,
+					documentData,
+					document.getAdjuntTitol(), 
+					arxiuNom,
+					arxiuContingut,
+					null,
+					false,
+					false,
+					null,
+					document.getNtiOrigen(),
+					document.getNtiEstadoElaboracion(),
+					document.getNtiTipoDocumental(),
+					document.getNtiIdOrigen());			
+		}	
+		return documentStoreId;
+	}
+
+	
 	private static final Logger logger = LoggerFactory.getLogger(ExpedientDocumentServiceImpl.class);
 }

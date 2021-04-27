@@ -170,6 +170,22 @@ public class EntornServiceImpl implements EntornService {
 	 */
 	@Override
 	@Transactional(readOnly = true)
+	public EntornDto findAmbIdPermisAcces(Long entornId) {
+		String usuariActual = usuariActualHelper.getUsuariActual();
+		logger.debug("Consulta de l'entorn amb permís d'accés per a l'usuari actual ("
+				+ "usuariActual=" + usuariActual + ")");
+		
+		Entorn entorn = entornHelper.getEntornComprovantPermisos(entornId, true);
+		return conversioTipusHelper.convertir(
+					entorn,
+					EntornDto.class);
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@Transactional(readOnly = true)
 	public List<EntornDto> findActiusAmbPermisAcces() {
 		String usuariActual = usuariActualHelper.getUsuariActual();
 		logger.debug("Consulta d'entorns amb accés per a l'usuari actual ("

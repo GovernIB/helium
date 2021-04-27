@@ -555,6 +555,7 @@ public class TascaHelper {
 		dto.setProcessInstanceId(task.getProcessInstanceId());
 		dto.setExpedientId(expedientNoNull.getId());
 		dto.setExpedientIdentificador(expedientNoNull.getIdentificador());
+		dto.setExpedientNumero(expedientNoNull.getNumero());
 		dto.setExpedientTipusNom(expedientNoNull.getTipus().getNom());
 		dto.setExpedientTipusId(expedientNoNull.getTipus().getId());
 		if (task.getActorId() != null) {

@@ -33,7 +33,7 @@
 		<module>helium-plugin-impl</module>
 		<module>helium-jbpm3</module>
 		<module>helium-core-common</module>
-		<module>helium-core-v26</module>
+		<!-- <module>helium-core-v26</module>  -->
 		<module>helium-core</module>
 		<module>helium-webapp</module>
 		<module>helium-ws</module>
