@@ -20,10 +20,6 @@ public interface ExpedientRepository extends MongoRepository<Expedient, String>,
 
 	public void deleteByExpedientId(Long expedientId);
 
-	@Aggregation(pipeline = {"{$match: {expedientId: 207}}", 
-			"{$lookup: {from: 'dada', localField: 'expedientId', foreignField: 'expedientId', as: 'dades'}}"})
-	public List<Expedient> borrarExpedientCascade(Long expedientId);
-
 	public Optional<Expedient> findByEntornId(int entornId);
 
 	public Optional<Expedient> findByIdAndProcesPrincipalId(String expedientId, Long procesId);

@@ -279,7 +279,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 	public Dada getDadaByCodi(Long expedientId, String codi) {
 		try {
 			var dades = dadaRepository.findByExpedientIdAndCodi(expedientId, codi);
-			return dades.isPresent() ? dades.get() : null; // TODO POT TORNAR NULL?
+			return dades.isPresent() ? dades.get() : null;
 		} catch (Exception e) {
 			log.error("[ExpedientServiceImpl.getDadaByCodi] --->");
 			e.printStackTrace();
@@ -304,7 +304,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 	public Dada getDadaByProcesAndCodi(Long expedientId, Long procesId, String codi) {
 		try {
 			var dada = dadaRepository.findByExpedientIdAndProcesIdAndCodi(expedientId, procesId, codi);
-			return dada.isPresent() ? dada.get() : null; // TODO POT TORNAR NULL?
+			return dada.isPresent() ? dada.get() : null;
 		} catch (Exception e) {
 			log.error("[ExpedientServiceImpl.getDadaByProcesAndCodi] --->");
 			e.printStackTrace();
