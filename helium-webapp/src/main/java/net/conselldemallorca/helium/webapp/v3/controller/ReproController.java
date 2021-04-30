@@ -64,8 +64,6 @@ public class ReproController extends BaseController {
 	protected DissenyService dissenyService;
 	@Autowired
 	protected TascaService tascaService;
-	@Autowired
-	private net.conselldemallorca.helium.core.model.service.TascaService tascaInicialService;
 	
 	@SuppressWarnings("unchecked")
 	@ModelAttribute("command")
@@ -103,7 +101,7 @@ public class ReproController extends BaseController {
 			campsAddicionalsClasses.put("tascaId", String.class);
 			Map<String, Object> valorsFormulariExtern = null;
 			if (tasca.isFormExtern()) {
-				valorsFormulariExtern = tascaInicialService.obtenirValorsFormulariExternInicial(tasca.getId());
+				valorsFormulariExtern = tascaService.obtenirValorsFormulariExternInicial(tasca.getId());
 				if (valorsFormulariExtern != null) {
 					request.getSession().setAttribute(
 							BaseExpedientIniciController.CLAU_SESSIO_FORM_VALORS,

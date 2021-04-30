@@ -262,11 +262,6 @@
 		</dependency>
 		<dependency>
 			<groupId>${project.groupId}</groupId>
-			<artifactId>helium-core-v26</artifactId>
-			<version>${helium.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>${project.groupId}</groupId>
 			<artifactId>helium-core</artifactId>
 			<version>${helium.version}</version>
 		</dependency>
@@ -275,11 +270,6 @@
 			<artifactId>helium-ws</artifactId>
 			<version>${helium.version}</version>
 		</dependency>
-		<!--dependency>
-			<groupId>${project.groupId}</groupId>
-			<artifactId>helium-selenium-integraciones</artifactId>
-			<version>${helium.version}</version>
-		</dependency-->
 		<dependency>
 			<groupId>${project.groupId}</groupId>
 			<artifactId>helium-plugin-api</artifactId>

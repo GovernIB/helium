@@ -92,7 +92,7 @@
 		</tx:attributes>
 	</tx:advice>
 
-	<bean id="incidentThrowsAdvice" class="net.conselldemallorca.helium.core.model.exception.IncidentThrowsAdviceHelper"/>	
+	<bean id="incidentThrowsAdvice" class="net.conselldemallorca.helium.v3.core.exception.IncidentThrowsAdviceHelper"/>	
 	<aop:config>
 		<aop:pointcut id="serviceOperationCommon" expression="execution(* net.conselldemallorca.helium.core.model.service.*Service.*(..))"/>
 		<aop:advisor advice-ref="transactionAdvice" pointcut-ref="serviceOperationCommon" />
@@ -122,16 +122,16 @@
 		<constructor-arg value="MD5"/>
 	</bean>
 
-	<bean class="net.conselldemallorca.helium.core.model.update.Updater"/>
+<!-- 	<bean class="net.conselldemallorca.helium.core.model.update.Updater"/> -->
 
-	<bean id="serviceProxy" class="net.conselldemallorca.helium.core.model.service.ServiceProxy" factory-method="getInstance"/>
+<!-- 	<bean id="serviceProxy" class="net.conselldemallorca.helium.core.model.service.ServiceProxy" factory-method="getInstance"/> -->
 <!-- 	<bean id="daoProxy" class="net.conselldemallorca.helium.core.model.dao.DaoProxy" factory-method="getInstance"/> -->
 
 	<!--bean id="globalProperties" class="net.conselldemallorca.helium.core.util.GlobalProperties">
 		<constructor-arg value="${es.caib.helium.properties.path}"/>
 	</bean-->
 
-	<bean id="mailSender" class="org.springframework.mail.javamail.JavaMailSenderImpl">
+  	<bean id="mailSender" class="org.springframework.mail.javamail.JavaMailSenderImpl">
 		<property name="session">
 			<bean id="mailSession" class="org.springframework.jndi.JndiObjectFactoryBean">
 				<property name="resourceRef" value="true"/>

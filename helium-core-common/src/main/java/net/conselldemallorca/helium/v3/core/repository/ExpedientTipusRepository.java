@@ -165,5 +165,5 @@ public interface ExpedientTipusRepository extends JpaRepository<ExpedientTipus, 
      * @param tramitCodi
      * @return
      */
-	List<ExpedientTipus> findByTramitCodi(String tramitCodi);
+	List<ExpedientTipus> findBySistraTramitCodi(String tramitCodi);
 }

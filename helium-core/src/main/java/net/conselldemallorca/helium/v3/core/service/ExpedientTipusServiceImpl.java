@@ -3802,7 +3802,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 				"tramitCodi=" + tramitCodi + ")");
 
 		return conversioTipusHelper.convertirList(
-				expedientTipusRepository.findByTramitCodi(tramitCodi),
+				expedientTipusRepository.findBySistraTramitCodi(tramitCodi),
 				ExpedientTipusDto.class); 
 	}
 

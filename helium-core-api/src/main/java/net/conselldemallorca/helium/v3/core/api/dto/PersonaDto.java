@@ -31,6 +31,8 @@ public class PersonaDto implements Serializable {
 	private String contrasenya;
 	private InteressatTipusEnumDto tipus;
 	private String codiDir3;
+	
+	private boolean admin;
 
 	public PersonaDto(String codi, String nomSencer, String email, Sexe sexe) {
 		this.codi = codi;
@@ -173,6 +175,13 @@ public class PersonaDto implements Serializable {
 				sb.append(parts[i].substring(0, 1));
 		}
 		return sb.toString();
+	}
+
+	public boolean isAdmin() {
+		return admin;
+	}
+	public void setAdmin(boolean admin) {
+		this.admin = admin;
 	}
 
 	@Override

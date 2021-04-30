@@ -2,14 +2,14 @@ package net.conselldemallorca.helium.webapp.dwr;
 
 import javax.servlet.http.HttpServletRequest;
 
-import net.conselldemallorca.helium.core.model.hibernate.Entorn;
-import net.conselldemallorca.helium.core.model.hibernate.FormulariExtern;
-import net.conselldemallorca.helium.core.model.service.TascaService;
-import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import net.conselldemallorca.helium.core.model.hibernate.Entorn;
+import net.conselldemallorca.helium.v3.core.api.dto.FormulariExternDto;
+import net.conselldemallorca.helium.v3.core.api.service.TascaService;
+import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
 
 /**
  * Servei DWR per a l'inici de formularis externs
@@ -31,13 +31,11 @@ public class FormulariExternDwrService {
 		Entorn entorn = getEntornActual(request);
 		if (entorn != null) {
 			try {
-				FormulariExtern formExtern = tascaService.iniciarFormulariExtern(
-						entorn.getId(),
-						taskId);
+				FormulariExternDto formExtern = tascaService.formulariExternObrir(taskId);
 				String[] resposta = new String[] {
 						formExtern.getUrl(),
-						Integer.toString(formExtern.getFormWidth()),
-						Integer.toString(formExtern.getFormHeight())};
+						Integer.toString(formExtern.getWidth()),
+						Integer.toString(formExtern.getHeight())};
 				return resposta;
 			} catch (Exception ex) {
 				logger.error("No s'ha pogut iniciar el formulari extern", ex);
@@ -54,14 +52,14 @@ public class FormulariExternDwrService {
 		Entorn entorn = getEntornActual(request);
 		if (entorn != null) {
 			try {
-				FormulariExtern formExtern = tascaService.iniciarFormulariExtern(
+				FormulariExternDto formExtern = tascaService.formulariExternObrirTascaInicial(
 						taskId,
 						expedientTipusId,
 						definicioProcesId);
 				String[] resposta = new String[] {
 						formExtern.getUrl(),
-						Integer.toString(formExtern.getFormWidth()),
-						Integer.toString(formExtern.getFormHeight())};
+						Integer.toString(formExtern.getWidth()),
+						Integer.toString(formExtern.getHeight())};
 				return resposta;
 			} catch (Exception ex) {
 				logger.error("No s'ha pogut iniciar el formulari extern", ex);
