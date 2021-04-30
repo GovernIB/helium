@@ -38,7 +38,6 @@
 		<module>helium-webapp</module>
 		<module>helium-ws</module>
 		<module>helium-ear</module>
-		<module>helium-applet</module>
 		<module>helium-hibernate-entitymanager</module>
 		<module>helium-selenium</module>
 		<module>helium-selenium-v26</module>
