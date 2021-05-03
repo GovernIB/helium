@@ -1111,6 +1111,11 @@ public class DefinicioProcesHelper {
 			nou.setIgnored(document.isIgnored());
 			if (document.getCampData() != null)
 				nou.setCampData(camps.get(document.getCampData().getCodi()));
+			nou.setNotificable(document.isNotificable());
+			nou.setExtensionsPermeses(document.getExtensionsPermeses());
+			nou.setNtiOrigen(document.getNtiOrigen());
+			nou.setNtiEstadoElaboracion(document.getNtiEstadoElaboracion());
+			nou.setNtiTipoDocumental(document.getNtiTipoDocumental());			
 			documentRepository.save(nou);
 			documentRepository.flush();
 			documents.put(nou.getCodi(), nou);
