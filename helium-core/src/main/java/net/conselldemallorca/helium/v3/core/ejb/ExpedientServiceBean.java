@@ -677,4 +677,10 @@ public class ExpedientServiceBean implements ExpedientService {
 	public byte[] getZipDocumentacio(Long expedientId) {
 		return delegate.getZipDocumentacio(expedientId);
 	}
+	
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public void arreglarMetadadesNti(Long expedientId) {
+		delegate.arreglarMetadadesNti(expedientId);
+	}
 }

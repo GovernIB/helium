@@ -606,6 +606,11 @@ public class ExpedientDocumentController extends BaseExpedientController {
 				} else {
 					model.addAttribute("errorArxiuNoUuid", Boolean.TRUE);
 				}
+				if (expedient.getNtiOrgano() == null) {
+					// La migració d'expedients no NTI provocava errors
+					model.addAttribute("expedient", expedient);
+					model.addAttribute("errorMetadadesNti", Boolean.TRUE);
+				}
 			}
 		} catch(Exception e) {
 			String errMsg = "Error consultant les dades de l'Arxiu del document: " + e.getMessage(); 

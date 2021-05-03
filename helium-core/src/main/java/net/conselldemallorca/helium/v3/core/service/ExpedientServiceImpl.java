@@ -66,6 +66,7 @@ import net.conselldemallorca.helium.core.model.hibernate.Camp;
 import net.conselldemallorca.helium.core.model.hibernate.Consulta;
 import net.conselldemallorca.helium.core.model.hibernate.ConsultaCamp.TipusConsultaCamp;
 import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
+import net.conselldemallorca.helium.core.model.hibernate.Document;
 import net.conselldemallorca.helium.core.model.hibernate.DocumentNotificacio;
 import net.conselldemallorca.helium.core.model.hibernate.DocumentStore;
 import net.conselldemallorca.helium.core.model.hibernate.DocumentStore.DocumentFont;
@@ -2174,7 +2175,8 @@ public class ExpedientServiceImpl implements ExpedientService {
 	@Override
 	@Transactional(readOnly=true)
 	public boolean existsExpedientAmbEntornTipusITitol(Long entornId, Long expedientTipusId, String titol) {
-		return !expedientRepository.findByEntornIdAndTipusIdAndTitol(entornId, expedientTipusId, titol == null, titol != null? titol : "").isEmpty();
+		List<Expedient> expedients = expedientHelper.findByEntornIdAndTipusAndTitol(entornId, expedientTipusId, titol);
+		return !expedients.isEmpty();
 	}
 
 	/**
@@ -2885,7 +2887,6 @@ public class ExpedientServiceImpl implements ExpedientService {
 	@Override
 	@Transactional(readOnly = true)
 	public byte[] getZipDocumentacio(Long expedientId) {
-		//TODO: rectificar noms fitxers i carpetes i vigilar duplicats
 		
 		Expedient expedient = expedientRepository.findOne(expedientId);
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -2984,7 +2985,69 @@ public class ExpedientServiceImpl implements ExpedientService {
 		nomsArxius.add(recursNom);
 		return recursNom;
 	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@Transactional
+	public void arreglarMetadadesNti(Long expedientId) {
+		Expedient expedient = expedientRepository.findOne(expedientId);
+		if ( (expedient.isArxiuActiu() && expedient.isNtiActiu())
+				&& (expedient.getNtiOrgano() == null 
+					|| expedient.getNtiClasificacion() == null 
+					|| expedient.getNtiSerieDocumental() == null)) {
+			// Consulta la informació de l'expedient i actualitza l'expedient
+			expedient.setNtiVersion(ExpedientHelper.VERSIO_NTI);
+			es.caib.plugins.arxiu.api.Expedient expedientArxiu = pluginHelper.arxiuExpedientInfo(expedient.getArxiuUuid());
+			expedient.setNtiIdentificador(
+					expedientArxiu.getMetadades().getIdentificador());
+			expedient.setNtiVersion(expedientArxiu.getMetadades().getVersioNti());
+			expedient.setNtiClasificacion(expedientArxiu.getMetadades().getClassificacio());
+			expedient.setNtiSerieDocumental(expedientArxiu.getMetadades().getSerieDocumental());
+			if (expedientArxiu.getMetadades().getOrgans() != null 
+					&& expedientArxiu.getMetadades().getOrgans().size() > 0) {
+				expedient.setNtiOrgano(expedientArxiu.getMetadades().getOrgans().get(0));				
+			}
+			// Per cada document actualitza la informació NTI del document
+			// Consulta l'arbre de processos
+			List<InstanciaProcesDto> arbreProcessos =
+					expedientHelper.getArbreInstanciesProces(String.valueOf(expedient.getProcessInstanceId()));
+			for (InstanciaProcesDto instanciaProces: arbreProcessos) {
+				// Per cada instancia de proces consulta els documents.
+				List<ExpedientDocumentDto> documentsInstancia = 
+						documentHelper.findDocumentsPerInstanciaProces(
+							instanciaProces.getId());
+				// Per cada document de la instància
+				for (ExpedientDocumentDto documentDto : documentsInstancia) {
+					DocumentStore documentStore = documentStoreRepository.findOne(documentDto.getId());
+					Document document;
+					if (!documentStore.isAdjunt() && documentStore.getCodiDocument() != null)
+						document = documentHelper.findDocumentPerInstanciaProcesICodi(documentStore.getProcessInstanceId(), documentStore.getCodiDocument());
+					else 
+						document = null;
+					documentHelper.actualizarMetadadesNti(
+							expedient, 
+							document, 
+							documentStore, 
+							null, 
+							null, 
+							null, 
+							null);
+					// Recupera l'identificador de l'arxiu
+					if (documentStore.getArxiuUuid() != null) {
+						es.caib.plugins.arxiu.api.Document documentArxiuInfo = pluginHelper.arxiuDocumentInfo(
+								documentStore.getArxiuUuid(), 
+								null, 
+								false, 
+								documentStore.isSignat());
+						documentStore.setNtiIdentificador(documentArxiuInfo.getDocumentMetadades().getIdentificador());
+					}
+				}
+			}				
+		}
+	}
+
 
 	private static final Logger logger = LoggerFactory.getLogger(ExpedientServiceImpl.class);
-
 }

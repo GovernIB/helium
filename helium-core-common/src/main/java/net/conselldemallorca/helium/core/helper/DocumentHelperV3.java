@@ -2285,7 +2285,7 @@ public class DocumentHelperV3 {
 		return firmes;
 	}
 	
-	private void actualizarMetadadesNti(
+	public void actualizarMetadadesNti(
 			Expedient expedient,
 			Document document,
 			DocumentStore documentStore,
