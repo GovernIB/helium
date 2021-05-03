@@ -3,30 +3,27 @@
  */
 package net.conselldemallorca.helium.core.helper;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.annotation.Resource;
-
-import org.jbpm.graph.exe.ProcessInstanceExpedient;
+import net.conselldemallorca.helium.core.api.WTaskInstance;
+import net.conselldemallorca.helium.core.api.WorkflowEngineApi;
+import net.conselldemallorca.helium.core.helper.PermisosHelper.ObjectIdentifierExtractor;
+import net.conselldemallorca.helium.core.model.hibernate.Entorn;
+import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
+import net.conselldemallorca.helium.core.security.ExtendedPermission;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PermisDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PrincipalTipusEnumDto;
+import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
+import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
+import net.conselldemallorca.helium.v3.core.repository.ExpedientTipusRepository;
 import org.springframework.security.acls.model.Permission;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
-import net.conselldemallorca.helium.core.helper.PermisosHelper.ObjectIdentifierExtractor;
-import net.conselldemallorca.helium.core.model.hibernate.Entorn;
-import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
-import net.conselldemallorca.helium.core.security.ExtendedPermission;
-import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
-import net.conselldemallorca.helium.jbpm3.integracio.JbpmTask;
-import net.conselldemallorca.helium.v3.core.api.dto.PermisDto;
-import net.conselldemallorca.helium.v3.core.api.dto.PrincipalTipusEnumDto;
-import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
-import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
-import net.conselldemallorca.helium.v3.core.repository.ExpedientRepository;
-import net.conselldemallorca.helium.v3.core.repository.ExpedientTipusRepository;
+import javax.annotation.Resource;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Helper per als tipus d'expedient.
@@ -38,16 +35,12 @@ public class ExpedientTipusHelper {
 
 	@Resource
 	private ExpedientTipusRepository expedientTipusRepository;
-	@Resource
-	private ExpedientRepository expedientRepository;
 
 	@Resource
-	private JbpmHelper jbpmHelper;
+	private WorkflowEngineApi workflowEngineApi;
 	@Resource(name = "permisosHelperV3")
 	private PermisosHelper permisosHelper;
 	
-	@Resource
-	private EntornHelper entornHelper;
 
 	/** Consulta el tipus d'expedient comprovant el permís de lectura. */
 	public ExpedientTipus getExpedientTipusComprovantPermisLectura(Long id) {
@@ -60,6 +53,25 @@ public class ExpedientTipusHelper {
 						ExtendedPermission.ADMINISTRATION});
 	}
 	
+	/** Consulta el tipus d'expedient comprovant el permís de lectura. */
+	public ExpedientTipus getExpedientTipusComprovantPermisEscriptura(Long id) {
+		return getExpedientTipusComprovantPermisos(
+				id,
+				null,
+				new Permission[] {
+						ExtendedPermission.WRITE,
+						ExtendedPermission.ADMINISTRATION});
+	}
+	
+	/** Consulta el tipus d'expedient comprovant el permís de lectura. */
+	public ExpedientTipus getExpedientTipusComprovantPermisEsborrar(Long id) {
+		return getExpedientTipusComprovantPermisos(
+				id,
+				null,
+				new Permission[] {
+						ExtendedPermission.DELETE,
+						ExtendedPermission.ADMINISTRATION});
+	}
 	/** Consulta el tipus d'expedient comprovant el permís de disseny sobre el tipus d'expedient. */
 	public ExpedientTipus getExpedientTipusComprovantPermisDisseny(Long id) {
 		return getExpedientTipusComprovantPermisos(
@@ -74,7 +86,20 @@ public class ExpedientTipusHelper {
 						ExtendedPermission.ADMINISTRATION	
 				});
 	}
-	
+
+	/** Consulta el tipus d'expedient comprovant el permís de creació sobre el tipus d'expedient. */
+	public ExpedientTipus getExpedientTipusComprovantPermisCrear(Long id) {
+		return getExpedientTipusComprovantPermisos(
+				id, 
+				new Permission[] {
+						ExtendedPermission.ADMINISTRATION
+				},
+				new Permission[]{
+						ExtendedPermission.CREATE,
+						ExtendedPermission.ADMINISTRATION	
+				});
+	}
+
 	/** Consulta el tipus d'expedient comprovant el permís de disseny delegat sobre el tipus d'expedient. S'és
 	 * administrador delegat si es té permís delegat, permís de disseny administrador sobre el tipus d'expedient o 
 	 * administrador del tipus d'expedient. */
@@ -115,7 +140,8 @@ public class ExpedientTipusHelper {
 	/** Mètode genèric per obtenir el tipus d'expedient comprovant els permisos. Quan es compleix
 	 * algun permís es retorna el tipus d'expedient, si no es llença una excepció de permisos.
 	 * @param id
-	 * @param permisos
+	 * @param permisosEntorn
+	 * @param permisosTipusExpedient
 	 * @return
 	 */
 	public ExpedientTipus getExpedientTipusComprovantPermisos(
@@ -185,13 +211,13 @@ public class ExpedientTipusHelper {
 	
 	public ExpedientTipus findAmbTaskId(
 			String taskId) {
-		JbpmTask task = jbpmHelper.getTaskById(taskId);
+		WTaskInstance task = workflowEngineApi.getTaskById(taskId);
 		return findAmbProcessInstanceId(task.getProcessInstanceId());
 	}
 
 	public ExpedientTipus findAmbProcessInstanceId(
 			String processInstanceId) {
-		ProcessInstanceExpedient piexp = jbpmHelper.expedientFindByProcessInstanceId(processInstanceId);
+		ExpedientDto piexp = workflowEngineApi.expedientFindByProcessInstanceId(processInstanceId);
 		return expedientTipusRepository.findOne(piexp.getTipus().getId());
 	}
 

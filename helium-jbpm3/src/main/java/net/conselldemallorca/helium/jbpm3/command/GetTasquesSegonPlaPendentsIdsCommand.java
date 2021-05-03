@@ -1,10 +1,10 @@
 package net.conselldemallorca.helium.jbpm3.command;
 
-import java.util.List;
-
 import org.hibernate.Query;
 import org.jbpm.JbpmContext;
 import org.jbpm.command.AbstractBaseCommand;
+
+import java.util.List;
 
 /**
  * Command per a trobar les ids de 
@@ -34,8 +34,6 @@ public class GetTasquesSegonPlaPendentsIdsCommand extends AbstractBaseCommand
 				"and ti.isOpen = true " +
 				"order by " + 
 				"	 ti.marcadaFinalitzar asc");
-		
-//		LlistatIds resposta = new LlistatIds();
 		
 		StringBuilder selectSb = new StringBuilder("select distinct ti.id, ti.marcadaFinalitzar, ti.iniciFinalitzacio, ti.errorFinalitzacio ");
 		

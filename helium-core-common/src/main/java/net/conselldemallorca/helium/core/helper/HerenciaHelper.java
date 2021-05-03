@@ -3,14 +3,13 @@
  */
 package net.conselldemallorca.helium.core.helper;
 
-import javax.annotation.Resource;
-
-import org.springframework.stereotype.Component;
-
 import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.v3.core.repository.DefinicioProcesRepository;
+import org.springframework.stereotype.Component;
+
+import javax.annotation.Resource;
 
 /**
  * Helper per falicitar consultes i altres temes d'herència de tipus d'expedients.
@@ -35,7 +34,7 @@ public class HerenciaHelper {
 	 */
 	public String getProcessDefinitionIdHeretadaAmbTaskId(String tascaId) {
 		String processDefinitionIdHeretada = null;
-		DefinicioProces dp = tascaHelper.findTascaByJbpmTaskId(tascaId).getDefinicioProces();
+		DefinicioProces dp = tascaHelper.findTascaByWTaskInstanceId(tascaId).getDefinicioProces();
 		if (dp.getExpedientTipus() != null 
 				&& dp.getExpedientTipus().getExpedientTipusPare() != null
 				&& dp.getExpedientTipus().getExpedientTipusPare().getJbpmProcessDefinitionKey() != null) {

@@ -17,6 +17,8 @@ import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.sql.DataSource;
 
+import net.conselldemallorca.helium.core.api.WTaskInstance;
+import net.conselldemallorca.helium.core.api.WorkflowEngineApi;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,8 +56,6 @@ import net.conselldemallorca.helium.core.model.hibernate.Usuari;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.core.util.ws.RestClient;
 import net.conselldemallorca.helium.integracio.plugins.unitat.UnitatOrganica;
-import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
-import net.conselldemallorca.helium.jbpm3.integracio.JbpmTask;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDadaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.IntegracioAccioTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.IntegracioParametreDto;
@@ -102,7 +102,7 @@ public class DominiHelper {
 	@Resource
 	private VariableHelper variableHelper;
 	@Resource
-	private JbpmHelper jbpmHelper;
+	private WorkflowEngineApi workflowEngineApi;
 	@Resource
 	private EntornRepository entornRepository;
 	@Resource
@@ -778,7 +778,7 @@ public class DominiHelper {
 		Camp camp = null;
 		List<String[]> registresText = new ArrayList<String[]>();
 		if (taskInstanceId != null) {
-			JbpmTask task = jbpmHelper.getTaskById(taskInstanceId);
+			WTaskInstance task = workflowEngineApi.getTaskById(taskInstanceId);
 			TascaDadaDto dada = variableHelper.findDadaPerInstanciaTasca(task, variable); 
 			camp = campRepository.findOne(dada.getCampId());
 			if (camp.getTipus().equals(TipusCamp.REGISTRE)) {

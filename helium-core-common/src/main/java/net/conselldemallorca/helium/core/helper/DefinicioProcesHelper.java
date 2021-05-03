@@ -3,6 +3,25 @@
  */
 package net.conselldemallorca.helium.core.helper;
 
+import net.conselldemallorca.helium.core.api.WDeployment;
+import net.conselldemallorca.helium.core.api.WProcessDefinition;
+import net.conselldemallorca.helium.core.api.WorkflowEngineApi;
+import net.conselldemallorca.helium.core.model.hibernate.*;
+import net.conselldemallorca.helium.core.model.hibernate.Camp.TipusCamp;
+import net.conselldemallorca.helium.core.model.hibernate.Tasca.TipusTasca;
+import net.conselldemallorca.helium.v3.core.api.dto.CampTipusDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
+import net.conselldemallorca.helium.v3.core.api.dto.TascaDto;
+import net.conselldemallorca.helium.v3.core.api.exception.DeploymentException;
+import net.conselldemallorca.helium.v3.core.api.exception.ExportException;
+import net.conselldemallorca.helium.v3.core.api.exportacio.*;
+import net.conselldemallorca.helium.v3.core.repository.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+
+import javax.annotation.Resource;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
@@ -14,67 +33,6 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
-
-import javax.annotation.Resource;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
-
-import net.conselldemallorca.helium.core.model.hibernate.Accio;
-import net.conselldemallorca.helium.core.model.hibernate.Camp;
-import net.conselldemallorca.helium.core.model.hibernate.Camp.TipusCamp;
-import net.conselldemallorca.helium.core.model.hibernate.CampAgrupacio;
-import net.conselldemallorca.helium.core.model.hibernate.CampRegistre;
-import net.conselldemallorca.helium.core.model.hibernate.CampTasca;
-import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
-import net.conselldemallorca.helium.core.model.hibernate.Document;
-import net.conselldemallorca.helium.core.model.hibernate.DocumentTasca;
-import net.conselldemallorca.helium.core.model.hibernate.Domini;
-import net.conselldemallorca.helium.core.model.hibernate.Entorn;
-import net.conselldemallorca.helium.core.model.hibernate.Enumeracio;
-import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
-import net.conselldemallorca.helium.core.model.hibernate.FirmaTasca;
-import net.conselldemallorca.helium.core.model.hibernate.Tasca;
-import net.conselldemallorca.helium.core.model.hibernate.Tasca.TipusTasca;
-import net.conselldemallorca.helium.core.model.hibernate.Termini;
-import net.conselldemallorca.helium.core.model.hibernate.Validacio;
-import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
-import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessDefinition;
-import net.conselldemallorca.helium.v3.core.api.dto.CampTipusDto;
-import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
-import net.conselldemallorca.helium.v3.core.api.dto.TascaDto;
-import net.conselldemallorca.helium.v3.core.api.exception.DeploymentException;
-import net.conselldemallorca.helium.v3.core.api.exception.ExportException;
-import net.conselldemallorca.helium.v3.core.api.exportacio.AccioExportacio;
-import net.conselldemallorca.helium.v3.core.api.exportacio.AgrupacioExportacio;
-import net.conselldemallorca.helium.v3.core.api.exportacio.CampExportacio;
-import net.conselldemallorca.helium.v3.core.api.exportacio.CampTascaExportacio;
-import net.conselldemallorca.helium.v3.core.api.exportacio.DefinicioProcesExportacio;
-import net.conselldemallorca.helium.v3.core.api.exportacio.DefinicioProcesExportacioCommandDto;
-import net.conselldemallorca.helium.v3.core.api.exportacio.DocumentExportacio;
-import net.conselldemallorca.helium.v3.core.api.exportacio.DocumentTascaExportacio;
-import net.conselldemallorca.helium.v3.core.api.exportacio.FirmaTascaExportacio;
-import net.conselldemallorca.helium.v3.core.api.exportacio.RegistreMembreExportacio;
-import net.conselldemallorca.helium.v3.core.api.exportacio.TascaExportacio;
-import net.conselldemallorca.helium.v3.core.api.exportacio.TerminiExportacio;
-import net.conselldemallorca.helium.v3.core.api.exportacio.ValidacioExportacio;
-import net.conselldemallorca.helium.v3.core.repository.AccioRepository;
-import net.conselldemallorca.helium.v3.core.repository.CampAgrupacioRepository;
-import net.conselldemallorca.helium.v3.core.repository.CampRegistreRepository;
-import net.conselldemallorca.helium.v3.core.repository.CampRepository;
-import net.conselldemallorca.helium.v3.core.repository.CampTascaRepository;
-import net.conselldemallorca.helium.v3.core.repository.CampValidacioRepository;
-import net.conselldemallorca.helium.v3.core.repository.DefinicioProcesRepository;
-import net.conselldemallorca.helium.v3.core.repository.DocumentRepository;
-import net.conselldemallorca.helium.v3.core.repository.DocumentTascaRepository;
-import net.conselldemallorca.helium.v3.core.repository.DominiRepository;
-import net.conselldemallorca.helium.v3.core.repository.EnumeracioRepository;
-import net.conselldemallorca.helium.v3.core.repository.ExpedientTipusRepository;
-import net.conselldemallorca.helium.v3.core.repository.FirmaTascaRepository;
-import net.conselldemallorca.helium.v3.core.repository.TascaRepository;
-import net.conselldemallorca.helium.v3.core.repository.TerminiRepository;
 
 /**
  * Helper per a les definicions de procés.
@@ -120,7 +78,7 @@ public class DefinicioProcesHelper {
 	@Resource
 	private MessageHelper messageHelper;
 	@Resource
-	private JbpmHelper jbpmHelper;
+	private WorkflowEngineApi workflowEngineApi;
 	@Resource
 	private EntornHelper entornHelper;
 	
@@ -163,29 +121,31 @@ public class DefinicioProcesHelper {
 		DefinicioProces definicio;
 		if ( ! definicioProcesExisteix) {
 			// Nova definició de procés
-			JbpmProcessDefinition dpd = jbpmHelper.desplegar(
+			WDeployment dpd = workflowEngineApi.desplegar(
 					importacio.getNomDeploy(), 
 					importacio.getContingutDeploy());
-			if (dpd != null) {
+			if (dpd != null && dpd.getProcessDefinitions() != null && !dpd.getProcessDefinitions().isEmpty()) {
+				// En el cas de importació de definició de procés, només es desplega 1 definició de procés
+				WProcessDefinition wpd = dpd.getProcessDefinitions().get(0);
 				// Crea la nova definició de procés
 				definicio = new DefinicioProces(
-						dpd.getId(),
-						dpd.getKey(),
-						dpd.getVersion(),
+						wpd.getId(),
+						wpd.getKey(),
+						wpd.getVersion(),
 						entorn);
 				definicio.setExpedientTipus(expedientTipus);
 				if (expedientTipus != null)
 					expedientTipus.getDefinicionsProces().add(definicio);
 				definicio = definicioProcesRepository.saveAndFlush(definicio);
 				// Crea les tasques publicades
-				for (String nomTasca: jbpmHelper.getTaskNamesFromDeployedProcessDefinition(dpd)) {
+				for (String nomTasca: workflowEngineApi.getTaskNamesFromDeployedProcessDefinition(dpd, wpd.getId())) {
 					Tasca tasca = new Tasca(
 							definicio,
 							nomTasca,
 							nomTasca,
 							TipusTasca.ESTAT);
 					String prefixRecursBo = "forms/" + nomTasca;
-					for (String resourceName: jbpmHelper.getResourceNames(dpd.getId())) {
+					for (String resourceName: workflowEngineApi.getResourceNames(dpd.getId())) {
 						if (resourceName.startsWith(prefixRecursBo)) {
 							tasca.setTipus(TipusTasca.FORM);
 							tasca.setRecursForm(nomTasca);
@@ -780,14 +740,14 @@ public class DefinicioProcesHelper {
 						definicio, 
 						DefinicioProcesDto.class));
 		exportacio.setNomDeploy("export.par");
-		Set<String> resourceNames = jbpmHelper.getResourceNames(definicio.getJbpmId());
+		Set<String> resourceNames = workflowEngineApi.getResourceNames(definicio.getJbpmId());
 		if (resourceNames != null && resourceNames.size() > 0) {
 			try {
 				ByteArrayOutputStream baos = new ByteArrayOutputStream();
 				ZipOutputStream zos = new ZipOutputStream(baos);
 				byte[] data = new byte[1024];
 				for (String resource: resourceNames) {
-					byte[] bytes = jbpmHelper.getResourceBytes(
+					byte[] bytes = workflowEngineApi.getResourceBytes(
 							definicio.getJbpmId(), 
 							resource);
 					if (bytes != null) {
@@ -1213,7 +1173,6 @@ public class DefinicioProcesHelper {
 	 * 3- Definicions de procés de l'entorn
 	 * Així doncs aquest mètode té en compte l'herència, la sobreescriptura i les definicions
 	 * de procés globals.
-	 * @param entornId
 	 * @param expedientTipus
 	 * @param jbpmKey
 	 * @return
@@ -1306,7 +1265,7 @@ public class DefinicioProcesHelper {
 	/** Mètode per retornar una mapeig de definicions de procés i informació de tasques heretada pel tipus d'expedient
 	 * passat com a paràmetre-
 	 * 
-	 * @param tipus
+	 * @param expedientTipus
 	 * @return
 	 */
 	@Transactional(readOnly = true)
@@ -1446,7 +1405,7 @@ public class DefinicioProcesHelper {
 	 *  Està heretada si:
 	 *  - El tipus d'expedient de la definició de procés de la tasca és el tipus d'expedient pare del tipus d'expedient.
 	 *  
-	 * @param definicioProces Definició de procés a comprovar si està heretada.
+	 * @param tasca Tasca a comprovar si està heretada.
 	 * @param expedientTipus Expedient tipus a comprovar si hereta la definició de procés.
 	 * @return
 	 */
@@ -1474,7 +1433,7 @@ public class DefinicioProcesHelper {
 	 * Està heretat si:
 	 * - La tasca està heretada i el document de la tasca no pertany a cap altra tipus d'expedient que no sigui el tipus d'expedient pare.
 	 * 
-	 * @param campTasca
+	 * @param documentTasca
 	 * @param expedientTipus
 	 * @return
 	 */
@@ -1615,8 +1574,8 @@ public class DefinicioProcesHelper {
 
 		}
 	}
-	
-		/** Mètode per relacionar la crida a les subdefinicions de procés per tal que es cridi la versió correcta en els nodes de tipus processState.
+
+	/** Mètode per relacionar la crida a les subdefinicions de procés per tal que es cridi la versió correcta en els nodes de tipus processState.
 	 * Només s'actualitzen entre elles les darreres versions de les definicions de procés, d'aquesta forma les versions anteriors queden de la mateixa
 	 * manera.
 	 * 
@@ -1635,9 +1594,9 @@ public class DefinicioProcesHelper {
 		// Relaciona les darreres
 		for (DefinicioProces dp1: darreresDefinicionsProces.values())
 			for (DefinicioProces dp2 : darreresDefinicionsProces.values())
-				jbpmHelper.updateSubprocessDefinition(
-						jbpmHelper.getProcessDefinition(dp1.getJbpmId()).getProcessDefinition(), 
-						jbpmHelper.getProcessDefinition(dp2.getJbpmId()).getProcessDefinition());
+				workflowEngineApi.updateSubprocessDefinition(
+						workflowEngineApi.getProcessDefinition(null, dp1.getJbpmId()), //.getProcessDefinition(),
+						workflowEngineApi.getProcessDefinition(null, dp2.getJbpmId())); //.getProcessDefinition());
 	}
 	
 	private static final Logger logger = LoggerFactory.getLogger(DefinicioProcesHelper.class);

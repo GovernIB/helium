@@ -3,16 +3,16 @@
  */
 package net.conselldemallorca.helium.v3.core.api.service;
 
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.InformacioRetroaccioDto;
+import net.conselldemallorca.helium.v3.core.api.dto.InstanciaProcesDto;
+import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
+import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
+
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.SortedSet;
-
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientLogDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.InstanciaProcesDto;
-import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
-import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
 
 
 /**
@@ -36,7 +36,7 @@ public interface ExpedientRegistreService {
 	 * @throws PermisDenegatException
 	 *             Si no es tenen els permisos adequats.
 	 */
-	public SortedSet<Entry<InstanciaProcesDto, List<ExpedientLogDto>>> registreFindLogsOrdenatsPerData(
+	public SortedSet<Entry<InstanciaProcesDto, List<InformacioRetroaccioDto>>> findInformacioRetroaccioExpedientOrdenatPerData(
 			Long expedientId,
 			boolean detall) throws NoTrobatException, PermisDenegatException;
 
@@ -51,7 +51,7 @@ public interface ExpedientRegistreService {
 	 * @throws PermisDenegatException
 	 *             Si no es tenen els permisos adequats.
 	 */
-	public Map<String, ExpedientTascaDto> registreFindTasquesPerLogExpedient(
+	public Map<String, ExpedientTascaDto> findTasquesExpedientPerRetroaccio(
 			Long expedientId) throws NoTrobatException, PermisDenegatException;
 
 	/**
@@ -69,7 +69,7 @@ public interface ExpedientRegistreService {
 	 * @throws PermisDenegatException
 	 *             Si no es tenen els permisos adequats.
 	 */
-	public void registreRetrocedir(
+	public void executaRetroaccio(
 			Long expedientId,
 			Long logId,
 			boolean retrocedirPerTasques) throws NoTrobatException, PermisDenegatException;
@@ -84,7 +84,7 @@ public interface ExpedientRegistreService {
 	 * @throws PermisDenegatException
 	 *             Si no es tenen els permisos adequats.
 	 */
-	public void registreBuidarLog(
+	public void eliminaInformacioRetroaccio(
 			Long expedientId) throws NoTrobatException, PermisDenegatException;
 
 	/**
@@ -100,7 +100,7 @@ public interface ExpedientRegistreService {
 	 * @throws PermisDenegatException
 	 *             Si no es tenen els permisos adequats.
 	 */
-	public List<ExpedientLogDto> registreFindLogsTascaOrdenatsPerData(
+	public List<InformacioRetroaccioDto> findInformacioRetroaccioTascaOrdenatPerData(
 			Long expedientId,
 			Long logId) throws NoTrobatException, PermisDenegatException;
 
@@ -117,7 +117,7 @@ public interface ExpedientRegistreService {
 	 * @throws PermisDenegatException
 	 *             Si no es tenen els permisos adequats.
 	 */
-	public List<ExpedientLogDto> registreFindLogsRetroceditsOrdenatsPerData(
+	public List<InformacioRetroaccioDto> findInformacioRetroaccioAccioRetrocesOrdenatsPerData(
 			Long expedientId,
 			Long logId) throws NoTrobatException, PermisDenegatException;
 
@@ -134,7 +134,7 @@ public interface ExpedientRegistreService {
 	 * @throws PermisDenegatException
 	 *             Si no es tenen els permisos adequats.
 	 */
-	public ExpedientLogDto registreFindLogById(
+	public InformacioRetroaccioDto findInformacioRetroaccioById(
 			//Long expedientId,
 			Long logId) throws NoTrobatException, PermisDenegatException;
 

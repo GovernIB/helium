@@ -283,6 +283,74 @@ public interface ExpedientTipusService {
 			Long expedientTipusId) throws NoTrobatException, PermisDenegatException;
 
 	/**
+	 * Retorna un tipus d'expedient donat el seu id per a crear.
+	 * 
+	 * @param entornId
+	 *            Atribut id de l'entorn.
+	 * @param expedientTipusId
+	 *            Atribut id del tipus d'expedient.
+	 * @return El tipus d'expedient.
+	 * @throws NoTrobatException
+	 *             Si no s'ha trobat el registre amb l'id especificat.
+	 * @throws PermisDenegatException
+	 *             Si no es tenen els permisos necessaris.
+	 */
+	public ExpedientTipusDto findAmbIdPermisCrear(
+			Long entornId,
+			Long expedientTipusId) throws NoTrobatException, PermisDenegatException;
+
+	/**
+	 * Retorna un tipus d'expedient donat el seu id per a lectura.
+	 * 
+	 * @param entornId
+	 *            Atribut id de l'entorn.
+	 * @param expedientTipusId
+	 *            Atribut id del tipus d'expedient.
+	 * @return El tipus d'expedient.
+	 * @throws NoTrobatException
+	 *             Si no s'ha trobat el registre amb l'id especificat.
+	 * @throws PermisDenegatException
+	 *             Si no es tenen els permisos necessaris.
+	 */
+	public ExpedientTipusDto findAmbIdPermisLectura(
+			Long entornId,
+			Long expedientTipusId) throws NoTrobatException, PermisDenegatException;
+
+	/**
+	 * Retorna un tipus d'expedient donat el seu id per a escriptura.
+	 * 
+	 * @param entornId
+	 *            Atribut id de l'entorn.
+	 * @param expedientTipusId
+	 *            Atribut id del tipus d'expedient.
+	 * @return El tipus d'expedient.
+	 * @throws NoTrobatException
+	 *             Si no s'ha trobat el registre amb l'id especificat.
+	 * @throws PermisDenegatException
+	 *             Si no es tenen els permisos necessaris.
+	 */
+	public ExpedientTipusDto findAmbIdPermisEscriptura(
+			Long entornId,
+			Long expedientTipusId) throws NoTrobatException, PermisDenegatException;
+	
+	/**
+	 * Retorna un tipus d'expedient donat el seu id per a esborrar.
+	 * 
+	 * @param entornId
+	 *            Atribut id de l'entorn.
+	 * @param expedientTipusId
+	 *            Atribut id del tipus d'expedient.
+	 * @return El tipus d'expedient.
+	 * @throws NoTrobatException
+	 *             Si no s'ha trobat el registre amb l'id especificat.
+	 * @throws PermisDenegatException
+	 *             Si no es tenen els permisos necessaris.
+	 */
+	public ExpedientTipusDto findAmbIdPermisEsborrar(
+			Long entornId,
+			Long expedientTipusId) throws NoTrobatException, PermisDenegatException;
+
+	/**
 	 * Retorna un tipus d'expedient donat el seu id per a dissenyar amb permís delegat. El permís
 	 * delegat és menys restrictiu que el permís d'administrador.
 	 * 
@@ -1204,8 +1272,19 @@ public interface ExpedientTipusService {
 	 * @return
 	 *  Retorna el tipus d'expedient configurat per a la combinació de codi procediment i codi tipus assumpte
 	 */
-	public ExpedientTipusDto findPerDistribucioValidacio(String codiProcediment, String codiAssumpte);	
+	public ExpedientTipusDto findPerDistribucioValidacio(String codiProcediment, String codiAssumpte);
 
+	/** Mètode per trobar la llista de tipus d'expedients candidats per a un tràmit sistra a partir de l'identificador
+	 * del tràmit sistra.
+	 * 
+	 * @param identificador Identificador del tràmit sistra configurat al tipus d'expedient.
+	 * @return Llista de tipus d'expedients candidats.
+	 * 
+	 */
+	public List<ExpedientTipusDto> findAmbSistraTramitCodi(String identificador);	
+
+	
+	
 	
 
 

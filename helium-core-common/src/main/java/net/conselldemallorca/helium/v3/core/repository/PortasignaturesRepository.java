@@ -58,4 +58,14 @@ public interface PortasignaturesRepository extends JpaRepository<Portasignatures
 	List<Portasignatures> findByExpedientAndEstat(
 			Expedient expedient,
 			TipusEstat estat);
+
+	@Query(
+			"from " +
+			"    Portasignatures p " +
+			"where " +
+			"    p.expedient.id = :expedientId " +
+			"and p.estat = :estat ")	
+	List<Portasignatures> findAmbExpedientIdIEstat(
+			@Param("expedientId") Long expedientId,
+			@Param("estat") TipusEstat estat);
 }

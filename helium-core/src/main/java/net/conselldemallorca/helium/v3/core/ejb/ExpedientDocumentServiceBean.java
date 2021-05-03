@@ -45,7 +45,7 @@ public class ExpedientDocumentServiceBean implements ExpedientDocumentService {
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public void create(
+	public Long create(
 			Long expedientId,
 			String processInstanceId,
 			String documentCodi,
@@ -61,7 +61,7 @@ public class ExpedientDocumentServiceBean implements ExpedientDocumentService {
 			NtiEstadoElaboracionEnumDto ntiEstadoElaboracion,
 			NtiTipoDocumentalEnumDto ntiTipoDocumental,
 			String ntiIdOrigen) {
-		delegate.create(
+		return delegate.create(
 				expedientId,
 				processInstanceId,
 				documentCodi,
@@ -316,6 +316,14 @@ public class ExpedientDocumentServiceBean implements ExpedientDocumentService {
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public void migrarArxiu(Long expedientId, Long documentStoreId) throws NoTrobatException, PermisDenegatException {
 		delegate.migrarArxiu(expedientId, documentStoreId);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public Long guardarDocumentProces(Long expedientId, String processInstanceId, String documentCodi,
+			String adjuntTitol, Date documentData, String arxiuNom, byte[] arxiuContingut, boolean isAdjunt,
+			String user) {
+		return delegate.guardarDocumentProces(expedientId, processInstanceId, documentCodi, adjuntTitol, documentData, arxiuNom, arxiuContingut, isAdjunt, user);
 	}
 
 }

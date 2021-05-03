@@ -3,79 +3,59 @@
  */
 package net.conselldemallorca.helium.v3.core.service;
 
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+	import es.caib.plugins.arxiu.api.ContingutArxiu;
+	import es.caib.plugins.arxiu.api.DocumentMetadades;
+	import es.caib.plugins.arxiu.api.Firma;
+	import net.conselldemallorca.helium.core.api.WTaskInstance;
+	import net.conselldemallorca.helium.core.api.WorkflowRetroaccioApi;
+	import net.conselldemallorca.helium.core.helper.DocumentHelperV3;
+	import net.conselldemallorca.helium.core.helper.ExpedientHelper;
+	import net.conselldemallorca.helium.core.helper.ExpedientRegistreHelper;
+	import net.conselldemallorca.helium.core.helper.IndexHelper;
+	import net.conselldemallorca.helium.core.helper.NotificacioHelper;
+	import net.conselldemallorca.helium.core.helper.PaginacioHelper;
+	import net.conselldemallorca.helium.core.helper.PluginHelper;
+	import net.conselldemallorca.helium.core.helper.TascaHelper;
+	import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
+	import net.conselldemallorca.helium.core.model.hibernate.Document;
+	import net.conselldemallorca.helium.core.model.hibernate.DocumentNotificacio;
+	import net.conselldemallorca.helium.core.model.hibernate.DocumentStore;
+	import net.conselldemallorca.helium.core.model.hibernate.Expedient;
+	import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
+	import net.conselldemallorca.helium.core.model.hibernate.Interessat;
+	import net.conselldemallorca.helium.core.model.hibernate.Portasignatures;
+	import net.conselldemallorca.helium.core.model.hibernate.Portasignatures.TipusEstat;
+	import net.conselldemallorca.helium.core.model.hibernate.Portasignatures.Transicio;
+	import net.conselldemallorca.helium.core.security.ExtendedPermission;
+	import net.conselldemallorca.helium.core.util.PdfUtils;
+	import net.conselldemallorca.helium.v3.core.api.dto.*;
+	import net.conselldemallorca.helium.v3.core.api.dto.DadesEnviamentDto.EntregaPostalTipus;
+	import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
+	import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
+	import net.conselldemallorca.helium.v3.core.api.exception.ValidacioException;
+	import net.conselldemallorca.helium.v3.core.api.service.ExpedientDocumentService;
+	import net.conselldemallorca.helium.v3.core.repository.DocumentNotificacioRepository;
+	import net.conselldemallorca.helium.v3.core.repository.DocumentRepository;
+	import net.conselldemallorca.helium.v3.core.repository.DocumentStoreRepository;
+	import net.conselldemallorca.helium.v3.core.repository.InteressatRepository;
+	import net.conselldemallorca.helium.v3.core.repository.NotificacioRepository;
+	import net.conselldemallorca.helium.v3.core.repository.PortasignaturesRepository;
+	import net.conselldemallorca.helium.v3.core.repository.RegistreRepository;
+	import org.json.simple.JSONObject;
+	import org.slf4j.Logger;
+	import org.slf4j.LoggerFactory;
+	import org.springframework.security.acls.domain.BasePermission;
+	import org.springframework.security.acls.model.Permission;
+	import org.springframework.security.core.context.SecurityContextHolder;
+	import org.springframework.stereotype.Service;
+	import org.springframework.transaction.annotation.Transactional;
+	import org.springframework.util.StringUtils;
 
-import javax.annotation.Resource;
-
-import org.json.simple.JSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.security.acls.domain.BasePermission;
-import org.springframework.security.acls.model.Permission;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
-
-import es.caib.plugins.arxiu.api.ContingutArxiu;
-import es.caib.plugins.arxiu.api.DocumentMetadades;
-import es.caib.plugins.arxiu.api.Firma;
-import net.conselldemallorca.helium.core.helper.ConversioTipusHelper;
-import net.conselldemallorca.helium.core.helper.DocumentHelperV3;
-import net.conselldemallorca.helium.core.helper.ExpedientHelper;
-import net.conselldemallorca.helium.core.helper.ExpedientLoggerHelper;
-import net.conselldemallorca.helium.core.helper.ExpedientRegistreHelper;
-import net.conselldemallorca.helium.core.helper.IndexHelper;
-import net.conselldemallorca.helium.core.helper.NotificacioHelper;
-import net.conselldemallorca.helium.core.helper.PaginacioHelper;
-import net.conselldemallorca.helium.core.helper.PluginHelper;
-import net.conselldemallorca.helium.core.helper.TascaHelper;
-import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
-import net.conselldemallorca.helium.core.model.hibernate.Document;
-import net.conselldemallorca.helium.core.model.hibernate.DocumentNotificacio;
-import net.conselldemallorca.helium.core.model.hibernate.DocumentStore;
-import net.conselldemallorca.helium.core.model.hibernate.Expedient;
-import net.conselldemallorca.helium.core.model.hibernate.ExpedientLog.ExpedientLogAccioTipus;
-import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
-import net.conselldemallorca.helium.core.model.hibernate.Interessat;
-import net.conselldemallorca.helium.core.model.hibernate.Portasignatures;
-import net.conselldemallorca.helium.core.model.hibernate.Portasignatures.TipusEstat;
-import net.conselldemallorca.helium.core.model.hibernate.Portasignatures.Transicio;
-import net.conselldemallorca.helium.core.security.ExtendedPermission;
-import net.conselldemallorca.helium.core.util.PdfUtils;
-import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
-import net.conselldemallorca.helium.jbpm3.integracio.JbpmTask;
-import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDetallDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ArxiuFirmaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.DadesEnviamentDto;
-import net.conselldemallorca.helium.v3.core.api.dto.DadesEnviamentDto.EntregaPostalTipus;
-import net.conselldemallorca.helium.v3.core.api.dto.DadesNotificacioDto;
-import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDocumentDto;
-import net.conselldemallorca.helium.v3.core.api.dto.NotificacioDto;
-import net.conselldemallorca.helium.v3.core.api.dto.NtiEstadoElaboracionEnumDto;
-import net.conselldemallorca.helium.v3.core.api.dto.NtiOrigenEnumDto;
-import net.conselldemallorca.helium.v3.core.api.dto.NtiTipoDocumentalEnumDto;
-import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
-import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.PortasignaturesDto;
-import net.conselldemallorca.helium.v3.core.api.dto.RespostaValidacioSignaturaDto;
-import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
-import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
-import net.conselldemallorca.helium.v3.core.api.exception.ValidacioException;
-import net.conselldemallorca.helium.v3.core.api.service.ExpedientDocumentService;
-import net.conselldemallorca.helium.v3.core.repository.DocumentNotificacioRepository;
-import net.conselldemallorca.helium.v3.core.repository.DocumentRepository;
-import net.conselldemallorca.helium.v3.core.repository.DocumentStoreRepository;
-import net.conselldemallorca.helium.v3.core.repository.InteressatRepository;
-import net.conselldemallorca.helium.v3.core.repository.NotificacioRepository;
-import net.conselldemallorca.helium.v3.core.repository.PortasignaturesRepository;
-import net.conselldemallorca.helium.v3.core.repository.RegistreRepository;
+	import javax.annotation.Resource;
+	import java.text.SimpleDateFormat;
+	import java.util.ArrayList;
+	import java.util.Date;
+	import java.util.List;
 
 
 /**
@@ -112,13 +92,9 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 	@Resource
 	private TascaHelper tascaHelper;
 	@Resource
-	private JbpmHelper jbpmHelper;
-	@Resource
 	private IndexHelper indexHelper;
 	@Resource
-	private ConversioTipusHelper conversioTipusHelper;
-	@Resource
-	private ExpedientLoggerHelper expedientLoggerHelper;
+	private WorkflowRetroaccioApi workflowRetroaccioApi;
 	@Resource
 	private ExpedientRegistreHelper expedientRegistreHelper;
 	@Resource
@@ -130,7 +106,7 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 
 	@Override
 	@Transactional
-	public void create(
+	public Long create(
 			Long expedientId,
 			String processInstanceId,
 			String documentCodi,
@@ -171,13 +147,13 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 				expedient,
 				processInstanceId);
 		boolean isAdjunt = documentCodi == null;
-		expedientLoggerHelper.afegirLogExpedientPerProces(
+		workflowRetroaccioApi.afegirInformacioRetroaccioPerProces(
 				processInstanceId,
-				isAdjunt ? 
-						ExpedientLogAccioTipus.PROCES_DOCUMENT_ADJUNTAR 
-						: ExpedientLogAccioTipus.PROCES_DOCUMENT_AFEGIR,
+				isAdjunt ?
+						WorkflowRetroaccioApi.ExpedientRetroaccioTipus.PROCES_DOCUMENT_ADJUNTAR :
+						WorkflowRetroaccioApi.ExpedientRetroaccioTipus.PROCES_DOCUMENT_AFEGIR,
 				documentCodi);
-		documentHelper.crearDocument(
+		Long documentStoreId = documentHelper.crearDocument(
 				null,
 				processInstanceId,
 				documentCodi,
@@ -202,6 +178,7 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 				SecurityContextHolder.getContext().getAuthentication().getName(),
 				documentCodi,
 				arxiuNom);
+		return documentStoreId;
 	}
 
 	@Override
@@ -256,9 +233,9 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 		}
 		String documentCodi = documentStore.getCodiDocument();
 		String arxiuNomAntic = documentStore.getArxiuNom();
-		expedientLoggerHelper.afegirLogExpedientPerProces(
+		workflowRetroaccioApi.afegirInformacioRetroaccioPerProces(
 				processInstanceId,
-				ExpedientLogAccioTipus.PROCES_DOCUMENT_MODIFICAR,
+				WorkflowRetroaccioApi.ExpedientRetroaccioTipus.PROCES_DOCUMENT_MODIFICAR,
 				documentCodi);
 		documentHelper.actualitzarDocument(
 				documentStoreId,
@@ -720,7 +697,7 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 		logger.debug("Generant document de la tasca amb plantilla (" +
 				"taskInstanceId=" + taskInstanceId + ", " +
 				"documentCodi=" + documentCodi + ")");
-		JbpmTask task = tascaHelper.getTascaComprovacionsTramitacio(
+		WTaskInstance task = tascaHelper.getTascaComprovacionsTramitacio(
 				taskInstanceId,
 				true,
 				true);
@@ -781,7 +758,7 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 				"tascaId=" + tascaId + ", " +
 				"documentId=" + documentId + ", " +
 				"arxiuNom=" + arxiuNom + ")");
-		JbpmTask task = tascaHelper.getTascaComprovacionsTramitacio(
+		WTaskInstance task = tascaHelper.getTascaComprovacionsTramitacio(
 				tascaId,
 				true,
 				true);
@@ -1258,5 +1235,71 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 		
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@Transactional
+	public Long guardarDocumentProces(
+			Long expedientId, 
+			String processInstanceId, 
+			String documentCodi,
+			String adjuntTitol, 
+			Date documentData, 
+			String arxiuNom, 
+			byte[] arxiuContingut, 
+			boolean isAdjunt,
+			String user) {
+
+		Long documentStoreId = null;
+		ExpedientDocumentDto document;
+		if (!isAdjunt)
+			document = this.findOneAmbInstanciaProces(
+    			expedientId,
+    			processInstanceId,
+    			documentCodi);
+		else
+			document = null;
+		if (document == null) {
+			// Crear
+			documentStoreId = this.create(
+					expedientId,
+					processInstanceId,
+					isAdjunt ? null : documentCodi, // null en el cas dels adjunts
+					documentData,
+					isAdjunt ? adjuntTitol : null, // Títol en el cas dels adjunts
+					arxiuNom,
+					arxiuContingut,
+					null,
+					false,
+					false,
+					null,
+					null,
+					null,
+					null,
+					null);
+		} else {
+			// Actualitzar
+			this.update(
+					expedientId,
+					processInstanceId,
+					expedientId,
+					documentData,
+					document.getAdjuntTitol(), 
+					arxiuNom,
+					arxiuContingut,
+					null,
+					false,
+					false,
+					null,
+					document.getNtiOrigen(),
+					document.getNtiEstadoElaboracion(),
+					document.getNtiTipoDocumental(),
+					document.getNtiIdOrigen());			
+		}	
+		return documentStoreId;
+	}
+
+	
 	private static final Logger logger = LoggerFactory.getLogger(ExpedientDocumentServiceImpl.class);
 }

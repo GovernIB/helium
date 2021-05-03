@@ -6,10 +6,8 @@ package net.conselldemallorca.helium.ws.tramitacio;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import javax.jws.WebService;
 import javax.xml.datatype.XMLGregorianCalendar;
@@ -17,6 +15,7 @@ import javax.xml.datatype.XMLGregorianCalendar;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.acls.model.NotFoundException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -25,32 +24,32 @@ import com.codahale.metrics.Counter;
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer;
 
-import net.conselldemallorca.helium.core.model.dto.ArxiuDto;
-import net.conselldemallorca.helium.core.model.dto.DocumentDto;
-import net.conselldemallorca.helium.core.model.dto.ExpedientDto;
-import net.conselldemallorca.helium.core.model.dto.InstanciaProcesDto;
-import net.conselldemallorca.helium.core.model.dto.TascaDto;
-import net.conselldemallorca.helium.core.model.dto.TascaLlistatDto;
-import net.conselldemallorca.helium.core.model.exception.NotFoundException;
-import net.conselldemallorca.helium.core.model.hibernate.Camp;
-import net.conselldemallorca.helium.core.model.hibernate.Camp.TipusCamp;
-import net.conselldemallorca.helium.core.model.hibernate.Document;
-import net.conselldemallorca.helium.core.model.hibernate.Entorn;
-import net.conselldemallorca.helium.core.model.hibernate.Estat;
-import net.conselldemallorca.helium.core.model.hibernate.Expedient;
-import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
-import net.conselldemallorca.helium.core.model.service.DissenyService;
-import net.conselldemallorca.helium.core.model.service.DocumentService;
-import net.conselldemallorca.helium.core.model.service.EntornService;
-import net.conselldemallorca.helium.core.model.service.ExpedientService;
-import net.conselldemallorca.helium.core.model.service.TascaService;
 import net.conselldemallorca.helium.core.util.EntornActual;
+import net.conselldemallorca.helium.v3.core.api.dto.AccioDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
+import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
+import net.conselldemallorca.helium.v3.core.api.dto.CampTipusDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
+import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
+import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto.EstatTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
+import net.conselldemallorca.helium.v3.core.api.dto.InstanciaProcesDto;
+import net.conselldemallorca.helium.v3.core.api.dto.MostrarAnulatsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto.OrdreDireccioDto;
-import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
-import net.conselldemallorca.helium.v3.core.api.service.ExpedientService.FiltreAnulat;
+import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.TascaDocumentDto;
+import net.conselldemallorca.helium.v3.core.api.service.DocumentService;
+import net.conselldemallorca.helium.v3.core.api.service.EntornService;
+import net.conselldemallorca.helium.v3.core.api.service.ExpedientDadaService;
+import net.conselldemallorca.helium.v3.core.api.service.ExpedientDocumentService;
+import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
+import net.conselldemallorca.helium.v3.core.api.service.ExpedientTipusService;
+import net.conselldemallorca.helium.v3.core.api.service.TascaService;
 
 /**
  * Implementació del servei de tramitació d'expedients
@@ -64,15 +63,20 @@ import net.conselldemallorca.helium.v3.core.api.service.ExpedientService.FiltreA
 		targetNamespace = "http://tramitacio.integracio.helium.conselldemallorca.net/")
 public class TramitacioServiceImpl implements TramitacioService {
 
+	@Autowired
 	private EntornService entornService;
-	private DissenyService dissenyService;
+	@Autowired
+	private ExpedientTipusService expedientTipusService;
+	@Autowired
 	private ExpedientService expedientService;
 	@Autowired
-	private net.conselldemallorca.helium.v3.core.api.service.ExpedientService expedientV3Service;
+	private ExpedientDadaService expedientDadaService;
+	@Autowired
+	private ExpedientDocumentService expedientDocumentService;
+	@Autowired
 	private TascaService tascaService;
-	private net.conselldemallorca.helium.v3.core.api.service.TascaService tascaServiceV3;
+	@Autowired
 	private DocumentService documentService;
-
 	@Autowired
 	private MetricRegistry metricRegistry;
 
@@ -86,15 +90,15 @@ public class TramitacioServiceImpl implements TramitacioService {
 			String numero,
 			String titol,
 			List<ParellaCodiValor> valorsFormulari) throws TramitacioException {
-		Entorn e = findEntornAmbCodi(entorn);
+		EntornDto e = findEntornAmbCodi(entorn);
 		if (e == null)
 			throw new TramitacioException("No existeix cap entorn amb aquest codi '" + entorn + "'");
-		ExpedientTipus et = findExpedientTipusAmbEntornICodi(e.getId(), expedientTipus);
+		ExpedientTipusDto et = findExpedientTipusAmbEntornICodi(e.getId(), expedientTipus);
 		if (et == null)
 			throw new TramitacioException("No existeix cap tipus d'expedient amb el codi '" + expedientTipus + "'");
-		if (numero != null && !et.getTeNumero())
+		if (numero != null && !et.isDemanaNumero())
 			throw new TramitacioException("Aquest tipus d'expedient no suporta número d'expedient");
-		if (titol != null && !et.getTeTitol())
+		if (titol != null && !et.isDemanaTitol())
 			throw new TramitacioException("Aquest tipus d'expedient no suporta titol d'expedient");
 		Map<String, Object> variables = null;
 		if (valorsFormulari != null) {
@@ -149,7 +153,7 @@ public class TramitacioServiceImpl implements TramitacioService {
 		try {
 			Authentication authentication =  new UsernamePasswordAuthenticationToken(usuari, null);
 			SecurityContextHolder.getContext().setAuthentication(authentication);
-			net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto expedient = expedientV3Service.create(
+			net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto expedient = expedientService.create(
 					e.getId(),
 					usuari,
 					et.getId(),
@@ -197,7 +201,7 @@ public class TramitacioServiceImpl implements TramitacioService {
 	public List<TascaTramitacio> consultaTasquesPersonals(
 			String entorn,
 			String usuari) throws TramitacioException {
-		Entorn e = findEntornAmbCodi(entorn);
+		EntornDto e = findEntornAmbCodi(entorn);
 		if (e == null)
 			throw new TramitacioException("No existeix cap entorn amb el codi '" + entorn + "'");
 		final Timer timerTotal = metricRegistry.timer(
@@ -226,9 +230,28 @@ public class TramitacioServiceImpl implements TramitacioService {
 			Authentication authentication =  new UsernamePasswordAuthenticationToken(usuari, null);
 			SecurityContextHolder.getContext().setAuthentication(authentication);
 			
-			List<TascaLlistatDto> tasques = tascaService.findTasquesPersonalsTramitacio(e.getId(), usuari, null, true);
+			String usuariBo = authentication.getName();
+
+			PaginaDto<ExpedientTascaDto> tasques = tascaService.findPerFiltrePaginat(
+					e.getId(), 
+					null, 
+					null, 
+					null, 
+					null, 
+					usuariBo, 
+					null, 
+					null, 
+					null, 
+					null, 
+					null, 
+					null, 
+					false, 
+					false, 
+					true, 
+					new PaginacioParamsDto());
+			
 			List<TascaTramitacio> resposta = new ArrayList<TascaTramitacio>();
-			for (TascaLlistatDto tasca: tasques)
+			for (ExpedientTascaDto tasca: tasques.getContingut())
 				resposta.add(convertirTascaTramitacio(tasca));
 			return resposta;
 		} catch (Exception ex) {
@@ -244,7 +267,7 @@ public class TramitacioServiceImpl implements TramitacioService {
 	public List<TascaTramitacio> consultaTasquesGrup(
 			String entorn,
 			String usuari) throws TramitacioException {
-		Entorn e = findEntornAmbCodi(entorn);
+		EntornDto e = findEntornAmbCodi(entorn);
 		if (e == null)
 			throw new TramitacioException("No existeix cap entorn amb el codi '" + entorn + "'");
 		final Timer timerTotal = metricRegistry.timer(
@@ -272,10 +295,27 @@ public class TramitacioServiceImpl implements TramitacioService {
 		try {
 			Authentication authentication =  new UsernamePasswordAuthenticationToken(usuari, null);
 			SecurityContextHolder.getContext().setAuthentication(authentication);
-			
-			List<TascaLlistatDto> tasques = tascaService.findTasquesGrupTramitacio(e.getId(), usuari, null, true);
+			String usuariBo = authentication.getName();
+
+			PaginaDto<ExpedientTascaDto> tasques = tascaService.findPerFiltrePaginat(
+					e.getId(), 
+					null, 
+					null, 
+					null, 
+					null, 
+					usuariBo, 
+					null, 
+					null, 
+					null, 
+					null, 
+					null, 
+					null, 
+					false, 
+					true, 
+					false, 
+					new PaginacioParamsDto());			
 			List<TascaTramitacio> resposta = new ArrayList<TascaTramitacio>();
-			for (TascaLlistatDto tasca: tasques)
+			for (ExpedientTascaDto tasca: tasques)
 				resposta.add(convertirTascaTramitacio(tasca));
 			return resposta;
 		} catch (Exception ex) {
@@ -292,7 +332,7 @@ public class TramitacioServiceImpl implements TramitacioService {
 			String entorn,
 			String usuari,
 			String codi) throws TramitacioException {
-		Entorn e = findEntornAmbCodi(entorn);
+		EntornDto e = findEntornAmbCodi(entorn);
 		if (e == null)
 			throw new TramitacioException("No existeix cap entorn amb el codi '" + entorn + "'");
 		final Timer timerTotal = metricRegistry.timer(
@@ -321,9 +361,25 @@ public class TramitacioServiceImpl implements TramitacioService {
 			Authentication authentication =  new UsernamePasswordAuthenticationToken(usuari, null);
 			SecurityContextHolder.getContext().setAuthentication(authentication);
 			
-			List<TascaLlistatDto> tasques = tascaService.findTasquesPersonalsTramitacio(e.getId(), usuari, codi, true);
+			PaginaDto<ExpedientTascaDto> tasques = tascaService.findPerFiltrePaginat(
+					e.getId(), 
+					null, 
+					null, 
+					null, 
+					null, 
+					codi, 
+					null, 
+					null, 
+					null, 
+					null, 
+					null, 
+					null, 
+					true, 
+					false, 
+					true, 
+					new PaginacioParamsDto());
 			List<TascaTramitacio> resposta = new ArrayList<TascaTramitacio>();
-			for (TascaLlistatDto tasca: tasques)
+			for (ExpedientTascaDto tasca: tasques)
 				resposta.add(convertirTascaTramitacio(tasca));
 			return resposta;
 		} catch (Exception ex) {
@@ -340,7 +396,7 @@ public class TramitacioServiceImpl implements TramitacioService {
 			String entorn,
 			String usuari,
 			String codi) throws TramitacioException {
-		Entorn e = findEntornAmbCodi(entorn);
+		EntornDto e = findEntornAmbCodi(entorn);
 		if (e == null)
 			throw new TramitacioException("No existeix cap entorn amb el codi '" + entorn + "'");
 		final Timer timerTotal = metricRegistry.timer(
@@ -369,9 +425,25 @@ public class TramitacioServiceImpl implements TramitacioService {
 			Authentication authentication =  new UsernamePasswordAuthenticationToken(usuari, null);
 			SecurityContextHolder.getContext().setAuthentication(authentication);
 			
-			List<TascaLlistatDto> tasques = tascaService.findTasquesGrupTramitacio(e.getId(), usuari, codi, true);
+			PaginaDto<ExpedientTascaDto> tasques = tascaService.findPerFiltrePaginat(
+					e.getId(), 
+					null, 
+					null, 
+					null, 
+					null, 
+					null, 
+					null, 
+					null, 
+					null, 
+					null, 
+					null, 
+					null, 
+					false, 
+					true, 
+					false, 
+					new PaginacioParamsDto());
 			List<TascaTramitacio> resposta = new ArrayList<TascaTramitacio>();
-			for (TascaLlistatDto tasca: tasques)
+			for (ExpedientTascaDto tasca: tasques)
 				resposta.add(convertirTascaTramitacio(tasca));
 			return resposta;
 		} catch (Exception ex) {
@@ -388,7 +460,7 @@ public class TramitacioServiceImpl implements TramitacioService {
 			String entorn,
 			String usuari,
 			String processInstanceId) throws TramitacioException {
-		Entorn e = findEntornAmbCodi(entorn);
+		EntornDto e = findEntornAmbCodi(entorn);
 		if (e == null)
 			throw new TramitacioException("No existeix cap entorn amb el codi '" + entorn + "'");
 		final Timer timerTotal = metricRegistry.timer(
@@ -416,14 +488,15 @@ public class TramitacioServiceImpl implements TramitacioService {
 		try {
 			Authentication authentication =  new UsernamePasswordAuthenticationToken(usuari, null);
 			SecurityContextHolder.getContext().setAuthentication(authentication);
-			ExpedientDto expedient = expedientService.findExpedientAmbProcessInstanceId(processInstanceId);
+			Long expedientId = expedientService.findIdAmbProcessInstanceId(processInstanceId);
+			ExpedientDto expedient = expedientService.findAmbId(expedientId);
 			PaginacioParamsDto paginacioParams = new PaginacioParamsDto();
 			paginacioParams.afegirOrdre(
 					"dataCreacio",
 					OrdreDireccioDto.DESCENDENT);
 			paginacioParams.setPaginaNum(0);
 			paginacioParams.setPaginaTamany(1000);
-			PaginaDto<ExpedientTascaDto> tasques = tascaServiceV3.findPerFiltrePaginat(
+			PaginaDto<ExpedientTascaDto> tasques = tascaService.findPerFiltrePaginat(
 					e.getId(),
 					null,
 					expedient.getTipus().getId(),
@@ -459,7 +532,7 @@ public class TramitacioServiceImpl implements TramitacioService {
 			String entorn,
 			String usuari,
 			String processInstanceId) throws TramitacioException {
-		Entorn e = findEntornAmbCodi(entorn);
+		EntornDto e = findEntornAmbCodi(entorn);
 		if (e == null)
 			throw new TramitacioException("No existeix cap entorn amb el codi '" + entorn + "'");
 		final Timer timerTotal = metricRegistry.timer(
@@ -487,14 +560,15 @@ public class TramitacioServiceImpl implements TramitacioService {
 		try {
 			Authentication authentication =  new UsernamePasswordAuthenticationToken(usuari, null);
 			SecurityContextHolder.getContext().setAuthentication(authentication);
-			ExpedientDto expedient = expedientService.findExpedientAmbProcessInstanceId(processInstanceId);
+			Long expedientId = expedientService.findIdAmbProcessInstanceId(processInstanceId);
+			ExpedientDto expedient = expedientService.findAmbId(expedientId);
 			PaginacioParamsDto paginacioParams = new PaginacioParamsDto();
 			paginacioParams.afegirOrdre(
 					"dataCreacio",
 					OrdreDireccioDto.DESCENDENT);
 			paginacioParams.setPaginaNum(0);
 			paginacioParams.setPaginaTamany(1000);
-			PaginaDto<ExpedientTascaDto> tasques = tascaServiceV3.findPerFiltrePaginat(
+			PaginaDto<ExpedientTascaDto> tasques = tascaService.findPerFiltrePaginat(
 					e.getId(),
 					null,
 					expedient.getTipus().getId(),
@@ -530,7 +604,7 @@ public class TramitacioServiceImpl implements TramitacioService {
 			String entorn,
 			String usuari,
 			String tascaId) throws TramitacioException {
-		Entorn e = findEntornAmbCodi(entorn);
+		EntornDto e = findEntornAmbCodi(entorn);
 		boolean agafada = false;
 		if (e == null)
 			throw new TramitacioException("No existeix cap entorn amb el codi '" + entorn + "'");
@@ -559,11 +633,32 @@ public class TramitacioServiceImpl implements TramitacioService {
 		try {
 			Authentication authentication =  new UsernamePasswordAuthenticationToken(usuari, null);
 			SecurityContextHolder.getContext().setAuthentication(authentication);
+			String usuariBo = authentication.getName();
 			
-			if (tascaService.isTasquesGrupTramitacio(e.getId(), tascaId, usuari)) {
-				tascaService.agafar(e.getId(), usuari, tascaId);
-				agafada = true;
-			}
+			PaginaDto<ExpedientTascaDto> tasques = tascaService.findPerFiltrePaginat(
+					e.getId(),
+					null,
+					null,
+					null,
+					null,
+					usuariBo,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					false,
+					true,
+					false,
+					new PaginacioParamsDto());
+			for (ExpedientTascaDto tasca: tasques.getContingut()) {
+				if (tascaId.equals(tasca.getId())) {
+					agafada = true;
+					tascaService.agafar(tascaId);
+					break;
+				}
+			}		
 		} catch (Exception ex) {
 			logger.error("No s'ha pogut agafar la tasca", ex);
 			throw new TramitacioException("No s'ha pogut agafar la tasca: " + ex.getMessage());
@@ -580,7 +675,7 @@ public class TramitacioServiceImpl implements TramitacioService {
 			String entorn,
 			String usuari,
 			String tascaId) throws TramitacioException {
-		Entorn e = findEntornAmbCodi(entorn);
+		EntornDto e = findEntornAmbCodi(entorn);
 		boolean alliberada = false;
 		if (e == null)
 			throw new TramitacioException("No existeix cap entorn amb el codi '" + entorn + "'");
@@ -609,11 +704,28 @@ public class TramitacioServiceImpl implements TramitacioService {
 		try {
 			Authentication authentication =  new UsernamePasswordAuthenticationToken(usuari, null);
 			SecurityContextHolder.getContext().setAuthentication(authentication);
-			
-			List<TascaLlistatDto> tasques = tascaService.findTasquesPersonalsTramitacio(e.getId(), usuari, null, false);
-			for (TascaLlistatDto tasca: tasques) {
-				if (tasca.getId().equals(tascaId)) {
-					tascaService.alliberar(e.getId(), usuari, tascaId, true);
+			String usuariBo = authentication.getName();
+
+			PaginaDto<ExpedientTascaDto> tasques = tascaService.findPerFiltrePaginat(
+					e.getId(),
+					null,
+					null,
+					null,
+					null,
+					usuariBo,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					true,
+					false,
+					false,
+					new PaginacioParamsDto());
+			for (ExpedientTascaDto tasca: tasques.getContingut()) {
+				if (tascaId.equals(tasca.getId())) {
+					tascaService.alliberar(tascaId);
 					alliberada = true;
 					break;
 				}
@@ -634,7 +746,7 @@ public class TramitacioServiceImpl implements TramitacioService {
 			String entorn,
 			String usuari,
 			String tascaId) throws TramitacioException {
-		Entorn e = findEntornAmbCodi(entorn);
+		EntornDto e = findEntornAmbCodi(entorn);
 		if (e == null)
 			throw new TramitacioException("No existeix cap entorn amb el codi '" + entorn + "'");
 		final Timer timerTotal = metricRegistry.timer(
@@ -663,18 +775,10 @@ public class TramitacioServiceImpl implements TramitacioService {
 			Authentication authentication =  new UsernamePasswordAuthenticationToken(usuari, null);
 			SecurityContextHolder.getContext().setAuthentication(authentication);
 			
-			TascaDto tasca = tascaService.getById(
-					e.getId(),
-					tascaId,
-					usuari,
-					null,
-					true,
-					false);
 			List<CampTasca> resposta = new ArrayList<CampTasca>();
-			for (net.conselldemallorca.helium.core.model.hibernate.CampTasca campTasca: tasca.getCamps())
-				resposta.add(convertirCampTasca(
-						campTasca,
-						tasca.getVariable(campTasca.getCamp().getCodi())));
+			for (TascaDadaDto dada : tascaService.findDades(tascaId)) {
+				resposta.add(convertirCampTasca(dada));
+			}
 			return resposta;
 		} finally {
 			contextTotal.stop();
@@ -688,7 +792,7 @@ public class TramitacioServiceImpl implements TramitacioService {
 			String usuari,
 			String tascaId,
 			List<ParellaCodiValor> valors) throws TramitacioException {
-		Entorn e = findEntornAmbCodi(entorn);
+		EntornDto e = findEntornAmbCodi(entorn);
 		if (e == null)
 			throw new TramitacioException("No existeix cap entorn amb el codi '" + entorn + "'");
 		final Timer timerTotal = metricRegistry.timer(
@@ -751,13 +855,9 @@ public class TramitacioServiceImpl implements TramitacioService {
 		try {
 			Authentication authentication =  new UsernamePasswordAuthenticationToken(usuari, null);
 			SecurityContextHolder.getContext().setAuthentication(authentication);
-			
 			tascaService.validar(
-					e.getId(),
 					tascaId,
-					variables,
-					true,
-					usuari);
+					variables);
 		} catch (Exception ex) {
 			logger.error("No s'han pogut guardar les variables a la tasca", ex);
 			throw new TramitacioException("No s'han pogut guardar les variables a la tasca: " + ex.getMessage());
@@ -772,7 +872,7 @@ public class TramitacioServiceImpl implements TramitacioService {
 			String entorn,
 			String usuari,
 			String tascaId) throws TramitacioException {
-		Entorn e = findEntornAmbCodi(entorn);
+		EntornDto e = findEntornAmbCodi(entorn);
 		if (e == null)
 			throw new TramitacioException("No existeix cap entorn amb el codi '" + entorn + "'");
 		final Timer timerTotal = metricRegistry.timer(
@@ -800,19 +900,10 @@ public class TramitacioServiceImpl implements TramitacioService {
 		try {
 			Authentication authentication =  new UsernamePasswordAuthenticationToken(usuari, null);
 			SecurityContextHolder.getContext().setAuthentication(authentication);
-			
-			TascaDto tasca = tascaService.getById(
-					e.getId(),
-					tascaId,
-					usuari,
-					null,
-					true,
-					false);
 			List<DocumentTasca> resposta = new ArrayList<DocumentTasca>();
-			for (net.conselldemallorca.helium.core.model.hibernate.DocumentTasca documentTasca: tasca.getDocuments())
-				resposta.add(convertirDocumentTasca(
-						documentTasca,
-						tasca.getVarsDocuments().get(documentTasca.getDocument().getCodi())));
+			for (TascaDocumentDto document : tascaService.findDocuments(tascaId)) {
+				resposta.add(convertirDocumentTasca(document));
+			}		
 			return resposta;
 		} finally {
 			contextTotal.stop();
@@ -829,7 +920,7 @@ public class TramitacioServiceImpl implements TramitacioService {
 			String nom,
 			Date data,
 			byte[] contingut) throws TramitacioException {
-		Entorn e = findEntornAmbCodi(entorn);
+		EntornDto e = findEntornAmbCodi(entorn);
 		if (e == null)
 			throw new TramitacioException("No existeix cap entorn amb el codi '" + entorn + "'");
 		final Timer timerTotal = metricRegistry.timer(
@@ -857,15 +948,22 @@ public class TramitacioServiceImpl implements TramitacioService {
 		try {
 			Authentication authentication =  new UsernamePasswordAuthenticationToken(usuari, null);
 			SecurityContextHolder.getContext().setAuthentication(authentication);
-			
-			tascaService.comprovarTascaAssignadaIValidada(e.getId(), tascaId, usuari);
-			documentService.guardarDocumentTasca(
-					e.getId(),
-					tascaId,
-					arxiu,
-					data,
-					nom,
-					contingut);
+			String usuariBo = authentication.getName();
+			if (tascaService.isTascaValidada(tascaId))
+				tascaService.guardarDocumentTasca(
+					e.getId(), 
+					tascaId, 
+					arxiu, 
+					data, 
+					null, 
+					contingut, 
+					null, 
+					false, 
+					false, 
+					null, 
+					usuariBo);
+			else
+				throw new IllegalStateException("La tasca no ha estat validada");
 		} catch (Exception ex) {
 			logger.error("No s'ha pogut guardar el document a la tasca", ex);
 			throw new TramitacioException("No s'ha pogut guardar el document a la tasca: " + ex.getMessage());
@@ -881,7 +979,7 @@ public class TramitacioServiceImpl implements TramitacioService {
 			String usuari,
 			String tascaId,
 			String document) throws TramitacioException {
-		Entorn e = findEntornAmbCodi(entorn);
+		EntornDto e = findEntornAmbCodi(entorn);
 		if (e == null)
 			throw new TramitacioException("No existeix cap entorn amb el codi '" + entorn + "'");
 		final Timer timerTotal = metricRegistry.timer(
@@ -908,13 +1006,12 @@ public class TramitacioServiceImpl implements TramitacioService {
 		countEntorn.inc();
 		try {
 			Authentication authentication =  new UsernamePasswordAuthenticationToken(usuari, null);
-			SecurityContextHolder.getContext().setAuthentication(authentication);
-			
-			tascaService.comprovarTascaAssignadaIValidada(e.getId(), tascaId, usuari);
-			documentService.esborrarDocument(
-					tascaId,
-					null,
-					document);
+			SecurityContextHolder.getContext().setAuthentication(authentication);			
+			String usuariBo = authentication.getName();
+			if (tascaService.isTascaValidada(tascaId))
+				tascaService.esborrarDocument(tascaId, document, usuariBo);
+			else
+				throw new IllegalStateException("La tasca no ha estat validada");
 		} catch (Exception ex) {
 			logger.error("No s'ha pogut esborrar el document de la tasca", ex);
 			throw new TramitacioException("No s'ha pogut esborrar el document de la tasca: " + ex.getMessage());
@@ -930,7 +1027,7 @@ public class TramitacioServiceImpl implements TramitacioService {
 			String usuari,
 			String tascaId,
 			String transicio) throws TramitacioException {
-		Entorn e = findEntornAmbCodi(entorn);
+		EntornDto e = findEntornAmbCodi(entorn);
 		if (e == null)
 			throw new TramitacioException("No existeix cap entorn amb el codi '" + entorn + "'");
 		final Timer timerTotal = metricRegistry.timer(
@@ -960,10 +1057,7 @@ public class TramitacioServiceImpl implements TramitacioService {
 			SecurityContextHolder.getContext().setAuthentication(authentication);
 			
 			tascaService.completar(
-					e.getId(),
 					tascaId,
-					true,
-					usuari,
 					transicio);
 		} catch (Exception ex) {
 			logger.error("No s'ha pogut completar la tasca", ex);
@@ -979,7 +1073,7 @@ public class TramitacioServiceImpl implements TramitacioService {
 			String entornCodi,
 			String usuari,
 			String processInstanceId) throws TramitacioException {
-		Entorn e = findEntornAmbCodi(entornCodi);
+		EntornDto e = findEntornAmbCodi(entornCodi);
 		if (e == null)
 			throw new TramitacioException("No existeix cap entorn amb el codi '" + entornCodi + "'");
 		final Timer timerTotal = metricRegistry.timer(
@@ -1007,8 +1101,9 @@ public class TramitacioServiceImpl implements TramitacioService {
 		try {
 			Authentication authentication =  new UsernamePasswordAuthenticationToken(usuari, null);
 			SecurityContextHolder.getContext().setAuthentication(authentication);
+			Long expedientId = expedientService.findIdAmbProcessInstanceId(processInstanceId);
 			return toExpedientInfo(
-				expedientService.findExpedientAmbProcessInstanceId(processInstanceId));
+				expedientService.findAmbId(expedientId));
 		} catch (Exception ex) {
 			logger.error("No s'ha pogut consultar l'expedient", ex);
 			throw new TramitacioException("No s'ha pogut consultar l'expedient: " + ex.getMessage());
@@ -1023,7 +1118,7 @@ public class TramitacioServiceImpl implements TramitacioService {
 			String entorn,
 			String usuari,
 			String processInstanceId) throws TramitacioException {
-		Entorn e = findEntornAmbCodi(entorn);
+		EntornDto e = findEntornAmbCodi(entorn);
 		if (e == null)
 			throw new TramitacioException("No existeix cap entorn amb el codi '" + entorn + "'");
 		final Timer timerTotal = metricRegistry.timer(
@@ -1053,21 +1148,21 @@ public class TramitacioServiceImpl implements TramitacioService {
 			SecurityContextHolder.getContext().setAuthentication(authentication);
 			
 			List<CampProces> resposta = new ArrayList<CampProces>();
-			InstanciaProcesDto instanciaProces = expedientService.getInstanciaProcesById(processInstanceId, true, true, true);
+			InstanciaProcesDto instanciaProces = expedientService.getInstanciaProcesById(processInstanceId);
 			if (instanciaProces.getVariables() != null) {
 				for (String var: instanciaProces.getVariables().keySet()) {
-					Camp campVar = null;
-					for (Camp camp: instanciaProces.getCamps()) {
+					CampDto campVar = null;
+					for (CampDto camp: instanciaProces.getCamps()) {
 						if (camp.getCodi().equals(var)) {
 							campVar = camp;
 							break;
 						}
 					}
 					if (campVar == null) {
-						campVar = new Camp();
+						campVar = new CampDto();
 						campVar.setCodi(var);
 						campVar.setEtiqueta(var);
-						campVar.setTipus(TipusCamp.STRING);
+						campVar.setTipus(CampTipusDto.STRING);
 					}
 					resposta.add(convertirCampProces(
 							campVar,
@@ -1091,7 +1186,7 @@ public class TramitacioServiceImpl implements TramitacioService {
 			String processInstanceId,
 			String varCodi,
 			Object valor) throws TramitacioException {
-		Entorn e = findEntornAmbCodi(entorn);
+		EntornDto e = findEntornAmbCodi(entorn);
 		if (e == null)
 			throw new TramitacioException("No existeix cap entorn amb el codi '" + entorn + "'");
 		final Timer timerTotal = metricRegistry.timer(
@@ -1119,7 +1214,9 @@ public class TramitacioServiceImpl implements TramitacioService {
 		try {
 			Authentication authentication =  new UsernamePasswordAuthenticationToken(usuari, null);
 			SecurityContextHolder.getContext().setAuthentication(authentication);
-			
+			Long expedientId = expedientService.findIdAmbProcessInstanceId(processInstanceId);
+			ExpedientDto expedient = expedientService.findAmbId(expedientId);
+
 			if (valor instanceof Object[]) {
 				Object[] vs = (Object[])valor;
 				for (int i = 0; i < vs.length; i++) {
@@ -1134,17 +1231,20 @@ public class TramitacioServiceImpl implements TramitacioService {
 							vs[i] = ((XMLGregorianCalendar)vs[i]).toGregorianCalendar().getTime();
 					}
 				}
-				expedientService.updateVariable(
+				expedientDadaService.update(
+						expedient.getId(),
 						processInstanceId,
 						varCodi,
 						valor);
 			} else if (valor instanceof XMLGregorianCalendar) {
-				expedientService.updateVariable(
+				expedientDadaService.update(
+						expedient.getId(),
 						processInstanceId,
 						varCodi,
 						((XMLGregorianCalendar)valor).toGregorianCalendar().getTime());
 			} else {
-				expedientService.updateVariable(
+				expedientDadaService.update(
+						expedient.getId(),
 						processInstanceId,
 						varCodi,
 						valor);
@@ -1167,7 +1267,7 @@ public class TramitacioServiceImpl implements TramitacioService {
 			String usuari,
 			String processInstanceId,
 			String varCodi) throws TramitacioException {
-		Entorn e = findEntornAmbCodi(entorn);
+		EntornDto e = findEntornAmbCodi(entorn);
 		if (e == null)
 			throw new TramitacioException("No existeix cap entorn amb el codi '" + entorn + "'");
 		final Timer timerTotal = metricRegistry.timer(
@@ -1195,8 +1295,10 @@ public class TramitacioServiceImpl implements TramitacioService {
 		try {
 			Authentication authentication =  new UsernamePasswordAuthenticationToken(usuari, null);
 			SecurityContextHolder.getContext().setAuthentication(authentication);
-			
-			expedientService.deleteVariable(
+			Long expedientId = expedientService.findIdAmbProcessInstanceId(processInstanceId);
+			ExpedientDto expedient = expedientService.findAmbId(expedientId);
+			expedientDadaService.delete(
+					expedient.getId(),
 					processInstanceId,
 					varCodi);
 		} catch (Exception ex) {
@@ -1213,7 +1315,7 @@ public class TramitacioServiceImpl implements TramitacioService {
 			String entorn,
 			String usuari,
 			String processInstanceId) throws TramitacioException {
-		Entorn e = findEntornAmbCodi(entorn);
+		EntornDto e = findEntornAmbCodi(entorn);
 		if (e == null)
 			throw new TramitacioException("No existeix cap entorn amb el codi '" + entorn + "'");
 		final Timer timerTotal = metricRegistry.timer(
@@ -1243,7 +1345,7 @@ public class TramitacioServiceImpl implements TramitacioService {
 			SecurityContextHolder.getContext().setAuthentication(authentication);
 			
 			List<DocumentProces> resposta = new ArrayList<DocumentProces>();
-			InstanciaProcesDto instanciaProces = expedientService.getInstanciaProcesById(processInstanceId, true, true, true);
+			InstanciaProcesDto instanciaProces = expedientService.getInstanciaProcesById(processInstanceId);
 			for (DocumentDto document: instanciaProces.getVarsDocuments().values()) {
 				resposta.add(convertirDocumentProces(document));
 			}
@@ -1273,7 +1375,13 @@ public class TramitacioServiceImpl implements TramitacioService {
 		try {
 			ArxiuProces resposta = null;
 			if (documentId != null) {
-				ArxiuDto arxiu = documentService.arxiuDocumentPerMostrar(documentId);
+				DocumentDto docInfo = documentService.findAmbId(null, documentId);
+				String processInstanceId = docInfo.getProcessInstanceId();
+				Long expedientId = expedientService.findIdAmbProcessInstanceId(processInstanceId);
+				ArxiuDto arxiu = expedientDocumentService.arxiuFindAmbDocument(
+						expedientId, 
+						processInstanceId, 
+						documentId);
 				if (arxiu != null) {
 					resposta = new ArxiuProces();
 					resposta.setNom(arxiu.getNom());
@@ -1298,7 +1406,7 @@ public class TramitacioServiceImpl implements TramitacioService {
 			String arxiu,
 			Date data,
 			byte[] contingut) throws TramitacioException {
-		Entorn e = findEntornAmbCodi(entorn);
+		EntornDto e = findEntornAmbCodi(entorn);
 		if (e == null)
 			throw new TramitacioException("No existeix cap entorn amb el codi '" + entorn + "'");
 		final Timer timerTotal = metricRegistry.timer(
@@ -1327,22 +1435,30 @@ public class TramitacioServiceImpl implements TramitacioService {
 			Authentication authentication =  new UsernamePasswordAuthenticationToken(usuari, null);
 			SecurityContextHolder.getContext().setAuthentication(authentication);
 			
-			InstanciaProcesDto instanciaProces = expedientService.getInstanciaProcesById(processInstanceId, false, false, false);
+			InstanciaProcesDto instanciaProces = expedientService.getInstanciaProcesById(processInstanceId);
 			if (instanciaProces == null)
 				throw new TramitacioException("No s'ha pogut trobar la instancia de proces amb id " + processInstanceId);
-			Document document = dissenyService.findDocumentAmbDefinicioProcesICodi(
-					instanciaProces.getDefinicioProces().getId(),
-					documentCodi);
+			Long expedientId = expedientService.findIdAmbProcessInstanceId(processInstanceId);
+			ExpedientDto expedient = expedientService.findAmbId(expedientId);
+			DocumentDto document = documentService.findAmbCodi(
+					expedient.getTipus().isAmbInfoPropia() ? expedient.getTipus().getId() : null, 
+					instanciaProces.getDefinicioProces().getId(), 
+					documentCodi, 
+					true);
 			if (document == null)
 				throw new TramitacioException("No s'ha pogut trobar el document amb codi " + documentCodi);
-			return documentService.guardarDocumentProces(
+			Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+			String usuariBo = auth.getName();
+			return expedientDocumentService.guardarDocumentProces(
+					expedient.getId(),
 					processInstanceId,
 					documentCodi,
 					null,
 					data,
 					arxiu,
 					contingut,
-					false);
+					false,
+					usuariBo);
 		} catch (Exception ex) {
 			logger.error("No s'ha pogut guardar el document al procés", ex);
 			throw new TramitacioException("No s'ha pogut guardar el document al procés: " + ex.getMessage());
@@ -1358,7 +1474,7 @@ public class TramitacioServiceImpl implements TramitacioService {
 			String usuari,
 			String processInstanceId,
 			Long documentId) throws TramitacioException {
-		Entorn e = findEntornAmbCodi(entorn);
+		EntornDto e = findEntornAmbCodi(entorn);
 		if (e == null)
 			throw new TramitacioException("No existeix cap entorn amb el codi '" + entorn + "'");
 		final Timer timerTotal = metricRegistry.timer(
@@ -1386,11 +1502,11 @@ public class TramitacioServiceImpl implements TramitacioService {
 		try {
 			Authentication authentication =  new UsernamePasswordAuthenticationToken(usuari, null);
 			SecurityContextHolder.getContext().setAuthentication(authentication);
-			
-			documentService.esborrarDocument(
-					null,
-					processInstanceId,
-					documentService.getDocumentCodiPerDocumentStoreId(documentId));
+			Long expedientId = expedientService.findIdAmbProcessInstanceId(processInstanceId);
+			expedientDocumentService.delete(
+					expedientId,
+					processInstanceId, 
+					documentId);
 		} catch (Exception ex) {
 			logger.error("No s'ha pogut esborrar el document del procés", ex);
 			throw new TramitacioException("No s'ha pogut esborrar el document del procés: " + ex.getMessage());
@@ -1406,7 +1522,7 @@ public class TramitacioServiceImpl implements TramitacioService {
 			String usuari,
 			String processInstanceId,
 			String accio) throws TramitacioException {
-		Entorn e = findEntornAmbCodi(entorn);
+		EntornDto e = findEntornAmbCodi(entorn);
 		if (e == null)
 			throw new TramitacioException("No existeix cap entorn amb el codi '" + entorn + "'");
 		final Timer timerTotal = metricRegistry.timer(
@@ -1434,8 +1550,19 @@ public class TramitacioServiceImpl implements TramitacioService {
 		try {
 			Authentication authentication =  new UsernamePasswordAuthenticationToken(usuari, null);
 			SecurityContextHolder.getContext().setAuthentication(authentication);
-			
-			expedientService.executarAccio(processInstanceId, accio);
+			Long expedientId = expedientService.findIdAmbProcessInstanceId(processInstanceId);
+			List<AccioDto> accions = expedientService.accioFindVisiblesAmbProcessInstanceId(expedientId, processInstanceId);
+			AccioDto ac = null;
+			for (AccioDto a : accions) {
+				if( a.getCodi().equals(accio)) {
+					ac = a;
+					break;
+				}
+			}
+			if (ac == null || ac.isOculta())
+				throw new TramitacioException("No existeix cap accio amb el codi '" + accio + "'");
+
+			expedientService.accioExecutar(expedientId, processInstanceId, ac.getId());
 		} catch (Exception ex) {
 			logger.error("No s'ha pogut executar l'acció", ex);
 			throw new TramitacioException("No s'ha pogut executar l'acció: " + ex.getMessage());
@@ -1451,7 +1578,7 @@ public class TramitacioServiceImpl implements TramitacioService {
 			String usuari,
 			String processInstanceId,
 			String script) throws TramitacioException {
-		Entorn e = findEntornAmbCodi(entorn);
+		EntornDto e = findEntornAmbCodi(entorn);
 		if (e == null)
 			throw new TramitacioException("No existeix cap entorn amb el codi '" + entorn + "'");
 		final Timer timerTotal = metricRegistry.timer(
@@ -1479,11 +1606,12 @@ public class TramitacioServiceImpl implements TramitacioService {
 		try {
 			Authentication authentication =  new UsernamePasswordAuthenticationToken(usuari, null);
 			SecurityContextHolder.getContext().setAuthentication(authentication);
-			
-			expedientService.evaluateScript(
-					processInstanceId,
-					script,
-					null);
+			Long expedientId = expedientService.findIdAmbProcessInstanceId(processInstanceId);
+
+			expedientService.procesScriptExec(
+					expedientId, 
+					processInstanceId, 
+					script);
 		} catch (Exception ex) {
 			logger.error("No s'ha pogut executar l'script", ex);
 			throw new TramitacioException("No s'ha pogut executar l'script: " + ex.getMessage());
@@ -1499,7 +1627,7 @@ public class TramitacioServiceImpl implements TramitacioService {
 			String usuari,
 			String processInstanceId,
 			String motiu) throws TramitacioException{
-		Entorn e = findEntornAmbCodi(entorn);
+		EntornDto e = findEntornAmbCodi(entorn);
 		if (e == null)
 			throw new TramitacioException("No existeix cap entorn amb el codi '" + entorn + "'");
 		final Timer timerTotal = metricRegistry.timer(
@@ -1527,11 +1655,10 @@ public class TramitacioServiceImpl implements TramitacioService {
 		try {
 			Authentication authentication =  new UsernamePasswordAuthenticationToken(usuari, null);
 			SecurityContextHolder.getContext().setAuthentication(authentication);
-			
+			Long expedientId = expedientService.findIdAmbProcessInstanceId(processInstanceId);
 			expedientService.aturar(
-					processInstanceId,
-					motiu,
-					usuari);
+					expedientId,
+					motiu);
 		} catch (Exception ex) {
 			logger.error("No s'ha pogut aturar l'expedient", ex);
 			throw new TramitacioException("No s'ha pogut aturar l'expedient: " + ex.getMessage());
@@ -1546,7 +1673,7 @@ public class TramitacioServiceImpl implements TramitacioService {
 			String entorn,
 			String usuari,
 			String processInstanceId) throws TramitacioException {
-		Entorn e = findEntornAmbCodi(entorn);
+		EntornDto e = findEntornAmbCodi(entorn);
 		if (e == null)
 			throw new TramitacioException("No existeix cap entorn amb el codi '" + entorn + "'");
 		final Timer timerTotal = metricRegistry.timer(
@@ -1574,10 +1701,9 @@ public class TramitacioServiceImpl implements TramitacioService {
 		try {
 			Authentication authentication =  new UsernamePasswordAuthenticationToken(usuari, null);
 			SecurityContextHolder.getContext().setAuthentication(authentication);
-			
-			expedientService.reprendre(
-					processInstanceId,
-					usuari);
+			Long expedientId = expedientService.findIdAmbProcessInstanceId(processInstanceId);
+
+			expedientService.reprendre(expedientId);
 		} catch (Exception ex) {
 			logger.error("No s'ha pogut reprendre l'expedient", ex);
 			throw new TramitacioException("No s'ha pogut reprendre l'expedient: " + ex.getMessage());
@@ -1602,7 +1728,7 @@ public class TramitacioServiceImpl implements TramitacioService {
 			Double geoPosX,
 			Double geoPosY,
 			String geoReferencia) throws TramitacioException {
-		Entorn e = findEntornAmbCodi(entorn);
+		EntornDto e = findEntornAmbCodi(entorn);
 		if (e == null)
 			throw new TramitacioException("No existeix cap entorn amb el codi '" + entorn + "'");
 		final Timer timerTotal = metricRegistry.timer(
@@ -1632,46 +1758,57 @@ public class TramitacioServiceImpl implements TramitacioService {
 			SecurityContextHolder.getContext().setAuthentication(authentication);
 			
 			// Obtencio de dades per a fer la consulta
-			ExpedientTipus expedientTipus = null;
+			ExpedientTipusDto expedientTipus = null;
 			Long estatId = null;
 			if (expedientTipusCodi != null && expedientTipusCodi.length() > 0) {
-				expedientTipus = dissenyService.findExpedientTipusAmbEntornICodi(
-					e.getId(),
-					expedientTipusCodi);
-			
+				expedientTipus = expedientTipusService.findAmbCodiPerValidarRepeticio(
+						e.getId(), 
+						expedientTipusCodi);
+							
 				if (estatCodi != null && estatCodi.length() > 0) {
-					for (Estat estat: expedientTipus.getEstats()) {
+					for (EstatDto estat: expedientTipus.getEstats()) {
 						if (estat.getCodi().equals(estatCodi)) {
 							estatId = estat.getId();
 							break;
 						}
 					}
 				}
-			} else {
-				for (Estat estat: dissenyService.findEstatAmbEntorn(e.getId())) {
-					if (estat.getCodi().equals(estatCodi)) {
-						estatId = estat.getId();
-						break;
-					}
-				}
 			}
 			// Estableix l'usuari autenticat
 			establirUsuariAutenticat(usuari);
+			
+			EstatTipusDto estatTipus = iniciat ? 
+					EstatTipusDto.INICIAT : 
+						finalitzat? EstatTipusDto.FINALITZAT : null;
+
+			// Tots els resultats
+			PaginacioParamsDto paginacioParams = new PaginacioParamsDto();
+			paginacioParams.setPaginaNum(0);
+			paginacioParams.setPaginaTamany(-1);
+
 			// Consulta d'expedients
-			List<ExpedientDto> expedients = expedientService.findAmbEntornConsultaGeneral(
-					e.getId(),
-					titol,
-					numero,
-					dataInici1,
-					dataInici2,
-					(expedientTipus != null? expedientTipus.getId() : null),
-					estatId,
-					iniciat,
-					finalitzat,
-					geoPosX,
-					geoPosY,
-					geoReferencia,
-					FiltreAnulat.ACTIUS);
+			PaginaDto<ExpedientDto> paginaExpedients = expedientService.findAmbFiltrePaginat(
+					e.getId(), 
+					null, // Passar llista d'expedients permesos 
+					titol, 
+					numero, 
+					dataInici1, 
+					dataInici2, 
+					null, 
+					null, 
+					estatTipus, 
+					estatId, 
+					geoPosX, 
+					geoPosY, 
+					geoReferencia, 
+					false, 
+					false, 
+					false, 
+					false, 
+					MostrarAnulatsDto.NO, 
+					paginacioParams);
+			List<ExpedientDto> expedients = paginaExpedients.getContingut();
+			
 			// Construcció de la resposta
 			List<ExpedientInfo> resposta = new ArrayList<ExpedientInfo>();
 			for (ExpedientDto dto: expedients)
@@ -1688,7 +1825,7 @@ public class TramitacioServiceImpl implements TramitacioService {
 			String entorn,
 			String usuari,
 			String processInstanceId) throws TramitacioException {
-		Entorn e = findEntornAmbCodi(entorn);
+		EntornDto e = findEntornAmbCodi(entorn);
 		if (e == null)
 			throw new TramitacioException("No existeix cap entorn amb el codi '" + entorn + "'");
 		final Timer timerTotal = metricRegistry.timer(
@@ -1717,89 +1854,34 @@ public class TramitacioServiceImpl implements TramitacioService {
 			Authentication authentication =  new UsernamePasswordAuthenticationToken(usuari, null);
 			SecurityContextHolder.getContext().setAuthentication(authentication);
 			
-			ExpedientDto expedient = expedientService.findExpedientAmbProcessInstanceId(processInstanceId);
-			expedientService.delete(e.getId(), expedient.getId());
+			Long expedientId = expedientService.findIdAmbProcessInstanceId(processInstanceId);
+			expedientService.delete(expedientId);
 		} finally {
 			contextTotal.stop();
 			contextEntorn.stop();
 		}
 	}
 
-
-
-	@Autowired
-	public void setEntornService(EntornService entornService) {
-		this.entornService = entornService;
-	}
-	@Autowired
-	public void setDissenyService(DissenyService dissenyService) {
-		this.dissenyService = dissenyService;
-	}
-	@Autowired
-	public void setExpedientService(ExpedientService expedientService) {
-		this.expedientService = expedientService;
-	}
-	@Autowired
-	public void setTascaService(TascaService tascaService) {
-		this.tascaService = tascaService;
-	}
-	@Autowired
-	public void setTascaServiceV3(net.conselldemallorca.helium.v3.core.api.service.TascaService tascaServiceV3) {
-		this.tascaServiceV3 = tascaServiceV3;
-	}
-	@Autowired
-	public void setDocumentService(DocumentService documentService) {
-		this.documentService = documentService;
-	}
-
-
-
-	private Entorn findEntornAmbCodi(String codi) {
-		Entorn entorn = entornService.findAmbCodi(codi);
+	private EntornDto findEntornAmbCodi(String codi) {
+		EntornDto entorn = entornService.findAmbCodi(codi);
 		if (entorn != null)
 			EntornActual.setEntornId(entorn.getId());
 		return entorn;
 	}
-	private ExpedientTipus findExpedientTipusAmbEntornICodi(Long entornId, String codi) {
-		return dissenyService.findExpedientTipusAmbEntornICodi(entornId, codi);
+	private ExpedientTipusDto findExpedientTipusAmbEntornICodi(Long entornId, String codi) {
+		return expedientTipusService.findAmbCodiPerValidarRepeticio(entornId, codi);
 	}
-	private TascaTramitacio convertirTascaTramitacio(TascaLlistatDto tasca) {
-		TascaTramitacio tt = new TascaTramitacio();
-		tt.setId(tasca.getId());
-		tt.setCodi(tasca.getCodi());
-		tt.setTitol(tasca.getTitol());
-		tt.setExpedient(tasca.getExpedientNumero());
-		tt.setMissatgeInfo(tasca.getMissatgeInfo());
-		tt.setMissatgeWarn(tasca.getMissatgeWarn());
-		tt.setResponsable(tasca.getResponsable());
-		tt.setResponsables(tasca.getResponsables());
-		tt.setDataCreacio(tasca.getDataCreacio());
-		tt.setDataInici(tasca.getDataInici());
-		tt.setDataFi(tasca.getDataFi());
-		tt.setDataLimit(tasca.getDataLimit());
-		tt.setPrioritat(tasca.getPrioritat());
-		tt.setOpen(tasca.isOberta());
-		tt.setCompleted(tasca.isCompletada());
-		tt.setCancelled(tasca.isCancelada());
-		tt.setSuspended(tasca.isSuspesa());
-		tt.setTransicionsSortida(tasca.getResultats());
-		tt.setProcessInstanceId(tasca.getProcessInstanceId());
-		return tt;
-	}
+	
 	private TascaTramitacio convertirTascaTramitacio(ExpedientTascaDto tasca) {
 		TascaTramitacio tt = new TascaTramitacio();
 		tt.setId(tasca.getId());
 		tt.setCodi(tasca.getJbpmName());
 		tt.setTitol(tasca.getTitol());
-		//tt.setExpedient(tasca.getex.gete.getExpedientNumero());
+		tt.setExpedient(tasca.getExpedientNumero());
 		tt.setMissatgeInfo(tasca.getTascaMissatgeInfo());
 		tt.setMissatgeWarn(tasca.getTascaMissatgeWarn());
-		tt.setResponsable(tasca.getResponsable().getCodi());
-		Set<String> responsables = new HashSet<String>();
-		for (PersonaDto responsable: tasca.getResponsables()) {
-			responsables.add(responsable.getCodi());
-		}
-		tt.setResponsables(responsables);
+		tt.setResponsable(tasca.getResponsableString());
+		tt.setResponsables(tasca.getResponsablesString());
 		tt.setDataCreacio(tasca.getCreateTime());
 		tt.setDataInici(tasca.getStartTime());
 		tt.setDataFi(tasca.getEndTime());
@@ -1814,35 +1896,33 @@ public class TramitacioServiceImpl implements TramitacioService {
 		return tt;
 	}
 	private CampTasca convertirCampTasca(
-			net.conselldemallorca.helium.core.model.hibernate.CampTasca campTasca,
-			Object valor) {
+			TascaDadaDto campTasca) {
 		CampTasca ct = new CampTasca();
-		ct.setCodi(campTasca.getCamp().getCodi());
-		ct.setEtiqueta(campTasca.getCamp().getEtiqueta());
-		ct.setTipus(campTasca.getCamp().getTipus().name());
-		ct.setObservacions(campTasca.getCamp().getObservacions());
-		ct.setDominiId(campTasca.getCamp().getDominiId());
-		ct.setDominiParams(campTasca.getCamp().getDominiParams());
-		ct.setDominiCampValor(campTasca.getCamp().getDominiCampValor());
-		ct.setDominiCampText(campTasca.getCamp().getDominiCampText());
-		ct.setJbpmAction(campTasca.getCamp().getJbpmAction());
+		ct.setCodi(campTasca.getVarCodi());
+		ct.setEtiqueta(campTasca.getCampEtiqueta());
+		ct.setTipus(campTasca.getCampTipus().name());
+		ct.setObservacions(campTasca.getObservacions());
+		ct.setDominiId(campTasca.getDominiId());
+		ct.setDominiParams(campTasca.getDominiParams());
+		ct.setDominiCampValor(campTasca.getDominiCampValor());
+		ct.setDominiCampText(campTasca.getDominiCampText());
+		ct.setJbpmAction(campTasca.getJbpmAction());
 		ct.setReadFrom(campTasca.isReadFrom());
 		ct.setWriteTo(campTasca.isWriteTo());
 		ct.setRequired(campTasca.isRequired());
 		ct.setReadOnly(campTasca.isReadOnly());
-		ct.setMultiple(campTasca.getCamp().isMultiple());
-		ct.setOcult(campTasca.getCamp().isOcult());
-		ct.setValor(valor);
+		ct.setMultiple(campTasca.isCampMultiple());
+		ct.setOcult(campTasca.isCampOcult());
+		ct.setValor(campTasca.getVarValor());
 		return ct;
 	}
 	private DocumentTasca convertirDocumentTasca(
-			net.conselldemallorca.helium.core.model.hibernate.DocumentTasca documentTasca,
-			DocumentDto document) {
+			TascaDocumentDto document) {
 		DocumentTasca dt = new DocumentTasca();
 		dt.setId(document.getId());
-		dt.setCodi(documentTasca.getDocument().getCodi());
-		dt.setNom(documentTasca.getDocument().getNom());
-		dt.setDescripcio(documentTasca.getDocument().getDescripcio());
+		dt.setCodi(document.getDocumentCodi());
+		dt.setNom(document.getDocumentNom());
+		dt.setDescripcio(document.getDocumentDescripcio());
 		dt.setArxiu(document.getArxiuNom());
 		dt.setData(document.getDataDocument());
 		if (document.isSignat()) {
@@ -1851,7 +1931,7 @@ public class TramitacioServiceImpl implements TramitacioService {
 		return dt;
 	}
 	private CampProces convertirCampProces(
-			Camp camp,
+			CampDto camp,
 			Object valor) {
 		CampProces ct = new CampProces();
 		if (camp != null) {
@@ -1859,7 +1939,7 @@ public class TramitacioServiceImpl implements TramitacioService {
 			ct.setEtiqueta(camp.getEtiqueta());
 			ct.setTipus(camp.getTipus().name());
 			ct.setObservacions(camp.getObservacions());
-			ct.setDominiId(camp.getDominiId());
+			ct.setDominiId(camp.getDominiIdentificador());
 			ct.setDominiParams(camp.getDominiParams());
 			ct.setDominiCampValor(camp.getDominiCampValor());
 			ct.setDominiCampText(camp.getDominiCampText());
@@ -1879,7 +1959,7 @@ public class TramitacioServiceImpl implements TramitacioService {
 		dt.setData(document.getDataDocument());
 		return dt;
 	}
-	private ExpedientInfo toExpedientInfo(Expedient expedient) {
+	private ExpedientInfo toExpedientInfo(ExpedientDto expedient) {
 		if (expedient != null) {
 			ExpedientInfo resposta = new ExpedientInfo();
 			resposta.setTitol(expedient.getTitol());

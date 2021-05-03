@@ -1632,6 +1632,122 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 	 */
 	@Override
 	@Transactional(readOnly = true)
+	public ExpedientTipusDto findAmbIdPermisCrear(
+			Long entornId,
+			Long expedientTipusId) {
+		logger.debug(
+				"Consultant tipus d'expedient amb id i amb permisos de creació (" +
+				"entornId=" + entornId + ", " +
+				"expedientTipusId = " + expedientTipusId + ")");
+		ExpedientTipus tipus;
+		if (entornHelper.potDissenyarEntorn(entornId))
+			tipus = expedientTipusRepository.findOne(expedientTipusId);
+		else
+			tipus = expedientTipusHelper.getExpedientTipusComprovantPermisCrear(
+				expedientTipusId);
+		
+		ExpedientTipusDto tipusDto = conversioTipusHelper.convertir(
+				tipus,
+				ExpedientTipusDto.class); 
+		
+		// Omple els permisos del tipus d'expedient
+		expedientHelper.omplirPermisosExpedientTipus(tipusDto);
+
+		return tipusDto;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@Transactional(readOnly = true)
+	public ExpedientTipusDto findAmbIdPermisLectura(
+			Long entornId,
+			Long expedientTipusId) {
+		logger.debug(
+				"Consultant tipus d'expedient amb id i amb permisos de lectura (" +
+				"entornId=" + entornId + ", " +
+				"expedientTipusId = " + expedientTipusId + ")");
+		ExpedientTipus tipus;
+		if (entornHelper.esAdminEntorn(entornId))
+			tipus = expedientTipusRepository.findOne(expedientTipusId);
+		else
+			tipus = expedientTipusHelper.getExpedientTipusComprovantPermisLectura(
+				expedientTipusId);
+		
+		ExpedientTipusDto tipusDto = conversioTipusHelper.convertir(
+				tipus,
+				ExpedientTipusDto.class); 
+		
+		// Omple els permisos del tipus d'expedient
+		expedientHelper.omplirPermisosExpedientTipus(tipusDto);
+
+		return tipusDto;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@Transactional(readOnly = true)
+	public ExpedientTipusDto findAmbIdPermisEscriptura(
+			Long entornId,
+			Long expedientTipusId) {
+		logger.debug(
+				"Consultant tipus d'expedient amb id i amb permisos d'escriptura (" +
+				"entornId=" + entornId + ", " +
+				"expedientTipusId = " + expedientTipusId + ")");
+		ExpedientTipus tipus;
+		if (entornHelper.esAdminEntorn(entornId))
+			tipus = expedientTipusRepository.findOne(expedientTipusId);
+		else
+			tipus = expedientTipusHelper.getExpedientTipusComprovantPermisEscriptura(
+				expedientTipusId);
+		
+		ExpedientTipusDto tipusDto = conversioTipusHelper.convertir(
+				tipus,
+				ExpedientTipusDto.class); 
+		
+		// Omple els permisos del tipus d'expedient
+		expedientHelper.omplirPermisosExpedientTipus(tipusDto);
+
+		return tipusDto;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@Transactional(readOnly = true)
+	public ExpedientTipusDto findAmbIdPermisEsborrar(
+			Long entornId,
+			Long expedientTipusId) {
+		logger.debug(
+				"Consultant tipus d'expedient amb id i amb permisos d'esborrar (" +
+				"entornId=" + entornId + ", " +
+				"expedientTipusId = " + expedientTipusId + ")");
+		ExpedientTipus tipus;
+		if (entornHelper.esAdminEntorn(entornId))
+			tipus = expedientTipusRepository.findOne(expedientTipusId);
+		else
+			tipus = expedientTipusHelper.getExpedientTipusComprovantPermisEsborrar(
+				expedientTipusId);
+		
+		ExpedientTipusDto tipusDto = conversioTipusHelper.convertir(
+				tipus,
+				ExpedientTipusDto.class); 
+		
+		// Omple els permisos del tipus d'expedient
+		expedientHelper.omplirPermisosExpedientTipus(tipusDto);
+
+		return tipusDto;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@Transactional(readOnly = true)
 	public ExpedientTipusDto findAmbIdPermisDissenyarDelegat(
 			Long entornId,
 			Long expedientTipusId) {
@@ -3677,6 +3793,17 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 											estatId,
 											aturat == null,
 											aturat);
+	}
+
+	@Override
+	public List<ExpedientTipusDto> findAmbSistraTramitCodi(String tramitCodi) {
+		logger.debug(
+				"Consultant la llista d'expedients per un tràmit sistra  (" +
+				"tramitCodi=" + tramitCodi + ")");
+
+		return conversioTipusHelper.convertirList(
+				expedientTipusRepository.findByTramitCodi(tramitCodi),
+				ExpedientTipusDto.class); 
 	}
 
 	private static final Logger logger = LoggerFactory.getLogger(ExpedientServiceImpl.class);

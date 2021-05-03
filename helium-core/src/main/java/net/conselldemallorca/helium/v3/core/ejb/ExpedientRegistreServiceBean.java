@@ -3,24 +3,22 @@
  */
 package net.conselldemallorca.helium.v3.core.ejb;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.SortedSet;
-
-import javax.annotation.security.RolesAllowed;
-import javax.ejb.Stateless;
-import javax.interceptor.Interceptors;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
-
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientLogDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.InformacioRetroaccioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.InstanciaProcesDto;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientRegistreService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
+
+import javax.annotation.security.RolesAllowed;
+import javax.ejb.Stateless;
+import javax.interceptor.Interceptors;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.SortedSet;
 
 /**
  * EJB que implementa la interfície del servei ExpedientRegistreService.
@@ -36,29 +34,29 @@ public class ExpedientRegistreServiceBean implements ExpedientRegistreService {
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public SortedSet<Entry<InstanciaProcesDto, List<ExpedientLogDto>>> registreFindLogsOrdenatsPerData(
+	public SortedSet<Entry<InstanciaProcesDto, List<InformacioRetroaccioDto>>> findInformacioRetroaccioExpedientOrdenatPerData(
 			Long expedientId,
 			boolean detall) throws NoTrobatException, PermisDenegatException {
-		return delegate.registreFindLogsOrdenatsPerData(
+		return delegate.findInformacioRetroaccioExpedientOrdenatPerData(
 				expedientId,
 				detall);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public Map<String, ExpedientTascaDto> registreFindTasquesPerLogExpedient(
+	public Map<String, ExpedientTascaDto> findTasquesExpedientPerRetroaccio(
 			Long expedientId) throws NoTrobatException, PermisDenegatException {
-		return delegate.registreFindTasquesPerLogExpedient(
+		return delegate.findTasquesExpedientPerRetroaccio(
 				expedientId);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public void registreRetrocedir(
+	public void executaRetroaccio(
 			Long expedientId,
 			Long logId,
 			boolean retrocedirPerTasques) throws NoTrobatException, PermisDenegatException {
-		delegate.registreRetrocedir(
+		delegate.executaRetroaccio(
 				expedientId,
 				logId,
 				retrocedirPerTasques);
@@ -66,36 +64,36 @@ public class ExpedientRegistreServiceBean implements ExpedientRegistreService {
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public void registreBuidarLog(
+	public void eliminaInformacioRetroaccio(
 			Long expedientId) throws NoTrobatException, PermisDenegatException {
-		delegate.registreBuidarLog(expedientId);
+		delegate.eliminaInformacioRetroaccio(expedientId);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public List<ExpedientLogDto> registreFindLogsTascaOrdenatsPerData(
+	public List<InformacioRetroaccioDto> findInformacioRetroaccioTascaOrdenatPerData(
 			Long expedientId,
 			Long logId) throws NoTrobatException, PermisDenegatException {
-		return delegate.registreFindLogsTascaOrdenatsPerData(
+		return delegate.findInformacioRetroaccioTascaOrdenatPerData(
 				expedientId,
 				logId);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public List<ExpedientLogDto> registreFindLogsRetroceditsOrdenatsPerData(
+	public List<InformacioRetroaccioDto> findInformacioRetroaccioAccioRetrocesOrdenatsPerData(
 			Long expedientId,
 			Long logId) throws NoTrobatException, PermisDenegatException {
-		return delegate.registreFindLogsRetroceditsOrdenatsPerData(
+		return delegate.findInformacioRetroaccioAccioRetrocesOrdenatsPerData(
 				expedientId,
 				logId);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public ExpedientLogDto registreFindLogById(
+	public InformacioRetroaccioDto findInformacioRetroaccioById(
 			Long logId) throws NoTrobatException, PermisDenegatException {
-		return delegate.registreFindLogById(logId);
+		return delegate.findInformacioRetroaccioById(logId);
 	}
 
 }

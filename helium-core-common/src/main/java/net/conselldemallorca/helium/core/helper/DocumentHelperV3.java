@@ -26,6 +26,10 @@ import org.springframework.stereotype.Component;
 import es.caib.plugins.arxiu.api.ContingutArxiu;
 import es.caib.plugins.arxiu.api.Firma;
 import es.caib.plugins.arxiu.api.FirmaTipus;
+import net.conselldemallorca.helium.core.api.WProcessDefinition;
+import net.conselldemallorca.helium.core.api.WProcessInstance;
+import net.conselldemallorca.helium.core.api.WTaskInstance;
+import net.conselldemallorca.helium.core.api.WorkflowEngineApi;
 import net.conselldemallorca.helium.core.common.JbpmVars;
 import net.conselldemallorca.helium.core.helperv26.MesuresTemporalsHelper;
 import net.conselldemallorca.helium.core.model.hibernate.AnotacioAnnex;
@@ -47,10 +51,6 @@ import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.core.util.OpenOfficeUtils;
 import net.conselldemallorca.helium.core.util.PdfUtils;
 import net.conselldemallorca.helium.integracio.plugins.signatura.RespostaValidacioSignatura;
-import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
-import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessDefinition;
-import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessInstance;
-import net.conselldemallorca.helium.jbpm3.integracio.JbpmTask;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuFirmaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
@@ -113,7 +113,7 @@ public class DocumentHelperV3 {
 	@Resource
 	private PluginHelper pluginHelper;
 	@Resource
-	private JbpmHelper jbpmHelper;
+	private WorkflowEngineApi workflowEngineApi;
 	@Resource
 	private MesuresTemporalsHelper mesuresTemporalsHelper;
 	@Resource
@@ -327,7 +327,7 @@ public class DocumentHelperV3 {
 		for (AnotacioAnnex annex : anotacioAnnexRepository.findByAnotacioExpedientId(expedient.getId()))
 			mapAnotacions.put(annex.getDocumentStoreId(), annex);
 		// Consulta els documents de l'instància de procés
-		Map<String, Object> varsInstanciaProces = jbpmHelper.getProcessInstanceVariables(processInstanceId);
+		Map<String, Object> varsInstanciaProces = workflowEngineApi.getProcessInstanceVariables(processInstanceId);
 		if (varsInstanciaProces != null) {
 			filtrarVariablesAmbDocuments(varsInstanciaProces);
 			for (String var: varsInstanciaProces.keySet()) {
@@ -435,7 +435,7 @@ public class DocumentHelperV3 {
 	}
 		
 	public TascaDocumentDto findDocumentPerId(String tascaId, Long docId, Long expedientTipusId) {
-		JbpmTask task = tascaHelper.getTascaComprovacionsTramitacio(
+		WTaskInstance task = tascaHelper.getTascaComprovacionsTramitacio(
 				tascaId,
 				true,
 				true);
@@ -453,7 +453,7 @@ public class DocumentHelperV3 {
 					documentTasca.getDocument(), documentTasca.isRequired(), documentTasca.isReadOnly());
 	}
 
-	public List<TascaDocumentDto> findDocumentsPerInstanciaTasca(JbpmTask task) {
+	public List<TascaDocumentDto> findDocumentsPerInstanciaTasca(WTaskInstance task) {
 		DefinicioProces definicioProces = definicioProcesRepository.findByJbpmId(
 				task.getProcessDefinitionId());
 		Expedient exp = expedientHelper.findExpedientByProcessInstanceId(task.getProcessInstanceId());
@@ -489,7 +489,7 @@ public class DocumentHelperV3 {
 		return resposta;
 	}
 
-	public boolean hasDocumentsPerInstanciaTasca(JbpmTask task) {
+	public boolean hasDocumentsPerInstanciaTasca(WTaskInstance task) {
 		DefinicioProces definicioProces = definicioProcesRepository.findByJbpmId(
 				task.getProcessDefinitionId());
 		Long expedientTipusId = expedientTipusHelper.findIdByProcessInstanceId(task.getProcessInstanceId());
@@ -500,7 +500,7 @@ public class DocumentHelperV3 {
 				expedientTipusId) > 0;
 	}
 	
-	public boolean hasDocumentsNotReadOnlyPerInstanciaTasca(JbpmTask task) {
+	public boolean hasDocumentsNotReadOnlyPerInstanciaTasca(WTaskInstance task) {
 		DefinicioProces definicioProces = definicioProcesRepository.findByJbpmId(
 				task.getProcessDefinitionId());
 		Long expedientTipusId = expedientTipusHelper.findIdByProcessInstanceId(task.getProcessInstanceId());
@@ -511,7 +511,7 @@ public class DocumentHelperV3 {
 				expedientTipusId) > 0;
 	}
 
-	public List<TascaDocumentDto> findDocumentsPerInstanciaTascaSignar(JbpmTask task) {
+	public List<TascaDocumentDto> findDocumentsPerInstanciaTascaSignar(WTaskInstance task) {
 		List<TascaDocumentDto> resposta = new ArrayList<TascaDocumentDto>();
 
 		DefinicioProces definicioProces = definicioProcesRepository.findByJbpmId(
@@ -544,7 +544,7 @@ public class DocumentHelperV3 {
 		return resposta;
 	}
 
-	public boolean hasDocumentsPerInstanciaTascaSignar(JbpmTask task) {
+	public boolean hasDocumentsPerInstanciaTascaSignar(WTaskInstance task) {
 		return firmaTascaRepository.countAmbTasca(
 				task.getTaskName(),
 				task.getProcessDefinitionId()) > 0;
@@ -566,10 +566,10 @@ public class DocumentHelperV3 {
 	}
 
 	public DocumentStore getDocumentStore(
-			JbpmTask task,
+			WTaskInstance task,
 			String documentCodi) {
 		DocumentStore documentStore = null;
-		Long documentStoreId = getDocumentStoreIdDeVariableJbpm(String.valueOf(task.getTask().getId()), task.getProcessInstanceId(), documentCodi);
+		Long documentStoreId = getDocumentStoreIdDeVariableJbpm(String.valueOf(task.getTaskInstanceId()), task.getProcessInstanceId(), documentCodi);
 		if (documentStoreId != null) {
 			documentStore = documentStoreRepository.findOne(documentStoreId);
 		}
@@ -640,11 +640,11 @@ public class DocumentHelperV3 {
 					true);
 
 			// Guarda el valor en una variable jbpm
-			JbpmTask task = tascaHelper.getTascaComprovacionsTramitacio(
+			WTaskInstance task = tascaHelper.getTascaComprovacionsTramitacio(
 					tascaId,
 					true,
 					true);
-			jbpmHelper.setTaskInstanceVariable(
+			workflowEngineApi.setTaskInstanceVariable(
 					task.getId(),
 					JbpmVars.PREFIX_SIGNATURA + dto.getDocumentCodi(),
 					documentStore.getId());
@@ -936,11 +936,11 @@ public class DocumentHelperV3 {
 			String documentCodi) {
 		Object varValor = null;
 		if (taskInstanceId != null) {
-			varValor = jbpmHelper.getTaskInstanceVariable(
+			varValor = workflowEngineApi.getTaskInstanceVariable(
 					taskInstanceId,
 					getVarPerDocumentCodi(documentCodi, false));
 		} else if (processInstanceId != null) {
-			varValor = jbpmHelper.getProcessInstanceVariable(
+			varValor = workflowEngineApi.getProcessInstanceVariable(
 					processInstanceId,
 					getVarPerDocumentCodi(documentCodi, false));
 		}
@@ -1001,17 +1001,17 @@ public class DocumentHelperV3 {
 			documentStoreRepository.delete(documentStoreId);
 		}
 		if (taskInstanceId != null) {
-			jbpmHelper.deleteTaskInstanceVariable(
+			workflowEngineApi.deleteTaskInstanceVariable(
 					taskInstanceId,
 					documentStore.getJbpmVariable());
 			String documentCodi = getDocumentCodiPerVariableJbpm(
 					documentStore.getJbpmVariable());
-			jbpmHelper.deleteTaskInstanceVariable(
+			workflowEngineApi.deleteTaskInstanceVariable(
 					taskInstanceId,
 					JbpmVars.PREFIX_SIGNATURA + documentCodi);
 		}
 		if (processInstanceId != null) {
-			jbpmHelper.deleteProcessInstanceVariable(
+			workflowEngineApi.deleteProcessInstanceVariable(
 					processInstanceId,
 					documentStore.getJbpmVariable());
 		}
@@ -1023,10 +1023,10 @@ public class DocumentHelperV3 {
 			String documentCodi) {
 		DefinicioProces definicioProces = null;
 		if (taskInstanceId != null) {
-			JbpmTask taskInstance = jbpmHelper.getTaskById(taskInstanceId);
+			WTaskInstance taskInstance = workflowEngineApi.getTaskById(taskInstanceId);
 			definicioProces = definicioProcesRepository.findByJbpmId(taskInstance.getProcessDefinitionId());
 		} else {
-			JbpmProcessInstance processInstance = jbpmHelper.getProcessInstance(processInstanceId);
+			WProcessInstance processInstance = workflowEngineApi.getProcessInstance(processInstanceId);
 			definicioProces = definicioProcesRepository.findByJbpmId(processInstance.getProcessDefinitionId());
 		}
 		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
@@ -1150,7 +1150,7 @@ public class DocumentHelperV3 {
 					dto.setArxiuContingut(documentStore.getArxiuContingut());
 				} else {
 					codiDocument = documentStore.getJbpmVariable().substring(JbpmVars.PREFIX_DOCUMENT.length());
-					JbpmProcessDefinition jpd = jbpmHelper.findProcessDefinitionWithProcessInstanceId(documentStore.getProcessInstanceId());
+					WProcessDefinition jpd = workflowEngineApi.findProcessDefinitionWithProcessInstanceId(documentStore.getProcessInstanceId());
 					DefinicioProces definicioProces = definicioProcesRepository.findByJbpmKeyAndVersio(
 							jpd.getKey(),
 							jpd.getVersion());
@@ -1551,6 +1551,17 @@ public class DocumentHelperV3 {
 	}
 
 	public void guardarDocumentFirmat(
+			DocumentStore documentStore,
+			byte[] signatura) throws Exception {
+		this.guardarDocumentFirmat(
+				documentStore.getProcessInstanceId(),
+				documentStore.getId(),
+				signatura,
+				true,
+				true);
+	}
+
+	public void guardarDocumentFirmat(
 			String processInstanceId,
 			Long documentStoreId,
 			byte[] signatura,
@@ -1775,7 +1786,7 @@ public class DocumentHelperV3 {
 	}
 
 	private TascaDocumentDto toTascaDocumentDto(
-			JbpmTask task,
+			WTaskInstance task,
 			Document document, 
 			boolean required, 
 			boolean readonly) {
@@ -1787,6 +1798,7 @@ public class DocumentHelperV3 {
 		dto.setVarCodi(varCodi);
 		dto.setDocumentCodi(document.getCodi());
 		dto.setDocumentNom(document.getNom());
+		dto.setDocumentDescripcio(document.getDescripcio());
 		dto.setRequired(required);
 		dto.setReadOnly(readonly);
 		dto.setPlantilla(document.isPlantilla());
@@ -1796,7 +1808,7 @@ public class DocumentHelperV3 {
 		dto.setArxiuContingutDefinit(document.getArxiuContingut() != null && document.getArxiuContingut().length > 0);
 		Long documentStoreId;
 		documentStoreId = getDocumentStoreIdDeVariableJbpm(
-				String.valueOf(task.getTask().getId()), 
+				String.valueOf(task.getTaskInstanceId()),
 				readonly ? task.getProcessInstanceId() : null, // Si és readonly no es troba a la tasca però sí es pot llegir del procés 
 				document.getCodi());
 		if (documentStoreId != null) {
@@ -2008,12 +2020,12 @@ public class DocumentHelperV3 {
 			String documentCodi) {
 		Object value = null;
 		if (taskInstanceId != null) {
-			value = jbpmHelper.getTaskInstanceVariable(
+			value = workflowEngineApi.getTaskInstanceVariable(
 					taskInstanceId,
 					getVarPerDocumentCodi(documentCodi, false));
 		}
 		if (value == null && processInstanceId != null) {
-			value = jbpmHelper.getProcessInstanceVariable(
+			value = workflowEngineApi.getProcessInstanceVariable(
 					processInstanceId,
 					getVarPerDocumentCodi(documentCodi, false));
 		}
@@ -2221,12 +2233,12 @@ public class DocumentHelperV3 {
 		}
 		// Guarda la referència al nou document a dins el jBPM
 		if (taskInstanceId != null) {
-			jbpmHelper.setTaskInstanceVariable(
+			workflowEngineApi.setTaskInstanceVariable(
 					taskInstanceId,
 					documentStore.getJbpmVariable(),
 					documentStore.getId());
 		} else {
-			jbpmHelper.setProcessInstanceVariable(
+			workflowEngineApi.setProcessInstanceVariable(
 					processInstanceId,
 					documentStore.getJbpmVariable(),
 					documentStore.getId());
@@ -2453,6 +2465,27 @@ public class DocumentHelperV3 {
 			}
 		}
 		return arxiuNom;
+	}
+	
+	public DocumentDto getDocumentSenseContingut(
+			Long documentStoreId) {
+		if (documentStoreId != null) {
+			DocumentDto dto;
+			try {
+				dto = this.toDocumentDto(
+						documentStoreId,
+						false, 
+						false, 
+						false, 
+						false, 
+						false, 
+						false);
+				return dto;
+			} catch (Exception e) {
+				logger.error(e);
+			}			
+		} 
+		return null;
 	}
 
 	private static final Log logger = LogFactory.getLog(DocumentHelperV3.class);

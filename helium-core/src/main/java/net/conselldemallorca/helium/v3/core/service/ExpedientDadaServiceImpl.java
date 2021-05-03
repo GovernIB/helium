@@ -3,26 +3,12 @@
  */
 package net.conselldemallorca.helium.v3.core.service;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
-import javax.annotation.Resource;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.security.acls.model.Permission;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
+import net.conselldemallorca.helium.core.api.WProcessDefinition;
+import net.conselldemallorca.helium.core.api.WorkflowEngineApi;
+import net.conselldemallorca.helium.core.api.WorkflowRetroaccioApi;
 import net.conselldemallorca.helium.core.common.JbpmVars;
 import net.conselldemallorca.helium.core.helper.ConversioTipusHelper;
-import net.conselldemallorca.helium.core.helper.ExpedientDadaHelper;
 import net.conselldemallorca.helium.core.helper.ExpedientHelper;
-import net.conselldemallorca.helium.core.helper.ExpedientLoggerHelper;
 import net.conselldemallorca.helium.core.helper.HerenciaHelper;
 import net.conselldemallorca.helium.core.helper.IndexHelper;
 import net.conselldemallorca.helium.core.helper.VariableHelper;
@@ -31,12 +17,9 @@ import net.conselldemallorca.helium.core.model.hibernate.Camp.TipusCamp;
 import net.conselldemallorca.helium.core.model.hibernate.CampAgrupacio;
 import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
-import net.conselldemallorca.helium.core.model.hibernate.ExpedientLog.ExpedientLogAccioTipus;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.hibernate.Registre;
 import net.conselldemallorca.helium.core.security.ExtendedPermission;
-import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
-import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessDefinition;
 import net.conselldemallorca.helium.v3.core.api.dto.CampAgrupacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDadaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.InstanciaProcesDto;
@@ -45,7 +28,19 @@ import net.conselldemallorca.helium.v3.core.repository.CampAgrupacioRepository;
 import net.conselldemallorca.helium.v3.core.repository.CampRepository;
 import net.conselldemallorca.helium.v3.core.repository.DefinicioProcesRepository;
 import net.conselldemallorca.helium.v3.core.repository.RegistreRepository;
-import net.conselldemallorca.helium.v3.core.repository.TascaRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.security.acls.model.Permission;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import javax.annotation.Resource;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 
 /**
@@ -70,17 +65,13 @@ public class ExpedientDadaServiceImpl implements ExpedientDadaService {
 	@Resource
 	private VariableHelper variableHelper;
 	@Resource
-	private JbpmHelper jbpmHelper;
+	private WorkflowEngineApi workflowEngineApi;
+	@Resource
+	private WorkflowRetroaccioApi workflowRetroaccioApi;
 	@Resource
 	private IndexHelper indexHelper;
 	@Resource
 	private ConversioTipusHelper conversioTipusHelper;
-	@Resource
-	private ExpedientLoggerHelper expedientLoggerHelper;
-	@Resource
-	private ExpedientDadaHelper expedientDadaHelper;
-	@Resource
-	private TascaRepository tascaRepository;
 
 
 
@@ -104,9 +95,9 @@ public class ExpedientDadaServiceImpl implements ExpedientDadaService {
 				new Permission[] {
 						ExtendedPermission.DATA_MANAGE,
 						ExtendedPermission.ADMINISTRATION});
-		expedientLoggerHelper.afegirLogExpedientPerProces(
+		workflowRetroaccioApi.afegirInformacioRetroaccioPerProces(
 				processInstanceId,
-				ExpedientLogAccioTipus.PROCES_VARIABLE_CREAR,
+				WorkflowRetroaccioApi.ExpedientRetroaccioTipus.PROCES_VARIABLE_CREAR,
 				varCodi);
 		optimitzarValorPerConsultesDominiGuardar(expedient.getTipus(), processInstanceId, varCodi, varValor);
 		indexHelper.expedientIndexLuceneUpdate(processInstanceId);
@@ -141,7 +132,7 @@ public class ExpedientDadaServiceImpl implements ExpedientDadaService {
 				new Permission[] {
 						ExtendedPermission.DATA_MANAGE,
 						ExtendedPermission.ADMINISTRATION});
-		jbpmHelper.deleteProcessInstanceVariable(processInstanceId, varCodi);
+		workflowEngineApi.deleteProcessInstanceVariable(processInstanceId, varCodi);
 		// Esborra la descripció per variables que mantenen el valor de la consulta
 		Camp camp;
 		InstanciaProcesDto instanciaProces = expedientHelper.getInstanciaProcesById(processInstanceId);
@@ -153,11 +144,11 @@ public class ExpedientDadaServiceImpl implements ExpedientDadaService {
 			camp = campRepository.findByDefinicioProcesAndCodi(definicioProces, varCodi);
 		}
 		if (camp != null && camp.isDominiCacheText())
-			jbpmHelper.deleteProcessInstanceVariable(processInstanceId, JbpmVars.PREFIX_VAR_DESCRIPCIO + varCodi);
-		
-		expedientLoggerHelper.afegirLogExpedientPerProces(
+			workflowEngineApi.deleteProcessInstanceVariable(processInstanceId, JbpmVars.PREFIX_VAR_DESCRIPCIO + varCodi);
+
+		workflowRetroaccioApi.afegirInformacioRetroaccioPerProces(
 				processInstanceId,
-				ExpedientLogAccioTipus.PROCES_VARIABLE_MODIFICAR,
+				WorkflowRetroaccioApi.ExpedientRetroaccioTipus.PROCES_VARIABLE_MODIFICAR,
 				varCodi);
 		Object valorVell = variableHelper.getVariableJbpmProcesValor(
 				processInstanceId,
@@ -198,11 +189,11 @@ public class ExpedientDadaServiceImpl implements ExpedientDadaService {
 				new Permission[] {
 						ExtendedPermission.DATA_MANAGE,
 						ExtendedPermission.ADMINISTRATION});
-		expedientLoggerHelper.afegirLogExpedientPerProces(
+		workflowRetroaccioApi.afegirInformacioRetroaccioPerProces(
 				processInstanceId,
-				ExpedientLogAccioTipus.PROCES_VARIABLE_ESBORRAR,
+				WorkflowRetroaccioApi.ExpedientRetroaccioTipus.PROCES_VARIABLE_ESBORRAR,
 				varCodi);
-		jbpmHelper.deleteProcessInstanceVariable(processInstanceId, varCodi);
+		workflowEngineApi.deleteProcessInstanceVariable(processInstanceId, varCodi);
 		// Esborra la descripció per variables que mantenen el valor de la consulta
 		Camp camp;
 		InstanciaProcesDto instanciaProces = expedientHelper.getInstanciaProcesById(processInstanceId);
@@ -214,7 +205,7 @@ public class ExpedientDadaServiceImpl implements ExpedientDadaService {
 			camp = campRepository.findByDefinicioProcesAndCodi(definicioProces, varCodi);
 		}			
 		if (camp != null && camp.isDominiCacheText())
-			jbpmHelper.deleteProcessInstanceVariable(processInstanceId, JbpmVars.PREFIX_VAR_DESCRIPCIO + varCodi);
+			workflowEngineApi.deleteProcessInstanceVariable(processInstanceId, JbpmVars.PREFIX_VAR_DESCRIPCIO + varCodi);
 		
 		if (e.getTipus().isAmbInfoPropia()) {
 			indexHelper.expedientIndexLuceneDelete(processInstanceId, varCodi);
@@ -365,7 +356,7 @@ public class ExpedientDadaServiceImpl implements ExpedientDadaService {
 			String processInstanceId,
 			String varName,
 			Object varValue) {
-		JbpmProcessDefinition jpd = jbpmHelper.findProcessDefinitionWithProcessInstanceId(processInstanceId);
+		WProcessDefinition jpd = workflowEngineApi.findProcessDefinitionWithProcessInstanceId(processInstanceId);
 		DefinicioProces definicioProces = definicioProcesRepository.findByJbpmId(jpd.getId());
 		Camp camp;
 		if (expedientTipus.isAmbInfoPropia())
@@ -395,12 +386,12 @@ public class ExpedientDadaServiceImpl implements ExpedientDadaService {
 					} catch (Exception e) {
 						text = "";
 					}
-					
-					jbpmHelper.setProcessInstanceVariable(processInstanceId, JbpmVars.PREFIX_VAR_DESCRIPCIO + varName, text);
+
+					workflowEngineApi.setProcessInstanceVariable(processInstanceId, JbpmVars.PREFIX_VAR_DESCRIPCIO + varName, text);
 				}
 			}
 		}
-		jbpmHelper.setProcessInstanceVariable(processInstanceId, varName, varValue);
+		workflowEngineApi.setProcessInstanceVariable(processInstanceId, varName, varValue);
 	}
 
 	private Registre crearRegistreInstanciaProces(

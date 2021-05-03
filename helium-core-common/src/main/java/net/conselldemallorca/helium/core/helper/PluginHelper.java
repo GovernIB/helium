@@ -100,11 +100,14 @@ import net.conselldemallorca.helium.integracio.plugins.signatura.RespostaValidac
 import net.conselldemallorca.helium.integracio.plugins.signatura.SignaturaPlugin;
 import net.conselldemallorca.helium.integracio.plugins.signatura.SignaturaPluginException;
 import net.conselldemallorca.helium.integracio.plugins.tramitacio.DadesTramit;
+import net.conselldemallorca.helium.integracio.plugins.tramitacio.DadesVistaDocument;
 import net.conselldemallorca.helium.integracio.plugins.tramitacio.DocumentTramit;
 import net.conselldemallorca.helium.integracio.plugins.tramitacio.Event;
 import net.conselldemallorca.helium.integracio.plugins.tramitacio.ObtenirDadesTramitRequest;
+import net.conselldemallorca.helium.integracio.plugins.tramitacio.ObtenirVistaDocumentRequest;
 import net.conselldemallorca.helium.integracio.plugins.tramitacio.PublicarEventRequest;
 import net.conselldemallorca.helium.integracio.plugins.tramitacio.PublicarExpedientRequest;
+import net.conselldemallorca.helium.integracio.plugins.tramitacio.ResultatProcesTramitRequest;
 import net.conselldemallorca.helium.integracio.plugins.tramitacio.Signatura;
 import net.conselldemallorca.helium.integracio.plugins.tramitacio.TramitacioPlugin;
 import net.conselldemallorca.helium.integracio.plugins.tramitacio.TramitacioPluginException;
@@ -494,6 +497,122 @@ public class PluginHelper {
 			monitorIntegracioHelper.addAccioError(
 					MonitorIntegracioHelper.INTCODI_SISTRA,
 					"Obtenir dades del tràmit",
+					IntegracioAccioTipusEnumDto.ENVIAMENT,
+					System.currentTimeMillis() - t0,
+					errorDescripcio,
+					ex,
+					parametres);
+			logger.error(
+					errorDescripcio,
+					ex);
+			throw SistemaExternException.tractarSistemaExternException(
+					null,
+					null, 
+					null, 
+					null, 
+					null, 
+					null, 
+					null, 
+					null, 
+					null, 
+					"(SISTRA. Tramitació: " + errorDescripcio + ")", 
+					ex);
+		}
+	}
+	
+	public void tramitacioComunicarResultatProces(ResultatProcesTramitRequest requestResultat) {
+		
+		IntegracioParametreDto[] parametres = new IntegracioParametreDto[] {
+				new IntegracioParametreDto(
+						"numero",
+						requestResultat.getNumeroEntrada()),
+				new IntegracioParametreDto(
+						"clau",
+						requestResultat.getClauAcces()),
+				new IntegracioParametreDto(
+						"resultatProces",
+						requestResultat.getResultatProces()),
+				new IntegracioParametreDto(
+						"errorDescripcio",
+						requestResultat.getErrorDescripcio())
+		};
+		long t0 = System.currentTimeMillis();
+		try {
+			getTramitacioPlugin().comunicarResultatProcesTramit(requestResultat);
+			monitorIntegracioHelper.addAccioOk(
+					MonitorIntegracioHelper.INTCODI_SISTRA,
+					"Comunicar resultat procés",
+					IntegracioAccioTipusEnumDto.ENVIAMENT,
+					System.currentTimeMillis() - t0,
+					parametres);
+		} catch (TramitacioPluginException ex) {
+			String errorDescripcio = "No s'ha pogut comunicar el resultat del procés del tràmit (" +
+					"numero=" + requestResultat.getNumeroEntrada() + ", " +
+					"clau=" + requestResultat.getClauAcces() + ", " +
+					"resultatProces=" + requestResultat.getResultatProces() + ", " +
+					"errorDescripcio=" + requestResultat.getErrorDescripcio() + ")";
+			monitorIntegracioHelper.addAccioError(
+					MonitorIntegracioHelper.INTCODI_SISTRA,
+					"Comunicar resultat procés",
+					IntegracioAccioTipusEnumDto.ENVIAMENT,
+					System.currentTimeMillis() - t0,
+					errorDescripcio,
+					ex,
+					parametres);
+			logger.error(
+					errorDescripcio,
+					ex);
+			throw SistemaExternException.tractarSistemaExternException(
+					null,
+					null, 
+					null, 
+					null, 
+					null, 
+					null, 
+					null, 
+					null, 
+					null, 
+					"(SISTRA. Tramitació: " + errorDescripcio + ")", 
+					ex);
+		}
+		
+	}
+
+	public DadesVistaDocument tramitacioObtenirVistaDocument(ObtenirVistaDocumentRequest request) {
+		IntegracioParametreDto[] parametres = new IntegracioParametreDto[] {
+				new IntegracioParametreDto(
+						"referenciaCodi",
+						request.getReferenciaCodi()),
+				new IntegracioParametreDto(
+						"referenciaClau",
+						request.getReferenciaClau()),
+				new IntegracioParametreDto(
+						"plantillaTipus",
+						request.getPlantillaTipus()),
+				new IntegracioParametreDto(
+						"idioma",
+						request.getIdioma())
+		};
+		long t0 = System.currentTimeMillis();
+		DadesVistaDocument dadesVistaDocument;
+		try {
+			dadesVistaDocument = getTramitacioPlugin().obtenirVistaDocument(request);
+			monitorIntegracioHelper.addAccioOk(
+					MonitorIntegracioHelper.INTCODI_SISTRA,
+					"Obtenir vista document",
+					IntegracioAccioTipusEnumDto.ENVIAMENT,
+					System.currentTimeMillis() - t0,
+					parametres);
+			return dadesVistaDocument;
+		} catch (TramitacioPluginException ex) {
+			String errorDescripcio = "No s'ha pogut comunicar el resultat del procés del tràmit (" +
+					"referenciaCodi=" + request.getReferenciaCodi() + ", " +
+					"referenciaClau=" + request.getReferenciaClau() + ", " +
+					"plantillaTipus=" + request.getPlantillaTipus() + ", " +
+					"idioma=" + request.getIdioma() + ")";
+			monitorIntegracioHelper.addAccioError(
+					MonitorIntegracioHelper.INTCODI_SISTRA,
+					"Obtenir vista document",
 					IntegracioAccioTipusEnumDto.ENVIAMENT,
 					System.currentTimeMillis() - t0,
 					errorDescripcio,
@@ -1636,6 +1755,50 @@ public class PluginHelper {
 		}
 		return StringUtils.abbreviate(remitent, PORTASIGNATURES_REMITENT_MAX_LENGTH);
 	}
+	
+	public List<byte[]> obtenirSignaturesDocument(
+			Integer documentId) throws Exception {
+		List<byte[]> signatures;
+		long t0 = System.currentTimeMillis();
+		try {
+			signatures = getPortasignaturesPlugin().obtenirSignaturesDocument(
+					documentId);
+			monitorIntegracioHelper.addAccioOk(
+					MonitorIntegracioHelper.INTCODI_PFIRMA,
+					"Obtenir signatures document",
+					IntegracioAccioTipusEnumDto.ENVIAMENT,
+					System.currentTimeMillis() - t0,
+					new IntegracioParametreDto("documentId", documentId));
+		} catch (PortasignaturesPluginException ex) {
+			String errorDescripcio = "No s'han pogut obtenir les firmes del document del portafirmes (" +
+					"documentId=" + documentId + ")";
+			monitorIntegracioHelper.addAccioError(
+					MonitorIntegracioHelper.INTCODI_PFIRMA,
+					"Obtenir signatures document",
+					IntegracioAccioTipusEnumDto.ENVIAMENT,
+					System.currentTimeMillis() - t0,
+					errorDescripcio,
+					ex,
+					new IntegracioParametreDto("documentId", documentId));
+			logger.error(
+					errorDescripcio,
+					ex);
+			throw SistemaExternException.tractarSistemaExternException(
+					null,
+					null, 
+					null, 
+					null, 
+					null, 
+					null, 
+					null, 
+					null, 
+					null, 
+					"(PORTASIGNATURES. Obtenir firmes: " + errorDescripcio + ")", 
+					ex);
+		}
+		return signatures;		
+	}
+
 
 	public void portasignaturesCancelar(
 			List<Integer> documentIds) {
@@ -1696,7 +1859,7 @@ public class PluginHelper {
 					ex);
 		}
 	}
-
+	
 	public String custodiaAfegirSignatura(
 			Long documentId,
 			String gesdocId,
