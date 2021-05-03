@@ -1,6 +1,6 @@
 package net.conselldemallorca.helium.webapp.v3.controller;
 
-import java.io.File;
+import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
@@ -10,11 +10,10 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -204,11 +203,12 @@ public class ExpedientAltaMassivaController extends BaseExpedientController {
 			HttpServletResponse response) throws Exception {
 
     	try {      		
-    	    File arxiuExemple = new ClassPathResource("arxius/exemple_alta_massiva.csv").getFile();    	    
+        	InputStream is = this.getClass().getResourceAsStream("/arxius/exemple_alta_massiva.csv");
+        	byte[] arxiuExempleContingut = IOUtils.toByteArray(is);
 
     	    this.writeFileToResponse(
     				"exemple_alta_massiva.csv", 
-    				FileUtils.readFileToByteArray(arxiuExemple), 
+    				arxiuExempleContingut, 
     				response);
     	    
     	    MissatgesHelper.success(

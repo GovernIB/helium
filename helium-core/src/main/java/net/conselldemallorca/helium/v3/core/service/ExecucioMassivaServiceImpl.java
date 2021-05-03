@@ -2036,7 +2036,8 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 			// Any
 			Integer any = null;
 			try {
-				any = Integer.parseInt(contingutCsv[index][0]);
+				if (contingutCsv[index][0] != null && !contingutCsv[index][0].isEmpty())
+					any = Integer.parseInt(contingutCsv[index][0]);
 			} catch (Exception e) {
 				errText.append("Error en el format de l'any de l'expedient. ");
 				logger.error("Alta masiva CSV error :" + ome.getId()
@@ -2063,7 +2064,7 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 					variablesErronies.add(codi);
 				}
 			}
-			if (variablesErronies.size() > 0) {
+			if (errText.length() > 0  || variablesErronies.size() > 0) {
 				// Informar variables errònies al resultat.
 				estat = ExecucioMassivaEstat.ESTAT_ERROR;
 				errText.append("Error en el format de les següents variables: [");
