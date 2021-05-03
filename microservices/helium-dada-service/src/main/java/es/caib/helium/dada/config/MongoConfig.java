@@ -16,28 +16,27 @@ import com.mongodb.client.MongoClients;
 
 @Configuration
 @EnableMongoRepositories(basePackages = "es.caib.helium.dada.repository")
-public class MongoConfig extends AbstractMongoClientConfiguration{
+public class MongoConfig extends AbstractMongoClientConfiguration {
 
 	@Autowired
 	private Environment env;
-	
-    @Bean
-    MongoTransactionManager transactionManager(MongoDatabaseFactory dbFactory) {
-        return new MongoTransactionManager(dbFactory);
-    }
+
+	@Bean
+	MongoTransactionManager transactionManager(MongoDatabaseFactory dbFactory) {
+		return new MongoTransactionManager(dbFactory);
+	}
 
 	@Override
 	protected String getDatabaseName() {
 		return env.getProperty("spring.data.mongodb.database");
 	}
-	
-	 @Override
-	    public MongoClient mongoClient() {
-	        ConnectionString connectionString = new ConnectionString(env.getProperty("spring.data.mongodb.uri"));
-	        MongoClientSettings mongoClientSettings = MongoClientSettings.builder()
-	            .applyConnectionString(connectionString)
-	            .build();
-	        
-	        return MongoClients.create(mongoClientSettings);
-	    }
+
+	@Override
+	public MongoClient mongoClient() {
+		ConnectionString connectionString = new ConnectionString(env.getProperty("spring.data.mongodb.uri"));
+		MongoClientSettings mongoClientSettings = MongoClientSettings.builder().applyConnectionString(connectionString)
+				.build();
+
+		return MongoClients.create(mongoClientSettings);
+	}
 }

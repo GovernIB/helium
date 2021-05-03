@@ -20,6 +20,7 @@ import es.caib.helium.dada.model.FiltreCapcalera;
 import es.caib.helium.dada.model.PagedList;
 import es.caib.helium.dada.repository.DadaRepository;
 import es.caib.helium.dada.repository.ExpedientRepository;
+import es.caib.helium.enums.ValorsValidacio;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -36,6 +37,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 
 	@Override
 	public PagedList<Expedient> consultaResultats(Consulta consulta) {
+		
 		try {
 			log.debug("[SRV] Consultant resultats paginats");
 			var pagina = expedientRepository.findByFiltres(consulta);
@@ -62,23 +64,25 @@ public class ExpedientServiceImpl implements ExpedientService {
 	}
 
 	@Override
-	public void createExpedient(Expedient expedient) {
+	public boolean createExpedient(Expedient expedient) {
 
 		try {
 			log.debug("[SRV] Creant dades capçalera expedient (expedient= " + expedient.toString());
 			var exp = expedientRepository.findByExpedientId(expedient.getExpedientId());
 			if (exp.isPresent()) {
-				return;
+				return false;
 			}
 			expedientRepository.save(expedient);
+			return true;
 		} catch (Exception e) {
 			log.error("[ExpedientServiceImpl.createExpedient] --->");
 			e.printStackTrace();
+			return false;
 		}
 	}
 
 	@Override
-	public void createExpedients(List<Expedient> expedients) {
+	public boolean createExpedients(List<Expedient> expedients) {
 
 		try {
 			log.debug("[SRV] Creant dades capçalera expedient per múltiples expedients");
@@ -91,10 +95,15 @@ public class ExpedientServiceImpl implements ExpedientService {
 				}
 				exps.add(expedient);
 			}
+			if (exps.isEmpty()) {
+				return false;
+			}
 			expedientRepository.saveAll(exps);
+			return true;
 		} catch (Exception e) {
 			log.error("[ExpedientServiceImpl.createExpedients] --->");
 			e.printStackTrace();
+			return false;
 		}
 	}
 
@@ -177,7 +186,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 	}
 
 	@Override
-	public void putExpedients(List<Expedient> expedients) {
+	public boolean putExpedients(List<Expedient> expedients) {
 		try {
 			List<Expedient> exps = new ArrayList<>();
 			for (var expedient : expedients) {
@@ -195,10 +204,15 @@ public class ExpedientServiceImpl implements ExpedientService {
 				exp.get().setDataFi(expedient.getDataFi());
 				exps.add(exp.get());
 			}
+			if (exps.isEmpty()) {
+				return false;
+			}
 			expedientRepository.saveAll(exps);
+			return true;
 		} catch (Exception e) {
 			log.error("[ExpedientServiceImpl.putExpedients] --->");
 			e.printStackTrace();
+			return true;
 		}
 	}
 
@@ -213,10 +227,10 @@ public class ExpedientServiceImpl implements ExpedientService {
 			var exp = expOpt.get();
 			exp.setEntornId(expedient.getEntornId() != null ? expedient.getEntornId() : exp.getEntornId());
 			exp.setTipusId(expedient.getTipusId() != null ? expedient.getTipusId() : exp.getTipusId());
-			exp.setNumero(expedient.getNumero() != null && !expedient.getNumero().isEmpty() ? expedient.getNumero()
-					: exp.getNumero());
-			exp.setTitol(expedient.getTitol() != null && !expedient.getTitol().isEmpty() ? expedient.getTitol()
-					: exp.getTitol());
+			exp.setNumero(expedient.getNumero() != null && !expedient.getNumero().isEmpty() 
+					&& expedient.getNumero().length() <= ValorsValidacio.TITOL_MAX_LENGTH.getValor() ? expedient.getNumero() : exp.getNumero());
+			exp.setTitol(expedient.getTitol() != null && !expedient.getTitol().isEmpty()
+					&& expedient.getTitol().length() <= ValorsValidacio.TITOL_MAX_LENGTH.getValor() ? expedient.getTitol() : exp.getTitol());
 			exp.setProcesPrincipalId(expedient.getProcesPrincipalId() != null ? expedient.getProcesPrincipalId()
 					: exp.getProcesPrincipalId());
 			exp.setEstatId(expedient.getEstatId() != null ? expedient.getEstatId() : exp.getEstatId());
@@ -232,7 +246,8 @@ public class ExpedientServiceImpl implements ExpedientService {
 	}
 
 	@Override
-	public void patchExpedients(List<Expedient> expedients) {
+	public boolean patchExpedients(List<Expedient> expedients) {
+		
 		try {
 			List<Expedient> exps = new ArrayList<>();
 			for (var expedient : expedients) {
@@ -254,10 +269,15 @@ public class ExpedientServiceImpl implements ExpedientService {
 				exp.setDataFi(expedient.getDataFi() != null ? expedient.getDataFi() : exp.getDataFi());
 				exps.add(exp);
 			}
+			if (exps.isEmpty()) {
+				return false;
+			}
 			expedientRepository.saveAll(exps);
+			return true;
 		} catch (Exception e) {
 			log.error("[ExpedientServiceImpl.patchExpedients] --->");
 			e.printStackTrace();
+			return false;
 		}
 	}
 
@@ -265,6 +285,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 
 	@Override
 	public List<Dada> getDades(Long expedientId) {
+		
 		try {
 			var dades = dadaRepository.findByExpedientId(expedientId);
 			return dades.isPresent() ? dades.get() : new ArrayList<Dada>();
@@ -277,6 +298,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 
 	@Override
 	public Dada getDadaByCodi(Long expedientId, String codi) {
+		
 		try {
 			var dades = dadaRepository.findByExpedientIdAndCodi(expedientId, codi);
 			return dades.isPresent() ? dades.get() : null;
@@ -313,7 +335,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 	}
 
 	@Override
-	public void createDades(Long expedientId, Long procesId, List<Dada> dades) {
+	public boolean createDades(Long expedientId, Long procesId, List<Dada> dades) {
 
 		log.debug("[SRV] Creant dades per l'expedient " + expedientId + " amb procesId " + procesId);
 		try {
@@ -331,10 +353,15 @@ public class ExpedientServiceImpl implements ExpedientService {
 				dada.setProcesId(procesId);
 				dadesFoo.add(dada);
 			}
+			if(dadesFoo.size() == 0) {
+				return false;
+			}
 			dadaRepository.saveAll(dadesFoo);
+			return true;
 		} catch (Exception e) {
 			log.error("[ExpedientServiceImpl.createDades] --->");
 			e.printStackTrace();
+			return false;
 		}
 	}
 
@@ -422,6 +449,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 			var dadaMongo = dadaOptional.get();
 			dadaMongo.setMultiple(dada.isMultiple());
 			dadaMongo.setTipus(dada.getTipus());
+			dadaMongo.setValor(dada.getValor());
 			dadaMongo.setValor(dada.getValor());
 			dadaRepository.save(dadaMongo);
 			return true;
