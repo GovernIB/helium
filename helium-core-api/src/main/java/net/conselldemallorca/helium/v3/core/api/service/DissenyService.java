@@ -216,6 +216,12 @@ public interface DissenyService {
 
 	public AreaDto findAreaById(Long areaId) throws NoTrobatException;
 
+	/** Contulta tots els codis d'àrea jbpm id
+	 * 
+	 * @return
+	 */
+	public List<String> findDistinctJbpmGroupsCodis();
+
 	public DefinicioProcesVersioDto getByVersionsInstanciaProcesById(String processInstanceId) throws NoTrobatException;
 
 	public List<FilaResultat> consultaDominiIntern(String id, List<ParellaCodiValor> parametres) throws Exception;

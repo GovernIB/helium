@@ -40,7 +40,7 @@ public interface TramitacioService {
 			String expedientTipusCodi,
 			String numero,
 			String titol,
-			List<ParellaCodiValor> valorsFormulari) throws TramitacioException, net.conselldemallorca.helium.ws.tramitacio.v1.TramitacioException;
+			List<ParellaCodiValor> valorsFormulari) throws TramitacioException;
 
 	/**
 	 * Mètode per a obtenir el llistat de tasques personals

@@ -4,6 +4,7 @@
 package net.conselldemallorca.helium.v3.core.ejb;
 
 import java.util.List;
+import java.util.Map;
 
 import javax.annotation.security.RolesAllowed;
 import javax.ejb.Stateless;
@@ -12,6 +13,7 @@ import javax.interceptor.Interceptors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 
+import net.conselldemallorca.helium.core.extern.domini.FilaResultat;
 import net.conselldemallorca.helium.v3.core.api.dto.DominiDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
@@ -81,5 +83,12 @@ public class DominiServiceBean implements DominiService {
 	public DominiDto update(DominiDto domini)
 			throws NoTrobatException, PermisDenegatException {
 		return delegate.update(domini);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public List<FilaResultat> consultaDomini(Long entornId, Long dominiId, String dominiWsId,
+			Map<String, Object> params) {
+		return delegate.consultaDomini(entornId, dominiId, dominiWsId, params);
 	}
 }

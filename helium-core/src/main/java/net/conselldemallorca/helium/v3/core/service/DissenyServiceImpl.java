@@ -47,6 +47,7 @@ import net.conselldemallorca.helium.core.helper.PaginacioHelper;
 import net.conselldemallorca.helium.core.helper.PermisosHelper;
 import net.conselldemallorca.helium.core.helper.PermisosHelper.ObjectIdentifierExtractor;
 import net.conselldemallorca.helium.core.model.hibernate.Area;
+import net.conselldemallorca.helium.core.model.hibernate.AreaJbpmId;
 import net.conselldemallorca.helium.core.model.hibernate.Camp;
 import net.conselldemallorca.helium.core.model.hibernate.CampTasca;
 import net.conselldemallorca.helium.core.model.hibernate.Consulta;
@@ -82,6 +83,7 @@ import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
 import net.conselldemallorca.helium.v3.core.api.exportacio.DefinicioProcesExportacio;
 import net.conselldemallorca.helium.v3.core.api.service.DissenyService;
+import net.conselldemallorca.helium.v3.core.repository.AreaJbpmIdRepository;
 import net.conselldemallorca.helium.v3.core.repository.AreaRepository;
 import net.conselldemallorca.helium.v3.core.repository.CampRepository;
 import net.conselldemallorca.helium.v3.core.repository.CampTascaRepository;
@@ -144,6 +146,8 @@ public class DissenyServiceImpl implements DissenyService {
 	private DominiRepository dominiRepository;
 	@Resource
 	private ConsultaCampRepository consultaCampRepository;
+	@Resource
+	private AreaJbpmIdRepository areaJbpmIdRepository;
 	
 	
 
@@ -160,6 +164,15 @@ public class DissenyServiceImpl implements DissenyService {
 		return conversioTipusHelper.convertir(
 				area,
 				AreaDto.class);
+	}
+	
+	@Transactional(readOnly=true)
+	@Override
+	public List<String> findDistinctJbpmGroupsCodis() {
+		List<String> jbpmGroupCodis = new ArrayList<String>();
+		for (AreaJbpmId areaJbpmId : areaJbpmIdRepository.findAll())
+			jbpmGroupCodis.add(areaJbpmId.getCodi());
+		return jbpmGroupCodis;
 	}
 
 	@Transactional(readOnly=true)

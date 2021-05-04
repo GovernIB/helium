@@ -117,5 +117,4 @@ public interface ExpedientTascaService {
 			Long expedientId,
 			String tascaId,
 			String expressio) throws NoTrobatException, ValidacioException;
-
 }

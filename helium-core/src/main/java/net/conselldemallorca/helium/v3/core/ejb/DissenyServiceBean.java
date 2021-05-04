@@ -181,6 +181,11 @@ public class DissenyServiceBean implements DissenyService {
 	}
 
 	@Override
+	public List<String> findDistinctJbpmGroupsCodis() {
+		return delegate.findDistinctJbpmGroupsCodis();
+	}
+
+	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public AreaDto findAreaById(Long areaId) {
 		return delegate.findAreaById(areaId);
@@ -349,5 +354,4 @@ public class DissenyServiceBean implements DissenyService {
 	public List<FilaResultat> consultaDomini(Long id, String codiDomini, Map<String, Object> parametres) {
 		return delegate.consultaDomini(id, codiDomini, parametres);
 	}
-
 }

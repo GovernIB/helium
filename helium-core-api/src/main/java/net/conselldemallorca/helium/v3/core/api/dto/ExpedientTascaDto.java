@@ -66,7 +66,7 @@ public class ExpedientTascaDto extends ControlPermisosDto implements Comparable<
 	private String tascaRecursForm;
 	private String tascaFormExternCodi;
 	private boolean tascaDelegable;
-	private boolean tascaTramitacioMassiva;
+	private Boolean tascaTramitacioMassiva;
 	private boolean tascaFinalitzacioSegonPla;
 	
 	private Date marcadaFinalitzar;
@@ -267,9 +267,9 @@ public class ExpedientTascaDto extends ControlPermisosDto implements Comparable<
 		this.tascaDelegable = tascaDelegable;
 	}
 	public boolean isTascaTramitacioMassiva() {
-		return tascaTramitacioMassiva;
+		return tascaTramitacioMassiva != null ? tascaTramitacioMassiva.booleanValue() : false;
 	}
-	public void setTascaTramitacioMassiva(boolean tascaTramitacioMassiva) {
+	public void setTascaTramitacioMassiva(Boolean tascaTramitacioMassiva) {
 		this.tascaTramitacioMassiva = tascaTramitacioMassiva;
 	}
 	public boolean isTascaFinalitzacioSegonPla() {

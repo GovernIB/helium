@@ -493,4 +493,12 @@ public interface TascaService {
 	 */
 	public void guardarFormulariExtern(String formulariId, Map<String, Object> valorsTasca);
 
+	/** Mètode per consultar si internament ha guardat les dades del formulari inicial. Ho guarda
+	 * en un Map intern.
+	 * 
+	 * @param formulariId
+	 * @return
+	 */
+	public Map<String, Object> obtenirValorsFormulariExternInicial(String formulariId);
+
 }

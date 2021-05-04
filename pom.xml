@@ -33,7 +33,6 @@
 		<module>helium-plugin-impl</module>
 		<module>helium-jbpm3</module>
 		<module>helium-core-common</module>
-		<!-- <module>helium-core-v26</module>  -->
 		<module>helium-core</module>
 		<module>helium-webapp</module>
 		<module>helium-ws</module>
@@ -41,8 +40,6 @@
 		<module>helium-applet</module>
 		<module>helium-hibernate-entitymanager</module>
 		<module>helium-selenium</module>
-		<module>helium-selenium-v26</module>
-		<module>helium-selenium-integraciones</module>
 		<module>helium-selenium-webapp</module>
 		<module>helium-ws-client</module>
 	</modules>
