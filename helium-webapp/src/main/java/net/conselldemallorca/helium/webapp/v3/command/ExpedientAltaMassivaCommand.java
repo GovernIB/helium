@@ -1,5 +1,8 @@
 package net.conselldemallorca.helium.webapp.v3.command;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 import javax.validation.constraints.NotNull;
 
 import org.springframework.web.multipart.MultipartFile;
@@ -13,6 +16,9 @@ import net.conselldemallorca.helium.webapp.v3.validator.ExpedientAltaMassiva;
 @ExpedientAltaMassiva(groups = {AltaMassiva.class})
 public class ExpedientAltaMassivaCommand {
 
+	// Informació per programar l'execució massiva
+	private String dataInici;
+	private boolean correu;
 	
 	// Informació per l'alta massiva
 	@NotNull(groups = {AltaMassiva.class})
@@ -23,6 +29,18 @@ public class ExpedientAltaMassivaCommand {
 	/** Propietat on parsejar el CSV durant la validació en el @ExpedientAltaMassivaValidator */
 	private String[][] contingutCsv = null;;
 	
+	public String getDataInici() {
+		return dataInici;
+	}
+	public void setDataInici(String dataInici) {
+		this.dataInici = dataInici;
+	}
+	public boolean isCorreu() {
+		return correu;
+	}
+	public void setCorreu(boolean correu) {
+		this.correu = correu;
+	}
 	public Long getExpedientTipusId() {
 		return expedientTipusId;
 	}
@@ -44,5 +62,17 @@ public class ExpedientAltaMassivaCommand {
 	}
 	public void setContingutCsv(String[][] contingutCsv) {
 		this.contingutCsv = contingutCsv;
+	}
+	
+	public Date getDataIniciAsDate() {
+		Date dataInici = null;
+		if (this.dataInici != null && !this.dataInici.isEmpty())
+		{
+			try {
+				dataInici = new SimpleDateFormat("dd/MM/yyyy HH:mm").parse(this.dataInici);
+			} catch (Exception e) {
+			}
+		}
+		return dataInici;
 	}
 }

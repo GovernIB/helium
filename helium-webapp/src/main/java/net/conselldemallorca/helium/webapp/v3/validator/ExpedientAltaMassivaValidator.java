@@ -3,6 +3,9 @@ package net.conselldemallorca.helium.webapp.v3.validator;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -11,6 +14,7 @@ import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.time.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import net.conselldemallorca.helium.core.util.CsvHelper;
@@ -37,9 +41,14 @@ public class ExpedientAltaMassivaValidator implements ConstraintValidator<Expedi
 	@Autowired
 	DissenyService dissenyService;
 	
-	/** Màxim de 10.000 expedients per alta programada. */
-	private int MAX_EXPEDIENTS = 10000; 
-	
+	/** Màxim de 1000 expedients per alta programada. */
+	private int MAX_EXPEDIENTS = 1000; 
+
+	/** Màxim de 20 expedients per alta sense paràmetre de programació, a partir de 20 s'ha de programar després de les 15h. */
+	private int MAX_EXPEDIENTS_SENSE_PROGRAMACIO = 20;
+	private int PROGRAMACIO_HORA_MINIMA_HH = 15; 
+	private int PROGRAMACIO_HORA_MINIMA_MM = 30; 
+
 	@Override
 	public void initialize(ExpedientAltaMassiva anotacio) {
 		codiMissatge = anotacio.message();
@@ -62,6 +71,19 @@ public class ExpedientAltaMassivaValidator implements ConstraintValidator<Expedi
 									darreraExecucioMassiva.getTotal()
 							}))
 					.addNode("expedientTipusId")
+					.addConstraintViolation();
+					valid = false;
+				}
+			}
+			// Valila el format de la data
+			Date dataInici = null;
+			if (!StringUtils.isEmpty(command.getDataInici())) {
+				try {
+					dataInici = new SimpleDateFormat("dd/MM/yyyy HH:mm").parse(command.getDataInici());
+				} catch (Exception e) {
+					context.buildConstraintViolationWithTemplate(
+							MessageHelper.getInstance().getMessage( this.codiMissatge + ".dataInci.format.invalid"))
+					.addNode("dataInici")
 					.addConstraintViolation();
 					valid = false;
 				}
@@ -120,12 +142,27 @@ public class ExpedientAltaMassivaValidator implements ConstraintValidator<Expedi
 						}
 						// Valida que no se superin el màxim de registres per alta programada
 						if (contingutCsv.length > MAX_EXPEDIENTS) {
-							// Totes les files del CSV han de tenir el mateix número de columnes
+							// No es poden donar d''alta més de {0} expedients per alta massiva.
 							context.buildConstraintViolationWithTemplate(
 									MessageHelper.getInstance().getMessage( this.codiMissatge + ".arxiu.max.registres", new Object[] {MAX_EXPEDIENTS}))
 							.addNode("file")
 							.addConstraintViolation();
 							valid = false;							
+						}
+						if (contingutCsv.length > MAX_EXPEDIENTS_SENSE_PROGRAMACIO) {
+							Calendar horaLimit = new GregorianCalendar();
+							horaLimit.setTime(DateUtils.truncate(dataInici != null ? dataInici : new Date(), Calendar.DATE));
+							horaLimit.set(Calendar.HOUR_OF_DAY, PROGRAMACIO_HORA_MINIMA_HH);
+							horaLimit.set(Calendar.MINUTE, PROGRAMACIO_HORA_MINIMA_MM);
+							if (dataInici == null || dataInici.before(horaLimit.getTime()) ) {
+								context.buildConstraintViolationWithTemplate(
+										MessageHelper.getInstance().getMessage( 
+												this.codiMissatge + ".arxiu.max.registres.no.programats", 
+												new Object[] {MAX_EXPEDIENTS_SENSE_PROGRAMACIO, PROGRAMACIO_HORA_MINIMA_HH, PROGRAMACIO_HORA_MINIMA_MM}))
+								.addNode("dataInici")
+								.addConstraintViolation();
+								valid = false;
+							}
 						}
 					} else {
 						// L'arxiu no té cap fila

@@ -23,6 +23,9 @@
 	<script src="<c:url value="/js/webutil.modal.js"/>"></script>
 	<script src="<c:url value="/js/moment.js"/>"></script>
 	<script src="<c:url value="/js/moment-with-locales.min.js"/>"></script>
+	<script src="<c:url value="/js/bootstrap-datetimepicker.js"/>"></script>
+	<link href="<c:url value="/css/bootstrap-datetimepicker.min.css"/>" rel="stylesheet">
+	<script type="text/javascript" src="<c:url value="/js/jquery/jquery.maskedinput.js"/>"></script>
 </head>
 <body>		
 
@@ -53,6 +56,15 @@
 				</p>
 			</div>
 			
+		</div>
+		
+		<div class="row">
+			<div class="col-sm-6">
+				<hel:inputDate name="dataInici" time="true" labelSize="6" textKey="expedient.consulta.datahorainici" placeholder="dd/mm/yyyy HH:mm" />
+			</div>
+			<div class="col-sm-6">
+				<hel:inputCheckbox name="correu" labelSize="6" textKey="expedient.massiva.correu" />
+			</div>
 		</div>
 
 		<!-- Info darrera execució -->
@@ -88,7 +100,7 @@
 							</td>
 							<td class="text-right"><span id="processats">-</span></td>
 							<td class="text-right"><span id="errors">-</span></td>
-							<td><span id="dataInici">-</span></td>
+							<td><span id="tdDataInici">-</span></td>
 							<td><span id="dataFi">-</span></td>
 							<td><span id="usuari">-</span></td>
 						</tr>
@@ -208,7 +220,7 @@
 					$('#tpcExecutat').html(tpcExecutat + '%');
 					$('#processats').html(data.execucioMassiva.processat);
 					$('#errors').html(data.execucioMassiva.error);
-					$("#dataInici").html(data.execucioMassiva.dataInici != null ? (moment(new Date(data.execucioMassiva.dataInici)).format("DD/MM/YYYY HH:mm:ss")) : "-");
+					$("#tdDataInici").html(data.execucioMassiva.dataInici != null ? (moment(new Date(data.execucioMassiva.dataInici)).format("DD/MM/YYYY HH:mm:ss")) : "-");
 					$("#dataFi").html(data.execucioMassiva.dataFi != null ? (moment(new Date(data.execucioMassiva.dataFi)).format("DD/MM/YYYY HH:mm:ss")) : "-");
 					$('#usuari').html(data.execucioMassiva.usuari);				
 				} else {
@@ -217,7 +229,7 @@
 					$('#tpcExecutat').html('-%');
 					$('#processats').html('-');
 					$('#errors').html('-');
-					$('#dataInici').html('-');
+					$('#tdDataInici').html('-');
 					$('#dataFi').html('-');
 					$('#usuari').html('-');
 				}

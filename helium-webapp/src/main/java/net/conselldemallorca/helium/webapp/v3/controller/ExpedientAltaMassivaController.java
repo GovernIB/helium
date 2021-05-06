@@ -104,7 +104,8 @@ public class ExpedientAltaMassivaController extends BaseExpedientController {
 					ExecucioMassivaDto dto = new ExecucioMassivaDto();
 					dto.setExpedientTipusId(command.getExpedientTipusId());
 					dto.setTipus(ExecucioMassivaTipusDto.ALTA_MASSIVA);
-					dto.setEnviarCorreu(false);
+					dto.setEnviarCorreu(command.isCorreu());
+					dto.setDataInici(command.getDataIniciAsDate());
 					dto.setParam2(command.getFile().getBytes());
 					dto.setContingutCsv(command.getContingutCsv());
 					execucioMassivaService.crearExecucioMassiva(dto);
