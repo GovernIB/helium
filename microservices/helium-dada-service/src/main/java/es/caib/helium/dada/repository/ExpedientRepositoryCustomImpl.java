@@ -41,32 +41,61 @@ public class ExpedientRepositoryCustomImpl implements ExpedientRepositoryCustom 
 		this.mongoTemplate = mongoTemplate;
 	}
 
+	/**
+	 * Busca la informació de l'expedient (capçalera i dades) filtrada segons la consulta
+	 * @param consulta: Objecte consulta que conté els paràmetres de cerca
+	 * @return Retorna la llista d'expedients filtrada
+	 */
 	@Override
 	public List<Expedient> findByFiltres(Consulta consulta) {
+		
+		if (consulta == null) {
+			return new ArrayList<Expedient>();
+		}
 		return mongoTemplate
 				.aggregate(Aggregation.newAggregation(prepararFiltres(consulta)), Expedient.class, Expedient.class)
 				.getMappedResults();
 	}
 
+	/**
+	 * Esborra la informació de la capçalera de l'expedient i les dades relacionades amb l'expedientId
+	 * @param expedientId: identificador de l'expedient a esborrar
+	 * @return Retorna el número d'expedients esborrats
+	 */
 	@Override
 	@Transactional
-	public void esborrarExpedientCascade(Long expedientId) {
+	public Long esborrarExpedientCascade(Long expedientId) {
+		if (expedientId == null) {
+			return 0l;
+		}
 		List<Long> expedients = new ArrayList<>();
 		expedients.add(expedientId);
-		esborrarExpedientsCascade(expedients);
+		return esborrarExpedientsCascade(expedients);
 	}
 
+	/**
+	 * Esborra per cada expedientId la informació de la capçalera de l'expedient i les dades relacionades amb l'expedientId
+	 * @param expedients: llista de identifacadors expedientId
+	 * @return Retorna el número d'expedients esborrats.
+	 */
 	@Override
 	@Transactional
-	public void esborrarExpedientsCascade(List<Long> expedients) {
+	public Long esborrarExpedientsCascade(List<Long> expedients) {
 		var query = new Query();
 		var criteria = new Criteria();
 		criteria.and(Capcalera.EXPEDIENT_ID.getCamp()).in(expedients);
 		query.addCriteria(criteria);
-		mongoTemplate.remove(query, Expedient.class, Collections.EXPEDIENT.getNom());
+		var nEsborrats = mongoTemplate.remove(query, Expedient.class, Collections.EXPEDIENT.getNom());
 		mongoTemplate.remove(query, Dada.class, Collections.DADA.getNom());
+		return nEsborrats.getDeletedCount();
 	}
 
+	/**
+	 * Prepara la pipeline de AggregationOperation per l'agregació (db.expedient.aggregate([]). 
+	 * Sempre inclou la operació {$lookup: {from: "dada", localField:"expedientId", foreignField: "expedientId", as: "dades"}
+	 * @param consulta: Objecte Consulta d'on d'extreu la informació per preparar les diferents AggregationOperation
+	 * @return 
+	 */
 	private List<AggregationOperation> prepararFiltres(Consulta consulta) {
 
 		// Pipeline per l'agregació (db.expedient.aggregate([])
@@ -232,7 +261,7 @@ public class ExpedientRepositoryCustomImpl implements ExpedientRepositoryCustom 
 		if (filtreValor.getCodi() != null && !filtreValor.getCodi().isEmpty()) {
 			filtreCriteria.and(Dada.CODI.getCamp()).is(filtreValor.getCodi());
 		}
-		if (filtreValor.getTipus() != null && !filtreValor.getTipus().isEmpty()) {
+		if (filtreValor.getTipus() != null) {
 			filtreCriteria.and(Dada.TIPUS.getCamp()).is(filtreValor.getTipus());
 		}
 		if (filtreValor.getValor() != null && !filtreValor.getValor().isEmpty()) {

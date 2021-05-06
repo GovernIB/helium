@@ -1,5 +1,6 @@
 package es.caib.helium.dada.domain;
 
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -18,7 +19,7 @@ import lombok.ToString;
 @ToString
 @Document
 public class Expedient {
-	 
+
 	@Id
 	private String id;
 	@NotNull
@@ -27,9 +28,9 @@ public class Expedient {
 	private Long entornId;
 	@NotNull
 	private Long tipusId;
-	@Size(max = 64) //TODO canviar-ho per ValorsValidacio si es pot
+	@Size(max = 64) // TODO canviar-ho per ValorsValidacio si es pot
 	private String numero;
-	@Size(max = 255) //TODO canviar-ho per ValorsValidacio si es pot
+	@Size(max = 255) // TODO canviar-ho per ValorsValidacio si es pot
 	private String titol;
 	@NotNull
 	private Long procesPrincipalId;
@@ -37,6 +38,33 @@ public class Expedient {
 	@NotNull
 	private Date dataInici;
 	private Date dataFi;
-	
+
 	private List<Dada> dades;
+
+	@Override
+	public boolean equals(Object expedient) {
+
+		if (expedient == this) {
+			return true;
+		}
+
+		if (!(expedient instanceof Expedient)) {
+			return false;
+		}
+		
+		var exp = (Expedient) expedient;
+		
+		return (expedientId != null && exp.getExpedientId() != null) ? expedientId.equals(exp.getExpedientId()) : true
+		&& (entornId != null && exp.getEntornId() != null) ? entornId.equals(exp.getEntornId()) : true
+		&& (tipusId != null && exp.getTipusId() != null) ? tipusId.equals(exp.getTipusId()) : true
+		&& (numero != null && exp.getNumero() != null) ? numero.equals(exp.getNumero()) : true
+		&& (titol != null && exp.getTitol() != null) ? titol.equals(exp.getTitol()) : true
+		&& (procesPrincipalId != null && exp.getProcesPrincipalId() != null) 
+			? procesPrincipalId.equals(exp.getProcesPrincipalId()) : true
+		&& (estatId != null && exp.getEstatId() != null) ? estatId.equals(exp.getEstatId()) : true
+		&& (dataInici != null && exp.getDataInici() != null) ? dataInici.equals(exp.getDataInici()) : true
+		&& (dataFi != null && exp.getDataFi() != null) ? dataFi.equals(exp.getDataFi()) : true
+		&& (dades != null && !dades.isEmpty() && exp.getDades() != null && !exp.getDades().isEmpty())
+			? Arrays.equals(dades.toArray(), exp.getDades().toArray()): true ;
+	}
 }

@@ -151,8 +151,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 			if (expedients.isEmpty()) {
 				return false;
 			}
-			expedientRepository.esborrarExpedientsCascade(expedients);
-			return true;
+			return expedientRepository.esborrarExpedientsCascade(expedients) > 0;
 		} catch (Exception e) {
 			log.error("[ExpedientServiceImpl.deleteExpedients] --->");
 			e.printStackTrace();
@@ -207,8 +206,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 			if (exps.isEmpty()) {
 				return false;
 			}
-			expedientRepository.saveAll(exps);
-			return true;
+			return expedientRepository.saveAll(exps).size() > 0;
 		} catch (Exception e) {
 			log.error("[ExpedientServiceImpl.putExpedients] --->");
 			e.printStackTrace();
@@ -272,8 +270,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 			if (exps.isEmpty()) {
 				return false;
 			}
-			expedientRepository.saveAll(exps);
-			return true;
+			return expedientRepository.saveAll(exps).size() > 0;
 		} catch (Exception e) {
 			log.error("[ExpedientServiceImpl.patchExpedients] --->");
 			e.printStackTrace();
@@ -353,11 +350,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 				dada.setProcesId(procesId);
 				dadesFoo.add(dada);
 			}
-			if(dadesFoo.size() == 0) {
-				return false;
-			}
-			dadaRepository.saveAll(dadesFoo);
-			return true;
+			return dadaRepository.saveAll(dadesFoo).size() > 0;
 		} catch (Exception e) {
 			log.error("[ExpedientServiceImpl.createDades] --->");
 			e.printStackTrace();
@@ -407,7 +400,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 	}
 
 	@Override
-	public void postDadesByExpedientIdProcesId(Long expedientId, Long procesId, List<Dada> dades) {
+	public boolean postDadesByExpedientIdProcesId(Long expedientId, Long procesId, List<Dada> dades) {
 		try {
 			Set<String> dadesSet = new HashSet<>();
 			List<Dada> dadesDistinct = dades.stream().filter(d -> dadesSet.add(d.getCodi()))
@@ -431,10 +424,11 @@ public class ExpedientServiceImpl implements ExpedientService {
 				dada.setProcesId(procesId);
 				dadesMongo.add(dada);
 			}
-			dadaRepository.saveAll(dadesMongo);
+			return dadaRepository.saveAll(dadesMongo).size() > 0;
 		} catch (Exception e) {
 			log.error("[ExpedientServiceImpl.postDadesByExpedientIdProcesId] --->");
 			e.printStackTrace();
+			return true;
 		}
 	}
 

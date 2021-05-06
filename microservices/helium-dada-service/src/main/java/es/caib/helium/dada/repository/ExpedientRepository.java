@@ -3,7 +3,6 @@ package es.caib.helium.dada.repository;
 import java.util.List;
 import java.util.Optional;
 
-import org.springframework.data.mongodb.repository.Aggregation;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -18,9 +17,7 @@ public interface ExpedientRepository extends MongoRepository<Expedient, String>,
 
 	public Optional<Expedient> findByExpedientId(Long expedientId);
 
-	public void deleteByExpedientId(Long expedientId);
+	public Long deleteByExpedientId(Long expedientId);
 
-	public Optional<Expedient> findByEntornId(int entornId);
-
-	public Optional<Expedient> findByIdAndProcesPrincipalId(String expedientId, Long procesId);
+	public Optional<List<Expedient>> findByEntornId(int entornId);
 }

@@ -45,7 +45,7 @@ public interface ExpedientService {
 
 	public boolean deleteDadaByExpedientIdAndCodi(Long expedientId, String codi);
 
-	public void postDadesByExpedientIdProcesId(Long expedientId, Long procesId, List<Dada> dada);
+	public boolean postDadesByExpedientIdProcesId(Long expedientId, Long procesId, List<Dada> dada);
 
 	public boolean putDadaByExpedientIdProcesIdAndCodi(Long expedientId, Long procesId, String codi, Dada dada);
 

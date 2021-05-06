@@ -1,5 +1,6 @@
 package es.caib.helium.dada.domain;
 
+import java.util.Arrays;
 import java.util.List;
 
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -18,4 +19,20 @@ import lombok.ToString;
 public class ValorRegistre extends Valor {
 
 	private List<Dada> camps;
+	
+	@Override
+	public boolean equals(Object valorRegistre) {
+		
+		if (valorRegistre == this) {
+			return true;
+		}
+
+		if (!(valorRegistre instanceof ValorSimple)) {
+			return false;
+		}
+		
+		var vs = (ValorRegistre) valorRegistre;
+		
+		return (camps != null && !camps.isEmpty()) ? Arrays.equals(camps.toArray(), vs.getCamps().toArray()): true;
+	}
 }
