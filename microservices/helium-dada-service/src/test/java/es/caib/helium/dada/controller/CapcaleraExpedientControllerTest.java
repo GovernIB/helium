@@ -123,8 +123,6 @@ public class CapcaleraExpedientControllerTest {
 		}
 	}
 
-	// TODO mirar testos per crides incorrectes a l'api i implementar-los on toqui
-
 	@Test
 	@DisplayName("[POST] Consulta resultats paginats")
 	public void test_consultaResultats_succes() throws Exception {

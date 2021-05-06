@@ -5,6 +5,8 @@ import java.util.List;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
 import es.caib.helium.dada.domain.ValorSimple;
+import es.caib.helium.enums.Tipus;
+import es.caib.helium.enums.TipusFiltre;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -16,7 +18,7 @@ import lombok.ToString;
 public class FiltreValor extends Filtre {
 	
 	private String codi;
-	private String tipusFiltre; //SIMPLE|RANG
-	private String tipus; //STRING / DATE / TERMINI / FLOAT / PREU / INTEGER / BOOLEAN
+	private TipusFiltre tipusFiltre; //SIMPLE|RANG
+	private Tipus tipus;
 	private List<ValorSimple> valor;
 }
