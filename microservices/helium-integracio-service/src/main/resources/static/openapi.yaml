@@ -1200,8 +1200,29 @@ paths:
         400:
           description: Parametres incorrectes
 
-#  /api/v1/tramitacio/notificacio:
-#    post:
+  /api/v1/tramitacio/notificacio:
+    post:
+      tags:
+        - Tramitacio
+      deprecated: true
+      operationId: tramitacioRegistrarNotificacioV1
+      summary: Crea notificació a la zona personal
+      description: Crea notificació a la zona personal
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TramitNotificacio'
+      responses:
+        200:
+          description: Notificació realitzada
+          content:
+            application/json:
+              schema:
+                $ref: ''
+        400:
+          description: Paràmetres incorrectes
+
 
   /api/v1/tramitacio/status:
     get:
@@ -2818,6 +2839,156 @@ components:
               type: string
             interessatNom:
               type: string
+    TramitNotificacio:
+      type: object
+      properties:
+        dadesExpedient:
+          $ref: '#/components/schemas/DadesExpedient'
+        dadesOficina:
+          $ref: '#/components/schemas/DadesOficina'
+        dadesInteressat:
+          $ref: '#/components/schemas/DadesInteressat'
+        dadesRepresentat:
+          $ref: '#/components/schemas/DadesRepresentant'
+        dadesNotificacio:
+          $ref: '#/components/schemas/DadesNotificacio'
+        documents:
+          type: array
+          items:
+            $ref: '#/components/schemas/DocumentRegistre'
+    DadesExpedient:
+      type: object
+      properties:
+        identificador:
+          type: string
+        clau:
+          type: string
+        unitatAdministrativa:
+          type: string
+    DadesOficina:
+      type: object
+      properties:
+        organCodi:
+          type: string
+        oficinaCodi:
+          type: string
+    DadesRepresentant:
+      type: object
+      properties:
+        nif:
+          type: string
+        nomAmbCognoms:
+          type: string
+        nom:
+          type: string
+        cognom1:
+          type: string
+        cognom2:
+          type: string
+    DadesInteressat:
+      allOf:
+        - $ref: '#/components/schemas/DadesRepresentant'
+        - type: object
+          properties:
+            entitatCodi:
+              type: string
+            autenticat:
+              type: boolean
+            paisCodi:
+              type: string
+            paisNom:
+              type: string
+            provinciaCodi:
+              type: string
+            provinciaNom:
+              type: string
+            municipiCodi:
+              type: string
+            municipiNom:
+              type: string
+            email:
+              type: string
+            mobil:
+              type: string
+    DadesNotificacio:
+      type: object
+      properties:
+        justificantRecepcio:
+          type: boolean
+        avisTitol:
+          type: string
+        avisText:
+          type: string
+        avisTextSms:
+          type: string
+        oficiTitol:
+          type: string
+        oficiText:
+          type: string
+        oficiTramitSubsanacio:
+          $ref: '#/components/schemas/TramitSubsanacio'
+    TramitSubsanacio:
+      type: object
+      properties:
+        identificador:
+          type: string
+        versio:
+          type: integer
+          format: int32
+        descripcio:
+          type: string
+        parametres:
+          type: array
+          items:
+            $ref: '#/components/schemas/TramitSubsanacioParametre'
+    TramitSubsanacioParametre:
+      type: object
+      properties:
+        parametre:
+          type: string
+        valor:
+          type: string
+    DocumentRegistre:
+      type: object
+      properties:
+        nom:
+          type: string
+        data:
+          type: string
+          format: date-time
+        idiomaCodi:
+          type: string
+        arxiuNom:
+          type: string
+        arxiuContingut:
+          type: string
+          format: binary
+        tipusDocument:
+          type: string
+        tipusDocumental:
+          type: string
+        origen:
+          type: integer
+          format: int32
+        modeFirma:
+          type: integer
+          format: int32
+        observacions:
+          type: string
+        validesa:
+          type: string
+    RespostaAnotacioRegistre:
+      type: object
+      properties:
+        numero:
+          type: string
+        numeroRegistroFormateado:
+          type: string
+        data:
+          type: string
+          format: date-time
+        referenciaRDSJustificante:
+          $ref: '#/components/schemas/ReferenciaRDSJustificante'
     # Estat
     PluginStatus:
       type: object
