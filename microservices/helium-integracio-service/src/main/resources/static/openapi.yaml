@@ -1,0 +1,2963 @@
+openapi: 3.0.3
+info:
+  title: HeliumMS Integracions API
+  description: Microservei de Integració amb serveis externs de HeliumMS
+  version: 1.0.0
+  contact:
+    name: Limit Tecnologies
+    email: limit@limit.es
+servers:
+  - url: 'http://pendent.de.definir.es'
+tags:
+  - name: Persones
+    description: Integració de persones
+  - name: PortaFirmes
+    description: Integració amb portafirmes
+  - name: FirmaServidor
+    description: Integració amb servei de firma en servidor
+  - name: ValidacioFirma
+    description: Integració amb servei de validació de firma
+  - name: Registre
+    description: Integració amb el registre
+  - name: Arxiu
+    description: Integració amb l'arxiu
+  - name: Custodia
+    description: Integració amb custòdia
+  - name: Gestor documental
+    description: Integració amb gestor documental
+  - name: Notificacio
+    description: Integració amb Notib
+  - name: Unitats organiques
+    description: Integració amb Dir3
+  - name: Tramitacio
+    description: Integració amb Sistra
+  - name: Estat
+    description: Informació de l'estat de la integració
+paths:
+
+  # Persones
+  /api/v1/persones:
+    get:
+      tags:
+        - Persones
+      operationId: getPersonesByNomLikeV1
+      summary: Cerca de persones per nom i/o llinatges
+      description: Obté la llista de les persones que contenen el text passat com a paràmetre en la cadena formada per el nom i llinatges
+      parameters:
+        - $ref: '#/components/parameters/TextSearchParam'
+      responses:
+        200:
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PersonaList'
+        204:
+          description: No content
+        400:
+          description: Bad input parameter
+
+  /api/v1/persones/{codi}:
+    get:
+      tags:
+        - Persones
+      operationId: getPersonaByCodiV1
+      summary: Cerca de persones per codi
+      description: Obté la persona amb el codi indicat
+      parameters:
+        - $ref: '#/components/parameters/CodiPathParam'
+      responses:
+        200:
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Persona'
+        204:
+          description: No content
+        400:
+          description: Bad input parameter
+
+  /api/v1/persones/{codi}/rols:
+    get:
+      tags:
+        - Persones
+      operationId: getRolsByCodiV1
+      summary: Cerca de rols de persones per codi
+      description: Obté els rols de la persona amb el codi indicat
+      parameters:
+        - $ref: '#/components/parameters/CodiPathParam'
+      responses:
+        200:
+          description: Ok
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+        204:
+          description: No content
+        400:
+          description: Bad input parameter
+
+  /api/v1/persones/status:
+    get:
+      tags:
+        - Estat
+      operationId: getPersonesEstatV1
+      summary: Obté l'estat de la integració
+      description: Obté l'estat de la integració
+      responses:
+        200:
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PluginStatus'
+
+  # Portafirmes
+  /api/v1/portasignatures:
+    get:
+      tags:
+        - PortaFirmes
+      operationId: getPortaFirmesV1
+      summary: Obté documents pendents de firmar en portafirmes
+      description: Obté la llista de documents pendents de firmar en portafirmes
+      parameters:
+        - $ref: '#/components/parameters/FiltreParam'
+      responses:
+        200:
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PortafirmesList'
+        204:
+          description: No content
+        400:
+          description: Bad input parameter
+    post:
+      tags:
+        - PortaFirmes
+      operationId: enviarPortafirmesV1
+      summary: Enviament a portafirmes
+      description: Realitza l'enviament d'un document i annexos a firmar al portafirmes
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PortafirmesFlux'
+      responses:
+        200:
+          description: Document enviat a portafirmes
+          content:
+            application/json:
+              schema:
+                type: integer
+                format: int32
+        400:
+          description: Bad input parameter
+    delete:
+      tags:
+        - PortaFirmes
+      operationId: cancelarPortafirmesV1
+      summary: Cancel·la enviaments a portafirmes
+      description: Cancel·la enviaments a portafirmes
+      parameters:
+        - $ref: '#/components/parameters/DocumentListParam'
+      responses:
+        204:
+          description: Ok
+
+  /api/v1/portasignatures/{processInstance}:
+    delete:
+      tags:
+        - PortaFirmes
+      operationId: esborraPortafirmesV1
+      summary: Esborra enviaments a portafirmes
+      description: |
+        Esborra enviaments a portafirmes.
+
+        En cas d'indicar un documentStore, elimina l'enviament del document amb aquest identificador.
+        En cas de no indicar-ho, elimina tots els documents de la intància de procés que no estan en estat
+          - PENDENT
+          - SIGNAT
+          - REBUTJAT
+          - ERROR
+      parameters:
+        - $ref: '#/components/parameters/ProcessInstancePathParam'
+        - $ref: '#/components/parameters/DocumentStoreParam'
+      responses:
+        204:
+          description: Ok
+
+  /api/v1/portasignatures/{processInstance}/pendents:
+    get:
+      tags:
+        - PortaFirmes
+      operationId: getPortaFirmesPendentsV1
+      summary: Obté documents pendents de firmar en portafirmes
+      description: Obté la llista de documents pendents de firmar en portafirmes
+      parameters:
+        - $ref: '#/components/parameters/ProcessInstancePathParam'
+      responses:
+        200:
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PortafirmesList'
+        204:
+          description: No content
+        400:
+          description: Bad input parameter
+
+  /api/v1/portasignatures/status:
+    get:
+      tags:
+        - Estat
+      operationId: getPortafirmesEstatV1
+      summary: Obté l'estat de la integració
+      description: Obté l'estat de la integració
+      responses:
+        200:
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PluginStatus'
+
+  # FirmaServidor
+  /api/v1/firma:
+    post:
+      tags:
+        - FirmaServidor
+      operationId: firmaServidorV1
+      summary: Realitza la firma en servidor
+      description: Realitza la firma en servidor
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/DocumentFirma'
+      responses:
+        200:
+          description: Document firmat
+          content:
+            application/json:
+              schema:
+                type: string
+                format: byte
+                description: Fitxer firmat amb format Base64
+        400:
+          description: Bad input parameter
+
+  /api/v1/firma/status:
+    get:
+      tags:
+        - Estat
+      operationId: getFirmaEstatV1
+      summary: Obté l'estat de la integració
+      description: Obté l'estat de la integració
+      responses:
+        200:
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PluginStatus'
+
+  # ValidacioFirma
+
+  /api/v1/firma/verificacio:
+    post:
+      tags:
+        - ValidacioFirma
+      operationId: verificacioFirmaV1
+      summary: validació i obtenció de firmes
+      description: validació i obtenció de firmes
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/FirmaVerificacioRequest'
+      responses:
+        200:
+          description: Firma verificada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RespostaValidacioSignatura'
+        400:
+          description: Bad input parameter
+
+  /api/v1/firma/validacio/firmes:
+    post:
+      tags:
+        - ValidacioFirma
+      operationId: validacioFirmaV1
+      summary: validació i obtenció de firmes
+      description: validació i obtenció de firmes
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/FirmaValidacioRequest'
+      responses:
+        200:
+          description: Document validat
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ArxiuFirma'
+        400:
+          description: Bad input parameter
+
+  /api/v1/firma/validacio/detalls:
+    post:
+      tags:
+        - ValidacioFirma
+      operationId: validacioDetallsV1
+      summary: validació i obtenció del detall de la firma
+      description: validació i obtenció del detall de la firma
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/FirmaValidacioRequest'
+      responses:
+        200:
+          description: Document validat
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ArxiuFirmaDetall'
+        400:
+          description: Bad input parameter
+
+  /api/v1/firma/validacio/status:
+    get:
+      tags:
+        - Estat
+      operationId: getFirmaValidacioEstatV1
+      summary: Obté l'estat de la integració
+      description: Obté l'estat de la integració
+      responses:
+        200:
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PluginStatus'
+
+  # Registre
+  /api/v1/registre/{numeroRegistre}/justificantData:
+    get:
+      tags:
+        - Registre
+      deprecated: true
+      operationId: getJustificantDataV1
+      summary: Obtenir la data del justificant del registre
+      description: Obtenir la data del justificant del registre
+      parameters:
+        - $ref: '#/components/parameters/NumeroRegistrePathParam'
+      responses:
+        200:
+          description: ok
+          content:
+            application/json:
+              schema:
+                type: string
+                format: date-time
+        404:
+          description: not found
+
+  /api/v1/registre/oficines/{codi}:
+    get:
+      tags:
+        - Registre
+      deprecated: true
+      operationId: getOficinaNomByCodiV1
+      summary: Obtenir nom de l'oficina de registre
+      description: Obtenir nom de l'oficina de registre
+      parameters:
+        - $ref: '#/components/parameters/CodiPathParam'
+      responses:
+        200:
+          description: ok
+          content:
+            application/json:
+              schema:
+                type: string
+        404:
+          description: not found
+
+  /api/v1/registre/entrada:
+    post:
+      tags:
+        - Registre
+      deprecated: true
+      operationId: registreEntradaV1
+      summary: Crear un registre d'entrada
+      description: Crear un registre d'entrada al registre antic
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/RegistreAnotacioOld'
+      responses:
+        200:
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RegistreInfo'
+
+  /api/v1/registre/sortida:
+    post:
+      tags:
+        - Registre
+      deprecated: true
+      operationId: registreSortidaV1
+      summary: Crear un registre de sortida
+      description: Crear un registre de sortida al registre antic
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/RegistreAnotacioOld'
+      responses:
+        200:
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RegistreInfo'
+
+  /api/v1/registre/notificacio:
+    post:
+      tags:
+        - Registre
+      deprecated: true
+      operationId: registreNotificacioV1
+      summary: Crear una notificacio
+      description: Crear una notificacio al registre antic
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/RegistreNotificacio'
+      responses:
+        200:
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RegistreInfo'
+
+  /api/v1/registre/status:
+    get:
+      tags:
+        - Estat
+      deprecated: true
+      operationId: getRegistreEstatV1
+      summary: Obté l'estat de la integració
+      description: Obté l'estat de la integració
+      responses:
+        200:
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PluginStatus'
+
+  # Regweb
+  /api/v1/regweb/sortida:
+    post:
+      tags:
+        - Registre
+      operationId: regwebSortidaV1
+      summary: Crear una registre de sortida
+      description: Crear una registre de sortida
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/RegistreAnotacio'
+      responses:
+        200:
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RegistreInfo'
+        400:
+          description: Paràmetres incorrectes
+
+  /api/v1/regweb/{numeroRegistre}/oficina:
+    get:
+      tags:
+        - Registre
+      operationId: getOficinaNomV1
+      summary: Obtenir nom de l'oficina de registre
+      description: Obtenir nom de l'oficina de registre
+      parameters:
+        - $ref: '#/components/parameters/NumeroRegistrePathParam'
+        - $ref: '#/components/parameters/UsuariCodiParam'
+        - $ref: '#/components/parameters/EntitatCodiParam'
+      responses:
+        200:
+          description: ok
+          content:
+            application/json:
+              schema:
+                type: string
+        404:
+          description: not found
+
+  /api/v1/regweb/status:
+    get:
+      tags:
+        - Estat
+      operationId: getRegwebEstatV1
+      summary: Obté l'estat de la integració
+      description: Obté l'estat de la integració
+      responses:
+        200:
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PluginStatus'
+
+  # Arxiu
+  # /api/v1/arxiu:
+  /api/v1/arxiu/expedients:
+    post:
+      tags:
+        - Arxiu
+      operationId: arxiuExpedientCrearV1
+      summary: Crear expedient a l'arxiu
+      description: Crear expedient a l'arxiu
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExpedientRequest'
+      responses:
+        200:
+          description: Expedient creat
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ContingutArxiu'
+        400:
+          description: Paràmetres incorrectes
+
+  /api/v1/arxiu/expedients/{uuid}:
+    get:
+      tags:
+        - Arxiu
+      operationId: arxiuExpedientInfoV1
+      summary: Consulta expedient a l'arxiu
+      description: Consulta la informació de l'expedient a l'arxiu
+      parameters:
+        - $ref: '#/components/parameters/UuidPathParam'
+      responses:
+        200:
+          description: Obtinguda informació de l'expedient
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExpedientResponse'
+        404:
+          description: Not found
+
+    put:
+      tags:
+        - Arxiu
+      operationId: arxiuExpedientModificar
+      summary: Modificar expedient a l'arxiu
+      description: Modificar expedient a l'arxiu
+      parameters:
+        - $ref: '#/components/parameters/UuidPathParam'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExpedientRequest'
+      responses:
+        200:
+          description: Expedient creat
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ContingutArxiu'
+        400:
+          description: Paràmetres incorrectes
+        404:
+          description: Not found
+
+    delete:
+      tags:
+        - Arxiu
+      operationId: arxiuExpedientEliminarV1
+      summary: Eliminar expedient de l'arxiu
+      description: Eliminar expedient de l'arxiu
+      parameters:
+        - $ref: '#/components/parameters/UuidPathParam'
+      responses:
+        204:
+          description: Expedient eliminat
+        404:
+          description: Not found
+
+  /api/v1/arxiu/expedients/{uuid}/obrir:
+    post:
+      tags:
+        - Arxiu
+      operationId: arxiuExpedientObrirV1
+      summary: Obrir expedient
+      description: Obrir expedient
+      parameters:
+        - $ref: '#/components/parameters/UuidPathParam'
+      responses:
+        204:
+          description: Expedient reobert
+        404:
+          description: Not found
+
+  /api/v1/arxiu/expedients/{uuid}/tancar:
+    post:
+      tags:
+        - Arxiu
+      operationId: arxiuExpedientTancarV1
+      summary: Tancar expedient
+      description: Tancar expedient
+      parameters:
+        - $ref: '#/components/parameters/UuidPathParam'
+      responses:
+        204:
+          description: Expedient tancat
+        404:
+          description: Not found
+
+  /api/v1/arxiu/documents:
+    post:
+      tags:
+        - Arxiu
+      operationId: arxiuDocumentCrearV1
+      summary: Crear document a l'arxiu
+      description: Crear document a l'arxiu
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DocumentRequest'
+      responses:
+        200:
+          description: Document creat
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ContingutArxiu'
+        400:
+          description: Paràmetres incorrectes
+
+  /api/v1/arxiu/documents/{uuid}:
+    get:
+      tags:
+        - Arxiu
+      operationId: arxiuDocumentInfoV1
+      summary: Consulta document a l'arxiu
+      description: Consulta la informació del document a l'arxiu
+      parameters:
+        - $ref: '#/components/parameters/UuidPathParam'
+        - name: versio
+          in: query
+          description: Versió del document
+          required: false
+          schema:
+            type: string
+        - name: ambContingut
+          in: query
+          description: Indica si es vol incloure el contingut del document
+          required: true
+          schema:
+            type: boolean
+        - name: signat
+          in: query
+          description: Indica si el document estpa signat
+          required: true
+          schema:
+            type: boolean
+      responses:
+        200:
+          description: Obtinguda informació del document
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DocumentResponse'
+        404:
+          description: Not found
+
+    put:
+      tags:
+        - Arxiu
+      operationId: arxiuDocumentModificar
+      summary: Modificar document a l'arxiu
+      description: Modificar document a l'arxiu
+      parameters:
+        - $ref: '#/components/parameters/UuidPathParam'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DocumentRequest'
+      responses:
+        200:
+          description: Document modificat
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ContingutArxiu'
+        400:
+          description: Paràmetres incorrectes
+        404:
+          description: Not found
+
+    delete:
+      tags:
+        - Arxiu
+      operationId: arxiuDocumentEliminarV1
+      summary: Eliminar document de l'arxiu
+      description: Eliminar document de l'arxiu
+      parameters:
+        - $ref: '#/components/parameters/UuidPathParam'
+      responses:
+        204:
+          description: Document eliminat
+        404:
+          description: Not found
+
+  /api/v1/arxiu/status:
+    get:
+      tags:
+        - Estat
+      operationId: getArxiuEstatV1
+      summary: Obté l'estat de la integració
+      description: Obté l'estat de la integració
+      responses:
+        200:
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PluginStatus'
+
+  # Custòdia
+  /api/v1/custodia:
+    post:
+      tags:
+        - Custodia
+      deprecated: true
+      operationId: afegirSignaturaV1
+      summary: Afegeix signatura a custòdia
+      description: Afegeix signatura a custòdia
+      requestBody:
+        content:
+          application/form-data:
+            schema:
+              $ref: '#/components/schemas/CustodiaRequest'
+      responses:
+        200:
+          description: Signatura afegida
+          content:
+            application/json:
+              schema:
+                type: string
+        400:
+          description: Paràmetres incorrectes
+
+  /api/v1/custodia/{documentId}:
+    get:
+      tags:
+        - Custodia
+      deprecated: true
+      operationId: getSignaturesV1
+      summary: Obtenir signatures
+      description: Obtenir signatures de custòdia
+      parameters:
+        - $ref: '#/components/parameters/DocumentIdPathParam'
+      responses:
+        200:
+          description: Signatures obtingudes
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+                  format: binary
+                  description: contingut de les signatures
+        404:
+          description: Not found
+
+    delete:
+      tags:
+        - Custodia
+      deprecated: true
+      operationId: deleteSignaturesV1
+      summary: Eliminar signatures
+      description: Eliminar signatures de custòdia
+      parameters:
+        - $ref: '#/components/parameters/DocumentIdPathParam'
+      responses:
+        204:
+          description: Signatures eliminades
+        404:
+          description: Not found
+
+  /api/v1/custodia/{documentId}/arxiu:
+    get:
+      tags:
+        - Custodia
+      deprecated: true
+      operationId: getSignaturesAmbArxiuV1
+      summary: Obtenir signatures amb arxiu
+      description: Obtenir signatures de custòdia amb arxiu
+      parameters:
+        - $ref: '#/components/parameters/DocumentIdPathParam'
+      responses:
+        200:
+          description: Signatures obtingudes
+          content:
+            application/json:
+              schema:
+                type: string
+                format: binary
+                description: contingut de l'arxiu amb les signatures
+        404:
+          description: Not found
+
+  /api/v1/custodia/{documentId}/validacio:
+    get:
+      tags:
+        - Custodia
+      deprecated: true
+      operationId: validacioSignaturaV1
+      summary: Obtenció de dades de validació de la signatura
+      description: Obtenció de dades de validació de la signatura
+      parameters:
+        - $ref: '#/components/parameters/DocumentIdPathParam'
+      responses:
+        200:
+          description: Signatura validada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RespostaValidacioSignaturaList'
+        404:
+          description: Not found
+
+  /api/v1/custodia/{documentId}/urlComprovacio:
+    get:
+      tags:
+        - Custodia
+      deprecated: true
+      operationId: getUrlComprovacioSignaturaV1
+      summary: Obtenció de la URL de  comprovació de la signatura
+      description: Obtenció de la URL de  comprovació de la signatura
+      parameters:
+        - $ref: '#/components/parameters/DocumentIdPathParam'
+      responses:
+        200:
+          description: Obtinguda url de comprovació
+          content:
+            application/json:
+              schema:
+                type: string
+        404:
+          description: Not found
+
+  /api/v1/custodia/status:
+    get:
+      tags:
+        - Estat
+      deprecated: true
+      operationId: getCustodiaEstatV1
+      summary: Obté l'estat de la integració
+      description: Obté l'estat de la integració
+      responses:
+        200:
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PluginStatus'
+
+  # Gestor documental
+  /api/v1/gesdoc:
+    post:
+      tags:
+        - Gestor documental
+      operationId: gesDocCreateDocumentV1
+      summary: Crear document al gestor documental
+      description: Crear document al gestor documental
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/GesDocRequest'
+      responses:
+        200:
+          description: Ok
+          content:
+            application/json:
+              schema:
+                type: string
+        400:
+          description: Paràmetres incorrectes
+
+  /api/v1/gesdoc/{documentId}:
+    get:
+      tags:
+        - Gestor documental
+      operationId: getGesDocDocumentV1
+      summary: Obtenir document del gestor documental
+      description: Obtenir document del gestor documental donat el seu identificador
+      parameters:
+        - $ref: '#/components/parameters/DocumentIdPathParam'
+      responses:
+        200:
+          description: Document obtingut
+          content:
+            application/json:
+              schema:
+                type: string
+                format: binary
+        404:
+          description: Not found
+
+    delete:
+      tags:
+        - Gestor documental
+      operationId: deleteGesDocDocumentV1
+      summary: Eliminar un document del gestor documental
+      description: Eliminar un document del gestor documental donat el seu identificador
+      parameters:
+        - $ref: '#/components/parameters/DocumentIdPathParam'
+      responses:
+        204:
+          description: Document eliminat
+        404:
+          description: Not found
+
+  /api/v1/gesdoc/status:
+    get:
+      tags:
+        - Estat
+      operationId: getGesDocEstatV1
+      summary: Obté l'estat de la integració
+      description: Obté l'estat de la integració
+      responses:
+        200:
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PluginStatus'
+
+  # Notificacio
+  /api/v1/notificacio:
+    post:
+      tags:
+        - Notificacio
+      operationId: altaNotificacioV1
+      summary: Alta de notificacio
+      description: Alta de notificacio
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Notificacio'
+      responses:
+        200:
+          description: Notificació enviada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RespostaEnviar'
+        400:
+          description: Paràmetres incorrectes
+
+  # TODO: Afegir mètode per consultar estat de la notificació
+
+  /api/v1/notificacio/{referencia}:
+    get:
+      tags:
+        - Notificacio
+      operationId: notificacioActualitzarEstatV1
+      summary: Actualitza l'estat de la notificació
+      description: Actualitza l'estat de la notificació
+      parameters:
+        - $ref: '#/components/parameters/ReferenciaPathParam'
+      responses:
+        200:
+          description: Estat actualitzat
+          # TODO: Element a retornar, amb informació de la notificació
+        404:
+          description: Not found
+
+  /api/v1/notificacio/enviaments/{referencia}:
+    get:
+      tags:
+        - Notificacio
+      operationId: notificacioActualitzarEstatEnviamentV1
+      summary: Actualitza l'estat de l'enviament
+      description: Actualitza l'estat de la notificació
+      parameters:
+        - $ref: '#/components/parameters/ReferenciaPathParam'
+      responses:
+        200:
+          description: Estat actualitzat
+          # TODO: Element a retornar, amb informació de l'enviament
+        404:
+          description: Not found
+
+  /api/v1/notificacio/status:
+    get:
+      tags:
+        - Estat
+      operationId: getNotificacioEstatV1
+      summary: Obté l'estat de la integració
+      description: Obté l'estat de la integració
+      responses:
+        200:
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PluginStatus'
+
+  # Unitats organitzatives
+  /api/v1/unitats/{codi}:
+    get:
+      tags:
+        - Unitats organiques
+      operationId: findUnitatOrganicaV1
+      summary: Consulta la unitat orgànica
+      description: Consulta la unitat orgànica donat el seu codi
+      parameters:
+        - $ref: '#/components/parameters/CodiPathParam'
+      responses:
+        200:
+          description: Unitat obtinguda
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnitatOrganica'
+        404:
+          description: Not found
+
+  /api/v1/unitats/{codi}/arbre:
+    get:
+      tags:
+        - Unitats organiques
+      operationId: findUnitatsOrganiquesV1
+      summary: Consulta l'arbre d'unitats orgàniques
+      description: Consulta l'arbre d'unitats orgàniques donat el codi del pare
+      parameters:
+        - $ref: '#/components/parameters/CodiPathParam'
+      responses:
+        200:
+          description: Unitat obtinguda
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnitatOrganicaList'
+        404:
+          description: Not found
+
+  /api/v1/unitats/status:
+    get:
+      tags:
+        - Estat
+      operationId: getUnitatsEstatV1
+      summary: Obté l'estat de la integració
+      description: Obté l'estat de la integració
+      responses:
+        200:
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PluginStatus'
+
+  # Tramitació
+  /api/v1/tramitacio/{numeroRegistre}/justificant:
+    get:
+      tags:
+        - Tramitacio
+      operationId: tramitacioObtenirJustificantV1
+      summary: Obtenir justificant
+      description: Obtenir justificant
+      parameters:
+        - $ref: '#/components/parameters/NumeroRegistrePathParam'
+      responses:
+        200:
+          description: Justificant obtingut
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RespostaJustificantRecepcio'
+        404:
+          description: Not found
+
+  /api/v1/tramitacio/{numeroRegistre}/justificant/detall:
+    get:
+      tags:
+        - Tramitacio
+      operationId: tramitacioObtenirJustificantDetallV1
+      summary: Obtenir justificant amb detalls
+      description: Obtenir justificant amb detalls
+      parameters:
+        - $ref: '#/components/parameters/NumeroRegistrePathParam'
+      responses:
+        200:
+          description: Justificant obtingut
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RespostaJustificantDetallRecepcio'
+        404:
+          description: Not found
+
+  /api/v1/tramitacio/{numero}/dadesTramit:
+    get:
+      tags:
+        - Tramitacio
+      operationId: tramitacioObtenirDadesTramitV1
+      summary: Obtenir dades de tramit
+      description: Obtenir dades de tramit
+      parameters:
+        - $ref: '#/components/parameters/NumeroPathParam'
+        - name: clau
+          in: query
+          description: Clau del tràmit
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Dades del tràmit recuperades
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Tramit'
+        400:
+          description: Paràmetres incorrectes
+        404:
+          description: Not found
+
+  /api/v1/tramitacio/expedient:
+    post:
+      tags:
+        - Tramitacio
+      deprecated: true
+      operationId: tramitacioZonaperExpedientCrearV1
+      summary: Crear expedient en zona personal
+      description: Crear expedient en zona personal
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ZonaExpedient'
+      responses:
+        204:
+          description: Expedient creat
+        400:
+          description: Parametres incorrectes
+
+  /api/v1/tramitacio/event:
+    post:
+      tags:
+        - Tramitacio
+      deprecated: true
+      operationId: tramitacioZonaperEventCrearV1
+      summary: Crear event en zona personal
+      description: Crear event en zona personal
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EventRequest'
+      responses:
+        204:
+          description: Event creat
+        400:
+          description: Parametres incorrectes
+
+#  /api/v1/tramitacio/notificacio:
+#    post:
+
+  /api/v1/tramitacio/status:
+    get:
+      tags:
+        - Estat
+      operationId: getTramitacioEstatV1
+      summary: Obté l'estat de la integració
+      description: Obté l'estat de la integració
+      responses:
+        200:
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PluginStatus'
+
+
+components:
+  schemas:
+    # Persones
+    PersonaList:
+      type: array
+      items:
+        $ref: '#/components/schemas/Persona'
+    Persona:
+      type: object
+      required:
+        - codi
+      properties:
+        codi:
+          type: string
+        nom:
+          type: string
+        llinatge1:
+          type: string
+        llinatge2:
+          type: string
+        dni:
+          type: string
+        email:
+          type: string
+        sexe:
+          type: string
+          enum:
+            - SEXE_HOME
+            - SEXE_DONA
+    # Portafirmes
+    PortafirmesList:
+      type: array
+      items:
+        $ref: '#/components/schemas/Portafirmes'
+    Portafirmes:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        documentId:
+          type: integer
+          format: int32
+        executionId:
+          type: integer
+          format: int64
+        dataEnviat:
+          type: string
+          format: date-time
+        estat:
+          type: string
+          enum:
+            - BLOQUEJAT
+            - PENDENT
+            - SIGNAT
+            - REBUTJAT
+            - PROCESSAT
+            - CANCELAT
+            - ERROR
+            - ESBORRAT
+        transition:
+          type: string
+          enum:
+            - SIGNAT
+            - REBUTJAT
+        documentStoreId:
+          type: integer
+          format: int64
+        motiuRebuig:
+          type: string
+        transicioOK:
+          type: string
+        transicioKO:
+          type: string
+        dataProcessamentPrimer:
+          type: string
+          format: date-time
+        dataProcessamentDarrer:
+          type: string
+          format: date-time
+        dataSignatRebutjat:
+          type: string
+          format: date-time
+        dataCustodiaIntent:
+          type: string
+          format: date-time
+        dataCustodiaOk:
+          type: string
+          format: date-time
+        dataSignalIntent:
+          type: string
+          format: date-time
+        dataSignalOk:
+          type: string
+          format: date-time
+        errorCallbackProcessant:
+          type: string
+        processInstanceId:
+          type: integer
+          format: int64
+        expedient:
+          type: integer
+          format: int64
+    PortafirmesFlux:
+      type: object
+      properties:
+        documentId:
+          type: integer
+          format: int64
+        anexos:
+          type: array
+          items:
+            type: integer
+            format: int64
+        persona:
+          type: string
+          description: codi de la persona signants
+        signatarisPas1:
+          type: array
+          items:
+            type: string
+            description: codis de les persones signants en el pas 1
+        minSignatarisPas1:
+          type: integer
+          format: int32
+        signatarisPas2:
+          type: array
+          items:
+            type: string
+            description: codis de les persones signants en el pas 2
+        minSignatarisPas2:
+          type: integer
+          format: int32
+        signatarisPas3:
+          type: array
+          items:
+            type: string
+            description: codis de les persones signants en el pas 3
+        minSignatarisPas3:
+          type: integer
+          format: int32
+        expedient:
+          type: integer
+          format: int64
+        importancia:
+          type: string
+        dataLimit:
+          type: string
+          format: date-time
+        execucioId:
+          type: integer
+          format: int64
+        processInstanceId:
+          type: integer
+          format: int64
+        transicioOK:
+          type: string
+        transicioKO:
+          type: string
+    DocumentFirma:
+      type: object
+      properties:
+        tipus:
+          type: string
+          enum:
+            - PADES
+            - XADES
+            - CADES
+            - FACTURAE
+            - OOXML
+            - ODF
+            - SMIME
+            - CADES_ASIC_S
+            - XADES_ASIC_S
+        motiu:
+          type: string
+        fitxer:
+          type: string
+          format: byte
+          description: Contingut del fitxer en format Base64
+    # Firma
+    FirmaVerificacioRequest:
+      allOf:
+        - $ref: '#/components/schemas/FirmaValidacioRequest'
+        - type: object
+          properties:
+            obtenirDadesCertificat:
+              type: boolean
+    FirmaValidacioRequest:
+      type: object
+      properties:
+        documentContingut:
+          type: string
+          format: byte
+          description: Contingut del fitxer en format Base64
+        firmaContingut:
+          type: string
+          format: byte
+          description: Contingut del fitxer de firma en format Base64
+    RespostaValidacioSignaturaList:
+      type: array
+      items:
+        $ref: '#/components/schemas/RespostaValidacioSignatura'
+    RespostaValidacioSignatura:
+      type: object
+      properties:
+        estat:
+          type: string
+        errorCodi:
+          type: string
+        errorDescripcio:
+          type: string
+        dadesCertificat:
+          type: array
+          items:
+            $ref: '#/components/schemas/DadesCertificat'
+    DadesCertificat:
+      type: object
+      properties:
+        tipoCertificado:
+          type: string
+        subject:
+          type: string
+        nombreResponsable:
+          type: string
+        primerApellidoResponsable:
+          type: string
+        segundoApellidoResponsable:
+          type: string
+        nifResponsable:
+          type: string
+        idEmisor:
+          type: string
+        nifCif:
+          type: string
+        email:
+          type: string
+        fechaNacimiento:
+          type: string
+        razonSocial:
+          type: string
+        clasificacion:
+          type: string
+        numeroSerie:
+          type: string
+    ArxiuFirma:
+      type: object
+      properties:
+        tipus:
+          type: string
+          enum:
+            - CSV,
+            - XADES_DET
+            - XADES_ENV
+            - CADES_DET
+            - CADES_ATT
+            - PADES
+            - SMIME
+            - ODT
+            - OOXML
+        perfil:
+          type: string
+          enum:
+            - BES
+            - EPES
+            - LTV
+            - T
+            - C
+            - X
+            - XL
+            - A
+        fitxerNom:
+          type: string
+        contingut:
+          type: string
+          format: byte
+          description: Contingut del fitxer en format Base64
+        tipusMime:
+          type: string
+        csvRegulacio:
+          type: string
+        autofirma:
+          type: boolean
+        detalls:
+          type: array
+          items:
+            $ref: '#/components/schemas/ArxiuFirmaDetall'
+    ArxiuFirmaDetall:
+      type: object
+      properties:
+        data:
+          type: string
+          format: date-time
+        responsableNif:
+          type: string
+        responsableNom:
+          type: string
+        emissorCertificat:
+          type: string
+    # Registre
+    RegistreAnotacioOld:
+      type: object
+      properties:
+        id:
+          $ref: '#/components/schemas/RegistreInfo'
+        organCodi:
+          type: string
+        oficinaCodi:
+          type: string
+        entitatCodi:
+          type: string
+        unitatAdministrativa:
+          type: string
+        interessatNif:
+          type: string
+        interessatNomAmbCognoms:
+          type: string
+        interessatNom:
+          type: string
+        interessatCognom1:
+          type: string
+        interessatCognom2:
+          type: string
+        interessatPaisCodi:
+          type: string
+        interessatPaisNom:
+          type: string
+        interessatProvinciaCodi:
+          type: string
+        interessatProvinciaNom:
+          type: string
+        interessatMunicipiCodi:
+          type: string
+        interessatMunicipiNom:
+          type: string
+        interessatAutenticat:
+          type: boolean
+        interessatEmail:
+          type: string
+        interessatMobil:
+          type: string
+        representatNif:
+          type: string
+        representatNomAmbCognoms:
+          type: string
+        representatNom:
+          type: string
+        representatCognom1:
+          type: string
+        representatCognom2:
+          type: string
+        assumpteIdiomaCodi:
+          type: string
+        assumpteTipus:
+          type: string
+        assumpteExtracte:
+          type: string
+        assumpteRegistreNumero:
+          type: string
+        assumpteRegistreAny:
+          type: string
+        annexos:
+          type: array
+          items:
+            type: string
+            format: binary
+    RegistreNotificacio:
+      type: object
+      properties:
+        expedientIdentificador:
+          type: string
+        expedientClau:
+          type: string
+        expedientUnitatAdministrativa:
+          type: string
+        notificacioJustificantRecepcio:
+          type: boolean
+        notificacioAvisTitol:
+          type: string
+        notificacioAvisText:
+          type: string
+        notificacioAvisTextSms:
+          type: string
+        notificacioOficiTitol:
+          type: string
+        notificacioOficiText:
+          type: string
+        tramitSubsanacioIdentificador:
+          type: string
+        tramitSubsanacioVersio:
+          type: integer
+          format: int32
+        tramitSubsanacioDescripcio:
+          type: string
+        tramitSubsanacioParametres:
+          type: array
+          items:
+            $ref: '#/components/schemas/RegistreNotificacioTramitSubsanacioParametre'
+    RegistreNotificacioTramitSubsanacioParametre:
+      type: object
+      properties:
+        parametre:
+          type: string
+        valor:
+          type: string
+    # Regweb
+    RegistreAnotacio:
+      type: object
+      properties:
+        numero:
+          type: integer
+          format: int32
+        data:
+          type: string
+          format: date-time
+        identificador:
+          type: string
+        entitatCodi:
+          type: string
+        organ:
+          type: string
+        organDescripcio:
+          type: string
+        oficinaCodi:
+          type: string
+        oficinaDescripcio:
+          type: string
+        llibreCodi:
+          type: string
+        llibreDescripcio:
+          type: string
+        extracte:
+          type: string
+        assumpteTipusCodi:
+          type: string
+        assumpteTipusDescripcio:
+          type: string
+        assumpteCodi:
+          type: string
+        assumpteDescripcio:
+          type: string
+        referencia:
+          type: string
+        expedientNumero:
+          type: string
+        idiomaCodi:
+          type: string
+        idiomaDescripcio:
+          type: string
+        transportTipusCodi:
+          type: string
+        transportTipusDescripcio:
+          type: string
+        transportNumero:
+          type: string
+        usuariCodi:
+          type: string
+        usuariNom:
+          type: string
+        usuariContacte:
+          type: string
+        aplicacioCodi:
+          type: string
+        aplicacioVersio:
+          type: string
+        documentacioFisicaCodi:
+          type: string
+        documentacioFisicaDescripcio:
+          type: string
+        observacions:
+          type: string
+        exposa:
+          type: string
+        solicita:
+          type: string
+        interessats:
+          type: array
+          items:
+            $ref: '#/components/schemas/RegistreInteressat'
+        annexos:
+          type: array
+          items:
+            $ref: '#/components/schemas/RegistreAnnex'
+    RegistreAnnex:
+      type: object
+      properties:
+        titol:
+          type: string
+        fitxerNom:
+          type: string
+        fitxerTamany:
+          type: integer
+          format: int32
+        fitxerTipusMime:
+          type: string
+        fitxerArxiuUuid:
+          type: string
+        fitxerContingut:
+          type: string
+          format: binary
+        dataCaptura:
+          type: string
+          format: date-time
+        localitzacio:
+          type: string
+        origenCiutadaAdmin:
+          type: string
+        ntiTipusDocument:
+          type: string
+        sicresTipusDocument:
+          type: string
+        ntiElaboracioEstat:
+          type: string
+        observacions:
+          type: string
+        firmaMode:
+          type: string
+        firmaFitxerNom:
+          type: string
+        firmaFitxerTamany:
+          type: integer
+          format: int32
+        firmaFitxerTipusMime:
+          type: string
+        firmaFitxerArxiuUuid:
+          type: string
+        firmaFitxerContingutBase64:
+          type: string
+        firmaCsv:
+          type: string
+        timestamp:
+          type: string
+        validacioOCSP:
+          type: string
+        tipusDocument:
+          type: string
+        tipusDocumental:
+          type: string
+        origen:
+          type: integer
+          format: int32
+        validesa:
+          type: string
+    RegistreInteressat:
+      type: object
+      properties:
+        tipus:
+          type: string
+          enum:
+            - PERSONA_FIS
+            - PERSONA_JUR
+            - ADMINISTRACIO
+        documentTipus:
+          type: string
+          enum:
+            - NIF
+            - CIF
+            - PASSAPORT
+            - ESTRANGER
+            - ALTRES
+            - CODI_ORIGEN
+        documentNum:
+          type: string
+        nom:
+          type: string
+        llinatge1:
+          type: string
+        llinatge2:
+          type: string
+        raoSocial:
+          type: string
+        pais:
+          type: string
+        provincia:
+          type: string
+        municipi:
+          type: string
+        adresa:
+          type: string
+        codiPostal:
+          type: string
+        email:
+          type: string
+        telefon:
+          type: string
+        emailHabilitat:
+          type: string
+        canalPreferent:
+          type: string
+        observacions:
+          type: string
+        representant:
+          $ref: '#/components/schemas/RegistreInteressat'
+    RegistreInfo:
+      type: object
+      properties:
+        numero:
+          type: string
+        data:
+          type: string
+          format: date-time
+        referenciaRDSJustificante:
+          type: object
+          properties:
+            clave:
+              type: string
+            codigo:
+              type: integer
+              format: int64
+    # Gestor documental
+    GesDocRequest:
+      type: object
+      properties:
+        entornCodi:
+          type: string
+        expedientTipusCodi:
+          type: string
+        expedientIdentificador:
+          type: string
+        documentCodi:
+          type: string
+        documentDescripcio:
+          type: string
+        documentData:
+          type: string
+          format: date-time
+        documentArxiuNom:
+          type: string
+        documentArxiuContingut:
+          type: string
+          format: binary
+          description: Contingut del fitxer
+    # Custòdia
+    CustodiaRequest:
+      type: object
+      properties:
+        documentId:
+          type: integer
+          format: int64
+        gesdocId:
+          type: string
+        nomArxiuSignat:
+          type: string
+        codiTipusCustodia:
+          type: string
+        signatura:
+            type: string
+            format: binary
+            description: contingut de la signatura
+    # Arxiu
+    ContingutArxiu:
+      type: object
+      properties:
+        identificador:
+          type: string
+        nom:
+          type: string
+        tipus:
+          type: string
+          enum:
+            - EXPEDIENT
+            - DOCUMENT
+            - CARPETA
+        versio:
+          type: string
+        firmes:
+          type: array
+          items:
+            $ref: '#/components/schemas/Firma'
+        expedientMetadades:
+          $ref: '#/components/schemas/ExpedientMetadades'
+        documentMetadades:
+          $ref: '#/components/schemas/DocumentMetadades'
+    Firma:
+      type: object
+      properties:
+        tipus:
+          type: string
+          enum:
+            - CSV
+            - XADES_DET
+            - XADES_ENV
+            - CADES_DET
+            - CADES_ATT
+            - PADES
+            - SMIME
+            - ODT
+            - OOXML
+        perfil:
+          type: string
+          enum:
+            - BES
+            - EPES
+            - LTV
+            - T
+            - C
+            - X
+            - XL
+            - A
+            - BASIC
+        fitxerNom:
+          type: string
+        contingut:
+            type: string
+            format: binary
+        tamany:
+          type: integer
+          format: int64
+        tipusMime:
+          type: string
+        csvRegulacio:
+          type: string
+    ExpedientMetadades:
+      type: object
+      properties:
+        identificador:
+          type: string
+        versioNti:
+          type: string
+        organs:
+          type: array
+          items:
+            type: string
+        dataObertura:
+          type: string
+          format: date-time
+        classificacio:
+          type: string
+        estat:
+          type: string
+          enum:
+            - OBERT
+            - TANCAT
+            - INDEX_REMISSIO
+        interessats:
+          type: array
+          items:
+            type: string
+        serieDocumental:
+          type: string
+        metadadesAddicionals:
+          type: object
+          additionalProperties: true
+          description: Map<String, Object>
+    DocumentMetadades:
+      type: object
+      properties:
+        identificador:
+          type: string
+        versioNti:
+          type: string
+        origen:
+          type: string
+          enum:
+            - CIUTADA
+            - ADMINISTRACIO
+        organs:
+          type: array
+          items:
+            type: string
+        dataCaptura:
+          type: string
+          format: date-time
+        estatElaboracio:
+          type: string
+          enum:
+            - ORIGINAL
+            - COPIA_CF
+            - COPIA_DP
+            - COPIA_PR
+            - ALTRES
+        tipusDocumental:
+          type: string
+          enum:
+            - RESOLUCIO
+            - ACORD
+            - CONTRACTE
+            - CONVENI
+            - DECLARACIO
+            - COMUNICACIO
+            - NOTIFICACIO
+            - PUBLICACIO
+            - JUSTIFICANT_RECEPCIO
+            - ACTA
+            - CERTIFICAT
+            - DILIGENCIA
+            - INFORME
+            - SOLICITUD
+            - DENUNCIA
+            - ALEGACIO
+            - RECURS
+            - COMUNICACIO_CIUTADA
+            - FACTURA
+            - ALTRES_INCAUTATS
+            - ALTRES
+        format:
+          type: string
+          enum:
+            - GML
+            - WFS
+            - WMS
+            - GZIP
+            - ZIP
+            - AVI
+            - MP4A
+            - CSV
+            - HTML
+            - CSS
+            - JPEG
+            - MHTML
+            - OASIS12
+            - SOXML
+            - PDF
+            - PDFA
+            - PNG
+            - RTF
+            - SVG
+            - TIFF
+            - TXT
+            - XHTML
+            - MP3
+            - OGG
+            - MP4V
+            - WEBM
+            - CSIG
+            - XSIG
+            - XML
+        extensio:
+          type: string
+          enum:
+            - GML
+            - GZ
+            - ZIP
+            - AVI
+            - CSV
+            - HTML
+            - HTM
+            - CSS
+            - JPG
+            - JPEG
+            - MHTML
+            - MHT
+            - ODT
+            - ODS
+            - ODP
+            - ODG
+            - DOCX
+            - XLSX
+            - PPTX
+            - PDF
+            - PNG
+            - RTF
+            - SVG
+            - TIFF
+            - TXT
+            - MP3
+            - OGG
+            - OGA
+            - MPEG
+            - MP4
+            - WEBM
+            - CSIG
+            - XSIG
+            - XML
+        identificadorOrigen:
+          type: string
+        String, Object> metadadesAddicionals:
+          type: object
+          additionalProperties: true
+          description: Map<String, Object>
+        serieDocumental:
+          type: string
+        csv:
+          type: string
+        csvDef:
+          type: string
+        tipusDocumentalAddicional:
+          type: string
+    ExpedientRequest:
+      type: object
+      properties:
+        identificador:
+          type: string
+        numero:
+          type: string
+        tipus:
+          type: integer
+          format: int64
+        dataInici:
+          type: string
+          format: date-time
+        organ:
+          type: string
+        classificacio:
+          type: string
+        serieDocumental:
+          type: string
+        uuid:
+          type: string
+    ExpedientResponse:
+      allOf:
+        - $ref: '#/components/schemas/ContingutArxiu'
+        - type: object
+          properties:
+            continguts:
+              type: array
+              items:
+                $ref: '#/components/schemas/ContingutArxiu'
+    DocumentRequest:
+      type: object
+      properties:
+        expedientUuid:
+          type: string
+          description: Uuid de l'expedient a l'arxiu
+        organ:
+          type: string
+          description: Òrgan NTI de l'expedient (o tipus d'expedient)
+        dataCreacio:
+          type: string
+          format: date-time
+          description: Data de creació del document
+        origen:
+          type: string
+          enum:
+            - CIUTADA
+            - ADMINISTRACIO
+          description: Origen del document
+        estatElaboracio:
+          type: string
+          enum:
+            - ORIGINAL
+            - COPIA_CF
+            - COPIA_DP
+            - COPIA_PR
+            - ALTRES
+          description: Estat d'elaboració del document
+        tipusDocumental:
+          type: string
+          enum:
+            - RESOLUCIO
+            - ACORD
+            - CONTRACTE
+            - CONVENI
+            - DECLARACIO
+            - COMUNICACIO
+            - NOTIFICACIO
+            - PUBLICACIO
+            - JUSTIFICANT_RECEPCIO
+            - ACTA
+            - CERTIFICAT
+            - DILIGENCIA
+            - INFORME
+            - SOLICITUD
+            - DENUNCIA
+            - ALEGACIO
+            - RECURS
+            - COMUNICACIO_CIUTADA
+            - FACTURA
+            - ALTRES_INCAUTATS
+            - ALTRES
+          description: Tipus documental del document
+        documentOrigen:
+          type: string
+          enum:
+            - CIUTADA
+            - ADMINISTRACIO
+        expedientOrigen:
+          type: string
+          description: Origen de l'expedient
+        uuid:
+          type: string
+        documentNom:
+          type: string
+        ambFirma:
+          type: boolean
+        firmaSeparada:
+          type: boolean
+        arxiu:
+          $ref: '#/components/schemas/Fitxer'
+        firmes:
+          type: array
+          items:
+            $ref: '#/components/schemas/ArxiuFirma'
+    Fitxer:
+      type: object
+      properties:
+        nom:
+          type: string
+        contingut:
+          type: string
+          format: binary
+        tipusMime:
+          type: string
+    DocumentResponse:
+      allOf:
+        - $ref: '#/components/schemas/ContingutArxiu'
+        - type: object
+          properties:
+            estat:
+              type: string
+              enum:
+                - ESBORRANY
+                - DEFINITIU
+            contingut:
+              $ref: '#/components/schemas/DocumentContingut'
+    DocumentContingut:
+      type: object
+      properties:
+        contingut:
+          type: string
+          format: binary
+        tamany:
+          type: integer
+          format: int64
+        tipusMime:
+          type: string
+        arxiuNom:
+          type: string
+    # Notificacio
+    Notificacio:
+      type: object
+      properties:
+        expedientId:
+          type: integer
+          format: int64
+        documentId:
+          type: integer
+          format: int64
+        caducitat:
+          type: string
+          format: date
+        concepte:
+          type: string
+        descripcio:
+          type: string
+        document:
+          $ref: '#/components/schemas/NotificacioDocument'
+        emisorDir3Codi:
+          type: string
+        enviamentDataProgramada:
+          type: string
+          format: date
+        enviamentTipus:
+          type: string
+          enum:
+            - NOTIFICACIO
+            - COMUNICACIO
+        enviaments:
+          type: array
+          items:
+            $ref: '#/components/schemas/NotificacioEnviament'
+        grupCodi:
+          type: string
+        numExpedient:
+          type: string
+        procedimentCodi:
+          type: string
+        retard:
+          type: integer
+          format: int32
+        usuariCodi:
+          type: string
+    NotificacioDocument:
+      type: object
+      properties:
+        arxiuNom:
+          type: string
+        contingutBase64:
+          type: string
+          format: base64
+        csv:
+          type: string
+        normalitzat:
+          type: boolean
+        url:
+          type: string
+          format: url
+        uuid:
+          type: string
+          format: uuid
+    NotificacioEnviament:
+      type: object
+      properties:
+        destinataris:
+          type: array
+          items:
+            $ref: '#/components/schemas/NotificaPersona'
+        entregaDeh:
+          $ref: '#/components/schemas/EntregaDeh'
+        entregaDehActiva:
+          type: boolean
+        entregaPostal:
+          $ref: '#/components/schemas/EntregaPostal'
+        entregaPostalActiva:
+          type: boolean
+        referencia:
+          type: string
+        serveiTipus:
+          type: string
+          enum:
+            - NORMAL
+            - URGENT
+        titular:
+          type: string
+    NotificaPersona:
+      type: object
+      properties:
+        dir3Codi:
+          type: string
+        email:
+          type: string
+          format: email
+        incapacitat:
+          type: boolean
+        interessatTipus:
+          type: string
+          enum:
+            - ADMINISTRACIO
+            - FISICA
+            - JURIDICA
+        llinatge1:
+          type: string
+        llinatge2:
+          type: string
+        nif:
+          type: string
+        nom:
+          type: string
+        raoSocial:
+          type: string
+        telefon:
+          type: string
+    EntregaPostal:
+      type: object
+      properties:
+        apartatCorreus:
+          type: string
+        bloc:
+          type: string
+        cie:
+          type: integer
+          format: int32
+        codiPostal:
+          type: string
+        complement:
+          type: string
+        escala:
+          type: string
+        formatFulla:
+          type: string
+        formatSobre:
+          type: string
+        linea1:
+          type: string
+        linea2:
+          type: string
+        municipiCodi:
+          type: string
+        numeroCasa:
+          type: string
+        numeroQualificador:
+          type: string
+        paisCodi:
+          type: string
+        planta:
+          type: string
+        poblacio:
+          type: string
+        porta:
+          type: string
+        portal:
+          type: string
+        provincia:
+          type: string
+        puntKm:
+          type: string
+        tipus:
+          type: string
+          enum:
+            - NACIONAL
+            - ESTRANGER
+            - APARTAT_CORREUS
+            - SENSE_NORMALITZAR
+        viaNom:
+          type: string
+        viaTipus:
+          type: string
+          enum:
+            - ALAMEDA
+            - CALLE
+            - CAMINO
+            - CARRER
+            - CARRETERA
+            - GLORIETA
+            - KALEA
+            - PASAJE
+            - PASEO
+            - PLAÇA
+            - PLAZA
+            - RAMBLA
+            - RONDA
+            - RUA
+            - SECTOR
+            - TRAVESIA
+            - URBANIZACION
+            - AVENIDA
+            - AVINGUDA
+            - BARRIO
+            - CALLEJA
+            - CAMI
+            - CAMPO
+            - CARRERA
+            - CUESTA
+            - EDIFICIO
+            - ENPARANTZA
+            - ESTRADA
+            - JARDINES
+            - JARDINS
+            - PARQUE
+            - PASSEIG
+            - PRAZA
+            - PLAZUELA
+            - PLACETA
+            - POBLADO
+            - VIA
+            - TRAVESSERA
+            - PASSATGE
+            - BULEVAR
+            - POLIGONO
+            - OTROS
+    EntregaDeh:
+      type: object
+      properties:
+        emisorNif:
+          type: string
+        obligat:
+          type: boolean
+        procedimentCodi:
+          type: string
+    RespostaEnviar:
+      type: object
+      properties:
+        error:
+          type: boolean
+        errorDescripcio:
+          type: string
+        identificador:
+          type: string
+        estat:
+          type: string
+          enum:
+            - PENDENT
+            - ENVIADA
+            - REGISTRADA
+            - FINALITZADA
+            - PROCESSADA
+        referencies:
+          type: array
+          items:
+            type: object
+            properties:
+              titularNif:
+                type: string
+              referencia:
+                type: string
+    # Unitats orgàniques
+    UnitatOrganicaList:
+      type: array
+      items:
+        $ref: '#/components/schemas/UnitatOrganica'
+    UnitatOrganica:
+      type: object
+      properties:
+        codi:
+          type: string
+        denominacio:
+          type: string
+        nifCif:
+          type: string
+        nivellAdministracio:
+          type: string
+        tipusEntitatPublica:
+          type: string
+        tipusUnitatOrganica:
+          type: string
+        poder:
+          type: string
+        sigles:
+          type: string
+        codiUnitatSuperior:
+          type: string
+        codiUnitatArrel:
+          type: string
+        nivellJerarquic:
+          type: integer
+          format: int64
+        dataCreacioOficial:
+          type: string
+          format: date-time
+        dataSupressioOficial:
+          type: string
+          format: date-time
+        dataExtincioFuncional:
+          type: string
+          format: date-time
+        dataAnulacio:
+          type: string
+          format: date-time
+        estat:
+          type: string
+          enum:
+            - V # Vigente
+            - E # Extinguido
+            - A # Anulado
+            - T # Transitorio
+        codiPais:
+          type: string
+        codiComunitat:
+          type: string
+        codiProvincia:
+          type: string
+        codiPostal:
+          type: string
+        nomLocalitat:
+          type: string
+        adressa:
+          type: string
+        tipusVia:
+          type: integer
+          format: int64
+        nomVia:
+          type: string
+        numVia:
+          type: string
+    # Tramitacio
+    RespostaJustificantRecepcio:
+      type: object
+      properties:
+        errorCodi:
+          type: string
+        errorDescripcio:
+          type: string
+        data:
+          type: string
+          format: date-time
+    RespostaJustificantDetallRecepcio:
+      allOf:
+        - $ref: '#/components/schemas/RespostaJustificantRecepcio'
+        - type: object
+          properties:
+            estado:
+              type: string
+              enum:
+                - PENDIENTE
+                - ENTREGADA
+                - RECHAZADA
+            fechaAcuseRecibo:
+              type: string
+              format: date-time
+            ficheroAcuseRecibo:
+              $ref: '#/components/schemas/ReferenciaRDSJustificante'
+            avisos:
+              type: array
+              items:
+                $ref: '#/components/schemas/DetalleAviso'
+    DetalleAviso:
+      type: object
+      properties:
+        tipo:
+          type: string
+          enum:
+            - EMAIL
+            - SMS
+        destinatario:
+          type: string
+        enviado:
+          type: boolean
+        regorianCalendar fechaEnvio:
+          type: string
+          format: date-time
+        confirmarEnvio:
+          type: boolean
+        onfirmacionAviso confirmadoEnvio:
+          type: string
+          enum:
+            - DESCONOCIDO
+            - ENVIADO
+            - NO_ENVIADO
+    ReferenciaRDSJustificante:
+      type: object
+      properties:
+        clave:
+          type: string
+        codigo:
+          type: integer
+          format: int64
+    Tramit:
+      type: object
+      properties:
+        numero:
+          type: string
+        clauAcces:
+          type: integer
+          format: int64
+        identificador:
+          type: string
+        unitatAdministrativa:
+          type: integer
+          format: int64
+        versio:
+          type: integer
+          format: int32
+        data:
+          type: string
+          format: date-time
+        idioma:
+          type: string
+        registreNumero:
+          type: string
+        registreData:
+          type: string
+          format: date-time
+        preregistreTipusConfirmacio:
+          type: string
+        preregistreNumero:
+          type: string
+        preregistreData:
+          type: string
+          format: date-time
+        autenticacioTipus:
+          type: string
+          enum:
+            - CERTIFICAT
+            - USUARI
+            - ANONIMA
+        tramitadorNif:
+          type: string
+        tramitadorNom:
+          type: string
+        interessatNif:
+          type: string
+        interessatNom:
+          type: string
+        representantNif:
+          type: string
+        representantNom:
+          type: string
+        signat:
+          type: boolean
+        avisosHabilitats:
+          type: boolean
+        avisosSms:
+          type: string
+        avisosEmail:
+          type: string
+        notificacioTelematicaHabilitada:
+          type: boolean
+        documents:
+          type: array
+          items:
+            $ref: '#/components/schemas/TramitDocument'
+    TramitDocument:
+      type: object
+      properties:
+        nom:
+          type: string
+        identificador:
+          type: string
+        instanciaNumero:
+          type: integer
+          format: int32
+        telematic:
+          type: boolean
+        telematicArxiuNom:
+          type: string
+        telematicArxiuExtensio:
+          type: string
+        telematicArxiuContingut:
+          type: string
+          format: binary
+        telematicReferenciaGestorDocumental:
+          type: string
+        telematicSignatures:
+          type: array
+          items:
+            $ref: '#/components/schemas/TramitDocumentSignatura'
+        telematicReferenciaCodi:
+          type: integer
+          format: int64
+        telematicReferenciaClau:
+          type: string
+        telematicEstructurat:
+          type: boolean
+        presencial:
+          type: boolean
+        presencialTipus:
+          type: string
+        presencialDocumentCompulsar:
+          type: string
+        presencialFotocopia:
+          type: string
+        presencialSignatura:
+          type: string
+    TramitDocumentSignatura:
+      type: object
+      properties:
+        signatura:
+            type: string
+            format: binary
+        format:
+          type: string
+    ZonaExpedient:
+      type: object
+      properties:
+        expedientIdentificador:
+          type: string
+        expedientClau:
+          type: string
+        unitatAdministrativa:
+          type: integer
+          format: int64
+        idioma:
+          type: string
+        descripcio:
+          type: string
+        autenticat:
+          type: boolean
+        representantNif:
+          type: string
+        representatNif:
+          type: string
+        representatNom:
+          type: string
+        representatApe1:
+          type: string
+        representatApe2:
+          type: string
+        tramitNumero:
+          type: string
+        avisosHabilitat:
+          type: boolean
+        avisosSMS:
+          type: string
+        avisosEmail:
+          type: string
+        events:
+          type: array
+          items:
+            $ref: '#/components/schemas/ZonaperEvent'
+        codiProcediment:
+          type: string
+    ZonaperEvent:
+      type: object
+      properties:
+        titol:
+          type: string
+        text:
+          type: string
+        textSMS:
+          type: string
+        enllasConsulta:
+          type: string
+        documents:
+          type: array
+          items:
+            $ref: '#/components/schemas/ZonaperDocument'
+    ZonaperDocument:
+      type: object
+      properties:
+        nom:
+          type: string
+        tipus:
+          type: string
+          enum:
+            - ARXIU
+            - REFGD
+        referencia:
+          type: string
+        arxiuNom:
+          type: string
+        arxiuContingut:
+          type: string
+          format: binary
+    EventRequest:
+      allOf:
+        - $ref: '#/components/schemas/ZonaperEvent'
+        - type: object
+          properties:
+            expedientIdentificador:
+              type: string
+            expedientClau:
+              type: string
+            unitatAdministrativa:
+              type: integer
+              format: int64
+            interessatNif:
+              type: string
+            interessatNom:
+              type: string
+    # Estat
+    PluginStatus:
+      type: object
+      properties:
+        nom:
+          type: string
+        actiu:
+          type: boolean
+        estat:
+          type: string
+          enum:
+            - UP
+            - UP_WITH_ERRORS
+            - DOWN
+        parametresAdicionals:
+          type: array
+          items:
+            type: string
+  parameters:
+    TextSearchParam:
+      name: textSearch
+      in: query
+      description: text a cercar
+      required: true
+      style: form
+      explode: false
+      schema:
+        type: string
+        minLength: 3
+    CodiPathParam:
+      name: codi
+      in: path
+      description: codi a consultar
+      required: true
+      style: simple
+      explode: false
+      schema:
+        type: string
+    NumeroRegistrePathParam:
+      name: numeroRegistre
+      in: path
+      description: numero de registre a consultar
+      required: true
+      style: simple
+      explode: false
+      schema:
+        type: string
+    NumeroPathParam:
+      name: numero
+      in: path
+      description: numero a consultar
+      required: true
+      style: simple
+      explode: false
+      schema:
+        type: string
+    UsuariCodiParam:
+      name: usuariCodi
+      in: query
+      description: codi d'usuari
+      required: true
+      style: form
+      explode: false
+      schema:
+        type: string
+    EntitatCodiParam:
+      name: entitatCodi
+      in: query
+      description: codi d'entitat
+      required: true
+      style: form
+      explode: false
+      schema:
+        type: string
+    ProcessInstancePathParam:
+      name: processInstance
+      in: path
+      description: codi de la instància de procés a la que pertanyen els documents a firmar
+      required: true
+      style: simple
+      explode: false
+      schema:
+        type: integer
+        format: int64
+    FiltreParam:
+      name: filtre
+      in: query
+      description: cadena amb format rsql per a definir el filtre a aplicar a la consulta
+      required: false
+      style: form
+      explode: true
+      schema:
+        type: string
+    DocumentListParam:
+      name: documents
+      in: query
+      description: Identificadors dels documents
+      required: true
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: integer
+          format: int64
+    DocumentStoreParam:
+      name: documentStore
+      in: query
+      description: Identificadors del documentStore
+      required: false
+      style: form
+      explode: false
+      schema:
+        type: integer
+        format: int64
+    DocumentIdPathParam:
+      name: documentId
+      in: path
+      description: identificador del document a consultar
+      required: true
+      style: simple
+      explode: false
+      schema:
+        type: string
+    UuidPathParam:
+      name: uuid
+      in: path
+      description: identificador de l'arxiu
+      required: true
+      style: simple
+      explode: false
+      schema:
+        type: string
+        format: uuid
+    ReferenciaPathParam:
+      name: referencia
+      in: path
+      description: Referencia de notificacio/enviament
+      required: true
+      style: simple
+      explode: false
+      schema:
+        type: string
