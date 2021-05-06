@@ -19,12 +19,10 @@ import es.caib.portafib.ws.callback.api.v1.CallBackFault;
 import es.caib.portafib.ws.callback.api.v1.PortaFIBCallBackWs;
 import es.caib.portafib.ws.callback.api.v1.PortaFIBEvent;
 import net.conselldemallorca.helium.core.helper.MonitorIntegracioHelper;
-import net.conselldemallorca.helium.core.helper.PortasignaturesHelper;
-import net.conselldemallorca.helium.core.model.hibernate.Portasignatures;
-import net.conselldemallorca.helium.core.model.service.PluginService;
-import net.conselldemallorca.helium.core.model.service.ServiceProxy;
 import net.conselldemallorca.helium.v3.core.api.dto.IntegracioAccioTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.IntegracioParametreDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PortasignaturesDto;
+import net.conselldemallorca.helium.v3.core.api.service.PortasignaturesService;
 import net.conselldemallorca.helium.ws.callback.MCGDwsImpl;
 
 /**
@@ -43,10 +41,12 @@ public class PortaFIBCallBackWsImpl implements PortaFIBCallBackWs {
 
 	@Autowired
 	private MonitorIntegracioHelper monitorIntegracioHelper;
+//	@Autowired
+//	private PortasignaturesHelper portasignaturesHelper;
+
 	@Autowired
-	private PortasignaturesHelper portasignaturesHelper;
-
-
+	private PortasignaturesService portasignaturesService;
+	
 	@Override
 	public int getVersionWs() {
 		return 1;
@@ -92,13 +92,12 @@ public class PortaFIBCallBackWsImpl implements PortaFIBCallBackWs {
 		}
 		
 		// Comprova si existeix la petició
-		Portasignatures portasignatures = portasignaturesHelper.getByDocumentId(documentId.intValue());
+		PortasignaturesDto portasignatures = portasignaturesService.getByDocumentId(documentId.intValue());
 		if (portasignatures != null) {
 			Double resposta = -1D;
 			boolean processamentOk = false;
 			String accio = null;
 			try {
-				PluginService pluginService = ServiceProxy.getInstance().getPluginService();
 				switch (estat) {
 					case MCGDwsImpl.DOCUMENT_BLOQUEJAT:
 						resposta = 1D;
@@ -112,7 +111,7 @@ public class PortaFIBCallBackWsImpl implements PortaFIBCallBackWs {
 						break;
 					case MCGDwsImpl.DOCUMENT_SIGNAT:
 						accio = "Signat";
-						processamentOk = pluginService.processarDocumentCallbackPortasignatures(
+						processamentOk = portasignaturesService.processarDocumentCallback(
 								documentId.intValue(),
 								false,
 								null);
@@ -123,7 +122,7 @@ public class PortaFIBCallBackWsImpl implements PortaFIBCallBackWs {
 						String motiu = null;
 						if (event.getSigningRequest() != null )
 							motiu = event.getSigningRequest().getRejectionReason();
-						processamentOk = pluginService.processarDocumentCallbackPortasignatures(
+						processamentOk = portasignaturesService.processarDocumentCallback(
 								documentId.intValue(),
 								true,
 								motiu);

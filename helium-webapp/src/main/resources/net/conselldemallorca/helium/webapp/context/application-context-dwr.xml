@@ -16,15 +16,15 @@
 	<bean id="festiuDwrService" class="net.conselldemallorca.helium.webapp.dwr.FestiuDwrService">
 		<dwr:remote javascript="festiuDwrService"/>
 	</bean>
-	<bean id="campsProcesDwrService" class="net.conselldemallorca.helium.webapp.dwr.CampsProcesDwrService">
+<!-- 	<bean id="campsProcesDwrService" class="net.conselldemallorca.helium.webapp.dwr.CampsProcesDwrService">
 		<dwr:remote javascript="campsProcesDwrService"/>
-	</bean>
+	</bean> -->
 	<bean id="formulariExternDwrService" class="net.conselldemallorca.helium.webapp.dwr.FormulariExternDwrService">
 		<dwr:remote javascript="formulariExternDwrService"/>
 	</bean>
-	<bean id="gisDwrService" class="net.conselldemallorca.helium.webapp.dwr.GisDwrService">
+<!-- 	<bean id="gisDwrService" class="net.conselldemallorca.helium.webapp.dwr.GisDwrService">
 		<dwr:remote javascript="gisDwrService"/>
-	</bean>
+	</bean> -->
 <!-- 	<bean id="campsLlistatProcesDwrService" class="net.conselldemallorca.helium.webapp.dwr.CampsLlistatProcesDwrService"> -->
 <!-- 		<dwr:remote javascript="campsLlistatProcesDwrService"/> -->
 <!-- 	</bean> -->

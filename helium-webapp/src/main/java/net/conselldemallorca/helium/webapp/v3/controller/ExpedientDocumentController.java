@@ -42,7 +42,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import net.conselldemallorca.helium.core.helper.DocumentHelperV3;
-import net.conselldemallorca.helium.core.model.service.PluginService;
 import net.conselldemallorca.helium.core.util.PdfUtils;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuFirmaDto;
@@ -62,6 +61,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.ServeiTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.exception.SistemaExternException;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientDocumentService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientInteressatService;
+import net.conselldemallorca.helium.v3.core.api.service.PortasignaturesService;
 import net.conselldemallorca.helium.webapp.mvc.ArxiuView;
 import net.conselldemallorca.helium.webapp.v3.command.DocumentExpedientCommand;
 import net.conselldemallorca.helium.webapp.v3.command.DocumentExpedientCommand.Create;
@@ -84,9 +84,8 @@ public class ExpedientDocumentController extends BaseExpedientController {
 
 	@Autowired
 	private ExpedientDocumentService expedientDocumentService;
-	// TODO: eliminar la referencia al core 2.6 i passar el mètode processarDocumentPendentPortasignatures al pluginHelper
 	@Autowired
-	private PluginService pluginService;
+	private PortasignaturesService portasignaturesService;
 	@Autowired
 	private NtiHelper ntiHelper;
 	@Autowired
@@ -832,8 +831,7 @@ public class ExpedientDocumentController extends BaseExpedientController {
 			@PathVariable Long documentStoreId,
 			@RequestParam(value = "psignaId", required = true) Integer psignaId,
 			Model model) {
-		// TODO: eliminar la referencia al core 2.6 i passar el mètode processarDocumentPendentPortasignatures al pluginHelper
-		if (pluginService.processarDocumentPendentPortasignatures(psignaId))
+		if (portasignaturesService.processarDocumentCallback(psignaId, false, null))
 			MissatgesHelper.success(request, getMessage(request, "expedient.psigna.reintentar.ok"));
 		else
 			MissatgesHelper.error(request, getMessage(request, "expedient.psigna.reintentar.error"));

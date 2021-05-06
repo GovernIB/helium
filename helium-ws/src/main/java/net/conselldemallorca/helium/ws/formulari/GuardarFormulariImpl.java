@@ -10,9 +10,9 @@ import java.util.Map;
 import javax.jws.WebService;
 import javax.xml.datatype.XMLGregorianCalendar;
 
-import net.conselldemallorca.helium.core.model.service.TascaService;
-
 import org.springframework.beans.factory.annotation.Autowired;
+
+import net.conselldemallorca.helium.v3.core.api.service.TascaService;
 
 /**
  * Implementació del servei per guardar les dades dels formularis externs

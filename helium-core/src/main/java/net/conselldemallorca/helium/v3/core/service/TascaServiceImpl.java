@@ -3,33 +3,19 @@
  */
 package net.conselldemallorca.helium.v3.core.service;
 
-import com.codahale.metrics.Counter;
-import com.codahale.metrics.MetricRegistry;
-import com.codahale.metrics.Timer;
-import net.conselldemallorca.helium.core.api.LlistatIds;
-import net.conselldemallorca.helium.core.api.ResultatConsultaPaginada;
-import net.conselldemallorca.helium.core.api.WTaskInstance;
-import net.conselldemallorca.helium.core.api.WorkflowEngineApi;
-import net.conselldemallorca.helium.core.api.WorkflowRetroaccioApi;
-import net.conselldemallorca.helium.core.common.ThreadLocalInfo;
-import net.conselldemallorca.helium.core.helper.*;
-import net.conselldemallorca.helium.core.helper.PaginacioHelper.Converter;
-import net.conselldemallorca.helium.core.helper.PermisosHelper.ObjectIdentifierExtractor;
-import net.conselldemallorca.helium.core.helper.TascaSegonPlaHelper.InfoSegonPla;
-import net.conselldemallorca.helium.core.helperv26.MesuresTemporalsHelper;
-import net.conselldemallorca.helium.core.model.hibernate.*;
-import net.conselldemallorca.helium.core.model.hibernate.Camp.TipusCamp;
-import net.conselldemallorca.helium.core.security.ExtendedPermission;
-import net.conselldemallorca.helium.jbpm3.integracio.DelegationInfo;
-import net.conselldemallorca.helium.jbpm3.integracio.ExecucioHandlerException;
-import net.conselldemallorca.helium.v3.core.api.dto.*;
-import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
-import net.conselldemallorca.helium.v3.core.api.exception.SistemaExternException;
-import net.conselldemallorca.helium.v3.core.api.exception.TramitacioException;
-import net.conselldemallorca.helium.v3.core.api.exception.TramitacioHandlerException;
-import net.conselldemallorca.helium.v3.core.api.exception.ValidacioException;
-import net.conselldemallorca.helium.v3.core.api.service.TascaService;
-import net.conselldemallorca.helium.v3.core.repository.*;
+import java.security.Principal;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import javax.annotation.Resource;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,17 +30,84 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.annotation.Resource;
-import java.security.Principal;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import com.codahale.metrics.Counter;
+import com.codahale.metrics.MetricRegistry;
+import com.codahale.metrics.Timer;
+
+import net.conselldemallorca.helium.core.api.LlistatIds;
+import net.conselldemallorca.helium.core.api.ResultatConsultaPaginada;
+import net.conselldemallorca.helium.core.api.WTaskInstance;
+import net.conselldemallorca.helium.core.api.WorkflowEngineApi;
+import net.conselldemallorca.helium.core.api.WorkflowRetroaccioApi;
+import net.conselldemallorca.helium.core.common.ThreadLocalInfo;
+import net.conselldemallorca.helium.core.helper.ConversioTipusHelper;
+import net.conselldemallorca.helium.core.helper.DocumentHelperV3;
+import net.conselldemallorca.helium.core.helper.EntornHelper;
+import net.conselldemallorca.helium.core.helper.ExpedientHelper;
+import net.conselldemallorca.helium.core.helper.ExpedientRegistreHelper;
+import net.conselldemallorca.helium.core.helper.ExpedientTipusHelper;
+import net.conselldemallorca.helium.core.helper.FormulariExternHelper;
+import net.conselldemallorca.helium.core.helper.HerenciaHelper;
+import net.conselldemallorca.helium.core.helper.IndexHelper;
+import net.conselldemallorca.helium.core.helper.PaginacioHelper;
+import net.conselldemallorca.helium.core.helper.PaginacioHelper.Converter;
+import net.conselldemallorca.helium.core.helper.PermisosHelper;
+import net.conselldemallorca.helium.core.helper.PermisosHelper.ObjectIdentifierExtractor;
+import net.conselldemallorca.helium.core.helper.TascaHelper;
+import net.conselldemallorca.helium.core.helper.TascaSegonPlaHelper;
+import net.conselldemallorca.helium.core.helper.TascaSegonPlaHelper.InfoSegonPla;
+import net.conselldemallorca.helium.core.helper.VariableHelper;
+import net.conselldemallorca.helium.core.helperv26.MesuresTemporalsHelper;
+import net.conselldemallorca.helium.core.model.hibernate.Alerta;
+import net.conselldemallorca.helium.core.model.hibernate.Camp;
+import net.conselldemallorca.helium.core.model.hibernate.Camp.TipusCamp;
+import net.conselldemallorca.helium.core.model.hibernate.CampRegistre;
+import net.conselldemallorca.helium.core.model.hibernate.CampTasca;
+import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
+import net.conselldemallorca.helium.core.model.hibernate.Document;
+import net.conselldemallorca.helium.core.model.hibernate.DocumentStore;
+import net.conselldemallorca.helium.core.model.hibernate.Entorn;
+import net.conselldemallorca.helium.core.model.hibernate.EnumeracioValors;
+import net.conselldemallorca.helium.core.model.hibernate.Expedient;
+import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
+import net.conselldemallorca.helium.core.model.hibernate.FormulariExtern;
+import net.conselldemallorca.helium.core.model.hibernate.Registre;
+import net.conselldemallorca.helium.core.model.hibernate.Tasca;
+import net.conselldemallorca.helium.core.model.hibernate.TerminiIniciat;
+import net.conselldemallorca.helium.core.security.ExtendedPermission;
+import net.conselldemallorca.helium.jbpm3.integracio.DelegationInfo;
+import net.conselldemallorca.helium.jbpm3.integracio.ExecucioHandlerException;
+import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.FormulariExternDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
+import net.conselldemallorca.helium.v3.core.api.dto.SeleccioOpcioDto;
+import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.TascaDocumentDto;
+import net.conselldemallorca.helium.v3.core.api.dto.TascaDto;
+import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
+import net.conselldemallorca.helium.v3.core.api.exception.SistemaExternException;
+import net.conselldemallorca.helium.v3.core.api.exception.TramitacioException;
+import net.conselldemallorca.helium.v3.core.api.exception.TramitacioHandlerException;
+import net.conselldemallorca.helium.v3.core.api.exception.ValidacioException;
+import net.conselldemallorca.helium.v3.core.api.service.TascaService;
+import net.conselldemallorca.helium.v3.core.repository.AlertaRepository;
+import net.conselldemallorca.helium.v3.core.repository.CampRepository;
+import net.conselldemallorca.helium.v3.core.repository.CampTascaRepository;
+import net.conselldemallorca.helium.v3.core.repository.DefinicioProcesRepository;
+import net.conselldemallorca.helium.v3.core.repository.DocumentRepository;
+import net.conselldemallorca.helium.v3.core.repository.EnumeracioValorsRepository;
+import net.conselldemallorca.helium.v3.core.repository.ExpedientHeliumRepository;
+import net.conselldemallorca.helium.v3.core.repository.ExpedientRepository;
+import net.conselldemallorca.helium.v3.core.repository.ExpedientTipusRepository;
+import net.conselldemallorca.helium.v3.core.repository.FormulariExternRepository;
+import net.conselldemallorca.helium.v3.core.repository.RegistreRepository;
+import net.conselldemallorca.helium.v3.core.repository.TascaRepository;
+import net.conselldemallorca.helium.v3.core.repository.TerminiIniciatRepository;
 
 /**
  * Servei per gestionar terminis.
@@ -126,6 +179,8 @@ public class TascaServiceImpl implements TascaService {
 	@Autowired
 	private MetricRegistry metricRegistry;
 
+	@Resource
+	private FormulariExternRepository formulariExternRepository;
 
 
 	@Override
@@ -1732,11 +1787,57 @@ public class TascaServiceImpl implements TascaService {
 		return authorities;
 	}
 
-	private static final Logger logger = LoggerFactory.getLogger(TascaServiceImpl.class);
-
 	@Override
 	public TascaDto findTascaById(Long id) {
 		return conversioTipusHelper.convertir(tascaRepository.findById(id), TascaDto.class);
 	}
 
+	/** Per guardar la consulta de dades incials*/
+	private Map<String, Map<String, Object>> dadesFormulariExternInicial;
+
+	@Override
+	public void guardarFormulariExtern(
+			String formulariId, 
+			Map<String, Object> variables) {
+
+		logger.debug("Guardant formulari extern (" +
+				"formulariId=" + formulariId + ", " +
+				"valorsTasca=" + variables + ")");
+
+		
+		FormulariExtern formExtern = formulariExternRepository.findOne(Long.parseLong(formulariId));
+		if (formExtern != null) {
+			if (formulariId.startsWith("TIE_")) {
+				if (dadesFormulariExternInicial == null)
+					dadesFormulariExternInicial = new HashMap<String, Map<String, Object>>();
+				dadesFormulariExternInicial.put(formulariId, variables);
+			} else {
+				Map<String, Object> valors = new HashMap<String, Object>();
+				WTaskInstance task = tascaHelper.getTascaComprovacionsTramitacio(formExtern.getTaskId(), false, false);
+				Tasca tasca = tascaHelper.findTascaByWTaskInstance(task);
+				for (CampTasca camp: tasca.getCamps()) {
+					if (!camp.isReadOnly()) {
+						String codi = camp.getCamp().getCodi();
+						if (variables.keySet().contains(codi))
+							valors.put(codi, variables.get(codi));
+					}
+				}
+				validar(formExtern.getTaskId(),
+						valors);
+			}
+			formExtern.setDataRecepcioDades(new Date());
+			logger.info("Les dades del formulari amb id " + formulariId + " han estat guardades");
+		} else {
+			logger.warn("No s'ha trobat cap tasca amb l'id de formulari " + formulariId);
+		}
+	}
+
+	@Override
+	public Map<String, Object> obtenirValorsFormulariExternInicial(String formulariId) {
+		if (dadesFormulariExternInicial == null)
+			return null;
+		return dadesFormulariExternInicial.remove(formulariId);
+	}
+
+	private static final Logger logger = LoggerFactory.getLogger(TascaServiceImpl.class);
 }

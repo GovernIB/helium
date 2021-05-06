@@ -9,13 +9,13 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import net.conselldemallorca.helium.core.model.service.PersonaService;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.propertyeditors.LocaleEditor;
 import org.springframework.web.servlet.LocaleResolver;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 import org.springframework.web.servlet.support.RequestContextUtils;
+
+import net.conselldemallorca.helium.v3.core.api.service.AdminService;
 
 /**
  * Interceptor per a canviar l'idioma depenent d'un paràmetre
@@ -27,7 +27,7 @@ public class IdiomaInterceptor extends HandlerInterceptorAdapter {
 	public static final String DEFAULT_PARAM_NAME = "lang";
 	private String paramName = DEFAULT_PARAM_NAME;
 	
-	private PersonaService personaService;
+	private AdminService adminService;
 	
 	public void setParamName(String paramName) {
 		this.paramName = paramName;
@@ -38,7 +38,9 @@ public class IdiomaInterceptor extends HandlerInterceptorAdapter {
 			String codiIdioma = request.getParameter(this.paramName);
 			
 			if (codiIdioma != null) {
-				personaService.savePrefIdioma(codiIdioma);
+				adminService.setIdiomaPref(
+						request.getUserPrincipal().getName(),
+						codiIdioma);
 				LocaleResolver localeResolver = RequestContextUtils.getLocaleResolver(request);
 				if (localeResolver == null)
 					throw new IllegalStateException  ("No LocaleResolver found: not in a DispatcherServlet request?");
@@ -51,8 +53,8 @@ public class IdiomaInterceptor extends HandlerInterceptorAdapter {
 	}
 
 	@Autowired
-	public void setPersonaService(PersonaService personaService) {
-		this.personaService = personaService;
+	public void setPersonaService(AdminService adminService) {
+		this.adminService = adminService;
 	}
 
 }

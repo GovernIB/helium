@@ -22,15 +22,12 @@ import es.cim.ws.backoffice.v1.model.datosdocumentotelematico.FirmaWS;
 import es.cim.ws.backoffice.v1.model.documentoentrada.DocumentoEntrada;
 import es.cim.ws.backoffice.v1.model.entrada.Entrada;
 import es.cim.ws.backoffice.v1.services.Backoffice;
-import net.conselldemallorca.helium.core.model.service.ServiceProxy;
-import net.conselldemallorca.helium.integracio.plugins.tramitacio.AutenticacioTipus;
-import net.conselldemallorca.helium.integracio.plugins.tramitacio.DadesTramit;
 import net.conselldemallorca.helium.integracio.plugins.tramitacio.DadesVistaDocument;
-import net.conselldemallorca.helium.integracio.plugins.tramitacio.DocumentPresencial;
-import net.conselldemallorca.helium.integracio.plugins.tramitacio.DocumentTelematic;
-import net.conselldemallorca.helium.integracio.plugins.tramitacio.DocumentTramit;
 import net.conselldemallorca.helium.integracio.plugins.tramitacio.ObtenirVistaDocumentRequest;
-import net.conselldemallorca.helium.integracio.plugins.tramitacio.Signatura;
+import net.conselldemallorca.helium.v3.core.api.dto.TramitDocumentDto;
+import net.conselldemallorca.helium.v3.core.api.dto.TramitDocumentDto.TramitDocumentSignaturaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.TramitDto;
+import net.conselldemallorca.helium.v3.core.api.dto.TramitDto.TramitAutenticacioTipusDto;
 
 /**
  * Backoffice per a gestionar la recepció de tramits provinents
@@ -49,7 +46,7 @@ public class EsbCimBackoffice extends BaseBackoffice implements Backoffice {
 		Entrada entrada = request.getTramite();
 		if (entrada != null) {
 			boolean error = false;
-			DadesTramit dadesTramit = toDadesTramit(entrada);
+			TramitDto dadesTramit = toDadesTramit(entrada);
 			try {
 				int numExpedients = processarTramit(dadesTramit);
 				logger.info("El tramit [" + dadesTramit.getNumero() + ", " + dadesTramit.getClauAcces() + "] ha creat " + numExpedients + " expedients");
@@ -89,7 +86,7 @@ public class EsbCimBackoffice extends BaseBackoffice implements Backoffice {
 		request.setPlantillaTipus(plantillaTipus);
 		request.setIdioma(idioma);
 		try {
-			return ServiceProxy.getInstance().getPluginService().obtenirVistaDocument(request);
+			return pluginHelper.tramitacioObtenirVistaDocument(request);
 		} catch (Exception ex) {
 			return null;
 		}
@@ -97,8 +94,8 @@ public class EsbCimBackoffice extends BaseBackoffice implements Backoffice {
 
 
 
-	private DadesTramit toDadesTramit(Entrada entrada) {
-		DadesTramit tramit = new DadesTramit();
+	private TramitDto toDadesTramit(Entrada entrada) {
+		TramitDto tramit = new TramitDto();
 		tramit.setNumero(entrada.getNumeroEntrada());
 		tramit.setIdentificador(entrada.getIdentificadorTramite());
 		tramit.setVersio(entrada.getVersionTramite());
@@ -116,11 +113,11 @@ public class EsbCimBackoffice extends BaseBackoffice implements Backoffice {
 					entrada.getFechaPreregistro().getValue().toGregorianCalendar().getTime());
 		if (entrada.getNivelAutenticacion() != null) {
 			if ("A".equalsIgnoreCase(entrada.getNivelAutenticacion()))
-				tramit.setAutenticacioTipus(AutenticacioTipus.ANONIMA);
+				tramit.setAutenticacioTipus(TramitAutenticacioTipusDto.ANONIMA);
 			if ("U".equalsIgnoreCase(entrada.getNivelAutenticacion()))
-				tramit.setAutenticacioTipus(AutenticacioTipus.USUARI);
+				tramit.setAutenticacioTipus(TramitAutenticacioTipusDto.USUARI);
 			if ("C".equalsIgnoreCase(entrada.getNivelAutenticacion()))
-				tramit.setAutenticacioTipus(AutenticacioTipus.CERTIFICAT);
+				tramit.setAutenticacioTipus(TramitAutenticacioTipusDto.CERTIFICAT);
 		}
 		if (entrada.getUsuarioNif() != null)
 			tramit.setTramitadorNif(entrada.getUsuarioNif().getValue());
@@ -146,49 +143,42 @@ public class EsbCimBackoffice extends BaseBackoffice implements Backoffice {
 			tramit.setNotificacioTelematicaHabilitada(
 					"S".equalsIgnoreCase(entrada.getHabilitarNotificacionTelematica().getValue()));
 		if (entrada.getDocumentos() != null) {
-			List<DocumentTramit> documents = new ArrayList<DocumentTramit>();
+			List<TramitDocumentDto> documents = new ArrayList<TramitDocumentDto>();
 			for (DocumentoEntrada documento: entrada.getDocumentos().getDocumento()) {
-				DocumentTramit document = new DocumentTramit();
+				TramitDocumentDto document = new TramitDocumentDto();
 				document.setIdentificador(documento.getIdentificador());
 				document.setNom(documento.getNombre());
 				document.setInstanciaNumero(documento.getNumeroInstancia());
 				if (documento.getPresentacionPresencial() != null && documento.getPresentacionPresencial().getValue() != null) {
-					DocumentPresencial documentPresencial = new DocumentPresencial();
-					documentPresencial.setDocumentCompulsar(
-							documento.getPresentacionPresencial().getValue().getCompulsarDocumento());
-					documentPresencial.setSignatura(
-							documento.getPresentacionPresencial().getValue().getFirma());
-					documentPresencial.setFotocopia(
-							documento.getPresentacionPresencial().getValue().getFotocopia());
-					documentPresencial.setTipus(
-							documento.getPresentacionPresencial().getValue().getTipoDocumento().value());
-					document.setDocumentPresencial(documentPresencial);
+					document.setPresencial(true);
+					document.setPresencialDocumentCompulsar(documento.getPresentacionPresencial().getValue().getCompulsarDocumento());
+					document.setPresencialSignatura(documento.getPresentacionPresencial().getValue().getFirma());
+					document.setPresencialFotocopia(documento.getPresentacionPresencial().getValue().getFotocopia());
+					document.setPresencialTipus(documento.getPresentacionPresencial().getValue().getTipoDocumento().value());
 				}
 				if (documento.getPresentacionTelematica() != null && documento.getPresentacionTelematica().getValue() != null) {
-					DocumentTelematic documentTelematic = new DocumentTelematic();
 					if (documento.getPresentacionTelematica().getValue().getReferenciaGestorDocumental() != null)
-						documentTelematic.setReferenciaGestorDocumental(
-								documento.getPresentacionTelematica().getValue().getReferenciaGestorDocumental().getValue());
+						document.setTelematic(true);
 					if (documento.getPresentacionTelematica().getValue().getExtension() != null)
-						documentTelematic.setArxiuExtensio(
+						document.setTelematicArxiuExtensio(
 								documento.getPresentacionTelematica().getValue().getExtension().getValue());
 					if (documento.getPresentacionTelematica().getValue().getContent() != null) {
-						documentTelematic.setArxiuNom(
+						document.setTelematicArxiuNom(
 								documento.getNombre());
-						documentTelematic.setArxiuContingut(
+						document.setTelematicArxiuContingut(
 								documento.getPresentacionTelematica().getValue().getContent().getValue());
 					}
 					if (documento.getPresentacionTelematica().getValue().getFirmas() != null && documento.getPresentacionTelematica().getValue().getFirmas().getValue() != null) {
-						List<Signatura> signatures = new ArrayList<Signatura>();
+						List<TramitDocumentSignaturaDto> signatures = new ArrayList<TramitDocumentSignaturaDto>();
 						for (FirmaWS firma: documento.getPresentacionTelematica().getValue().getFirmas().getValue().getFirma()) {
-							Signatura signatura = new Signatura();
-							signatura.setFormat(firma.getFormato());
-							signatura.setSignatura(firma.getFirma());
+							TramitDocumentSignaturaDto signatura = 
+									document.newDocumentSignatura(
+											firma.getFirma(),
+											firma.getFormato());
 							signatures.add(signatura);
 						}
-						documentTelematic.setSignatures(signatures);
+						document.setTelematicSignatures(signatures);
 					}
-					document.setDocumentTelematic(documentTelematic);
 				}
 				documents.add(document);
 			}

@@ -15,9 +15,9 @@ public interface ExpedientService {
 
 	public Expedient findByExpedientId(Long expedientId);
 
-	public void createExpedient(Expedient expedient);
+	public boolean createExpedient(Expedient expedient);
 	
-	public void createExpedients(List<Expedient> expedients);
+	public boolean createExpedients(List<Expedient> expedients);
 
 	public boolean deleteExpedient(Long expedientId);
 
@@ -25,11 +25,11 @@ public interface ExpedientService {
 
 	public boolean putExpedient(Long expedientId, Expedient expedient);
 
-	public void putExpedients(List<Expedient> expedients);
+	public boolean putExpedients(List<Expedient> expedients);
 
 	public boolean patchExpedient(Long expedientId, Expedient expedient);
 
-	public void patchExpedients(List<Expedient> expedients);
+	public boolean patchExpedients(List<Expedient> expedients);
 
 	public List<Dada> getDades(Long expedientId);
 
@@ -39,7 +39,7 @@ public interface ExpedientService {
 
 	public Dada getDadaByProcesAndCodi(Long expedientId, Long procesId, String codi);
 
-	public void createDades(Long expedientId, Long procesId, List<Dada> dada);
+	public boolean createDades(Long expedientId, Long procesId, List<Dada> dada);
 
 	public boolean putDadaByExpedientIdAndCodi(Long expedientId, String codi, Dada dada);
 

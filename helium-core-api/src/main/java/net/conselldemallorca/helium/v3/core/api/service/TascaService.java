@@ -486,4 +486,19 @@ public interface TascaService {
 	 */
 	public TascaDto findTascaById(Long id);
 
+	/** Mètode per guardar valors des del servei de formulari extern.
+	 * 
+	 * @param formulariId Identificador del formulari extern.
+	 * @param valorsTasca Valors per les variables.
+	 */
+	public void guardarFormulariExtern(String formulariId, Map<String, Object> valorsTasca);
+
+	/** Mètode per consultar si internament ha guardat les dades del formulari inicial. Ho guarda
+	 * en un Map intern.
+	 * 
+	 * @param formulariId
+	 * @return
+	 */
+	public Map<String, Object> obtenirValorsFormulariExternInicial(String formulariId);
+
 }

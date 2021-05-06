@@ -5,17 +5,21 @@ package net.conselldemallorca.helium.v3.core.service;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.annotation.Resource;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import net.conselldemallorca.helium.core.extern.domini.FilaResultat;
 import net.conselldemallorca.helium.core.helper.ConversioTipusHelper;
+import net.conselldemallorca.helium.core.helper.DominiHelper;
 import net.conselldemallorca.helium.core.helper.EntornHelper;
 import net.conselldemallorca.helium.core.helper.ExpedientTipusHelper;
 import net.conselldemallorca.helium.core.helper.HerenciaHelper;
@@ -25,9 +29,9 @@ import net.conselldemallorca.helium.core.model.hibernate.Domini;
 import net.conselldemallorca.helium.core.model.hibernate.Domini.OrigenCredencials;
 import net.conselldemallorca.helium.core.model.hibernate.Domini.TipusAuthDomini;
 import net.conselldemallorca.helium.core.model.hibernate.Domini.TipusDomini;
-import net.conselldemallorca.helium.core.util.EntornActual;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
+import net.conselldemallorca.helium.core.util.EntornActual;
 import net.conselldemallorca.helium.v3.core.api.dto.DominiDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
@@ -64,6 +68,9 @@ public class DominiServiceImpl implements DominiService {
 	private PaginacioHelper paginacioHelper;
 	@Resource
 	private MessageHelper messageHelper;
+	
+	@Autowired
+	DominiHelper dominiHelper;
 	
 	/**
 	 * {@inheritDoc}
@@ -335,6 +342,37 @@ public class DominiServiceImpl implements DominiService {
 		
 	}
 
+	@Override
+	@Transactional(readOnly = true)
+	public List<FilaResultat> consultaDomini(
+			Long entornId, 
+			Long dominiId, 
+			String dominiWsId,
+			Map<String, Object> params) {
+		// TODO Auto-generated method stub
+		logger.debug(
+				"Consulta domini (" +
+						"entornId=" + entornId + ", " +
+						"dominiId=" + dominiId + ", " +
+						"dominiWsId=" + dominiWsId + ", " +
+				"params =" + params + ")");		
+		if (dominiId != null && !dominiId.equals(0L)) {
+			// Domini extern
+			Domini domini = dominiRepository.findOne(dominiId);
+			return dominiHelper.consultar(
+					domini,
+					(dominiId != null) ? dominiId.toString() : null,
+					params);
+		} else {
+			// Domini intern
+			return dominiHelper.consultarIntern(
+					entornRepository.findOne(entornId),
+					null,
+					dominiWsId,
+					params);
+		}
+	}
 		
 	private static final Logger logger = LoggerFactory.getLogger(DominiServiceImpl.class);
+
 }

@@ -7,6 +7,7 @@ import java.util.List;
 
 import javax.persistence.Id;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -24,14 +25,13 @@ public class Dada {
 	@Id
 	private String id;
 	@NotNull
+	@Size(max=255) //TODO canviar-ho per ValorsValidacio si es pot
 	private String codi;
 	@NotNull
 	private Tipus tipus;
 	private boolean multiple;
 	private List<Valor> valor;
 	
-	@NotNull
 	private Long expedientId;
-	@NotNull
 	private Long procesId;
 }

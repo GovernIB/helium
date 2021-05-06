@@ -11,13 +11,15 @@ import java.io.StringWriter;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import es.indra.www.portafirmasmcgdws.mcgdws.AttributesState;
 import es.indra.www.portafirmasmcgdws.mcgdws.CallbackRequest;
 import es.indra.www.portafirmasmcgdws.mcgdws.CallbackResponse;
 import es.indra.www.portafirmasmcgdws.mcgdws.LogMessage;
-import net.conselldemallorca.helium.core.model.service.PluginService;
-import net.conselldemallorca.helium.core.model.service.ServiceProxy;
+import net.conselldemallorca.helium.core.helper.PluginHelper;
+import net.conselldemallorca.helium.v3.core.api.service.PortasignaturesService;
 
 /**
  * Implementació amb Axis del servei per processar automàticament els canvis
@@ -25,8 +27,12 @@ import net.conselldemallorca.helium.core.model.service.ServiceProxy;
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
+@Service
 public class MCGDwsImpl implements es.indra.www.portafirmasmcgdws.mcgdws.MCGDws {
 
+	@Autowired
+	private PortasignaturesService portasignaturesService;
+	
 	public static final int DOCUMENT_BLOQUEJAT = 0;
 	public static final int DOCUMENT_PENDENT = 1;
 	public static final int DOCUMENT_SIGNAT = 2;
@@ -39,7 +45,6 @@ public class MCGDwsImpl implements es.indra.www.portafirmasmcgdws.mcgdws.MCGDws 
 		CallbackResponse callbackResponse = new CallbackResponse();
 		callbackResponse.setVersion("1.0");
 		try {
-			PluginService pluginService = ServiceProxy.getInstance().getPluginService();
 			Double resposta = -1D;
 			boolean processamentOk;
 			try {
@@ -53,7 +58,7 @@ public class MCGDwsImpl implements es.indra.www.portafirmasmcgdws.mcgdws.MCGDws 
 						logger.info("Fi procés petició callback portasignatures (id=" + document + ", estat=" + estat.getValue() + "-Pendent, resposta=" + resposta + ")");
 						break;
 					case DOCUMENT_SIGNAT:
-						processamentOk = pluginService.processarDocumentCallbackPortasignatures(
+						processamentOk = portasignaturesService.processarDocumentCallback(
 								document,
 								false,
 								null);
@@ -61,10 +66,10 @@ public class MCGDwsImpl implements es.indra.www.portafirmasmcgdws.mcgdws.MCGDws 
 						logger.info("Fi procés petició callback portasignatures (id=" + document + ", estat=" + estat.getValue() + "-Signat, resposta=" + resposta + ")");
 						break;
 					case DOCUMENT_REBUTJAT:
-						processamentOk = pluginService.processarDocumentCallbackPortasignatures(
+						processamentOk = portasignaturesService.processarDocumentCallback(
 								document,
 								true,
-								callbackRequest.getApplication().getDocument().getSigner().getRejection().getDescription());
+								callbackRequest.getApplication().getDocument().getSigner().getRejection().getDescription());						
 						resposta = (processamentOk) ? 1D : -1D;
 						logger.info("Fi procés petició callback portasignatures (id=" + document + ", estat=" + estat.getValue() + "-Rebutjat, resposta=" + resposta + ")");
 						break;

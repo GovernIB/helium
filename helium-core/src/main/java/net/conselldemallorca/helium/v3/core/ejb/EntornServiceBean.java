@@ -62,6 +62,14 @@ public class EntornServiceBean implements EntornService {
 	 */
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public EntornDto findAmbIdPermisAcces(Long entornId) {
+		return delegate.findAmbIdPermisAcces(entornId);
+	}
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public List<EntornDto> findActiusAmbPermisAcces() {
 		return delegate.findActiusAmbPermisAcces();
 	}

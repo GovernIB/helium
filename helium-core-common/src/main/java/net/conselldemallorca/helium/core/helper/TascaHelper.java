@@ -207,7 +207,7 @@ public class TascaHelper {
 //		private Long expedientTipusId;
 //		private String expedientTipusNom;
 //		private String processInstanceId;
-		private boolean tramitacioMassiva;
+		private Boolean tramitacioMassiva;
 		private String definicioProcesJbpmKey;
 		public DadesCacheTasca(
 				Long entornId,
@@ -218,7 +218,7 @@ public class TascaHelper {
 //				Long expedientTipusId,
 //				String expedientTipusNom,
 //				String processInstanceId,
-				boolean tramitacioMassiva,
+				Boolean tramitacioMassiva,
 				String definicioProcesJbpmKey) {
 			this.entornId = entornId;
 			this.titol = titol;
@@ -256,7 +256,7 @@ public class TascaHelper {
 //			return processInstanceId;
 //		}
 		public boolean isTramitacioMassiva() {
-			return tramitacioMassiva;
+			return tramitacioMassiva != null ? tramitacioMassiva.booleanValue() : false;
 		}
 		public String getDefinicioProcesJbpmKey() {
 			return definicioProcesJbpmKey;
@@ -555,6 +555,7 @@ public class TascaHelper {
 		dto.setProcessInstanceId(task.getProcessInstanceId());
 		dto.setExpedientId(expedientNoNull.getId());
 		dto.setExpedientIdentificador(expedientNoNull.getIdentificador());
+		dto.setExpedientNumero(expedientNoNull.getNumero());
 		dto.setExpedientTipusNom(expedientNoNull.getTipus().getNom());
 		dto.setExpedientTipusId(expedientNoNull.getTipus().getId());
 		if (task.getActorId() != null) {

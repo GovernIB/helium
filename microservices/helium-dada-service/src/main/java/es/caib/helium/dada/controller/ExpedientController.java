@@ -23,6 +23,7 @@ import es.caib.helium.dada.domain.Dada;
 import es.caib.helium.dada.domain.Expedient;
 import es.caib.helium.dada.model.Consulta;
 import es.caib.helium.dada.model.PagedList;
+import es.caib.helium.dada.model.ValidList;
 import es.caib.helium.dada.service.ExpedientService;
 import lombok.AllArgsConstructor;
 
@@ -37,10 +38,9 @@ public class ExpedientController {
 
 	@PostMapping(value = "consulta/resultats", consumes = "application/json")
 	public ResponseEntity<PagedList<Expedient>> consultaResultats(@RequestParam("entornId") Integer entornId,
-			@RequestParam("expedientTipusId") Integer expedientTipusId,
-			@RequestParam("page") Integer page, @RequestParam("size") Integer size,
-			@RequestBody Consulta body) {
-		
+			@RequestParam("expedientTipusId") Integer expedientTipusId, @RequestParam("page") Integer page,
+			@RequestParam("size") Integer size, @RequestBody Consulta body) {
+
 		body.setEntornId(entornId);
 		body.setExpedientTipusId(expedientTipusId);
 		body.setPage(page);
@@ -51,21 +51,19 @@ public class ExpedientController {
 	@PostMapping(value = "consulta/resultats/llistat", consumes = "application/json")
 	public ResponseEntity<List<Expedient>> consultaResultatsLlistat(@RequestParam("entornId") Integer entornId,
 			@RequestParam("expedientTipusId") Integer expedientTipusId,
-			@RequestParam("columnes") List<String> columnes,
+//			@RequestParam("columnes") List<String> columnes,
 			@RequestBody Consulta body) {
-		
+
 		body.setEntornId(entornId);
 		body.setExpedientTipusId(expedientTipusId);
-		return new ResponseEntity<List<Expedient>>(
-				expedientService.consultaResultatsLlistat(body),
-				HttpStatus.OK);
+		return new ResponseEntity<List<Expedient>>(expedientService.consultaResultatsLlistat(body), HttpStatus.OK);
 	}
 
 	// Gestió dades capçalera de l'expedient
 
 	@GetMapping(value = "{expedientId}", produces = { "application/json" })
 	public ResponseEntity<Expedient> getExpedient(@PathVariable("expedientId") Long expedientId) {
-		
+
 		var expedient = expedientService.findByExpedientId(expedientId);
 		if (expedient == null) {
 			return new ResponseEntity<Expedient>(HttpStatus.NOT_FOUND);
@@ -80,21 +78,30 @@ public class ExpedientController {
 			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 		}
 
-		expedientService.createExpedient(expedient);
+		if (!expedientService.createExpedient(expedient)) {
+			return new ResponseEntity<>(HttpStatus.CONFLICT);
+		}
 		return new ResponseEntity<>(HttpStatus.CREATED);
 	}
 
 	@PostMapping(value = "crear/expedients", consumes = { "application/json" })
-	public ResponseEntity<Void> createExpedients(@Valid @RequestBody List<Expedient> expedients) {
-		
-		expedientService.createExpedients(expedients);
+	public ResponseEntity<Void> createExpedients(@Valid @RequestBody ValidList<Expedient> expedients,
+			BindingResult errors) {
+
+		if (errors.hasErrors()) {
+			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+		}
+
+		if (!expedientService.createExpedients(expedients)) {
+			return new ResponseEntity<>(HttpStatus.CONFLICT);
+		}
 		return new ResponseEntity<>(HttpStatus.CREATED);
 	}
 
 	@DeleteMapping(value = "{expedientId}")
 	public ResponseEntity<Void> deleteExpedient(@PathVariable("expedientId") Long expedientId) {
-		
-		if (expedientService.deleteExpedient(expedientId)) {
+
+		if (!expedientService.deleteExpedient(expedientId)) {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
 		return new ResponseEntity<>(HttpStatus.OK);
@@ -102,8 +109,8 @@ public class ExpedientController {
 
 	@DeleteMapping(value = "borrar/expedients")
 	public ResponseEntity<Void> deleteExpedients(@RequestParam("expedients") List<Long> expedients) {
-		
-		if (expedientService.deleteExpedients(expedients)) {
+
+		if (!expedientService.deleteExpedients(expedients)) {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
 		return new ResponseEntity<>(HttpStatus.OK);
@@ -112,7 +119,7 @@ public class ExpedientController {
 	@PutMapping(value = "{expedientId}")
 	public ResponseEntity<Void> putExpedient(@Valid @RequestBody Expedient expedient,
 			@PathVariable("expedientId") Long expedientId) {
-		
+
 		if (!expedientService.putExpedient(expedientId, expedient)) {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
@@ -121,27 +128,44 @@ public class ExpedientController {
 	}
 
 	@PutMapping(value = "put/expedients")
-	public ResponseEntity<Void> putExpedients(@Valid @RequestBody List<Expedient> expedients) {
-		expedientService.putExpedients(expedients);
-		
-		return new ResponseEntity<>(HttpStatus.OK);
+	public ResponseEntity<Void> putExpedients(@Valid @RequestBody ValidList<Expedient> expedients,
+			BindingResult errors) {
+
+		if (errors.hasErrors()) {
+			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+		}
+
+		if (expedientService.putExpedients(expedients)) {
+			return new ResponseEntity<>(HttpStatus.OK);
+		}
+		return new ResponseEntity<>(HttpStatus.CONFLICT);
 	}
 
 	@PatchMapping(value = "{expedientId}")
-	public ResponseEntity<Void> patchExpedient(@RequestBody Expedient expedient,
-			@PathVariable("expedientId") Long expedientId) {
-		
-		if (!expedientService.patchExpedient(expedientId, expedient)) {
-			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+	public ResponseEntity<Void> patchExpedient(@Valid @RequestBody Expedient expedient,
+			@PathVariable("expedientId") Long expedientId, BindingResult errors) {
+
+		if (errors.hasErrors()) {
+			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 		}
-		return new ResponseEntity<>(HttpStatus.OK);
+		
+		if (expedientService.patchExpedient(expedientId, expedient)) {
+			return new ResponseEntity<>(HttpStatus.OK);
+		}
+		return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 	}
 
 	@PatchMapping(value = "patch/expedients")
-	public ResponseEntity<Void> patchExpedients(@RequestBody List<Expedient> expedients) {
-		
-		expedientService.patchExpedients(expedients);
-		return new ResponseEntity<>(HttpStatus.OK);
+	public ResponseEntity<Void> patchExpedients(@Valid @RequestBody ValidList<Expedient> expedients, BindingResult errors) {
+
+		if (errors.hasErrors()) {
+			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+		}
+
+		if (expedientService.patchExpedients(expedients)) {
+			return new ResponseEntity<>(HttpStatus.OK);
+		}
+		return new ResponseEntity<>(HttpStatus.CONFLICT);
 	}
 
 	// Gestió dades de l'expedient
@@ -157,18 +181,24 @@ public class ExpedientController {
 		if (expedientService.findByExpedientId(expedientId) == null) {
 			return new ResponseEntity<List<Dada>>(HttpStatus.NOT_FOUND);
 		}
+
 		return new ResponseEntity<List<Dada>>(dades, HttpStatus.NO_CONTENT);
 	}
 
 	@GetMapping(value = "{expedientId}/dades/{codi}")
-	public ResponseEntity<Dada> getDades(@PathVariable("expedientId") Long expedientId,
+	public ResponseEntity<Dada> getDadaByCodi(@PathVariable("expedientId") Long expedientId,
 			@Valid @PathVariable("codi") String codi) {
 
 		var dada = expedientService.getDadaByCodi(expedientId, codi);
-		if (dada == null) {
-			return new ResponseEntity<Dada>(dada, HttpStatus.NO_CONTENT);
+		if (dada != null) {
+			return new ResponseEntity<Dada>(dada, HttpStatus.OK);
 		}
-		return new ResponseEntity<Dada>(dada, HttpStatus.OK);
+
+		if (expedientService.findByExpedientId(expedientId) == null) {
+			return new ResponseEntity<Dada>(HttpStatus.NOT_FOUND);
+		}
+
+		return new ResponseEntity<Dada>(dada, HttpStatus.NO_CONTENT);
 	}
 
 	@GetMapping(value = "{expedientId}/proces/{procesId}/dades")
@@ -187,24 +217,31 @@ public class ExpedientController {
 	}
 
 	@GetMapping(value = "{expedientId}/proces/{procesId}/dades/{codi}")
-	public ResponseEntity<Dada> getDadesByProcesAndCodi(@PathVariable("expedientId") Long expedientId,
+	public ResponseEntity<Dada> getDadaByProcesAndCodi(@PathVariable("expedientId") Long expedientId,
 			@PathVariable("procesId") Long procesId, @PathVariable("codi") String codi) {
 
 		var dada = expedientService.getDadaByProcesAndCodi(expedientId, procesId, codi);
-		if (dada == null) {
-			return new ResponseEntity<Dada>(dada, HttpStatus.NO_CONTENT);
+		if (dada != null) {
+			return new ResponseEntity<Dada>(dada, HttpStatus.OK);
 		}
-		return new ResponseEntity<Dada>(dada, HttpStatus.OK);
+
+		if (expedientService.findByExpedientId(expedientId) == null) {
+			return new ResponseEntity<Dada>(HttpStatus.NOT_FOUND);
+		}
+
+		return new ResponseEntity<Dada>(dada, HttpStatus.NO_CONTENT);
 	}
 
 	@PostMapping(value = "{expedientId}/dades", consumes = "application/json")
-	public ResponseEntity<Void> createDadaByExpedientId(@PathVariable("expedientId") Long expedientId,
-			@QueryParam("procesId") Long procesId, @Valid @RequestBody List<Dada> dada, BindingResult errors) {
+	public ResponseEntity<Void> postDadesByExpedientId(@PathVariable("expedientId") Long expedientId,
+			@QueryParam("procesId") Long procesId, @Valid @RequestBody ValidList<Dada> dada, BindingResult errors) {
 
 		if (errors.hasErrors()) {
 			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 		}
-		expedientService.createDades(expedientId, procesId, dada);
+		if (!expedientService.createDades(expedientId, procesId, dada)) {
+			return new ResponseEntity<>(HttpStatus.CONFLICT);
+		}
 		return new ResponseEntity<>(HttpStatus.CREATED);
 	}
 
@@ -230,9 +267,9 @@ public class ExpedientController {
 	}
 
 	@PostMapping(value = "{expedientId}/proces/{procesId}/dades", consumes = "application/json")
-	public ResponseEntity<Void> postDadaByExpedientIdProcesIdAndCodi(@PathVariable("expedientId") Long expedientId,
-			@PathVariable("procesId") Long procesId, @Valid @RequestBody List<Dada> dades) {
-		
+	public ResponseEntity<Void> postDadaByExpedientIdProcesId(@PathVariable("expedientId") Long expedientId,
+			@PathVariable("procesId") Long procesId, @Valid @RequestBody ValidList<Dada> dades) {
+
 		if (dades.isEmpty()) {
 			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 		}

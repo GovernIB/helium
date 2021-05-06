@@ -8,14 +8,14 @@ import java.util.Locale;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import net.conselldemallorca.helium.core.model.hibernate.UsuariPreferencies;
-import net.conselldemallorca.helium.core.model.service.PersonaService;
-import net.conselldemallorca.helium.core.util.GlobalProperties;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.propertyeditors.LocaleEditor;
 import org.springframework.web.servlet.LocaleResolver;
 import org.springframework.web.util.WebUtils;
+
+import net.conselldemallorca.helium.core.util.GlobalProperties;
+import net.conselldemallorca.helium.v3.core.api.dto.UsuariPreferenciesDto;
+import net.conselldemallorca.helium.v3.core.api.service.AplicacioService;
 
 public class IdiomaResolver implements LocaleResolver, Serializable {
 	private static final long serialVersionUID = 1L;
@@ -23,7 +23,7 @@ public class IdiomaResolver implements LocaleResolver, Serializable {
 	public static final String SESSION_IDIOMA_ACTUAL = "idiomaActual";
 	public static final String SESSION_IDIOMES_DISPONIBLES = "idiomesDisponibles";
 
-	private PersonaService personaService;
+	private AplicacioService aplicacioService;
 	
 	private Locale idiomaDefecte;
 	private List<Locale> idiomesDisponibles = new ArrayList<Locale>();
@@ -66,7 +66,7 @@ public class IdiomaResolver implements LocaleResolver, Serializable {
 			locale = (Locale)localeEditor.getValue();
 		} else {
 			if (request.getUserPrincipal() != null) {
-				UsuariPreferencies preferencies = personaService.getUsuariPreferencies();
+				UsuariPreferenciesDto preferencies = aplicacioService.getUsuariPreferencies();
 				if (preferencies != null && preferencies.getIdioma() != null) {
 					String idioma = preferencies.getIdioma();
 					localeEditor.setAsText(idioma);
@@ -119,8 +119,8 @@ public class IdiomaResolver implements LocaleResolver, Serializable {
 	}
 
 	@Autowired
-	public void setPersonaService(PersonaService personaService) {
-		this.personaService = personaService;
+	public void setAplicacioService(AplicacioService aplicacioService) {
+		this.aplicacioService = aplicacioService;
 	}
 
 	public void setIdiomaDefecte(String idiomaDefecte) {

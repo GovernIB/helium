@@ -167,7 +167,47 @@ public class ExpedientTipusServiceBean implements ExpedientTipusService {
 				entornId,
 				expedientTipusId);
 	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public ExpedientTipusDto findAmbIdPermisCrear(
+			Long entornId,
+			Long expedientTipusId) {
+		return delegate.findAmbIdPermisCrear(
+				entornId,
+				expedientTipusId);
+	}
 	
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public ExpedientTipusDto findAmbIdPermisLectura(
+			Long entornId,
+			Long expedientTipusId) {
+		return delegate.findAmbIdPermisLectura(
+				entornId,
+				expedientTipusId);
+	}
+	
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public ExpedientTipusDto findAmbIdPermisEscriptura(
+			Long entornId,
+			Long expedientTipusId) {
+		return delegate.findAmbIdPermisEscriptura(
+				entornId,
+				expedientTipusId);
+	}
+	
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public ExpedientTipusDto findAmbIdPermisEsborrar(
+			Long entornId,
+			Long expedientTipusId) {
+		return delegate.findAmbIdPermisEsborrar(
+				entornId,
+				expedientTipusId);
+	}
+
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public ExpedientTipusDto findAmbIdPermisDissenyarDelegat(
@@ -699,5 +739,11 @@ public class ExpedientTipusServiceBean implements ExpedientTipusService {
 				estatTipus,
 				estatId,
 				aturat);
+	}
+
+	/** En principi està permés per usuaris anònims */
+	@Override
+	public List<ExpedientTipusDto> findAmbSistraTramitCodi(String identificador) {
+		return delegate.findAmbSistraTramitCodi(identificador);
 	}
 }

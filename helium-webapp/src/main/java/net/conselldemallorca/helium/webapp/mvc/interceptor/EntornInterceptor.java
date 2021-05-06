@@ -11,15 +11,12 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.ModelAndViewDefiningException;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
 import net.conselldemallorca.helium.core.common.ThreadLocalInfo;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
-import net.conselldemallorca.helium.core.model.service.AlertaService;
 import net.conselldemallorca.helium.core.util.EntornActual;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
@@ -40,19 +37,12 @@ public class EntornInterceptor extends HandlerInterceptorAdapter {
 	public static final String VARIABLE_REQUEST_CANVI_ENTORN = "entornCanviarAmbId";
 	public static final String VARIABLE_REQUEST_CANVI_EXPTIP = "expedientTipusCanviarAmbId";
 	
-	// ELIMINAR DE LA INTERFÍCIE 26
-	public static final String VARIABLE_REQUEST_ALERTES_NOLLEGIDES = "hiHaAlertesNollegides";
-
 	@Resource(name="entornServiceV3")
 	private EntornService entornService;
 	@Resource
 	private AplicacioService aplicacioService;
 	@Resource
 	private ExpedientTipusService expedientTipusService;
-	@Resource
-	private AlertaService alertaService;
-
-
 
 	public boolean preHandle(
 			HttpServletRequest request,
@@ -133,16 +123,7 @@ public class EntornInterceptor extends HandlerInterceptorAdapter {
 			// Inicialitza la variable ThreadLocal de l'expedient que s'està iniciant
 			ThreadLocalInfo.setExpedient(null);
 			if (entornActual != null) {
-				
-				// Indica si hi ha alertes no llegides 
-				// ELIMINAR DE LA INTERFÍCIE 26
-				if (!request.getRequestURI().contains("/v3")) {
-					Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-					int alertesNoLlegides = alertaService.countActivesAmbEntornIUsuari(entornActual.getId(), auth.getName(), AlertaService.ALERTAS_NO_LLEGIDES);
-					request.setAttribute(VARIABLE_REQUEST_ALERTES_NOLLEGIDES, alertesNoLlegides > 0);
-				}
-				/////////////////////////////////
-				
+								
 				// Refresca el tipus d'expedient actual
 				@SuppressWarnings("unchecked")
 				List<ExpedientTipusDto> accessibles = (List<ExpedientTipusDto>)SessionHelper.getAttribute(

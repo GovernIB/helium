@@ -209,7 +209,13 @@
             <artifactId>regweb3-utils</artifactId>
             <version>${regweb3.version}</version>
             <scope>compile</scope>
-        </dependency>
+            <exclusions>
+            	<exclusion>
+            		<artifactId>spring-context</artifactId>
+            		<groupId>org.springframework</groupId>
+            	</exclusion>
+            </exclusions>
+		</dependency>
         <dependency>
             <groupId>es.caib.regweb3</groupId>
             <artifactId>regweb3-ws-api</artifactId>

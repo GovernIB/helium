@@ -86,6 +86,14 @@ public interface EntornService {
 	 */
 	public EntornDto findAmbCodi(String entornCodi);
 
+	/** Consulta l'entorn amb permís d'accés
+	 * 
+	 * @param entornId
+	 * @return
+	 */
+	public EntornDto findAmbIdPermisAcces(Long entornId);
+
+	
 	/**
 	 * Retorna una llista d'entorns per als quals l'usuari actual
 	 * te permis d'accés (READ).
@@ -159,5 +167,6 @@ public interface EntornService {
 	 * @return llista d'entorns
 	 */
 	public List<EntornDto> findActiusAmbPermisAdmin();
+
 
 }

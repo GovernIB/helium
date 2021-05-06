@@ -395,6 +395,17 @@ public class AdminServiceImpl implements AdminService {
 
 	@Transactional
 	@Override
+	public void setIdiomaPref(String usuari, String idioma) {
+		UsuariPreferencies usuariPreferencies = usuariPreferenciesRepository.findByCodi(usuari);
+		if (usuariPreferencies != null)
+		{
+			usuariPreferencies.setIdioma(idioma);
+			usuariPreferenciesRepository.save(usuariPreferencies);
+		}		
+	}
+
+	@Transactional
+	@Override
 	public void updatePersona(PersonaDto personaDto) {
 		Persona persona = personaRepository.findByCodi(personaDto.getCodi());
 		persona.setDni(personaDto.getDni());

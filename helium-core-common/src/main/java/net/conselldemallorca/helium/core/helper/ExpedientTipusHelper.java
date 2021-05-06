@@ -53,6 +53,25 @@ public class ExpedientTipusHelper {
 						ExtendedPermission.ADMINISTRATION});
 	}
 	
+	/** Consulta el tipus d'expedient comprovant el permís de lectura. */
+	public ExpedientTipus getExpedientTipusComprovantPermisEscriptura(Long id) {
+		return getExpedientTipusComprovantPermisos(
+				id,
+				null,
+				new Permission[] {
+						ExtendedPermission.WRITE,
+						ExtendedPermission.ADMINISTRATION});
+	}
+	
+	/** Consulta el tipus d'expedient comprovant el permís de lectura. */
+	public ExpedientTipus getExpedientTipusComprovantPermisEsborrar(Long id) {
+		return getExpedientTipusComprovantPermisos(
+				id,
+				null,
+				new Permission[] {
+						ExtendedPermission.DELETE,
+						ExtendedPermission.ADMINISTRATION});
+	}
 	/** Consulta el tipus d'expedient comprovant el permís de disseny sobre el tipus d'expedient. */
 	public ExpedientTipus getExpedientTipusComprovantPermisDisseny(Long id) {
 		return getExpedientTipusComprovantPermisos(
@@ -67,7 +86,20 @@ public class ExpedientTipusHelper {
 						ExtendedPermission.ADMINISTRATION	
 				});
 	}
-	
+
+	/** Consulta el tipus d'expedient comprovant el permís de creació sobre el tipus d'expedient. */
+	public ExpedientTipus getExpedientTipusComprovantPermisCrear(Long id) {
+		return getExpedientTipusComprovantPermisos(
+				id, 
+				new Permission[] {
+						ExtendedPermission.ADMINISTRATION
+				},
+				new Permission[]{
+						ExtendedPermission.CREATE,
+						ExtendedPermission.ADMINISTRATION	
+				});
+	}
+
 	/** Consulta el tipus d'expedient comprovant el permís de disseny delegat sobre el tipus d'expedient. S'és
 	 * administrador delegat si es té permís delegat, permís de disseny administrador sobre el tipus d'expedient o 
 	 * administrador del tipus d'expedient. */

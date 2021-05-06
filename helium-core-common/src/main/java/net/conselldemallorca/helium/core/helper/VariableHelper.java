@@ -682,6 +682,10 @@ public class VariableHelper {
 			tascaDadaDto.setRequired(required);
 			tascaDadaDto.setAmpleCols((ampleCols == 0 && buitCols == 0) ? 12 : ampleCols);
 			tascaDadaDto.setBuitCols((ampleCols == 0 && buitCols == 0) ? 0 : buitCols);
+			tascaDadaDto.setDominiId(camp.getDominiId());
+			tascaDadaDto.setDominiCampText(camp.getDominiCampText());
+			tascaDadaDto.setDominiCampValor(camp.getDominiCampValor());
+			tascaDadaDto.setDominiParams(camp.getDominiParams());
 		}
 		tascaDadaDto.setText(expedientDadaDto.getText());
 		tascaDadaDto.setError(expedientDadaDto.getError());

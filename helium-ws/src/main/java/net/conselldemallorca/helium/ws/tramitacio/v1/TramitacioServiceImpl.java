@@ -6,10 +6,8 @@ package net.conselldemallorca.helium.ws.tramitacio.v1;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import javax.jws.WebService;
 import javax.xml.datatype.XMLGregorianCalendar;
@@ -17,39 +15,35 @@ import javax.xml.datatype.XMLGregorianCalendar;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.acls.model.Permission;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
-import net.conselldemallorca.helium.core.model.dto.ArxiuDto;
-import net.conselldemallorca.helium.core.model.dto.DocumentDto;
-import net.conselldemallorca.helium.core.model.dto.ExpedientDto;
-import net.conselldemallorca.helium.core.model.dto.InstanciaProcesDto;
-import net.conselldemallorca.helium.core.model.dto.TascaDto;
-import net.conselldemallorca.helium.core.model.dto.TascaLlistatDto;
-import net.conselldemallorca.helium.core.model.hibernate.Accio;
-import net.conselldemallorca.helium.core.model.hibernate.Camp;
-import net.conselldemallorca.helium.core.model.hibernate.Camp.TipusCamp;
-import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
-import net.conselldemallorca.helium.core.model.hibernate.Document;
-import net.conselldemallorca.helium.core.model.hibernate.Entorn;
-import net.conselldemallorca.helium.core.model.hibernate.Estat;
-import net.conselldemallorca.helium.core.model.hibernate.Expedient;
-import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
-import net.conselldemallorca.helium.core.model.service.DissenyService;
-import net.conselldemallorca.helium.core.model.service.DocumentService;
-import net.conselldemallorca.helium.core.model.service.EntornService;
-import net.conselldemallorca.helium.core.model.service.ExpedientService;
-import net.conselldemallorca.helium.core.model.service.PermissionService;
-import net.conselldemallorca.helium.core.model.service.TascaService;
-import net.conselldemallorca.helium.core.security.ExtendedPermission;
 import net.conselldemallorca.helium.core.util.EntornActual;
+import net.conselldemallorca.helium.v3.core.api.dto.AccioDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
+import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
+import net.conselldemallorca.helium.v3.core.api.dto.CampTipusDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
+import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
+import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto.EstatTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
+import net.conselldemallorca.helium.v3.core.api.dto.InstanciaProcesDto;
+import net.conselldemallorca.helium.v3.core.api.dto.MostrarAnulatsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto.OrdreDireccioDto;
-import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
-import net.conselldemallorca.helium.v3.core.api.service.ExpedientService.FiltreAnulat;
+import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.TascaDocumentDto;
+import net.conselldemallorca.helium.v3.core.api.service.DocumentService;
+import net.conselldemallorca.helium.v3.core.api.service.EntornService;
+import net.conselldemallorca.helium.v3.core.api.service.ExpedientDadaService;
+import net.conselldemallorca.helium.v3.core.api.service.ExpedientDocumentService;
+import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
+import net.conselldemallorca.helium.v3.core.api.service.ExpedientTipusService;
+import net.conselldemallorca.helium.v3.core.api.service.TascaService;
 
 /**
  * Implementació del servei de tramitació d'expedients
@@ -63,16 +57,20 @@ public class TramitacioServiceImpl implements TramitacioService {
 
 	private static final boolean PRINT_USUARI = false;
 
+	@Autowired
 	private EntornService entornService;
-	private DissenyService dissenyService;
+	@Autowired
+	private ExpedientTipusService expedientTipusService;
+	@Autowired
 	private ExpedientService expedientService;
 	@Autowired
-	private net.conselldemallorca.helium.v3.core.api.service.ExpedientService expedientV3Service;
+	private ExpedientDadaService expedientDadaService;
+	@Autowired
+	private ExpedientDocumentService expedientDocumentService;
+	@Autowired
 	private TascaService tascaService;
-	private net.conselldemallorca.helium.v3.core.api.service.TascaService tascaServiceV3;
+	@Autowired
 	private DocumentService documentService;
-	private PermissionService permissionService;
-
 
 	@Override
 	public String iniciExpedient(
@@ -81,19 +79,19 @@ public class TramitacioServiceImpl implements TramitacioService {
 			String numero,
 			String titol,
 			List<ParellaCodiValor> valorsFormulari) throws TramitacioException {
-		Entorn e = findEntornAmbCodi(entorn);
+		EntornDto e = findEntornAmbCodi(entorn);
 		if (e == null)
 			throw new TramitacioException("No existeix cap entorn amb aquest codi '" + entorn + "'");
 		if (!validarPermisEntornRead(e))
 			throw new TramitacioException("No té permisos per accedir a l'entorn '" + entorn + "'");
-		ExpedientTipus et = findExpedientTipusAmbEntornICodi(e.getId(), expedientTipus);
+		ExpedientTipusDto et = findExpedientTipusAmbEntornICodi(e.getId(), expedientTipus);
 		if (!validarPermisExpedientTipusCreate(et))
 			throw new TramitacioException("No té permisos per iniciar un expedient de tipus '" + expedientTipus + "'");
 		if (et == null)
 			throw new TramitacioException("No existeix cap tipus d'expedient amb el codi '" + expedientTipus + "'");
-		if (numero != null && !et.getTeNumero())
+		if (numero != null && !et.isDemanaNumero())
 			throw new TramitacioException("Aquest tipus d'expedient no suporta número d'expedient");
-		if (titol != null && !et.getTeTitol())
+		if (titol != null && !et.isDemanaTitol())
 			throw new TramitacioException("Aquest tipus d'expedient no suporta títol d'expedient");
 		Map<String, Object> variables = null;
 		if (valorsFormulari != null) {
@@ -112,7 +110,7 @@ public class TramitacioServiceImpl implements TramitacioService {
 		// Informació de l'inici d'expedient pels logs
 		String expLog = "[entorn=" +  entorn + ", expedientTipus=" + expedientTipus + ", numero=" + numero + ", titol=" + titol + "]";
 		try {
-			net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto expedient = expedientV3Service.create(
+			net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto expedient = expedientService.create(
 					e.getId(),
 					null,
 					et.getId(),
@@ -155,15 +153,35 @@ public class TramitacioServiceImpl implements TramitacioService {
 	@Override
 	public List<TascaTramitacio> consultaTasquesPersonals(
 			String entorn) throws TramitacioException {
-		Entorn e = findEntornAmbCodi(entorn);
+		EntornDto e = findEntornAmbCodi(entorn);
 		if (e == null)
 			throw new TramitacioException("No existeix cap entorn amb el codi '" + entorn + "'");
 		if (!validarPermisEntornRead(e))
 			throw new TramitacioException("No té permisos per accedir a l'entorn '" + entorn + "'");
-		try {
-			List<TascaLlistatDto> tasques = tascaService.findTasquesPersonalsTramitacio(e.getId(), null, null, true);
+		try {			
+			Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+			String usuariBo = auth.getName();
+
+			PaginaDto<ExpedientTascaDto> tasques = tascaService.findPerFiltrePaginat(
+					e.getId(), 
+					null, 
+					null, 
+					null, 
+					null, 
+					usuariBo, 
+					null, 
+					null, 
+					null, 
+					null, 
+					null, 
+					null, 
+					false, 
+					false, 
+					true, 
+					new PaginacioParamsDto());
+			
 			List<TascaTramitacio> resposta = new ArrayList<TascaTramitacio>();
-			for (TascaLlistatDto tasca: tasques)
+			for (ExpedientTascaDto tasca: tasques.getContingut())
 				resposta.add(convertirTascaTramitacio(tasca));
 			return resposta;
 		} catch (Exception ex) {
@@ -175,15 +193,34 @@ public class TramitacioServiceImpl implements TramitacioService {
 	@Override
 	public List<TascaTramitacio> consultaTasquesGrup(
 			String entorn) throws TramitacioException {
-		Entorn e = findEntornAmbCodi(entorn);
+		EntornDto e = findEntornAmbCodi(entorn);
 		if (e == null)
 			throw new TramitacioException("No existeix cap entorn amb el codi '" + entorn + "'");
 		if (!validarPermisEntornRead(e))
 			throw new TramitacioException("No té permisos per accedir a l'entorn '" + entorn + "'");
 		try {
-			List<TascaLlistatDto> tasques = tascaService.findTasquesGrupTramitacio(e.getId(), null, null, true);
+			Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+			String usuariBo = auth.getName();
+
+			PaginaDto<ExpedientTascaDto> tasques = tascaService.findPerFiltrePaginat(
+					e.getId(), 
+					null, 
+					null, 
+					null, 
+					null, 
+					usuariBo, 
+					null, 
+					null, 
+					null, 
+					null, 
+					null, 
+					null, 
+					false, 
+					true, 
+					false, 
+					new PaginacioParamsDto());
 			List<TascaTramitacio> resposta = new ArrayList<TascaTramitacio>();
-			for (TascaLlistatDto tasca: tasques)
+			for (ExpedientTascaDto tasca: tasques)
 				resposta.add(convertirTascaTramitacio(tasca));
 			return resposta;
 		} catch (Exception ex) {
@@ -196,15 +233,31 @@ public class TramitacioServiceImpl implements TramitacioService {
 	public List<TascaTramitacio> consultaTasquesPersonalsByCodi(
 			String entorn, 
 			String codi) throws TramitacioException {
-		Entorn e = findEntornAmbCodi(entorn);
+		EntornDto e = findEntornAmbCodi(entorn);
 		if (e == null)
 			throw new TramitacioException("No existeix cap entorn amb el codi '" + entorn + "'");
 		if (!validarPermisEntornRead(e))
 			throw new TramitacioException("No té permisos per accedir a l'entorn '" + entorn + "'");
 		try {
-			List<TascaLlistatDto> tasques = tascaService.findTasquesPersonalsTramitacio(e.getId(), null, codi, true);
+			PaginaDto<ExpedientTascaDto> tasques = tascaService.findPerFiltrePaginat(
+					e.getId(), 
+					null, 
+					null, 
+					null, 
+					null, 
+					codi, 
+					null, 
+					null, 
+					null, 
+					null, 
+					null, 
+					null, 
+					true, 
+					false, 
+					true, 
+					new PaginacioParamsDto());
 			List<TascaTramitacio> resposta = new ArrayList<TascaTramitacio>();
-			for (TascaLlistatDto tasca: tasques)
+			for (ExpedientTascaDto tasca: tasques)
 				resposta.add(convertirTascaTramitacio(tasca));
 			return resposta;
 		} catch (Exception ex) {
@@ -217,15 +270,31 @@ public class TramitacioServiceImpl implements TramitacioService {
 	public List<TascaTramitacio> consultaTasquesGrupByCodi(
 			String entorn, 
 			String codi) throws TramitacioException {
-		Entorn e = findEntornAmbCodi(entorn);
+		EntornDto e = findEntornAmbCodi(entorn);
 		if (e == null)
 			throw new TramitacioException("No existeix cap entorn amb el codi '" + entorn + "'");
 		if (!validarPermisEntornRead(e))
 			throw new TramitacioException("No té permisos per accedir a l'entorn '" + entorn + "'");
 		try {
-			List<TascaLlistatDto> tasques = tascaService.findTasquesGrupTramitacio(e.getId(), null, codi, true);
+			PaginaDto<ExpedientTascaDto> tasques = tascaService.findPerFiltrePaginat(
+					e.getId(), 
+					null, 
+					null, 
+					null, 
+					null, 
+					null, 
+					null, 
+					null, 
+					null, 
+					null, 
+					null, 
+					null, 
+					false, 
+					true, 
+					false, 
+					new PaginacioParamsDto());
 			List<TascaTramitacio> resposta = new ArrayList<TascaTramitacio>();
-			for (TascaLlistatDto tasca: tasques)
+			for (ExpedientTascaDto tasca: tasques)
 				resposta.add(convertirTascaTramitacio(tasca));
 			return resposta;
 		} catch (Exception ex) {
@@ -238,20 +307,21 @@ public class TramitacioServiceImpl implements TramitacioService {
 	public List<TascaTramitacio> consultaTasquesPersonalsByProces(
 			String entorn, 
 			String processInstanceId) throws TramitacioException {
-		Entorn e = findEntornAmbCodi(entorn);
+		EntornDto e = findEntornAmbCodi(entorn);
 		if (e == null)
 			throw new TramitacioException("No existeix cap entorn amb el codi '" + entorn + "'");
 		if (!validarPermisEntornRead(e))
 			throw new TramitacioException("No té permisos per accedir a l'entorn '" + entorn + "'");
 		try {
-			ExpedientDto expedient = expedientService.findExpedientAmbProcessInstanceId(processInstanceId);
+			Long expedientId = expedientService.findIdAmbProcessInstanceId(processInstanceId);
+			ExpedientDto expedient = expedientService.findAmbId(expedientId);
 			PaginacioParamsDto paginacioParams = new PaginacioParamsDto();
 			paginacioParams.afegirOrdre(
 					"dataCreacio",
 					OrdreDireccioDto.DESCENDENT);
 			paginacioParams.setPaginaNum(0);
 			paginacioParams.setPaginaTamany(1000);
-			PaginaDto<ExpedientTascaDto> tasques = tascaServiceV3.findPerFiltrePaginat(
+			PaginaDto<ExpedientTascaDto> tasques = tascaService.findPerFiltrePaginat(
 					e.getId(),
 					null,
 					expedient.getTipus().getId(),
@@ -283,20 +353,21 @@ public class TramitacioServiceImpl implements TramitacioService {
 	public List<TascaTramitacio> consultaTasquesGrupByProces(
 			String entorn, 
 			String processInstanceId) throws TramitacioException {
-		Entorn e = findEntornAmbCodi(entorn);
+		EntornDto e = findEntornAmbCodi(entorn);
 		if (e == null)
 			throw new TramitacioException("No existeix cap entorn amb el codi '" + entorn + "'");
 		if (!validarPermisEntornRead(e))
 			throw new TramitacioException("No té permisos per accedir a l'entorn '" + entorn + "'");
 		try {
-			ExpedientDto expedient = expedientService.findExpedientAmbProcessInstanceId(processInstanceId);
+			Long expedientId = expedientService.findIdAmbProcessInstanceId(processInstanceId);
+			ExpedientDto expedient = expedientService.findAmbId(expedientId);
 			PaginacioParamsDto paginacioParams = new PaginacioParamsDto();
 			paginacioParams.afegirOrdre(
 					"dataCreacio",
 					OrdreDireccioDto.DESCENDENT);
 			paginacioParams.setPaginaNum(0);
 			paginacioParams.setPaginaTamany(1000);
-			PaginaDto<ExpedientTascaDto> tasques = tascaServiceV3.findPerFiltrePaginat(
+			PaginaDto<ExpedientTascaDto> tasques = tascaService.findPerFiltrePaginat(
 					e.getId(),
 					null,
 					expedient.getTipus().getId(),
@@ -328,16 +399,39 @@ public class TramitacioServiceImpl implements TramitacioService {
 	public void agafarTasca(
 			String entorn,
 			String tascaId) throws TramitacioException {
-		Entorn e = findEntornAmbCodi(entorn);
+		EntornDto e = findEntornAmbCodi(entorn);
 		if (e == null)
 			throw new TramitacioException("No existeix cap entorn amb el codi '" + entorn + "'");
 		if (!validarPermisEntornRead(e))
 			throw new TramitacioException("No té permisos per accedir a l'entorn '" + entorn + "'");
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		String usuariBo = auth.getName();
+
 		boolean agafada = false;
 		try {
-			if (tascaService.isTasquesGrupTramitacio(e.getId(), tascaId, null)) {
-				tascaService.agafar(e.getId(), tascaId);
-				agafada = true;
+			PaginaDto<ExpedientTascaDto> tasques = tascaService.findPerFiltrePaginat(
+					e.getId(),
+					null,
+					null,
+					null,
+					null,
+					usuariBo,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					false,
+					true,
+					false,
+					new PaginacioParamsDto());
+			for (ExpedientTascaDto tasca: tasques.getContingut()) {
+				if (tascaId.equals(tasca.getId())) {
+					agafada = true;
+					tascaService.agafar(tascaId);
+					break;
+				}
 			}
 		} catch (Exception ex) {
 			logger.error("No s'ha pogut agafar la tasca", ex);
@@ -351,17 +445,35 @@ public class TramitacioServiceImpl implements TramitacioService {
 	public void alliberarTasca(
 			String entorn,
 			String tascaId) throws TramitacioException {
-		Entorn e = findEntornAmbCodi(entorn);
+		EntornDto e = findEntornAmbCodi(entorn);
 		if (e == null)
 			throw new TramitacioException("No existeix cap entorn amb el codi '" + entorn + "'");
 		if (!validarPermisEntornRead(e))
 			throw new TramitacioException("No té permisos per accedir a l'entorn '" + entorn + "'");
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		String usuariBo = auth.getName();
 		boolean alliberada = false;
 		try {
-			List<TascaLlistatDto> tasques = tascaService.findTasquesPersonalsTramitacio(e.getId(), null, null, false);
-			for (TascaLlistatDto tasca: tasques) {
-				if (tasca.getId().equals(tascaId)) {
-					tascaService.alliberar(e.getId(), tascaId, true);
+			PaginaDto<ExpedientTascaDto> tasques = tascaService.findPerFiltrePaginat(
+					e.getId(),
+					null,
+					null,
+					null,
+					null,
+					usuariBo,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					true,
+					false,
+					false,
+					new PaginacioParamsDto());
+			for (ExpedientTascaDto tasca: tasques.getContingut()) {
+				if (tascaId.equals(tasca.getId())) {
+					tascaService.alliberar(tascaId);
 					alliberada = true;
 					break;
 				}
@@ -378,23 +490,16 @@ public class TramitacioServiceImpl implements TramitacioService {
 	public List<CampTasca> consultaFormulariTasca(
 			String entorn,
 			String tascaId) throws TramitacioException {
-		Entorn e = findEntornAmbCodi(entorn);
+		EntornDto e = findEntornAmbCodi(entorn);
 		if (e == null)
 			throw new TramitacioException("No existeix cap entorn amb el codi '" + entorn + "'");
 		if (!validarPermisEntornRead(e))
 			throw new TramitacioException("No té permisos per accedir a l'entorn '" + entorn + "'");
-		TascaDto tasca = tascaService.getById(
-				e.getId(),
-				tascaId,
-				null,
-				null,
-				true,
-				false);
+		
 		List<CampTasca> resposta = new ArrayList<CampTasca>();
-		for (net.conselldemallorca.helium.core.model.hibernate.CampTasca campTasca: tasca.getCamps())
-			resposta.add(convertirCampTasca(
-					campTasca,
-					tasca.getVariable(campTasca.getCamp().getCodi())));
+		for (TascaDadaDto dada : tascaService.findDades(tascaId)) {
+			resposta.add(convertirCampTasca(dada));
+		}
 		return resposta;
 	}
 
@@ -403,7 +508,7 @@ public class TramitacioServiceImpl implements TramitacioService {
 			String entorn,
 			String tascaId,
 			List<ParellaCodiValor> valors) throws TramitacioException {
-		Entorn e = findEntornAmbCodi(entorn);
+		EntornDto e = findEntornAmbCodi(entorn);
 		if (e == null)
 			throw new TramitacioException("No existeix cap entorn amb el codi '" + entorn + "'");
 		if (!validarPermisEntornRead(e))
@@ -444,10 +549,8 @@ public class TramitacioServiceImpl implements TramitacioService {
 		}
 		try {
 			tascaService.validar(
-					e.getId(),
 					tascaId,
-					variables,
-					true);
+					variables);
 		} catch (Exception ex) {
 			logger.error("No s'han pogut guardar les variables a la tasca", ex);
 			throw new TramitacioException("No s'han pogut guardar les variables a la tasca: " + ex.getMessage());
@@ -458,23 +561,15 @@ public class TramitacioServiceImpl implements TramitacioService {
 	public List<DocumentTasca> consultaDocumentsTasca(
 			String entorn,
 			String tascaId) throws TramitacioException {
-		Entorn e = findEntornAmbCodi(entorn);
+		EntornDto e = findEntornAmbCodi(entorn);
 		if (e == null)
 			throw new TramitacioException("No existeix cap entorn amb el codi '" + entorn + "'");
 		if (!validarPermisEntornRead(e))
 			throw new TramitacioException("No té permisos per accedir a l'entorn '" + entorn + "'");
-		TascaDto tasca = tascaService.getById(
-				e.getId(),
-				tascaId,
-				null,
-				null,
-				true,
-				false);
 		List<DocumentTasca> resposta = new ArrayList<DocumentTasca>();
-		for (net.conselldemallorca.helium.core.model.hibernate.DocumentTasca documentTasca: tasca.getDocuments())
-			resposta.add(convertirDocumentTasca(
-					documentTasca,
-					tasca.getVarsDocuments().get(documentTasca.getDocument().getCodi())));
+		for (TascaDocumentDto document : tascaService.findDocuments(tascaId)) {
+			resposta.add(convertirDocumentTasca(document));
+		}		
 		return resposta;
 	}
 
@@ -486,20 +581,29 @@ public class TramitacioServiceImpl implements TramitacioService {
 			String nom,
 			Date data,
 			byte[] contingut) throws TramitacioException {
-		Entorn e = findEntornAmbCodi(entorn);
+		EntornDto e = findEntornAmbCodi(entorn);
 		if (e == null)
 			throw new TramitacioException("No existeix cap entorn amb el codi '" + entorn + "'");
 		if (!validarPermisEntornRead(e))
 			throw new TramitacioException("No té permisos per accedir a l'entorn '" + entorn + "'");
 		try {
-			tascaService.comprovarTascaAssignadaIValidada(e.getId(), tascaId, null);
-			documentService.guardarDocumentTasca(
-					e.getId(),
-					tascaId,
-					arxiu,
-					data,
-					nom,
-					contingut);
+			Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+			String usuariBo = auth.getName();
+			if (tascaService.isTascaValidada(tascaId))
+				tascaService.guardarDocumentTasca(
+					e.getId(), 
+					tascaId, 
+					arxiu, 
+					data, 
+					null, 
+					contingut, 
+					null, 
+					false, 
+					false, 
+					null, 
+					usuariBo);
+			else
+				throw new IllegalStateException("La tasca no ha estat validada");
 		} catch (Exception ex) {
 			logger.error("No s'ha pogut guardar el document a la tasca", ex);
 			throw new TramitacioException("No s'ha pogut guardar el document a la tasca: " + ex.getMessage());
@@ -511,17 +615,18 @@ public class TramitacioServiceImpl implements TramitacioService {
 			String entorn,
 			String tascaId,
 			String document) throws TramitacioException {
-		Entorn e = findEntornAmbCodi(entorn);
+		EntornDto e = findEntornAmbCodi(entorn);
 		if (e == null)
 			throw new TramitacioException("No existeix cap entorn amb el codi '" + entorn + "'");
 		if (!validarPermisEntornRead(e))
 			throw new TramitacioException("No té permisos per accedir a l'entorn '" + entorn + "'");
 		try {
-			tascaService.comprovarTascaAssignadaIValidada(e.getId(), tascaId, null);
-			documentService.esborrarDocument(
-					tascaId,
-					null,
-					document);
+			Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+			String usuariBo = auth.getName();
+			if (tascaService.isTascaValidada(tascaId))
+				tascaService.esborrarDocument(tascaId, document, usuariBo);
+			else
+				throw new IllegalStateException("La tasca no ha estat validada");
 		} catch (Exception ex) {
 			logger.error("No s'ha pogut esborrar el document de la tasca", ex);
 			throw new TramitacioException("No s'ha pogut esborrar el document de la tasca: " + ex.getMessage());
@@ -533,17 +638,13 @@ public class TramitacioServiceImpl implements TramitacioService {
 			String entorn,
 			String tascaId,
 			String transicio) throws TramitacioException {
-		Entorn e = findEntornAmbCodi(entorn);
+		EntornDto e = findEntornAmbCodi(entorn);
 		if (e == null)
 			throw new TramitacioException("No existeix cap entorn amb el codi '" + entorn + "'");
 		if (!validarPermisEntornRead(e))
 			throw new TramitacioException("No té permisos per accedir a l'entorn '" + entorn + "'");
 		try {
-			tascaService.completar(
-					e.getId(),
-					tascaId,
-					true,
-					transicio);
+			tascaService.completar(tascaId, transicio);
 		} catch (Exception ex) {
 			logger.error("No s'ha pogut completar la tasca", ex);
 			throw new TramitacioException("No s'ha pogut completar la tasca: " + ex.getMessage());
@@ -554,44 +655,46 @@ public class TramitacioServiceImpl implements TramitacioService {
 	public ExpedientInfo getExpedientInfo(
 			String entornCodi,
 			String processInstanceId) throws TramitacioException {
-		Entorn e = findEntornAmbCodi(entornCodi);
+		EntornDto e = findEntornAmbCodi(entornCodi);
 		if (e == null)
 			throw new TramitacioException("No existeix cap entorn amb el codi '" + entornCodi + "'");
 		if (!validarPermisEntornRead(e))
 			throw new TramitacioException("No té permisos per accedir a l'entorn '" + entornCodi + "'");
+		Long expedientId = expedientService.findIdAmbProcessInstanceId(processInstanceId);
 		return toExpedientInfo(
-			expedientService.findExpedientAmbProcessInstanceId(processInstanceId));
+			expedientService.findAmbId(expedientId));
 	}
 
 	@Override
 	public List<CampProces> consultarVariablesProces(
 			String entorn,
 			String processInstanceId) throws TramitacioException {
-		Entorn e = findEntornAmbCodi(entorn);
+		EntornDto e = findEntornAmbCodi(entorn);
 		if (e == null)
 			throw new TramitacioException("No existeix cap entorn amb el codi '" + entorn + "'");
 		if (!validarPermisEntornRead(e))
 			throw new TramitacioException("No té permisos per accedir a l'entorn '" + entorn + "'");
-		Expedient expedient = expedientService.findExpedientAmbProcessInstanceId(processInstanceId);
+		Long expedientId = expedientService.findIdAmbProcessInstanceId(processInstanceId);
+		ExpedientDto expedient = expedientService.findAmbId(expedientId);
 		if (!validarPermisExpedientTipusRead(expedient.getTipus()))
 			throw new TramitacioException("No té permisos per llegir les dades del proces '" + processInstanceId + "'");
 		try {
 			List<CampProces> resposta = new ArrayList<CampProces>();
-			InstanciaProcesDto instanciaProces = expedientService.getInstanciaProcesById(processInstanceId, true, true, true);
+			InstanciaProcesDto instanciaProces = expedientService.getInstanciaProcesById(processInstanceId);
 			if (instanciaProces.getVariables() != null) {
 				for (String var: instanciaProces.getVariables().keySet()) {
-					Camp campVar = null;
-					for (Camp camp: instanciaProces.getCamps()) {
+					CampDto campVar = null;
+					for (CampDto camp: instanciaProces.getCamps()) {
 						if (camp.getCodi().equals(var)) {
 							campVar = camp;
 							break;
 						}
 					}
 					if (campVar == null) {
-						campVar = new Camp();
+						campVar = new CampDto();
 						campVar.setCodi(var);
 						campVar.setEtiqueta(var);
-						campVar.setTipus(TipusCamp.STRING);
+						campVar.setTipus(CampTipusDto.STRING);
 					}
 					resposta.add(convertirCampProces(
 							campVar,
@@ -611,17 +714,19 @@ public class TramitacioServiceImpl implements TramitacioService {
 			String processInstanceId,
 			String varCodi,
 			Object valor) throws TramitacioException {
-		Entorn e = findEntornAmbCodi(entorn);
+		EntornDto e = findEntornAmbCodi(entorn);
 		if (e == null)
 			throw new TramitacioException("No existeix cap entorn amb el codi '" + entorn + "'");
 		if (!validarPermisEntornRead(e))
 			throw new TramitacioException("No té permisos per accedir a l'entorn '" + entorn + "'");
-		Expedient expedient = expedientService.findExpedientAmbProcessInstanceId(processInstanceId);
+		Long expedientId = expedientService.findIdAmbProcessInstanceId(processInstanceId);
+		ExpedientDto expedient = expedientService.findAmbId(expedientId);
 		if (!validarPermisExpedientTipusWrite(expedient.getTipus()))
 			throw new TramitacioException("No té permisos per modificar les dades del proces '" + processInstanceId + "'");
 		try {
 			if (valor instanceof XMLGregorianCalendar) {
-				expedientService.updateVariable(
+				expedientDadaService.update(
+						expedient.getId(),
 						processInstanceId,
 						varCodi,
 						((XMLGregorianCalendar)valor).toGregorianCalendar().getTime());
@@ -641,12 +746,14 @@ public class TramitacioServiceImpl implements TramitacioService {
 						multiple[i] = ((XMLGregorianCalendar)multiple[i]).toGregorianCalendar().getTime();
 					}
 				}
-				expedientService.updateVariable(
+				expedientDadaService.update(
+						expedient.getId(),
 						processInstanceId,
 						varCodi,
 						valor);
 			} else {
-				expedientService.updateVariable(
+				expedientDadaService.update(
+						expedient.getId(),
 						processInstanceId,
 						varCodi,
 						valor);
@@ -662,16 +769,18 @@ public class TramitacioServiceImpl implements TramitacioService {
 			String entorn,
 			String processInstanceId,
 			String varCodi) throws TramitacioException {
-		Entorn e = findEntornAmbCodi(entorn);
+		EntornDto e = findEntornAmbCodi(entorn);
 		if (e == null)
 			throw new TramitacioException("No existeix cap entorn amb el codi '" + entorn + "'");
 		if (!validarPermisEntornRead(e))
 			throw new TramitacioException("No té permisos per accedir a l'entorn '" + entorn + "'");
-		Expedient expedient = expedientService.findExpedientAmbProcessInstanceId(processInstanceId);
+		Long expedientId = expedientService.findIdAmbProcessInstanceId(processInstanceId);
+		ExpedientDto expedient = expedientService.findAmbId(expedientId);
 		if (!validarPermisExpedientTipusWrite(expedient.getTipus()))
 			throw new TramitacioException("No té permisos per modificar les dades del proces '" + processInstanceId + "'");
 		try {
-			expedientService.deleteVariable(
+			expedientDadaService.delete(
+					expedient.getId(),
 					processInstanceId,
 					varCodi);
 		} catch (Exception ex) {
@@ -684,17 +793,18 @@ public class TramitacioServiceImpl implements TramitacioService {
 	public List<DocumentProces> consultarDocumentsProces(
 			String entorn,
 			String processInstanceId) throws TramitacioException {
-		Entorn e = findEntornAmbCodi(entorn);
+		EntornDto e = findEntornAmbCodi(entorn);
 		if (e == null)
 			throw new TramitacioException("No existeix cap entorn amb el codi '" + entorn + "'");
 		if (!validarPermisEntornRead(e))
 			throw new TramitacioException("No té permisos per accedir a l'entorn '" + entorn + "'");
-		Expedient expedient = expedientService.findExpedientAmbProcessInstanceId(processInstanceId);
+		Long expedientId = expedientService.findIdAmbProcessInstanceId(processInstanceId);
+		ExpedientDto expedient = expedientService.findAmbId(expedientId);
 		if (!validarPermisExpedientTipusRead(expedient.getTipus()))
 			throw new TramitacioException("No té permisos per accedir a les dades del proces '" + processInstanceId + "'");
 		try {
 			List<DocumentProces> resposta = new ArrayList<DocumentProces>();
-			InstanciaProcesDto instanciaProces = expedientService.getInstanciaProcesById(processInstanceId, true, true, true);
+			InstanciaProcesDto instanciaProces = expedientService.getInstanciaProcesById(processInstanceId);
 			for (DocumentDto document: instanciaProces.getVarsDocuments().values()) {
 				resposta.add(convertirDocumentProces(document));
 			}
@@ -711,12 +821,16 @@ public class TramitacioServiceImpl implements TramitacioService {
 		try {
 			ArxiuProces resposta = null;
 			if (documentId != null) {
-				DocumentDto docInfo = documentService.documentInfo(documentId);
+				DocumentDto docInfo = documentService.findAmbId(null, documentId);
 				String processInstanceId = docInfo.getProcessInstanceId();
-				Expedient expedient = expedientService.findExpedientAmbProcessInstanceId(processInstanceId);
+				Long expedientId = expedientService.findIdAmbProcessInstanceId(processInstanceId);
+				ExpedientDto expedient = expedientService.findAmbId(expedientId);
 				if (!validarPermisExpedientTipusRead(expedient.getTipus()))
 					throw new TramitacioException("No té permisos per llegir l'arxiu '" + documentId + "'");
-				ArxiuDto arxiu = documentService.arxiuDocumentPerMostrar(documentId);
+				ArxiuDto arxiu = expedientDocumentService.arxiuFindAmbDocument(
+						expedientId, 
+						processInstanceId, 
+						documentId);
 				if (arxiu != null) {
 					resposta = new ArxiuProces();
 					resposta.setNom(arxiu.getNom());
@@ -738,31 +852,38 @@ public class TramitacioServiceImpl implements TramitacioService {
 			String arxiu,
 			Date data,
 			byte[] contingut) throws TramitacioException {
-		Entorn e = findEntornAmbCodi(entorn);
+		EntornDto e = findEntornAmbCodi(entorn);
 		if (e == null)
 			throw new TramitacioException("No existeix cap entorn amb el codi '" + entorn + "'");
 		if (!validarPermisEntornRead(e))
 			throw new TramitacioException("No té permisos per accedir a l'entorn '" + entorn + "'");
-		Expedient expedient = expedientService.findExpedientAmbProcessInstanceId(processInstanceId);
+		Long expedientId = expedientService.findIdAmbProcessInstanceId(processInstanceId);
+		ExpedientDto expedient = expedientService.findAmbId(expedientId);
 		if (!validarPermisExpedientTipusWrite(expedient.getTipus()))
 			throw new TramitacioException("No té permisos per modificar les dades del proces '" + processInstanceId + "'");
 		try {
-			InstanciaProcesDto instanciaProces = expedientService.getInstanciaProcesById(processInstanceId, false, false, false);
+			InstanciaProcesDto instanciaProces = expedientService.getInstanciaProcesById(processInstanceId);
 			if (instanciaProces == null)
 				throw new TramitacioException("No s'ha pogut trobar la instancia de proces amb id " + processInstanceId);
-			Document document = dissenyService.findDocumentAmbDefinicioProcesICodi(
-					instanciaProces.getDefinicioProces().getId(),
-					documentCodi);
+			DocumentDto document = documentService.findAmbCodi(
+					expedient.getTipus().isAmbInfoPropia() ? expedient.getTipus().getId() : null, 
+					instanciaProces.getDefinicioProces().getId(), 
+					documentCodi, 
+					true);
 			if (document == null)
 				throw new TramitacioException("No s'ha pogut trobar el document amb codi " + documentCodi);
-			return documentService.guardarDocumentProces(
+			Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+			String usuariBo = auth.getName();
+			return expedientDocumentService.guardarDocumentProces(
+					expedient.getId(),
 					processInstanceId,
 					documentCodi,
 					null,
 					data,
 					arxiu,
 					contingut,
-					false);
+					false,
+					usuariBo);
 		} catch (Exception ex) {
 			logger.error("No s'ha pogut guardar el document al procés", ex);
 			throw new TramitacioException("No s'ha pogut guardar el document al procés: " + ex.getMessage());
@@ -774,19 +895,20 @@ public class TramitacioServiceImpl implements TramitacioService {
 			String entorn,
 			String processInstanceId,
 			Long documentId) throws TramitacioException {
-		Entorn e = findEntornAmbCodi(entorn);
+		EntornDto e = findEntornAmbCodi(entorn);
 		if (e == null)
 			throw new TramitacioException("No existeix cap entorn amb el codi '" + entorn + "'");
 		if (!validarPermisEntornRead(e))
 			throw new TramitacioException("No té permisos per accedir a l'entorn '" + entorn + "'");
-		Expedient expedient = expedientService.findExpedientAmbProcessInstanceId(processInstanceId);
+		Long expedientId = expedientService.findIdAmbProcessInstanceId(processInstanceId);
+		ExpedientDto expedient = expedientService.findAmbId(expedientId);
 		if (!validarPermisExpedientTipusWrite(expedient.getTipus()))
 			throw new TramitacioException("No té permisos per modificar les dades del proces '" + processInstanceId + "'");
 		try {
-			documentService.esborrarDocument(
-					null,
-					processInstanceId,
-					documentService.getDocumentCodiPerDocumentStoreId(documentId));
+			expedientDocumentService.delete(
+					expedientId, 
+					processInstanceId, 
+					documentId);
 		} catch (Exception ex) {
 			logger.error("No s'ha pogut esborrar el document del procés", ex);
 			throw new TramitacioException("No s'ha pogut esborrar el document del procés: " + ex.getMessage());
@@ -798,16 +920,24 @@ public class TramitacioServiceImpl implements TramitacioService {
 			String entorn,
 			String processInstanceId,
 			String accio) throws TramitacioException {
-		Entorn e = findEntornAmbCodi(entorn);
+		EntornDto e = findEntornAmbCodi(entorn);
 		if (e == null)
 			throw new TramitacioException("No existeix cap entorn amb el codi '" + entorn + "'");
 		if (!validarPermisEntornRead(e))
 			throw new TramitacioException("No té permisos per accedir a l'entorn '" + entorn + "'");
-		DefinicioProces dp = expedientService.getDefinicioProcesPerProcessInstanceId(processInstanceId);
-		Accio ac = dissenyService.findAccioAmbDefinicioProcesICodi(dp.getId(), accio);
+		
+		Long expedientId = expedientService.findIdAmbProcessInstanceId(processInstanceId);
+		List<AccioDto> accions = expedientService.accioFindVisiblesAmbProcessInstanceId(expedientId, processInstanceId);
+		AccioDto ac = null;
+		for (AccioDto a : accions) {
+			if( a.getCodi().equals(accio)) {
+				ac = a;
+				break;
+			}
+		}
 		if (ac == null || ac.isOculta())
 			throw new TramitacioException("No existeix cap accio amb el codi '" + accio + "'");
-		Expedient expedient = expedientService.findExpedientAmbProcessInstanceId(processInstanceId);
+		ExpedientDto expedient = expedientService.findAmbId(expedientId);
 		if (ac.isPublica()) {
 			if (!validarPermisExpedientTipusRead(expedient.getTipus()) && !validarPermisExpedientTipusWrite(expedient.getTipus()))
 				throw new TramitacioException("No té permisos per executar l'acció '" + accio + "'");
@@ -816,7 +946,10 @@ public class TramitacioServiceImpl implements TramitacioService {
 				throw new TramitacioException("No té permisos per executar l'acció '" + accio + "'");
 		}
 		try {
-			expedientService.executarAccio(processInstanceId, accio);
+			expedientService.accioExecutar(
+					expedientId, 
+					processInstanceId, 
+					ac.getId());
 		} catch (Exception ex) {
 			logger.error("No s'ha pogut executar l'acciÃ³", ex);
 			throw new TramitacioException("No s'ha pogut executar l'acció: " + ex.getMessage());
@@ -828,19 +961,20 @@ public class TramitacioServiceImpl implements TramitacioService {
 			String entorn,
 			String processInstanceId,
 			String script) throws TramitacioException {
-		Entorn e = findEntornAmbCodi(entorn);
+		EntornDto e = findEntornAmbCodi(entorn);
 		if (e == null)
 			throw new TramitacioException("No existeix cap entorn amb el codi '" + entorn + "'");
 		if (!validarPermisEntornRead(e))
 			throw new TramitacioException("No té permisos per accedir a l'entorn '" + entorn + "'");
-		Expedient expedient = expedientService.findExpedientAmbProcessInstanceId(processInstanceId);
+		Long expedientId = expedientService.findIdAmbProcessInstanceId(processInstanceId);
+		ExpedientDto expedient = expedientService.findAmbId(expedientId);
 		if (!validarPermisExpedientTipusWrite(expedient.getTipus()))
 			throw new TramitacioException("No té permisos per modificar les dades del proces '" + processInstanceId + "'");
 		try {
-			expedientService.evaluateScript(
-					processInstanceId,
-					script,
-					null);
+			expedientService.procesScriptExec(
+					expedientId, 
+					processInstanceId, 
+					script);
 		} catch (Exception ex) {
 			logger.error("No s'ha pogut executar l'script", ex);
 			throw new TramitacioException("No s'ha pogut executar l'script: " + ex.getMessage());
@@ -852,19 +986,19 @@ public class TramitacioServiceImpl implements TramitacioService {
 			String entorn,
 			String processInstanceId,
 			String motiu) throws TramitacioException{
-		Entorn e = findEntornAmbCodi(entorn);
+		EntornDto e = findEntornAmbCodi(entorn);
 		if (e == null)
 			throw new TramitacioException("No existeix cap entorn amb el codi '" + entorn + "'");
 		if (!validarPermisEntornRead(e))
 			throw new TramitacioException("No té permisos per accedir a l'entorn '" + entorn + "'");
-		Expedient expedient = expedientService.findExpedientAmbProcessInstanceId(processInstanceId);
+		Long expedientId = expedientService.findIdAmbProcessInstanceId(processInstanceId);
+		ExpedientDto expedient = expedientService.findAmbId(expedientId);
 		if (!validarPermisExpedientTipusWrite(expedient.getTipus()))
 			throw new TramitacioException("No té permisos per modificar les dades del proces '" + processInstanceId + "'");
 		try {
 			expedientService.aturar(
-					processInstanceId,
-					motiu,
-					null);
+					expedientId, 
+					motiu);
 		} catch (Exception ex) {
 			logger.error("No s'ha pogut aturar l'expedient", ex);
 			throw new TramitacioException("No s'ha pogut aturar l'expedient: " + ex.getMessage());
@@ -875,18 +1009,18 @@ public class TramitacioServiceImpl implements TramitacioService {
 	public void reprendreExpedient(
 			String entorn,
 			String processInstanceId) throws TramitacioException {
-		Entorn e = findEntornAmbCodi(entorn);
+		EntornDto e = findEntornAmbCodi(entorn);
 		if (e == null)
 			throw new TramitacioException("No existeix cap entorn amb el codi '" + entorn + "'");
 		if (!validarPermisEntornRead(e))
 			throw new TramitacioException("No té permisos per accedir a l'entorn '" + entorn + "'");
-		Expedient expedient = expedientService.findExpedientAmbProcessInstanceId(processInstanceId);
+		Long expedientId = expedientService.findIdAmbProcessInstanceId(processInstanceId);
+		ExpedientDto expedient = expedientService.findAmbId(expedientId);
 		if (!validarPermisExpedientTipusWrite(expedient.getTipus()))
 			throw new TramitacioException("No té permisos per modificar les dades del proces '" + processInstanceId + "'");
 		try {
 			expedientService.reprendre(
-					processInstanceId,
-					null);
+					expedientId);
 		} catch (Exception ex) {
 			logger.error("No s'ha pogut reprendre l'expedient", ex);
 			throw new TramitacioException("No s'ha pogut reprendre l'expedient: " + ex.getMessage());
@@ -907,49 +1041,59 @@ public class TramitacioServiceImpl implements TramitacioService {
 			Double geoPosX,
 			Double geoPosY,
 			String geoReferencia) throws TramitacioException {
-		Entorn e = findEntornAmbCodi(entorn);
+		EntornDto e = findEntornAmbCodi(entorn);
 		if (e == null)
 			throw new TramitacioException("No existeix cap entorn amb el codi '" + entorn + "'");
 		if (!validarPermisEntornRead(e))
 			throw new TramitacioException("No té permisos per accedir a l'entorn '" + entorn + "'");
 		// Obtencio de dades per a fer la consulta
-		ExpedientTipus expedientTipus = null;
+		ExpedientTipusDto expedientTipus = null;
 		Long estatId = null;
 		if (expedientTipusCodi != null && expedientTipusCodi.length() > 0) {
-			expedientTipus = dissenyService.findExpedientTipusAmbEntornICodi(
-				e.getId(),
-				expedientTipusCodi);
+			expedientTipus = expedientTipusService.findAmbCodiPerValidarRepeticio(
+					e.getId(), 
+					expedientTipusCodi);
 			if (estatCodi != null && estatCodi.length() > 0) {
-				for (Estat estat: expedientTipus.getEstats()) {
+				for (EstatDto estat: expedientTipus.getEstats()) {
 					if (estat.getCodi().equals(estatCodi)) {
 						estatId = estat.getId();
 						break;
 					}
 				}
 			}
-		} else {
-			for (Estat estat: dissenyService.findEstatAmbEntorn(e.getId())) {
-				if (estat.getCodi().equals(estatCodi)) {
-					estatId = estat.getId();
-					break;
-				}
-			}
 		}
+		EstatTipusDto estatTipus = iniciat ? 
+				EstatTipusDto.INICIAT : 
+					finalitzat? EstatTipusDto.FINALITZAT : null;
+
+		// Tots els resultats
+		PaginacioParamsDto paginacioParams = new PaginacioParamsDto();
+		paginacioParams.setPaginaNum(0);
+		paginacioParams.setPaginaTamany(-1);
+
 		// Consulta d'expedients
-		List<ExpedientDto> expedients = expedientService.findAmbEntornConsultaGeneral(
-				e.getId(),
-				titol,
-				numero,
-				dataInici1,
-				dataInici2,
-				(expedientTipus != null? expedientTipus.getId() : null),
-				estatId,
-				iniciat,
-				finalitzat,
-				geoPosX,
-				geoPosY,
-				geoReferencia,
-				FiltreAnulat.ACTIUS);
+		PaginaDto<ExpedientDto> paginaExpedients = expedientService.findAmbFiltrePaginat(
+				e.getId(), 
+				null, // Passar llista d'expedients permesos 
+				titol, 
+				numero, 
+				dataInici1, 
+				dataInici2, 
+				null, 
+				null, 
+				estatTipus, 
+				estatId, 
+				geoPosX, 
+				geoPosY, 
+				geoReferencia, 
+				false, 
+				false, 
+				false, 
+				false, 
+				MostrarAnulatsDto.NO, 
+				paginacioParams);
+		List<ExpedientDto> expedients = paginaExpedients.getContingut();
+		
 		// Construcció de la resposta
 		List<ExpedientInfo> resposta = new ArrayList<ExpedientInfo>();
 		for (ExpedientDto dto: expedients)
@@ -961,100 +1105,38 @@ public class TramitacioServiceImpl implements TramitacioService {
 	public void deleteExpedient(
 			String entorn,
 			String processInstanceId) throws TramitacioException {
-		Entorn e = findEntornAmbCodi(entorn);
+		EntornDto e = findEntornAmbCodi(entorn);
 		if (e == null)
 			throw new TramitacioException("No existeix cap entorn amb el codi '" + entorn + "'");
 		if (!validarPermisEntornRead(e))
 			throw new TramitacioException("No té permisos per accedir a l'entorn '" + entorn + "'");
-		ExpedientDto expedient = expedientService.findExpedientAmbProcessInstanceId(
-				processInstanceId);
+		Long expedientId = expedientService.findIdAmbProcessInstanceId(processInstanceId);
+		ExpedientDto expedient = expedientService.findAmbId(expedientId);
 		if (!validarPermisExpedientTipusDelete(expedient.getTipus()))
 			throw new TramitacioException("No té permisos per a esborrar l'expedient del proces '" + processInstanceId + "'");
-		expedientService.delete(
-				e.getId(),
-				expedient.getId());
+		expedientService.delete(expedientId);
 	}
 
-
-
-	@Autowired
-	public void setEntornService(EntornService entornService) {
-		this.entornService = entornService;
-	}
-	@Autowired
-	public void setDissenyService(DissenyService dissenyService) {
-		this.dissenyService = dissenyService;
-	}
-	@Autowired
-	public void setExpedientService(ExpedientService expedientService) {
-		this.expedientService = expedientService;
-	}
-	@Autowired
-	public void setTascaService(TascaService tascaService) {
-		this.tascaService = tascaService;
-	}
-	@Autowired
-	public void setTascaServiceV3(net.conselldemallorca.helium.v3.core.api.service.TascaService tascaServiceV3) {
-		this.tascaServiceV3 = tascaServiceV3;
-	}
-	@Autowired
-	public void setDocumentService(DocumentService documentService) {
-		this.documentService = documentService;
-	}
-	@Autowired
-	public void setPermissionService(PermissionService permissionService) {
-		this.permissionService = permissionService;
-	}
-
-
-
-	private Entorn findEntornAmbCodi(String codi) {
-		Entorn entorn = entornService.findAmbCodi(codi);
+	private EntornDto findEntornAmbCodi(String codi) {
+		EntornDto entorn = entornService.findAmbCodi(codi);
 		if (entorn != null)
 			EntornActual.setEntornId(entorn.getId());
 		return entorn;
 	}
 
-	private ExpedientTipus findExpedientTipusAmbEntornICodi(Long entornId, String codi) {
-		return dissenyService.findExpedientTipusAmbEntornICodi(entornId, codi);
-	}
-	private TascaTramitacio convertirTascaTramitacio(TascaLlistatDto tasca) {
-		TascaTramitacio tt = new TascaTramitacio();
-		tt.setId(tasca.getId());
-		tt.setCodi(tasca.getCodi());
-		tt.setTitol(tasca.getTitol());
-		tt.setExpedient(tasca.getExpedientNumero());
-		tt.setMissatgeInfo(tasca.getMissatgeInfo());
-		tt.setMissatgeWarn(tasca.getMissatgeWarn());
-		tt.setResponsable(tasca.getResponsable());
-		tt.setResponsables(tasca.getResponsables());
-		tt.setDataCreacio(tasca.getDataCreacio());
-		tt.setDataInici(tasca.getDataInici());
-		tt.setDataFi(tasca.getDataFi());
-		tt.setDataLimit(tasca.getDataLimit());
-		tt.setPrioritat(tasca.getPrioritat());
-		tt.setOpen(tasca.isOberta());
-		tt.setCompleted(tasca.isCompletada());
-		tt.setCancelled(tasca.isCancelada());
-		tt.setSuspended(tasca.isSuspesa());
-		tt.setTransicionsSortida(tasca.getResultats());
-		tt.setProcessInstanceId(tasca.getProcessInstanceId());
-		return tt;
+	private ExpedientTipusDto findExpedientTipusAmbEntornICodi(Long entornId, String codi) {
+		return expedientTipusService.findAmbCodiPerValidarRepeticio(entornId, codi);
 	}
 	private TascaTramitacio convertirTascaTramitacio(ExpedientTascaDto tasca) {
 		TascaTramitacio tt = new TascaTramitacio();
 		tt.setId(tasca.getId());
 		tt.setCodi(tasca.getJbpmName());
 		tt.setTitol(tasca.getTitol());
-		//tt.setExpedient(tasca.getex.gete.getExpedientNumero());
+		tt.setExpedient(tasca.getExpedientNumero());
 		tt.setMissatgeInfo(tasca.getTascaMissatgeInfo());
 		tt.setMissatgeWarn(tasca.getTascaMissatgeWarn());
-		tt.setResponsable(tasca.getResponsable().getCodi());
-		Set<String> responsables = new HashSet<String>();
-		for (PersonaDto responsable: tasca.getResponsables()) {
-			responsables.add(responsable.getCodi());
-		}
-		tt.setResponsables(responsables);
+		tt.setResponsable(tasca.getResponsableString());
+		tt.setResponsables(tasca.getResponsablesString());
 		tt.setDataCreacio(tasca.getCreateTime());
 		tt.setDataInici(tasca.getStartTime());
 		tt.setDataFi(tasca.getEndTime());
@@ -1068,36 +1150,35 @@ public class TramitacioServiceImpl implements TramitacioService {
 		tt.setProcessInstanceId(tasca.getProcessInstanceId());
 		return tt;
 	}
+	
 	private CampTasca convertirCampTasca(
-			net.conselldemallorca.helium.core.model.hibernate.CampTasca campTasca,
-			Object valor) {
+			TascaDadaDto campTasca) {
 		CampTasca ct = new CampTasca();
-		ct.setCodi(campTasca.getCamp().getCodi());
-		ct.setEtiqueta(campTasca.getCamp().getEtiqueta());
-		ct.setTipus(campTasca.getCamp().getTipus().name());
-		ct.setObservacions(campTasca.getCamp().getObservacions());
-		ct.setDominiId(campTasca.getCamp().getDominiId());
-		ct.setDominiParams(campTasca.getCamp().getDominiParams());
-		ct.setDominiCampValor(campTasca.getCamp().getDominiCampValor());
-		ct.setDominiCampText(campTasca.getCamp().getDominiCampText());
-		ct.setJbpmAction(campTasca.getCamp().getJbpmAction());
+		ct.setCodi(campTasca.getVarCodi());
+		ct.setEtiqueta(campTasca.getCampEtiqueta());
+		ct.setTipus(campTasca.getCampTipus().name());
+		ct.setObservacions(campTasca.getObservacions());
+		ct.setDominiId(campTasca.getDominiId());
+		ct.setDominiParams(campTasca.getDominiParams());
+		ct.setDominiCampValor(campTasca.getDominiCampValor());
+		ct.setDominiCampText(campTasca.getDominiCampText());
+		ct.setJbpmAction(campTasca.getJbpmAction());
 		ct.setReadFrom(campTasca.isReadFrom());
 		ct.setWriteTo(campTasca.isWriteTo());
 		ct.setRequired(campTasca.isRequired());
 		ct.setReadOnly(campTasca.isReadOnly());
-		ct.setMultiple(campTasca.getCamp().isMultiple());
-		ct.setOcult(campTasca.getCamp().isOcult());
-		ct.setValor(valor);
+		ct.setMultiple(campTasca.isCampMultiple());
+		ct.setOcult(campTasca.isCampOcult());
+		ct.setValor(campTasca.getVarValor());
 		return ct;
 	}
 	private DocumentTasca convertirDocumentTasca(
-			net.conselldemallorca.helium.core.model.hibernate.DocumentTasca documentTasca,
-			DocumentDto document) {
+			TascaDocumentDto document) {
 		DocumentTasca dt = new DocumentTasca();
 		dt.setId(document.getId());
-		dt.setCodi(documentTasca.getDocument().getCodi());
-		dt.setNom(documentTasca.getDocument().getNom());
-		dt.setDescripcio(documentTasca.getDocument().getDescripcio());
+		dt.setCodi(document.getDocumentCodi());
+		dt.setNom(document.getDocumentNom());
+		dt.setDescripcio(document.getDocumentDescripcio());
 		dt.setArxiu(document.getArxiuNom());
 		dt.setData(document.getDataDocument());
 		if (document.isSignat()) {
@@ -1106,7 +1187,7 @@ public class TramitacioServiceImpl implements TramitacioService {
 		return dt;
 	}
 	private CampProces convertirCampProces(
-			Camp camp,
+			CampDto camp,
 			Object valor) {
 		CampProces ct = new CampProces();
 		if (camp != null) {
@@ -1114,7 +1195,7 @@ public class TramitacioServiceImpl implements TramitacioService {
 			ct.setEtiqueta(camp.getEtiqueta());
 			ct.setTipus(camp.getTipus().name());
 			ct.setObservacions(camp.getObservacions());
-			ct.setDominiId(camp.getDominiId());
+			ct.setDominiId(camp.getDominiIdentificador());
 			ct.setDominiParams(camp.getDominiParams());
 			ct.setDominiCampValor(camp.getDominiCampValor());
 			ct.setDominiCampText(camp.getDominiCampText());
@@ -1134,7 +1215,7 @@ public class TramitacioServiceImpl implements TramitacioService {
 		dt.setData(document.getDataDocument());
 		return dt;
 	}
-	private ExpedientInfo toExpedientInfo(Expedient expedient) {
+	private ExpedientInfo toExpedientInfo(ExpedientDto expedient) {
 		if (expedient != null) {
 			ExpedientInfo resposta = new ExpedientInfo();
 			resposta.setTitol(expedient.getTitol());
@@ -1184,50 +1265,33 @@ public class TramitacioServiceImpl implements TramitacioService {
 		return null;
 	}
 
-	private boolean validarPermisEntornRead(Entorn entorn) {
+	private boolean validarPermisEntornRead(EntornDto entorn) {
 		printUsuari();
-		return permissionService.filterAllowed(
-				entorn,
-				Entorn.class,
-				new Permission[] {
-					ExtendedPermission.ADMINISTRATION,
-					ExtendedPermission.READ}) != null;
+		return entornService.findAmbIdPermisAcces(entorn.getId()) != null;
 	}
-	private boolean validarPermisExpedientTipusCreate(ExpedientTipus expedientTipus) {
+	private boolean validarPermisExpedientTipusCreate(ExpedientTipusDto expedientTipus) {
 		printUsuari();
-		return permissionService.filterAllowed(
-				expedientTipus,
-				ExpedientTipus.class,
-				new Permission[] {
-					ExtendedPermission.ADMINISTRATION,
-					ExtendedPermission.CREATE}) != null;
+		return expedientTipusService.findAmbIdPermisCrear(
+				expedientTipus.getEntorn().getId(), 
+				expedientTipus.getId()) != null;
 	}
-	private boolean validarPermisExpedientTipusRead(ExpedientTipus expedientTipus) {
+	private boolean validarPermisExpedientTipusRead(ExpedientTipusDto expedientTipus) {
 		printUsuari();
-		return permissionService.filterAllowed(
-				expedientTipus,
-				ExpedientTipus.class,
-				new Permission[] {
-					ExtendedPermission.ADMINISTRATION,
-					ExtendedPermission.READ}) != null;
+		return expedientTipusService.findAmbIdPermisLectura(
+				expedientTipus.getEntorn().getId(), 
+				expedientTipus.getId()) != null;
 	}
-	private boolean validarPermisExpedientTipusWrite(ExpedientTipus expedientTipus) {
+	private boolean validarPermisExpedientTipusWrite(ExpedientTipusDto expedientTipus) {
 		printUsuari();
-		return permissionService.filterAllowed(
-				expedientTipus,
-				ExpedientTipus.class,
-				new Permission[] {
-					ExtendedPermission.ADMINISTRATION,
-					ExtendedPermission.WRITE}) != null;
+		return expedientTipusService.findAmbIdPermisEscriptura(
+				expedientTipus.getEntorn().getId(), 
+				expedientTipus.getId()) != null;
 	}
-	private boolean validarPermisExpedientTipusDelete(ExpedientTipus expedientTipus) {
+	private boolean validarPermisExpedientTipusDelete(ExpedientTipusDto expedientTipus) {
 		printUsuari();
-		return permissionService.filterAllowed(
-				expedientTipus,
-				ExpedientTipus.class,
-				new Permission[] {
-					ExtendedPermission.ADMINISTRATION,
-					ExtendedPermission.DELETE}) != null;
+		return expedientTipusService.findAmbIdPermisEsborrar(
+				expedientTipus.getEntorn().getId(), 
+				expedientTipus.getId()) != null;
 	}
 	private void printUsuari() {
 		if (PRINT_USUARI) {

@@ -5,6 +5,7 @@ package net.conselldemallorca.helium.v3.core.api.dto;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -65,7 +66,7 @@ public class ExpedientTascaDto extends ControlPermisosDto implements Comparable<
 	private String tascaRecursForm;
 	private String tascaFormExternCodi;
 	private boolean tascaDelegable;
-	private boolean tascaTramitacioMassiva;
+	private Boolean tascaTramitacioMassiva;
 	private boolean tascaFinalitzacioSegonPla;
 	
 	private Date marcadaFinalitzar;
@@ -87,6 +88,7 @@ public class ExpedientTascaDto extends ControlPermisosDto implements Comparable<
 	private Long expedientId;
 	private Long expedientTipusId;
 	private String expedientIdentificador;
+	private String expedientNumero;
 
 	private String processInstanceId;
 	private String expedientTipusNom;
@@ -265,9 +267,9 @@ public class ExpedientTascaDto extends ControlPermisosDto implements Comparable<
 		this.tascaDelegable = tascaDelegable;
 	}
 	public boolean isTascaTramitacioMassiva() {
-		return tascaTramitacioMassiva;
+		return tascaTramitacioMassiva != null ? tascaTramitacioMassiva.booleanValue() : false;
 	}
-	public void setTascaTramitacioMassiva(boolean tascaTramitacioMassiva) {
+	public void setTascaTramitacioMassiva(Boolean tascaTramitacioMassiva) {
 		this.tascaTramitacioMassiva = tascaTramitacioMassiva;
 	}
 	public boolean isTascaFinalitzacioSegonPla() {
@@ -380,6 +382,12 @@ public class ExpedientTascaDto extends ControlPermisosDto implements Comparable<
 	public void setExpedientIdentificador(String expedientIdentificador) {
 		this.expedientIdentificador = expedientIdentificador;
 	}
+	public String getExpedientNumero() {
+		return expedientNumero;
+	}
+	public void setExpedientNumero(String expedientNumero) {
+		this.expedientNumero = expedientNumero;
+	}
 	public String getProcessInstanceId() {
 		return processInstanceId;
 	}
@@ -410,6 +418,16 @@ public class ExpedientTascaDto extends ControlPermisosDto implements Comparable<
 	public void setResponsables(List<PersonaDto> responsables) {
 		this.responsables = responsables;
 	}
+	
+	public Set<String> getResponsablesString() {
+		Set<String> responsablesString = new HashSet<String>();
+		if (this.getResponsables() != null)
+			for (PersonaDto responsable : this.getResponsables())
+				responsablesString.add(responsable.toString());
+		return responsablesString;
+	}
+
+	
 	public boolean isAssignadaUsuariActual() {
 		return assignadaUsuariActual;
 	}
@@ -486,5 +504,4 @@ public class ExpedientTascaDto extends ControlPermisosDto implements Comparable<
 	}
 
 	private static final long serialVersionUID = 127420079220181365L;
-
 }

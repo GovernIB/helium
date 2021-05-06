@@ -40,6 +40,7 @@ import net.conselldemallorca.helium.v3.core.api.exception.TramitacioHandlerExcep
 import net.conselldemallorca.helium.v3.core.api.exception.TramitacioValidacioException;
 import net.conselldemallorca.helium.v3.core.api.exception.ValidacioException;
 import net.conselldemallorca.helium.v3.core.api.service.ReproService;
+import net.conselldemallorca.helium.v3.core.api.service.TascaService;
 import net.conselldemallorca.helium.webapp.v3.command.AnotacioAcceptarCommand;
 import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.ObjectTypeEditorHelper;
@@ -59,7 +60,7 @@ public class ExpedientInicioPasFormController extends BaseExpedientIniciControll
 	@Autowired
 	private ReproService reproService;
 	@Autowired
-	private net.conselldemallorca.helium.core.model.service.TascaService tascaInicialService;
+	private TascaService tascaInicialService;
 
 
 
