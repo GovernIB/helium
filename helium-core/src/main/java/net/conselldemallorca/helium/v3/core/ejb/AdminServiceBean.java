@@ -261,4 +261,10 @@ public class AdminServiceBean implements AdminService {
 		return delegate.getTasquesCompletarAdminEntorn();
 	}
 
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public void setIdiomaPref(String usuari, String idioma) {
+		delegate.setIdiomaPref(usuari, idioma);
+	}
+
 }

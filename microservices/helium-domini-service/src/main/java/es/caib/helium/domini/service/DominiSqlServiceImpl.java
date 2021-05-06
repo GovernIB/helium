@@ -95,7 +95,7 @@ public class DominiSqlServiceImpl implements DominiSqlService {
                         data.set(Integer.parseInt(dataSplit[2]),Integer.parseInt(dataSplit[1]) - 1,Integer.parseInt(dataSplit[0]));
                         return data.getTime();
                     case "price":
-                        return new BigDecimal(Double.parseDouble(valor));
+                        return BigDecimal.valueOf(Double.parseDouble(valor));
                     default:
                         return valor;
                 }

@@ -7,20 +7,20 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Autowired;
+
 import net.conselldemallorca.helium.core.extern.domini.FilaResultat;
 import net.conselldemallorca.helium.core.extern.domini.ParellaCodiValor;
-import net.conselldemallorca.helium.core.model.service.DissenyService;
-
-import org.springframework.beans.factory.annotation.Autowired;
+import net.conselldemallorca.helium.v3.core.api.service.DominiService;
 
 
 public class DominiDwrService {
 
-	private DissenyService dissenyService;
+	private DominiService dominiService;
 
 	@Autowired
-	public DominiDwrService(DissenyService dissenyService) {
-		this.dissenyService = dissenyService;
+	public DominiDwrService(DominiService dominiService) {
+		this.dominiService = dominiService;
 	}
 	
 
@@ -29,9 +29,10 @@ public class DominiDwrService {
 	public String ping(String domini ) throws Exception {
 		try{
 			Long dominiId = Long.parseLong(domini);
-			List<FilaResultat> resultat= dissenyService.consultaDomini(
+			List<FilaResultat> resultat= dominiService.consultaDomini(
 					null,
 					dominiId,
+					null,
 					(Map<String, Object>)null);
 			StringBuilder sb = new StringBuilder();
 			for (FilaResultat fila: resultat) {
@@ -59,7 +60,7 @@ public class DominiDwrService {
 		}
 		try{
 			Long dominiId = Long.parseLong(domini);
-			List<FilaResultat> resultat= dissenyService.consultaDomini(null, dominiId, parametres);
+			List<FilaResultat> resultat= dominiService.consultaDomini(null, dominiId, null, parametres);
 			StringBuilder sb = new StringBuilder();
 			for (FilaResultat fila: resultat) {
 				sb.append("[");
@@ -116,7 +117,7 @@ public class DominiDwrService {
 
 		try{
 			Long dominiId = Long.parseLong(domini);
-			List<FilaResultat> resultat= dissenyService.consultaDomini(null, dominiId, idWS, parametres);
+			List<FilaResultat> resultat= dominiService.consultaDomini(null, dominiId, idWS, parametres);
 			StringBuilder sb = new StringBuilder();
 			for (FilaResultat fila: resultat) {
 				sb.append("[");
@@ -138,7 +139,7 @@ public class DominiDwrService {
 	public String pingWS(String domini, String idWS ) throws Exception {
 		try{
 			Long dominiId = Long.parseLong(domini);
-			List<FilaResultat> resultat= dissenyService.consultaDomini(null, dominiId, idWS);
+			List<FilaResultat> resultat= dominiService.consultaDomini(null, dominiId, idWS, null);
 			StringBuilder sb = new StringBuilder();
 			for (FilaResultat fila: resultat) {
 				sb.append("[");

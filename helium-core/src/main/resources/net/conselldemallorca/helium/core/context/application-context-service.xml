@@ -64,10 +64,11 @@
 
 	<bean id="openOfficeUtils" class="net.conselldemallorca.helium.core.util.OpenOfficeUtils"/>
 
+<!-- 	
 	<bean id="monitorHelper" class="net.conselldemallorca.helium.core.model.service.MonitorHelper">
 		<constructor-arg type="java.lang.String" value="${app.expedient.monitor?false}"/>
 	</bean>
-	
+ -->	
 	<!-- V3 -->
 	<context:component-scan base-package="net.conselldemallorca.helium.core.model.service"/>
 	<context:component-scan base-package="net.conselldemallorca.helium.core.helperv26"/>

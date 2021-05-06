@@ -1,0 +1,67 @@
+server:
+  port: 8082
+  servlet:
+    context-path: /helium-camunda
+
+spring:
+  zipkin:
+    enabled: false
+  cloud:
+    config:
+      enabled: false
+    discovery:
+      enabled: false
+
+  # OracleDB connection settings
+  datasource:
+    driver-class-name: oracle.jdbc.OracleDriver
+    url: jdbc:oracle:thin:@//localhost:49161/xe
+    username: hel_camunda
+    password: hel_camunda
+  # HikariCP settings
+    hikari:
+      minimumIdle: 5
+      maximumPoolSize: 20
+      idleTimeout: 30000
+      maxLifetime: 2000000
+      connectionTimeout: 30000
+      poolName: HikariPoolDominis
+
+  # JPA settings
+  jpa:
+    database: oracle
+    database-platform: org.hibernate.dialect.Oracle12cDialect
+    show-sql: false
+    hibernate:
+      ddl-auto: none
+    properties:
+      hibernate:
+        format_sql: false
+
+  servlet:
+    multipart:
+      max-file-size: -1
+      max-request-size: -1
+
+camunda.bpm:
+  admin-user:
+    id: demo
+    password: demo
+    firstName: Demo
+  filter:
+    create: All tasks
+  database:
+camunda:
+  bpm:
+    database:
+      type: oracle
+      jdbc-batch-processing: false
+#      schema-update: true
+#      schema-name: hel_camunda
+
+es:
+  caib:
+    helium:
+      camunda:
+        deployment:
+          path: /home/siona/Feina/Server/camunda-bpm-tomcat-7.15.0/server/apache-tomcat-9.0.43/webapps

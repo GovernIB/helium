@@ -1832,5 +1832,12 @@ public class TascaServiceImpl implements TascaService {
 		}
 	}
 
+	@Override
+	public Map<String, Object> obtenirValorsFormulariExternInicial(String formulariId) {
+		if (dadesFormulariExternInicial == null)
+			return null;
+		return dadesFormulariExternInicial.remove(formulariId);
+	}
+
 	private static final Logger logger = LoggerFactory.getLogger(TascaServiceImpl.class);
 }

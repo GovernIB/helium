@@ -435,4 +435,10 @@ public class TascaServiceBean implements TascaService {
 		delegate.guardarFormulariExtern(formulariId, valorsTasca);
 	}
 
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public Map<String, Object> obtenirValorsFormulariExternInicial(String formulariId) {
+		return delegate.obtenirValorsFormulariExternInicial(formulariId);
+	}
+
 }

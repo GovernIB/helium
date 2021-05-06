@@ -191,4 +191,11 @@ public interface AdminService {
 	
 	public abstract List<TascaCompleteDto> getTasquesCompletarAdminEntorn();
 
+	/** Mètode per establir des de l'interceptor l'idioma preferit de l'usuari.
+	 * 
+	 * @param usuari
+	 * @param codiIdioma
+	 */
+	public void setIdiomaPref(String usuari, String idioma);
+
 }

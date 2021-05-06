@@ -1,7 +1,9 @@
 package net.conselldemallorca.helium.v3.core.api.service;
 
 import java.util.List;
+import java.util.Map;
 
+import net.conselldemallorca.helium.core.extern.domini.FilaResultat;
 import net.conselldemallorca.helium.v3.core.api.dto.DominiDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
@@ -65,6 +67,20 @@ public interface DominiService {
 			Long dominiId) throws NoTrobatException;
 	
 	public DominiDto update(
-			DominiDto domini) throws NoTrobatException, PermisDenegatException;	
+			DominiDto domini) throws NoTrobatException, PermisDenegatException;
+
+	/** Consulta al domini de dades passant id de domini i paràmetres.
+	 * 
+	 * @param entornId
+	 * @param dominiId Id del domini a Helium.
+	 * @param dominiWsId Paràmetre identificador en cas de ser WS, opcional.
+	 * @param params Paràmetres opcionals per la consulta.
+	 * @return
+	 */
+	public List<FilaResultat> consultaDomini(
+			Long entornId,
+			Long dominiId,
+			String dominiWsId,
+			Map<String, Object> params);	
 	
 }

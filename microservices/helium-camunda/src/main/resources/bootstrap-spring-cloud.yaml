@@ -1,0 +1,15 @@
+spring:
+  cloud:
+    config:
+      discovery:
+        enabled: true
+        service-id: helium-config-service
+      username: helium
+      # TODO: passar-ho com env property
+      password: H3lConf1g
+      fail-fast: true
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://helium:H3lEurek4@helium-eureka:8761/eureka

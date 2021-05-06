@@ -7,9 +7,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import net.conselldemallorca.helium.core.model.service.UpdateService;
-
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
 /**
@@ -20,11 +17,15 @@ import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
  */
 public class VersioInterceptor extends HandlerInterceptorAdapter {
 
+	// TODO: passar a un fitxer de properties
+	public static final String VERSIO_ACTUAL_STR = "4.0.0";
+	public static final String VERSIO_ACTUAL_DATA = "2021.04.30 11:00";
+
+	
 	public static final String APP_SCOPE_VAR_NOM = "versioNom";
 	public static final String APP_SCOPE_VAR_DATA = "versioData";
 	public static final String APP_SCOPE_VAR_ERROR = "versioError";
 
-	private UpdateService updateService;
 
 	public boolean preHandle(
 			HttpServletRequest request,
@@ -34,20 +35,11 @@ public class VersioInterceptor extends HandlerInterceptorAdapter {
 		if (versioNom == null) {
 			request.getSession().getServletContext().setAttribute(
 					APP_SCOPE_VAR_NOM,
-					updateService.getVersioActual());
+					VERSIO_ACTUAL_STR);
 			request.getSession().getServletContext().setAttribute(
 					APP_SCOPE_VAR_DATA,
-					updateService.getVersioData());
-			request.getSession().getServletContext().setAttribute(
-					APP_SCOPE_VAR_ERROR,
-					updateService.getErrorUpdate());
+					VERSIO_ACTUAL_DATA);
 		}
 		return true;
 	}
-
-	@Autowired
-	public void setUpdateService(UpdateService updateService) {
-		this.updateService = updateService;
-	}
-
 }
