@@ -1,0 +1,5 @@
+spring:
+  application:
+    name: helium-camunda
+  profiles:
+    active: @activatedProperties@
