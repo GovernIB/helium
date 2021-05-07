@@ -298,7 +298,7 @@
 								</ul>
 							</div>
 						</c:if>
-						<c:if test="${true}">
+						<c:if test="${globalProperties['app.organigrama.actiu'] && dadesPersona.admin}">
 							<div id="menuOrganitzacio" class="btn-group">
 								<button class="btn btn-primary dropdown-toggle" data-toggle="dropdown"><spring:message code="decorator.menu.organitzacio"/> <span class="caret"></span></button>
 								<ul class="dropdown-menu" id="organitzacio">
