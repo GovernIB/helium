@@ -32,6 +32,9 @@ import es.caib.helium.enums.Collections;
 import es.caib.helium.enums.Dada;
 import es.caib.helium.enums.DireccioOrdre;
 
+/**
+ * Classe dedicada a ampliar les funcionalitats de ExpedientRepository en funció de les necessitats del servei
+ */
 public class ExpedientRepositoryCustomImpl implements ExpedientRepositoryCustom {
 
 	private final MongoTemplate mongoTemplate;
@@ -42,8 +45,9 @@ public class ExpedientRepositoryCustomImpl implements ExpedientRepositoryCustom 
 	}
 
 	/**
-	 * Busca la informació de l'expedient (capçalera i dades) filtrada segons la consulta
-	 * @param consulta: Objecte consulta que conté els paràmetres de cerca
+	 * Busca la informació de l'expedient (capçalera i dades) filtrada segons la consulta.
+	 * Si la consulta no conté filtres tornarà tots els Expedients (dades capçalera) on l'atribut dades contindrà la llista de Dada asociades a l'expedientId
+	 * @param consulta Objecte consulta que conté els paràmetres de cerca
 	 * @return Retorna la llista d'expedients filtrada
 	 */
 	@Override
@@ -59,7 +63,7 @@ public class ExpedientRepositoryCustomImpl implements ExpedientRepositoryCustom 
 
 	/**
 	 * Esborra la informació de la capçalera de l'expedient i les dades relacionades amb l'expedientId
-	 * @param expedientId: identificador de l'expedient a esborrar
+	 * @param expedientId identificador de l'expedient a esborrar
 	 * @return Retorna el número d'expedients esborrats
 	 */
 	@Override
@@ -75,7 +79,7 @@ public class ExpedientRepositoryCustomImpl implements ExpedientRepositoryCustom 
 
 	/**
 	 * Esborra per cada expedientId la informació de la capçalera de l'expedient i les dades relacionades amb l'expedientId
-	 * @param expedients: llista de identifacadors expedientId
+	 * @param expedients llista de identifacadors expedientId
 	 * @return Retorna el número d'expedients esborrats.
 	 */
 	@Override
@@ -92,13 +96,14 @@ public class ExpedientRepositoryCustomImpl implements ExpedientRepositoryCustom 
 
 	/**
 	 * Prepara la pipeline de AggregationOperation per l'agregació (db.expedient.aggregate([]). 
-	 * Sempre inclou la operació {$lookup: {from: "dada", localField:"expedientId", foreignField: "expedientId", as: "dades"}
-	 * @param consulta: Objecte Consulta d'on d'extreu la informació per preparar les diferents AggregationOperation
-	 * @return 
+	 * Sempre inclou la operació {$lookup: {from: "dada", localField:"expedientId", foreignField: "expedientId", as: "dades"}ds
+	 * @param consulta Objecte Consulta d'on d'extreu la informació per preparar les diferents AggregationOperation
+	 * @return Retorna una llista d'AggregationOperation apunt per ser executada amb mongoTemplate.aggregate
 	 */
 	private List<AggregationOperation> prepararFiltres(Consulta consulta) {
 
 		// Pipeline per l'agregació (db.expedient.aggregate([])
+		// L'ordre de les operacions afecta l'eficiencia de la cerca. Els més restrictius primer.
 		List<AggregationOperation> operations = new ArrayList<>();
 		if (consulta.getEntornId() != null && consulta.getExpedientTipusId() != null) {
 			operations.add(crearFiltreEntornIdTipusId(consulta.getEntornId(), consulta.getExpedientTipusId()));
@@ -128,6 +133,8 @@ public class ExpedientRepositoryCustomImpl implements ExpedientRepositoryCustom 
 
 		// $project $sort
 		if (consulta.getColumnes() != null && consulta.getColumnes().size() > 0) {
+			//TODO FALTA AFEGIR LES COLUMNES PER DEFECTE 
+			//Per defecte es retornaran l'identificador de l'expedient, el número, el títol, la data d'alta i l'estat.
 			prepararColumnes(consulta.getColumnes(), operations);
 		}
 
@@ -141,6 +148,12 @@ public class ExpedientRepositoryCustomImpl implements ExpedientRepositoryCustom 
 		return operations;
 	}
 
+	/**
+	 * Afegeix a la llista operations la projecció del es columnes demanades.
+	 * També s'encarrega de crear la AggregationOperation referent al Sort
+	 * @param columnes llista de columnes que es volen al resultat
+	 * @param operations llista on s'afegirà la Projection i el Sort
+	 */
 	private void prepararColumnes(List<Columna> columnes, List<AggregationOperation> operations) {
 
 		List<String> cols = new ArrayList<>();
@@ -174,6 +187,12 @@ public class ExpedientRepositoryCustomImpl implements ExpedientRepositoryCustom 
 		operations.add(crearSortOperation(ordres));
 	}
 
+	/**
+	 * Crea la $sort per la llista de columnes demanades
+	 * Actualment només ordena per els camps de capçalera. Falta completar el TO DO si s'escau
+	 * @param ordres llista de columnes i l'ordre que han de tenir 
+	 * @return Retorna la AggregationOperation Sort amb els ordres desitjats.
+	 */
 	private SortOperation crearSortOperation(List<Columna> ordres) {
 
 		ordres.sort((foo, bar) -> Integer.compare(foo.getOrdre().getOrdre(), bar.getOrdre().getOrdre()));
@@ -201,6 +220,12 @@ public class ExpedientRepositoryCustomImpl implements ExpedientRepositoryCustom 
 		return Aggregation.sort(Sort.by(orders));
 	}
 
+	/**
+	 * Crea un $match segons l'identificador de l'entorn i el tipus d'expedient
+	 * @param entornId identificador de l'entorn
+	 * @param expedientTipusId identificador del tipus d'expedient
+	 * @return Retorna una AggregationOperation tipus Match amb els criteris per filtrar
+	 */
 	private MatchOperation crearFiltreEntornIdTipusId(Integer entornId, Integer expedientTipusId) {
 
 		var criteria = new Criteria();
@@ -208,6 +233,11 @@ public class ExpedientRepositoryCustomImpl implements ExpedientRepositoryCustom 
 		return Aggregation.match(criteria);
 	}
 
+	/**
+	 * Crea el $match per filtrar segons els camps que poden tenir les dades de capçalera
+	 * @param filtreCapcalera conté els possibles valors a filtrar
+	 * @return Retorna uan AggregationOperation tipus Match amb els criteris filtrar
+	 */
 	private MatchOperation crearFiltreCapcalera(FiltreCapcalera filtreCapcalera) {
 
 		var criteria = new Criteria();
@@ -235,8 +265,14 @@ public class ExpedientRepositoryCustomImpl implements ExpedientRepositoryCustom 
 		return Aggregation.match(criteria);
 	}
 
-	/*
-	 * {$match: { "dades": {$elemMatch: {codi: {$in: ["var_titol", "cody"]}}}}}
+	/**
+	 * Crea la part del $match segons els filtresValor que servirà per filtrà els resultats del $lookup previ.
+	 * 
+	 * per exemple:
+	 *  {$match: { "dades": {$elemMatch: {codi: "codi1", tipus: "Boolean", valor: {$elemMatch: {valor: "prova3"}}}}}}])
+	 *  
+	 * @param filtresValor llista d'objectes FiltreValor que servirà per montar el $match. No pot ser null.
+	 * @return Retorna AggregationOperation tipus Match amb els criteris per filtrar
 	 */
 	private MatchOperation crearFiltresValor(List<FiltreValor> filtresValor) {
 
@@ -245,15 +281,15 @@ public class ExpedientRepositoryCustomImpl implements ExpedientRepositoryCustom 
 			filtres.add(crearFiltreValor(filtre));
 		}
 		var criteria = new Criteria();
-
 		criteria.orOperator(filtres.toArray(new Criteria[filtres.size()]));
 		return Aggregation.match(criteria);
 	}
 
-	/*
-	 * db.expedient.aggregate([ {$lookup: {from: "dada", localField: "expedientId",
-	 * foreignField: "expedientId", as: "dades"}}, {$match: { "dades": {$elemMatch:
-	 * {codi: "var_titol"}}}} ])
+	
+	/**
+	 * Prepara el criteri a filtrar contingut en filtreValor.
+	 * @param filtreValor conté els valors pels quals es filtrarà. No pot ser null
+	 * @return Retorna el Criteria amb el que es farà el filtre.
 	 */
 	private Criteria crearFiltreValor(FiltreValor filtreValor) {
 
@@ -274,12 +310,18 @@ public class ExpedientRepositoryCustomImpl implements ExpedientRepositoryCustom 
 			}
 			filtreCriteria.and(Dada.VALOR.getCamp()).orOperator(criterias.toArray(new Criteria[criterias.size()]));
 		}
-
 		var criteria = new Criteria();
 		criteria.and(Capcalera.DADES.getCamp()).elemMatch(filtreCriteria);
 		return criteria;
 	}
 
+	/**
+	 * Emplena el Criteria per filtrar per dates segons rang 
+	 * @param rangInicial Data inicial
+	 * @param rangFinal Data final
+	 * @param criteria Criteria a emplenar
+	 * @param nomCamp Nom del camp del document que conté la data
+	 */
 	private void prepararData(Date rangInicial, Date rangFinal, Criteria criteria, String nomCamp) {
 
 		if (criteria == null || nomCamp == null || nomCamp.isEmpty()) {

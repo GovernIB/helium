@@ -24,6 +24,12 @@ import es.caib.helium.enums.ValorsValidacio;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+/**
+ * 
+ * Classe d'implementació de ExpedientService
+ * Encarregada de la lògica intermitja entre el controlador i els repositoris
+ *
+ */
 @Slf4j
 @RequiredArgsConstructor
 @ConfigurationProperties(prefix = "es.caib.helium") // , ignoreUnknownFields = true)
@@ -35,6 +41,11 @@ public class ExpedientServiceImpl implements ExpedientService {
 
 	// Dades capçalera expedient
 
+	/**
+	 * Cerca els expedients i les seves dades filtrades segons la consulta
+	 * @param consulta Objecte que conté la informació per filtrar
+	 * @return Retorna una PagedList on cada element representa les dades d'un expedient
+	 */
 	@Override
 	public PagedList<Expedient> consultaResultats(Consulta consulta) {
 		
@@ -51,6 +62,11 @@ public class ExpedientServiceImpl implements ExpedientService {
 		}
 	}
 
+	/**
+	 * Cerca els expedients i les seves dades filtrades segons la consulta
+	 * @param consulta Objecte que conté la informació per filtrar
+	 * @return Retorna una llista on cada element representa les dades d'un expedient
+	 */
 	@Override
 	public List<Expedient> consultaResultatsLlistat(Consulta consulta) {
 		try {
@@ -63,6 +79,11 @@ public class ExpedientServiceImpl implements ExpedientService {
 		}
 	}
 
+	/**
+	 * Crea les dades de capçalera d'un expedient. Si ja existeix un expedientId no el crea.
+	 * @param expedient Objecte amb les dades a guardar
+	 * @return True si hi s'ha creat. False si ja existia ho es produeix una excepció
+	 */
 	@Override
 	public boolean createExpedient(Expedient expedient) {
 
@@ -81,6 +102,12 @@ public class ExpedientServiceImpl implements ExpedientService {
 		}
 	}
 
+	/**
+	 * Crea les dades de capçalera per cada expedientId que no existeixi prèviament. 
+	 * Si ja existeix l'expedientId es descarta.
+	 * @param expedients llista on cada element fa referencia a les dades de capçalera d'un expedient
+	 * @return True si s'ha pogut guardar com a mínim un element de la llista. False tots existeixen o excepció.
+	 */
 	@Override
 	public boolean createExpedients(List<Expedient> expedients) {
 
@@ -107,6 +134,11 @@ public class ExpedientServiceImpl implements ExpedientService {
 		}
 	}
 
+	/**
+	 * Cerca les dades de capçalera de l'expedient
+	 * @param expedientId identificador de l'expedient pel qual s'en cerquen les dades
+	 * @return Retorna l'objecte que conté la informació de les dades de l'expedient.
+	 */
 	@Override
 	public Expedient findByExpedientId(Long expedientId) {
 
@@ -125,6 +157,11 @@ public class ExpedientServiceImpl implements ExpedientService {
 		}
 	}
 
+	/**
+	 * Esborra totes les dades que fan referencia a l'expedient
+	 * @param expedientId identificador de l'expedient pel que es borraran les dades
+	 * @return Retorna True si s'ha esobrrat. False si l'expedientId no existeix o excepció.
+	 */
 	@Override
 	public boolean deleteExpedient(Long expedientId) {
 
@@ -134,8 +171,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 			if (expedient.isEmpty()) {
 				return false; // Així es pot retornar el 404 al Controller
 			}
-			expedientRepository.esborrarExpedientCascade(expedientId);
-			return true;
+			return expedientRepository.esborrarExpedientCascade(expedientId) == 1;
 		} catch (Exception e) {
 			log.error("[ExpedientServiceImpl.deleteExpedient] --->");
 			e.printStackTrace();
@@ -143,6 +179,11 @@ public class ExpedientServiceImpl implements ExpedientService {
 		}
 	}
 
+	/**
+	 * Esborra totes les dades dels expedients continguts a la llista
+	 * @param expedients llista de expedientsId a esborrar
+	 * @return True si s'ha esborrat com a mínim un expedient. False altrament o excepció. 
+	 */
 	@Override
 	public boolean deleteExpedients(List<Long> expedients) {
 
@@ -159,6 +200,12 @@ public class ExpedientServiceImpl implements ExpedientService {
 		}
 	}
 
+	/*
+	 * Actualitza les dades de capçalera de l'expedientId
+	 * @param expedientId identificador de l'expedient 
+	 * @param expedient dades a fer el put
+	 * @return True si guarda correctament. False si l'expedient no existeix o excepció
+	 */
 	@Override
 	public boolean putExpedient(Long expedientId, Expedient expedient) {
 
@@ -184,8 +231,14 @@ public class ExpedientServiceImpl implements ExpedientService {
 		}
 	}
 
+	/*
+	 * Actualitza les dades de capçalera per cada element de la llista
+	 * @param expedients llista amb els expedients a actualitzar
+	 * @return True si guarda correctament almenys un expedient. False altrament o excepció
+	 */
 	@Override
 	public boolean putExpedients(List<Expedient> expedients) {
+		
 		try {
 			List<Expedient> exps = new ArrayList<>();
 			for (var expedient : expedients) {
@@ -214,6 +267,12 @@ public class ExpedientServiceImpl implements ExpedientService {
 		}
 	}
 
+	/**
+	 * Actualitza les dades de capçalera de l'expedient. Només actualitza la dada si té contingut.
+	 * @param expedientId identificador de l'expedient
+	 * @param expedient dades a actualitzar
+	 * @return True si s'actualitza correctament. False si no existeix l'expedient o excepció
+	 */
 	@Override
 	public boolean patchExpedient(Long expedientId, Expedient expedient) {
 
@@ -243,6 +302,11 @@ public class ExpedientServiceImpl implements ExpedientService {
 		}
 	}
 
+	/**
+	 * Actualitza els expedients continguts a la llista. Només actualitza els camps que contenen valor
+	 * @param expedients llista d'expedients 
+	 * @return True si s'actualitza almenys un expedient. False altrament o excepció
+	 */
 	@Override
 	public boolean patchExpedients(List<Expedient> expedients) {
 		
@@ -280,6 +344,11 @@ public class ExpedientServiceImpl implements ExpedientService {
 
 	// Dades expedient
 
+	/**
+	 * Cerca la llista de dades que fan referencia a l'expedient
+	 * @param expedientId identificador de l'expedient
+	 * @return Retorna una llista amb les dades de l'expedient (no son dades de capçalera). Llista buida si no hi han dades o excepció.
+	 */
 	@Override
 	public List<Dada> getDades(Long expedientId) {
 		
@@ -293,6 +362,12 @@ public class ExpedientServiceImpl implements ExpedientService {
 		}
 	}
 
+	/**
+	 * Cerca la dada amb expedientId i codi
+	 * @param expedientId identificador de l'expedient
+	 * @param codi codi de la dada
+	 * @return Retorna una llista amb les dades de l'expedient (no son dades de capçalera). Null si no hi han dades o excepció.
+	 */
 	@Override
 	public Dada getDadaByCodi(Long expedientId, String codi) {
 		
@@ -306,6 +381,12 @@ public class ExpedientServiceImpl implements ExpedientService {
 		}
 	}
 
+	/**
+	 * Cerca la llista de dades que fan referencia a l'expedient i al procesId
+	 * @param expedientId identificador de l'expedient
+	 * @param procesId identificador del procés
+	 * @return Retorna una llista amb les dades de l'expedient (no son dades de capçalera). Lista buida si no hi han dades o excepció.
+	 */
 	@Override
 	public List<Dada> getDadesByProces(Long expedientId, Long procesId) {
 
@@ -319,6 +400,13 @@ public class ExpedientServiceImpl implements ExpedientService {
 		}
 	}
 
+	/**
+	 * Cerca la dada segons el expedientId procesId i codi
+	 * @param expedientId identificador de l'expedient
+	 * @param procesId identificador del procés 
+	 * @codi codi codi de la dada
+	 * @return Retorna la Dada resultant de la cerca. Null si no existeix o excepció
+	 */
 	@Override
 	public Dada getDadaByProcesAndCodi(Long expedientId, Long procesId, String codi) {
 		try {
@@ -331,6 +419,14 @@ public class ExpedientServiceImpl implements ExpedientService {
 		}
 	}
 
+	/*
+	 * Crea les dades per un expediente i un procés.
+	 * Si ja existeix una dada amb expedientId, procesId i codi, la dada no es guardarà
+	 * @param expedientId 
+	 * @param procesId
+	 * @param dades
+	 * @return True si s'ha guardat almenys una dada. False si totes les dades ja existeixen. 
+	 */
 	@Override
 	public boolean createDades(Long expedientId, Long procesId, List<Dada> dades) {
 
@@ -338,7 +434,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 		try {
 			List<Dada> dadesFoo = new ArrayList<>();
 			for (var dada : dades) {
-
+			
 				var d = dadaRepository.findByExpedientIdAndProcesIdAndCodi(expedientId, procesId, dada.getCodi());
 				if (d.isPresent()) {
 					// Evitar dades amb el codi repetit segons proces i codi
@@ -350,6 +446,9 @@ public class ExpedientServiceImpl implements ExpedientService {
 				dada.setProcesId(procesId);
 				dadesFoo.add(dada);
 			}
+			if (dadesFoo.isEmpty()) {
+				return false;
+			}
 			return dadaRepository.saveAll(dadesFoo).size() > 0;
 		} catch (Exception e) {
 			log.error("[ExpedientServiceImpl.createDades] --->");
@@ -358,6 +457,13 @@ public class ExpedientServiceImpl implements ExpedientService {
 		}
 	}
 
+	/**
+	 * Actualitza la dada amb expedientId i codi
+	 * @param expedientId identificador de l'expedient
+	 * @param codi codi de l'expedient
+	 * @param dada informació a actualitzar
+	 * @return True si la dada s'ha actualitzat. False si no existeix la dada o excepció
+	 */
 	@Override
 	public boolean putDadaByExpedientIdAndCodi(Long expedientId, String codi, Dada dada) {
 
@@ -380,6 +486,12 @@ public class ExpedientServiceImpl implements ExpedientService {
 		}
 	}
 
+	/**
+	 * Esborra la dada amb expedientId i codi
+	 * @param expedientId identificador de l'expedient
+	 * @param codi codi de l'expedient
+	 * @Return True si la dada s'esborra.
+	 */
 	@Override
 	public boolean deleteDadaByExpedientIdAndCodi(Long expedientId, String codi) {
 
@@ -399,8 +511,16 @@ public class ExpedientServiceImpl implements ExpedientService {
 		}
 	}
 
+	/**
+	 * Crea dades per l'expedientId amb procesId
+	 * @param expedientId identificador de l'expedient
+	 * @param procesId identificador del procés
+	 * @param dades llistat de dades a crear
+	 * @return True si almenys s'ha guardat una dada. Fals altrament o excepció;
+	 */
 	@Override
 	public boolean postDadesByExpedientIdProcesId(Long expedientId, Long procesId, List<Dada> dades) {
+		
 		try {
 			Set<String> dadesSet = new HashSet<>();
 			List<Dada> dadesDistinct = dades.stream().filter(d -> dadesSet.add(d.getCodi()))
@@ -424,6 +544,9 @@ public class ExpedientServiceImpl implements ExpedientService {
 				dada.setProcesId(procesId);
 				dadesMongo.add(dada);
 			}
+			if (dadesMongo.isEmpty()) {
+				return false;
+			}
 			return dadaRepository.saveAll(dadesMongo).size() > 0;
 		} catch (Exception e) {
 			log.error("[ExpedientServiceImpl.postDadesByExpedientIdProcesId] --->");
@@ -432,6 +555,14 @@ public class ExpedientServiceImpl implements ExpedientService {
 		}
 	}
 
+	/**
+	 * Actualitza la dada amb expedientId procesId i codi 
+	 * @param expedientId identificador de l'expedient
+	 * @param procesId identificador del procés
+	 * @param codi codi de la dada
+	 * @param dada informació a actualitzar
+	 * @return True si la dada s'ha actualitzat correctament. False si o existeix la dada o excepció.
+	 */
 	@Override
 	public boolean putDadaByExpedientIdProcesIdAndCodi(Long expedientId, Long procesId, String codi, Dada dada) {
 
@@ -454,6 +585,13 @@ public class ExpedientServiceImpl implements ExpedientService {
 		}
 	}
 
+	/**
+	 * Esborra la dada amb expedientId procesId i codi
+	 * @param expedientId identificador de l'expedient
+	 * @procesId identificador del procés
+	 * @codi codi de la dada 
+	 * @return True si la dada s'ha esborrat correctament. False si no existeix o excepció
+	 */
 	@Override
 	public boolean deleteDadaByExpedientIdAndProcesIdAndCodi(Long expedientId, Long procesId, String codi) {
 

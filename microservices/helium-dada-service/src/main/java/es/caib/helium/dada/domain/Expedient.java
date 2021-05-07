@@ -14,6 +14,10 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
+/**
+ * Representació de la col·leccio {@link es.caib.helium.enums.Collections#EXPEDIENT}
+ * S'utilitza tant com a model per Mongo com per Dto.
+ */
 @Getter
 @Setter
 @ToString
@@ -28,9 +32,9 @@ public class Expedient {
 	private Long entornId;
 	@NotNull
 	private Long tipusId;
-	@Size(max = 64) // TODO canviar-ho per ValorsValidacio si es pot
+	@Size(max = 64) 
 	private String numero;
-	@Size(max = 255) // TODO canviar-ho per ValorsValidacio si es pot
+	@Size(max = 255)
 	private String titol;
 	@NotNull
 	private Long procesPrincipalId;

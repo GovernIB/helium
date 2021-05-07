@@ -9,6 +9,9 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
+/**
+ * Classe utilitzada per gestionar les consultes complexes a la BDD
+ */
 @Getter
 @Setter
 @ToString

@@ -2,6 +2,10 @@ package es.caib.helium.enums;
 
 import lombok.Getter;
 
+/**
+ * Enum representant els camps de la col·lecció {@link es.caib.helium.enums.Collections#DADA} a MongoDB
+ * Si s'afegeixen més camps a la col·lecció també cal afegir-los aquí també.
+ */
 @Getter
 public enum Dada {
 

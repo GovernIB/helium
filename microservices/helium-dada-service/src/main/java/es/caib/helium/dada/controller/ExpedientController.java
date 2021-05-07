@@ -51,7 +51,6 @@ public class ExpedientController {
 	@PostMapping(value = "consulta/resultats/llistat", consumes = "application/json")
 	public ResponseEntity<List<Expedient>> consultaResultatsLlistat(@RequestParam("entornId") Integer entornId,
 			@RequestParam("expedientTipusId") Integer expedientTipusId,
-//			@RequestParam("columnes") List<String> columnes,
 			@RequestBody Consulta body) {
 
 		body.setEntornId(entornId);

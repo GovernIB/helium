@@ -14,6 +14,10 @@ import com.mongodb.MongoClientSettings;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 
+/**
+ * Classe encarregada de carregar la configuració de la base de dades de MongoDB
+ * Necessaria per poder utilitzar @Transaction en els repositoris custom. 
+ */
 @Configuration
 @EnableMongoRepositories(basePackages = "es.caib.helium.dada.repository")
 public class MongoConfig extends AbstractMongoClientConfiguration {

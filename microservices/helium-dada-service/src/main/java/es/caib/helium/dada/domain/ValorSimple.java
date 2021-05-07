@@ -8,6 +8,9 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
+/**
+ * Clase que representa el Valor tipus ValorSimple que pot contenir l'atribut valor de {@link es.caib.helium.dada.domain.Dada}
+ */
 @Getter
 @Setter
 @ToString

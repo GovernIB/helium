@@ -13,20 +13,26 @@ import javax.validation.constraints.Size;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import es.caib.helium.enums.Tipus;
+import es.caib.helium.validacions.DadaValidacio;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
+/**
+ * Representació de la col·leccio {@link es.caib.helium.enums.Collections#DADA}
+ * S'utilitza tant com a model per Mongo com per Dto.
+ */
 @Getter
 @Setter
 @ToString
 @Document
+@DadaValidacio
 public class Dada {
 
 	@Id
 	private String id;
 	@NotNull
-	@Size(max=255) //TODO canviar-ho per ValorsValidacio si es pot
+	@Size(max=255)
 	private String codi;
 	@NotNull
 	private Tipus tipus;
