@@ -1581,7 +1581,7 @@ public class DocumentHelperV3 {
 			documentDescripcio = document.getNom();
 		}
 		
-		if (expedient.getTipus().isArxiuActiu()) {
+		if (expedient.isArxiuActiu()) {
 			documentDescripcio = inArxiu( documentDescripcio, 
 					"pdf",
 					processInstanceId);

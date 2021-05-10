@@ -692,7 +692,7 @@ public class ExpedientHelper {
 		expedient.setDataFi(dataFinalitzacio);
 
 		//tancam l'expedient de l'arxiu si escau
-		if (expedient.isArxiuActiu()) {
+		if (expedient.isArxiuActiu() && expedient.getArxiuUuid() != null) {
 			this.tancarExpedientArxiu(expedient);
 		}		
 		crearRegistreExpedient(
