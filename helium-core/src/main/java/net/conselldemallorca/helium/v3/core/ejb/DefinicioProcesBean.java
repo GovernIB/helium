@@ -278,8 +278,14 @@ public class DefinicioProcesBean implements DefinicioProcesService {
 	
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public DefinicioProcesDto findAmbIdAndEntorn(Long entornId, Long definicioProcesId) throws NoTrobatException {
-		return delegate.findAmbIdAndEntorn(entornId, definicioProcesId);
+	public DefinicioProcesDto findAmbIdPermisDissenyar(Long entornId, Long definicioProcesId) throws NoTrobatException {
+		return delegate.findAmbIdPermisDissenyar(entornId, definicioProcesId);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public DefinicioProcesDto findAmbIdPermisDissenyarDelegat(Long entornId, Long definicioProcesId) throws NoTrobatException {
+		return delegate.findAmbIdPermisDissenyarDelegat(entornId, definicioProcesId);
 	}
 
 	@Override

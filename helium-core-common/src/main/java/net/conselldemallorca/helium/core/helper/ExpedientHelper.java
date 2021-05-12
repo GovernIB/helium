@@ -124,7 +124,7 @@ public class ExpedientHelper {
 	private DefinicioProcesHelper definicioProcesHelper;
 
 	
-	private static String VERSIO_NTI = "http://administracionelectronica.gob.es/ENI/XSD/v1.0/expediente-e";
+	public static String VERSIO_NTI = "http://administracionelectronica.gob.es/ENI/XSD/v1.0/expediente-e";
 	
 	
 	public ExpedientDto toExpedientDto(Expedient expedient) {
@@ -674,7 +674,7 @@ public class ExpedientHelper {
 		expedient.setDataFi(dataFinalitzacio);
 
 		//tancam l'expedient de l'arxiu si escau
-		if (expedient.isArxiuActiu()) {
+		if (expedient.isArxiuActiu() && expedient.getArxiuUuid() != null) {
 			this.tancarExpedientArxiu(expedient);
 		}		
 		crearRegistreExpedient(
@@ -749,9 +749,12 @@ public class ExpedientHelper {
 	@Transactional
 	public void migrarArxiu(Expedient expedient) {
 		
+		if (!expedient.getTipus().isNtiActiu())
+			throw new ValidacioException("Aquest expedient no es pot migrar perquè el tipus d'expedient no té activades les metadades NTI");
+
 		// Fa validacions prèvies
 		if (!expedient.getTipus().isArxiuActiu())
-			throw new ValidacioException("Aquest expedient no es pot migrar perquè no el tipus d'expedient no té activada la intagració amb l'arxiu");
+			throw new ValidacioException("Aquest expedient no es pot migrar perquè el tipus d'expedient no té activada la intagració amb l'arxiu");
 		
 		if (expedient.getArxiuUuid() != null && !expedient.getArxiuUuid().isEmpty())
 			throw new ValidacioException("Aquest expedient ja està vinculat a l'arxiu amb la uuid: " + expedient.getArxiuUuid());
@@ -765,6 +768,13 @@ public class ExpedientHelper {
 		if (!noConvertibles.isEmpty())
 			throw new ValidacioException("No es pot migrar l'expedient perquè conté els següents documents no convertibles a PDF per persistir-los a l'Arxiu: " + noConvertibles.toString());
 
+		if (!expedient.isNtiActiu()) {
+			// Informa les metadades NTI de l'expedient
+			expedient.setNtiVersion(VERSIO_NTI);
+			expedient.setNtiOrgano(expedient.getTipus().getNtiOrgano());
+			expedient.setNtiClasificacion(expedient.getTipus().getNtiClasificacion());
+			expedient.setNtiSerieDocumental(expedient.getTipus().getNtiSerieDocumental());			
+		}
 
 		// Migra a l'Arxiu
 		ContingutArxiu expedientCreat = pluginHelper.arxiuExpedientCrear(expedient);
@@ -776,8 +786,6 @@ public class ExpedientHelper {
 				expedientCreat.getIdentificador());
 		expedient.setNtiIdentificador(
 				expedientArxiu.getMetadades().getIdentificador());
-		expedient.setArxiuActiu(true);
-		expedient.setNtiActiu(true);
 		
 		List<DocumentStore> documents = documentStoreRepository.findByProcessInstanceId(expedient.getProcessInstanceId());
 		
@@ -787,6 +795,19 @@ public class ExpedientHelper {
 			Document document = documentHelper.findDocumentPerInstanciaProcesICodi(
 					expedient.getProcessInstanceId(),
 					documentStore.getCodiDocument());
+			
+			if (!expedient.isNtiActiu()) {
+				// Informa les metadades NTI del document
+				documentHelper.actualizarMetadadesNti(
+						expedient, 
+						document, 
+						documentStore, 
+						null, //ntiOrigen
+						null, //ntiEstadoElaboracion
+						null, //ntiTipoDocumental
+						null); //ntiIdDocumentoOrigen
+			}
+			
 			String documentDescripcio;
 			if (documentStore.isAdjunt()) {
 				documentDescripcio = documentStore.getAdjuntTitol();
@@ -850,6 +871,11 @@ public class ExpedientHelper {
 			}
 			documentStore.setArxiuContingut(null);			
 		}
+
+		// Informa convorme l'expedient és NTI i a l'Arxiu
+		expedient.setArxiuActiu(true);
+		expedient.setNtiActiu(true);
+
 		if (expedient.getDataFi() != null) {
 			this.tancarExpedientArxiu(expedient);
 		}
@@ -993,6 +1019,23 @@ public class ExpedientHelper {
 		}
 		return expedient;
 	}
+	
+	/** Per buscar per títol
+	 * 
+	 * @param entornId
+	 * @param expedientTipusId
+	 * @param titol
+	 * @return
+	 */
+	public List<Expedient> findByEntornIdAndTipusAndTitol(Long entornId, Long expedientTipusId, String titol) {
+		List<Expedient> expedients = expedientRepository.findByEntornIdAndTipusIdAndTitol(
+				entornId, 
+				expedientTipusId, 
+				titol == null, 
+				titol != null? titol : "");
+		return expedients;
+	}
+
 	
 	public DefinicioProces findDefinicioProcesByProcessInstanceId(
 			String processInstanceId) {
@@ -1335,7 +1378,7 @@ public class ExpedientHelper {
 		}
 	}
 
-	@Transactional
+	@Transactional(propagation = Propagation.REQUIRES_NEW)
 	public Expedient iniciar(
 			Long entornId,
 			String usuari,
@@ -1365,7 +1408,7 @@ public class ExpedientHelper {
 			String iniciadorCodi,
 			String responsableCodi,
 			Map<String, DadesDocumentDto> documents,
-			List<DadesDocumentDto> adjunts) {
+			List<DadesDocumentDto> adjunts) throws Exception {
 		
 		Expedient expedient = new Expedient();
 		Entorn entorn = entornHelper.getEntorn(entornId);
@@ -1496,6 +1539,16 @@ public class ExpedientHelper {
 			else
 				expedient.setTitol("[Sense títol]");
 		}
+		// Verifica si pot estar repetit per tipus d'expedient
+		if (expedientTipus.getTeTitol() && expedientTipus.getDemanaTitol()) {
+			List<Expedient> expedientMateixTitol = this.findByEntornIdAndTipusAndTitol(entornId, expedientTipusId, expedient.getTitol());
+			if (expedientMateixTitol.size() > 0)
+				throw new ValidacioException(
+						messageHelper.getMessage(
+								"error.expedient.titolrepetit",
+								new Object[]{expedient.getNumero()}) );			
+		}
+		
 		mesuresTemporalsHelper.mesuraCalcular("Iniciar", "expedient", expedientTipus.getNom(), null, "Actualitzar any i sequencia");
 		
 		// Inicia l'instància de procés jBPM
@@ -1628,7 +1681,7 @@ public class ExpedientHelper {
 				} catch(Exception re) {
 					logger.error("Error esborrant l'expedient " + expedientPerRetornar.getIdentificador() + " amb uuid " + arxiuUuid + " :" + re.getMessage());
 				}
-			throw new RuntimeException("Error iniciant l'expedient " + expedientTipus.getNom(), e);
+			throw e;
 		}
 		
 		mesuresTemporalsHelper.mesuraCalcular("Iniciar", "expedient", expedientTipus.getNom());
@@ -1705,6 +1758,9 @@ public class ExpedientHelper {
 					numero);
 			increment++;
 		} while (expedient != null);
+		if (increment > 1) {
+			expedientTipus.updateSequencia(any, increment -1);
+		}
 		return numero;
 	}
 	

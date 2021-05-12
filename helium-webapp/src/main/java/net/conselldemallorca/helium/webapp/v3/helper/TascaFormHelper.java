@@ -496,7 +496,7 @@ public class TascaFormHelper {
 					Object registre = registres.get(camp.getVarCodi());
 					if (camp.isCampMultiple()) {
 						valorRegistre = Array.newInstance(registre.getClass(), camp.isRequired() ? 1 : 0);
-						if (camp.isRequired())
+						if (camp.isRequired() && !camp.isReadOnly())
 							((Object[])valorRegistre)[0] = registre;
 					} else {
 						valorRegistre = registre;
@@ -727,31 +727,38 @@ public class TascaFormHelper {
 		try {
 			if (camp.isCampMultiple()) {
 				int midaLinia = camp.getMultipleDades().get(0).getRegistreDades().size();
-				int mida = camp.isReadOnly() ? camp.getMultipleDades().size() : ((Object[])valor).length;
+				// Validar que és correcte el següent:
+				//int mida = camp.isReadOnly() ? camp.getMultipleDades().size() : ((Object[])valor).length;
+				int mida = valor != null ? ((Object[])valor).length : 0;
+				
 				Object[][] linies = new Object[mida][midaLinia];
-				boolean varIncloure = false;				
-				for (int l = 0; l < mida; l++) {
-					Object registre = camp.isReadOnly() ? null : ((Object[])valor)[l];
-					int i = 0;
-					for (TascaDadaDto campRegistre : camp.getMultipleDades().get(0).getRegistreDades()) {
-						Object oValor = null;
-						if (camp.isReadOnly()) {
-							oValor = (camp.getMultipleDades().get(l).getRegistreDades().get(i)).getVarValor();
-						} else {
-							oValor = PropertyUtils.getProperty(registre, campRegistre.getVarCodi());
-						}
-						if (oValor instanceof String[])
-							if (((String[])oValor).length < 3) {
-								oValor = null;
+				boolean varIncloure = false;
+				if (mida > 0) {
+					for (int l = 0; l < mida; l++) {
+						Object registre = camp.isReadOnly() ? null : ((Object[])valor)[l];
+						int i = 0;
+						for (TascaDadaDto campRegistre : camp.getMultipleDades().get(0).getRegistreDades()) {
+							Object oValor = null;
+							if (camp.isReadOnly()) {
+								oValor = (camp.getMultipleDades().get(l).getRegistreDades().get(i)).getVarValor();
 							} else {
-								String[] pre_oValor = (String[])oValor; 
-								oValor = obtenirValorTermini(pre_oValor);
+								oValor = PropertyUtils.getProperty(registre, campRegistre.getVarCodi());
 							}
-						if (!esIniciExpedient || (oValor != null && !(oValor instanceof Boolean && !(Boolean) oValor)))
-							varIncloure = true;
-						oValor = compatibilitat26(campRegistre, oValor);
-						linies[l][i++] = oValor;
+							if (oValor instanceof String[])
+								if (((String[])oValor).length < 3) {
+									oValor = null;
+								} else {
+									String[] pre_oValor = (String[])oValor; 
+									oValor = obtenirValorTermini(pre_oValor);
+								}
+							if (!esIniciExpedient || (oValor != null && !(oValor instanceof Boolean && !(Boolean) oValor)))
+								varIncloure = true;
+							oValor = compatibilitat26(campRegistre, oValor);
+							linies[l][i++] = oValor;
+						}
 					}
+				} else {
+					varIncloure = !esIniciExpedient;
 				}
 				return varIncloure ? linies : null;
 			} else {

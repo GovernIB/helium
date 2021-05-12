@@ -258,7 +258,8 @@ public class ExpedientTipusExportarValidator implements ConstraintValidator<Expe
 
 					if (mapeig.getTipus() == TipusMapeig.Variable
 							&& ((expedientTipus.isAmbInfoPropia() && !command.getVariables().contains(mapeig.getCodiHelium())
-								|| (!expedientTipus.isAmbInfoPropia() && !campCodis.contains(mapeig.getCodiHelium()))))) {
+								|| (!expedientTipus.isAmbInfoPropia() && !campCodis.contains(mapeig.getCodiHelium()))))
+							&& (expedientTipus.isAmbInfoPropia() && !command.getDefinicionsProces().contains(mapeig.getCodiHelium()))) {
 							context.buildConstraintViolationWithTemplate(
 									MessageHelper.getInstance().getMessage(
 											this.codiMissatge + ".mapeigSistra.variable", 

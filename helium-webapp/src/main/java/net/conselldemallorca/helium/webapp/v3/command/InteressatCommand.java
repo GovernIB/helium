@@ -49,7 +49,7 @@ public class InteressatCommand {
 	private String linia1;
 	@Size(max=50)
 	private String linia2;
-	@Size(max=5)
+	@Size(max=5, groups = {Creacio.class, Modificacio.class})
 	private String codiPostal;
 	private Boolean entregaDeh;
 	private Boolean entregaDehObligat;

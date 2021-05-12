@@ -9,6 +9,7 @@ import java.util.Set;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.PathParam;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -85,7 +86,13 @@ public class MassivaTascaReassignacioController extends BaseExpedientController 
 	public String personaSuggest(
 			@PathVariable String text,
 			Model model) {
-		List<PersonaDto> lista = aplicacioService.findPersonaLikeNomSencer(text);
+		String textDecoded = text;
+//		try {
+//			textDecoded = URLDecoder.decode(text, "UTF-8");
+//		} catch (UnsupportedEncodingException ex) {
+//			logger.error("MassivaTascaReassignacioController.personaSuggest --> " + ex.getMessage());
+//		}
+		List<PersonaDto> lista = aplicacioService.findPersonaLikeNomSencer(textDecoded);
 		String json = "[";
 		for (PersonaDto persona: lista) {
 			json += "{\"codi\":\"" + persona.getCodi() + "\", \"nom\":\"" + persona.getNomSencer() + "\"},";

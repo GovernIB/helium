@@ -176,35 +176,45 @@ public class ExpedientDadaController extends BaseExpedientController {
 			HttpServletRequest request,
 			Long expedientId,
 			String procesId,
-			String varCodi,			
+			String varCodi,
+			boolean ple, // indica si consultar l'objecte informat
 			Model model) {
+		// S'ha de inicialitzar el command abans de processar el RequestMapping
+		// del POSTs amb les modificacions al formulari de la tasca
 		if (procesId != null && !"".equals(procesId) && varCodi != null && !"".equals(varCodi)) {
-			try {
-				Map<String, Object> campsAddicionals = new HashMap<String, Object>();
-				Map<String, Class<?>> campsAddicionalsClasses = new HashMap<String, Class<?>>();
-				List<TascaDadaDto> llistTasca = new ArrayList<TascaDadaDto>();
-				TascaDadaDto tascaDada = TascaFormHelper.getTascaDadaDtoFromExpedientDadaDto(
-						expedientDadaService.findOnePerInstanciaProces(
-								expedientId,
-								procesId,
-								varCodi));
-				if (tascaDada.getError() != null)
-					MissatgesHelper.error(request, tascaDada.getError());
-				llistTasca.add(tascaDada);
-				model.addAttribute("procesId", procesId);
-				model.addAttribute("varCodi", varCodi);
-				model.addAttribute("dada", tascaDada);
+		try {
+			Map<String, Object> campsAddicionals = new HashMap<String, Object>();
+			Map<String, Class<?>> campsAddicionalsClasses = new HashMap<String, Class<?>>();
+			List<TascaDadaDto> llistTasca = new ArrayList<TascaDadaDto>();
+			TascaDadaDto tascaDada = TascaFormHelper.getTascaDadaDtoFromExpedientDadaDto(
+					expedientDadaService.findOnePerInstanciaProces(
+							expedientId,
+							procesId,
+							varCodi));
+			if (tascaDada.getError() != null)
+				MissatgesHelper.error(request, tascaDada.getError());
+			llistTasca.add(tascaDada);
+			model.addAttribute("procesId", procesId);
+			model.addAttribute("varCodi", varCodi);
+			model.addAttribute("dada", tascaDada);
+			if (ple)
 				return TascaFormHelper.getCommandForCamps(
 						llistTasca,
 						null,
 						campsAddicionals,
 						campsAddicionalsClasses,
 						false);
-			} catch (Exception ex) {
-				MissatgesHelper.error(request, ex.getMessage());
-				logger.error("No s'ha pogut obtenir la informació de la dada " + varCodi + ": "  + ex.getMessage(), ex);
-			} 
-		}
+			else 
+				return TascaFormHelper.getCommandBuitForCamps(
+						llistTasca,
+						campsAddicionals,
+						campsAddicionalsClasses,
+						false);
+		} catch (Exception ex) {
+			MissatgesHelper.error(request, ex.getMessage());
+			logger.error("No s'ha pogut obtenir la informació de la dada " + varCodi + ": "  + ex.getMessage(), ex);
+		} 
+	}
 		return null;
 	}
 
@@ -222,6 +232,7 @@ public class ExpedientDadaController extends BaseExpedientController {
 					expedientId,
 					procesId,
 					URLDecoder.decode(varCodi,"UTF-8"),
+					true, // emplenar
 					model);
 			model.addAttribute("modificarVariableCommand", command);
 		} catch (UnsupportedEncodingException e) {

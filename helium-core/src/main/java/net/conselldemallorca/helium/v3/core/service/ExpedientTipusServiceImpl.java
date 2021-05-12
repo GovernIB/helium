@@ -1597,6 +1597,41 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 				tipuss,
 				ExpedientTipusDto.class);
 	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@Transactional
+	public List<ExpedientTipusDto> findAmbEntornPermisExecucioScript(
+			Long entornId) {
+		logger.debug(
+				"Consultant tipus d'expedient per un entorn i amb permisos d'execució d'scripts (" +
+				"entornId=" + entornId + ")");
+		Entorn entorn = entornHelper.getEntornComprovantPermisos(
+				entornId,
+				true);
+		List<ExpedientTipus> tipuss = expedientTipusRepository.findByEntorn(entorn);
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		if (!UsuariActualHelper.isAdministrador(auth)) {
+			permisosHelper.filterGrantedAny(
+					tipuss,
+					new ObjectIdentifierExtractor<ExpedientTipus>() {
+						@Override
+						public Long getObjectIdentifier(ExpedientTipus expedientTipus) {
+							return expedientTipus.getId();
+						}
+					},
+					ExpedientTipus.class,
+					new Permission[] {
+							BasePermission.ADMINISTRATION,
+							ExtendedPermission.SCRIPT_EXE},
+					auth);
+		}
+		return conversioTipusHelper.convertirList(
+				tipuss,
+				ExpedientTipusDto.class);
+	}
 
 	/**
 	 * {@inheritDoc}

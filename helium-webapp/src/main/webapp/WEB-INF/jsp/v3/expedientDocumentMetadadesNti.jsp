@@ -128,6 +128,27 @@
 			</c:if>
 		</tbody>
 	</table>
+	<c:if test="${errorMetadadesNti}">
+		<div class="row alert alert-danger" style="margin: 0px; margin-bottom: 10px;">
+			<div class="col-sm-10">
+				<p><spring:message code="expedient.metadades.nti.dades.error.info"/></p>
+			</div>
+			<div class="col-sm-2">
+				<form  action="<c:url value="/v3/expedient/${expedient.id}/metadadesNti/arreglar"/>" 
+					method="post">
+					<button id="arreglarNtiButton" 
+						type="submit" 
+						class="btn btn-default"
+						title="<spring:message code='expedient.metadades.nti.dades.error.arreglar.info'></spring:message>">
+						<span class="fa fa-cog"></span>
+						<spring:message code="expedient.metadades.nti.dades.error.arreglar"></spring:message>
+					</button>
+				<form>
+			</div>
+		</div>
+	</c:if>
+	
+	
 	<c:if test="${not empty arxiuDetall}">
 			</div>
 			<div role="tabpanel" class="tab-pane" id="arxiu">

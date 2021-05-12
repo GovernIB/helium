@@ -227,6 +227,10 @@ public class EntornInterceptor extends HandlerInterceptorAdapter {
 				SessionHelper.VARIABLE_PERMIS_ANOTACIONS_PROCESSAR, 
 				!expedientTipusService.findAmbEntornPermisAnotacio(entorn.getId()).isEmpty());
 		SessionHelper.setAttribute(
+				request, 
+				SessionHelper.VARIABLE_PERMIS_SCRIPTS_EXECUTAR,
+				!expedientTipusService.findAmbEntornPermisExecucioScript(entorn.getId()).isEmpty());
+		SessionHelper.setAttribute(
 				request,
 				SessionHelper.VARIABLE_PREFERENCIES_USUARI,
 				aplicacioService.getUsuariPreferencies());
@@ -239,10 +243,13 @@ public class EntornInterceptor extends HandlerInterceptorAdapter {
 		// Actualitza si hi ha expedients per iniciar
 		List<ExpedientTipusDto> tipusCrear = expedientTipusService.findAmbEntornPermisCrear(
 				entorn.getId());
+		
+		List<ExpedientTipusDto> tipusAltaCsv = expedientTipusService.findAmbEntornPermisExecucioScript(
+				entorn.getId());
 		SessionHelper.setAttribute(
 				request,
 				SessionHelper.VARIABLE_HIHA_TRAMITS_INICIABLES,
-				new Boolean(tipusCrear.size() > 0));
+				new Boolean(tipusCrear.size() > 0 || tipusAltaCsv.size() > 0));
 		
 		
 		// Eliminam expedient actual

@@ -102,6 +102,7 @@ public class InteressatValidator implements ConstraintValidator<Interessat, Inte
 					.addConstraintViolation();
 				valid = false;
 			}
+			
 		} catch (final Exception ex) {
 			logger.error("Ha d'informar els camps codi postal, línia 1 i línia 2 quan hi ha entrega postal", ex);
         }

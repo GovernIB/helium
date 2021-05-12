@@ -99,4 +99,10 @@ public interface AnotacioService {
 	 * @return
 	 */
 	public void reintentarAnnex(Long anotacioId, Long annexId) throws Exception;
+
+	/** Mètode en una nova transacció perquè s'han produït errors en PRO consultant
+	 * anotacions per a un expedient. Issue #1480.
+	 * @param expedientId
+	 */
+	public void esborrarAnotacionsExpedient(Long expedientId);
 }

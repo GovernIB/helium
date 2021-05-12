@@ -142,7 +142,7 @@
                                     <c:set var="campErrorsMultiple">
                                         <form:errors path="${dada.varCodi}" />
                                     </c:set>
-                                    <label for="${dada.varCodi}" class="control-label<c:if test=" ${dada.required}">
+                                    <label for="${dada.varCodi}" class="control-label <c:if test="${dada.required}">
                                         obligatori</c:if>" style="width: ${ampleLabel}; float:
                                         left;">${dada.campEtiqueta}</label>
                                     <div class="like-cols multiple<c:if test=" ${not empty campErrorsMultiple}">

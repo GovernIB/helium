@@ -85,8 +85,8 @@ function userAborted(xhr) {
 	return !xhr.getAllResponseHeaders();
 }
 
-/** Funció per descarregar un arxiu i refrescar missatges */
-function webutilDownloadAndRefresh(arxiuUrl, event) {
+/** Funció per descarregar un arxiu i refrescar missatges. També és possible passar una funció de callback com a paràmetre */
+function webutilDownloadAndRefresh(arxiuUrl, event, callbackFunction) {
 
 	// Fa la petició a la url de l'arxiu
 	$.get( arxiuUrl, { responseType: 'arraybuffer' })
@@ -109,6 +109,12 @@ function webutilDownloadAndRefresh(arxiuUrl, event) {
             (document.body || document.documentElement).appendChild(link);
             link.click();
 		}).always(function(){
+			if (callbackFunction)
+				try {
+					callbackFunction();
+				} catch(e) {
+					console.error("Error executant la funció de callback " + callbackFunction + ": " + e);
+				}
 			webutilRefreshMissatges();
 		});
 	// Atura els events de l'enllaç

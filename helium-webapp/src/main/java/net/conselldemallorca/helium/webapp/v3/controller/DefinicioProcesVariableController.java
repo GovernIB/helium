@@ -272,7 +272,7 @@ public class DefinicioProcesVariableController extends BaseVariableController {
 			@PathVariable Long id,
 			Model model) {
 		
-		DefinicioProcesDto definicioProces = definicioProcesService.findAmbIdAndEntorn(EntornActual.getEntornId(), definicioProcesId);
+		DefinicioProcesDto definicioProces = definicioProcesService.findAmbIdPermisDissenyar(EntornActual.getEntornId(), definicioProcesId);
 		Long expedientTipusId = definicioProces.getExpedientTipus() != null ? definicioProces.getExpedientTipus().getId() : null;
 		if (validaEsborratCamp(request, expedientTipusId, id)) {
 			try {
@@ -467,7 +467,7 @@ public class DefinicioProcesVariableController extends BaseVariableController {
 				model,
 				false);
 		
-		DefinicioProcesDto definicioProces = definicioProcesService.findAmbIdAndEntorn(entornId,
+		DefinicioProcesDto definicioProces = definicioProcesService.findAmbIdPermisDissenyar(entornId,
 				definicioProcesId);
 		model.addAttribute("definicioProces", definicioProces);
 		
@@ -488,7 +488,7 @@ public class DefinicioProcesVariableController extends BaseVariableController {
 	private void omplirModelVariablesPestanya(HttpServletRequest request, Long definicioProcesId, Model model) {
 		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
 		if (entornActual != null) {
-			DefinicioProcesDto definicioProces = definicioProcesService.findAmbIdAndEntorn(entornActual.getId(),
+			DefinicioProcesDto definicioProces = definicioProcesService.findAmbIdPermisDissenyar(entornActual.getId(),
 					definicioProcesId);
 			model.addAttribute("definicioProces", definicioProces);
 			model.addAttribute("baseUrl", ("/helium/v3/definicioProces/" + definicioProces.getJbpmKey() + "/" + definicioProces.getId().toString()));

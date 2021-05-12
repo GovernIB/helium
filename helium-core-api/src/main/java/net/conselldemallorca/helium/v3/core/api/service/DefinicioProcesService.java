@@ -512,7 +512,25 @@ public interface DefinicioProcesService {
 	 * @throws PermisDenegatException
 	 *             Si no es tenen els permisos necessaris.
 	 */
-	public DefinicioProcesDto findAmbIdAndEntorn(
+	public DefinicioProcesDto findAmbIdPermisDissenyar(
+			Long entornId,
+			Long definicioProcesId) throws NoTrobatException;
+	
+	/**
+	 * Retorna una definicio de procés donat el seu id per a dissenyar amb permís delegat. El permís
+	 * delegat és menys restrictiu que el permís d'administrador.
+	 * 
+	 * @param entornId
+	 *            Atribut id de l'entorn.
+	 * @param definicioProcesId
+	 *            Atribut id de la definicio de proces.
+	 * @return Definicio de proces
+	 * @throws NoTrobatException
+	 *             Si no s'ha trobat el registre amb l'id especificat.
+	 * @throws PermisDenegatException
+	 *             Si no es tenen els permisos necessaris.
+	 */
+	public DefinicioProcesDto findAmbIdPermisDissenyarDelegat(
 			Long entornId,
 			Long definicioProcesId) throws NoTrobatException;
 

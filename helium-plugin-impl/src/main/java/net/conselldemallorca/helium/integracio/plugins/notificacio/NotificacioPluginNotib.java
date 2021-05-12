@@ -56,7 +56,6 @@ public class NotificacioPluginNotib implements NotificacioPlugin {
 			
 			NotificacioV2 notificacioNotib = new NotificacioV2();
 			notificacioNotib.setEmisorDir3Codi(notificacio.getEmisorDir3Codi());
-			notificacioNotib.setProcedimentCodi("");
 			notificacioNotib.setEnviamentTipus(notificacio.getEnviamentTipus() != null ? EnviamentTipusEnum.valueOf(notificacio.getEnviamentTipus().toString()) : null);
 			notificacioNotib.setConcepte(notificacio.getConcepte());
 			notificacioNotib.setDescripcio(notificacio.getDescripcio());

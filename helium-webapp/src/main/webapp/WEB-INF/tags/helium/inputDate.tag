@@ -11,6 +11,7 @@
 <%@ attribute name="comment" required="false" rtexprvalue="true"%>
 <%@ attribute name="disabled" required="false" rtexprvalue="true"%>
 <%@ attribute name="labelSize" required="false" rtexprvalue="true"%>
+<%@ attribute name="time" required="false" rtexprvalue="true"%>
 <c:if test="${empty labelSize}"><c:set var="labelSize" value="${4}"/></c:if>
 <c:if test="${empty labelSize}"><c:set var="emptyLabelSize" value=""/></c:if>
 <c:set var="campClassRequired"><c:if test="${required}">obligatori</c:if></c:set>
@@ -26,7 +27,7 @@
 			<div class="col-xs-${12 - labelSize}">
 				<div class="input-group" style="width:100%">
 					<div class="input-group date">
-						<form:input path="${campPath}" cssClass="form-control datetimepicker date" data-format="dd/MM/yyyy" id="${campPath}" disabled="${disabled}"/>
+						<form:input path="${campPath}" cssClass="form-control datetimepicker date" data-format="dd/MM/yyyy${time == true ? ' HH:mm' : ''}" id="${campPath}" disabled="${disabled}"/>
 						<span class="input-group-addon btn_date" style="width:1%"><span class="fa fa-calendar"></span></span>
 					</div>
 				</div>
@@ -52,12 +53,12 @@
 		</div>
 	</c:otherwise>
 </c:choose>
-<script>$("#${campPath}").mask("99/99/9999");</script>
+<script>$("#${campPath}").mask("99/99/9999${time == true ? ' 99:99' : ''}");</script>
 <script>
 $(document).ready(function() {
 	$('.datetimepicker').datetimepicker({
 		locale: moment.locale('${idioma}'),
-		format: 'DD/MM/YYYY'
+		format: 'DD/MM/YYYY${time == true ? " HH:mm" : ""}'
     }).on('dp.show', function() {
 		var iframe = $('.modal-body iframe', window.parent.document);
 		var divField = $('.modal-body iframe', window.parent.document).contents().find('body>div');

@@ -1046,6 +1046,13 @@ public class LuceneHelper extends LuceneIndexSupport {
 	}
 
 	private void updateDocumentCamp(Document document, DefinicioProces definicioProces, Camp camp, Object valor, Map<String, String> textDominis, boolean checkMultiple, boolean isUpdate, Set<String> campsActualitzats) {
+		String clauIndex;
+		if (camp.getExpedientTipus() == null)
+			// Definició de procés
+			clauIndex = definicioProces.getJbpmKey() + "." + camp.getCodi();
+		else
+			// Expedient tipus
+			clauIndex = camp.getCodi();
 		if (valor != null) {
 			if (checkMultiple && camp.isMultiple()) {
 				Object[] valors = (Object[]) valor;
@@ -1061,13 +1068,6 @@ public class LuceneHelper extends LuceneIndexSupport {
 						updateDocumentCamp(document, definicioProces, membre, valorsMembres[index++], textDominis, false, isUpdate, campsActualitzats);
 				}
 			} else {
-				String clauIndex;
-				if (camp.getExpedientTipus() == null)
-					// Definició de procés
-					clauIndex = definicioProces.getJbpmKey() + "." + camp.getCodi();
-				else
-					// Expedient tipus
-					clauIndex = camp.getCodi();
 				String valorIndex = valorIndexPerCamp(camp, valor);
 				boolean analyzed = camp.getTipus().equals(TipusCamp.STRING) || camp.getTipus().equals(TipusCamp.TEXTAREA);
 				boolean update = isUpdate && !campsActualitzats.contains(clauIndex);
@@ -1083,42 +1083,45 @@ public class LuceneHelper extends LuceneIndexSupport {
 					createOrUpdateDocumentField(document, new Field(clauIndex + VALOR_DOMINI_SUFIX + valorIndex, textDomini, Field.Store.YES, Field.Index.ANALYZED), update);
 				}
 			}
+		} else {
+			removeDocumentField(document, clauIndex);
 		}
 	}
 
 	protected String valorIndexPerCamp(Camp camp, Object valor) {
-		if (camp.getTipus().equals(TipusCamp.INTEGER)) {
-			return numberPerIndexar((Long) valor);
-		} else if (camp.getTipus().equals(TipusCamp.FLOAT)) {
-			return numberPerIndexar((Double) valor);
-		} else if (camp.getTipus().equals(TipusCamp.BOOLEAN)) {
-			return ((Boolean) valor) ? "S" : "N";
-		} else if (camp.getTipus().equals(TipusCamp.DATE)) {
-			return dataPerIndexar((Date) valor);
-		} else if (camp.getTipus().equals(TipusCamp.PRICE)) {
-			return numberPerIndexar((BigDecimal) valor);
-		} else if (camp.getTipus().equals(TipusCamp.TERMINI)) {
-			if (valor instanceof Termini) {
-				Termini term = (Termini) valor;
-				return term.getAnys() + "/" + term.getMesos() + "/" + term.getDies();
-			} else if (valor instanceof String) { 
+		if (valor != null) {
+			if (camp.getTipus().equals(TipusCamp.INTEGER)) {
+				return numberPerIndexar((Long) valor);
+			} else if (camp.getTipus().equals(TipusCamp.FLOAT)) {
+				return numberPerIndexar((Double) valor);
+			} else if (camp.getTipus().equals(TipusCamp.BOOLEAN)) {
+				return ((Boolean) valor) ? "S" : "N";
+			} else if (camp.getTipus().equals(TipusCamp.DATE)) {
+				return dataPerIndexar((Date) valor);
+			} else if (camp.getTipus().equals(TipusCamp.PRICE)) {
+				return numberPerIndexar((BigDecimal) valor);
+			} else if (camp.getTipus().equals(TipusCamp.TERMINI)) {
+				if (valor instanceof Termini) {
+					Termini term = (Termini) valor;
+					return term.getAnys() + "/" + term.getMesos() + "/" + term.getDies();
+				} else if (valor instanceof String) { 
+					return (String) valor;
+				} else {
+					return valor.toString();
+				}
+			} else if (camp.getTipus().equals(TipusCamp.SELECCIO)) {
 				return (String) valor;
+			} else if (camp.getTipus().equals(TipusCamp.SUGGEST)) {
+				return (String) valor;
+			} else if (camp.getTipus().equals(TipusCamp.STRING)) {
+				return ((String) valor);
+			} else if (camp.getTipus().equals(TipusCamp.TEXTAREA)) {
+				return ((String) valor);
 			} else {
 				return valor.toString();
 			}
-		} else if (camp.getTipus().equals(TipusCamp.SELECCIO)) {
-			return (String) valor;
-		} else if (camp.getTipus().equals(TipusCamp.SUGGEST)) {
-			return (String) valor;
-		} else if (camp.getTipus().equals(TipusCamp.STRING)) {
-			return ((String) valor);
-		} else if (camp.getTipus().equals(TipusCamp.TEXTAREA)) {
-			return ((String) valor);
-		} else {
-			if (valor == null)
-				return null;
-			return valor.toString();
-		}
+		} else 
+			return "";
 	}
 
 	protected Object valorCampPerIndex(Camp camp, String valor) throws Exception {
@@ -1174,17 +1177,21 @@ public class LuceneHelper extends LuceneIndexSupport {
 	}
 
 	private void getClassAsString(StringBuilder sb, Object o) {
-		if (o.getClass().isArray()) {
-			sb.append("[");
-			int length = Array.getLength(o);
-			for (int i = 0; i < length; i++) {
-				getClassAsString(sb, Array.get(o, i));
-				if (i < length - 1)
-					sb.append(", ");
+		if (o != null) {
+			if (o.getClass().isArray()) {
+				sb.append("[");
+				int length = Array.getLength(o);
+				for (int i = 0; i < length; i++) {
+					getClassAsString(sb, Array.get(o, i));
+					if (i < length - 1)
+						sb.append(", ");
+				}
+				sb.append("]");
+			} else {
+				sb.append(o.getClass().getName());
 			}
-			sb.append("]");
 		} else {
-			sb.append(o.getClass().getName());
+			sb.append("null");
 		}
 	}
 	

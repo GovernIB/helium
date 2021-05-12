@@ -72,10 +72,10 @@ public class CampCommand {
 	private String consultaCampValor;
 	
 	// Dades de la acció
-	//@NotEmpty(groups = {Creacio.class, Modificacio.class})
+	//@NotEmpty(groups = {AltaMassiva.class, Modificacio.class})
 	@Size(max = 255, groups = {Creacio.class, Modificacio.class})
 	private String defprocJbpmKey;
-	//@NotEmpty(groups = {Creacio.class, Modificacio.class})
+	//@NotEmpty(groups = {AltaMassiva.class, Modificacio.class})
 	@Size(max = 255, groups = {Creacio.class, Modificacio.class})
 	private String jbpmAction;
 	

@@ -282,7 +282,8 @@
 	    		'<div class="col-md-2"><span class="desc-limit" title="' + title + '">' + execucio.text + '</span></div>' +
 				'<div class="col-md-2 one-line"><div><span class="mass-badge badge in-line-badge">' + execucio.total + '</span></div> ' + 
 												'<div class="massiu-dades" id="pbar_' + execucio.id + '"><span class="plabel" id="plabel_' + execucio.id + '">' + execucio.executades + '%</span></div> ' + 
-												'<div class="mass-cancelar" style="position: absolute; right: -10px; display: ' + (execucio.executades == 100 ? 'none' : 'inline') + '"><a id="mass_cancelar_' + execucio.id + '" class="btn btn-default btn-xs" data-id="' + execucio.id + '" title="<spring:message code="comu.boto.cancelar"/>"><span class="fa fa-stop text-danger"></span></a></div></div>' +
+												'<div class="mass-cancelar" style="position: absolute; right: -10px; display: ' + (execucio.executades == 100 ? 'none' : 'inline') + '"><a id="mass_cancelar_' + execucio.id + '" class="btn btn-default btn-xs" data-id="' + execucio.id + '" title="<spring:message code="comu.boto.cancelar"/>"><span class="fa fa-stop text-danger"></span></a></div>' +
+												'<div class="mass-rependre" style="position: absolute; right: -10px; z-index: 999; display: ' + (!execucio.cancelada ? 'none' : 'inline') + '"><a id="mass_rependre_' + execucio.id + '" class="btn btn-default btn-xs" data-id="' + execucio.id + '" title="<spring:message code="comu.boto.rependre"/>"><span class="fa fa-play"></span></a></div></div>' +		
 				'<div class="mass-processat col-md-1 text-right">' + execucio.processat + '</div>' + 
 				'<div class="mass-error col-md-1 text-right">' + execucio.error + '</div>' + 
 				'<div class="col-md-2">' + execucio.data + '</div>' + 
@@ -402,6 +403,40 @@
 	        });	
 		}
 		
+		function rependreExecucioMassiva(id) {
+			// Confirmació
+			if (!confirm("<spring:message code="expedient.tramitacio.massiva.rependre.confirm"/>"))
+				return false;
+
+			webutilEsborrarAlertes();
+			$a = $('#mass_rependre_' + id);
+			$a.attr('disabled', 'disabled');
+			$.ajax({
+	            url : '<c:url value="/v3/execucionsMassives/rependreExecucioMassiva"/>', 
+	            type : 'POST',
+	            data : {id : id},
+	            dataType : 'json',
+	            success : function(data) {
+	            	if (data.error) {
+	            		webutilAlertaError(data.missatge);
+	            	} else {
+	            		webutilAlertaSuccess(data.missatge);
+	            		carregaExecucionsMassives(page, true)
+	            	}
+	            },
+	            error: function (request, status, error) {
+	            	// Mostra l'error
+	            	console.log("bar");
+	            	console.log(status);
+	            	console.log(error);
+	            	webutilAlertaError(request.responseText);
+	            },
+	            complete: function() {
+					$a.removeAttr('disabled');
+	            }
+	        });	
+		}
+		
 		function carregaExecucionsMassives(numResultats,header) {
 			$.ajax({
 				url: nivell + "/refreshBarsExpedientMassive",
@@ -488,6 +523,11 @@
 							event.preventDefault();
 							return false;
 						});
+						$('.mass-rependre a').click(function(event) {
+							rependreExecucioMassiva($(this).data('id'));
+							event.preventDefault();
+							return false;
+						});
 					    $("#accordio_massiva .panel-heading").click(function() {
 					    	$(this).find(".icona-collapse").toggleClass('fa-chevron-down');
 					    	$(this).find(".icona-collapse").toggleClass('fa-chevron-up');
@@ -542,10 +582,17 @@
 			$('#mass_' + execucio.id + ' .massiu-dades .mass-processat').text(execucio.processat);
 			$('#mass_' + execucio.id + ' .massiu-dades .mass-error').text(execucio.error);
 			$('#mass_' + execucio.id + ' .massiu-dades .mass-data-fi').text(execucio.dataFi != undefined ? execucio.dataFi : '');
-			if (execucio.executades == 100)
+			if (execucio.executades == 100) {
 				$('#mass_' + execucio.id + ' .mass-cancelar').hide();
-			else
-				$('#mass_' + execucio.id + ' .mass-cancelar').show();
+			} else {
+				$('#mass_' + execucio.id + ' .mass-cancelar').show();	
+			}
+			if (execucio.processat < execucio.total && execucio.dataFi) {
+				// Cancel·lada
+				$('#mass_' + execucio.id + ' .mass-rependre').show();
+			} else {
+				$('#mass_' + execucio.id + ' .mass-rependre').hide();
+			}
 			
 			createBar("pbar_" + execucio.id, execucio.executades);
 

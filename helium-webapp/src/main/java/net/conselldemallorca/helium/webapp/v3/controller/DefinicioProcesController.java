@@ -115,7 +115,7 @@ public class DefinicioProcesController extends BaseDefinicioProcesController {
 			Model model) {
 		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
 		try {
-			DefinicioProcesDto definicioProces = definicioProcesService.findAmbIdAndEntorn(entornActual.getId(), definicioProcesId);
+			DefinicioProcesDto definicioProces = definicioProcesService.findAmbIdPermisDissenyar(entornActual.getId(), definicioProcesId);
 			if (definicioProces == null)
 				throw new NoTrobatException(DefinicioProcesDto.class, definicioProcesId);
 
