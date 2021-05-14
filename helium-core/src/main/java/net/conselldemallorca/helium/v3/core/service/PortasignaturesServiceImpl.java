@@ -3,34 +3,14 @@
  */
 package net.conselldemallorca.helium.v3.core.service;
 
-import java.util.Date;
-import java.util.List;
-
-import javax.annotation.Resource;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import com.sun.star.plugin.PluginException;
-
 import net.conselldemallorca.helium.core.api.WProcessInstance;
 import net.conselldemallorca.helium.core.api.WToken;
 import net.conselldemallorca.helium.core.api.WorkflowEngineApi;
+import net.conselldemallorca.helium.core.api.WorkflowRetroaccioApi;
 import net.conselldemallorca.helium.core.api.WorkflowRetroaccioApi.ExpedientRetroaccioTipus;
 import net.conselldemallorca.helium.core.common.ThreadLocalInfo;
-import net.conselldemallorca.helium.core.helper.ConversioTipusHelper;
-import net.conselldemallorca.helium.core.helper.DocumentHelperV3;
-import net.conselldemallorca.helium.core.helper.ExceptionHelper;
-import net.conselldemallorca.helium.core.helper.ExpedientHelper;
-import net.conselldemallorca.helium.core.helper.IndexHelper;
-import net.conselldemallorca.helium.core.helper.MessageHelper;
-import net.conselldemallorca.helium.core.helper.PluginHelper;
-import net.conselldemallorca.helium.core.helper.PortasignaturesHelper;
-import net.conselldemallorca.helium.core.helper.ProcesCallbackHelper;
-import net.conselldemallorca.helium.core.helper.RetroaccioHelper;
+import net.conselldemallorca.helium.core.helper.*;
 import net.conselldemallorca.helium.core.model.hibernate.Alerta;
 import net.conselldemallorca.helium.core.model.hibernate.DocumentStore;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
@@ -44,6 +24,15 @@ import net.conselldemallorca.helium.v3.core.repository.AlertaRepository;
 import net.conselldemallorca.helium.v3.core.repository.DocumentStoreRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientRepository;
 import net.conselldemallorca.helium.v3.core.repository.PortasignaturesRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import javax.annotation.Resource;
+import java.util.Date;
+import java.util.List;
 
 
 /**
@@ -76,8 +65,6 @@ public class PortasignaturesServiceImpl implements PortasignaturesService {
 	@Resource
 	private IndexHelper indexHelper;
 	@Resource
-	private RetroaccioHelper retroaccioHelper;
-	@Resource
 	private ExceptionHelper exceptionHelper;
 	@Resource(name = "documentHelperV3")
 	private DocumentHelperV3 documentHelper;
@@ -85,6 +72,8 @@ public class PortasignaturesServiceImpl implements PortasignaturesService {
 	private MessageHelper messageHelper;
 	@Resource
 	private WorkflowEngineApi workflowEngineApi;
+	@Resource
+	private WorkflowRetroaccioApi workflowRetroaccioApi;
 
 
 	/**
@@ -170,7 +159,7 @@ public class PortasignaturesServiceImpl implements PortasignaturesService {
 					// Processa els documents signats
 					try {
 						ThreadLocalInfo.clearProcessInstanceFinalitzatIds();
-						retroaccioHelper.afegirInformacioRetroaccioPerProces(
+						workflowRetroaccioApi.afegirInformacioRetroaccioPerProces(
 								token.getProcessInstanceId(),
 								ExpedientRetroaccioTipus.PROCES_DOCUMENT_SIGNAR,
 								new Boolean(true).toString());
@@ -224,7 +213,7 @@ public class PortasignaturesServiceImpl implements PortasignaturesService {
 						(TipusEstat.ERROR.equals(portasignatures.getEstat()) && Transicio.REBUTJAT.equals(portasignatures.getTransition()))) {
 					// Processa els documents rebujats
 					try {
-						retroaccioHelper.afegirInformacioRetroaccioPerProces(
+						workflowRetroaccioApi.afegirInformacioRetroaccioPerProces(
 								token.getProcessInstanceId(),
 								ExpedientRetroaccioTipus.PROCES_DOCUMENT_SIGNAR,
 								new Boolean(false).toString());						
