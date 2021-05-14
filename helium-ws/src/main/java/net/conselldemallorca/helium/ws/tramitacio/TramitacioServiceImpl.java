@@ -532,7 +532,7 @@ public class TramitacioServiceImpl implements TramitacioService {
 			String entorn,
 			String usuari,
 			String processInstanceId) throws TramitacioException {
-		Entorn e = findEntornAmbCodi(entorn);
+		EntornDto e = findEntornAmbCodi(entorn);
 		if (e == null)
 			throw new TramitacioException("No existeix cap entorn amb el codi '" + entorn + "'");
 		final Timer timerTotal = metricRegistry.timer(
