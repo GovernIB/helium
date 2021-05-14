@@ -333,7 +333,7 @@ paths:
 # Mètodes de consulta
 
   /api/v1/consulta/resultats:
-    get:
+    post:
       tags:
         - Consulta
       operationId: consulta
@@ -344,12 +344,44 @@ paths:
       parameters:
         - $ref: '#/components/parameters/EntornIdParam'
         - $ref: '#/components/parameters/ExpedientTipusIdParam'
-        - $ref: '#/components/parameters/FiltreValorList'
-        - $ref: '#/components/parameters/columnaList'
-        - $ref: '#/components/parameters/FiltreParam'
-        - $ref: '#/components/parameters/PageNumberParam'
-        - $ref: '#/components/parameters/PageSizeParam'
-        - $ref: '#/components/parameters/SortParam'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Consulta'
+        
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DadaResponsePagedList'
+        '204':
+          description: No content
+        '400':
+          description: Bad input parameter
+          
+  /api/v1/consulta/resultats/llistat:
+    post:
+      tags:
+        - Consulta
+      operationId: consulta
+      description: Permet fer una consulta filtrant per valors de camps de forma genèrica i escollint les columnes pel resultat.
+      summary: Consulta de les dades dels expedients per tipus d'expedient filtrades, ordenades i amb selecció de columnes.
+        Els paràmetres per filtrar per valors es passaran com un mapa amb la clau de tipus string, i un valor en format string.
+        Les columnes seleccionades es pasaran com una llista de codis de variables a retornar. Per defecte es retornaran l'identificador de l'expedient, el número, el títol, la data d'alta i l'estat.
+      parameters:
+        - $ref: '#/components/parameters/EntornIdParam'
+        - $ref: '#/components/parameters/ExpedientTipusIdParam'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Consulta'
+        
       responses:
         '200':
           description: Ok
@@ -364,6 +396,27 @@ paths:
 components:
   schemas:
   
+    Consulta:
+      type: object
+      properties: 
+        entornid:
+          title: Identificador de l'entorn 
+          type: Integer
+        expedientTipusId:
+          title: Identificador del tipus d'expedient
+          type: Integer
+        page:
+          title: Número de pàgina que es demanaç
+          type: Integer
+        size:
+          title: Mida de la pàgina
+          type: Integer
+        filtreValors:
+          title: Map representant els filtres 
+          type: Map<String, Filtre>
+        columnes: 
+          title: Columnes solicitades a la consulta 
+          type: List<Columna>
     Expedient:
       type: object
       required:

@@ -79,9 +79,9 @@ public class BaseDissenyController extends BaseController {
 
 		DefinicioProcesDto definicioProces = null;
 		if (entornActual != null) {
-			if (definicioProcesId != null)
-				definicioProces = definicioProcesService.findAmbIdAndEntorn(entornActual.getId(), definicioProcesId);
-			else
+			if (definicioProcesId != null) {
+				definicioProces = definicioProcesService.findAmbIdPermisDissenyarDelegat(entornActual.getId(), definicioProcesId);
+			} else
 				definicioProces = definicioProcesService.findByEntornIdAndJbpmKey(entornActual.getId(), jbmpKey);
 
 			if (definicioProces == null) {

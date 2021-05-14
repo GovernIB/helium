@@ -37,6 +37,14 @@ div.proces:hover {
 
 </style>
 
+<c:set var="potAfegir">${expedient.permisDocManagement && (empty expedient.dataFi || !expedient.arxiuActiu)}</c:set>
+<div class="${potAfegir ? 'pull-left' : '' }" style="padding: 5px;">
+	<a id="descarregarZip"
+		href="<c:url value="/v3/expedient/${expedient.id}/document/descarregarZip"/>" class="btn btn-default" title="<spring:message code="expedient.document.descarregar.zip"/>">
+		<span class="fa fa-download"></span> <spring:message code="comu.boto.descarregar"></spring:message>
+	</a>
+</div>
+
 <c:import url="procesDocuments.jsp"/>
 <script type="text/javascript">
 // <![CDATA[			
@@ -57,6 +65,7 @@ $(document).ready(function() {
 		var docId = $(this).data('psigna');
 		$('#psigna_' + docId).modal();
 	});
+	
 });
 function recargarPanel (processInstanceId, correcte) {
 	if (correcte) {
@@ -77,3 +86,4 @@ function reprocessar(documentId) {
 }
 //]]>
 </script>
+

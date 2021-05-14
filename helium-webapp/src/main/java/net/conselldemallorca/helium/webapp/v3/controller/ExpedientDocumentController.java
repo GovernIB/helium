@@ -605,6 +605,11 @@ public class ExpedientDocumentController extends BaseExpedientController {
 				} else {
 					model.addAttribute("errorArxiuNoUuid", Boolean.TRUE);
 				}
+				if (expedient.getNtiOrgano() == null) {
+					// La migració d'expedients no NTI provocava errors
+					model.addAttribute("expedient", expedient);
+					model.addAttribute("errorMetadadesNti", Boolean.TRUE);
+				}
 			}
 		} catch(Exception e) {
 			String errMsg = "Error consultant les dades de l'Arxiu del document: " + e.getMessage(); 
@@ -874,6 +879,26 @@ public class ExpedientDocumentController extends BaseExpedientController {
 		if (arxiu != null) {
 			model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_FILENAME, arxiu.getNom());
 			model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_DATA, arxiu.getContingut());
+		}
+		return "arxiuView";
+	}
+
+	/** Recupera el contingut de tots els documents i crea un comprimit per a la descàrrega.
+	 * 
+	 */
+	@RequestMapping(value = "/{expedientId}/document/descarregarZip", method = RequestMethod.GET)
+	public String descarregarZipDocumentacio(
+			HttpServletRequest request,
+			@PathVariable Long expedientId,
+			Model model)  {
+		try {
+			ExpedientDto expedient = expedientService.findAmbIdAmbPermis(expedientId);
+			model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_FILENAME, expedient.getIdentificador() + ".zip");
+			model.addAttribute(
+					ArxiuView.MODEL_ATTRIBUTE_DATA,
+					expedientService.getZipDocumentacio(expedientId));
+		} catch(Exception e) {
+			MissatgesHelper.error(request, getMessage(request, "expedient.document.descarregar.zip.error", new Object[]{ e.getMessage() } ));
 		}
 		return "arxiuView";
 	}

@@ -2253,6 +2253,7 @@ public class PluginHelper {
 					motiu,
 					arxiu.getNom(),
 					arxiu.getContingut());
+//					RegistreAnnexNtiTipusDocumentEnum.valueOf(documentStore.getNtiTipoDocumental().name()).getValor());
 			monitorIntegracioHelper.addAccioOk(
 					MonitorIntegracioHelper.INTCODI_FIRMA_SERV,
 					accioDescripcio,

@@ -376,9 +376,14 @@ public class ExpedientV3Controller extends BaseExpedientController {
 			HttpServletRequest request,
 			Model model) {
 		try {
+			ExpedientDto expedient = expedientService.findAmbIdAmbPermis(expedientId);
 			model.addAttribute(
 					"expedient",
-					expedientService.findAmbIdAmbPermis(expedientId));
+					expedient);
+			if (expedient.isArxiuActiu() && expedient.getNtiOrgano() == null) {
+				// La migració d'expedients no NTI provocava errors
+				model.addAttribute("errorMetadadesNti", Boolean.TRUE);
+			}
 			model.addAttribute(
 					"arxiuDetall",
 					expedientService.getArxiuDetall(expedientId));
@@ -389,6 +394,27 @@ public class ExpedientV3Controller extends BaseExpedientController {
 		}			
 		return "v3/expedientMetadadesNtiInfo";
 	}
+	
+	/** Mètode per incoporar el document a l'Arxiu en el cas que l'expedient estigui integrat però el document no. Acció des
+	 * de la modal de metadades NTI del document.
+	 * @return Retorna cap a la pàgina de metadades nti del document.
+	 */
+	@RequestMapping(value = "/{expedientId}/metadadesNti/arreglar", method = RequestMethod.POST)
+	public String arreglarNti(
+			HttpServletRequest request,
+			@PathVariable Long expedientId,
+			Model model) {
+		try {
+			expedientService.arreglarMetadadesNti(expedientId);
+			MissatgesHelper.success(request, getMessage(request, "expedient.metadades.nti.dades.error.arreglar.success"));
+		} catch(Exception e) {
+			String errMsg = getMessage(request, "expedient.metadades.nti.dades.error.arreglar.error", new Object[] {e.getMessage()}); 
+			logger.error(errMsg, e);
+			MissatgesHelper.error(request, errMsg);
+		}
+		return "redirect:" + request.getHeader("Referer");
+	}
+	
 
 	@RequestMapping(value = "/{expedientId}/migrarArxiu", method = RequestMethod.GET)
 	public String migrarArxiu(

@@ -94,6 +94,7 @@ public class SignaturaPluginTest implements SignaturaPlugin {
 	@SuppressWarnings({ "unchecked", "resource" })
 	private List<DadesCertificat> obtenirDadesCertificatNoPdf(
 			byte[] signatura) throws Exception {
+		/*
 		X509Certificate[] certificats = null;
 		byte[] pkcs7Bytes = signatura;
 		ASN1InputStream asn1is = new ASN1InputStream(new ByteArrayInputStream(pkcs7Bytes));
@@ -121,6 +122,7 @@ public class SignaturaPluginTest implements SignaturaPlugin {
 			dadesCertificats.add(getDadesCertificat(certificats[0]));
 			return dadesCertificats;
 		}
+		*/
 		return null;
 	}
 
@@ -138,42 +140,43 @@ public class SignaturaPluginTest implements SignaturaPlugin {
     }
 	@SuppressWarnings({ "rawtypes", "resource" })
 	private DadesCertificat getDadesCertificat(X509Certificate cert) throws Exception {
-		ASN1InputStream asn1is = new ASN1InputStream(cert.getEncoded());
-		org.bouncycastle.asn1.DERObject obj = asn1is.readObject();
-		/*byte[] value = cert.getExtensionValue(X509Extensions.BasicConstraints.toString());
-		BasicConstraints basicConstraints = new BasicConstraints(cert.getBasicConstraints());
-		if (basicConstraints.isCA())
-			return null;*/
-		DadesCertificat resposta = new DadesCertificat();
-		X509CertificateStructure certificate = new X509CertificateStructure((ASN1Sequence)obj);
-		X509Name name = certificate.getSubject();
-		Vector oids = name.getOIDs();
-		Vector values = name.getValues();
-		for (int i = 0; i < oids.size(); i++) {
-			if (oids.get(i).equals(X509Name.CN)) {
-				processName(values.get(i).toString(), resposta);
-			} else if (oids.get(i).equals(X509Name.SURNAME)) {
-				resposta.setApellidosResponsable(values.get(i).toString());
-			} else if (oids.get(i).equals(X509Name.GIVENNAME)) {
-				resposta.setNombreResponsable(values.get(i).toString());
-			} else if (oids.get(i).equals(X509Name.SN)) {
-				resposta.setNifCif(values.get(i).toString());
-				resposta.setNifResponsable(values.get(i).toString());
-			} else if (oids.get(i).equals(OID_NIF_RESPONSABLE)) {
-				resposta.setNifResponsable(values.get(i).toString());
-			} else if (oids.get(i).equals(X509Name.EmailAddress)) {
-				resposta.setEmail(values.get(i).toString());
-			} else if (oids.get(i).equals(X509Name.C)) {
-				//resposta.setPais(values.get(i).toString());
-			} else if (oids.get(i).equals(X509Name.O)) {
-				resposta.setRazonSocial(values.get(i).toString());
-			} else if (oids.get(i).equals(X509Name.OU)) {
-				//resposta.setDepartament(values.get(i).toString());
-			} else if (oids.get(i).equals(X509Name.T)) {
-				//resposta.setCarrec(values.get(i).toString());
-		    }
-		}
-		return resposta;
+//		ASN1InputStream asn1is = new ASN1InputStream(cert.getEncoded());
+//		org.bouncycastle.asn1.DERObject obj = asn1is.readObject();
+//		/*byte[] value = cert.getExtensionValue(X509Extensions.BasicConstraints.toString());
+//		BasicConstraints basicConstraints = new BasicConstraints(cert.getBasicConstraints());
+//		if (basicConstraints.isCA())
+//			return null;*/
+//		DadesCertificat resposta = new DadesCertificat();
+//		X509CertificateStructure certificate = new X509CertificateStructure((ASN1Sequence)obj);
+//		X509Name name = certificate.getSubject();
+//		Vector oids = name.getOIDs();
+//		Vector values = name.getValues();
+//		for (int i = 0; i < oids.size(); i++) {
+//			if (oids.get(i).equals(X509Name.CN)) {
+//				processName(values.get(i).toString(), resposta);
+//			} else if (oids.get(i).equals(X509Name.SURNAME)) {
+//				resposta.setApellidosResponsable(values.get(i).toString());
+//			} else if (oids.get(i).equals(X509Name.GIVENNAME)) {
+//				resposta.setNombreResponsable(values.get(i).toString());
+//			} else if (oids.get(i).equals(X509Name.SN)) {
+//				resposta.setNifCif(values.get(i).toString());
+//				resposta.setNifResponsable(values.get(i).toString());
+//			} else if (oids.get(i).equals(OID_NIF_RESPONSABLE)) {
+//				resposta.setNifResponsable(values.get(i).toString());
+//			} else if (oids.get(i).equals(X509Name.EmailAddress)) {
+//				resposta.setEmail(values.get(i).toString());
+//			} else if (oids.get(i).equals(X509Name.C)) {
+//				//resposta.setPais(values.get(i).toString());
+//			} else if (oids.get(i).equals(X509Name.O)) {
+//				resposta.setRazonSocial(values.get(i).toString());
+//			} else if (oids.get(i).equals(X509Name.OU)) {
+//				//resposta.setDepartament(values.get(i).toString());
+//			} else if (oids.get(i).equals(X509Name.T)) {
+//				//resposta.setCarrec(values.get(i).toString());
+//		    }
+//		}
+//		return resposta;
+		return null;
 	}
 	private void processName(String cn, DadesCertificat dadesCertificat) {
 		if (cn != null && cn.startsWith("NOMBRE ")) {

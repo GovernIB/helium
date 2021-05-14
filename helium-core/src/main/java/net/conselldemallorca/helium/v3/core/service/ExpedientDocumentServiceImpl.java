@@ -548,7 +548,7 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 		return documentHelper.getArxiuPerDocumentStoreId(
 				documentStoreId,
 				false,
-				false);
+				true);
 	}
 
 	/**

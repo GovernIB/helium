@@ -11,6 +11,9 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
+/** 
+ * Classe per especificar els filtres que s'aplicaran a les dades que no son de capçalera {@link es.caib.helium.dada.domain.Dada}
+ */
 @Getter
 @Setter
 @ToString

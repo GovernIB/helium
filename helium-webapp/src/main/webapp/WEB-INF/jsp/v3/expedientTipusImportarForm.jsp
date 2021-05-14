@@ -292,7 +292,7 @@
 		<h4>1 <spring:message code="expedient.tipus.importar.form.carregar"/></h4>
 		<div class="row">
 			<div class="col-sm-6">
-				<input type="file" name="file" id="file" />
+				<input type="file" name="file" id="file" accept=".exp" />
 			</div>
 			<div class="col-sm-6">
 				<button id="carregarButton" type="button" class="btn btn-default" style="display: none;">

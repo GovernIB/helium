@@ -90,4 +90,10 @@ public class AnotacioServiceBean implements AnotacioService {
 	public void reintentarAnnex(Long anotacioId, Long annexId) throws Exception {
 		delegate.reintentarAnnex(anotacioId, annexId);
 	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public void esborrarAnotacionsExpedient(Long expedientId) {
+		delegate.esborrarAnotacionsExpedient(expedientId);
+	}
 }

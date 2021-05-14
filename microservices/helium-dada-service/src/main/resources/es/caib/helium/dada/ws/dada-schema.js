@@ -1,3 +1,5 @@
+//Comandes per crear les col·leccions necessaries pel servei. També afegeix les validacions per les col·leccions.
+
 db.createCollection("expedient", {
 	validator: {
 		$jsonSchema: {

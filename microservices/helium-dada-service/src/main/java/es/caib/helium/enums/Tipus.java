@@ -2,6 +2,9 @@ package es.caib.helium.enums;
 
 import lombok.Getter;
 
+/**
+ * Enum representant els diferentgs tipus que pot tenir una dada
+ */
 @Getter
 public enum Tipus {
 	

@@ -2,6 +2,9 @@ package es.caib.helium.enums;
 
 import lombok.Getter;
 
+/**
+ * Enum representant els valors que es permeten en les validacions
+ */
 @Getter
 public enum ValorsValidacio {
 	

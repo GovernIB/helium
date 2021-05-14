@@ -3,6 +3,7 @@
  */
 package net.conselldemallorca.helium.v3.core.service;
 
+import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
@@ -14,6 +15,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 import javax.annotation.Resource;
 
@@ -65,6 +68,7 @@ import net.conselldemallorca.helium.core.model.hibernate.Camp;
 import net.conselldemallorca.helium.core.model.hibernate.Consulta;
 import net.conselldemallorca.helium.core.model.hibernate.ConsultaCamp.TipusConsultaCamp;
 import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
+import net.conselldemallorca.helium.core.model.hibernate.Document;
 import net.conselldemallorca.helium.core.model.hibernate.DocumentNotificacio;
 import net.conselldemallorca.helium.core.model.hibernate.DocumentStore;
 import net.conselldemallorca.helium.core.model.hibernate.DocumentStore.DocumentFont;
@@ -84,7 +88,6 @@ import net.conselldemallorca.helium.jbpm3.handlers.exception.ValidationException
 import net.conselldemallorca.helium.jbpm3.integracio.ExecucioHandlerException;
 import net.conselldemallorca.helium.v3.core.api.dto.AccioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.AlertaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.AnotacioEstatEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuContingutDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuContingutTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDetallDto;
@@ -510,23 +513,14 @@ public class ExpedientServiceImpl implements ExpedientService {
 		for (Notificacio notificacio: notificacioRepository.findByExpedientOrderByDataEnviamentDesc(expedient)) {
 			notificacioRepository.delete(notificacio);
 		}
-		List<Anotacio> anotacions;
+		// Crida esborrar anotacions en un mètode transaccional apart per evitar errors
 		try {
-			anotacions = anotacioRepository.findByExpedientId(expedient.getId());
+			anotacioService.esborrarAnotacionsExpedient(expedient.getId());
 		} catch(Exception e) {
 			//#1480 Error esborrant expedients a PRO
-			logger.error("Error consultant les anotacions per l'expedient " + expedient.getId() + ": " + e.getMessage());
-			anotacions = new ArrayList<Anotacio>();
+			logger.error("Error esborrant les anotacions per l'expedient " + expedient.getId() + ": " + e.getMessage());
 		}
-		for (Anotacio anotacio : anotacions) {
-			if (AnotacioEstatEnumDto.PROCESSADA.equals(anotacio.getEstat()) )
-				// Si les anotacions estan processades s'esborren
-				anotacioRepository.delete(anotacio);
-			else
-				// Altrament les desrelaciona de l'expedient
-				anotacio.setExpedient(null);
-		}
-		
+
 		// Ordena per id de menor a major per evitar errors de dependències
 		Collections.sort(
 				processInstancesTree,
@@ -565,7 +559,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 		}
 		expedientRepository.delete(expedient);
 		luceneHelper.deleteExpedient(expedient);
-		if (expedient.getArxiuUuid() != null) {
+		if (expedient.getArxiuUuid() != null && pluginHelper.arxiuExisteixExpedient(expedient.getArxiuUuid())) {			
 			pluginHelper.arxiuExpedientEsborrar(expedient.getArxiuUuid());
 		}
 		crearRegistreExpedient(
@@ -2165,7 +2159,8 @@ public class ExpedientServiceImpl implements ExpedientService {
 	@Override
 	@Transactional(readOnly=true)
 	public boolean existsExpedientAmbEntornTipusITitol(Long entornId, Long expedientTipusId, String titol) {
-		return !expedientRepository.findByEntornIdAndTipusIdAndTitol(entornId, expedientTipusId, titol == null, titol != null? titol : "").isEmpty();
+		List<Expedient> expedients = expedientHelper.findByEntornIdAndTipusAndTitol(entornId, expedientTipusId, titol);
+		return !expedients.isEmpty();
 	}
 
 	/**
@@ -2869,6 +2864,174 @@ public class ExpedientServiceImpl implements ExpedientService {
 			processInstancesIds.add(processInstance.getId());
 		return processInstancesIds;
 	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@Transactional(readOnly = true)
+	public byte[] getZipDocumentacio(Long expedientId) {
+		
+		Expedient expedient = expedientRepository.findOne(expedientId);
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		ZipOutputStream out = new ZipOutputStream(baos);
+		ZipEntry ze;
+		ArxiuDto arxiu;
+		try {
+			// Consulta l'arbre de processos
+			List<InstanciaProcesDto> arbreProcessos =
+					expedientHelper.getArbreInstanciesProces(String.valueOf(expedient.getProcessInstanceId()));
+			// Llistat de noms dins del zip per no repetir-los.
+			Set<String> nomsArxius = new HashSet<String>();
+			for (InstanciaProcesDto instanciaProces: arbreProcessos) {
+				// Per cada instancia de proces consulta els documents.
+				List<ExpedientDocumentDto> documentsInstancia = 
+						documentHelper.findDocumentsPerInstanciaProces(
+							instanciaProces.getId());
+				// Per cada document de la instància
+				for (ExpedientDocumentDto document : documentsInstancia) {
+					// Consulta l'arxiu del document
+					DocumentStore documentStore = documentStoreRepository.findOne(document.getId());
+					if (documentStore == null) {
+						throw new NoTrobatException(
+								DocumentStore.class,
+								document.getId());
+					}
+					// Consulta el contingut.
+					arxiu = documentHelper.getArxiuPerDocumentStoreId(
+							document.getId(),
+							false,
+							false);
+					// Crea l'entrada en el zip
+					String recursNom = this.getZipRecursNom(
+							expedient, 
+							instanciaProces, 
+							document, 
+							arxiu,
+							nomsArxius);
+					ze = new ZipEntry(recursNom);
+					out.putNextEntry(ze);
+					out.write(arxiu.getContingut());
+					out.closeEntry();
+				}
+			}			
+			out.close();
+		} catch (Exception e) {
+			String errMsg = "Error construint el zip dels documents per l'expedient " + expedient.getIdentificador() + ": " + e.getMessage();
+			logger.error(errMsg, e);
+			throw new RuntimeException(errMsg, e);
+		}
+		return baos.toByteArray();
+	}
+
+	/** Estableix en nom de l'arxiu a partir del document i l'extensió de l'arxiu. Afegeix una carpeta
+	 * si el procés no és el principal, corregeix els caràcters estranys i vigila que no es repeteixin.
+	 * 
+	 * @param expedient Per determinar si és el procés principal
+	 * @param instanciaProces Per determinar si és el procés principal i crear una carpeta en cas contrari.
+	 * @param document Per recuperar el nom per l'arxiu
+	 * @param arxiu Per recuperar l'extensió
+	 * @param nomsArxius Per controlar la llista de noms utilitzats.
+	 * @return
+	 */
+	private String getZipRecursNom(Expedient expedient, InstanciaProcesDto instanciaProces,
+			ExpedientDocumentDto document, ArxiuDto arxiu, Set<String> nomsArxius) {
+		String recursNom;
+		// Nom
+		String nom;
+		// Segons si és adjunt o document
+		if (document.isAdjunt())
+			nom = document.getAdjuntTitol();
+		else
+			nom = document.getDocumentNom();
+		nom = nom.replaceAll("/", "_");
+		// Carpeta
+		String carpeta = null;
+		if (!instanciaProces.getId().equals(expedient.getProcessInstanceId())) {
+			// Carpeta per un altre procés
+			carpeta = instanciaProces.getId() + " - " + instanciaProces.getTitol();
+			carpeta = carpeta.replaceAll("/", "_");
+		}
+		// Extensió
+		String extensio = arxiu.getExtensio();
+
+		// Vigila que no es repeteixi
+		int comptador = 0;
+		do {
+			recursNom = (carpeta != null ? carpeta + "/" : "") +
+						nom + 
+						(comptador > 0 ? " (" + comptador + ")" : "") +
+						"." + extensio;
+			comptador++;
+		} while (nomsArxius.contains(recursNom));
+
+		// Guarda en nom com a utiltizat
+		nomsArxius.add(recursNom);
+		return recursNom;
+	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@Transactional
+	public void arreglarMetadadesNti(Long expedientId) {
+		Expedient expedient = expedientRepository.findOne(expedientId);
+		if ( (expedient.isArxiuActiu() && expedient.isNtiActiu())
+				&& (expedient.getNtiOrgano() == null 
+					|| expedient.getNtiClasificacion() == null 
+					|| expedient.getNtiSerieDocumental() == null)) {
+			// Consulta la informació de l'expedient i actualitza l'expedient
+			expedient.setNtiVersion(ExpedientHelper.VERSIO_NTI);
+			es.caib.plugins.arxiu.api.Expedient expedientArxiu = pluginHelper.arxiuExpedientInfo(expedient.getArxiuUuid());
+			expedient.setNtiIdentificador(
+					expedientArxiu.getMetadades().getIdentificador());
+			expedient.setNtiVersion(expedientArxiu.getMetadades().getVersioNti());
+			expedient.setNtiClasificacion(expedientArxiu.getMetadades().getClassificacio());
+			expedient.setNtiSerieDocumental(expedientArxiu.getMetadades().getSerieDocumental());
+			if (expedientArxiu.getMetadades().getOrgans() != null 
+					&& expedientArxiu.getMetadades().getOrgans().size() > 0) {
+				expedient.setNtiOrgano(expedientArxiu.getMetadades().getOrgans().get(0));				
+			}
+			// Per cada document actualitza la informació NTI del document
+			// Consulta l'arbre de processos
+			List<InstanciaProcesDto> arbreProcessos =
+					expedientHelper.getArbreInstanciesProces(String.valueOf(expedient.getProcessInstanceId()));
+			for (InstanciaProcesDto instanciaProces: arbreProcessos) {
+				// Per cada instancia de proces consulta els documents.
+				List<ExpedientDocumentDto> documentsInstancia = 
+						documentHelper.findDocumentsPerInstanciaProces(
+							instanciaProces.getId());
+				// Per cada document de la instància
+				for (ExpedientDocumentDto documentDto : documentsInstancia) {
+					DocumentStore documentStore = documentStoreRepository.findOne(documentDto.getId());
+					Document document;
+					if (!documentStore.isAdjunt() && documentStore.getCodiDocument() != null)
+						document = documentHelper.findDocumentPerInstanciaProcesICodi(documentStore.getProcessInstanceId(), documentStore.getCodiDocument());
+					else 
+						document = null;
+					documentHelper.actualizarMetadadesNti(
+							expedient, 
+							document, 
+							documentStore, 
+							null, 
+							null, 
+							null, 
+							null);
+					// Recupera l'identificador de l'arxiu
+					if (documentStore.getArxiuUuid() != null) {
+						es.caib.plugins.arxiu.api.Document documentArxiuInfo = pluginHelper.arxiuDocumentInfo(
+								documentStore.getArxiuUuid(), 
+								null, 
+								false, 
+								documentStore.isSignat());
+						documentStore.setNtiIdentificador(documentArxiuInfo.getDocumentMetadades().getIdentificador());
+					}
+				}
+			}				
+		}
+	}
+
+
 	private static final Logger logger = LoggerFactory.getLogger(ExpedientServiceImpl.class);
 }

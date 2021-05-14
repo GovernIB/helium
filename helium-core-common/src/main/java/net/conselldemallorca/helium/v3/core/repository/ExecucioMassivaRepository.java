@@ -7,6 +7,8 @@ import java.util.Date;
 import java.util.List;
 
 import net.conselldemallorca.helium.core.model.hibernate.ExecucioMassiva;
+import net.conselldemallorca.helium.core.model.hibernate.ExecucioMassiva.ExecucioMassivaTipus;
+import net.conselldemallorca.helium.v3.core.api.dto.ExecucioMassivaDto.ExecucioMassivaTipusDto;
 
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -38,4 +40,13 @@ public interface ExecucioMassivaRepository extends JpaRepository<ExecucioMassiva
 			"	where 	dataInici <= :ara " +
 			"	and dataFi is null")
 	Long getMinExecucioMassiva(@Param("ara") Date ara);
+	
+	@Query("select max(id) " +
+			"	from 	ExecucioMassiva " +
+			"	where 	expedientTipus.id = :expedientTipusId " +
+			" 			and tipus = :tipus ")
+	public Long getMinExecucioMassivaByExpedientTipusId(
+			@Param("expedientTipusId") Long expedientTipusId, 
+			@Param("tipus") ExecucioMassivaTipus altaMassiva);
+
 }

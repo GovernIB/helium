@@ -2,6 +2,9 @@ package es.caib.helium.enums;
 
 import lombok.Getter;
 
+/**
+ * Enum per representar la direcció de la ordenació
+ */
 @Getter
 public enum DireccioOrdre {
 

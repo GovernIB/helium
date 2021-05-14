@@ -7,11 +7,12 @@ import javax.annotation.security.RolesAllowed;
 import javax.ejb.Stateless;
 import javax.interceptor.Interceptors;
 
-import net.conselldemallorca.helium.v3.core.api.dto.ExecucioMassivaDto;
-import net.conselldemallorca.helium.v3.core.api.service.ExecucioMassivaService;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
+
+import net.conselldemallorca.helium.v3.core.api.dto.ExecucioMassivaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExecucioMassivaListDto;
+import net.conselldemallorca.helium.v3.core.api.service.ExecucioMassivaService;
 
 /**
  * Servei per a enllaçar les llibreries jBPM 3 amb la funcionalitat
@@ -30,6 +31,12 @@ public class ExecucioMassivaServiceBean implements ExecucioMassivaService {
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public void crearExecucioMassiva(ExecucioMassivaDto dto) {
 		delegate.crearExecucioMassiva(dto);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public ExecucioMassivaDto findAmbId(Long execucioMassivaId) {
+		return delegate.findAmbId(execucioMassivaId);
 	}
 
 	@Override
@@ -90,5 +97,29 @@ public class ExecucioMassivaServiceBean implements ExecucioMassivaService {
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public void actualitzaUltimaOperacio(Long ome_id) {
 		delegate.actualitzaUltimaOperacio(ome_id);
+	}
+	
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public void rependreExecucioMassiva(Long id) {
+		delegate.rependreExecucioMassiva(id);
+	}
+	
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public void rependreExecucioMassivaExpedient(Long id) {
+		delegate.rependreExecucioMassivaExpedient(id);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public ExecucioMassivaListDto getDarreraAltaMassiva(Long expedientTipusId) {
+		return delegate.getDarreraAltaMassiva(expedientTipusId);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public String[][] getResultatAltaMassiva(Long execucioMassivaId) {
+		return delegate.getResultatAltaMassiva(execucioMassivaId);
 	}
 }

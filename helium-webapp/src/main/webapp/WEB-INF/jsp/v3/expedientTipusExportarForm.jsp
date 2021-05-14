@@ -36,7 +36,6 @@
 			// Petició POST per al formulari exportar-form per descarregar la exportació per AJAX
 			$('#exportar-form').on('submit', function(e) {
 				window.parent.$('button#submit-expexport').attr('disabled', true);
-				console.log(e);
 				var form = this;
 		        e.preventDefault(); // Desactiva el comportament normal del formulari al fer 'submit'
 		        var fd = new FormData(this);

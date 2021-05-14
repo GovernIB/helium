@@ -31,90 +31,100 @@ import net.conselldemallorca.helium.webapp.v3.helper.AjaxHelper.AjaxResponse;
 @Controller
 @RequestMapping("/v3/execucionsMassives")
 public class ExecucionsMassivesController extends BaseController {
-	
+
 	@Autowired
 	private ExecucioMassivaService execucioMassivaService;
-	
+
 	@RequestMapping(value = "/{nivell}", method = RequestMethod.GET)
-	public String get(
-			HttpServletRequest request,
-			@PathVariable String nivell, 
-			Model model) {
+	public String get(HttpServletRequest request, @PathVariable String nivell, Model model) {
 		model.addAttribute("nivell", nivell);
 		return "v3/execucionsMassives";
 	}
-	
-	@RequestMapping(value="{nivell}/refreshBarsExpedientMassive", method = RequestMethod.GET, produces={"application/json; charset=UTF-8"})
+
+	@RequestMapping(value = "{nivell}/refreshBarsExpedientMassive", method = RequestMethod.GET, produces = {
+			"application/json; charset=UTF-8" })
 	@ResponseBody
-	public String refreshBarsExpedientMassiveAct(
-			@RequestParam(value = "results", required = false) int numResults, 
-			HttpServletRequest request,
-			HttpServletResponse response,
-			@PathVariable String nivell, 
-			ModelMap model, 
-			HttpSession session)  throws ServletException, IOException {
-		
+	public String refreshBarsExpedientMassiveAct(@RequestParam(value = "results", required = false) int numResults,
+			HttpServletRequest request, HttpServletResponse response, @PathVariable String nivell, ModelMap model,
+			HttpSession session) throws ServletException, IOException {
+
 		return execucioMassivaService.getJsonExecucionsMassives(numResults, nivell);
 
 	}
-	
+
 	/**
 	 * Obtenir les dades de l'execució massiva i els seus expedients.
-	 * @throws Exception 
+	 * 
+	 * @throws Exception
 	 */
-	@RequestMapping(value="getExecucioMassivaDetall", method = RequestMethod.GET, produces={"application/json; charset=UTF-8"})
+	@RequestMapping(value = "getExecucioMassivaDetall", method = RequestMethod.GET, produces = {
+			"application/json; charset=UTF-8" })
 	@ResponseBody
 	public String getExecucioMassivaDetall(
-			@RequestParam(value = "execucioMassivaId", required = false) Long execucioMassivaId, 
-			HttpServletRequest request,
-			HttpServletResponse response,
-			ModelMap model, 
-			HttpSession session)  throws ServletException, IOException {
+			@RequestParam(value = "execucioMassivaId", required = false) Long execucioMassivaId,
+			HttpServletRequest request, HttpServletResponse response, ModelMap model, HttpSession session)
+			throws ServletException, IOException {
 		return execucioMassivaService.getExecucioMassivaDetall(execucioMassivaId);
 	}
-	
+
 	/**
-	 * Mètode per cancel·lar les execucions massives de tots els expedients d'una execució massiva.
-	 * @throws Exception 
+	 * Mètode per cancel·lar les execucions massives de tots els expedients d'una
+	 * execució massiva.
+	 * 
+	 * @throws Exception
 	 */
 	@RequestMapping(value = "cancelExecucioMassiva", method = RequestMethod.POST)
 	@ResponseBody
-	public AjaxResponse cancelExecucioMassiva(
-			@RequestParam(value = "id") Long id, 
-			HttpServletRequest request, 
-			HttpServletResponse response, 
-			ModelMap model, 
-			HttpSession session
-		) throws Exception {
-		
+	public AjaxResponse cancelExecucioMassiva(@RequestParam(value = "id") Long id, HttpServletRequest request,
+			HttpServletResponse response, ModelMap model, HttpSession session) throws Exception {
+
 		AjaxResponse ajaxResponse = new AjaxResponse();
 		try {
 			int n = execucioMassivaService.cancelarExecucioMassiva(id);
-			ajaxResponse.setMissatge("L'execució massiva amb id " + id + " s'ha cancel·lat correctament per " + n + " expedients pendents.");
+			ajaxResponse.setMissatge("L'execució massiva amb id " + id + " s'ha cancel·lat correctament per " + n
+					+ " expedients pendents.");
 		} catch (Exception ex) {
-			String errMsg = "No s'han pogut cancel·lar les execucions massives d'expedients per l'execució massiva amb id " + id + ": " + ex.getMessage();
+			String errMsg = "No s'han pogut cancel·lar les execucions massives d'expedients per l'execució massiva amb id "
+					+ id + ": " + ex.getMessage();
 			logger.error(errMsg, ex);
 			ajaxResponse.setError(true);
-			ajaxResponse.setMissatge(errMsg);			
+			ajaxResponse.setMissatge(errMsg);
 		}
 		return ajaxResponse;
 	}
-	
+
+	@RequestMapping(value = "rependreExecucioMassiva", method = RequestMethod.POST)
+	@ResponseBody
+	public AjaxResponse rependreExecucioMassiva(@RequestParam(value = "id") Long id, HttpServletRequest request,
+			HttpServletResponse response, ModelMap model, HttpSession session) throws Exception {
+			
+			AjaxResponse ajaxResponse = new AjaxResponse();
+			try {
+				execucioMassivaService.rependreExecucioMassiva(id);
+				ajaxResponse.setMissatge("L'execució massiva amb id " + id + " s'ha reprès correctament ");
+				
+			} catch (Exception ex) {
+				String errMsg = "No s'ha pogut rependre la execució massiva d'expedients amb id " + id;
+				logger.error(errMsg, ex);
+				ajaxResponse.setError(true);
+				ajaxResponse.setMissatge(errMsg);
+			}
+			
+			return ajaxResponse;
+	}
+
 	/**
 	 * Refresca las barras de progreso de detalle de las acciones masivas
-	 * @throws Exception 
+	 * 
+	 * @throws Exception
 	 */
 	@RequestMapping(value = "cancelExpedientMassiveAct", method = RequestMethod.POST)
 	@ResponseBody
-	public void cancelExpedientMassiveAct(
-			@RequestParam(value = "idExp", required = false) Long idExp, 
-			HttpServletRequest request, 
-			HttpServletResponse response, 
-			ModelMap model, 
-			HttpSession session
-		) throws Exception {
+	public void cancelExpedientMassiveAct(@RequestParam(value = "idExp", required = false) Long idExp,
+			HttpServletRequest request, HttpServletResponse response, ModelMap model, HttpSession session)
+			throws Exception {
 		execucioMassivaService.cancelarExecucioMassivaExpedient(idExp);
 	}
-	
-	private static final Log logger = LogFactory.getLog(ExecucionsMassivesController.class);	
+
+	private static final Log logger = LogFactory.getLog(ExecucionsMassivesController.class);
 }
