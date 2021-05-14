@@ -48,4 +48,8 @@
 			id="tokenService"
 			jndi-name="helium/TokenServiceBean/local"
 			business-interface="net.conselldemallorca.helium.v3.core.api.service.TokenService"/>
+	<jee:local-slsb
+			id="workflowBridgeService"
+			jndi-name="helium/WorkflowBridgeServiceBean/local"
+			business-interface="net.conselldemallorca.helium.core.api.WorkflowBridgeService"/>
 </beans>
