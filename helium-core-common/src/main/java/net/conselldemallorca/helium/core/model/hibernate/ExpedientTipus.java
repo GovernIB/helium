@@ -162,7 +162,7 @@ public class ExpedientTipus  implements Serializable, GenericEntity<Long> {
 	private Set<Expedient> expedients = new HashSet<Expedient>();
 	private Set<DefinicioProces> definicionsProces = new HashSet<DefinicioProces>();
 	private Set<Consulta> consultes = new HashSet<Consulta>();
-	private Set<Domini> dominis = new HashSet<Domini>();
+//	private Set<Domini> dominis = new HashSet<Domini>();
 	private Set<Enumeracio> enumeracions = new HashSet<Enumeracio>();
 
 	private SortedMap<Integer, SequenciaAny> sequenciaAny = new TreeMap<Integer, SequenciaAny>();
@@ -689,20 +689,20 @@ public class ExpedientTipus  implements Serializable, GenericEntity<Long> {
 		getConsultes().remove(consulta);
 	}
 
-	@OneToMany(mappedBy="expedientTipus", cascade={CascadeType.ALL}, fetch=FetchType.EAGER)
-	@Fetch(value = FetchMode.SUBSELECT)
-	public Set<Domini> getDominis() {
-		return this.dominis;
-	}
-	public void setDominis(Set<Domini> dominis) {
-		this.dominis = dominis;
-	}
-	public void addDomini(Domini domini) {
-		getDominis().add(domini);
-	}
-	public void removeDomini(Domini domini) {
-		getDominis().remove(domini);
-	}
+//	@OneToMany(mappedBy="expedientTipus", cascade={CascadeType.ALL}, fetch=FetchType.EAGER)
+//	@Fetch(value = FetchMode.SUBSELECT)
+//	public Set<Domini> getDominis() {
+//		return this.dominis;
+//	}
+//	public void setDominis(Set<Domini> dominis) {
+//		this.dominis = dominis;
+//	}
+//	public void addDomini(Domini domini) {
+//		getDominis().add(domini);
+//	}
+//	public void removeDomini(Domini domini) {
+//		getDominis().remove(domini);
+//	}
 
 	@OneToMany(mappedBy="expedientTipus", cascade={CascadeType.ALL})
 	public Set<Enumeracio> getEnumeracions() {
@@ -893,6 +893,17 @@ public class ExpedientTipus  implements Serializable, GenericEntity<Long> {
 		} else if (!codi.equals(other.codi))
 			return false;
 		return true;
+	}
+	
+	/** Consulta de l'id del tipus expedient pare. Pot ser null.
+	 * 
+	 * @return
+	 */
+	@Transient
+	public Long getExpedientTipusPareId() {
+		return this.getExpedientTipusPare() != null ? 
+				this.getExpedientTipusPare().getId() 
+				: null;
 	}
 
 	private static final long serialVersionUID = 1L;

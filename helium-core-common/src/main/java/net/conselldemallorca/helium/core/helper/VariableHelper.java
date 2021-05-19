@@ -3,6 +3,20 @@
  */
 package net.conselldemallorca.helium.core.helper;
 
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import javax.annotation.Resource;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
+
 import net.conselldemallorca.helium.core.api.WTaskInstance;
 import net.conselldemallorca.helium.core.api.WorkflowEngineApi;
 import net.conselldemallorca.helium.core.common.ExpedientCamps;
@@ -10,15 +24,27 @@ import net.conselldemallorca.helium.core.common.JbpmVars;
 import net.conselldemallorca.helium.core.extern.domini.FilaResultat;
 import net.conselldemallorca.helium.core.extern.domini.ParellaCodiValor;
 import net.conselldemallorca.helium.core.helperv26.MesuresTemporalsHelper;
-import net.conselldemallorca.helium.core.model.hibernate.*;
+import net.conselldemallorca.helium.core.model.hibernate.Camp;
 import net.conselldemallorca.helium.core.model.hibernate.Camp.TipusCamp;
+import net.conselldemallorca.helium.core.model.hibernate.CampAgrupacio;
+import net.conselldemallorca.helium.core.model.hibernate.CampRegistre;
+import net.conselldemallorca.helium.core.model.hibernate.CampTasca;
 import net.conselldemallorca.helium.core.model.hibernate.ConsultaCamp.TipusConsultaCamp;
-import net.conselldemallorca.helium.core.model.hibernate.Domini.TipusDomini;
+import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
+import net.conselldemallorca.helium.core.model.hibernate.Entorn;
+import net.conselldemallorca.helium.core.model.hibernate.Enumeracio;
+import net.conselldemallorca.helium.core.model.hibernate.EnumeracioValors;
+import net.conselldemallorca.helium.core.model.hibernate.Expedient;
+import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
+import net.conselldemallorca.helium.core.model.hibernate.Tasca;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.jbpm3.handlers.BasicActionHandler;
 import net.conselldemallorca.helium.jbpm3.integracio.DominiCodiDescripcio;
+import net.conselldemallorca.helium.ms.domini.DominiMs;
 import net.conselldemallorca.helium.v3.core.api.dto.CampAgrupacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampTipusDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DominiDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DominiDto.TipusDomini;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDadaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
@@ -31,18 +57,6 @@ import net.conselldemallorca.helium.v3.core.repository.CampTascaRepository;
 import net.conselldemallorca.helium.v3.core.repository.DefinicioProcesRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientRepository;
 import net.conselldemallorca.helium.v3.core.repository.TascaRepository;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
-
-import javax.annotation.Resource;
-import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * Helper per a gestionar les variables dels expedients.
@@ -62,6 +76,8 @@ public class VariableHelper {
 	private CampRepository campRepository;
 	@Resource
 	private CampTascaRepository campTascaRepository;
+	@Resource
+	private DominiMs dominiMs;
 	@Resource
 	private ExpedientHelper expedientHelper;
 	@Resource
@@ -505,7 +521,7 @@ public class VariableHelper {
 						registreIndex,
 						valorsAddicionals);
 				List<FilaResultat> resultatConsultaDomini;
-				Domini domini;		
+				DominiDto domini;
 				if (camp.getDominiIntern()) {
 					Entorn entorn;
 					if (camp.getDefinicioProces() != null)
@@ -514,10 +530,10 @@ public class VariableHelper {
 						entorn = camp.getExpedientTipus().getEntorn();
 					domini = getDominiIntern(entorn);
 				} else { 
-					domini = camp.getDomini();
+					domini = dominiMs.get(camp.getDomini());
 				}
 				resultatConsultaDomini = dominiHelper.consultar(
-					domini,
+					domini.getId(),
 					camp.getDominiId(),
 					parametres);
 
@@ -528,7 +544,7 @@ public class VariableHelper {
 					while (it.hasNext()) {
 						FilaResultat fr = it.next();
 						for (ParellaCodiValor parellaCodi: fr.getColumnes()) {
-							boolean ignoreCase = TipusDomini.CONSULTA_SQL.equals(camp.getDomini() != null? camp.getDomini().getTipus() : null);
+							boolean ignoreCase = TipusDomini.CONSULTA_SQL.equals(domini != null? domini.getTipus() : null);
 							boolean matches = (ignoreCase) ? parellaCodi.getCodi().equalsIgnoreCase(columnaCodi) : parellaCodi.getCodi().equals(columnaCodi);
 							if (matches &&
 									(
@@ -579,13 +595,13 @@ public class VariableHelper {
 		return resposta;
 	}
 
-	public Domini getDominiIntern(Entorn entorn) {
-		Domini domini = new Domini();
+	public DominiDto getDominiIntern(Entorn entorn) {
+		DominiDto domini = new DominiDto();
 		domini.setId((long) 0);
 		domini.setCacheSegons(30);
 		domini.setCodi("");
-		domini.setNom("Domini intern");
-		domini.setEntorn(entorn);
+		domini.setNom("DominiDto intern");
+		domini.setEntornId(entorn.getId());
 		return domini;
 	}
 

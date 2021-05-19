@@ -43,7 +43,9 @@ public class DominiDto extends HeretableDto implements Serializable {
 	private Integer timeout = 0;
 	private String ordreParams;
 
-	private EntornDto entorn;
+	private Long entornId;
+	
+	private Long expedientTipusId;
 
 	private int numErrors;
 
@@ -54,10 +56,10 @@ public class DominiDto extends HeretableDto implements Serializable {
 		this.codi = codi;
 		this.nom = nom;
 	}
-	public DominiDto(String codi, String nom, EntornDto entorn) {
+	public DominiDto(String codi, String nom, Long entornId) {
 		this.codi = codi;
 		this.nom = nom;
-		this.entorn = entorn;
+		this.entornId = entornId;
 	}
 
 	public Long getId() {
@@ -150,12 +152,19 @@ public class DominiDto extends HeretableDto implements Serializable {
 	public void setOrdreParams(String ordreParams) {
 		this.ordreParams = ordreParams;
 	}
-	public EntornDto getEntorn() {
-		return entorn;
+	public Long getEntornId() {
+		return entornId;
 	}
-	public void setEntorn(EntornDto entorn) {
-		this.entorn = entorn;
+	public void setEntornId(Long entornId) {
+		this.entornId = entornId;
 	}
+	public Long getExpedientTipusId() {
+		return this.expedientTipusId;
+	}
+	public void setExpedientTipusId(Long expedientTipusId) {
+		this.expedientTipusId = expedientTipusId;
+	}
+
 	public int getNumErrors() {
 		return numErrors;
 	}
@@ -168,7 +177,7 @@ public class DominiDto extends HeretableDto implements Serializable {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((codi == null) ? 0 : codi.hashCode());
-		result = prime * result + ((entorn == null) ? 0 : entorn.hashCode());
+		result = prime * result + ((entornId == null) ? 0 : entornId.hashCode());
 		return result;
 	}
 	@Override
@@ -185,14 +194,17 @@ public class DominiDto extends HeretableDto implements Serializable {
 				return false;
 		} else if (!codi.equals(other.codi))
 			return false;
-		if (entorn == null) {
-			if (other.entorn != null)
+		if (entornId == null) {
+			if (other.entornId != null)
 				return false;
-		} else if (!entorn.equals(other.entorn))
+		} else if (!entornId.equals(other.entornId))
 			return false;
 		return true;
 	}
 
 	private static final long serialVersionUID = 1L;
+
+
+
 
 }

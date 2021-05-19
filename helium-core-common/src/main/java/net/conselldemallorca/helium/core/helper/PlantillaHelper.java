@@ -3,6 +3,25 @@
  */
 package net.conselldemallorca.helium.core.helper;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.Writer;
+import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+
+import javax.annotation.Resource;
+
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Component;
+
 import freemarker.core.Environment;
 import freemarker.core.NonStringException;
 import freemarker.ext.beans.ArrayModel;
@@ -24,14 +43,25 @@ import net.conselldemallorca.helium.core.api.WTaskInstance;
 import net.conselldemallorca.helium.core.api.WorkflowEngineApi;
 import net.conselldemallorca.helium.core.common.JbpmVars;
 import net.conselldemallorca.helium.core.extern.domini.FilaResultat;
-import net.conselldemallorca.helium.core.model.hibernate.*;
+import net.conselldemallorca.helium.core.model.hibernate.Area;
+import net.conselldemallorca.helium.core.model.hibernate.AreaJbpmId;
+import net.conselldemallorca.helium.core.model.hibernate.Carrec;
+import net.conselldemallorca.helium.core.model.hibernate.CarrecJbpmId;
+import net.conselldemallorca.helium.core.model.hibernate.Document;
+import net.conselldemallorca.helium.core.model.hibernate.DocumentStore;
+import net.conselldemallorca.helium.core.model.hibernate.Entorn;
+import net.conselldemallorca.helium.core.model.hibernate.Expedient;
+import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
+import net.conselldemallorca.helium.core.model.hibernate.Persona;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.core.util.NombreEnCastella;
 import net.conselldemallorca.helium.core.util.NombreEnCatala;
 import net.conselldemallorca.helium.integracio.plugins.unitat.UnitatOrganica;
 import net.conselldemallorca.helium.jbpm3.integracio.DominiCodiDescripcio;
+import net.conselldemallorca.helium.ms.domini.DominiMs;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DominiDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDadaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
@@ -44,28 +74,10 @@ import net.conselldemallorca.helium.v3.core.repository.AreaRepository;
 import net.conselldemallorca.helium.v3.core.repository.CarrecJbpmIdRepository;
 import net.conselldemallorca.helium.v3.core.repository.CarrecRepository;
 import net.conselldemallorca.helium.v3.core.repository.DocumentStoreRepository;
-import net.conselldemallorca.helium.v3.core.repository.DominiRepository;
 import net.conselldemallorca.helium.v3.core.repository.EntornRepository;
 import net.sf.jooreports.templates.DocumentTemplate;
 import net.sf.jooreports.templates.DocumentTemplateException;
 import net.sf.jooreports.templates.DocumentTemplateFactory;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Component;
-
-import javax.annotation.Resource;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.Writer;
-import java.math.BigDecimal;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
 
 /**
  * Helper per a generar documents mitjançant plantilles fetes amb ODT
@@ -95,7 +107,7 @@ public class PlantillaHelper {
 	@Resource
 	private CarrecJbpmIdRepository carrecJbpmIdRepository;
 	@Resource
-	private DominiRepository dominiRepository;
+	private DominiMs dominiMs;
 	@Resource(name="documentHelperV3")
 	private DocumentHelperV3 documentHelper;
 	@Resource
@@ -623,13 +635,15 @@ public class PlantillaHelper {
 							String arg1 = "";
 							if ((arg0 != null) && (arg0 instanceof String)) {
 								String codi = (String)arg0;
-								Domini domini = dominiRepository.findByExpedientTipusAndCodi(
-										expedientTipus, 
+								DominiDto domini = dominiMs.findAmbCodi(
+										entorn.getId(), 
+										expedientTipus.getId(), 
 										codi);
 								if (domini == null)
-									domini = dominiRepository.findByEntornAndCodi(
-										entorn,
-										codi);
+									domini = dominiMs.findAmbCodi(
+											entorn.getId(), 
+											null, 
+											codi);
 								if (domini != null) {
 									try {
 										Map<String, Object> parametres = new HashMap<String, Object>();
@@ -645,7 +659,7 @@ public class PlantillaHelper {
 											}
 										}
 										List<FilaResultat> files = dominiHelper.consultar(
-												domini,
+												domini.getId(),
 												arg1,
 												parametres);
 										Object[] resultat = new Object[files.size()];

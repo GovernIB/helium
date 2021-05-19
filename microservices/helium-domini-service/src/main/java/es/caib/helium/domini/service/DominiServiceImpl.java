@@ -31,9 +31,11 @@ import javax.validation.ValidationException;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -172,7 +174,7 @@ public class DominiServiceImpl implements DominiService {
                 true
         );
 
-        return ServiceHelper.getDtoPage(
+        PagedList<DominiDto> pagedList = ServiceHelper.getDtoPage(
                 dominiRepository,
                 spec,
                 filtreRsql,
@@ -180,7 +182,34 @@ public class DominiServiceImpl implements DominiService {
                 sort,
                 DominiDto.class,
                 dominiMapper);
-
+        
+        if (expedientTipus != null && expedientTipusPare != null) {
+        	// amb herència
+			// Llista d'heretats
+			Set<Long> heretatsIds = new HashSet<Long>();
+			for (DominiDto d : pagedList.getContent()) 
+				if ( !expedientTipus.equals(d.getExpedientTipus()))
+					heretatsIds.add(d.getId());
+			// Llistat d'elements sobreescrits
+			Set<String> sobreescritsCodis = new HashSet<String>();
+			for (Domini d : dominiRepository.findSobreescrits(
+					expedientTipus,
+					expedientTipusPare
+				)) {
+				sobreescritsCodis.add(d.getCodi());
+			}
+			// Completa l'informació del dto
+			for (DominiDto dto : pagedList.getContent()) {
+				// Sobreescriu
+				if (sobreescritsCodis.contains(dto.getCodi()))
+					dto.setSobreescriu(true);
+				// Heretat
+				if (heretatsIds.contains(dto.getId()) && ! dto.isSobreescriu())
+					dto.setHeretat(true);								
+			}		
+        }
+        
+        return pagedList;
     }
 
     private void validateDomini(Domini domini) throws ValidationException {

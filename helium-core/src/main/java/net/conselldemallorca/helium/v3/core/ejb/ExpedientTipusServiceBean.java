@@ -368,8 +368,8 @@ public class ExpedientTipusServiceBean implements ExpedientTipusService {
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public List<DominiDto> dominiFindAll(Long expedientTipusId, boolean incloureGlobals) {
-		return delegate.dominiFindAll(expedientTipusId, incloureGlobals);
+	public List<DominiDto> dominiFindAll(Long entornId, Long expedientTipusId, boolean incloureGlobals) {
+		return delegate.dominiFindAll(entornId, expedientTipusId, incloureGlobals);
 	}
 
 	@Override

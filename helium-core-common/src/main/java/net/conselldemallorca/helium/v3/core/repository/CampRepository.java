@@ -195,4 +195,7 @@ public interface CampRepository extends JpaRepository<Camp, Long> {
 			"	cs.codi = c.codi " +
 			" 	and cs.expedientTipus.id = et.expedientTipusPare.id ")
 	List<Camp> findSobreescrits(@Param("expedientTipusId") Long expedientTipusId);
+
+	/** Mètode per trobar tots els camps amb un domini concret. */
+	List<Camp> findByDomini(Long domini);
 }

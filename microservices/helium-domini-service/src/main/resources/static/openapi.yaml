@@ -410,6 +410,12 @@ components:
           type: integer
           format: int64
           description: Identificador del tipus d'expedient al que pertany el domini. Si el domini és global aquest identificador serà null.
+        heretat:
+          type: boolean
+          description: Indica si l'objecte és heretat del tipus d'expedient pare.
+        sobreescriu:
+          type: boolean
+          description: Indica si l'objecte sobreescriu una propietat del tipus d'expedient pare.          
     ResultatDomini:
       type: array
       items:

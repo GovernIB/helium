@@ -28,15 +28,16 @@ import net.conselldemallorca.helium.core.model.hibernate.CampRegistre;
 import net.conselldemallorca.helium.core.model.hibernate.CampTasca;
 import net.conselldemallorca.helium.core.model.hibernate.Consulta;
 import net.conselldemallorca.helium.core.model.hibernate.ConsultaCamp;
-import net.conselldemallorca.helium.core.model.hibernate.Domini;
 import net.conselldemallorca.helium.core.model.hibernate.Enumeracio;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.hibernate.Tasca;
+import net.conselldemallorca.helium.ms.domini.DominiMs;
 import net.conselldemallorca.helium.v3.core.api.dto.CampAgrupacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampRegistreDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ConsultaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DominiDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDto;
@@ -49,7 +50,6 @@ import net.conselldemallorca.helium.v3.core.repository.CampRepository;
 import net.conselldemallorca.helium.v3.core.repository.ConsultaCampRepository;
 import net.conselldemallorca.helium.v3.core.repository.ConsultaRepository;
 import net.conselldemallorca.helium.v3.core.repository.DefinicioProcesRepository;
-import net.conselldemallorca.helium.v3.core.repository.DominiRepository;
 import net.conselldemallorca.helium.v3.core.repository.EnumeracioRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientTipusRepository;
 
@@ -73,7 +73,7 @@ public class CampServiceImpl implements CampService {
 	@Resource
 	private EnumeracioRepository enumeracioRepository;
 	@Resource
-	private DominiRepository dominiRepository;
+	private DominiMs dominiMs;
 	@Resource
 	private ConsultaRepository consultaRepository;
 	@Resource
@@ -131,11 +131,11 @@ public class CampServiceImpl implements CampService {
 			enumeracio = enumeracioRepository.findOne(camp.getEnumeracio().getId());
 		}
 		entity.setEnumeracio(enumeracio);
-		Domini domini = null;
+		DominiDto domini = null;
 		if (camp.getDomini() != null) {
-			domini = dominiRepository.findOne(camp.getDomini().getId());
+			domini = dominiMs.get(camp.getDomini().getId());
 		}
-		entity.setDomini(domini);
+		entity.setDomini(domini != null ? domini.getId() : null);
 		Consulta consulta = null;
 		if (camp.getConsulta() != null) {
 			consulta = consultaRepository.findOne(camp.getConsulta().getId());
@@ -200,11 +200,11 @@ public class CampServiceImpl implements CampService {
 			enumeracio = enumeracioRepository.findOne(camp.getEnumeracio().getId());
 		}
 		entity.setEnumeracio(enumeracio);
-		Domini domini = null;
+		DominiDto domini = null;
 		if (camp.getDomini() != null) {
-			domini = dominiRepository.findOne(camp.getDomini().getId());
+			domini = dominiMs.get(camp.getDomini().getId());
 		}
-		entity.setDomini(domini);
+		entity.setDomini(domini != null ? domini.getId() : null);
 		Consulta consulta = null;
 		if (camp.getConsulta() != null) {
 			consulta = consultaRepository.findOne(camp.getConsulta().getId());

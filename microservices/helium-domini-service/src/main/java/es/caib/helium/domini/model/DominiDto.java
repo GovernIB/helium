@@ -105,6 +105,16 @@ public class DominiDto {
 	@Schema(description = "Identificador del tipus d'expedient al que pertany el domini. Si el domini és global aquest identificador serà null.")
 	private Long expedientTipus = null;
 
+	/// Propietats de consulta d'herència
+	
+	@JsonProperty("heretat")
+	@Schema(description = "Indica si l'objecte és heretat del tipus d'expedient pare.")
+	private boolean heretat = false;
+
+	@JsonProperty("sobreescriu")
+	@Schema(description = "Indica si l'objecte sobreescriu una propietat del tipus d'expedient pare.")
+	private boolean sobreescriu = false;
+	
 //  public DominiDto id(Long id) {
 //    this.id = id;
 //    return this;

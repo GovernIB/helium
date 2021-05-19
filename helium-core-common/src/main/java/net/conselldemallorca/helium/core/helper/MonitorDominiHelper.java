@@ -17,15 +17,15 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import net.conselldemallorca.helium.core.model.hibernate.Domini;
+//import net.conselldemallorca.helium.core.model.hibernate.DominiDto;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
+import net.conselldemallorca.helium.ms.domini.DominiMs;
 import net.conselldemallorca.helium.v3.core.api.dto.DominiDto;
-import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.IntegracioAccioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.IntegracioAccioEstatEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.IntegracioAccioTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.IntegracioParametreDto;
-import net.conselldemallorca.helium.v3.core.repository.DominiRepository;
+//import net.conselldemallorca.helium.v3.core.repository.DominiRepository;
 
 /**
  * Mètodes per a la gestió d'integracions.
@@ -38,7 +38,7 @@ public class MonitorDominiHelper {
 	private static final int MAX_ACCIONS_PER_DOMINI = 20;
 
 	@Autowired
-	private DominiRepository dominiRepository;
+	private DominiMs dominiMs;
 
 	private Map<Long, LinkedList<IntegracioAccioDto>> accionsDomini = new HashMap<Long, LinkedList<IntegracioAccioDto>>();
 	private Map<Long, Integer> maxAccionsDomini = new HashMap<Long, Integer>();
@@ -46,15 +46,14 @@ public class MonitorDominiHelper {
 
 
 	public synchronized List<DominiDto> findByEntorn(Entorn entorn) {
-		List<Domini> dominis;
+		List<DominiDto> dominis;
 		if (entorn != null) {
-			dominis = dominiRepository.findByEntorn(
-					entorn);
+			dominis = dominiMs.llistaDominiByEntorn(entorn.getId(), null, null, null, null);
 		} else {
-			dominis = dominiRepository.findAll();
+			dominis = new ArrayList<DominiDto>();
 		}
 		List<DominiDto> dtos = new ArrayList<DominiDto>();
-		for (Domini domini: dominis) {
+		for (DominiDto domini: dominis) {
 			dtos.add(toDominiDto(domini));
 		}
 		return dtos;
@@ -66,7 +65,7 @@ public class MonitorDominiHelper {
 	}
 
 	public void addAccioOk(
-			Domini domini,
+			DominiDto domini,
 			String descripcio,
 			IntegracioAccioTipusEnumDto tipus,
 			long tempsResposta,
@@ -82,7 +81,7 @@ public class MonitorDominiHelper {
 				parametres);
 	}
 	public void addAccioError(
-			Domini domini,
+			DominiDto domini,
 			String descripcio,
 			IntegracioAccioTipusEnumDto tipus,
 			long tempsResposta,
@@ -99,7 +98,7 @@ public class MonitorDominiHelper {
 				parametres);
 	}
 	public void addAccioError(
-			Domini domini,
+			DominiDto domini,
 			String descripcio,
 			IntegracioAccioTipusEnumDto tipus,
 			long tempsResposta,
@@ -140,7 +139,7 @@ public class MonitorDominiHelper {
 		return accions;
 	}
 	private int getMaxAccions(
-			Domini domini) {
+			DominiDto domini) {
 		Long dominiId = domini.getId();
 		Integer max = maxAccionsDomini.get(dominiId);
 		if (max == null) {
@@ -153,7 +152,7 @@ public class MonitorDominiHelper {
 	}
 
 	private synchronized void addAccio(
-			Domini domini,
+			DominiDto domini,
 			String descripcio,
 			IntegracioAccioTipusEnumDto tipus,
 			IntegracioAccioEstatEnumDto estat,
@@ -161,7 +160,7 @@ public class MonitorDominiHelper {
 			String errorDescripcio,
 			Throwable throwable,
 			IntegracioParametreDto ... parametres) {
-		Long entornId = domini.getEntorn().getId();
+		Long entornId = domini.getEntornId();
 		IntegracioAccioDto accio = new IntegracioAccioDto();
 		accio.setEntornId(entornId);
 		accio.setIntegracioCodi(domini.getCodi());
@@ -191,16 +190,7 @@ public class MonitorDominiHelper {
 		accions.add(accio);
 	}
 
-	private DominiDto toDominiDto(Domini domini) {
-		EntornDto entorn = new EntornDto();
-		entorn.setId(domini.getEntorn().getId());
-		entorn.setCodi(domini.getEntorn().getCodi());
-		entorn.setNom(domini.getEntorn().getNom());
-		DominiDto dto = new DominiDto(
-				domini.getCodi(),
-				domini.getNom(),
-				entorn);
-		dto.setId(domini.getId());
+	private DominiDto toDominiDto(DominiDto domini) {
 		LinkedList<IntegracioAccioDto> accions = accionsDomini.get(domini.getId());
 		if (accions != null) {
 			int numErrors = 0;
@@ -208,9 +198,9 @@ public class MonitorDominiHelper {
 				if (accio.isEstatError())
 					numErrors++;
 			}
-			dto.setNumErrors(numErrors);
+			domini.setNumErrors(numErrors);
 		}
-		return dto;
+		return domini;
 	}
 
 	private static final Logger logger = LoggerFactory.getLogger(MonitorDominiHelper.class);

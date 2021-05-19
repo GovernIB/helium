@@ -553,6 +553,8 @@ public interface ExpedientTipusService {
 	/**
 	 * Retorna els dominis per a un tipus d'expedient.
 	 * 
+	 * @param entornId
+	 *            Atribut id de l'entorn.
 	 * @param expedientTipusId
 	 *            Atribut id del tipus d'expedient.
 	 * @param incloureGlobals
@@ -564,6 +566,7 @@ public interface ExpedientTipusService {
 	 *             Si no es tenen els permisos necessaris.
 	 */
 	public List<DominiDto> dominiFindAll(
+			Long entornId,
 			Long expedientTipusId,
 			boolean incloureGlobals);
 

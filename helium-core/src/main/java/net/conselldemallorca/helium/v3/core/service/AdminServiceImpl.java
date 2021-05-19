@@ -31,12 +31,13 @@ import net.conselldemallorca.helium.core.helper.MailHelper;
 import net.conselldemallorca.helium.core.helper.MonitorDominiHelper;
 import net.conselldemallorca.helium.core.helper.MonitorIntegracioHelper;
 import net.conselldemallorca.helium.core.helperv26.MesuresTemporalsHelper;
-import net.conselldemallorca.helium.core.model.hibernate.Domini;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 import net.conselldemallorca.helium.core.model.hibernate.Persona;
 import net.conselldemallorca.helium.core.model.hibernate.Reassignacio;
 import net.conselldemallorca.helium.core.model.hibernate.UsuariPreferencies;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
+import net.conselldemallorca.helium.ms.domini.DominiMs;
+import net.conselldemallorca.helium.ms.domini.client.model.Domini;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DominiDto;
 import net.conselldemallorca.helium.v3.core.api.dto.IntegracioAccioDto;
@@ -52,7 +53,6 @@ import net.conselldemallorca.helium.v3.core.api.dto.TascaCompleteDto;
 import net.conselldemallorca.helium.v3.core.api.dto.UsuariPreferenciesDto;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.service.AdminService;
-import net.conselldemallorca.helium.v3.core.repository.DominiRepository;
 import net.conselldemallorca.helium.v3.core.repository.EntornRepository;
 import net.conselldemallorca.helium.v3.core.repository.PersonaRepository;
 import net.conselldemallorca.helium.v3.core.repository.ReassignacioRepository;
@@ -69,7 +69,7 @@ public class AdminServiceImpl implements AdminService {
 	@Resource
 	private EntornRepository entornRepository;
 	@Resource
-	private DominiRepository dominiRepository;
+	private DominiMs dominiMs;
 	@Resource
 	private ReassignacioRepository reassignacioRepository;
 	@Resource
@@ -191,7 +191,7 @@ public class AdminServiceImpl implements AdminService {
 				"dominiId=" + dominiId + ")");
 		if (dominiId != 0L) {
 			// Domini no intern
-			Domini domini = dominiRepository.findOne(dominiId);
+			DominiDto domini = dominiMs.get(dominiId);
 			if (domini == null) {
 				throw new NoTrobatException(Domini.class,dominiId);
 			}

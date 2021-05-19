@@ -55,13 +55,13 @@ import net.conselldemallorca.helium.core.model.hibernate.ConsultaCamp;
 import net.conselldemallorca.helium.core.model.hibernate.ConsultaCamp.TipusConsultaCamp;
 import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
 import net.conselldemallorca.helium.core.model.hibernate.Document;
-import net.conselldemallorca.helium.core.model.hibernate.Domini;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.hibernate.Tasca;
 import net.conselldemallorca.helium.core.security.ExtendedPermission;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessDefinition;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessInstance;
+import net.conselldemallorca.helium.ms.domini.DominiMs;
 import net.conselldemallorca.helium.v3.core.api.dto.AreaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ConsultaCampDto;
@@ -91,7 +91,6 @@ import net.conselldemallorca.helium.v3.core.repository.ConsultaCampRepository;
 import net.conselldemallorca.helium.v3.core.repository.ConsultaRepository;
 import net.conselldemallorca.helium.v3.core.repository.DefinicioProcesRepository;
 import net.conselldemallorca.helium.v3.core.repository.DocumentRepository;
-import net.conselldemallorca.helium.v3.core.repository.DominiRepository;
 import net.conselldemallorca.helium.v3.core.repository.EntornRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientTipusRepository;
 import net.conselldemallorca.helium.v3.core.repository.TascaRepository;
@@ -143,7 +142,7 @@ public class DissenyServiceImpl implements DissenyService {
 	@Resource
 	private DocumentRepository documentRepository;
 	@Resource
-	private DominiRepository dominiRepository;
+	private DominiMs dominiMs;
 	@Resource
 	private ConsultaCampRepository consultaCampRepository;
 	@Resource
@@ -791,8 +790,7 @@ public class DissenyServiceImpl implements DissenyService {
 			Long id,
 			String codiDomini,
 			Map<String, Object> parametres) {
-		Domini domini = dominiRepository.findOne(id);
-		return dominiHelper.consultar(domini, codiDomini,parametres);
+		return dominiHelper.consultar(id, codiDomini,parametres);
 	}
 
 	@Override
@@ -1030,8 +1028,7 @@ public class DissenyServiceImpl implements DissenyService {
 				"Consultant el domini per codi (" +
 				"entornId=" + entornId + ", " +
 				"codi = " + codi + ")");
-		Entorn entorn = entornRepository.findOne(entornId);
-		Domini domini = dominiRepository.findByEntornAndCodi(entorn, codi);
+		DominiDto domini = dominiMs.findAmbCodi(entornId, null, codi);
 		if (domini != null)
 			ret = conversioTipusHelper.convertir(
 					domini,

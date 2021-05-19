@@ -3,25 +3,6 @@
  */
 package net.conselldemallorca.helium.core.helper;
 
-import net.conselldemallorca.helium.core.api.WDeployment;
-import net.conselldemallorca.helium.core.api.WProcessDefinition;
-import net.conselldemallorca.helium.core.api.WorkflowEngineApi;
-import net.conselldemallorca.helium.core.model.hibernate.*;
-import net.conselldemallorca.helium.core.model.hibernate.Camp.TipusCamp;
-import net.conselldemallorca.helium.core.model.hibernate.Tasca.TipusTasca;
-import net.conselldemallorca.helium.v3.core.api.dto.CampTipusDto;
-import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
-import net.conselldemallorca.helium.v3.core.api.dto.TascaDto;
-import net.conselldemallorca.helium.v3.core.api.exception.DeploymentException;
-import net.conselldemallorca.helium.v3.core.api.exception.ExportException;
-import net.conselldemallorca.helium.v3.core.api.exportacio.*;
-import net.conselldemallorca.helium.v3.core.repository.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
-
-import javax.annotation.Resource;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
@@ -33,6 +14,68 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
+
+import javax.annotation.Resource;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+
+import net.conselldemallorca.helium.core.api.WDeployment;
+import net.conselldemallorca.helium.core.api.WProcessDefinition;
+import net.conselldemallorca.helium.core.api.WorkflowEngineApi;
+import net.conselldemallorca.helium.core.model.hibernate.Accio;
+import net.conselldemallorca.helium.core.model.hibernate.Camp;
+import net.conselldemallorca.helium.core.model.hibernate.Camp.TipusCamp;
+import net.conselldemallorca.helium.core.model.hibernate.CampAgrupacio;
+import net.conselldemallorca.helium.core.model.hibernate.CampRegistre;
+import net.conselldemallorca.helium.core.model.hibernate.CampTasca;
+import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
+import net.conselldemallorca.helium.core.model.hibernate.Document;
+import net.conselldemallorca.helium.core.model.hibernate.DocumentTasca;
+import net.conselldemallorca.helium.core.model.hibernate.Entorn;
+import net.conselldemallorca.helium.core.model.hibernate.Enumeracio;
+import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
+import net.conselldemallorca.helium.core.model.hibernate.FirmaTasca;
+import net.conselldemallorca.helium.core.model.hibernate.Tasca;
+import net.conselldemallorca.helium.core.model.hibernate.Tasca.TipusTasca;
+import net.conselldemallorca.helium.core.model.hibernate.Termini;
+import net.conselldemallorca.helium.core.model.hibernate.Validacio;
+import net.conselldemallorca.helium.ms.domini.DominiMs;
+import net.conselldemallorca.helium.v3.core.api.dto.CampTipusDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DominiDto;
+import net.conselldemallorca.helium.v3.core.api.dto.TascaDto;
+import net.conselldemallorca.helium.v3.core.api.exception.DeploymentException;
+import net.conselldemallorca.helium.v3.core.api.exception.ExportException;
+import net.conselldemallorca.helium.v3.core.api.exportacio.AccioExportacio;
+import net.conselldemallorca.helium.v3.core.api.exportacio.AgrupacioExportacio;
+import net.conselldemallorca.helium.v3.core.api.exportacio.CampExportacio;
+import net.conselldemallorca.helium.v3.core.api.exportacio.CampTascaExportacio;
+import net.conselldemallorca.helium.v3.core.api.exportacio.DefinicioProcesExportacio;
+import net.conselldemallorca.helium.v3.core.api.exportacio.DefinicioProcesExportacioCommandDto;
+import net.conselldemallorca.helium.v3.core.api.exportacio.DocumentExportacio;
+import net.conselldemallorca.helium.v3.core.api.exportacio.DocumentTascaExportacio;
+import net.conselldemallorca.helium.v3.core.api.exportacio.FirmaTascaExportacio;
+import net.conselldemallorca.helium.v3.core.api.exportacio.RegistreMembreExportacio;
+import net.conselldemallorca.helium.v3.core.api.exportacio.TascaExportacio;
+import net.conselldemallorca.helium.v3.core.api.exportacio.TerminiExportacio;
+import net.conselldemallorca.helium.v3.core.api.exportacio.ValidacioExportacio;
+import net.conselldemallorca.helium.v3.core.repository.AccioRepository;
+import net.conselldemallorca.helium.v3.core.repository.CampAgrupacioRepository;
+import net.conselldemallorca.helium.v3.core.repository.CampRegistreRepository;
+import net.conselldemallorca.helium.v3.core.repository.CampRepository;
+import net.conselldemallorca.helium.v3.core.repository.CampTascaRepository;
+import net.conselldemallorca.helium.v3.core.repository.CampValidacioRepository;
+import net.conselldemallorca.helium.v3.core.repository.DefinicioProcesRepository;
+import net.conselldemallorca.helium.v3.core.repository.DocumentRepository;
+import net.conselldemallorca.helium.v3.core.repository.DocumentTascaRepository;
+import net.conselldemallorca.helium.v3.core.repository.EnumeracioRepository;
+import net.conselldemallorca.helium.v3.core.repository.ExpedientTipusRepository;
+import net.conselldemallorca.helium.v3.core.repository.FirmaTascaRepository;
+import net.conselldemallorca.helium.v3.core.repository.TascaRepository;
+import net.conselldemallorca.helium.v3.core.repository.TerminiRepository;
 
 /**
  * Helper per a les definicions de procés.
@@ -61,7 +104,7 @@ public class DefinicioProcesHelper {
 	@Resource
 	private EnumeracioRepository enumeracioRepository;
 	@Resource
-	private DominiRepository dominiRepository;
+	private DominiMs dominiMs;
 	@Resource
 	private TerminiRepository terminiRepository;
 	@Resource
@@ -255,7 +298,7 @@ public class DefinicioProcesHelper {
 						// Enumeració del camp
 						if (campExportat.getCodiEnumeracio() != null)
 							this.relacionarCampEnumeracio(camp, campExportat.getCodiEnumeracio(), campExportat.isDependenciaEntorn(), entorn, expedientTipus);
-						// Domini del camp
+						// DominiDto del camp
 						if (campExportat.getCodiDomini() != null)
 							this.relacionarCampDomini(camp, campExportat.getCodiDomini(), campExportat.isDependenciaEntorn(), entorn, expedientTipus);
 						// Guarda els camps de tipus consulta per processar-los després de les consultes
@@ -521,18 +564,19 @@ public class DefinicioProcesHelper {
 			Entorn entorn, 
 			ExpedientTipus expedientTipus) throws DeploymentException {
 		
-		Domini domini = null;
+		DominiDto domini = null;
 		if (dependenciaEntorn) {
-			// Domini a nivell d'entor
-			domini = dominiRepository.findByEntornAndCodi(entorn, codiDomini);	
+			// DominiDto a nivell d'entor
+			domini = dominiMs.findAmbCodi(entorn.getId(), null, codiDomini);	
 		} else {
-			// Domini a nivell de TE
-			if (expedientTipus != null)
-				for (Domini d : expedientTipus.getDominis())
+			// DominiDto a nivell de TE
+			if (expedientTipus != null) {
+				for (DominiDto d : dominiMs.llistaDominiByExpedientTipus(expedientTipus.getId(), null))
 					if (d.getCodi().equals(codiDomini)) {
 						domini = d;
 						break;
 					}
+			}
 		}
 		if (domini == null)
 			throw new DeploymentException(
@@ -541,7 +585,7 @@ public class DefinicioProcesHelper {
 					new Object[]{
 							camp.getCodi(),
 							codiDomini}));
-		camp.setDomini(domini);
+		camp.setDomini(domini.getId());
 	}
 
 	/** Troba la enumeració per codi dins del tius d'expedient o l'entorn i el relaciona amb el camp. Si 
@@ -840,9 +884,12 @@ public class DefinicioProcesHelper {
 				if (exportAll || command.getVariables().contains(camp.getCodi())) {
 					boolean necessitaDadesExternes = 
 							TipusCamp.SELECCIO.equals(camp.getTipus()) 
-							|| TipusCamp.SUGGEST.equals(camp.getTipus());			
+							|| TipusCamp.SUGGEST.equals(camp.getTipus());
+					DominiDto domini = camp.getDomini() != null?
+											dominiMs.get(camp.getDomini())
+											: null;
 					boolean necessitaDadesExternesEntorn = 
-							(camp.getDomini() != null && camp.getDomini().getExpedientTipus() == null)
+							(domini != null && domini.getExpedientTipusId() == null)
 							|| (camp.getEnumeracio() != null && camp.getEnumeracio().getExpedientTipus() == null);
 					CampExportacio campExportacio = new CampExportacio(
 		                    camp.getCodi(),
@@ -861,7 +908,7 @@ public class DefinicioProcesHelper {
 		                    camp.getDominiIntern(),
 		                    camp.isDominiCacheText(),
 		                    (necessitaDadesExternes && camp.getEnumeracio() != null) ? camp.getEnumeracio().getCodi() : null,
-		                    (necessitaDadesExternes && camp.getDomini() != null) ? camp.getDomini().getCodi() : null,
+		                    (necessitaDadesExternes && domini != null) ? domini.getCodi() : null,
 		                    (necessitaDadesExternes && camp.getConsulta() != null) ? camp.getConsulta().getCodi() : null,
 		                    (camp.getAgrupacio() != null) ? camp.getAgrupacio().getCodi() : null,
 		                    camp.getDefprocJbpmKey(),

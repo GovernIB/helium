@@ -3,17 +3,15 @@
  */
 package net.conselldemallorca.helium.v3.core.service;
 
-import java.util.HashSet;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import javax.annotation.Resource;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,26 +20,23 @@ import net.conselldemallorca.helium.core.helper.ConversioTipusHelper;
 import net.conselldemallorca.helium.core.helper.DominiHelper;
 import net.conselldemallorca.helium.core.helper.EntornHelper;
 import net.conselldemallorca.helium.core.helper.ExpedientTipusHelper;
-import net.conselldemallorca.helium.core.helper.HerenciaHelper;
 import net.conselldemallorca.helium.core.helper.MessageHelper;
 import net.conselldemallorca.helium.core.helper.PaginacioHelper;
-import net.conselldemallorca.helium.core.model.hibernate.Domini;
-import net.conselldemallorca.helium.core.model.hibernate.Domini.OrigenCredencials;
-import net.conselldemallorca.helium.core.model.hibernate.Domini.TipusAuthDomini;
-import net.conselldemallorca.helium.core.model.hibernate.Domini.TipusDomini;
-import net.conselldemallorca.helium.core.model.hibernate.Entorn;
+import net.conselldemallorca.helium.core.model.hibernate.Camp;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.util.EntornActual;
 import net.conselldemallorca.helium.ms.domini.DominiMs;
-import net.conselldemallorca.helium.ms.domini.client.model.DominiPagedList;
+import net.conselldemallorca.helium.ms.domini.client.model.Domini;
 import net.conselldemallorca.helium.v3.core.api.dto.DominiDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DominiDto.OrigenCredencials;
+import net.conselldemallorca.helium.v3.core.api.dto.DominiDto.TipusAuthDomini;
+import net.conselldemallorca.helium.v3.core.api.dto.DominiDto.TipusDomini;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
 import net.conselldemallorca.helium.v3.core.api.exception.ValidacioException;
 import net.conselldemallorca.helium.v3.core.api.service.DominiService;
-import net.conselldemallorca.helium.v3.core.repository.DominiRepository;
 import net.conselldemallorca.helium.v3.core.repository.EntornRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientTipusRepository;
 
@@ -59,9 +54,6 @@ public class DominiServiceImpl implements DominiService {
 	private EntornRepository entornRepository;
 	@Resource
 	private ExpedientTipusRepository expedientTipusRepository;
-	@Resource
-	private DominiRepository dominiRepository;
-
 	@Resource
 	private ExpedientTipusHelper expedientTipusHelper;
 	@Resource
@@ -97,63 +89,14 @@ public class DominiServiceImpl implements DominiService {
 		
 		ExpedientTipus expedientTipus = expedientTipusId != null? expedientTipusHelper.getExpedientTipusComprovantPermisDissenyDelegat(expedientTipusId) : null;
 
-		// Determina si hi ha herència 
-		boolean ambHerencia = HerenciaHelper.ambHerencia(expedientTipus);
-
-		Page<Domini> page = dominiRepository.findByFiltrePaginat(
-				entornId,
-				expedientTipusId == null,
-				expedientTipusId,
-				incloureGlobals,
-				filtre == null || "".equals(filtre), 
+		PaginaDto<DominiDto> pagina = dominiMs.findByFiltrePaginat(
+				entornId, 
 				filtre, 
-				ambHerencia,
-				paginacioHelper.toSpringDataPageable(
-						paginacioParams));
-
-		this.testDominiMs();
+				expedientTipusId, 
+				expedientTipus.getExpedientTipusPareId(), 
+				paginacioParams);	
 		
-		PaginaDto<DominiDto> pagina = paginacioHelper.toPaginaDto(
-				page,
-				DominiDto.class);		
-		
-		if (ambHerencia) {
-			// Llista d'heretats
-			Set<Long> heretatsIds = new HashSet<Long>();
-			for (Domini d : page.getContent()) 
-				if ( !expedientTipusId.equals(d.getExpedientTipus().getId()))
-					heretatsIds.add(d.getId());
-			// Llistat d'elements sobreescrits
-			Set<String> sobreescritsCodis = new HashSet<String>();
-			for (Domini d : dominiRepository.findSobreescrits(
-					expedientTipus.getId()
-				)) {
-				sobreescritsCodis.add(d.getCodi());
-			}
-			// Completa l'informació del dto
-			for (DominiDto dto : pagina.getContingut()) {
-				// Sobreescriu
-				if (sobreescritsCodis.contains(dto.getCodi()))
-					dto.setSobreescriu(true);
-				// Heretat
-				if (heretatsIds.contains(dto.getId()) && ! dto.isSobreescriu())
-					dto.setHeretat(true);								
-			}					
-		}
 		return pagina;	
-	}
-	
-	private void testDominiMs() {
-			// Consulta una llista de dominis
-			Long entornId = 2L;
-			String filtre = null;
-			Long expedientTipusId = null;
-			Long expedientTipusPareId = null;
-			Integer page = null;
-			Integer size = null;
-			String sort = null;
-			DominiPagedList dominisPagina = dominiMs.listDominisV1(entornId, filtre, expedientTipusId, expedientTipusPareId, page, size, sort);
-			System.out.println("Pàgina de dominis: " + dominisPagina);
 	}
 
 	@Override
@@ -174,41 +117,21 @@ public class DominiServiceImpl implements DominiService {
 		if (expedientTipusId != null)
 			expedientTipus = expedientTipusRepository.findOne(expedientTipusId);
 		
-		Entorn entorn;
 		// Control d'accés
 		if (expedientTipus != null) {			
 			expedientTipusHelper.getExpedientTipusComprovantPermisDisseny(
 					expedientTipus.getId());
-			entorn = expedientTipus.getEntorn();
 		} else
-			entorn = entornHelper.getEntornComprovantPermisos(EntornActual.getEntornId(), true, true);
+			entornHelper.getEntornComprovantPermisos(EntornActual.getEntornId(), true, true);
 		
+		domini.setEntornId(entornId);
+		domini.setExpedientTipusId(expedientTipusId);
 		
-		Domini entity = new Domini();
-		entity.setEntorn(entorn);
-		entity.setExpedientTipus(expedientTipus);
+		long dominiId = this.dominiMs.create(domini);
+		
+		domini.setId(dominiId);
 
-		entity.setCodi(domini.getCodi());
-		entity.setNom(domini.getNom());
-		entity.setDescripcio(domini.getDescripcio());
-		if (domini.getTipus() != null)
-			entity.setTipus(TipusDomini.valueOf(domini.getTipus().name()));
-		entity.setUrl(domini.getUrl());
-		if (domini.getTipusAuth() != null)
-			entity.setTipusAuth(TipusAuthDomini.valueOf(domini.getTipusAuth().name()));
-		if (domini.getOrigenCredencials() != null)
-			entity.setOrigenCredencials(OrigenCredencials.valueOf(domini.getOrigenCredencials().name()));
-		entity.setUsuari(domini.getUsuari());
-		entity.setContrasenya(domini.getContrasenya());
-		entity.setSql(domini.getSql());
-		entity.setJndiDatasource(domini.getJndiDatasource());
-		entity.setCacheSegons(domini.getCacheSegons());
-		entity.setTimeout(domini.getTimeout());
-		entity.setOrdreParams(domini.getOrdreParams());
-		
-		return conversioTipusHelper.convertir(
-				dominiRepository.save(entity),
-				DominiDto.class);
+		return domini;
 	}
 	
 	@Override
@@ -217,26 +140,17 @@ public class DominiServiceImpl implements DominiService {
 			Long entornId,
 			Long expedientTipusId, 
 			String codi) {
-		DominiDto ret = null;
 		logger.debug(
 				"Consultant el domini per codi (" +
 				"entornId=" + entornId + ", " +  
 				"expedientTipusId=" + expedientTipusId + ", " +
 				"codi = " + codi + ")");
-		Domini domini;
-		if (expedientTipusId != null)
-			domini = dominiRepository.findByExpedientTipusAndCodi(
-					expedientTipusRepository.findOne(expedientTipusId), 
-					codi);
-		else
-			domini = dominiRepository.findByEntornAndCodi(
-					entornRepository.findOne(entornId), 
-					codi);
-		if (domini != null)
-			ret = conversioTipusHelper.convertir(
-					domini,
-					DominiDto.class);
-		return ret;
+		DominiDto domini = dominiMs.findAmbCodi(
+				entornId,
+				expedientTipusId,
+				codi);
+		
+		return domini;
 	}	
 	
 	@Override
@@ -246,31 +160,28 @@ public class DominiServiceImpl implements DominiService {
 		logger.debug(
 				"Esborrant el domini (" +
 				"dominiId=" + dominiId +  ")");
-		
-		Domini entity = dominiRepository.findOne(dominiId);
-		if (entity == null) {
-			throw new NoTrobatException(Domini.class, dominiId);
-		}
-		
 
-		if (entity.getExpedientTipus() != null)
+		DominiDto domini = dominiMs.get(dominiId);
+		if (domini == null) {
+			throw new NoTrobatException(DominiDto.class, dominiId);
+		}		
+
+		if (domini.getExpedientTipusId() != null)
 			expedientTipusHelper.getExpedientTipusComprovantPermisDisseny(
-					entity.getExpedientTipus().getId());
+					domini.getExpedientTipusId());
 		else
 			entornHelper.getEntornComprovantPermisos(
-					entity.getEntorn().getId(), 
+					domini.getEntornId(), 
 					true,// accés 
 					true); // disseny
-
-		if (entity.getExpedientTipus() != null) {
-			entity.getExpedientTipus().removeDomini(entity);
-		}
 		
-		if (entity.getCamps()!=null && entity.getCamps().size()>0) {
+		// Comprova si el domini està en ús abans d'esborrar
+		List<Camp> campsDomini = dominiHelper.findCampsPerDomini(dominiId);
+		if (campsDomini.size()>0) {
 			throw new ValidacioException(messageHelper.getMessage("expedient.tipus.domini.controller.eliminat.us"));
 		}
 
-		dominiRepository.delete(entity);
+		dominiMs.delete(dominiId);
 	}
 
 	@Override
@@ -279,9 +190,11 @@ public class DominiServiceImpl implements DominiService {
 		logger.debug(
 				"Consultant els dominins globals per entorn (" +
 				"entornId=" + entornId +  ")");
-		return conversioTipusHelper.convertirList(
-				dominiRepository.findGlobals(entornId),
-				DominiDto.class);
+		//TODO: DANIEL Construir consulta per obtenir dominis d'entorn amb tipus d'expedient null
+		return new ArrayList<DominiDto>();
+//		return conversioTipusHelper.convertirList(
+//				dominiRepository.findGlobals(entornId),
+//				DominiDto.class);
 	}
 	
 	@Override
@@ -295,23 +208,19 @@ public class DominiServiceImpl implements DominiService {
 				"dominiId=" + dominiId +  ")");
 		ExpedientTipus tipus = expedientTipusId != null?
 				expedientTipusRepository.findById(expedientTipusId) : null;
-		Domini domini = dominiRepository.findOne(dominiId);
+		DominiDto domini = dominiMs.get(dominiId);
 		if (domini == null) {
 			throw new NoTrobatException(Domini.class, dominiId);
 		}
-		DominiDto dto = conversioTipusHelper.convertir(
-				domini,
-				DominiDto.class); 
 		// Herencia
 		if (tipus != null && tipus.getExpedientTipusPare() != null) {
-			if (tipus.getExpedientTipusPare().getId().equals(domini.getExpedientTipus().getId()))
-				dto.setHeretat(true);
+			if (tipus.getExpedientTipusPare().getId().equals(domini.getExpedientTipusId()))
+				domini.setHeretat(true);
 			else
-				dto.setSobreescriu(dominiRepository.findByExpedientTipusAndCodi(
-						tipus.getExpedientTipusPare(), 
-						domini.getCodi()) != null);					
+				// TODO DANIEL Mirar si obtimitzar la consulta per a que s'informi la herència en el resultat
+				domini.setSobreescriu(dominiMs.findAmbCodi(tipus.getEntorn().getId(), tipus.getId(), domini.getCodi()) != null);
 		}
-		return dto;
+		return conversioTipusHelper.convertir(domini, DominiDto.class);
 	}
 	
 	@Override
@@ -324,17 +233,17 @@ public class DominiServiceImpl implements DominiService {
 				"domini.id=" + domini.getId() + ", " +
 				"domini =" + domini + ")");		
 		
-		Domini entity = dominiRepository.findOne(domini.getId());
+		DominiDto entity = dominiMs.get(domini.getId());
 		if (entity == null) {
-			throw new NoTrobatException(Domini.class, domini.getId());
+			throw new NoTrobatException(DominiDto.class, domini.getId());
 		}
 		
-		if (entity.getExpedientTipus() != null)
+		if (entity.getExpedientTipusId() != null)
 			expedientTipusHelper.getExpedientTipusComprovantPermisDisseny(
-					entity.getExpedientTipus().getId());
+					entity.getExpedientTipusId());
 		else
 			entornHelper.getEntornComprovantPermisos(
-					entity.getEntorn().getId(), 
+					entity.getEntornId(), 
 					true,// accés 
 					true); // disseny
 		
@@ -356,10 +265,9 @@ public class DominiServiceImpl implements DominiService {
 		entity.setTimeout(domini.getTimeout());
 		entity.setOrdreParams(domini.getOrdreParams());
 		
-		return conversioTipusHelper.convertir(
-				dominiRepository.save(entity),
-				DominiDto.class);
+		entity = dominiMs.update(entity);
 		
+		return conversioTipusHelper.convertir(entity, DominiDto.class);		
 	}
 
 	@Override
@@ -375,21 +283,11 @@ public class DominiServiceImpl implements DominiService {
 						"dominiId=" + dominiId + ", " +
 						"dominiWsId=" + dominiWsId + ", " +
 				"params =" + params + ")");		
-		if (dominiId != null && !dominiId.equals(0L)) {
-			// Domini extern
-			Domini domini = dominiRepository.findOne(dominiId);
-			return dominiHelper.consultar(
-					domini,
-					(dominiId != null) ? dominiId.toString() : null,
-					params);
-		} else {
-			// Domini intern
-			return dominiHelper.consultarIntern(
-					entornRepository.findOne(entornId),
-					null,
-					dominiWsId,
-					params);
-		}
+
+		return dominiHelper.consultar(
+				dominiId,
+				(dominiId != null) ? dominiId.toString() : null,
+				params);
 	}
 		
 	private static final Logger logger = LoggerFactory.getLogger(DominiServiceImpl.class);

@@ -50,7 +50,7 @@ public class Entorn implements Serializable, GenericEntity<Long>, Auditable {
 	private Set<DefinicioProces> definicionsProces = new HashSet<DefinicioProces>();
 	private Set<ExpedientTipus> expedientTipus = new HashSet<ExpedientTipus>();
 	private Set<Expedient> expedients = new HashSet<Expedient>();
-	private Set<Domini> dominis = new HashSet<Domini>();
+//	private Set<Domini> dominis = new HashSet<Domini>();
 	private Set<Enumeracio> enumeracions = new HashSet<Enumeracio>();
 	private Set<Consulta> consultes = new HashSet<Consulta>();
 
@@ -147,16 +147,16 @@ public class Entorn implements Serializable, GenericEntity<Long>, Auditable {
 		getExpedients().remove(expedient);
 	}
 
-	@OneToMany(mappedBy="entorn")
-	public Set<Domini> getDominis() {
-		return this.dominis;
-	}
-	public void setDominis(Set<Domini> dominis) {
-		this.dominis = dominis;
-	}
-	public void addDomini(Domini domini) {
-		getDominis().add(domini);
-	}
+//	@OneToMany(mappedBy="entorn")
+//	public Set<Domini> getDominis() {
+//		return this.dominis;
+//	}
+//	public void setDominis(Set<Domini> dominis) {
+//		this.dominis = dominis;
+//	}
+//	public void addDomini(Domini domini) {
+//		getDominis().add(domini);
+//	}
 
 	@OneToMany(mappedBy="entorn")
 	public Set<Enumeracio> getEnumeracions() {

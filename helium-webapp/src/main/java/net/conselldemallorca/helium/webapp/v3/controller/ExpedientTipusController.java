@@ -414,6 +414,7 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 			Long expedientTipusId,
 			Model model, 
 			ExpedientTipusDto dto) {
+
 		model.addAttribute("estats", dto.getEstats());
 		model.addAttribute("variables", campService.findAllOrdenatsPerCodi(expedientTipusId, null));
 		model.addAttribute("agrupacions", campService.agrupacioFindAll(expedientTipusId, null, false));
@@ -448,7 +449,7 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 		model.addAttribute("documents", documentService.findAll(expedientTipusId, null));
 		model.addAttribute("terminis", terminiService.findAll(expedientTipusId, null));
 		model.addAttribute("accions", accioService.findAll(expedientTipusId, null));
-		model.addAttribute("dominis", expedientTipusService.dominiFindAll(expedientTipusId, false));
+		model.addAttribute("dominis", expedientTipusService.dominiFindAll(dto.getEntorn().getId(), expedientTipusId, false));
 		model.addAttribute("consultes", expedientTipusService.consultaFindAll(expedientTipusId));
 	}	
 	

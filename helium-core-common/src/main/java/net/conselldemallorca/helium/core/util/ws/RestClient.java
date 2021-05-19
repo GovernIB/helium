@@ -14,7 +14,8 @@ import com.sun.jersey.api.client.filter.HTTPBasicAuthFilter;
 import com.sun.jersey.core.util.MultivaluedMapImpl;
 
 import net.conselldemallorca.helium.core.extern.domini.FilaResultat;
-import net.conselldemallorca.helium.core.model.hibernate.Domini;
+import net.conselldemallorca.helium.v3.core.api.dto.DominiDto;
+//import net.conselldemallorca.helium.core.model.hibernate.Domini;
 import net.conselldemallorca.helium.v3.core.api.exception.SistemaExternException;
 
 /**
@@ -34,7 +35,7 @@ public class RestClient {
 	 * @return
 	 * @throws Exception 
 	 */
-	public static List<FilaResultat> get(Domini domini, String id, Map<String, Object>params) {
+	public static List<FilaResultat> get(DominiDto domini, String id, Map<String, Object>params) {
 		Client client = generateClient(
 								domini.getTipusAuth().toString(),
 								domini.getUsuari(), 
@@ -63,15 +64,15 @@ public class RestClient {
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw new SistemaExternException(
-					domini.getEntorn().getId(),
-					domini.getEntorn().getCodi(), 
-					domini.getEntorn().getNom(), 
+					domini.getEntornId(),
 					null, 
 					null, 
 					null, 
-					domini.getExpedientTipus() == null ? null : domini.getExpedientTipus().getId(), 
-					domini.getExpedientTipus() == null ? null : domini.getExpedientTipus().getCodi(), 
-					domini.getExpedientTipus() == null ? null : domini.getExpedientTipus().getNom(), 
+					null, 
+					null, 
+					domini.getExpedientTipusId(), 
+					null, 
+					null, 
 					"(Domini '" + domini.getCodi() + "')", 
 					e);
 		}
@@ -86,7 +87,7 @@ public class RestClient {
 	 * @return
 	 * @throws Exception 
 	 */
-	public static List<FilaResultat> post(Domini domini, String id, Map<String, Object>params) throws SistemaExternException {
+	public static List<FilaResultat> post(DominiDto domini, String id, Map<String, Object>params) throws SistemaExternException {
 		ObjectMapper op =  new ObjectMapper();
 		Client client = generateClient(
 								domini.getTipusAuth().toString(),
@@ -114,15 +115,15 @@ public class RestClient {
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw new SistemaExternException(
-					domini.getEntorn().getId(),
-					domini.getEntorn().getCodi(), 
-					domini.getEntorn().getNom(), 
+					domini.getEntornId(),
 					null, 
 					null, 
 					null, 
-					domini.getExpedientTipus() == null ? null : domini.getExpedientTipus().getId(), 
-					domini.getExpedientTipus() == null ? null : domini.getExpedientTipus().getCodi(), 
-					domini.getExpedientTipus() == null ? null : domini.getExpedientTipus().getNom(), 
+					null, 
+					null, 
+					domini.getExpedientTipusId(), 
+					null, 
+					null, 
 					"(Domini '" + domini.getCodi() + "')", 
 					e);
 		} 

@@ -111,7 +111,7 @@ public class Camp implements Serializable, GenericEntity<Long> {
 	private boolean ignored;
 
 	private Consulta consulta;
-	private Domini domini;
+	private Long domini;
 	private Enumeracio enumeracio;
 	private DefinicioProces definicioProces;
 	private ExpedientTipus expedientTipus;
@@ -299,16 +299,14 @@ public class Camp implements Serializable, GenericEntity<Long> {
 		this.agrupacio = agrupacio;
 	}
 
-	@ManyToOne(optional=true)
 	@JoinColumn(name="domini_id")
-	@ForeignKey(name="hel_domini_camp_fk")
-	public Domini getDomini() {
+	public Long getDomini() {
 		return domini;
 	}
-	public void setDomini(Domini domini) {
+	public void setDomini(Long domini) {
 		this.domini = domini;
 	}
-	public void removeDomini(Domini domini) {
+	public void removeDomini() {
 		setDomini(null);
 		setDominiId(null);
 		setDominiParams(null);

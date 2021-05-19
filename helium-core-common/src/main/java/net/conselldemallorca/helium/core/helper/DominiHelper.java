@@ -3,31 +3,18 @@
  */
 package net.conselldemallorca.helium.core.helper;
 
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import javax.annotation.Resource;
-import javax.naming.Context;
-import javax.naming.InitialContext;
-import javax.naming.NamingException;
-import javax.sql.DataSource;
 
-import net.conselldemallorca.helium.core.api.WTaskInstance;
-import net.conselldemallorca.helium.core.api.WorkflowEngineApi;
-import org.apache.commons.lang.exception.ExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.RowMapper;
-import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Component;
 
@@ -35,36 +22,29 @@ import com.codahale.metrics.Counter;
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer;
 
-import net.conselldemallorca.helium.core.extern.domini.DominiHelium;
+import net.conselldemallorca.helium.core.api.WTaskInstance;
+import net.conselldemallorca.helium.core.api.WorkflowEngineApi;
 import net.conselldemallorca.helium.core.extern.domini.FilaResultat;
 import net.conselldemallorca.helium.core.extern.domini.ParellaCodiValor;
-import net.conselldemallorca.helium.core.helper.WsClientHelper.WsClientAuth;
 import net.conselldemallorca.helium.core.model.hibernate.Area;
 import net.conselldemallorca.helium.core.model.hibernate.AreaMembre;
 import net.conselldemallorca.helium.core.model.hibernate.Camp;
 import net.conselldemallorca.helium.core.model.hibernate.Camp.TipusCamp;
 import net.conselldemallorca.helium.core.model.hibernate.CampRegistre;
 import net.conselldemallorca.helium.core.model.hibernate.Carrec;
-import net.conselldemallorca.helium.core.model.hibernate.Domini;
-import net.conselldemallorca.helium.core.model.hibernate.Domini.OrigenCredencials;
-import net.conselldemallorca.helium.core.model.hibernate.Domini.TipusAuthDomini;
-import net.conselldemallorca.helium.core.model.hibernate.Domini.TipusDomini;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
-import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.hibernate.Permis;
 import net.conselldemallorca.helium.core.model.hibernate.Usuari;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
-import net.conselldemallorca.helium.core.util.ws.RestClient;
 import net.conselldemallorca.helium.integracio.plugins.unitat.UnitatOrganica;
+import net.conselldemallorca.helium.ms.domini.DominiMs;
+import net.conselldemallorca.helium.v3.core.api.dto.DominiDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDadaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.IntegracioAccioTipusEnumDto;
-import net.conselldemallorca.helium.v3.core.api.dto.IntegracioParametreDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto.Sexe;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.exception.SistemaExternException;
-import net.conselldemallorca.helium.v3.core.api.exception.SistemaExternTimeoutException;
 import net.conselldemallorca.helium.v3.core.repository.AreaJbpmIdRepository;
 import net.conselldemallorca.helium.v3.core.repository.AreaMembreRepository;
 import net.conselldemallorca.helium.v3.core.repository.AreaRepository;
@@ -75,7 +55,6 @@ import net.conselldemallorca.helium.v3.core.repository.EntornRepository;
 import net.conselldemallorca.helium.v3.core.repository.PermisRepository;
 import net.conselldemallorca.helium.v3.core.repository.UsuariRepository;
 import net.sf.ehcache.Element;
-
 /**
  * Helper per a fer consultes a dominis i enumeracions.
  * 
@@ -93,6 +72,8 @@ public class DominiHelper {
 	private MonitorDominiHelper monitorDominiHelper;
 	@Autowired
 	private WsClientHelper wsClientHelper;
+	@Autowired
+	private ConversioTipusHelper conversioTipusHelper;
 	@Autowired
 	private PluginHelper pluginHelper;
 	@Autowired
@@ -121,16 +102,21 @@ public class DominiHelper {
 	private CarrecJbpmIdRepository carrecJbpmIdRepository;
 	@Resource
 	private CampRepository campRepository;
+	
+	@Autowired
+	private DominiMs dominiMs;
+
 
 	@SuppressWarnings("unchecked")
 	public List<FilaResultat> consultar(
-			Domini domini,
-			String id,
+			Long dominiId,
+			String dominiWsId,
 			Map<String, Object> parametres) {
 		Cache dominiCache = cacheManager.getCache(CACHE_DOMINI_ID);
-		String cacheKey = getCacheKey(domini.getId(), id, parametres);
+		String cacheKey = getCacheKey(dominiId, dominiWsId, parametres);
 		List<FilaResultat> resultat = null;
 		if (dominiCache.get(cacheKey) == null) {
+			DominiDto domini = dominiMs.get(dominiId);
 			final Timer timerTotal = metricRegistry.timer(
 					MetricRegistry.name(
 							DominiHelper.class,
@@ -145,55 +131,48 @@ public class DominiHelper {
 					MetricRegistry.name(
 							DominiHelper.class,
 							"consultar",
-							domini.getEntorn().getCodi()));
+							domini.getEntornId().toString()));
 			final Timer.Context contextEntorn = timerEntorn.time();
 			Counter countEntorn = metricRegistry.counter(
 					MetricRegistry.name(
 							DominiHelper.class,
 							"consultar.count",
-							domini.getEntorn().getCodi()));
+							domini.getEntornId().toString()));
 			countEntorn.inc();
 			final Timer timerTipexp = metricRegistry.timer(
 					MetricRegistry.name(
 							DominiHelper.class,
 							"consultar",
-							domini.getEntorn().getCodi(),
-							domini.getExpedientTipus() == null ? null : domini.getExpedientTipus().getCodi()));
+							domini.getEntornId().toString(),
+							domini.getExpedientTipusId() == null ? null : domini.getExpedientTipusId().toString()));
 			final Timer.Context contextTipexp = timerTipexp.time();
 			Counter countTipexp = metricRegistry.counter(
 					MetricRegistry.name(
 							DominiHelper.class,
 							"consultar.count",
-							domini.getEntorn().getCodi(),
-							domini.getExpedientTipus() == null ? null : domini.getExpedientTipus().getCodi()));
+							domini.getEntornId().toString(),
+							domini.getExpedientTipusId() == null ? null : domini.getExpedientTipusId().toString()));
 			countTipexp.inc();
 			final Timer timerDomini = metricRegistry.timer(
 					MetricRegistry.name(
 							DominiHelper.class,
 							"consultar",
-							domini.getEntorn().getCodi(),
-							domini.getExpedientTipus() == null ? null : domini.getExpedientTipus().getCodi(),
+							domini.getEntornId().toString(),
+							domini.getExpedientTipusId() == null ? null : domini.getExpedientTipusId().toString(),
 							domini.getCodi()));
 			final Timer.Context contextDomini = timerDomini.time();
 			Counter countDomini = metricRegistry.counter(
 					MetricRegistry.name(
 							DominiHelper.class,
 							"consultar.count",
-							domini.getEntorn().getCodi(),
-							domini.getExpedientTipus() == null ? null : domini.getExpedientTipus().getCodi(),
+							domini.getEntornId().toString(),
+							domini.getExpedientTipusId() == null ? null : domini.getExpedientTipusId().toString(),
 							domini.getCodi()));
 			countDomini.inc();
-			try {
-				if (domini.isDominiIntern())
-					resultat = this.consultaDominiIntern(domini, id, parametres);
-				else if (domini.getTipus().equals(TipusDomini.CONSULTA_WS))
-					resultat = consultaWs(domini, id, parametres);
-				else if (domini.getTipus().equals(TipusDomini.CONSULTA_SQL))
-					resultat = consultaSql(domini, parametres);
-				else if (domini.getTipus().equals(TipusDomini.CONSULTA_REST)) {
-					resultat = RestClient.get(domini, id,parametres);
-				}
-					
+			try {					
+				resultat = conversioTipusHelper.convertirList(
+						dominiMs.consultarDomini(dominiId, dominiWsId, parametres), 
+						FilaResultat.class);
 				if (resultat == null)
 					resultat = new ArrayList<FilaResultat>();
 				if (domini.getCacheSegons() > 0) {
@@ -213,21 +192,21 @@ public class DominiHelper {
 						MetricRegistry.name(
 								DominiHelper.class,
 								"consultar.ok",
-								domini.getEntorn().getCodi()));
+								domini.getEntornId().toString()));
 				counterOkEntorn.inc();
 				final Counter counterOkTipexp = metricRegistry.counter(
 						MetricRegistry.name(
 								DominiHelper.class,
 								"consultar.ok",
-								domini.getEntorn().getCodi(),
-								domini.getExpedientTipus() == null ? null : domini.getExpedientTipus().getCodi()));
+								domini.getEntornId().toString(),
+								domini.getExpedientTipusId() == null ? null : domini.getExpedientTipusId().toString()));
 				counterOkTipexp.inc();
 				final Counter counterOkDomini = metricRegistry.counter(
 						MetricRegistry.name(
 								DominiHelper.class,
 								"consultar.ok",
-								domini.getEntorn().getCodi(),
-								domini.getExpedientTipus() == null ? null : domini.getExpedientTipus().getCodi(),
+								domini.getEntornId().toString(),
+								domini.getExpedientTipusId() == null ? null : domini.getExpedientTipusId().toString(),
 								domini.getCodi()));
 				counterOkDomini.inc();
 			} catch (SistemaExternException ex) {
@@ -240,21 +219,21 @@ public class DominiHelper {
 						MetricRegistry.name(
 								DominiHelper.class,
 								"consultar.error",
-								domini.getEntorn().getCodi()));
+								domini.getEntornId().toString()));
 				counterErrorEntorn.inc();
 				final Counter counterErrorTipexp = metricRegistry.counter(
 						MetricRegistry.name(
 								DominiHelper.class,
 								"consultar.error",
-								domini.getEntorn().getCodi(),
-								domini.getExpedientTipus() == null ? null : domini.getExpedientTipus().getCodi()));
+								domini.getEntornId().toString(),
+								domini.getExpedientTipusId() == null ? null : domini.getExpedientTipusId().toString()));
 				counterErrorTipexp.inc();
 				final Counter counterErrorDomini = metricRegistry.counter(
 						MetricRegistry.name(
 								DominiHelper.class,
 								"consultar.error",
-								domini.getEntorn().getCodi(),
-								domini.getExpedientTipus() == null ? null : domini.getExpedientTipus().getCodi(),
+								domini.getEntornId().toString(),
+								domini.getExpedientTipusId() == null ? null : domini.getExpedientTipusId().toString(),
 								domini.getCodi()));
 				counterErrorDomini.inc();
 				throw ex;
@@ -270,267 +249,7 @@ public class DominiHelper {
 		return resultat;
 	}
 
-	public List<FilaResultat> consultarIntern(
-			Entorn entorn,
-			ExpedientTipus expedientTipus,
-			String id,
-			Map<String, Object> parametres) {
-		Domini dominiIntern = new Domini();
-		dominiIntern.setId((long)0);
-		dominiIntern.setEntorn(entorn);
-		dominiIntern.setExpedientTipus(expedientTipus);
-		dominiIntern.setCacheSegons(30);
-		dominiIntern.setCodi("");
-		dominiIntern.setNom("Domini intern");
-		return consultar(
-				dominiIntern,
-				id,
-				parametres);
-	}
 
-	private List<FilaResultat> consultaDominiIntern(
-			Domini domini,
-			String id,
-			Map<String, Object> parametres) {
-		List<ParellaCodiValor> paramsConsulta = new ArrayList<ParellaCodiValor>();
-		paramsConsulta.add(
-				new ParellaCodiValor(
-						"entorn",
-						domini.getEntorn().getCodi()));
-		if (parametres != null) {
-			for (String codi: parametres.keySet()) {
-				paramsConsulta.add(new ParellaCodiValor(
-						codi,
-						parametres.get(codi)));
-			}
-		}
-		long t0 = System.currentTimeMillis();
-		try {
-			logger.debug("Petició de domini de tipus Intern (" +
-					"id=" + domini.getId() + ", " +
-					"params=" + IntegracioParametreDto.parametresToString(parametres) + ")");
-			List<FilaResultat> resposta = consultaDominiIntern(id, paramsConsulta);
-			monitorDominiHelper.addAccioOk(
-					domini,
-					"Consulta domini intern (id=" + id + ")",
-					IntegracioAccioTipusEnumDto.ENVIAMENT,
-					System.currentTimeMillis() - t0,
-					IntegracioParametreDto.toIntegracioParametres(parametres));
-			return resposta;
-		} catch (Exception ex) {
-			logger.error("ERROR SISTEMA DOMINI INTERN: ", ex);
-			monitorDominiHelper.addAccioError(
-					domini,
-					"Consulta WS (id=" + id + ")",
-					IntegracioAccioTipusEnumDto.ENVIAMENT,
-					System.currentTimeMillis() - t0,
-					ex.getMessage(),
-					ex,
-					IntegracioParametreDto.toIntegracioParametres(parametres));
-			throw SistemaExternException.tractarSistemaExternException(
-					domini.getEntorn().getId(),
-					domini.getEntorn().getCodi(), 
-					domini.getEntorn().getNom(), 
-					null, 
-					null, 
-					null, 
-					domini.getExpedientTipus() == null ? null : domini.getExpedientTipus().getId(), 
-					domini.getExpedientTipus() == null ? null : domini.getExpedientTipus().getCodi(), 
-					domini.getExpedientTipus() == null ? null : domini.getExpedientTipus().getNom(), 
-					"(Domini intern '" + domini.getCodi() + "')", 
-					ex);
-		}
-	}
-
-	private List<FilaResultat> consultaWs(
-			Domini domini,
-			String id,
-			Map<String, Object> parametres) {
-		List<ParellaCodiValor> paramsConsulta = new ArrayList<ParellaCodiValor>();
-		if (parametres != null) {
-			for (String codi: parametres.keySet()) {
-				paramsConsulta.add(new ParellaCodiValor(
-						codi,
-						parametres.get(codi)));
-			}
-		}
-		long t0 = System.currentTimeMillis();
-		int puntControl = 0;
-		try {
-			logger.debug("Petició de domini de tipus WS (" +
-					"id=" + domini.getId() + ", " +
-					"codi=" + domini.getCodi() + ", " +
-					"params=" + IntegracioParametreDto.parametresToString(parametres) + ")");
-			puntControl = 1;
-			DominiHelium client = getClientWsFromDomini(domini);
-			puntControl = 2;
-			List<FilaResultat> resposta = client.consultaDomini(id, paramsConsulta);
-			puntControl = 3;
-			monitorDominiHelper.addAccioOk(
-					domini,
-					"Consulta WS (id=" + id + ")",
-					IntegracioAccioTipusEnumDto.ENVIAMENT,
-					System.currentTimeMillis() - t0,
-					IntegracioParametreDto.toIntegracioParametres(parametres));
-			puntControl = 4;
-			return resposta;
-		} catch (Exception ex) {
-			logger.error("ERROR SISTEMA EXTERN (Punt de control " + puntControl + "): ", ex);
-			
-			monitorDominiHelper.addAccioError(
-					domini,
-					"Consulta WS (id=" + id + ")",
-					IntegracioAccioTipusEnumDto.ENVIAMENT,
-					System.currentTimeMillis() - t0,
-					ex.getMessage(),
-					ex,
-					IntegracioParametreDto.toIntegracioParametres(parametres));
-			
-			throw SistemaExternException.tractarSistemaExternException(
-					domini.getEntorn().getId(),
-					domini.getEntorn().getCodi(), 
-					domini.getEntorn().getNom(), 
-					null, 
-					null, 
-					null, 
-					domini.getExpedientTipus() == null ? null : domini.getExpedientTipus().getId(), 
-					domini.getExpedientTipus() == null ? null : domini.getExpedientTipus().getCodi(), 
-					domini.getExpedientTipus() == null ? null : domini.getExpedientTipus().getNom(), 
-					"(Domini '" + domini.getCodi() + "')", 
-					ex);
-		}
-	}
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	private List<FilaResultat> consultaSql(
-			Domini domini,
-			Map<String, Object> parametres) {
-		long t0 = System.currentTimeMillis();
-		try {
-			logger.debug("Petició de domini de tipus SQL (" +
-					"id=" + domini.getId() + ", " +
-					"codi=" + domini.getCodi() + ", " +
-					"params=" + IntegracioParametreDto.parametresToString(parametres) + ")");
-			NamedParameterJdbcTemplate jdbcTemplate = getJdbcTemplateFromDomini(domini);
-			MapSqlParameterSource parameterSource = new MapSqlParameterSource(parametres) {
-				public boolean hasValue(String paramName) {
-					return true;
-				}
-			};
-			List<FilaResultat> resultat = jdbcTemplate.query(
-					domini.getSql(),
-					parameterSource,
-					new RowMapper() {
-						public Object mapRow(ResultSet rs, int rowNum) throws SQLException {
-							FilaResultat fr = new FilaResultat();
-							ResultSetMetaData rsm = rs.getMetaData();
-							for (int i = 1; i <= rsm.getColumnCount(); i++) {
-								fr.addColumna(new ParellaCodiValor(
-										rsm.getColumnName(i),
-										rs.getObject(i)));
-							}
-							return fr;
-						}
-					});
-			monitorDominiHelper.addAccioOk(
-					domini,
-					"Consulta SQL",
-					IntegracioAccioTipusEnumDto.ENVIAMENT,
-					System.currentTimeMillis() - t0,
-					IntegracioParametreDto.toIntegracioParametres(parametres));
-			return resultat;
-		} catch (Exception ex) {
-			monitorDominiHelper.addAccioError(
-					domini,
-					"Consulta SQL",
-					IntegracioAccioTipusEnumDto.ENVIAMENT,
-					System.currentTimeMillis() - t0,
-					ex.getMessage(),
-					ex,
-					IntegracioParametreDto.toIntegracioParametres(parametres));
-			
-			if(ExceptionUtils.getRootCause(ex) != null && 
-					(ExceptionUtils.getRootCause(ex).getClass().getName().contains("Timeout") ||
-					 ExceptionUtils.getRootCause(ex).getClass().getName().contains("timeout"))) {
-						
-					throw new SistemaExternTimeoutException(
-							domini.getEntorn().getId(),
-							domini.getEntorn().getCodi(), 
-							domini.getEntorn().getNom(), 
-							null, 
-							null, 
-							null, 
-							domini.getExpedientTipus() == null ? null : domini.getExpedientTipus().getId(), 
-							domini.getExpedientTipus() == null ? null : domini.getExpedientTipus().getCodi(), 
-							domini.getExpedientTipus() == null ? null : domini.getExpedientTipus().getNom(), 
-							"(Domini SQL'" + domini.getCodi() + "')", 
-							ex);
-			} else {
-				throw new SistemaExternException(
-						domini.getEntorn().getId(),
-						domini.getEntorn().getCodi(), 
-						domini.getEntorn().getNom(), 
-						null, 
-						null, 
-						null, 
-						domini.getExpedientTipus() == null ? null : domini.getExpedientTipus().getId(), 
-						domini.getExpedientTipus() == null ? null : domini.getExpedientTipus().getCodi(), 
-						domini.getExpedientTipus() == null ? null : domini.getExpedientTipus().getNom(), 
-						"(Domini SQL'" + domini.getCodi() + "')", 
-						ex);
-			}
-		}
-	}
-
-	private DominiHelium getClientWsFromDomini(Domini domini) {
-		String username = null;
-		String password = null;
-		if (domini.getTipusAuth() != null && !TipusAuthDomini.NONE.equals(domini.getTipusAuth())) {
-			if (OrigenCredencials.PROPERTIES.equals(domini.getOrigenCredencials())) {
-				username = GlobalProperties.getInstance().getProperty(domini.getUsuari());
-				password = GlobalProperties.getInstance().getProperty(domini.getContrasenya());
-			} else {
-				username = domini.getUsuari();
-				password = domini.getContrasenya();
-			}
-		}
-		WsClientAuth auth;
-		if (domini.getTipusAuth() != null)
-			switch (domini.getTipusAuth()) {
-			case HTTP_BASIC:
-				auth = WsClientAuth.BASIC;
-				break;
-			case USERNAMETOKEN:
-				auth = WsClientAuth.USERNAMETOKEN;
-				break;
-			default:
-				auth = WsClientAuth.NONE;
-				break;
-			}
-		else 
-			auth = WsClientAuth.NONE;
-		return wsClientHelper.getDominiService(
-				domini.getUrl(),
-				auth,
-				username,
-				password,
-				getDominiTimeout(domini));
-	}
-
-	private NamedParameterJdbcTemplate getJdbcTemplateFromDomini(Domini domini) throws NamingException {
-		NamedParameterJdbcTemplate jdbcTemplate = jdbcTemplates.get(domini.getId());
-		if (jdbcTemplate == null) {
-			Context initContext = new InitialContext();
-			String dataSourceJndi = domini.getJndiDatasource();
-			if (isDesplegamentTomcat() && dataSourceJndi.endsWith("java:/es.caib.helium.db"))
-				dataSourceJndi = "java:/comp/env/jdbc/HeliumDS";
-			DataSource ds = (DataSource)initContext.lookup(dataSourceJndi);
-			JdbcTemplate template = new JdbcTemplate(ds);
-			template.setQueryTimeout(getDominiTimeout(domini));
-			jdbcTemplate = new NamedParameterJdbcTemplate(template);
-			jdbcTemplates.put(domini.getId(), jdbcTemplate);
-		}
-		return jdbcTemplate;
-	}
 
 	private String getCacheKey(
 			Long dominiId,			
@@ -561,7 +280,7 @@ public class DominiHelper {
 		return "true".equalsIgnoreCase(desplegamentTomcat);
 	}
 	
-	private Integer getDominiTimeout (Domini domini) {
+	private Integer getDominiTimeout (DominiDto domini) {
 		Integer timeout = 10000; //valor per defecte
 		if (domini.getTimeout() != null && domini.getTimeout() > 0)
 			timeout = domini.getTimeout() * 1000; //valor específic de timeout del domini
@@ -1026,7 +745,18 @@ public class DominiHelper {
 		String organigramaActiu = GlobalProperties.getInstance().getProperty("app.jbpm.identity.source");
 		return "helium".equalsIgnoreCase(organigramaActiu);
 	}
-	
+
+	/** Consulta els camps relacionats amb un domini. Serveix per validar si es pot esborrar abans
+	 * d'esborrar el domini.
+	 * 
+	 * @param dominiId
+	 * @return
+	 */
+	public List<Camp> findCampsPerDomini(Long domini) {
+		List<Camp> camps = campRepository.findByDomini(domini);
+		return camps;
+	}
+
 	private static final Logger logger = LoggerFactory.getLogger(DominiHelper.class);
 
 }

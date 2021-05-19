@@ -57,8 +57,6 @@ import net.conselldemallorca.helium.core.model.hibernate.ConsultaCamp.TipusParam
 import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
 import net.conselldemallorca.helium.core.model.hibernate.Document;
 import net.conselldemallorca.helium.core.model.hibernate.DocumentTasca;
-import net.conselldemallorca.helium.core.model.hibernate.Domini;
-import net.conselldemallorca.helium.core.model.hibernate.Domini.TipusDomini;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 import net.conselldemallorca.helium.core.model.hibernate.Enumeracio;
 import net.conselldemallorca.helium.core.model.hibernate.EnumeracioValors;
@@ -74,12 +72,14 @@ import net.conselldemallorca.helium.core.model.hibernate.Termini;
 import net.conselldemallorca.helium.core.model.hibernate.Validacio;
 import net.conselldemallorca.helium.core.security.ExtendedPermission;
 import net.conselldemallorca.helium.core.util.ExpedientCamps;
+import net.conselldemallorca.helium.ms.domini.DominiMs;
 import net.conselldemallorca.helium.v3.core.api.dto.CampTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ConsultaCampDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ConsultaCampDto.TipusConsultaCamp;
 import net.conselldemallorca.helium.v3.core.api.dto.ConsultaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DominiDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DominiDto.TipusDomini;
 import net.conselldemallorca.helium.v3.core.api.dto.EnumeracioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto.EstatTipusDto;
@@ -129,7 +129,6 @@ import net.conselldemallorca.helium.v3.core.repository.ConsultaRepository;
 import net.conselldemallorca.helium.v3.core.repository.DefinicioProcesRepository;
 import net.conselldemallorca.helium.v3.core.repository.DocumentRepository;
 import net.conselldemallorca.helium.v3.core.repository.DocumentTascaRepository;
-import net.conselldemallorca.helium.v3.core.repository.DominiRepository;
 import net.conselldemallorca.helium.v3.core.repository.EnumeracioRepository;
 import net.conselldemallorca.helium.v3.core.repository.EnumeracioValorsRepository;
 import net.conselldemallorca.helium.v3.core.repository.EstatRepository;
@@ -169,7 +168,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 	@Resource
 	private EnumeracioValorsRepository enumeracioValorsRepository;	
 	@Resource
-	private DominiRepository dominiRepository;
+	private DominiMs dominiMs;
 	@Resource
 	private ReassignacioRepository reassignacioRepository;
 	@Resource
@@ -588,11 +587,14 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		if (command.getVariables().size() > 0)
 			for (Camp camp : tipus.getCamps()) 
 				if (command.getVariables().contains(camp.getCodi())) {
+					DominiDto domini = camp.getDomini() != null ?
+										dominiMs.get(camp.getDomini())
+										: null;
 					boolean necessitaDadesExternes = 
 							TipusCamp.SELECCIO.equals(camp.getTipus()) 
 							|| TipusCamp.SUGGEST.equals(camp.getTipus());	
 					boolean necessitaDadesExternesEntorn = 
-							(camp.getDomini() != null && camp.getDomini().getExpedientTipus() == null)
+							(camp.getDomini() != null && domini.getExpedientTipusId() == null)
 							|| (camp.getEnumeracio() != null && camp.getEnumeracio().getExpedientTipus() == null);
 					CampExportacio campExportacio = new CampExportacio(
 		                    camp.getCodi(),
@@ -611,7 +613,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		                    camp.getDominiIntern(),
 		                    camp.isDominiCacheText(),
 		                    (necessitaDadesExternes && camp.getEnumeracio() != null) ? camp.getEnumeracio().getCodi() : null,
-		                    (necessitaDadesExternes && camp.getDomini() != null) ? camp.getDomini().getCodi() : null,
+		                    (necessitaDadesExternes && domini != null) ? domini.getCodi() : null,
 		                    (necessitaDadesExternes && camp.getConsulta() != null) ? camp.getConsulta().getCodi() : null,
 		                    (camp.getAgrupacio() != null) ? camp.getAgrupacio().getCodi() : null,
 		                    camp.getDefprocJbpmKey(),
@@ -742,7 +744,8 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		// Dominis
 		if (command.getDominis().size() > 0) {
 			DominiExportacio dominiExportacio;
-			for (Domini domini : tipus.getDominis())
+			List<DominiDto> dominis = dominiMs.llistaDominiByExpedientTipus(expedientTipusId, null);
+			for (DominiDto domini : dominis)
 				if (command.getDominis().contains(domini.getCodi())) {
 					dominiExportacio = new DominiExportacio(
 							domini.getCodi(),
@@ -1023,30 +1026,30 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 				}
 		
 		// Dominis
-		Map<String, Domini> dominis = new HashMap<String, Domini>();
+		Map<String, DominiDto> dominis = new HashMap<String, DominiDto>();
 		// Inicialitza amb els dominis a nivell de tipus d'expedient
 		if (expedientTipusExisteix)
-			for (Domini d : dominiRepository.findAmbExpedientTipus(expedientTipusId))
+			for (DominiDto d : dominiMs.llistaDominiByExpedientTipus(expedientTipusId, null))
 				dominis.put(d.getCodi(), d);
 		// Inicialitza amb els dominis a nivell d'entorn
-		Map<String, Domini> dominisEntorn = new HashMap<String, Domini>();
-		for (Domini d : dominiRepository.findGlobals(entorn.getId()))
+		Map<String, DominiDto> dominisEntorn = new HashMap<String, DominiDto>();
+		for (DominiDto d : dominiMs.llistaDominiByEntorn(entorn.getId(), null, null, null, null))
 			dominisEntorn.put(d.getCodi(), d);
-		Domini domini;
+		DominiDto domini;
 		if (command.getDominis().size() > 0)
 			for(DominiExportacio dominiExportat : importacio.getDominis() )
 				if (command.getDominis().contains(dominiExportat.getCodi())){
 					domini = dominis.get(dominiExportat.getCodi());
 					if (domini == null || sobreEscriure) {
 						if (domini == null) {
-							domini = new Domini(
-									dominiExportat.getCodi(), 
-									dominiExportat.getNom(),
-									entorn);
-							domini.setExpedientTipus(expedientTipus);
-							expedientTipus.getDominis().add(domini);
+							domini = new DominiDto();
+							domini.setCodi(dominiExportat.getCodi());
+							domini.setNom(dominiExportat.getNom());
+							domini.setEntornId(entorn.getId());
+							domini.setExpedientTipusId(expedientTipusId);
 							domini.setTipus(TipusDomini.valueOf(dominiExportat.getTipus().toString()));
-							dominiRepository.save(domini);
+							// TODO DANIEL: Controlar el rollback en cas d'error en la transacció.
+							dominiMs.create(domini);
 							dominis.put(domini.getCodi(), domini);
 						} else {
 							domini.setNom(dominiExportat.getNom());
@@ -1061,10 +1064,10 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 						// WS
 						domini.setUrl(dominiExportat.getUrl());
 						domini.setTipusAuth(dominiExportat.getTipusAuth() != null?
-											 Domini.TipusAuthDomini.valueOf(dominiExportat.getTipusAuth().toString())
+											 DominiDto.TipusAuthDomini.valueOf(dominiExportat.getTipusAuth().toString())
 											 : null);
 						domini.setOrigenCredencials(dominiExportat.getOrigenCredencials() != null?
-											Domini.OrigenCredencials.valueOf(dominiExportat.getOrigenCredencials().toString())
+											DominiDto.OrigenCredencials.valueOf(dominiExportat.getOrigenCredencials().toString())
 											: null);
 						domini.setUsuari(dominiExportat.getUsuari());
 						domini.setContrasenya(dominiExportat.getContrasenya());
@@ -1151,14 +1154,14 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 													campExportat.getCodiEnumeracio()}));
 							camp.setEnumeracio(enumeracio);
 						}
-						// Domini del camp
+						// DominiDto del camp
 						if (campExportat.getCodiDomini() != null) {
 							domini = null;
 							if (campExportat.isDependenciaEntorn()) {
-								// Domini de l'entorn
+								// DominiDto de l'entorn
 								domini = dominisEntorn.get(campExportat.getCodiDomini());
 							} else {
-								// Domini TE o importats
+								// DominiDto TE o importats
 								domini = dominis.get(campExportat.getCodiDomini());
 							}
 							if (domini == null)
@@ -1168,7 +1171,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 											new Object[]{
 													camp.getCodi(),
 													campExportat.getCodiDomini()}));
-							camp.setDomini(domini);
+							camp.setDomini(domini.getId());
 						}
 						// Guarda els camps de tipus consulta per processar-los després de les consultes
 						if (campExportat.getCodiConsulta() != null)
@@ -2140,13 +2143,14 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 	@Override
 	@Transactional(readOnly = true)
 	public List<DominiDto> dominiFindAll(
+			Long entornId,
 			Long expedientTipusId,
 			boolean incloureGlobals) throws NoTrobatException, PermisDenegatException {
-		List<Domini> dominis;
+		List<DominiDto> dominis;
 		if (!incloureGlobals)
-			dominis = dominiRepository.findAmbExpedientTipus(expedientTipusId);
+			dominis = dominiMs.llistaDominiByExpedientTipus(expedientTipusId, null);
 		else
-			dominis = dominiRepository.findAmbExpedientTipusIGlobals(expedientTipusId);
+			dominis = dominiMs.findAmbExpedientTipusIGlobals(entornId, expedientTipusId);
 		
 		return conversioTipusHelper.convertirList(
 									dominis, 
@@ -2736,23 +2740,26 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 				}
 				camps.put(nou.getCodi(), nou);				
 				if (camp.getDomini() != null &&  !camp.getDominiIntern()) {
+					DominiDto dominiCamp = dominiMs.get(camp.getDomini());
 					// Propaga el domini referenciat pel camp
-					Domini dominiEntorn = dominiRepository.findByEntornAndCodi(
-							entorn, 
-							camp.getDomini().getCodi());
+					DominiDto dominiEntorn = dominiMs.findAmbCodi(
+							entorn.getId(), 
+							null, 
+							dominiCamp.getCodi());
 					if (dominiEntorn != null) {
-						nou.setDomini(dominiEntorn);
+						nou.setDomini(dominiEntorn.getId());
 					} else {
-						Domini domini = dominiRepository.findByExpedientTipusAndCodi(
-								expedientTipus,
-								camp.getDomini().getCodi());
+						DominiDto domini = dominiMs.findAmbCodi(
+								entorn.getId(),
+								expedientTipus.getId(),
+								dominiCamp.getCodi());
 						if (domini != null) {
-							nou.setDomini(domini);
+							nou.setDomini(domini.getId());
 						} else {
 							throw new ExportException(
 									messageHelper.getMessage(
 											"expedient.tipus.definicioProces.llistat.definicioProces.incorporar.error.domini",
-											new Object[] {camp.getDomini().getCodi(), camp.getCodi(), camp.getEtiqueta()}
+											new Object[] {dominiCamp.getCodi(), camp.getCodi(), camp.getEtiqueta()}
 									));
 						}
 					}						

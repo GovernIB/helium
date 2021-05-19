@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -59,5 +60,17 @@ public interface DominiRepository extends BaseRepository<Domini, Long>  {
             @Param("expedientTipus") Long expedientTipus,
             @Param("expedientTipusPare") Long expedientTipusPare,
             @Param("codi") String codi);
+    
+	@Query( "select ds " +
+			"from Domini d, " +
+			"	Domini ds " +
+			"where " +
+			"	ds.codi = d.codi " +
+			" 	and d.expedientTipus.id = expedientTipusId " +
+			" 	and ds.expedientTipus.id = expedientTipusPareId ")
+	List<Domini> findSobreescrits(
+			@Param("expedientTipusId") Long expedientTipusId,
+			@Param("expedientTipusPareId") Long expedientTipusPareId);
+
 
 }
