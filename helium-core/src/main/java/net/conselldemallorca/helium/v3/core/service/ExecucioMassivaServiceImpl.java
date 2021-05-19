@@ -222,6 +222,8 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 							ordre++);
 					execucioMassiva.addExpedient(eme);
 					expedients = true;
+					if (expedientTipus == null && expedient != null)
+						expedientTipus = expedient.getTipus();
 				}
 			} else if (dto.getProcInstIds() != null) {
 				for (String procinstId: dto.getProcInstIds()) {
@@ -269,7 +271,7 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 //				logger.info(">>>>> tipus:   " + execucioMassiva.getTipus());
 //				logger.info(">>>>> env_cor: " + (execucioMassiva.getEnviarCorreu() != null ? (execucioMassiva.getEnviarCorreu() ? "SI" : "NO") : "NO"));
 //				logger.info(">>>>> param1:  " + execucioMassiva.getParam1());
-
+				execucioMassiva.setExpedientTipus(expedientTipus);
 				execucioMassivaRepository.save(execucioMassiva);				
 			} else 
 				throw new ValidacioException("S'ha intentat crear una execució massiva sense assignar expedients.");

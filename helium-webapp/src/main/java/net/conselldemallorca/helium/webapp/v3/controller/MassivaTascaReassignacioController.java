@@ -9,7 +9,6 @@ import java.util.Set;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.PathParam;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -174,7 +173,6 @@ public class MassivaTascaReassignacioController extends BaseExpedientController 
 				idsAsString.add(id.toString());
 			}
 			dto.setTascaIds(idsAsString.toArray(new String[idsAsString.size()]));
-			dto.setExpedientTipusId(ids.iterator().next());
 			dto.setTipus(ExecucioMassivaTipusDto.REASSIGNAR);
 			dto.setParam1(expression);
 			
