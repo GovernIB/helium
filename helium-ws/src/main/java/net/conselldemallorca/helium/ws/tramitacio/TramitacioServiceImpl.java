@@ -3,15 +3,20 @@
  */
 package net.conselldemallorca.helium.ws.tramitacio;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.jws.WebService;
-import javax.xml.datatype.XMLGregorianCalendar;
-
+import com.codahale.metrics.Counter;
+import com.codahale.metrics.MetricRegistry;
+import com.codahale.metrics.Timer;
+import net.conselldemallorca.helium.core.util.EntornActual;
+import net.conselldemallorca.helium.v3.core.api.dto.*;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto.EstatTipusDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto.OrdreDireccioDto;
+import net.conselldemallorca.helium.v3.core.api.service.DocumentService;
+import net.conselldemallorca.helium.v3.core.api.service.EntornService;
+import net.conselldemallorca.helium.v3.core.api.service.ExpedientDadaService;
+import net.conselldemallorca.helium.v3.core.api.service.ExpedientDocumentService;
+import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
+import net.conselldemallorca.helium.v3.core.api.service.ExpedientTipusService;
+import net.conselldemallorca.helium.v3.core.api.service.TascaService;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,36 +25,13 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
-import com.codahale.metrics.Counter;
-import com.codahale.metrics.MetricRegistry;
-import com.codahale.metrics.Timer;
-
-import net.conselldemallorca.helium.core.util.EntornActual;
-import net.conselldemallorca.helium.v3.core.api.dto.AccioDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
-import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
-import net.conselldemallorca.helium.v3.core.api.dto.CampTipusDto;
-import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
-import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
-import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto.EstatTipusDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
-import net.conselldemallorca.helium.v3.core.api.dto.InstanciaProcesDto;
-import net.conselldemallorca.helium.v3.core.api.dto.MostrarAnulatsDto;
-import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
-import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto.OrdreDireccioDto;
-import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.TascaDocumentDto;
-import net.conselldemallorca.helium.v3.core.api.service.DocumentService;
-import net.conselldemallorca.helium.v3.core.api.service.EntornService;
-import net.conselldemallorca.helium.v3.core.api.service.ExpedientDadaService;
-import net.conselldemallorca.helium.v3.core.api.service.ExpedientDocumentService;
-import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
-import net.conselldemallorca.helium.v3.core.api.service.ExpedientTipusService;
-import net.conselldemallorca.helium.v3.core.api.service.TascaService;
+import javax.jws.WebService;
+import javax.xml.datatype.XMLGregorianCalendar;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Implementació del servei de tramitació d'expedients
@@ -532,7 +514,7 @@ public class TramitacioServiceImpl implements TramitacioService {
 			String entorn,
 			String usuari,
 			String processInstanceId) throws TramitacioException {
-		Entorn e = findEntornAmbCodi(entorn);
+		EntornDto e = findEntornAmbCodi(entorn);
 		if (e == null)
 			throw new TramitacioException("No existeix cap entorn amb el codi '" + entorn + "'");
 		final Timer timerTotal = metricRegistry.timer(

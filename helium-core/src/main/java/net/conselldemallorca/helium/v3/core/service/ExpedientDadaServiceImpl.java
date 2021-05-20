@@ -132,14 +132,10 @@ public class ExpedientDadaServiceImpl implements ExpedientDadaService {
 				new Permission[] {
 						ExtendedPermission.DATA_MANAGE,
 						ExtendedPermission.ADMINISTRATION});
-<<<<<<< HEAD
-		workflowEngineApi.deleteProcessInstanceVariable(processInstanceId, varCodi);
-=======
 		Object valorVell = variableHelper.getVariableJbpmProcesValor(
 				processInstanceId,
 				varCodi);
-		jbpmHelper.deleteProcessInstanceVariable(processInstanceId, varCodi);
->>>>>>> refs/remotes/origin/helium-3.2
+		workflowEngineApi.deleteProcessInstanceVariable(processInstanceId, varCodi);
 		// Esborra la descripció per variables que mantenen el valor de la consulta
 		Camp camp;
 		InstanciaProcesDto instanciaProces = expedientHelper.getInstanciaProcesById(processInstanceId);
