@@ -1,0 +1,37 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+      "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+          "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping auto-import="false" default-access="field">
+	<class name="org.jbpm.graph.exe.ProcessInstanceExpedient" table="HEL_EXPEDIENT">
+		<id name="id" column="ID"></id>
+		<property name="titol" column="TITOL" />
+		<property name="numero" column="NUMERO" />
+		<property name="numeroDefault" column="NUMERO_DEFAULT" />
+		<property name="dataInici" column="DATA_INICI" />
+		<property name="dataFi" column="DATA_FI" />
+		<property name="estatId" column="ESTAT_ID" />
+		<property name="geoPosX" column="GEO_POSX" />
+		<property name="geoPosY" column="GEO_POSY" />
+		<property name="geoReferencia" column="GEO_REFERENCIA" />
+		<property name="anulat" column="ANULAT" />
+		<property name="errorDesc" column="ERROR_DESC" />
+		<property name="errorsIntegs" column="ERRORS_INTEGS" />
+		<property name="reindexarError" column="REINDEXAR_ERROR" />
+		<property name="processInstanceId" column="PROCESS_INSTANCE_ID" insert="false" update="false"/>
+		<property name="ambRetroaccio" column="AMB_RETROACCIO"/>
+		<many-to-one
+				name="entorn"
+				column="ENTORN_ID"
+				foreign-key="HEL_ENTORN_EXPEDIENT_FK"
+				index="HEL_EXPEDIENT_ENTORN_I"
+				lazy="false"/>
+		<many-to-one
+				name="tipus"
+				column="TIPUS_ID"
+				foreign-key="HEL_EXPTIPUS_EXPEDIENT_FK"
+				index="HEL_EXPEDIENT_TIPUS_I"
+				lazy="false"/>
+	</class>
+</hibernate-mapping>

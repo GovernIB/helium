@@ -1,0 +1,468 @@
+<?xml version="1.0"?>
+
+<!DOCTYPE hibernate-mapping PUBLIC
+      "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+      "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+
+  <!-- related to ProcessDefintion -->
+  <!-- ########################### -->
+
+  <query name="GraphSession.AllProcessNames">
+    <![CDATA[
+     select distinct (pd.name)
+     from org.jbpm.graph.def.ProcessDefinition pd   
+    ]]>
+  </query>
+  
+  <query name="GraphSession.NumberOfDeployedProcesses">
+    <![CDATA[
+     select count (distinct pd.name)
+     from org.jbpm.graph.def.ProcessDefinition pd 
+    ]]>
+  </query>
+  
+  <query name="GraphSession.NumberOfActiveProcessInstances">
+    <![CDATA[
+     select count (pi.id)
+     from org.jbpm.graph.exe.ProcessInstance pi
+     where pi.end is null 
+    ]]>
+  </query>
+  
+  <query name="GraphSession.findLatestProcessDefinitionQuery">
+    <![CDATA[
+     select pd
+     from org.jbpm.graph.def.ProcessDefinition as pd
+     where pd.name = :name
+     order by pd.version desc    
+    ]]>
+  </query>
+  
+  <query name="GraphSession.findProcessDefinitionByNameAndVersion">
+    <![CDATA[
+      select pd
+      from org.jbpm.graph.def.ProcessDefinition as pd
+      where pd.name = :name
+        and pd.version = :version
+    ]]>
+  </query>
+  
+  <query name="GraphSession.findAllProcessDefinitions">
+    <![CDATA[
+      select pd
+      from org.jbpm.graph.def.ProcessDefinition as pd
+      order by pd.name, pd.version desc
+    ]]>
+  </query>
+  
+  <query name="GraphSession.findAllProcessDefinitionVersions">
+    <![CDATA[
+      select pd
+      from org.jbpm.graph.def.ProcessDefinition as pd
+      where pd.name = :name
+      order by pd.version desc
+    ]]>
+  </query>
+  
+  <query name="GraphSession.findAllProcessInstancesForADefinition">
+    <![CDATA[
+      select pi
+      from org.jbpm.graph.exe.ProcessInstance as pi
+      where pi.processDefinition.id = :processDefinitionId
+      order by pi.start desc
+    ]]>
+  </query>
+  
+  <query name="GraphSession.findReferencingProcessStates">
+    <![CDATA[
+      select processState
+      from org.jbpm.graph.node.ProcessState as processState
+      where processState.subProcessDefinition = :subProcessDefinition
+    ]]>
+  </query>
+
+  <!-- related to ProcessInstance -->
+  <!-- ########################## -->
+
+
+  <query name="GraphSession.findAllRunningProcessInstancesWithProcessName">
+    <![CDATA[
+      select pi
+      from org.jbpm.graph.exe.ProcessInstance as pi
+      where pi.processDefinition.name = :processDefinitionName
+        and pi.end = null
+      order by pi.start desc
+    ]]>
+  </query>
+
+  <query name="GraphSession.findAllProcessInstancesWithProcessName">
+    <![CDATA[
+      select pi
+      from org.jbpm.graph.exe.ProcessInstance as pi
+      where pi.processDefinition.name = :processDefinitionName
+      order by pi.start desc
+    ]]>
+  </query>
+
+  <query name="GraphSession.findAllRunningProcessInstances">
+    <![CDATA[
+      select pi
+      from org.jbpm.graph.exe.ProcessInstance as pi
+      where pi.end = null
+      order by pi.start desc
+    ]]>
+  </query>
+
+  <query name="GraphSession.findAllProcessInstances">
+    <![CDATA[
+      select pi
+      from org.jbpm.graph.exe.ProcessInstance as pi
+      order by pi.start desc
+    ]]>
+  </query>
+  
+  <query name="GraphSession.findSubProcessInstances">
+    <![CDATA[
+      select pi
+      from org.jbpm.graph.exe.ProcessInstance as pi
+      where pi.superProcessToken!=null
+      and pi.superProcessToken.processInstance = :processInstance
+      order by pi.start desc
+    ]]>
+  </query>
+  
+  <query name="GraphSession.findTokensForProcessInNode">
+    <![CDATA[
+      select token
+      from org.jbpm.graph.exe.Token token
+      where token.processInstance.processDefinition.name = :processDefinitionName
+      and token.node.name = :nodeName
+    ]]>
+  </query>
+
+  <query name="GraphSession.findTokensForProcessVersionInNode">
+    <![CDATA[
+      select token
+      from org.jbpm.graph.exe.Token token
+      where token.processInstance.processDefinition.name = :processDefinitionName
+      and token.processInstance.processDefinition.version = :processDefinitionVersion
+      and token.node.name = :nodeName
+    ]]>
+  </query>
+  
+  <query name="GraphSession.findProcessInstanceByKey">
+    <![CDATA[
+      select processInstance
+      from org.jbpm.graph.exe.ProcessInstance processInstance
+      where processInstance.processDefinition = :processDefinition
+      and  processInstance.key = :key
+    ]]>
+  </query>
+  
+  <query name="GraphSession.findLogsForProcessInstance">
+    <![CDATA[
+      select pl
+      from org.jbpm.logging.log.ProcessLog as pl
+      where pl.token.processInstance = :processInstance
+    ]]>
+  </query>
+  
+  
+  <query name="GraphSession.findTaskInstanceIdsForProcessInstance">
+    <![CDATA[
+      select t 
+      from org.jbpm.taskmgmt.exe.TaskInstance t
+      where t.taskMgmtInstance.processInstance = :processInstance
+    ]]>
+  </query>
+  
+  <query name="GraphSession.deleteTaskInstancesById">
+    <![CDATA[
+      delete
+      from org.jbpm.taskmgmt.exe.TaskInstance t
+      where t.id in (:taskInstanceIds)
+    ]]>
+  </query>
+
+  <query name="GraphSession.deleteJobsForProcessInstance">
+    <![CDATA[
+      delete from org.jbpm.job.Job job
+      where job.processInstance = :processInstance
+    ]]>
+  </query>
+
+  <query name="GraphSession.calculateAverageTimeByNode">
+    <![CDATA[
+      select 
+        nl.node.id,
+        nl.node.name,
+        count(nl.leave),
+        avg(nl.duration),
+        min(nl.duration),
+        max(nl.duration)
+      from org.jbpm.graph.log.NodeLog nl
+      where nl.node.processDefinition.id = :processDefinitionId
+      and nl.duration > :minimumDuration
+      group by nl.node.id, nl.node.name
+      order by avg(nl.duration) desc
+    ]]>
+  </query>
+
+  <query name="GraphSession.findActiveNodesByProcessInstance">
+    <![CDATA[
+      select node
+      from org.jbpm.graph.def.Node node,
+           org.jbpm.graph.exe.Token token,
+           org.jbpm.graph.exe.ProcessInstance processInstance
+      where token.processInstance = :processInstance
+        and token.node = node
+        and token.isSuspended != true
+        and token.parent is not null
+        and token.end is null
+    ]]>
+  </query>
+
+  <query name="GraphSession.findAllSwimlaneNames">
+    <![CDATA[
+      select distinct swimlane.name
+      from org.jbpm.taskmgmt.def.Swimlane as swimlane
+    ]]>
+  </query>
+    
+  <!-- Logging                     -->
+  <!-- ########################### -->
+
+
+  <query name="LoggingSession.findLogsByToken">
+    <![CDATA[
+      select pl
+      from org.jbpm.logging.log.ProcessLog as pl
+      where pl.token = :token
+      order by pl.index
+    ]]>
+  </query>
+  
+  <!-- JobSession                  -->
+  <!-- ########################### -->
+
+
+  <query name="JobSession.getFirstAcquirableJob">
+    <![CDATA[
+      select job
+      from org.jbpm.job.Job as job
+      where ( (job.lockOwner is null) or (job.lockOwner = :lockOwner) )
+      and job.retries > 0
+      and job.dueDate <= :now
+      and job.isSuspended != true
+      order by job.dueDate asc
+    ]]>
+  </query>
+
+  <query name="JobSession.findExclusiveJobs">
+    <![CDATA[
+      select job
+      from org.jbpm.job.Job as job
+      where ( (job.lockOwner is null) or (job.lockOwner = :lockOwner) )
+      and job.retries > 0
+      and job.dueDate <= :now
+      and job.processInstance = :processInstance
+      and job.isExclusive = true
+      and job.isSuspended != true
+      order by job.dueDate asc
+    ]]>
+  </query>
+
+  <query name="JobSession.getFirstDueJob">
+    <![CDATA[
+      select job
+      from org.jbpm.job.Job as job
+      where ( (job.lockOwner is null) or (job.lockOwner = :lockOwner) )
+      and job.retries > 0
+      and job.isSuspended != true
+      order by job.dueDate asc
+    ]]>
+  </query>
+
+  <query name="JobSession.getFirstDueJobExlcMonitoredJobs">
+    <![CDATA[
+      select job
+      from org.jbpm.job.Job as job
+      where ( (job.lockOwner is null) or (job.lockOwner = :lockOwner) )
+      and job.id not in ( :jobIdsToIgnore )
+      and job.retries > 0
+      and job.isSuspended != true
+      order by job.dueDate asc
+    ]]>
+  </query>
+
+  <query name="JobSession.suspendJobs">
+    <![CDATA[
+      update org.jbpm.job.Job job
+      set job.isSuspended = true
+      where job.token = :token
+    ]]>
+  </query>
+
+  <query name="JobSession.resumeJobs">
+    <![CDATA[
+      update org.jbpm.job.Job job
+      set job.isSuspended = false
+      where job.token = :token
+    ]]>
+  </query>
+
+  <query name="JobSession.deleteTimersByName">
+    <![CDATA[
+      delete from org.jbpm.job.Timer timer
+      where timer.token = :token
+        and timer.name = :name
+        and (timer.lockOwner is null
+         or timer.repeat is not null)
+    ]]>
+  </query>
+
+  <query name="JobSession.deleteTimersForProcessInstance">
+    <![CDATA[
+      delete from org.jbpm.job.Timer timer
+      where timer.processInstance = :processInstance
+        and (timer.lockOwner is null
+         or timer.repeat is not null)
+    ]]>
+  </query>
+
+  <query name="JobSession.deleteExecuteNodeJobsForProcessInstance">
+    <![CDATA[
+      delete from org.jbpm.job.ExecuteNodeJob job
+      where job.processInstance = :processInstance
+        and job.lockOwner is null
+    ]]>
+  </query>
+  
+  <query name="JobSession.findJobsByToken">
+    <![CDATA[
+      select job
+      from org.jbpm.job.Job as job
+      where job.token = :token
+    ]]>
+  </query>
+
+  <!-- related to Tasks            -->
+  <!-- ########################### -->
+
+
+  <query name="TaskMgmtSession.findTaskInstancesByActorId">
+    <![CDATA[
+      select ti
+      from org.jbpm.taskmgmt.exe.TaskInstance as ti
+      where ti.actorId = :actorId
+        and ti.isSuspended != true
+        and ti.isOpen = true
+    ]]>
+  </query>
+
+  <query name="TaskMgmtSession.findTaskInstancesByActorIds">
+    <![CDATA[
+      select ti
+      from org.jbpm.taskmgmt.exe.TaskInstance as ti
+      where ti.actorId in ( :actorIds )
+        and ti.isSuspended != true
+        and ti.isOpen = true
+    ]]>
+  </query>
+
+  <query name="TaskMgmtSession.findPooledTaskInstancesByActorId">
+    <![CDATA[
+      select distinct ti.id
+      from org.jbpm.taskmgmt.exe.TaskInstance ti
+        join ti.pooledActors pooledActor
+      where pooledActor.actorId = :swimlaneActorId
+        and ti.actorId is null
+        and ti.isSuspended != true
+        and ti.isOpen = true
+    ]]>
+  </query>
+
+  <query name="TaskMgmtSession.findPooledTaskInstancesByActorIds">
+    <![CDATA[
+      select distinct ti.id
+      from org.jbpm.taskmgmt.exe.TaskInstance ti
+        join ti.pooledActors pooledActor
+      where pooledActor.actorId in ( :actorIds )
+        and ti.actorId is null
+        and ti.isSuspended != true
+        and ti.isOpen = true
+    ]]>
+  </query>
+
+<!-- old one from camunda, I think we can sjip that, but not sure yet 
+  <query name="TaskMgmtSession.findPooledTaskInstancesByActorId">
+    <![CDATA[
+      select distinct ti
+      from org.jbpm.taskmgmt.exe.PooledActor pooledActor
+      join pooledActor.taskInstances ti
+      where pooledActor.actorId = :swimlaneActorId
+      and ti.actorId != null
+      and ti.end = null
+      and ti.isCancelled = false
+    ]]>
+  </query>  
+-->
+
+  <query name="TaskMgmtSession.findTaskInstancesByTokenId">
+    <![CDATA[
+      select ti
+      from org.jbpm.taskmgmt.exe.TaskInstance ti
+      where ti.token.id = :tokenId
+        and ti.isSuspended != true
+        and ti.isOpen = true
+    ]]>
+  </query>
+<!-- Mateixa funció per trobar instàncies de tasques però sense filtrar per obertes i no suspeses -->
+  <query name="TaskMgmtSession.findAllTaskInstancesByTokenId">
+    <![CDATA[
+      select ti
+      from org.jbpm.taskmgmt.exe.TaskInstance ti
+      where ti.token.id = :tokenId
+    ]]>
+  </query>
+
+  <query name="TaskMgmtSession.findTaskInstancesByProcessInstance">
+    <![CDATA[
+      select ti
+      from org.jbpm.taskmgmt.exe.TaskInstance ti
+      where ti.token.processInstance = :processInstance
+        and ti.isSuspended != true
+        and ti.isOpen = true
+    ]]>
+  </query>
+
+  <query name="TaskMgmtSession.findTaskInstancesByIds">
+    <![CDATA[
+      select ti
+      from org.jbpm.taskmgmt.exe.TaskInstance ti
+      where ti.id in ( :taskInstanceIds )
+    ]]>
+  </query>
+  
+  
+  <query name="TaskMgmtSession.findOpenTasksOfProcessInstance">
+    <![CDATA[
+      select ti
+      from org.jbpm.taskmgmt.exe.TaskInstance ti
+      where ti.token.processInstance = :instance 
+      and ti.end IS NULL
+    ]]>
+  </query>
+
+  <query name="TaskMgmtSession.findTaskForNode">
+    <![CDATA[
+      select task
+      from org.jbpm.taskmgmt.def.Task task
+      where task.name = :taskName
+      and task.taskNode.id = :taskNodeId
+    ]]>
+  </query>
+  
+</hibernate-mapping>

@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>helium-jbpm</artifactId>
+        <groupId>es.caib.helium</groupId>
+        <version>1.0.0</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>helium-jbpm-ear</artifactId>
+
+    <dependencies>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>helium-jbpm-engine</artifactId>
+            <version>${project.version}</version>
+            <type>ejb</type>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>helium-jbpm-back</artifactId>
+            <version>${project.version}</version>
+            <type>war</type>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-ear-plugin</artifactId>
+                <version>2.8</version>
+                <configuration>
+                    <finalName>helium-jbpm</finalName>
+                    <version>5</version>
+                    <modules>
+                        <ejbModule>
+                            <groupId>${project.groupId}</groupId>
+                            <artifactId>helium-jbpm-engine</artifactId>
+                            <bundleFileName>helium-jbpm-engine.jar</bundleFileName>
+                        </ejbModule>
+                        <webModule>
+                            <groupId>${project.groupId}</groupId>
+                            <artifactId>helium-jbpm-back</artifactId>
+                            <contextRoot>/helium-jbpm</contextRoot>
+                            <bundleFileName>helium-jbpm-back.war</bundleFileName>
+                        </webModule>
+                    </modules>
+                    <defaultJavaBundleDir>lib/</defaultJavaBundleDir>
+                </configuration>
+            </plugin>
+        </plugins>
+        <finalName>helium-jbpm</finalName>
+    </build>
+</project>

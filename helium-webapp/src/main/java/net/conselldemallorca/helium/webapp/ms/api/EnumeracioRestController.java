@@ -2,7 +2,7 @@ package net.conselldemallorca.helium.webapp.ms.api;
 
 import lombok.Data;
 import net.conselldemallorca.helium.core.api.WorkflowBridgeService;
-import net.conselldemallorca.helium.v3.core.api.dto.TerminiIniciatDto;
+import net.conselldemallorca.helium.v3.core.api.dto.EnumeracioValorDto;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,81 +15,51 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.Date;
+import java.util.List;
 
 /**
  * API REST de terminis.
  *
  */
 @Controller
-@RequestMapping("/api/terminis")
+@RequestMapping("/api/enumeracions")
 public class EnumeracioRestController {
 	
 	@Autowired
 	private WorkflowBridgeService workflowBridgeService;
 
-//	public List<EnumeracioValorDto> enumeracioConsultar(
-//			String processInstanceId,
-//			String enumeracioCodi);
-//
-//	public void enumeracioSetValor(
-//			String processInstanceId,
-//			String enumeracioCodi,
-//			String codi,
-//			String valor);
-
-	@RequestMapping(value="/iniciat", method = RequestMethod.GET)
+	@RequestMapping(value="/{enumeracioCodi}", method = RequestMethod.GET)
 	@ResponseBody
-	public TerminiIniciatDto getIniciat(
+	public List<EnumeracioValorDto> get(
 			HttpServletRequest request,
-			@RequestParam(value = "processDefinitionId", required = true) String processDefinitionId,
-			@RequestParam(value = "processInstanceId", required = true) String processInstanceId,
-			@RequestParam(value = "terminiCodi", required = true) String terminiCodi) {
+			@PathVariable(value = "enumeracioCodi") String enumeracioCodi,
+			@RequestParam(value = "processInstanceId", required = true) String processInstanceId) {
 
-		return workflowBridgeService.getTerminiIniciatAmbProcessInstanceITerminiCodi(
-				processDefinitionId,
+		return workflowBridgeService.enumeracioConsultar(
 				processInstanceId,
-				terminiCodi);
+				enumeracioCodi);
 	}
 
-	@RequestMapping(value="/{terminiId}/cancelar", method = RequestMethod.POST)
+	@RequestMapping(value="/{enumeracioCodi}/enumeracio", method = RequestMethod.POST)
 	@ResponseBody
-	public void cancelar(
+	public void set(
 			HttpServletRequest request,
-			@PathVariable("terminiId") Long terminiId,
-			@RequestBody Date data) {
+			@PathVariable(value = "enumeracioCodi") String enumeracioCodi,
+			@RequestBody Enumeracio enumeracio) {
 
-		workflowBridgeService.terminiCancelar(
-				terminiId,
-				data);
+		workflowBridgeService.enumeracioSetValor(
+				enumeracio.getProcessInstanceId(),
+				enumeracioCodi,
+				enumeracio.getCodi(),
+				enumeracio.getValor());
 	}
 
-	@RequestMapping(value="/{terminiId}/configurar", method = RequestMethod.POST)
-	@ResponseBody
-	public void configurar(
-			HttpServletRequest request,
-			@PathVariable("terminiId") Long terminiId,
-			@RequestBody TerminiConfigurar terminiConfigurar) {
-
-		workflowBridgeService.configurarTerminiIniciatAmbDadesWf(
-				terminiId,
-				terminiConfigurar.getTaskInstanceId(),
-				terminiConfigurar.getTimerId());
-	}
-
-	@RequestMapping(value="/calcular", method = RequestMethod.POST)
-	@ResponseBody
-	public Date calcularFi(
-			HttpServletRequest request,
-			@RequestBody TerminiCalcul terminiCalcul) {
-
-		return workflowBridgeService.terminiCalcularDataFi(
-				terminiCalcul.getInici(),
-				terminiCalcul.getAnys(),
-				terminiCalcul.getMesos(),
-				terminiCalcul.getDies(),
-				terminiCalcul.isLaborable(),
-				terminiCalcul.getProcessInstanceId());
+	@Data
+	public class Enumeracio {
+		private String processInstanceId;
+		private String enumeracioCodi;
+		private String codi;
+		private String valor;
 	}
 
 	private static final Log logger = LogFactory.getLog(EnumeracioRestController.class);

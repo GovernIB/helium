@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>es.caib.helium</groupId>
+    <artifactId>helium-jbpm</artifactId>
+    <packaging>pom</packaging>
+    <version>1.0.0</version>
+    <name>helium-jbpm</name>
+
+    <properties>
+        <java.version>1.6</java.version>
+        <jbpm.version>3.3.1.GA</jbpm.version>
+        <helium.version>3.2.112</helium.version>
+        <spring.version>3.2.17.RELEASE</spring.version>
+        <spring-security.version>3.1.3.RELEASE</spring-security.version>
+        <hibernate.version>3.6.5.Final</hibernate.version>
+        <lombok.version>1.18.20</lombok.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+
+    <modules>
+        <module>helium-jbpm-ear</module>
+        <module>helium-jbpm-back</module>
+        <module>helium-jbpm-engine</module>
+        <module>helium-jbpm-api</module>
+    </modules>
+
+    <repositories>
+        <repository>
+            <id>github-governib-maven-repos</id>
+            <name>GitHub GovernIB Maven Repository</name>
+            <url>https://governib.github.io/maven/maven/</url>
+        </repository>
+    </repositories>
+
+</project>

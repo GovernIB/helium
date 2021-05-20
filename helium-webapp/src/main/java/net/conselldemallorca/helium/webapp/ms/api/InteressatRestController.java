@@ -1,91 +1,43 @@
 package net.conselldemallorca.helium.webapp.ms.api;
 
-import lombok.Data;
 import net.conselldemallorca.helium.core.api.WorkflowBridgeService;
-import net.conselldemallorca.helium.v3.core.api.dto.TerminiIniciatDto;
+import net.conselldemallorca.helium.v3.core.api.dto.InteressatDto;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
-
-import javax.servlet.http.HttpServletRequest;
-import java.util.Date;
 
 /**
  * API REST de terminis.
  *
  */
 @Controller
-@RequestMapping("/api/terminis")
+@RequestMapping("/api/interessats")
 public class InteressatRestController {
 	
 	@Autowired
 	private WorkflowBridgeService workflowBridgeService;
 
-//	public void interessatCrear(InteressatDto interessat);
-//
-//	public void interessatModificar(InteressatDto interessat);
-//
-//	public void interessatEliminar(InteressatDto interessat);
-
-	@RequestMapping(value="/iniciat", method = RequestMethod.GET)
+	@RequestMapping(method = RequestMethod.POST)
 	@ResponseBody
-	public TerminiIniciatDto getIniciat(
-			HttpServletRequest request,
-			@RequestParam(value = "processDefinitionId", required = true) String processDefinitionId,
-			@RequestParam(value = "processInstanceId", required = true) String processInstanceId,
-			@RequestParam(value = "terminiCodi", required = true) String terminiCodi) {
-
-		return workflowBridgeService.getTerminiIniciatAmbProcessInstanceITerminiCodi(
-				processDefinitionId,
-				processInstanceId,
-				terminiCodi);
+	public void crear(@RequestBody InteressatDto interessat) {
+		workflowBridgeService.interessatCrear(interessat);
 	}
 
-	@RequestMapping(value="/{terminiId}/cancelar", method = RequestMethod.POST)
+	@RequestMapping(method = RequestMethod.PATCH)
 	@ResponseBody
-	public void cancelar(
-			HttpServletRequest request,
-			@PathVariable("terminiId") Long terminiId,
-			@RequestBody Date data) {
-
-		workflowBridgeService.terminiCancelar(
-				terminiId,
-				data);
+	public void modificar(@RequestBody InteressatDto interessat) {
+		workflowBridgeService.interessatModificar(interessat);
 	}
 
-	@RequestMapping(value="/{terminiId}/configurar", method = RequestMethod.POST)
+	@RequestMapping(method = RequestMethod.DELETE)
 	@ResponseBody
-	public void configurar(
-			HttpServletRequest request,
-			@PathVariable("terminiId") Long terminiId,
-			@RequestBody TerminiConfigurar terminiConfigurar) {
-
-		workflowBridgeService.configurarTerminiIniciatAmbDadesWf(
-				terminiId,
-				terminiConfigurar.getTaskInstanceId(),
-				terminiConfigurar.getTimerId());
-	}
-
-	@RequestMapping(value="/calcular", method = RequestMethod.POST)
-	@ResponseBody
-	public Date calcularFi(
-			HttpServletRequest request,
-			@RequestBody TerminiCalcul terminiCalcul) {
-
-		return workflowBridgeService.terminiCalcularDataFi(
-				terminiCalcul.getInici(),
-				terminiCalcul.getAnys(),
-				terminiCalcul.getMesos(),
-				terminiCalcul.getDies(),
-				terminiCalcul.isLaborable(),
-				terminiCalcul.getProcessInstanceId());
+	public void eliminar(@RequestBody InteressatDto interessat) {
+		workflowBridgeService.interessatEliminar(interessat);
 	}
 
 	private static final Log logger = LogFactory.getLog(InteressatRestController.class);
