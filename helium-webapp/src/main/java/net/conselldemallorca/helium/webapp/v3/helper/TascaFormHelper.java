@@ -726,6 +726,9 @@ public class TascaFormHelper {
 			boolean esIniciExpedient) throws Exception {
 		try {
 			if (camp.isCampMultiple()) {
+				if (camp.isReadOnly() ) {
+					valor = camp.getVarValor();
+				}
 				int midaLinia = camp.getMultipleDades().get(0).getRegistreDades().size();
 				// Validar que és correcte el següent:
 				//int mida = camp.isReadOnly() ? camp.getMultipleDades().size() : ((Object[])valor).length;

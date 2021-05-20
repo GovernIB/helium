@@ -11,6 +11,7 @@ import net.conselldemallorca.helium.core.model.hibernate.*;
 import net.conselldemallorca.helium.core.model.hibernate.ConsultaCamp.TipusConsultaCamp;
 import net.conselldemallorca.helium.core.model.hibernate.ExecucioMassiva.ExecucioMassivaTipus;
 import net.conselldemallorca.helium.core.model.hibernate.ExecucioMassivaExpedient.ExecucioMassivaEstat;
+import net.conselldemallorca.helium.core.util.CsvHelper;
 import net.conselldemallorca.helium.core.util.EntornActual;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.v3.core.api.dto.*;
@@ -56,9 +57,13 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.io.StringWriter;
+import java.math.BigDecimal;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -217,6 +222,8 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 							ordre++);
 					execucioMassiva.addExpedient(eme);
 					expedients = true;
+					if (expedientTipus == null && expedient != null)
+						expedientTipus = expedient.getTipus();
 				}
 			} else if (dto.getProcInstIds() != null) {
 				for (String procinstId: dto.getProcInstIds()) {
@@ -264,7 +271,7 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 //				logger.info(">>>>> tipus:   " + execucioMassiva.getTipus());
 //				logger.info(">>>>> env_cor: " + (execucioMassiva.getEnviarCorreu() != null ? (execucioMassiva.getEnviarCorreu() ? "SI" : "NO") : "NO"));
 //				logger.info(">>>>> param1:  " + execucioMassiva.getParam1());
-
+				execucioMassiva.setExpedientTipus(expedientTipus);
 				execucioMassivaRepository.save(execucioMassiva);				
 			} else 
 				throw new ValidacioException("S'ha intentat crear una execució massiva sense assignar expedients.");
