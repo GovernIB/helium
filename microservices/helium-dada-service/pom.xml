@@ -13,7 +13,7 @@
 	<artifactId>helium-dada-service</artifactId>
 	<version>1.0.0</version>
 	<name>helium-dada-service</name>
-	<description>Servei de dades</description>
+	<description>MServei de dades</description>
 
 	<properties>
 		<maven.compiler.source>11</maven.compiler.source>

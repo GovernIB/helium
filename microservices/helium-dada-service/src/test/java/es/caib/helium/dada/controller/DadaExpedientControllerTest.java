@@ -66,15 +66,15 @@ public class DadaExpedientControllerTest {
 	private final String codi = "codi0";
 	private final Long unLong = 1l;
 
-	@BeforeAll
-	public void setup() {
-		ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
-		validator = factory.getValidator();
-	}
+//	@BeforeAll
+//	public static void setup() {
+//	}
 
 	@BeforeEach
 	public void setUp() {
 
+		ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
+		validator = factory.getValidator();
 		expedientMock = new Expedient();
 		expedientMock.setExpedientId(unLong);
 		expedientMock.setEntornId(unLong);

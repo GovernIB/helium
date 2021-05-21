@@ -37,8 +37,10 @@ public class ExpedientController {
 	private final ExpedientService expedientService;
 
 	@PostMapping(value = "consulta/resultats", consumes = "application/json")
-	public ResponseEntity<PagedList<Expedient>> consultaResultats(@RequestParam("entornId") Integer entornId,
-			@RequestParam("expedientTipusId") Integer expedientTipusId, @RequestParam("page") Integer page,
+	public ResponseEntity<PagedList<Expedient>> consultaResultats(
+			@RequestParam("entornId") Integer entornId,
+			@RequestParam("expedientTipusId") Integer expedientTipusId, 
+			@RequestParam("page") Integer page,
 			@RequestParam("size") Integer size, @RequestBody Consulta body) {
 
 		body.setEntornId(entornId);
@@ -49,8 +51,9 @@ public class ExpedientController {
 	}
 
 	@PostMapping(value = "consulta/resultats/llistat", consumes = "application/json")
-	public ResponseEntity<List<Expedient>> consultaResultatsLlistat(@RequestParam("entornId") Integer entornId,
-			@RequestParam("expedientTipusId") Integer expedientTipusId,
+	public ResponseEntity<List<Expedient>> consultaResultatsLlistat(
+			@RequestParam("entornId") Integer entornId,
+			@RequestParam("expedientTipusId") Integer expedientTipusId, 
 			@RequestBody Consulta body) {
 
 		body.setEntornId(entornId);
@@ -147,7 +150,7 @@ public class ExpedientController {
 		if (errors.hasErrors()) {
 			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 		}
-		
+
 		if (expedientService.patchExpedient(expedientId, expedient)) {
 			return new ResponseEntity<>(HttpStatus.OK);
 		}
@@ -155,7 +158,8 @@ public class ExpedientController {
 	}
 
 	@PatchMapping(value = "patch/expedients")
-	public ResponseEntity<Void> patchExpedients(@Valid @RequestBody ValidList<Expedient> expedients, BindingResult errors) {
+	public ResponseEntity<Void> patchExpedients(@Valid @RequestBody ValidList<Expedient> expedients,
+			BindingResult errors) {
 
 		if (errors.hasErrors()) {
 			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
