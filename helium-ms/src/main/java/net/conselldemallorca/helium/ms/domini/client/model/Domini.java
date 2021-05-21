@@ -36,7 +36,7 @@ public class Domini {
 	 * Gets or Sets tipus
 	 */
 	public enum TipusEnum {
-		SQL("CONSULTA_SQL"), WS("CONSULTA_WS"), REST("CONSULTA_REST");
+		CONSULTA_SQL("CONSULTA_SQL"), CONSULTA_WS("CONSULTA_WS"), CONSULTA_REST("CONSULTA_REST");
 
 		private String value;
 

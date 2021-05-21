@@ -11,7 +11,7 @@ import org.springframework.web.client.RestClientException;
 
 import net.conselldemallorca.helium.ms.BaseMs;
 import net.conselldemallorca.helium.ms.HeliumMsPropietats;
-import net.conselldemallorca.helium.ms.domini.client.DominiMsClient;
+import net.conselldemallorca.helium.ms.domini.client.DominiApiClient;
 import net.conselldemallorca.helium.ms.domini.client.model.Domini;
 import net.conselldemallorca.helium.ms.domini.client.model.DominiPagedList;
 import net.conselldemallorca.helium.ms.domini.client.model.ResultatDomini;
@@ -32,13 +32,13 @@ public class DominiMs extends BaseMs {
 	private HeliumMsPropietats heliumMsPropietats;
 
 	/** Referència a la instànca de client de l'API REST de Dominis. */
-	private DominiMsClient dominiClient;
+	private DominiApiClient dominiApiClient;
 			
 	/** Mètode per configurar el client de l'API REST de dominis.
 	 */
 	@PostConstruct
     public void init() {
-		this.dominiClient = new DominiMsClient(
+		this.dominiApiClient = new DominiApiClient(
 				heliumMsPropietats.getBaseUrl(), 
 				heliumMsPropietats.getUsuari(), 
 				heliumMsPropietats.getPassword());
@@ -63,11 +63,9 @@ public class DominiMs extends BaseMs {
 			PaginacioParamsDto paginacioParams) {
 		
 		String filtreRsql = "codi=ic=*" + filtre +"* or nom=ic=*" + filtre ;
-		String sort = null;
-		if (paginacioParams.getOrdres() != null && paginacioParams.getOrdres().size() > 0)
-			sort = paginacioParams.getOrdres().get(0).getCamp() + "," + paginacioParams.getOrdres().get(0).getDireccio();
+		String sort = super.getSort(paginacioParams);
 		
-		DominiPagedList page = this.dominiClient.listDominisV1(
+		DominiPagedList page = this.dominiApiClient.listDominisV1(
 				entornId, 
 				filtreRsql, 
 				expedientTipusId, 
@@ -98,7 +96,7 @@ public class DominiMs extends BaseMs {
 		if (expedientTipusId == null) {
 			filtreRsql += "AND expedientTipus=isnull=";
 		}
-		DominiPagedList page = dominiClient.listDominisV1(
+		DominiPagedList page = dominiApiClient.listDominisV1(
 				entornId, 
 				filtreRsql, 
 				expedientTipusId, 
@@ -116,7 +114,7 @@ public class DominiMs extends BaseMs {
 	 * @return
 	 */
 	public DominiDto get(Long dominiId) {
-		Domini dominiMs = this.dominiClient.getDominiV1(dominiId);
+		Domini dominiMs = this.dominiApiClient.getDominiV1(dominiId);
 		return this.conversioTipusHelperMs.convertir(dominiMs, DominiDto.class);
 	}
 	
@@ -128,7 +126,7 @@ public class DominiMs extends BaseMs {
 	public long create(DominiDto dominiDto) {
 		
 		Domini domini = this.conversioTipusHelperMs.convertir(dominiDto, Domini.class);
-		long dominiId = this.dominiClient.createDominiV1(domini);		
+		long dominiId = this.dominiApiClient.createDominiV1(domini);		
 		return dominiId;
 	}
 
@@ -137,7 +135,7 @@ public class DominiMs extends BaseMs {
 	 * @param dominiId
 	 */
 	public void delete(Long dominiId) {
-		this.dominiClient.deleteDominiV1(dominiId);
+		this.dominiApiClient.deleteDominiV1(dominiId);
 		
 	}
 
@@ -147,7 +145,7 @@ public class DominiMs extends BaseMs {
 	 */
 	public DominiDto update(DominiDto domini) {
 		Domini dominiMs = this.conversioTipusHelperMs.convertir(domini, Domini.class);
-		this.dominiClient.updateDominiV1(
+		this.dominiApiClient.updateDominiV1(
 				dominiMs, 
 				domini.getId());
 		return this.conversioTipusHelperMs.convertir(domini, DominiDto.class);
@@ -165,7 +163,7 @@ public class DominiMs extends BaseMs {
 	 */
 	public ResultatDomini consultarDomini(Long dominiId, String identificador, Map<String, Object> parametres) {
 		ResultatDomini resultatDomini = 
-				this.dominiClient.consultaDominiV1(
+				this.dominiApiClient.consultaDominiV1(
 						dominiId, 
 						identificador, 
 						parametres);
@@ -184,7 +182,7 @@ public class DominiMs extends BaseMs {
 	 */
 	public List<DominiDto> llistaDominiByEntorn(Long entornId, String filtre, Integer page, Integer size, String sort)
 	{		
-		DominiPagedList pagedList = this.dominiClient.llistaDominiByEntorn(entornId, filtre, page, size, sort);
+		DominiPagedList pagedList = this.dominiApiClient.llistaDominiByEntorn(entornId, filtre, page, size, sort);
 		return this.conversioTipusHelperMs.convertirList(
 				pagedList.getContent(), 
 				DominiDto.class);
@@ -198,7 +196,7 @@ public class DominiMs extends BaseMs {
 	 */
 	public List<DominiDto> llistaDominiByExpedientTipus(Long expedientTipusId, String filtre)
 	{
-		DominiPagedList pagedList = this.dominiClient.llistaDominiByExpedientTipus(expedientTipusId, filtre, null, null, null);
+		DominiPagedList pagedList = this.dominiApiClient.llistaDominiByExpedientTipus(expedientTipusId, filtre, null, null, null);
 		return this.conversioTipusHelperMs.convertirList(
 				pagedList.getContent(), 
 				DominiDto.class);
@@ -213,7 +211,7 @@ public class DominiMs extends BaseMs {
 	public List<DominiDto> findAmbExpedientTipusIGlobals(Long entornId, Long expedientTipusId) {
 		List<DominiDto> dominis = 
 				this.conversioTipusHelperMs.convertirList(
-						this.dominiClient.listDominisV1(entornId, null, expedientTipusId, null, null, null, null).getContent(),
+						this.dominiApiClient.listDominisV1(entornId, null, expedientTipusId, null, null, null, null).getContent(),
 						DominiDto.class);
 		return dominis;
 	}
@@ -231,7 +229,7 @@ public class DominiMs extends BaseMs {
 		String filtreRsql = "codi==" + codi;
 		List<DominiDto> dominis = 
 				this.conversioTipusHelperMs.convertirList(
-						this.dominiClient.listDominisV1(entornId, filtreRsql, expedientTipusId, null, null, null, null).getContent(),
+						this.dominiApiClient.listDominisV1(entornId, filtreRsql, expedientTipusId, null, null, null, null).getContent(),
 						DominiDto.class);
 		if (dominis.size() > 0)
 			domini = dominis.get(0);

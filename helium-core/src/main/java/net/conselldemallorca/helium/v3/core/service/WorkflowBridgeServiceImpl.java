@@ -1,5 +1,20 @@
 package net.conselldemallorca.helium.v3.core.service;
 
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import javax.annotation.Resource;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Service;
+
 import net.conselldemallorca.helium.core.api.WorkflowBridgeService;
 import net.conselldemallorca.helium.core.common.ThreadLocalInfo;
 import net.conselldemallorca.helium.core.extern.domini.FilaResultat;
@@ -13,26 +28,43 @@ import net.conselldemallorca.helium.core.helper.IndexHelper;
 import net.conselldemallorca.helium.core.helper.MailHelper;
 import net.conselldemallorca.helium.core.helper.TascaSegonPlaHelper;
 import net.conselldemallorca.helium.core.helper.TerminiHelper;
-import net.conselldemallorca.helium.core.model.hibernate.*;
+import net.conselldemallorca.helium.core.model.hibernate.Camp;
+import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
+import net.conselldemallorca.helium.core.model.hibernate.Document;
+import net.conselldemallorca.helium.core.model.hibernate.Entorn;
+import net.conselldemallorca.helium.core.model.hibernate.Enumeracio;
+import net.conselldemallorca.helium.core.model.hibernate.EnumeracioValors;
+import net.conselldemallorca.helium.core.model.hibernate.Estat;
+import net.conselldemallorca.helium.core.model.hibernate.Expedient;
+import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
+import net.conselldemallorca.helium.core.model.hibernate.Interessat;
+import net.conselldemallorca.helium.core.model.hibernate.TerminiIniciat;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
-import net.conselldemallorca.helium.v3.core.api.dto.*;
+import net.conselldemallorca.helium.ms.domini.DominiMs;
+import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DocumentDissenyDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DominiDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DominiRespostaColumnaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DominiRespostaFilaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.EnumeracioValorDto;
+import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
+import net.conselldemallorca.helium.v3.core.api.dto.InteressatDto;
+import net.conselldemallorca.helium.v3.core.api.dto.InteressatTipusEnumDto;
+import net.conselldemallorca.helium.v3.core.api.dto.TerminiIniciatDto;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.exception.SistemaExternException;
 import net.conselldemallorca.helium.v3.core.api.exception.ValidacioException;
-import net.conselldemallorca.helium.v3.core.repository.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Service;
-
-import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import net.conselldemallorca.helium.v3.core.repository.DefinicioProcesRepository;
+import net.conselldemallorca.helium.v3.core.repository.DocumentRepository;
+import net.conselldemallorca.helium.v3.core.repository.EntornRepository;
+import net.conselldemallorca.helium.v3.core.repository.EnumeracioRepository;
+import net.conselldemallorca.helium.v3.core.repository.EnumeracioValorsRepository;
+import net.conselldemallorca.helium.v3.core.repository.EstatRepository;
+import net.conselldemallorca.helium.v3.core.repository.ExpedientRepository;
+import net.conselldemallorca.helium.v3.core.repository.ExpedientTipusRepository;
+import net.conselldemallorca.helium.v3.core.repository.InteressatRepository;
 
 @Service
 public class WorkflowBridgeServiceImpl implements WorkflowBridgeService {
@@ -54,7 +86,7 @@ public class WorkflowBridgeServiceImpl implements WorkflowBridgeService {
     @Resource
     private EnumeracioValorsRepository enumeracioValorsRepository;
     @Resource
-    private DominiRepository dominiRepository;
+    private DominiMs dominiMs;
     @Resource
     private InteressatRepository interessatRepository;
 
@@ -767,20 +799,22 @@ public class WorkflowBridgeServiceImpl implements WorkflowBridgeService {
                 "dominiId=" + dominiId + ", " +
                 "parametres=" + parametres + ")");
         Expedient expedient = getExpedientDonatProcessInstanceId(processInstanceId);
-        Domini domini;
+        DominiDto domini;
         // Dominis del tipus d'expedient
-        domini = dominiRepository.findByExpedientTipusAndCodiAmbHerencia(
-                expedient.getTipus().getId(),
-                dominiCodi);
+        domini = dominiMs.findAmbCodi(
+        		expedient.getEntorn().getId(),
+        		expedient.getTipus().getId(),
+        		dominiCodi);
         // Si no el troba el busca a l'entorn
         if (domini == null)
-            domini = dominiRepository.findByEntornAndCodi(
-                    expedient.getEntorn(),
-                    dominiCodi);
+            domini = dominiMs.findAmbCodi(
+            		expedient.getEntorn().getId(),
+            		null,
+            		dominiCodi);
         if (domini == null)
-            throw new NoTrobatException(Domini.class, dominiCodi);
+            throw new NoTrobatException(DominiDto.class, dominiCodi);
         List<FilaResultat> files = dominiHelper.consultar(
-                domini,
+                domini.getId(),
                 dominiId,
                 parametres);
         List<DominiRespostaFilaDto> resposta = new ArrayList<DominiRespostaFilaDto>();

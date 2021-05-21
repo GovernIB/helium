@@ -299,7 +299,7 @@ public class Camp implements Serializable, GenericEntity<Long> {
 		this.agrupacio = agrupacio;
 	}
 
-	@JoinColumn(name="domini_id")
+	@Column(name="domini_id")
 	public Long getDomini() {
 		return domini;
 	}

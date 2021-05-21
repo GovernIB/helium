@@ -147,13 +147,13 @@ public class ExpedientTipusImportarValidator implements ConstraintValidator<Expe
     		if (expedientTipus != null) {
 	    		for (EnumeracioDto e : expedientTipusService.enumeracioFindAll(expedientTipus.getId(), false))
 	    			enumeracionsTe.add(e.getCodi());
-	    		for (DominiDto d : expedientTipusService.dominiFindAll(expedientTipus.getId(), false))
+	    		for (DominiDto d : expedientTipusService.dominiFindAll(entornActual.getId(), expedientTipus.getId(), false))
 	    			dominisTe.add(d.getCodi());
 	    		if (expedientTipus.isAmbHerencia()) {
 	    			// Enumeracions i dominis heretats
 		    		for (EnumeracioDto e : expedientTipusService.enumeracioFindAll(expedientTipus.getExpedientTipusPareId(), false))
 		    			enumeracionsTe.add(e.getCodi());
-		    		for (DominiDto d : expedientTipusService.dominiFindAll(expedientTipus.getExpedientTipusPareId(), false))
+		    		for (DominiDto d : expedientTipusService.dominiFindAll(entornActual.getId(), expedientTipus.getExpedientTipusPareId(), false))
 		    			dominisTe.add(d.getCodi());
 	    		}
     		}

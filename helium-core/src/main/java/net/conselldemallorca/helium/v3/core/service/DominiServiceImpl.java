@@ -93,7 +93,7 @@ public class DominiServiceImpl implements DominiService {
 				entornId, 
 				filtre, 
 				expedientTipusId, 
-				expedientTipus.getExpedientTipusPareId(), 
+				expedientTipus != null ? expedientTipus.getTipusPareId() : null, 
 				paginacioParams);	
 		
 		return pagina;	

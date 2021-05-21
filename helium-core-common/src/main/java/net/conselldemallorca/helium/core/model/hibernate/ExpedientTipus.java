@@ -900,7 +900,7 @@ public class ExpedientTipus  implements Serializable, GenericEntity<Long> {
 	 * @return
 	 */
 	@Transient
-	public Long getExpedientTipusPareId() {
+	public Long getTipusPareId() {
 		return this.getExpedientTipusPare() != null ? 
 				this.getExpedientTipusPare().getId() 
 				: null;

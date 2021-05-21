@@ -1167,7 +1167,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 		domini = dominiMs.findByExpedientTipusAndCodiAmbHerencia(
 				expedient.getEntorn().getId(),
 				expedient.getTipus().getId(),
-				expedient.getTipus().getExpedientTipusPareId(),
+				expedient.getTipus().getTipusPareId(),
 				dominiCodi);
 		// Si no el troba el busca a l'entorn
 		if (domini == null)

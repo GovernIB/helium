@@ -34,23 +34,31 @@ public class TascaRestController {
 	@ResponseBody
 	public void addMissatge(
 			@PathVariable("taskId") Long taskId,
-			@RequestBody List<String> message) {
-
-		workflowBridgeService.addMissatgeExecucioTascaSegonPla(
-				taskId,
-				message.toArray(new String[0]));
-	}
-
-	@RequestMapping(value="/{taskId}/missatges", method = RequestMethod.POST)
-	@ResponseBody
-	public void setError(
-			@PathVariable("taskId") Long taskId,
+			@RequestBody List<String> message,
 			@RequestBody Exception ex) {
 
-		workflowBridgeService.setErrorTascaSegonPla(
-				taskId,
-				ex);
+		if (ex != null) {
+			workflowBridgeService.setErrorTascaSegonPla(
+			taskId,
+			ex);
+		} else {
+			workflowBridgeService.addMissatgeExecucioTascaSegonPla(
+					taskId,
+					message.toArray(new String[0]));
+		}
 	}
+	
+// TODO: completar
+//	@RequestMapping(value="/{taskId}/missatges", method = RequestMethod.POST)
+//	@ResponseBody
+//	public void setError(
+//			@PathVariable("taskId") Long taskId,
+//			@RequestBody Exception ex) {
+//
+//		workflowBridgeService.setErrorTascaSegonPla(
+//				taskId,
+//				ex);
+//	}
 
 	private static final Log logger = LogFactory.getLog(TascaRestController.class);
 }
