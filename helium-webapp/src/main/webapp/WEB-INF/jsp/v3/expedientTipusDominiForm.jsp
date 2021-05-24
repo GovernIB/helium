@@ -86,13 +86,11 @@
 				if( $(this).val() ==  'CONSULTA_SQL' ) {
 					$("#jndiDatasource").prop("disabled", false);
 					$("#sql").prop("disabled", false);
-					$("#url").prop("disabled", true);
 					$("#tipusAuth").prop("disabled", true);
 					$("#origenCredencials").prop("disabled", true);
 					$("#usuari").prop("disabled", true);
 					$("#contrasenya").prop("disabled", true);
 				} else if( $(this).val() ==  'CONSULTA_WS' || $(this).val() ==  'CONSULTA_REST') {
-					$("#url").prop("disabled", false);
 					$("#tipusAuth").prop("disabled", false);
 					$("#origenCredencials").prop("disabled", false);
 					$("#usuari").prop("disabled", false);
@@ -100,7 +98,6 @@
 					$("#jndiDatasource").prop("disabled", true);
 					$("#sql").prop("disabled", true);
 				} else {
-					$("#url").prop("disabled", true);
 					$("#tipusAuth").prop("disabled", true);
 					$("#origenCredencials").prop("disabled", true);
 					$("#usuari").prop("disabled", true);

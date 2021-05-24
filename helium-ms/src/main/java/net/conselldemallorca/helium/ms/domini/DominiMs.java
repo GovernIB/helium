@@ -94,17 +94,27 @@ public class DominiMs extends BaseMs {
 		
 		Domini domini = null;
 		String filtreRsql = "codi==" + codi;
-		if (expedientTipusId == null) {
-			filtreRsql += "AND expedientTipus=isnull=";
-		}
+		// TODO: no funciona afegir expressions rsql
+//		if (expedientTipusId == null) {
+//			filtreRsql += ",expedientTipus=isnull=";
+//		}
 		DominiPagedList page = dominiApiClient.listDominisV1(
 				entornId, 
 				filtreRsql, 
 				expedientTipusId, 
 				null, null, null, null);
 		
-		if (page.getTotalElements() > 0) {
-			domini = page.getContent().get(0);
+		if (page != null && page.getTotalElements() > 0) {
+			if (expedientTipusId != null) {
+				domini = page.getContent().get(0);
+			} else {
+				// Cerca el primer amb tipus expedient null
+				for (Domini d : page.getContent())
+					if (d.getExpedientTipusId() == null) {
+						domini = d;
+						break;
+					}
+			}
 		}
 		return this.conversioTipusHelperMs.convertir(domini, DominiDto.class);
 	}
