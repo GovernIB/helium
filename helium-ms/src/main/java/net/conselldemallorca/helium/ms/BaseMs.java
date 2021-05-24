@@ -26,19 +26,32 @@ public class BaseMs {
 	protected <T> PaginaDto<T> toPaginaDto(DominiPagedList page, Class<T> classT) {
 
 		PaginaDto<T> dto = new PaginaDto<T>();
-		dto.setNumero(page.getNumber());
-		dto.setTamany(page.getSize());
-		dto.setTotal(page.getTotalPages());
-		dto.setElementsTotal(page.getTotalElements());
-		dto.setAnteriors(page.getNumber() < page.getTotalPages());
-		dto.setPrimera(page.getNumber() == 0);
-		dto.setPosteriors(page.getNumber() < page.getTotalPages());
-		dto.setDarrera(page.getNumber() == page.getTotalPages() - 1);
-		if (page.getContent() != null) {
-			dto.setContingut(
-					conversioTipusHelperMs.convertirList(
-							page.getContent(),
-							classT));
+		if (page != null) {
+			dto.setNumero(page.getNumber());
+			dto.setTamany(page.getSize());
+			dto.setTotal(page.getTotalPages());
+			dto.setElementsTotal(page.getTotalElements());
+			dto.setAnteriors(page.getNumber() < page.getTotalPages());
+			dto.setPrimera(page.getNumber() == 0);
+			dto.setPosteriors(page.getNumber() < page.getTotalPages());
+			dto.setDarrera(page.getNumber() == page.getTotalPages() - 1);
+			if (page.getContent() != null) {
+				dto.setContingut(
+						conversioTipusHelperMs.convertirList(
+								page.getContent(),
+								classT));
+			}
+		} else {
+			// Pàgina buida
+			dto.setNumero(0);
+			dto.setTamany(0);
+			dto.setTotal(1);
+			dto.setElementsTotal(0);
+			dto.setAnteriors(false);
+			dto.setPrimera(true);
+			dto.setPosteriors(false);
+			dto.setDarrera(true);
+			dto.setContingut(null);
 		}
 		return dto;
 	}

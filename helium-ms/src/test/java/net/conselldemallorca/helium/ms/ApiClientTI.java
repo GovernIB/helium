@@ -86,7 +86,7 @@ public class ApiClientTI {
 		body.setEntornId(2L);
 		body.setCodi(String.valueOf(new Date().getTime()));
 		body.setNom(body.getCodi());
-		body.setTipus(TipusEnum.WS);
+		body.setTipus(TipusEnum.CONSULTA_WS);
 		body.setUrl("url");
 
 		Object postBody = body;

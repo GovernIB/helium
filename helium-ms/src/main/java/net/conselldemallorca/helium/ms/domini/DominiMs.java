@@ -41,7 +41,8 @@ public class DominiMs extends BaseMs {
 		this.dominiApiClient = new DominiApiClient(
 				heliumMsPropietats.getBaseUrl(), 
 				heliumMsPropietats.getUsuari(), 
-				heliumMsPropietats.getPassword());
+				heliumMsPropietats.getPassword(),
+				heliumMsPropietats.isDebugging());
     }
 		
 	/// Mètode de Disseny
