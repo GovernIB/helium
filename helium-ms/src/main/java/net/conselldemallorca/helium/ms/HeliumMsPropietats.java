@@ -22,6 +22,11 @@ public class HeliumMsPropietats {
 	/** Propietat amb el valor del password per a l'autenticació bàsica amb l'api. */
 	@Value("${app.helium.ms.client.password}")
 	private String password;
+
+	/** Propietat per indicar si depurar o no les crides */
+	@Value("${app.helium.ms.client.debugging}")
+	private Boolean debugging;
+
 	/**
 	 * @return the url
 	 */
@@ -41,6 +46,14 @@ public class HeliumMsPropietats {
 	 */
 	public String getPassword() {
 		return password;
+	}
+
+	/** Si mostra o no el JSON de les crides.
+	 * 
+	 * @return
+	 */
+	public boolean isDebugging() {
+		return debugging != null ? debugging.booleanValue() : false;
 	}
 
 	/** Valida que com a mínim s'hagi informat la url base d'Helium MS. En 

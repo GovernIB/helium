@@ -66,8 +66,8 @@ public interface DominiRepository extends BaseRepository<Domini, Long>  {
 			"	Domini ds " +
 			"where " +
 			"	ds.codi = d.codi " +
-			" 	and d.expedientTipus.id = expedientTipusId " +
-			" 	and ds.expedientTipus.id = expedientTipusPareId ")
+			" 	and d.expedientTipus.id = :expedientTipusId " +
+			" 	and ds.expedientTipus.id = :expedientTipusPareId ")
 	List<Domini> findSobreescrits(
 			@Param("expedientTipusId") Long expedientTipusId,
 			@Param("expedientTipusPareId") Long expedientTipusPareId);

@@ -44,7 +44,7 @@ public class DominiApiClient {
 	 *            Si no s'informa no hi ha autenticació.
 	 * @param password
 	 */
-	public DominiApiClient(String baseUrl, String username, String password) {
+	public DominiApiClient(String baseUrl, String username, String password, boolean debugging) {
 		super();
 
 		apiClient = new ApiClient();
@@ -53,6 +53,7 @@ public class DominiApiClient {
 			apiClient.setUsername(username);
 			apiClient.setPassword(password);
 		}
+		apiClient.setDebugging(debugging);
 	}
 
 	/**
