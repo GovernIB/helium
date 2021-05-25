@@ -22,7 +22,7 @@ import java.util.List;
  *
  */
 @Controller
-@RequestMapping("/api/enumeracions")
+@RequestMapping("/bridge/api/enumeracions")
 public class EnumeracioRestController {
 	
 	@Autowired

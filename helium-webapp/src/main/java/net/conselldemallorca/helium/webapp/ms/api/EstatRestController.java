@@ -19,7 +19,7 @@ import javax.servlet.http.HttpServletRequest;
  *
  */
 @Controller
-@RequestMapping("/api/estats")
+@RequestMapping("/bridge/api/estats")
 public class EstatRestController {
 	
 	@Autowired
@@ -30,8 +30,8 @@ public class EstatRestController {
 	public EstatDto getEstat(
 			HttpServletRequest request,
 			@PathVariable(value = "entornId") Long entornId,
-			@RequestParam(value = "processInstanceId", required = true) String expedientTipusCodi,
-			@RequestParam(value = "terminiCodi", required = true) String estatCodi) {
+			@RequestParam(value = "expedientTipusCodi", required = true) String expedientTipusCodi,
+			@RequestParam(value = "estatCodi", required = true) String estatCodi) {
 
 		return workflowBridgeService.findEstatAmbEntornIExpedientTipusICodi(
 				entornId,

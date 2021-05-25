@@ -1,6 +1,9 @@
 package net.conselldemallorca.helium.webapp.ms.api;
 
 import net.conselldemallorca.helium.core.api.WorkflowBridgeService;
+import net.conselldemallorca.helium.v3.core.api.dto.CampTascaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DocumentTascaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,6 +12,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.util.List;
@@ -18,47 +22,69 @@ import java.util.List;
  *
  */
 @Controller
-@RequestMapping("/api/tasques")
+@RequestMapping("/bridge/api/tasques")
 public class TascaRestController {
 	
 	@Autowired
 	private WorkflowBridgeService workflowBridgeService;
 
-	@RequestMapping(value="/{taskId}/segonpla", method = RequestMethod.GET)
+	@RequestMapping(value="/{processInstanceId}/task/{taskName}/camps", method = RequestMethod.GET)
 	@ResponseBody
-	public Boolean isSegonPla(@PathVariable("taskId") Long taskId) {
+	public List<CampTascaDto> findCampsPerTaskInstance(
+			@PathVariable("processInstanceId") String processInstanceId,
+			@RequestParam(value = "processDefinitionId") String processDefinitionId,
+			@PathVariable("taskName") String taskName) {
+		return workflowBridgeService.findCampsPerTaskInstance(
+				processInstanceId,
+				processDefinitionId,
+				taskName);
+	}
+
+	@RequestMapping(value="/{processInstanceId}/task/{taskName}/documents", method = RequestMethod.GET)
+	@ResponseBody
+	public List<DocumentTascaDto> findDocumentsPerTaskInstance(
+			@PathVariable("processInstanceId") String processInstanceId,
+			@RequestParam(value = "processDefinitionId") String processDefinitionId,
+			@PathVariable("taskName") String taskName) {
+		return workflowBridgeService.findDocumentsPerTaskInstance(
+				processInstanceId,
+				processDefinitionId,
+				taskName);
+	}
+
+	@RequestMapping(value="/{processInstanceId}/dades/{varCodi}", method = RequestMethod.GET)
+	@ResponseBody
+	public TascaDadaDto getDadaPerTaskInstance(
+			@PathVariable("processInstanceId") String processInstanceId,
+			@RequestParam(value = "taskInstanceId") String taskInstanceId,
+			@PathVariable("varCodi") String varCodi) {
+		return workflowBridgeService.getDadaPerTaskInstance(
+				processInstanceId,
+				taskInstanceId,
+				varCodi);
+	}
+
+	@RequestMapping(value="/{taskId}/isSegonPla", method = RequestMethod.GET)
+	@ResponseBody
+	public boolean isTascaEnSegonPla(@PathVariable("taskId") Long taskId) {
 		return workflowBridgeService.isTascaEnSegonPla(taskId);
 	}
 
-	@RequestMapping(value="/{taskId}/missatges", method = RequestMethod.POST)
+	@RequestMapping(value="/{taskId}/missatge", method = RequestMethod.POST)
 	@ResponseBody
-	public void addMissatge(
+	public void addMissatgeExecucioTascaSegonPla(
 			@PathVariable("taskId") Long taskId,
-			@RequestBody List<String> message,
-			@RequestBody Exception ex) {
-
-		if (ex != null) {
-			workflowBridgeService.setErrorTascaSegonPla(
-			taskId,
-			ex);
-		} else {
-			workflowBridgeService.addMissatgeExecucioTascaSegonPla(
-					taskId,
-					message.toArray(new String[0]));
-		}
+			@RequestBody String[] message) {
+		workflowBridgeService.addMissatgeExecucioTascaSegonPla(taskId, message);
 	}
-	
-// TODO: completar
-//	@RequestMapping(value="/{taskId}/missatges", method = RequestMethod.POST)
-//	@ResponseBody
-//	public void setError(
-//			@PathVariable("taskId") Long taskId,
-//			@RequestBody Exception ex) {
-//
-//		workflowBridgeService.setErrorTascaSegonPla(
-//				taskId,
-//				ex);
-//	}
+
+	@RequestMapping(value="/{taskId}/error", method = RequestMethod.POST)
+	@ResponseBody
+	public void setErrorTascaSegonPla(
+			@PathVariable("taskId") Long taskId,
+			@RequestBody String error ) {
+		workflowBridgeService.setErrorTascaSegonPla(taskId, error);
+	}
 
 	private static final Log logger = LogFactory.getLog(TascaRestController.class);
 }

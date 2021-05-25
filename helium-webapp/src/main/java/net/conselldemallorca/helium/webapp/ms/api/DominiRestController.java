@@ -20,7 +20,7 @@ import java.util.Map;
  *
  */
 @Controller
-@RequestMapping("/api/dominis")
+@RequestMapping("/bridge/api/dominis")
 public class DominiRestController {
 	
 	@Autowired

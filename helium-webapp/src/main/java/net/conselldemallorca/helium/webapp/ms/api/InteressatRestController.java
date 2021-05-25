@@ -6,6 +6,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -16,7 +17,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
  *
  */
 @Controller
-@RequestMapping("/api/interessats")
+@RequestMapping("/bridge/api/interessats")
 public class InteressatRestController {
 	
 	@Autowired
@@ -28,16 +29,18 @@ public class InteressatRestController {
 		workflowBridgeService.interessatCrear(interessat);
 	}
 
-	@RequestMapping(method = RequestMethod.PATCH)
+	@RequestMapping(method = RequestMethod.PUT)
 	@ResponseBody
 	public void modificar(@RequestBody InteressatDto interessat) {
 		workflowBridgeService.interessatModificar(interessat);
 	}
 
-	@RequestMapping(method = RequestMethod.DELETE)
+	@RequestMapping(value="/{interessatCodi}/expedient/{expedientId}", method = RequestMethod.DELETE)
 	@ResponseBody
-	public void eliminar(@RequestBody InteressatDto interessat) {
-		workflowBridgeService.interessatEliminar(interessat);
+	public void eliminar(
+			@PathVariable("interessatCodi") String interessatCodi,
+			@PathVariable("expedientId") Long expedientId) {
+		workflowBridgeService.interessatEliminar(interessatCodi, expedientId);
 	}
 
 	private static final Log logger = LogFactory.getLog(InteressatRestController.class);

@@ -1,70 +1,32 @@
 package net.conselldemallorca.helium.v3.core.service;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.annotation.Resource;
-
+import net.conselldemallorca.helium.core.api.WorkflowBridgeService;
+import net.conselldemallorca.helium.core.api.WorkflowEngineApi;
+import net.conselldemallorca.helium.core.common.ThreadLocalInfo;
+import net.conselldemallorca.helium.core.extern.domini.FilaResultat;
+import net.conselldemallorca.helium.core.extern.domini.ParellaCodiValor;
+import net.conselldemallorca.helium.core.helper.*;
+import net.conselldemallorca.helium.core.model.hibernate.*;
+import net.conselldemallorca.helium.core.util.GlobalProperties;
+import net.conselldemallorca.helium.ms.domini.DominiMs;
+import net.conselldemallorca.helium.v3.core.api.dto.*;
+import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
+import net.conselldemallorca.helium.v3.core.api.exception.SistemaExternException;
+import net.conselldemallorca.helium.v3.core.api.exception.ValidacioException;
+import net.conselldemallorca.helium.v3.core.repository.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
-import net.conselldemallorca.helium.core.api.WorkflowBridgeService;
-import net.conselldemallorca.helium.core.common.ThreadLocalInfo;
-import net.conselldemallorca.helium.core.extern.domini.FilaResultat;
-import net.conselldemallorca.helium.core.extern.domini.ParellaCodiValor;
-import net.conselldemallorca.helium.core.helper.AlertaHelper;
-import net.conselldemallorca.helium.core.helper.ConversioTipusHelper;
-import net.conselldemallorca.helium.core.helper.DocumentHelperV3;
-import net.conselldemallorca.helium.core.helper.DominiHelper;
-import net.conselldemallorca.helium.core.helper.ExpedientHelper;
-import net.conselldemallorca.helium.core.helper.IndexHelper;
-import net.conselldemallorca.helium.core.helper.MailHelper;
-import net.conselldemallorca.helium.core.helper.TascaSegonPlaHelper;
-import net.conselldemallorca.helium.core.helper.TerminiHelper;
-import net.conselldemallorca.helium.core.model.hibernate.Camp;
-import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
-import net.conselldemallorca.helium.core.model.hibernate.Document;
-import net.conselldemallorca.helium.core.model.hibernate.Entorn;
-import net.conselldemallorca.helium.core.model.hibernate.Enumeracio;
-import net.conselldemallorca.helium.core.model.hibernate.EnumeracioValors;
-import net.conselldemallorca.helium.core.model.hibernate.Estat;
-import net.conselldemallorca.helium.core.model.hibernate.Expedient;
-import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
-import net.conselldemallorca.helium.core.model.hibernate.Interessat;
-import net.conselldemallorca.helium.core.model.hibernate.TerminiIniciat;
-import net.conselldemallorca.helium.core.util.GlobalProperties;
-import net.conselldemallorca.helium.ms.domini.DominiMs;
-import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
-import net.conselldemallorca.helium.v3.core.api.dto.DocumentDissenyDto;
-import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
-import net.conselldemallorca.helium.v3.core.api.dto.DominiDto;
-import net.conselldemallorca.helium.v3.core.api.dto.DominiRespostaColumnaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.DominiRespostaFilaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.EnumeracioValorDto;
-import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
-import net.conselldemallorca.helium.v3.core.api.dto.InteressatDto;
-import net.conselldemallorca.helium.v3.core.api.dto.InteressatTipusEnumDto;
-import net.conselldemallorca.helium.v3.core.api.dto.TerminiIniciatDto;
-import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
-import net.conselldemallorca.helium.v3.core.api.exception.SistemaExternException;
-import net.conselldemallorca.helium.v3.core.api.exception.ValidacioException;
-import net.conselldemallorca.helium.v3.core.repository.DefinicioProcesRepository;
-import net.conselldemallorca.helium.v3.core.repository.DocumentRepository;
-import net.conselldemallorca.helium.v3.core.repository.EntornRepository;
-import net.conselldemallorca.helium.v3.core.repository.EnumeracioRepository;
-import net.conselldemallorca.helium.v3.core.repository.EnumeracioValorsRepository;
-import net.conselldemallorca.helium.v3.core.repository.EstatRepository;
-import net.conselldemallorca.helium.v3.core.repository.ExpedientRepository;
-import net.conselldemallorca.helium.v3.core.repository.ExpedientTipusRepository;
-import net.conselldemallorca.helium.v3.core.repository.InteressatRepository;
+import javax.annotation.Resource;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 @Service
 public class WorkflowBridgeServiceImpl implements WorkflowBridgeService {
@@ -89,9 +51,25 @@ public class WorkflowBridgeServiceImpl implements WorkflowBridgeService {
     private DominiMs dominiMs;
     @Resource
     private InteressatRepository interessatRepository;
+    @Resource
+    private TerminiIniciatRepository terminiIniciatRepository;
+    @Resource
+    private FestiuRepository festiuRepository;
+    @Resource
+    private ReassignacioRepository reassignacioRepository;
+    @Resource
+    private TascaRepository tascaRepository;
+    @Resource
+    private CampRepository campRepository;
+    @Resource
+    private CampTascaRepository campTascaRepository;
+    @Resource
+    private DocumentTascaRepository documentTascaRepository;
 
     @Resource
     private ExpedientHelper expedientHelper;
+    @Resource
+    private ExpedientTipusHelper expedientTipusHelper;
     @Resource
     private TerminiHelper terminiHelper;
     @Resource
@@ -103,12 +81,17 @@ public class WorkflowBridgeServiceImpl implements WorkflowBridgeService {
     @Resource
     private DominiHelper dominiHelper;
     @Resource
+    private VariableHelper variableHelper;
+    @Resource
     private MailHelper mailHelper;
 
     @Resource
     private IndexHelper indexHelper;
     @Resource
     private ConversioTipusHelper conversioTipusHelper;
+
+    @Resource
+    private WorkflowEngineApi workflowEngineApi;
 
 
     // EXPEDIENTS
@@ -254,6 +237,15 @@ public class WorkflowBridgeServiceImpl implements WorkflowBridgeService {
     }
 
     @Override
+    public ExpedientDto getExpedientArrelAmbProcessInstanceId(
+            String processInstanceId) {
+        logger.debug("Obtenint expedient donada una instància de procés (processInstanceId=" + processInstanceId + ")");
+        return conversioTipusHelper.convertir(
+                getExpedientDonatProcessInstanceId(processInstanceId),
+                ExpedientDto.class);
+    }
+
+    @Override
     public void expedientRelacionar(
             Long expedientIdOrigen,
             Long expedientIdDesti) {
@@ -291,6 +283,22 @@ public class WorkflowBridgeServiceImpl implements WorkflowBridgeService {
         expedientHelper.reprendre(
                 expedient,
                 null);
+    }
+
+    @Override
+    public void desfinalitzarExpedient(String processInstanceId) {
+        logger.debug("Desfinalitzant expedient(processInstanceId=" + processInstanceId + ")");
+        Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
+        expedientHelper.desfinalitzar(
+                expedient,
+                null);
+    }
+
+    @Override
+    public void finalitzarExpedient(String processInstanceId) {
+        logger.debug("Finalitzant expedient (processInstanceId=" + processInstanceId + ")");
+        Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
+        expedientHelper.finalitzar(expedient.getId());
     }
 
     @Override
@@ -367,6 +375,104 @@ public class WorkflowBridgeServiceImpl implements WorkflowBridgeService {
                 false);
     }
 
+    @Override
+    public void expedientModificarTitol(
+            String processInstanceId,
+            String titol) {
+        logger.debug("Modificant títol de l'expedient (" +
+                "processInstanceId=" + processInstanceId + ", " +
+                "titol=" + titol + ")");
+        Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
+        expedientHelper.update(
+                expedient,
+                expedient.getNumero(),
+                titol,
+                expedient.getResponsableCodi(),
+                expedient.getDataInici(),
+                expedient.getComentari(),
+                (expedient.getEstat() != null) ? expedient.getEstat().getId() : null,
+                expedient.getGeoPosX(),
+                expedient.getGeoPosY(),
+                expedient.getGeoReferencia(),
+                expedient.getGrupCodi(),
+                false);
+    }
+
+    @Override
+    public void expedientModificarGeoref(
+            String processInstanceId,
+            Double posx,
+            Double posy,
+            String referencia) {
+        logger.debug("Modificant georeferència de l'expedient (" +
+                "processInstanceId=" + processInstanceId + ", " +
+                "posx=" + posx + ", " +
+                "posy=" + posy + ", " +
+                "referencia=" + referencia + ")");
+        Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
+        expedientHelper.update(
+                expedient,
+                expedient.getNumero(),
+                expedient.getTitol(),
+                expedient.getResponsableCodi(),
+                expedient.getDataInici(),
+                expedient.getComentari(),
+                (expedient.getEstat() != null) ? expedient.getEstat().getId() : null,
+                posx,
+                posy,
+                referencia,
+                expedient.getGrupCodi(),
+                false);
+    }
+
+    @Override
+    public void expedientModificarGrup(
+            String processInstanceId,
+            String grupCodi) {
+        logger.debug("Modificant grup de l'expedient (" +
+                "processInstanceId=" + processInstanceId + ", " +
+                "grupCodi=" + grupCodi + ")");
+        Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
+        expedientHelper.update(
+                expedient,
+                expedient.getNumero(),
+                expedient.getTitol(),
+                expedient.getResponsableCodi(),
+                expedient.getDataInici(),
+                expedient.getComentari(),
+                (expedient.getEstat() != null) ? expedient.getEstat().getId() : null,
+                expedient.getGeoPosX(),
+                expedient.getGeoPosY(),
+                expedient.getGeoReferencia(),
+                grupCodi,
+                false);
+    }
+
+    @Override
+    public void expedientModificarResponsable(
+            String processInstanceId,
+            String responsableCodi) {
+        logger.debug("Modificant responsable de l'expedient (" +
+                "processInstanceId=" + processInstanceId + ", " +
+                "responsableCodi=" + responsableCodi + ")");
+//        if (pluginHelper.personaFindAmbCodi(responsableCodi) == null)
+//            throw new NoTrobatException(PersonaDto.class, responsableCodi);
+        Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
+        expedientHelper.update(
+                expedient,
+                expedient.getNumero(),
+                expedient.getTitol(),
+                responsableCodi,
+                expedient.getDataInici(),
+                expedient.getComentari(),
+                (expedient.getEstat() != null) ? expedient.getEstat().getId() : null,
+                expedient.getGeoPosX(),
+                expedient.getGeoPosY(),
+                expedient.getGeoReferencia(),
+                expedient.getGrupCodi(),
+                false);
+    }
+
     // TASQUES
     ////////////////////////////////////////////////////////////////////////////////
 
@@ -392,13 +498,97 @@ public class WorkflowBridgeServiceImpl implements WorkflowBridgeService {
     }
 
     @Override
-    public void setErrorTascaSegonPla(Long taskId, Exception ex) {
+    public void setErrorTascaSegonPla(Long taskId, String error) {
         if (tascaSegonPlaHelper.isTasquesSegonPlaLoaded()) {
             Map<Long, TascaSegonPlaHelper.InfoSegonPla> map = tascaSegonPlaHelper.getTasquesSegonPla();
             if (map.containsKey(taskId)) {
-                map.get(taskId).setError((ex.getCause() != null ? ex.getCause().getMessage() : ex.getMessage()));
+                map.get(taskId).setError(error);
             }
         }
+    }
+
+    @Override
+    public List<CampTascaDto> findCampsPerTaskInstance(
+            String processInstanceId,
+            String processDefinitionId,
+            String taskName) {
+        DefinicioProces definicioProces = definicioProcesRepository.findByJbpmId(
+                processDefinitionId);
+        if (definicioProces == null)
+            throw new NoTrobatException(DefinicioProces.class, processDefinitionId);
+        Tasca tasca = tascaRepository.findByJbpmNameAndDefinicioProces(
+                taskName,
+                definicioProces);
+        if (tasca == null)
+            throw new NoTrobatException(Tasca.class, taskName);
+        ExpedientTipus tipus = expedientTipusHelper.findAmbProcessInstanceId(processInstanceId);
+        if (tipus == null)
+            throw new NoTrobatException(ExpedientTipus.class, taskName);
+        return conversioTipusHelper.convertirList(
+                campTascaRepository.findAmbTascaIdOrdenats(tasca.getId(), tipus.getId()),
+                CampTascaDto.class);
+    }
+
+    @Override
+    public List<DocumentTascaDto> findDocumentsPerTaskInstance(
+            String processInstanceId,
+            String processDefinitionId,
+            String taskName) {
+        DefinicioProces definicioProces = definicioProcesRepository.findByJbpmId(
+                processDefinitionId);
+        if (definicioProces == null)
+            throw new NoTrobatException(DefinicioProces.class, processDefinitionId);
+        Tasca tasca = tascaRepository.findByJbpmNameAndDefinicioProces(
+                taskName,
+                definicioProces);
+        if (tasca == null)
+            throw new NoTrobatException(Tasca.class, taskName);
+        ExpedientTipus tipus = expedientTipusHelper.findAmbProcessInstanceId(processInstanceId);
+        if (tipus == null)
+            throw new NoTrobatException(ExpedientTipus.class, taskName);
+        return conversioTipusHelper.convertirList(
+                documentTascaRepository.findAmbTascaOrdenats(tasca.getId(), tipus.getId()),
+                DocumentTascaDto.class);
+    }
+
+    @Override
+    public TascaDadaDto getDadaPerTaskInstance(
+            String processInstanceId,
+            String taskInstanceId,
+            String varCodi) {
+        logger.debug("Obtenint la dada de l'instància de tasca (taskInstanceId=" + taskInstanceId + ")");
+        DefinicioProces definicioProces = getDefinicioProcesDonatProcessInstanceId(
+                processInstanceId);
+        if (definicioProces == null)
+            throw new NoTrobatException(DefinicioProces.class);
+        Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
+        ExpedientTipus expedientTipus = expedient.getTipus();
+        Camp camp;
+        if (expedientTipus.isAmbInfoPropia()) {
+            camp = campRepository.findByExpedientTipusAndCodi(
+                    expedientTipus.getId(),
+                    varCodi,
+                    expedientTipus.getExpedientTipusPare() != null);
+        } else {
+            camp = campRepository.findByDefinicioProcesAndCodi(
+                    definicioProces,
+                    varCodi);
+        }
+
+        if (camp == null)
+            throw new NoTrobatException(Camp.class,varCodi);
+        TascaDadaDto resposta = new TascaDadaDto();
+        Object valor = workflowEngineApi.getTaskInstanceVariable(
+                taskInstanceId,
+                varCodi);
+        resposta.setText(
+                variableHelper.getTextPerCamp(
+                        camp,
+                        valor,
+                        null,
+                        taskInstanceId,
+                        null));
+        return resposta;
     }
 
     // DOCUMENTS
@@ -555,6 +745,62 @@ public class WorkflowBridgeServiceImpl implements WorkflowBridgeService {
     }
 
     @Override
+    public Long documentExpedientGuardar(
+            String processInstanceId,
+            String documentCodi,
+            Date data,
+            String arxiuNom,
+            byte[] arxiuContingut) {
+        logger.debug("Guardant un document a dins l'expedient (" +
+                "processInstanceId=" + processInstanceId + ", " +
+                "documentCodi=" + documentCodi + ", " +
+                "data=" + data + ", " +
+                "arxiuNom=" + arxiuNom + ", " +
+                "arxiuContingut=" + arxiuContingut + ")");
+        return documentHelper.crearActualitzarDocument(
+                null,
+                processInstanceId,
+                documentCodi,
+                data,
+                arxiuNom,
+                arxiuContingut,
+                null,
+                null,
+                null,
+                null);
+    }
+
+    @Override
+    public Long documentExpedientAdjuntar(
+            String processInstanceId,
+            String adjuntId,
+            String adjuntTitol,
+            Date adjuntData,
+            String arxiuNom,
+            byte[] arxiuContingut) {
+        logger.debug("Guardant un document adjunt a dins l'expedient (" +
+                "processInstanceId=" + processInstanceId + ", " +
+                "adjuntId=" + adjuntId + ", " +
+                "adjuntTitol=" + adjuntTitol + ", " +
+                "adjuntData=" + adjuntData + ", " +
+                "arxiuNom=" + arxiuNom + ", " +
+                "arxiuContingut=" + arxiuContingut + ")");
+        return documentHelper.crearDocument(
+                null,
+                processInstanceId,
+                null,
+                adjuntData,
+                true,
+                adjuntTitol,
+                arxiuNom,
+                arxiuContingut,
+                null,
+                null,
+                null,
+                null);
+    }
+
+    @Override
     public void documentExpedientGuardarDadesRegistre(
             Long documentStoreId,
             String registreNumero,
@@ -597,6 +843,32 @@ public class WorkflowBridgeServiceImpl implements WorkflowBridgeService {
     ////////////////////////////////////////////////////////////////////////////////
 
     @Override
+    public TerminiDto getTerminiAmbProcessInstanceICodi(
+            String processInstanceId,
+            String terminiCodi) {
+        logger.debug("Obtenint termini donada la instància de procés i el codi (" +
+                "processInstanceId=" + processInstanceId + "," +
+                "terminiCodi=" + terminiCodi + ")");
+        Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
+        Termini termini = null;
+        if (expedient.getTipus().isAmbInfoPropia()) {
+            termini = terminiHelper.findAmbExpedientTipusICodi(
+                    expedient.getTipus(),
+                    terminiCodi);
+        } else {
+            DefinicioProces definicioProces = getDefinicioProcesDonatProcessInstanceId(processInstanceId);
+            termini = terminiHelper.findAmbDefinicioProcesICodi(
+                    definicioProces,
+                    terminiCodi);
+        }
+        if (termini == null)
+            throw new NoTrobatException(Termini.class, terminiCodi);
+        return conversioTipusHelper.convertir(
+                termini,
+                TerminiDto.class);
+    }
+
+    @Override
     public TerminiIniciatDto getTerminiIniciatAmbProcessInstanceITerminiCodi(
             String processDefinitionId,
             String processInstanceId,
@@ -626,6 +898,88 @@ public class WorkflowBridgeServiceImpl implements WorkflowBridgeService {
     }
 
     @Override
+    public void terminiIniciar(
+            String terminiCodi,
+            String processInstanceId,
+            Date data,
+            Integer anys,
+            Integer mesos,
+            Integer dies,
+            boolean esDataFi) {
+        logger.debug("Iniciant termini (" +
+                "terminiCodi=" + terminiCodi + ", " +
+                "processInstanceId=" + processInstanceId + ", " +
+                "data=" + data + ", " +
+                "anys=" + anys + ", " +
+                "mesos=" + mesos + ", " +
+                "dies=" + dies + ", " +
+                "esDataFi=" + esDataFi + ")");
+        DefinicioProces definicioProces = getDefinicioProcesDonatProcessInstanceId(processInstanceId);
+        ExpedientTipus expedientTipus = definicioProces.getExpedientTipus() != null?
+                definicioProces.getExpedientTipus()
+                : null;
+
+        Termini termini = null;
+        if (expedientTipus != null && expedientTipus.isAmbInfoPropia()) {
+            termini = terminiHelper.findAmbExpedientTipusICodi(
+                    expedientTipus,
+                    terminiCodi);
+        } else {
+            termini = terminiHelper.findAmbDefinicioProcesICodi(
+                    definicioProces,
+                    terminiCodi);
+        }
+        if (termini == null)
+            throw new NoTrobatException(Termini.class, terminiCodi);
+
+        if (dies != null && mesos != null && anys != null) {
+            terminiHelper.iniciar(
+                    termini.getId(),
+                    processInstanceId,
+                    data,
+                    anys,
+                    mesos,
+                    dies,
+                    esDataFi,
+                    false);
+        } else {
+            terminiHelper.iniciar(
+                    termini.getId(),
+                    processInstanceId,
+                    data,
+                    esDataFi,
+                    false);
+        }
+
+    }
+
+    @Override
+    public void terminiPausar(
+            Long terminiIniciatId,
+            Date data) {
+        logger.debug("Pausant termini iniciat (" +
+                "terminiIniciatId=" + terminiIniciatId + ", " +
+                "data=" + data + ")");
+        TerminiIniciat termini = terminiHelper.findTerminiIniciatById(terminiIniciatId);
+        if (termini == null)
+            throw new NoTrobatException(TerminiIniciat.class, terminiIniciatId);
+        terminiHelper.pausar(terminiIniciatId, data, false);
+    }
+
+    @Override
+    public void terminiContinuar(
+            Long terminiIniciatId,
+            Date data) {
+        logger.debug("Continuant termini iniciat (" +
+                "terminiIniciatId=" + terminiIniciatId + ", " +
+                "data=" + data + ")");
+        TerminiIniciat termini = terminiHelper.findTerminiIniciatById(terminiIniciatId);
+        if (termini == null)
+            throw new NoTrobatException(TerminiIniciat.class, terminiIniciatId);
+        terminiHelper.continuar(terminiIniciatId, data, false);
+    }
+
+    @Override
     public void terminiCancelar(
             Long terminiIniciatId,
             Date data) {
@@ -638,6 +992,28 @@ public class WorkflowBridgeServiceImpl implements WorkflowBridgeService {
         terminiHelper.cancelar(terminiIniciatId, data, false);
     }
 
+    @Override
+    public Date terminiCalcularDataInici(
+            Date fi,
+            int anys,
+            int mesos,
+            int dies,
+            boolean laborable,
+            String processInstanceId) {
+        logger.debug("Calculant data d'inici de termini a partir d'una data de fi (" +
+                "fi=" + fi + ", " +
+                "anys=" + anys + ", " +
+                "mesos=" + mesos + ", " +
+                "dies=" + dies + ", " +
+                "laborable=" + laborable + ")");
+        return terminiHelper.getDataIniciTermini(
+                fi,
+                anys,
+                mesos,
+                dies,
+                laborable,
+                processInstanceId);
+    }
     @Override
     public Date terminiCalcularDataFi(
             Date inici,
@@ -696,6 +1072,20 @@ public class WorkflowBridgeServiceImpl implements WorkflowBridgeService {
             throw new NoTrobatException(Expedient.class, expedientId);
 
         alertaHelper.crearAlerta(entorn, expedient, data, usuariCodi, text);
+    }
+
+    @Override
+    public void alertaEsborrarAmbTaskInstanceId(long taskInstanceId) {
+        logger.debug("Esborrant alertes amb taskInstance (" +
+                "taskInstanceId=" + taskInstanceId + ")");
+        Date ara = new Date();
+        List<TerminiIniciat> terminis = terminiIniciatRepository.findByTaskInstanceId(
+                new Long(taskInstanceId).toString());
+        for (TerminiIniciat termini: terminis) {
+            for (Alerta alerta: termini.getAlertes()) {
+                alerta.setDataEliminacio(ara);
+            }
+        }
     }
 
     // ENUMERACIONS
@@ -902,16 +1292,16 @@ public class WorkflowBridgeServiceImpl implements WorkflowBridgeService {
     }
 
     @Override
-    public void interessatEliminar(InteressatDto interessat) {
+    public void interessatEliminar(String interessatCodi, Long expedientId) {
 
-        Expedient expedient = expedientRepository.findOne(interessat.getExpedientId());
+        Expedient expedient = expedientRepository.findOne(expedientId);
 
-        if (interessatRepository.findByCodiAndExpedient(interessat.getCodi(), expedient) == null) {
+        if (interessatRepository.findByCodiAndExpedient(interessatCodi, expedient) == null) {
             throw new ValidacioException("Un interessat amb aquest codi no existeix");
         }
 
         Interessat interessatEntity = interessatRepository.findByCodiAndExpedient(
-                interessat.getCodi(),
+                interessatCodi,
                 expedient);
         List<Interessat> interessats = expedient.getInteressats();
         interessats.remove(interessatEntity);
@@ -983,6 +1373,47 @@ public class WorkflowBridgeServiceImpl implements WorkflowBridgeService {
         return conversioTipusHelper.convertir(
                 ThreadLocalInfo.getExpedient(),
                 ExpedientDto.class);
+    }
+
+    @Override
+    public List<FestiuDto> getFestiusAll() {
+        logger.debug("Obtenint la llista de tots els festius");
+        return conversioTipusHelper.convertirList(
+                festiuRepository.findAll(),
+                FestiuDto.class);
+    }
+
+    @Override
+    public ReassignacioDto findReassignacioActivaPerUsuariOrigen(
+            String processInstanceId,
+            String usuariCodi) {
+        logger.debug("Obtenint reassignació activa per a l'usuari ("
+                + "processInstanceId=" + processInstanceId + ", "
+                + "usuariCodi=" + usuariCodi + ")");
+        Date ara = new Date();
+
+        Reassignacio reassignacio = null;
+        // Cerca primer pel tipus d'expedient
+        if (processInstanceId != null && !"".equals(processInstanceId.trim())) {
+            Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
+            if (expedient != null) {
+                reassignacio = reassignacioRepository.findByUsuariAndTipusExpedientId(
+                        usuariCodi,
+                        expedient.getTipus().getId(),
+                        ara,
+                        ara);
+            }
+        }
+        // Si no es troba cerca una redirecció global
+        if (reassignacio == null) {
+            reassignacio = reassignacioRepository.findByUsuari(
+                    usuariCodi,
+                    ara,
+                    ara);
+        }
+        return conversioTipusHelper.convertir(
+                reassignacio,
+                ReassignacioDto.class);
     }
 
     // Mètodes privats

@@ -118,8 +118,8 @@ public class WorkflowBridgeServiceBean implements WorkflowBridgeService {
 		delegate.addMissatgeExecucioTascaSegonPla(taskId, message);
 	}
 
-	public void setErrorTascaSegonPla(Long taskId, Exception ex) {
-		delegate.setErrorTascaSegonPla(taskId, ex);
+	public void setErrorTascaSegonPla(Long taskId, String error) {
+		delegate.setErrorTascaSegonPla(taskId, error);
 	}
 
 	// DOCUMENTS
@@ -232,6 +232,11 @@ public class WorkflowBridgeServiceBean implements WorkflowBridgeService {
 		delegate.alertaCrear(entornId, expedientId, data, usuariCodi, text);
 	}
 
+	@Override
+	public void alertaEsborrarAmbTaskInstanceId(long taskInstanceId) {
+		delegate.alertaEsborrarAmbTaskInstanceId(taskInstanceId);
+	}
+
 	// ENUMERACIONS
 	////////////////////////////////////////////////////////////////////////////////
 
@@ -281,8 +286,8 @@ public class WorkflowBridgeServiceBean implements WorkflowBridgeService {
 		delegate.interessatModificar(interessat);
 	}
 
-	public void interessatEliminar(InteressatDto interessat) {
-		delegate.interessatEliminar(interessat);
+	public void interessatEliminar(String interessatCodi, Long expedientId) {
+		delegate.interessatEliminar(interessatCodi, expedientId);
 	}
 
 	// GENERICS

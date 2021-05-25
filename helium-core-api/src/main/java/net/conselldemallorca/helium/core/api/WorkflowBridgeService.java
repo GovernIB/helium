@@ -1,14 +1,6 @@
 package net.conselldemallorca.helium.core.api;
 
-import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
-import net.conselldemallorca.helium.v3.core.api.dto.DocumentDissenyDto;
-import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
-import net.conselldemallorca.helium.v3.core.api.dto.DominiRespostaFilaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.EnumeracioValorDto;
-import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
-import net.conselldemallorca.helium.v3.core.api.dto.InteressatDto;
-import net.conselldemallorca.helium.v3.core.api.dto.TerminiIniciatDto;
+import net.conselldemallorca.helium.v3.core.api.dto.*;
 
 import java.util.Date;
 import java.util.List;
@@ -46,6 +38,8 @@ public interface WorkflowBridgeService {
 			String expedientTipusCodi,
 			String numero);
 
+	public ExpedientDto getExpedientArrelAmbProcessInstanceId(String processInstanceId);
+
 	public void expedientRelacionar(
 			Long expedientIdOrigen,
 			Long expedientIdDesti);
@@ -56,6 +50,10 @@ public interface WorkflowBridgeService {
 
 	public void expedientReprendre(
 			String processInstanceId);
+
+	public void desfinalitzarExpedient(String processInstanceId);
+
+	public void finalitzarExpedient(String processInstanceId);
 
 	public void expedientModificarEstat(
 			String processInstanceId,
@@ -69,6 +67,23 @@ public interface WorkflowBridgeService {
 			String processInstanceId,
 			String numero);
 
+	public void expedientModificarTitol(
+			String processInstanceId,
+			String titol);
+
+	public void expedientModificarGeoref(
+			String processInstanceId,
+			Double posx,
+			Double posy,
+			String referencia);
+
+	public void expedientModificarGrup(
+			String processInstanceId,
+			String grupCodi);
+
+	public void expedientModificarResponsable(
+			String processInstanceId,
+			String responsableCodi);
 
 	// TASQUES
 	////////////////////////////////////////////////////////////////////////////////
@@ -77,7 +92,22 @@ public interface WorkflowBridgeService {
 
 	public void addMissatgeExecucioTascaSegonPla(Long taskId, String[] message);
 
-	public void setErrorTascaSegonPla(Long taskId, Exception ex);
+	public void setErrorTascaSegonPla(Long taskId, String error);
+
+	public List<CampTascaDto> findCampsPerTaskInstance(
+			String processInstanceId,
+			String processDefinitionId,
+			String taskName);
+
+	public List<DocumentTascaDto> findDocumentsPerTaskInstance(
+			String processInstanceId,
+			String processDefinitionId,
+			String taskName);
+
+	public TascaDadaDto getDadaPerTaskInstance(
+			String processInstanceId,
+			String taskInstanceId,
+			String varCodi);
 
 	// DOCUMENTS
 	////////////////////////////////////////////////////////////////////////////////
@@ -108,6 +138,21 @@ public interface WorkflowBridgeService {
 			String documentCodi,
 			Date dataDocument);
 
+	public Long documentExpedientGuardar(
+			String processInstanceId,
+			String documentCodi,
+			Date data,
+			String arxiuNom,
+			byte[] arxiuContingut);
+
+	public Long documentExpedientAdjuntar(
+			String processInstanceId,
+			String adjuntId,
+			String adjuntTitol,
+			Date adjuntData,
+			String arxiuNom,
+			byte[] arxiuContingut);
+
 	public void documentExpedientGuardarDadesRegistre(
 			Long documentStoreId,
 			String registreNumero,
@@ -124,14 +169,41 @@ public interface WorkflowBridgeService {
 	// TERMINIS
 	////////////////////////////////////////////////////////////////////////////////
 
+	public TerminiDto getTerminiAmbProcessInstanceICodi(String processInstanceId, String terminiCodi);
+
 	public TerminiIniciatDto getTerminiIniciatAmbProcessInstanceITerminiCodi(
 			String processDefinitionId,
 			String processInstanceId,
 			String terminiCodi);
 
+	public void terminiIniciar(
+			String terminiCodi,
+			String processInstanceId,
+			Date data,
+			Integer anys,
+			Integer mesos,
+			Integer dies,
+			boolean esDataFi);
+
+	public void terminiPausar(
+			Long terminiIniciatId,
+			Date data);
+
+	public void terminiContinuar(
+			Long terminiIniciatId,
+			Date data);
+
 	public void terminiCancelar(
 			Long terminiIniciatId,
 			Date data);
+
+	public Date terminiCalcularDataInici(
+			Date inici,
+			int anys,
+			int mesos,
+			int dies,
+			boolean laborable,
+			String processInstanceId);
 
 	public Date terminiCalcularDataFi(
 			Date inici,
@@ -155,6 +227,8 @@ public interface WorkflowBridgeService {
 			Date data,
 			String usuariCodi,
 			String text);
+
+	public void alertaEsborrarAmbTaskInstanceId(long taskInstanceId);
 
 	// ENUMERACIONS
 	////////////////////////////////////////////////////////////////////////////////
@@ -193,7 +267,7 @@ public interface WorkflowBridgeService {
 
 	public void interessatModificar(InteressatDto interessat);
 
-	public void interessatEliminar(InteressatDto interessat);
+	public void interessatEliminar(String interessatCodi, Long expedientId);
 
 	// GENERICS
 	////////////////////////////////////////////////////////////////////////////////
@@ -212,5 +286,11 @@ public interface WorkflowBridgeService {
 	public String getUsuariCodiActual();
 
 	public ExpedientDto getExpedientIniciant();
+
+	public List<FestiuDto> getFestiusAll();
+
+	public ReassignacioDto findReassignacioActivaPerUsuariOrigen(
+			String processInstanceId,
+			String usuariCodi);
 
 }
