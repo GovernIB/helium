@@ -419,6 +419,8 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 					n++;
 				}
 			}
+			// Informa la data de fi per l'execució massiva 
+			execucioMassiva.setDataFi(dataFi);
 			logger.info("S'han cancel·lat " + n + " execucions d'expedients de " + execucionsMassivesExpedients.size()
 					+ " execucions per l'execució massiva amb id " + id);
 		} catch (Exception ex) {
