@@ -3,7 +3,7 @@
  */
 package es.caib.helium.jbpm3.command;
 
-import net.conselldemallorca.helium.core.api.LlistatIds;
+import es.caib.helium.api.dto.LlistatIds;
 import org.hibernate.Query;
 import org.jbpm.JbpmContext;
 import org.jbpm.command.AbstractBaseCommand;

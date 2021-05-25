@@ -42,6 +42,7 @@ public class DocumentGenerarHandler extends AbstractHeliumActionHandler implemen
 			docData = new Date();
 		Jbpm3HeliumBridge.getInstanceService().documentGenerarAmbPlantilla(
 				null,
+				new Long(executionContext.getProcessInstance().getProcessDefinition().getId()).toString(),
 				getProcessInstanceId(executionContext),
 				dc,
 				docData);

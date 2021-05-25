@@ -63,6 +63,9 @@ public class TerminiIniciarHandler extends AbstractHeliumActionHandler implement
 						tercod,
 						getProcessInstanceId(executionContext),
 						getDataVariable(executionContext),
+						null,
+						null,
+						null,
 						esDataFi());
 			}
 		} else {

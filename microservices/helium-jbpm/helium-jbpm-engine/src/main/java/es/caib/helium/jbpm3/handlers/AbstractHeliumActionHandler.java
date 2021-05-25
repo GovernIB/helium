@@ -45,9 +45,9 @@ abstract class AbstractHeliumActionHandler implements ActionHandler {
 			ExecutionContext executionContext,
 			String numero) {
 		ExpedientDto expedient = getExpedientActual(executionContext);
-		return Jbpm3HeliumBridge.getInstanceService().findExpedientAmbMateixTipusINumero(
+		return Jbpm3HeliumBridge.getInstanceService().getExpedientAmbEntornITipusINumero(
 				expedient.getEntorn().getId(),
-				expedient.getTipus().getId(),
+				expedient.getTipus().getCodi(),
 				numero);
 	}
 
@@ -73,6 +73,7 @@ abstract class AbstractHeliumActionHandler implements ActionHandler {
 				codi);
 		if (termini != null) {
 			return Jbpm3HeliumBridge.getInstanceService().getTerminiIniciatAmbProcessInstanceITerminiCodi(
+					new Long(executionContext.getProcessDefinition().getId()).toString(),
 					getProcessInstanceId(executionContext),
 					termini.getCodi());
 		} else {

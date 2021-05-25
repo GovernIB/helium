@@ -72,11 +72,15 @@ public class DefaultControllerHandler implements TaskControllerHandler {
 
 	private List<CampTascaDto> getCampsPerTaskInstance(TaskInstance taskInstance) {
 		return Jbpm3HeliumBridge.getInstanceService().findCampsPerTaskInstance(
-				taskInstance.getId());
+				new Long(taskInstance.getProcessInstance().getId()).toString(),
+				new Long(taskInstance.getProcessInstance().getProcessDefinition().getId()).toString(),
+				taskInstance.getName());
 	}
 	private List<DocumentTascaDto> getDocumentsPerTaskInstance(TaskInstance taskInstance) {
 		return Jbpm3HeliumBridge.getInstanceService().findDocumentsPerTaskInstance(
-				taskInstance.getId());
+				new Long(taskInstance.getProcessInstance().getId()).toString(),
+				new Long(taskInstance.getProcessInstance().getProcessDefinition().getId()).toString(),
+				taskInstance.getName());
 	}
 
 	private static final long serialVersionUID = -3360653717647288657L;

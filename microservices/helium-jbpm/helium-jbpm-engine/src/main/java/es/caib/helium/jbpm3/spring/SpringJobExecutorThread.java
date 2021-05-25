@@ -161,7 +161,7 @@ public class SpringJobExecutorThread extends JobExecutorThread {
 						
 						SpringJobExecutorThread.super.executeJob(job);
 						String processInstanceId = new Long(job.getProcessInstance().getId()).toString();
-						Jbpm3HeliumBridge.getInstanceService().expedientReindexar(processInstanceId);
+//						Jbpm3HeliumBridge.getInstanceService().expedientReindexar(processInstanceId);
 					} catch (Exception ex) {
 						saveJobError(job.getId(), ex, "S'ha produït un error al executar el timer " + jName + ".");
 						// Vaig a provocar la excepció des d'aquí, per a forçar el rollback...

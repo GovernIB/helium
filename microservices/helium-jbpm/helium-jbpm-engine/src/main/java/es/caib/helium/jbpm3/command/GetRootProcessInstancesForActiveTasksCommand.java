@@ -3,6 +3,7 @@
  */
 package es.caib.helium.jbpm3.command;
 
+import es.caib.helium.api.dto.LlistatIds;
 import es.caib.helium.api.dto.PaginacioParamsDto;
 import es.caib.helium.api.dto.PaginacioParamsDto.OrdreDireccioDto;
 import es.caib.helium.api.dto.PaginacioParamsDto.OrdreDto;

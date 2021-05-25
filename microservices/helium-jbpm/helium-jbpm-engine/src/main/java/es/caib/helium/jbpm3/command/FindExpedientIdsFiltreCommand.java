@@ -10,11 +10,11 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import es.caib.helium.api.dto.ResultatConsultaPaginada;
 import org.hibernate.Query;
 import org.jbpm.JbpmContext;
 import org.jbpm.command.AbstractBaseCommand;
 
-import net.conselldemallorca.helium.core.api.ResultatConsultaPaginada;
 
 /**
  * Command per a trobar els logs associats a una instància de procés

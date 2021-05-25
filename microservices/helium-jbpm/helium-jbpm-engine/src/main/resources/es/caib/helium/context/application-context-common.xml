@@ -58,7 +58,16 @@
 	<bean id="transactionManager" class="org.springframework.orm.jpa.JpaTransactionManager">
 		<property name="entityManagerFactory" ref="entityManagerFactory" />
 	</bean>
-	
+
+	<bean id="restTemplate" class="org.springframework.web.client.RestTemplate">
+		<constructor-arg>
+			<bean class="org.springframework.http.client.HttpComponentsClientHttpRequestFactory">
+				<property name="readTimeout" value="${app.rest.readTimeout:10000}" />
+				<property name="connectTimeout" value="${app.rest.connectionTimeout:300000}" />
+			</bean>
+		</constructor-arg>
+	</bean>
+
 	<tx:annotation-driven transaction-manager="transactionManager"/>
 	<tx:advice id="transactionAdvice" transaction-manager="transactionManager">
 		<tx:attributes>

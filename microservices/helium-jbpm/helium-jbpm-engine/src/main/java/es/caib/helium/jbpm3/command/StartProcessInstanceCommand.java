@@ -1,7 +1,7 @@
 package es.caib.helium.jbpm3.command;
 
+import es.caib.helium.api.dto.ExpedientDto;
 import es.caib.helium.jbpm3.integracio.Jbpm3HeliumBridge;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 
 import org.jbpm.JbpmContext;
 import org.jbpm.command.Command;

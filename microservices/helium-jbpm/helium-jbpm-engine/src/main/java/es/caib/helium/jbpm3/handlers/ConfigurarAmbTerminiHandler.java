@@ -32,6 +32,7 @@ public class ConfigurarAmbTerminiHandler extends CreateTimerAction implements Co
 				terminiCodi,
 				varTerminiCodi);
 		TerminiIniciatDto terminiIniciat = Jbpm3HeliumBridge.getInstanceService().getTerminiIniciatAmbProcessInstanceITerminiCodi(
+				new Long(executionContext.getProcessDefinition().getId()).toString(),
 				getProcessInstanceId(executionContext),
 				tc);
 		if (terminiIniciat != null) {

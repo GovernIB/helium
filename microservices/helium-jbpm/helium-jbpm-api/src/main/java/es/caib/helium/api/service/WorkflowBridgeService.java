@@ -29,20 +29,10 @@ public interface WorkflowBridgeService {
             boolean nomesIniciats,
             boolean nomesFinalitzats);
 
-	public List<ExpedientDto> findExpedientsConsultaDadesIndexades(
-            Long entornId,
-            String expedientTipusCodi,
-            Map<String, Object> filtreValors);
-
 	public ExpedientDto getExpedientAmbEntornITipusINumero(
             Long entornId,
             String expedientTipusCodi,
             String numero);
-
-	public ExpedientDto findExpedientAmbMateixTipusINumero(
-			Long entornId,
-			Long expedientTipusId,
-			String numero);
 
 	public ExpedientDto getExpedientArrelAmbProcessInstanceId(
 			String processInstanceId);
@@ -100,6 +90,11 @@ public interface WorkflowBridgeService {
 
 	// Dades
 
+	public List<ExpedientDto> findExpedientsConsultaDadesIndexades(
+			Long entornId,
+			String expedientTipusCodi,
+			Map<String, Object> filtreValors);
+
 	public ExpedientDadaDto getDadaPerProcessInstance(
 			String processInstanceId,
 			String varCodi);
@@ -113,9 +108,16 @@ public interface WorkflowBridgeService {
 
 	public void setErrorTascaSegonPla(Long taskId, Exception ex);
 
-	public List<CampTascaDto> findCampsPerTaskInstance(long taskInstanceId);
+	public List<CampTascaDto> findCampsPerTaskInstance(
+			String processInstanceId,
+			String processDefinitionId,
+			String taskName);
 
-	public List<DocumentTascaDto> findDocumentsPerTaskInstance(long taskInstanceId);
+	public List<DocumentTascaDto> findDocumentsPerTaskInstance(
+			String processInstanceId,
+			String processDefinitionId,
+			String taskName
+	);
 
 	// Dades
 
@@ -151,6 +153,7 @@ public interface WorkflowBridgeService {
 
 	public ArxiuDto documentGenerarAmbPlantilla(
             String taskInstanceId,
+            String processDefinitionId,
             String processInstanceId,
             String documentCodi,
             Date dataDocument);
@@ -186,32 +189,22 @@ public interface WorkflowBridgeService {
 	// TERMINIS
 	////////////////////////////////////////////////////////////////////////////////
 
-	public TerminiIniciatDto getTerminiIniciatAmbProcessInstanceITerminiCodi(
-            String processDefinitionId,
-            String processInstanceId,
-            String terminiCodi);
-
 	public TerminiDto getTerminiAmbProcessInstanceICodi(
 			String processInstanceId,
 			String terminiCodi);
 
 	public TerminiIniciatDto getTerminiIniciatAmbProcessInstanceITerminiCodi(
-			String processInstanceId,
-			String terminiCodi);
+            String processDefinitionId,
+            String processInstanceId,
+            String terminiCodi);
 
 	public void terminiIniciar(
 			String terminiCodi,
 			String processInstanceId,
 			Date data,
-			int anys,
-			int mesos,
-			int dies,
-			boolean esDataFi);
-
-	public void terminiIniciar(
-			String terminiCodi,
-			String processInstanceId,
-			Date data,
+			Integer anys,
+			Integer mesos,
+			Integer dies,
 			boolean esDataFi);
 
 	public void terminiPausar(
@@ -301,7 +294,7 @@ public interface WorkflowBridgeService {
 
 	public void interessatModificar(InteressatDto interessat);
 
-	public void interessatEliminar(InteressatDto interessat);
+	public void interessatEliminar(String interessatCodi, Long expedientId);
 
 	// GENERICS
 	////////////////////////////////////////////////////////////////////////////////

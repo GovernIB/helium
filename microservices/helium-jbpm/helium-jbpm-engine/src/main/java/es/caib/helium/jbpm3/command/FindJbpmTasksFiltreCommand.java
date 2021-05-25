@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import es.caib.helium.api.dto.ResultatConsultaPaginada;
 import es.caib.helium.jbpm3.integracio.Jbpm3HeliumBridge;
 import es.caib.helium.jbpm3.integracio.JbpmTask;
 import org.hibernate.Query;
@@ -14,7 +15,6 @@ import org.jbpm.JbpmContext;
 import org.jbpm.command.AbstractBaseCommand;
 import org.jbpm.taskmgmt.exe.TaskInstance;
 
-import net.conselldemallorca.helium.core.api.ResultatConsultaPaginada;
 
 /**
  * Command per a trobar els logs associats a una instància de procés

@@ -814,12 +814,7 @@ public class HeliumApiImpl implements HeliumApi {
 			String codi,
 			Long expedientId) {
 		
-		InteressatDto interessatDto = new InteressatDto();
-
-		interessatDto.setCodi(codi);
-		interessatDto.setExpedientId(expedientId);
-		
-		Jbpm3HeliumBridge.getInstanceService().interessatEliminar(interessatDto);
+		Jbpm3HeliumBridge.getInstanceService().interessatEliminar(codi, expedientId);
 		
 	}
 	
