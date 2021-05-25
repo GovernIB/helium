@@ -682,7 +682,9 @@ public class TascaHelper {
 								campValor,
 								null,
 								null,
-								task.getProcessInstanceId());
+								task.getProcessInstanceId(),
+								null,
+								null);
 						variables.put(
 								JbpmVars.PREFIX_VAR_DESCRIPCIO + campTasca.getCamp().getCodi(),
 								text);

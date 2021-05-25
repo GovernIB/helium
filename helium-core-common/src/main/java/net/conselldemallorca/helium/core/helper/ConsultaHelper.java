@@ -3,6 +3,7 @@ package net.conselldemallorca.helium.core.helper;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -20,6 +21,7 @@ import net.conselldemallorca.helium.core.model.hibernate.ConsultaCamp.TipusParam
 import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.v3.core.api.dto.CampTipusDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ConsultaDominiDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DadaIndexadaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
@@ -60,6 +62,7 @@ public class ConsultaHelper {
 			camps = consultaCampRepository.findCampsConsulta(consulta.getId(), tipus);
 		else
 			camps = new ArrayList<ConsultaCamp>(consulta.getCamps());
+		Map<Integer, ConsultaDominiDto> consultesDominis = new HashMap<Integer, ConsultaDominiDto>();
 		for (ConsultaCamp camp: camps) {
 			TascaDadaDto tascaDadaDto = null;
 			DefinicioProces definicioProces = null;
@@ -87,7 +90,7 @@ public class ConsultaHelper {
 				}
 			}
 			if (campRes != null) {
-				tascaDadaDto = variableHelper.getTascaDadaDtoParaConsultaDisseny(campRes,tipus);
+				tascaDadaDto = variableHelper.getTascaDadaDtoParaConsultaDisseny(campRes,tipus, consultesDominis);
 			} else {
 				tascaDadaDto = getTascaDadaPerCampsConsulta(camp);
 			}
@@ -98,6 +101,8 @@ public class ConsultaHelper {
 			tascaDadaDto.setBuitCols(camp.getBuitCols());
 			resposta.add(tascaDadaDto);
 		}
+		// Consulta el text als dominis
+		variableHelper.consultaDominisAgrupats(consultesDominis);
 		return resposta;
 	}
 	
@@ -209,6 +214,7 @@ public class ConsultaHelper {
 			List<Camp> campsInforme, 
 			Expedient expedient) {
 		String dadaIndexadaClau = null;
+		Map<Integer, ConsultaDominiDto> consultesDomini = new HashMap<Integer, ConsultaDominiDto>();
 		for (Camp camp: campsInforme) {
 			if (camp != null && (camp.getDefinicioProces() != null || camp.getExpedientTipus() != null)) {
 				if (camp.getExpedientTipus() == null)
@@ -231,7 +237,9 @@ public class ConsultaHelper {
 									valorIndex, 
 									null, 
 									null, 
-									expedient.getProcessInstanceId());
+									expedient.getProcessInstanceId(),
+									consultesDomini,
+									dadaIndexada);
 							valorsMostrar.add(text);
 						}
 						dadaIndexada.setValorMostrarMultiple(valorsMostrar);
@@ -241,7 +249,9 @@ public class ConsultaHelper {
 								dadaIndexada.getValorIndex(),
 								null, 
 								null, 
-								expedient.getProcessInstanceId());	
+								expedient.getProcessInstanceId(),
+								consultesDomini,
+								dadaIndexada);	
 						dadaIndexada.setValorMostrar(text);
 					}
 				} 
@@ -252,6 +262,7 @@ public class ConsultaHelper {
 				dadesExpedient.get(camp.getCodi()).setValorMostrar(getValueCampExpedient(expedient, camp.getCodi()));
 			}
 		}
+		variableHelper.consultaDominisAgrupats(consultesDomini);
 	}
 	
 	public List<Camp> toListCamp(List<TascaDadaDto> listTascaDadaDto) {

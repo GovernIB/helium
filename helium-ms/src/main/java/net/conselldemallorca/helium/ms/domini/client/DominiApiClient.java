@@ -14,6 +14,7 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.util.UriComponentsBuilder;
+import org.springframework.web.util.UriTemplate;
 
 import net.conselldemallorca.helium.ms.ApiClient;
 import net.conselldemallorca.helium.ms.domini.client.model.Domini;
@@ -72,6 +73,8 @@ public class DominiApiClient {
 	 */
 	public Long createDominiV1(Domini body) throws RestClientException {
 
+		Long id = null;
+		
 		Object postBody = body;
 		String path = UriComponentsBuilder.fromPath(DominiApiClient.DOMINI_MS_PATH).build().toUriString();
 
@@ -90,8 +93,13 @@ public class DominiApiClient {
 		};
 		apiClient.invokeAPI(path, HttpMethod.POST, queryParams, postBody, headerParams, formParams, accept, contentType,
 				authNames, returnType);
-		// TODO DANIEL: un cop vagi bé llegir l'id del header response
-		return 0L;
+
+		// Llegeix l'id de resposta
+		if (apiClient.getResponseHeaders().containsKey("Location")) {
+			UriTemplate template = new UriTemplate(DOMINI_MS_PATH + "/{id}");
+	        id = Long.parseLong(template.match(apiClient.getResponseHeaders().getFirst("Location")).get("id"));
+		}
+		return id;
 	}
 
 	/**

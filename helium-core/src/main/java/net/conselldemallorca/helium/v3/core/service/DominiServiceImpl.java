@@ -206,20 +206,12 @@ public class DominiServiceImpl implements DominiService {
 				"Consultant el domini amb id (" +
 				"expedientTipusId=" + expedientTipusId + "," +
 				"dominiId=" + dominiId +  ")");
-		ExpedientTipus tipus = expedientTipusId != null?
-				expedientTipusRepository.findById(expedientTipusId) : null;
 		DominiDto domini = dominiMs.get(dominiId);
 		if (domini == null) {
 			throw new NoTrobatException(Domini.class, dominiId);
 		}
 		// Herencia
-		if (tipus != null && tipus.getExpedientTipusPare() != null) {
-			if (tipus.getExpedientTipusPare().getId().equals(domini.getExpedientTipusId()))
-				domini.setHeretat(true);
-			else
-				// TODO DANIEL Mirar si obtimitzar la consulta per a que s'informi la herència en el resultat
-				domini.setSobreescriu(dominiMs.findAmbCodi(tipus.getEntorn().getId(), tipus.getId(), domini.getCodi()) != null);
-		}
+		domini.setHeretat(expedientTipusId != null && ! expedientTipusId.equals(domini.getExpedientTipusId()));
 		return conversioTipusHelper.convertir(domini, DominiDto.class);
 	}
 	

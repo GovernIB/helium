@@ -1048,7 +1048,6 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 							domini.setEntornId(entorn.getId());
 							domini.setExpedientTipusId(expedientTipusId);
 							domini.setTipus(TipusDomini.valueOf(dominiExportat.getTipus().toString()));
-							// TODO DANIEL: Controlar el rollback en cas d'error en la transacció.
 							dominiMs.create(domini);
 							dominis.put(domini.getCodi(), domini);
 						} else {

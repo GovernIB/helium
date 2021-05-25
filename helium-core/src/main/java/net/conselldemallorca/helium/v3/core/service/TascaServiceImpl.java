@@ -784,7 +784,9 @@ public class TascaServiceImpl implements TascaService {
 						null,
 						valorsFormulari,
 						tascaId,
-						pidCalculat);
+						pidCalculat,
+						null,
+						null);
 			for (ParellaCodiValorDto parella: parellaCodiValorDto) {
 				boolean afegir = 
 						(codiFiltre == null && textFiltre == null) ||

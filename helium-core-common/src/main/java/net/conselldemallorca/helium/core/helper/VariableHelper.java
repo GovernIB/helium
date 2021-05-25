@@ -43,6 +43,8 @@ import net.conselldemallorca.helium.jbpm3.integracio.DominiCodiDescripcio;
 import net.conselldemallorca.helium.ms.domini.DominiMs;
 import net.conselldemallorca.helium.v3.core.api.dto.CampAgrupacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampTipusDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ConsultaDominiDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DadaIndexadaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DominiDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DominiDto.TipusDomini;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDadaDto;
@@ -175,7 +177,6 @@ public class VariableHelper {
 					campsIndexatsPerCodi.put(camp.getCodi(), camp);
 			}
 			camps = expedientTipus.getCamps();
-//			camps = new HashSet<Camp>(campRepository.findByExpedientTipusOrderByCodiAsc(exp.getTipus()));
 		} else {
 			camps = definicioProces.getCamps();
 		}
@@ -188,6 +189,7 @@ public class VariableHelper {
 		Map<String, Object> varsInstanciaProces = workflowEngineApi.getProcessInstanceVariables(
 				processInstanceId);
 		mesuresTemporalsHelper.mesuraCalcular("Expedient DADES v3", "expedient", tipusExp, null, "1");
+		Map<Integer, ConsultaDominiDto> consultesDomini = new HashMap<Integer, ConsultaDominiDto>();
 		if (varsInstanciaProces != null) {
 			mesuresTemporalsHelper.mesuraIniciar("Expedient DADES v3", "expedient", tipusExp, null, "2");
 			filtrarVariablesUsIntern(varsInstanciaProces);
@@ -203,7 +205,8 @@ public class VariableHelper {
 							null,
 							null,
 							processInstanceId,
-							false);
+							false,
+							consultesDomini);
 					// Si és registre o múltiple comprova si té contingut. Pot haver error de simple a múltiple
 					try {
 						if (camp != null && (TipusCamp.REGISTRE.equals(camp.getTipus()) || camp.isMultiple())) {
@@ -226,11 +229,13 @@ public class VariableHelper {
 							null,
 							null,
 							processInstanceId,
-							false);
+							false,
+							consultesDomini);
 					resposta.add(dto);
 				}
 			}
 			mesuresTemporalsHelper.mesuraCalcular("Expedient DADES v3", "expedient", tipusExp, null, "2");
+			this.consultaDominisAgrupats(consultesDomini);
 		}
 		mesuresTemporalsHelper.mesuraCalcular("Expedient DADES v3", "expedient", tipusExp);
 		return resposta;
@@ -275,7 +280,8 @@ public class VariableHelper {
 					null,
 					null,
 					processInstanceId,
-					false);
+					false,
+					null);
 			// Si és registre o múltiple comprova si té contingut. Pot haver error de simple a múltiple
 			try {
 				if (camp != null && (TipusCamp.REGISTRE.equals(camp.getTipus()) || camp.isMultiple())) {
@@ -296,7 +302,8 @@ public class VariableHelper {
 					null,
 					null,
 					processInstanceId,
-					false);
+					false,
+					null);
 		}
 		return dto;
 	}
@@ -311,7 +318,8 @@ public class VariableHelper {
 					null,
 					null,
 					null,
-					false);
+					false,
+					null);
 		return dto;
 	}
 
@@ -320,6 +328,7 @@ public class VariableHelper {
 		Tasca tascaEntity = tascaRepository.findOne(tasca.getTascaId());
 		if (expedientTipusId == null)
 			expedientTipusId = tascaEntity.getDefinicioProces().getExpedientTipus() != null ? tascaEntity.getDefinicioProces().getExpedientTipus().getId() : null; 
+			Map<Integer, ConsultaDominiDto> consultesDomini = new HashMap<Integer, ConsultaDominiDto>();
 		for (CampTasca campTasca: campTascaRepository.findAmbTascaOrdenats(tasca.getTascaId(), expedientTipusId)) {
 			Camp camp = campTasca.getCamp();
 			
@@ -330,7 +339,8 @@ public class VariableHelper {
 					null,
 					tasca.getId(),
 					null,
-					false);
+					false,
+					consultesDomini);
 			CampAgrupacio agrupacio = camp.getAgrupacio();
 			resposta.add(
 					getTascaDadaDtoFromExpedientDadaDto(
@@ -344,6 +354,7 @@ public class VariableHelper {
 							campTasca.getBuitCols(),
 							agrupacio));
 		}
+		this.consultaDominisAgrupats(consultesDomini);
 		return resposta;
 	}
 
@@ -380,6 +391,7 @@ public class VariableHelper {
 		// Només es mostraran les variables donades d'alta al formulari
 		// de la tasca. Les variables jBPM de la tasca que no siguin
 		// al formulari no es mostraran.
+		Map<Integer, ConsultaDominiDto> consultesDomini = new HashMap<Integer, ConsultaDominiDto>();
 		for (CampTasca campTasca: campsTasca) {
 			Camp camp = campTasca.getCamp();
 			if (ambHerencia && sobreescrits.containsKey(camp.getCodi()))
@@ -393,7 +405,8 @@ public class VariableHelper {
 					null,
 					task.getId(),
 					task.getProcessInstanceId(),
-					false);
+					false,
+					consultesDomini);
 			CampAgrupacio agrupacio = camp.getAgrupacio();
 			resposta.add(
 					getTascaDadaDtoFromExpedientDadaDto(
@@ -407,6 +420,9 @@ public class VariableHelper {
 							campTasca.getBuitCols(),
 							agrupacio));
 		}
+		// Consulta tots els dominis a la vegada
+		this.consultaDominisAgrupats(consultesDomini);
+		
 		mesuresTemporalsHelper.mesuraCalcular("Tasca DADES v3", "tasques", tipusExp, task.getTaskName(), "2");
 		mesuresTemporalsHelper.mesuraCalcular("Tasca DADES v3", "tasques", tipusExp, task.getTaskName());
 		return resposta;
@@ -458,7 +474,8 @@ public class VariableHelper {
 					null,
 					task.getId(),
 					task.getProcessInstanceId(),
-					false);
+					false,
+					null);
 			CampAgrupacio agrupacio = (camp != null)?camp.getAgrupacio() : null;
 			return getTascaDadaDtoFromExpedientDadaDto(
 							dto,
@@ -480,7 +497,9 @@ public class VariableHelper {
 			Object valor,
 			Map<String, Object> valorsAddicionals,
 			String taskInstanceId,
-			String processInstanceId) {
+			String processInstanceId,
+			Map<Integer, ConsultaDominiDto> consultesDominis,
+			Object dadaDto) {
 		if (valor == null)
 			return null;
 		String valorFontExterna = null;
@@ -491,7 +510,9 @@ public class VariableHelper {
 					valor,
 					valorsAddicionals,
 					taskInstanceId,
-					processInstanceId);
+					processInstanceId,
+					consultesDominis,
+					dadaDto);
 			
 			valorFontExterna = parella != null ? (String)(parella.getValor()) : "";
 		}
@@ -508,7 +529,9 @@ public class VariableHelper {
 			Object valor,
 			Map<String, Object> valorsAddicionals,
 			String taskInstanceId,
-			String processInstanceId) {
+			String processInstanceId, 
+			Map<Integer, ConsultaDominiDto> consultesDominis,
+			Object dadaDto) {
 		List<ParellaCodiValorDto> resposta = new ArrayList<ParellaCodiValorDto>();
 		TipusCamp tipus = camp.getTipus();
 		if (tipus.equals(TipusCamp.SELECCIO) || tipus.equals(TipusCamp.SUGGEST)) {
@@ -532,43 +555,51 @@ public class VariableHelper {
 				} else { 
 					domini = dominiMs.get(camp.getDomini());
 				}
-				resultatConsultaDomini = dominiHelper.consultar(
-					domini.getId(),
-					camp.getDominiId(),
-					parametres);
+				
+				
+				if (! GlobalProperties.getInstance().getAsBoolean("app.helium.ms.domini.consulta.agrupada")
+						|| consultesDominis == null) 
+				{
+					// Consulta el domini
+					resultatConsultaDomini = dominiHelper.consultar(
+							domini.getId(),
+							camp.getDominiId(),
+							parametres);
+					
 
-				String columnaCodi = camp.getDominiCampValor();
-				String columnaValor = camp.getDominiCampText();
-				if (resultatConsultaDomini != null) {
-					Iterator<FilaResultat> it = resultatConsultaDomini.iterator();
-					while (it.hasNext()) {
-						FilaResultat fr = it.next();
-						for (ParellaCodiValor parellaCodi: fr.getColumnes()) {
-							boolean ignoreCase = TipusDomini.CONSULTA_SQL.equals(domini != null? domini.getTipus() : null);
-							boolean matches = (ignoreCase) ? parellaCodi.getCodi().equalsIgnoreCase(columnaCodi) : parellaCodi.getCodi().equals(columnaCodi);
-							if (matches &&
-									(
-										valor == null || 
-										parellaCodi.getValor().toString().equals(valor) ||
-										(tipus.equals(TipusCamp.SUGGEST) && parellaCodi.getValor().toString().toUpperCase().indexOf(valor.toString().toUpperCase()) != -1)
-									)
-								) {
-								for (ParellaCodiValor parellaValor: fr.getColumnes()) {
-									matches = (ignoreCase) ? parellaValor.getCodi().equalsIgnoreCase(columnaValor) : parellaValor.getCodi().equals(columnaValor);
-									if (matches) {
-										ParellaCodiValorDto codiValor = new ParellaCodiValorDto(
-												parellaCodi.getValor().toString(),
-												parellaValor.getValor());
-										resposta.add(codiValor);
-										if (valor != null) {
-											break;
-										}
-									}
-								}
-								break;
-							}
-						}
+					String columnaCodi = camp.getDominiCampValor();
+					String columnaValor = camp.getDominiCampText();
+					
+					List<ParellaCodiValorDto> resultat = this.findParellaCodiValor(
+							camp.getTipus() != null ? CampTipusDto.valueOf(camp.getTipus().toString()) : null,
+							domini.getTipus(),
+							resultatConsultaDomini,
+							columnaCodi, 
+							columnaValor, 
+							valor);
+					if (resultat != null)
+						resposta.addAll(resultat);			
+				} 
+				else {
+					// Guarda la consulta per fer-la agrupada
+					ConsultaDominiDto consultaDomini = new ConsultaDominiDto();
+					consultaDomini.setDominiId(domini.getId());
+					consultaDomini.setDominiWsId(camp.getDominiId());
+					consultaDomini.setParametres(parametres);
+					consultaDomini.setCampCodi(camp.getDominiCampValor());
+					consultaDomini.setCampText(camp.getDominiCampText());
+					consultaDomini.setValor(valor);
+					if (consultesDominis.containsKey(consultaDomini.getIdentificadorConsulta()))
+						consultaDomini = consultesDominis.get(consultaDomini.getIdentificadorConsulta());
+					else {
+						consultaDomini.setCampId(camp.getId());
+						if (camp.getTipus() != null)
+							consultaDomini.setCampTipus(CampTipusDto.valueOf(camp.getTipus().toString()));
+						consultaDomini.setDominiTipus(domini.getTipus());
+						consultesDominis.put(consultaDomini.getIdentificadorConsulta(), consultaDomini);
 					}
+					consultaDomini.getDadesDto().add(dadaDto);
+					
 				}
 			} else if (camp.getEnumeracio() != null) {
 				Enumeracio enumeracio = camp.getEnumeracio();
@@ -594,6 +625,7 @@ public class VariableHelper {
 		}
 		return resposta;
 	}
+
 
 	public DominiDto getDominiIntern(Entorn entorn) {
 		DominiDto domini = new DominiDto();
@@ -808,7 +840,7 @@ public class VariableHelper {
 		return tascaDto;
 	}*/
 
-	public TascaDadaDto getTascaDadaDtoParaConsultaDisseny(Camp camp, TipusConsultaCamp tipus) {
+	public TascaDadaDto getTascaDadaDtoParaConsultaDisseny(Camp camp, TipusConsultaCamp tipus, Map<Integer, ConsultaDominiDto> consultesDomini) {
 		TascaDadaDto tascaDto = new TascaDadaDto();
 		String varCodi;
 		if (TipusConsultaCamp.INFORME.equals(tipus) && camp.getDefinicioProces() != null  && camp.getExpedientTipus() == null ) {
@@ -838,7 +870,9 @@ public class VariableHelper {
 								null,
 								null,
 								null,
-								null));
+								null,
+								consultesDomini,
+								tascaDto));
 			} catch (Exception e) {
 				tascaDto.setVarValor(null);
 			}
@@ -875,7 +909,8 @@ public class VariableHelper {
 			Map<String, Object> valorsAddicionals,
 			String taskInstanceId,
 			String processInstanceId,
-			boolean forsarSimple) {
+			boolean forsarSimple,
+			Map<Integer, ConsultaDominiDto> consultesDomini) {
 		ExpedientDadaDto dto = new ExpedientDadaDto();
 		dto.setVarCodi(varCodi);
 		dto.setVarValor(valorVariableJbpmRevisat(varValor));
@@ -930,7 +965,8 @@ public class VariableHelper {
 									valorsAddicionalsConsulta,
 									taskInstanceId,
 									processInstanceId,
-									false);
+									false, 
+									consultesDomini);
 							dtoRegistre.setRequired(campRegistre.isObligatori());
 							dtoRegistre.setOrdre(campRegistre.getOrdre());
 							dtoRegistre.setLlistar(campRegistre.isLlistar());
@@ -946,7 +982,9 @@ public class VariableHelper {
 											varValor,
 											valorsAddicionals,
 											taskInstanceId,
-											processInstanceId));
+											processInstanceId,
+											consultesDomini,
+											dto));
 							if (dto.getText() == null || dto.getText().isEmpty()) {
 								dto.setText("");
 							}							
@@ -974,7 +1012,8 @@ public class VariableHelper {
 									null,
 									taskInstanceId,
 									processInstanceId,
-									true);
+									true, 
+									consultesDomini);
 							multipleDades.add(dtoMultiple);
 						}
 					} else {
@@ -985,7 +1024,8 @@ public class VariableHelper {
 								null,
 								taskInstanceId,
 								processInstanceId,
-								true);
+								true, 
+								consultesDomini);
 						multipleDades.add(dtoMultiple);
 					}
 					dto.setMultipleDades(multipleDades);
@@ -1105,7 +1145,9 @@ public class VariableHelper {
 			Object valor,
 			Map<String, Object> valorsAddicionals,
 			String taskInstanceId,
-			String processInstanceId){
+			String processInstanceId, 
+			Map<Integer, ConsultaDominiDto> consultesDominis,
+			Object dadaDto){
 		if (valor == null)
 			return null;
 		
@@ -1134,7 +1176,9 @@ public class VariableHelper {
 				valor,
 				valorsAddicionals,
 				taskInstanceId,
-				processInstanceId);
+				processInstanceId,
+				consultesDominis,
+				dadaDto);
 		if (!lista.isEmpty()) {
 			// Cerca el valor resultant
 			for (ParellaCodiValorDto parellaCodiValor : lista){
@@ -1143,6 +1187,106 @@ public class VariableHelper {
 			}
 		}
 		return resultat;
+	}
+
+	/** Mètode per agrupar les consultes de domini en una sola i consultar tots els camps de tipus selecció
+	 * o suggest sobre un domini a la vegada emprant el micro servei de dominis.
+	 * 
+	 * @param consultesDomini És un Map<identificador, ConsultaDominiDto> on cada consulta
+	 * té un identificador y una llista de dades per fixar el valor consultat posteriorment.
+	 */
+	public void consultaDominisAgrupats(Map<Integer, ConsultaDominiDto> consultesDomini) {
+		
+		ConsultaDominiDto consultaDomini;
+		List<FilaResultat> resultat;
+		// Realitza la consulta múltiple
+		Map<Integer, List<FilaResultat>> resultats = dominiMs.consultarDominis(new ArrayList<ConsultaDominiDto>(consultesDomini.values()));
+		// Prepara la consulta múltiple
+		for (Integer identificador : consultesDomini.keySet()) {
+			consultaDomini = consultesDomini.get(identificador);
+			resultat = resultats.get(identificador);
+			
+			// Processa els resultats
+			String text = null;
+			if (resultat != null && resultat.size() > 0) {
+				List<ParellaCodiValorDto> parellesCodiValor =
+						this.findParellaCodiValor(
+							consultaDomini.getCampTipus(), 
+							consultaDomini.getDominiTipus(), 
+							resultat, 
+							consultaDomini.getCampCodi(), 
+							consultaDomini.getCampText(), 
+							consultaDomini.getValor());
+				if (parellesCodiValor.size() > 0) {
+					text = parellesCodiValor.get(0).getValor() != null ?
+							parellesCodiValor.get(0).getValor().toString()
+							: "";
+				}
+				if (text != null) {
+					// Estableix el text a les dades
+					for (Object dadaDto : consultaDomini.getDadesDto()) {
+						if (dadaDto instanceof ExpedientDadaDto) {
+							((ExpedientDadaDto) dadaDto).setText(text);
+						} else if (dadaDto instanceof TascaDadaDto) {
+							((TascaDadaDto) dadaDto).setText(text);
+						} else if (dadaDto instanceof DadaIndexadaDto) {
+							((TascaDadaDto) dadaDto).setText(text);				
+						}
+					}
+				}
+			}
+		}
+	}
+	
+	/** Mètode per trobar entre el resultat de la consulta la fila amb el codi corresponent
+	 * al valor.
+	 * @param tipusDomini 
+	 * 
+	 * @param resultatConsultaDomini
+	 * @param columnaCodi
+	 * @param columnaValor
+	 * @param valor
+	 * @return
+	 */
+	public List<ParellaCodiValorDto> findParellaCodiValor(
+			CampTipusDto campTipus,
+			TipusDomini dominiTipus, 
+			List<FilaResultat> resultatConsultaDomini, 
+			String columnaCodi,
+			String columnaValor, 
+			Object valor) {
+		List<ParellaCodiValorDto> resposta = new ArrayList<ParellaCodiValorDto>();
+		if (resultatConsultaDomini != null) {
+			Iterator<FilaResultat> it = resultatConsultaDomini.iterator();
+			while (it.hasNext()) {
+				FilaResultat fr = it.next();
+				for (ParellaCodiValor parellaCodi: fr.getColumnes()) {
+					boolean ignoreCase = TipusDomini.CONSULTA_SQL.equals(dominiTipus);
+					boolean matches = (ignoreCase) ? parellaCodi.getCodi().equalsIgnoreCase(columnaCodi) : parellaCodi.getCodi().equals(columnaCodi);
+					if (matches &&
+							(
+								valor == null || 
+								parellaCodi.getValor().toString().equals(valor) ||
+								(TipusCamp.SUGGEST.equals(campTipus) && parellaCodi.getValor().toString().toUpperCase().indexOf(valor.toString().toUpperCase()) != -1)
+							)
+						) {
+						for (ParellaCodiValor parellaValor: fr.getColumnes()) {
+							matches = (ignoreCase) ? parellaValor.getCodi().equalsIgnoreCase(columnaValor) : parellaValor.getCodi().equals(columnaValor);
+							if (matches) {
+								resposta.add(new ParellaCodiValorDto(
+										parellaCodi.getValor().toString(),
+										parellaValor.getValor()));
+								if (valor != null) {
+									break;
+								}
+							}
+						}
+						break;
+					}
+				}
+			}
+		}		
+		return resposta;
 	}
 
 	private static final Logger logger = LoggerFactory.getLogger(VariableHelper.class);

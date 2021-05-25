@@ -1,5 +1,7 @@
 package net.conselldemallorca.helium.ms.domini;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -7,14 +9,19 @@ import javax.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.web.client.RestClientException;
 
+import net.conselldemallorca.helium.core.extern.domini.FilaResultat;
 import net.conselldemallorca.helium.ms.BaseMs;
 import net.conselldemallorca.helium.ms.HeliumMsPropietats;
 import net.conselldemallorca.helium.ms.domini.client.DominiApiClient;
 import net.conselldemallorca.helium.ms.domini.client.model.Domini;
 import net.conselldemallorca.helium.ms.domini.client.model.DominiPagedList;
 import net.conselldemallorca.helium.ms.domini.client.model.ResultatDomini;
+import net.conselldemallorca.helium.v3.core.api.dto.ConsultaDominiDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DominiDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
@@ -129,18 +136,72 @@ public class DominiMs extends BaseMs {
 		return this.conversioTipusHelperMs.convertir(dominiMs, DominiDto.class);
 	}
 	
-	/** Crea el domini al microservei i retorna el seu identificador.
+	/** Crea el domini al microservei i retorna el seu identificador. En cas de rollback
+	 * invoca al mètode per esborrar el domini creat.
 	 * 
 	 * @param domini
 	 * @return
 	 */
+	@Transactional
 	public long create(DominiDto dominiDto) {
 		
 		Domini domini = this.conversioTipusHelperMs.convertir(dominiDto, Domini.class);
-		long dominiId = this.dominiApiClient.createDominiV1(domini);		
+		long dominiId = this.dominiApiClient.createDominiV1(domini);
+		
+		// Enregistra el rollback en la transacció
+		TransactionSynchronizationManager.registerSynchronization(new CreateDominiRollback(dominiId));
+		
 		return dominiId;
 	}
+	
+	/** Classe que implementa la sincronització de transacció pes esborrar els temporals només en el cas que la transacció
+	 * hagi finalitzat correctament. D'aquesta forma no s'esborren els temporals si no s'han guardat correctament a l'arxiu
+	 * amb la informació a BBDD.
+	 */
+	private class CreateDominiRollback implements TransactionSynchronization {
+		
+		/** Identificador del domini a esborrar. */
+		private Long id = null;
+		
+		/** Constructor per passar l'identificador del donimi per fer rollback.
+		 * 
+		 * @param id Identificador del domini a esborrar.
+		 */
+		public CreateDominiRollback(Long id) {
+			this.id = id;
+		}
 
+		@Override
+		public void afterCommit() {}
+		@Override
+		public void suspend() {}
+		@Override
+		public void resume() {}
+		@Override
+		public void flush() {}
+		@Override
+		public void beforeCommit(boolean readOnly) {}
+		@Override
+		public void beforeCompletion() {}
+		
+		/** Mètode que s'executa després de completar la transacció per comprovar si s'ha
+		 * fet un rollback.
+		 * @param status
+		 */
+		@Override
+		@Transactional
+		public void afterCompletion(int status) {
+			if (status == TransactionSynchronization.STATUS_ROLLED_BACK) {
+				try {
+					dominiApiClient.deleteDominiV1(this.id);
+				} catch (Exception e) {
+					// s'ignora l'error
+					System.err.println("Error esborrant el domini " + id + " en el rollback: " + e.getMessage());
+				}
+			}
+		}
+	}
+	
 	/** Elimina la informació d'un domini
 	 * 
 	 * @param dominiId
@@ -172,13 +233,32 @@ public class DominiMs extends BaseMs {
 	 * @param parametres
 	 * @return
 	 */
-	public ResultatDomini consultarDomini(Long dominiId, String identificador, Map<String, Object> parametres) {
+	public List<FilaResultat> consultarDomini(Long dominiId, String identificador, Map<String, Object> parametres) {
 		ResultatDomini resultatDomini = 
 				this.dominiApiClient.consultaDominiV1(
 						dominiId, 
 						identificador, 
 						parametres);
-		return resultatDomini;
+		return this.conversioTipusHelperMs.convertirList(resultatDomini, FilaResultat.class);
+	}
+	
+	/** Mètode per consultar múltiples dominis a la vegada i retornar els resultats com a llista amb 
+	 * l'identifidadord de la consulta inicial.
+	 * @param consultesDominis
+	 * @return
+	 */
+	public Map<Integer, List<FilaResultat>> consultarDominis(List<ConsultaDominiDto> consultesDominis) {
+		Map<Integer, List<FilaResultat>> resultats = new HashMap<Integer, List<FilaResultat>>();
+		List<FilaResultat> resultat;
+		//TODO DANIEL: cridar a un mètode de consulta múltiple a la vegada.
+		for (ConsultaDominiDto consultaDomini : consultesDominis) {
+			resultat = this.consultarDomini( 
+					consultaDomini.getDominiId(), 
+					 consultaDomini.getDominiWsId(), 
+					 consultaDomini.getParametres());
+			resultats.put(consultaDomini.getIdentificadorConsulta(), resultat);
+		}
+		return resultats;
 	}
 	
 	/** Obté la llista de dominis només amb entorn.

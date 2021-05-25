@@ -603,7 +603,9 @@ public class IndexHelper {
 							valor,
 							null,
 							null, 
-							processInstanceId);
+							processInstanceId,
+							null,
+							null);
 					textDominis.put(
 							camp.getCodi() + "@" + valor.toString(),
 							valorDomini);

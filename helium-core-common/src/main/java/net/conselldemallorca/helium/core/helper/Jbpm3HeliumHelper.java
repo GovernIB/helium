@@ -2120,7 +2120,9 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 						valor, 
 						null, 
 						null, 
-						processInstanceId));
+						processInstanceId,
+						null,
+						null));
 		return resposta;
 	}
 	
@@ -2160,6 +2162,8 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 						valor, 
 						null, 
 						taskInstanceId, 
+						null,
+						null,
 						null));
 		return resposta;
 	}
