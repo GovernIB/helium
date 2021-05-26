@@ -37,7 +37,9 @@ public interface ExpedientService {
 
 	public List<Dada> getDadesByProces(Long expedientId, Long procesId);
 
-	public Dada getDadaByProcesAndCodi(Long expedientId, Long procesId, String codi);
+	public Dada getDadaByExpedientIdProcesAndCodi(Long expedientId, Long procesId, String codi);
+
+	public Dada getDadaByProcesAndCodi(Long procesId, String codi);
 
 	public boolean createDades(Long expedientId, Long procesId, List<Dada> dada);
 

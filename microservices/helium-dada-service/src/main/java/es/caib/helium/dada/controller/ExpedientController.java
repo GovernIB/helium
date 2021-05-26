@@ -220,10 +220,10 @@ public class ExpedientController {
 	}
 
 	@GetMapping(value = "{expedientId}/proces/{procesId}/dades/{codi}")
-	public ResponseEntity<Dada> getDadaByProcesAndCodi(@PathVariable("expedientId") Long expedientId,
+	public ResponseEntity<Dada> getDadaByExpedientIdProcesAndCodi(@PathVariable("expedientId") Long expedientId,
 			@PathVariable("procesId") Long procesId, @PathVariable("codi") String codi) {
 
-		var dada = expedientService.getDadaByProcesAndCodi(expedientId, procesId, codi);
+		var dada = expedientService.getDadaByExpedientIdProcesAndCodi(expedientId, procesId, codi);
 		if (dada != null) {
 			return new ResponseEntity<Dada>(dada, HttpStatus.OK);
 		}
@@ -232,6 +232,22 @@ public class ExpedientController {
 			return new ResponseEntity<Dada>(HttpStatus.NOT_FOUND);
 		}
 
+		return new ResponseEntity<Dada>(dada, HttpStatus.NO_CONTENT);
+	}
+	
+	@GetMapping(value = "proces/{procesId}/dades/{codi}")
+	public ResponseEntity<Dada> getDadaByProcesAndCodi(@PathVariable("expedientId") Long expedientId,
+			@PathVariable("procesId") Long procesId, @PathVariable("codi") String codi) {
+		
+		var dada = expedientService.getDadaByProcesAndCodi(procesId, codi);
+		if (dada != null) {
+			return new ResponseEntity<Dada>(dada, HttpStatus.OK);
+		}
+		
+		if (expedientService.findByExpedientId(expedientId) == null) {
+			return new ResponseEntity<Dada>(HttpStatus.NOT_FOUND);
+		}
+		
 		return new ResponseEntity<Dada>(dada, HttpStatus.NO_CONTENT);
 	}
 

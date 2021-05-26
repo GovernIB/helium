@@ -19,4 +19,6 @@ public interface DadaRepository extends MongoRepository<Dada, String> {
 	public Optional<Dada> findByExpedientIdAndCodi(Long expedientId, String codi);
 	
 	public Optional<Dada> findByExpedientIdAndProcesIdAndCodi(Long expedientId, Long procesId, String codi);
+
+	public Optional<Dada> findByProcesIdAndCodi(Long procesId, String codi);
 }

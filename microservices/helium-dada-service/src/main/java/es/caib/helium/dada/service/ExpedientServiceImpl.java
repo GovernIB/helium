@@ -408,9 +408,28 @@ public class ExpedientServiceImpl implements ExpedientService {
 	 * @return Retorna la Dada resultant de la cerca. Null si no existeix o excepció
 	 */
 	@Override
-	public Dada getDadaByProcesAndCodi(Long expedientId, Long procesId, String codi) {
+	public Dada getDadaByExpedientIdProcesAndCodi(Long expedientId, Long procesId, String codi) {
 		try {
 			var dada = dadaRepository.findByExpedientIdAndProcesIdAndCodi(expedientId, procesId, codi);
+			return dada.isPresent() ? dada.get() : null;
+		} catch (Exception e) {
+			log.error("[ExpedientServiceImpl.getDadaByProcesAndCodi] --->");
+			e.printStackTrace();
+			return null;
+		}
+	}
+
+	/**
+	 * Cerca la dada segons el expedientId procesId i codi
+	 * @param expedientId identificador de l'expedient
+	 * @param procesId identificador del procés 
+	 * @codi codi codi de la dada
+	 * @return Retorna la Dada resultant de la cerca. Null si no existeix o excepció
+	 */
+	@Override
+	public Dada getDadaByProcesAndCodi(Long procesId, String codi) {
+		try {
+			var dada = dadaRepository.findByProcesIdAndCodi(procesId, codi);
 			return dada.isPresent() ? dada.get() : null;
 		} catch (Exception e) {
 			log.error("[ExpedientServiceImpl.getDadaByProcesAndCodi] --->");
