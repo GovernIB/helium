@@ -16,13 +16,13 @@ import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 
 @Configuration
 @ConfigurationProperties(prefix = "es.caib.helium.integracio")
-@ComponentScan("es.caib.helium.integracio.service")
+@ComponentScan("es.caib.helium.integracio.service.portafirmes")
 public class PortafirmesConfig {
 	
 	@Autowired
 	private Environment env;
 	
-	@Primary
+//	@Primary
 	@Bean(name = "dataSourcePortaFirmes")
 //	@ConfigurationProperties(prefix = "spring.datasource")
 	public DataSource dataSourcePortaFirmes() {
@@ -36,13 +36,11 @@ public class PortafirmesConfig {
 	}
 
 //	@Primary
-	@Bean(name = "entityManagerFactory")
-	public LocalContainerEntityManagerFactoryBean entityManagerFactory(EntityManagerFactoryBuilder builder,
-			@Qualifier("dataSourcePortaFirmes") DataSource dataSource) {
-
-		return builder.dataSource(dataSource).packages("es.caib.helium.integracio.domini.portafirmes")
-				.persistenceUnit("PortaFirma").build();
-	}
-
-
+//	@Bean(name = "entityManagerFactory")
+//	public LocalContainerEntityManagerFactoryBean entityManagerFactory(EntityManagerFactoryBuilder builder,
+//			@Qualifier("dataSourcePortaFirmes") DataSource dataSource) {
+//
+//		return builder.dataSource(dataSource).packages("es.caib.helium.integracio.domini.portafirmes")
+//				.persistenceUnit("PortaFirma").build();
+//	}
 }

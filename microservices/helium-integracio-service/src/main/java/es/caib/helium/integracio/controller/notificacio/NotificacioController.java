@@ -14,10 +14,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import es.caib.helium.integracio.domini.notificacio.Notificacio;
+import es.caib.helium.integracio.domini.notificacio.DadesNotificacioDto;
 import es.caib.helium.integracio.domini.notificacio.RespostaConsultaEstatEnviament;
 import es.caib.helium.integracio.domini.notificacio.RespostaConsultaEstatNotificacio;
 import es.caib.helium.integracio.domini.notificacio.RespostaEnviar;
+import es.caib.helium.integracio.domini.notificacio.RespostaNotificacio;
 import es.caib.helium.integracio.service.notificacio.NotificacioService;
 import lombok.AllArgsConstructor;
 
@@ -37,14 +38,14 @@ public class NotificacioController {
     }
 	
 	@PostMapping(consumes = "application/json")
-	public ResponseEntity<RespostaEnviar> altaNotificacio(@Valid @RequestBody Notificacio notificacio, BindingResult error) throws Exception {
+	public ResponseEntity<RespostaNotificacio> altaNotificacio(@Valid @RequestBody DadesNotificacioDto dto, BindingResult error) throws Exception {
 		
 		if (error.hasErrors()) {
-			return new ResponseEntity<RespostaEnviar>(HttpStatus.BAD_REQUEST);
+			return new ResponseEntity<RespostaNotificacio>(HttpStatus.BAD_REQUEST);
 		}
 		
-		var resposta = notificacioService.crearNotificacio(notificacio);
-		return new ResponseEntity<RespostaEnviar>(resposta, HttpStatus.OK);
+		var resposta = notificacioService.altaNotificacio(dto);
+		return new ResponseEntity<RespostaNotificacio>(resposta, HttpStatus.OK);
 	}
 
 	@GetMapping(value = "{identificador}/consulta", produces = "application/json")  

@@ -38,4 +38,29 @@ public class Notificacio {
 	@NotNull @NotEmpty
 	private String usuariCodi;
 	private String numExpedient;
+	
+	public Notificacio() {
+		
+	}
+
+	public Notificacio(DadesNotificacioDto dto) {
+		
+		caducitat = dto.getCaducitat();
+		concepte = dto.getConcepte();
+		descripcio = dto.getDescripcio();
+		documentArxiuNom = dto.getDocumentArxiuNom();
+		documentArxiuContingut = dto.getDocumentArxiuContingut();
+		documentArxiuUuid = dto.getDocumentArxiuUuid();
+		documentArxiuCsv = dto.getDocumentArxiuCsv();
+		emisorDir3Codi = dto.getEmisorDir3Codi();
+		enviamentDataProgramada = dto.getEnviamentDataProgramada();
+		enviamentTipus = dto.getEnviamentTipus();
+		enviaments = dto.getEnviaments();
+		grupCodi = dto.getGrupCodi();
+		procedimentCodi = dto.getProcedimentCodi(); 
+		retard = dto.getRetard();
+		usuariCodi = dto.getUsuariCodi();
+		numExpedient = dto.getNumExpedient();
+	}
+	
 }

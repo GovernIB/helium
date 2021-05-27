@@ -16,6 +16,7 @@
 	<properties>
 		<maven.compiler.source>11</maven.compiler.source>
 		<maven.compiler.target>11</maven.compiler.target>
+		<regweb3.version>3.1.2</regweb3.version>
 	</properties>
 
 	<dependencies>
@@ -47,6 +48,11 @@
 			<groupId>com.oracle.database.jdbc</groupId>
 			<artifactId>ojdbc10</artifactId>
 			<scope>runtime</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.postgresql</groupId>
+			<artifactId>postgresql</artifactId>
 		</dependency>
 
 		<dependency>
@@ -105,7 +111,46 @@
 			<artifactId>cxf-rt-ws-security</artifactId>
 			<version>3.4.3</version>
 		</dependency>
-
+		<dependency>
+			<groupId>org.fundaciobit.plugins</groupId>
+			<artifactId>plugin-signatureserver-api</artifactId>
+			<version>2.0.0</version>
+		</dependency>
+		<dependency>
+			<groupId>org.fundaciobit.plugins</groupId>
+			<artifactId>plugin-signatureserver-portafib</artifactId>
+			<version>2.0.0</version>
+		</dependency>
+		<dependency>
+			<groupId>es.caib.portafib</groupId>
+			<artifactId>portafib-ws-api</artifactId>
+			<version>1.1</version>
+		</dependency>
+		<!-- Dependencies REGWEB3 -->
+		<!-- <dependency> -->
+		<!-- <groupId>es.caib.regweb3</groupId> -->
+		<!-- <artifactId>regweb3-utils</artifactId> -->
+		<!-- <version>${regweb3.version}</version> -->
+		<!-- <scope>compile</scope> -->
+		<!-- <exclusions> -->
+		<!-- <exclusion> -->
+		<!-- <artifactId>spring-context</artifactId> -->
+		<!-- <groupId>org.springframework</groupId> -->
+		<!-- </exclusion> -->
+		<!-- </exclusions> -->
+		<!-- </dependency> -->
+		<dependency>
+			<groupId>es.caib.regweb3</groupId>
+			<artifactId>regweb3-ws-api</artifactId>
+			<version>${regweb3.version}</version>
+			<scope>compile</scope>
+		</dependency>
+		<!-- <dependency> -->
+		<!-- <groupId>wsdl4j</groupId> -->
+		<!-- <artifactId>wsdl4j</artifactId> -->
+		<!-- <version>1.6.2</version> -->
+		<!-- </dependency> -->
+		<!-- /Dependències REGWEB3 -->
 	</dependencies>
 	<repositories>
 		<repository>
