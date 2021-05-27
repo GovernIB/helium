@@ -587,6 +587,8 @@ public class WorkflowBridgeServiceImpl implements WorkflowBridgeService {
                         valor,
                         null,
                         taskInstanceId,
+                        null, 
+                        null, 
                         null));
         return resposta;
     }

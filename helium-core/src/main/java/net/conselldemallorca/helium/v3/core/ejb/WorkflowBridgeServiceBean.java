@@ -2,13 +2,19 @@ package net.conselldemallorca.helium.v3.core.ejb;
 
 import net.conselldemallorca.helium.core.api.WorkflowBridgeService;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
+import net.conselldemallorca.helium.v3.core.api.dto.CampTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentDissenyDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DocumentTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DominiRespostaFilaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EnumeracioValorDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
+import net.conselldemallorca.helium.v3.core.api.dto.FestiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.InteressatDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ReassignacioDto;
+import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.TerminiDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TerminiIniciatDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
@@ -71,6 +77,11 @@ public class WorkflowBridgeServiceBean implements WorkflowBridgeService {
 		return delegate.getExpedientAmbEntornITipusINumero(entornId, expedientTipusCodi, numero);
 	}
 
+	@Override
+	public ExpedientDto getExpedientArrelAmbProcessInstanceId(String processInstanceId) {
+		return delegate.getExpedientArrelAmbProcessInstanceId(processInstanceId);
+	}
+
 	public void expedientRelacionar(
             Long expedientIdOrigen,
             Long expedientIdDesti) {
@@ -86,6 +97,11 @@ public class WorkflowBridgeServiceBean implements WorkflowBridgeService {
 	public void expedientReprendre(
             String processInstanceId) {
 		delegate.expedientReprendre(processInstanceId);
+	}
+
+	public void desfinalitzarExpedient(String processInstanceId) {
+		delegate.desfinalitzarExpedient(processInstanceId);
+		
 	}
 
 	public void expedientModificarEstat(
@@ -312,8 +328,81 @@ public class WorkflowBridgeServiceBean implements WorkflowBridgeService {
 		return delegate.getUsuariCodiActual();
 	}
 
-	@Override
 	public ExpedientDto getExpedientIniciant() {
 		return delegate.getExpedientIniciant();
+	}
+
+	public void finalitzarExpedient(String processInstanceId) {
+		delegate.finalitzarExpedient(processInstanceId);
+	}
+
+	public void expedientModificarTitol(String processInstanceId, String titol) {
+		delegate.expedientModificarTitol(processInstanceId, titol);
+	}
+
+	public void expedientModificarGeoref(String processInstanceId, Double posx, Double posy, String referencia) {
+		delegate.expedientModificarGeoref(processInstanceId, posx, posy, referencia);
+	}
+
+	public void expedientModificarGrup(String processInstanceId, String grupCodi) {
+		delegate.expedientModificarGrup(processInstanceId, grupCodi);
+	}
+
+	public void expedientModificarResponsable(String processInstanceId, String responsableCodi) {
+		delegate.expedientModificarResponsable(processInstanceId, responsableCodi);
+	}
+
+	public List<CampTascaDto> findCampsPerTaskInstance(String processInstanceId, String processDefinitionId,
+			String taskName) {
+		return delegate.findCampsPerTaskInstance(processInstanceId, processDefinitionId, taskName);
+	}
+
+	public List<DocumentTascaDto> findDocumentsPerTaskInstance(String processInstanceId, String processDefinitionId,
+			String taskName) {
+		return delegate.findDocumentsPerTaskInstance(processInstanceId, processDefinitionId, taskName);
+	}
+
+	public TascaDadaDto getDadaPerTaskInstance(String processInstanceId, String taskInstanceId, String varCodi) {
+		return delegate.getDadaPerTaskInstance(processInstanceId, taskInstanceId, varCodi);
+	}
+
+	public Long documentExpedientGuardar(String processInstanceId, String documentCodi, Date data, String arxiuNom,
+			byte[] arxiuContingut) {
+		return delegate.documentExpedientGuardar(processInstanceId, documentCodi, data, arxiuNom, arxiuContingut);
+	}
+
+	public Long documentExpedientAdjuntar(String processInstanceId, String adjuntId, String adjuntTitol,
+			Date adjuntData, String arxiuNom, byte[] arxiuContingut) {
+		return delegate.documentExpedientAdjuntar(processInstanceId, adjuntId, adjuntTitol, adjuntData, arxiuNom, arxiuContingut);
+	}
+
+	public TerminiDto getTerminiAmbProcessInstanceICodi(String processInstanceId, String terminiCodi) {
+		return delegate.getTerminiAmbProcessInstanceICodi(processInstanceId, terminiCodi);
+	}
+
+	public void terminiIniciar(String terminiCodi, String processInstanceId, Date data, Integer anys, Integer mesos,
+			Integer dies, boolean esDataFi) {
+		delegate.terminiIniciar(terminiCodi, processInstanceId, data, anys, mesos, dies, esDataFi);
+	}
+
+	public void terminiPausar(Long terminiIniciatId, Date data) {
+		delegate.terminiPausar(terminiIniciatId, data);
+	}
+
+	public void terminiContinuar(Long terminiIniciatId, Date data) {
+		delegate.terminiContinuar(terminiIniciatId, data);
+	}
+
+	public Date terminiCalcularDataInici(Date inici, int anys, int mesos, int dies, boolean laborable,
+			String processInstanceId) {
+		return delegate.terminiCalcularDataInici(inici, anys, mesos, dies, laborable, processInstanceId);
+	}
+
+	public List<FestiuDto> getFestiusAll() {
+		return delegate.getFestiusAll();
+	}
+
+	public ReassignacioDto findReassignacioActivaPerUsuariOrigen(String processInstanceId, String usuariCodi) {
+		return delegate.findReassignacioActivaPerUsuariOrigen(processInstanceId, usuariCodi);
 	}
 }
