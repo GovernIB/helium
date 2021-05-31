@@ -1796,11 +1796,13 @@ public class TramitacioServiceImpl implements TramitacioService {
 		//tt.setExpedient(tasca.getex.gete.getExpedientNumero());
 		tt.setMissatgeInfo(tasca.getTascaMissatgeInfo());
 		tt.setMissatgeWarn(tasca.getTascaMissatgeWarn());
-		tt.setResponsable(tasca.getResponsable().getCodi());
+		if (tasca.getResponsable() != null)
+			tt.setResponsable(tasca.getResponsable().getCodi());
 		Set<String> responsables = new HashSet<String>();
-		for (PersonaDto responsable: tasca.getResponsables()) {
-			responsables.add(responsable.getCodi());
-		}
+		if (tasca.getResponsable() != null)
+			for (PersonaDto responsable: tasca.getResponsables()) {
+				responsables.add(responsable.getCodi());
+			}
 		tt.setResponsables(responsables);
 		tt.setDataCreacio(tasca.getCreateTime());
 		tt.setDataInici(tasca.getStartTime());
