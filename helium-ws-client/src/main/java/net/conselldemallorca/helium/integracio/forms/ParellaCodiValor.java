@@ -3,6 +3,7 @@ package net.conselldemallorca.helium.integracio.forms;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlSeeAlso;
 import javax.xml.bind.annotation.XmlType;
 
 
@@ -31,6 +32,7 @@ import javax.xml.bind.annotation.XmlType;
     "codi",
     "valor"
 })
+@XmlSeeAlso({Object[].class, Object[][].class})
 public class ParellaCodiValor {
 
     protected String codi;

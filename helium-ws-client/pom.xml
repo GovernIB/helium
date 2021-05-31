@@ -75,4 +75,5 @@
 			</plugin>
 		</plugins>
 	</build>
+	<version>3.2.113</version>
 </project>

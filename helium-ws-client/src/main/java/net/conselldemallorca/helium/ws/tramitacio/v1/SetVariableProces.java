@@ -3,6 +3,8 @@ package net.conselldemallorca.helium.ws.tramitacio.v1;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlAnyElement;
+import javax.xml.bind.annotation.XmlSeeAlso;
 import javax.xml.bind.annotation.XmlType;
 
 
@@ -35,6 +37,7 @@ import javax.xml.bind.annotation.XmlType;
     "arg2",
     "arg3"
 })
+@XmlSeeAlso({Object[].class, Object[][].class})
 public class SetVariableProces {
 
     protected String arg0;
