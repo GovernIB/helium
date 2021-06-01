@@ -506,13 +506,6 @@ function refrescaEstatSegonPla() {
 						{{if anulat}}
 							<span class="label label-warning" title="{{:comentariAnulat}}">AN</span>
 						{{/if}}
-						<!-- {{if errorDesc}}
-							{{if permisAdministration}}
-								<span class="label label-warning show-modal-error" title="{{:errorDesc}}" data-error-titol="Informació sobre l'error" data-error-missatge="{{:errorDesc}}" data-error-detall="{{:errorFull}}" data-error-pid="{{:processInstanceId}}"><span class="fa fa-exclamation-circle"></span> </span>
-							{{else}}
-								<span class="label label-warning show-modal-error" title="{{:errorDesc}}" data-error-titol="Informació sobre l'error" data-error-missatge="{{:errorDesc}}"><span class="fa fa-exclamation-circle"></span> </span>
-							{{/if}}						
-						{{/if}} -->
 						{{if alertesTotals}}
 							<a class="no-deco-link" data-rdt-link-modal="true" data-rdt-link-modal-maximize="true" href="<c:url value="../v3/expedient/{{:id}}/alertes"/>">
 								<span class="fa fa-envelope alert-envelope show-modal-alertes" title="<spring:message code="expedient.consulta.alertes.totals"/>"></span>
