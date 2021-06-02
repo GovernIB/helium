@@ -13,6 +13,7 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.core.env.Environment;
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 
@@ -34,12 +35,6 @@ public class DataSourceConfig {
 		dataSource.setUsername(env.getRequiredProperty("es.caib.helium.integracio.database.jdbc.user"));
 		dataSource.setPassword(env.getRequiredProperty("es.caib.helium.integracio.database.jdbc.password"));
 		dataSource.setSchema(env.getRequiredProperty("es.caib.helium.integracio.database.jdbc.schema"));
-		try {
-			System.out.println(dataSource.getConnection().getSchema());
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 		return dataSource;
 	}
 
@@ -48,7 +43,9 @@ public class DataSourceConfig {
 	public LocalContainerEntityManagerFactoryBean entityManagerFactory(EntityManagerFactoryBuilder builder,
 			@Qualifier("dataSourceServei") DataSource dataSource) {
 
-		//TODO S'HAN DE LLISTAR LES CLASSES USADES PELS REPOSITORIS. S'HAURIA DE MODULARITZAR MÉS...
+		// TODO PER LES DUES TAULES S'HAN DE COPIAR INDEXS
+		
+		//TODO S'HAN DE LLISTAR LES CLASSES USADES PELS REPOSITORIS. ?¿?¿
 		return builder.dataSource(dataSource).packages("es.caib.helium.integracio.domini")
 				.persistenceUnit("DocumentNotificacio").persistenceUnit("PortaFirma").build();
 	}

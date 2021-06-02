@@ -50,12 +50,10 @@ public class NotificacioServiceNotibImpl implements NotificacioService {
 	@Autowired
 	private NotificacioRepository notificacioRepository;
 
-	public void crearClient(String url, String username, String password, Boolean isBasicAuth, Integer connectTimeout,
-			Integer readTimeout) {
+	public void crearClient(String url, String username, String password, Boolean isBasicAuth, Integer connectTimeout, Integer readTimeout) {
 
 		if (client == null) {
-			client = NotificacioRestClientFactory.getRestClient(url, username, password, isBasicAuth, connectTimeout,
-					readTimeout);
+			client = NotificacioRestClientFactory.getRestClient(url, username, password, isBasicAuth, connectTimeout, readTimeout);
 		}
 	}
 

@@ -2,7 +2,6 @@ package es.caib.helium.integracio.config.firma;
 
 import java.util.Properties;
 
-import org.fundaciobit.plugins.signatureserver.api.ISignatureServerPlugin;
 import org.fundaciobit.plugins.signatureserver.portafib.PortaFIBSignatureServerPlugin;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -46,11 +45,12 @@ public class FirmaConfig {
 						env.getRequiredProperty("es.caib.helium.integracio.firma.portafib.plugins.signatureserver.portafib.api_passarela_password"));
 				
 				// TODO PENDENT QUE FUNCIONI
-//				ISignatureServerPlugin plugin = new PortaFIBSignatureServerPlugin(PROPERTIES_BASE, p);
+//				var plugin = new PortaFIBSignatureServerPlugin(PROPERTIES_BASE, p);
 //				retorn.crearClient(
 //						env.getRequiredProperty("es.caib.helium.integracio.firma.portafib.username"),
 //						env.getRequiredProperty("es.caib.helium.integracio.firma.portafib.location"),
-//						env.getRequiredProperty("es.caib.helium.integracio.firma.portafib.signer.email"), plugin);
+//						env.getRequiredProperty("es.caib.helium.integracio.firma.portafib.signer.email"), 
+//						plugin);
 			}
 			return service;
 		} catch (Exception ex) {

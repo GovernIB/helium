@@ -442,8 +442,8 @@ public class ExpedientServiceTest {
 	@DisplayName("test_getDadaByProcesAndCodi")
 	public void test_getDadaByProcesAndCodi() throws Exception {
 		
-		given(expedientService.getDadaByProcesAndCodi(anyLong(), anyLong(), any(String.class))).willReturn(dadaMock);
-		var dada = expedientService.getDadaByProcesAndCodi(unLong, unLong, codiTest);
+		given(expedientService.getDadaByProcesAndCodi(anyLong(), any(String.class))).willReturn(dadaMock);
+		var dada = expedientService.getDadaByProcesAndCodi(unLong, codiTest);
 		assertThat(dada).isNotNull().isEqualTo(dadaMock);
 	}
 
@@ -451,8 +451,8 @@ public class ExpedientServiceTest {
 	@DisplayName("test_getDadaByProcesAndCodi - Not found")
 	public void test_getDadaByProcesAndCodi_notFound() throws Exception {
 		
-		given(expedientService.getDadaByProcesAndCodi(anyLong(), anyLong(), any(String.class))).willReturn(null);
-		var dada = expedientService.getDadaByProcesAndCodi(unLong, unLong, codiTest);
+		given(expedientService.getDadaByProcesAndCodi(anyLong(), any(String.class))).willReturn(null);
+		var dada = expedientService.getDadaByProcesAndCodi(unLong, codiTest);
 		assertThat(dada).isNull();
 	}
 

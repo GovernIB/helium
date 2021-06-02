@@ -126,6 +126,21 @@
 			<artifactId>portafib-ws-api</artifactId>
 			<version>1.1</version>
 		</dependency>
+		<dependency>
+			<groupId>es.caib</groupId>
+			<artifactId>portasignatures-wsdl</artifactId>
+			<version>1.0</version>
+			<scope>system</scope>
+			<systemPath>${basedir}/../../helium-webapp/src/main/webapp/WEB-INF/lib/portasignatures-wsdl.jar</systemPath>
+		</dependency>
+
+		<!-- S'HAURIA DE DEIXAR DE FER SERVIR UNA LLIBRERIA QUE NO ACTUALITZA DES DEL 2008 -->
+		<dependency>
+			<groupId>com.artofsolving</groupId>
+			<artifactId>jodconverter</artifactId>
+			<version>2.2.1</version>
+		</dependency>
+		
 		<!-- Dependencies REGWEB3 -->
 		<!-- <dependency> -->
 		<!-- <groupId>es.caib.regweb3</groupId> -->
@@ -151,6 +166,22 @@
 		<!-- <version>1.6.2</version> -->
 		<!-- </dependency> -->
 		<!-- /Dependències REGWEB3 -->
+		
+		<!-- plugin-arxiu-caib 2.0.8 --> 
+		<dependency>
+			<groupId>org.fundaciobit.pluginsib.arxiu</groupId>
+			<artifactId>pluginsib-arxiu-caib</artifactId>
+			<version>2.0.13</version>
+			<exclusions>
+				<exclusion>
+					<groupId>log4j</groupId>
+					<artifactId>log4j</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<!-- /plugin-arxiu-caib 2.0.8 --> 
+
+
 	</dependencies>
 	<repositories>
 		<repository>

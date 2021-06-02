@@ -70,6 +70,7 @@ public class TramitacioServiceSistraImpl implements TramitacioService {
 	}
 	
 	private DadesTramit toDadesTramit(TramiteBTE entrada) {
+		
 		DadesTramit tramit = new DadesTramit();
 		tramit.setNumero(entrada.getNumeroEntrada());
 		tramit.setClauAcces(entrada.getCodigoEntrada());
