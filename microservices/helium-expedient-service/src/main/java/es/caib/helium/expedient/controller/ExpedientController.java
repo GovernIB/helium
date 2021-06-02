@@ -31,8 +31,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import es.caib.helium.expedient.model.ExpedientDto;
 import es.caib.helium.expedient.model.ExpedientEstatTipusEnum;
-import es.caib.helium.expedient.model.PagedList;
 import es.caib.helium.expedient.service.ExpedientService;
+import es.caib.helium.ms.controller.ControllerHelper;
+import es.caib.helium.ms.model.PagedList;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -64,8 +65,9 @@ public class ExpedientController {
     * </ul>
     */
    @GetMapping(produces = { "application/json" })
-   public ResponseEntity<PagedList<ExpedientDto>> findAmbFiltrePaginat(
+   public ResponseEntity<PagedList<ExpedientDto>> findExpedientsAmbFiltrePaginatV1(
            @RequestParam(value = "entornId") Long entornId,
+           @RequestParam(value = "filtre", required = false) String filtre,
            @RequestParam(value = "expedientTipusId", required = false) Long expedientTipusId,
            @RequestParam(value = "titol", required = false) String titol,
            @RequestParam(value = "numero", required = false) String numero,
@@ -75,9 +77,6 @@ public class ExpedientController {
            @RequestParam(value = "dataFi2", required = false) Date dataFi2,
            @RequestParam(value = "estatTipus", required = false) ExpedientEstatTipusEnum estatTipus,
            @RequestParam(value = "estatId", required = false) Long estatId,
-           @RequestParam(value = "geoPosX", required = false) Double geoPosX,
-           @RequestParam(value = "geoPosY", required = false) Double geoPosY,
-           @RequestParam(value = "geoReferencia", required = false) String geoReferencia,
            @RequestParam(value = "nomesTasquesPersonals", required = false, defaultValue = "false") boolean nomesTasquesPersonals,
            @RequestParam(value = "nomesTasquesGrup", required = false, defaultValue = "false") boolean nomesTasquesGrup,
            @RequestParam(value = "nomesAlertes", required = false, defaultValue = "false") boolean nomesAlertes,
@@ -97,17 +96,15 @@ public class ExpedientController {
                ", dataFi2: " + dataFi2 +
                ", estatTipus: " + estatTipus +
                ", estatId: " + estatId +
-               ", geoPosX: " + geoPosX +
-               ", geoPosY: " + geoPosY +
-               ", geoReferencia: " + geoReferencia +
                ", nomesTasquesPersonals: " + nomesTasquesPersonals +
                ", nomesTasquesGrup: " + nomesTasquesGrup +
                ", expedientTipusId: " + nomesAlertes +
                ", nomesErrors: " + nomesErrors +
-               ", mostrarAnulats: " + mostrarAnulats);
+               ", mostrarAnulats: " + mostrarAnulats + 
+               ", filtre: " + filtre);
 
        PagedList<ExpedientDto> expedientList = expedientService.listExpedients(
-    		   entornId, 
+    		   entornId,
     		   expedientTipusId, 
     		   titol, 
     		   numero, 
@@ -117,15 +114,12 @@ public class ExpedientController {
     		   dataFi2, 
     		   estatTipus, 
     		   estatId, 
-    		   geoPosX, 
-    		   geoPosY, 
-    		   geoReferencia, 
     		   nomesTasquesPersonals, 
     		   nomesTasquesGrup, 
     		   nomesAlertes, 
     		   nomesErrors, 
     		   mostrarAnulats, 
-    		   geoReferencia, 
+    		   filtre, 
     		   pageable, 
     		   sort);
     		   
@@ -142,14 +136,10 @@ public class ExpedientController {
         log.debug("[CTR] create expedient: " + expedientDto.toString());
         ExpedientDto savedDto;
 
-        if (expedientDto.getEntornId() == null) {
-            log.error("[CTR] Create: El camp Expedient.entornId és obligatori");
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El camp Expedient.entornId és obligatori");
-        }
         try {
             savedDto = expedientService.createExpedient(expedientDto);
         } catch (DataIntegrityViolationException ex) {
-            log.error("[CTR] Create: Ja existeix un expedient amb el mateix entorn, tipus d'expedient i codi", ex);
+            log.error("[CTR] Create: Ja existeix un expedient amb el mateix identificador", ex);
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Ja existeix un expedient amb el mateix entorn, tipus d'expedient i codi");
         }
 

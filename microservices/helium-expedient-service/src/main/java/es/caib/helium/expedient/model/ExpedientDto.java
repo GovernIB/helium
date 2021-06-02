@@ -9,6 +9,8 @@ import org.springframework.validation.annotation.Validated;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import es.caib.helium.ms.model.DefaultOrder;
+import es.caib.helium.ms.model.DefaultSort;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -75,7 +77,7 @@ public class ExpedientDto {
 	private Long estatId;
 
 	@JsonProperty("aturat")
-	@Schema(example = "true", required = true, description = "Indica si l'expedient està aturat")
+	@Schema(example = "true", required = false, description = "Indica si l'expedient està aturat")
 	@Builder.Default
 	private boolean aturat = false;
 

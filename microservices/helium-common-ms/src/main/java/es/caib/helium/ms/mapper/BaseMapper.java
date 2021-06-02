@@ -1,4 +1,4 @@
-package es.caib.helium.expedient.mapper;
+package es.caib.helium.ms.mapper;
 
 public interface BaseMapper<E, D> {
 

@@ -1,4 +1,4 @@
-package es.caib.helium.expedient.rsql;
+package es.caib.helium.ms.rsql;
 
 import org.springframework.data.jpa.domain.Specification;
 

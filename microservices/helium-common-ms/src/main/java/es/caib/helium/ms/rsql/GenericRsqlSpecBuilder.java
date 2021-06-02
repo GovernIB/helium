@@ -1,4 +1,4 @@
-package es.caib.helium.expedient.rsql;
+package es.caib.helium.ms.rsql;
 
 import cz.jirutka.rsql.parser.ast.ComparisonNode;
 import cz.jirutka.rsql.parser.ast.LogicalNode;

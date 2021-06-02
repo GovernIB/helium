@@ -4,13 +4,16 @@
 package es.caib.helium.expedient.domain;
 
 import java.util.Date;
+import java.util.List;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.Id;
 import javax.persistence.Index;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
@@ -101,7 +104,7 @@ public class Expedient implements Persistable<Long> {
 	private boolean anulat;
 	
 	@Size(max = 255)
-	@Column(name="comentari_aturat", nullable=true)
+	@Column(name="comentari_anulat", nullable=true)
 	private String comentariAnulat;
 	
 	@Column(name="alertes_totals", nullable=false)
@@ -113,6 +116,9 @@ public class Expedient implements Persistable<Long> {
 	@Column(name="amb_errors", nullable=false)
 	private boolean ambErrors;
 
+	@OneToMany(mappedBy="expedient", cascade={CascadeType.ALL})
+	private List<Tasca> tasques;
+	
 	@Override
 	public boolean isNew() {
 		return id != null;

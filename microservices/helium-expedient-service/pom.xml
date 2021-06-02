@@ -21,6 +21,14 @@
 	</properties>
 	
 	<dependencies>
+
+	    <dependency>
+            <groupId>es.caib.helium</groupId>
+            <artifactId>helium-common-ms</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+	
+	
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web-services</artifactId>
@@ -34,6 +42,11 @@
             <artifactId>wss4j</artifactId>
             <version>1.6.19</version>
         </dependency>
+
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+        </dependency>
                 
-	</dependencies>
+	</dependencies>	
 </project>
