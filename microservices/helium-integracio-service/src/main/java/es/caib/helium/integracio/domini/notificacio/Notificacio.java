@@ -3,7 +3,6 @@ package es.caib.helium.integracio.domini.notificacio;
 import java.util.Date;
 import java.util.List;
 
-import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 

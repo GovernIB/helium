@@ -238,7 +238,7 @@ public class DadaExpedientControllerTest {
 	public void test_getDadesByProcesAndCodi_success() throws Exception {
 
 		given(expedientService.findByExpedientId(anyLong())).willReturn(expedientMock);
-		given(expedientService.getDadaByProcesAndCodi(anyLong(), anyLong(), nullable(String.class)))
+		given(expedientService.getDadaByProcesAndCodi(anyLong(), nullable(String.class)))
 				.willReturn(dadaMock);
 
 		mockMvc.perform(get("/api/v1/expedients/{expedientId}/proces/{procesId}/dades/{codi}", unLong, unLong, codi))
@@ -251,7 +251,7 @@ public class DadaExpedientControllerTest {
 	public void test_getDadaByProcesAndCodi_noContent() throws Exception {
 
 		given(expedientService.findByExpedientId(anyLong())).willReturn(expedientMock);
-		given(expedientService.getDadaByProcesAndCodi(anyLong(), anyLong(), nullable(String.class))).willReturn(null);
+		given(expedientService.getDadaByProcesAndCodi(anyLong(), nullable(String.class))).willReturn(null);
 
 		mockMvc.perform(get("/api/v1/expedients/{expedientId}/proces/{procesId}/dades/{codi}", unLong, unLong, codi))
 				.andExpect(status().isNoContent()).andExpect(jsonPath("$").doesNotHaveJsonPath());
@@ -271,7 +271,7 @@ public class DadaExpedientControllerTest {
 	@DisplayName("[GET] llista de dades del expedient segons procesId i codi - Error bad request")
 	public void test_getDadaByProcesAndCodi_badRequest() throws Exception {
 
-		given(expedientService.getDadaByProcesAndCodi(anyLong(), anyLong(), nullable(String.class))).willReturn(null);
+		given(expedientService.getDadaByProcesAndCodi(anyLong(), nullable(String.class))).willReturn(null);
 
 		mockMvc.perform(get("/api/v1/expedients/{expedientId}/proces/{procesId}/dades/{codi}", "foo", "bar", codi))
 				.andExpect(status().isBadRequest()).andExpect(jsonPath("$").doesNotHaveJsonPath());

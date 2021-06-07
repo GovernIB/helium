@@ -76,6 +76,7 @@ public class UnitatsOrganiquesServiceDir3Impl implements UnitatsOrganiquesServic
 	}
 	
 	public void crearClient(String urlParcial, String username, String password, Integer timeout, boolean logMissatgeActiu) throws MalformedURLException {
+		
 		URL url = new URL(urlParcial + "?wsdl");
 		
 		// TODO Si es posa la última versió de la dependencia peta. Sinó es posa la dependencia el Dir3CaibObtenerUnidadesWsService peta

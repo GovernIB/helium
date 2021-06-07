@@ -1,64 +1,71 @@
 package es.caib.helium.integracio.domini.portafirmes;
 
 import java.io.Serializable;
-import java.sql.Date;
+import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.Lob;
 import javax.persistence.Table;
-import javax.persistence.TableGenerator;
 import javax.persistence.UniqueConstraint;
 
+import es.caib.helium.integracio.enums.portafirmes.TipusEstat;
+import es.caib.helium.integracio.enums.portafirmes.Transicio;
+import lombok.Data;
+
+@Data
 @Entity
-@Table(name="hel_portasignatures",
-		uniqueConstraints={@UniqueConstraint(columnNames={"document_id", "token_id"})})
+@Table(name="hel_portasignatures", uniqueConstraints={@UniqueConstraint(columnNames={"document_id", "token_id"})})
 public class PortaFirma implements Serializable, GenericEntity<Long> {
 
-	public enum TipusEstat {
-		BLOQUEJAT,
-		PENDENT,	// El document s'ha enviat però encara no s'ha rebut al callback cap resposta
-		SIGNAT,		// S'ha rebut petició al callback indicant que el document ha estat signat
-		REBUTJAT,	// S'ha rebut petició al callback indicant que el document ha estat rebujat
-		PROCESSAT,	// El document signat o rebujat s'ha processat correctament
-		CANCELAT,	// El document s'ha esborrat de l'expedient
-		ERROR,		// El document s'ha intentat processar i ha produit un error
-		ESBORRAT	// S'ha esborrat l'expedient al qual pertany el document
-	}
-
-	public enum Transicio {
-		SIGNAT,
-		REBUTJAT
-	}
-
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name="id")
 	private Long id;
-	private Integer documentId;
+	@Column(name="document_id", nullable=false)
+	private Long documentId;
+	@Column(name="token_id", nullable=false)
 	private Long tokenId;
+	@Column(name="data_enviat")
 	private Date dataEnviat;
+	@Column(name="estat")
 	private TipusEstat estat;
+	@Column(name="transicio")
 	private Transicio transition;
+	@Column(name="document_store_id")
 	private Long documentStoreId;
+	@Column(name="motiu_rebuig")
 	private String motiuRebuig;
+	@Column(name="transicio_ok")
 	private String transicioOK;
+	@Column(name="transicio_ko")
 	private String transicioKO;
+	@Column(name="data_cb_pri")
 	private Date dataProcessamentPrimer;
+	@Column(name="data_cb_dar")
 	private Date dataProcessamentDarrer;
+	@Column(name="data_signat_rebutjat")
 	private Date dataSignatRebutjat;
+	@Column(name="data_custodia_intent")
 	private Date dataCustodiaIntent;
+	@Column(name="data_custodia_ok")
 	private Date dataCustodiaOk;
+	@Column(name="data_signal_intent")
 	private Date dataSignalIntent;
+	@Column(name="data_signal_ok")
 	private Date dataSignalOk;
+	@Column(name="error_cb_proces")
 	private String errorCallbackProcessant;
+	@Column(name="process_instance_id", length=255, nullable=false)
 	private String processInstanceId;
-//	private Expedient expedient;
-	private Long expedientId; // TODO PASSAR EXPEDIENT ?¿
+	@Column(name="expedient_id", nullable=false)
+	private Long expedientId; 
 
 	public PortaFirma() {}
 	public PortaFirma(
-			Integer documentId,
+			Long documentId,
 			Long tokenId,
 			Date dataEnviat,
 			TipusEstat estat,
@@ -77,180 +84,6 @@ public class PortaFirma implements Serializable, GenericEntity<Long> {
 		this.transicioOK = transicioOK;
 		this.transicioKO = transicioKO;
 	}
-
-	@Id
-	@GeneratedValue(strategy = GenerationType.TABLE, generator="gen_portasignatures")
-	@TableGenerator(name="gen_portasignatures", table="hel_idgen", pkColumnName="taula", valueColumnName="valor")
-	@Column(name="id")
-	public Long getId() {
-		return id;
-	}
-	public void setId(Long id) {
-		this.id = id;
-	}
-
-	@Column(name="document_id", nullable=false)
-	public Integer getDocumentId() {
-		return documentId;
-	}
-	public void setDocumentId(Integer documentId) {
-		this.documentId = documentId;
-	}
-
-	@Column(name="token_id", nullable=false)
-	public Long getTokenId() {
-		return tokenId;
-	}
-	public void setTokenId(Long tokenId) {
-		this.tokenId = tokenId;
-	}
-
-	@Column(name="data_enviat")
-	public Date getDataEnviat() {
-		return dataEnviat;
-	}
-	public void setDataEnviat(Date dataEnviat) {
-		this.dataEnviat = dataEnviat;
-	}
-
-	@Column(name="estat")
-	public TipusEstat getEstat() {
-		return estat;
-	}
-	public void setEstat(TipusEstat estat) {
-		this.estat = estat;
-	}
-
-	@Column(name="transicio")
-	public Transicio getTransition() {
-		return transition;
-	}
-	public void setTransition(Transicio transition) {
-		this.transition = transition;
-	}
-
-	@Column(name="document_store_id")
-	public Long getDocumentStoreId() {
-		return documentStoreId;
-	}
-	public void setDocumentStoreId(Long documentStoreId) {
-		this.documentStoreId = documentStoreId;
-	}
-
-	@Column(name="motiu_rebuig")
-	public String getMotiuRebuig() {
-		return motiuRebuig;
-	}
-	public void setMotiuRebuig(String motiuRebuig) {
-		this.motiuRebuig = motiuRebuig;
-	}
-
-	@Column(name="transicio_ok")
-	public String getTransicioOK() {
-		return transicioOK;
-	}
-	public void setTransicioOK(String transicioOK) {
-		this.transicioOK = transicioOK;
-	}
-
-	@Column(name="transicio_ko")
-	public String getTransicioKO() {
-		return transicioKO;
-	}
-	public void setTransicioKO(String transicioKO) {
-		this.transicioKO = transicioKO;
-	}
-
-	@Column(name="data_cb_pri")
-	public Date getDataProcessamentPrimer() {
-		return dataProcessamentPrimer;
-	}
-	public void setDataProcessamentPrimer(Date dataProcessamentPrimer) {
-		this.dataProcessamentPrimer = dataProcessamentPrimer;
-	}
-
-	@Column(name="data_cb_dar")
-	public Date getDataProcessamentDarrer() {
-		return dataProcessamentDarrer;
-	}
-	public void setDataProcessamentDarrer(Date dataProcessamentDarrer) {
-		this.dataProcessamentDarrer = dataProcessamentDarrer;
-	}
-
-	@Column(name="data_signat_rebutjat")
-	public Date getDataSignatRebutjat() {
-		return dataSignatRebutjat;
-	}
-	public void setDataSignatRebutjat(Date dataSignatRebutjat) {
-		this.dataSignatRebutjat = dataSignatRebutjat;
-	}
-
-	@Column(name="data_custodia_intent")
-	public Date getDataCustodiaIntent() {
-		return dataCustodiaIntent;
-	}
-	public void setDataCustodiaIntent(Date dataCustodiaIntent) {
-		this.dataCustodiaIntent = dataCustodiaIntent;
-	}
-
-	@Column(name="data_custodia_ok")
-	public Date getDataCustodiaOk() {
-		return dataCustodiaOk;
-	}
-	public void setDataCustodiaOk(Date dataCustodiaOk) {
-		this.dataCustodiaOk = dataCustodiaOk;
-	}
-
-	@Column(name="data_signal_intent")
-	public Date getDataSignalIntent() {
-		return dataSignalIntent;
-	}
-	public void setDataSignalIntent(Date dataSignalIntent) {
-		this.dataSignalIntent = dataSignalIntent;
-	}
-
-	@Column(name="data_signal_ok")
-	public Date getDataSignalOk() {
-		return dataSignalOk;
-	}
-	public void setDataSignalOk(Date dataSignalOk) {
-		this.dataSignalOk = dataSignalOk;
-	}
-
-	@Lob
-	@Column(name="error_cb_proces")
-	public String getErrorCallbackProcessant() {
-		return errorCallbackProcessant;
-	}
-	public void setErrorCallbackProcessant(String errorCallbackProcessant) {
-		this.errorCallbackProcessant = errorCallbackProcessant;
-	}
-
-	@Column(name="process_instance_id", length=255, nullable=false)
-	public String getProcessInstanceId() {
-		return processInstanceId;
-	}
-	public void setProcessInstanceId(String processInstanceId) {
-		this.processInstanceId = processInstanceId;
-	}
-
-	@Column(name="expedient_id", nullable=false)
-	public Long getExpedientId() {
-		return expedientId;
-	}
-	public void setExpedientId(Long expedientId) {
-		this.expedientId = expedientId;
-	}
-
-//	@ManyToOne(optional=false)
-//	@JoinColumn(name="expedient_id")
-//	@ForeignKey(name="hel_expedient_psigna_fk")
-//	public Expedient getExpedient() {
-//		return expedient;
-//	}
-//	public void setExpedient(Expedient expedient) {
-//		this.expedient = expedient;
-//	}
 
 	@Override
 	public int hashCode() {

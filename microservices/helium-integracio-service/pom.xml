@@ -126,7 +126,127 @@
 			<artifactId>portafib-ws-api</artifactId>
 			<version>1.1</version>
 		</dependency>
+		<dependency>
+			<groupId>es.caib</groupId>
+			<artifactId>portasignatures-wsdl</artifactId>
+			<version>1.0</version>
+			<scope>system</scope>
+			<systemPath>${basedir}/../../helium-webapp/src/main/webapp/WEB-INF/lib/portasignatures-wsdl.jar</systemPath>
+		</dependency>
+
+		<!-- S'HAURIA DE DEIXAR DE FER SERVIR UNA LLIBRERIA QUE NO ACTUALITZA DES DEL 2008 -->
+		<dependency>
+			<groupId>com.artofsolving</groupId>
+			<artifactId>jodconverter</artifactId>
+			<version>2.2.1</version>
+		</dependency>
+		
+		
+		<!--  plugin-validatesignature-afirmacxf 1.0.2 -->
+		<dependency>
+			<groupId>org.fundaciobit.plugins</groupId>
+			<artifactId>plugin-validatesignature-api</artifactId>
+			<version>1.0.0</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>org.fundaciobit.plugins</groupId>
+			<artifactId>plugin-validatesignature-afirmacxf</artifactId>
+			<version>1.0.1</version>
+			<exclusions>
+				<exclusion>
+					<groupId>xerces</groupId>
+					<artifactId>xercesImpl</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>com.sun.xml.bind</groupId>
+					<artifactId>jaxb-impl</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>xalan</groupId>
+					<artifactId>xalan</artifactId>
+				</exclusion>
+<!-- 				<exclusion> -->
+<!-- 					<groupId>org.slf4j</groupId> -->
+<!-- 					<artifactId>log4j-over-slf4j</artifactId> -->
+<!-- 				</exclusion> -->
+<!-- 				<exclusion> -->
+<!-- 					<groupId>org.slf4j</groupId> -->
+<!-- 					<artifactId>jcl-over-slf4j</artifactId> -->
+<!-- 				</exclusion> -->
+				<exclusion>
+					<groupId>org.apache.ws.security</groupId>
+					<artifactId>wss4j</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.apache.santuario</groupId>
+					<artifactId>xmlsec</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>log4j</groupId>
+					<artifactId>log4j</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>com.lowagie</groupId>
+					<artifactId>itext</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>commons-logging</groupId>
+					<artifactId>commons-logging</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.slf4j</groupId>
+					<artifactId>slf4j-api</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.slf4j</groupId>
+					<artifactId>jul-to-slf4j</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.bouncycastle</groupId>
+					<artifactId>bcprov-jdk15</artifactId>
+				</exclusion>
+				<exclusion>
+					<artifactId>bcmail-jdk16</artifactId>
+					<groupId>org.bouncycastle</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>bcprov-jdk16</artifactId>
+					<groupId>org.bouncycastle</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>bctsp-jdk16</artifactId>
+					<groupId>org.bouncycastle</groupId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		
+<!-- 		LLibreria no actualitza des del 2006 s'hauria de canviar -->
+		<dependency> 
+			<groupId>axis</groupId>
+			<artifactId>axis</artifactId>
+			<version>1.4</version>
+			<type>jar</type>
+			<exclusions>
+				<exclusion>
+					<artifactId>axis-wsdl4j</artifactId>
+					<groupId>axis</groupId>
+				</exclusion>
+				<!--  S'ha esborrat el javax.xml.namespace -->
+<!-- 				<exclusion> -->
+<!-- 					<artifactId>axis-jaxrpc</artifactId> -->
+<!-- 					<groupId>axis</groupId> -->
+<!-- 				</exclusion> -->
+			</exclusions>
+		</dependency>
+		<dependency>
+    		<groupId>org.apache.ws.security</groupId>
+    		<artifactId>wss4j</artifactId>
+    		<version>1.6.19</version>
+		</dependency>
+		
 		<!-- Dependencies REGWEB3 -->
+		
 		<!-- <dependency> -->
 		<!-- <groupId>es.caib.regweb3</groupId> -->
 		<!-- <artifactId>regweb3-utils</artifactId> -->
@@ -151,6 +271,23 @@
 		<!-- <version>1.6.2</version> -->
 		<!-- </dependency> -->
 		<!-- /Dependències REGWEB3 -->
+		
+		<!-- plugin-arxiu-caib 2.0.8 --> 
+		<dependency>
+			<groupId>org.fundaciobit.pluginsib.arxiu</groupId>
+			<artifactId>pluginsib-arxiu-caib</artifactId>
+			<version>2.0.13</version>
+			<exclusions>
+				<exclusion>
+					<groupId>log4j</groupId>
+					<artifactId>log4j</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<!-- /plugin-arxiu-caib 2.0.8 --> 
+
+		
+
 	</dependencies>
 	<repositories>
 		<repository>

@@ -32,7 +32,7 @@ public class FirmaController {
 	}
 
 	@PostMapping(consumes = "application/json")
-	public ResponseEntity<Void> altaNotificacio(@Valid @RequestBody FirmaPost firma, BindingResult error)
+	public ResponseEntity<Void> firmar(@Valid @RequestBody FirmaPost firma, BindingResult error)
 			throws Exception {
 
 		if (error.hasErrors()) {

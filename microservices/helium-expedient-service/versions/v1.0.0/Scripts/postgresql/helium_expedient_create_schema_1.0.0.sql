@@ -1,0 +1,26 @@
+-- Llistat amb la informació pel llistat d'expedients
+CREATE TABLE HEL_EXPEDIENT
+(
+    ID                  BIGINT                NOT NULL,
+    ENTORN_ID           BIGINT                NOT NULL,
+    EXPEDIENT_TIPUS_ID  BIGINT                NOT NULL,
+    PROCESS_INSTANCE_ID VARCHAR(255)          NOT NULL,
+    NUMERO              VARCHAR(64)           NOT NULL,
+    TITOL               VARCHAR(255),
+    DATA_INICI          TIMESTAMP(6)          NOT NULL,
+    DATA_FI             TIMESTAMP(6),
+    ESTAT_TIPUS         VARCHAR(16)           NOT NULL,
+    ESTAT_ID            BIGINT,
+  	ATURAT              BOOLEAN               NOT NULL DEFAULT false,
+    INFO_ATURAT         VARCHAR(1024),
+  	ANULAT              BOOLEAN               NOT NULL DEFAULT false,
+    COMENTARI_ANULAT    VARCHAR(255),
+    ALERTES_TOTALS      BIGINT                NOT NULL DEFAULT 0,
+    ALERTES_PENDENTS    BIGINT                NOT NULL DEFAULT 0,
+  	AMB_ERRORS          BOOLEAN               NOT NULL DEFAULT false
+);
+
+CREATE INDEX HEL_EXPEDIENT_EXPTIP_I ON HEL_EXPEDIENT (EXPEDIENT_TIPUS_ID);
+CREATE INDEX HEL_EXPEDIENT_ENTORN_I ON HEL_EXPEDIENT (ENTORN_ID);
+
+GRANT SELECT, UPDATE, INSERT, DELETE ON HEL_EXPEDIENT TO HELIUM_MS_EXPEDIENT;
