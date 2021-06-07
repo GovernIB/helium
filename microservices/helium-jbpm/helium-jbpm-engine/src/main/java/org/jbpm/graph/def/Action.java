@@ -27,7 +27,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Map;
 
-import es.caib.helium.jbpm3.api.HeliumApiImpl;
+import net.conselldemallorca.helium.jbpm3.api.HeliumApiImpl;
 import es.caib.helium.jbpm3.integracio.Jbpm3HeliumBridge;
 import org.dom4j.Element;
 import org.jbpm.JbpmConfiguration;

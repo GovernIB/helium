@@ -6,8 +6,8 @@ package es.caib.helium.jbpm3.command;
 import java.util.List;
 import java.util.Set;
 
-import es.caib.helium.jbpm3.api.HeliumApiImpl;
-import es.caib.helium.jbpm3.handlers.AccioExternaRetrocedirHandler;
+import net.conselldemallorca.helium.jbpm3.api.HeliumApiImpl;
+import net.conselldemallorca.helium.jbpm3.handlers.AccioExternaRetrocedirHandler;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.jbpm.JbpmConfiguration;

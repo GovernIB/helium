@@ -17,6 +17,7 @@ import es.caib.helium.api.service.WTaskInstance;
 import es.caib.helium.api.service.WToken;
 import es.caib.helium.api.service.WorkflowEngineApi;
 import es.caib.helium.jbpm3.command.*;
+import es.caib.helium.jbpm3.helper.CommandHelper;
 import org.jbpm.JbpmException;
 import org.jbpm.command.*;
 import org.jbpm.command.CancelProcessInstanceCommand;
@@ -41,6 +42,7 @@ import org.jbpm.taskmgmt.def.Task;
 import org.jbpm.taskmgmt.exe.TaskInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -63,13 +65,19 @@ import java.util.zip.ZipOutputStream;
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Component
+@Transactional
 public class JbpmHelper implements WorkflowEngineApi {
 
 	private CommandService commandService;
+	private CommandHelper commandHelper;
 
 	@Autowired
 	public void setCommandService(CommandService commandService) {
 		this.commandService = commandService;
+	}
+	@Autowired
+	public void setCommandHelper(CommandHelper commandHelper) {
+		this.commandHelper = commandHelper;
 	}
 
 	// DEFINICIÓ DE PROCÉS
@@ -434,7 +442,7 @@ public class JbpmHelper implements WorkflowEngineApi {
 		SignalProcessInstanceCommand command = new SignalProcessInstanceCommand(id);
 		if (transitionName != null)
 			command.setStartTransitionName(transitionName);
-		executeCommandWithAutoSave(
+		commandHelper.executeCommandWithAutoSave(
 				command,
 				id,
 				AddToAutoSaveCommand.TIPUS_INSTANCIA_PROCES);
@@ -464,7 +472,7 @@ public class JbpmHelper implements WorkflowEngineApi {
 		for (int i = 0; i < processInstanceIds.length; i++)
 			ids[i] = Long.parseLong(processInstanceIds[i]);
 		SuspendProcessInstancesCommand command = new SuspendProcessInstancesCommand(ids);
-		executeCommandWithAutoSave(
+		commandHelper.executeCommandWithAutoSave(
 				command,
 				ids,
 				AddToAutoSaveCommand.TIPUS_INSTANCIA_PROCES);
@@ -479,7 +487,7 @@ public class JbpmHelper implements WorkflowEngineApi {
 		for (int i = 0; i < processInstanceIds.length; i++)
 			ids[i] = Long.parseLong(processInstanceIds[i]);
 		ResumeProcessInstancesCommand command = new ResumeProcessInstancesCommand(ids);
-		executeCommandWithAutoSave(
+		commandHelper.executeCommandWithAutoSave(
 				command,
 				ids,
 				AddToAutoSaveCommand.TIPUS_INSTANCIA_PROCES);
@@ -495,7 +503,7 @@ public class JbpmHelper implements WorkflowEngineApi {
 		ChangeProcessInstanceVersionCommand command = new ChangeProcessInstanceVersionCommand(
 				id,
 				newVersion);
-		executeCommandWithAutoSave(
+		commandHelper.executeCommandWithAutoSave(
 				command,
 				id,
 				AddToAutoSaveCommand.TIPUS_INSTANCIA_PROCES);
@@ -550,7 +558,7 @@ public class JbpmHelper implements WorkflowEngineApi {
 		Map<String, Object> vars = new HashMap<String, Object>();
 		vars.put(varName, value);
 		SaveProcessInstanceVariablesCommand command = new SaveProcessInstanceVariablesCommand(id, vars);
-		executeCommandWithAutoSave(
+		commandHelper.executeCommandWithAutoSave(
 				command,
 				id,
 				AddToAutoSaveCommand.TIPUS_INSTANCIA_PROCES);
@@ -563,7 +571,7 @@ public class JbpmHelper implements WorkflowEngineApi {
 		//setProcessInstanceVariable(processInstanceId, varName, null);
 		final long id = Long.parseLong(processInstanceId);
 		DeleteProcessInstanceVariablesCommand command = new DeleteProcessInstanceVariablesCommand(id, new String[] {varName});
-		executeCommandWithAutoSave(
+		commandHelper.executeCommandWithAutoSave(
 				command,
 				id,
 				AddToAutoSaveCommand.TIPUS_INSTANCIA_PROCES);
@@ -718,7 +726,7 @@ public class JbpmHelper implements WorkflowEngineApi {
 		//adminService.mesuraIniciar("jBPM takeTaskInstance", "jbpmDao");
 		final long id = Long.parseLong(taskId);
 		TakeTaskInstanceCommand command = new TakeTaskInstanceCommand(id, actorId);
-		executeCommandWithAutoSave(
+		commandHelper.executeCommandWithAutoSave(
 				command,
 				id,
 				AddToAutoSaveCommand.TIPUS_INSTANCIA_TASCA);
@@ -730,7 +738,7 @@ public class JbpmHelper implements WorkflowEngineApi {
 		//adminService.mesuraIniciar("jBPM releaseTaskInstance", "jbpmDao");
 		final long id = Long.parseLong(taskId);
 		ReleaseTaskInstanceCommand command = new ReleaseTaskInstanceCommand(id);
-		executeCommandWithAutoSave(
+		commandHelper.executeCommandWithAutoSave(
 				command,
 				id,
 				AddToAutoSaveCommand.TIPUS_INSTANCIA_TASCA);
@@ -743,7 +751,7 @@ public class JbpmHelper implements WorkflowEngineApi {
 		WTaskInstance resposta = null;
 		final long id = Long.parseLong(taskId);
 		StartTaskInstanceCommand command = new StartTaskInstanceCommand(id);
-		resposta = new JbpmTask((TaskInstance)executeCommandWithAutoSave(
+		resposta = new JbpmTask((TaskInstance)commandHelper.executeCommandWithAutoSave(
 				command,
 				id,
 				AddToAutoSaveCommand.TIPUS_INSTANCIA_TASCA));
@@ -756,7 +764,7 @@ public class JbpmHelper implements WorkflowEngineApi {
 		//adminService.mesuraIniciar("jBPM endTaskInstance", "jbpmDao");
 		final long id = Long.parseLong(taskId);
 		TaskInstanceEndCommand command = new TaskInstanceEndCommand(id, outcome);
-		executeCommandWithAutoSave(
+		commandHelper.executeCommandWithAutoSave(
 				command,
 				id,
 				AddToAutoSaveCommand.TIPUS_INSTANCIA_TASCA);
@@ -802,7 +810,7 @@ public class JbpmHelper implements WorkflowEngineApi {
 		WTaskInstance resposta = null;
 		final long id = Long.parseLong(taskId);
 		CancelTaskInstanceCommand command = new CancelTaskInstanceCommand(id);
-		resposta = new JbpmTask((TaskInstance)executeCommandWithAutoSave(
+		resposta = new JbpmTask((TaskInstance)commandHelper.executeCommandWithAutoSave(
 				command,
 				id,
 				AddToAutoSaveCommand.TIPUS_INSTANCIA_TASCA));
@@ -816,7 +824,7 @@ public class JbpmHelper implements WorkflowEngineApi {
 		WTaskInstance resposta = null;
 		final long id = Long.parseLong(taskId);
 		SuspendTaskInstanceCommand command = new SuspendTaskInstanceCommand(id);
-		resposta = new JbpmTask((TaskInstance)executeCommandWithAutoSave(
+		resposta = new JbpmTask((TaskInstance)commandHelper.executeCommandWithAutoSave(
 				command,
 				id,
 				AddToAutoSaveCommand.TIPUS_INSTANCIA_TASCA));
@@ -830,7 +838,7 @@ public class JbpmHelper implements WorkflowEngineApi {
 		WTaskInstance resposta = null;
 		final long id = Long.parseLong(taskId);
 		ResumeTaskInstanceCommand command = new ResumeTaskInstanceCommand(id);
-		resposta = new JbpmTask((TaskInstance)executeCommandWithAutoSave(
+		resposta = new JbpmTask((TaskInstance)commandHelper.executeCommandWithAutoSave(
 				command,
 				id,
 				AddToAutoSaveCommand.TIPUS_INSTANCIA_TASCA));
@@ -854,7 +862,7 @@ public class JbpmHelper implements WorkflowEngineApi {
 		ReassignTaskInstanceCommand command = new ReassignTaskInstanceCommand(id);
 		command.setExpression(expression);
 		command.setEntornId(entornId);
-		resposta = new JbpmTask((TaskInstance)executeCommandWithAutoSave(
+		resposta = new JbpmTask((TaskInstance)commandHelper.executeCommandWithAutoSave(
 				command,
 				id,
 				AddToAutoSaveCommand.TIPUS_INSTANCIA_TASCA));
@@ -875,7 +883,7 @@ public class JbpmHelper implements WorkflowEngineApi {
 				id,
 				titol,
 				description);
-		executeCommandWithAutoSave(
+		commandHelper.executeCommandWithAutoSave(
 				command,
 				id,
 				AddToAutoSaveCommand.TIPUS_INSTANCIA_TASCA);
@@ -932,7 +940,7 @@ public class JbpmHelper implements WorkflowEngineApi {
 				variables);
 		command.setLocally(true);
 		command.setDeleteFirst(deleteFirst);
-		executeCommandWithAutoSave(
+		commandHelper.executeCommandWithAutoSave(
 				command,
 				id,
 				AddToAutoSaveCommand.TIPUS_INSTANCIA_TASCA);
@@ -948,7 +956,7 @@ public class JbpmHelper implements WorkflowEngineApi {
 				id,
 				new String[] {varName});
 		command.setLocally(true);
-		executeCommandWithAutoSave(
+		commandHelper.executeCommandWithAutoSave(
 				command,
 				id,
 				AddToAutoSaveCommand.TIPUS_INSTANCIA_TASCA);
@@ -1040,7 +1048,7 @@ public class JbpmHelper implements WorkflowEngineApi {
 		command.setCancelTasks(cancelTasks);
 		command.setEnterNodeIfTask(enterNodeIfTask);
 		command.setExecuteNode(executeNode);
-		executeCommandWithAutoSave(
+		commandHelper.executeCommandWithAutoSave(
 				command,
 				tokenId,
 				AddToAutoSaveCommand.TIPUS_TOKEN);
@@ -1052,7 +1060,7 @@ public class JbpmHelper implements WorkflowEngineApi {
 		//adminService.mesuraIniciar("jBPM tokenActivar", "jbpmDao");
 		try {
 			TokenActivarCommand command = new TokenActivarCommand(tokenId, activar);
-			executeCommandWithAutoSave(
+			commandHelper.executeCommandWithAutoSave(
 					command,
 					tokenId,
 					AddToAutoSaveCommand.TIPUS_TOKEN);
@@ -1070,7 +1078,7 @@ public class JbpmHelper implements WorkflowEngineApi {
 			String transitionName) {
 		//adminService.mesuraIniciar("jBPM signalToken", "jbpmDao");
 		SignalCommand command = new SignalCommand(tokenId, transitionName);
-		executeCommandWithAutoSave(
+		commandHelper.executeCommandWithAutoSave(
 				command,
 				tokenId,
 				AddToAutoSaveCommand.TIPUS_TOKEN);
@@ -1095,7 +1103,7 @@ public class JbpmHelper implements WorkflowEngineApi {
 				id,
 				script,
 				outputNames);
-		resultat = (Map<String,Object>)executeCommandWithAutoSave(
+		resultat = (Map<String,Object>)commandHelper.executeCommandWithAutoSave(
 				command,
 				id,
 				AddToAutoSaveCommand.TIPUS_INSTANCIA_PROCES);
@@ -1118,7 +1126,7 @@ public class JbpmHelper implements WorkflowEngineApi {
 			command.setTid(Long.parseLong(taskInstanceInstanceId));
 		if (valors != null)
 			command.setValors(valors);
-		Object resultat = executeCommandWithAutoSave(
+		Object resultat = commandHelper.executeCommandWithAutoSave(
 				command,
 				id,
 				AddToAutoSaveCommand.TIPUS_INSTANCIA_PROCES);
@@ -1170,7 +1178,7 @@ public class JbpmHelper implements WorkflowEngineApi {
 				id,
 				actionName,
 				processDefinitionPareId);
-		executeCommandWithAutoSave(
+		commandHelper.executeCommandWithAutoSave(
 				command,
 				id,
 				AddToAutoSaveCommand.TIPUS_INSTANCIA_PROCES);
@@ -1189,7 +1197,7 @@ public class JbpmHelper implements WorkflowEngineApi {
 				actionName,
 				processDefinitionPareId);
 		command.setTaskInstance(true);
-		executeCommandWithAutoSave(
+		commandHelper.executeCommandWithAutoSave(
 				command,
 				id,
 				AddToAutoSaveCommand.TIPUS_INSTANCIA_TASCA);
@@ -1383,7 +1391,7 @@ public class JbpmHelper implements WorkflowEngineApi {
 		for (int i = 0; i < processInstanceIds.length; i++)
 			ids[i] = Long.parseLong(processInstanceIds[i]);
 		ProcessInstanceEndCommand command = new ProcessInstanceEndCommand(ids, dataFinalitzacio);
-		executeCommandWithAutoSave(
+		commandHelper.executeCommandWithAutoSave(
 				command,
 				ids,
 				AddToAutoSaveCommand.TIPUS_INSTANCIA_PROCES);
@@ -1423,7 +1431,7 @@ public class JbpmHelper implements WorkflowEngineApi {
 		while (token != null) {
 			JbpmToken jtoken = (JbpmToken) getTokenById(String.valueOf(token.getId()));
 			RevertTokenEndCommand command = new RevertTokenEndCommand(jtoken);
-			executeCommandWithAutoSave(
+			commandHelper.executeCommandWithAutoSave(
 					command,
 					token.getId(),
 					AddToAutoSaveCommand.TIPUS_TOKEN);
@@ -1525,7 +1533,7 @@ public class JbpmHelper implements WorkflowEngineApi {
 		final long id = Long.parseLong(taskInstanceId);
 		ReassignTaskInstanceCommand command = new ReassignTaskInstanceCommand(id);
 		command.setActorId(actorId);
-		executeCommandWithAutoSave(
+		commandHelper.executeCommandWithAutoSave(
 				command,
 				id,
 				AddToAutoSaveCommand.TIPUS_INSTANCIA_TASCA);
@@ -1538,7 +1546,7 @@ public class JbpmHelper implements WorkflowEngineApi {
 		final long id = Long.parseLong(taskInstanceId);
 		ReassignTaskInstanceCommand command = new ReassignTaskInstanceCommand(id);
 		command.setPooledActors(pooledActors);
-		executeCommandWithAutoSave(
+		commandHelper.executeCommandWithAutoSave(
 				command,
 				id,
 				AddToAutoSaveCommand.TIPUS_INSTANCIA_TASCA);
@@ -1561,7 +1569,7 @@ public class JbpmHelper implements WorkflowEngineApi {
 				processDefinitionPareId);
 		command.setGoBack(true);
 		command.setParams(params);
-		executeCommandWithAutoSave(
+		commandHelper.executeCommandWithAutoSave(
 				command,
 				id,
 				AddToAutoSaveCommand.TIPUS_INSTANCIA_PROCES);
@@ -1624,7 +1632,7 @@ public class JbpmHelper implements WorkflowEngineApi {
 //		//adminService.mesuraIniciar("jBPM describeProcessInstance", "jbpmDao");
 //		final long id = Long.parseLong(processInstanceId);
 //		DescribeProcessInstanceCommand command = new DescribeProcessInstanceCommand(id, description);
-//		executeCommandWithAutoSave(
+//		commandHelper.executeCommandWithAutoSave(
 //				command,
 //				id,
 //				AddToAutoSaveCommand.TIPUS_INSTANCIA_PROCES);
@@ -1700,7 +1708,7 @@ public class JbpmHelper implements WorkflowEngineApi {
 	public void cancelProcessInstance(long id) {
 		//adminService.mesuraIniciar("jBPM cancelProcessInstance", "jbpmDao");
 		CancelProcessInstanceCommand command = new CancelProcessInstanceCommand(id);
-		executeCommandWithAutoSave(
+		commandHelper.executeCommandWithAutoSave(
 				command,
 				id,
 				AddToAutoSaveCommand.TIPUS_INSTANCIA_PROCES);
@@ -1711,7 +1719,7 @@ public class JbpmHelper implements WorkflowEngineApi {
 	public void revertProcessInstanceEnd(long id) {
 		//adminService.mesuraIniciar("jBPM revertProcessInstanceEnd", "jbpmDao");
 		RevertProcessInstanceEndCommand command = new RevertProcessInstanceEndCommand(id);
-		executeCommandWithAutoSave(
+		commandHelper.executeCommandWithAutoSave(
 				command,
 				id,
 				AddToAutoSaveCommand.TIPUS_INSTANCIA_PROCES);
@@ -1722,7 +1730,7 @@ public class JbpmHelper implements WorkflowEngineApi {
 	public void cancelToken(long id) {
 		//adminService.mesuraIniciar("jBPM cancelToken", "jbpmDao");
 		CancelTokenCommand command = new CancelTokenCommand(id);
-		executeCommandWithAutoSave(
+		commandHelper.executeCommandWithAutoSave(
 				command,
 				id,
 				AddToAutoSaveCommand.TIPUS_TOKEN);
@@ -1734,7 +1742,7 @@ public class JbpmHelper implements WorkflowEngineApi {
 		//adminService.mesuraIniciar("jBPM revertTokenEnd", "jbpmDao");
 		JbpmToken jtoken = (JbpmToken) getTokenById(String.valueOf(id));
 		RevertTokenEndCommand command = new RevertTokenEndCommand(jtoken);
-		executeCommandWithAutoSave(
+		commandHelper.executeCommandWithAutoSave(
 				command,
 				id,
 				AddToAutoSaveCommand.TIPUS_TOKEN);
@@ -1853,91 +1861,6 @@ public class JbpmHelper implements WorkflowEngineApi {
 	
 
 
-
-
-
-	private Object executeCommandWithAutoSave(
-			Command command,
-			long id,
-			int autoSaveTipus) throws RuntimeException {
-		try {
-			AddToAutoSaveCommand autoSaveCommand = new AddToAutoSaveCommand(
-					command,
-					id,
-					autoSaveTipus);
-			return commandService.execute(autoSaveCommand);
-		} catch (JbpmException ex) {
-			//Inserim l'error a la tasca si aquesta s'ha executat en segon pla
-			Jbpm3HeliumBridge.getInstanceService().setErrorTascaSegonPla(id, ex);
-			//
-			throw tractarExceptionJbpm(
-					ex,
-					id,
-					autoSaveTipus);
-		}
-	}
-
-	private Object executeCommandWithAutoSave(
-			Command command,
-			long[] ids,
-			int autoSaveTipus) throws RuntimeException {
-		try {
-			AddToAutoSaveCommand autoSaveCommand = new AddToAutoSaveCommand(
-					command,
-					ids,
-					autoSaveTipus);
-			return commandService.execute(autoSaveCommand);
-		} catch (JbpmException ex) {
-			throw tractarExceptionJbpm(
-					ex,
-					(ids!= null && ids.length > 0) ? ids[0] : null,
-					autoSaveTipus);
-		}
-	}
-
-	private RuntimeException tractarExceptionJbpm(
-			JbpmException ex,
-			long id,
-			int autoSaveTipus) {
-		Long taskInstanceId = null;
-		Long tokenId = null;
-		GetProcessInstanceCommand command = new GetProcessInstanceCommand();
-		switch (autoSaveTipus) {
-		case AddToAutoSaveCommand.TIPUS_INSTANCIA_PROCES:
-			command.setProcessInstanceId(id);
-			break;
-		case AddToAutoSaveCommand.TIPUS_INSTANCIA_TASCA:
-			taskInstanceId = new Long(id);
-			command.setTaskInstanceId(id);
-			break;
-		case AddToAutoSaveCommand.TIPUS_TOKEN:
-			tokenId = new Long(id);
-			command.setTokenId(id);
-			break;
-		}
-		ProcessInstance processInstance = (ProcessInstance)commandService.execute(command);
-		Long processInstanceId = new Long(processInstance.getId());
-		ProcessInstanceExpedient expedient = processInstance.getExpedient();
-		if (ex.getCause() != null && ex.getCause() instanceof DelegationException && ex.getCause().getCause() != null) {
-			for (StackTraceElement element: ex.getCause().getCause().getStackTrace()) {
-				if (element.getMethodName().equals("execute")) {
-					return new ExecucioHandlerException(
-							(expedient != null) ? expedient.getId() : null,
-							(expedient != null) ? expedient.getTipus().getId() : null,
-							processInstanceId,
-							taskInstanceId,
-							tokenId,
-							element.getClassName(),
-							element.getMethodName(),
-							element.getFileName(),
-							element.getLineNumber(),
-							ex.getCause().getCause().getMessage(),
-							ex.getCause().getCause());
-				}
-			}
-		}
-		return ex;
-	}
 	
 	/** Cerca els nodes de tipus ProcessState del ProcessDefinitions dp1  i assegura que s'apuntin correctament cap al pd2 
 	 * si coincideix el nom del subprocés.

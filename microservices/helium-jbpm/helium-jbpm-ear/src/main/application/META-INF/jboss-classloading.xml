@@ -2,6 +2,5 @@
 		domain="helium-jbpm.ear"
 		import-all="true"
 		export-all="NON_EMPTY"
-		j2seClassLoadingCompliance="false"
 		parent-first="false">
 </classloading>

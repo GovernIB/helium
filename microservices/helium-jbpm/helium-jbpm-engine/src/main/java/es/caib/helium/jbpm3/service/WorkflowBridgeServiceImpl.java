@@ -15,6 +15,7 @@ import es.caib.helium.jbpm3.command.TokenRedirectCommand;
 import es.caib.helium.jbpm3.helper.*;
 import es.caib.helium.jbpm3.helper.AlertesHelper.Alerta;
 import es.caib.helium.jbpm3.helper.DocumentsHelper.DocumentAdjunt;
+import es.caib.helium.jbpm3.helper.DocumentsHelper.DocumentCrear;
 import es.caib.helium.jbpm3.helper.DocumentsHelper.DocumentGenerar;
 import es.caib.helium.jbpm3.helper.DocumentsHelper.DocumentGuardar;
 import es.caib.helium.jbpm3.helper.DocumentsHelper.DocumentRegistre;
@@ -26,12 +27,11 @@ import es.caib.helium.jbpm3.helper.GenericsHelper.Email;
 import es.caib.helium.jbpm3.helper.TerminisHelper.TerminiCalcul;
 import es.caib.helium.jbpm3.helper.TerminisHelper.TerminiConfigurar;
 import es.caib.helium.jbpm3.helper.TerminisHelper.TerminiInici;
-import es.caib.helium.jbpm3.integracio.JbpmHelper;
 import org.jbpm.command.CommandService;
 import org.jbpm.graph.exe.ProcessInstance;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.w3c.dom.css.DocumentCSS;
 
 import java.util.Date;
 import java.util.List;
@@ -48,6 +48,8 @@ public class WorkflowBridgeServiceImpl implements WorkflowBridgeService {
     @Autowired
     DocumentsHelper documentsHelper;
     @Autowired
+    DefinicioProcesHelper definicioProcesHelper;
+    @Autowired
     AlertesHelper alertesHelper;
     @Autowired
     EnumeracionsHelper enumeracionsHelper;
@@ -59,6 +61,8 @@ public class WorkflowBridgeServiceImpl implements WorkflowBridgeService {
     InteressatsHelper interessatsHelper;
     @Autowired
     TerminisHelper terminisHelper;
+    @Autowired
+    VariablesHelper variablesHelper;
     @Autowired
     GenericsHelper genericsHelper;
 
@@ -139,6 +143,11 @@ public class WorkflowBridgeServiceImpl implements WorkflowBridgeService {
     }
 
     @Override
+    public void expedientModificarEstat(String processInstanceId, Long estatId) {
+        expedientsHelper.expedientModificarEstat(processInstanceId, estatId);
+    }
+
+    @Override
     public void expedientModificarComentari(
             String processInstanceId,
             String comentari) {
@@ -170,6 +179,34 @@ public class WorkflowBridgeServiceImpl implements WorkflowBridgeService {
                 .posy(posy)
                 .referencia(referencia).build();
         expedientsHelper.expedientModificarGeoref(processInstanceId, georeferencia);
+    }
+
+    @Override
+    public void expedientModificarGeoreferencia(
+            String processInstanceId,
+            String referencia) {
+        expedientsHelper.expedientModificarGeoreferencia(processInstanceId, referencia);
+    }
+
+    @Override
+    public void expedientModificarGeoX(
+            String processInstanceId,
+            Double posx) {
+        expedientsHelper.expedientModificarGeoX(processInstanceId, posx);
+    }
+
+    @Override
+    public void expedientModificarGeoY(
+            String processInstanceId,
+            Double posy) {
+        expedientsHelper.expedientModificarGeoY(processInstanceId, posy);
+    }
+
+    @Override
+    public void expedientModificarDataInici(
+            String processInstanceId,
+            Date dataInici) {
+        expedientsHelper.expedientModificarDataInici(processInstanceId, dataInici);
     }
 
     @Override
@@ -214,9 +251,7 @@ public class WorkflowBridgeServiceImpl implements WorkflowBridgeService {
         expedientsHelper.updateExpedientError(expedientId, expedientError);
     }
 
-    // TODO:
-    // MS Dades
-
+    // TODO: Veure com passar els valors dels filtres
     @Override
     public List<ExpedientDto> findExpedientsConsultaDadesIndexades(
             Long entornId,
@@ -226,10 +261,10 @@ public class WorkflowBridgeServiceImpl implements WorkflowBridgeService {
     }
 
     @Override
-    public ExpedientDadaDto getDadaPerProcessInstance(
+    public String getDadaPerProcessInstance(
             String processInstanceId,
             String varCodi) {
-        return null;
+        return expedientsHelper.getDadaPerProcessInstance(processInstanceId, varCodi);
     }
 
 
@@ -281,6 +316,31 @@ public class WorkflowBridgeServiceImpl implements WorkflowBridgeService {
                 taskInstanceId,
                 varCodi);
     }
+
+    @Override
+    public CampTascaDto getCampTascaPerInstanciaTasca(
+            String taskName,
+            String processDefinitionId,
+            String processInstanceId,
+            String name) {
+        return tasquesHelper.getCampTascaPerInstanciaTasca(
+                taskName,
+                processDefinitionId,
+                processInstanceId,
+                name);
+    }
+
+//    public List<CampTascaDto> getCampsPerTaskInstance(String processDefinitionId, String taskName) {
+//        return tasquesHelper.getCampsPerTaskInstance(
+//                processDefinitionId,
+//                taskName);
+//    }
+//
+//    public List<DocumentTascaDto> getDocumentsPerTaskInstance(String processDefinitionId, String taskName) {
+//        return tasquesHelper.getDocumentsPerTaskInstance(
+//                processDefinitionId,
+//                taskName);
+//    }
 
     // TODO: LOCAL --> updateTaskInstanceInfoCache o eliminar????
     @Override
@@ -349,6 +409,27 @@ public class WorkflowBridgeServiceImpl implements WorkflowBridgeService {
                 .processInstanceId(processInstanceId)
                 .dataDocument(dataDocument).build();
         return documentsHelper.documentGenerarAmbPlantilla(documentCodi, documentGenerar);
+    }
+
+    @Override
+    public Long documentExpedientCrear(
+            String taskInstanceId,
+            String processInstanceId,
+            String documentCodi,
+            Date documentData,
+            boolean isAdjunt,
+            String adjuntTitol,
+            String arxiuNom,
+            byte[] arxiuContingut) {
+        DocumentCrear documentCrear = DocumentCrear.builder()
+                .taskInstanceId(taskInstanceId)
+                .processInstanceId(processInstanceId)
+                .documentData(documentData)
+                .isAdjunt(isAdjunt)
+                .adjuntTitol(adjuntTitol)
+                .arxiuNom(arxiuNom)
+                .arxiuContingut(arxiuContingut).build();
+        return documentsHelper.documentExpedientCrear(documentCodi, documentCrear);
     }
 
     @Override
@@ -777,13 +858,16 @@ public class WorkflowBridgeServiceImpl implements WorkflowBridgeService {
 
     }
 
-    // TODO:
     // DEFINICIO PROCES
     ////////////////////////////////////////////////////////////////////////////////
 
     @Override
-    public DefinicioProcesDto getDefinicioProcesAmbJbpmKeyIProcessInstanceId(String jbpmKey, String processInstanceId) {
-        return null;
+    public Integer getDefinicioProcesVersioAmbJbpmKeyIProcessInstanceId(
+            String jbpmKey,
+            String processInstanceId) {
+        return definicioProcesHelper.getDefinicioProcesVersioAmbJbpmKeyIProcessInstanceId(
+                jbpmKey,
+                processInstanceId);
     }
 
     @Override
@@ -792,18 +876,43 @@ public class WorkflowBridgeServiceImpl implements WorkflowBridgeService {
     }
 
     @Override
-    public DefinicioProcesDto getDefinicioProcesAmbJbpmKeyIVersio(String jbpmKey, int version) {
-        return null;
+    public Long getDefinicioProcesEntornAmbJbpmKeyIVersio(
+            String jbpmKey,
+            int version) {
+        return definicioProcesHelper.getDefinicioProcesEntornAmbJbpmKeyIVersio(
+                jbpmKey,
+                version);
     }
 
     @Override
-    public DefinicioProcesDto getDarreraVersioAmbEntornIJbpmKey(Long entornId, String jbpmKey) {
-        return null;
+    public Long getDarreraVersioEntornAmbEntornIJbpmKey(
+            Long entornId,
+            String jbpmKey) {
+        return definicioProcesHelper.getDarreraVersioEntornAmbEntornIJbpmKey(
+                entornId,
+                jbpmKey);
     }
 
     @Override
     public void initializeDefinicionsProces() {
+        definicioProcesHelper.initializeDefinicionsProces();
+    }
 
+    @Override
+    public String getProcessDefinitionIdHeretadaAmbPid(String processInstanceId) {
+        return definicioProcesHelper.getProcessDefinitionIdHeretadaAmbPid(processInstanceId);
+    }
+
+    // VARIABLES
+    ////////////////////////////////////////////////////////////////////////////////
+    public CampTipusIgnored getCampAndIgnored(
+            String processDefinitionId,
+            Long expedientId,
+            String varCodi) {
+        return variablesHelper.getCampAndIgnored(
+                processDefinitionId,
+                expedientId,
+                varCodi);
     }
 
     // TODO:

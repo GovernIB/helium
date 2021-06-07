@@ -45,7 +45,7 @@ public class EnumeracionsHelper {
 
 
     @Data @Builder
-    public class Enumeracio {
+    public static class Enumeracio {
         private String processInstanceId;
         private String enumeracioCodi;
         private String codi;

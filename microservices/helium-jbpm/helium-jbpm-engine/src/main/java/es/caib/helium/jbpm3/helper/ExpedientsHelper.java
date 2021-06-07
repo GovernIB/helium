@@ -1,5 +1,6 @@
 package es.caib.helium.jbpm3.helper;
 
+import es.caib.helium.api.dto.ExpedientDadaDto;
 import es.caib.helium.api.dto.ExpedientDto;
 import es.caib.helium.api.dto.FestiuDto;
 import es.caib.helium.api.dto.PersonaDto;
@@ -134,6 +135,15 @@ public class ExpedientsHelper {
                 processInstanceId);
     }
 
+    public void expedientModificarEstat(
+            String processInstanceId,
+            Long estatId) {
+        restTemplate.postForLocation(
+                getExpedientBridgeAddress() + "/{processInstanceId}/estatId",
+                estatId,
+                processInstanceId);
+    }
+
     public void expedientModificarComentari(
             String processInstanceId,
             String comentari) {
@@ -170,6 +180,42 @@ public class ExpedientsHelper {
                 processInstanceId);
     }
 
+    public void expedientModificarGeoreferencia(
+            String processInstanceId,
+            String referencia) {
+        restTemplate.postForLocation(
+                getExpedientBridgeAddress() + "/{processInstanceId}/georeferencia",
+                referencia,
+                processInstanceId);
+    }
+
+    public void expedientModificarGeoX(
+            String processInstanceId,
+            Double posx) {
+        restTemplate.postForLocation(
+                getExpedientBridgeAddress() + "/{processInstanceId}/posx",
+                posx,
+                processInstanceId);
+    }
+
+    public void expedientModificarGeoY(
+            String processInstanceId,
+            Double posy) {
+        restTemplate.postForLocation(
+                getExpedientBridgeAddress() + "/{processInstanceId}/posy",
+                posy,
+                processInstanceId);
+    }
+
+    public void expedientModificarDataInici(
+            String processInstanceId,
+            Date dataInici) {
+        restTemplate.postForLocation(
+                getExpedientBridgeAddress() + "/{processInstanceId}/dataInici",
+                dataInici,
+                processInstanceId);
+    }
+
     public void expedientModificarGrup(
             String processInstanceId,
             String grupCodi) {
@@ -195,19 +241,35 @@ public class ExpedientsHelper {
 
     }
 
+    public String getDadaPerProcessInstance(
+            String processInstanceId,
+            String varCodi) {
+        ExpedientDadaDto dada = restTemplate.getForObject(
+                getExpedientBridgeAddress() + "/process/{processInstanceId}/dada/{codi}",
+                ExpedientDadaDto.class,
+                processInstanceId,
+                varCodi);
+
+        if (dada != null) {
+            return dada.getText();
+        }
+        return null;
+    }
+
     private String getExpedientBridgeAddress() {
         return bridgeAdress + "/expedients";
     }
 
+
     @Data @Builder
-    public class Georeferencia {
+    public static class Georeferencia {
         private Double posx;
         private Double posy;
         private String referencia;
     }
 
     @Data @Builder
-    public class ExpedientError {
+    public static class ExpedientError {
         private Long jobId;
         private String errorDesc;
         private String errorFull;

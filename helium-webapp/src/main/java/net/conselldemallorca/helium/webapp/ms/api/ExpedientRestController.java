@@ -2,6 +2,7 @@ package net.conselldemallorca.helium.webapp.ms.api;
 
 import lombok.Data;
 import net.conselldemallorca.helium.core.api.WorkflowBridgeService;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDadaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -114,6 +115,14 @@ public class ExpedientRestController {
 		workflowBridgeService.expedientModificarEstat(processInstanceId, estatCodi);
 	}
 
+	@RequestMapping(value="/{processInstanceId}/estatId", method = RequestMethod.POST)
+	@ResponseBody
+	public void expedientModificarEstat(
+			@PathVariable("processInstanceId") String processInstanceId,
+			@RequestBody Long estatId) {
+		workflowBridgeService.expedientModificarEstatId(processInstanceId, estatId);
+	}
+
 	@RequestMapping(value="/{processInstanceId}/comentari", method = RequestMethod.POST)
 	@ResponseBody
 	public void expedientModificarComentari(
@@ -150,6 +159,38 @@ public class ExpedientRestController {
 				georeferencia.getReferencia());
 	}
 
+	@RequestMapping(value="/{processInstanceId}/georeferencia", method = RequestMethod.POST)
+	@ResponseBody
+	public void expedientModificarGeoreferencia(
+			@PathVariable("processInstanceId") String processInstanceId,
+			@RequestBody String referencia) {
+		workflowBridgeService.expedientModificarGeoreferencia(processInstanceId, referencia);
+	}
+
+	@RequestMapping(value="/{processInstanceId}/posx", method = RequestMethod.POST)
+	@ResponseBody
+	public void expedientModificarGeoX(
+			@PathVariable("processInstanceId") String processInstanceId,
+			@RequestBody Double posx) {
+		workflowBridgeService.expedientModificarGeoX(processInstanceId, posx);
+	}
+
+	@RequestMapping(value="/{processInstanceId}/posy", method = RequestMethod.POST)
+	@ResponseBody
+	public void expedientModificarGeoY(
+			@PathVariable("processInstanceId") String processInstanceId,
+			@RequestBody Double posy) {
+		workflowBridgeService.expedientModificarGeoY(processInstanceId, posy);
+	}
+
+	@RequestMapping(value="/{processInstanceId}/dataInici", method = RequestMethod.POST)
+	@ResponseBody
+	public void expedientModificarDataInici(
+			@PathVariable("processInstanceId") String processInstanceId,
+			@RequestBody Date dataInici) {
+		workflowBridgeService.expedientModificarDataInici(processInstanceId, dataInici);
+	}
+
 	@RequestMapping(value="/{processInstanceId}/grup", method = RequestMethod.POST)
 	@ResponseBody
 	public void expedientModificarGrup(
@@ -172,6 +213,16 @@ public class ExpedientRestController {
 			@PathVariable("expedientId") Long expedientId,
 			@RequestBody ExpedientError expedientError) {
 
+	}
+
+	@RequestMapping(value="/process/{processInstanceId}/dada/{codi}", method = RequestMethod.GET)
+	@ResponseBody
+	public ExpedientDadaDto getExpedientAmbEntornITipusINumero(
+			@PathVariable("processInstanceId") String processInstanceId,
+			@PathVariable(value = "codi") String codi) {
+		return workflowBridgeService.getDadaPerProcessInstance(
+				processInstanceId,
+				codi);
 	}
 
 	@Data

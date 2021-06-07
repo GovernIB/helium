@@ -113,7 +113,7 @@ public class TerminisHelper {
     }
 
     @Data @Builder
-    public class TerminiInici {
+    public static class TerminiInici {
         private String processInstanceId;
         private Date data;
         private int anys;
@@ -123,7 +123,7 @@ public class TerminisHelper {
     }
 
     @Data @Builder
-    public class TerminiCalcul {
+    public static class TerminiCalcul {
         private Date data;
         private int anys;
         private int mesos;
@@ -133,7 +133,7 @@ public class TerminisHelper {
     }
 
     @Data @Builder
-    public class TerminiConfigurar {
+    public static class TerminiConfigurar {
         private String taskInstanceId;
         private Long timerId;
     }

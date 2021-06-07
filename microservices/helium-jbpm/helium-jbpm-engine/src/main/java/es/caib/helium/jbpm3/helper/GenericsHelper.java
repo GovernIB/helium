@@ -62,7 +62,7 @@ public class GenericsHelper {
     }
 
     @Data @Builder
-    public class Email {
+    public static class Email {
         private String fromAddress;
         private List<String> recipients;
         private List<String> ccRecipients;

@@ -6,12 +6,12 @@ package net.conselldemallorca.helium.core.helper;
 import net.conselldemallorca.helium.core.api.WProcessInstance;
 import net.conselldemallorca.helium.core.api.WTaskInstance;
 import net.conselldemallorca.helium.core.api.WToken;
+import net.conselldemallorca.helium.core.api.WorkflowEngineApi;
 import net.conselldemallorca.helium.core.api.WorkflowRetroaccioApi;
 import net.conselldemallorca.helium.core.common.JbpmVars;
 import net.conselldemallorca.helium.core.model.hibernate.*;
 import net.conselldemallorca.helium.core.model.hibernate.Camp.TipusCamp;
 import net.conselldemallorca.helium.jbpm3.handlers.BasicActionHandler;
-import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmTask;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmToken;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
@@ -103,7 +103,9 @@ public class RetroaccioHelper implements WorkflowRetroaccioApi {
 	@Resource
 	private IndexHelper indexHelper;
 	@Resource
-	private JbpmHelper jbpmHelper;
+	private WorkflowEngineApi workflowEngineApi;
+	@Resource
+	private JbpmRetroaccioHelper jbpmRetroaccioHelper;
 	@Resource(name="documentHelperV3")
 	private DocumentHelperV3 documentHelper;
 	@Resource
@@ -113,8 +115,6 @@ public class RetroaccioHelper implements WorkflowRetroaccioApi {
 	@Resource
 	private HerenciaHelper herenciaHelper;
 
-	@Resource
-	private ExpedientRegistreHelper expedientRegistreHelper;
 	@Resource
 	private DocumentRepository documentRepository;
 
@@ -175,7 +175,7 @@ public class RetroaccioHelper implements WorkflowRetroaccioApi {
 		Map<String, ExpedientTascaDto> tasquesPerRetroaccio = new HashMap<String, ExpedientTascaDto>();
 		for (ExpedientLog log: logs) {
 			if (log.isTargetTasca()) {
-				WTaskInstance task = jbpmHelper.getTaskById(log.getTargetId());
+				WTaskInstance task = workflowEngineApi.getTaskById(log.getTargetId());
 				if (task != null) {
 					tasquesPerRetroaccio.put(
 							log.getTargetId(),
@@ -211,7 +211,7 @@ public class RetroaccioHelper implements WorkflowRetroaccioApi {
 
 	@Override
 	public void eliminaInformacioRetroaccio(String processInstanceId) {
-		jbpmHelper.deleteProcessInstanceTreeLogs(processInstanceId);
+		jbpmRetroaccioHelper.deleteProcessInstanceTreeLogs(processInstanceId);
 	}
 
 	@Override
@@ -241,7 +241,7 @@ public class RetroaccioHelper implements WorkflowRetroaccioApi {
 			String processInstanceId,
 			String message) {
 		if (ambRetroaccio) {
-			long jbpmLogId = jbpmHelper.addProcessInstanceMessageLog(
+			long jbpmLogId = jbpmRetroaccioHelper.addProcessInstanceMessageLog(
 					processInstanceId,
 					MESSAGE_LOGINFO_PREFIX + "::" + message);
 			return jbpmLogId;
@@ -317,7 +317,7 @@ public class RetroaccioHelper implements WorkflowRetroaccioApi {
 			String accioParams,
 			String user) {
 
-		WTaskInstance task = jbpmHelper.getTaskById(taskInstanceId);
+		WTaskInstance task = workflowEngineApi.getTaskById(taskInstanceId);
 		Expedient expedient = null;
 		if (expedientId == null) {
 			expedient = expedientHelper.findExpedientByProcessInstanceId(task.getProcessInstanceId());
@@ -327,7 +327,7 @@ public class RetroaccioHelper implements WorkflowRetroaccioApi {
 
 		Long jbpmLogId = null;
 		if (expedient.isAmbRetroaccio()) {
-			jbpmLogId = jbpmHelper.addTaskInstanceMessageLog(
+			jbpmLogId = jbpmRetroaccioHelper.addTaskInstanceMessageLog(
 					taskInstanceId,
 					getMessageLogPerTipus(tipus));
 		}
@@ -375,7 +375,7 @@ public class RetroaccioHelper implements WorkflowRetroaccioApi {
 
 		Long jbpmLogId = null;
 		if (expedient.isAmbRetroaccio()) {
-			jbpmLogId = jbpmHelper.addProcessInstanceMessageLog(
+			jbpmLogId = jbpmRetroaccioHelper.addProcessInstanceMessageLog(
 					processInstanceId,
 					getMessageLogPerTipus(tipus));
 		}
@@ -515,11 +515,12 @@ public class RetroaccioHelper implements WorkflowRetroaccioApi {
 
 
 
+
 	private void retrocedirFinsLog(ExpedientLog expedientLog, boolean retrocedirPerTasques, Long iniciadorId) {
 		boolean debugRetroces = true;
 
 //		ExpedientLog expedientLog = expedientLoggerRepository.getById(expedientLogId, false);
-		WTaskInstance jtask = jbpmHelper.getTaskById(expedientLog.getTargetId());
+		WTaskInstance jtask = workflowEngineApi.getTaskById(expedientLog.getTargetId());
 
 		// Variables per a desar la informació per a executar el node enter al final de tot
 //		long nodeEnterObjectId = 0;
@@ -544,7 +545,7 @@ public class RetroaccioHelper implements WorkflowRetroaccioApi {
 
 		if (debugRetroces)
 			printLogs(logsJbpm);
-		jbpmHelper.addProcessInstanceMessageLog(
+		jbpmRetroaccioHelper.addProcessInstanceMessageLog(
 				expedientLog.getExpedient().getProcessInstanceId(),
 				getMessageLogPerTipus(retrocedirPerTasques ? ExpedientRetroaccioTipus.EXPEDIENT_RETROCEDIR_TASQUES : ExpedientRetroaccioTipus.EXPEDIENT_RETROCEDIR));
 		if (logsJbpm != null && !logsJbpm.isEmpty()) {
@@ -599,7 +600,7 @@ public class RetroaccioHelper implements WorkflowRetroaccioApi {
 
 					// Consulta les variables de retrocés guardades abans de la versió 3.2.106 amb action node id
 					varName = BasicActionHandler.PARAMS_RETROCEDIR_VARIABLE_PREFIX + new Long(logo.getObjectId());
-					params = (String)jbpmHelper.getProcessInstanceVariable(
+					params = (String)workflowEngineApi.getProcessInstanceVariable(
 							new Long(logo.getProcessInstanceId()).toString(),
 							varName);
 					if (params != null)
@@ -607,7 +608,7 @@ public class RetroaccioHelper implements WorkflowRetroaccioApi {
 
 					// Consulta les variables de retrocés guardades a partir de la versió 3.2.106 amb actionName
 					varName = BasicActionHandler.PARAMS_RETROCEDIR_VARIABLE_PREFIX + logo.getName();
-					params = (String)jbpmHelper.getProcessInstanceVariable(
+					params = (String)workflowEngineApi.getProcessInstanceVariable(
 							new Long(logo.getProcessInstanceId()).toString(),
 							varName);
 					if (params != null && !paramsAccio.containsKey(paramKey))
@@ -621,8 +622,8 @@ public class RetroaccioHelper implements WorkflowRetroaccioApi {
 
 			// comprovam si estem retrocedint únicament la tasca actual
 			if (jtask != null) {
-				WProcessInstance pi = jbpmHelper.getProcessInstance(String.valueOf(expedientLog.getProcessInstanceId()));
-				currentToken = jbpmHelper.getProcessLogById(expedientLog.getJbpmLogId()).getToken();
+				WProcessInstance pi = workflowEngineApi.getProcessInstance(String.valueOf(expedientLog.getProcessInstanceId()));
+				currentToken = jbpmRetroaccioHelper.getProcessLogById(expedientLog.getJbpmLogId()).getToken();
 				Collection<TaskInstance> tis = ((ProcessInstance)pi.getProcessInstance()).getTaskMgmtInstance().getUnfinishedTasks(currentToken);
 				for (TaskInstance ti: tis) {
 					if (ti.getId() == ((JbpmTask)jtask).getTaskInstance().getId()){
@@ -648,38 +649,38 @@ public class RetroaccioHelper implements WorkflowRetroaccioApi {
 						if (started && !ended) {
 							if (debugRetroces)
 								logger.info(">>> [RETLOG] Cancel·lar/finalitzar procés (" + logo.getName() + ")");
-							jbpmHelper.cancelProcessInstance(logo.getObjectId());
+							jbpmRetroaccioHelper.cancelProcessInstance(logo.getObjectId());
 						} else if (!started && ended) {
 							if (debugRetroces)
 								logger.info(">>> [RETLOG] Desfer finalitzar procés (" + logo.getName() + ")");
-							jbpmHelper.revertProcessInstanceEnd(logo.getObjectId());
-							WProcessInstance jpi = jbpmHelper.getProcessInstance(String.valueOf(logo.getProcessInstanceId()));
+							jbpmRetroaccioHelper.revertProcessInstanceEnd(logo.getObjectId());
+							WProcessInstance jpi = workflowEngineApi.getProcessInstance(String.valueOf(logo.getProcessInstanceId()));
 							if (debugRetroces)
 								logger.info(">>> [RETLOG] Desfer finalitzar token (" + ((ProcessInstance)jpi.getProcessInstance()).getRootToken().getFullName() + ")");
-							jbpmHelper.revertTokenEnd(((ProcessInstance)jpi.getProcessInstance()).getRootToken().getId());
+							jbpmRetroaccioHelper.revertTokenEnd(((ProcessInstance)jpi.getProcessInstance()).getRootToken().getId());
 						}
 						break;
 					case LogObjectDto.LOG_OBJECT_TOKEN:
 						if (debugRetroces) {
-							WToken jtok = jbpmHelper.getTokenById(String.valueOf(logo.getObjectId()));
+							WToken jtok = workflowEngineApi.getTokenById(String.valueOf(logo.getObjectId()));
 							logger.info(">>> [LOGTOKEN] Inici Retroces token (" + logo.getName() + ") - End: " + jtok.getEnd());
 						}
 						if (started && !ended) {
 							if (debugRetroces)
 								logger.info(">>> [RETLOG] Cancel·lar token (" + logo.getName() + ")");
-							jbpmHelper.cancelToken(logo.getObjectId());
+							jbpmRetroaccioHelper.cancelToken(logo.getObjectId());
 
 							if (debugRetroces) {
-								WToken jtok = jbpmHelper.getTokenById(String.valueOf(logo.getObjectId()));
+								WToken jtok = workflowEngineApi.getTokenById(String.valueOf(logo.getObjectId()));
 								logger.info(">>> [LOGTOKEN] Retroces token cancelat (" + logo.getName() + ") - End: " + jtok.getEnd());
 							}
 						} else if (!started && ended) {
 							if (debugRetroces)
 								logger.info(">>> [RETLOG] Desfer finalitzar token (" + logo.getName() + ")");
-							jbpmHelper.revertTokenEnd(logo.getObjectId());
+							jbpmRetroaccioHelper.revertTokenEnd(logo.getObjectId());
 
 							if (debugRetroces) {
-								WToken jtok = jbpmHelper.getTokenById(String.valueOf(logo.getObjectId()));
+								WToken jtok = workflowEngineApi.getTokenById(String.valueOf(logo.getObjectId()));
 								logger.info(">>> [LOGTOKEN] Retroces revert token end (" + logo.getName() + ") - End: " + jtok.getEnd());
 							}
 						}
@@ -687,23 +688,22 @@ public class RetroaccioHelper implements WorkflowRetroaccioApi {
 							// Només ha d'executar el node si no és una instància de procés
 							// o un join o un fork
 							String desti = (String)logo.getValorInicial();
-							if (jbpmHelper.isJoinNode(logo.getProcessInstanceId(), (String)logo.getValorInicial())) {
-								Node joinNode = jbpmHelper.getNodeByName(logo.getProcessInstanceId(), desti);
+							if (jbpmRetroaccioHelper.isJoinNode(logo.getProcessInstanceId(), (String)logo.getValorInicial())) {
+								Node joinNode = jbpmRetroaccioHelper.getNodeByName(logo.getProcessInstanceId(), desti);
 								Node forkNode = getForkNode(logo.getProcessInstanceId(), joinNode);
 								if (forkNode != null)
 									desti = forkNode.getName();
 							}
 
 							if (debugRetroces) {
-								WToken jtok = jbpmHelper.getTokenById(String.valueOf(logo.getObjectId()));
+								WToken jtok = workflowEngineApi.getTokenById(String.valueOf(logo.getObjectId()));
 								logger.info(">>> [LOGTOKEN] Retroces abans token redirect (" + logo.getName() + ") - End: " + jtok.getEnd());
 							}
 
 //						boolean enterNode = (nodeRetrocedir == logo.getLogId());
-//						JbpmTask jtask = jbpmHelper.getTaskById(expedientLog.getTargetId());
-							Node ndesti = jbpmHelper.getNodeByName(logo.getProcessInstanceId(), desti);
+							Node ndesti = jbpmRetroaccioHelper.getNodeByName(logo.getProcessInstanceId(), desti);
 							boolean enterNode = retrocedirPerTasques && (jtask != null && ndesti.getId() == ((JbpmTask)jtask).getTaskInstance().getTask().getTaskNode().getId()); // és la tasca a la que volem retrocedir!!
-							boolean executeNode = (!jbpmHelper.isProcessStateNodeJoinOrFork( //(!jbpmHelper.isProcessStateNode(
+							boolean executeNode = (!jbpmRetroaccioHelper.isProcessStateNodeJoinOrFork(
 									logo.getProcessInstanceId(),
 									(String)logo.getValorInicial()));
 							if (enterNode) {
@@ -712,7 +712,7 @@ public class RetroaccioHelper implements WorkflowRetroaccioApi {
 							}
 							if (debugRetroces)
 								logger.info(">>> [RETLOG] Retornar token (name=" + logo.getName() + ") al node (name=" + desti + ", enter = " + enterNode + ", execute=" + executeNode + ")");
-							jbpmHelper.tokenRedirect(
+							workflowEngineApi.tokenRedirect(
 									logo.getObjectId(),
 									desti,
 									true,
@@ -720,36 +720,36 @@ public class RetroaccioHelper implements WorkflowRetroaccioApi {
 									executeNode);
 
 							if (debugRetroces) {
-								WToken jtok = jbpmHelper.getTokenById(String.valueOf(logo.getObjectId()));
+								WToken jtok = workflowEngineApi.getTokenById(String.valueOf(logo.getObjectId()));
 								logger.info(">>> [LOGTOKEN] Retroces després token redirect (" + logo.getName() + ") - End: " + jtok.getEnd());
 							}
 						}
 						break;
 					case LogObjectDto.LOG_OBJECT_TASK:
-						boolean tascaStarted = jbpmHelper.hasStartBetweenLogs(beginLogId, endLogId, logo.getObjectId());
+						boolean tascaStarted = jbpmRetroaccioHelper.hasStartBetweenLogs(beginLogId, endLogId, logo.getObjectId());
 						if (!tascaStarted && assigned) {
-							WTaskInstance task = jbpmHelper.findEquivalentTaskInstance(logo.getTokenId(), logo.getObjectId());
+							WTaskInstance task = jbpmRetroaccioHelper.findEquivalentTaskInstance(logo.getTokenId(), logo.getObjectId());
 							String valor = (String)logo.getValorInicial();
 							if (valor != null && !"".equals(valor)) {
 								if (debugRetroces)
 									logger.info(">>> [RETLOG] Reassignar tasca (" + task.getId() + ") a " + valor);
 								if (valor.startsWith("[") && valor.endsWith("]")) {
 									String[] actors = valor.substring(1, valor.length()-1).split(",");
-									jbpmHelper.setTaskInstancePooledActors(
+									workflowEngineApi.setTaskInstancePooledActors(
 											task.getId(),
 											actors);
 								} else {
-									jbpmHelper.setTaskInstanceActorId(
+									workflowEngineApi.setTaskInstanceActorId(
 											task.getId(),
 											valor);
 								}
 							}
 						} else if (!tascaStarted && ended) {
-							WTaskInstance task = jbpmHelper.findEquivalentTaskInstance(logo.getTokenId(), logo.getObjectId());
+							WTaskInstance task = jbpmRetroaccioHelper.findEquivalentTaskInstance(logo.getTokenId(), logo.getObjectId());
 							if (debugRetroces)
 								logger.info(">>> [RETLOG] Copiar variables de la tasca (id=" + logo.getObjectId() + ") a la tasca (id=" + task.getId() + ")");
-							Map<String, Object> vars = jbpmHelper.getTaskInstanceVariables(new Long(logo.getObjectId()).toString());
-							jbpmHelper.setTaskInstanceVariables(task.getId(), vars, true);
+							Map<String, Object> vars = workflowEngineApi.getTaskInstanceVariables(new Long(logo.getObjectId()).toString());
+							workflowEngineApi.setTaskInstanceVariables(task.getId(), vars, true);
 						}
 						break;
 					case LogObjectDto.LOG_OBJECT_VARPROCES:
@@ -758,7 +758,7 @@ public class RetroaccioHelper implements WorkflowRetroaccioApi {
 							if (created && !deleted) {
 								if (debugRetroces)
 									logger.info(">>> [RETLOG] Esborrar variable " + logo.getName() + " del proces (" + pid + ")");
-								jbpmHelper.deleteProcessInstanceVariable(
+								workflowEngineApi.deleteProcessInstanceVariable(
 										pid,
 										logo.getName());
 								if (logo.getName().startsWith(JbpmVars.PREFIX_DOCUMENT)) {
@@ -785,12 +785,12 @@ public class RetroaccioHelper implements WorkflowRetroaccioApi {
 											null,
 											null,
 											null);
-									jbpmHelper.setProcessInstanceVariable(
+									workflowEngineApi.setProcessInstanceVariable(
 											pid,
 											logo.getName(),
 											documentStoreId);
 								} else {
-									jbpmHelper.setProcessInstanceVariable(
+									workflowEngineApi.setProcessInstanceVariable(
 											pid,
 											logo.getName(),
 											logo.getValorInicial());
@@ -813,12 +813,12 @@ public class RetroaccioHelper implements WorkflowRetroaccioApi {
 											null,
 											null,
 											null);
-									jbpmHelper.setProcessInstanceVariable(
+									workflowEngineApi.setProcessInstanceVariable(
 											pid,
 											logo.getName(),
 											documentStoreId);
 								} else {
-									jbpmHelper.setProcessInstanceVariable(
+									workflowEngineApi.setProcessInstanceVariable(
 											pid,
 											logo.getName(),
 											logo.getValorInicial());
@@ -835,17 +835,17 @@ public class RetroaccioHelper implements WorkflowRetroaccioApi {
 							for (LogObjectDto lo: LogObjectDtos) {
 								if (lo.getTipus() == LogObjectDto.LOG_OBJECT_TASK && lo.getObjectId() == logo.getTaskInstanceId()) {
 									hiHaLogTasca = true;
-									logTascaStarted = jbpmHelper.hasStartBetweenLogs(beginLogId, endLogId, logo.getTaskInstanceId());
+									logTascaStarted = jbpmRetroaccioHelper.hasStartBetweenLogs(beginLogId, endLogId, logo.getTaskInstanceId());
 									break;
 								}
 							}
 							if (!hiHaLogTasca || (hiHaLogTasca && !logTascaStarted)) {
-								WTaskInstance task = jbpmHelper.findEquivalentTaskInstance(logo.getTokenId(), logo.getTaskInstanceId());
+								WTaskInstance task = jbpmRetroaccioHelper.findEquivalentTaskInstance(logo.getTokenId(), logo.getTaskInstanceId());
 								//String tid = new Long(logo.getTaskInstanceId()).toString();
 								if (created && !deleted) {
 									if (debugRetroces)
 										logger.info(">>> [RETLOG] Esborrar variable " + logo.getName() + " de la tasca (" + task.getId() + ")");
-									jbpmHelper.deleteTaskInstanceVariable(
+									workflowEngineApi.deleteTaskInstanceVariable(
 											task.getId(),
 											logo.getName());
 									// Si la variable ha estat creada mitjançant el DefaultControllerHandler fa un setVariableLocally
@@ -858,7 +858,7 @@ public class RetroaccioHelper implements WorkflowRetroaccioApi {
 											logo.getName(),
 											expedientTipusId);
 									if (campTasca != null) {
-										jbpmHelper.setTaskInstanceVariable(
+										workflowEngineApi.setTaskInstanceVariable(
 												task.getId(),
 												logo.getName(),
 												null);
@@ -888,12 +888,12 @@ public class RetroaccioHelper implements WorkflowRetroaccioApi {
 												null,
 												null,
 												null);
-										jbpmHelper.setTaskInstanceVariable(
+										workflowEngineApi.setTaskInstanceVariable(
 												task.getId(),
 												logo.getName(),
 												documentStoreId);
 									} else {
-										jbpmHelper.setTaskInstanceVariable(
+										workflowEngineApi.setTaskInstanceVariable(
 												task.getId(),
 												logo.getName(),
 												logo.getValorInicial());
@@ -916,12 +916,12 @@ public class RetroaccioHelper implements WorkflowRetroaccioApi {
 												null,
 												null,
 												null);
-										jbpmHelper.setTaskInstanceVariable(
+										workflowEngineApi.setTaskInstanceVariable(
 												task.getId(),
 												logo.getName(),
 												documentStoreId);
 									} else {
-										jbpmHelper.setTaskInstanceVariable(
+										workflowEngineApi.setTaskInstanceVariable(
 												task.getId(),
 												logo.getName(),
 												logo.getValorInicial());
@@ -945,7 +945,7 @@ public class RetroaccioHelper implements WorkflowRetroaccioApi {
 							}
 						}
 						// Retrocedeix l'acció
-						jbpmHelper.retrocedirAccio(
+						workflowEngineApi.retrocedirAccio(
 								pid,
 								logo.getName(),
 								params,
@@ -997,9 +997,8 @@ public class RetroaccioHelper implements WorkflowRetroaccioApi {
 
 		// Si retrocedim la tasca actual...
 		if (tascaActual) {
-//			Node ndesti = jbpmHelper.getNodeByName(expedientLog.getProcessInstanceId(), desti);
 			boolean enterNode = retrocedirPerTasques; //&& (nodeDesti.getId() == jtask.getTask().getTask().getTaskNode().getId()); // és la tasca a la que volem retrocedir!!
-			boolean executeNode = (!jbpmHelper.isProcessStateNodeJoinOrFork( //(!jbpmHelper.isProcessStateNode(
+			boolean executeNode = (!jbpmRetroaccioHelper.isProcessStateNodeJoinOrFork(
 					expedientLog.getProcessInstanceId(),
 					nodeDesti.getName()));
 			if (enterNode) {
@@ -1007,7 +1006,7 @@ public class RetroaccioHelper implements WorkflowRetroaccioApi {
 			}
 			if (debugRetroces)
 				logger.info(">>> [RETLOG] Retornar token (name=" + currentToken.getName() + ") al node (name=" + nodeDesti.getName() + ", enter = " + enterNode + ", execute=" + executeNode + ")");
-			jbpmHelper.tokenRedirect(
+			workflowEngineApi.tokenRedirect(
 					currentToken.getId(),
 					nodeDesti.getName(),
 					true,
@@ -1019,7 +1018,7 @@ public class RetroaccioHelper implements WorkflowRetroaccioApi {
 			}
 		}
 		if (retrocedirPerTasques && nodeEnterTokenId != null) {
-			WTaskInstance task = jbpmHelper.findEquivalentTaskInstance(nodeEnterTokenId, Long.valueOf(expedientLog.getTargetId()));
+			WTaskInstance task = jbpmRetroaccioHelper.findEquivalentTaskInstance(nodeEnterTokenId, Long.valueOf(expedientLog.getTargetId()));
 			TaskInstance ti = ((JbpmTask)task).getTaskInstance();
 			ContextInstance ci = ti.getProcessInstance().getContextInstance();
 			for (CampTasca camp: getCampsPerTaskInstance(ti)) {
@@ -1085,13 +1084,13 @@ public class RetroaccioHelper implements WorkflowRetroaccioApi {
 				processInstanceId = String.valueOf(logo.getProcessInstanceId());
 				if (!processInstancesConsultats.contains(processInstanceId)) {
 					processInstancesConsultats.add(processInstanceId);
-					variables = jbpmHelper.getProcessInstanceVariables(String.valueOf(logo.getProcessInstanceId()));
+					variables = workflowEngineApi.getProcessInstanceVariables(String.valueOf(logo.getProcessInstanceId()));
 					if (variables != null) {
 						for (String variableName : variables.keySet())
 							if (variableName.startsWith(BasicActionHandler.PARAMS_RETROCEDIR_VARIABLE_PREFIX)) {
 								// Recupera la informació del node
 								actionNodeId = variableName.substring(BasicActionHandler.PARAMS_RETROCEDIR_VARIABLE_PREFIX.length(), variableName.length());
-								action = NumberUtils.isNumber(actionNodeId) ? jbpmHelper.getActionById(Long.valueOf(actionNodeId)) : null;
+								action = NumberUtils.isNumber(actionNodeId) ? jbpmRetroaccioHelper.getActionById(Long.valueOf(actionNodeId)) : null;
 								if (action != null) {
 									paramsAccio.put(logo.getProcessInstanceId() + "_" + action.getName(), String.valueOf(variables.get(variableName)));
 								}
@@ -1247,8 +1246,8 @@ public class RetroaccioHelper implements WorkflowRetroaccioApi {
 					}
 					if (!ignored) {
 						if (variableInstance.getName() != null || variableInstance.getValue() != null) {
-							Long variableInstanceId = jbpmHelper.getVariableIdFromVariableLog(plog.getId());
-							Long taskInstanceId = jbpmHelper.getTaskIdFromVariableLog(plog.getId());
+							Long variableInstanceId = jbpmRetroaccioHelper.getVariableIdFromVariableLog(plog.getId());
+							Long taskInstanceId = jbpmRetroaccioHelper.getTaskIdFromVariableLog(plog.getId());
 							Long objId = new Long(variableInstanceId);
 							LogObjectDto lobj = LogObjectDtos.get(objId);
 							if (lobj == null) {
@@ -1475,10 +1474,10 @@ public class RetroaccioHelper implements WorkflowRetroaccioApi {
 
 		List<ProcessLog> logsJbpm = new ArrayList<ProcessLog>();
 
-		WProcessInstance pi = jbpmHelper.getRootProcessInstance(processInstanceId.toString());
-		List<WProcessInstance> processos = jbpmHelper.getProcessInstanceTree(pi.getId());
+		WProcessInstance pi = workflowEngineApi.getRootProcessInstance(processInstanceId.toString());
+		List<WProcessInstance> processos = workflowEngineApi.getProcessInstanceTree(pi.getId());
 		for (WProcessInstance proces: processos) {
-			Map<Token, List<ProcessLog>> logsPerInstanciaProces = jbpmHelper.getProcessInstanceLogs(
+			Map<Token, List<ProcessLog>> logsPerInstanciaProces = jbpmRetroaccioHelper.getProcessInstanceLogs(
 					proces.getId());
 			for (Token token: logsPerInstanciaProces.keySet()) {
 				for (ProcessLog plog: logsPerInstanciaProces.get(token))
@@ -1578,7 +1577,7 @@ public class RetroaccioHelper implements WorkflowRetroaccioApi {
 	}
 
 	private JbpmToken getTokenByJbpmLogId(Long jbpmLogId){
-		ProcessLog pl = jbpmHelper.getProcessLogById(jbpmLogId);
+		ProcessLog pl = jbpmRetroaccioHelper.getProcessLogById(jbpmLogId);
 		if (pl == null)
 			return null;
 		return new JbpmToken(pl.getToken());

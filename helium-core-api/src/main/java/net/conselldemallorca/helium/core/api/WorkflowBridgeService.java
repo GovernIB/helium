@@ -59,6 +59,10 @@ public interface WorkflowBridgeService {
 			String processInstanceId,
 			String estatCodi);
 
+	public void expedientModificarEstatId(
+			String processInstanceId,
+			Long estatId);
+
 	public void expedientModificarComentari(
 			String processInstanceId,
 			String comentari);
@@ -77,6 +81,22 @@ public interface WorkflowBridgeService {
 			Double posy,
 			String referencia);
 
+	public void expedientModificarGeoreferencia(
+			String processInstanceId,
+			String referencia);
+
+	public void expedientModificarGeoX(
+			String processInstanceId,
+			Double posx);
+
+	public void expedientModificarGeoY(
+			String processInstanceId,
+			Double posy);
+
+	public void expedientModificarDataInici(
+			String processInstanceId,
+			Date dataInici);
+
 	public void expedientModificarGrup(
 			String processInstanceId,
 			String grupCodi);
@@ -84,6 +104,13 @@ public interface WorkflowBridgeService {
 	public void expedientModificarResponsable(
 			String processInstanceId,
 			String responsableCodi);
+
+	// Dades
+
+	public ExpedientDadaDto getDadaPerProcessInstance(
+			String processInstanceId,
+			String codi);
+
 
 	// TASQUES
 	////////////////////////////////////////////////////////////////////////////////
@@ -107,6 +134,12 @@ public interface WorkflowBridgeService {
 	public TascaDadaDto getDadaPerTaskInstance(
 			String processInstanceId,
 			String taskInstanceId,
+			String varCodi);
+
+	public CampTascaDto getCampTascaPerInstanciaTasca(
+			String taskName,
+			String processDefinitionId,
+			String processInstanceId,
 			String varCodi);
 
 	// DOCUMENTS
@@ -138,6 +171,15 @@ public interface WorkflowBridgeService {
 			String documentCodi,
 			Date dataDocument);
 
+	public Long documentExpedientCrear(
+			String taskInstanceId,
+			String processInstanceId,
+			String documentCodi,
+			Date documentData,
+			boolean isAdjunt,
+			String adjuntTitol,
+			String arxiuNom,
+			byte[] arxiuContingut);
 	public Long documentExpedientGuardar(
 			String processInstanceId,
 			String documentCodi,
@@ -293,4 +335,31 @@ public interface WorkflowBridgeService {
 			String processInstanceId,
 			String usuariCodi);
 
+	// DEFINICIONS DE PROCES
+	////////////////////////////////////////////////////////////////////////////////
+
+	public Integer getDefinicioProcesVersioAmbJbpmKeyIProcessInstanceId(
+			String jbpmKey,
+			String processInstanceId);
+
+	public DefinicioProcesDto getDefinicioProcesPerProcessInstanceId(String processInstanceId);
+
+	public Long getDefinicioProcesEntornAmbJbpmKeyIVersio(
+			String jbpmKey,
+			Integer version);
+
+	public Long getDarreraVersioEntornAmbEntornIJbpmKey(
+			Long entornId,
+			String jbpmKey);
+
+	public void initializeDefinicionsProces();
+
+	public String getProcessDefinitionIdHeretadaAmbPid(String processInstanceId);
+
+	// VARIABLES
+	////////////////////////////////////////////////////////////////////////////////
+	public CampTipusIgnored getCampAndIgnored(
+			String processDefinitionId,
+			Long expedientId,
+			String varCodi);
 }

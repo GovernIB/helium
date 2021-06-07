@@ -89,11 +89,21 @@ public class DocumentsHelper {
                 documentCodi);
     }
 
+    public Long documentExpedientCrear(
+            String documentCodi,
+            DocumentCrear documentCrear) {
+        return restTemplate.postForObject(
+                getDocumentsBridgeAddress() + "/{documentCodi}",
+                documentCrear,
+                Long.class,
+                documentCodi);
+    }
+
     public Long documentExpedientGuardar(
             String documentCodi,
             DocumentGuardar documentGuardar) {
         return restTemplate.postForObject(
-                getDocumentsBridgeAddress() + "/{documentCodi}",
+                getDocumentsBridgeAddress() + "/{documentCodi}/update",
                 documentGuardar,
                 Long.class,
                 documentCodi);
@@ -133,7 +143,7 @@ public class DocumentsHelper {
     }
 
     @Data @Builder
-    public class DocumentRegistre {
+    public static class DocumentRegistre {
         private String numero;
         private Date data;
         private String oficinaCodi;
@@ -142,13 +152,13 @@ public class DocumentsHelper {
     }
 
     @Data @Builder
-    public class DocumentTasca {
+    public static class DocumentTasca {
         private String processInstanceId;
         private String taskInstanceId;
     }
 
     @Data @Builder
-    public class DocumentAdjunt {
+    public static class DocumentAdjunt {
         private String adjuntId;
         private String adjuntTitol;
         private Date adjuntData;
@@ -157,7 +167,19 @@ public class DocumentsHelper {
     }
 
     @Data @Builder
-    public class DocumentGuardar {
+    public static class DocumentCrear {
+        private String taskInstanceId;
+        private String processInstanceId;
+        private String documentCodi;
+        private Date documentData;
+        private boolean isAdjunt;
+        private String adjuntTitol;
+        private String arxiuNom;
+        private byte[] arxiuContingut;
+    }
+
+    @Data @Builder
+    public static class DocumentGuardar {
         private String processInstanceId;
         private Date data;
         private String arxiuNom;
@@ -165,7 +187,7 @@ public class DocumentsHelper {
     }
 
     @Data @Builder
-    public class DocumentGenerar {
+    public static class DocumentGenerar {
         private String taskInstanceId;
         private String processDefinitionId;
         private String processInstanceId;
