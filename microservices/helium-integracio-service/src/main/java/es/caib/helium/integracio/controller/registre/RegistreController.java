@@ -1,5 +1,7 @@
 package es.caib.helium.integracio.controller.registre;
 
+import java.util.Date;
+
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +16,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import com.netflix.servo.util.Strings;
 
 import es.caib.helium.integracio.domini.registre.RegistreAssentament;
 import es.caib.helium.integracio.domini.registre.RespostaConsultaRegistre;
@@ -47,17 +51,27 @@ public class RegistreController {
 		return new ResponseEntity<Void>(HttpStatus.OK);
 	}
 
-	@GetMapping(value="{numeroRegistre}/oficina", produces = "application/json")
+	@GetMapping(value = "{numeroRegistre}/oficina", produces = "application/json")
 	public ResponseEntity<RespostaConsultaRegistre> getRegistreSortida(
 			@Valid @PathVariable("numeroRegistre") String numeroRegistre,
 			@RequestParam("usuariCodi") String usuariCodi,
 			@RequestParam("entitatCodi") String entitatCodi
-			)
+			) 
 			throws Exception {
+		
 		var resposta = registreService.obtenirRegistreSortida(numeroRegistre, usuariCodi, entitatCodi);
 		if (resposta == null) {
 			return new ResponseEntity<RespostaConsultaRegistre>(HttpStatus.NOT_FOUND);
 		}
 		return new ResponseEntity<RespostaConsultaRegistre>(resposta, HttpStatus.OK);
+	}
+	
+	@GetMapping(value = "{numeroRegistre}/justificant/data")
+	public ResponseEntity<Date> getJustificantData(@PathVariable("numeroRegistre") String numeroRegistre) throws Exception {
+	
+		if (Strings.isNullOrEmpty(numeroRegistre)) {
+			return new ResponseEntity<Date>(HttpStatus.BAD_REQUEST);
+		}
+		return new ResponseEntity<Date>(HttpStatus.BAD_REQUEST);
 	}
 }

@@ -3,8 +3,6 @@ package es.caib.helium.integracio.domini.arxiu;
 import java.util.Date;
 import java.util.List;
 
-import javax.validation.constraints.NotNull;
-
 import lombok.Data;
 
 @Data

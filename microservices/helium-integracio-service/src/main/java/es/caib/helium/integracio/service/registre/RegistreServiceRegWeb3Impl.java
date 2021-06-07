@@ -7,6 +7,7 @@ import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
 import java.sql.Timestamp;
+import java.util.Date;
 import java.util.Map;
 
 import javax.xml.ws.BindingProvider;
@@ -36,6 +37,13 @@ public class RegistreServiceRegWeb3Impl implements RegistreService {
 	
 	private RegWebAsientoRegistralWs api;
 
+	
+	@Override
+	public Date getJustificantDataRecepcio(String numeroRegistre) throws RegistreException {
+		
+		// TODO No forma part d'aquesta implementacio 
+		return null;
+	}
 	
 	public RespostaAnotacioRegistre registrarSortida(
 			RegistreAssentament registreSortida,
@@ -243,5 +251,4 @@ public class RegistreServiceRegWeb3Impl implements RegistreService {
     	}
     	return idioma;
     }
-  
 }
