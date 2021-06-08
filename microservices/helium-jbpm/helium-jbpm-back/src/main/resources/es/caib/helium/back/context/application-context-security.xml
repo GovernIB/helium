@@ -11,11 +11,14 @@
 
 	<sec:http pattern="/api/rest**" security="none"/>
 	<sec:http pattern="/api/rest/**" security="none"/>
+<!--	<sec:http pattern="/engine/api**" security="none"/>-->
+<!--	<sec:http pattern="/engine/api/**" security="none"/>-->
 
 	<sec:http create-session="never" use-expressions="true" auto-config="true" entry-point-ref="preAuthenticatedProcessingFilterEntryPoint" disable-url-rewriting="true">
 		<sec:intercept-url pattern="/error" access="isAnonymous()"/>
 		<sec:intercept-url pattern="/api/rest*" access="isAnonymous()"/>
-		<sec:intercept-url pattern="/*" access="hasRole('HEL_ADMIN') or hasRole('HEL_USER') or hasRole('tothom')"/>
+		<sec:intercept-url pattern="/engine/api*" access="hasRole('HEL_JBPM')"/>
+		<sec:intercept-url pattern="/*" access="hasRole('HEL_ADMIN') or hasRole('HEL_JBPM') or hasRole('tothom')"/>
 		<sec:custom-filter position="PRE_AUTH_FILTER" ref="preauthFilter"/>
 		<sec:anonymous/>
 		<sec:session-management session-fixation-protection="none"/>
@@ -40,7 +43,7 @@
 						<property name="defaultMappableAttributes">
 							<set>
 								<value>HEL_ADMIN</value>
-								<value>HEL_USER</value>
+								<value>HEL_JBPM</value>
 								<value>tothom</value>
 							</set>
 						</property>

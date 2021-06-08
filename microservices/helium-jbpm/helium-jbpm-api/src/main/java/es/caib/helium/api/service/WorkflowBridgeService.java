@@ -52,6 +52,10 @@ public interface WorkflowBridgeService {
             String processInstanceId,
             String estatCodi);
 
+	public void expedientModificarEstat(
+			String processInstanceId,
+			Long estatId);
+
 	public void expedientModificarComentari(
             String processInstanceId,
             String comentari);
@@ -69,6 +73,22 @@ public interface WorkflowBridgeService {
 			Double posx,
 			Double posy,
 			String referencia);
+
+	public void expedientModificarGeoreferencia(
+			String processInstanceId,
+			String referencia);
+
+	public void expedientModificarGeoX(
+			String processInstanceId,
+			Double posx);
+
+	public void expedientModificarGeoY(
+			String processInstanceId,
+			Double posy);
+
+	public void expedientModificarDataInici(
+			String processInstanceId,
+			Date dataInici);
 
 	public void expedientModificarGrup(
 			String processInstanceId,
@@ -95,7 +115,7 @@ public interface WorkflowBridgeService {
 			String expedientTipusCodi,
 			Map<String, Object> filtreValors);
 
-	public ExpedientDadaDto getDadaPerProcessInstance(
+	public String getDadaPerProcessInstance(
 			String processInstanceId,
 			String varCodi);
 
@@ -128,6 +148,15 @@ public interface WorkflowBridgeService {
 			String taskInstanceId,
 			String varCodi);
 
+	public CampTascaDto getCampTascaPerInstanciaTasca(
+			String taskName,
+			String processDefinitionId,
+			String processInstanceId,
+			String name);
+
+//	public List<CampTascaDto> getCampsPerTaskInstance(String processDefinitionId, String taskName);
+//	public List<DocumentTascaDto> getDocumentsPerTaskInstance(String processDefinitionId, String taskName);
+
 
 	// DOCUMENTS
 	////////////////////////////////////////////////////////////////////////////////
@@ -157,6 +186,16 @@ public interface WorkflowBridgeService {
             String processInstanceId,
             String documentCodi,
             Date dataDocument);
+
+	public Long documentExpedientCrear(
+			String taskInstanceId,
+			String processInstanceId,
+			String documentCodi,
+			Date documentData,
+			boolean isAdjunt,
+			String adjuntTitol,
+			String arxiuNom,
+			byte[] arxiuContingut);
 
 	public Long documentExpedientGuardar(
 			String processInstanceId,
@@ -438,18 +477,25 @@ public interface WorkflowBridgeService {
 
 	// DEFINICIO PROCES
 	////////////////////////////////////////////////////////////////////////////////
-	public DefinicioProcesDto getDefinicioProcesAmbJbpmKeyIProcessInstanceId(
+	public Integer getDefinicioProcesVersioAmbJbpmKeyIProcessInstanceId(
 			String jbpmKey,
 			String processInstanceId);
 	public DefinicioProcesDto getDefinicioProcesPerProcessInstanceId(String processInstanceId);
-	public DefinicioProcesDto getDefinicioProcesAmbJbpmKeyIVersio(
+	public Long getDefinicioProcesEntornAmbJbpmKeyIVersio(
 			String jbpmKey,
 			int version);
-	public DefinicioProcesDto getDarreraVersioAmbEntornIJbpmKey(
+	public Long getDarreraVersioEntornAmbEntornIJbpmKey(
 			Long entornId,
 			String jbpmKey);
 	public void initializeDefinicionsProces();
+	public String getProcessDefinitionIdHeretadaAmbPid(String processInstanceId);
 
+	// VARIABLES
+	////////////////////////////////////////////////////////////////////////////////
+	public CampTipusIgnored getCampAndIgnored(
+			String processDefinitionId,
+			Long expedientId,
+			String varCodi);
 
 	// CARRECS
 	////////////////////////////////////////////////////////////////////////////////
@@ -486,6 +532,5 @@ public interface WorkflowBridgeService {
 	public boolean tokenActivar(long tokenId, boolean activar);
 	public void expedientEliminaInformacioRetroaccio(String processInstanceId);
 	public void afegirInstanciaProcesPerVerificarFinalitzacio(String processInstanceId);
-
 
 }

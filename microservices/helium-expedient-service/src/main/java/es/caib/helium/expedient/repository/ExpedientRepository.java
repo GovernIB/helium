@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import es.caib.helium.expedient.domain.Expedient;
+import es.caib.helium.ms.repository.BaseRepository;
 
 @Repository
 public interface ExpedientRepository extends BaseRepository<Expedient, Long>  {

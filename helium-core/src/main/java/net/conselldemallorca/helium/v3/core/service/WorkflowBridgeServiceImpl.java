@@ -2,6 +2,7 @@ package net.conselldemallorca.helium.v3.core.service;
 
 import net.conselldemallorca.helium.core.api.WorkflowBridgeService;
 import net.conselldemallorca.helium.core.api.WorkflowEngineApi;
+import net.conselldemallorca.helium.core.common.JbpmVars;
 import net.conselldemallorca.helium.core.common.ThreadLocalInfo;
 import net.conselldemallorca.helium.core.extern.domini.FilaResultat;
 import net.conselldemallorca.helium.core.extern.domini.ParellaCodiValor;
@@ -82,6 +83,10 @@ public class WorkflowBridgeServiceImpl implements WorkflowBridgeService {
     private DominiHelper dominiHelper;
     @Resource
     private VariableHelper variableHelper;
+    @Resource
+    private DefinicioProcesHelper definicioProcesHelper;
+    @Resource
+    private HerenciaHelper herenciaHelper;
     @Resource
     private MailHelper mailHelper;
 
@@ -330,6 +335,34 @@ public class WorkflowBridgeServiceImpl implements WorkflowBridgeService {
     }
 
     @Override
+    public void expedientModificarEstatId(
+            String processInstanceId,
+            Long estatId) {
+        logger.debug("Modificant estat de l'expedient (" +
+                "processInstanceId=" + processInstanceId + ", " +
+                "estatId=" + estatId + ")");
+        Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
+        Estat estat = estatRepository.findByExpedientTipusAndIdAmbHerencia(
+                expedient.getTipus().getId(),
+                estatId);
+        if (estat == null)
+            throw new NoTrobatException(Estat.class, estatId);
+        expedientHelper.update(
+                expedient,
+                expedient.getNumero(),
+                expedient.getTitol(),
+                expedient.getResponsableCodi(),
+                expedient.getDataInici(),
+                expedient.getComentari(),
+                estat.getId(),
+                expedient.getGeoPosX(),
+                expedient.getGeoPosY(),
+                expedient.getGeoReferencia(),
+                expedient.getGrupCodi(),
+                false);
+    }
+
+    @Override
     public void expedientModificarComentari(
             String processInstanceId,
             String comentari) {
@@ -425,6 +458,94 @@ public class WorkflowBridgeServiceImpl implements WorkflowBridgeService {
                 false);
     }
 
+    public void expedientModificarGeoreferencia(
+            String processInstanceId,
+            String geoReferencia) {
+        logger.debug("Modificant georeferencia de l'expedient (" +
+                "processInstanceId=" + processInstanceId + ", " +
+                "geoReferencia=" + geoReferencia + ")");
+        Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
+        expedientHelper.update(
+                expedient,
+                expedient.getNumero(),
+                expedient.getTitol(),
+                expedient.getResponsableCodi(),
+                expedient.getDataInici(),
+                expedient.getComentari(),
+                (expedient.getEstat() != null) ? expedient.getEstat().getId() : null,
+                expedient.getGeoPosX(),
+                expedient.getGeoPosY(),
+                geoReferencia,
+                expedient.getGrupCodi(),
+                false);
+    }
+
+    public void expedientModificarGeoX(
+            String processInstanceId,
+            Double posx) {
+        logger.debug("Modificant geoPosX de l'expedient (" +
+                "processInstanceId=" + processInstanceId + ", " +
+                "geoPosX=" + posx + ")");
+        Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
+        expedientHelper.update(
+                expedient,
+                expedient.getNumero(),
+                expedient.getTitol(),
+                expedient.getResponsableCodi(),
+                expedient.getDataInici(),
+                expedient.getComentari(),
+                (expedient.getEstat() != null) ? expedient.getEstat().getId() : null,
+                posx,
+                expedient.getGeoPosY(),
+                expedient.getGeoReferencia(),
+                expedient.getGrupCodi(),
+                false);
+    }
+
+    public void expedientModificarGeoY(
+            String processInstanceId,
+            Double posy) {
+        logger.debug("Modificant geoPosY de l'expedient (" +
+                "processInstanceId=" + processInstanceId + ", " +
+                "geoPosY=" + posy + ")");
+        Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
+        expedientHelper.update(
+                expedient,
+                expedient.getNumero(),
+                expedient.getTitol(),
+                expedient.getResponsableCodi(),
+                expedient.getDataInici(),
+                expedient.getComentari(),
+                (expedient.getEstat() != null) ? expedient.getEstat().getId() : null,
+                expedient.getGeoPosX(),
+                posy,
+                expedient.getGeoReferencia(),
+                expedient.getGrupCodi(),
+                false);
+    }
+
+    public void expedientModificarDataInici(
+            String processInstanceId,
+            Date dataInici) {
+        logger.debug("Modificant dataInici de l'expedient (" +
+                "processInstanceId=" + processInstanceId + ", " +
+                "dataInici=" + dataInici + ")");
+        Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
+        expedientHelper.update(
+                expedient,
+                expedient.getNumero(),
+                expedient.getTitol(),
+                expedient.getResponsableCodi(),
+                dataInici,
+                expedient.getComentari(),
+                (expedient.getEstat() != null) ? expedient.getEstat().getId() : null,
+                expedient.getGeoPosX(),
+                expedient.getGeoPosY(),
+                expedient.getGeoReferencia(),
+                expedient.getGrupCodi(),
+                false);
+    }
+
     @Override
     public void expedientModificarGrup(
             String processInstanceId,
@@ -471,6 +592,47 @@ public class WorkflowBridgeServiceImpl implements WorkflowBridgeService {
                 expedient.getGeoReferencia(),
                 expedient.getGrupCodi(),
                 false);
+    }
+
+    @Override
+    public ExpedientDadaDto getDadaPerProcessInstance(
+            String processInstanceId,
+            String varCodi) {
+        logger.debug("Obtenint la dada de l'instància de procés (processInstanceId=" + processInstanceId + ")");
+        DefinicioProces definicioProces = getDefinicioProcesDonatProcessInstanceId(
+                processInstanceId);
+        if (definicioProces == null)
+            throw new NoTrobatException(DefinicioProces.class, processInstanceId);
+        Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
+        ExpedientTipus expedientTipus = expedient.getTipus();
+        Camp camp;
+        if (expedientTipus.isAmbInfoPropia()) {
+            camp = campRepository.findByExpedientTipusAndCodi(
+                    expedientTipus.getId(),
+                    varCodi,
+                    expedientTipus.getExpedientTipusPare() != null);
+        } else {
+            camp = campRepository.findByDefinicioProcesAndCodi(
+                    definicioProces,
+                    varCodi);
+        }
+
+        if (camp == null)
+            throw new NoTrobatException(Camp.class, varCodi);
+        ExpedientDadaDto resposta = new ExpedientDadaDto();
+        Object valor = workflowEngineApi.getProcessInstanceVariable(
+                processInstanceId,
+                varCodi);
+        resposta.setText(
+                variableHelper.getTextPerCamp(
+                        camp,
+                        valor,
+                        null,
+                        null,
+                        processInstanceId,
+                        null,
+                        null));
+        return resposta;
     }
 
     // TASQUES
@@ -591,6 +753,18 @@ public class WorkflowBridgeServiceImpl implements WorkflowBridgeService {
                         null, 
                         null));
         return resposta;
+    }
+
+    public CampTascaDto getCampTascaPerInstanciaTasca(
+            String taskName,
+            String processDefinitionId,
+            String processInstanceId,
+            String varCodi) {
+        return variableHelper.getCampTascaPerInstanciaTasca(
+                taskName,
+                processDefinitionId,
+                processInstanceId,
+                varCodi);
     }
 
     // DOCUMENTS
@@ -744,6 +918,37 @@ public class WorkflowBridgeServiceImpl implements WorkflowBridgeService {
                 null,
                 null);
         return generat;
+    }
+
+    @Override
+    public Long documentExpedientCrear(
+            String taskInstanceId,
+            String processInstanceId,
+            String documentCodi,
+            Date documentData,
+            boolean isAdjunt,
+            String adjuntTitol,
+            String arxiuNom,
+            byte[] arxiuContingut) {
+        logger.debug("Guardant un document a dins l'expedient (" +
+                "processInstanceId=" + processInstanceId + ", " +
+                "documentCodi=" + documentCodi + ", " +
+                "data=" + documentData + ", " +
+                "arxiuNom=" + arxiuNom + ", " +
+                "arxiuContingut=" + arxiuContingut + ")");
+        return documentHelper.crearDocument(
+                taskInstanceId,
+                processInstanceId,
+                documentCodi,
+                documentData,
+                isAdjunt,
+                adjuntTitol,
+                arxiuNom,
+                arxiuContingut,
+                null,
+                null,
+                null,
+                null);
     }
 
     @Override
@@ -1417,6 +1622,127 @@ public class WorkflowBridgeServiceImpl implements WorkflowBridgeService {
                 reassignacio,
                 ReassignacioDto.class);
     }
+
+    // DEFINICIONS DE PROCES
+    ////////////////////////////////////////////////////////////////////////////////
+
+    @Override
+    public Integer getDefinicioProcesVersioAmbJbpmKeyIProcessInstanceId(
+            String jbpmKey,
+            String processInstanceId) {
+        logger.debug("Obtenint la darrera versió de la definició de procés donat el codi jBPM i el processInstanceId (jbpmKey=" + jbpmKey + ", processInstanceId=" + processInstanceId +")");
+        Expedient expedient = getExpedientDonatProcessInstanceId(processInstanceId);
+        DefinicioProces defincioProces = definicioProcesHelper.findDarreraVersioDefinicioProces(
+                expedient.getTipus(),
+                jbpmKey);
+        if (defincioProces != null) {
+            return defincioProces.getVersio();
+        }
+        return null;
+    }
+
+    @Override
+    public DefinicioProcesDto getDefinicioProcesPerProcessInstanceId(String processInstanceId) {
+        logger.debug("Obtenint la definició de procés donada la instància de procés (processInstanceId=" + processInstanceId + ")");
+        return conversioTipusHelper.convertir(
+                getDefinicioProcesDonatProcessInstanceId(processInstanceId),
+                DefinicioProcesDto.class);
+    }
+
+    @Override
+    public Long getDefinicioProcesEntornAmbJbpmKeyIVersio(
+            String jbpmKey,
+            Integer version) {
+        logger.debug("Obtenint la definició de procés donat el codi jBPM i la versió (jbpmKey=" + jbpmKey + ", version=" + version +")");
+        DefinicioProces defincioProces = definicioProcesRepository.findByJbpmKeyAndVersio(
+                        jbpmKey,
+                        version);
+        if (defincioProces != null && defincioProces.getEntorn() != null) {
+            return defincioProces.getEntorn().getId();
+        }
+        return null;
+    }
+
+    @Override
+    public Long getDarreraVersioEntornAmbEntornIJbpmKey(
+            Long entornId,
+            String jbpmKey) {
+        logger.debug("Obtenint la darrera versió de la definició de procés donat l'entorn i el codi jBPM (entornId=" + entornId + ", jbpmKey=" + jbpmKey + ")");
+        DefinicioProces defincioProces = definicioProcesRepository.findDarreraVersioAmbEntornIJbpmKey(
+                        entornId,
+                        jbpmKey);
+        if (defincioProces != null && defincioProces.getEntorn() != null) {
+            return defincioProces.getEntorn().getId();
+        }
+        return null;
+    }
+
+    @Override
+    public void initializeDefinicionsProces() {
+        expedientTipusHelper.initializeDefinicionsProces();
+    }
+
+    @Override
+    public String getProcessDefinitionIdHeretadaAmbPid(String processInstanceId) {
+        return herenciaHelper.getProcessDefinitionIdHeretadaAmbPid(processInstanceId);
+    }
+
+    @Override
+    public CampTipusIgnored getCampAndIgnored(
+            String processDefinitionId,
+            Long expedientId,
+            String varCodi) {
+
+        Camp camp = null;
+        boolean ignored = false;
+
+        DefinicioProces pDef = definicioProcesRepository.findByJbpmId(processDefinitionId);
+        Expedient expedient = expedientRepository.findOne(expedientId);
+        ExpedientTipus expedientTipus = expedient != null ? expedient.getTipus() : null;
+        if(varCodi.startsWith(JbpmVars.PREFIX_DOCUMENT)) {
+            // Document
+            varCodi = varCodi.substring((JbpmVars.PREFIX_DOCUMENT).length());
+            // Cerca el document per veure si està marcat per ignorar
+            Document document = null;
+            if (expedientTipus != null && expedientTipus.isAmbInfoPropia()) {
+                document = documentRepository.findByExpedientTipusAndCodi(
+                        expedientTipus.getId(),
+                        varCodi,
+                        expedientTipus.getExpedientTipusPare() != null);
+            } else {
+                document = documentRepository.findByDefinicioProcesAndCodi(
+                        pDef,
+                        varCodi);
+            }
+            if(document != null){
+                ignored = document.isIgnored();
+            }
+        } else {
+            // Variable
+            if (expedientTipus != null && expedientTipus.isAmbInfoPropia()) {
+                camp = campRepository.findByExpedientTipusAndCodi(
+                        expedientTipus.getId(),
+                        varCodi,
+                        true);
+            } else {
+                camp = campRepository.findByDefinicioProcesAndCodi(
+                        pDef,
+                        varCodi);
+            }
+            if (camp != null) {
+                ignored = camp.isIgnored();
+            }
+
+        }
+
+        CampTipusIgnored campTipusIgnored = new CampTipusIgnored();
+        campTipusIgnored.setIgnored(ignored);
+        if (camp != null) {
+            campTipusIgnored.setTipus(CampTipusDto.valueOf(camp.getTipus().name()));
+        }
+        return campTipusIgnored;
+    }
+
 
     // Mètodes privats
     private DefinicioProces getDefinicioProcesDonatProcessInstanceId(

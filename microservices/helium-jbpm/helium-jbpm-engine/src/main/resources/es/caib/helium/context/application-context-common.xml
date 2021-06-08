@@ -2,22 +2,22 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xmlns:context="http://www.springframework.org/schema/context"
-	xmlns:aop="http://www.springframework.org/schema/aop"
 	xmlns:tx="http://www.springframework.org/schema/tx"
 	xsi:schemaLocation="
 		http://www.springframework.org/schema/beans
 		http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
 		http://www.springframework.org/schema/context
 		http://www.springframework.org/schema/context/spring-context-3.1.xsd
-		http://www.springframework.org/schema/aop
-		http://www.springframework.org/schema/aop/spring-aop-3.1.xsd
 		http://www.springframework.org/schema/tx
 		http://www.springframework.org/schema/tx/spring-tx-2.5.xsd"
 	default-autowire="byName">
 
 	<bean id="propertyPlaceholderConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
 		<property name="location" value="${es.caib.helium.properties.path}"/>
+		<property name="placeholderPrefix" value="${config:" />
 		<property name="ignoreUnresolvablePlaceholders" value="true" />
+		<property name="ignoreResourceNotFound" value="true" />
+		<property name="systemPropertiesModeName" value="SYSTEM_PROPERTIES_MODE_OVERRIDE"/>
 		<property name="valueSeparator" value="?" />
 	</bean>
 
@@ -25,7 +25,7 @@
 
 	<bean id="dataSource" class="org.springframework.jndi.JndiObjectFactoryBean">
 		<property name="resourceRef" value="true"/>
-		<property name="jndiName" value="jdbc/HeliumDS"/>
+		<property name="jndiName" value="${config:es.caib.helium-jbpm.datasource.jndi}"/>
 	</bean>
 
 	<bean id="lobHandler" class="org.springframework.jdbc.support.lob.DefaultLobHandler" lazy-init="true"/>
@@ -45,11 +45,11 @@
 		</property>
 		<property name="jpaProperties">
 			<props>
-				<prop key="hibernate.dialect">${app.hibernate.dialect}</prop>
-				<prop key="hibernate.show_sql">${app.hibernate.show_sql}</prop>
-				<prop key="hibernate.hbm2ddl.auto">${app.hibernate.hbm2ddl.auto}</prop>
+				<prop key="hibernate.dialect">${config:es.caib.helium-jbpm.hibernate.dialect}</prop>
+				<prop key="hibernate.show_sql">${config:es.caib.helium-jbpm.hibernate.show_sql}</prop>
+				<prop key="hibernate.hbm2ddl.auto">${config:es.caib.helium-jbpm.hibernate.hbm2ddl.auto}</prop>
 				<prop key="hibernate.ejb.cfgfile">/es/caib/helium/context/jbpm3.hibernate.cfg.xml</prop>
-				<prop key="hibernate.generate_statistics">${app.hibernate.generate_statistics?false}</prop>
+				<prop key="hibernate.generate_statistics">${config:es.caib.helium-jbpm.hibernate.generate_statistics?false}</prop>
 			</props>
 		</property>
 	</bean>
@@ -62,8 +62,8 @@
 	<bean id="restTemplate" class="org.springframework.web.client.RestTemplate">
 		<constructor-arg>
 			<bean class="org.springframework.http.client.HttpComponentsClientHttpRequestFactory">
-				<property name="readTimeout" value="${app.rest.readTimeout:10000}" />
-				<property name="connectTimeout" value="${app.rest.connectionTimeout:300000}" />
+				<property name="readTimeout" value="${config:es.caib.helium-jbpm.rest.readTimeout?10000}" />
+				<property name="connectTimeout" value="${config:es.caib.helium-jbpm.rest.connectionTimeout?300000}" />
 			</bean>
 		</constructor-arg>
 	</bean>
@@ -81,7 +81,7 @@
 		<property name="session">
 			<bean id="mailSession" class="org.springframework.jndi.JndiObjectFactoryBean">
 				<property name="resourceRef" value="true"/>
-				<property name="jndiName" value="mail/HeliumSession"/>
+				<property name="jndiName" value="${config:es.caib.helium-jbpm.mail.jndi}"/>
 			</bean>
 		</property>
 	</bean>

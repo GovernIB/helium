@@ -64,6 +64,20 @@ public class TascaRestController {
 				varCodi);
 	}
 
+	@RequestMapping(value="/{processInstanceId}/campTasca/{varCodi}", method = RequestMethod.GET)
+	@ResponseBody
+	public CampTascaDto getDadaPerTaskInstance(
+			@PathVariable("processInstanceId") String processInstanceId,
+			@RequestParam(value = "taskName") String taskName,
+			@RequestParam(value = "processDefinitionId") String processDefinitionId,
+			@PathVariable("varCodi") String varCodi) {
+		return workflowBridgeService.getCampTascaPerInstanciaTasca(
+				taskName,
+				processDefinitionId,
+				processInstanceId,
+				varCodi);
+	}
+
 	@RequestMapping(value="/{taskId}/isSegonPla", method = RequestMethod.GET)
 	@ResponseBody
 	public boolean isTascaEnSegonPla(@PathVariable("taskId") Long taskId) {

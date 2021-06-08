@@ -1,21 +1,7 @@
 package net.conselldemallorca.helium.v3.core.ejb;
 
 import net.conselldemallorca.helium.core.api.WorkflowBridgeService;
-import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
-import net.conselldemallorca.helium.v3.core.api.dto.CampTascaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.DocumentDissenyDto;
-import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
-import net.conselldemallorca.helium.v3.core.api.dto.DocumentTascaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.DominiRespostaFilaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.EnumeracioValorDto;
-import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
-import net.conselldemallorca.helium.v3.core.api.dto.FestiuDto;
-import net.conselldemallorca.helium.v3.core.api.dto.InteressatDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ReassignacioDto;
-import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.TerminiDto;
-import net.conselldemallorca.helium.v3.core.api.dto.TerminiIniciatDto;
+import net.conselldemallorca.helium.v3.core.api.dto.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 
@@ -110,6 +96,12 @@ public class WorkflowBridgeServiceBean implements WorkflowBridgeService {
 		delegate.expedientModificarEstat(processInstanceId, estatCodi);
 	}
 
+	public void expedientModificarEstatId(
+			String processInstanceId,
+			Long estatId) {
+		delegate.expedientModificarEstatId(processInstanceId, estatId);
+	}
+
 	public void expedientModificarComentari(
             String processInstanceId,
             String comentari) {
@@ -184,6 +176,11 @@ public class WorkflowBridgeServiceBean implements WorkflowBridgeService {
             String documentCodi,
             Date dataDocument) {
 		return delegate.documentGenerarAmbPlantilla(taskInstanceId, processDefinitionId, processInstanceId, documentCodi, dataDocument);
+	}
+
+	@Override
+	public Long documentExpedientCrear(String taskInstanceId, String processInstanceId, String documentCodi, Date documentData, boolean isAdjunt, String adjuntTitol, String arxiuNom, byte[] arxiuContingut) {
+		return delegate.documentExpedientCrear(taskInstanceId, processInstanceId, documentCodi, documentData, isAdjunt, adjuntTitol, arxiuNom, arxiuContingut);
 	}
 
 	public void documentExpedientGuardarDadesRegistre(
@@ -344,6 +341,27 @@ public class WorkflowBridgeServiceBean implements WorkflowBridgeService {
 		delegate.expedientModificarGeoref(processInstanceId, posx, posy, referencia);
 	}
 
+	@Override
+	public void expedientModificarGeoreferencia(String processInstanceId, String referencia) {
+		delegate.expedientModificarGeoreferencia(processInstanceId, referencia);
+	}
+
+	@Override
+	public void expedientModificarGeoX(String processInstanceId, Double posx) {
+		delegate.expedientModificarGeoX(processInstanceId, posx);
+	}
+
+	@Override
+	public void expedientModificarGeoY(String processInstanceId, Double posy) {
+		delegate.expedientModificarGeoY(processInstanceId, posy);
+	}
+
+	@Override
+	public void expedientModificarDataInici(String processInstanceId, Date dataInici) {
+		delegate.expedientModificarDataInici(processInstanceId, dataInici);
+	}
+
+
 	public void expedientModificarGrup(String processInstanceId, String grupCodi) {
 		delegate.expedientModificarGrup(processInstanceId, grupCodi);
 	}
@@ -352,7 +370,12 @@ public class WorkflowBridgeServiceBean implements WorkflowBridgeService {
 		delegate.expedientModificarResponsable(processInstanceId, responsableCodi);
 	}
 
-	public List<CampTascaDto> findCampsPerTaskInstance(String processInstanceId, String processDefinitionId,
+    @Override
+    public ExpedientDadaDto getDadaPerProcessInstance(String processInstanceId, String codi) {
+        return delegate.getDadaPerProcessInstance(processInstanceId, codi);
+    }
+
+    public List<CampTascaDto> findCampsPerTaskInstance(String processInstanceId, String processDefinitionId,
 			String taskName) {
 		return delegate.findCampsPerTaskInstance(processInstanceId, processDefinitionId, taskName);
 	}
@@ -364,6 +387,11 @@ public class WorkflowBridgeServiceBean implements WorkflowBridgeService {
 
 	public TascaDadaDto getDadaPerTaskInstance(String processInstanceId, String taskInstanceId, String varCodi) {
 		return delegate.getDadaPerTaskInstance(processInstanceId, taskInstanceId, varCodi);
+	}
+
+	@Override
+	public CampTascaDto getCampTascaPerInstanciaTasca(String taskName, String processDefinitionId, String processInstanceId, String varCodi) {
+		return delegate.getCampTascaPerInstanciaTasca(taskName, processDefinitionId, processInstanceId, varCodi);
 	}
 
 	public Long documentExpedientGuardar(String processInstanceId, String documentCodi, Date data, String arxiuNom,
@@ -404,5 +432,40 @@ public class WorkflowBridgeServiceBean implements WorkflowBridgeService {
 
 	public ReassignacioDto findReassignacioActivaPerUsuariOrigen(String processInstanceId, String usuariCodi) {
 		return delegate.findReassignacioActivaPerUsuariOrigen(processInstanceId, usuariCodi);
+	}
+
+	@Override
+	public Integer getDefinicioProcesVersioAmbJbpmKeyIProcessInstanceId(String jbpmKey, String processInstanceId) {
+		return delegate.getDefinicioProcesVersioAmbJbpmKeyIProcessInstanceId(jbpmKey, processInstanceId);
+	}
+
+	@Override
+	public DefinicioProcesDto getDefinicioProcesPerProcessInstanceId(String processInstanceId) {
+		return delegate.getDefinicioProcesPerProcessInstanceId(processInstanceId);
+	}
+
+	@Override
+	public Long getDefinicioProcesEntornAmbJbpmKeyIVersio(String jbpmKey, Integer version) {
+		return delegate.getDefinicioProcesEntornAmbJbpmKeyIVersio(jbpmKey, version);
+	}
+
+	@Override
+	public Long getDarreraVersioEntornAmbEntornIJbpmKey(Long entornId, String jbpmKey) {
+		return delegate.getDarreraVersioEntornAmbEntornIJbpmKey(entornId, jbpmKey);
+	}
+
+	@Override
+	public void initializeDefinicionsProces() {
+		delegate.initializeDefinicionsProces();
+	}
+
+	@Override
+	public String getProcessDefinitionIdHeretadaAmbPid(String processInstanceId) {
+		return delegate.getProcessDefinitionIdHeretadaAmbPid(processInstanceId);
+	}
+
+	@Override
+	public CampTipusIgnored getCampAndIgnored(String processDefinitionId, Long expedientId, String varCodi) {
+		return delegate.getCampAndIgnored(processDefinitionId, expedientId, varCodi);
 	}
 }

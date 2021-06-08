@@ -10,13 +10,69 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>helium-jbpm-ear</artifactId>
+    <packaging>ear</packaging>
 
     <dependencies>
+        <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-validator-legacy</artifactId>
+            <version>4.0.2.GA</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>slf4j-api</artifactId>
+                    <groupId>org.slf4j</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>hibernate-core</artifactId>
+                    <groupId>org.hibernate</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>hibernate-commons-annotations</artifactId>
+                    <groupId>org.hibernate</groupId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-core</artifactId>
+            <version>${hibernate.version}</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>slf4j-api</artifactId>
+                    <groupId>org.slf4j</groupId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>org.hibernate</groupId>-->
+<!--            <artifactId>hibernate-validator</artifactId>-->
+<!--            <version>${hibernate.validator.version}</version>-->
+<!--            <exclusions>-->
+<!--                <exclusion>-->
+<!--                    <artifactId>slf4j-api</artifactId>-->
+<!--                    <groupId>org.slf4j</groupId>-->
+<!--                </exclusion>-->
+<!--            </exclusions>-->
+<!--        </dependency>-->
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>helium-jbpm-engine</artifactId>
             <version>${project.version}</version>
             <type>ejb</type>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.jbpm.jbpm3</groupId>
+                    <artifactId>jbpm-identity</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.jbpm.jbpm3</groupId>
+                    <artifactId>jbpm-jpdl</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.hibernate</groupId>
+                    <artifactId>hibernate-entitymanager</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
@@ -39,13 +95,13 @@
                         <ejbModule>
                             <groupId>${project.groupId}</groupId>
                             <artifactId>helium-jbpm-engine</artifactId>
-                            <bundleFileName>helium-jbpm-engine.jar</bundleFileName>
+                            <bundleFileName>helium-jbpm.jar</bundleFileName>
                         </ejbModule>
                         <webModule>
                             <groupId>${project.groupId}</groupId>
                             <artifactId>helium-jbpm-back</artifactId>
                             <contextRoot>/helium-jbpm</contextRoot>
-                            <bundleFileName>helium-jbpm-back.war</bundleFileName>
+                            <bundleFileName>helium-jbpm.war</bundleFileName>
                         </webModule>
                     </modules>
                     <defaultJavaBundleDir>lib/</defaultJavaBundleDir>

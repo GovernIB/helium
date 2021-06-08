@@ -20,9 +20,9 @@ import es.caib.helium.expedient.domain.Expedient;
 import es.caib.helium.expedient.mapper.ExpedientMapper;
 import es.caib.helium.expedient.model.ExpedientDto;
 import es.caib.helium.expedient.model.ExpedientEstatTipusEnum;
-import es.caib.helium.expedient.model.PagedList;
 import es.caib.helium.expedient.repository.ExpedientRepository;
 import es.caib.helium.expedient.repository.ExpedientSpecifications;
+import es.caib.helium.ms.model.PagedList;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -135,9 +135,6 @@ public class ExpedientServiceImpl implements ExpedientService {
             Date dataFi2,
             ExpedientEstatTipusEnum estatTipus,
             Long estatId,
-            Double geoPosX,
-            Double geoPosY,
-            String geoReferencia,
             boolean nomesTasquesPersonals,
             boolean nomesTasquesGrup,
             boolean nomesAlertes,
@@ -158,9 +155,6 @@ public class ExpedientServiceImpl implements ExpedientService {
                 "dataFi2: " + dataFi2 + "\n" +
                 "estatTipus: " + estatTipus + "\n" +
                 "estatId: " + estatId + "\n" +
-                "geoPosX: " + geoPosX + "\n" +
-                "geoPosY: " + geoPosY + "\n" +
-                "geoReferencia: " + geoReferencia + "\n" +
                 "nomesTasquesPersonals: " + nomesTasquesPersonals + "\n" +
                 "nomesTasquesGrup: " + nomesTasquesGrup + "\n" +
                 "expedientTipusId: " + nomesAlertes + "\n" +
@@ -169,9 +163,22 @@ public class ExpedientServiceImpl implements ExpedientService {
                 "filtreRsql:" + filtreRsql);
 
         Specification<Expedient> spec = ExpedientSpecifications.expedientsList(
-                entornId,
-                expedientTipusId
-        );
+											entornId,
+											expedientTipusId, 
+											titol, 
+											numero, 
+											dataInici1, 
+											dataInici2, 
+											dataFi1, 
+											dataFi2, 
+											estatTipus, 
+											estatId, 
+											nomesTasquesPersonals, 
+											nomesTasquesGrup, 
+											nomesAlertes, 
+											nomesErrors, 
+											mostrarAnulats
+        								);
 
         PagedList<ExpedientDto> pagedList = ServiceHelper.getDtoPage(
                 expedientRepository,

@@ -21,6 +21,7 @@ public class ExpedientLogDto {
 	private String estat;
 	private String targetId;
 	private String tokenName;
+	private Long expedientId;
 	
 	private boolean targetTasca;
 	private boolean targetProces;
@@ -102,5 +103,10 @@ public class ExpedientLogDto {
 	public void setTargetExpedient(boolean targetExpedient) {
 		this.targetExpedient = targetExpedient;
 	}
-
+	public Long getExpedientId() {
+		return expedientId;
+	}
+	public void setExpedientId(Long expedientId) {
+		this.expedientId = expedientId;
+	}
 }

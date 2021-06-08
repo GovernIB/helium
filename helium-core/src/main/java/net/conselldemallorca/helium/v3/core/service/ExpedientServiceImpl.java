@@ -686,8 +686,6 @@ public class ExpedientServiceImpl implements ExpedientService {
 				"geoPosX=" + geoPosX + ", " +
 				"geoPosY=" + geoPosY + ", " +
 				"geoReferencia=" + geoReferencia + ", " +
-				"nomesTasquesPersonals=" + nomesTasquesPersonals + ", " +
-				"nomesTasquesGrup=" + nomesTasquesGrup + ", " +
 				"nomesAlertes=" + nomesAlertes + ", " +
 				"nomesErrors=" + nomesErrors + ", " +
 				"mostrarAnulats=" + mostrarAnulats + 

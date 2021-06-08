@@ -94,6 +94,22 @@ public class DocumentRestController {
 
 	@RequestMapping(value="/{documentCodi}", method = RequestMethod.POST)
 	@ResponseBody
+	public Long documentExpedientCrear(
+			@PathVariable("documentCodi") String documentCodi,
+			@RequestBody DocumentCrear documentCrear) {
+		return workflowBridgeService.documentExpedientCrear(
+				documentCrear.getTaskInstanceId(),
+				documentCrear.getProcessInstanceId(),
+				documentCodi,
+				documentCrear.getDocumentData(),
+				documentCrear.isAdjunt(),
+				documentCrear.getAdjuntTitol(),
+				documentCrear.getArxiuNom(),
+				documentCrear.getArxiuContingut());
+	}
+
+	@RequestMapping(value="/{documentCodi}/update", method = RequestMethod.POST)
+	@ResponseBody
 	public Long documentExpedientGuardar(
 			@PathVariable("documentCodi") String documentCodi,
 			@RequestBody DocumentGuardar documentGuardar) {
@@ -164,6 +180,18 @@ public class DocumentRestController {
 		private String adjuntId;
 		private String adjuntTitol;
 		private Date adjuntData;
+		private String arxiuNom;
+		private byte[] arxiuContingut;
+	}
+
+	@Data
+	public static class DocumentCrear {
+		private String taskInstanceId;
+		private String processInstanceId;
+		private String documentCodi;
+		private Date documentData;
+		private boolean isAdjunt;
+		private String adjuntTitol;
 		private String arxiuNom;
 		private byte[] arxiuContingut;
 	}

@@ -76,6 +76,19 @@ public class TasquesHelper {
                 taskInstanceId);
     }
 
+    public CampTascaDto getCampTascaPerInstanciaTasca(
+            String taskName,
+            String processDefinitionId,
+            String processInstanceId,
+            String varCodi) {
+        return restTemplate.getForObject(getTasquesBridgeAddress() + "/{processInstanceId}/campTasca/{varCodi}?taskName={taskName}&processDefinitionId={processDefinitionId}",
+                CampTascaDto.class,
+                processInstanceId,
+                varCodi,
+                taskName,
+                processDefinitionId);
+    }
+
     public boolean isTascaEnSegonPla(Long taskId) {
         return restTemplate.getForObject(
                 getTasquesBridgeAddress() + "/{taskId}/isSegonPla",

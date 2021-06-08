@@ -145,11 +145,11 @@ public class ProcessState extends Node implements Parsable {
       attributes.add(new FlyweightAttribute("name", subProcessNameResolved));
       if (executionContext.getProcessInstance() != null) {
     	  // afegeix la informació de la versió que toca
-    	  DefinicioProcesDto subDefinicioProces = Jbpm3HeliumBridge.getInstanceService().getDefinicioProcesAmbJbpmKeyIProcessInstanceId(
+    	  Integer subDefinicioProcesVersio = Jbpm3HeliumBridge.getInstanceService().getDefinicioProcesVersioAmbJbpmKeyIProcessInstanceId(
     			  													subProcessNameResolved,
     			  													String.valueOf(executionContext.getProcessInstance().getId()));
-    	  if (subDefinicioProces != null)
-    		  attributes.add(new FlyweightAttribute("version", String.valueOf(subDefinicioProces.getVersio())));
+    	  if (subDefinicioProcesVersio != null)
+    		  attributes.add(new FlyweightAttribute("version", String.valueOf(subDefinicioProcesVersio)));
       }
       Element subProcessElement = new DefaultElement("sub-process");
       subProcessElement.setAttributes(attributes);

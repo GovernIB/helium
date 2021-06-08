@@ -15,6 +15,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.PrincipalTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientTipusRepository;
+import org.hibernate.Hibernate;
 import org.springframework.security.acls.model.Permission;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -341,6 +342,13 @@ public class ExpedientTipusHelper {
 		}
 		
 		return rols;
+	}
+
+	public void initializeDefinicionsProces() {
+		List<ExpedientTipus> llistat = expedientTipusRepository.findAll();
+		for (ExpedientTipus expedientTipus: llistat) {
+			Hibernate.initialize(expedientTipus.getDefinicionsProces());
+		}
 	}
 
 }

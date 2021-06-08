@@ -35,7 +35,7 @@ public class AlertesHelper {
 
 
     @Data @Builder
-    public class Alerta {
+    public static class Alerta {
         private Long entornId;
         private Long expedientId;
         private Date data;

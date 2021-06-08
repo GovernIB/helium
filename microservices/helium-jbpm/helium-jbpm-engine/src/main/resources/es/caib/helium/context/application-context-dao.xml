@@ -13,10 +13,4 @@
 		http://www.springframework.org/schema/data/jpa/spring-jpa.xsd"
 	default-autowire="byName">
 
-	<context:component-scan base-package="net.conselldemallorca.helium.core.model.dao"/>
-	
-	<jpa:repositories base-package="net.conselldemallorca.helium.v3.core.repository" repository-impl-postfix="Repository"/>
-
-	<bean name="aclServiceDao" class="net.conselldemallorca.helium.core.security.AclServiceDao"/>
-
 </beans>

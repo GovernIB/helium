@@ -9,47 +9,7 @@
 				http://www.springframework.org/schema/jee/spring-jee-3.0.xsd">
 
 	<jee:local-slsb
-			id="adminService"
-			jndi-name="helium/AdminServiceBean/local"
-			business-interface="net.conselldemallorca.helium.v3.core.api.service.AdminService"/>
-	<jee:local-slsb
-			id="aplicacioService"
-			jndi-name="helium/AplicacioServiceBean/local"
-			business-interface="net.conselldemallorca.helium.v3.core.api.service.AplicacioService"/>
-	<jee:local-slsb
-			id="dissenyService"
-			jndi-name="helium/DissenyServiceBean/local"
-			business-interface="net.conselldemallorca.helium.v3.core.api.service.DissenyService"/>
-	<jee:local-slsb
-			id="entornService"
-			jndi-name="helium/EntornServiceBean/local"
-			business-interface="net.conselldemallorca.helium.v3.core.api.service.EntornService"/>
-	<jee:local-slsb
-			id="execucioMassivaService"
-			jndi-name="helium/ExecucioMassivaServiceBean/local"
-			business-interface="net.conselldemallorca.helium.v3.core.api.service.ExecucioMassivaService"/>
-	<jee:local-slsb
-			id="expedientService"
-			jndi-name="helium/ExpedientServiceBean/local"
-			business-interface="net.conselldemallorca.helium.v3.core.api.service.ExpedientService"/>
-	<jee:local-slsb
-			id="jbpm3HeliumService"
-			jndi-name="helium/Jbpm3HeliumServiceBean/local"
-			business-interface="net.conselldemallorca.helium.v3.core.api.service.Jbpm3HeliumService"/>
-	<jee:local-slsb
-			id="tascaService"
-			jndi-name="helium/TascaServiceBean/local"
-			business-interface="net.conselldemallorca.helium.v3.core.api.service.TascaService"/>
-	<jee:local-slsb
-			id="terminiService"
-			jndi-name="helium/TerminiServiceBean/local"
-			business-interface="net.conselldemallorca.helium.v3.core.api.service.TerminiService"/>
-	<jee:local-slsb
-			id="tokenService"
-			jndi-name="helium/TokenServiceBean/local"
-			business-interface="net.conselldemallorca.helium.v3.core.api.service.TokenService"/>
-	<jee:local-slsb
-			id="workflowBridgeService"
-			jndi-name="helium/WorkflowBridgeServiceBean/local"
-			business-interface="net.conselldemallorca.helium.core.api.WorkflowBridgeService"/>
+			id="workflowEngineApi"
+			jndi-name="helium-jbpm/WorkflowEngineApiBean/local"
+			business-interface="es.caib.helium.api.service.WorkflowEngineApi"/>
 </beans>
