@@ -10,11 +10,12 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class SignaturaPluginAfirma {
+public class SignaturaPluginAfirma implements SignaturaPlugin {
 
 	@Setter
 	private AfirmaUtils afirmaUtils;
 
+	@Override
 	public RespostaValidacioSignatura verificarSignatura(
 			byte[] document,
 			byte[] signatura,

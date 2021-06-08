@@ -39,9 +39,10 @@ public class RegistreServiceRegWeb3Impl implements RegistreService {
 
 	
 	@Override
-	public Date getJustificantDataRecepcio(String numeroRegistre) throws RegistreException {
+	public Date obtenirDataJustificant(String numeroRegistre) throws RegistreException {
 		
-		// TODO No forma part d'aquesta implementacio 
+		// TODO No forma part d'aquesta implementacio
+		
 		return null;
 	}
 	

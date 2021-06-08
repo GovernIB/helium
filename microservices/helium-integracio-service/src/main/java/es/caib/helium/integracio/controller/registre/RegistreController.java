@@ -39,6 +39,16 @@ public class RegistreController {
 		e.printStackTrace();
 	}
 	
+	@GetMapping(value = "{numeroRegistre}/justificant/data", produces = "application/json")
+	public ResponseEntity<Date> getDataJustificant(@Valid @PathVariable("numeroRegistre") String numeroRegistre) throws Exception {
+		
+		var data = registreService.obtenirDataJustificant(numeroRegistre);
+		if (data == null) {
+			return new ResponseEntity<Date>(HttpStatus.NOT_FOUND);
+		}
+		return new ResponseEntity<Date>(data, HttpStatus.OK);
+	}
+	
 	@PostMapping(value="sortida", consumes = "application/json")
 	public ResponseEntity<Void> crearRegistreSortida(@Valid @RequestBody RegistreAssentament registre, BindingResult error)
 			throws Exception {
@@ -64,14 +74,5 @@ public class RegistreController {
 			return new ResponseEntity<RespostaConsultaRegistre>(HttpStatus.NOT_FOUND);
 		}
 		return new ResponseEntity<RespostaConsultaRegistre>(resposta, HttpStatus.OK);
-	}
-	
-	@GetMapping(value = "{numeroRegistre}/justificant/data")
-	public ResponseEntity<Date> getJustificantData(@PathVariable("numeroRegistre") String numeroRegistre) throws Exception {
-	
-		if (Strings.isNullOrEmpty(numeroRegistre)) {
-			return new ResponseEntity<Date>(HttpStatus.BAD_REQUEST);
-		}
-		return new ResponseEntity<Date>(HttpStatus.BAD_REQUEST);
 	}
 }

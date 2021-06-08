@@ -12,8 +12,9 @@ import es.caib.helium.integracio.excepcions.registre.RegistreException;
 @Service
 public interface RegistreService {
 
+	public Date obtenirDataJustificant(String numeroRegistre) throws RegistreException;
+	
 	public RespostaAnotacioRegistre registrarSortida(RegistreAssentament registreSortida, String aplicacioNom, String aplicacioVersio) throws RegistreException;
 	public RespostaConsultaRegistre obtenirRegistreSortida(String numRegistre, String usuariCodi, String entitatCodi) throws RegistreException;
 
-	public Date getJustificantDataRecepcio(String numeroRegistre) throws RegistreException;
 }
