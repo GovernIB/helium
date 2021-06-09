@@ -28,8 +28,9 @@ public class UnitatsOrganiquesController {
 	private UnitatsOrganiquesService unitatsService;
 
 	@ExceptionHandler({ Exception.class })
-	public void handleException(Exception e) {
+	public ResponseEntity<Void> handleException(Exception e) {
 		e.printStackTrace();
+		return new ResponseEntity<Void>(HttpStatus.INTERNAL_SERVER_ERROR);
 	}
 
 	@GetMapping(value = "{codi}", produces = "application/json")

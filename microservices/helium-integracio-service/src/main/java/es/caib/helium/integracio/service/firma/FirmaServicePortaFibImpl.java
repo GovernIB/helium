@@ -25,11 +25,13 @@ import org.springframework.stereotype.Service;
 import es.caib.helium.integracio.domini.firma.FirmaPost;
 import es.caib.helium.integracio.enums.firma.FirmaTipus;
 import es.caib.helium.integracio.excepcions.firma.FirmaException;
+import lombok.Setter;
 
 
 @Service
+@Setter
 public class FirmaServicePortaFibImpl implements FirmaService {
-
+	
 	private ISignatureServerPlugin plugin;
 	private String username;
 	private String location;
@@ -192,21 +194,9 @@ public class FirmaServicePortaFibImpl implements FirmaService {
 
 	private File getArxiuTemporal(
 			byte[] contingut) throws IOException {
-		File fitxerTmp = new File(
-				autofirmaBasePath,
-				new Long(System.currentTimeMillis()).toString());
+		File fitxerTmp = new File(autofirmaBasePath, new Long(System.currentTimeMillis()).toString());
         fitxerTmp.getParentFile().mkdirs();
         FileUtils.writeByteArrayToFile(fitxerTmp, contingut);
         return fitxerTmp;
 	}
-	
-	public void crearClient(String username, String location, String email, ISignatureServerPlugin plugin) {
-		
-		this.username = username;
-		this.location = location;
-		this.email = email;
-		this.plugin = plugin;
-	}
-
-
 }

@@ -34,25 +34,22 @@ public class ArxiuController {
 	@Autowired
 	private final ArxiuService arxiuService;
 	
-	  //...
-    @ExceptionHandler({Exception.class})
-    public void handleException(Exception e) {
-        e.printStackTrace();
-    }
+	@ExceptionHandler({ Exception.class })
+	public ResponseEntity<Void> handleException(Exception e) {
+		e.printStackTrace();
+		return new ResponseEntity<Void>(HttpStatus.INTERNAL_SERVER_ERROR);
+	}
 	
 	@GetMapping(value = "expedients/{uuId}", produces = "application/json")
 	public ResponseEntity<Expedient> getExpedientsByUuId(@PathVariable("uuId") String uuId) throws Exception { 
 		
-		// 400 bad input parameter
 		if (Strings.isNullOrEmpty(uuId)) {
 			return new ResponseEntity<Expedient>(HttpStatus.BAD_REQUEST);
 		}
 		var expedient = arxiuService.getExpedientByUuId(uuId);
 		if (expedient != null) {
-			//200 ok
 			return new ResponseEntity<Expedient>(expedient, HttpStatus.OK);
 		}
-		// 204 no content
 		return new ResponseEntity<Expedient>(HttpStatus.NO_CONTENT);
 	}
 	
@@ -66,7 +63,7 @@ public class ArxiuController {
 		if (arxiuService.crearExpedient(expedient)) {
 			return new ResponseEntity<Void>(HttpStatus.OK);
 		}
-		return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
+		return new ResponseEntity<Void>(HttpStatus.CONFLICT);
 	}
 
 	@PutMapping(value = "expedients", consumes = "application/json")
@@ -79,7 +76,7 @@ public class ArxiuController {
 		if (arxiuService.modificarExpedient(expedient)) {
 			return new ResponseEntity<Void>(HttpStatus.OK);
 		}
-		return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
+		return new ResponseEntity<Void>(HttpStatus.CONFLICT);
 	}
 	
 	@DeleteMapping(value = "expedients/{uuId}")
@@ -94,7 +91,7 @@ public class ArxiuController {
 			return new ResponseEntity<Void>(HttpStatus.OK);
 		}
 		// 204 no content
-		return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
+		return new ResponseEntity<Void>(HttpStatus.CONFLICT);
 	}
 	
 	@PostMapping(value = "expedients/{arxiuUuId}/tancar")
@@ -107,7 +104,7 @@ public class ArxiuController {
 		if (arxiuService.tencarExpedient(arxiuUuId)) {
 			return new ResponseEntity<Void>(HttpStatus.OK);
 		}
-		return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
+		return new ResponseEntity<Void>(HttpStatus.CONFLICT);
 	}
 
 	@PostMapping(value = "expedients/{arxiuUuId}/obrir")
@@ -120,7 +117,7 @@ public class ArxiuController {
 		if (arxiuService.obrirExpedient(arxiuUuId)) {
 			return new ResponseEntity<Void>(HttpStatus.OK);
 		}
-		return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
+		return new ResponseEntity<Void>(HttpStatus.CONFLICT);
 	}
 	
 	// Documents
@@ -131,6 +128,7 @@ public class ArxiuController {
 		if (Strings.isNullOrEmpty(uuId)) {
 			return new ResponseEntity<Void>(HttpStatus.BAD_REQUEST);
 		}
+		//TODO falta cridar al servei
 		return new ResponseEntity<Void>(HttpStatus.OK);
 	}
 	
@@ -144,7 +142,7 @@ public class ArxiuController {
 		if (arxiuService.crearDocument(document)) {
 			return new ResponseEntity<Void>(HttpStatus.OK);
 		}
-		return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
+		return new ResponseEntity<Void>(HttpStatus.CONFLICT);
 	}
 
 	@PutMapping(value = "documents", consumes = "application/json")
@@ -157,7 +155,7 @@ public class ArxiuController {
 		if (arxiuService.modificarDocument(document)) {
 			return new ResponseEntity<Void>(HttpStatus.OK);
 		}
-		return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
+		return new ResponseEntity<Void>(HttpStatus.CONFLICT);
 	}
 	
 	@DeleteMapping(value = "documents/{uuId}")
@@ -171,7 +169,6 @@ public class ArxiuController {
 			//200 ok
 			return new ResponseEntity<Void>(HttpStatus.OK);
 		}
-		// 204 no content
-		return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
+		return new ResponseEntity<Void>(HttpStatus.CONFLICT);
 	}
 }

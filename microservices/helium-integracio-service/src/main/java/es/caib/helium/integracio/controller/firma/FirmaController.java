@@ -27,20 +27,24 @@ public class FirmaController {
 	private FirmaService firmaService;
 
 	@ExceptionHandler({ Exception.class })
-	public void handleException(Exception e) {
+	public ResponseEntity<Void> handleException(Exception e) {
 		e.printStackTrace();
+		return new ResponseEntity<Void>(HttpStatus.INTERNAL_SERVER_ERROR);
 	}
 
 	@PostMapping(consumes = "application/json")
-	public ResponseEntity<Void> firmar(@Valid @RequestBody FirmaPost firma, BindingResult error)
+	public ResponseEntity<byte[]> firmar(@Valid @RequestBody FirmaPost firma, BindingResult error)
 			throws Exception {
 
 		if (error.hasErrors()) {
-			return new ResponseEntity<Void>(HttpStatus.BAD_REQUEST);
+			return new ResponseEntity<byte[]>(HttpStatus.BAD_REQUEST);
 		}
 
-		firmaService.firmar(firma);
-		return new ResponseEntity<Void>(HttpStatus.OK);
+		var firmaContingut = firmaService.firmar(firma);
+		if (firmaContingut == null || firmaContingut.length == 0) {
+			return new ResponseEntity<byte[]>(HttpStatus.NO_CONTENT);
+		}
+		return new ResponseEntity<byte[]>(firmaContingut, HttpStatus.OK);
 	}
 
 }

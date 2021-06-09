@@ -16,5 +16,7 @@ public interface RegistreService {
 	
 	public RespostaAnotacioRegistre registrarSortida(RegistreAssentament registreSortida, String aplicacioNom, String aplicacioVersio) throws RegistreException;
 	public RespostaConsultaRegistre obtenirRegistreSortida(String numRegistre, String usuariCodi, String entitatCodi) throws RegistreException;
-
+	public void anularRegistreSortida(String registreNumero, String usuari, String entitat, boolean anular) throws RegistreException;
+	public RespostaAnotacioRegistre registrarEntrada(RegistreAssentament registreEntrada, String aplicacioNom, String aplicacioVersio) throws RegistreException;
+	
 }
