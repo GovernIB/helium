@@ -54,6 +54,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.DocumentTipusFirmaEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EnviamentTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
+import net.conselldemallorca.helium.v3.core.api.dto.IdiomaEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.InstanciaProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.InteressatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
@@ -69,6 +70,7 @@ import net.conselldemallorca.helium.webapp.v3.command.DocumentExpedientCommand.U
 import net.conselldemallorca.helium.webapp.v3.command.DocumentNotificacioCommand;
 import net.conselldemallorca.helium.webapp.v3.helper.ConversioTipusHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.EnumHelper;
+import net.conselldemallorca.helium.webapp.v3.helper.MessageHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.NodecoHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.NtiHelper;
@@ -393,6 +395,7 @@ public class ExpedientDocumentController extends BaseExpedientController {
 		caducitat.add(Calendar.DATE, 1);
 		command.setCaducitat(caducitat.getTime());
 		command.setEnviamentTipus(EnviamentTipusEnumDto.NOTIFICACIO);
+		command.setIdioma(IdiomaEnumDto.CA);
 		model.addAttribute("documentNotificacioCommand", command);
 		
 		ExpedientDocumentDto document = this.emplenarModelNotificacioDocument(expedientId, processInstanceId, documentStoreId, model);
@@ -469,91 +472,50 @@ public class ExpedientDocumentController extends BaseExpedientController {
 		model.addAttribute("interessats", interessats);
 		model.addAttribute("document", document);	
 		model.addAttribute("expedientId", expedientId);
+		
+		// entregaPostalViaTipusEstats
+		List<ParellaCodiValorDto> opcions = new ArrayList<ParellaCodiValorDto>();
+		for(EntregaPostalViaTipus entregaPostalViaTipus : EntregaPostalViaTipus.values())
+			opcions.add(new ParellaCodiValorDto(
+					entregaPostalViaTipus.name(),
+					MessageHelper.getInstance().getMessage("notifica.entregaPostal.via.tipus.enum." + entregaPostalViaTipus.name())));		
 
+		model.addAttribute("entregaPostalViaTipusEstats", opcions);
+
+		// entregaPostalTipusEstats
+		opcions = new ArrayList<ParellaCodiValorDto>();
+		for(EntregaPostalTipus entregaPostalTipus : EntregaPostalTipus.values())
+			opcions.add(new ParellaCodiValorDto(
+					entregaPostalTipus.name(),
+					MessageHelper.getInstance().getMessage("notifica.entregaPostal.enum." + entregaPostalTipus.name())));		
+		model.addAttribute("entregaPostalTipusEstats", opcions);
+
+		// serveiTipusEstats
+		opcions = new ArrayList<ParellaCodiValorDto>();
+		for(ServeiTipusEnumDto serveiTipus : ServeiTipusEnumDto.values())
+			opcions.add(new ParellaCodiValorDto(
+					serveiTipus.name(),
+					MessageHelper.getInstance().getMessage("notifica.servei.tipus.enum." + serveiTipus.name())));		
+		model.addAttribute("serveiTipusEstats", opcions);
+		
+		// enviamentTipusEstats
+		opcions = new ArrayList<ParellaCodiValorDto>();
+		for(EnviamentTipusEnumDto enviamentTipus : EnviamentTipusEnumDto.values())
+			opcions.add(new ParellaCodiValorDto(
+					enviamentTipus.name(),
+					MessageHelper.getInstance().getMessage("notifica.enviament.tipus.enum." + enviamentTipus.name())));		
+		model.addAttribute("enviamentTipusEstats", opcions);
+
+		// idiomes
+		opcions = new ArrayList<ParellaCodiValorDto>();
+		for(IdiomaEnumDto idioma : IdiomaEnumDto.values())
+			opcions.add(new ParellaCodiValorDto(
+					idioma.name(),
+					MessageHelper.getInstance().getMessage("enum.idioma." + idioma.name())));		
+		model.addAttribute("idiomes", opcions);
+		
 		return document;
 	}
-	
-	@ModelAttribute("entregaPostalViaTipusEstats")
-	public List<ParellaCodiValorDto> populateEntregaPostalViaTipusEstat(HttpServletRequest request) {
-		List<ParellaCodiValorDto> resposta = new ArrayList<ParellaCodiValorDto>();
-		
-		resposta.add(new ParellaCodiValorDto(getMessage(request, "notifica.entregaPostal.via.tipus.enum.ALAMEDA"), EntregaPostalViaTipus.ALAMEDA));
-		resposta.add(new ParellaCodiValorDto(getMessage(request, "notifica.entregaPostal.via.tipus.enum.CALLE"), EntregaPostalViaTipus.CALLE));
-		resposta.add(new ParellaCodiValorDto(getMessage(request, "notifica.entregaPostal.via.tipus.enum.CAMINO"), EntregaPostalViaTipus.CAMINO));
-		resposta.add(new ParellaCodiValorDto(getMessage(request, "notifica.entregaPostal.via.tipus.enum.CARRER"), EntregaPostalViaTipus.CARRER));
-		resposta.add(new ParellaCodiValorDto(getMessage(request, "notifica.entregaPostal.via.tipus.enum.CARRETERA"), EntregaPostalViaTipus.CARRETERA));
-		resposta.add(new ParellaCodiValorDto(getMessage(request, "notifica.entregaPostal.via.tipus.enum.GLORIETA"), EntregaPostalViaTipus.GLORIETA));
-		resposta.add(new ParellaCodiValorDto(getMessage(request, "notifica.entregaPostal.via.tipus.enum.KALEA"), EntregaPostalViaTipus.KALEA));
-		resposta.add(new ParellaCodiValorDto(getMessage(request, "notifica.entregaPostal.via.tipus.enum.PASAJE"), EntregaPostalViaTipus.PASAJE));
-		resposta.add(new ParellaCodiValorDto(getMessage(request, "notifica.entregaPostal.via.tipus.enum.PASEO"), EntregaPostalViaTipus.PASEO));
-		resposta.add(new ParellaCodiValorDto(getMessage(request, "notifica.entregaPostal.via.tipus.enum.PLAÇA"), EntregaPostalViaTipus.PLAÇA));
-		resposta.add(new ParellaCodiValorDto(getMessage(request, "notifica.entregaPostal.via.tipus.enum.PLAZA"), EntregaPostalViaTipus.PLAZA));
-		resposta.add(new ParellaCodiValorDto(getMessage(request, "notifica.entregaPostal.via.tipus.enum.RAMBLA"), EntregaPostalViaTipus.RAMBLA));
-		resposta.add(new ParellaCodiValorDto(getMessage(request, "notifica.entregaPostal.via.tipus.enum.RONDA"), EntregaPostalViaTipus.RONDA));
-		resposta.add(new ParellaCodiValorDto(getMessage(request, "notifica.entregaPostal.via.tipus.enum.RUA"), EntregaPostalViaTipus.RUA));
-		resposta.add(new ParellaCodiValorDto(getMessage(request, "notifica.entregaPostal.via.tipus.enum.SECTOR"), EntregaPostalViaTipus.SECTOR));
-		resposta.add(new ParellaCodiValorDto(getMessage(request, "notifica.entregaPostal.via.tipus.enum.TRAVESIA"), EntregaPostalViaTipus.TRAVESIA));
-		resposta.add(new ParellaCodiValorDto(getMessage(request, "notifica.entregaPostal.via.tipus.enum.URBANIZACION"), EntregaPostalViaTipus.URBANIZACION));
-		resposta.add(new ParellaCodiValorDto(getMessage(request, "notifica.entregaPostal.via.tipus.enum.AVENIDA"), EntregaPostalViaTipus.AVENIDA));
-		resposta.add(new ParellaCodiValorDto(getMessage(request, "notifica.entregaPostal.via.tipus.enum.AVINGUDA"), EntregaPostalViaTipus.AVINGUDA));
-		resposta.add(new ParellaCodiValorDto(getMessage(request, "notifica.entregaPostal.via.tipus.enum.BARRIO"), EntregaPostalViaTipus.BARRIO));
-		resposta.add(new ParellaCodiValorDto(getMessage(request, "notifica.entregaPostal.via.tipus.enum.CALLEJA"), EntregaPostalViaTipus.CALLEJA));
-		resposta.add(new ParellaCodiValorDto(getMessage(request, "notifica.entregaPostal.via.tipus.enum.CAMI"), EntregaPostalViaTipus.CAMI));
-		resposta.add(new ParellaCodiValorDto(getMessage(request, "notifica.entregaPostal.via.tipus.enum.CAMPO"), EntregaPostalViaTipus.CAMPO));
-		resposta.add(new ParellaCodiValorDto(getMessage(request, "notifica.entregaPostal.via.tipus.enum.CARRERA"), EntregaPostalViaTipus.CARRERA));
-		resposta.add(new ParellaCodiValorDto(getMessage(request, "notifica.entregaPostal.via.tipus.enum.CUESTA"), EntregaPostalViaTipus.CUESTA));
-		resposta.add(new ParellaCodiValorDto(getMessage(request, "notifica.entregaPostal.via.tipus.enum.EDIFICIO"), EntregaPostalViaTipus.EDIFICIO));
-		resposta.add(new ParellaCodiValorDto(getMessage(request, "notifica.entregaPostal.via.tipus.enum.ENPARANTZA"), EntregaPostalViaTipus.ENPARANTZA));
-		resposta.add(new ParellaCodiValorDto(getMessage(request, "notifica.entregaPostal.via.tipus.enum.ESTRADA"), EntregaPostalViaTipus.ESTRADA));
-		resposta.add(new ParellaCodiValorDto(getMessage(request, "notifica.entregaPostal.via.tipus.enum.JARDINES"), EntregaPostalViaTipus.JARDINES));
-		resposta.add(new ParellaCodiValorDto(getMessage(request, "notifica.entregaPostal.via.tipus.enum.JARDINS"), EntregaPostalViaTipus.JARDINS));
-		resposta.add(new ParellaCodiValorDto(getMessage(request, "notifica.entregaPostal.via.tipus.enum.PARQUE"), EntregaPostalViaTipus.PARQUE));
-		resposta.add(new ParellaCodiValorDto(getMessage(request, "notifica.entregaPostal.via.tipus.enum.PASSEIG"), EntregaPostalViaTipus.PASSEIG));
-		resposta.add(new ParellaCodiValorDto(getMessage(request, "notifica.entregaPostal.via.tipus.enum.PRAZA"), EntregaPostalViaTipus.PRAZA));
-		resposta.add(new ParellaCodiValorDto(getMessage(request, "notifica.entregaPostal.via.tipus.enum.PLAZUELA"), EntregaPostalViaTipus.PLAZUELA));
-		resposta.add(new ParellaCodiValorDto(getMessage(request, "notifica.entregaPostal.via.tipus.enum.PLACETA"), EntregaPostalViaTipus.PLACETA));
-		resposta.add(new ParellaCodiValorDto(getMessage(request, "notifica.entregaPostal.via.tipus.enum.POBLADO"), EntregaPostalViaTipus.POBLADO));
-		resposta.add(new ParellaCodiValorDto(getMessage(request, "notifica.entregaPostal.via.tipus.enum.VIA"), EntregaPostalViaTipus.VIA));
-		resposta.add(new ParellaCodiValorDto(getMessage(request, "notifica.entregaPostal.via.tipus.enum.TRAVESSERA"), EntregaPostalViaTipus.TRAVESSERA));
-		resposta.add(new ParellaCodiValorDto(getMessage(request, "notifica.entregaPostal.via.tipus.enum.PASSATGE"), EntregaPostalViaTipus.PASSATGE));
-		resposta.add(new ParellaCodiValorDto(getMessage(request, "notifica.entregaPostal.via.tipus.enum.BULEVAR"), EntregaPostalViaTipus.BULEVAR));
-		resposta.add(new ParellaCodiValorDto(getMessage(request, "notifica.entregaPostal.via.tipus.enum.POLIGONO"), EntregaPostalViaTipus.POLIGONO));
-		resposta.add(new ParellaCodiValorDto(getMessage(request, "notifica.entregaPostal.via.tipus.enum.OTROS"), EntregaPostalViaTipus.OTROS));
-
-		return resposta;
-	}
-	
-	
-	
-	@ModelAttribute("entregaPostalTipusEstats")
-	public List<ParellaCodiValorDto> populatePostaTipusEstat(HttpServletRequest request) {
-		List<ParellaCodiValorDto> resposta = new ArrayList<ParellaCodiValorDto>();
-		resposta.add(new ParellaCodiValorDto(getMessage(request, "notifica.entregaPostal.tipus.enum.NACIONAL"), EntregaPostalTipus.NACIONAL));
-		resposta.add(new ParellaCodiValorDto(getMessage(request, "notifica.entregaPostal.enum.ESTRANGER"), EntregaPostalTipus.ESTRANGER));
-		resposta.add(new ParellaCodiValorDto(getMessage(request, "notifica.entregaPostal.enum.APARTAT_CORREUS"), EntregaPostalTipus.APARTAT_CORREUS));
-		resposta.add(new ParellaCodiValorDto(getMessage(request, "notifica.entregaPostal.enum.SENSE_NORMALITZAR"), EntregaPostalTipus.SENSE_NORMALITZAR));
-		return resposta;
-	}
-	
-	
-	
-	
-	@ModelAttribute("serveiTipusEstats")
-	public List<ParellaCodiValorDto> populateEstats(HttpServletRequest request) {
-		List<ParellaCodiValorDto> resposta = new ArrayList<ParellaCodiValorDto>();
-		resposta.add(new ParellaCodiValorDto(getMessage(request, "notifica.servei.tipus.enum.NORMAL"), ServeiTipusEnumDto.NORMAL));
-		resposta.add(new ParellaCodiValorDto(getMessage(request, "notifica.servei.tipus.enum.URGENT"), ServeiTipusEnumDto.URGENT));
-		return resposta;
-	}
-
-	@ModelAttribute("enviamentTipusEstats")
-	public List<ParellaCodiValorDto> populateEnviamentTipus(HttpServletRequest request) {
-		List<ParellaCodiValorDto> resposta = new ArrayList<ParellaCodiValorDto>();
-		resposta.add(new ParellaCodiValorDto(getMessage(request, "notifica.enviament.tipus.enum.COMUNICACIO"), EnviamentTipusEnumDto.COMUNICACIO));
-		resposta.add(new ParellaCodiValorDto(getMessage(request, "notifica.enviament.tipus.enum.NOTIFICACIO"), EnviamentTipusEnumDto.NOTIFICACIO));
-		return resposta;
-	}
-	
 
 	@RequestMapping(value="/{expedientId}/proces/{processInstanceId}/document/{documentStoreId}/descarregar")
 	public String descarregar(
@@ -669,23 +631,6 @@ public class ExpedientDocumentController extends BaseExpedientController {
 		return "arxiuView";
 
 	}
-
-	
-	
-	@RequestMapping(value = "/{expedientId}/expedientNotificacions", method = RequestMethod.GET)
-	public String notificacions(
-			HttpServletRequest request,
-			@PathVariable Long expedientId,
-			Model model) {
-		
-		ExpedientDto expedient = expedientService.findAmbIdAmbPermis(expedientId);
-//		expedientId=new Long("1100");
-		List<DadesNotificacioDto> notificacions = expedientService.findNotificacionsNotibPerExpedientId(expedientId);
-		model.addAttribute("expedient", expedient);
-		model.addAttribute("notificacions", notificacions);
-
-		return "v3/notificacioLlistat";
-	}	
 
 	@RequestMapping(value = "/{expedientId}/proces/{processInstanceId}/document/{documentStoreId}/esborrar")
 	@ResponseBody

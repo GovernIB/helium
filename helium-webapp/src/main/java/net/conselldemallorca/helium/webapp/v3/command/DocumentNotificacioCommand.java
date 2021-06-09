@@ -12,6 +12,7 @@ import javax.validation.constraints.NotNull;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import net.conselldemallorca.helium.v3.core.api.dto.EnviamentTipusEnumDto;
+import net.conselldemallorca.helium.v3.core.api.dto.IdiomaEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ServeiTipusEnumDto;
 
 /**
@@ -37,6 +38,8 @@ public class DocumentNotificacioCommand {
 	private Date caducitat;
 	private int retard;
 	private boolean entregaPostalActiva;
+	
+	private IdiomaEnumDto idioma;
 	
 //	private EntregaPostalTipus entregaPostalTipus;
 //	private EntregaPostalViaTipus  entregaPostalViaTipus;
@@ -133,6 +136,12 @@ public class DocumentNotificacioCommand {
 	}
 	public void setEntregaPostalActiva(boolean entregaPostalActiva) {
 		this.entregaPostalActiva = entregaPostalActiva;
+	}
+	public IdiomaEnumDto getIdioma() {
+		return idioma;
+	}
+	public void setIdioma(IdiomaEnumDto idioma) {
+		this.idioma = idioma;
 	}
 	
 }

@@ -44,6 +44,7 @@ public class DadesNotificacioDto {
 	private boolean entregaPostalActiva;
 	private String enviamentIdentificador;
 	private String enviamentReferencia;
+	private IdiomaEnumDto idioma;
 
 
 	
@@ -195,6 +196,12 @@ public class DadesNotificacioDto {
 	}
 	public void setDocumentArxiuCsv(String documentArxiuCsv) {
 		this.documentArxiuCsv = documentArxiuCsv;
+	}
+	public IdiomaEnumDto getIdioma() {
+		return idioma;
+	}
+	public void setIdioma(IdiomaEnumDto idioma) {
+		this.idioma = idioma;
 	}
 	public String getGrupCodi() {
 		return grupCodi;

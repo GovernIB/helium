@@ -18,6 +18,7 @@ import org.springframework.security.crypto.codec.Base64;
 
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.DadesEnviament;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.DadesNotificacio;
+import net.conselldemallorca.helium.jbpm3.handlers.tipus.DadesNotificacio.Idioma;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.DocumentInfo;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.PersonaInfo;
 import net.conselldemallorca.helium.jbpm3.integracio.Jbpm3HeliumBridge;
@@ -67,6 +68,9 @@ public class NotificacioAltaHandler extends BasicActionHandler implements Notifi
 	
 	private String procedimentCodi;
 	private String varProcedimentCodi;
+	
+	private String idioma;	// Possibles valors [ES, CA]
+	private String varIdioma;
 	
 
 	// ENVIAMENT
@@ -260,6 +264,17 @@ public class NotificacioAltaHandler extends BasicActionHandler implements Notifi
 				caducitat,
 				varCaducitat));
 		
+		Object idioma = getValorOVariable(
+				executionContext,
+				this.idioma,
+				varIdioma);
+		if (idioma != null) {
+			try {
+				dadesNotificacio.setIdioma(Idioma.valueOf(idioma.toString()));
+			} catch(Exception e) {
+				throw new JbpmException("No es reconeix l'idioma \"" + idioma.toString() + "\" per la notificació, els únics valors admesos són \"ES\" i \"CA\".");
+			}
+		}
 		DocumentInfo documentInfo = null;
 		List<DocumentInfo> annexos_notificacio = new ArrayList<DocumentInfo>();
 		

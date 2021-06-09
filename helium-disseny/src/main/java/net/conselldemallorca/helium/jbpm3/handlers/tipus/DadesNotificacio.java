@@ -35,6 +35,11 @@ public class DadesNotificacio {
 	private List<DadesEnviament> enviaments;
 	private String procedimentCodi;
 	private Integer retard;
+	public enum Idioma {
+		ES,
+		CA
+	}
+	private Idioma idioma;
 	
 
 	public String getEmisorDir3Codi() {
@@ -124,6 +129,12 @@ public class DadesNotificacio {
 	}
 	public void setGrupCodi(String grupCodi) {
 		this.grupCodi = grupCodi;
+	}
+	public Idioma getIdioma() {
+		return idioma;
+	}
+	public void setIdioma(Idioma idioma) {
+		this.idioma = idioma;
 	}
 
 }

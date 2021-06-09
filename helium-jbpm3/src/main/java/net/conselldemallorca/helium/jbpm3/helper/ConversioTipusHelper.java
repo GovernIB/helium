@@ -30,6 +30,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.DadesNotificacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DetalleAvisoDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EnviamentTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
+import net.conselldemallorca.helium.v3.core.api.dto.IdiomaEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.InteressatTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ReferenciaNotificacio;
@@ -284,9 +285,9 @@ public class ConversioTipusHelper {
 		notificacio.setDocumentArxiuNom(dadesNotificacio.getDocumentArxiuNom());
 		notificacio.setDocumentArxiuContingut(dadesNotificacio.getDocumentArxiuContingut());
 		notificacio.setDocumentId(dadesNotificacio.getDocumentId());
-
-
 		notificacio.setProcedimentCodi(dadesNotificacio.getProcedimentCodi());
+		if (dadesNotificacio.getIdioma() != null)
+			notificacio.setIdioma(IdiomaEnumDto.valueOf(dadesNotificacio.getIdioma().toString()));
 		
 		List<DadesEnviamentDto> enviaments = new ArrayList<DadesEnviamentDto>();
 		for (DadesEnviament dadesEnviament: dadesNotificacio.getEnviaments()) {

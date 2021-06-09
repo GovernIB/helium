@@ -32,6 +32,7 @@ public class Notificacio {
 	private Integer retard;
 	private String usuariCodi;
 	private String numExpedient;
+	private IdiomaEnumDto idioma;
 	
 
 	public String getGrupCodi() {
@@ -131,6 +132,12 @@ public class Notificacio {
 		this.numExpedient = numExpedient;
 	}
 
+	public IdiomaEnumDto getIdioma() {
+		return idioma;
+	}
+	public void setIdioma(IdiomaEnumDto idioma) {
+		this.idioma = idioma;
+	}
 	@Override
 	public String toString() {
 		return ToStringBuilder.reflectionToString(this);

@@ -67,6 +67,8 @@ public class NotificacioPluginNotib implements NotificacioPlugin {
 			notificacioNotib.setGrupCodi(notificacio.getGrupCodi());
 			notificacioNotib.setUsuariCodi(notificacio.getUsuariCodi());
 			notificacioNotib.setNumExpedient(notificacio.getNumExpedient());
+			if (notificacio.getIdioma() != null)
+				notificacioNotib.setIdioma(es.caib.notib.ws.notificacio.IdiomaEnumDto.valueOf(notificacio.getIdioma().toString()));
 						
 			if (notificacio.getEnviaments() != null) {
 				for (Enviament enviament: notificacio.getEnviaments()) {
