@@ -1,4 +1,4 @@
-package es.caib.helium.expedient.model;
+package es.caib.helium.ms.model;
 
 import org.springframework.data.domain.Sort;
 

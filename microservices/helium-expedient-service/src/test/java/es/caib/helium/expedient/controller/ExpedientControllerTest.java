@@ -14,8 +14,8 @@ import org.springframework.test.web.servlet.MockMvc;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import es.caib.helium.expedient.model.ExpedientDto;
-import es.caib.helium.expedient.model.PagedList;
 import es.caib.helium.expedient.service.ExpedientService;
+import es.caib.helium.ms.model.PagedList;
 
 @ExtendWith(MockitoExtension.class)
 @WebMvcTest(value = ExpedientController.class,

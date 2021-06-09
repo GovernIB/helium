@@ -1,4 +1,4 @@
-package es.caib.helium.expedient.model;
+package es.caib.helium.ms.model;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;

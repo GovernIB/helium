@@ -7,7 +7,7 @@ import org.springframework.data.domain.Sort;
 
 import es.caib.helium.expedient.model.ExpedientDto;
 import es.caib.helium.expedient.model.ExpedientEstatTipusEnum;
-import es.caib.helium.expedient.model.PagedList;
+import es.caib.helium.ms.model.PagedList;
 
 /** Servei per a la consulta i manteniment de la informació a nivell d'expedients
  * 
@@ -38,9 +38,6 @@ public interface ExpedientService {
             Date dataFi2,
             ExpedientEstatTipusEnum estatTipus,
             Long estatId,
-            Double geoPosX,
-            Double geoPosY,
-            String geoReferencia,
             boolean nomesTasquesPersonals,
             boolean nomesTasquesGrup,
             boolean nomesAlertes,

@@ -1,4 +1,4 @@
-package es.caib.helium.expedient.repository;
+package es.caib.helium.ms.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
