@@ -104,7 +104,7 @@ public class ExpedientRestController {
 	public void expedientRelacionar(
 			@PathVariable("expedientIdOrigen") Long expedientIdOrigen,
 			@PathVariable("expedientIdDesti") Long expedientIdDesti) {
-
+		workflowBridgeService.expedientRelacionar(expedientIdOrigen, expedientIdDesti);
 	}
 
 	@RequestMapping(value="/{processInstanceId}/estat", method = RequestMethod.POST)

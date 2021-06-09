@@ -31,13 +31,13 @@
 		<module>helium-disseny</module>
 		<module>helium-plugin-api</module>
 		<module>helium-plugin-impl</module>
-		<module>helium-jbpm3</module>
+<!--		<module>helium-jbpm3</module>-->
 		<module>helium-core-common</module>
 		<module>helium-core</module>
 		<module>helium-webapp</module>
 		<module>helium-ws</module>
 		<module>helium-ear</module>
-		<module>helium-applet</module>
+<!--		<module>helium-applet</module>-->
 		<module>helium-hibernate-entitymanager</module>
 		<module>helium-selenium</module>
 		<module>helium-selenium-webapp</module>
