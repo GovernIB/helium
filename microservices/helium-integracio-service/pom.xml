@@ -286,7 +286,15 @@
 		</dependency>
 		<!-- /plugin-arxiu-caib 2.0.8 --> 
 
-		
+		<!--  custodia -->
+		<dependency>
+			<groupId>es.caib</groupId>
+			<artifactId>valcert-sar-axis</artifactId>
+			<version>1.5</version>
+			<scope>system</scope>
+			<systemPath>${basedir}/../../helium-webapp/src/main/webapp/WEB-INF/lib/valcert-sar-axis-1.5-HELIUM.jar</systemPath>
+		</dependency>
+		<!-- /custodia -->
 
 	</dependencies>
 	<repositories>

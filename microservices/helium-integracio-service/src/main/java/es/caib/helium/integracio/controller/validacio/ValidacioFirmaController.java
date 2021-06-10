@@ -29,14 +29,17 @@ public static final String API_PATH = "/api/v1/firma";
 	@Autowired
 	private ValidacioFirmaService validacioFirmaService;
 	
-	@ExceptionHandler({Exception.class})
-    public void handleException(Exception e) {
-        e.printStackTrace();
-    }
+	@ExceptionHandler({ Exception.class })
+	public ResponseEntity<Void> handleException(Exception e) {
+		
+		e.printStackTrace();
+		return new ResponseEntity<Void>(HttpStatus.INTERNAL_SERVER_ERROR);
+	}
 	
 	@PostMapping(value = "verificacio", consumes = "application/json")
 	public ResponseEntity<Void> verificacio(@Valid @RequestBody VerificacioFirma verificacio) throws Exception {
 		
+		//TODO PENDENT D'IMPLEMENTAR
 		return new ResponseEntity<Void>(HttpStatus.OK);
 	}
 	

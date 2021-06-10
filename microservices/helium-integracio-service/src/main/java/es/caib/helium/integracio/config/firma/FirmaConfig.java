@@ -2,6 +2,7 @@ package es.caib.helium.integracio.config.firma;
 
 import java.util.Properties;
 
+import org.fundaciobit.plugins.signatureserver.api.ISignatureServerPlugin;
 import org.fundaciobit.plugins.signatureserver.portafib.PortaFIBSignatureServerPlugin;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -31,30 +32,31 @@ public class FirmaConfig {
 		try {
 			var service = (FirmaService) Class.forName(pluginClass).getConstructor().newInstance();
 			if (service instanceof FirmaServicePortaFibImpl) {
-				
 				var retorn = (FirmaServicePortaFibImpl) service;
-				Properties p = new Properties();
-				p.put("es.caib.helium.integracio.firma.portafib.username", env.getRequiredProperty("es.caib.helium.integracio.firma.portafib.username"));
-				p.put("es.caib.helium.integracio.firma.portafib.location", env.getRequiredProperty("es.caib.helium.integracio.firma.portafib.location"));
-				p.put("es.caib.helium.integracio.firma.portafib.signer.email", env.getRequiredProperty("es.caib.helium.integracio.firma.portafib.signer.email"));
-				p.put("es.caib.helium.integracio.firma.portafib.plugins.signatureserver.portafib.api_passarela_url", 
-						env.getRequiredProperty("es.caib.helium.integracio.firma.portafib.plugins.signatureserver.portafib.api_passarela_url"));
-				p.put("es.caib.helium.integracio.firma.portafib.plugins.signatureserver.portafib.api_passarela_username", 
-						env.getRequiredProperty("es.caib.helium.integracio.firma.portafib.plugins.signatureserver.portafib.api_passarela_username"));
-				p.put("es.caib.helium.integracio.firma.portafib.plugins.signatureserver.portafib.api_passarela_password", 
-						env.getRequiredProperty("es.caib.helium.integracio.firma.portafib.plugins.signatureserver.portafib.api_passarela_password"));
-				
-				// TODO PENDENT QUE FUNCIONI
-//				var plugin = new PortaFIBSignatureServerPlugin(PROPERTIES_BASE, p);
-//				retorn.crearClient(
-//						env.getRequiredProperty("es.caib.helium.integracio.firma.portafib.username"),
-//						env.getRequiredProperty("es.caib.helium.integracio.firma.portafib.location"),
-//						env.getRequiredProperty("es.caib.helium.integracio.firma.portafib.signer.email"), 
-//						plugin);
+				crearClient(retorn);
 			}
 			return service;
 		} catch (Exception ex) {
 			throw new ServeisExternsException("Error al crear la instància de FirmaService (" + "pluginClass=" + pluginClass + ")", ex);
 		}
+	}
+
+	private void crearClient(FirmaServicePortaFibImpl servei) {
+		
+		Properties p = new Properties();
+		p.put("es.caib.helium.integracio.firma.portafib.username", env.getRequiredProperty("es.caib.helium.integracio.firma.portafib.username"));
+		p.put("es.caib.helium.integracio.firma.portafib.location", env.getRequiredProperty("es.caib.helium.integracio.firma.portafib.location"));
+		p.put("es.caib.helium.integracio.firma.portafib.signer.email", env.getRequiredProperty("es.caib.helium.integracio.firma.portafib.signer.email"));
+		p.put("es.caib.helium.integracio.firma.portafibplugins.signatureserver.portafib.api_passarela_url", 
+				env.getRequiredProperty("es.caib.helium.integracio.firma.portafib.plugins.signatureserver.portafib.api_passarela_url"));
+		p.put("es.caib.helium.integracio.firma.portafibplugins.signatureserver.portafib.api_passarela_username", 
+				env.getRequiredProperty("es.caib.helium.integracio.firma.portafib.plugins.signatureserver.portafib.api_passarela_username"));
+		p.put("es.caib.helium.integracio.firma.portafibplugins.signatureserver.portafib.api_passarela_password", 
+				env.getRequiredProperty("es.caib.helium.integracio.firma.portafib.plugins.signatureserver.portafib.api_passarela_password"));
+		
+		servei.setUsername(env.getRequiredProperty("es.caib.helium.integracio.firma.portafib.username"));
+		servei.setLocation(env.getRequiredProperty("es.caib.helium.integracio.firma.portafib.location"));
+		servei.setEmail(env.getRequiredProperty("es.caib.helium.integracio.firma.portafib.signer.email"));
+		servei.setPlugin(new PortaFIBSignatureServerPlugin(PROPERTIES_BASE, p));
 	}
 }

@@ -17,9 +17,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.netflix.servo.util.Strings;
-
 import es.caib.helium.integracio.domini.registre.RegistreAssentament;
+import es.caib.helium.integracio.domini.registre.RespostaAnotacioRegistre;
 import es.caib.helium.integracio.domini.registre.RespostaConsultaRegistre;
 import es.caib.helium.integracio.service.registre.RegistreService;
 import lombok.AllArgsConstructor;
@@ -35,8 +34,9 @@ public class RegistreController {
 	private RegistreService registreService;
 
 	@ExceptionHandler({ Exception.class })
-	public void handleException(Exception e) {
+	public ResponseEntity<Void> handleException(Exception e) {
 		e.printStackTrace();
+		return new ResponseEntity<Void>(HttpStatus.INTERNAL_SERVER_ERROR);
 	}
 	
 	@GetMapping(value = "{numeroRegistre}/justificant/data", produces = "application/json")
@@ -50,15 +50,15 @@ public class RegistreController {
 	}
 	
 	@PostMapping(value="sortida", consumes = "application/json")
-	public ResponseEntity<Void> crearRegistreSortida(@Valid @RequestBody RegistreAssentament registre, BindingResult error)
+	public ResponseEntity<RespostaAnotacioRegistre> crearRegistreSortida(@Valid @RequestBody RegistreAssentament registre, BindingResult error)
 			throws Exception {
 
 		if (error.hasErrors()) {
-			return new ResponseEntity<Void>(HttpStatus.BAD_REQUEST);
+			return new ResponseEntity<RespostaAnotacioRegistre>(HttpStatus.BAD_REQUEST);
 		}
 		
-		registreService.registrarSortida(registre, "Helium", "3.2"); //TODO moure el hardcoded a properties
-		return new ResponseEntity<Void>(HttpStatus.OK);
+		var resposta = registreService.registrarSortida(registre, "Helium", "3.2"); //TODO moure el hardcoded a properties
+		return new ResponseEntity<RespostaAnotacioRegistre>(resposta, HttpStatus.OK);
 	}
 
 	@GetMapping(value = "{numeroRegistre}/oficina", produces = "application/json")

@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.RestController;
 import es.caib.helium.integracio.domini.notificacio.DadesNotificacioDto;
 import es.caib.helium.integracio.domini.notificacio.RespostaConsultaEstatEnviament;
 import es.caib.helium.integracio.domini.notificacio.RespostaConsultaEstatNotificacio;
-import es.caib.helium.integracio.domini.notificacio.RespostaEnviar;
 import es.caib.helium.integracio.domini.notificacio.RespostaNotificacio;
 import es.caib.helium.integracio.service.notificacio.NotificacioService;
 import lombok.AllArgsConstructor;
@@ -32,10 +31,11 @@ public class NotificacioController {
 	@Autowired
 	private NotificacioService notificacioService;
 	
-	@ExceptionHandler({Exception.class})
-    public void handleException(Exception e) {
-        e.printStackTrace();
-    }
+	@ExceptionHandler({ Exception.class })
+	public ResponseEntity<Void> handleException(Exception e) {
+		e.printStackTrace();
+		return new ResponseEntity<Void>(HttpStatus.INTERNAL_SERVER_ERROR);
+	}
 	
 	@PostMapping(consumes = "application/json")
 	public ResponseEntity<RespostaNotificacio> altaNotificacio(@Valid @RequestBody DadesNotificacioDto dto, BindingResult error) throws Exception {

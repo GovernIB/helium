@@ -41,8 +41,9 @@ public class TramitacioController {
 	private TramitacioService tramitacioService;
 	
 	@ExceptionHandler({ Exception.class })
-	public void handleException(Exception e) {
+	public ResponseEntity<Void> handleException(Exception e) {
 		e.printStackTrace();
+		return new ResponseEntity<Void>(HttpStatus.INTERNAL_SERVER_ERROR);
 	}
 
 	@GetMapping(value = "{numRegistre}/justificant", produces = "application/json")
@@ -110,7 +111,7 @@ public class TramitacioController {
 		if (tramitacioService.comunicarResultatProcesTramit(request)) {
 			return new ResponseEntity<Void>(HttpStatus.OK);
 		}
-		return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
+		return new ResponseEntity<Void>(HttpStatus.CONFLICT);
 	}
 
 	@PostMapping(value = "zonaper/expedient/crear", consumes = "application/json")
@@ -123,7 +124,7 @@ public class TramitacioController {
 		if (tramitacioService.crearExpedientZonaPersonal(request)) {
 			return new ResponseEntity<Void>(HttpStatus.OK);
 		}
-		return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
+		return new ResponseEntity<Void>(HttpStatus.CONFLICT);
 	}
 	
 	@PostMapping(value = "zonaper/event/crear", consumes = "application/json")
@@ -136,7 +137,7 @@ public class TramitacioController {
 		if (tramitacioService.crearEventZonaPersonal(request)) {
 			return new ResponseEntity<Void>(HttpStatus.OK);
 		}
-		return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
+		return new ResponseEntity<Void>(HttpStatus.CONFLICT);
 	}
 
 	@PostMapping(value = "zonaper/notificacio/registrar", consumes = "application/json")

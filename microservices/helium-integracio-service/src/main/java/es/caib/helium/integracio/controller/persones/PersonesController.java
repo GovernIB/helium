@@ -30,11 +30,11 @@ public class PersonesController {
 	@Autowired
 	private final PersonaService personaService;
 	
-	  //...
-    @ExceptionHandler({Exception.class})
-    public void handleException(Exception e) {
-        e.printStackTrace();
-    }
+	@ExceptionHandler({ Exception.class })
+	public ResponseEntity<Void> handleException(Exception e) {
+		e.printStackTrace();
+		return new ResponseEntity<Void>(HttpStatus.INTERNAL_SERVER_ERROR);
+	}
 	
 	@GetMapping(produces = "application/json")
 	public ResponseEntity<List<Persona>> getPersones(@Valid @QueryParam("textSearch") String textSearch) throws Exception { 

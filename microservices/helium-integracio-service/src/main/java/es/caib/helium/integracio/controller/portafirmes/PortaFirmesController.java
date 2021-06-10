@@ -38,8 +38,9 @@ public class PortaFirmesController {
 	private final PortaFirmesService portaFirmesService;
 
 	@ExceptionHandler({ Exception.class })
-	public void handleException(Exception e) {
+	public ResponseEntity<Void> handleException(Exception e) {
 		e.printStackTrace();
+		return new ResponseEntity<Void>(HttpStatus.INTERNAL_SERVER_ERROR);
 	}
 
 	@GetMapping(value = "{documentId}", produces = "application/json")
@@ -168,7 +169,7 @@ public class PortaFirmesController {
 		if (portaFirmesService.enviarPortaFirmes(document)) {
 			return new ResponseEntity<Void>(HttpStatus.OK);
 		}
-		return new ResponseEntity<Void>(HttpStatus.GATEWAY_TIMEOUT);
+		return new ResponseEntity<Void>(HttpStatus.CONFLICT);
 	}
 
 	@PostMapping(value = "portafirma", consumes = "application/json")
@@ -181,14 +182,14 @@ public class PortaFirmesController {
 		if (portaFirmesService.guardar(document)) {
 			return new ResponseEntity<Void>(HttpStatus.OK);
 		}
-		return new ResponseEntity<Void>(HttpStatus.GATEWAY_TIMEOUT);
+		return new ResponseEntity<Void>(HttpStatus.CONFLICT);
 	}
 	
 	@DeleteMapping
 	public ResponseEntity<Void> cancelarEnviaments(@RequestParam("documents") List<Long> documents) throws Exception{
 		
 		if (documents == null || !portaFirmesService.cancelarEnviament(documents)) {
-			return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
+			return new ResponseEntity<Void>(HttpStatus.CONFLICT);
 		}
 		return new ResponseEntity<Void>(HttpStatus.OK);
 	}
