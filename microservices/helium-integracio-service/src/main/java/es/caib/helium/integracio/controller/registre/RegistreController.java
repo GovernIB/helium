@@ -1,7 +1,5 @@
 package es.caib.helium.integracio.controller.registre;
 
-import java.util.Date;
-
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +19,6 @@ import es.caib.helium.integracio.domini.registre.RegistreAssentament;
 import es.caib.helium.integracio.domini.registre.RespostaAnotacioRegistre;
 import es.caib.helium.integracio.domini.registre.RespostaConsultaRegistre;
 import es.caib.helium.integracio.service.registre.RegistreService;
-import es.caib.helium.integracio.service.registre.RegistreApi;
 import lombok.AllArgsConstructor;
 
 @RestController
@@ -58,7 +55,7 @@ public class RegistreController {
 			return new ResponseEntity<RespostaAnotacioRegistre>(HttpStatus.BAD_REQUEST);
 		}
 		
-		var resposta = registreService.getRegWeb3Api().registrarSortida(registre, "Helium", "3.2"); //TODO moure el hardcoded a properties
+		var resposta = registreService.registrarSortida(registre, "Helium", "3.2"); //TODO moure el hardcoded a properties
 		return new ResponseEntity<RespostaAnotacioRegistre>(resposta, HttpStatus.OK);
 	}
 
@@ -70,7 +67,7 @@ public class RegistreController {
 			) 
 			throws Exception {
 		
-		var resposta = registreService.getRegWeb3Api().obtenirRegistreSortida(numeroRegistre, usuariCodi, entitatCodi);
+		var resposta = registreService.obtenirRegistreSortida(numeroRegistre, usuariCodi, entitatCodi);
 		if (resposta == null) {
 			return new ResponseEntity<RespostaConsultaRegistre>(HttpStatus.NOT_FOUND);
 		}

@@ -14,9 +14,7 @@ import org.springframework.core.env.Environment;
 
 import es.caib.helium.integracio.excepcions.ServeisExternsException;
 import es.caib.helium.integracio.service.registre.RegistreService;
-import es.caib.helium.integracio.service.registre.ApiRegWebWs;
-import es.caib.helium.integracio.service.registre.RegistreApi;
-import es.caib.helium.integracio.service.registre.ApiRegWeb3;
+import es.caib.helium.integracio.service.registre.RegistreServiceRegWeb3Impl;
 import es.caib.regweb.ws.services.regwebfacade.RegwebFacadeServiceLocator;
 import es.caib.regweb3.ws.api.v3.RegWebAsientoRegistralWs;
 import es.caib.regweb3.ws.api.v3.RegWebAsientoRegistralWsService;
@@ -32,41 +30,18 @@ public class RegistreConfig {
 	@Bean(name = "registreService")
 	public RegistreService instanciarService() throws ServeisExternsException {
 		
-		var service = new RegistreService();
-		try {
-			service.setRegWebApi(crearRegWebService());
-		} catch (Exception ex) {
-			throw new ServeisExternsException("Error al crear la instancia de RegwebFacade_PortType", ex);
-		}
-
 		String pluginClass = env.getRequiredProperty("es.caib.helium.integracio.registre.service.rw3.class");
 		try {
-			var serviceRegWeb3 = (RegistreApi) Class.forName(pluginClass).getConstructor().newInstance();
-			if (serviceRegWeb3 instanceof ApiRegWeb3) {
+			var service = (RegistreService) Class.forName(pluginClass).getConstructor().newInstance();
+			if (service instanceof RegistreServiceRegWeb3Impl) {
 				
-				var rw3 = (ApiRegWeb3) serviceRegWeb3;
-				rw3.setAsientoRegistralApi(crearAsientoRegistralApi());
-				service.setRegWeb3Api(rw3);
+				var retorn = (RegistreServiceRegWeb3Impl) service;
+				retorn.setAsientoRegistralApi(crearAsientoRegistralApi());
 			}
+			return service;
 		} catch (Exception ex) {
 			throw new ServeisExternsException("Error al crear la instància de RegistreServiceRegWeb3 (" + "pluginClass=" + pluginClass + ")", ex);
 		}
-			return service;
-	}
-	
-	private ApiRegWebWs crearRegWebService() throws Exception {
-		
-		var url = env.getRequiredProperty("es.caib.helium.integracio.registre.service.ws.url") + "?wsdl";
-		var user = env.getRequiredProperty("es.caib.helium.integracio.registre.service.ws.usuari");
-		var password = env.getRequiredProperty("es.caib.helium.integracio.registre.service.ws.password");
-	    var service = new RegwebFacadeServiceLocator();
-	    service.setRegwebFacadeEndpointAddress(url);
-	    var api = service.getRegwebFacade();
-	    var regWebService = new ApiRegWebWs();
-	    regWebService.setApi(api);
-	    regWebService.setUsuarioConexion(user);
-	    regWebService.setPassword(password);
-	    return regWebService;
 	}
 	
 	private RegWebAsientoRegistralWs crearAsientoRegistralApi() throws Exception {

@@ -32,7 +32,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Service
 @Setter
-public class ApiRegWeb3 implements RegistreApi {
+public class RegistreServiceRegWeb3Impl implements RegistreService {
 	
 	private RegWebAsientoRegistralWs asientoRegistralApi;
 	private RegWebRegistroEntradaWs registroEntradaApi; // TODO PENDEN DE SI ES FA SERVIR O NO
