@@ -245,6 +245,15 @@
     		<version>1.6.19</version>
 		</dependency>
 		
+		<!--  Dependencies Regweb-ws -->	
+		<dependency>
+			<groupId>es.caib</groupId>
+			<artifactId>regweb-ws</artifactId>
+			<version>1.0</version>
+			<scope>system</scope>
+			<systemPath>${basedir}/../../helium-webapp/src/main/webapp/WEB-INF/lib/regweb-ws.jar</systemPath>
+		</dependency>
+		
 		<!-- Dependencies REGWEB3 -->
 		
 		<!-- <dependency> -->

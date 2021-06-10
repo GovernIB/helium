@@ -32,10 +32,10 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Service
 @Setter
-public class RegistreServiceRegWeb3Impl implements RegistreService {
+public class ApiRegWeb3 implements RegistreApi {
 	
 	private RegWebAsientoRegistralWs asientoRegistralApi;
-	private RegWebRegistroEntradaWs registroEntradaApi;
+	private RegWebRegistroEntradaWs registroEntradaApi; // TODO PENDEN DE SI ES FA SERVIR O NO
 	
 	@Override
 	public Date obtenirDataJustificant(String numeroRegistre) throws RegistreException {

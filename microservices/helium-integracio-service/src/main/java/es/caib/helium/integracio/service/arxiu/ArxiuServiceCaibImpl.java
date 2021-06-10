@@ -16,7 +16,7 @@ import es.caib.helium.integracio.domini.arxiu.ExpedientArxiu;
 import es.caib.helium.integracio.enums.arxiu.NtiEstadoElaboracionEnum;
 import es.caib.helium.integracio.enums.arxiu.NtiOrigenEnum;
 import es.caib.helium.integracio.enums.arxiu.NtiTipoDocumentalEnum;
-import es.caib.helium.integracio.excepcions.arxiu.ArxiuServiceException;
+import es.caib.helium.integracio.excepcions.arxiu.ArxiuException;
 import es.caib.plugins.arxiu.api.ContingutOrigen;
 import es.caib.plugins.arxiu.api.Document;
 import es.caib.plugins.arxiu.api.DocumentContingut;
@@ -42,63 +42,63 @@ public class ArxiuServiceCaibImpl implements ArxiuService {
 	private IArxiuPlugin api;
 	
 	@Override
-	public Expedient getExpedientByUuId(String uuId) throws ArxiuServiceException {
+	public Expedient getExpedient(String uuId) throws ArxiuException {
 
 		try {
 			return api.expedientDetalls(uuId, null);
 		} catch(Exception ex) {
-			throw new ArxiuServiceException("Error obtinguent els detalls de l'expedient " + uuId + " a l'arxiu", ex);
+			throw new ArxiuException("Error obtinguent els detalls de l'expedient " + uuId + " a l'arxiu", ex);
 		}
 	}
 
 	@Override
-	public boolean crearExpedient(ExpedientArxiu expedientArxiu) throws ArxiuServiceException {
+	public boolean crearExpedient(ExpedientArxiu expedientArxiu) throws ArxiuException {
 		try {
 			return  api.expedientCrear(toExpedient(expedientArxiu)) != null;
 		} catch (Exception e) {
-			throw new ArxiuServiceException("Error al crear l'expedient " + expedientArxiu.getIdentificador() + " a l'arxiu", e);
+			throw new ArxiuException("Error al crear l'expedient " + expedientArxiu.getIdentificador() + " a l'arxiu", e);
 		}
 	}	
 
 	@Override
-	public boolean modificarExpedient(ExpedientArxiu expedientArxiu) throws ArxiuServiceException {
+	public boolean modificarExpedient(ExpedientArxiu expedientArxiu) throws ArxiuException {
 		
 		try {
 			return  api.expedientCrear(toExpedient(expedientArxiu)) != null;
 		} catch (Exception e) {
-			throw new ArxiuServiceException("Error al modificar l'expedient " + expedientArxiu.getIdentificador() + " a l'arxiu", e);
+			throw new ArxiuException("Error al modificar l'expedient " + expedientArxiu.getIdentificador() + " a l'arxiu", e);
 		}
 	}
 
 	@Override
-	public boolean deleteExpedient(String uuId) throws ArxiuServiceException {
+	public boolean deleteExpedient(String uuId) throws ArxiuException {
 
 		try {
 			api.expedientEsborrar(uuId);
 			return true;
-		} catch (Exception e) {
-			throw new ArxiuServiceException("Error esborrant l'expedient " + uuId, e);
+		} catch (Exception ex) {
+			throw new ArxiuException("Error esborrant l'expedient " + uuId, ex);
 		}
 	}
 
 	@Override
-	public boolean obrirExpedient(String uuId) throws ArxiuServiceException {
+	public boolean obrirExpedient(String uuId) throws ArxiuException {
 		
 		try {
 			api.expedientReobrir(uuId);
 			return true;
-		} catch (Exception e) {
-			throw new ArxiuServiceException("Error obrint l'expedient " + uuId, e);
+		} catch (Exception ex) {
+			throw new ArxiuException("Error obrint l'expedient " + uuId, ex);
 		}
 	}
 
 	@Override
-	public boolean tencarExpedient(String uuId) throws ArxiuServiceException {
+	public boolean tancarExpedient(String uuId) throws ArxiuException {
 		
 		try {
 			return api.expedientTancar(uuId) != null;
-		} catch (Exception e) {
-			throw new ArxiuServiceException("Error tencant l'expedient " + uuId, e);
+		} catch (Exception ex) {
+			throw new ArxiuException("Error tencant l'expedient " + uuId, ex);
 		}
 	}
 	
@@ -132,28 +132,53 @@ public class ArxiuServiceCaibImpl implements ArxiuService {
 	}
 
 	@Override
-	public Document getDocument(String uuId, String versio, boolean ambContingut) throws ArxiuServiceException {
+	public Document getDocument(String uuId, String versio, boolean ambContingut, boolean isSignat) throws ArxiuException {
 		
 		try {
-			return api.documentDetalls(uuId, versio, ambContingut);
+			var document = api.documentDetalls(uuId, versio, ambContingut);
+			if (!ambContingut) {
+				return document;
+			}
+			
+			boolean isFirmaPades = false;
+			if (isSignat && document.getFirmes() != null) {
+				for (Firma firma: document.getFirmes()) {
+					if (FirmaTipus.PADES.equals(firma.getTipus())) {
+						isFirmaPades = true;
+						break;
+					}
+				}
+			}
+			if (isFirmaPades) {
+				DocumentContingut documentContingut = api.documentImprimible(uuId);
+				if (documentContingut != null && documentContingut.getContingut() != null) {
+					document.getContingut().setContingut(
+							documentContingut.getContingut());
+					document.getContingut().setTamany(
+							documentContingut.getContingut().length);
+					document.getContingut().setTipusMime("application/pdf");
+				}
+			}
+			
+			return document; 
 		} catch (Exception ex) {
-			throw new ArxiuServiceException("Error cercant el document");
+			throw new ArxiuException("Error cercant el document", ex);
 		}
 	}
 
 	@Override
-	public boolean deleteDocument(String uuId) throws ArxiuServiceException {
+	public boolean deleteDocument(String uuId) throws ArxiuException {
 		
 		try {
 			api.documentEsborrar(uuId);
 			return true;
 		} catch (Exception e) {
-			throw new ArxiuServiceException("Error esborrant el document" + uuId, e);
+			throw new ArxiuException("Error esborrant el document" + uuId, e);
 		}
 	}
 	
 	@Override
-	public boolean crearDocument(DocumentArxiu document) throws ArxiuServiceException {
+	public boolean crearDocument(DocumentArxiu document) throws ArxiuException {
 
 		try {
 			String nomAmbExtensio = document.getNom() + "." + document.getArxiu().getExtensio();
@@ -174,13 +199,13 @@ public class ArxiuServiceCaibImpl implements ArxiuService {
 					getExtensioPerArxiu(document.getArxiu()),
 					document.getFirmes() != null ? DocumentEstat.DEFINITIU : DocumentEstat.ESBORRANY);
 			return api.documentCrear(arxiuDoc, document.getUuid()) != null;
-		} catch (Exception e) {
-			throw new ArxiuServiceException("Error creant el document");
+		} catch (Exception ex) {
+			throw new ArxiuException("Error creant el document", ex);
 		}
 	}
 
 	@Override
-	public boolean modificarDocument(DocumentArxiu document) throws ArxiuServiceException {
+	public boolean modificarDocument(DocumentArxiu document) throws ArxiuException {
 		
 		try {
 			String nomAmbExtensio = document.getNom() + "." + document.getArxiu().getExtensio();
@@ -201,8 +226,8 @@ public class ArxiuServiceCaibImpl implements ArxiuService {
 					getExtensioPerArxiu(document.getArxiu()),
 					document.getEstat() );
 			return api.documentModificar(arxiuDoc) != null;
-		} catch (Exception e) {
-			throw new ArxiuServiceException("Error creant el document");
+		} catch (Exception ex) {
+			throw new ArxiuException("Error creant el document", ex);
 		}
 	}
 	
