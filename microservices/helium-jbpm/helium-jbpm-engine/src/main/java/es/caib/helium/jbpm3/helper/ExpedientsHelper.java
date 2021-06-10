@@ -9,15 +9,19 @@ import es.caib.helium.api.dto.TerminiDto;
 import es.caib.helium.api.exception.NoTrobatException;
 import lombok.Builder;
 import lombok.Data;
+import net.conselldemallorca.helium.jbpm3.handlers.tipus.ExpedientInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponentsBuilder;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 @Component
 public class ExpedientsHelper {
@@ -29,7 +33,7 @@ public class ExpedientsHelper {
     RestTemplate restTemplate;
 
 
-    public List<ExpedientDto> findExpedientsConsultaGeneral(
+    public List<ExpedientInfo> findExpedientsConsultaGeneral(
             Long entornId,
             String titol,
             String numero,
@@ -39,7 +43,7 @@ public class ExpedientsHelper {
             Long estatId,
             boolean nomesIniciats,
             boolean nomesFinalitzats) {
-        ExpedientDto[] expedients = restTemplate.getForObject(
+        ExpedientInfo[] expedients = restTemplate.getForObject(
                 getExpedientBridgeAddress() + "/{entornId}" +
                         "?titol={titol}" +
                         "&numero={numero}" +
@@ -49,7 +53,7 @@ public class ExpedientsHelper {
                         "&estatId={estatId}" +
                         "&nomesIniciats={nomesIniciats}" +
                         "&nomesFinalitzats={nomesFinalitzats}",
-                ExpedientDto[].class,
+                ExpedientInfo[].class,
                 entornId,
                 titol,
                 numero,
@@ -63,7 +67,31 @@ public class ExpedientsHelper {
         if (expedients != null) {
             return Arrays.asList(expedients);
         } else {
-            return new ArrayList<ExpedientDto>();
+            return new ArrayList<ExpedientInfo>();
+        }
+    }
+
+    public List<ExpedientInfo> findExpedientsConsultaDades(
+            Long entornId,
+            String expedientTipusCodi,
+            Map<String, String> filtreValors) {
+        UriComponentsBuilder queryBuilder = UriComponentsBuilder.fromHttpUrl(getExpedientBridgeAddress() + "/{entornId}/byExpedientTipus/{expedientTipusCodi}");
+        if (filtreValors != null) {
+            for (Map.Entry<String, String> filtre: filtreValors.entrySet()) {
+                queryBuilder.queryParam(filtre.getKey(), filtre.getValue());
+            }
+        }
+        queryBuilder.buildAndExpand(filtreValors).toUriString();
+        ExpedientInfo[] expedients = restTemplate.getForObject(
+                queryBuilder.buildAndExpand(filtreValors).toUriString(),
+                ExpedientInfo[].class,
+                entornId,
+                expedientTipusCodi);
+
+        if (expedients != null) {
+            return Arrays.asList(expedients);
+        } else {
+            return new ArrayList<ExpedientInfo>();
         }
     }
 
@@ -239,6 +267,10 @@ public class ExpedientsHelper {
             Long expedientId,
             ExpedientError expedientError) {
 
+        restTemplate.postForLocation(
+                getExpedientBridgeAddress() + "/{expedientId}/error",
+                expedientError,
+                expedientId);
     }
 
     public String getDadaPerProcessInstance(

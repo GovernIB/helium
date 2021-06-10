@@ -216,7 +216,7 @@ public abstract class BasicActionHandler extends AbstractHeliumActionHandler imp
 						expedientTipusCodi,
 						estatCodi);
 				// Consulta d'expedients
-				List<ExpedientDto> resultats = Jbpm3HeliumBridge.getInstanceService().findExpedientsConsultaGeneral(
+				List<ExpedientInfo> resultats = Jbpm3HeliumBridge.getInstanceService().findExpedientsConsultaGeneral(
 						expedient.getEntorn().getId(),
 						titol,
 						numero,
@@ -226,11 +226,10 @@ public abstract class BasicActionHandler extends AbstractHeliumActionHandler imp
 						estat == null ? null : estat.getId(),
 						iniciat,
 						finalitzat);
-				// Construcció de la resposta
-				List<ExpedientInfo> resposta = new ArrayList<ExpedientInfo>();
-				for (ExpedientDto dto: resultats)
-					resposta.add(ConversioTipusHelper.toExpedientInfo(dto));
-				return resposta;
+				if (resultats == null) {
+					return new ArrayList<ExpedientInfo>();
+				}
+				return resultats;
 			} else {
 				throw new JbpmException("No hi ha usuari autenticat");
 			}
@@ -263,13 +262,12 @@ public abstract class BasicActionHandler extends AbstractHeliumActionHandler imp
 				ExpedientDto expedient = getExpedientActual(executionContext);
 
 				// Consulta d'expedients
-				List<ExpedientDto> resultats = Jbpm3HeliumBridge.getInstanceService().findExpedientsConsultaDadesIndexades(
+				List<ExpedientInfo> resultats = Jbpm3HeliumBridge.getInstanceService().findExpedientsConsultaDadesIndexades(
 						expedient.getEntorn().getId(),
 						expedientTipusCodi,
 						filtreValors);
-				// Construcció de la resposta
-				for (ExpedientDto dto: resultats)
-					resposta.add(ConversioTipusHelper.toExpedientInfo(dto));				
+				if (resultats != null)
+					return resultats;
 			} else {
 				throw new JbpmException("No hi ha usuari autenticat");
 			}

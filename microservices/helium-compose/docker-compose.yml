@@ -23,11 +23,11 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock:ro                       # Additional information about containers
     user: root                                                             # Allow access to log files and docker.sock
     restart: on-failure
-#  jms:
-#    image: vromero/activemq-artemis
-#    ports:
-#      - 8161:8161
-#      - 61616:61616
+  jms:
+    image: vromero/activemq-artemis
+    ports:
+      - 8161:8161
+      - 61616:61616
   zipkin:
     image: openzipkin/zipkin
     ports:

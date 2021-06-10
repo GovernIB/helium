@@ -374,7 +374,7 @@ public class HeliumApiImpl implements HeliumApi {
 						estatCodi);
 				}
 				// Consulta d'expedients
-				List<ExpedientDto> resultats = Jbpm3HeliumBridge.getInstanceService().findExpedientsConsultaGeneral(
+				List<ExpedientInfo> resposta =  Jbpm3HeliumBridge.getInstanceService().findExpedientsConsultaGeneral(
 						expedient.getEntorn().getId(),
 						titol,
 						numero,
@@ -384,10 +384,9 @@ public class HeliumApiImpl implements HeliumApi {
 						estat == null ? null : estat.getId(),
 						iniciat,
 						finalitzat);
-				// Construcció de la resposta
-				List<ExpedientInfo> resposta = new ArrayList<ExpedientInfo>();
-				for (ExpedientDto dto: resultats)
-					resposta.add(ConversioTipusHelper.toExpedientInfo(dto));
+				if (resposta == null) {
+					return new ArrayList<ExpedientInfo>();
+				}
 				return resposta;
 			} else {
 				throw new HeliumHandlerException("No hi ha usuari autenticat");
@@ -420,13 +419,12 @@ public class HeliumApiImpl implements HeliumApi {
 				ExpedientDto expedient = getExpedientActual();
 
 				// Consulta d'expedients
-				List<ExpedientDto> resultats = Jbpm3HeliumBridge.getInstanceService().findExpedientsConsultaDadesIndexades(
+				List<ExpedientInfo> resultats = Jbpm3HeliumBridge.getInstanceService().findExpedientsConsultaDadesIndexades(
 						expedient.getEntorn().getId(),
 						expedientTipusCodi,
 						filtreValors);
-				// Construcció de la resposta
-				for (ExpedientDto dto: resultats)
-					resposta.add(ConversioTipusHelper.toExpedientInfo(dto));				
+				if (resultats != null)
+					return resultats;
 			} else {
 				throw new HeliumHandlerException("No hi ha usuari autenticat");
 			}

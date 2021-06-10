@@ -16,6 +16,7 @@ import es.caib.helium.api.service.WorkflowRetroaccioApi.ExpedientRetroaccioEstat
 import es.caib.helium.api.service.WorkflowRetroaccioApi.ExpedientRetroaccioTipus;
 import es.caib.helium.api.service.WorkflowRetroaccioApi.RetroaccioInfo;
 import es.caib.helium.jbpm3.command.*;
+import es.caib.helium.jbpm3.integracio.JbpmVars;
 import net.conselldemallorca.helium.jbpm3.handlers.BasicActionHandler;
 import es.caib.helium.jbpm3.helper.CommandHelper;
 import es.caib.helium.jbpm3.integracio.JbpmTask;
@@ -63,18 +64,14 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
+import static es.caib.helium.jbpm3.integracio.JbpmVars.*;
+
 @Slf4j
 @Service
 public class JbpmRetroaccioApiImpl implements JbpmRetroaccioApi {
 
     private static final String MESSAGE_LOG_PREFIX = "[H3l1um]";
     private static final String MESSAGE_LOGINFO_PREFIX = "[H3l1nf0]";
-    private static final String VAR_PREFIX = "H3l1um#";
-    private static final String VAR_TASCA_PREFIX = VAR_PREFIX + "tasca.";
-
-    private static final String PREFIX_DOCUMENT = VAR_PREFIX + "document.";
-    public static final String PREFIX_ADJUNT = VAR_PREFIX + "adjunt.";
-    public static final String PREFIX_SIGNATURA = VAR_PREFIX + "signatura.";
 
     @Autowired
     CommandService commandService;

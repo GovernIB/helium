@@ -2,6 +2,7 @@ package net.conselldemallorca.helium.webapp.ms.api;
 
 import lombok.Data;
 import net.conselldemallorca.helium.core.api.WorkflowBridgeService;
+import net.conselldemallorca.helium.jbpm3.handlers.tipus.ExpedientInfo;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDadaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import org.apache.commons.logging.Log;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 /**
  * API REST de terminis.
@@ -31,7 +33,7 @@ public class ExpedientRestController {
 
 	@RequestMapping(value="/{entornId}", method = RequestMethod.GET)
 	@ResponseBody
-	public List<ExpedientDto> findExpedientsConsultaGeneral(
+	public List<ExpedientInfo> findExpedientsConsultaGeneral(
 			@PathVariable("entornId") Long entornId,
 			@RequestParam(value = "titol", required = false) String titol,
 			@RequestParam(value = "numero", required = false) String numero,
@@ -51,6 +53,19 @@ public class ExpedientRestController {
 				estatId,
 				nomesIniciats,
 				nomesFinalitzats);
+	}
+
+	@RequestMapping(value="/{entornId}/byExpedientTipus/{expedientTipusCodi}", method = RequestMethod.GET)
+	@ResponseBody
+	public List<ExpedientInfo> findExpedientsConsultaDades(
+			@PathVariable("entornId") Long entornId,
+			@PathVariable("expedientTipusCodi") String expedientTipusCodi,
+			@RequestParam Map<String,String> allParams) {
+
+		return workflowBridgeService.findExpedientsConsultaDadesIndexades(
+				entornId,
+				expedientTipusCodi,
+				allParams);
 	}
 
 	@RequestMapping(value="/{entornId}/byNumero", method = RequestMethod.GET)
@@ -212,7 +227,11 @@ public class ExpedientRestController {
 	public void updateExpedientError(
 			@PathVariable("expedientId") Long expedientId,
 			@RequestBody ExpedientError expedientError) {
-
+		workflowBridgeService.updateExpedientError(
+				expedientId,
+				expedientError.getJobId(),
+				expedientError.getErrorDesc(),
+				expedientError.getErrorFull());
 	}
 
 	@RequestMapping(value="/process/{processInstanceId}/dada/{codi}", method = RequestMethod.GET)

@@ -9,6 +9,7 @@ import net.conselldemallorca.helium.core.extern.domini.ParellaCodiValor;
 import net.conselldemallorca.helium.core.helper.*;
 import net.conselldemallorca.helium.core.model.hibernate.*;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
+import net.conselldemallorca.helium.jbpm3.handlers.tipus.ExpedientInfo;
 import net.conselldemallorca.helium.ms.domini.DominiMs;
 import net.conselldemallorca.helium.v3.core.api.dto.*;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
@@ -104,7 +105,7 @@ public class WorkflowBridgeServiceImpl implements WorkflowBridgeService {
 
     // TODO: Modificar utilitzant el MS d'expedients i tasques
     @Override
-    public List<ExpedientDto> findExpedientsConsultaGeneral(
+    public List<ExpedientInfo> findExpedientsConsultaGeneral(
             Long entornId,
             String titol,
             String numero,
@@ -139,8 +140,7 @@ public class WorkflowBridgeServiceImpl implements WorkflowBridgeService {
                     throw new NoTrobatException(Estat.class, estatId);
             }
         }
-        return conversioTipusHelper.convertirList(
-                expedientHelper.findByFiltreGeneral(
+        List<Expedient> expedients = expedientHelper.findByFiltreGeneral(
                         entorn,
                         titol,
                         numero,
@@ -149,21 +149,28 @@ public class WorkflowBridgeServiceImpl implements WorkflowBridgeService {
                         expedientTipus,
                         estat,
                         nomesIniciats,
-                        nomesFinalitzats),
-                ExpedientDto.class);
+                        nomesFinalitzats);
+
+        List<ExpedientInfo> expedientInfos = new ArrayList<ExpedientInfo>();
+        if (expedients != null) {
+            for (Expedient expedient : expedients) {
+                expedientInfos.add(expedientHelper.toExpedientInfo(expedient));
+            }
+        }
+        return expedientInfos;
     }
 
     // TODO: Modificar amb el MS de dades
     @Override
-    public List<ExpedientDto> findExpedientsConsultaDadesIndexades(
+    public List<ExpedientInfo> findExpedientsConsultaDadesIndexades(
             Long entornId,
             String expedientTipusCodi,
-            Map<String, Object> filtreValors) {
+            Map<String, String> filtreValors) {
         logger.debug("Consultant expedients a Lucene (" +
                 "entornId=" + entornId + ", " +
                 "expedientTipusCodi=" + expedientTipusCodi + ", " +
                 "filtreValors=" + filtreValors + ")");
-        List<ExpedientDto> resposta = new ArrayList<ExpedientDto>();
+        List<ExpedientInfo> resposta = new ArrayList<ExpedientInfo>();
 
         Entorn entorn = entornRepository.findOne(entornId);
         if (entorn == null)
@@ -200,17 +207,25 @@ public class WorkflowBridgeServiceImpl implements WorkflowBridgeService {
         List<Camp> filtreCamps = new ArrayList<Camp>(campsIndexatsPerCodi.values());
 
         // consultar a l'índex
+        Map<String, Object> filtreValorsObject = new HashMap<String, Object>();
+        if (filtreValors != null) {
+            for (Map.Entry<String, String> filtre: filtreValors.entrySet()) {
+                filtreValorsObject.put(filtre.getKey(), filtre.getValue());
+            }
+        }
         List<Long> expedientsIds = indexHelper.findExpedientsIdsByFiltre(
                 entorn,
                 expedientTipus,
                 filtreCamps,
-                filtreValors);
+                filtreValorsObject);
+//                filtreValors);
         Expedient expedient;
         for (Long expedientId : expedientsIds) {
             expedient = expedientHelper.findAmbEntornIId(entornId, expedientId);
             if (expedient != null
                     && !expedient.isAnulat())
-                resposta.add(conversioTipusHelper.convertir(expedient, ExpedientDto.class));
+//                resposta.add(conversioTipusHelper.convertir(expedient, ExpedientDto.class));
+                resposta.add(expedientHelper.toExpedientInfo(expedient));
         }
         return resposta;
     }
@@ -592,6 +607,19 @@ public class WorkflowBridgeServiceImpl implements WorkflowBridgeService {
                 expedient.getGeoReferencia(),
                 expedient.getGrupCodi(),
                 false);
+    }
+
+    @Override
+    public void updateExpedientError(
+            Long expedientId,
+            Long jobId,
+            String errorDesc,
+            String errorFull) {
+        logger.error("JOB (" + jobId + "): Actualitzant error de l'expedient");
+        Expedient expedient = expedientRepository.findOne(expedientId);
+        expedient.setErrorDesc(errorDesc);
+        expedient.setErrorFull(errorFull);
+        expedientRepository.save(expedient);
     }
 
     @Override

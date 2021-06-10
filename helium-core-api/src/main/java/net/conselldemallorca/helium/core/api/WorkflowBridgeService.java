@@ -1,5 +1,6 @@
 package net.conselldemallorca.helium.core.api;
 
+import net.conselldemallorca.helium.jbpm3.handlers.tipus.ExpedientInfo;
 import net.conselldemallorca.helium.v3.core.api.dto.*;
 
 import java.util.Date;
@@ -17,7 +18,7 @@ public interface WorkflowBridgeService {
 	// EXPEDIENTS
 	////////////////////////////////////////////////////////////////////////////////
 
-	public List<ExpedientDto> findExpedientsConsultaGeneral(
+	public List<ExpedientInfo> findExpedientsConsultaGeneral(
 			Long entornId,
 			String titol,
 			String numero,
@@ -28,10 +29,10 @@ public interface WorkflowBridgeService {
 			boolean nomesIniciats,
 			boolean nomesFinalitzats);
 
-	public List<ExpedientDto> findExpedientsConsultaDadesIndexades(
+	public List<ExpedientInfo> findExpedientsConsultaDadesIndexades(
 			Long entornId,
 			String expedientTipusCodi,
-			Map<String, Object> filtreValors);
+			Map<String, String> filtreValors);
 
 	public ExpedientDto getExpedientAmbEntornITipusINumero(
 			Long entornId,
@@ -105,6 +106,11 @@ public interface WorkflowBridgeService {
 			String processInstanceId,
 			String responsableCodi);
 
+	public void updateExpedientError(
+			Long expedientId,
+			Long jobId,
+			String errorDesc,
+			String errorFull);
 	// Dades
 
 	public ExpedientDadaDto getDadaPerProcessInstance(

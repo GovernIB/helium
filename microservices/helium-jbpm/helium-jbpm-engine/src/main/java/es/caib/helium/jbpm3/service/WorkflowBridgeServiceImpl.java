@@ -27,13 +27,18 @@ import es.caib.helium.jbpm3.helper.GenericsHelper.Email;
 import es.caib.helium.jbpm3.helper.TerminisHelper.TerminiCalcul;
 import es.caib.helium.jbpm3.helper.TerminisHelper.TerminiConfigurar;
 import es.caib.helium.jbpm3.helper.TerminisHelper.TerminiInici;
+import es.caib.helium.jbpm3.integracio.JbpmVars;
+import net.conselldemallorca.helium.jbpm3.handlers.tipus.ExpedientInfo;
 import org.jbpm.command.CommandService;
 import org.jbpm.graph.exe.ProcessInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.w3c.dom.css.DocumentCSS;
 
+import java.math.BigDecimal;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -75,8 +80,25 @@ public class WorkflowBridgeServiceImpl implements WorkflowBridgeService {
     // EXPEDIENTS
     ////////////////////////////////////////////////////////////////////////////////
 
+
+    /**
+     * Realitza una consulta per a obtenir tots els expedients que compleixen amb el filtre indicat
+     *
+     * @param entornId Identificador de l'entorn. Valor obligatori.
+     * @param titol Títol de l'expedient. Es pot indicar només una part del títol.
+     * @param numero Número de l'expedient. Es pot indicar només una part del número.
+     * @param dataInici1 Data igual o anterior a l'inici de l'expedient.
+     * @param dataInici2 Data igual o posterior a l'inici de l'expedient.
+     * @param expedientTipusId Identificador del tipus d'expedient.
+     * @param estatId Identificador de l'estat de l'expedient.
+     * @param nomesIniciats Indica si només es volen obtenir els expedients que no es trobin finalitzats. Valor obligatori.
+     * @param nomesFinalitzats Indica si només es volen obtenir els expedients que es trobin finalitzats. Valor obligatori.
+     * @return Llista d'expedients segons el filtre indicat.
+     * @exception NoTrobatException en el cas que no existeixi un entorn o estat amb els identificadors indicats (si s'han informat)
+     */
+    // Mètode utilitzat només pel BasicActionHandler / HeliumApi
     @Override
-    public List<ExpedientDto> findExpedientsConsultaGeneral(
+    public List<ExpedientInfo> findExpedientsConsultaGeneral(
             Long entornId,
             String titol,
             String numero,
@@ -98,6 +120,17 @@ public class WorkflowBridgeServiceImpl implements WorkflowBridgeService {
                 nomesFinalitzats);
     }
 
+    /**
+     * Consulta un expedient donat el seu entorn, tipus i número
+     * @param entornId Identificador de l'entorn.
+     * @param expedientTipusCodi Codi del tipus d'expedient.
+     * @param numero Número de l'expedient.
+     * @return Expedient amb els paràmetres indicats. Null en cas que no es trobi cap expedient.
+     * @exception NoTrobatException en el cas que no existeixi un entorn o tipus d'expedient amb els valors indicats
+     */
+    // Mètode utilitzat només pel AbstractHeliumActionHandler.
+    // La resta de peticions només necessiten el processInstanceId. Podem reduir la quantitat d'informació recuperada?
+    // TODO: Fer mètode per obtenir només el processInstanceId
     @Override
     public ExpedientDto getExpedientAmbEntornITipusINumero(
             Long entornId,
@@ -109,12 +142,14 @@ public class WorkflowBridgeServiceImpl implements WorkflowBridgeService {
                 numero);
     }
 
+    // Mètode utilitzat només pel AbstractHeliumActionHandler --> GetExpedientActual
     @Override
     public ExpedientDto getExpedientArrelAmbProcessInstanceId(
             String processInstanceId) {
         return expedientsHelper.getExpedientArrelAmbProcessInstanceId(processInstanceId);
     }
 
+    // Mètode utilitzat només pel BasicActionHandler / HeliumApi
     @Override
     public void expedientRelacionar(
             Long expedientIdOrigen,
@@ -122,6 +157,7 @@ public class WorkflowBridgeServiceImpl implements WorkflowBridgeService {
         expedientsHelper.expedientRelacionar(expedientIdOrigen, expedientIdDesti);
     }
 
+    // TODO: Optimitzar --> Es fan consultes cap a WF
     @Override
     public void expedientAturar(
             String processInstanceId,
@@ -129,12 +165,14 @@ public class WorkflowBridgeServiceImpl implements WorkflowBridgeService {
         expedientsHelper.expedientAturar(processInstanceId, motiu);
     }
 
+    // TODO: Optimitzar --> Es fan consultes cap a WF
     @Override
     public void expedientReprendre(
             String processInstanceId) {
         expedientsHelper.expedientReprendre(processInstanceId);
     }
 
+    // TODO: Optimitzar --> Afegir informació per retroacció
     @Override
     public void expedientModificarEstat(
             String processInstanceId,
@@ -142,11 +180,13 @@ public class WorkflowBridgeServiceImpl implements WorkflowBridgeService {
         expedientsHelper.expedientModificarEstat(processInstanceId, estatCodi);
     }
 
+    // TODO: Optimitzar --> Afegir informació per retroacció
     @Override
     public void expedientModificarEstat(String processInstanceId, Long estatId) {
         expedientsHelper.expedientModificarEstat(processInstanceId, estatId);
     }
 
+    // TODO: Optimitzar --> Afegir informació per retroacció
     @Override
     public void expedientModificarComentari(
             String processInstanceId,
@@ -154,6 +194,7 @@ public class WorkflowBridgeServiceImpl implements WorkflowBridgeService {
         expedientsHelper.expedientModificarComentari(processInstanceId, comentari);
     }
 
+    // TODO: Optimitzar --> Afegir informació per retroacció
     @Override
     public void expedientModificarNumero(
             String processInstanceId,
@@ -161,6 +202,7 @@ public class WorkflowBridgeServiceImpl implements WorkflowBridgeService {
         expedientsHelper.expedientModificarNumero(processInstanceId, numero);
     }
 
+    // TODO: Optimitzar --> Afegir informació per retroacció
     @Override
     public void expedientModificarTitol(
             String processInstanceId,
@@ -168,6 +210,7 @@ public class WorkflowBridgeServiceImpl implements WorkflowBridgeService {
         expedientsHelper.expedientModificarTitol(processInstanceId, titol);
     }
 
+    // TODO: Optimitzar --> Afegir informació per retroacció
     @Override
     public void expedientModificarGeoref(
             String processInstanceId,
@@ -181,6 +224,7 @@ public class WorkflowBridgeServiceImpl implements WorkflowBridgeService {
         expedientsHelper.expedientModificarGeoref(processInstanceId, georeferencia);
     }
 
+    // TODO: Optimitzar --> Afegir informació per retroacció
     @Override
     public void expedientModificarGeoreferencia(
             String processInstanceId,
@@ -188,6 +232,7 @@ public class WorkflowBridgeServiceImpl implements WorkflowBridgeService {
         expedientsHelper.expedientModificarGeoreferencia(processInstanceId, referencia);
     }
 
+    // TODO: Optimitzar --> Afegir informació per retroacció
     @Override
     public void expedientModificarGeoX(
             String processInstanceId,
@@ -195,6 +240,7 @@ public class WorkflowBridgeServiceImpl implements WorkflowBridgeService {
         expedientsHelper.expedientModificarGeoX(processInstanceId, posx);
     }
 
+    // TODO: Optimitzar --> Afegir informació per retroacció
     @Override
     public void expedientModificarGeoY(
             String processInstanceId,
@@ -202,6 +248,7 @@ public class WorkflowBridgeServiceImpl implements WorkflowBridgeService {
         expedientsHelper.expedientModificarGeoY(processInstanceId, posy);
     }
 
+    // TODO: Optimitzar --> Afegir informació per retroacció
     @Override
     public void expedientModificarDataInici(
             String processInstanceId,
@@ -209,6 +256,7 @@ public class WorkflowBridgeServiceImpl implements WorkflowBridgeService {
         expedientsHelper.expedientModificarDataInici(processInstanceId, dataInici);
     }
 
+    // TODO: Optimitzar --> Afegir informació per retroacció
     @Override
     public void expedientModificarGrup(
             String processInstanceId,
@@ -216,6 +264,7 @@ public class WorkflowBridgeServiceImpl implements WorkflowBridgeService {
         expedientsHelper.expedientModificarGrup(processInstanceId, grupCodi);
     }
 
+    // TODO: Optimitzar --> Afegir informació per retroacció
     @Override
     public void expedientModificarResponsable(
             String processInstanceId,
@@ -227,11 +276,13 @@ public class WorkflowBridgeServiceImpl implements WorkflowBridgeService {
         expedientsHelper.expedientModificarResponsable(processInstanceId, responsableCodi);
     }
 
+    // TODO: Optimitzar --> Es fan consultes cap a WF
     @Override
     public void finalitzarExpedient(String processInstanceId) {
         expedientsHelper.finalitzarExpedient(processInstanceId);
     }
 
+    // TODO: Optimitzar --> Es fan consultes cap a WF
     @Override
     public void desfinalitzarExpedient(String processInstanceId) {
         expedientsHelper.desfinalitzarExpedient(processInstanceId);
@@ -251,13 +302,17 @@ public class WorkflowBridgeServiceImpl implements WorkflowBridgeService {
         expedientsHelper.updateExpedientError(expedientId, expedientError);
     }
 
-    // TODO: Veure com passar els valors dels filtres
     @Override
-    public List<ExpedientDto> findExpedientsConsultaDadesIndexades(
+    public List<ExpedientInfo> findExpedientsConsultaDadesIndexades(
             Long entornId,
             String expedientTipusCodi,
             Map<String, Object> filtreValors) {
-        return null;
+
+        // Convertir Map<String, Object> a Map<String, String>
+        return expedientsHelper.findExpedientsConsultaDades(
+                entornId,
+                expedientTipusCodi,
+                convertVariablesMap(filtreValors));
     }
 
     @Override
@@ -271,6 +326,7 @@ public class WorkflowBridgeServiceImpl implements WorkflowBridgeService {
     // TASQUES
     ////////////////////////////////////////////////////////////////////////////////
 
+    // TODO: Executats els dos sempre conjuntament --> Ho podem fer en una única crida
     @Override
     public boolean isTascaEnSegonPla(Long taskId) {
         return tasquesHelper.isTascaEnSegonPla(taskId);
@@ -280,6 +336,7 @@ public class WorkflowBridgeServiceImpl implements WorkflowBridgeService {
     public void addMissatgeExecucioTascaSegonPla(Long taskId, String[] message) {
         tasquesHelper.addMissatgeExecucioTascaSegonPla(taskId, message);
     }
+    // Fi TODO
 
     @Override
     public void setErrorTascaSegonPla(Long taskId, Exception ex) {
@@ -287,6 +344,7 @@ public class WorkflowBridgeServiceImpl implements WorkflowBridgeService {
         tasquesHelper.setErrorTascaSegonPla(taskId, error);
     }
 
+    // TODO: Només necessitam: readFrom i camp.codi
     @Override
     public List<CampTascaDto> findCampsPerTaskInstance(
             String processInstanceId,
@@ -298,6 +356,7 @@ public class WorkflowBridgeServiceImpl implements WorkflowBridgeService {
                 taskName);
     }
 
+    // TODO: Només necessitam: readOnly i document.codi
     @Override
     public List<DocumentTascaDto> findDocumentsPerTaskInstance(
             String processInstanceId,
@@ -309,6 +368,7 @@ public class WorkflowBridgeServiceImpl implements WorkflowBridgeService {
                 taskName);
     }
 
+    // TODO: Només necessitam el text
     @Override
     public TascaDadaDto getDadaPerTaskInstance(String processInstanceId, String taskInstanceId, String varCodi) {
         return tasquesHelper.getDadaPerTaskInstance(
@@ -317,6 +377,7 @@ public class WorkflowBridgeServiceImpl implements WorkflowBridgeService {
                 varCodi);
     }
 
+    // TODO: Utilitzada en retroacció. Només necessita saber si existeix
     @Override
     public CampTascaDto getCampTascaPerInstanciaTasca(
             String taskName,
@@ -330,17 +391,6 @@ public class WorkflowBridgeServiceImpl implements WorkflowBridgeService {
                 name);
     }
 
-//    public List<CampTascaDto> getCampsPerTaskInstance(String processDefinitionId, String taskName) {
-//        return tasquesHelper.getCampsPerTaskInstance(
-//                processDefinitionId,
-//                taskName);
-//    }
-//
-//    public List<DocumentTascaDto> getDocumentsPerTaskInstance(String processDefinitionId, String taskName) {
-//        return tasquesHelper.getDocumentsPerTaskInstance(
-//                processDefinitionId,
-//                taskName);
-//    }
 
     // TODO: LOCAL --> updateTaskInstanceInfoCache o eliminar????
     @Override
@@ -350,6 +400,7 @@ public class WorkflowBridgeServiceImpl implements WorkflowBridgeService {
 
     // DOCUMENTS
     ////////////////////////////////////////////////////////////////////////////////
+
 
     @Override
     public DocumentDissenyDto getDocumentDisseny(
@@ -362,11 +413,13 @@ public class WorkflowBridgeServiceImpl implements WorkflowBridgeService {
                 documentCodi);
     }
 
+    // TODO: Retornar el documentInfo
     @Override
     public DocumentDto getDocumentInfo(Long documentStoreId) {
         return documentsHelper.getDocumentInfo(documentStoreId);
     }
 
+    // TODO: Retornar el documentInfo
     @Override
     public DocumentDto getDocumentInfo(
             Long documentStoreId,
@@ -388,7 +441,8 @@ public class WorkflowBridgeServiceImpl implements WorkflowBridgeService {
 
     @Override
     public String getCodiVariablePerDocumentCodi(String documentCodi) {
-        return documentsHelper.getCodiVariablePerDocumentCodi(documentCodi);
+        return JbpmVars.PREFIX_DOCUMENT + documentCodi;
+//        return documentsHelper.getCodiVariablePerDocumentCodi(documentCodi);
     }
 
     @Override
@@ -1011,6 +1065,27 @@ public class WorkflowBridgeServiceImpl implements WorkflowBridgeService {
         // ThreadLocalInfo.addProcessInstanceFinalitzatIds(processInstanceId);
     }
 
+
+    private Map<String, String> convertVariablesMap(Map<String, Object> mapaVariables) {
+
+        DateFormat df = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+        Map<String, String> mapaVariablesString = new HashMap<String, String>();
+
+        for (Map.Entry<String, Object> var: mapaVariables.entrySet()) {
+            if (var.getValue() instanceof String) {
+                mapaVariablesString.put(var.getKey(), (String)var.getValue());
+            } else if (var.getValue() instanceof Date) {
+                mapaVariablesString.put(var.getKey(), df.format((Date)var.getValue()));
+//            } else if (var.getValue() instanceof BigDecimal) {
+//                mapaVariablesString.put(var.getKey(), var.getValue().toString());
+//            } else if (var.getValue() instanceof Boolean) {
+//                mapaVariablesString.put(var.getKey(), var.getValue().toString());
+            } else {
+                mapaVariablesString.put(var.getKey(), var.getValue().toString());
+            }
+        }
+        return mapaVariablesString;
+    }
 //
 //
 //

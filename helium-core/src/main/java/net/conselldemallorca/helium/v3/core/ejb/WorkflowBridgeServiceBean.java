@@ -1,6 +1,7 @@
 package net.conselldemallorca.helium.v3.core.ejb;
 
 import net.conselldemallorca.helium.core.api.WorkflowBridgeService;
+import net.conselldemallorca.helium.jbpm3.handlers.tipus.ExpedientInfo;
 import net.conselldemallorca.helium.v3.core.api.dto.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
@@ -27,7 +28,7 @@ public class WorkflowBridgeServiceBean implements WorkflowBridgeService {
 	// EXPEDIENTS
 	////////////////////////////////////////////////////////////////////////////////
 
-	public List<ExpedientDto> findExpedientsConsultaGeneral(
+	public List<ExpedientInfo> findExpedientsConsultaGeneral(
             Long entornId,
             String titol,
             String numero,
@@ -49,10 +50,10 @@ public class WorkflowBridgeServiceBean implements WorkflowBridgeService {
 				nomesFinalitzats);
 	}
 
-	public List<ExpedientDto> findExpedientsConsultaDadesIndexades(
+	public List<ExpedientInfo> findExpedientsConsultaDadesIndexades(
             Long entornId,
             String expedientTipusCodi,
-            Map<String, Object> filtreValors) {
+            Map<String, String> filtreValors) {
 		return delegate.findExpedientsConsultaDadesIndexades(entornId, expedientTipusCodi, filtreValors);
 	}
 
@@ -370,7 +371,12 @@ public class WorkflowBridgeServiceBean implements WorkflowBridgeService {
 		delegate.expedientModificarResponsable(processInstanceId, responsableCodi);
 	}
 
-    @Override
+	@Override
+	public void updateExpedientError(Long expedientId, Long jobId, String errorDesc, String errorFull) {
+		delegate.updateExpedientError(expedientId, jobId, errorDesc, errorFull);
+	}
+
+	@Override
     public ExpedientDadaDto getDadaPerProcessInstance(String processInstanceId, String codi) {
         return delegate.getDadaPerProcessInstance(processInstanceId, codi);
     }

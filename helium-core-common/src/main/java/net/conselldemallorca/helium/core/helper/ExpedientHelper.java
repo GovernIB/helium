@@ -23,6 +23,7 @@ import net.conselldemallorca.helium.core.security.ExtendedPermission;
 import net.conselldemallorca.helium.core.util.ExpedientCamps;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.core.util.PdfUtils;
+import net.conselldemallorca.helium.jbpm3.handlers.tipus.ExpedientInfo;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessInstance;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DadesDocumentDto;
@@ -187,6 +188,60 @@ public class ExpedientHelper {
 		dto.setReindexarData(expedient.getReindexarData());
 		dto.setReindexarError(expedient.isReindexarError());
 		return dto;
+	}
+
+	public ExpedientInfo toExpedientInfo(Expedient expedient) {
+		if (expedient == null) {
+			return null;
+		}
+
+		ExpedientInfo resposta = new ExpedientInfo();
+		resposta.setId(expedient.getId());
+		resposta.setTitol(expedient.getTitol());
+		resposta.setNumero(expedient.getNumero());
+		resposta.setNumeroDefault(expedient.getNumeroDefault());
+		resposta.setDataInici(expedient.getDataInici());
+		resposta.setDataFi(expedient.getDataFi());
+		resposta.setComentari(expedient.getComentari());
+		resposta.setComentariAnulat(expedient.getComentariAnulat());
+		resposta.setInfoAturat(expedient.getInfoAturat());
+		if (expedient.getIniciadorTipus().equals(IniciadorTipusDto.INTERN))
+			resposta.setIniciadorTipus(ExpedientInfo.IniciadorTipus.INTERN);
+		else if (expedient.getIniciadorTipus().equals(IniciadorTipusDto.SISTRA))
+			resposta.setIniciadorTipus(ExpedientInfo.IniciadorTipus.SISTRA);
+		resposta.setIniciadorCodi(expedient.getIniciadorCodi());
+		resposta.setResponsableCodi(expedient.getResponsableCodi());
+		resposta.setGeoPosX(expedient.getGeoPosX());
+		resposta.setGeoPosY(expedient.getGeoPosY());
+		resposta.setGeoReferencia(expedient.getGeoReferencia());
+		resposta.setRegistreNumero(expedient.getRegistreNumero());
+		resposta.setRegistreData(expedient.getRegistreData());
+		resposta.setUnitatAdministrativa(expedient.getUnitatAdministrativa());
+		resposta.setIdioma(expedient.getIdioma());
+		resposta.setAutenticat(expedient.isAutenticat());
+		resposta.setTramitadorNif(expedient.getTramitadorNif());
+		resposta.setTramitadorNom(expedient.getTramitadorNom());
+		resposta.setInteressatNif(expedient.getInteressatNif());
+		resposta.setInteressatNom(expedient.getInteressatNom());
+		resposta.setRepresentantNif(expedient.getRepresentantNif());
+		resposta.setRepresentantNom(expedient.getRepresentantNom());
+		resposta.setAvisosHabilitats(expedient.isAvisosHabilitats());
+		resposta.setAvisosEmail(expedient.getAvisosEmail());
+		resposta.setAvisosMobil(expedient.getAvisosMobil());
+		resposta.setNotificacioTelematicaHabilitada(expedient.isNotificacioTelematicaHabilitada());
+		resposta.setTramitExpedientIdentificador(expedient.getTramitExpedientIdentificador());
+		resposta.setTramitExpedientClau(expedient.getTramitExpedientClau());
+		resposta.setExpedientTipusCodi(expedient.getTipus().getCodi());
+		resposta.setExpedientTipusNom(expedient.getTipus().getNom());
+		resposta.setEntornCodi(expedient.getEntorn().getCodi());
+		resposta.setEntornNom(expedient.getEntorn().getNom());
+		if (expedient.getEstat() != null) {
+			resposta.setEstatCodi(expedient.getEstat().getCodi());
+			resposta.setEstatNom(expedient.getEstat().getNom());
+		}
+		resposta.setProcessInstanceId(new Long(expedient.getProcessInstanceId()).longValue());
+		resposta.setAmbRetroaccio(expedient.isAmbRetroaccio());
+		return resposta;
 	}
 
 	public Expedient getExpedientComprovantPermisos(
