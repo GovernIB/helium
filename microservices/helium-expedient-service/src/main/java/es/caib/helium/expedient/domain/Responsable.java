@@ -3,6 +3,7 @@
  */
 package es.caib.helium.expedient.domain;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -49,7 +50,7 @@ public class Responsable implements Persistable<Long> {
 	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "hel_responsable_gen")
 	private Long id;
 	
-	@ManyToOne(optional=false)
+	@ManyToOne(optional=false, cascade={CascadeType.ALL})
 	@JoinColumn(name="tasca_id")
 	// HEL_RESP_TASCA_FK
 	private Tasca tasca;

@@ -28,6 +28,7 @@ public interface ExpedientService {
             Long expedientId);
 
     PagedList<ExpedientDto> listExpedients(
+    		String usuariCodi,
     		Long entornId,
             Long expedientTipusId,
             String titol,

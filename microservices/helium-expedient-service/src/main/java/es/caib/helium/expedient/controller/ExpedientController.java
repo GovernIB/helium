@@ -66,6 +66,7 @@ public class ExpedientController {
     */
    @GetMapping(produces = { "application/json" })
    public ResponseEntity<PagedList<ExpedientDto>> findExpedientsAmbFiltrePaginatV1(
+           @RequestParam(value = "usuariCodi", required = false) String usuariCodi,
            @RequestParam(value = "entornId") Long entornId,
            @RequestParam(value = "filtre", required = false) String filtre,
            @RequestParam(value = "expedientTipusId", required = false) Long expedientTipusId,
@@ -86,7 +87,8 @@ public class ExpedientController {
            final Sort sort) {
 
        log.debug("[CTR] llistant expedients: \n" +
-               "entornId: " + entornId +
+    		   "usuariCodi: " + usuariCodi +
+               ", entornId: " + entornId +
                ", expedientTipusId: " + expedientTipusId +
                ", titol: " + titol +
                ", numero: " + numero +
@@ -104,6 +106,7 @@ public class ExpedientController {
                ", filtre: " + filtre);
 
        PagedList<ExpedientDto> expedientList = expedientService.listExpedients(
+    		   usuariCodi,
     		   entornId,
     		   expedientTipusId, 
     		   titol, 

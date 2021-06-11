@@ -125,6 +125,7 @@ public class ExpedientServiceImpl implements ExpedientService {
     @Override
     @Transactional(readOnly = true)
     public PagedList<ExpedientDto> listExpedients(
+    		String usuariCodi,
     		Long entornId,
             Long expedientTipusId,
             String titol,
@@ -145,7 +146,8 @@ public class ExpedientServiceImpl implements ExpedientService {
             final Sort sort) {
 
         log.debug("[SRV] Obtenint llistat de expedients. \n" +
-                "entornId: " + entornId +
+                "usuariCodi: " + usuariCodi +
+                "entornId: " + entornId + "\n" +
                 "expedientTipusId: " + expedientTipusId + "\n" +
                 "titol: " + titol + "\n" +
                 "numero: " + numero + "\n" +
@@ -163,6 +165,7 @@ public class ExpedientServiceImpl implements ExpedientService {
                 "filtreRsql:" + filtreRsql);
 
         Specification<Expedient> spec = ExpedientSpecifications.expedientsList(
+        									usuariCodi,
 											entornId,
 											expedientTipusId, 
 											titol, 

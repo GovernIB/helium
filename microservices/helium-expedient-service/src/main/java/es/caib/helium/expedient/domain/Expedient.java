@@ -75,14 +75,14 @@ public class Expedient implements Persistable<Long> {
 	private String numero;
 
 	@Size(max = 255)
-	@Column(name="titol", length=255, nullable=true)
+	@Column(name="titol", length=255)
 	private String titol;
 
 	@NotNull
 	@Column(name="data_inici", nullable=false)
 	private Date dataInici;
 	
-	@Column(name="data_fi", nullable=true)
+	@Column(name="data_fi")
 	private Date dataFi;
 
 	@NotNull
@@ -93,27 +93,27 @@ public class Expedient implements Persistable<Long> {
 	@Column(name="estat_id")
 	private Long estatId;
 
-	@Column(name="aturat", nullable=false)
+	@Column(name="aturat")
 	private boolean aturat;
 	
 	@Size(max = 1024)
-	@Column(name="info_aturat", nullable=true)
+	@Column(name="info_aturat")
 	private String infoAturat;
 
-	@Column(name="anulat", nullable=false)
+	@Column(name="anulat")
 	private boolean anulat;
 	
 	@Size(max = 255)
-	@Column(name="comentari_anulat", nullable=true)
+	@Column(name="comentari_anulat")
 	private String comentariAnulat;
 	
-	@Column(name="alertes_totals", nullable=false)
-	private long alertesTotals;
+	@Column(name="alertes_totals")
+	private Long alertesTotals;
 
-	@Column(name="alertes_pendents", nullable=false)
-	private long alertesPendents;
+	@Column(name="alertes_pendents")
+	private Long alertesPendents;
 
-	@Column(name="amb_errors", nullable=false)
+	@Column(name="amb_errors")
 	private boolean ambErrors;
 
 	@OneToMany(mappedBy="expedient", cascade={CascadeType.ALL})
