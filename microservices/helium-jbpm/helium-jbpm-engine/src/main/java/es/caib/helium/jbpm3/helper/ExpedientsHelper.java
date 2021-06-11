@@ -109,6 +109,20 @@ public class ExpedientsHelper {
                 numero);
     }
 
+    public String getProcessInstanceIdAmbEntornITipusINumero(
+            Long entornId,
+            String expedientTipusCodi,
+            String numero) {
+        return  restTemplate.getForObject(
+                getExpedientBridgeAddress() + "/{entornId}/processInstance" +
+                        "?expedientTipusCodi={expedientTipusCodi}" +
+                        "&numero={numero}",
+                String.class,
+                entornId,
+                expedientTipusCodi,
+                numero);
+    }
+
     public ExpedientDto getExpedientArrelAmbProcessInstanceId(
             String processInstanceId) {
         return  restTemplate.getForObject(
@@ -130,12 +144,14 @@ public class ExpedientsHelper {
             String processInstanceId) {
         restTemplate.postForLocation(
                 getExpedientBridgeAddress() + "/{processInstanceId}/reprendre",
+                null,
                 processInstanceId);
     }
 
-    public void finalitzarExpedient(String processInstanceId) {
+    public void finalitzarExpedient(String processInstanceId, Date dataFinalitzacio) {
         restTemplate.postForLocation(
                 getExpedientBridgeAddress() + "/{processInstanceId}/finalitzar",
+                dataFinalitzacio,
                 processInstanceId);
     }
 

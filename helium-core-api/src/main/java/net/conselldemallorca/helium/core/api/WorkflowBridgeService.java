@@ -39,6 +39,11 @@ public interface WorkflowBridgeService {
 			String expedientTipusCodi,
 			String numero);
 
+	public String getProcessInstanceIdAmbEntornITipusINumero(
+			Long entornId,
+			String expedientTipusCodi,
+			String numero);
+
 	public ExpedientDto getExpedientArrelAmbProcessInstanceId(String processInstanceId);
 
 	public void expedientRelacionar(
@@ -54,7 +59,9 @@ public interface WorkflowBridgeService {
 
 	public void desfinalitzarExpedient(String processInstanceId);
 
-	public void finalitzarExpedient(String processInstanceId);
+	public void finalitzarExpedient(
+			String processInstanceId,
+			Date dataFianlitzacio);
 
 	public void expedientModificarEstat(
 			String processInstanceId,
@@ -349,6 +356,8 @@ public interface WorkflowBridgeService {
 			String processInstanceId);
 
 	public DefinicioProcesDto getDefinicioProcesPerProcessInstanceId(String processInstanceId);
+
+	public Long getDefinicioProcesIdPerProcessInstanceId(String processInstanceId);
 
 	public Long getDefinicioProcesEntornAmbJbpmKeyIVersio(
 			String jbpmKey,

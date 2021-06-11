@@ -2,12 +2,16 @@ package net.conselldemallorca.helium.v3.core.service;
 
 import net.conselldemallorca.helium.core.api.WorkflowBridgeService;
 import net.conselldemallorca.helium.core.api.WorkflowEngineApi;
+import net.conselldemallorca.helium.core.api.WorkflowRetroaccioApi;
+import net.conselldemallorca.helium.core.api.WorkflowRetroaccioApi.ExpedientRetroaccioEstat;
+import net.conselldemallorca.helium.core.api.WorkflowRetroaccioApi.ExpedientRetroaccioTipus;
 import net.conselldemallorca.helium.core.common.JbpmVars;
 import net.conselldemallorca.helium.core.common.ThreadLocalInfo;
 import net.conselldemallorca.helium.core.extern.domini.FilaResultat;
 import net.conselldemallorca.helium.core.extern.domini.ParellaCodiValor;
 import net.conselldemallorca.helium.core.helper.*;
 import net.conselldemallorca.helium.core.model.hibernate.*;
+import net.conselldemallorca.helium.core.security.ExtendedPermission;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.ExpedientInfo;
 import net.conselldemallorca.helium.ms.domini.DominiMs;
@@ -18,6 +22,7 @@ import net.conselldemallorca.helium.v3.core.api.exception.ValidacioException;
 import net.conselldemallorca.helium.v3.core.repository.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.acls.model.Permission;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -90,6 +95,8 @@ public class WorkflowBridgeServiceImpl implements WorkflowBridgeService {
     private HerenciaHelper herenciaHelper;
     @Resource
     private MailHelper mailHelper;
+    @Resource
+    private ExpedientRegistreHelper expedientRegistreHelper;
 
     @Resource
     private IndexHelper indexHelper;
@@ -98,6 +105,8 @@ public class WorkflowBridgeServiceImpl implements WorkflowBridgeService {
 
     @Resource
     private WorkflowEngineApi workflowEngineApi;
+    @Resource
+    private WorkflowRetroaccioApi workflowRetroaccioApi;
 
 
     // EXPEDIENTS
@@ -257,6 +266,35 @@ public class WorkflowBridgeServiceImpl implements WorkflowBridgeService {
     }
 
     @Override
+    public String getProcessInstanceIdAmbEntornITipusINumero(
+            Long entornId,
+            String expedientTipusCodi,
+            String numero) {
+        logger.debug("Obtenint expedient donat entorn, tipus i número (" +
+                "entornId=" + entornId + ", " +
+                "expedientTipusCodi=" + expedientTipusCodi + ", " +
+                "numero=" + numero + ")");
+        Entorn entorn = entornRepository.findOne(entornId);
+        if (entorn == null)
+            throw new NoTrobatException(Entorn.class, entornId);
+
+        ExpedientTipus expedientTipus = expedientTipusRepository.findByEntornAndCodi(
+                entorn,
+                expedientTipusCodi);
+        if (expedientTipus == null)
+            throw new NoTrobatException(ExpedientTipus.class, expedientTipusCodi);
+
+        Expedient expedient = expedientRepository.findByEntornAndTipusAndNumero(
+                entorn,
+                expedientTipus,
+                numero);
+        if (expedient == null)
+            return null;
+
+        return expedient.getProcessInstanceId();
+    }
+
+    @Override
     public ExpedientDto getExpedientArrelAmbProcessInstanceId(
             String processInstanceId) {
         logger.debug("Obtenint expedient donada una instància de procés (processInstanceId=" + processInstanceId + ")");
@@ -289,10 +327,16 @@ public class WorkflowBridgeServiceImpl implements WorkflowBridgeService {
             String motiu) {
         logger.debug("Aturant expedient (processInstanceId=" + processInstanceId + ", motiu=" + motiu + ")");
         Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
-        expedientHelper.aturar(
-                expedient,
+        workflowRetroaccioApi.afegirInformacioRetroaccioPerExpedient(
+                expedient.getId(),
+                ExpedientRetroaccioTipus.EXPEDIENT_ATURAR,
                 motiu,
-                null);
+                ExpedientRetroaccioEstat.IGNORAR);
+        expedient.setInfoAturat(motiu);
+        expedientRegistreHelper.crearRegistreAturarExpedient(
+                expedient.getId(),
+                SecurityContextHolder.getContext().getAuthentication().getName(),
+                motiu);
     }
 
     @Override
@@ -300,25 +344,66 @@ public class WorkflowBridgeServiceImpl implements WorkflowBridgeService {
             String processInstanceId) {
         logger.debug("Reprenent expedient (processInstanceId=" + processInstanceId + ")");
         Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
-        expedientHelper.reprendre(
-                expedient,
-                null);
+        workflowRetroaccioApi.afegirInformacioRetroaccioPerExpedient(
+                expedient.getId(),
+                ExpedientRetroaccioTipus.EXPEDIENT_REPRENDRE,
+                null,
+                ExpedientRetroaccioEstat.IGNORAR);
+        expedient.setInfoAturat(null);
+        expedientRegistreHelper.crearRegistreReprendreExpedient(
+                expedient.getId(),
+                SecurityContextHolder.getContext().getAuthentication().getName());
     }
 
     @Override
     public void desfinalitzarExpedient(String processInstanceId) {
         logger.debug("Desfinalitzant expedient(processInstanceId=" + processInstanceId + ")");
         Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
-        expedientHelper.desfinalitzar(
-                expedient,
-                null);
+        workflowRetroaccioApi.afegirInformacioRetroaccioPerExpedient(
+                expedient.getId(),
+                ExpedientRetroaccioTipus.EXPEDIENT_DESFINALITZAR,
+                null,
+                ExpedientRetroaccioEstat.IGNORAR);
+        expedient.setDataFi(null);
+        expedientRegistreHelper.crearRegistreReprendreExpedient(
+                expedient.getId(),
+                (expedient.getResponsableCodi() != null) ? expedient.getResponsableCodi() : SecurityContextHolder.getContext().getAuthentication().getName());
+
+        //tancam l'expedient de l'arxiu si escau
+        if (expedient.isArxiuActiu()) {
+            expedientHelper.reobrirExpedient(expedient);
+        }
+//        expedientHelper.desfinalitzar(
+//                expedient,
+//                null);
     }
 
     @Override
-    public void finalitzarExpedient(String processInstanceId) {
+    public void finalitzarExpedient(
+            String processInstanceId,
+            Date dataFinalitzacio) {
         logger.debug("Finalitzant expedient (processInstanceId=" + processInstanceId + ")");
         Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
-        expedientHelper.finalitzar(expedient.getId());
+        expedient = expedientHelper.getExpedientComprovantPermisos(
+                expedient.getId(),
+                new Permission[] {
+                        ExtendedPermission.WRITE,
+                        ExtendedPermission.ADMINISTRATION});
+        workflowRetroaccioApi.afegirInformacioRetroaccioPerExpedient(
+                expedient.getId(),
+                ExpedientRetroaccioTipus.EXPEDIENT_FINALITZAR,
+                null);
+        expedient.setDataFi(dataFinalitzacio);
+
+        //tancam l'expedient de l'arxiu si escau
+        if (expedient.isArxiuActiu() && expedient.getArxiuUuid() != null) {
+            expedientHelper.tancarExpedientArxiu(expedient);
+        }
+        expedientHelper.crearRegistreExpedient(
+                expedient.getId(),
+                SecurityContextHolder.getContext().getAuthentication().getName(),
+                Registre.Accio.FINALITZAR);
+//        expedientHelper.finalitzar(expedient.getId());
     }
 
     @Override
@@ -357,11 +442,11 @@ public class WorkflowBridgeServiceImpl implements WorkflowBridgeService {
                 "processInstanceId=" + processInstanceId + ", " +
                 "estatId=" + estatId + ")");
         Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
-        Estat estat = estatRepository.findByExpedientTipusAndIdAmbHerencia(
-                expedient.getTipus().getId(),
-                estatId);
-        if (estat == null)
-            throw new NoTrobatException(Estat.class, estatId);
+//        Estat estat = estatRepository.findByExpedientTipusAndIdAmbHerencia(
+//                expedient.getTipus().getId(),
+//                estatId);
+//        if (estat == null)
+//            throw new NoTrobatException(Estat.class, estatId);
         expedientHelper.update(
                 expedient,
                 expedient.getNumero(),
@@ -369,7 +454,7 @@ public class WorkflowBridgeServiceImpl implements WorkflowBridgeService {
                 expedient.getResponsableCodi(),
                 expedient.getDataInici(),
                 expedient.getComentari(),
-                estat.getId(),
+                estatId, // estat.getId(),
                 expedient.getGeoPosX(),
                 expedient.getGeoPosY(),
                 expedient.getGeoReferencia(),
@@ -1675,6 +1760,14 @@ public class WorkflowBridgeServiceImpl implements WorkflowBridgeService {
         return conversioTipusHelper.convertir(
                 getDefinicioProcesDonatProcessInstanceId(processInstanceId),
                 DefinicioProcesDto.class);
+    }
+
+    @Override
+    public Long getDefinicioProcesIdPerProcessInstanceId(String processInstanceId) {
+        DefinicioProces definicioProces = getDefinicioProcesDonatProcessInstanceId(processInstanceId);
+        if (definicioProces == null)
+            return null;
+        return definicioProces.getId();
     }
 
     @Override

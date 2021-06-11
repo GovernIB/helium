@@ -41,6 +41,13 @@ public class DefinicioProcesRestController {
 		return workflowBridgeService.getDefinicioProcesPerProcessInstanceId(processInstanceId);
 	}
 
+	@RequestMapping(value="/{processInstanceId}/id", method = RequestMethod.GET)
+	@ResponseBody
+	public Long getDefinicioProcesIdPerProcessInstanceId(
+			@PathVariable("processInstanceId") String processInstanceId) {
+		return workflowBridgeService.getDefinicioProcesIdPerProcessInstanceId(processInstanceId);
+	}
+
 	@RequestMapping(value="/byJbpmKeyAndVersio/entornId", method = RequestMethod.GET)
 	@ResponseBody
 	public Long getDefinicioProcesEntornAmbJbpmKeyIVersio(

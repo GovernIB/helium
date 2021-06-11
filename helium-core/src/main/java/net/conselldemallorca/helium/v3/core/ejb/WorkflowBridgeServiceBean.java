@@ -64,6 +64,13 @@ public class WorkflowBridgeServiceBean implements WorkflowBridgeService {
 		return delegate.getExpedientAmbEntornITipusINumero(entornId, expedientTipusCodi, numero);
 	}
 
+	public String getProcessInstanceIdAmbEntornITipusINumero(
+			Long entornId,
+			String expedientTipusCodi,
+			String numero) {
+		return delegate.getProcessInstanceIdAmbEntornITipusINumero(entornId, expedientTipusCodi, numero);
+	}
+
 	@Override
 	public ExpedientDto getExpedientArrelAmbProcessInstanceId(String processInstanceId) {
 		return delegate.getExpedientArrelAmbProcessInstanceId(processInstanceId);
@@ -330,8 +337,12 @@ public class WorkflowBridgeServiceBean implements WorkflowBridgeService {
 		return delegate.getExpedientIniciant();
 	}
 
-	public void finalitzarExpedient(String processInstanceId) {
-		delegate.finalitzarExpedient(processInstanceId);
+	public void finalitzarExpedient(
+			String processInstanceId,
+			Date dataFinalitzacio) {
+		delegate.finalitzarExpedient(
+				processInstanceId,
+				dataFinalitzacio);
 	}
 
 	public void expedientModificarTitol(String processInstanceId, String titol) {
@@ -448,6 +459,11 @@ public class WorkflowBridgeServiceBean implements WorkflowBridgeService {
 	@Override
 	public DefinicioProcesDto getDefinicioProcesPerProcessInstanceId(String processInstanceId) {
 		return delegate.getDefinicioProcesPerProcessInstanceId(processInstanceId);
+	}
+
+	@Override
+	public Long getDefinicioProcesIdPerProcessInstanceId(String processInstanceId) {
+		return delegate.getDefinicioProcesIdPerProcessInstanceId(processInstanceId);
 	}
 
 	@Override

@@ -53,12 +53,11 @@ public class DocumentExpedientCopiarOrigenHandler extends AbstractHeliumActionHa
 		String documentDestiCodi = (String)getValorOVariable(executionContext, documentCodi, varDocumentCodi);
 		if (documentDestiCodi != null) {
 			logger.debug("Copiant document d'origen (exp=" + expedient.getIdentificacioPerLogs() + ", document=" + documentOrigenCodi + ", expedientTipusCodi=" + expedientTipusCodi + ", expedientNumero=" + expedientNumero + ")");
-			ExpedientDto expedientOrigen = Jbpm3HeliumBridge.getInstanceService().getExpedientAmbEntornITipusINumero(
+			String processInstanceId = Jbpm3HeliumBridge.getInstanceService().getProcessInstanceIdAmbEntornITipusINumero(
 					expedient.getEntorn().getId(),
 					expedientTipusCodi,
 					expedientNumero);
-			ProcessInstance pi = executionContext.getJbpmContext().getProcessInstance(
-					new Long(expedientOrigen.getProcessInstanceId()));
+			ProcessInstance pi = executionContext.getJbpmContext().getProcessInstance(new Long(processInstanceId));
 			DocumentInfo docInfo = getDocumentInfo(
 					new ExecutionContext(pi.getRootToken()),
 					documentOrigenCodi,

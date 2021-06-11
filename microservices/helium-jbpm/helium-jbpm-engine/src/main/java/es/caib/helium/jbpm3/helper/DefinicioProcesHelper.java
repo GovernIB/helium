@@ -40,6 +40,13 @@ public class DefinicioProcesHelper {
                 processInstanceId);
     }
 
+    public Long getDefinicioProcesIdPerProcessInstanceId(String processInstanceId) {
+        return restTemplate.getForObject(
+                getDefinicioProcesBridgeAddress() + "/{processInstanceId}/id",
+                Long.class,
+                processInstanceId);
+    }
+
     public Long getDefinicioProcesEntornAmbJbpmKeyIVersio(
             String jbpmKey,
             int version) {

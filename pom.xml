@@ -43,6 +43,7 @@
 		<module>helium-selenium-webapp</module>
 		<module>helium-ws-client</module>
 		<module>helium-ms</module>
+		<module>helium-disseny-api</module>
 	</modules>
 	<build>
 		<plugins>

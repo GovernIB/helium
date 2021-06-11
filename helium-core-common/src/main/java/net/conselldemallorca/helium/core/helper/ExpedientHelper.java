@@ -524,10 +524,11 @@ public class ExpedientHelper {
 		// Estat
 		if (estatId != null) {
 			if (expedient.getEstat() == null || !expedient.getEstat().getId().equals(estatId)) {
+				// TODO: Revisar:
 				workflowRetroaccioApi.afegirInformacioRetroaccioPerExpedient(
 						ambRetroaccio,
 						expedient.getProcessInstanceId(),
-						RetroaccioInfo.ESTAT + "#@#" + "---");
+						RetroaccioInfo.ESTAT + "#@#" + "---"); // No seria: (expedient.getEstat() == null ? "---" : expedient.getEstat().getId())); ?
 				Estat estat = estatRepository.findByExpedientTipusAndIdAmbHerencia(
 						expedient.getTipus().getId(), 
 						estatId);
@@ -671,6 +672,7 @@ public class ExpedientHelper {
 				"expedient",
 				expedient.getTipus().getNom());
 	}
+
 	public void reprendre(
 			Expedient expedient,
 			String usuari) {
@@ -745,7 +747,7 @@ public class ExpedientHelper {
 	 * @param expedient
 	 * 			Expedient amb la propietat isArxiuActiu a true.
 	 */
-	private void tancarExpedientArxiu(Expedient expedient) {
+	public void tancarExpedientArxiu(Expedient expedient) {
 		List<ContingutArxiu> continguts = pluginHelper.arxiuExpedientInfo(expedient.getArxiuUuid()).getContinguts();
 		if(continguts == null || continguts.isEmpty()) {
 			// S'eborra l'expedient del arxiu si no te cap document.
@@ -790,16 +792,20 @@ public class ExpedientHelper {
 				expedient.getTipus().getNom());
 		
         if (expedient.isArxiuActiu()) {
-    		//reobrim l'expedient de l'arxiu digital si escau
-        	if (expedient.getArxiuUuid() != null
-        			&& pluginHelper.arxiuExisteixExpedient(expedient.getArxiuUuid())) {
-	            // Obre de nou l'expedient tancat a l'arxiu.
-	            pluginHelper.arxiuExpedientReobrir(expedient.getArxiuUuid());
-	        } else {
-	            // Migra l'expedient a l'arxiu
-	            expedientHelper.migrarArxiu(expedient);
-	        }
+    		reobrirExpedient(expedient);
         }
+	}
+
+	public void reobrirExpedient(Expedient expedient) {
+		//reobrim l'expedient de l'arxiu digital si escau
+		if (expedient.getArxiuUuid() != null
+				&& pluginHelper.arxiuExisteixExpedient(expedient.getArxiuUuid())) {
+			// Obre de nou l'expedient tancat a l'arxiu.
+			pluginHelper.arxiuExpedientReobrir(expedient.getArxiuUuid());
+		} else {
+			// Migra l'expedient a l'arxiu
+			expedientHelper.migrarArxiu(expedient);
+		}
 	}
 	
 	@Transactional
@@ -1835,7 +1841,7 @@ public class ExpedientHelper {
 				false);
 	}
 
-	private Registre crearRegistreExpedient(
+	public Registre crearRegistreExpedient(
 			Long expedientId,
 			String responsableCodi,
 			Registre.Accio accio) {

@@ -33,8 +33,8 @@ import org.jbpm.command.CommandService;
 import org.jbpm.graph.exe.ProcessInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigDecimal;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -43,6 +43,7 @@ import java.util.List;
 import java.util.Map;
 
 @Service
+@Transactional
 public class WorkflowBridgeServiceImpl implements WorkflowBridgeService {
 
 
@@ -96,7 +97,6 @@ public class WorkflowBridgeServiceImpl implements WorkflowBridgeService {
      * @return Llista d'expedients segons el filtre indicat.
      * @exception NoTrobatException en el cas que no existeixi un entorn o estat amb els identificadors indicats (si s'han informat)
      */
-    // Mètode utilitzat només pel BasicActionHandler / HeliumApi
     @Override
     public List<ExpedientInfo> findExpedientsConsultaGeneral(
             Long entornId,
@@ -128,15 +128,23 @@ public class WorkflowBridgeServiceImpl implements WorkflowBridgeService {
      * @return Expedient amb els paràmetres indicats. Null en cas que no es trobi cap expedient.
      * @exception NoTrobatException en el cas que no existeixi un entorn o tipus d'expedient amb els valors indicats
      */
-    // Mètode utilitzat només pel AbstractHeliumActionHandler.
-    // La resta de peticions només necessiten el processInstanceId. Podem reduir la quantitat d'informació recuperada?
-    // TODO: Fer mètode per obtenir només el processInstanceId
     @Override
     public ExpedientDto getExpedientAmbEntornITipusINumero(
             Long entornId,
             String expedientTipusCodi,
             String numero) {
         return expedientsHelper.getExpedientAmbEntornITipusINumero(
+                entornId,
+                expedientTipusCodi,
+                numero);
+    }
+
+    @Override
+    public String getProcessInstanceIdAmbEntornITipusINumero(
+            Long entornId,
+            String expedientTipusCodi,
+            String numero) {
+        return expedientsHelper.getProcessInstanceIdAmbEntornITipusINumero(
                 entornId,
                 expedientTipusCodi,
                 numero);
@@ -149,7 +157,6 @@ public class WorkflowBridgeServiceImpl implements WorkflowBridgeService {
         return expedientsHelper.getExpedientArrelAmbProcessInstanceId(processInstanceId);
     }
 
-    // Mètode utilitzat només pel BasicActionHandler / HeliumApi
     @Override
     public void expedientRelacionar(
             Long expedientIdOrigen,
@@ -157,22 +164,22 @@ public class WorkflowBridgeServiceImpl implements WorkflowBridgeService {
         expedientsHelper.expedientRelacionar(expedientIdOrigen, expedientIdDesti);
     }
 
-    // TODO: Optimitzar --> Es fan consultes cap a WF
     @Override
     public void expedientAturar(
             String processInstanceId,
             String motiu) {
+
+        workflowEngineApi.suspendProcessInstances(getExpedientProcessInstances(processInstanceId));
         expedientsHelper.expedientAturar(processInstanceId, motiu);
     }
 
-    // TODO: Optimitzar --> Es fan consultes cap a WF
     @Override
-    public void expedientReprendre(
-            String processInstanceId) {
+    public void expedientReprendre(String processInstanceId) {
+
+        workflowEngineApi.resumeProcessInstances(getExpedientProcessInstances(processInstanceId));
         expedientsHelper.expedientReprendre(processInstanceId);
     }
 
-    // TODO: Optimitzar --> Afegir informació per retroacció
     @Override
     public void expedientModificarEstat(
             String processInstanceId,
@@ -180,13 +187,11 @@ public class WorkflowBridgeServiceImpl implements WorkflowBridgeService {
         expedientsHelper.expedientModificarEstat(processInstanceId, estatCodi);
     }
 
-    // TODO: Optimitzar --> Afegir informació per retroacció
     @Override
     public void expedientModificarEstat(String processInstanceId, Long estatId) {
         expedientsHelper.expedientModificarEstat(processInstanceId, estatId);
     }
 
-    // TODO: Optimitzar --> Afegir informació per retroacció
     @Override
     public void expedientModificarComentari(
             String processInstanceId,
@@ -194,7 +199,6 @@ public class WorkflowBridgeServiceImpl implements WorkflowBridgeService {
         expedientsHelper.expedientModificarComentari(processInstanceId, comentari);
     }
 
-    // TODO: Optimitzar --> Afegir informació per retroacció
     @Override
     public void expedientModificarNumero(
             String processInstanceId,
@@ -202,7 +206,6 @@ public class WorkflowBridgeServiceImpl implements WorkflowBridgeService {
         expedientsHelper.expedientModificarNumero(processInstanceId, numero);
     }
 
-    // TODO: Optimitzar --> Afegir informació per retroacció
     @Override
     public void expedientModificarTitol(
             String processInstanceId,
@@ -210,7 +213,6 @@ public class WorkflowBridgeServiceImpl implements WorkflowBridgeService {
         expedientsHelper.expedientModificarTitol(processInstanceId, titol);
     }
 
-    // TODO: Optimitzar --> Afegir informació per retroacció
     @Override
     public void expedientModificarGeoref(
             String processInstanceId,
@@ -224,7 +226,6 @@ public class WorkflowBridgeServiceImpl implements WorkflowBridgeService {
         expedientsHelper.expedientModificarGeoref(processInstanceId, georeferencia);
     }
 
-    // TODO: Optimitzar --> Afegir informació per retroacció
     @Override
     public void expedientModificarGeoreferencia(
             String processInstanceId,
@@ -232,7 +233,6 @@ public class WorkflowBridgeServiceImpl implements WorkflowBridgeService {
         expedientsHelper.expedientModificarGeoreferencia(processInstanceId, referencia);
     }
 
-    // TODO: Optimitzar --> Afegir informació per retroacció
     @Override
     public void expedientModificarGeoX(
             String processInstanceId,
@@ -240,7 +240,6 @@ public class WorkflowBridgeServiceImpl implements WorkflowBridgeService {
         expedientsHelper.expedientModificarGeoX(processInstanceId, posx);
     }
 
-    // TODO: Optimitzar --> Afegir informació per retroacció
     @Override
     public void expedientModificarGeoY(
             String processInstanceId,
@@ -248,7 +247,6 @@ public class WorkflowBridgeServiceImpl implements WorkflowBridgeService {
         expedientsHelper.expedientModificarGeoY(processInstanceId, posy);
     }
 
-    // TODO: Optimitzar --> Afegir informació per retroacció
     @Override
     public void expedientModificarDataInici(
             String processInstanceId,
@@ -256,7 +254,6 @@ public class WorkflowBridgeServiceImpl implements WorkflowBridgeService {
         expedientsHelper.expedientModificarDataInici(processInstanceId, dataInici);
     }
 
-    // TODO: Optimitzar --> Afegir informació per retroacció
     @Override
     public void expedientModificarGrup(
             String processInstanceId,
@@ -264,7 +261,6 @@ public class WorkflowBridgeServiceImpl implements WorkflowBridgeService {
         expedientsHelper.expedientModificarGrup(processInstanceId, grupCodi);
     }
 
-    // TODO: Optimitzar --> Afegir informació per retroacció
     @Override
     public void expedientModificarResponsable(
             String processInstanceId,
@@ -276,15 +272,19 @@ public class WorkflowBridgeServiceImpl implements WorkflowBridgeService {
         expedientsHelper.expedientModificarResponsable(processInstanceId, responsableCodi);
     }
 
-    // TODO: Optimitzar --> Es fan consultes cap a WF
     @Override
     public void finalitzarExpedient(String processInstanceId) {
-        expedientsHelper.finalitzarExpedient(processInstanceId);
+
+        Date dataFinalitzacio = new Date();
+        workflowEngineApi.finalitzarExpedient(
+                getExpedientProcessInstances(processInstanceId),
+                dataFinalitzacio);
+        expedientsHelper.finalitzarExpedient(processInstanceId, dataFinalitzacio);
     }
 
-    // TODO: Optimitzar --> Es fan consultes cap a WF
     @Override
     public void desfinalitzarExpedient(String processInstanceId) {
+        workflowEngineApi.desfinalitzarExpedient(processInstanceId);
         expedientsHelper.desfinalitzarExpedient(processInstanceId);
     }
 
@@ -536,6 +536,9 @@ public class WorkflowBridgeServiceImpl implements WorkflowBridgeService {
         documentsHelper.documentExpedientGuardarDadesRegistre(documentStoreId, registre);
     }
 
+    // TODO: Optimitzar:
+    //          1. Enviar documentStoreId
+    //          2. Esborrar variable un cop borrat document
     @Override
     public void documentExpedientEsborrar(
             String taskInstanceId,
@@ -675,6 +678,7 @@ public class WorkflowBridgeServiceImpl implements WorkflowBridgeService {
     // ESTATS
     ////////////////////////////////////////////////////////////////////////////////
 
+    // TODO: Modificar findExpedientsConsultaGeneral per a que accepti el codi de l'estat, i eliminar aquest mètode
     @Override
     public EstatDto findEstatAmbEntornIExpedientTipusICodi(Long entornId, String expedientTipusCodi, String estatCodi) {
         return estatsHelper.findEstatAmbEntornIExpedientTipusICodi(entornId, expedientTipusCodi, estatCodi);
@@ -714,6 +718,7 @@ public class WorkflowBridgeServiceImpl implements WorkflowBridgeService {
     // GENERICS
     ////////////////////////////////////////////////////////////////////////////////
 
+    // TODO: Permetre enviar documentStoreId enlloc dels Arxius
     @Override
     public void emailSend(
             String fromAddress,
@@ -926,7 +931,12 @@ public class WorkflowBridgeServiceImpl implements WorkflowBridgeService {
 
     @Override
     public DefinicioProcesDto getDefinicioProcesPerProcessInstanceId(String processInstanceId) {
-        return null;
+        return definicioProcesHelper.getDefinicioProcesPerProcessInstanceId(processInstanceId);
+    }
+
+    @Override
+    public Long getDefinicioProcesIdPerProcessInstanceId(String processInstanceId) {
+        return definicioProcesHelper.getDefinicioProcesIdPerProcessInstanceId(processInstanceId);
     }
 
     @Override
@@ -1085,6 +1095,17 @@ public class WorkflowBridgeServiceImpl implements WorkflowBridgeService {
             }
         }
         return mapaVariablesString;
+    }
+
+    private String[] getExpedientProcessInstances(String processInstanceId) {
+        List<WProcessInstance> processInstancesTree = workflowEngineApi.getProcessInstanceTree(
+                workflowEngineApi.getRootProcessInstance(processInstanceId).getId());
+        String[] ids = new String[processInstancesTree.size()];
+        int i = 0;
+        for (WProcessInstance pi: processInstancesTree) {
+            ids[i++] = pi.getId();
+        }
+        return ids;
     }
 //
 //

@@ -2,6 +2,7 @@ package es.caib.helium.api.service;
 
 import es.caib.helium.api.dto.*;
 import es.caib.helium.api.dto.registre.RegistreAnotacio;
+import net.conselldemallorca.helium.jbpm3.handlers.tipus.ExpedientInfo;
 
 import java.util.Date;
 import java.util.List;
@@ -18,7 +19,7 @@ public interface WorkflowBridgeService {
 	// EXPEDIENTS
 	////////////////////////////////////////////////////////////////////////////////
 
-	public List<ExpedientDto> findExpedientsConsultaGeneral(
+	List<ExpedientInfo> findExpedientsConsultaGeneral(
             Long entornId,
             String titol,
             String numero,
@@ -29,10 +30,15 @@ public interface WorkflowBridgeService {
             boolean nomesIniciats,
             boolean nomesFinalitzats);
 
-	public ExpedientDto getExpedientAmbEntornITipusINumero(
+	ExpedientDto getExpedientAmbEntornITipusINumero(
             Long entornId,
             String expedientTipusCodi,
             String numero);
+
+	String getProcessInstanceIdAmbEntornITipusINumero(
+			Long entornId,
+			String expedientTipusCodi,
+			String numero);
 
 	public ExpedientDto getExpedientArrelAmbProcessInstanceId(
 			String processInstanceId);
@@ -110,7 +116,7 @@ public interface WorkflowBridgeService {
 
 	// Dades
 
-	public List<ExpedientDto> findExpedientsConsultaDadesIndexades(
+	public List<ExpedientInfo> findExpedientsConsultaDadesIndexades(
 			Long entornId,
 			String expedientTipusCodi,
 			Map<String, Object> filtreValors);
@@ -481,6 +487,7 @@ public interface WorkflowBridgeService {
 			String jbpmKey,
 			String processInstanceId);
 	public DefinicioProcesDto getDefinicioProcesPerProcessInstanceId(String processInstanceId);
+	public Long getDefinicioProcesIdPerProcessInstanceId(String processInstanceId);
 	public Long getDefinicioProcesEntornAmbJbpmKeyIVersio(
 			String jbpmKey,
 			int version);

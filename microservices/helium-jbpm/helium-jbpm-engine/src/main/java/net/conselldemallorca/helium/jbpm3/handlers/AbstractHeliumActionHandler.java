@@ -65,6 +65,8 @@ abstract class AbstractHeliumActionHandler implements ActionHandler {
 			throw new JbpmException("No s'ha trobat el termini amb codi: " + codi);
 		}
 	}
+
+	// TODO: Eliminar la consulta a getTerminiAmbCodi, i utilitzar el NoTrobatException del getTerminiIniciatAmbProcessInstanceITerminiCodi
 	TerminiIniciatDto getTerminiIniciatAmbCodi(
 			ExecutionContext executionContext,
 			String codi) {

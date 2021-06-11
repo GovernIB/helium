@@ -80,6 +80,18 @@ public class ExpedientRestController {
 				numero);
 	}
 
+	@RequestMapping(value="/{entornId}/processInstance", method = RequestMethod.GET)
+	@ResponseBody
+	public String getProcessInstanceIdAmbEntornITipusINumero(
+			@PathVariable("entornId") Long entornId,
+			@RequestParam(value = "expedientTipusCodi") String expedientTipusCodi,
+			@RequestParam(value = "numero") String numero) {
+		return workflowBridgeService.getProcessInstanceIdAmbEntornITipusINumero(
+				entornId,
+				expedientTipusCodi,
+				numero);
+	}
+
 	@RequestMapping(value="/{processInstanceId}/arrel", method = RequestMethod.GET)
 	@ResponseBody
 	public ExpedientDto getExpedientArrelAmbProcessInstanceId(
@@ -104,8 +116,11 @@ public class ExpedientRestController {
 
 	@RequestMapping(value="/{processInstanceId}/finalitzar", method = RequestMethod.POST)
 	@ResponseBody
-	public void finalitzarExpedient(@PathVariable("processInstanceId") String processInstanceId) {
-		workflowBridgeService.finalitzarExpedient(processInstanceId);
+	public void finalitzarExpedient(@PathVariable("processInstanceId") String processInstanceId,
+									@RequestBody Date dataFinalitzacio) {
+		workflowBridgeService.finalitzarExpedient(
+				processInstanceId,
+				dataFinalitzacio);
 	}
 
 	@RequestMapping(value="/{processInstanceId}/desfinalitzar", method = RequestMethod.POST)

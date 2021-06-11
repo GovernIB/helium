@@ -147,11 +147,11 @@ public class JbpmRetroaccioApiImpl implements JbpmRetroaccioApi {
                 getMessageLogPerTipus(retrocedirPerTasques ? ExpedientRetroaccioTipus.EXPEDIENT_RETROCEDIR_TASQUES : ExpedientRetroaccioTipus.EXPEDIENT_RETROCEDIR));
         if (logsJbpm != null && !logsJbpm.isEmpty()) {
             // Recull totes les accions executades a jBPM relacionats amb els logs
-            Collection<LogObjectDto> LogObjectDtos = getAccionsJbpmPerRetrocedir(
+            Collection<LogObjectDto> logObjectDtos = getAccionsJbpmPerRetrocedir(
                     expedientLogs,
                     logsJbpm);
             if (debugRetroces) {
-                for (LogObjectDto logo: LogObjectDtos) {
+                for (LogObjectDto logo: logObjectDtos) {
                     String logInfo = ">>> [RETPRN] ";
                     switch (logo.getTipus()) {
                         case LogObjectDto.LOG_OBJECT_PROCES:
@@ -188,7 +188,7 @@ public class JbpmRetroaccioApiImpl implements JbpmRetroaccioApi {
             // Emmagatzema els paràmetres per a retrocedir cada acció per parella [processInstanceId, action_name]
             Map<String, String> paramsAccio = new HashMap<String, String>();
             String varName;
-            for (LogObjectDto logo: LogObjectDtos) {
+            for (LogObjectDto logo: logObjectDtos) {
                 if (logo.getTipus() == LogObjectDto.LOG_OBJECT_ACTION) {
                     String params;
                     String paramKey;
@@ -215,7 +215,7 @@ public class JbpmRetroaccioApiImpl implements JbpmRetroaccioApi {
             // Completa els paràmetres amb paràmetres que podrien tenir una relació amb un node Action d'una definició anterior a la versió 3.2.106
             this.consultarParametresRetroaccio(
                     paramsAccio,
-                    LogObjectDtos);
+                    logObjectDtos);
 
             // comprovam si estem retrocedint únicament la tasca actual
             if (jtask != null) {
@@ -234,7 +234,7 @@ public class JbpmRetroaccioApiImpl implements JbpmRetroaccioApi {
             }
 
             // Executa les accions necessàries per a retrocedir l'expedient
-            for (LogObjectDto logo: LogObjectDtos) {
+            for (LogObjectDto logo: logObjectDtos) {
                 boolean created = logo.getAccions().contains(LogObjectDto.LOG_ACTION_CREATE);
                 // boolean update = logo.getAccions().contains(LogObjectDto.LOG_ACTION_UPDATE);
                 boolean deleted = logo.getAccions().contains(LogObjectDto.LOG_ACTION_DELETE);
@@ -421,7 +421,7 @@ public class JbpmRetroaccioApiImpl implements JbpmRetroaccioApi {
                             // no s'ha iniciat a dins els logs que volem retrocedir
                             boolean hiHaLogTasca = false;
                             boolean logTascaStarted = false;
-                            for (LogObjectDto lo: LogObjectDtos) {
+                            for (LogObjectDto lo: logObjectDtos) {
                                 if (lo.getTipus() == LogObjectDto.LOG_OBJECT_TASK && lo.getObjectId() == logo.getTaskInstanceId()) {
                                     hiHaLogTasca = true;
                                     logTascaStarted = hasStartBetweenLogs(beginLogId, endLogId, logo.getTaskInstanceId());

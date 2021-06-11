@@ -459,6 +459,7 @@ public class TerminiHelper {
 		return new int[0];
 	}
 
+	// TODO: 1 únic mètode per tots els timers
 	private void suspendTimers(TerminiIniciat terminiIniciat) {
 		long[] timerIds = terminiIniciat.getTimerIdsArray();
 		for (int i = 0; i < timerIds.length; i++)
@@ -466,6 +467,7 @@ public class TerminiHelper {
 					timerIds[i],
 					new Date(Long.MAX_VALUE));
 	}
+	// TODO: 1 únic mètode per tots els timers
 	private void resumeTimers(TerminiIniciat terminiIniciat) {
 		long[] timerIds = terminiIniciat.getTimerIdsArray();
 		for (int i = 0; i < timerIds.length; i++)

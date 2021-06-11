@@ -303,6 +303,7 @@ public abstract class BasicActionHandler extends AbstractHeliumActionHandler imp
 	public DocumentDisseny getDocumentDisseny(
 			ExecutionContext executionContext,
 			String codiDocument) {
+		// TODO: Fer un mètode que només retorni l'Id de la definició de procés
 		DefinicioProcesDto definicioProces = getDefinicioProces(executionContext);
 		DocumentDissenyDto document = Jbpm3HeliumBridge.getInstanceService().getDocumentDisseny(
 				definicioProces.getId(),
