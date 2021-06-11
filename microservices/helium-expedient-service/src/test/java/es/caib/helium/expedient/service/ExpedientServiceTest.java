@@ -323,7 +323,7 @@ class ExpedientServiceTest {
         given(expedientRepository.findAll(any(Specification.class), any(Sort.class))).willReturn(expedients);
 
         // When
-		Page<ExpedientDto> page = expedientService.listExpedients(null, null, null, null, null, null, null, null, null,
+		Page<ExpedientDto> page = expedientService.listExpedients(null, null, null, null, null, null, null, null, null, null,
 				null, false, false, false, false, null, null, Pageable.unpaged(), null);
 
         // Then
@@ -341,7 +341,7 @@ class ExpedientServiceTest {
         given(expedientRepository.findAll(any(Specification.class), any(Sort.class))).willReturn(expedients);
 
         // When
-		Page<ExpedientDto> page = expedientService.listExpedients(null, null, null, null, null, null, null, null, null,
+		Page<ExpedientDto> page = expedientService.listExpedients(null, null, null, null, null, null, null, null, null, null,
 				null, false, false, false, false, null, null, Pageable.unpaged(), null);
 
         // Then

@@ -4,7 +4,7 @@
 package es.caib.helium.expedient.domain;
 
 import java.util.Date;
-import java.util.Set;
+import java.util.List;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -51,7 +51,7 @@ public class Tasca implements Persistable<Long> {
 	@Column(name="id", nullable=false)
 	private Long id;
 	
-	@ManyToOne(optional=false)
+	@ManyToOne(optional=false, cascade={CascadeType.ALL})
 	@JoinColumn(name="expedient_id")
 	// FK HEL_TASCA_EXP_FK
 	private Expedient expedient;
@@ -64,32 +64,35 @@ public class Tasca implements Persistable<Long> {
 	@Column(name="titol", length=255, nullable=false)
 	private String titol;
 
-	@Column(name="agafada", nullable=false)
+	@Column(name="agafada")
 	private boolean afagada;
 
-	@Column(name="cancelada", nullable=false)
+	@Column(name="cancelada")
 	private boolean cancelada;
 	
-	@Column(name="suspesa", nullable=false)
+	@Column(name="suspesa")
 	private boolean suspesa;
 		
-	@Column(name="completada", nullable=false)
+	@Column(name="completada")
 	private boolean completada;
 	
-	@Column(name="assignada", nullable=false)
+	@Column(name="assignada")
 	private boolean assignada;
 	
-	@Column(name="marcada_finalitzar", nullable=false)
+	@Column(name="marcada_finalitzar")
 	private boolean marcadaFinalitzar;
 	
-	@Column(name="error_finalitzacio", nullable=false)
+	@Column(name="error_finalitzacio")
 	private boolean errorFinalitzacio;
 
-	@Column(name="tramitacio_massiva", nullable=false)
+	@Column(name="tramitacio_massiva")
 	private boolean tascaTramitacioMassiva;
 	
 	@Column(name="data_fins")
 	private Date dataFins;
+
+	@Column(name="data_fi")
+	private Date dataFi;
 
 	@Column(name="inici_finalitzacio")
 	private Date iniciFinalitzacio;
@@ -107,7 +110,7 @@ public class Tasca implements Persistable<Long> {
 	private String grupAssignat;
 	
 	@OneToMany(mappedBy="tasca", cascade={CascadeType.ALL})
-	private Set<Responsable> responsables;
+	private List<Responsable> responsables;
 	
 	@Override
 	public boolean isNew() {

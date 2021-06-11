@@ -3,12 +3,11 @@ package es.caib.helium.expedient.repository;
 import java.util.Calendar;
 import java.util.Date;
 
-import javax.persistence.criteria.Join;
+import javax.persistence.criteria.JoinType;
 
 import org.apache.commons.lang.time.DateUtils;
 import org.springframework.data.jpa.domain.Specification;
 
-import es.caib.helium.expedient.domain.Expedient;
 import es.caib.helium.expedient.domain.Tasca;
 
 /** Especificacions pel filtre en les consultes d'expedients per poder filtrar.
@@ -17,48 +16,37 @@ import es.caib.helium.expedient.domain.Tasca;
 public class TascaSpecifications {
 
     public static Specification<Tasca> belongsToEntorn(Long entornId) {
-        return (tasca, cq, cb) -> cb.equal(tasca.get("entornId"), entornId);
+        return (tasca, cq, cb) -> cb.equal(tasca.<Long> get("expedient").get("entornId"), entornId);
     }
     
     public static Specification<Tasca> belongsToExpedientTipus(Long expedientTipusId) {
-        return (tasca, query, criteriaBuilder) -> {
-            Join<Expedient, Tasca> expedientJoin = query.from(Expedient.class).join("expedient");
-            return criteriaBuilder.equal(expedientJoin.get("expedientTipusId"), expedientTipusId);
-        };        
+        return (tasca, cq, cb) -> cb.equal(tasca.<Long> get("expedient").get("expedientTipusId"), expedientTipusId);
     }
     
-	private static Specification<Tasca> usuariAssignatIs(String usuariAssignat) {
+	public static Specification<Tasca> usuariAssignatIs(String usuariAssignat) {
         return (tasca, cq, cb) -> cb.equal(tasca.get("usuariAssignat"), usuariAssignat);
 	}
 
-	private static Specification<Tasca> nomLike(String nom) {
+	public static Specification<Tasca> nomLike(String nom) {
         return (tasca, cq, cb) -> cb.like(tasca.get("nom"), nom);
 	}
 	
-	private static Specification<Tasca> titolLike(String titol) {
+	public static Specification<Tasca> titolLike(String titol) {
         return (tasca, cq, cb) -> cb.like(tasca.get("titol"), titol);
 	}
 
     public static Specification<Tasca> belongsToExpedient(Long expedientId) {
-        return (tasca, query, criteriaBuilder) -> {
-            Join<Expedient, Tasca> expedientJoin = query.from(Expedient.class).join("expedient");
-            return criteriaBuilder.equal(expedientJoin.get("id"), expedientId);
-        };        
+        return (tasca, cq, cb) -> cb.equal(tasca.<Long> get("expedient").get("id"), expedientId);
     }
 
     
     public static Specification<Tasca> expedientTitolLike(String expedientTitol) {
-        return (tasca, query, criteriaBuilder) -> {
-            Join<Expedient, Tasca> expedientJoin = query.from(Expedient.class).join("expedient");
-            return criteriaBuilder.like(expedientJoin.get("titol"), expedientTitol);
-        };        
+        
+    	return (tasca, cq, cb) -> cb.like(cb.lower(tasca.<Long> get("expedient").get("titol")), expedientTitol.toLowerCase() );
     }
 
     public static Specification<Tasca> expedientNumeroLike(String expedientNumero) {
-        return (tasca, query, criteriaBuilder) -> {
-            Join<Expedient, Tasca> expedientJoin = query.from(Expedient.class).join("expedient");
-            return criteriaBuilder.like(expedientJoin.get("numero"), expedientNumero);
-        };
+    	return (tasca, cq, cb) -> cb.like(cb.lower(tasca.<Long> get("expedient").get("numero")), expedientNumero.toLowerCase() );
     }
 
     public static Specification<Tasca> dataCreacio(Date dataCreacioInici, Date dataCreacioFi) {
@@ -99,8 +87,28 @@ public class TascaSpecifications {
     	return specs;
     }
 
-	private static Specification<Tasca> mostrarAssignadesUsuari(String usuariAssignat) {
+	public static Specification<Tasca> mostrarAssignadesUsuari(String usuariAssignat) {
 		return (tasca, cq, cb) -> cb.equal(tasca.get("usuariAssignat"), usuariAssignat);
+	}
+
+	/** Busca l'usuari assignat com a un dels responsables */
+	public static Specification<Tasca> mostrarAssignadesGrup(String usuariCodi) {
+    	if (usuariCodi != null && !usuariCodi.isBlank()) {
+	        return (tasca, qb, cb) -> {
+	        	return cb.equal(tasca.join("responsables", JoinType.LEFT).get("usuariCodi"), usuariCodi);
+	        };
+    	} else {
+	        return (tasca, qb, cb) -> {
+	        	return tasca.join("responsables", JoinType.LEFT).isNotNull();
+	        };
+    	}
+	}
+
+	private static Specification<Tasca> nomesPendents() {
+		return (tasca, cq, cb) -> cb.and(
+					cb.isFalse(tasca.get("suspesa")),
+					cb.isFalse(tasca.get("completada"))
+				);
 	}
 
 	
@@ -146,15 +154,12 @@ public class TascaSpecifications {
     		spec = spec.and(dataCreacio(dataLimitInici, dataLimitFi));
     	if (mostrarAssignadesUsuari)
     		spec = spec.and(mostrarAssignadesUsuari(usuariAssignat));
-    	// TODO DANIEL
-//    	if (mostrarAssignadesGrup)
-//    		spec = spec.and(mostrarAssignadesGrup());
-    	// TODO DANIEL
-//    	if (nomesPendents)
-//    		spec = spec.and(nomesPendents());
+    	if (mostrarAssignadesGrup)
+    		spec = spec.and(mostrarAssignadesGrup(usuariAssignat));
+    	if (nomesPendents)
+    		spec = spec.and(nomesPendents());
     	
     	return spec;	
-    	}
-
+    }
 
 }

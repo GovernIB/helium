@@ -2,6 +2,9 @@ package es.caib.helium.expedient.controller;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -16,6 +19,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.TestPropertySource;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -56,7 +60,7 @@ class ExpedientControllerIT {
     }
 
     @Test
-    @DisplayName("Consulta de dades de expedient")
+    @DisplayName("Consulta llista d'expedients")
     void whenListExpedientsV1_thenReturnList() throws Exception {
 
         String url = API_V1_EXPEDIENT + "?entornId=2";
@@ -77,11 +81,35 @@ class ExpedientControllerIT {
     }
 
     @Test
-    @DisplayName("Consulta sense resposta HttpStatus.NO_CONTENT")
+    @DisplayName("Consulta llistat d'expedients sense resposta HttpStatus.NO_CONTENT")
     void whenListExpedientsV1_thenReturnNoContent() throws Exception {
-
-        String url = API_V1_EXPEDIENT + "?entornId=3";
         
+		final UriComponentsBuilder builder = UriComponentsBuilder.fromPath(API_V1_EXPEDIENT);
+		Map<String, String> queryParams = new HashMap<String, String>();
+		queryParams.put("usuariCodi", "admin");
+		queryParams.put("entornId", "3");
+		queryParams.put("filtre", "numero=ic=123");
+		queryParams.put("expedientTipusId", "1");
+		queryParams.put("titol", "Títol");
+		queryParams.put("numero", "Número");
+		queryParams.put("dataInici1", "09/06/2021");
+		queryParams.put("dataInici2", "10/06/2021");
+		queryParams.put("dataFi1", "11/06/2021");
+		queryParams.put("dataFi2", "12/06/2021");
+		queryParams.put("estatTipus", "CUSTOM");
+		queryParams.put("estatId", "1");
+		queryParams.put("nomesTasquesPersonals", "true");
+		queryParams.put("nomesTasquesGrup", "true");
+		queryParams.put("nomesAlertes", "true");
+		queryParams.put("nomesErrors", "true");
+		queryParams.put("mostrarAnulats", "true");
+        
+		if (queryParams != null) {
+			for (String param : queryParams.keySet())
+				builder.queryParam(param, queryParams.get(param));
+		}
+		String url = builder.build().toUri().toString();
+			
         ResponseEntity<PagedList<ExpedientDto>> response = restTemplate.exchange(
         		url,
         		HttpMethod.GET, 
@@ -174,7 +202,7 @@ class ExpedientControllerIT {
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
         
         // Comprova que s'ha fixat correctament el títol
-        ExpedientDto expedient1 = restTemplate.getForObject(API_V1_EXPEDIENT, ExpedientDto.class);
+        ExpedientDto expedient1 = restTemplate.getForObject(url, ExpedientDto.class);
         
         assertThat(expedient1.getTitol()).asString().isEqualTo("XXX");
     }
@@ -204,7 +232,11 @@ class ExpedientControllerIT {
     void tearDown() {
         // TODO: no funciona el delete del repository
         for (long i = 1L; i <= 5; i++)
-        	expedientService.delete(i);
+        	try {
+        		expedientService.delete(i);
+        	} catch (Exception e) {
+        		System.err.println("Error esborrant l'expedient amb ID " + i + ": " + e.getMessage());
+        	}
     }
 
 }
