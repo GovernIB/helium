@@ -2,14 +2,44 @@ package es.caib.helium.expedient;
 
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 import java.util.Date;
+
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 
 import es.caib.helium.expedient.domain.Expedient;
 import es.caib.helium.expedient.model.ExpedientDto;
 import es.caib.helium.expedient.model.ExpedientEstatTipusEnum;
 
 public class ExpedientTestHelper {
+	
+	@Test
+    @DisplayName("Prova de generar expedients iguals")
+	public void generateExpedientTest() {
+		Date dataInici = new Date();
+		Expedient expedient1 = ExpedientTestHelper.generateExpedient(0, 1L, 2L, 3L, "pi1", "1/2021", "títol");
+		expedient1.setDataInici(dataInici);
+		Expedient expedient2 = ExpedientTestHelper.generateExpedient(0, 1L, 2L, 3L, "pi1", "1/2021", "títol");
+		expedient2.setDataInici(dataInici);
+		ExpedientTestHelper.comprovaExpedient(expedient1, expedient2);
+		assertNotEquals(expedient1, expedient2);
+		assertNotEquals(expedient1.hashCode(), expedient2.hashCode());
+	}
+
+	@Test
+    @DisplayName("Prova de generar expedients DtO iguals")
+	public void generateExpedientDtoTest() {
+		Date dataInici = new Date();
+		ExpedientDto expedient1 = ExpedientTestHelper.generateExpedientDto(0, 1L, 2L, 3L, "pi1", "1/2021", "títol");
+		expedient1.setDataInici(dataInici);
+		ExpedientDto expedient2 = ExpedientTestHelper.generateExpedientDto(0, 1L, 2L, 3L, "pi1", "1/2021", "títol");
+		expedient2.setDataInici(dataInici);
+		ExpedientTestHelper.comprovaExpedient(expedient1, expedient2);
+		assertEquals(expedient1, expedient2);
+		assertEquals(expedient1.hashCode(), expedient2.hashCode());
+	}
 
     public static Expedient generateExpedient(
             int index,
@@ -29,6 +59,16 @@ public class ExpedientTestHelper {
         		.titol(expedientTitol)
         		.dataInici(new Date())
         		.estatTipus(ExpedientEstatTipusEnum.INICIAT)
+        		
+        		.comentariAnulat("comentari anul·lat")
+        		.dataFi(null)
+        		.estatId(1L)
+        		.infoAturat("info aturat")
+        		.alertesPendents(1L)
+        		.alertesTotals(1L)
+        		.ambErrors(false)
+        		.anulat(false)
+
                 .build();
     }
 
@@ -50,6 +90,15 @@ public class ExpedientTestHelper {
         		.titol(expedientTitol)
         		.dataInici(new Date())
         		.estatTipus(ExpedientEstatTipusEnum.INICIAT)
+ 
+        		.comentariAnulat("comentari anul·lat")
+        		.dataFi(new Date())
+        		.estatId(1L)
+        		.infoAturat("info aturat")
+        		.alertesPendents(1L)
+        		.alertesTotals(1L)
+        		.ambErrors(true)
+        		.anulat(false)
                 .build();
     }
 
