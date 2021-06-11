@@ -649,6 +649,14 @@ public class NotificacioAltaHandler extends BasicActionHandler implements Notifi
 		this.varProcedimentCodi = varProcedimentCodi;
 	}
 
+	public void setIdioma(String idioma) {
+		this.idioma = idioma;
+	}
+
+	public void setVarIdioma(String varIdioma) {
+		this.varIdioma = varIdioma;
+	}
+
 	public void setTitularNif(String titularNif) {
 		this.titularNif = titularNif;
 	}
