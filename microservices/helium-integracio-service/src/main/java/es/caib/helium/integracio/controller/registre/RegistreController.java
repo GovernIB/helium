@@ -1,7 +1,5 @@
 package es.caib.helium.integracio.controller.registre;
 
-import java.util.Date;
-
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,15 +37,15 @@ public class RegistreController {
 		return new ResponseEntity<Void>(HttpStatus.INTERNAL_SERVER_ERROR);
 	}
 	
-	@GetMapping(value = "{numeroRegistre}/justificant/data", produces = "application/json")
-	public ResponseEntity<Date> getDataJustificant(@Valid @PathVariable("numeroRegistre") String numeroRegistre) throws Exception {
-		
-		var data = registreService.obtenirDataJustificant(numeroRegistre);
-		if (data == null) {
-			return new ResponseEntity<Date>(HttpStatus.NOT_FOUND);
-		}
-		return new ResponseEntity<Date>(data, HttpStatus.OK);
-	}
+//	@GetMapping(value = "{numeroRegistre}/justificant/data", produces = "application/json")
+//	public ResponseEntity<Date> getDataJustificant(@Valid @PathVariable("numeroRegistre") String numeroRegistre) throws Exception {
+//		
+//		var data = registreService.obtenirDataJustificant(numeroRegistre);
+//		if (data == null) {
+//			return new ResponseEntity<Date>(HttpStatus.NOT_FOUND);
+//		}
+//		return new ResponseEntity<Date>(data, HttpStatus.OK);
+//	}
 	
 	@PostMapping(value="sortida", consumes = "application/json")
 	public ResponseEntity<RespostaAnotacioRegistre> crearRegistreSortida(@Valid @RequestBody RegistreAssentament registre, BindingResult error)
@@ -62,7 +60,7 @@ public class RegistreController {
 	}
 
 	@GetMapping(value = "{numeroRegistre}/oficina", produces = "application/json")
-	public ResponseEntity<RespostaConsultaRegistre> getRegistreSortida(
+	public ResponseEntity<RespostaConsultaRegistre> getRegistreOficinaNom(
 			@Valid @PathVariable("numeroRegistre") String numeroRegistre,
 			@RequestParam("usuariCodi") String usuariCodi,
 			@RequestParam("entitatCodi") String entitatCodi
@@ -75,4 +73,5 @@ public class RegistreController {
 		}
 		return new ResponseEntity<RespostaConsultaRegistre>(resposta, HttpStatus.OK);
 	}
+	
 }

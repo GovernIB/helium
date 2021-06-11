@@ -189,9 +189,10 @@ public class TramitacioServiceSistraImpl implements TramitacioService {
 	public boolean existeixExpedient(Long unidadAdministrativa, String identificadorExpediente) throws TramitacioException {
 
 		try {
+			throw new Exception("metode no implementat");
 			// TODO zonaPerClient.existeExpedient no existeix??? es.caib.zonaper.ws.v2.service -> classes autogenerades?
 //			return zonaPerClient.existeExpediente(unidadAdministrativa, identificadorExpediente);
-			return false;
+//			return false;
 		} catch (Exception ex) {
 			log.error("Error al comprovar exitència d'expedient en zona personal. Unitat administrativa: " + unidadAdministrativa + 
 					", Identificador Expedient: " + identificadorExpediente, ex);

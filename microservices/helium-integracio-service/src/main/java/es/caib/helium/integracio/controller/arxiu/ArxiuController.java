@@ -1,6 +1,7 @@
 package es.caib.helium.integracio.controller.arxiu;
 
 import javax.validation.Valid;
+import javax.ws.rs.QueryParam;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.netflix.servo.util.Strings;
 
+import es.caib.plugins.arxiu.api.Document;
 import es.caib.helium.integracio.domini.arxiu.DocumentArxiu;
 import es.caib.helium.integracio.domini.arxiu.ExpedientArxiu;
 import es.caib.helium.integracio.service.arxiu.ArxiuService;
@@ -46,7 +48,7 @@ public class ArxiuController {
 		if (Strings.isNullOrEmpty(uuId)) {
 			return new ResponseEntity<Expedient>(HttpStatus.BAD_REQUEST);
 		}
-		var expedient = arxiuService.getExpedientByUuId(uuId);
+		var expedient = arxiuService.getExpedient(uuId);
 		if (expedient != null) {
 			return new ResponseEntity<Expedient>(expedient, HttpStatus.OK);
 		}
@@ -101,7 +103,7 @@ public class ArxiuController {
 			return new ResponseEntity<Void>(HttpStatus.BAD_REQUEST);
 		}
 		
-		if (arxiuService.tencarExpedient(arxiuUuId)) {
+		if (arxiuService.tancarExpedient(arxiuUuId)) {
 			return new ResponseEntity<Void>(HttpStatus.OK);
 		}
 		return new ResponseEntity<Void>(HttpStatus.CONFLICT);
@@ -123,13 +125,19 @@ public class ArxiuController {
 	// Documents
 	
 	@GetMapping(value = "documents/{uuId}", produces = "application/json")
-	public ResponseEntity<Void> getDocument(@PathVariable("uuId") String uuId) {
+	public ResponseEntity<Document> getDocument(@PathVariable("uuId") String uuId,
+			@QueryParam("versio") String versio,
+			@QueryParam("ambContingut") boolean ambContingut,
+			@QueryParam("isSignat") boolean isSignat) throws Exception {
 		
 		if (Strings.isNullOrEmpty(uuId)) {
-			return new ResponseEntity<Void>(HttpStatus.BAD_REQUEST);
+			return new ResponseEntity<Document>(HttpStatus.BAD_REQUEST);
 		}
-		//TODO falta cridar al servei
-		return new ResponseEntity<Void>(HttpStatus.OK);
+		var document = arxiuService.getDocument(uuId, versio, ambContingut, isSignat);
+		if (document != null) {
+			return new ResponseEntity<Document>(document, HttpStatus.OK);
+		}
+		return new ResponseEntity<Document>(HttpStatus.NOT_FOUND);
 	}
 	
 	@PostMapping(value = "documents", consumes = "application/json")

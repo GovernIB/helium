@@ -15,6 +15,7 @@ import org.springframework.core.env.Environment;
 import es.caib.helium.integracio.excepcions.ServeisExternsException;
 import es.caib.helium.integracio.service.registre.RegistreService;
 import es.caib.helium.integracio.service.registre.RegistreServiceRegWeb3Impl;
+import es.caib.regweb.ws.services.regwebfacade.RegwebFacadeServiceLocator;
 import es.caib.regweb3.ws.api.v3.RegWebAsientoRegistralWs;
 import es.caib.regweb3.ws.api.v3.RegWebAsientoRegistralWsService;
 
@@ -36,15 +37,14 @@ public class RegistreConfig {
 				
 				var retorn = (RegistreServiceRegWeb3Impl) service;
 				retorn.setAsientoRegistralApi(crearAsientoRegistralApi());
-//				retorn.setRegistroEntradaApi(crearRegistroEntradaApi());
 			}
 			return service;
 		} catch (Exception ex) {
-			throw new ServeisExternsException("Error al crear la instància de RegistreService (" + "pluginClass=" + pluginClass + ")", ex);
+			throw new ServeisExternsException("Error al crear la instància de RegistreServiceRegWeb3 (" + "pluginClass=" + pluginClass + ")", ex);
 		}
 	}
 	
-	public RegWebAsientoRegistralWs crearAsientoRegistralApi() throws Exception {
+	private RegWebAsientoRegistralWs crearAsientoRegistralApi() throws Exception {
 
 		var host = env.getRequiredProperty("es.caib.helium.integracio.registre.service.ws.host");
 		var registroEntrada = env.getRequiredProperty("es.caib.helium.integracio.registre.service.regweb3.registro.entrada");
@@ -64,7 +64,7 @@ public class RegistreConfig {
 		
 		return api;
 	}
-	
+//	
 //	public RegWebRegistroEntradaWs crearRegistroEntradaApi() {
 //		
 //        final String endpoint = getEndPoint(REGWEB3_REGISTRO_ENTRADA);
