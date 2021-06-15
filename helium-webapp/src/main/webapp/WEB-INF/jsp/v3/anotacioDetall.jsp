@@ -406,7 +406,7 @@ tr.clicable {
 									<tr>
 										<td><strong><spring:message code="anotacio.annex.detalls.camp.fitxer"/></strong></td>
 										<td>
-											${annex.titol}
+											${annex.nom}
 											<a href='<c:url value="/v3/anotacio/${anotacio.id}/annex/${annex.id}/descarregar"></c:url>' 
 											class="btn btn-default btn-sm pull-right">
 												<span class="fa fa-download" title="<spring:message code="anotacio.annex.detalls.camp.fitxer.descarregar"/>"></span>

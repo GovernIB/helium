@@ -1087,14 +1087,17 @@ public interface ExpedientTipusService {
 
 	/**
 	 * Retorna una mapeig d'un tipus d'expedient donat el seu codi Sistra.
+	 * @param tipusMapeig 
 	 * 
 	 * @param tipusExpedientId
+	 * @param tipusMapeig
 	 * @param codiSistra
 	 *            El codi per a la consulta.
 	 * @return La accio del tipus d'expedient o null si no el troba.
 	 */
 	public MapeigSistraDto mapeigFindAmbCodiSistraPerValidarRepeticio(
 			Long expedientTipusId, 
+			TipusMapeig tipusMapeig, 
 			String codiSistra);
 
 	/**

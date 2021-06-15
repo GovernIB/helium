@@ -28,6 +28,7 @@ public class AnotacioAnnexDto implements Serializable {
 	private long tamany;
 	private String tipusMime;
 	private String titol;
+	private String nom;
 	private String uuid;
 	
 	private AnotacioAnnexEstatEnumDto estat;
@@ -117,6 +118,12 @@ public class AnotacioAnnexDto implements Serializable {
 	}
 	public void setTitol(String titol) {
 		this.titol = titol;
+	}
+	public String getNom() {
+		return nom;
+	}
+	public void setNom(String nom) {
+		this.nom = nom;
 	}
 	public String getUuid() {
 		return uuid;

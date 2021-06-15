@@ -3432,14 +3432,19 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 	@Transactional(readOnly = true)
 	public MapeigSistraDto mapeigFindAmbCodiSistraPerValidarRepeticio(
 			Long expedientTipusId, 
+			TipusMapeig tipusMapeig,
 			String codiSistra) {
 		logger.debug(
 				"Consultant el mapeig del tipus d'expedient per codi sistra per validar repetició (" +
 				"expedientTipusId=" + expedientTipusId + ", " +
+				"tipusMapeig=" + tipusMapeig + ", " +
 				"codiSistra = " + codiSistra + ")");
 		ExpedientTipus expedientTipus = expedientTipusRepository.findOne(expedientTipusId);
+		MapeigSistra.TipusMapeig tipus = tipusMapeig != null ? 
+				MapeigSistra.TipusMapeig.valueOf(tipusMapeig.toString())
+				: null;
 		return conversioTipusHelper.convertir(
-				mapeigSistraRepository.findByExpedientTipusAndCodiSistra(expedientTipus, codiSistra),
+				mapeigSistraRepository.findByExpedientTipusAndTipusAndCodiSistra(expedientTipus, tipus, codiSistra),
 				MapeigSistraDto.class);
 	}
 	

@@ -38,6 +38,7 @@ public class ExpedientTipusMapeigValidator implements ConstraintValidator<Expedi
 				// codi repetit
 				MapeigSistraDto repetit = expedientTipusService.mapeigFindAmbCodiSistraPerValidarRepeticio(
 				mapeig.getExpedientTipusId(),
+				mapeig.getExpedientTipusId() != null ? TipusMapeig.valueOf(mapeig.getTipus().toString()) : null,
 				mapeig.getCodiSistra());
 				if(repetit != null && (mapeig.getId() == null || !mapeig.getId().equals(repetit.getId()))) {
 					context.buildConstraintViolationWithTemplate(
