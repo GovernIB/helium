@@ -11,6 +11,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.rest.webmvc.json.patch.JsonPatchPatchConverter;
 import org.springframework.data.rest.webmvc.json.patch.Patch;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -82,10 +83,10 @@ public class TascaController {
             @RequestParam(value = "expedientId", required = false) Long expedientId,
             @RequestParam(value = "expedientTitol", required = false) String expedientTitol,
             @RequestParam(value = "expedientNumero", required = false) String expedientNumero,
-            @RequestParam(value = "dataCreacioInici", required = false) Date dataCreacioInici,
-            @RequestParam(value = "dataCreacioFi", required = false) Date dataCreacioFi,
-            @RequestParam(value = "dataLimitInici", required = false) Date dataLimitInici,
-            @RequestParam(value = "dataLimitFi", required = false) Date dataLimitFi,
+            @RequestParam(value = "dataCreacioInici", required = false) @DateTimeFormat(pattern="dd/MM/yyyy") Date dataCreacioInici,
+            @RequestParam(value = "dataCreacioFi", required = false) @DateTimeFormat(pattern="dd/MM/yyyy") Date dataCreacioFi,
+            @RequestParam(value = "dataLimitInici", required = false) @DateTimeFormat(pattern="dd/MM/yyyy") Date dataLimitInici,
+            @RequestParam(value = "dataLimitFi", required = false) @DateTimeFormat(pattern="dd/MM/yyyy") Date dataLimitFi,
             @RequestParam(value = "mostrarAssignadesUsuari", required = false, defaultValue = "false") boolean mostrarAssignadesUsuari,
             @RequestParam(value = "mostrarAssignadesGrup", required = false, defaultValue = "false") boolean mostrarAssignadesGrup,
             @RequestParam(value = "nomesPendents", required = false, defaultValue = "false") boolean nomesPendents,

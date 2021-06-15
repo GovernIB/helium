@@ -10,6 +10,7 @@ import org.springframework.data.jpa.domain.Specification;
 
 import es.caib.helium.expedient.domain.Expedient;
 import es.caib.helium.expedient.model.ExpedientEstatTipusEnum;
+import es.caib.helium.expedient.model.MostrarAnulatsEnum;
 
 /** Especificacions pel filtre en les consultes d'expedients per poder filtrar.
  * 
@@ -121,12 +122,12 @@ public class ExpedientSpecifications {
 		return (expedient, cq, cb) -> cb.gt(expedient.get("alertesTotals"), 0L);
 	}
 
-	private static Specification<Expedient> mostrarAnulats(Boolean mostrarAnulats) {
-		if (mostrarAnulats.booleanValue()) {
-			return (expedient, cq, cb) -> cb.isTrue(expedient.get("anulat"));
-		} else {
-			return (expedient, cq, cb) -> cb.isFalse(expedient.get("anulat"));			
-		}
+	private static Specification<Expedient> mostrarNomesAnulats() {
+		return (expedient, cq, cb) -> cb.isTrue(expedient.get("anulat"));
+	}
+	
+	private static Specification<Expedient> noMostrarAnulats() {
+		return (expedient, cq, cb) -> cb.isFalse(expedient.get("anulat"));			
 	}
 
     
@@ -147,7 +148,7 @@ public class ExpedientSpecifications {
             boolean nomesTasquesGrup, 
             boolean nomesAlertes, 
             boolean nomesErrors, 
-            Boolean mostrarAnulats) {
+            MostrarAnulatsEnum mostrarAnulats) {
     	Specification<Expedient> spec  = belongsToEntorn(entornId);
     	if (expedientTipusId != null)
     		spec = spec.and(belongsToExpedientTipus(expedientTipusId));
@@ -157,23 +158,32 @@ public class ExpedientSpecifications {
     	if (numero != null) {
     		spec = spec.and(numeroLike(numero));
     	}
-    	if (dataInici1 != null || dataInici2 != null)
+    	if (dataInici1 != null || dataInici2 != null) {
     		spec = spec.and(dataInici(dataInici1, dataInici2));
-    	if (dataFi1 != null || dataFi2 != null)
+    	}
+    	if (dataFi1 != null || dataFi2 != null) {
     		spec = spec.and(dataFi(dataFi1, dataFi2));
-    	if (estatTipus != null)
+    	}
+    	if (estatTipus != null) {
     		spec = spec.and(estatTipusIs(estatTipus, estatId));
-    	if (nomesTasquesPersonals)
+    	}
+    	if (nomesTasquesPersonals) {
     		spec = spec.and(nomesTasquesPersonals(usuariCodi));
-    	if (nomesTasquesGrup)
+    	}
+    	if (nomesTasquesGrup) {
     		spec = spec.and(nomesTasquesGrup(usuariCodi));
-    	if (nomesAlertes)
+    	}
+    	if (nomesAlertes) {
     		spec = spec.and(nomesAlertes());
-    	if (nomesErrors)
+    	}
+    	if (nomesErrors) {
     		spec = spec.and(nomesErrors());
-    	if (mostrarAnulats != null)
-    		spec = spec.and(mostrarAnulats(mostrarAnulats));
-    	
+    	}
+    	if (mostrarAnulats == null) {
+    		spec = spec.and(noMostrarAnulats());
+    	} else if (MostrarAnulatsEnum.NOMES_ANULATS.equals(mostrarAnulats)) {
+    		spec = spec.and(mostrarNomesAnulats());
+    	}
     	return spec;
     }
 

@@ -7,6 +7,7 @@ import org.springframework.data.domain.Sort;
 
 import es.caib.helium.expedient.model.ExpedientDto;
 import es.caib.helium.expedient.model.ExpedientEstatTipusEnum;
+import es.caib.helium.expedient.model.MostrarAnulatsEnum;
 import es.caib.helium.ms.model.PagedList;
 
 /** Servei per a la consulta i manteniment de la informació a nivell d'expedients
@@ -43,7 +44,7 @@ public interface ExpedientService {
             boolean nomesTasquesGrup,
             boolean nomesAlertes,
             boolean nomesErrors,
-            Boolean mostrarAnulats,
+            MostrarAnulatsEnum mostrarAnulats,
             String filtreRsql,
             final Pageable pageable,
             final Sort sort);

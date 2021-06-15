@@ -1,133 +1,239 @@
 openapi: 3.0.3
 servers: 
+  # Added by API Auto Mocking Plugin
+  - description: SwaggerHub API Auto Mocking
+    url: https://virtserver.swaggerhub.com/josepg-limit/heliumms-dades-service/1.0.0
   - url: http://pendent.de.definir.es
     description: Servidor de desenvolupament
 info:
-  description: Microservei de Dominis de HeliumMS
+  description: Microservei d'Expedients i Tasques de HeliumMS
+    Aquest microservei conté taules de dades per expedients i tasques pels llistats d'expedients i tasques 
+    a fi d'agilitzar la consulta sense haver d'accedir a la informació de tasques dins del motor de flux. 
+    Les dades s'han d'anar actualitzant i informmant per part del micro servei
+    de tramitació d'helium quan es creïn, esborrin o modifiquin expedients, tasques i usuaris assignats.
+    
   version: "1.0.0"
-  title: HeliumMS Dominis API
+  title: HeliumMS Expedients i Tasques API
   contact:
     name: Limit Tecnologies
     email: limit@limit.es
 tags:
-  - name: Disseny
-    description: Operacions securitzades disponibles per usuaris dissenyadors
+  - name: Tramitació
+    description: Operacions securitzades disponibles per usuaris tramitadors que tramiten i reassignen tasques i gestionen l'expedient.
   - name: Consulta
-    description: Operacions disponibles per tots els usuaris 
+    description: Operacions disponibles per tots els usuaris que puguin consultar les dades dels expedients.
 paths:
-  /api/v1/dominis:
+  /api/v1/expedients:
     get:
       tags:
-        - Disseny
+        - Tramitació
         - Consulta
-      operationId: listDominisV1
-      summary: Cerca de dominis
-      # Descripció amb markdown :)
+      operationId: findExpedientsAmbFiltrePaginatV1
+      summary: Cerca d'expedients filtrada i paginada
       description: |
-        Obté una página de la cerca dels **dominis** del sistema.
+        Consulta amb paràmetres corresponent al llistat d'expedients.
         
         La cerca pot rebre paràmetres per
         - ordenar
         - paginar
-        - filtrar (utilitzant sintaxi rsql)
+        - filtrar (amb el mateixos paràmetres que en el llistat)
       parameters:
         - $ref: '#/components/parameters/EntornParam'
         - $ref: '#/components/parameters/FiltreParam'
         - $ref: '#/components/parameters/TipusExpedientParam'
-        - $ref: '#/components/parameters/TipusExpedientPareParam'
         - $ref: '#/components/parameters/PageNumberParam'
         - $ref: '#/components/parameters/PageSizeParam'
         - $ref: '#/components/parameters/SortParam'
+        # Paràmetres propis del filtre
+        - in: query
+          name: usuariCodi
+          schema:
+            type: string
+          required: false
+          description: Codi de l'usuari per filtrar etasques assignades a usuaris o grup pel qual pertany l'usuari
+        - in: query
+          name: titol
+          schema:
+            type: string
+          required: false
+          description: Paràmetre per filtrar expedients que continguin en el títol el text passat.
+        - in: query
+          name: numero
+          schema:
+            type: string
+          required: false
+          description: Paràmetre per filtrar expedients que continguin en el número el text passat.
+        - in: query
+          name: dataInici1
+          schema:
+            type: string
+          required: false
+          description: Data per filtar per data d'inici de l'expedient. Indica la data del rang de filtre inicial per consultar els expedients amb data d'inici igual o superior al valor passat com a paràmetre.
+          example: 01/11/2021
+        - in: query
+          name: dataInici2
+          schema:
+            type: string
+          required: false
+          description: Data per filtar per data d'inici de l'expedient. Indica la data del rang de filtre final per consultar els expedients amb data d'inici inferior i igual al valor passat com a paràmetre.
+          example: 30/11/2021
+        - in: query
+          name: dataFi1
+          schema:
+            type: string
+          required: false
+          description: Data per filtar per data de finalització l'expedient. Indica la data del rang de filtre inicial per consultar els expedients amb data de finalització igual o superior al valor passat com a paràmetre.
+          example: 01/12/2021
+        - in: query
+          name: dataFi2
+          schema:
+            type: string
+          required: false
+          description: Data per filtar per data de finalització de l'expedient. Indica la data del rang de filtre final per consultar els expedients amb data de finalització inferior i igual al valor passat com a paràmetre.
+          example: 30/12/2021
+        - in: query
+          name: estatTipus
+          schema:
+            type: string
+            enum:
+              - INICIAT
+              - FINALITZAT
+              - CUSTOM
+          required: false
+          description: Camp per filtrar per l'estat de l'expedient. S'ha d'indicar si l'estat és INICIAT, FINALITZAT o CUSTOM. En el cas de CUSTOM s'ha d'informar el paràmetre estatId amb l'identificador exacte de l'estat definit en el tipus d'expedient.
+          example: 'INICIAT'
+        - in: query
+          name: estatId
+          schema:
+            type: integer
+            format: int32
+          required: false
+          description: En el cas d'indicar que es filtra per estatTipus CUSTOM s'ha d'informar l'identificador exacte del l'estat segons l'id de l'estat en el tipus d'expedient.
+          example: 10 
+        - in: query
+          name: nomesTasquesPersonals
+          schema:
+            type: boolean
+          required: false
+          description: Indica si mostrar només expedients amb tasques assignades a persones i que coincideixin amb el codi d'usuari passat com a paràmetre.
+        - in: query
+          name: nomesTasquesGrup
+          schema:
+            type: boolean
+          required: false
+          description: Indica si mostrar només expedients amb tasques assignades a un grup de responsables que contingui el codi d'usuari passat com a paràmetre.
+        - in: query
+          name: nomesAlertes
+          schema:
+            type: boolean
+          required: false
+          description: Indica si mostrar només expedients amb alertes.
+        - in: query
+          name: nomesErrors
+          schema:
+            type: boolean
+          required: false
+          description: Indica si mostrar només expedients marcats amb errors.
+        - in: query
+          name: mostrarAnulats
+          schema:
+            type: string
+            enum: 
+              - SI
+              - NO
+              - NOMES_ANULATS
+          required: false
+          description: Opció de filtre per mostrar anul·lats, no mostrar-los o mostrar només els anul·lats. Per defecte, si es deixa buit, no es mostraran en el resultat els expedients anul·lats.
+
+      
       responses:
         '200':
           description: Ok
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/DominiPagedList'
+                $ref: '#/components/schemas/ExpedientPagedList'
         '204':
           description: No content
         '400':
           description: Bad input parameter
     post:
       tags:
-        - Disseny
-      operationId: createDominiV1
-      summary: Crea un nou domini
-      description: Afegiex un nou domini al sistema
+        - Tramitació
+      operationId: createExpedientV1
+      summary: Crea un nou expedient
+      description: Afegiex un nou expedient al sistema a partir de la informació passada en el cos de la petició.
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Domini'
-        description: Domini a crear
+              $ref: '#/components/schemas/Expedient'
+        description: Expedient a crear
       responses:
         '201':
-          description: Domini created
+          description: Expedient created
           headers:
             Location:
-              description: Adressa del domini creat
+              description: Adreça de l'expedient creat amb el mateix identificador expedientId que el passat com a atribut id de l'expedient.
               schema:
                 type: string
                 format: uri
-                example: http://example.com/v1/dominis/{assignedIdValue}
+                example: http://example.com/v1/expedients/{expedientId}
         '400':
           description: Bad request
         '409':
-          description: Conflicte. Ja existeix el domini
-  /api/v1/dominis/{dominiId}:
+          description: Conflicte. Ja existeix el expedient
+  /api/v1/expedients/{expedientId}:
     get:
       tags:
-        - Disseny
+        - Tramitació
         - Consulta
-      operationId: getDominiV1
-      summary: Consulta un domini donat el seu identificador
-      description: Retorna les dades del domini amb l'identificador informat al paràmetre `dominiId`
+      operationId: getExpedientV1
+      summary: Consulta un expedient donat el seu identificador
+      description: Retorna les dades del expedient amb l'identificador informat al paràmetre `expedientId`
       parameters: 
-        - $ref: '#/components/parameters/DominiIdPathParam'
+        - $ref: '#/components/parameters/ExpedientIdPathParam'
       responses:
         '200':
           description: Ok
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Domini'
+                $ref: '#/components/schemas/Expedient'
         '404':
           description: Not found
     put:
       tags:
-        - Disseny
-      operationId: updateDominiV1
-      summary: Modifica un domini donat el seu identificador
-      description: Modifica el domini amb l'identificador passat al paràmetre `dominiId`, amb les totes dades de l'objecte Domini passat al body de la petició
+        - Tramitació
+      operationId: updateExpedientV1
+      summary: Modifica un expedient donat el seu identificador
+      description: Modifica el expedient amb l'identificador passat al paràmetre `expedientId`, amb les totes dades de l'objecte Expedient passat al body de la petició
       parameters:
-        - $ref: '#/components/parameters/DominiIdPathParam'
+        - $ref: '#/components/parameters/ExpedientIdPathParam'
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Domini'
+              $ref: '#/components/schemas/Expedient'
       responses:
         '204':
-          description: Domini actualitzat
+          description: Expedient actualitzat
         '404':
           description: Not found
         '409':
           description: Conflicte
-        #'304':
-        #  description: 'Domini no modificat. Els atributs passats coincidien amb els actuals del domini'
     patch:
       tags:
-        - Disseny
-      operationId: patchDominiV1
-      summary: Actualitza camps concrets d'un domini donat el seu identificador
+        - Tramitació
+      operationId: patchExpedientV1
+      summary: Actualitza camps concrets d'un expedient donat el seu identificador
       description: |
-        Modifica els camps del domini amb l'identificador passat al paràmetre `dominiId`, amb els camps de l'objecte Domini passat al body de la petició.  
+        Modifica els camps del expedient amb l'identificador passat al paràmetre `expedientId`, amb els camps de l'objecte Expedient passat al body de la petició.  
         Només modifica els camps informats en l'objecte. Els camps no inclosos en l'objecte no seran modificats.
       parameters:
-        - $ref: '#/components/parameters/DominiIdPathParam'
+        - $ref: '#/components/parameters/ExpedientIdPathParam'
       requestBody:
         required: true
         content:
@@ -136,186 +242,295 @@ paths:
               $ref: '#/components/schemas/PatchBody'
       responses:
         '204':
-          description: Domini actualitzat
+          description: Expedient actualitzat
         '404':
           description: Not found
         '409':
           description: Conflicte
-        #'304':
-        #  description: 'Domini no modificat. Els atributs passats coincidien amb els actuals del domini'
     delete:
       tags:
-        - Disseny
-      operationId: deleteDominiV1
-      summary: Elimina un domini donat el seu identificador
-      description: Elimina el domini amb l'identificador passat al paràmetre `dominiId`
+        - Tramitació
+      operationId: deleteExpedientV1
+      summary: Elimina un expedient donat el seu identificador
+      description: Elimina el expedient amb l'identificador passat al paràmetre `expedientId` i la informació associada de les tasques i dels responsables.
       parameters:
-        - $ref: '#/components/parameters/DominiIdPathParam'
+        - $ref: '#/components/parameters/ExpedientIdPathParam'
       responses:
         '204':
           description: Ok. No content
         '404':
           description: Not found
-  /api/v1/dominis/{dominiId}/resultats:
+
+
+  /api/v1/tasques:
     get:
-      tags: 
+      tags:
+        - Tramitació
         - Consulta
-      summary: Consulta un domini
+      operationId: findTasquesAmbFiltrePaginatV1
+      summary: Cerca de tasques filtrada i paginada
       description: |
-        Realitza la consulta del domini amb l'identificador passat al paràmetre `dominiId`.  
-        Per a realitzar la consulta utilitza la configuració del domini, juntament amb els paràmetres passats.  
-        Els paràmetres es passaran com un mapa amb la clau de tipus string, i un valor en format string.
-        - Si l'identificador de domini = 0 es tractarà com a un domini intern.
-        - En la consulta de dominis interns, és obligatori informar el codi de l'entorn en un paràmetre de nom `entorn`
-        - En la consulta de dominis SQL, si es passa algun paràmetre que no sigui de tipus string, s'haurà d'especificar el seu tipus utilitzant un altre paràmetre amb el mateix nom, acabat amb -tipus.  
-          Ex. paràmetre de nom num, valor 24 i tipus enter:  *num=24&num-tipus=int*
-          Els tipus de dades possibles son:
-          - int
-          - float
-          - boolean
-          - date
-          - price  
-          
-          En cas de no especificar el tipus es considera de tipus string.
-#      security:
-#        - openId:
-#          - tothom
-      operationId: consultaDominiV1
-      parameters: 
-        - $ref: '#/components/parameters/DominiIdPathParam'
-        - name: identificador
-          in: query
-          description: identificador del domini al sistema remot
-          required: false
+        Consulta amb paràmetres corresponent al llistat de tasques.
+        
+        La cerca pot rebre paràmetres per
+        - ordenar
+        - paginar
+        - filtrar (amb el mateixos paràmetres que en el llistat)
+      parameters:
+        - $ref: '#/components/parameters/EntornParam'
+        - $ref: '#/components/parameters/FiltreParam'
+        - $ref: '#/components/parameters/TipusExpedientParam'
+        - $ref: '#/components/parameters/PageNumberParam'
+        - $ref: '#/components/parameters/PageSizeParam'
+        - $ref: '#/components/parameters/SortParam'
+        # Paràmetres propis del filtre
+        - in: query
+          name: usuariAssignat
           schema:
             type: string
-        - name: parametres
-          in: query
-          description: Map<String, Object> amb els paràmetres que es volen passar en la consulta del domini
+          required: false
+          description: Codi de l'usuari per filtrar tasques assignades a usuaris o grup pel qual pertany l'usuari
+        - in: query
+          name: nom
           schema:
-            type: object
-            additionalProperties: true
-            example: 
-              codi1: Valor1
-              codi2: Valor2
+            type: string
+          required: false
+          description: Paràmetre per filtrar tasques per nom donat i que coincideix amb el codi donat en el flux.
+        - in: query
+          name: titol
+          schema:
+            type: string
+          required: false
+          description: Paràmetre per filtrar tasques que continguin en el títol el text passat.
+        - $ref: '#/components/parameters/ExpedientParam'
+        - in: query
+          name: expedientTitol
+          schema:
+            type: string
+          required: false
+          description: Paràmetre per filtrar tasques pel títol de l'expedient.
+        - in: query
+          name: expedientNumero
+          schema:
+            type: string
+          required: false
+          description: Paràmetre per filtrar tasques pel número de l'expedient.
+        - in: query
+          name: dataCreacioInici
+          schema:
+            type: string
+          required: false
+          description: Data per filtar per data de creació de la tasca. Indica la data del rang de filtre inicial per consultar els tasques amb data de creació igual o superior al valor passat com a paràmetre.
+          example: 01/11/2021
+        - in: query
+          name: dataCreacioFi
+          schema:
+            type: string
+          required: false
+          description: Data per filtar per data de creació de la tasca. Indica la data del rang de filtre final per consultar els tasques amb data de creació inferior i igual al valor passat com a paràmetre.
+          example: 30/11/2021
+        - in: query
+          name: dataLimitInici
+          schema:
+            type: string
+          required: false
+          description: Data per filtar per data límit de la tasca. Indica la data del rang de filtre inicial per consultar els tasques amb data límit igual o superior al valor passat com a paràmetre.
+          example: 01/12/2021
+        - in: query
+          name: dataLimitFi
+          schema:
+            type: string
+          required: false
+          description: Data per filtar per data límit de la tasca. Indica la data del rang de filtre final per consultar els tasques amb data límit inferior i igual al valor passat com a paràmetre.
+          example: 30/12/2021
+        - in: query
+          name: mostrarAssignadesUsuari
+          schema:
+            type: boolean
+          required: false
+          description: Indica si mostrar només les tasques que estan assignades a un usuari i si es passa el codi de l'usuari només es mostren les tasques de l'usuari.
+        - in: query
+          name: mostrarAssignadesGrup
+          schema:
+            type: boolean
+          required: false
+          description: Indica si mostrar només les tasques que estan assignades a un grup d'usuaris i si es passa el codi de l'usuari llavors només es mostren les tasques que tenen l'usuari assignat en el grup.
+        - in: query
+          name: nomesPendents
+          schema:
+            type: boolean
+          required: false
+          description: Indica si mostrar només les tasques pendents que no estan finalitzades.
+
       responses:
         '200':
-          description: 'Ok'
+          description: Ok
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ResultatDomini'
-  /api/v1/entorn/{entornId}/dominis:
-    get:
+                $ref: '#/components/schemas/TascaPagedList'
+        '204':
+          description: No content
+        '400':
+          description: Bad input parameter
+    post:
       tags:
-      - Consulta
-      summary: Consulta un domini
-      description: |
-        Obté una pàgina de la cerca dels **dominis** d'un entorn.
+        - Tramitació
+      operationId: createTascaV1
+      summary: Crea un nou tasca
+      description: Afegiex un nou tasca al sistema a partir de la informació passada en el cos de la petició.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Tasca'
+        description: Tasca a crear
+      responses:
+        '201':
+          description: Tasca created
+          headers:
+            Location:
+              description: Adreça de la tasca creat amb el mateix identificador tascaId que el passat com a atribut id de la tasca.
+              schema:
+                type: string
+                format: uri
+                example: http://example.com/v1/tasques/{tascaId}
+        '400':
+          description: Bad request
+        '409':
+          description: Conflicte. Ja existeix la tasca
 
-        La cerca pot rebre paràmetres per
-        - ordenar
-        - paginar
-        - filtrar (utilitzant sintaxi rsql)
-        
-        No té en compte la herència
-      operationId: llistaDominiByEntorn
-      parameters:
-      - $ref: '#/components/parameters/EntornIdPathParam'
-      - $ref: '#/components/parameters/FiltreParam'
-      - $ref: '#/components/parameters/PageNumberParam'
-      - $ref: '#/components/parameters/PageSizeParam'
-      - $ref: '#/components/parameters/SortParam'
+  /api/v1/tasques/{tascaId}:
+    get:
+      tags:
+        - Tramitació
+        - Consulta
+      operationId: getTascaV1
+      summary: Consulta una tasca donat el seu identificador
+      description: Retorna les dades dla tasca amb l'identificador informat al paràmetre `tascaId`
+      parameters: 
+        - $ref: '#/components/parameters/TascaIdPathParam'
       responses:
-        "200":
+        '200':
           description: Ok
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/DominiPagedList'
-        "204":
-          description: No content
-        "400":
-          description: Bad input parameter
-  /api/v1/entorn/{entornId}/dominis/{codi}:
-    get:
+                $ref: '#/components/schemas/Tasca'
+        '404':
+          description: Not found
+    put:
       tags:
-      - Consulta
-      summary: Consulta un domini global d'un entorn
-      description: |
-        Obté el domini global donat l'entorn al que pertany, i el seu codi.
-      operationId: getDominiByEntornAndCodi
+        - Tramitació
+      operationId: updateTascaV1
+      summary: Modifica una tasca donat el seu identificador
+      description: Modifica la tasca amb l'identificador passat al paràmetre `tascaId`, amb les totes dades de l'objecte Tasca passat al body de la petició
       parameters:
-      - $ref: '#/components/parameters/EntornIdPathParam'
-      - $ref: '#/components/parameters/DominiCodiPathParam'
-      - $ref: '#/components/parameters/TipusExpedientPareParam'
+        - $ref: '#/components/parameters/TascaIdPathParam'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Tasca'
       responses:
-        "200":
-          description: Ok
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Domini'
-        "204":
-          description: No content
-        "400":
-          description: Bad input parameter
-  /api/v1/expedientTipus/{expedientTipusId}/dominis:
-    get:
+        '204':
+          description: Tasca actualitzat
+        '404':
+          description: Not found
+        '409':
+          description: Conflicte
+    patch:
       tags:
-      - Consulta
-      summary: Consulta un domini
+        - Tramitació
+      operationId: patchTascaV1
+      summary: Actualitza camps concrets d'una tasca donat el seu identificador
       description: |
-        Obté una pàgina de la cerca dels **dominis** d'un entorn.
+        Modifica els camps dla tasca amb l'identificador passat al paràmetre `tascaId`, amb els camps de l'objecte Tasca passat al body de la petició.  
+        Només modifica els camps informats en l'objecte. Els camps no inclosos en l'objecte no seran modificats.
+      parameters:
+        - $ref: '#/components/parameters/TascaIdPathParam'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchBody'
+      responses:
+        '204':
+          description: Tasca actualitzat
+        '404':
+          description: Not found
+        '409':
+          description: Conflicte
+    delete:
+      tags:
+        - Tramitació
+      operationId: deleteTascaV1
+      summary: Elimina una tasca donat el seu identificador
+      description: Elimina la tasca amb l'identificador passat al paràmetre `tascaId` i la informació associada de les tasques i dels responsables.
+      parameters:
+        - $ref: '#/components/parameters/TascaIdPathParam'
+      responses:
+        '204':
+          description: Ok. No content
+        '404':
+          description: Not found
 
-        La cerca pot rebre paràmetres per
-        - ordenar
-        - paginar
-        - filtrar (utilitzant sintaxi rsql)
-        
-        No té en compte la herència
-      operationId: llistaDominiByExpedientTipus
-      parameters:
-      - $ref: '#/components/parameters/ExpedientTipusIdPathParam'
-      - $ref: '#/components/parameters/FiltreParam'
-      - $ref: '#/components/parameters/PageNumberParam'
-      - $ref: '#/components/parameters/PageSizeParam'
-      - $ref: '#/components/parameters/SortParam'
-      responses:
-        "200":
-          description: Ok
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/DominiPagedList'
-        "204":
-          description: No content
-        "400":
-          description: Bad input parameter
-  /api/v1/expedientTipus/{expedientTipusId}/dominis/{codi}:
+  /api/v1/tasques/{tascaId}/responsables:
     get:
       tags:
-      - Consulta
-      summary: Consulta un domini d'un tipus d'expedient
-      description: |
-        Obté el domini de tipus d'expedient donat el tipus d'expedient al que pertany, i el seu codi.
-        En cas d'informar el tipus d'expedient pare es tindrà en compte la herència
-      operationId: getDominiByExpedientTipusAndCodi
-      parameters:
-      - $ref: '#/components/parameters/ExpedientTipusIdPathParam'
-      - $ref: '#/components/parameters/DominiCodiPathParam'
-      - $ref: '#/components/parameters/TipusExpedientPareParam'
+        - Tramitació
+        - Consulta
+      operationId: getResponsablesV1
+      summary: Consulta els codis dels usuaris responsables d'una tasca donat l'identificador de la tasca.
+      description: Retorna una llista de codis d'usuaris dels usuaris responsables assignats a la tasca. Els responsables
+                    s'informen quan una tasca s'assigna a un grup.
+      parameters: 
+        - $ref: '#/components/parameters/TascaIdPathParam'
       responses:
-        "200":
+        '200':
           description: Ok
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Domini'
-        "204":
-          description: No content
-        "400":
-          description: Bad input parameter
+                type: array
+                items: 
+                  type: string
+        '404':
+          description: Not found
+    post:
+      tags:
+        - Tramitació
+      operationId: setResponsablesV1
+      summary: Estableix el llistat de responsables d'una tasca donat l'identificador de la tasca i el llistat de codis d'usuaris responsables.
+      description: A partir de l'identificador de la tasca s'estableix el llistat d'usuaris responsables. Si el llistat està buit o és nul llavors 
+                es buida la llista d'usuaris responsables.
+      parameters:
+        - $ref: '#/components/parameters/TascaIdPathParam'
+        - in: query
+          name: responsables
+          description: Llistat de codis d'usuaris responsables.
+          schema:
+            type: array
+            items: 
+              type: string
+      responses:
+        '200':
+          description: Resultat correcte.
+    delete:
+      tags:
+        - Tramitació
+      operationId: deleteResponsablesV1
+      summary: Elimina els responsables d'una tasca
+      description: Buida el llistat d'usuaris responsables d'una tasca de grup de manera que el llistat de codis d'usuaris responsables queda buit.
+      parameters:
+        - $ref: '#/components/parameters/TascaIdPathParam'
+      responses:
+        '204':
+          description: Ok. No content
+
 #security: 
 #  - openId: 
 #    - HEL_SUPER
@@ -328,122 +543,206 @@ components:
 #      type: openIdConnect
 #      openIdConnectUrl: https://example.com/.well-known/openid-configuration
   schemas:
-    Domini:
+    Expedient:
       type: object
       required:
-        - codi
-        - nom
+        - id
+        - entornId
+        - expedientTipusId
+        - processInstanceId
+        - numero
+        - dataInici
+        - estatTipus
       properties:
         id:
+          description: Id de l'expedient a Helium.
           type: integer
           format: int64
-          readOnly: true
           example: 1234
-        codi:
+        entornId:
+          description: Id de l'entonr a Helium..
+          type: integer
+          format: int64
+          example: 1234
+        expedientTipusId:
+          description: Id del tipus d'expedient a Helium.
+          type: integer
+          format: int64
+          example: 1234
+        processInstanceId:
+          description: Id de la instància de procés que es correspon amb l'expedient.
+          type: string
+          maxLength: 255
+          example: 12345678
+        numero:
+          description: Número de l'expedient
           type: string
           maxLength: 64
-          example: codi_domini
-        nom:
+          example: 123/2021
+        titol:
+          description: Títol de l'expedient
           type: string
           maxLength: 255
-          example: nom_domini
-        tipus:
+          example: Títol expedient
+        dataInici:
+          description: Data d'inici de l'expedient.
+          type: string
+          example: '01/12/2021 01:02:03.456'
+        dataFi:
+          description: Data de finalització de l'expedient.
+          type: string
+          example: '31/12/2021 01:02:03.456'
+        estatTipus:
+          description: Indica el tipus d'estat CUSTOM, INICAT o FINALITZAT. En cas de ser tipus CUSTOM llavors s'informa l' id del tipus d'expedient guardat.
           type: string
           enum:
-            - CONSULTA_SQL
-            - CONSULTA_WS
-            - CONSULTA_REST
-          example: CONSULTA_REST
-        url:
-          type: string
-          format: uri
-          maxLength: 255
-          example: http://example.com/nom_domini
-        tipusAuth:
-          type: string
-          enum: 
-            - NONE
-            - HTTP_BASIC
-            - USERNAMETOKEN
-          example: HTTP_BASIC
-        origenCredencials:
-          type: string
-          enum: 
-            - ATRIBUTS
-            - PROPERTIES
-          example: PROPERTIES
-        usuari:
-          type: string
-          maxLength: 255
-          example: codi_usuari
-        contrasenya:
-          type: string
-          format: password
-          maxLength: 255
-          example: password
-        sql:
+            - INICIAT
+            - FINALITZAT
+            - CUSTOM          
+          example: 'INICIAT'
+        estatId:
+          description: identificador de l'estat dins de la tipologia. Si no és un estat específic els possibles valors són INICAT o FINALITZAT.
+          type: integer
+          format: int32
+          example: 2
+        aturat:
+          type: boolean
+          description: Indica si l'expedient està aturat.
+        infoAturat:
+          description: Informació que introdueix l'usuari quan atura un expedient.
           type: string
           maxLength: 1024
-          example: select camp_1, camp_2, camp_3 from taula where camp_4 = :parametre
-        jndiDatasource:
-          type: string
-          maxLength: 255
-          example: java:/es.caib.example.db
-        descripcio:
-          type: string
-          maxLength: 255
-          example: Text descriptiu del domini
-        cacheSegons:
-          type: integer
-          description: En cas de posar el valor 0 ???
-        timeout:
-          type: integer
-          description: En cas de posar el valor 0 ???
-        ordreParams:
-          type: string
-          maxLength: 255
-        entorn:
-          type: integer
-          format: int64
-          description: Identificador de l'entorn al que pertany el domini
-        expedientTipus:
-          type: integer
-          format: int64
-          description: Identificador del tipus d'expedient al que pertany el domini. Si el domini és global aquest identificador serà null.
-        heretat:
+          example: 'Motiu expedient aturat'
+        anulat:
           type: boolean
-          description: Indica si l'objecte és heretat del tipus d'expedient pare.
-        sobreescriu:
+          description: Indica si l'expedient està anul·lat.
+        comentariAnulat:
+          description: Comentari que introdueix l'usuari quan anul·la un expedient.
+          type: string
+          maxLength: 255
+          example: 'Comentari anul·lat'
+        alertesTotals:
+          description: Número d'alertes totals que té un expedient
+          type: integer
+          format: int32
+        alertesPendents:
+          description: Número d'alertes pendents per llegir que té un expedient
+          type: integer
+          format: int32
+        ambErrors:
           type: boolean
-          description: Indica si l'objecte sobreescriu una propietat del tipus d'expedient pare.          
-    ResultatDomini:
+          description: Indica si l'expedient té algun error per marcarlo en el llistat o filtrar-lo.
+  
+    ExpedientList:
       type: array
       items:
-        $ref: '#/components/schemas/FilaResultat'
-    FilaResultat:
-      properties:
-        columnes:
-          type: array
-          items:
-            $ref: '#/components/schemas/ParellaCodiValor'
-    ParellaCodiValor:
-      properties:
-        codi:
-          type: string
-        valor:
-          type: object
-      type: object
-    DominiList:
-      type: array
-      items:
-        $ref: '#/components/schemas/Domini'
-    DominiPagedList:
+        $ref: '#/components/schemas/Expedient'
+    ExpedientPagedList:
+      description: Llistat paginat d'expedients
       type: object
       properties:
         content:
-          $ref: '#/components/schemas/DominiList'
+          $ref: '#/components/schemas/ExpedientList'
       allOf:
       - $ref: '#/components/schemas/PagedResponse'
+
+    Tasca:
+      type: object
+      required:
+        - id
+        - expedientId
+        - nom
+        - dataCreacio
+      properties:
+        id:
+          description: Id de la tasca a Helium.
+          type: integer
+          format: int64
+          example: 1234
+        expedientId:
+          description: Id de l'expedient de la tasca.
+          type: integer
+          format: int64
+          example: 1234
+        nom:
+          description: Nom de la tasca en el flux
+          type: string
+          maxLength: 255
+          example: tasca_codi
+        titol:
+          description: Títol de la tasca
+          type: string
+          maxLength: 255
+          example: Títol de la tasca a l'expedient. Pot coincidir amb el nom.
+        agafada:
+          description: Indica si la tasca està agafada.
+          type: boolean
+        cancelada:
+          description: Indica si la tasca està cancel·lada.
+          type: boolean
+        suspesa:
+          description: Indica si la tasca està suspesa.
+          type: boolean
+        completada:
+          description: Indica si la tasca està completada.
+          type: boolean
+        assignada:
+          description: Indica si la tasca està assignada.
+          type: boolean
+        marcadaFinalitzar:
+          description: Indica si la tasca està marcada per finalitzar.
+          type: boolean
+        errorFinalitzacio:
+          description: Indica si la tasca conté errors de finalització.
+          type: boolean
+        dataFins:
+          description: Data límit de la tasca.
+          type: string
+          example: '01/12/2021 01:02:03.456'
+        dataFi:
+          description: Data de finalització de la tasca.
+          type: string
+          example: '31/12/2021 01:02:03.456'
+        iniciFinalitzacio:
+          description: Data d'inici de la finalització de la tasca.
+          type: string
+          example: '31/12/2021 01:02:03.456'
+        dataCreacio:
+          description: Data de creació de la tasca.
+          type: string
+          example: '31/12/2021 01:02:03.456'
+        usuariAssignat:
+          description: Codi de l'usuari assignat a la tasca.
+          type: string
+          maxLength: 255
+          example: usuari_codi
+        grupAssignat:
+          description: Codi del grup assignat a la tasca.
+          type: string
+          maxLength: 255
+          example: grup_codi
+        responsables:
+          description: Llista d'usuaris responsables.
+          type: array
+          items:
+            type: string
+          example: {'usuari1', 'usuari2'}
+  
+    TascaList:
+      type: array
+      items:
+        $ref: '#/components/schemas/Tasca'
+
+    TascaPagedList:
+      description: Llistat paginat de tasques
+      type: object
+      properties:
+        content:
+          $ref: '#/components/schemas/TascaList'
+      allOf:
+      - $ref: '#/components/schemas/PagedResponse'
+
+
     PagedResponse:
       type: object
       properties:
@@ -470,6 +769,7 @@ components:
           $ref: '#/components/schemas/PagedResponse_pageable_sort'
         first:
           type: boolean
+          
     PagedResponse_pageable:
       type: object
       properties:
@@ -495,10 +795,12 @@ components:
           type: boolean
         unsorted:
           type: boolean
+   
     PatchBody:
       type: array
       items:
         $ref: '#/components/schemas/PatchDocument'
+        
     PatchDocument: 
       description: Document amb format JSONPatch (definit al RFC 6902) 
       required:
@@ -525,39 +827,21 @@ components:
         type: string 
         description: UUna ruta de l'objecte a modificar
   parameters:
-    DominiIdPathParam:
-      name: dominiId
+    ExpedientIdPathParam:
+      name: expedientId
       in: path
-      description: Identificador del domini
+      description: Identificador del expedient
       required: true
       style: simple
       explode: false
       schema:
         type: integer
         format: int64
-    DominiCodiPathParam:
-      name: codi
+        
+    TascaIdPathParam:    
+      name: tascaId
       in: path
-      description: Codi del domini
-      required: true
-      style: simple
-      explode: false
-      schema:
-        type: string
-    EntornIdPathParam:
-      name: entornId
-      in: path
-      description: Identificador de l'entorn
-      required: true
-      style: simple
-      explode: false
-      schema:
-        type: integer
-        format: int64
-    ExpedientTipusIdPathParam:
-      name: expedientTipusId
-      in: path
-      description: Identificador del tipus d'expedient
+      description: Identificador de la tasca
       required: true
       style: simple
       explode: false
@@ -583,29 +867,20 @@ components:
       explode: true
       schema:
         type: string
-    GlobalParam:
-      name: globals
-      in: query
-      description: Iindica si ha de retornar únicament dominis globals
-      required: false
-      style: form
-      explode: true
-      schema:
-        type: boolean
     TipusExpedientParam:
       name: expedientTipusId
       in: query
-      description: Identificador del tipus d'expedient al que pertany el domini
+      description: Identificador del tipus d'expedient al que pertany el expedient
       required: false
       style: form
       explode: true
       schema:
         type: integer
         format: int64
-    TipusExpedientPareParam:
-      name: expedientTipusPareId
+    ExpedientParam:
+      name: expedientId
       in: query
-      description: Identificador del tipus d'expedient pare al que pertany el domini (en cas d\'herència)
+      description: Identificador de l'expedient
       required: false
       style: form
       explode: true

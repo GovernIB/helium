@@ -64,7 +64,6 @@ public class TascaTestHelper {
         		.iniciFinalitzacio(null)
         		.marcadaFinalitzar(true)
         		.suspesa(false)
-        		.tascaTramitacioMassiva(false)
         		.usuariAssignat(null)
         		
                 .build();
@@ -107,7 +106,6 @@ public class TascaTestHelper {
         		.iniciFinalitzacio(null)
         		.marcadaFinalitzar(true)
         		.suspesa(false)
-        		.tascaTramitacioMassiva(false)
         		.usuariAssignat(null)
 
                 .build();
@@ -136,7 +134,6 @@ public class TascaTestHelper {
                 () -> assertEquals(tasca.isCompletada(), trobat.isCompletada(), "Completada incorrecte"),
                 () -> assertEquals(tasca.isMarcadaFinalitzar(), trobat.isMarcadaFinalitzar(), "Marcada finalitzar incorrecte"),
                 () -> assertEquals(tasca.isErrorFinalitzacio(), trobat.isErrorFinalitzacio(), "Error finalització incorrecte"),
-                () -> assertEquals(tasca.isTascaTramitacioMassiva(), trobat.isTascaTramitacioMassiva(), "Tramitacio massiva incorrecte"),
                 () -> assertEquals(tasca.getDataFins(), trobat.getDataFins(), "Data fins incorrecte"),
 				() -> assertEquals(tasca.getIniciFinalitzacio(), trobat.getIniciFinalitzacio(), "Data d'inici finalització incorrecte"),
 				() -> assertEquals(tasca.getDataCreacio(), trobat.getDataCreacio(), "Data fins incorrecte"),
@@ -167,7 +164,6 @@ public class TascaTestHelper {
                 () -> assertEquals(tasca.isCompletada(), trobat.isCompletada(), "Completada incorrecte"),
                 () -> assertEquals(tasca.isMarcadaFinalitzar(), trobat.isMarcadaFinalitzar(), "Marcada finalitzar incorrecte"),
                 () -> assertEquals(tasca.isErrorFinalitzacio(), trobat.isErrorFinalitzacio(), "Error finalització incorrecte"),
-                () -> assertEquals(tasca.isTascaTramitacioMassiva(), trobat.isTascaTramitacioMassiva(), "Tramitacio massiva incorrecte"),
                 () -> assertEquals(tasca.getDataFins(), trobat.getDataFins(), "Data fins incorrecte"),
 				() -> assertEquals(tasca.getIniciFinalitzacio(), trobat.getIniciFinalitzacio(), "Data d'inici finalització incorrecte"),
 				() -> assertEquals(tasca.getDataCreacio(), trobat.getDataCreacio(), "Data fins incorrecte"),

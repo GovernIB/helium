@@ -86,18 +86,13 @@ public class TascaDto {
 	@Schema(example = "true", required = false, description = "Indica si la tasca ha tingut errors de finalització.")
 	@Builder.Default
 	private boolean errorFinalitzacio = false;
-
-	@JsonProperty("tascaTramitacioMassiva")
-	@Schema(example = "true", required = false, description = "Indica si la tasca es pot tramitar massivament.")
-	@Builder.Default
-	private boolean tascaTramitacioMassiva = false;
 			
 	@JsonProperty("dataFins")
 	@Schema(example = "2021-01-31 22:33:44.555", required = false, description = "Data límit de la tasca.")
 	private Date dataFins;
 
 	@JsonProperty("dataFi")
-	@Schema(example = "2021-01-31 22:33:44.555", required = false, description = "Data de finalització l'expedient.")
+	@Schema(example = "2021-01-31 22:33:44.555", required = false, description = "Data de finalització la tasca")
 	private Date dataFi;
 
 	@JsonProperty("iniciFinalitzacio")
@@ -120,7 +115,7 @@ public class TascaDto {
 
 	
 	@JsonProperty("responsables")
-	@Schema(example = "{{'usuariCodi':'usuari1'}, {'usuariCodi':'usuari2'}}", required = false, description = "Conjunt d'usuaris responsables.")
+	@Schema(example = "{'usuari1', 'usuari2'}", required = false, description = "Llista d'usuaris responsables.")
 	@Size(max = 255)
 	private List<ResponsableDto> responsables;
 	
