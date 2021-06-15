@@ -117,7 +117,6 @@ public class TascaServiceImpl implements TascaService {
         tasca.setAssignada( tascaDto.isAssignada() );
         tasca.setMarcadaFinalitzar( tascaDto.isMarcadaFinalitzar() );
         tasca.setErrorFinalitzacio( tascaDto.isErrorFinalitzacio() );
-        tasca.setTascaTramitacioMassiva( tascaDto.isTascaTramitacioMassiva() );
         tasca.setDataFins( tascaDto.getDataFins() );
         tasca.setDataFi( tascaDto.getDataFi() );
         tasca.setIniciFinalitzacio( tascaDto.getIniciFinalitzacio() );

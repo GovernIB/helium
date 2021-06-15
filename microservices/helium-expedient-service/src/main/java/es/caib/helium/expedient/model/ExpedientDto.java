@@ -47,6 +47,8 @@ public class ExpedientDto {
 
 	@JsonProperty("processInstanceId")
 	@Schema(example = "\"1234\"", required = true, description = "Id de la instància de procés que es correspon amb l'expedient.")
+	@Size(max = 255)
+	@NotEmpty
 	private String processInstanceId;
 	
 	@JsonProperty("numero")

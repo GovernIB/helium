@@ -20,6 +20,7 @@ import es.caib.helium.expedient.domain.Expedient;
 import es.caib.helium.expedient.mapper.ExpedientMapper;
 import es.caib.helium.expedient.model.ExpedientDto;
 import es.caib.helium.expedient.model.ExpedientEstatTipusEnum;
+import es.caib.helium.expedient.model.MostrarAnulatsEnum;
 import es.caib.helium.expedient.repository.ExpedientRepository;
 import es.caib.helium.expedient.repository.ExpedientSpecifications;
 import es.caib.helium.ms.model.PagedList;
@@ -140,7 +141,7 @@ public class ExpedientServiceImpl implements ExpedientService {
             boolean nomesTasquesGrup,
             boolean nomesAlertes,
             boolean nomesErrors,
-            Boolean mostrarAnulats,
+            MostrarAnulatsEnum mostrarAnulats,
             String filtreRsql,
             final Pageable pageable,
             final Sort sort) {

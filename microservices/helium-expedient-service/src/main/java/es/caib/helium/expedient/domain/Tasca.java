@@ -84,9 +84,6 @@ public class Tasca implements Persistable<Long> {
 	
 	@Column(name="error_finalitzacio")
 	private boolean errorFinalitzacio;
-
-	@Column(name="tramitacio_massiva")
-	private boolean tascaTramitacioMassiva;
 	
 	@Column(name="data_fins")
 	private Date dataFins;
