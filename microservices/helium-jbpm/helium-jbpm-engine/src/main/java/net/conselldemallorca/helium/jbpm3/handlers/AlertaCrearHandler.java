@@ -5,8 +5,8 @@ package net.conselldemallorca.helium.jbpm3.handlers;
 
 import java.util.Date;
 
-import es.caib.helium.api.dto.ExpedientDto;
-import es.caib.helium.jbpm3.integracio.Jbpm3HeliumBridge;
+import net.conselldemallorca.helium.api.dto.ExpedientDto;
+import net.conselldemallorca.helium.jbpm3.integracio.Jbpm3HeliumBridge;
 
 import org.jbpm.JbpmException;
 import org.jbpm.graph.exe.ExecutionContext;

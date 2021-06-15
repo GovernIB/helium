@@ -28,7 +28,7 @@ import java.util.Date;
 import java.util.Map;
 
 import net.conselldemallorca.helium.jbpm3.api.HeliumApiImpl;
-import es.caib.helium.jbpm3.integracio.Jbpm3HeliumBridge;
+import net.conselldemallorca.helium.jbpm3.integracio.Jbpm3HeliumBridge;
 import org.dom4j.Element;
 import org.jbpm.JbpmConfiguration;
 import org.jbpm.graph.exe.ExecutionContext;
@@ -142,14 +142,10 @@ public class Action implements ActionHandler, Parsable, Serializable {
 //        missatge d'execució en segón pla
         Long tokenId = executionContext.getToken().getId();
         Long taskId = Jbpm3HeliumBridge.getInstanceService().getTaskInstanceIdByExecutionTokenId(tokenId);
-        boolean isTascaEnSegonPla =  Jbpm3HeliumBridge.getInstanceService().isTascaEnSegonPla(taskId);
-        
-        if (isTascaEnSegonPla) {
-        	DateFormat df = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
-        	String dataHandler = df.format(new Date());
-        	String errorText = "Executant handler " + actionHandler.getClass().getName() + "...";
-        	Jbpm3HeliumBridge.getInstanceService().addMissatgeExecucioTascaSegonPla(taskId, new String[]{dataHandler, errorText});
-        }
+        DateFormat df = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+        String dataHandler = df.format(new Date());
+        String errorText = "Executant handler " + actionHandler.getClass().getName() + "...";
+        Jbpm3HeliumBridge.getInstanceService().addMissatgeExecucioTascaSegonPla(taskId, new String[]{dataHandler, errorText});
 
         //TODO: Substituir les metriques
         Long metricId = Jbpm3HeliumBridge.getInstanceService().startMetric(

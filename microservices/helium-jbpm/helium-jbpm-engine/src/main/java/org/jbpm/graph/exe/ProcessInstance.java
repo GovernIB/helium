@@ -30,7 +30,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import es.caib.helium.jbpm3.integracio.Jbpm3HeliumBridge;
+import net.conselldemallorca.helium.jbpm3.integracio.Jbpm3HeliumBridge;
 import org.jbpm.JbpmException;
 import org.jbpm.context.exe.ContextInstance;
 import org.jbpm.graph.def.Event;

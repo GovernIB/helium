@@ -6,7 +6,7 @@
 			http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
 
 	<bean class="org.springframework.context.support.ClassPathXmlApplicationContext">
-		<constructor-arg value="classpath:es/caib/helium/context/application-context-ejb.xml" />
+		<constructor-arg value="classpath:net.conselldemallorca.helium.context.application-context-ejb.xml" />
 	</bean>
 
 </beans>

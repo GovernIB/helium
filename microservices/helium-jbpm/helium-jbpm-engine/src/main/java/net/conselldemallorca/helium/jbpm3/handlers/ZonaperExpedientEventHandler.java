@@ -7,11 +7,11 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import es.caib.helium.api.dto.ExpedientDto;
-import es.caib.helium.api.dto.ZonaperDocumentDto;
-import es.caib.helium.api.dto.ZonaperDocumentDto.DocumentEventTipus;
-import es.caib.helium.api.dto.ZonaperEventDto;
-import es.caib.helium.jbpm3.integracio.Jbpm3HeliumBridge;
+import net.conselldemallorca.helium.api.dto.ExpedientDto;
+import net.conselldemallorca.helium.api.dto.ZonaperDocumentDto;
+import net.conselldemallorca.helium.api.dto.ZonaperDocumentDto.DocumentEventTipus;
+import net.conselldemallorca.helium.api.dto.ZonaperEventDto;
+import net.conselldemallorca.helium.jbpm3.integracio.Jbpm3HeliumBridge;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.DocumentInfo;
 
 import org.jbpm.JbpmException;

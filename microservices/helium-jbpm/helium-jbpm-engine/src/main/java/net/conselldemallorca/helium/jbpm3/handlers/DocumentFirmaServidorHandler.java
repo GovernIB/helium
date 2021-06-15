@@ -3,7 +3,7 @@
  */
 package net.conselldemallorca.helium.jbpm3.handlers;
 
-import es.caib.helium.jbpm3.integracio.Jbpm3HeliumBridge;
+import net.conselldemallorca.helium.jbpm3.integracio.Jbpm3HeliumBridge;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jbpm.JbpmException;

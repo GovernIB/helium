@@ -7,13 +7,11 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-import es.caib.helium.api.dto.*;
-import es.caib.helium.api.exception.NoTrobatException;
-import es.caib.helium.jbpm3.helper.ConversioTipusHelper;
-import es.caib.helium.jbpm3.integracio.DominiCodiDescripcio;
-import es.caib.helium.jbpm3.integracio.Jbpm3HeliumBridge;
-import es.caib.helium.api.dto.Termini;
-import net.conselldemallorca.helium.jbpm3.api.HeliumApi;
+import net.conselldemallorca.helium.api.exception.NoTrobatException;
+import net.conselldemallorca.helium.api.dto.*;
+import net.conselldemallorca.helium.jbpm3.helper.ConversioTipusHelper;
+import net.conselldemallorca.helium.jbpm3.integracio.DominiCodiDescripcio;
+import net.conselldemallorca.helium.jbpm3.integracio.Jbpm3HeliumBridge;
 import org.jbpm.JbpmException;
 import org.jbpm.graph.exe.ExecutionContext;
 import org.springframework.security.core.Authentication;
@@ -121,13 +119,9 @@ public class HeliumApiImpl implements HeliumApi {
 		  try {
 			Long tokenId = executionContext.getToken().getId();
 			Long taskId = Jbpm3HeliumBridge.getInstanceService().getTaskInstanceIdByExecutionTokenId(tokenId);
-			boolean isTascaEnSegonPla =  Jbpm3HeliumBridge.getInstanceService().isTascaEnSegonPla(taskId);
-			
-			if (isTascaEnSegonPla) {
-				DateFormat df = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
-				String dataHandler = df.format(new Date());
-				Jbpm3HeliumBridge.getInstanceService().addMissatgeExecucioTascaSegonPla(taskId, new String[]{dataHandler, missatge});
-			}
+			DateFormat df = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+			String dataHandler = df.format(new Date());
+			Jbpm3HeliumBridge.getInstanceService().addMissatgeExecucioTascaSegonPla(taskId, new String[]{dataHandler, missatge});
 		  } finally {
 			  Thread.currentThread().setContextClassLoader(surroundingClassLoader);
 		  }
@@ -164,14 +158,10 @@ public class HeliumApiImpl implements HeliumApi {
 		if (!isTaskInstanceExecution()) {
 			throw new HeliumHandlerException("No taskInstance execution context.");
 		}
-		TascaDadaDto dto = Jbpm3HeliumBridge.getInstanceService().getDadaPerTaskInstance(
+		return Jbpm3HeliumBridge.getInstanceService().getDadaPerTaskInstance(
 				getProcessInstanceId(),
 				getTaskInstanceId(),
 				varCodi);
-		if (dto == null)
-			return null;
-		else
-			return dto.getText();
 	}
 	
 	@Override
@@ -374,7 +364,7 @@ public class HeliumApiImpl implements HeliumApi {
 						estatCodi);
 				}
 				// Consulta d'expedients
-				List<ExpedientInfo> resposta =  Jbpm3HeliumBridge.getInstanceService().findExpedientsConsultaGeneral(
+				List<ExpedientInfoDto> resultats =  Jbpm3HeliumBridge.getInstanceService().findExpedientsConsultaGeneral(
 						expedient.getEntorn().getId(),
 						titol,
 						numero,
@@ -384,10 +374,13 @@ public class HeliumApiImpl implements HeliumApi {
 						estat == null ? null : estat.getId(),
 						iniciat,
 						finalitzat);
-				if (resposta == null) {
-					return new ArrayList<ExpedientInfo>();
+				List<ExpedientInfo> expedients = new ArrayList<ExpedientInfo>();
+				if (resultats != null) {
+					for (ExpedientInfoDto expedientInfoDto: resultats) {
+						expedients.add(ConversioTipusHelper.toExpedientInfo(expedientInfoDto));
+					}
 				}
-				return resposta;
+				return expedients;
 			} else {
 				throw new HeliumHandlerException("No hi ha usuari autenticat");
 			}
@@ -412,26 +405,29 @@ public class HeliumApiImpl implements HeliumApi {
 		if(expedientTipusCodi == null) throw new HeliumHandlerException("El paràmetre expedientTipusCodi no pot ser null");
 		if(filtreValors == null || filtreValors.isEmpty()) throw new JbpmException("Els paràmetres del filtre no poden ser null o estar buits");
 		
-		List<ExpedientInfo> resposta = new ArrayList<ExpedientInfo>();
 		try {
 			Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 			if (auth != null) {
 				ExpedientDto expedient = getExpedientActual();
 
 				// Consulta d'expedients
-				List<ExpedientInfo> resultats = Jbpm3HeliumBridge.getInstanceService().findExpedientsConsultaDadesIndexades(
+				List<ExpedientInfoDto> resultats = Jbpm3HeliumBridge.getInstanceService().findExpedientsConsultaDadesIndexades(
 						expedient.getEntorn().getId(),
 						expedientTipusCodi,
 						filtreValors);
-				if (resultats != null)
-					return resultats;
+				List<ExpedientInfo> expedients = new ArrayList<ExpedientInfo>();
+				if (resultats != null) {
+					for (ExpedientInfoDto expedientInfoDto: resultats) {
+						expedients.add(ConversioTipusHelper.toExpedientInfo(expedientInfoDto));
+					}
+				}
+				return expedients;
 			} else {
 				throw new HeliumHandlerException("No hi ha usuari autenticat");
 			}
 		} catch (Exception ex) {
 			throw new HeliumHandlerException("Error en la consulta d'expedients", ex);
 		}
-		return resposta;
 	}
 
 	@Override

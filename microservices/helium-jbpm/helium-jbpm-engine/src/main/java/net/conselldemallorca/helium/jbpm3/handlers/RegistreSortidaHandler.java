@@ -6,8 +6,8 @@ package net.conselldemallorca.helium.jbpm3.handlers;
 import java.util.ArrayList;
 import java.util.List;
 
-import es.caib.helium.api.dto.ExpedientDto;
-import es.caib.helium.jbpm3.integracio.Jbpm3HeliumBridge;
+import net.conselldemallorca.helium.api.dto.ExpedientDto;
+import net.conselldemallorca.helium.jbpm3.integracio.Jbpm3HeliumBridge;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.DadesRegistreSortida;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.DocumentInfo;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.RespostaRegistre;

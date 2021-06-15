@@ -3,7 +3,6 @@ package net.conselldemallorca.helium.webapp.ms.api;
 import net.conselldemallorca.helium.core.api.WorkflowBridgeService;
 import net.conselldemallorca.helium.v3.core.api.dto.CampTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentTascaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,7 +53,7 @@ public class TascaRestController {
 
 	@RequestMapping(value="/{processInstanceId}/dades/{varCodi}", method = RequestMethod.GET)
 	@ResponseBody
-	public TascaDadaDto getDadaPerTaskInstance(
+	public String getDadaPerTaskInstance(
 			@PathVariable("processInstanceId") String processInstanceId,
 			@RequestParam(value = "taskInstanceId") String taskInstanceId,
 			@PathVariable("varCodi") String varCodi) {
@@ -78,11 +77,11 @@ public class TascaRestController {
 				varCodi);
 	}
 
-	@RequestMapping(value="/{taskId}/isSegonPla", method = RequestMethod.GET)
-	@ResponseBody
-	public boolean isTascaEnSegonPla(@PathVariable("taskId") Long taskId) {
-		return workflowBridgeService.isTascaEnSegonPla(taskId);
-	}
+//	@RequestMapping(value="/{taskId}/isSegonPla", method = RequestMethod.GET)
+//	@ResponseBody
+//	public boolean isTascaEnSegonPla(@PathVariable("taskId") Long taskId) {
+//		return workflowBridgeService.isTascaEnSegonPla(taskId);
+//	}
 
 	@RequestMapping(value="/{taskId}/missatge", method = RequestMethod.POST)
 	@ResponseBody

@@ -6,15 +6,15 @@ package net.conselldemallorca.helium.jbpm3.handlers;
 import java.util.ArrayList;
 import java.util.List;
 
-import es.caib.helium.api.dto.ExpedientDto;
-import es.caib.helium.api.dto.RegistreIdDto;
-import es.caib.helium.api.dto.registre.RegistreAnnex;
-import es.caib.helium.api.dto.registre.RegistreAnotacio;
-import es.caib.helium.api.dto.registre.RegistreInteressat;
-import es.caib.helium.api.dto.registre.RegistreInteressatDocumentTipusEnum;
-import es.caib.helium.api.dto.registre.RegistreInteressatTipusEnum;
-import es.caib.helium.jbpm3.helper.ConversioTipusHelper;
-import es.caib.helium.jbpm3.integracio.Jbpm3HeliumBridge;
+import net.conselldemallorca.helium.api.dto.ExpedientDto;
+import net.conselldemallorca.helium.api.dto.RegistreIdDto;
+import net.conselldemallorca.helium.api.dto.registre.RegistreAnnex;
+import net.conselldemallorca.helium.api.dto.registre.RegistreAnotacio;
+import net.conselldemallorca.helium.api.dto.registre.RegistreInteressat;
+import net.conselldemallorca.helium.api.dto.registre.RegistreInteressatDocumentTipusEnum;
+import net.conselldemallorca.helium.api.dto.registre.RegistreInteressatTipusEnum;
+import net.conselldemallorca.helium.jbpm3.helper.ConversioTipusHelper;
+import net.conselldemallorca.helium.jbpm3.integracio.Jbpm3HeliumBridge;
 import org.jbpm.JbpmException;
 import org.jbpm.graph.exe.ExecutionContext;
 

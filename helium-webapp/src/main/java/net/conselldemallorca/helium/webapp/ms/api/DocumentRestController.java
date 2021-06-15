@@ -149,15 +149,14 @@ public class DocumentRestController {
 				registre.isEntrada());
 	}
 
-	@RequestMapping(value="/{documentCodi}/esborrar", method = RequestMethod.POST)
+	@RequestMapping(value="/{documentStoreId}/esborrar", method = RequestMethod.POST)
 	@ResponseBody
 	public void documentExpedientEsborrar(
-			@PathVariable("documentCodi") String documentCodi,
-			@RequestBody Tasca tasca) {
+			@PathVariable("documentStoreId") Long documentStoreId,
+			@RequestBody String processIntanceId) {
 		workflowBridgeService.documentExpedientEsborrar(
-				tasca.getTaskInstanceId(),
-				tasca.getProcessInstanceId(),
-				documentCodi);
+				processIntanceId,
+				documentStoreId);
 	}
 
 	@Data
@@ -167,12 +166,6 @@ public class DocumentRestController {
 		private String oficinaCodi;
 		private String oficinaNom;
 		private boolean entrada;
-	}
-
-	@Data
-	public class Tasca {
-		private String processInstanceId;
-		private String taskInstanceId;
 	}
 
 	@Data

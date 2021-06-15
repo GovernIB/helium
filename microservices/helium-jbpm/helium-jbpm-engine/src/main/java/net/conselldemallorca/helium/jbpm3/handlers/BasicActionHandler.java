@@ -10,11 +10,10 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-import es.caib.helium.api.dto.*;
-import es.caib.helium.jbpm3.helper.ConversioTipusHelper;
-import es.caib.helium.jbpm3.integracio.DominiCodiDescripcio;
-import es.caib.helium.jbpm3.integracio.Jbpm3HeliumBridge;
-import es.caib.helium.api.dto.Termini;
+import net.conselldemallorca.helium.api.dto.*;
+import net.conselldemallorca.helium.jbpm3.helper.ConversioTipusHelper;
+import net.conselldemallorca.helium.jbpm3.integracio.DominiCodiDescripcio;
+import net.conselldemallorca.helium.jbpm3.integracio.Jbpm3HeliumBridge;
 import org.jbpm.JbpmException;
 import org.jbpm.context.exe.ContextInstance;
 import org.jbpm.graph.def.ActionHandler;
@@ -216,7 +215,7 @@ public abstract class BasicActionHandler extends AbstractHeliumActionHandler imp
 						expedientTipusCodi,
 						estatCodi);
 				// Consulta d'expedients
-				List<ExpedientInfo> resultats = Jbpm3HeliumBridge.getInstanceService().findExpedientsConsultaGeneral(
+				List<ExpedientInfoDto> resultats = Jbpm3HeliumBridge.getInstanceService().findExpedientsConsultaGeneral(
 						expedient.getEntorn().getId(),
 						titol,
 						numero,
@@ -226,10 +225,14 @@ public abstract class BasicActionHandler extends AbstractHeliumActionHandler imp
 						estat == null ? null : estat.getId(),
 						iniciat,
 						finalitzat);
-				if (resultats == null) {
-					return new ArrayList<ExpedientInfo>();
+
+				List<ExpedientInfo> expedients = new ArrayList<ExpedientInfo>();
+				if (resultats != null) {
+					for (ExpedientInfoDto expedientInfoDto: resultats) {
+						expedients.add(ConversioTipusHelper.toExpedientInfo(expedientInfoDto));
+					}
 				}
-				return resultats;
+				return expedients;
 			} else {
 				throw new JbpmException("No hi ha usuari autenticat");
 			}
@@ -255,26 +258,30 @@ public abstract class BasicActionHandler extends AbstractHeliumActionHandler imp
 		if(expedientTipusCodi == null) throw new JbpmException("El paràmetre expedientTipusCodi no pot ser null");
 		if(filtreValors == null || filtreValors.isEmpty()) throw new JbpmException("Els paràmetres del filtre no poden ser null o estar buits");
 		
-		List<ExpedientInfo> resposta = new ArrayList<ExpedientInfo>();
 		try {
 			Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 			if (auth != null) {
 				ExpedientDto expedient = getExpedientActual(executionContext);
 
 				// Consulta d'expedients
-				List<ExpedientInfo> resultats = Jbpm3HeliumBridge.getInstanceService().findExpedientsConsultaDadesIndexades(
+				List<ExpedientInfoDto> resultats = Jbpm3HeliumBridge.getInstanceService().findExpedientsConsultaDadesIndexades(
 						expedient.getEntorn().getId(),
 						expedientTipusCodi,
 						filtreValors);
-				if (resultats != null)
-					return resultats;
+				List<ExpedientInfo> expedients = new ArrayList<ExpedientInfo>();
+				if (resultats != null) {
+					for (ExpedientInfoDto expedientInfoDto: resultats) {
+						expedients.add(ConversioTipusHelper.toExpedientInfo(expedientInfoDto));
+					}
+					return expedients;
+				}
+				return expedients;
 			} else {
 				throw new JbpmException("No hi ha usuari autenticat");
 			}
 		} catch (Exception ex) {
 			throw new JbpmException("Error en la consulta d'expedients", ex);
 		}
-		return resposta;
 	}
 
 	/**
@@ -728,14 +735,10 @@ public abstract class BasicActionHandler extends AbstractHeliumActionHandler imp
 		if (!isTaskInstanceExecution(executionContext)) {
 			throw new HeliumHandlerException("No taskInstance execution context.");
 		}
-		TascaDadaDto dto = Jbpm3HeliumBridge.getInstanceService().getDadaPerTaskInstance(
+		return Jbpm3HeliumBridge.getInstanceService().getDadaPerTaskInstance(
 				getProcessInstanceId(executionContext),
 				getTaskInstanceId(executionContext),
 				varCodi);
-		if (dto == null)
-			return null;
-		else
-			return dto.getText();
 	}
 	
 	/** Retorna el valor text d'una variable cercant només en el context del procés.
@@ -1009,13 +1012,9 @@ public abstract class BasicActionHandler extends AbstractHeliumActionHandler imp
 		  try {
 			Long tokenId = executionContext.getToken().getId();
 			Long taskId = Jbpm3HeliumBridge.getInstanceService().getTaskInstanceIdByExecutionTokenId(tokenId);
-			boolean isTascaEnSegonPla =  Jbpm3HeliumBridge.getInstanceService().isTascaEnSegonPla(taskId);
-			
-			if (isTascaEnSegonPla) {
-				DateFormat df = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
-				String dataHandler = df.format(new Date());
-				Jbpm3HeliumBridge.getInstanceService().addMissatgeExecucioTascaSegonPla(taskId, new String[]{dataHandler, missatge});
-			}
+			DateFormat df = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+			String dataHandler = df.format(new Date());
+			Jbpm3HeliumBridge.getInstanceService().addMissatgeExecucioTascaSegonPla(taskId, new String[]{dataHandler, missatge});
 		  } finally {
 			  Thread.currentThread().setContextClassLoader(surroundingClassLoader);
 		  }

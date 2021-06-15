@@ -751,16 +751,16 @@ public class WorkflowBridgeServiceImpl implements WorkflowBridgeService {
     // TASQUES
     ////////////////////////////////////////////////////////////////////////////////
 
-    @Override
-    public boolean isTascaEnSegonPla(Long taskId) {
-        boolean result = false;
-        if (tascaSegonPlaHelper.isTasquesSegonPlaLoaded()) {
-            Map<Long, TascaSegonPlaHelper.InfoSegonPla> map = tascaSegonPlaHelper.getTasquesSegonPla();
-            result = map.containsKey(taskId);
-        }
-
-        return result;
-    }
+//    @Override
+//    public boolean isTascaEnSegonPla(Long taskId) {
+//        boolean result = false;
+//        if (tascaSegonPlaHelper.isTasquesSegonPlaLoaded()) {
+//            Map<Long, TascaSegonPlaHelper.InfoSegonPla> map = tascaSegonPlaHelper.getTasquesSegonPla();
+//            result = map.containsKey(taskId);
+//        }
+//
+//        return result;
+//    }
 
     @Override
     public void addMissatgeExecucioTascaSegonPla(Long taskId, String[] message) {
@@ -799,9 +799,34 @@ public class WorkflowBridgeServiceImpl implements WorkflowBridgeService {
         ExpedientTipus tipus = expedientTipusHelper.findAmbProcessInstanceId(processInstanceId);
         if (tipus == null)
             throw new NoTrobatException(ExpedientTipus.class, taskName);
-        return conversioTipusHelper.convertirList(
-                campTascaRepository.findAmbTascaIdOrdenats(tasca.getId(), tipus.getId()),
-                CampTascaDto.class);
+
+        List<CampTascaDto> campsTascaDto = new ArrayList<CampTascaDto>();
+        List<CampTasca> campsTasca = campTascaRepository.findAmbTascaIdOrdenats(tasca.getId(), tipus.getId());
+        if (campsTasca != null) {
+          for (CampTasca campTasca: campsTasca) {
+              CampDto campDto = new CampDto();
+              if (campTasca.getCamp() != null) {
+                  campDto.setCodi(campTasca.getCamp().getCodi());
+                  campDto.setTipus(
+                          CampTipusDto.valueOf(
+                                  campTasca.getCamp().getTipus().toString()));
+              }
+              campsTascaDto.add(new CampTascaDto(
+                      campDto,
+                      campTasca.isReadFrom(),
+                      campTasca.isWriteTo(),
+                      campTasca.isRequired(),
+                      campTasca.isReadOnly(),
+                      campTasca.getOrder(),
+                      campTasca.getAmpleCols(),
+                      campTasca.getBuitCols()
+              ));
+          }
+        }
+        return campsTascaDto;
+//        return conversioTipusHelper.convertirList(
+//                campTascaRepository.findAmbTascaIdOrdenats(tasca.getId(), tipus.getId()),
+//                CampTascaDto.class);
     }
 
     @Override
@@ -821,13 +846,32 @@ public class WorkflowBridgeServiceImpl implements WorkflowBridgeService {
         ExpedientTipus tipus = expedientTipusHelper.findAmbProcessInstanceId(processInstanceId);
         if (tipus == null)
             throw new NoTrobatException(ExpedientTipus.class, taskName);
-        return conversioTipusHelper.convertirList(
-                documentTascaRepository.findAmbTascaOrdenats(tasca.getId(), tipus.getId()),
-                DocumentTascaDto.class);
+
+        List<DocumentTascaDto> documentsTascaDto = new ArrayList<DocumentTascaDto>();
+        List<DocumentTasca> documentsTasca = documentTascaRepository.findAmbTascaOrdenats(tasca.getId(), tipus.getId());
+        if (documentsTasca != null) {
+            for (DocumentTasca documentTasca: documentsTasca) {
+                DocumentDto documentDto = new DocumentDto();
+                if (documentTasca.getDocument() != null) {
+                    documentDto.setCodi(documentTasca.getDocument().getCodi());
+                }
+                DocumentTascaDto documentTascaDto = new DocumentTascaDto();
+                documentTascaDto.setDocument(documentDto);
+                documentTascaDto.setReadOnly(documentTasca.isReadOnly());
+                documentTascaDto.setRequired(documentTasca.isRequired());
+                documentTascaDto.setOrder(documentTasca.getOrder());
+                documentsTascaDto.add(documentTascaDto);
+            }
+        }
+        return documentsTascaDto;
+
+//        return conversioTipusHelper.convertirList(
+//                documentTascaRepository.findAmbTascaOrdenats(tasca.getId(), tipus.getId()),
+//                DocumentTascaDto.class);
     }
 
     @Override
-    public TascaDadaDto getDadaPerTaskInstance(
+    public String getDadaPerTaskInstance(
             String processInstanceId,
             String taskInstanceId,
             String varCodi) {
@@ -856,16 +900,14 @@ public class WorkflowBridgeServiceImpl implements WorkflowBridgeService {
         Object valor = workflowEngineApi.getTaskInstanceVariable(
                 taskInstanceId,
                 varCodi);
-        resposta.setText(
-                variableHelper.getTextPerCamp(
+        return variableHelper.getTextPerCamp(
                         camp,
                         valor,
                         null,
                         taskInstanceId,
                         null, 
                         null, 
-                        null));
-        return resposta;
+                        null);
     }
 
     public CampTascaDto getCampTascaPerInstanciaTasca(
@@ -1146,17 +1188,15 @@ public class WorkflowBridgeServiceImpl implements WorkflowBridgeService {
 
     @Override
     public void documentExpedientEsborrar(
-            String taskInstanceId,
             String processInstanceId,
-            String documentCodi) {
+            Long documentStoreId) {
         logger.debug("Esborrant un document de dins l'expedient (" +
-                "taskInstanceId=" + taskInstanceId + ", " +
                 "processInstanceId=" + processInstanceId + ", " +
-                "documentCodi=" + documentCodi + ")");
-        documentHelper.esborrarDocument(
-                taskInstanceId,
+                "documentStoreId=" + documentStoreId + ")");
+
+        documentHelper.esborrarDocumentExtern(
                 processInstanceId,
-                documentCodi);
+                documentStoreId);
     }
 
     // TERMINIS

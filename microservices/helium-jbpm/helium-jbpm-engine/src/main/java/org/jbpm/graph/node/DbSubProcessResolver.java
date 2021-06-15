@@ -1,8 +1,7 @@
 package org.jbpm.graph.node;
 
-import es.caib.helium.api.dto.DefinicioProcesDto;
-import es.caib.helium.api.dto.EntornDto;
-import es.caib.helium.jbpm3.integracio.Jbpm3HeliumBridge;
+import net.conselldemallorca.helium.api.dto.EntornDto;
+import net.conselldemallorca.helium.jbpm3.integracio.Jbpm3HeliumBridge;
 
 import org.dom4j.Element;
 import org.jbpm.JbpmContext;

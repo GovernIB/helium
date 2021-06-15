@@ -22,7 +22,7 @@
 package org.jbpm.security.authentication;
 
 
-import es.caib.helium.jbpm3.integracio.Jbpm3HeliumBridge;
+import net.conselldemallorca.helium.jbpm3.integracio.Jbpm3HeliumBridge;
 import org.jbpm.security.AuthenticationService;
 
 public class DefaultAuthenticationService implements AuthenticationService {

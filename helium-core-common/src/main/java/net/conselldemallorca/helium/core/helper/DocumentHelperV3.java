@@ -3,26 +3,6 @@
  */
 package net.conselldemallorca.helium.core.helper;
 
-import java.io.ByteArrayOutputStream;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.annotation.Resource;
-
-import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.apache.tika.Tika;
-import org.apache.tika.mime.MimeTypes;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Component;
-
 import es.caib.plugins.arxiu.api.ContingutArxiu;
 import es.caib.plugins.arxiu.api.DocumentEstat;
 import es.caib.plugins.arxiu.api.Firma;
@@ -33,51 +13,38 @@ import net.conselldemallorca.helium.core.api.WTaskInstance;
 import net.conselldemallorca.helium.core.api.WorkflowEngineApi;
 import net.conselldemallorca.helium.core.common.JbpmVars;
 import net.conselldemallorca.helium.core.helperv26.MesuresTemporalsHelper;
-import net.conselldemallorca.helium.core.model.hibernate.AnotacioAnnex;
-import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
-import net.conselldemallorca.helium.core.model.hibernate.Document;
-import net.conselldemallorca.helium.core.model.hibernate.DocumentNotificacio;
-import net.conselldemallorca.helium.core.model.hibernate.DocumentStore;
+import net.conselldemallorca.helium.core.model.hibernate.*;
 import net.conselldemallorca.helium.core.model.hibernate.DocumentStore.DocumentFont;
-import net.conselldemallorca.helium.core.model.hibernate.DocumentTasca;
-import net.conselldemallorca.helium.core.model.hibernate.Expedient;
-import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
-import net.conselldemallorca.helium.core.model.hibernate.FirmaTasca;
-import net.conselldemallorca.helium.core.model.hibernate.Portasignatures;
 import net.conselldemallorca.helium.core.model.hibernate.Portasignatures.TipusEstat;
-import net.conselldemallorca.helium.core.model.hibernate.Registre;
-import net.conselldemallorca.helium.core.model.hibernate.Tasca;
 import net.conselldemallorca.helium.core.util.DocumentTokenUtils;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.core.util.OpenOfficeUtils;
 import net.conselldemallorca.helium.core.util.PdfUtils;
 import net.conselldemallorca.helium.integracio.plugins.signatura.RespostaValidacioSignatura;
-import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ArxiuFirmaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDocumentDto;
-import net.conselldemallorca.helium.v3.core.api.dto.NtiDocumentoFormato;
-import net.conselldemallorca.helium.v3.core.api.dto.NtiEstadoElaboracionEnumDto;
-import net.conselldemallorca.helium.v3.core.api.dto.NtiOrigenEnumDto;
-import net.conselldemallorca.helium.v3.core.api.dto.NtiTipoDocumentalEnumDto;
-import net.conselldemallorca.helium.v3.core.api.dto.NtiTipoFirmaEnumDto;
-import net.conselldemallorca.helium.v3.core.api.dto.RespostaValidacioSignaturaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.TascaDocumentDto;
+import net.conselldemallorca.helium.v3.core.api.dto.*;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.exception.SistemaExternConversioDocumentException;
 import net.conselldemallorca.helium.v3.core.api.exception.SistemaExternException;
 import net.conselldemallorca.helium.v3.core.api.exception.ValidacioException;
-import net.conselldemallorca.helium.v3.core.repository.AnotacioAnnexRepository;
-import net.conselldemallorca.helium.v3.core.repository.DefinicioProcesRepository;
-import net.conselldemallorca.helium.v3.core.repository.DocumentNotificacioRepository;
-import net.conselldemallorca.helium.v3.core.repository.DocumentRepository;
-import net.conselldemallorca.helium.v3.core.repository.DocumentStoreRepository;
-import net.conselldemallorca.helium.v3.core.repository.DocumentTascaRepository;
-import net.conselldemallorca.helium.v3.core.repository.ExpedientRepository;
-import net.conselldemallorca.helium.v3.core.repository.FirmaTascaRepository;
-import net.conselldemallorca.helium.v3.core.repository.PortasignaturesRepository;
-import net.conselldemallorca.helium.v3.core.repository.RegistreRepository;
-import net.conselldemallorca.helium.v3.core.repository.TascaRepository;
+import net.conselldemallorca.helium.v3.core.repository.*;
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.tika.Tika;
+import org.apache.tika.mime.MimeTypes;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Component;
+
+import javax.annotation.Resource;
+import java.io.ByteArrayOutputStream;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Helper per a gestionar els documents dels expedients
@@ -957,6 +924,25 @@ public class DocumentHelperV3 {
 			String taskInstanceId,
 			String processInstanceId,
 			Long documentStoreId) {
+		DocumentStore documentStore = esborrarDocumentExtern(processInstanceId, documentStoreId);
+		if (taskInstanceId != null) {
+			workflowEngineApi.deleteTaskInstanceVariable(
+					taskInstanceId,
+					documentStore.getJbpmVariable());
+			String documentCodi = getDocumentCodiPerVariableJbpm(
+					documentStore.getJbpmVariable());
+			workflowEngineApi.deleteTaskInstanceVariable(
+					taskInstanceId,
+					JbpmVars.PREFIX_SIGNATURA + documentCodi);
+		}
+		if (processInstanceId != null) {
+			workflowEngineApi.deleteProcessInstanceVariable(
+					processInstanceId,
+					documentStore.getJbpmVariable());
+		}
+	}
+
+	public DocumentStore esborrarDocumentExtern(String processInstanceId, Long documentStoreId) {
 		DocumentStore documentStore = documentStoreRepository.findOne(documentStoreId);
 		if (documentStore != null) {
 			boolean esborrarDocument = true;
@@ -976,7 +962,7 @@ public class DocumentHelperV3 {
 				if (documentStore.isSignat()) {
 					if (pluginHelper.custodiaIsPluginActiu()) {
 						pluginHelper.custodiaEsborrarSignatures(
-								documentStore.getReferenciaCustodia(), 
+								documentStore.getReferenciaCustodia(),
 								expedientHelper.findExpedientByProcessInstanceId(processInstanceId));
 					}
 				}
@@ -1005,21 +991,7 @@ public class DocumentHelperV3 {
 			if (esborrarDocument)
 				documentStoreRepository.delete(documentStoreId);
 		}
-		if (taskInstanceId != null) {
-			workflowEngineApi.deleteTaskInstanceVariable(
-					taskInstanceId,
-					documentStore.getJbpmVariable());
-			String documentCodi = getDocumentCodiPerVariableJbpm(
-					documentStore.getJbpmVariable());
-			workflowEngineApi.deleteTaskInstanceVariable(
-					taskInstanceId,
-					JbpmVars.PREFIX_SIGNATURA + documentCodi);
-		}
-		if (processInstanceId != null) {
-			workflowEngineApi.deleteProcessInstanceVariable(
-					processInstanceId,
-					documentStore.getJbpmVariable());
-		}
+		return documentStore;
 	}
 
 	public Document getDocumentDisseny(

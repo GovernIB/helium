@@ -3,11 +3,10 @@
  */
 package net.conselldemallorca.helium.jbpm3.handlers;
 
-import es.caib.helium.api.dto.ExpedientDto;
-import es.caib.helium.jbpm3.integracio.Jbpm3HeliumBridge;
+import net.conselldemallorca.helium.api.dto.ExpedientDto;
+import net.conselldemallorca.helium.jbpm3.integracio.Jbpm3HeliumBridge;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.DocumentInfo;
 
-import net.conselldemallorca.helium.jbpm3.handlers.tipus.ExpedientInfo;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jbpm.JbpmException;

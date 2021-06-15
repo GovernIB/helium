@@ -1,6 +1,6 @@
 package net.conselldemallorca.helium.jbpm3.handlers;
 
-import es.caib.helium.api.dto.ExpedientDto;
+import net.conselldemallorca.helium.api.dto.ExpedientDto;
 import org.jbpm.graph.exe.ExecutionContext;
 
 /**

@@ -128,7 +128,7 @@ public interface WorkflowBridgeService {
 	// TASQUES
 	////////////////////////////////////////////////////////////////////////////////
 
-	public boolean isTascaEnSegonPla(Long taskId);
+//	public boolean isTascaEnSegonPla(Long taskId);
 
 	public void addMissatgeExecucioTascaSegonPla(Long taskId, String[] message);
 
@@ -144,7 +144,7 @@ public interface WorkflowBridgeService {
 			String processDefinitionId,
 			String taskName);
 
-	public TascaDadaDto getDadaPerTaskInstance(
+	public String getDadaPerTaskInstance(
 			String processInstanceId,
 			String taskInstanceId,
 			String varCodi);
@@ -217,9 +217,9 @@ public interface WorkflowBridgeService {
 			boolean registreEntrada);
 
 	public void documentExpedientEsborrar(
-			String taskInstanceId,
+//			String taskInstanceId,
 			String processInstanceId,
-			String documentCodi);
+			Long documentStoreId);
 
 	// TERMINIS
 	////////////////////////////////////////////////////////////////////////////////

@@ -29,11 +29,11 @@
 <!--            <artifactId>helium-core-api</artifactId>-->
 <!--            <version>${helium.version}</version>-->
 <!--        </dependency>-->
-        <dependency>
-            <groupId>net.conselldemallorca.helium</groupId>
-            <artifactId>helium-disseny-api</artifactId>
-            <version>${helium.version}</version>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>net.conselldemallorca.helium</groupId>-->
+<!--            <artifactId>helium-disseny</artifactId>-->
+<!--            <version>${helium.version}</version>-->
+<!--        </dependency>-->
         <dependency>
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-acl</artifactId>

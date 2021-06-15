@@ -1,6 +1,6 @@
 package org.jbpm.identity.mail;
 
-import es.caib.helium.jbpm3.integracio.Jbpm3HeliumBridge;
+import net.conselldemallorca.helium.jbpm3.integracio.Jbpm3HeliumBridge;
 import org.jbpm.JbpmContext;
 import org.jbpm.identity.User;
 import org.jbpm.identity.hibernate.IdentitySession;

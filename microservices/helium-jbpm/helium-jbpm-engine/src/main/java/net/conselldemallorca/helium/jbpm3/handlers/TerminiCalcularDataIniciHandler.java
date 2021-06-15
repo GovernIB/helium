@@ -6,9 +6,9 @@ package net.conselldemallorca.helium.jbpm3.handlers;
 import java.util.Calendar;
 import java.util.Date;
 
-import es.caib.helium.api.dto.TerminiDto;
-import es.caib.helium.jbpm3.integracio.Jbpm3HeliumBridge;
-import es.caib.helium.api.dto.Termini;
+import net.conselldemallorca.helium.api.dto.TerminiDto;
+import net.conselldemallorca.helium.jbpm3.integracio.Jbpm3HeliumBridge;
+import net.conselldemallorca.helium.api.dto.Termini;
 import org.jbpm.JbpmException;
 import org.jbpm.graph.exe.ExecutionContext;
 

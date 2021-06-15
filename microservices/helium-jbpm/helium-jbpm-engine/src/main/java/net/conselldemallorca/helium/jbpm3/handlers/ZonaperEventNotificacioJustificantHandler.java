@@ -2,9 +2,9 @@ package net.conselldemallorca.helium.jbpm3.handlers;
 
 import java.util.Collections;
 
-import es.caib.helium.api.dto.DetalleAvisoDto;
-import es.caib.helium.api.dto.RespostaJustificantDetallRecepcioDto;
-import es.caib.helium.api.dto.RespostaJustificantRecepcioDto;
+import net.conselldemallorca.helium.api.dto.DetalleAvisoDto;
+import net.conselldemallorca.helium.api.dto.RespostaJustificantDetallRecepcioDto;
+import net.conselldemallorca.helium.api.dto.RespostaJustificantRecepcioDto;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;

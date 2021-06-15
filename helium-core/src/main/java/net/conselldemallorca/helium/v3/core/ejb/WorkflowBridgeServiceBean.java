@@ -126,9 +126,10 @@ public class WorkflowBridgeServiceBean implements WorkflowBridgeService {
 	// TASQUES
 	////////////////////////////////////////////////////////////////////////////////
 
-	public boolean isTascaEnSegonPla(Long taskId) {
-		return delegate.isTascaEnSegonPla(taskId);
-	}
+//	public boolean isTascaEnSegonPla(Long taskId) {
+//		return delegate.isTascaEnSegonPla(taskId);
+//	}
+
 
 	public void addMissatgeExecucioTascaSegonPla(Long taskId, String[] message) {
 		delegate.addMissatgeExecucioTascaSegonPla(taskId, message);
@@ -202,10 +203,9 @@ public class WorkflowBridgeServiceBean implements WorkflowBridgeService {
 	}
 
 	public void documentExpedientEsborrar(
-            String taskInstanceId,
-            String processInstanceId,
-            String documentCodi) {
-		delegate.documentExpedientEsborrar(taskInstanceId, processInstanceId, documentCodi);
+			String processInstanceId,
+			Long documentStoreId) {
+		delegate.documentExpedientEsborrar(processInstanceId, documentStoreId);
 	}
 
 	// TERMINIS
@@ -402,7 +402,7 @@ public class WorkflowBridgeServiceBean implements WorkflowBridgeService {
 		return delegate.findDocumentsPerTaskInstance(processInstanceId, processDefinitionId, taskName);
 	}
 
-	public TascaDadaDto getDadaPerTaskInstance(String processInstanceId, String taskInstanceId, String varCodi) {
+	public String getDadaPerTaskInstance(String processInstanceId, String taskInstanceId, String varCodi) {
 		return delegate.getDadaPerTaskInstance(processInstanceId, taskInstanceId, varCodi);
 	}
 

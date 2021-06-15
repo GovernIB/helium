@@ -12,10 +12,10 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import es.caib.helium.api.dto.DocumentDto;
-import es.caib.helium.api.dto.ExpedientDto;
-import es.caib.helium.api.dto.ExpedientTipusDto;
-import es.caib.helium.jbpm3.integracio.Jbpm3HeliumBridge;
+import net.conselldemallorca.helium.api.dto.DocumentDto;
+import net.conselldemallorca.helium.api.dto.ExpedientDto;
+import net.conselldemallorca.helium.api.dto.ExpedientTipusDto;
+import net.conselldemallorca.helium.jbpm3.integracio.Jbpm3HeliumBridge;
 import org.jbpm.JbpmException;
 import org.jbpm.graph.exe.ExecutionContext;
 import org.springframework.security.crypto.codec.Base64;

@@ -3,7 +3,7 @@
  */
 package net.conselldemallorca.helium.jbpm3.handlers;
 
-import es.caib.helium.api.dto.Termini;
+import net.conselldemallorca.helium.api.dto.Termini;
 import org.jbpm.JbpmException;
 import org.jbpm.graph.exe.ExecutionContext;
 

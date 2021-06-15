@@ -30,8 +30,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 
-import es.caib.helium.api.dto.FestiuDto;
-import es.caib.helium.jbpm3.integracio.Jbpm3HeliumBridge;
+import net.conselldemallorca.helium.api.dto.FestiuDto;
+import net.conselldemallorca.helium.jbpm3.integracio.Jbpm3HeliumBridge;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;

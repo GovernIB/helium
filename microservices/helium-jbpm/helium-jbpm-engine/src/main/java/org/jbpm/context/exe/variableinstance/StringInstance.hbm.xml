@@ -8,6 +8,6 @@
   <subclass name="org.jbpm.context.exe.variableinstance.StringInstance" 
             extends="org.jbpm.context.exe.VariableInstance" 
             discriminator-value="S">
-    <property name="value" type="es.caib.helium.jbpm3.spring.JbpmClobStringType" column="STRINGVALUE_"/>
+    <property name="value" type="net.conselldemallorca.helium.jbpm3.spring.JbpmClobStringType" column="STRINGVALUE_"/>
   </subclass>
 </hibernate-mapping>

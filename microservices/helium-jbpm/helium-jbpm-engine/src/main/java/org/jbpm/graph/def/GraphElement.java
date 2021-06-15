@@ -29,8 +29,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import es.caib.helium.api.dto.ExpedientDto;
-import es.caib.helium.jbpm3.integracio.Jbpm3HeliumBridge;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jbpm.JbpmContext;

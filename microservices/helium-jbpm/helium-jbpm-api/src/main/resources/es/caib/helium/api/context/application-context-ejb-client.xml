@@ -11,5 +11,9 @@
 	<jee:local-slsb
 			id="workflowEngineApi"
 			jndi-name="helium-jbpm/WorkflowEngineApiBean/local"
-			business-interface="es.caib.helium.api.service.WorkflowEngineApi"/>
+			business-interface="net.conselldemallorca.helium.api.service.WorkflowEngineApi"/>
+	<jee:local-slsb
+			id="workflowRetroaccioApi"
+			jndi-name="helium-jbpm/WorkflowRetroaccioApiBean/local"
+			business-interface="net.conselldemallorca.helium.api.service.WorkflowRetroaccioApi"/>
 </beans>
