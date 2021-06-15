@@ -3,13 +3,12 @@ package es.caib.helium.expedient.repository;
 import java.util.Calendar;
 import java.util.Date;
 
-import javax.persistence.criteria.Join;
+import javax.persistence.criteria.JoinType;
 
 import org.apache.commons.lang.time.DateUtils;
 import org.springframework.data.jpa.domain.Specification;
 
 import es.caib.helium.expedient.domain.Expedient;
-import es.caib.helium.expedient.domain.Tasca;
 import es.caib.helium.expedient.model.ExpedientEstatTipusEnum;
 
 /** Especificacions pel filtre en les consultes d'expedients per poder filtrar.
@@ -81,19 +80,37 @@ public class ExpedientSpecifications {
     	return specs;
     }
 
-    public static Specification<Expedient> nomesTasquesPersonals() {        
-        return (expedient, query, criteriaBuilder) -> {
-            Join<Tasca, Expedient> tascaJoin = query.from(Tasca.class).join("tasques");
-            return criteriaBuilder.isNotNull(tascaJoin.get("usuariAssignat"));
-        };        
+    /** L'usuari assignat es correspon amb el passat per paràmetre. */
+    public static Specification<Expedient> nomesTasquesPersonals(String usuariCodi) {            	
+    	if (usuariCodi != null && !usuariCodi.isBlank()) {
+	        return (expedient, qb, cb) -> {
+	        	return cb.equal(expedient.join("tasques", JoinType.LEFT).get("usuariAssignat"), usuariCodi);
+	        };
+    	} else {
+	        return (expedient, qb, cb) -> {
+	        	return expedient.join("tasques", JoinType.LEFT).get("usuariAssignat").isNotNull();
+	        };
+    	}
     }
 
-	private static Specification<Expedient> nomesTasquesGrup() {
-    	//TODO DANIEL: relacionar amb les tasques i construir la especificació correcta
-        return (expedient, cq, cb) -> {
-            Join<Tasca, Expedient> tascaJoin = cq.from(Tasca.class).join("tasques");
-            return cb.isNull(tascaJoin.get("usuariAssignat"));
-        };        
+    /** La tasca no té usuari assignat però sí està assignat com a un dels responsables. */
+	private static Specification<Expedient> nomesTasquesGrup(String usuariCodi) {
+    	if (usuariCodi != null && !usuariCodi.isBlank()) {
+            return (expedient, qb, cb) -> {
+            	return cb.and(
+    	        			expedient.join("tasques", JoinType.LEFT).get("usuariAssignat").isNull(),
+    	        			cb.equal(expedient.join("tasques", JoinType.LEFT).join("responsables").get("usuariCodi"), usuariCodi)
+            			);
+            };
+    	} else {
+            return (expedient, qb, cb) -> {
+            	return cb.and(
+    	        			expedient.join("tasques", JoinType.LEFT).get("usuariAssignat").isNull(),
+    	        			expedient.join("tasques", JoinType.LEFT).joinList("responsables").isNotNull()
+            			);
+            };
+    	}
+
 	}
 
 	private static Specification<Expedient> nomesErrors() {
@@ -115,6 +132,7 @@ public class ExpedientSpecifications {
     
     
     public static Specification<Expedient> expedientsList(
+            String usuariCodi,
             Long entornId,
             Long expedientTipusId, 
             String titol, 
@@ -146,9 +164,9 @@ public class ExpedientSpecifications {
     	if (estatTipus != null)
     		spec = spec.and(estatTipusIs(estatTipus, estatId));
     	if (nomesTasquesPersonals)
-    		spec = spec.and(nomesTasquesPersonals());
+    		spec = spec.and(nomesTasquesPersonals(usuariCodi));
     	if (nomesTasquesGrup)
-    		spec = spec.and(nomesTasquesGrup());
+    		spec = spec.and(nomesTasquesGrup(usuariCodi));
     	if (nomesAlertes)
     		spec = spec.and(nomesAlertes());
     	if (nomesErrors)

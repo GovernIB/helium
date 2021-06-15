@@ -1,6 +1,8 @@
 package es.caib.helium.expedient.controller;
 
 import java.util.Date;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.validation.Valid;
 
@@ -78,8 +80,8 @@ public class TascaController {
             @RequestParam(value = "nom", required = false) String nom,
             @RequestParam(value = "titol", required = false) String titol,
             @RequestParam(value = "expedientId", required = false) Long expedientId,
-            @RequestParam(value = "expedientTitol", required = false) Long expedientTitol,
-            @RequestParam(value = "expedientNumero", required = false) Long expedientNumero,
+            @RequestParam(value = "expedientTitol", required = false) String expedientTitol,
+            @RequestParam(value = "expedientNumero", required = false) String expedientNumero,
             @RequestParam(value = "dataCreacioInici", required = false) Date dataCreacioInici,
             @RequestParam(value = "dataCreacioFi", required = false) Date dataCreacioFi,
             @RequestParam(value = "dataLimitInici", required = false) Date dataLimitInici,
@@ -117,8 +119,8 @@ public class TascaController {
         		nom, 
         		titol, 
         		expedientId, 
-        		titol, 
-        		titol, 
+        		expedientTitol, 
+        		expedientNumero, 
         		dataCreacioInici, 
         		dataCreacioFi, 
         		dataLimitInici, 
@@ -161,14 +163,10 @@ public class TascaController {
 
         log.debug("[CTR] update tasca: " + tascaDto.toString());
 
-        try {
-            tascaService.updateTasca(
-                    tascaId,
-                    tascaDto);
-        } catch (DataIntegrityViolationException ex) {
-            log.error("[CTR] Update: Ja existeix un tasca amb el mateix entorn, tipus d'tasca i codi", ex);
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Ja existeix un domini amb el mateix entorn, tipus d'tasca i codi");
-        }
+        tascaService.updateTasca(
+                tascaId,
+                tascaDto);
+
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 
     }
@@ -220,4 +218,44 @@ public class TascaController {
 
     }
     
+    
+    /// Mètodes pels responsables
+    
+    @GetMapping(value = "/{tascaId}/responsables")
+    public ResponseEntity<List<String>> getResponsablesV1(
+    		@PathVariable("tascaId") Long tascaId) {
+    	
+        log.debug("[CTR] get responsables tasca: " + tascaId);
+
+        List<String> responsables = tascaService.getResponsables(tascaId)
+				.stream()
+				.map(e -> e.getUsuariCodi())
+				.collect(Collectors.toList());
+
+        return new ResponseEntity<List<String>>(responsables, HttpStatus.OK);
+    }
+    
+	@PostMapping(value = "/{tascaId}/responsables")
+	public ResponseEntity<Void> setResponsablesV1(
+			@PathVariable("tascaId") Long tascaId,
+			@RequestParam(name = "responsables", required = false) List<String> responsables) {
+
+		log.debug("[CTR] set responsables tasca: " + tascaId + "\n" + 
+					"responsables: " + responsables);
+
+        tascaService.setResponsables(tascaId, responsables);
+
+		return new ResponseEntity<>(HttpStatus.OK);
+    }
+    
+	@DeleteMapping(value = "/{tascaId}/responsables")
+    public ResponseEntity<Void> deleteResponsablesV1(
+    		@PathVariable("tascaId") Long tascaId) {
+		
+        log.debug("[CTR] delete responsables tasca: " + tascaId);
+        
+        tascaService.deleteResponsables(tascaId);
+    	
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
 }

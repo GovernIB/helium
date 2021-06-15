@@ -1,7 +1,9 @@
 package es.caib.helium.expedient.service;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -17,10 +19,14 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import es.caib.helium.expedient.domain.Expedient;
+import es.caib.helium.expedient.domain.Responsable;
 import es.caib.helium.expedient.domain.Tasca;
+import es.caib.helium.expedient.mapper.ResponsableMapper;
 import es.caib.helium.expedient.mapper.TascaMapper;
+import es.caib.helium.expedient.model.ResponsableDto;
 import es.caib.helium.expedient.model.TascaDto;
 import es.caib.helium.expedient.repository.ExpedientRepository;
+import es.caib.helium.expedient.repository.ResponsableRepository;
 import es.caib.helium.expedient.repository.TascaRepository;
 import es.caib.helium.expedient.repository.TascaSpecifications;
 import es.caib.helium.ms.model.PagedList;
@@ -33,8 +39,11 @@ import lombok.extern.slf4j.Slf4j;
 public class TascaServiceImpl implements TascaService {
 
     private final TascaRepository tascaRepository;
+    private final ResponsableRepository responsableRepository;
     private final ExpedientRepository expedientRepository;
+    
     private final TascaMapper tascaMapper;
+    private final ResponsableMapper responsableMapper;
 
     @Override
     @Transactional
@@ -45,16 +54,43 @@ public class TascaServiceImpl implements TascaService {
         // TODO: Comprovar permisos sobre tipus d' tasca i entorn ??
 
         log.debug("[SRV] Creant nou tasca (tasca=" + tascaDto + ")");
+        
+        // Guarda la llista de responsables
+        List<String> responsables = new ArrayList<String>();
+        if (tascaDto.getResponsables() != null) {
+            for(ResponsableDto responsable : tascaDto.getResponsables()) {
+            	responsables.add(responsable.getUsuariCodi());
+            }
+        }
+        
         Tasca tasca = tascaMapper.dtoToEntity(tascaDto);
+        tasca.getResponsables().clear();
+        
         if (tascaDto.getExpedientId() != null) {
         	Optional<Expedient> expedientOptional = expedientRepository.findById(tascaDto.getExpedientId());
         	if (expedientOptional.isPresent())
         		tasca.setExpedient(expedientOptional.get());
-        }
+        }        
         log.debug("[SRV] Validant tasca");
         validateTasca(tasca);
-        return tascaMapper.entityToDto(tascaRepository.save(tasca));
-
+                
+        // Guarda la tasca
+        tasca = tascaRepository.save(tasca);
+        // Crea els responsables
+        if (responsables.size() > 0) {
+        	Responsable responsable;
+            for (String usuariCodi : responsables ) {
+            	responsable = Responsable.builder()
+            			.usuariCodi(usuariCodi)
+            			.tasca(tasca)
+            			.build();
+            	responsable = responsableRepository.save(responsable);
+            	tasca.getResponsables().add(responsable);
+            }           
+        }
+        tascaDto = tascaMapper.entityToDto(tasca);
+        tascaDto.setExpedientId(tasca.getExpedient().getId());
+		return tascaDto;
     }
 
     @Override
@@ -72,26 +108,22 @@ public class TascaServiceImpl implements TascaService {
 
         Tasca tasca = getTascaById(tascaId);
         
-        if (tascaDto.getExpedientId() != null 
-        		&& (tasca.getExpedient() == null || tasca.getExpedient().getId() != tascaDto.getExpedientId())) {
-        	Optional<Expedient> expedientOptional = expedientRepository.findById(tascaDto.getExpedientId());
-        	if (expedientOptional.isPresent())
-        		tasca.setExpedient(expedientOptional.get());
-        }
-        tasca.setNom(tascaDto.getNom());
-        tasca.setTitol(tascaDto.getTitol());
-        tasca.setDataCreacio(tascaDto.getDataCreacio());
-        tasca.setDataFins(tascaDto.getDataFins());
-        tasca.setUsuariAssignat(tascaDto.getUsuariAssignat());
-        tasca.setIniciFinalitzacio(tascaDto.getIniciFinalitzacio());        
-        tasca.setAfagada(tascaDto.isAfagada());
-        tasca.setCancelada(tascaDto.isCancelada());
-        tasca.setSuspesa(tascaDto.isSuspesa());
-        tasca.setCompletada(tascaDto.isCompletada());
-        tasca.setAssignada(tascaDto.isAssignada());
-        tasca.setMarcadaFinalitzar(tascaDto.isMarcadaFinalitzar());
-        tasca.setErrorFinalitzacio(tascaDto.isErrorFinalitzacio());
-        tasca.setTascaTramitacioMassiva(tascaDto.isTascaTramitacioMassiva());
+        tasca.setNom( tascaDto.getNom() );
+        tasca.setTitol( tascaDto.getTitol() );
+        tasca.setAfagada( tascaDto.isAfagada() );
+        tasca.setCancelada( tascaDto.isCancelada() );
+        tasca.setSuspesa( tascaDto.isSuspesa() );
+        tasca.setCompletada( tascaDto.isCompletada() );
+        tasca.setAssignada( tascaDto.isAssignada() );
+        tasca.setMarcadaFinalitzar( tascaDto.isMarcadaFinalitzar() );
+        tasca.setErrorFinalitzacio( tascaDto.isErrorFinalitzacio() );
+        tasca.setTascaTramitacioMassiva( tascaDto.isTascaTramitacioMassiva() );
+        tasca.setDataFins( tascaDto.getDataFins() );
+        tasca.setDataFi( tascaDto.getDataFi() );
+        tasca.setIniciFinalitzacio( tascaDto.getIniciFinalitzacio() );
+        tasca.setDataCreacio( tascaDto.getDataCreacio() );
+        tasca.setUsuariAssignat( tascaDto.getUsuariAssignat() );
+        tasca.setGrupAssignat( tascaDto.getGrupAssignat() );
 
         log.debug("[SRV] Validant tasca");
         validateTasca(tasca);
@@ -108,8 +140,7 @@ public class TascaServiceImpl implements TascaService {
         log.debug("[SRV] Esborrant la tasca (tascaId=" + tascaId +  ")");
 
         // TODO: Comprovar permisos sobre tipus d'expedient i entorn ??
-        // TODO: Comprovar si el expedient està sent utilitzat en algun camp
-        getTascaById(tascaId);
+        deleteResponsables(tascaId);
         tascaRepository.delete(tascaId);
     }
 
@@ -238,5 +269,52 @@ public class TascaServiceImpl implements TascaService {
                 .map(e -> e.getKey() + "=" + e.getValue())
                 .collect(Collectors.joining(", ", "{ ", " }"));
     }
+
+    @Override
+    @Transactional(readOnly = true)
+	public List<ResponsableDto> getResponsables(Long tascaId) {
+    	Tasca tasca = getTascaById(tascaId);
+    	//List<Responsable> responsables = responsableRepository.findByTascaId(tascaId);
+		return tasca.getResponsables()
+				.stream()
+				.map(e -> responsableMapper.entityToDto(e))
+				.collect(Collectors.toList());
+	}
+
+    @Override
+    @Transactional
+	public List<ResponsableDto> setResponsables(Long tascaId, List<String> responsables) {
+    	List<ResponsableDto> responsablesDto = null;
+    	deleteResponsables(tascaId);
+    	if (responsables != null && responsables.size() > 0) {
+        	Tasca tasca = getTascaById(tascaId);
+    		Responsable responsable;
+    		for (String usuariCodi : responsables) {
+    			responsable = Responsable.builder()
+    					.usuariCodi(usuariCodi)
+    					.tasca(tasca)
+    					.build();
+    			tasca.getResponsables().add(responsable);
+    		}
+    		responsablesDto = responsableRepository.saveAll(tasca.getResponsables())
+    								.stream()
+    								.map(r -> responsableMapper.entityToDto(r))
+    								.collect(Collectors.toList());
+    	}
+    	return responsablesDto;
+	}
+
+    @Override
+    @Transactional
+	public void deleteResponsables(Long tascaId) {
+    	
+    	Tasca tasca = getTascaById(tascaId);
+        if (tasca.getResponsables().size() > 0) {
+        	for (Responsable responsable : tasca.getResponsables()) {
+            	responsableRepository.delete(responsable.getId());
+        	}
+        	tasca.getResponsables().clear();
+        }
+	}
 
 }
