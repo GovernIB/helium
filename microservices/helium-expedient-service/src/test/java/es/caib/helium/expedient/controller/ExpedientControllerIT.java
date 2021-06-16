@@ -102,7 +102,7 @@ class ExpedientControllerIT {
 		queryParams.put("nomesTasquesGrup", "true");
 		queryParams.put("nomesAlertes", "true");
 		queryParams.put("nomesErrors", "true");
-		queryParams.put("mostrarAnulats", "true");
+		queryParams.put("mostrarAnulats", "NOMES_ANULATS");
         
 		if (queryParams != null) {
 			for (String param : queryParams.keySet())

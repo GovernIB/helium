@@ -9,6 +9,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.rest.webmvc.json.patch.JsonPatchPatchConverter;
 import org.springframework.data.rest.webmvc.json.patch.Patch;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -31,6 +32,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import es.caib.helium.expedient.model.ExpedientDto;
 import es.caib.helium.expedient.model.ExpedientEstatTipusEnum;
+import es.caib.helium.expedient.model.MostrarAnulatsEnum;
 import es.caib.helium.expedient.service.ExpedientService;
 import es.caib.helium.ms.controller.ControllerHelper;
 import es.caib.helium.ms.model.PagedList;
@@ -66,24 +68,24 @@ public class ExpedientController {
     */
    @GetMapping(produces = { "application/json" })
    public ResponseEntity<PagedList<ExpedientDto>> findExpedientsAmbFiltrePaginatV1(
-           @RequestParam(value = "usuariCodi", required = false) String usuariCodi,
            @RequestParam(value = "entornId") Long entornId,
            @RequestParam(value = "filtre", required = false) String filtre,
+           @RequestParam(value = "usuariCodi", required = false) String usuariCodi,
            @RequestParam(value = "expedientTipusId", required = false) Long expedientTipusId,
            @RequestParam(value = "titol", required = false) String titol,
            @RequestParam(value = "numero", required = false) String numero,
-           @RequestParam(value = "dataInici1", required = false) Date dataInici1,
-           @RequestParam(value = "dataInici2", required = false) Date dataInici2,
-           @RequestParam(value = "dataFi1", required = false) Date dataFi1,
-           @RequestParam(value = "dataFi2", required = false) Date dataFi2,
+           @RequestParam(value = "dataInici1", required = false) @DateTimeFormat(pattern="dd/MM/yyyy") Date dataInici1,
+           @RequestParam(value = "dataInici2", required = false) @DateTimeFormat(pattern="dd/MM/yyyy") Date dataInici2,
+           @RequestParam(value = "dataFi1", required = false) @DateTimeFormat(pattern="dd/MM/yyyy") Date dataFi1,
+           @RequestParam(value = "dataFi2", required = false) @DateTimeFormat(pattern="dd/MM/yyyy") Date dataFi2,
            @RequestParam(value = "estatTipus", required = false) ExpedientEstatTipusEnum estatTipus,
            @RequestParam(value = "estatId", required = false) Long estatId,
            @RequestParam(value = "nomesTasquesPersonals", required = false, defaultValue = "false") boolean nomesTasquesPersonals,
            @RequestParam(value = "nomesTasquesGrup", required = false, defaultValue = "false") boolean nomesTasquesGrup,
            @RequestParam(value = "nomesAlertes", required = false, defaultValue = "false") boolean nomesAlertes,
            @RequestParam(value = "nomesErrors", required = false, defaultValue = "false") boolean nomesErrors,
-           @RequestParam(value = "mostrarAnulats", required = false) Boolean mostrarAnulats,
-           final Pageable pageable,
+           @RequestParam(value = "mostrarAnulats", required = false) MostrarAnulatsEnum mostrarAnulats,
+           final Pageable pageable,	
            final Sort sort) {
 
        log.debug("[CTR] llistant expedients: \n" +
