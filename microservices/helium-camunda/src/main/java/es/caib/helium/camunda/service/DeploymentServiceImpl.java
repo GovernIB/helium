@@ -6,6 +6,8 @@ import es.caib.helium.camunda.model.WDeployment;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.camunda.bpm.engine.RepositoryService;
+import org.camunda.bpm.engine.impl.persistence.entity.DeploymentEntity;
+import org.camunda.bpm.engine.impl.persistence.entity.ResourceEntity;
 import org.camunda.bpm.engine.repository.Deployment;
 import org.camunda.bpm.engine.repository.DeploymentBuilder;
 import org.camunda.bpm.engine.repository.DeploymentQuery;
@@ -63,6 +65,27 @@ public class DeploymentServiceImpl implements DeploymentService {
             try {
                 Path path = Paths.get(deploymentPath, nomArxiu);
                 Files.write(path, fitxer.getContingut());
+
+                // TODO: Consultar deployment ... tardarà un cert temps en desplegar-se
+                // | Filename Suffix    | Description                                                           |
+                // |--------------------|-----------------------------------------------------------------------|
+                // | .dodeploy 	        | El contingut s'ha de deplegar o redesplegar (Marker que crea l'usuari)|
+                // |--------------------|-----------------------------------------------------------------------|
+                // | .skipdeploy 	    | Disabilita l'auto-deploy (Marker que crea l'usuari)                   |
+                // |--------------------|-----------------------------------------------------------------------|
+                // | .isdeploying 	    | S'ha iniciat el desplegament                                          |
+                // |--------------------|-----------------------------------------------------------------------|
+                // | .deployed 	        | El contingut ha estat desplegat                                       |
+                // |--------------------|-----------------------------------------------------------------------|
+                // | .failed 	        | El desplegament ha fallat                                             |
+                // |--------------------|-----------------------------------------------------------------------|
+                // | .isundeploying     | S'ha iniciat l'eliminació del desplegament                            |
+                // |--------------------|-----------------------------------------------------------------------|
+                // | .undeployed 	    | S'ha eliminat el desplegament                                         |
+                // |--------------------|-----------------------------------------------------------------------|
+                // | .pending 	        | El desplegament està pausat pendent de resoldre algun error           |
+                // |--------------------|-----------------------------------------------------------------------|
+
             } catch (IOException e) {
                 throw new ResponseStatusException(
                         HttpStatus.INTERNAL_SERVER_ERROR,
@@ -108,6 +131,14 @@ public class DeploymentServiceImpl implements DeploymentService {
             Integer maxResults) {
 
         DeploymentQuery query = repositoryService.createDeploymentQuery();
+        // TODO: Aplicar filtres
+//                .deploymentId("")
+//                .deploymentName("")
+//                .deploymentNameLike("")
+//                .deploymentAfter(new Date())
+//                .deploymentBefore(new Date())
+//                .deploymentSource("")
+//                .tenantIdIn("");
 
         List<Deployment> desplegaments;
         if (firstResult == null && maxResults == null) {
@@ -124,7 +155,7 @@ public class DeploymentServiceImpl implements DeploymentService {
 
     @Override
     public WDeployment getDesplegament(String deploymentId) {
-        return null;
+        return deploymentMapper.toWDeployment(getDeployment(deploymentId));
     }
 
     @Override
@@ -134,17 +165,43 @@ public class DeploymentServiceImpl implements DeploymentService {
 
     @Override
     public Set<String> getResourceNames(String deploymentId) {
-        return null;
+        DeploymentEntity deployment = (DeploymentEntity) getDeployment(deploymentId);
+        Map<String, ResourceEntity> resources = deployment.getResources();
+        if (resources == null || resources.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Not found. Desplegament: " + deploymentId);
+        }
+        return resources.keySet();
     }
 
     @Override
     public byte[] getResourceBytes(String deploymentId, String resourceName) {
-        return new byte[0];
+        DeploymentEntity deployment = (DeploymentEntity) getDeployment(deploymentId);
+        ResourceEntity resource = deployment.getResource(resourceName);
+        if (resource == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Not found. Desplegament: " + deploymentId + "Recurs: " + resourceName);
+        }
+        return resource.getBytes();
     }
 
     @Override
     public void updateDeploymentActions(Long deploymentId, Map<String, byte[]> handlers) {
 
+    }
+
+
+
+    private Deployment getDeployment(String deploymentId) {
+        Deployment deployment = null;
+        try {
+            deployment = repositoryService.createDeploymentQuery()
+                    .deploymentId(deploymentId)
+                    .singleResult();
+        } catch (Exception ex) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error obtenint el desplegament amb id: " + deploymentId, ex);
+        }
+        if (deployment == null)
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Not found. Desplegament: " + deploymentId);
+        return deployment;
     }
 
 }
