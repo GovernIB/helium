@@ -1,14 +1,17 @@
 package es.caib.helium.integracio.service.validacio;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
+import org.apache.commons.lang.exception.ExceptionUtils;
 import org.fundaciobit.plugins.validatesignature.api.CertificateInfo;
 import org.fundaciobit.plugins.validatesignature.api.IValidateSignaturePlugin;
 import org.fundaciobit.plugins.validatesignature.api.SignatureDetailInfo;
 import org.fundaciobit.plugins.validatesignature.api.SignatureRequestedInformation;
 import org.fundaciobit.plugins.validatesignature.api.TimeStampInfo;
 import org.fundaciobit.plugins.validatesignature.api.ValidateSignatureRequest;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import es.caib.helium.integracio.domini.arxiu.ArxiuFirma;
 import es.caib.helium.integracio.domini.arxiu.ArxiuFirmaDetall;
@@ -17,28 +20,73 @@ import es.caib.helium.integracio.domini.validacio.VerificacioFirma;
 import es.caib.helium.integracio.enums.arxiu.ArxiuFirmaPerfilEnum;
 import es.caib.helium.integracio.enums.arxiu.NtiTipoFirmaEnum;
 import es.caib.helium.integracio.excepcions.validacio.ValidacioFirmaException;
+import es.caib.helium.integracio.service.monitor.MonitorIntegracionsService;
+import es.caib.helium.jms.domini.Parametre;
+import es.caib.helium.jms.enums.CodiIntegracio;
+import es.caib.helium.jms.enums.EstatAccio;
+import es.caib.helium.jms.enums.TipusAccio;
+import es.caib.helium.jms.events.IntegracioEvent;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class ValidacioFirmaServiceImpl implements ValidacioFirmaService {
 	
 	@Setter
 	private IValidateSignaturePlugin apiValidate;
 	@Setter
 	private SignaturaPlugin signaturaPlugin;
+	@Autowired
+	private MonitorIntegracionsService monitor;
 	
 	@Override
 	public RespostaValidacioSignatura verificarFirma(VerificacioFirma verificacio) throws ValidacioFirmaException {
 		
+		var t0 = System.currentTimeMillis();
+		var descripcio = "Verificació de firma";
+		List<Parametre> parametres = new ArrayList<>();
+		parametres.add(new Parametre("document.length", (verificacio.getDocumentContingut() != null ? verificacio.getDocumentContingut() : 0) + "bytes"));
+		parametres.add(new Parametre("signatura.length", (verificacio.getFirmaContingut() != null ? verificacio.getFirmaContingut() : 0) + "bytes"));
+		
 		try {
-			return signaturaPlugin.verificarSignatura(verificacio.getDocumentContingut(), verificacio.getFirmaContingut(), verificacio.isObtenirDadesCertificat());
+			var resposta = signaturaPlugin.verificarSignatura(verificacio.getDocumentContingut(), verificacio.getFirmaContingut(), verificacio.isObtenirDadesCertificat());
+			
+			monitor.enviarEvent(IntegracioEvent.builder()
+					.codi(CodiIntegracio.VALIDASIG)
+					.entornId(verificacio.getEntornId())
+					.descripcio(descripcio)
+					.data(new Date())
+					.tipus(TipusAccio.ENVIAMENT)
+					.estat(EstatAccio.OK)
+					.parametres(parametres)
+					.tempsResposta(System.currentTimeMillis() - t0).build());
+			
+			log.debug("Firma verificada correctament");
+			return resposta;
 		} catch(Exception ex) {
-			throw new ValidacioFirmaException("Error verificant la firma", ex);
+			
+			var error = "Error verificant la firma";
+			log.error(error, ex);
+			monitor.enviarEvent(IntegracioEvent.builder().codi(CodiIntegracio.VALIDASIG) 
+					.entornId(verificacio.getEntornId()) 
+					.descripcio(descripcio)
+					.tipus(TipusAccio.ENVIAMENT)
+					.estat(EstatAccio.ERROR)
+					.tempsResposta(System.currentTimeMillis() - t0)
+					.errorDescripcio(error)
+					.excepcioMessage(ex.getMessage())
+					.excepcioStacktrace(ExceptionUtils.getStackTrace(ex)).build());
+			throw new ValidacioFirmaException(error, ex);
 		}
 	}
 	
 	@Override
 	public List<ArxiuFirma> validarFirma(VerificacioFirma validacio) throws ValidacioFirmaException {
 	
+		List<Parametre> parametres = new ArrayList<>();
+		parametres.add(new Parametre("DocumentId", validacio.getDocumentStoreId() + ""));
+		var t0 = System.currentTimeMillis();
+		var descripcio = "Validar firma, obtenir informació de document firmat";
 		try {
 			var validationRequest = new ValidateSignatureRequest();
 			if (validacio.getFirmaContingut() != null) {
@@ -90,29 +138,44 @@ public class ValidacioFirmaServiceImpl implements ValidacioFirmaService {
 				firma.setTipusMime(validacio.getContentType());
 				firmes.add(firma);
 			}			
-//			monitorIntegracioHelper.addAccioOk(
-//					MonitorIntegracioHelper.INTCODI_VALIDASIG,
-//					accioDescripcio,
-//					IntegracioAccioTipusEnumDto.ENVIAMENT,
-//					System.currentTimeMillis() - t0,
-//					IntegracioParametreDto.toIntegracioParametres(accioParams));
-//			
+			monitor.enviarEvent(IntegracioEvent.builder()
+					.codi(CodiIntegracio.VALIDASIG)
+					.entornId(validacio.getEntornId())
+					.descripcio(descripcio)
+					.data(new Date())
+					.tipus(TipusAccio.ENVIAMENT)
+					.estat(EstatAccio.OK)
+					.parametres(parametres)
+					.tempsResposta(System.currentTimeMillis() - t0).build());
+			
+			log.debug("Firma validada correctament");
 			return firmes;
+			
 		} catch (Exception ex) {
-//			String errorDescripcio = ex.getMessage();
-//			monitorIntegracioHelper.addAccioError(
-//					MonitorIntegracioHelper.INTCODI_VALIDASIG,
-//					accioDescripcio,
-//					IntegracioAccioTipusEnumDto.ENVIAMENT,
-//					System.currentTimeMillis() - t0,
-//					errorDescripcio,
-//					ex,
-//					IntegracioParametreDto.toIntegracioParametres(accioParams));
+			
+			var error = "Error en el validar firma";
+			log.error(error, ex);
+			monitor.enviarEvent(IntegracioEvent.builder().codi(CodiIntegracio.VALIDASIG) 
+					.entornId(validacio.getEntornId()) 
+					.descripcio(descripcio)
+					.tipus(TipusAccio.ENVIAMENT)
+					.estat(EstatAccio.ERROR)
+					.tempsResposta(System.currentTimeMillis() - t0)
+					.errorDescripcio(error)
+					.excepcioMessage(ex.getMessage())
+					.excepcioStacktrace(ExceptionUtils.getStackTrace(ex)).build());
 			throw new ValidacioFirmaException("Error validant la firma", ex);
 		}
 	}
 	
 	public List<ArxiuFirmaDetall> validarSignaturaObtenirDetalls(VerificacioFirma validacio) throws ValidacioFirmaException {
+		
+		
+		var t0 = System.currentTimeMillis();
+		var descripcio = "Obtenir informació detallada del document firmat";
+		List<Parametre> parametres = new ArrayList<>();
+		parametres.add(new Parametre("documentContingut.length", (validacio.getDocumentContingut() != null ? validacio.getDocumentContingut().length : -1) + ""));
+		parametres.add(new Parametre("firmaContingut.length", (validacio.getFirmaContingut() != null ? validacio.getFirmaContingut().length : -1) + ""));
 		
 		try {
 			var validationRequest = new ValidateSignatureRequest();
@@ -150,25 +213,33 @@ public class ValidacioFirmaServiceImpl implements ValidacioFirmaService {
 					detalls.add(detall);
 				}
 			}			
-//			monitorIntegracioHelper.addAccioOk(
-//					MonitorIntegracioHelper.INTCODI_VALIDASIG,
-//					accioDescripcio,
-//					IntegracioAccioTipusEnumDto.ENVIAMENT,
-//					System.currentTimeMillis() - t0,
-//					IntegracioParametreDto.toIntegracioParametres(accioParams));
-//			
+			
+			monitor.enviarEvent(IntegracioEvent.builder()
+					.codi(CodiIntegracio.VALIDASIG)
+					.entornId(validacio.getEntornId())
+					.descripcio(descripcio)
+					.data(new Date())
+					.tipus(TipusAccio.ENVIAMENT)
+					.estat(EstatAccio.OK)
+					.parametres(parametres)
+					.tempsResposta(System.currentTimeMillis() - t0).build());
+
+			log.debug("Informació detallada del document firmat obtinguda correctament");
 			return detalls;
 		} catch (Exception ex) {
-//			String errorDescripcio = ex.getMessage();
-//			monitorIntegracioHelper.addAccioError(
-//					MonitorIntegracioHelper.INTCODI_VALIDASIG,
-//					accioDescripcio,
-//					IntegracioAccioTipusEnumDto.ENVIAMENT,
-//					System.currentTimeMillis() - t0,
-//					errorDescripcio,
-//					ex,
-//					IntegracioParametreDto.toIntegracioParametres(accioParams));
-			throw new ValidacioFirmaException("Error al validar signatura obtenir detalls", ex);
+			
+			var error = "Error al validar signatura obtenir detalls";
+			log.error(error, ex);
+			monitor.enviarEvent(IntegracioEvent.builder().codi(CodiIntegracio.VALIDASIG) 
+					.entornId(validacio.getEntornId()) 
+					.descripcio(descripcio)
+					.tipus(TipusAccio.ENVIAMENT)
+					.estat(EstatAccio.ERROR)
+					.tempsResposta(System.currentTimeMillis() - t0)
+					.errorDescripcio(error)
+					.excepcioMessage(ex.getMessage())
+					.excepcioStacktrace(ExceptionUtils.getStackTrace(ex)).build());
+			throw new ValidacioFirmaException(error, ex);
 		}
 	}
 	

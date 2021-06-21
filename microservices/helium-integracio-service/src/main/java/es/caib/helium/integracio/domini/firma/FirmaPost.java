@@ -4,11 +4,9 @@ import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 
 import es.caib.helium.integracio.enums.firma.FirmaTipus;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 
-@Getter
-@Setter
+@Data
 public class FirmaPost {
 	
 	@NotNull

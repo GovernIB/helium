@@ -10,12 +10,12 @@ import lombok.Setter;
 public class CustodiaRequest {
 
 	@NotNull 
-	private String id;
+	private String documentId;
 	private String gesDocId; //TODO Per la implementacio de Caib no es fa servir.
 	@NotNull
-	private String arxiuNom;
+	private String nomArxiuSignat;
 	@NotNull
-	private String tipusDocument;
+	private String codiTipusCustodia;
 	@NotNull
 	private byte[] signatura;
 }

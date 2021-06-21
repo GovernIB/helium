@@ -29,7 +29,9 @@ import es.caib.helium.integracio.domini.tramitacio.RespostaJustificantRecepcio;
 import es.caib.helium.integracio.domini.tramitacio.ResultatProcesTramitRequest;
 import es.caib.helium.integracio.service.tramitacio.TramitacioService;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @RestController
 @AllArgsConstructor
 @RequestMapping(TramitacioController.API_PATH)
@@ -47,12 +49,15 @@ public class TramitacioController {
 	}
 
 	@GetMapping(value = "{numRegistre}/justificant", produces = "application/json")
-	public ResponseEntity<RespostaJustificantRecepcio> getJustificant(@Valid @PathVariable("numRegistre") String numRegistre) throws Exception {
+	public ResponseEntity<RespostaJustificantRecepcio> getJustificant(
+			@Valid @PathVariable("numRegistre") String numRegistre,
+			@RequestParam("entornId") Long entornId) throws Exception {
 
+		log.info("Obtenint el justificant de recepcio");
 		if (Strings.isNullOrEmpty(numRegistre) ) {
 			return new ResponseEntity<RespostaJustificantRecepcio>(HttpStatus.BAD_REQUEST);
 		}
-		var justificant = tramitacioService.obtenirJustificantRecepcio(numRegistre);
+		var justificant = tramitacioService.obtenirJustificantRecepcio(numRegistre, entornId);
 		if (justificant == null) {
 			return new ResponseEntity<RespostaJustificantRecepcio>(justificant, HttpStatus.NOT_FOUND);
 		}
@@ -60,12 +65,15 @@ public class TramitacioController {
 	}
 
 	@GetMapping(value = "{numRegistre}/justificant/detall", produces = "application/json")
-	public ResponseEntity<RespostaJustificantDetallRecepcio> getJustificantDetall(@Valid @PathVariable("numRegistre") String numRegistre) throws Exception {
+	public ResponseEntity<RespostaJustificantDetallRecepcio> getJustificantDetall(
+			@Valid @PathVariable("numRegistre") String numRegistre,
+			@RequestParam("entornId") Long entornId) throws Exception {
 		
+		log.info("Obtenint el detall del justificant de recepcio");
 		if (Strings.isNullOrEmpty(numRegistre) ) {
 			return new ResponseEntity<RespostaJustificantDetallRecepcio>(HttpStatus.BAD_REQUEST);
 		}
-		var justificant = tramitacioService.obtenirJustificantDetallRecepcio(numRegistre);
+		var justificant = tramitacioService.obtenirJustificantDetallRecepcio(numRegistre, entornId);
 		if (justificant == null) {
 			return new ResponseEntity<RespostaJustificantDetallRecepcio>(justificant, HttpStatus.NOT_FOUND);
 		}
@@ -74,13 +82,17 @@ public class TramitacioController {
 	
 //	@GetMapping(value = "{numero}/dades/tramit", produces = "application/json")
 	@GetMapping(value = "dades/tramit", produces = "application/json")
-	public ResponseEntity<DadesTramit> getDadesTramit(@Valid @RequestParam("numero") String numero, @RequestParam("clau") String clau) throws Exception {
+	public ResponseEntity<DadesTramit> getDadesTramit(
+			@Valid @RequestParam("numero") String numero, 
+			@RequestParam("clau") String clau,
+			@RequestParam("entornId") Long entornId) throws Exception {
 		
+		log.info("Obtenint les dades del tramit");
 		if (Strings.isNullOrEmpty(numero) || Strings.isNullOrEmpty(clau)) {
 			return new ResponseEntity<DadesTramit>(HttpStatus.BAD_REQUEST);
 		}
 
-		var dadesTramit = tramitacioService.obtenirDadesTramit(numero, clau);
+		var dadesTramit = tramitacioService.obtenirDadesTramit(numero, clau, entornId);
 		if (dadesTramit == null) {
 			return new ResponseEntity<DadesTramit>(HttpStatus.NOT_FOUND);
 		}
@@ -88,13 +100,17 @@ public class TramitacioController {
 	}
 
 	@PostMapping(value = "vista/document", consumes = "application/json", produces = "application/json")
-	public ResponseEntity<DadesVistaDocument> obtenirVistaDocument(@Valid @RequestBody ObtenirVistaDocumentRequest request, BindingResult errors) throws Exception {
+	public ResponseEntity<DadesVistaDocument> obtenirVistaDocument(
+			@Valid @RequestBody ObtenirVistaDocumentRequest request, 
+			@RequestParam("entornId") Long entornId,
+			BindingResult errors) throws Exception {
 		
+		log.info("Obtenint vista document");
 		if (errors.hasErrors()) {
 			return new ResponseEntity<DadesVistaDocument>(HttpStatus.BAD_REQUEST);
 		}
 		
-		var vista = tramitacioService.obtenirVistaDocument(request);
+		var vista = tramitacioService.obtenirVistaDocument(request, entornId);
 		if (vista == null) {
 			return new ResponseEntity<DadesVistaDocument>(HttpStatus.NOT_FOUND);
 		}
@@ -102,52 +118,67 @@ public class TramitacioController {
 	}
 	
 	@PostMapping(value = "comunicar/resultat/proces", consumes = "application/json")
-	public ResponseEntity<Void> tramitacioComunicarResultatProces(@Valid @RequestBody ResultatProcesTramitRequest request, BindingResult errors) throws Exception {
+	public ResponseEntity<Void> tramitacioComunicarResultatProces(
+			@Valid @RequestBody ResultatProcesTramitRequest request, 
+			@RequestParam("entornId") Long entornId,
+			BindingResult errors) throws Exception {
 		
 		if (errors.hasErrors()) {
 			return new ResponseEntity<Void>(HttpStatus.BAD_REQUEST);
 		}
 		
-		if (tramitacioService.comunicarResultatProcesTramit(request)) {
+		if (tramitacioService.comunicarResultatProcesTramit(request, entornId)) {
 			return new ResponseEntity<Void>(HttpStatus.OK);
 		}
 		return new ResponseEntity<Void>(HttpStatus.CONFLICT);
 	}
 
 	@PostMapping(value = "zonaper/expedient/crear", consumes = "application/json")
-	public ResponseEntity<Void> crearExpedientZonaPersonal(@Valid @RequestBody PublicarExpedientRequest request, BindingResult errors) throws Exception {
+	public ResponseEntity<Void> crearExpedientZonaPersonal(
+			@Valid @RequestBody PublicarExpedientRequest request, 
+			@RequestParam("entornId") Long entornId,
+			BindingResult errors) throws Exception {
 		
+		log.info("Creant expedient zona personal");
 		if (errors.hasErrors()) {
 			return new ResponseEntity<Void>(HttpStatus.BAD_REQUEST);
 		}
 		
-		if (tramitacioService.crearExpedientZonaPersonal(request)) {
+		if (tramitacioService.crearExpedientZonaPersonal(request, entornId)) {
 			return new ResponseEntity<Void>(HttpStatus.OK);
 		}
 		return new ResponseEntity<Void>(HttpStatus.CONFLICT);
 	}
 	
 	@PostMapping(value = "zonaper/event/crear", consumes = "application/json")
-	public ResponseEntity<Void> crearEventZonaPersonal(@Valid @RequestBody PublicarEventRequest request, BindingResult errors) throws Exception {
+	public ResponseEntity<Void> crearEventZonaPersonal(
+			@Valid @RequestBody PublicarEventRequest request, 
+			@RequestParam("entornId") Long entornId,
+			BindingResult errors) throws Exception {
 		
+		log.info("Creant event zona personal");
 		if (errors.hasErrors()) {
 			return new ResponseEntity<Void>(HttpStatus.BAD_REQUEST);
 		}
 		
-		if (tramitacioService.crearEventZonaPersonal(request)) {
+		if (tramitacioService.crearEventZonaPersonal(request, entornId)) {
 			return new ResponseEntity<Void>(HttpStatus.OK);
 		}
 		return new ResponseEntity<Void>(HttpStatus.CONFLICT);
 	}
 
 	@PostMapping(value = "zonaper/notificacio/registrar", consumes = "application/json")
-	public ResponseEntity<RespostaAnotacioRegistre> registrarNotificacio(@Valid @RequestBody RegistreNotificacio notificacio, BindingResult errors) throws Exception {
+	public ResponseEntity<RespostaAnotacioRegistre> registrarNotificacio(
+			@Valid @RequestBody RegistreNotificacio notificacio, 
+			@RequestParam("entornId") Long entornId,
+			BindingResult errors) throws Exception {
 		
+		log.info("Registrant notificacio zona personal");
 		if (errors.hasErrors()) {
 			return new ResponseEntity<RespostaAnotacioRegistre>(HttpStatus.BAD_REQUEST);
 		}
 		
-		var registre = tramitacioService.registrarNotificacio(notificacio);
+		var registre = tramitacioService.registrarNotificacio(notificacio, entornId);
 		if (registre == null) {
 			return new ResponseEntity<RespostaAnotacioRegistre>(HttpStatus.NO_CONTENT);
 		}

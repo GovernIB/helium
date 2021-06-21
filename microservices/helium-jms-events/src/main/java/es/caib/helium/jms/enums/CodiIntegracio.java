@@ -1,0 +1,20 @@
+package es.caib.helium.jms.enums;
+
+public enum CodiIntegracio {
+
+	PERSONA,
+	SISTRA,
+	DISTRIBUCIO,
+	PFIRMA,
+	FIRMA,
+	CUSTODIA,
+	REGISTRE,
+	GESDOC,
+	CONVDOC,
+	FIRMA_SERV,
+	ARXIU,
+	NOTIB,
+	VALIDASIG,
+	UNITAT_ORGANICA,
+	TRAMITACIO_SISTRA;
+}

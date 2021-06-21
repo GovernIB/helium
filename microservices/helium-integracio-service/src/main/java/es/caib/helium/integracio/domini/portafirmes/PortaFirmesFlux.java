@@ -7,12 +7,13 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 
-@Getter
-@Setter
+@Data
 public class PortaFirmesFlux {
+	
+	@NotNull
+	private Long entornId;
 
 	private Long documentId;
 	@NotNull @Valid

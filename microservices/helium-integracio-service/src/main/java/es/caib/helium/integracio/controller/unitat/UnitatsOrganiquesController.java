@@ -11,12 +11,15 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import es.caib.helium.integracio.domini.unitat.UnitatOrganica;
 import es.caib.helium.integracio.service.unitat.UnitatsOrganiquesService;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @RestController
 @AllArgsConstructor
 @RequestMapping(UnitatsOrganiquesController.API_PATH)
@@ -34,9 +37,12 @@ public class UnitatsOrganiquesController {
 	}
 
 	@GetMapping(value = "{codi}", produces = "application/json")
-	public ResponseEntity<UnitatOrganica> consultaUnitat(@Valid @PathVariable("codi") String codi) throws Exception {
+	public ResponseEntity<UnitatOrganica> consultaUnitat(
+			@Valid @PathVariable("codi") String codi,
+			@RequestParam("entornId") Long entornId) throws Exception {
 
-		var unitat = unitatsService.consultaUnitat(codi);
+		log.info("Obtinguent unitats orgàniques segons codi");
+		var unitat = unitatsService.consultaUnitat(codi, entornId);
 		if (unitat == null) {
 			return new ResponseEntity<UnitatOrganica>(HttpStatus.NOT_FOUND);
 		}
@@ -44,9 +50,11 @@ public class UnitatsOrganiquesController {
 	}
 
 	@GetMapping(value = "{codi}/arbre", produces = "application/json")
-	public ResponseEntity<List<UnitatOrganica>> consultaArbre(@Valid @PathVariable("codi") String codi) throws Exception {
+	public ResponseEntity<List<UnitatOrganica>> consultaArbre(
+			@Valid @PathVariable("codi") String codi,
+			@RequestParam("entornId") Long entornId) throws Exception {
 
-		var unitat = unitatsService.findAmbPare(codi);
+		var unitat = unitatsService.findAmbPare(codi, entornId);
 		if (unitat == null) {
 			return new ResponseEntity<List<UnitatOrganica>>(HttpStatus.NOT_FOUND);
 		}

@@ -10,6 +10,7 @@ import java.util.List;
 
 import javax.xml.datatype.DatatypeFactory;
 
+import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -22,10 +23,14 @@ import es.caib.helium.integracio.domini.portafirmes.PersonaDto;
 import es.caib.helium.integracio.domini.portafirmes.PortaFirma;
 import es.caib.helium.integracio.domini.portafirmes.PortaFirmesFlux;
 import es.caib.helium.integracio.enums.portafirmes.TipusEstat;
-import es.caib.helium.integracio.excepcions.persones.PersonaServiceException;
+import es.caib.helium.integracio.excepcions.persones.PersonaException;
 import es.caib.helium.integracio.excepcions.portafirmes.PortaFirmesException;
 import es.caib.helium.integracio.service.persones.PersonaService;
 import es.caib.helium.integracio.utils.portafirmes.OpenOfficeUtils;
+import es.caib.helium.jms.enums.CodiIntegracio;
+import es.caib.helium.jms.enums.EstatAccio;
+import es.caib.helium.jms.enums.TipusAccio;
+import es.caib.helium.jms.events.IntegracioEvent;
 import es.caib.portafib.ws.api.v1.AnnexBean;
 import es.caib.portafib.ws.api.v1.BlocDeFirmesWs;
 import es.caib.portafib.ws.api.v1.FirmaBean;
@@ -59,34 +64,68 @@ public class PortaFirmaServicePortaFibImpl extends PortaFirmesServiceImpl {
 	private OpenOfficeUtils openOfficeUtils;
 	
 	@Override
-	public boolean cancelarEnviament(List<Long> documents) throws PortaFirmesException {
+	public boolean cancelarEnviament(List<Long> documents, Long entornId) throws PortaFirmesException {
 		
+		var descripcio = "Cancel·lació d'enviaments de documents";
+		var t0 = System.currentTimeMillis();
+		try {
 			if (documents == null || documents.isEmpty()) {
 				return false;
 			}
 			for (var documentId : documents) {
 				try {
 					peticioApi.deletePeticioDeFirma(documentId);
+					var portaFirma = portaFirmesRepository.getByDocumentId(documentId);
+					if (portaFirma == null) {
+						continue;
+					}
+					portaFirma.setEstat(TipusEstat.CANCELAT);
+					portaFirmesRepository.save(portaFirma); //TODO a Helium 3.2 nomes actualitza l'estat no ho guarda a bdd?
 				} catch (Exception ex) {
 					throw new PortaFirmesException("No s'ha pogut esborrar el document del portafirmes (id=" + documentId + ")", ex);
 				}
 			}
+			monitor.enviarEvent(IntegracioEvent.builder()
+					.codi(CodiIntegracio.PFIRMA)
+					.entornId(entornId)
+					.descripcio(descripcio)
+					.data(new Date())
+					.tipus(TipusAccio.ENVIAMENT)
+					.estat(EstatAccio.OK)
+					.tempsResposta(System.currentTimeMillis() - t0).build());
+			log.info("Enviaments cancelats");
 			return true;
+		} catch (Exception ex) {
+			var error = "Error esborrant els documents del portafirmes";
+			log.error(error, ex);
+			monitor.enviarEvent(IntegracioEvent.builder().codi(CodiIntegracio.PFIRMA) 
+					.entornId(entornId) 
+					.descripcio(descripcio)
+					.tipus(TipusAccio.ENVIAMENT)
+					.estat(EstatAccio.ERROR)
+					.tempsResposta(System.currentTimeMillis() - t0)
+					.errorDescripcio(error)
+					.excepcioMessage(ex.getMessage())
+					.excepcioStacktrace(ExceptionUtils.getStackTrace(ex)).build());
+			throw new PortaFirmesException(error, ex);
+		}
 	}
 
 	@Override
 	public boolean enviarPortaFirmes(PortaFirmesFlux document) throws PortaFirmesException {
 
-		var docPortaFirmes = getDocumentPortasignatures(document.getDocument(), document.getExpedientIdentificador());
-		var anexos = getAnnexosPortasignatures(document.getAnexos(), document.getExpedientIdentificador());
-		var passesSignatura = getPassesSignatura(
-				getSignatariIdPerPersona(document.getPersona()), 
-				document.getPersonesPas1(), document.getMinSignatarisPas1(), 
-				document.getPersonesPas2(), document.getMinSignatarisPas2(),
-				document.getPersonesPas3(), document.getMinSignatarisPas3());
-		var remitentNom = getRemitentNom(document.getExpedientIdentificador(), document.getCodiUsuari());
-		
+		var t0 = System.currentTimeMillis();
+		var descripcio = "Enviant document al portafirmes";
 		try {
+			var docPortaFirmes = getDocumentPortasignatures(document.getDocument(), document.getExpedientIdentificador());
+			var anexos = getAnnexosPortasignatures(document.getAnexos(), document.getExpedientIdentificador());
+			var passesSignatura = getPassesSignatura(
+					getSignatariIdPerPersona(document.getPersona()), 
+					document.getPersonesPas1(), document.getMinSignatarisPas1(), 
+					document.getPersonesPas2(), document.getMinSignatarisPas2(),
+					document.getPersonesPas3(), document.getMinSignatarisPas3());
+			var remitentNom = getRemitentNom(document.getExpedientIdentificador(), document.getCodiUsuari(), document.getEntornId());
+		
 			var resposta = uploadDocument(docPortaFirmes, anexos, false, passesSignatura, remitentNom,	 document.getImportancia(), document.getDataLimit());
 			var firma = new PortaFirma();
 			firma.setDocumentId(resposta);
@@ -99,12 +138,33 @@ public class PortaFirmaServicePortaFibImpl extends PortaFirmesServiceImpl {
 			firma.setExpedientId(document.getExpedientId());
 			firma.setProcessInstanceId(document.getProcessInstanceId().toString());
 			
-			guardar(firma);
+			guardar(firma, document.getEntornId());
+			
+			monitor.enviarEvent(IntegracioEvent.builder()
+					.codi(CodiIntegracio.PFIRMA)
+					.entornId(document.getEntornId())
+					.descripcio(descripcio)
+					.data(new Date())
+					.tipus(TipusAccio.ENVIAMENT)
+					.estat(EstatAccio.OK)
+					.tempsResposta(System.currentTimeMillis() - t0).build());
 			
 			return true;
-		} catch (Exception e) {
-			e.printStackTrace();
-			return false;
+		} catch (Exception ex) {
+			
+			var error = "Error al enviar document al portafirmes ";
+			log.error(error, ex);
+			monitor.enviarEvent(IntegracioEvent.builder().codi(CodiIntegracio.PFIRMA) 
+					.entornId(document.getEntornId()) 
+					.descripcio(descripcio)
+					.tipus(TipusAccio.ENVIAMENT)
+					.estat(EstatAccio.ERROR)
+					.tempsResposta(System.currentTimeMillis() - t0)
+					.errorDescripcio(error)
+					.excepcioMessage(ex.getMessage())
+					.excepcioStacktrace(ExceptionUtils.getStackTrace(ex)).build());
+			
+			throw new PortaFirmesException(error, ex);
 		}
 	}
 	
@@ -127,11 +187,9 @@ public class PortaFirmaServicePortaFibImpl extends PortaFirmesServiceImpl {
 			requestPeticioDeFirmaWs.setMotiu("Firma de document");
 			if (document.getTipus() != null) {
 				requestPeticioDeFirmaWs.setTipusDocumentID(
-						new Long(document.getTipus().intValue()).longValue());
+						Long.valueOf(document.getTipus().intValue()));
 			} else {
-				throw new PortaFirmesException(
-						"El tipus de document not pot estar buit." +
-						" Els tipus permesos son: " + getDocumentTipusStr());
+				throw new PortaFirmesException("El tipus de document not pot estar buit." + " Els tipus permesos son: " + getDocumentTipusStr());
 			}
 			requestPeticioDeFirmaWs.setRemitentNom(remitent);
 			requestPeticioDeFirmaWs.setDescripcio(document.getDescripcio());
@@ -158,15 +216,10 @@ public class PortaFirmaServicePortaFibImpl extends PortaFirmesServiceImpl {
 				requestPeticioDeFirmaWs.setDataCaducitat(
 						new java.sql.Timestamp(gcal.getTime().getTime()));
 			}
-			requestPeticioDeFirmaWs.setFluxDeFirmes(
-					toFluxDeFirmes(
-							Arrays.asList(passesSignatura),
-							null));
-			requestPeticioDeFirmaWs.setFitxerAFirmar(
-					toFitxerBean(document));
+			requestPeticioDeFirmaWs.setFluxDeFirmes(toFluxDeFirmes(Arrays.asList(passesSignatura),	null));
+			requestPeticioDeFirmaWs.setFitxerAFirmar(toFitxerBean(document));
 			
-			requestPeticioDeFirmaWs.setModeDeFirma(
-					new Boolean(false));
+			requestPeticioDeFirmaWs.setModeDeFirma(false);
 			requestPeticioDeFirmaWs.setIdiomaID("ca");
 
 			// Afegeix els annexos
@@ -229,7 +282,7 @@ public class PortaFirmaServicePortaFibImpl extends PortaFirmesServiceImpl {
 		
 		FluxDeFirmesWs fluxWs;
 		if (plantillaFluxId != null && passes == null) {
-			return  peticioApi.instantiatePlantillaFluxDeFirmes(new Long(plantillaFluxId).longValue());
+			return  peticioApi.instantiatePlantillaFluxDeFirmes(Long.valueOf(plantillaFluxId));
 		} 
 		
 		fluxWs = new FluxDeFirmesWs();
@@ -258,7 +311,7 @@ public class PortaFirmaServicePortaFibImpl extends PortaFirmesServiceImpl {
 	}
 
 	
-	public String getDocumentTipusStr() throws MalformedURLException, WsI18NException {
+	private String getDocumentTipusStr() throws MalformedURLException, WsI18NException {
 		
 		StringBuilder sb = new StringBuilder();
 		List<TipusDocumentInfoWs> tipusLlistat = peticioApi.getTipusDeDocuments("ca");
@@ -272,12 +325,12 @@ public class PortaFirmaServicePortaFibImpl extends PortaFirmesServiceImpl {
 		return sb.toString();
 	}
 	
-	private String getRemitentNom(String expedient, String codiUsuari) {
+	private String getRemitentNom(String expedient, String codiUsuari, Long entornId) {
 		
 		String remitent = "Helium. " + expedient;
 		try {
 			if (codiUsuari != null) {
-				PersonaDto persona = this.personaFindAmbCodi(codiUsuari);
+				PersonaDto persona = this.personaFindAmbCodi(codiUsuari, entornId);
 				if (persona != null && persona.getNomSencer() != null && !"".equals(persona.getNomSencer())) {
 					remitent = persona.getNomSencer();
 				} else {
@@ -290,7 +343,7 @@ public class PortaFirmaServicePortaFibImpl extends PortaFirmesServiceImpl {
 		return StringUtils.abbreviate(remitent, PORTASIGNATURES_REMITENT_MAX_LENGTH);
 	}
 	
-	public PersonaDto personaFindAmbCodi(String codi) throws PortaFirmesException {
+	private PersonaDto personaFindAmbCodi(String codi, Long entornId) throws PortaFirmesException {
 
 		// TODO FALTA IMPLEMENTAR LA CACHE A PERSONES !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 //		Cache personaCache = cacheManager.getCache(CACHE_PERSONA_ID);
@@ -298,9 +351,8 @@ public class PortaFirmaServicePortaFibImpl extends PortaFirmesServiceImpl {
 //			return (PersonaDto) personaCache.get(codi).get();
 //		}
 		
-		long t0 = System.currentTimeMillis();
 		try {
-			Persona dadesPersona = personaService.getPersonaByCodi(codi);
+			Persona dadesPersona = personaService.getPersonaByCodi(codi, entornId);
 //			monitorIntegracioHelper.addAccioOk(MonitorIntegracioHelper.INTCODI_PERSONA,
 //					"Consulta d'usuari amb codi", IntegracioAccioTipusEnumDto.ENVIAMENT,
 //					System.currentTimeMillis() - t0, new IntegracioParametreDto("codi", codi));
@@ -311,7 +363,7 @@ public class PortaFirmaServicePortaFibImpl extends PortaFirmesServiceImpl {
 			PersonaDto dto = new PersonaDto(dadesPersona);
 //				personaCache.put(codi, dto); // TODO FALTA IMPLEMENTAR CACHE DE PERSONES!!!!!!!!!
 			return dto;
-		} catch (PersonaServiceException ex) {
+		} catch (PersonaException ex) {
 //			monitorIntegracioHelper.addAccioError(MonitorIntegracioHelper.INTCODI_PERSONA,
 //					"Consulta d'usuari amb codi", IntegracioAccioTipusEnumDto.ENVIAMENT,
 //					System.currentTimeMillis() - t0, "El plugin ha retornat una excepció", ex,

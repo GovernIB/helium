@@ -5,6 +5,8 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
+import org.apache.commons.lang.exception.ExceptionUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.netflix.servo.util.Strings;
@@ -17,6 +19,12 @@ import es.caib.helium.integracio.enums.arxiu.NtiEstadoElaboracionEnum;
 import es.caib.helium.integracio.enums.arxiu.NtiOrigenEnum;
 import es.caib.helium.integracio.enums.arxiu.NtiTipoDocumentalEnum;
 import es.caib.helium.integracio.excepcions.arxiu.ArxiuException;
+import es.caib.helium.integracio.service.monitor.MonitorIntegracionsService;
+import es.caib.helium.jms.domini.Parametre;
+import es.caib.helium.jms.enums.CodiIntegracio;
+import es.caib.helium.jms.enums.EstatAccio;
+import es.caib.helium.jms.enums.TipusAccio;
+import es.caib.helium.jms.events.IntegracioEvent;
 import es.caib.plugins.arxiu.api.ContingutOrigen;
 import es.caib.plugins.arxiu.api.Document;
 import es.caib.plugins.arxiu.api.DocumentContingut;
@@ -34,71 +42,254 @@ import es.caib.plugins.arxiu.api.FirmaPerfil;
 import es.caib.plugins.arxiu.api.FirmaTipus;
 import es.caib.plugins.arxiu.api.IArxiuPlugin;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 public class ArxiuServiceCaibImpl implements ArxiuService {
 
 	@Setter
 	private IArxiuPlugin api;
+	@Autowired
+	private MonitorIntegracionsService monitor;
 	
 	@Override
-	public Expedient getExpedient(String uuId) throws ArxiuException {
+	public Expedient getExpedient(String uuId, Long entornId) throws ArxiuException {
 
+		List<Parametre> parametres = new ArrayList<>();
+		parametres.add(new Parametre("uuId", uuId));
+		var t0 = System.currentTimeMillis();
+		var descripcio = "Obtinguent detall de l'expedient";
 		try {
-			return api.expedientDetalls(uuId, null);
+			var expedient = api.expedientDetalls(uuId, null);
+			
+			monitor.enviarEvent(IntegracioEvent.builder()
+					.codi(CodiIntegracio.ARXIU)
+					.entornId(entornId)
+					.descripcio(descripcio)
+					.data(new Date())
+					.tipus(TipusAccio.ENVIAMENT)
+					.estat(EstatAccio.OK)
+					.parametres(parametres)
+					.tempsResposta(System.currentTimeMillis() - t0).build());
+			
+			log.debug("Detalls de l'expedient consutats correctament");
+			return expedient;
+			
 		} catch(Exception ex) {
-			throw new ArxiuException("Error obtinguent els detalls de l'expedient " + uuId + " a l'arxiu", ex);
+			var error = "Error obtinguent els detalls de l'expedient a l'arxiu";
+			log.error(error, ex);
+			monitor.enviarEvent(IntegracioEvent.builder().codi(CodiIntegracio.ARXIU) 
+					.entornId(entornId) 
+					.descripcio(descripcio)
+					.tipus(TipusAccio.ENVIAMENT)
+					.estat(EstatAccio.ERROR)
+					.parametres(parametres)
+					.tempsResposta(System.currentTimeMillis() - t0)
+					.errorDescripcio(error)
+					.excepcioMessage(ex.getMessage())
+					.excepcioStacktrace(ExceptionUtils.getStackTrace(ex)).build());
+			throw new ArxiuException(error, ex);
 		}
 	}
 
 	@Override
-	public boolean crearExpedient(ExpedientArxiu expedientArxiu) throws ArxiuException {
+	public boolean crearExpedient(ExpedientArxiu expedientArxiu, Long entornId) throws ArxiuException {
+		
+		List<Parametre> parametres = new ArrayList<>();
+		parametres.add(new Parametre("identificador", expedientArxiu.getIdentificador()));
+		var t0 = System.currentTimeMillis();
+		var descripcio = "Crear expedient a l'arxiu";
 		try {
-			return  api.expedientCrear(toExpedient(expedientArxiu)) != null;
-		} catch (Exception e) {
-			throw new ArxiuException("Error al crear l'expedient " + expedientArxiu.getIdentificador() + " a l'arxiu", e);
+			var expedient =  api.expedientCrear(toExpedient(expedientArxiu));
+			
+			monitor.enviarEvent(IntegracioEvent.builder()
+					.codi(CodiIntegracio.ARXIU)
+					.entornId(entornId)
+					.descripcio(descripcio)
+					.data(new Date())
+					.tipus(TipusAccio.ENVIAMENT)
+					.estat(EstatAccio.OK)
+					.parametres(parametres)
+					.tempsResposta(System.currentTimeMillis() - t0).build());
+			
+			log.debug("Expedient creat correctament a l'arxiu");
+			return expedient != null;
+			
+		} catch (Exception ex) {
+			
+			var error = "Error al crear l'expedient a l'arxiu";
+			log.error(error, ex);
+			monitor.enviarEvent(IntegracioEvent.builder().codi(CodiIntegracio.ARXIU) 
+					.entornId(entornId) 
+					.descripcio(descripcio)
+					.tipus(TipusAccio.ENVIAMENT)
+					.estat(EstatAccio.ERROR)
+					.parametres(parametres)
+					.tempsResposta(System.currentTimeMillis() - t0)
+					.errorDescripcio(error)
+					.excepcioMessage(ex.getMessage())
+					.excepcioStacktrace(ExceptionUtils.getStackTrace(ex)).build());
+			throw new ArxiuException(error, ex);
 		}
 	}	
 
 	@Override
-	public boolean modificarExpedient(ExpedientArxiu expedientArxiu) throws ArxiuException {
+	public boolean modificarExpedient(ExpedientArxiu expedientArxiu, Long entornId) throws ArxiuException {
 		
+		List<Parametre> parametres = new ArrayList<>();
+		parametres.add(new Parametre("identificador", expedientArxiu.getIdentificador()));
+		var t0 = System.currentTimeMillis();
+		var descripcio = "Modificar expedient a l'arxiu";
 		try {
-			return  api.expedientCrear(toExpedient(expedientArxiu)) != null;
-		} catch (Exception e) {
-			throw new ArxiuException("Error al modificar l'expedient " + expedientArxiu.getIdentificador() + " a l'arxiu", e);
+			var expedient =  api.expedientCrear(toExpedient(expedientArxiu));
+		
+			monitor.enviarEvent(IntegracioEvent.builder()
+					.codi(CodiIntegracio.ARXIU)
+					.entornId(entornId)
+					.descripcio(descripcio)
+					.data(new Date())
+					.tipus(TipusAccio.ENVIAMENT)
+					.estat(EstatAccio.OK)
+					.parametres(parametres)
+					.tempsResposta(System.currentTimeMillis() - t0).build());
+			
+			log.debug("Expedient modificat correctament a l'arxiu");
+			return expedient != null;
+		
+		} catch (Exception ex) {
+			var error = "Error al modificar l'expedient a l'arxiu";
+			log.error(error, ex);
+			monitor.enviarEvent(IntegracioEvent.builder().codi(CodiIntegracio.ARXIU) 
+					.entornId(entornId) 
+					.descripcio(descripcio)
+					.tipus(TipusAccio.ENVIAMENT)
+					.estat(EstatAccio.ERROR)
+					.parametres(parametres)
+					.tempsResposta(System.currentTimeMillis() - t0)
+					.errorDescripcio(error)
+					.excepcioMessage(ex.getMessage())
+					.excepcioStacktrace(ExceptionUtils.getStackTrace(ex)).build());
+			throw new ArxiuException(error, ex);
 		}
 	}
 
 	@Override
-	public boolean deleteExpedient(String uuId) throws ArxiuException {
+	public boolean deleteExpedient(String uuId, Long entornId) throws ArxiuException {
 
+		List<Parametre> parametres = new ArrayList<>();
+		parametres.add(new Parametre("uuId", uuId));
+		var t0 = System.currentTimeMillis();
+		var descripcio = "Esborrar expedient a l'arxiu";
 		try {
 			api.expedientEsborrar(uuId);
+			
+			monitor.enviarEvent(IntegracioEvent.builder()
+					.codi(CodiIntegracio.ARXIU)
+					.entornId(entornId)
+					.descripcio(descripcio)
+					.data(new Date())
+					.tipus(TipusAccio.ENVIAMENT)
+					.estat(EstatAccio.OK)
+					.parametres(parametres)
+					.parametres(parametres)
+					.tempsResposta(System.currentTimeMillis() - t0).build());
+			
 			return true;
+			
 		} catch (Exception ex) {
-			throw new ArxiuException("Error esborrant l'expedient " + uuId, ex);
+			var error = "Error al esborrar l'expedient a l'arxiu";
+			log.error(error, ex);
+			monitor.enviarEvent(IntegracioEvent.builder().codi(CodiIntegracio.ARXIU) 
+					.entornId(entornId) 
+					.descripcio(descripcio)
+					.tipus(TipusAccio.ENVIAMENT)
+					.estat(EstatAccio.ERROR)
+					.parametres(parametres)
+					.tempsResposta(System.currentTimeMillis() - t0)
+					.errorDescripcio(error)
+					.excepcioMessage(ex.getMessage())
+					.excepcioStacktrace(ExceptionUtils.getStackTrace(ex)).build());
+			throw new ArxiuException(error, ex);
 		}
 	}
 
 	@Override
-	public boolean obrirExpedient(String uuId) throws ArxiuException {
+	public boolean obrirExpedient(String uuId, Long entornId) throws ArxiuException {
 		
+		List<Parametre> parametres = new ArrayList<>();
+		parametres.add(new Parametre("uuId", uuId));
+		var t0 = System.currentTimeMillis();
+		var descripcio = "Obrir expedient a l'arxiu";
 		try {
 			api.expedientReobrir(uuId);
+			
+			monitor.enviarEvent(IntegracioEvent.builder()
+					.codi(CodiIntegracio.ARXIU)
+					.entornId(entornId)
+					.descripcio(descripcio)
+					.data(new Date())
+					.tipus(TipusAccio.ENVIAMENT)
+					.estat(EstatAccio.OK)
+					.parametres(parametres)
+					.tempsResposta(System.currentTimeMillis() - t0).build());
+			
 			return true;
+			
 		} catch (Exception ex) {
-			throw new ArxiuException("Error obrint l'expedient " + uuId, ex);
+			var error = "Error al obrir l'expedient a l'arxiu";
+			log.error(error, ex);
+			monitor.enviarEvent(IntegracioEvent.builder().codi(CodiIntegracio.ARXIU) 
+					.entornId(entornId) 
+					.descripcio(descripcio)
+					.tipus(TipusAccio.ENVIAMENT)
+					.estat(EstatAccio.ERROR)
+					.parametres(parametres)
+					.tempsResposta(System.currentTimeMillis() - t0)
+					.errorDescripcio(error)
+					.excepcioMessage(ex.getMessage())
+					.excepcioStacktrace(ExceptionUtils.getStackTrace(ex)).build());
+			throw new ArxiuException(error, ex);
 		}
 	}
 
 	@Override
-	public boolean tancarExpedient(String uuId) throws ArxiuException {
+	public boolean tancarExpedient(String uuId, Long entornId) throws ArxiuException {
 		
+		List<Parametre> parametres = new ArrayList<>();
+		parametres.add(new Parametre("uuId", uuId));
+		var t0 = System.currentTimeMillis();
+		var descripcio = "Tancar expedient a l'arxiu";
 		try {
-			return api.expedientTancar(uuId) != null;
+			
+			var expedient = api.expedientTancar(uuId);
+			
+			monitor.enviarEvent(IntegracioEvent.builder()
+					.codi(CodiIntegracio.ARXIU)
+					.entornId(entornId)
+					.descripcio(descripcio)
+					.data(new Date())
+					.tipus(TipusAccio.ENVIAMENT)
+					.estat(EstatAccio.OK)
+					.parametres(parametres)
+					.tempsResposta(System.currentTimeMillis() - t0).build());
+			
+			return expedient != null;
+			
 		} catch (Exception ex) {
-			throw new ArxiuException("Error tencant l'expedient " + uuId, ex);
+			var error = "Error al tancar l'expedient a l'arxiu";
+			log.error(error, ex);
+			monitor.enviarEvent(IntegracioEvent.builder().codi(CodiIntegracio.ARXIU) 
+					.entornId(entornId) 
+					.descripcio(descripcio)
+					.tipus(TipusAccio.ENVIAMENT)
+					.estat(EstatAccio.ERROR)
+					.parametres(parametres)
+					.tempsResposta(System.currentTimeMillis() - t0)
+					.errorDescripcio(error)
+					.excepcioMessage(ex.getMessage())
+					.excepcioStacktrace(ExceptionUtils.getStackTrace(ex)).build());
+			throw new ArxiuException(error, ex);
 		}
 	}
 	
@@ -132,11 +323,29 @@ public class ArxiuServiceCaibImpl implements ArxiuService {
 	}
 
 	@Override
-	public Document getDocument(String uuId, String versio, boolean ambContingut, boolean isSignat) throws ArxiuException {
+	public Document getDocument(String uuId, String versio, boolean ambContingut, boolean isSignat, Long entornId) throws ArxiuException {
 		
+		List<Parametre> parametres = new ArrayList<>();
+		parametres.add(new Parametre("uuId", uuId));
+		parametres.add(new Parametre("versio", versio));
+		parametres.add(new Parametre("ambContingut", String.valueOf(ambContingut)));
+		parametres.add(new Parametre("isSignat", String.valueOf(isSignat)));
+		var t0 = System.currentTimeMillis();
+		var descripcio = "Obtenir document de l'arxiu";
 		try {
 			var document = api.documentDetalls(uuId, versio, ambContingut);
 			if (!ambContingut) {
+				monitor.enviarEvent(IntegracioEvent.builder()
+						.codi(CodiIntegracio.ARXIU)
+						.entornId(entornId)
+						.descripcio(descripcio)
+						.data(new Date())
+						.tipus(TipusAccio.ENVIAMENT)
+						.estat(EstatAccio.OK)
+						.parametres(parametres)
+						.tempsResposta(System.currentTimeMillis() - t0).build());
+				
+				log.debug("Document sense contingut obtingut correctament de l'arxiu");
 				return document;
 			}
 			
@@ -160,26 +369,86 @@ public class ArxiuServiceCaibImpl implements ArxiuService {
 				}
 			}
 			
+			monitor.enviarEvent(IntegracioEvent.builder()
+					.codi(CodiIntegracio.ARXIU)
+					.entornId(entornId)
+					.descripcio(descripcio)
+					.data(new Date())
+					.tipus(TipusAccio.ENVIAMENT)
+					.estat(EstatAccio.OK)
+					.parametres(parametres)
+					.tempsResposta(System.currentTimeMillis() - t0).build());
+			
+			log.debug("Document obtingut correctament de l'arxiu");
 			return document; 
+			
 		} catch (Exception ex) {
-			throw new ArxiuException("Error cercant el document", ex);
+			var error = "Error obtenint el document de l'arxiu";
+			log.error(error, ex);
+			monitor.enviarEvent(IntegracioEvent.builder().codi(CodiIntegracio.ARXIU) 
+					.entornId(entornId) 
+					.descripcio(descripcio)
+					.tipus(TipusAccio.ENVIAMENT)
+					.estat(EstatAccio.ERROR)
+					.parametres(parametres)
+					.tempsResposta(System.currentTimeMillis() - t0)
+					.errorDescripcio(error)
+					.excepcioMessage(ex.getMessage())
+					.excepcioStacktrace(ExceptionUtils.getStackTrace(ex)).build());
+			throw new ArxiuException(error, ex);
 		}
 	}
 
 	@Override
-	public boolean deleteDocument(String uuId) throws ArxiuException {
+	public boolean deleteDocument(String uuId, Long entornId) throws ArxiuException {
 		
+		List<Parametre> parametres = new ArrayList<>();
+		parametres.add(new Parametre("uuId", uuId));
+		var t0 = System.currentTimeMillis();
+		var descripcio = "Esborrar document de l'arxiu";
 		try {
 			api.documentEsborrar(uuId);
+			
+			monitor.enviarEvent(IntegracioEvent.builder()
+					.codi(CodiIntegracio.ARXIU)
+					.entornId(entornId)
+					.descripcio(descripcio)
+					.data(new Date())
+					.tipus(TipusAccio.ENVIAMENT)
+					.estat(EstatAccio.OK)
+					.parametres(parametres)
+					.tempsResposta(System.currentTimeMillis() - t0).build());
+			
+			log.debug("Document esborrat de l'arxiu correctament");
 			return true;
-		} catch (Exception e) {
-			throw new ArxiuException("Error esborrant el document" + uuId, e);
+			
+		} catch (Exception ex) {
+			var error = "Error esborrant el document";
+			log.error(error, ex);
+			monitor.enviarEvent(IntegracioEvent.builder().codi(CodiIntegracio.ARXIU) 
+					.entornId(entornId) 
+					.descripcio(descripcio)
+					.tipus(TipusAccio.ENVIAMENT)
+					.estat(EstatAccio.ERROR)
+					.parametres(parametres)
+					.tempsResposta(System.currentTimeMillis() - t0)
+					.errorDescripcio(error)
+					.excepcioMessage(ex.getMessage())
+					.excepcioStacktrace(ExceptionUtils.getStackTrace(ex)).build());
+			throw new ArxiuException(error, ex);
 		}
 	}
 	
 	@Override
-	public boolean crearDocument(DocumentArxiu document) throws ArxiuException {
+	public boolean crearDocument(DocumentArxiu document, Long entornId) throws ArxiuException {
 
+		List<Parametre> parametres = new ArrayList<>();
+		parametres.add(new Parametre("identificador", document.getIdentificador()));
+		parametres.add(new Parametre("documentNom", document.getNom()));
+		parametres.add(new Parametre("arxiuNom", document.getArxiu().getNom()));
+		parametres.add(new Parametre("arxiuTamany", document.getArxiu().getTamany() + ""));
+		var t0 = System.currentTimeMillis();
+		var descripcio = "Crear document de l'arxiu";
 		try {
 			String nomAmbExtensio = document.getNom() + "." + document.getArxiu().getExtensio();
 			var arxiuDoc = toArxiuDocument(
@@ -198,15 +467,47 @@ public class ArxiuServiceCaibImpl implements ArxiuService {
 					document.getNtiIdDocumentOrigen(),
 					getExtensioPerArxiu(document.getArxiu()),
 					document.getFirmes() != null ? DocumentEstat.DEFINITIU : DocumentEstat.ESBORRANY);
-			return api.documentCrear(arxiuDoc, document.getUuid()) != null;
+			var arxiu = api.documentCrear(arxiuDoc, document.getUuid()) != null;
+			
+			monitor.enviarEvent(IntegracioEvent.builder()
+					.codi(CodiIntegracio.ARXIU)
+					.entornId(entornId)
+					.descripcio(descripcio)
+					.data(new Date())
+					.tipus(TipusAccio.ENVIAMENT)
+					.estat(EstatAccio.OK)
+					.parametres(parametres)
+					.tempsResposta(System.currentTimeMillis() - t0).build());
+			
+			log.debug("Document creat correctament a l'arxiu");
+			return arxiu;
+			
 		} catch (Exception ex) {
-			throw new ArxiuException("Error creant el document", ex);
+			var error = "Error creant el document";
+			log.error(error, ex);
+			monitor.enviarEvent(IntegracioEvent.builder().codi(CodiIntegracio.ARXIU) 
+					.entornId(entornId) 
+					.descripcio(descripcio)
+					.tipus(TipusAccio.ENVIAMENT)
+					.estat(EstatAccio.ERROR)
+					.tempsResposta(System.currentTimeMillis() - t0)
+					.errorDescripcio(error)
+					.excepcioMessage(ex.getMessage())
+					.excepcioStacktrace(ExceptionUtils.getStackTrace(ex)).build());
+			throw new ArxiuException(error, ex);
 		}
 	}
 
 	@Override
-	public boolean modificarDocument(DocumentArxiu document) throws ArxiuException {
+	public boolean modificarDocument(DocumentArxiu document, Long entornId) throws ArxiuException {
 		
+		List<Parametre> parametres = new ArrayList<>();
+		parametres.add(new Parametre("identificador", document.getIdentificador()));
+		parametres.add(new Parametre("documentNom", document.getNom()));
+		parametres.add(new Parametre("arxiuNom", document.getArxiu().getNom()));
+		parametres.add(new Parametre("arxiuTamany", document.getArxiu().getTamany() + ""));
+		var t0 = System.currentTimeMillis();
+		var descripcio = "Crear document de l'arxiu";
 		try {
 			String nomAmbExtensio = document.getNom() + "." + document.getArxiu().getExtensio();
 			var arxiuDoc = toArxiuDocument(
@@ -225,9 +526,34 @@ public class ArxiuServiceCaibImpl implements ArxiuService {
 					document.getNtiIdDocumentOrigen(),
 					getExtensioPerArxiu(document.getArxiu()),
 					document.getEstat() );
-			return api.documentModificar(arxiuDoc) != null;
+			var doc = api.documentModificar(arxiuDoc);
+			
+			monitor.enviarEvent(IntegracioEvent.builder()
+					.codi(CodiIntegracio.ARXIU)
+					.entornId(entornId)
+					.descripcio(descripcio)
+					.data(new Date())
+					.tipus(TipusAccio.ENVIAMENT)
+					.estat(EstatAccio.OK)
+					.parametres(parametres)
+					.tempsResposta(System.currentTimeMillis() - t0).build());
+			
+			log.debug("Document modificat correctament");
+			return doc != null;
+			
 		} catch (Exception ex) {
-			throw new ArxiuException("Error creant el document", ex);
+			var error = "Error modificant el document";
+			log.error(error, ex);
+			monitor.enviarEvent(IntegracioEvent.builder().codi(CodiIntegracio.ARXIU) 
+					.entornId(entornId) 
+					.descripcio(descripcio)
+					.tipus(TipusAccio.ENVIAMENT)
+					.estat(EstatAccio.ERROR)
+					.tempsResposta(System.currentTimeMillis() - t0)
+					.errorDescripcio(error)
+					.excepcioMessage(ex.getMessage())
+					.excepcioStacktrace(ExceptionUtils.getStackTrace(ex)).build());
+			throw new ArxiuException(error, ex);
 		}
 	}
 	
