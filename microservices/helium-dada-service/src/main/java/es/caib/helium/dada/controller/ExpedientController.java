@@ -32,7 +32,7 @@ import lombok.AllArgsConstructor;
 @RequestMapping(ExpedientController.API_PATH)
 public class ExpedientController {
 
-	public static final String API_PATH = "/api/v1/expedients";
+	public static final String API_PATH = "/api/v1/dades/expedients";
 
 	private final ExpedientService expedientService;
 

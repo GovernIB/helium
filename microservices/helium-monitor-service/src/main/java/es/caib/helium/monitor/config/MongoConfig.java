@@ -1,4 +1,4 @@
-package es.caib.helium.dada.config;
+package es.caib.helium.monitor.config;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -19,7 +19,7 @@ import com.mongodb.client.MongoClients;
  * Necessaria per poder utilitzar @Transaction en els repositoris custom. 
  */
 @Configuration
-@EnableMongoRepositories(basePackages = "es.caib.helium.dada.repository")
+@EnableMongoRepositories(basePackages = "es.caib.helium.monitor.repository")
 public class MongoConfig extends AbstractMongoClientConfiguration {
 
 	@Autowired
@@ -38,7 +38,7 @@ public class MongoConfig extends AbstractMongoClientConfiguration {
 	@Override
 	public MongoClient mongoClient() {
 		
-		var connectionString = new ConnectionString(env.getProperty("spring.data.mongodb.uri"));
+		var connectionString = new ConnectionString(env.getRequiredProperty("spring.data.mongodb.uri"));
 		var mongoClientSettings = MongoClientSettings.builder().applyConnectionString(connectionString).build();
 		return MongoClients.create(mongoClientSettings);
 	}
