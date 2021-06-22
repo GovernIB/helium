@@ -5,19 +5,22 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.Date;
+
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ProcessDefinitionDto implements WProcessDefinition {
+public class ProcessInstanceDto implements WProcessInstance {
 
-    String deploymentId;
     String id;
-    String key;
-    String name;
-    int version;
-    String category;
-
+    String processDefinitionId;
+    String processDefinitionName;
+    String parentProcessInstanceId;
+    Date startTime;
+    Date endTime;
+    String description;
+    Long expedientId;
 //    Object processDefinition;
 
 //    public WProcessDefinition parse(ZipInputStream zipInputStream) throws Exception {

@@ -13,7 +13,7 @@ public interface WProcessInstance {
 	public String getDescription();
 	public Long getExpedientId();
 	
-	public Object getProcessInstance();
+//	public Object getProcessInstance();
 	
 	/*
 	 * getProcessInstance().getTaskMgmtInstance().getUnfinishedTasks(currentToken) ==> Retroces!!!
