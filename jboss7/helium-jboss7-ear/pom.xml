@@ -15,6 +15,18 @@
 	</properties>
 
 	<dependencies>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+			<exclusions>
+				<exclusion>
+					<groupId>org.springframework.boot</groupId>
+					<artifactId>spring-boot-starter-tomcat</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+
 		<dependency>
 			<groupId>es.caib.helium</groupId>
 			<artifactId>helium-back</artifactId>
@@ -24,21 +36,39 @@
 	</dependencies>
 
 	<build>
-		<plugins>		
+		<plugins>
 			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-ear-plugin</artifactId>
-				<version>2.10.1</version>
+				<version>3.2.0</version>
 				<configuration>
+					<generateApplicationXml>true</generateApplicationXml>
+					<defaultLibBundleDir>/lib</defaultLibBundleDir>
+					<includeLibInApplicationXml>false</includeLibInApplicationXml>
+					<version>6</version>
+					<initializeInOrder>true</initializeInOrder>
+					<archive>
+						<manifestEntries>
+							<Build-Timestamp>${maven.build.timestamp}</Build-Timestamp>
+							<Implementation-Vendor>Límit Tecnologies</Implementation-Vendor>
+							<Implementation-Version>${project.version}</Implementation-Version>
+							<Implementation-SCM-Branch>${git.branch}</Implementation-SCM-Branch>
+							<Implementation-SCM-Revision>${git.commit.id}</Implementation-SCM-Revision>
+						</manifestEntries>
+					</archive>
 					<modules>
 						<webModule>
-							<groupId>es.caib.helium</groupId>
+							<groupId>${project.groupId}</groupId>
 							<artifactId>helium-back</artifactId>
-							<contextRoot>/helium</contextRoot>
+							<contextRoot>/heliumback</contextRoot>
+							<bundleFileName>helium-back.war</bundleFileName>
 						</webModule>
 					</modules>
 				</configuration>
 			</plugin>
+						 
 		</plugins>
+		<finalName>helium</finalName>
 	</build>
   
 </project>
