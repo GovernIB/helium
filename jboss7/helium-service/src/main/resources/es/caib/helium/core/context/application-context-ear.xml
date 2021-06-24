@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans	xmlns="http://www.springframework.org/schema/beans"
+		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		xsi:schemaLocation="
+				http://www.springframework.org/schema/beans
+				http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+	<!-- 
+	<bean id="propertyPlaceholderConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="location" value="${es.caib.helium.properties.path}" />
+		<property name="placeholderPrefix" value="${config:" />
+	</bean>
+
+	<bean id="messageSource" class="org.springframework.context.support.ResourceBundleMessageSource">
+		<property name="basenames">
+			<list>
+				<value>es/caib/helium/core/i18n/messages</value>
+			</list>
+		</property>
+	</bean>
+
+	<import resource="classpath:es/caib/emiserv/core/context/application-context-model.xml" />
+	<import resource="classpath:es/caib/emiserv/core/context/application-context-model-jndi.xml" />
+	<import resource="classpath:es/caib/emiserv/core/context/application-context-model-acl.xml" />
+	<import resource="classpath:es/caib/emiserv/core/context/application-context-model-security.xml" />
+	 -->
+
+</beans>

@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans
+	xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="
+		http://www.springframework.org/schema/beans
+		http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+	<bean id="aclService" class="es.caib.emiserv.core.security.JdbcMutableAclService">
+		<constructor-arg ref="dataSource" />
+		<constructor-arg ref="lookupStrategy" />
+		<constructor-arg ref="aclCache" />
+	</bean>
+	<bean id="lookupStrategy" class="es.caib.emiserv.core.security.BasicLookupStrategy">
+		<constructor-arg ref="dataSource" />
+		<constructor-arg ref="aclCache" />
+		<constructor-arg ref="aclAuthorizationStrategy" />
+		<constructor-arg ref="auditLogger" />
+	</bean>
+	<bean id="aclCache" class="org.springframework.security.acls.domain.EhCacheBasedAclCache">
+		<constructor-arg>
+			<bean class="org.springframework.cache.ehcache.EhCacheFactoryBean">
+				<property name="cacheManager">
+					<ref bean="ehcache"/>
+				</property>
+				<property name="cacheName" value="aclCache" />
+			</bean>
+		</constructor-arg>
+	</bean>
+	<bean id="aclAuthorizationStrategy" class="org.springframework.security.acls.domain.AclAuthorizationStrategyImpl">
+		<constructor-arg>
+			<list>
+				<bean class="org.springframework.security.core.authority.GrantedAuthorityImpl">
+					<constructor-arg value="EMS_ADMIN" />
+				</bean>
+				<bean class="org.springframework.security.core.authority.GrantedAuthorityImpl">
+					<constructor-arg value="EMS_ADMIN" />
+				</bean>
+				<bean class="org.springframework.security.core.authority.GrantedAuthorityImpl">
+					<constructor-arg value="EMS_ADMIN" />
+				</bean>
+			</list>
+		</constructor-arg>
+	</bean>
+	<bean id="auditLogger" class="org.springframework.security.acls.domain.ConsoleAuditLogger" />
+
+</beans>

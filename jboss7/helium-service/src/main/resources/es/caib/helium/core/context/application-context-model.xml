@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:jpa="http://www.springframework.org/schema/data/jpa"
+	xmlns:cache="http://www.springframework.org/schema/cache"
+	xmlns:task="http://www.springframework.org/schema/task"
+	xsi:schemaLocation="
+		http://www.springframework.org/schema/beans
+		http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/tx
+		http://www.springframework.org/schema/tx/spring-tx.xsd
+		http://www.springframework.org/schema/context
+		http://www.springframework.org/schema/context/spring-context.xsd
+		http://www.springframework.org/schema/data/jpa
+		http://www.springframework.org/schema/data/jpa/spring-jpa.xsd
+		http://www.springframework.org/schema/cache
+		http://www.springframework.org/schema/cache/spring-cache.xsd
+		http://www.springframework.org/schema/task
+		http://www.springframework.org/schema/task/spring-task.xsd">
+
+	<context:annotation-config />
+	<context:component-scan base-package="es.caib.emiserv.core.service" />
+	<context:component-scan base-package="es.caib.emiserv.core.helper" />
+	<context:component-scan base-package="es.caib.emiserv.core.ws" />
+	<jpa:repositories base-package="es.caib.emiserv.core.repository" />
+
+	<jpa:auditing auditor-aware-ref="auditorAwareBean" />
+	<bean name="auditorAwareBean" class="es.caib.emiserv.core.audit.EmiservAuditorAware"/>
+
+	<bean id="entityManagerFactory"
+		class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
+		<property name="dataSource" ref="dataSource" />
+		<property name="packagesToScan">
+			<list>
+				<value>es.caib.emiserv.core.entity</value>
+			</list>
+		</property>
+		<property name="jpaDialect">
+			<bean class="org.springframework.orm.jpa.vendor.HibernateJpaDialect" />
+		</property>
+		<property name="jpaVendorAdapter">
+			<bean class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter" />
+		</property>
+		<property name="jpaProperties">
+			<props>
+				<prop key="hibernate.dialect">${config:es.caib.emiserv.hibernate.dialect}</prop>
+				<prop key="hibernate.show_sql">${config:es.caib.emiserv.hibernate.show_sql}</prop>
+				<prop key="hibernate.hbm2ddl.auto">${config:es.caib.emiserv.hibernate.hbm2ddl.auto}</prop>
+			</props>
+		</property>
+	</bean>
+	<bean id="transactionManager" class="org.springframework.orm.jpa.JpaTransactionManager">
+		<property name="entityManagerFactory" ref="entityManagerFactory" />
+	</bean>
+	<tx:annotation-driven transaction-manager="transactionManager" />
+
+	<!-- Execució de tasques periòdiques -->
+	<task:annotation-driven executor="taskExecutor" scheduler="taskScheduler"/>
+	<task:executor id="taskExecutor" pool-size="1"/>
+	<task:scheduler id="taskScheduler" pool-size="10"/>
+	<!-- /Execució de tasques periòdiques -->
+
+	<!-- Cache -->
+	<bean id="ehcache" class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean">
+		<property name="configLocation" value="classpath:ehcache.xml" />
+	</bean>
+	<bean id="cacheManager" class="org.springframework.cache.ehcache.EhCacheCacheManager">
+		<property name="cacheManager">
+			<ref bean="ehcache"/>
+		</property>
+	</bean>
+	<cache:annotation-driven cache-manager="cacheManager"/>
+	<!-- /Cache -->
+
+</beans>

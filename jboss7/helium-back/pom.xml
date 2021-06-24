@@ -8,133 +8,161 @@
 		<artifactId>helium-jboss7</artifactId>
 		<version>4.0.1</version>
 	</parent>	
-	
-	<!-- En el cas de no posar spring-boot com a parent en el pom pare
-	<parent>
-		<groupId>org.springframework.boot</groupId>
-		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>2.5.1</version>
-	</parent>
-
-	
-	<dependencyManagement>
-	    <dependencies>
-	        <dependency>
-	            <groupId>org.springframework.boot</groupId>
-	            <artifactId>spring-boot-dependencies</artifactId>
-	            <version>2.5.1</version>
-	            <type>pom</type>
-	            <scope>import</scope>
-	        </dependency>
-	    </dependencies>
-	</dependencyManagement>
-
-			<plugin>
-				<artifactId>maven-war-plugin</artifactId>
-				<configuration>
-					<failOnMissingWebXml>false</failOnMissingWebXml>
-				</configuration>
-			</plugin>			
-
-	 -->
 
 	<artifactId>helium-back</artifactId>
 	<packaging>war</packaging>
-	<name>helium-back</name>
-	<description>Aplicació Spring Boot 2 de proves</description>
+	<description>Aplicació Spring Boot 2</description>
 	<dependencies>
 
 		<dependency>
+			<groupId>javax.servlet</groupId>
+			<artifactId>javax.servlet-api</artifactId>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
 			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-web</artifactId>
-			<exclusions>
-	            <exclusion>
-	                <groupId>org.apache.tomcat.embed</groupId>
-	                <artifactId>tomcat-embed-websocket</artifactId>
-	            </exclusion>
-	        </exclusions>
-		</dependency>
-		
-		<!-- 
-		<dependency>
-			<groupId>org.springframework.security</groupId>
-			<artifactId>spring-security-core</artifactId>
-		</dependency>
-		<dependency>
-		    <groupId>org.springframework.boot</groupId>
-		    <artifactId>spring-boot-starter-security</artifactId>
+			<artifactId>spring-boot-starter-security</artifactId>
+			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.keycloak</groupId>
 			<artifactId>keycloak-core</artifactId>
+			<version>${keycloak.version}</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
-		    <groupId>org.keycloak</groupId>
-		    <artifactId>keycloak-spring-boot-starter</artifactId>
-		</dependency>
-		 -->
-		
-		<!--  Pàgines JSP  -->
-		<dependency>
-			<groupId>org.apache.tomcat.embed</groupId>
-			<artifactId>tomcat-embed-jasper</artifactId>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
-			<groupId>javax.servlet</groupId>
-			<artifactId>jstl</artifactId>
-		</dependency>
-
-
-		<dependency>
-			<groupId>net.rakugakibox.spring.boot</groupId>
-			<artifactId>orika-spring-boot-starter</artifactId>
-			<version>${orika.starter.version}</version>
-			<scope>provided</scope>
-		</dependency>
-		
-		<dependency>
-			<groupId>org.springframework.data</groupId>
-			<artifactId>spring-data-commons</artifactId>
-		</dependency>
-		
-				
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-devtools</artifactId>
-			<scope>runtime</scope>
-			<optional>true</optional>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>helium-controller</artifactId>
+			<version>${project.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-test</artifactId>
-			<scope>test</scope>
-		</dependency>		
+			<groupId>${project.groupId}</groupId>
+			<artifactId>helium-service-intf</artifactId>
+			<version>${project.version}</version>
+		</dependency>
 				
 	</dependencies>
-
-	<!-- 
-	<dependencyManagement>
-		<dependencies>
-			<dependency>
-				<groupId>org.keycloak.bom</groupId>
-				<artifactId>keycloak-adapter-bom</artifactId>
-				<version>${keycloak.version}</version>
-				<type>pom</type>
-				<scope>import</scope>
-			</dependency>
-		</dependencies>
-	</dependencyManagement>
-	 -->
-
+	<profiles>
+		<profile>
+			<id>servlet_container</id>
+			<activation>
+				<activeByDefault>false</activeByDefault>
+			</activation>
+			<dependencies>
+				<dependency>
+					<groupId>org.springframework.boot</groupId>
+					<artifactId>spring-boot-starter-web</artifactId>
+					<exclusions>
+						<exclusion>
+							<groupId>org.springframework.boot</groupId>
+							<artifactId>spring-boot-starter-tomcat</artifactId>
+						</exclusion>
+					</exclusions>
+				</dependency>
+				<dependency>
+					<groupId>${project.groupId}</groupId>
+					<artifactId>helium-service</artifactId>
+					<version>${project.version}</version>
+				</dependency>
+			</dependencies>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-war-plugin</artifactId>
+						<configuration>
+							<packagingExcludes>**/HeliumEjbApp.class,**/EjbClientConfig.class</packagingExcludes>
+						</configuration>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+		<profile>
+			<id>ejb_container</id>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
+			<dependencies>
+				<dependency>
+					<groupId>net.rakugakibox.spring.boot</groupId>
+					<artifactId>orika-spring-boot-starter</artifactId>
+					<version>${orika.starter.version}</version>
+					<scope>provided</scope>
+				</dependency>
+				<dependency>
+					<groupId>${project.groupId}</groupId>
+					<artifactId>helium-controller</artifactId>
+					<version>${project.version}</version>
+					<exclusions>
+						<exclusion>
+							<groupId>*</groupId>
+							<artifactId>*</artifactId>
+						</exclusion>
+					</exclusions>
+				</dependency>
+				<dependency>
+					<groupId>${project.groupId}</groupId>
+					<artifactId>helium-service-intf</artifactId>
+					<version>${project.version}</version>
+					<scope>provided</scope>
+				</dependency>
+				<!-- Per a solucionar "NoClassDefFoundError: org/springframework/http/server/reactive/ServletServerHttpResponse$ResponseBodyProcessor" 
+					(https://developer.jboss.org/thread/276373?start=15&tstart=0) -->
+				<dependency>
+					<groupId>org.reactivestreams</groupId>
+					<artifactId>reactive-streams</artifactId>
+				</dependency>
+			</dependencies>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-war-plugin</artifactId>
+						<configuration>
+							<packagingExcludes>**/HeliumServletApp.class</packagingExcludes>
+						</configuration>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
 	<build>
+		<resources>
+			<resource>
+				<directory>src/main/resources</directory>
+				<filtering>false</filtering>
+			</resource>
+			<resource>
+				<directory>src/main/resources</directory>
+				<includes>
+					<include>banner.txt</include>
+				</includes>
+				<filtering>true</filtering>
+			</resource>
+		</resources>
 		<plugins>
 			<plugin>
-				<groupId>org.springframework.boot</groupId>
-				<artifactId>spring-boot-maven-plugin</artifactId>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-war-plugin</artifactId>
+				<configuration>
+					<archive>
+						<manifestEntries>
+							<Build-Timestamp>${maven.build.timestamp}</Build-Timestamp>
+							<Implementation-Vendor>Límit Tecnologies</Implementation-Vendor>
+							<Implementation-Version>${project.version}</Implementation-Version>
+							<Implementation-SCM-Branch>${git.branch}</Implementation-SCM-Branch>
+							<Implementation-SCM-Revision>${git.commit.id}</Implementation-SCM-Revision>
+						</manifestEntries>
+					</archive>
+				</configuration>
 			</plugin>
 		</plugins>
+		<finalName>heliumback</finalName>
 	</build>
 
 </project>

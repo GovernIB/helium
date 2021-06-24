@@ -1,0 +1,292 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<wsdl:definitions name="EmiservBackofficeService"
+	targetNamespace="http://caib.es/emiserv/backoffice" xmlns:ns1="http://schemas.xmlsoap.org/wsdl/soap/http"
+	xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:tns="http://caib.es/emiserv/backoffice"
+	xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+	<wsdl:types>
+		<xs:schema elementFormDefault="unqualified"
+			targetNamespace="http://caib.es/emiserv/backoffice" version="1.0"
+			xmlns:tns="http://caib.es/emiserv/backoffice" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+			<xs:element name="peticionAsincrona" type="tns:peticionAsincrona" />
+			<xs:element name="peticionAsincronaResponse" type="tns:peticionAsincronaResponse" />
+			<xs:element name="peticionSincrona" type="tns:peticionSincrona" />
+			<xs:element name="peticionSincronaResponse" type="tns:peticionSincronaResponse" />
+			<xs:element name="solicitarRespuesta" type="tns:solicitarRespuesta" />
+			<xs:element name="solicitarRespuestaResponse" type="tns:solicitarRespuestaResponse" />
+			<xs:complexType name="solicitarRespuesta">
+				<xs:sequence>
+					<xs:element minOccurs="0" name="solicitudRespuesta"
+						type="tns:solicitudRespuesta" />
+				</xs:sequence>
+			</xs:complexType>
+			<xs:complexType name="solicitudRespuesta">
+				<xs:sequence>
+					<xs:element minOccurs="0" name="atributos" type="tns:atributos" />
+				</xs:sequence>
+			</xs:complexType>
+			<xs:complexType name="atributos">
+				<xs:sequence>
+					<xs:element minOccurs="0" name="codigoCertificado" type="xs:string" />
+					<xs:element minOccurs="0" name="estado" type="tns:estado" />
+					<xs:element minOccurs="0" name="idPeticion" type="xs:string" />
+					<xs:element minOccurs="0" name="numElementos" type="xs:string" />
+					<xs:element minOccurs="0" name="timeStamp" type="xs:string" />
+				</xs:sequence>
+			</xs:complexType>
+			<xs:complexType name="estado">
+				<xs:sequence>
+					<xs:element minOccurs="0" name="codigoEstado" type="xs:string" />
+					<xs:element minOccurs="0" name="codigoEstadoSecundario"
+						type="xs:string" />
+					<xs:element minOccurs="0" name="literalError" type="xs:string" />
+					<xs:element minOccurs="0" name="tiempoEstimadoRespuesta"
+						type="xs:int" />
+				</xs:sequence>
+			</xs:complexType>
+			<xs:complexType name="solicitarRespuestaResponse">
+				<xs:sequence>
+					<xs:element minOccurs="0" name="respuesta" type="tns:respuesta" />
+				</xs:sequence>
+			</xs:complexType>
+			<xs:complexType name="respuesta">
+				<xs:sequence>
+					<xs:element minOccurs="0" name="atributos" type="tns:atributos" />
+					<xs:element minOccurs="0" name="transmisiones" type="tns:transmisiones" />
+				</xs:sequence>
+			</xs:complexType>
+			<xs:complexType name="transmisiones">
+				<xs:sequence>
+					<xs:element maxOccurs="unbounded" minOccurs="0"
+						name="transmisionDatos" nillable="true" type="tns:transmisionDatos" />
+				</xs:sequence>
+			</xs:complexType>
+			<xs:complexType name="transmisionDatos">
+				<xs:sequence>
+					<xs:element minOccurs="0" name="datosEspecificos" type="xs:anyType" />
+					<xs:element minOccurs="0" name="datosGenericos" type="tns:datosGenericos" />
+					<xs:element minOccurs="0" name="id" type="xs:string" />
+				</xs:sequence>
+			</xs:complexType>
+			<xs:complexType name="datosGenericos">
+				<xs:sequence>
+					<xs:element minOccurs="0" name="emisor" type="tns:emisor" />
+					<xs:element minOccurs="0" name="solicitante" type="tns:solicitante" />
+					<xs:element minOccurs="0" name="titular" type="tns:titular" />
+					<xs:element minOccurs="0" name="transmision" type="tns:transmision" />
+				</xs:sequence>
+			</xs:complexType>
+			<xs:complexType name="emisor">
+				<xs:sequence>
+					<xs:element minOccurs="0" name="nifEmisor" type="xs:string" />
+					<xs:element minOccurs="0" name="nombreEmisor" type="xs:string" />
+				</xs:sequence>
+			</xs:complexType>
+			<xs:complexType name="solicitante">
+				<xs:sequence>
+					<xs:element minOccurs="0" name="consentimiento" type="tns:consentimiento" />
+					<xs:element minOccurs="0" name="finalidad" type="xs:string" />
+					<xs:element minOccurs="0" name="funcionario" type="tns:funcionario" />
+					<xs:element minOccurs="0" name="idExpediente" type="xs:string" />
+					<xs:element minOccurs="0" name="identificadorSolicitante"
+						type="xs:string" />
+					<xs:element minOccurs="0" name="nombreSolicitante" type="xs:string" />
+					<xs:element minOccurs="0" name="procedimiento" type="tns:procedimiento" />
+					<xs:element minOccurs="0" name="unidadTramitadora" type="xs:string" />
+				</xs:sequence>
+			</xs:complexType>
+			<xs:complexType name="funcionario">
+				<xs:sequence>
+					<xs:element minOccurs="0" name="nifFuncionario" type="xs:string" />
+					<xs:element minOccurs="0" name="nombreCompletoFuncionario"
+						type="xs:string" />
+				</xs:sequence>
+			</xs:complexType>
+			<xs:complexType name="procedimiento">
+				<xs:sequence>
+					<xs:element minOccurs="0" name="codProcedimiento" type="xs:string" />
+					<xs:element minOccurs="0" name="nombreProcedimiento"
+						type="xs:string" />
+				</xs:sequence>
+			</xs:complexType>
+			<xs:complexType name="titular">
+				<xs:sequence>
+					<xs:element minOccurs="0" name="apellido1" type="xs:string" />
+					<xs:element minOccurs="0" name="apellido2" type="xs:string" />
+					<xs:element minOccurs="0" name="documentacion" type="xs:string" />
+					<xs:element minOccurs="0" name="nombre" type="xs:string" />
+					<xs:element minOccurs="0" name="nombreCompleto" type="xs:string" />
+					<xs:element minOccurs="0" name="tipoDocumentacion" type="tns:tipoDocumentacion" />
+				</xs:sequence>
+			</xs:complexType>
+			<xs:complexType name="transmision">
+				<xs:sequence>
+					<xs:element minOccurs="0" name="codigoCertificado" type="xs:string" />
+					<xs:element minOccurs="0" name="fechaGeneracion" type="xs:string" />
+					<xs:element minOccurs="0" name="idSolicitud" type="xs:string" />
+					<xs:element minOccurs="0" name="idTransmision" type="xs:string" />
+				</xs:sequence>
+			</xs:complexType>
+			<xs:complexType abstract="true" name="abstractCollection">
+				<xs:sequence />
+			</xs:complexType>
+			<xs:complexType abstract="true" name="abstractList">
+				<xs:complexContent>
+					<xs:extension base="tns:abstractCollection">
+						<xs:sequence />
+					</xs:extension>
+				</xs:complexContent>
+			</xs:complexType>
+			<xs:complexType name="arrayList">
+				<xs:complexContent>
+					<xs:extension base="tns:abstractList">
+						<xs:sequence />
+					</xs:extension>
+				</xs:complexContent>
+			</xs:complexType>
+			<xs:complexType name="peticionAsincrona">
+				<xs:sequence>
+					<xs:element minOccurs="0" name="peticion" type="tns:peticion" />
+				</xs:sequence>
+			</xs:complexType>
+			<xs:complexType name="peticion">
+				<xs:sequence>
+					<xs:element minOccurs="0" name="atributos" type="tns:atributos" />
+					<xs:element minOccurs="0" name="solicitudes" type="tns:solicitudes" />
+				</xs:sequence>
+			</xs:complexType>
+			<xs:complexType name="solicitudes">
+				<xs:sequence>
+					<xs:element maxOccurs="unbounded" minOccurs="0"
+						name="solicitudTransmision" nillable="true" type="tns:solicitudTransmision" />
+				</xs:sequence>
+			</xs:complexType>
+			<xs:complexType name="solicitudTransmision">
+				<xs:sequence>
+					<xs:element minOccurs="0" name="datosEspecificos" type="xs:anyType" />
+					<xs:element minOccurs="0" name="datosGenericos" type="tns:datosGenericos" />
+					<xs:element minOccurs="0" name="id" type="xs:string" />
+				</xs:sequence>
+			</xs:complexType>
+			<xs:complexType name="peticionAsincronaResponse">
+				<xs:sequence>
+					<xs:element minOccurs="0" name="confirmacionPeticion"
+						type="tns:confirmacionPeticion" />
+				</xs:sequence>
+			</xs:complexType>
+			<xs:complexType name="confirmacionPeticion">
+				<xs:sequence>
+					<xs:element minOccurs="0" name="atributos" type="tns:atributos" />
+				</xs:sequence>
+			</xs:complexType>
+			<xs:complexType name="peticionSincrona">
+				<xs:sequence>
+					<xs:element minOccurs="0" name="peticion" type="tns:peticion" />
+				</xs:sequence>
+			</xs:complexType>
+			<xs:complexType name="peticionSincronaResponse">
+				<xs:sequence>
+					<xs:element minOccurs="0" name="respuesta" type="tns:respuesta" />
+				</xs:sequence>
+			</xs:complexType>
+			<xs:simpleType name="consentimiento">
+				<xs:restriction base="xs:string">
+					<xs:enumeration value="Si" />
+					<xs:enumeration value="Ley" />
+				</xs:restriction>
+			</xs:simpleType>
+			<xs:simpleType name="tipoDocumentacion">
+				<xs:restriction base="xs:string">
+					<xs:enumeration value="CIF" />
+					<xs:enumeration value="NIF" />
+					<xs:enumeration value="DNI" />
+					<xs:enumeration value="Pasaporte" />
+					<xs:enumeration value="NIE" />
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:schema>
+	</wsdl:types>
+	<wsdl:message name="peticionAsincronaResponse">
+		<wsdl:part element="tns:peticionAsincronaResponse" name="parameters">
+		</wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="peticionSincronaResponse">
+		<wsdl:part element="tns:peticionSincronaResponse" name="parameters">
+		</wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="peticionAsincrona">
+		<wsdl:part element="tns:peticionAsincrona" name="parameters">
+		</wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="solicitarRespuesta">
+		<wsdl:part element="tns:solicitarRespuesta" name="parameters">
+		</wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="solicitarRespuestaResponse">
+		<wsdl:part element="tns:solicitarRespuestaResponse" name="parameters">
+		</wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="peticionSincrona">
+		<wsdl:part element="tns:peticionSincrona" name="parameters">
+		</wsdl:part>
+	</wsdl:message>
+	<wsdl:portType name="EmiservBackoffice">
+		<wsdl:operation name="solicitarRespuesta">
+			<wsdl:input message="tns:solicitarRespuesta" name="solicitarRespuesta">
+			</wsdl:input>
+			<wsdl:output message="tns:solicitarRespuestaResponse"
+				name="solicitarRespuestaResponse">
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="peticionAsincrona">
+			<wsdl:input message="tns:peticionAsincrona" name="peticionAsincrona">
+			</wsdl:input>
+			<wsdl:output message="tns:peticionAsincronaResponse"
+				name="peticionAsincronaResponse">
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="peticionSincrona">
+			<wsdl:input message="tns:peticionSincrona" name="peticionSincrona">
+			</wsdl:input>
+			<wsdl:output message="tns:peticionSincronaResponse" name="peticionSincronaResponse">
+			</wsdl:output>
+		</wsdl:operation>
+	</wsdl:portType>
+	<wsdl:binding name="EmiservBackofficeServiceSoapBinding"
+		type="tns:EmiservBackoffice">
+		<soap:binding style="document"
+			transport="http://schemas.xmlsoap.org/soap/http" />
+		<wsdl:operation name="solicitarRespuesta">
+			<soap:operation soapAction="" style="document" />
+			<wsdl:input name="solicitarRespuesta">
+				<soap:body use="literal" />
+			</wsdl:input>
+			<wsdl:output name="solicitarRespuestaResponse">
+				<soap:body use="literal" />
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="peticionAsincrona">
+			<soap:operation soapAction="" style="document" />
+			<wsdl:input name="peticionAsincrona">
+				<soap:body use="literal" />
+			</wsdl:input>
+			<wsdl:output name="peticionAsincronaResponse">
+				<soap:body use="literal" />
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="peticionSincrona">
+			<soap:operation soapAction="" style="document" />
+			<wsdl:input name="peticionSincrona">
+				<soap:body use="literal" />
+			</wsdl:input>
+			<wsdl:output name="peticionSincronaResponse">
+				<soap:body use="literal" />
+			</wsdl:output>
+		</wsdl:operation>
+	</wsdl:binding>
+	<wsdl:service name="EmiservBackofficeService">
+		<wsdl:port binding="tns:EmiservBackofficeServiceSoapBinding"
+			name="EmiservBackofficePort">
+			<soap:address location="http://localhost:8080/emiserv/ws/EmiservBackoffice" />
+		</wsdl:port>
+	</wsdl:service>
+</wsdl:definitions>

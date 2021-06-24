@@ -55,6 +55,11 @@
 	<modules>
 		<module>helium-back</module>
 		<module>helium-jboss7-ear</module>
+		<module>helium-ejb</module>
+		<module>helium-service</module>
+		<module>helium-service-intf</module>
+		<module>helium-boot</module>
+		<module>helium-controller</module>
 	</modules>
 	 
 	<build>
