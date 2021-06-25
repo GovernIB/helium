@@ -1,14 +1,4 @@
-package net.conselldemallorca.helium.api.service;
-
-import es.caib.helium.camunda.model.WDeployment;
-import es.caib.helium.camunda.model.WProcessDefinition;
-import es.caib.helium.camunda.model.WProcessInstance;
-import es.caib.helium.camunda.model.WTaskInstance;
-import es.caib.helium.camunda.model.WToken;
-import net.conselldemallorca.helium.api.dto.ExpedientDto;
-import net.conselldemallorca.helium.api.dto.LlistatIds;
-import net.conselldemallorca.helium.api.dto.PaginacioParamsDto;
-import net.conselldemallorca.helium.api.dto.ResultatConsultaPaginada;
+package es.caib.helium.camunda.model;
 
 import java.util.Collection;
 import java.util.Date;
@@ -762,7 +752,7 @@ public interface WorkflowEngineApi {
 
 	// Expedients
 
-	public ExpedientDto expedientFindByProcessInstanceId(String processInstanceId);
+	public Expedient expedientFindByProcessInstanceId(String processInstanceId);
 	public ResultatConsultaPaginada<Long> expedientFindByFiltre(
 			Long entornId,
 			String actorId,
@@ -813,7 +803,7 @@ public interface WorkflowEngineApi {
 
 	public List<String> findDefinicionsProcesIdNoUtilitzadesByEntorn(Long entornId);
 	public List<String> findDefinicionsProcesIdNoUtilitzadesByExpedientTipusId(Long expedientTipusId);
-	public List<ExpedientDto> findExpedientsAfectatsPerDefinicionsProcesNoUtilitzada(
+	public List<Expedient> findExpedientsAfectatsPerDefinicionsProcesNoUtilitzada(
 			Long expedientTipusId,
 			Long processDefinitionId);
 

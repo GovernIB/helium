@@ -3,3 +3,13 @@ spring:
     name: helium-camunda
   profiles:
     active: @activatedProperties@
+  cache:
+    jcache:
+      config: classpath:ehcache.xml
+
+es:
+  caib:
+    helium:
+      helium-data-service-host: http://localhost:8083
+      dada-service-user: user
+      dada-service-password: pass

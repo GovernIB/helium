@@ -1,6 +1,5 @@
 package es.caib.helium.camunda.service;
 
-import es.caib.helium.camunda.model.WDeployment;
 import es.caib.helium.camunda.model.WProcessDefinition;
 
 import java.util.List;
@@ -46,7 +45,7 @@ public interface ProcessDefinitionService {
      * @return
      */
     public List<String> getTaskNamesFromDeployedProcessDefinition(
-            WDeployment dpd,
+            String deploymentId,
             String processDefinitionId);
 
     /**

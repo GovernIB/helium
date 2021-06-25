@@ -10,9 +10,11 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.MultiValueMap;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
@@ -34,7 +36,8 @@ import java.util.Set;
 @RequestMapping(DeploymentController.API_PATH)
 public class DeploymentController {
 
-    public static final String API_PATH = "/api/v1/deployments";
+    public static final String API_PATH = "/api/v1/desplegaments";
+//    private static final String DEPLOYMENT = "deployment";
 
     private final DeploymentService deploymentService;
 
@@ -102,14 +105,20 @@ public class DeploymentController {
     /**
      * Desplega un model BPMN2.0
      *
-     * @param nomArxiu
-     * @param contingut
+     * @param deploymentName
+     * @Param tenantId
+     * @param file
      * @return
      */
 //    public WDeployment desplegar(
 //            String nomArxiu,
 //            byte[] contingut);
 
+//    @CircuitBreaker(name = DEPLOYMENT, fallbackMethod = "deployFallback")
+//    @RateLimiter(name = BACKEND)
+//    @Bulkhead(name = BACKEND)
+//    @Retry(name = DEPLOYMENT, fallbackMethod = "deployFallback")
+//    @TimeLimiter(name = BACKEND)
     @PostMapping(
             consumes = { "multipart/form-data" },
             produces = { "application/json" })
@@ -142,10 +151,12 @@ public class DeploymentController {
      * @param deploymentId
      * @param handlers
      */
+    @PostMapping(value = "/{deploymtId}",
+            consumes = { "multipart/form-data" },
+            produces = { "application/json" })
     public void updateDeploymentActions(
-            Long deploymentId,
-            Map<String,
-                    byte[]> handlers) {
+            @PathVariable Long deploymentId,
+            @RequestBody Map<String, String> handlers) {
         throw new ResponseStatusException(HttpStatus.NOT_IMPLEMENTED, "Mètode no disponible en Camunda");
     }
 
@@ -155,7 +166,11 @@ public class DeploymentController {
      *
      * @param deploymentId
      */
-    public void esborrarDesplegament(String deploymentId);
+    @DeleteMapping(value = "/{deploymentId}")
+    public ResponseEntity<Void>  esborrarDesplegament(@PathVariable String deploymentId) {
+        deploymentService.esborrarDesplegament(deploymentId);
+        return new ResponseEntity<>(new HttpHeaders(), HttpStatus.OK);
+    }
 
 
 }
