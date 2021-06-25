@@ -9,13 +9,11 @@ import org.springframework.core.env.Environment;
 import org.springframework.jms.support.converter.MappingJackson2MessageConverter;
 import org.springframework.jms.support.converter.MessageConverter;
 import org.springframework.jms.support.converter.MessageType;
-import org.springframework.web.reactive.function.client.WebClient;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import es.caib.helium.integracio.excepcions.ServeisExternsException;
 import es.caib.helium.integracio.service.monitor.MonitorIntegracionsService;
-import es.caib.helium.integracio.service.monitor.MonitorIntegracionsServiceImpl;
 
 @Configuration
 @ConfigurationProperties(prefix = "es.caib.helium.integracio")
@@ -44,7 +42,4 @@ public class MonitorIntegracionsConfig {
         converter.setObjectMapper(objectMapper);
         return converter;
     }
-
-	
-
 }

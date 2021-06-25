@@ -7,5 +7,5 @@ import es.caib.helium.jms.events.IntegracioEvent;
 @Service
 public interface MonitorIntegracionsService {
 
-	public void enviarEvent(IntegracioEvent event);
+	public boolean enviarEvent(IntegracioEvent event);
 }

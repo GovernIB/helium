@@ -13,7 +13,6 @@ import es.caib.helium.monitor.exception.MonitorIntegracionsException;
 public interface BddService {
 
 	public IntegracioEvent save(IntegracioEvent accio) throws MonitorIntegracionsException;
-	public List<IntegracioEvent> findAll() throws MonitorIntegracionsException;
 	public PagedList<IntegracioEvent> findByFiltresPaginat(Consulta consulta) throws MonitorIntegracionsException;
 	public List<IntegracioEvent> findByFiltres(Consulta consulta) throws MonitorIntegracionsException;
 }

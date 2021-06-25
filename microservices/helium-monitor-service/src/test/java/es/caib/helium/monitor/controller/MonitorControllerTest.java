@@ -111,7 +111,7 @@ public class MonitorControllerTest {
 		given(bddService.findByFiltresPaginat(any(Consulta.class))).willReturn(pagedList);
 
 		var consultaJson = asJsonString(consultaMock);
-		mockMvc.perform(get("/api/v1/monitor/accions/paginades").content(consultaJson)
+		mockMvc.perform(get("/api/v1/monitor/events/paginats").content(consultaJson)
 				.contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON).param("entornId", "1")
 				.param("codi", "ARXIU").param("page", "0").param("size", "10")).andExpect(status().isOk())
 				.andExpect(content().contentType(MediaType.APPLICATION_JSON)).andExpect(jsonPath("$.content").exists())
@@ -123,7 +123,7 @@ public class MonitorControllerTest {
 	public void test_findByFiltresPaginat_error() throws Exception {
 
 		var consultaJson = asJsonString(consultaMock);
-		mockMvc.perform(get("/api/v1/monitor/accions/paginades").content(consultaJson)
+		mockMvc.perform(get("/api/v1/monitor/events/paginats").content(consultaJson)
 				.contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON))
 				.andExpect(status().isInternalServerError());
 	}
@@ -137,7 +137,7 @@ public class MonitorControllerTest {
 		given(bddService.findByFiltres(any(Consulta.class))).willReturn(eventsMock);
 		
 		var consultaJson = asJsonString(consultaMock);
-		mockMvc.perform(get("/api/v1/monitor/accions").content(consultaJson)
+		mockMvc.perform(get("/api/v1/monitor/events").content(consultaJson)
 				.contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON).param("entornId", "1")
 				.param("codi", "ARXIU")).andExpect(status().isOk())
 		.andExpect(content().contentType(MediaType.APPLICATION_JSON)).andExpect(jsonPath("$").exists())
@@ -149,50 +149,11 @@ public class MonitorControllerTest {
 	public void test_findByFiltres_error() throws Exception {
 		
 		var consultaJson = asJsonString(consultaMock);
-		mockMvc.perform(get("/api/v1/monitor/accions").content(consultaJson)
+		mockMvc.perform(get("/api/v1/monitor/events").content(consultaJson)
 				.contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON))
 		.andExpect(status().isInternalServerError());
 	}
 
-	// -------------------------
-	
-	@Test
-	@DisplayName("[POST] accio - success")
-	void test_crearAccio_success() throws Exception {
-
-		parametresMock = new ArrayList<>();
-		var parametre = new Parametre("foo", "bar");
-		parametresMock.add(parametre);
-		eventMock.setParametres(parametresMock);
-		
-		var data = new Date();
-		eventMock.setData(data);
-		String accioJson = asJsonString(eventMock);
-		given(bddService.save((any(IntegracioEvent.class)))).willReturn(eventMock);
-
-		mockMvc.perform(post("/api/v1/monitor").content(accioJson).contentType(MediaType.APPLICATION_JSON)
-				.accept(MediaType.APPLICATION_JSON)).andExpect(status().isCreated());
-	}
-
-	@Test
-	@DisplayName("[POST] dades de capçalera per l'expedient - Errors validació")
-	void test_crearAccio_errorValidacio() throws Exception {
-		
-		var titol = "";
-		for (var foo = 0; foo < 270; foo++) {
-			titol += foo + "";
-		}
-		eventMock.setDescripcio(titol);
-		ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
-		validator = factory.getValidator();
-		Set<ConstraintViolation<IntegracioEvent>> violations = validator.validate(eventMock);
-		assertFalse(violations.isEmpty());
-
-		var accioJson = asJsonString(eventMock);
-		mockMvc.perform(post("/api/v1/monitor").content(accioJson).contentType(MediaType.APPLICATION_JSON)
-				.accept(MediaType.APPLICATION_JSON)).andExpect(status().isInternalServerError());
-	}
-	
 	// -------------------------
 	
 	private static String asJsonString(final Object obj) {
