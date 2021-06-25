@@ -43,5 +43,4 @@ public class IntegracioEvent {
 	private String errorDescripcio;
 	private String excepcioMessage;
 	private String excepcioStacktrace;
-
 }

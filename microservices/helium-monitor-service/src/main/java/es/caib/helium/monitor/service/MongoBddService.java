@@ -22,27 +22,18 @@ public class MongoBddService extends ServiceBase implements BddService {
 	private IntegracioEventRepository integracioEventRepository;
 	
 	@Override
-	public IntegracioEvent save(IntegracioEvent accio) throws MonitorIntegracionsException {
+	public IntegracioEvent save(IntegracioEvent integracioEvent) throws MonitorIntegracionsException {
 		
+		IntegracioEvent event = null;
 		try {
-			return integracioEventRepository.save(accio);
+			event = integracioEventRepository.save(integracioEvent);
 		} catch (Exception ex) {
-			throw new MonitorIntegracionsException("Error al guardar la " + accio.toString());
+			throwException("Error al guardar la " + integracioEvent.toString(), ex);
 		}
+		return event;
 	}
 
-	@Override
-	public List<IntegracioEvent> findAll() throws MonitorIntegracionsException {
-		
-		List<IntegracioEvent> accions = new ArrayList<>();
-		try {
-			log.info("Obtinguent totes les accions");
-			accions = integracioEventRepository.findAll();
-		} catch (Exception ex) {
-			throwException("Error obtinguent totes les accions", ex);
-		}
-		return accions;
-	}
+
 	
 	@Override
 	public PagedList<IntegracioEvent> findByFiltresPaginat(Consulta consulta) throws MonitorIntegracionsException {
@@ -52,12 +43,12 @@ public class MongoBddService extends ServiceBase implements BddService {
 		}
 		
 		try {
-			log.debug("Obtinguent les accions filtrades i paginades per la " + consulta.toString());
+			log.debug("Obtinguent els events filtrats i paginats per la " + consulta.toString());
 			var pagina = integracioEventRepository.findByFiltres(consulta);
 			var pageable = PageRequest.of(consulta.getPage(), pagina.size() > 0 ? pagina.size() : 1);
 			return new PagedList<IntegracioEvent>(pagina, pageable, pagina.size());
 		} catch (Exception ex) {
-			throwException("Error obtinguent les accions filtrades i paginades per la consulta", ex);
+			throwException("Error obtinguent els events filtrats i paginats per la consulta", ex);
 		}
 		var pageable = PageRequest.of(consulta.getPage(), 1);
 		return new PagedList<IntegracioEvent>(new ArrayList<IntegracioEvent>(), pageable, 10);
@@ -68,10 +59,10 @@ public class MongoBddService extends ServiceBase implements BddService {
 		
 		List<IntegracioEvent> accions = new ArrayList<>();
 		try {
-			log.info("Obtinguent les accions filtrades per la " + consulta.toString());
+			log.info("Obtinguent els events filtrats per la " + consulta.toString());
 			accions = integracioEventRepository.findByFiltres(consulta);
 		} catch (Exception ex) {
-			throwException("Error obtinguent les accions filtrades per la consulta", ex);
+			throwException("Error obtinguent els events filtrats per la consulta", ex);
 		}
 		return accions;
 	}
