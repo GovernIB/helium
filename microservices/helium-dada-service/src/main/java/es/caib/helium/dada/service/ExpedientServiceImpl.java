@@ -1,10 +1,8 @@
 package es.caib.helium.dada.service;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -15,8 +13,6 @@ import org.springframework.stereotype.Service;
 import es.caib.helium.dada.domain.Dada;
 import es.caib.helium.dada.domain.Expedient;
 import es.caib.helium.dada.model.Consulta;
-import es.caib.helium.dada.model.Filtre;
-import es.caib.helium.dada.model.FiltreCapcalera;
 import es.caib.helium.dada.model.PagedList;
 import es.caib.helium.dada.repository.DadaRepository;
 import es.caib.helium.dada.repository.ExpedientRepository;

@@ -14,13 +14,17 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import es.caib.helium.integracio.domini.notificacio.ConsultaEnviament;
+import es.caib.helium.integracio.domini.notificacio.ConsultaNotificacio;
 import es.caib.helium.integracio.domini.notificacio.DadesNotificacioDto;
 import es.caib.helium.integracio.domini.notificacio.RespostaConsultaEstatEnviament;
 import es.caib.helium.integracio.domini.notificacio.RespostaConsultaEstatNotificacio;
 import es.caib.helium.integracio.domini.notificacio.RespostaNotificacio;
 import es.caib.helium.integracio.service.notificacio.NotificacioService;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @RestController
 @AllArgsConstructor
 @RequestMapping(NotificacioController.API_PATH)
@@ -40,6 +44,7 @@ public class NotificacioController {
 	@PostMapping(consumes = "application/json")
 	public ResponseEntity<RespostaNotificacio> altaNotificacio(@Valid @RequestBody DadesNotificacioDto dto, BindingResult error) throws Exception {
 		
+		log.info("Donant d'alta la notifiacio " + dto.toString());
 		if (error.hasErrors()) {
 			return new ResponseEntity<RespostaNotificacio>(HttpStatus.BAD_REQUEST);
 		}
@@ -49,16 +54,26 @@ public class NotificacioController {
 	}
 
 	@GetMapping(value = "{identificador}/consulta", produces = "application/json")  
-	public ResponseEntity<RespostaConsultaEstatNotificacio> consultaNotificacio(@Valid @PathVariable("identificador") String identificador) throws Exception {
+	public ResponseEntity<RespostaConsultaEstatNotificacio> consultaNotificacio(@Valid @PathVariable("identificador") String identificador, ConsultaNotificacio consulta) throws Exception {
  		
-		var resposta = notificacioService.consultaNotificacio(identificador);
+		log.info("Consultant la notificacio " + identificador + " " + consulta.toString()) ;
+		consulta.setIdentificador(identificador);
+		var resposta = notificacioService.consultarNotificacio(consulta);
+		if (resposta == null) {
+			return new ResponseEntity<RespostaConsultaEstatNotificacio>(HttpStatus.NOT_FOUND);
+		}
 		return new ResponseEntity<RespostaConsultaEstatNotificacio>(resposta, HttpStatus.OK);
 	}
 
 	@GetMapping(value = "enviament/{referencia}", produces = "application/json")  
-	public ResponseEntity<RespostaConsultaEstatEnviament> consultaEnviament(@Valid @PathVariable("referencia") String referencia) throws Exception {
+	public ResponseEntity<RespostaConsultaEstatEnviament> consultaEnviament(@Valid @PathVariable("referencia") String referencia, ConsultaEnviament consulta) throws Exception {
 		
-		var resposta = notificacioService.consultaEnviament(referencia);
+		log.info("Consultant l'enviament " + referencia + " " + consulta.toString());
+		consulta.setEnviamentReferencia(referencia);
+		var resposta = notificacioService.consultarEnviament(consulta);
+		if (resposta == null) {
+			return new ResponseEntity<RespostaConsultaEstatEnviament>(HttpStatus.NOT_FOUND);
+		}
 		return new ResponseEntity<RespostaConsultaEstatEnviament>(resposta, HttpStatus.OK);
 	}
 }

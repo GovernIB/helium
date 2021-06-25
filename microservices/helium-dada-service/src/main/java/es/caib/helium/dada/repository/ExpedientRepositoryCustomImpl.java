@@ -1,6 +1,7 @@
 package es.caib.helium.dada.repository;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -326,6 +327,15 @@ public class ExpedientRepositoryCustomImpl implements ExpedientRepositoryCustom 
 
 		if (criteria == null || nomCamp == null || nomCamp.isEmpty()) {
 			return;
+		}
+		
+		if (rangFinal != null) {
+			var now = Calendar.getInstance();
+			now.setTime(rangFinal);
+			now.set(Calendar.HOUR_OF_DAY, 23);
+			now.set(Calendar.MINUTE, 59);
+			now.set(Calendar.SECOND, 59);
+			rangFinal = now.getTime();
 		}
 
 		if (rangInicial != null && rangFinal != null) {

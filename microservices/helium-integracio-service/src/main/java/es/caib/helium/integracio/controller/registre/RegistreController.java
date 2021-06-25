@@ -20,10 +20,12 @@ import es.caib.helium.integracio.domini.registre.RespostaAnotacioRegistre;
 import es.caib.helium.integracio.domini.registre.RespostaConsultaRegistre;
 import es.caib.helium.integracio.service.registre.RegistreService;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @RestController
 @AllArgsConstructor
 @RequestMapping(RegistreController.API_PATH)
+@Slf4j
 public class RegistreController {
 	
 	public static final String API_PATH = "/api/v1/regweb";
@@ -48,14 +50,17 @@ public class RegistreController {
 //	}
 	
 	@PostMapping(value="sortida", consumes = "application/json")
-	public ResponseEntity<RespostaAnotacioRegistre> crearRegistreSortida(@Valid @RequestBody RegistreAssentament registre, BindingResult error)
-			throws Exception {
+	public ResponseEntity<RespostaAnotacioRegistre> crearRegistreSortida(
+			@Valid @RequestBody RegistreAssentament registre,
+			@RequestParam("entornId") Long entornId,
+			BindingResult error) throws Exception {
 
+		log.info("Creant registre de sortida");
 		if (error.hasErrors()) {
 			return new ResponseEntity<RespostaAnotacioRegistre>(HttpStatus.BAD_REQUEST);
 		}
 		
-		var resposta = registreService.registrarSortida(registre, "Helium", "3.2"); //TODO moure el hardcoded a properties
+		var resposta = registreService.registrarSortida(registre, "Helium", "3.2", entornId); //TODO moure el hardcoded a properties
 		return new ResponseEntity<RespostaAnotacioRegistre>(resposta, HttpStatus.OK);
 	}
 
@@ -63,11 +68,11 @@ public class RegistreController {
 	public ResponseEntity<RespostaConsultaRegistre> getRegistreOficinaNom(
 			@Valid @PathVariable("numeroRegistre") String numeroRegistre,
 			@RequestParam("usuariCodi") String usuariCodi,
-			@RequestParam("entitatCodi") String entitatCodi
-			) 
-			throws Exception {
+			@RequestParam("entitatCodi") String entitatCodi,
+			@RequestParam("entornId") Long entornId) throws Exception {
 		
-		var resposta = registreService.obtenirRegistreSortida(numeroRegistre, usuariCodi, entitatCodi);
+		log.info("Obtenint registre de sortida");
+		var resposta = registreService.obtenirRegistreSortida(numeroRegistre, usuariCodi, entitatCodi, entornId);
 		if (resposta == null) {
 			return new ResponseEntity<RespostaConsultaRegistre>(HttpStatus.NOT_FOUND);
 		}

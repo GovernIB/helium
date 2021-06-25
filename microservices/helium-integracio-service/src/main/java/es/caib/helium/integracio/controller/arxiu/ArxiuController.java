@@ -15,20 +15,23 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.netflix.servo.util.Strings;
 
-import es.caib.plugins.arxiu.api.Document;
 import es.caib.helium.integracio.domini.arxiu.DocumentArxiu;
 import es.caib.helium.integracio.domini.arxiu.ExpedientArxiu;
 import es.caib.helium.integracio.service.arxiu.ArxiuService;
+import es.caib.plugins.arxiu.api.Document;
 import es.caib.plugins.arxiu.api.Expedient;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @RestController
 @AllArgsConstructor
 @RequestMapping(ArxiuController.API_PATH)
+@Slf4j
 public class ArxiuController {
 
 	public static final String API_PATH = "/api/v1/arxiu";
@@ -43,12 +46,15 @@ public class ArxiuController {
 	}
 	
 	@GetMapping(value = "expedients/{uuId}", produces = "application/json")
-	public ResponseEntity<Expedient> getExpedientsByUuId(@PathVariable("uuId") String uuId) throws Exception { 
+	public ResponseEntity<Expedient> getExpedientsByUuId(
+			@PathVariable("uuId") String uuId, 
+			@RequestParam("entornId") Long entornId) throws Exception { 
 		
+		log.info("Obtenint els expedients by uuId");
 		if (Strings.isNullOrEmpty(uuId)) {
 			return new ResponseEntity<Expedient>(HttpStatus.BAD_REQUEST);
 		}
-		var expedient = arxiuService.getExpedient(uuId);
+		var expedient = arxiuService.getExpedient(uuId, entornId);
 		if (expedient != null) {
 			return new ResponseEntity<Expedient>(expedient, HttpStatus.OK);
 		}
@@ -56,67 +62,79 @@ public class ArxiuController {
 	}
 	
 	@PostMapping(value = "expedients", consumes = "application/json")
-	public ResponseEntity<Void> crearExpedient(@Valid @RequestBody ExpedientArxiu expedient, BindingResult errors) throws Exception {
+	public ResponseEntity<Void> crearExpedient(@Valid @RequestBody ExpedientArxiu expedient, 
+			@RequestParam("entornId") Long entornId,
+			BindingResult errors) throws Exception {
 		
+		log.info("Creant expedient");
 		if (errors.hasErrors()) {
 			return new ResponseEntity<Void>(HttpStatus.BAD_REQUEST);
 		}
 		
-		if (arxiuService.crearExpedient(expedient)) {
+		if (arxiuService.crearExpedient(expedient, entornId)) {
 			return new ResponseEntity<Void>(HttpStatus.OK);
 		}
 		return new ResponseEntity<Void>(HttpStatus.CONFLICT);
 	}
 
 	@PutMapping(value = "expedients", consumes = "application/json")
-	public ResponseEntity<Void> modificarExpedient(@Valid @RequestBody ExpedientArxiu expedient, BindingResult errors) throws Exception {
+	public ResponseEntity<Void> modificarExpedient(@Valid @RequestBody ExpedientArxiu expedient, 
+			@RequestParam("entornId") Long entornId,
+			BindingResult errors) throws Exception {
 		
+		log.info("Modificant expedient");
 		if (errors.hasErrors()) {
 			return new ResponseEntity<Void>(HttpStatus.BAD_REQUEST);
 		}
 		
-		if (arxiuService.modificarExpedient(expedient)) {
+		if (arxiuService.modificarExpedient(expedient, entornId)) {
 			return new ResponseEntity<Void>(HttpStatus.OK);
 		}
 		return new ResponseEntity<Void>(HttpStatus.CONFLICT);
 	}
 	
 	@DeleteMapping(value = "expedients/{uuId}")
-	public ResponseEntity<Void> deleteExpedient(@PathVariable("uuId") String uuId) throws Exception { 
+	public ResponseEntity<Void> deleteExpedient(
+			@PathVariable("uuId") String uuId,
+			@RequestParam("entornId") Long entornId) throws Exception { 
 		
-		// 400 bad input parameter
+		log.info("Esborrant expedient");
 		if (Strings.isNullOrEmpty(uuId)) {
 			return new ResponseEntity<Void>(HttpStatus.BAD_REQUEST);
 		}
-		if (arxiuService.deleteExpedient(uuId)) {
-			//200 ok
+		if (arxiuService.deleteExpedient(uuId, entornId)) {
 			return new ResponseEntity<Void>(HttpStatus.OK);
 		}
-		// 204 no content
 		return new ResponseEntity<Void>(HttpStatus.CONFLICT);
 	}
 	
 	@PostMapping(value = "expedients/{arxiuUuId}/tancar")
-	public ResponseEntity<Void> tancarExpedient(@PathVariable String arxiuUuId) throws Exception {
+	public ResponseEntity<Void> tancarExpedient(
+			@PathVariable String arxiuUuId,
+			@RequestParam("entornId") Long entornId) throws Exception {
 		
+		log.info("Tancant expedient");
 		if (arxiuUuId == null) {
 			return new ResponseEntity<Void>(HttpStatus.BAD_REQUEST);
 		}
 		
-		if (arxiuService.tancarExpedient(arxiuUuId)) {
+		if (arxiuService.tancarExpedient(arxiuUuId, entornId)) {
 			return new ResponseEntity<Void>(HttpStatus.OK);
 		}
 		return new ResponseEntity<Void>(HttpStatus.CONFLICT);
 	}
 
 	@PostMapping(value = "expedients/{arxiuUuId}/obrir")
-	public ResponseEntity<Void> obrirExpedient(@PathVariable String arxiuUuId) throws Exception {
+	public ResponseEntity<Void> obrirExpedient(
+			@PathVariable String arxiuUuId,
+			@RequestParam("entornId") Long entornId) throws Exception {
 		
+		log.info("Obrint expedient");
 		if (arxiuUuId == null) {
 			return new ResponseEntity<Void>(HttpStatus.BAD_REQUEST);
 		}
 		
-		if (arxiuService.obrirExpedient(arxiuUuId)) {
+		if (arxiuService.obrirExpedient(arxiuUuId, entornId)) {
 			return new ResponseEntity<Void>(HttpStatus.OK);
 		}
 		return new ResponseEntity<Void>(HttpStatus.CONFLICT);
@@ -126,14 +144,16 @@ public class ArxiuController {
 	
 	@GetMapping(value = "documents/{uuId}", produces = "application/json")
 	public ResponseEntity<Document> getDocument(@PathVariable("uuId") String uuId,
-			@QueryParam("versio") String versio,
-			@QueryParam("ambContingut") boolean ambContingut,
-			@QueryParam("isSignat") boolean isSignat) throws Exception {
+			@RequestParam("versio") String versio,
+			@RequestParam("ambContingut") boolean ambContingut,
+			@RequestParam("isSignat") boolean isSignat,
+			@RequestParam("entornId") Long entornId) throws Exception {
 		
+		log.info(("Obtenint document"));
 		if (Strings.isNullOrEmpty(uuId)) {
 			return new ResponseEntity<Document>(HttpStatus.BAD_REQUEST);
 		}
-		var document = arxiuService.getDocument(uuId, versio, ambContingut, isSignat);
+		var document = arxiuService.getDocument(uuId, versio, ambContingut, isSignat, entornId);
 		if (document != null) {
 			return new ResponseEntity<Document>(document, HttpStatus.OK);
 		}
@@ -141,40 +161,49 @@ public class ArxiuController {
 	}
 	
 	@PostMapping(value = "documents", consumes = "application/json")
-	public ResponseEntity<Void> crearDocument(@Valid @RequestBody DocumentArxiu document, BindingResult errors) throws Exception {
+	public ResponseEntity<Void> crearDocument(
+			@Valid @RequestBody DocumentArxiu document,
+			@RequestParam("entornId") Long entornId,
+			BindingResult errors) throws Exception {
 		
+		log.info("Creant document");
 		if (errors.hasErrors()) {
 			return new ResponseEntity<Void>(HttpStatus.BAD_REQUEST);
 		}
 		
-		if (arxiuService.crearDocument(document)) {
+		if (arxiuService.crearDocument(document, entornId)) {
 			return new ResponseEntity<Void>(HttpStatus.OK);
 		}
 		return new ResponseEntity<Void>(HttpStatus.CONFLICT);
 	}
 
 	@PutMapping(value = "documents", consumes = "application/json")
-	public ResponseEntity<Void> modificarExpedient(@Valid @RequestBody DocumentArxiu document, BindingResult errors) throws Exception {
+	public ResponseEntity<Void> modificarExpedient(
+			@Valid @RequestBody DocumentArxiu document, 
+			@RequestParam("entornId") Long entornId,
+			BindingResult errors) throws Exception {
 		
+		log.info("Modificant document");
 		if (errors.hasErrors()) {
 			return new ResponseEntity<Void>(HttpStatus.BAD_REQUEST);
 		}
 		
-		if (arxiuService.modificarDocument(document)) {
+		if (arxiuService.modificarDocument(document, entornId)) {
 			return new ResponseEntity<Void>(HttpStatus.OK);
 		}
 		return new ResponseEntity<Void>(HttpStatus.CONFLICT);
 	}
 	
 	@DeleteMapping(value = "documents/{uuId}")
-	public ResponseEntity<Void> deleteDocument(@PathVariable("uuId") String uuId) throws Exception { 
+	public ResponseEntity<Void> deleteDocument(
+			@PathVariable("uuId") String uuId,
+			@RequestParam("entornId") Long entornId) throws Exception { 
 		
-		// 400 bad input parameter
+		log.info("Esborrant document");
 		if (Strings.isNullOrEmpty(uuId)) {
 			return new ResponseEntity<Void>(HttpStatus.BAD_REQUEST);
 		}
-		if (arxiuService.deleteDocument(uuId)) {
-			//200 ok
+		if (arxiuService.deleteDocument(uuId, entornId)) {
 			return new ResponseEntity<Void>(HttpStatus.OK);
 		}
 		return new ResponseEntity<Void>(HttpStatus.CONFLICT);

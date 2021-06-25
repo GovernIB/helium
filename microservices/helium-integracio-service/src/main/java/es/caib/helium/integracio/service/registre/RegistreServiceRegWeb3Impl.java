@@ -6,8 +6,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URLConnection;
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
+import org.apache.commons.lang.exception.ExceptionUtils;
 import org.springframework.stereotype.Service;
 
 import es.caib.helium.integracio.domini.registre.DocumentRegistre;
@@ -16,6 +19,12 @@ import es.caib.helium.integracio.domini.registre.RegistreAssentamentInteressat;
 import es.caib.helium.integracio.domini.registre.RespostaAnotacioRegistre;
 import es.caib.helium.integracio.domini.registre.RespostaConsultaRegistre;
 import es.caib.helium.integracio.excepcions.registre.RegistreException;
+import es.caib.helium.integracio.service.monitor.MonitorIntegracionsService;
+import es.caib.helium.jms.domini.Parametre;
+import es.caib.helium.jms.enums.CodiIntegracio;
+import es.caib.helium.jms.enums.EstatAccio;
+import es.caib.helium.jms.enums.TipusAccio;
+import es.caib.helium.jms.events.IntegracioEvent;
 import es.caib.regweb3.ws.api.v3.AnexoWs;
 import es.caib.regweb3.ws.api.v3.AsientoRegistralWs;
 import es.caib.regweb3.ws.api.v3.DatosInteresadoWs;
@@ -36,6 +45,7 @@ public class RegistreServiceRegWeb3Impl implements RegistreService {
 	
 	private RegWebAsientoRegistralWs asientoRegistralApi;
 	private RegWebRegistroEntradaWs registroEntradaApi; // TODO PENDEN DE SI ES FA SERVIR O NO
+	private MonitorIntegracionsService monitor;
 	
 	@Override
 	public Date obtenirDataJustificant(String numeroRegistre) throws RegistreException {
@@ -46,10 +56,52 @@ public class RegistreServiceRegWeb3Impl implements RegistreService {
 	}
 	
 	@Override
-	public RespostaAnotacioRegistre registrarSortida(RegistreAssentament registreSortida, String aplicacioNom, String aplicacioVersio) 
+	public RespostaAnotacioRegistre registrarSortida(RegistreAssentament registreSortida, 
+			String aplicacioNom, String aplicacioVersio, Long entornId) throws RegistreException {
+		
+		List<Parametre> parametres = new ArrayList<>();
+		parametres.add(new Parametre("organCodi", registreSortida.getOrgan()));
+		parametres.add(new Parametre("oficinaCodi", registreSortida.getOficinaCodi()));
+		parametres.add(new Parametre("llibreCodi", registreSortida.getLlibreCodi()));
+		
+		var t0 = System.currentTimeMillis();
+		var descripcio = "Registrar sortida";
+		try {
+			var resposta = registrarSortidaAux(registreSortida, aplicacioNom , aplicacioVersio);
+			
+			monitor.enviarEvent(IntegracioEvent.builder()
+					.codi(CodiIntegracio.REGISTRE)
+					.entornId(entornId)
+					.descripcio(descripcio)
+					.data(new Date())
+					.tipus(TipusAccio.ENVIAMENT)
+					.estat(EstatAccio.OK)
+					.parametres(parametres)
+					.tempsResposta(System.currentTimeMillis() - t0).build());
+			
+			log.debug("Sortida registrada correctament");
+			return resposta;
+		
+		} catch (Exception ex) {
+			var error = "No s'ha pogut registrar la sortida";
+			log.error(error, ex);
+			monitor.enviarEvent(IntegracioEvent.builder().codi(CodiIntegracio.REGISTRE) 
+					.entornId(entornId) 
+					.descripcio(descripcio)
+					.tipus(TipusAccio.ENVIAMENT)
+					.estat(EstatAccio.ERROR)
+					.tempsResposta(System.currentTimeMillis() - t0)
+					.errorDescripcio(error)
+					.excepcioMessage(ex.getMessage())
+					.excepcioStacktrace(ExceptionUtils.getStackTrace(ex)).build());
+			throw new RegistreException(error, ex);
+		}
+	}
+
+	private RespostaAnotacioRegistre registrarSortidaAux(RegistreAssentament registreSortida, String aplicacioNom, String aplicacioVersio) 
 			throws RegistreException {
 
-		AsientoRegistralWs registroSalidaWs = new AsientoRegistralWs();
+		var registroSalidaWs = new AsientoRegistralWs();
 		
     	registroSalidaWs.setTipoRegistro(2L); // Assentament de tipus sortida
         registroSalidaWs.setUnidadTramitacionOrigenCodigo(registreSortida.getOrgan());
@@ -71,11 +123,11 @@ public class RegistreServiceRegWeb3Impl implements RegistreService {
         registroSalidaWs.setSolicita(registreSortida.getSolicita());
 
         // Interesados
-        for (RegistreAssentamentInteressat inter: registreSortida.getInteressats()) {
+        for (var inter: registreSortida.getInteressats()) {
         	
-        	InteresadoWs interesadoWs = new InteresadoWs();
+        	var interesadoWs = new InteresadoWs();
 
-            DatosInteresadoWs interesado = new DatosInteresadoWs();
+            var interesado = new DatosInteresadoWs();
             interesado.setTipoInteresado(inter.getTipus() != null ? Long.valueOf(inter.getTipus().getValor()) : null);
             interesado.setTipoDocumentoIdentificacion(inter.getDocumentTipus() != null ? inter.getDocumentTipus().getValor() : null);
             interesado.setDocumento(inter.getDocumentNum());
@@ -93,8 +145,8 @@ public class RegistreServiceRegWeb3Impl implements RegistreService {
             interesadoWs.setInteresado(interesado);
 
             if (inter.getRepresentant() != null) {
-            	RegistreAssentamentInteressat repre = inter.getRepresentant();
-	            DatosInteresadoWs representante = new DatosInteresadoWs();
+            	var repre = inter.getRepresentant();
+	            var representante = new DatosInteresadoWs();
 	            representante.setTipoInteresado(repre.getTipus() != null ? Long.valueOf(repre.getTipus().getValor()) : null);
 	            representante.setTipoDocumentoIdentificacion(repre.getDocumentTipus() != null ? repre.getDocumentTipus().getValor() : null);
 	            representante.setDocumento(repre.getDocumentNum());
@@ -115,8 +167,8 @@ public class RegistreServiceRegWeb3Impl implements RegistreService {
             registroSalidaWs.getInteresados().add(interesadoWs);
         }
         
-        for (DocumentRegistre document: registreSortida.getDocuments()) {
-        	AnexoWs anexoWs = new AnexoWs();
+        for (var document: registreSortida.getDocuments()) {
+        	var anexoWs = new AnexoWs();
         	
         	anexoWs.setTitulo(document.getNom());
             anexoWs.setTipoDocumental(document.getTipusDocumental());
@@ -130,7 +182,7 @@ public class RegistreServiceRegWeb3Impl implements RegistreService {
             anexoWs.setNombreFicheroAnexado(document.getArxiuNom());
             anexoWs.setFechaCaptura(new Timestamp(document.getData().getTime()));
             
-            InputStream is = new BufferedInputStream(new ByteArrayInputStream(document.getArxiuContingut()));
+            var is = new BufferedInputStream(new ByteArrayInputStream(document.getArxiuContingut()));
             try {
 				String mimeType = URLConnection.guessContentTypeFromStream(is);
 				anexoWs.setTipoMIMEFicheroAnexado(mimeType);
@@ -154,8 +206,9 @@ public class RegistreServiceRegWeb3Impl implements RegistreService {
             resposta = new RespostaAnotacioRegistre();
             resposta.setData(identificadorWs.getFechaRegistro());
             resposta.setNumero(String.valueOf(identificadorWs.getNumeroRegistro()));
-            if (resposta.getNumero() == null || "0".equals(resposta.getNumero()))
+            if (resposta.getNumero() == null || "0".equals(resposta.getNumero())) {
             	throw new Exception("En la resposta del registre no s'ha assignat un número de registre vàlid: " + resposta.getNumero());
+            }
             resposta.setNumeroRegistroFormateado(identificadorWs.getNumeroRegistroFormateado());
             resposta.setErrorCodi(RespostaAnotacioRegistre.ERROR_CODI_OK);
         } catch (WsI18NException e) {
@@ -171,15 +224,54 @@ public class RegistreServiceRegWeb3Impl implements RegistreService {
 	}
 	
 	@Override
-	public RespostaConsultaRegistre obtenirRegistreSortida(String numRegistre, String usuariCodi, String entitatCodi)
-			throws RegistreException {
-
-		RespostaConsultaRegistre resposta = new RespostaConsultaRegistre();
+	public RespostaConsultaRegistre obtenirRegistreSortida(String numRegistre, String usuariCodi, String entitatCodi, Long entornId) throws RegistreException {
+	
+		List<Parametre> parametres = new ArrayList<>();
+		parametres.add(new Parametre("numRegistre", numRegistre));
+		parametres.add(new Parametre("usuariCodi", usuariCodi));
+		parametres.add(new Parametre("entitatCodi", entitatCodi));
+		
+		var t0 = System.currentTimeMillis();
+		var descripcio = "Obtenir registre de sortida";
+		try {
+			var resposta = obtenirRegistreSortidaAux(numRegistre, usuariCodi, entitatCodi, entornId);
+			
+			monitor.enviarEvent(IntegracioEvent.builder()
+					.codi(CodiIntegracio.REGISTRE)
+					.entornId(entornId)
+					.descripcio(descripcio)
+					.data(new Date())
+					.tipus(TipusAccio.ENVIAMENT)
+					.estat(EstatAccio.OK)
+					.parametres(parametres)
+					.tempsResposta(System.currentTimeMillis() - t0).build());
+			
+			log.debug("Registre de sortida obtingut correctament");
+			return resposta;
+		
+		} catch (Exception ex) {
+			var error = "Error obtenint el registre de sortida";
+			log.error(error, ex);
+			monitor.enviarEvent(IntegracioEvent.builder().codi(CodiIntegracio.REGISTRE) 
+					.entornId(entornId) 
+					.descripcio(descripcio)
+					.tipus(TipusAccio.ENVIAMENT)
+					.estat(EstatAccio.ERROR)
+					.tempsResposta(System.currentTimeMillis() - t0)
+					.errorDescripcio(error)
+					.excepcioMessage(ex.getMessage())
+					.excepcioStacktrace(ExceptionUtils.getStackTrace(ex)).build());
+			throw new RegistreException(error, ex);
+		}
+	}
+		
+	private RespostaConsultaRegistre obtenirRegistreSortidaAux(String numRegistre, String usuariCodi, String entitatCodi, Long entornId) throws RegistreException {
 
 		try {
 			
-			AsientoRegistralWs registroSalida = asientoRegistralApi.obtenerAsientoRegistral(entitatCodi, numRegistre, 2L, false);
+			var registroSalida = asientoRegistralApi.obtenerAsientoRegistral(entitatCodi, numRegistre, 2L, false);
             
+			var resposta = new RespostaConsultaRegistre();
             resposta.setRegistreNumero(registroSalida.getNumeroRegistroFormateado());
             resposta.setRegistreData(registroSalida.getFechaRegistro());
             resposta.setEntitatCodi(registroSalida.getEntidadCodigo());
@@ -187,6 +279,7 @@ public class RegistreServiceRegWeb3Impl implements RegistreService {
             resposta.setOficinaCodi("");	//Desapareix el codi d'oficina per Regweb3
             resposta.setOficinaDenominacio(""); 	//Desapareix el codi d'oficina per Regweb3
             // TODO GUARDAR CADENA BUIDA SEMBLA QUE NO ÉS CORRECTE. Helium 3.2
+            return resposta;
 		} catch (WsI18NException e) {
             String msg = WsClientUtils.toString(e);
             throw new RegistreException("Error WsI18NException: " + msg);
@@ -197,8 +290,6 @@ public class RegistreServiceRegWeb3Impl implements RegistreService {
         	log.error("Error al obtenir l'anotació de registre de sortida", e);
 			throw new RegistreException("Error al obtenir l'anotació de registre de sortida", e);
 		}
-		
-		return resposta;
 	}
 	
 	@Override
@@ -210,6 +301,8 @@ public class RegistreServiceRegWeb3Impl implements RegistreService {
 	@Override
 	public RespostaAnotacioRegistre registrarEntrada(RegistreAssentament registreEntrada, String aplicacioNom, String aplicacioVersio) 
 			throws RegistreException {
+		
+		//TODO S'USA AQUEST MÈTODE PER AQUEST IMPLEMENTACIO?
 		
 		// 		Camps del registre
 		//		------------------------------------------------------------------------------------------------------------------------------------------

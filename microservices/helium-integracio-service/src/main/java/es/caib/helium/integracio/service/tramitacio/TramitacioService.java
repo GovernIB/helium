@@ -17,15 +17,15 @@ import es.caib.helium.integracio.excepcions.tramitacio.TramitacioException;
 @Service
 public interface TramitacioService {
 	
-	public RespostaJustificantRecepcio obtenirJustificantRecepcio(String numeroRegistre) throws TramitacioException;
-	public RespostaJustificantDetallRecepcio obtenirJustificantDetallRecepcio(String numeroRegistre) throws TramitacioException;
-	public DadesVistaDocument obtenirVistaDocument(ObtenirVistaDocumentRequest request) throws TramitacioException;
+	public RespostaJustificantRecepcio obtenirJustificantRecepcio(String numeroRegistrel, Long entornId) throws TramitacioException;
+	public RespostaJustificantDetallRecepcio obtenirJustificantDetallRecepcio(String numeroRegistre, Long entornId) throws TramitacioException;
+	public DadesVistaDocument obtenirVistaDocument(ObtenirVistaDocumentRequest request, Long entornId) throws TramitacioException;
 	
-	public DadesTramit obtenirDadesTramit(String numero, String clau) throws TramitacioException;
-	public boolean comunicarResultatProcesTramit(ResultatProcesTramitRequest request) throws TramitacioException;
+	public DadesTramit obtenirDadesTramit(String numero, String clau, Long entornId) throws TramitacioException;
+	public boolean comunicarResultatProcesTramit(ResultatProcesTramitRequest request, Long entornId) throws TramitacioException;
 	
-	public boolean crearExpedientZonaPersonal(PublicarExpedientRequest request) throws TramitacioException;
-	public boolean crearEventZonaPersonal(PublicarEventRequest request) throws TramitacioException;
-	public RespostaAnotacioRegistre registrarNotificacio(RegistreNotificacio registreNotificacio) throws TramitacioException;
-	public boolean existeixExpedient(Long unidadAdministrativa, String identificadorExpediente) throws TramitacioException;
+	public boolean crearExpedientZonaPersonal(PublicarExpedientRequest request, Long entornId) throws TramitacioException;
+	public boolean crearEventZonaPersonal(PublicarEventRequest request, Long entornId) throws TramitacioException;
+	public RespostaAnotacioRegistre registrarNotificacio(RegistreNotificacio registreNotificacio, Long entornId) throws TramitacioException;
+	public boolean existeixExpedient(Long unidadAdministrativa, String identificadorExpediente, Long entornId) throws TramitacioException;
 }

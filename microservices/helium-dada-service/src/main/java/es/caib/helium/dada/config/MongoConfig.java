@@ -37,10 +37,9 @@ public class MongoConfig extends AbstractMongoClientConfiguration {
 
 	@Override
 	public MongoClient mongoClient() {
-		ConnectionString connectionString = new ConnectionString(env.getProperty("spring.data.mongodb.uri"));
-		MongoClientSettings mongoClientSettings = MongoClientSettings.builder().applyConnectionString(connectionString)
-				.build();
-
+		
+		var connectionString = new ConnectionString(env.getProperty("spring.data.mongodb.uri"));
+		var mongoClientSettings = MongoClientSettings.builder().applyConnectionString(connectionString).build();
 		return MongoClients.create(mongoClientSettings);
 	}
 }

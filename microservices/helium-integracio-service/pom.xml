@@ -70,6 +70,15 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-webflux</artifactId>
 		</dependency>
+		
+		<!-- Monitor integracions -->
+		<dependency>
+			<groupId>es.caib.helium</groupId>
+		    <artifactId>helium-jms-events</artifactId>
+		    <version>1.0</version>
+		</dependency>
+		<!-- /Monitor integracions -->
+		
 		<dependency>
 			<groupId>es.caib.notib</groupId>
 			<artifactId>notib-client</artifactId>

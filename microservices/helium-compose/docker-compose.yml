@@ -28,6 +28,55 @@ services:
     ports:
       - 8161:8161
       - 61616:61616
+ 
+  mongo1:
+    image: mongo
+    container_name: mongo1
+    command: ["--replSet", "rs0", "--dbpath", "/data/db", "--bind_ip_all"]
+    ports: 
+      - "30001:27017"
+    volumes:
+      - /mongo/data1/db:/data/db 
+      - /mongo/data1/configdb:/data/configdb
+    networks: 
+      - database-mongo
+
+  mongo2:
+    image: mongo
+    container_name: mongo2
+    command: ["--replSet", "rs0", "--dbpath", "/data/db", "--bind_ip_all"]
+    ports: 
+      - "30002:27017"
+    volumes:
+      - /mongo/data2/db:/data/db 
+      - /mongo/data2/configdb:/data/configdb
+    networks: 
+      - database-mongo
+
+  mongo3:
+    image: mongo
+    container_name: mongo3
+    command: ["--replSet", "rs0", "--dbpath", "/data/db", "--bind_ip_all"]
+    ports: 
+      - "30003:27017"
+    volumes:
+      - /mongo/data3/db:/data/db 
+      - /mongo/data3/configdb:/data/configdb
+    networks: 
+      - database-mongo
+      
+  mongo-config:
+    image: mongo
+    networks: 
+      - database-mongo
+    depends_on: 
+      - mongo1
+      - mongo2
+      - mongo3
+    volumes:
+      - ./scripts:/scripts
+    entrypoint: ['/scripts/mongo-setup.sh']
+ 
   zipkin:
     image: openzipkin/zipkin
     ports:
@@ -60,6 +109,27 @@ services:
       SPRING_DATASOURCE_URL: jdbc:oracle:thin:@//${DOCKER_GATEWAY_HOST:-host.docker.internal}:49161/xe
 #      SPRING_DATASOURCE_USERNAME: hel_domini
 #      SPRING_DATASOURCE_PASSWORD: hel_domini
+#      SPRING_ARTEMIS_HOST: jms
+      EUREKA_INSTANCE_PREFER_IP_ADDRESS: 'true'
+    restart: on-failure
+    labels:
+      collect_logs_with_filebeat: "true"
+      decode_log_event_to_json_object: "true"
+      
+  helium-dada-service:
+    image: mshelium/helium-dada-service
+    ports:
+      - 8083:8080
+    depends_on:
+      - helium-eureka
+      - helium-config-service
+      - mongodb1
+    environment:
+      eureka.client.service-url.defaultZone: http://helium:H3lEurek4@helium-eureka:8761/eureka
+      SPRING_PROFILES_ACTIVE: compose
+      spring.zipkin.enabled: 'true'
+      spring.zipkin.base-url: http://zipkin:9411/
+      SPRING_DATA_MONGODB_URI: mongodb://mongodb1:30001/hel_dada
 #      SPRING_ARTEMIS_HOST: jms
       EUREKA_INSTANCE_PREFER_IP_ADDRESS: 'true'
     restart: on-failure

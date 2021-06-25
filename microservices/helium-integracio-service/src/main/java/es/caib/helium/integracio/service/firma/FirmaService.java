@@ -8,5 +8,5 @@ import es.caib.helium.integracio.excepcions.firma.FirmaException;
 @Service
 public interface FirmaService {
 
-	public byte[] firmar(FirmaPost firma) throws FirmaException;
+	public byte[] firmar(FirmaPost firma, Long entornId) throws FirmaException;
 }

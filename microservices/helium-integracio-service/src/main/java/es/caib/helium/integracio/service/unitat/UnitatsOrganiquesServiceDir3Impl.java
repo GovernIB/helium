@@ -5,6 +5,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
 import java.util.logging.Level;
@@ -19,6 +20,8 @@ import javax.xml.ws.handler.MessageContext;
 import javax.xml.ws.handler.soap.SOAPHandler;
 import javax.xml.ws.handler.soap.SOAPMessageContext;
 
+import org.apache.commons.lang.exception.ExceptionUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import es.caib.dir3caib.ws.api.unidad.Dir3CaibObtenerUnidadesWs;
@@ -26,6 +29,12 @@ import es.caib.dir3caib.ws.api.unidad.Dir3CaibObtenerUnidadesWsService;
 import es.caib.dir3caib.ws.api.unidad.UnidadTF;
 import es.caib.helium.integracio.domini.unitat.UnitatOrganica;
 import es.caib.helium.integracio.excepcions.unitat.UnitatOrganicaException;
+import es.caib.helium.integracio.service.monitor.MonitorIntegracionsService;
+import es.caib.helium.jms.domini.Parametre;
+import es.caib.helium.jms.enums.CodiIntegracio;
+import es.caib.helium.jms.enums.EstatAccio;
+import es.caib.helium.jms.enums.TipusAccio;
+import es.caib.helium.jms.events.IntegracioEvent;
 import lombok.extern.slf4j.Slf4j;
 
 @Service
@@ -34,44 +43,105 @@ public class UnitatsOrganiquesServiceDir3Impl implements UnitatsOrganiquesServic
 
 	private Dir3CaibObtenerUnidadesWs client;
 	
+	@Autowired
+	private MonitorIntegracionsService monitor;
+	
 	@Override
-	public List<UnitatOrganica> findAmbPare(String pareCodi) throws UnitatOrganicaException {
+	public List<UnitatOrganica> findAmbPare(String pareCodi, Long entornId) throws UnitatOrganicaException {
+	
+		var t0  = System.currentTimeMillis();
+		var descripcio = "Obtenir unitats organiques segons codi pare";
+		List<Parametre> parametres = new ArrayList<>();
+		parametres.add(new Parametre("pareCodi", pareCodi));	
 		try {
 			UnidadTF unidadPare = client.obtenerUnidad(pareCodi, null, null);
-			if (unidadPare != null) {
-				List<UnitatOrganica> unitats = new ArrayList<UnitatOrganica>();
-				List<UnidadTF> unidades = client.obtenerArbolUnidades(pareCodi, null, null);//df.format(new Date()));
-				if (unidades != null) {
-					unidades.add(0, unidadPare);
-					for (var unidad: unidades) {
-						if ("V".equalsIgnoreCase(unidad.getCodigoEstadoEntidad())) {
-							unitats.add(toUnitatOrganitzativa(unidad));
-						}
-					}
-				} else {
-					unitats.add(toUnitatOrganitzativa(unidadPare));
-				}
-				return unitats;
-			} else {
+			if (unidadPare == null) {
 				throw new UnitatOrganicaException("No s'han trobat la unitat pare (pareCodi=" + pareCodi + ")");
 			}
+			
+			List<UnitatOrganica> unitats = new ArrayList<UnitatOrganica>();
+			List<UnidadTF> unidades = client.obtenerArbolUnidades(pareCodi, null, null);//df.format(new Date()));
+			if (unidades != null) {
+				unidades.add(0, unidadPare);
+				for (var unidad: unidades) {
+					if ("V".equalsIgnoreCase(unidad.getCodigoEstadoEntidad())) {
+						unitats.add(toUnitatOrganitzativa(unidad));
+					}
+				}
+			} else {
+				unitats.add(toUnitatOrganitzativa(unidadPare));
+			}
+			
+			monitor.enviarEvent(IntegracioEvent.builder()
+					.codi(CodiIntegracio.UNITAT_ORGANICA)
+					.entornId(entornId)
+					.descripcio(descripcio)
+					.data(new Date())
+					.tipus(TipusAccio.ENVIAMENT)
+					.estat(EstatAccio.OK)
+					.parametres(parametres)
+					.tempsResposta(System.currentTimeMillis() - t0).build());
+			
+			log.debug("Unitats orgàniques obtingudes");
+			return unitats;
+
 		} catch (Exception ex) {
-			throw new UnitatOrganicaException("No s'han pogut consultar les unitats organitzatives via WS (" + "pareCodi=" + pareCodi + ")",	ex);
+			var error = "No s'han pogut consultar les unitats organitzatives via WS (" + "pareCodi=" + pareCodi + ")";
+			log.error(error, ex);
+			monitor.enviarEvent(IntegracioEvent.builder().codi(CodiIntegracio.UNITAT_ORGANICA) 
+					.entornId(entornId) 
+					.descripcio(descripcio)
+					.tipus(TipusAccio.ENVIAMENT)
+					.estat(EstatAccio.ERROR)
+					.parametres(parametres)
+					.tempsResposta(System.currentTimeMillis() - t0)
+					.errorDescripcio(error)
+					.excepcioMessage(ex.getMessage())
+					.excepcioStacktrace(ExceptionUtils.getStackTrace(ex)).build());
+			throw new UnitatOrganicaException(error, ex);
 		}
 	}
 	
 	@Override
-	public UnitatOrganica consultaUnitat(String codi) throws UnitatOrganicaException {
+	public UnitatOrganica consultaUnitat(String codi, Long entornId) throws UnitatOrganicaException {
+		
+		var t0  = System.currentTimeMillis();
+		var descripcio = "Obtenir unitats organiques segons codi";
+		List<Parametre> parametres = new ArrayList<>();
+		parametres.add(new Parametre("codi", codi));	
 		try {
 			var unidad = client.obtenerUnidad(codi, null, 	null);
 			if (unidad == null ||  !"V".equalsIgnoreCase(unidad.getCodigoEstadoEntidad())) {
-				log.error("La unitat organitzativa no està vigent (" + "codi=" + codi + ")");
-				return null;
+				throw new UnitatOrganicaException("La unitat organitzativa no està vigent (" + "codi=" + codi + ")");
 			} 
+			
+			monitor.enviarEvent(IntegracioEvent.builder()
+					.codi(CodiIntegracio.UNITAT_ORGANICA)
+					.entornId(entornId)
+					.descripcio(descripcio)
+					.data(new Date())
+					.tipus(TipusAccio.ENVIAMENT)
+					.estat(EstatAccio.OK)
+					.parametres(parametres)
+					.tempsResposta(System.currentTimeMillis() - t0).build());
+
+			log.debug("Obtingudes unitats organiques segons codi");
 			return toUnitatOrganitzativa(unidad);
+			
 		} catch (Exception ex) {
-			throw new UnitatOrganicaException(
-					"No s'ha pogut consultar la unitat organitzativa (" + "codi=" + codi + ")",	ex);
+			var error = "No s'ha pogut consultar la unitat organitzativa (" + "codi=" + codi + ")";
+			log.error(error, ex);
+			monitor.enviarEvent(IntegracioEvent.builder().codi(CodiIntegracio.UNITAT_ORGANICA) 
+					.entornId(entornId) 
+					.descripcio(descripcio)
+					.tipus(TipusAccio.ENVIAMENT)
+					.estat(EstatAccio.ERROR)
+					.parametres(parametres)
+					.tempsResposta(System.currentTimeMillis() - t0)
+					.errorDescripcio(error)
+					.excepcioMessage(ex.getMessage())
+					.excepcioStacktrace(ExceptionUtils.getStackTrace(ex)).build());
+			throw new UnitatOrganicaException(error, ex);
 		}
 	}
 	

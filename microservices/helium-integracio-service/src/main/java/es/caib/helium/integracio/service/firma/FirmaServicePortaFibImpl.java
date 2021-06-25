@@ -3,10 +3,14 @@ package es.caib.helium.integracio.service.firma;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.exception.ExceptionUtils;
 import org.fundaciobit.plugins.signature.api.CommonInfoSignature;
 import org.fundaciobit.plugins.signature.api.FileInfoSignature;
 import org.fundaciobit.plugins.signature.api.IRubricGenerator;
@@ -20,26 +24,44 @@ import org.fundaciobit.plugins.signature.api.SignaturesTableHeader;
 import org.fundaciobit.plugins.signature.api.StatusSignature;
 import org.fundaciobit.plugins.signature.api.StatusSignaturesSet;
 import org.fundaciobit.plugins.signatureserver.api.ISignatureServerPlugin;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import es.caib.helium.integracio.domini.firma.FirmaPost;
 import es.caib.helium.integracio.enums.firma.FirmaTipus;
 import es.caib.helium.integracio.excepcions.firma.FirmaException;
+import es.caib.helium.integracio.service.monitor.MonitorIntegracionsService;
+import es.caib.helium.jms.domini.Parametre;
+import es.caib.helium.jms.enums.CodiIntegracio;
+import es.caib.helium.jms.enums.EstatAccio;
+import es.caib.helium.jms.enums.TipusAccio;
+import es.caib.helium.jms.events.IntegracioEvent;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 
 
 @Service
-@Setter
+@Slf4j
 public class FirmaServicePortaFibImpl implements FirmaService {
 	
+	@Setter
 	private ISignatureServerPlugin plugin;
+	@Setter
 	private String username;
+	@Setter
 	private String location;
+	@Setter
 	private String email;
+	@Autowired
+	protected MonitorIntegracionsService monitor;
 	
 	@Override
-	public byte[] firmar(FirmaPost firma) throws FirmaException {
+	public byte[] firmar(FirmaPost firma, Long entornId) throws FirmaException {
 		
+		List<Parametre> parametres = new ArrayList<>();
+		parametres.add(new Parametre("arxiuNom", firma.getArxiuNom()));
+		var t0 = System.currentTimeMillis();
+		var descripcio = "Firmant el fitxer " + firma.getArxiuNom();
 		File sourceFile = null;
 		File destFile = null;
 		byte[] firmaContingut = null;
@@ -73,9 +95,38 @@ public class FirmaServicePortaFibImpl implements FirmaService {
 			// Llegeix la firma del fitxer de destí
 			destFile = new File(dest);
 			firmaContingut = FileUtils.readFileToByteArray(destFile);
+			
+			monitor.enviarEvent(IntegracioEvent.builder()
+					.codi(CodiIntegracio.FIRMA_SERV)
+					.entornId(entornId)
+					.descripcio(descripcio)
+					.data(new Date())
+					.tipus(TipusAccio.ENVIAMENT)
+					.estat(EstatAccio.OK)
+					.parametres(parametres)
+					.tempsResposta(System.currentTimeMillis() - t0).build());
+			
+			log.debug("Fitxer firmat correctament");
 			return firmaContingut;
-		} catch (Exception e) {
-			throw new FirmaException(e);
+			
+		} catch (Exception ex) {
+		
+			var error = "Error firmant l'arxiu";
+			log.error(error, ex);
+			
+			monitor.enviarEvent(IntegracioEvent.builder().codi(CodiIntegracio.FIRMA_SERV) 
+					.entornId(entornId) 
+					.descripcio(descripcio)
+					.tipus(TipusAccio.ENVIAMENT)
+					.estat(EstatAccio.ERROR)
+					.parametres(parametres)
+					.tempsResposta(System.currentTimeMillis() - t0)
+					.errorDescripcio(error)
+					.excepcioMessage(ex.getMessage())
+					.excepcioStacktrace(ExceptionUtils.getStackTrace(ex)).build());
+			
+			throw new FirmaException(error, ex);
+			
 		} finally {
 			// Esborra els arxius temporals
 			if (sourceFile != null && sourceFile.exists()) {

@@ -10,9 +10,12 @@ import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 
 import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.lang.exception.ExceptionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import es.caib.helium.integracio.domini.notificacio.ConsultaEnviament;
+import es.caib.helium.integracio.domini.notificacio.ConsultaNotificacio;
 import es.caib.helium.integracio.domini.notificacio.DadesNotificacioDto;
 import es.caib.helium.integracio.domini.notificacio.DocumentNotificacio;
 import es.caib.helium.integracio.domini.notificacio.Enviament;
@@ -26,9 +29,13 @@ import es.caib.helium.integracio.enums.notificacio.EnviamentEstat;
 import es.caib.helium.integracio.enums.notificacio.NotificacioEstat;
 import es.caib.helium.integracio.excepcions.notificacio.NotificacioException;
 import es.caib.helium.integracio.repository.notificacio.NotificacioRepository;
+import es.caib.helium.integracio.service.monitor.MonitorIntegracionsService;
+import es.caib.helium.jms.domini.Parametre;
+import es.caib.helium.jms.enums.CodiIntegracio;
+import es.caib.helium.jms.enums.EstatAccio;
+import es.caib.helium.jms.enums.TipusAccio;
+import es.caib.helium.jms.events.IntegracioEvent;
 import es.caib.notib.client.NotificacioRestClient;
-import es.caib.notib.client.NotificacioRestClientFactory;
-import es.caib.notib.ws.notificacio.Certificacio;
 import es.caib.notib.ws.notificacio.DocumentV2;
 import es.caib.notib.ws.notificacio.EntregaDeh;
 import es.caib.notib.ws.notificacio.EntregaPostal;
@@ -40,27 +47,33 @@ import es.caib.notib.ws.notificacio.NotificaDomiciliConcretTipusEnumDto;
 import es.caib.notib.ws.notificacio.NotificaServeiTipusEnumDto;
 import es.caib.notib.ws.notificacio.NotificacioV2;
 import es.caib.notib.ws.notificacio.RespostaAlta;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Service
 public class NotificacioServiceNotibImpl implements NotificacioService {
 
+	@Setter
 	private NotificacioRestClient client;
 	@Autowired
 	private NotificacioRepository notificacioRepository;
-
-	public void crearClient(String url, String username, String password, Boolean isBasicAuth, Integer connectTimeout, Integer readTimeout) {
-
-		if (client == null) {
-			client = NotificacioRestClientFactory.getRestClient(url, username, password, isBasicAuth, connectTimeout, readTimeout);
-		}
-	}
+	@Autowired
+	private MonitorIntegracionsService monitor;
 
 	@Override
 	public RespostaNotificacio altaNotificacio(DadesNotificacioDto dto) {
 
-		RespostaNotificacio resposta;
+		RespostaNotificacio resposta = null;
+		long t0 = System.currentTimeMillis();
+		List<Parametre> parametres = new ArrayList<>();
+		parametres.add(new Parametre("expedient.id", dto.getExpedientId()+ ""));
+		parametres.add(new Parametre("expedient", dto.getExpedientIdentificadorLimitat()));
+		parametres.add(new Parametre("documentArxiuNom", dto.getDocumentArxiuNom()));
+		parametres.add(new Parametre("titularsNif", preparaNifDestinataris(dto.getEnviaments())));
+		
+		var descripcio = "Alta notificació per l'expedient " + dto.getExpedientId();
+		
 		try {
 			var respostaNotib = crearNotificacio(new Notificacio(dto));
 
@@ -77,7 +90,7 @@ public class NotificacioServiceNotibImpl implements NotificacioService {
 				resposta.setErrorDescripcio(
 						"No s'ha pogut reconèixer l'estat \"" + respostaNotib.getEstat() + "\" de la resposta");
 			}
-			// Guarda la refererència de l'enviament
+//			 Guarda la refererència de l'enviament
 			resposta.setEnviamentReferencia(respostaNotib.getReferencies().get(0).getReferencia());
 			// TODO: Posar les referències per cada interessat. Pendent desde Helium 3.2
 //			for (EnviamentReferencia enviamentReferencia : respostaEnviar.getReferencies()) {
@@ -90,15 +103,50 @@ public class NotificacioServiceNotibImpl implements NotificacioService {
 
 			var documentNotificacio = new DocumentNotificacio(dto);
 			notificacioRepository.save(documentNotificacio);
-
-		} catch (Exception e) {
-			var error = "Error al donar d'alta la notificacio, consultar el log del microservei";
-			log.error(error, e);
+			monitor.enviarEvent(IntegracioEvent.builder().codi(CodiIntegracio.NOTIB) 
+					.entornId(dto.getEntornId()) 
+					.descripcio(descripcio)
+					.tipus(TipusAccio.ENVIAMENT) 
+					.estat(EstatAccio.OK)
+					.parametres(parametres) 
+					.tempsResposta(System.currentTimeMillis() - t0).build());
+			log.info("Notificacio creada correctament" + dto.toString());
+		} catch (Exception ex) {
+			var error = "Error al donar d'alta la notificacio ";
+			log.error(error, ex);
 			resposta = new RespostaNotificacio();
 			resposta.setError(true);
 			resposta.setErrorDescripcio(error);
+			monitor.enviarEvent(IntegracioEvent.builder().codi(CodiIntegracio.NOTIB) 
+					.entornId(dto.getEntornId()) 
+					.descripcio(descripcio)
+					.tipus(TipusAccio.ENVIAMENT) 
+					.estat(EstatAccio.ERROR)
+					.parametres(parametres) 
+					.tempsResposta(System.currentTimeMillis() - t0)
+					.errorDescripcio(error)
+					.excepcioMessage(ex.getMessage())
+					.excepcioStacktrace(ExceptionUtils.getStackTrace(ex)).build());
 		}
 		return resposta;
+	}
+	
+	private String preparaNifDestinataris(List<Enviament> enviaments) {
+		
+		String nifs = "";
+		if (enviaments == null || enviaments.isEmpty()) {
+			return nifs;
+		}
+			
+		for (var enviament : enviaments) {
+			nifs += enviament.getTitular().getNif() + ", ";
+		}
+		
+		if (!nifs.isEmpty()) {
+			nifs = nifs.substring(0, nifs.length() - 2);
+		}
+		
+		return nifs;
 	}
 
 	private RespostaEnviar crearNotificacio(Notificacio notificacio) throws NotificacioException {
@@ -218,7 +266,7 @@ public class NotificacioServiceNotibImpl implements NotificacioService {
 			resposta.setIdentificador(respostaAlta.getIdentificador());
 			if (respostaAlta.getReferencies() != null) {
 				List<EnviamentReferencia> referencies = new ArrayList<EnviamentReferencia>();
-				for (es.caib.notib.ws.notificacio.EnviamentReferencia ref : respostaAlta.getReferencies()) {
+				for (var ref : respostaAlta.getReferencies()) {
 					EnviamentReferencia referencia = new EnviamentReferencia();
 					referencia.setTitularNif(ref.getTitularNif());
 					referencia.setReferencia(ref.getReferencia());
@@ -231,19 +279,28 @@ public class NotificacioServiceNotibImpl implements NotificacioService {
 			return resposta;
 
 		} catch (Exception ex) {
-			throw new NotificacioException("No s'ha pogut enviar la notificació (" + "emisorDir3Codi="
+			var error = "No s'ha pogut enviar la notificació (" + "emisorDir3Codi="
 					+ notificacio.getEmisorDir3Codi() + ", " + "enviamentTipus=" + notificacio.getEnviamentTipus()
-					+ ", " + "concepte=" + notificacio.getConcepte() + ")", ex);
+					+ ", " + "concepte=" + notificacio.getConcepte() + ")";
+			log.error(error ,ex);
+			throw new NotificacioException(error, ex);
 		}
 	}
 
 	@Override
-	public RespostaConsultaEstatNotificacio consultaNotificacio(String identificador) throws NotificacioException {
+	public RespostaConsultaEstatNotificacio consultarNotificacio(ConsultaNotificacio consulta) throws NotificacioException {
 
 		RespostaConsultaEstatNotificacio resposta = null;
+		List<Parametre> parametres = new ArrayList<>();
+		parametres.add(new Parametre("expedientId", consulta.getExpedientId() + ""));
+		parametres.add(new Parametre("identificador",consulta.getIdentificador()));
+		parametres.add(new Parametre("referencia", consulta.getEnviamentReferencia()));
+		
+		var descripcio = "Consulta notificació per l'expedient " + consulta.getExpedientId();
+		
+		long t0 = System.currentTimeMillis();
 		try {
-			es.caib.notib.ws.notificacio.RespostaConsultaEstatNotificacio respostaConsultaEstat = client
-					.consultaEstatNotificacio(identificador);
+			var respostaConsultaEstat = client.consultaEstatNotificacio(consulta.getIdentificador());
 			resposta = new RespostaConsultaEstatNotificacio();
 			if (respostaConsultaEstat.getEstat() != null) {
 				switch (respostaConsultaEstat.getEstat()) {
@@ -271,21 +328,49 @@ public class NotificacioServiceNotibImpl implements NotificacioService {
 					? respostaConsultaEstat.getErrorData().toGregorianCalendar().getTime()
 					: null);
 			resposta.setErrorDescripcio(respostaConsultaEstat.getErrorDescripcio());
+			monitor.enviarEvent(IntegracioEvent.builder().codi(CodiIntegracio.NOTIB) 
+					.entornId(consulta.getEntornId()) 
+					.descripcio(descripcio)
+					.tipus(TipusAccio.RECEPCIO)
+					.estat(EstatAccio.OK)
+					.parametres(parametres) 
+					.tempsResposta(System.currentTimeMillis() - t0).build());
+			log.info("Notificació consultada correctament " + consulta.toString());
 		} catch (Exception ex) {
-			throw new NotificacioException(
-					"No s'ha pogut consultar l'estat de la notificació (" + "identificador=" + identificador + ")", ex);
+			
+			var error = "No s'ha pogut consultar l'estat de la notificació (" + "identificador=" 
+					+ consulta.getIdentificador() + ") per l'expedient " + consulta.getExpedientId();
+			log.error(error, ex);
+			monitor.enviarEvent(IntegracioEvent.builder().codi(CodiIntegracio.NOTIB) 
+					.entornId(consulta.getEntornId()) 
+					.descripcio(descripcio)
+					.tipus(TipusAccio.RECEPCIO)
+					.estat(EstatAccio.ERROR)
+					.parametres(parametres) 
+					.tempsResposta(System.currentTimeMillis() - t0)
+					.errorDescripcio(error)
+					.excepcioMessage(ex.getMessage())
+					.excepcioStacktrace(ExceptionUtils.getStackTrace(ex)).build());
+			throw new NotificacioException(error, ex);
 		}
 		return resposta;
 	}
 
 	@Override
-	public RespostaConsultaEstatEnviament consultaEnviament(String referencia) throws NotificacioException {
+	public RespostaConsultaEstatEnviament consultarEnviament(ConsultaEnviament consulta) throws NotificacioException {
+		
+		var t0 = System.currentTimeMillis();
+		List<Parametre> parametres = new ArrayList<>();
+		parametres.add(new Parametre("expedientId", consulta.getExpedientId() + ""));
+		parametres.add(new Parametre("identificador",consulta.getIdentificador()));
+		parametres.add(new Parametre("referencia", consulta.getEnviamentReferencia()));
+		
+		var descripcio = "Consulta enviament per l'expedient " + consulta.getExpedientId();
 		
 		try {
-			es.caib.notib.ws.notificacio.RespostaConsultaEstatEnviament respostaConsultaEstat = client
-					.consultaEstatEnviament(referencia);
+			var respostaConsultaEstat = client.consultaEstatEnviament(consulta.getEnviamentReferencia());
 
-			RespostaConsultaEstatEnviament resposta = new RespostaConsultaEstatEnviament();
+			var resposta = new RespostaConsultaEstatEnviament();
 
 			resposta.setEstat(toEnviamentEstat(respostaConsultaEstat.getEstat()));
 			resposta.setEstatData(toDate(respostaConsultaEstat.getEstatData()));
@@ -294,7 +379,7 @@ public class NotificacioServiceNotibImpl implements NotificacioService {
 			resposta.setReceptorNif(respostaConsultaEstat.getReceptorNif());
 			resposta.setReceptorNom(respostaConsultaEstat.getReceptorNom());
 			if (respostaConsultaEstat.getCertificacio() != null) {
-				Certificacio certificacio = respostaConsultaEstat.getCertificacio();
+				var certificacio = respostaConsultaEstat.getCertificacio();
 				resposta.setCertificacioData(toDate(certificacio.getData()));
 				resposta.setCertificacioOrigen(certificacio.getOrigen());
 				resposta.setCertificacioContingut(Base64.decodeBase64(certificacio.getContingutBase64().getBytes()));
@@ -305,11 +390,28 @@ public class NotificacioServiceNotibImpl implements NotificacioService {
 			}
 			resposta.setError(respostaConsultaEstat.isError());
 			resposta.setErrorDescripcio(respostaConsultaEstat.getErrorDescripcio());
-
+			monitor.enviarEvent(IntegracioEvent.builder().codi(CodiIntegracio.NOTIB) 
+					.entornId(consulta.getEntornId()) 
+					.descripcio(descripcio)
+					.tipus(TipusAccio.RECEPCIO)
+					.estat(EstatAccio.OK)
+					.parametres(parametres) 
+					.tempsResposta(System.currentTimeMillis() - t0).build());
 			return resposta;
 		} catch (Exception ex) {
-			throw new NotificacioException(
-					"No s'ha pogut consultar l'estat de l'enviament (" + "referencia=" + referencia + ")", ex);
+			var error = "No s'ha pogut consultar l'estat de l'enviament (" + "referencia=" + consulta.getEnviamentReferencia() + ")";
+			log.error(error, ex);
+			monitor.enviarEvent(IntegracioEvent.builder().codi(CodiIntegracio.NOTIB) 
+					.entornId(consulta.getEntornId()) 
+					.descripcio(descripcio)
+					.tipus(TipusAccio.RECEPCIO)
+					.estat(EstatAccio.ERROR)
+					.parametres(parametres) 
+					.tempsResposta(System.currentTimeMillis() - t0)
+					.errorDescripcio(error)
+					.excepcioMessage(ex.getMessage())
+					.excepcioStacktrace(ExceptionUtils.getStackTrace(ex)).build());
+			throw new NotificacioException(error, ex);
 		}
 	}
 

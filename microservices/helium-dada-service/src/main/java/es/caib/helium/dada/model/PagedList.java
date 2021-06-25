@@ -14,7 +14,12 @@ import java.util.List;
  */
 public class PagedList<T> extends PageImpl<T> {
 
-    @JsonCreator(mode = JsonCreator.Mode.PROPERTIES)
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
+	@JsonCreator(mode = JsonCreator.Mode.PROPERTIES)
     public PagedList(@JsonProperty("content") List<T> content,
                      @JsonProperty("number") int number,
                      @JsonProperty("size") int size,

@@ -48,6 +48,10 @@ public class DadesNotificacioDto {
 	private String justificantArxiuNom;
 	@NotNull
 	private Long expedientId;
+	@NotNull
+	private String expedientIdentificadorLimitat;
+	@NotNull
+	private Long entornId;
 	private boolean entregaPostalActiva;
 	private String enviamentIdentificador;
 	private String enviamentReferencia;

@@ -11,15 +11,15 @@ import es.caib.plugins.arxiu.api.Expedient;
 @Service
 public interface ArxiuService {
 	
-	public Expedient getExpedient(String uuId) throws ArxiuException;
-	public boolean crearExpedient(ExpedientArxiu expedient) throws ArxiuException;
-	public boolean modificarExpedient(ExpedientArxiu expedient) throws ArxiuException;
-	public boolean deleteExpedient(String uuId) throws ArxiuException;
-	public boolean obrirExpedient(String uuId) throws ArxiuException;
-	public boolean tancarExpedient(String uuId) throws ArxiuException;
+	public Expedient getExpedient(String uuId, Long entornId) throws ArxiuException;
+	public boolean crearExpedient(ExpedientArxiu expedient, Long entornId) throws ArxiuException;
+	public boolean modificarExpedient(ExpedientArxiu expedient, Long entornId) throws ArxiuException;
+	public boolean deleteExpedient(String uuId, Long entornId) throws ArxiuException;
+	public boolean obrirExpedient(String uuId, Long entornId) throws ArxiuException;
+	public boolean tancarExpedient(String uuId, Long entornId) throws ArxiuException;
 	
-	public Document getDocument(String uuId, String versio, boolean ambContingut, boolean isSignat) throws ArxiuException;
-	public boolean crearDocument(DocumentArxiu document) throws ArxiuException;
-	public boolean modificarDocument(DocumentArxiu document) throws ArxiuException;
-	public boolean deleteDocument(String uuId) throws ArxiuException;
+	public Document getDocument(String uuId, String versio, boolean ambContingut, boolean isSignat, Long entornId) throws ArxiuException;
+	public boolean crearDocument(DocumentArxiu document, Long entornId) throws ArxiuException;
+	public boolean modificarDocument(DocumentArxiu document, Long entornId) throws ArxiuException;
+	public boolean deleteDocument(String uuId, Long entornId) throws ArxiuException;
 }
