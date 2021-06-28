@@ -23,7 +23,7 @@ public class CorsConfig {
 	public CorsConfigurationSource corsConfigurationSource() {
 		final UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
 		CorsConfiguration corsConfiguration = new CorsConfiguration().applyPermitDefaultValues();
-		corsConfiguration.addAllowedOrigin("http://localhost:3000");
+		corsConfiguration.addAllowedOrigin("http://10.35.3.111:3000");
 		corsConfiguration.setAllowedMethods(Arrays.asList("*"));
 		source.registerCorsConfiguration("/**", corsConfiguration);
 		return source;

@@ -6,12 +6,12 @@
 		http://www.springframework.org/schema/beans
 		http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-	<bean id="aclService" class="es.caib.emiserv.core.security.JdbcMutableAclService">
+	<bean id="aclService" class="es.caib.helium.core.security.JdbcMutableAclService">
 		<constructor-arg ref="dataSource" />
 		<constructor-arg ref="lookupStrategy" />
 		<constructor-arg ref="aclCache" />
 	</bean>
-	<bean id="lookupStrategy" class="es.caib.emiserv.core.security.BasicLookupStrategy">
+	<bean id="lookupStrategy" class="es.caib.helium.core.security.BasicLookupStrategy">
 		<constructor-arg ref="dataSource" />
 		<constructor-arg ref="aclCache" />
 		<constructor-arg ref="aclAuthorizationStrategy" />

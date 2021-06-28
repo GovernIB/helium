@@ -32,7 +32,7 @@ public abstract class HeliumApp extends SpringBootServletInitializer {
 			log.info("Carregant l'aplicació HELIUM versió " + version + " generada en data " + buildTimestamp);
 			/*
 			Implementation-SCM-Revision: 
-			Implementation-Title: emiserv-back-war
+			Implementation-Title: helium-back-war
 			Build-Timestamp: 2021-04-05T04:01:49Z
 			Implementation-Version: 2.0.1
 			Implementation-SCM-Branch: 

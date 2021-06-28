@@ -78,11 +78,6 @@
 			<version>${commons-io.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>es.scsp</groupId>
-			<artifactId>scsp-beans</artifactId>
-			<version>${scsp.beans.version}</version>
-		</dependency>
-		<dependency>
 			<groupId>org.jibx</groupId>
 			<artifactId>jibx-run</artifactId>
 			<version>1.2.3</version>
@@ -98,13 +93,11 @@
 			<artifactId>helium-service-intf</artifactId>
 			<version>${project.version}</version>
 		</dependency>
-		<!-- 
 		<dependency>
 			<groupId>${project.groupId}</groupId>
-			<artifactId>emiserv-persistence</artifactId>
+			<artifactId>helium-persistence</artifactId>
 			<version>${project.version}</version>
 		</dependency>
-		 -->
 	</dependencies>
 	<repositories>
 		<repository>

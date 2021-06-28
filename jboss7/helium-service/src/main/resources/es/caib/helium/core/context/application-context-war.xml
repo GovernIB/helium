@@ -5,16 +5,14 @@
 				http://www.springframework.org/schema/beans
 				http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-	<!-- 
 	<bean id="propertyPlaceholderConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
 		<property name="location" value="${es.caib.helium.properties.path}" />
 		<property name="placeholderPrefix" value="${config:" />
 	</bean>
 
-	<import resource="classpath:es/caib/emiserv/core/context/application-context-model.xml" />
-	<import resource="classpath:es/caib/emiserv/core/context/application-context-model-jndi.xml" />
-	<import resource="classpath:es/caib/emiserv/core/context/application-context-model-acl.xml" />
-	<import resource="classpath:es/caib/emiserv/core/context/application-context-model-security.xml" />
-	 -->
+	<import resource="classpath:es/caib/helium/core/context/application-context-model.xml" />
+	<import resource="classpath:es/caib/helium/core/context/application-context-model-jndi.xml" />
+	<import resource="classpath:es/caib/helium/core/context/application-context-model-acl.xml" />
+	<import resource="classpath:es/caib/helium/core/context/application-context-model-security.xml" />
 
 </beans>
