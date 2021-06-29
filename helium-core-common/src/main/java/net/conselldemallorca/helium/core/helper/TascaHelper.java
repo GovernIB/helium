@@ -3,7 +3,24 @@
  */
 package net.conselldemallorca.helium.core.helper;
 
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import javax.annotation.Resource;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Component;
+
 import edu.emory.mathcs.backport.java.util.Collections;
+import net.conselldemallorca.helium.core.api.DelegationInfo;
 import net.conselldemallorca.helium.core.api.WProcessInstance;
 import net.conselldemallorca.helium.core.api.WTaskInstance;
 import net.conselldemallorca.helium.core.api.WorkflowEngineApi;
@@ -18,8 +35,6 @@ import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.hibernate.FirmaTasca;
 import net.conselldemallorca.helium.core.model.hibernate.Tasca;
-import net.conselldemallorca.helium.jbpm3.integracio.DelegationInfo;
-import net.conselldemallorca.helium.jbpm3.integracio.DominiCodiDescripcio;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDadaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
@@ -29,20 +44,6 @@ import net.conselldemallorca.helium.v3.core.api.exception.TascaNoDisponibleExcep
 import net.conselldemallorca.helium.v3.core.repository.CampTascaRepository;
 import net.conselldemallorca.helium.v3.core.repository.DefinicioProcesRepository;
 import net.conselldemallorca.helium.v3.core.repository.TascaRepository;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Component;
-
-import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * Helper per a gestionar les tasques dels expedients.
@@ -669,14 +670,16 @@ public class TascaHelper {
 				Object campValor = variables.get(campTasca.getCamp().getCodi());
 				if (	campTasca.getCamp().getTipus().equals(TipusCamp.SELECCIO) ||
 						campTasca.getCamp().getTipus().equals(TipusCamp.SUGGEST)) {
-					if (campValor instanceof DominiCodiDescripcio) {
-						variables.put(
-								campTasca.getCamp().getCodi(),
-								((DominiCodiDescripcio)campValor).getCodi());
-						variables.put(
-								JbpmVars.PREFIX_VAR_DESCRIPCIO + campTasca.getCamp().getCodi(),
-								((DominiCodiDescripcio)campValor).getDescripcio());
-					} else {
+					// TODO Pensar què fer amb DominiCodiDescripcio
+//					if (campValor instanceof DominiCodiDescripcio) {
+//						variables.put(
+//								campTasca.getCamp().getCodi(),
+//								((DominiCodiDescripcio)campValor).getCodi());
+//						variables.put(
+//								JbpmVars.PREFIX_VAR_DESCRIPCIO + campTasca.getCamp().getCodi(),
+//								((DominiCodiDescripcio)campValor).getDescripcio());
+//					} else {
+					if (1==1) {
 						String text = variableHelper.getTextPerCamp(
 								campTasca.getCamp(),
 								campValor,

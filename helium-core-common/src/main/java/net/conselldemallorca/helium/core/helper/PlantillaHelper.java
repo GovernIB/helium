@@ -57,7 +57,6 @@ import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.core.util.NombreEnCastella;
 import net.conselldemallorca.helium.core.util.NombreEnCatala;
 import net.conselldemallorca.helium.integracio.plugins.unitat.UnitatOrganica;
-import net.conselldemallorca.helium.jbpm3.integracio.DominiCodiDescripcio;
 import net.conselldemallorca.helium.ms.domini.DominiMs;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
@@ -332,8 +331,9 @@ public class PlantillaHelper {
 									return new DateModel((Date)valor, new DefaultObjectWrapper());
 								else if (valor instanceof BigDecimal)
 									return new NumberModel((BigDecimal)valor, new DefaultObjectWrapper());
-								else if (valor instanceof DominiCodiDescripcio)
-									return new SimpleScalar(((DominiCodiDescripcio)valor).getCodi());
+								//TODO veure què fer amb aquest cas
+//								else if (valor instanceof DominiCodiDescripcio)
+//									return new SimpleScalar(((DominiCodiDescripcio)valor).getCodi());
 								else
 									return new BeanModel(valor, new DefaultObjectWrapper());
 							}

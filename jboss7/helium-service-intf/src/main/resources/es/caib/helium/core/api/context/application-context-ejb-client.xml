@@ -8,6 +8,8 @@
 				http://www.springframework.org/schema/jee
 				http://www.springframework.org/schema/jee/spring-jee-3.0.xsd">
 
+	<!-- 
+	 -->
 	<jee:local-slsb
 			id="exempleService"
 			jndi-name="helium/ExempleServiceBean/local"

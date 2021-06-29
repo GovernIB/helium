@@ -3,7 +3,7 @@ package net.conselldemallorca.helium.v3.core.exception;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.conselldemallorca.helium.jbpm3.integracio.Jbpm3HeliumBridge;
+//import net.conselldemallorca.helium.jbpm3.integracio.Jbpm3HeliumBridge;
 
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.Signature;
@@ -70,7 +70,8 @@ public class IncidentThrowsAdviceHelper {
 
 		Signature signature = joinPoint.getSignature();
 		if (!getDadesAdvice().getIdsPortasignatures().isEmpty()) {
-			Jbpm3HeliumBridge.getInstanceService().portasignaturesEliminar(getDadesAdvice().getIdsPortasignatures());
+			//Jbpm3HeliumBridge.getInstanceService().portasignaturesEliminar(getDadesAdvice().getIdsPortasignatures());
+			// TODO. invocar a eliminar del portasignatures
 		}
 		clearDadesAdvice(signature);
 	}

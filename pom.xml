@@ -102,6 +102,5 @@
              <name>GitHub GovernIB Maven Repository</name>
              <url>https://governib.github.io/maven/maven/</url>
         </repository>
-        
 	</repositories>
 </project>

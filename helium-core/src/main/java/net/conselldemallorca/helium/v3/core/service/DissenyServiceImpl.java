@@ -59,8 +59,6 @@ import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.hibernate.Tasca;
 import net.conselldemallorca.helium.core.security.ExtendedPermission;
-import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessDefinition;
-import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessInstance;
 import net.conselldemallorca.helium.ms.domini.DominiMs;
 import net.conselldemallorca.helium.v3.core.api.dto.AreaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
@@ -212,7 +210,7 @@ public class DissenyServiceImpl implements DissenyService {
 	public DefinicioProcesVersioDto getByVersionsInstanciaProcesById(String processInstanceId) {
 		WProcessInstance pi = workflowEngineApi.getProcessInstance(processInstanceId);
 		if (pi == null)
-			throw new NoTrobatException(JbpmProcessInstance.class, processInstanceId);
+			throw new NoTrobatException(WProcessInstance.class, processInstanceId);
 
 		DefinicioProces definicioProces = definicioProcesRepository.findByJbpmId(pi.getProcessDefinitionId());
 		if (definicioProces == null)
@@ -1058,7 +1056,9 @@ public class DissenyServiceImpl implements DissenyService {
 			throw new DeploymentException(
 					messageHelper.getMessage("definicio.proces.actualitzar.error.parse"));		
 		}
-		JbpmProcessDefinition jbpmProcessDefinition = new JbpmProcessDefinition(processDefinition);
+		//TODO arreglar update handlers
+		//JbpmProcessDefinition jbpmProcessDefinition = new JbpmProcessDefinition(processDefinition);
+		WProcessDefinition jbpmProcessDefinition = null;
     	// Recuperar la darrera versió de la definició de procés
 		DefinicioProces darrera;
 		if (expedientTipusId != null) {
@@ -1077,7 +1077,9 @@ public class DissenyServiceImpl implements DissenyService {
 		
 		// Construeix la llista de handlers a partir del contingut del fitxer .par que acabin amb .class
 		@SuppressWarnings("unchecked")
-		Map<String, byte[]> bytesMap = jbpmProcessDefinition.getProcessDefinition().getFileDefinition().getBytesMap();
+		//TODO: arreglar la optenció dels hanclers
+//		Map<String, byte[]> bytesMap = jbpmProcessDefinition.getProcessDefinition().getFileDefinition().getBytesMap();
+		Map<String, byte[]> bytesMap = null;
 		Map<String, byte[]> handlers = new HashMap<String, byte[]>();
 		for (String nom : bytesMap.keySet()) 
 			if (nom.endsWith(".class")) {
@@ -1150,7 +1152,9 @@ public class DissenyServiceImpl implements DissenyService {
 		}
 		exportacio.setNomDeploy(fitxer);
 		exportacio.setContingutDeploy(contingut);
-		JbpmProcessDefinition jbpmProcessDefinition = new JbpmProcessDefinition(processDefinition);
+		//TODO arreglar aquest mètode
+		//JbpmProcessDefinition jbpmProcessDefinition = new JbpmProcessDefinition(processDefinition);
+		WProcessDefinition jbpmProcessDefinition = null;
 		DefinicioProcesDto dto = new DefinicioProcesDto();
 		dto.setJbpmKey(jbpmProcessDefinition.getKey());
 		dto.setJbpmName(jbpmProcessDefinition.getName());

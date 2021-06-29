@@ -3,9 +3,23 @@
  */
 package net.conselldemallorca.helium.core.helper;
 
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import javax.annotation.Resource;
+
+import org.springframework.stereotype.Service;
+
 import com.codahale.metrics.Counter;
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer;
+
+import net.conselldemallorca.helium.core.api.Registre;
 import net.conselldemallorca.helium.core.api.WProcessInstance;
 import net.conselldemallorca.helium.core.api.WorkflowEngineApi;
 import net.conselldemallorca.helium.core.helperv26.LuceneHelper;
@@ -17,8 +31,6 @@ import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientReindexacio;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
-import net.conselldemallorca.helium.jbpm3.integracio.DominiCodiDescripcio;
-import net.conselldemallorca.helium.jbpm3.integracio.Registre;
 import net.conselldemallorca.helium.v3.core.api.dto.DadaIndexadaDto;
 import net.conselldemallorca.helium.v3.core.api.exception.IndexacioException;
 import net.conselldemallorca.helium.v3.core.api.service.TascaService;
@@ -26,16 +38,6 @@ import net.conselldemallorca.helium.v3.core.repository.CampRepository;
 import net.conselldemallorca.helium.v3.core.repository.DefinicioProcesRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientReindexacioRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientRepository;
-import org.springframework.stereotype.Service;
-
-import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * Utilitats comunes pels serveis
@@ -615,11 +617,13 @@ public class IndexHelper {
 	}
 
 	private Object valorVariableJbpmRevisat(Object valor) {
-		if (valor instanceof DominiCodiDescripcio) {
-			return ((DominiCodiDescripcio)valor).getCodi();
-		} else {
-			return valor;
-		}
+		//TODO revisar què fer amb aquest mètode
+//		if (valor instanceof DominiCodiDescripcio) {
+//			return ((DominiCodiDescripcio)valor).getCodi();
+//		} else {
+//			return valor;
+//		}
+		return valor;
 	}
 	
 	/** Obté les dades de l'índex per a un expedient en concret.
