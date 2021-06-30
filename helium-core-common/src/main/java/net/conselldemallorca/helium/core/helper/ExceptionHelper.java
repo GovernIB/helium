@@ -11,7 +11,7 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.stereotype.Component;
 
 /**
- * Helper per a gestionar els entorns.
+ * Helper per a gestionar excepcions.
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */

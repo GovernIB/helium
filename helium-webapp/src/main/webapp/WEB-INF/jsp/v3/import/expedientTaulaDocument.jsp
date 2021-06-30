@@ -165,16 +165,6 @@
 														</c:otherwise>
 													</c:choose>
 												</c:if>
-												
-												<c:if test="${not empty expedient.notificacions}">
-													<a	href="../../v3/expedient/${expedientId}/expedientNotificacions"
-														data-rdt-link-modal="true"
-														data-rdt-link-modal-min-height="500"
-														class="linkNti">
-														<span class="label label-success etiqueta-nti-arxiu"><spring:message code="expedient.info.etiqueta.notificacions"/></span>
-													</a>
-												</c:if>												
-												
 												<!-- FI FRAGMENT -->
 												<c:if test="${expedient.ntiActiu and expedient.permisRead}">
 													<a	href="../../v3/expedient/${expedientId}/proces/${document.processInstanceId}/document/${document.id}/metadadesNti"

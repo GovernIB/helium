@@ -284,9 +284,9 @@ public class ConversioTipusHelper {
 		notificacio.setDocumentArxiuNom(dadesNotificacio.getDocumentArxiuNom());
 		notificacio.setDocumentArxiuContingut(dadesNotificacio.getDocumentArxiuContingut());
 		notificacio.setDocumentId(dadesNotificacio.getDocumentId());
-
-
 		notificacio.setProcedimentCodi(dadesNotificacio.getProcedimentCodi());
+		if (dadesNotificacio.getIdioma() != null)
+			notificacio.setIdioma(IdiomaEnumDto.valueOf(dadesNotificacio.getIdioma().toString()));
 		
 		List<DadesEnviamentDto> enviaments = new ArrayList<DadesEnviamentDto>();
 		for (DadesEnviament dadesEnviament: dadesNotificacio.getEnviaments()) {

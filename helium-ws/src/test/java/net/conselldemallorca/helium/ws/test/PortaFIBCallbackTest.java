@@ -17,7 +17,7 @@ public class PortaFIBCallbackTest {
 
 	private static String ENDPOINT_ADDRESS = "http://10.35.3.231:8080/helium/ws/v1/PortaFIBCallBack";
 	private static String USERNAME = "admin";
-	private static String PASSWORD = "admin15";
+	private static String PASSWORD = "admin";
 
 
 	public static void main(String[] args) {

@@ -21,8 +21,9 @@ import javax.xml.ws.ResponseWrapper;
 @WebService(name = "TramitacioService", targetNamespace = "http://tramitacio.integracio.helium.conselldemallorca.net/")
 @XmlSeeAlso({
     net.conselldemallorca.helium.integracio.tramitacio.ObjectFactory.class,
-    net.java.dev.jaxb.array.ObjectFactory.class
-})
+    Object[].class, 
+    Object[][].class}
+)
 public interface TramitacioService {
 
     /**

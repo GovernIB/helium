@@ -513,13 +513,8 @@ public class ExpedientServiceImpl implements ExpedientService {
 		for (Notificacio notificacio: notificacioRepository.findByExpedientOrderByDataEnviamentDesc(expedient)) {
 			notificacioRepository.delete(notificacio);
 		}
-		// Crida esborrar anotacions en un mètode transaccional apart per evitar errors
-		try {
-			anotacioService.esborrarAnotacionsExpedient(expedient.getId());
-		} catch(Exception e) {
-			//#1480 Error esborrant expedients a PRO
-			logger.error("Error esborrant les anotacions per l'expedient " + expedient.getId() + ": " + e.getMessage());
-		}
+		
+		anotacioService.esborrarAnotacionsExpedient(expedient.getId());
 
 		// Ordena per id de menor a major per evitar errors de dependències
 		Collections.sort(

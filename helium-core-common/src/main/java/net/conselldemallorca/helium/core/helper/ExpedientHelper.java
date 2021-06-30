@@ -1487,11 +1487,16 @@ public class ExpedientHelper {
 		
 		Expedient expedient = new Expedient();
 		Entorn entorn = entornHelper.getEntorn(entornId);
-		if (usuari != null)
-			comprovarUsuari(usuari);
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-		String usuariBo = (usuari != null) ? usuari : auth.getName();
-
+		String usuariBo = null;
+		if (usuari != null) {
+			comprovarUsuari(usuari);
+			usuariBo = usuari;
+		} else {
+			usuari = auth.getName();
+			if (auth.isAuthenticated())
+				usuariBo = usuari;
+		}
 		// Consulta de l'expedient tipus amb bloqueig del registre #1423
 		ExpedientTipus expedientTipus = expedientTipusRepository.findByIdAmbBloqueig(expedientTipusId);
 		
@@ -1665,7 +1670,7 @@ public class ExpedientHelper {
 		// Registra l'inici de l'expedient
 		crearRegistreExpedient(
 				expedient.getId(),
-				usuariBo,
+				usuari,
 				Registre.Accio.INICIAR);
 		mesuresTemporalsHelper.mesuraCalcular("Iniciar", "expedient", expedientTipus.getNom(), null, "Crear registre i convertir expedient");
 					

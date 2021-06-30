@@ -28,21 +28,21 @@ public class ObjectFactory {
      */
     public ObjectFactory() {
     }
-
-    /**
-     * Create an instance of {@link AnyTypeArrayArray }
-     * 
-     */
-    public AnyTypeArrayArray createAnyTypeArrayArray() {
-        return new AnyTypeArrayArray();
-    }
-
-    /**
-     * Create an instance of {@link AnyTypeArray }
-     * 
-     */
-    public AnyTypeArray createAnyTypeArray() {
-        return new AnyTypeArray();
-    }
+//
+//    /**
+//     * Create an instance of {@link AnyTypeArrayArray }
+//     * 
+//     */
+//    public AnyTypeArrayArray createAnyTypeArrayArray() {
+//        return new AnyTypeArrayArray();
+//    }
+//
+//    /**
+//     * Create an instance of {@link AnyTypeArray }
+//     * 
+//     */
+//    public AnyTypeArray createAnyTypeArray() {
+//        return new AnyTypeArray();
+//    }
 
 }

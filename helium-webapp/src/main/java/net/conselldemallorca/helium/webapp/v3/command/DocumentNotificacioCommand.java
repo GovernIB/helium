@@ -38,6 +38,8 @@ public class DocumentNotificacioCommand {
 	private int retard;
 	private boolean entregaPostalActiva;
 	
+	private IdiomaEnumDto idioma;
+	
 //	private EntregaPostalTipus entregaPostalTipus;
 //	private EntregaPostalViaTipus  entregaPostalViaTipus;
 //	private String entregaPostalViaNom;
@@ -133,6 +135,12 @@ public class DocumentNotificacioCommand {
 	}
 	public void setEntregaPostalActiva(boolean entregaPostalActiva) {
 		this.entregaPostalActiva = entregaPostalActiva;
+	}
+	public IdiomaEnumDto getIdioma() {
+		return idioma;
+	}
+	public void setIdioma(IdiomaEnumDto idioma) {
+		this.idioma = idioma;
 	}
 	
 }

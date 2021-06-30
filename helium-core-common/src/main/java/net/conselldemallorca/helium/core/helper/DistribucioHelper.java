@@ -13,6 +13,7 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
+import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -559,9 +560,11 @@ public class DistribucioHelper {
 
 		// Llista d'annexos tipus XML
 		Map<String, AnotacioAnnex> annexos = new HashMap<String, AnotacioAnnex>();
+		String identificador = null;
 		for (AnotacioAnnex annex : anotacio.getAnnexos()) {
 			if (annex.getNom().toLowerCase().endsWith(".xml")) // Filtra només XML's
-				annexos.put(annex.getTitol(), annex);
+				identificador = FilenameUtils.removeExtension(annex.getNom());
+				annexos.put(identificador, annex);
 		}
 		// Obtenir una llista de variables inicials de la tasca
 		Map<String, CampTasca> campsTasca = new HashMap<String, CampTasca>();
@@ -758,8 +761,10 @@ public class DistribucioHelper {
 			String varSistra,
 			DocumentDto varHelium) throws Exception {
 		DadesDocumentDto resposta = null;
+		String identificador = null;
 		for (AnotacioAnnex document: anotacio.getAnnexos()) {
-			if (varSistra.equalsIgnoreCase(document.getTitol())) {
+			identificador = FilenameUtils.removeExtension(document.getNom());
+			if (varSistra.equalsIgnoreCase(identificador)) {
 				byte[] contingut = document.getContingut();
 				if (document.getContingut() == null &&  document.getUuid() != null) {
 					// Recupera el contingut de l'Arxiu
@@ -816,14 +821,26 @@ public class DistribucioHelper {
 	
 	private List<DadesDocumentDto> documentsSistraAdjunts(Anotacio anotacio, String codiHelium) {
 		List<DadesDocumentDto> resposta = new ArrayList<DadesDocumentDto>();
+		String identificador = null;
 		for (AnotacioAnnex document: anotacio.getAnnexos()) {
-			if (document.getTitol().equalsIgnoreCase(codiHelium)) {
-				DadesDocumentDto docResposta = new DadesDocumentDto();
-				docResposta.setTitol(document.getTitol());
-				docResposta.setData(anotacio.getData());
-				docResposta.setArxiuNom(document.getNom());
-				docResposta.setArxiuContingut(document.getContingut());
-				resposta.add(docResposta);
+			identificador = FilenameUtils.removeExtension(document.getNom());
+			if (identificador.equalsIgnoreCase(codiHelium)) {
+				byte[] contingut = document.getContingut();
+				if (document.getContingut() == null &&  document.getUuid() != null) {
+					// Recupera el contingut de l'Arxiu
+					Document documentArxiu = pluginHelper.arxiuDocumentInfo(document.getUuid(), null, true, true);
+					contingut = documentArxiu.getContingut() != null? documentArxiu.getContingut().getContingut() : null;
+				}
+				if (contingut != null) {
+					DadesDocumentDto docResposta = new DadesDocumentDto();
+					docResposta.setTitol(document.getTitol());
+					docResposta.setData(anotacio.getData());
+					docResposta.setArxiuNom(document.getNom());
+					docResposta.setArxiuContingut(contingut);
+					resposta.add(docResposta);
+				} else {
+					logger.warn("El contingut pel document " + document.getNom() + " de l'annocació " + anotacio.getExpedientNumero() + " es null i no es pot completar el mapeig de l'adjunt SISTRA2 " + identificador);
+				}
 			}
 		}
 		return resposta;

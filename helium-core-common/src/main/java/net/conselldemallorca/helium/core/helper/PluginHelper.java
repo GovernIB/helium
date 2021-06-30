@@ -2891,7 +2891,10 @@ public class PluginHelper {
 						dadesNotificacio.getDocumentArxiuNom()),
 				new IntegracioParametreDto(
 						"titularsNif",
-						nifDestinataris)
+						nifDestinataris),
+				new IntegracioParametreDto(
+						"idioma",
+						dadesNotificacio.getIdioma())
 		};
 		long t0 = System.currentTimeMillis();
 		

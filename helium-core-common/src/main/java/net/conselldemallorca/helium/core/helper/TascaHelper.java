@@ -571,7 +571,7 @@ public class TascaHelper {
 		} else if (task.getPooledActors() != null && !task.getPooledActors().isEmpty()) {
 			List<PersonaDto> responsables = new ArrayList<PersonaDto>();
 			for (String pooledActor: task.getPooledActors()) {
-				PersonaDto persona = pluginHelper.personaFindAmbCodi(pooledActor);
+				PersonaDto persona = this.findPersonaOrDefault(pooledActor);
 				if (persona != null) {
 					if (auth.getName().equals(pooledActor))
 						dto.setAssignadaUsuariActual(true);
@@ -594,6 +594,22 @@ public class TascaHelper {
 					ExpedientTipus.class);
 		}
 		return dto;
+	}
+
+	/** Mètode per evitar l'error quan l'usuari no es troba i com a mínim
+	 * retornar una persona DTO amb el codi informat.
+	 * @param personaCodi
+	 * @return
+	 */
+	private PersonaDto findPersonaOrDefault(String personaCodi) {
+		PersonaDto persona;
+		try {
+			persona = pluginHelper.personaFindAmbCodi(personaCodi);
+		} catch(Exception e) {
+			logger.warn("Error consultant la persona amb codi " + personaCodi + ": " + e.getMessage());
+			persona = new PersonaDto(personaCodi, "(" + personaCodi + ")", "", "", Sexe.SEXE_DONA);
+		}
+		return persona;
 	}
 
 	public void validarTasca(String taskId) {

@@ -1880,8 +1880,19 @@ public class TramitacioServiceImpl implements TramitacioService {
 		tt.setExpedient(tasca.getExpedientNumero());
 		tt.setMissatgeInfo(tasca.getTascaMissatgeInfo());
 		tt.setMissatgeWarn(tasca.getTascaMissatgeWarn());
+<<<<<<< HEAD
 		tt.setResponsable(tasca.getResponsableString());
 		tt.setResponsables(tasca.getResponsablesString());
+=======
+		if (tasca.getResponsable() != null)
+			tt.setResponsable(tasca.getResponsable().getCodi());
+		Set<String> responsables = new HashSet<String>();
+		if (tasca.getResponsable() != null)
+			for (PersonaDto responsable: tasca.getResponsables()) {
+				responsables.add(responsable.getCodi());
+			}
+		tt.setResponsables(responsables);
+>>>>>>> refs/remotes/origin/helium-dev
 		tt.setDataCreacio(tasca.getCreateTime());
 		tt.setDataInici(tasca.getStartTime());
 		tt.setDataFi(tasca.getEndTime());

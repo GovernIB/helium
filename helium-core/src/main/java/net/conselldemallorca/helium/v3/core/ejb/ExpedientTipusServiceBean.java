@@ -601,8 +601,8 @@ public class ExpedientTipusServiceBean implements ExpedientTipusService {
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public MapeigSistraDto mapeigFindAmbCodiSistraPerValidarRepeticio(Long expedientTipusId, String codiSistra) {
-		return delegate.mapeigFindAmbCodiSistraPerValidarRepeticio(expedientTipusId, codiSistra);
+	public MapeigSistraDto mapeigFindAmbCodiSistraPerValidarRepeticio(Long expedientTipusId, TipusMapeig tipusMapeig, String codiSistra) {
+		return delegate.mapeigFindAmbCodiSistraPerValidarRepeticio(expedientTipusId, tipusMapeig, codiSistra);
 	}
 
 	@Override

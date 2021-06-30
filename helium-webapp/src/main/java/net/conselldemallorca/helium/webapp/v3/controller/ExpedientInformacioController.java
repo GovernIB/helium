@@ -66,7 +66,7 @@ public class ExpedientInformacioController extends BaseExpedientController {
 //		estats.add(0, new EstatDto(0L, "0", getMessage(request, "expedient.consulta.iniciat")));
 		estats.add(new EstatDto(ESTAT_FINALITZAT_ID, "-1", getMessage(request, "expedient.consulta.finalitzat")));
 		model.addAttribute("estats", estats);
-		model.addAttribute(getCommandModificar(expedient));
+		model.addAttribute(getCommandModificar(request, expedient));
 		return "v3/expedient/modificarInformacio";
 	}
 
@@ -129,7 +129,7 @@ public class ExpedientInformacioController extends BaseExpedientController {
 		}
 	}	
 
-	private ExpedientEditarCommand getCommandModificar(ExpedientDto expedient) {		
+	private ExpedientEditarCommand getCommandModificar(HttpServletRequest request, ExpedientDto expedient) {		
 		ExpedientEditarCommand expedientEditarCommand = new ExpedientEditarCommand();
 		expedientEditarCommand.setNumero(expedient.getNumero());
 		expedientEditarCommand.setTitol(expedient.getTitol());
@@ -142,7 +142,14 @@ public class ExpedientInformacioController extends BaseExpedientController {
 		expedientEditarCommand.setGeoReferencia(expedient.getGeoReferencia());
 		expedientEditarCommand.setGrupCodi(expedient.getGrupCodi());
 		expedientEditarCommand.setIniciadorCodi(expedient.getIniciadorCodi());
-		PersonaDto personaResponsable = aplicacioService.findPersonaAmbCodi(expedient.getResponsableCodi());
+		PersonaDto personaResponsable = null;
+		if (expedient.getResponsableCodi() != null) {
+			try {
+				personaResponsable = aplicacioService.findPersonaAmbCodi(expedient.getResponsableCodi());
+			} catch(Exception e) {
+				MissatgesHelper.error(request, getMessage(request, "expedient.info.error.consulta.responsable", new Object[] {expedient.getResponsableCodi(), e.getMessage()}));
+			}
+		}
 		expedient.setResponsablePersona(personaResponsable);
 		if (personaResponsable != null) {
 			expedientEditarCommand.setResponsableCodi(personaResponsable.getCodi());
