@@ -1,55 +1,82 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>net.conselldemallorca.helium</groupId>
+	<groupId>es.caib.helium</groupId>
 	<artifactId>helium</artifactId>
-	<version>3.2</version>
+	<version>4.0.0</version>
+	<name>Helium MS 4.0</name>
 	<packaging>pom</packaging>
+	<description>Aplicació Helium de tramitació d'expedients</description>
+	
+	<parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>2.4.2</version>
+		<relativePath />
+	</parent>
+	
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<java.version>1.6</java.version>
-		<helium.version>3.2</helium.version>
-		<spring.version>3.2.17.RELEASE</spring.version>
-		<spring-security.version>3.1.3.RELEASE</spring-security.version>
-		<spring-data.version>1.1.0.RELEASE</spring-data.version>
-		<spring-modules.version>0.9</spring-modules.version>
-		<hibernate.version>3.6.5.Final</hibernate.version>
-		<hibernate.validator.version>4.1.0.Final</hibernate.validator.version>
-		<jbpm.version>3.3.1.GA</jbpm.version>
-		<metrics.version>3.1.2</metrics.version>
-		<cxf.version>2.2.10</cxf.version>
-		<lucene.version>2.9.4</lucene.version>
+		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+				
+		<helium.version>4.0</helium.version>
+		<spring-boot.version>2.4.2</spring-boot.version>
+		<liquibase.version>4.3.3</liquibase.version>
+		<orika.starter.version>1.8.0</orika.starter.version>
+		<reflections.version>0.9.11</reflections.version>
+		<rsql.version>2.1.0</rsql.version>
+		<jasperreports.version>6.12.2</jasperreports.version>
+		<xdocreport.version>2.0.2</xdocreport.version>
+		<opencsv.version>4.6</opencsv.version>
+		<springdoc-openapi.version>1.2.25</springdoc-openapi.version>
+		<keycloak.version>11.0.1</keycloak.version>
+
+		<sitemesh.version>2.4.2</sitemesh.version>
 		<commons-lang.version>2.6</commons-lang.version>
-		<portafib.version>1.1.0</portafib.version>
-		<slf4j.version>1.5.8</slf4j.version>
-		<jackson.version>2.7.0</jackson.version>
-		<regweb3.version>3.1.2</regweb3.version>
+		<commons-httpclient.version>3.1</commons-httpclient.version>
+		<commons-fileupload.version>1.4</commons-fileupload.version>
+		<commons-beanutils.version>1.9.4</commons-beanutils.version>
+		<commons-io.version>2.8.0</commons-io.version>
+		<poi.version>3.15</poi.version>
+		<webjars-locator.version>0.40</webjars-locator.version>
+
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<java.compiler.version>11</java.compiler.version>
+		<maven.compiler.target>${java.compiler.version}</maven.compiler.target>
+		<maven.compiler.source>${java.compiler.version}</maven.compiler.source>
+		<skipTests>true</skipTests>
 	</properties>
 	<modules>
+		<module>helium-back</module>
+		<module>helium-jboss7-ear</module>
+		<module>helium-ejb</module>
+		<module>helium-service</module>
+		<module>helium-service-intf</module>
+		<module>helium-boot</module>
+		<module>helium-controller</module>
+		<module>helium-persistence</module>
+		<!-- 
 		<module>helium-core-api</module>
 		<module>helium-disseny</module>
 		<module>helium-plugin-api</module>
-		<module>helium-plugin-impl</module>
-<!--		<module>helium-jbpm3</module>-->
 		<module>helium-core-common</module>
 		<module>helium-core</module>
 		<module>helium-webapp</module>
 		<module>helium-ws</module>
 		<module>helium-ear</module>
-<!--		<module>helium-applet</module>-->
 		<module>helium-hibernate-entitymanager</module>
 		<module>helium-selenium</module>
 		<module>helium-selenium-webapp</module>
 		<module>helium-ws-client</module>
 		<module>helium-ms</module>
 		<module>helium-disseny-api</module>
+		 -->
 	</modules>
 	<build>
 		<plugins>
 			<plugin>
 				<artifactId>maven-deploy-plugin</artifactId>
-				<version>2.8.1</version>
 				<configuration>
 					<altDeploymentRepository>internal.repo::default::file://${project.build.directory}/mvn-repo</altDeploymentRepository>
 				</configuration>
