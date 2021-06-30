@@ -12,11 +12,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import es.caib.helium.logic.intf.dto.EntornDto;
+import es.caib.helium.logic.intf.dto.EntornTipusAreaDto;
+import es.caib.helium.logic.intf.dto.PaginacioParamsDto;
+import es.caib.helium.logic.intf.service.EntornTipusAreaService;
 import net.conselldemallorca.helium.core.helper.EntornHelper;
-import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
-import net.conselldemallorca.helium.v3.core.api.dto.EntornTipusAreaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
-import net.conselldemallorca.helium.v3.core.api.service.EntornTipusAreaService;
 import net.conselldemallorca.helium.webapp.v3.command.EntornTipusAreaCommand;
 import net.conselldemallorca.helium.webapp.v3.command.EntornTipusAreaCommand.Creacio;
 import net.conselldemallorca.helium.webapp.v3.command.EntornTipusAreaCommand.Modificacio;

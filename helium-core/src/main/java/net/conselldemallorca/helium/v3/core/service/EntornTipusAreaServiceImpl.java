@@ -9,18 +9,18 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import es.caib.helium.logic.intf.dto.CarrecDto;
+import es.caib.helium.logic.intf.dto.EntornTipusAreaDto;
+import es.caib.helium.logic.intf.dto.PaginaDto;
+import es.caib.helium.logic.intf.dto.PaginacioParamsDto;
+import es.caib.helium.logic.intf.dto.PaginacioParamsDto.OrdreDireccioDto;
+import es.caib.helium.logic.intf.service.EntornTipusAreaService;
+import es.caib.helium.persist.entity.AreaTipus;
+import es.caib.helium.persist.entity.Entorn;
+import es.caib.helium.persist.repository.TipusAreaRepository;
 import net.conselldemallorca.helium.core.helper.ConversioTipusHelper;
 import net.conselldemallorca.helium.core.helper.EntornHelper;
 import net.conselldemallorca.helium.core.helper.PaginacioHelper;
-import net.conselldemallorca.helium.core.model.hibernate.AreaTipus;
-import net.conselldemallorca.helium.core.model.hibernate.Entorn;
-import net.conselldemallorca.helium.v3.core.api.dto.CarrecDto;
-import net.conselldemallorca.helium.v3.core.api.dto.EntornTipusAreaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
-import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto.OrdreDireccioDto;
-import net.conselldemallorca.helium.v3.core.api.service.EntornTipusAreaService;
-import net.conselldemallorca.helium.v3.core.repository.TipusAreaRepository;
 
 @Service("entornTipusAreaServiceV3")
 public class EntornTipusAreaServiceImpl implements EntornTipusAreaService {

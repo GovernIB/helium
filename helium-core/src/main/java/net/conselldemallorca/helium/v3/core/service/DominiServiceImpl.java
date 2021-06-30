@@ -15,30 +15,30 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import net.conselldemallorca.helium.core.extern.domini.FilaResultat;
+import es.caib.emiserv.logic.intf.exception.NoTrobatException;
+import es.caib.emiserv.logic.intf.exception.PermisDenegatException;
+import es.caib.emiserv.logic.intf.exception.ValidacioException;
+import es.caib.emiserv.logic.intf.extern.domini.FilaResultat;
+import es.caib.helium.logic.intf.dto.DominiDto;
+import es.caib.helium.logic.intf.dto.PaginaDto;
+import es.caib.helium.logic.intf.dto.PaginacioParamsDto;
+import es.caib.helium.logic.intf.dto.DominiDto.OrigenCredencials;
+import es.caib.helium.logic.intf.dto.DominiDto.TipusAuthDomini;
+import es.caib.helium.logic.intf.dto.DominiDto.TipusDomini;
+import es.caib.helium.logic.intf.service.DominiService;
+import es.caib.helium.persist.entity.Camp;
+import es.caib.helium.persist.entity.ExpedientTipus;
+import es.caib.helium.persist.repository.EntornRepository;
+import es.caib.helium.persist.repository.ExpedientTipusRepository;
 import net.conselldemallorca.helium.core.helper.ConversioTipusHelper;
 import net.conselldemallorca.helium.core.helper.DominiHelper;
 import net.conselldemallorca.helium.core.helper.EntornHelper;
 import net.conselldemallorca.helium.core.helper.ExpedientTipusHelper;
 import net.conselldemallorca.helium.core.helper.MessageHelper;
 import net.conselldemallorca.helium.core.helper.PaginacioHelper;
-import net.conselldemallorca.helium.core.model.hibernate.Camp;
-import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.util.EntornActual;
 import net.conselldemallorca.helium.ms.domini.DominiMs;
 import net.conselldemallorca.helium.ms.domini.client.model.Domini;
-import net.conselldemallorca.helium.v3.core.api.dto.DominiDto;
-import net.conselldemallorca.helium.v3.core.api.dto.DominiDto.OrigenCredencials;
-import net.conselldemallorca.helium.v3.core.api.dto.DominiDto.TipusAuthDomini;
-import net.conselldemallorca.helium.v3.core.api.dto.DominiDto.TipusDomini;
-import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
-import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
-import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
-import net.conselldemallorca.helium.v3.core.api.exception.ValidacioException;
-import net.conselldemallorca.helium.v3.core.api.service.DominiService;
-import net.conselldemallorca.helium.v3.core.repository.EntornRepository;
-import net.conselldemallorca.helium.v3.core.repository.ExpedientTipusRepository;
 
 /**
  * Implementació del servei per a gestionar dominis.

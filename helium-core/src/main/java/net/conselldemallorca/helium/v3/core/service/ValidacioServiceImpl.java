@@ -12,17 +12,17 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import es.caib.emiserv.logic.intf.exception.NoTrobatException;
+import es.caib.emiserv.logic.intf.exception.PermisDenegatException;
+import es.caib.helium.logic.intf.dto.PaginaDto;
+import es.caib.helium.logic.intf.dto.PaginacioParamsDto;
+import es.caib.helium.logic.intf.dto.ValidacioDto;
+import es.caib.helium.logic.intf.service.ValidacioService;
+import es.caib.helium.persist.entity.Validacio;
+import es.caib.helium.persist.repository.CampRepository;
+import es.caib.helium.persist.repository.CampValidacioRepository;
 import net.conselldemallorca.helium.core.helper.ConversioTipusHelper;
 import net.conselldemallorca.helium.core.helper.PaginacioHelper;
-import net.conselldemallorca.helium.core.model.hibernate.Validacio;
-import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ValidacioDto;
-import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
-import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
-import net.conselldemallorca.helium.v3.core.api.service.ValidacioService;
-import net.conselldemallorca.helium.v3.core.repository.CampRepository;
-import net.conselldemallorca.helium.v3.core.repository.CampValidacioRepository;
 
 /**
  * Servei per gestionar les validacions

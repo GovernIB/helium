@@ -5,7 +5,7 @@ package net.conselldemallorca.helium.core.helper;
 
 import org.springframework.stereotype.Component;
 
-import net.conselldemallorca.helium.core.extern.domini.DominiHelium;
+import es.caib.emiserv.logic.intf.extern.domini.DominiHelium;
 import net.conselldemallorca.helium.core.util.ws.WsClientUtils;
 import net.conselldemallorca.helium.v3.core.ws.formext.IniciFormulari;
 

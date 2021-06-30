@@ -3,14 +3,15 @@
  */
 package net.conselldemallorca.helium.jbpm3.command;
 
-import net.conselldemallorca.helium.core.api.WorkflowEngineApi;
-import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto.OrdreDireccioDto;
-import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto.OrdreDto;
-import net.conselldemallorca.helium.core.api.LlistatIds;
 import org.hibernate.Query;
 import org.jbpm.JbpmContext;
 import org.jbpm.command.AbstractGetObjectBaseCommand;
 import org.jbpm.command.Command;
+
+import es.caib.helium.logic.intf.LlistatIds;
+import es.caib.helium.logic.intf.WorkflowEngineApi;
+import es.caib.helium.logic.intf.dto.PaginacioParamsDto.OrdreDireccioDto;
+import es.caib.helium.logic.intf.dto.PaginacioParamsDto.OrdreDto;
 
 import java.util.ArrayList;
 import java.util.Collection;

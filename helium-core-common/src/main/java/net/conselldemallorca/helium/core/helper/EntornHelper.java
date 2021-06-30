@@ -11,11 +11,11 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import net.conselldemallorca.helium.core.model.hibernate.Entorn;
+import es.caib.emiserv.logic.intf.exception.NoTrobatException;
+import es.caib.emiserv.logic.intf.exception.PermisDenegatException;
+import es.caib.helium.persist.entity.Entorn;
+import es.caib.helium.persist.repository.EntornRepository;
 import net.conselldemallorca.helium.core.security.ExtendedPermission;
-import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
-import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
-import net.conselldemallorca.helium.v3.core.repository.EntornRepository;
 
 /**
  * Helper per a gestionar els entorns.

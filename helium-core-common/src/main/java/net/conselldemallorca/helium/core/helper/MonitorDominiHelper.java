@@ -17,15 +17,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-//import net.conselldemallorca.helium.core.model.hibernate.DominiDto;
-import net.conselldemallorca.helium.core.model.hibernate.Entorn;
+import es.caib.helium.logic.intf.dto.DominiDto;
+import es.caib.helium.logic.intf.dto.IntegracioAccioDto;
+import es.caib.helium.logic.intf.dto.IntegracioAccioEstatEnumDto;
+import es.caib.helium.logic.intf.dto.IntegracioAccioTipusEnumDto;
+import es.caib.helium.logic.intf.dto.IntegracioParametreDto;
+import es.caib.helium.persist.entity.Entorn;
 import net.conselldemallorca.helium.ms.domini.DominiMs;
-import net.conselldemallorca.helium.v3.core.api.dto.DominiDto;
-import net.conselldemallorca.helium.v3.core.api.dto.IntegracioAccioDto;
-import net.conselldemallorca.helium.v3.core.api.dto.IntegracioAccioEstatEnumDto;
-import net.conselldemallorca.helium.v3.core.api.dto.IntegracioAccioTipusEnumDto;
-import net.conselldemallorca.helium.v3.core.api.dto.IntegracioParametreDto;
-//import net.conselldemallorca.helium.v3.core.repository.DominiRepository;
 
 /**
  * Mètodes per a la gestió d'integracions.

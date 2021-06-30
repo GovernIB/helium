@@ -7,10 +7,10 @@ import javax.interceptor.Interceptors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 
-import net.conselldemallorca.helium.v3.core.api.dto.AreaJbpmIdDto;
-import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
-import net.conselldemallorca.helium.v3.core.api.service.AreaService;
+import es.caib.helium.logic.intf.dto.AreaJbpmIdDto;
+import es.caib.helium.logic.intf.dto.PaginaDto;
+import es.caib.helium.logic.intf.dto.PaginacioParamsDto;
+import es.caib.helium.logic.intf.service.AreaService;
 
 /**
  * EJB per a AreaService.

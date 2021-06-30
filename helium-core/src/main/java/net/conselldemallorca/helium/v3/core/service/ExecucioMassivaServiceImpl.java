@@ -45,8 +45,58 @@ import com.codahale.metrics.Counter;
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer;
 
-import net.conselldemallorca.helium.core.api.WTaskInstance;
-import net.conselldemallorca.helium.core.api.WorkflowEngineApi;
+import es.caib.emiserv.logic.intf.exception.ExecucioMassivaException;
+import es.caib.emiserv.logic.intf.exception.NoTrobatException;
+import es.caib.emiserv.logic.intf.exception.ValidacioException;
+import es.caib.helium.logic.intf.WTaskInstance;
+import es.caib.helium.logic.intf.WorkflowEngineApi;
+import es.caib.helium.logic.intf.dto.ArxiuDto;
+import es.caib.helium.logic.intf.dto.ExecucioMassivaDto;
+import es.caib.helium.logic.intf.dto.ExecucioMassivaListDto;
+import es.caib.helium.logic.intf.dto.ExpedientDocumentDto;
+import es.caib.helium.logic.intf.dto.ExpedientDto;
+import es.caib.helium.logic.intf.dto.ExpedientTascaDto;
+import es.caib.helium.logic.intf.dto.InstanciaProcesDto;
+import es.caib.helium.logic.intf.dto.NtiEstadoElaboracionEnumDto;
+import es.caib.helium.logic.intf.dto.NtiOrigenEnumDto;
+import es.caib.helium.logic.intf.dto.NtiTipoDocumentalEnumDto;
+import es.caib.helium.logic.intf.dto.PersonaDto;
+import es.caib.helium.logic.intf.dto.ExecucioMassivaDto.ExecucioMassivaTipusDto;
+import es.caib.helium.logic.intf.service.ExecucioMassivaService;
+import es.caib.helium.logic.intf.service.ExpedientDadaService;
+import es.caib.helium.logic.intf.service.ExpedientDocumentService;
+import es.caib.helium.logic.intf.service.ExpedientRegistreService;
+import es.caib.helium.logic.intf.service.ExpedientService;
+import es.caib.helium.logic.intf.service.ExpedientTascaService;
+import es.caib.helium.logic.intf.service.TascaService;
+import es.caib.helium.persist.entity.Accio;
+import es.caib.helium.persist.entity.Camp;
+import es.caib.helium.persist.entity.Consulta;
+import es.caib.helium.persist.entity.ConsultaCamp;
+import es.caib.helium.persist.entity.DefinicioProces;
+import es.caib.helium.persist.entity.Document;
+import es.caib.helium.persist.entity.Entorn;
+import es.caib.helium.persist.entity.ExecucioMassiva;
+import es.caib.helium.persist.entity.ExecucioMassivaExpedient;
+import es.caib.helium.persist.entity.Expedient;
+import es.caib.helium.persist.entity.ExpedientTipus;
+import es.caib.helium.persist.entity.Persona;
+import es.caib.helium.persist.entity.Termini;
+import es.caib.helium.persist.entity.ConsultaCamp.TipusConsultaCamp;
+import es.caib.helium.persist.entity.ExecucioMassiva.ExecucioMassivaTipus;
+import es.caib.helium.persist.entity.ExecucioMassivaExpedient.ExecucioMassivaEstat;
+import es.caib.helium.persist.repository.AccioRepository;
+import es.caib.helium.persist.repository.CampRepository;
+import es.caib.helium.persist.repository.ConsultaCampRepository;
+import es.caib.helium.persist.repository.ConsultaRepository;
+import es.caib.helium.persist.repository.DefinicioProcesRepository;
+import es.caib.helium.persist.repository.DocumentRepository;
+import es.caib.helium.persist.repository.EntornRepository;
+import es.caib.helium.persist.repository.ExecucioMassivaExpedientRepository;
+import es.caib.helium.persist.repository.ExecucioMassivaRepository;
+import es.caib.helium.persist.repository.ExpedientRepository;
+import es.caib.helium.persist.repository.ExpedientTipusRepository;
+import es.caib.helium.persist.repository.PersonaRepository;
 import net.conselldemallorca.helium.core.helper.ConversioTipusHelper;
 import net.conselldemallorca.helium.core.helper.DefinicioProcesHelper;
 import net.conselldemallorca.helium.core.helper.DocumentHelperV3;
@@ -63,59 +113,9 @@ import net.conselldemallorca.helium.core.helper.TascaHelper;
 import net.conselldemallorca.helium.core.helper.TerminiHelper;
 import net.conselldemallorca.helium.core.helper.UsuariActualHelper;
 import net.conselldemallorca.helium.core.helperv26.MesuresTemporalsHelper;
-import net.conselldemallorca.helium.core.model.hibernate.Accio;
-import net.conselldemallorca.helium.core.model.hibernate.Camp;
-import net.conselldemallorca.helium.core.model.hibernate.Consulta;
-import net.conselldemallorca.helium.core.model.hibernate.ConsultaCamp;
-import net.conselldemallorca.helium.core.model.hibernate.ConsultaCamp.TipusConsultaCamp;
-import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
-import net.conselldemallorca.helium.core.model.hibernate.Document;
-import net.conselldemallorca.helium.core.model.hibernate.Entorn;
-import net.conselldemallorca.helium.core.model.hibernate.ExecucioMassiva;
-import net.conselldemallorca.helium.core.model.hibernate.ExecucioMassiva.ExecucioMassivaTipus;
-import net.conselldemallorca.helium.core.model.hibernate.ExecucioMassivaExpedient;
-import net.conselldemallorca.helium.core.model.hibernate.ExecucioMassivaExpedient.ExecucioMassivaEstat;
-import net.conselldemallorca.helium.core.model.hibernate.Expedient;
-import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
-import net.conselldemallorca.helium.core.model.hibernate.Persona;
-import net.conselldemallorca.helium.core.model.hibernate.Termini;
 import net.conselldemallorca.helium.core.util.CsvHelper;
 import net.conselldemallorca.helium.core.util.EntornActual;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
-import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExecucioMassivaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExecucioMassivaDto.ExecucioMassivaTipusDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExecucioMassivaListDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDocumentDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.InstanciaProcesDto;
-import net.conselldemallorca.helium.v3.core.api.dto.NtiEstadoElaboracionEnumDto;
-import net.conselldemallorca.helium.v3.core.api.dto.NtiOrigenEnumDto;
-import net.conselldemallorca.helium.v3.core.api.dto.NtiTipoDocumentalEnumDto;
-import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
-import net.conselldemallorca.helium.v3.core.api.exception.ExecucioMassivaException;
-import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
-import net.conselldemallorca.helium.v3.core.api.exception.ValidacioException;
-import net.conselldemallorca.helium.v3.core.api.service.ExecucioMassivaService;
-import net.conselldemallorca.helium.v3.core.api.service.ExpedientDadaService;
-import net.conselldemallorca.helium.v3.core.api.service.ExpedientDocumentService;
-import net.conselldemallorca.helium.v3.core.api.service.ExpedientRegistreService;
-import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
-import net.conselldemallorca.helium.v3.core.api.service.ExpedientTascaService;
-import net.conselldemallorca.helium.v3.core.api.service.TascaService;
-import net.conselldemallorca.helium.v3.core.repository.AccioRepository;
-import net.conselldemallorca.helium.v3.core.repository.CampRepository;
-import net.conselldemallorca.helium.v3.core.repository.ConsultaCampRepository;
-import net.conselldemallorca.helium.v3.core.repository.ConsultaRepository;
-import net.conselldemallorca.helium.v3.core.repository.DefinicioProcesRepository;
-import net.conselldemallorca.helium.v3.core.repository.DocumentRepository;
-import net.conselldemallorca.helium.v3.core.repository.EntornRepository;
-import net.conselldemallorca.helium.v3.core.repository.ExecucioMassivaExpedientRepository;
-import net.conselldemallorca.helium.v3.core.repository.ExecucioMassivaRepository;
-import net.conselldemallorca.helium.v3.core.repository.ExpedientRepository;
-import net.conselldemallorca.helium.v3.core.repository.ExpedientTipusRepository;
-import net.conselldemallorca.helium.v3.core.repository.PersonaRepository;
 /**
  * Servei per a gestionar la tramitació massiva d'expedients.
  * 
@@ -2118,7 +2118,7 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 						false, 
 						variables, 
 						null, 
-						net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto.IniciadorTipusDto.INTERN,
+						es.caib.helium.logic.intf.dto.ExpedientDto.IniciadorTipusDto.INTERN,
 						null,
 						null,
 						null,

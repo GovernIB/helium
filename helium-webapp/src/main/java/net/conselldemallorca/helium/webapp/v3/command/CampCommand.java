@@ -8,12 +8,12 @@ import javax.validation.constraints.Size;
 
 import org.hibernate.validator.constraints.NotEmpty;
 
-import net.conselldemallorca.helium.v3.core.api.dto.CampAgrupacioDto;
-import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
-import net.conselldemallorca.helium.v3.core.api.dto.CampTipusDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ConsultaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.DominiDto;
-import net.conselldemallorca.helium.v3.core.api.dto.EnumeracioDto;
+import es.caib.helium.logic.intf.dto.CampAgrupacioDto;
+import es.caib.helium.logic.intf.dto.CampDto;
+import es.caib.helium.logic.intf.dto.CampTipusDto;
+import es.caib.helium.logic.intf.dto.ConsultaDto;
+import es.caib.helium.logic.intf.dto.DominiDto;
+import es.caib.helium.logic.intf.dto.EnumeracioDto;
 import net.conselldemallorca.helium.webapp.v3.command.CampCommand.Creacio;
 import net.conselldemallorca.helium.webapp.v3.command.CampCommand.Modificacio;
 import net.conselldemallorca.helium.webapp.v3.validator.Codi;

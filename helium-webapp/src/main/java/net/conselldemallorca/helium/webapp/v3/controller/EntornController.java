@@ -13,10 +13,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
-import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
-import net.conselldemallorca.helium.v3.core.api.dto.PermisDto;
-import net.conselldemallorca.helium.v3.core.api.service.EntornService;
+import es.caib.helium.logic.intf.dto.EntornDto;
+import es.caib.helium.logic.intf.dto.PaginacioParamsDto;
+import es.caib.helium.logic.intf.dto.PermisDto;
+import es.caib.helium.logic.intf.service.EntornService;
 import net.conselldemallorca.helium.webapp.v3.command.EntornCommand;
 import net.conselldemallorca.helium.webapp.v3.command.EntornCommand.Creacio;
 import net.conselldemallorca.helium.webapp.v3.command.EntornCommand.Modificacio;

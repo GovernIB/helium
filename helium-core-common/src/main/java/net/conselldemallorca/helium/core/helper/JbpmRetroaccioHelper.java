@@ -1,11 +1,12 @@
 package net.conselldemallorca.helium.core.helper;
 
-import net.conselldemallorca.helium.core.api.WTaskInstance;
 import org.jbpm.graph.def.Action;
 import org.jbpm.graph.def.Node;
 import org.jbpm.graph.exe.Token;
 import org.jbpm.logging.log.ProcessLog;
 import org.springframework.stereotype.Component;
+
+import es.caib.helium.logic.intf.WTaskInstance;
 
 import java.util.List;
 import java.util.Map;

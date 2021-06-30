@@ -10,8 +10,8 @@ import javax.interceptor.Interceptors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 
-import net.conselldemallorca.helium.v3.core.api.dto.PortasignaturesDto;
-import net.conselldemallorca.helium.v3.core.api.service.PortasignaturesService;
+import es.caib.helium.logic.intf.dto.PortasignaturesDto;
+import es.caib.helium.logic.intf.service.PortasignaturesService;
 
 /**
  * Servei per a gestionar els callbacks del portasignatures.

@@ -13,23 +13,23 @@ import javax.interceptor.Interceptors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 
-import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDetallDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ArxiuFirmaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.DadesNotificacioDto;
-import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDocumentDto;
-import net.conselldemallorca.helium.v3.core.api.dto.NotificacioDto;
-import net.conselldemallorca.helium.v3.core.api.dto.NtiEstadoElaboracionEnumDto;
-import net.conselldemallorca.helium.v3.core.api.dto.NtiOrigenEnumDto;
-import net.conselldemallorca.helium.v3.core.api.dto.NtiTipoDocumentalEnumDto;
-import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
-import net.conselldemallorca.helium.v3.core.api.dto.PortasignaturesDto;
-import net.conselldemallorca.helium.v3.core.api.dto.RespostaValidacioSignaturaDto;
-import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
-import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
-import net.conselldemallorca.helium.v3.core.api.service.ExpedientDocumentService;
+import es.caib.emiserv.logic.intf.exception.NoTrobatException;
+import es.caib.emiserv.logic.intf.exception.PermisDenegatException;
+import es.caib.helium.logic.intf.dto.ArxiuDetallDto;
+import es.caib.helium.logic.intf.dto.ArxiuDto;
+import es.caib.helium.logic.intf.dto.ArxiuFirmaDto;
+import es.caib.helium.logic.intf.dto.DadesNotificacioDto;
+import es.caib.helium.logic.intf.dto.DocumentDto;
+import es.caib.helium.logic.intf.dto.ExpedientDocumentDto;
+import es.caib.helium.logic.intf.dto.NotificacioDto;
+import es.caib.helium.logic.intf.dto.NtiEstadoElaboracionEnumDto;
+import es.caib.helium.logic.intf.dto.NtiOrigenEnumDto;
+import es.caib.helium.logic.intf.dto.NtiTipoDocumentalEnumDto;
+import es.caib.helium.logic.intf.dto.PaginaDto;
+import es.caib.helium.logic.intf.dto.PaginacioParamsDto;
+import es.caib.helium.logic.intf.dto.PortasignaturesDto;
+import es.caib.helium.logic.intf.dto.RespostaValidacioSignaturaDto;
+import es.caib.helium.logic.intf.service.ExpedientDocumentService;
 
 /**
  * EJB que implementa la interfície del servei ExpedientDocumentService.

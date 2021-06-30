@@ -3,38 +3,40 @@
  */
 package net.conselldemallorca.helium.core.helperv26;
 
-import net.conselldemallorca.helium.core.api.WProcessDefinition;
-import net.conselldemallorca.helium.core.api.WProcessInstance;
-import net.conselldemallorca.helium.core.api.WTaskInstance;
-import net.conselldemallorca.helium.core.api.WorkflowEngineApi;
-import net.conselldemallorca.helium.core.common.JbpmVars;
 import net.conselldemallorca.helium.core.helper.DocumentHelperV3;
 import net.conselldemallorca.helium.core.helper.ExpedientHelper;
 import net.conselldemallorca.helium.core.helper.PluginHelper;
 import net.conselldemallorca.helium.core.model.dto.DocumentDto;
-import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
-import net.conselldemallorca.helium.core.model.hibernate.Document;
-import net.conselldemallorca.helium.core.model.hibernate.DocumentStore;
-import net.conselldemallorca.helium.core.model.hibernate.DocumentStore.DocumentFont;
-import net.conselldemallorca.helium.core.model.hibernate.Expedient;
-import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
-import net.conselldemallorca.helium.core.model.hibernate.Portasignatures;
-import net.conselldemallorca.helium.core.model.hibernate.Portasignatures.TipusEstat;
 import net.conselldemallorca.helium.core.util.DocumentTokenUtils;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.core.util.PdfUtils;
 import net.conselldemallorca.helium.integracio.plugins.signatura.RespostaValidacioSignatura;
-import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
-import net.conselldemallorca.helium.v3.core.api.exception.SistemaExternException;
-import net.conselldemallorca.helium.v3.core.repository.DefinicioProcesRepository;
-import net.conselldemallorca.helium.v3.core.repository.DocumentRepository;
-import net.conselldemallorca.helium.v3.core.repository.DocumentStoreRepository;
-import net.conselldemallorca.helium.v3.core.repository.ExpedientRepository;
-import net.conselldemallorca.helium.v3.core.repository.PortasignaturesRepository;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.stereotype.Component;
+
+import es.caib.emiserv.logic.intf.exception.SistemaExternException;
+import es.caib.emiserv.logic.intf.util.JbpmVars;
+import es.caib.helium.logic.intf.WProcessDefinition;
+import es.caib.helium.logic.intf.WProcessInstance;
+import es.caib.helium.logic.intf.WTaskInstance;
+import es.caib.helium.logic.intf.WorkflowEngineApi;
+import es.caib.helium.logic.intf.dto.ArxiuDto;
+import es.caib.helium.logic.intf.dto.ExpedientDto;
+import es.caib.helium.persist.entity.DefinicioProces;
+import es.caib.helium.persist.entity.Document;
+import es.caib.helium.persist.entity.DocumentStore;
+import es.caib.helium.persist.entity.Expedient;
+import es.caib.helium.persist.entity.ExpedientTipus;
+import es.caib.helium.persist.entity.Portasignatures;
+import es.caib.helium.persist.entity.DocumentStore.DocumentFont;
+import es.caib.helium.persist.entity.Portasignatures.TipusEstat;
+import es.caib.helium.persist.repository.DefinicioProcesRepository;
+import es.caib.helium.persist.repository.DocumentRepository;
+import es.caib.helium.persist.repository.DocumentStoreRepository;
+import es.caib.helium.persist.repository.ExpedientRepository;
+import es.caib.helium.persist.repository.PortasignaturesRepository;
 
 import javax.annotation.Resource;
 import java.io.ByteArrayOutputStream;

@@ -15,19 +15,19 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import es.caib.emiserv.logic.intf.exception.NoTrobatException;
+import es.caib.helium.logic.intf.dto.EntornDto;
+import es.caib.helium.logic.intf.dto.PaginaDto;
+import es.caib.helium.logic.intf.dto.PaginacioParamsDto;
+import es.caib.helium.logic.intf.dto.PermisDto;
+import es.caib.helium.logic.intf.service.EntornService;
+import es.caib.helium.persist.entity.Entorn;
+import es.caib.helium.persist.repository.EntornRepository;
 import net.conselldemallorca.helium.core.helper.ConversioTipusHelper;
 import net.conselldemallorca.helium.core.helper.EntornHelper;
 import net.conselldemallorca.helium.core.helper.PaginacioHelper;
 import net.conselldemallorca.helium.core.helper.PermisosHelper;
 import net.conselldemallorca.helium.core.helper.UsuariActualHelper;
-import net.conselldemallorca.helium.core.model.hibernate.Entorn;
-import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
-import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
-import net.conselldemallorca.helium.v3.core.api.dto.PermisDto;
-import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
-import net.conselldemallorca.helium.v3.core.api.service.EntornService;
-import net.conselldemallorca.helium.v3.core.repository.EntornRepository;
 
 /**
  * Implementació dels mètodes de EntornService.

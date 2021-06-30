@@ -26,11 +26,11 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
-import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
-import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
-import net.conselldemallorca.helium.v3.core.api.service.AplicacioService;
-import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
+import es.caib.helium.logic.intf.dto.EstatDto;
+import es.caib.helium.logic.intf.dto.ExpedientDto;
+import es.caib.helium.logic.intf.dto.PersonaDto;
+import es.caib.helium.logic.intf.service.AplicacioService;
+import es.caib.helium.logic.intf.service.ExpedientService;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientEditarCommand;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientEditarCommand.Editar;
 import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;

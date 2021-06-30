@@ -11,23 +11,23 @@ import javax.annotation.Resource;
 
 import org.springframework.stereotype.Component;
 
-import net.conselldemallorca.helium.core.common.ExpedientCamps;
-import net.conselldemallorca.helium.core.model.hibernate.Camp;
-import net.conselldemallorca.helium.core.model.hibernate.Camp.TipusCamp;
-import net.conselldemallorca.helium.core.model.hibernate.Consulta;
-import net.conselldemallorca.helium.core.model.hibernate.ConsultaCamp;
-import net.conselldemallorca.helium.core.model.hibernate.ConsultaCamp.TipusConsultaCamp;
-import net.conselldemallorca.helium.core.model.hibernate.ConsultaCamp.TipusParamConsultaCamp;
-import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
-import net.conselldemallorca.helium.core.model.hibernate.Expedient;
-import net.conselldemallorca.helium.v3.core.api.dto.CampTipusDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ConsultaDominiDto;
-import net.conselldemallorca.helium.v3.core.api.dto.DadaIndexadaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
-import net.conselldemallorca.helium.v3.core.repository.CampRepository;
-import net.conselldemallorca.helium.v3.core.repository.ConsultaCampRepository;
-import net.conselldemallorca.helium.v3.core.repository.DefinicioProcesRepository;
+import es.caib.emiserv.logic.intf.util.ExpedientCamps;
+import es.caib.helium.logic.intf.dto.CampTipusDto;
+import es.caib.helium.logic.intf.dto.ConsultaDominiDto;
+import es.caib.helium.logic.intf.dto.DadaIndexadaDto;
+import es.caib.helium.logic.intf.dto.PersonaDto;
+import es.caib.helium.logic.intf.dto.TascaDadaDto;
+import es.caib.helium.persist.entity.Camp;
+import es.caib.helium.persist.entity.Consulta;
+import es.caib.helium.persist.entity.ConsultaCamp;
+import es.caib.helium.persist.entity.DefinicioProces;
+import es.caib.helium.persist.entity.Expedient;
+import es.caib.helium.persist.entity.Camp.TipusCamp;
+import es.caib.helium.persist.entity.ConsultaCamp.TipusConsultaCamp;
+import es.caib.helium.persist.entity.ConsultaCamp.TipusParamConsultaCamp;
+import es.caib.helium.persist.repository.CampRepository;
+import es.caib.helium.persist.repository.ConsultaCampRepository;
+import es.caib.helium.persist.repository.DefinicioProcesRepository;
 
 /**
  * Helper per a gestionar els consultes.

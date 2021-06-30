@@ -12,22 +12,22 @@ import javax.annotation.security.RolesAllowed;
 import javax.ejb.Stateless;
 import javax.interceptor.Interceptors;
 
-import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
-import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.FormulariExternDto;
-import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
-import net.conselldemallorca.helium.v3.core.api.dto.SeleccioOpcioDto;
-import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.TascaDocumentDto;
-import net.conselldemallorca.helium.v3.core.api.dto.TascaDto;
-import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
-import net.conselldemallorca.helium.v3.core.api.exception.ValidacioException;
-import net.conselldemallorca.helium.v3.core.api.service.TascaService;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
+
+import es.caib.emiserv.logic.intf.exception.NoTrobatException;
+import es.caib.emiserv.logic.intf.exception.ValidacioException;
+import es.caib.helium.logic.intf.dto.ArxiuDto;
+import es.caib.helium.logic.intf.dto.DocumentDto;
+import es.caib.helium.logic.intf.dto.ExpedientTascaDto;
+import es.caib.helium.logic.intf.dto.FormulariExternDto;
+import es.caib.helium.logic.intf.dto.PaginaDto;
+import es.caib.helium.logic.intf.dto.PaginacioParamsDto;
+import es.caib.helium.logic.intf.dto.SeleccioOpcioDto;
+import es.caib.helium.logic.intf.dto.TascaDadaDto;
+import es.caib.helium.logic.intf.dto.TascaDocumentDto;
+import es.caib.helium.logic.intf.dto.TascaDto;
+import es.caib.helium.logic.intf.service.TascaService;
 
 /**
  * Servei per a enllaçar les llibreries jBPM 3 amb la funcionalitat de Helium.

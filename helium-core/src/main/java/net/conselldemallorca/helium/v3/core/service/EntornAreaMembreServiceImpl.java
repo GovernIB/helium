@@ -8,19 +8,19 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import es.caib.helium.logic.intf.dto.AreaMembreDto;
+import es.caib.helium.logic.intf.dto.PaginaDto;
+import es.caib.helium.logic.intf.dto.PaginacioParamsDto;
+import es.caib.helium.logic.intf.dto.PaginacioParamsDto.OrdreDireccioDto;
+import es.caib.helium.logic.intf.service.EntornAreaMembreService;
+import es.caib.helium.persist.entity.Area;
+import es.caib.helium.persist.entity.AreaMembre;
+import es.caib.helium.persist.entity.Carrec;
+import es.caib.helium.persist.repository.AreaMembreRepository;
+import es.caib.helium.persist.repository.AreaRepository;
+import es.caib.helium.persist.repository.CarrecRepository;
 import net.conselldemallorca.helium.core.helper.ConversioTipusHelper;
 import net.conselldemallorca.helium.core.helper.PaginacioHelper;
-import net.conselldemallorca.helium.core.model.hibernate.Area;
-import net.conselldemallorca.helium.core.model.hibernate.AreaMembre;
-import net.conselldemallorca.helium.core.model.hibernate.Carrec;
-import net.conselldemallorca.helium.v3.core.api.dto.AreaMembreDto;
-import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
-import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto.OrdreDireccioDto;
-import net.conselldemallorca.helium.v3.core.api.service.EntornAreaMembreService;
-import net.conselldemallorca.helium.v3.core.repository.AreaMembreRepository;
-import net.conselldemallorca.helium.v3.core.repository.AreaRepository;
-import net.conselldemallorca.helium.v3.core.repository.CarrecRepository;
 
 @Service("entornAreaMembreServiceV3")
 public class EntornAreaMembreServiceImpl implements EntornAreaMembreService {

@@ -12,20 +12,20 @@ import javax.interceptor.Interceptors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 
-import net.conselldemallorca.helium.v3.core.api.dto.CampTascaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ConsultaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
-import net.conselldemallorca.helium.v3.core.api.dto.DocumentTascaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.FirmaTascaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
-import net.conselldemallorca.helium.v3.core.api.dto.TascaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.TerminiDto;
-import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
-import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
-import net.conselldemallorca.helium.v3.core.api.exportacio.DefinicioProcesExportacio;
-import net.conselldemallorca.helium.v3.core.api.exportacio.DefinicioProcesExportacioCommandDto;
-import net.conselldemallorca.helium.v3.core.api.service.DefinicioProcesService;
+import es.caib.emiserv.logic.intf.exception.NoTrobatException;
+import es.caib.emiserv.logic.intf.exception.PermisDenegatException;
+import es.caib.emiserv.logic.intf.exportacio.DefinicioProcesExportacio;
+import es.caib.emiserv.logic.intf.exportacio.DefinicioProcesExportacioCommandDto;
+import es.caib.helium.logic.intf.dto.CampTascaDto;
+import es.caib.helium.logic.intf.dto.ConsultaDto;
+import es.caib.helium.logic.intf.dto.DefinicioProcesDto;
+import es.caib.helium.logic.intf.dto.DocumentTascaDto;
+import es.caib.helium.logic.intf.dto.FirmaTascaDto;
+import es.caib.helium.logic.intf.dto.PaginaDto;
+import es.caib.helium.logic.intf.dto.PaginacioParamsDto;
+import es.caib.helium.logic.intf.dto.TascaDto;
+import es.caib.helium.logic.intf.dto.TerminiDto;
+import es.caib.helium.logic.intf.service.DefinicioProcesService;
 
 /**
  * EJB que implementa la interfície del servei DefinicioProcesService.

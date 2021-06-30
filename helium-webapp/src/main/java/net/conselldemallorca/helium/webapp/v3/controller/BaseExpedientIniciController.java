@@ -13,12 +13,12 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
-import net.conselldemallorca.helium.v3.core.api.dto.AnotacioDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto.IniciadorTipusDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
-import net.conselldemallorca.helium.v3.core.api.service.AnotacioService;
-import net.conselldemallorca.helium.v3.core.api.service.TascaService;
+import es.caib.helium.logic.intf.dto.AnotacioDto;
+import es.caib.helium.logic.intf.dto.ExpedientDto;
+import es.caib.helium.logic.intf.dto.ParellaCodiValorDto;
+import es.caib.helium.logic.intf.dto.ExpedientDto.IniciadorTipusDto;
+import es.caib.helium.logic.intf.service.AnotacioService;
+import es.caib.helium.logic.intf.service.TascaService;
 import net.conselldemallorca.helium.webapp.v3.command.AnotacioAcceptarCommand;
 import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
 

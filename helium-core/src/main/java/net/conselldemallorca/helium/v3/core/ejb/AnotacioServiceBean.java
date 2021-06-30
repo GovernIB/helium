@@ -12,15 +12,15 @@ import javax.interceptor.Interceptors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 
-import net.conselldemallorca.helium.v3.core.api.dto.AnotacioDto;
-import net.conselldemallorca.helium.v3.core.api.dto.AnotacioFiltreDto;
-import net.conselldemallorca.helium.v3.core.api.dto.AnotacioListDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ArxiuFirmaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
-import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
-import net.conselldemallorca.helium.v3.core.api.service.AnotacioService;
+import es.caib.emiserv.logic.intf.exception.NoTrobatException;
+import es.caib.helium.logic.intf.dto.AnotacioDto;
+import es.caib.helium.logic.intf.dto.AnotacioFiltreDto;
+import es.caib.helium.logic.intf.dto.AnotacioListDto;
+import es.caib.helium.logic.intf.dto.ArxiuDto;
+import es.caib.helium.logic.intf.dto.ArxiuFirmaDto;
+import es.caib.helium.logic.intf.dto.PaginaDto;
+import es.caib.helium.logic.intf.dto.PaginacioParamsDto;
+import es.caib.helium.logic.intf.service.AnotacioService;
 
 /**
  * Servei per a gestionar les enumeracions.

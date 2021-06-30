@@ -2,8 +2,8 @@ package net.conselldemallorca.helium.jbpm3.handlers;
 
 import org.jbpm.graph.exe.ExecutionContext;
 
+import es.caib.helium.logic.intf.dto.ExpedientDto;
 import net.conselldemallorca.helium.jbpm3.integracio.Jbpm3HeliumBridge;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 
 public class ExpedientDesfinalitzarHandler extends AbstractHeliumActionHandler implements ExpedientDesfinalitzarHandlerInterficie {
 

@@ -3,28 +3,30 @@
  */
 package net.conselldemallorca.helium.v3.core.service;
 
-import net.conselldemallorca.helium.core.api.WProcessInstance;
-import net.conselldemallorca.helium.core.api.WTaskInstance;
-import net.conselldemallorca.helium.core.api.WorkflowEngineApi;
-import net.conselldemallorca.helium.core.api.WorkflowRetroaccioApi;
 import net.conselldemallorca.helium.core.helper.ExpedientHelper;
 import net.conselldemallorca.helium.core.helper.PermisosHelper;
 import net.conselldemallorca.helium.core.helper.TascaHelper;
-import net.conselldemallorca.helium.core.model.hibernate.Expedient;
-import net.conselldemallorca.helium.core.model.hibernate.Registre;
 import net.conselldemallorca.helium.core.security.ExtendedPermission;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
-import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
-import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
-import net.conselldemallorca.helium.v3.core.api.exception.ValidacioException;
-import net.conselldemallorca.helium.v3.core.api.service.ExpedientTascaService;
-import net.conselldemallorca.helium.v3.core.repository.RegistreRepository;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.acls.model.Permission;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import es.caib.emiserv.logic.intf.exception.NoTrobatException;
+import es.caib.emiserv.logic.intf.exception.PermisDenegatException;
+import es.caib.emiserv.logic.intf.exception.ValidacioException;
+import es.caib.helium.logic.intf.WProcessInstance;
+import es.caib.helium.logic.intf.WTaskInstance;
+import es.caib.helium.logic.intf.WorkflowEngineApi;
+import es.caib.helium.logic.intf.WorkflowRetroaccioApi;
+import es.caib.helium.logic.intf.dto.ExpedientTascaDto;
+import es.caib.helium.logic.intf.service.ExpedientTascaService;
+import es.caib.helium.persist.entity.Expedient;
+import es.caib.helium.persist.entity.Registre;
+import es.caib.helium.persist.repository.RegistreRepository;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;

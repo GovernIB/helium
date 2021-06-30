@@ -24,13 +24,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import es.caib.helium.logic.intf.dto.ExecucioMassivaDto;
+import es.caib.helium.logic.intf.dto.ExecucioMassivaListDto;
+import es.caib.helium.logic.intf.dto.ExpedientTipusDto;
+import es.caib.helium.logic.intf.dto.ExecucioMassivaDto.ExecucioMassivaTipusDto;
+import es.caib.helium.logic.intf.service.ExecucioMassivaService;
 import net.conselldemallorca.helium.core.util.CsvHelper;
 import net.conselldemallorca.helium.core.util.EntornActual;
-import net.conselldemallorca.helium.v3.core.api.dto.ExecucioMassivaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExecucioMassivaDto.ExecucioMassivaTipusDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExecucioMassivaListDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
-import net.conselldemallorca.helium.v3.core.api.service.ExecucioMassivaService;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientAltaMassivaCommand;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientAltaMassivaCommand.AltaMassiva;
 import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;

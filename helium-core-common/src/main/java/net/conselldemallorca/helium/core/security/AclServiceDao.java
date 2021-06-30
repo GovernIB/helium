@@ -11,8 +11,8 @@ import org.springframework.security.acls.model.AccessControlEntry;
 import org.springframework.security.acls.model.ObjectIdentity;
 import org.springframework.security.acls.model.Permission;
 
+import es.caib.helium.persist.entity.GenericEntity;
 import net.conselldemallorca.helium.core.helperv26.PermisosHelper;
-import net.conselldemallorca.helium.core.model.hibernate.GenericEntity;
 
 /**
  * Per a permetre cridar al PermisosHelper sense haver de

@@ -11,7 +11,7 @@ import javax.validation.constraints.Size;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.format.annotation.DateTimeFormat;
 
-import net.conselldemallorca.helium.v3.core.api.dto.ReassignacioDto;
+import es.caib.helium.logic.intf.dto.ReassignacioDto;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientTipusRedireccioCommand.Creacio;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientTipusRedireccioCommand.Modificacio;
 import net.conselldemallorca.helium.webapp.v3.validator.ExpedientTipusRedireccio;

@@ -9,26 +9,10 @@ import javax.jws.WebService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
-import net.conselldemallorca.helium.core.extern.domini.DominiHelium;
-import net.conselldemallorca.helium.core.extern.domini.FilaResultat;
-import net.conselldemallorca.helium.core.extern.domini.ParellaCodiValor;
-//import net.conselldemallorca.helium.core.model.dto.InstanciaProcesDto;
-//import net.conselldemallorca.helium.core.model.dto.PersonaDto;
-//import net.conselldemallorca.helium.core.model.dto.TascaDto;
-//import net.conselldemallorca.helium.core.model.hibernate.Area;
-//import net.conselldemallorca.helium.core.model.hibernate.Camp;
-//import net.conselldemallorca.helium.core.model.hibernate.Camp.TipusCamp;
-//import net.conselldemallorca.helium.core.model.hibernate.CampRegistre;
-//import net.conselldemallorca.helium.core.model.hibernate.CampTasca;
-//import net.conselldemallorca.helium.core.model.hibernate.Carrec;
-//import net.conselldemallorca.helium.core.model.hibernate.Entorn;
-//import net.conselldemallorca.helium.core.model.service.EntornService;
-//import net.conselldemallorca.helium.core.model.service.ExpedientService;
-//import net.conselldemallorca.helium.core.model.service.OrganitzacioService;
-//import net.conselldemallorca.helium.core.model.service.PluginService;
-//import net.conselldemallorca.helium.core.model.service.TascaService;
-//import net.conselldemallorca.helium.core.util.GlobalProperties;
-import net.conselldemallorca.helium.v3.core.api.service.DissenyService;
+import es.caib.emiserv.logic.intf.extern.domini.DominiHelium;
+import es.caib.emiserv.logic.intf.extern.domini.FilaResultat;
+import es.caib.emiserv.logic.intf.extern.domini.ParellaCodiValor;
+import es.caib.helium.logic.intf.service.DissenyService;
 
 /**
  * Domini que implementa l'accés a dades internes de Helium

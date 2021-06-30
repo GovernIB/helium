@@ -10,10 +10,11 @@ import net.conselldemallorca.helium.jbpm3.handlers.tipus.DadesRegistreEntrada;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.DocumentInfo;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.RespostaRegistre;
 import net.conselldemallorca.helium.jbpm3.integracio.Jbpm3HeliumBridge;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 
 import org.jbpm.JbpmException;
 import org.jbpm.graph.exe.ExecutionContext;
+
+import es.caib.helium.logic.intf.dto.ExpedientDto;
 
 /**
  * Handler per a interactuar amb el registre d'entrada.

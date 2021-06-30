@@ -13,10 +13,9 @@ import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.api.client.filter.HTTPBasicAuthFilter;
 import com.sun.jersey.core.util.MultivaluedMapImpl;
 
-import net.conselldemallorca.helium.core.extern.domini.FilaResultat;
-import net.conselldemallorca.helium.v3.core.api.dto.DominiDto;
-//import net.conselldemallorca.helium.core.model.hibernate.Domini;
-import net.conselldemallorca.helium.v3.core.api.exception.SistemaExternException;
+import es.caib.emiserv.logic.intf.exception.SistemaExternException;
+import es.caib.emiserv.logic.intf.extern.domini.FilaResultat;
+import es.caib.helium.logic.intf.dto.DominiDto;
 
 /**
  * 

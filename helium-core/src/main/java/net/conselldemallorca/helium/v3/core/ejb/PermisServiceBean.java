@@ -8,8 +8,8 @@ import javax.interceptor.Interceptors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 
-import net.conselldemallorca.helium.v3.core.api.dto.PermisRolDto;
-import net.conselldemallorca.helium.v3.core.api.service.PermisService;
+import es.caib.helium.logic.intf.dto.PermisRolDto;
+import es.caib.helium.logic.intf.service.PermisService;
 
 /**
  * EJB que implementa la interfície del servei PermisService.

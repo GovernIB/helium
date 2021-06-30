@@ -9,9 +9,9 @@ import javax.annotation.Resource;
 
 import org.springframework.stereotype.Component;
 
-import net.conselldemallorca.helium.core.model.hibernate.Expedient;
-import net.conselldemallorca.helium.core.model.hibernate.Registre;
-import net.conselldemallorca.helium.v3.core.repository.RegistreRepository;
+import es.caib.helium.persist.entity.Expedient;
+import es.caib.helium.persist.entity.Registre;
+import es.caib.helium.persist.repository.RegistreRepository;
 
 /**
  * Helper per a gestionar el registre d'accions dels expedients

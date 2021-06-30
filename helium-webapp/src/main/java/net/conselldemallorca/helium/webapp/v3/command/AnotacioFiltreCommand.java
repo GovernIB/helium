@@ -7,7 +7,7 @@ import java.util.Date;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 
-import net.conselldemallorca.helium.v3.core.api.dto.AnotacioEstatEnumDto;
+import es.caib.helium.logic.intf.dto.AnotacioEstatEnumDto;
 
 /**
  * Command per al filtre d'expedients dels arxius.

@@ -9,11 +9,6 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
-import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
-import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto.OrdreDireccioDto;
-import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto.OrdreDto;
-
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -21,6 +16,11 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.domain.Sort.Order;
 import org.springframework.stereotype.Component;
+
+import es.caib.helium.logic.intf.dto.PaginaDto;
+import es.caib.helium.logic.intf.dto.PaginacioParamsDto;
+import es.caib.helium.logic.intf.dto.PaginacioParamsDto.OrdreDireccioDto;
+import es.caib.helium.logic.intf.dto.PaginacioParamsDto.OrdreDto;
 
 /**
  * Helper per a convertir les dades de paginació entre el DTO

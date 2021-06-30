@@ -21,13 +21,13 @@ import org.springframework.web.bind.annotation.RequestMethod;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import es.caib.helium.logic.intf.dto.CampDto;
+import es.caib.helium.logic.intf.dto.DadaIndexadaDto;
+import es.caib.helium.logic.intf.dto.ExpedientDadaDto;
+import es.caib.helium.logic.intf.dto.ExpedientDto;
+import es.caib.helium.logic.intf.dto.InstanciaProcesDto;
+import es.caib.helium.logic.intf.service.ExpedientDadaService;
 import net.conselldemallorca.helium.core.util.ExpedientCamps;
-import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
-import net.conselldemallorca.helium.v3.core.api.dto.DadaIndexadaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDadaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
-import net.conselldemallorca.helium.v3.core.api.dto.InstanciaProcesDto;
-import net.conselldemallorca.helium.v3.core.api.service.ExpedientDadaService;
 import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
 
 /**

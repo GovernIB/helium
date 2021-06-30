@@ -8,13 +8,14 @@ import java.util.Date;
 import javax.annotation.Resource;
 
 import net.conselldemallorca.helium.core.helper.ConversioTipusHelper;
-import net.conselldemallorca.helium.core.model.hibernate.Alerta;
-import net.conselldemallorca.helium.v3.core.api.dto.AlertaDto;
-import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
-import net.conselldemallorca.helium.v3.core.api.service.AlertaService;
-import net.conselldemallorca.helium.v3.core.repository.AlertaRepository;
 
 import org.springframework.stereotype.Service;
+
+import es.caib.emiserv.logic.intf.exception.NoTrobatException;
+import es.caib.helium.logic.intf.dto.AlertaDto;
+import es.caib.helium.logic.intf.service.AlertaService;
+import es.caib.helium.persist.entity.Alerta;
+import es.caib.helium.persist.repository.AlertaRepository;
 
 /**
  * Servei per gestionar els tokens dels expedients

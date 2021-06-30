@@ -12,8 +12,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.support.TransactionSynchronization;
 
-import net.conselldemallorca.helium.core.model.hibernate.Portasignatures;
-import net.conselldemallorca.helium.v3.core.repository.PortasignaturesRepository;
+import es.caib.helium.persist.entity.Portasignatures;
+import es.caib.helium.persist.repository.PortasignaturesRepository;
 
 /**
  * Classe helper per operar amb les dades de la taula de peticions

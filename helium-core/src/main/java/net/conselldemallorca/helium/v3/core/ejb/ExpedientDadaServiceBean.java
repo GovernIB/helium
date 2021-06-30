@@ -12,9 +12,9 @@ import javax.interceptor.Interceptors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 
-import net.conselldemallorca.helium.v3.core.api.dto.CampAgrupacioDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDadaDto;
-import net.conselldemallorca.helium.v3.core.api.service.ExpedientDadaService;
+import es.caib.helium.logic.intf.dto.CampAgrupacioDto;
+import es.caib.helium.logic.intf.dto.ExpedientDadaDto;
+import es.caib.helium.logic.intf.service.ExpedientDadaService;
 
 /**
  * EJB que implementa la interfície del servei ExpedientDadaService.

@@ -3,8 +3,9 @@
  */
 package net.conselldemallorca.helium.jbpm3.integracio;
 
-import net.conselldemallorca.helium.core.api.WProcessInstance;
 import org.jbpm.graph.exe.ProcessInstance;
+
+import es.caib.helium.logic.intf.WProcessInstance;
 
 import java.util.Date;
 

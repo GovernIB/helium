@@ -12,11 +12,11 @@ import javax.interceptor.Interceptors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 
-import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.UsuariPreferenciesDto;
-import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
-import net.conselldemallorca.helium.v3.core.api.exception.SistemaExternException;
-import net.conselldemallorca.helium.v3.core.api.service.AplicacioService;
+import es.caib.emiserv.logic.intf.exception.NoTrobatException;
+import es.caib.emiserv.logic.intf.exception.SistemaExternException;
+import es.caib.helium.logic.intf.dto.PersonaDto;
+import es.caib.helium.logic.intf.dto.UsuariPreferenciesDto;
+import es.caib.helium.logic.intf.service.AplicacioService;
 
 /**
  * EJB per a AplicacioService.

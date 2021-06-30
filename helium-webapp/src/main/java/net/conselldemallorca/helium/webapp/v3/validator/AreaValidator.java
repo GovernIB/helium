@@ -5,8 +5,8 @@ import javax.validation.ConstraintValidatorContext;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
-import net.conselldemallorca.helium.v3.core.api.dto.AreaJbpmIdDto;
-import net.conselldemallorca.helium.v3.core.api.service.AreaService;
+import es.caib.helium.logic.intf.dto.AreaJbpmIdDto;
+import es.caib.helium.logic.intf.service.AreaService;
 import net.conselldemallorca.helium.webapp.v3.command.AreaCommand;
 import net.conselldemallorca.helium.webapp.v3.helper.MessageHelper;
 

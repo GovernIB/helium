@@ -19,25 +19,25 @@ import com.codahale.metrics.Counter;
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer;
 
-import net.conselldemallorca.helium.core.api.Registre;
-import net.conselldemallorca.helium.core.api.WProcessInstance;
-import net.conselldemallorca.helium.core.api.WorkflowEngineApi;
+import es.caib.emiserv.logic.intf.exception.IndexacioException;
+import es.caib.helium.logic.intf.Registre;
+import es.caib.helium.logic.intf.WProcessInstance;
+import es.caib.helium.logic.intf.WorkflowEngineApi;
+import es.caib.helium.logic.intf.dto.DadaIndexadaDto;
+import es.caib.helium.logic.intf.service.TascaService;
+import es.caib.helium.persist.entity.Camp;
+import es.caib.helium.persist.entity.CampRegistre;
+import es.caib.helium.persist.entity.DefinicioProces;
+import es.caib.helium.persist.entity.Entorn;
+import es.caib.helium.persist.entity.Expedient;
+import es.caib.helium.persist.entity.ExpedientReindexacio;
+import es.caib.helium.persist.entity.ExpedientTipus;
+import es.caib.helium.persist.entity.Camp.TipusCamp;
+import es.caib.helium.persist.repository.CampRepository;
+import es.caib.helium.persist.repository.DefinicioProcesRepository;
+import es.caib.helium.persist.repository.ExpedientReindexacioRepository;
+import es.caib.helium.persist.repository.ExpedientRepository;
 import net.conselldemallorca.helium.core.helperv26.LuceneHelper;
-import net.conselldemallorca.helium.core.model.hibernate.Camp;
-import net.conselldemallorca.helium.core.model.hibernate.Camp.TipusCamp;
-import net.conselldemallorca.helium.core.model.hibernate.CampRegistre;
-import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
-import net.conselldemallorca.helium.core.model.hibernate.Entorn;
-import net.conselldemallorca.helium.core.model.hibernate.Expedient;
-import net.conselldemallorca.helium.core.model.hibernate.ExpedientReindexacio;
-import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
-import net.conselldemallorca.helium.v3.core.api.dto.DadaIndexadaDto;
-import net.conselldemallorca.helium.v3.core.api.exception.IndexacioException;
-import net.conselldemallorca.helium.v3.core.api.service.TascaService;
-import net.conselldemallorca.helium.v3.core.repository.CampRepository;
-import net.conselldemallorca.helium.v3.core.repository.DefinicioProcesRepository;
-import net.conselldemallorca.helium.v3.core.repository.ExpedientReindexacioRepository;
-import net.conselldemallorca.helium.v3.core.repository.ExpedientRepository;
 
 /**
  * Utilitats comunes pels serveis

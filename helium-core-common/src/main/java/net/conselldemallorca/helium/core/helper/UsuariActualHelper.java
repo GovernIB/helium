@@ -18,10 +18,10 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
+import es.caib.helium.logic.intf.dto.EntornDto;
+import es.caib.helium.persist.entity.Entorn;
+import es.caib.helium.persist.repository.EntornRepository;
 import net.conselldemallorca.helium.core.helper.PermisosHelper.ObjectIdentifierExtractor;
-import net.conselldemallorca.helium.core.model.hibernate.Entorn;
-import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
-import net.conselldemallorca.helium.v3.core.repository.EntornRepository;
 
 /**
  * Helper per a enviament de correus

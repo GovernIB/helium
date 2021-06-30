@@ -9,10 +9,10 @@ import javax.annotation.Resource;
 
 import org.springframework.stereotype.Component;
 
-import net.conselldemallorca.helium.core.model.hibernate.Camp;
-import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
-import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
-import net.conselldemallorca.helium.v3.core.repository.CampRepository;
+import es.caib.helium.persist.entity.Camp;
+import es.caib.helium.persist.entity.DefinicioProces;
+import es.caib.helium.persist.entity.ExpedientTipus;
+import es.caib.helium.persist.repository.CampRepository;
 
 /**
  * Helper per les dades d'expedient

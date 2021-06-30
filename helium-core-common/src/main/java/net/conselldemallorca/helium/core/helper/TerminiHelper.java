@@ -3,23 +3,25 @@
  */
 package net.conselldemallorca.helium.core.helper;
 
-import net.conselldemallorca.helium.core.api.WorkflowEngineApi;
-import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
-import net.conselldemallorca.helium.core.model.hibernate.Expedient;
-import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
-import net.conselldemallorca.helium.core.model.hibernate.Festiu;
-import net.conselldemallorca.helium.core.model.hibernate.Registre;
-import net.conselldemallorca.helium.core.model.hibernate.Termini;
-import net.conselldemallorca.helium.core.model.hibernate.TerminiIniciat;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
-import net.conselldemallorca.helium.v3.core.api.dto.TerminiIniciatDto;
-import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
-import net.conselldemallorca.helium.v3.core.repository.FestiuRepository;
-import net.conselldemallorca.helium.v3.core.repository.RegistreRepository;
-import net.conselldemallorca.helium.v3.core.repository.TerminiIniciatRepository;
-import net.conselldemallorca.helium.v3.core.repository.TerminiRepository;
+
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
+
+import es.caib.emiserv.logic.intf.exception.NoTrobatException;
+import es.caib.helium.logic.intf.WorkflowEngineApi;
+import es.caib.helium.logic.intf.dto.TerminiIniciatDto;
+import es.caib.helium.persist.entity.DefinicioProces;
+import es.caib.helium.persist.entity.Expedient;
+import es.caib.helium.persist.entity.ExpedientTipus;
+import es.caib.helium.persist.entity.Festiu;
+import es.caib.helium.persist.entity.Registre;
+import es.caib.helium.persist.entity.Termini;
+import es.caib.helium.persist.entity.TerminiIniciat;
+import es.caib.helium.persist.repository.FestiuRepository;
+import es.caib.helium.persist.repository.RegistreRepository;
+import es.caib.helium.persist.repository.TerminiIniciatRepository;
+import es.caib.helium.persist.repository.TerminiRepository;
 
 import javax.annotation.Resource;
 import java.util.Calendar;

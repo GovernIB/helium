@@ -11,14 +11,14 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.stereotype.Service;
 
+import es.caib.helium.logic.intf.dto.AreaJbpmIdDto;
+import es.caib.helium.logic.intf.dto.PaginaDto;
+import es.caib.helium.logic.intf.dto.PaginacioParamsDto;
+import es.caib.helium.logic.intf.service.AreaService;
+import es.caib.helium.persist.entity.AreaJbpmId;
+import es.caib.helium.persist.repository.AreaJbpmIdRepository;
 import net.conselldemallorca.helium.core.helper.ConversioTipusHelper;
 import net.conselldemallorca.helium.core.helper.PaginacioHelper;
-import net.conselldemallorca.helium.core.model.hibernate.AreaJbpmId;
-import net.conselldemallorca.helium.v3.core.api.dto.AreaJbpmIdDto;
-import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
-import net.conselldemallorca.helium.v3.core.api.service.AreaService;
-import net.conselldemallorca.helium.v3.core.repository.AreaJbpmIdRepository;
 
 @Service("areaServiceV3")
 public class AreaServiceImpl implements AreaService {

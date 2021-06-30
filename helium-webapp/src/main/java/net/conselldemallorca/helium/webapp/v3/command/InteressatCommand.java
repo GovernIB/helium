@@ -8,8 +8,8 @@ import javax.validation.constraints.Size;
 
 import org.hibernate.validator.constraints.NotEmpty;
 
-import net.conselldemallorca.helium.v3.core.api.dto.DadesEnviamentDto.EntregaPostalTipus;
-import net.conselldemallorca.helium.v3.core.api.dto.InteressatTipusEnumDto;
+import es.caib.helium.logic.intf.dto.InteressatTipusEnumDto;
+import es.caib.helium.logic.intf.dto.DadesEnviamentDto.EntregaPostalTipus;
 import net.conselldemallorca.helium.webapp.v3.command.InteressatCommand.Creacio;
 import net.conselldemallorca.helium.webapp.v3.command.InteressatCommand.Modificacio;
 import net.conselldemallorca.helium.webapp.v3.validator.Interessat;

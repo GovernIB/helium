@@ -5,8 +5,6 @@ package net.conselldemallorca.helium.webapp.v3.controller;
 
 import net.conselldemallorca.helium.core.report.FieldValue;
 import net.conselldemallorca.helium.v3.core.api.dto.*;
-import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto.OrdreDireccioDto;
-import net.conselldemallorca.helium.v3.core.api.service.ExpedientTipusService;
 import net.conselldemallorca.helium.webapp.v3.helper.InformeHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.InformeHelper.Estat;
 import net.conselldemallorca.helium.webapp.v3.helper.InformeHelper.InformeInfo;
@@ -47,6 +45,20 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+
+import es.caib.helium.logic.intf.dto.CampTipusDto;
+import es.caib.helium.logic.intf.dto.ConsultaDto;
+import es.caib.helium.logic.intf.dto.DadaIndexadaDto;
+import es.caib.helium.logic.intf.dto.ExpedientCamps;
+import es.caib.helium.logic.intf.dto.ExpedientConsultaDissenyDto;
+import es.caib.helium.logic.intf.dto.ExpedientDto;
+import es.caib.helium.logic.intf.dto.MostrarAnulatsDto;
+import es.caib.helium.logic.intf.dto.PaginaDto;
+import es.caib.helium.logic.intf.dto.PaginacioParamsDto;
+import es.caib.helium.logic.intf.dto.ParellaCodiValorDto;
+import es.caib.helium.logic.intf.dto.TascaDadaDto;
+import es.caib.helium.logic.intf.dto.PaginacioParamsDto.OrdreDireccioDto;
+import es.caib.helium.logic.intf.service.ExpedientTipusService;
 
 import javax.activation.MimetypesFileTypeMap;
 import javax.annotation.Resource;

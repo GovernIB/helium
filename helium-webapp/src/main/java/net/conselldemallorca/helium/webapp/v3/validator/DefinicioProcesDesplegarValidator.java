@@ -8,11 +8,11 @@ import javax.validation.ConstraintValidatorContext;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
+import es.caib.helium.logic.intf.dto.ExpedientTipusDto;
+import es.caib.helium.logic.intf.service.DefinicioProcesService;
+import es.caib.helium.logic.intf.service.DissenyService;
+import es.caib.helium.logic.intf.service.ExpedientTipusService;
 import net.conselldemallorca.helium.core.helper.ExpedientTipusHelper;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
-import net.conselldemallorca.helium.v3.core.api.service.DefinicioProcesService;
-import net.conselldemallorca.helium.v3.core.api.service.DissenyService;
-import net.conselldemallorca.helium.v3.core.api.service.ExpedientTipusService;
 import net.conselldemallorca.helium.webapp.v3.command.DefinicioProcesDesplegarCommand;
 import net.conselldemallorca.helium.webapp.v3.helper.ConversioTipusHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.MessageHelper;

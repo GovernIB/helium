@@ -29,8 +29,6 @@ import java.util.List;
 import java.util.Set;
 
 import net.conselldemallorca.helium.jbpm3.integracio.Jbpm3HeliumBridge;
-import net.conselldemallorca.helium.v3.core.api.dto.ReassignacioDto;
-import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -54,6 +52,9 @@ import org.jbpm.taskmgmt.log.TaskAssignLog;
 import org.jbpm.taskmgmt.log.TaskEndLog;
 import org.jbpm.util.Clock;
 import org.jbpm.util.EqualsUtil;
+
+import es.caib.emiserv.logic.intf.exception.NoTrobatException;
+import es.caib.helium.logic.intf.dto.ReassignacioDto;
 
 /**
  * is one task instance that can be assigned to an actor (read: put in someones

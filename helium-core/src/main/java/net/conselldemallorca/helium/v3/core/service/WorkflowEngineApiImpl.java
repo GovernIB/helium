@@ -1,16 +1,17 @@
 package net.conselldemallorca.helium.v3.core.service;
 
-import net.conselldemallorca.helium.core.api.LlistatIds;
-import net.conselldemallorca.helium.core.api.ResultatConsultaPaginada;
-import net.conselldemallorca.helium.core.api.WDeployment;
-import net.conselldemallorca.helium.core.api.WProcessDefinition;
-import net.conselldemallorca.helium.core.api.WProcessInstance;
-import net.conselldemallorca.helium.core.api.WTaskInstance;
-import net.conselldemallorca.helium.core.api.WToken;
-import net.conselldemallorca.helium.core.api.WorkflowEngineApi;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
-import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import org.springframework.stereotype.Service;
+
+import es.caib.helium.logic.intf.LlistatIds;
+import es.caib.helium.logic.intf.ResultatConsultaPaginada;
+import es.caib.helium.logic.intf.WDeployment;
+import es.caib.helium.logic.intf.WProcessDefinition;
+import es.caib.helium.logic.intf.WProcessInstance;
+import es.caib.helium.logic.intf.WTaskInstance;
+import es.caib.helium.logic.intf.WToken;
+import es.caib.helium.logic.intf.WorkflowEngineApi;
+import es.caib.helium.logic.intf.dto.ExpedientDto;
+import es.caib.helium.logic.intf.dto.PaginacioParamsDto;
 
 import java.util.Collection;
 import java.util.Date;

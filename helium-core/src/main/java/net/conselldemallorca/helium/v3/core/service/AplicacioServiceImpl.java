@@ -13,13 +13,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import es.caib.helium.logic.intf.dto.PersonaDto;
+import es.caib.helium.logic.intf.dto.UsuariPreferenciesDto;
+import es.caib.helium.logic.intf.service.AplicacioService;
+import es.caib.helium.persist.repository.UsuariPreferenciesRepository;
 import net.conselldemallorca.helium.core.helper.ConversioTipusHelper;
 import net.conselldemallorca.helium.core.helper.PluginHelper;
 import net.conselldemallorca.helium.core.helper.UsuariActualHelper;
-import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.UsuariPreferenciesDto;
-import net.conselldemallorca.helium.v3.core.api.service.AplicacioService;
-import net.conselldemallorca.helium.v3.core.repository.UsuariPreferenciesRepository;
 
 /**
  * Implementació dels mètodes de AplicacioService.

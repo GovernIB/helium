@@ -11,21 +11,21 @@ import javax.annotation.security.RolesAllowed;
 import javax.ejb.Stateless;
 import javax.interceptor.Interceptors;
 
-import net.conselldemallorca.helium.v3.core.api.dto.DominiDto;
-import net.conselldemallorca.helium.v3.core.api.dto.IntegracioAccioDto;
-import net.conselldemallorca.helium.v3.core.api.dto.IntegracioAccioEstatEnumDto;
-import net.conselldemallorca.helium.v3.core.api.dto.IntegracioAccioTipusEnumDto;
-import net.conselldemallorca.helium.v3.core.api.dto.IntegracioDto;
-import net.conselldemallorca.helium.v3.core.api.dto.IntegracioParametreDto;
-import net.conselldemallorca.helium.v3.core.api.dto.MesuraTemporalDto;
-import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ReassignacioDto;
-import net.conselldemallorca.helium.v3.core.api.dto.TascaCompleteDto;
-import net.conselldemallorca.helium.v3.core.api.dto.UsuariPreferenciesDto;
-import net.conselldemallorca.helium.v3.core.api.service.AdminService;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
+
+import es.caib.helium.logic.intf.dto.DominiDto;
+import es.caib.helium.logic.intf.dto.IntegracioAccioDto;
+import es.caib.helium.logic.intf.dto.IntegracioAccioEstatEnumDto;
+import es.caib.helium.logic.intf.dto.IntegracioAccioTipusEnumDto;
+import es.caib.helium.logic.intf.dto.IntegracioDto;
+import es.caib.helium.logic.intf.dto.IntegracioParametreDto;
+import es.caib.helium.logic.intf.dto.MesuraTemporalDto;
+import es.caib.helium.logic.intf.dto.PersonaDto;
+import es.caib.helium.logic.intf.dto.ReassignacioDto;
+import es.caib.helium.logic.intf.dto.TascaCompleteDto;
+import es.caib.helium.logic.intf.dto.UsuariPreferenciesDto;
+import es.caib.helium.logic.intf.service.AdminService;
 
 /**
  * EJB per a AdminService.

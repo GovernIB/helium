@@ -3,22 +3,24 @@
  */
 package net.conselldemallorca.helium.v3.core.service;
 
-import net.conselldemallorca.helium.core.api.WorkflowRetroaccioApi;
 import net.conselldemallorca.helium.core.helper.ExpedientHelper;
 import net.conselldemallorca.helium.core.helperv26.MesuresTemporalsHelper;
-import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.security.ExtendedPermission;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.InformacioRetroaccioDto;
-import net.conselldemallorca.helium.v3.core.api.dto.InstanciaProcesDto;
-import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
-import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
-import net.conselldemallorca.helium.v3.core.api.service.ExpedientRegistreService;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.acls.model.Permission;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import es.caib.emiserv.logic.intf.exception.NoTrobatException;
+import es.caib.emiserv.logic.intf.exception.PermisDenegatException;
+import es.caib.helium.logic.intf.WorkflowRetroaccioApi;
+import es.caib.helium.logic.intf.dto.ExpedientTascaDto;
+import es.caib.helium.logic.intf.dto.InformacioRetroaccioDto;
+import es.caib.helium.logic.intf.dto.InstanciaProcesDto;
+import es.caib.helium.logic.intf.service.ExpedientRegistreService;
+import es.caib.helium.persist.entity.Expedient;
 
 import javax.annotation.Resource;
 import java.util.List;

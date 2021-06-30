@@ -9,9 +9,6 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
-import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
-import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientRelacionarCommand;
 import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
@@ -30,6 +27,10 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.support.SessionStatus;
+
+import es.caib.helium.logic.intf.dto.EntornDto;
+import es.caib.helium.logic.intf.dto.ExpedientDto;
+import es.caib.helium.logic.intf.service.ExpedientService;
 
 /**
  * Controlador per a la relació d'expedients

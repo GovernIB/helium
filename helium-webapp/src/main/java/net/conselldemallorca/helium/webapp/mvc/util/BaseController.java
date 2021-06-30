@@ -9,7 +9,6 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
-import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
 
@@ -17,6 +16,8 @@ import org.displaytag.properties.SortOrderEnum;
 import org.springframework.context.MessageSource;
 import org.springframework.context.MessageSourceAware;
 import org.springframework.context.NoSuchMessageException;
+
+import es.caib.helium.persist.entity.Entorn;
 
 /**
  * Controlador base

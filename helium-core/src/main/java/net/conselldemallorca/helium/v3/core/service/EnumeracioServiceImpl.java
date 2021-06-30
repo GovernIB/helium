@@ -17,28 +17,28 @@ import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import es.caib.emiserv.logic.intf.exception.NoTrobatException;
+import es.caib.emiserv.logic.intf.exception.PermisDenegatException;
+import es.caib.emiserv.logic.intf.exception.ValidacioException;
+import es.caib.helium.logic.intf.dto.EnumeracioDto;
+import es.caib.helium.logic.intf.dto.ExpedientTipusEnumeracioValorDto;
+import es.caib.helium.logic.intf.dto.PaginaDto;
+import es.caib.helium.logic.intf.dto.PaginacioParamsDto;
+import es.caib.helium.logic.intf.service.EnumeracioService;
+import es.caib.helium.persist.entity.Entorn;
+import es.caib.helium.persist.entity.Enumeracio;
+import es.caib.helium.persist.entity.EnumeracioValors;
+import es.caib.helium.persist.entity.ExpedientTipus;
+import es.caib.helium.persist.repository.EntornRepository;
+import es.caib.helium.persist.repository.EnumeracioRepository;
+import es.caib.helium.persist.repository.EnumeracioValorsRepository;
+import es.caib.helium.persist.repository.ExpedientTipusRepository;
 import net.conselldemallorca.helium.core.helper.ConversioTipusHelper;
 import net.conselldemallorca.helium.core.helper.EntornHelper;
 import net.conselldemallorca.helium.core.helper.ExpedientTipusHelper;
 import net.conselldemallorca.helium.core.helper.HerenciaHelper;
 import net.conselldemallorca.helium.core.helper.MessageHelper;
 import net.conselldemallorca.helium.core.helper.PaginacioHelper;
-import net.conselldemallorca.helium.core.model.hibernate.Entorn;
-import net.conselldemallorca.helium.core.model.hibernate.Enumeracio;
-import net.conselldemallorca.helium.core.model.hibernate.EnumeracioValors;
-import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
-import net.conselldemallorca.helium.v3.core.api.dto.EnumeracioDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusEnumeracioValorDto;
-import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
-import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
-import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
-import net.conselldemallorca.helium.v3.core.api.exception.ValidacioException;
-import net.conselldemallorca.helium.v3.core.api.service.EnumeracioService;
-import net.conselldemallorca.helium.v3.core.repository.EntornRepository;
-import net.conselldemallorca.helium.v3.core.repository.EnumeracioRepository;
-import net.conselldemallorca.helium.v3.core.repository.EnumeracioValorsRepository;
-import net.conselldemallorca.helium.v3.core.repository.ExpedientTipusRepository;
 
 /**
  * Implementació del servei per a gestionar enumeracions.

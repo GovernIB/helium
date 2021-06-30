@@ -43,20 +43,20 @@ import org.springmodules.lucene.search.core.LuceneSearchTemplate;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import net.conselldemallorca.helium.core.common.ThreadLocalInfo;
-import net.conselldemallorca.helium.core.model.hibernate.Camp;
-import net.conselldemallorca.helium.core.model.hibernate.Camp.TipusCamp;
-import net.conselldemallorca.helium.core.model.hibernate.CampRegistre;
-import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
-import net.conselldemallorca.helium.core.model.hibernate.Entorn;
-import net.conselldemallorca.helium.core.model.hibernate.Expedient;
-import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
-import net.conselldemallorca.helium.core.model.hibernate.Termini;
+import es.caib.emiserv.logic.intf.util.ThreadLocalInfo;
+import es.caib.helium.logic.intf.dto.DadaIndexadaDto;
+import es.caib.helium.logic.intf.dto.PaginacioParamsDto;
+import es.caib.helium.logic.intf.dto.PaginacioParamsDto.OrdreDireccioDto;
+import es.caib.helium.logic.intf.dto.PaginacioParamsDto.OrdreDto;
+import es.caib.helium.persist.entity.Camp;
+import es.caib.helium.persist.entity.CampRegistre;
+import es.caib.helium.persist.entity.DefinicioProces;
+import es.caib.helium.persist.entity.Entorn;
+import es.caib.helium.persist.entity.Expedient;
+import es.caib.helium.persist.entity.ExpedientTipus;
+import es.caib.helium.persist.entity.Termini;
+import es.caib.helium.persist.entity.Camp.TipusCamp;
 import net.conselldemallorca.helium.core.util.ExpedientCamps;
-import net.conselldemallorca.helium.v3.core.api.dto.DadaIndexadaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
-import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto.OrdreDireccioDto;
-import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto.OrdreDto;
 
 /**
  * Helper per a gestionar la informació dels expedients emprant Lucene.
@@ -651,12 +651,12 @@ public class LuceneHelper extends LuceneIndexSupport {
 			for (OrdreDto ordre: paginacioParams.getOrdres()) {
 				asc = ordre.getDireccio().equals(OrdreDireccioDto.ASCENDENT);
 				String clau = ordre.getCamp().replace(
-						net.conselldemallorca.helium.v3.core.api.dto.ExpedientCamps.EXPEDIENT_PREFIX_JSP,
-						net.conselldemallorca.helium.v3.core.api.dto.ExpedientCamps.EXPEDIENT_PREFIX);
+						es.caib.helium.logic.intf.dto.ExpedientCamps.EXPEDIENT_PREFIX_JSP,
+						es.caib.helium.logic.intf.dto.ExpedientCamps.EXPEDIENT_PREFIX);
 				if (ordre.getCamp().contains("dadesExpedient")) {
 					sort[paginacioParams.getOrdres().indexOf(ordre)] = clau.replace("/", ".").replace("dadesExpedient.", "").replace(".valorMostrar", "");
 				} else {
-					sort[paginacioParams.getOrdres().indexOf(ordre)] = clau.replace(".", net.conselldemallorca.helium.v3.core.api.dto.ExpedientCamps.EXPEDIENT_PREFIX_SEPARATOR);
+					sort[paginacioParams.getOrdres().indexOf(ordre)] = clau.replace(".", es.caib.helium.logic.intf.dto.ExpedientCamps.EXPEDIENT_PREFIX_SEPARATOR);
 				}
 				
 			}

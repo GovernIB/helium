@@ -15,21 +15,21 @@ import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import es.caib.emiserv.logic.intf.exception.NoTrobatException;
+import es.caib.emiserv.logic.intf.exception.PermisDenegatException;
+import es.caib.helium.logic.intf.dto.PaginaDto;
+import es.caib.helium.logic.intf.dto.PaginacioParamsDto;
+import es.caib.helium.logic.intf.dto.TerminiDto;
+import es.caib.helium.logic.intf.service.TerminiService;
+import es.caib.helium.persist.entity.ExpedientTipus;
+import es.caib.helium.persist.entity.Termini;
+import es.caib.helium.persist.repository.DefinicioProcesRepository;
+import es.caib.helium.persist.repository.ExpedientTipusRepository;
+import es.caib.helium.persist.repository.TerminiRepository;
 import net.conselldemallorca.helium.core.helper.ConversioTipusHelper;
 import net.conselldemallorca.helium.core.helper.ExpedientTipusHelper;
 import net.conselldemallorca.helium.core.helper.HerenciaHelper;
 import net.conselldemallorca.helium.core.helper.PaginacioHelper;
-import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
-import net.conselldemallorca.helium.core.model.hibernate.Termini;
-import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
-import net.conselldemallorca.helium.v3.core.api.dto.TerminiDto;
-import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
-import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
-import net.conselldemallorca.helium.v3.core.api.service.TerminiService;
-import net.conselldemallorca.helium.v3.core.repository.DefinicioProcesRepository;
-import net.conselldemallorca.helium.v3.core.repository.ExpedientTipusRepository;
-import net.conselldemallorca.helium.v3.core.repository.TerminiRepository;
 
 /**
  * Implementació del servei per a gestionar tipus d'expedients.

@@ -15,12 +15,12 @@ import javax.interceptor.Interceptors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.InformacioRetroaccioDto;
-import net.conselldemallorca.helium.v3.core.api.dto.InstanciaProcesDto;
-import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
-import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
-import net.conselldemallorca.helium.v3.core.api.service.ExpedientRegistreService;
+import es.caib.emiserv.logic.intf.exception.NoTrobatException;
+import es.caib.emiserv.logic.intf.exception.PermisDenegatException;
+import es.caib.helium.logic.intf.dto.ExpedientTascaDto;
+import es.caib.helium.logic.intf.dto.InformacioRetroaccioDto;
+import es.caib.helium.logic.intf.dto.InstanciaProcesDto;
+import es.caib.helium.logic.intf.service.ExpedientRegistreService;
 
 /**
  * EJB que implementa la interfície del servei ExpedientRegistreService.

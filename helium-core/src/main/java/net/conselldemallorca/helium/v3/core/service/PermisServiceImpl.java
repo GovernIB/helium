@@ -10,10 +10,10 @@ import javax.annotation.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import es.caib.helium.logic.intf.dto.PermisRolDto;
+import es.caib.helium.logic.intf.service.PermisService;
+import es.caib.helium.persist.repository.PermisRepository;
 import net.conselldemallorca.helium.core.helper.ConversioTipusHelper;
-import net.conselldemallorca.helium.v3.core.api.dto.PermisRolDto;
-import net.conselldemallorca.helium.v3.core.api.service.PermisService;
-import net.conselldemallorca.helium.v3.core.repository.PermisRepository;
 
 /**
  * Implementació dels mètodes del servei ExpedientService.

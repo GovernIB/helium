@@ -17,9 +17,9 @@ import org.hibernate.stat.QueryStatistics;
 import org.hibernate.stat.Statistics;
 import org.springframework.stereotype.Component;
 
+import es.caib.helium.logic.intf.dto.IntervalEventDto;
+import es.caib.helium.logic.intf.dto.MesuraTemporalDto;
 import net.conselldemallorca.helium.core.helperv26.MesuresTemporalsHelper;
-import net.conselldemallorca.helium.v3.core.api.dto.IntervalEventDto;
-import net.conselldemallorca.helium.v3.core.api.dto.MesuraTemporalDto;
 
 /**
  * Helper per a enviament de correus

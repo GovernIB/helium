@@ -22,25 +22,25 @@ import com.codahale.metrics.Counter;
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer;
 
+import es.caib.emiserv.logic.intf.exception.NoTrobatException;
+import es.caib.helium.logic.intf.dto.DocumentEnviamentEstatEnumDto;
+import es.caib.helium.logic.intf.dto.DocumentNotificacioTipusEnumDto;
+import es.caib.helium.logic.intf.service.ExecucioMassivaService;
+import es.caib.helium.logic.intf.service.TascaProgramadaService;
+import es.caib.helium.persist.entity.ExecucioMassivaExpedient;
+import es.caib.helium.persist.entity.Expedient;
+import es.caib.helium.persist.entity.ExpedientReindexacio;
+import es.caib.helium.persist.entity.Notificacio;
+import es.caib.helium.persist.entity.ExecucioMassiva.ExecucioMassivaTipus;
+import es.caib.helium.persist.repository.ExecucioMassivaExpedientRepository;
+import es.caib.helium.persist.repository.ExpedientReindexacioRepository;
+import es.caib.helium.persist.repository.ExpedientRepository;
+import es.caib.helium.persist.repository.NotificacioRepository;
 import net.conselldemallorca.helium.core.helper.ExpedientHelper;
 import net.conselldemallorca.helium.core.helper.IndexHelper;
 import net.conselldemallorca.helium.core.helper.NotificacioHelper;
 import net.conselldemallorca.helium.core.helper.TascaProgramadaHelper;
-import net.conselldemallorca.helium.core.model.hibernate.ExecucioMassiva.ExecucioMassivaTipus;
-import net.conselldemallorca.helium.core.model.hibernate.ExecucioMassivaExpedient;
-import net.conselldemallorca.helium.core.model.hibernate.Expedient;
-import net.conselldemallorca.helium.core.model.hibernate.ExpedientReindexacio;
-import net.conselldemallorca.helium.core.model.hibernate.Notificacio;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
-import net.conselldemallorca.helium.v3.core.api.dto.DocumentEnviamentEstatEnumDto;
-import net.conselldemallorca.helium.v3.core.api.dto.DocumentNotificacioTipusEnumDto;
-import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
-import net.conselldemallorca.helium.v3.core.api.service.ExecucioMassivaService;
-import net.conselldemallorca.helium.v3.core.api.service.TascaProgramadaService;
-import net.conselldemallorca.helium.v3.core.repository.ExecucioMassivaExpedientRepository;
-import net.conselldemallorca.helium.v3.core.repository.ExpedientReindexacioRepository;
-import net.conselldemallorca.helium.v3.core.repository.ExpedientRepository;
-import net.conselldemallorca.helium.v3.core.repository.NotificacioRepository;
 
 /**
  * Servei per gestionar els terminis dels expedients

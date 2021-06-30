@@ -5,8 +5,8 @@ import javax.validation.ConstraintValidatorContext;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
-import net.conselldemallorca.helium.v3.core.api.dto.EntornTipusAreaDto;
-import net.conselldemallorca.helium.v3.core.api.service.EntornTipusAreaService;
+import es.caib.helium.logic.intf.dto.EntornTipusAreaDto;
+import es.caib.helium.logic.intf.service.EntornTipusAreaService;
 import net.conselldemallorca.helium.webapp.v3.command.EntornTipusAreaCommand;
 import net.conselldemallorca.helium.webapp.v3.helper.MessageHelper;
 

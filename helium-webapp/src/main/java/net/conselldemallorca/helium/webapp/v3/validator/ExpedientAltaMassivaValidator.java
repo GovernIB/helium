@@ -17,13 +17,13 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import es.caib.helium.logic.intf.dto.CampDto;
+import es.caib.helium.logic.intf.dto.ExecucioMassivaListDto;
+import es.caib.helium.logic.intf.dto.ExpedientTipusDto;
+import es.caib.helium.logic.intf.service.DissenyService;
+import es.caib.helium.logic.intf.service.ExecucioMassivaService;
+import es.caib.helium.logic.intf.service.ExpedientTipusService;
 import net.conselldemallorca.helium.core.util.CsvHelper;
-import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExecucioMassivaListDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
-import net.conselldemallorca.helium.v3.core.api.service.DissenyService;
-import net.conselldemallorca.helium.v3.core.api.service.ExecucioMassivaService;
-import net.conselldemallorca.helium.v3.core.api.service.ExpedientTipusService;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientAltaMassivaCommand;
 import net.conselldemallorca.helium.webapp.v3.helper.MessageHelper;
 

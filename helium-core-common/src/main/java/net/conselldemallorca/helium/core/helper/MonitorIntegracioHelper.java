@@ -14,12 +14,12 @@ import java.util.Map;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.springframework.stereotype.Component;
 
+import es.caib.helium.logic.intf.dto.IntegracioAccioDto;
+import es.caib.helium.logic.intf.dto.IntegracioAccioEstatEnumDto;
+import es.caib.helium.logic.intf.dto.IntegracioAccioTipusEnumDto;
+import es.caib.helium.logic.intf.dto.IntegracioDto;
+import es.caib.helium.logic.intf.dto.IntegracioParametreDto;
 import net.conselldemallorca.helium.core.util.EntornActual;
-import net.conselldemallorca.helium.v3.core.api.dto.IntegracioAccioDto;
-import net.conselldemallorca.helium.v3.core.api.dto.IntegracioAccioEstatEnumDto;
-import net.conselldemallorca.helium.v3.core.api.dto.IntegracioAccioTipusEnumDto;
-import net.conselldemallorca.helium.v3.core.api.dto.IntegracioDto;
-import net.conselldemallorca.helium.v3.core.api.dto.IntegracioParametreDto;
 
 /**
  * Mètodes per a la gestió d'integracions.

@@ -12,15 +12,15 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import es.caib.helium.logic.intf.dto.CarrecJbpmIdDto;
+import es.caib.helium.logic.intf.dto.PaginaDto;
+import es.caib.helium.logic.intf.dto.PaginacioParamsDto;
+import es.caib.helium.logic.intf.service.CarrecService;
+import es.caib.helium.persist.entity.CarrecJbpmId;
+import es.caib.helium.persist.entity.Persona.Sexe;
+import es.caib.helium.persist.repository.CarrecJbpmIdRepository;
 import net.conselldemallorca.helium.core.helper.ConversioTipusHelper;
 import net.conselldemallorca.helium.core.helper.PaginacioHelper;
-import net.conselldemallorca.helium.core.model.hibernate.CarrecJbpmId;
-import net.conselldemallorca.helium.core.model.hibernate.Persona.Sexe;
-import net.conselldemallorca.helium.v3.core.api.dto.CarrecJbpmIdDto;
-import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
-import net.conselldemallorca.helium.v3.core.api.service.CarrecService;
-import net.conselldemallorca.helium.v3.core.repository.CarrecJbpmIdRepository;
 
 @Service("carrecServiceV3")
 public class CarrecServiceImpl implements CarrecService {

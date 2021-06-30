@@ -5,8 +5,8 @@ import javax.validation.ConstraintValidatorContext;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
-import net.conselldemallorca.helium.v3.core.api.dto.AccioDto;
-import net.conselldemallorca.helium.v3.core.api.service.AccioService;
+import es.caib.helium.logic.intf.dto.AccioDto;
+import es.caib.helium.logic.intf.service.AccioService;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientTipusAccioCommand;
 import net.conselldemallorca.helium.webapp.v3.helper.MessageHelper;
 

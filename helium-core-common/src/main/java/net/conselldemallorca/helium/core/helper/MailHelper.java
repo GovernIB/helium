@@ -10,12 +10,12 @@ import javax.mail.Message;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
-import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
-
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Component;
+
+import es.caib.helium.logic.intf.dto.ArxiuDto;
 
 /**
  * Helper per a enviament de correus

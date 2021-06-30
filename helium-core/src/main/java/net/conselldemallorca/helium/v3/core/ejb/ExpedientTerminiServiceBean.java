@@ -10,16 +10,16 @@ import javax.annotation.security.RolesAllowed;
 import javax.ejb.Stateless;
 import javax.interceptor.Interceptors;
 
-import net.conselldemallorca.helium.v3.core.api.dto.FestiuDto;
-import net.conselldemallorca.helium.v3.core.api.dto.TerminiDto;
-import net.conselldemallorca.helium.v3.core.api.dto.TerminiIniciatDto;
-import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
-import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
-import net.conselldemallorca.helium.v3.core.api.exception.ValidacioException;
-import net.conselldemallorca.helium.v3.core.api.service.ExpedientTerminiService;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
+
+import es.caib.emiserv.logic.intf.exception.NoTrobatException;
+import es.caib.emiserv.logic.intf.exception.PermisDenegatException;
+import es.caib.emiserv.logic.intf.exception.ValidacioException;
+import es.caib.helium.logic.intf.dto.FestiuDto;
+import es.caib.helium.logic.intf.dto.TerminiDto;
+import es.caib.helium.logic.intf.dto.TerminiIniciatDto;
+import es.caib.helium.logic.intf.service.ExpedientTerminiService;
 
 /**
  * EJB que implementa la interfície del servei ExpedientTerminiService.

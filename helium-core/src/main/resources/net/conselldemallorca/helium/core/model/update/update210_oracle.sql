@@ -1,6 +1,6 @@
 -- Canvi a MAVEN --
-UPDATE HEL_ACL_CLASS SET CLASS = 'net.conselldemallorca.helium.core.model.hibernate.Entorn' WHERE CLASS = 'net.conselldemallorca.helium.model.hibernate.Entorn';
-UPDATE HEL_ACL_CLASS SET CLASS = 'net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus' WHERE CLASS = 'net.conselldemallorca.helium.model.hibernate.ExpedientTipus';
+UPDATE HEL_ACL_CLASS SET CLASS = 'es.caib.helium.persist.entity.Entorn' WHERE CLASS = 'net.conselldemallorca.helium.model.hibernate.Entorn';
+UPDATE HEL_ACL_CLASS SET CLASS = 'es.caib.helium.persist.entity.ExpedientTipus' WHERE CLASS = 'net.conselldemallorca.helium.model.hibernate.ExpedientTipus';
 
 -- Mapejos de SISTRA --
 CREATE 

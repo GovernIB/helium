@@ -18,32 +18,32 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
+import es.caib.helium.logic.intf.dto.AccioDto;
+import es.caib.helium.logic.intf.dto.ArxiuDto;
+import es.caib.helium.logic.intf.dto.CampDto;
+import es.caib.helium.logic.intf.dto.CampTipusDto;
+import es.caib.helium.logic.intf.dto.DocumentDto;
+import es.caib.helium.logic.intf.dto.EntornDto;
+import es.caib.helium.logic.intf.dto.EstatDto;
+import es.caib.helium.logic.intf.dto.ExpedientDto;
+import es.caib.helium.logic.intf.dto.ExpedientTascaDto;
+import es.caib.helium.logic.intf.dto.ExpedientTipusDto;
+import es.caib.helium.logic.intf.dto.InstanciaProcesDto;
+import es.caib.helium.logic.intf.dto.MostrarAnulatsDto;
+import es.caib.helium.logic.intf.dto.PaginaDto;
+import es.caib.helium.logic.intf.dto.PaginacioParamsDto;
+import es.caib.helium.logic.intf.dto.TascaDadaDto;
+import es.caib.helium.logic.intf.dto.TascaDocumentDto;
+import es.caib.helium.logic.intf.dto.ExpedientDto.EstatTipusDto;
+import es.caib.helium.logic.intf.dto.PaginacioParamsDto.OrdreDireccioDto;
+import es.caib.helium.logic.intf.service.DocumentService;
+import es.caib.helium.logic.intf.service.EntornService;
+import es.caib.helium.logic.intf.service.ExpedientDadaService;
+import es.caib.helium.logic.intf.service.ExpedientDocumentService;
+import es.caib.helium.logic.intf.service.ExpedientService;
+import es.caib.helium.logic.intf.service.ExpedientTipusService;
+import es.caib.helium.logic.intf.service.TascaService;
 import net.conselldemallorca.helium.core.util.EntornActual;
-import net.conselldemallorca.helium.v3.core.api.dto.AccioDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
-import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
-import net.conselldemallorca.helium.v3.core.api.dto.CampTipusDto;
-import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
-import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
-import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto.EstatTipusDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
-import net.conselldemallorca.helium.v3.core.api.dto.InstanciaProcesDto;
-import net.conselldemallorca.helium.v3.core.api.dto.MostrarAnulatsDto;
-import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
-import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto.OrdreDireccioDto;
-import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.TascaDocumentDto;
-import net.conselldemallorca.helium.v3.core.api.service.DocumentService;
-import net.conselldemallorca.helium.v3.core.api.service.EntornService;
-import net.conselldemallorca.helium.v3.core.api.service.ExpedientDadaService;
-import net.conselldemallorca.helium.v3.core.api.service.ExpedientDocumentService;
-import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
-import net.conselldemallorca.helium.v3.core.api.service.ExpedientTipusService;
-import net.conselldemallorca.helium.v3.core.api.service.TascaService;
 
 /**
  * Implementació del servei de tramitació d'expedients
@@ -110,7 +110,7 @@ public class TramitacioServiceImpl implements TramitacioService {
 		// Informació de l'inici d'expedient pels logs
 		String expLog = "[entorn=" +  entorn + ", expedientTipus=" + expedientTipus + ", numero=" + numero + ", titol=" + titol + "]";
 		try {
-			net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto expedient = expedientService.create(
+			es.caib.helium.logic.intf.dto.ExpedientDto expedient = expedientService.create(
 					e.getId(),
 					null,
 					et.getId(),
@@ -135,7 +135,7 @@ public class TramitacioServiceImpl implements TramitacioService {
 					false,
 					variables,
 					null,
-					net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto.IniciadorTipusDto.INTERN,
+					es.caib.helium.logic.intf.dto.ExpedientDto.IniciadorTipusDto.INTERN,
 					null,
 					null,
 					null,
@@ -1226,9 +1226,9 @@ public class TramitacioServiceImpl implements TramitacioService {
 			resposta.setDataFi(expedient.getDataFi());
 			resposta.setComentari(expedient.getComentari());
 			resposta.setInfoAturat(expedient.getInfoAturat());
-			if (expedient.getIniciadorTipus().equals(net.conselldemallorca.helium.core.model.hibernate.Expedient.IniciadorTipus.INTERN))
+			if (expedient.getIniciadorTipus().equals(es.caib.helium.persist.entity.Expedient.IniciadorTipus.INTERN))
 				resposta.setIniciadorTipus(net.conselldemallorca.helium.ws.tramitacio.v1.ExpedientInfo.IniciadorTipus.INTERN);
-			else if (expedient.getIniciadorTipus().equals(net.conselldemallorca.helium.core.model.hibernate.Expedient.IniciadorTipus.SISTRA))
+			else if (expedient.getIniciadorTipus().equals(es.caib.helium.persist.entity.Expedient.IniciadorTipus.SISTRA))
 				resposta.setIniciadorTipus(net.conselldemallorca.helium.ws.tramitacio.v1.ExpedientInfo.IniciadorTipus.SISTRA);
 			resposta.setIniciadorCodi(expedient.getIniciadorCodi());
 			resposta.setResponsableCodi(expedient.getResponsableCodi());

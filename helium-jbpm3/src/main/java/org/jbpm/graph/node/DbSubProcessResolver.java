@@ -1,13 +1,14 @@
 package org.jbpm.graph.node;
 
 import net.conselldemallorca.helium.jbpm3.integracio.Jbpm3HeliumBridge;
-import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
-import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 
 import org.dom4j.Element;
 import org.jbpm.JbpmContext;
 import org.jbpm.graph.def.ProcessDefinition;
 import org.jbpm.jpdl.JpdlException;
+
+import es.caib.helium.logic.intf.dto.DefinicioProcesDto;
+import es.caib.helium.logic.intf.dto.EntornDto;
 
 public class DbSubProcessResolver implements SubProcessResolver {
 

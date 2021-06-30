@@ -3,37 +3,39 @@
  */
 package net.conselldemallorca.helium.v3.core.service;
 
-import net.conselldemallorca.helium.core.api.WProcessDefinition;
-import net.conselldemallorca.helium.core.api.WorkflowEngineApi;
-import net.conselldemallorca.helium.core.api.WorkflowRetroaccioApi;
-import net.conselldemallorca.helium.core.common.JbpmVars;
 import net.conselldemallorca.helium.core.helper.ConversioTipusHelper;
 import net.conselldemallorca.helium.core.helper.ExpedientHelper;
 import net.conselldemallorca.helium.core.helper.HerenciaHelper;
 import net.conselldemallorca.helium.core.helper.IndexHelper;
 import net.conselldemallorca.helium.core.helper.VariableHelper;
-import net.conselldemallorca.helium.core.model.hibernate.Camp;
-import net.conselldemallorca.helium.core.model.hibernate.Camp.TipusCamp;
-import net.conselldemallorca.helium.core.model.hibernate.CampAgrupacio;
-import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
-import net.conselldemallorca.helium.core.model.hibernate.Expedient;
-import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
-import net.conselldemallorca.helium.core.model.hibernate.Registre;
 import net.conselldemallorca.helium.core.security.ExtendedPermission;
-import net.conselldemallorca.helium.v3.core.api.dto.CampAgrupacioDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDadaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.InstanciaProcesDto;
-import net.conselldemallorca.helium.v3.core.api.service.ExpedientDadaService;
-import net.conselldemallorca.helium.v3.core.repository.CampAgrupacioRepository;
-import net.conselldemallorca.helium.v3.core.repository.CampRepository;
-import net.conselldemallorca.helium.v3.core.repository.DefinicioProcesRepository;
-import net.conselldemallorca.helium.v3.core.repository.RegistreRepository;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.acls.model.Permission;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import es.caib.emiserv.logic.intf.util.JbpmVars;
+import es.caib.helium.logic.intf.WProcessDefinition;
+import es.caib.helium.logic.intf.WorkflowEngineApi;
+import es.caib.helium.logic.intf.WorkflowRetroaccioApi;
+import es.caib.helium.logic.intf.dto.CampAgrupacioDto;
+import es.caib.helium.logic.intf.dto.ExpedientDadaDto;
+import es.caib.helium.logic.intf.dto.InstanciaProcesDto;
+import es.caib.helium.logic.intf.service.ExpedientDadaService;
+import es.caib.helium.persist.entity.Camp;
+import es.caib.helium.persist.entity.CampAgrupacio;
+import es.caib.helium.persist.entity.DefinicioProces;
+import es.caib.helium.persist.entity.Expedient;
+import es.caib.helium.persist.entity.ExpedientTipus;
+import es.caib.helium.persist.entity.Registre;
+import es.caib.helium.persist.entity.Camp.TipusCamp;
+import es.caib.helium.persist.repository.CampAgrupacioRepository;
+import es.caib.helium.persist.repository.CampRepository;
+import es.caib.helium.persist.repository.DefinicioProcesRepository;
+import es.caib.helium.persist.repository.RegistreRepository;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;

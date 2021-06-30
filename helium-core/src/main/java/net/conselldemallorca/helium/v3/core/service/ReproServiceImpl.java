@@ -15,18 +15,18 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import es.caib.emiserv.logic.intf.exception.NoTrobatException;
+import es.caib.emiserv.logic.intf.exception.ValidacioException;
+import es.caib.helium.logic.intf.dto.ReproDto;
+import es.caib.helium.logic.intf.service.ReproService;
+import es.caib.helium.persist.entity.ExpedientTipus;
+import es.caib.helium.persist.entity.Repro;
+import es.caib.helium.persist.entity.Tasca;
+import es.caib.helium.persist.repository.ExpedientTipusRepository;
+import es.caib.helium.persist.repository.ReproRepository;
+import es.caib.helium.persist.repository.TascaRepository;
 import net.conselldemallorca.helium.core.helper.ConversioTipusHelper;
 import net.conselldemallorca.helium.core.helper.UsuariActualHelper;
-import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
-import net.conselldemallorca.helium.core.model.hibernate.Repro;
-import net.conselldemallorca.helium.core.model.hibernate.Tasca;
-import net.conselldemallorca.helium.v3.core.api.dto.ReproDto;
-import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
-import net.conselldemallorca.helium.v3.core.api.exception.ValidacioException;
-import net.conselldemallorca.helium.v3.core.api.service.ReproService;
-import net.conselldemallorca.helium.v3.core.repository.ExpedientTipusRepository;
-import net.conselldemallorca.helium.v3.core.repository.ReproRepository;
-import net.conselldemallorca.helium.v3.core.repository.TascaRepository;
 
 /**
  * Servei per gestionar els terminis dels expedients

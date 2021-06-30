@@ -3,10 +3,11 @@
  */
 package net.conselldemallorca.helium.jbpm3.integracio;
 
-import net.conselldemallorca.helium.core.api.WTaskInstance;
 import org.jbpm.taskmgmt.def.Swimlane;
 import org.jbpm.taskmgmt.exe.PooledActor;
 import org.jbpm.taskmgmt.exe.TaskInstance;
+
+import es.caib.helium.logic.intf.WTaskInstance;
 
 import java.util.Date;
 import java.util.HashSet;

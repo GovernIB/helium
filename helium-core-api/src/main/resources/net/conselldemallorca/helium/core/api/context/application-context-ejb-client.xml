@@ -11,45 +11,45 @@
 	<jee:local-slsb
 			id="adminService"
 			jndi-name="helium/AdminServiceBean/local"
-			business-interface="net.conselldemallorca.helium.v3.core.api.service.AdminService"/>
+			business-interface="es.caib.helium.logic.intf.service.AdminService"/>
 	<jee:local-slsb
 			id="aplicacioService"
 			jndi-name="helium/AplicacioServiceBean/local"
-			business-interface="net.conselldemallorca.helium.v3.core.api.service.AplicacioService"/>
+			business-interface="es.caib.helium.logic.intf.service.AplicacioService"/>
 	<jee:local-slsb
 			id="dissenyService"
 			jndi-name="helium/DissenyServiceBean/local"
-			business-interface="net.conselldemallorca.helium.v3.core.api.service.DissenyService"/>
+			business-interface="es.caib.helium.logic.intf.service.DissenyService"/>
 	<jee:local-slsb
 			id="entornService"
 			jndi-name="helium/EntornServiceBean/local"
-			business-interface="net.conselldemallorca.helium.v3.core.api.service.EntornService"/>
+			business-interface="es.caib.helium.logic.intf.service.EntornService"/>
 	<jee:local-slsb
 			id="execucioMassivaService"
 			jndi-name="helium/ExecucioMassivaServiceBean/local"
-			business-interface="net.conselldemallorca.helium.v3.core.api.service.ExecucioMassivaService"/>
+			business-interface="es.caib.helium.logic.intf.service.ExecucioMassivaService"/>
 	<jee:local-slsb
 			id="expedientService"
 			jndi-name="helium/ExpedientServiceBean/local"
-			business-interface="net.conselldemallorca.helium.v3.core.api.service.ExpedientService"/>
+			business-interface="es.caib.helium.logic.intf.service.ExpedientService"/>
 	<jee:local-slsb
 			id="jbpm3HeliumService"
 			jndi-name="helium/Jbpm3HeliumServiceBean/local"
-			business-interface="net.conselldemallorca.helium.v3.core.api.service.Jbpm3HeliumService"/>
+			business-interface="es.caib.helium.logic.intf.service.Jbpm3HeliumService"/>
 	<jee:local-slsb
 			id="tascaService"
 			jndi-name="helium/TascaServiceBean/local"
-			business-interface="net.conselldemallorca.helium.v3.core.api.service.TascaService"/>
+			business-interface="es.caib.helium.logic.intf.service.TascaService"/>
 	<jee:local-slsb
 			id="terminiService"
 			jndi-name="helium/TerminiServiceBean/local"
-			business-interface="net.conselldemallorca.helium.v3.core.api.service.TerminiService"/>
+			business-interface="es.caib.helium.logic.intf.service.TerminiService"/>
 	<jee:local-slsb
 			id="tokenService"
 			jndi-name="helium/TokenServiceBean/local"
-			business-interface="net.conselldemallorca.helium.v3.core.api.service.TokenService"/>
+			business-interface="es.caib.helium.logic.intf.service.TokenService"/>
 	<jee:local-slsb
 			id="workflowBridgeService"
 			jndi-name="helium/WorkflowBridgeServiceBean/local"
-			business-interface="net.conselldemallorca.helium.core.api.WorkflowBridgeService"/>
+			business-interface="es.caib.helium.logic.intf.WorkflowBridgeService"/>
 </beans>

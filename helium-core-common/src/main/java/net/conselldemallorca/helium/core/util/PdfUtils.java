@@ -23,8 +23,8 @@ import com.lowagie.text.pdf.PdfPTable;
 import com.lowagie.text.pdf.PdfReader;
 import com.lowagie.text.pdf.PdfStamper;
 
-import net.conselldemallorca.helium.v3.core.api.exception.SistemaExternConversioDocumentException;
-import net.conselldemallorca.helium.v3.core.api.exception.ValidacioException;
+import es.caib.emiserv.logic.intf.exception.SistemaExternConversioDocumentException;
+import es.caib.emiserv.logic.intf.exception.ValidacioException;
 
 /**
  * Classe per converir documents a PDF.

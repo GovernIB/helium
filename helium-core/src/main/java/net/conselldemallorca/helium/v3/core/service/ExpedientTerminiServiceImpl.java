@@ -1,36 +1,38 @@
 package net.conselldemallorca.helium.v3.core.service;
 
-import net.conselldemallorca.helium.core.api.WorkflowEngineApi;
 import net.conselldemallorca.helium.core.helper.ConversioTipusHelper;
 import net.conselldemallorca.helium.core.helper.ExpedientHelper;
 import net.conselldemallorca.helium.core.helper.MessageHelper;
 import net.conselldemallorca.helium.core.helper.TerminiHelper;
-import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
-import net.conselldemallorca.helium.core.model.hibernate.Expedient;
-import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
-import net.conselldemallorca.helium.core.model.hibernate.Festiu;
-import net.conselldemallorca.helium.core.model.hibernate.Registre;
-import net.conselldemallorca.helium.core.model.hibernate.Termini;
-import net.conselldemallorca.helium.core.model.hibernate.TerminiIniciat;
 import net.conselldemallorca.helium.core.security.ExtendedPermission;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
-import net.conselldemallorca.helium.v3.core.api.dto.FestiuDto;
-import net.conselldemallorca.helium.v3.core.api.dto.TerminiDto;
-import net.conselldemallorca.helium.v3.core.api.dto.TerminiIniciatDto;
-import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
-import net.conselldemallorca.helium.v3.core.api.exception.ValidacioException;
-import net.conselldemallorca.helium.v3.core.api.service.ExpedientTerminiService;
-import net.conselldemallorca.helium.v3.core.repository.ExpedientRepository;
-import net.conselldemallorca.helium.v3.core.repository.FestiuRepository;
-import net.conselldemallorca.helium.v3.core.repository.RegistreRepository;
-import net.conselldemallorca.helium.v3.core.repository.TerminiIniciatRepository;
-import net.conselldemallorca.helium.v3.core.repository.TerminiRepository;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.acls.model.Permission;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import es.caib.emiserv.logic.intf.exception.NoTrobatException;
+import es.caib.emiserv.logic.intf.exception.ValidacioException;
+import es.caib.helium.logic.intf.WorkflowEngineApi;
+import es.caib.helium.logic.intf.dto.FestiuDto;
+import es.caib.helium.logic.intf.dto.TerminiDto;
+import es.caib.helium.logic.intf.dto.TerminiIniciatDto;
+import es.caib.helium.logic.intf.service.ExpedientTerminiService;
+import es.caib.helium.persist.entity.DefinicioProces;
+import es.caib.helium.persist.entity.Expedient;
+import es.caib.helium.persist.entity.ExpedientTipus;
+import es.caib.helium.persist.entity.Festiu;
+import es.caib.helium.persist.entity.Registre;
+import es.caib.helium.persist.entity.Termini;
+import es.caib.helium.persist.entity.TerminiIniciat;
+import es.caib.helium.persist.repository.ExpedientRepository;
+import es.caib.helium.persist.repository.FestiuRepository;
+import es.caib.helium.persist.repository.RegistreRepository;
+import es.caib.helium.persist.repository.TerminiIniciatRepository;
+import es.caib.helium.persist.repository.TerminiRepository;
 
 import javax.annotation.Resource;
 import java.text.SimpleDateFormat;

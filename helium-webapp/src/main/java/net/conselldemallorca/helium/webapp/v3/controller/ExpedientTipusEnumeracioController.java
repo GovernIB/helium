@@ -17,12 +17,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
-import net.conselldemallorca.helium.v3.core.api.dto.EnumeracioDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusEnumeracioValorDto;
-import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
-import net.conselldemallorca.helium.v3.core.api.service.EnumeracioService;
+import es.caib.helium.logic.intf.dto.EntornDto;
+import es.caib.helium.logic.intf.dto.EnumeracioDto;
+import es.caib.helium.logic.intf.dto.ExpedientTipusDto;
+import es.caib.helium.logic.intf.dto.ExpedientTipusEnumeracioValorDto;
+import es.caib.helium.logic.intf.dto.PaginacioParamsDto;
+import es.caib.helium.logic.intf.service.EnumeracioService;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientTipusEnumeracioCommand;
 import net.conselldemallorca.helium.webapp.v3.helper.ConversioTipusHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.DatatablesHelper;

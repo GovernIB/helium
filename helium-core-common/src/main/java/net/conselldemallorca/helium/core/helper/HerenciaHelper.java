@@ -3,11 +3,12 @@
  */
 package net.conselldemallorca.helium.core.helper;
 
-import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
-import net.conselldemallorca.helium.core.model.hibernate.Expedient;
-import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
-import net.conselldemallorca.helium.v3.core.repository.DefinicioProcesRepository;
 import org.springframework.stereotype.Component;
+
+import es.caib.helium.persist.entity.DefinicioProces;
+import es.caib.helium.persist.entity.Expedient;
+import es.caib.helium.persist.entity.ExpedientTipus;
+import es.caib.helium.persist.repository.DefinicioProcesRepository;
 
 import javax.annotation.Resource;
 

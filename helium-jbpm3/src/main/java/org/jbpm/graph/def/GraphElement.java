@@ -49,8 +49,8 @@ import org.jbpm.svc.Service;
 import org.jbpm.svc.Services;
 import org.jbpm.util.EqualsUtil;
 
+import es.caib.helium.logic.intf.dto.ExpedientDto;
 import net.conselldemallorca.helium.jbpm3.integracio.Jbpm3HeliumBridge;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 
 @SuppressWarnings({"unchecked", "rawtypes"})
 public abstract class GraphElement implements Identifiable, Serializable {

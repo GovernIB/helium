@@ -9,11 +9,11 @@ import javax.annotation.security.RolesAllowed;
 import javax.ejb.Stateless;
 import javax.interceptor.Interceptors;
 
-import net.conselldemallorca.helium.v3.core.api.dto.TokenDto;
-import net.conselldemallorca.helium.v3.core.api.service.ExpedientTokenService;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
+
+import es.caib.helium.logic.intf.dto.TokenDto;
+import es.caib.helium.logic.intf.service.ExpedientTokenService;
 
 /**
  * EJB que implementa la interfície del servei ExpedientTokenService.

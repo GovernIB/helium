@@ -15,7 +15,7 @@ import org.springframework.web.servlet.LocaleResolver;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 import org.springframework.web.servlet.support.RequestContextUtils;
 
-import net.conselldemallorca.helium.v3.core.api.service.AdminService;
+import es.caib.helium.logic.intf.service.AdminService;
 
 /**
  * Interceptor per a canviar l'idioma depenent d'un paràmetre

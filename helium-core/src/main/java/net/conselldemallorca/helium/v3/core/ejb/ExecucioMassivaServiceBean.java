@@ -10,9 +10,9 @@ import javax.interceptor.Interceptors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 
-import net.conselldemallorca.helium.v3.core.api.dto.ExecucioMassivaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExecucioMassivaListDto;
-import net.conselldemallorca.helium.v3.core.api.service.ExecucioMassivaService;
+import es.caib.helium.logic.intf.dto.ExecucioMassivaDto;
+import es.caib.helium.logic.intf.dto.ExecucioMassivaListDto;
+import es.caib.helium.logic.intf.service.ExecucioMassivaService;
 
 /**
  * Servei per a enllaçar les llibreries jBPM 3 amb la funcionalitat

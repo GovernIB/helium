@@ -13,15 +13,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.util.EntornActual;
-import net.conselldemallorca.helium.v3.core.api.dto.IntervalEventDto;
-import net.conselldemallorca.helium.v3.core.api.dto.MesuraTemporalDto;
-import net.conselldemallorca.helium.v3.core.api.dto.TascaCompleteDto;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.stereotype.Component;
+
+import es.caib.helium.logic.intf.dto.IntervalEventDto;
+import es.caib.helium.logic.intf.dto.MesuraTemporalDto;
+import es.caib.helium.logic.intf.dto.TascaCompleteDto;
+import es.caib.helium.persist.entity.Expedient;
 
 /**
  * Helper per a mesurar intervals de temps i fer-ne estadístiques.

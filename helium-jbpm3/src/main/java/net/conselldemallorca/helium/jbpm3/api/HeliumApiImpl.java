@@ -12,6 +12,23 @@ import org.jbpm.graph.exe.ExecutionContext;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
+import es.caib.emiserv.logic.intf.exception.NoTrobatException;
+import es.caib.helium.logic.intf.dto.ArxiuDto;
+import es.caib.helium.logic.intf.dto.DadesNotificacioDto;
+import es.caib.helium.logic.intf.dto.DocumentDto;
+import es.caib.helium.logic.intf.dto.DominiRespostaColumnaDto;
+import es.caib.helium.logic.intf.dto.DominiRespostaFilaDto;
+import es.caib.helium.logic.intf.dto.EnumeracioValorDto;
+import es.caib.helium.logic.intf.dto.EstatDto;
+import es.caib.helium.logic.intf.dto.ExpedientDadaDto;
+import es.caib.helium.logic.intf.dto.ExpedientDto;
+import es.caib.helium.logic.intf.dto.InteressatDto;
+import es.caib.helium.logic.intf.dto.RegistreAnnexDto;
+import es.caib.helium.logic.intf.dto.RegistreAnotacioDto;
+import es.caib.helium.logic.intf.dto.RegistreIdDto;
+import es.caib.helium.logic.intf.dto.RegistreNotificacioDto;
+import es.caib.helium.logic.intf.dto.RespostaNotificacio;
+import es.caib.helium.logic.intf.dto.TascaDadaDto;
 import net.conselldemallorca.helium.jbpm3.handlers.exception.HeliumHandlerException;
 import net.conselldemallorca.helium.jbpm3.handlers.exception.ValidationException;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.ActionInfo;
@@ -43,23 +60,6 @@ import net.conselldemallorca.helium.jbpm3.helper.ConversioTipusInfoHelper;
 import net.conselldemallorca.helium.jbpm3.integracio.DominiCodiDescripcio;
 import net.conselldemallorca.helium.jbpm3.integracio.Jbpm3HeliumBridge;
 import net.conselldemallorca.helium.jbpm3.integracio.Termini;
-import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
-import net.conselldemallorca.helium.v3.core.api.dto.DadesNotificacioDto;
-import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
-import net.conselldemallorca.helium.v3.core.api.dto.DominiRespostaColumnaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.DominiRespostaFilaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.EnumeracioValorDto;
-import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDadaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
-import net.conselldemallorca.helium.v3.core.api.dto.InteressatDto;
-import net.conselldemallorca.helium.v3.core.api.dto.RegistreAnnexDto;
-import net.conselldemallorca.helium.v3.core.api.dto.RegistreAnotacioDto;
-import net.conselldemallorca.helium.v3.core.api.dto.RegistreIdDto;
-import net.conselldemallorca.helium.v3.core.api.dto.RegistreNotificacioDto;
-import net.conselldemallorca.helium.v3.core.api.dto.RespostaNotificacio;
-import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
-import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 
 public class HeliumApiImpl implements HeliumApi {
 

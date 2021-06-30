@@ -10,16 +10,16 @@ import org.jbpm.JbpmException;
 import org.jbpm.graph.def.ActionHandler;
 import org.jbpm.graph.exe.ExecutionContext;
 
+import es.caib.emiserv.logic.intf.exception.NoTrobatException;
+import es.caib.helium.logic.intf.dto.ArxiuDto;
+import es.caib.helium.logic.intf.dto.DefinicioProcesDto;
+import es.caib.helium.logic.intf.dto.DocumentDto;
+import es.caib.helium.logic.intf.dto.ExpedientDto;
+import es.caib.helium.logic.intf.dto.TerminiDto;
+import es.caib.helium.logic.intf.dto.TerminiIniciatDto;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.DocumentInfo;
 import net.conselldemallorca.helium.jbpm3.integracio.DominiCodiDescripcio;
 import net.conselldemallorca.helium.jbpm3.integracio.Jbpm3HeliumBridge;
-import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
-import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
-import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
-import net.conselldemallorca.helium.v3.core.api.dto.TerminiDto;
-import net.conselldemallorca.helium.v3.core.api.dto.TerminiIniciatDto;
-import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 
 /**
  * Handler base amb accés a la funcionalitat de Helium

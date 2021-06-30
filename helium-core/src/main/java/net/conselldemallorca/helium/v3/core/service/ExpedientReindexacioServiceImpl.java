@@ -14,14 +14,14 @@ import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import es.caib.helium.logic.intf.dto.ExpedientReindexacioDto;
+import es.caib.helium.logic.intf.dto.ExpedientTipusDto;
+import es.caib.helium.logic.intf.service.ExpedientReindexacioService;
+import es.caib.helium.persist.entity.ExpedientReindexacio;
+import es.caib.helium.persist.repository.ExpedientReindexacioRepository;
+import es.caib.helium.persist.repository.ExpedientRepository;
+import es.caib.helium.persist.repository.ExpedientTipusRepository;
 import net.conselldemallorca.helium.core.helper.ConversioTipusHelper;
-import net.conselldemallorca.helium.core.model.hibernate.ExpedientReindexacio;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientReindexacioDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
-import net.conselldemallorca.helium.v3.core.api.service.ExpedientReindexacioService;
-import net.conselldemallorca.helium.v3.core.repository.ExpedientReindexacioRepository;
-import net.conselldemallorca.helium.v3.core.repository.ExpedientRepository;
-import net.conselldemallorca.helium.v3.core.repository.ExpedientTipusRepository;
 
 
 /**

@@ -14,26 +14,26 @@ import javax.interceptor.Interceptors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 
-import net.conselldemallorca.helium.core.extern.domini.FilaResultat;
-import net.conselldemallorca.helium.core.extern.domini.ParellaCodiValor;
-import net.conselldemallorca.helium.v3.core.api.dto.AreaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ConsultaCampDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ConsultaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
-import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesExpedientDto;
-import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesVersioDto;
-import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
-import net.conselldemallorca.helium.v3.core.api.dto.DominiDto;
-import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
-import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
-import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
-import net.conselldemallorca.helium.v3.core.api.exportacio.DefinicioProcesExportacio;
-import net.conselldemallorca.helium.v3.core.api.service.DissenyService;
+import es.caib.emiserv.logic.intf.exception.NoTrobatException;
+import es.caib.emiserv.logic.intf.exportacio.DefinicioProcesExportacio;
+import es.caib.emiserv.logic.intf.extern.domini.FilaResultat;
+import es.caib.emiserv.logic.intf.extern.domini.ParellaCodiValor;
+import es.caib.helium.logic.intf.dto.AreaDto;
+import es.caib.helium.logic.intf.dto.CampDto;
+import es.caib.helium.logic.intf.dto.ConsultaCampDto;
+import es.caib.helium.logic.intf.dto.ConsultaDto;
+import es.caib.helium.logic.intf.dto.DefinicioProcesDto;
+import es.caib.helium.logic.intf.dto.DefinicioProcesExpedientDto;
+import es.caib.helium.logic.intf.dto.DefinicioProcesVersioDto;
+import es.caib.helium.logic.intf.dto.DocumentDto;
+import es.caib.helium.logic.intf.dto.DominiDto;
+import es.caib.helium.logic.intf.dto.EntornDto;
+import es.caib.helium.logic.intf.dto.ExpedientDto;
+import es.caib.helium.logic.intf.dto.ExpedientTipusDto;
+import es.caib.helium.logic.intf.dto.PaginaDto;
+import es.caib.helium.logic.intf.dto.PaginacioParamsDto;
+import es.caib.helium.logic.intf.dto.ParellaCodiValorDto;
+import es.caib.helium.logic.intf.service.DissenyService;
 
 
 /**

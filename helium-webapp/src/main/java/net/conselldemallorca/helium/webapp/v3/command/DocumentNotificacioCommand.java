@@ -11,8 +11,8 @@ import javax.validation.constraints.NotNull;
 
 import org.hibernate.validator.constraints.NotEmpty;
 
-import net.conselldemallorca.helium.v3.core.api.dto.EnviamentTipusEnumDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ServeiTipusEnumDto;
+import es.caib.helium.logic.intf.dto.EnviamentTipusEnumDto;
+import es.caib.helium.logic.intf.dto.ServeiTipusEnumDto;
 
 /**
  * 

@@ -3,24 +3,26 @@
  */
 package net.conselldemallorca.helium.core.helper;
 
-import net.conselldemallorca.helium.core.api.WTaskInstance;
-import net.conselldemallorca.helium.core.api.WorkflowEngineApi;
 import net.conselldemallorca.helium.core.helper.PermisosHelper.ObjectIdentifierExtractor;
-import net.conselldemallorca.helium.core.model.hibernate.Entorn;
-import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.security.ExtendedPermission;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
-import net.conselldemallorca.helium.v3.core.api.dto.PermisDto;
-import net.conselldemallorca.helium.v3.core.api.dto.PrincipalTipusEnumDto;
-import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
-import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
-import net.conselldemallorca.helium.v3.core.repository.ExpedientTipusRepository;
+
 import org.hibernate.Hibernate;
 import org.springframework.security.acls.model.Permission;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
+
+import es.caib.emiserv.logic.intf.exception.NoTrobatException;
+import es.caib.emiserv.logic.intf.exception.PermisDenegatException;
+import es.caib.helium.logic.intf.WTaskInstance;
+import es.caib.helium.logic.intf.WorkflowEngineApi;
+import es.caib.helium.logic.intf.dto.ExpedientDto;
+import es.caib.helium.logic.intf.dto.PermisDto;
+import es.caib.helium.logic.intf.dto.PrincipalTipusEnumDto;
+import es.caib.helium.persist.entity.Entorn;
+import es.caib.helium.persist.entity.ExpedientTipus;
+import es.caib.helium.persist.repository.ExpedientTipusRepository;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;

@@ -72,14 +72,14 @@ $(document).ready(function() {
 			
 	<div id="dades-proces">
 <%
-	Boolean ambOcults = (Boolean)request.getAttribute("ambOcults");
-	net.conselldemallorca.helium.core.model.dto.InstanciaProcesDto instanciaProces = (net.conselldemallorca.helium.core.model.dto.InstanciaProcesDto)request.getAttribute("instanciaProces");
+Boolean ambOcults = (Boolean)request.getAttribute("ambOcults");
+	InstanciaProcesDto instanciaProces = (InstanciaProcesDto)request.getAttribute("instanciaProces");
 	request.setAttribute(
-			"variablesProcesSenseAgrupar",
-			getVariablesProcesSenseAgrupar(
-					instanciaProces.getCamps(),
-					instanciaProces.getVarsComText(),
-					ambOcults));
+	"variablesProcesSenseAgrupar",
+	getVariablesProcesSenseAgrupar(
+			instanciaProces.getCamps(),
+			instanciaProces.getVarsComText(),
+			ambOcults));
 %>
 		<c:if test="${not empty variablesProcesSenseAgrupar}">
 			<display:table name="variablesProcesSenseAgrupar" id="codi" class="displaytag">
@@ -130,13 +130,13 @@ $(document).ready(function() {
 					</h4>
 					<div id="dades-agrup-${agrupacio.codi}" style="display:none">
 <%
-	net.conselldemallorca.helium.core.model.hibernate.CampAgrupacio agrupacio = (net.conselldemallorca.helium.core.model.hibernate.CampAgrupacio)pageContext.getAttribute("agrupacio");
+es.caib.helium.persist.entity.CampAgrupacio agrupacio = (es.caib.helium.persist.entity.CampAgrupacio)pageContext.getAttribute("agrupacio");
 	request.setAttribute(
-			"campsAgrupacio",
-			getCampsAgrupacioNoBuits(
-					agrupacio.getCamps(),
-					instanciaProces.getVarsComText(),
-					ambOcults));
+	"campsAgrupacio",
+	getCampsAgrupacioNoBuits(
+			agrupacio.getCamps(),
+			instanciaProces.getVarsComText(),
+			ambOcults));
 %>
 						<display:table name="campsAgrupacio" id="campAgrup" class="displaytag">
 							<display:column title="Variable">
@@ -265,15 +265,14 @@ $(document).ready(function() {
 </body>
 </html>
 
-<%!
-public java.util.List<String> getVariablesProcesSenseAgrupar(
-		java.util.Set<net.conselldemallorca.helium.core.model.hibernate.Camp> camps,
+<%!public java.util.List<String> getVariablesProcesSenseAgrupar(
+		java.util.Set<es.caib.helium.persist.entity.Camp> camps,
 		java.util.Map<String, Object> varsComText,
 		Boolean ambOcults) {
 	java.util.List<String> resposta = new java.util.ArrayList<String>();
 	for (String codi: varsComText.keySet()) {
 		boolean trobat = false;
-		for (net.conselldemallorca.helium.core.model.hibernate.Camp camp: camps) {
+		for (es.caib.helium.persist.entity.Camp camp: camps) {
 			if (camp.getCodi().equals(codi)) {
 				if (camp.getAgrupacio() == null && (ambOcults || !camp.isOcult()))
 					resposta.add(codi);
@@ -286,15 +285,14 @@ public java.util.List<String> getVariablesProcesSenseAgrupar(
 	}
 	return resposta;
 }
-public java.util.List<net.conselldemallorca.helium.core.model.hibernate.Camp> getCampsAgrupacioNoBuits(
-		java.util.List<net.conselldemallorca.helium.core.model.hibernate.Camp> campsAgrupacio,
+public java.util.List<es.caib.helium.persist.entity.Camp> getCampsAgrupacioNoBuits(
+		java.util.List<es.caib.helium.persist.entity.Camp> campsAgrupacio,
 		java.util.Map<String, Object> varsComText,
 		Boolean ambOcults) {
-	java.util.List<net.conselldemallorca.helium.core.model.hibernate.Camp> resposta = new java.util.ArrayList<net.conselldemallorca.helium.core.model.hibernate.Camp>();
-	for (net.conselldemallorca.helium.core.model.hibernate.Camp camp: campsAgrupacio) {
+	java.util.List<es.caib.helium.persist.entity.Camp> resposta = new java.util.ArrayList<es.caib.helium.persist.entity.Camp>();
+	for (es.caib.helium.persist.entity.Camp camp: campsAgrupacio) {
 		if (varsComText.containsKey(camp.getCodi()) && (ambOcults || !camp.isOcult()))
 			resposta.add(camp);
 	}
 	return resposta;
-}
-%>
+}%>

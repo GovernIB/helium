@@ -6,10 +6,10 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import net.conselldemallorca.helium.v3.core.api.service.TascaService;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import es.caib.helium.logic.intf.service.TascaService;
 
 @Component
 public class TascaSegonPlaHelper {

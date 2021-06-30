@@ -1,10 +1,28 @@
 package net.conselldemallorca.helium.v3.core.ejb;
 
-import net.conselldemallorca.helium.core.api.WorkflowBridgeService;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.ExpedientInfo;
 import net.conselldemallorca.helium.v3.core.api.dto.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
+
+import es.caib.helium.logic.intf.WorkflowBridgeService;
+import es.caib.helium.logic.intf.dto.ArxiuDto;
+import es.caib.helium.logic.intf.dto.CampTascaDto;
+import es.caib.helium.logic.intf.dto.CampTipusIgnored;
+import es.caib.helium.logic.intf.dto.DefinicioProcesDto;
+import es.caib.helium.logic.intf.dto.DocumentDissenyDto;
+import es.caib.helium.logic.intf.dto.DocumentDto;
+import es.caib.helium.logic.intf.dto.DocumentTascaDto;
+import es.caib.helium.logic.intf.dto.DominiRespostaFilaDto;
+import es.caib.helium.logic.intf.dto.EnumeracioValorDto;
+import es.caib.helium.logic.intf.dto.EstatDto;
+import es.caib.helium.logic.intf.dto.ExpedientDadaDto;
+import es.caib.helium.logic.intf.dto.ExpedientDto;
+import es.caib.helium.logic.intf.dto.FestiuDto;
+import es.caib.helium.logic.intf.dto.InteressatDto;
+import es.caib.helium.logic.intf.dto.ReassignacioDto;
+import es.caib.helium.logic.intf.dto.TerminiDto;
+import es.caib.helium.logic.intf.dto.TerminiIniciatDto;
 
 import javax.ejb.Stateless;
 import javax.interceptor.Interceptors;

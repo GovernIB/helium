@@ -9,9 +9,9 @@ import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
-import net.conselldemallorca.helium.core.extern.domini.FilaResultat;
-import net.conselldemallorca.helium.core.extern.domini.ParellaCodiValor;
-import net.conselldemallorca.helium.v3.core.api.service.DominiService;
+import es.caib.emiserv.logic.intf.extern.domini.FilaResultat;
+import es.caib.emiserv.logic.intf.extern.domini.ParellaCodiValor;
+import es.caib.helium.logic.intf.service.DominiService;
 
 
 public class DominiDwrService {

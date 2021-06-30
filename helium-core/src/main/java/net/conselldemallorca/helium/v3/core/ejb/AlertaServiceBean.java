@@ -4,11 +4,11 @@ import javax.annotation.security.RolesAllowed;
 import javax.ejb.Stateless;
 import javax.interceptor.Interceptors;
 
-import net.conselldemallorca.helium.v3.core.api.dto.AlertaDto;
-import net.conselldemallorca.helium.v3.core.api.service.AlertaService;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
+
+import es.caib.helium.logic.intf.dto.AlertaDto;
+import es.caib.helium.logic.intf.service.AlertaService;
 
 @Stateless
 @Interceptors(SpringBeanAutowiringInterceptor.class)

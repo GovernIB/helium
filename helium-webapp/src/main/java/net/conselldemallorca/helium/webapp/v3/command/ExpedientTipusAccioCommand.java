@@ -7,7 +7,7 @@ import javax.validation.constraints.Size;
 
 import org.hibernate.validator.constraints.NotEmpty;
 
-import net.conselldemallorca.helium.v3.core.api.dto.AccioDto;
+import es.caib.helium.logic.intf.dto.AccioDto;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientTipusAccioCommand.Creacio;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientTipusAccioCommand.Modificacio;
 import net.conselldemallorca.helium.webapp.v3.validator.Codi;

@@ -1,11 +1,7 @@
 package net.conselldemallorca.helium.webapp.ms.api;
 
 import lombok.Data;
-import net.conselldemallorca.helium.core.api.WorkflowBridgeService;
-import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
-import net.conselldemallorca.helium.v3.core.api.dto.FestiuDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ReassignacioDto;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +12,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+
+import es.caib.helium.logic.intf.WorkflowBridgeService;
+import es.caib.helium.logic.intf.dto.ArxiuDto;
+import es.caib.helium.logic.intf.dto.ExpedientDto;
+import es.caib.helium.logic.intf.dto.FestiuDto;
+import es.caib.helium.logic.intf.dto.ReassignacioDto;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;

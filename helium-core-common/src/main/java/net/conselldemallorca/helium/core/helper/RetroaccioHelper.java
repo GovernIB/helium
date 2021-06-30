@@ -3,29 +3,8 @@
  */
 package net.conselldemallorca.helium.core.helper;
 
-import net.conselldemallorca.helium.core.api.WProcessInstance;
-import net.conselldemallorca.helium.core.api.WTaskInstance;
-import net.conselldemallorca.helium.core.api.WToken;
-import net.conselldemallorca.helium.core.api.WorkflowEngineApi;
-import net.conselldemallorca.helium.core.api.WorkflowRetroaccioApi;
-import net.conselldemallorca.helium.core.common.JbpmVars;
 import net.conselldemallorca.helium.core.model.hibernate.*;
-import net.conselldemallorca.helium.core.model.hibernate.Camp.TipusCamp;
-//import net.conselldemallorca.helium.jbpm3.handlers.BasicActionHandler;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.InformacioRetroaccioDto;
-import net.conselldemallorca.helium.v3.core.api.dto.InstanciaProcesDto;
-import net.conselldemallorca.helium.v3.core.api.dto.LogObjectDto;
-import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
-import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
-import net.conselldemallorca.helium.v3.core.repository.CampRepository;
-import net.conselldemallorca.helium.v3.core.repository.CampTascaRepository;
-import net.conselldemallorca.helium.v3.core.repository.DefinicioProcesRepository;
-import net.conselldemallorca.helium.v3.core.repository.DocumentRepository;
-import net.conselldemallorca.helium.v3.core.repository.EstatRepository;
-import net.conselldemallorca.helium.v3.core.repository.ExpedientLoggerRepository;
-import net.conselldemallorca.helium.v3.core.repository.ExpedientRepository;
-import net.conselldemallorca.helium.v3.core.repository.TascaRepository;
+
 import org.apache.commons.lang.math.NumberUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -57,6 +36,28 @@ import org.apache.commons.logging.LogFactory;
 //import org.jbpm.taskmgmt.log.TaskLog;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
+
+import es.caib.emiserv.logic.intf.exception.NoTrobatException;
+import es.caib.emiserv.logic.intf.exception.PermisDenegatException;
+import es.caib.emiserv.logic.intf.util.JbpmVars;
+import es.caib.helium.logic.intf.WProcessInstance;
+import es.caib.helium.logic.intf.WTaskInstance;
+import es.caib.helium.logic.intf.WToken;
+import es.caib.helium.logic.intf.WorkflowEngineApi;
+import es.caib.helium.logic.intf.WorkflowRetroaccioApi;
+import es.caib.helium.logic.intf.dto.ExpedientTascaDto;
+import es.caib.helium.logic.intf.dto.InformacioRetroaccioDto;
+import es.caib.helium.logic.intf.dto.InstanciaProcesDto;
+import es.caib.helium.logic.intf.dto.LogObjectDto;
+import es.caib.helium.persist.entity.Camp.TipusCamp;
+import es.caib.helium.persist.repository.CampRepository;
+import es.caib.helium.persist.repository.CampTascaRepository;
+import es.caib.helium.persist.repository.DefinicioProcesRepository;
+import es.caib.helium.persist.repository.DocumentRepository;
+import es.caib.helium.persist.repository.EstatRepository;
+import es.caib.helium.persist.repository.ExpedientLoggerRepository;
+import es.caib.helium.persist.repository.ExpedientRepository;
+import es.caib.helium.persist.repository.TascaRepository;
 
 import javax.annotation.Resource;
 import java.io.ByteArrayInputStream;

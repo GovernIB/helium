@@ -15,26 +15,26 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import net.conselldemallorca.helium.core.model.hibernate.DocumentNotificacio;
-import net.conselldemallorca.helium.core.model.hibernate.DocumentStore;
-import net.conselldemallorca.helium.core.model.hibernate.Expedient;
-import net.conselldemallorca.helium.core.model.hibernate.Notificacio;
+import es.caib.emiserv.logic.intf.exception.SistemaExternException;
+import es.caib.helium.logic.intf.dto.DadesEnviamentDto;
+import es.caib.helium.logic.intf.dto.DadesNotificacioDto;
+import es.caib.helium.logic.intf.dto.DocumentEnviamentEstatEnumDto;
+import es.caib.helium.logic.intf.dto.DocumentNotificacioDto;
+import es.caib.helium.logic.intf.dto.EnviamentTipusEnumDto;
+import es.caib.helium.logic.intf.dto.ExpedientDto;
+import es.caib.helium.logic.intf.dto.NotificacioDto;
+import es.caib.helium.logic.intf.dto.NotificacioEstatEnumDto;
+import es.caib.helium.logic.intf.dto.PersonaDto;
+import es.caib.helium.persist.entity.DocumentNotificacio;
+import es.caib.helium.persist.entity.DocumentStore;
+import es.caib.helium.persist.entity.Expedient;
+import es.caib.helium.persist.entity.Notificacio;
+import es.caib.helium.persist.repository.DocumentNotificacioRepository;
+import es.caib.helium.persist.repository.DocumentStoreRepository;
+import es.caib.helium.persist.repository.ExpedientRepository;
+import es.caib.helium.persist.repository.NotificacioRepository;
 import net.conselldemallorca.helium.integracio.plugins.notificacio.RespostaEnviar;
 import net.conselldemallorca.helium.integracio.plugins.registre.RespostaJustificantRecepcio;
-import net.conselldemallorca.helium.v3.core.api.dto.DadesEnviamentDto;
-import net.conselldemallorca.helium.v3.core.api.dto.DadesNotificacioDto;
-import net.conselldemallorca.helium.v3.core.api.dto.DocumentEnviamentEstatEnumDto;
-import net.conselldemallorca.helium.v3.core.api.dto.DocumentNotificacioDto;
-import net.conselldemallorca.helium.v3.core.api.dto.EnviamentTipusEnumDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
-import net.conselldemallorca.helium.v3.core.api.dto.NotificacioDto;
-import net.conselldemallorca.helium.v3.core.api.dto.NotificacioEstatEnumDto;
-import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
-import net.conselldemallorca.helium.v3.core.api.exception.SistemaExternException;
-import net.conselldemallorca.helium.v3.core.repository.DocumentNotificacioRepository;
-import net.conselldemallorca.helium.v3.core.repository.DocumentStoreRepository;
-import net.conselldemallorca.helium.v3.core.repository.ExpedientRepository;
-import net.conselldemallorca.helium.v3.core.repository.NotificacioRepository;
 
 /**
  * Helper per a les notificacions a la safata telemàtica de SISTRA i pel NOTIB.

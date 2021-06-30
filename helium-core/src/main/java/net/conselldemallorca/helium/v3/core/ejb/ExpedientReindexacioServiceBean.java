@@ -13,7 +13,7 @@ import javax.interceptor.Interceptors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 
-import net.conselldemallorca.helium.v3.core.api.service.ExpedientReindexacioService;
+import es.caib.helium.logic.intf.service.ExpedientReindexacioService;
 
 /**
  * EJB que implementa la interfície del servei ExpedientReindexacioService.

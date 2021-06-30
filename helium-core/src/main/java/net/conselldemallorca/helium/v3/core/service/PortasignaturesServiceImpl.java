@@ -4,26 +4,28 @@
 package net.conselldemallorca.helium.v3.core.service;
 
 import com.sun.star.plugin.PluginException;
-import net.conselldemallorca.helium.core.api.WProcessInstance;
-import net.conselldemallorca.helium.core.api.WToken;
-import net.conselldemallorca.helium.core.api.WorkflowEngineApi;
-import net.conselldemallorca.helium.core.api.WorkflowRetroaccioApi;
-import net.conselldemallorca.helium.core.api.WorkflowRetroaccioApi.ExpedientRetroaccioTipus;
-import net.conselldemallorca.helium.core.common.ThreadLocalInfo;
+
+import es.caib.emiserv.logic.intf.util.ThreadLocalInfo;
+import es.caib.helium.logic.intf.WProcessInstance;
+import es.caib.helium.logic.intf.WToken;
+import es.caib.helium.logic.intf.WorkflowEngineApi;
+import es.caib.helium.logic.intf.WorkflowRetroaccioApi;
+import es.caib.helium.logic.intf.WorkflowRetroaccioApi.ExpedientRetroaccioTipus;
+import es.caib.helium.logic.intf.dto.DocumentDto;
+import es.caib.helium.logic.intf.dto.PortasignaturesDto;
+import es.caib.helium.logic.intf.service.PortasignaturesService;
+import es.caib.helium.persist.entity.Alerta;
+import es.caib.helium.persist.entity.DocumentStore;
+import es.caib.helium.persist.entity.Expedient;
+import es.caib.helium.persist.entity.Portasignatures;
+import es.caib.helium.persist.entity.Portasignatures.TipusEstat;
+import es.caib.helium.persist.entity.Portasignatures.Transicio;
+import es.caib.helium.persist.repository.AlertaRepository;
+import es.caib.helium.persist.repository.DocumentStoreRepository;
+import es.caib.helium.persist.repository.ExpedientRepository;
+import es.caib.helium.persist.repository.PortasignaturesRepository;
 import net.conselldemallorca.helium.core.helper.*;
-import net.conselldemallorca.helium.core.model.hibernate.Alerta;
-import net.conselldemallorca.helium.core.model.hibernate.DocumentStore;
-import net.conselldemallorca.helium.core.model.hibernate.Expedient;
-import net.conselldemallorca.helium.core.model.hibernate.Portasignatures;
-import net.conselldemallorca.helium.core.model.hibernate.Portasignatures.TipusEstat;
-import net.conselldemallorca.helium.core.model.hibernate.Portasignatures.Transicio;
-import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
-import net.conselldemallorca.helium.v3.core.api.dto.PortasignaturesDto;
-import net.conselldemallorca.helium.v3.core.api.service.PortasignaturesService;
-import net.conselldemallorca.helium.v3.core.repository.AlertaRepository;
-import net.conselldemallorca.helium.v3.core.repository.DocumentStoreRepository;
-import net.conselldemallorca.helium.v3.core.repository.ExpedientRepository;
-import net.conselldemallorca.helium.v3.core.repository.PortasignaturesRepository;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

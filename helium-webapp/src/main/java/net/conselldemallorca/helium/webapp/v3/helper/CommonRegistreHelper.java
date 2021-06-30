@@ -8,9 +8,9 @@ import org.springframework.validation.Errors;
 import org.springframework.validation.ValidationUtils;
 import org.springframework.validation.Validator;
 
-import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
-import net.conselldemallorca.helium.v3.core.api.dto.CampRegistreDto;
-import net.conselldemallorca.helium.v3.core.api.service.CampService;
+import es.caib.helium.logic.intf.dto.CampDto;
+import es.caib.helium.logic.intf.dto.CampRegistreDto;
+import es.caib.helium.logic.intf.service.CampService;
 
 
 /**

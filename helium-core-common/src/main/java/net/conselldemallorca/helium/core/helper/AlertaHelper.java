@@ -10,10 +10,10 @@ import javax.annotation.Resource;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import net.conselldemallorca.helium.core.model.hibernate.Alerta;
-import net.conselldemallorca.helium.core.model.hibernate.Entorn;
-import net.conselldemallorca.helium.core.model.hibernate.Expedient;
-import net.conselldemallorca.helium.v3.core.repository.AlertaRepository;
+import es.caib.helium.persist.entity.Alerta;
+import es.caib.helium.persist.entity.Entorn;
+import es.caib.helium.persist.entity.Expedient;
+import es.caib.helium.persist.repository.AlertaRepository;
 
 /**
  * Helper per a enviament de correus

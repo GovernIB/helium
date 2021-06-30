@@ -15,9 +15,6 @@ import java.util.concurrent.TimeoutException;
 
 import javax.activation.MimetypesFileTypeMap;
 
-import net.conselldemallorca.helium.v3.core.api.exception.SistemaExternTimeoutException;
-import net.conselldemallorca.helium.v3.core.api.exception.ValidacioException;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -29,6 +26,9 @@ import com.artofsolving.jodconverter.DocumentFormatRegistry;
 import com.artofsolving.jodconverter.openoffice.connection.OpenOfficeConnection;
 import com.artofsolving.jodconverter.openoffice.connection.SocketOpenOfficeConnection;
 import com.artofsolving.jodconverter.openoffice.converter.StreamOpenOfficeDocumentConverter;
+
+import es.caib.emiserv.logic.intf.exception.SistemaExternTimeoutException;
+import es.caib.emiserv.logic.intf.exception.ValidacioException;
 
 /**
  * Utilitats per a conversió de documents amb OpenOffice.
