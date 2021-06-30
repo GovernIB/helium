@@ -1,0 +1,14 @@
+        <subsystem xmlns="urn:jboss:domain:keycloak:1.1">
+            <realm name="GOIB">
+                <auth-server-url>${env.KEYCLOAK_URL}</auth-server-url>
+                <ssl-required>EXTERNAL</ssl-required>
+            </realm>
+            <secure-deployment name="helium-back.war">
+                <realm>${env.KEYCLOAK_REALM}</realm>
+                <resource>${env.KEYCLOAK_RESOURCE}</resource>
+                <use-resource-role-mappings>true</use-resource-role-mappings>
+                <public-client>true</public-client>
+                <principal-attribute>preferred_username</principal-attribute>
+                <verify-token-audience>true</verify-token-audience>
+            </secure-deployment>
+        </subsystem>

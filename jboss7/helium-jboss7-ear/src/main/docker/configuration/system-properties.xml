@@ -1,0 +1,4 @@
+<system-properties>
+    <property name="es.caib.helium.properties" value="${jboss.home.dir}/../webapps/config/helium_jboss.properties"/>
+    <property name="es.caib.helium.system.properties" value="${jboss.home.dir}/../webapps/config/helium_jboss_system.properties"/>
+</system-properties>
