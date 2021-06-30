@@ -24,6 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ObjectUtils;
 
 import es.caib.helium.dada.domain.Expedient;
+import es.caib.helium.dada.exception.DadaException;
 import es.caib.helium.dada.model.Columna;
 import es.caib.helium.dada.model.Consulta;
 import es.caib.helium.dada.model.FiltreCapcalera;
@@ -69,7 +70,7 @@ public class ExpedientRepositoryCustomImpl implements ExpedientRepositoryCustom 
 	 */
 	@Override
 	@Transactional
-	public Long esborrarExpedientCascade(Long expedientId) {
+	public Long esborrarExpedientCascade(Long expedientId) throws DadaException {
 		if (expedientId == null) {
 			return 0l;
 		}
@@ -85,12 +86,15 @@ public class ExpedientRepositoryCustomImpl implements ExpedientRepositoryCustom 
 	 */
 	@Override
 	@Transactional
-	public Long esborrarExpedientsCascade(List<Long> expedients) {
+	public Long esborrarExpedientsCascade(List<Long> expedients) throws DadaException {
 		var query = new Query();
 		var criteria = new Criteria();
 		criteria.and(Capcalera.EXPEDIENT_ID.getCamp()).in(expedients);
 		query.addCriteria(criteria);
 		var nEsborrats = mongoTemplate.remove(query, Expedient.class, Collections.EXPEDIENT.getNom());
+		if (nEsborrats == null || nEsborrats.getDeletedCount() != expedients.size()) {
+			throw new DadaException("No s'han pogut esborrar tots els expedients " + expedients.toString());
+		}
 		mongoTemplate.remove(query, Dada.class, Collections.DADA.getNom());
 		return nEsborrats.getDeletedCount();
 	}

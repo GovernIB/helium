@@ -1,10 +1,10 @@
 package es.caib.helium.base.service;
 
-import cz.jirutka.rsql.parser.RSQLParser;
-import cz.jirutka.rsql.parser.RSQLParserException;
-import cz.jirutka.rsql.parser.ast.ComparisonOperator;
-import cz.jirutka.rsql.parser.ast.Node;
-import cz.jirutka.rsql.parser.ast.RSQLOperators;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -14,10 +14,18 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
+import cz.jirutka.rsql.parser.RSQLParser;
+import cz.jirutka.rsql.parser.RSQLParserException;
+import cz.jirutka.rsql.parser.ast.ComparisonOperator;
+import cz.jirutka.rsql.parser.ast.Node;
+import cz.jirutka.rsql.parser.ast.RSQLOperators;
+import es.caib.helium.base.mapper.BaseMapper;
+import es.caib.helium.base.model.DefaultOrder;
+import es.caib.helium.base.model.DefaultSort;
+import es.caib.helium.base.model.PagedList;
+import es.caib.helium.base.repository.BaseRepository;
+import es.caib.helium.base.rsql.CustomRsqlVisitor;
+import es.caib.helium.base.rsql.RsqlSearchOperation;
 
 public class ServiceHelper {
 
@@ -85,18 +93,22 @@ public class ServiceHelper {
             Class<?> dtoClass,
             BaseMapper<E, D> mapper) {
         Page<E> page = getEntityPage(repository, spec, filtreRsql, pageable, sort, dtoClass);
-
-        return new PagedList<>(
-                page.getContent()
-                        .stream()
-                        .map(mapper::entityToDto)
-                        .collect(Collectors.toList()),
-//                PageRequest.of(
-//                        pageable.getPageNumber(),
-//                        pageable.getPageSize()),
-                page.getPageable(),
-                page.getTotalElements()
-        );
+        try {
+	        return new PagedList<>(
+	                page.getContent()
+	                        .stream()
+	                        .map(mapper::entityToDto)
+	                        .collect(Collectors.toList()),
+	//                PageRequest.of(
+	//                        pageable.getPageNumber(),
+	//                        pageable.getPageSize()),
+	                page.getPageable(),
+	                page.getTotalElements()
+	        );
+        } catch (Exception e) {
+			//log.error();
+        	throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error no controlat: " + e.getMessage(), e);
+		}
 
     }
 

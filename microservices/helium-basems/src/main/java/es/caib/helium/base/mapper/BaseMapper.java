@@ -1,10 +1,8 @@
 package es.caib.helium.base.mapper;
 
-import es.caib.helium.base.domain.Base;
-import es.caib.helium.base.model.BaseDto;
-import org.mapstruct.Mapper;
+public interface BaseMapper<E, D> {
 
-@Mapper(uses = DateMapper.class)
-public interface BaseMapper extends _BaseMapper<Base, BaseDto> {
+    D entityToDto(E entity);
+    E dtoToEntity(D dto);
 
 }

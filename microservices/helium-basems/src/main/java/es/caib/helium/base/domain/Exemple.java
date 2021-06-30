@@ -38,8 +38,8 @@ import javax.validation.constraints.Size;
 		indexes = {
 			@Index(name = "hel_base_codi_i", columnList = "codi")
 		})
-@SequenceGenerator(name = "hel_base_gen", sequenceName = "hel_base_seq", allocationSize = 1)
-public class Base implements Persistable<Long> {
+@SequenceGenerator(name = "hel_base_gen", sequenceName = "hel_base_id_seq", allocationSize = 1)
+public class Exemple implements Persistable<Long> {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "hel_base_gen")

@@ -1,4 +1,4 @@
-package es.caib.helium.base.config;
+package es.caib.helium.client.dada.config;
 
 import org.springframework.context.annotation.Configuration;
 
@@ -12,3 +12,4 @@ public class FeignClientConfig {
 //        return new BasicAuthRequestInterceptor(dadaUser, dadaPassword);
 //    }
 }
+

@@ -22,7 +22,7 @@ import javax.validation.constraints.Size;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder
 @DefaultSort(sortFields = @DefaultOrder(field = "nom"))
-public class BaseDto {
+public class ExempleDto {
 
 	@Null
 	@JsonProperty("id")

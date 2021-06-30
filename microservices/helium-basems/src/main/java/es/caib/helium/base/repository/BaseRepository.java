@@ -1,24 +1,15 @@
 package es.caib.helium.base.repository;
 
-import es.caib.helium.base.domain.Base;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.repository.NoRepositoryBean;
 
-import java.util.List;
-import java.util.Optional;
-
-public interface BaseRepository extends _BaseRepository<Base, Long> {
-
-    Optional<Base> findByCodi(String codi);
-    List<Base> findByNom(String nom);
-
-    @Query(	"from Base b " +
-            "where " +
-            "  	b.codi = :codi " +
-            "  	and b.nom = :nom "
-    )
-    Optional<Base> findByCodiAndNom(
-            @Param("nom") String nom,
-            @Param("codi") String codi);
+/**
+ * Repository base per a totes les entitats.
+ *
+ * @author Limit Tecnologies
+ */
+@NoRepositoryBean
+public interface BaseRepository<E, PK> extends JpaRepository<E, PK>, JpaSpecificationExecutor<E> {
 
 }

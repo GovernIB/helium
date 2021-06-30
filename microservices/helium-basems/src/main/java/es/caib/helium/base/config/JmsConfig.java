@@ -10,7 +10,8 @@ import org.springframework.jms.support.converter.MessageType;
 @Configuration
 public class JmsConfig {
 
-    public static final String BASE_CUE = "cua";
+//    public static final String BASE_CUE = "cua";
+    public static final String BASE_CUE = "cua_integracions";
 
     @Bean
     public MessageConverter jacksonJmsMessageConverter(ObjectMapper objectMapper) {
