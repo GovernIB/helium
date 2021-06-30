@@ -15,7 +15,13 @@ public class LocalRouteConfig {
         return builder.routes()
                 .route("helium-domini-service",
                         r -> r.path("/api/v1/dominis*", "/api/v1/dominis/*")
+                                .filters(f -> f.circuitBreaker(c -> c.setName("dominiCB")
+                                        .setFallbackUri("forward:/domini-failover")
+                                        .setRouteId("dom-failover")))
                                 .uri("http://localhost:8081"))
+                .route("helium-domini-failover-service",
+                        r -> r.path("/api/domini-failover/**")
+                                .uri("http://localhost:8181"))
                 .build();
     }
 }
