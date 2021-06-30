@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
 import es.caib.helium.integracio.domini.notificacio.ConsultaEnviament;
 import es.caib.helium.integracio.domini.notificacio.ConsultaNotificacio;
@@ -37,8 +38,8 @@ public class NotificacioController {
 	
 	@ExceptionHandler({ Exception.class })
 	public ResponseEntity<Void> handleException(Exception e) {
-		e.printStackTrace();
-		return new ResponseEntity<Void>(HttpStatus.INTERNAL_SERVER_ERROR);
+		//return new ResponseEntity<Void>(HttpStatus.INTERNAL_SERVER_ERROR);
+		throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error no controlat: " + e.getMessage(), e);
 	}
 	
 	@PostMapping(consumes = "application/json")

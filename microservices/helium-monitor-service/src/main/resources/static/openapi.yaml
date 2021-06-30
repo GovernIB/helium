@@ -1,0 +1,16 @@
+openapi: 3.0.3
+servers: 
+  - url: http://pendent.de.definir.es
+    description: Servidor de desenvolupament
+info:
+  description: Microservei de Monitor d'integracions de HeliumMS encarregat de escoltar la cua ActiveMQ i guardar els events a la base de dades
+  version: "1.0.0"
+  title: HeliumMS Monitor integracions API
+  contact:
+    name: Limit Tecnologies
+    email: limit@limit.es
+tags:
+  - name: Disseny
+    description: Operacions securitzades disponibles per usuaris dissenyadors
+  - name: Consulta
+    description: Operacions disponibles per tots els usuaris 

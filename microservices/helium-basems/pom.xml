@@ -8,11 +8,10 @@
         <version>1.0</version>
     </parent>
 
-    <groupId>es.caib.helium</groupId>
     <artifactId>helium-basems</artifactId>
     <version>1.0.0</version>
     <name>helium-basems</name>
-    <description>Project base per a MS de Helium</description>
+    <description>Projecte base per a MS de Helium</description>
 
     <properties>
         <maven.compiler.source>11</maven.compiler.source>
@@ -35,6 +34,19 @@
             <artifactId>ojdbc8</artifactId>
             <scope>runtime</scope>
         </dependency>
-    </dependencies>
+		<dependency>
+			<groupId>org.postgresql</groupId>
+			<artifactId>postgresql</artifactId>
+            <scope>runtime</scope>
+		</dependency>
+
+		<!-- Feign Client -->
+		<dependency>
+			<groupId>es.caib.helium</groupId>
+			<artifactId>helium-client-service</artifactId>
+			<version>1.0.0</version>
+		</dependency>
+		<!-- Feign Client -->
+	</dependencies>
 
 </project>

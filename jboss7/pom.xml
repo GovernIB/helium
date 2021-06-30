@@ -1,0 +1,107 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>es.caib.helium</groupId>
+	<artifactId>helium-jboss7</artifactId>
+	<version>4.0.1</version>
+	<packaging>pom</packaging>
+	<name>helium-jboss7</name>
+	<description>Projecte base Helium JBoss EAP 7.2</description>
+
+	<parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>2.4.2</version>
+		<relativePath />
+	</parent>
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+		
+		<spring-boot.version>2.4.2</spring-boot.version>
+		<liquibase.version>4.3.3</liquibase.version>
+		<orika.starter.version>1.8.0</orika.starter.version>
+		<reflections.version>0.9.11</reflections.version>
+		<rsql.version>2.1.0</rsql.version>
+		<jasperreports.version>6.12.2</jasperreports.version>
+		<xdocreport.version>2.0.2</xdocreport.version>
+		<opencsv.version>4.6</opencsv.version>
+		<springdoc-openapi.version>1.2.25</springdoc-openapi.version>
+		<keycloak.version>11.0.1</keycloak.version>
+
+		<sitemesh.version>2.4.2</sitemesh.version>
+		<commons-lang.version>2.6</commons-lang.version>
+		<commons-httpclient.version>3.1</commons-httpclient.version>
+		<commons-fileupload.version>1.4</commons-fileupload.version>
+		<commons-beanutils.version>1.9.4</commons-beanutils.version>
+		<commons-io.version>2.8.0</commons-io.version>
+		<poi.version>3.15</poi.version>
+		<webjars-locator.version>0.40</webjars-locator.version>
+
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<java.compiler.version>11</java.compiler.version>
+		<maven.compiler.target>${java.compiler.version}</maven.compiler.target>
+		<maven.compiler.source>${java.compiler.version}</maven.compiler.source>
+		<skipTests>true</skipTests>
+	</properties>
+
+	<modules>
+		<module>helium-back</module>
+		<module>helium-jboss7-ear</module>
+		<module>helium-ejb</module>
+		<module>helium-service</module>
+		<module>helium-service-intf</module>
+		<module>helium-boot</module>
+		<module>helium-controller</module>
+		<module>helium-persistence</module>
+	</modules>
+	 
+	<build>
+		<plugins>
+			<plugin>
+				<artifactId>maven-deploy-plugin</artifactId>
+				<configuration>
+					<altDeploymentRepository>internal.repo::default::file://${project.build.directory}/mvn-repo</altDeploymentRepository>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>com.github.github</groupId>
+				<artifactId>site-maven-plugin</artifactId>
+				<version>0.12</version>
+				<configuration>
+					<message>Maven artifacts for ${project.version}</message>
+					<outputDirectory>${project.build.directory}/mvn-repo</outputDirectory>
+					<noJekyll>true</noJekyll>
+					<branch>refs/heads/gh-pages</branch>
+					<includes>
+						<include>**/*</include>
+					</includes>
+					<path>maven</path>
+					<repositoryName>maven</repositoryName>
+					<repositoryOwner>GovernIB</repositoryOwner>
+					<server>github_governib_maven</server>
+					<merge>true</merge>
+					<dryRun>false</dryRun>
+				</configuration>
+				<executions>
+					<execution>
+						<goals>
+							<goal>site</goal>
+						</goals>
+						<phase>deploy</phase>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+	<distributionManagement>
+		<repository>
+			<id>github_governib_maven</id>
+			<name>GitHub GovernIB Maven Repository</name>
+			<url>file://${project.build.directory}/mvn-repo</url>
+		</repository>
+	</distributionManagement>
+	
+</project>

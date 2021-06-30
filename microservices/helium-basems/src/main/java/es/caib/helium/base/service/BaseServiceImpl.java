@@ -1,10 +1,7 @@
 package es.caib.helium.base.service;
 
-import es.caib.helium.base.domain.Base;
-import es.caib.helium.base.model.BaseDto;
-import es.caib.helium.base.model.PagedList;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import java.util.Optional;
+
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
@@ -13,7 +10,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.Optional;
+import es.caib.helium.base.domain.Exemple;
+import es.caib.helium.base.mapper.ExempleMapper;
+import es.caib.helium.base.model.ExempleDto;
+import es.caib.helium.base.model.PagedList;
+import es.caib.helium.base.repository.ExempleRepository;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -23,8 +26,8 @@ public class BaseServiceImpl implements BaseService {
 //    private static final String CACHE_BASE = "BaseCache";
 //    private static final String CACHE_KEY_SEPARATOR = "#";
 
-    private final es.caib.helium.base.repository.BaseRepository baseRepository;
-    private final es.caib.helium.base.mapper.BaseMapper baseMapper;
+//    private final ExempleRepository exempleRepository;
+//    private final ExempleMapper exempleMapper;
 
 //    // DISTRIBUTED CACHE
 //    private final HazelcastInstance hazelcastInstance = Hazelcast.newHazelcastInstance(createConfig());
@@ -57,87 +60,93 @@ public class BaseServiceImpl implements BaseService {
 //        map.evict(key);
 //    }
 
-    @Override
-    @Transactional
-    public BaseDto createBase(BaseDto baseDto) {
-
-        log.debug("Creant nou Base (Base=" + baseDto + ")");
-        return baseMapper.entityToDto(baseRepository.save(baseMapper.dtoToEntity(baseDto)));
-
-    }
-
-    @Override
-    @Transactional
-    public void updateBase(
-            Long baseId,
-            BaseDto baseDto) {
-
-        log.debug("Modificant el Base existent (" +
-                "baseId=" + baseId + ", " +
-                "Base =" + baseDto + ")");
-
-        Optional<Base> baseOptional = baseRepository.findById(baseId);
-
-        baseOptional.ifPresentOrElse(
-                Base -> {
-                    Base.setCodi(baseDto.getCodi());
-                    Base.setNom(baseDto.getNom());
-                    baseRepository.save(Base);
-                }, () -> {
-                    throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Not found. Id: " + baseId);
-                }
-        );
-    }
-
-    @Override
-    @Transactional
-    public void delete(Long baseId) {
-
-        log.debug("Esborrant el Base (baseId=" + baseId +  ")");
-        Optional<Base> baseOptional = baseRepository.findById(baseId);
-        baseOptional.ifPresentOrElse(
-                baseRepository::delete,
-                () -> {
-                    throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Not found. Id: " + baseId);
-                }
-        );
-
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public BaseDto getById(Long baseId) {
-
-        log.debug("Obtenint base per id: " + baseId);
-        Optional<Base> baseOptional = baseRepository.findById(baseId);
-
-        if (baseOptional.isPresent()) {
-            log.debug("Trobat base amb id: " + baseId);
-            return baseMapper.entityToDto(baseOptional.get());
-        } else {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Not found. Id: " + baseId);
-        }
-
-    }
-
-    @Override
-    public PagedList<BaseDto> listBases(
-            String filtreRsql,
-            Pageable pageable,
-            Sort sort) {
-
-        Specification<Base> spec = null;
-//        Specification<Base> spec = BaseSpecifications.basesList(...);
-
-        return ServiceHelper.getDtoPage(
-                baseRepository,
-                spec,
-                filtreRsql,
-                pageable,
-                sort,
-                BaseDto.class,
-                baseMapper);
-
-    }
+//    @Override
+//    @Transactional
+//    public ExempleDto createBase(ExempleDto baseDto) {
+//
+//        log.debug("Creant nou Base (Base=" + baseDto + ")");
+////        return exempleMapper.entityToDto(exempleRepository.save(exempleMapper.dtoToEntity(baseDto)));
+//        var exemple = exempleMapper.dtoToEntity(baseDto);
+//        exemple = new Exemple();
+//        exemple.setCodi("foo");
+//        exemple.setNom("bar");
+//        var saved = exempleRepository.save(exemple);
+//        return exempleMapper.entityToDto(saved);
+//
+//    }
+//
+//    @Override
+//    @Transactional
+//    public void updateBase(
+//            Long baseId,
+//            ExempleDto baseDto) {
+//
+//        log.debug("Modificant el Base existent (" +
+//                "baseId=" + baseId + ", " +
+//                "Base =" + baseDto + ")");
+//
+//        Optional<Exemple> baseOptional = exempleRepository.findById(baseId);
+//
+//        baseOptional.ifPresentOrElse(
+//                Base -> {
+//                    Base.setCodi(baseDto.getCodi());
+//                    Base.setNom(baseDto.getNom());
+//                    exempleRepository.save(Base);
+//                }, () -> {
+//                    throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Not found. Id: " + baseId);
+//                }
+//        );
+//    }
+//
+//    @Override
+//    @Transactional
+//    public void delete(Long baseId) {
+//
+//        log.debug("Esborrant el Base (baseId=" + baseId +  ")");
+//        Optional<Exemple> baseOptional = exempleRepository.findById(baseId);
+//        baseOptional.ifPresentOrElse(
+//                exempleRepository::delete,
+//                () -> {
+//                    throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Not found. Id: " + baseId);
+//                }
+//        );
+//
+//    }
+//
+//    @Override
+//    @Transactional(readOnly = true)
+//    public ExempleDto getById(Long baseId) {
+//
+//        log.debug("Obtenint base per id: " + baseId);
+//        Optional<Exemple> baseOptional = exempleRepository.findById(baseId);
+//
+//        if (baseOptional.isPresent()) {
+//            log.debug("Trobat base amb id: " + baseId);
+//            return exempleMapper.entityToDto(baseOptional.get());
+//        } else {
+//            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Not found. Id: " + baseId);
+//        }
+//
+//    }
+//
+//    @Override
+//    public PagedList<ExempleDto> listBases(
+//            String filtreRsql,
+//            Pageable pageable,
+//            Sort sort) {
+//
+//        Specification<Exemple> spec = null;
+////        Specification<Base> spec = BaseSpecifications.basesList(...);
+//
+//        return ServiceHelper.getDtoPage(
+//                exempleRepository,
+//                spec,
+//                filtreRsql,
+//                pageable,
+//                sort,
+//                ExempleDto.class,
+//                exempleMapper);
+//
+//    }
 
 }

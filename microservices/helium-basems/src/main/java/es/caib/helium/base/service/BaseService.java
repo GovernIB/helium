@@ -1,27 +1,30 @@
 package es.caib.helium.base.service;
 
-import es.caib.helium.base.model.BaseDto;
-import es.caib.helium.base.model.PagedList;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.stereotype.Service;
 
+import es.caib.helium.base.model.ExempleDto;
+import es.caib.helium.base.model.PagedList;
+
+@Service
 public interface BaseService {
-
-    BaseDto createBase(BaseDto Base);
-
-    void updateBase(
-            Long BaseId,
-            BaseDto Base);
-
-    void delete(
-            Long BaseId);
-
-    BaseDto getById(
-            Long BaseId);
-
-    PagedList<BaseDto> listBases(
-            String filtre,
-            Pageable pageable,
-            Sort sort);
+//
+//    ExempleDto createBase(ExempleDto Base);
+//
+//    void updateBase(
+//            Long BaseId,
+//            ExempleDto Base);
+//
+//    void delete(
+//            Long BaseId);
+//
+//    ExempleDto getById(
+//            Long BaseId);
+//
+//    PagedList<ExempleDto> listBases(
+//            String filtre,
+//            Pageable pageable,
+//            Sort sort);
 
 }

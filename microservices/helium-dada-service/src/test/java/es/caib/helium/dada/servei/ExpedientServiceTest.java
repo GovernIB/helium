@@ -270,7 +270,7 @@ public class ExpedientServiceTest {
 
 	@Test
 	@DisplayName("test_deleteExpedient")
-	public void deleteExpedient() {
+	public void deleteExpedient() throws Exception {
 
 		given(expedientService.deleteExpedient(anyLong())).willReturn(true);
 		assertThat(expedientService.deleteExpedient(unLong)).isEqualTo(true);
@@ -278,7 +278,7 @@ public class ExpedientServiceTest {
 
 	@Test
 	@DisplayName("test_deleteExpedient - Not found")
-	public void deleteExpedient_notFound() {
+	public void deleteExpedient_notFound() throws Exception{
 
 		given(expedientService.deleteExpedient(anyLong())).willReturn(false);
 		assertThat(expedientService.deleteExpedient(unLong)).isEqualTo(false);
@@ -288,7 +288,7 @@ public class ExpedientServiceTest {
 
 	@Test
 	@DisplayName("test_deleteExpedients")
-	public void deleteExpedients() {
+	public void deleteExpedients() throws Exception {
 
 		given(expedientService.deleteExpedients(any(List.class))).willReturn(true);
 		assertThat(expedientService.deleteExpedients(expedientIds)).isEqualTo(true);
@@ -296,7 +296,7 @@ public class ExpedientServiceTest {
 
 	@Test
 	@DisplayName("test_deleteExpedients - Not found")
-	public void deleteExpedients_notFound() {
+	public void deleteExpedients_notFound() throws Exception {
 
 		given(expedientService.deleteExpedients(any(List.class))).willReturn(false);
 		assertThat(expedientService.deleteExpedients(expedientIds)).isEqualTo(false);
@@ -306,7 +306,7 @@ public class ExpedientServiceTest {
 
 	@Test
 	@DisplayName("test_putExpedient")
-	public void test_putExpedient() {
+	public void test_putExpedient() throws Exception {
 
 		given(expedientService.putExpedient(anyLong(), any(Expedient.class))).willReturn(true);
 		assertThat(expedientService.putExpedient(unLong, expedientMock)).isEqualTo(true);
@@ -314,7 +314,7 @@ public class ExpedientServiceTest {
 
 	@Test
 	@DisplayName("test_putExpedient - Not Found")
-	public void test_putExpedient_notFound() {
+	public void test_putExpedient_notFound() throws Exception {
 
 		given(expedientService.putExpedient(anyLong(), any(Expedient.class))).willReturn(false);
 		assertThat(expedientService.putExpedient(unLong, expedientMock)).isEqualTo(false);
@@ -324,7 +324,7 @@ public class ExpedientServiceTest {
 
 	@Test
 	@DisplayName("test_putExpedients")
-	public void test_putExpedients() {
+	public void test_putExpedients() throws Exception {
 
 		given(expedientService.putExpedients(any(List.class))).willReturn(true);
 		assertThat(expedientService.putExpedients(expedients)).isEqualTo(true);
@@ -332,7 +332,7 @@ public class ExpedientServiceTest {
 
 	@Test
 	@DisplayName("test_putExpedients - Not found")
-	public void test_putExpedients_notFound() {
+	public void test_putExpedients_notFound() throws Exception {
 
 		given(expedientService.putExpedients(any(List.class))).willReturn(false);
 		assertThat(expedientService.putExpedients(expedients)).isEqualTo(false);

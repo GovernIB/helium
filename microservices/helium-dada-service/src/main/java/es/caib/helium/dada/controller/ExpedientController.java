@@ -24,13 +24,19 @@ public class ExpedientController {
 	public static final String API_PATH = "/api/v1/dades/expedients";
 
 	private final ExpedientService expedientService;
+	
+	@ExceptionHandler({ Exception.class })
+	public ResponseEntity<Void> handleException(Exception e) {
+		e.printStackTrace();
+		return new ResponseEntity<Void>(HttpStatus.INTERNAL_SERVER_ERROR);
+	}
 
 	@PostMapping(value = "consulta/resultats", consumes = "application/json")
 	public ResponseEntity<PagedList<Expedient>> consultaResultats(
 			@RequestParam("entornId") Integer entornId,
 			@RequestParam("expedientTipusId") Integer expedientTipusId, 
 			@RequestParam("page") Integer page,
-			@RequestParam("size") Integer size, @RequestBody Consulta body) {
+			@RequestParam("size") Integer size, @RequestBody Consulta body) throws Exception {
 
 		body.setEntornId(entornId);
 		body.setExpedientTipusId(expedientTipusId);
@@ -43,7 +49,7 @@ public class ExpedientController {
 	public ResponseEntity<List<Expedient>> consultaResultatsLlistat(
 			@RequestParam("entornId") Integer entornId,
 			@RequestParam("expedientTipusId") Integer expedientTipusId, 
-			@RequestBody Consulta body) {
+			@RequestBody Consulta body) throws Exception {
 
 		body.setEntornId(entornId);
 		body.setExpedientTipusId(expedientTipusId);
@@ -53,7 +59,8 @@ public class ExpedientController {
 	// Gestió dades capçalera de l'expedient
 
 	@GetMapping(value = "{expedientId}", produces = { "application/json" })
-	public ResponseEntity<Expedient> getExpedient(@PathVariable("expedientId") Long expedientId) {
+	public ResponseEntity<Expedient> getExpedient(
+			@PathVariable("expedientId") Long expedientId) throws Exception {
 
 		var expedient = expedientService.findByExpedientId(expedientId);
 		if (expedient == null) {
@@ -65,7 +72,7 @@ public class ExpedientController {
 	@PostMapping(consumes = { "application/json" })
 	public ResponseEntity<Void> createExpedient(
 			@Valid @RequestBody Expedient expedient,
-			BindingResult errors) {
+			BindingResult errors) throws Exception {
 
 		if (errors.hasErrors()) {
 			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
@@ -80,7 +87,7 @@ public class ExpedientController {
 	@PostMapping(value = "crear/expedients", consumes = { "application/json" })
 	public ResponseEntity<Void> createExpedients(
 			@Valid @RequestBody ValidList<Expedient> expedients,
-			BindingResult errors) {
+			BindingResult errors) throws Exception {
 
 		if (errors.hasErrors()) {
 			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
@@ -93,7 +100,8 @@ public class ExpedientController {
 	}
 
 	@DeleteMapping(value = "{expedientId}")
-	public ResponseEntity<Void> deleteExpedient(@PathVariable("expedientId") Long expedientId) {
+	public ResponseEntity<Void> deleteExpedient(
+			@PathVariable("expedientId") Long expedientId) throws Exception {
 
 		if (!expedientService.deleteExpedient(expedientId)) {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -102,7 +110,8 @@ public class ExpedientController {
 	}
 
 	@DeleteMapping(value = "borrar/expedients")
-	public ResponseEntity<Void> deleteExpedients(@RequestParam("expedients") List<Long> expedients) {
+	public ResponseEntity<Void> deleteExpedients(
+			@RequestParam("expedients") List<Long> expedients) throws Exception {
 
 		if (!expedientService.deleteExpedients(expedients)) {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -113,7 +122,7 @@ public class ExpedientController {
 	@PutMapping(value = "{expedientId}")
 	public ResponseEntity<Void> putExpedient(
 			@Valid @RequestBody Expedient expedient,
-			@PathVariable("expedientId") Long expedientId) {
+			@PathVariable("expedientId") Long expedientId) throws Exception {
 
 		if (!expedientService.putExpedient(expedientId, expedient)) {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -125,7 +134,7 @@ public class ExpedientController {
 	@PutMapping(value = "put/expedients")
 	public ResponseEntity<Void> putExpedients(
 			@Valid @RequestBody ValidList<Expedient> expedients,
-			BindingResult errors) {
+			BindingResult errors) throws Exception {
 
 		if (errors.hasErrors()) {
 			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
@@ -141,7 +150,7 @@ public class ExpedientController {
 	public ResponseEntity<Void> patchExpedient(
 			@Valid @RequestBody Expedient expedient,
 			@PathVariable("expedientId") Long expedientId,
-			BindingResult errors) {
+			BindingResult errors) throws Exception {
 
 		if (errors.hasErrors()) {
 			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
@@ -156,7 +165,7 @@ public class ExpedientController {
 	@PatchMapping(value = "patch/expedients")
 	public ResponseEntity<Void> patchExpedients(
 			@Valid @RequestBody ValidList<Expedient> expedients,
-			BindingResult errors) {
+			BindingResult errors) throws Exception {
 
 		if (errors.hasErrors()) {
 			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
@@ -172,7 +181,7 @@ public class ExpedientController {
 
 	@GetMapping(value = "{expedientId}/dades")
 	public ResponseEntity<List<Dada>> getDades(
-			@PathVariable("expedientId") Long expedientId) {
+			@PathVariable("expedientId") Long expedientId) throws Exception {
 
 		var dades = expedientService.getDades(expedientId);
 		if (!dades.isEmpty()) {
@@ -189,7 +198,7 @@ public class ExpedientController {
 	@GetMapping(value = "{expedientId}/dades/{codi}")
 	public ResponseEntity<Dada> getDadaByCodi(
 			@PathVariable("expedientId") Long expedientId,
-			@Valid @PathVariable("codi") String codi) {
+			@Valid @PathVariable("codi") String codi) throws Exception {
 
 		var dada = expedientService.getDadaByCodi(expedientId, codi);
 		if (dada != null) {
@@ -206,7 +215,7 @@ public class ExpedientController {
 	@GetMapping(value = "{expedientId}/proces/{procesId}/dades")
 	public ResponseEntity<List<Dada>> getDadesByProces(
 			@PathVariable("expedientId") Long expedientId,
-			@PathVariable("procesId") Long procesId) {
+			@PathVariable("procesId") Long procesId) throws Exception {
 
 		var dades = expedientService.getDadesByProces(expedientId, procesId);
 		if (!dades.isEmpty()) {
@@ -223,7 +232,7 @@ public class ExpedientController {
 	public ResponseEntity<Dada> getDadaByExpedientIdProcesAndCodi(
 			@PathVariable("expedientId") Long expedientId,
 			@PathVariable("procesId") Long procesId,
-			@PathVariable("codi") String codi) {
+			@PathVariable("codi") String codi) throws Exception {
 
 		var dada = expedientService.getDadaByExpedientIdProcesAndCodi(expedientId, procesId, codi);
 		if (dada != null) {
@@ -240,7 +249,7 @@ public class ExpedientController {
 	@GetMapping(value = "proces/{procesId}/dades/{codi}")
 	public ResponseEntity<Dada> getDadaByProcesAndCodi(
 			@PathVariable("procesId") Long procesId,
-			@PathVariable("codi") String codi) {
+			@PathVariable("codi") String codi) throws Exception {
 		
 		var dada = expedientService.getDadaByProcesAndCodi(procesId, codi);
 		if (dada != null) {
@@ -250,11 +259,23 @@ public class ExpedientController {
 		return new ResponseEntity<Dada>(dada, HttpStatus.NO_CONTENT);
 	}
 
+	@GetMapping(value = "proces/{procesId}/dades/expedient/id")
+	public ResponseEntity<Long> getDadaExpedientIdByProcesId(
+			@PathVariable("procesId") Long procesId) throws Exception {
+		
+		var expedientId = expedientService.getDadaExpedientIdByProcesId(procesId);
+		if (expedientId != null) {
+			return new ResponseEntity<Long>(expedientId, HttpStatus.OK);
+		}
+		
+		return new ResponseEntity<Long>(expedientId, HttpStatus.NO_CONTENT);
+	}
+
 	@PostMapping(value = "{expedientId}/dades", consumes = "application/json")
 	public ResponseEntity<Void> postDadesByExpedientId(
 			@PathVariable("expedientId") Long expedientId,
 			@QueryParam("procesId") Long procesId,
-			@Valid @RequestBody ValidList<Dada> dada, BindingResult errors) {
+			@Valid @RequestBody ValidList<Dada> dada, BindingResult errors) throws Exception {
 
 		if (errors.hasErrors()) {
 			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
@@ -269,7 +290,7 @@ public class ExpedientController {
 	public ResponseEntity<Void> putDadaByExpedientIdAndCodi(
 			@PathVariable("expedientId") Long expedientId,
 			@PathVariable("codi") String codi,
-			@Valid @RequestBody Dada dada) {
+			@Valid @RequestBody Dada dada) throws Exception {
 
 		if (!expedientService.putDadaByExpedientIdAndCodi(expedientId, codi, dada)) {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -281,7 +302,7 @@ public class ExpedientController {
 	@DeleteMapping(value = "{expedientId}/dades/{codi}")
 	public ResponseEntity<Void> deleteDadaByExpedientIdAndCodi(
 			@PathVariable("expedientId") Long expedientId,
-			@PathVariable("codi") String codi) {
+			@PathVariable("codi") String codi) throws Exception {
 
 		if (!expedientService.deleteDadaByExpedientIdAndCodi(expedientId, codi)) {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -293,7 +314,7 @@ public class ExpedientController {
 	public ResponseEntity<Void> postDadaByExpedientIdProcesId(
 			@PathVariable("expedientId") Long expedientId,
 			@PathVariable("procesId") Long procesId,
-			@Valid @RequestBody ValidList<Dada> dades) {
+			@Valid @RequestBody ValidList<Dada> dades) throws Exception {
 
 		if (dades.isEmpty()) {
 			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
@@ -306,8 +327,8 @@ public class ExpedientController {
 	public ResponseEntity<Void> putDadaByExpedientIdProcesIdAndCodi(
 			@PathVariable("expedientId") Long expedientId,
 			@PathVariable("procesId") Long procesId,
-			@PathVariable("codi") String codi, @
-					Valid @RequestBody Dada dada) {
+			@PathVariable("codi") String codi, 
+			@Valid @RequestBody Dada dada) throws Exception {
 
 		if (!expedientService.putDadaByExpedientIdProcesIdAndCodi(expedientId, procesId, codi, dada)) {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -320,7 +341,7 @@ public class ExpedientController {
 	public ResponseEntity<Void> deleteDadaByExpedientIdAndProcesIdAndCodi(
 			@PathVariable("expedientId") Long expedientId,
 			@PathVariable("procesId") Long procesId,
-			@PathVariable("codi") String codi) {
+			@PathVariable("codi") String codi) throws Exception {
 
 		if (!expedientService.deleteDadaByExpedientIdAndProcesIdAndCodi(expedientId, procesId, codi)) {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<metadata>
+  <groupId>es.caib</groupId>
+  <artifactId>signaturacaib.core</artifactId>
+  <versioning>
+    <release>3.3.2-api-unsigned</release>
+    <versions>
+      <version>3.3.2-api-unsigned</version>
+    </versions>
+    <lastUpdated>20121120114259</lastUpdated>
+  </versioning>
+</metadata>
