@@ -1,11 +1,6 @@
 package es.caib.helium.camunda.mapper;
 
-import es.caib.helium.camunda.model.DeploymentDto;
-import es.caib.helium.camunda.model.ProcessDefinitionDto;
-import es.caib.helium.camunda.model.ProcessInstanceDto;
-import es.caib.helium.camunda.model.WDeployment;
-import es.caib.helium.camunda.model.WProcessDefinition;
-import es.caib.helium.camunda.model.WProcessInstance;
+import es.caib.helium.camunda.model.*;
 
 public class DtoFactory {
 
@@ -20,4 +15,13 @@ public class DtoFactory {
     public WProcessInstance createWProcessInstance() {
         return new ProcessInstanceDto();
     }
+
+    public WTaskInstance createWTaskInstance() {
+        return new TaskInstanceDto();
+    }
+
+    public WToken createWToken() {
+        return new ExecutionDto();
+    }
+
 }

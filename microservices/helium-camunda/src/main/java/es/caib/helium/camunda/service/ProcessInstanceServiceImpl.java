@@ -1,10 +1,10 @@
 package es.caib.helium.camunda.service;
 
+import es.caib.helium.camunda.helper.CacheHelper;
 import es.caib.helium.camunda.mapper.ProcessInstanceMapper;
 import es.caib.helium.camunda.model.WProcessInstance;
 import lombok.RequiredArgsConstructor;
 import org.camunda.bpm.engine.HistoryService;
-import org.camunda.bpm.engine.RepositoryService;
 import org.camunda.bpm.engine.RuntimeService;
 import org.camunda.bpm.engine.TaskService;
 import org.camunda.bpm.engine.history.HistoricProcessInstance;
@@ -26,7 +26,8 @@ import java.util.stream.Collectors;
 public class ProcessInstanceServiceImpl implements ProcessInstanceService {
 
     private final TaskService taskService;
-    private final RepositoryService repositoryService;
+//    private final RepositoryService repositoryService;
+//    private final ManagementService managementService;
     private final HistoryService historyService;
     private final RuntimeService runtimeService;
     private final CacheHelper cacheHelper;
@@ -128,6 +129,27 @@ public class ProcessInstanceServiceImpl implements ProcessInstanceService {
     @Override
     public List<String> findRootProcessInstances(String actorId, List<String> processInstanceIds, boolean nomesMeves, boolean nomesTasquesPersonals, boolean nomesTasquesGrup) {
         // TODO: mirar per a qué s'utilitza
+        // S'haurien d'agafar les tasques del MS d'expedietns i tasques!!
+//        boolean nomesAmbPendents = true; // Mostrar sólo las pendientes
+//        boolean personals = nomesTasquesPersonals && !nomesTasquesGrup;
+//        boolean grup = !nomesTasquesPersonals && nomesTasquesGrup;
+//        boolean tots = !nomesTasquesPersonals && !nomesTasquesGrup;
+//
+//        var taskQuery = taskService
+//                .createTaskQuery()
+//                .processInstanceIdIn(processInstanceIds.toArray(new String[0]));
+//        if (nomesAmbPendents) {
+//            taskQuery.active();
+//        }
+//        if (grup && !nomesMeves) {
+//            taskQuery.taskCandidateUser(actorId);
+//        }
+//
+//        if (personals) {
+//            taskQuery.taskAssignee(actorId);
+//        }
+//        var tasks = taskQuery.list();
+//        tasks.stream().forEach(t -> t.getProcessInstanceId());
         return null;
     }
 
@@ -135,8 +157,9 @@ public class ProcessInstanceServiceImpl implements ProcessInstanceService {
     public WProcessInstance startProcessInstanceById(String actorId, String processDefinitionId, Map<String, Object> variables) {
         ProcessInstance processInstance = runtimeService.startProcessInstanceById(processDefinitionId, variables);
 
-        // TODO: Indicar a Helium quina és la tasca inicial (si n'hi ha).
+        // TODO: Indicar a Helium quina és la tasca inicial (si n'hi ha), o indicar a Helium que té una tasca inicial
         // Passar-ho com a paràmetre, de manera que aquí la podrem assignar
+        //
 //        var task = taskService.createTaskQuery()
 //                .processInstanceId(processInstance.getId())
 //                .taskName(startTaskName)
@@ -156,6 +179,7 @@ public class ProcessInstanceServiceImpl implements ProcessInstanceService {
     @Override
     public void deleteProcessInstance(String processInstanceId) {
         runtimeService.deleteProcessInstance(processInstanceId, "Motiu no definit");
+        historyService.deleteHistoricProcessInstance(processInstanceId);
     }
 
     @Override

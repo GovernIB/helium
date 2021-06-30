@@ -4,7 +4,7 @@ import java.util.Date;
 
 public interface TimerService {
 
-    public void suspendTimer(long timerId, Date dueDate);
-    public void resumeTimer(long timerId, Date dueDate);
+    public void suspendTimer(String timerId, Date dueDate);
+    public void resumeTimer(String timerId, Date dueDate);
 
 }

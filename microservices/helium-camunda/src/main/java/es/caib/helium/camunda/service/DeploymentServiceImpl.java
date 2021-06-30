@@ -188,7 +188,7 @@ public class DeploymentServiceImpl implements DeploymentService {
             try {
                 if (deployedFile.exists()) {
                     return deploymentMapper.toWDeployment(getLastDeployment());
-                } else if (failedFile.exists() || pendingFile.exists()) {
+                } else if (failedFile.exists()) { //|| pendingFile.exists()) {
                     throw new ResponseStatusException(
                             HttpStatus.INTERNAL_SERVER_ERROR,
                             "S'ha produit un error al desplegar el fitxer " + nomArxiu + ".");

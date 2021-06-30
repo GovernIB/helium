@@ -1,6 +1,8 @@
 package es.caib.helium.camunda.service;
 
-import java.util.Map;
+import es.caib.helium.camunda.model.VariableRest;
+
+import java.util.List;
 
 public interface TaskVariableService {
 
@@ -9,7 +11,7 @@ public interface TaskVariableService {
      * @param taskId
      * @return Retorna un Map de codi i valor de les variables de la instància de procés.
      */
-    public Map<String, Object> getTaskInstanceVariables(String taskId);
+    public List<VariableRest> getTaskInstanceVariables(String taskId);
 
     /**
      * Obé el valor d'una variable d'una instàcia de procés.
@@ -17,15 +19,14 @@ public interface TaskVariableService {
      * @param varName
      * @return
      */
-    public Object getTaskInstanceVariable(String taskId, String varName);
+    public VariableRest getTaskInstanceVariable(String taskId, String varName);
 
     /**
      * Fixa el valor de la variable de la instància de procés.
      * @param taskId
-     * @param varName
-     * @param valor
+     * @param variable
      */
-    public void setTaskInstanceVariable(String taskId, String varName, Object valor);
+    public void setTaskInstanceVariable(String taskId, VariableRest variable);
 
     /**
      * Fixa el valor de vàries variables a la vegada de la instància de la tasca.
@@ -34,7 +35,7 @@ public interface TaskVariableService {
      * @param variables
      * @param deleteFirst
      */
-    public void setTaskInstanceVariables(String taskId, Map<String, Object> variables, boolean deleteFirst);
+    public void setTaskInstanceVariables(String taskId, List<VariableRest> variables, boolean deleteFirst);
 
     /** Esborra una variable de la instància de la tasca
      *

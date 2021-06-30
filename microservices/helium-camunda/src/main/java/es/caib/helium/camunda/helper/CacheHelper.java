@@ -1,4 +1,4 @@
-package es.caib.helium.camunda.service;
+package es.caib.helium.camunda.helper;
 
 import lombok.RequiredArgsConstructor;
 import org.camunda.bpm.engine.RepositoryService;

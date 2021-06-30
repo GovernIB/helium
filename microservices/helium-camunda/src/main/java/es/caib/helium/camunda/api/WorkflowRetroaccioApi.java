@@ -1,4 +1,4 @@
-package es.caib.helium.camunda.model;
+package es.caib.helium.camunda.api;
 
 /**
  * @author sion

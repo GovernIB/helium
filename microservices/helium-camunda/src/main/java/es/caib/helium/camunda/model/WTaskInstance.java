@@ -38,6 +38,6 @@ public interface WTaskInstance {
 	public void setDefinicioProcesKey(String definicioProcesKey);
 	public String getInfoTasca();
 	
-	public Object getTaskInstance();
+//	public Object getTaskInstance();
 	
 }

@@ -10,9 +10,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+
+import static es.caib.helium.camunda.helper.VariableHelper.variableRestToObjectMapConvert;
 
 @RestController
 @Slf4j
@@ -159,19 +159,6 @@ public class ProcessInstanceController {
             @RequestBody Integer newVersion) {
         processInstanceService.changeProcessInstanceVersion(processInstanceId, newVersion);
         return new ResponseEntity<>(HttpStatus.OK);
-    }
-
-
-    private Map<String, Object> variableRestToObjectMapConvert(List<VariableRest> variables) {
-        var map = new HashMap<String, Object>();
-        if (variables != null) {
-            for(VariableRest variable: variables) {
-                if (variable.getValor() != null) {
-                    map.put(variable.getNom(), variable.getValor());
-                }
-            }
-        }
-        return map;
     }
 
 

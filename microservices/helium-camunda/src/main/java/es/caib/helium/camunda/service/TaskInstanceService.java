@@ -1,13 +1,9 @@
 package es.caib.helium.camunda.service;
 
 import es.caib.helium.camunda.model.DelegationInfo;
-import es.caib.helium.camunda.model.LlistatIds;
 import es.caib.helium.camunda.model.ResultatCompleteTask;
-import es.caib.helium.camunda.model.ResultatConsultaPaginada;
 import es.caib.helium.camunda.model.WTaskInstance;
-import org.springframework.data.domain.Pageable;
 
-import java.util.Date;
 import java.util.List;
 
 public interface TaskInstanceService {
@@ -38,82 +34,6 @@ public interface TaskInstanceService {
      * @return
      */
     public Long getTaskInstanceIdByExecutionTokenId(Long executionTokenId);
-
-    /**
-     * Obté un llistat paginat de instàncies de tasques donat un filtre concret
-     *
-     * @param entornId
-     * @param actorId
-     * @param taskName
-     * @param titol
-     * @param expedientId
-     * @param expedientTitol
-     * @param expedientNumero
-     * @param expedientTipusId
-     * @param dataCreacioInici
-     * @param dataCreacioFi
-     * @param prioritat
-     * @param dataLimitInici
-     * @param dataLimitFi
-     * @param mostrarAssignadesUsuari
-     * @param mostrarAssignadesGrup
-     * @param nomesPendents
-     * @param paginacio
-     * @param nomesCount
-     * @return
-     */
-    public ResultatConsultaPaginada<WTaskInstance> tascaFindByFiltrePaginat(
-            Long entornId,
-            String actorId,
-            String taskName,
-            String titol,
-            Long expedientId,
-            String expedientTitol,
-            String expedientNumero,
-            Long expedientTipusId,
-            Date dataCreacioInici,
-            Date dataCreacioFi,
-            Integer prioritat,
-            Date dataLimitInici,
-            Date dataLimitFi,
-            boolean mostrarAssignadesUsuari,
-            boolean mostrarAssignadesGrup,
-            boolean nomesPendents,
-            Pageable paginacio,
-            boolean nomesCount);
-
-    /**
-     * Obté un llistat d'identificadors de instàncies de tasques donat un filtre concret
-     *
-     * @param responsable
-     * @param tasca
-     * @param tascaSel
-     * @param idsPIExpedients
-     * @param dataCreacioInici
-     * @param dataCreacioFi
-     * @param prioritat
-     * @param dataLimitInici
-     * @param dataLimitFi
-     * @param paginacio
-     * @param nomesTasquesPersonals
-     * @param nomesTasquesGrup
-     * @param nomesAmbPendents
-     * @return
-     */
-    public LlistatIds tascaIdFindByFiltrePaginat(
-            String responsable,
-            String tasca,
-            String tascaSel,
-            List<Long> idsPIExpedients,
-            Date dataCreacioInici,
-            Date dataCreacioFi,
-            Integer prioritat,
-            Date dataLimitInici,
-            Date dataLimitFi,
-            Pageable paginacio,
-            boolean nomesTasquesPersonals,
-            boolean nomesTasquesGrup,
-            boolean nomesAmbPendents);
 
 
     // Tramitació de tasques
@@ -153,7 +73,7 @@ public interface TaskInstanceService {
      * @return
      */
     public ResultatCompleteTask completeTaskInstance(
-            WTaskInstance task,
+            String taskId,
             String outcome);
 
     /**

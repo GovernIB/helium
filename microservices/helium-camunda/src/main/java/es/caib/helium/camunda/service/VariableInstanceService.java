@@ -1,5 +1,7 @@
 package es.caib.helium.camunda.service;
 
+import es.caib.helium.camunda.model.VariableRest;
+
 import java.util.Map;
 
 public interface VariableInstanceService {
@@ -22,7 +24,7 @@ public interface VariableInstanceService {
      * @param varName
      * @return
      */
-    public Object getProcessInstanceVariable(
+    public VariableRest getProcessInstanceVariable(
             String processInstanceId,
             String varName);
 
@@ -34,13 +36,11 @@ public interface VariableInstanceService {
      * Assigna el valor indicat a una variable de la instància de procés
      *
      * @param processInstanceId
-     * @param varName
-     * @param value
+     * @param variable
      */
     public void setProcessInstanceVariable(
             String processInstanceId,
-            String varName,
-            Object value);
+            VariableRest variable);
 
     /**
      * Elimina una variable d'una instància de procés

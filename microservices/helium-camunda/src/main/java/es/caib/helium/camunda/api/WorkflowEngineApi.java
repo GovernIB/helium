@@ -1,4 +1,14 @@
-package es.caib.helium.camunda.model;
+package es.caib.helium.camunda.api;
+
+import es.caib.helium.camunda.model.Expedient;
+import es.caib.helium.camunda.model.LlistatIds;
+import es.caib.helium.camunda.model.PaginacioParamsDto;
+import es.caib.helium.camunda.model.ResultatConsultaPaginada;
+import es.caib.helium.camunda.model.WDeployment;
+import es.caib.helium.camunda.model.WProcessDefinition;
+import es.caib.helium.camunda.model.WProcessInstance;
+import es.caib.helium.camunda.model.WTaskInstance;
+import es.caib.helium.camunda.model.WToken;
 
 import java.util.Collection;
 import java.util.Date;

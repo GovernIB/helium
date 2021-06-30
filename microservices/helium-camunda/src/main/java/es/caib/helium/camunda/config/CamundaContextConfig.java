@@ -5,6 +5,7 @@ import org.camunda.bpm.ProcessEngineService;
 import org.camunda.bpm.engine.HistoryService;
 import org.camunda.bpm.engine.ManagementService;
 import org.camunda.bpm.engine.ProcessEngine;
+import org.camunda.bpm.engine.ProcessEngineConfiguration;
 import org.camunda.bpm.engine.RepositoryService;
 import org.camunda.bpm.engine.RuntimeService;
 import org.camunda.bpm.engine.TaskService;
@@ -23,7 +24,10 @@ public class CamundaContextConfig implements WebMvcConfigurer {
 
     @Bean(destroyMethod = "")
     public ProcessEngine processEngine(){
-        return BpmPlatform.getDefaultProcessEngine();
+        ProcessEngine processEngine = BpmPlatform.getDefaultProcessEngine();
+        processEngine.getProcessEngineConfiguration().setHistory(ProcessEngineConfiguration.HISTORY_FULL);
+//        processEngine.getProcessEngineConfiguration().setHistory(ProcessEngineConfiguration.HISTORY_AUDIT);
+        return processEngine;
     }
 
 //    @Bean
@@ -34,6 +38,11 @@ public class CamundaContextConfig implements WebMvcConfigurer {
     @Bean
     public ProcessEngineService processEngineService() {
         return BpmPlatform.getProcessEngineService();
+    }
+
+    @Bean
+    public ProcessEngineConfiguration processEngineConfiguration(ProcessEngine processEngine) {
+        return processEngine.getProcessEngineConfiguration();
     }
 
     @Bean

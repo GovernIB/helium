@@ -35,7 +35,12 @@ public interface ExecutionService {
      * @param enterNodeIfTask
      * @param executeNode
      */
-    public void tokenRedirect(long tokenId, String nodeName, boolean cancelTasks, boolean enterNodeIfTask, boolean executeNode);
+    public void tokenRedirect(
+            String tokenId,
+            String nodeName,
+            boolean cancelTasks,
+            boolean enterNodeIfTask,
+            boolean executeNode);
 
     /** Mètode per activar o desactivar un token.
      *
@@ -43,13 +48,13 @@ public interface ExecutionService {
      * @param activar
      * @return
      */
-    public boolean tokenActivar(long tokenId, boolean activar);
+    public boolean tokenActivar(String tokenId, boolean activar);
 
     /** Mètode per enviar un senyal a un token per a que avanci per una transició.
      *
      * @param tokenId
-     * @param transitionName
+     * @param signalName
      */
-    public void signalToken(long tokenId, String transitionName);
+    public void signalToken(String tokenId, String signalName);
 
 }

@@ -9,5 +9,6 @@ public enum TipusVar {
         PREU,
         INTEGER,
         BOOLEAN,
-        REGISTRE;
+        REGISTRE,
+        OBJECT;
 }

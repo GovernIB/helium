@@ -34,6 +34,6 @@ public interface WToken {
 
 	String getProcessInstanceId();
 
-	Object getToken();
+//	Object getToken();
 	
 }
