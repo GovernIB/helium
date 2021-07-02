@@ -5,8 +5,8 @@ import javax.validation.ConstraintValidatorContext;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusEnumeracioValorDto;
-import net.conselldemallorca.helium.v3.core.api.service.EnumeracioService;
+import es.caib.helium.logic.intf.dto.ExpedientTipusEnumeracioValorDto;
+import es.caib.helium.logic.intf.service.EnumeracioService;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientTipusEnumeracioValorCommand;
 import net.conselldemallorca.helium.webapp.v3.helper.MessageHelper;
 

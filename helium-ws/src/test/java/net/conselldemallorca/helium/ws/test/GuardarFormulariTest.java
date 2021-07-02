@@ -6,7 +6,7 @@ package net.conselldemallorca.helium.ws.test;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.conselldemallorca.helium.core.util.ws.WsClientUtils;
+import es.caib.helium.logic.util.ws.WsClientUtils;
 import net.conselldemallorca.helium.ws.formulari.GuardarFormulari;
 import net.conselldemallorca.helium.ws.formulari.ParellaCodiValor;
 

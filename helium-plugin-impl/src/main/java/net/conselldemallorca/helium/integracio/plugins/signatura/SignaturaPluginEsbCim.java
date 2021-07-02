@@ -6,13 +6,12 @@ package net.conselldemallorca.helium.integracio.plugins.signatura;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.conselldemallorca.helium.core.util.GlobalProperties;
-import net.conselldemallorca.helium.core.util.ws.WsClientUtils;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.ws.security.util.Base64;
 
+import es.caib.helium.logic.util.GlobalProperties;
+import es.caib.helium.logic.util.ws.WsClientUtils;
 import es.cim.ws.firma.v1.model.Certificado;
 import es.cim.ws.firma.v1.model.PeticionObtenerDatosCertificado;
 import es.cim.ws.firma.v1.model.PeticionValidarFirma;

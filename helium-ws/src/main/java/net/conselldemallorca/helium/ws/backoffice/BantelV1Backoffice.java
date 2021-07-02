@@ -14,12 +14,12 @@ import es.caib.bantel.ws.v1.model.referenciaentrada.ReferenciaEntrada;
 import es.caib.bantel.ws.v1.model.referenciaentrada.ReferenciasEntrada;
 import es.caib.bantel.ws.v1.services.BantelFacade;
 import es.caib.bantel.ws.v1.services.BantelFacadeException;
+import es.caib.helium.logic.intf.dto.TramitDto;
 import net.conselldemallorca.helium.integracio.plugins.tramitacio.DadesVistaDocument;
 import net.conselldemallorca.helium.integracio.plugins.tramitacio.ObtenirDadesTramitRequest;
 import net.conselldemallorca.helium.integracio.plugins.tramitacio.ObtenirVistaDocumentRequest;
 import net.conselldemallorca.helium.integracio.plugins.tramitacio.ResultatProcesTipus;
 import net.conselldemallorca.helium.integracio.plugins.tramitacio.ResultatProcesTramitRequest;
-import net.conselldemallorca.helium.v3.core.api.dto.TramitDto;
 
 /**
  * Backoffice per a gestionar les entrades de BANTEL

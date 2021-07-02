@@ -5,7 +5,7 @@ package net.conselldemallorca.helium.webapp.dwr;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
-import net.conselldemallorca.helium.v3.core.api.service.ExpedientTerminiService;
+import es.caib.helium.logic.intf.service.ExpedientTerminiService;
 
 /**
  * Servei DWR per a la gestió de festius

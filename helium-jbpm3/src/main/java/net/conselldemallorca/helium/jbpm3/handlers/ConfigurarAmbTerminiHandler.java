@@ -4,13 +4,14 @@
 package net.conselldemallorca.helium.jbpm3.handlers;
 
 import net.conselldemallorca.helium.jbpm3.integracio.Jbpm3HeliumBridge;
-import net.conselldemallorca.helium.v3.core.api.dto.TerminiIniciatDto;
 
 import org.jbpm.JbpmException;
 import org.jbpm.graph.exe.ExecutionContext;
 import org.jbpm.job.Timer;
 import org.jbpm.scheduler.def.CreateTimerAction;
 import org.jbpm.taskmgmt.exe.TaskInstance;
+
+import es.caib.helium.logic.intf.dto.TerminiIniciatDto;
 
 /**
  * Handler per configurar una tasca o un timer donat un termini iniciat.

@@ -2,11 +2,11 @@ package net.conselldemallorca.helium.ms;
 
 import javax.annotation.Resource;
 
+import es.caib.helium.logic.intf.dto.PaginaDto;
+import es.caib.helium.logic.intf.dto.PaginacioParamsDto;
+import es.caib.helium.logic.intf.dto.PaginacioParamsDto.OrdreDto;
 import net.conselldemallorca.helium.ms.domini.client.model.DominiPagedList;
 import net.conselldemallorca.helium.ms.helper.ConversioTipusHelperMs;
-import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
-import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto.OrdreDto;
 
 /** Classe base dels microserveis amb mètodes comuns.
  * 

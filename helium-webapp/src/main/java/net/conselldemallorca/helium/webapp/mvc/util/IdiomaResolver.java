@@ -13,9 +13,9 @@ import org.springframework.beans.propertyeditors.LocaleEditor;
 import org.springframework.web.servlet.LocaleResolver;
 import org.springframework.web.util.WebUtils;
 
-import net.conselldemallorca.helium.core.util.GlobalProperties;
-import net.conselldemallorca.helium.v3.core.api.dto.UsuariPreferenciesDto;
-import net.conselldemallorca.helium.v3.core.api.service.AplicacioService;
+import es.caib.helium.logic.intf.dto.UsuariPreferenciesDto;
+import es.caib.helium.logic.intf.service.AplicacioService;
+import es.caib.helium.logic.util.GlobalProperties;
 
 public class IdiomaResolver implements LocaleResolver, Serializable {
 	private static final long serialVersionUID = 1L;

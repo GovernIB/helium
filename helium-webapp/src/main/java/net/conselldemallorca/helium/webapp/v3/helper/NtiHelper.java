@@ -6,11 +6,11 @@ import java.util.List;
 import org.springframework.stereotype.Component;
 import org.springframework.ui.Model;
 
-import net.conselldemallorca.helium.v3.core.api.dto.NtiEstadoElaboracionEnumDto;
-import net.conselldemallorca.helium.v3.core.api.dto.NtiOrigenEnumDto;
-import net.conselldemallorca.helium.v3.core.api.dto.NtiTipoDocumentalEnumDto;
-import net.conselldemallorca.helium.v3.core.api.dto.NtiTipoFirmaEnumDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
+import es.caib.helium.logic.intf.dto.NtiEstadoElaboracionEnumDto;
+import es.caib.helium.logic.intf.dto.NtiOrigenEnumDto;
+import es.caib.helium.logic.intf.dto.NtiTipoDocumentalEnumDto;
+import es.caib.helium.logic.intf.dto.NtiTipoFirmaEnumDto;
+import es.caib.helium.logic.intf.dto.ParellaCodiValorDto;
 
 /**
  * Classe helper amb mètods comuns per treballar amb dades NTi.

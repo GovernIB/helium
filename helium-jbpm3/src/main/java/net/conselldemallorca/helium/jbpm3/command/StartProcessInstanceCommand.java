@@ -1,7 +1,6 @@
 package net.conselldemallorca.helium.jbpm3.command;
 
 import net.conselldemallorca.helium.jbpm3.integracio.Jbpm3HeliumBridge;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 
 import org.jbpm.JbpmContext;
 import org.jbpm.command.Command;
@@ -9,6 +8,8 @@ import org.jbpm.command.NewProcessInstanceCommand;
 import org.jbpm.graph.exe.ProcessInstance;
 import org.jbpm.taskmgmt.def.Task;
 import org.jbpm.taskmgmt.exe.SwimlaneInstance;
+
+import es.caib.helium.logic.intf.dto.ExpedientDto;
 
 /**
  * Graph command to start a new process and signal it immidiatly. The transition

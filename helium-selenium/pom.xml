@@ -83,6 +83,7 @@
 			<version>${helium.version}</version>
 			<scope>compile</scope>
 		</dependency>
+		<!-- 
 		<dependency>
 			<groupId>${project.groupId}</groupId>
 			<artifactId>helium-plugin-impl</artifactId>
@@ -96,6 +97,7 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
+		 -->
 		
 		<!-- Per poder tenir una aplicació Tomcat en els tests -->
 		<dependency>
@@ -151,17 +153,8 @@
 	</dependencies>
 	<build>
 		<plugins>
-			<plugin>
-				<artifactId>maven-compiler-plugin</artifactId>
-				<configuration>
-					<fork>true</fork>
-					<compilerVersion>${java.version}</compilerVersion>
-					<source>${java.version}</source>
-					<target>${java.version}</target>
-				</configuration>
-			</plugin>
-				<!-- Per a executar els tests: mvn test -DskipTests=false (amb helium 
-					funcionant) -->
+			<!-- Per a executar els tests: mvn test -DskipTests=false (amb helium 
+				funcionant) -->
 			<plugin>
 			    <groupId>org.apache.maven.plugins</groupId>
 			    <artifactId>maven-failsafe-plugin</artifactId>

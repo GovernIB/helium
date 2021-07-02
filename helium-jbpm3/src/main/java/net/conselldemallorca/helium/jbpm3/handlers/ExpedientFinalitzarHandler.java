@@ -5,8 +5,8 @@ import org.apache.commons.logging.LogFactory;
 import org.jbpm.JbpmException;
 import org.jbpm.graph.exe.ExecutionContext;
 
+import es.caib.helium.logic.intf.dto.ExpedientDto;
 import net.conselldemallorca.helium.jbpm3.integracio.Jbpm3HeliumBridge;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 
 /**
  * Handler per finalitzar l'expedient.

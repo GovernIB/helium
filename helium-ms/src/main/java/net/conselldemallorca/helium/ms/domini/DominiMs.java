@@ -1,6 +1,5 @@
 package net.conselldemallorca.helium.ms.domini;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -14,17 +13,17 @@ import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.web.client.RestClientException;
 
-import net.conselldemallorca.helium.core.extern.domini.FilaResultat;
+import es.caib.helium.logic.intf.dto.ConsultaDominiDto;
+import es.caib.helium.logic.intf.dto.DominiDto;
+import es.caib.helium.logic.intf.dto.PaginaDto;
+import es.caib.helium.logic.intf.dto.PaginacioParamsDto;
+import es.caib.helium.logic.intf.extern.domini.FilaResultat;
 import net.conselldemallorca.helium.ms.BaseMs;
 import net.conselldemallorca.helium.ms.HeliumMsPropietats;
 import net.conselldemallorca.helium.ms.domini.client.DominiApiClient;
 import net.conselldemallorca.helium.ms.domini.client.model.Domini;
 import net.conselldemallorca.helium.ms.domini.client.model.DominiPagedList;
 import net.conselldemallorca.helium.ms.domini.client.model.ResultatDomini;
-import net.conselldemallorca.helium.v3.core.api.dto.ConsultaDominiDto;
-import net.conselldemallorca.helium.v3.core.api.dto.DominiDto;
-import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 
 /** Bean per interactuar amb el Micro Servei de Dominis. Encapsula un client
  * de l'API REST pel disseny i consulta dels dominis.

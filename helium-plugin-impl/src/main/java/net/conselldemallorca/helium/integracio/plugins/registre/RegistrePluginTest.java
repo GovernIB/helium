@@ -10,14 +10,14 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import net.conselldemallorca.helium.core.util.GlobalProperties;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+
+import es.caib.helium.logic.util.GlobalProperties;
 
 /**
  * Test plugin registre

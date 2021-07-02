@@ -26,11 +26,11 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
-import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
-import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
-import net.conselldemallorca.helium.v3.core.api.service.AplicacioService;
-import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
+import es.caib.helium.logic.intf.dto.EstatDto;
+import es.caib.helium.logic.intf.dto.ExpedientDto;
+import es.caib.helium.logic.intf.dto.PersonaDto;
+import es.caib.helium.logic.intf.service.AplicacioService;
+import es.caib.helium.logic.intf.service.ExpedientService;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientEditarCommand;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientEditarCommand.Editar;
 import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
@@ -66,7 +66,7 @@ public class ExpedientInformacioController extends BaseExpedientController {
 //		estats.add(0, new EstatDto(0L, "0", getMessage(request, "expedient.consulta.iniciat")));
 		estats.add(new EstatDto(ESTAT_FINALITZAT_ID, "-1", getMessage(request, "expedient.consulta.finalitzat")));
 		model.addAttribute("estats", estats);
-		model.addAttribute(getCommandModificar(expedient));
+		model.addAttribute(getCommandModificar(request, expedient));
 		return "v3/expedient/modificarInformacio";
 	}
 
@@ -129,7 +129,7 @@ public class ExpedientInformacioController extends BaseExpedientController {
 		}
 	}	
 
-	private ExpedientEditarCommand getCommandModificar(ExpedientDto expedient) {		
+	private ExpedientEditarCommand getCommandModificar(HttpServletRequest request, ExpedientDto expedient) {		
 		ExpedientEditarCommand expedientEditarCommand = new ExpedientEditarCommand();
 		expedientEditarCommand.setNumero(expedient.getNumero());
 		expedientEditarCommand.setTitol(expedient.getTitol());
@@ -142,7 +142,14 @@ public class ExpedientInformacioController extends BaseExpedientController {
 		expedientEditarCommand.setGeoReferencia(expedient.getGeoReferencia());
 		expedientEditarCommand.setGrupCodi(expedient.getGrupCodi());
 		expedientEditarCommand.setIniciadorCodi(expedient.getIniciadorCodi());
-		PersonaDto personaResponsable = aplicacioService.findPersonaAmbCodi(expedient.getResponsableCodi());
+		PersonaDto personaResponsable = null;
+		if (expedient.getResponsableCodi() != null) {
+			try {
+				personaResponsable = aplicacioService.findPersonaAmbCodi(expedient.getResponsableCodi());
+			} catch(Exception e) {
+				MissatgesHelper.error(request, getMessage(request, "expedient.info.error.consulta.responsable", new Object[] {expedient.getResponsableCodi(), e.getMessage()}));
+			}
+		}
 		expedient.setResponsablePersona(personaResponsable);
 		if (personaResponsable != null) {
 			expedientEditarCommand.setResponsableCodi(personaResponsable.getCodi());

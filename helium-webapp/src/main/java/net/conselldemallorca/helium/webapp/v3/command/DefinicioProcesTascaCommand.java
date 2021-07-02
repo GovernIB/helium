@@ -7,7 +7,7 @@ import javax.validation.constraints.Size;
 
 import org.hibernate.validator.constraints.NotEmpty;
 
-import net.conselldemallorca.helium.v3.core.api.dto.TascaDto;
+import es.caib.helium.logic.intf.dto.TascaDto;
 /**
  * Command per editar la informació de les tasques de les definicions
  * de proces. 

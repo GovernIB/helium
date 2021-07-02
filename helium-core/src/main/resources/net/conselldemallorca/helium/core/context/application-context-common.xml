@@ -92,7 +92,7 @@
 		</tx:attributes>
 	</tx:advice>
 
-	<bean id="incidentThrowsAdvice" class="net.conselldemallorca.helium.v3.core.exception.IncidentThrowsAdviceHelper"/>	
+	<bean id="incidentThrowsAdvice" class="es.caib.helium.logic.advice.IncidentThrowsAdviceHelper"/>	
 	<aop:config>
 		<aop:pointcut id="serviceOperationCommon" expression="execution(* net.conselldemallorca.helium.core.model.service.*Service.*(..))"/>
 		<aop:advisor advice-ref="transactionAdvice" pointcut-ref="serviceOperationCommon" />
@@ -118,7 +118,7 @@
 		<property name="sessionFactory" ref="sessionFactory"/>
 	</bean>
 
-	<bean id="passwordDigester" class="net.conselldemallorca.helium.core.util.PasswordDigester">
+	<bean id="passwordDigester" class="es.caib.helium.logic.util.PasswordDigester">
 		<constructor-arg value="MD5"/>
 	</bean>
 
@@ -127,7 +127,7 @@
 <!-- 	<bean id="serviceProxy" class="net.conselldemallorca.helium.core.model.service.ServiceProxy" factory-method="getInstance"/> -->
 <!-- 	<bean id="daoProxy" class="net.conselldemallorca.helium.core.model.dao.DaoProxy" factory-method="getInstance"/> -->
 
-	<!--bean id="globalProperties" class="net.conselldemallorca.helium.core.util.GlobalProperties">
+	<!--bean id="globalProperties" class="es.caib.helium.logic.util.GlobalProperties">
 		<constructor-arg value="${es.caib.helium.properties.path}"/>
 	</bean-->
 

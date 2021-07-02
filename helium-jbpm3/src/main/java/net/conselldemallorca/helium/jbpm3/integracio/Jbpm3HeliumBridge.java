@@ -2,9 +2,9 @@ package net.conselldemallorca.helium.jbpm3.integracio;
 
 import javax.annotation.Resource;
 
-import net.conselldemallorca.helium.v3.core.api.service.Jbpm3HeliumService;
-
 import org.springframework.beans.factory.annotation.Autowired;
+
+import es.caib.helium.logic.intf.service.Jbpm3HeliumService;
 
 /**
  * Classe que fa de pont entre jBPM i Helium.

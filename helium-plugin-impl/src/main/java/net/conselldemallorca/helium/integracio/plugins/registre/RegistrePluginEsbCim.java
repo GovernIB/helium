@@ -4,12 +4,11 @@ import javax.xml.bind.JAXBElement;
 import javax.xml.namespace.QName;
 import javax.xml.ws.Holder;
 
-import net.conselldemallorca.helium.core.util.GlobalProperties;
-import net.conselldemallorca.helium.core.util.ws.WsClientUtils;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import es.caib.helium.logic.util.GlobalProperties;
+import es.caib.helium.logic.util.ws.WsClientUtils;
 import es.cim.ws.registro.v1.model.acuserecibo.AcuseRecibo;
 import es.cim.ws.registro.v1.model.aviso.Aviso;
 import es.cim.ws.registro.v1.model.datosexpediente.DatosExpediente;

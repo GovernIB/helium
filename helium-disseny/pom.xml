@@ -48,15 +48,6 @@
 	</repositories>
 	<build>
 		<plugins>
-			<plugin>
-				<artifactId>maven-compiler-plugin</artifactId>
-				<configuration>
-					<fork>true</fork>
-					<compilerVersion>${java.version}</compilerVersion>
-					<source>${java.version}</source>
-					<target>${java.version}</target>
-				</configuration>
-			</plugin>
 			<!-- Comentar el següent plugin si es vol generar la llibreria helium-disseny.jar --> 
 			<!--  per a emprar al disseny d'expedients -->
 			<plugin>

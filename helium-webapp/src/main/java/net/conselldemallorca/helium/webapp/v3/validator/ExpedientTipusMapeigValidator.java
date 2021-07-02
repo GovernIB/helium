@@ -5,9 +5,9 @@ import javax.validation.ConstraintValidatorContext;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
-import net.conselldemallorca.helium.v3.core.api.dto.MapeigSistraDto;
-import net.conselldemallorca.helium.v3.core.api.dto.MapeigSistraDto.TipusMapeig;
-import net.conselldemallorca.helium.v3.core.api.service.ExpedientTipusService;
+import es.caib.helium.logic.intf.dto.MapeigSistraDto;
+import es.caib.helium.logic.intf.dto.MapeigSistraDto.TipusMapeig;
+import es.caib.helium.logic.intf.service.ExpedientTipusService;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientTipusIntegracioTramitsMapeigCommand;
 import net.conselldemallorca.helium.webapp.v3.helper.MessageHelper;
 
@@ -38,6 +38,7 @@ public class ExpedientTipusMapeigValidator implements ConstraintValidator<Expedi
 				// codi repetit
 				MapeigSistraDto repetit = expedientTipusService.mapeigFindAmbCodiSistraPerValidarRepeticio(
 				mapeig.getExpedientTipusId(),
+				mapeig.getExpedientTipusId() != null ? TipusMapeig.valueOf(mapeig.getTipus().toString()) : null,
 				mapeig.getCodiSistra());
 				if(repetit != null && (mapeig.getId() == null || !mapeig.getId().equals(repetit.getId()))) {
 					context.buildConstraintViolationWithTemplate(

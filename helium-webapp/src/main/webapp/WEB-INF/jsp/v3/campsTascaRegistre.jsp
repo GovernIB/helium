@@ -58,7 +58,7 @@
 				<c:forEach var="i" begin="1" end="${mida}">
 					<tr class="multiple">
 						<c:forEach var="membre" items="${registreCap}" varStatus="status">
-							<c:set var="campErrorLinia" value='<%= TascaFormValidatorHelper.getErrorField((org.springframework.validation.Errors)session.getAttribute("tascaError"), (net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto)pageContext.getAttribute("dadaActual"), (javax.servlet.jsp.jstl.core.LoopTagStatus)pageContext.getAttribute("status")) %>'/>
+							<c:set var="campErrorLinia" value='<%=TascaFormValidatorHelper.getErrorField((org.springframework.validation.Errors)session.getAttribute("tascaError"), (es.caib.helium.logic.intf.dto.TascaDadaDto)pageContext.getAttribute("dadaActual"), (javax.servlet.jsp.jstl.core.LoopTagStatus)pageContext.getAttribute("status"))%>'/>
 							<c:if test="${not empty campErrorLinia}"><c:set var="errorLinia"><spring:message code="${campErrorLinia}"/></c:set></c:if>
 							<td>
 								<c:set var="inline" value="${true}"/>

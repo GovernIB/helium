@@ -23,11 +23,11 @@ import net.conselldemallorca.helium.ws.tramitacio.v1.TramitacioService;
  */
 public class TramitacioV1WsClientTest {
 
-	private static final String SERVICE_URL = "http://localhost:8080/helium/ws/v1/Tramitacio";
-	private static final String USERNAME = "user";
-	private static final String PASSWORD = "passwd";
+	private static final String SERVICE_URL = "http://10.35.3.231:8080/helium/ws/v1/Tramitacio";
+	private static final String USERNAME = "admin";
+	private static final String PASSWORD = "admin";
 
-	private static final String ENTORN_CODI = "CAIB";
+	private static final String ENTORN_CODI = "Test";
 	private static final String EXPTIPUS_CODI = "test";
 
 	private TramitacioService tramitacioService;

@@ -5,8 +5,8 @@ import javax.validation.ConstraintValidatorContext;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
-import net.conselldemallorca.helium.v3.core.api.dto.CarrecJbpmIdDto;
-import net.conselldemallorca.helium.v3.core.api.service.CarrecService;
+import es.caib.helium.logic.intf.dto.CarrecJbpmIdDto;
+import es.caib.helium.logic.intf.service.CarrecService;
 import net.conselldemallorca.helium.webapp.v3.command.CarrecCommand;
 import net.conselldemallorca.helium.webapp.v3.helper.MessageHelper;
 

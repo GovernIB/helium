@@ -6,8 +6,6 @@ package net.conselldemallorca.helium.integracio.plugins.tramitacio;
 import javax.xml.bind.JAXBElement;
 import javax.xml.namespace.QName;
 
-import net.conselldemallorca.helium.core.util.GlobalProperties;
-import net.conselldemallorca.helium.core.util.ws.WsClientUtils;
 import net.conselldemallorca.helium.integracio.plugins.registre.RegistreNotificacio;
 import net.conselldemallorca.helium.integracio.plugins.registre.RespostaAnotacioRegistre;
 import net.conselldemallorca.helium.integracio.plugins.registre.RespostaJustificantDetallRecepcio;
@@ -16,6 +14,8 @@ import net.conselldemallorca.helium.integracio.plugins.registre.RespostaJustific
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import es.caib.helium.logic.util.GlobalProperties;
+import es.caib.helium.logic.util.ws.WsClientUtils;
 import es.cim.ws.documentos.v1.model.gestordocumental.ObtenerVistaDocumentoRequest;
 import es.cim.ws.documentos.v1.model.gestordocumental.ObtenerVistaDocumentoResponse;
 import es.cim.ws.documentos.v1.services.ServicioGestorDocumentalPortType;

@@ -5,8 +5,8 @@ package net.conselldemallorca.helium.webapp.v3.command;
 
 import javax.validation.constraints.NotNull;
 
-import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
-import net.conselldemallorca.helium.v3.core.api.dto.DocumentTascaDto;
+import es.caib.helium.logic.intf.dto.DocumentDto;
+import es.caib.helium.logic.intf.dto.DocumentTascaDto;
 
 /**
  * Command per afegir documents a les tasques de la definició de procés.

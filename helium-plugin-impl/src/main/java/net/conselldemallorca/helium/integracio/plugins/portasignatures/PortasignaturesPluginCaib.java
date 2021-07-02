@@ -14,8 +14,6 @@ import java.util.List;
 import javax.activation.DataHandler;
 import javax.activation.DataSource;
 
-import net.conselldemallorca.helium.core.util.GlobalProperties;
-import net.conselldemallorca.helium.core.util.OpenOfficeUtils;
 import net.conselldemallorca.helium.integracio.plugins.portasignatures.wsdl.Annex;
 import net.conselldemallorca.helium.integracio.plugins.portasignatures.wsdl.Application;
 import net.conselldemallorca.helium.integracio.plugins.portasignatures.wsdl.CWSSoapBindingStub;
@@ -39,6 +37,9 @@ import net.conselldemallorca.helium.integracio.plugins.portasignatures.wsdl.Uplo
 import net.conselldemallorca.helium.integracio.plugins.portasignatures.wsdl.UploadStep;
 
 import org.apache.axis.attachments.AttachmentPart;
+
+import es.caib.helium.logic.util.GlobalProperties;
+import es.caib.helium.logic.util.OpenOfficeUtils;
 
 /**
  * Implementació del plugin de portasignatures per la CAIB.

@@ -8,13 +8,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 
-import net.conselldemallorca.helium.core.util.GlobalProperties;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
+import es.caib.helium.logic.util.GlobalProperties;
 import es.caib.regweb.logic.helper.ParametrosRegistroEntrada;
 import es.caib.regweb.logic.helper.ParametrosRegistroSalida;
 import es.caib.regweb.logic.interfaces.RegistroEntradaFacade;

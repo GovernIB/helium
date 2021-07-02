@@ -15,11 +15,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import net.conselldemallorca.helium.v3.core.api.dto.CarrecJbpmIdDto;
-import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
-import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto.Sexe;
-import net.conselldemallorca.helium.v3.core.api.dto.SexeDto;
-import net.conselldemallorca.helium.v3.core.api.service.CarrecService;
+import es.caib.helium.logic.intf.dto.CarrecJbpmIdDto;
+import es.caib.helium.logic.intf.dto.PaginacioParamsDto;
+import es.caib.helium.logic.intf.dto.SexeDto;
+import es.caib.helium.logic.intf.dto.PersonaDto.Sexe;
+import es.caib.helium.logic.intf.service.CarrecService;
 import net.conselldemallorca.helium.webapp.v3.command.CarrecCommand;
 import net.conselldemallorca.helium.webapp.v3.command.CarrecCommand.Creacio;
 import net.conselldemallorca.helium.webapp.v3.command.CarrecCommand.Modificacio;

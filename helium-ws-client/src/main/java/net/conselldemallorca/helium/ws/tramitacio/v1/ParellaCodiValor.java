@@ -3,6 +3,7 @@ package net.conselldemallorca.helium.ws.tramitacio.v1;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlSeeAlso;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.datatype.XMLGregorianCalendar;
 
@@ -32,6 +33,7 @@ import javax.xml.datatype.XMLGregorianCalendar;
     "codi",
     "valor"
 })
+@XmlSeeAlso({Object[].class, Object[][].class})
 public class ParellaCodiValor {
 
     protected String codi;

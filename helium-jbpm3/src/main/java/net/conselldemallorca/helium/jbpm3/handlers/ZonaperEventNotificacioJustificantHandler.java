@@ -5,17 +5,18 @@ import java.util.Collections;
 import javax.xml.datatype.XMLGregorianCalendar;
 
 import net.conselldemallorca.helium.jbpm3.integracio.Jbpm3HeliumBridge;
-import net.conselldemallorca.helium.v3.core.api.dto.DetalleAvisoDto;
-import net.conselldemallorca.helium.v3.core.api.dto.RespostaJustificantDetallRecepcioDto;
-import net.conselldemallorca.helium.v3.core.api.dto.RespostaJustificantRecepcioDto;
-import net.conselldemallorca.helium.v3.core.api.dto.TipoAvisoDto;
-import net.conselldemallorca.helium.v3.core.api.dto.TipoConfirmacionAvisoDto;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jbpm.JbpmException;
 import org.jbpm.graph.def.GraphElement;
 import org.jbpm.graph.exe.ExecutionContext;
+
+import es.caib.helium.logic.intf.dto.DetalleAvisoDto;
+import es.caib.helium.logic.intf.dto.RespostaJustificantDetallRecepcioDto;
+import es.caib.helium.logic.intf.dto.RespostaJustificantRecepcioDto;
+import es.caib.helium.logic.intf.dto.TipoAvisoDto;
+import es.caib.helium.logic.intf.dto.TipoConfirmacionAvisoDto;
 
 /**
  * Handler per a interactuar amb el registre de sortida.

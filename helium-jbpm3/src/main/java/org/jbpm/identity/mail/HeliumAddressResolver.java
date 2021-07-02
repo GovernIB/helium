@@ -1,9 +1,10 @@
 package org.jbpm.identity.mail;
 
 import net.conselldemallorca.helium.jbpm3.integracio.Jbpm3HeliumBridge;
-import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
 
 import org.jbpm.mail.AddressResolver;
+
+import es.caib.helium.logic.intf.dto.PersonaDto;
 
 /**
  * Address resolver que empra l'organigrama d'Helium

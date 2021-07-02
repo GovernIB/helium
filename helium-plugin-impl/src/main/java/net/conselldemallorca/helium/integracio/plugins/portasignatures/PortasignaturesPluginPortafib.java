@@ -27,6 +27,8 @@ import javax.xml.ws.handler.soap.SOAPMessageContext;
 
 import org.apache.commons.lang.StringUtils;
 
+import es.caib.helium.logic.util.GlobalProperties;
+import es.caib.helium.logic.util.OpenOfficeUtils;
 import es.caib.portafib.ws.api.v1.AnnexBean;
 import es.caib.portafib.ws.api.v1.BlocDeFirmesWs;
 import es.caib.portafib.ws.api.v1.FirmaBean;
@@ -39,8 +41,6 @@ import es.caib.portafib.ws.api.v1.PortaFIBUsuariEntitatWs;
 import es.caib.portafib.ws.api.v1.PortaFIBUsuariEntitatWsService;
 import es.caib.portafib.ws.api.v1.TipusDocumentInfoWs;
 import es.caib.portafib.ws.api.v1.WsI18NException;
-import net.conselldemallorca.helium.core.util.GlobalProperties;
-import net.conselldemallorca.helium.core.util.OpenOfficeUtils;
 import net.conselldemallorca.helium.integracio.plugins.portasignatures.wsdl.ImportanceEnum;
 
 /**

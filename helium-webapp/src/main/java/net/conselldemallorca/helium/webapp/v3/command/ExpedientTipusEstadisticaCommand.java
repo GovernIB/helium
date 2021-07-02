@@ -1,6 +1,6 @@
 package net.conselldemallorca.helium.webapp.v3.command;
 
-import net.conselldemallorca.helium.v3.core.api.dto.MostrarAnulatsDto;
+import es.caib.helium.logic.intf.dto.MostrarAnulatsDto;
 
 public class ExpedientTipusEstadisticaCommand {
 	

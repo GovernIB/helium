@@ -7,10 +7,10 @@ import java.util.Date;
 
 import javax.validation.constraints.AssertTrue;
 
-import net.conselldemallorca.helium.v3.core.api.dto.MostrarAnulatsDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto.EstatTipusDto;
-
 import org.apache.commons.lang.builder.ToStringBuilder;
+
+import es.caib.helium.logic.intf.dto.MostrarAnulatsDto;
+import es.caib.helium.logic.intf.dto.ExpedientDto.EstatTipusDto;
 
 
 /**
