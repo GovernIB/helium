@@ -13,5 +13,16 @@
 	<jee:local-slsb
 			id="exempleService"
 			jndi-name="helium/ExempleServiceBean/local"
-			business-interface="es.caib.helium.core.api.service.ExempleService"/>
+			business-interface="es.caib.helium.logic.intf.service.ExempleService"/>
+
+	<jee:local-slsb
+			id="accioService"
+			jndi-name="helium/AccioServiceBean/local"
+			business-interface="es.caib.helium.logic.intf.service.AccioService"/>
+
+	<jee:local-slsb
+			id="aplicacioService"
+			jndi-name="helium/AplicacioServiceBean/local"
+			business-interface="es.caib.helium.logic.intf.service.AplicacioService"/>
+
 </beans>

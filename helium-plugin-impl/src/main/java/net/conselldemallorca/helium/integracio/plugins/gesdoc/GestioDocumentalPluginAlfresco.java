@@ -8,13 +8,14 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.integracio.plugins.util.AlfrescoUtils;
 
 import org.alfresco.webservice.types.Reference;
 import org.alfresco.webservice.util.Constants;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
+import es.caib.helium.logic.util.GlobalProperties;
 
 /**
  * Implementació del plugin de gestió documental amb Alfresco

@@ -22,8 +22,8 @@ import es.caib.helium.logic.intf.dto.UsuariPreferenciesDto;
 import es.caib.helium.logic.intf.service.AplicacioService;
 import es.caib.helium.logic.intf.service.EntornService;
 import es.caib.helium.logic.intf.service.ExpedientTipusService;
+import es.caib.helium.logic.util.EntornActual;
 import es.caib.helium.persist.entity.Entorn;
-import net.conselldemallorca.helium.core.util.EntornActual;
 import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper.SessionManager;
 

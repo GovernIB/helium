@@ -12,10 +12,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.conselldemallorca.helium.integracio.plugins.signatura.RespostaValidacioSignatura;
-import net.conselldemallorca.helium.core.util.GlobalProperties;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
+import es.caib.helium.logic.util.GlobalProperties;
 
 /**
  * Implementació del plugin de custodia documental que guarda

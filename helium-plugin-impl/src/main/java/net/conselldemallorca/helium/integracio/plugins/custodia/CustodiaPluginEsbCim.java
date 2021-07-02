@@ -8,12 +8,12 @@ import java.util.List;
 
 import net.conselldemallorca.helium.integracio.plugins.gesdoc.GestioDocumentalPluginException;
 import net.conselldemallorca.helium.integracio.plugins.signatura.RespostaValidacioSignatura;
-import net.conselldemallorca.helium.core.util.GlobalProperties;
-import net.conselldemallorca.helium.core.util.ws.WsClientUtils;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import es.caib.helium.logic.util.GlobalProperties;
+import es.caib.helium.logic.util.ws.WsClientUtils;
 import es.cim.ws.documentos.v1.model.gestordocumental.AdjuntarFirmaDocumentoRequest;
 import es.cim.ws.documentos.v1.model.gestordocumental.AdjuntarFirmaDocumentoResponse;
 import es.cim.ws.documentos.v1.model.gestordocumental.ObtenerFirmasDocumentoRequest;

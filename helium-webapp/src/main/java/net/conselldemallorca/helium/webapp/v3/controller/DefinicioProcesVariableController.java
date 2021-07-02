@@ -33,7 +33,7 @@ import es.caib.helium.logic.intf.service.DominiService;
 import es.caib.helium.logic.intf.service.EnumeracioService;
 import es.caib.helium.logic.intf.service.ExpedientTipusService;
 import es.caib.helium.logic.intf.service.ValidacioService;
-import net.conselldemallorca.helium.core.util.EntornActual;
+import es.caib.helium.logic.util.EntornActual;
 import net.conselldemallorca.helium.webapp.v3.command.AgrupacioCommand;
 import net.conselldemallorca.helium.webapp.v3.command.CampCommand;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientTipusCampRegistreCommand;

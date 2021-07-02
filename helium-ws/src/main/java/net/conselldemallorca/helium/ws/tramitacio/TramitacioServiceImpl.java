@@ -32,7 +32,7 @@ import es.caib.helium.logic.intf.service.ExpedientDocumentService;
 import es.caib.helium.logic.intf.service.ExpedientService;
 import es.caib.helium.logic.intf.service.ExpedientTipusService;
 import es.caib.helium.logic.intf.service.TascaService;
-import net.conselldemallorca.helium.core.util.EntornActual;
+import es.caib.helium.logic.util.EntornActual;
 import net.conselldemallorca.helium.v3.core.api.dto.*;
 
 import org.apache.commons.logging.Log;

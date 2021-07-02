@@ -14,12 +14,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import es.caib.helium.logic.helper.PluginHelper;
 import es.caib.helium.logic.intf.service.PortasignaturesService;
 import es.indra.www.portafirmasmcgdws.mcgdws.AttributesState;
 import es.indra.www.portafirmasmcgdws.mcgdws.CallbackRequest;
 import es.indra.www.portafirmasmcgdws.mcgdws.CallbackResponse;
 import es.indra.www.portafirmasmcgdws.mcgdws.LogMessage;
-import net.conselldemallorca.helium.core.helper.PluginHelper;
 
 /**
  * Implementació amb Axis del servei per processar automàticament els canvis

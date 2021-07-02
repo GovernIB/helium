@@ -27,7 +27,7 @@ import es.caib.helium.logic.intf.dto.ExpedientDadaDto;
 import es.caib.helium.logic.intf.dto.ExpedientDto;
 import es.caib.helium.logic.intf.dto.InstanciaProcesDto;
 import es.caib.helium.logic.intf.service.ExpedientDadaService;
-import net.conselldemallorca.helium.core.util.ExpedientCamps;
+import es.caib.helium.logic.util.ExpedientCamps;
 import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
 
 /**

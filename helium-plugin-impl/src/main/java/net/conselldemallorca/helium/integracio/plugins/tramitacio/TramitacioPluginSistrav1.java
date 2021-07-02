@@ -11,8 +11,6 @@ import java.util.List;
 import javax.xml.bind.JAXBElement;
 import javax.xml.namespace.QName;
 
-import net.conselldemallorca.helium.core.util.GlobalProperties;
-import net.conselldemallorca.helium.core.util.ws.WsClientUtils;
 import net.conselldemallorca.helium.integracio.plugins.registre.RegistreNotificacio;
 import net.conselldemallorca.helium.integracio.plugins.registre.RespostaAnotacioRegistre;
 import net.conselldemallorca.helium.integracio.plugins.registre.RespostaJustificantDetallRecepcio;
@@ -25,6 +23,8 @@ import es.caib.bantel.ws.v1.model.documentobte.DocumentoBTE;
 import es.caib.bantel.ws.v1.model.firmaws.FirmaWS;
 import es.caib.bantel.ws.v1.model.referenciaentrada.ReferenciaEntrada;
 import es.caib.bantel.ws.v1.model.tramitebte.TramiteBTE;
+import es.caib.helium.logic.util.GlobalProperties;
+import es.caib.helium.logic.util.ws.WsClientUtils;
 import es.caib.redose.ws.v1.model.documentords.DocumentoRDS;
 import es.caib.redose.ws.v1.model.referenciards.ReferenciaRDS;
 import es.caib.zonaper.ws.v1.model.configuracionavisosexpediente.ConfiguracionAvisosExpediente;

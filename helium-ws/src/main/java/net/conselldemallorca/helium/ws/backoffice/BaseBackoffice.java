@@ -26,6 +26,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import es.caib.helium.logic.helper.PluginHelper;
 import es.caib.helium.logic.intf.dto.DadesDocumentDto;
 import es.caib.helium.logic.intf.dto.DefinicioProcesDto;
 import es.caib.helium.logic.intf.dto.DocumentDto;
@@ -39,6 +40,7 @@ import es.caib.helium.logic.intf.dto.ExpedientDto.IniciadorTipusDto;
 import es.caib.helium.logic.intf.service.DissenyService;
 import es.caib.helium.logic.intf.service.ExpedientService;
 import es.caib.helium.logic.intf.service.ExpedientTipusService;
+import es.caib.helium.logic.util.EntornActual;
 import es.caib.helium.persist.entity.Camp;
 import es.caib.helium.persist.entity.CampTasca;
 import es.caib.helium.persist.entity.Expedient;
@@ -46,8 +48,6 @@ import es.caib.helium.persist.entity.MapeigSistra;
 import es.caib.helium.persist.entity.Camp.TipusCamp;
 import es.caib.helium.persist.repository.CampTascaRepository;
 import es.caib.helium.persist.repository.DocumentRepository;
-import net.conselldemallorca.helium.core.helper.PluginHelper;
-import net.conselldemallorca.helium.core.util.EntornActual;
 import net.conselldemallorca.helium.integracio.plugins.tramitacio.AutenticacioTipus;
 import net.conselldemallorca.helium.integracio.plugins.tramitacio.DadesVistaDocument;
 

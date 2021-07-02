@@ -42,6 +42,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import es.caib.emiserv.logic.intf.exception.SistemaExternException;
+import es.caib.helium.logic.helper.DocumentHelperV3;
 import es.caib.helium.logic.intf.dto.ArxiuDto;
 import es.caib.helium.logic.intf.dto.ArxiuFirmaDto;
 import es.caib.helium.logic.intf.dto.DadesNotificacioDto;
@@ -60,8 +61,7 @@ import es.caib.helium.logic.intf.dto.DadesEnviamentDto.EntregaPostalViaTipus;
 import es.caib.helium.logic.intf.service.ExpedientDocumentService;
 import es.caib.helium.logic.intf.service.ExpedientInteressatService;
 import es.caib.helium.logic.intf.service.PortasignaturesService;
-import net.conselldemallorca.helium.core.helper.DocumentHelperV3;
-import net.conselldemallorca.helium.core.util.PdfUtils;
+import es.caib.helium.logic.util.PdfUtils;
 import net.conselldemallorca.helium.webapp.mvc.ArxiuView;
 import net.conselldemallorca.helium.webapp.v3.command.DocumentExpedientCommand;
 import net.conselldemallorca.helium.webapp.v3.command.DocumentExpedientCommand.Create;

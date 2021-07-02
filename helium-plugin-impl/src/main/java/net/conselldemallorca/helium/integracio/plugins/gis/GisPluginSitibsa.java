@@ -3,12 +3,12 @@ package net.conselldemallorca.helium.integracio.plugins.gis;
 import java.net.URL;
 import java.util.List;
 
-import net.conselldemallorca.helium.core.util.GlobalProperties;
-
 import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 import org.dom4j.Node;
+
+import es.caib.helium.logic.util.GlobalProperties;
 
 /**
  * Implementació de la interficie PersonesPlugin amb accés per JDBC.

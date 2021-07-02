@@ -1,6 +1,5 @@
 package net.conselldemallorca.helium.ms.domini;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -14,11 +13,11 @@ import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.web.client.RestClientException;
 
-import es.caib.emiserv.logic.intf.extern.domini.FilaResultat;
 import es.caib.helium.logic.intf.dto.ConsultaDominiDto;
 import es.caib.helium.logic.intf.dto.DominiDto;
 import es.caib.helium.logic.intf.dto.PaginaDto;
 import es.caib.helium.logic.intf.dto.PaginacioParamsDto;
+import es.caib.helium.logic.intf.extern.domini.FilaResultat;
 import net.conselldemallorca.helium.ms.BaseMs;
 import net.conselldemallorca.helium.ms.HeliumMsPropietats;
 import net.conselldemallorca.helium.ms.domini.client.DominiApiClient;

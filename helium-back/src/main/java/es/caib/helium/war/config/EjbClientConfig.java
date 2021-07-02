@@ -7,6 +7,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.ejb.access.LocalStatelessSessionProxyFactoryBean;
 
+import es.caib.helium.logic.intf.service.AccioService;
+import es.caib.helium.logic.intf.service.AplicacioService;
 import es.caib.helium.logic.intf.service.ExempleService;
 import lombok.extern.slf4j.Slf4j;
 
@@ -27,6 +29,17 @@ public class EjbClientConfig {
 		return getLocalEjbFactoyBean(ExempleService.class);
 	}
 
+	@Bean
+	public LocalStatelessSessionProxyFactoryBean aplicacioService() {
+		return getLocalEjbFactoyBean(AplicacioService.class);
+	}
+
+	@Bean
+	public LocalStatelessSessionProxyFactoryBean accioService() {
+		return getLocalEjbFactoyBean(AccioService.class);
+	}
+
+	
 	private LocalStatelessSessionProxyFactoryBean getLocalEjbFactoyBean(Class<?> serviceClass) {
 		String jndiName = EJB_JNDI_PREFIX + serviceClass.getSimpleName() + EJB_JNDI_SUFFIX;
 		log.debug("Creating EJB proxy for serviceClass with JNDI name " + jndiName);

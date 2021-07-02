@@ -15,7 +15,7 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
-import net.conselldemallorca.helium.core.util.GlobalProperties;
+import es.caib.helium.logic.util.GlobalProperties;
 import net.conselldemallorca.helium.integracio.plugins.persones.DadesPersona.Sexe;
 
 /**

@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import es.caib.helium.logic.helper.MonitorIntegracioHelper;
 import es.caib.helium.logic.intf.dto.IntegracioAccioTipusEnumDto;
 import es.caib.helium.logic.intf.dto.IntegracioParametreDto;
 import es.caib.helium.logic.intf.dto.PortasignaturesDto;
@@ -22,7 +23,6 @@ import es.caib.portafib.ws.callback.api.v1.CallBackException;
 import es.caib.portafib.ws.callback.api.v1.CallBackFault;
 import es.caib.portafib.ws.callback.api.v1.PortaFIBCallBackWs;
 import es.caib.portafib.ws.callback.api.v1.PortaFIBEvent;
-import net.conselldemallorca.helium.core.helper.MonitorIntegracioHelper;
 import net.conselldemallorca.helium.ws.callback.MCGDwsImpl;
 
 /**

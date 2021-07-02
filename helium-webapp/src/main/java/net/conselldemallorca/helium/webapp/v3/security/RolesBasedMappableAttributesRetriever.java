@@ -16,7 +16,7 @@ import org.springframework.security.core.authority.mapping.MappableAttributesRet
 import es.caib.helium.logic.intf.dto.PermisRolDto;
 import es.caib.helium.logic.intf.service.DissenyService;
 import es.caib.helium.logic.intf.service.PermisService;
-import net.conselldemallorca.helium.core.util.GlobalProperties;
+import es.caib.helium.logic.util.GlobalProperties;
 
 /**
  * Aconsegueix els rols que seran rellevants per a l'aplicació.

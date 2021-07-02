@@ -43,7 +43,7 @@ import es.caib.helium.logic.intf.service.ExpedientDocumentService;
 import es.caib.helium.logic.intf.service.ExpedientService;
 import es.caib.helium.logic.intf.service.ExpedientTipusService;
 import es.caib.helium.logic.intf.service.TascaService;
-import net.conselldemallorca.helium.core.util.EntornActual;
+import es.caib.helium.logic.util.EntornActual;
 
 /**
  * Implementació del servei de tramitació d'expedients

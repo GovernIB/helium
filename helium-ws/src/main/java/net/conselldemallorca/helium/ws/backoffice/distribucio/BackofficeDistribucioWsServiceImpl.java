@@ -12,15 +12,15 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import es.caib.helium.logic.helper.ConversioTipusHelper;
+import es.caib.helium.logic.helper.DistribucioHelper;
+import es.caib.helium.logic.helper.MonitorIntegracioHelper;
 import es.caib.helium.logic.intf.dto.IntegracioAccioTipusEnumDto;
 import es.caib.helium.logic.intf.dto.IntegracioParametreDto;
 import es.caib.helium.logic.intf.service.ws.backoffice.distribucio.AnotacioRegistreId;
 import es.caib.helium.logic.intf.service.ws.backoffice.distribucio.Backoffice;
 import es.caib.helium.persist.entity.Anotacio;
 import es.caib.helium.persist.repository.AnotacioRepository;
-import net.conselldemallorca.helium.core.helper.ConversioTipusHelper;
-import net.conselldemallorca.helium.core.helper.DistribucioHelper;
-import net.conselldemallorca.helium.core.helper.MonitorIntegracioHelper;
 
 
 /**

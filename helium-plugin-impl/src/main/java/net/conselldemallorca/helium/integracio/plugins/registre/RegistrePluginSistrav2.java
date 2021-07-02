@@ -6,6 +6,8 @@ import javax.xml.namespace.QName;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import es.caib.helium.logic.util.GlobalProperties;
+import es.caib.helium.logic.util.ws.WsClientUtils;
 import es.caib.regtel.ws.v2.model.acuserecibo.AcuseRecibo;
 import es.caib.regtel.ws.v2.model.aviso.Aviso;
 import es.caib.regtel.ws.v2.model.datosasunto.DatosAsunto;
@@ -25,8 +27,6 @@ import es.caib.regtel.ws.v2.model.oficioremision.ParametroTramite;
 import es.caib.regtel.ws.v2.model.resultadoregistro.ResultadoRegistro;
 import es.caib.regtel.ws.v2.services.BackofficeFacade;
 import es.caib.regtel.ws.v2.services.BackofficeFacadeException;
-import net.conselldemallorca.helium.core.util.GlobalProperties;
-import net.conselldemallorca.helium.core.util.ws.WsClientUtils;
 
 
 /**

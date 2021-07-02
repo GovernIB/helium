@@ -34,6 +34,11 @@
 			<artifactId>helium-service-intf</artifactId>
 			<version>${project.version}</version>
 		</dependency>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>helium-plugin-api</artifactId>
+			<version>${project.version}</version>
+		</dependency>
 		<!-- Per a evitar el missatge "warning: unknown enum constant When.MAYBE" 
 			al generar javadoc -->
 		<dependency>

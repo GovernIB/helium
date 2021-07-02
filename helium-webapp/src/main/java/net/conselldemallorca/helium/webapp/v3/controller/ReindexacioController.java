@@ -26,7 +26,7 @@ import es.caib.helium.logic.intf.dto.ExpedientTipusDto;
 import es.caib.helium.logic.intf.dto.PersonaDto;
 import es.caib.helium.logic.intf.service.ExpedientReindexacioService;
 import es.caib.helium.logic.intf.service.TascaProgramadaService;
-import net.conselldemallorca.helium.core.util.EntornActual;
+import es.caib.helium.logic.util.EntornActual;
 import net.conselldemallorca.helium.webapp.v3.helper.AjaxHelper.AjaxResponse;
 
 /**

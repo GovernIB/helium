@@ -17,14 +17,12 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
+import es.caib.helium.logic.helper.MonitorIntegracioHelper;
 import es.caib.helium.logic.intf.dto.IntegracioAccioEstatEnumDto;
 import es.caib.helium.logic.intf.dto.IntegracioAccioTipusEnumDto;
 import es.caib.helium.logic.intf.dto.IntegracioParametreDto;
 import es.caib.helium.logic.intf.service.AdminService;
 import es.caib.helium.logic.intf.service.ExpedientDocumentService;
-//TODO DANIEL resoldre dependència
-//import es.caib.notib.domini.NotificacioCanviClient;
-import net.conselldemallorca.helium.core.helper.MonitorIntegracioHelper;
 
 /**
  * Controlador per a les peticions al servei REST de Notib

@@ -23,7 +23,7 @@ import es.caib.helium.logic.intf.dto.ExpedientTipusDto;
 import es.caib.helium.logic.intf.service.DissenyService;
 import es.caib.helium.logic.intf.service.ExecucioMassivaService;
 import es.caib.helium.logic.intf.service.ExpedientTipusService;
-import net.conselldemallorca.helium.core.util.CsvHelper;
+import es.caib.helium.logic.util.CsvHelper;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientAltaMassivaCommand;
 import net.conselldemallorca.helium.webapp.v3.helper.MessageHelper;
 

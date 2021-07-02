@@ -12,7 +12,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>2.4.2</version>
+		<version>2.5.2</version>
 		<relativePath />
 	</parent>
 	
@@ -21,7 +21,7 @@
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 				
 		<helium.version>4.0</helium.version>
-		<spring-boot.version>2.4.2</spring-boot.version>
+		<spring-boot.version>2.5.2</spring-boot.version>
 		<liquibase.version>4.3.3</liquibase.version>
 		<orika.starter.version>1.8.0</orika.starter.version>
 		<reflections.version>0.9.11</reflections.version>
@@ -47,21 +47,28 @@
 		<maven.compiler.source>${java.compiler.version}</maven.compiler.source>
 		<skipTests>true</skipTests>
 		
-		
+		<!-- llibreries antigues que podem provar d'actualitzar -->
 		<metrics.version>3.1.2</metrics.version>
 		<spring-modules.version>0.9</spring-modules.version>
+		<jackson.version>2.7.0</jackson.version>
+		<slf4j.version>1.5.8</slf4j.version>
+		<jbpm.version>3.3.1.GA</jbpm.version>
+		<cxf.version>2.2.10</cxf.version>
 		
 	</properties>
 	<modules>
 		<module>helium-back</module>
 		<module>helium-jboss7-ear</module>
 		<module>helium-ejb</module>
+		<module>helium-persistence</module>
 		<module>helium-service</module>
 		<module>helium-service-intf</module>
 		<module>helium-boot</module>
 		<module>helium-controller</module>
-		<module>helium-persistence</module>
+
 		<module>helium-disseny-api</module>
+		<module>helium-ms</module>
+		<module>helium-plugin-api</module>
 		<!-- 
 		<module>helium-core-api</module>
 		<module>helium-disseny</module>

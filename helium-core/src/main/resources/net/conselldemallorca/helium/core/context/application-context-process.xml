@@ -50,7 +50,7 @@
 		<property name="commandService" ref="jbpm3CommandService" />
 	</bean>
 	
-	<bean id="luceneHelper" class="net.conselldemallorca.helium.core.helperv26.LuceneHelper">
+	<bean id="luceneHelper" class="es.caib.helium.logic.helper26.LuceneHelper">
 		<property name="indexFactory" ref="indexFactory" />
 	</bean>
 

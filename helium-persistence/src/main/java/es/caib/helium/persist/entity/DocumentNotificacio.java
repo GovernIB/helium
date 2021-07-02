@@ -30,10 +30,10 @@ import javax.persistence.UniqueConstraint;
 import org.apache.commons.lang.StringUtils;
 import org.hibernate.annotations.ForeignKey;
 
+import es.caib.helium.integracio.plugins.notificacio.EnviamentEstat;
 import es.caib.helium.logic.intf.dto.EnviamentTipusEnumDto;
 import es.caib.helium.logic.intf.dto.NotificacioEnviamentEstatEnumDto;
 import es.caib.helium.logic.intf.dto.NotificacioEstatEnumDto;
-import es.caib.helium.logic.intf.integracio.notificacio.EnviamentEstat;
 
 /**
  * Objecte de domini que representa una notificació electronica de un expedient.

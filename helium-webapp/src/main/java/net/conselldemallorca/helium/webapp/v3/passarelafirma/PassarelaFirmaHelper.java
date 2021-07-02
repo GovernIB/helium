@@ -36,7 +36,7 @@ import com.artofsolving.jodconverter.DocumentFormat;
 import com.artofsolving.jodconverter.DocumentFormatRegistry;
 
 import es.caib.helium.logic.intf.dto.ArxiuDto;
-import net.conselldemallorca.helium.core.util.GlobalProperties;
+import es.caib.helium.logic.util.GlobalProperties;
 
 /**
  * Classes s'ajuda per a les accions de la passarel·la de firma.
