@@ -17,6 +17,6 @@
 	
 	<jpa:repositories base-package="net.conselldemallorca.helium.v3.core.repository" repository-impl-postfix="Repository"/>
 
-	<bean name="aclServiceDao" class="net.conselldemallorca.helium.core.security.AclServiceDao"/>
+	<bean name="aclServiceDao" class="es.caib.helium.logic.security.AclServiceDao"/>
 
 </beans>

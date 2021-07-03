@@ -14,8 +14,6 @@ import java.util.regex.Pattern;
 
 import javax.activation.MimetypesFileTypeMap;
 
-import net.conselldemallorca.helium.core.util.GlobalProperties;
-
 import org.alfresco.webservice.authentication.AuthenticationFault;
 import org.alfresco.webservice.content.Content;
 import org.alfresco.webservice.content.ContentFault;
@@ -41,6 +39,8 @@ import org.alfresco.webservice.util.Utils;
 import org.alfresco.webservice.util.WebServiceFactory;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
+import es.caib.helium.logic.util.GlobalProperties;
 
 /**
  * Implementació del plugin de gestió documental amb Alfresco

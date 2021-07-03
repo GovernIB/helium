@@ -3,12 +3,11 @@ package net.conselldemallorca.helium.integracio.plugins.registre;
 import javax.xml.bind.JAXBElement;
 import javax.xml.namespace.QName;
 
-import net.conselldemallorca.helium.core.util.GlobalProperties;
-import net.conselldemallorca.helium.core.util.ws.WsClientUtils;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import es.caib.helium.logic.util.GlobalProperties;
+import es.caib.helium.logic.util.ws.WsClientUtils;
 import es.caib.regtel.ws.v2.model.acuserecibo.AcuseRecibo;
 import es.caib.regtel.ws.v2.model.aviso.Aviso;
 import es.caib.regtel.ws.v2.model.datosasunto.DatosAsunto;
@@ -22,9 +21,9 @@ import es.caib.regtel.ws.v2.model.documento.Documento;
 import es.caib.regtel.ws.v2.model.documento.Documentos;
 import es.caib.regtel.ws.v2.model.oficinaregistral.OficinaRegistral;
 import es.caib.regtel.ws.v2.model.oficioremision.OficioRemision;
-import es.caib.regtel.ws.v2.model.oficioremision.ParametroTramite;
 import es.caib.regtel.ws.v2.model.oficioremision.OficioRemision.TramiteSubsanacion;
 import es.caib.regtel.ws.v2.model.oficioremision.OficioRemision.TramiteSubsanacion.ParametrosTramite;
+import es.caib.regtel.ws.v2.model.oficioremision.ParametroTramite;
 import es.caib.regtel.ws.v2.model.resultadoregistro.ResultadoRegistro;
 import es.caib.regtel.ws.v2.services.BackofficeFacade;
 import es.caib.regtel.ws.v2.services.BackofficeFacadeException;

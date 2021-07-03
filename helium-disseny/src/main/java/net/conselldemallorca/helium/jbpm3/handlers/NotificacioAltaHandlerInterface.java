@@ -35,6 +35,8 @@ public interface NotificacioAltaHandlerInterface extends ActionHandler {
 	public void setVarProcedimentCodi(String varProcedimentCodi); 
 	public void setServeiTipus(String serveiTipus); 
 	public void setVarServeiTipus(String varServeiTipus); 
+	public void setIdioma(String idioma); 
+	public void setVarIdioma(String varIdioma); 
 	public void setTitularTipus(String titularTipus); 
 	public void setVarTitularTipus(String varTitularTipus); 
 	public void setTitularNif(String titularNif); 

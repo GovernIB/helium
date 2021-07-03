@@ -14,7 +14,7 @@ import org.hibernate.Query;
 import org.jbpm.JbpmContext;
 import org.jbpm.command.AbstractBaseCommand;
 
-import net.conselldemallorca.helium.core.api.ResultatConsultaPaginada;
+import es.caib.helium.logic.intf.ResultatConsultaPaginada;
 
 /**
  * Command per a trobar els logs associats a una instància de procés

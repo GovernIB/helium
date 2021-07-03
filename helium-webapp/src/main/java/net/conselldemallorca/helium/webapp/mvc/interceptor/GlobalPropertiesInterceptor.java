@@ -8,7 +8,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
-import net.conselldemallorca.helium.core.util.GlobalProperties;
+import es.caib.helium.logic.util.GlobalProperties;
 
 /**
  * Interceptor per guardar les propietats globals per a cada petició

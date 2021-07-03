@@ -3,10 +3,10 @@
  */
 package net.conselldemallorca.helium.ws.test;
 
+import es.caib.helium.logic.util.ws.WsClientUtils;
 import es.caib.portafib.ws.callback.api.v1.PortaFIBCallBackWs;
 import es.caib.portafib.ws.callback.api.v1.PortaFIBEvent;
 import es.caib.portafib.ws.callback.api.v1.SigningRequest;
-import net.conselldemallorca.helium.core.util.ws.WsClientUtils;
 
 /**
  * Test per invocar el callback del portafirmes del WS de Helium que implementa la versió més nova
@@ -17,7 +17,7 @@ public class PortaFIBCallbackTest {
 
 	private static String ENDPOINT_ADDRESS = "http://10.35.3.231:8080/helium/ws/v1/PortaFIBCallBack";
 	private static String USERNAME = "admin";
-	private static String PASSWORD = "admin15";
+	private static String PASSWORD = "admin";
 
 
 	public static void main(String[] args) {

@@ -5,14 +5,14 @@ package net.conselldemallorca.helium.jbpm3.integracio;
 
 import java.util.List;
 
-import net.conselldemallorca.helium.v3.core.api.dto.CampTascaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.CampTipusDto;
-import net.conselldemallorca.helium.v3.core.api.dto.DocumentTascaDto;
-
 import org.jbpm.context.exe.ContextInstance;
 import org.jbpm.graph.exe.Token;
 import org.jbpm.taskmgmt.def.TaskControllerHandler;
 import org.jbpm.taskmgmt.exe.TaskInstance;
+
+import es.caib.helium.logic.intf.dto.CampTascaDto;
+import es.caib.helium.logic.intf.dto.CampTipusDto;
+import es.caib.helium.logic.intf.dto.DocumentTascaDto;
 
 /**
  * ControllerHandler per defecte

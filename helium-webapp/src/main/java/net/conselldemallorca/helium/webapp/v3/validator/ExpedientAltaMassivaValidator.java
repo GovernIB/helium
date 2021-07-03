@@ -17,13 +17,13 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import net.conselldemallorca.helium.core.util.CsvHelper;
-import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExecucioMassivaListDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
-import net.conselldemallorca.helium.v3.core.api.service.DissenyService;
-import net.conselldemallorca.helium.v3.core.api.service.ExecucioMassivaService;
-import net.conselldemallorca.helium.v3.core.api.service.ExpedientTipusService;
+import es.caib.helium.logic.intf.dto.CampDto;
+import es.caib.helium.logic.intf.dto.ExecucioMassivaListDto;
+import es.caib.helium.logic.intf.dto.ExpedientTipusDto;
+import es.caib.helium.logic.intf.service.DissenyService;
+import es.caib.helium.logic.intf.service.ExecucioMassivaService;
+import es.caib.helium.logic.intf.service.ExpedientTipusService;
+import es.caib.helium.logic.util.CsvHelper;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientAltaMassivaCommand;
 import net.conselldemallorca.helium.webapp.v3.helper.MessageHelper;
 
@@ -41,8 +41,8 @@ public class ExpedientAltaMassivaValidator implements ConstraintValidator<Expedi
 	@Autowired
 	DissenyService dissenyService;
 	
-	/** Màxim de 1000 expedients per alta programada. */
-	private int MAX_EXPEDIENTS = 1000; 
+	/** Màxim de 1500 expedients per alta programada. */
+	private int MAX_EXPEDIENTS = 1500; 
 
 	/** Màxim de 20 expedients per alta sense paràmetre de programació, a partir de 20 s'ha de programar després de les 15h. */
 	private int MAX_EXPEDIENTS_SENSE_PROGRAMACIO = 20;
@@ -141,7 +141,7 @@ public class ExpedientAltaMassivaValidator implements ConstraintValidator<Expedi
 							}
 						}
 						// Valida que no se superin el màxim de registres per alta programada
-						if (contingutCsv.length > MAX_EXPEDIENTS) {
+						if (contingutCsv.length > MAX_EXPEDIENTS + 1) { // N expedients + 1a fila de variables
 							// No es poden donar d''alta més de {0} expedients per alta massiva.
 							context.buildConstraintViolationWithTemplate(
 									MessageHelper.getInstance().getMessage( this.codiMissatge + ".arxiu.max.registres", new Object[] {MAX_EXPEDIENTS}))
@@ -149,7 +149,7 @@ public class ExpedientAltaMassivaValidator implements ConstraintValidator<Expedi
 							.addConstraintViolation();
 							valid = false;							
 						}
-						if (contingutCsv.length > MAX_EXPEDIENTS_SENSE_PROGRAMACIO) {
+						if (contingutCsv.length > MAX_EXPEDIENTS_SENSE_PROGRAMACIO + 1) { // N expedients + 1a fila de variables
 							Calendar horaLimit = new GregorianCalendar();
 							horaLimit.setTime(DateUtils.truncate(dataInici != null ? dataInici : new Date(), Calendar.DATE));
 							horaLimit.set(Calendar.HOUR_OF_DAY, PROGRAMACIO_HORA_MINIMA_HH);

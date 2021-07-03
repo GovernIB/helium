@@ -16,7 +16,7 @@ import javax.naming.directory.SearchResult;
 import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapContext;
 
-import net.conselldemallorca.helium.core.util.GlobalProperties;
+import es.caib.helium.logic.util.GlobalProperties;
 import net.conselldemallorca.helium.integracio.plugins.persones.DadesPersona.Sexe;
 
 /**

@@ -33,6 +33,8 @@ public class NotificacioAltaHandler extends BasicActionHandler implements Notifi
 	public void setVarDocument(String varDocument) {}
 	public void setProcedimentCodi(String procedimentCodi) {}
 	public void setVarProcedimentCodi(String varProcedimentCodi) {}
+	public void setIdioma(String idioma) {}
+	public void setVarIdioma(String varIdioma) {}
 	public void setPagadorPostalDir3Codi(String pagadorPostalDir3Codi) {}
 	public void setVarPagadorPostalDir3Codi(String varPagadorPostalDir3Codi) {}
 	public void setPagadorPostalContracteNum(String pagadorPostalContracteNum) {}
@@ -152,5 +154,5 @@ public class NotificacioAltaHandler extends BasicActionHandler implements Notifi
 	public void setEntregaDehObligat(String entregaDehObligat) {}
 	public void setVarEntregaDehObligat(String varEntregaDehObligat) {}
 	public void setEntregaDehProcedimentCodi(String entregaDehProcedimentCodi) {}
-	public void setVarEntregaDehProcedimentCodi(String varEntregaDehProcedimentCodi) {}	
+	public void setVarEntregaDehProcedimentCodi(String varEntregaDehProcedimentCodi) {}
 }

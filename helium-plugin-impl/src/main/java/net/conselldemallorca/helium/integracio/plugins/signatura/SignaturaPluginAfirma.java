@@ -8,11 +8,12 @@ import java.util.List;
 
 import net.conselldemallorca.helium.integracio.plugins.signatura.afirma.AfirmaUtils;
 import net.conselldemallorca.helium.integracio.plugins.signatura.afirma.ValidarSignaturaResponse;
-import net.conselldemallorca.helium.core.util.GlobalProperties;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.ws.security.util.Base64;
+
+import es.caib.helium.logic.util.GlobalProperties;
 
 
 /**

@@ -1,9 +1,7 @@
 package net.conselldemallorca.helium.webapp.ms.api;
 
 import lombok.Data;
-import net.conselldemallorca.helium.core.api.WorkflowBridgeService;
-import net.conselldemallorca.helium.v3.core.api.dto.TerminiDto;
-import net.conselldemallorca.helium.v3.core.api.dto.TerminiIniciatDto;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +12,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+
+import es.caib.helium.logic.intf.WorkflowBridgeService;
+import es.caib.helium.logic.intf.dto.TerminiDto;
+import es.caib.helium.logic.intf.dto.TerminiIniciatDto;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Date;

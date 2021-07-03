@@ -9,13 +9,14 @@ import java.util.List;
 
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.DocumentInfo;
 import net.conselldemallorca.helium.jbpm3.integracio.Jbpm3HeliumBridge;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ZonaperDocumentDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ZonaperDocumentDto.DocumentEventTipus;
-import net.conselldemallorca.helium.v3.core.api.dto.ZonaperEventDto;
 
 import org.jbpm.JbpmException;
 import org.jbpm.graph.exe.ExecutionContext;
+
+import es.caib.helium.logic.intf.dto.ExpedientDto;
+import es.caib.helium.logic.intf.dto.ZonaperDocumentDto;
+import es.caib.helium.logic.intf.dto.ZonaperEventDto;
+import es.caib.helium.logic.intf.dto.ZonaperDocumentDto.DocumentEventTipus;
 
 /**
  * Handler per a afegir un event a un expedient de la zona

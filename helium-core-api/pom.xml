@@ -62,22 +62,21 @@
   			<artifactId>commons-lang</artifactId>
   			<version>2.5</version>
 		</dependency>
+		
+		<dependency>
+			<groupId>com.sun.xml.ws</groupId>
+			<artifactId>jaxws-ri</artifactId>
+			<version>2.3.3</version>
+			<type>pom</type>
+		</dependency>
 	</dependencies>
 	<build>
 		<plugins>
+			<!-- TODO DANIEL arreglar la generació de classes a partir del WSDL
 			<plugin>
-				<artifactId>maven-compiler-plugin</artifactId>
-				<configuration>
-					<fork>true</fork>
-					<compilerVersion>${java.version}</compilerVersion>
-					<source>${java.version}</source>
-					<target>${java.version}</target>
-				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>org.codehaus.mojo</groupId>
+				<groupId>com.sun.xml.ws</groupId>
 				<artifactId>jaxws-maven-plugin</artifactId>
-				<version>2.4.1</version>
+				<version>2.3.2</version>
 				<executions>
 					<execution>
 						<id>generate-reports-ws-code</id>
@@ -99,6 +98,7 @@
 					</execution>					
 				</executions>
 			</plugin>
+			 -->
 		</plugins>
 	</build>
 </project>

@@ -3,9 +3,10 @@
  */
 package net.conselldemallorca.helium.jbpm3.integracio;
 
-import net.conselldemallorca.helium.core.api.WDeployment;
-import net.conselldemallorca.helium.core.api.WProcessDefinition;
 import org.jbpm.graph.def.ProcessDefinition;
+
+import es.caib.helium.logic.intf.WDeployment;
+import es.caib.helium.logic.intf.WProcessDefinition;
 
 import java.util.ArrayList;
 import java.util.List;

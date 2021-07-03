@@ -16,7 +16,7 @@ import javax.persistence.TableGenerator;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
-import net.conselldemallorca.helium.core.model.hibernate.GenericEntity;
+import es.caib.helium.persist.entity.GenericEntity;
 
 /**
  * Classe base per guardar els logs de les accions

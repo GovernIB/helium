@@ -6,6 +6,7 @@ package net.conselldemallorca.helium.ws.backoffice;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.math.BigDecimal;
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -26,30 +27,30 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import net.conselldemallorca.helium.core.helper.PluginHelper;
-import net.conselldemallorca.helium.core.model.hibernate.Camp;
-import net.conselldemallorca.helium.core.model.hibernate.Camp.TipusCamp;
-import net.conselldemallorca.helium.core.model.hibernate.CampTasca;
-import net.conselldemallorca.helium.core.model.hibernate.Expedient;
-import net.conselldemallorca.helium.core.model.hibernate.MapeigSistra;
-import net.conselldemallorca.helium.core.util.EntornActual;
+import es.caib.helium.logic.helper.PluginHelper;
+import es.caib.helium.logic.intf.dto.DadesDocumentDto;
+import es.caib.helium.logic.intf.dto.DefinicioProcesDto;
+import es.caib.helium.logic.intf.dto.DocumentDto;
+import es.caib.helium.logic.intf.dto.ExpedientDto;
+import es.caib.helium.logic.intf.dto.ExpedientTascaDto;
+import es.caib.helium.logic.intf.dto.ExpedientTipusDto;
+import es.caib.helium.logic.intf.dto.MapeigSistraDto;
+import es.caib.helium.logic.intf.dto.TramitDocumentDto;
+import es.caib.helium.logic.intf.dto.TramitDto;
+import es.caib.helium.logic.intf.dto.ExpedientDto.IniciadorTipusDto;
+import es.caib.helium.logic.intf.service.DissenyService;
+import es.caib.helium.logic.intf.service.ExpedientService;
+import es.caib.helium.logic.intf.service.ExpedientTipusService;
+import es.caib.helium.logic.util.EntornActual;
+import es.caib.helium.persist.entity.Camp;
+import es.caib.helium.persist.entity.CampTasca;
+import es.caib.helium.persist.entity.Expedient;
+import es.caib.helium.persist.entity.MapeigSistra;
+import es.caib.helium.persist.entity.Camp.TipusCamp;
+import es.caib.helium.persist.repository.CampTascaRepository;
+import es.caib.helium.persist.repository.DocumentRepository;
 import net.conselldemallorca.helium.integracio.plugins.tramitacio.AutenticacioTipus;
 import net.conselldemallorca.helium.integracio.plugins.tramitacio.DadesVistaDocument;
-import net.conselldemallorca.helium.v3.core.api.dto.DadesDocumentDto;
-import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
-import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto.IniciadorTipusDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
-import net.conselldemallorca.helium.v3.core.api.dto.MapeigSistraDto;
-import net.conselldemallorca.helium.v3.core.api.dto.TramitDocumentDto;
-import net.conselldemallorca.helium.v3.core.api.dto.TramitDto;
-import net.conselldemallorca.helium.v3.core.api.service.DissenyService;
-import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
-import net.conselldemallorca.helium.v3.core.api.service.ExpedientTipusService;
-import net.conselldemallorca.helium.v3.core.repository.CampTascaRepository;
-import net.conselldemallorca.helium.v3.core.repository.DocumentRepository;
 
 /**
  * Mètodes base per a les diferents implementacions de backoffices
@@ -468,7 +469,15 @@ public abstract class BaseBackoffice {
 			} else if (camp.getTipus().equals(TipusCamp.BOOLEAN)) {
 				return new Boolean(valor);
 			} else if (camp.getTipus().equals(TipusCamp.PRICE)) {
-				return new BigDecimal(valor);
+				Object preu = null;
+				try {
+					preu = new BigDecimal(valor);
+				} catch(Exception e) {
+					// No compleix amb el format "0.##", es prova amb el format #,##0.###
+					DecimalFormat df = new DecimalFormat("#,##0.###");
+					preu = new BigDecimal(df.parse(valor).doubleValue());
+				}
+				return preu;
 			} else if (camp.getTipus().equals(TipusCamp.INTEGER)) {
 				return new Long(valor);
 			} else if (camp.getTipus().equals(TipusCamp.FLOAT)) {
@@ -476,6 +485,11 @@ public abstract class BaseBackoffice {
 			}
 			return valor;
 		} catch (Exception ex) {
+			if (camp != null) {
+				logger.error("Error en el mapeig de camp [codi=" + camp.getCodi() + 
+						", etiqueta=" + camp.getEtiqueta() + ", tipus=" + camp.getTipus() +
+						" pel valor " + valor + ":" + ex.getMessage());
+			}
 			return null;
 		}
 	}

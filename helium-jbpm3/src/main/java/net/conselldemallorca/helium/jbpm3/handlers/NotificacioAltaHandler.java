@@ -16,15 +16,16 @@ import org.jbpm.JbpmException;
 import org.jbpm.graph.exe.ExecutionContext;
 import org.springframework.security.crypto.codec.Base64;
 
+import es.caib.helium.logic.intf.dto.DocumentDto;
+import es.caib.helium.logic.intf.dto.ExpedientDto;
+import es.caib.helium.logic.intf.dto.ExpedientTipusDto;
+import es.caib.helium.logic.intf.dto.RespostaNotificacio;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.DadesEnviament;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.DadesNotificacio;
+import net.conselldemallorca.helium.jbpm3.handlers.tipus.DadesNotificacio.Idioma;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.DocumentInfo;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.PersonaInfo;
 import net.conselldemallorca.helium.jbpm3.integracio.Jbpm3HeliumBridge;
-import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
-import net.conselldemallorca.helium.v3.core.api.dto.RespostaNotificacio;
 
 /**
  * Handler per a interactuar amb el registre de sortida.
@@ -67,6 +68,9 @@ public class NotificacioAltaHandler extends BasicActionHandler implements Notifi
 	
 	private String procedimentCodi;
 	private String varProcedimentCodi;
+	
+	private String idioma;	// Possibles valors [ES, CA]
+	private String varIdioma;
 	
 
 	// ENVIAMENT
@@ -260,6 +264,17 @@ public class NotificacioAltaHandler extends BasicActionHandler implements Notifi
 				caducitat,
 				varCaducitat));
 		
+		Object idioma = getValorOVariable(
+				executionContext,
+				this.idioma,
+				varIdioma);
+		if (idioma != null) {
+			try {
+				dadesNotificacio.setIdioma(Idioma.valueOf(idioma.toString()));
+			} catch(Exception e) {
+				throw new JbpmException("No es reconeix l'idioma \"" + idioma.toString() + "\" per la notificació, els únics valors admesos són \"ES\" i \"CA\".");
+			}
+		}
 		DocumentInfo documentInfo = null;
 		List<DocumentInfo> annexos_notificacio = new ArrayList<DocumentInfo>();
 		
@@ -632,6 +647,14 @@ public class NotificacioAltaHandler extends BasicActionHandler implements Notifi
 
 	public void setVarProcedimentCodi(String varProcedimentCodi) {
 		this.varProcedimentCodi = varProcedimentCodi;
+	}
+
+	public void setIdioma(String idioma) {
+		this.idioma = idioma;
+	}
+
+	public void setVarIdioma(String varIdioma) {
+		this.varIdioma = varIdioma;
 	}
 
 	public void setTitularNif(String titularNif) {

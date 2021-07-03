@@ -1,0 +1,91 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>es.caib.helium</groupId>
+		<artifactId>helium</artifactId>
+		<version>4.0.0</version>
+	</parent>	
+	<artifactId>helium-jboss7-ear</artifactId>
+	<packaging>ear</packaging>
+	<name>helium-jboss7-ear</name>
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+	</properties>
+
+	<dependencies>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+			<exclusions>
+				<exclusion>
+					<groupId>org.springframework.boot</groupId>
+					<artifactId>spring-boot-starter-tomcat</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>helium-ejb</artifactId>
+			<version>${project.version}</version>
+			<type>ejb</type>
+			<exclusions>
+				<exclusion>
+					<groupId>org.liquibase</groupId>
+					<artifactId>liquibase-core</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>es.caib.helium</groupId>
+			<artifactId>helium-back</artifactId>
+			<version>4.0.0</version>
+			<type>war</type>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-ear-plugin</artifactId>
+				<version>3.2.0</version>
+				<configuration>
+					<generateApplicationXml>true</generateApplicationXml>
+					<defaultLibBundleDir>/lib</defaultLibBundleDir>
+					<includeLibInApplicationXml>false</includeLibInApplicationXml>
+					<version>6</version>
+					<initializeInOrder>true</initializeInOrder>
+					<archive>
+						<manifestEntries>
+							<Build-Timestamp>${maven.build.timestamp}</Build-Timestamp>
+							<Implementation-Vendor>Límit Tecnologies</Implementation-Vendor>
+							<Implementation-Version>${project.version}</Implementation-Version>
+							<Implementation-SCM-Branch>${git.branch}</Implementation-SCM-Branch>
+							<Implementation-SCM-Revision>${git.commit.id}</Implementation-SCM-Revision>
+						</manifestEntries>
+					</archive>
+					<modules>
+						<ejbModule>
+							<groupId>${project.groupId}</groupId>
+							<artifactId>helium-ejb</artifactId>
+							<bundleFileName>helium-ejb.jar</bundleFileName>
+						</ejbModule>
+						<webModule>
+							<groupId>${project.groupId}</groupId>
+							<artifactId>helium-back</artifactId>
+							<contextRoot>/heliumback</contextRoot>
+							<bundleFileName>helium-back.war</bundleFileName>
+						</webModule>
+					</modules>
+				</configuration>
+			</plugin>
+						 
+		</plugins>
+		<finalName>helium</finalName>
+	</build>
+  
+</project>

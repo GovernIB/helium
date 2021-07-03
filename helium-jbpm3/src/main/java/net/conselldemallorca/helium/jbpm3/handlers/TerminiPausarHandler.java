@@ -7,9 +7,9 @@ import java.util.Date;
 
 import org.jbpm.graph.exe.ExecutionContext;
 
+import es.caib.emiserv.logic.intf.exception.NoTrobatException;
+import es.caib.helium.logic.intf.dto.TerminiIniciatDto;
 import net.conselldemallorca.helium.jbpm3.integracio.Jbpm3HeliumBridge;
-import net.conselldemallorca.helium.v3.core.api.dto.TerminiIniciatDto;
-import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 
 /**
  * Handler per pausar un termini.

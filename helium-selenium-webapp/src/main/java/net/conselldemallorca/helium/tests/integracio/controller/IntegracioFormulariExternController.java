@@ -105,7 +105,7 @@ public class IntegracioFormulariExternController {
 			String userName,
 			String password) throws MalformedURLException {
 		
-		GuardarFormulari service = (GuardarFormulari) net.conselldemallorca.helium.core.util.ws.WsClientUtils.getWsClientProxy(
+		GuardarFormulari service = (GuardarFormulari) es.caib.helium.logic.util.ws.WsClientUtils.getWsClientProxy(
 				GuardarFormulari.class,
 				endPointAddress,
 				userName,

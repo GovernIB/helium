@@ -6,9 +6,9 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import net.conselldemallorca.helium.core.model.hibernate.Entorn;
-import net.conselldemallorca.helium.v3.core.api.dto.FormulariExternDto;
-import net.conselldemallorca.helium.v3.core.api.service.TascaService;
+import es.caib.helium.logic.intf.dto.FormulariExternDto;
+import es.caib.helium.logic.intf.service.TascaService;
+import es.caib.helium.persist.entity.Entorn;
 import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
 
 /**

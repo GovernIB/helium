@@ -10,6 +10,7 @@ import javax.xml.ws.BindingProvider;
 import org.apache.commons.io.IOUtils;
 //import org.fundaciobit.genapp.common.utils.Utils;
 
+import es.caib.helium.logic.util.GlobalProperties;
 import es.caib.regweb3.utils.RegwebConstantes;
 import es.caib.regweb3.ws.api.v3.RegWebAsientoRegistralWs;
 import es.caib.regweb3.ws.api.v3.RegWebAsientoRegistralWsService;
@@ -23,7 +24,6 @@ import es.caib.regweb3.ws.api.v3.RegWebPersonasWs;
 import es.caib.regweb3.ws.api.v3.RegWebPersonasWsService;
 import es.caib.regweb3.ws.api.v3.RegWebRegistroEntradaWs;
 import es.caib.regweb3.ws.api.v3.RegWebRegistroEntradaWsService;
-import net.conselldemallorca.helium.core.util.GlobalProperties;
 
 /**
  * 

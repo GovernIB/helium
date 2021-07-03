@@ -5,8 +5,8 @@ import javax.validation.ConstraintValidatorContext;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
-import net.conselldemallorca.helium.v3.core.api.dto.CampAgrupacioDto;
-import net.conselldemallorca.helium.v3.core.api.service.CampService;
+import es.caib.helium.logic.intf.dto.CampAgrupacioDto;
+import es.caib.helium.logic.intf.service.CampService;
 import net.conselldemallorca.helium.webapp.v3.command.AgrupacioCommand;
 import net.conselldemallorca.helium.webapp.v3.helper.MessageHelper;
 

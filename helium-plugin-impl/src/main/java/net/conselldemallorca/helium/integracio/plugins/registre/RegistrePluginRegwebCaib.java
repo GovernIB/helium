@@ -12,11 +12,10 @@ import java.util.Vector;
 import javax.naming.Context;
 import javax.naming.InitialContext;
 
-import net.conselldemallorca.helium.core.util.GlobalProperties;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import es.caib.helium.logic.util.GlobalProperties;
 import es.caib.regweb.RegistroEntrada;
 import es.caib.regweb.RegistroEntradaHome;
 import es.caib.regweb.RegistroSalida;

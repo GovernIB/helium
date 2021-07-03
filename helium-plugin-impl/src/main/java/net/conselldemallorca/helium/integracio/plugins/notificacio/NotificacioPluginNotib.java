@@ -14,6 +14,7 @@ import javax.xml.datatype.XMLGregorianCalendar;
 
 import org.apache.commons.codec.binary.Base64;
 
+import es.caib.helium.logic.util.GlobalProperties;
 import es.caib.notib.client.NotificacioRestClient;
 import es.caib.notib.client.NotificacioRestClientFactory;
 import es.caib.notib.ws.notificacio.Certificacio;
@@ -27,7 +28,6 @@ import es.caib.notib.ws.notificacio.NotificaDomiciliConcretTipusEnumDto;
 import es.caib.notib.ws.notificacio.NotificaServeiTipusEnumDto;
 import es.caib.notib.ws.notificacio.NotificacioV2;
 import es.caib.notib.ws.notificacio.RespostaAlta;
-import net.conselldemallorca.helium.core.util.GlobalProperties;
 
 /**
  * Implementació de del plugin d'enviament de notificacions
@@ -67,6 +67,8 @@ public class NotificacioPluginNotib implements NotificacioPlugin {
 			notificacioNotib.setGrupCodi(notificacio.getGrupCodi());
 			notificacioNotib.setUsuariCodi(notificacio.getUsuariCodi());
 			notificacioNotib.setNumExpedient(notificacio.getNumExpedient());
+			if (notificacio.getIdioma() != null)
+				notificacioNotib.setIdioma(es.caib.notib.ws.notificacio.IdiomaEnumDto.valueOf(notificacio.getIdioma().toString()));
 						
 			if (notificacio.getEnviaments() != null) {
 				for (Enviament enviament: notificacio.getEnviaments()) {

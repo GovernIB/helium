@@ -6,10 +6,10 @@ import javax.validation.ConstraintValidatorContext;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
-import net.conselldemallorca.helium.v3.core.api.dto.EntornAreaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
-import net.conselldemallorca.helium.v3.core.api.service.EntornAreaService;
-import net.conselldemallorca.helium.v3.core.api.service.EntornTipusAreaService;
+import es.caib.helium.logic.intf.dto.EntornAreaDto;
+import es.caib.helium.logic.intf.dto.EntornDto;
+import es.caib.helium.logic.intf.service.EntornAreaService;
+import es.caib.helium.logic.intf.service.EntornTipusAreaService;
 import net.conselldemallorca.helium.webapp.v3.command.EntornAreaCommand;
 import net.conselldemallorca.helium.webapp.v3.helper.MessageHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;

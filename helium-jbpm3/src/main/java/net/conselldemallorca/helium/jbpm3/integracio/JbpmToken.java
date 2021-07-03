@@ -3,8 +3,9 @@
  */
 package net.conselldemallorca.helium.jbpm3.integracio;
 
-import net.conselldemallorca.helium.core.api.WToken;
 import org.jbpm.graph.exe.Token;
+
+import es.caib.helium.logic.intf.WToken;
 
 import java.util.Date;
 

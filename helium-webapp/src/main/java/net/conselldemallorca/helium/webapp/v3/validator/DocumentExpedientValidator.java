@@ -7,12 +7,12 @@ import javax.validation.ConstraintValidatorContext;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import edu.emory.mathcs.backport.java.util.Arrays;
-import net.conselldemallorca.helium.core.helper.DocumentHelperV3;
-import net.conselldemallorca.helium.core.util.PdfUtils;
-import net.conselldemallorca.helium.v3.core.api.dto.DocumentTipusFirmaEnumDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
-import net.conselldemallorca.helium.v3.core.api.dto.NtiEstadoElaboracionEnumDto;
-import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
+import es.caib.helium.logic.helper.DocumentHelperV3;
+import es.caib.helium.logic.intf.dto.DocumentTipusFirmaEnumDto;
+import es.caib.helium.logic.intf.dto.ExpedientDto;
+import es.caib.helium.logic.intf.dto.NtiEstadoElaboracionEnumDto;
+import es.caib.helium.logic.intf.service.ExpedientService;
+import es.caib.helium.logic.util.PdfUtils;
 import net.conselldemallorca.helium.webapp.v3.command.DocumentExpedientCommand;
 import net.conselldemallorca.helium.webapp.v3.helper.MessageHelper;
 

@@ -9,7 +9,7 @@ import javax.validation.constraints.Size;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.hibernate.validator.constraints.NotEmpty;
 
-import net.conselldemallorca.helium.v3.core.api.dto.PrincipalTipusEnumDto;
+import es.caib.helium.logic.intf.dto.PrincipalTipusEnumDto;
 
 /**
  * Command per al manteniment de permisos.

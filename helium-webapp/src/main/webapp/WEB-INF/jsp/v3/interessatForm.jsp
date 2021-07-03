@@ -34,9 +34,9 @@
 </style>
 <script>
 
-var $ADMINISTRACIO = '<%=net.conselldemallorca.helium.v3.core.api.dto.InteressatTipusEnumDto.ADMINISTRACIO%>';
-var $FISICA = '<%=net.conselldemallorca.helium.v3.core.api.dto.InteressatTipusEnumDto.FISICA%>';
-var $JURIDICA = '<%=net.conselldemallorca.helium.v3.core.api.dto.InteressatTipusEnumDto.JURIDICA%>';
+var $ADMINISTRACIO = '<%=es.caib.helium.logic.intf.dto.InteressatTipusEnumDto.ADMINISTRACIO%>';
+var $FISICA = '<%=es.caib.helium.logic.intf.dto.InteressatTipusEnumDto.FISICA%>';
+var $JURIDICA = '<%=es.caib.helium.logic.intf.dto.InteressatTipusEnumDto.JURIDICA%>';
 
 function ajustarTipus(tipus) {
   	if (tipus == $ADMINISTRACIO) {

@@ -6,12 +6,11 @@ package net.conselldemallorca.helium.integracio.plugins.gesdoc;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import net.conselldemallorca.helium.core.util.GlobalProperties;
-import net.conselldemallorca.helium.core.util.ws.WsClientUtils;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import es.caib.helium.logic.util.GlobalProperties;
+import es.caib.helium.logic.util.ws.WsClientUtils;
 import es.cim.ws.documentos.v1.model.gestordocumental.EliminarDocumentoRequest;
 import es.cim.ws.documentos.v1.model.gestordocumental.EliminarDocumentoResponse;
 import es.cim.ws.documentos.v1.model.gestordocumental.InsertarDocumentoExpedienteRequest;

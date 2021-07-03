@@ -62,7 +62,7 @@
 	<task:annotation-driven scheduler="myScheduler"/>
 	<task:scheduler id="myScheduler" pool-size="10"/>
 
-	<bean id="openOfficeUtils" class="net.conselldemallorca.helium.core.util.OpenOfficeUtils"/>
+	<bean id="openOfficeUtils" class="es.caib.helium.logic.util.OpenOfficeUtils"/>
 
 <!-- 	
 	<bean id="monitorHelper" class="net.conselldemallorca.helium.core.model.service.MonitorHelper">
@@ -80,7 +80,7 @@
 		<property name="jbpm3HeliumService" ref="jbpm3HeliumHelper" />
 	</bean>
 	
-	<bean id="mesuresTemporalsHelper" class="net.conselldemallorca.helium.core.helperv26.MesuresTemporalsHelper">
+	<bean id="mesuresTemporalsHelper" class="es.caib.helium.logic.helper26.MesuresTemporalsHelper">
 		<constructor-arg type="java.lang.String" value="${app.mesura.temps.actiu?false}"/>
 		<constructor-arg type="java.lang.Integer" value="${app.mesura.temps.mesures?100}"/>
 	</bean>

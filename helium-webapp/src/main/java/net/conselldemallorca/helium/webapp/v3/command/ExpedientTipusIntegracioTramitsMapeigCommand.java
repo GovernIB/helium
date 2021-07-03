@@ -5,8 +5,8 @@ package net.conselldemallorca.helium.webapp.v3.command;
 
 import javax.validation.constraints.NotNull;
 
-import net.conselldemallorca.helium.v3.core.api.dto.MapeigSistraDto;
-import net.conselldemallorca.helium.v3.core.api.dto.MapeigSistraDto.TipusMapeig;
+import es.caib.helium.logic.intf.dto.MapeigSistraDto;
+import es.caib.helium.logic.intf.dto.MapeigSistraDto.TipusMapeig;
 import net.conselldemallorca.helium.webapp.v3.validator.ExpedientTipusMapeig;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientTipusIntegracioTramitsMapeigCommand.Creacio;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientTipusIntegracioTramitsMapeigCommand.Modificacio;

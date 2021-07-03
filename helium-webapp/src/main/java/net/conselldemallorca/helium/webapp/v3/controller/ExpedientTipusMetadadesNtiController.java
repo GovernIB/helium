@@ -16,9 +16,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
-import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
+import es.caib.emiserv.logic.intf.exception.PermisDenegatException;
+import es.caib.helium.logic.intf.dto.EntornDto;
+import es.caib.helium.logic.intf.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientTipusMetadadesNtiCommand;
 import net.conselldemallorca.helium.webapp.v3.helper.AjaxHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.AjaxHelper.AjaxFormResponse;
