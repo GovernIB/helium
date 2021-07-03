@@ -1,10 +1,9 @@
 /**
  * 
  */
-package es.caib.helium.camunda.model;
+package es.caib.helium.client.engine.model;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 
 import java.io.Serializable;
 
@@ -13,7 +12,7 @@ import java.io.Serializable;
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
-@Getter @Setter
+@Data
 public class Termini implements Serializable {
 
 	private int anys = 0;

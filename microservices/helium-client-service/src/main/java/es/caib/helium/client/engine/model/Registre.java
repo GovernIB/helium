@@ -1,11 +1,10 @@
 /**
  * 
  */
-package es.caib.helium.camunda.model;
+package es.caib.helium.client.engine.model;
 
 import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 
 import java.io.Serializable;
 
@@ -14,7 +13,7 @@ import java.io.Serializable;
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
-@Getter @Setter
+@Data
 @AllArgsConstructor
 public class Registre implements Serializable {
 
@@ -36,6 +35,6 @@ public class Registre implements Serializable {
 		return null;
 	}
 
-	private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = -5413051308564470967L;
 
 }

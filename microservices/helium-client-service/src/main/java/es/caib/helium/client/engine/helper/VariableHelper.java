@@ -1,10 +1,10 @@
-package es.caib.helium.camunda.helper;
+package es.caib.helium.client.engine.helper;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import es.caib.helium.camunda.model.Registre;
-import es.caib.helium.camunda.model.Termini;
-import es.caib.helium.camunda.model.TipusVar;
-import es.caib.helium.camunda.model.VariableRest;
+import es.caib.helium.client.engine.model.Registre;
+import es.caib.helium.client.engine.model.Termini;
+import es.caib.helium.client.engine.model.TipusVar;
+import es.caib.helium.client.engine.model.VariableRest;
 import lombok.extern.slf4j.Slf4j;
 
 import java.math.BigDecimal;
