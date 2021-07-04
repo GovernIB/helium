@@ -58,7 +58,7 @@ import es.caib.helium.logic.helper.PaginacioHelper;
 import es.caib.helium.logic.helper.PermisosHelper;
 import es.caib.helium.logic.helper.PluginHelper;
 import es.caib.helium.logic.helper.TascaHelper;
-import es.caib.helium.logic.intf.ResultatConsultaPaginada;
+import es.caib.helium.logic.intf.dto.ResultatConsultaPaginada;
 import es.caib.helium.logic.intf.WProcessInstance;
 import es.caib.helium.logic.intf.WTaskInstance;
 import es.caib.helium.logic.intf.WorkflowEngineApi;

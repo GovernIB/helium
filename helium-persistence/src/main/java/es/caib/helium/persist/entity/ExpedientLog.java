@@ -3,29 +3,15 @@
  */
 package es.caib.helium.persist.entity;
 
-import java.io.Serializable;
-import java.util.Date;
-
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
-import javax.persistence.TableGenerator;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
-import javax.persistence.Transient;
-
-import org.hibernate.annotations.ForeignKey;
-import org.springmodules.validation.bean.conf.loader.annotation.handler.MaxLength;
-import org.springmodules.validation.bean.conf.loader.annotation.handler.NotBlank;
-import org.springmodules.validation.bean.conf.loader.annotation.handler.NotNull;
-
 import es.caib.helium.logic.intf.WorkflowRetroaccioApi.ExpedientRetroaccioEstat;
 import es.caib.helium.logic.intf.WorkflowRetroaccioApi.ExpedientRetroaccioTipus;
+
+import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+import java.io.Serializable;
+import java.util.Date;
 
 /**
  * Objecte de domini que representa una entrada de log d'un expedient.
@@ -40,9 +26,9 @@ public class ExpedientLog implements Serializable, GenericEntity<Long> {
 	
 	private Long id;
 	@NotBlank
-	@MaxLength(255)
+	@Size(max = 255)
 	private String usuari;
-	@MaxLength(2048)
+	@Size(max = 2048)
 	private String accioParams;
 	@NotNull
 	private Date data = new Date();
@@ -155,8 +141,9 @@ public class ExpedientLog implements Serializable, GenericEntity<Long> {
 	}
 
 	@ManyToOne(optional=false)
-	@JoinColumn(name="expedient_id")
-	@ForeignKey(name="hel_expedient_logs_fk")
+	@JoinColumn(
+			name="expedient_id",
+			foreignKey = @ForeignKey(name="hel_expedient_logs_fk"))
 	public Expedient getExpedient() {
 		return expedient;
 	}

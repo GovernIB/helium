@@ -3,23 +3,13 @@
  */
 package es.caib.helium.persist.entity;
 
-import java.io.Serializable;
-
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
-import javax.persistence.TableGenerator;
-
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
-import org.hibernate.annotations.ForeignKey;
-import org.springmodules.validation.bean.conf.loader.annotation.handler.NotBlank;
-import org.springmodules.validation.bean.conf.loader.annotation.handler.NotNull;
+
+import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import java.io.Serializable;
 
 /**
  * Objecte de domini que representa una sequencia anual d'un tipus d'expedient.
@@ -59,8 +49,9 @@ public class SequenciaDefaultAny implements Serializable, GenericEntity<Long> {
 
 	@SuppressWarnings("deprecation")
 	@ManyToOne(optional=true)
-	@JoinColumn(name="expedient_tipus")
-	@ForeignKey(name="hel_exptipus_seqdefany_fk")
+	@JoinColumn(
+			name="expedient_tipus",
+			foreignKey = @ForeignKey(name="hel_exptipus_seqdefany_fk"))
 	@Cascade({CascadeType.DELETE_ORPHAN})
 	public ExpedientTipus getExpedientTipus() {
 		return expedientTipus;

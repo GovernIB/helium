@@ -3,9 +3,6 @@
  */
 package es.caib.helium.persist.entity;
 
-import java.io.Serializable;
-import java.util.Date;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -15,9 +12,10 @@ import javax.persistence.Table;
 import javax.persistence.TableGenerator;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
-
-import org.springmodules.validation.bean.conf.loader.annotation.handler.MaxLength;
-import org.springmodules.validation.bean.conf.loader.annotation.handler.NotBlank;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Size;
+import java.io.Serializable;
+import java.util.Date;
 
 /**
  * Objecte de domini que representa un formulari extern.
@@ -30,13 +28,13 @@ public class FormulariExtern implements Serializable, GenericEntity<Long> {
 
 	private Long id;
 	@NotBlank
-	@MaxLength(255)
+	@Size(max = 255)
 	private String taskId;
 	@NotBlank
-	@MaxLength(255)
+	@Size(max = 255)
 	private String formulariId;
 	@NotBlank
-	@MaxLength(1024)
+	@Size(max = 1024)
 	private String url;
 	@NotBlank
 	private Date dataInici = new Date();

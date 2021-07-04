@@ -3,6 +3,12 @@
  */
 package es.caib.helium.persist.entity;
 
+import es.caib.helium.logic.intf.util.TerminiStringUtil;
+
+import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -11,31 +17,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
-import javax.persistence.TableGenerator;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
-import javax.persistence.Transient;
-import javax.persistence.UniqueConstraint;
-
-import org.hibernate.annotations.ForeignKey;
-import org.hibernate.annotations.Index;
-import org.springmodules.validation.bean.conf.loader.annotation.handler.MaxLength;
-import org.springmodules.validation.bean.conf.loader.annotation.handler.NotBlank;
-import org.springmodules.validation.bean.conf.loader.annotation.handler.NotNull;
-
-import es.caib.helium.logic.intf.util.TerminiStringUtil;
-
 /**
  * Objecte de domini que representa un termini iniciat per a un expedient
  * 
@@ -43,10 +24,8 @@ import es.caib.helium.logic.intf.util.TerminiStringUtil;
  */
 @Entity
 @Table(	name="hel_termini_iniciat",
-		uniqueConstraints={@UniqueConstraint(columnNames={"termini_id", "process_instance_id"})})
-@org.hibernate.annotations.Table(
-		appliesTo = "hel_termini_iniciat",
-		indexes = @Index(name = "hel_terminic_termini_i", columnNames = {"termini_id"}))
+		uniqueConstraints={@UniqueConstraint(columnNames={"termini_id", "process_instance_id"})},
+		indexes = @Index(name = "hel_terminic_termini_i", columnList = "termini_id"))
 public class TerminiIniciat implements Serializable, GenericEntity<Long> {
 
 	public enum TerminiIniciatEstat {
@@ -71,9 +50,9 @@ public class TerminiIniciat implements Serializable, GenericEntity<Long> {
 	private int mesos;
 	private int dies;
 	@NotBlank
-	@MaxLength(255)
+	@Size(max = 255)
 	private String processInstanceId;
-	@MaxLength(1024)
+	@Size(max = 1024)
 	private String timerIds;
 	private String taskInstanceId;
 	private boolean alertaPrevia;
@@ -265,8 +244,9 @@ public class TerminiIniciat implements Serializable, GenericEntity<Long> {
 	}
 	
 	@ManyToOne(optional=false, fetch=FetchType.LAZY)
-	@JoinColumn(name="termini_id")
-	@ForeignKey(name="hel_termini_terminic_fk")
+	@JoinColumn(
+			name="termini_id",
+			foreignKey = @ForeignKey(name="hel_termini_terminic_fk"))
 	public Termini getTermini() {
 		return termini;
 	}

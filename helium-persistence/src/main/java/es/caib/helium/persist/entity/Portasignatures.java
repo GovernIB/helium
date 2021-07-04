@@ -1,21 +1,8 @@
 package es.caib.helium.persist.entity;
 
+import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Date;
-
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.Lob;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
-import javax.persistence.TableGenerator;
-import javax.persistence.UniqueConstraint;
-
-import org.hibernate.annotations.ForeignKey;
 
 /**
  * Objecte de domini que representa un document del portasignatures.
@@ -243,8 +230,9 @@ public class Portasignatures implements Serializable, GenericEntity<Long> {
 	}
 
 	@ManyToOne(optional=false)
-	@JoinColumn(name="expedient_id")
-	@ForeignKey(name="hel_expedient_psigna_fk")
+	@JoinColumn(
+			name="expedient_id",
+			foreignKey = @ForeignKey(name="hel_expedient_psigna_fk"))
 	public Expedient getExpedient() {
 		return expedient;
 	}

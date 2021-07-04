@@ -3,16 +3,16 @@
  */
 package es.caib.helium.logic.intf.service;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.SortedSet;
-
 import es.caib.helium.logic.intf.dto.ExpedientTascaDto;
 import es.caib.helium.logic.intf.dto.InformacioRetroaccioDto;
 import es.caib.helium.logic.intf.dto.InstanciaProcesDto;
 import es.caib.helium.logic.intf.exception.NoTrobatException;
 import es.caib.helium.logic.intf.exception.PermisDenegatException;
+
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.SortedSet;
 
 
 /**
@@ -124,8 +124,6 @@ public interface ExpedientRegistreService {
 	/**
 	 * Retorna la informació d'un registre de log de l'expedient.
 	 * 
-	 * @param expedientId
-	 *            Atribut id de l'expedient.
 	 * @param logId
 	 *            Atribut id del log d'expedient.
 	 * @return la informació del log.

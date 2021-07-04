@@ -3,26 +3,14 @@
  */
 package es.caib.helium.persist.entity;
 
-import java.io.Serializable;
-
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
-import javax.persistence.TableGenerator;
-import javax.persistence.UniqueConstraint;
-
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.hibernate.annotations.ForeignKey;
-import org.hibernate.annotations.Index;
-import org.springmodules.validation.bean.conf.loader.annotation.handler.MaxLength;
-import org.springmodules.validation.bean.conf.loader.annotation.handler.NotBlank;
-import org.springmodules.validation.bean.conf.loader.annotation.handler.NotNull;
+
+import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+import java.io.Serializable;
 
 /**
  * Objecte de domini que representa l'estat d'un expedient.
@@ -32,10 +20,9 @@ import org.springmodules.validation.bean.conf.loader.annotation.handler.NotNull;
 @Entity
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 @Table(	name="hel_map_sistra",
-		uniqueConstraints={@UniqueConstraint(columnNames={"codiHelium", "expedient_tipus_id"})})
-@org.hibernate.annotations.Table(
-		appliesTo = "hel_map_sistra", 
-		indexes = @Index(name = "hel_map_sistra_exptip_i", columnNames = {"expedient_tipus_id"}))
+		uniqueConstraints={@UniqueConstraint(columnNames={"codiHelium", "expedient_tipus_id"})},
+		indexes = @Index(name = "hel_map_sistra_exptip_i", columnList = "expedient_tipus_id")
+)
 public class MapeigSistra implements Serializable, GenericEntity<Long> {
 
 	public enum TipusMapeig {
@@ -46,10 +33,10 @@ public class MapeigSistra implements Serializable, GenericEntity<Long> {
 	
 	private Long id;
 	@NotBlank
-	@MaxLength(255)
+	@Size(max = 255)
 	private String codiHelium;
 	@NotBlank
-	@MaxLength(255)
+	@Size(max = 255)
 	private String codiSistra;
 	@NotNull
 	private TipusMapeig tipus;
@@ -110,8 +97,9 @@ public class MapeigSistra implements Serializable, GenericEntity<Long> {
 	}*/
 
 	@ManyToOne(optional=false)
-	@JoinColumn(name="expedient_tipus_id")
-	@ForeignKey(name="hel_exptipus_map_sistra_fk")
+	@JoinColumn(
+			name="expedient_tipus_id",
+			foreignKey = @ForeignKey(name="hel_exptipus_map_sistra_fk"))
 	public ExpedientTipus getExpedientTipus() {
 		return expedientTipus;
 	}

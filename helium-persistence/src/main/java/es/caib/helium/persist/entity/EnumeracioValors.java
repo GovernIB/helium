@@ -3,25 +3,14 @@
  */
 package es.caib.helium.persist.entity;
 
-import java.io.Serializable;
-
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
-import javax.persistence.TableGenerator;
-
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.hibernate.annotations.ForeignKey;
-import org.hibernate.annotations.Index;
-import org.springmodules.validation.bean.conf.loader.annotation.handler.MaxLength;
-import org.springmodules.validation.bean.conf.loader.annotation.handler.NotBlank;
-import org.springmodules.validation.bean.conf.loader.annotation.handler.NotNull;
+
+import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+import java.io.Serializable;
 
 /**
  * Objecte de domini que representa els valors d'una enumeració.
@@ -30,18 +19,18 @@ import org.springmodules.validation.bean.conf.loader.annotation.handler.NotNull;
  */
 @Entity
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-@Table(	name="hel_enumeracio_valors")
-@org.hibernate.annotations.Table(
-		appliesTo = "hel_enumeracio_valors",
-		indexes = @Index(name = "hel_enum_id", columnNames = {"enumeracio_id"}))
+@Table(
+		name="hel_enumeracio_valors",
+		indexes = @Index(name = "hel_enum_id", columnList = "enumeracio_id")
+)
 public class EnumeracioValors implements Serializable {
 
 	private Long id;
 	@NotBlank
-	@MaxLength(64)
+	@Size(max = 64)
 	private String codi;
 	@NotBlank
-	@MaxLength(255)
+	@Size(max = 255)
 	private String nom;
 	int ordre;
 
@@ -91,8 +80,9 @@ public class EnumeracioValors implements Serializable {
 	}
 
 	@ManyToOne(optional=false)
-	@JoinColumn(name="enumeracio_id")
-	@ForeignKey(name="hel_enumeracio_valors_fk")
+	@JoinColumn(
+			name="enumeracio_id",
+			foreignKey = @ForeignKey(name="hel_enumeracio_valors_fk"))
 	public Enumeracio getEnumeracio() {
 		return enumeracio;
 	}

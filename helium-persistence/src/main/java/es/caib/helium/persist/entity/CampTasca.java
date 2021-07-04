@@ -3,23 +3,9 @@
  */
 package es.caib.helium.persist.entity;
 
+import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 import java.io.Serializable;
-
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
-import javax.persistence.TableGenerator;
-import javax.persistence.UniqueConstraint;
-
-import org.hibernate.annotations.ForeignKey;
-import org.hibernate.annotations.Index;
-import org.springmodules.validation.bean.conf.loader.annotation.handler.NotNull;
 
 /**
  * Objecte de domini que representa un camp per a un formulari.
@@ -30,13 +16,14 @@ import org.springmodules.validation.bean.conf.loader.annotation.handler.NotNull;
 @Table(	name="hel_camp_tasca",
 		uniqueConstraints={
 			@UniqueConstraint(name = "hel_camptasca_camp_id_tasca_id_uk", columnNames={"expedient_tipus_id", "camp_id", "tasca_id"}),
-			@UniqueConstraint(name = "hel_camptasca_tasca_id_ordre_uk", columnNames={"expedient_tipus_id", "tasca_id", "ordre"})})
-@org.hibernate.annotations.Table(
-		appliesTo = "hel_camp_tasca",
+			@UniqueConstraint(name = "hel_camptasca_tasca_id_ordre_uk", columnNames={"expedient_tipus_id", "tasca_id", "ordre"})
+		},
 		indexes = {
-				@Index(name = "hel_camptasca_camp_i", columnNames = {"camp_id"}),
-				@Index(name = "hel_camptasca_tasca_i", columnNames = {"tasca_id"}),
-				@Index(name = "hel_camptasca_extip_i", columnNames = {"expedient_tipus_id"})})
+				@Index(name = "hel_camptasca_camp_i", columnList = "camp_id"),
+				@Index(name = "hel_camptasca_tasca_i", columnList = "tasca_id"),
+				@Index(name = "hel_camptasca_extip_i", columnList = "expedient_tipus_id")
+		}
+)
 public class CampTasca implements Serializable, GenericEntity<Long> {
 
 	private Long id;
@@ -147,8 +134,9 @@ public class CampTasca implements Serializable, GenericEntity<Long> {
 		this.buitCols = buitCols;
 	}
 	@ManyToOne(optional=false, fetch=FetchType.EAGER)
-	@JoinColumn(name="camp_id")
-	@ForeignKey(name="hel_camp_camptasca_fk")
+	@JoinColumn(
+			name="camp_id",
+			foreignKey = @ForeignKey(name="hel_camp_camptasca_fk"))
 	public Camp getCamp() {
 		return camp;
 	}
@@ -157,8 +145,9 @@ public class CampTasca implements Serializable, GenericEntity<Long> {
 	}
 
 	@ManyToOne(optional=false, fetch=FetchType.EAGER)
-	@JoinColumn(name="tasca_id")
-	@ForeignKey(name="hel_tasca_camptasca_fk")
+	@JoinColumn(
+			name="tasca_id",
+			foreignKey = @ForeignKey(name="hel_tasca_camptasca_fk"))
 	public Tasca getTasca() {
 		return tasca;
 	}
@@ -167,8 +156,9 @@ public class CampTasca implements Serializable, GenericEntity<Long> {
 	}
 
 	@ManyToOne(optional=true, fetch=FetchType.LAZY)
-	@JoinColumn(name="expedient_tipus_id")
-	@ForeignKey(name="hel_extipus_camptasca_fk")
+	@JoinColumn(
+			name="expedient_tipus_id",
+			foreignKey = @ForeignKey(name="hel_extipus_camptasca_fk"))
 	public ExpedientTipus getExpedientTipus() {
 		return expedientTipus;
 	}

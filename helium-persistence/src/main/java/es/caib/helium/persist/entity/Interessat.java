@@ -3,7 +3,8 @@
  */
 package es.caib.helium.persist.entity;
 
-import java.io.Serializable;
+import es.caib.helium.logic.intf.dto.DadesEnviamentDto.EntregaPostalTipus;
+import es.caib.helium.logic.intf.dto.InteressatTipusEnumDto;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -14,11 +15,8 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.TableGenerator;
-
-import org.springmodules.validation.bean.conf.loader.annotation.handler.NotBlank;
-
-import es.caib.helium.logic.intf.dto.DadesEnviamentDto.EntregaPostalTipus;
-import es.caib.helium.logic.intf.dto.InteressatTipusEnumDto;
+import javax.validation.constraints.NotBlank;
+import java.io.Serializable;
 
 /**
 

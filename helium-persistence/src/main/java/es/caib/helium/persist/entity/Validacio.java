@@ -3,24 +3,13 @@
  */
 package es.caib.helium.persist.entity;
 
-import java.io.Serializable;
-
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
-import javax.persistence.TableGenerator;
-
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.hibernate.annotations.ForeignKey;
-import org.hibernate.annotations.Index;
-import org.springmodules.validation.bean.conf.loader.annotation.handler.MaxLength;
-import org.springmodules.validation.bean.conf.loader.annotation.handler.NotNull;
+
+import javax.persistence.*;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+import java.io.Serializable;
 
 /**
  * Objecte de domini que representa una validació de dades
@@ -29,22 +18,22 @@ import org.springmodules.validation.bean.conf.loader.annotation.handler.NotNull;
  */
 @Entity
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-@Table(name="hel_validacio")
-@org.hibernate.annotations.Table(
-		appliesTo = "hel_validacio",
+@Table(name="hel_validacio",
 		indexes = {
-				@Index(name = "hel_validacio_tasca_i", columnNames = {"tasca_id"}),
-				@Index(name = "hel_validacio_camp_i", columnNames = {"camp_id"})})
+				@Index(name = "hel_validacio_tasca_i", columnList = "tasca_id"),
+				@Index(name = "hel_validacio_camp_i", columnList = "camp_id")
+		}
+)
 public class Validacio implements Serializable, GenericEntity<Long> {
 
 	private Long id;
-	@MaxLength(255)
+	@Size(max = 255)
 	private String nom;
 	@NotNull
-	@MaxLength(1024)
+	@Size(max = 1024)
 	private String expressio;
 	@NotNull
-	@MaxLength(255)
+	@Size(max = 255)
 	private String missatge;
 	int ordre;
 
@@ -109,8 +98,9 @@ public class Validacio implements Serializable, GenericEntity<Long> {
 	}
 
 	@ManyToOne(optional=true)
-	@JoinColumn(name="tasca_id")
-	@ForeignKey(name="hel_tasca_validacio_fk")
+	@JoinColumn(
+			name="tasca_id",
+			foreignKey = @ForeignKey(name="hel_tasca_validacio_fk"))
 	public Tasca getTasca() {
 		return tasca;
 	}
@@ -119,8 +109,9 @@ public class Validacio implements Serializable, GenericEntity<Long> {
 	}
 
 	@ManyToOne(optional=true)
-	@JoinColumn(name="camp_id")
-	@ForeignKey(name="hel_camp_validacio_fk")
+	@JoinColumn(
+			name="camp_id",
+			foreignKey = @ForeignKey(name="hel_camp_validacio_fk"))
 	public Camp getCamp() {
 		return camp;
 	}

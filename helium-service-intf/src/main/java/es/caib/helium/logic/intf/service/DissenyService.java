@@ -3,32 +3,17 @@
  */
 package es.caib.helium.logic.intf.service;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import org.springframework.security.acls.model.NotFoundException;
-
-import es.caib.helium.logic.intf.dto.AreaDto;
-import es.caib.helium.logic.intf.dto.CampDto;
-import es.caib.helium.logic.intf.dto.ConsultaCampDto;
-import es.caib.helium.logic.intf.dto.ConsultaDto;
-import es.caib.helium.logic.intf.dto.DefinicioProcesDto;
-import es.caib.helium.logic.intf.dto.DefinicioProcesExpedientDto;
-import es.caib.helium.logic.intf.dto.DefinicioProcesVersioDto;
-import es.caib.helium.logic.intf.dto.DocumentDto;
-import es.caib.helium.logic.intf.dto.DominiDto;
-import es.caib.helium.logic.intf.dto.EntornDto;
-import es.caib.helium.logic.intf.dto.ExpedientDto;
-import es.caib.helium.logic.intf.dto.ExpedientTipusDto;
-import es.caib.helium.logic.intf.dto.PaginaDto;
-import es.caib.helium.logic.intf.dto.PaginacioParamsDto;
-import es.caib.helium.logic.intf.dto.ParellaCodiValorDto;
+import es.caib.helium.logic.intf.dto.*;
 import es.caib.helium.logic.intf.exception.NoTrobatException;
 import es.caib.helium.logic.intf.exception.PermisDenegatException;
 import es.caib.helium.logic.intf.exportacio.DefinicioProcesExportacio;
 import es.caib.helium.logic.intf.extern.domini.FilaResultat;
 import es.caib.helium.logic.intf.extern.domini.ParellaCodiValor;
+import org.springframework.security.acls.model.NotFoundException;
+
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 
 
@@ -47,7 +32,7 @@ public interface DissenyService {
 	 * 
 	 * @param entornId
 	 * @return
-	 * @throws EntornNotFoundException
+	 * @throws NoTrobatException
 	 */
 	public List<ExpedientTipusDto> findExpedientTipusAmbPermisReadUsuariActual(
 			Long entornId) throws NoTrobatException;
@@ -58,7 +43,7 @@ public interface DissenyService {
 	 * 
 	 * @param entornId
 	 * @return
-	 * @throws EntornNotFoundException
+	 * @throws NoTrobatException
 	 */
 	public List<ExpedientTipusDto> findExpedientTipusAmbPermisDissenyUsuariActual(
 			Long entornId) throws NoTrobatException;
@@ -69,7 +54,7 @@ public interface DissenyService {
 	 * 
 	 * @param entornId
 	 * @return
-	 * @throws EntornNotFoundException
+	 * @throws NoTrobatException
 	 */
 	public List<ExpedientTipusDto> findExpedientTipusAmbPermisGestioUsuariActual(
 			Long entornId) throws NoTrobatException;
@@ -80,7 +65,7 @@ public interface DissenyService {
 	 * 
 	 * @param entornId
 	 * @return
-	 * @throws EntornNotFoundException
+	 * @throws NoTrobatException
 	 */
 	public List<ExpedientTipusDto> findExpedientTipusAmbPermisCrearUsuariActual(
 			Long entornId) throws NoTrobatException;
@@ -97,7 +82,7 @@ public interface DissenyService {
 	 *            El tipus d'expedient.
 	 * @throws NotFoundException
 	 *             Si algun dels ids especificats no s'ha trobat.
-	 * @throws NotAllowedException
+	 * @throws PermisDenegatException
 	 *             Si no es tenen els permisos adequats.
 	 */
 	public ExpedientTipusDto findExpedientTipusAmbPermisReadUsuariActual(
@@ -151,7 +136,7 @@ public interface DissenyService {
 	 * @param entornId
 	 * @param expedientTipusId
 	 * @return
-	 * @throws EntornNotFoundException
+	 * @throws NoTrobatException
 	 */
 	public List<ConsultaDto> findConsultesActivesAmbEntornIExpedientTipusOrdenat(
 			Long entornId,

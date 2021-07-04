@@ -3,18 +3,16 @@
  */
 package es.caib.helium.logic.intf.service;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-
-import com.codahale.metrics.MetricRegistry;
-
 import es.caib.helium.logic.intf.dto.*;
 import es.caib.helium.logic.intf.exception.NoTrobatException;
 import es.caib.helium.logic.intf.exception.SistemaExternException;
 import es.caib.helium.logic.intf.exception.TramitacioException;
 import es.caib.helium.logic.intf.exception.ValidacioException;
 import es.caib.helium.logic.intf.registre.RegistreAnotacio;
+
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -1116,7 +1114,7 @@ public interface Jbpm3HeliumService {
 	 * Retorna una referència al registre de mètriques
 	 * 
 	 */
-	public MetricRegistry getMetricRegistry();
+//	public MetricRegistry getMetricRegistry();
 	
 	/**
 	 * Error completar tasca en segon pla

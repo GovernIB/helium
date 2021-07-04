@@ -1,7 +1,5 @@
 package es.caib.helium.logic.intf.service;
 
-import java.util.List;
-
 import es.caib.helium.logic.intf.dto.CampTascaDto;
 import es.caib.helium.logic.intf.dto.ConsultaDto;
 import es.caib.helium.logic.intf.dto.DefinicioProcesDto;
@@ -15,6 +13,8 @@ import es.caib.helium.logic.intf.exception.NoTrobatException;
 import es.caib.helium.logic.intf.exception.PermisDenegatException;
 import es.caib.helium.logic.intf.exportacio.DefinicioProcesExportacio;
 import es.caib.helium.logic.intf.exportacio.DefinicioProcesExportacioCommandDto;
+
+import java.util.List;
 
 /**
  * Servei per al manteniment de definicions de processos.
@@ -76,7 +76,6 @@ public interface DefinicioProcesService {
 	 * 				un expedientTipusId.
 	 * @param filtre
 	 *            Text per a filtrar els resultats.
-	 * @param string 
 	 * @param paginacioParams
 	 *            Paràmetres per a la paginació dels resultats.
 	 * @return La pàgina del llistat de definicions de procés.
@@ -92,7 +91,7 @@ public interface DefinicioProcesService {
 	 * Mètode per crear un objecte d'exportació per al tipus d'expedient amb la informació sol·licitada
 	 * segons l'objecte DTO de la comanda d'exportació.
 	 * @param entornId Id de l'entorn.
-	 * @param Id de la definició de procés de la qual es realitza la exportació.
+	 * @param definicioProcesId de la definició de procés de la qual es realitza la exportació.
 	 * @param command Objecte amb la informació que s'ha d'incloure a l'exportació.
 	 * 
 	 * @return Objecte d'exportació serialitzable.
@@ -138,7 +137,7 @@ public interface DefinicioProcesService {
 	 * 
 	 * @param filtre
 	 *            Text per a filtrar els resultats.
-	 * @param string 
+	 * @param entornId
 	 * @param paginacioParams
 	 *            Paràmetres per a la paginació dels resultats.
 	 * @return La pàgina del llistat de tipus d'expedients.
@@ -187,7 +186,7 @@ public interface DefinicioProcesService {
 	 * @return la tasca modificat.
 	 * @throws NoTrobatException
 	 *             Si no s'ha trobat el registre amb l'id especificat.
-	 * @throws CampDenegatException
+	 * @throws PermisDenegatException
 	 *             Si no es tenen els permisos necessaris.
 	 */
 	public TascaDto tascaUpdate(TascaDto tasca) throws NoTrobatException, PermisDenegatException;	
@@ -202,7 +201,7 @@ public interface DefinicioProcesService {
 	 * @param tascaCamp
 	 *            La informació del camp de la tasca a crear.
 	 * @return el camp de la tasca creat.
-	 * @throws TascaCampDenegatException
+	 * @throws PermisDenegatException
 	 *             Si no es tenen els permisos necessaris.
 	 */
 	public CampTascaDto tascaCampCreate(
@@ -301,7 +300,7 @@ public interface DefinicioProcesService {
 	 * @param tascaDocument
 	 *            La informació del document de la tasca a crear.
 	 * @return el document de la tasca creat.
-	 * @throws TascaDocumentDenegatException
+	 * @throws PermisDenegatException
 	 *             Si no es tenen els permisos necessaris.
 	 */
 	public DocumentTascaDto tascaDocumentCreate(
@@ -403,7 +402,7 @@ public interface DefinicioProcesService {
 	 * @param tascaFirma
 	 *            La informació de la firma de la tasca a crear.
 	 * @return la firma de la tasca creat.
-	 * @throws TascaFirmaDenegatException
+	 * @throws PermisDenegatException
 	 *             Si no es tenen els permisos necessaris.
 	 */
 	public FirmaTascaDto tascaFirmaCreate(
@@ -491,7 +490,7 @@ public interface DefinicioProcesService {
 	 * 
 	 * @param expedientTipusId Id de l'expedient tipus pel qual es busca la tasca per establir les propietats d'herència.
 	 * 
-	 * @param campTascaId Id de la tasca a cercar.
+	 * @param firmaTascaId Id de la tasca a cercar.
 	 * 
 	 * @return La firma tasca de la definició de procés.
 	 * @throws NoTrobatException
@@ -551,7 +550,7 @@ public interface DefinicioProcesService {
 	/**
 	 * Retorna les consultes per l'entorn
 	 * 
-	 * @param entorndId
+	 * @param entornId
 	 *            Atribut id de l'entorn
 	 * @return les consultes de l'entorn
 	 * @throws NoTrobatException
@@ -579,7 +578,7 @@ public interface DefinicioProcesService {
 
 	/** Mètode per relacionar correctament les darreres definicions de procés per a un tipus d'expedient
 	 * 
-	 * @param id
+	 * @param expedientTipusId
 	 */
 	public void relacionarDarreresVersions(Long expedientTipusId);
 

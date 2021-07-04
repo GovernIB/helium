@@ -3,34 +3,20 @@
  */
 package es.caib.helium.persist.entity;
 
-import java.io.Serializable;
-import java.util.Date;
-
-import javax.persistence.Basic;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Lob;
-import javax.persistence.Table;
-import javax.persistence.TableGenerator;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
-import javax.persistence.Transient;
-
-import org.hibernate.annotations.Type;
-import org.springmodules.validation.bean.conf.loader.annotation.handler.MaxLength;
-import org.springmodules.validation.bean.conf.loader.annotation.handler.NotBlank;
-import org.springmodules.validation.bean.conf.loader.annotation.handler.NotNull;
-
-import es.caib.helium.logic.intf.util.JbpmVars;
 import es.caib.helium.logic.intf.dto.NtiDocumentoFormato;
 import es.caib.helium.logic.intf.dto.NtiEstadoElaboracionEnumDto;
 import es.caib.helium.logic.intf.dto.NtiOrigenEnumDto;
 import es.caib.helium.logic.intf.dto.NtiTipoDocumentalEnumDto;
 import es.caib.helium.logic.intf.dto.NtiTipoFirmaEnumDto;
+import es.caib.helium.logic.intf.util.JbpmVars;
+import org.hibernate.annotations.Type;
+
+import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+import java.io.Serializable;
+import java.util.Date;
 
 /**
  * Objecte de domini que representa una entrada al magatzem de documents
@@ -51,58 +37,58 @@ public class DocumentStore implements Serializable, GenericEntity<Long> {
 	@NotNull
 	private DocumentFont font;
 	@NotBlank
-	@MaxLength(64)
+	@Size(max = 64)
 	private String processInstanceId;
 	@NotBlank
-	@MaxLength(255)
+	@Size(max = 255)
 	private String jbpmVariable;
 	@NotNull
 	private Date dataCreacio;
 	private Date dataModificacio;
 	@NotNull
 	private Date dataDocument;
-	@MaxLength(255)
+	@Size(max = 255)
 	private String arxiuNom;
 	private byte[] arxiuContingut;
 	private boolean signat = false;
 
-	@MaxLength(255)
+	@Size(max = 255)
 	private String referenciaCustodia;
-	@MaxLength(255)
+	@Size(max = 255)
 	private String referenciaFont;
-	@MaxLength(255)
+	@Size(max = 255)
 	private String registreNumero;
 	private Date registreData;
-	@MaxLength(255)
+	@Size(max = 255)
 	private String registreOrganCodi;
-	@MaxLength(255)
+	@Size(max = 255)
 	private String registreOficinaCodi;
-	@MaxLength(255)
+	@Size(max = 255)
 	private String registreOficinaNom;
 	private boolean registreEntrada;
 
 	private boolean adjunt = false;
-	@MaxLength(255)
+	@Size(max = 255)
 	private String adjuntTitol;
 
-	@MaxLength(256)
+	@Size(max = 256)
 	private String ntiVersion;
-	@MaxLength(52)
+	@Size(max = 52)
 	private String ntiIdentificador;
-	@MaxLength(256)
+	@Size(max = 256)
 	private String ntiOrgano;
 	private NtiOrigenEnumDto ntiOrigen;
 	private NtiEstadoElaboracionEnumDto ntiEstadoElaboracion;
 	private NtiDocumentoFormato ntiNombreFormato;
 	private NtiTipoDocumentalEnumDto ntiTipoDocumental;
-	@MaxLength(52)
+	@Size(max = 52)
 	private String ntiIdDocumentoOrigen;
 	private NtiTipoFirmaEnumDto ntiTipoFirma;
-	@MaxLength(256)
+	@Size(max = 256)
 	private String ntiCsv;
-	@MaxLength(256)
+	@Size(max = 256)
 	private String ntiDefinicionGenCsv;
-	@MaxLength(32)
+	@Size(max = 32)
 	private String arxiuUuid;
 
 	public DocumentStore() {}

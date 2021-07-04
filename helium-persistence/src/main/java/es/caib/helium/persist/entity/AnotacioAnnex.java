@@ -3,36 +3,17 @@
  */
 package es.caib.helium.persist.entity;
 
-import java.io.Serializable;
-import java.util.Date;
-
-import javax.persistence.Basic;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.Lob;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
-import javax.persistence.TableGenerator;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
-
-import org.apache.commons.lang.StringUtils;
-import org.hibernate.annotations.ForeignKey;
-import org.hibernate.annotations.Index;
-
 import es.caib.helium.logic.intf.dto.AnotacioAnnexEstatEnumDto;
 import es.caib.helium.logic.intf.dto.ArxiuFirmaPerfilEnumDto;
 import es.caib.helium.logic.intf.dto.NtiEstadoElaboracionEnumDto;
 import es.caib.helium.logic.intf.dto.NtiOrigenEnumDto;
 import es.caib.helium.logic.intf.dto.NtiTipoDocumentalEnumDto;
 import es.caib.helium.logic.intf.dto.NtiTipoFirmaEnumDto;
+import org.apache.commons.lang3.StringUtils;
+
+import javax.persistence.*;
+import java.io.Serializable;
+import java.util.Date;
 
 /**
  * Classe del model de dades que representa un document
@@ -42,11 +23,10 @@ import es.caib.helium.logic.intf.dto.NtiTipoFirmaEnumDto;
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Entity
-@Table(	name = "hel_anotacio_annex")
-@org.hibernate.annotations.Table(
-		appliesTo = "hel_anotacio_annex",
-		indexes = {
-				@Index(name = "hel_anotacio_annex_fk_i", columnNames = {"anotacio_id"})})
+@Table(
+		name = "hel_anotacio_annex",
+		indexes = { @Index(name = "hel_anotacio_annex_fk_i", columnList = "anotacio_id") }
+)
 public class AnotacioAnnex implements Serializable, GenericEntity<Long> {
 
 	@Id
@@ -108,8 +88,9 @@ public class AnotacioAnnex implements Serializable, GenericEntity<Long> {
 	private String error;
 	
 	@ManyToOne(optional = false, fetch = FetchType.LAZY)
-	@JoinColumn(name = "anotacio_id")
-	@ForeignKey(name = "hel_interessat_anotacio_fk")
+	@JoinColumn(
+			name = "anotacio_id",
+			foreignKey = @ForeignKey(name = "hel_interessat_anotacio_fk"))
 	private Anotacio anotacio;
 	
 	/** Valor del document store quan l'annex s'incorpora a un expedient. */

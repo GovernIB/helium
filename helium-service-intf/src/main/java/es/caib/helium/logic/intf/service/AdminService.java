@@ -3,22 +3,12 @@
  */
 package es.caib.helium.logic.intf.service;
 
+import es.caib.helium.logic.intf.dto.*;
+import es.caib.helium.logic.intf.exception.NoTrobatException;
+
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
-
-import es.caib.helium.logic.intf.dto.DominiDto;
-import es.caib.helium.logic.intf.dto.IntegracioAccioDto;
-import es.caib.helium.logic.intf.dto.IntegracioAccioEstatEnumDto;
-import es.caib.helium.logic.intf.dto.IntegracioAccioTipusEnumDto;
-import es.caib.helium.logic.intf.dto.IntegracioDto;
-import es.caib.helium.logic.intf.dto.IntegracioParametreDto;
-import es.caib.helium.logic.intf.dto.MesuraTemporalDto;
-import es.caib.helium.logic.intf.dto.PersonaDto;
-import es.caib.helium.logic.intf.dto.ReassignacioDto;
-import es.caib.helium.logic.intf.dto.TascaCompleteDto;
-import es.caib.helium.logic.intf.dto.UsuariPreferenciesDto;
-import es.caib.helium.logic.intf.exception.NoTrobatException;
 
 /**
  * Servei per a enllaçar les llibreries jBPM 3 amb la funcionalitat
@@ -194,7 +184,7 @@ public interface AdminService {
 	/** Mètode per establir des de l'interceptor l'idioma preferit de l'usuari.
 	 * 
 	 * @param usuari
-	 * @param codiIdioma
+	 * @param idioma
 	 */
 	public void setIdiomaPref(String usuari, String idioma);
 

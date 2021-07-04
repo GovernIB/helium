@@ -1,14 +1,16 @@
 package es.caib.helium.logic.intf.service;
 
-import java.util.List;
-
 import es.caib.helium.logic.intf.dto.EnumeracioDto;
 import es.caib.helium.logic.intf.dto.ExpedientTipusEnumeracioValorDto;
 import es.caib.helium.logic.intf.dto.PaginaDto;
 import es.caib.helium.logic.intf.dto.PaginacioParamsDto;
 import es.caib.helium.logic.intf.exception.NoTrobatException;
 import es.caib.helium.logic.intf.exception.PermisDenegatException;
-import es.caib.helium.logic.intf.exception.ValidacioException;;
+import es.caib.helium.logic.intf.exception.ValidacioException;
+
+import java.util.List;
+
+;
 
 /**
  * Servei per al manteniment d'enumeracions.
@@ -52,8 +54,8 @@ public interface EnumeracioService {
 	 * Retorna l'enumeració del tipus d'expedient donat el seu identificador. Té en compte els
 	 * heretats i informa el camps d'herència del dto.
 	 * 
-	 * @param estatId
-	 * @param id 
+	 * @param expedientTipusId
+	 * @param enumeracioId
 	 * 
 	 * @return L'enumeració del tipus d'expedient.
 	 * @throws NoTrobatException

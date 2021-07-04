@@ -3,30 +3,16 @@
  */
 package es.caib.helium.persist.entity;
 
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+
+import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
-
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
-import javax.persistence.TableGenerator;
-import javax.persistence.UniqueConstraint;
-
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.hibernate.annotations.ForeignKey;
-import org.hibernate.annotations.Index;
-import org.springmodules.validation.bean.conf.loader.annotation.handler.MaxLength;
-import org.springmodules.validation.bean.conf.loader.annotation.handler.NotBlank;
-import org.springmodules.validation.bean.conf.loader.annotation.handler.NotNull;
 
 /**
  * Objecte de domini que representa una àrea de l'organigrama.
@@ -36,20 +22,19 @@ import org.springmodules.validation.bean.conf.loader.annotation.handler.NotNull;
 @Entity
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 @Table(name="hel_area_tipus",
-		uniqueConstraints={@UniqueConstraint(columnNames={"codi", "entorn_id"})})
-@org.hibernate.annotations.Table(
-		appliesTo = "hel_area_tipus",
-		indexes = @Index(name = "hel_areatipus_entorn_i", columnNames = {"entorn_id"}))
+		uniqueConstraints={@UniqueConstraint(columnNames={"codi", "entorn_id"})},
+		indexes = @Index(name = "hel_areatipus_entorn_i", columnList = "entorn_id")
+)
 public class AreaTipus implements Serializable, GenericEntity<Long> {
 
 	private Long id;
 	@NotBlank
-	@MaxLength(64)
+	@Size(max = 64)
 	private String codi;
 	@NotBlank
-	@MaxLength(255)
+	@Size(max = 255)
 	private String nom;
-	@MaxLength(255)
+	@Size(max = 255)
 	private String descripcio;
 
 	@NotNull
@@ -102,8 +87,9 @@ public class AreaTipus implements Serializable, GenericEntity<Long> {
 	}
 
 	@ManyToOne(optional=false)
-	@JoinColumn(name="entorn_id")
-	@ForeignKey(name="hel_entorn_areatipus_fk")
+	@JoinColumn(
+			name="entorn_id",
+			foreignKey = @ForeignKey(name="hel_entorn_areatipus_fk"))
 	public Entorn getEntorn() {
 		return entorn;
 	}

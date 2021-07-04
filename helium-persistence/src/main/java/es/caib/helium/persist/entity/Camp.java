@@ -3,6 +3,15 @@
  */
 package es.caib.helium.persist.entity;
 
+import es.caib.helium.logic.intf.dto.ExpedientCamps;
+import es.caib.helium.logic.intf.dto.TerminiDto;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
+
+import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
@@ -13,33 +22,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.OrderBy;
-import javax.persistence.Table;
-import javax.persistence.TableGenerator;
-import javax.persistence.Transient;
-import javax.persistence.UniqueConstraint;
-
-import org.hibernate.annotations.Fetch;
-import org.hibernate.annotations.FetchMode;
-import org.hibernate.annotations.ForeignKey;
-import org.hibernate.annotations.Index;
-import org.springmodules.validation.bean.conf.loader.annotation.handler.MaxLength;
-import org.springmodules.validation.bean.conf.loader.annotation.handler.NotBlank;
-import org.springmodules.validation.bean.conf.loader.annotation.handler.NotNull;
-
-import es.caib.helium.logic.intf.dto.ExpedientCamps;
-import es.caib.helium.logic.intf.dto.TerminiDto;
-
 /**
  * Objecte de domini que representa un camp de la definició de procés.
  * 
@@ -47,15 +29,15 @@ import es.caib.helium.logic.intf.dto.TerminiDto;
  */
 @Entity
 @Table(	name="hel_camp",
-		uniqueConstraints={@UniqueConstraint(columnNames={"codi", "definicio_proces_id", "expedient_tipus_id"})})
-@org.hibernate.annotations.Table(
-		appliesTo = "hel_camp",
+		uniqueConstraints={@UniqueConstraint(columnNames={"codi", "definicio_proces_id", "expedient_tipus_id"})},
 		indexes = {
-				@Index(name = "hel_camp_defproc_i", columnNames = {"definicio_proces_id"}),
-				@Index(name = "hel_camp_exptip_i", columnNames = {"expedient_tipus_id"}),
-				@Index(name = "hel_camp_agrup_i", columnNames = {"camp_agrupacio_id"}),
-				@Index(name = "hel_camp_domini_i", columnNames = {"domini_id"}),
-				@Index(name = "hel_camp_enum_i", columnNames = {"enumeracio_id"})})
+				@Index(name = "hel_camp_defproc_i", columnList = "definicio_proces_id"),
+				@Index(name = "hel_camp_exptip_i", columnList = "expedient_tipus_id"),
+				@Index(name = "hel_camp_agrup_i", columnList = "camp_agrupacio_id"),
+				@Index(name = "hel_camp_domini_i", columnList = "domini_id"),
+				@Index(name = "hel_camp_enum_i", columnList = "enumeracio_id")
+		}
+)
 public class Camp implements Serializable, GenericEntity<Long> {
 
 	public enum TipusCamp {
@@ -75,36 +57,36 @@ public class Camp implements Serializable, GenericEntity<Long> {
 
 	private Long id;
 	@NotBlank
-	@MaxLength(64)
+	@Size(max = 64)
 	private String codi;
 	@NotNull
 	private TipusCamp tipus;
 	@NotBlank
-	@MaxLength(255)
+	@Size(max = 255)
 	private String etiqueta;
-	@MaxLength(255)
+	@Size(max = 255)
 	private String observacions;
-	@MaxLength(255)
+	@Size(max = 255)
 	private String dominiId;
-	@MaxLength(255)
+	@Size(max = 255)
 	private String dominiParams;
-	@MaxLength(64)
+	@Size(max = 64)
 	private String dominiCampText;
-	@MaxLength(64)
+	@Size(max = 64)
 	private String dominiCampValor;
-	@MaxLength(255)
+	@Size(max = 255)
 	private String consultaParams;
-	@MaxLength(64)
+	@Size(max = 64)
 	private String consultaCampText;
-	@MaxLength(64)
+	@Size(max = 64)
 	private String consultaCampValor;
 	
 	
 	private boolean dominiCacheText = false;
 	private boolean dominiIntern;
-	@MaxLength(255)
+	@Size(max = 255)
 	private String defprocJbpmKey;
-	@MaxLength(255)
+	@Size(max = 255)
 	private String jbpmAction;
 	private boolean multiple;
 	private boolean ocult;
@@ -270,8 +252,9 @@ public class Camp implements Serializable, GenericEntity<Long> {
 	}
 	
 	@ManyToOne(optional=true)
-	@JoinColumn(name="definicio_proces_id")
-	@ForeignKey(name="hel_defproc_camp_fk")
+	@JoinColumn(
+			name="definicio_proces_id",
+			foreignKey = @ForeignKey(name="hel_defproc_camp_fk"))
 	public DefinicioProces getDefinicioProces() {
 		return definicioProces;
 	}
@@ -280,8 +263,9 @@ public class Camp implements Serializable, GenericEntity<Long> {
 	}
 
 	@ManyToOne(optional=true)
-	@JoinColumn(name="expedient_tipus_id")
-	@ForeignKey(name="hel_exptip_camp_fk")
+	@JoinColumn(
+			name="expedient_tipus_id",
+			foreignKey = @ForeignKey(name="hel_exptip_camp_fk"))
 	public ExpedientTipus getExpedientTipus() {
 		return expedientTipus;
 	}
@@ -290,8 +274,9 @@ public class Camp implements Serializable, GenericEntity<Long> {
 	}
 
 	@ManyToOne(optional=true)
-	@JoinColumn(name="camp_agrupacio_id")
-	@ForeignKey(name="hel_campagrup_camp_fk")
+	@JoinColumn(
+			name="camp_agrupacio_id",
+			foreignKey = @ForeignKey(name="hel_campagrup_camp_fk"))
 	public CampAgrupacio getAgrupacio() {
 		return agrupacio;
 	}
@@ -317,8 +302,9 @@ public class Camp implements Serializable, GenericEntity<Long> {
 	}
 
 	@ManyToOne(optional=true)
-	@JoinColumn(name="enumeracio_id")
-	@ForeignKey(name="hel_enumeracio_camp_fk")
+	@JoinColumn(
+			name="enumeracio_id",
+			foreignKey = @ForeignKey(name="hel_enumeracio_camp_fk"))
 	public Enumeracio getEnumeracio() {
 		return enumeracio;
 	}
@@ -615,8 +601,9 @@ public class Camp implements Serializable, GenericEntity<Long> {
 	}
 	
 	@ManyToOne(optional=true)
-    @JoinColumn(name="consulta_id")
-    @ForeignKey(name="hel_consulta_camp_fk")
+    @JoinColumn(
+    		name="consulta_id",
+    		foreignKey = @ForeignKey(name="hel_consulta_camp_fk"))
     public Consulta getConsulta() {
         return consulta;
     }

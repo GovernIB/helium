@@ -3,7 +3,7 @@
  */
 package es.caib.helium.logic.intf.exception;
 
-import org.apache.commons.lang.exception.ExceptionUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 
 /**
  * Excepció que es llança si hi ha algun error crindant al plugin.

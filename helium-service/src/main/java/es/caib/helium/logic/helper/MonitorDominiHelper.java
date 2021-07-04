@@ -23,7 +23,7 @@ import es.caib.helium.logic.intf.dto.IntegracioAccioEstatEnumDto;
 import es.caib.helium.logic.intf.dto.IntegracioAccioTipusEnumDto;
 import es.caib.helium.logic.intf.dto.IntegracioParametreDto;
 import es.caib.helium.persist.entity.Entorn;
-import net.conselldemallorca.helium.ms.domini.DominiMs;
+import es.caib.helium.ms.domini.DominiMs;
 
 /**
  * Mètodes per a la gestió d'integracions.

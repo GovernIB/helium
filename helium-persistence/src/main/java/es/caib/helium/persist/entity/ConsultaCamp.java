@@ -3,24 +3,11 @@
  */
 package es.caib.helium.persist.entity;
 
+import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.io.Serializable;
-
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
-import javax.persistence.TableGenerator;
-import javax.persistence.UniqueConstraint;
-
-import org.hibernate.annotations.ForeignKey;
-import org.hibernate.annotations.Index;
-import org.springmodules.validation.bean.conf.loader.annotation.handler.MaxLength;
-import org.springmodules.validation.bean.conf.loader.annotation.handler.NotBlank;
-import org.springmodules.validation.bean.conf.loader.annotation.handler.NotNull;
 
 /**
  * Objecte de domini que representa una camp d'una consulta d'expedients.
@@ -29,10 +16,8 @@ import org.springmodules.validation.bean.conf.loader.annotation.handler.NotNull;
  */
 @Entity
 @Table(name="hel_consulta_camp",
-		uniqueConstraints={@UniqueConstraint(columnNames={"consulta_id", "camp_codi", "defproc_jbpmkey", "defproc_versio", "tipus"})})
-@org.hibernate.annotations.Table(
-		appliesTo = "hel_consulta_camp",
-		indexes = @Index(name = "hel_consultacamp_consulta_i", columnNames = {"consulta_id"}))
+		uniqueConstraints={@UniqueConstraint(columnNames={"consulta_id", "camp_codi", "defproc_jbpmkey", "defproc_versio", "tipus"})},
+		indexes = @Index(name = "hel_consultacamp_consulta_i", columnList = "consulta_id"))
 public class ConsultaCamp implements Serializable, GenericEntity<Long> {
 
 	public enum TipusConsultaCamp {
@@ -50,11 +35,11 @@ public class ConsultaCamp implements Serializable, GenericEntity<Long> {
 
 	private Long id;
 	@NotBlank
-	@MaxLength(64)
+	@Size(max = 64)
 	private String campCodi;
-	@MaxLength(64)
+	@Size(max = 64)
 	private String campDescripcio;
-	@MaxLength(255)
+	@Size(max = 255)
 	private String defprocJbpmKey;
 	private int defprocVersio = -1;
 	@NotNull
@@ -156,8 +141,9 @@ public class ConsultaCamp implements Serializable, GenericEntity<Long> {
 		this.buitCols = buitCols;
 	}
 	@ManyToOne(optional=false)
-	@JoinColumn(name="consulta_id")
-	@ForeignKey(name="hel_consulta_concamp_fk")
+	@JoinColumn(
+			name="consulta_id",
+			foreignKey = @ForeignKey(name="hel_consulta_concamp_fk"))
 	public Consulta getConsulta() {
 		return consulta;
 	}

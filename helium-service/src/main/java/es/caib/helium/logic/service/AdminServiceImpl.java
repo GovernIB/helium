@@ -55,8 +55,8 @@ import es.caib.helium.persist.repository.EntornRepository;
 import es.caib.helium.persist.repository.PersonaRepository;
 import es.caib.helium.persist.repository.ReassignacioRepository;
 import es.caib.helium.persist.repository.UsuariPreferenciesRepository;
-import net.conselldemallorca.helium.ms.domini.DominiMs;
-import net.conselldemallorca.helium.ms.domini.client.model.Domini;
+import es.caib.helium.ms.domini.DominiMs;
+import es.caib.helium.ms.domini.client.model.Domini;
 
 /**
  * Servei per gestionar la configuració de l'aplicació.

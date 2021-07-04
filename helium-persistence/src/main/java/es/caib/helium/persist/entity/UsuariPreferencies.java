@@ -1,17 +1,16 @@
 package es.caib.helium.persist.entity;
 
-import java.io.Serializable;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.Transient;
-
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.springmodules.validation.bean.conf.loader.annotation.handler.MaxLength;
-import org.springmodules.validation.bean.conf.loader.annotation.handler.NotBlank;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Size;
+import java.io.Serializable;
 
 /**
  * Objecte de domini que representa les preferències d'un usuari.
@@ -24,20 +23,20 @@ import org.springmodules.validation.bean.conf.loader.annotation.handler.NotBlank
 public class UsuariPreferencies implements Serializable, GenericEntity<String> {
 
 	@NotBlank
-	@MaxLength(64)
+	@Size(max = 64)
 	private String codi;
-	@MaxLength(64)
+	@Size(max = 64)
 	private String defaultEntornCodi;
-	@MaxLength(255)
+	@Size(max = 255)
 	private String idioma;
 	private Boolean cabeceraReducida;
 	private Integer listado;
-	@MaxLength(255)
+	@Size(max = 255)
 	private Long consultaId;
-	@MaxLength(255)
+	@Size(max = 255)
 	private Long expedientTipusDefecteId;	
 	private Boolean filtroTareasActivas;
-	@MaxLength(255)
+	@Size(max = 255)
 	private Long numElementosPagina;
 
 	public UsuariPreferencies() {}

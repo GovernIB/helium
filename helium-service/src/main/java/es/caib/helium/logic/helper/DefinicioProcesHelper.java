@@ -75,7 +75,7 @@ import es.caib.helium.persist.repository.ExpedientTipusRepository;
 import es.caib.helium.persist.repository.FirmaTascaRepository;
 import es.caib.helium.persist.repository.TascaRepository;
 import es.caib.helium.persist.repository.TerminiRepository;
-import net.conselldemallorca.helium.ms.domini.DominiMs;
+import es.caib.helium.ms.domini.DominiMs;
 
 /**
  * Helper per a les definicions de procés.

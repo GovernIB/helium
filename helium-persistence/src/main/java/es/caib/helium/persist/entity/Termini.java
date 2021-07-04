@@ -3,30 +3,14 @@
  */
 package es.caib.helium.persist.entity;
 
+import es.caib.helium.logic.intf.util.TerminiStringUtil;
+
+import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Size;
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
-
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
-import javax.persistence.TableGenerator;
-import javax.persistence.Transient;
-import javax.persistence.UniqueConstraint;
-
-import org.hibernate.annotations.ForeignKey;
-import org.hibernate.annotations.Index;
-import org.springmodules.validation.bean.conf.loader.annotation.handler.MaxLength;
-import org.springmodules.validation.bean.conf.loader.annotation.handler.NotBlank;
-
-import es.caib.helium.logic.intf.util.TerminiStringUtil;
 
 /**
  * Objecte de domini que representa un termini de la definició
@@ -36,22 +20,22 @@ import es.caib.helium.logic.intf.util.TerminiStringUtil;
  */
 @Entity
 @Table(	name="hel_termini",
-		uniqueConstraints={@UniqueConstraint(columnNames={"codi", "definicio_proces_id", "expedient_tipus_id"})})
-@org.hibernate.annotations.Table(
-		appliesTo = "hel_termini",
+		uniqueConstraints={@UniqueConstraint(columnNames={"codi", "definicio_proces_id", "expedient_tipus_id"})},
 		indexes = {
-				@Index(name = "hel_termini_defproc_i", columnNames = {"definicio_proces_id"}),
-				@Index(name = "hel_termini_exptip_i", columnNames = {"expedient_tipus_id"})})
+				@Index(name = "hel_termini_defproc_i", columnList = "definicio_proces_id"),
+				@Index(name = "hel_termini_exptip_i", columnList = "expedient_tipus_id")
+		}
+)
 public class Termini implements Serializable, GenericEntity<Long> {
 
 	private Long id;
 	@NotBlank
-	@MaxLength(64)
+	@Size(max = 64)
 	private String codi;
 	@NotBlank
-	@MaxLength(255)
+	@Size(max = 255)
 	private String nom;
-	@MaxLength(255)
+	@Size(max = 255)
 	private String descripcio;
 	private boolean duradaPredefinida;
 	private int anys;
@@ -219,8 +203,9 @@ public class Termini implements Serializable, GenericEntity<Long> {
 	}
 	
 	@ManyToOne(optional=true, fetch=FetchType.LAZY)
-	@JoinColumn(name="definicio_proces_id")
-	@ForeignKey(name="hel_defproc_termini_fk")
+	@JoinColumn(
+			name="definicio_proces_id",
+			foreignKey = @ForeignKey(name="hel_defproc_termini_fk"))
 	public DefinicioProces getDefinicioProces() {
 		return definicioProces;
 	}
@@ -229,8 +214,9 @@ public class Termini implements Serializable, GenericEntity<Long> {
 	}
 	
 	@ManyToOne(optional=true)
-	@JoinColumn(name="expedient_tipus_id")
-	@ForeignKey(name="hel_exptip_termini_fk")
+	@JoinColumn(
+			name="expedient_tipus_id",
+			foreignKey = @ForeignKey(name="hel_exptip_termini_fk"))
 	public ExpedientTipus getExpedientTipus() {
 		return expedientTipus;
 	}

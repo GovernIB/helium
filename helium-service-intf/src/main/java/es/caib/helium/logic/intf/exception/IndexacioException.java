@@ -1,8 +1,6 @@
 package es.caib.helium.logic.intf.exception;
 
-import org.apache.commons.lang.exception.ExceptionUtils;
-
-
+import org.apache.commons.lang3.exception.ExceptionUtils;
 
 @SuppressWarnings("serial")
 public class IndexacioException extends RuntimeException {

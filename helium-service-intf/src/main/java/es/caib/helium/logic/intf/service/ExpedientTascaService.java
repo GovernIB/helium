@@ -3,14 +3,12 @@
  */
 package es.caib.helium.logic.intf.service;
 
-import java.util.List;
-
-import org.springframework.security.acls.model.NotFoundException;
-
 import es.caib.helium.logic.intf.dto.ExpedientTascaDto;
 import es.caib.helium.logic.intf.exception.NoTrobatException;
 import es.caib.helium.logic.intf.exception.PermisDenegatException;
 import es.caib.helium.logic.intf.exception.ValidacioException;
+
+import java.util.List;
 
 
 /**
@@ -43,9 +41,9 @@ public interface ExpedientTascaService {
 	 * @param expedientId
 	 *            Atribut id de l'expedient.
 	 * @return La llista de tasques pendents.
-	 * @throws NotFoundException
+	 * @throws NoTrobatException
 	 *             Si no s'ha trobat cap expedient amb l'id especificat.
-	 * @throws NotAllowedException
+	 * @throws PermisDenegatException
 	 *             Si no es tenen els permisos adequats.
 	 */
 	public List<ExpedientTascaDto> findPendents(
@@ -60,9 +58,9 @@ public interface ExpedientTascaService {
 	 *            Atribut id de l'expedient.
 	 * @param expedientId
 	 *            Atribut id de la tasca.
-	 * @throws NotFoundException
+	 * @throws NoTrobatException
 	 *             Si no s'ha trobat cap expedient amb l'id especificat.
-	 * @throws NotAllowedException
+	 * @throws ValidacioException
 	 *             Si no es tenen els permisos adequats.
 	 */
 	public void cancelar(
@@ -76,9 +74,9 @@ public interface ExpedientTascaService {
 	 *            Atribut id de l'expedient.
 	 * @param expedientId
 	 *            Atribut id de la tasca.
-	 * @throws NotFoundException
+	 * @throws NoTrobatException
 	 *             Si no s'ha trobat cap expedient amb l'id especificat.
-	 * @throws NotAllowedException
+	 * @throws ValidacioException
 	 *             Si no es tenen els permisos adequats.
 	 */
 	public void suspendre(
@@ -92,9 +90,9 @@ public interface ExpedientTascaService {
 	 *            Atribut id de l'expedient.
 	 * @param expedientId
 	 *            Atribut id de la tasca.
-	 * @throws NotFoundException
+	 * @throws NoTrobatException
 	 *             Si no s'ha trobat cap expedient amb l'id especificat.
-	 * @throws NotAllowedException
+	 * @throws ValidacioException
 	 *             Si no es tenen els permisos adequats.
 	 */
 	public void reprendre(
@@ -108,9 +106,9 @@ public interface ExpedientTascaService {
 	 *            Atribut id de l'expedient.
 	 * @param expedientId
 	 *            Atribut id de la tasca.
-	 * @throws NotFoundException
+	 * @throws NoTrobatException
 	 *             Si no s'ha trobat cap expedient amb l'id especificat.
-	 * @throws NotAllowedException
+	 * @throws ValidacioException
 	 *             Si no es tenen els permisos adequats.
 	 */
 	public void reassignar(

@@ -3,22 +3,6 @@
  */
 package es.caib.helium.logic.service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
-import javax.annotation.Resource;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import es.caib.emiserv.logic.intf.exception.NoTrobatException;
-import es.caib.emiserv.logic.intf.exception.PermisDenegatException;
-import es.caib.emiserv.logic.intf.exception.ValidacioException;
-import es.caib.emiserv.logic.intf.extern.domini.FilaResultat;
 import es.caib.helium.logic.helper.ConversioTipusHelper;
 import es.caib.helium.logic.helper.DominiHelper;
 import es.caib.helium.logic.helper.EntornHelper;
@@ -26,19 +10,33 @@ import es.caib.helium.logic.helper.ExpedientTipusHelper;
 import es.caib.helium.logic.helper.MessageHelper;
 import es.caib.helium.logic.helper.PaginacioHelper;
 import es.caib.helium.logic.intf.dto.DominiDto;
-import es.caib.helium.logic.intf.dto.PaginaDto;
-import es.caib.helium.logic.intf.dto.PaginacioParamsDto;
 import es.caib.helium.logic.intf.dto.DominiDto.OrigenCredencials;
 import es.caib.helium.logic.intf.dto.DominiDto.TipusAuthDomini;
 import es.caib.helium.logic.intf.dto.DominiDto.TipusDomini;
+import es.caib.helium.logic.intf.dto.PaginaDto;
+import es.caib.helium.logic.intf.dto.PaginacioParamsDto;
+import es.caib.helium.logic.intf.exception.NoTrobatException;
+import es.caib.helium.logic.intf.exception.PermisDenegatException;
+import es.caib.helium.logic.intf.exception.ValidacioException;
+import es.caib.helium.logic.intf.extern.domini.FilaResultat;
 import es.caib.helium.logic.intf.service.DominiService;
+import es.caib.helium.logic.util.EntornActual;
 import es.caib.helium.persist.entity.Camp;
 import es.caib.helium.persist.entity.ExpedientTipus;
 import es.caib.helium.persist.repository.EntornRepository;
 import es.caib.helium.persist.repository.ExpedientTipusRepository;
-import net.conselldemallorca.helium.core.util.EntornActual;
-import net.conselldemallorca.helium.ms.domini.DominiMs;
-import net.conselldemallorca.helium.ms.domini.client.model.Domini;
+import es.caib.helium.ms.domini.DominiMs;
+import es.caib.helium.ms.domini.client.model.Domini;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import javax.annotation.Resource;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Implementació del servei per a gestionar dominis.
@@ -115,7 +113,7 @@ public class DominiServiceImpl implements DominiService {
 		
 		ExpedientTipus expedientTipus = null;
 		if (expedientTipusId != null)
-			expedientTipus = expedientTipusRepository.findById(expedientTipusId);
+			expedientTipus = expedientTipusRepository.getById(expedientTipusId);
 		
 		// Control d'accés
 		if (expedientTipus != null) {			

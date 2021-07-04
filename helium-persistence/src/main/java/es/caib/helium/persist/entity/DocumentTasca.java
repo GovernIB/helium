@@ -3,23 +3,9 @@
  */
 package es.caib.helium.persist.entity;
 
+import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 import java.io.Serializable;
-
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
-import javax.persistence.TableGenerator;
-import javax.persistence.UniqueConstraint;
-
-import org.hibernate.annotations.ForeignKey;
-import org.hibernate.annotations.Index;
-import org.springmodules.validation.bean.conf.loader.annotation.handler.NotNull;
 
 /**
  * Objecte de domini que representa un document d'una tasca.
@@ -30,13 +16,13 @@ import org.springmodules.validation.bean.conf.loader.annotation.handler.NotNull;
 @Table(	name="hel_document_tasca",
 		uniqueConstraints={
 			@UniqueConstraint(name = "hel_doctasca_camp_id_tasca_id_uk", columnNames={"expedient_tipus_id", "document_id", "tasca_id"}),
-			@UniqueConstraint(name = "hel_doctasca_tasca_id_ordre_uk", columnNames={"expedient_tipus_id", "tasca_id", "ordre"})})
-@org.hibernate.annotations.Table(
-		appliesTo = "hel_document_tasca",
+			@UniqueConstraint(name = "hel_doctasca_tasca_id_ordre_uk", columnNames={"expedient_tipus_id", "tasca_id", "ordre"})},
 		indexes = {
-				@Index(name = "hel_doctasca_document_i", columnNames = {"document_id"}),
-				@Index(name = "hel_doctasca_tasca_i", columnNames = {"tasca_id"}),
-				@Index(name = "hel_doctasca_extip_i", columnNames = {"expedient_tipus_id"})})
+				@Index(name = "hel_doctasca_document_i", columnList = "document_id"),
+				@Index(name = "hel_doctasca_tasca_i", columnList = "tasca_id"),
+				@Index(name = "hel_doctasca_extip_i", columnList = "expedient_tipus_id")
+		}
+)
 public class DocumentTasca implements Serializable, GenericEntity<Long> {
 
 	private Long id;
@@ -107,8 +93,9 @@ public class DocumentTasca implements Serializable, GenericEntity<Long> {
 	}
 
 	@ManyToOne(optional=false, fetch=FetchType.EAGER)
-	@JoinColumn(name="document_id")
-	@ForeignKey(name="hel_document_doctasca_fk")
+	@JoinColumn(
+			name="document_id",
+			foreignKey = @ForeignKey(name="hel_document_doctasca_fk"))
 	public Document getDocument() {
 		return document;
 	}
@@ -117,8 +104,9 @@ public class DocumentTasca implements Serializable, GenericEntity<Long> {
 	}
 
 	@ManyToOne(optional=false, fetch=FetchType.EAGER)
-	@JoinColumn(name="tasca_id")
-	@ForeignKey(name="hel_tasca_doctasca_fk")
+	@JoinColumn(
+			name="tasca_id",
+			foreignKey = @ForeignKey(name="hel_tasca_doctasca_fk"))
 	public Tasca getTasca() {
 		return tasca;
 	}
@@ -127,8 +115,9 @@ public class DocumentTasca implements Serializable, GenericEntity<Long> {
 	}
 
 	@ManyToOne(optional=true, fetch=FetchType.EAGER)
-	@JoinColumn(name="expedient_tipus_id")
-	@ForeignKey(name="hel_extipus_doctasca_fk")
+	@JoinColumn(
+			name="expedient_tipus_id",
+			foreignKey = @ForeignKey(name="hel_extipus_doctasca_fk"))
 	public ExpedientTipus getExpedientTipus() {
 		return expedientTipus;
 	}

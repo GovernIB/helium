@@ -1,12 +1,14 @@
 package es.caib.helium.logic.intf.service;
 
-import java.util.List;
-
 import es.caib.helium.logic.intf.dto.PaginaDto;
 import es.caib.helium.logic.intf.dto.PaginacioParamsDto;
 import es.caib.helium.logic.intf.dto.TerminiDto;
 import es.caib.helium.logic.intf.exception.NoTrobatException;
-import es.caib.helium.logic.intf.exception.PermisDenegatException;;
+import es.caib.helium.logic.intf.exception.PermisDenegatException;
+
+import java.util.List;
+
+;
 
 /**
  * Servei per al manteniment de terminis.
@@ -33,14 +35,9 @@ public interface TerminiService {
 	/**
 	 * Modificació d'un termini existent.
 	 * 
-	 * @param expedientTipusId
-	 *            Atribut id del tipus d'expedient.
-	 * @param definicioProcesId
-	 *            Atribut id de la definició de procés.
-	 * @param trmini	La informació del termini a modificar.
+	 * @param termini	La informació del termini a modificar.
 	 * @return el termini modificat.
 	 * @throws NoTrobatException	Si no s'ha trobat el registre amb l'id especificat.
-	 * @throws CampDenegatException	Si no es tenen els permisos necessaris.
 	 */
 	public TerminiDto update(TerminiDto termini);
 	
@@ -49,7 +46,7 @@ public interface TerminiService {
 	 * 
 	 * @param terminiId	Atribut id del termini.
 	 * @throws NoTrobatException	Si no s'ha trobat el registre amb l'id especificat.
-	 * @throws CampDenegatException	Si no es tenen els permisos necessaris.
+	 * @throws PermisDenegatException	Si no es tenen els permisos necessaris.
 	 */
 	public void delete(Long terminiId) throws NoTrobatException, PermisDenegatException;
 	
@@ -58,8 +55,7 @@ public interface TerminiService {
 	 * 
 	 * @param expedientTipusId Identificador del tipus d'expedient al qual pertany si és d'un tipus d'expedient.
 	 * @param terminiId
-	 * @param id 
-	 * 
+	 *
 	 * @return El termini del tipus d'expedient.
 	 * @throws NoTrobatException
 	 *             Si no s'ha trobat el registre amb l'id especificat.

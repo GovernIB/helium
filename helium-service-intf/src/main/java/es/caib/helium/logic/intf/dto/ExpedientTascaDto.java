@@ -3,13 +3,13 @@
  */
 package es.caib.helium.logic.intf.dto;
 
+import org.apache.commons.text.StringEscapeUtils;
+
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
-import org.apache.commons.lang.StringEscapeUtils;
 
 
 /**
@@ -480,10 +480,10 @@ public class ExpedientTascaDto extends ControlPermisosDto implements Comparable<
 			return titol;
 	}
 	public String getTitolEscaped() {
-		return StringEscapeUtils.escapeJavaScript(titol);
+		return StringEscapeUtils.escapeEcmaScript(titol);
 	}
 	public String getExpedientIdentificadorEscaped() {
-		return StringEscapeUtils.escapeJavaScript(expedientIdentificador);
+		return StringEscapeUtils.escapeEcmaScript(expedientIdentificador);
 	}
 	
 	private static final String PREFIX_TASCA_INICIAL = "TIE_";

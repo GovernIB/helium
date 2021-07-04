@@ -3,6 +3,14 @@
  */
 package es.caib.helium.persist.entity;
 
+import org.apache.commons.text.StringEscapeUtils;
+import org.hibernate.annotations.Immutable;
+import org.hibernate.annotations.Subselect;
+
+import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -10,32 +18,6 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.Lob;
-import javax.persistence.ManyToMany;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.OrderBy;
-import javax.persistence.TableGenerator;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
-import javax.persistence.Transient;
-
-import org.apache.commons.lang.StringEscapeUtils;
-import org.hibernate.annotations.ForeignKey;
-import org.hibernate.annotations.Immutable;
-import org.hibernate.annotations.Subselect;
-import org.springmodules.validation.bean.conf.loader.annotation.handler.MaxLength;
-import org.springmodules.validation.bean.conf.loader.annotation.handler.NotBlank;
-import org.springmodules.validation.bean.conf.loader.annotation.handler.NotNull;
 
 /**
  * Objecte de domini que representa un expedient.
@@ -109,29 +91,29 @@ public class ExpedientHelium {
 
 	private Long id;
 	@NotBlank
-	@MaxLength(255)
+	@Size(max = 255)
 	private String processInstanceId;
-	@MaxLength(255)
+	@Size(max = 255)
 	private String titol;
-	@MaxLength(64)
+	@Size(max = 64)
 	private String numero;
-	@MaxLength(64)
+	@Size(max = 64)
 	private String numeroDefault;
 	@NotNull
 	private Date dataInici = new Date();
 	private Date dataFi;
-	@MaxLength(255)
+	@Size(max = 255)
 	private String comentari;
-	@MaxLength(1024)
+	@Size(max = 1024)
 	private String infoAturat;
 	@NotNull
 	private IniciadorTipus iniciadorTipus;
 	@NotBlank
-	@MaxLength(255)
+	@Size(max = 255)
 	private String nomEstat;
-	@MaxLength(64)
+	@Size(max = 64)
 	private String iniciadorCodi;
-	@MaxLength(64)
+	@Size(max = 64)
 	private String responsableCodi;
 	private boolean anulat;
 	private String grupCodi;
@@ -139,39 +121,39 @@ public class ExpedientHelium {
 
 	private Double geoPosX;
 	private Double geoPosY;
-	@MaxLength(64)
+	@Size(max = 64)
 	private String geoReferencia;
 
-	@MaxLength(64)
+	@Size(max = 64)
 	private String registreNumero;
 	private Date registreData;
 	private Long unitatAdministrativa;
 	private String idioma;
 	private boolean autenticat;
-	@MaxLength(16)
+	@Size(max = 16)
 	protected String tramitadorNif;
-	@MaxLength(255)
+	@Size(max = 255)
 	protected String tramitadorNom;
-	@MaxLength(16)
+	@Size(max = 16)
 	protected String interessatNif;
-	@MaxLength(255)
+	@Size(max = 255)
 	protected String interessatNom;
-	@MaxLength(16)
+	@Size(max = 16)
 	protected String representantNif;
-	@MaxLength(255)
+	@Size(max = 255)
 	protected String representantNom;
 	private boolean avisosHabilitats = false;
-	@MaxLength(255)
+	@Size(max = 255)
 	private String avisosEmail;
-	@MaxLength(255)
+	@Size(max = 255)
 	private String avisosMobil;
 	private boolean notificacioTelematicaHabilitada = false;
-	@MaxLength(255)
+	@Size(max = 255)
 	private String tramitExpedientIdentificador;
-	@MaxLength(255)
+	@Size(max = 255)
 	private String tramitExpedientClau;
 	
-	@MaxLength(255)
+	@Size(max = 255)
 	private String errorDesc;
 	private String errorFull;
 
@@ -510,8 +492,9 @@ public class ExpedientHelium {
 	}
 	
 	@ManyToOne(optional=true)
-	@JoinColumn(name="estat_id")
-	@ForeignKey(name="hel_estat_expedient_fk")
+	@JoinColumn(
+			name="estat_id",
+			foreignKey = @ForeignKey(name="hel_estat_expedient_fk"))
 	public Estat getEstat() {
 		return estat;
 	}
@@ -520,8 +503,9 @@ public class ExpedientHelium {
 	}
 
 	@ManyToOne(optional=false)
-	@JoinColumn(name="tipus_id")
-	@ForeignKey(name="hel_exptipus_expedient_fk")
+	@JoinColumn(
+			name="tipus_id",
+			foreignKey = @ForeignKey(name="hel_exptipus_expedient_fk"))
 	public ExpedientTipus getTipus() {
 		return tipus;
 	}
@@ -530,8 +514,9 @@ public class ExpedientHelium {
 	}
 
 	@ManyToOne(optional=false)
-	@JoinColumn(name="entorn_id")
-	@ForeignKey(name="hel_entorn_expedient_fk")
+	@JoinColumn(
+			name="entorn_id",
+			foreignKey = @ForeignKey(name="hel_entorn_expedient_fk"))
 	public Entorn getEntorn() {
 		return entorn;
 	}
@@ -543,9 +528,9 @@ public class ExpedientHelium {
 	@JoinTable(
 			name="hel_expedient_rels",
 			joinColumns=@JoinColumn(name="origen_id", referencedColumnName="id"),
-			inverseJoinColumns=@JoinColumn(name="desti_id", referencedColumnName="id")
-	)
-	@ForeignKey(name="hel_origen_exprel_fk", inverseName="hel_desti_exprel_fk")
+			inverseJoinColumns=@JoinColumn(name="desti_id", referencedColumnName="id"),
+			foreignKey = @ForeignKey(name="hel_origen_exprel_fk"),
+			inverseForeignKey = @ForeignKey(name="hel_desti_exprel_fk"))
 	public Set<ExpedientHelium> getRelacionsOrigen() {
 		return this.relacionsOrigen;
 	}
@@ -651,9 +636,9 @@ public class ExpedientHelium {
 	@Transient
 	public String getIdentificadorLimitat() {
 		if (getIdentificadorExp() != null && getIdentificadorExp().length() > 100)
-			return StringEscapeUtils.escapeHtml(getIdentificadorExp().substring(0, 100) + " (...)");
+			return StringEscapeUtils.escapeHtml4(getIdentificadorExp().substring(0, 100) + " (...)");
 		else
-			return StringEscapeUtils.escapeHtml(getIdentificadorExp());
+			return StringEscapeUtils.escapeHtml4(getIdentificadorExp());
 	}
 
 	@Transient

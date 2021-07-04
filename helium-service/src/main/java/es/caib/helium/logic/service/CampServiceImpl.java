@@ -51,7 +51,7 @@ import es.caib.helium.persist.repository.ConsultaRepository;
 import es.caib.helium.persist.repository.DefinicioProcesRepository;
 import es.caib.helium.persist.repository.EnumeracioRepository;
 import es.caib.helium.persist.repository.ExpedientTipusRepository;
-import net.conselldemallorca.helium.ms.domini.DominiMs;
+import es.caib.helium.ms.domini.DominiMs;
 
 /**
  * Implementació del servei per a gestionar camps dels tipus d'expedients o

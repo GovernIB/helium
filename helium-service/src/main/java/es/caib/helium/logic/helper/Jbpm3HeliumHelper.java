@@ -129,7 +129,7 @@ import es.caib.helium.persist.repository.TascaRepository;
 import es.caib.helium.persist.repository.TerminiIniciatRepository;
 import es.caib.helium.persist.repository.TerminiRepository;
 import es.caib.helium.persist.util.ThreadLocalInfo;
-import net.conselldemallorca.helium.ms.domini.DominiMs;
+import es.caib.helium.ms.domini.DominiMs;
 
 /**
  * Service que implementa la funcionalitat necessària per

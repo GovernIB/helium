@@ -1,12 +1,14 @@
 package es.caib.helium.logic.intf.service;
 
-import java.util.List;
-
 import es.caib.helium.logic.intf.dto.AccioDto;
 import es.caib.helium.logic.intf.dto.PaginaDto;
 import es.caib.helium.logic.intf.dto.PaginacioParamsDto;
 import es.caib.helium.logic.intf.exception.NoTrobatException;
-import es.caib.helium.logic.intf.exception.PermisDenegatException;;
+import es.caib.helium.logic.intf.exception.PermisDenegatException;
+
+import java.util.List;
+
+;
 
 /**
  * Servei per al manteniment d'accions.
@@ -27,7 +29,7 @@ public interface AccioService {
 	 * @param accio
 	 *            La informació de la accio a crear.
 	 * @return la accio creada.
-	 * @throws AccioDenegatException
+	 * @throws PermisDenegatException
 	 *             Si no es tenen els permisos necessaris.
 	 */
 	public AccioDto create(
@@ -38,16 +40,14 @@ public interface AccioService {
 	/**
 	 * Modificació d'una accio existent.
 	 * 
-	 * @param expedientTipusId
+	 * @param accio
 	 *            Atribut id del tipus d'expedient.
-	 * @param definicioProcesId
-	 *            Atribut id de la definició de procés.
 	 * @param accio
 	 *            La informació de la accio a modificar.
 	 * @return la accio modificat.
 	 * @throws NoTrobatException
 	 *             Si no s'ha trobat el registre amb l'id especificat.
-	 * @throws AccioDenegatException
+	 * @throws PermisDenegatException
 	 *             Si no es tenen els permisos necessaris.
 	 */
 	public AccioDto update(
@@ -56,13 +56,11 @@ public interface AccioService {
 	/**
 	 * Esborra un entitat.
 	 * 
-	 * @param entornId
-	 *            Atribut id de l'entorn.
 	 * @param accioId
 	 *            Atribut id de la accio.
 	 * @throws NoTrobatException
 	 *             Si no s'ha trobat el registre amb l'id especificat.
-	 * @throws AccioDenegatException
+	 * @throws PermisDenegatException
 	 *             Si no es tenen els permisos necessaris.
 	 */
 	public void delete(

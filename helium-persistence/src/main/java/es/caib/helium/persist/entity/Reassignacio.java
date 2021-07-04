@@ -1,8 +1,5 @@
 package es.caib.helium.persist.entity;
 
-import java.io.Serializable;
-import java.util.Date;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -10,8 +7,9 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.TableGenerator;
-
-import org.springmodules.validation.bean.conf.loader.annotation.handler.NotBlank;
+import javax.validation.constraints.NotBlank;
+import java.io.Serializable;
+import java.util.Date;
 
 /**
  * Objecte que representa una reassignació temporal de tasques d'un usuari a un altre.

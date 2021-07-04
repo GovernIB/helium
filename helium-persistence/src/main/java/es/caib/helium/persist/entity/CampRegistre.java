@@ -3,23 +3,9 @@
  */
 package es.caib.helium.persist.entity;
 
+import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 import java.io.Serializable;
-
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
-import javax.persistence.TableGenerator;
-import javax.persistence.UniqueConstraint;
-
-import org.hibernate.annotations.ForeignKey;
-import org.hibernate.annotations.Index;
-import org.springmodules.validation.bean.conf.loader.annotation.handler.NotNull;
 
 /**
  * Objecte de domini que representa la pertinença d'un camp a un altre
@@ -31,12 +17,13 @@ import org.springmodules.validation.bean.conf.loader.annotation.handler.NotNull;
 @Table(	name="hel_camp_registre",
 		uniqueConstraints={
 			@UniqueConstraint(columnNames={"registre_id", "membre_id"}),
-			@UniqueConstraint(columnNames={"registre_id", "ordre"})})
-@org.hibernate.annotations.Table(
-		appliesTo = "hel_camp_registre",
+			@UniqueConstraint(columnNames={"registre_id", "ordre"})
+		},
 		indexes = {
-				@Index(name = "hel_campreg_registre_i", columnNames = {"registre_id"}),
-				@Index(name = "hel_campreg_membre_i", columnNames = {"membre_id"})})
+				@Index(name = "hel_campreg_registre_i", columnList = "registre_id"),
+				@Index(name = "hel_campreg_membre_i", columnList = "membre_id")
+		}
+)
 public class CampRegistre implements Serializable, GenericEntity<Long> {
 
 	private Long id;
@@ -97,8 +84,9 @@ public class CampRegistre implements Serializable, GenericEntity<Long> {
 	}
 
 	@ManyToOne(optional=false, fetch=FetchType.EAGER)
-	@JoinColumn(name="registre_id")
-	@ForeignKey(name="hel_camp_regregistre_fk")
+	@JoinColumn(
+			name="registre_id",
+			foreignKey = @ForeignKey(name="hel_camp_regregistre_fk"))
 	public Camp getRegistre() {
 		return registre;
 	}
@@ -107,8 +95,9 @@ public class CampRegistre implements Serializable, GenericEntity<Long> {
 	}
 
 	@ManyToOne(optional=false, fetch=FetchType.EAGER)
-	@JoinColumn(name="membre_id")
-	@ForeignKey(name="hel_camp_regmembre_fk")
+	@JoinColumn(
+			name="membre_id",
+			foreignKey = @ForeignKey(name="hel_camp_regmembre_fk"))
 	public Camp getMembre() {
 		return membre;
 	}

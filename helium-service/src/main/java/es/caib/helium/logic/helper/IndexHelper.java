@@ -3,27 +3,14 @@
  */
 package es.caib.helium.logic.helper;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.annotation.Resource;
-
-import org.springframework.stereotype.Service;
-
 import com.codahale.metrics.Counter;
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer;
-
 import es.caib.helium.logic.helper26.LuceneHelper;
-import es.caib.helium.logic.intf.Registre;
 import es.caib.helium.logic.intf.WProcessInstance;
 import es.caib.helium.logic.intf.WorkflowEngineApi;
 import es.caib.helium.logic.intf.dto.DadaIndexadaDto;
+import es.caib.helium.logic.intf.dto.Registre;
 import es.caib.helium.logic.intf.exception.IndexacioException;
 import es.caib.helium.logic.intf.service.TascaService;
 import es.caib.helium.persist.entity.Camp;
@@ -38,6 +25,16 @@ import es.caib.helium.persist.repository.CampRepository;
 import es.caib.helium.persist.repository.DefinicioProcesRepository;
 import es.caib.helium.persist.repository.ExpedientReindexacioRepository;
 import es.caib.helium.persist.repository.ExpedientRepository;
+import org.springframework.stereotype.Service;
+
+import javax.annotation.Resource;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Utilitats comunes pels serveis

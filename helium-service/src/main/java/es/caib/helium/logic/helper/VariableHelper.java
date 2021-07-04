@@ -57,7 +57,7 @@ import es.caib.helium.persist.repository.CampTascaRepository;
 import es.caib.helium.persist.repository.DefinicioProcesRepository;
 import es.caib.helium.persist.repository.ExpedientRepository;
 import es.caib.helium.persist.repository.TascaRepository;
-import net.conselldemallorca.helium.ms.domini.DominiMs;
+import es.caib.helium.ms.domini.DominiMs;
 
 /**
  * Helper per a gestionar les variables dels expedients.

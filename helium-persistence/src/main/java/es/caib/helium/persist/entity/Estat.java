@@ -3,27 +3,14 @@
  */
 package es.caib.helium.persist.entity;
 
-import java.io.Serializable;
-
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
-import javax.persistence.TableGenerator;
-import javax.persistence.Transient;
-import javax.persistence.UniqueConstraint;
-
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.hibernate.annotations.ForeignKey;
-import org.hibernate.annotations.Index;
-import org.springmodules.validation.bean.conf.loader.annotation.handler.MaxLength;
-import org.springmodules.validation.bean.conf.loader.annotation.handler.NotBlank;
-import org.springmodules.validation.bean.conf.loader.annotation.handler.NotNull;
+
+import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+import java.io.Serializable;
 
 /**
  * Objecte de domini que representa l'estat d'un expedient.
@@ -33,18 +20,17 @@ import org.springmodules.validation.bean.conf.loader.annotation.handler.NotNull;
 @Entity
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 @Table(	name="hel_estat",
-		uniqueConstraints={@UniqueConstraint(columnNames={"codi", "expedient_tipus_id"})})
-@org.hibernate.annotations.Table(
-		appliesTo = "hel_estat",
-		indexes = @Index(name = "hel_estat_exptip_i", columnNames = {"expedient_tipus_id"}))
+		uniqueConstraints={@UniqueConstraint(columnNames={"codi", "expedient_tipus_id"})},
+		indexes = @Index(name = "hel_estat_exptip_i", columnList = "expedient_tipus_id")
+)
 public class Estat implements Serializable, GenericEntity<Long> {
 
 	private Long id;
 	@NotBlank
-	@MaxLength(64)
+	@Size(max = 64)
 	private String codi;
 	@NotBlank
-	@MaxLength(255)
+	@Size(max = 255)
 	private String nom;
 	@NotNull
 	private int ordre;
@@ -105,8 +91,9 @@ public class Estat implements Serializable, GenericEntity<Long> {
 	}
 
 	@ManyToOne(optional=false)
-	@JoinColumn(name="expedient_tipus_id")
-	@ForeignKey(name="hel_exptipus_estat_fk")
+	@JoinColumn(
+			name="expedient_tipus_id",
+			foreignKey = @ForeignKey(name="hel_exptipus_estat_fk"))
 	public ExpedientTipus getExpedientTipus() {
 		return expedientTipus;
 	}

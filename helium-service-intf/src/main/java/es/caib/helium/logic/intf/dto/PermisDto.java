@@ -3,9 +3,10 @@
  */
 package es.caib.helium.logic.intf.dto;
 
+import org.apache.commons.lang3.builder.ToStringBuilder;
+
 import java.io.Serializable;
 
-import org.apache.commons.lang.builder.ToStringBuilder;
 
 /**
  * Informació d'un permís.

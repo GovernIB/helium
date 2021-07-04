@@ -137,7 +137,7 @@ import es.caib.helium.persist.repository.SequenciaAnyRepository;
 import es.caib.helium.persist.repository.TerminiRepository;
 import net.conselldemallorca.helium.core.security.ExtendedPermission;
 import net.conselldemallorca.helium.core.util.ExpedientCamps;
-import net.conselldemallorca.helium.ms.domini.DominiMs;
+import es.caib.helium.ms.domini.DominiMs;
 
 /**
  * Implementació del servei per a gestionar tipus d'expedients.

@@ -3,37 +3,17 @@
  */
 package es.caib.helium.persist.entity;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
-import javax.persistence.TableGenerator;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
-import javax.persistence.UniqueConstraint;
-
-import org.apache.commons.lang.StringUtils;
-import org.hibernate.annotations.ForeignKey;
-
 import es.caib.helium.integracio.plugins.notificacio.EnviamentEstat;
 import es.caib.helium.logic.intf.dto.EnviamentTipusEnumDto;
 import es.caib.helium.logic.intf.dto.NotificacioEnviamentEstatEnumDto;
 import es.caib.helium.logic.intf.dto.NotificacioEstatEnumDto;
+import org.apache.commons.lang3.StringUtils;
+
+import javax.persistence.*;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 /**
  * Objecte de domini que representa una notificació electronica de un expedient.
@@ -60,13 +40,15 @@ public class DocumentNotificacio implements Serializable, GenericEntity<Long> {
 	private String usuariCodi;
 	
 	@ManyToOne(optional = false, fetch = FetchType.EAGER)
-	@JoinColumn(name = "expedient_id")
-	@ForeignKey(name = "hel_expedient_docnot_fk")
+	@JoinColumn(
+			name = "expedient_id",
+			foreignKey = @ForeignKey(name = "hel_expedient_docnot_fk"))
 	private Expedient expedient;
 	
 	@ManyToOne(optional = false, fetch = FetchType.EAGER)
-	@JoinColumn(name = "document_store_id")
-	@ForeignKey(name = "hel_document_notif_fk")
+	@JoinColumn(
+			name = "document_store_id",
+			foreignKey = @ForeignKey(name = "hel_document_notif_fk"))
 	private DocumentStore document;
 	
 	@ManyToMany(
@@ -176,8 +158,9 @@ public class DocumentNotificacio implements Serializable, GenericEntity<Long> {
 	private String enviamentCertificacioOrigen;
 	
 	@ManyToOne(optional = false, fetch = FetchType.EAGER)
-	@JoinColumn(name = "certificacio_store_id")
-	@ForeignKey(name = "hel_certificacio_notif_fk")
+	@JoinColumn(
+			name = "certificacio_store_id",
+			foreignKey = @ForeignKey(name = "hel_certificacio_notif_fk"))
 	private DocumentStore enviamentCertificacio;
 	
 	// Enviament

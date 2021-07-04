@@ -3,6 +3,13 @@
  */
 package es.caib.helium.persist.entity;
 
+import es.caib.helium.logic.intf.dto.NtiTipoFirmaEnumDto;
+import org.apache.commons.text.StringEscapeUtils;
+
+import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.io.Serializable;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -12,47 +19,19 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.Lob;
-import javax.persistence.ManyToMany;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.OrderBy;
-import javax.persistence.Table;
-import javax.persistence.TableGenerator;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
-import javax.persistence.Transient;
-
-import org.apache.commons.lang.StringEscapeUtils;
-import org.hibernate.annotations.ForeignKey;
-import org.hibernate.annotations.Index;
-import org.springmodules.validation.bean.conf.loader.annotation.handler.MaxLength;
-import org.springmodules.validation.bean.conf.loader.annotation.handler.NotBlank;
-import org.springmodules.validation.bean.conf.loader.annotation.handler.NotNull;
-
-import es.caib.helium.logic.intf.dto.NtiTipoFirmaEnumDto;
-
 /**
  * Objecte de domini que representa un expedient.
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Entity
-@Table(name="hel_expedient")
-@org.hibernate.annotations.Table(
-		appliesTo = "hel_expedient",
+@Table(name="hel_expedient",
 		indexes = {
-				@Index(name = "hel_expedient_estat_i", columnNames = {"estat_id"}),
-				@Index(name = "hel_expedient_entorn_i", columnNames = {"entorn_id"}),
-				@Index(name = "hel_expedient_tipus_i", columnNames = {"tipus_id"})})
+				@Index(name = "hel_expedient_estat_i", columnList = "estat_id"),
+				@Index(name = "hel_expedient_entorn_i", columnList = "entorn_id"),
+				@Index(name = "hel_expedient_tipus_i", columnList = "tipus_id")
+		}
+)
 public class Expedient implements Serializable, GenericEntity<Long> {
 
 	private static final String SEPARADOR_SISTRA = "#";
@@ -63,26 +42,26 @@ public class Expedient implements Serializable, GenericEntity<Long> {
 
 	private Long id;
 	@NotBlank
-	@MaxLength(255)
+	@Size(max = 255)
 	private String processInstanceId;
-	@MaxLength(255)
+	@Size(max = 255)
 	private String titol;
-	@MaxLength(64)
+	@Size(max = 64)
 	private String numero;
-	@MaxLength(64)
+	@Size(max = 64)
 	private String numeroDefault;
 	@NotNull
 	private Date dataInici = new Date();
 	private Date dataFi;
-	@MaxLength(255)
+	@Size(max = 255)
 	private String comentari;
-	@MaxLength(1024)
+	@Size(max = 1024)
 	private String infoAturat;
 	@NotNull
 	private IniciadorTipus iniciadorTipus;
-	@MaxLength(64)
+	@Size(max = 64)
 	private String iniciadorCodi;
-	@MaxLength(64)
+	@Size(max = 64)
 	private String responsableCodi;
 	private boolean anulat;
 	private String grupCodi;
@@ -90,39 +69,39 @@ public class Expedient implements Serializable, GenericEntity<Long> {
 
 	private Double geoPosX;
 	private Double geoPosY;
-	@MaxLength(64)
+	@Size(max = 64)
 	private String geoReferencia;
 
-	@MaxLength(64)
+	@Size(max = 64)
 	private String registreNumero;
 	private Date registreData;
 	private Long unitatAdministrativa;
 	private String idioma;
 	private boolean autenticat;
-	@MaxLength(16)
+	@Size(max = 16)
 	protected String tramitadorNif;
-	@MaxLength(255)
+	@Size(max = 255)
 	protected String tramitadorNom;
-	@MaxLength(16)
+	@Size(max = 16)
 	protected String interessatNif;
-	@MaxLength(255)
+	@Size(max = 255)
 	protected String interessatNom;
-	@MaxLength(16)
+	@Size(max = 16)
 	protected String representantNif;
-	@MaxLength(255)
+	@Size(max = 255)
 	protected String representantNom;
 	private boolean avisosHabilitats = false;
-	@MaxLength(255)
+	@Size(max = 255)
 	private String avisosEmail;
-	@MaxLength(255)
+	@Size(max = 255)
 	private String avisosMobil;
 	private boolean notificacioTelematicaHabilitada = false;
-	@MaxLength(255)
+	@Size(max = 255)
 	private String tramitExpedientIdentificador;
-	@MaxLength(255)
+	@Size(max = 255)
 	private String tramitExpedientClau;
 	
-	@MaxLength(255)
+	@Size(max = 255)
 	private String errorDesc;
 	private String errorFull;
 
@@ -149,23 +128,23 @@ public class Expedient implements Serializable, GenericEntity<Long> {
 	private boolean reindexarError;
 
 	private boolean ntiActiu;
-	@MaxLength(256)
+	@Size(max = 256)
 	private String ntiVersion;
-	@MaxLength(52)
+	@Size(max = 52)
 	private String ntiIdentificador;
-	@MaxLength(256)
+	@Size(max = 256)
 	private String ntiOrgano;
-	@MaxLength(16)
+	@Size(max = 16)
 	private String ntiSerieDocumental;
-	@MaxLength(44)
+	@Size(max = 44)
 	private String ntiClasificacion;
 	private NtiTipoFirmaEnumDto ntiTipoFirma;
-	@MaxLength(256)
+	@Size(max = 256)
 	private String ntiCsv;
-	@MaxLength(256)
+	@Size(max = 256)
 	private String ntiDefinicionGenCsv;
 	private boolean arxiuActiu;
-	@MaxLength(32)
+	@Size(max = 32)
 	private String arxiuUuid;
 
 	public Expedient() {}
@@ -483,8 +462,9 @@ public class Expedient implements Serializable, GenericEntity<Long> {
 	}
 	
 	@ManyToOne(optional=true)
-	@JoinColumn(name="estat_id")
-	@ForeignKey(name="hel_estat_expedient_fk")
+	@JoinColumn(
+			name="estat_id",
+			foreignKey = @ForeignKey(name="hel_estat_expedient_fk"))
 	public Estat getEstat() {
 		return estat;
 	}
@@ -493,8 +473,9 @@ public class Expedient implements Serializable, GenericEntity<Long> {
 	}
 
 	@ManyToOne(optional=false)
-	@JoinColumn(name="tipus_id")
-	@ForeignKey(name="hel_exptipus_expedient_fk")
+	@JoinColumn(
+			name="tipus_id",
+			foreignKey = @ForeignKey(name="hel_exptipus_expedient_fk"))
 	public ExpedientTipus getTipus() {
 		return tipus;
 	}
@@ -503,8 +484,9 @@ public class Expedient implements Serializable, GenericEntity<Long> {
 	}
 
 	@ManyToOne(optional=false)
-	@JoinColumn(name="entorn_id")
-	@ForeignKey(name="hel_entorn_expedient_fk")
+	@JoinColumn(
+			name="entorn_id",
+			foreignKey = @ForeignKey(name="hel_entorn_expedient_fk"))
 	public Entorn getEntorn() {
 		return entorn;
 	}
@@ -516,9 +498,9 @@ public class Expedient implements Serializable, GenericEntity<Long> {
 	@JoinTable(
 			name="hel_expedient_rels",
 			joinColumns=@JoinColumn(name="origen_id", referencedColumnName="id"),
-			inverseJoinColumns=@JoinColumn(name="desti_id", referencedColumnName="id")
-	)
-	@ForeignKey(name="hel_origen_exprel_fk", inverseName="hel_desti_exprel_fk")
+			inverseJoinColumns=@JoinColumn(name="desti_id", referencedColumnName="id"),
+			foreignKey = @ForeignKey(name="hel_origen_exprel_fk"),
+			inverseForeignKey = @ForeignKey(name="hel_desti_exprel_fk"))
 	public Set<Expedient> getRelacionsOrigen() {
 		return this.relacionsOrigen;
 	}
@@ -662,9 +644,9 @@ public class Expedient implements Serializable, GenericEntity<Long> {
 	@Transient
 	public String getIdentificadorLimitat() {
 		if (getIdentificador() != null && getIdentificador().length() > 100)
-			return StringEscapeUtils.escapeHtml(getIdentificador().substring(0, 100) + " (...)");
+			return StringEscapeUtils.escapeHtml4(getIdentificador().substring(0, 100) + " (...)");
 		else
-			return StringEscapeUtils.escapeHtml(getIdentificador());
+			return StringEscapeUtils.escapeHtml4(getIdentificador());
 	}
 
 	@Transient

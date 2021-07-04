@@ -1,7 +1,5 @@
 package es.caib.helium.logic.intf.service;
 
-import java.util.List;
-
 import es.caib.helium.logic.intf.dto.CampAgrupacioDto;
 import es.caib.helium.logic.intf.dto.CampDto;
 import es.caib.helium.logic.intf.dto.CampRegistreDto;
@@ -10,7 +8,11 @@ import es.caib.helium.logic.intf.dto.PaginaDto;
 import es.caib.helium.logic.intf.dto.PaginacioParamsDto;
 import es.caib.helium.logic.intf.dto.TascaDto;
 import es.caib.helium.logic.intf.exception.NoTrobatException;
-import es.caib.helium.logic.intf.exception.PermisDenegatException;;
+import es.caib.helium.logic.intf.exception.PermisDenegatException;
+
+import java.util.List;
+
+;
 
 /**
  * Servei per al manteniment de camps dels tipus d'expedient o de les definicions de procés.
@@ -28,7 +30,7 @@ public interface CampService {
 	 * @param camp
 	 *            La informació del camp a crear.
 	 * @return el camp creat.
-	 * @throws CampDenegatException
+	 * @throws PermisDenegatException
 	 *             Si no es tenen els permisos necessaris.
 	 */
 	public CampDto create(
@@ -39,16 +41,12 @@ public interface CampService {
 	/**
 	 * Modificació d'un camp existent.
 	 * 
-	 * @param expedientTipusId
-	 *            Atribut id del tipus d'expedient.
-	 * @param definicioProcesId
-	 *            Atribut id de la definició de procés.
 	 * @param camp
 	 *            La informació del camp a modificar.
 	 * @return el camp modificat.
 	 * @throws NoTrobatException
 	 *             Si no s'ha trobat el registre amb l'id especificat.
-	 * @throws CampDenegatException
+	 * @throws PermisDenegatException
 	 *             Si no es tenen els permisos necessaris.
 	 */
 	public CampDto update(
@@ -57,13 +55,11 @@ public interface CampService {
 	/**
 	 * Esborra un entitat.
 	 * 
-	 * @param entornId
-	 *            Atribut id de l'entorn.
 	 * @param campCampId
 	 *            Atribut id del camp.
 	 * @throws NoTrobatException
 	 *             Si no s'ha trobat el registre amb l'id especificat.
-	 * @throws CampDenegatException
+	 * @throws PermisDenegatException
 	 *             Si no es tenen els permisos necessaris.
 	 */
 	public void delete(
@@ -192,10 +188,6 @@ public interface CampService {
 	/**
 	 * Modificació d'una agrupació existent.
 	 * 
-	 * @param expedientTipusId
-	 *            Atribut id del tipus d'expedient.
-	 * @param definicioProcesId
-	 *            Atribut id de la definició de procés.
 	 * @param agrupacio
 	 *            La informació de la agrupació a modificar.
 	 * @return la agrupació modificada.
@@ -279,7 +271,7 @@ public interface CampService {
 
 	/**
 	 * Afegeix un camp a una agrupació.
-	 * @param id
+	 * @param campId
 	 * 			Identificador del camp
 	 * @param agrupacioId
 	 * 			Identificador de la agrupació
@@ -292,7 +284,7 @@ public interface CampService {
 	/**
 	 * Remou un camp de la seva agrupació.
 	 * 
-	 * @param id
+	 * @param campId
 	 * 			Identificador del camp
 	 * @return
 	 * 			Retorna cert si s'ha remogut correctament o false si no existia el camp o no tenia
@@ -312,14 +304,12 @@ public interface CampService {
 	/**
 	 * Crea un nou camp pel registre.
 	 * 
-	 * @param entornId
-	 *            Atribut id de l'entorn.
 	 * @param campId
 	 *            Atribut id del camp del tipus d'expedient.
 	 * @param campRegistre
 	 *            La informació del camp del registre a crear.
 	 * @return el camp del registre creat.
-	 * @throws CampRegistreDenegatException
+	 * @throws PermisDenegatException
 	 *             Si no es tenen els permisos necessaris.
 	 */
 	public CampRegistreDto registreCreate(
@@ -368,7 +358,7 @@ public interface CampService {
 	/** 
 	 * Retorna els membres del campRegistre donat l'identificador del registre.
 	 * 
-	 * @param id
+	 * @param registreId
 	 * 
 	 * @return La llista de membres.
 	 */

@@ -3,24 +3,11 @@
  */
 package es.caib.helium.persist.entity;
 
+import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.io.Serializable;
-
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.Lob;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
-import javax.persistence.TableGenerator;
-
-import org.hibernate.annotations.ForeignKey;
-import org.springmodules.validation.bean.conf.loader.annotation.handler.MaxLength;
-import org.springmodules.validation.bean.conf.loader.annotation.handler.NotBlank;
-import org.springmodules.validation.bean.conf.loader.annotation.handler.NotNull;
 
 /**
  * Objecte de domini que representa una entrada de log d'un expedient.
@@ -33,14 +20,14 @@ public class Repro implements Serializable {
 
 	private Long id;
 	@NotBlank
-	@MaxLength(255)
+	@Size(max = 255)
 	private String usuari;
 	@NotNull
 	private ExpedientTipus expedientTipus;
 	@NotBlank
 	private String nom;
 	@Lob
-	@MaxLength(20000)
+	@Size(max = 20000)
 	private String valors;
 	private String tascaCodi;
 	
@@ -95,8 +82,9 @@ public class Repro implements Serializable {
 	}
 	
 	@ManyToOne(optional=false, fetch=FetchType.LAZY)
-	@JoinColumn(name="exptip_id")
-	@ForeignKey(name="hel_exptip_repro_fk")
+	@JoinColumn(
+			name="exptip_id",
+			foreignKey = @ForeignKey(name="hel_exptip_repro_fk"))
 	public ExpedientTipus getExpedientTipus() {
 		return expedientTipus;
 	}

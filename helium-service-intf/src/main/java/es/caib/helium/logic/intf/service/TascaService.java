@@ -3,28 +3,18 @@
  */
 package es.caib.helium.logic.intf.service;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import org.springframework.security.acls.model.NotFoundException;
-
-import es.caib.helium.logic.intf.dto.ArxiuDto;
-import es.caib.helium.logic.intf.dto.DocumentDto;
-import es.caib.helium.logic.intf.dto.ExpedientTascaDto;
-import es.caib.helium.logic.intf.dto.FormulariExternDto;
-import es.caib.helium.logic.intf.dto.PaginaDto;
-import es.caib.helium.logic.intf.dto.PaginacioParamsDto;
-import es.caib.helium.logic.intf.dto.SeleccioOpcioDto;
-import es.caib.helium.logic.intf.dto.TascaDadaDto;
-import es.caib.helium.logic.intf.dto.TascaDocumentDto;
-import es.caib.helium.logic.intf.dto.TascaDto;
+import es.caib.helium.logic.intf.dto.*;
 import es.caib.helium.logic.intf.exception.NoTrobatException;
 import es.caib.helium.logic.intf.exception.PermisDenegatException;
 import es.caib.helium.logic.intf.exception.SistemaExternException;
 import es.caib.helium.logic.intf.exception.SistemaExternTimeoutException;
 import es.caib.helium.logic.intf.exception.ValidacioException;
+import org.springframework.security.acls.model.NotFoundException;
+
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Servei per a enllaçar les llibreries jBPM 3 amb la funcionalitat
@@ -44,10 +34,8 @@ public interface TascaService {
 	 *            Atribut id de l'expedient que es vol comprovar.
 	 * @return La informació de la tasca.@throws NotFoundException
 	 *             Si no s'ha trobat cap expedient amb l'id especificat.
-	 * @throws NotFoundException
+	 * @throws NoTrobatException
 	 *             Si no s'ha trobat la tasca amb l'id especificat.
-	 * @throws NotAllowedException
-	 *             Si no es tenen els permisos adequats.
 	 */
 	public ExpedientTascaDto findAmbIdPerExpedient(
 			String id,
@@ -59,10 +47,8 @@ public interface TascaService {
 	 * @param id
 	 *            Atribut id de la tasca que es vol consultar.
 	 * @return La informació de la tasca.
-	 * @throws NoTrobat
+	 * @throws NoTrobatException
 	 *             Si no s'ha trobat la tasca amb l'id especificat.
-	 * @throws NotAllowedException
-	 *             Si no es tenen els permisos adequats.
 	 */
 	public ExpedientTascaDto findAmbIdPerTramitacio(
 			String id) throws NoTrobatException;
@@ -97,10 +83,10 @@ public interface TascaService {
 	 * @param nomesTasquesGrup
 	 *            Check de mostrar només les tasques de grup.
 	 * @return La llista d'ids de tasca.
-	 * @throws NotFoundException
+	 * @throws NoTrobatException
 	 *             Si no s'ha trobat algun dels elements especificats
 	 *             mitjançant el seu id (entorn, tipus, estat).
-	 * @throws NotAllowedException
+	 * @throws PermisDenegatException
 	 *             Si no es tenen permisos per a accedir als elements
 	 *             especificats mitjançant el seu id (entorn, tipus, estat).
 	 */
@@ -156,10 +142,10 @@ public interface TascaService {
 	 * @param paginacioParams
 	 *            Paràmetres de paginació.
 	 * @return La pàgina del llistat de tasques.
-	 * @throws NotFoundException
+	 * @throws NoTrobatException
 	 *             Si no s'ha trobat algun dels elements especificats
 	 *             mitjançant el seu id (entorn, tipus, estat).
-	 * @throws NotAllowedException
+	 * @throws PermisDenegatException
 	 *             Si no es tenen permisos per a accedir als elements
 	 *             especificats mitjançant el seu id (entorn, tipus, estat).
 	 */
@@ -190,8 +176,6 @@ public interface TascaService {
 	 * @return Les dades de la tasca.
 	 * @throws NotFoundException
 	 *             Si no s'ha trobat la tasca amb l'id especificat.
-	 * @throws NotAllowedException
-	 *             Si no es tenen els permisos adequats.
 	 */
 	public List<TascaDadaDto> findDades(
 			String id);
@@ -204,8 +188,6 @@ public interface TascaService {
 	 * @return Els documents de la tasca.
 	 * @throws NotFoundException
 	 *             Si no s'ha trobat la tasca amb l'id especificat.
-	 * @throws NotAllowedException
-	 *             Si no es tenen els permisos adequats.
 	 */
 	public List<TascaDocumentDto> findDocuments(
 			String id);
@@ -231,10 +213,8 @@ public interface TascaService {
 	 * @param valorsFormulari
 	 *            Els valors dels camps del formulari.
 	 * @return la llista de valors
-	 * @throws NotFoundException
-	 *             Si no s'ha trobat la tasca amb l'id especificat.
-	 * @throws NotAllowedException
-	 *             Si no es tenen els permisos adequats.
+	 * @throws SistemaExternException
+	 * @throws SistemaExternTimeoutException
 	 */
 	public List<SeleccioOpcioDto> findValorsPerCampDesplegable(
 			String tascaId,
@@ -255,8 +235,6 @@ public interface TascaService {
 	 * @throws NotFoundException
 	 *             Si no s'ha trobat la tasca amb l'id especificat a dins
 	 *             les tasques de grup de l'usuari.
-	 * @throws NotAllowedException
-	 *             Si no es tenen els permisos adequats.
 	 */
 	public ExpedientTascaDto agafar(
 			String id) throws NoTrobatException;
@@ -269,8 +247,6 @@ public interface TascaService {
 	 * @return la tasca agafada.
 	 * @throws NotFoundException
 	 *             Si no s'ha trobat la tasca amb l'id especificat.
-	 * @throws NotAllowedException
-	 *             Si no es tenen els permisos adequats.
 	 */
 	public ExpedientTascaDto alliberar(
 			String id);
@@ -283,10 +259,6 @@ public interface TascaService {
 	 * @param variables
 	 *            Valors del formulari de la tasca.
 	 * @return la tasca guardada.
-	 * @throws NotFoundException
-	 *             Si no s'ha trobat la tasca amb l'id especificat.
-	 * @throws NotAllowedException
-	 *             Si no es tenen els permisos adequats.
 	 */
 	public void guardar(
 			String tascaId,
@@ -300,10 +272,6 @@ public interface TascaService {
 	 * @param variables
 	 *            Valors del formulari de la tasca.
 	 * @return la tasca validada.
-	 * @throws NotFoundException
-	 *             Si no s'ha trobat la tasca amb l'id especificat.
-	 * @throws NotAllowedException
-	 *             Si no es tenen els permisos adequats.
 	 */
 	public void validar(
 			String tascaId,
@@ -314,14 +282,9 @@ public interface TascaService {
 	 * 
 	 * @param tascaId
 	 *            Atribut id de la tasca.
-	 * @param expedientId 
 	 * @return la tasca restaurada.
 	 * @throws NotFoundException
 	 *             Si no s'ha trobat la tasca amb l'id especificat.
-	 * @throws NotAllowedException
-	 *             Si no es tenen els permisos adequats.
-	 * @throws IllegalStateException
-	 *             Si la tasca no es troba en estat validada.
 	 */
 	public void restaurar(String tascaId);
 
@@ -333,11 +296,9 @@ public interface TascaService {
 	 * @param outcome
 	 *            Transició de sortida de la tasca.
 	 * @return la tasca completada.
-	 * @throws NotFoundException
+	 * @throws NoTrobatException
 	 *             Si no s'ha trobat la tasca amb l'id especificat.
-	 * @throws NotAllowedException
-	 *             Si no es tenen els permisos adequats.
-	 * @throws IllegalStateException
+	 * @throws ValidacioException
 	 *             Si la tasca no es troba en disposició de ser completada.
 	 */
 	public void completar(
@@ -352,11 +313,9 @@ public interface TascaService {
 	 * @param outcome
 	 *            Transició de sortida de la tasca.
 	 * @return la tasca completada.
-	 * @throws NotFoundException
+	 * @throws NoTrobatException
 	 *             Si no s'ha trobat la tasca amb l'id especificat.
-	 * @throws NotAllowedException
-	 *             Si no es tenen els permisos adequats.
-	 * @throws IllegalStateException
+	 * @throws ValidacioException
 	 *             Si la tasca no es troba en disposició de ser completada.
 	 */
 	public void completarMassiu(
@@ -371,10 +330,6 @@ public interface TascaService {
 	 *            Atribut id de la tasca.
 	 * @param accio
 	 *            Nom de l'acció a executar.
-	 * @throws NotFoundException
-	 *             Si no s'ha trobat la tasca amb l'id especificat.
-	 * @throws NotAllowedException
-	 *             Si no es tenen els permisos adequats.
 	 */
 	public void executarAccio(
 			String id,
@@ -384,7 +339,7 @@ public interface TascaService {
 	 * Inicia un formulari extern i retorna les dades per a obrir
 	 * una finestra amb el formulari.
 	 * 
-	 * @param id
+	 * @param tascaId
 	 *            Atribut id de la tasca.
 	 * @return
 	 */
@@ -408,10 +363,6 @@ public interface TascaService {
 	 * @param documentCodi
 	 *            Codi del document de la tasca que es vol descarregar.
 	 * @return L'arxiu del document.
-	 * @throws NotFoundException
-	 *             Si no s'ha trobat cap expedient amb l'id especificat.
-	 * @throws NotAllowedException
-	 *             Si no es tenen els permisos adequats.
 	 */
 	public ArxiuDto getArxiuPerDocumentCodi(
 			String tascaId,
@@ -468,7 +419,7 @@ public interface TascaService {
 	 * Retorna si la TaskInstance està registrada en segon pla
 	 * en execució o per ser executada
 	 * 
-	 * @param tascaId
+	 * @param tascaSegonPlaId
 	 *            Atribut id de la tasca que es vol consultar.
 	 * @return Retorna si està registrada en segón pla o no
 	 */ 

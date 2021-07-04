@@ -3,25 +3,8 @@
  */
 package es.caib.helium.persist.entity;
 
+import javax.persistence.*;
 import java.io.Serializable;
-
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
-import javax.persistence.TableGenerator;
-
-import org.hibernate.annotations.ForeignKey;
-import org.hibernate.annotations.Index;
-
 
 /**
  * Classe del model de dades que representa un interessat
@@ -30,12 +13,13 @@ import org.hibernate.annotations.Index;
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Entity
-@Table(	name = "hel_anotacio_interessat")
-@org.hibernate.annotations.Table(
-		appliesTo = "hel_anotacio_interessat",
+@Table(
+		name = "hel_anotacio_interessat",
 		indexes = {
-				@Index(name = "hel_anotacio_inter_fk_i", columnNames = {"anotacio_id"}),
-				@Index(name = "hel_representant_anotacio_fk_i", columnNames = {"representant_id"})})
+				@Index(name = "hel_anotacio_inter_fk_i", columnList = "anotacio_id"),
+				@Index(name = "hel_representant_anotacio_fk_i", columnList = "representant_id")
+		}
+)
 public class AnotacioInteressat implements Serializable, GenericEntity<Long> {
 
 	@Id
@@ -85,13 +69,15 @@ public class AnotacioInteressat implements Serializable, GenericEntity<Long> {
 	private String tipus;
 
 	@ManyToOne(cascade = CascadeType.ALL)
-	@JoinColumn(name = "representant_id")
-	@ForeignKey(name = "hel_interessat_representant_fk")
+	@JoinColumn(
+			name = "representant_id",
+			foreignKey = @ForeignKey(name = "hel_interessat_representant_fk"))
 	private AnotacioInteressat representant;
 
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "anotacio_id")
-	@ForeignKey(name = "hel_interessat_anotacio_fk")
+	@JoinColumn(
+			name = "anotacio_id",
+			foreignKey = @ForeignKey(name = "hel_interessat_anotacio_fk"))
 	private Anotacio anotacio;
 	
 	@Column(name = "organ_codi", length = 9)

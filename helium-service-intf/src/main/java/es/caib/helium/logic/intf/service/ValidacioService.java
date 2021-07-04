@@ -10,14 +10,12 @@ public interface ValidacioService {
 	/**
 	 * Crea una nova validacio.
 	 * 
-	 * @param entornId
-	 *            Atribut id de l'entorn.
 	 * @param campId
 	 *            Atribut id del camp del tipus d'expedient.
 	 * @param validacio
 	 *            La informació de la validacio a crear.
 	 * @return la validacio creada.
-	 * @throws ValidacioDenegatException
+	 * @throws PermisDenegatException
 	 *             Si no es tenen els permisos necessaris.
 	 */
 	public ValidacioDto validacioCreate(

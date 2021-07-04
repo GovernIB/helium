@@ -3,6 +3,15 @@
  */
 package es.caib.helium.persist.entity;
 
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
+import org.hibernate.annotations.Sort;
+import org.hibernate.annotations.SortType;
+
+import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -12,33 +21,6 @@ import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.MapKey;
-import javax.persistence.OneToMany;
-import javax.persistence.OrderBy;
-import javax.persistence.Table;
-import javax.persistence.TableGenerator;
-import javax.persistence.Transient;
-import javax.persistence.UniqueConstraint;
-
-import org.hibernate.annotations.Fetch;
-import org.hibernate.annotations.FetchMode;
-import org.hibernate.annotations.ForeignKey;
-import org.hibernate.annotations.Index;
-import org.hibernate.annotations.Sort;
-import org.hibernate.annotations.SortType;
-import org.springmodules.validation.bean.conf.loader.annotation.handler.MaxLength;
-import org.springmodules.validation.bean.conf.loader.annotation.handler.NotBlank;
-import org.springmodules.validation.bean.conf.loader.annotation.handler.NotNull;
-
 /**
  * Objecte de domini que representa un tipus d'expedient.
  * 
@@ -46,21 +28,22 @@ import org.springmodules.validation.bean.conf.loader.annotation.handler.NotNull;
  */
 @Entity
 @Table(	name="hel_expedient_tipus",
-		uniqueConstraints={@UniqueConstraint(columnNames={"codi", "entorn_id"})})
-@org.hibernate.annotations.Table(
-		appliesTo = "hel_expedient_tipus",
-		indexes = {	@Index(name = "hel_exptip_entorn_i", columnNames = {"entorn_id"}),
-					@Index(name = "hel_exptip_pare_i", columnNames = {"expedient_tipus_pare_id"})})
+		uniqueConstraints={@UniqueConstraint(columnNames={"codi", "entorn_id"})},
+		indexes = {
+			@Index(name = "hel_exptip_entorn_i", columnList = "entorn_id"),
+			@Index(name = "hel_exptip_pare_i", columnList = "expedient_tipus_pare_id")
+		}
+)
 public class ExpedientTipus  implements Serializable, GenericEntity<Long> {
 
 	private Long id;
 	@NotBlank
-	@MaxLength(64)
+	@Size(max = 64)
 	private String codi;
 	@NotBlank
-	@MaxLength(255)
+	@Size(max = 255)
 	private String nom;
-	@MaxLength(255)
+	@Size(max = 255)
 	private String jbpmProcessDefinitionKey;
 	@NotNull
 	private Boolean teNumero;
@@ -70,13 +53,13 @@ public class ExpedientTipus  implements Serializable, GenericEntity<Long> {
 	private Boolean demanaNumero;
 	@NotNull
 	private Boolean demanaTitol;
-	@MaxLength(255)
+	@Size(max = 255)
 	private String expressioNumero;
 	private long sequencia = 1;
 	private long sequenciaDefault = 1;
 	private boolean reiniciarCadaAny;
 	private int anyActual = 0;
-	@MaxLength(64)
+	@Size(max = 64)
 	private String responsableDefecteCodi;
 	private boolean restringirPerGrup;
 	private boolean tramitacioMassiva;
@@ -97,57 +80,57 @@ public class ExpedientTipus  implements Serializable, GenericEntity<Long> {
 	// Integració NOTIB
 	private Boolean notibActiu;
 	/** codi DIR3 de l'organimse emissor. */
-	@MaxLength(256)
+	@Size(max = 256)
 	private String notibEmisor;
-	@MaxLength(9)
+	@Size(max = 9)
 	private String notibCodiProcediment;
 
 		
 	// Integració SISTRA
 	//  - Notificacions
 	private boolean notificacionsActivades;
-	@MaxLength(100)
+	@Size(max = 100)
 	private String notificacioOrganCodi;
-	@MaxLength(100)
+	@Size(max = 100)
 	private String notificacioOficinaCodi;
-	@MaxLength(100)
+	@Size(max = 100)
 	private String notificacioUnitatAdministrativa;
-	@MaxLength(100)
+	@Size(max = 100)
 	private String notificacioCodiProcediment;
-	@MaxLength(256)
+	@Size(max = 256)
 	private String notificacioAvisTitol;
-	@MaxLength(1024)
+	@Size(max = 1024)
 	private String notificacioAvisText;
-	@MaxLength(200)
+	@Size(max = 200)
 	private String notificacioAvisTextSms;
-	@MaxLength(256)
+	@Size(max = 256)
 	private String notificacioOficiTitol;
-	@MaxLength(1024)
+	@Size(max = 1024)
 	private String notificacioOficiText;
 
 	//  - Tràmits
-	@MaxLength(64)
+	@Size(max = 64)
 	private String sistraTramitCodi;
-	@MaxLength(2048)
+	@Size(max = 2048)
 	private String sistraTramitMapeigCamps;
-	@MaxLength(2048)
+	@Size(max = 2048)
 	private String sistraTramitMapeigDocuments;
-	@MaxLength(2048)
+	@Size(max = 2048)
 	private String sistraTramitMapeigAdjunts;
 
 	// Integració FORMS
-	@MaxLength(255)
+	@Size(max = 255)
 	private String formextUrl;
-	@MaxLength(255)
+	@Size(max = 255)
 	private String formextUsuari;
-	@MaxLength(25)
+	@Size(max = 25)
 	private String formextContrasenya;
 	
 	// Integració DISTRIBUCIO
 	private boolean distribucioActiu;
-	@MaxLength(200)
+	@Size(max = 200)
 	private String distribucioCodiProcediment;
-	@MaxLength(20)
+	@Size(max = 20)
 	private String distribucioCodiAssumpte;
 	/** Indica si processar automàticament l'anotació de registre associada. */
 	private boolean distribucioProcesAuto;
@@ -177,11 +160,11 @@ public class ExpedientTipus  implements Serializable, GenericEntity<Long> {
 	private List<Repro> repros  = new ArrayList<Repro>();
 
 	private boolean ntiActiu;
-	@MaxLength(256)
+	@Size(max = 256)
 	private String ntiOrgano;
-	@MaxLength(44)
+	@Size(max = 44)
 	private String ntiClasificacion;
-	@MaxLength(16)
+	@Size(max = 16)
 	private String ntiSerieDocumental;
 	private boolean arxiuActiu;
 	
@@ -368,8 +351,9 @@ public class ExpedientTipus  implements Serializable, GenericEntity<Long> {
 		this.heretable = heretable;
 	}
 	@ManyToOne
-	@JoinColumn(name="expedient_tipus_pare_id")
-	@ForeignKey(name="hel_exptipus_pare_exptipus_fk")
+	@JoinColumn(
+			name="expedient_tipus_pare_id",
+			foreignKey = @ForeignKey(name="hel_exptipus_pare_exptipus_fk"))
 	public ExpedientTipus getExpedientTipusPare() {
 		return expedientTipusPare;
 	}
@@ -605,8 +589,9 @@ public class ExpedientTipus  implements Serializable, GenericEntity<Long> {
 	}
 
 	@ManyToOne(optional=false)
-	@JoinColumn(name="entorn_id")
-	@ForeignKey(name="hel_entorn_exptipus_fk")
+	@JoinColumn(
+			name="entorn_id",
+			foreignKey = @ForeignKey(name="hel_entorn_exptipus_fk"))
 	public Entorn getEntorn() {
 		return entorn;
 	}

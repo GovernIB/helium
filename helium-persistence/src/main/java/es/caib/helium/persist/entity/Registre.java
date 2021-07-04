@@ -3,9 +3,6 @@
  */
 package es.caib.helium.persist.entity;
 
-import java.io.Serializable;
-import java.util.Date;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -15,10 +12,11 @@ import javax.persistence.Table;
 import javax.persistence.TableGenerator;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
-
-import org.springmodules.validation.bean.conf.loader.annotation.handler.MaxLength;
-import org.springmodules.validation.bean.conf.loader.annotation.handler.NotBlank;
-import org.springmodules.validation.bean.conf.loader.annotation.handler.NotNull;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+import java.io.Serializable;
+import java.util.Date;
 
 /**
  * Objecte de domini que representa el registre de modificacions a 
@@ -55,23 +53,23 @@ public class Registre implements Serializable, GenericEntity<Long> {
 	Date data;
 	@NotNull
 	private Long expedientId;
-	@MaxLength(255)
+	@Size(max = 255)
 	private String processInstanceId;
 	@NotBlank
-	@MaxLength(64)
+	@Size(max = 64)
 	private String responsableCodi;
 	@NotNull
 	private Accio accio;
 	@NotNull
 	private Entitat entitat;
 	@NotBlank
-	@MaxLength(255)
+	@Size(max = 255)
 	private String entitatId;
-	@MaxLength(1024)
+	@Size(max = 1024)
 	private String missatge;
-	@MaxLength(1024)
+	@Size(max = 1024)
 	private String valorVell;
-	@MaxLength(1024)
+	@Size(max = 1024)
 	private String valorNou;
 
 

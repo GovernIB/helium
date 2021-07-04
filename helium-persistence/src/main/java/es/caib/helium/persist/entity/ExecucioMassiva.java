@@ -3,35 +3,17 @@
  */
 package es.caib.helium.persist.entity;
 
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+
+import javax.persistence.*;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.io.Serializable;
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.Lob;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.OrderBy;
-import javax.persistence.Table;
-import javax.persistence.TableGenerator;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
-import javax.persistence.Transient;
-
-import org.hibernate.annotations.ForeignKey;
-import org.hibernate.annotations.Index;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springmodules.validation.bean.conf.loader.annotation.handler.MaxLength;
-import org.springmodules.validation.bean.conf.loader.annotation.handler.NotNull;
 
 /**
  * Objecte de domini que representa una acció massiva a damunt
@@ -40,10 +22,9 @@ import org.springmodules.validation.bean.conf.loader.annotation.handler.NotNull;
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Entity
-@Table(name="hel_exec_massiva")
-@org.hibernate.annotations.Table(
-		appliesTo = "hel_exec_massiva",
-		indexes = @Index(name = "hel_exemas_usuari_i", columnNames = {"usuari"}))
+@Table(name="hel_exec_massiva",
+		indexes = @Index(name = "hel_exemas_usuari_i", columnList = "usuari")
+)
 public class ExecucioMassiva implements Serializable, GenericEntity<Long> {
 
 	public enum ExecucioMassivaTipus {
@@ -69,14 +50,14 @@ public class ExecucioMassiva implements Serializable, GenericEntity<Long> {
 
 	private Long id;
 	@NotNull
-	@MaxLength(64)
+	@Size(max = 64)
 	private String usuari;
 	@NotNull
 	private ExecucioMassivaTipus tipus;
 	@NotNull
 	private Date dataInici;
 	private Date dataFi;
-	@MaxLength(255)
+	@Size(max = 255)
 	private String param1;
 	private byte[] param2;
 	private Boolean enviarCorreu;
@@ -84,7 +65,7 @@ public class ExecucioMassiva implements Serializable, GenericEntity<Long> {
 	private List<ExecucioMassivaExpedient> expedients = new ArrayList<ExecucioMassivaExpedient>();
 	private Long entorn;
 	
-	@MaxLength(2000)
+	@Size(max = 2000)
 	private String rols;
 
 	public ExecucioMassiva() {}
@@ -168,8 +149,9 @@ public class ExecucioMassiva implements Serializable, GenericEntity<Long> {
 	}
 	
 	@ManyToOne(optional=true)
-	@JoinColumn(name="expedient_tipus_id")
-	@ForeignKey(name="hel_exptipus_exemas_fk")
+	@JoinColumn(
+			name="expedient_tipus_id",
+			foreignKey = @ForeignKey(name="hel_exptipus_exemas_fk"))
 	public ExpedientTipus getExpedientTipus() {
 		return expedientTipus;
 	}

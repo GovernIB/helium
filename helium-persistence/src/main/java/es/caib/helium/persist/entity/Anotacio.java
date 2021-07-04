@@ -3,32 +3,13 @@
  */
 package es.caib.helium.persist.entity;
 
+import es.caib.helium.logic.intf.dto.AnotacioEstatEnumDto;
+
+import javax.persistence.*;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Enumerated;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
-import javax.persistence.TableGenerator;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
-import javax.persistence.Transient;
-
-import org.hibernate.annotations.ForeignKey;
-import org.hibernate.annotations.Index;
-
-import es.caib.helium.logic.intf.dto.AnotacioEstatEnumDto;
 
 /**
  * Classe del model de dades que representa una anotació al registre rebuda com a Backoffice 
@@ -37,12 +18,13 @@ import es.caib.helium.logic.intf.dto.AnotacioEstatEnumDto;
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Entity
-@Table(name = "hel_anotacio")
-@org.hibernate.annotations.Table(
-		appliesTo = "hel_anotacio",
+@Table(
+		name = "hel_anotacio",
 		indexes = {
-				@Index(name = "hel_anotacio_expedient_fk_i", columnNames = {"expedient_id"}),
-				@Index(name = "hel_anotacio_et_fk_i", columnNames = {"expedient_tipus_id"})})
+				@Index(name = "hel_anotacio_expedient_fk_i", columnList = "expedient_id"),
+				@Index(name = "hel_anotacio_et_fk_i", columnList = "expedient_tipus_id")
+		}
+)
 public class Anotacio implements Serializable, GenericEntity<Long> {
 
 	
@@ -54,8 +36,9 @@ public class Anotacio implements Serializable, GenericEntity<Long> {
 	
 	/** Expedient tipus associat per codi de procediment */
 	@ManyToOne(optional=true)
-	@JoinColumn(name="expedient_tipus_id")
-	@ForeignKey(name="hel_expedient_tipus_anotacio_fk")
+	@JoinColumn(
+			name="expedient_tipus_id",
+			foreignKey = @ForeignKey(name="hel_expedient_tipus_anotacio_fk"))
 	private ExpedientTipus expedientTipus;
 	/** Expedient amb el qual s'associa o inclou l'anotació. */
 	@ManyToOne(optional=true)

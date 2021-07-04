@@ -3,29 +3,15 @@
  */
 package es.caib.helium.persist.entity;
 
-import java.io.Serializable;
-
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
-import javax.persistence.TableGenerator;
-import javax.persistence.Transient;
-import javax.persistence.UniqueConstraint;
-
+import es.caib.helium.persist.entity.Persona.Sexe;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.hibernate.annotations.ForeignKey;
-import org.hibernate.annotations.Index;
-import org.springmodules.validation.bean.conf.loader.annotation.handler.MaxLength;
-import org.springmodules.validation.bean.conf.loader.annotation.handler.NotBlank;
-import org.springmodules.validation.bean.conf.loader.annotation.handler.NotNull;
 
-import es.caib.helium.persist.entity.Persona.Sexe;
+import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+import java.io.Serializable;
 
 /**
  * Objecte de domini que representa un càrrec de l'organigrama.
@@ -35,33 +21,33 @@ import es.caib.helium.persist.entity.Persona.Sexe;
 @Entity
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 @Table(	name="hel_carrec",
-		uniqueConstraints={@UniqueConstraint(columnNames={"codi", "entorn_id"})})
-@org.hibernate.annotations.Table(
-		appliesTo = "hel_carrec",
+		uniqueConstraints={@UniqueConstraint(columnNames={"codi", "entorn_id"})},
 		indexes = {
-				@Index(name = "hel_carrec_area_i", columnNames = {"area_id"}),
-				@Index(name = "hel_carrec_entorn_i", columnNames = {"entorn_id"})})
+				@Index(name = "hel_carrec_area_i", columnList = "area_id"),
+				@Index(name = "hel_carrec_entorn_i", columnList = "entorn_id")
+		}
+)
 public class Carrec implements Serializable, GenericEntity<Long> {
 
 	private Long id;
 	@NotBlank
-	@MaxLength(64)
+	@Size(max = 64)
 	private String codi;
 	@NotBlank
-	@MaxLength(255)
+	@Size(max = 255)
 	private String nomHome;
 	@NotBlank
-	@MaxLength(255)
+	@Size(max = 255)
 	private String nomDona;
 	@NotBlank
-	@MaxLength(255)
+	@Size(max = 255)
 	private String tractamentHome;
 	@NotBlank
-	@MaxLength(255)
+	@Size(max = 255)
 	private String tractamentDona;
-	@MaxLength(255)
+	@Size(max = 255)
 	private String descripcio;
-	@MaxLength(64)
+	@Size(max = 64)
 	private String personaCodi;
 	private Sexe personaSexe;
 
@@ -158,8 +144,9 @@ public class Carrec implements Serializable, GenericEntity<Long> {
 	}
 
 	@ManyToOne(optional=false)
-	@JoinColumn(name="area_id")
-	@ForeignKey(name="hel_area_carrec_fk")
+	@JoinColumn(
+			name="area_id",
+			foreignKey = @ForeignKey(name="hel_area_carrec_fk"))
 	public Area getArea() {
 		return area;
 	}
@@ -168,8 +155,9 @@ public class Carrec implements Serializable, GenericEntity<Long> {
 	}
 
 	@ManyToOne(optional=false)
-	@JoinColumn(name="entorn_id")
-	@ForeignKey(name="hel_entorn_carrec_fk")
+	@JoinColumn(
+			name="entorn_id",
+			foreignKey = @ForeignKey(name="hel_entorn_carrec_fk"))
 	public Entorn getEntorn() {
 		return entorn;
 	}

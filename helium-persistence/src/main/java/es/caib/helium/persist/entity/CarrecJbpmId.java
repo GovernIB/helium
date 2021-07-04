@@ -3,7 +3,7 @@
  */
 package es.caib.helium.persist.entity;
 
-import java.io.Serializable;
+import es.caib.helium.persist.entity.Persona.Sexe;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -13,11 +13,9 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.TableGenerator;
 import javax.persistence.Transient;
-
-import org.springmodules.validation.bean.conf.loader.annotation.handler.MaxLength;
-import org.springmodules.validation.bean.conf.loader.annotation.handler.NotBlank;
-
-import es.caib.helium.persist.entity.Persona.Sexe;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Size;
+import java.io.Serializable;
 
 /**
  * Objecte de domini per emmagatzemar la informació d'un càrrec
@@ -31,24 +29,24 @@ public class CarrecJbpmId implements Serializable, GenericEntity<Long> {
 
 	private Long id;
 	@NotBlank
-	@MaxLength(64)
+	@Size(max = 64)
 	private String codi;
 	@NotBlank
-	@MaxLength(64)
+	@Size(max = 64)
 	private String grup;
 	@NotBlank
-	@MaxLength(255)
+	@Size(max = 255)
 	private String nomHome;
 	@NotBlank
-	@MaxLength(255)
+	@Size(max = 255)
 	private String nomDona;
 	@NotBlank
-	@MaxLength(255)
+	@Size(max = 255)
 	private String tractamentHome;
 	@NotBlank
-	@MaxLength(255)
+	@Size(max = 255)
 	private String tractamentDona;
-	@MaxLength(255)
+	@Size(max = 255)
 	private String descripcio;
 	private Sexe personaSexe;
 

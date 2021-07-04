@@ -20,41 +20,43 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 				
-		<helium.version>4.0</helium.version>
+		<helium.version>4.0.0</helium.version>
 		<spring-boot.version>2.5.2</spring-boot.version>
-		<liquibase.version>4.3.3</liquibase.version>
+		<liquibase.version>4.4.0</liquibase.version>
 		<orika.starter.version>1.8.0</orika.starter.version>
-		<reflections.version>0.9.11</reflections.version>
+<!--		<reflections.version>0.9.11</reflections.version>-->
 		<rsql.version>2.1.0</rsql.version>
-		<jasperreports.version>6.12.2</jasperreports.version>
-		<xdocreport.version>2.0.2</xdocreport.version>
-		<opencsv.version>4.6</opencsv.version>
-		<springdoc-openapi.version>1.2.25</springdoc-openapi.version>
+<!--		<jasperreports.version>6.17.0</jasperreports.version>-->
+<!--		<xdocreport.version>2.0.2</xdocreport.version>-->
+<!--		<opencsv.version>5.4</opencsv.version>-->
+<!--		<springdoc-openapi.version>1.5.9</springdoc-openapi.version>-->
 		<keycloak.version>11.0.1</keycloak.version>
 
-		<sitemesh.version>2.4.2</sitemesh.version>
-		<commons-lang.version>2.6</commons-lang.version>
-		<commons-httpclient.version>3.1</commons-httpclient.version>
+		<commons-lang.version>3.12.0</commons-lang.version>
+		<commons-text.version>1.9</commons-text.version>
+		<commons-httpclient.version>4.5.13</commons-httpclient.version>
 		<commons-fileupload.version>1.4</commons-fileupload.version>
 		<commons-beanutils.version>1.9.4</commons-beanutils.version>
-		<commons-io.version>2.8.0</commons-io.version>
-		<poi.version>3.15</poi.version>
-		<webjars-locator.version>0.40</webjars-locator.version>
+		<commons-io.version>2.10.0</commons-io.version>
+		<poi.version>5.0.0</poi.version>
+		<webjars-locator.version>0.41</webjars-locator.version>
 
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<java.compiler.version>11</java.compiler.version>
 		<maven.compiler.target>${java.compiler.version}</maven.compiler.target>
 		<maven.compiler.source>${java.compiler.version}</maven.compiler.source>
 		<skipTests>true</skipTests>
-		
+
+		<jackson.version>2.12.3</jackson.version>
+		<metrics.version>4.2.2</metrics.version>
+		<slf4j.version>1.7.31</slf4j.version>
+		<cxf.version>3.3.11</cxf.version>
+
 		<!-- llibreries antigues que podem provar d'actualitzar -->
-		<metrics.version>3.1.2</metrics.version>
-		<spring-modules.version>0.9</spring-modules.version>
-		<jackson.version>2.7.0</jackson.version>
-		<slf4j.version>1.5.8</slf4j.version>
-		<jbpm.version>3.3.1.GA</jbpm.version>
-		<cxf.version>2.2.10</cxf.version>
-		
+		<sitemesh.version>2.4.2</sitemesh.version>
+		<!--		<spring-modules.version>0.9</spring-modules.version>-->
+		<!--		<jbpm.version>3.3.1.GA</jbpm.version>-->
+
 	</properties>
 	<modules>
 		<module>helium-back</module>
@@ -66,7 +68,6 @@
 		<module>helium-boot</module>
 		<module>helium-controller</module>
 
-		<module>helium-disseny-api</module>
 		<module>helium-ms</module>
 		<module>helium-plugin-api</module>
 		<!-- 
@@ -89,7 +90,9 @@
 	<build>
 		<plugins>
 			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-deploy-plugin</artifactId>
+				<version>3.0.0-M1</version>
 				<configuration>
 					<altDeploymentRepository>internal.repo::default::file://${project.build.directory}/mvn-repo</altDeploymentRepository>
 				</configuration>

@@ -3,24 +3,10 @@
  */
 package es.caib.helium.persist.entity;
 
+import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.util.Date;
-
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.Lob;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
-import javax.persistence.TableGenerator;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
-
-import org.hibernate.annotations.ForeignKey;
-import org.springmodules.validation.bean.conf.loader.annotation.handler.NotNull;
 
 /**
  * Objecte de domini que representa un expedient per a executar
@@ -143,8 +129,9 @@ public class ExecucioMassivaExpedient implements Serializable, GenericEntity<Lon
 	}
 
 	@ManyToOne(optional=false)
-	@JoinColumn(name="execmas_id")
-	@ForeignKey(name="hel_execmas_exemasex_fk")
+	@JoinColumn(
+			name="execmas_id",
+			foreignKey = @ForeignKey(name="hel_execmas_exemasex_fk"))
 	public ExecucioMassiva getExecucioMassiva() {
 		return execucioMassiva;
 	}
@@ -153,8 +140,9 @@ public class ExecucioMassivaExpedient implements Serializable, GenericEntity<Lon
 	}
 
 	@ManyToOne(optional=true)
-	@JoinColumn(name="expedient_id")
-	@ForeignKey(name="hel_expedient_exemasex_fk")
+	@JoinColumn(
+			name="expedient_id",
+			foreignKey = @ForeignKey(name="hel_expedient_exemasex_fk"))
 	public Expedient getExpedient() {
 		return expedient;
 	}

@@ -3,9 +3,10 @@
  */
 package es.caib.helium.logic.intf.dto;
 
+import org.apache.commons.lang3.builder.ToStringBuilder;
+
 import java.util.Date;
 
-import org.apache.commons.lang.builder.ToStringBuilder;
 
 /**
  * Command per al filtre d'anotacions de distribució.

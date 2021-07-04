@@ -1,24 +1,14 @@
 package es.caib.helium.persist.entity;
 
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+
+import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Size;
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
-
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
-import javax.persistence.Table;
-import javax.persistence.Transient;
-
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.hibernate.annotations.ForeignKey;
-import org.springmodules.validation.bean.conf.loader.annotation.handler.MaxLength;
-import org.springmodules.validation.bean.conf.loader.annotation.handler.NotBlank;
 
 /**
  * Objecte de domini que representa un usuari.
@@ -31,10 +21,10 @@ import org.springmodules.validation.bean.conf.loader.annotation.handler.NotBlank
 public class Usuari implements Serializable, GenericEntity<String> {
 
 	@NotBlank
-	@MaxLength(64)
+	@Size(max = 64)
 	private String codi;
 	@NotBlank
-	@MaxLength(255)
+	@Size(max = 255)
 	private String contrasenya;
 	private boolean actiu = true;
 
@@ -80,13 +70,11 @@ public class Usuari implements Serializable, GenericEntity<String> {
 
 	@ManyToMany(fetch=FetchType.EAGER)
 	@JoinTable(
-		name="hel_usuari_permis",
-		joinColumns=
-			@JoinColumn(name="codi", referencedColumnName="codi"),
-		inverseJoinColumns=
-			@JoinColumn(name="permis", referencedColumnName="codi")
-    )
-    @ForeignKey(name="hel_permis_usuari_fk", inverseName="hel_usuari_permis_fk")
+			name="hel_usuari_permis",
+			joinColumns= @JoinColumn(name="codi", referencedColumnName="codi"),
+			inverseJoinColumns= @JoinColumn(name="permis", referencedColumnName="codi"),
+			foreignKey = @ForeignKey(name="hel_permis_usuari_fk"),
+			inverseForeignKey = @ForeignKey(name="hel_usuari_permis_fk"))
 	public Set<Permis> getPermisos() {
 		return this.permisos;
 	}

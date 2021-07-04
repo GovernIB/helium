@@ -3,12 +3,13 @@
  */
 package es.caib.helium.logic.intf.dto;
 
+import org.apache.commons.lang3.builder.ToStringBuilder;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import org.apache.commons.lang.builder.ToStringBuilder;
 
 /**
  * Informació resultant d'executar una consulta paginada.

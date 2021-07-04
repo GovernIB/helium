@@ -3,11 +3,12 @@
  */
 package es.caib.helium.logic.intf.dto;
 
+import org.apache.commons.lang3.builder.ToStringBuilder;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.lang.builder.ToStringBuilder;
 
 /**
  * Dto amb els paràmetres per a paginar i ordenar els

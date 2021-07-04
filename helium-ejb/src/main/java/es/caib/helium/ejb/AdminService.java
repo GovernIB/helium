@@ -3,26 +3,13 @@
  */
 package es.caib.helium.ejb;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Set;
+import es.caib.helium.logic.intf.dto.*;
 
 import javax.annotation.security.RolesAllowed;
 import javax.ejb.Stateless;
-
-import org.springframework.beans.factory.annotation.Autowired;
-
-import es.caib.helium.logic.intf.dto.DominiDto;
-import es.caib.helium.logic.intf.dto.IntegracioAccioDto;
-import es.caib.helium.logic.intf.dto.IntegracioAccioEstatEnumDto;
-import es.caib.helium.logic.intf.dto.IntegracioAccioTipusEnumDto;
-import es.caib.helium.logic.intf.dto.IntegracioDto;
-import es.caib.helium.logic.intf.dto.IntegracioParametreDto;
-import es.caib.helium.logic.intf.dto.MesuraTemporalDto;
-import es.caib.helium.logic.intf.dto.PersonaDto;
-import es.caib.helium.logic.intf.dto.ReassignacioDto;
-import es.caib.helium.logic.intf.dto.TascaCompleteDto;
-import es.caib.helium.logic.intf.dto.UsuariPreferenciesDto;
+import java.util.Date;
+import java.util.List;
+import java.util.Set;
 
 /**
  * EJB per a AdminService.
@@ -32,16 +19,13 @@ import es.caib.helium.logic.intf.dto.UsuariPreferenciesDto;
 @Stateless
 public class AdminService extends AbstractService<es.caib.helium.logic.intf.service.AdminService> implements es.caib.helium.logic.intf.service.AdminService {
 
-	@Autowired
-	AdminService delegate;
-
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
 	@RolesAllowed({"HEL_ADMIN"})
 	public String getMetrics() {
-		return delegate.getMetrics();
+		return getDelegateService().getMetrics();
 	}
 
 	/**
@@ -49,7 +33,7 @@ public class AdminService extends AbstractService<es.caib.helium.logic.intf.serv
 	 */
 	@Override
 	public void metricsEmailResponsables() {
-		delegate.metricsEmailResponsables();
+		getDelegateService().metricsEmailResponsables();
 	}
 
 	/**
@@ -58,7 +42,7 @@ public class AdminService extends AbstractService<es.caib.helium.logic.intf.serv
 	@Override
 	@RolesAllowed({"HEL_ADMIN"})
 	public List<IntegracioDto> monitorIntegracioFindAll() {
-		return delegate.monitorIntegracioFindAll();
+		return getDelegateService().monitorIntegracioFindAll();
 	}
 
 	/**
@@ -68,7 +52,7 @@ public class AdminService extends AbstractService<es.caib.helium.logic.intf.serv
 	@RolesAllowed({"HEL_ADMIN"})
 	public List<IntegracioAccioDto> monitorIntegracioFindAccionsByIntegracio(
 			String integracioCodi) {
-		return delegate.monitorIntegracioFindAccionsByIntegracio(integracioCodi);
+		return getDelegateService().monitorIntegracioFindAccionsByIntegracio(integracioCodi);
 	}
 
 	/**
@@ -78,7 +62,7 @@ public class AdminService extends AbstractService<es.caib.helium.logic.intf.serv
 	@RolesAllowed({"HEL_ADMIN"})
 	public List<DominiDto> monitorDominiFindByEntorn(
 			Long entornId) {
-		return delegate.monitorDominiFindByEntorn(entornId);
+		return getDelegateService().monitorDominiFindByEntorn(entornId);
 	}
 
 	/**
@@ -88,7 +72,7 @@ public class AdminService extends AbstractService<es.caib.helium.logic.intf.serv
 	@RolesAllowed({"HEL_ADMIN"})
 	public List<IntegracioAccioDto> monitorDominiFindAccionsByDomini(
 			Long dominiId) {
-		return delegate.monitorDominiFindAccionsByDomini(dominiId);
+		return getDelegateService().monitorDominiFindAccionsByDomini(dominiId);
 	}
 	
 	/**
@@ -105,7 +89,7 @@ public class AdminService extends AbstractService<es.caib.helium.logic.intf.serv
 			String errorDescripcio,
 			Throwable throwable,
 			List<IntegracioParametreDto> parametres) {
-		delegate.monitorAddAccio(integracioCodi, descripcio, tipus, estat, tempsResposta, errorDescripcio, throwable, parametres);
+		getDelegateService().monitorAddAccio(integracioCodi, descripcio, tipus, estat, tempsResposta, errorDescripcio, throwable, parametres);
 	}
 
 	/**
@@ -116,151 +100,151 @@ public class AdminService extends AbstractService<es.caib.helium.logic.intf.serv
 	public List<MesuraTemporalDto> mesuraTemporalFindByFamilia(
 			String familia,
 			boolean ambDetall) {
-		return delegate.mesuraTemporalFindByFamilia(familia, ambDetall);
+		return getDelegateService().mesuraTemporalFindByFamilia(familia, ambDetall);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public List<MesuraTemporalDto> mesuraTemporalFindByTipusExpedient() {
-		return delegate.mesuraTemporalFindByTipusExpedient();
+		return getDelegateService().mesuraTemporalFindByTipusExpedient();
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public List<MesuraTemporalDto> mesuraTemporalFindByTasca() {
-		return delegate.mesuraTemporalFindByTasca();
+		return getDelegateService().mesuraTemporalFindByTasca();
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public Set<String> mesuraTemporalFindFamiliesAll() {
-		return delegate.mesuraTemporalFindFamiliesAll();
+		return getDelegateService().mesuraTemporalFindFamiliesAll();
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public void mesuraTemporalIniciar(String nom, String familia, String tipusExpedient, String tasca, String detall) {
-		delegate.mesuraTemporalIniciar(nom, familia, tipusExpedient, tasca, detall);
+		getDelegateService().mesuraTemporalIniciar(nom, familia, tipusExpedient, tasca, detall);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public void mesuraTemporalIniciar(String nom, String familia, String tipusExpedient) {
-		delegate.mesuraTemporalIniciar(nom, familia, tipusExpedient);
+		getDelegateService().mesuraTemporalIniciar(nom, familia, tipusExpedient);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public void mesuraTemporalIniciar(String clau, String familia) {
-		delegate.mesuraTemporalIniciar(clau, familia);
+		getDelegateService().mesuraTemporalIniciar(clau, familia);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public void mesuraTemporalCalcular(String nom, String familia, String tipusExpedient, String tasca, String detall) {
-		delegate.mesuraTemporalCalcular(nom, familia, tipusExpedient, tasca, detall);
+		getDelegateService().mesuraTemporalCalcular(nom, familia, tipusExpedient, tasca, detall);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public void mesuraTemporalCalcular(String nom, String familia, String tipusExpedient) {
-		delegate.mesuraTemporalCalcular(nom, familia, tipusExpedient);
+		getDelegateService().mesuraTemporalCalcular(nom, familia, tipusExpedient);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public void mesuraTemporalCalcular(String clau, String familia) {
-		delegate.mesuraTemporalCalcular(clau, familia);
+		getDelegateService().mesuraTemporalCalcular(clau, familia);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public boolean mesuraTemporalIsActive() {
-		return delegate.mesuraTemporalIsActive();
+		return getDelegateService().mesuraTemporalIsActive();
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public boolean isStatisticActive() {
-		return delegate.isStatisticActive();
+		return getDelegateService().isStatisticActive();
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public List<MesuraTemporalDto> getHibernateStatistics(String familia, boolean exportar) {
-		return delegate.getHibernateStatistics(familia, exportar);
+		return getDelegateService().getHibernateStatistics(familia, exportar);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public List<TascaCompleteDto> getTasquesCompletar() {
-		return delegate.getTasquesCompletar();
+		return getDelegateService().getTasquesCompletar();
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public void updatePerfil(UsuariPreferenciesDto preferencies) {
-		delegate.updatePerfil(preferencies);
+		getDelegateService().updatePerfil(preferencies);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public void updatePersona(PersonaDto persona) {
-		delegate.updatePersona(persona);
+		getDelegateService().updatePersona(persona);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public List<ReassignacioDto> llistaReassignacions() {
-		return delegate.llistaReassignacions();
+		return getDelegateService().llistaReassignacions();
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public void createReassignacio(String usuariOrigen, String usuariDesti, Date dataInici, Date dataFi, Date dataCancelacio, Long tipusExpedientId) {
-		delegate.createReassignacio(usuariOrigen, usuariDesti, dataInici, dataFi, dataCancelacio, tipusExpedientId);
+		getDelegateService().createReassignacio(usuariOrigen, usuariDesti, dataInici, dataFi, dataCancelacio, tipusExpedientId);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public void updateReassignacio(Long id, String usuariOrigen, String usuariDesti, Date dataInici, Date dataFi, Date dataCancelacio, Long tipusExpedientId) {
-		delegate.updateReassignacio(id, usuariOrigen, usuariDesti, dataInici, dataFi, dataCancelacio, tipusExpedientId);
+		getDelegateService().updateReassignacio(id, usuariOrigen, usuariDesti, dataInici, dataFi, dataCancelacio, tipusExpedientId);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public void deleteReassignacio(Long id) {
-		delegate.deleteReassignacio(id);
+		getDelegateService().deleteReassignacio(id);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public ReassignacioDto findReassignacioById(Long id) {
-		return delegate.findReassignacioById(id);
+		return getDelegateService().findReassignacioById(id);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public List<IntegracioDto> monitorIntegracioFindAllEntronActual() {
-		return delegate.monitorIntegracioFindAllEntronActual();
+		return getDelegateService().monitorIntegracioFindAllEntronActual();
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public List<IntegracioAccioDto> monitorIntegracioFindAccionsByIntegracioEntornActual(String integracioCodi) {
-		return delegate.monitorIntegracioFindAccionsByIntegracioEntornActual(integracioCodi);
+		return getDelegateService().monitorIntegracioFindAccionsByIntegracioEntornActual(integracioCodi);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public List<TascaCompleteDto> getTasquesCompletarAdminEntorn() {
-		return delegate.getTasquesCompletarAdminEntorn();
+		return getDelegateService().getTasquesCompletarAdminEntorn();
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public void setIdiomaPref(String usuari, String idioma) {
-		delegate.setIdiomaPref(usuari, idioma);
+		getDelegateService().setIdiomaPref(usuari, idioma);
 	}
 
 }

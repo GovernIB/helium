@@ -3,18 +3,16 @@
  */
 package es.caib.helium.persist.entity;
 
-import java.io.Serializable;
-import java.util.Date;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Index;
 import javax.persistence.Table;
 import javax.persistence.TableGenerator;
-
-import org.hibernate.annotations.Index;
+import java.io.Serializable;
+import java.util.Date;
 
 /**
  * Classe del model de dades que representa reindexació pendent per un expedient.
@@ -22,11 +20,9 @@ import org.hibernate.annotations.Index;
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Entity
-@Table(name = "hel_expedient_reindexacio")
-@org.hibernate.annotations.Table(
-		appliesTo = "hel_expedient_reindexacio",
-		indexes = {
-				@Index(name = "hel_reindexacio_expedient_fk_i", columnNames = {"expedient_id"})})
+@Table(name = "hel_expedient_reindexacio",
+		indexes = { @Index(name = "hel_reindexacio_expedient_fk_i", columnList = "expedient_id")}
+)
 public class ExpedientReindexacio implements Serializable, GenericEntity<Long> {
 
 	

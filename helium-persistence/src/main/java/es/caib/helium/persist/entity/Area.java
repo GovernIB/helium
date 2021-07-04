@@ -3,30 +3,16 @@
  */
 package es.caib.helium.persist.entity;
 
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+
+import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
-
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
-import javax.persistence.TableGenerator;
-import javax.persistence.UniqueConstraint;
-
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.hibernate.annotations.ForeignKey;
-import org.hibernate.annotations.Index;
-import org.springmodules.validation.bean.conf.loader.annotation.handler.MaxLength;
-import org.springmodules.validation.bean.conf.loader.annotation.handler.NotBlank;
-import org.springmodules.validation.bean.conf.loader.annotation.handler.NotNull;
 
 /**
  * Objecte de domini que representa una àrea de l'organigrama.
@@ -36,23 +22,23 @@ import org.springmodules.validation.bean.conf.loader.annotation.handler.NotNull;
 @Entity
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 @Table(	name="hel_area",
-		uniqueConstraints={@UniqueConstraint(columnNames={"codi", "entorn_id"})})
-@org.hibernate.annotations.Table(
-		appliesTo = "hel_area",
+		uniqueConstraints={@UniqueConstraint(columnNames={"codi", "entorn_id"})},
 		indexes = {
-				@Index(name = "hel_area_tipus_i", columnNames = {"tipus_id"}),
-				@Index(name = "hel_area_entorn_i", columnNames = {"entorn_id"}),
-				@Index(name = "hel_area_pare_i", columnNames = {"pare_id"})})
+				@Index(name = "hel_area_tipus_i", columnList = "tipus_id"),
+				@Index(name = "hel_area_entorn_i", columnList = "entorn_id"),
+				@Index(name = "hel_area_pare_i", columnList = "pare_id")
+		}
+)
 public class Area implements Serializable, GenericEntity<Long> {
 
 	private Long id;
 	@NotBlank
-	@MaxLength(64)
+	@Size(max = 64)
 	private String codi;
 	@NotBlank
-	@MaxLength(255)
+	@Size(max = 255)
 	private String nom;
-	@MaxLength(255)
+	@Size(max = 255)
 	private String descripcio;
 
 	@NotNull
@@ -110,8 +96,9 @@ public class Area implements Serializable, GenericEntity<Long> {
 	}
 
 	@ManyToOne(optional=false)
-	@JoinColumn(name="tipus_id")
-	@ForeignKey(name="hel_areatipus_area_fk")
+	@JoinColumn(
+			name="tipus_id",
+			foreignKey = @ForeignKey(name="hel_areatipus_area_fk"))
 	public AreaTipus getTipus() {
 		return tipus;
 	}
@@ -120,8 +107,9 @@ public class Area implements Serializable, GenericEntity<Long> {
 	}
 
 	@ManyToOne(optional=false)
-	@JoinColumn(name="entorn_id")
-	@ForeignKey(name="hel_entorn_area_fk")
+	@JoinColumn(
+			name="entorn_id",
+			foreignKey = @ForeignKey(name="hel_entorn_area_fk"))
 	public Entorn getEntorn() {
 		return entorn;
 	}
@@ -130,8 +118,9 @@ public class Area implements Serializable, GenericEntity<Long> {
 	}
 
 	@ManyToOne(optional=true)
-	@JoinColumn(name="pare_id")
-	@ForeignKey(name="hel_area_area_fk")
+	@JoinColumn(
+			name="pare_id",
+			foreignKey = @ForeignKey(name="hel_area_area_fk"))
 	public Area getPare() {
 		return pare;
 	}

@@ -3,39 +3,19 @@
  */
 package es.caib.helium.logic.intf.service;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import org.springframework.security.acls.model.NotFoundException;
-
-import es.caib.helium.logic.intf.dto.AccioDto;
-import es.caib.helium.logic.intf.dto.AlertaDto;
-import es.caib.helium.logic.intf.dto.ArxiuDetallDto;
-import es.caib.helium.logic.intf.dto.ArxiuDto;
-import es.caib.helium.logic.intf.dto.CampDto;
-import es.caib.helium.logic.intf.dto.DadaIndexadaDto;
-import es.caib.helium.logic.intf.dto.DadesDocumentDto;
-import es.caib.helium.logic.intf.dto.DadesNotificacioDto;
-import es.caib.helium.logic.intf.dto.DefinicioProcesExpedientDto;
-import es.caib.helium.logic.intf.dto.ExpedientConsultaDissenyDto;
-import es.caib.helium.logic.intf.dto.ExpedientDto;
+import es.caib.helium.logic.intf.dto.*;
 import es.caib.helium.logic.intf.dto.ExpedientDto.EstatTipusDto;
 import es.caib.helium.logic.intf.dto.ExpedientDto.IniciadorTipusDto;
 import es.caib.helium.logic.intf.exception.NoTrobatException;
 import es.caib.helium.logic.intf.exception.PermisDenegatException;
 import es.caib.helium.logic.intf.exception.SistemaExternException;
 import es.caib.helium.logic.intf.exception.TramitacioException;
-import es.caib.helium.logic.intf.dto.ExpedientTascaDto;
-import es.caib.helium.logic.intf.dto.InstanciaProcesDto;
-import es.caib.helium.logic.intf.dto.MostrarAnulatsDto;
-import es.caib.helium.logic.intf.dto.NotificacioDto;
-import es.caib.helium.logic.intf.dto.PaginaDto;
-import es.caib.helium.logic.intf.dto.PaginacioParamsDto;
-import es.caib.helium.logic.intf.dto.PersonaDto;
-import es.caib.helium.logic.intf.dto.RespostaValidacioSignaturaDto;
-import es.caib.helium.logic.intf.dto.TascaDadaDto;
+import org.springframework.security.acls.model.NotFoundException;
+
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 
 /**
@@ -84,24 +64,14 @@ public interface ExpedientService {
 	 * @param responsableCodi
 	 * @param documents
 	 * @param adjunts
-	 * @param ntiActiu
-	 * @param organ
-	 * @param classificacio
-	 * @param serieDocumental
-	 * @param ntiTipoFirma
-	 * @param ntiValorCsv
-	 * @param ntiDefGenCsv
 	 * @param anotacioId
 	 * 			Id de la petició d'anotació de registre que s'associarà a l'expedient.
 	 * @param anotacioInteressatsAssociar
 	 * 			Indica si associar o no els interessats de l'anotació a l'expedient.
 	 * 
 	 * @return El nou expedient creat.
-	 * @throws net.conselldemallorca.helium.integracio.plugins.SistemaExternException 
-	 * @throws NotFoundException
+	 * @throws Exception
 	 *             Si no s'ha trobat cap expedient amb l'id especificat.
-	 * @throws NotAllowedException
-	 *             Si no es tenen els permisos adequats.
 	 */
 	public ExpedientDto create(
 			Long entornId,
@@ -163,10 +133,8 @@ public interface ExpedientService {
 	 *            Codi del grup al qual pertany l'expedient.
 	 * @param execucioDinsHandler
 	 *            Indica si la invocació prové d'un handler.
-	 * @throws NotFoundException
+	 * @throws NoTrobatException
 	 *             Si no s'ha trobat cap expedient amb l'id especificat.
-	 * @throws NotAllowedException
-	 *             Si no es tenen els permisos adequats.
 	 */
 	public void update(
 			Long id,
@@ -189,7 +157,7 @@ public interface ExpedientService {
 	 *            Atribut id de l'expedient que es vol esborrar.
 	 * @throws NotFoundException
 	 *             Si no s'ha trobat cap expedient amb l'id especificat.
-	 * @throws NotAllowedException
+	 * @throws NoTrobatException
 	 *             Si no es tenen els permisos adequats.
 	 */
 	public void delete(Long id) throws NoTrobatException;
@@ -202,15 +170,13 @@ public interface ExpedientService {
 	 * @return L'expedient.
 	 * @throws NotFoundException
 	 *             Si no s'ha trobat cap expedient amb l'id especificat.
-	 * @throws NotAllowedException
-	 *             Si no es tenen els permisos adequats.
 	 */
 	public ExpedientDto findAmbIdAmbPermis(Long id);
 	
 	/**
 	 * Retorna un expedient donat el seu id sense comprovar permisos.
 	 * 
-	 * @param id
+	 * @param expedientId
 	 *            Atribut id de l'expedient que es vol consultar.
 	 * @return L'expedient.
 	 * @throws NotFoundException
@@ -221,13 +187,11 @@ public interface ExpedientService {
 	/**
 	 * Retorna varios expedients donat el seu id.
 	 * 
-	 * @param id
+	 * @param ids
 	 *            Atribut id de l'expedient que es vol consultar.
 	 * @return L'expedient.
 	 * @throws NotFoundException
 	 *             Si no s'ha trobat cap expedient amb l'id especificat.
-	 * @throws NotAllowedException
-	 *             Si no es tenen els permisos adequats.
 	 */
 	public List<ExpedientDto> findAmbIds(Set<Long> ids);
 
@@ -274,12 +238,9 @@ public interface ExpedientService {
 	 *            Paràmetres de paginació.
 	 * @return La pàgina del llistat d'expedients.
 	 * @throws Exception 
-	 * @throws NotFoundException
+	 * @throws NoTrobatException
 	 *             Si no s'ha trobat algun dels elements especificats
 	 *             mitjançant el seu id (entorn, tipus, estat).
-	 * @throws NotAllowedException
-	 *             Si no es tenen permisos per a accedir als elements
-	 *             especificats mitjançant el seu id (entorn, tipus, estat).
 	 */
 	public PaginaDto<ExpedientDto> findAmbFiltrePaginat(
 			Long entornId,
@@ -346,9 +307,6 @@ public interface ExpedientService {
 	 * @throws NotFoundException
 	 *             Si no s'ha trobat algun dels elements especificats
 	 *             mitjançant el seu id (entorn, tipus, estat).
-	 * @throws NotAllowedException
-	 *             Si no es tenen permisos per a accedir als elements
-	 *             especificats mitjançant el seu id (entorn, tipus, estat).
 	 */
 	public List<Long> findIdsAmbFiltre(
 			Long entornId,
@@ -374,9 +332,6 @@ public interface ExpedientService {
 	 * el text dins del número o el títol de l'expedient.
 	 * @param expedientTipusId
 	 * @param text
-	 * @throws NotAllowedException
-	 *             Si no es tenen permisos per a accedir als elements
-	 *             especificats mitjançant el seu id (entorn, tipus, estat).
 	 * @return Retorna la llista d'expedients el número o títol dels quals contenen el text
 	 */
 	public List<ExpedientDto> findPerSuggest(Long expedientTipusId, String text);
@@ -390,10 +345,8 @@ public interface ExpedientService {
 	 *            Atribut processInstanceId que es vol consultar. Si no
 	 *            s'especifica s'agafa l'instància de procés arrel.
 	 * @return La imatge.
-	 * @throws NotFoundException
+	 * @throws NoTrobatException
 	 *             Si no s'ha trobat cap expedient amb l'id especificat.
-	 * @throws NotAllowedException
-	 *             Si no es tenen els permisos adequats.
 	 */
 	public ArxiuDto getImatgeDefinicioProces(
 			Long id,
@@ -406,10 +359,8 @@ public interface ExpedientService {
 	 * @param id
 	 *            Atribut id de l'expedient que es vol consultar.
 	 * @return La llista de persones.
-	 * @throws NotFoundException
+	 * @throws NoTrobatException
 	 *             Si no s'ha trobat cap expedient amb l'id especificat.
-	 * @throws NotAllowedException
-	 *             Si no es tenen els permisos adequats.
 	 */
 	public List<PersonaDto> findParticipants(Long id) throws NoTrobatException;
 
@@ -419,10 +370,8 @@ public interface ExpedientService {
 	 * @param id
 	 *            Atribut id de l'expedient que es vol consultar.
 	 * @return La llista de tasques pendents.
-	 * @throws NotFoundException
+	 * @throws NoTrobatException
 	 *             Si no s'ha trobat cap expedient amb l'id especificat.
-	 * @throws NotAllowedException
-	 *             Si no es tenen els permisos adequats.
 	 */
 	public List<ExpedientTascaDto> findTasquesPendents(
 			Long id,
@@ -530,9 +479,9 @@ public interface ExpedientService {
 	/**
 	 * Crea una relació entre dos expedients.
 	 * 
-	 * @param expedientOrigenId
+	 * @param origenId
 	 *            Atribut id de l'expedient origen de la relació.
-	 * @param expedientDestiId
+	 * @param destiId
 	 *            Atribut id de l'expedient destí de la relació.
 	 * @throws NoTrobatException
 	 *             Si no s'ha trobat cap expedient amb l'id especificat.
@@ -596,8 +545,6 @@ public interface ExpedientService {
 	/**
 	 * Canvia la versió de la definició de procés.
 	 * 
-	 * @param id
-	 *            Atribut id de l'expedient que es vol actualitzar.
 	 * @param processInstanceId
 	 *            Atribut id de la instància de procés que es vol actualitzar.
 	 * @param versio
@@ -616,10 +563,11 @@ public interface ExpedientService {
 	 * 
 	 * @param expedientId
 	 *            Atribut id de l'expedient que es vol actualitzar.
-	 * @param processInstanceId
+	 * @param definicioProcesId
 	 *            Atribut id de la instància de procés que es vol actualitzar.
-	 * @param versio
+	 * @param subProcesIds
 	 *            Número de versió de la nova definició de procés.
+	 * @param subDefinicioProces
 	 * @throws NoTrobatException
 	 *             Si no s'ha trobat cap expedient amb l'id especificat.
 	 * @throws PermisDenegatException
@@ -706,10 +654,8 @@ public interface ExpedientService {
 	 * @param id
 	 *            Atribut id de l'expedient que es vol consultar.
 	 * @return La llista d'alertes.
-	 * @throws NotFoundException
+	 * @throws NoTrobatException
 	 *             Si no s'ha trobat cap expedient amb l'id especificat.
-	 * @throws NotAllowedException
-	 *             Si no es tenen els permisos adequats.
 	 */
 	public List<AlertaDto> findAlertes(Long id) throws NoTrobatException;
 
@@ -720,10 +666,8 @@ public interface ExpedientService {
 	 * @param id
 	 *            Atribut id de l'expedient que es vol consultar.
 	 * @return La llista d'errors.
-	 * @throws NotFoundException
+	 * @throws NoTrobatException
 	 *             Si no s'ha trobat cap expedient amb l'id especificat.
-	 * @throws NotAllowedException
-	 *             Si no es tenen els permisos adequats.
 	 */
 	Object[] findErrorsExpedient(Long id) throws NoTrobatException;
 
@@ -758,10 +702,8 @@ public interface ExpedientService {
 	 * @param paginacioParams
 	 *            Paràmetres de paginació.
 	 * @return la pàgina d'expedients resultat d'executar la consulta
-	 * @throws NotFoundException
+	 * @throws NoTrobatException
 	 *             Si no es troba la consulta amb l'id especificat.
-	 * @throws NotAllowedException
-	 *             Si no es tenen els permisos adequats.
 	 */
 	public PaginaDto<ExpedientConsultaDissenyDto> consultaFindPaginat(
 			Long consultaId,
@@ -782,8 +724,6 @@ public interface ExpedientService {
 	 *            Atribut id de la consulta a executar
 	 * @param filtreValors
 	 *            Els valors per filtrar els resultats de la consulta
-	 * @param seleccioIds
-	 *            La llista d'expedients seleccionats
 	 * @param nomesTasquesPersonals
 	 *            Indica que el resultat ha d'incloure expedients amb tasques personals pendents.
 	 * @param nomesTasquesGrup
@@ -799,10 +739,8 @@ public interface ExpedientService {
 	 * @param paginacioParams
 	 *            Paràmetres de paginació.
 	 * @return la llista d'ids dels expedients resultat d'executar la consulta
-	 * @throws NotFoundException
+	 * @throws NoTrobatException
 	 *             Si no es troba la consulta amb l'id especificat.
-	 * @throws NotAllowedException
-	 *             Si no es tenen els permisos adequats.
 	 */
 	public PaginaDto<Long> consultaFindNomesIdsPaginat(
 			Long consultaId,
@@ -960,13 +898,11 @@ public interface ExpedientService {
 	/**
 	 * Consulta expedients per a un número Sistra
 	 * 
-	 * @param id
+	 * @param responsableCodi
 	 *            Atribut id de l'expedient que es vol consultar.
 	 * @return L'expedient.
-	 * @throws NotFoundException
+	 * @throws NoTrobatException
 	 *             Si no s'ha trobat cap expedient amb l'id especificat.
-	 * @throws NotAllowedException
-	 *             Si no es tenen els permisos adequats.
 	 */
 	public List<ExpedientDto> findAmbIniciadorCodi(String responsableCodi);
 

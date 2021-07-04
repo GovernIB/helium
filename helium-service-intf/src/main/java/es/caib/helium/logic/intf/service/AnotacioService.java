@@ -1,7 +1,5 @@
 package es.caib.helium.logic.intf.service;
 
-import java.util.List;
-
 import es.caib.helium.logic.intf.dto.AnotacioDto;
 import es.caib.helium.logic.intf.dto.AnotacioFiltreDto;
 import es.caib.helium.logic.intf.dto.AnotacioListDto;
@@ -10,7 +8,11 @@ import es.caib.helium.logic.intf.dto.ArxiuFirmaDto;
 import es.caib.helium.logic.intf.dto.PaginaDto;
 import es.caib.helium.logic.intf.dto.PaginacioParamsDto;
 import es.caib.helium.logic.intf.exception.NoTrobatException;
-import es.caib.helium.logic.intf.exception.PermisDenegatException;;
+import es.caib.helium.logic.intf.exception.PermisDenegatException;
+
+import java.util.List;
+
+;
 
 /**
  * Servei per a la consulta i gestió d'anotacions de distribució. Poden veure anotacions i realitzar accions 
@@ -95,7 +97,7 @@ public interface AnotacioService {
 	 * 
 	 * @param anotacioId
 	 * @param annexId
-	 * @throws Llença excepció en cas de no anar bé.
+	 * @throws Exception excepció en cas de no anar bé.
 	 * @return
 	 */
 	public void reintentarAnnex(Long anotacioId, Long annexId) throws Exception;

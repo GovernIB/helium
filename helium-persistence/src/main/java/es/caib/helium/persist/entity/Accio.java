@@ -3,23 +3,10 @@
  */
 package es.caib.helium.persist.entity;
 
+import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Size;
 import java.io.Serializable;
-
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
-import javax.persistence.TableGenerator;
-import javax.persistence.UniqueConstraint;
-
-import org.hibernate.annotations.ForeignKey;
-import org.hibernate.annotations.Index;
-import org.springmodules.validation.bean.conf.loader.annotation.handler.MaxLength;
-import org.springmodules.validation.bean.conf.loader.annotation.handler.NotBlank;
 
 /**
  * Objecte de domini que representa un document de la definició
@@ -29,37 +16,36 @@ import org.springmodules.validation.bean.conf.loader.annotation.handler.NotBlank
  */
 @Entity
 @Table(	name="hel_accio",
-		uniqueConstraints={@UniqueConstraint(columnNames={"codi", "definicio_proces_id", "expedient_tipus_id"})})
-@org.hibernate.annotations.Table(
-		appliesTo = "hel_accio",
-		indexes = { 
-				@Index(name = "hel_accio_defproc_i", columnNames = {"definicio_proces_id"}),
-				@Index(name = "hel_accio_extip_i", columnNames = {"expedient_tipus_id"})
-		})
+		uniqueConstraints={@UniqueConstraint(columnNames={"codi", "definicio_proces_id", "expedient_tipus_id"})},
+		indexes = {
+				@Index(name = "hel_accio_defproc_i", columnList = "definicio_proces_id"),
+				@Index(name = "hel_accio_extip_i", columnList = "expedient_tipus_id")
+		}
+)
 public class Accio implements Serializable, GenericEntity<Long> {
 
 	private Long id;
 	@NotBlank
-	@MaxLength(64)
+	@Size(max = 64)
 	private String codi;
 	@NotBlank
-	@MaxLength(255)
+	@Size(max = 255)
 	private String nom;
-	@MaxLength(255)
+	@Size(max = 255)
 	private String descripcio;
 	@NotBlank
-	@MaxLength(255)
+	@Size(max = 255)
 	private String jbpmAction;
 	private boolean publica;
 	private boolean oculta;
-	@MaxLength(512)
+	@Size(max = 512)
 	private String rols;
 	private String cron;
 
 	private DefinicioProces definicioProces;
 	private ExpedientTipus expedientTipus;
-	
-	@MaxLength(255)
+
+	@Size(max = 255)
 	private String defprocJbpmKey;
 
 	public Accio() {}
@@ -153,8 +139,9 @@ public class Accio implements Serializable, GenericEntity<Long> {
 	}
 
 	@ManyToOne(optional=true)
-	@JoinColumn(name="definicio_proces_id")
-	@ForeignKey(name="hel_defproc_accio_fk")
+	@JoinColumn(
+			name="definicio_proces_id",
+			foreignKey = @ForeignKey(name="hel_defproc_accio_fk"))
 	public DefinicioProces getDefinicioProces() {
 		return definicioProces;
 	}
@@ -163,8 +150,9 @@ public class Accio implements Serializable, GenericEntity<Long> {
 	}
 
 	@ManyToOne(optional=true)
-	@JoinColumn(name="expedient_tipus_id")
-	@ForeignKey(name="hel_exptip_accio")
+	@JoinColumn(
+			name="expedient_tipus_id",
+			foreignKey = @ForeignKey(name="hel_exptip_accio"))
 	public ExpedientTipus getExpedientTipus() {
 		return expedientTipus;
 	}

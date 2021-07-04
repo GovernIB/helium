@@ -45,8 +45,8 @@
 			<version>${sitemesh.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>commons-lang</groupId>
-			<artifactId>commons-lang</artifactId>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-lang3</artifactId>
 			<version>${commons-lang.version}</version>
 			<scope>provided</scope>
 		</dependency>
@@ -56,8 +56,8 @@
 			<version>${commons-fileupload.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>commons-httpclient</groupId>
-			<artifactId>commons-httpclient</artifactId>
+			<groupId>org.apache.httpcomponents</groupId>
+			<artifactId>httpclient</artifactId>
 			<version>${commons-httpclient.version}</version>
 		</dependency>
 		<dependency>
@@ -125,11 +125,17 @@
 			<artifactId>webjars-locator</artifactId>
 			<version>${webjars-locator.version}</version>
 		</dependency>
+<!--		<dependency>-->
+<!--			<groupId>org.webjars.bower</groupId>-->
+<!--			<artifactId>jsrender</artifactId>-->
+<!--			<version>1.0.0-rc.70</version>-->
+<!--		</dependency>-->
 		<dependency>
-			<groupId>org.webjars.bower</groupId>
+			<groupId>org.webjars.bowergithub.borismoore</groupId>
 			<artifactId>jsrender</artifactId>
-			<version>1.0.0-rc.70</version>
+			<version>1.0.11</version>
 		</dependency>
+
 		<dependency>
 			<groupId>net.rakugakibox.spring.boot</groupId>
 			<artifactId>orika-spring-boot-starter</artifactId>

@@ -3,10 +3,9 @@
  */
 package es.caib.helium.logic.intf.extern.formulari;
 
-import java.util.List;
-
 import javax.jws.WebService;
 import javax.xml.bind.annotation.XmlSeeAlso;
+import java.util.List;
 
 /**
  * Interfície per al servei de formularis externs
@@ -20,7 +19,8 @@ public interface IniciFormulari {
 	/**
 	 * Mètode per a l'inicialització del formulari extern
 	 * 
-	 * @param id
+	 * @param codi
+	 * @param taskId
 	 * @param valors
 	 * @return URL a on redireccionar l'usuari
 	 */

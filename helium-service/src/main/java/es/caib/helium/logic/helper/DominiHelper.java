@@ -53,7 +53,7 @@ import es.caib.helium.persist.repository.CarrecRepository;
 import es.caib.helium.persist.repository.EntornRepository;
 import es.caib.helium.persist.repository.PermisRepository;
 import es.caib.helium.persist.repository.UsuariRepository;
-import net.conselldemallorca.helium.ms.domini.DominiMs;
+import es.caib.helium.ms.domini.DominiMs;
 import net.sf.ehcache.Element;
 /**
  * Helper per a fer consultes a dominis i enumeracions.

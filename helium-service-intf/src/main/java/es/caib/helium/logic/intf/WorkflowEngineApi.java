@@ -8,7 +8,9 @@ import java.util.Set;
 import java.util.zip.ZipInputStream;
 
 import es.caib.helium.logic.intf.dto.ExpedientDto;
+import es.caib.helium.logic.intf.dto.LlistatIds;
 import es.caib.helium.logic.intf.dto.PaginacioParamsDto;
+import es.caib.helium.logic.intf.dto.ResultatConsultaPaginada;
 
 /**
  * Interfície comú dels motors de workflow amb els mètodes necessaris per desplegar, consultar,

@@ -3,6 +3,10 @@
  */
 package es.caib.helium.persist.entity;
 
+import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
@@ -10,52 +14,31 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.OrderBy;
-import javax.persistence.Table;
-import javax.persistence.TableGenerator;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
-import javax.persistence.Transient;
-
-import org.hibernate.annotations.ForeignKey;
-import org.hibernate.annotations.Index;
-import org.springmodules.validation.bean.conf.loader.annotation.handler.MaxLength;
-import org.springmodules.validation.bean.conf.loader.annotation.handler.NotBlank;
-import org.springmodules.validation.bean.conf.loader.annotation.handler.NotNull;
-
 /**
  * Objecte de domini que representa una definició de procés.
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Entity
-@Table(name="hel_definicio_proces")
-@org.hibernate.annotations.Table(
-		appliesTo = "hel_definicio_proces",
+@Table(
+		name="hel_definicio_proces",
 		indexes = {
-				@Index(name = "hel_defproc_entorn_i", columnNames = {"entorn_id"}),
-				@Index(name = "hel_defproc_exptip_i", columnNames = {"expedient_tipus_id"}),
-				@Index(name = "hel_defproc_jbpmid_i", columnNames = {"jbpm_id"})})
+				@Index(name = "hel_defproc_entorn_i", columnList = "entorn_id"),
+				@Index(name = "hel_defproc_exptip_i", columnList = "expedient_tipus_id"),
+				@Index(name = "hel_defproc_jbpmid_i", columnList = "jbpm_id")
+		}
+)
 public class DefinicioProces implements Serializable, GenericEntity<Long> {
 
 	private Long id;
 	@NotBlank
-	@MaxLength(255)
+	@Size(max = 255)
 	private String jbpmId;
 	@NotBlank
-	@MaxLength(255)
+	@Size(max = 255)
 	private String jbpmKey;
 	private int versio = -1;
-	@MaxLength(64)
+	@Size(max = 64)
 	private String etiqueta;
 	@NotNull
 	private Date dataCreacio = new Date();
@@ -134,8 +117,9 @@ public class DefinicioProces implements Serializable, GenericEntity<Long> {
 	}
 
 	@ManyToOne(optional=false)
-	@JoinColumn(name="entorn_id")
-	@ForeignKey(name="hel_entorn_defproc_fk")
+	@JoinColumn(
+			name="entorn_id",
+			foreignKey = @ForeignKey(name="hel_entorn_defproc_fk"))
 	public Entorn getEntorn() {
 		return entorn;
 	}
@@ -144,8 +128,9 @@ public class DefinicioProces implements Serializable, GenericEntity<Long> {
 	}
 
 	@ManyToOne
-	@JoinColumn(name="expedient_tipus_id")
-	@ForeignKey(name="hel_exptip_defproc_fk")
+	@JoinColumn(
+			name="expedient_tipus_id",
+			foreignKey = @ForeignKey(name="hel_exptip_defproc_fk"))
 	public ExpedientTipus getExpedientTipus() {
 		return expedientTipus;
 	}

@@ -3,35 +3,18 @@
  */
 package es.caib.helium.persist.entity;
 
+
+import org.hibernate.annotations.Type;
+
+import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-
-import javax.persistence.Basic;
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.Lob;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
-import javax.persistence.TableGenerator;
-import javax.persistence.Transient;
-import javax.persistence.UniqueConstraint;
-
-import org.hibernate.annotations.ForeignKey;
-import org.hibernate.annotations.Index;
-import org.hibernate.annotations.Type;
-import org.springmodules.validation.bean.conf.loader.annotation.handler.MaxLength;
-import org.springmodules.validation.bean.conf.loader.annotation.handler.NotBlank;
-import org.springmodules.validation.bean.conf.loader.annotation.handler.NotNull;
 
 /**
  * Objecte de domini que representa una consulta d'expedients.
@@ -40,26 +23,26 @@ import org.springmodules.validation.bean.conf.loader.annotation.handler.NotNull;
  */
 @Entity
 @Table(	name="hel_consulta",
-		uniqueConstraints={@UniqueConstraint(columnNames={"codi", "entorn_id"})})
-@org.hibernate.annotations.Table(
-		appliesTo = "hel_consulta",
+		uniqueConstraints={@UniqueConstraint(columnNames={"codi", "entorn_id"})},
 		indexes = {
-				@Index(name = "hel_consulta_entorn_i", columnNames = {"entorn_id"}),
-				@Index(name = "hel_consulta_exptip_i", columnNames = {"expedient_tipus_id"})})
+				@Index(name = "hel_consulta_entorn_i", columnList = "entorn_id"),
+				@Index(name = "hel_consulta_exptip_i", columnList = "expedient_tipus_id")
+		}
+)
 public class Consulta implements Serializable, GenericEntity<Long> {
 
 	private Long id;
 	@NotBlank
-	@MaxLength(64)
+	@Size(max = 64)
 	private String codi;
 	@NotBlank
-	@MaxLength(255)
+	@Size(max = 255)
 	private String nom;
-	@MaxLength(255)
+	@Size(max = 255)
 	private String descripcio;
-	@MaxLength(1024)
+	@Size(max = 1024)
 	private String valorsPredefinits;
-	@MaxLength(255)
+	@Size(max = 255)
 	private String informeNom;
 	private byte[] informeContingut;
 	private boolean exportarActiu;
@@ -205,8 +188,9 @@ public class Consulta implements Serializable, GenericEntity<Long> {
 	}
 
 	@ManyToOne(optional=false)
-	@JoinColumn(name="entorn_id")
-	@ForeignKey(name="hel_entorn_consulta_fk")
+	@JoinColumn(
+			name="entorn_id",
+			foreignKey = @ForeignKey(name="hel_entorn_consulta_fk"))
 	public Entorn getEntorn() {
 		return entorn;
 	}
@@ -215,8 +199,9 @@ public class Consulta implements Serializable, GenericEntity<Long> {
 	}
 
 	@ManyToOne(optional=false)
-	@JoinColumn(name="expedient_tipus_id")
-	@ForeignKey(name="hel_exptip_consulta_fk")
+	@JoinColumn(
+			name="expedient_tipus_id",
+			foreignKey = @ForeignKey(name="hel_exptip_consulta_fk"))
 	public ExpedientTipus getExpedientTipus() {
 		return expedientTipus;
 	}

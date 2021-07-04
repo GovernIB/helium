@@ -11,18 +11,192 @@
 	<!-- 
 	 -->
 	<jee:local-slsb
-			id="exempleService"
-			jndi-name="helium/ExempleServiceBean/local"
-			business-interface="es.caib.helium.logic.intf.service.ExempleService"/>
-
-	<jee:local-slsb
 			id="accioService"
 			jndi-name="helium/AccioServiceBean/local"
 			business-interface="es.caib.helium.logic.intf.service.AccioService"/>
+
+	<jee:local-slsb
+			id="adminService"
+			jndi-name="helium/AdminServiceBean/local"
+			business-interface="es.caib.helium.logic.intf.service.AdminService"/>
+
+	<jee:local-slsb
+			id="alertaService"
+			jndi-name="helium/AlertaServiceBean/local"
+			business-interface="es.caib.helium.logic.intf.service.AlertaService"/>
+
+	<jee:local-slsb
+			id="anotacioService"
+			jndi-name="helium/AnotacioServiceBean/local"
+			business-interface="es.caib.helium.logic.intf.service.AnotacioService"/>
 
 	<jee:local-slsb
 			id="aplicacioService"
 			jndi-name="helium/AplicacioServiceBean/local"
 			business-interface="es.caib.helium.logic.intf.service.AplicacioService"/>
 
+	<jee:local-slsb
+			id="areaService"
+			jndi-name="helium/AreaServiceBean/local"
+			business-interface="es.caib.helium.logic.intf.service.AreaService"/>
+
+	<jee:local-slsb
+			id="campService"
+			jndi-name="helium/CampServiceBean/local"
+			business-interface="es.caib.helium.logic.intf.service.CampService"/>
+
+	<jee:local-slsb
+			id="carrecService"
+			jndi-name="helium/CarrecServiceBean/local"
+			business-interface="es.caib.helium.logic.intf.service.CarrecService"/>
+
+	<jee:local-slsb
+			id="definicioProcesService"
+			jndi-name="helium/DefinicioProcesServiceBean/local"
+			business-interface="es.caib.helium.logic.intf.service.DefinicioProcesService"/>
+
+	<jee:local-slsb
+			id="dissenyService"
+			jndi-name="helium/DissenyServiceBean/local"
+			business-interface="es.caib.helium.logic.intf.service.DissenyService"/>
+
+	<jee:local-slsb
+			id="documentService"
+			jndi-name="helium/DocumentServiceBean/local"
+			business-interface="es.caib.helium.logic.intf.service.DocumentService"/>
+
+	<jee:local-slsb
+			id="dominiService"
+			jndi-name="helium/DominiServiceBean/local"
+			business-interface="es.caib.helium.logic.intf.service.DominiService"/>
+
+	<jee:local-slsb
+			id="entornAreaMembreService"
+			jndi-name="helium/EntornAreaMembreServiceBean/local"
+			business-interface="es.caib.helium.logic.intf.service.EntornAreaMembreService"/>
+
+	<jee:local-slsb
+			id="entornAreaService"
+			jndi-name="helium/EntornAreaServiceBean/local"
+			business-interface="es.caib.helium.logic.intf.service.EntornAreaService"/>
+
+	<jee:local-slsb
+			id="entornCarrecService"
+			jndi-name="helium/EntornCarrecServiceBean/local"
+			business-interface="es.caib.helium.logic.intf.service.EntornCarrecService"/>
+
+	<jee:local-slsb
+			id="entornService"
+			jndi-name="helium/EntornServiceBean/local"
+			business-interface="es.caib.helium.logic.intf.service.EntornService"/>
+
+	<jee:local-slsb
+			id="entornTipusAreaService"
+			jndi-name="helium/EntornTipusAreaServiceBean/local"
+			business-interface="es.caib.helium.logic.intf.service.EntornTipusAreaService"/>
+
+	<jee:local-slsb
+			id="enumeracioService"
+			jndi-name="helium/EnumeracioServiceBean/local"
+			business-interface="es.caib.helium.logic.intf.service.EnumeracioService"/>
+
+	<jee:local-slsb
+			id="execucioMassivaService"
+			jndi-name="helium/ExecucioMassivaServiceBean/local"
+			business-interface="es.caib.helium.logic.intf.service.ExecucioMassivaService"/>
+
+	<jee:local-slsb
+			id="exempleService"
+			jndi-name="helium/ExempleServiceBean/local"
+			business-interface="es.caib.helium.logic.intf.service.ExempleService"/>
+
+	<jee:local-slsb
+			id="expedientDadaService"
+			jndi-name="helium/ExpedientDadaServiceBean/local"
+			business-interface="es.caib.helium.logic.intf.service.ExpedientDadaService"/>
+
+	<jee:local-slsb
+			id="expedientDocumentService"
+			jndi-name="helium/ExpedientDocumentServiceBean/local"
+			business-interface="es.caib.helium.logic.intf.service.ExpedientDocumentService"/>
+
+	<jee:local-slsb
+			id="expedientInteressatService"
+			jndi-name="helium/ExpedientInteressatServiceBean/local"
+			business-interface="es.caib.helium.logic.intf.service.ExpedientInteressatService"/>
+
+	<jee:local-slsb
+			id="expedientRegistreService"
+			jndi-name="helium/ExpedientRegistreServiceBean/local"
+			business-interface="es.caib.helium.logic.intf.service.ExpedientRegistreService"/>
+
+	<jee:local-slsb
+			id="expedientReindexacioService"
+			jndi-name="helium/ExpedientReindexacioServiceBean/local"
+			business-interface="es.caib.helium.logic.intf.service.ExpedientReindexacioService"/>
+
+	<jee:local-slsb
+			id="expedientService"
+			jndi-name="helium/ExpedientServiceBean/local"
+			business-interface="es.caib.helium.logic.intf.service.ExpedientService"/>
+
+	<jee:local-slsb
+			id="expedientTascaService"
+			jndi-name="helium/ExpedientTascaServiceBean/local"
+			business-interface="es.caib.helium.logic.intf.service.ExpedientTascaService"/>
+
+	<jee:local-slsb
+			id="expedientTerminiService"
+			jndi-name="helium/ExpedientTerminiServiceBean/local"
+			business-interface="es.caib.helium.logic.intf.service.ExpedientTerminiService"/>
+
+	<jee:local-slsb
+			id="expedientTipusService"
+			jndi-name="helium/ExpedientTipusServiceBean/local"
+			business-interface="es.caib.helium.logic.intf.service.ExpedientTipusService"/>
+
+	<jee:local-slsb
+			id="expedientTokenService"
+			jndi-name="helium/ExpedientTokenServiceBean/local"
+			business-interface="es.caib.helium.logic.intf.service.ExpedientTokenService"/>
+
+	<jee:local-slsb
+			id="permisService"
+			jndi-name="helium/PermisServiceBean/local"
+			business-interface="es.caib.helium.logic.intf.service.PermisService"/>
+
+	<jee:local-slsb
+			id="portasignaturesService"
+			jndi-name="helium/PortasignaturesServiceBean/local"
+			business-interface="es.caib.helium.logic.intf.service.PortasignaturesService"/>
+
+	<jee:local-slsb
+			id="reproService"
+			jndi-name="helium/ReproServiceBean/local"
+			business-interface="es.caib.helium.logic.intf.service.ReproService"/>
+
+	<jee:local-slsb
+			id="tascaProgramadaService"
+			jndi-name="helium/TascaProgramadaServiceBean/local"
+			business-interface="es.caib.helium.logic.intf.service.TascaProgramadaService"/>
+
+	<jee:local-slsb
+			id="tascaService"
+			jndi-name="helium/TascaServiceBean/local"
+			business-interface="es.caib.helium.logic.intf.service.TascaService"/>
+
+	<jee:local-slsb
+			id="terminiService"
+			jndi-name="helium/TerminiServiceBean/local"
+			business-interface="es.caib.helium.logic.intf.service.TerminiService"/>
+
+	<jee:local-slsb
+			id="validacioService"
+			jndi-name="helium/ValidacioServiceBean/local"
+			business-interface="es.caib.helium.logic.intf.service.ValidacioService"/>
+
+	<jee:local-slsb
+			id="workflowBridgeService"
+			jndi-name="helium/WorkflowBridgeServiceBean/local"
+			business-interface="es.caib.helium.logic.intf.service.WorkflowBridgeService"/>
 </beans>

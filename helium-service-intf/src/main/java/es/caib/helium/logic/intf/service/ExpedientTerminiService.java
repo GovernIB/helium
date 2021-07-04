@@ -3,15 +3,15 @@
  */
 package es.caib.helium.logic.intf.service;
 
-import java.util.Date;
-import java.util.List;
-
 import es.caib.helium.logic.intf.dto.FestiuDto;
 import es.caib.helium.logic.intf.dto.TerminiDto;
 import es.caib.helium.logic.intf.dto.TerminiIniciatDto;
 import es.caib.helium.logic.intf.exception.NoTrobatException;
 import es.caib.helium.logic.intf.exception.PermisDenegatException;
 import es.caib.helium.logic.intf.exception.ValidacioException;
+
+import java.util.Date;
+import java.util.List;
 
 /**
  * Servei encarregat de gestionar els terminis dels expedients.
@@ -55,7 +55,7 @@ public interface ExpedientTerminiService {
 	 *            Atribut id de la instància de procés.
 	 * @param terminiIniciatId
 	 *            Atribut id del termini iniciat.
-	 * @param data
+	 * @param inicio
 	 *            Data per a modificar el termini.
 	 * @param anys
 	 *            Anys del termini.

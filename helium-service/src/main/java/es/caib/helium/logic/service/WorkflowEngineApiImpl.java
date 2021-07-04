@@ -2,8 +2,8 @@ package es.caib.helium.logic.service;
 
 import org.springframework.stereotype.Service;
 
-import es.caib.helium.logic.intf.LlistatIds;
-import es.caib.helium.logic.intf.ResultatConsultaPaginada;
+import es.caib.helium.logic.intf.dto.LlistatIds;
+import es.caib.helium.logic.intf.dto.ResultatConsultaPaginada;
 import es.caib.helium.logic.intf.WDeployment;
 import es.caib.helium.logic.intf.WProcessDefinition;
 import es.caib.helium.logic.intf.WProcessInstance;

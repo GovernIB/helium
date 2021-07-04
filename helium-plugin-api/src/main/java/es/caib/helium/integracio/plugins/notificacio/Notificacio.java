@@ -3,10 +3,10 @@
  */
 package es.caib.helium.integracio.plugins.notificacio;
 
+import org.apache.commons.lang3.builder.ToStringBuilder;
+
 import java.util.Date;
 import java.util.List;
-
-import org.apache.commons.lang.builder.ToStringBuilder;
 
 /**
  * Informació d'una notificació per al seu enviament.

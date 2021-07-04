@@ -3,27 +3,12 @@
  */
 package es.caib.helium.persist.entity;
 
+import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.io.Serializable;
 import java.util.Date;
-
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
-import javax.persistence.TableGenerator;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
-import javax.persistence.Transient;
-
-import org.hibernate.annotations.ForeignKey;
-import org.hibernate.annotations.Index;
-import org.springmodules.validation.bean.conf.loader.annotation.handler.MaxLength;
-import org.springmodules.validation.bean.conf.loader.annotation.handler.NotBlank;
-import org.springmodules.validation.bean.conf.loader.annotation.handler.NotNull;
 
 /**
  * Objecte de domini que representa una alerta.
@@ -31,12 +16,12 @@ import org.springmodules.validation.bean.conf.loader.annotation.handler.NotNull;
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Entity
-@Table(name="hel_alerta")
-@org.hibernate.annotations.Table(
-		appliesTo = "hel_alerta",
+@Table(name="hel_alerta",
 		indexes = {
-				@Index(name = "hel_alerta_entorn_i", columnNames = {"entorn_id"}),
-				@Index(name = "hel_alerta_expedient_i", columnNames = {"expedient_id"})})
+				@Index(name = "hel_alerta_entorn_i", columnList = "entorn_id"),
+				@Index(name = "hel_alerta_expedient_i", columnList = "expedient_id")
+		}
+)
 public class Alerta implements Serializable, GenericEntity<Long> {
 
 	public enum AlertaPrioritat {
@@ -53,10 +38,10 @@ public class Alerta implements Serializable, GenericEntity<Long> {
 	@NotNull
 	private String destinatari;
 	@NotBlank
-	@MaxLength(255)
+	@Size(max = 255)
 	private String causa;
 	@NotBlank
-	@MaxLength(1024)
+	@Size(max = 1024)
 	private String text;
 
 	private Date dataLectura;
@@ -154,8 +139,9 @@ public class Alerta implements Serializable, GenericEntity<Long> {
 	}
 
 	@ManyToOne(optional=false)
-	@JoinColumn(name="entorn_id")
-	@ForeignKey(name="hel_entorn_alerta_fk")
+	@JoinColumn(
+			name="entorn_id",
+			foreignKey = @ForeignKey(name="hel_entorn_alerta_fk"))
 	public Entorn getEntorn() {
 		return entorn;
 	}
@@ -164,8 +150,9 @@ public class Alerta implements Serializable, GenericEntity<Long> {
 	}
 
 	@ManyToOne(optional=false)
-	@JoinColumn(name="expedient_id")
-	@ForeignKey(name="hel_expedient_alerta_fk")
+	@JoinColumn(
+			name="expedient_id",
+			foreignKey = @ForeignKey(name="hel_expedient_alerta_fk"))
 	public Expedient getExpedient() {
 		return expedient;
 	}
@@ -174,8 +161,9 @@ public class Alerta implements Serializable, GenericEntity<Long> {
 	}
 
 	@ManyToOne(optional=true)
-	@JoinColumn(name="termini_iniciat_id")
-	@ForeignKey(name="hel_termini_alerta_fk")
+	@JoinColumn(
+			name="termini_iniciat_id",
+			foreignKey = @ForeignKey(name="hel_termini_alerta_fk"))
 	public TerminiIniciat getTerminiIniciat() {
 		return terminiIniciat;
 	}

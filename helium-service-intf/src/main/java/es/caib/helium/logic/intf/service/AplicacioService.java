@@ -3,12 +3,12 @@
  */
 package es.caib.helium.logic.intf.service;
 
-import java.util.List;
-
 import es.caib.helium.logic.intf.dto.PersonaDto;
 import es.caib.helium.logic.intf.dto.UsuariPreferenciesDto;
 import es.caib.helium.logic.intf.exception.NoTrobatException;
 import es.caib.helium.logic.intf.exception.SistemaExternException;
+
+import java.util.List;
 
 /**
  * Servei amb funcionalitat a nivell d'aplicació.
@@ -35,7 +35,6 @@ public interface AplicacioService {
 	/**
 	 * Retorna informació de la persona actual.
 	 * 
-	 * @param codi el codi de la persona
 	 * @return la informació de la persona
 	 */
 	public PersonaDto findPersonaActual() throws NoTrobatException, SistemaExternException;

@@ -3,30 +3,13 @@
  */
 package es.caib.helium.persist.entity;
 
+import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.OrderBy;
-import javax.persistence.Table;
-import javax.persistence.TableGenerator;
-import javax.persistence.UniqueConstraint;
-
-import org.hibernate.annotations.ForeignKey;
-import org.hibernate.annotations.Index;
-import org.springmodules.validation.bean.conf.loader.annotation.handler.MaxLength;
-import org.springmodules.validation.bean.conf.loader.annotation.handler.NotBlank;
-import org.springmodules.validation.bean.conf.loader.annotation.handler.NotNull;
 
 /**
  * Objecte de domini que representa una definició de tasca.
@@ -35,12 +18,12 @@ import org.springmodules.validation.bean.conf.loader.annotation.handler.NotNull;
  */
 @Entity
 @Table(	name="hel_tasca",
-		uniqueConstraints={@UniqueConstraint(columnNames={"jbpm_name", "definicio_proces_id"})})
-@org.hibernate.annotations.Table(
-		appliesTo = "hel_tasca",
+		uniqueConstraints={@UniqueConstraint(columnNames={"jbpm_name", "definicio_proces_id"})},
 		indexes = {
-				@Index(name = "hel_tasca_defproc_i", columnNames = {"definicio_proces_id"}),
-				@Index(name = "hel_tasca_jbpmname_i", columnNames = {"jbpm_name"})})
+				@Index(name = "hel_tasca_defproc_i", columnList = "definicio_proces_id"),
+				@Index(name = "hel_tasca_jbpmname_i", columnList = "jbpm_name")
+		}
+)
 public class Tasca implements Serializable, GenericEntity<Long> {
 
 	public enum TipusTasca {
@@ -51,24 +34,24 @@ public class Tasca implements Serializable, GenericEntity<Long> {
 
 	private Long id;
 	@NotBlank
-	@MaxLength(255)
+	@Size(max = 255)
 	private String nom;
 	@NotNull
 	private TipusTasca tipus;
-	@MaxLength(255)
+	@Size(max = 255)
 	private String missatgeInfo;
-	@MaxLength(255)
+	@Size(max = 255)
 	private String missatgeWarn;
-	@MaxLength(1024)
+	@Size(max = 1024)
 	private String nomScript;
-	@MaxLength(255)
+	@Size(max = 255)
 	private String expressioDelegacio;
 	@NotBlank
-	@MaxLength(255)
+	@Size(max = 255)
 	private String jbpmName;
-	@MaxLength(255)
+	@Size(max = 255)
 	private String recursForm;
-	@MaxLength(255)
+	@Size(max = 255)
 	private String formExtern;
 	private boolean tramitacioMassiva = false;
 	private boolean finalitzacioSegonPla = false;
@@ -209,8 +192,9 @@ public class Tasca implements Serializable, GenericEntity<Long> {
 	}
 	
 	@ManyToOne(optional=false)
-	@JoinColumn(name="definicio_proces_id")
-	@ForeignKey(name="hel_defproc_tasca_fk")
+	@JoinColumn(
+			name="definicio_proces_id",
+			foreignKey = @ForeignKey(name="hel_defproc_tasca_fk"))
 	public DefinicioProces getDefinicioProces() {
 		return definicioProces;
 	}

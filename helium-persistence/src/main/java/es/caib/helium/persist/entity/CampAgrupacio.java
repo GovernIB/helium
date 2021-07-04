@@ -3,27 +3,12 @@
  */
 package es.caib.helium.persist.entity;
 
+import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Size;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.OrderBy;
-import javax.persistence.Table;
-import javax.persistence.TableGenerator;
-import javax.persistence.UniqueConstraint;
-
-import org.hibernate.annotations.ForeignKey;
-import org.hibernate.annotations.Index;
-import org.springmodules.validation.bean.conf.loader.annotation.handler.MaxLength;
-import org.springmodules.validation.bean.conf.loader.annotation.handler.NotBlank;
 
 /**
  * Objecte de domini que representa una agrupació de camps.
@@ -32,22 +17,22 @@ import org.springmodules.validation.bean.conf.loader.annotation.handler.NotBlank
  */
 @Entity
 @Table(	name="hel_camp_agrup",
-		uniqueConstraints={@UniqueConstraint(columnNames={"codi", "definicio_proces_id", "expedient_tipus_id"})})
-@org.hibernate.annotations.Table(
-		appliesTo = "hel_camp_agrup",
-		indexes ={
-				@Index(name = "hel_campagrup_defproc_i", columnNames = {"definicio_proces_id"}),
-				@Index(name = "hel_campagrup_exptip_i", columnNames = {"expedient_tipus_id"})})
+		uniqueConstraints={@UniqueConstraint(columnNames={"codi", "definicio_proces_id", "expedient_tipus_id"})},
+		indexes = {
+				@Index(name = "hel_campagrup_defproc_i", columnList = "definicio_proces_id"),
+				@Index(name = "hel_campagrup_exptip_i", columnList = "expedient_tipus_id")
+		}
+)
 public class CampAgrupacio implements Serializable, GenericEntity<Long> {
 
 	private Long id;
 	@NotBlank
-	@MaxLength(64)
+	@Size(max = 64)
 	private String codi;
 	@NotBlank
-	@MaxLength(255)
+	@Size(max = 255)
 	private String nom;
-	@MaxLength(255)
+	@Size(max = 255)
 	private String descripcio;
 	private int ordre;
 
@@ -118,8 +103,9 @@ public class CampAgrupacio implements Serializable, GenericEntity<Long> {
 	}
 
 	@ManyToOne(optional=true)
-	@JoinColumn(name="definicio_proces_id")
-	@ForeignKey(name="hel_defproc_campagrup_fk")
+	@JoinColumn(
+			name="definicio_proces_id",
+			foreignKey = @ForeignKey(name="hel_defproc_campagrup_fk"))
 	public DefinicioProces getDefinicioProces() {
 		return definicioProces;
 	}
@@ -127,8 +113,9 @@ public class CampAgrupacio implements Serializable, GenericEntity<Long> {
 		this.definicioProces = definicioProces;
 	}
 	@ManyToOne(optional=true)
-	@JoinColumn(name="expedient_tipus_id")
-	@ForeignKey(name="hel_exptip_campagrup_fk")
+	@JoinColumn(
+			name="expedient_tipus_id",
+			foreignKey = @ForeignKey(name="hel_exptip_campagrup_fk"))
 	public ExpedientTipus getExpedientTipus() {
 		return expedientTipus;
 	}

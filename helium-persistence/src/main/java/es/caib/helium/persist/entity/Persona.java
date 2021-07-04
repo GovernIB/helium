@@ -1,30 +1,15 @@
 package es.caib.helium.persist.entity;
 
-import java.io.Serializable;
-import java.util.Date;
-
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Enumerated;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
-import javax.persistence.TableGenerator;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
-import javax.persistence.Transient;
-
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.hibernate.annotations.ForeignKey;
-import org.hibernate.annotations.Index;
-import org.springmodules.validation.bean.conf.loader.annotation.handler.Email;
-import org.springmodules.validation.bean.conf.loader.annotation.handler.InThePast;
-import org.springmodules.validation.bean.conf.loader.annotation.handler.MaxLength;
-import org.springmodules.validation.bean.conf.loader.annotation.handler.NotBlank;
+
+import javax.persistence.*;
+import javax.validation.constraints.Email;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Past;
+import javax.validation.constraints.Size;
+import java.io.Serializable;
+import java.util.Date;
 
 /**
  * Objecte de domini que representa una persona
@@ -33,10 +18,8 @@ import org.springmodules.validation.bean.conf.loader.annotation.handler.NotBlank
  */
 @Entity
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-@Table(name="hel_persona")
-@org.hibernate.annotations.Table(
-		appliesTo = "hel_persona",
-		indexes = @Index(name = "hel_persona_relleu_i", columnNames = {"relleu_id"}))
+@Table(name="hel_persona",
+		indexes = @Index(name = "hel_persona_relleu_i", columnList = "relleu_id"))
 public class Persona implements Serializable, GenericEntity<Long> {
 
 	public enum Sexe {
@@ -49,22 +32,22 @@ public class Persona implements Serializable, GenericEntity<Long> {
 
 	private Long id;
 	@NotBlank
-	@MaxLength(64)
+	@Size(max = 64)
 	private String codi;
 	@NotBlank
-	@MaxLength(255)
+	@Size(max = 255)
 	private String nom;
 	@NotBlank
-	@MaxLength(255)
+	@Size(max = 255)
 	private String llinatge1;
-	@MaxLength(255)
+	@Size(max = 255)
 	private String llinatge2;
-	@MaxLength(64)
+	@Size(max = 64)
 	private String dni;
-	@InThePast
+	@Past
 	private Date dataNaixement;
 	@NotBlank
-	@MaxLength(255)
+	@Size(max = 255)
 	@Email
 	private String email;
 	private Sexe sexe = Sexe.SEXE_HOME;
@@ -218,8 +201,9 @@ public class Persona implements Serializable, GenericEntity<Long> {
 	}
 
 	@ManyToOne(optional=true)
-	@JoinColumn(name="relleu_id")
-	@ForeignKey(name="hel_relleu_persona_fk")
+	@JoinColumn(
+			name="relleu_id",
+			foreignKey = @ForeignKey(name="hel_relleu_persona_fk"))
 	public Persona getRelleu() {
 		return this.relleu;
 	}
