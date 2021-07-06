@@ -4,9 +4,8 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
-import es.caib.helium.dada.domain.ValorSimple;
-import es.caib.helium.enums.Tipus;
-import es.caib.helium.enums.TipusFiltre;
+import es.caib.helium.client.dada.enums.Tipus;
+import es.caib.helium.client.dada.enums.TipusFiltre;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;

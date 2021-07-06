@@ -7,7 +7,7 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
 import org.springframework.stereotype.Repository;
 
-import es.caib.helium.dada.domain.Expedient;
+import es.caib.helium.dada.model.Expedient;
 
 @Repository
 public interface ExpedientRepository extends MongoRepository<Expedient, String>, ExpedientRepositoryCustom {

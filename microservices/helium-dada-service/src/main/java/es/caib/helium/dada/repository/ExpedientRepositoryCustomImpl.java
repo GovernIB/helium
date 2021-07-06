@@ -23,16 +23,16 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ObjectUtils;
 
-import es.caib.helium.dada.domain.Expedient;
+import es.caib.helium.dada.enums.Capcalera;
+import es.caib.helium.dada.enums.Collections;
+import es.caib.helium.dada.enums.Dada;
+import es.caib.helium.dada.enums.DireccioOrdre;
 import es.caib.helium.dada.exception.DadaException;
 import es.caib.helium.dada.model.Columna;
 import es.caib.helium.dada.model.Consulta;
+import es.caib.helium.dada.model.Expedient;
 import es.caib.helium.dada.model.FiltreCapcalera;
 import es.caib.helium.dada.model.FiltreValor;
-import es.caib.helium.enums.Capcalera;
-import es.caib.helium.enums.Collections;
-import es.caib.helium.enums.Dada;
-import es.caib.helium.enums.DireccioOrdre;
 
 /**
  * Classe dedicada a ampliar les funcionalitats de ExpedientRepository en funció de les necessitats del servei

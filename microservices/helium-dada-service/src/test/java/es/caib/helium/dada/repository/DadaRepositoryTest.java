@@ -15,11 +15,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest;
 import org.springframework.test.context.ActiveProfiles;
 
-import es.caib.helium.dada.domain.Dada;
-import es.caib.helium.dada.domain.Valor;
-import es.caib.helium.dada.domain.ValorRegistre;
-import es.caib.helium.dada.domain.ValorSimple;
-import es.caib.helium.enums.Tipus;
+import es.caib.helium.dada.enums.Tipus;
+import es.caib.helium.dada.model.Dada;
+import es.caib.helium.dada.model.Valor;
+import es.caib.helium.dada.model.ValorRegistre;
+import es.caib.helium.dada.model.ValorSimple;
 
 @ActiveProfiles("test")
 @DataMongoTest

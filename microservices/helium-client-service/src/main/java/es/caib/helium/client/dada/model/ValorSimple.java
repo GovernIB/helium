@@ -4,7 +4,6 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
-import es.caib.helium.client.dada.model.Dada.Valor;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;

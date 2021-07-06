@@ -41,7 +41,9 @@ public static final String API_PATH = "/api/v1/firma";
 	}
 	
 	@PostMapping(value = "verificacio", consumes = "application/json")
-	public ResponseEntity<RespostaValidacioSignatura> verificacio(@Valid @RequestBody VerificacioFirma verificacio, BindingResult error) throws Exception {
+	public ResponseEntity<RespostaValidacioSignatura> verificacio(
+			@Valid @RequestBody VerificacioFirma verificacio, 
+			BindingResult error) throws Exception {
 		
 		log.info("Verificant la firma " + verificacio.toString());
 		
@@ -74,7 +76,9 @@ public static final String API_PATH = "/api/v1/firma";
 	}
 	
 	@PostMapping(value = "validacio/detalls", consumes = "application/json")
-	public ResponseEntity<List<ArxiuFirmaDetall>> validacioDetalls(@Valid @RequestBody VerificacioFirma validacio, BindingResult error) throws Exception {
+	public ResponseEntity<List<ArxiuFirmaDetall>> validacioDetalls(
+			@Valid @RequestBody VerificacioFirma validacio, 
+			BindingResult error) throws Exception {
 		
 		log.info("Obtenint detalls de la validació de la signatura");
 		

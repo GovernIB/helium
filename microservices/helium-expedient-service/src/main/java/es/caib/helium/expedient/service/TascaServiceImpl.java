@@ -68,8 +68,9 @@ public class TascaServiceImpl implements TascaService {
         
         if (tascaDto.getExpedientId() != null) {
         	Optional<Expedient> expedientOptional = expedientRepository.findById(tascaDto.getExpedientId());
-        	if (expedientOptional.isPresent())
+        	if (expedientOptional.isPresent()) {
         		tasca.setExpedient(expedientOptional.get());
+        	}
         }        
         log.debug("[SRV] Validant tasca");
         validateTasca(tasca);
@@ -150,7 +151,7 @@ public class TascaServiceImpl implements TascaService {
 
         log.debug("[SRV] Obtenint tasca amb Id: " + tascaId);
 
-        Tasca tasca = getTascaById(tascaId);
+        var tasca = getTascaById(tascaId);
         return tascaMapper.entityToDto(tasca);
 
     }
@@ -233,10 +234,10 @@ public class TascaServiceImpl implements TascaService {
         if (tascaOptional.isPresent()) {
             log.debug("Trobada tasca amb id: " + tascaId);
             return tascaOptional.get();
-        } else {
-            log.error("[SRV] Delete: No existeix cap tasca amb id=" + tascaId);
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Not found. Id: " + tascaId);
-        }
+        } 
+        
+        log.error("[SRV] Delete: No existeix cap tasca amb id=" + tascaId);
+        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Not found. Id: " + tascaId);
     }
 
     
@@ -262,8 +263,9 @@ public class TascaServiceImpl implements TascaService {
     }
 
     private String parametresToString(Map<String, String> parametres) {
-        if (parametres == null)
+        if (parametres == null) {
             return "";
+        }
         return parametres.entrySet().stream()
                 .map(e -> e.getKey() + "=" + e.getValue())
                 .collect(Collectors.joining(", ", "{ ", " }"));

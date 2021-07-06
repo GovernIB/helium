@@ -5,7 +5,7 @@ import java.util.Optional;
 
 import org.springframework.data.mongodb.repository.MongoRepository;
 
-import es.caib.helium.dada.domain.Dada;
+import es.caib.helium.dada.model.Dada;
 
 public interface DadaRepository extends MongoRepository<Dada, String> {
 	

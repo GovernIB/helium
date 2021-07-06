@@ -41,22 +41,22 @@ public class MonitorController {
     public ResponseEntity<List<IntegracioEvent>> getEvents(@Valid Consulta consulta) throws Exception { //Filtres per l'accio: els de les columnes
     	
     	log.info("Obtinguent el llistat d'events");
-    	var accions = bddService.findByFiltres(consulta);
-    	if (accions.isEmpty()) {
+    	var events = bddService.findByFiltres(consulta);
+    	if (events.isEmpty()) {
     		return new ResponseEntity<List<IntegracioEvent>>(HttpStatus.NO_CONTENT);
     	}
-    	return new ResponseEntity<List<IntegracioEvent>>(accions, HttpStatus.OK);
+    	return new ResponseEntity<List<IntegracioEvent>>(events, HttpStatus.OK);
     }
 
     @GetMapping(value = "events/paginats", produces = "application/json") 
     public ResponseEntity<PagedList<IntegracioEvent>> getEventsPaginats(@Valid Consulta consulta) throws Exception { //Filtres per l'accio: els de les columnes
     	
     	log.info("Obtinguent el llistat d'events paginats");
-    	var accions = bddService.findByFiltresPaginat(consulta);
-    	if (accions == null || accions.isEmpty()) {
+    	var events = bddService.findByFiltresPaginat(consulta);
+    	if (events == null || events.isEmpty()) {
     		return new ResponseEntity<PagedList<IntegracioEvent>>(HttpStatus.NO_CONTENT);
     	}
-    	return new ResponseEntity<PagedList<IntegracioEvent>>(accions, HttpStatus.OK);
+    	return new ResponseEntity<PagedList<IntegracioEvent>>(events, HttpStatus.OK);
     }
     
 

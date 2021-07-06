@@ -1,10 +1,8 @@
 package es.caib.helium.client.dada.model;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 
-@Getter
-@Setter
+@Data
 public class Columna {
 
 	private String nom;

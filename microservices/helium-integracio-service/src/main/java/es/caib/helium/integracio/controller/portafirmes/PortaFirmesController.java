@@ -45,7 +45,9 @@ public class PortaFirmesController {
 	}
 
 	@GetMapping(value = "{documentId}", produces = "application/json")
-	public ResponseEntity<PortaFirma> getByDocumentId(@PathVariable("documentId") Long documentId, @RequestParam("entornId") Long entornId) throws Exception{ 
+	public ResponseEntity<PortaFirma> getByDocumentId(
+			@PathVariable("documentId") Long documentId, 
+			@RequestParam("entornId") Long entornId) throws Exception{ 
 		
 		log.info("Consultant al repository del portafirmes by documentId " + documentId);
 		if (documentId == null) {
@@ -59,7 +61,9 @@ public class PortaFirmesController {
 	}
 
 	@GetMapping(value = "proces/{processInstanceId}", produces = "application/json")
-	public ResponseEntity<PortaFirma> getByProcessInstanceId(@PathVariable("processInstanceId") String processInstanceId, @RequestParam("entornId") Long entornId) throws Exception { 
+	public ResponseEntity<PortaFirma> getByProcessInstanceId(
+			@PathVariable("processInstanceId") String processInstanceId, 
+			@RequestParam("entornId") Long entornId) throws Exception { 
 		
 		log.info("Consultant el repository del portafirmes by procesInstanceId " + processInstanceId);
 		if (processInstanceId == null) {
@@ -90,7 +94,9 @@ public class PortaFirmesController {
 	}
 
 	@GetMapping(produces = "application/json")
-	public ResponseEntity<List<PortaFirma>> getPendentsFirmar(@RequestParam("filtre") String filtre, @RequestParam("entornId") Long entornId) throws Exception{ 
+	public ResponseEntity<List<PortaFirma>> getPendentsFirmar(
+			@RequestParam("filtre") String filtre, 
+			@RequestParam("entornId") Long entornId) throws Exception{ 
 		
 		log.info("Consultant  el repository del portafirmes by pendents i filtre " + filtre);
 		if (Strings.isNullOrEmpty(filtre)) {
@@ -139,7 +145,8 @@ public class PortaFirmesController {
 	
 	@GetMapping(value = "{processInstance}/pendents", produces = "application/json")
 	public ResponseEntity<List<PortaFirma>> getPendentsFirmarByProcessInstance(
-			@PathVariable("processInstance") String processInstance, @RequestParam("entornId") Long entornId) throws Exception  {
+			@PathVariable("processInstance") String processInstance, 
+			@RequestParam("entornId") Long entornId) throws Exception  {
 		
 		log.info("Consultant el repository del portafirmes by pendentes i processInstanceId " + processInstance);
 		if (processInstance == null) {

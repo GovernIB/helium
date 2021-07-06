@@ -36,8 +36,10 @@ public class FirmaController {
 	}
 
 	@PostMapping(consumes = "application/json")
-	public ResponseEntity<byte[]> firmar(@Valid @RequestBody FirmaPost firma, @RequestParam("entornId") Long entornId, BindingResult error)
-			throws Exception {
+	public ResponseEntity<byte[]> firmar(
+			@Valid @RequestBody FirmaPost firma, 
+			@RequestParam("entornId") Long entornId, 
+			BindingResult error) throws Exception {
 
 		log.info("Firmant el document " + firma.toString());
 		if (error.hasErrors()) {

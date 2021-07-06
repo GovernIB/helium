@@ -18,7 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest;
 import org.springframework.test.context.ActiveProfiles;
 
-import es.caib.helium.dada.domain.Expedient;
+import es.caib.helium.dada.model.Expedient;
 
 @ActiveProfiles("test")
 @DataMongoTest

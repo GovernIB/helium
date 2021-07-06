@@ -10,14 +10,14 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
-import es.caib.helium.dada.domain.Dada;
-import es.caib.helium.dada.domain.Expedient;
+import es.caib.helium.dada.enums.ValorsValidacio;
 import es.caib.helium.dada.exception.DadaException;
 import es.caib.helium.dada.model.Consulta;
+import es.caib.helium.dada.model.Dada;
+import es.caib.helium.dada.model.Expedient;
 import es.caib.helium.dada.model.PagedList;
 import es.caib.helium.dada.repository.DadaRepository;
 import es.caib.helium.dada.repository.ExpedientRepository;
-import es.caib.helium.enums.ValorsValidacio;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -590,6 +590,8 @@ public class ExpedientServiceImpl implements ExpedientService {
 
 	/**
 	 * Crea dades per l'expedientId amb procesId
+	 * A diferencia de crear dades si la dada ja existeix, 
+	 * actualitza el seu tipus, multiple i valor
 	 * @param expedientId identificador de l'expedient
 	 * @param procesId identificador del procés
 	 * @param dades llistat de dades a crear
@@ -607,8 +609,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 				if (dada.getCodi() == null || dada.getCodi().isEmpty()) {
 					continue;
 				}
-				var dadaMongo = dadaRepository.findByExpedientIdAndProcesIdAndCodi(expedientId, procesId,
-						dada.getCodi());
+				var dadaMongo = dadaRepository.findByExpedientIdAndProcesIdAndCodi(expedientId, procesId, dada.getCodi());
 				if (dadaMongo.isPresent()) {
 					var d = dadaMongo.get();
 					d.setMultiple(dada.isMultiple());
