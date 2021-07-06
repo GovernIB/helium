@@ -85,7 +85,7 @@ public class WorkflowEngineApiBean implements WorkflowEngineApi {
     }
 
     @Override
-    public void updateSubprocessDefinition(WProcessDefinition pd1, WProcessDefinition pd2) {
+    public void updateSubprocessDefinition(String pd1, String pd2) {
         delegate.updateSubprocessDefinition(pd1, pd2);
     }
 
@@ -100,7 +100,7 @@ public class WorkflowEngineApiBean implements WorkflowEngineApi {
     }
 
     @Override
-    public List<WProcessInstance> findProcessInstancesWithProcessDefinitionNameAndEntorn(String processName, Long entornId) {
+    public List<WProcessInstance> findProcessInstancesWithProcessDefinitionNameAndEntorn(String processName, String entornId) {
         return delegate.findProcessInstancesWithProcessDefinitionNameAndEntorn(processName, entornId);
     }
 
@@ -185,7 +185,7 @@ public class WorkflowEngineApiBean implements WorkflowEngineApi {
     }
 
     @Override
-    public Long getTaskInstanceIdByExecutionTokenId(Long executionTokenId) {
+    public String getTaskInstanceIdByExecutionTokenId(String executionTokenId) {
         return delegate.getTaskInstanceIdByExecutionTokenId(executionTokenId);
     }
 
@@ -285,17 +285,17 @@ public class WorkflowEngineApiBean implements WorkflowEngineApi {
     }
 
     @Override
-    public void tokenRedirect(long tokenId, String nodeName, boolean cancelTasks, boolean enterNodeIfTask, boolean executeNode) {
+    public void tokenRedirect(String tokenId, String nodeName, boolean cancelTasks, boolean enterNodeIfTask, boolean executeNode) {
         delegate.tokenRedirect(tokenId, nodeName, cancelTasks, enterNodeIfTask, executeNode);
     }
 
     @Override
-    public boolean tokenActivar(long tokenId, boolean activar) {
+    public boolean tokenActivar(String tokenId, boolean activar) {
         return delegate.tokenActivar(tokenId, activar);
     }
 
     @Override
-    public void signalToken(long tokenId, String transitionName) {
+    public void signalToken(String tokenId, String transitionName) {
         delegate.signalToken(tokenId, transitionName);
     }
 
@@ -325,12 +325,12 @@ public class WorkflowEngineApiBean implements WorkflowEngineApi {
     }
 
     @Override
-    public void suspendTimer(long timerId, Date dueDate) {
+    public void suspendTimer(String timerId, Date dueDate) {
         delegate.suspendTimer(timerId, dueDate);
     }
 
     @Override
-    public void resumeTimer(long timerId, Date dueDate) {
+    public void resumeTimer(String timerId, Date dueDate) {
         delegate.resumeTimer(timerId, dueDate);
     }
 

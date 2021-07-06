@@ -171,7 +171,7 @@ public interface WorkflowEngineApi {
 	 */
 	public WProcessDefinition findProcessDefinitionWithProcessInstanceId(String processInstanceId);
 
-	public void updateSubprocessDefinition(WProcessDefinition pd1, WProcessDefinition pd2);
+	public void updateSubprocessDefinition(String pd1, String pd2);
 	
 	// DEFINICIÓ DE TASQUES
 	////////////////////////////////////////////////////////////////////////////////
@@ -221,7 +221,7 @@ public interface WorkflowEngineApi {
 	// Com a entornId podem utilitzar el tenantId de la instància de procés, o la categoria de la definició de procés
 	public List<WProcessInstance> findProcessInstancesWithProcessDefinitionNameAndEntorn(
             String processName,
-            Long entornId);
+			String entornId);
 
 	/**
 	 * Obté les instàncies de procés del procés principal, i dels subprocessos donat l'identificador del procés principal
@@ -416,7 +416,7 @@ public interface WorkflowEngineApi {
 	 * @param executionTokenId
 	 * @return
 	 */
-	public Long getTaskInstanceIdByExecutionTokenId(Long executionTokenId);
+	public String getTaskInstanceIdByExecutionTokenId(String executionTokenId);
 	
 	/**
 	 * Obté un llistat paginat de instàncies de tasques donat un filtre concret 
@@ -696,7 +696,7 @@ public interface WorkflowEngineApi {
 	 * @param enterNodeIfTask
 	 * @param executeNode
 	 */
-	public void tokenRedirect(long tokenId, String nodeName, boolean cancelTasks, boolean enterNodeIfTask, boolean executeNode);
+	public void tokenRedirect(String tokenId, String nodeName, boolean cancelTasks, boolean enterNodeIfTask, boolean executeNode);
 	
 	/** Mètode per activar o desactivar un token.
 	 * 
@@ -704,14 +704,14 @@ public interface WorkflowEngineApi {
 	 * @param activar
 	 * @return
 	 */
-	public boolean tokenActivar(long tokenId, boolean activar);
+	public boolean tokenActivar(String tokenId, boolean activar);
 	
 	/** Mètode per enviar un senyal a un token per a que avanci per una transició.
 	 * 
 	 * @param tokenId
 	 * @param transitionName
 	 */
-	public void signalToken(long tokenId, String transitionName);
+	public void signalToken(String tokenId, String transitionName);
 	
 	// ACCIONS
 	////////////////////////////////////////////////////////////////////////////////
@@ -740,8 +740,8 @@ public interface WorkflowEngineApi {
 	////////////////////////////////////////////////////////////////////////////////
 	//public List<Timer> findTimersWithProcessInstanceId(String processInstanceId);
 
-	public void suspendTimer(long timerId, Date dueDate);
-	public void resumeTimer(long timerId, Date dueDate);
+	public void suspendTimer(String timerId, Date dueDate);
+	public void resumeTimer(String timerId, Date dueDate);
 
 	// A ELIMINAR
 	////////////////////////////////////////////////////////////////////////////////

@@ -1,12 +1,11 @@
-package es.caib.helium.camunda.model;
+package es.caib.helium.back.rest.model;
 
 import lombok.Builder;
 import lombok.Data;
-import lombok.extern.slf4j.Slf4j;
+import net.conselldemallorca.helium.api.dto.TipusVar;
 
 @Data
 @Builder
-@Slf4j
 public class VariableRest {
 
     private String nom;

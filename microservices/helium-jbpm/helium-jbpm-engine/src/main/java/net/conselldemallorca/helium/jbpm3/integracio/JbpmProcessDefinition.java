@@ -56,7 +56,6 @@ public class JbpmProcessDefinition implements WProcessDefinition, WDeployment {
 		return null;
 	}
 
-	@Override
 	public ProcessDefinition getProcessDefinition() {
 		return processDefinition;
 	}

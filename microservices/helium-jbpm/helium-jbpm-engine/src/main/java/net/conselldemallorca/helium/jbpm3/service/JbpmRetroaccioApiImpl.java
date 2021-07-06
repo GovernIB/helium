@@ -309,7 +309,7 @@ public class JbpmRetroaccioApiImpl implements JbpmRetroaccioApi {
                             if (debugRetroces)
                                 log.info(">>> [RETLOG] Retornar token (name=" + logo.getName() + ") al node (name=" + desti + ", enter = " + enterNode + ", execute=" + executeNode + ")");
                             workflowEngineApi.tokenRedirect(
-                                    logo.getObjectId(),
+                                    String.valueOf(logo.getObjectId()),
                                     desti,
                                     true,
                                     enterNode,
@@ -610,7 +610,7 @@ public class JbpmRetroaccioApiImpl implements JbpmRetroaccioApi {
             if (debugRetroces)
                 log.info(">>> [RETLOG] Retornar token (name=" + currentToken.getName() + ") al node (name=" + nodeDesti.getName() + ", enter = " + enterNode + ", execute=" + executeNode + ")");
             workflowEngineApi.tokenRedirect(
-                    currentToken.getId(),
+                    String.valueOf(currentToken.getId()),
                     nodeDesti.getName(),
                     true,
                     enterNode,

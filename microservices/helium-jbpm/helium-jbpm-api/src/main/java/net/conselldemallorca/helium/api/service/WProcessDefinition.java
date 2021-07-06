@@ -12,7 +12,7 @@ public interface WProcessDefinition {
 	public int getVersion();
 	public String getCategory();
 	
-	public Object getProcessDefinition();
+//	public Object getProcessDefinition();
 	
 	/** Tracta el contingut i retorna una definició de procés.
 	 * 

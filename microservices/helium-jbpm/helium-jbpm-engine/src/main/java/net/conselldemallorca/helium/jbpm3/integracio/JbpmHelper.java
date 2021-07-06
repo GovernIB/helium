@@ -263,6 +263,25 @@ public class JbpmHelper implements WorkflowEngineApi {
 		return resultat;
 	}
 
+	/** Cerca els nodes de tipus ProcessState del ProcessDefinitions dp1  i assegura que s'apuntin correctament cap al pd2
+	 * si coincideix el nom del subprocés.
+	 *
+	 * @param pd1
+	 * @param pd2
+	 */
+	@Override
+	public void updateSubprocessDefinition(String pd1, String pd2) {
+
+		GetProcessDefinitionByIdCommand command1 = new GetProcessDefinitionByIdCommand(Long.parseLong(pd1));
+		ProcessDefinition processDefinition1 = (ProcessDefinition)commandService.execute(command1);
+		GetProcessDefinitionByIdCommand command2 = new GetProcessDefinitionByIdCommand(Long.parseLong(pd2));
+		ProcessDefinition processDefinition2 = (ProcessDefinition)commandService.execute(command2);
+
+		UpdateSubprocessDefinitionCommand updateCommand = new UpdateSubprocessDefinitionCommand(
+				processDefinition1,
+				processDefinition2);
+		commandService.execute(updateCommand);
+	}
 
 
 	// DEFINICIÓ DE TASQUES
@@ -305,12 +324,12 @@ public class JbpmHelper implements WorkflowEngineApi {
 
 	@Override
 	@SuppressWarnings("unchecked")
-	public List<WProcessInstance> findProcessInstancesWithProcessDefinitionNameAndEntorn(String processName, Long entornId) {
+	public List<WProcessInstance> findProcessInstancesWithProcessDefinitionNameAndEntorn(String processName, String entornId) {
 		//adminService.mesuraIniciar("jBPM findProcessInstancesWithProcessDefinitionNameAndEntorn", "jbpmDao");
 		List<WProcessInstance> resultat = new ArrayList<WProcessInstance>();
 		GetProcessInstancesEntornCommand command = new GetProcessInstancesEntornCommand();
 		command.setProcessDefinitionName(processName);
-		command.setEntornId(entornId);
+		command.setEntornId(Long.parseLong(entornId));
 		for (ProcessInstance pd: (List<ProcessInstance>)commandService.execute(command)) {
 			resultat.add(new JbpmProcessInstance(pd));
 		}
@@ -609,9 +628,9 @@ public class JbpmHelper implements WorkflowEngineApi {
 	}
 
 	@Override
-	public Long getTaskInstanceIdByExecutionTokenId(Long tokenId) {
-		FindTaskInstanceIdForTokenIdCommand command = new FindTaskInstanceIdForTokenIdCommand(tokenId);
-		return (Long)commandService.execute(command);
+	public String getTaskInstanceIdByExecutionTokenId(String tokenId) {
+		FindTaskInstanceIdForTokenIdCommand command = new FindTaskInstanceIdForTokenIdCommand(Long.parseLong(tokenId));
+		return commandService.execute(command).toString();
 	}
 
 	@Override
@@ -1036,31 +1055,31 @@ public class JbpmHelper implements WorkflowEngineApi {
 
 	@Override
 	public void tokenRedirect(
-			long tokenId,
+			String tokenId,
 			String nodeName,
 			boolean cancelTasks,
 			boolean enterNodeIfTask,
 			boolean executeNode) {
 		//adminService.mesuraIniciar("jBPM tokenRedirect", "jbpmDao");
-		TokenRedirectCommand command = new TokenRedirectCommand(tokenId, nodeName);
+		TokenRedirectCommand command = new TokenRedirectCommand(Long.parseLong(tokenId), nodeName);
 		command.setCancelTasks(cancelTasks);
 		command.setEnterNodeIfTask(enterNodeIfTask);
 		command.setExecuteNode(executeNode);
 		commandHelper.executeCommandWithAutoSave(
 				command,
-				tokenId,
+				Long.parseLong(tokenId),
 				AddToAutoSaveCommand.TIPUS_TOKEN);
 		//adminService.mesuraCalcular("jBPM tokenRedirect", "jbpmDao");
 	}
 
 	@Override
-	public boolean tokenActivar(long tokenId, boolean activar) {
+	public boolean tokenActivar(String tokenId, boolean activar) {
 		//adminService.mesuraIniciar("jBPM tokenActivar", "jbpmDao");
 		try {
-			TokenActivarCommand command = new TokenActivarCommand(tokenId, activar);
+			TokenActivarCommand command = new TokenActivarCommand(Long.parseLong(tokenId), activar);
 			commandHelper.executeCommandWithAutoSave(
 					command,
-					tokenId,
+					Long.parseLong(tokenId),
 					AddToAutoSaveCommand.TIPUS_TOKEN);
 			return true;
 		} catch (Exception ex) {
@@ -1072,13 +1091,13 @@ public class JbpmHelper implements WorkflowEngineApi {
 
 	@Override
 	public void signalToken(
-			long tokenId,
+			String tokenId,
 			String transitionName) {
 		//adminService.mesuraIniciar("jBPM signalToken", "jbpmDao");
-		SignalCommand command = new SignalCommand(tokenId, transitionName);
+		SignalCommand command = new SignalCommand(Long.parseLong(tokenId), transitionName);
 		commandHelper.executeCommandWithAutoSave(
 				command,
-				tokenId,
+				Long.parseLong(tokenId),
 				AddToAutoSaveCommand.TIPUS_TOKEN);
 		//adminService.mesuraCalcular("jBPM signalToken", "jbpmDao");
 	}
@@ -1219,10 +1238,10 @@ public class JbpmHelper implements WorkflowEngineApi {
 
 	@Override
 	public void suspendTimer(
-			long timerId,
+			String timerId,
 			Date dueDate) {
 		//adminService.mesuraIniciar("jBPM suspendTimer", "jbpmDao");
-		SuspendProcessInstanceTimerCommand command = new SuspendProcessInstanceTimerCommand(timerId);
+		SuspendProcessInstanceTimerCommand command = new SuspendProcessInstanceTimerCommand(Long.parseLong(timerId));
 		command.setDueDate(dueDate);
 		commandService.execute(command);
 		//adminService.mesuraCalcular("jBPM suspendTimer", "jbpmDao");
@@ -1230,10 +1249,10 @@ public class JbpmHelper implements WorkflowEngineApi {
 
 	@Override
 	public void resumeTimer(
-			long timerId,
+			String timerId,
 			Date dueDate) {
 		//adminService.mesuraIniciar("jBPM resumeTimer", "jbpmDao");
-		ResumeProcessInstanceTimerCommand command = new ResumeProcessInstanceTimerCommand(timerId);
+		ResumeProcessInstanceTimerCommand command = new ResumeProcessInstanceTimerCommand(Long.parseLong(timerId));
 		command.setDueDate(dueDate);
 		commandService.execute(command);
 		//adminService.mesuraCalcular("jBPM resumeTimer", "jbpmDao");
@@ -1856,24 +1875,6 @@ public class JbpmHelper implements WorkflowEngineApi {
 		RetryJobCommand command = new RetryJobCommand(jobId);
 		commandService.execute(command);
 	}
-	
-
-
-	
-	/** Cerca els nodes de tipus ProcessState del ProcessDefinitions dp1  i assegura que s'apuntin correctament cap al pd2 
-	 * si coincideix el nom del subprocés.
-	 * 
-	 * @param pd1
-	 * @param pd2
-	 */
-	@Override
-	public void updateSubprocessDefinition(WProcessDefinition pd1, WProcessDefinition pd2) {
-		UpdateSubprocessDefinitionCommand command = new UpdateSubprocessDefinitionCommand(
-				(ProcessDefinition)pd1.getProcessDefinition(),
-				(ProcessDefinition)pd2.getProcessDefinition());
-		commandService.execute(command);
-	}
-
 
 	/* Mètode privat per transformar una instancia de procés d'expedient en un dto d'expedient.
 	 *
