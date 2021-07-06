@@ -3,16 +3,14 @@
  */
 package es.caib.helium.logic.helper;
 
-import java.util.List;
-
-import javax.annotation.Resource;
-
-import org.springframework.stereotype.Component;
-
 import es.caib.helium.persist.entity.Camp;
 import es.caib.helium.persist.entity.DefinicioProces;
 import es.caib.helium.persist.entity.ExpedientTipus;
 import es.caib.helium.persist.repository.CampRepository;
+import org.springframework.stereotype.Component;
+
+import javax.annotation.Resource;
+import java.util.List;
 
 /**
  * Helper per les dades d'expedient
@@ -25,12 +23,12 @@ public class ExpedientDadaHelper {
 	@Resource
 	private CampRepository campRepository;
 
-	@Resource
-	private ExpedientTipusHelper expedientTipusHelper;
-	@Resource
-	private ExpedientHelper expedientHelper;
-	@Resource(name = "permisosHelperV3")
-	private PermisosHelper permisosHelper;
+//	@Resource
+//	private ExpedientTipusHelper expedientTipusHelper;
+//	@Resource
+//	private ExpedientHelper expedientHelper;
+//	@Resource
+//	private PermisosHelper permisosHelper;
 
 	public List<Camp> findCampsDisponiblesOrdenatsPerCodi(ExpedientTipus expedientTipus, DefinicioProces definicioProces) {
 		if (expedientTipus.isAmbInfoPropia()) {

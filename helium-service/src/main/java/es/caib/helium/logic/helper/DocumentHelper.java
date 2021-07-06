@@ -3,6 +3,39 @@
  */
 package es.caib.helium.logic.helper;
 
+import es.caib.helium.integracio.plugins.signatura.RespostaValidacioSignatura;
+import es.caib.helium.logic.intf.WProcessDefinition;
+import es.caib.helium.logic.intf.WProcessInstance;
+import es.caib.helium.logic.intf.WTaskInstance;
+import es.caib.helium.logic.intf.WorkflowEngineApi;
+import es.caib.helium.logic.intf.dto.*;
+import es.caib.helium.logic.intf.exception.NoTrobatException;
+import es.caib.helium.logic.intf.exception.SistemaExternConversioDocumentException;
+import es.caib.helium.logic.intf.exception.SistemaExternException;
+import es.caib.helium.logic.intf.exception.ValidacioException;
+import es.caib.helium.logic.intf.util.JbpmVars;
+import es.caib.helium.logic.util.DocumentTokenUtils;
+import es.caib.helium.logic.util.GlobalProperties;
+import es.caib.helium.logic.util.OpenOfficeUtils;
+import es.caib.helium.logic.util.PdfUtils;
+import es.caib.helium.persist.entity.*;
+import es.caib.helium.persist.entity.DocumentStore.DocumentFont;
+import es.caib.helium.persist.entity.Registre;
+import es.caib.helium.persist.entity.Portasignatures.TipusEstat;
+import es.caib.helium.persist.repository.*;
+import es.caib.plugins.arxiu.api.ContingutArxiu;
+import es.caib.plugins.arxiu.api.DocumentEstat;
+import es.caib.plugins.arxiu.api.Firma;
+import es.caib.plugins.arxiu.api.FirmaTipus;
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.tika.Tika;
+import org.apache.tika.mime.MimeTypes;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Component;
+
+import javax.annotation.Resource;
 import java.io.ByteArrayOutputStream;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -13,79 +46,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.annotation.Resource;
-
-import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.apache.tika.Tika;
-import org.apache.tika.mime.MimeTypes;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Component;
-
-import es.caib.helium.integracio.plugins.signatura.RespostaValidacioSignatura;
-import es.caib.helium.logic.helper26.MesuresTemporalsHelper;
-import es.caib.helium.logic.intf.WProcessDefinition;
-import es.caib.helium.logic.intf.WProcessInstance;
-import es.caib.helium.logic.intf.WTaskInstance;
-import es.caib.helium.logic.intf.WorkflowEngineApi;
-import es.caib.helium.logic.intf.dto.ArxiuDto;
-import es.caib.helium.logic.intf.dto.ArxiuFirmaDto;
-import es.caib.helium.logic.intf.dto.DocumentDto;
-import es.caib.helium.logic.intf.dto.ExpedientDocumentDto;
-import es.caib.helium.logic.intf.dto.NtiDocumentoFormato;
-import es.caib.helium.logic.intf.dto.NtiEstadoElaboracionEnumDto;
-import es.caib.helium.logic.intf.dto.NtiOrigenEnumDto;
-import es.caib.helium.logic.intf.dto.NtiTipoDocumentalEnumDto;
-import es.caib.helium.logic.intf.dto.NtiTipoFirmaEnumDto;
-import es.caib.helium.logic.intf.dto.RespostaValidacioSignaturaDto;
-import es.caib.helium.logic.intf.dto.TascaDocumentDto;
-import es.caib.helium.logic.intf.exception.NoTrobatException;
-import es.caib.helium.logic.intf.exception.SistemaExternConversioDocumentException;
-import es.caib.helium.logic.intf.exception.SistemaExternException;
-import es.caib.helium.logic.intf.exception.ValidacioException;
-import es.caib.helium.logic.intf.util.JbpmVars;
-import es.caib.helium.logic.util.DocumentTokenUtils;
-import es.caib.helium.logic.util.GlobalProperties;
-import es.caib.helium.logic.util.OpenOfficeUtils;
-import es.caib.helium.logic.util.PdfUtils;
-import es.caib.helium.persist.entity.AnotacioAnnex;
-import es.caib.helium.persist.entity.DefinicioProces;
-import es.caib.helium.persist.entity.Document;
-import es.caib.helium.persist.entity.DocumentNotificacio;
-import es.caib.helium.persist.entity.DocumentStore;
-import es.caib.helium.persist.entity.DocumentStore.DocumentFont;
-import es.caib.helium.persist.entity.DocumentTasca;
-import es.caib.helium.persist.entity.Expedient;
-import es.caib.helium.persist.entity.ExpedientTipus;
-import es.caib.helium.persist.entity.FirmaTasca;
-import es.caib.helium.persist.entity.Portasignatures;
-import es.caib.helium.persist.entity.Portasignatures.TipusEstat;
-import es.caib.helium.persist.entity.Registre;
-import es.caib.helium.persist.entity.Tasca;
-import es.caib.helium.persist.repository.AnotacioAnnexRepository;
-import es.caib.helium.persist.repository.DefinicioProcesRepository;
-import es.caib.helium.persist.repository.DocumentNotificacioRepository;
-import es.caib.helium.persist.repository.DocumentRepository;
-import es.caib.helium.persist.repository.DocumentStoreRepository;
-import es.caib.helium.persist.repository.DocumentTascaRepository;
-import es.caib.helium.persist.repository.ExpedientRepository;
-import es.caib.helium.persist.repository.FirmaTascaRepository;
-import es.caib.helium.persist.repository.PortasignaturesRepository;
-import es.caib.helium.persist.repository.RegistreRepository;
-import es.caib.helium.persist.repository.TascaRepository;
-import es.caib.plugins.arxiu.api.ContingutArxiu;
-import es.caib.plugins.arxiu.api.DocumentEstat;
-import es.caib.plugins.arxiu.api.Firma;
-import es.caib.plugins.arxiu.api.FirmaTipus;
-
 /**
  * Helper per a gestionar els documents dels expedients
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Component
-public class DocumentHelperV3 {
+public class DocumentHelper {
 
 	public static final String VERSIO_NTI = "http://administracionelectronica.gob.es/ENI/XSD/v1.0/expediente-e";
 
@@ -97,8 +64,6 @@ public class DocumentHelperV3 {
 	private DocumentRepository documentRepository;
 	@Resource
 	private DocumentStoreRepository documentStoreRepository;
-	@Resource
-	private ExpedientRepository expedientRepository;
 	@Resource
 	private DocumentTascaRepository documentTascaRepository;
 	@Resource
@@ -115,8 +80,8 @@ public class DocumentHelperV3 {
 	private PluginHelper pluginHelper;
 	@Resource
 	private WorkflowEngineApi workflowEngineApi;
-	@Resource
-	private MesuresTemporalsHelper mesuresTemporalsHelper;
+//	@Resource
+//	private MesuresTemporalsHelper mesuresTemporalsHelper;
 	@Resource
 	private FirmaTascaRepository firmaTascaRepository;
 	@Resource
@@ -127,8 +92,6 @@ public class DocumentHelperV3 {
 	private MessageHelper messageHelper;
 	@Resource
 	private ExceptionHelper exceptionHelper;
-	@Resource
-	private ExpedientRegistreHelper expedientRegistreHelper;
 	@Resource
 	private RegistreRepository registreRepository;
 	@Resource
@@ -2523,6 +2486,6 @@ public class DocumentHelperV3 {
 		return null;
 	}
 
-	private static final Log logger = LogFactory.getLog(DocumentHelperV3.class);
+	private static final Log logger = LogFactory.getLog(DocumentHelper.class);
 
 }

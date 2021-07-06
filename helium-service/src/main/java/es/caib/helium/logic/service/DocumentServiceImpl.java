@@ -1,21 +1,8 @@
-                                                                                                                                                                              /**
+/**
  * 
  */
 package es.caib.helium.logic.service;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
-import javax.annotation.Resource;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.data.domain.Page;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import es.caib.emiserv.logic.intf.exception.NoTrobatException;
 import es.caib.helium.logic.helper.ConversioTipusHelper;
 import es.caib.helium.logic.helper.ExpedientTipusHelper;
 import es.caib.helium.logic.helper.HerenciaHelper;
@@ -25,6 +12,7 @@ import es.caib.helium.logic.intf.dto.ArxiuDto;
 import es.caib.helium.logic.intf.dto.DocumentDto;
 import es.caib.helium.logic.intf.dto.PaginaDto;
 import es.caib.helium.logic.intf.dto.PaginacioParamsDto;
+import es.caib.helium.logic.intf.exception.NoTrobatException;
 import es.caib.helium.logic.intf.service.DocumentService;
 import es.caib.helium.persist.entity.Document;
 import es.caib.helium.persist.entity.DocumentTasca;
@@ -33,6 +21,16 @@ import es.caib.helium.persist.repository.CampRepository;
 import es.caib.helium.persist.repository.DefinicioProcesRepository;
 import es.caib.helium.persist.repository.DocumentRepository;
 import es.caib.helium.persist.repository.ExpedientTipusRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import javax.annotation.Resource;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Implementació del servei per a gestionar documents dels tipus d'expedients o definicions de procés.
@@ -140,7 +138,7 @@ public class DocumentServiceImpl implements DocumentService {
 		entity.setConvertirExtensio(document.getConvertirExtensio());
 		entity.setAdjuntarAuto(document.isAdjuntarAuto());
 		if (document.getCampData() != null) {
-			entity.setCampData(campRepository.findById(document.getCampData().getId()));
+			entity.setCampData(campRepository.getById(document.getCampData().getId()));
 		}
 		entity.setExtensionsPermeses(document.getExtensionsPermeses());
 		entity.setContentType(document.getContentType());
@@ -156,9 +154,9 @@ public class DocumentServiceImpl implements DocumentService {
    
   
 		if (expedientTipusId != null)
-			entity.setExpedientTipus(expedientTipusRepository.findById(expedientTipusId));
+			entity.setExpedientTipus(expedientTipusRepository.getById(expedientTipusId));
 		if (definicioProcesId != null)
-			entity.setDefinicioProces(definicioProcesRepository.findById(definicioProcesId));
+			entity.setDefinicioProces(definicioProcesRepository.getById(definicioProcesId));
 
 		return conversioTipusHelper.convertir(
 				documentRepository.save(entity),
@@ -186,7 +184,7 @@ public class DocumentServiceImpl implements DocumentService {
 											ambHerencia);
 		else if(definicioProcesId != null)
 			document = documentRepository.findByDefinicioProcesAndCodi(
-											definicioProcesRepository.findById(definicioProcesId), 
+											definicioProcesRepository.getById(definicioProcesId),
 											codi);
 
 		if (document != null) {
@@ -204,7 +202,7 @@ public class DocumentServiceImpl implements DocumentService {
 		logger.debug(
 				"Esborrant el document del tipus d'expedient (" +
 				"documentId=" + documentId +  ")");
-		Document entity = documentRepository.findById(documentId);
+		Document entity = documentRepository.getById(documentId);
 
 		
 		if (entity != null) {
@@ -229,7 +227,7 @@ public class DocumentServiceImpl implements DocumentService {
 				"Consultant el document del tipus d'expedient amb id (" +
 				"expedientTiusId=" + expedientTipusId + "," +
 				"documentId=" + id +  ")");
-		Document document = documentRepository.findById(id);
+		Document document = documentRepository.getById(id);
 		if (document == null) {
 			throw new NoTrobatException(Document.class, id);
 		}
@@ -238,7 +236,7 @@ public class DocumentServiceImpl implements DocumentService {
 				DocumentDto.class);
 		dto.setArxiuContingut(document.getArxiuContingut());
 		// Herencia
-		ExpedientTipus tipus = expedientTipusId != null? expedientTipusRepository.findById(expedientTipusId) : null;
+		ExpedientTipus tipus = expedientTipusId != null? expedientTipusRepository.getById(expedientTipusId) : null;
 		if (tipus != null && tipus.getExpedientTipusPare() != null) {
 			if (tipus.getExpedientTipusPare().getId().equals(document.getExpedientTipus().getId()))
 				dto.setHeretat(true);
@@ -262,7 +260,7 @@ public class DocumentServiceImpl implements DocumentService {
 				"document.id=" + document.getId() + ", " +
 				"document =" + document + ", " +
 				"actualitzarContingut=" + actualitzarContingut + ")");
-		Document entity = documentRepository.findById(document.getId());
+		Document entity = documentRepository.getById(document.getId());
 		entity.setCodi(document.getCodi());
 		entity.setNom(document.getNom());
 		entity.setDescripcio(document.getDescripcio());
@@ -275,7 +273,7 @@ public class DocumentServiceImpl implements DocumentService {
 		entity.setConvertirExtensio(document.getConvertirExtensio());
 		entity.setAdjuntarAuto(document.isAdjuntarAuto());
 		if (document.getCampData() != null) {
-			entity.setCampData(campRepository.findById(document.getCampData().getId()));
+			entity.setCampData(campRepository.getById(document.getCampData().getId()));
 		} else {
 			entity.setCampData(null);
 		}
@@ -305,7 +303,7 @@ public class DocumentServiceImpl implements DocumentService {
 		logger.debug("obtenint contingut de l'arxiu pel document (" +
 				"id=" + id + ")");
   
-		Document document = documentRepository.findById(id);
+		Document document = documentRepository.getById(id);
 		if (document == null) {
 			throw new NoTrobatException(Document.class,id);
 		}

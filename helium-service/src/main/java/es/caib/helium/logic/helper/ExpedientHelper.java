@@ -3,37 +3,7 @@
  */
 package es.caib.helium.logic.helper;
 
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
-
-import javax.annotation.Resource;
-
-import org.apache.commons.lang.StringUtils;
-import org.jbpm.jpdl.el.ELException;
-import org.jbpm.jpdl.el.ExpressionEvaluator;
-import org.jbpm.jpdl.el.VariableResolver;
-import org.jbpm.jpdl.el.impl.ExpressionEvaluatorImpl;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.security.acls.domain.BasePermission;
-import org.springframework.security.acls.model.Permission;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
-
 import es.caib.helium.logic.helper.PermisosHelper.ObjectIdentifierExtractor;
-import es.caib.helium.logic.helper26.MesuresTemporalsHelper;
 import es.caib.helium.logic.intf.WProcessInstance;
 import es.caib.helium.logic.intf.WToken;
 import es.caib.helium.logic.intf.WorkflowEngineApi;
@@ -41,16 +11,8 @@ import es.caib.helium.logic.intf.WorkflowRetroaccioApi;
 import es.caib.helium.logic.intf.WorkflowRetroaccioApi.ExpedientRetroaccioEstat;
 import es.caib.helium.logic.intf.WorkflowRetroaccioApi.ExpedientRetroaccioTipus;
 import es.caib.helium.logic.intf.WorkflowRetroaccioApi.RetroaccioInfo;
-import es.caib.helium.logic.intf.dto.ArxiuDto;
-import es.caib.helium.logic.intf.dto.DadesDocumentDto;
-import es.caib.helium.logic.intf.dto.DefinicioProcesDto;
-import es.caib.helium.logic.intf.dto.EntornDto;
-import es.caib.helium.logic.intf.dto.EstatDto;
-import es.caib.helium.logic.intf.dto.ExpedientDto;
+import es.caib.helium.logic.intf.dto.*;
 import es.caib.helium.logic.intf.dto.ExpedientDto.IniciadorTipusDto;
-import es.caib.helium.logic.intf.dto.ExpedientTipusDto;
-import es.caib.helium.logic.intf.dto.InstanciaProcesDto;
-import es.caib.helium.logic.intf.dto.PersonaDto;
 import es.caib.helium.logic.intf.exception.NoTrobatException;
 import es.caib.helium.logic.intf.exception.PermisDenegatException;
 import es.caib.helium.logic.intf.exception.ValidacioException;
@@ -58,21 +20,10 @@ import es.caib.helium.logic.security.ExtendedPermission;
 import es.caib.helium.logic.util.ExpedientCamps;
 import es.caib.helium.logic.util.GlobalProperties;
 import es.caib.helium.logic.util.PdfUtils;
-import es.caib.helium.persist.entity.Alerta;
-import es.caib.helium.persist.entity.Camp;
+import es.caib.helium.persist.entity.*;
 import es.caib.helium.persist.entity.Camp.TipusCamp;
-import es.caib.helium.persist.entity.DefinicioProces;
-import es.caib.helium.persist.entity.Document;
-import es.caib.helium.persist.entity.DocumentStore;
-import es.caib.helium.persist.entity.Entorn;
-import es.caib.helium.persist.entity.Estat;
-import es.caib.helium.persist.entity.Expedient;
-import es.caib.helium.persist.entity.Expedient.IniciadorTipus;
-import es.caib.helium.persist.entity.ExpedientTipus;
 import es.caib.helium.persist.entity.Registre;
-import es.caib.helium.persist.entity.SequenciaAny;
-import es.caib.helium.persist.entity.SequenciaDefaultAny;
-import es.caib.helium.persist.entity.TerminiIniciat;
+import es.caib.helium.persist.entity.Expedient.IniciadorTipus;
 import es.caib.helium.persist.repository.AlertaRepository;
 import es.caib.helium.persist.repository.DefinicioProcesRepository;
 import es.caib.helium.persist.repository.DocumentStoreRepository;
@@ -85,7 +36,28 @@ import es.caib.helium.persist.util.ThreadLocalInfo;
 import es.caib.plugins.arxiu.api.ContingutArxiu;
 import es.caib.plugins.arxiu.api.ExpedientEstat;
 import es.caib.plugins.arxiu.api.ExpedientMetadades;
-import net.conselldemallorca.helium.jbpm3.handlers.tipus.ExpedientInfo;
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.security.acls.domain.BasePermission;
+import org.springframework.security.acls.model.Permission;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+
+import javax.annotation.Resource;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
 
 /**
  * Helper per a gestionar els expedients.
@@ -116,10 +88,10 @@ public class ExpedientHelper {
 	private ExpedientHelper expedientHelper;
 	@Resource
 	private EntornHelper entornHelper;
-	@Resource(name = "permisosHelperV3")
+	@Resource
 	private PermisosHelper permisosHelper;
-	@Resource(name="documentHelperV3")
-	private DocumentHelperV3 documentHelper;
+	@Resource
+	private DocumentHelper documentHelper;
 	@Resource
 	private WorkflowEngineApi workflowEngineApi;
 	@Resource
@@ -134,8 +106,8 @@ public class ExpedientHelper {
 	private MessageHelper messageHelper;
 	@Resource
 	private ConversioTipusHelper conversioTipusHelper;
-	@Resource
-	private MesuresTemporalsHelper mesuresTemporalsHelper;
+//	@Resource
+//	private MesuresTemporalsHelper mesuresTemporalsHelper;
 	@Resource
 	private DefinicioProcesHelper definicioProcesHelper;
 
@@ -663,10 +635,11 @@ public class ExpedientHelper {
 			Expedient expedient,
 			String motiu,
 			String usuari) {
-		mesuresTemporalsHelper.mesuraIniciar(
-				"Aturar",
-				"expedient",
-				expedient.getTipus().getNom());
+		// TODO: Mètriques
+//		mesuresTemporalsHelper.mesuraIniciar(
+//				"Aturar",
+//				"expedient",
+//				expedient.getTipus().getNom());
 		workflowRetroaccioApi.afegirInformacioRetroaccioPerExpedient(
 				expedient.getId(),
 				ExpedientRetroaccioTipus.EXPEDIENT_ATURAR,
@@ -684,19 +657,20 @@ public class ExpedientHelper {
 				expedient.getId(),
 				(usuari != null) ? usuari : SecurityContextHolder.getContext().getAuthentication().getName(),
 				motiu);
-		mesuresTemporalsHelper.mesuraCalcular(
-				"Aturar", 
-				"expedient",
-				expedient.getTipus().getNom());
+//		mesuresTemporalsHelper.mesuraCalcular(
+//				"Aturar",
+//				"expedient",
+//				expedient.getTipus().getNom());
 	}
 
 	public void reprendre(
 			Expedient expedient,
 			String usuari) {
-		mesuresTemporalsHelper.mesuraIniciar(
-				"Reprendre",
-				"expedient",
-				expedient.getTipus().getNom());
+		// TODO: Mètriques
+//		mesuresTemporalsHelper.mesuraIniciar(
+//				"Reprendre",
+//				"expedient",
+//				expedient.getTipus().getNom());
 		workflowRetroaccioApi.afegirInformacioRetroaccioPerExpedient(
 				expedient.getId(),
 				ExpedientRetroaccioTipus.EXPEDIENT_REPRENDRE,
@@ -713,10 +687,10 @@ public class ExpedientHelper {
 		expedientRegistreHelper.crearRegistreReprendreExpedient(
 				expedient.getId(),
 				(usuari != null) ? usuari : SecurityContextHolder.getContext().getAuthentication().getName());
-		mesuresTemporalsHelper.mesuraCalcular(
-				"Reprendre",
-				"expedient",
-				expedient.getTipus().getNom());
+//		mesuresTemporalsHelper.mesuraCalcular(
+//				"Reprendre",
+//				"expedient",
+//				expedient.getTipus().getNom());
 	}
 
 	@Transactional
@@ -728,10 +702,11 @@ public class ExpedientHelper {
 						ExtendedPermission.WRITE,
 						ExtendedPermission.ADMINISTRATION});
 
-		mesuresTemporalsHelper.mesuraIniciar(
-				"Finalitzar",
-				"expedient",
-				expedient.getTipus().getNom());
+		// TODO: Mètriques
+//		mesuresTemporalsHelper.mesuraIniciar(
+//				"Finalitzar",
+//				"expedient",
+//				expedient.getTipus().getNom());
 
 		workflowRetroaccioApi.afegirInformacioRetroaccioPerExpedient(
 				expedient.getId(),
@@ -786,10 +761,11 @@ public class ExpedientHelper {
 	public void desfinalitzar(
 			Expedient expedient,
 			String usuari) {
-		mesuresTemporalsHelper.mesuraIniciar(
-				"Desfinalitzar",
-				"expedient",
-				expedient.getTipus().getNom());
+		// TODO: Mètriques
+//		mesuresTemporalsHelper.mesuraIniciar(
+//				"Desfinalitzar",
+//				"expedient",
+//				expedient.getTipus().getNom());
 
 		workflowRetroaccioApi.afegirInformacioRetroaccioPerExpedient(
 				expedient.getId(),
@@ -803,10 +779,10 @@ public class ExpedientHelper {
 				expedient.getId(),
 				(expedient.getResponsableCodi() != null) ? expedient.getResponsableCodi() : SecurityContextHolder.getContext().getAuthentication().getName());
 
-		mesuresTemporalsHelper.mesuraCalcular(
-				"Desfinalitzar",
-				"expedient",
-				expedient.getTipus().getNom());
+//		mesuresTemporalsHelper.mesuraCalcular(
+//				"Desfinalitzar",
+//				"expedient",
+//				expedient.getTipus().getNom());
 		
         if (expedient.isArxiuActiu()) {
     		reobrirExpedient(expedient);
@@ -1315,23 +1291,32 @@ public class ExpedientHelper {
 		}
 		if (expressio != null) {
 			try {
-				final Map<String, Object> context = new HashMap<String, Object>();
-				context.put("entorn_cod", expedientTipus.getEntorn().getCodi());
-				context.put("tipexp_cod", expedientTipus.getCodi());
-				context.put("any", any);
-				context.put("seq", seq);
-				ExpressionEvaluator evaluator = new ExpressionEvaluatorImpl();
-				String resultat = (String)evaluator.evaluate(
-						expressio,
-						String.class,
-						new VariableResolver() {
-							public Object resolveVariable(String name)
-									throws ELException {
-								return context.get(name);
-							}
-						},
-						null);
-				return resultat;
+				// TODO: Mirar si fem alguna cosa més a part de substituir valors
+				String entorn_cod = expedientTipus.getEntorn().getCodi();
+				String tipexp_cod = expedientTipus.getCodi();
+
+				return expressio
+						.replace("${entorn_cod}", entorn_cod)
+						.replace("${tipexp_cod}", tipexp_cod)
+						.replace("${any}", String.valueOf(any))
+						.replace("${seq}", String.valueOf(seq));
+//				final Map<String, Object> context = new HashMap<String, Object>();
+//				context.put("entorn_cod", expedientTipus.getEntorn().getCodi());
+//				context.put("tipexp_cod", expedientTipus.getCodi());
+//				context.put("any", any);
+//				context.put("seq", seq);
+//				ExpressionEvaluator evaluator = new ExpressionEvaluatorImpl();
+//				String resultat = (String)evaluator.evaluate(
+//						expressio,
+//						String.class,
+//						new VariableResolver() {
+//							public Object resolveVariable(String name)
+//									throws ELException {
+//								return context.get(name);
+//							}
+//						},
+//						null);
+//				return resultat;
 			} catch (Exception ex) {
 				return "#invalid expression#";
 			}
@@ -1510,8 +1495,9 @@ public class ExpedientHelper {
 		if (expedientTipus == null) {
 			throw new NoTrobatException(ExpedientTipus.class, expedientTipusId);
 		}
-		mesuresTemporalsHelper.mesuraIniciar("Iniciar", "expedient", expedientTipus.getNom());
-		mesuresTemporalsHelper.mesuraIniciar("Iniciar", "expedient", expedientTipus.getNom(), null, "Nou expedient");
+		// TODO: Mètriques
+//		mesuresTemporalsHelper.mesuraIniciar("Iniciar", "expedient", expedientTipus.getNom());
+//		mesuresTemporalsHelper.mesuraIniciar("Iniciar", "expedient", expedientTipus.getNom(), null, "Nou expedient");
 		// Obté la llista de tipus d'expedient permesos
 		List<ExpedientTipus> tipusPermesos = expedientTipusRepository.findByEntorn(entorn);
 		permisosHelper.filterGrantedAny(
@@ -1562,8 +1548,8 @@ public class ExpedientHelper {
 			// L'identificador NTI no es pot generar en aquest moment perquè encara no
 			// està disponible l'identificador de l'expedient.
 		}
-		mesuresTemporalsHelper.mesuraCalcular("Iniciar", "expedient", expedientTipus.getNom(), null, "Omplir dades");
-		mesuresTemporalsHelper.mesuraIniciar("Iniciar", "expedient", expedientTipus.getNom(), null, "Assignar numeros");
+//		mesuresTemporalsHelper.mesuraCalcular("Iniciar", "expedient", expedientTipus.getNom(), null, "Omplir dades");
+//		mesuresTemporalsHelper.mesuraIniciar("Iniciar", "expedient", expedientTipus.getNom(), null, "Assignar numeros");
 		expedient.setNumeroDefault(
 				getNumeroExpedientDefaultActual(
 						entorn,
@@ -1580,8 +1566,8 @@ public class ExpedientHelper {
 								any));
 			}
 		}
-		mesuresTemporalsHelper.mesuraCalcular("Iniciar", "expedient", expedientTipus.getNom(), null, "Assignar numeros");
-		mesuresTemporalsHelper.mesuraIniciar("Iniciar", "expedient", expedientTipus.getNom(), null, "Verificar numero repetit");
+//		mesuresTemporalsHelper.mesuraCalcular("Iniciar", "expedient", expedientTipus.getNom(), null, "Assignar numeros");
+//		mesuresTemporalsHelper.mesuraIniciar("Iniciar", "expedient", expedientTipus.getNom(), null, "Verificar numero repetit");
 		// Verifica si l'expedient té el número repetit
 		if (expedient.getNumero() != null && (expedientRepository.findByEntornIdAndTipusIdAndNumero(
 				entorn.getId(),
@@ -1592,8 +1578,8 @@ public class ExpedientHelper {
 							"error.expedientService.jaExisteix",
 							new Object[]{expedient.getNumero()}) );
 		}
-		mesuresTemporalsHelper.mesuraCalcular("Iniciar", "expedient", expedientTipus.getNom(), null, "Verificar numero repetit");
-		mesuresTemporalsHelper.mesuraIniciar("Iniciar", "expedient", expedientTipus.getNom(), null, "Actualitzar any i sequencia");
+//		mesuresTemporalsHelper.mesuraCalcular("Iniciar", "expedient", expedientTipus.getNom(), null, "Verificar numero repetit");
+//		mesuresTemporalsHelper.mesuraIniciar("Iniciar", "expedient", expedientTipus.getNom(), null, "Actualitzar any i sequencia");
 		// Actualitza l'any actual de l'expedient
 		int anyActual = Calendar.getInstance().get(Calendar.YEAR);
 		if (any == null || any.intValue() == anyActual) {
@@ -1636,10 +1622,10 @@ public class ExpedientHelper {
 								new Object[]{expedient.getNumero()}) );			
 		}
 		
-		mesuresTemporalsHelper.mesuraCalcular("Iniciar", "expedient", expedientTipus.getNom(), null, "Actualitzar any i sequencia");
+//		mesuresTemporalsHelper.mesuraCalcular("Iniciar", "expedient", expedientTipus.getNom(), null, "Actualitzar any i sequencia");
 		
 		// Inicia l'instància de procés jBPM
-		mesuresTemporalsHelper.mesuraIniciar("Iniciar", "expedient", expedientTipus.getNom(), null, "Iniciar instancia de proces");
+//		mesuresTemporalsHelper.mesuraIniciar("Iniciar", "expedient", expedientTipus.getNom(), null, "Iniciar instancia de proces");
 		
 		ThreadLocalInfo.setExpedient(expedient);
 		DefinicioProces definicioProces = null;
@@ -1657,32 +1643,32 @@ public class ExpedientHelper {
 				variables);
 		expedient.setProcessInstanceId(processInstance.getId());
 		
-		mesuresTemporalsHelper.mesuraCalcular("Iniciar", "expedient", expedientTipus.getNom(), null, "Iniciar instancia de proces");
+//		mesuresTemporalsHelper.mesuraCalcular("Iniciar", "expedient", expedientTipus.getNom(), null, "Iniciar instancia de proces");
 		
 		// Emmagatzema el nou expedient
-		mesuresTemporalsHelper.mesuraIniciar("Iniciar", "expedient", expedientTipus.getNom(), null, "Desar el nou expedient");
+//		mesuresTemporalsHelper.mesuraIniciar("Iniciar", "expedient", expedientTipus.getNom(), null, "Desar el nou expedient");
 		Expedient expedientPerRetornar = expedientRepository.saveAndFlush(expedient);
-		mesuresTemporalsHelper.mesuraCalcular("Iniciar", "expedient", expedientTipus.getNom(), null, "Desar el nou expedient");
+//		mesuresTemporalsHelper.mesuraCalcular("Iniciar", "expedient", expedientTipus.getNom(), null, "Desar el nou expedient");
 
 		// Verificar la ultima vegada que l'expedient va modificar el seu estat
-		mesuresTemporalsHelper.mesuraIniciar("Iniciar", "expedient", expedientTipus.getNom(), null, "Afegir log");
+//		mesuresTemporalsHelper.mesuraIniciar("Iniciar", "expedient", expedientTipus.getNom(), null, "Afegir log");
 		workflowRetroaccioApi.afegirInformacioRetroaccioPerProces(
 				processInstance.getId(),
 				ExpedientRetroaccioTipus.EXPEDIENT_INICIAR,
 				null,
 				ExpedientRetroaccioEstat.IGNORAR);
-		mesuresTemporalsHelper.mesuraCalcular("Iniciar", "expedient", expedientTipus.getNom(), null, "Afegir log");
+//		mesuresTemporalsHelper.mesuraCalcular("Iniciar", "expedient", expedientTipus.getNom(), null, "Afegir log");
 
-		mesuresTemporalsHelper.mesuraIniciar("Iniciar", "expedient", expedientTipus.getNom(), null, "Crear registre i convertir expedient");
+//		mesuresTemporalsHelper.mesuraIniciar("Iniciar", "expedient", expedientTipus.getNom(), null, "Crear registre i convertir expedient");
 		// Registra l'inici de l'expedient
 		crearRegistreExpedient(
 				expedient.getId(),
 				usuari,
 				Registre.Accio.INICIAR);
-		mesuresTemporalsHelper.mesuraCalcular("Iniciar", "expedient", expedientTipus.getNom(), null, "Crear registre i convertir expedient");
+//		mesuresTemporalsHelper.mesuraCalcular("Iniciar", "expedient", expedientTipus.getNom(), null, "Crear registre i convertir expedient");
 					
 		// Crear expedient a l'Arxiu
-		mesuresTemporalsHelper.mesuraIniciar("Iniciar", "expedient", expedientTipus.getNom(), null, "Metadades NTI i creació a dins l'arxiu");
+//		mesuresTemporalsHelper.mesuraIniciar("Iniciar", "expedient", expedientTipus.getNom(), null, "Metadades NTI i creació a dins l'arxiu");
 		if (expedientTipus.isNtiActiu()) {
 			expedientPerRetornar.setNtiIdentificador(
 					generarNtiIdentificador(expedientPerRetornar));
@@ -1702,12 +1688,12 @@ public class ExpedientHelper {
 					expedientArxiu.getMetadades().getIdentificador());
 			expedientPerRetornar.setArxiuActiu(true);
 		}
-		mesuresTemporalsHelper.mesuraCalcular("Iniciar", "expedient", expedientTipus.getNom(), null, "Metadades NTI i creació a dins l'arxiu");
+//		mesuresTemporalsHelper.mesuraCalcular("Iniciar", "expedient", expedientTipus.getNom(), null, "Metadades NTI i creació a dins l'arxiu");
 		
 		
 		try {
 			// Afegim els documents
-			mesuresTemporalsHelper.mesuraIniciar("Iniciar", "expedient", expedientTipus.getNom(), null, "Afegir documents");
+//			mesuresTemporalsHelper.mesuraIniciar("Iniciar", "expedient", expedientTipus.getNom(), null, "Afegir documents");
 			if (documents != null){
 				for (Map.Entry<String, DadesDocumentDto> doc: documents.entrySet()) {
 					if (doc.getValue() != null) {
@@ -1745,19 +1731,19 @@ public class ExpedientHelper {
 							null);
 				}
 			}
-			mesuresTemporalsHelper.mesuraCalcular("Iniciar", "expedient", expedientTipus.getNom(), null, "Afegir documents");
+//			mesuresTemporalsHelper.mesuraCalcular("Iniciar", "expedient", expedientTipus.getNom(), null, "Afegir documents");
 			
-			mesuresTemporalsHelper.mesuraIniciar("Iniciar", "expedient", expedientTipus.getNom(), null, "Iniciar flux");
+//			mesuresTemporalsHelper.mesuraIniciar("Iniciar", "expedient", expedientTipus.getNom(), null, "Iniciar flux");
 			// Actualitza les variables del procés
 			workflowEngineApi.signalProcessInstance(expedient.getProcessInstanceId(), transitionName);
-			mesuresTemporalsHelper.mesuraCalcular("Iniciar", "expedient", expedientTipus.getNom(), null, "Iniciar flux");
-			mesuresTemporalsHelper.mesuraIniciar("Iniciar", "expedient", expedientTipus.getNom(), null, "Indexar expedient");
+//			mesuresTemporalsHelper.mesuraCalcular("Iniciar", "expedient", expedientTipus.getNom(), null, "Iniciar flux");
+//			mesuresTemporalsHelper.mesuraIniciar("Iniciar", "expedient", expedientTipus.getNom(), null, "Indexar expedient");
 			// Comprova si després de l'inici ja està en un node fi
 			this.verificarFinalitzacioExpedient(expedientPerRetornar);
 			// Indexam l'expedient
 			logger.debug("Indexant nou expedient (id=" + expedient.getProcessInstanceId() + ")");
 			indexHelper.expedientIndexLuceneCreate(expedient.getProcessInstanceId());
-			mesuresTemporalsHelper.mesuraCalcular("Iniciar", "expedient", expedientTipus.getNom(), null, "Indexar expedient");			
+//			mesuresTemporalsHelper.mesuraCalcular("Iniciar", "expedient", expedientTipus.getNom(), null, "Indexar expedient");
 		} catch(Exception e) {
 			// Rollback de la creació de l'expedient a l'arxiu
 			if (arxiuUuid != null)
@@ -1771,7 +1757,7 @@ public class ExpedientHelper {
 			throw e;
 		}
 		
-		mesuresTemporalsHelper.mesuraCalcular("Iniciar", "expedient", expedientTipus.getNom());
+//		mesuresTemporalsHelper.mesuraCalcular("Iniciar", "expedient", expedientTipus.getNom());
 		return expedientPerRetornar;
 	}
 

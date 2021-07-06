@@ -1,13 +1,5 @@
 package es.caib.helium.logic.service;
 
-import java.util.List;
-
-import javax.annotation.Resource;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
-
 import es.caib.helium.logic.helper.ConversioTipusHelper;
 import es.caib.helium.logic.helper.EntornHelper;
 import es.caib.helium.logic.helper.PaginacioHelper;
@@ -20,6 +12,12 @@ import es.caib.helium.persist.entity.Area;
 import es.caib.helium.persist.entity.Carrec;
 import es.caib.helium.persist.repository.AreaRepository;
 import es.caib.helium.persist.repository.CarrecRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+
+import javax.annotation.Resource;
+import java.util.List;
 
 @Service("entornCarrecServiceV3")
 public class EntornCarrecServiceImpl implements EntornCarrecService {
@@ -112,7 +110,7 @@ public class EntornCarrecServiceImpl implements EntornCarrecService {
 	@Override
 	public void delete(Long carrecId) {
 		logger.debug("Esborrant càrrec (id=" + carrecId);
-		carrecRepository.delete(carrecId);
+		carrecRepository.deleteById(carrecId);
 	}
 
 	private static final Logger logger = LoggerFactory.getLogger(EntornCarrecServiceImpl.class);

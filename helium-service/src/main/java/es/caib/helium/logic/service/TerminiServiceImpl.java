@@ -3,20 +3,6 @@
  */
 package es.caib.helium.logic.service;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
-import javax.annotation.Resource;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.data.domain.Page;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import es.caib.emiserv.logic.intf.exception.NoTrobatException;
-import es.caib.emiserv.logic.intf.exception.PermisDenegatException;
 import es.caib.helium.logic.helper.ConversioTipusHelper;
 import es.caib.helium.logic.helper.ExpedientTipusHelper;
 import es.caib.helium.logic.helper.HerenciaHelper;
@@ -24,12 +10,24 @@ import es.caib.helium.logic.helper.PaginacioHelper;
 import es.caib.helium.logic.intf.dto.PaginaDto;
 import es.caib.helium.logic.intf.dto.PaginacioParamsDto;
 import es.caib.helium.logic.intf.dto.TerminiDto;
+import es.caib.helium.logic.intf.exception.NoTrobatException;
+import es.caib.helium.logic.intf.exception.PermisDenegatException;
 import es.caib.helium.logic.intf.service.TerminiService;
 import es.caib.helium.persist.entity.ExpedientTipus;
 import es.caib.helium.persist.entity.Termini;
 import es.caib.helium.persist.repository.DefinicioProcesRepository;
 import es.caib.helium.persist.repository.ExpedientTipusRepository;
 import es.caib.helium.persist.repository.TerminiRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import javax.annotation.Resource;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Implementació del servei per a gestionar tipus d'expedients.
@@ -62,15 +60,13 @@ public class TerminiServiceImpl implements TerminiService {
 				"Consultant el termini amb id (" +
 				"expedientTiusId=" + expedientTipusId + "," +
 				"terminiId=" + terminiId +  ")");
-		Termini termini = terminiRepository.findById(terminiId);
-		if (termini == null) {
-			throw new NoTrobatException(Termini.class, terminiId);
-		}
+		Termini termini = terminiRepository.findById(terminiId)
+				.orElseThrow(() -> new NoTrobatException(Termini.class, terminiId));
 		TerminiDto dto = conversioTipusHelper.convertir(
 				termini,
 				TerminiDto.class);
 		// Herencia
-		ExpedientTipus tipus = expedientTipusId != null? expedientTipusRepository.findById(expedientTipusId) : null;
+		ExpedientTipus tipus = expedientTipusId != null? expedientTipusRepository.getById(expedientTipusId) : null;
 		if (tipus != null && tipus.getExpedientTipusPare() != null) {
 			if (tipus.getExpedientTipusPare().getId().equals(termini.getExpedientTipus().getId()))
 				dto.setHeretat(true);
@@ -100,11 +96,11 @@ public class TerminiServiceImpl implements TerminiService {
 		TerminiDto ret = null;
 		if (expedientTipusId != null)
 			termini = terminiRepository.findByExpedientTipusAndCodi(
-					expedientTipusRepository.findById(expedientTipusId), 
+					expedientTipusRepository.getById(expedientTipusId),
 					codi);
 		else if (definicioProcesId != null)
 			termini = terminiRepository.findByDefinicioProcesAndCodi(
-					definicioProcesRepository.findById(definicioProcesId), 
+					definicioProcesRepository.getById(definicioProcesId),
 					codi);
 		if (termini != null)
 			ret = conversioTipusHelper.convertir(
@@ -158,7 +154,7 @@ public class TerminiServiceImpl implements TerminiService {
 					expedientTipusHelper.getExpedientTipusComprovantPermisDisseny(
 												expedientTipusId));
 		if (definicioProcesId != null)
-			termini.setDefinicioProces(definicioProcesRepository.findById(definicioProcesId));
+			termini.setDefinicioProces(definicioProcesRepository.getById(definicioProcesId));
 		
 		return conversioTipusHelper.convertir(
 				terminiRepository.save(termini),
@@ -168,11 +164,9 @@ public class TerminiServiceImpl implements TerminiService {
 	@Override
 	@Transactional
 	public TerminiDto update(TerminiDto dto) {
-		Termini termini = terminiRepository.findById(dto.getId());
-		if (termini == null) {
-			throw new NoTrobatException(Termini.class, dto.getId());
-		}
-		if (termini.getExpedientTipus() != null)			
+		Termini termini = terminiRepository.findById(dto.getId())
+				.orElseThrow(() -> new NoTrobatException(Termini.class, dto.getId()));
+		if (termini.getExpedientTipus() != null)
 			expedientTipusHelper.getExpedientTipusComprovantPermisDisseny(
 					termini.getExpedientTipus().getId());
 		
@@ -198,11 +192,9 @@ public class TerminiServiceImpl implements TerminiService {
 	@Override
 	@Transactional
 	public void delete(Long terminiId) throws NoTrobatException, PermisDenegatException {
-		Termini termini = terminiRepository.findById(terminiId);
-		if (termini == null) {
-			throw new NoTrobatException(Termini.class, terminiId);
-		}
-		
+		Termini termini = terminiRepository.findById(terminiId)
+				.orElseThrow(() -> new NoTrobatException(Termini.class, terminiId));
+
 		Long expedientTipusId;
 		if (termini.getExpedientTipus() != null) {
 			expedientTipusId = termini.getExpedientTipus().getId();

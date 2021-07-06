@@ -3,16 +3,10 @@
  */
 package es.caib.helium.logic.helper;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
-import javax.annotation.Resource;
-
+import es.caib.helium.logic.intf.dto.ControlPermisosDto;
+import es.caib.helium.logic.intf.dto.PermisDto;
+import es.caib.helium.logic.intf.dto.PrincipalTipusEnumDto;
+import es.caib.helium.logic.security.ExtendedPermission;
 import org.springframework.security.acls.domain.GrantedAuthoritySid;
 import org.springframework.security.acls.domain.ObjectIdentityImpl;
 import org.springframework.security.acls.domain.PrincipalSid;
@@ -30,10 +24,14 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
-import es.caib.helium.logic.intf.dto.ControlPermisosDto;
-import es.caib.helium.logic.intf.dto.PermisDto;
-import es.caib.helium.logic.intf.dto.PrincipalTipusEnumDto;
-import es.caib.helium.logic.security.ExtendedPermission;
+import javax.annotation.Resource;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -41,7 +39,7 @@ import es.caib.helium.logic.security.ExtendedPermission;
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
-@Component("permisosHelperV3")
+@Component
 public class PermisosHelper {
 
 	@Resource
@@ -155,6 +153,18 @@ public class PermisosHelper {
 				it.remove();
 		}
 	}
+
+//	public boolean isGrantedAny(
+//			Long objectIdentifier,
+//			Class clazz,
+//			Permission[] permissions) {
+//		return isGrantedAny(
+//				objectIdentifier,
+//				clazz,
+//				permissions,
+//				SecurityContextHolder.getContext().getAuthentication());
+//	}
+
 	public boolean isGrantedAny(
 			Long objectIdentifier,
 			Class<?> clazz,
@@ -297,6 +307,18 @@ public class PermisosHelper {
 		} catch (NotFoundException nfex) {
 		}
 	}
+
+//	public List<AccessControlEntry> getAclSids(
+//			Class<?> objectClass,
+//			Long objectIdentifier) {
+//		try {
+//			ObjectIdentity oid = new ObjectIdentityImpl(objectClass, objectIdentifier);
+//			MutableAcl acl = (MutableAcl)aclService.readAclById(oid);
+//			return acl.getEntries();
+//		} catch (NotFoundException nfex) {
+//			return null;
+//		}
+//	}
 
 	public void omplirControlPermisosSegonsUsuariActual(
 			List<Long> ids,

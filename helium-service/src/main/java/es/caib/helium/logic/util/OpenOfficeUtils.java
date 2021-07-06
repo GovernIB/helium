@@ -3,31 +3,25 @@
  */
 package es.caib.helium.logic.util;
 
+import es.caib.helium.logic.intf.exception.SistemaExternTimeoutException;
+import org.jodconverter.core.DocumentConverter;
+import org.jodconverter.core.document.DocumentFormat;
+import org.jodconverter.core.office.OfficeException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+
+import javax.activation.MimetypesFileTypeMap;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.concurrent.Callable;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
-
-import javax.activation.MimetypesFileTypeMap;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
-
-import com.artofsolving.jodconverter.DefaultDocumentFormatRegistry;
-import com.artofsolving.jodconverter.DocumentConverter;
-import com.artofsolving.jodconverter.DocumentFormat;
-import com.artofsolving.jodconverter.DocumentFormatRegistry;
-import com.artofsolving.jodconverter.openoffice.connection.OpenOfficeConnection;
-import com.artofsolving.jodconverter.openoffice.connection.SocketOpenOfficeConnection;
-import com.artofsolving.jodconverter.openoffice.converter.StreamOpenOfficeDocumentConverter;
-
-import es.caib.helium.logic.intf.exception.SistemaExternTimeoutException;
+import java.util.function.Supplier;
 
 /**
  * Utilitats per a conversió de documents amb OpenOffice.
@@ -37,7 +31,12 @@ import es.caib.helium.logic.intf.exception.SistemaExternTimeoutException;
 @Component
 public class OpenOfficeUtils {
 
-	private DocumentFormatRegistry documentFormatRegistry;
+	@Autowired
+	private DocumentConverter documentConverter;
+//	private DocumentFormatRegistry documentFormatRegistry;
+
+	@Value("${es.caib.helium.conversio.timeout}")
+	private Long timeout;
 
 	public void convertir(
 			String arxiuNom,
@@ -60,8 +59,8 @@ public class OpenOfficeUtils {
 				"arxiuContingut=" + arxiuContingut.available() + "bytes, " +
 				"extensioSortida=" + extensioSortida + ")");
 		DocumentFormat inputFormat = formatPerNomArxiu(arxiuNom);			
-		DocumentFormat outputFormat = getDocumentFormatRegistry().getFormatByFileExtension(extensioSortida);
-		if (!outputFormat.getFileExtension().equals(inputFormat.getFileExtension())) {
+		DocumentFormat outputFormat = documentConverter.getFormatRegistry().getFormatByExtension(extensioSortida);
+		if (!outputFormat.getExtension().equals(inputFormat.getExtension())) {
 			convert(
 					arxiuContingut,
 					inputFormat,
@@ -81,13 +80,13 @@ public class OpenOfficeUtils {
 	public String nomArxiuConvertit(
 			String arxiuNom,
 			String extensioSortida) {
-		DocumentFormat outputFormat = getDocumentFormatRegistry().getFormatByFileExtension(extensioSortida);
+		DocumentFormat outputFormat = documentConverter.getFormatRegistry().getFormatByExtension(extensioSortida);
 		int indexPunt = arxiuNom.lastIndexOf(".");
 		if (indexPunt != -1) {
 			String nom = arxiuNom.substring(0, indexPunt);
-			return nom + "." + outputFormat.getFileExtension();
+			return nom + "." + outputFormat.getExtension();
 		} else {
-			return arxiuNom + "." + outputFormat.getFileExtension();
+			return arxiuNom + "." + outputFormat.getExtension();
 		}
 	}
 	public String getArxiuMimeType(String nomArxiu) {
@@ -95,7 +94,7 @@ public class OpenOfficeUtils {
 		if (format == null)
 			return new MimetypesFileTypeMap().getContentType(nomArxiu);
 		else
-			return format.getMimeType();
+			return format.getMediaType();
 	}
 
 
@@ -105,47 +104,74 @@ public class OpenOfficeUtils {
 			final DocumentFormat inputFormat,
 			final OutputStream out,
 			final DocumentFormat outputFormat) throws Exception {
-		final String host = getPropertyHost();
-		final int port = getPropertyPort();
-		final OpenOfficeConnection connection = new SocketOpenOfficeConnection(host, port);
+//		final String host = getPropertyHost();
+//		final int port = getPropertyPort();
+//		final OpenOfficeConnection connection = new SocketOpenOfficeConnection(host, port);
 		ExecutorService executor = Executors.newSingleThreadExecutor();
-		try {
-			Future<String> future = executor.submit(new Callable<String>() {
-				@Override
-				public String call() throws Exception {
-					connection.connect();
-					DocumentConverter converter = new StreamOpenOfficeDocumentConverter(
-							connection,
-							getDocumentFormatRegistry());
-					converter.convert(
-							in,
-							inputFormat,
-							out,
-							outputFormat);
-					return "Ok";
-			    }
-			});
-			if (getPropertyTimeout() != -1)
-				future.get(getPropertyTimeout(), TimeUnit.SECONDS);
+		Supplier<String> task = () -> {
+			try {
+				documentConverter
+						.convert(in)
+						.to(out)
+						.as(outputFormat)
+						.execute();
+			} catch (OfficeException e) {
+				throw new SistemaExternTimeoutException(
+						null,
+						null,
+						null,
+						null,
+						null,
+						null,
+						null,
+						null,
+						null,
+						"(Conversió OpenOffice)",
+						e);
+			}
+			return "Ok";
+		};
+		var future = CompletableFuture.supplyAsync(task, executor);
+//		try {
+//
+//			Future<String> future = executor.submit(new Callable<String>() {
+//				@Override
+//				public String call() throws Exception {
+//					connection.connect();
+//					DocumentConverter converter = new StreamOpenOfficeDocumentConverter(
+//							connection,
+//							getDocumentFormatRegistry());
+//					converter.convert(
+//							in,
+//							inputFormat,
+//							out,
+//							outputFormat);
+//					return "Ok";
+//			    }
+//			});
+//			if (getPropertyTimeout() != -1)
+//				future.get(getPropertyTimeout(), TimeUnit.SECONDS);
+			if (timeout != null)
+				future.get(timeout, TimeUnit.SECONDS);
 			else
 				future.get();
-		} catch (TimeoutException e) {
-			throw new SistemaExternTimeoutException(
-					null, 
-					null, 
-					null, 
-					null, 
-					null, 
-					null, 
-					null, 
-					null, 
-					null, 
-					"(Conversió OpenOffice)", 
-					e);
-		} finally {
-			if (connection.isConnected())
-				connection.disconnect();
-		}
+//		} catch (TimeoutException e) {
+//			throw new SistemaExternTimeoutException(
+//					null,
+//					null,
+//					null,
+//					null,
+//					null,
+//					null,
+//					null,
+//					null,
+//					null,
+//					"(Conversió OpenOffice)",
+//					e);
+//		} finally {
+//			if (connection.isConnected())
+//				connection.disconnect();
+//		}
 		executor.shutdownNow();
 	}
 
@@ -153,16 +179,16 @@ public class OpenOfficeUtils {
 		int indexPunt = fileName.lastIndexOf(".");
 		if (indexPunt != -1) {
 			String extensio = fileName.substring(indexPunt + 1);
-			return getDocumentFormatRegistry().getFormatByFileExtension(extensio);
+			return documentConverter.getFormatRegistry().getFormatByExtension(extensio);
 		}
 		return null;
 	}
 
-	private DocumentFormatRegistry getDocumentFormatRegistry() {
-		if (documentFormatRegistry == null)
-			documentFormatRegistry = new DefaultDocumentFormatRegistry();
-		return documentFormatRegistry;
-	}
+//	private DocumentFormatRegistry getDocumentFormatRegistry() {
+//		if (documentFormatRegistry == null)
+//			documentFormatRegistry = DefaultDocumentFormatRegistry.getInstance();// new DefaultDocumentFormatRegistry();
+//		return documentFormatRegistry;
+//	}
 
 	private String getPropertyHost() {
 		return GlobalProperties.getInstance().getProperty("app.conversio.openoffice.host");

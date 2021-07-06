@@ -3,20 +3,6 @@
  */
 package es.caib.helium.logic.service;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.annotation.Resource;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import es.caib.helium.logic.helper.ConversioTipusHelper;
 import es.caib.helium.logic.helper.ExpedientTipusHelper;
 import es.caib.helium.logic.helper.HerenciaHelper;
@@ -33,6 +19,7 @@ import es.caib.helium.logic.intf.dto.TascaDto;
 import es.caib.helium.logic.intf.exception.NoTrobatException;
 import es.caib.helium.logic.intf.exception.PermisDenegatException;
 import es.caib.helium.logic.intf.service.CampService;
+import es.caib.helium.ms.domini.DominiMs;
 import es.caib.helium.persist.entity.Camp;
 import es.caib.helium.persist.entity.Camp.TipusCamp;
 import es.caib.helium.persist.entity.CampAgrupacio;
@@ -51,7 +38,18 @@ import es.caib.helium.persist.repository.ConsultaRepository;
 import es.caib.helium.persist.repository.DefinicioProcesRepository;
 import es.caib.helium.persist.repository.EnumeracioRepository;
 import es.caib.helium.persist.repository.ExpedientTipusRepository;
-import es.caib.helium.ms.domini.DominiMs;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import javax.annotation.Resource;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Implementació del servei per a gestionar camps dels tipus d'expedients o
@@ -114,9 +112,9 @@ public class CampServiceImpl implements CampService {
 			entity.setOrdre(campRepository.getNextOrdre(agrupacio.getId()));
 		}
 		if (expedientTipusId != null)
-			entity.setExpedientTipus(expedientTipusRepository.findById(expedientTipusId).get());
+			entity.setExpedientTipus(expedientTipusRepository.getById(expedientTipusId));
 		if (definicioProcesId != null)
-			entity.setDefinicioProces(definicioProcesRepository.findById(definicioProcesId).get());
+			entity.setDefinicioProces(definicioProcesRepository.getById(definicioProcesId));
 
 		// Dades consulta
 		Enumeracio enumeracio = null;
@@ -131,7 +129,7 @@ public class CampServiceImpl implements CampService {
 		entity.setDomini(domini != null ? domini.getId() : null);
 		Consulta consulta = null;
 		if (camp.getConsulta() != null) {
-			consulta = consultaRepository.findById(camp.getConsulta().getId());
+			consulta = consultaRepository.getById(camp.getConsulta().getId());
 		}
 		entity.setConsulta(consulta);
 		entity.setDominiIntern(camp.isDominiIntern());
@@ -164,7 +162,7 @@ public class CampServiceImpl implements CampService {
 	public CampDto update(CampDto camp) throws NoTrobatException, PermisDenegatException {
 		logger.debug("Modificant el camp del tipus d'expedient existent (" + "camp.id=" + camp.getId() + ", " + "camp ="
 				+ camp + ")");
-		Camp entity = campRepository.findById(camp.getId());
+		Camp entity = campRepository.getById(camp.getId());
 		entity.setCodi(camp.getCodi());
 		entity.setTipus(conversioTipusHelper.convertir(camp.getTipus(), Camp.TipusCamp.class));
 		entity.setEtiqueta(camp.getEtiqueta());
@@ -174,7 +172,7 @@ public class CampServiceImpl implements CampService {
 		entity.setIgnored(camp.isIgnored());
 		CampAgrupacio agrupacio = null;
 		if (camp.getAgrupacio() != null)
-			agrupacio = campAgrupacioRepository.findById(camp.getAgrupacio().getId());
+			agrupacio = campAgrupacioRepository.getById(camp.getAgrupacio().getId());
 		entity.setAgrupacio(agrupacio);
 		if (agrupacio != null && entity.getOrdre() == null) {
 			// Informa de l'ordre dins de la agrupació
@@ -184,7 +182,7 @@ public class CampServiceImpl implements CampService {
 		// Dades consulta
 		Enumeracio enumeracio = null;
 		if (camp.getEnumeracio() != null) {
-			enumeracio = enumeracioRepository.findById(camp.getEnumeracio().getId());
+			enumeracio = enumeracioRepository.getById(camp.getEnumeracio().getId());
 		}
 		entity.setEnumeracio(enumeracio);
 		DominiDto domini = null;
@@ -194,7 +192,7 @@ public class CampServiceImpl implements CampService {
 		entity.setDomini(domini != null ? domini.getId() : null);
 		Consulta consulta = null;
 		if (camp.getConsulta() != null) {
-			consulta = consultaRepository.findById(camp.getConsulta().getId());
+			consulta = consultaRepository.getById(camp.getConsulta().getId());
 		}
 		entity.setConsulta(consulta);
 		entity.setDominiIntern(camp.isDominiIntern());
@@ -226,7 +224,7 @@ public class CampServiceImpl implements CampService {
 	@Transactional
 	public void delete(Long campCampId) throws NoTrobatException, PermisDenegatException {
 		logger.debug("Esborrant el camp del tipus d'expedient (" + "campId=" + campCampId + ")");
-		Camp entity = campRepository.findById(campCampId);
+		Camp entity = campRepository.getById(campCampId);
 
 		if (entity != null) {
 			for (CampRegistre campRegistre : entity.getRegistrePares()) {
@@ -262,7 +260,7 @@ public class CampServiceImpl implements CampService {
 
 	CampDto dto = conversioTipusHelper.convertir(camp, CampDto.class);
 	// Herencia
-	ExpedientTipus tipus = expedientTipusId != null? expedientTipusRepository.findById(expedientTipusId) : null;if(tipus!=null&&tipus.getExpedientTipusPare()!=null)
+	ExpedientTipus tipus = expedientTipusId != null? expedientTipusRepository.getById(expedientTipusId) : null;if(tipus!=null&&tipus.getExpedientTipusPare()!=null)
 	{
 		if (tipus.getExpedientTipusPare().getId().equals(camp.getExpedientTipus().getId()))
 			dto.setHeretat(true);
@@ -296,7 +294,7 @@ public class CampServiceImpl implements CampService {
 					ambHerencia);
 		else if (definicioProcesId != null)
 			camp = campRepository.findByDefinicioProcesAndCodi(
-					definicioProcesRepository.findById(definicioProcesId), 
+					definicioProcesRepository.getById(definicioProcesId),
 					codi);
 		if (camp != null)
 			ret = conversioTipusHelper.convertir(
@@ -412,7 +410,7 @@ public class CampServiceImpl implements CampService {
 			Long id, 
 			int posicio) {
 		boolean ret = false;
-		Camp camp = campRepository.findById(id);
+		Camp camp = campRepository.getById(id);
 		if (camp != null && camp.getAgrupacio() != null) {
 			List<Camp> camps = campRepository.findByAgrupacioIdOrderByOrdreAsc(camp.getAgrupacio().getId());
 			if(posicio != camps.indexOf(camp)) {
@@ -440,10 +438,10 @@ public class CampServiceImpl implements CampService {
 		List<Camp> camps = null;
 		if (expedientTipusId != null)
 			camps = campRepository.findByExpedientTipusOrderByCodiAsc(
-						expedientTipusRepository.findById(expedientTipusId));
+						expedientTipusRepository.getById(expedientTipusId));
 		else if (definicioProcesId != null)
 			camps = campRepository.findByDefinicioProcesOrderByCodiAsc(
-						definicioProcesRepository.findById(definicioProcesId));
+						definicioProcesRepository.getById(definicioProcesId));
 		
 		return conversioTipusHelper.convertirList(
 				camps, 
@@ -500,7 +498,7 @@ public class CampServiceImpl implements CampService {
 	@Override
 	public CampAgrupacioDto agrupacioFindAmbId(Long id) throws NoTrobatException {
 		logger.debug("Consultant la agrupacio de camps del tipus d'expedient amb id (" + "campAgrupacioId=" + id + ")");
-		CampAgrupacio agrupacio = campAgrupacioRepository.findById(id);
+		CampAgrupacio agrupacio = campAgrupacioRepository.getById(id);
 		if (agrupacio == null) {
 			throw new NoTrobatException(CampAgrupacio.class, id);
 		}
@@ -526,9 +524,9 @@ public class CampServiceImpl implements CampService {
 		entity.setOrdre(campAgrupacioRepository.getNextOrdre(expedientTipusId, definicioProcesId));
 
 		if (expedientTipusId != null)
-			entity.setExpedientTipus(expedientTipusRepository.findById(expedientTipusId));
+			entity.setExpedientTipus(expedientTipusRepository.getById(expedientTipusId));
 		if (definicioProcesId != null)
-			entity.setDefinicioProces(definicioProcesRepository.findById(definicioProcesId));
+			entity.setDefinicioProces(definicioProcesRepository.getById(definicioProcesId));
 
 		return conversioTipusHelper.convertir(campAgrupacioRepository.save(entity), CampAgrupacioDto.class);
 	}
@@ -542,7 +540,7 @@ public class CampServiceImpl implements CampService {
 			throws NoTrobatException, PermisDenegatException {
 		logger.debug("Modificant la agrupacio de camp del tipus d'expedient existent (" + "agrupacio.id="
 				+ agrupacio.getId() + ", " + "agrupacio =" + agrupacio + ")");
-		CampAgrupacio entity = campAgrupacioRepository.findById(agrupacio.getId());
+		CampAgrupacio entity = campAgrupacioRepository.getById(agrupacio.getId());
 		entity.setCodi(agrupacio.getCodi());
 		entity.setNom(agrupacio.getNom());
 		entity.setDescripcio(agrupacio.getDescripcio());
@@ -554,7 +552,7 @@ public class CampServiceImpl implements CampService {
 	@Transactional
 	public boolean agrupacioMourePosicio(Long id, int posicio) {
 		boolean ret = false;
-		CampAgrupacio agrupacio = campAgrupacioRepository.findById(id);
+		CampAgrupacio agrupacio = campAgrupacioRepository.getById(id);
 		if (agrupacio != null) {
 			List<CampAgrupacio> agrupacions = agrupacio.getExpedientTipus() != null
 					? campAgrupacioRepository.findAmbExpedientTipusOrdenats(agrupacio.getExpedientTipus().getId(),
@@ -580,7 +578,7 @@ public class CampServiceImpl implements CampService {
 	public void agrupacioDelete(Long agrupacioCampId) throws NoTrobatException, PermisDenegatException {
 		logger.debug(
 				"Esborrant la agrupacio de camp del tipus d'expedient (" + "agrupacioCampId=" + agrupacioCampId + ")");
-		CampAgrupacio entity = campAgrupacioRepository.findById(agrupacioCampId);
+		CampAgrupacio entity = campAgrupacioRepository.getById(agrupacioCampId);
 		if (entity != null) {
 			for (Camp camp : entity.getCamps()) {
 				camp.setAgrupacio(null);
@@ -598,11 +596,10 @@ public class CampServiceImpl implements CampService {
 	 * Funció per reasignar el valor d'ordre per a les agrupacions d'un tipus
 	 * d'expedient o definició de procés
 	 */
-	@Transactional
 	private int reordenarAgrupacions(Long expedientTipusId, Long definicioProcesId) {
 		List<CampAgrupacio> campsAgrupacio = expedientTipusId != null
-				? expedientTipusRepository.findById(expedientTipusId).getAgrupacions()
-				: definicioProcesRepository.findById(definicioProcesId).getAgrupacions();
+				? expedientTipusRepository.getById(expedientTipusId).getAgrupacions()
+				: definicioProcesRepository.getById(definicioProcesId).getAgrupacions();
 		int i = 0;
 		for (CampAgrupacio campAgrupacio : campsAgrupacio)
 			campAgrupacio.setOrdre(i++);
@@ -651,8 +648,8 @@ public class CampServiceImpl implements CampService {
 		boolean ret = false;
 		logger.debug("Afegint camp de tipus d'expedient a la agrupació (" + "campId=" + campId + ", " + "agrupacioId = "
 				+ agrupacioId + ")");
-		Camp camp = campRepository.findById(campId);
-		CampAgrupacio agrupacio = campAgrupacioRepository.findById(agrupacioId);
+		Camp camp = campRepository.getById(campId);
+		CampAgrupacio agrupacio = campAgrupacioRepository.getById(agrupacioId);
 		if (camp != null && agrupacio != null) {
 			camp.setAgrupacio(agrupacio);
 			reordenarCamps(agrupacioId);
@@ -669,7 +666,7 @@ public class CampServiceImpl implements CampService {
 	public boolean remoureAgrupacio(Long campId) {
 		boolean ret = false;
 		logger.debug("Remoguent el camp de tipus d'expedient de la seva agrupació(" + "campId=" + campId + ")");
-		Camp camp = campRepository.findById(campId);
+		Camp camp = campRepository.getById(campId);
 		if (camp != null && camp.getAgrupacio() != null) {
 			Long agrupacioId = camp.getAgrupacio().getId();
 			camp.setAgrupacio(null);
@@ -690,8 +687,8 @@ public class CampServiceImpl implements CampService {
 				+ "campRegistre=" + campRegistre + ")");
 
 		CampRegistre entity = new CampRegistre();
-		entity.setRegistre(campRepository.findById(campId));
-		entity.setMembre(campRepository.findById(campRegistre.getMembreId()));
+		entity.setRegistre(campRepository.getById(campId));
+		entity.setMembre(campRepository.getById(campRegistre.getMembreId()));
 		entity.setObligatori(campRegistre.isObligatori());
 		entity.setLlistar(campRegistre.isLlistar());
 		entity.setOrdre(campRegistreRepository.getNextOrdre(campId));
@@ -706,10 +703,10 @@ public class CampServiceImpl implements CampService {
 		logger.debug("Modificant el campRegistre del camp del tipus d'expedient existent (" + "campRegistre.id="
 				+ campRegistre.getId() + ", " + "campRegistre =" + campRegistre + ")");
 
-		CampRegistre entity = campRegistreRepository.findById(campRegistre.getId());
+		CampRegistre entity = campRegistreRepository.getById(campRegistre.getId());
 
-		entity.setRegistre(campRepository.findById(campRegistre.getRegistreId()));
-		entity.setMembre(campRepository.findById(campRegistre.getMembreId()));
+		entity.setRegistre(campRepository.getById(campRegistre.getRegistreId()));
+		entity.setMembre(campRepository.getById(campRegistre.getMembreId()));
 		entity.setObligatori(campRegistre.isObligatori());
 		entity.setLlistar(campRegistre.isLlistar());
 
@@ -721,7 +718,7 @@ public class CampServiceImpl implements CampService {
 	public void registreDelete(Long campRegistreId) throws NoTrobatException, PermisDenegatException {
 		logger.debug("Esborrant la campRegistre del tipus d'expedient (" + "campRegistreId=" + campRegistreId + ")");
 
-		CampRegistre campRegistre = campRegistreRepository.findById(campRegistreId);
+		CampRegistre campRegistre = campRegistreRepository.getById(campRegistreId);
 		campRegistre.getRegistre().getRegistreMembres().remove(campRegistre);
 		campRegistreRepository.delete(campRegistre);
 		campRegistreRepository.flush();
@@ -753,7 +750,7 @@ public class CampServiceImpl implements CampService {
 	@Transactional
 	public boolean registreMourePosicio(Long id, int posicio) {
 		boolean ret = false;
-		CampRegistre campRegistre = campRegistreRepository.findById(id);
+		CampRegistre campRegistre = campRegistreRepository.getById(id);
 		if (campRegistre != null) {
 			List<CampRegistre> campsRegistre = campRegistreRepository
 					.findAmbCampOrdenats(campRegistre.getRegistre().getId());
@@ -784,7 +781,7 @@ public class CampServiceImpl implements CampService {
 	public CampRegistreDto registreFindAmbId(Long id) throws NoTrobatException {
 		logger.debug(
 				"Consultant la campRegistre del camp del tipus d'expedient amb id (" + "campRegistreId=" + id + ")");
-		CampRegistre camp = campRegistreRepository.findById(id);
+		CampRegistre camp = campRegistreRepository.getById(id);
 		if (camp == null) {
 			throw new NoTrobatException(CampRegistre.class, id);
 		}
@@ -826,10 +823,10 @@ public class CampServiceImpl implements CampService {
 
 		List<Camp> camps;
 		if (expedientTipusId != null)
-			camps = campRepository.findByExpedientTipusAndTipus(expedientTipusRepository.findById(expedientTipusId),
+			camps = campRepository.findByExpedientTipusAndTipus(expedientTipusRepository.getById(expedientTipusId),
 					TipusCamp.DATE);
 		else
-			camps = campRepository.findByDefinicioProcesAndTipus(definicioProcesRepository.findById(definicioProcesId),
+			camps = campRepository.findByDefinicioProcesAndTipus(definicioProcesRepository.getById(definicioProcesId),
 					TipusCamp.DATE);
 		return conversioTipusHelper.convertirList(camps, CampDto.class);
 	}
@@ -839,7 +836,7 @@ public class CampServiceImpl implements CampService {
 	public List<TascaDto> findTasquesPerCamp(Long campId) {
 		logger.debug("Consultant les tasques pel camp (" + "campId =" + campId + ")");
 
-		Camp camp = campRepository.findById(campId);
+		Camp camp = campRepository.getById(campId);
 		List<Tasca> tasques = new ArrayList<Tasca>();
 		for (CampTasca campTasca : camp.getCampsTasca())
 			tasques.add(campTasca.getTasca());
@@ -853,7 +850,7 @@ public class CampServiceImpl implements CampService {
 		logger.debug("Consultant les consultes pel camp (" + "expedientTipusId =" + expedientTipusId + ", campId ="
 				+ campId + ")");
 
-		Camp camp = campRepository.findById(campId);
+		Camp camp = campRepository.getById(campId);
 		List<ConsultaCamp> consultaCamps = consultaCampRepository.findPerCamp(expedientTipusId,
 				camp.getCodi() != null ? camp.getCodi() : "",
 				camp.getDefinicioProces() != null ? camp.getDefinicioProces().getJbpmKey() : "",
@@ -872,7 +869,7 @@ public class CampServiceImpl implements CampService {
 	public List<CampDto> findRegistresPerCamp(Long campId) {
 		logger.debug("Consultant els registres pel camp (" + "campId =" + campId + ")");
 
-		Camp camp = campRepository.findById(campId);
+		Camp camp = campRepository.getById(campId);
 		List<Camp> registres = new ArrayList<Camp>();
 		for (CampRegistre campRegistre : camp.getRegistrePares())
 			registres.add(campRegistre.getRegistre());

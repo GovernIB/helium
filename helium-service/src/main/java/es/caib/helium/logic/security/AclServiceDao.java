@@ -3,17 +3,10 @@
  */
 package es.caib.helium.logic.security;
 
-import java.util.List;
-
-import javax.annotation.Resource;
-
-import org.springframework.security.acls.model.AccessControlEntry;
-import org.springframework.security.acls.model.ObjectIdentity;
+import es.caib.helium.logic.helper.PermisosHelper;
 import org.springframework.security.acls.model.Permission;
 
-// TODO: revisar la diferència entre permisosHelper i permisosHelper26.
-import es.caib.helium.logic.helper26.PermisosHelper;
-import es.caib.helium.persist.entity.GenericEntity;
+import javax.annotation.Resource;
 
 /**
  * Per a permetre cridar al PermisosHelper sense haver de
@@ -33,8 +26,8 @@ public class AclServiceDao {
 			Permission permission) {
 		permisosHelper.assignarPermisUsuari(
 				userName,
-				objectClass,
 				objectIdentifier,
+				objectClass,
 				permission);
 	}
 	public void assignarPermisRol(
@@ -44,8 +37,8 @@ public class AclServiceDao {
 			Permission permission) {
 		permisosHelper.assignarPermisRol(
 				roleName,
-				objectClass,
 				objectIdentifier,
+				objectClass,
 				permission);
 	}
 
@@ -56,8 +49,8 @@ public class AclServiceDao {
 			Permission permission) {
 		permisosHelper.revocarPermisUsuari(
 				userName,
-				objectClass,
 				objectIdentifier,
+				objectClass,
 				permission);
 	}
 	public void revocarPermisRol(
@@ -67,8 +60,8 @@ public class AclServiceDao {
 			Permission permission) {
 		permisosHelper.revocarPermisRol(
 				roleName,
-				objectClass,
 				objectIdentifier,
+				objectClass,
 				permission);
 	}
 
@@ -79,8 +72,8 @@ public class AclServiceDao {
 		for (Permission permission: PermissionUtil.permissionMap.values()) {
 			permisosHelper.revocarPermisUsuari(
 					userName,
-					objectClass,
 					objectIdentifier,
+					objectClass,
 					permission);
 		}
 	}
@@ -91,33 +84,33 @@ public class AclServiceDao {
 		for (Permission permission: PermissionUtil.permissionMap.values()) {
 			permisosHelper.revocarPermisRol(
 					roleName,
-					objectClass,
 					objectIdentifier,
+					objectClass,
 					permission);
 		}
 	}
 
-	public List<AccessControlEntry> findAclsByOid(
-			ObjectIdentity oid) {
-			try {
-				return permisosHelper.getAclSids(
-						Class.forName(oid.getType()), 
-						(Long)oid.getIdentifier());
-			} catch (ClassNotFoundException e) {
-				return null;
-			}
-	}
+//	public List<AccessControlEntry> findAclsByOid(
+//			ObjectIdentity oid) {
+//			try {
+//				return permisosHelper.getAclSids(
+//						Class.forName(oid.getType()),
+//						(Long)oid.getIdentifier());
+//			} catch (ClassNotFoundException e) {
+//				return null;
+//			}
+//	}
 
-	@SuppressWarnings("rawtypes")
-	public boolean isGrantedAny(
-			GenericEntity object,
-			Class clazz,
-			Permission[] permissions) {
-		return permisosHelper.isGrantedAny(
-				(Long)object.getId(),
-				clazz,
-				permissions);
-	}
+//	@SuppressWarnings("rawtypes")
+//	public boolean isGrantedAny(
+//			GenericEntity object,
+//			Class clazz,
+//			Permission[] permissions) {
+//		return permisosHelper.isGrantedAny(
+//				(Long)object.getId(),
+//				clazz,
+//				permissions);
+//	}
 
 	
 

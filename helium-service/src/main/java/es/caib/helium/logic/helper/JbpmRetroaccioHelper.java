@@ -1,15 +1,8 @@
 package es.caib.helium.logic.helper;
 
-import org.jbpm.graph.def.Action;
-import org.jbpm.graph.def.Node;
-import org.jbpm.graph.exe.Token;
-import org.jbpm.logging.log.ProcessLog;
 import org.springframework.stereotype.Component;
 
 import es.caib.helium.logic.intf.WTaskInstance;
-
-import java.util.List;
-import java.util.Map;
 
 @Component
 public class JbpmRetroaccioHelper {
@@ -32,10 +25,10 @@ public class JbpmRetroaccioHelper {
         return null;
     }
 
-    public ProcessLog getProcessLogById(Long logId) {
-
-        return null;
-    }
+//    public ProcessLog getProcessLogById(Long logId) {
+//
+//        return null;
+//    }
 
     public void cancelProcessInstance(Long id) {
 
@@ -58,10 +51,10 @@ public class JbpmRetroaccioHelper {
         return null;
     }
 
-    public Node getNodeByName(Long processInstanceId, String nodeName) {
-
-        return null;
-    }
+//    public Node getNodeByName(Long processInstanceId, String nodeName) {
+//
+//        return null;
+//    }
 
     public Boolean isProcessStateNodeJoinOrFork(Long processInstanceId, String nodeName) {
 
@@ -78,10 +71,10 @@ public class JbpmRetroaccioHelper {
         return null;
     }
 
-    public Action getActionById(Long nodeId) {
-
-        return null;
-    }
+//    public Action getActionById(Long nodeId) {
+//
+//        return null;
+//    }
 
     public Long getVariableIdFromVariableLog(Long variableLogId) {
 
@@ -93,8 +86,8 @@ public class JbpmRetroaccioHelper {
         return null;
     }
 
-    public Map<Token, List<ProcessLog>> getProcessInstanceLogs(String processInstanceId) {
-
-        return null;
-    }
+//    public Map<Token, List<ProcessLog>> getProcessInstanceLogs(String processInstanceId) {
+//
+//        return null;
+//    }
 }

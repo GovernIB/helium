@@ -8,7 +8,6 @@ import es.caib.helium.logic.helper.DominiHelper;
 import es.caib.helium.logic.helper.EntornHelper;
 import es.caib.helium.logic.helper.ExpedientTipusHelper;
 import es.caib.helium.logic.helper.MessageHelper;
-import es.caib.helium.logic.helper.PaginacioHelper;
 import es.caib.helium.logic.intf.dto.DominiDto;
 import es.caib.helium.logic.intf.dto.DominiDto.OrigenCredencials;
 import es.caib.helium.logic.intf.dto.DominiDto.TipusAuthDomini;
@@ -21,12 +20,11 @@ import es.caib.helium.logic.intf.exception.ValidacioException;
 import es.caib.helium.logic.intf.extern.domini.FilaResultat;
 import es.caib.helium.logic.intf.service.DominiService;
 import es.caib.helium.logic.util.EntornActual;
-import es.caib.helium.persist.entity.Camp;
-import es.caib.helium.persist.entity.ExpedientTipus;
-import es.caib.helium.persist.repository.EntornRepository;
-import es.caib.helium.persist.repository.ExpedientTipusRepository;
 import es.caib.helium.ms.domini.DominiMs;
 import es.caib.helium.ms.domini.client.model.Domini;
+import es.caib.helium.persist.entity.Camp;
+import es.caib.helium.persist.entity.ExpedientTipus;
+import es.caib.helium.persist.repository.ExpedientTipusRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,16 +46,16 @@ public class DominiServiceImpl implements DominiService {
 
 	@Resource
 	private EntornHelper entornHelper;
-	@Resource
-	private EntornRepository entornRepository;
+//	@Resource
+//	private EntornRepository entornRepository;
 	@Resource
 	private ExpedientTipusRepository expedientTipusRepository;
 	@Resource
 	private ExpedientTipusHelper expedientTipusHelper;
 	@Resource
 	private ConversioTipusHelper conversioTipusHelper;
-	@Resource
-	private PaginacioHelper paginacioHelper;
+//	@Resource
+//	private PaginacioHelper paginacioHelper;
 	@Resource
 	private MessageHelper messageHelper;
 	

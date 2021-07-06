@@ -3,19 +3,18 @@
  */
 package es.caib.helium.logic.helper;
 
-import javax.annotation.Resource;
-
+import es.caib.helium.logic.intf.exception.NoTrobatException;
+import es.caib.helium.logic.intf.exception.PermisDenegatException;
+import es.caib.helium.logic.security.ExtendedPermission;
+import es.caib.helium.persist.entity.Entorn;
+import es.caib.helium.persist.repository.EntornRepository;
 import org.springframework.security.acls.model.Permission;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import es.caib.helium.logic.intf.exception.NoTrobatException;
-import es.caib.helium.logic.intf.exception.PermisDenegatException;
-import es.caib.helium.logic.security.ExtendedPermission;
-import es.caib.helium.persist.entity.Entorn;
-import es.caib.helium.persist.repository.EntornRepository;
+import javax.annotation.Resource;
 
 /**
  * Helper per a gestionar els entorns.
@@ -27,7 +26,7 @@ public class EntornHelper {
 
 	@Resource
 	private EntornRepository entornRepository;
-	@Resource(name = "permisosHelperV3")
+	@Resource
 	private PermisosHelper permisosHelper;
 
 

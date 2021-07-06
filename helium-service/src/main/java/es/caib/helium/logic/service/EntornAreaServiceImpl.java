@@ -1,13 +1,5 @@
 package es.caib.helium.logic.service;
 
-import java.util.List;
-
-import javax.annotation.Resource;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
-
 import es.caib.helium.logic.helper.ConversioTipusHelper;
 import es.caib.helium.logic.helper.EntornHelper;
 import es.caib.helium.logic.helper.PaginacioHelper;
@@ -21,6 +13,12 @@ import es.caib.helium.persist.entity.AreaTipus;
 import es.caib.helium.persist.repository.AreaRepository;
 import es.caib.helium.persist.repository.PersonaRepository;
 import es.caib.helium.persist.repository.TipusAreaRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+
+import javax.annotation.Resource;
+import java.util.List;
 
 @Service("entornAreaServiceV3")
 public class EntornAreaServiceImpl implements EntornAreaService {
@@ -117,7 +115,7 @@ public class EntornAreaServiceImpl implements EntornAreaService {
 
 	@Override
 	public void delete(Long areaId) {
-		areaRepository.delete(areaId);
+		areaRepository.deleteById(areaId);
 		
 	}
 

@@ -3,18 +3,6 @@
  */
 package es.caib.helium.logic.helper;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-
-import javax.annotation.Resource;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
 import es.caib.helium.logic.helper.WsClientHelper.WsClientAuth;
 import es.caib.helium.logic.intf.dto.FormulariExternDto;
 import es.caib.helium.logic.intf.extern.formulari.IniciFormulari;
@@ -26,6 +14,16 @@ import es.caib.helium.persist.entity.ExpedientTipus;
 import es.caib.helium.persist.entity.FormulariExtern;
 import es.caib.helium.persist.entity.Tasca;
 import es.caib.helium.persist.repository.FormulariExternRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import javax.annotation.Resource;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Helper per a accedir a la funcionalitat dels plugins.
@@ -35,10 +33,10 @@ import es.caib.helium.persist.repository.FormulariExternRepository;
 @Component
 public class FormulariExternHelper {
 
-	@Resource
-	private ExpedientTipusHelper expedientTipusHelper;
-	@Resource
-	private TascaHelper tascaHelper;
+//	@Resource
+//	private ExpedientTipusHelper expedientTipusHelper;
+//	@Resource
+//	private TascaHelper tascaHelper;
 	@Resource
 	private VariableHelper variableHelper;
 	@Resource

@@ -3,19 +3,27 @@
  */
 package es.caib.helium.logic.service;
 
-import java.security.Principal;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.annotation.Resource;
-
+import es.caib.helium.logic.helper.*;
+import es.caib.helium.logic.helper.PaginacioHelper.Converter;
+import es.caib.helium.logic.helper.PermisosHelper.ObjectIdentifierExtractor;
+import es.caib.helium.logic.helper.TascaSegonPlaHelper.InfoSegonPla;
+import es.caib.helium.logic.intf.WTaskInstance;
+import es.caib.helium.logic.intf.WorkflowEngineApi;
+import es.caib.helium.logic.intf.WorkflowRetroaccioApi;
+import es.caib.helium.logic.intf.dto.*;
+import es.caib.helium.logic.intf.exception.ExecucioHandlerException;
+import es.caib.helium.logic.intf.exception.NoTrobatException;
+import es.caib.helium.logic.intf.exception.SistemaExternException;
+import es.caib.helium.logic.intf.exception.TramitacioException;
+import es.caib.helium.logic.intf.exception.TramitacioHandlerException;
+import es.caib.helium.logic.intf.exception.ValidacioException;
+import es.caib.helium.logic.intf.service.TascaService;
+import es.caib.helium.logic.security.ExtendedPermission;
+import es.caib.helium.persist.entity.*;
+import es.caib.helium.persist.entity.Registre;
+import es.caib.helium.persist.entity.Camp.TipusCamp;
+import es.caib.helium.persist.repository.*;
+import es.caib.helium.persist.util.ThreadLocalInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,84 +38,17 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.codahale.metrics.Counter;
-import com.codahale.metrics.MetricRegistry;
-import com.codahale.metrics.Timer;
-
-import es.caib.emiserv.logic.intf.exception.ExecucioHandlerException;
-import es.caib.emiserv.logic.intf.exception.NoTrobatException;
-import es.caib.emiserv.logic.intf.exception.SistemaExternException;
-import es.caib.emiserv.logic.intf.exception.TramitacioException;
-import es.caib.emiserv.logic.intf.exception.TramitacioHandlerException;
-import es.caib.emiserv.logic.intf.exception.ValidacioException;
-import es.caib.emiserv.logic.intf.util.ThreadLocalInfo;
-import es.caib.helium.logic.helper.ConversioTipusHelper;
-import es.caib.helium.logic.helper.DocumentHelperV3;
-import es.caib.helium.logic.helper.EntornHelper;
-import es.caib.helium.logic.helper.ExpedientHelper;
-import es.caib.helium.logic.helper.ExpedientRegistreHelper;
-import es.caib.helium.logic.helper.ExpedientTipusHelper;
-import es.caib.helium.logic.helper.FormulariExternHelper;
-import es.caib.helium.logic.helper.HerenciaHelper;
-import es.caib.helium.logic.helper.IndexHelper;
-import es.caib.helium.logic.helper.PaginacioHelper;
-import es.caib.helium.logic.helper.PermisosHelper;
-import es.caib.helium.logic.helper.TascaHelper;
-import es.caib.helium.logic.helper.TascaSegonPlaHelper;
-import es.caib.helium.logic.helper.VariableHelper;
-import es.caib.helium.logic.helper.PaginacioHelper.Converter;
-import es.caib.helium.logic.helper.PermisosHelper.ObjectIdentifierExtractor;
-import es.caib.helium.logic.helper.TascaSegonPlaHelper.InfoSegonPla;
-import es.caib.helium.logic.intf.dto.DelegationInfo;
-import es.caib.helium.logic.intf.dto.LlistatIds;
-import es.caib.helium.logic.intf.dto.ResultatConsultaPaginada;
-import es.caib.helium.logic.intf.WTaskInstance;
-import es.caib.helium.logic.intf.WorkflowEngineApi;
-import es.caib.helium.logic.intf.WorkflowRetroaccioApi;
-import es.caib.helium.logic.intf.dto.ArxiuDto;
-import es.caib.helium.logic.intf.dto.DocumentDto;
-import es.caib.helium.logic.intf.dto.ExpedientDto;
-import es.caib.helium.logic.intf.dto.ExpedientTascaDto;
-import es.caib.helium.logic.intf.dto.FormulariExternDto;
-import es.caib.helium.logic.intf.dto.PaginaDto;
-import es.caib.helium.logic.intf.dto.PaginacioParamsDto;
-import es.caib.helium.logic.intf.dto.ParellaCodiValorDto;
-import es.caib.helium.logic.intf.dto.SeleccioOpcioDto;
-import es.caib.helium.logic.intf.dto.TascaDadaDto;
-import es.caib.helium.logic.intf.dto.TascaDocumentDto;
-import es.caib.helium.logic.intf.dto.TascaDto;
-import es.caib.helium.logic.intf.service.TascaService;
-import es.caib.helium.persist.entity.Alerta;
-import es.caib.helium.persist.entity.Camp;
-import es.caib.helium.persist.entity.CampRegistre;
-import es.caib.helium.persist.entity.CampTasca;
-import es.caib.helium.persist.entity.DefinicioProces;
-import es.caib.helium.persist.entity.Document;
-import es.caib.helium.persist.entity.DocumentStore;
-import es.caib.helium.persist.entity.Entorn;
-import es.caib.helium.persist.entity.EnumeracioValors;
-import es.caib.helium.persist.entity.Expedient;
-import es.caib.helium.persist.entity.ExpedientTipus;
-import es.caib.helium.persist.entity.FormulariExtern;
-import es.caib.helium.persist.entity.Registre;
-import es.caib.helium.persist.entity.Tasca;
-import es.caib.helium.persist.entity.TerminiIniciat;
-import es.caib.helium.persist.entity.Camp.TipusCamp;
-import es.caib.helium.persist.repository.AlertaRepository;
-import es.caib.helium.persist.repository.CampRepository;
-import es.caib.helium.persist.repository.CampTascaRepository;
-import es.caib.helium.persist.repository.DefinicioProcesRepository;
-import es.caib.helium.persist.repository.DocumentRepository;
-import es.caib.helium.persist.repository.EnumeracioValorsRepository;
-import es.caib.helium.persist.repository.ExpedientHeliumRepository;
-import es.caib.helium.persist.repository.ExpedientRepository;
-import es.caib.helium.persist.repository.ExpedientTipusRepository;
-import es.caib.helium.persist.repository.FormulariExternRepository;
-import es.caib.helium.persist.repository.RegistreRepository;
-import es.caib.helium.persist.repository.TascaRepository;
-import es.caib.helium.persist.repository.TerminiIniciatRepository;
-import net.conselldemallorca.helium.core.helperv26.MesuresTemporalsHelper;
-import net.conselldemallorca.helium.core.security.ExtendedPermission;
+import javax.annotation.Resource;
+import java.security.Principal;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Servei per gestionar terminis.
@@ -144,9 +85,9 @@ public class TascaServiceImpl implements TascaService {
 
 	@Resource
 	private ExpedientRegistreHelper expedientRegistreHelper;
+//	@Resource
+//	private MesuresTemporalsHelper mesuresTemporalsHelper;
 	@Resource
-	private MesuresTemporalsHelper mesuresTemporalsHelper;
-	@Resource(name = "permisosHelperV3")
 	private PermisosHelper permisosHelper;
 	@Resource
 	private PaginacioHelper paginacioHelper;
@@ -162,8 +103,8 @@ public class TascaServiceImpl implements TascaService {
 	private ExpedientTipusHelper expedientTipusHelper;
 	@Resource
 	private VariableHelper variableHelper;
-	@Resource(name="documentHelperV3")
-	private DocumentHelperV3 documentHelper;
+	@Resource
+	private DocumentHelper documentHelper;
 	@Resource
 	private IndexHelper indexHelper;
 	@Resource
@@ -176,8 +117,8 @@ public class TascaServiceImpl implements TascaService {
 	private ConversioTipusHelper conversioTipusHelper;
 	@Autowired
 	private TascaSegonPlaHelper tascaSegonPlaHelper;
-	@Autowired
-	private MetricRegistry metricRegistry;
+//	@Autowired
+//	private MetricRegistry metricRegistry;
 
 	@Resource
 	private FormulariExternRepository formulariExternRepository;
@@ -190,9 +131,8 @@ public class TascaServiceImpl implements TascaService {
 			Long expedientId) {
 		logger.debug("Consultant tasca per expedient donat el seu taskInstanceId (" +
 				"taskInstanceId=" + id + ")");
-		Expedient expedient = expedientRepository.findById(expedientId);
-		if (expedient == null)
-			throw new NoTrobatException(Expedient.class, expedientId);
+		Expedient expedient = expedientRepository.findById(expedientId)
+				.orElseThrow(() -> new NoTrobatException(Expedient.class, expedientId));
 		
 		WTaskInstance task = tascaHelper.comprovarTascaPertanyExpedient(
 				id,
@@ -256,28 +196,29 @@ public class TascaServiceImpl implements TascaService {
 		Entorn entorn = entornHelper.getEntornComprovantPermisos(
 				entornId,
 				true);
-		final Timer timerTotal = metricRegistry.timer(
-				MetricRegistry.name(
-						TascaService.class,
-						"llistatIds"));
-		final Timer.Context contextTotal = timerTotal.time();
-		Counter countTotal = metricRegistry.counter(
-				MetricRegistry.name(
-						TascaService.class,
-						"llistatIds.count"));
-		countTotal.inc();
-		final Timer timerEntorn = metricRegistry.timer(
-				MetricRegistry.name(
-						TascaService.class,
-						"llistatIds",
-						entorn.getCodi()));
-		final Timer.Context contextEntorn = timerEntorn.time();
-		Counter countEntorn = metricRegistry.counter(
-				MetricRegistry.name(
-						TascaService.class,
-						"llistatIds.count",
-						entorn.getCodi()));
-		countEntorn.inc();
+		// TODO: Mètriques
+//		final Timer timerTotal = metricRegistry.timer(
+//				MetricRegistry.name(
+//						TascaService.class,
+//						"llistatIds"));
+//		final Timer.Context contextTotal = timerTotal.time();
+//		Counter countTotal = metricRegistry.counter(
+//				MetricRegistry.name(
+//						TascaService.class,
+//						"llistatIds.count"));
+//		countTotal.inc();
+//		final Timer timerEntorn = metricRegistry.timer(
+//				MetricRegistry.name(
+//						TascaService.class,
+//						"llistatIds",
+//						entorn.getCodi()));
+//		final Timer.Context contextEntorn = timerEntorn.time();
+//		Counter countEntorn = metricRegistry.counter(
+//				MetricRegistry.name(
+//						TascaService.class,
+//						"llistatIds.count",
+//						entorn.getCodi()));
+//		countEntorn.inc();
 		try {
 			// Comprova l'accés al tipus d'expedient
 			ExpedientTipus expedientTipus = null;
@@ -304,7 +245,7 @@ public class TascaServiceImpl implements TascaService {
 						ExtendedPermission.READ,
 						ExtendedPermission.ADMINISTRATION},
 					SecurityContextHolder.getContext().getAuthentication());
-			mesuresTemporalsHelper.mesuraIniciar("CONSULTA TASQUES LLISTAT", "consulta");
+//			mesuresTemporalsHelper.mesuraIniciar("CONSULTA TASQUES LLISTAT", "consulta");
 			// Calcula la data d'creacio fi pel filtre
 			if (dataCreacioFi != null) {
 				Calendar cal = Calendar.getInstance();
@@ -345,8 +286,8 @@ public class TascaServiceImpl implements TascaService {
 					true);
 			return ids.getIds();
 		} finally {
-			contextTotal.stop();
-			contextEntorn.stop();
+//			contextTotal.stop();
+//			contextEntorn.stop();
 		}
 	}
 
@@ -389,40 +330,41 @@ public class TascaServiceImpl implements TascaService {
 		Entorn entorn = entornHelper.getEntornComprovantPermisos(
 				entornId,
 				true);
-		final Timer timerTotal = metricRegistry.timer(
-				MetricRegistry.name(
-						TascaService.class,
-						"llistat"));
-		final Timer.Context contextTimerTotal = timerTotal.time();
-		Counter countTotal = metricRegistry.counter(
-				MetricRegistry.name(
-						TascaService.class,
-						"llistat.count"));
-		countTotal.inc();
-		final Timer timerEntorn = metricRegistry.timer(
-				MetricRegistry.name(
-						TascaService.class,
-						"llistat",
-						entorn.getCodi()));
-		final Timer.Context contextTimerEntorn = timerEntorn.time();
-		Counter countEntorn = metricRegistry.counter(
-				MetricRegistry.name(
-						TascaService.class,
-						"llistat.count",
-						entorn.getCodi()));
-		countEntorn.inc();
+		// TODO: Mètriques
+//		final Timer timerTotal = metricRegistry.timer(
+//				MetricRegistry.name(
+//						TascaService.class,
+//						"llistat"));
+//		final Timer.Context contextTimerTotal = timerTotal.time();
+//		Counter countTotal = metricRegistry.counter(
+//				MetricRegistry.name(
+//						TascaService.class,
+//						"llistat.count"));
+//		countTotal.inc();
+//		final Timer timerEntorn = metricRegistry.timer(
+//				MetricRegistry.name(
+//						TascaService.class,
+//						"llistat",
+//						entorn.getCodi()));
+//		final Timer.Context contextTimerEntorn = timerEntorn.time();
+//		Counter countEntorn = metricRegistry.counter(
+//				MetricRegistry.name(
+//						TascaService.class,
+//						"llistat.count",
+//						entorn.getCodi()));
+//		countEntorn.inc();
 		try {
-			final Timer timerConsultaTotal = metricRegistry.timer(
-					MetricRegistry.name(
-							TascaService.class,
-							"llistat.consulta"));
-			final Timer.Context contextTimerConsultaTotal = timerConsultaTotal.time();
-			final Timer timerConsultaEntorn = metricRegistry.timer(
-					MetricRegistry.name(
-							TascaService.class,
-							"llistat.consulta",
-							entorn.getCodi()));
-			final Timer.Context contextTimerConsultaEntorn = timerConsultaEntorn.time();
+//			final Timer timerConsultaTotal = metricRegistry.timer(
+//					MetricRegistry.name(
+//							TascaService.class,
+//							"llistat.consulta"));
+//			final Timer.Context contextTimerConsultaTotal = timerConsultaTotal.time();
+//			final Timer timerConsultaEntorn = metricRegistry.timer(
+//					MetricRegistry.name(
+//							TascaService.class,
+//							"llistat.consulta",
+//							entorn.getCodi()));
+//			final Timer.Context contextTimerConsultaEntorn = timerConsultaEntorn.time();
 			ResultatConsultaPaginada<WTaskInstance> paginaTasks = null;
 			try {
 				// Comprova l'accés al tipus d'expedient
@@ -478,20 +420,20 @@ public class TascaServiceImpl implements TascaService {
 						paginacioParams,
 						false);
 			} finally {
-				contextTimerConsultaTotal.stop();
-				contextTimerConsultaEntorn.stop();
+//				contextTimerConsultaTotal.stop();
+//				contextTimerConsultaEntorn.stop();
 			}
-			final Timer timerConversionTotal = metricRegistry.timer(
-					MetricRegistry.name(
-							TascaService.class,
-							"llistat.conversio"));
-			final Timer.Context contextTimerConversioTotal = timerConversionTotal.time();
-			final Timer timerConversioEntorn = metricRegistry.timer(
-					MetricRegistry.name(
-							TascaService.class,
-							"llistat.conversio",
-							entorn.getCodi()));
-			final Timer.Context contextTimerConversioEntorn = timerConversioEntorn.time();
+//			final Timer timerConversionTotal = metricRegistry.timer(
+//					MetricRegistry.name(
+//							TascaService.class,
+//							"llistat.conversio"));
+//			final Timer.Context contextTimerConversioTotal = timerConversionTotal.time();
+//			final Timer timerConversioEntorn = metricRegistry.timer(
+//					MetricRegistry.name(
+//							TascaService.class,
+//							"llistat.conversio",
+//							entorn.getCodi()));
+//			final Timer.Context contextTimerConversioEntorn = timerConversioEntorn.time();
 			try {
 				return paginacioHelper.toPaginaDto(
 						paginaTasks.getLlista(),
@@ -507,12 +449,12 @@ public class TascaServiceImpl implements TascaService {
 							}
 						});
 			} finally {
-				contextTimerConversioTotal.stop();
-				contextTimerConversioEntorn.stop();
+//				contextTimerConversioTotal.stop();
+//				contextTimerConversioEntorn.stop();
 			}
 		} finally {
-			contextTimerTotal.stop();
-			contextTimerEntorn.stop();
+//			contextTimerTotal.stop();
+//			contextTimerEntorn.stop();
 		}
 	}
 
@@ -737,10 +679,10 @@ public class TascaServiceImpl implements TascaService {
 				"registreIndex=" + registreIndex + ", " +
 				"valorsFormulari=...)");
 		List<SeleccioOpcioDto> resposta = new ArrayList<SeleccioOpcioDto>();
-		Camp camp = campRepository.findById(campId);
+		Camp camp = campRepository.getById(campId);
 		Camp registreCamp = null;
 		if (registreCampId != null) {
-			registreCamp = campRepository.findById(registreCampId);
+			registreCamp = campRepository.getById(registreCampId);
 		}
 		String pidCalculat = processInstanceId;
 		if (processInstanceId == null && tascaId != null) {
@@ -1329,46 +1271,47 @@ public class TascaServiceImpl implements TascaService {
 			String usuari) {
 		ExpedientDto piexp = workflowEngineApi.expedientFindByProcessInstanceId(
 				task.getProcessInstanceId());
-		Expedient expedient = expedientRepository.findById(piexp.getId());
+		Expedient expedient = expedientRepository.getById(piexp.getId());
 
-		mesuresTemporalsHelper.tascaCompletarIniciar(expedient, tascaId, task.getTaskName());
-		
-		final Timer timerTotal = metricRegistry.timer(
-				MetricRegistry.name(
-						TascaService.class,
-						"completar"));
-		final Timer.Context contextTotal = timerTotal.time();
-		Counter countTotal = metricRegistry.counter(
-				MetricRegistry.name(
-						TascaService.class,
-						"completar.count"));
-		countTotal.inc();
-		final Timer timerEntorn = metricRegistry.timer(
-				MetricRegistry.name(
-						TascaService.class,
-						"completar",
-						expedient.getEntorn().getCodi()));
-		final Timer.Context contextEntorn = timerEntorn.time();
-		Counter countEntorn = metricRegistry.counter(
-				MetricRegistry.name(
-						TascaService.class,
-						"completar.count",
-						expedient.getEntorn().getCodi()));
-		countEntorn.inc();
-		final Timer timerTipexp = metricRegistry.timer(
-				MetricRegistry.name(
-						TascaService.class,
-						"completar",
-						expedient.getEntorn().getCodi(),
-						expedient.getTipus().getCodi()));
-		final Timer.Context contextTipexp = timerTipexp.time();
-		Counter countTipexp = metricRegistry.counter(
-				MetricRegistry.name(
-						TascaService.class,
-						"completar.count",
-						expedient.getEntorn().getCodi(),
-						expedient.getTipus().getCodi()));
-		countTipexp.inc();
+		// TODO: Mètriques
+//		mesuresTemporalsHelper.tascaCompletarIniciar(expedient, tascaId, task.getTaskName());
+//
+//		final Timer timerTotal = metricRegistry.timer(
+//				MetricRegistry.name(
+//						TascaService.class,
+//						"completar"));
+//		final Timer.Context contextTotal = timerTotal.time();
+//		Counter countTotal = metricRegistry.counter(
+//				MetricRegistry.name(
+//						TascaService.class,
+//						"completar.count"));
+//		countTotal.inc();
+//		final Timer timerEntorn = metricRegistry.timer(
+//				MetricRegistry.name(
+//						TascaService.class,
+//						"completar",
+//						expedient.getEntorn().getCodi()));
+//		final Timer.Context contextEntorn = timerEntorn.time();
+//		Counter countEntorn = metricRegistry.counter(
+//				MetricRegistry.name(
+//						TascaService.class,
+//						"completar.count",
+//						expedient.getEntorn().getCodi()));
+//		countEntorn.inc();
+//		final Timer timerTipexp = metricRegistry.timer(
+//				MetricRegistry.name(
+//						TascaService.class,
+//						"completar",
+//						expedient.getEntorn().getCodi(),
+//						expedient.getTipus().getCodi()));
+//		final Timer.Context contextTipexp = timerTipexp.time();
+//		Counter countTipexp = metricRegistry.counter(
+//				MetricRegistry.name(
+//						TascaService.class,
+//						"completar.count",
+//						expedient.getEntorn().getCodi(),
+//						expedient.getTipus().getCodi()));
+//		countTipexp.inc();
 		ThreadLocalInfo.clearProcessInstanceFinalitzatIds();
 		try {
 			workflowRetroaccioApi.afegirInformacioRetroaccioPerTasca(
@@ -1449,10 +1392,10 @@ public class TascaServiceImpl implements TascaService {
 					"", 
 					ex);
 		} finally {
-			mesuresTemporalsHelper.tascaCompletarFinalitzar(tascaId);
-			contextTotal.stop();
-			contextEntorn.stop();
-			contextTipexp.stop();
+//			mesuresTemporalsHelper.tascaCompletarFinalitzar(tascaId);
+//			contextTotal.stop();
+//			contextEntorn.stop();
+//			contextTipexp.stop();
 		}
 	}
 
@@ -1712,10 +1655,10 @@ public class TascaServiceImpl implements TascaService {
 			String tascaIniciId,
 			Long expedientTipusId,
 			Long definicioProcesId) {
-		ExpedientTipus expedientTipus = expedientTipusRepository.findById(expedientTipusId);
+		ExpedientTipus expedientTipus = expedientTipusRepository.getById(expedientTipusId);
 		DefinicioProces definicioProces = null;
 		if (definicioProcesId != null) {
-			definicioProces = definicioProcesRepository.findById(definicioProcesId);
+			definicioProces = definicioProcesRepository.getById(definicioProcesId);
 		} else {
 			definicioProces = definicioProcesRepository.findDarreraVersioAmbEntornIJbpmKey(
 					expedientTipus.getEntorn().getId(), 
@@ -1791,7 +1734,7 @@ public class TascaServiceImpl implements TascaService {
 
 	@Override
 	public TascaDto findTascaById(Long id) {
-		return conversioTipusHelper.convertir(tascaRepository.findById(id), TascaDto.class);
+		return conversioTipusHelper.convertir(tascaRepository.getById(id), TascaDto.class);
 	}
 
 	/** Per guardar la consulta de dades incials*/
@@ -1807,7 +1750,7 @@ public class TascaServiceImpl implements TascaService {
 				"valorsTasca=" + variables + ")");
 
 		
-		FormulariExtern formExtern = formulariExternRepository.findById(Long.parseLong(formulariId));
+		FormulariExtern formExtern = formulariExternRepository.getById(Long.parseLong(formulariId));
 		if (formExtern != null) {
 			if (formulariId.startsWith("TIE_")) {
 				if (dadesFormulariExternInicial == null)

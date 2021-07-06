@@ -3,11 +3,10 @@
  */
 package es.caib.helium.logic.helper;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.annotation.Resource;
-
+import es.caib.helium.logic.helper.PermisosHelper.ObjectIdentifierExtractor;
+import es.caib.helium.logic.intf.dto.EntornDto;
+import es.caib.helium.persist.entity.Entorn;
+import es.caib.helium.persist.repository.EntornRepository;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.acls.domain.BasePermission;
@@ -18,10 +17,9 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
-import es.caib.helium.logic.helper.PermisosHelper.ObjectIdentifierExtractor;
-import es.caib.helium.logic.intf.dto.EntornDto;
-import es.caib.helium.persist.entity.Entorn;
-import es.caib.helium.persist.repository.EntornRepository;
+import javax.annotation.Resource;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Helper per a enviament de correus
@@ -34,7 +32,7 @@ public class UsuariActualHelper {
 	@Resource
 	private EntornRepository entornRepository;
 
-	@Resource(name="permisosHelperV3")
+	@Resource
 	private PermisosHelper permisosHelper;
 	@Resource
 	private ConversioTipusHelper conversioTipusHelper;

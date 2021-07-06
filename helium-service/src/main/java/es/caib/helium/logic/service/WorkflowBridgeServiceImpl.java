@@ -1,7 +1,6 @@
 package es.caib.helium.logic.service;
 
 import es.caib.helium.logic.helper.*;
-import es.caib.helium.logic.intf.service.WorkflowBridgeService;
 import es.caib.helium.logic.intf.WorkflowEngineApi;
 import es.caib.helium.logic.intf.WorkflowRetroaccioApi;
 import es.caib.helium.logic.intf.WorkflowRetroaccioApi.ExpedientRetroaccioEstat;
@@ -10,13 +9,18 @@ import es.caib.helium.logic.intf.dto.*;
 import es.caib.helium.logic.intf.exception.NoTrobatException;
 import es.caib.helium.logic.intf.exception.SistemaExternException;
 import es.caib.helium.logic.intf.exception.ValidacioException;
+import es.caib.helium.logic.intf.extern.domini.FilaResultat;
+import es.caib.helium.logic.intf.extern.domini.ParellaCodiValor;
+import es.caib.helium.logic.intf.service.WorkflowBridgeService;
 import es.caib.helium.logic.intf.util.JbpmVars;
 import es.caib.helium.logic.security.ExtendedPermission;
 import es.caib.helium.logic.util.GlobalProperties;
+import es.caib.helium.ms.domini.DominiMs;
+import es.caib.helium.persist.entity.Registre;
+import es.caib.helium.persist.entity.Termini;
 import es.caib.helium.persist.entity.*;
 import es.caib.helium.persist.repository.*;
 import es.caib.helium.persist.util.ThreadLocalInfo;
-import es.caib.helium.ms.domini.DominiMs;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.acls.model.Permission;
@@ -78,8 +82,8 @@ public class WorkflowBridgeServiceImpl implements WorkflowBridgeService {
     private TerminiHelper terminiHelper;
     @Resource
     private TascaSegonPlaHelper tascaSegonPlaHelper;
-    @Resource(name = "documentHelperV3")
-    private DocumentHelperV3 documentHelper;
+    @Resource
+    private DocumentHelper documentHelper;
     @Resource
     private AlertaHelper alertaHelper;
     @Resource
@@ -131,19 +135,16 @@ public class WorkflowBridgeServiceImpl implements WorkflowBridgeService {
                 "estatId=" + estatId + ", " +
                 "nomesFinalitzats=" + nomesFinalitzats + ", " +
                 "nomesFinalitzats=" + nomesFinalitzats + ")");
-        Entorn entorn = entornRepository.findById(entornId);
-        if (entorn == null)
-            throw new NoTrobatException(Entorn.class, entornId);
+        Entorn entorn = entornRepository.findById(entornId)
+                .orElseThrow(() -> new NoTrobatException(Entorn.class, entornId));
         ExpedientTipus expedientTipus = null;
         Estat estat = null;
         if (expedientTipusId != null) {
-            expedientTipus = expedientTipusRepository.findById(expedientTipusId);
-            if (expedientTipus == null)
-                throw new NoTrobatException(ExpedientTipus.class, expedientTipusId);
+            expedientTipus = expedientTipusRepository.findById(expedientTipusId)
+                    .orElseThrow(() -> new NoTrobatException(ExpedientTipus.class, expedientTipusId));
             if (estatId != null) {
-                estat = estatRepository.findById(estatId);
-                if (estat == null)
-                    throw new NoTrobatException(Estat.class, estatId);
+                estat = estatRepository.findById(estatId)
+                        .orElseThrow(() -> new NoTrobatException(Estat.class, estatId));
             }
         }
         List<Expedient> expedients = expedientHelper.findByFiltreGeneral(
@@ -178,9 +179,8 @@ public class WorkflowBridgeServiceImpl implements WorkflowBridgeService {
                 "filtreValors=" + filtreValors + ")");
         List<ExpedientInfo> resposta = new ArrayList<ExpedientInfo>();
 
-        Entorn entorn = entornRepository.findById(entornId);
-        if (entorn == null)
-            throw new NoTrobatException(Entorn.class, entornId);
+        Entorn entorn = entornRepository.findById(entornId)
+                .orElseThrow(() -> new NoTrobatException(Entorn.class, entornId));
         // comprovar l'accés a l'entorn
         ExpedientTipus expedientTipus = expedientTipusRepository.findByEntornAndCodi(entorn, expedientTipusCodi);
         if (expedientTipus == null)
@@ -245,9 +245,8 @@ public class WorkflowBridgeServiceImpl implements WorkflowBridgeService {
                 "entornId=" + entornId + ", " +
                 "expedientTipusCodi=" + expedientTipusCodi + ", " +
                 "numero=" + numero + ")");
-        Entorn entorn = entornRepository.findById(entornId);
-        if (entorn == null)
-            throw new NoTrobatException(Entorn.class, entornId);
+        Entorn entorn = entornRepository.findById(entornId)
+                .orElseThrow(() -> new NoTrobatException(Entorn.class, entornId));
 
         ExpedientTipus expedientTipus = expedientTipusRepository.findByEntornAndCodi(
                 entorn,
@@ -271,9 +270,8 @@ public class WorkflowBridgeServiceImpl implements WorkflowBridgeService {
                 "entornId=" + entornId + ", " +
                 "expedientTipusCodi=" + expedientTipusCodi + ", " +
                 "numero=" + numero + ")");
-        Entorn entorn = entornRepository.findById(entornId);
-        if (entorn == null)
-            throw new NoTrobatException(Entorn.class, entornId);
+        Entorn entorn = entornRepository.findById(entornId)
+                .orElseThrow(() -> new NoTrobatException(Entorn.class, entornId));
 
         ExpedientTipus expedientTipus = expedientTipusRepository.findByEntornAndCodi(
                 entorn,
@@ -307,12 +305,10 @@ public class WorkflowBridgeServiceImpl implements WorkflowBridgeService {
         logger.debug("Relacionant els expedients (" +
                 "expedientIdOrigen=" + expedientIdOrigen + ", " +
                 "expedientIdDesti=" + expedientIdDesti + ")");
-        Expedient origen = expedientRepository.findById(expedientIdOrigen);
-        if (origen == null)
-            throw new NoTrobatException(Expedient.class, expedientIdOrigen);
-        Expedient desti = expedientRepository.findById(expedientIdDesti);
-        if (desti == null)
-            throw new NoTrobatException(Expedient.class, expedientIdDesti);
+        Expedient origen = expedientRepository.findById(expedientIdOrigen)
+                .orElseThrow(() -> new NoTrobatException(Expedient.class, expedientIdOrigen));
+        Expedient desti = expedientRepository.findById(expedientIdDesti)
+                .orElseThrow(() -> new NoTrobatException(Expedient.class, expedientIdDesti));
         expedientHelper.relacioCrear(
                 origen,
                 desti);
@@ -698,7 +694,7 @@ public class WorkflowBridgeServiceImpl implements WorkflowBridgeService {
             String errorDesc,
             String errorFull) {
         logger.error("JOB (" + jobId + "): Actualitzant error de l'expedient");
-        Expedient expedient = expedientRepository.findById(expedientId);
+        Expedient expedient = expedientRepository.getById(expedientId);
         expedient.setErrorDesc(errorDesc);
         expedient.setErrorFull(errorFull);
         expedientRepository.save(expedient);
@@ -930,10 +926,9 @@ public class WorkflowBridgeServiceImpl implements WorkflowBridgeService {
         logger.debug("Obtenint el document de disseny donada la definició de procés i el codi (" +
                 "definicioProcesId=" + definicioProcesId + ", " +
                 "documentCodi=" + documentCodi + ")");
-        DefinicioProces definicioProces = definicioProcesRepository.findById(definicioProcesId);
+        DefinicioProces definicioProces = definicioProcesRepository.findById(definicioProcesId)
+                .orElseThrow(() -> new NoTrobatException(DefinicioProces.class, definicioProcesId));
         Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
-        if (definicioProces == null)
-            throw new NoTrobatException(DefinicioProces.class, definicioProcesId);
         ExpedientTipus expedientTipus = expedient.getTipus();
 
         if (expedientTipus.isAmbInfoPropia())
@@ -1421,12 +1416,10 @@ public class WorkflowBridgeServiceImpl implements WorkflowBridgeService {
                 "data=" + data + ", " +
                 "usuariCodi=" + usuariCodi + ", " +
                 "text=" + text + ")");
-        Entorn entorn = entornRepository.findById(entornId);
-        if (entorn == null)
-            throw new NoTrobatException(Entorn.class, entornId);
-        Expedient expedient = expedientRepository.findById(expedientId);
-        if (expedient == null)
-            throw new NoTrobatException(Expedient.class, expedientId);
+        Entorn entorn = entornRepository.findById(entornId)
+                .orElseThrow(() -> new NoTrobatException(Entorn.class, entornId));
+        Expedient expedient = expedientRepository.findById(expedientId)
+                .orElseThrow(() -> new NoTrobatException(Expedient.class, expedientId));
 
         alertaHelper.crearAlerta(entorn, expedient, data, usuariCodi, text);
     }
@@ -1516,9 +1509,8 @@ public class WorkflowBridgeServiceImpl implements WorkflowBridgeService {
                 "entornId=" + entornId + ", " +
                 "expedientTipusCodi=" + expedientTipusCodi + ", " +
                 "estatCodi=" + estatCodi + ")");
-        Entorn entorn = entornRepository.findById(entornId);
-        if (entorn == null)
-            throw new NoTrobatException(Entorn.class, entornId);
+        Entorn entorn = entornRepository.findById(entornId)
+                .orElseThrow(() -> new NoTrobatException(Entorn.class, entornId));
         ExpedientTipus expedientTipus = expedientTipusRepository.findByEntornAndCodi(
                 entorn,
                 expedientTipusCodi);
@@ -1588,7 +1580,7 @@ public class WorkflowBridgeServiceImpl implements WorkflowBridgeService {
 
         this.validaInteressat(interessat);
 
-        Expedient expedient = expedientRepository.findById(interessat.getExpedientId());
+        Expedient expedient = expedientRepository.getById(interessat.getExpedientId());
 
         if (interessatRepository.findByCodiAndExpedient(interessat.getCodi(), expedient) != null) {
             throw new ValidacioException("Ja existeix un interessat amb aquest codi");
@@ -1622,7 +1614,7 @@ public class WorkflowBridgeServiceImpl implements WorkflowBridgeService {
 
         this.validaInteressat(interessat);
 
-        Expedient expedient = expedientRepository.findById(interessat.getExpedientId());
+        Expedient expedient = expedientRepository.getById(interessat.getExpedientId());
 
         if (interessatRepository.findByCodiAndExpedient(interessat.getCodi(), expedient) == null) {
             throw new ValidacioException("Un interessat amb aquest codi no existeix");
@@ -1651,7 +1643,7 @@ public class WorkflowBridgeServiceImpl implements WorkflowBridgeService {
     @Override
     public void interessatEliminar(String interessatCodi, Long expedientId) {
 
-        Expedient expedient = expedientRepository.findById(expedientId);
+        Expedient expedient = expedientRepository.getById(expedientId);
 
         if (interessatRepository.findByCodiAndExpedient(interessatCodi, expedient) == null) {
             throw new ValidacioException("Un interessat amb aquest codi no existeix");
@@ -1855,7 +1847,7 @@ public class WorkflowBridgeServiceImpl implements WorkflowBridgeService {
         boolean ignored = false;
 
         DefinicioProces pDef = definicioProcesRepository.findByJbpmId(processDefinitionId);
-        Expedient expedient = expedientRepository.findById(expedientId);
+        Expedient expedient = expedientRepository.getById(expedientId);
         ExpedientTipus expedientTipus = expedient != null ? expedient.getTipus() : null;
         if(varCodi.startsWith(JbpmVars.PREFIX_DOCUMENT)) {
             // Document

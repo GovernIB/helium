@@ -1,16 +1,13 @@
 package es.caib.helium.logic.util;
 
+import org.jodconverter.core.DocumentConverter;
+import org.jodconverter.core.document.DocumentFormat;
+import org.jodconverter.core.document.DocumentFormatRegistry;
+import org.springframework.beans.factory.annotation.Autowired;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
-import java.io.OutputStream;
 
-import com.artofsolving.jodconverter.DefaultDocumentFormatRegistry;
-import com.artofsolving.jodconverter.DocumentConverter;
-import com.artofsolving.jodconverter.DocumentFormat;
-import com.artofsolving.jodconverter.DocumentFormatRegistry;
-import com.artofsolving.jodconverter.openoffice.connection.SocketOpenOfficeConnection;
-import com.artofsolving.jodconverter.openoffice.converter.StreamOpenOfficeDocumentConverter;
 
 /**
  * Classe per converir documents a PDF.
@@ -19,8 +16,9 @@ import com.artofsolving.jodconverter.openoffice.converter.StreamOpenOfficeDocume
  */
 public class ConvertirPDF {
 
+	@Autowired
 	private DocumentConverter documentConverter;
-	private DocumentFormatRegistry documentFormatRegistry;
+//	private DocumentFormatRegistry documentFormatRegistry;
 
 
 
@@ -35,17 +33,21 @@ public class ConvertirPDF {
 				DocumentFormat inputFormat = formatPerNomArxiu(nom);
 				if (inputFormat == null)
 					throw new IllegalArgumentException("format d'entrada no suportat");
-				DocumentFormatRegistry documentFormatRegistry = getDocumentFormatRegistry();
-				DocumentFormat outputFormat = documentFormatRegistry.getFormatByFileExtension(getPropertyOutputExtension().toLowerCase());
+				DocumentFormatRegistry documentFormatRegistry = documentConverter.getFormatRegistry();
+				DocumentFormat outputFormat = documentFormatRegistry.getFormatByExtension(getPropertyOutputExtension().toLowerCase());
 				if (outputFormat == null)
 					throw new IllegalArgumentException("format de sortida no suportat");
 				// No s'afegeix res al pdf.
-				if (!outputFormat.getFileExtension().equals(inputFormat.getFileExtension())) {
-					convert(
-							inputStream,
-							inputFormat,
-							outputStream,
-							outputFormat);
+				if (!outputFormat.getExtension().equals(inputFormat.getExtension())) {
+					documentConverter.convert(inputStream)
+							.to(outputStream)
+							.as(outputFormat)
+							.execute();
+//					convert(
+//							inputStream,
+//							inputFormat,
+//							outputStream,
+//							outputFormat);
 				} else {
 					return contingut;
 				}
@@ -56,38 +58,37 @@ public class ConvertirPDF {
 
 	public String getArxiuMimeType(String nomArxiu) {
 		DocumentFormat format = formatPerNomArxiu(nomArxiu);
-		return format.getMimeType();
+		return format.getMediaType();
 	}
 
 
 
-	private DocumentConverter getDocumentConverter() {
-		initOpenOfficeConnection();
-		return documentConverter;
-	}
+//	private DocumentConverter getDocumentConverter() {
+//		initOpenOfficeConnection();
+//		return documentConverter;
+//	}
 
-	private DocumentFormatRegistry getDocumentFormatRegistry() {
-		initOpenOfficeConnection();
-		return documentFormatRegistry;
-	}
-
-	private void initOpenOfficeConnection() {
-		if (documentFormatRegistry == null)
-			documentFormatRegistry = new DefaultDocumentFormatRegistry();
-		if (documentConverter == null) {
-			String host = getPropertyHost();
-			int port = getPropertyPort();
-			documentConverter = new StreamOpenOfficeDocumentConverter(
-					new SocketOpenOfficeConnection(host, port),
-					documentFormatRegistry);
-		}
-	}
+//	private DocumentFormatRegistry getDocumentFormatRegistry() {
+//		initOpenOfficeConnection();
+//		return documentFormatRegistry;
+//	}
+//	private void initOpenOfficeConnection() {
+//		if (documentFormatRegistry == null)
+//			documentFormatRegistry = new DefaultDocumentFormatRegistry();
+//		if (documentConverter == null) {
+//			String host = getPropertyHost();
+//			int port = getPropertyPort();
+//			documentConverter = new StreamOpenOfficeDocumentConverter(
+//					new SocketOpenOfficeConnection(host, port),
+//					documentFormatRegistry);
+//		}
+//	}
 
 	private DocumentFormat formatPerNomArxiu(String fileName) {
 		int indexPunt = fileName.lastIndexOf(".");
 		if (indexPunt != -1) {
 			String extensio = fileName.substring(indexPunt + 1);
-			return getDocumentFormatRegistry().getFormatByFileExtension(extensio);
+			return documentConverter.getFormatRegistry().getFormatByExtension(extensio);
 		}
 		return null;
 	}
@@ -97,22 +98,10 @@ public class ConvertirPDF {
 		int indexPunt = fileName.lastIndexOf(".");
 		if (indexPunt != -1) {
 			String nom = fileName.substring(0, indexPunt);
-			return nom + "." + format.getFileExtension();
+			return nom + "." + format.getExtension();
 		} else {
-			return fileName + "." + format.getFileExtension();
+			return fileName + "." + format.getExtension();
 		}
-	}
-
-	private void convert(
-			InputStream in,
-			DocumentFormat inputFormat,
-			OutputStream out,
-			DocumentFormat outputFormat) {
-		getDocumentConverter().convert(
-				in,
-				inputFormat,
-				out,
-				outputFormat);
 	}
 
 	private boolean getPropertyEnabled() {

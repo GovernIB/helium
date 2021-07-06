@@ -3,24 +3,21 @@
  */
 package es.caib.helium.logic.service;
 
-import net.conselldemallorca.helium.core.helperv26.MesuresTemporalsHelper;
-import net.conselldemallorca.helium.core.security.ExtendedPermission;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.security.acls.model.Permission;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import es.caib.emiserv.logic.intf.exception.NoTrobatException;
-import es.caib.emiserv.logic.intf.exception.PermisDenegatException;
 import es.caib.helium.logic.helper.ExpedientHelper;
 import es.caib.helium.logic.intf.WorkflowRetroaccioApi;
 import es.caib.helium.logic.intf.dto.ExpedientTascaDto;
 import es.caib.helium.logic.intf.dto.InformacioRetroaccioDto;
 import es.caib.helium.logic.intf.dto.InstanciaProcesDto;
+import es.caib.helium.logic.intf.exception.NoTrobatException;
+import es.caib.helium.logic.intf.exception.PermisDenegatException;
 import es.caib.helium.logic.intf.service.ExpedientRegistreService;
+import es.caib.helium.logic.security.ExtendedPermission;
 import es.caib.helium.persist.entity.Expedient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.security.acls.model.Permission;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.util.List;
@@ -41,8 +38,8 @@ public class ExpedientRegistreServiceImpl implements ExpedientRegistreService {
 	private ExpedientHelper expedientHelper;
 	@Resource
 	private WorkflowRetroaccioApi workflowRetroaccioApi;
-	@Resource
-	private MesuresTemporalsHelper mesuresTemporalsHelper;
+//	@Resource
+//	private MesuresTemporalsHelper mesuresTemporalsHelper;
 
 
 
@@ -61,14 +58,15 @@ public class ExpedientRegistreServiceImpl implements ExpedientRegistreService {
 				new Permission[] {
 						ExtendedPermission.LOG_READ,
 						ExtendedPermission.ADMINISTRATION});
-		mesuresTemporalsHelper.mesuraIniciar("Expedient REGISTRE", "expedient", expedient.getTipus().getNom(), null, "findAmbExpedientIdOrdenatsPerData");
+		// TODO: Mètriques
+//		mesuresTemporalsHelper.mesuraIniciar("Expedient REGISTRE", "expedient", expedient.getTipus().getNom(), null, "findAmbExpedientIdOrdenatsPerData");
 
 		sortedEntries = workflowRetroaccioApi.findInformacioRetroaccioExpedientOrdenatPerData(
 				expedientId,
 				expedient.getProcessInstanceId(),
 				detall);
 
-		mesuresTemporalsHelper.mesuraCalcular("Expedient REGISTRE", "expedient", expedient.getTipus().getNom(), null, "obtenir tokens tasca");
+//		mesuresTemporalsHelper.mesuraCalcular("Expedient REGISTRE", "expedient", expedient.getTipus().getNom(), null, "obtenir tokens tasca");
 		return sortedEntries;
 	}
 
@@ -107,11 +105,11 @@ public class ExpedientRegistreServiceImpl implements ExpedientRegistreService {
 						ExtendedPermission.LOG_MANAGE,
 						ExtendedPermission.SUPERVISION,
 						ExtendedPermission.ADMINISTRATION});
-		mesuresTemporalsHelper.mesuraIniciar("Retrocedir" + (retrocedirPerTasques ? " per tasques" : ""), "expedient", expedient.getTipus().getNom());
+//		mesuresTemporalsHelper.mesuraIniciar("Retrocedir" + (retrocedirPerTasques ? " per tasques" : ""), "expedient", expedient.getTipus().getNom());
 		workflowRetroaccioApi.executaRetroaccio(
 				informacioRetroaccioId,
 				retrocedirPerTasques);
-		mesuresTemporalsHelper.mesuraCalcular("Retrocedir" + (retrocedirPerTasques ? " per tasques" : ""), "expedient", expedient.getTipus().getNom());
+//		mesuresTemporalsHelper.mesuraCalcular("Retrocedir" + (retrocedirPerTasques ? " per tasques" : ""), "expedient", expedient.getTipus().getNom());
 	}
 
 	/**

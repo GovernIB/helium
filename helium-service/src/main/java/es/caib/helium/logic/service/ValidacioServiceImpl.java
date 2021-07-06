@@ -3,26 +3,24 @@
  */
 package es.caib.helium.logic.service;
 
-import java.util.List;
-
-import javax.annotation.Resource;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import es.caib.emiserv.logic.intf.exception.NoTrobatException;
-import es.caib.emiserv.logic.intf.exception.PermisDenegatException;
 import es.caib.helium.logic.helper.ConversioTipusHelper;
 import es.caib.helium.logic.helper.PaginacioHelper;
 import es.caib.helium.logic.intf.dto.PaginaDto;
 import es.caib.helium.logic.intf.dto.PaginacioParamsDto;
 import es.caib.helium.logic.intf.dto.ValidacioDto;
+import es.caib.helium.logic.intf.exception.NoTrobatException;
+import es.caib.helium.logic.intf.exception.PermisDenegatException;
 import es.caib.helium.logic.intf.service.ValidacioService;
 import es.caib.helium.persist.entity.Validacio;
 import es.caib.helium.persist.repository.CampRepository;
 import es.caib.helium.persist.repository.CampValidacioRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import javax.annotation.Resource;
+import java.util.List;
 
 /**
  * Servei per gestionar les validacions
@@ -53,7 +51,7 @@ public class ValidacioServiceImpl implements ValidacioService{
 				"validacio=" + validacio + ")");
 
 		Validacio entity = new Validacio();
-		entity.setCamp(campRepository.findById(campId));
+		entity.setCamp(campRepository.getById(campId));
 		entity.setExpressio(validacio.getExpressio());
 		entity.setMissatge(validacio.getMissatge());
 		entity.setOrdre(campValidacioRepository.getNextOrdre(campId));
@@ -72,7 +70,7 @@ public class ValidacioServiceImpl implements ValidacioService{
 				"validacio.id=" + validacio.getId() + ", " +
 				"validacio =" + validacio + ")");
 		
-		Validacio entity = campValidacioRepository.findById(validacio.getId());
+		Validacio entity = campValidacioRepository.getById(validacio.getId());
 		entity.setExpressio(validacio.getExpressio());
 		entity.setMissatge(validacio.getMissatge());
 		
@@ -88,7 +86,7 @@ public class ValidacioServiceImpl implements ValidacioService{
 				"Esborrant la validacio del tipus d'expedient (" +
 				"validacioId=" + validacioValidacioId +  ")");
 		
-		Validacio validacio = campValidacioRepository.findById(validacioValidacioId);
+		Validacio validacio = campValidacioRepository.getById(validacioValidacioId);
 		campValidacioRepository.delete(validacio);	
 		campValidacioRepository.flush();
 		
@@ -109,7 +107,7 @@ public class ValidacioServiceImpl implements ValidacioService{
 			Long id, 
 			int posicio) {
 		boolean ret = false;
-		Validacio validacio = campValidacioRepository.findById(id);
+		Validacio validacio = campValidacioRepository.getById(id);
 		if (validacio != null) {
 			List<Validacio> validacions = campValidacioRepository.findAmbCampOrdenats(validacio.getCamp().getId());
 			if(posicio != validacions.indexOf(validacio)) {
@@ -129,10 +127,8 @@ public class ValidacioServiceImpl implements ValidacioService{
 		logger.debug(
 				"Consultant la validacio del camp del tipus d'expedient amb id (" +
 				"validacioId=" + id +  ")");
-		Validacio validacio = campValidacioRepository.findById(id);
-		if (validacio == null) {
-			throw new NoTrobatException(Validacio.class, id);
-		}
+		Validacio validacio = campValidacioRepository.findById(id)
+				.orElseThrow(() -> new NoTrobatException(Validacio.class, id));
 		return conversioTipusHelper.convertir(
 				validacio,
 				ValidacioDto.class);

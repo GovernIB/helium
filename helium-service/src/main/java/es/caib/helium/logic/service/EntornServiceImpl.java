@@ -3,19 +3,6 @@
  */
 package es.caib.helium.logic.service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
-import javax.annotation.Resource;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import es.caib.emiserv.logic.intf.exception.NoTrobatException;
 import es.caib.helium.logic.helper.ConversioTipusHelper;
 import es.caib.helium.logic.helper.EntornHelper;
 import es.caib.helium.logic.helper.PaginacioHelper;
@@ -25,9 +12,20 @@ import es.caib.helium.logic.intf.dto.EntornDto;
 import es.caib.helium.logic.intf.dto.PaginaDto;
 import es.caib.helium.logic.intf.dto.PaginacioParamsDto;
 import es.caib.helium.logic.intf.dto.PermisDto;
+import es.caib.helium.logic.intf.exception.NoTrobatException;
 import es.caib.helium.logic.intf.service.EntornService;
 import es.caib.helium.persist.entity.Entorn;
 import es.caib.helium.persist.repository.EntornRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import javax.annotation.Resource;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Implementació dels mètodes de EntornService.
@@ -46,7 +44,7 @@ public class EntornServiceImpl implements EntornService {
 	private ConversioTipusHelper conversioTipusHelper;
 	@Resource
 	private PaginacioHelper paginacioHelper;
-	@Resource(name = "permisosHelperV3") 
+	@Resource
 	private PermisosHelper permisosHelper;
 	@Resource 
 	private EntornHelper entornHelper;
@@ -302,12 +300,8 @@ public class EntornServiceImpl implements EntornService {
 
 	private Entorn comprovarEntorn(
 			Long entornId) {
-		Entorn entorn = entornRepository.findById(entornId);
-		if (entorn == null) {
-			throw new NoTrobatException(
-					Entorn.class,
-					entornId);
-		}
+		Entorn entorn = entornRepository.findById(entornId)
+				.orElseThrow(() -> new NoTrobatException(Entorn.class, entornId));
 		return entorn;
 	}
 

@@ -3,23 +3,6 @@
  */
 package es.caib.helium.logic.service;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.annotation.Resource;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.data.domain.Page;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import es.caib.emiserv.logic.intf.exception.NoTrobatException;
-import es.caib.emiserv.logic.intf.exception.PermisDenegatException;
-import es.caib.emiserv.logic.intf.exception.ValidacioException;
 import es.caib.helium.logic.helper.ConversioTipusHelper;
 import es.caib.helium.logic.helper.EntornHelper;
 import es.caib.helium.logic.helper.ExpedientTipusHelper;
@@ -30,6 +13,9 @@ import es.caib.helium.logic.intf.dto.EnumeracioDto;
 import es.caib.helium.logic.intf.dto.ExpedientTipusEnumeracioValorDto;
 import es.caib.helium.logic.intf.dto.PaginaDto;
 import es.caib.helium.logic.intf.dto.PaginacioParamsDto;
+import es.caib.helium.logic.intf.exception.NoTrobatException;
+import es.caib.helium.logic.intf.exception.PermisDenegatException;
+import es.caib.helium.logic.intf.exception.ValidacioException;
 import es.caib.helium.logic.intf.service.EnumeracioService;
 import es.caib.helium.persist.entity.Entorn;
 import es.caib.helium.persist.entity.Enumeracio;
@@ -39,6 +25,18 @@ import es.caib.helium.persist.repository.EntornRepository;
 import es.caib.helium.persist.repository.EnumeracioRepository;
 import es.caib.helium.persist.repository.EnumeracioValorsRepository;
 import es.caib.helium.persist.repository.ExpedientTipusRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import javax.annotation.Resource;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Implementació del servei per a gestionar enumeracions.
@@ -192,11 +190,11 @@ public class EnumeracioServiceImpl implements EnumeracioService {
 		Enumeracio enumeracio;
 		if (expedientTipusId != null)
 			enumeracio = enumeracioRepository.findByExpedientTipusAndCodi(
-					expedientTipusRepository.findById(expedientTipusId), 
+					expedientTipusRepository.getById(expedientTipusId),
 					codi);
 		else
 			enumeracio = enumeracioRepository.findByEntornAndCodi(
-					entornRepository.findById(entornId), 
+					entornRepository.getById(entornId),
 					codi);
 		if (enumeracio != null)
 			ret = conversioTipusHelper.convertir(
@@ -213,7 +211,7 @@ public class EnumeracioServiceImpl implements EnumeracioService {
 				"Esborrant l'enumeració (" +
 				"enumeracioId=" + enumeracioId +  ")");
 		
-		Enumeracio entity = enumeracioRepository.findById(enumeracioId);
+		Enumeracio entity = enumeracioRepository.getById(enumeracioId);
 
 		if (entity.getExpedientTipus() != null)
 			expedientTipusHelper.getExpedientTipusComprovantPermisDisseny(entity.getExpedientTipus().getId());
@@ -258,8 +256,8 @@ public class EnumeracioServiceImpl implements EnumeracioService {
 				"expedientTipusId=" + expedientTipusId + "," +
 				"enumeracioId=" + enumeracioId +  ")");
 		ExpedientTipus tipus = expedientTipusId != null?
-									expedientTipusRepository.findById(expedientTipusId) : null;
-		Enumeracio enumeracio = enumeracioRepository.findById(enumeracioId);
+									expedientTipusRepository.getById(expedientTipusId) : null;
+		Enumeracio enumeracio = enumeracioRepository.getById(enumeracioId);
 		if (enumeracio == null) {
 			throw new NoTrobatException(Enumeracio.class, enumeracioId);
 		}
@@ -289,7 +287,7 @@ public class EnumeracioServiceImpl implements EnumeracioService {
 				"enumeracio.id=" + enumeracio.getId() + ", " +
 				"enumeracio =" + enumeracio + ")");
 		
-		Enumeracio entity = enumeracioRepository.findById(enumeracio.getId());
+		Enumeracio entity = enumeracioRepository.getById(enumeracio.getId());
 		
 		if (entity.getExpedientTipus() != null)
 			expedientTipusHelper.getExpedientTipusComprovantPermisDisseny(entity.getExpedientTipus().getId());
@@ -361,7 +359,7 @@ public class EnumeracioServiceImpl implements EnumeracioService {
 				"entornId =" + entornId + ", " +
 				"document=" + enumeracio + ")");
 				
-		Enumeracio enumer = enumeracioRepository.findById(enumeracioId);
+		Enumeracio enumer = enumeracioRepository.getById(enumeracioId);
 		
 		//Es llançará un PermisDenegatException si escau
 		if (expedientTipusId != null)
@@ -383,7 +381,7 @@ public class EnumeracioServiceImpl implements EnumeracioService {
 	@Override
 	@Transactional
 	public void valorDelete(Long valorId) throws NoTrobatException, PermisDenegatException {
-		EnumeracioValors valor = enumeracioValorsRepository.findById(valorId);
+		EnumeracioValors valor = enumeracioValorsRepository.getById(valorId);
 		if (valor == null)
 			throw new NoTrobatException(EnumeracioValors.class, valorId);
 				
@@ -394,7 +392,7 @@ public class EnumeracioServiceImpl implements EnumeracioService {
 		else
 			entornHelper.getEntornComprovantPermisos(valor.getEnumeracio().getEntorn().getId(), true, true);
 
-		enumeracioValorsRepository.delete(valorId);
+		enumeracioValorsRepository.deleteById(valorId);
 		enumeracioValorsRepository.flush();
 		reordenarValorsEnumeracio(enumeracioId);
 	}
@@ -418,7 +416,7 @@ public class EnumeracioServiceImpl implements EnumeracioService {
 		logger.debug(
 				"Consultant el valor de l'enumeracio amb id (" +
 				"valorId=" + valorId +  ")");
-		EnumeracioValors valor = enumeracioValorsRepository.findById(valorId);
+		EnumeracioValors valor = enumeracioValorsRepository.getById(valorId);
 		if (valor == null) {
 			throw new NoTrobatException(EnumeracioValors.class, valorId);
 		}
@@ -437,7 +435,7 @@ public class EnumeracioServiceImpl implements EnumeracioService {
 				"enumeracioValor.id=" + enumeracioValor.getId() + ", " +
 				"enumeracioValor =" + enumeracioValor + ")");
 		
-		EnumeracioValors entity = enumeracioValorsRepository.findById(enumeracioValor.getId());
+		EnumeracioValors entity = enumeracioValorsRepository.getById(enumeracioValor.getId());
 		if (entity == null)
 			throw new NoTrobatException(EnumeracioValors.class, enumeracioValor.getId());
 				
@@ -467,7 +465,7 @@ public class EnumeracioServiceImpl implements EnumeracioService {
 				"Esborrant els valors de l'enumeració (" +
 				"enumeracioId=" + enumeracioId +  ")");
 		
-		Enumeracio entity = enumeracioRepository.findById(enumeracioId);
+		Enumeracio entity = enumeracioRepository.getById(enumeracioId);
 		if (entity == null)
 			throw new NoTrobatException(Enumeracio.class, enumeracioId);
 				
@@ -497,7 +495,7 @@ public class EnumeracioServiceImpl implements EnumeracioService {
 				"enumeracioId=" + enumeracioId + ", " +
 				"codi = " + codi + ")");
 		
-		Enumeracio enumeracio = enumeracioRepository.findById(enumeracioId);
+		Enumeracio enumeracio = enumeracioRepository.getById(enumeracioId);
 		
 		return conversioTipusHelper.convertir(
 				enumeracioValorsRepository.findByEnumeracioAndCodi(enumeracio, codi),
@@ -512,7 +510,7 @@ public class EnumeracioServiceImpl implements EnumeracioService {
 				"valorId=" + valorId + ", " +
 				"posicio=" + posicio + ")");
 		boolean ret = false;
-		EnumeracioValors camp = enumeracioValorsRepository.findById(valorId);		
+		EnumeracioValors camp = enumeracioValorsRepository.getById(valorId);
 		if (camp == null)
 			throw new NoTrobatException(EnumeracioValors.class, valorId);
 				

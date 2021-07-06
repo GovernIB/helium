@@ -1,25 +1,10 @@
 package es.caib.helium.logic.service;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.util.List;
-import java.util.Map;
-
-import javax.annotation.Resource;
-import javax.xml.bind.DatatypeConverter;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import es.caib.emiserv.logic.intf.exception.NoTrobatException;
-import es.caib.emiserv.logic.intf.exception.ValidacioException;
 import es.caib.helium.logic.helper.ConversioTipusHelper;
 import es.caib.helium.logic.helper.UsuariActualHelper;
 import es.caib.helium.logic.intf.dto.ReproDto;
+import es.caib.helium.logic.intf.exception.NoTrobatException;
+import es.caib.helium.logic.intf.exception.ValidacioException;
 import es.caib.helium.logic.intf.service.ReproService;
 import es.caib.helium.persist.entity.ExpedientTipus;
 import es.caib.helium.persist.entity.Repro;
@@ -27,6 +12,19 @@ import es.caib.helium.persist.entity.Tasca;
 import es.caib.helium.persist.repository.ExpedientTipusRepository;
 import es.caib.helium.persist.repository.ReproRepository;
 import es.caib.helium.persist.repository.TascaRepository;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import javax.annotation.Resource;
+import javax.xml.bind.DatatypeConverter;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Servei per gestionar els terminis dels expedients
@@ -52,7 +50,7 @@ public class ReproServiceImpl implements ReproService {
 	@Override
 	public List<ReproDto> findReprosByUsuariTipusExpedient(Long expedientTipusId, String tascaCodi) {
 		
-		ExpedientTipus expedientTipus = expedientTipusRepository.findById(expedientTipusId);
+		ExpedientTipus expedientTipus = expedientTipusRepository.getById(expedientTipusId);
 		
 		List<Repro> repros = reproRepository.findByUsuariAndExpedientTipusIdAndTascaCodiOrderByIdDesc(
 																									usuariActualHelper.getUsuariActual(), 
@@ -66,18 +64,17 @@ public class ReproServiceImpl implements ReproService {
 	@Transactional(readOnly=true)
 	@Override
 	public ReproDto findById(Long id) {
-		Repro repro = reproRepository.findById(id);
-		if (repro == null)
-			throw new NoTrobatException(Repro.class, id);
+		Repro repro = reproRepository.findById(id)
+				.orElseThrow(()-> new NoTrobatException(Repro.class, id));
 		
-		return conversioTipusHelper.convertir(reproRepository.findById(id), ReproDto.class);
+		return conversioTipusHelper.convertir(reproRepository.getById(id), ReproDto.class);
 	}
 	
 	@SuppressWarnings("unchecked")
 	@Transactional(readOnly=true)
 	@Override
 	public Map<String,Object> findValorsById(Long id) {
-		Repro repro = reproRepository.findById(id);
+		Repro repro = reproRepository.getById(id);
 		if (repro == null) {
 			logger.warn("No s'ha trobat la repro amb id " + id + " a findValorsById");
 			return null;	
@@ -116,12 +113,11 @@ public class ReproServiceImpl implements ReproService {
 	@Transactional
 	@Override
 	public String deleteById(Long id) {
-		Repro repro = reproRepository.findById(id);
-		if (repro == null)
-			throw new NoTrobatException(Repro.class, id);
+		Repro repro = reproRepository.findById(id)
+				.orElseThrow(() -> new NoTrobatException(Repro.class, id));
 		
 		String nom = repro.getNom();
-		reproRepository.delete(id);
+		reproRepository.deleteById(id);
 		return nom;
 	}
 
@@ -154,9 +150,8 @@ public class ReproServiceImpl implements ReproService {
 			Map<String, Object> valors) {
 		
 		Repro repro = null;
-		ExpedientTipus expedientTipus = expedientTipusRepository.findById(expedientTipusId);
-		if (expedientTipus == null)
-			throw new NoTrobatException(ExpedientTipus.class, expedientTipusId);
+		ExpedientTipus expedientTipus = expedientTipusRepository.findById(expedientTipusId)
+				.orElseThrow(() -> new NoTrobatException(ExpedientTipus.class, expedientTipusId));
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 	    ObjectOutputStream oos;
 		try {
@@ -169,7 +164,7 @@ public class ReproServiceImpl implements ReproService {
 	        String valors_s = DatatypeConverter.printBase64Binary(buf);
 	        String tascaCodi = null;
 	        if (tascaId != null) {
-		        Tasca tasca = tascaRepository.findById(tascaId);
+		        Tasca tasca = tascaRepository.getById(tascaId);
 		        tascaCodi = tasca.getJbpmName();
 	        }			
 			if (valors_s.getBytes("UTF-8").length > ReproServiceImpl.MAX_VALOR_LENGTH)

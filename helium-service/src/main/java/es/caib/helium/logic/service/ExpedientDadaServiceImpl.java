@@ -3,16 +3,6 @@
  */
 package es.caib.helium.logic.service;
 
-import net.conselldemallorca.helium.core.security.ExtendedPermission;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.security.acls.model.Permission;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import es.caib.emiserv.logic.intf.util.JbpmVars;
 import es.caib.helium.logic.helper.ConversioTipusHelper;
 import es.caib.helium.logic.helper.ExpedientHelper;
 import es.caib.helium.logic.helper.HerenciaHelper;
@@ -25,17 +15,25 @@ import es.caib.helium.logic.intf.dto.CampAgrupacioDto;
 import es.caib.helium.logic.intf.dto.ExpedientDadaDto;
 import es.caib.helium.logic.intf.dto.InstanciaProcesDto;
 import es.caib.helium.logic.intf.service.ExpedientDadaService;
+import es.caib.helium.logic.intf.util.JbpmVars;
+import es.caib.helium.logic.security.ExtendedPermission;
 import es.caib.helium.persist.entity.Camp;
+import es.caib.helium.persist.entity.Camp.TipusCamp;
 import es.caib.helium.persist.entity.CampAgrupacio;
 import es.caib.helium.persist.entity.DefinicioProces;
 import es.caib.helium.persist.entity.Expedient;
 import es.caib.helium.persist.entity.ExpedientTipus;
 import es.caib.helium.persist.entity.Registre;
-import es.caib.helium.persist.entity.Camp.TipusCamp;
 import es.caib.helium.persist.repository.CampAgrupacioRepository;
 import es.caib.helium.persist.repository.CampRepository;
 import es.caib.helium.persist.repository.DefinicioProcesRepository;
 import es.caib.helium.persist.repository.RegistreRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.security.acls.model.Permission;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
@@ -141,7 +139,7 @@ public class ExpedientDadaServiceImpl implements ExpedientDadaService {
 		// Esborra la descripció per variables que mantenen el valor de la consulta
 		Camp camp;
 		InstanciaProcesDto instanciaProces = expedientHelper.getInstanciaProcesById(processInstanceId);
-		DefinicioProces definicioProces = definicioProcesRepository.findById(instanciaProces.getDefinicioProces().getId());
+		DefinicioProces definicioProces = definicioProcesRepository.getById(instanciaProces.getDefinicioProces().getId());
 		if (expedient.getTipus().isAmbInfoPropia()) {
 			// obtenir el camp amb expedient tipus codi i codi de la variable
 			camp = campRepository.findByExpedientTipusAndCodi(expedient.getTipus().getId(), varCodi, expedient.getTipus().getExpedientTipusPare() != null);
@@ -199,7 +197,7 @@ public class ExpedientDadaServiceImpl implements ExpedientDadaService {
 		// Esborra la descripció per variables que mantenen el valor de la consulta
 		Camp camp;
 		InstanciaProcesDto instanciaProces = expedientHelper.getInstanciaProcesById(processInstanceId);
-		DefinicioProces definicioProces = definicioProcesRepository.findById(instanciaProces.getDefinicioProces().getId());
+		DefinicioProces definicioProces = definicioProcesRepository.getById(instanciaProces.getDefinicioProces().getId());
 		if (e.getTipus().isAmbInfoPropia()) {
 			// obtenir el camp amb expedient tipus codi i codi de la variable
 			camp = campRepository.findByExpedientTipusAndCodi(e.getTipus().getId(), varCodi, e.getTipus().getExpedientTipusPare() != null);

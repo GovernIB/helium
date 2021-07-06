@@ -1,17 +1,5 @@
 package es.caib.helium.logic.service;
 
-import net.conselldemallorca.helium.core.security.ExtendedPermission;
-import net.conselldemallorca.helium.core.util.GlobalProperties;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.security.acls.model.Permission;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import es.caib.emiserv.logic.intf.exception.NoTrobatException;
-import es.caib.emiserv.logic.intf.exception.ValidacioException;
 import es.caib.helium.logic.helper.ConversioTipusHelper;
 import es.caib.helium.logic.helper.ExpedientHelper;
 import es.caib.helium.logic.helper.MessageHelper;
@@ -20,7 +8,11 @@ import es.caib.helium.logic.intf.WorkflowEngineApi;
 import es.caib.helium.logic.intf.dto.FestiuDto;
 import es.caib.helium.logic.intf.dto.TerminiDto;
 import es.caib.helium.logic.intf.dto.TerminiIniciatDto;
+import es.caib.helium.logic.intf.exception.NoTrobatException;
+import es.caib.helium.logic.intf.exception.ValidacioException;
 import es.caib.helium.logic.intf.service.ExpedientTerminiService;
+import es.caib.helium.logic.security.ExtendedPermission;
+import es.caib.helium.logic.util.GlobalProperties;
 import es.caib.helium.persist.entity.DefinicioProces;
 import es.caib.helium.persist.entity.Expedient;
 import es.caib.helium.persist.entity.ExpedientTipus;
@@ -28,11 +20,16 @@ import es.caib.helium.persist.entity.Festiu;
 import es.caib.helium.persist.entity.Registre;
 import es.caib.helium.persist.entity.Termini;
 import es.caib.helium.persist.entity.TerminiIniciat;
-import es.caib.helium.persist.repository.ExpedientRepository;
 import es.caib.helium.persist.repository.FestiuRepository;
 import es.caib.helium.persist.repository.RegistreRepository;
 import es.caib.helium.persist.repository.TerminiIniciatRepository;
 import es.caib.helium.persist.repository.TerminiRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.security.acls.model.Permission;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.text.SimpleDateFormat;
@@ -58,8 +55,8 @@ public class ExpedientTerminiServiceImpl implements ExpedientTerminiService {
 	private TerminiIniciatRepository terminiIniciatRepository;
 	@Resource
 	private RegistreRepository registreRepository;
-	@Resource
-	private ExpedientRepository expedientRepository;
+//	@Resource
+//	private ExpedientRepository expedientRepository;
 	@Resource
 	private WorkflowEngineApi workflowEngineApi;
 	@Resource
@@ -96,10 +93,9 @@ public class ExpedientTerminiServiceImpl implements ExpedientTerminiService {
 		expedientHelper.comprovarInstanciaProces(
 				expedient,
 				processInstanceId);
-		Termini termini = terminiRepository.findById(terminiId);
-		if (termini == null)
-			throw new NoTrobatException(Termini.class, terminiId);
-		TerminiIniciat terminiIniciat = terminiIniciatRepository.findById(terminiId);
+		Termini termini = terminiRepository.findById(terminiId)
+				.orElseThrow(() -> new NoTrobatException(Termini.class, terminiId));
+		TerminiIniciat terminiIniciat = terminiIniciatRepository.getById(terminiId);
 		if (terminiIniciat == null) {
 			return iniciar(
 					terminiId,
@@ -358,12 +354,10 @@ public class ExpedientTerminiServiceImpl implements ExpedientTerminiService {
 		expedientHelper.comprovarInstanciaProces(
 				expedient,
 				processInstanceId);
-		TerminiIniciat terminiIniciat = terminiIniciatRepository.findById(terminiIniciatId);
-		if (terminiIniciat == null) {
-			throw new NoTrobatException(
+		TerminiIniciat terminiIniciat = terminiIniciatRepository.findById(terminiIniciatId)
+				.orElseThrow(() -> new NoTrobatException(
 					TerminiIniciat.class,
-					terminiIniciatId);
-		}
+					terminiIniciatId));
 		return conversioTipusHelper.convertir(
 				terminiIniciat,
 				TerminiIniciatDto.class);
@@ -535,8 +529,8 @@ public class ExpedientTerminiServiceImpl implements ExpedientTerminiService {
 			int mesos,
 			int dies,
 			boolean esDataFi) {	
-		Termini termini = terminiRepository.findById(terminiId);
-		TerminiIniciat terminiIniciat = terminiIniciatRepository.findById(terminiId);
+		Termini termini = terminiRepository.getById(terminiId);
+		TerminiIniciat terminiIniciat = terminiIniciatRepository.getById(terminiId);
 		
 		if (termini == null)
 			termini = terminiIniciat.getTermini();
@@ -663,12 +657,10 @@ public class ExpedientTerminiServiceImpl implements ExpedientTerminiService {
 			Long terminiIniciatId,
 			boolean comprovarDataInici,
 			boolean comprovarDataAturada) {
-		TerminiIniciat terminiIniciat = terminiIniciatRepository.findById(terminiIniciatId);
-		if (terminiIniciat == null) {
-			throw new NoTrobatException(
+		TerminiIniciat terminiIniciat = terminiIniciatRepository.findById(terminiIniciatId)
+				.orElseThrow(() -> new NoTrobatException(
 					TerminiIniciat.class,
-					terminiIniciatId);
-		}
+					terminiIniciatId));
 		if (comprovarDataInici && terminiIniciat.getDataInici() == null) {
 			throw new ValidacioException(
 					messageHelper.getMessage("error.terminiService.noIniciat"));

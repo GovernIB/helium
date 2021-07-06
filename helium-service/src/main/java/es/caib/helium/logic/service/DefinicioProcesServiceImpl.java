@@ -3,21 +3,6 @@
  */
 package es.caib.helium.logic.service;
 
-import net.conselldemallorca.helium.core.model.hibernate.*;
-import net.conselldemallorca.helium.core.util.EntornActual;
-import net.conselldemallorca.helium.v3.core.api.dto.*;
-import net.conselldemallorca.helium.v3.core.repository.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import es.caib.emiserv.logic.intf.exception.NoTrobatException;
-import es.caib.emiserv.logic.intf.exception.PermisDenegatException;
-import es.caib.emiserv.logic.intf.exportacio.DefinicioProcesExportacio;
-import es.caib.emiserv.logic.intf.exportacio.DefinicioProcesExportacioCommandDto;
 import es.caib.helium.logic.helper.ConversioTipusHelper;
 import es.caib.helium.logic.helper.DefinicioProcesHelper;
 import es.caib.helium.logic.helper.EntornHelper;
@@ -25,40 +10,23 @@ import es.caib.helium.logic.helper.ExpedientTipusHelper;
 import es.caib.helium.logic.helper.HerenciaHelper;
 import es.caib.helium.logic.helper.PaginacioHelper;
 import es.caib.helium.logic.intf.WorkflowEngineApi;
-import es.caib.helium.logic.intf.dto.CampDto;
-import es.caib.helium.logic.intf.dto.CampTascaDto;
-import es.caib.helium.logic.intf.dto.ConsultaDto;
-import es.caib.helium.logic.intf.dto.DefinicioProcesDto;
-import es.caib.helium.logic.intf.dto.DocumentDto;
-import es.caib.helium.logic.intf.dto.DocumentTascaDto;
-import es.caib.helium.logic.intf.dto.FirmaTascaDto;
-import es.caib.helium.logic.intf.dto.PaginaDto;
-import es.caib.helium.logic.intf.dto.PaginacioParamsDto;
-import es.caib.helium.logic.intf.dto.TascaDto;
-import es.caib.helium.logic.intf.dto.TerminiDto;
+import es.caib.helium.logic.intf.dto.*;
+import es.caib.helium.logic.intf.exception.NoTrobatException;
+import es.caib.helium.logic.intf.exception.PermisDenegatException;
+import es.caib.helium.logic.intf.exportacio.DefinicioProcesExportacio;
+import es.caib.helium.logic.intf.exportacio.DefinicioProcesExportacioCommandDto;
 import es.caib.helium.logic.intf.service.DefinicioProcesService;
 import es.caib.helium.logic.intf.service.Jbpm3HeliumService;
-import es.caib.helium.persist.entity.Camp;
-import es.caib.helium.persist.entity.CampTasca;
-import es.caib.helium.persist.entity.Consulta;
-import es.caib.helium.persist.entity.DefinicioProces;
-import es.caib.helium.persist.entity.Document;
-import es.caib.helium.persist.entity.DocumentTasca;
-import es.caib.helium.persist.entity.Entorn;
-import es.caib.helium.persist.entity.ExpedientTipus;
-import es.caib.helium.persist.entity.FirmaTasca;
-import es.caib.helium.persist.entity.Tasca;
+import es.caib.helium.logic.util.EntornActual;
 import es.caib.helium.persist.entity.Termini;
-import es.caib.helium.persist.repository.CampRepository;
-import es.caib.helium.persist.repository.CampTascaRepository;
-import es.caib.helium.persist.repository.ConsultaRepository;
-import es.caib.helium.persist.repository.DefinicioProcesRepository;
-import es.caib.helium.persist.repository.DocumentRepository;
-import es.caib.helium.persist.repository.DocumentTascaRepository;
-import es.caib.helium.persist.repository.ExpedientTipusRepository;
-import es.caib.helium.persist.repository.FirmaTascaRepository;
-import es.caib.helium.persist.repository.TascaRepository;
-import es.caib.helium.persist.repository.TerminiRepository;
+import es.caib.helium.persist.entity.*;
+import es.caib.helium.persist.repository.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
@@ -122,7 +90,7 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 		logger.debug(
 				"Consultant la definicio proces amb id (" +
 				"definicioProcesId = " + definicioProcesId + ")");
-		DefinicioProces definicioProces = definicioProcesRepository.findById(definicioProcesId);
+		DefinicioProces definicioProces = definicioProcesRepository.getById(definicioProcesId);
 
 		return conversioTipusHelper.convertir(
 				definicioProces,
@@ -381,7 +349,7 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 				"Esborrant una definicio de proces (" +
 				"entornId=" + entornId + ", " +
 				"definicioProcesId = " + definicioProcesId + ")");
-		DefinicioProces definicioProces = definicioProcesRepository.findById(definicioProcesId);
+		DefinicioProces definicioProces = definicioProcesRepository.getById(definicioProcesId);
 		// Control d'accés
 		if (definicioProces.getExpedientTipus() != null)			
 			expedientTipusHelper.getExpedientTipusComprovantPermisDisseny(
@@ -396,7 +364,7 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 		// Si era darrera versió de la definició de procés inicial del tipus d'expedient posa la propietat a null
 		if (definicioProces.getExpedientTipus() != null
 				&& definicioProces.getJbpmKey().equals(definicioProces.getExpedientTipus().getJbpmProcessDefinitionKey())) {
-			ExpedientTipus expedientTipus = expedientTipusRepository.findById(definicioProces.getExpedientTipus().getId());
+			ExpedientTipus expedientTipus = expedientTipusRepository.getById(definicioProces.getExpedientTipus().getId());
 			// Troba la darrera definició de procés
 			definicioProces = definicioProcesRepository.findDarreraVersioAmbEntornIJbpmKey(
 					expedientTipus.getEntorn().getId(), 
@@ -427,7 +395,7 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 				"Consultant el nom de la tasca inicial de la definició de procés (" +
 				"definicioProcesId = " + definicioProcesId + ")");
 
-		DefinicioProces definicioProces = definicioProcesRepository.findById(definicioProcesId);
+		DefinicioProces definicioProces = definicioProcesRepository.getById(definicioProcesId);
 		if (definicioProces == null)
 			throw new NoTrobatException(DefinicioProces.class, definicioProcesId);
 		return workflowEngineApi.getStartTaskName(definicioProces.getJbpmId());
@@ -461,7 +429,7 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 				TascaDto.class);
 		
 		// Marca la tasca com a incicial
-		DefinicioProces definicioProces = definicioProcesRepository.findById(definicioProcesId);		
+		DefinicioProces definicioProces = definicioProcesRepository.getById(definicioProcesId);
 		String startTaskName = workflowEngineApi.getStartTaskName(definicioProces.getJbpmId());
 		if (startTaskName != null)
 			for (TascaDto tasca : pagina.getContingut())
@@ -563,14 +531,14 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 				"tascaId=" + tascaId + ")");
 								
 		return conversioTipusHelper.convertir(
-				tascaRepository.findById(tascaId).getDefinicioProces(), 
+				tascaRepository.getById(tascaId).getDefinicioProces(),
 				DefinicioProcesDto.class);
 	}
 
 	@Override
 	@Transactional(readOnly = true)
 	public TascaDto tascaFindAmbId(Long expedientTipusId, Long tascaId) throws NoTrobatException {
-		Tasca tasca = tascaRepository.findById(tascaId);
+		Tasca tasca = tascaRepository.getById(tascaId);
 		if (tasca == null) {
 			throw new NoTrobatException(Tasca.class, tascaId);
 		}
@@ -603,7 +571,7 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 				"Modificant la tasca de la definició de procés (" +
 				"tasca.id=" + tasca.getId() + ", " +
 				"tasca =" + tasca + ")");
-		Tasca entity = tascaRepository.findById(tasca.getId());
+		Tasca entity = tascaRepository.getById(tasca.getId());
 
 		entity.setId(tasca.getId());
 		entity.setNom(tasca.getNom());
@@ -645,11 +613,11 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 		entity.setReadOnly(tascaCamp.isReadOnly());
 		entity.setAmpleCols(12);
 		entity.setBuitCols(0);
-		Tasca tasca = tascaRepository.findById(tascaId);
+		Tasca tasca = tascaRepository.getById(tascaId);
 		entity.setTasca(tasca);
-		entity.setCamp(campRepository.findById(tascaCamp.getCamp().getId()));
+		entity.setCamp(campRepository.getById(tascaCamp.getCamp().getId()));
 		if (tascaCamp.getExpedientTipusId() != null) {
-			ExpedientTipus expedientTipus = expedientTipusRepository.findById(tascaCamp.getExpedientTipusId());
+			ExpedientTipus expedientTipus = expedientTipusRepository.getById(tascaCamp.getExpedientTipusId());
 			// Només relaciona el camp tasca amb el tipus d'expedient si la tasca està heretada
 			if (definicioProcesHelper.isTascaHeretada(tasca, expedientTipus))
 				entity.setExpedientTipus(expedientTipus);
@@ -669,7 +637,7 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 				"Esborrant la tascaCamp de la definició de procés (" +
 				"tascaCampId=" + tascaCampId +  ")");
 		
-		CampTasca tascaCamp = campTascaRepository.findById(tascaCampId);
+		CampTasca tascaCamp = campTascaRepository.getById(tascaCampId);
 		Long expedientTipusId = tascaCamp.getExpedientTipus() != null? tascaCamp.getExpedientTipus().getId() : null;
 		tascaCamp.getTasca().removeCamp(tascaCamp);
 		campTascaRepository.delete(tascaCamp);	
@@ -700,7 +668,7 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 			int posicio) {
 		
 		boolean ret = false;
-		CampTasca tascaCamp = campTascaRepository.findById(campTascaId);
+		CampTasca tascaCamp = campTascaRepository.getById(campTascaId);
 		if (tascaCamp != null) {
 			List<CampTasca> campsTasca = campTascaRepository.findAmbTascaIdOrdenats(
 					tascaCamp.getTasca().getId(), 
@@ -739,12 +707,12 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 				"tascaId=" + tascaId + ", " +
 				"filtre=" + filtre + ")");
 		
-		Tasca tasca = tascaRepository.findById(tascaId);
+		Tasca tasca = tascaRepository.getById(tascaId);
 
 		// Consulta el tipus d'expedient
 		ExpedientTipus expedientTipus = null;
 		if (expedientTipusId != null)
-			expedientTipus = expedientTipusRepository.findById(expedientTipusId);
+			expedientTipus = expedientTipusRepository.getById(expedientTipusId);
 		else {
 			expedientTipus = tasca.getDefinicioProces().getExpedientTipus();
 			if (expedientTipus != null)
@@ -805,7 +773,7 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 				"tascaCamp.id=" + tascaCamp.getId() + ", " +
 				"tascaCamp =" + tascaCamp + ")");
 		
-		CampTasca entity = campTascaRepository.findById(tascaCamp.getId());
+		CampTasca entity = campTascaRepository.getById(tascaCamp.getId());
 				
 		entity.setReadFrom(tascaCamp.isReadFrom());
 		entity.setWriteTo(tascaCamp.isWriteTo());
@@ -830,7 +798,7 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 		logger.debug(
 				"Consultant el camp tasca amb id (" +
 				"campTascaId = " + campTascaId + ")");
-		CampTasca campTasca = campTascaRepository.findById(campTascaId);
+		CampTasca campTasca = campTascaRepository.getById(campTascaId);
 		if (campTasca == null) {
 			throw new NoTrobatException(CampTasca.class, campTascaId);
 		}
@@ -840,7 +808,7 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 
 		if (expedientTipusId != null) {
 			// Consulta el tipus d'expedient
-			ExpedientTipus expedientTipus = expedientTipusRepository.findById(expedientTipusId);
+			ExpedientTipus expedientTipus = expedientTipusRepository.getById(expedientTipusId);
 			// Herència
 			dto.setHeretat(definicioProcesHelper.isCampTascaHeretat(campTasca, expedientTipus));
 		}
@@ -860,7 +828,7 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 
 		// Consulta la tasca i el tipus d'expedient
 		ExpedientTipus expedientTipus = expedientTipusId != null ? 
-				expedientTipus = expedientTipusRepository.findById(expedientTipusId) 
+				expedientTipus = expedientTipusRepository.getById(expedientTipusId)
 				: null;
 
 		CampTascaDto dto;
@@ -893,11 +861,11 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 		entity.setOrder(documentTascaRepository.getNextOrdre(tascaId, tascaDocument.getExpedientTipusId()));		
 		entity.setRequired(tascaDocument.isRequired());
 		entity.setReadOnly(tascaDocument.isReadOnly());
-		Tasca tasca = tascaRepository.findById(tascaId);
+		Tasca tasca = tascaRepository.getById(tascaId);
 		entity.setTasca(tasca);
-		entity.setDocument(documentRepository.findById(tascaDocument.getDocument().getId()));
+		entity.setDocument(documentRepository.getById(tascaDocument.getDocument().getId()));
 		if (tascaDocument.getExpedientTipusId() != null) {
-			ExpedientTipus expedientTipus = expedientTipusRepository.findById(tascaDocument.getExpedientTipusId());
+			ExpedientTipus expedientTipus = expedientTipusRepository.getById(tascaDocument.getExpedientTipusId());
 			// Només relaciona el camp tasca amb el tipus d'expedient si la tasca està heretada
 			if (definicioProcesHelper.isTascaHeretada(tasca, expedientTipus))
 				entity.setExpedientTipus(expedientTipus);
@@ -915,7 +883,7 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 				"Esborrant la tascaDocument de la definició de procés (" +
 				"tascaDocumentId=" + tascaDocumentId +  ")");
 		
-		DocumentTasca tascaDocument = documentTascaRepository.findById(tascaDocumentId);
+		DocumentTasca tascaDocument = documentTascaRepository.getById(tascaDocumentId);
 		Long expedientTipusId = tascaDocument.getExpedientTipus() != null? tascaDocument.getExpedientTipus().getId() : null;
 		tascaDocument.getTasca().removeDocument(tascaDocument);
 		documentTascaRepository.delete(tascaDocument);	
@@ -946,10 +914,10 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 			int posicio) {
 		
 		boolean ret = false;
-		DocumentTasca tascaDocument = documentTascaRepository.findById(id);
+		DocumentTasca tascaDocument = documentTascaRepository.getById(id);
 		if (tascaDocument != null) {
 			if (expedientTipusId == null) {
-				Tasca tasca = tascaRepository.findById(tascaDocument.getTasca().getId());
+				Tasca tasca = tascaRepository.getById(tascaDocument.getTasca().getId());
 				if (tasca.getDefinicioProces().getExpedientTipus() != null)
 					expedientTipusId = tasca.getDefinicioProces().getExpedientTipus().getId();
 			}
@@ -990,12 +958,12 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 				"tascaId=" + tascaId + ", " +
 				"filtre=" + filtre + ")");
 
-		Tasca tasca = tascaRepository.findById(tascaId);
+		Tasca tasca = tascaRepository.getById(tascaId);
 		
 		// Consulta el tipus d'expedient
 		ExpedientTipus expedientTipus = null;
 		if (expedientTipusId != null)
-			expedientTipus = expedientTipusRepository.findById(expedientTipusId);
+			expedientTipus = expedientTipusRepository.getById(expedientTipusId);
 		else {
 			expedientTipus = tasca.getDefinicioProces().getExpedientTipus();
 			if (expedientTipus != null)
@@ -1058,7 +1026,7 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 				"tascaDocument.id=" + tascaDocument.getId() + ", " +
 				"tascaDocument =" + tascaDocument + ")");
 		
-		DocumentTasca entity = documentTascaRepository.findById(tascaDocument.getId());
+		DocumentTasca entity = documentTascaRepository.getById(tascaDocument.getId());
 				
 		entity.setRequired(tascaDocument.isRequired());
 		entity.setReadOnly(tascaDocument.isReadOnly());
@@ -1079,7 +1047,7 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 		logger.debug(
 				"Consultant el document tasca amb id (" +
 				"documentTascaId = " + documentTascaId + ")");
-		DocumentTasca documentTasca = documentTascaRepository.findById(documentTascaId);
+		DocumentTasca documentTasca = documentTascaRepository.getById(documentTascaId);
 		if (documentTasca == null) {
 			throw new NoTrobatException(DocumentTasca.class, documentTascaId);
 		}
@@ -1090,7 +1058,7 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 		// Herencia
 		if (expedientTipusId != null) {
 			// Consulta el tipus d'expedient
-			ExpedientTipus expedientTipus = expedientTipusRepository.findById(expedientTipusId);
+			ExpedientTipus expedientTipus = expedientTipusRepository.getById(expedientTipusId);
 			// Herència
 			dto.setHeretat(definicioProcesHelper.isDocumentTascaHeretat(documentTasca, expedientTipus));
 		}
@@ -1110,7 +1078,7 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 		
 		// Consulta la tasca i el tipus d'expedient
 		ExpedientTipus expedientTipus = expedientTipusId != null ? 
-				expedientTipus = expedientTipusRepository.findById(expedientTipusId) 
+				expedientTipus = expedientTipusRepository.getById(expedientTipusId)
 				: null;
 
 		DocumentTascaDto dto;
@@ -1140,11 +1108,11 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 		
 		entity.setOrder(firmaTascaRepository.getNextOrdre(tascaId, tascaFirma.getExpedientTipusId()));		
 		entity.setRequired(tascaFirma.isRequired());
-		Tasca tasca = tascaRepository.findById(tascaId);
+		Tasca tasca = tascaRepository.getById(tascaId);
 		entity.setTasca(tasca);
-		entity.setDocument(documentRepository.findById(tascaFirma.getDocument().getId()));
+		entity.setDocument(documentRepository.getById(tascaFirma.getDocument().getId()));
 		if (tascaFirma.getExpedientTipusId() != null) {
-			ExpedientTipus expedientTipus = expedientTipusRepository.findById(tascaFirma.getExpedientTipusId());
+			ExpedientTipus expedientTipus = expedientTipusRepository.getById(tascaFirma.getExpedientTipusId());
 			// Només relaciona el camp tasca amb el tipus d'expedient si la tasca està heretada
 			if (definicioProcesHelper.isTascaHeretada(tasca, expedientTipus))
 				entity.setExpedientTipus(expedientTipus);
@@ -1162,7 +1130,7 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 				"Esborrant la tascaFirma de la definició de procés (" +
 				"tascaFirmaId=" + tascaFirmaId +  ")");
 		
-		FirmaTasca tascaFirma = firmaTascaRepository.findById(tascaFirmaId);
+		FirmaTasca tascaFirma = firmaTascaRepository.getById(tascaFirmaId);
 		Long expedientTipusId = tascaFirma.getExpedientTipus() != null? tascaFirma.getExpedientTipus().getId() : null;
 		firmaTascaRepository.delete(tascaFirma);	
 		firmaTascaRepository.flush();
@@ -1192,10 +1160,10 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 			int posicio) {
 		
 		boolean ret = false;
-		FirmaTasca tascaFirma = firmaTascaRepository.findById(id);
+		FirmaTasca tascaFirma = firmaTascaRepository.getById(id);
 		if (tascaFirma != null) {
 			if (expedientTipusId == null) {
-				Tasca tasca = tascaRepository.findById(tascaFirma.getTasca().getId());
+				Tasca tasca = tascaRepository.getById(tascaFirma.getTasca().getId());
 				if (tasca.getDefinicioProces().getExpedientTipus() != null)
 					expedientTipusId = tasca.getDefinicioProces().getExpedientTipus().getId();
 			}
@@ -1236,12 +1204,12 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 				"tascaId=" + tascaId + ", " +
 				"filtre=" + filtre + ")");
 
-		Tasca tasca = tascaRepository.findById(tascaId);
+		Tasca tasca = tascaRepository.getById(tascaId);
 
 		// Consulta el tipus d'expedient
 		ExpedientTipus expedientTipus = null;
 		if (expedientTipusId != null)
-			expedientTipus = expedientTipusRepository.findById(expedientTipusId);
+			expedientTipus = expedientTipusRepository.getById(expedientTipusId);
 		else {
 			expedientTipus = tasca.getDefinicioProces().getExpedientTipus();
 			if (expedientTipus != null)
@@ -1314,7 +1282,7 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 				"tascaFirma.id=" + tascaFirma.getId() + ", " +
 				"tascaFirma =" + tascaFirma + ")");
 		
-		FirmaTasca entity = firmaTascaRepository.findById(tascaFirma.getId());
+		FirmaTasca entity = firmaTascaRepository.getById(tascaFirma.getId());
 				
 		entity.setRequired(tascaFirma.isRequired());
 		
@@ -1334,7 +1302,7 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 		logger.debug(
 				"Consultant el document tasca amb id (" +
 				"firmaTascaId = " + firmaTascaId + ")");
-		FirmaTasca firmaTasca = firmaTascaRepository.findById(firmaTascaId);
+		FirmaTasca firmaTasca = firmaTascaRepository.getById(firmaTascaId);
 		if (firmaTasca == null) {
 			throw new NoTrobatException(FirmaTasca.class, firmaTascaId);
 		}
@@ -1345,7 +1313,7 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 		// Herencia
 		if (expedientTipusId != null) {
 			// Consulta el tipus d'expedient
-			ExpedientTipus expedientTipus = expedientTipusRepository.findById(expedientTipusId);
+			ExpedientTipus expedientTipus = expedientTipusRepository.getById(expedientTipusId);
 			// Herència
 			dto.setHeretat(definicioProcesHelper.isFirmaTascaHeretada(firmaTasca, expedientTipus));			
 		}
@@ -1365,7 +1333,7 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 		
 		// Consulta la tasca i el tipus d'expedient
 		ExpedientTipus expedientTipus = expedientTipusId != null ? 
-				expedientTipus = expedientTipusRepository.findById(expedientTipusId) 
+				expedientTipus = expedientTipusRepository.getById(expedientTipusId)
 				: null;
 
 		FirmaTascaDto dto;
@@ -1393,7 +1361,7 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 				"entornId=" + entornId + ", " +
 				"definicioProcesId = " + definicioProcesId + ")");
 		// Recupera la definició de procés per id
-		DefinicioProces definicioProces = definicioProcesRepository.findById(
+		DefinicioProces definicioProces = definicioProcesRepository.getById(
 				definicioProcesId);
 		// Control d'accés
 		if (definicioProces.getExpedientTipus() != null)			
@@ -1420,7 +1388,7 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 				"entornId=" + entornId + ", " +
 				"definicioProcesId = " + definicioProcesId + ")");
 		// Recupera la definició de procés per id
-		DefinicioProces definicioProces = definicioProcesRepository.findById(
+		DefinicioProces definicioProces = definicioProcesRepository.getById(
 				definicioProcesId);
 		// Control d'accés
 		if (definicioProces.getExpedientTipus() != null)			
@@ -1454,7 +1422,7 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 				"Consultant tots els camps de la definicio de proces per al desplegable " +
 				" de camps del registre (definicioProcesId=" + definicioProcesId + ")");
 		
-		DefinicioProces definicioProces = definicioProcesRepository.findById(definicioProcesId);
+		DefinicioProces definicioProces = definicioProcesRepository.getById(definicioProcesId);
 		if (definicioProces == null)
 			throw new NoTrobatException(DefinicioProces.class, definicioProcesId);
 		
@@ -1522,7 +1490,7 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 				"Relacionant les darreres versions de les definicions de procés del tipus d'expedient (" +
 				"expedientTipusId = " + expedientTipusId + ")");
 		
-		ExpedientTipus expedientTipus = expedientTipusRepository.findById(expedientTipusId);
+		ExpedientTipus expedientTipus = expedientTipusRepository.getById(expedientTipusId);
 		definicioProcesHelper.relacionarDarreresVersionsDefinicionsProces(expedientTipus.getDefinicionsProces());
 	}
 	

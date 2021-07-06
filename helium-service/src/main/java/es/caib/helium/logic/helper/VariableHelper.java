@@ -3,35 +3,10 @@
  */
 package es.caib.helium.logic.helper;
 
-import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.annotation.Resource;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
-
-import es.caib.helium.logic.helper26.MesuresTemporalsHelper;
 import es.caib.helium.logic.intf.WTaskInstance;
 import es.caib.helium.logic.intf.WorkflowEngineApi;
-import es.caib.helium.logic.intf.dto.CampAgrupacioDto;
-import es.caib.helium.logic.intf.dto.CampTascaDto;
-import es.caib.helium.logic.intf.dto.CampTipusDto;
-import es.caib.helium.logic.intf.dto.ConsultaDominiDto;
-import es.caib.helium.logic.intf.dto.DadaIndexadaDto;
-import es.caib.helium.logic.intf.dto.DominiDto;
+import es.caib.helium.logic.intf.dto.*;
 import es.caib.helium.logic.intf.dto.DominiDto.TipusDomini;
-import es.caib.helium.logic.intf.dto.ExpedientDadaDto;
-import es.caib.helium.logic.intf.dto.ExpedientTascaDto;
-import es.caib.helium.logic.intf.dto.ParellaCodiValorDto;
-import es.caib.helium.logic.intf.dto.TascaDadaDto;
-import es.caib.helium.logic.intf.dto.ValidacioDto;
 import es.caib.helium.logic.intf.exception.SistemaExternException;
 import es.caib.helium.logic.intf.extern.domini.FilaResultat;
 import es.caib.helium.logic.intf.extern.domini.ParellaCodiValor;
@@ -39,25 +14,27 @@ import es.caib.helium.logic.intf.service.ExpedientService;
 import es.caib.helium.logic.intf.util.ExpedientCamps;
 import es.caib.helium.logic.intf.util.JbpmVars;
 import es.caib.helium.logic.util.GlobalProperties;
-import es.caib.helium.persist.entity.Camp;
+import es.caib.helium.ms.domini.DominiMs;
+import es.caib.helium.persist.entity.*;
 import es.caib.helium.persist.entity.Camp.TipusCamp;
-import es.caib.helium.persist.entity.CampAgrupacio;
-import es.caib.helium.persist.entity.CampRegistre;
-import es.caib.helium.persist.entity.CampTasca;
 import es.caib.helium.persist.entity.ConsultaCamp.TipusConsultaCamp;
-import es.caib.helium.persist.entity.DefinicioProces;
-import es.caib.helium.persist.entity.Entorn;
-import es.caib.helium.persist.entity.Enumeracio;
-import es.caib.helium.persist.entity.EnumeracioValors;
-import es.caib.helium.persist.entity.Expedient;
-import es.caib.helium.persist.entity.ExpedientTipus;
-import es.caib.helium.persist.entity.Tasca;
 import es.caib.helium.persist.repository.CampRepository;
 import es.caib.helium.persist.repository.CampTascaRepository;
 import es.caib.helium.persist.repository.DefinicioProcesRepository;
 import es.caib.helium.persist.repository.ExpedientRepository;
 import es.caib.helium.persist.repository.TascaRepository;
-import es.caib.helium.ms.domini.DominiMs;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
+
+import javax.annotation.Resource;
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Helper per a gestionar les variables dels expedients.
@@ -92,8 +69,8 @@ public class VariableHelper {
 	private ExpedientService expedientService;
 	@Resource
 	private WorkflowEngineApi workflowEngineApi;
-	@Resource
-	private MesuresTemporalsHelper mesuresTemporalsHelper;
+//	@Resource
+//	private MesuresTemporalsHelper mesuresTemporalsHelper;
 	@Resource
 	private ConversioTipusHelper conversioTipusHelper;
 	@Resource
@@ -163,11 +140,12 @@ public class VariableHelper {
 		String tipusExp = null;
 		Expedient exp = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
 		ExpedientTipus expedientTipus = exp.getTipus();
-		if (MesuresTemporalsHelper.isActiu()) {
-			tipusExp = (exp != null ? exp.getTipus().getNom() : null);
-			mesuresTemporalsHelper.mesuraIniciar("Expedient DADES v3", "expedient", tipusExp);
-			mesuresTemporalsHelper.mesuraIniciar("Expedient DADES v3", "expedient", tipusExp, null, "0");
-		}
+		// TODO: Mètriques
+//		if (MesuresTemporalsHelper.isActiu()) {
+//			tipusExp = (exp != null ? exp.getTipus().getNom() : null);
+//			mesuresTemporalsHelper.mesuraIniciar("Expedient DADES v3", "expedient", tipusExp);
+//			mesuresTemporalsHelper.mesuraIniciar("Expedient DADES v3", "expedient", tipusExp, null, "0");
+//		}
 		DefinicioProces definicioProces = expedientHelper.findDefinicioProcesByProcessInstanceId(
 				processInstanceId);
 		Map<String, Camp> campsIndexatsPerCodi = new HashMap<String, Camp>();
@@ -185,15 +163,15 @@ public class VariableHelper {
 		
 		for (Camp camp: camps)
 			campsIndexatsPerCodi.put(camp.getCodi(), camp);
-		mesuresTemporalsHelper.mesuraCalcular("Expedient DADES v3", "expedient", tipusExp, null, "0");
-		mesuresTemporalsHelper.mesuraIniciar("Expedient DADES v3", "expedient", tipusExp, null, "1");
+//		mesuresTemporalsHelper.mesuraCalcular("Expedient DADES v3", "expedient", tipusExp, null, "0");
+//		mesuresTemporalsHelper.mesuraIniciar("Expedient DADES v3", "expedient", tipusExp, null, "1");
 		List<ExpedientDadaDto> resposta = new ArrayList<ExpedientDadaDto>();
 		Map<String, Object> varsInstanciaProces = workflowEngineApi.getProcessInstanceVariables(
 				processInstanceId);
-		mesuresTemporalsHelper.mesuraCalcular("Expedient DADES v3", "expedient", tipusExp, null, "1");
+//		mesuresTemporalsHelper.mesuraCalcular("Expedient DADES v3", "expedient", tipusExp, null, "1");
 		Map<Integer, ConsultaDominiDto> consultesDomini = new HashMap<Integer, ConsultaDominiDto>();
 		if (varsInstanciaProces != null) {
-			mesuresTemporalsHelper.mesuraIniciar("Expedient DADES v3", "expedient", tipusExp, null, "2");
+//			mesuresTemporalsHelper.mesuraIniciar("Expedient DADES v3", "expedient", tipusExp, null, "2");
 			filtrarVariablesUsIntern(varsInstanciaProces);
 			for (String var: varsInstanciaProces.keySet()) {
 				ExpedientDadaDto dto = null;
@@ -236,10 +214,10 @@ public class VariableHelper {
 					resposta.add(dto);
 				}
 			}
-			mesuresTemporalsHelper.mesuraCalcular("Expedient DADES v3", "expedient", tipusExp, null, "2");
+//			mesuresTemporalsHelper.mesuraCalcular("Expedient DADES v3", "expedient", tipusExp, null, "2");
 			this.consultaDominisAgrupats(consultesDomini);
 		}
-		mesuresTemporalsHelper.mesuraCalcular("Expedient DADES v3", "expedient", tipusExp);
+//		mesuresTemporalsHelper.mesuraCalcular("Expedient DADES v3", "expedient", tipusExp);
 		return resposta;
 	}
 	public ExpedientDadaDto getDadaPerInstanciaProces(
@@ -366,11 +344,12 @@ public class VariableHelper {
 		Expedient exp = expedientHelper.findExpedientByProcessInstanceId(task.getProcessInstanceId());
 		Long expedientTipusId = exp != null ? exp.getTipus().getId() : null;
 		ExpedientTipus expedientTipus = exp != null? expedientTipusHelper.findAmbProcessInstanceId(task.getProcessInstanceId()) : null;
-		if (MesuresTemporalsHelper.isActiu()) {
-			tipusExp = (exp != null ? exp.getTipus().getNom() : null);
-			mesuresTemporalsHelper.mesuraIniciar("Tasca DADES v3", "tasques", tipusExp, task.getTaskName());
-			mesuresTemporalsHelper.mesuraIniciar("Tasca DADES v3", "tasques", tipusExp, task.getTaskName(), "0");
-		}
+		// TODO: Mètriques
+//		if (MesuresTemporalsHelper.isActiu()) {
+//			tipusExp = (exp != null ? exp.getTipus().getNom() : null);
+//			mesuresTemporalsHelper.mesuraIniciar("Tasca DADES v3", "tasques", tipusExp, task.getTaskName());
+//			mesuresTemporalsHelper.mesuraIniciar("Tasca DADES v3", "tasques", tipusExp, task.getTaskName(), "0");
+//		}
 		DefinicioProces definicioProces = expedientHelper.findDefinicioProcesByProcessInstanceId(
 				task.getProcessInstanceId());
 		Tasca tasca = tascaRepository.findByJbpmNameAndDefinicioProces(
@@ -383,13 +362,13 @@ public class VariableHelper {
 			for (Camp c : campRepository.findSobreescrits(expedientTipusId))
 				sobreescrits.put(c.getCodi(), c);
 		}
-		mesuresTemporalsHelper.mesuraCalcular("Tasca DADES v3", "tasques", tipusExp, task.getTaskName(), "0");
-		mesuresTemporalsHelper.mesuraIniciar("Tasca DADES v3", "tasques", tipusExp, task.getTaskName(), "1");
+//		mesuresTemporalsHelper.mesuraCalcular("Tasca DADES v3", "tasques", tipusExp, task.getTaskName(), "0");
+//		mesuresTemporalsHelper.mesuraIniciar("Tasca DADES v3", "tasques", tipusExp, task.getTaskName(), "1");
 		List<TascaDadaDto> resposta = new ArrayList<TascaDadaDto>();
 		Map<String, Object> varsInstanciaTasca = workflowEngineApi.getTaskInstanceVariables(
 				task.getId());
-		mesuresTemporalsHelper.mesuraCalcular("Tasca DADES v3", "tasques", tipusExp, task.getTaskName(), "1");
-		mesuresTemporalsHelper.mesuraIniciar("Tasca DADES v3", "tasques", tipusExp, task.getTaskName(), "2");
+//		mesuresTemporalsHelper.mesuraCalcular("Tasca DADES v3", "tasques", tipusExp, task.getTaskName(), "1");
+//		mesuresTemporalsHelper.mesuraIniciar("Tasca DADES v3", "tasques", tipusExp, task.getTaskName(), "2");
 		// Només es mostraran les variables donades d'alta al formulari
 		// de la tasca. Les variables jBPM de la tasca que no siguin
 		// al formulari no es mostraran.
@@ -425,8 +404,8 @@ public class VariableHelper {
 		// Consulta tots els dominis a la vegada
 		this.consultaDominisAgrupats(consultesDomini);
 		
-		mesuresTemporalsHelper.mesuraCalcular("Tasca DADES v3", "tasques", tipusExp, task.getTaskName(), "2");
-		mesuresTemporalsHelper.mesuraCalcular("Tasca DADES v3", "tasques", tipusExp, task.getTaskName());
+//		mesuresTemporalsHelper.mesuraCalcular("Tasca DADES v3", "tasques", tipusExp, task.getTaskName(), "2");
+//		mesuresTemporalsHelper.mesuraCalcular("Tasca DADES v3", "tasques", tipusExp, task.getTaskName());
 		return resposta;
 	}
 
@@ -1245,7 +1224,7 @@ public class VariableHelper {
 	
 	/** Mètode per trobar entre el resultat de la consulta la fila amb el codi corresponent
 	 * al valor.
-	 * @param tipusDomini 
+	 * @param dominiTipus
 	 * 
 	 * @param resultatConsultaDomini
 	 * @param columnaCodi

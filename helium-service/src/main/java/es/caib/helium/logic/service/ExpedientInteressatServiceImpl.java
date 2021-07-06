@@ -1,25 +1,23 @@
 package es.caib.helium.logic.service;
 
-import java.util.List;
-
-import javax.annotation.Resource;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import es.caib.emiserv.logic.intf.exception.NoTrobatException;
 import es.caib.helium.logic.helper.ConversioTipusHelper;
 import es.caib.helium.logic.helper.PaginacioHelper;
 import es.caib.helium.logic.intf.dto.InteressatDto;
 import es.caib.helium.logic.intf.dto.PaginaDto;
 import es.caib.helium.logic.intf.dto.PaginacioParamsDto;
+import es.caib.helium.logic.intf.exception.NoTrobatException;
 import es.caib.helium.logic.intf.service.ExpedientInteressatService;
 import es.caib.helium.persist.entity.Expedient;
 import es.caib.helium.persist.entity.Interessat;
 import es.caib.helium.persist.repository.ExpedientRepository;
 import es.caib.helium.persist.repository.InteressatRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import javax.annotation.Resource;
+import java.util.List;
 
 /**
  * Servei per gestionar els terminis dels expedients
@@ -50,7 +48,7 @@ public class ExpedientInteressatServiceImpl implements ExpedientInteressatServic
 			InteressatDto interessat) {
 		logger.debug("Creant nou interessat (interessat=" + interessat + ")");
 		
-		Expedient expedient = expedientRepository.findById(interessat.getExpedientId());
+		Expedient expedient = expedientRepository.getById(interessat.getExpedientId());
 		
 			Interessat interessatEntity = new Interessat(
 				interessat.getId(),
@@ -85,7 +83,7 @@ public class ExpedientInteressatServiceImpl implements ExpedientInteressatServic
 	public InteressatDto update(
 			InteressatDto interessat) {
 		logger.debug("Modificant interessat (interessat=" + interessat + ")");
-		Interessat interessatEntity = interessatRepository.findById(interessat.getId());
+		Interessat interessatEntity = interessatRepository.getById(interessat.getId());
 		interessatEntity.setCodi(interessat.getCodi());
 		interessatEntity.setNom(interessat.getNom());
 		interessatEntity.setNif(interessat.getNif());
@@ -112,7 +110,7 @@ public class ExpedientInteressatServiceImpl implements ExpedientInteressatServic
 
 	public Interessat comprovarInteressat(
 			Long interessatId) {
-		Interessat interessat = interessatRepository.findById(interessatId);
+		Interessat interessat = interessatRepository.getById(interessatId);
 		if (interessat == null) {
 			throw new NoTrobatException(
 					Interessat.class,
@@ -145,7 +143,7 @@ public class ExpedientInteressatServiceImpl implements ExpedientInteressatServic
 	@Transactional
 	public InteressatDto findOne(
 			Long interessatId) {
-		Interessat interessat = interessatRepository.findById(interessatId);
+		Interessat interessat = interessatRepository.getById(interessatId);
 		if (interessat == null) {
 			throw new NoTrobatException(
 					Interessat.class,
@@ -171,7 +169,7 @@ public class ExpedientInteressatServiceImpl implements ExpedientInteressatServic
 			Long expedientId
 			) {
 		
-		Expedient expedient = expedientRepository.findById(expedientId);
+		Expedient expedient = expedientRepository.getById(expedientId);
 		
 		return conversioTipusHelper.convertir(
 				interessatRepository.findByCodiAndExpedient(
@@ -197,7 +195,7 @@ public class ExpedientInteressatServiceImpl implements ExpedientInteressatServic
 				"filtre=" + filtre + ", " +
 				"paginacioParams=" + paginacioParams + ")");
 		
-		Expedient expedient = expedientRepository.findById(expedientId);
+		Expedient expedient = expedientRepository.getById(expedientId);
 		PaginaDto<InteressatDto> pagina = paginacioHelper.toPaginaDto(
 				interessatRepository.findByFiltrePaginat(
 						expedient,
@@ -222,7 +220,7 @@ public class ExpedientInteressatServiceImpl implements ExpedientInteressatServic
 		logger.debug("Consultant interessats per expedient (" +
 				"expedientId=" + expedientId);
 		
-		Expedient expedient = expedientRepository.findById(expedientId);
+		Expedient expedient = expedientRepository.getById(expedientId);
 		
 		return conversioTipusHelper.convertirList(interessatRepository.findByExpedient(
 				expedient), InteressatDto.class);

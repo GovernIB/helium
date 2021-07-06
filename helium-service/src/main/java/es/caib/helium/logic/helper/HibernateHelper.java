@@ -3,23 +3,20 @@
  */
 package es.caib.helium.logic.helper;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-
-import javax.annotation.Resource;
-
+import es.caib.helium.logic.intf.dto.IntervalEventDto;
+import es.caib.helium.logic.intf.dto.MesuraTemporalDto;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.hibernate.SessionFactory;
 import org.hibernate.stat.QueryStatistics;
 import org.hibernate.stat.Statistics;
 import org.springframework.stereotype.Component;
 
-import es.caib.helium.logic.helper26.MesuresTemporalsHelper;
-import es.caib.helium.logic.intf.dto.IntervalEventDto;
-import es.caib.helium.logic.intf.dto.MesuraTemporalDto;
+import javax.annotation.Resource;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Helper per a enviament de correus
@@ -119,10 +116,11 @@ public class HibernateHelper {
 			resposta.putAll(respostaDetallada);
 		}
 
+		// TODO: Mètriques
 		List<MesuraTemporalDto> ret = new ArrayList<MesuraTemporalDto>();
-		Long temps = MesuresTemporalsHelper.getTemps();
+//		Long temps = MesuresTemporalsHelper.getTemps();
 		for (MesuraTemporalDto mesura: resposta.values()) {
-			mesura.setPeriode((mesura.getNumMesures() * 60000.0) / temps);
+//			mesura.setPeriode((mesura.getNumMesures() * 60000.0) / temps);
 			ret.add(mesura);
 		}
 		return ret;

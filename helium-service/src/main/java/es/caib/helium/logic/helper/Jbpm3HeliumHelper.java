@@ -3,82 +3,15 @@
  */
 package es.caib.helium.logic.helper;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-
-import javax.annotation.Resource;
-
-import org.hibernate.Hibernate;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
-
-import com.codahale.metrics.MetricRegistry;
-
-import es.caib.helium.integracio.plugins.registre.DadesAssumpte;
-import es.caib.helium.integracio.plugins.registre.DadesExpedient;
-import es.caib.helium.integracio.plugins.registre.DadesInteressat;
-import es.caib.helium.integracio.plugins.registre.DadesNotificacio;
-import es.caib.helium.integracio.plugins.registre.DadesOficina;
-import es.caib.helium.integracio.plugins.registre.DocumentRegistre;
-import es.caib.helium.integracio.plugins.registre.RegistreNotificacio;
-import es.caib.helium.integracio.plugins.registre.RespostaAnotacioRegistre;
-import es.caib.helium.integracio.plugins.registre.RespostaJustificantDetallRecepcio;
-import es.caib.helium.integracio.plugins.registre.RespostaJustificantRecepcio;
+import es.caib.helium.integracio.plugins.registre.*;
 import es.caib.helium.logic.helper.TascaSegonPlaHelper.InfoSegonPla;
-import es.caib.helium.logic.helper26.MesuresTemporalsHelper;
 import es.caib.helium.logic.intf.WProcessDefinition;
 import es.caib.helium.logic.intf.WProcessInstance;
 import es.caib.helium.logic.intf.WTaskInstance;
 import es.caib.helium.logic.intf.WorkflowEngineApi;
 import es.caib.helium.logic.intf.WorkflowRetroaccioApi;
-import es.caib.helium.logic.intf.dto.AreaDto;
-import es.caib.helium.logic.intf.dto.ArxiuDto;
-import es.caib.helium.logic.intf.dto.CampTascaDto;
-import es.caib.helium.logic.intf.dto.CarrecDto;
-import es.caib.helium.logic.intf.dto.DadesNotificacioDto;
-import es.caib.helium.logic.intf.dto.DefinicioProcesDto;
-import es.caib.helium.logic.intf.dto.DocumentDissenyDto;
-import es.caib.helium.logic.intf.dto.DocumentDto;
-import es.caib.helium.logic.intf.dto.DocumentTascaDto;
-import es.caib.helium.logic.intf.dto.DominiDto;
-import es.caib.helium.logic.intf.dto.DominiRespostaColumnaDto;
-import es.caib.helium.logic.intf.dto.DominiRespostaFilaDto;
-import es.caib.helium.logic.intf.dto.EntornDto;
-import es.caib.helium.logic.intf.dto.EnumeracioValorDto;
-import es.caib.helium.logic.intf.dto.EstatDto;
-import es.caib.helium.logic.intf.dto.ExpedientDadaDto;
-import es.caib.helium.logic.intf.dto.ExpedientDto;
-import es.caib.helium.logic.intf.dto.FestiuDto;
-import es.caib.helium.logic.intf.dto.InteressatDto;
-import es.caib.helium.logic.intf.dto.InteressatTipusEnumDto;
-import es.caib.helium.logic.intf.dto.NotificacioDto;
-import es.caib.helium.logic.intf.dto.PersonaDto;
-import es.caib.helium.logic.intf.dto.ReassignacioDto;
-import es.caib.helium.logic.intf.dto.ReferenciaNotificacio;
-import es.caib.helium.logic.intf.dto.ReferenciaRDSJustificanteDto;
-import es.caib.helium.logic.intf.dto.RegistreAnnexDto;
-import es.caib.helium.logic.intf.dto.RegistreAnotacioDto;
-import es.caib.helium.logic.intf.dto.RegistreIdDto;
-import es.caib.helium.logic.intf.dto.RegistreNotificacioDto;
-import es.caib.helium.logic.intf.dto.RespostaJustificantDetallRecepcioDto;
-import es.caib.helium.logic.intf.dto.RespostaJustificantRecepcioDto;
-import es.caib.helium.logic.intf.dto.RespostaNotificacio;
+import es.caib.helium.logic.intf.dto.*;
 import es.caib.helium.logic.intf.dto.RespostaNotificacio.NotificacioEstat;
-import es.caib.helium.logic.intf.dto.TascaDadaDto;
-import es.caib.helium.logic.intf.dto.TerminiDto;
-import es.caib.helium.logic.intf.dto.TerminiIniciatDto;
-import es.caib.helium.logic.intf.dto.TramitDto;
-import es.caib.helium.logic.intf.dto.ZonaperEventDto;
-import es.caib.helium.logic.intf.dto.ZonaperExpedientDto;
 import es.caib.helium.logic.intf.exception.NoTrobatException;
 import es.caib.helium.logic.intf.exception.SistemaExternException;
 import es.caib.helium.logic.intf.exception.ValidacioException;
@@ -88,48 +21,27 @@ import es.caib.helium.logic.intf.registre.RegistreAnotacio;
 import es.caib.helium.logic.intf.service.Jbpm3HeliumService;
 import es.caib.helium.logic.util.EntornActual;
 import es.caib.helium.logic.util.GlobalProperties;
-import es.caib.helium.persist.entity.Alerta;
-import es.caib.helium.persist.entity.Area;
-import es.caib.helium.persist.entity.Camp;
-import es.caib.helium.persist.entity.DefinicioProces;
-import es.caib.helium.persist.entity.Document;
-import es.caib.helium.persist.entity.DocumentNotificacio;
-import es.caib.helium.persist.entity.DocumentStore;
-import es.caib.helium.persist.entity.Entorn;
-import es.caib.helium.persist.entity.Enumeracio;
-import es.caib.helium.persist.entity.EnumeracioValors;
-import es.caib.helium.persist.entity.Estat;
-import es.caib.helium.persist.entity.Expedient;
-import es.caib.helium.persist.entity.ExpedientTipus;
-import es.caib.helium.persist.entity.Interessat;
-import es.caib.helium.persist.entity.Reassignacio;
-import es.caib.helium.persist.entity.Tasca;
-import es.caib.helium.persist.entity.Termini;
-import es.caib.helium.persist.entity.TerminiIniciat;
-import es.caib.helium.persist.repository.AlertaRepository;
-import es.caib.helium.persist.repository.AreaRepository;
-import es.caib.helium.persist.repository.CampRepository;
-import es.caib.helium.persist.repository.CampTascaRepository;
-import es.caib.helium.persist.repository.CarrecRepository;
-import es.caib.helium.persist.repository.DefinicioProcesRepository;
-import es.caib.helium.persist.repository.DocumentRepository;
-import es.caib.helium.persist.repository.DocumentStoreRepository;
-import es.caib.helium.persist.repository.DocumentTascaRepository;
-import es.caib.helium.persist.repository.EntornRepository;
-import es.caib.helium.persist.repository.EnumeracioRepository;
-import es.caib.helium.persist.repository.EnumeracioValorsRepository;
-import es.caib.helium.persist.repository.EstatRepository;
-import es.caib.helium.persist.repository.ExpedientRepository;
-import es.caib.helium.persist.repository.ExpedientTipusRepository;
-import es.caib.helium.persist.repository.FestiuRepository;
-import es.caib.helium.persist.repository.InteressatRepository;
-import es.caib.helium.persist.repository.ReassignacioRepository;
-import es.caib.helium.persist.repository.RegistreRepository;
-import es.caib.helium.persist.repository.TascaRepository;
-import es.caib.helium.persist.repository.TerminiIniciatRepository;
-import es.caib.helium.persist.repository.TerminiRepository;
-import es.caib.helium.persist.util.ThreadLocalInfo;
 import es.caib.helium.ms.domini.DominiMs;
+import es.caib.helium.persist.entity.Termini;
+import es.caib.helium.persist.entity.*;
+import es.caib.helium.persist.repository.*;
+import es.caib.helium.persist.util.ThreadLocalInfo;
+import org.hibernate.Hibernate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+
+import javax.annotation.Resource;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 
 /**
  * Service que implementa la funcionalitat necessària per
@@ -160,8 +72,8 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 	private FestiuRepository festiuRepository;
 	@Resource
 	private ReassignacioRepository reassignacioRepository;
-	@Resource
-	private AlertaRepository alertaRepository;
+//	@Resource
+//	private AlertaRepository alertaRepository;
 	@Resource
 	private TerminiIniciatRepository terminiIniciatRepository;
 	@Resource
@@ -182,15 +94,15 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 	private CampRepository campRepository;
 	@Resource
 	private DocumentTascaRepository documentTascaRepository;
-	@Resource
-	private TerminiRepository terminiRepository;
+//	@Resource
+//	private TerminiRepository terminiRepository;
 	
-	@Resource
-	private RegistreRepository registreRepository;
+//	@Resource
+//	private RegistreRepository registreRepository;
 
 	
-	@Resource(name = "documentHelperV3")
-	private DocumentHelperV3 documentHelper;
+	@Resource(name = "documentHelper")
+	private DocumentHelper documentHelper;
 	@Resource
 	private ExpedientHelper expedientHelper;
 	@Resource
@@ -216,14 +128,14 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 
 	@Resource
 	private ConversioTipusHelper conversioTipusHelper;
-	@Resource
-	private MesuresTemporalsHelper mesuresTemporalsHelper;
+//	@Resource
+//	private MesuresTemporalsHelper mesuresTemporalsHelper;
 
 	@Resource
 	private IndexHelper indexHelper;
 
-	@Resource
-	private MetricRegistry metricRegistry;
+//	@Resource
+//	private MetricRegistry metricRegistry;
 	
 	@Resource
 	private TascaSegonPlaHelper tascaSegonPlaHelper;
@@ -2303,18 +2215,19 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 		}
 	}
 
-	@Override
-	public boolean mesuraIsActiu() {
-		return MesuresTemporalsHelper.isActiu();
-	}
-	@Override
-	public void mesuraIniciar(String clau, String familia, String tipusExpedient, String tasca, String detall) {
-		mesuresTemporalsHelper.mesuraIniciar(clau, familia, tipusExpedient, tasca, detall);
-	}
-	@Override
-	public void mesuraCalcular(String clau, String familia, String tipusExpedient, String tasca, String detall) {
-		mesuresTemporalsHelper.mesuraCalcular(clau, familia, tipusExpedient, tasca, detall);
-	}
+	// TODO: Mètriques
+//	@Override
+//	public boolean mesuraIsActiu() {
+//		return MesuresTemporalsHelper.isActiu();
+//	}
+//	@Override
+//	public void mesuraIniciar(String clau, String familia, String tipusExpedient, String tasca, String detall) {
+//		mesuresTemporalsHelper.mesuraIniciar(clau, familia, tipusExpedient, tasca, detall);
+//	}
+//	@Override
+//	public void mesuraCalcular(String clau, String familia, String tipusExpedient, String tasca, String detall) {
+//		mesuresTemporalsHelper.mesuraCalcular(clau, familia, tipusExpedient, tasca, detall);
+//	}
 
 	@Override
 //	@Transactional(propagation = Propagation.REQUIRES_NEW)
@@ -2337,10 +2250,10 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 		return GlobalProperties.getInstance().getProperty(propertyName);
 	}
 
-	@Override
-	public MetricRegistry getMetricRegistry() {
-		return metricRegistry;
-	}
+//	@Override
+//	public MetricRegistry getMetricRegistry() {
+//		return metricRegistry;
+//	}
 	
 	@Override
 	public List<String> getRolsByCodi(String codi) {

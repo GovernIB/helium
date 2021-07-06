@@ -3,50 +3,19 @@
  */
 package es.caib.helium.logic.service;
 
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-import java.util.Set;
-import java.util.concurrent.TimeUnit;
-
-import javax.annotation.Resource;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import com.codahale.metrics.MetricRegistry;
-import com.codahale.metrics.json.MetricsModule;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import es.caib.helium.logic.helper.ConversioTipusHelper;
 import es.caib.helium.logic.helper.HibernateHelper;
 import es.caib.helium.logic.helper.MailHelper;
 import es.caib.helium.logic.helper.MonitorDominiHelper;
 import es.caib.helium.logic.helper.MonitorIntegracioHelper;
-import es.caib.helium.logic.helper26.MesuresTemporalsHelper;
-import es.caib.helium.logic.intf.dto.ArxiuDto;
-import es.caib.helium.logic.intf.dto.DominiDto;
-import es.caib.helium.logic.intf.dto.IntegracioAccioDto;
-import es.caib.helium.logic.intf.dto.IntegracioAccioEstatEnumDto;
-import es.caib.helium.logic.intf.dto.IntegracioAccioTipusEnumDto;
-import es.caib.helium.logic.intf.dto.IntegracioDto;
-import es.caib.helium.logic.intf.dto.IntegracioParametreDto;
-import es.caib.helium.logic.intf.dto.MesuraTemporalDto;
-import es.caib.helium.logic.intf.dto.PersonaDto;
+import es.caib.helium.logic.intf.dto.*;
 import es.caib.helium.logic.intf.dto.PersonaDto.Sexe;
-import es.caib.helium.logic.intf.dto.ReassignacioDto;
-import es.caib.helium.logic.intf.dto.TascaCompleteDto;
-import es.caib.helium.logic.intf.dto.UsuariPreferenciesDto;
 import es.caib.helium.logic.intf.exception.NoTrobatException;
 import es.caib.helium.logic.intf.service.AdminService;
 import es.caib.helium.logic.util.GlobalProperties;
+import es.caib.helium.ms.domini.DominiMs;
+import es.caib.helium.ms.domini.client.model.Domini;
 import es.caib.helium.persist.entity.Entorn;
 import es.caib.helium.persist.entity.Persona;
 import es.caib.helium.persist.entity.Reassignacio;
@@ -55,8 +24,19 @@ import es.caib.helium.persist.repository.EntornRepository;
 import es.caib.helium.persist.repository.PersonaRepository;
 import es.caib.helium.persist.repository.ReassignacioRepository;
 import es.caib.helium.persist.repository.UsuariPreferenciesRepository;
-import es.caib.helium.ms.domini.DominiMs;
-import es.caib.helium.ms.domini.client.model.Domini;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import javax.annotation.Resource;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Servei per gestionar la configuració de l'aplicació.
@@ -81,8 +61,8 @@ public class AdminServiceImpl implements AdminService {
 	private HibernateHelper hibernateHelper;
 	@Resource
 	private ConversioTipusHelper conversioTipusHelper;
-	@Resource
-	private MesuresTemporalsHelper mesuresTemporalsHelper;
+//	@Resource
+//	private MesuresTemporalsHelper mesuresTemporalsHelper;
 	@Resource
 	private MonitorIntegracioHelper monitorIntegracioHelper;
 	@Resource
@@ -90,8 +70,8 @@ public class AdminServiceImpl implements AdminService {
 	@Resource
 	private MailHelper mailHelper;
 
-	@Autowired
-	private MetricRegistry metricRegistry;
+//	@Autowired
+//	private MetricRegistry metricRegistry;
 
 
 
@@ -234,6 +214,7 @@ public class AdminServiceImpl implements AdminService {
 		}
 	}
 
+	// TODO: Mètriques
 	/**
 	 * {@inheritDoc}
 	 */
@@ -244,36 +225,44 @@ public class AdminServiceImpl implements AdminService {
 		logger.debug("Consultant el llistat de mesures temporals per família (" +
 				"familia=" + familia + ", " +
 				"ambDetall=" + ambDetall + ")");
-		return mesuresTemporalsHelper.getEstadistiques(familia, ambDetall);
+//		return mesuresTemporalsHelper.getEstadistiques(familia, ambDetall);
+		return null;
 	}
 
+	// TODO: Mètriques
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
 	public List<MesuraTemporalDto> mesuraTemporalFindByTipusExpedient() {
 		logger.debug("Consultant el llistat de mesures temporals dels tipus d'expedient");
-		return mesuresTemporalsHelper.getEstadistiquesTipusExpedient();
+//		return mesuresTemporalsHelper.getEstadistiquesTipusExpedient();
+		return null;
 	}
 
+	// TODO: Mètriques
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
 	public List<MesuraTemporalDto> mesuraTemporalFindByTasca() {
 		logger.debug("Consultant el llistat de mesures temporals de les tasques");
-		return mesuresTemporalsHelper.getEstadistiquesTasca();
+//		return mesuresTemporalsHelper.getEstadistiquesTasca();
+		return null;
 	}
 
+	// TODO: Mètriques
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
 	public Set<String> mesuraTemporalFindFamiliesAll() {
 		logger.debug("Consultant el llistat de famílies de mesures temporals");
-		return mesuresTemporalsHelper.getIntervalsFamilia();
+//		return mesuresTemporalsHelper.getIntervalsFamilia();
+		return null;
 	}
 
+	// TODO: Mètriques
 	/**
 	 * {@inheritDoc}
 	 */
@@ -282,10 +271,12 @@ public class AdminServiceImpl implements AdminService {
 			String clau,
 			String familia) {
 		logger.debug("Consultant el llistat de famílies de mesures temporals");
-		mesuresTemporalsHelper.mesuraIniciar(
-				clau,
-				familia);
+//		mesuresTemporalsHelper.mesuraIniciar(
+//				clau,
+//				familia);
 	}
+
+	// TODO: Mètriques
 	/**
 	 * {@inheritDoc}
 	 */
@@ -294,11 +285,13 @@ public class AdminServiceImpl implements AdminService {
 			String clau,
 			String familia,
 			String tipusExpedient) {
-		mesuresTemporalsHelper.mesuraIniciar(
-				clau,
-				familia,
-				tipusExpedient);
+//		mesuresTemporalsHelper.mesuraIniciar(
+//				clau,
+//				familia,
+//				tipusExpedient);
 	}
+
+	// TODO: Mètriques
 	/**
 	 * {@inheritDoc}
 	 */
@@ -309,32 +302,37 @@ public class AdminServiceImpl implements AdminService {
 			String tipusExpedient,
 			String tasca,
 			String detall) {
-		mesuresTemporalsHelper.mesuraIniciar(
-				clau,
-				familia,
-				tipusExpedient,
-				tasca,
-				detall);
+//		mesuresTemporalsHelper.mesuraIniciar(
+//				clau,
+//				familia,
+//				tipusExpedient,
+//				tasca,
+//				detall);
 	}
 
+	// TODO: Mètriques
 	@Override
 	public void mesuraTemporalCalcular(
 			String clau,
 			String familia) {
-		mesuresTemporalsHelper.mesuraCalcular(
-				clau,
-				familia);
+//		mesuresTemporalsHelper.mesuraCalcular(
+//				clau,
+//				familia);
 	}
+
+	// TODO: Mètriques
 	@Override
 	public void mesuraTemporalCalcular(
 			String clau,
 			String familia,
 			String tipusExpedient) {
-		mesuresTemporalsHelper.mesuraCalcular(
-				clau,
-				familia,
-				tipusExpedient);
+//		mesuresTemporalsHelper.mesuraCalcular(
+//				clau,
+//				familia,
+//				tipusExpedient);
 	}
+
+	// TODO: Mètriques
 	@Override
 	public void mesuraTemporalCalcular(
 			String clau,
@@ -342,17 +340,19 @@ public class AdminServiceImpl implements AdminService {
 			String tipusExpedient,
 			String tasca,
 			String detall) {
-		mesuresTemporalsHelper.mesuraCalcular(
-				clau,
-				familia,
-				tipusExpedient,
-				tasca,
-				detall);
+//		mesuresTemporalsHelper.mesuraCalcular(
+//				clau,
+//				familia,
+//				tipusExpedient,
+//				tasca,
+//				detall);
 	}
 
+	// TODO: Mètriques
 	@Override
 	public boolean mesuraTemporalIsActive() {
-		return MesuresTemporalsHelper.isActiu();
+//		return MesuresTemporalsHelper.isActiu();
+		return false;
 	}
 
 	@Override
@@ -366,10 +366,12 @@ public class AdminServiceImpl implements AdminService {
 			boolean exportar) {
 		return hibernateHelper.getHibernateStatistics(familia, exportar);
 	}
-	
+
+	// TODO: Mètriques
 	@Override
 	public List<TascaCompleteDto> getTasquesCompletar() {
-		return mesuresTemporalsHelper.getTasquesCompletar();
+//		return mesuresTemporalsHelper.getTasquesCompletar();
+		return null;
 	}
 	
 	@Transactional
@@ -477,14 +479,16 @@ public class AdminServiceImpl implements AdminService {
 
 
 
+	// TODO: Mètriques
 	private String getApplictionMetrics() throws JsonProcessingException {
-		ObjectMapper mapper = new ObjectMapper();
-		mapper.registerModule(
-				new MetricsModule(
-						TimeUnit.SECONDS,
-						TimeUnit.MILLISECONDS,
-						false));
-		return mapper.writeValueAsString(metricRegistry);
+//		ObjectMapper mapper = new ObjectMapper();
+//		mapper.registerModule(
+//				new MetricsModule(
+//						TimeUnit.SECONDS,
+//						TimeUnit.MILLISECONDS,
+//						false));
+//		return mapper.writeValueAsString(metricRegistry);
+		return null;
 	}
 
 	private String getCorreuRemitent() {
@@ -513,9 +517,11 @@ public class AdminServiceImpl implements AdminService {
 		return monitorIntegracioHelper.findAccionsByIntegracioCodiEntornActual(integracioCodi);
 	}
 
+	// TODO: Mètriques
 	@Override
 	public List<TascaCompleteDto> getTasquesCompletarAdminEntorn() {
-		return mesuresTemporalsHelper.getTasquesCompletarAdminEntiorn();
+//		return mesuresTemporalsHelper.getTasquesCompletarAdminEntiorn();
+		return null;
 	}
 
 }

@@ -3,11 +3,8 @@
  */
 package es.caib.helium.logic.service;
 
-import com.sun.star.plugin.PluginException;
-
-import es.caib.emiserv.logic.intf.util.ThreadLocalInfo;
 import es.caib.helium.logic.helper.ConversioTipusHelper;
-import es.caib.helium.logic.helper.DocumentHelperV3;
+import es.caib.helium.logic.helper.DocumentHelper;
 import es.caib.helium.logic.helper.ExceptionHelper;
 import es.caib.helium.logic.helper.ExpedientHelper;
 import es.caib.helium.logic.helper.IndexHelper;
@@ -33,8 +30,7 @@ import es.caib.helium.persist.repository.AlertaRepository;
 import es.caib.helium.persist.repository.DocumentStoreRepository;
 import es.caib.helium.persist.repository.ExpedientRepository;
 import es.caib.helium.persist.repository.PortasignaturesRepository;
-import net.conselldemallorca.helium.core.helper.*;
-
+import es.caib.helium.persist.util.ThreadLocalInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -77,8 +73,8 @@ public class PortasignaturesServiceImpl implements PortasignaturesService {
 	private IndexHelper indexHelper;
 	@Resource
 	private ExceptionHelper exceptionHelper;
-	@Resource(name = "documentHelperV3")
-	private DocumentHelperV3 documentHelper;
+	@Resource
+	private DocumentHelper documentHelper;
 	@Resource
 	private MessageHelper messageHelper;
 	@Resource
@@ -163,7 +159,7 @@ public class PortasignaturesServiceImpl implements PortasignaturesService {
 			portasignatures.setDataProcessamentDarrer(new Date());
 			Long tokenId = portasignatures.getTokenId();
 			WToken token = workflowEngineApi.getTokenById(tokenId.toString());
-			DocumentStore documentStore = documentStoreRepository.findById(portasignatures.getDocumentStoreId());
+			DocumentStore documentStore = documentStoreRepository.getById(portasignatures.getDocumentStoreId());
 			if (documentStore != null) {
 				if (TipusEstat.SIGNAT.equals(portasignatures.getEstat()) ||
 					(TipusEstat.ERROR.equals(portasignatures.getEstat()) && Transicio.SIGNAT.equals(portasignatures.getTransition()))) {
@@ -208,11 +204,11 @@ public class PortasignaturesServiceImpl implements PortasignaturesService {
 
 						resposta = true;
 
-					} catch (PluginException pex) {
-						errorProcesPsigna(
-								portasignatures,
-								exceptionHelper.getMissageFinalCadenaExcepcions(pex));
-						logger.error("Error al processar el document firmat pel callback (documentId=" + portasignatures.getDocumentId() + "): " + exceptionHelper.getMissageFinalCadenaExcepcions(pex), pex);
+//					} catch (PluginException pex) {
+//						errorProcesPsigna(
+//								portasignatures,
+//								exceptionHelper.getMissageFinalCadenaExcepcions(pex));
+//						logger.error("Error al processar el document firmat pel callback (documentId=" + portasignatures.getDocumentId() + "): " + exceptionHelper.getMissageFinalCadenaExcepcions(pex), pex);
 					} catch (Exception ex) {
 						errorProcesPsigna(
 								portasignatures,

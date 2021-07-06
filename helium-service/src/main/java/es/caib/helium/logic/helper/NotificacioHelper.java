@@ -3,18 +3,6 @@
  */
 package es.caib.helium.logic.helper;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
-import javax.annotation.Resource;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
-
 import es.caib.helium.integracio.plugins.notificacio.RespostaEnviar;
 import es.caib.helium.integracio.plugins.registre.RespostaJustificantRecepcio;
 import es.caib.helium.logic.intf.dto.DadesEnviamentDto;
@@ -35,6 +23,16 @@ import es.caib.helium.persist.repository.DocumentNotificacioRepository;
 import es.caib.helium.persist.repository.DocumentStoreRepository;
 import es.caib.helium.persist.repository.ExpedientRepository;
 import es.caib.helium.persist.repository.NotificacioRepository;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+
+import javax.annotation.Resource;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 /**
  * Helper per a les notificacions a la safata telemàtica de SISTRA i pel NOTIB.
@@ -59,7 +57,7 @@ public class NotificacioHelper {
 	@Resource
 	private PluginHelper pluginHelper;
 	@Resource
-	private DocumentHelperV3 documentHelperV3;
+	private DocumentHelper documentHelperV3;
 
 
 	// Notificació SISTRA

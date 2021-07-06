@@ -1,14 +1,23 @@
 package es.caib.helium.logic.service;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.annotation.Resource;
-
+import es.caib.helium.logic.helper.IndexHelper;
+import es.caib.helium.logic.helper.NotificacioHelper;
+import es.caib.helium.logic.helper.TascaProgramadaHelper;
+import es.caib.helium.logic.intf.dto.DocumentEnviamentEstatEnumDto;
+import es.caib.helium.logic.intf.dto.DocumentNotificacioTipusEnumDto;
+import es.caib.helium.logic.intf.exception.NoTrobatException;
+import es.caib.helium.logic.intf.service.ExecucioMassivaService;
+import es.caib.helium.logic.intf.service.TascaProgramadaService;
+import es.caib.helium.logic.util.GlobalProperties;
+import es.caib.helium.persist.entity.ExecucioMassiva.ExecucioMassivaTipus;
+import es.caib.helium.persist.entity.ExecucioMassivaExpedient;
+import es.caib.helium.persist.entity.Expedient;
+import es.caib.helium.persist.entity.ExpedientReindexacio;
+import es.caib.helium.persist.entity.Notificacio;
+import es.caib.helium.persist.repository.ExecucioMassivaExpedientRepository;
+import es.caib.helium.persist.repository.ExpedientReindexacioRepository;
+import es.caib.helium.persist.repository.ExpedientRepository;
+import es.caib.helium.persist.repository.NotificacioRepository;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,29 +27,13 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.codahale.metrics.Counter;
-import com.codahale.metrics.MetricRegistry;
-import com.codahale.metrics.Timer;
-
-import es.caib.emiserv.logic.intf.exception.NoTrobatException;
-import es.caib.helium.logic.helper.ExpedientHelper;
-import es.caib.helium.logic.helper.IndexHelper;
-import es.caib.helium.logic.helper.NotificacioHelper;
-import es.caib.helium.logic.helper.TascaProgramadaHelper;
-import es.caib.helium.logic.intf.dto.DocumentEnviamentEstatEnumDto;
-import es.caib.helium.logic.intf.dto.DocumentNotificacioTipusEnumDto;
-import es.caib.helium.logic.intf.service.ExecucioMassivaService;
-import es.caib.helium.logic.intf.service.TascaProgramadaService;
-import es.caib.helium.persist.entity.ExecucioMassivaExpedient;
-import es.caib.helium.persist.entity.Expedient;
-import es.caib.helium.persist.entity.ExpedientReindexacio;
-import es.caib.helium.persist.entity.Notificacio;
-import es.caib.helium.persist.entity.ExecucioMassiva.ExecucioMassivaTipus;
-import es.caib.helium.persist.repository.ExecucioMassivaExpedientRepository;
-import es.caib.helium.persist.repository.ExpedientReindexacioRepository;
-import es.caib.helium.persist.repository.ExpedientRepository;
-import es.caib.helium.persist.repository.NotificacioRepository;
-import net.conselldemallorca.helium.core.util.GlobalProperties;
+import javax.annotation.Resource;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Servei per gestionar els terminis dels expedients
@@ -62,14 +55,14 @@ public class TascaProgramadaServiceImpl implements TascaProgramadaService {
 	private ExecucioMassivaService execucioMassivaService;
 	@Resource
 	private IndexHelper indexHelper;
-	@Resource
-	private ExpedientHelper expedientHelper;
+//	@Resource
+//	private ExpedientHelper expedientHelper;
 	@Resource
 	private NotificacioHelper notificacioHelper;
 	@Resource
 	private TascaProgramadaHelper tascaProgramadaHelper;
-	@Resource
-  	private MetricRegistry metricRegistry;
+//	@Resource
+//  	private MetricRegistry metricRegistry;
 	
 	private static Map<Long, String> errorsMassiva = new HashMap<Long, String>();
 	
@@ -82,7 +75,7 @@ public class TascaProgramadaServiceImpl implements TascaProgramadaService {
 		int timeBetweenExecutions = 500;
 		try {
 			timeBetweenExecutions = Integer.parseInt(
-					GlobalProperties.getInstance().getProperty("app.massiu.periode.execucions")); 
+					GlobalProperties.getInstance().getProperty("app.massiu.periode.execucions"));
 		} catch (Exception ex) {}
 		
 		while (active) {
@@ -99,9 +92,8 @@ public class TascaProgramadaServiceImpl implements TascaProgramadaService {
 							errMsg = e.getMessage();
 						execucioMassivaService.generaInformeError(ome_id, errMsg);
 					}
-					ExecucioMassivaExpedient ome = execucioMassivaExpedientRepository.findById(ome_id);
-					if (ome == null)
-						throw new NoTrobatException(ExecucioMassivaExpedient.class, ome_id);
+					ExecucioMassivaExpedient ome = execucioMassivaExpedientRepository.findById(ome_id)
+							.orElseThrow(() -> new NoTrobatException(ExecucioMassivaExpedient.class, ome_id));
 					ultimaExecucioMassiva = ome.getExecucioMassiva().getId();
 					execucioMassivaService.actualitzaUltimaOperacio(ome.getId());
 				} else {
@@ -127,9 +119,10 @@ public class TascaProgramadaServiceImpl implements TascaProgramadaService {
 	@Override
 	@Scheduled(fixedDelay=10000)
 	public void comprovarReindexacioAsincrona() {
-		
-		Counter countMetodeAsincronTotal = metricRegistry.counter(MetricRegistry.name(TascaProgramadaService.class, "reindexacio.asincrona.metode.count"));
-		countMetodeAsincronTotal.inc();		
+
+		// TODO: Mètriques
+//		Counter countMetodeAsincronTotal = metricRegistry.counter(MetricRegistry.name(TascaProgramadaService.class, "reindexacio.asincrona.metode.count"));
+//		countMetodeAsincronTotal.inc();
 		
 		// comprova que la propietat de reindexació estigui a true
 		if (!this.isReindexarAsincronament()) {
@@ -138,7 +131,7 @@ public class TascaProgramadaServiceImpl implements TascaProgramadaService {
 		}
 		
 		// Consulta les reindexacions pendents
-		Sort sort = new Sort(Direction.ASC, "id");
+		Sort sort = Sort.by(Direction.ASC, "id");
 		List<ExpedientReindexacio> reindexacions = expedientReindexacioRepository.findAll(sort);
 		// Consulta els expedients amb data de reindexació per comprovar si estan a la cua
 		List<Long> expedientIdsAmbReindexarData = expedientRepository.findIdsPendentsReindexacio();
@@ -162,7 +155,7 @@ public class TascaProgramadaServiceImpl implements TascaProgramadaService {
 				Expedient expedient;
 				ExpedientReindexacio novaReindexacio;
 				for (Long expedientId : expedientIdsAmbReindexarData) {
-					expedient = expedientRepository.findById(expedientId);
+					expedient = expedientRepository.getById(expedientId);
 					novaReindexacio = new ExpedientReindexacio();
 					novaReindexacio.setExpedientId(expedientId);
 					novaReindexacio.setDataReindexacio(expedient.getReindexarData());
@@ -233,7 +226,7 @@ public class TascaProgramadaServiceImpl implements TascaProgramadaService {
 	@Transactional
 	public void actualitzarExpedientReindexacioData(Long expedientId, Date dataReindexacio) {
 		try {
-			Expedient expedient = expedientRepository.findById(expedientId);
+			Expedient expedient = expedientRepository.getById(expedientId);
 			expedientRepository.setReindexarErrorData(expedientId, expedient.isReindexarError(), dataReindexacio);			
 		}catch(Exception e) {
 			logger.error("Error actualtizant les dades de reindexació per l'expedient " + expedientId + ": " + e.getMessage(), e);
@@ -244,30 +237,31 @@ public class TascaProgramadaServiceImpl implements TascaProgramadaService {
 	@Transactional
 	public void reindexarExpedient (Long expedientId) {
 		
-		Expedient expedient = expedientRepository.findById(expedientId);
+		Expedient expedient = expedientRepository.getById(expedientId);
 		if (expedient != null) {
-			
-			Timer.Context contextTotal = null;
-			Timer.Context contextEntorn = null;
-			Timer.Context contextTipexp = null;
+
+			// TODO: Mètriques
+//			Timer.Context contextTotal = null;
+//			Timer.Context contextEntorn = null;
+//			Timer.Context contextTipexp = null;
 
 			try {
 				
-				final Timer timerTotal = metricRegistry.timer(MetricRegistry.name(TascaProgramadaService.class, "reindexacio.asincrona.expedient"));
-				final Timer timerEntorn = metricRegistry.timer(MetricRegistry.name(TascaProgramadaService.class, "reindexacio.asincrona.expedient", expedient.getEntorn().getCodi()));
-				final Timer timerTipexp = metricRegistry.timer(MetricRegistry.name(TascaProgramadaService.class, "reindexacio.asincrona.expedient", expedient.getEntorn().getCodi(), expedient.getTipus().getCodi()));
+//				final Timer timerTotal = metricRegistry.timer(MetricRegistry.name(TascaProgramadaService.class, "reindexacio.asincrona.expedient"));
+//				final Timer timerEntorn = metricRegistry.timer(MetricRegistry.name(TascaProgramadaService.class, "reindexacio.asincrona.expedient", expedient.getEntorn().getCodi()));
+//				final Timer timerTipexp = metricRegistry.timer(MetricRegistry.name(TascaProgramadaService.class, "reindexacio.asincrona.expedient", expedient.getEntorn().getCodi(), expedient.getTipus().getCodi()));
 				
-				Counter countTotal = metricRegistry.counter(MetricRegistry.name(TascaProgramadaService.class, "reindexacio.asincrona.expedient.count"));
-				Counter countEntorn = metricRegistry.counter(MetricRegistry.name(TascaProgramadaService.class, "reindexacio.asincrona.expedient.count", expedient.getEntorn().getCodi()));
-				Counter countTipexp = metricRegistry.counter(MetricRegistry.name(TascaProgramadaService.class, "reindexacio.asincrona.expedient.count", expedient.getEntorn().getCodi(), expedient.getTipus().getCodi()));
+//				Counter countTotal = metricRegistry.counter(MetricRegistry.name(TascaProgramadaService.class, "reindexacio.asincrona.expedient.count"));
+//				Counter countEntorn = metricRegistry.counter(MetricRegistry.name(TascaProgramadaService.class, "reindexacio.asincrona.expedient.count", expedient.getEntorn().getCodi()));
+//				Counter countTipexp = metricRegistry.counter(MetricRegistry.name(TascaProgramadaService.class, "reindexacio.asincrona.expedient.count", expedient.getEntorn().getCodi(), expedient.getTipus().getCodi()));
 			
-				countTotal.inc();
-				countEntorn.inc();
-				countTipexp.inc();
+//				countTotal.inc();
+//				countEntorn.inc();
+//				countTipexp.inc();
 				
-				contextTotal = timerTotal.time();
-				contextEntorn = timerEntorn.time();
-				contextTipexp = timerTipexp.time();
+//				contextTotal = timerTotal.time();
+//				contextEntorn = timerEntorn.time();
+//				contextTipexp = timerTipexp.time();
 				
 				indexHelper.expedientIndexLuceneUpdate(
 						expedient.getProcessInstanceId(),
@@ -280,9 +274,9 @@ public class TascaProgramadaServiceImpl implements TascaProgramadaService {
 						ex);
 				expedientRepository.setReindexarErrorData(expedientId, true, null);
 			} finally {			
-				contextTotal.stop();
-				contextEntorn.stop();
-				contextTipexp.stop();
+//				contextTotal.stop();
+//				contextEntorn.stop();
+//				contextTipexp.stop();
 			}			
 		} else {
 			logger.warn("No s'ha trobat l'expedient amb id " + expedientId + " per reindexar.");
@@ -307,9 +301,8 @@ public class TascaProgramadaServiceImpl implements TascaProgramadaService {
 	@Override
 	@Transactional
 	public void actualitzarEstatNotificacions(Long notificacioId) {
-		Notificacio notificacio = notificacioRepository.findById(notificacioId);
-		if (notificacio == null)
-			throw new NoTrobatException(Notificacio.class, notificacioId);
+		Notificacio notificacio = notificacioRepository.findById(notificacioId)
+				.orElseThrow(() -> new NoTrobatException(Notificacio.class, notificacioId));
 		
 		notificacioHelper.obtenirJustificantNotificacio(notificacio);
 	}

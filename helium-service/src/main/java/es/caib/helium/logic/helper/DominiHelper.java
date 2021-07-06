@@ -3,25 +3,6 @@
  */
 package es.caib.helium.logic.helper;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.annotation.Resource;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.Cache;
-import org.springframework.cache.CacheManager;
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
-import org.springframework.stereotype.Component;
-
-import com.codahale.metrics.Counter;
-import com.codahale.metrics.MetricRegistry;
-import com.codahale.metrics.Timer;
-
 import es.caib.helium.integracio.plugins.unitat.UnitatOrganica;
 import es.caib.helium.logic.intf.WTaskInstance;
 import es.caib.helium.logic.intf.WorkflowEngineApi;
@@ -35,6 +16,7 @@ import es.caib.helium.logic.intf.exception.SistemaExternException;
 import es.caib.helium.logic.intf.extern.domini.FilaResultat;
 import es.caib.helium.logic.intf.extern.domini.ParellaCodiValor;
 import es.caib.helium.logic.util.GlobalProperties;
+import es.caib.helium.ms.domini.DominiMs;
 import es.caib.helium.persist.entity.Area;
 import es.caib.helium.persist.entity.AreaMembre;
 import es.caib.helium.persist.entity.Camp;
@@ -53,8 +35,20 @@ import es.caib.helium.persist.repository.CarrecRepository;
 import es.caib.helium.persist.repository.EntornRepository;
 import es.caib.helium.persist.repository.PermisRepository;
 import es.caib.helium.persist.repository.UsuariRepository;
-import es.caib.helium.ms.domini.DominiMs;
 import net.sf.ehcache.Element;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.stereotype.Component;
+
+import javax.annotation.Resource;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 /**
  * Helper per a fer consultes a dominis i enumeracions.
  * 
@@ -68,16 +62,16 @@ public class DominiHelper {
 
 	private Map<Long, NamedParameterJdbcTemplate> jdbcTemplates = new HashMap<Long, NamedParameterJdbcTemplate>();
 
-	@Autowired
-	private MonitorDominiHelper monitorDominiHelper;
-	@Autowired
-	private WsClientHelper wsClientHelper;
+//	@Autowired
+//	private MonitorDominiHelper monitorDominiHelper;
+//	@Autowired
+//	private WsClientHelper wsClientHelper;
 	@Autowired
 	private ConversioTipusHelper conversioTipusHelper;
 	@Autowired
 	private PluginHelper pluginHelper;
-	@Autowired
-	private MetricRegistry metricRegistry;
+//	@Autowired
+//	private MetricRegistry metricRegistry;
 	@Autowired
 	private CacheManager cacheManager;
 	@Resource
@@ -117,58 +111,59 @@ public class DominiHelper {
 		List<FilaResultat> resultat = null;
 		if (dominiCache.get(cacheKey) == null) {
 			DominiDto domini = dominiMs.get(dominiId);
-			final Timer timerTotal = metricRegistry.timer(
-					MetricRegistry.name(
-							DominiHelper.class,
-							"consultar"));
-			final Timer.Context contextTotal = timerTotal.time();
-			Counter countTotal = metricRegistry.counter(
-					MetricRegistry.name(
-							DominiHelper.class,
-							"consultar.count"));
-			countTotal.inc();
-			final Timer timerEntorn = metricRegistry.timer(
-					MetricRegistry.name(
-							DominiHelper.class,
-							"consultar",
-							domini.getEntornId().toString()));
-			final Timer.Context contextEntorn = timerEntorn.time();
-			Counter countEntorn = metricRegistry.counter(
-					MetricRegistry.name(
-							DominiHelper.class,
-							"consultar.count",
-							domini.getEntornId().toString()));
-			countEntorn.inc();
-			final Timer timerTipexp = metricRegistry.timer(
-					MetricRegistry.name(
-							DominiHelper.class,
-							"consultar",
-							domini.getEntornId().toString(),
-							domini.getExpedientTipusId() == null ? null : domini.getExpedientTipusId().toString()));
-			final Timer.Context contextTipexp = timerTipexp.time();
-			Counter countTipexp = metricRegistry.counter(
-					MetricRegistry.name(
-							DominiHelper.class,
-							"consultar.count",
-							domini.getEntornId().toString(),
-							domini.getExpedientTipusId() == null ? null : domini.getExpedientTipusId().toString()));
-			countTipexp.inc();
-			final Timer timerDomini = metricRegistry.timer(
-					MetricRegistry.name(
-							DominiHelper.class,
-							"consultar",
-							domini.getEntornId().toString(),
-							domini.getExpedientTipusId() == null ? null : domini.getExpedientTipusId().toString(),
-							domini.getCodi()));
-			final Timer.Context contextDomini = timerDomini.time();
-			Counter countDomini = metricRegistry.counter(
-					MetricRegistry.name(
-							DominiHelper.class,
-							"consultar.count",
-							domini.getEntornId().toString(),
-							domini.getExpedientTipusId() == null ? null : domini.getExpedientTipusId().toString(),
-							domini.getCodi()));
-			countDomini.inc();
+			// TODO: Mètriques
+//			final Timer timerTotal = metricRegistry.timer(
+//					MetricRegistry.name(
+//							DominiHelper.class,
+//							"consultar"));
+//			final Timer.Context contextTotal = timerTotal.time();
+//			Counter countTotal = metricRegistry.counter(
+//					MetricRegistry.name(
+//							DominiHelper.class,
+//							"consultar.count"));
+//			countTotal.inc();
+//			final Timer timerEntorn = metricRegistry.timer(
+//					MetricRegistry.name(
+//							DominiHelper.class,
+//							"consultar",
+//							domini.getEntornId().toString()));
+//			final Timer.Context contextEntorn = timerEntorn.time();
+//			Counter countEntorn = metricRegistry.counter(
+//					MetricRegistry.name(
+//							DominiHelper.class,
+//							"consultar.count",
+//							domini.getEntornId().toString()));
+//			countEntorn.inc();
+//			final Timer timerTipexp = metricRegistry.timer(
+//					MetricRegistry.name(
+//							DominiHelper.class,
+//							"consultar",
+//							domini.getEntornId().toString(),
+//							domini.getExpedientTipusId() == null ? null : domini.getExpedientTipusId().toString()));
+//			final Timer.Context contextTipexp = timerTipexp.time();
+//			Counter countTipexp = metricRegistry.counter(
+//					MetricRegistry.name(
+//							DominiHelper.class,
+//							"consultar.count",
+//							domini.getEntornId().toString(),
+//							domini.getExpedientTipusId() == null ? null : domini.getExpedientTipusId().toString()));
+//			countTipexp.inc();
+//			final Timer timerDomini = metricRegistry.timer(
+//					MetricRegistry.name(
+//							DominiHelper.class,
+//							"consultar",
+//							domini.getEntornId().toString(),
+//							domini.getExpedientTipusId() == null ? null : domini.getExpedientTipusId().toString(),
+//							domini.getCodi()));
+//			final Timer.Context contextDomini = timerDomini.time();
+//			Counter countDomini = metricRegistry.counter(
+//					MetricRegistry.name(
+//							DominiHelper.class,
+//							"consultar.count",
+//							domini.getEntornId().toString(),
+//							domini.getExpedientTipusId() == null ? null : domini.getExpedientTipusId().toString(),
+//							domini.getCodi()));
+//			countDomini.inc();
 			try {					
 				resultat = conversioTipusHelper.convertirList(
 						dominiMs.consultarDomini(dominiId, dominiWsId, parametres), 
@@ -183,65 +178,65 @@ public class DominiHelper {
 					cacheElement.setTimeToLive(domini.getCacheSegons());
 					nativeCache.put(cacheElement);
 				}
-				final Counter counterOkTotal = metricRegistry.counter(
-						MetricRegistry.name(
-								DominiHelper.class,
-								"consultar.ok"));
-				counterOkTotal.inc();
-				final Counter counterOkEntorn = metricRegistry.counter(
-						MetricRegistry.name(
-								DominiHelper.class,
-								"consultar.ok",
-								domini.getEntornId().toString()));
-				counterOkEntorn.inc();
-				final Counter counterOkTipexp = metricRegistry.counter(
-						MetricRegistry.name(
-								DominiHelper.class,
-								"consultar.ok",
-								domini.getEntornId().toString(),
-								domini.getExpedientTipusId() == null ? null : domini.getExpedientTipusId().toString()));
-				counterOkTipexp.inc();
-				final Counter counterOkDomini = metricRegistry.counter(
-						MetricRegistry.name(
-								DominiHelper.class,
-								"consultar.ok",
-								domini.getEntornId().toString(),
-								domini.getExpedientTipusId() == null ? null : domini.getExpedientTipusId().toString(),
-								domini.getCodi()));
-				counterOkDomini.inc();
+//				final Counter counterOkTotal = metricRegistry.counter(
+//						MetricRegistry.name(
+//								DominiHelper.class,
+//								"consultar.ok"));
+//				counterOkTotal.inc();
+//				final Counter counterOkEntorn = metricRegistry.counter(
+//						MetricRegistry.name(
+//								DominiHelper.class,
+//								"consultar.ok",
+//								domini.getEntornId().toString()));
+//				counterOkEntorn.inc();
+//				final Counter counterOkTipexp = metricRegistry.counter(
+//						MetricRegistry.name(
+//								DominiHelper.class,
+//								"consultar.ok",
+//								domini.getEntornId().toString(),
+//								domini.getExpedientTipusId() == null ? null : domini.getExpedientTipusId().toString()));
+//				counterOkTipexp.inc();
+//				final Counter counterOkDomini = metricRegistry.counter(
+//						MetricRegistry.name(
+//								DominiHelper.class,
+//								"consultar.ok",
+//								domini.getEntornId().toString(),
+//								domini.getExpedientTipusId() == null ? null : domini.getExpedientTipusId().toString(),
+//								domini.getCodi()));
+//				counterOkDomini.inc();
 			} catch (SistemaExternException ex) {
-				final Counter counterErrorTotal = metricRegistry.counter(
-						MetricRegistry.name(
-								DominiHelper.class,
-								"consultar.error"));
-				counterErrorTotal.inc();
-				final Counter counterErrorEntorn = metricRegistry.counter(
-						MetricRegistry.name(
-								DominiHelper.class,
-								"consultar.error",
-								domini.getEntornId().toString()));
-				counterErrorEntorn.inc();
-				final Counter counterErrorTipexp = metricRegistry.counter(
-						MetricRegistry.name(
-								DominiHelper.class,
-								"consultar.error",
-								domini.getEntornId().toString(),
-								domini.getExpedientTipusId() == null ? null : domini.getExpedientTipusId().toString()));
-				counterErrorTipexp.inc();
-				final Counter counterErrorDomini = metricRegistry.counter(
-						MetricRegistry.name(
-								DominiHelper.class,
-								"consultar.error",
-								domini.getEntornId().toString(),
-								domini.getExpedientTipusId() == null ? null : domini.getExpedientTipusId().toString(),
-								domini.getCodi()));
-				counterErrorDomini.inc();
+//				final Counter counterErrorTotal = metricRegistry.counter(
+//						MetricRegistry.name(
+//								DominiHelper.class,
+//								"consultar.error"));
+//				counterErrorTotal.inc();
+//				final Counter counterErrorEntorn = metricRegistry.counter(
+//						MetricRegistry.name(
+//								DominiHelper.class,
+//								"consultar.error",
+//								domini.getEntornId().toString()));
+//				counterErrorEntorn.inc();
+//				final Counter counterErrorTipexp = metricRegistry.counter(
+//						MetricRegistry.name(
+//								DominiHelper.class,
+//								"consultar.error",
+//								domini.getEntornId().toString(),
+//								domini.getExpedientTipusId() == null ? null : domini.getExpedientTipusId().toString()));
+//				counterErrorTipexp.inc();
+//				final Counter counterErrorDomini = metricRegistry.counter(
+//						MetricRegistry.name(
+//								DominiHelper.class,
+//								"consultar.error",
+//								domini.getEntornId().toString(),
+//								domini.getExpedientTipusId() == null ? null : domini.getExpedientTipusId().toString(),
+//								domini.getCodi()));
+//				counterErrorDomini.inc();
 				throw ex;
 			} finally {
-				contextTotal.stop();
-				contextEntorn.stop();
-				contextTipexp.stop();
-				contextDomini.stop();
+//				contextTotal.stop();
+//				contextEntorn.stop();
+//				contextTipexp.stop();
+//				contextDomini.stop();
 			}
 		} else {
 			resultat = (List<FilaResultat>)dominiCache.get(cacheKey).get();
@@ -749,7 +744,7 @@ public class DominiHelper {
 	/** Consulta els camps relacionats amb un domini. Serveix per validar si es pot esborrar abans
 	 * d'esborrar el domini.
 	 * 
-	 * @param dominiId
+	 * @param domini
 	 * @return
 	 */
 	public List<Camp> findCampsPerDomini(Long domini) {

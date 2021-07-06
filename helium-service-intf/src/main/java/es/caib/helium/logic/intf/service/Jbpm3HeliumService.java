@@ -1039,10 +1039,6 @@ public interface Jbpm3HeliumService {
 	 * @param entornId 
 	 * 
 	 * @return Retorna el llistat d'expedients que compleixen amb el criteri.
-	 * 
-	 * @throws EntornNotFoundException
-	 * @throws ExpedientTipusNotFoundException
-	 * @throws EstatNotFoundException
 	 */
 	public List<ExpedientDto> findExpedientsConsultaDadesIndexades(
 			Long entornId, 
@@ -1057,17 +1053,17 @@ public interface Jbpm3HeliumService {
 	/**
 	 * Inicialitza una mesura de temps
 	 */
-	public void mesuraIniciar(String clau, String familia, String tipusExpedient, String tasca, String detall);
+//	public void mesuraIniciar(String clau, String familia, String tipusExpedient, String tasca, String detall);
 	
 	/**
 	 * Realitza un càlcul de mesura de temps
 	 */
-	public void mesuraCalcular(String clau, String familia, String tipusExpedient, String tasca, String detall);
+//	public void mesuraCalcular(String clau, String familia, String tipusExpedient, String tasca, String detall);
 	
 	/**
 	 * Informa si mesura de temps està activa
 	 */
-	public boolean mesuraIsActiu();
+//	public boolean mesuraIsActiu();
 
 	/**
 	 * 

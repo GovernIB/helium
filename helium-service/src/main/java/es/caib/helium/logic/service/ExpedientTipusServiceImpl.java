@@ -3,19 +3,28 @@
  */
 package es.caib.helium.logic.service;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-import java.util.TreeSet;
-
-import javax.annotation.Resource;
-
+import es.caib.helium.logic.helper.*;
+import es.caib.helium.logic.helper.PermisosHelper.ObjectIdentifierExtractor;
+import es.caib.helium.logic.intf.dto.*;
+import es.caib.helium.logic.intf.dto.ConsultaCampDto.TipusConsultaCamp;
+import es.caib.helium.logic.intf.dto.DominiDto.TipusDomini;
+import es.caib.helium.logic.intf.dto.ExpedientDto.EstatTipusDto;
+import es.caib.helium.logic.intf.dto.MapeigSistraDto.TipusMapeig;
+import es.caib.helium.logic.intf.exception.DeploymentException;
+import es.caib.helium.logic.intf.exception.ExportException;
+import es.caib.helium.logic.intf.exception.NoTrobatException;
+import es.caib.helium.logic.intf.exception.PermisDenegatException;
+import es.caib.helium.logic.intf.exportacio.*;
+import es.caib.helium.logic.intf.extern.domini.FilaResultat;
+import es.caib.helium.logic.intf.extern.domini.ParellaCodiValor;
+import es.caib.helium.logic.intf.service.ExpedientTipusService;
+import es.caib.helium.logic.security.ExtendedPermission;
+import es.caib.helium.ms.domini.DominiMs;
+import es.caib.helium.persist.entity.*;
+import es.caib.helium.persist.entity.Camp.TipusCamp;
+import es.caib.helium.persist.entity.Termini;
+import es.caib.helium.persist.entity.ConsultaCamp.TipusParamConsultaCamp;
+import es.caib.helium.persist.repository.*;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,114 +39,17 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import es.caib.emiserv.logic.intf.exception.DeploymentException;
-import es.caib.emiserv.logic.intf.exception.ExportException;
-import es.caib.emiserv.logic.intf.exception.NoTrobatException;
-import es.caib.emiserv.logic.intf.exception.PermisDenegatException;
-import es.caib.emiserv.logic.intf.exportacio.AccioExportacio;
-import es.caib.emiserv.logic.intf.exportacio.AgrupacioExportacio;
-import es.caib.emiserv.logic.intf.exportacio.CampExportacio;
-import es.caib.emiserv.logic.intf.exportacio.ConsultaCampExportacio;
-import es.caib.emiserv.logic.intf.exportacio.ConsultaExportacio;
-import es.caib.emiserv.logic.intf.exportacio.DefinicioProcesExportacio;
-import es.caib.emiserv.logic.intf.exportacio.DocumentExportacio;
-import es.caib.emiserv.logic.intf.exportacio.DominiExportacio;
-import es.caib.emiserv.logic.intf.exportacio.EnumeracioExportacio;
-import es.caib.emiserv.logic.intf.exportacio.EnumeracioValorExportacio;
-import es.caib.emiserv.logic.intf.exportacio.EstatExportacio;
-import es.caib.emiserv.logic.intf.exportacio.ExpedientTipusExportacio;
-import es.caib.emiserv.logic.intf.exportacio.ExpedientTipusExportacioCommandDto;
-import es.caib.emiserv.logic.intf.exportacio.MapeigSistraExportacio;
-import es.caib.emiserv.logic.intf.exportacio.RegistreMembreExportacio;
-import es.caib.emiserv.logic.intf.exportacio.TascaExportacio;
-import es.caib.emiserv.logic.intf.exportacio.TerminiExportacio;
-import es.caib.emiserv.logic.intf.exportacio.ValidacioExportacio;
-import es.caib.emiserv.logic.intf.extern.domini.FilaResultat;
-import es.caib.emiserv.logic.intf.extern.domini.ParellaCodiValor;
-import es.caib.helium.logic.helper.ConversioTipusHelper;
-import es.caib.helium.logic.helper.DefinicioProcesHelper;
-import es.caib.helium.logic.helper.DominiHelper;
-import es.caib.helium.logic.helper.EntornHelper;
-import es.caib.helium.logic.helper.ExpedientHelper;
-import es.caib.helium.logic.helper.ExpedientTipusHelper;
-import es.caib.helium.logic.helper.HerenciaHelper;
-import es.caib.helium.logic.helper.MessageHelper;
-import es.caib.helium.logic.helper.PaginacioHelper;
-import es.caib.helium.logic.helper.PermisosHelper;
-import es.caib.helium.logic.helper.PluginHelper;
-import es.caib.helium.logic.helper.UsuariActualHelper;
-import es.caib.helium.logic.helper.PermisosHelper.ObjectIdentifierExtractor;
-import es.caib.helium.logic.intf.dto.CampTipusDto;
-import es.caib.helium.logic.intf.dto.ConsultaCampDto;
-import es.caib.helium.logic.intf.dto.ConsultaDto;
-import es.caib.helium.logic.intf.dto.DefinicioProcesDto;
-import es.caib.helium.logic.intf.dto.DominiDto;
-import es.caib.helium.logic.intf.dto.EnumeracioDto;
-import es.caib.helium.logic.intf.dto.EstatDto;
-import es.caib.helium.logic.intf.dto.ExpedientTipusDto;
-import es.caib.helium.logic.intf.dto.ExpedientTipusEstadisticaDto;
-import es.caib.helium.logic.intf.dto.MapeigSistraDto;
-import es.caib.helium.logic.intf.dto.PaginaDto;
-import es.caib.helium.logic.intf.dto.PaginacioParamsDto;
-import es.caib.helium.logic.intf.dto.PermisDto;
-import es.caib.helium.logic.intf.dto.PersonaDto;
-import es.caib.helium.logic.intf.dto.PrincipalTipusEnumDto;
-import es.caib.helium.logic.intf.dto.ReassignacioDto;
-import es.caib.helium.logic.intf.dto.SequenciaAnyDto;
-import es.caib.helium.logic.intf.dto.SequenciaDefaultAnyDto;
-import es.caib.helium.logic.intf.dto.ConsultaCampDto.TipusConsultaCamp;
-import es.caib.helium.logic.intf.dto.DominiDto.TipusDomini;
-import es.caib.helium.logic.intf.dto.ExpedientDto.EstatTipusDto;
-import es.caib.helium.logic.intf.dto.MapeigSistraDto.TipusMapeig;
-import es.caib.helium.logic.intf.service.ExpedientTipusService;
-import es.caib.helium.persist.entity.Accio;
-import es.caib.helium.persist.entity.Camp;
-import es.caib.helium.persist.entity.CampAgrupacio;
-import es.caib.helium.persist.entity.CampRegistre;
-import es.caib.helium.persist.entity.CampTasca;
-import es.caib.helium.persist.entity.Consulta;
-import es.caib.helium.persist.entity.ConsultaCamp;
-import es.caib.helium.persist.entity.DefinicioProces;
-import es.caib.helium.persist.entity.Document;
-import es.caib.helium.persist.entity.DocumentTasca;
-import es.caib.helium.persist.entity.Entorn;
-import es.caib.helium.persist.entity.Enumeracio;
-import es.caib.helium.persist.entity.EnumeracioValors;
-import es.caib.helium.persist.entity.Estat;
-import es.caib.helium.persist.entity.ExpedientTipus;
-import es.caib.helium.persist.entity.FirmaTasca;
-import es.caib.helium.persist.entity.MapeigSistra;
-import es.caib.helium.persist.entity.Reassignacio;
-import es.caib.helium.persist.entity.SequenciaAny;
-import es.caib.helium.persist.entity.SequenciaDefaultAny;
-import es.caib.helium.persist.entity.Tasca;
-import es.caib.helium.persist.entity.Termini;
-import es.caib.helium.persist.entity.Validacio;
-import es.caib.helium.persist.entity.Camp.TipusCamp;
-import es.caib.helium.persist.entity.ConsultaCamp.TipusParamConsultaCamp;
-import es.caib.helium.persist.repository.AccioRepository;
-import es.caib.helium.persist.repository.CampAgrupacioRepository;
-import es.caib.helium.persist.repository.CampRegistreRepository;
-import es.caib.helium.persist.repository.CampRepository;
-import es.caib.helium.persist.repository.CampTascaRepository;
-import es.caib.helium.persist.repository.CampValidacioRepository;
-import es.caib.helium.persist.repository.ConsultaCampRepository;
-import es.caib.helium.persist.repository.ConsultaRepository;
-import es.caib.helium.persist.repository.DefinicioProcesRepository;
-import es.caib.helium.persist.repository.DocumentRepository;
-import es.caib.helium.persist.repository.DocumentTascaRepository;
-import es.caib.helium.persist.repository.EnumeracioRepository;
-import es.caib.helium.persist.repository.EnumeracioValorsRepository;
-import es.caib.helium.persist.repository.EstatRepository;
-import es.caib.helium.persist.repository.ExpedientTipusRepository;
-import es.caib.helium.persist.repository.FirmaTascaRepository;
-import es.caib.helium.persist.repository.MapeigSistraRepository;
-import es.caib.helium.persist.repository.ReassignacioRepository;
-import es.caib.helium.persist.repository.SequenciaAnyRepository;
-import es.caib.helium.persist.repository.TerminiRepository;
-import net.conselldemallorca.helium.core.security.ExtendedPermission;
-import net.conselldemallorca.helium.core.util.ExpedientCamps;
-import es.caib.helium.ms.domini.DominiMs;
+import javax.annotation.Resource;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+import java.util.TreeSet;
 
 /**
  * Implementació del servei per a gestionar tipus d'expedients.
@@ -187,12 +99,12 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 	private EstatRepository estatRepository;
 	@Resource
 	private MapeigSistraRepository mapeigSistraRepository;
-	@Resource
-	private CampTascaRepository campTascaRepository;
-	@Resource
-	private DocumentTascaRepository documentTascaRepository;
-	@Resource
-	private FirmaTascaRepository firmaTascaRepository;
+//	@Resource
+//	private CampTascaRepository campTascaRepository;
+//	@Resource
+//	private DocumentTascaRepository documentTascaRepository;
+//	@Resource
+//	private FirmaTascaRepository firmaTascaRepository;
 
 	@Resource
 	private ExpedientHelper expedientHelper;
@@ -200,7 +112,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 	private ExpedientTipusHelper expedientTipusHelper;
 	@Resource
 	private ConversioTipusHelper conversioTipusHelper;
-	@Resource(name = "permisosHelperV3") 
+	@Resource
 	private PermisosHelper permisosHelper;
 	@Resource
 	private PaginacioHelper paginacioHelper;
@@ -238,7 +150,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		entity.setAmbInfoPropia(expedientTipus.isAmbInfoPropia());
 		entity.setHeretable(expedientTipus.isHeretable());
 		if (expedientTipus.getExpedientTipusPareId() != null)
-			entity.setExpedientTipusPare(expedientTipusRepository.findById(expedientTipus.getExpedientTipusPareId()));
+			entity.setExpedientTipusPare(expedientTipusRepository.getById(expedientTipus.getExpedientTipusPareId()));
 		else
 			entity.setExpedientTipusPare(null);
 		entity.setTeTitol(expedientTipus.isTeTitol());
@@ -302,7 +214,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		entity.setAmbInfoPropia(expedientTipus.isAmbInfoPropia());
 		entity.setHeretable(expedientTipus.isHeretable());
 		if (expedientTipus.getExpedientTipusPareId() != null)
-			entity.setExpedientTipusPare(expedientTipusRepository.findById(expedientTipus.getExpedientTipusPareId()));
+			entity.setExpedientTipusPare(expedientTipusRepository.getById(expedientTipus.getExpedientTipusPareId()));
 		else
 			entity.setExpedientTipusPare(null);
 		entity.setTeTitol(expedientTipus.isTeTitol());
@@ -477,7 +389,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 				entornId,
 				true,
 				true);
-		ExpedientTipus entity = expedientTipusRepository.findById(expedientTipusId);
+		ExpedientTipus entity = expedientTipusRepository.getById(expedientTipusId);
 		
 		expedientTipusRepository.delete(entity);
 	}
@@ -1466,10 +1378,8 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 				"Consultant tipus d'expedient amb id (" +
 				"expedientTipusId=" + expedientTipusId + ")");
 		
-		ExpedientTipus tipus = expedientTipusRepository.findById(expedientTipusId);
-		
-		if (tipus == null)
-			throw new NoTrobatException(ExpedientTipus.class, expedientTipusId);
+		ExpedientTipus tipus = expedientTipusRepository.findById(expedientTipusId)
+				.orElseThrow(() -> new NoTrobatException(ExpedientTipus.class, expedientTipusId));
 		
 		return conversioTipusHelper.convertir(
 				tipus,
@@ -1649,7 +1559,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 				"expedientTipusId = " + expedientTipusId + ")");
 		ExpedientTipus tipus;
 		if (entornHelper.potDissenyarEntorn(entornId))
-			tipus = expedientTipusRepository.findById(expedientTipusId);
+			tipus = expedientTipusRepository.getById(expedientTipusId);
 		else
 			tipus = expedientTipusHelper.getExpedientTipusComprovantPermisDisseny(
 				expedientTipusId);
@@ -1678,7 +1588,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 				"expedientTipusId = " + expedientTipusId + ")");
 		ExpedientTipus tipus;
 		if (entornHelper.potDissenyarEntorn(entornId))
-			tipus = expedientTipusRepository.findById(expedientTipusId);
+			tipus = expedientTipusRepository.getById(expedientTipusId);
 		else
 			tipus = expedientTipusHelper.getExpedientTipusComprovantPermisCrear(
 				expedientTipusId);
@@ -1707,7 +1617,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 				"expedientTipusId = " + expedientTipusId + ")");
 		ExpedientTipus tipus;
 		if (entornHelper.esAdminEntorn(entornId))
-			tipus = expedientTipusRepository.findById(expedientTipusId);
+			tipus = expedientTipusRepository.getById(expedientTipusId);
 		else
 			tipus = expedientTipusHelper.getExpedientTipusComprovantPermisLectura(
 				expedientTipusId);
@@ -1736,7 +1646,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 				"expedientTipusId = " + expedientTipusId + ")");
 		ExpedientTipus tipus;
 		if (entornHelper.esAdminEntorn(entornId))
-			tipus = expedientTipusRepository.findById(expedientTipusId);
+			tipus = expedientTipusRepository.getById(expedientTipusId);
 		else
 			tipus = expedientTipusHelper.getExpedientTipusComprovantPermisEscriptura(
 				expedientTipusId);
@@ -1765,7 +1675,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 				"expedientTipusId = " + expedientTipusId + ")");
 		ExpedientTipus tipus;
 		if (entornHelper.esAdminEntorn(entornId))
-			tipus = expedientTipusRepository.findById(expedientTipusId);
+			tipus = expedientTipusRepository.getById(expedientTipusId);
 		else
 			tipus = expedientTipusHelper.getExpedientTipusComprovantPermisEsborrar(
 				expedientTipusId);
@@ -1794,7 +1704,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 				"expedientTipusId = " + expedientTipusId + ")");
 		ExpedientTipus tipus;
 		if (entornHelper.potDissenyarEntorn(entornId))
-			tipus = expedientTipusRepository.findById(expedientTipusId);
+			tipus = expedientTipusRepository.getById(expedientTipusId);
 		else
 			tipus = expedientTipusHelper.getExpedientTipusComprovantPermisDissenyDelegat(
 				expedientTipusId);
@@ -2177,7 +2087,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		logger.debug(
 				"Esborrant la definicioProces del tipus d'expedient (" +
 				"definicioProcesId=" + id +  ")");
-		DefinicioProces entity = definicioProcesRepository.findById(id);
+		DefinicioProces entity = definicioProcesRepository.getById(id);
 		
 		if (entity.getExpedientTipus() != null)
 			expedientTipusHelper.getExpedientTipusComprovantPermisDisseny(entity.getExpedientTipus().getId());
@@ -2234,8 +2144,8 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 				"Modificant la clau de la definicio de proces inicial d'un tipus d'expedient(" +
 				"expedientTipusId=" + expedientTipusId +  ", definicioProcesId=" + id + ")");
 		boolean ret = false;
-		ExpedientTipus expedientTipus = expedientTipusRepository.findById(expedientTipusId);
-		DefinicioProces definicioProces = definicioProcesRepository.findById(id);
+		ExpedientTipus expedientTipus = expedientTipusRepository.getById(expedientTipusId);
+		DefinicioProces definicioProces = definicioProcesRepository.getById(id);
 		if (expedientTipus != null 
 				&& definicioProces != null 
 				&& expedientTipus.getEntorn().getId().equals(definicioProces.getEntorn().getId())) {
@@ -2284,7 +2194,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 				"Modificant la reassignacio del tipus d'expedient existent (" +
 				"reassignacio.id=" + reassignacio.getId() + ", " +
 				"reassignacio =" + reassignacio + ")");
-		Reassignacio entity = reassignacioRepository.findById(reassignacio.getId());
+		Reassignacio entity = reassignacioRepository.getById(reassignacio.getId());
 
 		entity.setTipusExpedientId(reassignacio.getTipusExpedientId());
 		entity.setId(reassignacio.getId());
@@ -2308,7 +2218,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		logger.debug(
 				"Esborrant la reassignacio del tipus d'expedient (" +
 				"reassignacioId=" + reassignacioReassignacioId +  ")");
-		Reassignacio entity = reassignacioRepository.findById(reassignacioReassignacioId);
+		Reassignacio entity = reassignacioRepository.getById(reassignacioReassignacioId);
 		reassignacioRepository.delete(entity);	
 	}
 
@@ -2320,7 +2230,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		logger.debug(
 				"Consultant la reassignacio del tipus d'expedient amb id (" +
 				"reassignacioId=" + id +  ")");
-		Reassignacio reassignacio = reassignacioRepository.findById(id);
+		Reassignacio reassignacio = reassignacioRepository.getById(id);
 		if (reassignacio == null) {
 			throw new NoTrobatException(Reassignacio.class, id);
 		}
@@ -2365,7 +2275,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 	public List<EstatDto> estatFindAll(Long expedientTipusId,
 			boolean ambHerencia ) throws NoTrobatException, PermisDenegatException {
 		// Recupera el tipus d'expedient
-		ExpedientTipus expedientTipus = expedientTipusRepository.findById(
+		ExpedientTipus expedientTipus = expedientTipusRepository.getById(
 				expedientTipusId);
 		if (expedientTipus == null)
 			throw new NoTrobatException(
@@ -2411,8 +2321,8 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 				"Consultant el l'estat amb id (" +
 				"expedientTipusId=" + expedientTipusId + "," +		
 				"estatId=" + estatId +  ")");
-		ExpedientTipus tipus = expedientTipusRepository.findById(expedientTipusId);
-		Estat estat = estatRepository.findById(estatId);
+		ExpedientTipus tipus = expedientTipusRepository.getById(expedientTipusId);
+		Estat estat = estatRepository.getById(estatId);
 		if (estat == null) {
 			throw new NoTrobatException(Estat.class, estatId);
 		}
@@ -2469,7 +2379,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 	@Override
 	@Transactional
 	public EstatDto estatUpdate(EstatDto dto) {
-		Estat estat = estatRepository.findById(dto.getId());
+		Estat estat = estatRepository.getById(dto.getId());
 		if (estat == null) {
 			throw new NoTrobatException(Estat.class, dto.getId());
 		}
@@ -2488,11 +2398,11 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 	@Override
 	@Transactional
 	public void estatDelete(Long estatId) throws NoTrobatException, PermisDenegatException {
-		Estat estat = estatRepository.findById(estatId);
+		Estat estat = estatRepository.getById(estatId);
 		if (estat == null) {
 			throw new NoTrobatException(Estat.class, estatId);
 		}
-		ExpedientTipus expedientTipus = expedientTipusRepository.findById(estat.getExpedientTipus().getId());
+		ExpedientTipus expedientTipus = expedientTipusRepository.getById(estat.getExpedientTipus().getId());
 		expedientTipus.getEstats().remove(estat);
 		// Esborra
 		estatRepository.delete(estat);
@@ -2569,7 +2479,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 				"estatId=" + estatId + ", " +
 				"posicio=" + posicio + ")");
 		boolean ret = false;
-		Estat estat = estatRepository.findById(estatId);
+		Estat estat = estatRepository.getById(estatId);
 		if (estat == null) {
 			throw new NoTrobatException(Estat.class, estatId);
 		}
@@ -2614,7 +2524,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 				"tasques=" + tasques + ")");
 		ExpedientTipus expedientTipus = expedientTipusHelper.getExpedientTipusComprovantPermisDisseny(expedientTipusId);
 		Entorn entorn = expedientTipus.getEntorn();
-		DefinicioProces definicioProces = definicioProcesRepository.findById(definicioProcesId);
+		DefinicioProces definicioProces = definicioProcesRepository.getById(definicioProcesId);
 		if (expedientTipus != null 
 				&& definicioProces != null) {
 			// Propaga les agrupacions
@@ -2915,7 +2825,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 				"Creant nova consulta per un tipus d'expedient (" +
 				"expedientTipusId =" + expedientTipusId + ", " +
 				"consulta=" + consulta + ")");
-		ExpedientTipus expedientTipus = expedientTipusRepository.findById(expedientTipusId);
+		ExpedientTipus expedientTipus = expedientTipusRepository.getById(expedientTipusId);
 		
 		Consulta entity = new Consulta();
 
@@ -2950,7 +2860,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 				"Modificant la consulta del tipus d'expedient existent (" +
 				"consulta.id=" + consulta.getId() + ", " +
 				"consulta =" + consulta + ")");
-		Consulta entity = consultaRepository.findById(consulta.getId());
+		Consulta entity = consultaRepository.getById(consulta.getId());
 
 		entity.setCodi(consulta.getCodi());
 		entity.setNom(consulta.getNom());
@@ -2977,7 +2887,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		logger.debug(
 				"Esborrant la consulta del tipus d'expedient (" +
 				"consultaId=" + consultaConsultaId +  ")");
-		Consulta entity = consultaRepository.findById(consultaConsultaId);
+		Consulta entity = consultaRepository.getById(consultaConsultaId);
 		entity.getExpedientTipus().getConsultes().remove(entity);
 		consultaRepository.delete(entity);	
 		consultaRepository.flush();
@@ -2985,9 +2895,8 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 	}
 
 	/** Funció per reasignar el valor d'ordre per a les agrupacions d'un tipus d'expedient */
-	@Transactional
 	private int reordenarConsultes(Long expedientTipusId) {
-		ExpedientTipus expedientTipus = expedientTipusRepository.findById(expedientTipusId);
+		ExpedientTipus expedientTipus = expedientTipusRepository.getById(expedientTipusId);
 		Set<Consulta> consultes = expedientTipus.getConsultes();
 		int i = 0;
 		for (Consulta consulta: consultes)
@@ -3002,7 +2911,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		logger.debug(
 				"Consultant la consulta del tipus d'expedient amb id (" +
 				"consultaId=" + id +  ")");
-		Consulta consulta = consultaRepository.findById(id);
+		Consulta consulta = consultaRepository.getById(id);
 		if (consulta == null) {
 			throw new NoTrobatException(Consulta.class, id);
 		}
@@ -3020,7 +2929,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 				"Consultant la consulta del tipus d'expedient per codi per validar repetició (" +
 				"expedientTipusId=" + expedientTipusId + ", " +
 				"codi = " + codi + ")");
-		ExpedientTipus expedientTipus = expedientTipusRepository.findById(expedientTipusId);
+		ExpedientTipus expedientTipus = expedientTipusRepository.getById(expedientTipusId);
 		return conversioTipusHelper.convertir(
 				consultaRepository.findByExpedientTipusAndCodi(expedientTipus, codi),
 				ConsultaDto.class);
@@ -3114,7 +3023,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 			Long id, 
 			int posicio) {
 		boolean ret = false;
-		Consulta consulta = consultaRepository.findById(id);
+		Consulta consulta = consultaRepository.getById(id);
 		if (consulta != null) {
 			List<Consulta> consultes = consultaRepository.findConsultesAmbEntornIExpedientTipusOrdenat(
 					consulta.getEntorn().getId(),
@@ -3146,7 +3055,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		
 		entity.setCampCodi(consultaCamp.getCampCodi());
 		entity.setCampDescripcio(consultaCamp.getCampDescripcio());
-		entity.setConsulta(consultaRepository.findById(consultaId));
+		entity.setConsulta(consultaRepository.getById(consultaId));
 		entity.setTipus(ConsultaCamp.TipusConsultaCamp.valueOf(consultaCamp.getTipus().toString()));
 
 		entity.setDefprocJbpmKey(consultaCamp.getDefprocJbpmKey());
@@ -3170,7 +3079,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 				"Esborrant la consultaCamp del tipus d'expedient (" +
 				"consultaCampId=" + consultaCampId +  ")");
 		
-		ConsultaCamp consultaCamp = consultaCampRepository.findById(consultaCampId);
+		ConsultaCamp consultaCamp = consultaCampRepository.getById(consultaCampId);
 		consultaCampRepository.delete(consultaCamp);	
 		consultaCampRepository.flush();
 		reordenarCampsConsulta(consultaCamp.getConsulta().getId(), consultaCamp.getTipus());
@@ -3183,7 +3092,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 				"Canviant ample de columnes de filtre de la consultaCamp del tipus d'expedient (" +
 				"consultaCampId=" + consultaCampId +  ")");
 		
-		ConsultaCamp consultaCamp = consultaCampRepository.findById(consultaCampId);
+		ConsultaCamp consultaCamp = consultaCampRepository.getById(consultaCampId);
 		if ("ampleCols".equals(propietat)) {
 			consultaCamp.setAmpleCols(valor);
 		} else if ("buitCols".equals(propietat)) {
@@ -3217,7 +3126,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 			int posicio) {
 		
 		boolean ret = false;
-		ConsultaCamp consultaCamp = consultaCampRepository.findById(id);
+		ConsultaCamp consultaCamp = consultaCampRepository.getById(id);
 		if (consultaCamp != null) {
 			List<ConsultaCamp> campsRegistre = consultaCampRepository.findAmbConsultaIdOrdenats(
 					consultaCamp.getConsulta().getId(),
@@ -3270,7 +3179,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 				consultaCamp.setCampTipus(CampTipusDto.STRING);
 				consultaCamp.setCampEtiqueta(this.getEtiquetaCampExpedient(consultaCamp.getCampCodi()));
 			} else {
-				Consulta consulta = consultaRepository.findById(consultaId);
+				Consulta consulta = consultaRepository.getById(consultaId);
 				Long expedientTipusId = consulta.getExpedientTipus() != null? consulta.getExpedientTipus().getId() : null;
 				if (consultaCamp.getDefprocJbpmKey() != null) {
 					// camp de la definició de procés
@@ -3358,7 +3267,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 				"consultaCamp.id=" + consultaCamp.getId() + ", " +
 				"consultaCamp =" + consultaCamp + ")");
 		
-		ConsultaCamp entity = consultaCampRepository.findById(consultaCamp.getId());
+		ConsultaCamp entity = consultaCampRepository.getById(consultaCamp.getId());
 
 		entity.setCampCodi(consultaCamp.getCampCodi());
 		entity.setCampDescripcio(consultaCamp.getCampDescripcio());
@@ -3387,7 +3296,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		
 		return conversioTipusHelper.convertir(
 				consultaCampRepository.findByConsultaAndTipusAndCampCodi(
-						consultaRepository.findById(consultaId),
+						consultaRepository.getById(consultaId),
 						ConsultaCamp.TipusConsultaCamp.valueOf(tipus.toString()),
 						campCodi),
 				ConsultaCampDto.class);
@@ -3423,7 +3332,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		logger.debug(
 				"Consultant els codis helium dels mapegos segons un tipus de filtre");
 		
-		ExpedientTipus expedientTipus = expedientTipusRepository.findById(expedientTipusId);
+		ExpedientTipus expedientTipus = expedientTipusRepository.getById(expedientTipusId);
 		List<Object[]> mapejosCount = mapeigSistraRepository.countTipus(
 				expedientTipus);
 		Map<TipusMapeig, Long> recomptes = new HashMap<TipusMapeig, Long>();
@@ -3475,7 +3384,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 				"expedientTipusId =" + expedientTipusId + ", " +
 				"mapeig=" + mapeig + ")");
 		
-		ExpedientTipus expedientTipus = expedientTipusRepository.findById(expedientTipusId);
+		ExpedientTipus expedientTipus = expedientTipusRepository.getById(expedientTipusId);
 		
 		MapeigSistra entity = new MapeigSistra();
 				
@@ -3503,7 +3412,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 				"Modificant el mapeig del tipus d'expedient existent (" +
 				"mapeig.id=" + mapeig.getId() + ", " +
 				"mapeig =" + mapeig + ")");
-		MapeigSistra entity = mapeigSistraRepository.findById(mapeig.getId());
+		MapeigSistra entity = mapeigSistraRepository.getById(mapeig.getId());
 
 		entity.setCodiSistra(mapeig.getCodiSistra());
 		if (mapeig.getTipus() == TipusMapeig.Adjunt) 
@@ -3525,7 +3434,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		logger.debug(
 				"Esborrant el mapeig del tipus d'expedient (" +
 				"mapeigId=" + mapeigMapeigSistraId +  ")");
-		MapeigSistra entity = mapeigSistraRepository.findById(mapeigMapeigSistraId);
+		MapeigSistra entity = mapeigSistraRepository.getById(mapeigMapeigSistraId);
 		mapeigSistraRepository.delete(entity);	
 	}
 
@@ -3541,7 +3450,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 				"Consultant el mapeig del tipus d'expedient per codi helium per validar repetició (" +
 				"expedientTipusId=" + expedientTipusId + ", " +
 				"codiHelium = " + codiHelium + ")");
-		ExpedientTipus expedientTipus = expedientTipusRepository.findById(expedientTipusId);
+		ExpedientTipus expedientTipus = expedientTipusRepository.getById(expedientTipusId);
 		return conversioTipusHelper.convertir(
 				mapeigSistraRepository.findByExpedientTipusAndCodiHelium(expedientTipus, codiHelium),
 				MapeigSistraDto.class);
@@ -3561,7 +3470,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 				"expedientTipusId=" + expedientTipusId + ", " +
 				"tipusMapeig=" + tipusMapeig + ", " +
 				"codiSistra = " + codiSistra + ")");
-		ExpedientTipus expedientTipus = expedientTipusRepository.findById(expedientTipusId);
+		ExpedientTipus expedientTipus = expedientTipusRepository.getById(expedientTipusId);
 		MapeigSistra.TipusMapeig tipus = tipusMapeig != null ? 
 				MapeigSistra.TipusMapeig.valueOf(tipusMapeig.toString())
 				: null;
@@ -3800,7 +3709,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 				true);
 		ExpedientTipus expedientTipus = null;
 		if(expedientTipusId != null) {
-			expedientTipus = expedientTipusRepository.findById(expedientTipusId);
+			expedientTipus = expedientTipusRepository.getById(expedientTipusId);
 		}
 		// Comprova l'accés a l'estat
 		Estat estat = null;

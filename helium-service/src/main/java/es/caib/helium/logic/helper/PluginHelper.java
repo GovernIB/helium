@@ -3,36 +3,6 @@
  */
 package es.caib.helium.logic.helper;
 
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-
-import javax.annotation.Resource;
-
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.time.DateUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.fundaciobit.plugins.validatesignature.api.CertificateInfo;
-import org.fundaciobit.plugins.validatesignature.api.IValidateSignaturePlugin;
-import org.fundaciobit.plugins.validatesignature.api.SignatureDetailInfo;
-import org.fundaciobit.plugins.validatesignature.api.SignatureRequestedInformation;
-import org.fundaciobit.plugins.validatesignature.api.TimeStampInfo;
-import org.fundaciobit.plugins.validatesignature.api.ValidateSignatureRequest;
-import org.fundaciobit.plugins.validatesignature.api.ValidateSignatureResponse;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.Cache;
-import org.springframework.cache.CacheManager;
-import org.springframework.stereotype.Component;
-import org.springframework.transaction.support.TransactionSynchronizationManager;
-
 import es.caib.helium.integracio.plugins.custodia.CustodiaPlugin;
 import es.caib.helium.integracio.plugins.custodia.CustodiaPluginException;
 import es.caib.helium.integracio.plugins.firma.FirmaPlugin;
@@ -49,74 +19,17 @@ import es.caib.helium.integracio.plugins.portasignatures.DocumentPortasignatures
 import es.caib.helium.integracio.plugins.portasignatures.PasSignatura;
 import es.caib.helium.integracio.plugins.portasignatures.PortasignaturesPlugin;
 import es.caib.helium.integracio.plugins.portasignatures.PortasignaturesPluginException;
-import es.caib.helium.integracio.plugins.registre.DadesAssumpte;
-import es.caib.helium.integracio.plugins.registre.DadesExpedient;
-import es.caib.helium.integracio.plugins.registre.DadesInteressat;
-import es.caib.helium.integracio.plugins.registre.DadesNotificacio;
-import es.caib.helium.integracio.plugins.registre.DadesOficina;
-import es.caib.helium.integracio.plugins.registre.DadesRepresentat;
-import es.caib.helium.integracio.plugins.registre.DocumentRegistre;
-import es.caib.helium.integracio.plugins.registre.RegistreAssentament;
-import es.caib.helium.integracio.plugins.registre.RegistreAssentamentInteressat;
-import es.caib.helium.integracio.plugins.registre.RegistreEntrada;
-import es.caib.helium.integracio.plugins.registre.RegistreInteressatDocumentTipusEnum;
-import es.caib.helium.integracio.plugins.registre.RegistreInteressatTipusEnum;
-import es.caib.helium.integracio.plugins.registre.RegistreNotificacio;
-import es.caib.helium.integracio.plugins.registre.RegistrePlugin;
-import es.caib.helium.integracio.plugins.registre.RegistrePluginException;
-import es.caib.helium.integracio.plugins.registre.RegistrePluginRegWeb3;
-import es.caib.helium.integracio.plugins.registre.RegistreSortida;
-import es.caib.helium.integracio.plugins.registre.RespostaAnotacioRegistre;
-import es.caib.helium.integracio.plugins.registre.RespostaConsultaRegistre;
-import es.caib.helium.integracio.plugins.registre.RespostaJustificantDetallRecepcio;
-import es.caib.helium.integracio.plugins.registre.RespostaJustificantRecepcio;
-import es.caib.helium.integracio.plugins.registre.TramitSubsanacio;
-import es.caib.helium.integracio.plugins.registre.TramitSubsanacioParametre;
+import es.caib.helium.integracio.plugins.registre.*;
 import es.caib.helium.integracio.plugins.signatura.RespostaValidacioSignatura;
 import es.caib.helium.integracio.plugins.signatura.SignaturaPlugin;
 import es.caib.helium.integracio.plugins.signatura.SignaturaPluginException;
-import es.caib.helium.integracio.plugins.tramitacio.DadesTramit;
-import es.caib.helium.integracio.plugins.tramitacio.DadesVistaDocument;
-import es.caib.helium.integracio.plugins.tramitacio.DocumentTramit;
-import es.caib.helium.integracio.plugins.tramitacio.Event;
-import es.caib.helium.integracio.plugins.tramitacio.ObtenirDadesTramitRequest;
-import es.caib.helium.integracio.plugins.tramitacio.ObtenirVistaDocumentRequest;
-import es.caib.helium.integracio.plugins.tramitacio.PublicarEventRequest;
-import es.caib.helium.integracio.plugins.tramitacio.PublicarExpedientRequest;
-import es.caib.helium.integracio.plugins.tramitacio.ResultatProcesTramitRequest;
-import es.caib.helium.integracio.plugins.tramitacio.Signatura;
-import es.caib.helium.integracio.plugins.tramitacio.TramitacioPlugin;
-import es.caib.helium.integracio.plugins.tramitacio.TramitacioPluginException;
+import es.caib.helium.integracio.plugins.tramitacio.*;
 import es.caib.helium.integracio.plugins.unitat.UnitatOrganica;
 import es.caib.helium.integracio.plugins.unitat.UnitatsOrganiquesPlugin;
 import es.caib.helium.logic.helper.PortasignaturesHelper.PortasignaturesRollback;
-import es.caib.helium.logic.intf.dto.ArxiuDto;
-import es.caib.helium.logic.intf.dto.ArxiuFirmaDetallDto;
-import es.caib.helium.logic.intf.dto.ArxiuFirmaDto;
-import es.caib.helium.logic.intf.dto.ArxiuFirmaPerfilEnumDto;
-import es.caib.helium.logic.intf.dto.DadesEnviamentDto;
-import es.caib.helium.logic.intf.dto.DadesNotificacioDto;
-import es.caib.helium.logic.intf.dto.DocumentDto;
-import es.caib.helium.logic.intf.dto.ExpedientDocumentDto;
-import es.caib.helium.logic.intf.dto.ExpedientDto;
-import es.caib.helium.logic.intf.dto.IntegracioAccioTipusEnumDto;
-import es.caib.helium.logic.intf.dto.IntegracioParametreDto;
-import es.caib.helium.logic.intf.dto.NotificacioEstatEnumDto;
-import es.caib.helium.logic.intf.dto.NtiEstadoElaboracionEnumDto;
-import es.caib.helium.logic.intf.dto.NtiOrigenEnumDto;
-import es.caib.helium.logic.intf.dto.NtiTipoDocumentalEnumDto;
-import es.caib.helium.logic.intf.dto.NtiTipoFirmaEnumDto;
-import es.caib.helium.logic.intf.dto.PersonaDto;
-import es.caib.helium.logic.intf.dto.RegistreAnnexDto;
-import es.caib.helium.logic.intf.dto.RegistreAnotacioDto;
-import es.caib.helium.logic.intf.dto.RegistreIdDto;
-import es.caib.helium.logic.intf.dto.RegistreNotificacioDto;
+import es.caib.helium.logic.intf.dto.*;
 import es.caib.helium.logic.intf.dto.RegistreNotificacioDto.RegistreNotificacioTramitSubsanacioParametreDto;
-import es.caib.helium.logic.intf.dto.TramitDocumentDto;
 import es.caib.helium.logic.intf.dto.TramitDocumentDto.TramitDocumentSignaturaDto;
-import es.caib.helium.logic.intf.dto.TramitDto;
-import es.caib.helium.logic.intf.dto.ZonaperEventDto;
-import es.caib.helium.logic.intf.dto.ZonaperExpedientDto;
 import es.caib.helium.logic.intf.exception.NoTrobatException;
 import es.caib.helium.logic.intf.exception.SistemaExternException;
 import es.caib.helium.logic.intf.registre.RegistreAnnex;
@@ -133,21 +46,34 @@ import es.caib.helium.persist.entity.Portasignatures.Transicio;
 import es.caib.helium.persist.repository.DocumentStoreRepository;
 import es.caib.helium.persist.repository.ExpedientRepository;
 import es.caib.helium.persist.repository.PortasignaturesRepository;
-import es.caib.plugins.arxiu.api.ContingutArxiu;
-import es.caib.plugins.arxiu.api.ContingutOrigen;
-import es.caib.plugins.arxiu.api.DocumentContingut;
-import es.caib.plugins.arxiu.api.DocumentEstat;
-import es.caib.plugins.arxiu.api.DocumentEstatElaboracio;
-import es.caib.plugins.arxiu.api.DocumentExtensio;
-import es.caib.plugins.arxiu.api.DocumentFormat;
-import es.caib.plugins.arxiu.api.DocumentMetadades;
-import es.caib.plugins.arxiu.api.DocumentTipus;
-import es.caib.plugins.arxiu.api.ExpedientEstat;
-import es.caib.plugins.arxiu.api.ExpedientMetadades;
-import es.caib.plugins.arxiu.api.Firma;
-import es.caib.plugins.arxiu.api.FirmaPerfil;
-import es.caib.plugins.arxiu.api.FirmaTipus;
-import es.caib.plugins.arxiu.api.IArxiuPlugin;
+import es.caib.plugins.arxiu.api.*;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.time.DateUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.fundaciobit.plugins.validatesignature.api.CertificateInfo;
+import org.fundaciobit.plugins.validatesignature.api.IValidateSignaturePlugin;
+import org.fundaciobit.plugins.validatesignature.api.SignatureDetailInfo;
+import org.fundaciobit.plugins.validatesignature.api.SignatureRequestedInformation;
+import org.fundaciobit.plugins.validatesignature.api.TimeStampInfo;
+import org.fundaciobit.plugins.validatesignature.api.ValidateSignatureRequest;
+import org.fundaciobit.plugins.validatesignature.api.ValidateSignatureResponse;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
+
+import javax.annotation.Resource;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
 
 /**
  * Helper per a accedir a la funcionalitat dels plugins.
@@ -167,14 +93,12 @@ public class PluginHelper {
 	private DocumentStoreRepository documentStoreRepository;
 	@Resource
 	private ConversioTipusHelper conversioTipusHelper;
-	@Autowired
+	@Resource
 	private CacheManager cacheManager;
-	@Autowired
+	@Resource
 	private MonitorIntegracioHelper monitorIntegracioHelper;
 	@Resource
-	private DocumentHelperV3 documentHelperV3;
-	@Resource
-	private NotificacioHelper notificacioElectronicaHelper;
+	private DocumentHelper documentHelper;
 	@Resource
 	private UsuariActualHelper usuariActualHelper;
 	@Resource
@@ -3036,7 +2960,7 @@ public class PluginHelper {
 			if (resposta.getCertificacioData() != null) {
 				byte[] certificacioContingut = resposta.getCertificacioContingut();
 				// Cetificació Títol: [títol document notificat] - Justificant [NIF interessat]
-				ExpedientDocumentDto expedientDocument = documentHelperV3.findDocumentPerDocumentStoreId(document.getProcessInstanceId(), document.getId());
+				ExpedientDocumentDto expedientDocument = documentHelper.findDocumentPerDocumentStoreId(document.getProcessInstanceId(), document.getId());
 				String certificacioTitol = expedientDocument.getDocumentNom() + " - Justificant " + notificacio.getTitularNif();
 				String certificacioArxiuExtensio = resposta.getCertificacioTipusMime() != null 
 													&& resposta.getCertificacioTipusMime().toLowerCase().contains("xml") ?
@@ -3044,7 +2968,7 @@ public class PluginHelper {
 															: "pdf";
 				String certificacioArxiuNom = "certificacio_" + notificacio.getEnviamentReferencia() + "." + certificacioArxiuExtensio;				
 				if (gestioDocumentalId != null && notificacio.getEnviamentCertificacioData().before(DateUtils.truncate(resposta.getCertificacioData(), Calendar.SECOND))) {
-					gestioDocumentalId = documentHelperV3.actualitzarDocument(
+					gestioDocumentalId = documentHelper.actualitzarDocument(
 							gestioDocumentalId, 
 							null, 
 							expedient.getProcessInstanceId(), 
@@ -3057,7 +2981,7 @@ public class PluginHelper {
 							NtiTipoDocumentalEnumDto.CERTIFICAT, 
 							null);
 				} else if (gestioDocumentalId == null) {
-					gestioDocumentalId = documentHelperV3.crearDocument(
+					gestioDocumentalId = documentHelper.crearDocument(
 							null, 
 							expedient.getProcessInstanceId(), 
 							null, 
@@ -4252,7 +4176,7 @@ public class PluginHelper {
 	
 	/**
 	 * Metode per cercar Unitats Orgàniques per codi d'unitata pare
-	 * @param superior 
+	 * @param arrel
 	 * 	<i> Codi d'unitat orgànica pare </i>
 	 * @return
 	 */

@@ -3,30 +3,27 @@
  */
 package es.caib.helium.logic.service;
 
-import net.conselldemallorca.helium.core.security.ExtendedPermission;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.security.acls.model.Permission;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import es.caib.emiserv.logic.intf.exception.NoTrobatException;
-import es.caib.emiserv.logic.intf.exception.PermisDenegatException;
-import es.caib.emiserv.logic.intf.exception.ValidacioException;
 import es.caib.helium.logic.helper.ExpedientHelper;
-import es.caib.helium.logic.helper.PermisosHelper;
 import es.caib.helium.logic.helper.TascaHelper;
 import es.caib.helium.logic.intf.WProcessInstance;
 import es.caib.helium.logic.intf.WTaskInstance;
 import es.caib.helium.logic.intf.WorkflowEngineApi;
 import es.caib.helium.logic.intf.WorkflowRetroaccioApi;
 import es.caib.helium.logic.intf.dto.ExpedientTascaDto;
+import es.caib.helium.logic.intf.exception.NoTrobatException;
+import es.caib.helium.logic.intf.exception.PermisDenegatException;
+import es.caib.helium.logic.intf.exception.ValidacioException;
 import es.caib.helium.logic.intf.service.ExpedientTascaService;
+import es.caib.helium.logic.security.ExtendedPermission;
 import es.caib.helium.persist.entity.Expedient;
 import es.caib.helium.persist.entity.Registre;
 import es.caib.helium.persist.repository.RegistreRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.security.acls.model.Permission;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
@@ -49,8 +46,8 @@ public class ExpedientTascaServiceImpl implements ExpedientTascaService {
 	private ExpedientHelper expedientHelper;
 	@Resource
 	private TascaHelper tascaHelper;
-	@Resource(name = "permisosHelperV3")
-	private PermisosHelper permisosHelper;
+//	@Resource
+//	private PermisosHelper permisosHelper;
 	@Resource
 	private WorkflowEngineApi workflowEngineApi;
 	@Resource

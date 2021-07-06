@@ -1,18 +1,8 @@
 package es.caib.helium.logic.service;
 
-import java.util.List;
-
-import javax.annotation.Resource;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import es.caib.helium.logic.helper.ConversioTipusHelper;
 import es.caib.helium.logic.helper.EntornHelper;
 import es.caib.helium.logic.helper.PaginacioHelper;
-import es.caib.helium.logic.intf.dto.CarrecDto;
 import es.caib.helium.logic.intf.dto.EntornTipusAreaDto;
 import es.caib.helium.logic.intf.dto.PaginaDto;
 import es.caib.helium.logic.intf.dto.PaginacioParamsDto;
@@ -21,6 +11,13 @@ import es.caib.helium.logic.intf.service.EntornTipusAreaService;
 import es.caib.helium.persist.entity.AreaTipus;
 import es.caib.helium.persist.entity.Entorn;
 import es.caib.helium.persist.repository.TipusAreaRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import javax.annotation.Resource;
+import java.util.List;
 
 @Service("entornTipusAreaServiceV3")
 public class EntornTipusAreaServiceImpl implements EntornTipusAreaService {
@@ -96,7 +93,7 @@ public class EntornTipusAreaServiceImpl implements EntornTipusAreaService {
 
 	@Override
 	public void delete(Long entornTipusAreaId) {
-		tipusAreaRepository.delete(entornTipusAreaId);
+		tipusAreaRepository.deleteById(entornTipusAreaId);
 	}
 
 	@Override

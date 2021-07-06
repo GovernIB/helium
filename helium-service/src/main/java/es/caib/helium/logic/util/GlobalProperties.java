@@ -3,13 +3,13 @@
  */
 package es.caib.helium.logic.util;
 
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.util.Properties;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.Resource;
+
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.util.Properties;
 
 /**
  * Emmagatzema les propietats globals de l'aplicació
@@ -87,16 +87,16 @@ public class GlobalProperties extends Properties {
 			return false;
 	}
 	public int getAsInt(String key) {
-		return new Integer(getProperty(key)).intValue();
+		return Integer.valueOf(getProperty(key));
 	}
 	public long getAsLong(String key) {
-		return new Long(getProperty(key)).longValue();
+		return Long.valueOf(getProperty(key));
 	}
 	public float getAsFloat(String key) {
-		return new Float(getProperty(key)).floatValue();
+		return Float.valueOf(getProperty(key));
 	}
 	public double getAsDouble(String key) {
-		return new Double(getProperty(key)).doubleValue();
+		return Double.valueOf(getProperty(key));
 	}
 
 	public Properties findByPrefix(String prefix) {

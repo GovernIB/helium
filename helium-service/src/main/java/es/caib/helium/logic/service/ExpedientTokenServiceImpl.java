@@ -3,26 +3,23 @@
  */
 package es.caib.helium.logic.service;
 
-import net.conselldemallorca.helium.core.security.ExtendedPermission;
-
+import es.caib.helium.logic.helper.ConversioTipusHelper;
+import es.caib.helium.logic.helper.ExpedientHelper;
+import es.caib.helium.logic.intf.WToken;
+import es.caib.helium.logic.intf.WorkflowEngineApi;
+import es.caib.helium.logic.intf.dto.TokenDto;
+import es.caib.helium.logic.intf.exception.NoTrobatException;
+import es.caib.helium.logic.intf.service.ExpedientTokenService;
+import es.caib.helium.logic.security.ExtendedPermission;
+import es.caib.helium.persist.entity.Expedient;
+import es.caib.helium.persist.entity.Registre;
+import es.caib.helium.persist.repository.RegistreRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.acls.model.Permission;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import es.caib.emiserv.logic.intf.exception.NoTrobatException;
-import es.caib.helium.logic.helper.ConversioTipusHelper;
-import es.caib.helium.logic.helper.ExpedientHelper;
-import es.caib.helium.logic.intf.WToken;
-import es.caib.helium.logic.intf.WorkflowEngineApi;
-import es.caib.helium.logic.intf.dto.TokenDto;
-import es.caib.helium.logic.intf.service.ExpedientTokenService;
-import es.caib.helium.persist.entity.Expedient;
-import es.caib.helium.persist.entity.Registre;
-import es.caib.helium.persist.repository.ExpedientRepository;
-import es.caib.helium.persist.repository.RegistreRepository;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
@@ -40,8 +37,8 @@ import java.util.Map;
 @Service
 public class ExpedientTokenServiceImpl implements ExpedientTokenService {
 
-	@Resource
-	private ExpedientRepository expedientRepository;
+//	@Resource
+//	private ExpedientRepository expedientRepository;
 	@Resource
 	private RegistreRepository registreRepository;
 

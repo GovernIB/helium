@@ -3,19 +3,6 @@
  */
 package es.caib.helium.logic.helper;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-
-import javax.annotation.Resource;
-
-import org.hibernate.Hibernate;
-import org.springframework.security.acls.model.Permission;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Component;
-
 import es.caib.helium.logic.helper.PermisosHelper.ObjectIdentifierExtractor;
 import es.caib.helium.logic.intf.WTaskInstance;
 import es.caib.helium.logic.intf.WorkflowEngineApi;
@@ -28,6 +15,17 @@ import es.caib.helium.logic.security.ExtendedPermission;
 import es.caib.helium.persist.entity.Entorn;
 import es.caib.helium.persist.entity.ExpedientTipus;
 import es.caib.helium.persist.repository.ExpedientTipusRepository;
+import org.hibernate.Hibernate;
+import org.springframework.security.acls.model.Permission;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Component;
+
+import javax.annotation.Resource;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 /**
  * Helper per als tipus d'expedient.
@@ -42,7 +40,7 @@ public class ExpedientTipusHelper {
 
 	@Resource
 	private WorkflowEngineApi workflowEngineApi;
-	@Resource(name = "permisosHelperV3")
+	@Resource
 	private PermisosHelper permisosHelper;
 	
 

@@ -1,12 +1,9 @@
-	/**
+/**
  * 
  */
 package es.caib.helium.logic.service;
 
-	import es.caib.emiserv.logic.intf.exception.NoTrobatException;
-import es.caib.emiserv.logic.intf.exception.PermisDenegatException;
-import es.caib.emiserv.logic.intf.exception.ValidacioException;
-import es.caib.helium.logic.helper.DocumentHelperV3;
+import es.caib.helium.logic.helper.DocumentHelper;
 import es.caib.helium.logic.helper.ExpedientHelper;
 import es.caib.helium.logic.helper.ExpedientRegistreHelper;
 import es.caib.helium.logic.helper.IndexHelper;
@@ -16,24 +13,14 @@ import es.caib.helium.logic.helper.PluginHelper;
 import es.caib.helium.logic.helper.TascaHelper;
 import es.caib.helium.logic.intf.WTaskInstance;
 import es.caib.helium.logic.intf.WorkflowRetroaccioApi;
-import es.caib.helium.logic.intf.dto.ArxiuDetallDto;
-import es.caib.helium.logic.intf.dto.ArxiuDto;
-import es.caib.helium.logic.intf.dto.ArxiuFirmaDto;
-import es.caib.helium.logic.intf.dto.DadesEnviamentDto;
-import es.caib.helium.logic.intf.dto.DadesNotificacioDto;
-import es.caib.helium.logic.intf.dto.DocumentDto;
-import es.caib.helium.logic.intf.dto.ExpedientDocumentDto;
-import es.caib.helium.logic.intf.dto.NotificacioDto;
-import es.caib.helium.logic.intf.dto.NtiEstadoElaboracionEnumDto;
-import es.caib.helium.logic.intf.dto.NtiOrigenEnumDto;
-import es.caib.helium.logic.intf.dto.NtiTipoDocumentalEnumDto;
-import es.caib.helium.logic.intf.dto.PaginaDto;
-import es.caib.helium.logic.intf.dto.PaginacioParamsDto;
-import es.caib.helium.logic.intf.dto.PersonaDto;
-import es.caib.helium.logic.intf.dto.PortasignaturesDto;
-import es.caib.helium.logic.intf.dto.RespostaValidacioSignaturaDto;
+import es.caib.helium.logic.intf.dto.*;
 import es.caib.helium.logic.intf.dto.DadesEnviamentDto.EntregaPostalTipus;
+import es.caib.helium.logic.intf.exception.NoTrobatException;
+import es.caib.helium.logic.intf.exception.PermisDenegatException;
+import es.caib.helium.logic.intf.exception.ValidacioException;
 import es.caib.helium.logic.intf.service.ExpedientDocumentService;
+import es.caib.helium.logic.security.ExtendedPermission;
+import es.caib.helium.logic.util.PdfUtils;
 import es.caib.helium.persist.entity.DefinicioProces;
 import es.caib.helium.persist.entity.Document;
 import es.caib.helium.persist.entity.DocumentNotificacio;
@@ -52,27 +39,23 @@ import es.caib.helium.persist.repository.NotificacioRepository;
 import es.caib.helium.persist.repository.PortasignaturesRepository;
 import es.caib.helium.persist.repository.RegistreRepository;
 import es.caib.plugins.arxiu.api.ContingutArxiu;
-	import es.caib.plugins.arxiu.api.DocumentMetadades;
-	import es.caib.plugins.arxiu.api.Firma;
-import net.conselldemallorca.helium.core.security.ExtendedPermission;
-	import net.conselldemallorca.helium.core.util.PdfUtils;
-	import net.conselldemallorca.helium.v3.core.api.dto.*;
+import es.caib.plugins.arxiu.api.DocumentMetadades;
+import es.caib.plugins.arxiu.api.Firma;
+import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.security.acls.domain.BasePermission;
+import org.springframework.security.acls.model.Permission;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
-import org.json.simple.JSONObject;
-	import org.slf4j.Logger;
-	import org.slf4j.LoggerFactory;
-	import org.springframework.security.acls.domain.BasePermission;
-	import org.springframework.security.acls.model.Permission;
-	import org.springframework.security.core.context.SecurityContextHolder;
-	import org.springframework.stereotype.Service;
-	import org.springframework.transaction.annotation.Transactional;
-	import org.springframework.util.StringUtils;
-
-	import javax.annotation.Resource;
-	import java.text.SimpleDateFormat;
-	import java.util.ArrayList;
-	import java.util.Date;
-	import java.util.List;
+import javax.annotation.Resource;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 
 /**
@@ -98,14 +81,14 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 	@Resource
 	private PaginacioHelper paginacioHelper;
 	@Resource
-	NotificacioRepository notificacioRepository;
+	private  NotificacioRepository notificacioRepository;
 
 	@Resource
 	private PluginHelper pluginHelper;
 	@Resource
 	private ExpedientHelper expedientHelper;
-	@Resource(name = "documentHelperV3")
-	private DocumentHelperV3 documentHelper;
+	@Resource
+	private DocumentHelper documentHelper;
 	@Resource
 	private TascaHelper tascaHelper;
 	@Resource
@@ -115,7 +98,7 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 	@Resource
 	private ExpedientRegistreHelper expedientRegistreHelper;
 	@Resource
-	private DocumentHelperV3 documentHelperV3;
+	private DocumentHelper documentHelperV3;
 	@Resource
 	private NotificacioHelper notificacioHelper;
 
@@ -340,7 +323,7 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 		dadesNotificacioDto.setDocumentId(documentStoreId);
 					
 		// De moment envia només a un interessat titular però es pot crear un enviament per cada titular amb la llista de destinataris		
-		Interessat interessatEntity	= interessatRepository.findById(interessatId);
+		Interessat interessatEntity	= interessatRepository.getById(interessatId);
 
 		// Afegeix un enviament per interessat a la notificació com a titular de la mateixa
 		List<DadesEnviamentDto> enviaments = new ArrayList<DadesEnviamentDto>();
@@ -358,7 +341,7 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 		// Destinataris
 		List<PersonaDto> destinataris = new ArrayList<PersonaDto>();
 		if (representantId != null) {
-			Interessat representantEntity = interessatRepository.findById(representantId);
+			Interessat representantEntity = interessatRepository.getById(representantId);
 			PersonaDto destinatari = new PersonaDto();
 			destinatari.setNom(representantEntity.getNom());
 			destinatari.setLlinatge1(representantEntity.getLlinatge1());
@@ -553,7 +536,7 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 				false,
 				false,
 				false);
-		DocumentStore documentStore = documentStoreRepository.findById(documentStoreId);
+		DocumentStore documentStore = documentStoreRepository.getById(documentStoreId);
 		if (documentStore == null) {
 			throw new NoTrobatException(
 					DocumentStore.class,
@@ -783,7 +766,7 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 		ExpedientTipus expedientTipus = expedient.getTipus();
 
 		// Troba el camp de la tasca
-		Document document = documentRepository.findById(documentId);
+		Document document = documentRepository.getById(documentId);
 		if (expedientTipus.isAmbInfoPropia()) {
 			document = documentRepository.findByExpedientTipusAndCodi(
 					expedientTipus.getId(), 
@@ -809,7 +792,7 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 	@Override
 	@Transactional(readOnly = true)
 	public List<RespostaValidacioSignaturaDto> verificarSignatura(Long documentStoreId) {
-		DocumentStore documentStore = documentStoreRepository.findById(documentStoreId);
+		DocumentStore documentStore = documentStoreRepository.getById(documentStoreId);
 		if (documentStore == null) {
 			throw new NoTrobatException(DocumentStore.class, documentStoreId);
 		}
@@ -865,7 +848,7 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 	@Transactional(readOnly = true)
 	public ArxiuDto findArxiuAmbTokenPerMostrar(String token) {
 		Long documentStoreId = documentHelper.getDocumentStoreIdPerToken(token);
-		DocumentStore document = documentStoreRepository.findById(documentStoreId);
+		DocumentStore document = documentStoreRepository.getById(documentStoreId);
 		if (document == null) {
 			return null;
 		}
@@ -899,7 +882,7 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 	@Transactional(readOnly = true)
 	public ArxiuDto findArxiuAmbTokenPerSignar(String token) {
 		Long documentStoreId = documentHelper.getDocumentStoreIdPerToken(token);
-		DocumentStore documentStore = documentStoreRepository.findById(documentStoreId);
+		DocumentStore documentStore = documentStoreRepository.getById(documentStoreId);
 		DocumentDto dto = documentHelper.toDocumentDto(
 				documentStoreId,
 				false,
@@ -917,7 +900,7 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 	@Override
 	@Transactional(readOnly = true)
 	public DocumentDto findDocumentAmbId(Long documentStoreId) {
-		DocumentStore documentStore = documentStoreRepository.findById(documentStoreId);
+		DocumentStore documentStore = documentStoreRepository.getById(documentStoreId);
 		DocumentDto dto = documentHelper.toDocumentDto(
 				documentStoreId,
 				false,
@@ -1113,7 +1096,7 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 				new Permission[] {
 						ExtendedPermission.DOC_MANAGE,
 						ExtendedPermission.ADMINISTRATION});
-		DocumentStore documentStore = documentStoreRepository.findById(documentStoreId);
+		DocumentStore documentStore = documentStoreRepository.getById(documentStoreId);
 		if (documentStore == null) {
 			throw new NoTrobatException(
 					DocumentStore.class, 
@@ -1181,7 +1164,7 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 				new Permission[] {
 						ExtendedPermission.WRITE,
 						ExtendedPermission.ADMINISTRATION});
-		DocumentStore documentStore = documentStoreRepository.findById(documentStoreId);
+		DocumentStore documentStore = documentStoreRepository.getById(documentStoreId);
 		try {
 			// Fa validacions prèvies
 			if (!expedient.isArxiuActiu())

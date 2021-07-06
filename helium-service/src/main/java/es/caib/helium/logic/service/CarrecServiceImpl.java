@@ -1,17 +1,5 @@
 package es.caib.helium.logic.service;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.annotation.Resource;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import es.caib.helium.logic.helper.ConversioTipusHelper;
 import es.caib.helium.logic.helper.PaginacioHelper;
 import es.caib.helium.logic.intf.dto.CarrecJbpmIdDto;
@@ -21,6 +9,16 @@ import es.caib.helium.logic.intf.service.CarrecService;
 import es.caib.helium.persist.entity.CarrecJbpmId;
 import es.caib.helium.persist.entity.Persona.Sexe;
 import es.caib.helium.persist.repository.CarrecJbpmIdRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import javax.annotation.Resource;
+import java.util.ArrayList;
+import java.util.List;
 
 @Service("carrecServiceV3")
 public class CarrecServiceImpl implements CarrecService {
@@ -99,7 +97,7 @@ public class CarrecServiceImpl implements CarrecService {
 
 	@Override
 	public CarrecJbpmIdDto update(CarrecJbpmIdDto carrec) {
-		CarrecJbpmId entity = carrecJbpmIdRepository.findById(carrec.getId());
+		CarrecJbpmId entity = carrecJbpmIdRepository.getById(carrec.getId());
 		entity.setNomHome(carrec.getNomHome());
 		entity.setNomDona(carrec.getNomDona());
 		entity.setTractamentHome(carrec.getTractamentHome());
@@ -112,7 +110,7 @@ public class CarrecServiceImpl implements CarrecService {
 	@Override
 	public void delete(Long carrecId) {
 		logger.debug("Esborrant càrrec (càrrecId=" + carrecId + ")");
-		carrecJbpmIdRepository.delete(carrecId);
+		carrecJbpmIdRepository.deleteById(carrecId);
 	}
 
 	private static final Logger logger = LoggerFactory.getLogger(CarrecServiceImpl.class);

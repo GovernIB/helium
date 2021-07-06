@@ -3,17 +3,6 @@
  */
 package es.caib.helium.logic.service;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.annotation.Resource;
-
-import org.springframework.data.domain.Sort;
-import org.springframework.data.domain.Sort.Direction;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import es.caib.helium.logic.helper.ConversioTipusHelper;
 import es.caib.helium.logic.intf.dto.ExpedientReindexacioDto;
 import es.caib.helium.logic.intf.dto.ExpedientTipusDto;
@@ -22,6 +11,15 @@ import es.caib.helium.persist.entity.ExpedientReindexacio;
 import es.caib.helium.persist.repository.ExpedientReindexacioRepository;
 import es.caib.helium.persist.repository.ExpedientRepository;
 import es.caib.helium.persist.repository.ExpedientTipusRepository;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import javax.annotation.Resource;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -106,7 +104,7 @@ public class ExpedientReindexacioServiceImpl implements ExpedientReindexacioServ
 	public Map<String, Object> getDadesReindexacio() {
 		
 		Map<String, Object> dades = new HashMap<String, Object>();
-		Sort sort = new Sort(Direction.ASC, "id");
+		Sort sort = Sort.by(Direction.ASC, "id");
 		List<ExpedientReindexacio> llista = expedientReindexacioRepository.findAll(sort);
 		// Total d'elements a la cua
 		dades.put("cuaTotal", llista.size());
