@@ -2,27 +2,34 @@ package es.caib.helium.camunda.controller;
 
 import es.caib.helium.camunda.model.WTaskInstance;
 import es.caib.helium.camunda.service.TaskInstanceService;
+import es.caib.helium.client.engine.model.InfoCacheData;
+import es.caib.helium.client.engine.model.ReassignTaskData;
 import lombok.AllArgsConstructor;
-import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
 @RestController
 @Slf4j
 @AllArgsConstructor
-@RequestMapping(TaskInstanceController.API_PATH)
-public class TaskInstanceController {
+@RequestMapping(TaskController.API_PATH)
+public class TaskController {
 
     public static final String API_PATH = "/api/v1/taskInstances";
 
     private final TaskInstanceService taskInstanceService;
 
-    @GetMapping(value="/taskInstances/{taskId}")
-    @ResponseBody
+    @GetMapping(value="/{taskId}")
     public ResponseEntity<WTaskInstance> getTaskById(
             @PathVariable("taskId") String taskId) {
         return new ResponseEntity<>(
@@ -30,8 +37,7 @@ public class TaskInstanceController {
                 HttpStatus.OK);
     }
 
-    @GetMapping(value="/taskInstances/byProcessInstance/{processInstanceId}")
-    @ResponseBody
+    @GetMapping(value="/byProcessInstance/{processInstanceId}")
     public ResponseEntity<List<WTaskInstance>> findTaskInstancesByProcessInstanceId(
             @PathVariable("processInstanceId") String processInstanceId) {
         var tasques = taskInstanceService.findTaskInstancesByProcessInstanceId(processInstanceId);
@@ -41,18 +47,16 @@ public class TaskInstanceController {
         return new ResponseEntity<>(tasques, HttpStatus.OK);
     }
 
-    @GetMapping(value="/taskInstances/byExecution/{executionTokenId}/id")
-    @ResponseBody
-    public ResponseEntity<Long> getTaskInstanceIdByExecutionTokenId(
-            @PathVariable("executionTokenId") Long executionTokenId) {
+    @GetMapping(value="/byExecution/{executionTokenId}/id")
+    public ResponseEntity<String> getTaskInstanceIdByExecutionTokenId(
+            @PathVariable("executionTokenId") String executionTokenId) {
         return new ResponseEntity<>(
                 taskInstanceService.getTaskInstanceIdByExecutionTokenId(executionTokenId),
                 HttpStatus.OK);
     }
 
     // TODO: Consultes a realitzar al MS d'expedients i tasques
-//    @RequestMapping(value="/taskInstances/byFiltrePaginat", method = RequestMethod.GET)
-//    @ResponseBody
+//    @RequestMapping(value="/byFiltrePaginat", method = RequestMethod.GET)
 //    public ResponseEntity<ResultatConsultaPaginada<WTaskInstance>> tascaFindByFiltrePaginat(
 //            @RequestParam(value = "entornId", required = false) Long entornId,
 //            @RequestParam(value = "actorId", required = false) String actorId,
@@ -95,8 +99,7 @@ public class TaskInstanceController {
 //                HttpStatus.OK);
 //    }
 //
-//    @RequestMapping(value="/taskInstances/byFiltrePaginat/ids", method = RequestMethod.GET)
-//    @ResponseBody
+//    @RequestMapping(value="/byFiltrePaginat/ids", method = RequestMethod.GET)
 //    public ResponseEntity<LlistatIds> tascaIdFindByFiltrePaginat(
 //            @RequestParam(value = "responsable", required = false) String responsable,
 //            @RequestParam(value = "tasca", required = false) String tasca,
@@ -129,8 +132,7 @@ public class TaskInstanceController {
 //                HttpStatus.OK);
 //    }
 
-    @PostMapping(value="/taskInstances/{taskId}/take/{actorId}")
-    @ResponseBody
+    @PostMapping(value="/{taskId}/take/{actorId}")
     public ResponseEntity<Void> takeTaskInstance(
             @PathVariable("taskId") String taskId,
             @PathVariable("actorId") String actorId) {
@@ -138,16 +140,14 @@ public class TaskInstanceController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @PostMapping(value="/taskInstances/{taskId}/release")
-    @ResponseBody
+    @PostMapping(value="/{taskId}/release")
     public ResponseEntity<Void> releaseTaskInstance(
             @PathVariable("taskId") String taskId) {
         taskInstanceService.releaseTaskInstance(taskId);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @PostMapping(value="/taskInstances/{taskId}/start")
-    @ResponseBody
+    @PostMapping(value="/{taskId}/start")
     public ResponseEntity<WTaskInstance> startTaskInstance(
             @PathVariable("taskId") String taskId) {
         return new ResponseEntity<>(
@@ -155,8 +155,7 @@ public class TaskInstanceController {
                 HttpStatus.OK);
     }
 
-    @PostMapping(value="/taskInstances/{taskId}/end")
-    @ResponseBody
+    @PostMapping(value="/{taskId}/end")
     public ResponseEntity<Void> endTaskInstance(
             @PathVariable("taskId") String taskId,
             @RequestParam(value = "outcome", required = false) String outcome) {
@@ -164,8 +163,7 @@ public class TaskInstanceController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @PostMapping(value="/taskInstances/{taskId}/cancel")
-    @ResponseBody
+    @PostMapping(value="/{taskId}/cancel")
     public ResponseEntity<WTaskInstance> cancelTaskInstance(
             @PathVariable("taskId") String taskId) {
         return new ResponseEntity<>(
@@ -173,8 +171,7 @@ public class TaskInstanceController {
                 HttpStatus.OK);
     }
 
-    @PostMapping(value="/taskInstances/{taskId}/suspend")
-    @ResponseBody
+    @PostMapping(value="/{taskId}/suspend")
     public ResponseEntity<WTaskInstance> suspendTaskInstance(
             @PathVariable("taskId") String taskId) {
         return new ResponseEntity<>(
@@ -182,8 +179,7 @@ public class TaskInstanceController {
                 HttpStatus.OK);
     }
 
-    @PostMapping(value="/taskInstances/{taskId}/resume")
-    @ResponseBody
+    @PostMapping(value="/{taskId}/resume")
     public ResponseEntity<WTaskInstance> resumeTaskInstance(
             @PathVariable("taskId") String taskId) {
         return new ResponseEntity<>(
@@ -191,11 +187,10 @@ public class TaskInstanceController {
                 HttpStatus.OK);
     }
 
-    @PostMapping(value="/taskInstances/{taskId}/reassign")
-    @ResponseBody
+    @PostMapping(value="/{taskId}/reassign")
     public ResponseEntity<WTaskInstance> reassignTaskInstance(
             @PathVariable("taskId") String taskId,
-            @RequestBody ReassignTask reassignTask) {
+            @RequestBody ReassignTaskData reassignTask) {
         return new ResponseEntity<>(
                 taskInstanceService.reassignTaskInstance(
                         taskId,
@@ -204,29 +199,15 @@ public class TaskInstanceController {
                 HttpStatus.OK);
     }
 
-    @PutMapping(value="/taskInstances/{taskId}")
-    @ResponseBody
+    @PutMapping(value="/{taskId}")
     public ResponseEntity<Void> updateTaskInstanceInfoCache(
             @PathVariable("taskId") String taskId,
-            @RequestBody InfoCache info) {
+            @RequestBody InfoCacheData info) {
         taskInstanceService.updateTaskInstanceInfoCache(
                 taskId,
                 info.getTitol(),
                 info.getInfo());
         return new ResponseEntity<>(HttpStatus.OK);
-    }
-
-
-    @Data
-    public static class ReassignTask {
-        private String expression;
-        private Long entornId;
-    }
-
-    @Data
-    public static class InfoCache {
-        private String titol;
-        private String info;
     }
 
 }

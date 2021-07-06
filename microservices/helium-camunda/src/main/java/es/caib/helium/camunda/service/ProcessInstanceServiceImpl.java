@@ -66,12 +66,14 @@ public class ProcessInstanceServiceImpl implements ProcessInstanceService {
     }
 
     @Override
-    public List<WProcessInstance> findProcessInstancesWithProcessDefinitionNameAndEntorn(String processDefinitionName, Long entornId) {
+    public List<WProcessInstance> findProcessInstancesWithProcessDefinitionNameAndEntorn(
+            String processDefinitionName,
+            String entornId) {
         List<WProcessInstance> wProcessInstances = new ArrayList<>();
         var processInstances = historyService.createHistoricProcessInstanceQuery()
                 .unfinished()
                 .processDefinitionName(processDefinitionName)
-                .tenantIdIn(entornId.toString())
+                .tenantIdIn(entornId)
                 .list();
         if (processInstances != null) {
             wProcessInstances = processInstances.stream()
@@ -126,10 +128,11 @@ public class ProcessInstanceServiceImpl implements ProcessInstanceService {
         return processInstanceMapper.toWProcessInstance(superProcessInstance);
     }
 
-    @Override
-    public List<String> findRootProcessInstances(String actorId, List<String> processInstanceIds, boolean nomesMeves, boolean nomesTasquesPersonals, boolean nomesTasquesGrup) {
-        // TODO: mirar per a qué s'utilitza
-        // S'haurien d'agafar les tasques del MS d'expedietns i tasques!!
+    // Tasca utilitzada per a consulta d'expedients --> Això ha d'anar al MS d'expedients i tasques o al MS de dadesç!!
+    // S'haurien d'agafar les tasques del MS d'expedietns i tasques!!
+//    @Override
+//    public List<String> findRootProcessInstances(String actorId, List<String> processInstanceIds, boolean nomesMeves, boolean nomesTasquesPersonals, boolean nomesTasquesGrup) {
+//        // TODO: mirar per a qué s'utilitza
 //        boolean nomesAmbPendents = true; // Mostrar sólo las pendientes
 //        boolean personals = nomesTasquesPersonals && !nomesTasquesGrup;
 //        boolean grup = !nomesTasquesPersonals && nomesTasquesGrup;
@@ -150,8 +153,8 @@ public class ProcessInstanceServiceImpl implements ProcessInstanceService {
 //        }
 //        var tasks = taskQuery.list();
 //        tasks.stream().forEach(t -> t.getProcessInstanceId());
-        return null;
-    }
+//        return null;
+//    }
 
     @Override
     public WProcessInstance startProcessInstanceById(String actorId, String processDefinitionId, Map<String, Object> variables) {
@@ -159,7 +162,14 @@ public class ProcessInstanceServiceImpl implements ProcessInstanceService {
 
         // TODO: Indicar a Helium quina és la tasca inicial (si n'hi ha), o indicar a Helium que té una tasca inicial
         // Passar-ho com a paràmetre, de manera que aquí la podrem assignar
-        //
+
+//        var activeTasks = taskService.createTaskQuery()
+//                .processInstanceId(processInstance.getId())
+//                .active()
+//                .list();
+//        activeTasks.stream()
+//                .filter(t -> "swimlane".equalsIgnoreCase(t.getAssignee()))
+//                .forEach(t -> taskService.setAssignee(t.getId(), actorId));
 //        var task = taskService.createTaskQuery()
 //                .processInstanceId(processInstance.getId())
 //                .taskName(startTaskName)
@@ -170,10 +180,11 @@ public class ProcessInstanceServiceImpl implements ProcessInstanceService {
     }
 
     @Override
-    public void signalProcessInstance(String processInstanceId, String transitionName) {
-        final String finalTransitionName = (transitionName == null || transitionName.isBlank()) ? "default" : transitionName;
-        var executions = runtimeService.createExecutionQuery().processInstanceId(processInstanceId).active().list();
-        executions.stream().forEach(ex -> runtimeService.signalEventReceived(finalTransitionName, ex.getId()));
+    public void signalProcessInstance(String processInstanceId, String signalName) {
+//        final String finalSignalName = (signalName == null || signalName.isBlank()) ? "default" : signalName;
+//        var executions = runtimeService.createExecutionQuery().processInstanceId(processInstanceId).active().list();
+//        executions.stream().forEach(ex -> runtimeService.signalEventReceived(finalSignalName, ex.getId()));
+        runtimeService.signalEventReceived(signalName, processInstanceId);
     }
 
     @Override

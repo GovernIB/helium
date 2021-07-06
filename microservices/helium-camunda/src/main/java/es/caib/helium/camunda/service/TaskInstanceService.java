@@ -1,7 +1,6 @@
 package es.caib.helium.camunda.service;
 
 import es.caib.helium.camunda.model.DelegationInfo;
-import es.caib.helium.camunda.model.ResultatCompleteTask;
 import es.caib.helium.camunda.model.WTaskInstance;
 
 import java.util.List;
@@ -33,7 +32,7 @@ public interface TaskInstanceService {
      * @param executionTokenId
      * @return
      */
-    public Long getTaskInstanceIdByExecutionTokenId(Long executionTokenId);
+    public String getTaskInstanceIdByExecutionTokenId(String executionTokenId);
 
 
     // Tramitació de tasques
@@ -68,11 +67,11 @@ public interface TaskInstanceService {
     /**
      * Completa la tramitació d'una tasca
      *
-     * @param task
+     * @param taskId
      * @param outcome
      * @return
      */
-    public ResultatCompleteTask completeTaskInstance(
+    public void completeTaskInstance(
             String taskId,
             String outcome);
 

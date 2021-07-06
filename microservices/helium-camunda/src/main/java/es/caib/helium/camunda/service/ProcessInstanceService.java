@@ -36,7 +36,7 @@ public interface ProcessInstanceService {
     // Com a entornId podem utilitzar el tenantId de la instància de procés, o la categoria de la definició de procés
     public List<WProcessInstance> findProcessInstancesWithProcessDefinitionNameAndEntorn(
             String processName,
-            Long entornId);
+            String entornId);
 
     /**
      * Obté les instàncies de procés del procés principal, i dels subprocesos donat l'identificador del procés principal
@@ -62,22 +62,12 @@ public interface ProcessInstanceService {
      */
     public WProcessInstance getRootProcessInstance(String processInstanceId);
 
-    /**
-     * Obté les instàncies de procés principals filtrades
-     *
-     * @param actorId
-     * @param processInstanceIds
-     * @param nomesMeves
-     * @param nomesTasquesPersonals
-     * @param nomesTasquesGrup
-     * @return
-     */
-    public List<String> findRootProcessInstances(
-            String actorId,
-            List<String> processInstanceIds,
-            boolean nomesMeves,
-            boolean nomesTasquesPersonals,
-            boolean nomesTasquesGrup);
+//    public List<String> findRootProcessInstances(
+//            String actorId,
+//            List<String> processInstanceIds,
+//            boolean nomesMeves,
+//            boolean nomesTasquesPersonals,
+//            boolean nomesTasquesGrup);
 
     // Tramitació
     ////////////////////////////////////////////////////////////////////////////////
@@ -99,11 +89,11 @@ public interface ProcessInstanceService {
      * Envia un disparador extern a una instància de procés
      *
      * @param processInstanceId
-     * @param transitionName
+     * @param signalName
      */
     public void signalProcessInstance(
             String processInstanceId,
-            String transitionName);
+            String signalName);
 
     /**
      * Elimina una instància de procés existent

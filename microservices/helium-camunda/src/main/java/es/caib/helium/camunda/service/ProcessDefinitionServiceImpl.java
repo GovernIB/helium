@@ -72,8 +72,18 @@ public class ProcessDefinitionServiceImpl implements ProcessDefinitionService {
     @Override
     public String getStartTaskName(String processDefinitionId) {
         // TODO: Agafam la primera tasca després de l'start? Pot començar amb un fork...
-        //      O miram alguna altre cosa?
 
+//        String startTaskName = null;
+//        BpmnModelInstance modelInstance = repositoryService.getBpmnModelInstance(processDefinitionId);
+//        var startEvents = modelInstance.getModelElementsByType(StartEvent.class);
+//        if (startEvents != null && startEvents.size() == 1) {
+//            var startEvent = startEvents.stream().findFirst().get();
+//            if (startEvent.getOutgoing() != null && startEvent.getOutgoing().size() == 1) {
+//                var outgoingFlowId = startEvent.getOutgoing().stream().findFirst().get();
+//                startTaskName = outgoingFlowId.getTarget().getName();
+//            }
+//        }
+//        return startTaskName;
         return null;
     }
 

@@ -1,7 +1,7 @@
 package es.caib.helium.camunda.service;
 
-import es.caib.helium.camunda.helper.VariableHelper;
-import es.caib.helium.camunda.model.VariableRest;
+import es.caib.helium.client.engine.helper.VariableHelper;
+import es.caib.helium.client.engine.model.VariableRest;
 import lombok.RequiredArgsConstructor;
 import org.camunda.bpm.engine.ProcessEngine;
 import org.camunda.bpm.engine.RepositoryService;

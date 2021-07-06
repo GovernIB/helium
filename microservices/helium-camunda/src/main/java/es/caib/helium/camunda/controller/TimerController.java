@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Date;
@@ -20,12 +19,11 @@ import java.util.Date;
 @RequestMapping(TimerController.API_PATH)
 public class TimerController {
 
-    public static final String API_PATH = "/api/v1/taskInstances";
+    public static final String API_PATH = "/api/v1/timers";
 
     private final TimerService timerService;
 
-    @PostMapping(value="/timers/{timerId}/suspend")
-    @ResponseBody
+    @PostMapping(value="/{timerId}/suspend")
     public ResponseEntity<Void> suspendTimer(
             @PathVariable("timerId") String timerId,
             @RequestBody Date dueDate) {
@@ -33,8 +31,7 @@ public class TimerController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @PostMapping(value="/timers/{timerId}/resume")
-    @ResponseBody
+    @PostMapping(value="/{timerId}/resume")
     public ResponseEntity<Void> resumeTimer(
             @PathVariable("timerId") String timerId,
             @RequestBody Date dueDate) {

@@ -2,7 +2,6 @@ package es.caib.helium.camunda.service;
 
 import es.caib.helium.camunda.mapper.TaskInstanceMapper;
 import es.caib.helium.camunda.model.DelegationInfo;
-import es.caib.helium.camunda.model.ResultatCompleteTask;
 import es.caib.helium.camunda.model.WTaskInstance;
 import lombok.RequiredArgsConstructor;
 import org.camunda.bpm.engine.HistoryService;
@@ -25,6 +24,7 @@ public class TaskInstanceServiceImpl implements TaskInstanceService {
     private final HistoryService historyService;
     private final RuntimeService runtimeService;
     private final TaskInstanceMapper taskInstanceMapper;
+    private final ActionService actionService;
 
     @Override
     public WTaskInstance getTaskById(String taskId) {
@@ -52,18 +52,18 @@ public class TaskInstanceServiceImpl implements TaskInstanceService {
     }
 
     @Override
-    public Long getTaskInstanceIdByExecutionTokenId(Long executionTokenId) {
+    public String getTaskInstanceIdByExecutionTokenId(String executionTokenId) {
         List<WTaskInstance> wTaskInstances = new ArrayList<>();
         var task = taskService
                 .createTaskQuery()
-                .executionId(executionTokenId.toString())
+                .executionId(executionTokenId)
                 .active()
                 .singleResult();
         if (task == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Task Not found. tokenId: " + executionTokenId);
         }
         // TODO: Comprovar si retorna un Long!!
-        return Long.valueOf(task.getId());
+        return task.getId();
     }
 
     @Override
@@ -80,19 +80,18 @@ public class TaskInstanceServiceImpl implements TaskInstanceService {
     @Override
     public WTaskInstance startTaskInstance(String taskId) {
         // TODO: No existeix el concepte de Task Start
-        return null;
+        return taskInstanceMapper.toWTaskInstance(getTask(taskId));
     }
 
     @Override
-    public ResultatCompleteTask completeTaskInstance(String taskId, String outcome) {
-        // TODO: No es pot inticar una transició de sortida
+    public void completeTaskInstance(String taskId, String outcome) {
+        // TODO: No es pot indicar una transició de sortida
         taskService.complete(taskId);
-        return null;
+//        return null;
     }
 
     @Override
     public WTaskInstance cancelTaskInstance(String taskId) {
-        // TODO: No existeix el concepte de cancelar una tasca
         Task task = getTask(taskId);
         runtimeService.createProcessInstanceModification(task.getProcessInstanceId())
 //                .cancelAllForActivity(taskId);
@@ -105,19 +104,28 @@ public class TaskInstanceServiceImpl implements TaskInstanceService {
     public WTaskInstance suspendTaskInstance(String taskId) {
         // TODO: No existeix el concepte de suspendre una tasca.
         //       Es pot suspende el processInstance, però no la tasca
-        return null;
+        return taskInstanceMapper.toWTaskInstance(getTask(taskId));
     }
 
     @Override
     public WTaskInstance resumeTaskInstance(String taskId) {
         // TODO idem suspendre
-        return null;
+        return taskInstanceMapper.toWTaskInstance(getTask(taskId));
     }
 
     @Override
     public WTaskInstance reassignTaskInstance(String taskId, String expression, Long entornId) {
         // TODO: Necessitam fer codi per a les expressions d'assignació? o Camunda ja té alguna cosa
-        return null;
+        var task = getTask(taskId);
+        String actorId = (String)actionService.evaluateExpression(
+                null,
+                task.getProcessInstanceId(),
+                "javascript",
+                expression,
+                null);
+        taskService.setAssignee(taskId, actorId);
+        task.setAssignee(actorId);
+        return taskInstanceMapper.toWTaskInstance(task);
     }
 
     @Override

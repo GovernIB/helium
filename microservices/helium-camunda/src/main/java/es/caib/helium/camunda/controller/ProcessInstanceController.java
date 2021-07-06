@@ -1,10 +1,9 @@
 package es.caib.helium.camunda.controller;
 
-import es.caib.helium.camunda.model.VariableRest;
 import es.caib.helium.camunda.model.WProcessInstance;
 import es.caib.helium.camunda.service.ProcessInstanceService;
+import es.caib.helium.client.engine.model.ProcessStartData;
 import lombok.AllArgsConstructor;
-import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -12,7 +11,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-import static es.caib.helium.camunda.helper.VariableHelper.variableRestToObjectMapConvert;
+import static es.caib.helium.client.engine.helper.VariableHelper.variableRestToObjectMapConvert;
+
 
 @RestController
 @Slf4j
@@ -26,7 +26,6 @@ public class ProcessInstanceController {
 
 
     @GetMapping(value="/byProcessDefinition/{processDefinitionId}")
-    @ResponseBody
     public ResponseEntity<List<WProcessInstance>> findProcessInstancesWithProcessDefinitionId(
             @PathVariable("processDefinitionId") String processDefinitionId) {
 
@@ -39,10 +38,9 @@ public class ProcessInstanceController {
     }
 
     @GetMapping(value="/byProcessDefinitionName/{processName}")
-    @ResponseBody
     public ResponseEntity<List<WProcessInstance>> findProcessInstancesWithProcessDefinitionNameAndEntorn(
             @PathVariable("processName") String processName,
-            @RequestParam(value = "entornId", required = false) Long entornId) {
+            @RequestParam(value = "entornId", required = false) String entornId) {
         List<WProcessInstance> processInstances;
         if (entornId != null) {
             processInstances = processInstanceService.findProcessInstancesWithProcessDefinitionNameAndEntorn(processName, entornId);
@@ -56,7 +54,6 @@ public class ProcessInstanceController {
     }
 
     @GetMapping(value="/{rootProcessInstanceId}/tree")
-    @ResponseBody
     public ResponseEntity<List<WProcessInstance>> getProcessInstanceTree(
             @PathVariable("rootProcessInstanceId") String rootProcessInstanceId) {
 
@@ -68,7 +65,6 @@ public class ProcessInstanceController {
     }
 
     @GetMapping(value="/{processInstanceId}")
-    @ResponseBody
     public ResponseEntity<WProcessInstance> getProcessInstance(
             @PathVariable("processInstanceId") String processInstanceId) {
         return new ResponseEntity<>(
@@ -77,7 +73,6 @@ public class ProcessInstanceController {
     }
 
     @GetMapping(value="/{processInstanceId}/root")
-    @ResponseBody
     public ResponseEntity<WProcessInstance> getRootProcessInstance(
             @PathVariable("processInstanceId") String processInstanceId) {
         return new ResponseEntity<>(
@@ -85,51 +80,50 @@ public class ProcessInstanceController {
                 HttpStatus.OK);
     }
 
-    @GetMapping(value="/root")
-    @ResponseBody
-    public ResponseEntity<List<String>> findRootProcessInstances(
-            @RequestParam(value = "actorId") String actorId,
-            @RequestParam(value = "processInstanceIds") List<String> processInstanceIds,
-            @RequestParam(value = "nomesMeves") boolean nomesMeves,
-            @RequestParam(value = "nomesTasquesPersonals") boolean nomesTasquesPersonals,
-            @RequestParam(value = "nomesTasquesGrup") boolean nomesTasquesGrup) {
-
-        List<String> rootProcessInstances = processInstanceService.findRootProcessInstances(
-                actorId,
-                processInstanceIds,
-                nomesMeves,
-                nomesTasquesPersonals,
-                nomesTasquesGrup);
-        if (rootProcessInstances == null || rootProcessInstances.isEmpty()) {
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        }
-
-        return new ResponseEntity<>(rootProcessInstances, HttpStatus.OK);
-    }
+    // TODO: Tasca utilitzada per a consulta d'expedients
+    //       Això ha d'anar al MS d'expedients i tasques o al MS de dades!!
+//    @GetMapping(value="/root")
+//    @ResponseBody
+//    public ResponseEntity<List<String>> findRootProcessInstances(
+//            @RequestParam(value = "actorId") String actorId,
+//            @RequestParam(value = "processInstanceIds") List<String> processInstanceIds,
+//            @RequestParam(value = "nomesMeves") boolean nomesMeves,
+//            @RequestParam(value = "nomesTasquesPersonals") boolean nomesTasquesPersonals,
+//            @RequestParam(value = "nomesTasquesGrup") boolean nomesTasquesGrup) {
+//
+//        List<String> rootProcessInstances = processInstanceService.findRootProcessInstances(
+//                actorId,
+//                processInstanceIds,
+//                nomesMeves,
+//                nomesTasquesPersonals,
+//                nomesTasquesGrup);
+//        if (rootProcessInstances == null || rootProcessInstances.isEmpty()) {
+//            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+//        }
+//
+//        return new ResponseEntity<>(rootProcessInstances, HttpStatus.OK);
+//    }
 
     @PostMapping(value="/start")
-    @ResponseBody
     public ResponseEntity<WProcessInstance> startProcessInstanceById(
-            @RequestBody ProcessStart processStart) {
+            @RequestBody ProcessStartData processStartData) {
         return new ResponseEntity<>(
                 processInstanceService.startProcessInstanceById(
-                        processStart.getActorId(),
-                        processStart.getProcessDefinitionId(),
-                        variableRestToObjectMapConvert(processStart.getVariables())),
+                        processStartData.getActorId(),
+                        processStartData.getProcessDefinitionId(),
+                        variableRestToObjectMapConvert(processStartData.getVariables())),
                 HttpStatus.OK);
     }
 
-    @PostMapping(value="/{processInstanceId}/signal/{transitionName}")
-    @ResponseBody
+    @PostMapping(value="/{processInstanceId}/signal")
     public ResponseEntity<Void> signalProcessInstance(
             @PathVariable("processInstanceId") String processInstanceId,
-            @PathVariable("transitionName") String transitionName) {
-        processInstanceService.signalProcessInstance(processInstanceId, transitionName);
+            @RequestBody String signalName) {
+        processInstanceService.signalProcessInstance(processInstanceId, signalName);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @DeleteMapping(value="/{processInstanceId}")
-    @ResponseBody
     public ResponseEntity<Void> deleteProcessInstance(
             @PathVariable("processInstanceId") String processInstanceId) {
         processInstanceService.deleteProcessInstance(processInstanceId);
@@ -137,7 +131,6 @@ public class ProcessInstanceController {
     }
 
     @PostMapping(value="/suspend")
-    @ResponseBody
     public ResponseEntity<Void> suspendProcessInstances(
             @RequestBody String[] processInstanceIds) {
         processInstanceService.suspendProcessInstances(processInstanceIds);
@@ -145,7 +138,6 @@ public class ProcessInstanceController {
     }
 
     @PostMapping(value="/resume")
-    @ResponseBody
     public ResponseEntity<Void> resumeProcessInstances(
             @RequestBody String[] processInstanceIds) {
         processInstanceService.resumeProcessInstances(processInstanceIds);
@@ -153,20 +145,11 @@ public class ProcessInstanceController {
     }
 
     @PutMapping(value="/{processInstanceId}/version/")
-    @ResponseBody
     public ResponseEntity<Void> changeProcessInstanceVersion(
             @PathVariable("processInstanceId") String processInstanceId,
             @RequestBody Integer newVersion) {
         processInstanceService.changeProcessInstanceVersion(processInstanceId, newVersion);
         return new ResponseEntity<>(HttpStatus.OK);
-    }
-
-
-    @Data
-    public static class ProcessStart {
-        private String actorId;
-        private String processDefinitionId;
-        private List<VariableRest> variables;
     }
 
 }

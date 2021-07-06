@@ -1,9 +1,9 @@
 package es.caib.helium.camunda.controller;
 
-import es.caib.helium.camunda.model.VariableRest;
 import es.caib.helium.camunda.service.TaskVariableService;
+import es.caib.helium.client.engine.model.UpdateVariablesData;
+import es.caib.helium.client.engine.model.VariableRest;
 import lombok.AllArgsConstructor;
-import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -30,7 +29,6 @@ public class TaskVariableController {
 
 
     @GetMapping(value="/{taskId}/taskInstanceVariables")
-    @ResponseBody
     public ResponseEntity<List<VariableRest>> getTaskInstanceVariables(
             @PathVariable("taskId") String taskId) {
 
@@ -43,7 +41,6 @@ public class TaskVariableController {
     }
 
     @GetMapping(value="/{taskId}/taskInstanceVariables/{varName}")
-    @ResponseBody
     public ResponseEntity<VariableRest> getTaskInstanceVariable(
             @PathVariable("taskId") String taskId,
             @PathVariable("varName") String varName) {
@@ -53,7 +50,6 @@ public class TaskVariableController {
     }
 
     @PostMapping(value="/{taskId}/taskInstanceVariables/{varName}")
-    @ResponseBody
     public ResponseEntity<Void> setTaskInstanceVariable(
             @PathVariable("taskId") String taskId,
             @PathVariable("varName") String varName,
@@ -65,10 +61,9 @@ public class TaskVariableController {
     }
 
     @PostMapping(value="/{taskId}/taskInstanceVariables")
-    @ResponseBody
     public ResponseEntity<Void> setTaskInstanceVariables(
             @PathVariable("taskId") String taskId,
-            @RequestBody UpdateVars variables) {
+            @RequestBody UpdateVariablesData variables) {
         taskVariableService.setTaskInstanceVariables(
                 taskId,
                 variables.getVariables(),
@@ -77,18 +72,11 @@ public class TaskVariableController {
     }
 
     @DeleteMapping(value="/{taskId}/taskInstanceVariables/{varName}")
-    @ResponseBody
     public ResponseEntity<Void> deleteTaskInstanceVariable(
             @PathVariable("taskId") String taskId,
             @PathVariable("varName") String varName) {
         taskVariableService.deleteTaskInstanceVariable(taskId, varName);
         return new ResponseEntity<>(HttpStatus.OK);
-    }
-
-    @Data
-    public static class UpdateVars {
-        private boolean deleteFirst;
-        private List<VariableRest> variables;
     }
 
 }

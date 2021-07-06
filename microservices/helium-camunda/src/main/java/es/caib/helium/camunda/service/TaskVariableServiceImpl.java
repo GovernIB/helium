@@ -1,6 +1,6 @@
 package es.caib.helium.camunda.service;
 
-import es.caib.helium.camunda.model.VariableRest;
+import es.caib.helium.client.engine.model.VariableRest;
 import lombok.RequiredArgsConstructor;
 import org.camunda.bpm.engine.TaskService;
 import org.springframework.http.HttpStatus;
@@ -9,10 +9,11 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
-import static es.caib.helium.camunda.helper.VariableHelper.objectMapToVariableRestConvert;
-import static es.caib.helium.camunda.helper.VariableHelper.objectToVariable;
-import static es.caib.helium.camunda.helper.VariableHelper.variableRestToObjectMapConvert;
-import static es.caib.helium.camunda.helper.VariableHelper.variableToObject;
+import static es.caib.helium.client.engine.helper.VariableHelper.objectMapToVariableRestConvert;
+import static es.caib.helium.client.engine.helper.VariableHelper.objectToVariable;
+import static es.caib.helium.client.engine.helper.VariableHelper.variableRestToObjectMapConvert;
+import static es.caib.helium.client.engine.helper.VariableHelper.variableToObject;
+
 
 @Service
 @RequiredArgsConstructor

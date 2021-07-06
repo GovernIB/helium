@@ -1,6 +1,6 @@
 package es.caib.helium.camunda.service;
 
-import es.caib.helium.camunda.model.VariableRest;
+import es.caib.helium.client.engine.model.VariableRest;
 
 import java.util.List;
 import java.util.Set;

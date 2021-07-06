@@ -23,6 +23,11 @@ public class CacheHelper {
         ProcessDefinition processDefinition = null;
         try {
             processDefinition = repositoryService.getProcessDefinition(processDefinitionId);
+//            repositoryService.createProcessDefinitionQuery()
+//                    .deploymentId("")
+//                    .processDefinitionId(processDefinitionId)
+////                    .latestVersion()
+//                    .singleResult();
         } catch (Exception ex) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error obtenint la definició de procés amb id: " + processDefinitionId, ex);
         }

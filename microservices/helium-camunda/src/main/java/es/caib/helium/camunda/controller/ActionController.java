@@ -1,19 +1,20 @@
 package es.caib.helium.camunda.controller;
 
-import es.caib.helium.camunda.model.VariableRest;
 import es.caib.helium.camunda.service.ActionService;
+import es.caib.helium.client.engine.model.ExpressionData;
+import es.caib.helium.client.engine.model.ScriptData;
+import es.caib.helium.client.engine.model.VariableRest;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
-import java.util.Set;
 
 @RestController
 @Slf4j
@@ -21,64 +22,52 @@ import java.util.Set;
 @RequestMapping(ActionController.API_PATH)
 public class ActionController {
 
-    public static final String API_PATH = "/api/v1/actions";
+    public static final String API_PATH = "/api/v1";
 
     private final ActionService actionService;
 
 
     @PostMapping(value="/processInstances/{processInstanceId}/evaluateScript")
-    @ResponseBody
     public List<VariableRest> evaluateScript(
             @PathVariable("processInstanceId") String processInstanceId,
-            String scriptLanguage,
-            String script,
-            Set<String> outputNames) {
+            @RequestBody ScriptData scriptData) {
         return actionService.evaluateScript(
                 processInstanceId,
-                scriptLanguage,
-                script,
-                outputNames);
+                scriptData.getScriptLanguage(),
+                scriptData.getScript(),
+                scriptData.getOutputNames());
     }
 
     @PostMapping(value="/processInstances/{processInstanceId}/evaluateExpression")
-    @ResponseBody
     public Object evaluateExpression(
-            String taskInstanceInstanceId,
             @PathVariable("processInstanceId") String processInstanceId,
-            String expressionLanguage,
-            String expression,
-            List<VariableRest> valors) {
+            @RequestBody ExpressionData expressionData) {
         return actionService.evaluateExpression(
-                taskInstanceInstanceId,
+                expressionData.getTaskInstanceInstanceId(),
                 processInstanceId,
-                expressionLanguage,
-                expression,
-                valors);
+                expressionData.getExpressionLanguage(),
+                expressionData.getExpression(),
+                expressionData.getValors());
     }
 
     @GetMapping(value="/evaluateExpression")
-    @ResponseBody
-    public Object evaluateExpression(
-            String expressionLanguage,
-            String expression,
-            String expectedClass,
-            List<VariableRest> context) {
+    public Object evaluateExpression(@RequestBody ExpressionData expressionData) {
         return actionService.evaluateExpression(
-                expressionLanguage,
-                expression,
-                expectedClass,
-                context);
+                expressionData.getExpressionLanguage(),
+                expressionData.getExpression(),
+                expressionData.getExpectedClass(),
+                expressionData.getValors());
     }
 
-    @GetMapping(value="/processDefinitions/{jbpmId}/actions")
-    @ResponseBody
+    @GetMapping(value="/processDefinitions/{processDefinition}/actions")
     public List<String> listActions(
-            @PathVariable("jbpmId") String jbpmId) {
-        return actionService.listActions(jbpmId);
+            @PathVariable("processDefinition") String processDefinition) {
+        return actionService.listActions(processDefinition);
     }
+
+    // TODO: Herencia??
 
     @PostMapping(value="/processInstances/{processInstanceId}/actions/{actionName}/execute")
-    @ResponseBody
     public void executeActionInstanciaProces(
             @PathVariable("processInstanceId") String processInstanceId,
             @PathVariable("actionName") String actionName,
@@ -89,7 +78,6 @@ public class ActionController {
     }
 
     @PostMapping(value="/taskInstances/{taskInstanceId}/actions/{actionName}/execute")
-    @ResponseBody
     public void executeActionInstanciaTasca(
             @PathVariable("taskInstanceId") String taskInstanceId,
             @PathVariable("actionName") String actionName,

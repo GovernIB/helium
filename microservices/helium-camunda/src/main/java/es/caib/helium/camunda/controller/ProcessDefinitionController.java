@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -38,7 +37,6 @@ public class ProcessDefinitionController {
     }
 
     @GetMapping(value="/{processDefinitionId}/subProcessDefinition")
-    @ResponseBody
     public ResponseEntity<List<WProcessDefinition>> getSubProcessDefinitions(
             @RequestParam("deploymentId") String deploymentId,
             @PathVariable("processDefinitionId") String processDefinitionId) {
@@ -51,7 +49,6 @@ public class ProcessDefinitionController {
     }
 
     @GetMapping(value="/{processDefinitionId}/taskNames")
-    @ResponseBody
     public ResponseEntity<List<String>> getTaskNamesFromDeployedProcessDefinition(
             @RequestParam("deploymentId") String deploymentId,
             @PathVariable("processDefinitionId") String processDefinitionId) {
@@ -64,7 +61,6 @@ public class ProcessDefinitionController {
     }
 
     @GetMapping(value="/{processDefinitionId}/startTaskName")
-    @ResponseBody
     public ResponseEntity<String> getStartTaskName(
             @PathVariable("processDefinitionId") String processDefinitionId) {
         return new ResponseEntity<>(
@@ -73,7 +69,6 @@ public class ProcessDefinitionController {
     }
 
     @GetMapping(value="/byProcessInstance/{processInstanceId}")
-    @ResponseBody
     public ResponseEntity<WProcessDefinition> findProcessDefinitionWithProcessInstanceId(
             @PathVariable("processInstanceId") String processInstanceId) {
         return new ResponseEntity<>(
@@ -82,11 +77,16 @@ public class ProcessDefinitionController {
     }
 
     @PutMapping
-    @ResponseBody
     public ResponseEntity<Void> updateSubprocessDefinition(
             @RequestParam("processDefinitionId1") String processDefinitionId1,
             @RequestParam("processDefinitionId2") String processDefinitionId2) {
 
+        // TODO: Mirar si podem modificar a la BBDD la versio a utilitzar
+        //       Camunda utilitza sempre la última versió, a no ser que es defineixi al diagrama:
+        //       <callActivity id="callSubProcess" calledElement="checkCreditProcess"
+        //              camunda:calledElementBinding="latest|deployment|version"
+        //              camunda:calledElementVersion="17">
+        //       </callActivity>
 //        WProcessDefinition pd1 = processDefinitionService.getProcessDefinition(null, processDefinitionId1);
 //        WProcessDefinition pd2 = processDefinitionService.getProcessDefinition(null, processDefinitionId2);
 //        processDefinitionService.updateSubprocessDefinition(pd1, pd2);
