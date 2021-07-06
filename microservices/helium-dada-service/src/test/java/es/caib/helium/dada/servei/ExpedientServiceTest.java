@@ -21,22 +21,22 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.PageRequest;
 
-import es.caib.helium.dada.domain.Dada;
-import es.caib.helium.dada.domain.Expedient;
-import es.caib.helium.dada.domain.Valor;
-import es.caib.helium.dada.domain.ValorRegistre;
-import es.caib.helium.dada.domain.ValorSimple;
+import es.caib.helium.dada.enums.Collections;
+import es.caib.helium.dada.enums.DireccioOrdre;
+import es.caib.helium.dada.enums.Tipus;
 import es.caib.helium.dada.model.Columna;
 import es.caib.helium.dada.model.Consulta;
+import es.caib.helium.dada.model.Dada;
+import es.caib.helium.dada.model.Expedient;
 import es.caib.helium.dada.model.Filtre;
 import es.caib.helium.dada.model.FiltreCapcalera;
 import es.caib.helium.dada.model.FiltreValor;
 import es.caib.helium.dada.model.Ordre;
 import es.caib.helium.dada.model.PagedList;
+import es.caib.helium.dada.model.Valor;
+import es.caib.helium.dada.model.ValorRegistre;
+import es.caib.helium.dada.model.ValorSimple;
 import es.caib.helium.dada.service.ExpedientService;
-import es.caib.helium.enums.Collections;
-import es.caib.helium.enums.DireccioOrdre;
-import es.caib.helium.enums.Tipus;
 
 @ExtendWith(MockitoExtension.class)
 public class ExpedientServiceTest {

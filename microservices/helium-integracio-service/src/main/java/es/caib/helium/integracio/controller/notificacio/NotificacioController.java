@@ -43,7 +43,9 @@ public class NotificacioController {
 	}
 	
 	@PostMapping(consumes = "application/json")
-	public ResponseEntity<RespostaNotificacio> altaNotificacio(@Valid @RequestBody DadesNotificacioDto dto, BindingResult error) throws Exception {
+	public ResponseEntity<RespostaNotificacio> altaNotificacio(
+			@Valid @RequestBody DadesNotificacioDto dto, 
+			BindingResult error) throws Exception {
 		
 		log.info("Donant d'alta la notifiacio " + dto.toString());
 		if (error.hasErrors()) {
@@ -55,7 +57,9 @@ public class NotificacioController {
 	}
 
 	@GetMapping(value = "{identificador}/consulta", produces = "application/json")  
-	public ResponseEntity<RespostaConsultaEstatNotificacio> consultaNotificacio(@Valid @PathVariable("identificador") String identificador, ConsultaNotificacio consulta) throws Exception {
+	public ResponseEntity<RespostaConsultaEstatNotificacio> consultaNotificacio(
+			@Valid @PathVariable("identificador") String identificador, 
+			ConsultaNotificacio consulta) throws Exception {
  		
 		log.info("Consultant la notificacio " + identificador + " " + consulta.toString()) ;
 		consulta.setIdentificador(identificador);
@@ -67,7 +71,9 @@ public class NotificacioController {
 	}
 
 	@GetMapping(value = "enviament/{referencia}", produces = "application/json")  
-	public ResponseEntity<RespostaConsultaEstatEnviament> consultaEnviament(@Valid @PathVariable("referencia") String referencia, ConsultaEnviament consulta) throws Exception {
+	public ResponseEntity<RespostaConsultaEstatEnviament> consultaEnviament(
+			@Valid @PathVariable("referencia") String referencia, 
+			ConsultaEnviament consulta) throws Exception {
 		
 		log.info("Consultant l'enviament " + referencia + " " + consulta.toString());
 		consulta.setEnviamentReferencia(referencia);

@@ -33,4 +33,6 @@ public class DocumentArxiu {
 	private String ntiIdDocumentOrigen;
 	private DocumentExtensio extensio;
 	private DocumentEstat estat;
+	
+	
 }

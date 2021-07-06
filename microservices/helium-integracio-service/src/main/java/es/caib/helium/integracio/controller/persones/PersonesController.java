@@ -41,9 +41,8 @@ public class PersonesController {
 	
 	@GetMapping(produces = "application/json")
 	public ResponseEntity<List<Persona>> getPersones(
-			@Valid @QueryParam("textSearch") String textSearch,
-			@QueryParam("entornId") Long entornId
-			) throws Exception { 
+			@Valid @RequestParam("textSearch") String textSearch,
+			@RequestParam("entornId") Long entornId) throws Exception { 
 		
 		log.info("Consultant les persones amb filtre " + textSearch);
 		if (Strings.isNullOrEmpty(textSearch)) {
@@ -57,7 +56,9 @@ public class PersonesController {
 	}
 
 	@GetMapping(value = "{codi}", produces = "application/json")
-	public ResponseEntity<Persona> getPersonaByCodi(@PathVariable("codi") String codi, @RequestParam("entornId") Long entornId) throws Exception {
+	public ResponseEntity<Persona> getPersonaByCodi(
+			@PathVariable("codi") String codi, 
+			@RequestParam("entornId") Long entornId) throws Exception {
 		
 		log.info("Consultant les persones amb codi " + codi);
 		if (Strings.isNullOrEmpty(codi)) {
@@ -73,7 +74,9 @@ public class PersonesController {
 	}
 
 	@GetMapping(value = "{codi}/rols")
-	public ResponseEntity<List<String>> getPersonaRolsByCodi(@PathVariable("codi") String codi, @RequestParam("entornId") Long entornId) throws Exception {
+	public ResponseEntity<List<String>> getPersonaRolsByCodi(
+			@PathVariable("codi") String codi, 
+			@RequestParam("entornId") Long entornId) throws Exception {
 		
 		log.info("Consultant els rols de les persones amb codi" + codi);
 		var rols = personaService.getPersonaRolsByCodi(codi, entornId);

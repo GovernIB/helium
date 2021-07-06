@@ -62,7 +62,7 @@ public class ArxiuController {
 	}
 	
 	@PostMapping(value = "expedients", consumes = "application/json")
-	public ResponseEntity<Void> crearExpedient(@Valid @RequestBody ExpedientArxiu expedient, 
+	public ResponseEntity<Void> postExpedient(@Valid @RequestBody ExpedientArxiu expedient, 
 			@RequestParam("entornId") Long entornId,
 			BindingResult errors) throws Exception {
 		
@@ -78,7 +78,7 @@ public class ArxiuController {
 	}
 
 	@PutMapping(value = "expedients", consumes = "application/json")
-	public ResponseEntity<Void> modificarExpedient(@Valid @RequestBody ExpedientArxiu expedient, 
+	public ResponseEntity<Void> putExpedient(@Valid @RequestBody ExpedientArxiu expedient, 
 			@RequestParam("entornId") Long entornId,
 			BindingResult errors) throws Exception {
 		
@@ -161,7 +161,7 @@ public class ArxiuController {
 	}
 	
 	@PostMapping(value = "documents", consumes = "application/json")
-	public ResponseEntity<Void> crearDocument(
+	public ResponseEntity<Void> postDocument(
 			@Valid @RequestBody DocumentArxiu document,
 			@RequestParam("entornId") Long entornId,
 			BindingResult errors) throws Exception {
@@ -178,7 +178,7 @@ public class ArxiuController {
 	}
 
 	@PutMapping(value = "documents", consumes = "application/json")
-	public ResponseEntity<Void> modificarExpedient(
+	public ResponseEntity<Void> putDocument(
 			@Valid @RequestBody DocumentArxiu document, 
 			@RequestParam("entornId") Long entornId,
 			BindingResult errors) throws Exception {

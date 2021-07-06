@@ -22,6 +22,14 @@
 	</properties>
 
 	<dependencies>
+	
+		<!-- Feign Client -->
+		<dependency>
+			<groupId>es.caib.helium</groupId>
+			<artifactId>helium-client-service</artifactId>
+			<version>1.0.0</version>
+		</dependency>
+		<!-- Feign Client -->
 
 		<dependency>
 			<groupId>org.springframework.boot</groupId>

@@ -24,7 +24,6 @@ import javax.validation.Validation;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
 
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -38,10 +37,10 @@ import org.springframework.test.web.servlet.ResultMatcher;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import es.caib.helium.dada.domain.Dada;
-import es.caib.helium.dada.domain.Expedient;
+import es.caib.helium.dada.enums.Tipus;
+import es.caib.helium.dada.model.Dada;
+import es.caib.helium.dada.model.Expedient;
 import es.caib.helium.dada.service.ExpedientService;
-import es.caib.helium.enums.Tipus;
 
 @WebMvcTest(value = ExpedientController.class, excludeAutoConfiguration = {
 		org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration.class,

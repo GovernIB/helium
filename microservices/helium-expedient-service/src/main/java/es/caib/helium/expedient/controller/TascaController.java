@@ -132,8 +132,9 @@ public class TascaController {
         		filtre, 
         		pageable, 
         		sort);
-        if (tascaList.getTotalElements() == 0)
+        if (tascaList.getTotalElements() == 0) {
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        }
         return new ResponseEntity<>(tascaList, HttpStatus.OK);
     }
 
@@ -190,11 +191,11 @@ public class TascaController {
         smartValidator.validate(patchedTascaDto, bindingResult);
         if (bindingResult.hasErrors()) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, ControllerHelper.getValidationErrorMessage(bindingResult));
-        } else {
-            tascaService.updateTasca(
-                    tascaId,
-                    patchedTascaDto);
-        }
+        } 
+        
+        tascaService.updateTasca(
+                tascaId,
+                patchedTascaDto);
 
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }

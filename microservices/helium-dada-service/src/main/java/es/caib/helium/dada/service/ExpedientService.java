@@ -2,10 +2,10 @@ package es.caib.helium.dada.service;
 
 import java.util.List;
 
-import es.caib.helium.dada.domain.Dada;
-import es.caib.helium.dada.domain.Expedient;
 import es.caib.helium.dada.exception.DadaException;
 import es.caib.helium.dada.model.Consulta;
+import es.caib.helium.dada.model.Dada;
+import es.caib.helium.dada.model.Expedient;
 import es.caib.helium.dada.model.PagedList;
 
 public interface ExpedientService {

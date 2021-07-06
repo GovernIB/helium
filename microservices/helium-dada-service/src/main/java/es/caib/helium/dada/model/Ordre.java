@@ -1,7 +1,7 @@
 package es.caib.helium.dada.model;
 
-import es.caib.helium.enums.DireccioOrdre;
-import es.caib.helium.enums.Collections;
+import es.caib.helium.dada.enums.Collections;
+import es.caib.helium.dada.enums.DireccioOrdre;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;

@@ -10,7 +10,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
  */
 @JsonTypeInfo (use = JsonTypeInfo.Id.NAME, include = As.PROPERTY, property = "tipus_filtre")
 @JsonSubTypes ({@Type (value = FiltreCapcalera.class, name = "filtreCapcalera"), 
-	@Type (value = FiltreValor.class, name = "filtreValor")})
+@Type (value = FiltreValor.class, name = "filtreValor")})
 public abstract class Filtre {
 
 }

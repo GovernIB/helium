@@ -46,8 +46,8 @@ import org.springframework.web.server.ResponseStatusException;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import es.caib.helium.dada.domain.Expedient;
 import es.caib.helium.dada.model.Consulta;
+import es.caib.helium.dada.model.Expedient;
 import es.caib.helium.dada.model.Filtre;
 import es.caib.helium.dada.model.FiltreCapcalera;
 import es.caib.helium.dada.model.PagedList;

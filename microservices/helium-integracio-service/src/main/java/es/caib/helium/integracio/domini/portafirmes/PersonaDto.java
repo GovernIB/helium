@@ -78,7 +78,7 @@ public class PersonaDto implements Serializable {
 	
 	public void setLlinatges(String llinatges) {
 		
-		if (llinatges != null) {
+		if (llinatges == null) {
 			return;
 		}
 

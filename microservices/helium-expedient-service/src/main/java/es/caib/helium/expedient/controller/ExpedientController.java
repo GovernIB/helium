@@ -128,8 +128,9 @@ public class ExpedientController {
     		   pageable, 
     		   sort);
     		   
-       if (expedientList.getTotalElements() == 0)
+       if (expedientList.getTotalElements() == 0) {
            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+       }
        
        return new ResponseEntity<>(expedientList, HttpStatus.OK);
    }
@@ -191,11 +192,10 @@ public class ExpedientController {
         smartValidator.validate(patchedExpedientDto, bindingResult);
         if (bindingResult.hasErrors()) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, ControllerHelper.getValidationErrorMessage(bindingResult));
-        } else {
-            expedientService.updateExpedient(
-                    expedientId,
-                    patchedExpedientDto);
-        }
+        } 
+        expedientService.updateExpedient(
+                expedientId,
+                patchedExpedientDto);
 
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
