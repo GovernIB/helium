@@ -11,6 +11,10 @@ import javax.jws.WebService;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import es.caib.helium.logic.intf.dto.TramitDocumentDto;
+import es.caib.helium.logic.intf.dto.TramitDto;
+import es.caib.helium.logic.intf.dto.TramitDocumentDto.TramitDocumentSignaturaDto;
+import es.caib.helium.logic.intf.dto.TramitDto.TramitAutenticacioTipusDto;
 import es.cim.ws.backoffice.v1.model.backoffice.ObtenerDominioRequest;
 import es.cim.ws.backoffice.v1.model.backoffice.ObtenerDominioResponse;
 import es.cim.ws.backoffice.v1.model.backoffice.ProcesarEntradaBandejaRequest;
@@ -24,10 +28,6 @@ import es.cim.ws.backoffice.v1.model.entrada.Entrada;
 import es.cim.ws.backoffice.v1.services.Backoffice;
 import net.conselldemallorca.helium.integracio.plugins.tramitacio.DadesVistaDocument;
 import net.conselldemallorca.helium.integracio.plugins.tramitacio.ObtenirVistaDocumentRequest;
-import net.conselldemallorca.helium.v3.core.api.dto.TramitDocumentDto;
-import net.conselldemallorca.helium.v3.core.api.dto.TramitDocumentDto.TramitDocumentSignaturaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.TramitDto;
-import net.conselldemallorca.helium.v3.core.api.dto.TramitDto.TramitAutenticacioTipusDto;
 
 /**
  * Backoffice per a gestionar la recepció de tramits provinents

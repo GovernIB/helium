@@ -31,11 +31,12 @@ import java.util.List;
 import java.util.Properties;
 
 import net.conselldemallorca.helium.jbpm3.integracio.Jbpm3HeliumBridge;
-import net.conselldemallorca.helium.v3.core.api.dto.FestiuDto;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jbpm.JbpmException;
+
+import es.caib.helium.logic.intf.dto.FestiuDto;
 
 /**
  * a calendar that knows about business hours.

@@ -10,15 +10,16 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.integracio.plugins.signatura.DadesCertificat;
 import net.conselldemallorca.helium.integracio.plugins.signatura.RespostaValidacioSignatura;
-import net.conselldemallorca.helium.v3.core.api.exception.ValidacioException;
 
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
+
+import es.caib.emiserv.logic.intf.exception.ValidacioException;
+import es.caib.helium.logic.util.GlobalProperties;
 
 /**
  * Implementació del plugin de custodia documental que guarda

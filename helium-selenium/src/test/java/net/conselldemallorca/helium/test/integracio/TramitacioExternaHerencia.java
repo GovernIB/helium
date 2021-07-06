@@ -12,7 +12,7 @@ import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
 
-import net.conselldemallorca.helium.core.util.ws.WsClientUtils;
+import es.caib.helium.logic.util.ws.WsClientUtils;
 import net.conselldemallorca.helium.test.BaseTest;
 import net.conselldemallorca.helium.ws.tramitacio.CampProces;
 import net.conselldemallorca.helium.ws.tramitacio.ExpedientInfo;

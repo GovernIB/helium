@@ -3,22 +3,10 @@
  */
 package net.conselldemallorca.helium.jbpm3.integracio;
 
-import net.conselldemallorca.helium.core.api.LlistatIds;
-import net.conselldemallorca.helium.core.api.ResultatConsultaPaginada;
-import net.conselldemallorca.helium.core.api.WDeployment;
-import net.conselldemallorca.helium.core.api.WProcessDefinition;
-import net.conselldemallorca.helium.core.api.WProcessInstance;
-import net.conselldemallorca.helium.core.api.WTaskInstance;
-import net.conselldemallorca.helium.core.api.WToken;
-import net.conselldemallorca.helium.core.api.WorkflowEngineApi;
 import net.conselldemallorca.helium.jbpm3.command.CancelProcessInstanceCommand;
 import net.conselldemallorca.helium.jbpm3.command.StartProcessInstanceCommand;
 import net.conselldemallorca.helium.jbpm3.command.*;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
-import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
-import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto.OrdreDireccioDto;
-import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto.OrdreDto;
+
 import org.jbpm.JbpmException;
 import org.jbpm.command.*;
 import org.jbpm.file.def.FileDefinition;
@@ -41,6 +29,20 @@ import org.jbpm.taskmgmt.def.Task;
 import org.jbpm.taskmgmt.exe.TaskInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import es.caib.helium.logic.intf.LlistatIds;
+import es.caib.helium.logic.intf.ResultatConsultaPaginada;
+import es.caib.helium.logic.intf.WDeployment;
+import es.caib.helium.logic.intf.WProcessDefinition;
+import es.caib.helium.logic.intf.WProcessInstance;
+import es.caib.helium.logic.intf.WTaskInstance;
+import es.caib.helium.logic.intf.WToken;
+import es.caib.helium.logic.intf.WorkflowEngineApi;
+import es.caib.helium.logic.intf.dto.ExpedientDto;
+import es.caib.helium.logic.intf.dto.ExpedientTipusDto;
+import es.caib.helium.logic.intf.dto.PaginacioParamsDto;
+import es.caib.helium.logic.intf.dto.PaginacioParamsDto.OrdreDireccioDto;
+import es.caib.helium.logic.intf.dto.PaginacioParamsDto.OrdreDto;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;

@@ -22,9 +22,9 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import net.conselldemallorca.helium.v3.core.api.dto.SeleccioOpcioDto;
-import net.conselldemallorca.helium.v3.core.api.exception.SistemaExternException;
-import net.conselldemallorca.helium.v3.core.api.service.TascaService;
+import es.caib.emiserv.logic.intf.exception.SistemaExternException;
+import es.caib.helium.logic.intf.dto.SeleccioOpcioDto;
+import es.caib.helium.logic.intf.service.TascaService;
 
 /**
  * Controlador per a consultar els valors possibles d'un camp

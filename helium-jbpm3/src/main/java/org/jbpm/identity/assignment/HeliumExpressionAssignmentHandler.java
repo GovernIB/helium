@@ -7,12 +7,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.conselldemallorca.helium.jbpm3.integracio.Jbpm3HeliumBridge;
-import net.conselldemallorca.helium.v3.core.api.dto.AreaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.AreaMembreDto;
-import net.conselldemallorca.helium.v3.core.api.dto.CarrecDto;
-import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
-import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
-import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -21,6 +15,13 @@ import org.jbpm.graph.exe.Token;
 import org.jbpm.taskmgmt.def.AssignmentHandler;
 import org.jbpm.taskmgmt.exe.Assignable;
 import org.jbpm.taskmgmt.exe.SwimlaneInstance;
+
+import es.caib.emiserv.logic.intf.exception.NoTrobatException;
+import es.caib.helium.logic.intf.dto.AreaDto;
+import es.caib.helium.logic.intf.dto.AreaMembreDto;
+import es.caib.helium.logic.intf.dto.CarrecDto;
+import es.caib.helium.logic.intf.dto.EntornDto;
+import es.caib.helium.logic.intf.dto.PersonaDto;
 
 /**
  * Implementa el següent llenguatge i resol expressions per assignar

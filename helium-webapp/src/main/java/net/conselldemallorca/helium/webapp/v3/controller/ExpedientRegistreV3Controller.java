@@ -18,9 +18,9 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
-import net.conselldemallorca.helium.v3.core.api.service.ExpedientRegistreService;
-import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
+import es.caib.helium.logic.intf.dto.ExpedientDto;
+import es.caib.helium.logic.intf.service.ExpedientRegistreService;
+import es.caib.helium.logic.intf.service.ExpedientService;
 import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
 
 /**

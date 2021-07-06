@@ -27,10 +27,10 @@ import org.springmodules.validation.bean.conf.loader.SimpleBeanValidationConfigu
 import org.springmodules.validation.bean.rule.ExpressionValidationRule;
 import org.springmodules.validation.util.cel.valang.ValangConditionExpressionParser;
 
-import net.conselldemallorca.helium.v3.core.api.dto.CampTipusDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDadaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ValidacioDto;
+import es.caib.helium.logic.intf.dto.CampTipusDto;
+import es.caib.helium.logic.intf.dto.ExpedientDadaDto;
+import es.caib.helium.logic.intf.dto.TascaDadaDto;
+import es.caib.helium.logic.intf.dto.ValidacioDto;
 import net.sf.cglib.beans.BeanGenerator;
 
 

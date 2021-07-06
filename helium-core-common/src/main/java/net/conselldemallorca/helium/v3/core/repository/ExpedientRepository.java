@@ -49,7 +49,7 @@ public interface ExpedientRepository extends JpaRepository<Expedient, Long> {
 			"where " +
 			"   e.entorn.id = :entornId " +
 			"   and e.tipus.id = :tipusId " +
-			"	and (:esNullTitol = true or lower(e.titol) like lower('%'||:titol||'%')) ")
+			"	and (:esNullTitol = true or lower(e.titol) like lower(:titol)) ")
 	List<Expedient> findByEntornIdAndTipusIdAndTitol(
 			@Param("entornId") Long entornId,
 			@Param("tipusId") Long tipusId,

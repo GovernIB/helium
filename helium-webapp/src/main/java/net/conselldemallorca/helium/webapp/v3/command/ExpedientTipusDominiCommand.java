@@ -5,10 +5,10 @@ import javax.validation.constraints.Size;
 
 import org.hibernate.validator.constraints.NotEmpty;
 
-import net.conselldemallorca.helium.v3.core.api.dto.DominiDto.OrigenCredencials;
-import net.conselldemallorca.helium.v3.core.api.dto.DominiDto.TipusAuthDomini;
-import net.conselldemallorca.helium.v3.core.api.dto.DominiDto.TipusDomini;
-import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
+import es.caib.helium.logic.intf.dto.EntornDto;
+import es.caib.helium.logic.intf.dto.DominiDto.OrigenCredencials;
+import es.caib.helium.logic.intf.dto.DominiDto.TipusAuthDomini;
+import es.caib.helium.logic.intf.dto.DominiDto.TipusDomini;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientTipusDominiCommand.Creacio;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientTipusDominiCommand.Modificacio;
 import net.conselldemallorca.helium.webapp.v3.validator.Codi;

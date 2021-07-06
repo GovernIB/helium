@@ -5,7 +5,7 @@ package net.conselldemallorca.helium.webapp.v3.command;
 
 import javax.validation.constraints.Size;
 
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
+import es.caib.helium.logic.intf.dto.ExpedientTipusDto;
 
 /**
  * Command per modificar les metadades nti d'un tipus d'expedient.

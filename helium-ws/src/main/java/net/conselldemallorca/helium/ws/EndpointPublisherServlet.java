@@ -8,14 +8,14 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.xml.ws.Endpoint;
 
-import net.conselldemallorca.helium.core.util.GlobalProperties;
-import net.conselldemallorca.helium.core.util.ws.WsServerUtils;
-
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusFactory;
 import org.apache.cxf.transport.servlet.CXFServlet;
 import org.springframework.context.ApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
+
+import es.caib.helium.logic.util.GlobalProperties;
+import es.caib.helium.logic.util.ws.WsServerUtils;
 
 
 /**

@@ -3,10 +3,11 @@
  */
 package net.conselldemallorca.helium.jbpm3.command;
 
-import net.conselldemallorca.helium.core.api.LlistatIds;
 import org.hibernate.Query;
 import org.jbpm.JbpmContext;
 import org.jbpm.command.AbstractBaseCommand;
+
+import es.caib.helium.logic.intf.LlistatIds;
 
 import java.util.ArrayList;
 import java.util.Date;

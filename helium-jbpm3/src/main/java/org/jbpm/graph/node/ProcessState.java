@@ -52,8 +52,8 @@ import org.jbpm.jpdl.xml.JpdlXmlReader;
 import org.jbpm.jpdl.xml.Parsable;
 import org.jbpm.util.Clock;
 
+import es.caib.helium.logic.intf.dto.DefinicioProcesDto;
 import net.conselldemallorca.helium.jbpm3.integracio.Jbpm3HeliumBridge;
-import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
 
 public class ProcessState extends Node implements Parsable {
 

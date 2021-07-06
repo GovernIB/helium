@@ -26,9 +26,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.support.SessionStatus;
 
-import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
-import net.conselldemallorca.helium.v3.core.api.service.AplicacioService;
-import net.conselldemallorca.helium.v3.core.api.service.ExpedientTascaService;
+import es.caib.helium.logic.intf.dto.PersonaDto;
+import es.caib.helium.logic.intf.service.AplicacioService;
+import es.caib.helium.logic.intf.service.ExpedientTascaService;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientTascaReassignarCommand;
 import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
 

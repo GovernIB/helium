@@ -9,10 +9,10 @@ import javax.validation.constraints.NotNull;
 
 import org.springframework.web.multipart.MultipartFile;
 
-import net.conselldemallorca.helium.v3.core.api.dto.DocumentTipusFirmaEnumDto;
-import net.conselldemallorca.helium.v3.core.api.dto.NtiEstadoElaboracionEnumDto;
-import net.conselldemallorca.helium.v3.core.api.dto.NtiOrigenEnumDto;
-import net.conselldemallorca.helium.v3.core.api.dto.NtiTipoDocumentalEnumDto;
+import es.caib.helium.logic.intf.dto.DocumentTipusFirmaEnumDto;
+import es.caib.helium.logic.intf.dto.NtiEstadoElaboracionEnumDto;
+import es.caib.helium.logic.intf.dto.NtiOrigenEnumDto;
+import es.caib.helium.logic.intf.dto.NtiTipoDocumentalEnumDto;
 import net.conselldemallorca.helium.webapp.v3.command.DocumentExpedientCommand.Create;
 import net.conselldemallorca.helium.webapp.v3.command.DocumentExpedientCommand.Massiu;
 import net.conselldemallorca.helium.webapp.v3.command.DocumentExpedientCommand.Update;

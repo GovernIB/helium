@@ -5,8 +5,8 @@ package net.conselldemallorca.helium.webapp.v3.command;
 
 import javax.validation.constraints.NotNull;
 
-import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
-import net.conselldemallorca.helium.v3.core.api.dto.CampTascaDto;
+import es.caib.helium.logic.intf.dto.CampDto;
+import es.caib.helium.logic.intf.dto.CampTascaDto;
 
 /**
  * Command per afegir camps a les tasques de la definició de procés.

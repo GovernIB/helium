@@ -8,7 +8,7 @@ import javax.validation.constraints.Size;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 
-import net.conselldemallorca.helium.v3.core.api.dto.AnotacioAccioEnumDto;
+import es.caib.helium.logic.intf.dto.AnotacioAccioEnumDto;
 import net.conselldemallorca.helium.webapp.v3.command.AnotacioAcceptarCommand.CrearIncorporar;
 import net.conselldemallorca.helium.webapp.v3.validator.AnotacioAcceptar;
 

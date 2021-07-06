@@ -6,6 +6,10 @@ import javax.xml.bind.annotation.XmlElementDecl;
 import javax.xml.bind.annotation.XmlRegistry;
 import javax.xml.namespace.QName;
 
+import es.caib.helium.logic.intf.service.ws.backoffice.distribucio.AnotacioRegistreId;
+import es.caib.helium.logic.intf.service.ws.backoffice.distribucio.ComunicarAnotacionsPendents;
+import es.caib.helium.logic.intf.service.ws.backoffice.distribucio.ComunicarAnotacionsPendentsResponse;
+
 
 /**
  * This object contains factory methods for each 

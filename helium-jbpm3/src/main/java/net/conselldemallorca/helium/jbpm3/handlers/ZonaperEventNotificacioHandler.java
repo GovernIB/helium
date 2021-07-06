@@ -14,19 +14,19 @@ import org.jbpm.JbpmException;
 import org.jbpm.graph.exe.ExecutionContext;
 import org.springframework.security.crypto.codec.Base64;
 
+import es.caib.helium.logic.intf.dto.DocumentEnviamentEstatEnumDto;
+import es.caib.helium.logic.intf.dto.DocumentNotificacioDto;
+import es.caib.helium.logic.intf.dto.DocumentNotificacioTipusEnumDto;
+import es.caib.helium.logic.intf.dto.ExpedientDto;
+import es.caib.helium.logic.intf.dto.ExpedientTipusDto;
+import es.caib.helium.logic.intf.dto.InteressatDocumentTipusEnumDto;
+import es.caib.helium.logic.intf.dto.InteressatIdiomaEnumDto;
+import es.caib.helium.logic.intf.dto.NotificacioDto;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.DadesNotificacioElectronica;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.DadesRegistreNotificacio;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.DocumentInfo;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.RespostaRegistre;
 import net.conselldemallorca.helium.jbpm3.integracio.Jbpm3HeliumBridge;
-import net.conselldemallorca.helium.v3.core.api.dto.DocumentEnviamentEstatEnumDto;
-import net.conselldemallorca.helium.v3.core.api.dto.DocumentNotificacioDto;
-import net.conselldemallorca.helium.v3.core.api.dto.DocumentNotificacioTipusEnumDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
-import net.conselldemallorca.helium.v3.core.api.dto.InteressatDocumentTipusEnumDto;
-import net.conselldemallorca.helium.v3.core.api.dto.InteressatIdiomaEnumDto;
-import net.conselldemallorca.helium.v3.core.api.dto.NotificacioDto;
 
 /**
  * Handler per a interactuar amb el registre de sortida.

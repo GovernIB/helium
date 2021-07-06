@@ -10,9 +10,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import net.conselldemallorca.helium.v3.core.api.dto.InteressatDto;
-import net.conselldemallorca.helium.v3.core.api.dto.InteressatTipusEnumDto;
-import net.conselldemallorca.helium.v3.core.api.service.ExpedientInteressatService;
+import es.caib.helium.logic.intf.dto.InteressatDto;
+import es.caib.helium.logic.intf.dto.InteressatTipusEnumDto;
+import es.caib.helium.logic.intf.service.ExpedientInteressatService;
 import net.conselldemallorca.helium.webapp.v3.command.InteressatCommand;
 import net.conselldemallorca.helium.webapp.v3.helper.MessageHelper;
 

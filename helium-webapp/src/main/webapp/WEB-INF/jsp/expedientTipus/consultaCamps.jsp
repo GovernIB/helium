@@ -213,7 +213,7 @@ $(document).ready(function() {
 		</script>
 		<div id="codiXml" style="display:none">
 <pre style="padding: 1em"><c:forEach var="camp" items="${llistat}" varStatus="status">
-&lt;field name="${camps[status.index].definicioProces.jbpmKey}/${camps[status.index].codi}" class="net.conselldemallorca.helium.report.FieldValue"/&gt;
+&lt;field name="${camps[status.index].definicioProces.jbpmKey}/${camps[status.index].codi}" class="es.caib.emiserv.logic.intf.report.FieldValue"/&gt;
 </c:forEach></pre>
 		</div>
 	</c:if>

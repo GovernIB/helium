@@ -1,9 +1,5 @@
 package net.conselldemallorca.helium.webapp.v3.controller;
 
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
-import net.conselldemallorca.helium.v3.core.api.dto.InstanciaProcesDto;
-import net.conselldemallorca.helium.v3.core.api.dto.TokenDto;
-import net.conselldemallorca.helium.v3.core.api.service.ExpedientTokenService;
 import net.conselldemallorca.helium.webapp.v3.command.TokenExpedientCommand;
 import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.ObjectTypeEditorHelper;
@@ -27,6 +23,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.support.SessionStatus;
+
+import es.caib.helium.logic.intf.dto.ExpedientDto;
+import es.caib.helium.logic.intf.dto.InstanciaProcesDto;
+import es.caib.helium.logic.intf.dto.TokenDto;
+import es.caib.helium.logic.intf.service.ExpedientTokenService;
 
 import javax.servlet.http.HttpServletRequest;
 import java.math.BigDecimal;

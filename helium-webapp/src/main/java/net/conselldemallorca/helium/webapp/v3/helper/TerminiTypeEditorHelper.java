@@ -5,7 +5,7 @@ package net.conselldemallorca.helium.webapp.v3.helper;
 
 import java.beans.PropertyEditorSupport;
 
-import net.conselldemallorca.helium.v3.core.api.dto.TerminiDto;
+import es.caib.helium.logic.intf.dto.TerminiDto;
 
 /**
  * TypeEditor per als terminis

@@ -3,6 +3,7 @@ package net.conselldemallorca.helium.integracio.tramitacio;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlSeeAlso;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.datatype.XMLGregorianCalendar;
 
@@ -60,6 +61,7 @@ import javax.xml.datatype.XMLGregorianCalendar;
     "valor",
     "writeTo"
 })
+@XmlSeeAlso({Object[].class, Object[][].class})
 public class CampTasca {
 
     protected String codi;

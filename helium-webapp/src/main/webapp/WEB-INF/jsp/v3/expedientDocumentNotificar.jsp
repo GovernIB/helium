@@ -49,13 +49,16 @@ $(document).ready(function() {
 		<hel:inputSelect required="true" name="interessatsIds" multiple="true" textKey="expedient.document.notificar.form.camp.titulars" placeholderKey="expedient.document.notificar.form.camp.titulars.placeholder" comment="expedient.document.notificar.form.camp.titulars.info" optionItems="${interessats}" optionValueAttribute="id" optionTextAttribute="fullInfo"/>
 		<hel:inputSelect required="false" name="representantId" multiple="false" emptyOption="true" textKey="expedient.document.notificar.form.camp.representant" placeholderKey="expedient.document.notificar.form.camp.representant.placeholder" comment="expedient.document.notificar.form.camp.representant.info" optionItems="${interessats}" optionValueAttribute="id" optionTextAttribute="fullInfo"/>
 		<hel:inputText required="true" name="concepte" textKey="expedient.document.notificar.form.camp.concepte" />
-		<hel:inputSelect required="true" name="serveiTipusEnum" optionItems="${serveiTipusEstats}" optionValueAttribute="valor" optionTextAttribute="codi" textKey="expedient.document.notificar.form.camp.serveiTipus"/>
+		<hel:inputSelect required="true" name="serveiTipusEnum" optionItems="${serveiTipusEstats}" optionValueAttribute="codi" optionTextAttribute="valor" textKey="expedient.document.notificar.form.camp.serveiTipus"/>
 		<hel:inputTextarea name="descripcio" textKey="expedient.document.notificar.form.camp.descripcio"></hel:inputTextarea>
-		<hel:inputSelect required="true" name="enviamentTipus" optionItems="${enviamentTipusEstats}" optionValueAttribute="valor" optionTextAttribute="codi" textKey="expedient.document.notificar.form.camp.enviamentTipus"/>
+		<hel:inputSelect required="true" name="enviamentTipus" optionItems="${enviamentTipusEstats}" optionValueAttribute="codi" optionTextAttribute="valor" textKey="expedient.document.notificar.form.camp.enviamentTipus"/>
 		<hel:inputDate name="enviamentDataProgramada" textKey="expedient.document.notificar.form.camp.dataprogramada" comment="notificacio.form.camp.data.programada.comment"/>
 		<hel:inputDate required="true" name="caducitat" textKey="expedient.document.notificar.form.camp.datacaducitat" comment="notificacio.form.camp.data.caducitat.comment"/>
-		<hel:inputNumber name="retard" textKey="expedient.document.notificar.form.camp.retard" comment="notificacio.form.camp.retard.comment"/>
+		<hel:inputNumber name="retard" textKey="expedient.document.notificar.form.camp.retard" comment="notificacio.form.camp.idioma"/>
+		
 		<hel:inputText name="grupCodi" textKey="expedient.document.notificar.form.camp.grupCodi" />
+
+		<hel:inputSelect name="idioma" optionItems="${idiomes}" emptyOption="true" textKey="notificacio.form.camp.idioma" placeholderKey="anotacio.llistat.filtre.camp.estat" optionValueAttribute="codi" optionTextAttribute="valor"/>
 		
 		<hel:inputCheckbox name="entregaPostalActiva" textKey="expedient.document.notificar.form.camp.entregaPostalActiva" />
 		

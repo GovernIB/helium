@@ -10,8 +10,8 @@ import javax.validation.constraints.NotNull;
 
 import org.hibernate.validator.constraints.NotEmpty;
 
-import net.conselldemallorca.helium.v3.core.api.dto.ConsultaCampDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ConsultaCampDto.TipusConsultaCamp;
+import es.caib.helium.logic.intf.dto.ConsultaCampDto;
+import es.caib.helium.logic.intf.dto.ConsultaCampDto.TipusConsultaCamp;
 
 /**
  * Command per afegir camps a les consultes dels tipus d'expedient.

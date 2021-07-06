@@ -14,8 +14,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Vector;
 
-import net.conselldemallorca.helium.core.util.GlobalProperties;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.bouncycastle.asn1.ASN1InputStream;
@@ -34,6 +32,8 @@ import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import com.lowagie.text.pdf.AcroFields;
 import com.lowagie.text.pdf.PdfPKCS7;
 import com.lowagie.text.pdf.PdfReader;
+
+import es.caib.helium.logic.util.GlobalProperties;
 
 
 /**

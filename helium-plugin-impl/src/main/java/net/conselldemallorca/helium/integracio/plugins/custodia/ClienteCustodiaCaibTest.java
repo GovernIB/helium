@@ -6,13 +6,13 @@ package net.conselldemallorca.helium.integracio.plugins.custodia;
 import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
 
-import net.conselldemallorca.helium.core.util.GlobalProperties;
-
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
+
+import es.caib.helium.logic.util.GlobalProperties;
 
 /**
  * Test del client de custòdia de la CAIB

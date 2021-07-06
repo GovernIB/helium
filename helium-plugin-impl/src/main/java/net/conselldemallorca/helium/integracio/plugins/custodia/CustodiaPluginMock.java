@@ -13,7 +13,7 @@ import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.conselldemallorca.helium.core.util.GlobalProperties;
+import es.caib.helium.logic.util.GlobalProperties;
 import net.conselldemallorca.helium.integracio.plugins.signatura.RespostaValidacioSignatura;
 
 /**

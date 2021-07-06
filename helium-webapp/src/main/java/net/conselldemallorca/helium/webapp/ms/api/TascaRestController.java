@@ -1,8 +1,5 @@
 package net.conselldemallorca.helium.webapp.ms.api;
 
-import net.conselldemallorca.helium.core.api.WorkflowBridgeService;
-import net.conselldemallorca.helium.v3.core.api.dto.CampTascaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.DocumentTascaDto;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +10,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+
+import es.caib.helium.logic.intf.WorkflowBridgeService;
+import es.caib.helium.logic.intf.dto.CampTascaDto;
+import es.caib.helium.logic.intf.dto.DocumentTascaDto;
 
 import java.util.List;
 

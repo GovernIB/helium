@@ -5,8 +5,8 @@ import javax.validation.ConstraintValidatorContext;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
-import net.conselldemallorca.helium.v3.core.api.dto.TerminiDto;
-import net.conselldemallorca.helium.v3.core.api.service.TerminiService;
+import es.caib.helium.logic.intf.dto.TerminiDto;
+import es.caib.helium.logic.intf.service.TerminiService;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientTipusTerminiCommand;
 import net.conselldemallorca.helium.webapp.v3.helper.MessageHelper;
 

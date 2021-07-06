@@ -18,9 +18,9 @@ import com.codahale.metrics.Counter;
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer;
 
-import net.conselldemallorca.helium.core.helper.EntornHelper;
-import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
-import net.conselldemallorca.helium.v3.core.api.service.AdminService;
+import es.caib.helium.logic.helper.EntornHelper;
+import es.caib.helium.logic.intf.dto.EntornDto;
+import es.caib.helium.logic.intf.service.AdminService;
 import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
 import net.sf.jasperreports.engine.JRExporterParameter;
 import net.sf.jasperreports.engine.JRParameter;

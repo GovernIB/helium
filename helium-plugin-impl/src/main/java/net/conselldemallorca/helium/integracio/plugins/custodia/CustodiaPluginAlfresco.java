@@ -7,13 +7,14 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.integracio.plugins.signatura.RespostaValidacioSignatura;
 import net.conselldemallorca.helium.integracio.plugins.util.AlfrescoUtils;
 
 import org.alfresco.webservice.types.Reference;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
+import es.caib.helium.logic.util.GlobalProperties;
 
 /**
  * Implementació del plugin de custodia documental que guarda

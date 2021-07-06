@@ -9,17 +9,17 @@ import java.util.List;
 import org.jbpm.JbpmException;
 import org.jbpm.graph.exe.ExecutionContext;
 
+import es.caib.emiserv.logic.intf.registre.RegistreAnnex;
+import es.caib.emiserv.logic.intf.registre.RegistreAnotacio;
+import es.caib.emiserv.logic.intf.registre.RegistreInteressat;
+import es.caib.emiserv.logic.intf.registre.RegistreInteressatDocumentTipusEnum;
+import es.caib.emiserv.logic.intf.registre.RegistreInteressatTipusEnum;
+import es.caib.helium.logic.intf.dto.ExpedientDto;
+import es.caib.helium.logic.intf.dto.RegistreIdDto;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.DocumentInfo;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.RespostaRegistre;
 import net.conselldemallorca.helium.jbpm3.helper.ConversioTipusHelper;
 import net.conselldemallorca.helium.jbpm3.integracio.Jbpm3HeliumBridge;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
-import net.conselldemallorca.helium.v3.core.api.dto.RegistreIdDto;
-import net.conselldemallorca.helium.v3.core.api.registre.RegistreAnnex;
-import net.conselldemallorca.helium.v3.core.api.registre.RegistreAnotacio;
-import net.conselldemallorca.helium.v3.core.api.registre.RegistreInteressat;
-import net.conselldemallorca.helium.v3.core.api.registre.RegistreInteressatDocumentTipusEnum;
-import net.conselldemallorca.helium.v3.core.api.registre.RegistreInteressatTipusEnum;
 
 /**
  * Handler per a interactuar amb el registre de sortida.

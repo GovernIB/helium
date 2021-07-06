@@ -13,10 +13,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.authority.mapping.MappableAttributesRetriever;
 
-import net.conselldemallorca.helium.core.util.GlobalProperties;
-import net.conselldemallorca.helium.v3.core.api.dto.PermisRolDto;
-import net.conselldemallorca.helium.v3.core.api.service.DissenyService;
-import net.conselldemallorca.helium.v3.core.api.service.PermisService;
+import es.caib.helium.logic.intf.dto.PermisRolDto;
+import es.caib.helium.logic.intf.service.DissenyService;
+import es.caib.helium.logic.intf.service.PermisService;
+import es.caib.helium.logic.util.GlobalProperties;
 
 /**
  * Aconsegueix els rols que seran rellevants per a l'aplicació.

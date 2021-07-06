@@ -4,12 +4,13 @@
 package net.conselldemallorca.helium.jbpm3.handlers;
 
 import net.conselldemallorca.helium.jbpm3.integracio.Jbpm3HeliumBridge;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto.IniciadorTipusDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ZonaperExpedientDto;
 
 import org.jbpm.JbpmException;
 import org.jbpm.graph.exe.ExecutionContext;
+
+import es.caib.helium.logic.intf.dto.ExpedientDto;
+import es.caib.helium.logic.intf.dto.ZonaperExpedientDto;
+import es.caib.helium.logic.intf.dto.ExpedientDto.IniciadorTipusDto;
 
 /**
  * Handler per a crear expedients a dins la zona personal del

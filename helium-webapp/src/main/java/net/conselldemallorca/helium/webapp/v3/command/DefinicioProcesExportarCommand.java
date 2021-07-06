@@ -10,7 +10,7 @@ import javax.validation.constraints.NotNull;
 
 import org.springframework.web.multipart.MultipartFile;
 
-import net.conselldemallorca.helium.v3.core.api.exportacio.DefinicioProcesExportacio;
+import es.caib.emiserv.logic.intf.exportacio.DefinicioProcesExportacio;
 import net.conselldemallorca.helium.webapp.v3.command.DefinicioProcesExportarCommand.Exportacio;
 import net.conselldemallorca.helium.webapp.v3.command.DefinicioProcesExportarCommand.Importacio;
 import net.conselldemallorca.helium.webapp.v3.command.DefinicioProcesExportarCommand.Upload;
