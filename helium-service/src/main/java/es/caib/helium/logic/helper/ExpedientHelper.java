@@ -16,9 +16,9 @@ import es.caib.helium.logic.intf.dto.ExpedientDto.IniciadorTipusDto;
 import es.caib.helium.logic.intf.exception.NoTrobatException;
 import es.caib.helium.logic.intf.exception.PermisDenegatException;
 import es.caib.helium.logic.intf.exception.ValidacioException;
+import es.caib.helium.logic.intf.util.ExpedientCamps;
 import es.caib.helium.logic.security.ExtendedPermission;
-import es.caib.helium.logic.util.ExpedientCamps;
-import es.caib.helium.logic.util.GlobalProperties;
+import es.caib.helium.logic.util.GlobalPropertiesImpl;
 import es.caib.helium.logic.util.PdfUtils;
 import es.caib.helium.persist.entity.*;
 import es.caib.helium.persist.entity.Camp.TipusCamp;
@@ -1407,7 +1407,7 @@ public class ExpedientHelper {
 	}
 
 	private String getNumexpDefaultExpression() {
-		return GlobalProperties.getInstance().getProperty("app.numexp.expression");
+		return GlobalPropertiesImpl.getInstance().getProperty("app.numexp.expression");
 	}
 
 	/**

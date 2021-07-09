@@ -1,30 +1,30 @@
 package es.caib.helium.logic.util;
 
+import com.itextpdf.text.Chunk;
+import com.itextpdf.text.Element;
+import com.itextpdf.text.Font;
+import com.itextpdf.text.FontFactory;
+import com.itextpdf.text.Image;
+import com.itextpdf.text.Paragraph;
+import com.itextpdf.text.Phrase;
+import com.itextpdf.text.Rectangle;
+import com.itextpdf.text.pdf.BarcodePDF417;
+import com.itextpdf.text.pdf.BaseFont;
+import com.itextpdf.text.pdf.PdfContentByte;
+import com.itextpdf.text.pdf.PdfPCell;
+import com.itextpdf.text.pdf.PdfPTable;
+import com.itextpdf.text.pdf.PdfReader;
+import com.itextpdf.text.pdf.PdfStamper;
+import es.caib.helium.logic.intf.exception.SistemaExternConversioDocumentException;
+import es.caib.helium.logic.intf.exception.ValidacioException;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import com.lowagie.text.Chunk;
-import com.lowagie.text.Element;
-import com.lowagie.text.Font;
-import com.lowagie.text.Image;
-import com.lowagie.text.Paragraph;
-import com.lowagie.text.Phrase;
-import com.lowagie.text.Rectangle;
-import com.lowagie.text.pdf.BarcodePDF417;
-import com.lowagie.text.pdf.PdfContentByte;
-import com.lowagie.text.pdf.PdfPCell;
-import com.lowagie.text.pdf.PdfPTable;
-import com.lowagie.text.pdf.PdfReader;
-import com.lowagie.text.pdf.PdfStamper;
-
-import es.caib.helium.logic.intf.exception.SistemaExternConversioDocumentException;
-import es.caib.helium.logic.intf.exception.ValidacioException;
 
 /**
  * Classe per converir documents a PDF.
@@ -156,6 +156,7 @@ public class PdfUtils {
 		Rectangle page = contentByte.getPdfDocument().getPageSize();
 		float pageWidth = page.getWidth();
 		float pageHeight = page.getHeight();
+		Font urlFont = FontFactory.getFont(BaseFont.HELVETICA, 6);
 		if (posicio == BARCODE_POSITION_TOP || posicio == BARCODE_POSITION_BOTTOM) {
 			float ampladaTaulaMax = pageWidth - (2 * MARGE);
 			// Crea la cel·la del codi de barres
@@ -167,7 +168,7 @@ public class PdfUtils {
 			pdf417Cell.setFixedHeight(img.getHeight());
 			float imgCellWidth = img.getWidth();
 			// Crea la cel·la amb la url
-			Font urlFont = new Font(Font.HELVETICA, 6);
+//			Font urlFont = new Font(Font.HELVETICA, 6);
 			Chunk urlChunk = new Chunk(url, urlFont);
 			Phrase urlPhrase = new Phrase(urlChunk);
 			PdfPCell urlCell = new PdfPCell(urlPhrase);
@@ -203,7 +204,7 @@ public class PdfUtils {
 			pdf417Cell.setRotation(90);
 			float imgCellWidth = img.getWidth();
 			// Crea la cel·la amb la url
-			Font urlFont = new Font(Font.HELVETICA, 6);
+//			Font urlFont = new Font(Font.HELVETICA, 6);
 			Chunk urlChunk = new Chunk(url, urlFont);
 			Phrase urlPhrase = new Phrase(urlChunk);
 			PdfPCell urlCell = new PdfPCell(urlPhrase);
@@ -241,7 +242,8 @@ public class PdfUtils {
 		float paddingBottom = 6;
 		float totalWidth = 120;
 		float marge = 10;
-		Font registreFont = new Font(Font.HELVETICA, 6);
+		Font registreFont = FontFactory.getFont(BaseFont.HELVETICA, 6);
+//		Font registreFont = new Font(Font.HELVETICA, 6);
 		PdfPTable table = new PdfPTable(2);
 		PdfPCell cell = new PdfPCell();
 		Paragraph parEntitat = new Paragraph(
@@ -345,7 +347,7 @@ public class PdfUtils {
 		}
 	}
 	private String getRegistreEntitat() {
-		return GlobalProperties.getInstance().getProperty("app.registre.segell.entitat");
+		return GlobalPropertiesImpl.getInstance().getProperty("app.registre.segell.entitat");
 	}
 
 	private static String[] extensionsConvertiblesPdf = {

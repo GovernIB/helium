@@ -12,7 +12,7 @@ import es.caib.helium.logic.intf.exception.NoTrobatException;
 import es.caib.helium.logic.intf.exception.ValidacioException;
 import es.caib.helium.logic.intf.service.ExpedientTerminiService;
 import es.caib.helium.logic.security.ExtendedPermission;
-import es.caib.helium.logic.util.GlobalProperties;
+import es.caib.helium.logic.util.GlobalPropertiesImpl;
 import es.caib.helium.persist.entity.DefinicioProces;
 import es.caib.helium.persist.entity.Expedient;
 import es.caib.helium.persist.entity.ExpedientTipus;
@@ -613,7 +613,7 @@ public class ExpedientTerminiServiceImpl implements ExpedientTerminiService {
 		if (expedientTipus.getDiesNoLaborables() != null && !expedientTipus.getDiesNoLaborables().isEmpty())
 			nolabs = expedientTipus.getDiesNoLaborables();
 		else
-			nolabs = GlobalProperties.getInstance().getProperty("app.calendari.nolabs");
+			nolabs = GlobalPropertiesImpl.getInstance().getProperty("app.calendari.nolabs");
 			
 		if (nolabs != null && !nolabs.isEmpty()) {
 			String[] dies = nolabs.split(",");

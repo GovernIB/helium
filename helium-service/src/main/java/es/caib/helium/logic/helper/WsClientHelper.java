@@ -3,11 +3,10 @@
  */
 package es.caib.helium.logic.helper;
 
-import org.springframework.stereotype.Component;
-
 import es.caib.helium.logic.intf.extern.domini.DominiHelium;
 import es.caib.helium.logic.intf.extern.formulari.IniciFormulari;
 import es.caib.helium.logic.util.ws.WsClientUtils;
+import org.springframework.stereotype.Component;
 
 /**
  * Helper per a obtenir els clients de serveis web externs.
@@ -41,28 +40,6 @@ public class WsClientHelper {
 				timeout);
 	}
 
-	/*public IniciFormulari getIniciFormulariService(
-			String serviceUrl,
-			WsClientAuth auth,
-			String username,
-			String password) throws Exception {
-		Service service = Service.create(
-				new URL(serviceUrl),
-				new QName(
-						"http://forms.integracio.helium.conselldemallorca.net/",
-						"IniciFormulariService"));
-		IniciFormulari port = (IniciFormulari)service.getPort(
-				new QName(
-						"http://forms.integracio.helium.conselldemallorca.net/",
-						"IniciFormulariPort"),
-				IniciFormulari.class);
-		if (username != null && !username.isEmpty()) {
-			BindingProvider bp = (BindingProvider)port;
-			bp.getRequestContext().put(BindingProvider.USERNAME_PROPERTY, username);
-			bp.getRequestContext().put(BindingProvider.PASSWORD_PROPERTY, password);
-		}
-		return port;
-	}*/
 	public IniciFormulari getIniciFormulariService(
 			String serviceUrl,
 			WsClientAuth auth,

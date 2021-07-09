@@ -3,10 +3,8 @@
  */
 package es.caib.helium.logic.intf.extern.domini;
 
-import java.util.List;
-
 import javax.jws.WebService;
-
+import java.util.List;
 
 
 /**

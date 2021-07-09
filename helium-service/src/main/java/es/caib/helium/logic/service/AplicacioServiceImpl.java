@@ -3,23 +3,27 @@
  */
 package es.caib.helium.logic.service;
 
-import java.util.List;
-
-import javax.annotation.Resource;
-
+import es.caib.helium.logic.helper.ConversioTipusHelper;
+import es.caib.helium.logic.helper.PluginHelper;
+import es.caib.helium.logic.helper.UsuariActualHelper;
+import es.caib.helium.logic.intf.dto.DocumentConversioDto;
+import es.caib.helium.logic.intf.dto.PersonaDto;
+import es.caib.helium.logic.intf.dto.UsuariPreferenciesDto;
+import es.caib.helium.logic.intf.exception.SistemaExternException;
+import es.caib.helium.logic.intf.service.AplicacioService;
+import es.caib.helium.logic.intf.util.GlobalProperties;
+import es.caib.helium.logic.util.GlobalPropertiesImpl;
+import es.caib.helium.logic.util.OpenOfficeUtils;
+import es.caib.helium.persist.repository.UsuariPreferenciesRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import es.caib.helium.logic.helper.ConversioTipusHelper;
-import es.caib.helium.logic.helper.PluginHelper;
-import es.caib.helium.logic.helper.UsuariActualHelper;
-import es.caib.helium.logic.intf.dto.PersonaDto;
-import es.caib.helium.logic.intf.dto.UsuariPreferenciesDto;
-import es.caib.helium.logic.intf.service.AplicacioService;
-import es.caib.helium.persist.repository.UsuariPreferenciesRepository;
+import javax.annotation.Resource;
+import java.io.ByteArrayOutputStream;
+import java.util.List;
 
 /**
  * Implementació dels mètodes de AplicacioService.
@@ -38,6 +42,9 @@ public class AplicacioServiceImpl implements AplicacioService {
 	private PluginHelper pluginHelper;
 	@Autowired
 	private ConversioTipusHelper conversioTipusHelper;
+
+	@Resource
+	private OpenOfficeUtils openOfficeUtils;
 
 
 
@@ -83,6 +90,43 @@ public class AplicacioServiceImpl implements AplicacioService {
 		return pluginHelper.personaFindLikeNomSencer(text);
 	}
 
+    @Override
+    public List<PersonaDto> findPersonaAll() throws SistemaExternException {
+        return pluginHelper.personaFindAll();
+    }
+
+
+    @Override
+	public GlobalProperties getGlobalProperties() {
+		return GlobalPropertiesImpl.getInstance();
+	}
+
+    @Override
+    public DocumentConversioDto convertFile(String arxiuNom, byte[] arxiuContingut, String extensioSortida) throws Exception {
+		ByteArrayOutputStream bo = new ByteArrayOutputStream();
+
+		String extensioOriginal = openOfficeUtils.getArxiuExtensio(arxiuNom);
+		String nom = openOfficeUtils.nomArxiuConvertit(arxiuNom, extensioSortida);
+		String mediaType = openOfficeUtils.getArxiuMimeType(nom);
+		byte[] contingut = arxiuContingut;
+		if (!extensioSortida.equalsIgnoreCase(extensioOriginal)) {
+			openOfficeUtils.convertir(arxiuNom, arxiuContingut, extensioSortida, bo);
+			contingut = bo.toByteArray();
+		}
+
+		return DocumentConversioDto.builder()
+				.nom(nom)
+				.contingut(contingut)
+				.mediaType(mediaType)
+				.extensio(extensioSortida)
+				.extensioOrignal(extensioOriginal)
+				.build();
+    }
+
+	@Override
+	public String getArxiuMediaType(String nomFitxer) {
+		return openOfficeUtils.getArxiuMimeType(nomFitxer);
+	}
 
 
 	private static final Logger logger = LoggerFactory.getLogger(AplicacioServiceImpl.class);

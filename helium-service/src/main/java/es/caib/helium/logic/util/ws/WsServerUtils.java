@@ -3,17 +3,16 @@
  */
 package es.caib.helium.logic.util.ws;
 
-import java.util.HashMap;
-import java.util.Map;
+import org.apache.cxf.jaxws.EndpointImpl;
+import org.apache.cxf.ext.logging.LoggingInInterceptor;
+import org.apache.cxf.ext.logging.LoggingOutInterceptor;
+import org.apache.cxf.ws.security.wss4j.WSS4JOutInterceptor;
+import org.apache.wss4j.dom.WSConstants;
+import org.apache.wss4j.dom.handler.WSHandlerConstants;
 
 import javax.xml.ws.Endpoint;
-
-import org.apache.cxf.interceptor.LoggingInInterceptor;
-import org.apache.cxf.interceptor.LoggingOutInterceptor;
-import org.apache.cxf.jaxws.EndpointImpl;
-import org.apache.cxf.ws.security.wss4j.WSS4JOutInterceptor;
-import org.apache.ws.security.WSConstants;
-import org.apache.ws.security.handler.WSHandlerConstants;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Utilitat per a configurar de manera centralitzada
@@ -31,8 +30,10 @@ public class WsServerUtils {
 			String authType,
 			boolean generateTimestamp,
 			boolean logCalls) {
+
+
 		Endpoint jaxwsEndpoint = Endpoint.publish(address, implementor);
-		EndpointImpl jaxwsEndpointImpl = (EndpointImpl)jaxwsEndpoint;
+		EndpointImpl jaxwsEndpointImpl = (EndpointImpl) jaxwsEndpoint;
 		org.apache.cxf.endpoint.Server server = jaxwsEndpointImpl.getServer();
 		org.apache.cxf.endpoint.Endpoint endpoint = server.getEndpoint();
 		if (logCalls) {

@@ -3,10 +3,12 @@
  */
 package es.caib.helium.logic.intf.service;
 
+import es.caib.helium.logic.intf.dto.DocumentConversioDto;
 import es.caib.helium.logic.intf.dto.PersonaDto;
 import es.caib.helium.logic.intf.dto.UsuariPreferenciesDto;
 import es.caib.helium.logic.intf.exception.NoTrobatException;
 import es.caib.helium.logic.intf.exception.SistemaExternException;
+import es.caib.helium.logic.intf.util.GlobalProperties;
 
 import java.util.List;
 
@@ -48,4 +50,17 @@ public interface AplicacioService {
 	 */
 	public List<PersonaDto> findPersonaLikeNomSencer(String text) throws SistemaExternException;
 
+	public List<PersonaDto> findPersonaAll() throws SistemaExternException;
+
+
+	// Properties
+	public GlobalProperties getGlobalProperties();
+
+	// Conversió
+	public DocumentConversioDto convertFile(
+			String arxiuNom,
+			byte[] arxiuContingut,
+			String extensioSortida) throws Exception;
+
+	public String getArxiuMediaType(String nomFitxer);
 }

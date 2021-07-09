@@ -3,8 +3,8 @@
  */
 package es.caib.helium.persist.entity;
 
-import es.caib.helium.logic.intf.dto.ExpedientCamps;
 import es.caib.helium.logic.intf.dto.TerminiDto;
+import es.caib.helium.logic.intf.util.ExpedientCamps;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 

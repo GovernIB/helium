@@ -654,4 +654,9 @@ public class ExpedientService extends AbstractService<es.caib.helium.logic.intf.
 	public void arreglarMetadadesNti(Long expedientId) {
 		getDelegateService().arreglarMetadadesNti(expedientId);
 	}
+
+	@Override
+	public void clearExpedientIniciant() {
+		getDelegateService().clearExpedientIniciant();
+	}
 }

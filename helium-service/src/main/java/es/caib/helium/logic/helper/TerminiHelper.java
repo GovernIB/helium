@@ -9,13 +9,13 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
+import es.caib.helium.logic.util.GlobalPropertiesImpl;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
 import es.caib.helium.logic.intf.WorkflowEngineApi;
 import es.caib.helium.logic.intf.dto.TerminiIniciatDto;
 import es.caib.helium.logic.intf.exception.NoTrobatException;
-import es.caib.helium.logic.util.GlobalProperties;
 import es.caib.helium.persist.entity.DefinicioProces;
 import es.caib.helium.persist.entity.Expedient;
 import es.caib.helium.persist.entity.ExpedientTipus;
@@ -443,7 +443,7 @@ public class TerminiHelper {
 		if (expedientTipus.getDiesNoLaborables() != null && !expedientTipus.getDiesNoLaborables().isEmpty())
 			nolabs = expedientTipus.getDiesNoLaborables();
 		else
-			nolabs = GlobalProperties.getInstance().getProperty("app.calendari.nolabs");
+			nolabs = GlobalPropertiesImpl.getInstance().getProperty("app.calendari.nolabs");
 			
 		if (nolabs != null && !nolabs.isEmpty()) {
 			String[] dies = nolabs.split(",");

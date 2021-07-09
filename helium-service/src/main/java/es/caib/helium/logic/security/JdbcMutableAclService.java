@@ -44,7 +44,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.util.Assert;
 
-import es.caib.helium.logic.util.GlobalProperties;
+import es.caib.helium.logic.util.GlobalPropertiesImpl;
 
 //TODO: revisar si és necessària aquesta clase ja que spring en té una
 
@@ -102,7 +102,7 @@ public class JdbcMutableAclService extends JdbcAclService implements MutableAclS
         insertEntry = "insert into " + TableNames.TABLE_ENTRY + " (acl_object_identity, ace_order, sid, mask, granting, audit_success, audit_failure) values (?, ?, ?, ?, ?, ?, ?)";        
         
         try {
-	        String dialecteBBDD = GlobalProperties.getInstance().getProperty("app.hibernate.dialect");
+	        String dialecteBBDD = GlobalPropertiesImpl.getInstance().getProperty("app.hibernate.dialect");
 	        if (dialecteBBDD != null && dialecteBBDD.indexOf("Postgre") != -1) {
 	            classIdentityQuery = "SELECT currval(pg_get_serial_sequence('" + TableNames.TABLE_CLASS + "', 'id'))";
 	            sidIdentityQuery = "SELECT currval(pg_get_serial_sequence('" + TableNames.TABLE_SID + "', 'id'))";

@@ -3,13 +3,12 @@
  */
 package es.caib.helium.logic.helper;
 
-import es.caib.helium.logic.helper.WsClientHelper.WsClientAuth;
 import es.caib.helium.logic.intf.dto.FormulariExternDto;
 import es.caib.helium.logic.intf.extern.formulari.IniciFormulari;
 import es.caib.helium.logic.intf.extern.formulari.ParellaCodiValor;
 import es.caib.helium.logic.intf.extern.formulari.RespostaIniciFormulari;
 import es.caib.helium.logic.intf.util.JbpmVars;
-import es.caib.helium.logic.util.GlobalProperties;
+import es.caib.helium.logic.util.GlobalPropertiesImpl;
 import es.caib.helium.persist.entity.ExpedientTipus;
 import es.caib.helium.persist.entity.FormulariExtern;
 import es.caib.helium.persist.entity.Tasca;
@@ -62,11 +61,11 @@ public class FormulariExternHelper {
 			if (expedientTipus.getFormextContrasenya() != null)
 				password = expedientTipus.getFormextContrasenya();
 		} else {
-			url = GlobalProperties.getInstance().getProperty(
+			url = GlobalPropertiesImpl.getInstance().getProperty(
 					"app.forms.service.url");
-			username = GlobalProperties.getInstance().getProperty(
+			username = GlobalPropertiesImpl.getInstance().getProperty(
 					"app.forms.service.username");
-			password = GlobalProperties.getInstance().getProperty(
+			password = GlobalPropertiesImpl.getInstance().getProperty(
 					"app.forms.service.password");
 		}
 		
@@ -80,7 +79,7 @@ public class FormulariExternHelper {
 		try {
 			IniciFormulari clientWs = wsClientHelper.getIniciFormulariService(
 					url,
-					WsClientAuth.NONE,
+					WsClientHelper.WsClientAuth.NONE,
 					username,
 					password);
 			resposta = clientWs.iniciFormulari(

@@ -8,7 +8,7 @@ import es.caib.helium.logic.intf.dto.DocumentNotificacioTipusEnumDto;
 import es.caib.helium.logic.intf.exception.NoTrobatException;
 import es.caib.helium.logic.intf.service.ExecucioMassivaService;
 import es.caib.helium.logic.intf.service.TascaProgramadaService;
-import es.caib.helium.logic.util.GlobalProperties;
+import es.caib.helium.logic.util.GlobalPropertiesImpl;
 import es.caib.helium.persist.entity.ExecucioMassiva.ExecucioMassivaTipus;
 import es.caib.helium.persist.entity.ExecucioMassivaExpedient;
 import es.caib.helium.persist.entity.Expedient;
@@ -75,7 +75,7 @@ public class TascaProgramadaServiceImpl implements TascaProgramadaService {
 		int timeBetweenExecutions = 500;
 		try {
 			timeBetweenExecutions = Integer.parseInt(
-					GlobalProperties.getInstance().getProperty("app.massiu.periode.execucions"));
+					GlobalPropertiesImpl.getInstance().getProperty("app.massiu.periode.execucions"));
 		} catch (Exception ex) {}
 		
 		while (active) {

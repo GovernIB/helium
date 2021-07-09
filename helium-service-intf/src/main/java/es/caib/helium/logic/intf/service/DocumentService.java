@@ -1,13 +1,13 @@
 package es.caib.helium.logic.intf.service;
 
-import java.util.List;
-
 import es.caib.helium.logic.intf.dto.ArxiuDto;
 import es.caib.helium.logic.intf.dto.DocumentDto;
 import es.caib.helium.logic.intf.dto.PaginaDto;
 import es.caib.helium.logic.intf.dto.PaginacioParamsDto;
 import es.caib.helium.logic.intf.exception.NoTrobatException;
 import es.caib.helium.logic.intf.exception.PermisDenegatException;
+
+import java.util.List;
 
 /**
  * Servei per al manteniment de documents dels tipus d'expedient o de les definicions de procés.
@@ -75,5 +75,10 @@ public interface DocumentService {
 		
 	public ArxiuDto getArxiu(
 			Long documentId) throws NoTrobatException;
+
+
+	// PDF Util
+	public boolean isArxiuConvertiblePdf(String arxiuNom);
+	public String getExtensionsConvertiblesPdf();
 
 }

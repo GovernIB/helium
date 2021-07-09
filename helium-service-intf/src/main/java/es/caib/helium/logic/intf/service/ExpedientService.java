@@ -922,4 +922,7 @@ public interface ExpedientService {
 	 */
 	public void arreglarMetadadesNti(Long expedientId);
 
+
+	// ExpedientIniciant
+	public void clearExpedientIniciant();
 }

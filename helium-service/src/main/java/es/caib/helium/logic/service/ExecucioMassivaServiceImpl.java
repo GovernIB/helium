@@ -15,9 +15,9 @@ import es.caib.helium.logic.intf.service.ExpedientRegistreService;
 import es.caib.helium.logic.intf.service.ExpedientService;
 import es.caib.helium.logic.intf.service.ExpedientTascaService;
 import es.caib.helium.logic.intf.service.TascaService;
-import es.caib.helium.logic.util.CsvHelper;
+import es.caib.helium.logic.intf.util.CsvHelper;
 import es.caib.helium.logic.util.EntornActual;
-import es.caib.helium.logic.util.GlobalProperties;
+import es.caib.helium.logic.util.GlobalPropertiesImpl;
 import es.caib.helium.persist.entity.*;
 import es.caib.helium.persist.entity.ConsultaCamp.TipusConsultaCamp;
 import es.caib.helium.persist.entity.ExecucioMassiva.ExecucioMassivaTipus;
@@ -1053,7 +1053,7 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 						emailAddresses.add(persona.getEmail());
 					}
 	
-					mailHelper.send(GlobalProperties.getInstance().getProperty("app.correu.remitent"), emailAddresses,
+					mailHelper.send(GlobalPropertiesImpl.getInstance().getProperty("app.correu.remitent"), emailAddresses,
 							null, null, "Execució massiva: " + ome.getExecucioMassiva().getTipus(),
 							"L'execució massiva ha finalitzat.");
 				}

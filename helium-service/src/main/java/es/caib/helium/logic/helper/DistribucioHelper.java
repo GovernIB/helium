@@ -13,6 +13,7 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
+import es.caib.helium.logic.util.GlobalPropertiesImpl;
 import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,7 +53,6 @@ import es.caib.helium.logic.intf.exception.SistemaExternException;
 import es.caib.helium.logic.intf.service.AnotacioService;
 import es.caib.helium.logic.intf.service.DissenyService;
 import es.caib.helium.logic.intf.service.ExpedientService;
-import es.caib.helium.logic.util.GlobalProperties;
 import es.caib.helium.persist.entity.Anotacio;
 import es.caib.helium.persist.entity.AnotacioAnnex;
 import es.caib.helium.persist.entity.AnotacioInteressat;
@@ -126,9 +126,9 @@ public class DistribucioHelper {
 	private BackofficeIntegracio getBackofficeIntegracioServicePort() throws Exception {
 		
 		if (wsClient == null) {
-			String url = GlobalProperties.getInstance().getProperty("net.conselldemallorca.helium.distribucio.backofficeIntegracio.ws.url");
-			String usuari = GlobalProperties.getInstance().getProperty("net.conselldemallorca.helium.distribucio.backofficeIntegracio.ws.username");
-			String contrasenya = GlobalProperties.getInstance().getProperty("net.conselldemallorca.helium.distribucio.backofficeIntegracio.ws.password");
+			String url = GlobalPropertiesImpl.getInstance().getProperty("net.conselldemallorca.helium.distribucio.backofficeIntegracio.ws.url");
+			String usuari = GlobalPropertiesImpl.getInstance().getProperty("net.conselldemallorca.helium.distribucio.backofficeIntegracio.ws.username");
+			String contrasenya = GlobalPropertiesImpl.getInstance().getProperty("net.conselldemallorca.helium.distribucio.backofficeIntegracio.ws.password");
 
 			if (url == null || "".equals(url.trim()))
 				throw new Exception("No s'ha trobat la configuració per accedir al WS del backoffice de Distribucio (net.conselldemallorca.helium.distribucio.backofficeIntegracio.ws.url");

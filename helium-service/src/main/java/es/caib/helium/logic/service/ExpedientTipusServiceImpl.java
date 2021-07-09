@@ -18,6 +18,7 @@ import es.caib.helium.logic.intf.exportacio.*;
 import es.caib.helium.logic.intf.extern.domini.FilaResultat;
 import es.caib.helium.logic.intf.extern.domini.ParellaCodiValor;
 import es.caib.helium.logic.intf.service.ExpedientTipusService;
+import es.caib.helium.logic.intf.util.ExpedientCamps;
 import es.caib.helium.logic.security.ExtendedPermission;
 import es.caib.helium.ms.domini.DominiMs;
 import es.caib.helium.persist.entity.*;
@@ -3215,7 +3216,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 	/** Transforma el codi del camp de l'expedient pel seu literal corresponent. */
 	private String getEtiquetaCampExpedient(String campCodi) {
 		String etiqueta;
-		if (ExpedientCamps.EXPEDIENT_CAMP_ID.equals(campCodi)) 
+		if (ExpedientCamps.EXPEDIENT_CAMP_ID.equals(campCodi))
 			etiqueta = messageHelper.getMessage("etiqueta.exp.id");
 		else if (ExpedientCamps.EXPEDIENT_CAMP_NUMERO.equals(campCodi)) 
 			etiqueta = messageHelper.getMessage("etiqueta.exp.numero");

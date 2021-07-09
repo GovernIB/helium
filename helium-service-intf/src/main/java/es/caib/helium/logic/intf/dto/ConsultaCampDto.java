@@ -3,6 +3,8 @@
  */
 package es.caib.helium.logic.intf.dto;
 
+import es.caib.helium.logic.intf.util.ExpedientCamps;
+
 import java.io.Serializable;
 
 /**

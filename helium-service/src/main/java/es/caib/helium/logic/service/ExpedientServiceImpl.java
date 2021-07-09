@@ -24,6 +24,7 @@ import es.caib.helium.logic.intf.exception.TramitacioValidacioException;
 import es.caib.helium.logic.intf.exception.ValidacioException;
 import es.caib.helium.logic.intf.service.AnotacioService;
 import es.caib.helium.logic.intf.service.ExpedientService;
+import es.caib.helium.logic.intf.util.ExpedientCamps;
 import es.caib.helium.logic.intf.util.JbpmVars;
 import es.caib.helium.logic.security.ExtendedPermission;
 import es.caib.helium.persist.entity.*;
@@ -33,6 +34,7 @@ import es.caib.helium.persist.entity.Registre;
 import es.caib.helium.persist.entity.Termini;
 import es.caib.helium.persist.entity.Portasignatures.TipusEstat;
 import es.caib.helium.persist.repository.*;
+import es.caib.helium.persist.util.ThreadLocalInfo;
 import es.caib.plugins.arxiu.api.ContingutArxiu;
 import es.caib.plugins.arxiu.api.ExpedientMetadades;
 import org.slf4j.Logger;
@@ -2975,6 +2977,11 @@ public class ExpedientServiceImpl implements ExpedientService {
 				}
 			}				
 		}
+	}
+
+	@Override
+	public void clearExpedientIniciant() {
+		ThreadLocalInfo.setExpedient(null);
 	}
 
 

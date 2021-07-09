@@ -13,7 +13,7 @@ import es.caib.helium.logic.intf.extern.domini.ParellaCodiValor;
 import es.caib.helium.logic.intf.service.ExpedientService;
 import es.caib.helium.logic.intf.util.ExpedientCamps;
 import es.caib.helium.logic.intf.util.JbpmVars;
-import es.caib.helium.logic.util.GlobalProperties;
+import es.caib.helium.logic.util.GlobalPropertiesImpl;
 import es.caib.helium.ms.domini.DominiMs;
 import es.caib.helium.persist.entity.*;
 import es.caib.helium.persist.entity.Camp.TipusCamp;
@@ -538,7 +538,7 @@ public class VariableHelper {
 				}
 				
 				
-				if (! GlobalProperties.getInstance().getAsBoolean("app.helium.ms.domini.consulta.agrupada")
+				if (! GlobalPropertiesImpl.getInstance().getAsBoolean("app.helium.ms.domini.consulta.agrupada")
 						|| consultesDominis == null) 
 				{
 					// Consulta el domini
@@ -636,7 +636,7 @@ public class VariableHelper {
 			String campCodi = parts[1];
 			Object value = null;
 			if (campCodi.startsWith("@")) {
-				value = (String)GlobalProperties.getInstance().get(campCodi.substring(1));
+				value = (String) GlobalPropertiesImpl.getInstance().get(campCodi.substring(1));
 			} else if (campCodi.startsWith("#{")) {
 				if (processInstanceId != null) {
 					value = workflowEngineApi.evaluateExpression(

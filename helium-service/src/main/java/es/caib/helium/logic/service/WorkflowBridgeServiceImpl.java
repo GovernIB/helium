@@ -14,7 +14,7 @@ import es.caib.helium.logic.intf.extern.domini.ParellaCodiValor;
 import es.caib.helium.logic.intf.service.WorkflowBridgeService;
 import es.caib.helium.logic.intf.util.JbpmVars;
 import es.caib.helium.logic.security.ExtendedPermission;
-import es.caib.helium.logic.util.GlobalProperties;
+import es.caib.helium.logic.util.GlobalPropertiesImpl;
 import es.caib.helium.ms.domini.DominiMs;
 import es.caib.helium.persist.entity.Registre;
 import es.caib.helium.persist.entity.Termini;
@@ -1707,7 +1707,7 @@ public class WorkflowBridgeServiceImpl implements WorkflowBridgeService {
 
     @Override
     public String getHeliumProperty(String propertyName) {
-        return GlobalProperties.getInstance().getProperty(propertyName);
+        return GlobalPropertiesImpl.getInstance().getProperty(propertyName);
     }
 
     @Override

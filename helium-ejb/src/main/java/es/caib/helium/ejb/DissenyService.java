@@ -301,12 +301,18 @@ public class DissenyService extends AbstractService<es.caib.helium.logic.intf.se
 		return getDelegateService().findDocumentsAmbDefinicioProcesOrdenatsPerCodi(definicioProcesId);
 	}
 
+    @Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+    public String getPlantillaReport(Long consultaId) {
+        return getDelegateService().getPlantillaReport(consultaId);
+    }
+
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public List<DocumentDto> findDocumentsOrdenatsPerCodi(Long expedientTipusId, Long definicioProcesId, boolean herencia) {
 		return getDelegateService().findDocumentsOrdenatsPerCodi(expedientTipusId, definicioProcesId, herencia);
 	}
-	
+
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public ConsultaDto getConsultaById(Long id) {

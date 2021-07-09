@@ -68,13 +68,6 @@
 			<scope>test</scope>
 		</dependency>
 		
-		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<version>4.9</version>
-			<scope>test</scope>
-		</dependency>
-
 		<!-- Helium -->
 		<dependency>
 			<groupId>${project.groupId}</groupId>

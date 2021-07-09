@@ -33,7 +33,6 @@ public class OpenOfficeUtils {
 
 	@Autowired
 	private DocumentConverter documentConverter;
-//	private DocumentFormatRegistry documentFormatRegistry;
 
 	@Value("${es.caib.helium.conversio.timeout}")
 	private Long timeout;
@@ -96,6 +95,14 @@ public class OpenOfficeUtils {
 		else
 			return format.getMediaType();
 	}
+	public String getArxiuExtensio(String nomArxiu) {
+		int indexPunt = nomArxiu.lastIndexOf(".");
+		if (indexPunt != -1) {
+			return nomArxiu.substring(indexPunt + 1);
+		} else {
+			return null;
+		}
+	}
 
 
 
@@ -104,9 +111,6 @@ public class OpenOfficeUtils {
 			final DocumentFormat inputFormat,
 			final OutputStream out,
 			final DocumentFormat outputFormat) throws Exception {
-//		final String host = getPropertyHost();
-//		final int port = getPropertyPort();
-//		final OpenOfficeConnection connection = new SocketOpenOfficeConnection(host, port);
 		ExecutorService executor = Executors.newSingleThreadExecutor();
 		Supplier<String> task = () -> {
 			try {
@@ -191,13 +195,13 @@ public class OpenOfficeUtils {
 //	}
 
 	private String getPropertyHost() {
-		return GlobalProperties.getInstance().getProperty("app.conversio.openoffice.host");
+		return GlobalPropertiesImpl.getInstance().getProperty("app.conversio.openoffice.host");
 	}
 	private int getPropertyPort() {
-		return Integer.parseInt(GlobalProperties.getInstance().getProperty("app.conversio.openoffice.port"));
+		return Integer.parseInt(GlobalPropertiesImpl.getInstance().getProperty("app.conversio.openoffice.port"));
 	}
 	private int getPropertyTimeout() {
-		String timeout = GlobalProperties.getInstance().getProperty("app.conversio.openoffice.timeout");
+		String timeout = GlobalPropertiesImpl.getInstance().getProperty("app.conversio.openoffice.timeout");
 		if (timeout == null)
 			return -1;
 		else

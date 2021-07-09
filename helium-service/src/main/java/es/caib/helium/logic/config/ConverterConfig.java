@@ -1,6 +1,6 @@
 package es.caib.helium.logic.config;
 
-import es.caib.helium.logic.util.GlobalProperties;
+import es.caib.helium.logic.util.GlobalPropertiesImpl;
 import org.jodconverter.core.DocumentConverter;
 import org.jodconverter.core.office.OfficeManager;
 import org.jodconverter.core.util.AssertUtils;
@@ -64,10 +64,10 @@ public class ConverterConfig {
     }
 
     private String getOfficeUrl() {
-        return GlobalProperties.getInstance().getProperty("es.caib.helium.conversio.openoffice.host");
+        return GlobalPropertiesImpl.getInstance().getProperty("es.caib.helium.conversio.openoffice.host");
     }
     private Long getConnectionTimeout() {
-        String timeout = GlobalProperties.getInstance().getProperty("es.caib.helium.conversio.connection.timeout");
+        String timeout = GlobalPropertiesImpl.getInstance().getProperty("es.caib.helium.conversio.connection.timeout");
         try {
             return Long.valueOf(timeout);
         } catch (Exception e) {
@@ -75,7 +75,7 @@ public class ConverterConfig {
         }
     }
     private Long getSocketTimeout() {
-        String timeout = GlobalProperties.getInstance().getProperty("es.caib.helium.conversio.socket.timeout");
+        String timeout = GlobalPropertiesImpl.getInstance().getProperty("es.caib.helium.conversio.socket.timeout");
         try {
             return Long.valueOf(timeout);
         } catch (Exception e) {
@@ -83,7 +83,7 @@ public class ConverterConfig {
         }
     }
     private int getPoolSize() {
-        String poolSize = GlobalProperties.getInstance().getProperty("es.caib.helium.conversio.pool.size");
+        String poolSize = GlobalPropertiesImpl.getInstance().getProperty("es.caib.helium.conversio.pool.size");
         try {
             return Integer.valueOf(poolSize);
         } catch (Exception e) {
@@ -91,10 +91,10 @@ public class ConverterConfig {
         }
     }
     private String getWorkingDir() {
-        return GlobalProperties.getInstance().getProperty("es.caib.helium.conversio.openoffice.working.directory");
+        return GlobalPropertiesImpl.getInstance().getProperty("es.caib.helium.conversio.openoffice.working.directory");
     }
     private Long getQueueTimeout() {
-        String timeout = GlobalProperties.getInstance().getProperty("es.caib.helium.conversio.queue.timeout");
+        String timeout = GlobalPropertiesImpl.getInstance().getProperty("es.caib.helium.conversio.queue.timeout");
         try {
             return Long.valueOf(timeout);
         } catch (Exception e) {
@@ -102,7 +102,7 @@ public class ConverterConfig {
         }
     }
     private Long getExecutionTimeout() {
-        String timeout = GlobalProperties.getInstance().getProperty("es.caib.helium.conversio.execution.timeout");
+        String timeout = GlobalPropertiesImpl.getInstance().getProperty("es.caib.helium.conversio.execution.timeout");
         try {
             return Long.valueOf(timeout);
         } catch (Exception e) {

@@ -1,10 +1,5 @@
 package es.caib.helium.logic.util.ws;
 
-import java.util.List;
-import java.util.Map;
-
-import javax.ws.rs.core.MultivaluedMap;
-
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sun.jersey.api.client.Client;
@@ -12,10 +7,13 @@ import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.api.client.filter.HTTPBasicAuthFilter;
 import com.sun.jersey.core.util.MultivaluedMapImpl;
-
 import es.caib.helium.logic.intf.dto.DominiDto;
 import es.caib.helium.logic.intf.exception.SistemaExternException;
 import es.caib.helium.logic.intf.extern.domini.FilaResultat;
+
+import javax.ws.rs.core.MultivaluedMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * 
@@ -29,7 +27,7 @@ public class RestClient {
 	/**
 	 * Consulta a un domini per metode GET
 	 * 
-	 * @param url
+	 * @param domini
 	 * @param params
 	 * @return
 	 * @throws Exception 
@@ -81,7 +79,7 @@ public class RestClient {
 	/**
 	 * Consulta a un domini per metode POST
 	 * 
-	 * @param url
+	 * @param domini
 	 * @param params
 	 * @return
 	 * @throws Exception 

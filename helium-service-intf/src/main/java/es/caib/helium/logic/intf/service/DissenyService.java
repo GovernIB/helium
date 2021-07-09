@@ -324,4 +324,5 @@ public interface DissenyService {
 	
 	public List<DocumentDto> findDocumentsAmbDefinicioProcesOrdenatsPerCodi(Long definicioProcesId) throws NoTrobatException;
 
+    public String getPlantillaReport(Long consultaId);
 }

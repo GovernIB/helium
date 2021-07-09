@@ -3,9 +3,7 @@
  */
 package es.caib.helium.logic.util.ws;
 
-import java.util.HashMap;
-import java.util.Map;
-
+import es.caib.helium.logic.util.GlobalPropertiesImpl;
 import org.apache.cxf.configuration.jsse.TLSClientParameters;
 import org.apache.cxf.endpoint.Client;
 import org.apache.cxf.frontend.ClientProxy;
@@ -16,10 +14,12 @@ import org.apache.cxf.jaxws.JaxWsProxyFactoryBean;
 import org.apache.cxf.transport.http.HTTPConduit;
 import org.apache.cxf.transports.http.configuration.HTTPClientPolicy;
 import org.apache.cxf.ws.security.wss4j.WSS4JOutInterceptor;
-import org.apache.ws.security.WSConstants;
-import org.apache.ws.security.handler.WSHandlerConstants;
+import org.apache.wss4j.dom.WSConstants;
+import org.apache.wss4j.dom.handler.WSHandlerConstants;
+import org.springframework.ws.client.core.support.WebServiceGatewaySupport;
 
-import es.caib.helium.logic.util.GlobalProperties;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Utilitat per a configurar de manera centralitzada
@@ -27,7 +27,7 @@ import es.caib.helium.logic.util.GlobalProperties;
  * 
  * @author Limit Tecnologies
  */
-public class WsClientUtils {
+public class WsClientUtils extends WebServiceGatewaySupport {
 
 	public static Object getWsClientProxy(
 			Class<?> clientClass,
@@ -68,7 +68,7 @@ public class WsClientUtils {
 			factory.getOutInterceptors().add(new WSS4JOutInterceptor(wss4jInterceptorProps));
 		}
 		Object c = factory.create();
-		
+
 		Client client = ClientProxy.getClient(c);
         HTTPConduit httpConduit = (HTTPConduit)client.getConduit();
         HTTPClientPolicy httpClientPolicy = new HTTPClientPolicy();
@@ -79,7 +79,7 @@ public class WsClientUtils {
         // Envi­o chunked
 		httpClientPolicy.setAllowChunking(isWsClientChunked());
         httpConduit.setClient(httpClientPolicy);
-        
+
 		if (disableCnCheck) {
 	        TLSClientParameters tlsParams = new TLSClientParameters();
 	        tlsParams.setDisableCNCheck(true);
@@ -87,10 +87,10 @@ public class WsClientUtils {
 		}
 		return c;
 	}
-	
+
 	private static boolean isWsClientChunked() {
 		try {
-			String chunked = GlobalProperties.getInstance().getProperty("app.ws.client.chunked");
+			String chunked = GlobalPropertiesImpl.getInstance().getProperty("app.ws.client.chunked");
 			if (chunked == null)
 				chunked = "false";
 			return "true".equalsIgnoreCase(chunked);

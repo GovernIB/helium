@@ -14,6 +14,7 @@ import es.caib.helium.logic.intf.dto.PaginacioParamsDto;
 import es.caib.helium.logic.intf.dto.PermisDto;
 import es.caib.helium.logic.intf.exception.NoTrobatException;
 import es.caib.helium.logic.intf.service.EntornService;
+import es.caib.helium.logic.util.EntornActual;
 import es.caib.helium.persist.entity.Entorn;
 import es.caib.helium.persist.repository.EntornRepository;
 import org.slf4j.Logger;
@@ -203,7 +204,27 @@ public class EntornServiceImpl implements EntornService {
 		return usuariActualHelper.findEntornsActiusPermisAdmin();
 	}
 
-	/**
+	@Override
+	public Long getEntornActualId() {
+		return EntornActual.getEntornId();
+	}
+
+	@Override
+	public void setEntornActualId(Long entornActualId) {
+		EntornActual.setEntornId(entornActualId);
+	}
+
+    @Override
+    public boolean isAdminEntornActual() {
+		return entornHelper.esAdminEntorn(EntornActual.getEntornId());
+    }
+
+    @Override
+    public boolean isDissenyadorEntorn(Long id) {
+        return entornHelper.potDissenyarEntorn(id);
+    }
+
+    /**
 	 * {@inheritDoc}
 	 */
 	@Override

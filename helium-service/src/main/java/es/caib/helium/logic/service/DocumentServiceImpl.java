@@ -14,6 +14,7 @@ import es.caib.helium.logic.intf.dto.PaginaDto;
 import es.caib.helium.logic.intf.dto.PaginacioParamsDto;
 import es.caib.helium.logic.intf.exception.NoTrobatException;
 import es.caib.helium.logic.intf.service.DocumentService;
+import es.caib.helium.logic.util.PdfUtils;
 import es.caib.helium.persist.entity.Document;
 import es.caib.helium.persist.entity.DocumentTasca;
 import es.caib.helium.persist.entity.ExpedientTipus;
@@ -316,7 +317,17 @@ public class DocumentServiceImpl implements DocumentService {
 		return resposta;
 	}
 
-	/**
+	@Override
+	public boolean isArxiuConvertiblePdf(String arxiuNom) {
+		return PdfUtils.isArxiuConvertiblePdf(arxiuNom);
+	}
+
+    @Override
+    public String getExtensionsConvertiblesPdf() {
+        return PdfUtils.getExtensionsConvertiblesPdf();
+    }
+
+    /**
 	 * {@inheritDoc}
 	 */
 	@Override

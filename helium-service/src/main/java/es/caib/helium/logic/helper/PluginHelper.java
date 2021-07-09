@@ -35,7 +35,7 @@ import es.caib.helium.logic.intf.exception.SistemaExternException;
 import es.caib.helium.logic.intf.registre.RegistreAnnex;
 import es.caib.helium.logic.intf.registre.RegistreAnotacio;
 import es.caib.helium.logic.intf.registre.RegistreInteressat;
-import es.caib.helium.logic.util.GlobalProperties;
+import es.caib.helium.logic.util.GlobalPropertiesImpl;
 import es.caib.helium.persist.entity.Alerta;
 import es.caib.helium.persist.entity.DocumentNotificacio;
 import es.caib.helium.persist.entity.DocumentStore;
@@ -159,6 +159,31 @@ public class PluginHelper {
 					ex);
 		}
 	}
+
+	public List<PersonaDto> personaFindAll() {
+		try {
+			List<DadesPersona> persones = getPersonesPlugin().findAll();
+			if (persones == null)
+				return new ArrayList<PersonaDto>();
+			return conversioTipusHelper.convertirList(persones, PersonaDto.class);
+		} catch (PersonesPluginException ex) {
+			logger.error(
+					"No s'han pogut consultar totes les persones",
+					ex);
+			throw new SistemaExternException(
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					"No s'han pogut consultar totes les persones",
+					ex);
+		}
+	}
 	
 	public List<Portasignatures> findPendentsPortasignaturesPerProcessInstanceId(String processInstanceId) {		
 		List<Portasignatures> psignas = portasignaturesRepository.findPendentsPerProcessInstanceId(processInstanceId);
@@ -233,12 +258,12 @@ public class PluginHelper {
 	}
 	
 	public boolean personaIsPluginActiu() {
-		String pluginClass = GlobalProperties.getInstance().getProperty("app.persones.plugin.class");
+		String pluginClass = GlobalPropertiesImpl.getInstance().getProperty("app.persones.plugin.class");
 		return pluginClass != null && !pluginClass.isEmpty();
 	}
 
 	public boolean personaIsSyncActiu() {
-		String syncActiu = GlobalProperties.getInstance().getProperty("app.persones.plugin.sync.actiu");
+		String syncActiu = GlobalPropertiesImpl.getInstance().getProperty("app.persones.plugin.sync.actiu");
 		return "true".equalsIgnoreCase(syncActiu);
 	}
 
@@ -1350,12 +1375,12 @@ public class PluginHelper {
 	}
 	
 	public boolean registreIsPluginActiu() {
-		String pluginClass = GlobalProperties.getInstance().getProperty("app.registre.plugin.class");
+		String pluginClass = GlobalPropertiesImpl.getInstance().getProperty("app.registre.plugin.class");
 		return pluginClass != null && !pluginClass.isEmpty();
 	}
 	
 	public boolean registreIsPluginRebWeb3Actiu() {
-		String pluginClass = GlobalProperties.getInstance().getProperty("app.registre.plugin.rw3.class");
+		String pluginClass = GlobalPropertiesImpl.getInstance().getProperty("app.registre.plugin.rw3.class");
 		return pluginClass != null && !pluginClass.isEmpty();
 	}
 
@@ -1529,7 +1554,7 @@ public class PluginHelper {
 	}
 
 	public boolean gestioDocumentalIsPluginActiu() {
-		String pluginClass = GlobalProperties.getInstance().getProperty("app.gesdoc.plugin.class");
+		String pluginClass = GlobalPropertiesImpl.getInstance().getProperty("app.gesdoc.plugin.class");
 		return pluginClass != null && !pluginClass.isEmpty();
 	}
 
@@ -2079,7 +2104,7 @@ public class PluginHelper {
 	}
 	
 	public boolean custodiaIsPluginActiu() {
-		String pluginClass = GlobalProperties.getInstance().getProperty("app.custodia.plugin.class");
+		String pluginClass = GlobalPropertiesImpl.getInstance().getProperty("app.custodia.plugin.class");
 		return pluginClass != null && !pluginClass.isEmpty();
 	}
 
@@ -4196,25 +4221,25 @@ public class PluginHelper {
 	}
 
 	private boolean isIdUsuariPerDni() {
-		return "dni".equalsIgnoreCase(GlobalProperties.getInstance().getProperty("app.portasignatures.plugin.usuari.id"));
+		return "dni".equalsIgnoreCase(GlobalPropertiesImpl.getInstance().getProperty("app.portasignatures.plugin.usuari.id"));
 	}
 	private boolean isIdUsuariPerCodi() {
-		return "codi".equalsIgnoreCase(GlobalProperties.getInstance().getProperty("app.portasignatures.plugin.usuari.id"));
+		return "codi".equalsIgnoreCase(GlobalPropertiesImpl.getInstance().getProperty("app.portasignatures.plugin.usuari.id"));
 	}
 
 	private boolean gestionDocumentalIsTipusExpedientNou() {
 		return "true".equalsIgnoreCase(
-				GlobalProperties.getInstance().getProperty("app.gesdoc.plugin.tipus.nou"));
+				GlobalPropertiesImpl.getInstance().getProperty("app.gesdoc.plugin.tipus.nou"));
 	}
 
 	private boolean gestionDocumentalIsTipusExpedientDirecte() {
 		return "true".equalsIgnoreCase(
-				GlobalProperties.getInstance().getProperty("app.gesdoc.plugin.tipus.directe"));
+				GlobalPropertiesImpl.getInstance().getProperty("app.gesdoc.plugin.tipus.directe"));
 	}
 
 	private PersonesPlugin getPersonesPlugin() {
 		if (personesPlugin == null) {
-			String pluginClass = GlobalProperties.getInstance().getProperty("app.persones.plugin.class");
+			String pluginClass = GlobalPropertiesImpl.getInstance().getProperty("app.persones.plugin.class");
 			if (pluginClass != null && pluginClass.length() > 0) {
 				try {
 					Class<?> clazz = Class.forName(pluginClass);
@@ -4235,9 +4260,9 @@ public class PluginHelper {
 	}
 	private TramitacioPlugin getTramitacioPlugin() {
 		if (tramitacioPlugin == null) {
-			String pluginClass = GlobalProperties.getInstance().getProperty("app.tramitacio.plugin.class");
+			String pluginClass = GlobalPropertiesImpl.getInstance().getProperty("app.tramitacio.plugin.class");
 			if (pluginClass == null || pluginClass.isEmpty()) {
-				String bantelUrl = GlobalProperties.getInstance().getProperty("app.bantel.entrades.url");
+				String bantelUrl = GlobalPropertiesImpl.getInstance().getProperty("app.bantel.entrades.url");
 				if (bantelUrl.contains("v1")) {
 					pluginClass = "es.caib.helium.integracio.plugins.tramitacio.TramitacioPluginSistrav1";
 				} else {
@@ -4264,7 +4289,7 @@ public class PluginHelper {
 	}
 	private RegistrePlugin getRegistrePlugin() {
 		if (registrePlugin == null) {
-			String pluginClass = GlobalProperties.getInstance().getProperty("app.registre.plugin.class");
+			String pluginClass = GlobalPropertiesImpl.getInstance().getProperty("app.registre.plugin.class");
 			if (pluginClass != null && pluginClass.length() > 0) {
 				try {
 					Class<?> clazz = Class.forName(pluginClass);
@@ -4286,7 +4311,7 @@ public class PluginHelper {
 	
 	private RegistrePluginRegWeb3 getRegistrePluginRegWeb3() {
 		if (registrePluginRegWeb3 == null) {
-			String pluginClass = GlobalProperties.getInstance().getProperty("app.registre.plugin.rw3.class");
+			String pluginClass = GlobalPropertiesImpl.getInstance().getProperty("app.registre.plugin.rw3.class");
 			if (pluginClass != null && pluginClass.length() > 0) {
 				try {
 					Class<?> clazz = Class.forName(pluginClass);
@@ -4308,7 +4333,7 @@ public class PluginHelper {
 
 	private GestioDocumentalPlugin getGestioDocumentalPlugin() {
 		if (gestioDocumentalPlugin == null) {
-			String pluginClass = GlobalProperties.getInstance().getProperty("app.gesdoc.plugin.class");
+			String pluginClass = GlobalPropertiesImpl.getInstance().getProperty("app.gesdoc.plugin.class");
 			if (pluginClass != null && pluginClass.length() > 0) {
 				try {
 					Class<?> clazz = Class.forName(pluginClass);
@@ -4330,7 +4355,7 @@ public class PluginHelper {
 
 	private PortasignaturesPlugin getPortasignaturesPlugin() {
 		if (portasignaturesPlugin == null) {
-			String pluginClass = GlobalProperties.getInstance().getProperty("app.portasignatures.plugin.class");
+			String pluginClass = GlobalPropertiesImpl.getInstance().getProperty("app.portasignatures.plugin.class");
 			if ((pluginClass != null) && (pluginClass.length() > 0)) {
 				try {
 					Class<?> clazz = Class.forName(pluginClass);
@@ -4351,7 +4376,7 @@ public class PluginHelper {
 	}
 	private CustodiaPlugin getCustodiaPlugin() {
 		if (custodiaPlugin == null) {
-			String pluginClass = GlobalProperties.getInstance().getProperty("app.custodia.plugin.class");
+			String pluginClass = GlobalPropertiesImpl.getInstance().getProperty("app.custodia.plugin.class");
 			if (pluginClass != null && pluginClass.length() > 0) {
 				try {
 					Class<?> clazz = Class.forName(pluginClass);
@@ -4372,7 +4397,7 @@ public class PluginHelper {
 	}
 	private SignaturaPlugin getSignaturaPlugin() {
 		if (signaturaPlugin == null) {
-			String pluginClass = GlobalProperties.getInstance().getProperty("app.signatura.plugin.class");
+			String pluginClass = GlobalPropertiesImpl.getInstance().getProperty("app.signatura.plugin.class");
 			if (pluginClass != null && pluginClass.length() > 0) {
 				try {
 					Class<?> clazz = Class.forName(pluginClass);
@@ -4393,7 +4418,7 @@ public class PluginHelper {
 	}
 	private FirmaPlugin getFirmaPlugin() {
 		if (firmaPlugin == null) {
-			String pluginClass = GlobalProperties.getInstance().getProperty("app.firma.plugin.class");
+			String pluginClass = GlobalPropertiesImpl.getInstance().getProperty("app.firma.plugin.class");
 			if (pluginClass != null && pluginClass.length() > 0) {
 				try {
 					Class<?> clazz = Class.forName(pluginClass);
@@ -4414,12 +4439,12 @@ public class PluginHelper {
 	}
 	public IArxiuPlugin getArxiuPlugin() {
 		if (arxiuPlugin == null) {
-			String pluginClass = GlobalProperties.getInstance().getProperty(
+			String pluginClass = GlobalPropertiesImpl.getInstance().getProperty(
 					"app.arxiu.plugin.class");
 			if (pluginClass != null && pluginClass.length() > 0) {
 				try {
 					Class<?> clazz = Class.forName(pluginClass);
-					if (GlobalProperties.getInstance().isLlegirSystem()) {
+					if (GlobalPropertiesImpl.getInstance().isLlegirSystem()) {
 						arxiuPlugin = (IArxiuPlugin)clazz.getDeclaredConstructor(
 								String.class).newInstance(
 								"app.");
@@ -4428,7 +4453,7 @@ public class PluginHelper {
 								String.class,
 								Properties.class).newInstance(
 								"app.",
-								GlobalProperties.getInstance().findAll());
+								GlobalPropertiesImpl.getInstance().findAll());
 					}
 				} catch (Exception ex) {
 					throw tractarExcepcioEnSistemaExtern(
@@ -4446,7 +4471,7 @@ public class PluginHelper {
 	}
 	private NotificacioPlugin getNotificacioPlugin() {
 		if (notificacioPlugin == null) {
-			String pluginClass = GlobalProperties.getInstance().getProperty("app.notificacio.plugin.class");
+			String pluginClass = GlobalPropertiesImpl.getInstance().getProperty("app.notificacio.plugin.class");
 			if (pluginClass != null && pluginClass.length() > 0) {
 				try {
 					Class<?> clazz = Class.forName(pluginClass);
@@ -4469,11 +4494,11 @@ public class PluginHelper {
 	private IValidateSignaturePlugin getValidaSignaturaPlugin() {		
 		if (validaSignaturaPlugin == null) {
 			//es.caib.ripea.plugin.validatesignature.class
-			String pluginClass = GlobalProperties.getInstance().getProperty("app.validatesignature.plugin.class");
+			String pluginClass = GlobalPropertiesImpl.getInstance().getProperty("app.validatesignature.plugin.class");
 			if (pluginClass != null && pluginClass.length() > 0) {
 				try {					
 					Class<?> clazz = Class.forName(pluginClass);
-					if (GlobalProperties.getInstance().isLlegirSystem()) {
+					if (GlobalPropertiesImpl.getInstance().isLlegirSystem()) {
 						validaSignaturaPlugin = (IValidateSignaturePlugin)clazz.getDeclaredConstructor(
 								String.class).newInstance(
 								"app.");
@@ -4482,7 +4507,7 @@ public class PluginHelper {
 								String.class,
 								Properties.class).newInstance(
 								"app.",
-								GlobalProperties.getInstance().findAll());
+								GlobalPropertiesImpl.getInstance().findAll());
 					}
 				} catch (Exception ex) {
 					throw tractarExcepcioEnSistemaExtern(
@@ -4501,7 +4526,7 @@ public class PluginHelper {
 	
 	private UnitatsOrganiquesPlugin getUnitatsOrganitzativesPlugin() {
 		if (unitatsOrganitzativesPlugin == null) {
-			String pluginClass = GlobalProperties.getInstance().getProperty("app.unitats.organiques.dir3.plugin.service.class");
+			String pluginClass = GlobalPropertiesImpl.getInstance().getProperty("app.unitats.organiques.dir3.plugin.service.class");
 			if (pluginClass != null && pluginClass.length() > 0) {
 				try {
 					Class<?> clazz = Class.forName(pluginClass);

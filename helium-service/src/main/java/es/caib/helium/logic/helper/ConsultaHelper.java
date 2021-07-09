@@ -1,23 +1,11 @@
 package es.caib.helium.logic.helper;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-
-import javax.annotation.Resource;
-
-import org.springframework.stereotype.Component;
-
 import es.caib.helium.logic.intf.dto.CampTipusDto;
 import es.caib.helium.logic.intf.dto.ConsultaDominiDto;
 import es.caib.helium.logic.intf.dto.DadaIndexadaDto;
-import es.caib.helium.logic.intf.dto.ExpedientCamps;
 import es.caib.helium.logic.intf.dto.PersonaDto;
 import es.caib.helium.logic.intf.dto.TascaDadaDto;
+import es.caib.helium.logic.intf.util.ExpedientCamps;
 import es.caib.helium.persist.entity.Camp;
 import es.caib.helium.persist.entity.Camp.TipusCamp;
 import es.caib.helium.persist.entity.Consulta;
@@ -29,6 +17,16 @@ import es.caib.helium.persist.entity.Expedient;
 import es.caib.helium.persist.repository.CampRepository;
 import es.caib.helium.persist.repository.ConsultaCampRepository;
 import es.caib.helium.persist.repository.DefinicioProcesRepository;
+import org.springframework.stereotype.Component;
+
+import javax.annotation.Resource;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 /**
  * Helper per a gestionar els consultes.

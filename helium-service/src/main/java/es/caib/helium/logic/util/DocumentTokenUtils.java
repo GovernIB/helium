@@ -122,7 +122,7 @@ public class DocumentTokenUtils {
 	}
 
 	private boolean isTokenLlarg() {
-		return "true".equals(GlobalProperties.getInstance().getProperty("app.signatura.token.llarg"));
+		return "true".equals(GlobalPropertiesImpl.getInstance().getProperty("app.signatura.token.llarg"));
 	}
 
 }

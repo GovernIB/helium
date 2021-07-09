@@ -3,13 +3,13 @@
  */
 package es.caib.helium.logic.intf.service;
 
-import java.util.List;
-
 import es.caib.helium.logic.intf.dto.EntornDto;
 import es.caib.helium.logic.intf.dto.PaginaDto;
 import es.caib.helium.logic.intf.dto.PaginacioParamsDto;
 import es.caib.helium.logic.intf.dto.PermisDto;
 import es.caib.helium.logic.intf.exception.NoTrobatException;
+
+import java.util.List;
 
 /**
  * Servei per a gestionar els entorns de l'aplicació.
@@ -168,4 +168,10 @@ public interface EntornService {
 	public List<EntornDto> findActiusAmbPermisAdmin();
 
 
+
+	// Entorn actual
+	public Long getEntornActualId();
+	public void setEntornActualId(Long entornActualId);
+	public boolean isAdminEntornActual();
+	public boolean isDissenyadorEntorn(Long id);
 }

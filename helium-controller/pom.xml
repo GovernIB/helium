@@ -38,6 +38,16 @@
 			<groupId>javax.servlet</groupId>
 			<artifactId>jstl</artifactId>
 		</dependency>
+<!--		<dependency>-->
+<!--			<groupId>cglib</groupId>-->
+<!--			<artifactId>cglib</artifactId>-->
+<!--			<version>3.3.0</version>-->
+<!--		</dependency>-->
+<!--		<dependency>-->
+<!--			<groupId>cz.jirutka.validator</groupId>-->
+<!--			<artifactId>validator-spring</artifactId>-->
+<!--			<version>1.1.0</version>-->
+<!--		</dependency>-->
 
 		<dependency>
 			<groupId>opensymphony</groupId>
@@ -135,12 +145,39 @@
 			<artifactId>jsrender</artifactId>
 			<version>1.0.11</version>
 		</dependency>
+		<dependency>
+			<groupId>net.sf.jasperreports</groupId>
+			<artifactId>jasperreports</artifactId>
+			<version>6.17.0</version>
+			<exclusions>
+				<exclusion>
+					<artifactId>bcprov-jdk15on</artifactId>
+					<groupId>org.bouncycastle</groupId>
+				</exclusion>
+			</exclusions>
+		</dependency>
 
 		<dependency>
 			<groupId>net.rakugakibox.spring.boot</groupId>
 			<artifactId>orika-spring-boot-starter</artifactId>
 			<version>${orika.starter.version}</version>
 			<scope>provided</scope>
+		</dependency>
+
+<!--		<dependency>-->
+<!--			<groupId>org.fundaciobit.plugins</groupId>-->
+<!--			<artifactId>plugins-api</artifactId>-->
+<!--			<version>1.0.0</version>-->
+<!--		</dependency>-->
+		<dependency>
+			<groupId>org.fundaciobit.plugins</groupId>
+			<artifactId>plugin-signatureweb-api</artifactId>
+			<version>2.0.0</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
 		</dependency>
 	</dependencies>
 	<dependencyManagement>
@@ -154,4 +191,25 @@
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<version>2.22.2</version>
+				<configuration>
+					<skipTests>false</skipTests>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
+	<repositories>
+		<repository>
+			<id>github-governib-maven-repos</id>
+			<name>GitHub GovernIB Maven Repository</name>
+			<url>https://governib.github.io/maven/maven/</url>
+		</repository>
+	</repositories>
 </project>

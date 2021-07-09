@@ -23,7 +23,7 @@ public class ConvertirPDF {
 
 
 	public byte[] render(byte[] contingut, String nom) throws Exception {
-		Boolean conversionEnabled = "true".equalsIgnoreCase((String)GlobalProperties.getInstance().get("app.conversio.portasignatures.actiu"));
+		Boolean conversionEnabled = "true".equalsIgnoreCase((String) GlobalPropertiesImpl.getInstance().get("app.conversio.portasignatures.actiu"));
 		boolean conversion = (conversionEnabled == null) ? getPropertyEnabled() : conversionEnabled.booleanValue();
 		if (!getPropertyEnabled()) conversion = false;
 		ByteArrayInputStream inputStream = new ByteArrayInputStream(contingut);
@@ -105,16 +105,16 @@ public class ConvertirPDF {
 	}
 
 	private boolean getPropertyEnabled() {
-		return "true".equals(GlobalProperties.getInstance().getProperty("app.conversio.portasignatures.actiu"));
+		return "true".equals(GlobalPropertiesImpl.getInstance().getProperty("app.conversio.portasignatures.actiu"));
 	}
 	private String getPropertyHost() {
-		return GlobalProperties.getInstance().getProperty("app.conversio.openoffice.host");
+		return GlobalPropertiesImpl.getInstance().getProperty("app.conversio.openoffice.host");
 	}
 	private int getPropertyPort() {
-		return Integer.parseInt(GlobalProperties.getInstance().getProperty("app.conversio.openoffice.port"));
+		return Integer.parseInt(GlobalPropertiesImpl.getInstance().getProperty("app.conversio.openoffice.port"));
 	}
 	private String getPropertyOutputExtension() {
-		return GlobalProperties.getInstance().getProperty("app.conversio.portasignatures.extension");
+		return GlobalPropertiesImpl.getInstance().getProperty("app.conversio.portasignatures.extension");
 	}
 
 }

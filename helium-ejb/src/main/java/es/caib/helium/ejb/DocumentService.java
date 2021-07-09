@@ -76,4 +76,14 @@ public class DocumentService extends AbstractService<es.caib.helium.logic.intf.s
 		return getDelegateService().getArxiu(documentId);
 	}
 
+	@Override
+	public boolean isArxiuConvertiblePdf(String arxiuNom) {
+		return getDelegateService().isArxiuConvertiblePdf(arxiuNom);
+	}
+
+    @Override
+    public String getExtensionsConvertiblesPdf() {
+        return getDelegateService().getExtensionsConvertiblesPdf();
+    }
+
 }

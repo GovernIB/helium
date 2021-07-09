@@ -18,7 +18,7 @@ import es.caib.helium.logic.intf.dto.TascaDadaDto;
 import es.caib.helium.logic.intf.exception.SistemaExternException;
 import es.caib.helium.logic.intf.extern.domini.FilaResultat;
 import es.caib.helium.logic.intf.util.JbpmVars;
-import es.caib.helium.logic.util.GlobalProperties;
+import es.caib.helium.logic.util.GlobalPropertiesImpl;
 import es.caib.helium.logic.util.NombreEnCastella;
 import es.caib.helium.logic.util.NombreEnCatala;
 import es.caib.helium.ms.domini.DominiMs;
@@ -791,7 +791,7 @@ public class PlantillaHelper {
 	}
 
 	private boolean esIdentitySourceHelium() {
-		String identitySource = GlobalProperties.getInstance().getProperty("app.jbpm.identity.source");
+		String identitySource = GlobalPropertiesImpl.getInstance().getProperty("app.jbpm.identity.source");
 		return (identitySource.equalsIgnoreCase("helium"));
 	}
 

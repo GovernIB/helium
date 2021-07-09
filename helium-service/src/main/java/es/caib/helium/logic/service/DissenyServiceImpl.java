@@ -1127,8 +1127,115 @@ public class DissenyServiceImpl implements DissenyService {
  		
  		return conversioTipusHelper.convertirList(documentRepository.findByDefinicioProcesId(definicioProces.getId()), DocumentDto.class);
  	}
-	
-	@Transactional(readOnly=true)
+
+    @Override
+    public String getPlantillaReport(Long consultaId) {
+		ConsultaDto consulta = getConsultaById(consultaId);
+		List<ConsultaCampDto> consultaCamps = findCampsInformePerCampsConsulta(
+				consulta,
+				false);
+		List<Camp> camps = new ArrayList<Camp>();
+
+		ExpedientTipus expedientTipus = new ExpedientTipus();
+		expedientTipus.setId(consulta.getExpedientTipus().getId());
+
+		for(ConsultaCampDto consultaCamp: consultaCamps) {
+			if(consultaCamp.getDefprocJbpmKey() != null) {
+				DefinicioProces dp = definicioProcesRepository.findByJbpmKeyAndVersio(consultaCamp.getDefprocJbpmKey(), consultaCamp.getDefprocVersio());
+				Camp camp = campRepository.findByDefinicioProcesAndCodi(dp, consultaCamp.getCampCodi());
+				if(camp != null) {
+					camp.setExpedientTipus(expedientTipus);
+					camps.add(camp);
+				} else {
+					logger.info("No s'ha trobat el camp amb el codi = [" + consultaCamp.getCampCodi() + "] i la definició de procés amb l'id = [" + dp.getId() + "]");
+				}
+			}else {
+				Camp camp = campRepository.findByExpedientTipusAndCodi(expedientTipus.getId(), consultaCamp.getCampCodi(), expedientTipus.getExpedientTipusPare() != null);
+				if(camp != null) {
+					camp.setExpedientTipus(expedientTipus);
+					camps.add(camp);
+				} else {
+					logger.info("No s'ha trobat el camp amb el codi = [" + consultaCamp.getCampCodi() + "] i el tipus d'expedient amb l'id = [" + expedientTipus.getId() + "]");
+				}
+			}
+		}
+
+
+		String jasperReport = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+				"<jasperReport xmlns=\"http://jasperreports.sourceforge.net/jasperreports\" " +
+				"xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" " +
+				"xsi:schemaLocation=\"http://jasperreports.sourceforge.net/jasperreports " +
+				"http://jasperreports.sourceforge.net/xsd/jasperreport.xsd\" " +
+				"name=\"report_basic\" language=\"groovy\" pageWidth=\"842\" pageHeight=\"595\" " +
+				"orientation=\"Landscape\" columnWidth=\"802\" leftMargin=\"20\" " +
+				"rightMargin=\"20\" topMargin=\"20\" bottomMargin=\"20\">" +
+				"\n<property name=\"ireport.zoom\" value=\"1.0\"/>" +
+				"\n<property name=\"ireport.x\" value=\"0\"/>" +
+				"\n<property name=\"ireport.y\" value=\"0\"/>";
+		for (Camp camp: camps) {
+			jasperReport = jasperReport + "\n<field name=\"" + camp.getCodiPerInforme() +"\" class=\"net.conselldemallorca.helium.report.FieldValue\"/>";
+		}
+		jasperReport = jasperReport +
+				"\n<title>" +
+				"\n<band height=\"30\" splitType=\"Stretch\">" +
+				"\n<staticText>" +
+				"\n<reportElement x=\"0\" y=\"0\" width=\"750\" height=\"26\"/>" +
+				"\n<textElement>" +
+				"\n<font size=\"18\" isBold=\"true\"/>" +
+				"\n</textElement>" +
+				"\n<text>" + consulta.getNom() +"</text>" +
+				"\n</staticText>" +
+				"\n</band>" +
+				"\n</title>" +
+				"\n<pageHeader>" +
+				"\n<band height=\"30\" splitType=\"Stretch\"/> " +
+				"\n</pageHeader>" +
+				"\n<columnHeader>" +
+				"\n<band height=\"25\" splitType=\"Stretch\">";
+		int widthField = 0;
+		if (camps.size()>0) widthField = 800/camps.size();
+		int xPosition = 0;
+		for (Camp camp: camps) {
+			jasperReport = jasperReport +
+					"\n<staticText>" +
+					"\n<reportElement x=\""+xPosition+"\" y=\"2\" width=\""+widthField+"\" height=\"20\"/>" +
+					"\n<textElement/>" +
+					"\n<text><![CDATA[" + camp.getEtiqueta() + "]]></text>" +
+					"\n</staticText>";
+			xPosition = xPosition + widthField;
+		}
+
+		jasperReport = jasperReport +
+				"\n</band>" +
+				"\n</columnHeader>" +
+				"\n<detail>" +
+				"\n<band height=\"24\" splitType=\"Stretch\">";
+
+		xPosition = 0;
+		for (Camp camp: camps) {
+			jasperReport = jasperReport +
+					"\n<textField>" +
+					"\n<reportElement x=\""+xPosition+"\" y=\"4\" width=\""+widthField+"\" height=\"20\"/>" +
+					"\n<textElement/>" +
+					"\n<textFieldExpression><![CDATA[$F{"+camp.getCodiPerInforme()+"}]]></textFieldExpression>" +
+					"\n</textField>";
+			xPosition = xPosition + widthField;
+		}
+		jasperReport=jasperReport +
+				"\n</band>" +
+				"\n</detail>" +
+				"\n<columnFooter>" +
+				"\n<band height=\"25\" splitType=\"Stretch\"/>" +
+				"\n</columnFooter>" +
+				"\n<pageFooter>" +
+				"\n<band height=\"30\" splitType=\"Stretch\"/>" +
+				"\n</pageFooter>" +
+				"\n</jasperReport>";
+
+        return jasperReport;
+    }
+
+    @Transactional(readOnly=true)
 	@Override
 	public ConsultaDto getConsultaById(Long id) {
 		return conversioTipusHelper.convertir(consultaRepository.getById(id), ConsultaDto.class);

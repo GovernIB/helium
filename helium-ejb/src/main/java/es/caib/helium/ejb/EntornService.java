@@ -159,4 +159,24 @@ public class EntornService extends AbstractService<es.caib.helium.logic.intf.ser
 		return getDelegateService().findActiusAmbPermisAdmin();
 	}
 
+	@Override
+	public Long getEntornActualId() {
+		return getDelegateService().getEntornActualId();
+	}
+
+	@Override
+	public void setEntornActualId(Long entornActualId) {
+		getDelegateService().setEntornActualId(entornActualId);
+	}
+
+    @Override
+    public boolean isAdminEntornActual() {
+        return getDelegateService().isAdminEntornActual();
+    }
+
+    @Override
+    public boolean isDissenyadorEntorn(Long id) {
+        return getDelegateService().isDissenyadorEntorn(id);
+    }
+
 }
