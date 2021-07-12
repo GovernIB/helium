@@ -1,17 +1,6 @@
 package es.caib.helium.logic.service;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.annotation.Resource;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.stereotype.Service;
-
-import es.caib.helium.logic.helper.ConversioTipusHelper;
+import es.caib.helium.logic.helper.ConversioTipusServiceHelper;
 import es.caib.helium.logic.helper.PaginacioHelper;
 import es.caib.helium.logic.intf.dto.AreaJbpmIdDto;
 import es.caib.helium.logic.intf.dto.PaginaDto;
@@ -19,6 +8,15 @@ import es.caib.helium.logic.intf.dto.PaginacioParamsDto;
 import es.caib.helium.logic.intf.service.AreaService;
 import es.caib.helium.persist.entity.AreaJbpmId;
 import es.caib.helium.persist.repository.AreaJbpmIdRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.stereotype.Service;
+
+import javax.annotation.Resource;
+import java.util.ArrayList;
+import java.util.List;
 
 @Service("areaServiceV3")
 public class AreaServiceImpl implements AreaService {
@@ -26,18 +24,18 @@ public class AreaServiceImpl implements AreaService {
 	@Resource
 	private AreaJbpmIdRepository areaJbpmIdRepository;
 	@Resource
-	private ConversioTipusHelper conversioTipusHelper;
+	private ConversioTipusServiceHelper conversioTipusServiceHelper;
 	@Resource
 	private PaginacioHelper paginacioHelper;
 	
 	@Override
 	public AreaJbpmIdDto findAmbId(Long id) {
-		return conversioTipusHelper.convertir(areaJbpmIdRepository.findById(id), AreaJbpmIdDto.class);
+		return conversioTipusServiceHelper.convertir(areaJbpmIdRepository.findById(id), AreaJbpmIdDto.class);
 	}
 
 	@Override
 	public AreaJbpmIdDto findAmbCodi(String codi) {
-		return conversioTipusHelper.convertir(areaJbpmIdRepository.findByCodi(codi), AreaJbpmIdDto.class);
+		return conversioTipusServiceHelper.convertir(areaJbpmIdRepository.findByCodi(codi), AreaJbpmIdDto.class);
 	}
 	
 	@Override
@@ -88,7 +86,7 @@ public class AreaServiceImpl implements AreaService {
 		entity.setCodi(area.getCodi());
 		entity.setDescripcio(area.getDescripcio());
 		entity.setNom(area.getNom());
-		return conversioTipusHelper.convertir(areaJbpmIdRepository.save(entity), AreaJbpmIdDto.class);
+		return conversioTipusServiceHelper.convertir(areaJbpmIdRepository.save(entity), AreaJbpmIdDto.class);
 	}
 	
 	@Override
@@ -96,7 +94,7 @@ public class AreaServiceImpl implements AreaService {
 		AreaJbpmId entity = areaJbpmIdRepository.findById(area.getId()).get();
 		entity.setDescripcio(area.getDescripcio());
 		entity.setNom(area.getNom());
-		return conversioTipusHelper.convertir(areaJbpmIdRepository.save(entity), AreaJbpmIdDto.class);
+		return conversioTipusServiceHelper.convertir(areaJbpmIdRepository.save(entity), AreaJbpmIdDto.class);
 	}
 
 	@Override

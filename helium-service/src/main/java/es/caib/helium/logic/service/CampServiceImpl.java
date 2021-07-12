@@ -3,7 +3,7 @@
  */
 package es.caib.helium.logic.service;
 
-import es.caib.helium.logic.helper.ConversioTipusHelper;
+import es.caib.helium.logic.helper.ConversioTipusServiceHelper;
 import es.caib.helium.logic.helper.ExpedientTipusHelper;
 import es.caib.helium.logic.helper.HerenciaHelper;
 import es.caib.helium.logic.helper.PaginacioHelper;
@@ -81,7 +81,7 @@ public class CampServiceImpl implements CampService {
 	@Resource
 	private ExpedientTipusHelper expedientTipusHelper;
 	@Resource
-	private ConversioTipusHelper conversioTipusHelper;
+	private ConversioTipusServiceHelper conversioTipusServiceHelper;
 	@Resource
 	private PaginacioHelper paginacioHelper;
 
@@ -97,7 +97,7 @@ public class CampServiceImpl implements CampService {
 
 		Camp entity = new Camp();
 		entity.setCodi(camp.getCodi());
-		entity.setTipus(conversioTipusHelper.convertir(camp.getTipus(), Camp.TipusCamp.class));
+		entity.setTipus(conversioTipusServiceHelper.convertir(camp.getTipus(), Camp.TipusCamp.class));
 		entity.setEtiqueta(camp.getEtiqueta());
 		entity.setObservacions(camp.getObservacions());
 		entity.setMultiple(camp.isMultiple());
@@ -151,7 +151,7 @@ public class CampServiceImpl implements CampService {
 
 		entity.setDominiCacheText(camp.isDominiCacheText());
 
-		return conversioTipusHelper.convertir(campRepository.save(entity), CampDto.class);
+		return conversioTipusServiceHelper.convertir(campRepository.save(entity), CampDto.class);
 	}
 
 	/**
@@ -164,7 +164,7 @@ public class CampServiceImpl implements CampService {
 				+ camp + ")");
 		Camp entity = campRepository.getById(camp.getId());
 		entity.setCodi(camp.getCodi());
-		entity.setTipus(conversioTipusHelper.convertir(camp.getTipus(), Camp.TipusCamp.class));
+		entity.setTipus(conversioTipusServiceHelper.convertir(camp.getTipus(), Camp.TipusCamp.class));
 		entity.setEtiqueta(camp.getEtiqueta());
 		entity.setObservacions(camp.getObservacions());
 		entity.setMultiple(camp.isMultiple());
@@ -214,7 +214,7 @@ public class CampServiceImpl implements CampService {
 
 		entity.setDominiCacheText(camp.isDominiCacheText());
 
-		return conversioTipusHelper.convertir(campRepository.save(entity), CampDto.class);
+		return conversioTipusServiceHelper.convertir(campRepository.save(entity), CampDto.class);
 	}
 
 	/**
@@ -258,7 +258,7 @@ public class CampServiceImpl implements CampService {
 				+ "campId=" + id + ")");
 	var camp = campRepository.findById(id).orElseThrow(() -> new NoTrobatException(Camp.class, id));
 
-	CampDto dto = conversioTipusHelper.convertir(camp, CampDto.class);
+	CampDto dto = conversioTipusServiceHelper.convertir(camp, CampDto.class);
 	// Herencia
 	ExpedientTipus tipus = expedientTipusId != null? expedientTipusRepository.getById(expedientTipusId) : null;if(tipus!=null&&tipus.getExpedientTipusPare()!=null)
 	{
@@ -297,7 +297,7 @@ public class CampServiceImpl implements CampService {
 					definicioProcesRepository.getById(definicioProcesId),
 					codi);
 		if (camp != null)
-			ret = conversioTipusHelper.convertir(
+			ret = conversioTipusServiceHelper.convertir(
 				camp,
 				CampDto.class);
 		return ret;
@@ -443,7 +443,7 @@ public class CampServiceImpl implements CampService {
 			camps = campRepository.findByDefinicioProcesOrderByCodiAsc(
 						definicioProcesRepository.getById(definicioProcesId));
 		
-		return conversioTipusHelper.convertirList(
+		return conversioTipusServiceHelper.convertirList(
 				camps, 
 				CampDto.class);
 	}
@@ -474,7 +474,7 @@ public class CampServiceImpl implements CampService {
 			}
 		} else
 			agrupacions = campAgrupacioRepository.findAmbDefinicioProcesOrdenats(definicioProcesId);
-		List<CampAgrupacioDto> agrupacionsDto = conversioTipusHelper.convertirList(
+		List<CampAgrupacioDto> agrupacionsDto = conversioTipusServiceHelper.convertirList(
 									agrupacions, 
 									CampAgrupacioDto.class);
 		
@@ -502,7 +502,7 @@ public class CampServiceImpl implements CampService {
 		if (agrupacio == null) {
 			throw new NoTrobatException(CampAgrupacio.class, id);
 		}
-		return conversioTipusHelper.convertir(agrupacio, CampAgrupacioDto.class);
+		return conversioTipusServiceHelper.convertir(agrupacio, CampAgrupacioDto.class);
 	}
 
 	/**
@@ -528,7 +528,7 @@ public class CampServiceImpl implements CampService {
 		if (definicioProcesId != null)
 			entity.setDefinicioProces(definicioProcesRepository.getById(definicioProcesId));
 
-		return conversioTipusHelper.convertir(campAgrupacioRepository.save(entity), CampAgrupacioDto.class);
+		return conversioTipusServiceHelper.convertir(campAgrupacioRepository.save(entity), CampAgrupacioDto.class);
 	}
 
 	/**
@@ -545,7 +545,7 @@ public class CampServiceImpl implements CampService {
 		entity.setNom(agrupacio.getNom());
 		entity.setDescripcio(agrupacio.getDescripcio());
 
-		return conversioTipusHelper.convertir(campAgrupacioRepository.save(entity), CampAgrupacioDto.class);
+		return conversioTipusServiceHelper.convertir(campAgrupacioRepository.save(entity), CampAgrupacioDto.class);
 	}
 
 	@Override
@@ -621,7 +621,7 @@ public class CampServiceImpl implements CampService {
 		else if (definicioProcesId != null)
 			campAgrupacio = campAgrupacioRepository.findByDefinicioProcesIdAndCodi(definicioProcesId, codi);
 		if (campAgrupacio != null)
-			return conversioTipusHelper.convertir(campAgrupacio, CampAgrupacioDto.class);
+			return conversioTipusServiceHelper.convertir(campAgrupacio, CampAgrupacioDto.class);
 		else
 			return null;
 	}
@@ -693,7 +693,7 @@ public class CampServiceImpl implements CampService {
 		entity.setLlistar(campRegistre.isLlistar());
 		entity.setOrdre(campRegistreRepository.getNextOrdre(campId));
 
-		return conversioTipusHelper.convertir(campRegistreRepository.save(entity), CampRegistreDto.class);
+		return conversioTipusServiceHelper.convertir(campRegistreRepository.save(entity), CampRegistreDto.class);
 	}
 
 	@Override
@@ -710,7 +710,7 @@ public class CampServiceImpl implements CampService {
 		entity.setObligatori(campRegistre.isObligatori());
 		entity.setLlistar(campRegistre.isLlistar());
 
-		return conversioTipusHelper.convertir(campRegistreRepository.save(entity), CampRegistreDto.class);
+		return conversioTipusServiceHelper.convertir(campRegistreRepository.save(entity), CampRegistreDto.class);
 	}
 
 	@Override
@@ -785,14 +785,14 @@ public class CampServiceImpl implements CampService {
 		if (camp == null) {
 			throw new NoTrobatException(CampRegistre.class, id);
 		}
-		return conversioTipusHelper.convertir(camp, CampRegistreDto.class);
+		return conversioTipusServiceHelper.convertir(camp, CampRegistreDto.class);
 	}
 
 	@Override
 	@Transactional(readOnly = true)
 	public List<CampDto> registreFindMembresAmbRegistreId(Long registreId) {
 		logger.debug("Consultant els membres del registre(" + "registreId=" + registreId + ")");
-		return conversioTipusHelper.convertirList(campRegistreRepository.findMembresAmbRegistreId(registreId),
+		return conversioTipusServiceHelper.convertirList(campRegistreRepository.findMembresAmbRegistreId(registreId),
 				CampDto.class);
 	}
 
@@ -828,7 +828,7 @@ public class CampServiceImpl implements CampService {
 		else
 			camps = campRepository.findByDefinicioProcesAndTipus(definicioProcesRepository.getById(definicioProcesId),
 					TipusCamp.DATE);
-		return conversioTipusHelper.convertirList(camps, CampDto.class);
+		return conversioTipusServiceHelper.convertirList(camps, CampDto.class);
 	}
 
 	@Override
@@ -841,7 +841,7 @@ public class CampServiceImpl implements CampService {
 		for (CampTasca campTasca : camp.getCampsTasca())
 			tasques.add(campTasca.getTasca());
 
-		return conversioTipusHelper.convertirList(tasques, TascaDto.class);
+		return conversioTipusServiceHelper.convertirList(tasques, TascaDto.class);
 	}
 
 	@Override
@@ -861,7 +861,7 @@ public class CampServiceImpl implements CampService {
 			if (!mapConsultes.containsKey(cc.getConsulta().getCodi()))
 				mapConsultes.put(cc.getConsulta().getCodi(), cc.getConsulta());
 
-		return conversioTipusHelper.convertirList(new ArrayList<Consulta>(mapConsultes.values()), ConsultaDto.class);
+		return conversioTipusServiceHelper.convertirList(new ArrayList<Consulta>(mapConsultes.values()), ConsultaDto.class);
 	}
 
 	@Override
@@ -874,6 +874,6 @@ public class CampServiceImpl implements CampService {
 		for (CampRegistre campRegistre : camp.getRegistrePares())
 			registres.add(campRegistre.getRegistre());
 
-		return conversioTipusHelper.convertirList(registres, CampDto.class);
+		return conversioTipusServiceHelper.convertirList(registres, CampDto.class);
 	}
 }

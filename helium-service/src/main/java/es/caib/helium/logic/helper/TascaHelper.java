@@ -67,7 +67,7 @@ public class TascaHelper {
 	@Resource
 	private WorkflowEngineApi workflowEngineApi;
 	@Resource
-	private ConversioTipusHelper conversioTipusHelper;
+	private ConversioTipusServiceHelper conversioTipusServiceHelper;
 	@Resource
 	private PermisosHelper permisosHelper;
 	@Resource
@@ -75,7 +75,7 @@ public class TascaHelper {
 	@Resource
 	private TascaSegonPlaHelper tascaSegonPlaHelper;
 	@Resource
-	private MessageHelper messageHelper;
+	private MessageServiceHelper messageHelper;
 
 
 
@@ -304,7 +304,7 @@ public class TascaHelper {
 		ExpedientTascaDto dto = new ExpedientTascaDto();
 		dto.setTitol(tasca.getNom());
 		dto.setTascaTipus(
-				conversioTipusHelper.convertir(
+				conversioTipusServiceHelper.convertir(
 						tasca.getTipus(),
 						ExpedientTascaDto.TascaTipusDto.class));
 		dto.setJbpmName(tasca.getJbpmName());
@@ -516,7 +516,7 @@ public class TascaHelper {
 			dto.setTascaId(tasca.getId());
 			dto.setTascaNom(tasca.getNom());
 			dto.setTascaTipus(
-					conversioTipusHelper.convertir(
+					conversioTipusServiceHelper.convertir(
 							tasca.getTipus(),
 							ExpedientTascaDto.TascaTipusDto.class));
 			dto.setTascaMissatgeInfo(tasca.getMissatgeInfo());

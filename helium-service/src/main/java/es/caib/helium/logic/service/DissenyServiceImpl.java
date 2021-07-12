@@ -61,7 +61,7 @@ public class DissenyServiceImpl implements DissenyService {
 	@Resource
 	private ExpedientHelper expedientHelper;
 	@Resource
-	private MessageHelper messageHelper;
+	private MessageServiceHelper messageHelper;
 	@Resource
 	private WorkflowEngineApi workflowEngineApi;
 	@Resource
@@ -77,7 +77,7 @@ public class DissenyServiceImpl implements DissenyService {
 	@Resource
 	private ConsultaRepository consultaRepository;
 	@Resource
-	private ConversioTipusHelper conversioTipusHelper;
+	private ConversioTipusServiceHelper conversioTipusServiceHelper;
 	@Resource
 	private PermisosHelper permisosHelper;
 	@Resource
@@ -113,7 +113,7 @@ public class DissenyServiceImpl implements DissenyService {
 		if (area == null)
 			throw new NoTrobatException(Area.class, areaId);
 		
-		return conversioTipusHelper.convertir(
+		return conversioTipusServiceHelper.convertir(
 				area,
 				AreaDto.class);
 	}
@@ -306,7 +306,7 @@ public class DissenyServiceImpl implements DissenyService {
 	public DefinicioProcesDto getById(Long id) {
 		DefinicioProces definicioProces = definicioProcesRepository.getById(id);
 		if (definicioProces != null) {	
-			DefinicioProcesDto dto = conversioTipusHelper.convertir(definicioProces, DefinicioProcesDto.class);
+			DefinicioProcesDto dto = conversioTipusServiceHelper.convertir(definicioProces, DefinicioProcesDto.class);
 			Long expedientTipusId = definicioProces.getExpedientTipus() != null ? definicioProces.getExpedientTipus().getId() : null;
 			Map<Long, Boolean> hasStartTask = new HashMap<Long, Boolean>();
 			dto.setHasStartTask(hasStartTask(definicioProces, hasStartTask, expedientTipusId));
@@ -328,7 +328,7 @@ public class DissenyServiceImpl implements DissenyService {
 					expedientTipus, 
 					expedientTipus.getJbpmProcessDefinitionKey());
 			if (definicioProces != null) {
-				DefinicioProcesDto dto = conversioTipusHelper.convertir(definicioProces, DefinicioProcesDto.class);
+				DefinicioProcesDto dto = conversioTipusServiceHelper.convertir(definicioProces, DefinicioProcesDto.class);
 				Map<Long, Boolean> hasStartTask = new HashMap<Long, Boolean>();
 				dto.setHasStartTask(hasStartTask(definicioProces, hasStartTask, expedientTipusId));
 				getAllDefinicioProcesOrderByVersio(dto, expedientTipus);
@@ -365,7 +365,7 @@ public class DissenyServiceImpl implements DissenyService {
 		ExpedientTipus expedientTipus = expedientTipusRepository.getById(id);
 		if (expedientTipus == null)
 			throw new NoTrobatException(ExpedientTipus.class, id);
-		return conversioTipusHelper.convertir(
+		return conversioTipusServiceHelper.convertir(
 				expedientTipus,
 				ExpedientTipusDto.class);
 	}
@@ -449,7 +449,7 @@ public class DissenyServiceImpl implements DissenyService {
 					expedientTipusId);
 		}
 		List<ExpedientTipusDto> dtos = new ArrayList<ExpedientTipusDto>();
-		dtos.add(conversioTipusHelper.convertir(
+		dtos.add(conversioTipusServiceHelper.convertir(
 				expedientTipus,
 				ExpedientTipusDto.class));
 		expedientHelper.omplirPermisosExpedientsTipus(dtos);
@@ -475,7 +475,7 @@ public class DissenyServiceImpl implements DissenyService {
 				ExpedientTipus.class,
 				permisos,
 				SecurityContextHolder.getContext().getAuthentication());
-		List<ExpedientTipusDto> dtos = conversioTipusHelper.convertirList(
+		List<ExpedientTipusDto> dtos = conversioTipusServiceHelper.convertirList(
 				expedientsTipus,
 				ExpedientTipusDto.class);
 		expedientHelper.omplirPermisosExpedientsTipus(dtos);
@@ -499,7 +499,7 @@ public class DissenyServiceImpl implements DissenyService {
 			throw new NoTrobatException(
 					ExpedientTipus.class, 
 					expedientTipusId);
-		return conversioTipusHelper.convertirList(
+		return conversioTipusServiceHelper.convertirList(
 				consultaRepository.findConsultesActivesAmbEntornIExpedientTipusOrdenat(entornId, expedientTipusId),
 				ConsultaDto.class);
 	}
@@ -513,7 +513,7 @@ public class DissenyServiceImpl implements DissenyService {
 		if (consulta == null)
 			throw new NoTrobatException(Consulta.class, id);
 		
-		return conversioTipusHelper.convertir(consulta, ConsultaDto.class);
+		return conversioTipusServiceHelper.convertir(consulta, ConsultaDto.class);
 	}
 
 	@Transactional(readOnly=true)
@@ -534,7 +534,7 @@ public class DissenyServiceImpl implements DissenyService {
 	@Transactional(readOnly=true)
 	@Override
 	public List<ExpedientTipusDto> findExpedientTipusAmbEntorn(EntornDto entornDto) {
-		Entorn entorn = conversioTipusHelper.convertir(entornDto, Entorn.class);
+		Entorn entorn = conversioTipusServiceHelper.convertir(entornDto, Entorn.class);
 		if (entorn == null)
 			throw new NoTrobatException(Entorn.class, entornDto.getCodi());
 		return getExpedientTipusAmbEntorn(entorn);
@@ -596,7 +596,7 @@ public class DissenyServiceImpl implements DissenyService {
 	
 //	@Transactional(readOnly=true)
 	private List<ExpedientTipusDto> getExpedientTipusAmbEntorn(Entorn entorn) {
-		List<ExpedientTipusDto> tipus = conversioTipusHelper.convertirList(expedientTipusRepository.findByEntornOrderByCodiAsc(entorn), ExpedientTipusDto.class);
+		List<ExpedientTipusDto> tipus = conversioTipusServiceHelper.convertirList(expedientTipusRepository.findByEntornOrderByCodiAsc(entorn), ExpedientTipusDto.class);
 		permisosHelper.filterGrantedAny(
 				tipus,
 				new ObjectIdentifierExtractor<ExpedientTipusDto>() {
@@ -654,7 +654,7 @@ public class DissenyServiceImpl implements DissenyService {
 			camps = campRepository.findByDefinicioProcesOrderByCodiAsc(definicioProces);
 		} else 
 			camps = new ArrayList<Camp>();
-		campsDto = conversioTipusHelper.convertirList(camps, CampDto.class);
+		campsDto = conversioTipusServiceHelper.convertirList(camps, CampDto.class);
 		
 		if (ambHerencia) {
 			// Completa l'informació del dto
@@ -711,7 +711,7 @@ public class DissenyServiceImpl implements DissenyService {
 			documents = documentRepository.findByDefinicioProcesId(definicioProces.getId());
 		} else 
 			documents = new ArrayList<Document>();
-		documentsDto = conversioTipusHelper.convertirList(documents, DocumentDto.class);
+		documentsDto = conversioTipusServiceHelper.convertirList(documents, DocumentDto.class);
 
 		if (ambHerencia) {
 			// Completa l'informació del dto
@@ -752,7 +752,7 @@ public class DissenyServiceImpl implements DissenyService {
 		Document document = documentRepository.getById(documentId);
 		if (document == null)
 			throw new NoTrobatException(Document.class, documentId);
-		return conversioTipusHelper.convertir(
+		return conversioTipusServiceHelper.convertir(
 				document,
 				DocumentDto.class);
 	}
@@ -761,7 +761,7 @@ public class DissenyServiceImpl implements DissenyService {
 	@Transactional(readOnly = true)
 	public List<DocumentDto> documentFindAmbDefinicioProces(Long definicioProcesId) {
 		List<Document> documents = documentRepository.findByDefinicioProcesId(definicioProcesId);
-		return conversioTipusHelper.convertirList(
+		return conversioTipusServiceHelper.convertirList(
 				documents,
 				DocumentDto.class);
 	}
@@ -874,7 +874,7 @@ public class DissenyServiceImpl implements DissenyService {
 		
 		expedientTipusHelper.getExpedientTipusComprovantPermisDisseny(expedientTipusId);
 				
-		ExpedientTipusDto expedientTipus = conversioTipusHelper.convertir(
+		ExpedientTipusDto expedientTipus = conversioTipusServiceHelper.convertir(
 				expedientTipusRepository.getById(
 						expedientTipusId), 
 						ExpedientTipusDto.class);
@@ -979,7 +979,7 @@ public class DissenyServiceImpl implements DissenyService {
 				"codi = " + codi + ")");
 		DominiDto domini = dominiMs.findAmbCodi(entornId, null, codi);
 		if (domini != null)
-			ret = conversioTipusHelper.convertir(
+			ret = conversioTipusServiceHelper.convertir(
 					domini,
 					DominiDto.class);
 		return ret; 
@@ -1043,7 +1043,7 @@ public class DissenyServiceImpl implements DissenyService {
 				Long.parseLong(darrera.getJbpmId()), 
 				handlers);
 		
-		return conversioTipusHelper.convertir(darrera, DefinicioProcesDto.class);
+		return conversioTipusServiceHelper.convertir(darrera, DefinicioProcesDto.class);
 
 	}	
 	
@@ -1125,7 +1125,7 @@ public class DissenyServiceImpl implements DissenyService {
  		if (definicioProces == null)
  			throw new NoTrobatException(DefinicioProces.class, definicioProcesId);
  		
- 		return conversioTipusHelper.convertirList(documentRepository.findByDefinicioProcesId(definicioProces.getId()), DocumentDto.class);
+ 		return conversioTipusServiceHelper.convertirList(documentRepository.findByDefinicioProcesId(definicioProces.getId()), DocumentDto.class);
  	}
 
     @Override
@@ -1238,7 +1238,7 @@ public class DissenyServiceImpl implements DissenyService {
     @Transactional(readOnly=true)
 	@Override
 	public ConsultaDto getConsultaById(Long id) {
-		return conversioTipusHelper.convertir(consultaRepository.getById(id), ConsultaDto.class);
+		return conversioTipusServiceHelper.convertir(consultaRepository.getById(id), ConsultaDto.class);
 	}
 	
 	@Transactional(readOnly=true)
@@ -1248,7 +1248,7 @@ public class DissenyServiceImpl implements DissenyService {
 			boolean filtrarValorsPredefinits) {
 		List<ConsultaCamp> consultaCamps = consultaCampRepository.findCampsConsulta(consulta.getId(), TipusConsultaCamp.INFORME);		
 		
-		return conversioTipusHelper.convertirList(consultaCamps, ConsultaCampDto.class);
+		return conversioTipusServiceHelper.convertirList(consultaCamps, ConsultaCampDto.class);
 	}
 
 	private static final Logger logger = LoggerFactory.getLogger(ExpedientServiceImpl.class);

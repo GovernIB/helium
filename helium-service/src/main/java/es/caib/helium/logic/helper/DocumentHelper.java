@@ -69,7 +69,7 @@ public class DocumentHelper {
 	@Resource
 	private DefinicioProcesRepository definicioProcesRepository;
 	@Resource
-	private ConversioTipusHelper conversioTipusHelper;
+	private ConversioTipusServiceHelper conversioTipusServiceHelper;
 	@Resource
 	private ExpedientHelper expedientHelper;
 	@Resource
@@ -89,7 +89,7 @@ public class DocumentHelper {
 	@Resource
 	private OpenOfficeUtils openOfficeUtils;
 	@Resource
-	private MessageHelper messageHelper;
+	private MessageServiceHelper messageHelper;
 	@Resource
 	private ExceptionHelper exceptionHelper;
 	@Resource
@@ -550,7 +550,7 @@ public class DocumentHelper {
 				false, // Per notificar
 				false);
 		if (pluginHelper.custodiaPotObtenirInfoSignatures()) {
-			return conversioTipusHelper.convertirList(pluginHelper.custodiaDadesValidacioSignatura(
+			return conversioTipusServiceHelper.convertirList(pluginHelper.custodiaDadesValidacioSignatura(
 					documentStore.getReferenciaCustodia()), RespostaValidacioSignaturaDto.class);
 		} else if (isSignaturaFileAttached()) {
 			List<byte[]> signatures = pluginHelper.custodiaObtenirSignatures(documentStore.getReferenciaCustodia());
@@ -562,7 +562,7 @@ public class DocumentHelper {
 						true);
 				resposta.add(res);
 			}
-			return conversioTipusHelper.convertirList(resposta, RespostaValidacioSignaturaDto.class);
+			return conversioTipusServiceHelper.convertirList(resposta, RespostaValidacioSignaturaDto.class);
 		} else {
 			List<RespostaValidacioSignatura> resposta = new ArrayList<RespostaValidacioSignatura>();
 			List<byte[]> signatures = pluginHelper.custodiaObtenirSignatures(
@@ -574,7 +574,7 @@ public class DocumentHelper {
 						true);
 				resposta.add(res);
 			}
-			return conversioTipusHelper.convertirList(resposta, RespostaValidacioSignaturaDto.class);
+			return conversioTipusServiceHelper.convertirList(resposta, RespostaValidacioSignaturaDto.class);
 		}
 	}
 

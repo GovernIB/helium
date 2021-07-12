@@ -1,6 +1,6 @@
 package es.caib.helium.logic.service;
 
-import es.caib.helium.logic.helper.ConversioTipusHelper;
+import es.caib.helium.logic.helper.ConversioTipusServiceHelper;
 import es.caib.helium.logic.helper.EntornHelper;
 import es.caib.helium.logic.helper.PaginacioHelper;
 import es.caib.helium.logic.intf.dto.EntornTipusAreaDto;
@@ -25,7 +25,7 @@ public class EntornTipusAreaServiceImpl implements EntornTipusAreaService {
 	@Resource
 	private TipusAreaRepository tipusAreaRepository;
 	@Resource
-	private ConversioTipusHelper conversioTipusHelper;
+	private ConversioTipusServiceHelper conversioTipusServiceHelper;
 	@Resource
 	private EntornHelper entornHelper;
 	@Resource
@@ -45,7 +45,7 @@ public class EntornTipusAreaServiceImpl implements EntornTipusAreaService {
 	public List<EntornTipusAreaDto> findTipusAreaByEntorn(Long entornId) {
 
 		logger.debug("Consultat els tipus d'àrea en funció de l'entorn");
-		return conversioTipusHelper.convertirList(tipusAreaRepository.findByEntornId(entornId),
+		return conversioTipusServiceHelper.convertirList(tipusAreaRepository.findByEntornId(entornId),
 				EntornTipusAreaDto.class);
 	}
 
@@ -57,7 +57,7 @@ public class EntornTipusAreaServiceImpl implements EntornTipusAreaService {
 	public EntornTipusAreaDto findAmbCodi(String entornTipusAreaCodi) {
 		
 		logger.debug("Consultant tipus area amb codi (codi=" + entornTipusAreaCodi + ")");
-		return conversioTipusHelper.convertir(tipusAreaRepository.findByCodi(entornTipusAreaCodi), EntornTipusAreaDto.class);
+		return conversioTipusServiceHelper.convertir(tipusAreaRepository.findByCodi(entornTipusAreaCodi), EntornTipusAreaDto.class);
 	}
 
 	/**
@@ -75,7 +75,7 @@ public class EntornTipusAreaServiceImpl implements EntornTipusAreaService {
 		entity.setDescripcio(entornTipusArea.getDescripcio());
 		Entorn entorn = entornHelper.getEntornComprovantPermisos(entornId, true, true);
 		entity.setEntorn(entorn);
-		return conversioTipusHelper.convertir(tipusAreaRepository.save(entity), EntornTipusAreaDto.class);
+		return conversioTipusServiceHelper.convertir(tipusAreaRepository.save(entity), EntornTipusAreaDto.class);
 	}
 
 	@Override
@@ -88,7 +88,7 @@ public class EntornTipusAreaServiceImpl implements EntornTipusAreaService {
 		AreaTipus entity = tipusAreaRepository.findByEntornIdAndId(entornId, entornTipusArea.getId());
 		entity.setNom(entornTipusArea.getNom());
 		entity.setDescripcio(entornTipusArea.getDescripcio());
-		return conversioTipusHelper.convertir(tipusAreaRepository.save(entity), EntornTipusAreaDto.class);
+		return conversioTipusServiceHelper.convertir(tipusAreaRepository.save(entity), EntornTipusAreaDto.class);
 	}
 
 	@Override
@@ -98,7 +98,7 @@ public class EntornTipusAreaServiceImpl implements EntornTipusAreaService {
 
 	@Override
 	public EntornTipusAreaDto findAmbId(Long entornId, Long id) {
-		return conversioTipusHelper.convertir(tipusAreaRepository.findByEntornIdAndId(entornId, id),
+		return conversioTipusServiceHelper.convertir(tipusAreaRepository.findByEntornIdAndId(entornId, id),
 				EntornTipusAreaDto.class);
 	}
 

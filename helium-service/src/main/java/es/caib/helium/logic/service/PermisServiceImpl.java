@@ -3,17 +3,15 @@
  */
 package es.caib.helium.logic.service;
 
-import java.util.List;
-
-import javax.annotation.Resource;
-
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import es.caib.helium.logic.helper.ConversioTipusHelper;
+import es.caib.helium.logic.helper.ConversioTipusServiceHelper;
 import es.caib.helium.logic.intf.dto.PermisRolDto;
 import es.caib.helium.logic.intf.service.PermisService;
 import es.caib.helium.persist.repository.PermisRepository;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import javax.annotation.Resource;
+import java.util.List;
 
 /**
  * Implementació dels mètodes del servei ExpedientService.
@@ -27,12 +25,12 @@ public class PermisServiceImpl implements PermisService {
 	PermisRepository permisRepository;
 
 	@Resource
-	private ConversioTipusHelper conversioTipusHelper;
+	private ConversioTipusServiceHelper conversioTipusServiceHelper;
 
 	@Override
 	@Transactional(readOnly = true)
 	public List<PermisRolDto> findAll() {
-		return conversioTipusHelper.convertirList(
+		return conversioTipusServiceHelper.convertirList(
 				permisRepository.findAll(), 
 				PermisRolDto.class);
 	}

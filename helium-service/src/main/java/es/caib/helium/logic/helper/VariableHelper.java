@@ -72,9 +72,9 @@ public class VariableHelper {
 //	@Resource
 //	private MesuresTemporalsHelper mesuresTemporalsHelper;
 	@Resource
-	private ConversioTipusHelper conversioTipusHelper;
+	private ConversioTipusServiceHelper conversioTipusServiceHelper;
 	@Resource
-	private MessageHelper messageHelper;
+	private MessageServiceHelper messageHelper;
 
 
 
@@ -834,12 +834,12 @@ public class VariableHelper {
 		varCodi = varCodi.replace(ExpedientCamps.EXPEDIENT_CAMP_ESTAT, ExpedientCamps.EXPEDIENT_CAMP_ESTAT_JSP);
 		tascaDto.setVarCodi(varCodi);
 		tascaDto.setCampId(camp.getId());
-		tascaDto.setCampTipus(conversioTipusHelper.convertir(camp.getTipus(), CampTipusDto.class));
+		tascaDto.setCampTipus(conversioTipusServiceHelper.convertir(camp.getTipus(), CampTipusDto.class));
 		tascaDto.setCampEtiqueta(camp.getEtiqueta());
 		tascaDto.setCampMultiple(camp.isMultiple());
 		tascaDto.setObservacions(camp.getObservacions());
 		tascaDto.setJbpmAction(camp.getJbpmAction());
-		tascaDto.setValidacions(conversioTipusHelper.convertirList(camp.getValidacions(), ValidacioDto.class));
+		tascaDto.setValidacions(conversioTipusServiceHelper.convertirList(camp.getValidacions(), ValidacioDto.class));
 		
 		if (TipusCamp.SELECCIO.equals(camp.getTipus()) || TipusCamp.SUGGEST.equals(camp.getTipus())) {
 			try {
@@ -909,7 +909,7 @@ public class VariableHelper {
 			if (camp.getAgrupacio() != null)
 				dto.setAgrupacioId(camp.getAgrupacio().getId());
 			if (camp.getValidacions() != null)
-				dto.setValidacions(conversioTipusHelper.convertirList(camp.getValidacions(), ValidacioDto.class));
+				dto.setValidacions(conversioTipusServiceHelper.convertirList(camp.getValidacions(), ValidacioDto.class));
 		} else {
 			dto.setCampEtiqueta(varCodi);
 			dto.setText(String.valueOf(varValor));
@@ -1287,7 +1287,7 @@ public class VariableHelper {
 				tasca.getId(),
 				variableCodi,
 				expedientTipus.getId());
-		return conversioTipusHelper.convertir(campTasca, CampTascaDto.class);
+		return conversioTipusServiceHelper.convertir(campTasca, CampTascaDto.class);
 	}
 
 	private static final Logger logger = LoggerFactory.getLogger(VariableHelper.class);

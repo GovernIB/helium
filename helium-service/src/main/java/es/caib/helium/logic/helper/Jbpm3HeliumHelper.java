@@ -127,7 +127,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 	private NotificacioHelper notificacioElectronicaHelper;
 
 	@Resource
-	private ConversioTipusHelper conversioTipusHelper;
+	private ConversioTipusServiceHelper conversioTipusServiceHelper;
 //	@Resource
 //	private MesuresTemporalsHelper mesuresTemporalsHelper;
 
@@ -160,7 +160,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 		logger.debug("Obtenint entorn actual (idEntornActual=" + entornId + ")");
 		if (entornId == null)
 			return null;
-		return conversioTipusHelper.convertir(
+		return conversioTipusServiceHelper.convertir(
 				entornRepository.findById(entornId),
 				EntornDto.class);
 	}
@@ -168,7 +168,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 	@Override
 	public ExpedientDto getExpedientIniciant() {
 		logger.debug("Obtenint expedient en fase d'inici");
-		return conversioTipusHelper.convertir(
+		return conversioTipusServiceHelper.convertir(
 				ThreadLocalInfo.getExpedient(),
 				ExpedientDto.class);
 	}
@@ -192,7 +192,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 				expedientTipusCodi);
 		if (expedientTipus == null)
 			throw new NoTrobatException(ExpedientTipus.class, expedientTipusCodi);
-		return conversioTipusHelper.convertir(
+		return conversioTipusServiceHelper.convertir(
 				expedientRepository.findByEntornAndTipusAndNumero(
 						entorn,
 						expedientTipus,
@@ -211,7 +211,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 	public ExpedientDto getExpedientArrelAmbProcessInstanceId(
 			String processInstanceId) {
 		logger.debug("Obtenint expedient donada una instància de procés (processInstanceId=" + processInstanceId + ")");
-		return conversioTipusHelper.convertir(
+		return conversioTipusServiceHelper.convertir(
 				getExpedientDonatProcessInstanceId(processInstanceId),
 				ExpedientDto.class);
 	}
@@ -220,7 +220,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 	public EntornDto getEntornAmbProcessInstanceId(
 			String processInstanceId) {
 		logger.debug("Obtenint expedient donada una instància de procés (processInstanceId=" + processInstanceId + ")");
-		return conversioTipusHelper.convertir(
+		return conversioTipusServiceHelper.convertir(
 				getEntornDonatProcessInstanceId(processInstanceId),
 				EntornDto.class);
 	}
@@ -234,7 +234,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 		DefinicioProces defincioProces = definicioProcesHelper.findDarreraVersioDefinicioProces(
 				expedient.getTipus(), 
 				jbpmKey);
-		return conversioTipusHelper.convertir(
+		return conversioTipusServiceHelper.convertir(
 				defincioProces,
 				DefinicioProcesDto.class);
 	}
@@ -244,7 +244,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 			String jbpmKey,
 			int version) {
 		logger.debug("Obtenint la definició de procés donat el codi jBPM i la versió (jbpmKey=" + jbpmKey + ", version=" + version +")");
-		return conversioTipusHelper.convertir(
+		return conversioTipusServiceHelper.convertir(
 				definicioProcesRepository.findByJbpmKeyAndVersio(
 						jbpmKey,
 						version),
@@ -256,7 +256,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 			Long entornId,
 			String jbpmKey) {
 		logger.debug("Obtenint la darrera versió de la definició de procés donat l'entorn i el codi jBPM (entornId=" + entornId + ", jbpmKey=" + jbpmKey + ")");
-		return conversioTipusHelper.convertir(
+		return conversioTipusServiceHelper.convertir(
 				definicioProcesRepository.findDarreraVersioAmbEntornIJbpmKey(
 						entornId,
 						jbpmKey),
@@ -267,7 +267,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 	public DefinicioProcesDto getDefinicioProcesPerProcessInstanceId(
 			String processInstanceId) {
 		logger.debug("Obtenint la definició de procés donada la instància de procés (processInstanceId=" + processInstanceId + ")");
-		return conversioTipusHelper.convertir(
+		return conversioTipusServiceHelper.convertir(
 				getDefinicioProcesDonatProcessInstanceId(processInstanceId),
 				DefinicioProcesDto.class);
 	}
@@ -275,7 +275,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 	@Override
 	public PersonaDto getPersonaAmbCodi(String codi) {
 		logger.debug("Obtenint persona (codi=" + codi + ")");
-		return conversioTipusHelper.convertir(
+		return conversioTipusServiceHelper.convertir(
 				pluginHelper.personaFindAmbCodi(codi),
 				PersonaDto.class);
 	}
@@ -291,7 +291,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 		if (entornOptional.isPresent())
 			throw new NoTrobatException(Entorn.class, entornId);
 		Entorn entorn = entornOptional.get();
-		return conversioTipusHelper.convertir(
+		return conversioTipusServiceHelper.convertir(
 				areaRepository.findByEntornAndCodi(
 						entorn,
 						codi),
@@ -317,7 +317,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 				areaCodi);
 		if (area == null)
 			throw new NoTrobatException(Area.class, areaCodi);
-		return conversioTipusHelper.convertir(
+		return conversioTipusServiceHelper.convertir(
 				carrecRepository.findByEntornAndAreaAndCodi(
 						entorn,
 						area,
@@ -328,7 +328,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 	@Override
 	public List<FestiuDto> findFestiusAll() {
 		logger.debug("Obtenint la llista de tots els festius");
-		return conversioTipusHelper.convertirList(
+		return conversioTipusServiceHelper.convertirList(
 				festiuRepository.findAll(),
 				FestiuDto.class);
 	}
@@ -361,7 +361,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 					ara, 
 					ara);
 		}
-		return conversioTipusHelper.convertir(
+		return conversioTipusServiceHelper.convertir(
 				reassignacio,
 				ReassignacioDto.class);
 	}
@@ -863,7 +863,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 		}				
 		if (termini == null)
 			throw new NoTrobatException(Termini.class, terminiCodi);
-		return conversioTipusHelper.convertir(
+		return conversioTipusServiceHelper.convertir(
 				termini,
 				TerminiDto.class);
 	}
@@ -891,7 +891,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 		}				
 		if (terminiIniciat == null)
 			throw new NoTrobatException(TerminiIniciat.class, terminiCodi);
-		return conversioTipusHelper.convertir(
+		return conversioTipusServiceHelper.convertir(
 				terminiIniciat,
 				TerminiIniciatDto.class);
 	}
@@ -1172,7 +1172,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 		}
 		if (enumeracio == null)
 			throw new NoTrobatException(Enumeracio.class, enumeracioCodi);
-		return conversioTipusHelper.convertirList(
+		return conversioTipusServiceHelper.convertirList(
 				enumeracio.getEnumeracioValors(),
 				EnumeracioValorDto.class);
 	}
@@ -1229,7 +1229,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 		ExpedientTipus tipus = expedientTipusHelper.findAmbProcessInstanceId(task.getProcessInstanceId());
 		if (tipus == null)
 			throw new NoTrobatException(ExpedientTipus.class, task.getTaskName());
-		return conversioTipusHelper.convertirList(
+		return conversioTipusServiceHelper.convertirList(
 				campTascaRepository.findAmbTascaIdOrdenats(tasca.getId(), tipus.getId()),
 				CampTascaDto.class);
 	}
@@ -1253,7 +1253,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 		ExpedientTipus tipus = expedientTipusHelper.findAmbProcessInstanceId(task.getProcessInstanceId());
 		if (tipus == null)
 			throw new NoTrobatException(ExpedientTipus.class, task.getTaskName());
-		return conversioTipusHelper.convertirList(
+		return conversioTipusServiceHelper.convertirList(
 				documentTascaRepository.findAmbTascaOrdenats(tasca.getId(), tipus.getId()),
 				DocumentTascaDto.class);
 	}
@@ -1294,7 +1294,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 				"ambContingutVista=" + ambContingutVista + ", " + 
 				"perSignar=" + perSignar + ", " + 
 				"ambSegellSignatura=" + ambSegellSignatura + ")");
-		return conversioTipusHelper.convertir(
+		return conversioTipusServiceHelper.convertir(
 				documentHelper.toDocumentDto(
 						documentStoreId,
 						ambContingutOriginal,
@@ -1476,7 +1476,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 					bccRecipients,
 					subject,
 					text,
-					conversioTipusHelper.convertirList(
+					conversioTipusServiceHelper.convertirList(
 							attachments,
 							ArxiuDto.class));
 		} catch (Exception e) {
@@ -1695,7 +1695,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 		RespostaJustificantRecepcio resposta = pluginHelper.tramitacioObtenirJustificant(
 				registreNumero);
 		if (!resposta.isError()) {
-			return conversioTipusHelper.convertir(resposta, RespostaJustificantRecepcioDto.class);
+			return conversioTipusServiceHelper.convertir(resposta, RespostaJustificantRecepcioDto.class);
 		} else {
 			throw new SistemaExternException(
 					null,
@@ -1718,7 +1718,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 		RespostaJustificantDetallRecepcio resposta =  pluginHelper.tramitacioObtenirJustificantDetall(
 				registreNumero);
 		if (!resposta.isError()) {
-			return conversioTipusHelper.convertir(resposta, RespostaJustificantDetallRecepcioDto.class);
+			return conversioTipusServiceHelper.convertir(resposta, RespostaJustificantDetallRecepcioDto.class);
 		} else {
 			throw new SistemaExternException(
 					null,
@@ -1888,7 +1888,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 	@Override
 	public TramitDto getTramit(String numero, String clau) {
 		logger.debug("Obtenint dades del tràmit (numero=" + numero + ", clau=" + clau + ")");
-		return conversioTipusHelper.convertir(
+		return conversioTipusServiceHelper.convertir(
 				pluginHelper.tramitacioObtenirDadesTramit(numero, clau),
 				TramitDto.class);
 	}
@@ -1921,7 +1921,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 				expedientTipusCodi);
 		if (expedientTipus == null)
 			throw new NoTrobatException(ExpedientTipus.class, expedientTipusCodi);
-		return conversioTipusHelper.convertir(
+		return conversioTipusServiceHelper.convertir(
 				estatRepository.findByExpedientTipusAndCodiAmbHerencia(
 						expedientTipus.getId(), 
 						estatCodi),
@@ -1942,14 +1942,14 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 		ExpedientTipus expedientTipus = expedient.getTipus();
 		
 		if (expedientTipus.isAmbInfoPropia())
-			return conversioTipusHelper.convertir(
+			return conversioTipusServiceHelper.convertir(
 					documentRepository.findByExpedientTipusAndCodi(
 							expedientTipus.getId(), 
 							documentCodi,
 							expedientTipus.getExpedientTipusPare() != null),
 					DocumentDissenyDto.class);
 		else
-			return conversioTipusHelper.convertir(
+			return conversioTipusServiceHelper.convertir(
 					documentRepository.findByDefinicioProcesAndCodi(
 							definicioProces, 
 							documentCodi),
@@ -2090,7 +2090,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 				numero);
 		if (expedient == null)
 			return null;
-		return conversioTipusHelper.convertir(expedient, ExpedientDto.class);
+		return conversioTipusServiceHelper.convertir(expedient, ExpedientDto.class);
 	}
 
 	@Override
@@ -2129,7 +2129,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 						.orElseThrow(() -> new NoTrobatException(Estat.class, estatId));
 			}
 		}
-		return conversioTipusHelper.convertirList(
+		return conversioTipusServiceHelper.convertirList(
 				expedientHelper.findByFiltreGeneral(
 						entorn,
 						titol,
@@ -2201,7 +2201,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 			expedient = expedientHelper.findAmbEntornIId(entornId, expedientId);
 			if (expedient != null 
 					&& !expedient.isAnulat())
-				resposta.add(conversioTipusHelper.convertir(expedient, ExpedientDto.class));
+				resposta.add(conversioTipusServiceHelper.convertir(expedient, ExpedientDto.class));
 		}
 		return resposta;
 	}
@@ -2338,7 +2338,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 		List<DefinicioProcesDto> resposta = new ArrayList<DefinicioProcesDto>();
 		DefinicioProces definicioProces = definicioProcesRepository.findById(definicioProcesId).get();
 		for (WProcessDefinition pd : workflowEngineApi.getSubProcessDefinitions(null, definicioProces.getJbpmId())) {
-			resposta.add(conversioTipusHelper.convertir(
+			resposta.add(conversioTipusServiceHelper.convertir(
 					definicioProcesRepository.findByJbpmId(pd.getId()),
 					DefinicioProcesDto.class));
 		}

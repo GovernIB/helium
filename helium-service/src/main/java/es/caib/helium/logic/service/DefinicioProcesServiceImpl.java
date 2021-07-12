@@ -3,7 +3,7 @@
  */
 package es.caib.helium.logic.service;
 
-import es.caib.helium.logic.helper.ConversioTipusHelper;
+import es.caib.helium.logic.helper.ConversioTipusServiceHelper;
 import es.caib.helium.logic.helper.DefinicioProcesHelper;
 import es.caib.helium.logic.helper.EntornHelper;
 import es.caib.helium.logic.helper.ExpedientTipusHelper;
@@ -76,7 +76,7 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 	@Resource
 	private WorkflowEngineApi workflowEngineApi;
 	@Resource
-	private ConversioTipusHelper conversioTipusHelper;
+	private ConversioTipusServiceHelper conversioTipusServiceHelper;
 	@Resource
 	private PaginacioHelper paginacioHelper;
 
@@ -92,7 +92,7 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 				"definicioProcesId = " + definicioProcesId + ")");
 		DefinicioProces definicioProces = definicioProcesRepository.getById(definicioProcesId);
 
-		return conversioTipusHelper.convertir(
+		return conversioTipusServiceHelper.convertir(
 				definicioProces,
 				DefinicioProcesDto.class);
 	}
@@ -127,7 +127,7 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 			else
 				entornHelper.getEntornComprovantPermisos(EntornActual.getEntornId(), true, true);
 
-			dto = conversioTipusHelper.convertir(
+			dto = conversioTipusServiceHelper.convertir(
 					definicioProces,
 					DefinicioProcesDto.class);
 		}
@@ -168,7 +168,7 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 				expedientTipusId == null,
 				expedientTipusId,
 				incloureGlobals);
-		return conversioTipusHelper.convertirList(
+		return conversioTipusServiceHelper.convertirList(
 									definicions, 
 									DefinicioProcesDto.class);
 	}
@@ -333,7 +333,7 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 				command != null ? command.isSobreEscriure() : true);
 		
 		if (importat != null)
-			ret = conversioTipusHelper.convertir(importat, DefinicioProcesDto.class);
+			ret = conversioTipusServiceHelper.convertir(importat, DefinicioProcesDto.class);
 		return ret;
 	}
 	
@@ -514,7 +514,7 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 				"Consultant totes les tasques de la definicio de procés(" +
 				"definicioProcesId=" + definicioProcesId + ")");
 								
-		return conversioTipusHelper.convertirList(
+		return conversioTipusServiceHelper.convertirList(
 				tascaRepository.findByDefinicioProcesIdOrderByNomAsc(
 						definicioProcesId), 
 				TascaDto.class);
@@ -530,7 +530,7 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 				"Consultant la definicio de proces d'una tasca (" +
 				"tascaId=" + tascaId + ")");
 								
-		return conversioTipusHelper.convertir(
+		return conversioTipusServiceHelper.convertir(
 				tascaRepository.getById(tascaId).getDefinicioProces(),
 				DefinicioProcesDto.class);
 	}
@@ -542,7 +542,7 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 		if (tasca == null) {
 			throw new NoTrobatException(Tasca.class, tascaId);
 		}
-		TascaDto tascaDto = conversioTipusHelper.convertir(
+		TascaDto tascaDto = conversioTipusServiceHelper.convertir(
 				tasca, 
 				TascaDto.class);
 		if (tasca.getDefinicioProces() != null)
@@ -587,7 +587,7 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 		entity.setAmbRepro(tasca.isAmbRepro());
 		entity.setMostrarAgrupacions(tasca.isMostrarAgrupacions());
 		
-		return conversioTipusHelper.convertir(
+		return conversioTipusServiceHelper.convertir(
 				tascaRepository.save(entity),
 				TascaDto.class);
 	}		
@@ -623,7 +623,7 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 				entity.setExpedientTipus(expedientTipus);
 		}
 		
-		return conversioTipusHelper.convertir(
+		return conversioTipusServiceHelper.convertir(
 				campTascaRepository.save(entity),
 				CampTascaDto.class);
 	}
@@ -753,7 +753,7 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 				// Completa l'informació del camp del campTasca
 				// Sobreescriu
 				if (sobreescrits.containsKey(dto.getCamp().getCodi())) {
-					dto.setCamp(conversioTipusHelper.convertir(sobreescrits.get(dto.getCamp().getCodi()), CampDto.class));
+					dto.setCamp(conversioTipusServiceHelper.convertir(sobreescrits.get(dto.getCamp().getCodi()), CampDto.class));
 					dto.getCamp().setSobreescriu(true);
 				}
 				// Heretat
@@ -782,7 +782,7 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 		
 		definirAmpleBuit(entity, tascaCamp);
 		
-		return conversioTipusHelper.convertir(
+		return conversioTipusServiceHelper.convertir(
 				campTascaRepository.save(entity),
 				CampTascaDto.class);
 	}
@@ -802,7 +802,7 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 		if (campTasca == null) {
 			throw new NoTrobatException(CampTasca.class, campTascaId);
 		}
-		CampTascaDto dto = conversioTipusHelper.convertir(
+		CampTascaDto dto = conversioTipusServiceHelper.convertir(
 				campTasca, 
 				CampTascaDto.class);
 
@@ -833,7 +833,7 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 
 		CampTascaDto dto;
 		for (CampTasca campTasca : campsTasca) {
-			dto = conversioTipusHelper.convertir(
+			dto = conversioTipusServiceHelper.convertir(
 					campTasca, 
 					CampTascaDto.class);
 			// Herencia
@@ -871,7 +871,7 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 				entity.setExpedientTipus(expedientTipus);
 		}
 		
-		return conversioTipusHelper.convertir(
+		return conversioTipusServiceHelper.convertir(
 				documentTascaRepository.save(entity),
 				DocumentTascaDto.class);
 	}
@@ -1006,7 +1006,7 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 				// Completa l'informació del document del campTasca
 				// Sobreescriu
 				if (sobreescrits.containsKey(dto.getDocument().getCodi())) {
-					dto.setDocument(conversioTipusHelper.convertir(sobreescrits.get(dto.getDocument().getCodi()), DocumentDto.class));
+					dto.setDocument(conversioTipusServiceHelper.convertir(sobreescrits.get(dto.getDocument().getCodi()), DocumentDto.class));
 					dto.getDocument().setSobreescriu(true);
 				}
 				// Heretat
@@ -1031,7 +1031,7 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 		entity.setRequired(tascaDocument.isRequired());
 		entity.setReadOnly(tascaDocument.isReadOnly());
 		
-		return conversioTipusHelper.convertir(
+		return conversioTipusServiceHelper.convertir(
 				documentTascaRepository.save(entity),
 				DocumentTascaDto.class);
 	}
@@ -1051,7 +1051,7 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 		if (documentTasca == null) {
 			throw new NoTrobatException(DocumentTasca.class, documentTascaId);
 		}
-		DocumentTascaDto dto = conversioTipusHelper.convertir(
+		DocumentTascaDto dto = conversioTipusServiceHelper.convertir(
 				documentTasca, 
 				DocumentTascaDto.class);
 
@@ -1083,7 +1083,7 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 
 		DocumentTascaDto dto;
 		for (DocumentTasca documentTasca : documentsTasca) {
-			dto = conversioTipusHelper.convertir(
+			dto = conversioTipusServiceHelper.convertir(
 					documentTasca, 
 					DocumentTascaDto.class);
 			// Herencia
@@ -1118,7 +1118,7 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 				entity.setExpedientTipus(expedientTipus);
 		}
 		
-		return conversioTipusHelper.convertir(
+		return conversioTipusServiceHelper.convertir(
 				firmaTascaRepository.save(entity),
 				FirmaTascaDto.class);
 	}
@@ -1247,7 +1247,7 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 				// Completa l'informació del document del campTasca
 				// Sobreescriu
 				if (sobreescrits.containsKey(dto.getDocument().getCodi())) {
-					dto.setDocument(conversioTipusHelper.convertir(sobreescrits.get(dto.getDocument().getCodi()), DocumentDto.class));
+					dto.setDocument(conversioTipusServiceHelper.convertir(sobreescrits.get(dto.getDocument().getCodi()), DocumentDto.class));
 					dto.getDocument().setSobreescriu(true);
 				}
 				// Heretat
@@ -1268,7 +1268,7 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 				"Consultant la firma per una tasca i document(" +
 				"tascaId=" + tascaId +
 				", documentId=" + documentId + ")");
-		return conversioTipusHelper.convertir(
+		return conversioTipusServiceHelper.convertir(
 				firmaTascaRepository.findAmbDocumentTasca(documentId, tascaId, expedientTipusId), 
 				FirmaTascaDto.class);
 	}
@@ -1286,7 +1286,7 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 				
 		entity.setRequired(tascaFirma.isRequired());
 		
-		return conversioTipusHelper.convertir(
+		return conversioTipusServiceHelper.convertir(
 				firmaTascaRepository.save(entity),
 				FirmaTascaDto.class);
 	}
@@ -1306,7 +1306,7 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 		if (firmaTasca == null) {
 			throw new NoTrobatException(FirmaTasca.class, firmaTascaId);
 		}
-		FirmaTascaDto dto = conversioTipusHelper.convertir(
+		FirmaTascaDto dto = conversioTipusServiceHelper.convertir(
 				firmaTasca, 
 				FirmaTascaDto.class);
 
@@ -1338,7 +1338,7 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 
 		FirmaTascaDto dto;
 		for (FirmaTasca firmaTasca : firmesTasca) {
-			dto = conversioTipusHelper.convertir(
+			dto = conversioTipusServiceHelper.convertir(
 					firmaTasca, 
 					FirmaTascaDto.class);
 			// Herencia
@@ -1370,7 +1370,7 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 		else
 			entornHelper.getEntornComprovantPermisos(EntornActual.getEntornId(), true, true);
 
-		return conversioTipusHelper.convertir(
+		return conversioTipusServiceHelper.convertir(
 				definicioProces,
 				DefinicioProcesDto.class);
 	}
@@ -1397,7 +1397,7 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 		else
 			entornHelper.getEntornComprovantPermisos(EntornActual.getEntornId(), true, true);
 
-		return conversioTipusHelper.convertir(
+		return conversioTipusServiceHelper.convertir(
 				definicioProces,
 				DefinicioProcesDto.class);
 	}
@@ -1411,7 +1411,7 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 				entornId,
 				true);
 		List<Consulta> consultans = consultaRepository.findByEntorn(entorn);
-		return conversioTipusHelper.convertirList(
+		return conversioTipusServiceHelper.convertirList(
 									consultans, 
 									ConsultaDto.class);
 	}
@@ -1428,7 +1428,7 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 		
 		List<Camp> camps = campRepository.findByDefinicioProcesOrderByCodiAsc(definicioProces);
 		
-		return conversioTipusHelper.convertirList(
+		return conversioTipusServiceHelper.convertirList(
 				camps, 
 				CampDto.class);
 	}	
@@ -1446,7 +1446,7 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 		
 		List<Termini> terminis = terminiRepository.findByDefinicioProcesId(definicioProcesId);
 		
-		return conversioTipusHelper.convertirList(
+		return conversioTipusServiceHelper.convertirList(
 									terminis, 
 									TerminiDto.class);
 	}	

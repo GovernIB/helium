@@ -3,7 +3,7 @@
  */
 package es.caib.helium.logic.service;
 
-import es.caib.helium.logic.helper.ConversioTipusHelper;
+import es.caib.helium.logic.helper.ConversioTipusServiceHelper;
 import es.caib.helium.logic.intf.dto.ExpedientReindexacioDto;
 import es.caib.helium.logic.intf.dto.ExpedientTipusDto;
 import es.caib.helium.logic.intf.service.ExpedientReindexacioService;
@@ -38,7 +38,7 @@ public class ExpedientReindexacioServiceImpl implements ExpedientReindexacioServ
 	private ExpedientReindexacioRepository expedientReindexacioRepository;
 	
 	@Resource
-	private ConversioTipusHelper conversioTipusHelper;
+	private ConversioTipusServiceHelper conversioTipusServiceHelper;
 
 
 	/**
@@ -111,13 +111,13 @@ public class ExpedientReindexacioServiceImpl implements ExpedientReindexacioServ
 		// Expedients diferents a la cua
 		dades.put("cuaExpedients", expedientReindexacioRepository.countExpedientsPendents());
 		if (!llista.isEmpty()) {
-			dades.put("primer", conversioTipusHelper.convertir(llista.get(0), ExpedientReindexacioDto.class));
-			dades.put("darrer", conversioTipusHelper.convertir(llista.get(llista.size()-1), ExpedientReindexacioDto.class));
+			dades.put("primer", conversioTipusServiceHelper.convertir(llista.get(0), ExpedientReindexacioDto.class));
+			dades.put("darrer", conversioTipusServiceHelper.convertir(llista.get(llista.size()-1), ExpedientReindexacioDto.class));
 		} else {
 			dades.put("primer", null);
 			dades.put("darrer", null);			
 		}
-		List<ExpedientReindexacioDto> llistaDto = conversioTipusHelper.convertirList(llista, ExpedientReindexacioDto.class);
+		List<ExpedientReindexacioDto> llistaDto = conversioTipusServiceHelper.convertirList(llista, ExpedientReindexacioDto.class);
 		dades.put("cuaLlista", llistaDto);
 		
 		return dades;
@@ -137,7 +137,7 @@ public class ExpedientReindexacioServiceImpl implements ExpedientReindexacioServ
 		Long expedientTipusId;
 		for (Object[] dada : dades) {
 			expedientTipusId = (Long) dada[0];
-			dada[0] = conversioTipusHelper.convertir(
+			dada[0] = conversioTipusServiceHelper.convertir(
 						expedientTipusRepository.findById(expedientTipusId),
 						ExpedientTipusDto.class);
 		}

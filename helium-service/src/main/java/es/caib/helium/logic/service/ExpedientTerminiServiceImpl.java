@@ -1,8 +1,8 @@
 package es.caib.helium.logic.service;
 
-import es.caib.helium.logic.helper.ConversioTipusHelper;
+import es.caib.helium.logic.helper.ConversioTipusServiceHelper;
 import es.caib.helium.logic.helper.ExpedientHelper;
-import es.caib.helium.logic.helper.MessageHelper;
+import es.caib.helium.logic.helper.MessageServiceHelper;
 import es.caib.helium.logic.helper.TerminiHelper;
 import es.caib.helium.logic.intf.WorkflowEngineApi;
 import es.caib.helium.logic.intf.dto.FestiuDto;
@@ -50,7 +50,7 @@ public class ExpedientTerminiServiceImpl implements ExpedientTerminiService {
 	@Resource
 	private FestiuRepository festiuRepository;	
 	@Resource
-	private MessageHelper messageHelper;
+	private MessageServiceHelper messageHelper;
 	@Resource
 	private TerminiIniciatRepository terminiIniciatRepository;
 	@Resource
@@ -60,7 +60,7 @@ public class ExpedientTerminiServiceImpl implements ExpedientTerminiService {
 	@Resource
 	private WorkflowEngineApi workflowEngineApi;
 	@Resource
-	private ConversioTipusHelper conversioTipusHelper;
+	private ConversioTipusServiceHelper conversioTipusServiceHelper;
 	@Resource
 	private ExpedientHelper expedientHelper;
 	@Resource
@@ -304,7 +304,7 @@ public class ExpedientTerminiServiceImpl implements ExpedientTerminiService {
 					processInstanceId);
 			terminis = terminiRepository.findByDefinicioProcesId(definicioProces.getId());
 		}
-		return conversioTipusHelper.convertirList(
+		return conversioTipusServiceHelper.convertirList(
 				terminis,
 				TerminiDto.class);
 	}
@@ -330,7 +330,7 @@ public class ExpedientTerminiServiceImpl implements ExpedientTerminiService {
 				expedient,
 				processInstanceId);
 		List<TerminiIniciat> terminiIniciats = terminiIniciatRepository.findByProcessInstanceId(processInstanceId);
-		return conversioTipusHelper.convertirList(terminiIniciats, TerminiIniciatDto.class);
+		return conversioTipusServiceHelper.convertirList(terminiIniciats, TerminiIniciatDto.class);
 	}
 
 	/**
@@ -358,7 +358,7 @@ public class ExpedientTerminiServiceImpl implements ExpedientTerminiService {
 				.orElseThrow(() -> new NoTrobatException(
 					TerminiIniciat.class,
 					terminiIniciatId));
-		return conversioTipusHelper.convertir(
+		return conversioTipusServiceHelper.convertir(
 				terminiIniciat,
 				TerminiIniciatDto.class);
 	}
@@ -372,7 +372,7 @@ public class ExpedientTerminiServiceImpl implements ExpedientTerminiService {
 			int any) {
 		logger.debug("Consultant festius de l'any (" +
 				"any=" + any + ")");
-		return conversioTipusHelper.convertirList(
+		return conversioTipusServiceHelper.convertirList(
 				festiuRepository.findByAny(any),
 				FestiuDto.class);
 	}
@@ -605,7 +605,7 @@ public class ExpedientTerminiServiceImpl implements ExpedientTerminiService {
 					SecurityContextHolder.getContext().getAuthentication().getName());
 		
 		TerminiIniciat terminiObj = terminiIniciatRepository.save(terminiIniciat);
-		return conversioTipusHelper.convertir(terminiObj, TerminiIniciatDto.class);
+		return conversioTipusServiceHelper.convertir(terminiObj, TerminiIniciatDto.class);
 	}
 
 	private int[] getDiesNoLaborables(ExpedientTipus expedientTipus) {

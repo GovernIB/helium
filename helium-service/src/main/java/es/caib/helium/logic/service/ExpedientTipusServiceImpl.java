@@ -112,13 +112,13 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 	@Resource
 	private ExpedientTipusHelper expedientTipusHelper;
 	@Resource
-	private ConversioTipusHelper conversioTipusHelper;
+	private ConversioTipusServiceHelper conversioTipusServiceHelper;
 	@Resource
 	private PermisosHelper permisosHelper;
 	@Resource
 	private PaginacioHelper paginacioHelper;
 	@Resource
-	private MessageHelper messageHelper;
+	private MessageServiceHelper messageHelper;
 	@Resource
 	private DominiHelper dominiHelper;
 	@Resource
@@ -187,7 +187,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 				entity.getSequenciaAny().put(anyEntity.getAny(), anyEntity);
 			}
 		}
-		return conversioTipusHelper.convertir(
+		return conversioTipusServiceHelper.convertir(
 				expedientTipusRepository.save(entity),
 				ExpedientTipusDto.class);
 	}
@@ -259,7 +259,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 			entity.setAmbRetroaccio(expedientTipus.isAmbRetroaccio());
 			entity.setReindexacioAsincrona(expedientTipus.isReindexacioAsincrona());
 		}
-		return conversioTipusHelper.convertir(
+		return conversioTipusServiceHelper.convertir(
 				expedientTipusRepository.save(entity),
 				ExpedientTipusDto.class);
 	}
@@ -289,7 +289,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		entity.setFormextUsuari(usuari);
 		entity.setFormextContrasenya(contrasenya);
 
-		return conversioTipusHelper.convertir(
+		return conversioTipusServiceHelper.convertir(
 				expedientTipusRepository.save(entity),
 				ExpedientTipusDto.class);	
 	}
@@ -325,7 +325,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		entity.setDistribucioProcesAuto(procesAuto);
 		entity.setDistribucioSistra(sistra);
 
-		return conversioTipusHelper.convertir(
+		return conversioTipusServiceHelper.convertir(
 				expedientTipusRepository.save(entity),
 				ExpedientTipusDto.class);	
 	}
@@ -369,7 +369,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
     	entity.setNotificacioOficiTitol(notificacioOficiTitol);
     	entity.setNotificacioOficiText(notificacioOficiText);
 
-		return conversioTipusHelper.convertir(
+		return conversioTipusServiceHelper.convertir(
 				expedientTipusRepository.save(entity),
 				ExpedientTipusDto.class);	
 	}	
@@ -1364,7 +1364,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 			}
 		}
 
-		return conversioTipusHelper.convertir(
+		return conversioTipusServiceHelper.convertir(
 				expedientTipusRepository.save(expedientTipus),
 				ExpedientTipusDto.class);
 	}
@@ -1382,7 +1382,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		ExpedientTipus tipus = expedientTipusRepository.findById(expedientTipusId)
 				.orElseThrow(() -> new NoTrobatException(ExpedientTipus.class, expedientTipusId));
 		
-		return conversioTipusHelper.convertir(
+		return conversioTipusServiceHelper.convertir(
 				tipus,
 				ExpedientTipusDto.class);
 	}
@@ -1415,7 +1415,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 						ExtendedPermission.READ,
 						ExtendedPermission.ADMINISTRATION},
 				auth);
-		return conversioTipusHelper.convertirList(
+		return conversioTipusServiceHelper.convertirList(
 				tipuss,
 				ExpedientTipusDto.class);
 	}
@@ -1434,7 +1434,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 				"expedientTipusId = " + expedientTipusId + ")");
 		ExpedientTipus tipus = expedientTipusHelper.getExpedientTipusComprovantPermisLectura(
 				expedientTipusId);
-		return conversioTipusHelper.convertir(
+		return conversioTipusServiceHelper.convertir(
 				tipus,
 				ExpedientTipusDto.class);
 	}
@@ -1471,7 +1471,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 							ExtendedPermission.ADMINISTRATION},
 					auth);
 		}
-		return conversioTipusHelper.convertirList(
+		return conversioTipusServiceHelper.convertirList(
 				tipuss,
 				ExpedientTipusDto.class);
 	}
@@ -1506,7 +1506,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 							ExtendedPermission.RELATE},
 					auth);
 		}
-		return conversioTipusHelper.convertirList(
+		return conversioTipusServiceHelper.convertirList(
 				tipuss,
 				ExpedientTipusDto.class);
 	}
@@ -1541,7 +1541,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 							ExtendedPermission.SCRIPT_EXE},
 					auth);
 		}
-		return conversioTipusHelper.convertirList(
+		return conversioTipusServiceHelper.convertirList(
 				tipuss,
 				ExpedientTipusDto.class);
 	}
@@ -1565,7 +1565,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 			tipus = expedientTipusHelper.getExpedientTipusComprovantPermisDisseny(
 				expedientTipusId);
 		
-		ExpedientTipusDto tipusDto = conversioTipusHelper.convertir(
+		ExpedientTipusDto tipusDto = conversioTipusServiceHelper.convertir(
 				tipus,
 				ExpedientTipusDto.class); 
 		
@@ -1594,7 +1594,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 			tipus = expedientTipusHelper.getExpedientTipusComprovantPermisCrear(
 				expedientTipusId);
 		
-		ExpedientTipusDto tipusDto = conversioTipusHelper.convertir(
+		ExpedientTipusDto tipusDto = conversioTipusServiceHelper.convertir(
 				tipus,
 				ExpedientTipusDto.class); 
 		
@@ -1623,7 +1623,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 			tipus = expedientTipusHelper.getExpedientTipusComprovantPermisLectura(
 				expedientTipusId);
 		
-		ExpedientTipusDto tipusDto = conversioTipusHelper.convertir(
+		ExpedientTipusDto tipusDto = conversioTipusServiceHelper.convertir(
 				tipus,
 				ExpedientTipusDto.class); 
 		
@@ -1652,7 +1652,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 			tipus = expedientTipusHelper.getExpedientTipusComprovantPermisEscriptura(
 				expedientTipusId);
 		
-		ExpedientTipusDto tipusDto = conversioTipusHelper.convertir(
+		ExpedientTipusDto tipusDto = conversioTipusServiceHelper.convertir(
 				tipus,
 				ExpedientTipusDto.class); 
 		
@@ -1681,7 +1681,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 			tipus = expedientTipusHelper.getExpedientTipusComprovantPermisEsborrar(
 				expedientTipusId);
 		
-		ExpedientTipusDto tipusDto = conversioTipusHelper.convertir(
+		ExpedientTipusDto tipusDto = conversioTipusServiceHelper.convertir(
 				tipus,
 				ExpedientTipusDto.class); 
 		
@@ -1710,7 +1710,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 			tipus = expedientTipusHelper.getExpedientTipusComprovantPermisDissenyDelegat(
 				expedientTipusId);
 		
-		ExpedientTipusDto tipusDto = conversioTipusHelper.convertir(
+		ExpedientTipusDto tipusDto = conversioTipusServiceHelper.convertir(
 				tipus,
 				ExpedientTipusDto.class); 
 		
@@ -1748,7 +1748,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 						ExtendedPermission.CREATE,
 						ExtendedPermission.ADMINISTRATION},
 				auth);
-		return conversioTipusHelper.convertirList(
+		return conversioTipusServiceHelper.convertirList(
 				tipuss,
 				ExpedientTipusDto.class);
 	}
@@ -1767,7 +1767,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 				entornId,
 				true);
 		List<ExpedientTipus> tipuss = expedientTipusRepository.findByEntorn(entorn);
-		return conversioTipusHelper.convertirList(
+		return conversioTipusServiceHelper.convertirList(
 				tipuss,
 				ExpedientTipusDto.class);
 	}
@@ -1787,7 +1787,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		Entorn entorn = entornHelper.getEntornComprovantPermisos(
 				entornId,
 				true);
-		return conversioTipusHelper.convertir(
+		return conversioTipusServiceHelper.convertir(
 				expedientTipusRepository.findByEntornAndCodi(entorn, codi),
 				ExpedientTipusDto.class);
 	}
@@ -1872,7 +1872,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 				entornId,
 				true);
 		List<ExpedientTipus> tipuss = expedientTipusRepository.findHeretablesByEntorn(entorn);
-		return conversioTipusHelper.convertirList(
+		return conversioTipusServiceHelper.convertirList(
 				tipuss,
 				ExpedientTipusDto.class);
 	}
@@ -1885,7 +1885,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 	public List<ExpedientTipusDto> findHeretats(Long expedientTipusId) {
 		logger.debug("Consultant els tipus heretats (expedientTipusId=" + expedientTipusId + ")");
 		List<ExpedientTipus> heretats = expedientTipusRepository.findByExpedientTipusPareIdOrderByCodiAsc(expedientTipusId); 
-		return conversioTipusHelper.convertirList(
+		return conversioTipusServiceHelper.convertirList(
 				heretats, 
 				ExpedientTipusDto.class);
 	}
@@ -2043,7 +2043,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		else
 			enumeracions = enumeracioRepository.findAmbExpedientTipusIGlobals(expedientTipusId);			
 		
-		return conversioTipusHelper.convertirList(
+		return conversioTipusServiceHelper.convertirList(
 									enumeracions, 
 									EnumeracioDto.class);
 	}
@@ -2062,7 +2062,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		else
 			dominis = dominiMs.findAmbExpedientTipusIGlobals(entornId, expedientTipusId);
 		
-		return conversioTipusHelper.convertirList(
+		return conversioTipusServiceHelper.convertirList(
 									dominis, 
 									DominiDto.class);
 	}
@@ -2074,7 +2074,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 	public List<ConsultaDto> consultaFindAll(
 			Long expedientTipusId) throws NoTrobatException, PermisDenegatException {
 		List<Consulta> consultans = consultaRepository.findAmbExpedientTipus(expedientTipusId);
-		return conversioTipusHelper.convertirList(
+		return conversioTipusServiceHelper.convertirList(
 									consultans, 
 									ConsultaDto.class);
 	}
@@ -2107,7 +2107,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 			Long expedientTipusId) throws NoTrobatException, PermisDenegatException {
 				
 		List<DefinicioProces> definicions = definicioProcesRepository.findAmbExpedientTipus(expedientTipusId);
-		return conversioTipusHelper.convertirList(
+		return conversioTipusServiceHelper.convertirList(
 									definicions, 
 									DefinicioProcesDto.class);
 	}	
@@ -2180,7 +2180,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		entity.setDataFi(reassignacio.getDataFi());
 		entity.setDataCancelacio(reassignacio.getDataCancelacio());
 
-		return conversioTipusHelper.convertir(
+		return conversioTipusServiceHelper.convertir(
 				reassignacioRepository.save(entity),
 				ReassignacioDto.class);
 	}
@@ -2205,7 +2205,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		entity.setDataFi(reassignacio.getDataFi());
 		entity.setDataCancelacio(reassignacio.getDataCancelacio());
 				
-		return conversioTipusHelper.convertir(
+		return conversioTipusServiceHelper.convertir(
 				reassignacioRepository.save(entity),
 				ReassignacioDto.class);
 	}
@@ -2235,7 +2235,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		if (reassignacio == null) {
 			throw new NoTrobatException(Reassignacio.class, id);
 		}
-		return conversioTipusHelper.convertir(
+		return conversioTipusServiceHelper.convertir(
 				reassignacio,
 				ReassignacioDto.class);
 	}
@@ -2293,7 +2293,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		else
 			estats = estatRepository.findAll(expedientTipusId);				
 		
-		List<EstatDto> dtos = conversioTipusHelper.convertirList(
+		List<EstatDto> dtos = conversioTipusServiceHelper.convertirList(
 				estats,
 				EstatDto.class);		
 
@@ -2327,7 +2327,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		if (estat == null) {
 			throw new NoTrobatException(Estat.class, estatId);
 		}
-		EstatDto dto = conversioTipusHelper.convertir(
+		EstatDto dto = conversioTipusServiceHelper.convertir(
 				estat, 
 				EstatDto.class);
 		// Herencia
@@ -2354,7 +2354,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 				codi);
 		EstatDto dto = null;
 		if (estat != null) {
-			dto = conversioTipusHelper.convertir(
+			dto = conversioTipusServiceHelper.convertir(
 					estat, 
 					EstatDto.class);
 		}
@@ -2372,7 +2372,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		estat.setNom(dto.getNom());
 		Integer seguentOrdre = estatRepository.getSeguentOrdre(expedientTipusId); 
 		estat.setOrdre(seguentOrdre == null ? 0 : seguentOrdre + 1);
-		return conversioTipusHelper.convertir(
+		return conversioTipusServiceHelper.convertir(
 				estatRepository.save(estat),
 				EstatDto.class);
 	}
@@ -2391,7 +2391,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		estat.setCodi(dto.getCodi());
 		estat.setNom(dto.getNom());
 		
-		return conversioTipusHelper.convertir(
+		return conversioTipusServiceHelper.convertir(
 				estatRepository.save(estat),
 				EstatDto.class);
 	}
@@ -2844,7 +2844,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		entity.setExpedientTipus(expedientTipus);		
 		entity.setEntorn(expedientTipus.getEntorn());		
 
-		return conversioTipusHelper.convertir(
+		return conversioTipusServiceHelper.convertir(
 				consultaRepository.save(entity),
 				ConsultaDto.class);
 	}
@@ -2874,7 +2874,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		if (actualitzarContingut)
 			entity.setInformeContingut(consulta.getInformeContingut());
 				
-		return conversioTipusHelper.convertir(
+		return conversioTipusServiceHelper.convertir(
 				consultaRepository.save(entity),
 				ConsultaDto.class);
 	}
@@ -2916,7 +2916,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		if (consulta == null) {
 			throw new NoTrobatException(Consulta.class, id);
 		}
-		return conversioTipusHelper.convertir(
+		return conversioTipusServiceHelper.convertir(
 				consulta,
 				ConsultaDto.class);
 	}
@@ -2931,7 +2931,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 				"expedientTipusId=" + expedientTipusId + ", " +
 				"codi = " + codi + ")");
 		ExpedientTipus expedientTipus = expedientTipusRepository.getById(expedientTipusId);
-		return conversioTipusHelper.convertir(
+		return conversioTipusServiceHelper.convertir(
 				consultaRepository.findByExpedientTipusAndCodi(expedientTipus, codi),
 				ConsultaDto.class);
 	}	
@@ -3009,7 +3009,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 			String jbpmKey,
 			int versio) {
 
-		return conversioTipusHelper.convertirList(
+		return conversioTipusServiceHelper.convertirList(
 				consultaRepository.findRelacionadesAmbDefinicioProces(
 						entornId,
 						expedientTipusId,
@@ -3068,7 +3068,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		if (consultaCamp.getParamTipus() != null )
 			entity.setParamTipus(ConsultaCamp.TipusParamConsultaCamp.valueOf(consultaCamp.getParamTipus().toString()));
 		
-		return conversioTipusHelper.convertir(
+		return conversioTipusServiceHelper.convertir(
 				consultaCampRepository.save(entity),
 				ConsultaCampDto.class);
 	}
@@ -3252,7 +3252,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 				"Consultant els camps per una consulta i tipus (" +
 				"consultaId=" + consultaId + ", " +
 				"tipus=" + tipus + ")");
-		return conversioTipusHelper.convertirList(
+		return conversioTipusServiceHelper.convertirList(
 				consultaCampRepository.findCampsConsulta(
 						consultaId,
 						ConsultaCamp.TipusConsultaCamp.valueOf(tipus.toString())), 
@@ -3275,7 +3275,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		entity.setTipus(ConsultaCamp.TipusConsultaCamp.valueOf(consultaCamp.getTipus().toString()));
 		entity.setParamTipus(entity.getParamTipus());
 		
-		return conversioTipusHelper.convertir(
+		return conversioTipusServiceHelper.convertir(
 				consultaCampRepository.save(entity),
 				ConsultaCampDto.class);
 	}
@@ -3295,7 +3295,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 				"tipus=" + tipus + ", " +
 				"campCodi = " + campCodi + ")");
 		
-		return conversioTipusHelper.convertir(
+		return conversioTipusServiceHelper.convertir(
 				consultaCampRepository.findByConsultaAndTipusAndCampCodi(
 						consultaRepository.getById(consultaId),
 						ConsultaCamp.TipusConsultaCamp.valueOf(tipus.toString()),
@@ -3398,7 +3398,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		// MapeigSistra associat a l'expedient
 		entity.setExpedientTipus(expedientTipus);		
 
-		return conversioTipusHelper.convertir(
+		return conversioTipusServiceHelper.convertir(
 				mapeigSistraRepository.save(entity),
 				MapeigSistraDto.class);
 	}
@@ -3421,7 +3421,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		else
 			entity.setCodiHelium(mapeig.getCodiHelium());
 				
-		return conversioTipusHelper.convertir(
+		return conversioTipusServiceHelper.convertir(
 				mapeigSistraRepository.save(entity),
 				MapeigSistraDto.class);
 	}
@@ -3452,7 +3452,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 				"expedientTipusId=" + expedientTipusId + ", " +
 				"codiHelium = " + codiHelium + ")");
 		ExpedientTipus expedientTipus = expedientTipusRepository.getById(expedientTipusId);
-		return conversioTipusHelper.convertir(
+		return conversioTipusServiceHelper.convertir(
 				mapeigSistraRepository.findByExpedientTipusAndCodiHelium(expedientTipus, codiHelium),
 				MapeigSistraDto.class);
 	}
@@ -3475,7 +3475,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		MapeigSistra.TipusMapeig tipus = tipusMapeig != null ? 
 				MapeigSistra.TipusMapeig.valueOf(tipusMapeig.toString())
 				: null;
-		return conversioTipusHelper.convertir(
+		return conversioTipusServiceHelper.convertir(
 				mapeigSistraRepository.findByExpedientTipusAndTipusAndCodiSistra(expedientTipus, tipus, codiSistra),
 				MapeigSistraDto.class);
 	}
@@ -3488,7 +3488,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 	public List<MapeigSistraDto> mapeigFindAll(
 			Long expedientTipusId) throws NoTrobatException, PermisDenegatException {
 		List<MapeigSistra> mapejosSistra = mapeigSistraRepository.findAmbExpedientTipus(expedientTipusId);
-		return conversioTipusHelper.convertirList(
+		return conversioTipusServiceHelper.convertirList(
 				mapejosSistra, 
 				MapeigSistraDto.class);
 	}	
@@ -3603,7 +3603,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		entity.setNtiClasificacion(clasificacion);
 		entity.setNtiSerieDocumental(serieDocumental);
 		entity.setArxiuActiu(arxiuActiu);
-		return conversioTipusHelper.convertir(
+		return conversioTipusServiceHelper.convertir(
 				expedientTipusRepository.save(entity),
 				ExpedientTipusDto.class);	
 	}
@@ -3626,7 +3626,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 			expedientTipus.setNotibCodiProcediment(notibCodiProcediment);
 		}
 		
-		return conversioTipusHelper.convertir(
+		return conversioTipusServiceHelper.convertir(
 				expedientTipusRepository.save(expedientTipus),
 				ExpedientTipusDto.class);
 	}
@@ -3652,7 +3652,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		if (!expedientsTipus.isEmpty())
 			expedientTipus = expedientsTipus.get(0);
 		
-		return conversioTipusHelper.convertir(
+		return conversioTipusServiceHelper.convertir(
 				expedientTipus,
 				ExpedientTipusDto.class);
 	}	
@@ -3686,7 +3686,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 				break;
 			}
 		}		
-		return conversioTipusHelper.convertir(
+		return conversioTipusServiceHelper.convertir(
 				expedientTipus,
 				ExpedientTipusDto.class);
 	}
@@ -3757,7 +3757,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 				"Consultant la llista d'expedients per un tràmit sistra  (" +
 				"tramitCodi=" + tramitCodi + ")");
 
-		return conversioTipusHelper.convertirList(
+		return conversioTipusServiceHelper.convertirList(
 				expedientTipusRepository.findBySistraTramitCodi(tramitCodi),
 				ExpedientTipusDto.class); 
 	}

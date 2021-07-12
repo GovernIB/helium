@@ -103,7 +103,7 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 	@Resource
 	private TascaHelper tascaHelper;
 	@Resource
-	private MessageHelper messageHelper;
+	private MessageServiceHelper messageHelper;
 	@Resource
 	private PluginHelper pluginHelper;
 	@Resource 
@@ -129,7 +129,7 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 	@Resource
 	private UsuariActualHelper usuariActualHelper;
 	@Resource
-	private ConversioTipusHelper conversioTipusHelper;
+	private ConversioTipusServiceHelper conversioTipusServiceHelper;
 
 	@Autowired
 	private TascaService tascaService;
@@ -277,7 +277,7 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 				"execucioMassivaId=" + execucioMassivaId + ")");
 		ExecucioMassiva execucioMassiva = execucioMassivaRepository.getById(execucioMassivaId);
 		if (execucioMassiva != null)
-			ret = conversioTipusHelper.convertir(
+			ret = conversioTipusServiceHelper.convertir(
 					execucioMassiva,
 					ExecucioMassivaDto.class);
 		return ret;
@@ -1098,7 +1098,7 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 				ExecucioMassiva.ExecucioMassivaTipus.ALTA_MASSIVA);
 		if (execucioMassivaId != null) {
 			ExecucioMassiva execucioMassiva = execucioMassivaRepository.getById(execucioMassivaId);
-			ret = conversioTipusHelper.convertir(execucioMassiva, ExecucioMassivaListDto.class);
+			ret = conversioTipusServiceHelper.convertir(execucioMassiva, ExecucioMassivaListDto.class);
 			if (execucioMassiva.getExpedientTipus() != null )
 				ret.setExpedientTipusId(execucioMassiva.getExpedientTipus().getId() );
 			

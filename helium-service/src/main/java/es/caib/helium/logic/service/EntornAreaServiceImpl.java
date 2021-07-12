@@ -1,6 +1,6 @@
 package es.caib.helium.logic.service;
 
-import es.caib.helium.logic.helper.ConversioTipusHelper;
+import es.caib.helium.logic.helper.ConversioTipusServiceHelper;
 import es.caib.helium.logic.helper.EntornHelper;
 import es.caib.helium.logic.helper.PaginacioHelper;
 import es.caib.helium.logic.intf.dto.EntornAreaDto;
@@ -26,7 +26,7 @@ public class EntornAreaServiceImpl implements EntornAreaService {
 	@Resource
 	private AreaRepository areaRepository;
 	@Resource
-	private ConversioTipusHelper conversioTipusHelper;
+	private ConversioTipusServiceHelper conversioTipusServiceHelper;
 	@Resource
 	private EntornHelper entornHelper;
 	@Resource
@@ -51,17 +51,17 @@ public class EntornAreaServiceImpl implements EntornAreaService {
 
 	@Override
 	public List<EntornAreaDto> findAreesByEntorn(Long entornId) {
-		return conversioTipusHelper.convertirList(areaRepository.findByEntornId(entornId), EntornAreaDto.class);
+		return conversioTipusServiceHelper.convertirList(areaRepository.findByEntornId(entornId), EntornAreaDto.class);
 	}
 	
 	@Override
 	public List<EntornAreaDto> findPossiblesParesByEntorn(Long entornId, Long id) {
-		return conversioTipusHelper.convertirList(areaRepository.findByEntornId(entornId, id), EntornAreaDto.class);
+		return conversioTipusServiceHelper.convertirList(areaRepository.findByEntornId(entornId, id), EntornAreaDto.class);
 	}
 	
 	@Override
 	public List<PersonaDto> findPersones() {
-		return conversioTipusHelper.convertirList(personaRepository.findAll(), PersonaDto.class);
+		return conversioTipusServiceHelper.convertirList(personaRepository.findAll(), PersonaDto.class);
 	}
 
 
@@ -69,13 +69,13 @@ public class EntornAreaServiceImpl implements EntornAreaService {
 	public EntornAreaDto findAmbId(Long entornId, Long id) {
 		logger.debug("Consultant l'àrea amb id (id=" + id + ")");
 		Area a = areaRepository.findByEntornIdAndId(entornId, id);
-		return conversioTipusHelper.convertir(a, EntornAreaDto.class);
+		return conversioTipusServiceHelper.convertir(a, EntornAreaDto.class);
 	}
 	
 	@Override
 	public EntornAreaDto findAmbCodiByEntorn(String codi, Long entornId) {
 		logger.debug("Consultar l'àrea amb codi (cod=" + codi + ") i entorn (entorn=" + entornId);
-		return conversioTipusHelper.convertir(areaRepository.findByCodiAndEntornId(codi, entornId), EntornAreaDto.class);
+		return conversioTipusServiceHelper.convertir(areaRepository.findByCodiAndEntornId(codi, entornId), EntornAreaDto.class);
 	}
 	
 	@Override
@@ -91,7 +91,7 @@ public class EntornAreaServiceImpl implements EntornAreaService {
 		AreaTipus areaTipus = tipusAreaRepository.findByEntornIdAndId(entornId, entornArea.getTipusId());
 		entity.setTipus(areaTipus);
 		entity.setEntorn(entornHelper.getEntornComprovantPermisos(entornId, true, true));
-		return conversioTipusHelper.convertir(areaRepository.save(entity), EntornAreaDto.class);
+		return conversioTipusServiceHelper.convertir(areaRepository.save(entity), EntornAreaDto.class);
 	}
 	
 	@Override
@@ -110,7 +110,7 @@ public class EntornAreaServiceImpl implements EntornAreaService {
 		entity.setTipus(tipus);
 		entity.setEntorn(entornHelper.getEntornComprovantPermisos(entornId, true, true));
 		
-		return conversioTipusHelper.convertir(areaRepository.save(entity), EntornAreaDto.class);
+		return conversioTipusServiceHelper.convertir(areaRepository.save(entity), EntornAreaDto.class);
 	}
 
 	@Override

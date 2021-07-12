@@ -3,7 +3,7 @@
  */
 package es.caib.helium.logic.service;
 
-import es.caib.helium.logic.helper.ConversioTipusHelper;
+import es.caib.helium.logic.helper.ConversioTipusServiceHelper;
 import es.caib.helium.logic.helper.PluginHelper;
 import es.caib.helium.logic.helper.UsuariActualHelper;
 import es.caib.helium.logic.intf.dto.DocumentConversioDto;
@@ -41,7 +41,7 @@ public class AplicacioServiceImpl implements AplicacioService {
 	@Resource
 	private PluginHelper pluginHelper;
 	@Autowired
-	private ConversioTipusHelper conversioTipusHelper;
+	private ConversioTipusServiceHelper conversioTipusServiceHelper;
 
 	@Resource
 	private OpenOfficeUtils openOfficeUtils;
@@ -57,7 +57,7 @@ public class AplicacioServiceImpl implements AplicacioService {
 		String usuariActual = usuariActualHelper.getUsuariActual();
 		logger.debug("Consulta de les preferències per a l'usuari actual ("
 				+ "usuariActual=" + usuariActual + ")");
-		return conversioTipusHelper.convertir(
+		return conversioTipusServiceHelper.convertir(
 				usuariPreferenciesRepository.findByCodi(usuariActual),
 				UsuariPreferenciesDto.class);
 	}

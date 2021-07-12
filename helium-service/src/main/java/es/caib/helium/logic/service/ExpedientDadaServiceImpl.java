@@ -3,7 +3,7 @@
  */
 package es.caib.helium.logic.service;
 
-import es.caib.helium.logic.helper.ConversioTipusHelper;
+import es.caib.helium.logic.helper.ConversioTipusServiceHelper;
 import es.caib.helium.logic.helper.ExpedientHelper;
 import es.caib.helium.logic.helper.HerenciaHelper;
 import es.caib.helium.logic.helper.IndexHelper;
@@ -71,7 +71,7 @@ public class ExpedientDadaServiceImpl implements ExpedientDadaService {
 	@Resource
 	private IndexHelper indexHelper;
 	@Resource
-	private ConversioTipusHelper conversioTipusHelper;
+	private ConversioTipusServiceHelper conversioTipusServiceHelper;
 
 
 
@@ -331,7 +331,7 @@ public class ExpedientDadaServiceImpl implements ExpedientDadaService {
 			}
 			agrupacions = campAgrupacioRepository.findAmbDefinicioProcesOrdenats(definicioProces.getId());
 		}
-		List<CampAgrupacioDto> agrupacionsDto = conversioTipusHelper.convertirList(
+		List<CampAgrupacioDto> agrupacionsDto = conversioTipusServiceHelper.convertirList(
 				agrupacions, 
 				CampAgrupacioDto.class);
 

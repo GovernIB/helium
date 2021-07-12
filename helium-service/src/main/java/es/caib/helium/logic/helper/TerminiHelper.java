@@ -3,19 +3,10 @@
  */
 package es.caib.helium.logic.helper;
 
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-
-import javax.annotation.Resource;
-
-import es.caib.helium.logic.util.GlobalPropertiesImpl;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Component;
-
 import es.caib.helium.logic.intf.WorkflowEngineApi;
 import es.caib.helium.logic.intf.dto.TerminiIniciatDto;
 import es.caib.helium.logic.intf.exception.NoTrobatException;
+import es.caib.helium.logic.util.GlobalPropertiesImpl;
 import es.caib.helium.persist.entity.DefinicioProces;
 import es.caib.helium.persist.entity.Expedient;
 import es.caib.helium.persist.entity.ExpedientTipus;
@@ -27,6 +18,13 @@ import es.caib.helium.persist.repository.FestiuRepository;
 import es.caib.helium.persist.repository.RegistreRepository;
 import es.caib.helium.persist.repository.TerminiIniciatRepository;
 import es.caib.helium.persist.repository.TerminiRepository;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Component;
+
+import javax.annotation.Resource;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
 
 /**
  * Helper per a enviament de correus
@@ -47,11 +45,11 @@ public class TerminiHelper {
 	@Resource
 	private WorkflowEngineApi workflowEngineApi;
 	@Resource
-	private ConversioTipusHelper conversioTipusHelper;
+	private ConversioTipusServiceHelper conversioTipusServiceHelper;
 	@Resource
 	private ExpedientHelper expedientHelper;
 	@Resource
-	private MessageHelper messageHelper;
+	private MessageServiceHelper messageHelper;
 
 	public TerminiIniciatDto iniciar(
 			Long terminiId,
@@ -178,7 +176,7 @@ public class TerminiHelper {
 		}
 		
 		TerminiIniciat terminiObj = terminiIniciatRepository.save(terminiIniciat);
-		return conversioTipusHelper.convertir(terminiObj, TerminiIniciatDto.class);
+		return conversioTipusServiceHelper.convertir(terminiObj, TerminiIniciatDto.class);
 	}
 
 	public void pausar(Long terminiIniciatId, Date data, boolean crearRegistre) {

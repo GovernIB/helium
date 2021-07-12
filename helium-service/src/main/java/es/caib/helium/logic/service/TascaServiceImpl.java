@@ -114,7 +114,7 @@ public class TascaServiceImpl implements TascaService {
 	@Resource
 	private HerenciaHelper herenciaHelper;
 	@Resource
-	private ConversioTipusHelper conversioTipusHelper;
+	private ConversioTipusServiceHelper conversioTipusServiceHelper;
 	@Autowired
 	private TascaSegonPlaHelper tascaSegonPlaHelper;
 //	@Autowired
@@ -1734,7 +1734,7 @@ public class TascaServiceImpl implements TascaService {
 
 	@Override
 	public TascaDto findTascaById(Long id) {
-		return conversioTipusHelper.convertir(tascaRepository.getById(id), TascaDto.class);
+		return conversioTipusServiceHelper.convertir(tascaRepository.getById(id), TascaDto.class);
 	}
 
 	/** Per guardar la consulta de dades incials*/

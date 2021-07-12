@@ -92,7 +92,7 @@ public class PluginHelper {
 	@Resource
 	private DocumentStoreRepository documentStoreRepository;
 	@Resource
-	private ConversioTipusHelper conversioTipusHelper;
+	private ConversioTipusServiceHelper conversioTipusServiceHelper;
 	@Resource
 	private CacheManager cacheManager;
 	@Resource
@@ -132,7 +132,7 @@ public class PluginHelper {
 					new IntegracioParametreDto("text", text));
 			if (persones == null)
 				return new ArrayList<PersonaDto>();
-			return conversioTipusHelper.convertirList(persones, PersonaDto.class);
+			return conversioTipusServiceHelper.convertirList(persones, PersonaDto.class);
 		} catch (PersonesPluginException ex) {
 			monitorIntegracioHelper.addAccioError(
 					MonitorIntegracioHelper.INTCODI_PERSONA,
@@ -165,7 +165,7 @@ public class PluginHelper {
 			List<DadesPersona> persones = getPersonesPlugin().findAll();
 			if (persones == null)
 				return new ArrayList<PersonaDto>();
-			return conversioTipusHelper.convertirList(persones, PersonaDto.class);
+			return conversioTipusServiceHelper.convertirList(persones, PersonaDto.class);
 		} catch (PersonesPluginException ex) {
 			logger.error(
 					"No s'han pogut consultar totes les persones",
@@ -216,7 +216,7 @@ public class PluginHelper {
 				if (dadesPersona == null) {
 					throw new NoTrobatException(DadesPersona.class, codi);
 				}
-				PersonaDto dto = conversioTipusHelper.convertir(
+				PersonaDto dto = conversioTipusServiceHelper.convertir(
 						dadesPersona,
 						PersonaDto.class);
 				if (dto != null) {
@@ -286,7 +286,7 @@ public class PluginHelper {
 		};
 		long t0 = System.currentTimeMillis();
 		try {
-			PublicarExpedientRequest request = conversioTipusHelper.convertir(
+			PublicarExpedientRequest request = conversioTipusServiceHelper.convertir(
 					dadesExpedient,
 					PublicarExpedientRequest.class);
 			getTramitacioPlugin().publicarExpedient(request);
@@ -370,7 +370,7 @@ public class PluginHelper {
 		request.setRepresentatNif(expedient.getInteressatNif());
 		request.setRepresentatNom(expedient.getInteressatNom());	
 		request.setEvent(
-				conversioTipusHelper.convertir(
+				conversioTipusServiceHelper.convertir(
 						dadesEvent,
 						Event.class));
 		long t0 = System.currentTimeMillis();
@@ -723,7 +723,7 @@ public class PluginHelper {
 		zonaperExpedient.setDescripcio(expedient.getTitol());
 		zonaperExpedient.setCodiProcediment(expedient.getTipus().getNotificacioCodiProcediment());
 		
-		PublicarExpedientRequest request = conversioTipusHelper.convertir(
+		PublicarExpedientRequest request = conversioTipusServiceHelper.convertir(
 				zonaperExpedient,
 				PublicarExpedientRequest.class);
 		
@@ -2848,7 +2848,7 @@ public class PluginHelper {
 		long t0 = System.currentTimeMillis();
 		
 		try {
-			Notificacio notificacio = conversioTipusHelper.convertir(dadesNotificacio, Notificacio.class);
+			Notificacio notificacio = conversioTipusServiceHelper.convertir(dadesNotificacio, Notificacio.class);
 			// Informa de l'estat actual
 			notificacio.setUsuariCodi(usuariActualHelper.getUsuariActual());		
 			// Informa el número d'expedient
@@ -3060,7 +3060,7 @@ public class PluginHelper {
 	// NOTIB -- Fi
 
 	private TramitDto toTramitDto(DadesTramit dadesTramit) {
-		TramitDto dto = conversioTipusHelper.convertir(
+		TramitDto dto = conversioTipusServiceHelper.convertir(
 				dadesTramit,
 				TramitDto.class);
 		if (dto.getDocuments() != null)

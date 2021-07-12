@@ -3,7 +3,7 @@
  */
 package es.caib.helium.logic.service;
 
-import es.caib.helium.logic.helper.ConversioTipusHelper;
+import es.caib.helium.logic.helper.ConversioTipusServiceHelper;
 import es.caib.helium.logic.helper.ExpedientTipusHelper;
 import es.caib.helium.logic.helper.HerenciaHelper;
 import es.caib.helium.logic.helper.PaginacioHelper;
@@ -47,7 +47,7 @@ public class TerminiServiceImpl implements TerminiService {
 	@Resource
 	private ExpedientTipusHelper expedientTipusHelper;
 	@Resource
-	private ConversioTipusHelper conversioTipusHelper;
+	private ConversioTipusServiceHelper conversioTipusServiceHelper;
 	@Resource
 	private PaginacioHelper paginacioHelper;
 
@@ -62,7 +62,7 @@ public class TerminiServiceImpl implements TerminiService {
 				"terminiId=" + terminiId +  ")");
 		Termini termini = terminiRepository.findById(terminiId)
 				.orElseThrow(() -> new NoTrobatException(Termini.class, terminiId));
-		TerminiDto dto = conversioTipusHelper.convertir(
+		TerminiDto dto = conversioTipusServiceHelper.convertir(
 				termini,
 				TerminiDto.class);
 		// Herencia
@@ -103,7 +103,7 @@ public class TerminiServiceImpl implements TerminiService {
 					definicioProcesRepository.getById(definicioProcesId),
 					codi);
 		if (termini != null)
-			ret = conversioTipusHelper.convertir(
+			ret = conversioTipusServiceHelper.convertir(
 					termini,
 					TerminiDto.class);
 		return ret;
@@ -123,7 +123,7 @@ public class TerminiServiceImpl implements TerminiService {
 			terminis = terminiRepository.findByExpedientTipus(expedientTipusId);
 		else
 			terminis = terminiRepository.findByDefinicioProcesId(definicioProcesId);
-		return conversioTipusHelper.convertirList(
+		return conversioTipusServiceHelper.convertirList(
 									terminis, 
 									TerminiDto.class);
 	}	
@@ -156,7 +156,7 @@ public class TerminiServiceImpl implements TerminiService {
 		if (definicioProcesId != null)
 			termini.setDefinicioProces(definicioProcesRepository.getById(definicioProcesId));
 		
-		return conversioTipusHelper.convertir(
+		return conversioTipusServiceHelper.convertir(
 				terminiRepository.save(termini),
 				TerminiDto.class);
 	}
@@ -184,7 +184,7 @@ public class TerminiServiceImpl implements TerminiService {
 		termini.setAlertaFinal(dto.isAlertaFinal());
 		termini.setAlertaCompletat(dto.isAlertaCompletat());
 		
-		return conversioTipusHelper.convertir(
+		return conversioTipusServiceHelper.convertir(
 				terminiRepository.save(termini),
 				TerminiDto.class);
 	}

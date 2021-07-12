@@ -67,7 +67,7 @@ public class DominiHelper {
 //	@Autowired
 //	private WsClientHelper wsClientHelper;
 	@Autowired
-	private ConversioTipusHelper conversioTipusHelper;
+	private ConversioTipusServiceHelper conversioTipusServiceHelper;
 	@Autowired
 	private PluginHelper pluginHelper;
 //	@Autowired
@@ -165,7 +165,7 @@ public class DominiHelper {
 //							domini.getCodi()));
 //			countDomini.inc();
 			try {					
-				resultat = conversioTipusHelper.convertirList(
+				resultat = conversioTipusServiceHelper.convertirList(
 						dominiMs.consultarDomini(dominiId, dominiWsId, parametres), 
 						FilaResultat.class);
 				if (resultat == null)

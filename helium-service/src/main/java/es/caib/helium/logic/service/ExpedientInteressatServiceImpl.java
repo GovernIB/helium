@@ -1,6 +1,6 @@
 package es.caib.helium.logic.service;
 
-import es.caib.helium.logic.helper.ConversioTipusHelper;
+import es.caib.helium.logic.helper.ConversioTipusServiceHelper;
 import es.caib.helium.logic.helper.PaginacioHelper;
 import es.caib.helium.logic.intf.dto.InteressatDto;
 import es.caib.helium.logic.intf.dto.PaginaDto;
@@ -37,7 +37,7 @@ public class ExpedientInteressatServiceImpl implements ExpedientInteressatServic
 	private PaginacioHelper paginacioHelper;
 	
 	@Resource
-	private ConversioTipusHelper conversioTipusHelper;
+	private ConversioTipusServiceHelper conversioTipusServiceHelper;
 	
 	/**
 	 * {@inheritDoc}
@@ -70,7 +70,7 @@ public class ExpedientInteressatServiceImpl implements ExpedientInteressatServic
 				interessat.getEntregaDeh(),
 				interessat.getEntregaDehObligat());
 
-		return conversioTipusHelper.convertir(
+		return conversioTipusServiceHelper.convertir(
 				interessatRepository.save(interessatEntity),
 				InteressatDto.class);
 	}
@@ -102,7 +102,7 @@ public class ExpedientInteressatServiceImpl implements ExpedientInteressatServic
 		interessatEntity.setEntregaDeh(interessat.getEntregaDeh());
 		interessatEntity.setEntregaDehObligat(interessat.getEntregaDehObligat());
 
-		return conversioTipusHelper.convertir(
+		return conversioTipusServiceHelper.convertir(
 				interessatEntity,
 				InteressatDto.class);
 	}
@@ -151,7 +151,7 @@ public class ExpedientInteressatServiceImpl implements ExpedientInteressatServic
 		}
 		
 		
-		InteressatDto convertir = conversioTipusHelper.convertir(
+		InteressatDto convertir = conversioTipusServiceHelper.convertir(
 				interessat,
 				InteressatDto.class);
 
@@ -171,7 +171,7 @@ public class ExpedientInteressatServiceImpl implements ExpedientInteressatServic
 		
 		Expedient expedient = expedientRepository.getById(expedientId);
 		
-		return conversioTipusHelper.convertir(
+		return conversioTipusServiceHelper.convertir(
 				interessatRepository.findByCodiAndExpedient(
 						codi, 
 						expedient),
@@ -222,7 +222,7 @@ public class ExpedientInteressatServiceImpl implements ExpedientInteressatServic
 		
 		Expedient expedient = expedientRepository.getById(expedientId);
 		
-		return conversioTipusHelper.convertirList(interessatRepository.findByExpedient(
+		return conversioTipusServiceHelper.convertirList(interessatRepository.findByExpedient(
 				expedient), InteressatDto.class);
 	}
 	

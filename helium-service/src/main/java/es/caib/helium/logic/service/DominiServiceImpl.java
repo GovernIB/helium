@@ -3,11 +3,11 @@
  */
 package es.caib.helium.logic.service;
 
-import es.caib.helium.logic.helper.ConversioTipusHelper;
+import es.caib.helium.logic.helper.ConversioTipusServiceHelper;
 import es.caib.helium.logic.helper.DominiHelper;
 import es.caib.helium.logic.helper.EntornHelper;
 import es.caib.helium.logic.helper.ExpedientTipusHelper;
-import es.caib.helium.logic.helper.MessageHelper;
+import es.caib.helium.logic.helper.MessageServiceHelper;
 import es.caib.helium.logic.intf.dto.DominiDto;
 import es.caib.helium.logic.intf.dto.DominiDto.OrigenCredencials;
 import es.caib.helium.logic.intf.dto.DominiDto.TipusAuthDomini;
@@ -53,11 +53,11 @@ public class DominiServiceImpl implements DominiService {
 	@Resource
 	private ExpedientTipusHelper expedientTipusHelper;
 	@Resource
-	private ConversioTipusHelper conversioTipusHelper;
+	private ConversioTipusServiceHelper conversioTipusServiceHelper;
 //	@Resource
 //	private PaginacioHelper paginacioHelper;
 	@Resource
-	private MessageHelper messageHelper;
+	private MessageServiceHelper messageHelper;
 	
 	@Autowired
 	DominiHelper dominiHelper;
@@ -208,7 +208,7 @@ public class DominiServiceImpl implements DominiService {
 		}
 		// Herencia
 		domini.setHeretat(expedientTipusId != null && ! expedientTipusId.equals(domini.getExpedientTipusId()));
-		return conversioTipusHelper.convertir(domini, DominiDto.class);
+		return conversioTipusServiceHelper.convertir(domini, DominiDto.class);
 	}
 	
 	@Override
@@ -255,7 +255,7 @@ public class DominiServiceImpl implements DominiService {
 		
 		entity = dominiMs.update(entity);
 		
-		return conversioTipusHelper.convertir(entity, DominiDto.class);		
+		return conversioTipusServiceHelper.convertir(entity, DominiDto.class);
 	}
 
 	@Override

@@ -105,7 +105,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 	@Resource
 	private ExpedientRegistreHelper expedientRegistreHelper;
 	@Resource
-	private MessageHelper messageHelper;
+	private MessageServiceHelper messageHelper;
 	@Resource
 	private EntornHelper entornHelper;
 	@Resource
@@ -123,7 +123,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 	@Resource
 	private TascaHelper tascaHelper;
 	@Resource
-	private ConversioTipusHelper conversioTipusHelper;
+	private ConversioTipusServiceHelper conversioTipusServiceHelper;
 //	@Resource
 //	private LuceneHelper luceneHelper;
 	@Resource
@@ -254,7 +254,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 			}
 
 			// Retorna la informació de l'expedient que s'ha iniciat
-			ExpedientDto dto = conversioTipusHelper.convertir(
+			ExpedientDto dto = conversioTipusServiceHelper.convertir(
 					expedient,
 					ExpedientDto.class);
 			return dto;
@@ -501,14 +501,14 @@ public class ExpedientServiceImpl implements ExpedientService {
 				false,
 				false,
 				false);
-		ExpedientDto expedientDto = conversioTipusHelper.convertir(
+		ExpedientDto expedientDto = conversioTipusServiceHelper.convertir(
 				expedient,
 				ExpedientDto.class);
 		//  A vegades es produeix un null pointer accedint al tipus d'expedient del DTO, issue #1094
 		if (expedientDto.getTipus() == null) {
 			// Es marca com un error per identificar quan falla i es rectifica la propietat del dto per continuar treballant
 			logger.error("La propietat expedientDto.tipus és null (expedient.getTipus() = " + expedient.getTipus() + ", es fixarà el tipus del dto manualment");
-			expedientDto.setTipus(conversioTipusHelper.convertir(expedient.getTipus(), ExpedientTipusDto.class));
+			expedientDto.setTipus(conversioTipusServiceHelper.convertir(expedient.getTipus(), ExpedientTipusDto.class));
 		}
 		expedientHelper.omplirPermisosExpedient(expedientDto);
 		expedientHelper.trobarAlertesExpedient(expedient, expedientDto);
@@ -523,7 +523,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 	public ExpedientDto findAmbId(Long id) {
 		logger.debug("Consultant l'expedient sense comprovar permisos (id=" + id + ")");
 		Expedient expedient = expedientRepository.getById(id);
-		return conversioTipusHelper.convertir(
+		return conversioTipusServiceHelper.convertir(
 				expedient,
 				ExpedientDto.class);
 	}
@@ -549,7 +549,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 			}
 			consultats += n;
 			for (Expedient expedient : expedientRepository.findAmbIds(idsConsulta)) {
-				listExpedient.add(conversioTipusHelper.convertir(
+				listExpedient.add(conversioTipusServiceHelper.convertir(
 						expedient,
 						ExpedientDto.class));
 			}
@@ -661,7 +661,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 		// Retorna la pàgina amb la resposta
 		List<ExpedientDto> expedients = new ArrayList<ExpedientDto>(); 
 		if (expedientsIds.getCount() > 0) {
-			expedients = conversioTipusHelper.convertirList(
+			expedients = conversioTipusServiceHelper.convertirList(
 				expedientRepository.findByIdIn(expedientsIds.getLlista()),
 				ExpedientDto.class);
 		}
@@ -832,7 +832,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 					expedientTipusId);
 			expedients = expedientRepository.findByTipusAndNumeroOrTitol(expedientTipusId, text); 
 		}
-		return conversioTipusHelper.convertirList(
+		return conversioTipusServiceHelper.convertirList(
 				expedients,
 				ExpedientDto.class);
 	}
@@ -1446,7 +1446,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 					expedient))
 				it.remove();
 		}
-		return conversioTipusHelper.convertirList(
+		return conversioTipusServiceHelper.convertirList(
 				accions,
 				AccioDto.class);
 	}
@@ -1473,7 +1473,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 		expedientHelper.comprovarInstanciaProces(
 				expedient,
 				processInstanceId);
-		return conversioTipusHelper.convertir(
+		return conversioTipusServiceHelper.convertir(
 				accioRepository.getById(accioId),
 				AccioDto.class);
 	}
@@ -1622,7 +1622,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 				false);
 		List<Alerta> alertes = alertaRepository.findByExpedientAndDataEliminacioNull(expedient);
 		// Convertir a AlertaDto
-		return conversioTipusHelper.convertirList(alertes, AlertaDto.class);
+		return conversioTipusServiceHelper.convertirList(alertes, AlertaDto.class);
 	}
 
 	/**
@@ -1671,7 +1671,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 		List<ExpedientDto> resposta = new ArrayList<ExpedientDto>();
 		List<Expedient> expedients = expedientRepository.findAmbEntornLikeIdentificador(entornId, text);
 		for (Expedient expedient: expedients) {
-			resposta.add(conversioTipusHelper.convertir(expedient,ExpedientDto.class));
+			resposta.add(conversioTipusServiceHelper.convertir(expedient,ExpedientDto.class));
 		}
 		return resposta;
 	}
@@ -1845,12 +1845,12 @@ public class ExpedientServiceImpl implements ExpedientService {
 		if (pi.getDescription() != null && pi.getDescription().length() > 0)
 			dto.setTitol(pi.getDescription());
 		DefinicioProces definicioProces = definicioProcesRepository.findByJbpmId(pi.getProcessDefinitionId());
-		dto.setDefinicioProces(conversioTipusHelper.convertir(definicioProces, DefinicioProcesDto.class));
+		dto.setDefinicioProces(conversioTipusServiceHelper.convertir(definicioProces, DefinicioProcesDto.class));
 		List<ExpedientDocumentDto> documents = documentHelper.findDocumentsPerInstanciaProces(processInstanceId);
 				//documentRepository.findByDefinicioProces(definicioProces);
 		Map<String, DocumentDto> documentsDto = new HashMap<String, DocumentDto>();
 		for(ExpedientDocumentDto doc : documents) {
-			documentsDto.put(doc.getDocumentCodi(), conversioTipusHelper.convertir(doc, DocumentDto.class));
+			documentsDto.put(doc.getDocumentCodi(), conversioTipusServiceHelper.convertir(doc, DocumentDto.class));
 		}
 		dto.setVarsDocuments(documentsDto);
 		return dto;
@@ -1874,7 +1874,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 		} else {
 			camps = campRepository.findByDefinicioProcesOrderByCodiAsc(definicioProces);
 		} 
-		return conversioTipusHelper.convertirList(camps, CampDto.class);
+		return conversioTipusServiceHelper.convertirList(camps, CampDto.class);
 			
 		
 	}
@@ -2495,7 +2495,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 	public List<ExpedientDto> findAmbIniciadorCodi(String iniciadorCodi) {
 		logger.debug("Consultant expedients per iniciadorCodi (iniciadorCodi=" + iniciadorCodi + ")");
 		List<Expedient> expedients = expedientRepository.findByIniciadorCodi(iniciadorCodi);
-		return conversioTipusHelper.convertirList(expedients, ExpedientDto.class);
+		return conversioTipusServiceHelper.convertirList(expedients, ExpedientDto.class);
 	}
 
 		
@@ -2714,7 +2714,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 	@Override
 	@Transactional(readOnly = true)
 	public List<NotificacioDto> findNotificacionsPerExpedientId(Long expedientId) {
-		List<NotificacioDto> notificacions =  conversioTipusHelper.convertirList(
+		List<NotificacioDto> notificacions =  conversioTipusServiceHelper.convertirList(
 				notificacioHelper.findNotificacionsPerExpedientId(expedientId), 
 				NotificacioDto.class);
 		
@@ -2744,7 +2744,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 	@Override
 	@Transactional(readOnly = true)
 	public NotificacioDto findNotificacioPerId(Long notificacioId) {
-		NotificacioDto notificacio =  conversioTipusHelper.convertir(notificacioRepository.getById(notificacioId), NotificacioDto.class);
+		NotificacioDto notificacio =  conversioTipusServiceHelper.convertir(notificacioRepository.getById(notificacioId), NotificacioDto.class);
 		
 		if (notificacio.getDocument() != null) {
 			ExpedientDocumentDto document = documentHelper.findDocumentPerDocumentStoreId(

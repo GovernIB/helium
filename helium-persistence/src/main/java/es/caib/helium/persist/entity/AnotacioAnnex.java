@@ -90,7 +90,7 @@ public class AnotacioAnnex implements Serializable, GenericEntity<Long> {
 	@ManyToOne(optional = false, fetch = FetchType.LAZY)
 	@JoinColumn(
 			name = "anotacio_id",
-			foreignKey = @ForeignKey(name = "hel_interessat_anotacio_fk"))
+			foreignKey = @ForeignKey(name = "hel_annex_anotacio_fk"))
 	private Anotacio anotacio;
 	
 	/** Valor del document store quan l'annex s'incorpora a un expedient. */

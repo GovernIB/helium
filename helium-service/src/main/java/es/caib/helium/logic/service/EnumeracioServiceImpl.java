@@ -3,11 +3,11 @@
  */
 package es.caib.helium.logic.service;
 
-import es.caib.helium.logic.helper.ConversioTipusHelper;
+import es.caib.helium.logic.helper.ConversioTipusServiceHelper;
 import es.caib.helium.logic.helper.EntornHelper;
 import es.caib.helium.logic.helper.ExpedientTipusHelper;
 import es.caib.helium.logic.helper.HerenciaHelper;
-import es.caib.helium.logic.helper.MessageHelper;
+import es.caib.helium.logic.helper.MessageServiceHelper;
 import es.caib.helium.logic.helper.PaginacioHelper;
 import es.caib.helium.logic.intf.dto.EnumeracioDto;
 import es.caib.helium.logic.intf.dto.ExpedientTipusEnumeracioValorDto;
@@ -60,11 +60,11 @@ public class EnumeracioServiceImpl implements EnumeracioService {
 	@Resource
 	private ExpedientTipusHelper expedientTipusHelper;
 	@Resource
-	private ConversioTipusHelper conversioTipusHelper;
+	private ConversioTipusServiceHelper conversioTipusServiceHelper;
 	@Resource
 	private PaginacioHelper paginacioHelper;
 	@Resource
-	private MessageHelper messageHelper;
+	private MessageServiceHelper messageHelper;
 	
 	/**
 	 * {@inheritDoc}
@@ -170,7 +170,7 @@ public class EnumeracioServiceImpl implements EnumeracioService {
 		entity.setExpedientTipus(expedientTipus);
 		entity.setEntorn(entorn);
 
-		return conversioTipusHelper.convertir(
+		return conversioTipusServiceHelper.convertir(
 				enumeracioRepository.save(entity),
 				EnumeracioDto.class);
 	}
@@ -197,7 +197,7 @@ public class EnumeracioServiceImpl implements EnumeracioService {
 					entornRepository.getById(entornId),
 					codi);
 		if (enumeracio != null)
-			ret = conversioTipusHelper.convertir(
+			ret = conversioTipusServiceHelper.convertir(
 					enumeracio,
 					EnumeracioDto.class);
 		return ret;
@@ -241,7 +241,7 @@ public class EnumeracioServiceImpl implements EnumeracioService {
 		logger.debug(
 				"Consultant les enumeracions globals per entorn (" +
 				"entornId=" + entornId +  ")");
-		return conversioTipusHelper.convertirList(
+		return conversioTipusServiceHelper.convertirList(
 				enumeracioRepository.findGlobals(entornId),
 				EnumeracioDto.class);
 	}
@@ -261,7 +261,7 @@ public class EnumeracioServiceImpl implements EnumeracioService {
 		if (enumeracio == null) {
 			throw new NoTrobatException(Enumeracio.class, enumeracioId);
 		}
-		EnumeracioDto dto = conversioTipusHelper.convertir(
+		EnumeracioDto dto = conversioTipusServiceHelper.convertir(
 				enumeracio,
 				EnumeracioDto.class);
 		// Herencia
@@ -297,7 +297,7 @@ public class EnumeracioServiceImpl implements EnumeracioService {
 		entity.setCodi(enumeracio.getCodi());
 		entity.setNom(enumeracio.getNom());
 		
-		return conversioTipusHelper.convertir(
+		return conversioTipusServiceHelper.convertir(
 				enumeracioRepository.save(entity),
 				EnumeracioDto.class);
 	}
@@ -338,7 +338,7 @@ public class EnumeracioServiceImpl implements EnumeracioService {
 		List<EnumeracioValors> resultats = enumeracioValorsRepository.findByEnumeracioIdOrderByOrdreAsc(
 				enumeracioId);
 		
-		return conversioTipusHelper.convertirList(
+		return conversioTipusServiceHelper.convertirList(
 				resultats,
 				ExpedientTipusEnumeracioValorDto.class);
 	}
@@ -373,7 +373,7 @@ public class EnumeracioServiceImpl implements EnumeracioService {
 		entity.setOrdre(enumeracioValorsRepository.getNextOrdre(enumeracioId));
 		entity.setEnumeracio(enumer);
 
-		return conversioTipusHelper.convertir(
+		return conversioTipusServiceHelper.convertir(
 				enumeracioValorsRepository.save(entity),
 				ExpedientTipusEnumeracioValorDto.class);
 	}
@@ -420,7 +420,7 @@ public class EnumeracioServiceImpl implements EnumeracioService {
 		if (valor == null) {
 			throw new NoTrobatException(EnumeracioValors.class, valorId);
 		}
-		return conversioTipusHelper.convertir(
+		return conversioTipusServiceHelper.convertir(
 				valor,
 				ExpedientTipusEnumeracioValorDto.class);
 	}
@@ -452,7 +452,7 @@ public class EnumeracioServiceImpl implements EnumeracioService {
 		entity.setNom(enumeracioValor.getNom());
 		entity.setOrdre(enumeracioValor.getOrdre());
 		
-		return conversioTipusHelper.convertir(
+		return conversioTipusServiceHelper.convertir(
 				enumeracioValorsRepository.save(entity),
 				ExpedientTipusEnumeracioValorDto.class);
 	}
@@ -497,7 +497,7 @@ public class EnumeracioServiceImpl implements EnumeracioService {
 		
 		Enumeracio enumeracio = enumeracioRepository.getById(enumeracioId);
 		
-		return conversioTipusHelper.convertir(
+		return conversioTipusServiceHelper.convertir(
 				enumeracioValorsRepository.findByEnumeracioAndCodi(enumeracio, codi),
 				ExpedientTipusEnumeracioValorDto.class);
 	}

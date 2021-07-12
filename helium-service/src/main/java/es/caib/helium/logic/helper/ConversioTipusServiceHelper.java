@@ -3,6 +3,21 @@
  */
 package es.caib.helium.logic.helper;
 
+import es.caib.helium.logic.intf.dto.*;
+import es.caib.helium.logic.intf.integracio.notificacio.InteressatTipusEnum;
+import es.caib.helium.logic.intf.integracio.notificacio.Persona;
+import es.caib.helium.persist.entity.*;
+import ma.glasnost.orika.CustomConverter;
+import ma.glasnost.orika.MapperFacade;
+import ma.glasnost.orika.MapperFactory;
+import ma.glasnost.orika.MappingContext;
+import ma.glasnost.orika.impl.DefaultMapperFactory;
+import ma.glasnost.orika.metadata.Type;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Component;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -11,63 +26,17 @@ import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Component;
-
-import es.caib.helium.logic.intf.dto.CampAgrupacioDto;
-import es.caib.helium.logic.intf.dto.CampDto;
-import es.caib.helium.logic.intf.dto.CampRegistreDto;
-import es.caib.helium.logic.intf.dto.CampTascaDto;
-import es.caib.helium.logic.intf.dto.CampTipusDto;
-import es.caib.helium.logic.intf.dto.ConsultaCampDto;
-import es.caib.helium.logic.intf.dto.ConsultaDto;
-import es.caib.helium.logic.intf.dto.DocumentDto;
-import es.caib.helium.logic.intf.dto.DocumentTascaDto;
-import es.caib.helium.logic.intf.dto.DominiDto;
-import es.caib.helium.logic.intf.dto.EntornDto;
-import es.caib.helium.logic.intf.dto.EnumeracioDto;
-import es.caib.helium.logic.intf.dto.EstatDto;
-import es.caib.helium.logic.intf.dto.ExpedientTipusDto;
-import es.caib.helium.logic.intf.dto.FirmaTascaDto;
-import es.caib.helium.logic.intf.dto.PersonaDto;
-import es.caib.helium.logic.intf.dto.SequenciaAnyDto;
-import es.caib.helium.logic.intf.dto.SequenciaDefaultAnyDto;
-import es.caib.helium.logic.intf.integracio.notificacio.InteressatTipusEnum;
-import es.caib.helium.logic.intf.integracio.notificacio.Persona;
-import es.caib.helium.persist.entity.Camp;
-import es.caib.helium.persist.entity.CampRegistre;
-import es.caib.helium.persist.entity.CampTasca;
-import es.caib.helium.persist.entity.Consulta;
-import es.caib.helium.persist.entity.ConsultaCamp;
-import es.caib.helium.persist.entity.Document;
-import es.caib.helium.persist.entity.DocumentTasca;
-import es.caib.helium.persist.entity.Entorn;
-import es.caib.helium.persist.entity.Enumeracio;
-import es.caib.helium.persist.entity.Estat;
-import es.caib.helium.persist.entity.ExpedientTipus;
-import es.caib.helium.persist.entity.FirmaTasca;
-import es.caib.helium.persist.entity.SequenciaAny;
-import es.caib.helium.persist.entity.SequenciaDefaultAny;
-import ma.glasnost.orika.CustomConverter;
-import ma.glasnost.orika.MapperFacade;
-import ma.glasnost.orika.MapperFactory;
-import ma.glasnost.orika.MappingContext;
-import ma.glasnost.orika.impl.DefaultMapperFactory;
-import ma.glasnost.orika.metadata.Type;
-
 /**
  * Helper per a convertir entre diferents formats de documents.
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
-@Component("logicConversioTipusHelper")
-public class ConversioTipusHelper {
+@Component
+public class ConversioTipusServiceHelper {
 
 	private MapperFactory mapperFactory;
 
-	public ConversioTipusHelper() {
+	public ConversioTipusServiceHelper() {
 		mapperFactory = new DefaultMapperFactory.Builder().build();
 				
 		mapperFactory.getConverterFactory().registerConverter(

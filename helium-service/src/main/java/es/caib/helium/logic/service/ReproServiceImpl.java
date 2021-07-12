@@ -1,6 +1,6 @@
 package es.caib.helium.logic.service;
 
-import es.caib.helium.logic.helper.ConversioTipusHelper;
+import es.caib.helium.logic.helper.ConversioTipusServiceHelper;
 import es.caib.helium.logic.helper.UsuariActualHelper;
 import es.caib.helium.logic.intf.dto.ReproDto;
 import es.caib.helium.logic.intf.exception.NoTrobatException;
@@ -40,7 +40,7 @@ public class ReproServiceImpl implements ReproService {
 	@Resource
 	private ExpedientTipusRepository expedientTipusRepository;
 	@Resource
-	private ConversioTipusHelper conversioTipusHelper;
+	private ConversioTipusServiceHelper conversioTipusServiceHelper;
 	@Resource
 	private UsuariActualHelper usuariActualHelper;
 	@Resource
@@ -56,7 +56,7 @@ public class ReproServiceImpl implements ReproService {
 																									usuariActualHelper.getUsuariActual(), 
 																									expedientTipus, 
 																									tascaCodi);
-		return conversioTipusHelper.convertirList(
+		return conversioTipusServiceHelper.convertirList(
 				repros,
 				ReproDto.class);
 	}
@@ -67,7 +67,7 @@ public class ReproServiceImpl implements ReproService {
 		Repro repro = reproRepository.findById(id)
 				.orElseThrow(()-> new NoTrobatException(Repro.class, id));
 		
-		return conversioTipusHelper.convertir(reproRepository.getById(id), ReproDto.class);
+		return conversioTipusServiceHelper.convertir(reproRepository.getById(id), ReproDto.class);
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -177,7 +177,7 @@ public class ReproServiceImpl implements ReproService {
 			logger.error(errMsg, e);
 			throw new RuntimeException(errMsg, e);
 		}
-		return conversioTipusHelper.convertir(repro, ReproDto.class);
+		return conversioTipusServiceHelper.convertir(repro, ReproDto.class);
 	}
 
 	private static final Log logger = LogFactory.getLog(ReproServiceImpl.class);

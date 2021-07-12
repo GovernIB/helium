@@ -3,21 +3,20 @@
  */
 package es.caib.helium.logic.helper;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.SortedSet;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.stereotype.Component;
-
 import es.caib.helium.logic.intf.WorkflowRetroaccioApi;
 import es.caib.helium.logic.intf.dto.ExpedientTascaDto;
 import es.caib.helium.logic.intf.dto.InformacioRetroaccioDto;
 import es.caib.helium.logic.intf.dto.InstanciaProcesDto;
 import es.caib.helium.logic.intf.exception.NoTrobatException;
 import es.caib.helium.logic.intf.exception.PermisDenegatException;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.stereotype.Component;
+
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.SortedSet;
 
 /**
  * Helper per a gestionar els logs dels expedients
@@ -48,7 +47,7 @@ public class RetroaccioHelper implements WorkflowRetroaccioApi {
 //	@Resource
 //	private TascaHelper tascaHelper;
 //	@Resource
-//	private ConversioTipusHelper conversioTipusHelper;
+//	private ConversioTipusServiceHelper conversioTipusServiceHelper;
 //	@Resource
 //	private IndexHelper indexHelper;
 //	@Resource

@@ -3,6 +3,27 @@
  */
 package es.caib.helium.logic.helper;
 
+import es.caib.helium.logic.intf.WDeployment;
+import es.caib.helium.logic.intf.WProcessDefinition;
+import es.caib.helium.logic.intf.WorkflowEngineApi;
+import es.caib.helium.logic.intf.dto.CampTipusDto;
+import es.caib.helium.logic.intf.dto.DefinicioProcesDto;
+import es.caib.helium.logic.intf.dto.DominiDto;
+import es.caib.helium.logic.intf.dto.TascaDto;
+import es.caib.helium.logic.intf.exception.DeploymentException;
+import es.caib.helium.logic.intf.exception.ExportException;
+import es.caib.helium.logic.intf.exportacio.*;
+import es.caib.helium.ms.domini.DominiMs;
+import es.caib.helium.persist.entity.*;
+import es.caib.helium.persist.entity.Camp.TipusCamp;
+import es.caib.helium.persist.entity.Tasca.TipusTasca;
+import es.caib.helium.persist.repository.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+
+import javax.annotation.Resource;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
@@ -14,68 +35,6 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
-
-import javax.annotation.Resource;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
-
-import es.caib.helium.logic.intf.WDeployment;
-import es.caib.helium.logic.intf.WProcessDefinition;
-import es.caib.helium.logic.intf.WorkflowEngineApi;
-import es.caib.helium.logic.intf.dto.CampTipusDto;
-import es.caib.helium.logic.intf.dto.DefinicioProcesDto;
-import es.caib.helium.logic.intf.dto.DominiDto;
-import es.caib.helium.logic.intf.dto.TascaDto;
-import es.caib.helium.logic.intf.exception.DeploymentException;
-import es.caib.helium.logic.intf.exception.ExportException;
-import es.caib.helium.logic.intf.exportacio.AccioExportacio;
-import es.caib.helium.logic.intf.exportacio.AgrupacioExportacio;
-import es.caib.helium.logic.intf.exportacio.CampExportacio;
-import es.caib.helium.logic.intf.exportacio.CampTascaExportacio;
-import es.caib.helium.logic.intf.exportacio.DefinicioProcesExportacio;
-import es.caib.helium.logic.intf.exportacio.DefinicioProcesExportacioCommandDto;
-import es.caib.helium.logic.intf.exportacio.DocumentExportacio;
-import es.caib.helium.logic.intf.exportacio.DocumentTascaExportacio;
-import es.caib.helium.logic.intf.exportacio.FirmaTascaExportacio;
-import es.caib.helium.logic.intf.exportacio.RegistreMembreExportacio;
-import es.caib.helium.logic.intf.exportacio.TascaExportacio;
-import es.caib.helium.logic.intf.exportacio.TerminiExportacio;
-import es.caib.helium.logic.intf.exportacio.ValidacioExportacio;
-import es.caib.helium.persist.entity.Accio;
-import es.caib.helium.persist.entity.Camp;
-import es.caib.helium.persist.entity.Camp.TipusCamp;
-import es.caib.helium.persist.entity.CampAgrupacio;
-import es.caib.helium.persist.entity.CampRegistre;
-import es.caib.helium.persist.entity.CampTasca;
-import es.caib.helium.persist.entity.DefinicioProces;
-import es.caib.helium.persist.entity.Document;
-import es.caib.helium.persist.entity.DocumentTasca;
-import es.caib.helium.persist.entity.Entorn;
-import es.caib.helium.persist.entity.Enumeracio;
-import es.caib.helium.persist.entity.ExpedientTipus;
-import es.caib.helium.persist.entity.FirmaTasca;
-import es.caib.helium.persist.entity.Tasca;
-import es.caib.helium.persist.entity.Tasca.TipusTasca;
-import es.caib.helium.persist.entity.Termini;
-import es.caib.helium.persist.entity.Validacio;
-import es.caib.helium.persist.repository.AccioRepository;
-import es.caib.helium.persist.repository.CampAgrupacioRepository;
-import es.caib.helium.persist.repository.CampRegistreRepository;
-import es.caib.helium.persist.repository.CampRepository;
-import es.caib.helium.persist.repository.CampTascaRepository;
-import es.caib.helium.persist.repository.CampValidacioRepository;
-import es.caib.helium.persist.repository.DefinicioProcesRepository;
-import es.caib.helium.persist.repository.DocumentRepository;
-import es.caib.helium.persist.repository.DocumentTascaRepository;
-import es.caib.helium.persist.repository.EnumeracioRepository;
-import es.caib.helium.persist.repository.ExpedientTipusRepository;
-import es.caib.helium.persist.repository.FirmaTascaRepository;
-import es.caib.helium.persist.repository.TascaRepository;
-import es.caib.helium.persist.repository.TerminiRepository;
-import es.caib.helium.ms.domini.DominiMs;
 
 /**
  * Helper per a les definicions de procés.
@@ -117,9 +76,9 @@ public class DefinicioProcesHelper {
 	private FirmaTascaRepository firmaTascaRepository;
 
 	@Resource
-	private ConversioTipusHelper conversioTipusHelper;
+	private ConversioTipusServiceHelper conversioTipusServiceHelper;
 	@Resource
-	private MessageHelper messageHelper;
+	private MessageServiceHelper messageHelper;
 	@Resource
 	private WorkflowEngineApi workflowEngineApi;
 	@Resource
@@ -780,7 +739,7 @@ public class DefinicioProcesHelper {
 		DefinicioProces definicio = 
 				definicioProcesRepository.findById(definicioProcesId).get();
 		exportacio.setDefinicioProcesDto(
-				conversioTipusHelper.convertir(
+				conversioTipusServiceHelper.convertir(
 						definicio, 
 						DefinicioProcesDto.class));
 		exportacio.setNomDeploy("export.par");

@@ -3,18 +3,16 @@
  */
 package es.caib.helium.logic.service;
 
-import java.util.Date;
-
-import javax.annotation.Resource;
-
-import org.springframework.stereotype.Service;
-
-import es.caib.helium.logic.helper.ConversioTipusHelper;
+import es.caib.helium.logic.helper.ConversioTipusServiceHelper;
 import es.caib.helium.logic.intf.dto.AlertaDto;
 import es.caib.helium.logic.intf.exception.NoTrobatException;
 import es.caib.helium.logic.intf.service.AlertaService;
 import es.caib.helium.persist.entity.Alerta;
 import es.caib.helium.persist.repository.AlertaRepository;
+import org.springframework.stereotype.Service;
+
+import javax.annotation.Resource;
+import java.util.Date;
 
 /**
  * Servei per gestionar els tokens dels expedients
@@ -28,7 +26,7 @@ public class AlertaServiceImpl implements AlertaService {
 	private AlertaRepository alertaRepository;
 
 	@Resource
-	private ConversioTipusHelper conversioTipusHelper;
+	private ConversioTipusServiceHelper conversioTipusServiceHelper;
 
 	@Override
 	public AlertaDto marcarLlegida(Long alertaId) {
@@ -38,7 +36,7 @@ public class AlertaServiceImpl implements AlertaService {
 		alerta.setDataLectura(new Date());
 		alertaRepository.save(alerta);
 
-		return conversioTipusHelper.convertir(alerta, AlertaDto.class);
+		return conversioTipusServiceHelper.convertir(alerta, AlertaDto.class);
 	}
 
 	@Override
@@ -49,7 +47,7 @@ public class AlertaServiceImpl implements AlertaService {
 		alerta.setDataLectura(null);
 		alertaRepository.save(alerta);
 
-		return conversioTipusHelper.convertir(alerta, AlertaDto.class);
+		return conversioTipusServiceHelper.convertir(alerta, AlertaDto.class);
 	}
 
 	@Override
@@ -60,6 +58,6 @@ public class AlertaServiceImpl implements AlertaService {
 		alerta.setDataEliminacio(new Date());
 		alertaRepository.save(alerta);
 
-		return conversioTipusHelper.convertir(alerta, AlertaDto.class);
+		return conversioTipusServiceHelper.convertir(alerta, AlertaDto.class);
 	}
 }

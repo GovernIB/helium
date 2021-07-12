@@ -53,7 +53,7 @@ public class NotificacioHelper {
 	@Resource
 	DocumentStoreRepository documentStoreRepository;
 	@Resource
-	ConversioTipusHelper conversioTipusHelper;
+    ConversioTipusServiceHelper conversioTipusServiceHelper;
 	@Resource
 	private PluginHelper pluginHelper;
 	@Resource
@@ -66,7 +66,7 @@ public class NotificacioHelper {
 	public Notificacio create(
 			ExpedientDto expedient,
 			NotificacioDto notificacioDto) {
-		Notificacio notificacio = conversioTipusHelper.convertir(notificacioDto, Notificacio.class);
+		Notificacio notificacio = conversioTipusServiceHelper.convertir(notificacioDto, Notificacio.class);
 		notificacio.setExpedient(expedientRepository.findById(expedient.getId()).get());
 		notificacio.setDocument(documentStoreRepository.findById(notificacioDto.getDocument().getId()).get());
 		

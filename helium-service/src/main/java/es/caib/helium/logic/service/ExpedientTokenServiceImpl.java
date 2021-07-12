@@ -3,7 +3,7 @@
  */
 package es.caib.helium.logic.service;
 
-import es.caib.helium.logic.helper.ConversioTipusHelper;
+import es.caib.helium.logic.helper.ConversioTipusServiceHelper;
 import es.caib.helium.logic.helper.ExpedientHelper;
 import es.caib.helium.logic.intf.WToken;
 import es.caib.helium.logic.intf.WorkflowEngineApi;
@@ -45,7 +45,7 @@ public class ExpedientTokenServiceImpl implements ExpedientTokenService {
 	@Resource
 	private WorkflowEngineApi workflowEngineApi;
 	@Resource
-	private ConversioTipusHelper conversioTipusHelper;
+	private ConversioTipusServiceHelper conversioTipusServiceHelper;
 	@Resource
 	private ExpedientHelper expedientHelper;
 
@@ -83,7 +83,7 @@ public class ExpedientTokenServiceImpl implements ExpedientTokenService {
 					    }
 					});
 		}
-		return conversioTipusHelper.convertirList(jbpmTokens, TokenDto.class);
+		return conversioTipusServiceHelper.convertirList(jbpmTokens, TokenDto.class);
 	}
 
 	/**
@@ -158,7 +158,7 @@ public class ExpedientTokenServiceImpl implements ExpedientTokenService {
 						ExtendedPermission.SUPERVISION,
 						ExtendedPermission.ADMINISTRATION});
 		if( expedient != null)
-			return conversioTipusHelper.convertir(workflowEngineApi.getTokenById(tokenId), TokenDto.class);
+			return conversioTipusServiceHelper.convertir(workflowEngineApi.getTokenById(tokenId), TokenDto.class);
 		else
 			return null;
 	}

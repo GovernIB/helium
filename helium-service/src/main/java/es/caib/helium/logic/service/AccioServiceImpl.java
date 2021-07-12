@@ -3,19 +3,7 @@
  */
 package es.caib.helium.logic.service;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
-import javax.annotation.Resource;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.data.domain.Page;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import es.caib.helium.logic.helper.ConversioTipusHelper;
+import es.caib.helium.logic.helper.ConversioTipusServiceHelper;
 import es.caib.helium.logic.helper.ExpedientTipusHelper;
 import es.caib.helium.logic.helper.HerenciaHelper;
 import es.caib.helium.logic.helper.PaginacioHelper;
@@ -30,6 +18,16 @@ import es.caib.helium.persist.entity.ExpedientTipus;
 import es.caib.helium.persist.repository.AccioRepository;
 import es.caib.helium.persist.repository.DefinicioProcesRepository;
 import es.caib.helium.persist.repository.ExpedientTipusRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import javax.annotation.Resource;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Implementació del servei per a gestionar tipus d'expedients.
@@ -49,7 +47,7 @@ public class AccioServiceImpl implements AccioService {
 	@Resource
 	private ExpedientTipusHelper expedientTipusHelper;
 	@Resource
-	private ConversioTipusHelper conversioTipusHelper;
+	private ConversioTipusServiceHelper conversioTipusServiceHelper;
 	@Resource
 	private PaginacioHelper paginacioHelper;
 
@@ -84,7 +82,7 @@ public class AccioServiceImpl implements AccioService {
 		if (definicioProcesId != null)
 			entity.setDefinicioProces(definicioProcesRepository.findById(definicioProcesId).get());		
 
-		return conversioTipusHelper.convertir(
+		return conversioTipusServiceHelper.convertir(
 				accioRepository.save(entity),
 				AccioDto.class);
 	}
@@ -110,7 +108,7 @@ public class AccioServiceImpl implements AccioService {
 		entity.setOculta(accio.isOculta());
 		entity.setRols(accio.getRols());		
 				
-		return conversioTipusHelper.convertir(
+		return conversioTipusServiceHelper.convertir(
 				accioRepository.save(entity),
 				AccioDto.class);
 	}
@@ -138,7 +136,7 @@ public class AccioServiceImpl implements AccioService {
 				"Consultant la accio del tipus d'expedient amb id (" +
 				"accioId=" + id +  ")");
 		Accio accio = accioRepository.findById(id).orElseThrow(() -> new NoTrobatException(Accio.class, id));
-		AccioDto dto = conversioTipusHelper.convertir(
+		AccioDto dto = conversioTipusServiceHelper.convertir(
 				accio,
 				AccioDto.class);
 		// Herencia
@@ -168,7 +166,7 @@ public class AccioServiceImpl implements AccioService {
 		else
 			accions = accioRepository.findAmbDefinicioProces(definicioProcesId);
 		
-		return conversioTipusHelper.convertirList(
+		return conversioTipusServiceHelper.convertirList(
 									accions, 
 									AccioDto.class);
 	}		
@@ -192,7 +190,7 @@ public class AccioServiceImpl implements AccioService {
 		else if(definicioProcesId != null)
 			accio = accioRepository.findByDefinicioProcesIdAndCodi(definicioProcesId, codi);
 		if (accio != null)
-			return conversioTipusHelper.convertir(
+			return conversioTipusServiceHelper.convertir(
 					accio,
 					AccioDto.class);
 		else

@@ -30,7 +30,7 @@ import java.util.Map;
 public class PaginacioHelper {
 
 	@Resource
-	private ConversioTipusHelper conversioTipusHelper;
+	private ConversioTipusServiceHelper conversioTipusServiceHelper;
 
 	public boolean esPaginacioActivada(PaginacioParamsDto dto) {
 		return dto.getPaginaTamany() > 0;
@@ -96,7 +96,7 @@ public class PaginacioHelper {
 		if (page.hasContent()) {
 			if (converter == null) {
 				dto.setContingut(
-						conversioTipusHelper.convertirList(
+						conversioTipusServiceHelper.convertirList(
 								page.getContent(),
 								targetType));
 			} else {
@@ -124,7 +124,7 @@ public class PaginacioHelper {
 		dto.setDarrera(true);
 		if (targetType != null) {
 			dto.setContingut(
-					conversioTipusHelper.convertirList(
+					conversioTipusServiceHelper.convertirList(
 							llista,
 							targetType));
 		}

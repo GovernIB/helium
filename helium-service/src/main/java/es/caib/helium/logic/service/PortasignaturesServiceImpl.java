@@ -3,12 +3,12 @@
  */
 package es.caib.helium.logic.service;
 
-import es.caib.helium.logic.helper.ConversioTipusHelper;
+import es.caib.helium.logic.helper.ConversioTipusServiceHelper;
 import es.caib.helium.logic.helper.DocumentHelper;
 import es.caib.helium.logic.helper.ExceptionHelper;
 import es.caib.helium.logic.helper.ExpedientHelper;
 import es.caib.helium.logic.helper.IndexHelper;
-import es.caib.helium.logic.helper.MessageHelper;
+import es.caib.helium.logic.helper.MessageServiceHelper;
 import es.caib.helium.logic.helper.PluginHelper;
 import es.caib.helium.logic.helper.PortasignaturesHelper;
 import es.caib.helium.logic.helper.ProcesCallbackHelper;
@@ -64,7 +64,7 @@ public class PortasignaturesServiceImpl implements PortasignaturesService {
 	AlertaRepository alertaRepository;
 	
 	@Resource
-	private ConversioTipusHelper conversioTipusHelper;	
+	private ConversioTipusServiceHelper conversioTipusServiceHelper;
 	@Resource
 	private ProcesCallbackHelper procesCallbackHelper;
 	@Resource
@@ -76,7 +76,7 @@ public class PortasignaturesServiceImpl implements PortasignaturesService {
 	@Resource
 	private DocumentHelper documentHelper;
 	@Resource
-	private MessageHelper messageHelper;
+	private MessageServiceHelper messageHelper;
 	@Resource
 	private WorkflowEngineApi workflowEngineApi;
 	@Resource
@@ -321,7 +321,7 @@ public class PortasignaturesServiceImpl implements PortasignaturesService {
 	@Override
 	@Transactional(readOnly= true)
 	public PortasignaturesDto getByDocumentId(Integer documentId) {
-		return conversioTipusHelper.convertir(
+		return conversioTipusServiceHelper.convertir(
 				portasignaturesHelper.getByDocumentId(documentId),
 				PortasignaturesDto.class);
 	}

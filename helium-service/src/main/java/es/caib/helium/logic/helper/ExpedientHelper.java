@@ -103,9 +103,9 @@ public class ExpedientHelper {
 	@Resource
 	private IndexHelper indexHelper;
 	@Resource
-	private MessageHelper messageHelper;
+	private MessageServiceHelper messageHelper;
 	@Resource
-	private ConversioTipusHelper conversioTipusHelper;
+	private ConversioTipusServiceHelper conversioTipusServiceHelper;
 //	@Resource
 //	private MesuresTemporalsHelper mesuresTemporalsHelper;
 	@Resource
@@ -128,7 +128,7 @@ public class ExpedientHelper {
 		dto.setAnulat(expedient.isAnulat());
 		dto.setDataInici(expedient.getDataInici());
 		dto.setIniciadorCodi(expedient.getIniciadorCodi());
-		dto.setIniciadorTipus(conversioTipusHelper.convertir(expedient.getIniciadorTipus(), IniciadorTipusDto.class));
+		dto.setIniciadorTipus(conversioTipusServiceHelper.convertir(expedient.getIniciadorTipus(), IniciadorTipusDto.class));
 		dto.setResponsableCodi(expedient.getResponsableCodi());
 		dto.setGrupCodi(expedient.getGrupCodi());
 		if (expedient.getIniciadorTipus().equals(IniciadorTipus.INTERN)) {
@@ -141,10 +141,10 @@ public class ExpedientHelper {
 		}
 		if (expedient.getIniciadorTipus().equals(IniciadorTipus.SISTRA))
 			dto.setBantelEntradaNum(expedient.getNumeroEntradaSistra());
-		dto.setTipus(conversioTipusHelper.convertir(expedient.getTipus(), ExpedientTipusDto.class));
-		dto.setEntorn(conversioTipusHelper.convertir(expedient.getEntorn(), EntornDto.class));
+		dto.setTipus(conversioTipusServiceHelper.convertir(expedient.getTipus(), ExpedientTipusDto.class));
+		dto.setEntorn(conversioTipusServiceHelper.convertir(expedient.getEntorn(), EntornDto.class));
 		if (expedient.getEstat() != null)
-			dto.setEstat(conversioTipusHelper.convertir(expedient.getEstat(), EstatDto.class));
+			dto.setEstat(conversioTipusServiceHelper.convertir(expedient.getEstat(), EstatDto.class));
 		dto.setGeoPosX(expedient.getGeoPosX());
 		dto.setGeoPosY(expedient.getGeoPosY());
 		dto.setGeoReferencia(expedient.getGeoReferencia());
@@ -1249,7 +1249,7 @@ public class ExpedientHelper {
 		dto.setInstanciaProcesPareId(pi.getParentProcessInstanceId());
 		if (pi.getDescription() != null && pi.getDescription().length() > 0)
 			dto.setTitol(pi.getDescription());
-		dto.setDefinicioProces(conversioTipusHelper.convertir(definicioProcesRepository.findByJbpmId(pi.getProcessDefinitionId()), DefinicioProcesDto.class));
+		dto.setDefinicioProces(conversioTipusServiceHelper.convertir(definicioProcesRepository.findByJbpmId(pi.getProcessDefinitionId()), DefinicioProcesDto.class));
 		return dto;
 	}
 
@@ -1514,7 +1514,7 @@ public class ExpedientHelper {
 				auth);
 		String iniciadorCodiCalculat = (iniciadorTipus.equals(IniciadorTipusDto.INTERN)) ? usuariBo : iniciadorCodi;
 		expedient.setTipus(expedientTipus);
-		expedient.setIniciadorTipus(conversioTipusHelper.convertir(iniciadorTipus, IniciadorTipus.class));
+		expedient.setIniciadorTipus(conversioTipusServiceHelper.convertir(iniciadorTipus, IniciadorTipus.class));
 		expedient.setIniciadorCodi(iniciadorCodiCalculat);
 		expedient.setEntorn(entorn);
 		expedient.setProcessInstanceId(UUID.randomUUID().toString());

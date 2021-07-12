@@ -1,6 +1,6 @@
 package es.caib.helium.logic.service;
 
-import es.caib.helium.logic.helper.ConversioTipusHelper;
+import es.caib.helium.logic.helper.ConversioTipusServiceHelper;
 import es.caib.helium.logic.helper.PaginacioHelper;
 import es.caib.helium.logic.intf.dto.CarrecJbpmIdDto;
 import es.caib.helium.logic.intf.dto.PaginaDto;
@@ -26,7 +26,7 @@ public class CarrecServiceImpl implements CarrecService {
 	@Resource
 	private CarrecJbpmIdRepository carrecJbpmIdRepository;
 	@Resource
-	private ConversioTipusHelper conversioTipusHelper;
+	private ConversioTipusServiceHelper conversioTipusServiceHelper;
 	@Resource
 	private PaginacioHelper paginacioHelper;
 
@@ -71,12 +71,12 @@ public class CarrecServiceImpl implements CarrecService {
 
 	@Override
 	public CarrecJbpmIdDto findAmbId(Long id) {
-		return conversioTipusHelper.convertir(carrecJbpmIdRepository.findById(id), CarrecJbpmIdDto.class);
+		return conversioTipusServiceHelper.convertir(carrecJbpmIdRepository.findById(id), CarrecJbpmIdDto.class);
 	}
 
 	@Override
 	public CarrecJbpmIdDto findAmbCodi(String codi) {
-		return conversioTipusHelper.convertir(carrecJbpmIdRepository.findByCodi(codi), CarrecJbpmIdDto.class);
+		return conversioTipusServiceHelper.convertir(carrecJbpmIdRepository.findByCodi(codi), CarrecJbpmIdDto.class);
 	}
 
 	@Override
@@ -92,7 +92,7 @@ public class CarrecServiceImpl implements CarrecService {
 		entity.setTractamentDona(carrec.getTractamentDona());
 		entity.setPersonaSexe(carrec.getPersonaSexeId() == 0 ? Sexe.SEXE_HOME : Sexe.SEXE_DONA);
 		entity.setDescripcio(carrec.getDescripcio());
-		return conversioTipusHelper.convertir(carrecJbpmIdRepository.save(entity), CarrecJbpmIdDto.class);
+		return conversioTipusServiceHelper.convertir(carrecJbpmIdRepository.save(entity), CarrecJbpmIdDto.class);
 	}
 
 	@Override
@@ -104,7 +104,7 @@ public class CarrecServiceImpl implements CarrecService {
 		entity.setTractamentDona(carrec.getTractamentDona());
 		entity.setPersonaSexe(carrec.getPersonaSexeId() == 0 ? Sexe.SEXE_HOME : Sexe.SEXE_DONA);
 		entity.setDescripcio(carrec.getDescripcio());
-		return conversioTipusHelper.convertir(carrecJbpmIdRepository.save(entity), CarrecJbpmIdDto.class);
+		return conversioTipusServiceHelper.convertir(carrecJbpmIdRepository.save(entity), CarrecJbpmIdDto.class);
 	}
 	
 	@Override

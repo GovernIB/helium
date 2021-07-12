@@ -38,7 +38,7 @@ public class ConsultaHelper {
 	@Resource
 	private VariableHelper variableHelper;	
 	@Resource
-	private MessageHelper messageHelper;
+	private MessageServiceHelper messageHelper;
 	@Resource
 	private CampRepository campRepository;
 	@Resource
@@ -46,7 +46,7 @@ public class ConsultaHelper {
 	@Resource
 	private ConsultaCampRepository consultaCampRepository;
 	@Resource
-	private ConversioTipusHelper conversioTipusHelper;
+	private ConversioTipusServiceHelper conversioTipusServiceHelper;
 	@Resource
 	private PluginHelper pluginHelper;
 
@@ -272,7 +272,7 @@ public class ConsultaHelper {
 			if (camp == null) {
 				camp = new Camp(
 						tascaDadaDto.getVarCodi(),
-						conversioTipusHelper.convertir(tascaDadaDto.getCampTipus(), TipusCamp.class),
+						conversioTipusServiceHelper.convertir(tascaDadaDto.getCampTipus(), TipusCamp.class),
 						tascaDadaDto.getCampEtiqueta()  == null ? tascaDadaDto.getVarCodi() : tascaDadaDto.getCampEtiqueta());
 			}
 			listCamp.add(camp);

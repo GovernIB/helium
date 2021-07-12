@@ -43,7 +43,7 @@ public class FormulariExternHelper {
 	@Autowired
 	private WsClientHelper wsClientHelper;
 	@Resource
-	private MessageHelper messageHelper;
+	private MessageServiceHelper messageHelper;
 
 	public FormulariExternDto iniciar(
 		String taskId,

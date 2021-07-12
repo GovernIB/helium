@@ -3,7 +3,7 @@
  */
 package es.caib.helium.logic.service;
 
-import es.caib.helium.logic.helper.ConversioTipusHelper;
+import es.caib.helium.logic.helper.ConversioTipusServiceHelper;
 import es.caib.helium.logic.helper.ExpedientTipusHelper;
 import es.caib.helium.logic.helper.HerenciaHelper;
 import es.caib.helium.logic.helper.NotificacioHelper;
@@ -54,7 +54,7 @@ public class DocumentServiceImpl implements DocumentService {
 	@Resource
 	private PaginacioHelper paginacioHelper;
 	@Resource
-	private ConversioTipusHelper conversioTipusHelper;
+	private ConversioTipusServiceHelper conversioTipusServiceHelper;
 	@Resource
 	private NotificacioHelper notificacioHelper;
 
@@ -159,7 +159,7 @@ public class DocumentServiceImpl implements DocumentService {
 		if (definicioProcesId != null)
 			entity.setDefinicioProces(definicioProcesRepository.getById(definicioProcesId));
 
-		return conversioTipusHelper.convertir(
+		return conversioTipusServiceHelper.convertir(
 				documentRepository.save(entity),
 				DocumentDto.class);
 	}
@@ -189,7 +189,7 @@ public class DocumentServiceImpl implements DocumentService {
 											codi);
 
 		if (document != null) {
-			ret = conversioTipusHelper.convertir(
+			ret = conversioTipusServiceHelper.convertir(
 					document,
 					DocumentDto.class);
 			ret.setArxiuContingut(document.getArxiuContingut());
@@ -232,7 +232,7 @@ public class DocumentServiceImpl implements DocumentService {
 		if (document == null) {
 			throw new NoTrobatException(Document.class, id);
 		}
-		DocumentDto dto = conversioTipusHelper.convertir(
+		DocumentDto dto = conversioTipusServiceHelper.convertir(
 				document,
 				DocumentDto.class);
 		dto.setArxiuContingut(document.getArxiuContingut());
@@ -292,7 +292,7 @@ public class DocumentServiceImpl implements DocumentService {
 													  
    
 
-		return conversioTipusHelper.convertir(
+		return conversioTipusServiceHelper.convertir(
 				documentRepository.save(entity),
 				DocumentDto.class);
 	}
@@ -338,7 +338,7 @@ public class DocumentServiceImpl implements DocumentService {
 				"expedientTipusId =" + expedientTipusId + ", " +
 				"definicioProcesId =" + definicioProcesId + ")");
 						
-		return conversioTipusHelper.convertirList(
+		return conversioTipusServiceHelper.convertirList(
 				expedientTipusId != null ?
 						documentRepository.findByExpedientTipusId(expedientTipusId)
 						: documentRepository.findByDefinicioProcesId(definicioProcesId), 

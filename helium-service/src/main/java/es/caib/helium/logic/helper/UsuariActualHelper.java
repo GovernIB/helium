@@ -35,7 +35,7 @@ public class UsuariActualHelper {
 	@Resource
 	private PermisosHelper permisosHelper;
 	@Resource
-	private ConversioTipusHelper conversioTipusHelper;
+	private ConversioTipusServiceHelper conversioTipusServiceHelper;
 
 
 
@@ -52,7 +52,7 @@ public class UsuariActualHelper {
 				Entorn.class,
 				new Permission[] {BasePermission.ADMINISTRATION},
 				SecurityContextHolder.getContext().getAuthentication());
-		List<EntornDto> dtos = conversioTipusHelper.convertirList(
+		List<EntornDto> dtos = conversioTipusServiceHelper.convertirList(
 				entorns,
 				EntornDto.class);
 		List<Long> ids = new ArrayList<Long>();
@@ -79,7 +79,7 @@ public class UsuariActualHelper {
 				Entorn.class,
 				new Permission[] {BasePermission.ADMINISTRATION, BasePermission.READ},
 				SecurityContextHolder.getContext().getAuthentication());
-		List<EntornDto> dtos = conversioTipusHelper.convertirList(
+		List<EntornDto> dtos = conversioTipusServiceHelper.convertirList(
 				entorns,
 				EntornDto.class);
 		List<Long> ids = new ArrayList<Long>();

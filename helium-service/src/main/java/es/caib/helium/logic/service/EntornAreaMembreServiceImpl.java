@@ -1,6 +1,6 @@
 package es.caib.helium.logic.service;
 
-import es.caib.helium.logic.helper.ConversioTipusHelper;
+import es.caib.helium.logic.helper.ConversioTipusServiceHelper;
 import es.caib.helium.logic.helper.PaginacioHelper;
 import es.caib.helium.logic.intf.dto.AreaMembreDto;
 import es.caib.helium.logic.intf.dto.PaginaDto;
@@ -26,7 +26,7 @@ public class EntornAreaMembreServiceImpl implements EntornAreaMembreService {
 	@Resource
 	private AreaMembreRepository areaMembreRepository;
 	@Resource
-	private ConversioTipusHelper conversioTipusHelper;
+	private ConversioTipusServiceHelper conversioTipusServiceHelper;
 	@Resource
 	private AreaRepository areaRepository;
 	@Resource
@@ -61,7 +61,7 @@ public class EntornAreaMembreServiceImpl implements EntornAreaMembreService {
 
 	@Override
 	public AreaMembreDto findAmbCodiAndAreaId(String codi, Long areaId) {
-		return conversioTipusHelper.convertir(areaMembreRepository.findByCodiAndAreaId(codi, areaId),
+		return conversioTipusServiceHelper.convertir(areaMembreRepository.findByCodiAndAreaId(codi, areaId),
 				AreaMembreDto.class);
 	}
 
@@ -80,7 +80,7 @@ public class EntornAreaMembreServiceImpl implements EntornAreaMembreService {
 			carrec.setPersonaCodi(areaMembre.getCodi());
 			carrecRepository.save(carrec);
 		}
-		return conversioTipusHelper.convertir(areaMembreRepository.save(entity), AreaMembreDto.class);
+		return conversioTipusServiceHelper.convertir(areaMembreRepository.save(entity), AreaMembreDto.class);
 	}
 
 	@Override

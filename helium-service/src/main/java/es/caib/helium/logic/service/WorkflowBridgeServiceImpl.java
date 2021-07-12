@@ -102,7 +102,7 @@ public class WorkflowBridgeServiceImpl implements WorkflowBridgeService {
     @Resource
     private IndexHelper indexHelper;
     @Resource
-    private ConversioTipusHelper conversioTipusHelper;
+    private ConversioTipusServiceHelper conversioTipusServiceHelper;
 
     @Resource
     private WorkflowEngineApi workflowEngineApi;
@@ -253,7 +253,7 @@ public class WorkflowBridgeServiceImpl implements WorkflowBridgeService {
                 expedientTipusCodi);
         if (expedientTipus == null)
             throw new NoTrobatException(ExpedientTipus.class, expedientTipusCodi);
-        return conversioTipusHelper.convertir(
+        return conversioTipusServiceHelper.convertir(
                 expedientRepository.findByEntornAndTipusAndNumero(
                         entorn,
                         expedientTipus,
@@ -293,7 +293,7 @@ public class WorkflowBridgeServiceImpl implements WorkflowBridgeService {
     public ExpedientDto getExpedientArrelAmbProcessInstanceId(
             String processInstanceId) {
         logger.debug("Obtenint expedient donada una instància de procés (processInstanceId=" + processInstanceId + ")");
-        return conversioTipusHelper.convertir(
+        return conversioTipusServiceHelper.convertir(
                 getExpedientDonatProcessInstanceId(processInstanceId),
                 ExpedientDto.class);
     }
@@ -932,14 +932,14 @@ public class WorkflowBridgeServiceImpl implements WorkflowBridgeService {
         ExpedientTipus expedientTipus = expedient.getTipus();
 
         if (expedientTipus.isAmbInfoPropia())
-            return conversioTipusHelper.convertir(
+            return conversioTipusServiceHelper.convertir(
                     documentRepository.findByExpedientTipusAndCodi(
                             expedientTipus.getId(),
                             documentCodi,
                             expedientTipus.getExpedientTipusPare() != null),
                     DocumentDissenyDto.class);
         else
-            return conversioTipusHelper.convertir(
+            return conversioTipusServiceHelper.convertir(
                     documentRepository.findByDefinicioProcesAndCodi(
                             definicioProces,
                             documentCodi),
@@ -975,7 +975,7 @@ public class WorkflowBridgeServiceImpl implements WorkflowBridgeService {
                 "ambContingutVista=" + ambContingutVista + ", " +
                 "perSignar=" + perSignar + ", " +
                 "ambSegellSignatura=" + ambSegellSignatura + ")");
-        return conversioTipusHelper.convertir(
+        return conversioTipusServiceHelper.convertir(
                 documentHelper.toDocumentDto(
                         documentStoreId,
                         ambContingutOriginal,
@@ -1215,7 +1215,7 @@ public class WorkflowBridgeServiceImpl implements WorkflowBridgeService {
         }
         if (termini == null)
             throw new NoTrobatException(Termini.class, terminiCodi);
-        return conversioTipusHelper.convertir(
+        return conversioTipusServiceHelper.convertir(
                 termini,
                 TerminiDto.class);
     }
@@ -1244,7 +1244,7 @@ public class WorkflowBridgeServiceImpl implements WorkflowBridgeService {
         }
         if (terminiIniciat == null)
             throw new NoTrobatException(TerminiIniciat.class, terminiCodi);
-        return conversioTipusHelper.convertir(
+        return conversioTipusServiceHelper.convertir(
                 terminiIniciat,
                 TerminiIniciatDto.class);
     }
@@ -1460,7 +1460,7 @@ public class WorkflowBridgeServiceImpl implements WorkflowBridgeService {
         }
         if (enumeracio == null)
             throw new NoTrobatException(Enumeracio.class, enumeracioCodi);
-        return conversioTipusHelper.convertirList(
+        return conversioTipusServiceHelper.convertirList(
                 enumeracio.getEnumeracioValors(),
                 EnumeracioValorDto.class);
     }
@@ -1516,7 +1516,7 @@ public class WorkflowBridgeServiceImpl implements WorkflowBridgeService {
                 expedientTipusCodi);
         if (expedientTipus == null)
             throw new NoTrobatException(ExpedientTipus.class, expedientTipusCodi);
-        return conversioTipusHelper.convertir(
+        return conversioTipusServiceHelper.convertir(
                 estatRepository.findByExpedientTipusAndCodiAmbHerencia(
                         expedientTipus.getId(),
                         estatCodi),
@@ -1686,7 +1686,7 @@ public class WorkflowBridgeServiceImpl implements WorkflowBridgeService {
                     bccRecipients,
                     subject,
                     text,
-                    conversioTipusHelper.convertirList(
+                    conversioTipusServiceHelper.convertirList(
                             attachments,
                             ArxiuDto.class));
         } catch (Exception e) {
@@ -1719,7 +1719,7 @@ public class WorkflowBridgeServiceImpl implements WorkflowBridgeService {
     @Override
     public ExpedientDto getExpedientIniciant() {
         logger.debug("Obtenint expedient en fase d'inici");
-        return conversioTipusHelper.convertir(
+        return conversioTipusServiceHelper.convertir(
                 ThreadLocalInfo.getExpedient(),
                 ExpedientDto.class);
     }
@@ -1727,7 +1727,7 @@ public class WorkflowBridgeServiceImpl implements WorkflowBridgeService {
     @Override
     public List<FestiuDto> getFestiusAll() {
         logger.debug("Obtenint la llista de tots els festius");
-        return conversioTipusHelper.convertirList(
+        return conversioTipusServiceHelper.convertirList(
                 festiuRepository.findAll(),
                 FestiuDto.class);
     }
@@ -1760,7 +1760,7 @@ public class WorkflowBridgeServiceImpl implements WorkflowBridgeService {
                     ara,
                     ara);
         }
-        return conversioTipusHelper.convertir(
+        return conversioTipusServiceHelper.convertir(
                 reassignacio,
                 ReassignacioDto.class);
     }
@@ -1786,7 +1786,7 @@ public class WorkflowBridgeServiceImpl implements WorkflowBridgeService {
     @Override
     public DefinicioProcesDto getDefinicioProcesPerProcessInstanceId(String processInstanceId) {
         logger.debug("Obtenint la definició de procés donada la instància de procés (processInstanceId=" + processInstanceId + ")");
-        return conversioTipusHelper.convertir(
+        return conversioTipusServiceHelper.convertir(
                 getDefinicioProcesDonatProcessInstanceId(processInstanceId),
                 DefinicioProcesDto.class);
     }

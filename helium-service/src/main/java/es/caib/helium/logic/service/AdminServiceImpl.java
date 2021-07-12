@@ -4,7 +4,7 @@
 package es.caib.helium.logic.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import es.caib.helium.logic.helper.ConversioTipusHelper;
+import es.caib.helium.logic.helper.ConversioTipusServiceHelper;
 import es.caib.helium.logic.helper.HibernateHelper;
 import es.caib.helium.logic.helper.MailHelper;
 import es.caib.helium.logic.helper.MonitorDominiHelper;
@@ -60,7 +60,7 @@ public class AdminServiceImpl implements AdminService {
 	@Resource
 	private HibernateHelper hibernateHelper;
 	@Resource
-	private ConversioTipusHelper conversioTipusHelper;
+	private ConversioTipusServiceHelper conversioTipusServiceHelper;
 //	@Resource
 //	private MesuresTemporalsHelper mesuresTemporalsHelper;
 	@Resource
@@ -419,7 +419,7 @@ public class AdminServiceImpl implements AdminService {
 	@Transactional(readOnly = true)
 	@Override
 	public List<ReassignacioDto> llistaReassignacions() {
-		return conversioTipusHelper.convertirList(reassignacioRepository.findLlistaActius(Calendar.getInstance().getTime()), ReassignacioDto.class);
+		return conversioTipusServiceHelper.convertirList(reassignacioRepository.findLlistaActius(Calendar.getInstance().getTime()), ReassignacioDto.class);
 	}
 	
 	@Transactional
@@ -474,7 +474,7 @@ public class AdminServiceImpl implements AdminService {
 	@Transactional(readOnly = true)
 	@Override
 	public ReassignacioDto findReassignacioById(Long id) {
-		return conversioTipusHelper.convertir(reassignacioRepository.findById(id), ReassignacioDto.class);
+		return conversioTipusServiceHelper.convertir(reassignacioRepository.findById(id), ReassignacioDto.class);
 	}
 
 

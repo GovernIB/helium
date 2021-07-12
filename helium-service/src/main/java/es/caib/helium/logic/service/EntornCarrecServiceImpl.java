@@ -1,6 +1,6 @@
 package es.caib.helium.logic.service;
 
-import es.caib.helium.logic.helper.ConversioTipusHelper;
+import es.caib.helium.logic.helper.ConversioTipusServiceHelper;
 import es.caib.helium.logic.helper.EntornHelper;
 import es.caib.helium.logic.helper.PaginacioHelper;
 import es.caib.helium.logic.intf.dto.CarrecDto;
@@ -27,7 +27,7 @@ public class EntornCarrecServiceImpl implements EntornCarrecService {
 	@Resource
 	private AreaRepository areaRepository;
 	@Resource
-	private ConversioTipusHelper conversioTipusHelper;
+	private ConversioTipusServiceHelper conversioTipusServiceHelper;
 	@Resource 
 	private EntornHelper entornHelper;
 	@Resource
@@ -50,26 +50,26 @@ public class EntornCarrecServiceImpl implements EntornCarrecService {
 
 	@Override
 	public List<CarrecDto> findCarrecsByEntorn(Long entornId) {
-		return conversioTipusHelper.convertirList(carrecRepository.findByEntornId(entornId), CarrecDto.class);
+		return conversioTipusServiceHelper.convertirList(carrecRepository.findByEntornId(entornId), CarrecDto.class);
 	}
 	
 	@Override
 	public List<CarrecDto> findCarrecsByEntornAndArea(Long entornId, Long areaId) {
-		return conversioTipusHelper.convertirList(carrecRepository.findByEntornIdAndAreaId(entornId, areaId), CarrecDto.class);
+		return conversioTipusServiceHelper.convertirList(carrecRepository.findByEntornIdAndAreaId(entornId, areaId), CarrecDto.class);
 	}
 	
 	@Override
 	public CarrecDto findAmbId(Long entornId, Long id) {
 		logger.debug("Consultant càrrec amb id (id=" + id + ")");
 		Carrec c = carrecRepository.findByEntornIdAndId(entornId, id);
-		return conversioTipusHelper.convertir(c, CarrecDto.class);
+		return conversioTipusServiceHelper.convertir(c, CarrecDto.class);
 	}
 	
 	@Override
 	public CarrecDto findByEntornAndCodi(Long entornId, String codi) {
 		logger.debug("Consultant càrrec amb codi (codi=" + codi + ") en l'entorn (entornId=" + entornId + ")" );
 		Carrec c = carrecRepository.findByEntornIdAndCodi(entornId, codi);
-		return conversioTipusHelper.convertir(c, CarrecDto.class);
+		return conversioTipusServiceHelper.convertir(c, CarrecDto.class);
 	}
 
 	@Override
@@ -86,7 +86,7 @@ public class EntornCarrecServiceImpl implements EntornCarrecService {
 		Area area = areaRepository.findByEntornIdAndId(entornId, entornCarrec.getAreaId());
 		entity.setArea(area);
 		entity.setEntorn(entornHelper.getEntornComprovantPermisos(entornId, true, true));
-		return conversioTipusHelper.convertir(carrecRepository.save(entity), CarrecDto.class);
+		return conversioTipusServiceHelper.convertir(carrecRepository.save(entity), CarrecDto.class);
 	}
 	
 	@Override
@@ -104,7 +104,7 @@ public class EntornCarrecServiceImpl implements EntornCarrecService {
 		Area area = areaRepository.findByEntornIdAndId(entornId, entornCarrec.getAreaId());
 		entity.setArea(area);
 		entity.setEntorn(entornHelper.getEntornComprovantPermisos(entornId, true, true));
-		return conversioTipusHelper.convertir(carrecRepository.save(entity), CarrecDto.class);
+		return conversioTipusServiceHelper.convertir(carrecRepository.save(entity), CarrecDto.class);
 	}
 
 	@Override

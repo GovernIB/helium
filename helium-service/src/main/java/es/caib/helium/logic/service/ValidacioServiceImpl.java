@@ -3,7 +3,7 @@
  */
 package es.caib.helium.logic.service;
 
-import es.caib.helium.logic.helper.ConversioTipusHelper;
+import es.caib.helium.logic.helper.ConversioTipusServiceHelper;
 import es.caib.helium.logic.helper.PaginacioHelper;
 import es.caib.helium.logic.intf.dto.PaginaDto;
 import es.caib.helium.logic.intf.dto.PaginacioParamsDto;
@@ -31,7 +31,7 @@ import java.util.List;
 public class ValidacioServiceImpl implements ValidacioService{
 	
 	@Resource
-	private ConversioTipusHelper conversioTipusHelper;
+	private ConversioTipusServiceHelper conversioTipusServiceHelper;
 	@Resource
 	private PaginacioHelper paginacioHelper;
 	@Resource
@@ -56,7 +56,7 @@ public class ValidacioServiceImpl implements ValidacioService{
 		entity.setMissatge(validacio.getMissatge());
 		entity.setOrdre(campValidacioRepository.getNextOrdre(campId));
 		
-		return conversioTipusHelper.convertir(
+		return conversioTipusServiceHelper.convertir(
 				campValidacioRepository.save(entity),
 				ValidacioDto.class);
 	}
@@ -74,7 +74,7 @@ public class ValidacioServiceImpl implements ValidacioService{
 		entity.setExpressio(validacio.getExpressio());
 		entity.setMissatge(validacio.getMissatge());
 		
-		return conversioTipusHelper.convertir(
+		return conversioTipusServiceHelper.convertir(
 				campValidacioRepository.save(entity),
 				ValidacioDto.class);
 	}
@@ -129,7 +129,7 @@ public class ValidacioServiceImpl implements ValidacioService{
 				"validacioId=" + id +  ")");
 		Validacio validacio = campValidacioRepository.findById(id)
 				.orElseThrow(() -> new NoTrobatException(Validacio.class, id));
-		return conversioTipusHelper.convertir(
+		return conversioTipusServiceHelper.convertir(
 				validacio,
 				ValidacioDto.class);
 	}

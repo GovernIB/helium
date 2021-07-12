@@ -3,7 +3,7 @@
  */
 package es.caib.helium.logic.service;
 
-import es.caib.helium.logic.helper.ConversioTipusHelper;
+import es.caib.helium.logic.helper.ConversioTipusServiceHelper;
 import es.caib.helium.logic.helper.EntornHelper;
 import es.caib.helium.logic.helper.PaginacioHelper;
 import es.caib.helium.logic.helper.PermisosHelper;
@@ -33,7 +33,7 @@ import java.util.Map;
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
-@Service("entornServiceV3")
+@Service
 public class EntornServiceImpl implements EntornService {
 
 	@Resource
@@ -42,7 +42,7 @@ public class EntornServiceImpl implements EntornService {
 	@Autowired
 	private UsuariActualHelper usuariActualHelper;
 	@Resource
-	private ConversioTipusHelper conversioTipusHelper;
+	private ConversioTipusServiceHelper conversioTipusServiceHelper;
 	@Resource
 	private PaginacioHelper paginacioHelper;
 	@Resource
@@ -68,7 +68,7 @@ public class EntornServiceImpl implements EntornService {
 		entity.setActiu(true);
 		entity.setColorFons(entorn.getColorFons());
 		entity.setColorLletra(entorn.getColorLletra());
-		return conversioTipusHelper.convertir(
+		return conversioTipusServiceHelper.convertir(
 				entornRepository.save(entity),
 				EntornDto.class);
 	}
@@ -87,7 +87,7 @@ public class EntornServiceImpl implements EntornService {
 		entity.setColorFons(entorn.getColorFons());
 		entity.setColorLletra(entorn.getColorLletra());
 		usuariActualHelper.netejarCacheUsuariTots();
-		return conversioTipusHelper.convertir(
+		return conversioTipusServiceHelper.convertir(
 				entity,
 				EntornDto.class);
 	}
@@ -147,7 +147,7 @@ public class EntornServiceImpl implements EntornService {
 	public EntornDto findOne(Long entornId) {
 		logger.debug("Consultant entorn amb id (entornId=" + entornId + ")");
 		Entorn entorn = comprovarEntorn(entornId);
-		return conversioTipusHelper.convertir(
+		return conversioTipusServiceHelper.convertir(
 				entorn,
 				EntornDto.class);
 	}
@@ -159,7 +159,7 @@ public class EntornServiceImpl implements EntornService {
 	@Transactional(readOnly = true)
 	public EntornDto findAmbCodi(String entornCodi) {
 		logger.debug("Consultant entorn amb codi (entornCodi=" + entornCodi + ")");
-		return conversioTipusHelper.convertir(
+		return conversioTipusServiceHelper.convertir(
 				entornRepository.findByCodi(entornCodi),
 				EntornDto.class);
 	}
@@ -175,7 +175,7 @@ public class EntornServiceImpl implements EntornService {
 				+ "usuariActual=" + usuariActual + ")");
 		
 		Entorn entorn = entornHelper.getEntornComprovantPermisos(entornId, true);
-		return conversioTipusHelper.convertir(
+		return conversioTipusServiceHelper.convertir(
 					entorn,
 					EntornDto.class);
 	}
@@ -231,7 +231,7 @@ public class EntornServiceImpl implements EntornService {
 	@Transactional(readOnly = true)
 	public List<EntornDto> findActiusAll() {
 		logger.debug("Consulta dels entorns actius");
-		return conversioTipusHelper.convertirList(
+		return conversioTipusServiceHelper.convertirList(
 				entornRepository.findByActiuTrue(),
 				EntornDto.class);
 	}

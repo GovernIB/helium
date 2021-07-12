@@ -91,7 +91,7 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 	@Resource
 	private ExpedientTipusHelper expedientTipusHelper;
 	@Resource
-	private ConversioTipusHelper conversioTipusHelper;
+	private ConversioTipusServiceHelper conversioTipusServiceHelper;
 	@Autowired
 	private MonitorIntegracioHelper monitorIntegracioHelper;
 	@Resource
@@ -181,7 +181,7 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 		if (anotacio == null) {
 			throw new NoTrobatException(Anotacio.class, id);
 		}
-		AnotacioDto dto = conversioTipusHelper.convertir(anotacio, AnotacioDto.class);
+		AnotacioDto dto = conversioTipusServiceHelper.convertir(anotacio, AnotacioDto.class);
 		return dto;
 	}
 
@@ -249,7 +249,7 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 		anotacio.setExpedientTipus(expedientTipus);
 		anotacio.setExpedient(expedient);
 
-		return conversioTipusHelper.convertir(anotacio, AnotacioDto.class);
+		return conversioTipusServiceHelper.convertir(anotacio, AnotacioDto.class);
 	}
 
 	/**
@@ -387,7 +387,7 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 				WorkflowRetroaccioApi.ExpedientRetroaccioTipus.ANOTACIO_RELACIONAR, anotacio.getIdentificador(),
 				WorkflowRetroaccioApi.ExpedientRetroaccioEstat.IGNORAR);
 
-		return conversioTipusHelper.convertir(anotacio, AnotacioDto.class);
+		return conversioTipusServiceHelper.convertir(anotacio, AnotacioDto.class);
 	}
 
 	/**

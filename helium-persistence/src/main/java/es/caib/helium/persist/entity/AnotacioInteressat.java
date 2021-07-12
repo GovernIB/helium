@@ -35,7 +35,7 @@ public class AnotacioInteressat implements Serializable, GenericEntity<Long> {
 	private String cp;
 	@Column(name = "doc_numero", length = 17)
 	private String documentNumero;
-	@Enumerated(EnumType.STRING)
+//	@Enumerated(EnumType.STRING)
 	@Column(name = "doc_tipus", length = 15)
 	private String documentTipus;
 	@Column(name = "email", length = 160)
@@ -64,7 +64,7 @@ public class AnotacioInteressat implements Serializable, GenericEntity<Long> {
 	private String raoSocial;
 	@Column(name = "telefon", length = 20)
 	private String telefon;
-	@Enumerated(EnumType.STRING)
+//	@Enumerated(EnumType.STRING)
 	@Column(name = "tipus", length = 40, nullable = false)
 	private String tipus;
 
