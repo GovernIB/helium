@@ -1,16 +1,16 @@
 package es.caib.helium.logic.intf;
 
+import es.caib.helium.logic.intf.dto.ExpedientDto;
+import es.caib.helium.logic.intf.dto.LlistatIds;
+import es.caib.helium.logic.intf.dto.PaginacioParamsDto;
+import es.caib.helium.logic.intf.dto.ResultatConsultaPaginada;
+
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.zip.ZipInputStream;
-
-import es.caib.helium.logic.intf.dto.ExpedientDto;
-import es.caib.helium.logic.intf.dto.LlistatIds;
-import es.caib.helium.logic.intf.dto.PaginacioParamsDto;
-import es.caib.helium.logic.intf.dto.ResultatConsultaPaginada;
 
 /**
  * Interfície comú dels motors de workflow amb els mètodes necessaris per desplegar, consultar,
@@ -23,7 +23,7 @@ public interface WorkflowEngineApi {
 	
 	public static final String VAR_TASCA_DELEGACIO = "H3l1um#tasca.delegacio";
 	public static final String VAR_TASCA_VALIDADA = "H3l1um#tasca.validada";
-	
+
 	public enum MostrarTasquesDto {
 		MOSTRAR_TASQUES_TOTS,
 		MOSTRAR_TASQUES_NOMES_GROUPS,
@@ -742,6 +742,19 @@ public interface WorkflowEngineApi {
 
 	public void suspendTimer(long timerId, Date dueDate);
 	public void resumeTimer(long timerId, Date dueDate);
+
+
+	// AREES I CARRECS
+	////////////////////////////////////////////////////////////////////////////////
+	public List<String> findAreesByFiltre(String filtre);
+	public List<String> findAreesByPersona(String personaCodi);
+	public List<String> findRolsByPersona(String persona);
+	public List<String[]> findCarrecsByFiltre(String filtre);
+	public List<String> findPersonesByGrupAndCarrec(String areaCodi, String carrecCodi);
+	public List<String> findCarrecsByPersonaAndGrup(String codiPersona, String codiArea);
+	public List<String> findPersonesByCarrec(String codi);
+	public List<String> findPersonesByGrup(String rol);
+
 
 	// A ELIMINAR
 	////////////////////////////////////////////////////////////////////////////////

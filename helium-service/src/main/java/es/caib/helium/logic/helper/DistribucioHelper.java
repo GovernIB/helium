@@ -3,24 +3,6 @@
  */
 package es.caib.helium.logic.helper;
 
-import java.math.BigDecimal;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.annotation.Resource;
-
-import es.caib.helium.logic.util.GlobalPropertiesImpl;
-import org.apache.commons.io.FilenameUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
-
 import es.caib.distribucio.backoffice.utils.sistra.BackofficeSistra2Utils;
 import es.caib.distribucio.backoffice.utils.sistra.BackofficeSistra2UtilsImpl;
 import es.caib.distribucio.backoffice.utils.sistra.formulario.Campo;
@@ -36,23 +18,13 @@ import es.caib.distribucio.ws.backofficeintegracio.NtiEstadoElaboracion;
 import es.caib.distribucio.ws.backofficeintegracio.NtiOrigen;
 import es.caib.distribucio.ws.backofficeintegracio.NtiTipoDocumento;
 import es.caib.distribucio.ws.client.BackofficeIntegracioWsClientFactory;
-import es.caib.helium.logic.intf.dto.AnotacioEstatEnumDto;
-import es.caib.helium.logic.intf.dto.ArxiuFirmaPerfilEnumDto;
-import es.caib.helium.logic.intf.dto.DadesDocumentDto;
-import es.caib.helium.logic.intf.dto.DefinicioProcesDto;
-import es.caib.helium.logic.intf.dto.DocumentDto;
+import es.caib.helium.logic.intf.dto.*;
 import es.caib.helium.logic.intf.dto.ExpedientDto.IniciadorTipusDto;
-import es.caib.helium.logic.intf.dto.ExpedientTascaDto;
-import es.caib.helium.logic.intf.dto.IntegracioAccioTipusEnumDto;
-import es.caib.helium.logic.intf.dto.IntegracioParametreDto;
-import es.caib.helium.logic.intf.dto.NtiEstadoElaboracionEnumDto;
-import es.caib.helium.logic.intf.dto.NtiOrigenEnumDto;
-import es.caib.helium.logic.intf.dto.NtiTipoDocumentalEnumDto;
-import es.caib.helium.logic.intf.dto.NtiTipoFirmaEnumDto;
 import es.caib.helium.logic.intf.exception.SistemaExternException;
 import es.caib.helium.logic.intf.service.AnotacioService;
 import es.caib.helium.logic.intf.service.DissenyService;
 import es.caib.helium.logic.intf.service.ExpedientService;
+import es.caib.helium.logic.intf.util.GlobalProperties;
 import es.caib.helium.persist.entity.Anotacio;
 import es.caib.helium.persist.entity.AnotacioAnnex;
 import es.caib.helium.persist.entity.AnotacioInteressat;
@@ -72,6 +44,21 @@ import es.caib.helium.persist.repository.ExpedientRepository;
 import es.caib.helium.persist.repository.ExpedientTipusRepository;
 import es.caib.helium.persist.repository.MapeigSistraRepository;
 import es.caib.plugins.arxiu.api.Document;
+import org.apache.commons.io.FilenameUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+
+import javax.annotation.Resource;
+import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Mètodes comuns per cridar WebService de Distribucio
@@ -112,6 +99,8 @@ public class DistribucioHelper {
 	
 	@Resource
 	private PluginHelper pluginHelper;
+	@Resource
+	private GlobalProperties globalProperties;
 
 	/** Referència al client del WS de Distribució */
 	private BackofficeIntegracio wsClient = null;
@@ -126,9 +115,9 @@ public class DistribucioHelper {
 	private BackofficeIntegracio getBackofficeIntegracioServicePort() throws Exception {
 		
 		if (wsClient == null) {
-			String url = GlobalPropertiesImpl.getInstance().getProperty("net.conselldemallorca.helium.distribucio.backofficeIntegracio.ws.url");
-			String usuari = GlobalPropertiesImpl.getInstance().getProperty("net.conselldemallorca.helium.distribucio.backofficeIntegracio.ws.username");
-			String contrasenya = GlobalPropertiesImpl.getInstance().getProperty("net.conselldemallorca.helium.distribucio.backofficeIntegracio.ws.password");
+			String url = globalProperties.getProperty("es.caib.helium.distribucio.backofficeIntegracio.ws.url");
+			String usuari = globalProperties.getProperty("es.caib.helium.distribucio.backofficeIntegracio.ws.username");
+			String contrasenya = globalProperties.getProperty("es.caib.helium.distribucio.backofficeIntegracio.ws.password");
 
 			if (url == null || "".equals(url.trim()))
 				throw new Exception("No s'ha trobat la configuració per accedir al WS del backoffice de Distribucio (net.conselldemallorca.helium.distribucio.backofficeIntegracio.ws.url");
@@ -224,7 +213,7 @@ public class DistribucioHelper {
 
 	/** Mètode per guardar a Helium la informació d'una anotació de registre consultada a Distribucio.
 	 *  
-	 * @param anotacio
+	 * @param anotacioEntrada
 	 */
 	@Transactional
 	public Anotacio guardarAnotacio(AnotacioRegistreId idWs, AnotacioRegistreEntrada anotacioEntrada) {

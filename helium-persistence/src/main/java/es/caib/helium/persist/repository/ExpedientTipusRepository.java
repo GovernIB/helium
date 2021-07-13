@@ -113,7 +113,7 @@ public interface ExpedientTipusRepository extends JpaRepository<ExpedientTipus, 
 			@Param("esNullCodiAssumpte") boolean esNullCodiAssumpte,
 			@Param("codiAssumpte") String codiAssumpte);
     
-    @Query(    " select new net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusEstadisticaDto( "
+    @Query(    " select new es.caib.helium.logic.intf.dto.ExpedientTipusEstadisticaDto( "
             + "     et.id, "
             + "     et.codi, "
             + "     et.nom, "

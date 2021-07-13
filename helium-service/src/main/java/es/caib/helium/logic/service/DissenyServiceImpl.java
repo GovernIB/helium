@@ -61,7 +61,7 @@ public class DissenyServiceImpl implements DissenyService {
 	@Resource
 	private ExpedientHelper expedientHelper;
 	@Resource
-	private MessageServiceHelper messageHelper;
+	private MessageServiceHelper messageServiceHelper;
 	@Resource
 	private WorkflowEngineApi workflowEngineApi;
 	@Resource
@@ -997,7 +997,7 @@ public class DissenyServiceImpl implements DissenyService {
 		// Comprova el nom de l'arxiu
 		if (! nomArxiu.endsWith("ar")) {
 			throw new RuntimeException(
-					messageHelper.getMessage("definicio.proces.actualitzar.error.arxiuNom", new Object[] {nomArxiu}));
+					messageServiceHelper.getMessage("definicio.proces.actualitzar.error.arxiuNom", new Object[] {nomArxiu}));
 		}
 		// Obrir el .par i comprovar que és correcte
 		// Thanks to George Mournos who helped to improve this:
@@ -1023,7 +1023,7 @@ public class DissenyServiceImpl implements DissenyService {
 		}			
 		if (darrera == null) {
 			throw new DeploymentException(
-					messageHelper.getMessage(
+					messageServiceHelper.getMessage(
 							"definicio.proces.actualitzar.error.jbpmKey." + (expedientTipusId != null ? "expedientTipus" : "global"), 
 							new Object[] {jbpmProcessDefinition.getKey()}));
 		}
@@ -1092,7 +1092,7 @@ public class DissenyServiceImpl implements DissenyService {
 		// Comprova el nom de l'arxiu
 		if (! fitxer.endsWith("ar")) {
 			throw new RuntimeException(
-					messageHelper.getMessage("definicio.proces.actualitzar.error.arxiuNom", new Object[] {fitxer}));
+					messageServiceHelper.getMessage("definicio.proces.actualitzar.error.arxiuNom", new Object[] {fitxer}));
 		}
 		// Obrir el .par i comprovar que és correcte
 		ZipInputStream zipInputStream = new ZipInputStream(new ByteArrayInputStream(contingut));

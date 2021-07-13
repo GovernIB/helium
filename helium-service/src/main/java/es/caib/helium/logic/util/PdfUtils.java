@@ -347,7 +347,7 @@ public class PdfUtils {
 		}
 	}
 	private String getRegistreEntitat() {
-		return GlobalPropertiesImpl.getInstance().getProperty("app.registre.segell.entitat");
+		return GlobalPropertiesImpl.getPropietat("es.caib.helium.registre.segell.entitat");
 	}
 
 	private static String[] extensionsConvertiblesPdf = {

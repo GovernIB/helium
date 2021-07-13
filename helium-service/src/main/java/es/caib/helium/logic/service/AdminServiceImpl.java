@@ -13,7 +13,7 @@ import es.caib.helium.logic.intf.dto.*;
 import es.caib.helium.logic.intf.dto.PersonaDto.Sexe;
 import es.caib.helium.logic.intf.exception.NoTrobatException;
 import es.caib.helium.logic.intf.service.AdminService;
-import es.caib.helium.logic.util.GlobalPropertiesImpl;
+import es.caib.helium.logic.intf.util.GlobalProperties;
 import es.caib.helium.ms.domini.DominiMs;
 import es.caib.helium.ms.domini.client.model.Domini;
 import es.caib.helium.persist.entity.Entorn;
@@ -69,6 +69,8 @@ public class AdminServiceImpl implements AdminService {
 	private MonitorDominiHelper monitorDominiHelper;
 	@Resource
 	private MailHelper mailHelper;
+	@Resource
+	private GlobalProperties globalProperties;
 
 //	@Autowired
 //	private MetricRegistry metricRegistry;
@@ -492,10 +494,10 @@ public class AdminServiceImpl implements AdminService {
 	}
 
 	private String getCorreuRemitent() {
-		return GlobalPropertiesImpl.getInstance().getProperty("app.correu.remitent");
+		return globalProperties.getProperty("es.caib.helium.correu.remitent");
 	}
 	private String getCorreuMetriquesDestinataris() {
-		return GlobalPropertiesImpl.getInstance().getProperty("app.correu.metrics.recipients");
+		return globalProperties.getProperty("es.caib.helium.correu.metrics.recipients");
 	}
 
 	private static final Logger logger = LoggerFactory.getLogger(AdminServiceImpl.class);

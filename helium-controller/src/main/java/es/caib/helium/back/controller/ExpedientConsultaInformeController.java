@@ -17,7 +17,7 @@ import es.caib.helium.logic.intf.dto.*;
 import es.caib.helium.logic.intf.dto.PaginacioParamsDto.OrdreDireccioDto;
 import es.caib.helium.logic.intf.report.FieldValue;
 import es.caib.helium.logic.intf.service.ExpedientTipusService;
-import es.caib.helium.logic.intf.util.ExpedientCamps;
+import es.caib.helium.logic.intf.util.Constants;
 import net.sf.jasperreports.engine.JRException;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -677,8 +677,8 @@ public class ExpedientConsultaInformeController extends BaseExpedientController 
 			for (String clau: dadesExpedient.getDadesExpedient().keySet()) {
 				DadaIndexadaDto dada = dadesExpedient.getDadesExpedient().get(clau);
 				String fieldName = dada.getReportFieldName();
-				if (ExpedientCamps.EXPEDIENT_CAMP_ESTAT_JSP.equals(clau)) 
-					fieldName = ExpedientCamps.EXPEDIENT_CAMP_ESTAT.replace('$', '%');
+				if (Constants.EXPEDIENT_CAMP_ESTAT_JSP.equals(clau))
+					fieldName = Constants.EXPEDIENT_CAMP_ESTAT.replace('$', '%');
 				mapFila.put(fieldName, toReportField(request, expedient, dada));
 			}
 			dadesDataSource.add(mapFila);
@@ -703,7 +703,7 @@ public class ExpedientConsultaInformeController extends BaseExpedientController 
 				dadaIndex.getEtiqueta());
 		if (!dadaIndex.isMultiple()) {
 			field.setValor(dadaIndex.getValor());
-			if (ExpedientCamps.EXPEDIENT_CAMP_ESTAT_JSP.equals(field.getCampCodi())) {
+			if (Constants.EXPEDIENT_CAMP_ESTAT_JSP.equals(field.getCampCodi())) {
 				if (expedient.getDataFi() != null) {
 					field.setValorMostrar(getMessage(request, "expedient.consulta.finalitzat"));
 				} else {
@@ -742,8 +742,8 @@ public class ExpedientConsultaInformeController extends BaseExpedientController 
 		for (TascaDadaDto dada: dadesFiltre) {
 			String clau = (dada.getDefinicioProcesKey() == null) ? dada.getVarCodi() : dada.getDefinicioProcesKey() + "." + dada.getVarCodi();
 			clau = clau.replace(
-					ExpedientCamps.EXPEDIENT_PREFIX_JSP,
-					ExpedientCamps.EXPEDIENT_PREFIX);
+					Constants.EXPEDIENT_PREFIX_JSP,
+					Constants.EXPEDIENT_PREFIX);
 			if (CampTipusDto.BOOLEAN.equals(dada.getCampTipus()) && PropertyUtils.isReadable(filtreCommand, dada.getVarCodi())) {
 				Boolean valor = (Boolean) PropertyUtils.getSimpleProperty(
 						filtreCommand,

@@ -19,8 +19,8 @@ import es.caib.helium.logic.intf.extern.domini.FilaResultat;
 import es.caib.helium.logic.intf.extern.domini.ParellaCodiValor;
 import es.caib.helium.logic.intf.registre.RegistreAnotacio;
 import es.caib.helium.logic.intf.service.Jbpm3HeliumService;
+import es.caib.helium.logic.intf.util.GlobalProperties;
 import es.caib.helium.logic.util.EntornActual;
-import es.caib.helium.logic.util.GlobalPropertiesImpl;
 import es.caib.helium.ms.domini.DominiMs;
 import es.caib.helium.persist.entity.Termini;
 import es.caib.helium.persist.entity.*;
@@ -145,6 +145,8 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 	
 	@Resource 
 	private AlertaHelper alertaHelper;
+	@Resource
+	private GlobalProperties globalProperties;
 
 
 
@@ -2247,7 +2249,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 
 	@Override
 	public String getHeliumProperty(String propertyName) {
-		return GlobalPropertiesImpl.getInstance().getProperty(propertyName);
+		return globalProperties.getProperty(propertyName);
 	}
 
 //	@Override

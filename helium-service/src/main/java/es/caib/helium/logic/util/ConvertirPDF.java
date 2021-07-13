@@ -1,9 +1,11 @@
 package es.caib.helium.logic.util;
 
+import es.caib.helium.logic.intf.util.GlobalProperties;
 import org.jodconverter.core.DocumentConverter;
 import org.jodconverter.core.document.DocumentFormat;
 import org.jodconverter.core.document.DocumentFormatRegistry;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -14,22 +16,19 @@ import java.io.ByteArrayOutputStream;
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
+@Component
 public class ConvertirPDF {
 
 	@Autowired
 	private DocumentConverter documentConverter;
-//	private DocumentFormatRegistry documentFormatRegistry;
-
-
+	@Autowired
+	private GlobalProperties globalProperties;
 
 	public byte[] render(byte[] contingut, String nom) throws Exception {
-		Boolean conversionEnabled = "true".equalsIgnoreCase((String) GlobalPropertiesImpl.getInstance().get("app.conversio.portasignatures.actiu"));
-		boolean conversion = (conversionEnabled == null) ? getPropertyEnabled() : conversionEnabled.booleanValue();
-		if (!getPropertyEnabled()) conversion = false;
 		ByteArrayInputStream inputStream = new ByteArrayInputStream(contingut);
 		ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 		if (contingut != null) {
-			if (conversion) {
+			if (getPropertyEnabled()) {
 				DocumentFormat inputFormat = formatPerNomArxiu(nom);
 				if (inputFormat == null)
 					throw new IllegalArgumentException("format d'entrada no suportat");
@@ -43,11 +42,6 @@ public class ConvertirPDF {
 							.to(outputStream)
 							.as(outputFormat)
 							.execute();
-//					convert(
-//							inputStream,
-//							inputFormat,
-//							outputStream,
-//							outputFormat);
 				} else {
 					return contingut;
 				}
@@ -61,28 +55,6 @@ public class ConvertirPDF {
 		return format.getMediaType();
 	}
 
-
-
-//	private DocumentConverter getDocumentConverter() {
-//		initOpenOfficeConnection();
-//		return documentConverter;
-//	}
-
-//	private DocumentFormatRegistry getDocumentFormatRegistry() {
-//		initOpenOfficeConnection();
-//		return documentFormatRegistry;
-//	}
-//	private void initOpenOfficeConnection() {
-//		if (documentFormatRegistry == null)
-//			documentFormatRegistry = new DefaultDocumentFormatRegistry();
-//		if (documentConverter == null) {
-//			String host = getPropertyHost();
-//			int port = getPropertyPort();
-//			documentConverter = new StreamOpenOfficeDocumentConverter(
-//					new SocketOpenOfficeConnection(host, port),
-//					documentFormatRegistry);
-//		}
-//	}
 
 	private DocumentFormat formatPerNomArxiu(String fileName) {
 		int indexPunt = fileName.lastIndexOf(".");
@@ -105,16 +77,10 @@ public class ConvertirPDF {
 	}
 
 	private boolean getPropertyEnabled() {
-		return "true".equals(GlobalPropertiesImpl.getInstance().getProperty("app.conversio.portasignatures.actiu"));
-	}
-	private String getPropertyHost() {
-		return GlobalPropertiesImpl.getInstance().getProperty("app.conversio.openoffice.host");
-	}
-	private int getPropertyPort() {
-		return Integer.parseInt(GlobalPropertiesImpl.getInstance().getProperty("app.conversio.openoffice.port"));
+		return "true".equals(globalProperties.getProperty("es.caib.helium.conversio.portasignatures.actiu"));
 	}
 	private String getPropertyOutputExtension() {
-		return GlobalPropertiesImpl.getInstance().getProperty("app.conversio.portasignatures.extension");
+		return globalProperties.getProperty("es.caib.helium.conversio.portasignatures.extension");
 	}
 
 }

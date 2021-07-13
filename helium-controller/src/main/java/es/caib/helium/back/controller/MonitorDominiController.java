@@ -29,7 +29,7 @@ public class MonitorDominiController extends BaseController {
 
 	@Resource
 	private AdminService adminService;
-	@Resource(name="entornServiceV3")
+	@Resource
 	private EntornService entornService;
 
 

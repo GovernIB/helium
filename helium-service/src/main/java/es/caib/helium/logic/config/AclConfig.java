@@ -1,5 +1,6 @@
 package es.caib.helium.logic.config;
 
+import es.caib.helium.logic.intf.util.GlobalProperties;
 import es.caib.helium.logic.security.BasicLookupStrategy;
 import es.caib.helium.logic.security.ExtendedPermissionFactory;
 import es.caib.helium.logic.security.JdbcMutableAclService;
@@ -32,6 +33,7 @@ import javax.sql.DataSource;
 public class AclConfig extends GlobalMethodSecurityConfiguration {
 
     private final DataSource dataSource;
+    private final GlobalProperties globalProperties;
 //    private final MethodSecurityExpressionHandler defaultMethodSecurityExpressionHandler;
 
     @Override
@@ -54,7 +56,8 @@ public class AclConfig extends GlobalMethodSecurityConfiguration {
         return new JdbcMutableAclService(
                 dataSource,
                 lookupStrategy(),
-                aclCache());
+                aclCache(),
+                globalProperties.getProperty("es.caib.helium.hibernate.dialect"));
     }
 
     @Bean

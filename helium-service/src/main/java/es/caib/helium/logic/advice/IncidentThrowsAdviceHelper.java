@@ -1,10 +1,5 @@
 package es.caib.helium.logic.advice;
 
-import java.util.ArrayList;
-import java.util.List;
-
-//import net.conselldemallorca.helium.jbpm3.integracio.Jbpm3HeliumBridge;
-
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.Signature;
 import org.aspectj.lang.annotation.AfterReturning;
@@ -12,9 +7,15 @@ import org.aspectj.lang.annotation.AfterThrowing;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 
+import java.util.ArrayList;
+import java.util.List;
+
+//import net.conselldemallorca.helium.jbpm3.integracio.Jbpm3HeliumBridge;
+
 @Aspect
 public class IncidentThrowsAdviceHelper {
 
+	// TODO: Mirar si s'utilitza, i sobretot que es crida al job executor!!
 //	private static Log logger = LogFactory.getLog(IncidentThrowsAdviceHelper.class);
 	
 	private static ThreadLocal<DadesAdvice> dadesAdviceThreadLocal = new ThreadLocal<DadesAdvice>();
@@ -46,11 +47,9 @@ public class IncidentThrowsAdviceHelper {
 	}
 	
 	// Exsecutarem aquesta funció cada cop que s'executi el handler de portasignatures
-	@Before("execution(* net.conselldemallorca.helium.core.model.service.ExpedientService*.*(..)) "
-			+ "|| execution(* net.conselldemallorca.helium.core.model.service.TascaService*.*(..)) "
-			+ "|| execution(* net.conselldemallorca.helium.v3.core.service.ExpedientService*.*(..)) "
-			+ "|| execution(* net.conselldemallorca.helium.v3.core.service.TascaService*.*(..)) "
-			+ "|| execution(* net.conselldemallorca.helium.jbpm3.spring.SpringJobExecutorThread.executeJob(..))")
+	@Before("execution(* es.caib.helium.logic.service.ExpedientService*.*(..)) "
+			+ "|| execution(* es.caib.helium.logic.service.TascaService*.*(..)) ")
+//			+ "|| execution(* net.conselldemallorca.helium.jbpm3.spring.SpringJobExecutorThread.executeJob(..))")
 	public void before(JoinPoint joinPoint) {
 
 		Signature signature = joinPoint.getSignature();
@@ -62,10 +61,8 @@ public class IncidentThrowsAdviceHelper {
 	 * Called between the throw and the catch
 	 */
 	// TODO: Para la interficie v.3 cambiar a net.conselldemallorca.helium.v3.core.service
-	@AfterThrowing(pointcut = "execution(* net.conselldemallorca.helium.core.model.service.ExpedientService*.*(..)) "
-			+ "|| execution(* net.conselldemallorca.helium.core.model.service.TascaService*.*(..)) "
-			+ "|| execution(* net.conselldemallorca.helium.v3.core.service.ExpedientService*.*(..)) "
-			+ "|| execution(* net.conselldemallorca.helium.v3.core.service.TascaService*.*(..))", throwing = "e")
+	@AfterThrowing(pointcut = "execution(* es.caib.helium.logic.service.ExpedientService*.*(..)) "
+			+ "|| execution(* es.caib.helium.logic.service.TascaService*.*(..)) ", throwing = "e")
 	public void afterThrowing(JoinPoint joinPoint, Throwable e) {
 
 		Signature signature = joinPoint.getSignature();
@@ -76,11 +73,9 @@ public class IncidentThrowsAdviceHelper {
 		clearDadesAdvice(signature);
 	}
 	
-	@AfterReturning("execution(* net.conselldemallorca.helium.core.model.service.ExpedientService*.*(..)) "
-			+ "|| execution(* net.conselldemallorca.helium.core.model.service.TascaService*.*(..)) "
-			+ "|| execution(* net.conselldemallorca.helium.v3.core.service.ExpedientService*.*(..)) "
-			+ "|| execution(* net.conselldemallorca.helium.v3.core.service.TascaService*.*(..)) "
-			+ "|| execution(* net.conselldemallorca.helium.jbpm3.spring.SpringJobExecutorThread.executeJob(..))")
+	@AfterReturning("execution(* es.caib.helium.logic.service.ExpedientService*.*(..)) "
+			+ "|| execution(* es.caib.helium.logic.service.TascaService*.*(..)) ")
+//			+ "|| execution(* net.conselldemallorca.helium.jbpm3.spring.SpringJobExecutorThread.executeJob(..))")
 	public void after(JoinPoint joinPoint) {
 
 		Signature signature = joinPoint.getSignature();

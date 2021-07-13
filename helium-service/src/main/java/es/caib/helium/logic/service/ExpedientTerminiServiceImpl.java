@@ -11,8 +11,8 @@ import es.caib.helium.logic.intf.dto.TerminiIniciatDto;
 import es.caib.helium.logic.intf.exception.NoTrobatException;
 import es.caib.helium.logic.intf.exception.ValidacioException;
 import es.caib.helium.logic.intf.service.ExpedientTerminiService;
+import es.caib.helium.logic.intf.util.GlobalProperties;
 import es.caib.helium.logic.security.ExtendedPermission;
-import es.caib.helium.logic.util.GlobalPropertiesImpl;
 import es.caib.helium.persist.entity.DefinicioProces;
 import es.caib.helium.persist.entity.Expedient;
 import es.caib.helium.persist.entity.ExpedientTipus;
@@ -50,7 +50,7 @@ public class ExpedientTerminiServiceImpl implements ExpedientTerminiService {
 	@Resource
 	private FestiuRepository festiuRepository;	
 	@Resource
-	private MessageServiceHelper messageHelper;
+	private MessageServiceHelper messageServiceHelper;
 	@Resource
 	private TerminiIniciatRepository terminiIniciatRepository;
 	@Resource
@@ -65,6 +65,8 @@ public class ExpedientTerminiServiceImpl implements ExpedientTerminiService {
 	private ExpedientHelper expedientHelper;
 	@Resource
 	private TerminiHelper terminiHelper;
+	@Resource
+	private GlobalProperties globalProperties;
 
 
 
@@ -613,7 +615,7 @@ public class ExpedientTerminiServiceImpl implements ExpedientTerminiService {
 		if (expedientTipus.getDiesNoLaborables() != null && !expedientTipus.getDiesNoLaborables().isEmpty())
 			nolabs = expedientTipus.getDiesNoLaborables();
 		else
-			nolabs = GlobalPropertiesImpl.getInstance().getProperty("app.calendari.nolabs");
+			nolabs = globalProperties.getProperty("es.caib.helium.calendari.nolabs");
 			
 		if (nolabs != null && !nolabs.isEmpty()) {
 			String[] dies = nolabs.split(",");
@@ -663,11 +665,11 @@ public class ExpedientTerminiServiceImpl implements ExpedientTerminiService {
 					terminiIniciatId));
 		if (comprovarDataInici && terminiIniciat.getDataInici() == null) {
 			throw new ValidacioException(
-					messageHelper.getMessage("error.terminiService.noIniciat"));
+					messageServiceHelper.getMessage("error.terminiService.noIniciat"));
 		}
 		if (comprovarDataAturada && terminiIniciat.getDataAturada() == null) {
 			throw new ValidacioException(
-					messageHelper.getMessage("error.terminiService.noPausat"));
+					messageServiceHelper.getMessage("error.terminiService.noPausat"));
 		}
 		if (!terminiIniciat.getProcessInstanceId().equals(processInstanceId)) {
 			throw new ValidacioException(

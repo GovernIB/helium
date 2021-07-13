@@ -55,7 +55,7 @@ public class Notificacio implements Serializable, GenericEntity<Long> {
 	@ManyToOne(optional = false, fetch = FetchType.EAGER)
 	@JoinColumn(
 			name = "document_store_id",
-			foreignKey = @ForeignKey(name = "hel_document_notif_fk"))
+			foreignKey = @ForeignKey(name = "hel_notif_document_fk"))
 	private DocumentStore document;
 	
 	@ManyToMany(

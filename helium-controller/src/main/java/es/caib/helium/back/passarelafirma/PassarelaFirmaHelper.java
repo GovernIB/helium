@@ -67,7 +67,7 @@ public class PassarelaFirmaHelper {
 		CommonInfoSignature commonInfoSignature;
 		final String urlFinal = getRelativeControllerBase(request, CONTEXTWEB) + "/final/" + signaturesSetId;
 		// TODO Veure manual de MiniApplet
-		String filtreCertificats = aplicacioService.getGlobalProperties().getProperty("app.signatura.certificats.filtre", "filters.1=nonexpired:");
+		String filtreCertificats = aplicacioService.getGlobalProperties().getProperty("es.caib.helium.signatura.certificats.filtre", "filters.1=nonexpired:");
 		// TODO Definir politica de Firma (opcional)
 		PolicyInfoSignature pis = null;
 		commonInfoSignature = new CommonInfoSignature(
@@ -423,7 +423,7 @@ public class PassarelaFirmaHelper {
 	}
 
 	private List<PassarelaFirmaPlugin> plugins;
-	private static final String PROPERTIES_BASE = "app.plugin.passarelafirma.";
+	private static final String PROPERTIES_BASE = "es.caib.helium.plugin.passarelafirma.";
 	private List<PassarelaFirmaPlugin> getAllPluginsFromProperties() {
 		if (plugins == null) {
 			log.info("Carregant plugins de passarel.la de firma...");

@@ -24,8 +24,7 @@ import es.caib.helium.logic.intf.exception.TramitacioValidacioException;
 import es.caib.helium.logic.intf.exception.ValidacioException;
 import es.caib.helium.logic.intf.service.AnotacioService;
 import es.caib.helium.logic.intf.service.ExpedientService;
-import es.caib.helium.logic.intf.util.ExpedientCamps;
-import es.caib.helium.logic.intf.util.JbpmVars;
+import es.caib.helium.logic.intf.util.Constants;
 import es.caib.helium.logic.security.ExtendedPermission;
 import es.caib.helium.persist.entity.*;
 import es.caib.helium.persist.entity.ConsultaCamp.TipusConsultaCamp;
@@ -105,7 +104,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 	@Resource
 	private ExpedientRegistreHelper expedientRegistreHelper;
 	@Resource
-	private MessageServiceHelper messageHelper;
+	private MessageServiceHelper messageServiceHelper;
 	@Resource
 	private EntornHelper entornHelper;
 	@Resource
@@ -1655,8 +1654,8 @@ public class ExpedientServiceImpl implements ExpedientService {
 		
 		if (expedient.isReindexarError()) {
 			errors_bas.add(new ExpedientErrorDto(ErrorTipusDto.BASIC, 
-					messageHelper.getMessage("expedient.consulta.reindexacio.error"),
-					messageHelper.getMessage("expedient.consulta.reindexacio.error.full")));
+					messageServiceHelper.getMessage("expedient.consulta.reindexacio.error"),
+					messageServiceHelper.getMessage("expedient.consulta.reindexacio.error.full")));
 		}
 		
 		return new Object[]{errors_bas,errors_int};
@@ -1958,7 +1957,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 		
 		afegirValorsPredefinits(consulta, valors, campsFiltre);
 		
-		String sort = "expedient$identificador"; //ExpedientCamps.EXPEDIENT_CAMP_ID;
+		String sort = "expedient$identificador"; //Constants.EXPEDIENT_CAMP_ID;
 		boolean asc = false;
 		int firstRow = 0;
 		int maxResults = -1;
@@ -1967,14 +1966,14 @@ public class ExpedientServiceImpl implements ExpedientService {
 			for (OrdreDto or : paginacioParams.getOrdres()) {
 				asc = or.getDireccio().equals(OrdreDireccioDto.ASCENDENT);
 				String clau = or.getCamp().replace(
-						ExpedientCamps.EXPEDIENT_PREFIX_JSP,
-						ExpedientCamps.EXPEDIENT_PREFIX);
+						Constants.EXPEDIENT_PREFIX_JSP,
+						Constants.EXPEDIENT_PREFIX);
 				if (or.getCamp().contains("dadesExpedient")) {
 					sort = clau.replace("/", ".").replace("dadesExpedient.", "").replace(".valorMostrar", "");
 				} else {
 					sort = clau.replace(
 							".",
-							ExpedientCamps.EXPEDIENT_PREFIX_SEPARATOR);
+							Constants.EXPEDIENT_PREFIX_SEPARATOR);
 				}
 				break;
 			}
@@ -2600,10 +2599,10 @@ public class ExpedientServiceImpl implements ExpedientService {
 		String jbpmVariable = documentStore.getJbpmVariable();
 		if (documentStore.isAdjunt())
 			return jbpmVariable.substring(
-					JbpmVars.PREFIX_ADJUNT.length());
+					Constants.PREFIX_ADJUNT.length());
 		else
 			return jbpmVariable.substring(
-					JbpmVars.PREFIX_DOCUMENT.length());
+					Constants.PREFIX_DOCUMENT.length());
 	}
 
 	private int findVersioDefProcesActualitzar(List<DefinicioProcesExpedientDto> definicionsProces, Long[] definicionsProcesId, String key) {

@@ -18,7 +18,7 @@ import es.caib.helium.logic.intf.exportacio.*;
 import es.caib.helium.logic.intf.extern.domini.FilaResultat;
 import es.caib.helium.logic.intf.extern.domini.ParellaCodiValor;
 import es.caib.helium.logic.intf.service.ExpedientTipusService;
-import es.caib.helium.logic.intf.util.ExpedientCamps;
+import es.caib.helium.logic.intf.util.Constants;
 import es.caib.helium.logic.security.ExtendedPermission;
 import es.caib.helium.ms.domini.DominiMs;
 import es.caib.helium.persist.entity.*;
@@ -118,7 +118,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 	@Resource
 	private PaginacioHelper paginacioHelper;
 	@Resource
-	private MessageServiceHelper messageHelper;
+	private MessageServiceHelper messageServiceHelper;
 	@Resource
 	private DominiHelper dominiHelper;
 	@Resource
@@ -1059,7 +1059,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 							}
 							if (enumeracio == null)
 								throw new DeploymentException(
-										messageHelper.getMessage(
+										messageServiceHelper.getMessage(
 											"exportar.validacio.variable.seleccio.enumeracio." + (campExportat.isDependenciaEntorn() ? "entorn" : "tipexp"), 
 											new Object[]{
 													camp.getCodi(),
@@ -1078,7 +1078,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 							}
 							if (domini == null)
 								throw new DeploymentException(
-										messageHelper.getMessage(
+										messageServiceHelper.getMessage(
 											"exportar.validacio.variable.seleccio.domini." + (campExportat.isDependenciaEntorn() ? "entorn" : "tipexp"), 
 											new Object[]{
 													camp.getCodi(),
@@ -2625,7 +2625,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 								nou.setEnumeracio(enumeracio);
 							} else {
 								throw new ExportException(
-										messageHelper.getMessage(
+										messageServiceHelper.getMessage(
 												"expedient.tipus.definicioProces.llistat.definicioProces.incorporar.error.enumeracio",
 												new Object[] {camp.getEnumeracio().getCodi(), camp.getCodi(), camp.getEtiqueta()}
 										));
@@ -2667,7 +2667,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 							nou.setDomini(domini.getId());
 						} else {
 							throw new ExportException(
-									messageHelper.getMessage(
+									messageServiceHelper.getMessage(
 											"expedient.tipus.definicioProces.llistat.definicioProces.incorporar.error.domini",
 											new Object[] {dominiCamp.getCodi(), camp.getCodi(), camp.getEtiqueta()}
 									));
@@ -3175,7 +3175,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		
 		// Completa el contingut de les etiquetes i els tipus
 		for (ConsultaCampDto consultaCamp : paginaConsultaCamps.getContingut()) {
-			if (consultaCamp.getCampCodi().startsWith(ExpedientCamps.EXPEDIENT_PREFIX)) {
+			if (consultaCamp.getCampCodi().startsWith(Constants.EXPEDIENT_PREFIX)) {
 				// camp de l'expedient
 				consultaCamp.setCampTipus(CampTipusDto.STRING);
 				consultaCamp.setCampEtiqueta(this.getEtiquetaCampExpedient(consultaCamp.getCampCodi()));
@@ -3216,28 +3216,28 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 	/** Transforma el codi del camp de l'expedient pel seu literal corresponent. */
 	private String getEtiquetaCampExpedient(String campCodi) {
 		String etiqueta;
-		if (ExpedientCamps.EXPEDIENT_CAMP_ID.equals(campCodi))
-			etiqueta = messageHelper.getMessage("etiqueta.exp.id");
-		else if (ExpedientCamps.EXPEDIENT_CAMP_NUMERO.equals(campCodi)) 
-			etiqueta = messageHelper.getMessage("etiqueta.exp.numero");
-		else if (ExpedientCamps.EXPEDIENT_CAMP_TITOL.equals(campCodi)) 
-			etiqueta = messageHelper.getMessage("etiqueta.exp.titol");
-		else if (ExpedientCamps.EXPEDIENT_CAMP_COMENTARI.equals(campCodi)) 
-			etiqueta = messageHelper.getMessage("etiqueta.exp.comentari");
-		else if (ExpedientCamps.EXPEDIENT_CAMP_INICIADOR.equals(campCodi)) 
-			etiqueta = messageHelper.getMessage("etiqueta.exp.indicador");
-		else if (ExpedientCamps.EXPEDIENT_CAMP_RESPONSABLE.equals(campCodi)) 
-			etiqueta = messageHelper.getMessage("etiqueta.exp.responsable");
-		else if (ExpedientCamps.EXPEDIENT_CAMP_DATA_INICI.equals(campCodi)) 
-			etiqueta = messageHelper.getMessage("etiqueta.exp.data_ini");
-		else if (ExpedientCamps.EXPEDIENT_CAMP_ESTAT.equals(campCodi)) 
-			etiqueta = messageHelper.getMessage("etiqueta.exp.estat");
-		else if (ExpedientCamps.EXPEDIENT_CAMP_GEOREF.equals(campCodi)) 
-			etiqueta = messageHelper.getMessage("comuns.georeferencia.codi");
-		else if (ExpedientCamps.EXPEDIENT_CAMP_GEOX.equals(campCodi)) 
-			etiqueta = messageHelper.getMessage("comuns.georeferencia.coordenadaX");
-		else if (ExpedientCamps.EXPEDIENT_CAMP_GEOY.equals(campCodi)) 
-			etiqueta = messageHelper.getMessage("comuns.georeferencia.coordenadaY");
+		if (Constants.EXPEDIENT_CAMP_ID.equals(campCodi))
+			etiqueta = messageServiceHelper.getMessage("etiqueta.exp.id");
+		else if (Constants.EXPEDIENT_CAMP_NUMERO.equals(campCodi))
+			etiqueta = messageServiceHelper.getMessage("etiqueta.exp.numero");
+		else if (Constants.EXPEDIENT_CAMP_TITOL.equals(campCodi))
+			etiqueta = messageServiceHelper.getMessage("etiqueta.exp.titol");
+		else if (Constants.EXPEDIENT_CAMP_COMENTARI.equals(campCodi))
+			etiqueta = messageServiceHelper.getMessage("etiqueta.exp.comentari");
+		else if (Constants.EXPEDIENT_CAMP_INICIADOR.equals(campCodi))
+			etiqueta = messageServiceHelper.getMessage("etiqueta.exp.indicador");
+		else if (Constants.EXPEDIENT_CAMP_RESPONSABLE.equals(campCodi))
+			etiqueta = messageServiceHelper.getMessage("etiqueta.exp.responsable");
+		else if (Constants.EXPEDIENT_CAMP_DATA_INICI.equals(campCodi))
+			etiqueta = messageServiceHelper.getMessage("etiqueta.exp.data_ini");
+		else if (Constants.EXPEDIENT_CAMP_ESTAT.equals(campCodi))
+			etiqueta = messageServiceHelper.getMessage("etiqueta.exp.estat");
+		else if (Constants.EXPEDIENT_CAMP_GEOREF.equals(campCodi))
+			etiqueta = messageServiceHelper.getMessage("comuns.georeferencia.codi");
+		else if (Constants.EXPEDIENT_CAMP_GEOX.equals(campCodi))
+			etiqueta = messageServiceHelper.getMessage("comuns.georeferencia.coordenadaX");
+		else if (Constants.EXPEDIENT_CAMP_GEOY.equals(campCodi))
+			etiqueta = messageServiceHelper.getMessage("comuns.georeferencia.coordenadaY");
 		else 
 			etiqueta = campCodi;
 		return etiqueta;

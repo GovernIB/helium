@@ -15,7 +15,7 @@ import es.caib.helium.logic.intf.exception.NoTrobatException;
 import es.caib.helium.logic.intf.exception.SistemaExternException;
 import es.caib.helium.logic.intf.extern.domini.FilaResultat;
 import es.caib.helium.logic.intf.extern.domini.ParellaCodiValor;
-import es.caib.helium.logic.util.GlobalPropertiesImpl;
+import es.caib.helium.logic.intf.util.GlobalProperties;
 import es.caib.helium.ms.domini.DominiMs;
 import es.caib.helium.persist.entity.Area;
 import es.caib.helium.persist.entity.AreaMembre;
@@ -99,6 +99,8 @@ public class DominiHelper {
 	
 	@Autowired
 	private DominiMs dominiMs;
+	@Resource
+	private GlobalProperties globalProperties;
 
 
 	@SuppressWarnings("unchecked")
@@ -270,20 +272,6 @@ public class DominiHelper {
 		return sb.toString();
 	}
 
-	private boolean isDesplegamentTomcat() {
-		String desplegamentTomcat = GlobalPropertiesImpl.getInstance().getProperty("app.domini.desplegament.tomcat");
-		return "true".equalsIgnoreCase(desplegamentTomcat);
-	}
-	
-	private Integer getDominiTimeout (DominiDto domini) {
-		Integer timeout = 10000; //valor per defecte
-		if (domini.getTimeout() != null && domini.getTimeout() > 0)
-			timeout = domini.getTimeout() * 1000; //valor específic de timeout del domini
-		else if (GlobalPropertiesImpl.getInstance().getProperty("app.domini.timeout") != null)
-			timeout = Integer.parseInt(GlobalPropertiesImpl.getInstance().getProperty("app.domini.timeout")); //valor global de timeout pels dominis
-		return timeout;
-	}
-
 	//////////////////////////////////////////////////////////////////////////////////////////////
 	// DOMINI INTERN																			//
 	//////////////////////////////////////////////////////////////////////////////////////////////
@@ -324,7 +312,7 @@ public class DominiHelper {
 	}
 	
 	public List<FilaResultat> personaAmbCodi(Map<String, Object> parametres) {
-		List<FilaResultat> resposta = new ArrayList<FilaResultat>();
+		List<FilaResultat> resposta = new ArrayList<>();
 		PersonaDto persona = pluginHelper.personaFindAmbCodi((String)parametres.get("persona"));
 		if (persona != null)
 			resposta.add(novaFilaPersona(persona));
@@ -332,7 +320,7 @@ public class DominiHelper {
 	}
 	
 	public List<FilaResultat> personesAmbArea(Map<String, Object> parametres) {
-		List<FilaResultat> resposta = new ArrayList<FilaResultat>();
+		List<FilaResultat> resposta = new ArrayList<>();
 		for (String personaCodi: getPersonesPerArea((String)parametres.get("entorn"), (String)parametres.get("area"))) {
 			PersonaDto persona = pluginHelper.personaFindAmbCodi(personaCodi);
 			if (persona != null)
@@ -342,7 +330,7 @@ public class DominiHelper {
 	}
 	
 	public List<FilaResultat> personesAmbCarrecArea(Map<String, Object> parametres, boolean nomesUna) {
-		List<FilaResultat> resposta = new ArrayList<FilaResultat>();
+		List<FilaResultat> resposta = new ArrayList<>();
 		List<String> personaCodis = getPersonesPerAreaCarrec(
 				(String)parametres.get("entorn"),
 				(String)parametres.get("area"),
@@ -361,7 +349,7 @@ public class DominiHelper {
 	}
 	
 	public List<FilaResultat> areesAmbPare(Map<String, Object> parametres) {
-		List<FilaResultat> resposta = new ArrayList<FilaResultat>();
+		List<FilaResultat> resposta = new ArrayList<>();
 		for (Area area: getAreesAmbPare((String)parametres.get("entorn"), (String)parametres.get("pare"))) {
 			resposta.add(novaFilaArea(area));
 		}
@@ -369,7 +357,7 @@ public class DominiHelper {
 	}
 	
 	public List<FilaResultat> areesAmbPersona(Map<String, Object> parametres) {
-		List<FilaResultat> resposta = new ArrayList<FilaResultat>();
+		List<FilaResultat> resposta = new ArrayList<>();
 		for (String grupCodi: getGrupsPerPersona((String)parametres.get("persona"))) {
 			FilaResultat fila = new FilaResultat();
 			fila.addColumna(new ParellaCodiValor("codi", grupCodi));
@@ -392,7 +380,8 @@ public class DominiHelper {
 				}
 			}
 		} else {
-			for (String personaCodi: carrecJbpmIdRepository.findPersonesCodiByGrupCodi((String)parametres.get("rol"))) {
+			List<String> persones = workflowEngineApi.findPersonesByGrup((String)parametres.get("rol"));
+			for (String personaCodi: persones) { // carrecJbpmIdRepository.findPersonesCodiByGrupCodi((String)parametres.get("rol"))) {
 				PersonaDto persona = pluginHelper.personaFindAmbCodi(personaCodi);
 				if (persona != null)
 					resposta.add(novaFilaPersona(persona));
@@ -470,7 +459,8 @@ public class DominiHelper {
 				}
 			}
 		} else {
-			for (String rol: areaJbpmIdRepository.findRolesAmbUsuariCodi((String)parametres.get("persona"))) {
+			List<String> rols = workflowEngineApi.findRolsByPersona((String)parametres.get("persona"));
+			for (String rol: rols) { 	//areaJbpmIdRepository.findRolesAmbUsuariCodi((String)parametres.get("persona"))) {
 				FilaResultat fila = new FilaResultat();
 				fila.addColumna(new ParellaCodiValor("rol", rol));
 				resposta.add(fila);
@@ -641,7 +631,8 @@ public class DominiHelper {
 			}
 			return new ArrayList<String>();
 		} else {
-			return carrecJbpmIdRepository.findPersonesCodiByGrupCodi(areaCodi);
+			return workflowEngineApi.findPersonesByGrup(areaCodi);
+//			return carrecJbpmIdRepository.findPersonesCodiByGrupCodi(areaCodi);
 		}
 	}
 	
@@ -656,7 +647,8 @@ public class DominiHelper {
 			}
 			return resposta;
 		} else {
-			return carrecJbpmIdRepository.findPersonesCodiByCarrecCodi(carrecCodi);
+			return workflowEngineApi.findPersonesByCarrec(carrecCodi);
+//			return carrecJbpmIdRepository.findPersonesCodiByCarrecCodi(carrecCodi);
 		}
 	}
 
@@ -679,7 +671,8 @@ public class DominiHelper {
 			}
 			return null;
 		} else {
-			return carrecJbpmIdRepository.findPersonaCodiByGrupCodiAndCarrecCodi(areaCodi, carrecCodi);
+			return workflowEngineApi.findPersonesByGrupAndCarrec(areaCodi, carrecCodi);
+//			return carrecJbpmIdRepository.findPersonaCodiByGrupCodiAndCarrecCodi(areaCodi, carrecCodi);
 		}
 	}
 	
@@ -687,7 +680,8 @@ public class DominiHelper {
 		if (isHeliumIdentitySource()) {
 			return findAreesMembre(personaCodi);
 		} else {
-			return areaJbpmIdRepository.findAreesJbpmIdMembre(personaCodi);
+			return workflowEngineApi.findAreesByPersona(personaCodi);
+//			return areaJbpmIdRepository.findAreesJbpmIdMembre(personaCodi);
 		}
 	}
 
@@ -737,7 +731,7 @@ public class DominiHelper {
 	}
 	
 	private boolean isHeliumIdentitySource() {
-		String organigramaActiu = GlobalPropertiesImpl.getInstance().getProperty("app.jbpm.identity.source");
+		String organigramaActiu = globalProperties.getProperty("es.caib.helium.jbpm.identity.source");
 		return "helium".equalsIgnoreCase(organigramaActiu);
 	}
 

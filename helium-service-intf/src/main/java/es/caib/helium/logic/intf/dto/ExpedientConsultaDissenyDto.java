@@ -3,7 +3,7 @@
  */
 package es.caib.helium.logic.intf.dto;
 
-import es.caib.helium.logic.intf.util.ExpedientCamps;
+import es.caib.helium.logic.intf.util.Constants;
 
 import java.util.Date;
 import java.util.Map;
@@ -21,9 +21,9 @@ public class ExpedientConsultaDissenyDto {
 	private Map<String, DadaIndexadaDto> dadesExpedient;
 
 	public String getEstat() {
-		if (!dadesExpedient.containsKey(ExpedientCamps.EXPEDIENT_CAMP_ESTAT_JSP))
+		if (!dadesExpedient.containsKey(Constants.EXPEDIENT_CAMP_ESTAT_JSP))
 			return null;
-		return dadesExpedient.get(ExpedientCamps.EXPEDIENT_CAMP_ESTAT_JSP).getValorMostrar();
+		return dadesExpedient.get(Constants.EXPEDIENT_CAMP_ESTAT_JSP).getValorMostrar();
 	}
 
 	public String getComentariAnulat() {

@@ -8,7 +8,7 @@ import es.caib.helium.logic.intf.dto.NtiEstadoElaboracionEnumDto;
 import es.caib.helium.logic.intf.dto.NtiOrigenEnumDto;
 import es.caib.helium.logic.intf.dto.NtiTipoDocumentalEnumDto;
 import es.caib.helium.logic.intf.dto.NtiTipoFirmaEnumDto;
-import es.caib.helium.logic.intf.util.JbpmVars;
+import es.caib.helium.logic.intf.util.Constants;
 import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
@@ -376,10 +376,10 @@ public class DocumentStore implements Serializable, GenericEntity<Long> {
 
 	@Transient
 	public String getCodiDocument() {
-		if (getJbpmVariable() == null || !getJbpmVariable().startsWith(JbpmVars.PREFIX_DOCUMENT)) {
+		if (getJbpmVariable() == null || !getJbpmVariable().startsWith(Constants.PREFIX_DOCUMENT)) {
 			return null;
 		}
-		return getJbpmVariable().substring(JbpmVars.PREFIX_DOCUMENT.length());
+		return getJbpmVariable().substring(Constants.PREFIX_DOCUMENT.length());
 	}
 	@Transient
 	public boolean isRegistrat() {

@@ -354,6 +354,46 @@ public class WorkflowEngineApiImpl implements WorkflowEngineApi {
     }
 
     @Override
+    public List<String> findAreesByFiltre(String filtre) {
+        return null;
+    }
+
+    @Override
+    public List<String> findAreesByPersona(String personaCodi) {
+        return null;
+    }
+
+    @Override
+    public List<String> findRolsByPersona(String persona) {
+        return null;
+    }
+
+    @Override
+    public List<String[]> findCarrecsByFiltre(String filtre) {
+        return null;
+    }
+
+    @Override
+    public List<String> findPersonesByGrupAndCarrec(String areaCodi, String carrecCodi) {
+        return null;
+    }
+
+    @Override
+    public List<String> findCarrecsByPersonaAndGrup(String codiPersona, String codiArea) {
+        return null;
+    }
+
+    @Override
+    public List<String> findPersonesByCarrec(String codi) {
+        return null;
+    }
+
+    @Override
+    public List<String> findPersonesByGrup(String rol) {
+        return null;
+    }
+
+    @Override
     public List<String> findStartTaskOutcomes(String jbpmId, String taskName) {
         return null;
     }

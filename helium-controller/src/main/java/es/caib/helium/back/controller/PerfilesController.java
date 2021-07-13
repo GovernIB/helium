@@ -42,7 +42,7 @@ import java.util.List;
 @RequestMapping("/v3/perfil")
 public class PerfilesController extends BaseController {
 
-	@Resource(name="entornServiceV3")
+	@Resource
 	private EntornService entornService;
 	@Autowired
 	private AplicacioService aplicacioService;

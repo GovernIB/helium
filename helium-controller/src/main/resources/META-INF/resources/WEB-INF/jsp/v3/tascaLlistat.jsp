@@ -180,8 +180,8 @@
 		//Per defecte, si no s'especifica al fitxer de properties
 		//tendrem un interval que executa una funció cada 10 segons per a refrescar les
 		//ícones d'estat de les tasques en segon pla
-		<c:set var="refrescaSegonPla" value="${globalProperties['app.segonpla.refrescar.auto'] == 'false' ? false : true}"/>
-		<c:set var="refrescaSegonPlaPeriode" value="${globalProperties['app.segonpla.refrescar.auto.periode'] != null ? globalProperties['app.segonpla.refrescar.auto.periode'] : 10}"/>
+		<c:set var="refrescaSegonPla" value="${globalProperties['es.caib.helium.segonpla.refrescar.auto'] == 'false' ? false : true}"/>
+		<c:set var="refrescaSegonPlaPeriode" value="${globalProperties['es.caib.helium.segonpla.refrescar.auto.periode'] != null ? globalProperties['es.caib.helium.segonpla.refrescar.auto.periode'] : 10}"/>
 		<c:set var="refrescaSegonPlaUrl" value="${tascaConsultaCommand.consultaTramitacioMassivaTascaId != null ? '../../tasca/actualitzaEstatsSegonPla' : 'tasca/actualitzaEstatsSegonPla'}"/>
 		<c:if test="${refrescaSegonPla}">
 			setInterval(refrescaEstatSegonPla, (${refrescaSegonPlaPeriode} * 1000));

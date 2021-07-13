@@ -64,7 +64,7 @@ public class EnumeracioServiceImpl implements EnumeracioService {
 	@Resource
 	private PaginacioHelper paginacioHelper;
 	@Resource
-	private MessageServiceHelper messageHelper;
+	private MessageServiceHelper messageServiceHelper;
 	
 	/**
 	 * {@inheritDoc}
@@ -220,7 +220,7 @@ public class EnumeracioServiceImpl implements EnumeracioService {
 
 		// Si l'enumerat esta associat a alguna variable no es pot eliminar
 		if (entity.getCamps()!=null && entity.getCamps().size()>0) {
-			throw new ValidacioException(messageHelper.getMessage("expedient.tipus.enumeracio.controller.eliminat.us"));
+			throw new ValidacioException(messageServiceHelper.getMessage("expedient.tipus.enumeracio.controller.eliminat.us"));
 		}
 
 		List<EnumeracioValors> valors = enumeracioValorsRepository.findByEnumeracioOrdenat(entity.getId());

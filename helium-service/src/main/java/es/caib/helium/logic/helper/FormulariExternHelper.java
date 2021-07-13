@@ -7,15 +7,14 @@ import es.caib.helium.logic.intf.dto.FormulariExternDto;
 import es.caib.helium.logic.intf.extern.formulari.IniciFormulari;
 import es.caib.helium.logic.intf.extern.formulari.ParellaCodiValor;
 import es.caib.helium.logic.intf.extern.formulari.RespostaIniciFormulari;
-import es.caib.helium.logic.intf.util.JbpmVars;
-import es.caib.helium.logic.util.GlobalPropertiesImpl;
+import es.caib.helium.logic.intf.util.Constants;
+import es.caib.helium.logic.intf.util.GlobalProperties;
 import es.caib.helium.persist.entity.ExpedientTipus;
 import es.caib.helium.persist.entity.FormulariExtern;
 import es.caib.helium.persist.entity.Tasca;
 import es.caib.helium.persist.repository.FormulariExternRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
@@ -32,18 +31,16 @@ import java.util.Map;
 @Component
 public class FormulariExternHelper {
 
-//	@Resource
-//	private ExpedientTipusHelper expedientTipusHelper;
-//	@Resource
-//	private TascaHelper tascaHelper;
 	@Resource
 	private VariableHelper variableHelper;
 	@Resource
 	private FormulariExternRepository formulariExternRepository;
-	@Autowired
+	@Resource
 	private WsClientHelper wsClientHelper;
 	@Resource
-	private MessageServiceHelper messageHelper;
+	private MessageServiceHelper messageServiceHelper;
+	@Resource
+	private GlobalProperties globalProperties;
 
 	public FormulariExternDto iniciar(
 		String taskId,
@@ -61,12 +58,9 @@ public class FormulariExternHelper {
 			if (expedientTipus.getFormextContrasenya() != null)
 				password = expedientTipus.getFormextContrasenya();
 		} else {
-			url = GlobalPropertiesImpl.getInstance().getProperty(
-					"app.forms.service.url");
-			username = GlobalPropertiesImpl.getInstance().getProperty(
-					"app.forms.service.username");
-			password = GlobalPropertiesImpl.getInstance().getProperty(
-					"app.forms.service.password");
+			url = globalProperties.getProperty("es.caib.helium.forms.service.url");
+			username = globalProperties.getProperty("es.caib.helium.forms.service.username");
+			password = globalProperties.getProperty("es.caib.helium.forms.service.password");
 		}
 		
 //		RespostaIniciFormulari resposta = new RespostaIniciFormulari();
@@ -93,7 +87,7 @@ public class FormulariExternHelper {
 					", tascaId=" + tasca.getId()  +
 					", expedientTipusId=" + expedientTipus.getId()  +
 					", tascaIniciExpedient=" + tascaIniciExpedient  + ")");
-			dto.setError(messageHelper.getMessage("error.tascaService.formExtern.inici", new Object[] {getRootCause(e)}));
+			dto.setError(messageServiceHelper.getMessage("error.tascaService.formExtern.inici", new Object[] {getRootCause(e)}));
 			return dto;
 		}
 		
@@ -136,7 +130,7 @@ public class FormulariExternHelper {
 		List<ParellaCodiValor> varsForm = new ArrayList<ParellaCodiValor>();
 		if (varsTasca != null) {
 			for (String key: varsTasca.keySet()) {
-				if (!key.startsWith(JbpmVars.VAR_PREFIX))
+				if (!key.startsWith(Constants.VAR_PREFIX))
 					varsForm.add(new ParellaCodiValor(key, varsTasca.get(key)));
 			}
 		}

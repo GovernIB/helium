@@ -15,7 +15,7 @@ import es.caib.helium.logic.intf.dto.PersonaDto.Sexe;
 import es.caib.helium.logic.intf.dto.TascaDadaDto;
 import es.caib.helium.logic.intf.exception.NoTrobatException;
 import es.caib.helium.logic.intf.exception.TascaNoDisponibleException;
-import es.caib.helium.logic.intf.util.JbpmVars;
+import es.caib.helium.logic.intf.util.Constants;
 import es.caib.helium.persist.entity.Camp;
 import es.caib.helium.persist.entity.Camp.TipusCamp;
 import es.caib.helium.persist.entity.CampTasca;
@@ -75,7 +75,7 @@ public class TascaHelper {
 	@Resource
 	private TascaSegonPlaHelper tascaSegonPlaHelper;
 	@Resource
-	private MessageServiceHelper messageHelper;
+	private MessageServiceHelper messageServiceHelper;
 
 
 
@@ -95,14 +95,14 @@ public class TascaHelper {
 				logger.debug("La persona no té la tasca assignada (" +
 						"id=" + id + ", " +
 						"personaCodi=" + auth.getName() + ")");
-				throw new TascaNoDisponibleException(id, messageHelper.getMessage("error.tascaService.noAssignada"), null);
+				throw new TascaNoDisponibleException(id, messageServiceHelper.getMessage("error.tascaService.noAssignada"), null);
 			}
 		}
 		if (comprovarPendent) {
 			if (!task.isOpen() || task.isCancelled() || task.isSuspended()) {
 				logger.debug("La tasca no està en estat pendent (" +
 						"id=" + id + ")");
-				throw new TascaNoDisponibleException(id, messageHelper.getMessage("error.tascaService.noPendent"), null);
+				throw new TascaNoDisponibleException(id, messageServiceHelper.getMessage("error.tascaService.noPendent"), null);
 			}
 		}
 		return task;
@@ -614,13 +614,13 @@ public class TascaHelper {
 	public void validarTasca(String taskId) {
 		workflowEngineApi.setTaskInstanceVariable(
 				taskId,
-				JbpmVars.VAR_TASCA_VALIDADA,
+				Constants.VAR_TASCA_VALIDADA,
 				new Date());
 	}
 	public void restaurarTasca(String taskId) {
 		workflowEngineApi.deleteTaskInstanceVariable(
 				taskId,
-				JbpmVars.VAR_TASCA_VALIDADA);
+				Constants.VAR_TASCA_VALIDADA);
 	}
 
 	public boolean isTascaValidada(Object task) {
@@ -638,7 +638,7 @@ public class TascaHelper {
 			return true;
 		Object valor = workflowEngineApi.getTaskInstanceVariable(
 				((WTaskInstance)task).getId(),
-				JbpmVars.VAR_TASCA_VALIDADA);
+				Constants.VAR_TASCA_VALIDADA);
 		if (valor == null || !(valor instanceof Date))
 			return false;
 		return true;
@@ -648,7 +648,7 @@ public class TascaHelper {
 		Tasca tasca = findTascaByWTaskInstance((WTaskInstance)task);
 		for (DocumentTasca docTasca: tasca.getDocuments()) {
 			if (docTasca.isRequired()) {
-				String codiJbpm = JbpmVars.PREFIX_DOCUMENT + docTasca.getDocument().getCodi();
+				String codiJbpm = Constants.PREFIX_DOCUMENT + docTasca.getDocument().getCodi();
 				Object valor = workflowEngineApi.getTaskInstanceVariable(
 						((WTaskInstance)task).getId(),
 						codiJbpm);
@@ -665,7 +665,7 @@ public class TascaHelper {
 		Tasca tasca = findTascaByWTaskInstance((WTaskInstance)task);
 		for (FirmaTasca firmaTasca: tasca.getFirmes()) {
 			if (firmaTasca.isRequired()) {
-				String codiJbpm = JbpmVars.PREFIX_SIGNATURA + firmaTasca.getDocument().getCodi();
+				String codiJbpm = Constants.PREFIX_SIGNATURA + firmaTasca.getDocument().getCodi();
 				Object valor = workflowEngineApi.getTaskInstanceVariable(((WTaskInstance)task).getId(), codiJbpm);
 				if (valor == null)
 					ok = false;
@@ -704,7 +704,7 @@ public class TascaHelper {
 								null,
 								null);
 						variables.put(
-								JbpmVars.PREFIX_VAR_DESCRIPCIO + campTasca.getCamp().getCodi(),
+								Constants.PREFIX_VAR_DESCRIPCIO + campTasca.getCamp().getCodi(),
 								text);
 					}
 				}
@@ -726,18 +726,18 @@ public class TascaHelper {
 		info.setSupervised(supervisada);
 		workflowEngineApi.setTaskInstanceVariable(
 				task.getId(), 
-				JbpmVars.VAR_TASCA_DELEGACIO,
+				Constants.VAR_TASCA_DELEGACIO,
 				info);
 	}
 	public DelegationInfo getDelegationInfo(WTaskInstance task) {
 		return (DelegationInfo)workflowEngineApi.getTaskInstanceVariable(
 				task.getId(),
-				JbpmVars.VAR_TASCA_DELEGACIO);
+				Constants.VAR_TASCA_DELEGACIO);
 	}
 	public void deleteDelegationInfo(WTaskInstance task) {
 		workflowEngineApi.deleteTaskInstanceVariable(
 				task.getId(),
-				JbpmVars.VAR_TASCA_DELEGACIO);
+				Constants.VAR_TASCA_DELEGACIO);
 	}
 
 	private static final Logger logger = LoggerFactory.getLogger(TascaHelper.class);

@@ -4,7 +4,7 @@
 package es.caib.helium.persist.entity;
 
 import es.caib.helium.logic.intf.dto.TerminiDto;
-import es.caib.helium.logic.intf.util.ExpedientCamps;
+import es.caib.helium.logic.intf.util.Constants;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 
@@ -395,7 +395,7 @@ public class Camp implements Serializable, GenericEntity<Long> {
 
 	@Transient
 	public String getCodiEtiqueta() {
-		if (codi.startsWith(ExpedientCamps.EXPEDIENT_PREFIX))
+		if (codi.startsWith(Constants.EXPEDIENT_PREFIX))
 			return etiqueta;
 		else
 			return codi + "/" + etiqueta;
@@ -403,7 +403,7 @@ public class Camp implements Serializable, GenericEntity<Long> {
 
 	@Transient
 	public String getCodiPerInforme() {
-		if (codi.startsWith(ExpedientCamps.EXPEDIENT_PREFIX))
+		if (codi.startsWith(Constants.EXPEDIENT_PREFIX))
 			return codi.replace('$', '%');
 		else {
 			if(definicioProces != null) {

@@ -46,7 +46,7 @@
 		</p>
 	</div>
 </c:if>
-<c:set var="sourceUrl" value="${globalProperties['app.base.url']}/v3/expedient/document/arxiuPerSignar"/>
+<c:set var="sourceUrl" value="${globalProperties['es.caib.helium.base.url']}/v3/expedient/document/arxiuPerSignar"/>
 <c:forEach var="document" items="${signatures}">
 	<div class="signarTramitacio well well-small">
 		<div class="form-horizontal form-tasca">

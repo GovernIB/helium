@@ -1258,6 +1258,64 @@ public class JbpmHelper implements WorkflowEngineApi {
 		//adminService.mesuraCalcular("jBPM resumeTimer", "jbpmDao");
 	}
 
+	// AREES I CARRECS
+	////////////////////////////////////////////////////////////////////////////////
+	public List<String> findAreesByFiltre(String filtre) {
+		FindGrupCommand command = new FindGrupCommand(filtre);
+		return (List<String>) commandService.execute(command);
+	}
+
+	public List<String> findAreesByPersona(String personaCodi) {
+		FindAreesCommand command = new FindAreesCommand(personaCodi);
+		return (List<String>) commandService.execute(command);
+	}
+
+	public List<String> findRolsByPersona(String personaCodi) {
+		FindAreesCommand command = new FindAreesCommand(personaCodi, true);
+		return (List<String>) commandService.execute(command);
+	}
+
+	public List<String[]> findCarrecsByFiltre(String filtre) {
+		FindCarrecCommand command = new FindCarrecCommand(FindCarrecCommand.TipusConsulta.FILTRE, filtre);
+		return (List<String[]) commandService.execute(command);
+	}
+
+	public List<String> findPersonesByGrupAndCarrec(String grupCodi, String carrecCodi) {
+		FindCarrecCommand command = new FindCarrecCommand(
+				FindCarrecCommand.TipusConsulta.PERSONA_AMB_CARREC_I_GRUP,
+				null,
+				grupCodi,
+				carrecCodi);
+		return (List<String>) commandService.execute(command);
+	}
+
+	public List<String> findCarrecsByPersonaAndGrup(String personaCodi, String grupCodi) {
+		FindCarrecCommand command = new FindCarrecCommand(
+				FindCarrecCommand.TipusConsulta.CARREC_PER_PERSONA_I_GRUP,
+				personaCodi,
+				grupCodi,
+				null);
+		return (List<String>) commandService.execute(command);
+	}
+
+	public List<String> findPersonesByCarrec(String carrecCodi) {
+		FindCarrecCommand command = new FindCarrecCommand(
+				FindCarrecCommand.TipusConsulta.PERSONA_AMB_CARREC,
+				null,
+				null,
+				carrecCodi);
+		return (List<String>) commandService.execute(command);
+	}
+
+	public List<String> findPersonesByGrup(String grupCodi) {
+		FindCarrecCommand command = new FindCarrecCommand(
+				FindCarrecCommand.TipusConsulta.PERSONA_AMB_GRUP,
+				null,
+				grupCodi,
+				null);
+		return (List<String>) commandService.execute(command);
+	}
+
 
 	// TRANSITIONS
 	////////////////////////////////////////////////////////////////////////////////

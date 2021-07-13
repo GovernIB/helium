@@ -5,7 +5,7 @@ import es.caib.helium.logic.intf.dto.ConsultaDominiDto;
 import es.caib.helium.logic.intf.dto.DadaIndexadaDto;
 import es.caib.helium.logic.intf.dto.PersonaDto;
 import es.caib.helium.logic.intf.dto.TascaDadaDto;
-import es.caib.helium.logic.intf.util.ExpedientCamps;
+import es.caib.helium.logic.intf.util.Constants;
 import es.caib.helium.persist.entity.Camp;
 import es.caib.helium.persist.entity.Camp.TipusCamp;
 import es.caib.helium.persist.entity.Consulta;
@@ -38,7 +38,7 @@ public class ConsultaHelper {
 	@Resource
 	private VariableHelper variableHelper;	
 	@Resource
-	private MessageServiceHelper messageHelper;
+	private MessageServiceHelper messageServiceHelper;
 	@Resource
 	private CampRepository campRepository;
 	@Resource
@@ -66,7 +66,7 @@ public class ConsultaHelper {
 			TascaDadaDto tascaDadaDto = null;
 			DefinicioProces definicioProces = null;
 			Camp campRes = null;
-			if (camp.getCampCodi().startsWith(ExpedientCamps.EXPEDIENT_PREFIX)) {
+			if (camp.getCampCodi().startsWith(Constants.EXPEDIENT_PREFIX)) {
 				// Camp expedient
 				campRes = getCampExpedient(camp.getCampCodi());
 			} else if (camp.getDefprocJbpmKey() != null) {
@@ -128,36 +128,36 @@ public class ConsultaHelper {
 	
 	private String getValueCampExpedient(Expedient expedient, String campCodi) {		
 		String text = null;
-		if (ExpedientCamps.EXPEDIENT_CAMP_ID.equals(campCodi)) {
+		if (Constants.EXPEDIENT_CAMP_ID.equals(campCodi)) {
 			text = expedient.getId().toString();
-		} else if (ExpedientCamps.EXPEDIENT_CAMP_NUMERO.equals(campCodi)) {
+		} else if (Constants.EXPEDIENT_CAMP_NUMERO.equals(campCodi)) {
 			text = expedient.getNumeroIdentificador();
-		} else if (ExpedientCamps.EXPEDIENT_CAMP_TITOL.equals(campCodi)) {
+		} else if (Constants.EXPEDIENT_CAMP_TITOL.equals(campCodi)) {
 			text = expedient.getTitol();
-		} else if (ExpedientCamps.EXPEDIENT_CAMP_COMENTARI.equals(campCodi)) {
+		} else if (Constants.EXPEDIENT_CAMP_COMENTARI.equals(campCodi)) {
 			text = expedient.getComentari();
-		} else if (ExpedientCamps.EXPEDIENT_CAMP_INICIADOR.equals(campCodi)) {
+		} else if (Constants.EXPEDIENT_CAMP_INICIADOR.equals(campCodi)) {
 			PersonaDto persona = pluginHelper.personaFindAmbCodi(expedient.getIniciadorCodi());
 			if (persona != null)
 				text = persona.getNomSencer();
 			else
 				text = expedient.getIniciadorCodi();
-		} else if (ExpedientCamps.EXPEDIENT_CAMP_RESPONSABLE.equals(campCodi)) {
+		} else if (Constants.EXPEDIENT_CAMP_RESPONSABLE.equals(campCodi)) {
 			PersonaDto persona = pluginHelper.personaFindAmbCodi(expedient.getResponsableCodi());
 			if (persona != null)
 				text = persona.getNomSencer();
 			else 
 				text = expedient.getResponsableCodi();
-		} else if (ExpedientCamps.EXPEDIENT_CAMP_DATA_INICI.equals(campCodi)) {
+		} else if (Constants.EXPEDIENT_CAMP_DATA_INICI.equals(campCodi)) {
 			DateFormat df = new SimpleDateFormat("dd/MM/yyyy HH:mm");
 			text = df.format(expedient.getDataInici());
-		} else if (ExpedientCamps.EXPEDIENT_CAMP_ESTAT_JSP.equals(campCodi)) {
+		} else if (Constants.EXPEDIENT_CAMP_ESTAT_JSP.equals(campCodi)) {
 			if (expedient.getDataFi() != null)
-				text = messageHelper.getMessage("expedient.consulta.finalitzat");
+				text = messageServiceHelper.getMessage("expedient.consulta.finalitzat");
 			else if (expedient.getEstat() != null)
 				text = expedient.getEstat().getNom();
 			else
-				text = messageHelper.getMessage("expedient.consulta.iniciat");
+				text = messageServiceHelper.getMessage("expedient.consulta.iniciat");
 //			if (expedient.getEstat() != null)
 //				text = expedient.getEstat().getNom();
 //			else if (expedient.getDataFi() != null)
@@ -170,38 +170,38 @@ public class ConsultaHelper {
 	
 	private Camp getCampExpedient(String campCodi) {
 		Camp campExpedient = new Camp();
-		if (ExpedientCamps.EXPEDIENT_CAMP_ID.equals(campCodi)) {
+		if (Constants.EXPEDIENT_CAMP_ID.equals(campCodi)) {
 			campExpedient.setCodi(campCodi);
 			campExpedient.setTipus(TipusCamp.STRING);
-			campExpedient.setEtiqueta(messageHelper.getMessage("etiqueta.exp.id"));
-		} else if (ExpedientCamps.EXPEDIENT_CAMP_NUMERO.equals(campCodi)) {
+			campExpedient.setEtiqueta(messageServiceHelper.getMessage("etiqueta.exp.id"));
+		} else if (Constants.EXPEDIENT_CAMP_NUMERO.equals(campCodi)) {
 			campExpedient.setCodi(campCodi);
 			campExpedient.setTipus(TipusCamp.STRING);
-			campExpedient.setEtiqueta(messageHelper.getMessage("etiqueta.exp.numero"));
-		} else if (ExpedientCamps.EXPEDIENT_CAMP_TITOL.equals(campCodi)) {
+			campExpedient.setEtiqueta(messageServiceHelper.getMessage("etiqueta.exp.numero"));
+		} else if (Constants.EXPEDIENT_CAMP_TITOL.equals(campCodi)) {
 			campExpedient.setCodi(campCodi);
 			campExpedient.setTipus(TipusCamp.STRING);
-			campExpedient.setEtiqueta(messageHelper.getMessage("etiqueta.exp.titol"));
-		} else if (ExpedientCamps.EXPEDIENT_CAMP_COMENTARI.equals(campCodi)) {
+			campExpedient.setEtiqueta(messageServiceHelper.getMessage("etiqueta.exp.titol"));
+		} else if (Constants.EXPEDIENT_CAMP_COMENTARI.equals(campCodi)) {
 			campExpedient.setCodi(campCodi);
 			campExpedient.setTipus(TipusCamp.STRING);
-			campExpedient.setEtiqueta(messageHelper.getMessage("etiqueta.exp.comentari"));
-		} else if (ExpedientCamps.EXPEDIENT_CAMP_INICIADOR.equals(campCodi)) {
+			campExpedient.setEtiqueta(messageServiceHelper.getMessage("etiqueta.exp.comentari"));
+		} else if (Constants.EXPEDIENT_CAMP_INICIADOR.equals(campCodi)) {
 			campExpedient.setCodi(campCodi);
 			campExpedient.setTipus(TipusCamp.SUGGEST);
-			campExpedient.setEtiqueta(messageHelper.getMessage("etiqueta.exp.iniciador"));
-		} else if (ExpedientCamps.EXPEDIENT_CAMP_RESPONSABLE.equals(campCodi)) {
+			campExpedient.setEtiqueta(messageServiceHelper.getMessage("etiqueta.exp.iniciador"));
+		} else if (Constants.EXPEDIENT_CAMP_RESPONSABLE.equals(campCodi)) {
 			campExpedient.setCodi(campCodi);
 			campExpedient.setTipus(TipusCamp.SUGGEST);
-			campExpedient.setEtiqueta(messageHelper.getMessage("etiqueta.exp.responsable"));
-		} else if (ExpedientCamps.EXPEDIENT_CAMP_DATA_INICI.equals(campCodi)) {
+			campExpedient.setEtiqueta(messageServiceHelper.getMessage("etiqueta.exp.responsable"));
+		} else if (Constants.EXPEDIENT_CAMP_DATA_INICI.equals(campCodi)) {
 			campExpedient.setCodi(campCodi);
 			campExpedient.setTipus(TipusCamp.DATE);
-			campExpedient.setEtiqueta(messageHelper.getMessage("etiqueta.exp.data_ini"));
-		} else if (ExpedientCamps.EXPEDIENT_CAMP_ESTAT.equals(campCodi)) {
+			campExpedient.setEtiqueta(messageServiceHelper.getMessage("etiqueta.exp.data_ini"));
+		} else if (Constants.EXPEDIENT_CAMP_ESTAT.equals(campCodi)) {
 			campExpedient.setCodi(campCodi);
 			campExpedient.setTipus(TipusCamp.SELECCIO);
-			campExpedient.setEtiqueta(messageHelper.getMessage("etiqueta.exp.estat"));
+			campExpedient.setEtiqueta(messageServiceHelper.getMessage("etiqueta.exp.estat"));
 		} else {
 			campExpedient = null;
 		}

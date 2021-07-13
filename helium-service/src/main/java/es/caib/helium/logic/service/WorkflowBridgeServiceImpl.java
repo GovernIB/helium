@@ -12,9 +12,9 @@ import es.caib.helium.logic.intf.exception.ValidacioException;
 import es.caib.helium.logic.intf.extern.domini.FilaResultat;
 import es.caib.helium.logic.intf.extern.domini.ParellaCodiValor;
 import es.caib.helium.logic.intf.service.WorkflowBridgeService;
-import es.caib.helium.logic.intf.util.JbpmVars;
+import es.caib.helium.logic.intf.util.Constants;
+import es.caib.helium.logic.intf.util.GlobalProperties;
 import es.caib.helium.logic.security.ExtendedPermission;
-import es.caib.helium.logic.util.GlobalPropertiesImpl;
 import es.caib.helium.ms.domini.DominiMs;
 import es.caib.helium.persist.entity.Registre;
 import es.caib.helium.persist.entity.Termini;
@@ -103,6 +103,8 @@ public class WorkflowBridgeServiceImpl implements WorkflowBridgeService {
     private IndexHelper indexHelper;
     @Resource
     private ConversioTipusServiceHelper conversioTipusServiceHelper;
+    @Resource
+    private GlobalProperties globalProperties;
 
     @Resource
     private WorkflowEngineApi workflowEngineApi;
@@ -1707,7 +1709,7 @@ public class WorkflowBridgeServiceImpl implements WorkflowBridgeService {
 
     @Override
     public String getHeliumProperty(String propertyName) {
-        return GlobalPropertiesImpl.getInstance().getProperty(propertyName);
+        return globalProperties.getProperty(propertyName);
     }
 
     @Override
@@ -1849,9 +1851,9 @@ public class WorkflowBridgeServiceImpl implements WorkflowBridgeService {
         DefinicioProces pDef = definicioProcesRepository.findByJbpmId(processDefinitionId);
         Expedient expedient = expedientRepository.getById(expedientId);
         ExpedientTipus expedientTipus = expedient != null ? expedient.getTipus() : null;
-        if(varCodi.startsWith(JbpmVars.PREFIX_DOCUMENT)) {
+        if(varCodi.startsWith(Constants.PREFIX_DOCUMENT)) {
             // Document
-            varCodi = varCodi.substring((JbpmVars.PREFIX_DOCUMENT).length());
+            varCodi = varCodi.substring((Constants.PREFIX_DOCUMENT).length());
             // Cerca el document per veure si està marcat per ignorar
             Document document = null;
             if (expedientTipus != null && expedientTipus.isAmbInfoPropia()) {

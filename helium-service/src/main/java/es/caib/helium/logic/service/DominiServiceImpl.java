@@ -57,7 +57,7 @@ public class DominiServiceImpl implements DominiService {
 //	@Resource
 //	private PaginacioHelper paginacioHelper;
 	@Resource
-	private MessageServiceHelper messageHelper;
+	private MessageServiceHelper messageServiceHelper;
 	
 	@Autowired
 	DominiHelper dominiHelper;
@@ -174,7 +174,7 @@ public class DominiServiceImpl implements DominiService {
 		// Comprova si el domini està en ús abans d'esborrar
 		List<Camp> campsDomini = dominiHelper.findCampsPerDomini(dominiId);
 		if (campsDomini.size()>0) {
-			throw new ValidacioException(messageHelper.getMessage("expedient.tipus.domini.controller.eliminat.us"));
+			throw new ValidacioException(messageServiceHelper.getMessage("expedient.tipus.domini.controller.eliminat.us"));
 		}
 
 		dominiMs.delete(dominiId);

@@ -68,7 +68,7 @@ public class ConfiguracioFestiusController extends BaseController {
 		model.addAttribute(
 				"festius",
 				expedientTerminiService.festiuFindAmbAny(anyActual));
-		String nolabsStr = aplicacioService.getGlobalProperties().getProperty("app.calendari.nolabs");
+		String nolabsStr = aplicacioService.getGlobalProperties().getProperty("es.caib.helium.calendari.nolabs");
 		if (nolabsStr != null) {
 			model.addAttribute(
 					"nolabs",

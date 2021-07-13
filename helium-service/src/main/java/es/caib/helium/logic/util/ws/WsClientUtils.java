@@ -90,7 +90,7 @@ public class WsClientUtils extends WebServiceGatewaySupport {
 
 	private static boolean isWsClientChunked() {
 		try {
-			String chunked = GlobalPropertiesImpl.getInstance().getProperty("app.ws.client.chunked");
+			String chunked = GlobalPropertiesImpl.getPropietat("es.caib.helium.ws.client.chunked");
 			if (chunked == null)
 				chunked = "false";
 			return "true".equalsIgnoreCase(chunked);

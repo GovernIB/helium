@@ -21,7 +21,7 @@ import es.caib.helium.logic.intf.dto.ParellaCodiValorDto;
 import es.caib.helium.logic.intf.dto.TascaDadaDto;
 import es.caib.helium.logic.intf.report.FieldValue;
 import es.caib.helium.logic.intf.service.ExpedientService;
-import es.caib.helium.logic.intf.util.ExpedientCamps;
+import es.caib.helium.logic.intf.util.Constants;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.StringEscapeUtils;
@@ -426,8 +426,8 @@ public class ExpedientInformeController extends BaseExpedientController {
 			for (String clau: dadesExpedient.getDadesExpedient().keySet()) {
 				DadaIndexadaDto dada = dadesExpedient.getDadesExpedient().get(clau);
 				String fieldName = dada.getReportFieldName();
-				if (ExpedientCamps.EXPEDIENT_CAMP_ESTAT_JSP.equals(clau)) 
-					fieldName = ExpedientCamps.EXPEDIENT_CAMP_ESTAT.replace('$', '%');
+				if (Constants.EXPEDIENT_CAMP_ESTAT_JSP.equals(clau))
+					fieldName = Constants.EXPEDIENT_CAMP_ESTAT.replace('$', '%');
 				mapFila.put(fieldName, toReportField(request, expedient, dada));
 			}
 			dadesDataSource.add(mapFila);
@@ -442,7 +442,7 @@ public class ExpedientInformeController extends BaseExpedientController {
 				dadaIndex.getEtiqueta());
 		if (!dadaIndex.isMultiple()) {
 			field.setValor(dadaIndex.getValor());
-			if (ExpedientCamps.EXPEDIENT_CAMP_ESTAT_JSP.equals(field.getCampCodi())) {
+			if (Constants.EXPEDIENT_CAMP_ESTAT_JSP.equals(field.getCampCodi())) {
 				if (expedient.getDataFi() != null) {
 					field.setValorMostrar(getMessage(request, "expedient.consulta.finalitzat"));
 				} else {
@@ -478,7 +478,7 @@ public class ExpedientInformeController extends BaseExpedientController {
 		Map<String, Object> valorsPerService = new HashMap<String, Object>();
 		for (TascaDadaDto camp : camps) {
 			String clau = (camp.getDefinicioProcesKey() == null) ? camp.getVarCodi() : camp.getDefinicioProcesKey() + "." + camp.getVarCodi();
-			clau = camp.getVarCodi().replace(ExpedientCamps.EXPEDIENT_PREFIX_JSP, ExpedientCamps.EXPEDIENT_PREFIX);
+			clau = camp.getVarCodi().replace(Constants.EXPEDIENT_PREFIX_JSP, Constants.EXPEDIENT_PREFIX);
 			if (camp.getCampTipus().BOOLEAN.equals(camp.getCampTipus()) && PropertyUtils.isReadable(filtreCommand, camp.getVarCodi())) {
 				Boolean valor = (Boolean) PropertyUtils.getSimpleProperty(filtreCommand, camp.getVarCodi());
 				valors.put(camp.getVarCodi(), valor);

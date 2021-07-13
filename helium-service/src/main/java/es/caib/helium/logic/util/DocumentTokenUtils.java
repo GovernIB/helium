@@ -3,12 +3,12 @@
  */
 package es.caib.helium.logic.util;
 
+import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.codec.binary.Hex;
+
 import javax.crypto.Cipher;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.DESKeySpec;
-
-import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.codec.binary.Hex;
 
 /**
  * Classe per a la codificació i descodificació de tokens per a accedir als
@@ -122,7 +122,7 @@ public class DocumentTokenUtils {
 	}
 
 	private boolean isTokenLlarg() {
-		return "true".equals(GlobalPropertiesImpl.getInstance().getProperty("app.signatura.token.llarg"));
+		return "true".equals(GlobalPropertiesImpl.getPropietat("es.caib.helium.signatura.token.llarg"));
 	}
 
 }

@@ -6,7 +6,7 @@ package es.caib.helium.logic.helper;
 import es.caib.helium.logic.intf.WorkflowEngineApi;
 import es.caib.helium.logic.intf.dto.TerminiIniciatDto;
 import es.caib.helium.logic.intf.exception.NoTrobatException;
-import es.caib.helium.logic.util.GlobalPropertiesImpl;
+import es.caib.helium.logic.intf.util.GlobalProperties;
 import es.caib.helium.persist.entity.DefinicioProces;
 import es.caib.helium.persist.entity.Expedient;
 import es.caib.helium.persist.entity.ExpedientTipus;
@@ -49,7 +49,9 @@ public class TerminiHelper {
 	@Resource
 	private ExpedientHelper expedientHelper;
 	@Resource
-	private MessageServiceHelper messageHelper;
+	private MessageServiceHelper messageServiceHelper;
+	@Resource
+	private GlobalProperties globalProperties;
 
 	public TerminiIniciatDto iniciar(
 			Long terminiId,
@@ -183,7 +185,7 @@ public class TerminiHelper {
 		TerminiIniciat terminiIniciat = terminiIniciatRepository.findById(terminiIniciatId)
 				.orElseThrow(() -> new NoTrobatException(TerminiIniciat.class, terminiIniciatId));
 		if (terminiIniciat.getDataInici() == null)
-			throw new IllegalStateException(messageHelper.getMessage("error.terminiService.noIniciat"));
+			throw new IllegalStateException(messageServiceHelper.getMessage("error.terminiService.noIniciat"));
 		terminiIniciat.setDataAturada(data);
 		suspendTimers(terminiIniciat);
 		
@@ -205,7 +207,7 @@ public class TerminiHelper {
 				.orElseThrow(() -> new NoTrobatException(TerminiIniciat.class, terminiIniciatId));
 		if (terminiIniciat.getDataAturada() == null)
 			throw new IllegalStateException(
-					messageHelper.getMessage("error.terminiService.noPausat"));
+					messageServiceHelper.getMessage("error.terminiService.noPausat"));
 		int diesAturat = terminiIniciat.getNumDiesAturadaActual(data);
 		terminiIniciat.setDiesAturat(terminiIniciat.getDiesAturat() + diesAturat);
 		terminiIniciat.setDataAturada(null);
@@ -229,7 +231,7 @@ public class TerminiHelper {
 				.orElseThrow(() -> new NoTrobatException(TerminiIniciat.class, terminiIniciatId));
 		if (terminiIniciat.getDataInici() == null)
 			throw new IllegalStateException(
-					messageHelper.getMessage("error.terminiService.noIniciat"));
+					messageServiceHelper.getMessage("error.terminiService.noIniciat"));
 		terminiIniciat.setDataCancelacio(data);
 		suspendTimers(terminiIniciat);
 		
@@ -441,7 +443,7 @@ public class TerminiHelper {
 		if (expedientTipus.getDiesNoLaborables() != null && !expedientTipus.getDiesNoLaborables().isEmpty())
 			nolabs = expedientTipus.getDiesNoLaborables();
 		else
-			nolabs = GlobalPropertiesImpl.getInstance().getProperty("app.calendari.nolabs");
+			nolabs = globalProperties.getProperty("es.caib.helium.calendari.nolabs");
 			
 		if (nolabs != null && !nolabs.isEmpty()) {
 			String[] dies = nolabs.split(",");

@@ -158,8 +158,8 @@ $(document).ready(function() {
 	//Per defecte, si no s'especifica al fitxer de properties
 	//tendrem un interval que executa una funció cada 10 segons per a refrescar les
 	//ícones d'estat de les tasques en segon pla
-	<c:set var="refrescaSegonPla" value="${globalProperties['app.segonpla.refrescar.auto'] == 'false' ? false : true}"/>
-	<c:set var="refrescaSegonPlaPeriode" value="${globalProperties['app.segonpla.refrescar.auto.periode'] != null ? globalProperties['app.segonpla.refrescar.auto.periode'] : 10}"/>
+	<c:set var="refrescaSegonPla" value="${globalProperties['es.caib.helium.segonpla.refrescar.auto'] == 'false' ? false : true}"/>
+	<c:set var="refrescaSegonPlaPeriode" value="${globalProperties['es.caib.helium.segonpla.refrescar.auto.periode'] != null ? globalProperties['es.caib.helium.segonpla.refrescar.auto.periode'] : 10}"/>
 	<c:if test="${refrescaSegonPla}">
 		setInterval(refrescaEstatSegonPla, (${refrescaSegonPlaPeriode} * 1000));
 	</c:if>
@@ -408,10 +408,10 @@ function refrescaEstatSegonPla() {
 				</div>
 			</div>
 			<div class="col-md-2">
-				<c:if test="${globalProperties['app.georef.actiu']}">
+				<c:if test="${globalProperties['es.caib.helium.georef.actiu']}">
 					<label><spring:message code="expedient.llistat.filtre.camp.geopos"/></label>
 					<c:choose>
-						<c:when test="${globalProperties['app.georef.tipus']=='ref'}">
+						<c:when test="${globalProperties['es.caib.helium.georef.tipus']=='ref'}">
 							<hel:inputText name="geoReferencia" textKey="expedient.llistat.filtre.camp.georef" placeholderKey="expedient.llistat.filtre.camp.georef" inline="true"/>
 						</c:when>
 						<c:otherwise>

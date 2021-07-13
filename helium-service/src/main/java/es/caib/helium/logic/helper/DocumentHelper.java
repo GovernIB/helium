@@ -13,9 +13,9 @@ import es.caib.helium.logic.intf.exception.NoTrobatException;
 import es.caib.helium.logic.intf.exception.SistemaExternConversioDocumentException;
 import es.caib.helium.logic.intf.exception.SistemaExternException;
 import es.caib.helium.logic.intf.exception.ValidacioException;
-import es.caib.helium.logic.intf.util.JbpmVars;
+import es.caib.helium.logic.intf.util.Constants;
+import es.caib.helium.logic.intf.util.GlobalProperties;
 import es.caib.helium.logic.util.DocumentTokenUtils;
-import es.caib.helium.logic.util.GlobalPropertiesImpl;
 import es.caib.helium.logic.util.OpenOfficeUtils;
 import es.caib.helium.logic.util.PdfUtils;
 import es.caib.helium.persist.entity.*;
@@ -89,7 +89,7 @@ public class DocumentHelper {
 	@Resource
 	private OpenOfficeUtils openOfficeUtils;
 	@Resource
-	private MessageServiceHelper messageHelper;
+	private MessageServiceHelper messageServiceHelper;
 	@Resource
 	private ExceptionHelper exceptionHelper;
 	@Resource
@@ -98,6 +98,8 @@ public class DocumentHelper {
 	private DocumentNotificacioRepository documentNotificacioRepository; 
 	@Resource
 	private AnotacioAnnexRepository anotacioAnnexRepository;
+	@Resource
+	private GlobalProperties globalProperties;
 
 	private PdfUtils pdfUtils;
 	private DocumentTokenUtils documentTokenUtils;
@@ -244,7 +246,7 @@ public class DocumentHelper {
 							expedient.getTipus().getId(), 
 							expedient.getTipus().getCodi(), 
 							expedient.getTipus().getNom(), 
-							messageHelper.getMessage("error.document.conversio.externa"));
+							messageServiceHelper.getMessage("error.document.conversio.externa"));
 				} catch (Exception ex) {
 					Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(documentStore.getProcessInstanceId());
 					throw SistemaExternException.tractarSistemaExternException(
@@ -297,7 +299,7 @@ public class DocumentHelper {
 			for (String var: varsInstanciaProces.keySet()) {
 				Long documentStoreId = (Long)varsInstanciaProces.get(var);
 				if (documentStoreId != null) {
-					if (var.startsWith(JbpmVars.PREFIX_DOCUMENT)) {
+					if (var.startsWith(Constants.PREFIX_DOCUMENT)) {
 						// Afegeix el document
 						String documentCodi = getDocumentCodiDeVariableJbpm(var);
 						Document document = null;
@@ -323,7 +325,7 @@ public class DocumentHelper {
 										"documentCodi=" + documentCodi + ")");
 							resposta.add(dto);
 						}
-					} else if (var.startsWith(JbpmVars.PREFIX_ADJUNT)) {
+					} else if (var.startsWith(Constants.PREFIX_ADJUNT)) {
 						// Afegeix l'adjunt
 						ExpedientDocumentDto ed = crearDtoPerAdjuntExpedient(
 								getAdjuntIdDeVariableJbpm(var),
@@ -610,7 +612,7 @@ public class DocumentHelper {
 					true);
 			workflowEngineApi.setTaskInstanceVariable(
 					task.getId(),
-					JbpmVars.PREFIX_SIGNATURA + dto.getDocumentCodi(),
+					Constants.PREFIX_SIGNATURA + dto.getDocumentCodi(),
 					documentStore.getId());
 		}
 		return dto;
@@ -925,7 +927,7 @@ public class DocumentHelper {
 					documentStore.getJbpmVariable());
 			workflowEngineApi.deleteTaskInstanceVariable(
 					taskInstanceId,
-					JbpmVars.PREFIX_SIGNATURA + documentCodi);
+					Constants.PREFIX_SIGNATURA + documentCodi);
 		}
 		if (processInstanceId != null) {
 			workflowEngineApi.deleteProcessInstanceVariable(
@@ -1013,17 +1015,17 @@ public class DocumentHelper {
 
 	public String getVarPerDocumentCodi(String documentCodi, boolean isAdjunt) {
 		if (isAdjunt)
-			return JbpmVars.PREFIX_ADJUNT + documentCodi;
+			return Constants.PREFIX_ADJUNT + documentCodi;
 		else
-			return JbpmVars.PREFIX_DOCUMENT + documentCodi;
+			return Constants.PREFIX_DOCUMENT + documentCodi;
 	}
 	public static String getDocumentCodiPerVariableJbpm(String var) {
-		if (var.startsWith(JbpmVars.PREFIX_DOCUMENT)) {
-			return var.substring(JbpmVars.PREFIX_DOCUMENT.length());
-		} else if (var.startsWith(JbpmVars.PREFIX_ADJUNT)) {
-			return var.substring(JbpmVars.PREFIX_ADJUNT.length());
-		} else if (var.startsWith(JbpmVars.PREFIX_SIGNATURA)) {
-			return var.substring(JbpmVars.PREFIX_SIGNATURA.length());
+		if (var.startsWith(Constants.PREFIX_DOCUMENT)) {
+			return var.substring(Constants.PREFIX_DOCUMENT.length());
+		} else if (var.startsWith(Constants.PREFIX_ADJUNT)) {
+			return var.substring(Constants.PREFIX_ADJUNT.length());
+		} else if (var.startsWith(Constants.PREFIX_SIGNATURA)) {
+			return var.substring(Constants.PREFIX_SIGNATURA.length());
 		} else {
 			return var;
 		}
@@ -1066,7 +1068,7 @@ public class DocumentHelper {
 							expedient.getTipus().getId(), 
 							expedient.getTipus().getCodi(), 
 							expedient.getTipus().getNom(), 
-							messageHelper.getMessage("error.document.conversio.externa"));
+							messageServiceHelper.getMessage("error.document.conversio.externa"));
 				}
 			}
 			return resultat;
@@ -1112,13 +1114,13 @@ public class DocumentHelper {
 				}
 				String codiDocument;
 				if (documentStore.isAdjunt()) {
-					dto.setAdjuntId(documentStore.getJbpmVariable().substring(JbpmVars.PREFIX_ADJUNT.length()));
+					dto.setAdjuntId(documentStore.getJbpmVariable().substring(Constants.PREFIX_ADJUNT.length()));
 					dto.setCodi(dto.getAdjuntId());
 					dto.setDocumentCodi(dto.getAdjuntId());
 					dto.setDocumentNom(documentStore.getAdjuntTitol());
 					dto.setArxiuContingut(documentStore.getArxiuContingut());
 				} else {
-					codiDocument = documentStore.getJbpmVariable().substring(JbpmVars.PREFIX_DOCUMENT.length());
+					codiDocument = documentStore.getJbpmVariable().substring(Constants.PREFIX_DOCUMENT.length());
 					WProcessDefinition jpd = workflowEngineApi.findProcessDefinitionWithProcessInstanceId(documentStore.getProcessInstanceId());
 					DefinicioProces definicioProces = definicioProcesRepository.findByJbpmKeyAndVersio(
 							jpd.getKey(),
@@ -1226,7 +1228,7 @@ public class DocumentHelper {
 											expedient.getTipus().getId(), 
 											expedient.getTipus().getCodi(), 
 											expedient.getTipus().getNom(), 
-											messageHelper.getMessage("error.document.conversio.externa"));
+											messageServiceHelper.getMessage("error.document.conversio.externa"));
 								} catch (Exception ex) {
 									logger.error("No s'ha pogut generar la vista pel document '" + documentStore.getCodiDocument() + "'", ex);
 									Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(documentStore.getProcessInstanceId());
@@ -1334,7 +1336,7 @@ public class DocumentHelper {
 										expedient.getTipus().getId(), 
 										expedient.getTipus().getCodi(), 
 										expedient.getTipus().getNom(), 
-										messageHelper.getMessage("error.document.conversio.externa"));
+										messageServiceHelper.getMessage("error.document.conversio.externa"));
 							} catch (Exception ex) {
 								logger.error("No s'ha pogut generar la vista pel document '" + documentStore.getCodiDocument() + "'", ex);
 								Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(documentStore.getProcessInstanceId());
@@ -1514,7 +1516,7 @@ public class DocumentHelper {
 					null, 
 					null, 
 					null, 
-					messageHelper.getMessage("error.document.conversio.externa"));
+					messageServiceHelper.getMessage("error.document.conversio.externa"));
 		}
 		return arxiuPdf;
 	}
@@ -1914,19 +1916,19 @@ public class DocumentHelper {
 	}
 
 	private String getDocumentCodiDeVariableJbpm(String varName) {
-		return varName.substring(JbpmVars.PREFIX_DOCUMENT.length());
+		return varName.substring(Constants.PREFIX_DOCUMENT.length());
 	}
 	private String getAdjuntIdDeVariableJbpm(String varName) {
-		return varName.substring(JbpmVars.PREFIX_ADJUNT.length());
+		return varName.substring(Constants.PREFIX_ADJUNT.length());
 	}
 
 	private void filtrarVariablesAmbDocuments(Map<String, Object> variables) {
 		if (variables != null) {
-			variables.remove(JbpmVars.VAR_TASCA_VALIDADA);
-			variables.remove(JbpmVars.VAR_TASCA_DELEGACIO);
+			variables.remove(Constants.VAR_TASCA_VALIDADA);
+			variables.remove(Constants.VAR_TASCA_DELEGACIO);
 			List<String> codisEsborrar = new ArrayList<String>();
 			for (String codi: variables.keySet()) {
-				if (!codi.startsWith(JbpmVars.PREFIX_DOCUMENT) && !codi.startsWith(JbpmVars.PREFIX_ADJUNT)) {
+				if (!codi.startsWith(Constants.PREFIX_DOCUMENT) && !codi.startsWith(Constants.PREFIX_ADJUNT)) {
 					codisEsborrar.add(codi);
 				}
 			}
@@ -1955,28 +1957,28 @@ public class DocumentHelper {
 		if (urlCustodia != null) {
 			return urlCustodia;
 		} else {
-			String baseUrl = (String) GlobalPropertiesImpl.getInstance().get("app.base.verificacio.url");
+			String baseUrl = (String) globalProperties.getProperty("es.caib.helium.base.verificacio.url");
 			if (baseUrl == null)
-				baseUrl = (String) GlobalPropertiesImpl.getInstance().get("app.base.url");
+				baseUrl = (String) globalProperties.getProperty("es.caib.helium.base.url");
 			String token = getDocumentTokenUtils().xifrarToken(documentStoreId.toString());
 			return baseUrl + "/signatura/verificarExtern.html?token=" + token;
 		}
 	}
 
 	private String getExtensioArxiuSignat() {
-		return (String) GlobalPropertiesImpl.getInstance().get("app.conversio.signatura.extension");
+		return (String) globalProperties.getProperty("es.caib.helium.conversio.signatura.extension");
 	}
 	private String getExtensioArxiuRegistrat() {
-		return (String) GlobalPropertiesImpl.getInstance().get("app.conversio.registre.extension");
+		return (String) globalProperties.getProperty("es.caib.helium.conversio.registre.extension");
 	}
 	private boolean isSignaturaFileAttached() {
-		return "true".equalsIgnoreCase((String) GlobalPropertiesImpl.getInstance().get("app.signatura.plugin.file.attached"));
+		return "true".equalsIgnoreCase((String) globalProperties.getProperty("es.caib.helium.signatura.plugin.file.attached"));
 	}
 	private boolean isActiuConversioSignatura() {
-		String actiuConversio = (String) GlobalPropertiesImpl.getInstance().get("app.conversio.actiu");
+		String actiuConversio = (String) globalProperties.getProperty("es.caib.helium.conversio.actiu");
 		if (!"true".equalsIgnoreCase(actiuConversio))
 			return false;
-		String actiuConversioSignatura = (String) GlobalPropertiesImpl.getInstance().get("app.conversio.signatura.actiu");
+		String actiuConversioSignatura = (String) globalProperties.getProperty("es.caib.helium.conversio.signatura.actiu");
 		return "true".equalsIgnoreCase(actiuConversioSignatura);
 	}
 
@@ -1988,7 +1990,7 @@ public class DocumentHelper {
 	private DocumentTokenUtils getDocumentTokenUtils() {
 		if (documentTokenUtils == null)
 			documentTokenUtils = new DocumentTokenUtils(
-					(String) GlobalPropertiesImpl.getInstance().get("app.encriptacio.clau"));
+					(String) globalProperties.getProperty("es.caib.helium.encriptacio.clau"));
 		return documentTokenUtils;
 	}
 
@@ -1997,9 +1999,9 @@ public class DocumentHelper {
 		if (urlCustodia != null) {
 			return urlCustodia;
 		} else {
-			String baseUrl = (String) GlobalPropertiesImpl.getInstance().get("app.base.verificacio.url");
+			String baseUrl = (String) globalProperties.getProperty("es.caib.helium.base.verificacio.url");
 			if (baseUrl == null)
-				baseUrl = (String) GlobalPropertiesImpl.getInstance().get("app.base.url");
+				baseUrl = (String) globalProperties.getProperty("es.caib.helium.base.url");
 			return baseUrl + "/signatura/verificarExtern.html?token=" + token;
 		}
 	}
@@ -2043,12 +2045,12 @@ public class DocumentHelper {
 	}
 
 	private boolean isActiuConversioVista() {
-		String actiuConversio = (String) GlobalPropertiesImpl.getInstance().get("app.conversio.actiu");
+		String actiuConversio = (String) globalProperties.getProperty("es.caib.helium.conversio.actiu");
 		if (!"true".equalsIgnoreCase(actiuConversio))
 			return false;
-		String actiuConversioVista = (String) GlobalPropertiesImpl.getInstance().get("app.conversio.vista.actiu");
+		String actiuConversioVista = (String) globalProperties.getProperty("es.caib.helium.conversio.vista.actiu");
 		if (actiuConversioVista == null)
-			actiuConversioVista = (String) GlobalPropertiesImpl.getInstance().get("app.conversio.gentasca.actiu");
+			actiuConversioVista = (String) globalProperties.getProperty("es.caib.helium.conversio.gentasca.actiu");
 		return "true".equalsIgnoreCase(actiuConversioVista);
 	}
 
@@ -2058,9 +2060,9 @@ public class DocumentHelper {
 			if (document.getConvertirExtensio() != null && document.getConvertirExtensio().length() > 0) {
 				extensioVista = document.getConvertirExtensio();
 			} else {
-				extensioVista = (String) GlobalPropertiesImpl.getInstance().get("app.conversio.vista.extension");
+				extensioVista = (String) globalProperties.getProperty("es.caib.helium.conversio.vista.extension");
 				if (extensioVista == null)
-					extensioVista = (String) GlobalPropertiesImpl.getInstance().get("app.conversio.gentasca.extension");
+					extensioVista = (String) globalProperties.getProperty("es.caib.helium.conversio.gentasca.extension");
 			}
 		}
 		return extensioVista;
@@ -2408,16 +2410,13 @@ public class DocumentHelper {
 	}
 
 	private String getPropertyNtiCsvDef() {
-		return GlobalPropertiesImpl.getInstance().getProperty(
-				"app.nti.csv.definicio");
+		return globalProperties.getProperty("es.caib.helium.nti.csv.definicio");
 	}
 	private String getPropertyCustodiaVerificacioBaseUrl() {
-		return GlobalPropertiesImpl.getInstance().getProperty(
-				"app.custodia.plugin.caib.verificacio.baseurl");
+		return globalProperties.getProperty("es.caib.helium.custodia.plugin.caib.verificacio.baseurl");
 	}
 	private String getPropertyArxiuVerificacioBaseUrl() {
-		return GlobalPropertiesImpl.getInstance().getProperty(
-				"app.arxiu.verificacio.baseurl");
+		return globalProperties.getProperty("es.caib.helium.arxiu.verificacio.baseurl");
 	}
 
 	private Registre crearRegistreSignarDocument(

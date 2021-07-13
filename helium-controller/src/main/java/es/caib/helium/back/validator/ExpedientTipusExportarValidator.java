@@ -11,7 +11,7 @@ import es.caib.helium.logic.intf.service.DocumentService;
 import es.caib.helium.logic.intf.service.DominiService;
 import es.caib.helium.logic.intf.service.EnumeracioService;
 import es.caib.helium.logic.intf.service.ExpedientTipusService;
-import es.caib.helium.logic.intf.util.ExpedientCamps;
+import es.caib.helium.logic.intf.util.Constants;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.validation.ConstraintValidator;
@@ -189,7 +189,7 @@ public class ExpedientTipusExportarValidator implements ConstraintValidator<Expe
 				// Comprova que tots els seus camps de tipus filtre i paràmetre s'exportin
 				for (ConsultaCampDto consultaCamp : campsConsulta)
 					if (consultaCamp.getTipus() != TipusConsultaCamp.PARAM
-							&& ! consultaCamp.getCampCodi().startsWith(ExpedientCamps.EXPEDIENT_PREFIX))
+							&& ! consultaCamp.getCampCodi().startsWith(Constants.EXPEDIENT_PREFIX))
 						if (consultaCamp.getDefprocJbpmKey() != null) {
 							// variable lligada a una variable de la definició de procés
 							if (!command.getDefinicionsProces().contains(consultaCamp.getDefprocJbpmKey())) {

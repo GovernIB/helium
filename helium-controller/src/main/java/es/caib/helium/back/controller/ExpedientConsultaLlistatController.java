@@ -19,7 +19,7 @@ import es.caib.helium.logic.intf.dto.PaginaDto;
 import es.caib.helium.logic.intf.dto.ParellaCodiValorDto;
 import es.caib.helium.logic.intf.dto.TascaDadaDto;
 import es.caib.helium.logic.intf.service.ExpedientReindexacioService;
-import es.caib.helium.logic.intf.util.ExpedientCamps;
+import es.caib.helium.logic.intf.util.Constants;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.propertyeditors.CustomBooleanEditor;
@@ -365,8 +365,8 @@ public class ExpedientConsultaLlistatController extends BaseExpedientController 
 		for (TascaDadaDto dada: dadesFiltre) {
 			String clau = (dada.getDefinicioProcesKey() == null) ? dada.getVarCodi() : dada.getDefinicioProcesKey() + "." + dada.getVarCodi();
 			clau = clau.replace(
-					ExpedientCamps.EXPEDIENT_PREFIX_JSP,
-					ExpedientCamps.EXPEDIENT_PREFIX);
+					Constants.EXPEDIENT_PREFIX_JSP,
+					Constants.EXPEDIENT_PREFIX);
 			if (CampTipusDto.BOOLEAN.equals(dada.getCampTipus()) && PropertyUtils.isReadable(filtreCommand, dada.getVarCodi())) {
 				Boolean valor = (Boolean) PropertyUtils.getSimpleProperty(
 						filtreCommand,

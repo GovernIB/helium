@@ -3,7 +3,7 @@
  */
 package es.caib.helium.logic.intf.dto;
 
-import es.caib.helium.logic.intf.util.ExpedientCamps;
+import es.caib.helium.logic.intf.util.Constants;
 
 import java.io.Serializable;
 
@@ -116,7 +116,7 @@ public class ConsultaCampDto implements Serializable {
 	}
 	/** Retorna la combinacio "codi / etiqueta" si no comença amb el prefix de l'expedient. */
 	public String getCodiEtiqueta() {
-		if (campCodi.startsWith(ExpedientCamps.EXPEDIENT_PREFIX))
+		if (campCodi.startsWith(Constants.EXPEDIENT_PREFIX))
 			return campEtiqueta != null? campEtiqueta : campCodi;
 		else
 			return campCodi + (campEtiqueta != null? " / " + campEtiqueta : "");		

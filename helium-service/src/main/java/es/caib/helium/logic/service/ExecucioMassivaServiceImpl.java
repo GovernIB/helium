@@ -16,8 +16,8 @@ import es.caib.helium.logic.intf.service.ExpedientService;
 import es.caib.helium.logic.intf.service.ExpedientTascaService;
 import es.caib.helium.logic.intf.service.TascaService;
 import es.caib.helium.logic.intf.util.CsvHelper;
+import es.caib.helium.logic.intf.util.GlobalProperties;
 import es.caib.helium.logic.util.EntornActual;
-import es.caib.helium.logic.util.GlobalPropertiesImpl;
 import es.caib.helium.persist.entity.*;
 import es.caib.helium.persist.entity.ConsultaCamp.TipusConsultaCamp;
 import es.caib.helium.persist.entity.ExecucioMassiva.ExecucioMassivaTipus;
@@ -103,7 +103,7 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 	@Resource
 	private TascaHelper tascaHelper;
 	@Resource
-	private MessageServiceHelper messageHelper;
+	private MessageServiceHelper messageServiceHelper;
 	@Resource
 	private PluginHelper pluginHelper;
 	@Resource 
@@ -143,6 +143,8 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 	private ExpedientTascaService expedientTascaService;
 	@Autowired
 	private ExpedientRegistreService expedientRegistreService;
+	@Resource
+	private GlobalProperties globalProperties;
 
 
 
@@ -578,12 +580,12 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 		    		if (titol.length() == 0)
 		    			titol = exp.getNumeroDefault();
 				} else if (execucio.getTipus() == ExecucioMassivaTipus.ACTUALITZAR_VERSIO_DEFPROC){
-					titol = messageHelper.getMessage("expedient.massiva.actualitzar.dp") + " "
+					titol = messageServiceHelper.getMessage("expedient.massiva.actualitzar.dp") + " "
 							+ expedient.getExecucioMassiva().getParam1();
 				} else if (execucio.getTipus() == ExecucioMassivaTipus.ELIMINAR_VERSIO_DEFPROC){
 					DefinicioProces dp = definicioProcesRepository.getById(expedient.getDefinicioProcesId());
 					String idPerMostrar = dp != null ? dp.getIdPerMostrar() : expedient.getAuxText();
-					titol = messageHelper.getMessage("expedient.massiva.eliminar.dp") + " (" + idPerMostrar + ")";
+					titol = messageServiceHelper.getMessage("expedient.massiva.eliminar.dp") + " (" + idPerMostrar + ")";
 				} else if (execucio.getTipus() == ExecucioMassivaTipus.PROPAGAR_PLANTILLES) {
 					titol = expedient.getAuxText() != null ? expedient.getAuxText()
 							: definicioProcesRepository.getById(expedient.getDefinicioProcesId()).getJbpmKey();
@@ -673,34 +675,34 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 		String label = null;
 		ExecucioMassivaTipus tipus = execucioMassiva.getTipus();
 		if (tipus.equals(ExecucioMassivaTipus.EXECUTAR_TASCA)){
-			label = messageHelper.getMessage("expedient.massiva.tasca") + " " + tasca + ": ";
+			label = messageServiceHelper.getMessage("expedient.massiva.tasca") + " " + tasca + ": ";
 			String param = execucioMassiva.getParam1();
 			Object param2 = deserialize(execucioMassiva.getParam2());
 			if (param.equals("Guardar")) {
-				label += messageHelper.getMessage("expedient.massiva.tasca.guardar");
+				label += messageServiceHelper.getMessage("expedient.massiva.tasca.guardar");
 			} else if (param.equals("Validar")) {
-				label += messageHelper.getMessage("expedient.massiva.tasca.validar");
+				label += messageServiceHelper.getMessage("expedient.massiva.tasca.validar");
 			} else if (param.equals("Completar")) {
-				label += messageHelper.getMessage("expedient.massiva.tasca.completar");
+				label += messageServiceHelper.getMessage("expedient.massiva.tasca.completar");
 			} else if (param.equals("Restaurar")) {
-				label += messageHelper.getMessage("expedient.massiva.tasca.restaurar");
+				label += messageServiceHelper.getMessage("expedient.massiva.tasca.restaurar");
 			} else if (param.equals("Accio")) {
-				label += messageHelper.getMessage("expedient.massiva.tasca.accio")
+				label += messageServiceHelper.getMessage("expedient.massiva.tasca.accio")
 						+ (param2 == null ? "" : " &#8216;" + ((Object[]) param2)[1] + "&#8217;");
 			} else if (param.equals("DocGuardar")) {
-				label += messageHelper.getMessage("expedient.massiva.tasca.doc.guardar")
+				label += messageServiceHelper.getMessage("expedient.massiva.tasca.doc.guardar")
 						+ (param2 == null ? "" : " &#8216;'" + ((Object[]) param2)[1] + "&#8217;");
 			} else if (param.equals("DocEsborrar")) {
-				label += messageHelper.getMessage("expedient.massiva.tasca.doc.borrar")
+				label += messageServiceHelper.getMessage("expedient.massiva.tasca.doc.borrar")
 						+ (param2 == null ? "" : " &#8216;" + ((Object[]) param2)[1] + "&#8217;");
 			} else if (param.equals("DocGenerar")) {
-				label += messageHelper.getMessage("expedient.massiva.tasca.doc.generar")
+				label += messageServiceHelper.getMessage("expedient.massiva.tasca.doc.generar")
 						+ (param2 == null ? "" : " &#8216;'" + ((Object[]) param2)[1] + "&#8217;");
 			} else if (param.equals("RegEsborrar")) {
-				label += messageHelper.getMessage("expedient.massiva.tasca.reg.borrar")
+				label += messageServiceHelper.getMessage("expedient.massiva.tasca.reg.borrar")
 						+ (param2 == null ? "" : " &#8216;" + ((Object[]) param2)[1] + "&#8217;");
 			} else if (param.equals("RegGuardar")) {
-				label += messageHelper.getMessage("expedient.massiva.tasca.reg.guardar")
+				label += messageServiceHelper.getMessage("expedient.massiva.tasca.reg.guardar")
 						+ (param2 == null ? "" : " &#8216;" + ((Object[]) param2)[1] + "&#8217;");
 			}
 		} else if (tipus.equals(ExecucioMassivaTipus.ACTUALITZAR_VERSIO_DEFPROC)){
@@ -710,15 +712,15 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 					versio += (Integer) deserialize(execucioMassiva.getParam2());
 				} catch (Exception e) {
 				}
-				label = messageHelper.getMessage("expedient.massiva.actualitzar") + " (" + execucioMassiva.getParam1()
+				label = messageServiceHelper.getMessage("expedient.massiva.actualitzar") + " (" + execucioMassiva.getParam1()
 						+ " v." + versio + ")";
 			} else {
 				DefinicioProces definicioProces = getDefinicioProces(execucioMassiva);
-				label = messageHelper.getMessage("expedient.massiva.actualitzar") + (definicioProces == null ? ""
+				label = messageServiceHelper.getMessage("expedient.massiva.actualitzar") + (definicioProces == null ? ""
 						: " (" + definicioProces.getJbpmKey() + " v." + definicioProces.getVersio() + ")");
 			}
 		} else if (tipus.equals(ExecucioMassivaTipus.ELIMINAR_VERSIO_DEFPROC)){
-			label = messageHelper.getMessage("expedient.massiva.eliminar.versio.dp") + " ("
+			label = messageServiceHelper.getMessage("expedient.massiva.eliminar.versio.dp") + " ("
 					+ execucioMassiva.getExpedientTipus().getNom() + ")";
 		} else if (tipus.equals(ExecucioMassivaTipus.EXECUTAR_SCRIPT)){
 			String script = "";
@@ -740,7 +742,7 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 			// String script = ((String)
 			// deserialize(execucioMassiva.getParam2())).replace("'", "&#39;").replace("\"",
 			// "&#34;");
-			label = messageHelper.getMessage("expedient.massiva.executarScriptMas") + " "
+			label = messageServiceHelper.getMessage("expedient.massiva.executarScriptMas") + " "
 					+ (script.length() > 20 ? script.substring(0, 20) : script);
 		} else if (tipus.equals(ExecucioMassivaTipus.EXECUTAR_ACCIO)){
 			String accio = "";
@@ -756,39 +758,39 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 					logger.error("OPERACIO:" + execucioMassiva.getId() + ". No s'ha pogut obtenir la operació", ex);
 				}
 			}
-			label = messageHelper.getMessage("expedient.massiva.accions") + " " + accio;
+			label = messageServiceHelper.getMessage("expedient.massiva.accions") + " " + accio;
 		} else if (tipus.equals(ExecucioMassivaTipus.ATURAR_EXPEDIENT)){
 			Object paramDos = deserialize(execucioMassiva.getParam2());
 			String motiu = null;
 			if (paramDos != null)
 				motiu = paramDos.toString();
-			label = messageHelper.getMessage("expedient.massiva.aturar")
+			label = messageServiceHelper.getMessage("expedient.massiva.aturar")
 					+ (motiu == null ? "" : ": " + (motiu.length() > 20 ? motiu.substring(0, 20) : motiu));
 		} else if (tipus.equals(ExecucioMassivaTipus.MODIFICAR_VARIABLE)){
-			label = messageHelper.getMessage("expedient.massiva.modificar_variables") + " "
+			label = messageServiceHelper.getMessage("expedient.massiva.modificar_variables") + " "
 					+ execucioMassiva.getParam1();
 		} else if (tipus.equals(ExecucioMassivaTipus.MODIFICAR_DOCUMENT)){
-			label = messageHelper.getMessage("expedient.massiva.documents");
+			label = messageServiceHelper.getMessage("expedient.massiva.documents");
 		} else if (tipus.equals(ExecucioMassivaTipus.REINDEXAR)){
-			label = messageHelper.getMessage("expedient.eines.reindexar.expedients");
+			label = messageServiceHelper.getMessage("expedient.eines.reindexar.expedients");
 		} else if (tipus.equals(ExecucioMassivaTipus.BUIDARLOG)){
-			label = messageHelper.getMessage("expedient.eines.buidarlog.expedients");
+			label = messageServiceHelper.getMessage("expedient.eines.buidarlog.expedients");
 		} else if (tipus.equals(ExecucioMassivaTipus.REPRENDRE_EXPEDIENT)){
-			label = messageHelper.getMessage("expedient.eines.reprendre_expedient");
+			label = messageServiceHelper.getMessage("expedient.eines.reprendre_expedient");
 		} else if (tipus.equals(ExecucioMassivaTipus.FINALITZAR_EXPEDIENT)){
-			label = messageHelper.getMessage("expedient.eines.finalitzar_expedient");
+			label = messageServiceHelper.getMessage("expedient.eines.finalitzar_expedient");
 		} else if (tipus.equals(ExecucioMassivaTipus.MIGRAR_EXPEDIENT)){
-			label = messageHelper.getMessage("expedient.eines.migrar_expedient");
+			label = messageServiceHelper.getMessage("expedient.eines.migrar_expedient");
 		} else if (tipus.equals(ExecucioMassivaTipus.REASSIGNAR)){
-			label = messageHelper.getMessage("expedient.eines.reassignar.expedients");
+			label = messageServiceHelper.getMessage("expedient.eines.reassignar.expedients");
 		} else if (tipus.equals(ExecucioMassivaTipus.PROPAGAR_PLANTILLES)){
-			label = messageHelper.getMessage("expedient.eines.propagar.plantilles",
+			label = messageServiceHelper.getMessage("expedient.eines.propagar.plantilles",
 					new Object[] { execucioMassiva.getExpedientTipus().getCodi() });
 		} else if (tipus.equals(ExecucioMassivaTipus.PROPAGAR_CONSULTES)){
-			label = messageHelper.getMessage("expedient.eines.propagar.consultes",
+			label = messageServiceHelper.getMessage("expedient.eines.propagar.consultes",
 					new Object[] { execucioMassiva.getExpedientTipus().getCodi() });
 		} else if (tipus.equals(ExecucioMassivaTipus.ALTA_MASSIVA)) {
-			label = messageHelper.getMessage("expedient.massiva.altaMassiva",
+			label = messageServiceHelper.getMessage("expedient.massiva.altaMassiva",
 					new Object[] { execucioMassiva.getExpedientTipus().getCodi() });
 		} else {
 			label = tipus.name();
@@ -1053,7 +1055,7 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 						emailAddresses.add(persona.getEmail());
 					}
 	
-					mailHelper.send(GlobalPropertiesImpl.getInstance().getProperty("app.correu.remitent"), emailAddresses,
+					mailHelper.send(globalProperties.getProperty("es.caib.helium.correu.remitent"), emailAddresses,
 							null, null, "Execució massiva: " + ome.getExecucioMassiva().getTipus(),
 							"L'execució massiva ha finalitzat.");
 				}
@@ -1358,7 +1360,7 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 					}
 				}
 				if(!esborrar){
-					throw new Exception(messageHelper.getMessage("error.exist.cons.df", new Object[] {
+					throw new Exception(messageServiceHelper.getMessage("error.exist.cons.df", new Object[] {
 							consulta.getNom(), definicioProces.getIdPerMostrar(), definicioProces.getVersio() }));
 				} else {
 					esborrarDf = true;
@@ -1396,9 +1398,9 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 					Long processInstanceId = Long.parseLong(definicioProces.getJbpmId());
 								  
 					if (msg.contains("HELIUM.FK_TASKINST_TASK"))
-						msg = messageHelper.getMessage("error.defpro.eliminar.constraint.taskinstance");
+						msg = messageServiceHelper.getMessage("error.defpro.eliminar.constraint.taskinstance");
 					if (msg.contains("HELIUM.FK_JOB_ACTION"))
-						msg = messageHelper.getMessage("error.defpro.eliminar.constraint.job");
+						msg = messageServiceHelper.getMessage("error.defpro.eliminar.constraint.job");
 					if (msg.contains("HELIUM.FK_LOG_")) {
 						//TODO: arreglar aquest codi, no té errorsDelete
 //						if (GraphSession.errorsDelete.containsKey(processInstanceId))
@@ -1407,9 +1409,9 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 //							msg = messageHelper.getMessage("error.defpro.eliminar.constraint.log_no_exp");
 					}
 					if (msg.contains("HELIUM.FK_SWL_ASSDEL") || msg.contains("HELIUM.FK_SWIMLANEINST_SL"))
-						msg = messageHelper.getMessage("error.defpro.eliminar.constraint.swl");
+						msg = messageServiceHelper.getMessage("error.defpro.eliminar.constraint.swl");
 					if (msg.contains("HELIUM.FK_TRANS_PROCDEF"))
-						msg = messageHelper.getMessage("error.defpro.eliminar.constraint.procdef");
+						msg = messageServiceHelper.getMessage("error.defpro.eliminar.constraint.procdef");
 					
 					//TODO: arreglar aquest codi, no té errorsDelete
 //					if (GraphSession.errorsDelete.containsKey(processInstanceId)){
@@ -1425,11 +1427,11 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 //						GraphSession.errorsDelete.remove(processInstanceId);
 //					}
 					
-					throw new Exception(messageHelper.getMessage("error.defpro.eliminar.constraint",
+					throw new Exception(messageServiceHelper.getMessage("error.defpro.eliminar.constraint",
 							new Object[] { definicioProces.getIdPerMostrar(), "" }) + ": " + msg);
 					
 				} else { 
-					throw new Exception(messageHelper.getMessage("error.proces.peticio") + ": "
+					throw new Exception(messageServiceHelper.getMessage("error.proces.peticio") + ": "
 							+ ExceptionUtils.getRootCauseMessage(ex), ExceptionUtils.getRootCause(ex));
 				}
 			}
@@ -1461,7 +1463,7 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 				definicioProces.setTerminis(null);
 				definicioProcesRepository.delete(definicioProces);
 			} else {
-				throw new IllegalArgumentException(messageHelper.getMessage("error.dissenyService.noTipusExp"));
+				throw new IllegalArgumentException(messageServiceHelper.getMessage("error.dissenyService.noTipusExp"));
 			}
 		}
 	}
@@ -1569,7 +1571,7 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 				expedientService.aturar(exp.getId(), motiu);
 				ome.setEstat(ExecucioMassivaEstat.ESTAT_FINALITZAT);
 			} else {
-				ome.setError( messageHelper.getMessage("error.expedient.ja.aturat"));
+				ome.setError( messageServiceHelper.getMessage("error.expedient.ja.aturat"));
 				ome.setEstat(ExecucioMassivaEstat.ESTAT_ERROR);
 			}
 			ome.setDataFi(new Date());
@@ -1838,7 +1840,7 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 			}
 			if (tasca == null) {
 				ome.setEstat(ExecucioMassivaEstat.ESTAT_ERROR);
-				ome.setError(messageHelper.getMessage("tasca.massiva.reassignar.buit"));
+				ome.setError(messageServiceHelper.getMessage("tasca.massiva.reassignar.buit"));
 			} else {
 				ome.setEstat(ExecucioMassivaEstat.ESTAT_FINALITZAT);
 			}
@@ -1897,7 +1899,7 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 					versionsCount ++;
 				}
 			}
-			ome.setAuxText(messageHelper.getMessage("exptipus.info.propagar.plantilles.auxText", new Object[]{
+			ome.setAuxText(messageServiceHelper.getMessage("exptipus.info.propagar.plantilles.auxText", new Object[]{
 					definicioDarrera.getJbpmKey(), versionsCount, documentsPlantilles.size(), actualitzacionsCount }));
 			ome.setEstat(ExecucioMassivaEstat.ESTAT_FINALITZAT);
 			ome.setDataFi(new Date());
@@ -1953,7 +1955,7 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 							if (errorMsg.length() > 0)
 								errorMsg.append(". ");
 							
-							errorMsg.append(messageHelper.getMessage("exptipus.info.propagar.consultes.error.camp",
+							errorMsg.append(messageServiceHelper.getMessage("exptipus.info.propagar.consultes.error.camp",
 									new Object[] { consultaCamp.getCampCodi(), consultaCamp.getTipus(),
 											consulta.getCodi(), consultaCamp.getDefprocJbpmKey(),
 											consultaCamp.getDefprocVersio(), definicioDarrera.getVersio() }));
@@ -1963,7 +1965,7 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 					variablesCount++;
 				}
 			}
-			ome.setAuxText(messageHelper.getMessage("exptipus.info.propagar.consultes.auxText",
+			ome.setAuxText(messageServiceHelper.getMessage("exptipus.info.propagar.consultes.auxText",
 					new Object[] { consulta.getCodi(), variablesCount, actualitzacionsCount, errorsCount }));
 			ome.setEstat(estat);
 			ome.setError(errorMsg.length() > 0 ? errorMsg.toString() : null);

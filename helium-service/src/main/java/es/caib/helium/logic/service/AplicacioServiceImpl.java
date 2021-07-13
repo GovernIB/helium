@@ -12,7 +12,6 @@ import es.caib.helium.logic.intf.dto.UsuariPreferenciesDto;
 import es.caib.helium.logic.intf.exception.SistemaExternException;
 import es.caib.helium.logic.intf.service.AplicacioService;
 import es.caib.helium.logic.intf.util.GlobalProperties;
-import es.caib.helium.logic.util.GlobalPropertiesImpl;
 import es.caib.helium.logic.util.OpenOfficeUtils;
 import es.caib.helium.persist.repository.UsuariPreferenciesRepository;
 import org.slf4j.Logger;
@@ -45,6 +44,8 @@ public class AplicacioServiceImpl implements AplicacioService {
 
 	@Resource
 	private OpenOfficeUtils openOfficeUtils;
+	@Resource
+	private GlobalProperties globalProperties;
 
 
 
@@ -98,7 +99,7 @@ public class AplicacioServiceImpl implements AplicacioService {
 
     @Override
 	public GlobalProperties getGlobalProperties() {
-		return GlobalPropertiesImpl.getInstance();
+		return globalProperties;
 	}
 
     @Override

@@ -1,0 +1,45 @@
+######################################################
+# Helium Spring Boot 2
+# Configuració específica.
+######################################################
+
+server:
+    # Port on escolta l'aplicació quan s'inicia amb el servidor emeded
+    port: 8080
+    servlet:
+        context-path: /heliumback
+spring:
+    # Pàgines jsp a la carpeta src/main/webapp
+    mvc:
+        view:
+            prefix: /WEB-INF/jsp/
+            suffix: .jsp
+    messages:
+        basename: messages_helium
+
+security:
+    basic:
+        enabled: false
+management:
+    security:
+        enabled: false
+
+keycloak:
+    #keycloak.auth-server-url=http://localhost:8180/auth
+    auth-server-url: http://docker.limit.es:21234/auth
+    realm: GOIB
+    resource: goib-default
+    public-client: true
+
+#logging:
+#    level:
+#        org.springframework: TRACE
+#        com: TRACE
+
+# Propietats
+es:
+    caib:
+        helium:
+            properties: /home/siona/Feina/Conf/Helium/helium4/helium.properties
+            system:
+                properties: /home/siona/Feina/Conf/Helium/helium4/helium_system.properties

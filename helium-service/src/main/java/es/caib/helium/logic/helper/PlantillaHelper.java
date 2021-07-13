@@ -17,8 +17,8 @@ import es.caib.helium.logic.intf.dto.PersonaDto.Sexe;
 import es.caib.helium.logic.intf.dto.TascaDadaDto;
 import es.caib.helium.logic.intf.exception.SistemaExternException;
 import es.caib.helium.logic.intf.extern.domini.FilaResultat;
-import es.caib.helium.logic.intf.util.JbpmVars;
-import es.caib.helium.logic.util.GlobalPropertiesImpl;
+import es.caib.helium.logic.intf.util.Constants;
+import es.caib.helium.logic.intf.util.GlobalProperties;
 import es.caib.helium.logic.util.NombreEnCastella;
 import es.caib.helium.logic.util.NombreEnCatala;
 import es.caib.helium.ms.domini.DominiMs;
@@ -104,6 +104,8 @@ public class PlantillaHelper {
 	private VariableHelper variableHelper;
 	@Resource
 	private TascaHelper tascaHelper;
+	@Resource
+	private GlobalProperties globalProperties;
 
 
 
@@ -441,9 +443,10 @@ public class PlantillaHelper {
 										}
 									}
 								} else {
-									List<String> personaCodi = carrecJbpmIdRepository.findPersonaCodiByGrupCodiAndCarrecCodi(
-											codiArea,
-											codiCarrec);
+									List<String> personaCodi = workflowEngineApi.findPersonesByGrupAndCarrec(codiArea, codiCarrec);
+//									List<String> personaCodi = carrecJbpmIdRepository.findPersonaCodiByGrupCodiAndCarrecCodi(
+//											codiArea,
+//											codiCarrec);
 									if (personaCodi != null && !personaCodi.isEmpty()) {
 										PersonaDto persona = pluginHelper.personaFindAmbCodi(personaCodi.get(0));
 										if (persona != null)
@@ -490,9 +493,10 @@ public class PlantillaHelper {
 												new DefaultObjectWrapper());
 									}
 								} else {
-									List<String> carrecCodis = carrecJbpmIdRepository.findCarrecsCodiByPersonaCodiAndGrupCodi(
-											codiPersona,
-											codiArea);
+									List<String> carrecCodis = workflowEngineApi.findCarrecsByPersonaAndGrup(codiPersona, codiArea);
+//									List<String> carrecCodis = carrecJbpmIdRepository.findCarrecsCodiByPersonaCodiAndGrupCodi(
+//											codiPersona,
+//											codiArea);
 									if (carrecCodis != null && carrecCodis.size() > 0) {
 										CarrecJbpmId[] array = new CarrecJbpmId[carrecCodis.size()];
 										for (int i = 0; i < carrecCodis.size(); i++) {
@@ -537,7 +541,8 @@ public class PlantillaHelper {
 								} else {
 									CarrecJbpmId carrec = carrecJbpmIdRepository.findByCodi(codi);
 									if (carrec != null) {
-										List<String> persones = carrecJbpmIdRepository.findPersonesCodiByCarrecCodi(codi);
+										List<String> persones = workflowEngineApi.findPersonesByCarrec(codi);
+//										List<String> persones = carrecJbpmIdRepository.findPersonesCodiByCarrecCodi(codi);
 										if (persones != null && persones.size() > 0) {
 											PersonaDto persona = pluginHelper.personaFindAmbCodi(persones.get(0));
 											if (persona == null)
@@ -685,7 +690,7 @@ public class PlantillaHelper {
 								List<DocumentStore> documents = documentStoreRepository.findByProcessInstanceId(processInstanceId);
 								DocumentDto resposta = null;
 								for (int i = 0; i < documents.size(); i++) {
-									if (documents.get(i).getJbpmVariable().equals(JbpmVars.PREFIX_DOCUMENT + codi))
+									if (documents.get(i).getJbpmVariable().equals(Constants.PREFIX_DOCUMENT + codi))
 										resposta = documentHelper.toDocumentDto(
 												documents.get(i).getId(),
 												false,
@@ -791,7 +796,7 @@ public class PlantillaHelper {
 	}
 
 	private boolean esIdentitySourceHelium() {
-		String identitySource = GlobalPropertiesImpl.getInstance().getProperty("app.jbpm.identity.source");
+		String identitySource = globalProperties.getProperty("es.caib.helium.jbpm.identity.source");
 		return (identitySource.equalsIgnoreCase("helium"));
 	}
 

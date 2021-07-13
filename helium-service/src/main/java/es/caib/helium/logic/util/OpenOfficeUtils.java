@@ -104,8 +104,6 @@ public class OpenOfficeUtils {
 		}
 	}
 
-
-
 	private void convert(
 			final InputStream in,
 			final DocumentFormat inputFormat,
@@ -136,46 +134,10 @@ public class OpenOfficeUtils {
 			return "Ok";
 		};
 		var future = CompletableFuture.supplyAsync(task, executor);
-//		try {
-//
-//			Future<String> future = executor.submit(new Callable<String>() {
-//				@Override
-//				public String call() throws Exception {
-//					connection.connect();
-//					DocumentConverter converter = new StreamOpenOfficeDocumentConverter(
-//							connection,
-//							getDocumentFormatRegistry());
-//					converter.convert(
-//							in,
-//							inputFormat,
-//							out,
-//							outputFormat);
-//					return "Ok";
-//			    }
-//			});
-//			if (getPropertyTimeout() != -1)
-//				future.get(getPropertyTimeout(), TimeUnit.SECONDS);
 			if (timeout != null)
 				future.get(timeout, TimeUnit.SECONDS);
 			else
 				future.get();
-//		} catch (TimeoutException e) {
-//			throw new SistemaExternTimeoutException(
-//					null,
-//					null,
-//					null,
-//					null,
-//					null,
-//					null,
-//					null,
-//					null,
-//					null,
-//					"(Conversió OpenOffice)",
-//					e);
-//		} finally {
-//			if (connection.isConnected())
-//				connection.disconnect();
-//		}
 		executor.shutdownNow();
 	}
 
@@ -188,24 +150,5 @@ public class OpenOfficeUtils {
 		return null;
 	}
 
-//	private DocumentFormatRegistry getDocumentFormatRegistry() {
-//		if (documentFormatRegistry == null)
-//			documentFormatRegistry = DefaultDocumentFormatRegistry.getInstance();// new DefaultDocumentFormatRegistry();
-//		return documentFormatRegistry;
-//	}
-
-	private String getPropertyHost() {
-		return GlobalPropertiesImpl.getInstance().getProperty("app.conversio.openoffice.host");
-	}
-	private int getPropertyPort() {
-		return Integer.parseInt(GlobalPropertiesImpl.getInstance().getProperty("app.conversio.openoffice.port"));
-	}
-	private int getPropertyTimeout() {
-		String timeout = GlobalPropertiesImpl.getInstance().getProperty("app.conversio.openoffice.timeout");
-		if (timeout == null)
-			return -1;
-		else
-			return Integer.parseInt(timeout);
-	}
 	private static final Logger logger = LoggerFactory.getLogger(OpenOfficeUtils.class);
 }

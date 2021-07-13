@@ -33,7 +33,7 @@ public class ConfiguracioParametresController extends BaseController {
 	private AplicacioService aplicacioService;
 
 	/** Constant de la propietat de redireccionar des de menús de la interfície 2.6 cap a la nova interfície 3.*/
-	private static final String APP_CONFIGURACIO_REDIRECCIONAR = "app.configuracio.redireccionar";
+	private static final String APP_CONFIGURACIO_REDIRECCIONAR = "es.caib.helium.configuracio.redireccionar";
 	
 	public enum Accions {
 		RESTAURAR,

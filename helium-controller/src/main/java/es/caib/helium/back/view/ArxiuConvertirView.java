@@ -190,10 +190,10 @@ public class ArxiuConvertirView extends ArxiuView {
 	}
 
 	private boolean getPropertyEnabled() {
-		return "true".equals(aplicacioService.getGlobalProperties().getProperty("app.conversio.actiu"));
+		return "true".equals(aplicacioService.getGlobalProperties().getProperty("es.caib.helium.conversio.actiu"));
 	}
 	private String getPropertyDefaultExtension() {
-		return aplicacioService.getGlobalProperties().getProperty("app.conversio.default.extension");
+		return aplicacioService.getGlobalProperties().getProperty("es.caib.helium.conversio.default.extension");
 	}
 
 	private static final Log logger = LogFactory.getLog(ArxiuConvertirView.class);

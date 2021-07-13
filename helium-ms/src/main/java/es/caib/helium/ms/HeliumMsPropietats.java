@@ -12,19 +12,19 @@ import javax.annotation.PostConstruct;
 @Component
 public class HeliumMsPropietats {
 
-	@Value("${app.helium.ms.client.baseUrl}")
+	@Value("${es.caib.helium.ms.client.baseUrl}")
 	private String baseUrl;
 		
 	/** Propietat amb el valor de l'usuari per a l'autenticació bàsica amb l'api. */
-	@Value("${app.helium.ms.client.usuari}")
+	@Value("${es.caib.helium.ms.client.usuari}")
 	private String usuari;
 
 	/** Propietat amb el valor del password per a l'autenticació bàsica amb l'api. */
-	@Value("${app.helium.ms.client.password}")
+	@Value("${es.caib.helium.ms.client.password}")
 	private String password;
 
 	/** Propietat per indicar si depurar o no les crides */
-	@Value("${app.helium.ms.client.debugging}")
+	@Value("${es.caib.helium.ms.client.debugging}")
 	private Boolean debugging;
 
 	/**
@@ -63,7 +63,7 @@ public class HeliumMsPropietats {
 	 */
 	@PostConstruct
 	public void valida() throws Exception {
-		if (this.baseUrl == null)
-			throw new Exception("S'ha d'informar com a mínim al propietat \"app.helium.ms.client.baseUrl\" per comunicar-se amb els microserveis d'Helium");
+		if (this.baseUrl == null || this.baseUrl.isBlank())
+			throw new Exception("S'ha d'informar com a mínim al propietat \"es.caib.helium.ms.client.baseUrl\" per comunicar-se amb els microserveis d'Helium");
 	}
 }

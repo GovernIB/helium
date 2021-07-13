@@ -14,12 +14,6 @@
  */
 package es.caib.helium.logic.security;
 
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.util.List;
-
-import javax.sql.DataSource;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.dao.DataAccessException;
@@ -29,22 +23,16 @@ import org.springframework.security.acls.domain.GrantedAuthoritySid;
 import org.springframework.security.acls.domain.ObjectIdentityImpl;
 import org.springframework.security.acls.domain.PrincipalSid;
 import org.springframework.security.acls.jdbc.LookupStrategy;
-import org.springframework.security.acls.model.AccessControlEntry;
-import org.springframework.security.acls.model.Acl;
-import org.springframework.security.acls.model.AclCache;
-import org.springframework.security.acls.model.AlreadyExistsException;
-import org.springframework.security.acls.model.ChildrenExistException;
-import org.springframework.security.acls.model.MutableAcl;
-import org.springframework.security.acls.model.MutableAclService;
-import org.springframework.security.acls.model.NotFoundException;
-import org.springframework.security.acls.model.ObjectIdentity;
-import org.springframework.security.acls.model.Sid;
+import org.springframework.security.acls.model.*;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.util.Assert;
 
-import es.caib.helium.logic.util.GlobalPropertiesImpl;
+import javax.sql.DataSource;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.util.List;
 
 //TODO: revisar si és necessària aquesta clase ja que spring en té una
 
@@ -88,7 +76,7 @@ public class JdbcMutableAclService extends JdbcAclService implements MutableAclS
 
     //~ Constructors ===================================================================================================
 
-    public JdbcMutableAclService(DataSource dataSource, LookupStrategy lookupStrategy, AclCache aclCache) {
+    public JdbcMutableAclService(DataSource dataSource, LookupStrategy lookupStrategy, AclCache aclCache, String dialecteBBDD) {
     	
         super(dataSource, lookupStrategy);
         Assert.notNull(aclCache, "AclCache required");
@@ -102,7 +90,7 @@ public class JdbcMutableAclService extends JdbcAclService implements MutableAclS
         insertEntry = "insert into " + TableNames.TABLE_ENTRY + " (acl_object_identity, ace_order, sid, mask, granting, audit_success, audit_failure) values (?, ?, ?, ?, ?, ?, ?)";        
         
         try {
-	        String dialecteBBDD = GlobalPropertiesImpl.getInstance().getProperty("app.hibernate.dialect");
+//	        String dialecteBBDD = GlobalPropertiesImpl.getPropietat("es.caib.helium.hibernate.dialect");
 	        if (dialecteBBDD != null && dialecteBBDD.indexOf("Postgre") != -1) {
 	            classIdentityQuery = "SELECT currval(pg_get_serial_sequence('" + TableNames.TABLE_CLASS + "', 'id'))";
 	            sidIdentityQuery = "SELECT currval(pg_get_serial_sequence('" + TableNames.TABLE_SID + "', 'id'))";

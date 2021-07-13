@@ -2,6 +2,7 @@ package es.caib.helium.logic.service;
 
 import es.caib.helium.logic.helper.ConversioTipusServiceHelper;
 import es.caib.helium.logic.helper.PaginacioHelper;
+import es.caib.helium.logic.intf.WorkflowEngineApi;
 import es.caib.helium.logic.intf.dto.CarrecJbpmIdDto;
 import es.caib.helium.logic.intf.dto.PaginaDto;
 import es.caib.helium.logic.intf.dto.PaginacioParamsDto;
@@ -29,6 +30,8 @@ public class CarrecServiceImpl implements CarrecService {
 	private ConversioTipusServiceHelper conversioTipusServiceHelper;
 	@Resource
 	private PaginacioHelper paginacioHelper;
+	@Resource
+	private WorkflowEngineApi workflowEngineApi;
 
 	@Transactional(readOnly = true)
 	public PaginaDto<CarrecJbpmIdDto> findConfigurats(PaginacioParamsDto paginacioParams) {
@@ -47,9 +50,11 @@ public class CarrecServiceImpl implements CarrecService {
 	public PaginaDto<CarrecJbpmIdDto> findSenseConfigurar(PaginacioParamsDto paginacioParams) {
 		logger.debug("Consultant els càrrecs sense configurar");
 		String filtre = paginacioParams.getFiltre();
-		List<Object[]> noConfigurats = carrecJbpmIdRepository.findSenseConfigurar(
-						filtre == null || "".equals(filtre),
-				filtre);
+		List<String[]> noConfigurats = workflowEngineApi.findCarrecsByFiltre(filtre);
+		noConfigurats.removeAll(carrecJbpmIdRepository.findAllCarrecs());
+//		List<Object[]> noConfigurats = carrecJbpmIdRepository.findSenseConfigurar(
+//						filtre == null || "".equals(filtre),
+//				filtre);
 		List<CarrecJbpmId> carrecs = new ArrayList<CarrecJbpmId>();
 		int paginaNum = paginacioParams.getPaginaNum();
 		int tamany = paginacioParams.getPaginaTamany();
@@ -57,8 +62,8 @@ public class CarrecServiceImpl implements CarrecService {
 		int fi = Math.min(noConfigurats.size(), inici + tamany);
 		for (int foo=inici; foo < fi; foo++) {
 			CarrecJbpmId carrec = new CarrecJbpmId();
-			carrec.setCodi((String)noConfigurats.get(foo)[0]);
-			carrec.setGrup((String)noConfigurats.get(foo)[1]);
+			carrec.setCodi(noConfigurats.get(foo)[0]);
+			carrec.setGrup(noConfigurats.get(foo)[1]);
 			carrecs.add(carrec);
 		}
 		Page<CarrecJbpmIdDto> page = new PageImpl(carrecs, paginacioHelper.toSpringDataPageable(paginacioParams), noConfigurats.size());

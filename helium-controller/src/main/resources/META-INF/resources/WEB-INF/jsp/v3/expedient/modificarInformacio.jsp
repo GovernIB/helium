@@ -60,9 +60,9 @@
 		</div>
 		<div class="control-group fila_reducida">
 			<c:choose>
-				<c:when test="${globalProperties['app.georef.actiu']}">
+				<c:when test="${globalProperties['es.caib.helium.georef.actiu']}">
 					<c:choose>
-						<c:when test="${globalProperties['app.georef.tipus']=='ref'}">
+						<c:when test="${globalProperties['es.caib.helium.georef.tipus']=='ref'}">
 							<hel:inputText name="geoReferencia" textKey="comuns.georeferencia.codi" placeholderKey="comuns.georeferencia.codi"/>
 						</c:when>
 						<c:otherwise>

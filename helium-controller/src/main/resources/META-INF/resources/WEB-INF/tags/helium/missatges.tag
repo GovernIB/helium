@@ -18,7 +18,7 @@
 <%
 	request.setAttribute(
 		"sessionErrors",
-		session.getAttribute(net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper.SESSION_ATTRIBUTE_ERROR));
+		session.getAttribute(es.caib.helium.back.helper.MissatgesHelper.SESSION_ATTRIBUTE_ERROR));
 %>
 <c:forEach var="text" items="${sessionErrors}">
 	<div class="alert alert-danger">
@@ -28,13 +28,13 @@
 	</div>
 </c:forEach>
 <%
-	session.removeAttribute(net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper.SESSION_ATTRIBUTE_ERROR);
+	session.removeAttribute(es.caib.helium.back.helper.MissatgesHelper.SESSION_ATTRIBUTE_ERROR);
 %>
 
 <%
 	request.setAttribute(
 		"sessionWarnings",
-		session.getAttribute(net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper.SESSION_ATTRIBUTE_WARNING));
+		session.getAttribute(es.caib.helium.back.helper.MissatgesHelper.SESSION_ATTRIBUTE_WARNING));
 %>
 <c:forEach var="text" items="${sessionWarnings}">
 	<div class="alert alert-warning">
@@ -44,13 +44,13 @@
 	</div>
 </c:forEach>
 <%
-	session.removeAttribute(net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper.SESSION_ATTRIBUTE_WARNING);
+	session.removeAttribute(es.caib.helium.back.helper.MissatgesHelper.SESSION_ATTRIBUTE_WARNING);
 %>
 
 <%
 	request.setAttribute(
 		"sessionSuccesses",
-		session.getAttribute(net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper.SESSION_ATTRIBUTE_SUCCESS));
+		session.getAttribute(es.caib.helium.back.helper.MissatgesHelper.SESSION_ATTRIBUTE_SUCCESS));
 %>
 <c:forEach var="text" items="${sessionSuccesses}">
 	<div class="alert alert-success">
@@ -60,13 +60,13 @@
 	</div>
 </c:forEach>
 <%
-	session.removeAttribute(net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper.SESSION_ATTRIBUTE_SUCCESS);
+	session.removeAttribute(es.caib.helium.back.helper.MissatgesHelper.SESSION_ATTRIBUTE_SUCCESS);
 %>
 
 <%
 	request.setAttribute(
 		"sessionInfos",
-		session.getAttribute(net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper.SESSION_ATTRIBUTE_INFO));
+		session.getAttribute(es.caib.helium.back.helper.MissatgesHelper.SESSION_ATTRIBUTE_INFO));
 %>
 <c:forEach var="text" items="${sessionInfos}">
 	<div class="alert alert-info">
@@ -76,5 +76,5 @@
 	</div>
 </c:forEach>
 <%
-	session.removeAttribute(net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper.SESSION_ATTRIBUTE_INFO);
+	session.removeAttribute(es.caib.helium.back.helper.MissatgesHelper.SESSION_ATTRIBUTE_INFO);
 %>

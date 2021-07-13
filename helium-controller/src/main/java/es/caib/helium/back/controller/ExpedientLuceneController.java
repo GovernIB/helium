@@ -11,7 +11,7 @@ import es.caib.helium.logic.intf.dto.ExpedientDadaDto;
 import es.caib.helium.logic.intf.dto.ExpedientDto;
 import es.caib.helium.logic.intf.dto.InstanciaProcesDto;
 import es.caib.helium.logic.intf.service.ExpedientDadaService;
-import es.caib.helium.logic.intf.util.ExpedientCamps;
+import es.caib.helium.logic.intf.util.Constants;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -104,8 +104,8 @@ public class ExpedientLuceneController extends BaseExpedientController {
 			// Converteix lada dada amb errors de reindexació en un map<codi, error>
 			Map<String, String> errorsReindexacio;
 			try {
-				errorsReindexacio = dadesIndexades.containsKey(ExpedientCamps.EXPEDIENT_CAMP_ERRORS_REINDEXACIO.replace('$', '%')) ?
-						new ObjectMapper().readValue(dadesIndexades.get(ExpedientCamps.EXPEDIENT_CAMP_ERRORS_REINDEXACIO.replace('$', '%')).toString(), HashMap.class)
+				errorsReindexacio = dadesIndexades.containsKey(Constants.EXPEDIENT_CAMP_ERRORS_REINDEXACIO.replace('$', '%')) ?
+						new ObjectMapper().readValue(dadesIndexades.get(Constants.EXPEDIENT_CAMP_ERRORS_REINDEXACIO.replace('$', '%')).toString(), HashMap.class)
 						: new HashMap<String, String>();
 			} catch(Exception e) {
 				String errMsg = "Error llegint els errors de sincronització de l'índex per l'expedient " + expedient.getId() + ": " + e.getMessage();
@@ -121,7 +121,7 @@ public class ExpedientLuceneController extends BaseExpedientController {
 				dada.put("codi", codi);
 				// Tipus expedient EX, variable TE o variable DP
 				String tipus;
-				if (dadaIndexada.getCampCodi().startsWith(ExpedientCamps.EXPEDIENT_PREFIX))
+				if (dadaIndexada.getCampCodi().startsWith(Constants.EXPEDIENT_PREFIX))
 					tipus = "EX";
 				else 
 					tipus = dadaIndexada.isDadaExpedient() ? "TE" : "DP";

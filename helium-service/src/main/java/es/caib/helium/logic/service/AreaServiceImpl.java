@@ -2,6 +2,7 @@ package es.caib.helium.logic.service;
 
 import es.caib.helium.logic.helper.ConversioTipusServiceHelper;
 import es.caib.helium.logic.helper.PaginacioHelper;
+import es.caib.helium.logic.intf.WorkflowEngineApi;
 import es.caib.helium.logic.intf.dto.AreaJbpmIdDto;
 import es.caib.helium.logic.intf.dto.PaginaDto;
 import es.caib.helium.logic.intf.dto.PaginacioParamsDto;
@@ -27,6 +28,8 @@ public class AreaServiceImpl implements AreaService {
 	private ConversioTipusServiceHelper conversioTipusServiceHelper;
 	@Resource
 	private PaginacioHelper paginacioHelper;
+	@Resource
+	private WorkflowEngineApi workflowEngineApi;
 	
 	@Override
 	public AreaJbpmIdDto findAmbId(Long id) {
@@ -55,10 +58,13 @@ public class AreaServiceImpl implements AreaService {
 	public PaginaDto<AreaJbpmIdDto> findSenseConfigurar(PaginacioParamsDto paginacioParams) {
 		logger.debug("Consultat les arees sense configurar");
 		String filtre = paginacioParams.getFiltre();
-		List<String> noConfigurades = areaJbpmIdRepository.findSenseConfigurar(
-				filtre == null || "".equals(filtre),
-				filtre
-				);
+		List<String> noConfigurades = workflowEngineApi.findAreesByFiltre(filtre);
+		noConfigurades.removeAll(areaJbpmIdRepository.findAllCodis());
+
+//		List<String> noConfigurades = areaJbpmIdRepository.findSenseConfigurar(
+//				filtre == null || "".equals(filtre),
+//				filtre
+//				);
 		List<AreaJbpmId> arees = new ArrayList<AreaJbpmId>();
 		int paginaNum = paginacioParams.getPaginaNum();
 		int tamany = paginacioParams.getPaginaTamany();

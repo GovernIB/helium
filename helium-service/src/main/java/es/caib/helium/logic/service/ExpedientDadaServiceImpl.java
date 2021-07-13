@@ -15,7 +15,7 @@ import es.caib.helium.logic.intf.dto.CampAgrupacioDto;
 import es.caib.helium.logic.intf.dto.ExpedientDadaDto;
 import es.caib.helium.logic.intf.dto.InstanciaProcesDto;
 import es.caib.helium.logic.intf.service.ExpedientDadaService;
-import es.caib.helium.logic.intf.util.JbpmVars;
+import es.caib.helium.logic.intf.util.Constants;
 import es.caib.helium.logic.security.ExtendedPermission;
 import es.caib.helium.persist.entity.Camp;
 import es.caib.helium.persist.entity.Camp.TipusCamp;
@@ -147,7 +147,7 @@ public class ExpedientDadaServiceImpl implements ExpedientDadaService {
 			camp = campRepository.findByDefinicioProcesAndCodi(definicioProces, varCodi);
 		}
 		if (camp != null && camp.isDominiCacheText())
-			workflowEngineApi.deleteProcessInstanceVariable(processInstanceId, JbpmVars.PREFIX_VAR_DESCRIPCIO + varCodi);
+			workflowEngineApi.deleteProcessInstanceVariable(processInstanceId, Constants.PREFIX_VAR_DESCRIPCIO + varCodi);
 
 		workflowRetroaccioApi.afegirInformacioRetroaccioPerProces(
 				processInstanceId,
@@ -205,7 +205,7 @@ public class ExpedientDadaServiceImpl implements ExpedientDadaService {
 			camp = campRepository.findByDefinicioProcesAndCodi(definicioProces, varCodi);
 		}			
 		if (camp != null && camp.isDominiCacheText())
-			workflowEngineApi.deleteProcessInstanceVariable(processInstanceId, JbpmVars.PREFIX_VAR_DESCRIPCIO + varCodi);
+			workflowEngineApi.deleteProcessInstanceVariable(processInstanceId, Constants.PREFIX_VAR_DESCRIPCIO + varCodi);
 		
 		if (e.getTipus().isAmbInfoPropia()) {
 			indexHelper.expedientIndexLuceneDelete(processInstanceId, varCodi);
@@ -389,7 +389,7 @@ public class ExpedientDadaServiceImpl implements ExpedientDadaService {
 						text = "";
 					}
 
-					workflowEngineApi.setProcessInstanceVariable(processInstanceId, JbpmVars.PREFIX_VAR_DESCRIPCIO + varName, text);
+					workflowEngineApi.setProcessInstanceVariable(processInstanceId, Constants.PREFIX_VAR_DESCRIPCIO + varName, text);
 				}
 			}
 		}

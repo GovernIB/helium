@@ -19,8 +19,8 @@
 
 
 <c:choose>
-	<c:when test="${!empty globalProperties['app.capsalera.color.fons']}">
-		<c:set var="colorFonsDefault">${globalProperties['app.capsalera.color.fons']}}</c:set>
+	<c:when test="${!empty globalProperties['es.caib.helium.capsalera.color.fons']}">
+		<c:set var="colorFonsDefault">${globalProperties['es.caib.helium.capsalera.color.fons']}}</c:set>
 	</c:when>
 	<c:otherwise>
 		<c:set var="colorFonsDefault">#ff9523</c:set>
@@ -30,8 +30,8 @@
 <c:set var="colorFons">${colorFonsDefault}</c:set>
 
 <c:choose>
-	<c:when test="${!empty globalProperties['app.capsalera.color.lletra']}">
-		<c:set var="colorLletraDefault">${globalProperties['app.capsalera.color.lletra']}}</c:set>
+	<c:when test="${!empty globalProperties['es.caib.helium.capsalera.color.lletra']}">
+		<c:set var="colorLletraDefault">${globalProperties['es.caib.helium.capsalera.color.lletra']}}</c:set>
 	</c:when>
 	<c:otherwise>
 		<c:set var="colorLletraDefault">#ffffff</c:set>

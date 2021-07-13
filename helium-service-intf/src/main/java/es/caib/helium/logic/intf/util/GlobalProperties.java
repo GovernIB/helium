@@ -13,7 +13,6 @@ public interface GlobalProperties {
     public double getAsDouble(String key);
     public Properties findByPrefix(String prefix);
     public Properties findAll();
-    public boolean isLlegirSystem();
 
     public Object setProperty(String key, String value);
 

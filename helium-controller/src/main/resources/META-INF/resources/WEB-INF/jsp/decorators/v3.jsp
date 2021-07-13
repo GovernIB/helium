@@ -106,12 +106,12 @@
 		}
 	</c:when>
 	<c:otherwise>
-		<c:if test="${!empty globalProperties['app.capsalera.color.fons']}">
+		<c:if test="${!empty globalProperties['es.caib.helium.capsalera.color.fons']}">
 			.navbar-app {
-				background-color: ${globalProperties['app.capsalera.color.fons']} !important;
+				background-color: ${globalProperties['es.caib.helium.capsalera.color.fons']} !important;
 			}		
 			.navbar-app .list-inline li.dropdown>a { 
-				background-color: ${globalProperties['app.capsalera.color.fons']} !important;
+				background-color: ${globalProperties['es.caib.helium.capsalera.color.fons']} !important;
 			}
 		</c:if>		
 	</c:otherwise>
@@ -136,21 +136,21 @@
 		}
 	</c:when>
 	<c:otherwise>
-		<c:if test="${globalProperties['app.capsalera.color.lletra'] !=null  && not empty globalProperties['app.capsalera.color.lletra']}">
+		<c:if test="${globalProperties['es.caib.helium.capsalera.color.lletra'] !=null  && not empty globalProperties['es.caib.helium.capsalera.color.lletra']}">
 			.navbar-app .list-inline li.dropdown>a {
-				color: ${globalProperties['app.capsalera.color.lletra']};
+				color: ${globalProperties['es.caib.helium.capsalera.color.lletra']};
 			}	
 			.caret-white {
-				border-top-color: ${globalProperties['app.capsalera.color.lletra']} !important;
+				border-top-color: ${globalProperties['es.caib.helium.capsalera.color.lletra']} !important;
 			}	
 			.list-inline.pull-right {
-				color: ${globalProperties['app.capsalera.color.lletra']} !important;
+				color: ${globalProperties['es.caib.helium.capsalera.color.lletra']} !important;
 			}
 			.navbar-app .list-inline li {
-				border-right-color: ${globalProperties['app.capsalera.color.lletra']} !important;
+				border-right-color: ${globalProperties['es.caib.helium.capsalera.color.lletra']} !important;
 			}
 			#govern-logo {
-				border-right-color: ${globalProperties['app.capsalera.color.lletra']} !important;
+				border-right-color: ${globalProperties['es.caib.helium.capsalera.color.lletra']} !important;
 			}
 		</c:if>
 	</c:otherwise>
@@ -298,7 +298,7 @@
 								</ul>
 							</div>
 						</c:if>
-						<c:if test="${globalProperties['app.organigrama.actiu'] && dadesPersona.admin}">
+						<c:if test="${globalProperties['es.caib.helium.organigrama.actiu'] && dadesPersona.admin}">
 							<div id="menuOrganitzacio" class="btn-group">
 								<button class="btn btn-primary dropdown-toggle" data-toggle="dropdown"><spring:message code="decorator.menu.organitzacio"/> <span class="caret"></span></button>
 								<ul class="dropdown-menu" id="organitzacio">
@@ -312,7 +312,7 @@
 							<div id="menuAdministracio" class="btn-group">
 								<button class="btn btn-primary dropdown-toggle" data-toggle="dropdown"><spring:message code="decorator.menu.administracio"/> <span class="caret"></span></button>
 								<ul class="dropdown-menu" id="mesures">
-									<c:if test="${ globalProperties['app.expedient.monitor'] && potAdministrarEntorn}">
+									<c:if test="${ globalProperties['es.caib.helium.expedient.monitor'] && potAdministrarEntorn}">
 										<li><a data-toggle="modal" data-maximized="true" id="botoMonitor" href="<c:url value="/modal/v3/monitor"/>"><spring:message code='expedient.monitor' /></a></li>
 									</c:if>
 									<c:if test="${dadesPersona.admin || potAdministrarEntorn}">
@@ -334,7 +334,7 @@
 										<li><a data-toggle="modal" data-maximized="true" href="<c:url value="/modal/v3/execucionsMassives/admin"/>"><spring:message code='comuns.massiu' /></a></li>
 									</c:if>
 									<c:if test="${dadesPersona.admin}"><li><a href="<c:url value="/v3/entorn"/>"><spring:message code='decorators.superior.entorns' /></a></li></c:if>
-									<c:if test="${globalProperties['app.jbpm.identity.source'] == 'jbpm'}">
+									<c:if test="${globalProperties['es.caib.helium.jbpm.identity.source'] == 'jbpm'}">
 										<c:if test="${dadesPersona.admin}"><li><a href="<c:url value="/v3/carrec"/>"><spring:message code='comuns.carrecs' /></a></li></c:if>
 										<c:if test="${dadesPersona.admin}"><li><a href="<c:url value="/v3/area"/>"><spring:message code='comuns.arees' /></a></li></c:if>
 									</c:if>

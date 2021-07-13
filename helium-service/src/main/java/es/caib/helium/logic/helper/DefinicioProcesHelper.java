@@ -78,7 +78,7 @@ public class DefinicioProcesHelper {
 	@Resource
 	private ConversioTipusServiceHelper conversioTipusServiceHelper;
 	@Resource
-	private MessageServiceHelper messageHelper;
+	private MessageServiceHelper messageServiceHelper;
 	@Resource
 	private WorkflowEngineApi workflowEngineApi;
 	@Resource
@@ -159,7 +159,7 @@ public class DefinicioProcesHelper {
 				}				
 			} else
 				throw new DeploymentException(
-						messageHelper.getMessage("exportar.validacio.definicio.deploy.error"));
+						messageServiceHelper.getMessage("exportar.validacio.definicio.deploy.error"));
 		} else {
 			definicio = definicioProcesRepository.findById(definicioProcesId).get();
 		}
@@ -539,7 +539,7 @@ public class DefinicioProcesHelper {
 		}
 		if (domini == null)
 			throw new DeploymentException(
-					messageHelper.getMessage(
+					messageServiceHelper.getMessage(
 					"exportar.validacio.variable.seleccio.domini." + (dependenciaEntorn ? "entorn" : "tipexp"), 
 					new Object[]{
 							camp.getCodi(),
@@ -585,7 +585,7 @@ public class DefinicioProcesHelper {
 		}
 		if (enumeracio == null)
 			throw new DeploymentException(
-					messageHelper.getMessage(
+					messageServiceHelper.getMessage(
 					"exportar.validacio.variable.seleccio.enumeracio." + (dependenciaEntorn ? "entorn" : "tipexp"), 
 					new Object[]{
 							camp.getCodi(),
@@ -630,7 +630,7 @@ public class DefinicioProcesHelper {
 			campTasca.setCamp(camp);
 		} else
 			throw new DeploymentException(
-					messageHelper.getMessage(
+					messageServiceHelper.getMessage(
 					"exportar.validacio.tasca.variable" + (isTipusExpedient ? ".expedientTipus" : ""), 
 					new Object[]{
 							campTasca.getTasca().getNom(),
@@ -672,7 +672,7 @@ public class DefinicioProcesHelper {
 			documentTasca.setDocument(document);
 		else
 			throw new DeploymentException(
-					messageHelper.getMessage(
+					messageServiceHelper.getMessage(
 					"exportar.validacio.tasca.document" + (isTipusExpedient ? ".expedientTipus" : ""), 
 					new Object[]{
 							documentTasca.getTasca().getNom(),
@@ -714,7 +714,7 @@ public class DefinicioProcesHelper {
 			firmaTasca.setDocument(document);
 		else
 			throw new DeploymentException(
-					messageHelper.getMessage(
+					messageServiceHelper.getMessage(
 					"exportar.validacio.tasca.firma" + (isTipusExpedient ? ".expedientTipus" : ""), 
 					new Object[]{
 							firmaTasca.getTasca().getNom(),
@@ -765,7 +765,7 @@ public class DefinicioProcesHelper {
 				zos.close();
 				exportacio.setContingutDeploy(baos.toByteArray());
 			} catch (Exception ex) {
-				String errMsg = messageHelper.getMessage(
+				String errMsg = messageServiceHelper.getMessage(
 						"error.dissenyService.generantContingut.definicioProces", 
 						new Object[] {definicio.getJbpmKey() + " v." + definicio.getVersio()});
 				logger.error(errMsg, ex);
@@ -1491,7 +1491,7 @@ public class DefinicioProcesHelper {
 			// Troba la tasca
 			tasca = tascaRepository.findByJbpmNameAndDefinicioProces(tascaExportacio.getJbpmName(), definicioProces);
 			if (tasca == null)
-				throw new DeploymentException(messageHelper.getMessage(
+				throw new DeploymentException(messageServiceHelper.getMessage(
 						"exportar.validacio.tasca.no.trobada", 
 						new Object[] {tascaExportacio.getJbpmName(), definicioProces.getIdPerMostrar()}));
 			// Per cada camp de la exportació

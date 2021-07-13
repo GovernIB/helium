@@ -26,7 +26,7 @@ import es.caib.helium.logic.intf.exception.NoTrobatException;
 import es.caib.helium.logic.intf.exception.PermisDenegatException;
 import es.caib.helium.logic.intf.service.AplicacioService;
 import es.caib.helium.logic.intf.service.DissenyService;
-import es.caib.helium.logic.intf.util.ExpedientCamps;
+import es.caib.helium.logic.intf.util.Constants;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -542,35 +542,35 @@ public class ExpedientTipusConsultaController extends BaseExpedientTipusControll
 		if (origen == ExpedientTipusConsultaVarCommand.ORIGEN_EXPEDIENT) {
 			// Variables del tipus d'expedient
 			resposta.add(new ParellaCodiValorDto(
-					ExpedientCamps.EXPEDIENT_CAMP_ID,
+					Constants.EXPEDIENT_CAMP_ID,
 					getMessage(request, "etiqueta.exp.id")));
 			resposta.add(new ParellaCodiValorDto(
-					ExpedientCamps.EXPEDIENT_CAMP_NUMERO, 
+					Constants.EXPEDIENT_CAMP_NUMERO,
 					getMessage(request, "etiqueta.exp.numero")));
 			resposta.add(new ParellaCodiValorDto(
-					ExpedientCamps.EXPEDIENT_CAMP_TITOL, 
+					Constants.EXPEDIENT_CAMP_TITOL,
 					getMessage(request, "etiqueta.exp.titol")));
 			resposta.add(new ParellaCodiValorDto(
-					ExpedientCamps.EXPEDIENT_CAMP_DATA_INICI, 
+					Constants.EXPEDIENT_CAMP_DATA_INICI,
 					getMessage(request, "etiqueta.exp.data_ini")));
 			resposta.add(new ParellaCodiValorDto(
-					ExpedientCamps.EXPEDIENT_CAMP_ESTAT, 
+					Constants.EXPEDIENT_CAMP_ESTAT,
 					getMessage(request, "etiqueta.exp.estat")));
 			
-			boolean isGeorefActiu = "true".equalsIgnoreCase(aplicacioService.getGlobalProperties().getProperty("app.georef.actiu"));
-			boolean isGeorefAmbReferencia = "ref".equalsIgnoreCase(aplicacioService.getGlobalProperties().getProperty("app.georef.tipus"));
+			boolean isGeorefActiu = "true".equalsIgnoreCase(aplicacioService.getGlobalProperties().getProperty("es.caib.helium.georef.actiu"));
+			boolean isGeorefAmbReferencia = "ref".equalsIgnoreCase(aplicacioService.getGlobalProperties().getProperty("es.caib.helium.georef.tipus"));
 			
 			if (isGeorefActiu)
 				if (isGeorefAmbReferencia)
 					resposta.add(new ParellaCodiValorDto(
-							ExpedientCamps.EXPEDIENT_CAMP_GEOREF, 
+							Constants.EXPEDIENT_CAMP_GEOREF,
 							getMessage(request, "comuns.georeferencia.codi")));
 				else {
 					resposta.add(new ParellaCodiValorDto(
-							ExpedientCamps.EXPEDIENT_CAMP_GEOX, 
+							Constants.EXPEDIENT_CAMP_GEOX,
 							getMessage(request, "comuns.georeferencia.coordenadaX")));
 					resposta.add(new ParellaCodiValorDto(
-							ExpedientCamps.EXPEDIENT_CAMP_GEOY, 
+							Constants.EXPEDIENT_CAMP_GEOY,
 							getMessage(request, "comuns.georeferencia.coordenadaY")));
 				}
 		} else if (origen == ExpedientTipusConsultaVarCommand.ORIGEN_TIPUS_EXPEDIENT){

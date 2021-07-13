@@ -743,6 +743,18 @@ public interface WorkflowEngineApi {
 	public void suspendTimer(String timerId, Date dueDate);
 	public void resumeTimer(String timerId, Date dueDate);
 
+
+	// AREES I CARRECS
+	////////////////////////////////////////////////////////////////////////////////
+	public List<String> findAreesByFiltre(String filtre);
+	public List<String> findAreesByPersona(String personaCodi);
+	public List<String> findRolsByPersona(String persona);
+	public List<String[]> findCarrecsByFiltre(String filtre);
+	public List<String> findPersonesByGrupAndCarrec(String areaCodi, String carrecCodi);
+	public List<String> findCarrecsByPersonaAndGrup(String codiPersona, String codiArea);
+	public List<String> findPersonesByCarrec(String codi);
+	public List<String> findPersonesByGrup(String rol);
+
 	// A ELIMINAR
 	////////////////////////////////////////////////////////////////////////////////
 //	public List<WTaskInstance> findTasks(List<Long> ids); // 2.6

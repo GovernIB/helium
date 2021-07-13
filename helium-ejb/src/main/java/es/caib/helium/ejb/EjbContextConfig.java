@@ -3,12 +3,8 @@
  */
 package es.caib.helium.ejb;
 
-import java.util.Properties;
-
-import javax.naming.NamingException;
-import javax.persistence.EntityManagerFactory;
-import javax.sql.DataSource;
-
+import es.caib.helium.logic.intf.util.Constants;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.freemarker.FreeMarkerAutoConfiguration;
@@ -28,7 +24,10 @@ import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.jta.JtaTransactionManager;
 
-import lombok.extern.slf4j.Slf4j;
+import javax.naming.NamingException;
+import javax.persistence.EntityManagerFactory;
+import javax.sql.DataSource;
+import java.util.Properties;
 
 /**
  * Creació del context Spring per a la capa dels EJBs.
@@ -43,7 +42,9 @@ import lombok.extern.slf4j.Slf4j;
 @EnableJpaRepositories({ "es.caib.helium.persist" })
 @ComponentScan({ "es.caib.helium.logic", "es.caib.helium.persist" })
 @PropertySource(ignoreResourceNotFound = true, value = {
-		"classpath:application.properties"})
+		"classpath:application.properties",
+		"file://${" + Constants.APP_PROPERTIES + "}",
+		"file://${" + Constants.APP_SYSTEM_PROPERTIES + "}"})
 public class EjbContextConfig {
 
 	@Value("${spring.datasource.jndi-name:java:jboss/datasources/heliumDS}")

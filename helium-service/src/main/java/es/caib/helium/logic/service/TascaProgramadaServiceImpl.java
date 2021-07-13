@@ -8,7 +8,7 @@ import es.caib.helium.logic.intf.dto.DocumentNotificacioTipusEnumDto;
 import es.caib.helium.logic.intf.exception.NoTrobatException;
 import es.caib.helium.logic.intf.service.ExecucioMassivaService;
 import es.caib.helium.logic.intf.service.TascaProgramadaService;
-import es.caib.helium.logic.util.GlobalPropertiesImpl;
+import es.caib.helium.logic.intf.util.GlobalProperties;
 import es.caib.helium.persist.entity.ExecucioMassiva.ExecucioMassivaTipus;
 import es.caib.helium.persist.entity.ExecucioMassivaExpedient;
 import es.caib.helium.persist.entity.Expedient;
@@ -63,11 +63,13 @@ public class TascaProgramadaServiceImpl implements TascaProgramadaService {
 	private TascaProgramadaHelper tascaProgramadaHelper;
 //	@Resource
 //  	private MetricRegistry metricRegistry;
+	@Resource
+	private GlobalProperties globalProperties;
 	
 	private static Map<Long, String> errorsMassiva = new HashMap<Long, String>();
 	
 	@Override
-	@Scheduled(fixedDelayString = "${app.massiu.periode.noves}")
+	@Scheduled(fixedDelayString = "${es.caib.helium.massiu.periode.noves}")
 	public void comprovarExecucionsMassives() {
 		boolean active = true;
 		Long ultimaExecucioMassiva = null;
@@ -75,7 +77,7 @@ public class TascaProgramadaServiceImpl implements TascaProgramadaService {
 		int timeBetweenExecutions = 500;
 		try {
 			timeBetweenExecutions = Integer.parseInt(
-					GlobalPropertiesImpl.getInstance().getProperty("app.massiu.periode.execucions"));
+					globalProperties.getProperty("es.caib.helium.massiu.periode.execucions"));
 		} catch (Exception ex) {}
 		
 		while (active) {
@@ -287,11 +289,10 @@ public class TascaProgramadaServiceImpl implements TascaProgramadaService {
 	
 	/*** ACTUALITZAR ESTAT NOTIFICACIONS ***/
 	@Override
-//	#1164 Comentam aquesta tasca programada, ja que ara les notificacions es faran amb Notib, 
-//	i no és necessari fer una consulta activa, ja que notib ens avisarà en cas de canvi.	
-//	@Scheduled(fixedDelayString = "${app.notificacions.comprovar.estat}")
 	public void comprovarEstatNotificacions() {
-		List<Notificacio> notificacionsPendentsRevisar = notificacioRepository.findByEstatAndTipusOrderByDataEnviamentAsc(DocumentEnviamentEstatEnumDto.ENVIAT, DocumentNotificacioTipusEnumDto.ELECTRONICA);
+		List<Notificacio> notificacionsPendentsRevisar = notificacioRepository.findByEstatAndTipusOrderByDataEnviamentAsc(
+				DocumentEnviamentEstatEnumDto.ENVIAT,
+				DocumentNotificacioTipusEnumDto.ELECTRONICA);
 		for (Notificacio notificacio: notificacionsPendentsRevisar) {
 			tascaProgramadaHelper.actualitzarEstatNotificacions(notificacio.getId());
 		}

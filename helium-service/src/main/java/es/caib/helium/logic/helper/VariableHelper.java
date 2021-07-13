@@ -11,9 +11,8 @@ import es.caib.helium.logic.intf.exception.SistemaExternException;
 import es.caib.helium.logic.intf.extern.domini.FilaResultat;
 import es.caib.helium.logic.intf.extern.domini.ParellaCodiValor;
 import es.caib.helium.logic.intf.service.ExpedientService;
-import es.caib.helium.logic.intf.util.ExpedientCamps;
-import es.caib.helium.logic.intf.util.JbpmVars;
-import es.caib.helium.logic.util.GlobalPropertiesImpl;
+import es.caib.helium.logic.intf.util.Constants;
+import es.caib.helium.logic.intf.util.GlobalProperties;
 import es.caib.helium.ms.domini.DominiMs;
 import es.caib.helium.persist.entity.*;
 import es.caib.helium.persist.entity.Camp.TipusCamp;
@@ -74,7 +73,9 @@ public class VariableHelper {
 	@Resource
 	private ConversioTipusServiceHelper conversioTipusServiceHelper;
 	@Resource
-	private MessageServiceHelper messageHelper;
+	private MessageServiceHelper messageServiceHelper;
+	@Resource
+	private GlobalProperties globalProperties;
 
 
 
@@ -194,7 +195,7 @@ public class VariableHelper {
 							varAmbContingut = registreValors.length > 0;
 						}						
 					} catch(Exception e) {
-						dto.setError(messageHelper.getMessage(
+						dto.setError(messageServiceHelper.getMessage(
 								"variable.helper.error.recuperant.valor", 
 								new Object[] {camp.getTipus(), (camp.isMultiple() ? " múltiple" : "")}));
 					}
@@ -269,7 +270,7 @@ public class VariableHelper {
 					varAmbContingut = registreValors.length > 0;
 				}						
 			} catch(Exception e) {
-				dto.setError(messageHelper.getMessage(
+				dto.setError(messageServiceHelper.getMessage(
 						"variable.helper.error.recuperant.valor", 
 						new Object[] {camp.getTipus(), (camp.isMultiple() ? " múltiple" : "")}));
 			}
@@ -537,8 +538,8 @@ public class VariableHelper {
 					domini = dominiMs.get(camp.getDomini());
 				}
 				
-				
-				if (! GlobalPropertiesImpl.getInstance().getAsBoolean("app.helium.ms.domini.consulta.agrupada")
+				// TODO: TOTES les consultes a dominis han de ser agrupades!!
+				if (! globalProperties.getAsBoolean("es.caib.helium.domini.consulta.agrupada")
 						|| consultesDominis == null) 
 				{
 					// Consulta el domini
@@ -636,7 +637,7 @@ public class VariableHelper {
 			String campCodi = parts[1];
 			Object value = null;
 			if (campCodi.startsWith("@")) {
-				value = (String) GlobalPropertiesImpl.getInstance().get(campCodi.substring(1));
+				value = globalProperties.getProperty(campCodi.substring(1));
 			} else if (campCodi.startsWith("#{")) {
 				if (processInstanceId != null) {
 					value = workflowEngineApi.evaluateExpression(
@@ -831,7 +832,7 @@ public class VariableHelper {
 			// Variable expedient o tipus d'expedient
 			varCodi = camp.getCodi();
 		}
-		varCodi = varCodi.replace(ExpedientCamps.EXPEDIENT_CAMP_ESTAT, ExpedientCamps.EXPEDIENT_CAMP_ESTAT_JSP);
+		varCodi = varCodi.replace(Constants.EXPEDIENT_CAMP_ESTAT, Constants.EXPEDIENT_CAMP_ESTAT_JSP);
 		tascaDto.setVarCodi(varCodi);
 		tascaDto.setCampId(camp.getId());
 		tascaDto.setCampTipus(conversioTipusServiceHelper.convertir(camp.getTipus(), CampTipusDto.class));
@@ -877,9 +878,9 @@ public class VariableHelper {
 	public Object getDescripcioVariable(String taskId, String processInstanceId, String codi) {
 		Object valor = null;
 		if (taskId != null)
-			valor = workflowEngineApi.getTaskInstanceVariable(taskId, JbpmVars.PREFIX_VAR_DESCRIPCIO + codi);
+			valor = workflowEngineApi.getTaskInstanceVariable(taskId, Constants.PREFIX_VAR_DESCRIPCIO + codi);
 		if (valor == null)
-			valor = workflowEngineApi.getProcessInstanceVariable(processInstanceId, JbpmVars.PREFIX_VAR_DESCRIPCIO + codi);
+			valor = workflowEngineApi.getProcessInstanceVariable(processInstanceId, Constants.PREFIX_VAR_DESCRIPCIO + codi);
 		return valor;
 	}
 
@@ -1050,14 +1051,14 @@ public class VariableHelper {
 
 	private void filtrarVariablesUsIntern(Map<String, Object> variables) {
 		if (variables != null) {
-			variables.remove(JbpmVars.VAR_TASCA_VALIDADA);
-			variables.remove(JbpmVars.VAR_TASCA_DELEGACIO);
+			variables.remove(Constants.VAR_TASCA_VALIDADA);
+			variables.remove(Constants.VAR_TASCA_DELEGACIO);
 			List<String> codisEsborrar = new ArrayList<String>();
 			for (String codi: variables.keySet()) {
-				if (	codi.startsWith(JbpmVars.PREFIX_DOCUMENT) ||
-						codi.startsWith(JbpmVars.PREFIX_SIGNATURA) ||
-						codi.startsWith(JbpmVars.PREFIX_ADJUNT) ||
-						codi.startsWith(JbpmVars.PREFIX_VAR_DESCRIPCIO) ||
+				if (	codi.startsWith(Constants.PREFIX_DOCUMENT) ||
+						codi.startsWith(Constants.PREFIX_SIGNATURA) ||
+						codi.startsWith(Constants.PREFIX_ADJUNT) ||
+						codi.startsWith(Constants.PREFIX_VAR_DESCRIPCIO) ||
 						codi.startsWith(VariableHelper.PARAMS_RETROCEDIR_VARIABLE_PREFIX))
 					codisEsborrar.add(codi);
 			}

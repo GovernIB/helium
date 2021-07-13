@@ -745,7 +745,75 @@ public class WorkflowEngineController {
     }
 
 
+    // AREES I CARRECS
+    ////////////////////////////////////////////////////////////////////////////////
+    @RequestMapping(value = "/arees/byFiltre/{filtre}", method = RequestMethod.GET)
+    @ResponseBody
+    public ResponseEntity<List<String>> findAreesByFiltre(
+            @PathVariable("filtre") String filtre) {
+        return new ResponseEntity(workflowEngineApi.findAreesByFiltre(filtre), HttpStatus.OK);
+    }
 
+    @RequestMapping(value = "/arees/{personaCodi}", method = RequestMethod.GET)
+    @ResponseBody
+    public ResponseEntity<List<String>> findAreesByPersona(
+            @PathVariable("personaCodi") String personaCodi) {
+        return new ResponseEntity(
+                workflowEngineApi.findAreesByPersona(personaCodi),
+                HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/rols/{personaCodi}", method = RequestMethod.GET)
+    @ResponseBody
+    public ResponseEntity<List<String>> findRolsByPersona(
+            @PathVariable("personaCodi") String personaCodi) {
+        return new ResponseEntity(
+                workflowEngineApi.findRolsByPersona(personaCodi),
+                HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/carrecs/byFiltre/{filtre}", method = RequestMethod.GET)
+    @ResponseBody
+    public ResponseEntity<List<String[]>> findCarrecsByFiltre(
+            @PathVariable("filtre") String filtre) {
+        return new ResponseEntity(
+                workflowEngineApi.findCarrecsByFiltre(filtre),
+                HttpStatus.OK);
+    }
+    @RequestMapping(value = "/persones/{grupCodi}/{carrecCodi}", method = RequestMethod.GET)
+    @ResponseBody
+    public ResponseEntity<List<String>> findPersonesByGrupAndCarrec(
+            @PathVariable("grupCodi") String grupCodi,
+            @PathVariable("carrecCodi") String carrecCodi) {
+        return new ResponseEntity(
+                workflowEngineApi.findPersonesByGrupAndCarrec(grupCodi, carrecCodi),
+                HttpStatus.OK);
+    }
+    @RequestMapping(value = "/carrecs/{grupCodi}/{personaCodi}", method = RequestMethod.GET)
+    @ResponseBody
+    public ResponseEntity<List<String>> findCarrecsByPersonaAndGrup(
+            @PathVariable("personaCodi") String personaCodi,
+            @PathVariable("grupCodi") String grupCodi) {
+        return new ResponseEntity(
+                workflowEngineApi.findCarrecsByPersonaAndGrup(personaCodi, grupCodi),
+                HttpStatus.OK);
+    }
+    @RequestMapping(value = "/persones/byCarrec/{carrecCodi}", method = RequestMethod.GET)
+    @ResponseBody
+    public ResponseEntity<List<String>> findPersonesByCarrec(
+            @PathVariable("carrecCodi") String carrecCodi) {
+        return new ResponseEntity(
+                workflowEngineApi.findPersonesByCarrec(carrecCodi),
+                HttpStatus.OK);
+    }
+    @RequestMapping(value = "/persones/byGrup/{grupCodi}", method = RequestMethod.GET)
+    @ResponseBody
+    public ResponseEntity<List<String>> findPersonesByGrup(
+            @PathVariable("grupCodi") String grupCodi) {
+        return new ResponseEntity(
+                workflowEngineApi.findPersonesByGrup(grupCodi),
+                HttpStatus.OK);
+    }
 
 
 

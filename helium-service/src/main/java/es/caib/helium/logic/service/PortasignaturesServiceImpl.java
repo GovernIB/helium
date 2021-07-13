@@ -76,7 +76,7 @@ public class PortasignaturesServiceImpl implements PortasignaturesService {
 	@Resource
 	private DocumentHelper documentHelper;
 	@Resource
-	private MessageServiceHelper messageHelper;
+	private MessageServiceHelper messageServiceHelper;
 	@Resource
 	private WorkflowEngineApi workflowEngineApi;
 	@Resource
@@ -278,14 +278,14 @@ public class PortasignaturesServiceImpl implements PortasignaturesService {
 						signatures.get(0));
 			} else {
 				if (signatures == null) {
-					throw new Exception(messageHelper.getMessage("error.pluginService.capSignatura"));
+					throw new Exception(messageServiceHelper.getMessage("error.pluginService.capSignatura"));
 				} else {
 					throw new Exception(
 							"El nombre de signatures del document és de " + signatures.size() + " en comptes de 1");
 				}
 			}
 		} else {
-			throw new IllegalStateException(messageHelper.getMessage("error.pluginService.noDisponible"));
+			throw new IllegalStateException(messageServiceHelper.getMessage("error.pluginService.noDisponible"));
 		}
 	}
 
