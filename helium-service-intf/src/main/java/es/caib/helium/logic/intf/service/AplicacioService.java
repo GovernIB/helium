@@ -8,6 +8,7 @@ import es.caib.helium.logic.intf.dto.PersonaDto;
 import es.caib.helium.logic.intf.dto.UsuariPreferenciesDto;
 import es.caib.helium.logic.intf.exception.NoTrobatException;
 import es.caib.helium.logic.intf.exception.SistemaExternException;
+import es.caib.helium.logic.intf.integracio.notificacio.Persona;
 import es.caib.helium.logic.intf.util.GlobalProperties;
 
 import java.util.List;
@@ -48,7 +49,7 @@ public interface AplicacioService {
 	 * @param text el text per a fer la consulta
 	 * @return la llista de persones
 	 */
-	public List<PersonaDto> findPersonaLikeNomSencer(String text) throws SistemaExternException;
+	public List<Persona> findPersonaLikeNomSencer(String text) throws SistemaExternException;
 
 	public List<PersonaDto> findPersonaAll() throws SistemaExternException;
 

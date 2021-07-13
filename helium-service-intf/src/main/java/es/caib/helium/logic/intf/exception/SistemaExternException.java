@@ -15,6 +15,15 @@ public class SistemaExternException extends HeliumException {
 
 	private String sistemaExtern;
 	protected String publicMessage;
+
+	public SistemaExternException(String sistemaExtern, Throwable cause)  {
+
+		super(null, null, null, null, null, null, null, null, null,
+				"Error en la comunicació amb el sistema extern '" + sistemaExtern + "': " + ExceptionUtils.getRootCauseMessage(cause),
+				cause);
+		this.sistemaExtern = sistemaExtern;
+		this.publicMessage = "Error en la comunicació amb el sistema extern '" + sistemaExtern + "': " + ExceptionUtils.getRootCauseMessage(cause);
+	}
 	
 	public SistemaExternException(
 			Long entornId,

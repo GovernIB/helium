@@ -13,7 +13,7 @@ import es.caib.helium.client.expedient.tasca.model.TascaDto;
 import es.caib.helium.client.model.PagedList;
 
 @Service
-public interface TascaService {
+public interface TascaClientService {
 
 	public PagedList<TascaDto> findTasquesAmbFiltrePaginatV1(
             Long entornId,

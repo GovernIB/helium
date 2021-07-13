@@ -1,7 +1,6 @@
 package es.caib.helium.monitor.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 
@@ -16,12 +15,11 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import es.caib.helium.jms.domini.MessageEvent;
 import es.caib.helium.jms.enums.CodiIntegracio;
 import es.caib.helium.jms.enums.EstatAccio;
-import es.caib.helium.jms.events.IntegracioEvent;
 import es.caib.helium.monitor.domini.Consulta;
-import es.caib.helium.monitor.exception.MonitorIntegracionsException;
+import es.caib.helium.monitor.domini.IntegracioEvent;
+import es.caib.helium.monitor.domini.MessageEvent;
 import es.caib.helium.monitor.repository.IntegracioEventRepository;
 
 @ExtendWith(MockitoExtension.class) 

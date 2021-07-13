@@ -19,7 +19,7 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class ExpedientServiceImpl implements ExpedientService {
+public class ExpedientClientServiceImpl implements ExpedientClientService {
 	
 	private final String missatgeLog = "Cridant Expedient Service - Expedient - ";
 	

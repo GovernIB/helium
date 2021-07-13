@@ -12,8 +12,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import es.caib.helium.jms.events.IntegracioEvent;
 import es.caib.helium.monitor.domini.Consulta;
+import es.caib.helium.monitor.domini.IntegracioEvent;
 import es.caib.helium.monitor.domini.PagedList;
 import es.caib.helium.monitor.service.BddService;
 import lombok.AllArgsConstructor;

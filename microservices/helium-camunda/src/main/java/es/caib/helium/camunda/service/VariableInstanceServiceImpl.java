@@ -1,16 +1,17 @@
 package es.caib.helium.camunda.service;
 
-import es.caib.helium.camunda.model.VariableRest;
-import lombok.RequiredArgsConstructor;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.camunda.bpm.engine.HistoryService;
 import org.camunda.bpm.engine.RuntimeService;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
-import java.util.Map;
+import es.caib.helium.client.engine.model.VariableRest;
+import lombok.RequiredArgsConstructor;
 
-import static es.caib.helium.camunda.helper.VariableHelper.objectToVariable;
-import static es.caib.helium.camunda.helper.VariableHelper.variableToObject;
+import static es.caib.helium.client.engine.helper.VariableHelper.objectToVariable;
+import static es.caib.helium.client.engine.helper.VariableHelper.variableToObject;
 
 @Service
 @RequiredArgsConstructor

@@ -17,10 +17,10 @@ import org.apache.axis.MessageContext;
 import org.apache.axis.SOAPPart;
 import org.apache.axis.handlers.BasicHandler;
 import org.apache.ws.security.WSSecurityException;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
 import org.apache.ws.security.message.WSSecHeader;
 import org.apache.ws.security.message.WSSecUsernameToken;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
 public class AfirmaSecurityHandler extends BasicHandler {
 

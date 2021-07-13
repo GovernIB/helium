@@ -15,8 +15,8 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import com.netflix.servo.util.Strings;
 
 import es.caib.helium.jms.enums.EstatAccio;
-import es.caib.helium.jms.events.IntegracioEvent;
 import es.caib.helium.monitor.domini.Consulta;
+import es.caib.helium.monitor.domini.IntegracioEvent;
 import es.caib.helium.monitor.enums.IntegracioEventBdd;
 
 public class IntegracioEventRepositoryCustomImpl implements IntegracioEventRepositoryCustom {

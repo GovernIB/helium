@@ -3,15 +3,13 @@
  */
 package es.caib.helium.logic.helper;
 
+import es.caib.helium.client.integracio.persones.model.Persona;
 import es.caib.helium.integracio.plugins.custodia.CustodiaPlugin;
 import es.caib.helium.integracio.plugins.custodia.CustodiaPluginException;
 import es.caib.helium.integracio.plugins.firma.FirmaPlugin;
 import es.caib.helium.integracio.plugins.gesdoc.GestioDocumentalPlugin;
 import es.caib.helium.integracio.plugins.notificacio.Notificacio;
-import es.caib.helium.integracio.plugins.notificacio.NotificacioPlugin;
-import es.caib.helium.integracio.plugins.notificacio.RespostaConsultaEstatEnviament;
-import es.caib.helium.integracio.plugins.notificacio.RespostaConsultaEstatNotificacio;
-import es.caib.helium.integracio.plugins.notificacio.RespostaEnviar;
+import es.caib.helium.integracio.plugins.notificacio.*;
 import es.caib.helium.integracio.plugins.persones.DadesPersona;
 import es.caib.helium.integracio.plugins.persones.PersonesPlugin;
 import es.caib.helium.integracio.plugins.persones.PersonesPluginException;
@@ -35,29 +33,20 @@ import es.caib.helium.logic.intf.exception.SistemaExternException;
 import es.caib.helium.logic.intf.registre.RegistreAnnex;
 import es.caib.helium.logic.intf.registre.RegistreAnotacio;
 import es.caib.helium.logic.intf.registre.RegistreInteressat;
+import es.caib.helium.logic.util.EntornActual;
 import es.caib.helium.logic.util.GlobalPropertiesImpl;
-import es.caib.helium.persist.entity.Alerta;
-import es.caib.helium.persist.entity.DocumentNotificacio;
-import es.caib.helium.persist.entity.DocumentStore;
 import es.caib.helium.persist.entity.Expedient;
-import es.caib.helium.persist.entity.Portasignatures;
+import es.caib.helium.persist.entity.*;
 import es.caib.helium.persist.entity.Portasignatures.TipusEstat;
 import es.caib.helium.persist.entity.Portasignatures.Transicio;
 import es.caib.helium.persist.repository.DocumentStoreRepository;
 import es.caib.helium.persist.repository.ExpedientRepository;
 import es.caib.helium.persist.repository.PortasignaturesRepository;
 import es.caib.plugins.arxiu.api.*;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.fundaciobit.plugins.validatesignature.api.CertificateInfo;
-import org.fundaciobit.plugins.validatesignature.api.IValidateSignaturePlugin;
-import org.fundaciobit.plugins.validatesignature.api.SignatureDetailInfo;
-import org.fundaciobit.plugins.validatesignature.api.SignatureRequestedInformation;
-import org.fundaciobit.plugins.validatesignature.api.TimeStampInfo;
-import org.fundaciobit.plugins.validatesignature.api.ValidateSignatureRequest;
-import org.fundaciobit.plugins.validatesignature.api.ValidateSignatureResponse;
+import org.fundaciobit.plugins.validatesignature.api.*;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 import org.springframework.stereotype.Component;
@@ -65,21 +54,14 @@ import org.springframework.transaction.support.TransactionSynchronizationManager
 
 import javax.annotation.Resource;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 
 /**
  * Helper per a accedir a la funcionalitat dels plugins.
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
+@Slf4j
 @Component("pluginHelperV3")
 public class PluginHelper {
 
@@ -120,43 +102,14 @@ public class PluginHelper {
 
 
 
-	public List<PersonaDto> personaFindLikeNomSencer(String text) {
+	public List<Persona> personaFindLikeNomSencer(String text) {
 		long t0 = System.currentTimeMillis();
 		try {
-			List<DadesPersona> persones = getPersonesPlugin().findLikeNomSencer(text);
-			monitorIntegracioHelper.addAccioOk(
-					MonitorIntegracioHelper.INTCODI_PERSONA,
-					"Consulta d'usuaris amb like",
-					IntegracioAccioTipusEnumDto.ENVIAMENT,
-					System.currentTimeMillis() - t0,
-					new IntegracioParametreDto("text", text));
-			if (persones == null)
-				return new ArrayList<PersonaDto>();
-			return conversioTipusServiceHelper.convertirList(persones, PersonaDto.class);
+			return getPersonesPlugin().findLikeNomSencer(text, EntornActual.getEntornId());
 		} catch (PersonesPluginException ex) {
-			monitorIntegracioHelper.addAccioError(
-					MonitorIntegracioHelper.INTCODI_PERSONA,
-					"Consulta d'usuaris amb like",
-					IntegracioAccioTipusEnumDto.ENVIAMENT,
-					System.currentTimeMillis() - t0,
-					"El plugin ha retornat una excepció",
-					ex,
-					new IntegracioParametreDto("text", text));
-			logger.error(
-					"No s'han pogut consultar persones amb el text (text=" + text + ")",
-					ex);
-			throw new SistemaExternException(
-					null,
-					null, 
-					null, 
-					null, 
-					null, 
-					null, 
-					null, 
-					null, 
-					null, 
-					"No s'han pogut consultar persones amb el text (text=" + text + ")",
-					ex);
+			var error = "No s'han pogut consultar persones amb el text (text=" + text + ")";
+			log.error(error, ex);
+			throw new SistemaExternException(error, ex);
 		}
 	}
 
@@ -167,7 +120,7 @@ public class PluginHelper {
 				return new ArrayList<PersonaDto>();
 			return conversioTipusServiceHelper.convertirList(persones, PersonaDto.class);
 		} catch (PersonesPluginException ex) {
-			logger.error(
+			log.error(
 					"No s'han pogut consultar totes les persones",
 					ex);
 			throw new SistemaExternException(
@@ -185,7 +138,7 @@ public class PluginHelper {
 		}
 	}
 	
-	public List<Portasignatures> findPendentsPortasignaturesPerProcessInstanceId(String processInstanceId) {		
+	public List<Portasignatures> findPendentsPortasignaturesPerProcessInstanceId(String processInstanceId) {
 		List<Portasignatures> psignas = portasignaturesRepository.findPendentsPerProcessInstanceId(processInstanceId);
 		Iterator<Portasignatures> it = psignas.iterator();
 		while (it.hasNext()) {
@@ -232,7 +185,7 @@ public class PluginHelper {
 						"El plugin ha retornat una excepció",
 						ex,
 						new IntegracioParametreDto("codi", codi));
-				logger.error(
+				log.error(
 						"No s'han pogut consultar persones amb el codi (codi=" + codi + ")",
 						ex);
 				throw new SistemaExternException(
@@ -310,7 +263,7 @@ public class PluginHelper {
 					errorDescripcio,
 					ex,
 					parametres);
-			logger.error(
+			log.error(
 					errorDescripcio,
 					ex);
 			throw SistemaExternException.tractarSistemaExternException(
@@ -398,7 +351,7 @@ public class PluginHelper {
 					errorDescripcio,
 					ex,
 					parametres);
-			logger.error(
+			log.error(
 					errorDescripcio,
 					ex);
 			throw SistemaExternException.tractarSistemaExternException(
@@ -451,7 +404,7 @@ public class PluginHelper {
 					errorDescripcio,
 					ex,
 					parametres);
-			logger.error(
+			log.error(
 					errorDescripcio,
 					ex);
 			throw SistemaExternException.tractarSistemaExternException(
@@ -508,7 +461,7 @@ public class PluginHelper {
 					errorDescripcio,
 					ex,
 					parametres);
-			logger.error(
+			log.error(
 					errorDescripcio,
 					ex);
 			throw SistemaExternException.tractarSistemaExternException(
@@ -567,7 +520,7 @@ public class PluginHelper {
 					errorDescripcio,
 					ex,
 					parametres);
-			logger.error(
+			log.error(
 					errorDescripcio,
 					ex);
 			throw SistemaExternException.tractarSistemaExternException(
@@ -621,8 +574,8 @@ public class PluginHelper {
 		
 		
 		try {
-			logger.info("###===> Entrem en apartat relacionat amb expedients ");
-			logger.info("###===> Comprovant si existeix expedient en la zona personal de l'interessat");
+			log.info("###===> Entrem en apartat relacionat amb expedients ");
+			log.info("###===> Comprovant si existeix expedient en la zona personal de l'interessat");
 			if (!getTramitacioPlugin().existeixExpedient(
 					new Long(registreNotificacio.getDadesExpedient().getUnitatAdministrativa()),
 					registreNotificacio.getDadesExpedient().getIdentificador())) {
@@ -634,7 +587,7 @@ public class PluginHelper {
 					"expedientClau=" + registreNotificacio.getDadesExpedient().getClau() + ", " +
 					"oficinaOrganCodi=" + registreNotificacio.getDadesOficina().getOrganCodi() + ", " +
 					"oficinaCodi=" + registreNotificacio.getDadesOficina().getOficinaCodi() + ")";
-			logger.error(
+			log.error(
 					errorDescripcio,
 					ex);
 			throw SistemaExternException.tractarSistemaExternException(
@@ -654,7 +607,7 @@ public class PluginHelper {
 		long t0 = System.currentTimeMillis();
 		RespostaAnotacioRegistre resposta = null;
 		try {
-			logger.info("###===> Entrem en apartat relacionat amb notificacions ");
+			log.info("###===> Entrem en apartat relacionat amb notificacions ");
 			resposta = getTramitacioPlugin().registrarNotificacio(registreNotificacio);
 			
 			monitorIntegracioHelper.addAccioOk(
@@ -670,7 +623,7 @@ public class PluginHelper {
 					"expedientClau=" + registreNotificacio.getDadesExpedient().getClau() + ", " +
 					"oficinaOrganCodi=" + registreNotificacio.getDadesOficina().getOrganCodi() + ", " +
 					"oficinaCodi=" + registreNotificacio.getDadesOficina().getOficinaCodi() + ")";
-			logger.error(
+			log.error(
 					errorDescripcio,
 					ex);
 			
@@ -691,7 +644,7 @@ public class PluginHelper {
 	}
 	
 	private void crearExpedientPerNotificacio(RegistreNotificacio registreNotificacio, Expedient expedient, IntegracioParametreDto[] parametres) throws Exception {
-		logger.info("###===> Preparem l'expedient a crear a la zona personal");
+		log.info("###===> Preparem l'expedient a crear a la zona personal");
 		
 		ZonaperExpedientDto zonaperExpedient = new ZonaperExpedientDto();
 		
@@ -727,7 +680,7 @@ public class PluginHelper {
 				zonaperExpedient,
 				PublicarExpedientRequest.class);
 		
-		logger.info("###===> Cridem al plugin per crear l'expedient a la zona personal");
+		log.info("###===> Cridem al plugin per crear l'expedient a la zona personal");
 		
 		getTramitacioPlugin().publicarExpedient(request);
 		
@@ -735,7 +688,7 @@ public class PluginHelper {
 		expedient.setTramitExpedientClau(registreNotificacio.getDadesExpedient().getClau());
 		expedientRepository.save(expedient);
 		
-		logger.info("###===> S'ha cridat al mètode per acutaltizar expedient Helium correctament.");
+		log.info("###===> S'ha cridat al mètode per acutaltizar expedient Helium correctament.");
 	}
 
 	public RespostaJustificantRecepcio tramitacioObtenirJustificant(
@@ -765,7 +718,7 @@ public class PluginHelper {
 					new IntegracioParametreDto(
 							"registreNumero",
 							registreNumero));
-			logger.error(
+			log.error(
 					errorDescripcio,
 					ex);
 			throw SistemaExternException.tractarSistemaExternException(
@@ -810,7 +763,7 @@ public class PluginHelper {
 					new IntegracioParametreDto(
 							"registreNumero",
 							registreNumero));
-			logger.error(
+			log.error(
 					errorDescripcio,
 					ex);
 			throw SistemaExternException.tractarSistemaExternException(
@@ -903,7 +856,7 @@ public class PluginHelper {
 					errorDescripcio,
 					ex,
 					parametres);
-			logger.error(
+			log.error(
 					errorDescripcio,
 					ex);
 			throw SistemaExternException.tractarSistemaExternException(
@@ -994,7 +947,7 @@ public class PluginHelper {
 					errorDescripcio,
 					ex,
 					parametres);
-			logger.error(
+			log.error(
 					errorDescripcio,
 					ex);
 			throw SistemaExternException.tractarSistemaExternException(
@@ -1077,7 +1030,7 @@ public class PluginHelper {
 					errorDescripcio,
 					ex,
 					parametres);
-			logger.error(
+			log.error(
 					errorDescripcio,
 					ex);
 			throw SistemaExternException.tractarSistemaExternException(
@@ -1169,7 +1122,7 @@ public class PluginHelper {
 					errorDescripcio,
 					ex,
 					parametres);
-			logger.error(
+			log.error(
 					errorDescripcio,
 					ex);
 			throw SistemaExternException.tractarSistemaExternException(
@@ -1242,7 +1195,7 @@ public class PluginHelper {
 					new IntegracioParametreDto(
 							"numeroRegistre",
 							numeroRegistre));
-			logger.error(
+			log.error(
 					errorDescripcio,
 					ex);
 			throw SistemaExternException.tractarSistemaExternException(
@@ -1287,7 +1240,7 @@ public class PluginHelper {
 					new IntegracioParametreDto(
 							"oficinaCodi",
 							codi));
-			logger.error(
+			log.error(
 					errorDescripcio,
 					ex);
 			throw SistemaExternException.tractarSistemaExternException(
@@ -1356,7 +1309,7 @@ public class PluginHelper {
 					new IntegracioParametreDto(
 							"entitatCodi",
 							entitatCodi));
-			logger.error(
+			log.error(
 					errorDescripcio,
 					ex);
 			throw SistemaExternException.tractarSistemaExternException(
@@ -1448,7 +1401,7 @@ public class PluginHelper {
 					errorDescripcio,
 					ex,
 					parametres);
-			logger.error(
+			log.error(
 					errorDescripcio,
 					ex);
 			throw SistemaExternException.tractarSistemaExternException(
@@ -1491,7 +1444,7 @@ public class PluginHelper {
 					new IntegracioParametreDto(
 							"documentId",
 							documentId));
-			logger.error(
+			log.error(
 					errorDescripcio,
 					ex);
 			throw SistemaExternException.tractarSistemaExternException(
@@ -1535,7 +1488,7 @@ public class PluginHelper {
 					new IntegracioParametreDto(
 							"documentId",
 							documentId));
-			logger.error(
+			log.error(
 					errorDescripcio,
 					ex);
 			throw SistemaExternException.tractarSistemaExternException(
@@ -1663,7 +1616,7 @@ public class PluginHelper {
 					errorDescripcio,
 					ex,
 					parametres);
-			logger.error(
+			log.error(
 					errorDescripcio,
 					ex);
 			throw SistemaExternException.tractarSistemaExternException(
@@ -1700,7 +1653,7 @@ public class PluginHelper {
 				}
 			}
 		} catch(Exception e) {
-			logger.error("Error consultant el nom per l'usuari actual:" + e.getMessage(), e);
+			log.error("Error consultant el nom per l'usuari actual:" + e.getMessage(), e);
 		}
 		return StringUtils.abbreviate(remitent, PORTASIGNATURES_REMITENT_MAX_LENGTH);
 	}
@@ -1729,7 +1682,7 @@ public class PluginHelper {
 					errorDescripcio,
 					ex,
 					new IntegracioParametreDto("documentId", documentId));
-			logger.error(
+			log.error(
 					errorDescripcio,
 					ex);
 			throw SistemaExternException.tractarSistemaExternException(
@@ -1791,7 +1744,7 @@ public class PluginHelper {
 					new IntegracioParametreDto(
 							"documentIds",
 							ids.toString()));
-			logger.error(
+			log.error(
 					errorDescripcio,
 					ex);
 			throw SistemaExternException.tractarSistemaExternException(
@@ -1858,7 +1811,7 @@ public class PluginHelper {
 					errorDescripcio,
 					ex,
 					parametres);
-			logger.error(
+			log.error(
 					errorDescripcio,
 					ex);
 			throw SistemaExternException.tractarSistemaExternException(
@@ -1903,7 +1856,7 @@ public class PluginHelper {
 					new IntegracioParametreDto(
 							"documentId",
 							documentId));
-			logger.error(
+			log.error(
 					errorDescripcio,
 					ex);
 			throw SistemaExternException.tractarSistemaExternException(
@@ -1947,7 +1900,7 @@ public class PluginHelper {
 					new IntegracioParametreDto(
 							"documentId",
 							documentId));
-			logger.error(
+			log.error(
 					errorDescripcio,
 					ex);
 			throw SistemaExternException.tractarSistemaExternException(
@@ -1991,7 +1944,7 @@ public class PluginHelper {
 					new IntegracioParametreDto(
 							"documentId",
 							documentId));
-			logger.error(
+			log.error(
 					errorDescripcio,
 					ex);
 			throw SistemaExternException.tractarSistemaExternException(
@@ -2035,7 +1988,7 @@ public class PluginHelper {
 					new IntegracioParametreDto(
 							"documentId",
 							documentId));
-			logger.error(errorDescripcio,ex);
+			log.error(errorDescripcio,ex);
 			throw SistemaExternException.tractarSistemaExternException(
 					expedient.getEntorn().getId(),
 					expedient.getEntorn().getCodi(), 
@@ -2077,7 +2030,7 @@ public class PluginHelper {
 					new IntegracioParametreDto(
 							"documentId",
 							documentId));
-			logger.error(
+			log.error(
 					documentId,
 					ex);
 			throw SistemaExternException.tractarSistemaExternException(
@@ -2146,7 +2099,7 @@ public class PluginHelper {
 					errorDescripcio,
 					ex,
 					parametres);
-			logger.error(errorDescripcio, ex);
+			log.error(errorDescripcio, ex);
 			throw SistemaExternException.tractarSistemaExternException(
 					null,
 					null, 
@@ -2566,7 +2519,7 @@ public class PluginHelper {
 					System.currentTimeMillis() - t0,
 					parametres.toArray(new IntegracioParametreDto[parametres.size()]));
 			if (documentPerRetornar != null &&  documentPerRetornar.getIdentificador() == null) {
-				logger.warn("L'identificador retornat per l'Arxiu pel document \"" + documentNom + "\" de l'expedient \"" + expedient.getIdentificador() + "\" és null.");
+				log.warn("L'identificador retornat per l'Arxiu pel document \"" + documentNom + "\" de l'expedient \"" + expedient.getIdentificador() + "\" és null.");
 			}
 			return documentPerRetornar;
 		} catch (Exception ex) {
@@ -4061,7 +4014,7 @@ public class PluginHelper {
 		documentPs.setReference(document.getId().toString());
 		// Llargada màxima per la descripciól 255. Abreuja l'identificador de l'expedient a 90 i tot plegat a 255
 		documentPs.setDescripcio(StringUtils.abbreviate(String.format("Document \"%s\" de l'expedient \"%s\"", document.getDocumentNom(), StringUtils.abbreviate(expedient.getIdentificador(), 90)), 254));
-		logger.debug("Afegit document portafirmes (" +
+		log.debug("Afegit document portafirmes (" +
 				"arxiuNom=" + document.getVistaNom() + ", " +
 				"arxiuContingut=" + document.getVistaContingut().length + ", " +
 				"tipus=" + document.getTipusDocPortasignatures() + ", " +
@@ -4641,5 +4594,4 @@ public class PluginHelper {
 		return dtos;
 	}
 
-	private static final Log logger = LogFactory.getLog(PluginHelper.class);
 }

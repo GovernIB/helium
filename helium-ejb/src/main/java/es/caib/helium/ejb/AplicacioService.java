@@ -3,6 +3,7 @@
  */
 package es.caib.helium.ejb;
 
+import es.caib.helium.client.integracio.persones.model.Persona;
 import es.caib.helium.logic.intf.dto.DocumentConversioDto;
 import es.caib.helium.logic.intf.dto.PersonaDto;
 import es.caib.helium.logic.intf.dto.UsuariPreferenciesDto;
@@ -45,7 +46,7 @@ public class AplicacioService extends AbstractService<es.caib.helium.logic.intf.
 	 */
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public List<PersonaDto> findPersonaLikeNomSencer(String text) {
+	public List<Persona> findPersonaLikeNomSencer(String text) {
 		return getDelegateService().findPersonaLikeNomSencer(text);
 	}
 

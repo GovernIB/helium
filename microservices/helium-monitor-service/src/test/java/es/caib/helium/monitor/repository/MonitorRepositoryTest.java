@@ -22,8 +22,8 @@ import org.springframework.test.context.ActiveProfiles;
 
 import es.caib.helium.jms.enums.CodiIntegracio;
 import es.caib.helium.jms.enums.EstatAccio;
-import es.caib.helium.jms.events.IntegracioEvent;
 import es.caib.helium.monitor.domini.Consulta;
+import es.caib.helium.monitor.domini.IntegracioEvent;
 import io.netty.util.internal.ThreadLocalRandom;
 
 @ActiveProfiles("test")

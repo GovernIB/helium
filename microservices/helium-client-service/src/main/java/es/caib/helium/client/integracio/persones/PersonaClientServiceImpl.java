@@ -12,7 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class PersonaServiceImpl implements PersonaService {
+public class PersonaClientServiceImpl implements PersonaClientService {
 
 	private final String missatgeLog = "Cridant Integracio Service - Persona - ";
 	

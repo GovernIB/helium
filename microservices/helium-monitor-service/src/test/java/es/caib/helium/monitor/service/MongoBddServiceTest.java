@@ -11,20 +11,18 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
 
-import org.junit.Assert;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.internal.matchers.apachecommons.ReflectionEquals;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.PageRequest;
 
 import es.caib.helium.jms.enums.CodiIntegracio;
 import es.caib.helium.jms.enums.EstatAccio;
-import es.caib.helium.jms.events.IntegracioEvent;
 import es.caib.helium.monitor.domini.Consulta;
+import es.caib.helium.monitor.domini.IntegracioEvent;
 import es.caib.helium.monitor.domini.PagedList;
 import es.caib.helium.monitor.exception.MonitorIntegracionsException;
 import es.caib.helium.monitor.repository.IntegracioEventRepository;

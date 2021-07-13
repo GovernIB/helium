@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 import es.caib.helium.client.integracio.persones.model.Persona;
 
 @Service
-public interface PersonaService {
+public interface PersonaClientService {
 
 	public List<Persona> getPersones(String textSearch, Long entornId);
 	

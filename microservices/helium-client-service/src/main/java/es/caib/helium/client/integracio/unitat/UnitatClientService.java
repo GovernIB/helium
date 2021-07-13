@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 import es.caib.helium.client.integracio.unitat.model.UnitatOrganica;
 
 @Service
-public interface UnitatService {
+public interface UnitatClientService {
 
 	
 	public UnitatOrganica consultaUnitat(String codi, Long entornId);
