@@ -70,15 +70,15 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-webflux</artifactId>
 		</dependency>
-		
+
 		<!-- Monitor integracions -->
 		<dependency>
 			<groupId>es.caib.helium</groupId>
-		    <artifactId>helium-jms-events</artifactId>
-		    <version>1.0</version>
+			<artifactId>helium-jms-events</artifactId>
+			<version>1.0</version>
 		</dependency>
 		<!-- /Monitor integracions -->
-		
+
 		<dependency>
 			<groupId>es.caib.notib</groupId>
 			<artifactId>notib-client</artifactId>
@@ -143,21 +143,75 @@
 			<systemPath>${basedir}/../../helium-webapp/src/main/webapp/WEB-INF/lib/portasignatures-wsdl.jar</systemPath>
 		</dependency>
 
-		<!-- S'HAURIA DE DEIXAR DE FER SERVIR UNA LLIBRERIA QUE NO ACTUALITZA DES DEL 2008 -->
+		<!-- S'HAURIA DE DEIXAR DE FER SERVIR UNA LLIBRERIA QUE NO ACTUALITZA DES 
+			DEL 2008 -->
+		<!-- <dependency> -->
+		<!-- <groupId>com.artofsolving</groupId> -->
+		<!-- <artifactId>jodconverter</artifactId> -->
+		<!-- <version>2.2.1</version> -->
+		<!-- </dependency> -->
+
 		<dependency>
-			<groupId>com.artofsolving</groupId>
-			<artifactId>jodconverter</artifactId>
-			<version>2.2.1</version>
+			<groupId>org.jodconverter</groupId>
+			<artifactId>jodconverter-remote</artifactId>
+			<version>4.4.2</version>
 		</dependency>
-		
-		
-		<!--  plugin-validatesignature-afirmacxf 1.0.2 -->
+		<dependency>
+			<groupId>org.jodconverter</groupId>
+			<artifactId>jodconverter-spring-boot-starter</artifactId>
+			<version>4.4.2</version>
+		</dependency>
+
+<!-- 		<dependency> -->
+<!-- 			<groupId>xerces</groupId> -->
+<!-- 			<artifactId>xercesImpl</artifactId> -->
+<!-- 			<version>2.11.0</version> -->
+<!-- 			<exclusions> -->
+<!-- 				<exclusion> -->
+<!-- 					<groupId>xerces</groupId> -->
+<!-- 					<artifactId>xml-apis</artifactId> -->
+<!-- 				</exclusion> -->
+<!-- 			</exclusions> -->
+<!-- 		</dependency> -->
+<!-- 		<dependency> -->
+<!-- 			<groupId>xml-apis</groupId> -->
+<!-- 			<artifactId>xml-apis</artifactId> -->
+<!-- 			<version>1.4.01</version> -->
+<!-- 		</dependency> -->
+
+
+		<!-- <dependency> -->
+		<!-- <groupId>xerces</groupId> -->
+		<!-- <artifactId>xercesImpl</artifactId> -->
+		<!-- <version>2.11.0</version> -->
+		<!-- <optional>true</optional> -->
+		<!-- <exclusions> -->
+		<!-- <exclusion> -->
+		<!-- <groupId>xml-apis</groupId> -->
+		<!-- <artifactId>xml-apis</artifactId> -->
+		<!-- </exclusion> -->
+		<!-- </exclusions> -->
+		<!-- </dependency> -->
+		<!-- <dependency> -->
+		<!-- <groupId>xerces</groupId> -->
+		<!-- <artifactId>xerces</artifactId> -->
+		<!-- <version>2.4.0</version> -->
+		<!-- <exclusions> -->
+		<!-- <exclusion> -->
+		<!-- <groupId>xerces</groupId> -->
+		<!-- <artifactId>xercesImpl</artifactId> -->
+		<!-- </exclusion> -->
+		<!-- </exclusions> -->
+		<!-- </dependency> -->
+
+
+		<!-- plugin-validatesignature-afirmacxf 1.0.2 -->
 		<dependency>
 			<groupId>org.fundaciobit.plugins</groupId>
 			<artifactId>plugin-validatesignature-api</artifactId>
 			<version>1.0.0</version>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>org.fundaciobit.plugins</groupId>
 			<artifactId>plugin-validatesignature-afirmacxf</artifactId>
@@ -175,14 +229,14 @@
 					<groupId>xalan</groupId>
 					<artifactId>xalan</artifactId>
 				</exclusion>
-<!-- 				<exclusion> -->
-<!-- 					<groupId>org.slf4j</groupId> -->
-<!-- 					<artifactId>log4j-over-slf4j</artifactId> -->
-<!-- 				</exclusion> -->
-<!-- 				<exclusion> -->
-<!-- 					<groupId>org.slf4j</groupId> -->
-<!-- 					<artifactId>jcl-over-slf4j</artifactId> -->
-<!-- 				</exclusion> -->
+				<!-- <exclusion> -->
+				<!-- <groupId>org.slf4j</groupId> -->
+				<!-- <artifactId>log4j-over-slf4j</artifactId> -->
+				<!-- </exclusion> -->
+				<!-- <exclusion> -->
+				<!-- <groupId>org.slf4j</groupId> -->
+				<!-- <artifactId>jcl-over-slf4j</artifactId> -->
+				<!-- </exclusion> -->
 				<exclusion>
 					<groupId>org.apache.ws.security</groupId>
 					<artifactId>wss4j</artifactId>
@@ -229,9 +283,9 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
-		
-<!-- 		LLibreria no actualitza des del 2006 s'hauria de canviar -->
-		<dependency> 
+
+		<!-- LLibreria no actualitza des del 2006 s'hauria de canviar -->
+		<dependency>
 			<groupId>axis</groupId>
 			<artifactId>axis</artifactId>
 			<version>1.4</version>
@@ -241,20 +295,20 @@
 					<artifactId>axis-wsdl4j</artifactId>
 					<groupId>axis</groupId>
 				</exclusion>
-				<!--  S'ha esborrat el javax.xml.namespace -->
-<!-- 				<exclusion> -->
-<!-- 					<artifactId>axis-jaxrpc</artifactId> -->
-<!-- 					<groupId>axis</groupId> -->
-<!-- 				</exclusion> -->
+				<!-- S'ha esborrat el javax.xml.namespace -->
+				<!-- <exclusion> -->
+				<!-- <artifactId>axis-jaxrpc</artifactId> -->
+				<!-- <groupId>axis</groupId> -->
+				<!-- </exclusion> -->
 			</exclusions>
 		</dependency>
 		<dependency>
-    		<groupId>org.apache.ws.security</groupId>
-    		<artifactId>wss4j</artifactId>
-    		<version>1.6.19</version>
+			<groupId>org.apache.ws.security</groupId>
+			<artifactId>wss4j</artifactId>
+			<version>1.6.19</version>
 		</dependency>
-		
-		<!--  Dependencies Regweb-ws -->	
+
+		<!-- Dependencies Regweb-ws -->
 		<dependency>
 			<groupId>es.caib</groupId>
 			<artifactId>regweb-ws</artifactId>
@@ -262,9 +316,9 @@
 			<scope>system</scope>
 			<systemPath>${basedir}/../../helium-webapp/src/main/webapp/WEB-INF/lib/regweb-ws.jar</systemPath>
 		</dependency>
-		
+
 		<!-- Dependencies REGWEB3 -->
-		
+
 		<!-- <dependency> -->
 		<!-- <groupId>es.caib.regweb3</groupId> -->
 		<!-- <artifactId>regweb3-utils</artifactId> -->
@@ -289,8 +343,8 @@
 		<!-- <version>1.6.2</version> -->
 		<!-- </dependency> -->
 		<!-- /Dependències REGWEB3 -->
-		
-		<!-- plugin-arxiu-caib 2.0.8 --> 
+
+		<!-- plugin-arxiu-caib 2.0.8 -->
 		<dependency>
 			<groupId>org.fundaciobit.pluginsib.arxiu</groupId>
 			<artifactId>pluginsib-arxiu-caib</artifactId>
@@ -302,9 +356,9 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
-		<!-- /plugin-arxiu-caib 2.0.8 --> 
+		<!-- /plugin-arxiu-caib 2.0.8 -->
 
-		<!--  custodia -->
+		<!-- custodia -->
 		<dependency>
 			<groupId>es.caib</groupId>
 			<artifactId>valcert-sar-axis</artifactId>

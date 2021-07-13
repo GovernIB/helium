@@ -3,6 +3,7 @@
  */
 package es.caib.helium.logic.service;
 
+import es.caib.helium.client.integracio.persones.model.Persona;
 import es.caib.helium.logic.helper.ConversioTipusServiceHelper;
 import es.caib.helium.logic.helper.PluginHelper;
 import es.caib.helium.logic.helper.UsuariActualHelper;
@@ -23,6 +24,8 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.annotation.Resource;
 import java.io.ByteArrayOutputStream;
 import java.util.List;
+
+import es.caib.helium.client.integracio.persones.model.Persona;
 
 /**
  * Implementació dels mètodes de AplicacioService.
@@ -87,7 +90,7 @@ public class AplicacioServiceImpl implements AplicacioService {
 	 */
 	@Override
 	@Transactional(readOnly = true)
-	public List<PersonaDto> findPersonaLikeNomSencer(String text) {
+	public List<Persona> findPersonaLikeNomSencer(String text) {
 		return pluginHelper.personaFindLikeNomSencer(text);
 	}
 

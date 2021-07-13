@@ -46,8 +46,7 @@ public class DeploymentController {
      * @param deploymentId
      * @return
      */
-    @GetMapping(value = "/{deploymentId}",
-            produces = { "application/json" })
+    @GetMapping(value = "/{deploymentId}", produces = { "application/json" })
     ResponseEntity<WDeployment> getDesplegament(@PathVariable String deploymentId) {
         return new ResponseEntity<>(deploymentService.getDesplegament(deploymentId), HttpStatus.OK);
     }

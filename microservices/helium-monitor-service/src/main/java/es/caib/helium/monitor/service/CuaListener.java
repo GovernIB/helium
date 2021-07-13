@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import es.caib.helium.jms.cua.Cua;
-import es.caib.helium.jms.domini.MessageEvent;
+import es.caib.helium.monitor.domini.MessageEvent;
 import es.caib.helium.monitor.exception.MonitorIntegracionsException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

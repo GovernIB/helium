@@ -12,7 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class UnitatServiceImpl implements UnitatService {
+public class UnitatClientServiceImpl implements UnitatClientService {
 	
 	private final String missatgeLog = "Cridant Integracio Service - Unitat - ";
 	

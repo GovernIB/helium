@@ -5,7 +5,6 @@ import java.util.Objects;
 
 import org.springframework.stereotype.Service;
 
-import es.caib.helium.client.integracio.persones.PersonaServiceImpl;
 import es.caib.helium.client.integracio.portafirmes.enums.TipusEstat;
 import es.caib.helium.client.integracio.portafirmes.model.PortaFirma;
 import es.caib.helium.client.integracio.portafirmes.model.PortaFirmesFlux;

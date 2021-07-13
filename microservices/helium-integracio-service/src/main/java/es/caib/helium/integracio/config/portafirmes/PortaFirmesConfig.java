@@ -33,6 +33,8 @@ public class PortaFirmesConfig {
 	
 	@Autowired
 	private Environment env;
+	@Autowired
+	OpenOfficeUtils openOfficeUtils;
 
 	@Bean(name = "portaFirmesService")
 	public PortaFirmesService instanciarService() throws ServeisExternsException {
@@ -53,10 +55,7 @@ public class PortaFirmesConfig {
 				path = env.getRequiredProperty("es.caib.helium.integracio.portafirmes.portafib.path.usuari.entitat");
 				retorn.setUsuariEntitatApi(crearApiUsuariEntitat(baseUrl, path, user, password, isLogActiu));
 
-				retorn.setOpenOfficeUtils(new OpenOfficeUtils(
-						env.getRequiredProperty("es.caib.helium.integracio.portafirmes.open.office.conversio.host"),
-						env.getRequiredProperty("es.caib.helium.integracio.portafirmes.open.office.conversio.port", Integer.class),
-						env.getRequiredProperty("es.caib.helium.integracio.portafirmes.open.office.conversio.timeout", Integer.class)));
+				retorn.setOpenOfficeUtils(openOfficeUtils);
 			}
 			return service;
 		} catch (Exception ex) {

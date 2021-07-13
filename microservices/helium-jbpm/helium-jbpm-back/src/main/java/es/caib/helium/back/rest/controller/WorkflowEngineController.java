@@ -63,7 +63,7 @@ import static es.caib.helium.back.rest.helper.VariableHelper.variableRestToObjec
 
 @Slf4j
 @Controller
-@RequestMapping("/engine/api")
+@RequestMapping("/api/v1")
 public class WorkflowEngineController {
 
     @Autowired
@@ -814,6 +814,10 @@ public class WorkflowEngineController {
                 workflowEngineApi.findPersonesByGrup(grupCodi),
                 HttpStatus.OK);
     }
+
+
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
 

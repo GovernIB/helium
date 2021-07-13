@@ -18,7 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class TascaServiceImpl implements TascaService {
+public class TascaClientServiceImpl implements TascaClientService {
 	
 	private final String missatgeLog = "Cridant Expedient Service - Tasca - ";
 	

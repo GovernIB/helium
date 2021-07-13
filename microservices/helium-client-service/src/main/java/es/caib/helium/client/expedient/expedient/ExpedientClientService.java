@@ -14,7 +14,7 @@ import es.caib.helium.client.expedient.expedient.model.ExpedientDto;
 import es.caib.helium.client.model.PagedList;
 
 @Service
-public interface ExpedientService {
+public interface ExpedientClientService {
 
 	public PagedList<ExpedientDto> findExpedientsAmbFiltrePaginatV1(
 	           Long entornId,

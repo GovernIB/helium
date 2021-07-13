@@ -4,8 +4,8 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
-import es.caib.helium.jms.events.IntegracioEvent;
 import es.caib.helium.monitor.domini.Consulta;
+import es.caib.helium.monitor.domini.IntegracioEvent;
 import es.caib.helium.monitor.domini.PagedList;
 import es.caib.helium.monitor.exception.MonitorIntegracionsException;
 

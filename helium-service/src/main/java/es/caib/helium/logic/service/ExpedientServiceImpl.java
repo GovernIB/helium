@@ -3,6 +3,7 @@
  */
 package es.caib.helium.logic.service;
 
+import es.caib.helium.client.expedient.expedient.ExpedientClientService;
 import es.caib.helium.logic.helper.*;
 import es.caib.helium.logic.intf.WProcessInstance;
 import es.caib.helium.logic.intf.WTaskInstance;
@@ -15,13 +16,7 @@ import es.caib.helium.logic.intf.dto.ExpedientDto.IniciadorTipusDto;
 import es.caib.helium.logic.intf.dto.ExpedientErrorDto.ErrorTipusDto;
 import es.caib.helium.logic.intf.dto.PaginacioParamsDto.OrdreDireccioDto;
 import es.caib.helium.logic.intf.dto.PaginacioParamsDto.OrdreDto;
-import es.caib.helium.logic.intf.exception.ExecucioHandlerException;
-import es.caib.helium.logic.intf.exception.NoTrobatException;
-import es.caib.helium.logic.intf.exception.PermisDenegatException;
-import es.caib.helium.logic.intf.exception.TramitacioException;
-import es.caib.helium.logic.intf.exception.TramitacioHandlerException;
-import es.caib.helium.logic.intf.exception.TramitacioValidacioException;
-import es.caib.helium.logic.intf.exception.ValidacioException;
+import es.caib.helium.logic.intf.exception.*;
 import es.caib.helium.logic.intf.service.AnotacioService;
 import es.caib.helium.logic.intf.service.ExpedientService;
 import es.caib.helium.logic.intf.util.Constants;
@@ -56,7 +51,6 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
-
 
 /**
  * Implementació dels mètodes del servei ExpedientService.
@@ -141,6 +135,9 @@ public class ExpedientServiceImpl implements ExpedientService {
 	private DistribucioHelper distribucioHelper;
 	@Resource
 	private AnotacioService anotacioService;
+
+	@Resource
+	private ExpedientClientService expedientClientService;
 
 	/**
 	 * {@inheritDoc}
@@ -468,6 +465,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 		}
 		expedientRepository.delete(expedient);
 		// TODO: MS de dades i MS expedients --> Borrar expedient
+		expedientClientService.deleteExpedientV1(expedient.getId());
 //		luceneHelper.deleteExpedient(expedient);
 		if (expedient.getArxiuUuid() != null && pluginHelper.arxiuExisteixExpedient(expedient.getArxiuUuid())) {			
 			pluginHelper.arxiuExpedientEsborrar(expedient.getArxiuUuid());

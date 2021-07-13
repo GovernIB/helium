@@ -7,8 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
-import es.caib.helium.jms.events.IntegracioEvent;
 import es.caib.helium.monitor.domini.Consulta;
+import es.caib.helium.monitor.domini.IntegracioEvent;
 import es.caib.helium.monitor.domini.PagedList;
 import es.caib.helium.monitor.exception.MonitorIntegracionsException;
 import es.caib.helium.monitor.repository.IntegracioEventRepository;
@@ -33,8 +33,6 @@ public class MongoBddService extends ServiceBase implements BddService {
 		return event;
 	}
 
-
-	
 	@Override
 	public PagedList<IntegracioEvent> findByFiltresPaginat(Consulta consulta) throws MonitorIntegracionsException {
 		

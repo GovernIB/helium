@@ -1,6 +1,6 @@
 package es.caib.helium.integracio.excepcions.portafirmes;
 
-public class PortaFirmesException extends Exception {
+public class PortaFirmesException extends RuntimeException {
 
 	private static final long serialVersionUID = 1L;
 

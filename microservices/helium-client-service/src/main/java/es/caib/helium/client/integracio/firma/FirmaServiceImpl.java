@@ -15,7 +15,7 @@ public class FirmaServiceImpl implements FirmaService {
 
 	private final String missatgeLog = "Cridant Integracio Service - Firma - ";
 	
-	private final FirmaFeignClient firmaClient;
+	private FirmaFeignClient firmaClient;
 	
 	@Override
 	public byte[] firmar(FirmaPost firma, Long entornId) {

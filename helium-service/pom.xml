@@ -360,7 +360,13 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
-				
+
+		<dependency>
+			<groupId>es.caib.helium</groupId>
+			<artifactId>helium-client-service</artifactId>
+			<version>1.0.0</version>
+		</dependency>
+
 	</dependencies>
 	<repositories>
 		<repository>

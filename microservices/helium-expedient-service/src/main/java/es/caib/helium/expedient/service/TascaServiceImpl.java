@@ -64,7 +64,9 @@ public class TascaServiceImpl implements TascaService {
         }
         
         Tasca tasca = tascaMapper.dtoToEntity(tascaDto);
-        tasca.getResponsables().clear();
+        if (tasca.getResponsables() != null) { // TODO sense if passava validacio i petava.
+        	tasca.getResponsables().clear();
+        }
         
         if (tascaDto.getExpedientId() != null) {
         	Optional<Expedient> expedientOptional = expedientRepository.findById(tascaDto.getExpedientId());
