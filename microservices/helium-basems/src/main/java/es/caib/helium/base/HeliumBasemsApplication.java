@@ -7,10 +7,10 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
 @EnableFeignClients(basePackages = {"es.caib.helium.client"})
 // TODO: eliminar les exclusions i configurar la securització
 @SpringBootApplication(
-//		exclude = {
-//				org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration.class,
-//				org.springframework.boot.actuate.autoconfigure.security.servlet.ManagementWebSecurityAutoConfiguration.class
-//		},
+		exclude = {
+				org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration.class,
+				org.springframework.boot.actuate.autoconfigure.security.servlet.ManagementWebSecurityAutoConfiguration.class
+		},
 		scanBasePackages = {
 				"es.caib.helium.base",
 				"es.caib.helium.client"

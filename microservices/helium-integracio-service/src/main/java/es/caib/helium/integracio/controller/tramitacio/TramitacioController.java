@@ -48,6 +48,20 @@ public class TramitacioController {
 		return new ResponseEntity<Void>(HttpStatus.INTERNAL_SERVER_ERROR);
 	}
 
+	@GetMapping(value = "expedient/{identificadorExpediente}/unitat/{unidadAdministrativa}", produces = "application/json")
+	public ResponseEntity<Boolean> existeixExpedient(
+			@PathVariable("unidadAdministrativa") Long unidadAdministrativa,
+			@PathVariable("identificadorExpediente") String identificadorExpediente,
+			@RequestParam("entornId") Long entornId) throws Exception {
+
+		log.info("Existeix expedient");
+		if (unidadAdministrativa == null || Strings.isNullOrEmpty(identificadorExpediente) ) {
+			return new ResponseEntity<Boolean>(HttpStatus.BAD_REQUEST);
+		}
+		var existeix = tramitacioService.existeixExpedient(unidadAdministrativa, identificadorExpediente, entornId);
+		return new ResponseEntity<Boolean>(existeix, HttpStatus.OK);
+	}
+
 	@GetMapping(value = "{numRegistre}/justificant", produces = "application/json")
 	public ResponseEntity<RespostaJustificantRecepcio> getJustificant(
 			@Valid @PathVariable("numRegistre") String numRegistre,

@@ -4,6 +4,7 @@ import java.util.List;
 
 import javax.validation.Valid;
 
+import es.caib.helium.client.model.RespostaValidacioSignatura;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -12,7 +13,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import es.caib.helium.client.integracio.custodia.model.CustodiaRequest;
-import es.caib.helium.client.integracio.custodia.model.RespostaValidacioSignatura;
 
 public interface CustodiaFeignClient {
 

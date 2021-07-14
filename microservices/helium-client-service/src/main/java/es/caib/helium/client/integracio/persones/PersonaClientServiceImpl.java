@@ -1,5 +1,6 @@
 package es.caib.helium.client.integracio.persones;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -17,7 +18,14 @@ public class PersonaClientServiceImpl implements PersonaClientService {
 	private final String missatgeLog = "Cridant Integracio Service - Persona - ";
 	
 	private PersonaFeignClient personaClient;
-	
+
+	@Override
+	public List<Persona> findAll(Long entornId) {
+
+		//TODO Metode no implementat al microservei. Veure des d'on es crida
+		return null;
+	}
+
 	@Override
 	public List<Persona> getPersones(String textSearch, Long entornId) {
 		

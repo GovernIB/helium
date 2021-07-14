@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 
 import es.caib.helium.client.integracio.arxiu.model.ArxiuFirma;
 import es.caib.helium.client.integracio.arxiu.model.ArxiuFirmaDetall;
-import es.caib.helium.client.integracio.validacio.model.RespostaValidacioSignatura;
+import es.caib.helium.client.model.RespostaValidacioSignatura;
 import es.caib.helium.client.integracio.validacio.model.VerificacioFirma;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -15,7 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class ValidacioServiceImpl  implements ValidacioService {
+public class ValidacioClientClientServiceImpl implements ValidacioClientService {
 
 	private final String missatgeLog = "Cridant Integracio Service - Validacio - ";
 	

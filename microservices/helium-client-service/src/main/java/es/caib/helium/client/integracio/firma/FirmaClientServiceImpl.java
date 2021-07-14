@@ -11,7 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class FirmaServiceImpl implements FirmaService {
+public class FirmaClientServiceImpl implements FirmaClientService {
 
 	private final String missatgeLog = "Cridant Integracio Service - Firma - ";
 	

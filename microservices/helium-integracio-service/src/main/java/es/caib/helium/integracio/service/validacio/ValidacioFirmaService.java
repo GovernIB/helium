@@ -13,7 +13,7 @@ import es.caib.helium.integracio.excepcions.validacio.ValidacioFirmaException;
 @Service
 public interface ValidacioFirmaService {
 	
-	public RespostaValidacioSignatura verificarFirma(VerificacioFirma verificacio) throws ValidacioFirmaException;
-	public List<ArxiuFirma> validarFirma(VerificacioFirma validar) throws ValidacioFirmaException;
-	public List<ArxiuFirmaDetall> validarSignaturaObtenirDetalls(VerificacioFirma validacio) throws ValidacioFirmaException;
+	RespostaValidacioSignatura verificarFirma(VerificacioFirma verificacio) throws ValidacioFirmaException;
+	List<ArxiuFirma> validarFirma(VerificacioFirma validar) throws ValidacioFirmaException;
+	List<ArxiuFirmaDetall> validarSignaturaObtenirDetalls(VerificacioFirma validacio) throws ValidacioFirmaException;
 }

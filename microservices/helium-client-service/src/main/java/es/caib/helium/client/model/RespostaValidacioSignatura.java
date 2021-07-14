@@ -1,4 +1,4 @@
-package es.caib.helium.client.integracio.validacio.model;
+package es.caib.helium.client.model;
 
 import java.util.List;
 

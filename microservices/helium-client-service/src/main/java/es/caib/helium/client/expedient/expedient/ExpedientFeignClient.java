@@ -1,25 +1,17 @@
 package es.caib.helium.client.expedient.expedient;
 
-import java.util.Date;
-
-import javax.validation.Valid;
-
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-
 import com.fasterxml.jackson.databind.JsonNode;
-
 import es.caib.helium.client.expedient.expedient.enums.ExpedientEstatTipusEnum;
 import es.caib.helium.client.expedient.expedient.enums.MostrarAnulatsEnum;
 import es.caib.helium.client.expedient.expedient.model.ExpedientDto;
 import es.caib.helium.client.model.PagedList;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Date;
 
 public interface ExpedientFeignClient {
 
@@ -42,16 +34,16 @@ public interface ExpedientFeignClient {
 	           @RequestParam(value = "nomesAlertes", required = false, defaultValue = "false") boolean nomesAlertes,
 	           @RequestParam(value = "nomesErrors", required = false, defaultValue = "false") boolean nomesErrors,
 	           @RequestParam(value = "mostrarAnulats", required = false) MostrarAnulatsEnum mostrarAnulats,
-	           final Pageable pageable,	
-	           final Sort sort);
+			   @RequestParam(value = "pageable") final Pageable pageable,
+			   @RequestParam(value = "sort") final Sort sort);
 	
 	@RequestMapping(method = RequestMethod.POST, value = ExpedientApiPath.CREATE_EXPEDIENT)
-	public ResponseEntity<Void> createExpedientV1(@Valid @RequestBody ExpedientDto expedientDto);
+	public ResponseEntity<Void> createExpedientV1(@RequestBody ExpedientDto expedientDto);
 	
 	@RequestMapping(method = RequestMethod.PUT, value = ExpedientApiPath.PUT_EXPEDIENT)
 	public ResponseEntity<Void> updateExpedientV1(
             @PathVariable("expedientId") Long expedientId,
-            @Valid @RequestBody ExpedientDto expedientDto);
+            @RequestBody ExpedientDto expedientDto);
 	
 	@RequestMapping(method = RequestMethod.PATCH, value = ExpedientApiPath.PATCH_EXPEDIENT)
 	public ResponseEntity<Void> patchExpedientV1(

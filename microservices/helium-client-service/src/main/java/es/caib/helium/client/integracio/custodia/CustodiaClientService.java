@@ -2,13 +2,13 @@ package es.caib.helium.client.integracio.custodia;
 
 import java.util.List;
 
+import es.caib.helium.client.model.RespostaValidacioSignatura;
 import org.springframework.stereotype.Service;
 
 import es.caib.helium.client.integracio.custodia.model.CustodiaRequest;
-import es.caib.helium.client.integracio.custodia.model.RespostaValidacioSignatura;
 
 @Service
-public interface CustodiaService {
+public interface CustodiaClientService {
 	
 	public String afegirSignatura(CustodiaRequest request, Long entornId);
 	

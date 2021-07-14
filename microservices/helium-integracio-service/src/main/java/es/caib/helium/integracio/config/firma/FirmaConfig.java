@@ -1,8 +1,8 @@
 package es.caib.helium.integracio.config.firma;
 
-import java.util.Properties;
-
-import org.fundaciobit.plugins.signatureserver.api.ISignatureServerPlugin;
+import es.caib.helium.integracio.excepcions.ServeisExternsException;
+import es.caib.helium.integracio.service.firma.FirmaService;
+import es.caib.helium.integracio.service.firma.FirmaServicePortaFibImpl;
 import org.fundaciobit.plugins.signatureserver.portafib.PortaFIBSignatureServerPlugin;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -11,9 +11,7 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
 
-import es.caib.helium.integracio.excepcions.ServeisExternsException;
-import es.caib.helium.integracio.service.firma.FirmaService;
-import es.caib.helium.integracio.service.firma.FirmaServicePortaFibImpl;
+import java.util.Properties;
 
 @Configuration
 @ConfigurationProperties(prefix = "es.caib.helium.integracio")

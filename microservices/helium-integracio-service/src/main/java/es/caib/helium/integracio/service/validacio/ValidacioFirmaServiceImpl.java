@@ -47,7 +47,8 @@ public class ValidacioFirmaServiceImpl implements ValidacioFirmaService {
 		List<Parametre> parametres = new ArrayList<>();
 		parametres.add(new Parametre("document.length", (verificacio.getDocumentContingut() != null ? verificacio.getDocumentContingut() : 0) + "bytes"));
 		parametres.add(new Parametre("signatura.length", (verificacio.getFirmaContingut() != null ? verificacio.getFirmaContingut() : 0) + "bytes"));
-		
+		parametres.add(new Parametre("obtenirDadesCertificat", verificacio.isObtenirDadesCertificat() + ""));
+
 		try {
 			var resposta = signaturaPlugin.verificarSignatura(verificacio.getDocumentContingut(), verificacio.getFirmaContingut(), verificacio.isObtenirDadesCertificat());
 			

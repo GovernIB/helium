@@ -19,5 +19,7 @@ public class TramitacioPath {
 	public static final String CREAR_EVENT_ZONA_PERSONAL = "zonaper/event/crear";
 
 	public static final String REGISTRAR_NOTIFICACIO = "zonaper/notificacio/registrar";
-	
+
+	public static final String EXISTEIX_EXPEDIENT = "expedient/{identificadorExpediente}/unitat/{unidadAdministrativa}";
+
 }

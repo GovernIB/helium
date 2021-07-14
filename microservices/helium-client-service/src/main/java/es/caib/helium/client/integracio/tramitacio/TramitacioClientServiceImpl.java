@@ -1,31 +1,32 @@
 package es.caib.helium.client.integracio.tramitacio;
 
-import java.util.Objects;
-
-import org.springframework.stereotype.Service;
-
 import es.caib.helium.client.integracio.registre.model.RegistreNotificacio;
 import es.caib.helium.client.integracio.registre.model.RespostaAnotacioRegistre;
-import es.caib.helium.client.integracio.tramitacio.model.DadesTramit;
-import es.caib.helium.client.integracio.tramitacio.model.DadesVistaDocument;
-import es.caib.helium.client.integracio.tramitacio.model.ObtenirVistaDocumentRequest;
-import es.caib.helium.client.integracio.tramitacio.model.PublicarEventRequest;
-import es.caib.helium.client.integracio.tramitacio.model.PublicarExpedientRequest;
-import es.caib.helium.client.integracio.tramitacio.model.RespostaJustificantDetallRecepcio;
-import es.caib.helium.client.integracio.tramitacio.model.RespostaJustificantRecepcio;
-import es.caib.helium.client.integracio.tramitacio.model.ResultatProcesTramitRequest;
+import es.caib.helium.client.integracio.tramitacio.model.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+
+import java.util.Objects;
 
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class TramitacioServiceImpl implements TramitacioService {
+public class TramitacioClientServiceImpl implements TramitacioClientService {
 
 	private final String missatgeLog = "Cridant Integracio Service - Tramitacio - ";
 	
 	private TramitacioFeignClient tramitacioClient;
-	
+
+	@Override
+	public Boolean existeixExpedient(Long unidadAdministrativa, String identificadorExpediente, Long entornId) {
+
+		log.debug(missatgeLog + " Existeix l'expedient amb identificador " + identificadorExpediente
+				+  " i unitat administrativa " + unidadAdministrativa + " per l'entornId " + entornId);
+		var responseEntity = tramitacioClient.existeixExpedient(unidadAdministrativa, identificadorExpediente, entornId);
+		return Objects.requireNonNull(responseEntity.getBody());
+	}
+
 	@Override
 	public RespostaJustificantRecepcio getJustificant(String numRegistre, Long entornId) {
 

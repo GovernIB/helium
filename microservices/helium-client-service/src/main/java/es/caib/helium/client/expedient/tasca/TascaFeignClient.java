@@ -1,24 +1,17 @@
 package es.caib.helium.client.expedient.tasca;
 
-import java.util.Date;
-import java.util.List;
-
-import javax.validation.Valid;
-
+import com.fasterxml.jackson.databind.JsonNode;
+import es.caib.helium.client.expedient.tasca.model.TascaDto;
+import es.caib.helium.client.model.PagedList;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
-import com.fasterxml.jackson.databind.JsonNode;
-
-import es.caib.helium.client.expedient.tasca.model.TascaDto;
-import es.caib.helium.client.model.PagedList;
+import javax.validation.Valid;
+import java.util.Date;
+import java.util.List;
 
 public interface TascaFeignClient {
 
@@ -40,9 +33,8 @@ public interface TascaFeignClient {
             @RequestParam(value = "mostrarAssignadesGrup", required = false, defaultValue = "false") boolean mostrarAssignadesGrup,
             @RequestParam(value = "nomesPendents", required = false, defaultValue = "false") boolean nomesPendents,
             @RequestParam(value = "filtre", required = false) String filtre,
-                        
-            final Pageable pageable,
-            final Sort sort);
+			@RequestParam(value = "pageable") final Pageable pageable,
+			@RequestParam(value = "sort") final Sort sort);
 	
 	@RequestMapping(method = RequestMethod.POST, value = TascaApiPath.CREATE_TASCA)
 	public ResponseEntity<Void> createTascaV1(

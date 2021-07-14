@@ -3,17 +3,17 @@ package es.caib.helium.client.integracio.custodia;
 import java.util.List;
 import java.util.Objects;
 
+import es.caib.helium.client.model.RespostaValidacioSignatura;
 import org.springframework.stereotype.Service;
 
 import es.caib.helium.client.integracio.custodia.model.CustodiaRequest;
-import es.caib.helium.client.integracio.custodia.model.RespostaValidacioSignatura;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class CustodiaServiceImpl implements CustodiaService {
+public class CustodiaClientServiceImpl implements CustodiaClientService {
 	
 	private final String missatgeLog = "Cridant Integracio Service - Custodia - ";
 	
@@ -59,7 +59,7 @@ public class CustodiaServiceImpl implements CustodiaService {
 		log.debug(missatgeLog + " afegint signatura per l'entorn " + entornId + " amb documentId " + documentId);
 		var responseEntity = custodiaClient.getDadesValidacioSignatura(documentId, entornId);
 		var resultat = Objects.requireNonNull(responseEntity.getBody());
-    	return resultat;
+		return resultat;
 	}
 
 	@Override

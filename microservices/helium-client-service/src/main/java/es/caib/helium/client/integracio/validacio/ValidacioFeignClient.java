@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 
 import es.caib.helium.client.integracio.arxiu.model.ArxiuFirma;
 import es.caib.helium.client.integracio.arxiu.model.ArxiuFirmaDetall;
-import es.caib.helium.client.integracio.validacio.model.RespostaValidacioSignatura;
+import es.caib.helium.client.model.RespostaValidacioSignatura;
 import es.caib.helium.client.integracio.validacio.model.VerificacioFirma;
 
 public interface ValidacioFeignClient {

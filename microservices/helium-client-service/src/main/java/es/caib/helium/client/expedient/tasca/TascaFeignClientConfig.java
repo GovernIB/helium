@@ -1,9 +1,9 @@
-package es.caib.helium.client.expedient;
+package es.caib.helium.client.expedient.tasca;
 
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-public class ExpedientFeignClientConfig {
+public class TascaFeignClientConfig {
 
 //  @Bean
 //  public BasicAuthRequestInterceptor basicAuthRequestInterceptor(
