@@ -13,7 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class ExecutionServiceImpl implements ExecutionService {
+public class ExecutionClientImpl implements ExecutionClient {
 
 	private final String missatgeLog = "Cridant Engine Service - Execution - ";
 

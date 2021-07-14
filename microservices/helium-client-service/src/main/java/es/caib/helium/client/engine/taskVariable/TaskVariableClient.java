@@ -8,7 +8,7 @@ import es.caib.helium.client.engine.model.UpdateVariablesData;
 import es.caib.helium.client.engine.model.VariableRest;
 
 @Service
-public interface TaskVariableService {
+public interface TaskVariableClient {
 
 	public List<VariableRest> getTaskInstanceVariables(String taskId);
 	

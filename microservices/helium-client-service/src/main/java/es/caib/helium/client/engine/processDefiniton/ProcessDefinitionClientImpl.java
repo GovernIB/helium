@@ -12,7 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class ProcessDefinitionServiceImpl implements ProcessDefinitionService {
+public class ProcessDefinitionClientImpl implements ProcessDefinitionClient {
 
 	private final String missatgeLog = "Cridant Engine Service - ProcessDefinition - ";
 

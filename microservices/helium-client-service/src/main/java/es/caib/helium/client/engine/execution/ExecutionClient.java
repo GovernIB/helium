@@ -8,7 +8,7 @@ import es.caib.helium.client.engine.model.RedirectTokenData;
 import es.caib.helium.client.engine.model.WToken;
 
 @Service
-public interface ExecutionService {
+public interface ExecutionClient {
 
 	public WToken getTokenById(String tokenId);
 	

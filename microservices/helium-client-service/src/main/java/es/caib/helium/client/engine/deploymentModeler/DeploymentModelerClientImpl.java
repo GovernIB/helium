@@ -8,7 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class DeploymentModelerServiceImpl implements DeploymentModelerService {
+public class DeploymentModelerClientImpl implements DeploymentModelerClient {
 
 	private final String missatgeLog = "Cridant Engine Service - DeploymentModeler - ";
 

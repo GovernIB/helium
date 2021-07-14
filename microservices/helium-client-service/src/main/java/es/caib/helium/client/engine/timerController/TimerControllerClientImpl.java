@@ -10,7 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class TimerControllerServiceImpl implements TimerControllerService {
+public class TimerControllerClientImpl implements TimerControllerClient {
 
 	private final String missatgeLog = "Cridant Engine Service - TimeController - ";
 

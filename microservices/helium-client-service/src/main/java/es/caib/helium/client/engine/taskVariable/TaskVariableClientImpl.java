@@ -13,7 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class TaskVariableServiceImpl implements TaskVariableService {
+public class TaskVariableClientImpl implements TaskVariableClient {
 
 	private final String missatgeLog = "Cridant Engine Service - TaskVariable - ";
 

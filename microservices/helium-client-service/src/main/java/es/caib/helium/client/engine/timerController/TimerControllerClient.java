@@ -5,7 +5,7 @@ import java.util.Date;
 import org.springframework.stereotype.Service;
 
 @Service
-public interface TimerControllerService {
+public interface TimerControllerClient {
 
 	public void suspendTimer(String timerId, Date dueDate);
 	

@@ -10,7 +10,7 @@ import es.caib.helium.client.engine.model.ScriptData;
 import es.caib.helium.client.engine.model.VariableRest;
 
 @Service
-public interface ActionService {
+public interface ActionClient {
 
 	public List<VariableRest> evaluateScript(String processInstanceId, ScriptData scriptData);
 	

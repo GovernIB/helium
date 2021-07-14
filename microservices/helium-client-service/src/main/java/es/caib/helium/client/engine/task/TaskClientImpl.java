@@ -14,7 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class TaskServiceImpl implements TaskService {
+public class TaskClientImpl implements TaskClient {
 
 	private final String missatgeLog = "Cridant Engine Service - Task - ";
 

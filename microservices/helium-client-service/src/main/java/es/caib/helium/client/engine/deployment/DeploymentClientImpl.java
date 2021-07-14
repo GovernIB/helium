@@ -14,7 +14,7 @@ import java.util.Set;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class DesploymentServiceImpl implements DeploymentService {
+public class DeploymentClientImpl implements DeploymentClient {
 	
 	private final String missatgeLog = "Cridant Engine Service - Deployment - ";
 

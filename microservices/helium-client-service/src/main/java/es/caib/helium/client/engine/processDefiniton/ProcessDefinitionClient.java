@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 import es.caib.helium.client.engine.model.WProcessDefinition;
 
 @Service
-public interface ProcessDefinitionService {
+public interface ProcessDefinitionClient {
 
 	public WProcessDefinition getProcessDefinition(String deploymentId, String processDefinitionId);
 	

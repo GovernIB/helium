@@ -9,7 +9,7 @@ import es.caib.helium.client.engine.model.ReassignTaskData;
 import es.caib.helium.client.engine.model.WTaskInstance;
 
 @Service
-public interface TaskService {
+public interface TaskClient {
 
 	public WTaskInstance getTaskById(String taskId);
 	

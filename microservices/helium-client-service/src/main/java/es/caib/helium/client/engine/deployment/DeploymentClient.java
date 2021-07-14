@@ -11,7 +11,7 @@ import org.springframework.web.multipart.MultipartFile;
 import es.caib.helium.client.engine.model.WDeployment;
 
 @Service
-public interface DeploymentService {
+public interface DeploymentClient {
 
 	public WDeployment getDesplegament(@PathVariable String deploymentId);
 	

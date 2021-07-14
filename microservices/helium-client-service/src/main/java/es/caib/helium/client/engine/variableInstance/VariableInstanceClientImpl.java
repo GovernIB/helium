@@ -8,7 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class VariableInstanceServiceImpl implements VariableInstanceService {
+public class VariableInstanceClientImpl implements VariableInstanceClient {
 
 	private final String missatgeLog = "Cridant Engine Service - VariableInstance - ";
 

@@ -1,9 +1,9 @@
-package es.caib.helium.client.engine;
+package es.caib.helium.client.engine.execution;
 
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-public class EngineFeignClientConfig {
+public class ExecutionFeignClientConfig {
 
     //  @Bean
 //  public BasicAuthRequestInterceptor basicAuthRequestInterceptor(
