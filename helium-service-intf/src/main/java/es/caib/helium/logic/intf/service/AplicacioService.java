@@ -3,12 +3,12 @@
  */
 package es.caib.helium.logic.intf.service;
 
+import es.caib.helium.client.integracio.persones.model.Persona;
 import es.caib.helium.logic.intf.dto.DocumentConversioDto;
 import es.caib.helium.logic.intf.dto.PersonaDto;
 import es.caib.helium.logic.intf.dto.UsuariPreferenciesDto;
 import es.caib.helium.logic.intf.exception.NoTrobatException;
 import es.caib.helium.logic.intf.exception.SistemaExternException;
-import es.caib.helium.logic.intf.integracio.notificacio.Persona;
 import es.caib.helium.logic.intf.util.GlobalProperties;
 
 import java.util.List;

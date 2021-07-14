@@ -5,6 +5,7 @@ package es.caib.helium.back.controller;
 
 import es.caib.helium.back.command.ExpedientTascaReassignarCommand;
 import es.caib.helium.back.helper.MissatgesHelper;
+import es.caib.helium.client.integracio.persones.model.Persona;
 import es.caib.helium.logic.intf.dto.PersonaDto;
 import es.caib.helium.logic.intf.service.AplicacioService;
 import es.caib.helium.logic.intf.service.ExpedientTascaService;
@@ -102,9 +103,9 @@ public class ExpedientTasquesReassignarController extends BaseExpedientControlle
 	public String personaSuggest(
 			@PathVariable String text,
 			Model model) {
-		List<PersonaDto> lista = aplicacioService.findPersonaLikeNomSencer(text);
+		List<Persona> lista = aplicacioService.findPersonaLikeNomSencer(text);
 		String json = "[";
-		for (PersonaDto persona: lista) {
+		for (Persona persona: lista) {
 			json += "{\"codi\":\"" + persona.getCodi() + "\", \"nom\":\"" + persona.getNomSencer() + "\"},";
 		}
 		if (json.length() > 1) json = json.substring(0, json.length() - 1);

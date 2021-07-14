@@ -5,6 +5,7 @@ import es.caib.helium.back.helper.MissatgesHelper;
 import es.caib.helium.back.helper.ObjectTypeEditorHelper;
 import es.caib.helium.back.helper.SessionHelper;
 import es.caib.helium.back.helper.SessionHelper.SessionManager;
+import es.caib.helium.client.integracio.persones.model.Persona;
 import es.caib.helium.logic.intf.dto.EntornDto;
 import es.caib.helium.logic.intf.dto.ExecucioMassivaDto;
 import es.caib.helium.logic.intf.dto.ExecucioMassivaDto.ExecucioMassivaTipusDto;
@@ -89,9 +90,9 @@ public class MassivaTascaReassignacioController extends BaseExpedientController 
 //		} catch (UnsupportedEncodingException ex) {
 //			logger.error("MassivaTascaReassignacioController.personaSuggest --> " + ex.getMessage());
 //		}
-		List<PersonaDto> lista = aplicacioService.findPersonaLikeNomSencer(textDecoded);
+		List<Persona> lista = aplicacioService.findPersonaLikeNomSencer(textDecoded);
 		String json = "[";
-		for (PersonaDto persona: lista) {
+		for (Persona persona: lista) {
 			json += "{\"codi\":\"" + persona.getCodi() + "\", \"nom\":\"" + persona.getNomSencer() + "\"},";
 		}
 		if (json.length() > 1) json = json.substring(0, json.length() - 1);

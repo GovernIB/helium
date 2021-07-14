@@ -1,9 +1,5 @@
 package es.caib.helium.logic.service;
 
-import org.springframework.stereotype.Service;
-
-import es.caib.helium.logic.intf.dto.LlistatIds;
-import es.caib.helium.logic.intf.dto.ResultatConsultaPaginada;
 import es.caib.helium.logic.intf.WDeployment;
 import es.caib.helium.logic.intf.WProcessDefinition;
 import es.caib.helium.logic.intf.WProcessInstance;
@@ -11,7 +7,11 @@ import es.caib.helium.logic.intf.WTaskInstance;
 import es.caib.helium.logic.intf.WToken;
 import es.caib.helium.logic.intf.WorkflowEngineApi;
 import es.caib.helium.logic.intf.dto.ExpedientDto;
+import es.caib.helium.logic.intf.dto.LlistatIds;
 import es.caib.helium.logic.intf.dto.PaginacioParamsDto;
+import es.caib.helium.logic.intf.dto.ResultatConsultaPaginada;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 
 import java.util.Collection;
 import java.util.Date;
@@ -20,36 +20,19 @@ import java.util.Map;
 import java.util.Set;
 import java.util.zip.ZipInputStream;
 
+@RequiredArgsConstructor
 @Service
 public class WorkflowEngineApiImpl implements WorkflowEngineApi {
 
+//    private final WorkflowEngineFeignClient workflowEngineFeignClient;
+
+
     @Override
     public WDeployment desplegar(String nomArxiu, byte[] contingut) {
-
-//        private static void uploadWordDocument(byte[] fileContents, final String filename) {
-//            RestTemplate restTemplate = new RestTemplate();
-//            String fooResourceUrl = "http://localhost:8080/spring-rest/foos"; // Dummy URL.
-//            MultiValueMap<String, Object> map = new LinkedMultiValueMap<String, Object>();
-//
-//            map.add("name", filename);
-//            map.add("filename", filename);
-//
-//            // Here we
-//            ByteArrayResource contentsAsResource = new ByteArrayResource(fileContents) {
-//                @Override
-//                public String getFilename() {
-//                    return filename; // Filename has to be returned in order to be able to post.
-//                }
-//            };
-//
-//            map.add("file", contentsAsResource);
-//
-//            // Now you can send your file along.
-//            String result = restTemplate.postForObject(fooResourceUrl, map, String.class);
-//
-//            // Proceed as normal with your results.
-//        }
-
+//        return workflowEngineFeignClient.desplegar(
+//                "",
+//                EntornActual.getEntornId().toString(),
+//                new CustomMultipartFile(contingut, nomArxiu));
         return null;
     }
 
@@ -487,4 +470,5 @@ public class WorkflowEngineApiImpl implements WorkflowEngineApi {
     public WProcessDefinition parse(ZipInputStream zipInputStream) throws Exception {
         return null;
     }
+
 }

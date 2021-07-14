@@ -25,8 +25,6 @@ import javax.annotation.Resource;
 import java.io.ByteArrayOutputStream;
 import java.util.List;
 
-import es.caib.helium.client.integracio.persones.model.Persona;
-
 /**
  * Implementació dels mètodes de AplicacioService.
  * 
