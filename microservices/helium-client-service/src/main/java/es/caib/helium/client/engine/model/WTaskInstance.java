@@ -23,6 +23,11 @@ public interface WTaskInstance {
 	public boolean isSuspended();
 	public boolean isCancelled();
 	public Set<String> getPooledActors();
+	default public String getStringActors() {
+		if (this.getPooledActors() == null || this.getPooledActors().isEmpty())
+			return null;
+		return String.join(",", this.getPooledActors());
+	};
 	public boolean isAgafada();
 	public String getSelectedOutcome();
 	public String getRols();
@@ -39,5 +44,12 @@ public interface WTaskInstance {
 	public String getInfoTasca();
 	
 //	public Object getTaskInstance();
+
+	// TODO: Mirar que fer amb això:
+	default public boolean isCacheActiu() {
+		return false;
+	}
+	default public void setCacheActiu() {};
+	default public void setCacheInactiu() {};
 	
 }

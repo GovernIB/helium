@@ -1,4 +1,4 @@
-package es.caib.helium.client.engine.timerController;
+package es.caib.helium.client.engine.timer;
 
 import java.util.Date;
 
@@ -10,11 +10,11 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class TimerControllerClientImpl implements TimerControllerClient {
+public class TimerClientImpl implements TimerClient {
 
 	private final String missatgeLog = "Cridant Engine Service - TimeController - ";
 
-	private TimerControllerFeignClient timeControllerClient;
+	private TimerFeignClient timeControllerClient;
 
 	@Override
 	public void suspendTimer(String timerId, Date dueDate) {

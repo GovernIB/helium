@@ -1,9 +1,9 @@
-package es.caib.helium.client.engine.timerController;
+package es.caib.helium.client.engine.timer;
 
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-public class TimerControllerFeignClientConfig {
+public class TimerFeignClientConfig {
 
     //  @Bean
 //  public BasicAuthRequestInterceptor basicAuthRequestInterceptor(

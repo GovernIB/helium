@@ -1,6 +1,6 @@
-package es.caib.helium.client.engine.timerController;
+package es.caib.helium.client.engine.timer;
 
-public class TimerControllerApiPath {
+public class TimerApiPath {
 		
 	public static final String API_PATH = "/api/v1/timers";
 
