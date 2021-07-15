@@ -2,8 +2,6 @@ package es.caib.helium.logic.helper;
 
 import org.springframework.stereotype.Component;
 
-import es.caib.helium.logic.intf.WTaskInstance;
-
 @Component
 public class JbpmRetroaccioHelper {
 

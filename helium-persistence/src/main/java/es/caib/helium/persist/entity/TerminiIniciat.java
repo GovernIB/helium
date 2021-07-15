@@ -326,19 +326,20 @@ public class TerminiIniciat implements Serializable, GenericEntity<Long> {
 		}
 	}
 	@Transient
-	public long[] getTimerIdsArray() {
+	public String[] getTimerIdsArray() {
 		if (timerIds != null) {
-			List<Long> ids = new ArrayList<Long>();
+			List<String> ids = new ArrayList<>();
 			for (String id: timerIds.split(",")) {
 				if (id.length() > 0)
-					ids.add(new Long(id));
+					ids.add(id);
 			}
-			long[] resposta = new long[ids.size()];
-			for (int i = 0; i < ids.size(); i++)
-				resposta[i] = ids.get(i).longValue();
-			return resposta;
+			return ids.toArray(new String[0]);
+//			String[] resposta = new String[ids.size()];
+//			for (int i = 0; i < ids.size(); i++)
+//				resposta[i] = ids.get(i);
+//			return resposta;
 		}
-		return new long[0];
+		return new String[0];
 	}
 
 

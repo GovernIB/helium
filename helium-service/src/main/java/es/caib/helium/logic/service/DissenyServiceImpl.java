@@ -3,12 +3,36 @@
  */
 package es.caib.helium.logic.service;
 
-import es.caib.helium.logic.helper.*;
+import es.caib.helium.client.engine.model.WProcessDefinition;
+import es.caib.helium.client.engine.model.WProcessInstance;
+import es.caib.helium.logic.helper.ConversioTipusServiceHelper;
+import es.caib.helium.logic.helper.DefinicioProcesHelper;
+import es.caib.helium.logic.helper.DominiHelper;
+import es.caib.helium.logic.helper.EntornHelper;
+import es.caib.helium.logic.helper.ExpedientHelper;
+import es.caib.helium.logic.helper.ExpedientTipusHelper;
+import es.caib.helium.logic.helper.HerenciaHelper;
+import es.caib.helium.logic.helper.MessageServiceHelper;
+import es.caib.helium.logic.helper.PaginacioHelper;
+import es.caib.helium.logic.helper.PermisosHelper;
 import es.caib.helium.logic.helper.PermisosHelper.ObjectIdentifierExtractor;
-import es.caib.helium.logic.intf.WProcessDefinition;
-import es.caib.helium.logic.intf.WProcessInstance;
 import es.caib.helium.logic.intf.WorkflowEngineApi;
-import es.caib.helium.logic.intf.dto.*;
+import es.caib.helium.logic.intf.dto.AreaDto;
+import es.caib.helium.logic.intf.dto.CampDto;
+import es.caib.helium.logic.intf.dto.ConsultaCampDto;
+import es.caib.helium.logic.intf.dto.ConsultaDto;
+import es.caib.helium.logic.intf.dto.DefinicioProcesDto;
+import es.caib.helium.logic.intf.dto.DefinicioProcesExpedientDto;
+import es.caib.helium.logic.intf.dto.DefinicioProcesVersioDto;
+import es.caib.helium.logic.intf.dto.DocumentDto;
+import es.caib.helium.logic.intf.dto.DominiDto;
+import es.caib.helium.logic.intf.dto.EntornDto;
+import es.caib.helium.logic.intf.dto.ExpedientDto;
+import es.caib.helium.logic.intf.dto.ExpedientTipusDto;
+import es.caib.helium.logic.intf.dto.PaginaDto;
+import es.caib.helium.logic.intf.dto.PaginacioParamsDto;
+import es.caib.helium.logic.intf.dto.ParellaCodiValorDto;
+import es.caib.helium.logic.intf.dto.PermisDto;
 import es.caib.helium.logic.intf.exception.DeploymentException;
 import es.caib.helium.logic.intf.exception.NoTrobatException;
 import es.caib.helium.logic.intf.exception.PermisDenegatException;
@@ -18,9 +42,29 @@ import es.caib.helium.logic.intf.extern.domini.ParellaCodiValor;
 import es.caib.helium.logic.intf.service.DissenyService;
 import es.caib.helium.logic.security.ExtendedPermission;
 import es.caib.helium.ms.domini.DominiMs;
-import es.caib.helium.persist.entity.*;
+import es.caib.helium.persist.entity.Area;
+import es.caib.helium.persist.entity.AreaJbpmId;
+import es.caib.helium.persist.entity.Camp;
+import es.caib.helium.persist.entity.CampTasca;
+import es.caib.helium.persist.entity.Consulta;
+import es.caib.helium.persist.entity.ConsultaCamp;
 import es.caib.helium.persist.entity.ConsultaCamp.TipusConsultaCamp;
-import es.caib.helium.persist.repository.*;
+import es.caib.helium.persist.entity.DefinicioProces;
+import es.caib.helium.persist.entity.Document;
+import es.caib.helium.persist.entity.Entorn;
+import es.caib.helium.persist.entity.ExpedientTipus;
+import es.caib.helium.persist.entity.Tasca;
+import es.caib.helium.persist.repository.AreaJbpmIdRepository;
+import es.caib.helium.persist.repository.AreaRepository;
+import es.caib.helium.persist.repository.CampRepository;
+import es.caib.helium.persist.repository.CampTascaRepository;
+import es.caib.helium.persist.repository.ConsultaCampRepository;
+import es.caib.helium.persist.repository.ConsultaRepository;
+import es.caib.helium.persist.repository.DefinicioProcesRepository;
+import es.caib.helium.persist.repository.DocumentRepository;
+import es.caib.helium.persist.repository.EntornRepository;
+import es.caib.helium.persist.repository.ExpedientTipusRepository;
+import es.caib.helium.persist.repository.TascaRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cache.annotation.Cacheable;
@@ -1040,8 +1084,10 @@ public class DissenyServiceImpl implements DissenyService {
 			}
 		// Actualitza els handlers de la darrera versió de la definició de procés
 		workflowEngineApi.updateDeploymentActions(
-				Long.parseLong(darrera.getJbpmId()), 
-				handlers);
+				darrera.getJbpmId(),
+				handlers,
+				nomArxiu,
+				contingut);
 		
 		return conversioTipusServiceHelper.convertir(darrera, DefinicioProcesDto.class);
 
@@ -1057,25 +1103,33 @@ public class DissenyServiceImpl implements DissenyService {
 			List<Long> idsDefinicioProcesDesti) {
 		
 		DefinicioProces definicioProcesOrigen = definicioProcesRepository.getById(idDefinicioProcesOrigen);
-		
+
+		// TODO: Passar aquesta funcionalitat al Motor (jbpm)
 		// Construeix la llista de handlers a partir del contingut del fitxer .par que acabin amb .class
 		WProcessDefinition wProcessDefinition = workflowEngineApi.getProcessDefinition(null, definicioProcesOrigen.getJbpmId());
-		@SuppressWarnings("unchecked")
-		Map<String, byte[]> bytesMap = wProcessDefinition.getFiles();
+		String deploymentId = wProcessDefinition.getDeploymentId();
+		Set<String> files = workflowEngineApi.getResourceNames(deploymentId);
 		Map<String, byte[]> handlers = new HashMap<String, byte[]>();
-		for (String nom : bytesMap.keySet()) 
-			if (nom.endsWith(".class")) {
-				handlers.put(nom, bytesMap.get(nom));
-			}
-
+//		@SuppressWarnings("unchecked")
+//		Map<String, byte[]> bytesMap = wProcessDefinition.getFiles();
+//		for (String nom : bytesMap.keySet())
+//			if (nom.endsWith(".class")) {
+//				handlers.put(nom, bytesMap.get(nom));
+//			}
+		files.stream()
+				.filter(f -> f.endsWith(".class"))
+				.forEach(f -> handlers.put(f, workflowEngineApi.getResourceBytes(deploymentId, f)));
+		
 		// Actualitza les definicions de procés destí
 		DefinicioProces definicioProcesDesti;
 		for (Long idDefinicioProcesDesti : idsDefinicioProcesDesti) {
 			definicioProcesDesti = definicioProcesRepository.getById(idDefinicioProcesDesti);
 			// Actualitza els handlers de la darrera versió de la definició de procés
 			workflowEngineApi.updateDeploymentActions(
-					Long.parseLong(definicioProcesDesti.getJbpmId()), 
-					handlers);
+					definicioProcesDesti.getJbpmId(),
+					handlers,
+					null,
+					null);
 		}
 	}	
 

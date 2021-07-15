@@ -3,17 +3,18 @@
  */
 package es.caib.helium.logic.helper;
 
+import es.caib.helium.client.engine.model.WTaskInstance;
 import es.caib.helium.logic.helper.PermisosHelper.ObjectIdentifierExtractor;
-import es.caib.helium.logic.intf.WTaskInstance;
 import es.caib.helium.logic.intf.WorkflowEngineApi;
-import es.caib.helium.logic.intf.dto.ExpedientDto;
 import es.caib.helium.logic.intf.dto.PermisDto;
 import es.caib.helium.logic.intf.dto.PrincipalTipusEnumDto;
 import es.caib.helium.logic.intf.exception.NoTrobatException;
 import es.caib.helium.logic.intf.exception.PermisDenegatException;
 import es.caib.helium.logic.security.ExtendedPermission;
 import es.caib.helium.persist.entity.Entorn;
+import es.caib.helium.persist.entity.Expedient;
 import es.caib.helium.persist.entity.ExpedientTipus;
+import es.caib.helium.persist.repository.ExpedientRepository;
 import es.caib.helium.persist.repository.ExpedientTipusRepository;
 import org.hibernate.Hibernate;
 import org.springframework.security.acls.model.Permission;
@@ -37,6 +38,8 @@ public class ExpedientTipusHelper {
 
 	@Resource
 	private ExpedientTipusRepository expedientTipusRepository;
+	@Resource
+	private ExpedientRepository expedientRepository;
 
 	@Resource
 	private WorkflowEngineApi workflowEngineApi;
@@ -221,8 +224,9 @@ public class ExpedientTipusHelper {
 
 	public ExpedientTipus findAmbProcessInstanceId(
 			String processInstanceId) {
-		ExpedientDto piexp = workflowEngineApi.expedientFindByProcessInstanceId(processInstanceId);
-		return expedientTipusRepository.findById(piexp.getTipus().getId()).get();
+		Long expId = workflowEngineApi.findExpedientIdByProcessInstanceId(processInstanceId);
+		Expedient expedient = expedientRepository.getById(expId);
+		return expedient.getTipus(); //expedientTipusRepository.findById(expedient.getTipus().getId()).get();
 	}
 
 	public Long findIdByProcessInstanceId(String processInstanceId) {

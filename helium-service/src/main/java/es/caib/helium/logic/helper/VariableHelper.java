@@ -3,7 +3,7 @@
  */
 package es.caib.helium.logic.helper;
 
-import es.caib.helium.logic.intf.WTaskInstance;
+import es.caib.helium.client.engine.model.WTaskInstance;
 import es.caib.helium.logic.intf.WorkflowEngineApi;
 import es.caib.helium.logic.intf.dto.*;
 import es.caib.helium.logic.intf.dto.DominiDto.TipusDomini;

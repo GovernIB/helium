@@ -51,10 +51,10 @@ public interface ExpedientTokenService {
 	 *             Si no es tenen els permisos adequats.
 	 */
 	public boolean canviarEstatActiu(
-			Long expedientId,
-			String processInstanceId,
-			Long tokenId,
-			boolean activar) throws NoTrobatException, PermisDenegatException;
+            Long expedientId,
+            String processInstanceId,
+            String tokenId,
+            boolean activar) throws NoTrobatException, PermisDenegatException;
 
 	/**
 	 * Retorna els nodes que tenen una transició amb desti igual

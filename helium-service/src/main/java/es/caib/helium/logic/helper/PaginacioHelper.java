@@ -132,11 +132,11 @@ public class PaginacioHelper {
 	}
 
 	public <T> PaginaDto<T> toPaginaDto(
-			List<T> elements,
-			int elementsTotal,
-			PaginacioParamsDto paginacioParams) {
+            List<T> elements,
+            long elementsTotal,
+            PaginacioParamsDto paginacioParams) {
 		PaginaDto<T> dto = new PaginaDto<T>();
-		int paginesTotal = elementsTotal / paginacioParams.getPaginaTamany();
+		long paginesTotal = elementsTotal / paginacioParams.getPaginaTamany();
 		dto.setNumero(paginacioParams.getPaginaNum());
 		dto.setTamany(paginacioParams.getPaginaTamany());
 		dto.setTotal(paginesTotal);
@@ -152,12 +152,12 @@ public class PaginacioHelper {
 	}
 
 	public <S, T> PaginaDto<T> toPaginaDto(
-			List<S> elements,
-			int elementsTotal,
-			PaginacioParamsDto paginacioParams,
-			Converter<S, T> converter) {
+            List<S> elements,
+            long elementsTotal,
+            PaginacioParamsDto paginacioParams,
+            Converter<S, T> converter) {
 		PaginaDto<T> dto = new PaginaDto<T>();
-		int paginesTotal = elementsTotal / paginacioParams.getPaginaTamany();
+		long paginesTotal = elementsTotal / paginacioParams.getPaginaTamany();
 		dto.setNumero(paginacioParams.getPaginaNum());
 		dto.setTamany(paginacioParams.getPaginaTamany());
 		dto.setTotal(paginesTotal);

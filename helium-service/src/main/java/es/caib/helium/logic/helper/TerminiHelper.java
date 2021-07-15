@@ -458,7 +458,7 @@ public class TerminiHelper {
 
 	// TODO: 1 únic mètode per tots els timers
 	private void suspendTimers(TerminiIniciat terminiIniciat) {
-		long[] timerIds = terminiIniciat.getTimerIdsArray();
+		String[] timerIds = terminiIniciat.getTimerIdsArray();
 		for (int i = 0; i < timerIds.length; i++)
 			workflowEngineApi.suspendTimer(
 					timerIds[i],
@@ -466,7 +466,7 @@ public class TerminiHelper {
 	}
 	// TODO: 1 únic mètode per tots els timers
 	private void resumeTimers(TerminiIniciat terminiIniciat) {
-		long[] timerIds = terminiIniciat.getTimerIdsArray();
+		String[] timerIds = terminiIniciat.getTimerIdsArray();
 		for (int i = 0; i < timerIds.length; i++)
 			workflowEngineApi.resumeTimer(
 					timerIds[i],

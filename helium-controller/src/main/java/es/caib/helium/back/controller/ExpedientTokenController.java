@@ -100,7 +100,7 @@ public class ExpedientTokenController extends BaseExpedientController {
 			HttpServletRequest request,
 			@PathVariable Long expedientId,
 			@PathVariable String procesId,
-			@PathVariable Long tokenId,
+			@PathVariable String tokenId,
 			Model model) {
 		boolean response = false; 
 		TokenDto token = expedientTokenService.findById(

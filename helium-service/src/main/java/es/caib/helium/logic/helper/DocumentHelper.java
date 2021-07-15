@@ -3,10 +3,9 @@
  */
 package es.caib.helium.logic.helper;
 
+import es.caib.helium.client.engine.model.WProcessDefinition;
+import es.caib.helium.client.engine.model.WTaskInstance;
 import es.caib.helium.integracio.plugins.signatura.RespostaValidacioSignatura;
-import es.caib.helium.logic.intf.WProcessDefinition;
-import es.caib.helium.logic.intf.WProcessInstance;
-import es.caib.helium.logic.intf.WTaskInstance;
 import es.caib.helium.logic.intf.WorkflowEngineApi;
 import es.caib.helium.logic.intf.dto.*;
 import es.caib.helium.logic.intf.exception.NoTrobatException;

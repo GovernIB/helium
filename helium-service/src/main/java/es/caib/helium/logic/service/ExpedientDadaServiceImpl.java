@@ -3,12 +3,12 @@
  */
 package es.caib.helium.logic.service;
 
+import es.caib.helium.client.engine.model.WProcessDefinition;
 import es.caib.helium.logic.helper.ConversioTipusServiceHelper;
 import es.caib.helium.logic.helper.ExpedientHelper;
 import es.caib.helium.logic.helper.HerenciaHelper;
 import es.caib.helium.logic.helper.IndexHelper;
 import es.caib.helium.logic.helper.VariableHelper;
-import es.caib.helium.logic.intf.WProcessDefinition;
 import es.caib.helium.logic.intf.WorkflowEngineApi;
 import es.caib.helium.logic.intf.WorkflowRetroaccioApi;
 import es.caib.helium.logic.intf.dto.CampAgrupacioDto;

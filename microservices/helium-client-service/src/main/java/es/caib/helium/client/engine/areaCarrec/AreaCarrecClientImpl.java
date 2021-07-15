@@ -44,10 +44,10 @@ public class AreaCarrecClientImpl implements AreaCarrecClient {
     }
 
     @Override
-    public List<String> findCarrecsByFiltre(String filtre) {
+    public List<String[]> findCarrecsByFiltre(String filtre) {
 
         log.debug(MISSATGE_LOG + " obtinguent carrecs by filtre " + filtre);
-        var responseEntity = areaCarreclient.findRolsByPersona(filtre);
+        var responseEntity = areaCarreclient.findCarrecsByFiltre(filtre);
         var resultat = Objects.requireNonNull(responseEntity.getBody());
         return resultat;
     }

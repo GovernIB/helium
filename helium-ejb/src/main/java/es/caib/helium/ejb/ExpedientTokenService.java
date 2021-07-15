@@ -30,10 +30,10 @@ public class ExpedientTokenService extends AbstractService<es.caib.helium.logic.
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public boolean canviarEstatActiu(
-			Long expedientId,
-			String processInstanceId,
-			Long tokenId,
-			boolean activar) {
+            Long expedientId,
+            String processInstanceId,
+            String tokenId,
+            boolean activar) {
 		return getDelegateService().canviarEstatActiu(
 				expedientId,
 				processInstanceId,

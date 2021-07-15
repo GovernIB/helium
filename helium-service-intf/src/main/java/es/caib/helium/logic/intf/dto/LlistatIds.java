@@ -1,5 +1,8 @@
 package es.caib.helium.logic.intf.dto;
 
+import lombok.Builder;
+import lombok.Data;
+
 import java.util.List;
 
 
@@ -8,20 +11,11 @@ import java.util.List;
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
+@Data
+@Builder
 public class LlistatIds {
 
 	private int count;
 	private List<Long> ids;
-	public int getCount() {
-		return count;
-	}
-	public void setCount(int count) {
-		this.count = count;
-	}
-	public List<Long> getIds() {
-		return ids;
-	}
-	public void setIds(List<Long> ids) {
-		this.ids = ids;
-	}
+
 }

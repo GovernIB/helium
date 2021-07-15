@@ -11,7 +11,7 @@ import java.util.List;
  */
 public class ResultatConsultaPaginada<T> {
 
-	private int count;
+	private long count;
 	private List<T> llista;
 
 	public ResultatConsultaPaginada(int count) {
@@ -19,16 +19,16 @@ public class ResultatConsultaPaginada<T> {
 		this.count = count;
 		this.llista = new ArrayList<T>();
 	}
-	public ResultatConsultaPaginada(int count, List<T> llista) {
+	public ResultatConsultaPaginada(long count, List<T> llista) {
 		super();
 		this.count = count;
 		this.llista = llista;
 	}
 
-	public int getCount() {
+	public long getCount() {
 		return count;
 	}
-	public void setCount(int count) {
+	public void setCount(long count) {
 		this.count = count;
 	}
 	public List<T> getLlista() {

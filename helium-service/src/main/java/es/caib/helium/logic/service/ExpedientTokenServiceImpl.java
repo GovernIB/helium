@@ -3,9 +3,9 @@
  */
 package es.caib.helium.logic.service;
 
+import es.caib.helium.client.engine.model.WToken;
 import es.caib.helium.logic.helper.ConversioTipusServiceHelper;
 import es.caib.helium.logic.helper.ExpedientHelper;
-import es.caib.helium.logic.intf.WToken;
 import es.caib.helium.logic.intf.WorkflowEngineApi;
 import es.caib.helium.logic.intf.dto.TokenDto;
 import es.caib.helium.logic.intf.exception.NoTrobatException;
@@ -94,7 +94,7 @@ public class ExpedientTokenServiceImpl implements ExpedientTokenService {
 	public boolean canviarEstatActiu(
 			Long expedientId,
 			String processInstanceId,
-			Long tokenId,
+			String tokenId,
 			boolean activar) {
 		logger.debug("Canviant l'estat actiu del token (" +
 				"expedientId=" + expedientId + ", " +
@@ -192,7 +192,7 @@ public class ExpedientTokenServiceImpl implements ExpedientTokenService {
 				throw new NoTrobatException(WToken.class, tokenId);
 			
 			String nodeNameVell = token.getNodeName();
-			workflowEngineApi.tokenRedirect(new Long(tokenId).longValue(), nodeName, cancelTasks, true, false);
+			workflowEngineApi.tokenRedirect(tokenId, nodeName, cancelTasks, true, false);
 			
 			crearRegistreRetrocedirToken(
 					expedientId,

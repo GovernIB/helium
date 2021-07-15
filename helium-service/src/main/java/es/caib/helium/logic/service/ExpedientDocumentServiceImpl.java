@@ -11,7 +11,6 @@ import es.caib.helium.logic.helper.NotificacioHelper;
 import es.caib.helium.logic.helper.PaginacioHelper;
 import es.caib.helium.logic.helper.PluginHelper;
 import es.caib.helium.logic.helper.TascaHelper;
-import es.caib.helium.logic.intf.WTaskInstance;
 import es.caib.helium.logic.intf.WorkflowRetroaccioApi;
 import es.caib.helium.logic.intf.dto.*;
 import es.caib.helium.logic.intf.dto.DadesEnviamentDto.EntregaPostalTipus;

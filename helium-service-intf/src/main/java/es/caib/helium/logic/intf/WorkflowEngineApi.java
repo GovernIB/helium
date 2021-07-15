@@ -1,5 +1,10 @@
 package es.caib.helium.logic.intf;
 
+import es.caib.helium.client.engine.model.WDeployment;
+import es.caib.helium.client.engine.model.WProcessDefinition;
+import es.caib.helium.client.engine.model.WProcessInstance;
+import es.caib.helium.client.engine.model.WTaskInstance;
+import es.caib.helium.client.engine.model.WToken;
 import es.caib.helium.logic.intf.dto.ExpedientDto;
 import es.caib.helium.logic.intf.dto.LlistatIds;
 import es.caib.helium.logic.intf.dto.PaginacioParamsDto;
@@ -110,9 +115,10 @@ public interface WorkflowEngineApi {
 	 * @param handlers
 	 */
 	public void updateDeploymentActions(
-            Long deploymentId,
-            Map<String,
-                    byte[]> handlers);
+            String deploymentId,
+            Map<String, byte[]> handlers,
+			String deploymentFileName,
+			byte[] deploymentFileContent);
 	
 	// Consulta de Definicions de Procés
 	////////////////////////////////////////////////////////////////////////////////
@@ -203,13 +209,13 @@ public interface WorkflowEngineApi {
 	 */
 	public List<WProcessInstance> findProcessInstancesWithProcessDefinitionId(String processDefinitionId);
 	
-	/**
-	 * Obté totes les instàncies de procés d'una definició de procés, donat el seu nom
-	 * 
-	 * @param processName
-	 * @return
-	 */
-	public List<WProcessInstance> findProcessInstancesWithProcessDefinitionName(String processName);
+//	/**
+//	 * Obté totes les instàncies de procés d'una definició de procés, donat el seu nom
+//	 *
+//	 * @param processName
+//	 * @return
+//	 */
+//	public List<WProcessInstance> findProcessInstancesWithProcessDefinitionName(String processName);
 	
 	/**
 	 * Obté totes les instàncies de procés d'una definició de procés, donat el seu nom i l'entorn Helium
@@ -263,7 +269,9 @@ public interface WorkflowEngineApi {
             boolean nomesMeves,
             boolean nomesTasquesPersonals,
             boolean nomesTasquesGrup);
-	
+
+	public Long findExpedientIdByProcessInstanceId(String processInstanceId);
+
 	// Tramitació
 	////////////////////////////////////////////////////////////////////////////////
 	
@@ -416,7 +424,7 @@ public interface WorkflowEngineApi {
 	 * @param executionTokenId
 	 * @return
 	 */
-	public Long getTaskInstanceIdByExecutionTokenId(Long executionTokenId);
+	public String getTaskInstanceIdByExecutionTokenId(String executionTokenId);
 	
 	/**
 	 * Obté un llistat paginat de instàncies de tasques donat un filtre concret 
@@ -696,7 +704,7 @@ public interface WorkflowEngineApi {
 	 * @param enterNodeIfTask
 	 * @param executeNode
 	 */
-	public void tokenRedirect(long tokenId, String nodeName, boolean cancelTasks, boolean enterNodeIfTask, boolean executeNode);
+	public void tokenRedirect(String tokenId, String nodeName, boolean cancelTasks, boolean enterNodeIfTask, boolean executeNode);
 	
 	/** Mètode per activar o desactivar un token.
 	 * 
@@ -704,14 +712,14 @@ public interface WorkflowEngineApi {
 	 * @param activar
 	 * @return
 	 */
-	public boolean tokenActivar(long tokenId, boolean activar);
+	public boolean tokenActivar(String tokenId, boolean activar);
 	
 	/** Mètode per enviar un senyal a un token per a que avanci per una transició.
 	 * 
 	 * @param tokenId
 	 * @param transitionName
 	 */
-	public void signalToken(long tokenId, String transitionName);
+	public void signalToken(String tokenId, String transitionName);
 	
 	// ACCIONS
 	////////////////////////////////////////////////////////////////////////////////
@@ -740,8 +748,8 @@ public interface WorkflowEngineApi {
 	////////////////////////////////////////////////////////////////////////////////
 	//public List<Timer> findTimersWithProcessInstanceId(String processInstanceId);
 
-	public void suspendTimer(long timerId, Date dueDate);
-	public void resumeTimer(long timerId, Date dueDate);
+	public void suspendTimer(String timerId, Date dueDate);
+	public void resumeTimer(String timerId, Date dueDate);
 
 
 	// AREES I CARRECS
@@ -770,7 +778,7 @@ public interface WorkflowEngineApi {
 
 	// Expedients
 
-	public ExpedientDto expedientFindByProcessInstanceId(String processInstanceId);
+
 	public ResultatConsultaPaginada<Long> expedientFindByFiltre(
             Long entornId,
             String actorId,

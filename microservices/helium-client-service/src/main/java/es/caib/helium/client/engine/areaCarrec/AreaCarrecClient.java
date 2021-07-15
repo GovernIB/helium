@@ -13,7 +13,7 @@ public interface AreaCarrecClient {
 
     List<String> findRolsByPersona(String personaCodi);
 
-    List<String> findCarrecsByFiltre(String filtre);
+    List<String[]> findCarrecsByFiltre(String filtre);
 
     List<String> findPersonesByGrupAndCarrec(String grupCodi, String carrecCodi);
 

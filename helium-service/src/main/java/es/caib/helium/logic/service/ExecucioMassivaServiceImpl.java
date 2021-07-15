@@ -1,7 +1,7 @@
 package es.caib.helium.logic.service;
 
+import es.caib.helium.client.engine.model.WTaskInstance;
 import es.caib.helium.logic.helper.*;
-import es.caib.helium.logic.intf.WTaskInstance;
 import es.caib.helium.logic.intf.WorkflowEngineApi;
 import es.caib.helium.logic.intf.dto.*;
 import es.caib.helium.logic.intf.dto.ExecucioMassivaDto.ExecucioMassivaTipusDto;
@@ -1831,10 +1831,10 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 			ome.setDataInici(new Date());
 			WTaskInstance tasca = tascaHelper.getTascaComprovacionsTramitacio(tascaId, false, false);
 			if (tasca != null && tasca.isOpen()) {
-				ExpedientDto piexp = workflowEngineApi.expedientFindByProcessInstanceId(
+				Long expId = workflowEngineApi.findExpedientIdByProcessInstanceId(
 						tasca.getProcessInstanceId());
 				expedientTascaService.reassignar(
-						piexp.getId(),
+						expId,
 						tasca.getId(),
 						ome.getExecucioMassiva().getParam1());
 			}

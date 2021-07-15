@@ -3,31 +3,112 @@
  */
 package es.caib.helium.logic.service;
 
+import es.caib.helium.client.engine.model.WProcessInstance;
+import es.caib.helium.client.engine.model.WTaskInstance;
 import es.caib.helium.client.expedient.expedient.ExpedientClientService;
-import es.caib.helium.logic.helper.*;
-import es.caib.helium.logic.intf.WProcessInstance;
-import es.caib.helium.logic.intf.WTaskInstance;
+import es.caib.helium.logic.helper.ConsultaHelper;
+import es.caib.helium.logic.helper.ConversioTipusServiceHelper;
+import es.caib.helium.logic.helper.DistribucioHelper;
+import es.caib.helium.logic.helper.DocumentHelper;
+import es.caib.helium.logic.helper.EntornHelper;
+import es.caib.helium.logic.helper.ExpedientHelper;
+import es.caib.helium.logic.helper.ExpedientRegistreHelper;
+import es.caib.helium.logic.helper.ExpedientTipusHelper;
+import es.caib.helium.logic.helper.HerenciaHelper;
+import es.caib.helium.logic.helper.IndexHelper;
+import es.caib.helium.logic.helper.MessageServiceHelper;
+import es.caib.helium.logic.helper.NotificacioHelper;
+import es.caib.helium.logic.helper.PaginacioHelper;
+import es.caib.helium.logic.helper.PermisosHelper;
+import es.caib.helium.logic.helper.PluginHelper;
+import es.caib.helium.logic.helper.TascaHelper;
 import es.caib.helium.logic.intf.WorkflowEngineApi;
 import es.caib.helium.logic.intf.WorkflowRetroaccioApi;
 import es.caib.helium.logic.intf.WorkflowRetroaccioApi.ExpedientRetroaccioTipus;
-import es.caib.helium.logic.intf.dto.*;
+import es.caib.helium.logic.intf.dto.AccioDto;
+import es.caib.helium.logic.intf.dto.AlertaDto;
+import es.caib.helium.logic.intf.dto.ArxiuContingutDto;
+import es.caib.helium.logic.intf.dto.ArxiuContingutTipusEnumDto;
+import es.caib.helium.logic.intf.dto.ArxiuDetallDto;
+import es.caib.helium.logic.intf.dto.ArxiuDto;
+import es.caib.helium.logic.intf.dto.CampDto;
+import es.caib.helium.logic.intf.dto.DadaIndexadaDto;
+import es.caib.helium.logic.intf.dto.DadesDocumentDto;
+import es.caib.helium.logic.intf.dto.DadesNotificacioDto;
+import es.caib.helium.logic.intf.dto.DefinicioProcesDto;
+import es.caib.helium.logic.intf.dto.DefinicioProcesExpedientDto;
+import es.caib.helium.logic.intf.dto.DocumentDto;
+import es.caib.helium.logic.intf.dto.DocumentNotificacioDto;
+import es.caib.helium.logic.intf.dto.ExpedientConsultaDissenyDto;
+import es.caib.helium.logic.intf.dto.ExpedientDocumentDto;
+import es.caib.helium.logic.intf.dto.ExpedientDto;
 import es.caib.helium.logic.intf.dto.ExpedientDto.EstatTipusDto;
 import es.caib.helium.logic.intf.dto.ExpedientDto.IniciadorTipusDto;
+import es.caib.helium.logic.intf.dto.ExpedientErrorDto;
 import es.caib.helium.logic.intf.dto.ExpedientErrorDto.ErrorTipusDto;
+import es.caib.helium.logic.intf.dto.ExpedientTascaDto;
+import es.caib.helium.logic.intf.dto.ExpedientTipusDto;
+import es.caib.helium.logic.intf.dto.InstanciaProcesDto;
+import es.caib.helium.logic.intf.dto.MostrarAnulatsDto;
+import es.caib.helium.logic.intf.dto.NotificacioDto;
+import es.caib.helium.logic.intf.dto.NtiExpedienteEstadoEnumDto;
+import es.caib.helium.logic.intf.dto.PaginaDto;
+import es.caib.helium.logic.intf.dto.PaginacioParamsDto;
 import es.caib.helium.logic.intf.dto.PaginacioParamsDto.OrdreDireccioDto;
 import es.caib.helium.logic.intf.dto.PaginacioParamsDto.OrdreDto;
-import es.caib.helium.logic.intf.exception.*;
+import es.caib.helium.logic.intf.dto.PersonaDto;
+import es.caib.helium.logic.intf.dto.RespostaValidacioSignaturaDto;
+import es.caib.helium.logic.intf.dto.ResultatConsultaPaginada;
+import es.caib.helium.logic.intf.dto.TascaDadaDto;
+import es.caib.helium.logic.intf.exception.ExecucioHandlerException;
+import es.caib.helium.logic.intf.exception.NoTrobatException;
+import es.caib.helium.logic.intf.exception.PermisDenegatException;
+import es.caib.helium.logic.intf.exception.TramitacioException;
+import es.caib.helium.logic.intf.exception.TramitacioHandlerException;
+import es.caib.helium.logic.intf.exception.TramitacioValidacioException;
+import es.caib.helium.logic.intf.exception.ValidacioException;
 import es.caib.helium.logic.intf.service.AnotacioService;
 import es.caib.helium.logic.intf.service.ExpedientService;
 import es.caib.helium.logic.intf.util.Constants;
 import es.caib.helium.logic.security.ExtendedPermission;
-import es.caib.helium.persist.entity.*;
+import es.caib.helium.persist.entity.Accio;
+import es.caib.helium.persist.entity.Alerta;
+import es.caib.helium.persist.entity.Anotacio;
+import es.caib.helium.persist.entity.Camp;
+import es.caib.helium.persist.entity.Consulta;
 import es.caib.helium.persist.entity.ConsultaCamp.TipusConsultaCamp;
+import es.caib.helium.persist.entity.DefinicioProces;
+import es.caib.helium.persist.entity.Document;
+import es.caib.helium.persist.entity.DocumentNotificacio;
+import es.caib.helium.persist.entity.DocumentStore;
 import es.caib.helium.persist.entity.DocumentStore.DocumentFont;
+import es.caib.helium.persist.entity.Entorn;
+import es.caib.helium.persist.entity.Estat;
+import es.caib.helium.persist.entity.ExecucioMassivaExpedient;
+import es.caib.helium.persist.entity.Expedient;
+import es.caib.helium.persist.entity.ExpedientTipus;
+import es.caib.helium.persist.entity.Notificacio;
+import es.caib.helium.persist.entity.Portasignatures;
+import es.caib.helium.persist.entity.Portasignatures.TipusEstat;
 import es.caib.helium.persist.entity.Registre;
 import es.caib.helium.persist.entity.Termini;
-import es.caib.helium.persist.entity.Portasignatures.TipusEstat;
-import es.caib.helium.persist.repository.*;
+import es.caib.helium.persist.entity.TerminiIniciat;
+import es.caib.helium.persist.repository.AccioRepository;
+import es.caib.helium.persist.repository.AlertaRepository;
+import es.caib.helium.persist.repository.AnotacioRepository;
+import es.caib.helium.persist.repository.CampRepository;
+import es.caib.helium.persist.repository.ConsultaRepository;
+import es.caib.helium.persist.repository.DefinicioProcesRepository;
+import es.caib.helium.persist.repository.DocumentNotificacioRepository;
+import es.caib.helium.persist.repository.DocumentStoreRepository;
+import es.caib.helium.persist.repository.EstatRepository;
+import es.caib.helium.persist.repository.ExecucioMassivaExpedientRepository;
+import es.caib.helium.persist.repository.ExpedientRepository;
+import es.caib.helium.persist.repository.ExpedientTipusRepository;
+import es.caib.helium.persist.repository.NotificacioRepository;
+import es.caib.helium.persist.repository.PortasignaturesRepository;
+import es.caib.helium.persist.repository.RegistreRepository;
+import es.caib.helium.persist.repository.TerminiIniciatRepository;
 import es.caib.helium.persist.util.ThreadLocalInfo;
 import es.caib.plugins.arxiu.api.ContingutArxiu;
 import es.caib.plugins.arxiu.api.ExpedientMetadades;
@@ -47,7 +128,17 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.io.ByteArrayOutputStream;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
@@ -1343,9 +1434,9 @@ public class ExpedientServiceImpl implements ExpedientService {
 		logger.debug("Canviant versió de la definició de procés (" +
 				"processInstanceId=" + processInstanceId + ", " +
 				"versio=" + versio + ")");
-		ExpedientDto piexp = workflowEngineApi.expedientFindByProcessInstanceId(processInstanceId);
+		Long expId = workflowEngineApi.findExpedientIdByProcessInstanceId(processInstanceId);
 		expedientHelper.getExpedientComprovantPermisos(
-				piexp.getId(),
+				expId,
 				new Permission[] {
 						ExtendedPermission.DEFPROC_UPDATE,
 						ExtendedPermission.ADMINISTRATION});
@@ -1836,7 +1927,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 		InstanciaProcesDto dto = new InstanciaProcesDto();
 		dto.setId(processInstanceId);
 		WProcessInstance pi = workflowEngineApi.getProcessInstance(processInstanceId);
-		if (pi.getProcessInstance() == null)
+		if (pi.getId() == null)
 			return null;
 		dto.setInstanciaProcesPareId(pi.getParentProcessInstanceId());
 		if (pi.getDescription() != null && pi.getDescription().length() > 0)

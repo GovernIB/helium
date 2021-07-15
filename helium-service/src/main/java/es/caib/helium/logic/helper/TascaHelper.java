@@ -3,9 +3,9 @@
  */
 package es.caib.helium.logic.helper;
 
+import es.caib.helium.client.engine.model.WProcessInstance;
+import es.caib.helium.client.engine.model.WTaskInstance;
 import es.caib.helium.logic.helper.TascaSegonPlaHelper.InfoSegonPla;
-import es.caib.helium.logic.intf.WProcessInstance;
-import es.caib.helium.logic.intf.WTaskInstance;
 import es.caib.helium.logic.intf.WorkflowEngineApi;
 import es.caib.helium.logic.intf.dto.DelegationInfo;
 import es.caib.helium.logic.intf.dto.ExpedientDadaDto;
@@ -176,7 +176,7 @@ public class TascaHelper {
 //				"definicioProcesJbpmKey",
 //				tasca.getDefinicioProces().getJbpmKey());
 		task.setCacheActiu();
-		task.setTramitacioMassiva(new Boolean(tasca.isTramitacioMassiva()));
+		task.setTramitacioMassiva(tasca.isTramitacioMassiva());
 		task.setDefinicioProcesKey(tasca.getDefinicioProces().getJbpmKey());
 		workflowEngineApi.updateTaskInstanceInfoCache(
 				task.getId(),

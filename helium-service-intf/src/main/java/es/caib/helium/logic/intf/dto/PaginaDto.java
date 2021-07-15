@@ -20,7 +20,7 @@ public class PaginaDto<T> implements Iterable<T>, Serializable {
 
 	private int numero; // De la pàgina actual
 	private int tamany; // De la pàgina actual
-	private int total; // De pàgines
+	private long total; // De pàgines
 	private long elementsTotal;
 	private boolean anteriors;
 	private boolean primera;
@@ -45,10 +45,10 @@ public class PaginaDto<T> implements Iterable<T>, Serializable {
 	public void setTamany(int tamany) {
 		this.tamany = tamany;
 	}
-	public int getTotal() {
+	public long getTotal() {
 		return total;
 	}
-	public void setTotal(int total) {
+	public void setTotal(long total) {
 		this.total = total;
 	}
 	public long getElementsTotal() {

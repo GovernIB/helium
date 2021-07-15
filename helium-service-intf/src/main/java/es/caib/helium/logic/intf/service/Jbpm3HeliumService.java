@@ -1088,7 +1088,7 @@ public interface Jbpm3HeliumService {
 	 * @param activar
 	 * @return
 	 */
-	public boolean tokenActivar(long tokenId, boolean activar);
+	public boolean tokenActivar(String tokenId, boolean activar);
 
 	/**
 	 * Desfinalitzar un expedient
@@ -1122,7 +1122,7 @@ public interface Jbpm3HeliumService {
 	 * Obtenir id de tasca a partir de Token
 	 * 
 	 */
-	public Long getTaskInstanceIdByTokenId(Long tokenId);
+	public String getTaskInstanceIdByTokenId(Long tokenId);
 	
 	/**
 	 * Afegir missatge d'execució a la informació de la tasca en segón pla

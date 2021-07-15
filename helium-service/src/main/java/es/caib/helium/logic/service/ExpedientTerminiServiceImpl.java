@@ -629,12 +629,12 @@ public class ExpedientTerminiServiceImpl implements ExpedientTerminiService {
 	}
 
 	private void suspendTimers(TerminiIniciat terminiIniciat) {
-		for (long timerId : terminiIniciat.getTimerIdsArray())
+		for (String timerId : terminiIniciat.getTimerIdsArray())
 			workflowEngineApi.suspendTimer(timerId, new Date(Long.MAX_VALUE));
 
 	}
 	private void resumeTimers(TerminiIniciat terminiIniciat) {
-		for (long timerId : terminiIniciat.getTimerIdsArray())
+		for (String timerId : terminiIniciat.getTimerIdsArray())
 			workflowEngineApi.resumeTimer(timerId, terminiIniciat.getDataFi());
 	}
 

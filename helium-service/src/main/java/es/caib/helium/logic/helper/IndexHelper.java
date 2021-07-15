@@ -3,7 +3,7 @@
  */
 package es.caib.helium.logic.helper;
 
-import es.caib.helium.logic.intf.WProcessInstance;
+import es.caib.helium.client.engine.model.WProcessInstance;
 import es.caib.helium.logic.intf.WorkflowEngineApi;
 import es.caib.helium.logic.intf.dto.DadaIndexadaDto;
 import es.caib.helium.logic.intf.dto.Registre;

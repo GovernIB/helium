@@ -3,10 +3,10 @@
  */
 package es.caib.helium.logic.service;
 
+import es.caib.helium.client.engine.model.WProcessInstance;
+import es.caib.helium.client.engine.model.WTaskInstance;
 import es.caib.helium.logic.helper.ExpedientHelper;
 import es.caib.helium.logic.helper.TascaHelper;
-import es.caib.helium.logic.intf.WProcessInstance;
-import es.caib.helium.logic.intf.WTaskInstance;
 import es.caib.helium.logic.intf.WorkflowEngineApi;
 import es.caib.helium.logic.intf.WorkflowRetroaccioApi;
 import es.caib.helium.logic.intf.dto.ExpedientTascaDto;

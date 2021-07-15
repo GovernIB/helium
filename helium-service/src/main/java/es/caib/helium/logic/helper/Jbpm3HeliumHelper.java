@@ -3,15 +3,61 @@
  */
 package es.caib.helium.logic.helper;
 
-import es.caib.helium.integracio.plugins.registre.*;
+import es.caib.helium.client.engine.model.WProcessDefinition;
+import es.caib.helium.client.engine.model.WProcessInstance;
+import es.caib.helium.client.engine.model.WTaskInstance;
+import es.caib.helium.integracio.plugins.registre.DadesAssumpte;
+import es.caib.helium.integracio.plugins.registre.DadesExpedient;
+import es.caib.helium.integracio.plugins.registre.DadesInteressat;
+import es.caib.helium.integracio.plugins.registre.DadesNotificacio;
+import es.caib.helium.integracio.plugins.registre.DadesOficina;
+import es.caib.helium.integracio.plugins.registre.DocumentRegistre;
+import es.caib.helium.integracio.plugins.registre.RegistreNotificacio;
+import es.caib.helium.integracio.plugins.registre.RespostaAnotacioRegistre;
+import es.caib.helium.integracio.plugins.registre.RespostaJustificantDetallRecepcio;
+import es.caib.helium.integracio.plugins.registre.RespostaJustificantRecepcio;
 import es.caib.helium.logic.helper.TascaSegonPlaHelper.InfoSegonPla;
-import es.caib.helium.logic.intf.WProcessDefinition;
-import es.caib.helium.logic.intf.WProcessInstance;
-import es.caib.helium.logic.intf.WTaskInstance;
 import es.caib.helium.logic.intf.WorkflowEngineApi;
 import es.caib.helium.logic.intf.WorkflowRetroaccioApi;
-import es.caib.helium.logic.intf.dto.*;
+import es.caib.helium.logic.intf.dto.AreaDto;
+import es.caib.helium.logic.intf.dto.ArxiuDto;
+import es.caib.helium.logic.intf.dto.CampTascaDto;
+import es.caib.helium.logic.intf.dto.CarrecDto;
+import es.caib.helium.logic.intf.dto.DadesNotificacioDto;
+import es.caib.helium.logic.intf.dto.DefinicioProcesDto;
+import es.caib.helium.logic.intf.dto.DocumentDissenyDto;
+import es.caib.helium.logic.intf.dto.DocumentDto;
+import es.caib.helium.logic.intf.dto.DocumentTascaDto;
+import es.caib.helium.logic.intf.dto.DominiDto;
+import es.caib.helium.logic.intf.dto.DominiRespostaColumnaDto;
+import es.caib.helium.logic.intf.dto.DominiRespostaFilaDto;
+import es.caib.helium.logic.intf.dto.EntornDto;
+import es.caib.helium.logic.intf.dto.EnumeracioValorDto;
+import es.caib.helium.logic.intf.dto.EstatDto;
+import es.caib.helium.logic.intf.dto.ExpedientDadaDto;
+import es.caib.helium.logic.intf.dto.ExpedientDto;
+import es.caib.helium.logic.intf.dto.FestiuDto;
+import es.caib.helium.logic.intf.dto.InteressatDto;
+import es.caib.helium.logic.intf.dto.InteressatTipusEnumDto;
+import es.caib.helium.logic.intf.dto.NotificacioDto;
+import es.caib.helium.logic.intf.dto.PersonaDto;
+import es.caib.helium.logic.intf.dto.ReassignacioDto;
+import es.caib.helium.logic.intf.dto.ReferenciaNotificacio;
+import es.caib.helium.logic.intf.dto.ReferenciaRDSJustificanteDto;
+import es.caib.helium.logic.intf.dto.RegistreAnnexDto;
+import es.caib.helium.logic.intf.dto.RegistreAnotacioDto;
+import es.caib.helium.logic.intf.dto.RegistreIdDto;
+import es.caib.helium.logic.intf.dto.RegistreNotificacioDto;
+import es.caib.helium.logic.intf.dto.RespostaJustificantDetallRecepcioDto;
+import es.caib.helium.logic.intf.dto.RespostaJustificantRecepcioDto;
+import es.caib.helium.logic.intf.dto.RespostaNotificacio;
 import es.caib.helium.logic.intf.dto.RespostaNotificacio.NotificacioEstat;
+import es.caib.helium.logic.intf.dto.TascaDadaDto;
+import es.caib.helium.logic.intf.dto.TerminiDto;
+import es.caib.helium.logic.intf.dto.TerminiIniciatDto;
+import es.caib.helium.logic.intf.dto.TramitDto;
+import es.caib.helium.logic.intf.dto.ZonaperEventDto;
+import es.caib.helium.logic.intf.dto.ZonaperExpedientDto;
 import es.caib.helium.logic.intf.exception.NoTrobatException;
 import es.caib.helium.logic.intf.exception.SistemaExternException;
 import es.caib.helium.logic.intf.exception.ValidacioException;
@@ -22,9 +68,43 @@ import es.caib.helium.logic.intf.service.Jbpm3HeliumService;
 import es.caib.helium.logic.intf.util.GlobalProperties;
 import es.caib.helium.logic.util.EntornActual;
 import es.caib.helium.ms.domini.DominiMs;
+import es.caib.helium.persist.entity.Alerta;
+import es.caib.helium.persist.entity.Area;
+import es.caib.helium.persist.entity.Camp;
+import es.caib.helium.persist.entity.DefinicioProces;
+import es.caib.helium.persist.entity.Document;
+import es.caib.helium.persist.entity.DocumentNotificacio;
+import es.caib.helium.persist.entity.DocumentStore;
+import es.caib.helium.persist.entity.Entorn;
+import es.caib.helium.persist.entity.Enumeracio;
+import es.caib.helium.persist.entity.EnumeracioValors;
+import es.caib.helium.persist.entity.Estat;
+import es.caib.helium.persist.entity.Expedient;
+import es.caib.helium.persist.entity.ExpedientTipus;
+import es.caib.helium.persist.entity.Interessat;
+import es.caib.helium.persist.entity.Reassignacio;
+import es.caib.helium.persist.entity.Tasca;
 import es.caib.helium.persist.entity.Termini;
-import es.caib.helium.persist.entity.*;
-import es.caib.helium.persist.repository.*;
+import es.caib.helium.persist.entity.TerminiIniciat;
+import es.caib.helium.persist.repository.AreaRepository;
+import es.caib.helium.persist.repository.CampRepository;
+import es.caib.helium.persist.repository.CampTascaRepository;
+import es.caib.helium.persist.repository.CarrecRepository;
+import es.caib.helium.persist.repository.DefinicioProcesRepository;
+import es.caib.helium.persist.repository.DocumentRepository;
+import es.caib.helium.persist.repository.DocumentStoreRepository;
+import es.caib.helium.persist.repository.DocumentTascaRepository;
+import es.caib.helium.persist.repository.EntornRepository;
+import es.caib.helium.persist.repository.EnumeracioRepository;
+import es.caib.helium.persist.repository.EnumeracioValorsRepository;
+import es.caib.helium.persist.repository.EstatRepository;
+import es.caib.helium.persist.repository.ExpedientRepository;
+import es.caib.helium.persist.repository.ExpedientTipusRepository;
+import es.caib.helium.persist.repository.FestiuRepository;
+import es.caib.helium.persist.repository.InteressatRepository;
+import es.caib.helium.persist.repository.ReassignacioRepository;
+import es.caib.helium.persist.repository.TascaRepository;
+import es.caib.helium.persist.repository.TerminiIniciatRepository;
 import es.caib.helium.persist.util.ThreadLocalInfo;
 import org.hibernate.Hibernate;
 import org.slf4j.Logger;
@@ -765,10 +845,14 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 	public void expedientEliminaInformacioRetroaccio(
 			String processInstanceId) {
 		logger.debug("Buidant logs expedient (processInstanceId=" + processInstanceId + ")");
-		ExpedientDto piexp = workflowEngineApi.expedientFindByProcessInstanceId(processInstanceId);
-		if (piexp == null)
+//		Long expId = workflowEngineApi.expedientFindByProcessInstanceId(processInstanceId);
+//		if (expId == null)
+//			throw new NoTrobatException(WProcessInstance.class, processInstanceId);
+//		Expedient expedient = expedientRepository.getById(expId);
+		WProcessInstance pi = workflowEngineApi.getRootProcessInstance(processInstanceId);
+		if (pi == null)
 			throw new NoTrobatException(WProcessInstance.class, processInstanceId);
-		workflowRetroaccioApi.eliminaInformacioRetroaccio(piexp.getProcessInstanceId());
+		workflowRetroaccioApi.eliminaInformacioRetroaccio(pi.getId()); //expedient.getProcessInstanceId());
 	}
 
 	@Override
@@ -1374,7 +1458,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 	
 	
 	@Override
-	public boolean tokenActivar(long tokenId, boolean activar) {
+	public boolean tokenActivar(String tokenId, boolean activar) {
 		logger.debug("tokenActivar (" +
 				"tokenId=" + tokenId + ", " +
 				"activar=" + activar + ")");
@@ -2280,8 +2364,8 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 	}
 
 	@Override
-	public Long getTaskInstanceIdByTokenId(Long tokenId) {
-		return workflowEngineApi.getTaskInstanceIdByExecutionTokenId(tokenId);
+	public String getTaskInstanceIdByTokenId(Long tokenId) {
+		return workflowEngineApi.getTaskInstanceIdByExecutionTokenId(String.valueOf(tokenId));
 	}
 	
 	@Override

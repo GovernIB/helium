@@ -8,7 +8,7 @@ import es.caib.helium.dada.model.PagedList;
 
 import java.util.List;
 
-interface ExpedientService {
+public interface ExpedientService {
 
 	PagedList<Expedient> consultaResultats(Consulta consulta) throws DadaException;
 

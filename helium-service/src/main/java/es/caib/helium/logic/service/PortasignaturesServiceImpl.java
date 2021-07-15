@@ -3,6 +3,8 @@
  */
 package es.caib.helium.logic.service;
 
+import es.caib.helium.client.engine.model.WProcessInstance;
+import es.caib.helium.client.engine.model.WToken;
 import es.caib.helium.logic.helper.ConversioTipusServiceHelper;
 import es.caib.helium.logic.helper.DocumentHelper;
 import es.caib.helium.logic.helper.ExceptionHelper;
@@ -12,8 +14,6 @@ import es.caib.helium.logic.helper.MessageServiceHelper;
 import es.caib.helium.logic.helper.PluginHelper;
 import es.caib.helium.logic.helper.PortasignaturesHelper;
 import es.caib.helium.logic.helper.ProcesCallbackHelper;
-import es.caib.helium.logic.intf.WProcessInstance;
-import es.caib.helium.logic.intf.WToken;
 import es.caib.helium.logic.intf.WorkflowEngineApi;
 import es.caib.helium.logic.intf.WorkflowRetroaccioApi;
 import es.caib.helium.logic.intf.WorkflowRetroaccioApi.ExpedientRetroaccioTipus;
@@ -187,7 +187,7 @@ public class PortasignaturesServiceImpl implements PortasignaturesService {
 						}						
 						// Avança el flux
 						workflowEngineApi.signalToken(
-								tokenId.longValue(),
+								tokenId.toString(),
 								portasignatures.getTransicioOK());
 
 						//Actualitzem l'estat de l'expedient, ja que si tot el procés de firma i de custòdia
@@ -223,9 +223,9 @@ public class PortasignaturesServiceImpl implements PortasignaturesService {
 						workflowRetroaccioApi.afegirInformacioRetroaccioPerProces(
 								token.getProcessInstanceId(),
 								ExpedientRetroaccioTipus.PROCES_DOCUMENT_SIGNAR,
-								new Boolean(false).toString());						
+								Boolean.FALSE.toString());
 						workflowEngineApi.signalToken(
-								tokenId.longValue(),
+								tokenId.toString(),
 								portasignatures.getTransicioKO());
 						portasignatures.setEstat(TipusEstat.PROCESSAT);
 						indexHelper.expedientIndexLuceneUpdate(token.getProcessInstanceId());

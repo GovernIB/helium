@@ -3,8 +3,8 @@
  */
 package es.caib.helium.logic.helper;
 
+import es.caib.helium.client.engine.model.WTaskInstance;
 import es.caib.helium.integracio.plugins.unitat.UnitatOrganica;
-import es.caib.helium.logic.intf.WTaskInstance;
 import es.caib.helium.logic.intf.WorkflowEngineApi;
 import es.caib.helium.logic.intf.dto.ArxiuDto;
 import es.caib.helium.logic.intf.dto.DocumentDto;

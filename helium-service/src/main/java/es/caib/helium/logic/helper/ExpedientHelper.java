@@ -3,16 +3,25 @@
  */
 package es.caib.helium.logic.helper;
 
+import es.caib.helium.client.engine.model.WProcessInstance;
+import es.caib.helium.client.engine.model.WToken;
 import es.caib.helium.logic.helper.PermisosHelper.ObjectIdentifierExtractor;
-import es.caib.helium.logic.intf.WProcessInstance;
-import es.caib.helium.logic.intf.WToken;
 import es.caib.helium.logic.intf.WorkflowEngineApi;
 import es.caib.helium.logic.intf.WorkflowRetroaccioApi;
 import es.caib.helium.logic.intf.WorkflowRetroaccioApi.ExpedientRetroaccioEstat;
 import es.caib.helium.logic.intf.WorkflowRetroaccioApi.ExpedientRetroaccioTipus;
 import es.caib.helium.logic.intf.WorkflowRetroaccioApi.RetroaccioInfo;
-import es.caib.helium.logic.intf.dto.*;
+import es.caib.helium.logic.intf.dto.ArxiuDto;
+import es.caib.helium.logic.intf.dto.DadesDocumentDto;
+import es.caib.helium.logic.intf.dto.DefinicioProcesDto;
+import es.caib.helium.logic.intf.dto.EntornDto;
+import es.caib.helium.logic.intf.dto.EstatDto;
+import es.caib.helium.logic.intf.dto.ExpedientDto;
 import es.caib.helium.logic.intf.dto.ExpedientDto.IniciadorTipusDto;
+import es.caib.helium.logic.intf.dto.ExpedientInfo;
+import es.caib.helium.logic.intf.dto.ExpedientTipusDto;
+import es.caib.helium.logic.intf.dto.InstanciaProcesDto;
+import es.caib.helium.logic.intf.dto.PersonaDto;
 import es.caib.helium.logic.intf.exception.NoTrobatException;
 import es.caib.helium.logic.intf.exception.PermisDenegatException;
 import es.caib.helium.logic.intf.exception.ValidacioException;
@@ -20,10 +29,21 @@ import es.caib.helium.logic.intf.util.Constants;
 import es.caib.helium.logic.intf.util.GlobalProperties;
 import es.caib.helium.logic.security.ExtendedPermission;
 import es.caib.helium.logic.util.PdfUtils;
-import es.caib.helium.persist.entity.*;
+import es.caib.helium.persist.entity.Alerta;
+import es.caib.helium.persist.entity.Camp;
 import es.caib.helium.persist.entity.Camp.TipusCamp;
-import es.caib.helium.persist.entity.Registre;
+import es.caib.helium.persist.entity.DefinicioProces;
+import es.caib.helium.persist.entity.Document;
+import es.caib.helium.persist.entity.DocumentStore;
+import es.caib.helium.persist.entity.Entorn;
+import es.caib.helium.persist.entity.Estat;
+import es.caib.helium.persist.entity.Expedient;
 import es.caib.helium.persist.entity.Expedient.IniciadorTipus;
+import es.caib.helium.persist.entity.ExpedientTipus;
+import es.caib.helium.persist.entity.Registre;
+import es.caib.helium.persist.entity.SequenciaAny;
+import es.caib.helium.persist.entity.SequenciaDefaultAny;
+import es.caib.helium.persist.entity.TerminiIniciat;
 import es.caib.helium.persist.repository.AlertaRepository;
 import es.caib.helium.persist.repository.DefinicioProcesRepository;
 import es.caib.helium.persist.repository.DocumentStoreRepository;
@@ -1027,16 +1047,16 @@ public class ExpedientHelper {
 			boolean cancelTasks) {
 		WToken token = workflowEngineApi.getTokenById(tokenId);
 		String nodeNameVell = token.getNodeName();
-		ExpedientDto piexp = workflowEngineApi.expedientFindByProcessInstanceId(
+		Long expId = workflowEngineApi.findExpedientIdByProcessInstanceId(
 				token.getProcessInstanceId());
 		workflowEngineApi.tokenRedirect(
-				new Long(tokenId).longValue(),
+				tokenId,
 				nodeName,
 				cancelTasks,
 				true,
 				false);
 		expedientRegistreHelper.crearRegistreRedirigirToken(
-				piexp.getId(),
+				expId,
 				token.getProcessInstanceId(),
 				SecurityContextHolder.getContext().getAuthentication().getName(),
 				token.getFullName(),
@@ -1047,12 +1067,12 @@ public class ExpedientHelper {
 	public void comprovarInstanciaProces(
 			Expedient expedient,
 			String processInstanceId) {
-		ExpedientDto piexp = workflowEngineApi.expedientFindByProcessInstanceId(
+		Long expId = workflowEngineApi.findExpedientIdByProcessInstanceId(
 				processInstanceId);
-		if (piexp.getId() != expedient.getId().longValue()) {
+		if (expId != expedient.getId().longValue()) {
 			throw new NoTrobatException(
 					WProcessInstance.class,
-					new Long(processInstanceId));
+					Long.valueOf(processInstanceId));
 		}
 	}
 
@@ -1063,10 +1083,10 @@ public class ExpedientHelper {
 	public Expedient findExpedientByProcessInstanceId(String processInstanceId) {
 		Optional<Expedient> expedientOptional = null;
 		Expedient expedient = null;
-		ExpedientDto piexp = workflowEngineApi.expedientFindByProcessInstanceId(
+		Long expId = workflowEngineApi.findExpedientIdByProcessInstanceId(
 				processInstanceId);
-		if (piexp != null) {
-			expedientOptional = expedientRepository.findById(piexp.getId());
+		if (expId != null) {
+			expedientOptional = expedientRepository.findById(expId);
 			expedient = expedientOptional.isPresent() ? expedientOptional.get() : null;
 		}
 		if (expedient == null) {
@@ -1245,8 +1265,9 @@ public class ExpedientHelper {
 	public InstanciaProcesDto getInstanciaProcesById(String processInstanceId) {
 		InstanciaProcesDto dto = new InstanciaProcesDto();
 		dto.setId(processInstanceId);
+		// TODO: Afegir Try/Catch per capturar el NOT_FOUND i retornar null
 		WProcessInstance pi = workflowEngineApi.getProcessInstance(processInstanceId);
-		if (pi.getProcessInstance() == null)
+		if (pi.getId() == null)
 			return null;
 		dto.setInstanciaProcesPareId(pi.getParentProcessInstanceId());
 		if (pi.getDescription() != null && pi.getDescription().length() > 0)
@@ -1437,7 +1458,7 @@ public class ExpedientHelper {
 			for (TerminiIniciat terminiIniciat: terminiIniciatRepository.findByProcessInstanceId(processInstance.getId())) {
 				if (terminiIniciat.getDataInici() != null) {
 					terminiIniciat.setDataCancelacio(new Date());
-					long[] timerIds = terminiIniciat.getTimerIdsArray();
+					String[] timerIds = terminiIniciat.getTimerIdsArray();
 					for (int i = 0; i < timerIds.length; i++)
 						workflowEngineApi.suspendTimer(
 								timerIds[i],

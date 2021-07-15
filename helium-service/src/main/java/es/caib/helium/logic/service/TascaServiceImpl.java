@@ -3,11 +3,11 @@
  */
 package es.caib.helium.logic.service;
 
+import es.caib.helium.client.engine.model.WTaskInstance;
 import es.caib.helium.logic.helper.*;
 import es.caib.helium.logic.helper.PaginacioHelper.Converter;
 import es.caib.helium.logic.helper.PermisosHelper.ObjectIdentifierExtractor;
 import es.caib.helium.logic.helper.TascaSegonPlaHelper.InfoSegonPla;
-import es.caib.helium.logic.intf.WTaskInstance;
 import es.caib.helium.logic.intf.WorkflowEngineApi;
 import es.caib.helium.logic.intf.WorkflowRetroaccioApi;
 import es.caib.helium.logic.intf.dto.*;
@@ -1269,9 +1269,9 @@ public class TascaServiceImpl implements TascaService {
 			WTaskInstance task,
 			String outcome,
 			String usuari) {
-		ExpedientDto piexp = workflowEngineApi.expedientFindByProcessInstanceId(
+		Long expId = workflowEngineApi.findExpedientIdByProcessInstanceId(
 				task.getProcessInstanceId());
-		Expedient expedient = expedientRepository.getById(piexp.getId());
+		Expedient expedient = expedientRepository.getById(expId);
 
 		// TODO: Mètriques
 //		mesuresTemporalsHelper.tascaCompletarIniciar(expedient, tascaId, task.getTaskName());
