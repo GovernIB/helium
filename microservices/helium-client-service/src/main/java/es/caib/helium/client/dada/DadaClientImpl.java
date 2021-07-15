@@ -1,10 +1,5 @@
 package es.caib.helium.client.dada;
 
-import java.util.List;
-import java.util.Objects;
-
-import org.springframework.stereotype.Service;
-
 import es.caib.helium.client.dada.model.Consulta;
 import es.caib.helium.client.dada.model.Dada;
 import es.caib.helium.client.dada.model.Expedient;
@@ -12,14 +7,18 @@ import es.caib.helium.client.dada.model.ValidList;
 import es.caib.helium.client.model.PagedList;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Objects;
 
 @Service
 @Slf4j
 @RequiredArgsConstructor
 //@Profile(value = {"spring-cloud", "compose"})
-public class DataServiceImpl implements DataService {
+public class DadaClientImpl implements DadaClient {
 
-    private final DataServiceFeignClient dadaServiceFeignClient;
+    private final DadaServiceFeignClient dadaServiceFeignClient;
     
     private final String missatgeLog = "Cridant Data Service - ";
     

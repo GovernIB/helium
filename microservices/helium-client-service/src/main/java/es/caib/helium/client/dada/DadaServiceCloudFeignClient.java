@@ -7,6 +7,6 @@ import es.caib.helium.client.dada.config.DadaFeignClientConfig;
 
 @Profile(value = {"spring-cloud", "compose"})
 @FeignClient(name = DadaMsApiPath.NOM_SERVEI, configuration = DadaFeignClientConfig.class)
-public interface DataServiceCloudFeignClient extends DataServiceFeignClient {
+public interface DadaServiceCloudFeignClient extends DadaServiceFeignClient {
 
 }

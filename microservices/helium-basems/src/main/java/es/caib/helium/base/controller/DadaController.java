@@ -1,32 +1,21 @@
 package es.caib.helium.base.controller;
 
-import java.util.List;
-
-import javax.validation.Valid;
-import javax.ws.rs.QueryParam;
-
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-
-import es.caib.helium.client.dada.DataService;
+import es.caib.helium.client.dada.DadaClient;
 import es.caib.helium.client.dada.model.Consulta;
 import es.caib.helium.client.dada.model.Dada;
 import es.caib.helium.client.dada.model.Expedient;
-import es.caib.helium.client.model.PagedList;
 import es.caib.helium.client.dada.model.ValidList;
+import es.caib.helium.client.model.PagedList;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.*;
+
+import javax.validation.Valid;
+import javax.ws.rs.QueryParam;
+import java.util.List;
 
 @RestController
 @Slf4j
@@ -35,7 +24,7 @@ import lombok.extern.slf4j.Slf4j;
 public class DadaController {
 
     public static final String API_PATH = "/api/v1/base/dada";
-    private final DataService dataService;
+    private final DadaClient dadaClient;
     
 	@PostMapping(value = "consulta/resultats/paginat", consumes = "application/json")
 	public ResponseEntity<PagedList<Expedient>> consultaResultats(
@@ -44,7 +33,7 @@ public class DadaController {
 			@RequestParam("page") Integer page,
 			@RequestParam("size") Integer size, @RequestBody Consulta consulta) throws Exception {
 		
-		var resultat = dataService.consultaResultats(entornId, expedientTipusId, page, size, consulta);
+		var resultat = dadaClient.consultaResultats(entornId, expedientTipusId, page, size, consulta);
 		return new ResponseEntity<PagedList<Expedient>>(resultat, HttpStatus.OK);
 	}
 
@@ -54,7 +43,7 @@ public class DadaController {
 			@RequestParam("expedientTipusId") Integer expedientTipusId, 
 			@RequestBody Consulta consulta) throws Exception {
 		
-		var resultat = dataService.consultaResultatsLlistat(entornId, expedientTipusId, consulta);
+		var resultat = dadaClient.consultaResultatsLlistat(entornId, expedientTipusId, consulta);
 		return new ResponseEntity<List<Expedient>>(resultat, HttpStatus.OK);
 	}
 
@@ -62,7 +51,7 @@ public class DadaController {
     @GetMapping(value = "expedient/{expedientId}", produces = { "application/json" })
     public ResponseEntity<Expedient> getExpedientByExpedientId(@PathVariable(value = "expedientId") Long expedientId) {
     	
-		var expedient = dataService.findByExpedientId(expedientId);
+		var expedient = dadaClient.findByExpedientId(expedientId);
 		if (expedient == null) {
 			return new ResponseEntity<Expedient>(HttpStatus.NO_CONTENT);
     	}
@@ -72,14 +61,14 @@ public class DadaController {
     @PostMapping(value = "expedient/crear/dades/capcalera")
     public ResponseEntity<Void> crearExpedientDadesCapcalera(@Valid @RequestBody Expedient expedient) {
     	
-    	dataService.crearExpedient(expedient);
+    	dadaClient.crearExpedient(expedient);
     	return new ResponseEntity<Void>(HttpStatus.OK);
     }
 
     @PostMapping(value = "expedients/crear/dades/capcalera")
     public ResponseEntity<Void> crearExpedientsDadesCapcalera(@Valid @RequestBody List<Expedient> expedients) {
     	
-    	dataService.crearExpedients(expedients);
+    	dadaClient.crearExpedients(expedients);
     	return new ResponseEntity<Void>(HttpStatus.OK);
     }
     
@@ -87,14 +76,14 @@ public class DadaController {
     @DeleteMapping(value = "{expedientId}")
 	public ResponseEntity<Void> deleteExpedient(@PathVariable("expedientId") Long expedientId) {
     	
-    	dataService.deleteExpedient(expedientId);
+    	dadaClient.deleteExpedient(expedientId);
     	return new ResponseEntity<Void>(HttpStatus.OK);
 	}
 
 	@DeleteMapping(value = "borrar/expedients")
 	public ResponseEntity<Void> deleteExpedients(@RequestParam("expedients") List<Long> expedients)  {
 
-		dataService.deleteExpedients(expedients);
+		dadaClient.deleteExpedients(expedients);
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
 
@@ -103,14 +92,14 @@ public class DadaController {
 			@Valid @RequestBody Expedient expedient,
 			@PathVariable("expedientId") Long expedientId) {
 
-		dataService.putExpedient(expedient, expedientId);
+		dadaClient.putExpedient(expedient, expedientId);
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
 
 	@PutMapping(value = "put/expedients")
 	public ResponseEntity<Void> putExpedients(@Valid @RequestBody List<Expedient> expedients) {
 
-		dataService.putExpedients(expedients);
+		dadaClient.putExpedients(expedients);
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
 
@@ -119,14 +108,14 @@ public class DadaController {
 			@Valid @RequestBody Expedient expedient,
 			@PathVariable("expedientId") Long expedientId) {
 
-		dataService.patchExpedient(expedient, expedientId);
+		dadaClient.patchExpedient(expedient, expedientId);
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
 
 	@PatchMapping(value = "patch/expedients")
 	public ResponseEntity<Void> patchExpedients(@Valid @RequestBody ValidList<Expedient> expedients) {
 
-		dataService.patchExpedients(expedients);
+		dadaClient.patchExpedients(expedients);
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
 
@@ -139,12 +128,12 @@ public class DadaController {
 	public ResponseEntity<List<Dada>> getDades(
 			@PathVariable("expedientId") Long expedientId) throws Exception {
 
-		var dades = dataService.getDades(expedientId);
+		var dades = dadaClient.getDades(expedientId);
 		if (!dades.isEmpty()) {
 			return new ResponseEntity<List<Dada>>(dades, HttpStatus.OK);
 		}
 
-		if (dataService.findByExpedientId(expedientId) == null) {
+		if (dadaClient.findByExpedientId(expedientId) == null) {
 			return new ResponseEntity<List<Dada>>(HttpStatus.NOT_FOUND);
 		}
 
@@ -156,12 +145,12 @@ public class DadaController {
 			@PathVariable("expedientId") Long expedientId,
 			@Valid @PathVariable("codi") String codi) throws Exception {
 
-		var dada = dataService.getDadaByCodi(expedientId, codi);
+		var dada = dadaClient.getDadaByCodi(expedientId, codi);
 		if (dada != null) {
 			return new ResponseEntity<Dada>(dada, HttpStatus.OK);
 		}
 
-		if (dataService.findByExpedientId(expedientId) == null) {
+		if (dadaClient.findByExpedientId(expedientId) == null) {
 			return new ResponseEntity<Dada>(HttpStatus.NOT_FOUND);
 		}
 
@@ -173,12 +162,12 @@ public class DadaController {
 			@PathVariable("expedientId") Long expedientId,
 			@PathVariable("procesId") Long procesId) throws Exception {
 
-		var dades = dataService.getDadesByProces(expedientId, procesId);
+		var dades = dadaClient.getDadesByProces(expedientId, procesId);
 		if (!dades.isEmpty()) {
 			return new ResponseEntity<List<Dada>>(dades, HttpStatus.OK);
 		}
 
-		if (dataService.findByExpedientId(expedientId) == null) {
+		if (dadaClient.findByExpedientId(expedientId) == null) {
 			return new ResponseEntity<List<Dada>>(HttpStatus.NOT_FOUND);
 		}
 		return new ResponseEntity<List<Dada>>(dades, HttpStatus.NO_CONTENT);
@@ -190,12 +179,12 @@ public class DadaController {
 			@PathVariable("procesId") Long procesId,
 			@PathVariable("codi") String codi) throws Exception {
 
-		var dada = dataService.getDadaByExpedientIdProcesAndCodi(expedientId, procesId, codi);
+		var dada = dadaClient.getDadaByExpedientIdProcesAndCodi(expedientId, procesId, codi);
 		if (dada != null) {
 			return new ResponseEntity<Dada>(dada, HttpStatus.OK);
 		}
 
-		if (dataService.findByExpedientId(expedientId) == null) {
+		if (dadaClient.findByExpedientId(expedientId) == null) {
 			return new ResponseEntity<Dada>(HttpStatus.NOT_FOUND);
 		}
 
@@ -207,7 +196,7 @@ public class DadaController {
 			@PathVariable("procesId") Long procesId,
 			@PathVariable("codi") String codi) throws Exception {
 		
-		var dada = dataService.getDadaByProcesAndCodi(procesId, codi);
+		var dada = dadaClient.getDadaByProcesAndCodi(procesId, codi);
 		if (dada != null) {
 			return new ResponseEntity<Dada>(dada, HttpStatus.OK);
 		}
@@ -219,7 +208,7 @@ public class DadaController {
 	public ResponseEntity<Long> getDadaExpedientIdByProcesId(
 			@PathVariable("procesId") Long procesId) throws Exception {
 		
-		var expedientId = dataService.getDadaExpedientIdByProcesId(procesId);
+		var expedientId = dadaClient.getDadaExpedientIdByProcesId(procesId);
 		if (expedientId != null) {
 			return new ResponseEntity<Long>(expedientId, HttpStatus.OK);
 		}
@@ -239,7 +228,7 @@ public class DadaController {
 		var valid = new ValidList<Dada>();
 		valid.setList(dades);
 		
-		dataService.postDadesByExpedientId(expedientId, procesId, valid);
+		dadaClient.postDadesByExpedientId(expedientId, procesId, valid);
 		return new ResponseEntity<>(HttpStatus.CREATED);
 	}
 
@@ -249,7 +238,7 @@ public class DadaController {
 			@PathVariable("codi") String codi,
 			@Valid @RequestBody Dada dada) throws Exception {
 
-		dataService.putDadaByExpedientIdAndCodi(expedientId, codi, dada);
+		dadaClient.putDadaByExpedientIdAndCodi(expedientId, codi, dada);
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
 
@@ -258,7 +247,7 @@ public class DadaController {
 			@PathVariable("expedientId") Long expedientId,
 			@PathVariable("codi") String codi) throws Exception {
 
-		dataService.deleteDadaByExpedientIdAndCodi(expedientId, codi);
+		dadaClient.deleteDadaByExpedientIdAndCodi(expedientId, codi);
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
 
@@ -271,7 +260,7 @@ public class DadaController {
 		if (dades.isEmpty()) {
 			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 		}
-		dataService.postDadesByExpedientIdProcesId(expedientId, procesId, dades);
+		dadaClient.postDadesByExpedientIdProcesId(expedientId, procesId, dades);
 		return new ResponseEntity<>(HttpStatus.CREATED);
 	}
 
@@ -282,7 +271,7 @@ public class DadaController {
 			@PathVariable("codi") String codi, 
 			@Valid @RequestBody Dada dada) throws Exception {
 
-		dataService.putDadaByExpedientIdProcesIdAndCodi(expedientId, procesId, codi, dada);
+		dadaClient.putDadaByExpedientIdProcesIdAndCodi(expedientId, procesId, codi, dada);
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
 
@@ -292,7 +281,7 @@ public class DadaController {
 			@PathVariable("procesId") Long procesId,
 			@PathVariable("codi") String codi) throws Exception {
 
-		dataService.deleteDadaByExpedientIdAndProcesIdAndCodi(expedientId, procesId, codi);
+		dadaClient.deleteDadaByExpedientIdAndProcesIdAndCodi(expedientId, procesId, codi);
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
 }

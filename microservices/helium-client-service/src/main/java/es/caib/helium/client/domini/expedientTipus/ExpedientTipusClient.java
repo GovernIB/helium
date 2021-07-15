@@ -9,7 +9,7 @@ import es.caib.helium.client.domini.entorn.model.DominiDto;
 import es.caib.helium.client.model.PagedList;
 
 @Service
-public interface ExpedientTipusService {
+public interface ExpedientTipusClient {
 
 	public PagedList llistaDominiByExpedientTipus(Long expedientTipusId, String filtreRsql, final Pageable pageable, final Sort sort);
 	

@@ -10,7 +10,7 @@ import es.caib.helium.client.dada.model.Expedient;
 import es.caib.helium.client.model.PagedList;
 
 @Service
-public interface DataService {
+public interface DadaClient {
 
 	// Consultes filtrades
 	

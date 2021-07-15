@@ -1,20 +1,19 @@
 package es.caib.helium.client.domini.expedientTipus;
 
-import java.util.Objects;
-
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.stereotype.Service;
-
 import es.caib.helium.client.domini.entorn.model.DominiDto;
 import es.caib.helium.client.model.PagedList;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.stereotype.Service;
+
+import java.util.Objects;
 
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class ExpedientTipusServiceImpl implements ExpedientTipusService {
+public class ExpedientTipusClientImpl implements ExpedientTipusClient {
 	
 	private final String missatgeLog = "Cridant Domini Service - ExpedientTipus - ";
 

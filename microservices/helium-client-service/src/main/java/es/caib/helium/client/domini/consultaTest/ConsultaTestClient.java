@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import es.caib.helium.client.domini.consultaTest.model.FilaResultat;
 
 @Service
-public interface ConsultaTestService {
+public interface ConsultaTestClient {
 
 	public List<FilaResultat> dominisRestTest(@RequestParam Map<String,String> allParams);
 }

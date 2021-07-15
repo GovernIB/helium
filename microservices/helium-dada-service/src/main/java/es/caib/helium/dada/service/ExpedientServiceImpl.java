@@ -1,15 +1,5 @@
 package es.caib.helium.dada.service;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.stereotype.Service;
-
 import es.caib.helium.dada.enums.ValorsValidacio;
 import es.caib.helium.dada.exception.DadaException;
 import es.caib.helium.dada.model.Consulta;
@@ -20,6 +10,15 @@ import es.caib.helium.dada.repository.DadaRepository;
 import es.caib.helium.dada.repository.ExpedientRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * 
@@ -693,6 +692,20 @@ public class ExpedientServiceImpl implements ExpedientService {
 		} catch (Exception ex) {
 			var error = "Error al esbsorrar la dada per l'expedient "
 					+ expedientId + " amb procesId " + procesId + " i codi " + codi;
+			log.error(error, ex);
+			throw new DadaException(error, ex);
+		}
+	}
+
+	@Override
+	public List<Dada> getDadesByProcesId(Long procesId) throws DadaException {
+
+		try {
+			var dades = dadaRepository.findByProcesId(procesId);
+			log.debug("Consulta de dades correctament amb procesId " + procesId);
+			return dades.isPresent() ? dades.get() : new ArrayList<Dada>();
+		} catch (Exception ex) {
+			var error = "Error obtinguent les dades amb procesId " + procesId;
 			log.error(error, ex);
 			throw new DadaException(error, ex);
 		}

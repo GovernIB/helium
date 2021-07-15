@@ -13,7 +13,7 @@ import es.caib.helium.client.domini.entorn.model.DominiDto;
 import es.caib.helium.client.model.PagedList;
 
 @Service
-public interface DominiService {
+public interface DominiClient {
 
 	public PagedList<DominiDto> listDominisV1(
 			Long entornId,

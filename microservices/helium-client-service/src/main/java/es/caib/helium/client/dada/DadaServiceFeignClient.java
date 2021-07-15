@@ -17,7 +17,7 @@ import es.caib.helium.client.dada.model.Expedient;
 import es.caib.helium.client.dada.model.ValidList;
 import es.caib.helium.client.model.PagedList;
 
-public interface DataServiceFeignClient {
+public interface DadaServiceFeignClient {
 
 	// Métodes de consulta
 	

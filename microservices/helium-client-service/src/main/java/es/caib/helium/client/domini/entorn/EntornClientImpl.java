@@ -14,7 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class EntornServiceImpl implements EntornService {
+public class EntornClientImpl implements EntornClient {
 	
 	private final String missatgeLog = "Cridant Domini Service - EntornDomini - ";
 

@@ -1,4 +1,4 @@
-package es.caib.helium.client.domini;
+package es.caib.helium.client.domini.domini;
 
 import org.springframework.context.annotation.Configuration;
 
