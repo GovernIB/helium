@@ -60,5 +60,7 @@ public interface ExpedientService {
 
 	boolean deleteDadaByProcesIdAndCodi(String procesId, String codi) throws DadaException;
 
-	List<Long> findRootProcessInstance(List<String> procesIds) throws DadaException;
+	List<Expedient> findRootProcessInstance(List<String> procesIds) throws DadaException;
+
+	Expedient findRootProcessInstance(String procesIds) throws DadaException;
 }

@@ -99,6 +99,50 @@ public class ExpedientRepositoryCustomImpl implements ExpedientRepositoryCustom 
 		return nEsborrats.getDeletedCount();
 	}
 
+	@Override
+	public List<Expedient> getExpedientIdProcesPrincipalIdByExpedientIds(List<Long> ids) {
+
+		if (ids == null || ids.isEmpty()) {
+			return new ArrayList<>();
+		}
+
+		var criteria = new Criteria();
+		criteria.and(Capcalera.EXPEDIENT_ID.getCamp()).in(ids);
+		var match = Aggregation.match(criteria);
+		var projection = Aggregation.project(Capcalera.EXPEDIENT_ID.getCamp(), Capcalera.PROCES_PRINCIPAL_ID.getCamp());
+		var operations = new ArrayList<AggregationOperation>();
+		operations.add(match);
+		operations.add(projection);
+		return mongoTemplate
+				.aggregate(Aggregation.newAggregation(operations), Expedient.class, Expedient.class)
+				.getMappedResults();
+	}
+
+	@Override
+	public Expedient getExpedientIdProcesPrincipalIdByExpedientId(Long id) throws DadaException {
+
+		if (id == null) {
+			return null;
+		}
+
+		var criteria = new Criteria();
+		criteria.and(Capcalera.EXPEDIENT_ID.getCamp()).is(id);
+		var match = Aggregation.match(criteria);
+		var projection = Aggregation.project(Capcalera.EXPEDIENT_ID.getCamp(), Capcalera.PROCES_PRINCIPAL_ID.getCamp());
+		var operations = new ArrayList<AggregationOperation>();
+		operations.add(match);
+		operations.add(projection);
+		var results = mongoTemplate
+				.aggregate(Aggregation.newAggregation(operations), Expedient.class, Expedient.class)
+				.getMappedResults();
+
+		if (results.size() > 1) {
+			throw new DadaException("Error obtinguent l'expedient amb id " + id + " hi ha " + results.size() + " expedients amb el mateix id");
+		}
+
+		return results.get(0);
+	}
+
 	/**
 	 * Prepara la pipeline de AggregationOperation per l'agregació (db.expedient.aggregate([]). 
 	 * Sempre inclou la operació {$lookup: {from: "dada", localField:"expedientId", foreignField: "expedientId", as: "dades"}ds

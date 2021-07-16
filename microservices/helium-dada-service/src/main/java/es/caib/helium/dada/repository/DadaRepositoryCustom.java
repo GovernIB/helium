@@ -1,6 +1,8 @@
 package es.caib.helium.dada.repository;
 
+import java.util.List;
+
 public interface DadaRepositoryCustom {
-// TODO IMPLEMENTAR QUE RETORNI DADA AMB EXPEDIENTID I PROCES PRINCIPALID DISTINCT
-//    List<String> getDistinctExpedientIdsByProcesIds(List<String> procesIds);
+
+    List<Long> getExpedientIdByProcesIds(List<String> procesIds);
 }

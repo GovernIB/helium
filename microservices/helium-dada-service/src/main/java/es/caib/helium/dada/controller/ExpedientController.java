@@ -381,9 +381,22 @@ public class ExpedientController {
 	}
 
 	@GetMapping(value = "find/root/process/instances", produces = "application/json" )
-	public ResponseEntity<List<Long>> findRootProcessInstances(@RequestParam("procesIds") List<String> procesIds) throws Exception {
+	public ResponseEntity<List<Expedient>> findRootProcessInstances(@RequestParam("procesIds") List<String> procesIds) throws Exception {
 
 		var rootProcesIds = expedientService.findRootProcessInstance(procesIds);
+		if (rootProcesIds.isEmpty()) {
+			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+		}
 		return new ResponseEntity<>(rootProcesIds, HttpStatus.OK);
+	}
+
+	@GetMapping(value = "find/root/process/instance", produces = "application/json" )
+	public ResponseEntity<Expedient> findRootProcessInstances(@RequestParam("procesId") String procesId) throws Exception {
+
+		var rootProcesId = expedientService.findRootProcessInstance(procesId);
+		if (rootProcesId == null) {
+			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+		}
+		return new ResponseEntity<>(rootProcesId, HttpStatus.OK);
 	}
 }

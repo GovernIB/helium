@@ -733,15 +733,30 @@ public class ExpedientServiceImpl implements ExpedientService {
 	}
 
 	@Override
-	public List<Long> findRootProcessInstance(List<String> procesIds) throws DadaException{
+	public List<Expedient> findRootProcessInstance(List<String> procesIds) throws DadaException{
 
 		try {
-//			var dades = dadaRepository.getDistinctExpedientIdsByProcesIds(procesIds);
-//			log.debug("Obtinguent els expedientId pels procesIds " + procesIds.toString());
-//			return dades != null ? dades : new ArrayList<>();
-			return null; //TODO implementar
+			var dades = dadaRepository.getExpedientIdByProcesIds(procesIds);
+			var resultat = expedientRepository.getExpedientIdProcesPrincipalIdByExpedientIds(dades);
+			log.debug("Obtinguent els expedientId pels procesIds " + procesIds.toString());
+			return resultat;
 		} catch (Exception ex) {
 			var error = "Obtinguent els expedientId pels procesIds " + procesIds.toString();
+			log.error(error, ex);
+			throw new DadaException(error, ex);
+		}
+	}
+
+	@Override
+	public Expedient findRootProcessInstance(String procesId) throws DadaException{
+
+		try {
+			var dades = getDadaExpedientIdByProcesId(procesId);
+			var resultat = expedientRepository.getExpedientIdProcesPrincipalIdByExpedientId(dades);
+			log.debug("Obtinguent els expedientId pels procesIds " + procesId);
+			return resultat;
+		} catch (Exception ex) {
+			var error = "Obtinguent els expedientId pels procesIds " + procesId;
 			log.error(error, ex);
 			throw new DadaException(error, ex);
 		}

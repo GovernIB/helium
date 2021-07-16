@@ -13,4 +13,8 @@ public interface ExpedientRepositoryCustom {
 	Long esborrarExpedientCascade(Long expedient) throws DadaException;
 
 	Long esborrarExpedientsCascade(List<Long> expedients) throws DadaException;
+
+	List<Expedient> getExpedientIdProcesPrincipalIdByExpedientIds(List<Long> ids);
+
+	Expedient getExpedientIdProcesPrincipalIdByExpedientId(Long id) throws DadaException;
 }
