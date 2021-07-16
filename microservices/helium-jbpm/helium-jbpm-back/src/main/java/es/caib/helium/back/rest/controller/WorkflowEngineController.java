@@ -533,6 +533,20 @@ public class WorkflowEngineController {
         return new ResponseEntity(HttpStatus.OK);
     }
 
+    @RequestMapping(value="/taskInstances/byProcessDefinition/{processDefinitionId}/tasks/{taskName}/leavingTransitions", method = RequestMethod.GET)
+    @ResponseBody
+    public ResponseEntity<List<String>> findStartTaskOutcomes(
+            @PathVariable("processDefinitionId") String processDefinitionId,
+            @PathVariable("taskName") String taskName) {
+        return new ResponseEntity(workflowEngineApi.findStartTaskOutcomes(processDefinitionId, taskName), HttpStatus.OK);
+    }
+
+    @RequestMapping(value="/taskInstances/{taskInstanceId}/leavingTransitions", method = RequestMethod.GET)
+    @ResponseBody
+    public ResponseEntity<List<String>> findTaskInstanceOutcomes(
+            @PathVariable("taskInstanceId") String taskInstanceId) {
+        return new ResponseEntity(workflowEngineApi.findTaskInstanceOutcomes(taskInstanceId), HttpStatus.OK);
+    }
 
     // VARIABLES DE TASQUES
     ////////////////////////////////////////////////////////////////////////////////
@@ -674,17 +688,17 @@ public class WorkflowEngineController {
                 HttpStatus.OK);
     }
 
-    @RequestMapping(value="/evaluateExpression", method = RequestMethod.GET)
-    @ResponseBody
-    public ResponseEntity<Object> evaluateExpression(
-            @RequestBody ExpressionData expressionData) throws ClassNotFoundException {
-        return new ResponseEntity(
-                workflowEngineApi.evaluateExpression(
-                        expressionData.getExpression(),
-                        Class.forName(expressionData.getExpectedClass()),
-                        variableRestToObjectMapConvert(expressionData.getValors())),
-                HttpStatus.OK);
-    }
+//    @RequestMapping(value="/evaluateExpression", method = RequestMethod.GET)
+//    @ResponseBody
+//    public ResponseEntity<Object> evaluateExpression(
+//            @RequestBody ExpressionData expressionData) throws ClassNotFoundException {
+//        return new ResponseEntity(
+//                workflowEngineApi.evaluateExpression(
+//                        expressionData.getExpression(),
+//                        Class.forName(expressionData.getExpectedClass()),
+//                        variableRestToObjectMapConvert(expressionData.getValors())),
+//                HttpStatus.OK);
+//    }
 
     // TODO: Fi
 
@@ -821,21 +835,6 @@ public class WorkflowEngineController {
 
 
 
-
-    @RequestMapping(value="/processDefinitions/{processDefinitionId}/tasks/{taskName}/leavingTransitions", method = RequestMethod.GET)
-	@ResponseBody
-    public ResponseEntity<List<String>> findStartTaskOutcomes(
-            @PathVariable("processDefinitionId") String processDefinitionId,
-            @PathVariable("taskName") String taskName) {
-        return new ResponseEntity(workflowEngineApi.findStartTaskOutcomes(processDefinitionId, taskName), HttpStatus.OK);
-    }
-
-    @RequestMapping(value="/taskInstances/{taskInstanceId}/leavingTransitions", method = RequestMethod.GET)
-	@ResponseBody
-    public ResponseEntity<List<String>> findTaskInstanceOutcomes(
-            @PathVariable("taskInstanceId") String taskInstanceId) {
-        return new ResponseEntity(workflowEngineApi.findTaskInstanceOutcomes(taskInstanceId), HttpStatus.OK);
-    }
 
     @RequestMapping(value="/executions/{tokenId}/arrivingNodes", method = RequestMethod.GET)
 	@ResponseBody

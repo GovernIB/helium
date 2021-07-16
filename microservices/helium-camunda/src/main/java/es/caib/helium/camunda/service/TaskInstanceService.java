@@ -159,4 +159,7 @@ public interface TaskInstanceService {
             String titol,
             String infoCache);
 
+    public List<String> findStartTaskOutTransitions(String processDefinitionId, String taskName);
+
+    public List<String> findTaskInstanceTransitions(String taskInstanceId);
 }

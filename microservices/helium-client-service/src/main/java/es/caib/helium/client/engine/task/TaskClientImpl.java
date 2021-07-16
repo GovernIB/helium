@@ -1,15 +1,14 @@
 package es.caib.helium.client.engine.task;
 
-import java.util.List;
-import java.util.Objects;
-
-import org.springframework.stereotype.Service;
-
 import es.caib.helium.client.engine.model.InfoCacheData;
 import es.caib.helium.client.engine.model.ReassignTaskData;
 import es.caib.helium.client.engine.model.WTaskInstance;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Objects;
 
 @Service
 @Slf4j
@@ -116,7 +115,21 @@ public class TaskClientImpl implements TaskClient {
 	@Override
 	public void updateTaskInstanceInfoCache(String taskId, InfoCacheData info) {
 
-		log.debug(missatgeLog + " update taks instance info cache amb id  " + taskId + " task " + info.toString());
+		log.debug(missatgeLog + " update task instance info cache amb id  " + taskId + " task " + info.toString());
 		taskClient.updateTaskInstanceInfoCache(taskId, info);
+	}
+
+	@Override
+	public List<String> findStartTaskOutcomes(String definicioProces, String taskName) {
+		log.debug(missatgeLog + " get startTask output transitions amb definicioProces=" + definicioProces + ", taskName=" + taskName);
+		var responseEntity = taskClient.findStartTaskOutcomes(definicioProces, taskName);
+		return responseEntity.getBody();
+	}
+
+	@Override
+	public List<String> findTaskInstanceOutcomes(String taskInstanceId) {
+		log.debug(missatgeLog + " get task instance output transitions amb id=" + taskInstanceId);
+		var responseEntity = taskClient.findTaskInstanceOutcomes(taskInstanceId);
+		return responseEntity.getBody();
 	}
 }

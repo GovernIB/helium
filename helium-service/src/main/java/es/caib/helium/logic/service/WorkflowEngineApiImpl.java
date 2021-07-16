@@ -143,11 +143,6 @@ public class WorkflowEngineApiImpl implements WorkflowEngineApi {
         return processInstanceClient.findProcessInstancesWithProcessDefinitionId(processDefinitionId);
     }
 
-//    @Override
-//    public List<WProcessInstance> findProcessInstancesWithProcessDefinitionName(String processName) {
-//        return processInstanceClient.findProcessInstancesWithProcessDefinitionName(processName);
-//    }
-
     @Override
     public List<WProcessInstance> findProcessInstancesWithProcessDefinitionNameAndEntorn(String processName, Long entornId) {
         return processInstanceClient.findProcessInstancesWithProcessDefinitionNameAndEntorn(processName, entornId.toString());
@@ -392,6 +387,18 @@ public class WorkflowEngineApiImpl implements WorkflowEngineApi {
                         .build());
     }
 
+    // Sequence Flow
+    @Override
+    public List<String> findStartTaskOutcomes(String definicioProces, String taskName) {
+        return taskClient.findStartTaskOutcomes(definicioProces, taskName);
+    }
+
+    @Override
+    public List<String> findTaskInstanceOutcomes(String taskInstanceId) {
+        return taskClient.findTaskInstanceOutcomes(taskInstanceId);
+    }
+
+    // Variables
     @Override
     public Map<String, Object> getTaskInstanceVariables(String taskId) {
         return VariableHelper.variableRestToObjectMapConvert(
@@ -476,10 +483,10 @@ public class WorkflowEngineApiImpl implements WorkflowEngineApi {
                                 .build()));
     }
 
-    // TODO: ProcessInstance??
     @Override
     public Object evaluateExpression(String taskInstanceInstanceId, String processInstanceId, String expression, Map<String, Object> valors) {
         return actionClient.evaluateExpression(
+                processInstanceId,
                 ExpressionData.builder()
                         .taskInstanceInstanceId(taskInstanceInstanceId)
                         .expression(expression)
@@ -488,16 +495,16 @@ public class WorkflowEngineApiImpl implements WorkflowEngineApi {
                         .build());
     }
 
-    @Override
-    public Object evaluateExpression(String expression, Class expectedClass, Map<String, Object> context) {
-        return actionClient.evaluateExpression(
-                ExpressionData.builder()
-                        .expression(expression)
-                        .expressionLanguage("javascript")
-                        .expectedClass(expectedClass.getName())
-                        .valors(VariableHelper.objectMapToVariableRestConvert(context))
-                        .build());
-    }
+//    @Override
+//    public Object evaluateExpression(String expression, String expectedClassName, Map<String, Object> context) {
+//        return actionClient.evaluateExpression(
+//                ExpressionData.builder()
+//                        .expression(expression)
+//                        .expressionLanguage("javascript")
+//                        .expectedClass(expectedClassName)
+//                        .valors(VariableHelper.objectMapToVariableRestConvert(context))
+//                        .build());
+//    }
 
     @Override
     public List<String> listActions(String processDefinition) {
@@ -574,16 +581,9 @@ public class WorkflowEngineApiImpl implements WorkflowEngineApi {
 
 
 
-    @Override
-    public List<String> findStartTaskOutcomes(String jbpmId, String taskName) {
-        return null;
-    }
 
-    @Override
-    public List<String> findTaskInstanceOutcomes(String taskInstanceId) {
-        return null;
-    }
 
+    // Retrocedit tokens
     @Override
     public List<String> findArrivingNodeNames(String tokenId) {
         return null;

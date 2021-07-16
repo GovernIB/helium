@@ -34,4 +34,8 @@ public interface TaskClient {
 	public WTaskInstance reassignTaskInstance(String taskId, ReassignTaskData reassignTask);
 	
 	public void updateTaskInstanceInfoCache(String taskId, InfoCacheData info);
+
+	public List<String> findStartTaskOutcomes(String jbpmId, String taskName);
+
+	public List<String> findTaskInstanceOutcomes(String taskInstanceId);
 }

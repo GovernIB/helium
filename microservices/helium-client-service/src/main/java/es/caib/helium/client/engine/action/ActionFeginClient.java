@@ -1,16 +1,15 @@
 package es.caib.helium.client.engine.action;
 
-import java.util.List;
-
+import es.caib.helium.client.engine.model.ExpressionData;
+import es.caib.helium.client.engine.model.ScriptData;
+import es.caib.helium.client.engine.model.VariableRest;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import es.caib.helium.client.engine.model.ExpressionData;
-import es.caib.helium.client.engine.model.ScriptData;
-import es.caib.helium.client.engine.model.VariableRest;
+import java.util.List;
 
 public interface ActionFeginClient {
 
@@ -24,8 +23,8 @@ public interface ActionFeginClient {
             @PathVariable("processInstanceId") String processInstanceId,
             @RequestBody ExpressionData expressionData);
 	
-	@RequestMapping(method = RequestMethod.GET, value = ActionApiPath.EVALUATE_EXPRESSION)
-	public Object evaluateExpression(@RequestBody ExpressionData expressionData);
+//	@RequestMapping(method = RequestMethod.GET, value = ActionApiPath.EVALUATE_EXPRESSION)
+//	public Object evaluateExpression(@RequestBody ExpressionData expressionData);
 	
 	@RequestMapping(method = RequestMethod.GET, value = ActionApiPath.LIST_ACTIONS)
 	public List<String> listActions(

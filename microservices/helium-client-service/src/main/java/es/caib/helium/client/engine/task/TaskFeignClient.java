@@ -1,7 +1,8 @@
 package es.caib.helium.client.engine.task;
 
-import java.util.List;
-
+import es.caib.helium.client.engine.model.InfoCacheData;
+import es.caib.helium.client.engine.model.ReassignTaskData;
+import es.caib.helium.client.engine.model.WTaskInstance;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -9,9 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import es.caib.helium.client.engine.model.InfoCacheData;
-import es.caib.helium.client.engine.model.ReassignTaskData;
-import es.caib.helium.client.engine.model.WTaskInstance;
+import java.util.List;
 
 public interface TaskFeignClient {
 
@@ -66,5 +65,14 @@ public interface TaskFeignClient {
 	public ResponseEntity<Void> updateTaskInstanceInfoCache(
             @PathVariable("taskId") String taskId,
             @RequestBody InfoCacheData info);
+
+	@RequestMapping(method = RequestMethod.GET, value=TaskApiPath.FIND_STARTTASK_OUT_TRANSITION)
+	public ResponseEntity<List<String>> findStartTaskOutcomes(
+			@PathVariable("processDefinitionId") String processDefinitionId,
+			@PathVariable("taskName") String taskName);
+
+	@RequestMapping(method = RequestMethod.GET, value=TaskApiPath.FIND_TASK_OUT_TRANSITION)
+	public ResponseEntity<List<String>> findTaskInstanceOutcomes(
+			@PathVariable("taskInstanceId") String taskInstanceId);
 	
 }

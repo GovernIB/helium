@@ -162,6 +162,19 @@ public class TaskInstanceServiceImpl implements TaskInstanceService {
         // TODO: Mirar si s'utilitza!!
     }
 
+    @Override
+    public List<String> findStartTaskOutTransitions(String processDefinitionId, String taskName) {
+        return new ArrayList<>();
+    }
+
+    @Override
+    public List<String> findTaskInstanceTransitions(String taskInstanceId) {
+        // TODO: Mirar si existeixen Conditional Flows de sortida configurats segons el valor d'una variable
+        //      o si el següent node és un decicion que depen del valor d'una variable
+        //      --> S'hauria de configurar a Helium, a la tasca!!!??
+        return new ArrayList<>();
+    }
+
 
     private Task getTask(String taskId) {
         var task = taskService

@@ -834,18 +834,18 @@ public interface WorkflowEngineApi {
             Long processDefinitionId);
 
 	// Avaluació d'expressions
-	/** Avalua una expressió amb uns valors de variables en el contexte.
-	 *
-	 * @param expression
-	 * @param expectedClass
-	 * @param context
-	 * @return
-	 */
-	@SuppressWarnings("rawtypes")
-	public Object evaluateExpression(
-            String expression,
-            Class expectedClass,
-            Map<String, Object> context);
+//	/** Avalua una expressió amb uns valors de variables en el contexte.
+//	 *
+//	 * @param expression
+//	 * @param expectedClassName
+//	 * @param context
+//	 * @return
+//	 */
+//	@SuppressWarnings("rawtypes")
+//	public Object evaluateExpression(
+//            String expression,
+//            String expectedClassName,
+//            Map<String, Object> context);
 
 
 	// Retroacció

@@ -32,12 +32,12 @@ public class ActionClientImpl implements ActionClient {
 		return actionClient.evaluateExpression(processInstanceId, expressionData);
 	}
 
-	@Override
-	public Object evaluateExpression(ExpressionData expressionData) {
-		
-		log.debug(MISSATGE_LOG + " evaluant expression expression: " + expressionData.toString());
-		return actionClient.evaluateExpression(expressionData);
-	}
+//	@Override
+//	public Object evaluateExpression(ExpressionData expressionData) {
+//
+//		log.debug(MISSATGE_LOG + " evaluant expression expression: " + expressionData.toString());
+//		return actionClient.evaluateExpression(expressionData);
+//	}
 
 	@Override
 	public List<String> listActions(String processDefinition) {

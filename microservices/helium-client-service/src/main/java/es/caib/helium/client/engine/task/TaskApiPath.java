@@ -27,4 +27,8 @@ public class TaskApiPath {
 	public static final String REASSING_TASK_INSTANCE = API_PATH + "/{taskId}/reassign";
 	
 	public static final String UPDATE_TASK_INSTANCE_INFO_CACHE = API_PATH + "/{taskId}";
+
+	public static final String FIND_STARTTASK_OUT_TRANSITION = API_PATH + "/byProcessDefinition/{processDefinitionId}/tasks/{taskName}/leavingTransitions";
+
+	public static final String FIND_TASK_OUT_TRANSITION = API_PATH + "/{taskInstanceId}/leavingTransitions";
 }

@@ -12,7 +12,7 @@ public class ExpressionData {
     private String taskInstanceInstanceId;
     private String expressionLanguage;
     private String expression;
-    private String expectedClass;
+//    private String expectedClass;
     private List<VariableRest> valors;
 
 }
