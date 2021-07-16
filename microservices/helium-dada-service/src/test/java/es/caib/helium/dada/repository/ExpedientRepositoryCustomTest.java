@@ -1,21 +1,5 @@
 package es.caib.helium.dada.repository;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest;
-import org.springframework.test.context.ActiveProfiles;
-
 import es.caib.helium.dada.enums.Collections;
 import es.caib.helium.dada.enums.DireccioOrdre;
 import es.caib.helium.dada.enums.Tipus;
@@ -30,6 +14,21 @@ import es.caib.helium.dada.model.Ordre;
 import es.caib.helium.dada.model.Valor;
 import es.caib.helium.dada.model.ValorRegistre;
 import es.caib.helium.dada.model.ValorSimple;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest;
+import org.springframework.test.context.ActiveProfiles;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 @ActiveProfiles("test")
 @DataMongoTest
@@ -64,7 +63,7 @@ public class ExpedientRepositoryCustomTest {
 			expedient.setTipusId(unLong);
 			expedient.setEntornId(unLong);
 			expedient.setDataInici(new Date());
-			expedient.setProcesPrincipalId(unLong);
+			expedient.setProcesPrincipalId(unLong + "");
 			expedient.setTitol(titol);
 			if (foo % 2 == 0) {
 				expedientsFiltratsIds.add(Long.valueOf(foo));
@@ -86,7 +85,7 @@ public class ExpedientRepositoryCustomTest {
 			dada.setCodi(codi + foo);
 			dada.setExpedientId(unLong);
 			dada.setMultiple(false);
-			dada.setProcesId(unLong);
+			dada.setProcesId(unLong + "");
 			dada.setTipus(Tipus.String);
 			if (foo == 1) {
 				for (var bar = 0; bar < 10; bar++) {

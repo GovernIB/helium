@@ -8,7 +8,7 @@ import es.caib.helium.dada.model.PagedList;
 
 import java.util.List;
 
-interface ExpedientService {
+public interface ExpedientService {
 
 	PagedList<Expedient> consultaResultats(Consulta consulta) throws DadaException;
 
@@ -36,25 +36,29 @@ interface ExpedientService {
 
 	Dada getDadaByCodi(Long expedientId, String codi) throws DadaException;
 
-	List<Dada> getDadesByProces(Long expedientId, Long procesId) throws DadaException;
+	List<Dada> getDadesByProces(Long expedientId, String procesId) throws DadaException;
 
-	Dada getDadaByExpedientIdProcesAndCodi(Long expedientId, Long procesId, String codi) throws DadaException;
+	Dada getDadaByExpedientIdProcesAndCodi(Long expedientId, String procesId, String codi) throws DadaException;
 
-	Dada getDadaByProcesAndCodi(Long procesId, String codi) throws DadaException;
+	Dada getDadaByProcesAndCodi(String procesId, String codi) throws DadaException;
 	
-	Long getDadaExpedientIdByProcesId(Long procesId) throws DadaException;
+	Long getDadaExpedientIdByProcesId(String procesId) throws DadaException;
 
-	boolean createDades(Long expedientId, Long procesId, List<Dada> dada) throws DadaException;
+	boolean createDades(Long expedientId, String procesId, List<Dada> dada) throws DadaException;
 
 	boolean putDadaByExpedientIdAndCodi(Long expedientId, String codi, Dada dada) throws DadaException;
 
 	boolean deleteDadaByExpedientIdAndCodi(Long expedientId, String codi) throws DadaException;
 
-	boolean postDadesByExpedientIdProcesId(Long expedientId, Long procesId, List<Dada> dada) throws DadaException;
+	boolean postDadesByExpedientIdProcesId(Long expedientId, String procesId, List<Dada> dada) throws DadaException;
 
-	boolean putDadaByExpedientIdProcesIdAndCodi(Long expedientId, Long procesId, String codi, Dada dada) throws DadaException;
+	boolean putDadaByExpedientIdProcesIdAndCodi(Long expedientId, String procesId, String codi, Dada dada) throws DadaException;
 
-	boolean deleteDadaByExpedientIdAndProcesIdAndCodi(Long expedientId, Long procesId, String codi) throws DadaException;
+	boolean deleteDadaByExpedientIdAndProcesIdAndCodi(Long expedientId, String procesId, String codi) throws DadaException;
 
-	List<Dada> getDadesByProcesId(Long procesId) throws DadaException;
+	List<Dada> getDadesByProcesId(String procesId) throws DadaException;
+
+	boolean deleteDadaByProcesIdAndCodi(String procesId, String codi) throws DadaException;
+
+	List<Long> findRootProcessInstance(List<String> procesIds) throws DadaException;
 }

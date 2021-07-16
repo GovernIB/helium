@@ -1,9 +1,10 @@
 package es.caib.helium.client.dada;
 
-import java.util.List;
-
-import javax.validation.Valid;
-
+import es.caib.helium.client.dada.model.Consulta;
+import es.caib.helium.client.dada.model.Dada;
+import es.caib.helium.client.dada.model.Expedient;
+import es.caib.helium.client.dada.model.ValidList;
+import es.caib.helium.client.model.PagedList;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -11,11 +12,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import es.caib.helium.client.dada.model.Consulta;
-import es.caib.helium.client.dada.model.Dada;
-import es.caib.helium.client.dada.model.Expedient;
-import es.caib.helium.client.dada.model.ValidList;
-import es.caib.helium.client.model.PagedList;
+import javax.validation.Valid;
+import java.util.List;
 
 public interface DadaServiceFeignClient {
 
@@ -81,26 +79,26 @@ public interface DadaServiceFeignClient {
 	@RequestMapping(method = RequestMethod.GET, value = DadaMsApiPath.GET_DADA_BY_EXPEDIENT_ID_AND_PROCES_ID)
 	public ResponseEntity<List<Dada>> getDadesByProces(
 			@PathVariable("expedientId") Long expedientId,
-			@PathVariable("procesId") Long procesId);
+			@PathVariable("procesId") String procesId);
 	
 	@RequestMapping(method = RequestMethod.GET, value = DadaMsApiPath.GET_DADA_BY_EXPEDIENT_ID_AND_PROCES_ID_AND_CODI)
 	public ResponseEntity<Dada> getDadaByExpedientIdProcesAndCodi(
 			@PathVariable("expedientId") Long expedientId,
-			@PathVariable("procesId") Long procesId,
+			@PathVariable("procesId") String procesId,
 			@PathVariable("codi") String codi);
 	
 	@RequestMapping(method = RequestMethod.GET, value = DadaMsApiPath.GET_DADA_BY_PROCES_ID_AND_CODI)
 	public ResponseEntity<Dada> getDadaByProcesAndCodi(
-			@PathVariable("procesId") Long procesId,
+			@PathVariable("procesId") String procesId,
 			@PathVariable("codi") String codi);
 	
 	@RequestMapping(method = RequestMethod.GET, value = DadaMsApiPath.GET_EXPEDIENT_ID_BY_PROCES_ID)
-	public ResponseEntity<Long> getDadaExpedientIdByProcesId(@PathVariable("procesId") Long procesId);
+	public ResponseEntity<Long> getDadaExpedientIdByProcesId(@PathVariable("procesId") String procesId);
 	
 	@RequestMapping(method = RequestMethod.POST, value = DadaMsApiPath.POST_DADES_BY_EXPEDIENT_ID)
 	public ResponseEntity<Void> postDadesByExpedientId(
 			@PathVariable("expedientId") Long expedientId,
-			@RequestParam("procesId") Long procesId,
+			@RequestParam("procesId") String procesId,
 			@Valid @RequestBody ValidList<Dada> dada);
 	
 	@RequestMapping(method = RequestMethod.PUT, value = DadaMsApiPath.PUT_DADES_BY_EXPEDIENT_ID_AND_CODI)
@@ -117,20 +115,20 @@ public interface DadaServiceFeignClient {
 	@RequestMapping(method = RequestMethod.POST, value = DadaMsApiPath.POST_DADES_BY_EXPEDIENT_ID_AND_PROCES_ID)
 	public ResponseEntity<Void> postDadaByExpedientIdProcesId(
 			@PathVariable("expedientId") Long expedientId,
-			@PathVariable("procesId") Long procesId,
+			@PathVariable("procesId") String procesId,
 			@Valid @RequestBody ValidList<Dada> dades);
 	
 	@RequestMapping(method = RequestMethod.PUT, value = DadaMsApiPath.PUT_DADA_BY_EXPEDIENT_ID_AND_PROCES_ID_AND_CODI)
 	public ResponseEntity<Void> putDadaByExpedientIdProcesIdAndCodi(
 			@PathVariable("expedientId") Long expedientId,
-			@PathVariable("procesId") Long procesId,
+			@PathVariable("procesId") String procesId,
 			@PathVariable("codi") String codi, 
 			@Valid @RequestBody Dada dada);
 	
 	@RequestMapping(method = RequestMethod.DELETE, value = DadaMsApiPath.DELETE_DADA_BY_EXPEDIENT_ID_AND_PROCES_ID_AND_CODI)
 	public ResponseEntity<Void> deleteDadaByExpedientIdAndProcesIdAndCodi(
 			@PathVariable("expedientId") Long expedientId,
-			@PathVariable("procesId") Long procesId,
+			@PathVariable("procesId") String procesId,
 			@PathVariable("codi") String codi); 
 	
 }

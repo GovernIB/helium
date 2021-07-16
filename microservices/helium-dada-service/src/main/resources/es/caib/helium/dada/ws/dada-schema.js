@@ -14,7 +14,7 @@ db.createCollection("expedient", {
 				tipusId: { bsonType: "long" },
 				numero: { bsonType: "string", maxLength: 64 },
 				titol: { bsonType: "string", maxLength: 255 },
-				procesPrincipalId: { bsonType: "long" },
+				procesPrincipalId: { bsonType: "string" },
 				estatId: { bsonType: "int" },
 				dataInici: { bsonType: "date" },
 				dataFi: { bsonType: "date", description: "Data de fi de l'expedient." }
@@ -40,7 +40,7 @@ db.runCommand( {
 				tipusId: { bsonType: "long" },
 				numero: { bsonType: "string", maxLength: 64 },
 				titol: { bsonType: "string", maxLength: 255 },
-				procesPrincipalId: { bsonType: "long" },
+				procesPrincipalId: { bsonType: "string" },
 				estatId: { bsonType: "int" },
 				dataInici: { bsonType: "date" },
 				dataFi: { bsonType: "date", description: "Data de fi de l'expedient." }
@@ -61,7 +61,7 @@ db.createCollection("dada", {
 				"_id": { bsonType: "objectId" },
 				"_class": { bsonType: "string" },
 				"expedientId": { bsonType: "long"},
-				"procesId": { bsonType: "long"},
+				"procesId": { bsonType: "string"},
 				codi: { bsonType: "string", maxLength: 255 },
 				tipus: { enum: ["Long", "String", "Date", "Float", "Termini", "Preu", "Integer", "Boolean", "Registre"]},
 				multiple: { bsonType: "bool" },

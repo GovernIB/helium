@@ -151,7 +151,7 @@ public class DadaClientImpl implements DadaClient {
 	}
 
 	@Override
-	public List<Dada> getDadesByProces(Long expedientId, Long procesId) {
+	public List<Dada> getDadesByProces(Long expedientId, String procesId) {
 		
 		log.debug(missatgeLog + " Get dades per l'expedient: " + expedientId + " amb procesId: " + procesId);
 	 	var responseEntity = dadaServiceFeignClient.getDadesByProces(expedientId, procesId);
@@ -160,7 +160,7 @@ public class DadaClientImpl implements DadaClient {
 	}
 
 	@Override
-	public Dada getDadaByExpedientIdProcesAndCodi(Long expedientId, Long procesId, String codi) {
+	public Dada getDadaByExpedientIdProcesAndCodi(Long expedientId, String procesId, String codi) {
 		
 		log.debug(missatgeLog + " Get dades per l'expedient: " + expedientId + " amb procesId: " + procesId + " i codi: " + codi);
 	 	var responseEntity = dadaServiceFeignClient.getDadaByExpedientIdProcesAndCodi(expedientId, procesId, codi);
@@ -169,7 +169,7 @@ public class DadaClientImpl implements DadaClient {
 	}
 
 	@Override
-	public Dada getDadaByProcesAndCodi(Long procesId, String codi) {
+	public Dada getDadaByProcesAndCodi(String procesId, String codi) {
 		
 		log.debug(missatgeLog + " Get dada amb procesId: " + procesId + " i codi: " + codi);
 	 	var responseEntity = dadaServiceFeignClient.getDadaByProcesAndCodi(procesId, codi);
@@ -178,7 +178,7 @@ public class DadaClientImpl implements DadaClient {
 	}
 
 	@Override
-	public Long getDadaExpedientIdByProcesId(Long procesId) {
+	public Long getDadaExpedientIdByProcesId(String procesId) {
 	
 		log.debug(missatgeLog + " Get expedientId de la dada amb procesId: " + procesId);
 	 	var responseEntity = dadaServiceFeignClient.getDadaExpedientIdByProcesId(procesId);
@@ -187,7 +187,7 @@ public class DadaClientImpl implements DadaClient {
 	}
 
 	@Override
-	public void postDadesByExpedientId(Long expedientId, Long procesId, List<Dada> dada) {
+	public void postDadesByExpedientId(Long expedientId, String procesId, List<Dada> dada) {
 		
 		log.debug(missatgeLog + " Post dades per l'expedient " + expedientId);
 		var valid = new ValidList<Dada>();
@@ -210,7 +210,7 @@ public class DadaClientImpl implements DadaClient {
 	}
 
 	@Override
-	public void postDadesByExpedientIdProcesId(Long expedientId, Long procesId, List<Dada> dades) {
+	public void postDadesByExpedientIdProcesId(Long expedientId, String procesId, List<Dada> dades) {
 
 		log.debug(missatgeLog + " Post dades per l'expedient " + expedientId);
 		var valid = new ValidList<Dada>();
@@ -219,14 +219,14 @@ public class DadaClientImpl implements DadaClient {
 	}
 
 	@Override
-	public void putDadaByExpedientIdProcesIdAndCodi(Long expedientId, Long procesId, String codi, Dada dada) {
+	public void putDadaByExpedientIdProcesIdAndCodi(Long expedientId, String procesId, String codi, Dada dada) {
 
 		log.debug(missatgeLog + " Put dada per l'expedient " + expedientId + " amb procesId: " + procesId + " i codi: " + codi);
 		dadaServiceFeignClient.putDadaByExpedientIdProcesIdAndCodi(expedientId, procesId, codi, dada);
 	}
 
 	@Override
-	public void deleteDadaByExpedientIdAndProcesIdAndCodi(Long expedientId, Long procesId, String codi) {
+	public void deleteDadaByExpedientIdAndProcesIdAndCodi(Long expedientId, String procesId, String codi) {
 		
 		log.debug(missatgeLog + " Delete dada per l'expedient " + expedientId + " amb procesId: " + procesId + " i codi: " + codi);
 		dadaServiceFeignClient.deleteDadaByExpedientIdAndProcesIdAndCodi(expedientId, procesId, codi);

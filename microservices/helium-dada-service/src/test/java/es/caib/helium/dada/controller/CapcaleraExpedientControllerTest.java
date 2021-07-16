@@ -1,31 +1,12 @@
 package es.caib.helium.dada.controller;
 
-import static org.hamcrest.Matchers.hasSize;
-import static org.junit.Assert.assertFalse;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.BDDMockito.given;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.validation.ConstraintViolation;
-import javax.validation.Validation;
-import javax.validation.Validator;
-import javax.validation.ValidatorFactory;
-
+import com.fasterxml.jackson.databind.ObjectMapper;
+import es.caib.helium.dada.model.Consulta;
+import es.caib.helium.dada.model.Expedient;
+import es.caib.helium.dada.model.Filtre;
+import es.caib.helium.dada.model.FiltreCapcalera;
+import es.caib.helium.dada.model.PagedList;
+import es.caib.helium.dada.service.ExpedientService;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -44,14 +25,30 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.server.ResponseStatusException;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import javax.validation.ConstraintViolation;
+import javax.validation.Validation;
+import javax.validation.Validator;
+import javax.validation.ValidatorFactory;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
-import es.caib.helium.dada.model.Consulta;
-import es.caib.helium.dada.model.Expedient;
-import es.caib.helium.dada.model.Filtre;
-import es.caib.helium.dada.model.FiltreCapcalera;
-import es.caib.helium.dada.model.PagedList;
-import es.caib.helium.dada.service.ExpedientService;
+import static org.hamcrest.Matchers.hasSize;
+import static org.junit.Assert.assertFalse;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.BDDMockito.given;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(value = ExpedientController.class, excludeAutoConfiguration = {
 		org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration.class,
@@ -90,7 +87,7 @@ public class CapcaleraExpedientControllerTest {
 		expedientMock.setExpedientId(1l);
 		expedientMock.setEntornId(1l);
 		expedientMock.setTipusId(1l);
-		expedientMock.setProcesPrincipalId(1l);
+		expedientMock.setProcesPrincipalId(1 + "");
 		var dataInici = new Date();
 		expedientMock.setDataInici(dataInici);
 
@@ -117,7 +114,7 @@ public class CapcaleraExpedientControllerTest {
 			exp.setExpedientId(bar);
 			exp.setEntornId(bar);
 			exp.setTipusId(bar);
-			exp.setProcesPrincipalId(bar);
+			exp.setProcesPrincipalId(bar + "");
 			exp.setDataInici(dataInici);
 			expedientsMock.add(exp);
 		}
@@ -208,7 +205,7 @@ public class CapcaleraExpedientControllerTest {
 		expedientMock.setExpedientId(1l);
 		expedientMock.setEntornId(1l);
 		expedientMock.setTipusId(1l);
-		expedientMock.setProcesPrincipalId(1l);
+		expedientMock.setProcesPrincipalId(1 + "");
 		var dataInici = new Date();
 		expedientMock.setDataInici(dataInici);
 		String expedientJson = asJsonString(expedientMock);
@@ -440,7 +437,7 @@ public class CapcaleraExpedientControllerTest {
 		expedientMock.setNumero(titol);
 		expedientMock.setEntornId(2l);
 		expedientMock.setTipusId(3l);
-		expedientMock.setProcesPrincipalId(4l);
+		expedientMock.setProcesPrincipalId(4 + "");
 		var dataInici = new Date();
 		expedientMock.setDataInici(dataInici);
 		expedientMock.setDataFi(dataInici);
@@ -471,7 +468,7 @@ public class CapcaleraExpedientControllerTest {
 		expedientMock.setNumero(titol);
 		expedientMock.setEntornId(2l);
 		expedientMock.setTipusId(3l);
-		expedientMock.setProcesPrincipalId(4l);
+		expedientMock.setProcesPrincipalId(4 + "");
 		var dataInici = new Date();
 		expedientMock.setDataInici(dataInici);
 		expedientMock.setDataFi(dataInici);

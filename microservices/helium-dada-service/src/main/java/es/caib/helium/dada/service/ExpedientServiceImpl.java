@@ -406,7 +406,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 	 * @return Retorna una llista amb les dades de l'expedient (no son dades de capçalera). Lista buida si no hi han dades o excepció.
 	 */
 	@Override
-	public List<Dada> getDadesByProces(Long expedientId, Long procesId) throws DadaException {
+	public List<Dada> getDadesByProces(Long expedientId, String procesId) throws DadaException {
 
 		try {
 			var dades = dadaRepository.findByExpedientIdAndProcesId(expedientId, procesId);
@@ -427,7 +427,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 	 * @return Retorna la Dada resultant de la cerca. Null si no existeix o excepció
 	 */
 	@Override
-	public Dada getDadaByExpedientIdProcesAndCodi(Long expedientId, Long procesId, String codi) throws DadaException {
+	public Dada getDadaByExpedientIdProcesAndCodi(Long expedientId, String procesId, String codi) throws DadaException {
 		try {
 			var dada = dadaRepository.findByExpedientIdAndProcesIdAndCodi(expedientId, procesId, codi);
 			log.debug("Consulta de dades correctament per l'expedient "
@@ -443,13 +443,12 @@ public class ExpedientServiceImpl implements ExpedientService {
 
 	/**
 	 * Cerca la dada segons el expedientId procesId i codi
-	 * @param expedientId identificador de l'expedient
-	 * @param procesId identificador del procés 
+	 * @param procesId identificador del procés
 	 * @codi codi codi de la dada
 	 * @return Retorna la Dada resultant de la cerca. Null si no existeix o excepció
 	 */
 	@Override
-	public Dada getDadaByProcesAndCodi(Long procesId, String codi) throws DadaException {
+	public Dada getDadaByProcesAndCodi(String procesId, String codi) throws DadaException {
 		try {
 			var dada = dadaRepository.findByProcesIdAndCodi(procesId, codi);
 			log.debug("Consulta de dades correctament pel procesId " + procesId + " amb codi " + codi);
@@ -468,7 +467,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 	 * @return Retorna l'expedientId del procesId consultat. Null si no existeix o excepció si es troba més d'un expedientId diferent
 	 */
 	@Override
-	public Long getDadaExpedientIdByProcesId(Long procesId) throws DadaException {
+	public Long getDadaExpedientIdByProcesId(String procesId) throws DadaException {
 		
 		try {
 			var optional = dadaRepository.findByProcesId(procesId);
@@ -501,7 +500,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 	 * @return True si s'ha guardat almenys una dada. False si totes les dades ja existeixen. 
 	 */
 	@Override
-	public boolean createDades(Long expedientId, Long procesId, List<Dada> dades) throws DadaException {
+	public boolean createDades(Long expedientId, String procesId, List<Dada> dades) throws DadaException {
 
 		try {
 			List<Dada> dadesFoo = new ArrayList<>();
@@ -512,6 +511,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 					// Evitar dades amb el codi repetit segons proces i codi
 					log.error("[ExpedientServiceImpl.crearDada] Expedient amb id " + expedientId + " procesId "
 							+ procesId + " ja té una dada amb codi " + dada.getCodi());
+					// TODO FER EL PUT
 					continue;
 				}
 				dada.setExpedientId(expedientId);
@@ -521,8 +521,8 @@ public class ExpedientServiceImpl implements ExpedientService {
 			if (dadesFoo.isEmpty()) {
 				return false;
 			}
-			log.debug("Dades per l'expedient " + expedientId + " amb procesId " + procesId + " creades correctament");
 			var guardats = dadaRepository.saveAll(dadesFoo).size();
+			log.debug(guardats + "dades per l'expedient " + expedientId + " amb procesId " + procesId + " creades correctament");
 			return guardats > 0;
 		} catch (Exception ex) {
 			var error = "Error al crear les dades per l'expedient " + expedientId + " amb procesId " + procesId;
@@ -597,7 +597,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 	 * @return True si almenys s'ha guardat una dada. Fals altrament o excepció;
 	 */
 	@Override
-	public boolean postDadesByExpedientIdProcesId(Long expedientId, Long procesId, List<Dada> dades) throws DadaException {
+	public boolean postDadesByExpedientIdProcesId(Long expedientId, String procesId, List<Dada> dades) throws DadaException {
 		
 		try {
 			Set<String> dadesSet = new HashSet<>();
@@ -643,7 +643,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 	 */
 	@Override
 	public boolean putDadaByExpedientIdProcesIdAndCodi(
-			Long expedientId, Long procesId, String codi, Dada dada) throws DadaException {
+			Long expedientId, String procesId, String codi, Dada dada) throws DadaException {
 
 		try {
 			var dadaOptional = dadaRepository.findByExpedientIdAndProcesIdAndCodi(expedientId, procesId, codi);
@@ -676,7 +676,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 	 */
 	@Override
 	public boolean deleteDadaByExpedientIdAndProcesIdAndCodi(
-			Long expedientId, Long procesId, String codi) throws DadaException {
+			Long expedientId, String procesId, String codi) throws DadaException {
 
 		try {
 			var dada = dadaRepository.findByExpedientIdAndProcesIdAndCodi(expedientId, procesId, codi);
@@ -686,7 +686,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 				return false;
 			}
 			dadaRepository.delete(dada.get());
-			log.debug("Dada actualitzada (put) per l'expedientId " 
+			log.debug("Dada esborrada per l'expedientId "
 					+ expedientId + " amb procesId " + procesId + " i codi " + codi);
 			return true;
 		} catch (Exception ex) {
@@ -698,7 +698,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 	}
 
 	@Override
-	public List<Dada> getDadesByProcesId(Long procesId) throws DadaException {
+	public List<Dada> getDadesByProcesId(String procesId) throws DadaException {
 
 		try {
 			var dades = dadaRepository.findByProcesId(procesId);
@@ -706,6 +706,42 @@ public class ExpedientServiceImpl implements ExpedientService {
 			return dades.isPresent() ? dades.get() : new ArrayList<Dada>();
 		} catch (Exception ex) {
 			var error = "Error obtinguent les dades amb procesId " + procesId;
+			log.error(error, ex);
+			throw new DadaException(error, ex);
+		}
+	}
+
+	@Override
+	public boolean deleteDadaByProcesIdAndCodi(String procesId, String codi) throws DadaException {
+
+		try {
+			var dada = dadaRepository.findByProcesIdAndCodi(procesId, codi);
+			if (dada.isEmpty()) {
+				log.error("[ExpedientServiceImpl.deleteByProcesIdAndCodi] No existeix la dada amb procesId "
+						+ procesId + " i codi " + codi);
+				return false;
+			}
+			dadaRepository.delete(dada.get());
+			log.debug("Dada esborrada amb procesId " + procesId + " i codi " + codi);
+			return true;
+		} catch (Exception ex) {
+			var error = "Error al esbsorrar la dada per amb procesId "
+					+ procesId + " i codi " + codi;
+			log.error(error, ex);
+			throw new DadaException(error, ex);
+		}
+	}
+
+	@Override
+	public List<Long> findRootProcessInstance(List<String> procesIds) throws DadaException{
+
+		try {
+//			var dades = dadaRepository.getDistinctExpedientIdsByProcesIds(procesIds);
+//			log.debug("Obtinguent els expedientId pels procesIds " + procesIds.toString());
+//			return dades != null ? dades : new ArrayList<>();
+			return null; //TODO implementar
+		} catch (Exception ex) {
+			var error = "Obtinguent els expedientId pels procesIds " + procesIds.toString();
 			log.error(error, ex);
 			throw new DadaException(error, ex);
 		}

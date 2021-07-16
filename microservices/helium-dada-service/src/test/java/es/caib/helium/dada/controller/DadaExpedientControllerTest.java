@@ -1,5 +1,30 @@
 package es.caib.helium.dada.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import es.caib.helium.dada.enums.Tipus;
+import es.caib.helium.dada.model.Dada;
+import es.caib.helium.dada.model.Expedient;
+import es.caib.helium.dada.service.ExpedientService;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.ResultMatcher;
+
+import javax.validation.ConstraintViolation;
+import javax.validation.Validation;
+import javax.validation.Validator;
+import javax.validation.ValidatorFactory;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Set;
+
 import static org.hamcrest.Matchers.hasSize;
 import static org.junit.Assert.assertFalse;
 import static org.mockito.ArgumentMatchers.any;
@@ -13,34 +38,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Set;
-
-import javax.validation.ConstraintViolation;
-import javax.validation.Validation;
-import javax.validation.Validator;
-import javax.validation.ValidatorFactory;
-
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.http.MediaType;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.ResultMatcher;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import es.caib.helium.dada.enums.Tipus;
-import es.caib.helium.dada.model.Dada;
-import es.caib.helium.dada.model.Expedient;
-import es.caib.helium.dada.service.ExpedientService;
 
 @WebMvcTest(value = ExpedientController.class, excludeAutoConfiguration = {
 		org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration.class,
@@ -78,7 +75,7 @@ public class DadaExpedientControllerTest {
 		expedientMock.setExpedientId(unLong);
 		expedientMock.setEntornId(unLong);
 		expedientMock.setTipusId(unLong);
-		expedientMock.setProcesPrincipalId(unLong);
+		expedientMock.setProcesPrincipalId(unLong + "");
 		var dataInici = new Date();
 		expedientMock.setDataInici(dataInici);
 
@@ -88,7 +85,7 @@ public class DadaExpedientControllerTest {
 			var dada = new Dada();
 			dada.setExpedientId(unLong);
 			dada.setCodi(cod + foo);
-			dada.setProcesId(unLong);
+			dada.setProcesId(unLong + "");
 			dada.setTipus(Tipus.String);
 			if (foo == 0) {
 				dadaMock = dada;
@@ -191,7 +188,7 @@ public class DadaExpedientControllerTest {
 	public void test_getDadesByProces_success() throws Exception {
 
 		given(expedientService.findByExpedientId(anyLong())).willReturn(expedientMock);
-		given(expedientService.getDadesByProces(anyLong(), anyLong())).willReturn(dadesMock);
+		given(expedientService.getDadesByProces(anyLong(), any(String.class))).willReturn(dadesMock);
 
 		mockMvc.perform(get("/api/v1/expedients/{expedientId}/proces/{procesId}/dades", unLong, unLong))
 				.andExpect(status().isOk()).andExpect(content().contentType(MediaType.APPLICATION_JSON))
@@ -237,7 +234,7 @@ public class DadaExpedientControllerTest {
 	public void test_getDadesByProcesAndCodi_success() throws Exception {
 
 		given(expedientService.findByExpedientId(anyLong())).willReturn(expedientMock);
-		given(expedientService.getDadaByProcesAndCodi(anyLong(), nullable(String.class)))
+		given(expedientService.getDadaByProcesAndCodi(any(String.class), nullable(String.class)))
 				.willReturn(dadaMock);
 
 		mockMvc.perform(get("/api/v1/expedients/{expedientId}/proces/{procesId}/dades/{codi}", unLong, unLong, codi))
@@ -250,7 +247,7 @@ public class DadaExpedientControllerTest {
 	public void test_getDadaByProcesAndCodi_noContent() throws Exception {
 
 		given(expedientService.findByExpedientId(anyLong())).willReturn(expedientMock);
-		given(expedientService.getDadaByProcesAndCodi(anyLong(), nullable(String.class))).willReturn(null);
+		given(expedientService.getDadaByProcesAndCodi(any(String.class), nullable(String.class))).willReturn(null);
 
 		mockMvc.perform(get("/api/v1/expedients/{expedientId}/proces/{procesId}/dades/{codi}", unLong, unLong, codi))
 				.andExpect(status().isNoContent()).andExpect(jsonPath("$").doesNotHaveJsonPath());
@@ -270,7 +267,7 @@ public class DadaExpedientControllerTest {
 	@DisplayName("[GET] llista de dades del expedient segons procesId i codi - Error bad request")
 	public void test_getDadaByProcesAndCodi_badRequest() throws Exception {
 
-		given(expedientService.getDadaByProcesAndCodi(anyLong(), nullable(String.class))).willReturn(null);
+		given(expedientService.getDadaByProcesAndCodi(any(String.class), nullable(String.class))).willReturn(null);
 
 		mockMvc.perform(get("/api/v1/expedients/{expedientId}/proces/{procesId}/dades/{codi}", "foo", "bar", codi))
 				.andExpect(status().isBadRequest()).andExpect(jsonPath("$").doesNotHaveJsonPath());
@@ -282,7 +279,7 @@ public class DadaExpedientControllerTest {
 	@DisplayName("[POST] dades per l'expedientId")
 	void test_postDadesByExpedientId_success() throws Exception {
 		String dadesJson = asJsonString(dadesMock);
-		given(expedientService.createDades(anyLong(), anyLong(), any(List.class))).willReturn(true);
+		given(expedientService.createDades(anyLong(), any(String.class), any(List.class))).willReturn(true);
 
 		mockMvc.perform(post("/api/v1/expedients/{expedientId}/dades", unLong).content(dadesJson)
 				.contentType(MediaType.APPLICATION_JSON).param("procesId", unLong + "")
@@ -313,7 +310,7 @@ public class DadaExpedientControllerTest {
 	@DisplayName("[POST] dada per l'expedientId - Error conflict")
 	void test_postDadesByExpedientId_conflict() throws Exception {
 		String dadesJson = asJsonString(dadesMock);
-		given(expedientService.createDades(anyLong(), anyLong(), any(List.class))).willReturn(false);
+		given(expedientService.createDades(anyLong(), any(String.class), any(List.class))).willReturn(false);
 
 		mockMvc.perform(post("/api/v1/expedients/{expedientId}/dades", unLong).content(dadesJson)
 				.contentType(MediaType.APPLICATION_JSON).param("procesId", unLong + "")
@@ -421,7 +418,7 @@ public class DadaExpedientControllerTest {
 	@DisplayName("[PUT] dada per l'expedientId, procesId i codi")
 	void test_putDadaByExpedientIdProcesIdAndCodi_sucess() throws Exception {
 		String dadaJson = asJsonString(dadaMock);
-		given(expedientService.putDadaByExpedientIdProcesIdAndCodi(anyLong(), anyLong(), nullable(String.class),
+		given(expedientService.putDadaByExpedientIdProcesIdAndCodi(anyLong(), any(String.class), nullable(String.class),
 				any(Dada.class))).willReturn(true);
 
 		mockMvc.perform(put("/api/v1/expedients/{expedientId}/proces/{procesId}/dades/{codi}", unLong, unLong, codi)
@@ -433,7 +430,7 @@ public class DadaExpedientControllerTest {
 	@DisplayName("[PUT] dada per l'expedientId, procesId i codi - Error not found expedientId")
 	void test_putDadaByExpedientIdProcesIdAndCodi_notFound() throws Exception {
 		String dadaJson = asJsonString(dadaMock);
-		given(expedientService.putDadaByExpedientIdProcesIdAndCodi(anyLong(), anyLong(), nullable(String.class),
+		given(expedientService.putDadaByExpedientIdProcesIdAndCodi(anyLong(), any(String.class), nullable(String.class),
 				any(Dada.class))).willReturn(false);
 
 		mockMvc.perform(put("/api/v1/expedients/{expedientId}/proces/{procesId}/dades/{codi}", 100l, unLong, codi + "_")
@@ -465,7 +462,7 @@ public class DadaExpedientControllerTest {
 
 		dadaMock = new Dada();
 		dadaMock.setExpedientId(1l);
-		given(expedientService.deleteDadaByExpedientIdAndProcesIdAndCodi(anyLong(), anyLong(), nullable(String.class)))
+		given(expedientService.deleteDadaByExpedientIdAndProcesIdAndCodi(anyLong(), any(String.class), nullable(String.class)))
 				.willReturn(true);
 
 		mockMvc.perform(delete("/api/v1/expedients/{expedientId}/proces/{procesId}/dades/{codi}", unLong, unLong, codi))
@@ -476,7 +473,7 @@ public class DadaExpedientControllerTest {
 	@DisplayName("[DELETE] dada de l'expedientId amb procesId i codi - Error expedient no trobat")
 	void test_deleteDadaByExpedientIdProcesIdAndCodi_notFound() throws Exception {
 
-		given(expedientService.deleteDadaByExpedientIdAndProcesIdAndCodi(anyLong(), anyLong(), nullable(String.class)))
+		given(expedientService.deleteDadaByExpedientIdAndProcesIdAndCodi(anyLong(), any(String.class), nullable(String.class)))
 				.willReturn(false);
 
 		mockMvc.perform(get("/api/v1/expedients/{expedientId}/proces/{procesId}/dades/{codi}", unLong, unLong, codi))

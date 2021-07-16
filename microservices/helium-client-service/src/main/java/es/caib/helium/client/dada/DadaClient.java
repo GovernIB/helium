@@ -1,13 +1,12 @@
 package es.caib.helium.client.dada;
 
-import java.util.List;
-
-import org.springframework.stereotype.Service;
-
 import es.caib.helium.client.dada.model.Consulta;
 import es.caib.helium.client.dada.model.Dada;
 import es.caib.helium.client.dada.model.Expedient;
 import es.caib.helium.client.model.PagedList;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public interface DadaClient {
@@ -52,23 +51,23 @@ public interface DadaClient {
 	
 	Dada getDadaByCodi(Long expedientId, String codi);
 	
-	List<Dada> getDadesByProces(Long expedientId, Long procesId);
+	List<Dada> getDadesByProces(Long expedientId, String procesIdId);
 	
-	Dada getDadaByExpedientIdProcesAndCodi(Long expedientId, Long procesId, String codi);
+	Dada getDadaByExpedientIdProcesAndCodi(Long expedientId, String procesIdId, String codi);
 	
-	Dada getDadaByProcesAndCodi(Long procesId, String codi);
+	Dada getDadaByProcesAndCodi(String procesIdId, String codi);
 	
-	Long getDadaExpedientIdByProcesId(Long procesId);
+	Long getDadaExpedientIdByProcesId(String procesIdId);
 	
-	void postDadesByExpedientId(Long expedientId, Long procesId, List<Dada> dada);
+	void postDadesByExpedientId(Long expedientId, String procesIdId, List<Dada> dada);
 	
 	void putDadaByExpedientIdAndCodi(Long expedientId, String codi, Dada dada);
 	
 	public void deleteDadaByExpedientIdAndCodi(Long expedientId, String codi);
 	
-	public void postDadesByExpedientIdProcesId(Long expedientId, Long procesId, List<Dada> dades);
+	public void postDadesByExpedientIdProcesId(Long expedientId, String procesIdId, List<Dada> dades);
 	
-	public void putDadaByExpedientIdProcesIdAndCodi(Long expedientId, Long procesId, String codi, Dada dada);
+	public void putDadaByExpedientIdProcesIdAndCodi(Long expedientId, String procesIdId, String codi, Dada dada);
 	
-	public void deleteDadaByExpedientIdAndProcesIdAndCodi(Long expedientId, Long procesId, String codi); 
+	public void deleteDadaByExpedientIdAndProcesIdAndCodi(Long expedientId, String procesIdId, String codi); 
 }

@@ -160,7 +160,7 @@ public class DadaController {
 	@GetMapping(value = "{expedientId}/proces/{procesId}/dades")
 	public ResponseEntity<List<Dada>> getDadesByProces(
 			@PathVariable("expedientId") Long expedientId,
-			@PathVariable("procesId") Long procesId) throws Exception {
+			@PathVariable("procesId") String procesId) throws Exception {
 
 		var dades = dadaClient.getDadesByProces(expedientId, procesId);
 		if (!dades.isEmpty()) {
@@ -176,7 +176,7 @@ public class DadaController {
 	@GetMapping(value = "{expedientId}/proces/{procesId}/dades/{codi}")
 	public ResponseEntity<Dada> getDadaByExpedientIdProcesAndCodi(
 			@PathVariable("expedientId") Long expedientId,
-			@PathVariable("procesId") Long procesId,
+			@PathVariable("procesId") String procesId,
 			@PathVariable("codi") String codi) throws Exception {
 
 		var dada = dadaClient.getDadaByExpedientIdProcesAndCodi(expedientId, procesId, codi);
@@ -193,7 +193,7 @@ public class DadaController {
 	
 	@GetMapping(value = "proces/{procesId}/dades/{codi}")
 	public ResponseEntity<Dada> getDadaByProcesAndCodi(
-			@PathVariable("procesId") Long procesId,
+			@PathVariable("procesId") String procesId,
 			@PathVariable("codi") String codi) throws Exception {
 		
 		var dada = dadaClient.getDadaByProcesAndCodi(procesId, codi);
@@ -206,7 +206,7 @@ public class DadaController {
 
 	@GetMapping(value = "proces/{procesId}/dades/expedient/id")
 	public ResponseEntity<Long> getDadaExpedientIdByProcesId(
-			@PathVariable("procesId") Long procesId) throws Exception {
+			@PathVariable("procesId") String procesId) throws Exception {
 		
 		var expedientId = dadaClient.getDadaExpedientIdByProcesId(procesId);
 		if (expedientId != null) {
@@ -219,7 +219,7 @@ public class DadaController {
 	@PostMapping(value = "{expedientId}/dades", consumes = "application/json")
 	public ResponseEntity<Void> postDadesByExpedientId(
 			@PathVariable("expedientId") Long expedientId,
-			@QueryParam("procesId") Long procesId,
+			@QueryParam("procesId") String procesId,
 			@Valid @RequestBody List<Dada> dades, BindingResult errors) throws Exception {
 
 		if (errors.hasErrors()) {
@@ -254,7 +254,7 @@ public class DadaController {
 	@PostMapping(value = "{expedientId}/proces/{procesId}/dades", consumes = "application/json")
 	public ResponseEntity<Void> postDadaByExpedientIdProcesId(
 			@PathVariable("expedientId") Long expedientId,
-			@PathVariable("procesId") Long procesId,
+			@PathVariable("procesId") String procesId,
 			@Valid @RequestBody List<Dada> dades) throws Exception {
 
 		if (dades.isEmpty()) {
@@ -267,7 +267,7 @@ public class DadaController {
 	@PutMapping(value = "{expedientId}/proces/{procesId}/dades/{codi}", consumes = "application/json")
 	public ResponseEntity<Void> putDadaByExpedientIdProcesIdAndCodi(
 			@PathVariable("expedientId") Long expedientId,
-			@PathVariable("procesId") Long procesId,
+			@PathVariable("procesId") String procesId,
 			@PathVariable("codi") String codi, 
 			@Valid @RequestBody Dada dada) throws Exception {
 
@@ -278,7 +278,7 @@ public class DadaController {
 	@DeleteMapping(value = "{expedientId}/proces/{procesId}/dades/{codi}")
 	public ResponseEntity<Void> deleteDadaByExpedientIdAndProcesIdAndCodi(
 			@PathVariable("expedientId") Long expedientId,
-			@PathVariable("procesId") Long procesId,
+			@PathVariable("procesId") String procesId,
 			@PathVariable("codi") String codi) throws Exception {
 
 		dadaClient.deleteDadaByExpedientIdAndProcesIdAndCodi(expedientId, procesId, codi);

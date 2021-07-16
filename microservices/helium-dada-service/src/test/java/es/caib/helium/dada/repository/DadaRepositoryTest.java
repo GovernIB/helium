@@ -1,11 +1,10 @@
 package es.caib.helium.dada.repository;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertArrayEquals;
-
-import java.util.ArrayList;
-import java.util.List;
-
+import es.caib.helium.dada.enums.Tipus;
+import es.caib.helium.dada.model.Dada;
+import es.caib.helium.dada.model.Valor;
+import es.caib.helium.dada.model.ValorRegistre;
+import es.caib.helium.dada.model.ValorSimple;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -15,11 +14,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest;
 import org.springframework.test.context.ActiveProfiles;
 
-import es.caib.helium.dada.enums.Tipus;
-import es.caib.helium.dada.model.Dada;
-import es.caib.helium.dada.model.Valor;
-import es.caib.helium.dada.model.ValorRegistre;
-import es.caib.helium.dada.model.ValorSimple;
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertArrayEquals;
 
 @ActiveProfiles("test")
 @DataMongoTest
@@ -47,7 +46,7 @@ public class DadaRepositoryTest {
         	dada.setCodi(codi + foo);
         	dada.setExpedientId(unLong);
 			dada.setMultiple(false);
-			dada.setProcesId(unLong);
+			dada.setProcesId(unLong + "");
 			dada.setTipus(Tipus.String);
         	if (foo == 1) {
         		dadaMock = dada;
@@ -106,7 +105,7 @@ public class DadaRepositoryTest {
 	@DisplayName("test_findByExpedientIdAndProcesId")
 	public void test_findByExpedientIdAndProcesId() throws Exception {
 		
-		var dades = dadaRepository.findByExpedientIdAndProcesId(unLong, unLong);
+		var dades = dadaRepository.findByExpedientIdAndProcesId(unLong, unLong + "");
     	assertThat(dades).isNotNull().isNotEmpty();
     	assertArrayEquals(dades.get().toArray(), dadesMock.toArray());
 	}
@@ -115,9 +114,9 @@ public class DadaRepositoryTest {
 	@DisplayName("test_findByExpedientIdAndProcesId - Not found")
 	public void test_findByExpedientIdAndProcesId_notFound() throws Exception {
 		
-		var dades = dadaRepository.findByExpedientIdAndProcesId(zeroLong, unLong);
+		var dades = dadaRepository.findByExpedientIdAndProcesId(zeroLong, unLong + "");
 		assertThat(dades).isNotNull().get().asList().isEmpty();
-		dades = dadaRepository.findByExpedientIdAndProcesId(unLong, zeroLong);
+		dades = dadaRepository.findByExpedientIdAndProcesId(unLong, zeroLong + "");
 		assertThat(dades).isNotNull().get().asList().isEmpty();
 	}
 
@@ -148,7 +147,7 @@ public class DadaRepositoryTest {
 	@DisplayName("test_findByExpedientIdAndProcesIdAndCodi")
 	public void test_findByExpedientIdAndProcesIdAndCodi() throws Exception {
 	
-		var dada = dadaRepository.findByExpedientIdAndProcesIdAndCodi(unLong, unLong, codiMock);
+		var dada = dadaRepository.findByExpedientIdAndProcesIdAndCodi(unLong, unLong + "", codiMock);
 		assertThat(dada).isNotNull().isNotEmpty().contains(dadaMock);
 		assertArrayEquals(dada.get().getValor().toArray(), dadaMock.getValor().toArray());
 	}
@@ -157,11 +156,11 @@ public class DadaRepositoryTest {
 	@DisplayName("test_findByExpedientIdAndProcesIdAndCodi - Not found")
 	public void test_findByExpedientIdAndProcesIdAndCodi_notFound() throws Exception {
 		
-		var dada = dadaRepository.findByExpedientIdAndProcesIdAndCodi(zeroLong, unLong, codiMock);
+		var dada = dadaRepository.findByExpedientIdAndProcesIdAndCodi(zeroLong, unLong + "", codiMock);
 		assertThat(dada).isNotNull().isEmpty();
-		dada = dadaRepository.findByExpedientIdAndProcesIdAndCodi(unLong, zeroLong, codiMock);
+		dada = dadaRepository.findByExpedientIdAndProcesIdAndCodi(unLong, zeroLong + "", codiMock);
 		assertThat(dada).isNotNull().isEmpty();
-		dada = dadaRepository.findByExpedientIdAndProcesIdAndCodi(unLong, unLong, codiMock + "_test");
+		dada = dadaRepository.findByExpedientIdAndProcesIdAndCodi(unLong, unLong + "", codiMock + "_test");
 		assertThat(dada).isNotNull().isEmpty();
 	}
 }
