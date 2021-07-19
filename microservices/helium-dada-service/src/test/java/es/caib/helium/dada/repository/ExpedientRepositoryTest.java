@@ -1,14 +1,6 @@
 package es.caib.helium.dada.repository;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.jupiter.api.Assertions.assertAll;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
+import es.caib.helium.dada.model.Expedient;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -18,7 +10,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest;
 import org.springframework.test.context.ActiveProfiles;
 
-import es.caib.helium.dada.model.Expedient;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ActiveProfiles("test")
 @DataMongoTest
@@ -44,7 +43,7 @@ public class ExpedientRepositoryTest {
         	expedient.setTipusId(unLong);
         	expedient.setEntornId(unLong);
         	expedient.setDataInici(new Date());
-        	expedient.setProcesPrincipalId(unLong);
+        	expedient.setProcesPrincipalId(unLong + "");
         	expedientRepository.save(expedient);
         	expedientIds.add(Long.parseLong(foo + ""));
         	expedients.add(expedient);

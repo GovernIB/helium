@@ -1,26 +1,5 @@
 package es.caib.helium.dada.servei;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertArrayEquals;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.BDDMockito.given;
-
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.domain.PageRequest;
-
 import es.caib.helium.dada.enums.Collections;
 import es.caib.helium.dada.enums.DireccioOrdre;
 import es.caib.helium.dada.enums.Tipus;
@@ -37,6 +16,26 @@ import es.caib.helium.dada.model.Valor;
 import es.caib.helium.dada.model.ValorRegistre;
 import es.caib.helium.dada.model.ValorSimple;
 import es.caib.helium.dada.service.ExpedientService;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.PageRequest;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertArrayEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.BDDMockito.given;
 
 @ExtendWith(MockitoExtension.class)
 public class ExpedientServiceTest {
@@ -74,7 +73,7 @@ public class ExpedientServiceTest {
 			expedient.setExpedientId(unLong);
 			expedient.setEntornId(unLong);
 			expedient.setTipusId(unLong);
-			expedient.setProcesPrincipalId(unLong);
+			expedient.setProcesPrincipalId(unLong + "");
 			expedient.setDataInici(new Date());
 			if (foo == 1) {
 				expedientMock = expedient;
@@ -99,7 +98,7 @@ public class ExpedientServiceTest {
 			dada.setCodi(codi + foo);
 			dada.setExpedientId(unLong);
 			dada.setMultiple(false);
-			dada.setProcesId(unLong);
+			dada.setProcesId(unLong + "");
 			dada.setTipus(Tipus.String);
 			if (foo == 1) {
 				for (var bar = 0; bar < 10; bar++) {
@@ -421,8 +420,8 @@ public class ExpedientServiceTest {
 	@DisplayName("test_getDadesByProces")
 	public void test_getDadesByProces() throws Exception {
 
-		given(expedientService.getDadesByProces(anyLong(), anyLong())).willReturn(dades);
-		var dadesTrobades = expedientService.getDadesByProces(unLong, unLong);
+		given(expedientService.getDadesByProces(anyLong(), any(String.class))).willReturn(dades);
+		var dadesTrobades = expedientService.getDadesByProces(unLong, unLong + "");
 		assertThat(dadesTrobades).isNotNull().isNotEmpty();
 		assertArrayEquals(dades.toArray(), dadesTrobades.toArray());
 	}
@@ -431,8 +430,8 @@ public class ExpedientServiceTest {
 	@DisplayName("test_getDadesByProces - Not found")
 	public void test_getDadesByProces_notFound() throws Exception {
 		
-		given(expedientService.getDadesByProces(anyLong(), anyLong())).willReturn(new ArrayList<Dada>());
-		var dadesTrobades = expedientService.getDadesByProces(unLong, unLong);
+		given(expedientService.getDadesByProces(anyLong(), any(String.class))).willReturn(new ArrayList<Dada>());
+		var dadesTrobades = expedientService.getDadesByProces(unLong, unLong + "");
 		assertThat(dadesTrobades).isNotNull().isEmpty();
 	}
 
@@ -442,8 +441,8 @@ public class ExpedientServiceTest {
 	@DisplayName("test_getDadaByProcesAndCodi")
 	public void test_getDadaByProcesAndCodi() throws Exception {
 		
-		given(expedientService.getDadaByProcesAndCodi(anyLong(), any(String.class))).willReturn(dadaMock);
-		var dada = expedientService.getDadaByProcesAndCodi(unLong, codiTest);
+		given(expedientService.getDadaByProcesAndCodi(any(String.class), any(String.class))).willReturn(dadaMock);
+		var dada = expedientService.getDadaByProcesAndCodi(unLong + "", codiTest);
 		assertThat(dada).isNotNull().isEqualTo(dadaMock);
 	}
 
@@ -451,8 +450,8 @@ public class ExpedientServiceTest {
 	@DisplayName("test_getDadaByProcesAndCodi - Not found")
 	public void test_getDadaByProcesAndCodi_notFound() throws Exception {
 		
-		given(expedientService.getDadaByProcesAndCodi(anyLong(), any(String.class))).willReturn(null);
-		var dada = expedientService.getDadaByProcesAndCodi(unLong, codiTest);
+		given(expedientService.getDadaByProcesAndCodi(any(String.class), any(String.class))).willReturn(null);
+		var dada = expedientService.getDadaByProcesAndCodi(unLong + "",  codiTest);
 		assertThat(dada).isNull();
 	}
 
@@ -462,16 +461,16 @@ public class ExpedientServiceTest {
 	@DisplayName("test_createDades")
 	public void test_createDades() throws Exception {
 
-		given(expedientService.createDades(anyLong(), anyLong(), any(List.class))).willReturn(true);
-		assertThat(expedientService.createDades(unLong, unLong, dades)).isEqualTo(true);
+		given(expedientService.createDades(anyLong(), any(String.class), any(List.class))).willReturn(true);
+		assertThat(expedientService.createDades(unLong, unLong + "", dades)).isEqualTo(true);
 	}
 
 	@Test
 	@DisplayName("test_createDades - Ja existeixen")
 	public void test_createDades_jaExisteixen() throws Exception {
 		
-		given(expedientService.createDades(anyLong(), anyLong(), any(List.class))).willReturn(false);
-		assertThat(expedientService.createDades(unLong, unLong, dades)).isEqualTo(false);
+		given(expedientService.createDades(anyLong(), any(String.class) + "", any(List.class))).willReturn(false);
+		assertThat(expedientService.createDades(unLong, unLong + "", dades)).isEqualTo(false);
 	}
 
 	// ---------------------
@@ -515,15 +514,15 @@ public class ExpedientServiceTest {
 	@Test
 	@DisplayName("test_postDadesByExpedientIdProcesId")
 	public void test_postDadesByExpedientIdProcesId() throws Exception {
-		given(expedientService.postDadesByExpedientIdProcesId(anyLong(), anyLong(), any(List.class))).willReturn(true);
-		assertThat(expedientService.postDadesByExpedientIdProcesId(unLong, unLong, dades)).isEqualTo(true);
+		given(expedientService.postDadesByExpedientIdProcesId(anyLong(), any(String.class), any(List.class))).willReturn(true);
+		assertThat(expedientService.postDadesByExpedientIdProcesId(unLong, unLong + "", dades)).isEqualTo(true);
 	}
 
 	@Test
 	@DisplayName("test_postDadesByExpedientIdProcesId - Not found")
 	public void test_postDadesByExpedientIdProcesId_notFound() throws Exception {
-		given(expedientService.postDadesByExpedientIdProcesId(anyLong(), anyLong(), any(List.class))).willReturn(false);
-		assertThat(expedientService.postDadesByExpedientIdProcesId(unLong, unLong, dades)).isEqualTo(false);
+		given(expedientService.postDadesByExpedientIdProcesId(anyLong(), any(String.class), any(List.class))).willReturn(false);
+		assertThat(expedientService.postDadesByExpedientIdProcesId(unLong, unLong + "", dades)).isEqualTo(false);
 	}
 
 	// ---------------------
@@ -532,16 +531,16 @@ public class ExpedientServiceTest {
 	@DisplayName("test_putDadaByExpedientIdProcesIdAndCodi")
 	public void test_putDadaByExpedientIdProcesIdAndCodi() throws Exception {
 		
-		given(expedientService.putDadaByExpedientIdProcesIdAndCodi(anyLong(), anyLong(), any(String.class), any(Dada.class))).willReturn(true);
-		assertThat(expedientService.putDadaByExpedientIdProcesIdAndCodi(unLong, unLong, codiTest, dadaMock)).isEqualTo(true);
+		given(expedientService.putDadaByExpedientIdProcesIdAndCodi(anyLong(), any(String.class), any(String.class), any(Dada.class))).willReturn(true);
+		assertThat(expedientService.putDadaByExpedientIdProcesIdAndCodi(unLong, unLong + "", codiTest, dadaMock)).isEqualTo(true);
 	}
 
 	@Test
 	@DisplayName("test_putDadaByExpedientIdProcesIdAndCodi - Not found")
 	public void test_putDadaByExpedientIdProcesIdAndCodi_notFound() throws Exception {
 		
-		given(expedientService.putDadaByExpedientIdProcesIdAndCodi(anyLong(), anyLong(), any(String.class), any(Dada.class))).willReturn(false);
-		assertThat(expedientService.putDadaByExpedientIdProcesIdAndCodi(unLong, unLong, codiTest, dadaMock)).isEqualTo(false);
+		given(expedientService.putDadaByExpedientIdProcesIdAndCodi(anyLong(), any(String.class), any(String.class), any(Dada.class))).willReturn(false);
+		assertThat(expedientService.putDadaByExpedientIdProcesIdAndCodi(unLong, unLong + "", codiTest, dadaMock)).isEqualTo(false);
 	}
 
 	// ---------------------
@@ -550,15 +549,15 @@ public class ExpedientServiceTest {
 	@DisplayName("test_deleteDadaByExpedientIdAndProcesIdAndCodi")
 	public void test_deleteDadaByExpedientIdAndProcesIdAndCodi() throws Exception {
 
-		given(expedientService.deleteDadaByExpedientIdAndProcesIdAndCodi(anyLong(), anyLong(), any(String.class))).willReturn(true);
-		assertThat(expedientService.deleteDadaByExpedientIdAndProcesIdAndCodi(unLong, unLong, codiTest)).isEqualTo(true);
+		given(expedientService.deleteDadaByExpedientIdAndProcesIdAndCodi(anyLong(), any(String.class), any(String.class))).willReturn(true);
+		assertThat(expedientService.deleteDadaByExpedientIdAndProcesIdAndCodi(unLong, unLong + "", codiTest)).isEqualTo(true);
 	}
 
 	@Test
 	@DisplayName("test_deleteDadaByExpedientIdAndProcesIdAndCodi - Not found")
 	public void test_deleteDadaByExpedientIdAndProcesIdAndCodi_notFound() throws Exception {
 		
-		given(expedientService.deleteDadaByExpedientIdAndProcesIdAndCodi(anyLong(), anyLong(), any(String.class))).willReturn(false);
-		assertThat(expedientService.deleteDadaByExpedientIdAndProcesIdAndCodi(unLong, unLong, codiTest)).isEqualTo(false);
+		given(expedientService.deleteDadaByExpedientIdAndProcesIdAndCodi(anyLong(), any(String.class), any(String.class))).willReturn(false);
+		assertThat(expedientService.deleteDadaByExpedientIdAndProcesIdAndCodi(unLong, unLong + "", codiTest)).isEqualTo(false);
 	}
 }

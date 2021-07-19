@@ -1,13 +1,12 @@
 package es.caib.helium.dada.repository;
 
-import java.util.List;
-import java.util.Optional;
-
+import es.caib.helium.dada.model.Expedient;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
 import org.springframework.stereotype.Repository;
 
-import es.caib.helium.dada.model.Expedient;
+import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface ExpedientRepository extends MongoRepository<Expedient, String>, ExpedientRepositoryCustom {

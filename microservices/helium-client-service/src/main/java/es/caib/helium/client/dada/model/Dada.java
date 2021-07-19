@@ -18,6 +18,6 @@ public class Dada {
 	private List<Valor> valor;
 	
 	private Long expedientId;
-	private Long procesId;
+	private String procesId;
 	   
 }

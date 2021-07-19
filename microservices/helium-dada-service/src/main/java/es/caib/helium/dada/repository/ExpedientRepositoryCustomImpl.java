@@ -1,10 +1,15 @@
 package es.caib.helium.dada.repository;
 
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-
+import es.caib.helium.dada.enums.Capcalera;
+import es.caib.helium.dada.enums.Collections;
+import es.caib.helium.dada.enums.Dada;
+import es.caib.helium.dada.enums.DireccioOrdre;
+import es.caib.helium.dada.exception.DadaException;
+import es.caib.helium.dada.model.Columna;
+import es.caib.helium.dada.model.Consulta;
+import es.caib.helium.dada.model.Expedient;
+import es.caib.helium.dada.model.FiltreCapcalera;
+import es.caib.helium.dada.model.FiltreValor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
@@ -23,16 +28,10 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ObjectUtils;
 
-import es.caib.helium.dada.enums.Capcalera;
-import es.caib.helium.dada.enums.Collections;
-import es.caib.helium.dada.enums.Dada;
-import es.caib.helium.dada.enums.DireccioOrdre;
-import es.caib.helium.dada.exception.DadaException;
-import es.caib.helium.dada.model.Columna;
-import es.caib.helium.dada.model.Consulta;
-import es.caib.helium.dada.model.Expedient;
-import es.caib.helium.dada.model.FiltreCapcalera;
-import es.caib.helium.dada.model.FiltreValor;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
 
 /**
  * Classe dedicada a ampliar les funcionalitats de ExpedientRepository en funció de les necessitats del servei
@@ -43,6 +42,7 @@ public class ExpedientRepositoryCustomImpl implements ExpedientRepositoryCustom 
 
 	@Autowired
 	public ExpedientRepositoryCustomImpl(MongoTemplate mongoTemplate) {
+
 		this.mongoTemplate = mongoTemplate;
 	}
 
@@ -97,6 +97,50 @@ public class ExpedientRepositoryCustomImpl implements ExpedientRepositoryCustom 
 		}
 		mongoTemplate.remove(query, Dada.class, Collections.DADA.getNom());
 		return nEsborrats.getDeletedCount();
+	}
+
+	@Override
+	public List<Expedient> getExpedientIdProcesPrincipalIdByExpedientIds(List<Long> ids) {
+
+		if (ids == null || ids.isEmpty()) {
+			return new ArrayList<>();
+		}
+
+		var criteria = new Criteria();
+		criteria.and(Capcalera.EXPEDIENT_ID.getCamp()).in(ids);
+		var match = Aggregation.match(criteria);
+		var projection = Aggregation.project(Capcalera.EXPEDIENT_ID.getCamp(), Capcalera.PROCES_PRINCIPAL_ID.getCamp());
+		var operations = new ArrayList<AggregationOperation>();
+		operations.add(match);
+		operations.add(projection);
+		return mongoTemplate
+				.aggregate(Aggregation.newAggregation(operations), Expedient.class, Expedient.class)
+				.getMappedResults();
+	}
+
+	@Override
+	public Expedient getExpedientIdProcesPrincipalIdByExpedientId(Long id) throws DadaException {
+
+		if (id == null) {
+			return null;
+		}
+
+		var criteria = new Criteria();
+		criteria.and(Capcalera.EXPEDIENT_ID.getCamp()).is(id);
+		var match = Aggregation.match(criteria);
+		var projection = Aggregation.project(Capcalera.EXPEDIENT_ID.getCamp(), Capcalera.PROCES_PRINCIPAL_ID.getCamp());
+		var operations = new ArrayList<AggregationOperation>();
+		operations.add(match);
+		operations.add(projection);
+		var results = mongoTemplate
+				.aggregate(Aggregation.newAggregation(operations), Expedient.class, Expedient.class)
+				.getMappedResults();
+
+		if (results.size() > 1) {
+			throw new DadaException("Error obtinguent l'expedient amb id " + id + " hi ha " + results.size() + " expedients amb el mateix id");
+		}
+
+		return results.get(0);
 	}
 
 	/**

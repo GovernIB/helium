@@ -1,21 +1,19 @@
 package es.caib.helium.dada.model;
 
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
+
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
-
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.Document;
-
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
-
 /**
- * Representació de la col·leccio {@link es.caib.helium.enums.Collections#EXPEDIENT}
+ * Representació de la col·leccio {@link es.caib.helium.dada.enums.Collections#EXPEDIENT}
  * S'utilitza tant com a model per Mongo com per Dto.
  */
 @Getter
@@ -37,7 +35,7 @@ public class Expedient {
 	@Size(max = 255)
 	private String titol;
 	@NotNull
-	private Long procesPrincipalId;
+	private String procesPrincipalId;
 	private Integer estatId;
 	@NotNull
 	private Date dataInici;

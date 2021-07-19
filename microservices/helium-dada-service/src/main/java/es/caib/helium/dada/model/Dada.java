@@ -3,18 +3,23 @@
  */
 package es.caib.helium.dada.model;
 
-import java.util.Arrays;
-import java.util.List;
+import es.caib.helium.dada.enums.Tipus;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import java.util.Arrays;
+import java.util.List;
 
-import org.springframework.data.annotation.Id;
-
-import es.caib.helium.dada.enums.Tipus;
-import lombok.Data;
-
-@Data
+@Getter
+@Setter
+@ToString
+@Document
+//@DadaValidacio
 public class Dada {
 
 	@Id
@@ -28,7 +33,7 @@ public class Dada {
 	private List<Valor> valor;
 	
 	private Long expedientId;
-	private Long procesId;
+	private String procesId;
 	
 	@Override
 	public boolean equals(Object dada) {

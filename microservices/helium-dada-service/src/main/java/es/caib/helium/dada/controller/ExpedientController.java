@@ -210,7 +210,7 @@ public class ExpedientController {
 	@GetMapping(value = "{expedientId}/proces/{procesId}/dades")
 	public ResponseEntity<List<Dada>> getDadesByProces(
 			@PathVariable("expedientId") Long expedientId,
-			@PathVariable("procesId") Long procesId) throws Exception {
+			@PathVariable("procesId") String procesId) throws Exception {
 
 		var dades = expedientService.getDadesByProces(expedientId, procesId);
 		if (!dades.isEmpty()) {
@@ -226,7 +226,7 @@ public class ExpedientController {
 	@GetMapping(value = "{expedientId}/proces/{procesId}/dades/{codi}")
 	public ResponseEntity<Dada> getDadaByExpedientIdProcesAndCodi(
 			@PathVariable("expedientId") Long expedientId,
-			@PathVariable("procesId") Long procesId,
+			@PathVariable("procesId") String procesId,
 			@PathVariable("codi") String codi) throws Exception {
 
 		var dada = expedientService.getDadaByExpedientIdProcesAndCodi(expedientId, procesId, codi);
@@ -243,7 +243,7 @@ public class ExpedientController {
 	
 	@GetMapping(value = "proces/{procesId}/dades/{codi}")
 	public ResponseEntity<Dada> getDadaByProcesAndCodi(
-			@PathVariable("procesId") Long procesId,
+			@PathVariable("procesId") String procesId,
 			@PathVariable("codi") String codi) throws Exception {
 		
 		var dada = expedientService.getDadaByProcesAndCodi(procesId, codi);
@@ -256,7 +256,7 @@ public class ExpedientController {
 
 	@GetMapping(value = "proces/{procesId}/dades/expedient/id")
 	public ResponseEntity<Long> getDadaExpedientIdByProcesId(
-			@PathVariable("procesId") Long procesId) throws Exception {
+			@PathVariable("procesId") String procesId) throws Exception {
 		
 		var expedientId = expedientService.getDadaExpedientIdByProcesId(procesId);
 		if (expedientId != null) {
@@ -269,7 +269,7 @@ public class ExpedientController {
 	@PostMapping(value = "{expedientId}/dades", consumes = "application/json")
 	public ResponseEntity<Void> postDadesByExpedientId(
 			@PathVariable("expedientId") Long expedientId,
-			@RequestParam("procesId") Long procesId,
+			@RequestParam("procesId") String procesId,
 			@Valid @RequestBody ValidList<Dada> dades, BindingResult errors) throws Exception {
 
 		if (errors.hasErrors()) {
@@ -308,7 +308,7 @@ public class ExpedientController {
 	@PostMapping(value = "{expedientId}/proces/{procesId}/dades", consumes = "application/json")
 	public ResponseEntity<Void> postDadaByExpedientIdProcesId(
 			@PathVariable("expedientId") Long expedientId,
-			@PathVariable("procesId") Long procesId,
+			@PathVariable("procesId") String procesId,
 			@Valid @RequestBody ValidList<Dada> dades) throws Exception {
 
 		if (dades.isEmpty()) {
@@ -321,7 +321,7 @@ public class ExpedientController {
 	@PutMapping(value = "{expedientId}/proces/{procesId}/dades/{codi}", consumes = "application/json")
 	public ResponseEntity<Void> putDadaByExpedientIdProcesIdAndCodi(
 			@PathVariable("expedientId") Long expedientId,
-			@PathVariable("procesId") Long procesId,
+			@PathVariable("procesId") String procesId,
 			@PathVariable("codi") String codi, 
 			@Valid @RequestBody Dada dada) throws Exception {
 
@@ -335,7 +335,7 @@ public class ExpedientController {
 	@DeleteMapping(value = "{expedientId}/proces/{procesId}/dades/{codi}")
 	public ResponseEntity<Void> deleteDadaByExpedientIdAndProcesIdAndCodi(
 			@PathVariable("expedientId") Long expedientId,
-			@PathVariable("procesId") Long procesId,
+			@PathVariable("procesId") String procesId,
 			@PathVariable("codi") String codi) throws Exception {
 
 		if (!expedientService.deleteDadaByExpedientIdAndProcesIdAndCodi(expedientId, procesId, codi)) {
@@ -345,10 +345,58 @@ public class ExpedientController {
 	}
 
 	@GetMapping(value = "proces/{procesId}/dades", produces = "application/json")
-	public ResponseEntity<Dada> getDadesByProcessInstanceId(@PathVariable("procesId") Long procesId) {
+	public ResponseEntity<List<Dada>> getDadesByProcessInstanceId(@PathVariable("procesId") String procesId) throws Exception {
 
 		var consulta = new Consulta();
+		var dades = expedientService.getDadesByProcesId(procesId);
+		if (dades.isEmpty()) {
+			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+		}
+		return new ResponseEntity<>(dades, HttpStatus.OK);
+	}
 
-		return new ResponseEntity<Dada>(HttpStatus.OK);
+//	@PostMapping(value = "/proces/{procesId}/dades", consumes = "application/json")
+//	public ResponseEntity<Void> postDadaByProcesId(
+//			@PathVariable("expedientId") Long expedientId,
+//			@PathVariable("procesId") String procesId,
+//			@Valid @RequestBody Dada dades) throws Exception {
+//
+//		if (dades.isEmpty()) {
+//			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+//		}
+//		expedientService.postDadesByExpedientIdProcesId(expedientId, procesId, dades);
+//		return new ResponseEntity<>(HttpStatus.CREATED);
+//	}
+
+	@DeleteMapping(value = "proces/{procesId}/dades/{codi}", produces = "application/json")
+	public ResponseEntity<Void> deleteDadaByProcessInstanceIdAndCodi(
+			@PathVariable("procesId") String procesId,
+			@PathVariable("codi") String codi) throws Exception {
+
+		var dades = expedientService.deleteDadaByProcesIdAndCodi(procesId, codi);
+		if (dades) {
+			return new ResponseEntity<>(HttpStatus.OK);
+		}
+		return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+	}
+
+	@GetMapping(value = "find/root/process/instances", produces = "application/json" )
+	public ResponseEntity<List<Expedient>> findRootProcessInstances(@RequestParam("procesIds") List<String> procesIds) throws Exception {
+
+		var rootProcesIds = expedientService.findRootProcessInstance(procesIds);
+		if (rootProcesIds.isEmpty()) {
+			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+		}
+		return new ResponseEntity<>(rootProcesIds, HttpStatus.OK);
+	}
+
+	@GetMapping(value = "find/root/process/instance", produces = "application/json" )
+	public ResponseEntity<Expedient> findRootProcessInstances(@RequestParam("procesId") String procesId) throws Exception {
+
+		var rootProcesId = expedientService.findRootProcessInstance(procesId);
+		if (rootProcesId == null) {
+			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+		}
+		return new ResponseEntity<>(rootProcesId, HttpStatus.OK);
 	}
 }
