@@ -173,7 +173,8 @@ public class WorkflowEngineApiImpl implements WorkflowEngineApi {
             boolean nomesMeves,
             boolean nomesTasquesPersonals,
             boolean nomesTasquesGrup) {
-        return dadaClient.;
+
+        return null;
     }
 
     @Override
@@ -216,9 +217,11 @@ public class WorkflowEngineApiImpl implements WorkflowEngineApi {
         processInstanceClient.changeProcessInstanceVersion(processInstanceId, newVersion);
     }
 
+    // TODO: Per consultar dades no necessitam l'expedientId
     @Override
     public Map<String, Object> getProcessInstanceVariables(String processInstanceId) {
-        return dadaClient.;
+//        return dadaClient.getDadesByProces(expedientId, processInstanceId);
+        return null;
     }
 
     @Override
@@ -230,12 +233,13 @@ public class WorkflowEngineApiImpl implements WorkflowEngineApi {
     //      i s'ha de passar quan es crea una nova instància de procés
     @Override
     public void setProcessInstanceVariable(/*Long expedientId,*/ String processInstanceId, String varName, Object value) {
-        dadaClient.postDadesBy;
+//        dadaClient.postDadesBy;
     }
 
+    // TODO: Per consultar dades no necessitam l'expedientId
     @Override
     public void deleteProcessInstanceVariable(String processInstanceId, String varName) {
-        dadaClient.;
+//        dadaClient.deleteDadaByExpedientIdAndProcesIdAndCodi(expedientId, processInstanceId, varName);
     }
 
     @Override
@@ -277,6 +281,7 @@ public class WorkflowEngineApiImpl implements WorkflowEngineApi {
         Pageable pageable = getPageable(paginacioParams);
 
         // TODO: Rebem TascaDto, i hem de retornar WTaskInstance !!!!!!!!!!!!!!!!!!!!!
+        //  Canviar el nom del TascaDto, i fer que implementi WTaskInstance
         var tasques = tascaClientService.findTasquesAmbFiltrePaginatV1(
                 entornId,
                 expedientTipusId,
@@ -297,7 +302,12 @@ public class WorkflowEngineApiImpl implements WorkflowEngineApi {
                 pageable,
                 pageable.getSort()
         );
-        return new ResultatConsultaPaginada<WTaskInstance>(tasques.getTotalElements(), tasques.getContent());
+        if (tasques == null || tasques.isEmpty())
+            return null;
+//        return new ResultatConsultaPaginada<WTaskInstance>(
+//                tasques.getTotalElements(),
+//                tasques.getContent().);
+        return null;
     }
 
     // TODO: Mirar d'on s'utilitza, per a modificar el mètode, que fa dues crides a MS Exp i Tasques
@@ -340,7 +350,10 @@ public class WorkflowEngineApiImpl implements WorkflowEngineApi {
         );
         if (tasques == null || tasques.isEmpty())
             return null;
-        return tasques.getContent().stream().map(t -> t.getId()).collect(Collectors.toList());
+        return LlistatIds.builder()
+                .count((int) tasques.getTotalElements())
+                .ids(tasques.getContent().stream().map(t -> t.getId()).collect(Collectors.toList()))
+                .build();
     }
 
     @Override
@@ -613,6 +626,7 @@ public class WorkflowEngineApiImpl implements WorkflowEngineApi {
 
 
     // TODO: Mirar on es crida, i substituir per el MS corresponent
+    //      No quadra el mètode utilitzat
     @Override
     public ResultatConsultaPaginada<Long> expedientFindByFiltre(
             Long entornId,
@@ -641,7 +655,7 @@ public class WorkflowEngineApiImpl implements WorkflowEngineApi {
             PaginacioParamsDto paginacioParams,
             boolean nomesCount) {
         Pageable pageable = getPageable(paginacioParams);
-        return expedientClientService.findExpedientsAmbFiltrePaginatV1(
+        var expedients = expedientClientService.findExpedientsAmbFiltrePaginatV1(
                 entornId,
                 null,
                 actorId,
@@ -661,6 +675,12 @@ public class WorkflowEngineApiImpl implements WorkflowEngineApi {
                 null,
                 pageable,
                 pageable.getSort());
+
+        if (expedients == null || expedients.isEmpty())
+            return null;
+        return new ResultatConsultaPaginada(
+                expedients.getTotalElements(),
+                expedients.getContent().stream().map(e -> e.getId()).collect(Collectors.toList()));
     }
 
 

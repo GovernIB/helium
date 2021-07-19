@@ -1,5 +1,6 @@
 package es.caib.helium.logic.helper;
 
+import es.caib.helium.client.engine.model.WTaskInstance;
 import org.springframework.stereotype.Component;
 
 @Component
