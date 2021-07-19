@@ -15,7 +15,7 @@ import java.util.List;
 @RestController
 @Slf4j
 @AllArgsConstructor
-@RequestMapping(ActionController.API_PATH)
+@RequestMapping(AreaCarrecController.API_PATH)
 public class AreaCarrecController {
 
     public static final String API_PATH = "/api/v1";

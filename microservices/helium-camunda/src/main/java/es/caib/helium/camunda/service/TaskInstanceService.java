@@ -114,6 +114,14 @@ public interface TaskInstanceService {
             String expression,
             Long entornId);
 
+    public void setTaskInstanceActorId(
+            String taskInstanceId,
+            String actorId);
+
+    public void setTaskInstancePooledActors(
+            String taskInstanceId,
+            String[] pooledActors);
+
     /**
      * Delega una tasca a un altre usuari
      *
@@ -162,4 +170,5 @@ public interface TaskInstanceService {
     public List<String> findStartTaskOutTransitions(String processDefinitionId, String taskName);
 
     public List<String> findTaskInstanceTransitions(String taskInstanceId);
+
 }

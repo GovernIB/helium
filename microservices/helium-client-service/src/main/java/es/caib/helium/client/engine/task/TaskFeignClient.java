@@ -60,6 +60,16 @@ public interface TaskFeignClient {
 	public ResponseEntity<WTaskInstance> reassignTaskInstance(
             @PathVariable("taskId") String taskId,
             @RequestBody ReassignTaskData reassignTask);
+
+	@RequestMapping(method = RequestMethod.POST, value=TaskApiPath.REASSING_TASK_INSTANCE_USER)
+	public ResponseEntity<Void> setTaskInstanceActorId(
+			@PathVariable("taskInstanceId") String taskInstanceId,
+			@RequestBody String actorId);
+
+	@RequestMapping(method = RequestMethod.POST, value=TaskApiPath.REASSING_TASK_INSTANCE_GROUP)
+	public ResponseEntity<Void> setTaskInstancePooledActors(
+			@PathVariable("taskInstanceId") String taskInstanceId,
+			@RequestBody String[] pooledActors);
 	
 	@RequestMapping(method = RequestMethod.PUT, value = TaskApiPath.UPDATE_TASK_INSTANCE_INFO_CACHE)
 	public ResponseEntity<Void> updateTaskInstanceInfoCache(

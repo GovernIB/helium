@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -126,6 +127,19 @@ public class TaskInstanceServiceImpl implements TaskInstanceService {
         taskService.setAssignee(taskId, actorId);
         task.setAssignee(actorId);
         return taskInstanceMapper.toWTaskInstance(task);
+    }
+
+    @Override
+    public void setTaskInstanceActorId(String taskId, String actorId) {
+        var task = getTask(taskId);
+        taskService.setAssignee(taskId, actorId);
+        task.setAssignee(actorId);
+    }
+
+    @Override
+    public void setTaskInstancePooledActors(String taskId, String[] pooledActors) {
+        var task = getTask(taskId);
+        Arrays.stream(pooledActors).forEach(a -> taskService.addCandidateUser(taskId, a));
     }
 
     @Override

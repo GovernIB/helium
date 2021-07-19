@@ -1,7 +1,9 @@
 package es.caib.helium.camunda.mapper;
 
 import es.caib.helium.camunda.model.*;
+import org.springframework.stereotype.Component;
 
+@Component
 public class DtoFactory {
 
     public WDeployment createWDeployment() {

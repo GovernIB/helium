@@ -13,3 +13,10 @@ es:
       helium-data-service-host: http://localhost:8083
       dada-service-user: user
       dada-service-password: pass
+
+camunda:
+  bpm:
+    eventing:
+      execution: true
+      history: true
+      task: true

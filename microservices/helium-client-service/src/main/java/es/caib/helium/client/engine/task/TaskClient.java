@@ -1,12 +1,11 @@
 package es.caib.helium.client.engine.task;
 
-import java.util.List;
-
-import org.springframework.stereotype.Service;
-
 import es.caib.helium.client.engine.model.InfoCacheData;
 import es.caib.helium.client.engine.model.ReassignTaskData;
 import es.caib.helium.client.engine.model.WTaskInstance;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public interface TaskClient {
@@ -38,4 +37,8 @@ public interface TaskClient {
 	public List<String> findStartTaskOutcomes(String jbpmId, String taskName);
 
 	public List<String> findTaskInstanceOutcomes(String taskInstanceId);
+
+	public void setTaskInstanceActorId(String taskInstanceId, String actorId);
+
+	public void setTaskInstancePooledActors(String taskInstanceId, String[] pooledActors);
 }

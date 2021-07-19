@@ -1,30 +1,22 @@
 package es.caib.helium.camunda.service;
 
-import es.caib.helium.camunda.mapper.DeploymentMapper;
-import org.camunda.bpm.engine.HistoryService;
-import org.camunda.bpm.engine.RepositoryService;
-import org.camunda.bpm.engine.RuntimeService;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mapstruct.factory.Mappers;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
 class DeploymentServiceImplTest {
 
-    @Mock
-    RepositoryService repositoryService;
-    @Mock
-    RuntimeService runtimeService;
-    @Mock
-    HistoryService historyService;
-    @Spy
-    DeploymentMapper deploymentMapper = Mappers.getMapper(DeploymentMapper.class);
-
-    @InjectMocks
-    DeploymentService deploymentService;
+//    @Mock
+//    RepositoryService repositoryService;
+//    @Mock
+//    RuntimeService runtimeService;
+//    @Mock
+//    HistoryService historyService;
+//    @Spy
+//    DeploymentMapper deploymentMapper = Mappers.getMapper(DeploymentMapper.class);
+//
+//    @InjectMocks
+//    DeploymentService deploymentService;
 
 //    @Test
 //    void deploymentAddTenantId() throws IOException {
@@ -38,4 +30,5 @@ class DeploymentServiceImplTest {
 //
 //        Files.write(Path.of("/home/siona/Feina/proces.war"), contingutModificat);
 //    }
+
 }

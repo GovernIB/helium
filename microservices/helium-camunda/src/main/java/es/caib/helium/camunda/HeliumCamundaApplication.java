@@ -7,6 +7,7 @@ import org.springframework.boot.web.servlet.support.SpringBootServletInitializer
 import org.springframework.cloud.openfeign.EnableFeignClients;
 
 @EnableFeignClients
+//@EnableCamundaEventBus
 @SpringBootApplication
 public class HeliumCamundaApplication extends SpringBootServletInitializer {
 

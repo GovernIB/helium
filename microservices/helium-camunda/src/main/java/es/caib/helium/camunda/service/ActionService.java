@@ -27,7 +27,7 @@ public interface ActionService {
     public Object evaluateExpression(
             String expressionLanguage,
             String expression,
-            String expectedClass,
+//            String expectedClass,
             List<VariableRest> context);
 
     public List<String> listActions(String jbpmId);

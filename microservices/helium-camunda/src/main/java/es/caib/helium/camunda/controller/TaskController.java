@@ -201,6 +201,25 @@ public class TaskController {
                 HttpStatus.OK);
     }
 
+    @PostMapping(value="/{taskInstanceId}/reassign/user")
+    public ResponseEntity<Void> setTaskInstanceActorId(
+            @PathVariable("taskInstanceId") String taskInstanceId,
+            @RequestBody String actorId) {
+        taskInstanceService.setTaskInstanceActorId(
+                taskInstanceId,
+                actorId);
+        return new ResponseEntity(HttpStatus.OK);
+    }
+
+    @PostMapping(value="/{taskInstanceId}/reassign/gruop")
+    @ResponseBody
+    public ResponseEntity<Void> setTaskInstancePooledActors(
+            @PathVariable("taskInstanceId") String taskInstanceId,
+            @RequestBody String[] pooledActors) {
+        taskInstanceService.setTaskInstancePooledActors(taskInstanceId, pooledActors);
+        return new ResponseEntity(HttpStatus.OK);
+    }
+
     @PutMapping(value="/{taskId}")
     public ResponseEntity<Void> updateTaskInstanceInfoCache(
             @PathVariable("taskId") String taskId,

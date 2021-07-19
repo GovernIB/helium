@@ -113,6 +113,18 @@ public class TaskClientImpl implements TaskClient {
 	}
 
 	@Override
+	public void setTaskInstanceActorId(String taskInstanceId, String actorId) {
+		log.debug(missatgeLog + " reassing task instance amb id  " + taskInstanceId + " to " + actorId);
+		taskClient.setTaskInstanceActorId(taskInstanceId, actorId);
+	}
+
+	@Override
+	public void setTaskInstancePooledActors(String taskInstanceId, String[] pooledActors) {
+		log.debug(missatgeLog + " reassing task instance amb id  " + taskInstanceId + " to users: " + String.join(",", pooledActors));
+		taskClient.setTaskInstancePooledActors(taskInstanceId, pooledActors);
+	}
+
+	@Override
 	public void updateTaskInstanceInfoCache(String taskId, InfoCacheData info) {
 
 		log.debug(missatgeLog + " update task instance info cache amb id  " + taskId + " task " + info.toString());
@@ -132,4 +144,5 @@ public class TaskClientImpl implements TaskClient {
 		var responseEntity = taskClient.findTaskInstanceOutcomes(taskInstanceId);
 		return responseEntity.getBody();
 	}
+
 }
