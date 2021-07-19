@@ -249,10 +249,10 @@ class TascaFormHelperTest {
 
 
     @Data
-//    @SpELAssert.List(value = {
-            @SpELAssert(value = "valor1 > valor2", message = "El valor 1 ha de ser major que el valor 2")
+    @SpELAssert.SpELAsserts(value = {
+            @SpELAssert(value = "valor1 > valor2", message = "El valor 1 ha de ser major que el valor 2"),
             @SpELAssert(value = "valor2 < valor1", message = "El valor 2 ha de ser menor que el valor 1")
-//    })
+    })
     public static class Prova {
 
         String codi;

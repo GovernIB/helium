@@ -581,6 +581,10 @@ public interface WorkflowEngineApi {
             String taskId,
             String expression,
             Long entornId);
+
+	public void setTaskInstanceActorId(String taskInstanceId, String actorId);
+
+	public void setTaskInstancePooledActors(String taskInstanceId, String[] pooledActors);
 	
 //	/**
 //	 * Delega una tasca a un altre usuari
@@ -626,6 +630,10 @@ public interface WorkflowEngineApi {
             String taskId,
             String titol,
             String infoCache);
+
+	public List<String> findStartTaskOutcomes(String jbpmId, String taskName);
+
+	public List<String> findTaskInstanceOutcomes(String taskInstanceId);
 	
 	// VARIABLES DE TASQUES
 	////////////////////////////////////////////////////////////////////////////////
@@ -772,8 +780,6 @@ public interface WorkflowEngineApi {
 	////////////////////////////////////////////////////////////////////////////////
 	// Transicions (Sequence flow)
 
-	public List<String> findStartTaskOutcomes(String jbpmId, String taskName);
-	public List<String> findTaskInstanceOutcomes(String taskInstanceId);
 	public List<String> findArrivingNodeNames(String tokenId); // Retrocedir??
 
 	// Expedients
@@ -814,39 +820,23 @@ public interface WorkflowEngineApi {
 			|		- findIdsAmbFiltre
 			*/
 
-	public void desfinalitzarExpedient(String processInstanceId);
 	/** Mètode per finalitzar l'expedient. */
 	public void finalitzarExpedient(String[] processInstanceIds, Date dataFinalitzacio);
+	public void desfinalitzarExpedient(String processInstanceId);
 
 
-	// Tasques en segón pla
-
+	/** Tasques en segón pla */
 	public void marcarFinalitzar(String taskId, Date marcadaFinalitzar, String outcome, String rols);
 	public void marcarIniciFinalitzacioSegonPla(String taskId, Date iniciFinalitzacio);
 	public void guardarErrorFinalitzacio(String taskId, String errorFinalitzacio);
 	public List<Object[]> getTasquesSegonPlaPendents();
-	// Eliminació de definicions de procés
 
+	/** Eliminació de definicions de procés */
 	public List<String> findDefinicionsProcesIdNoUtilitzadesByEntorn(Long entornId);
 	public List<String> findDefinicionsProcesIdNoUtilitzadesByExpedientTipusId(Long expedientTipusId);
 	public List<ExpedientDto> findExpedientsAfectatsPerDefinicionsProcesNoUtilitzada(
             Long expedientTipusId,
             Long processDefinitionId);
-
-	// Avaluació d'expressions
-//	/** Avalua una expressió amb uns valors de variables en el contexte.
-//	 *
-//	 * @param expression
-//	 * @param expectedClassName
-//	 * @param context
-//	 * @return
-//	 */
-//	@SuppressWarnings("rawtypes")
-//	public Object evaluateExpression(
-//            String expression,
-//            String expectedClassName,
-//            Map<String, Object> context);
-
 
 	// Retroacció
 	public void retrocedirAccio(String processInstanceId,
@@ -869,9 +859,6 @@ public interface WorkflowEngineApi {
 //	public Node getNodeByName(long processInstanceId, String nodeName);
 //	public boolean hasStartBetweenLogs(long begin, long end, long taskInstanceId);
 //	public void deleteProcessInstanceTreeLogs(String rootProcessInstanceId);
-
-	public void setTaskInstanceActorId(String taskInstanceId, String actorId);
-	public void setTaskInstancePooledActors(String taskInstanceId, String[] pooledActors);
 
 	/** Mètode per obtenir una definició de procés a partir del contingut comprimit del mateix.
 	 * 
