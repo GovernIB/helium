@@ -118,8 +118,6 @@
 
                 <c:set var="comptadorCols">${comptadorCols + ampleBuit}</c:set>
                 
-                <!-- XXX comptadorCols = ${comptadorCols}, dada.ampleCols=${ampleCols}, buitAbsCols=${buitAbsCols} XXX -->
-
                 <c:if test="${comptadorCols > 12}">
                     <c:set var="comptadorCols">${ampleBuit}</c:set>
 
