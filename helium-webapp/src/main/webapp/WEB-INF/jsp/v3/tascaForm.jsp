@@ -113,12 +113,15 @@
         <c:set var="ampleCols">${dada.ampleCols}</c:set>
         <c:set var="buitCols">${dada.buitCols}</c:set>
         <c:set var="buitAbsCols">${buitCols < 0 ? -buitCols : buitCols}</c:set>
+        
                 <c:set var="ampleBuit">${buitAbsCols + ampleCols}</c:set>
 
                 <c:set var="comptadorCols">${comptadorCols + ampleBuit}</c:set>
+                
+                <!-- XXX comptadorCols = ${comptadorCols}, dada.ampleCols=${ampleCols}, buitAbsCols=${buitAbsCols} XXX -->
 
                 <c:if test="${comptadorCols > 12}">
-                    <c:set var="comptadorCols">${buitAbsCols}</c:set>
+                    <c:set var="comptadorCols">${ampleBuit}</c:set>
 
                     <!--tanquem row i la tornem a obrir per a la següent fila-->
                     </div>
@@ -216,7 +219,7 @@
                     <div class="col-xs-${buitAbsCols}"></div>
                 </c:if>
                 
-                <c:if test="${comptadorCols == 12}">
+                <c:if test="${comptadorCols >= 12}">
                     <c:set var="comptadorCols">0</c:set>
 
                     <!--tanquem row i la tornem a obrir per a la següent fila-->
