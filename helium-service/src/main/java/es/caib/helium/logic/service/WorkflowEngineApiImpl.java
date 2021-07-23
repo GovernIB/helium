@@ -306,7 +306,7 @@ public class WorkflowEngineApiImpl implements WorkflowEngineApi {
             return null;
 //        return new ResultatConsultaPaginada<WTaskInstance>(
 //                tasques.getTotalElements(),
-//                tasques.getContent().);
+//                tasques.getContent());
         return null;
     }
 
@@ -327,6 +327,7 @@ public class WorkflowEngineApiImpl implements WorkflowEngineApi {
             boolean nomesTasquesGrup,
             boolean nomesAmbPendents) {
 
+        // TODO: No es pot utilitzar aquest mètode
         String filtre = null; // TODO: tascaSel, idsPIExpedients
         var tasques = tascaClientService.findTasquesAmbFiltrePaginatV1(
                 EntornActual.getEntornId(),

@@ -2,6 +2,7 @@ package es.caib.helium.camunda.service;
 
 import es.caib.helium.camunda.model.Fitxer;
 import es.caib.helium.camunda.model.WDeployment;
+import es.caib.helium.camunda.model.modeler.ModelerDeploymentWithDefinitionsDto;
 
 import javax.ws.rs.core.MultivaluedMap;
 import java.util.List;
@@ -41,22 +42,22 @@ public interface DeploymentService {
             String tenantId,
             Fitxer fitxer);
 
-//    /**
-//     * Desplega un model BPMN2.0 o DMN1.1 des del Camunda Modeler
-//     *
-//     * @param deploymentName
-//     * @param enableDuplicateFiltering
-//     * @param deploymentSource
-//     * @param tenantId
-//     * @param fitxers
-//     * @return
-//     */
-//    public DeploymentWithDefinitionsDto desplegarModeler(
-//            String deploymentName,
-//            boolean enableDuplicateFiltering,
-//            String deploymentSource,
-//            String tenantId,
-//            List<Fitxer> fitxers);
+    /**
+     * Desplega un model BPMN2.0 o DMN1.1 des del Camunda Modeler
+     *
+     * @param deploymentName
+     * @param enableDuplicateFiltering
+     * @param deploymentSource
+     * @param tenantId
+     * @param fitxers
+     * @return
+     */
+    public ModelerDeploymentWithDefinitionsDto desplegarModeler(
+            String deploymentName,
+            boolean enableDuplicateFiltering,
+            String deploymentSource,
+            String tenantId,
+            List<Fitxer> fitxers);
 
     public List<WDeployment> getDesplegaments(
             MultivaluedMap<String, String> queryParams,
@@ -111,4 +112,5 @@ public interface DeploymentService {
             Map<String,
                     byte[]> handlers);
 
+    String getDeploymentStatus(String deploymentFileName);
 }

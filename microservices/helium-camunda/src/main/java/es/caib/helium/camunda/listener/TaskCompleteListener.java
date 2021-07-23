@@ -10,8 +10,8 @@ import org.camunda.bpm.extension.reactor.spring.listener.ReactorTaskListener;
 import org.springframework.stereotype.Component;
 
 @Slf4j
-@Component
-@CamundaSelector(type = ActivityTypes.TASK_USER_TASK, event = TaskListener.EVENTNAME_COMPLETE)
+//@Component
+//@CamundaSelector(type = ActivityTypes.TASK_USER_TASK, event = TaskListener.EVENTNAME_COMPLETE)
 public class TaskCompleteListener extends ReactorTaskListener {
 
     public TaskCompleteListener() {

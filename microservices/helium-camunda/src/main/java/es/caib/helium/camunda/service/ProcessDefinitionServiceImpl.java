@@ -8,10 +8,13 @@ import org.camunda.bpm.engine.HistoryService;
 import org.camunda.bpm.engine.RepositoryService;
 import org.camunda.bpm.engine.history.HistoricProcessInstance;
 import org.camunda.bpm.model.bpmn.BpmnModelInstance;
-import org.camunda.bpm.model.bpmn.instance.SubProcess;
+import org.camunda.bpm.model.bpmn.instance.CallActivity;
 import org.camunda.bpm.model.bpmn.instance.UserTask;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -29,6 +32,20 @@ public class ProcessDefinitionServiceImpl implements ProcessDefinitionService {
     // TODO: CACHE!!
 
     @Override
+    @Transactional(readOnly = true)
+    public List<? extends WProcessDefinition> getProcessDefinitions(String deploymentId) {
+        var processDefinitions = repositoryService
+                .createProcessDefinitionQuery()
+                .deploymentId(deploymentId)
+                .list();
+        if (processDefinitions == null || processDefinitions.isEmpty())
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No s'han trobat definicions de procés per al desplegament " + deploymentId);
+        return processDefinitionMapper.toWProcessDefinitions(processDefinitions);
+
+    }
+
+    @Override
+    @Transactional(readOnly = true)
     public WProcessDefinition getProcessDefinition(
             String deploymentId,
             String processDefinitionId) {
@@ -36,25 +53,37 @@ public class ProcessDefinitionServiceImpl implements ProcessDefinitionService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     @Cacheable(value = "subProcessDefinitionCache", key = "#processDefinitionId")
     public List<WProcessDefinition> getSubProcessDefinitions(String deploymentId, String processDefinitionId) {
         List<WProcessDefinition> subprocessos = new ArrayList<>();
         BpmnModelInstance modelInstance = repositoryService.getBpmnModelInstance(processDefinitionId);
-        Collection<SubProcess> subprocesses = modelInstance.getModelElementsByType(SubProcess.class);
-        if (subprocessos == null || subprocessos.isEmpty()) {
+//        var subprocesses = modelInstance.getModelElementsByType(SubProcess.class);
+        var callActivities = modelInstance.getModelElementsByType(CallActivity.class);
+
+//        if (subprocesses != null) {
+//            subprocesses.forEach(s -> subprocessos.add(
+//                    processDefinitionMapper.toWProcessDefinition(
+//                            repositoryService.createProcessDefinitionQuery()
+//                                    .processDefinitionKey(s.getId())
+//                                    .singleResult())));
+//        }
+        if (callActivities == null || callActivities.isEmpty()) {
             return null;
         }
-        for (SubProcess subprocess: subprocesses) {
-            String key = subprocess.getId();
-            subprocessos.add(processDefinitionMapper.toWProcessDefinition(
-                    repositoryService.createProcessDefinitionQuery()
-                            .processDefinitionKey(subprocess.getId())
-                            .singleResult()));
-        }
+
+        callActivities.forEach(c -> subprocessos.add(
+                processDefinitionMapper.toWProcessDefinition(
+                        repositoryService.createProcessDefinitionQuery()
+                                .processDefinitionKey(c.getCalledElement())
+                                .deploymentId(deploymentId)
+//                                .latestVersion()
+                                .singleResult())));
         return subprocessos;
     }
 
     @Override
+    @Transactional(readOnly = true)
     @Cacheable(value = "processDefinitionTasksCache", key = "#processDefinitionId")
     public List<String> getTaskNamesFromDeployedProcessDefinition(String deploymentId, String processDefinitionId) {
         List<String> tasques = new ArrayList<>();
@@ -70,6 +99,7 @@ public class ProcessDefinitionServiceImpl implements ProcessDefinitionService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public String getStartTaskName(String processDefinitionId) {
         // TODO: Agafam la primera tasca després de l'start? Pot començar amb un fork...
 
@@ -88,6 +118,7 @@ public class ProcessDefinitionServiceImpl implements ProcessDefinitionService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public WProcessDefinition findProcessDefinitionWithProcessInstanceId(String processInstanceId) {
         HistoricProcessInstance historicProcessInstance = historyService.createHistoricProcessInstanceQuery()
                 .processInstanceId(processInstanceId).singleResult();
@@ -95,7 +126,6 @@ public class ProcessDefinitionServiceImpl implements ProcessDefinitionService {
         String processDefinitionId = historicProcessInstance.getProcessDefinitionId();
         return processDefinitionMapper.toWProcessDefinition(cacheHelper.getDefinicioProces(processDefinitionId));
     }
-
 
 
 }

@@ -2,18 +2,15 @@ package es.caib.helium.camunda.listener;
 
 import lombok.extern.slf4j.Slf4j;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
-import org.camunda.bpm.engine.delegate.ExecutionListener;
 import org.camunda.bpm.extension.reactor.CamundaReactor;
-import org.camunda.bpm.extension.reactor.bus.CamundaSelector;
 import org.camunda.bpm.extension.reactor.spring.listener.ReactorExecutionListener;
-import org.springframework.stereotype.Component;
 
 import java.util.logging.Logger;
 
 @Slf4j
-@Component
-@CamundaSelector(
-        event = ExecutionListener.EVENTNAME_START)
+//@Component
+//@CamundaSelector(
+//        event = ExecutionListener.EVENTNAME_START)
 public class ExecutionCreateListener extends ReactorExecutionListener {
 
     private static Logger logger = Logger.getLogger(ExecutionCreateListener.class.getName());

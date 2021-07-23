@@ -95,6 +95,10 @@ public interface ProcessInstanceService {
             String processInstanceId,
             String signalName);
 
+    public void messageProcessInstance(
+            String processInstanceId,
+            String messageName);
+
     /**
      * Elimina una instància de procés existent
      *

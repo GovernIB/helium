@@ -1,9 +1,7 @@
 package es.caib.helium.ms;
 
-import java.util.Date;
-import java.util.List;
-
 import es.caib.helium.ms.domini.client.model.Domini;
+import es.caib.helium.ms.domini.client.model.DominiPagedList;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -12,7 +10,8 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import es.caib.helium.ms.domini.client.model.DominiPagedList;
+import java.util.Date;
+import java.util.List;
 
 /** Proves amb l'ApiClent.
  * 

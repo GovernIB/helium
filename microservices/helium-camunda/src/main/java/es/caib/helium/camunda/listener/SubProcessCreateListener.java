@@ -13,8 +13,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 @Slf4j
-@Component
-@CamundaSelector(type = ActivityTypes.SUB_PROCESS, event = TaskListener.EVENTNAME_CREATE)
+//@Component
+//@CamundaSelector(type = ActivityTypes.SUB_PROCESS, event = TaskListener.EVENTNAME_CREATE)
 public class SubProcessCreateListener extends ReactorTaskListener {
 
     private static Logger logger = Logger.getLogger(SubProcessCreateListener.class.getName());

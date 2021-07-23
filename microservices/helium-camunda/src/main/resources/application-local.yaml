@@ -2,6 +2,8 @@ server:
   port: 8082
   servlet:
     context-path: /helium-camunda
+  error:
+    include-message: always
 
 spring:
   zipkin:
@@ -16,8 +18,8 @@ spring:
   datasource:
     driver-class-name: oracle.jdbc.OracleDriver
     url: jdbc:oracle:thin:@//localhost:49161/xe
-    username: hel_camunda
-    password: hel_camunda
+    username: hel_camunda1
+    password: hel_camunda1
   # HikariCP settings
     hikari:
       minimumIdle: 5
@@ -31,7 +33,7 @@ spring:
   jpa:
     database: oracle
     database-platform: org.hibernate.dialect.Oracle12cDialect
-    show-sql: false
+    show-sql: true
     hibernate:
       ddl-auto: none
     properties:
@@ -59,9 +61,13 @@ camunda:
 #      schema-update: true
 #      schema-name: hel_camunda
 
+    eventing:
+      execution: true
+      history: true
+      task: true
 es:
   caib:
     helium:
       camunda:
         deployment:
-          path: /home/siona/Feina/Server/camunda-bpm-tomcat-7.15.0/server/apache-tomcat-9.0.43/webapps
+          path: /home/siona/Feina/Server/camunda-bpm-wildfly-7.15.0/server/wildfly-22.0.1.Final/standalone/deployments

@@ -123,6 +123,14 @@ public class ProcessInstanceController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
+    @PostMapping(value="/{processInstanceId}/message")
+    public ResponseEntity<Void> messageProcessInstance(
+            @PathVariable("processInstanceId") String processInstanceId,
+            @RequestBody String messageName) {
+        processInstanceService.messageProcessInstance(processInstanceId, messageName);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
     @DeleteMapping(value="/{processInstanceId}")
     public ResponseEntity<Void> deleteProcessInstance(
             @PathVariable("processInstanceId") String processInstanceId) {
@@ -144,7 +152,8 @@ public class ProcessInstanceController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @PutMapping(value="/{processInstanceId}/version/")
+    // TODO: Millorar --> Passar mapejos de tasques
+    @PutMapping(value="/{processInstanceId}/version")
     public ResponseEntity<Void> changeProcessInstanceVersion(
             @PathVariable("processInstanceId") String processInstanceId,
             @RequestBody Integer newVersion) {

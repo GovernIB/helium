@@ -12,8 +12,8 @@ import org.springframework.stereotype.Component;
 import java.util.logging.Logger;
 
 @Slf4j
-@Component
-@CamundaSelector(type = ActivityTypes.TASK_USER_TASK, event = TaskListener.EVENTNAME_CREATE)
+//@Component
+//@CamundaSelector(type = ActivityTypes.TASK_USER_TASK, event = TaskListener.EVENTNAME_CREATE)
 public class TaskCreateListener extends ReactorTaskListener {
 
     private static Logger logger = Logger.getLogger(TaskCreateListener.class.getName());

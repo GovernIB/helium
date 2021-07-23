@@ -816,8 +816,8 @@ public interface WorkflowEngineApi {
 	public void marcarIniciFinalitzacioSegonPla(String taskId, Date iniciFinalitzacio);
 	public void guardarErrorFinalitzacio(String taskId, String errorFinalitzacio);
 	public List<Object[]> getTasquesSegonPlaPendents();
-	// Eliminació de definicions de procés
 
+	// Eliminació de definicions de procés
 	public List<String> findDefinicionsProcesIdNoUtilitzadesByEntorn(Long entornId);
 	public List<String> findDefinicionsProcesIdNoUtilitzadesByExpedientTipusId(Long expedientTipusId);
 	public List<ExpedientDto> findExpedientsAfectatsPerDefinicionsProcesNoUtilitzada(

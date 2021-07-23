@@ -5,6 +5,7 @@ import es.caib.helium.camunda.mapper.ProcessInstanceMapper;
 import es.caib.helium.camunda.model.WProcessInstance;
 import lombok.RequiredArgsConstructor;
 import org.camunda.bpm.engine.HistoryService;
+import org.camunda.bpm.engine.RepositoryService;
 import org.camunda.bpm.engine.RuntimeService;
 import org.camunda.bpm.engine.TaskService;
 import org.camunda.bpm.engine.history.HistoricProcessInstance;
@@ -13,6 +14,7 @@ import org.camunda.bpm.engine.repository.ProcessDefinition;
 import org.camunda.bpm.engine.runtime.ProcessInstance;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
@@ -26,7 +28,7 @@ import java.util.stream.Collectors;
 public class ProcessInstanceServiceImpl implements ProcessInstanceService {
 
     private final TaskService taskService;
-//    private final RepositoryService repositoryService;
+    private final RepositoryService repositoryService;
 //    private final ManagementService managementService;
     private final HistoryService historyService;
     private final RuntimeService runtimeService;
@@ -35,6 +37,7 @@ public class ProcessInstanceServiceImpl implements ProcessInstanceService {
 
 
     @Override
+    @Transactional(readOnly = true)
     public List<WProcessInstance> findProcessInstancesWithProcessDefinitionId(String processDefinitionId) {
         List<WProcessInstance> wProcessInstances = new ArrayList<>();
 //        var processInstances = runtimeService.createProcessInstanceQuery().processDefinitionId(processDefinitionId).list();
@@ -51,11 +54,13 @@ public class ProcessInstanceServiceImpl implements ProcessInstanceService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<WProcessInstance> findProcessInstancesWithProcessDefinitionName(String processDefinitionName) {
         List<WProcessInstance> wProcessInstances = new ArrayList<>();
         var processInstances = historyService.createHistoricProcessInstanceQuery()
-                .unfinished()
+//                .unfinished()
                 .processDefinitionName(processDefinitionName)
+                .orderByProcessInstanceStartTime().desc()
                 .list();
         if (processInstances != null) {
             wProcessInstances = processInstances.stream()
@@ -66,14 +71,16 @@ public class ProcessInstanceServiceImpl implements ProcessInstanceService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<WProcessInstance> findProcessInstancesWithProcessDefinitionNameAndEntorn(
             String processDefinitionName,
             String entornId) {
         List<WProcessInstance> wProcessInstances = new ArrayList<>();
         var processInstances = historyService.createHistoricProcessInstanceQuery()
-                .unfinished()
+//                .unfinished()
                 .processDefinitionName(processDefinitionName)
                 .tenantIdIn(entornId)
+                .orderByProcessInstanceStartTime().desc()
                 .list();
         if (processInstances != null) {
             wProcessInstances = processInstances.stream()
@@ -84,48 +91,66 @@ public class ProcessInstanceServiceImpl implements ProcessInstanceService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<WProcessInstance> getProcessInstanceTree(String rootProcessInstanceId) {
         List<WProcessInstance> wProcessInstances = new ArrayList<>();
-        var processInstances = runtimeService.createProcessInstanceQuery()
-                .superProcessInstanceId(rootProcessInstanceId)
-                .list();
-        if (processInstances != null) {
-            wProcessInstances = processInstances.stream()
-                    .map(processInstanceMapper::toWProcessInstance)
-                    .collect(Collectors.toList());
-        }
+        var rootProcessInstance = historyService.createHistoricProcessInstanceQuery()
+                .processInstanceId(rootProcessInstanceId)
+                .singleResult();
+        if (rootProcessInstance == null)
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No s'ha trobat la instància de procés");
+
+        afegirProcessInstances(rootProcessInstance, wProcessInstances);
         return wProcessInstances;
     }
 
+    private void afegirProcessInstances(HistoricProcessInstance processInstance, List<WProcessInstance> llista) {
+
+        llista.add(processInstanceMapper.toWProcessInstance(processInstance));
+
+        var processInstanceFills = historyService.createHistoricProcessInstanceQuery()
+                .superProcessInstanceId(processInstance.getId())
+                .orderByProcessInstanceStartTime().desc()
+                .list();
+        if (processInstanceFills != null)
+            processInstanceFills.forEach(p -> afegirProcessInstances(p, llista));
+    }
+
     @Override
+    @Transactional(readOnly = true)
     public WProcessInstance getProcessInstance(String processInstanceId) {
-        ProcessInstance processInstance;
-//        var processInstance = historyService.createHistoricProcessInstanceQuery().processInstanceId(processInstanceId).singleResult();
+        HistoricProcessInstance processInstance = getHistoricProcessInstance(processInstanceId);
+        return processInstanceMapper.toWProcessInstance(processInstance);
+    }
+
+    private HistoricProcessInstance getHistoricProcessInstance(String processInstanceId) {
+        HistoricProcessInstance processInstance;
         try {
-            processInstance = runtimeService.createProcessInstanceQuery().processInstanceId(processInstanceId).singleResult();
+            processInstance = historyService.createHistoricProcessInstanceQuery().processInstanceId(processInstanceId).singleResult();
         } catch (Exception ex) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "No s'ha pogut obtenir la instància de procés: " + processInstanceId, ex);
         }
         if (processInstance == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Not found. Process instance: " + processInstanceId);
         }
-        return processInstanceMapper.toWProcessInstance(processInstance);
+        return processInstance;
     }
 
     @Override
+    @Transactional(readOnly = true)
     public WProcessInstance getRootProcessInstance(String processInstanceId) {
-        ProcessInstance superProcessInstance = null;
+        // Comprovam que existeixi la instància de procés
+        HistoricProcessInstance processInstance = getHistoricProcessInstance(processInstanceId);
+
+        HistoricProcessInstance superProcessInstance = null;
         do {
-            superProcessInstance = runtimeService.createProcessInstanceQuery().subProcessInstanceId(processInstanceId).singleResult();
+            superProcessInstance = historyService.createHistoricProcessInstanceQuery().subProcessInstanceId(processInstance.getId()).singleResult();
             if (superProcessInstance != null) {
-                processInstanceId = superProcessInstance.getId();
+                processInstance = superProcessInstance;
             }
         } while (superProcessInstance != null);
 
-        if (superProcessInstance == null) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Not found. Root process instance: " + processInstanceId);
-        }
-        return processInstanceMapper.toWProcessInstance(superProcessInstance);
+        return processInstanceMapper.toWProcessInstance(processInstance);
     }
 
     // Tasca utilitzada per a consulta d'expedients --> Això ha d'anar al MS d'expedients i tasques o al MS de dadesç!!
@@ -157,6 +182,7 @@ public class ProcessInstanceServiceImpl implements ProcessInstanceService {
 //    }
 
     @Override
+    @Transactional
     public WProcessInstance startProcessInstanceById(String actorId, String processDefinitionId, Map<String, Object> variables) {
         ProcessInstance processInstance = runtimeService.startProcessInstanceById(processDefinitionId, variables);
 
@@ -180,20 +206,37 @@ public class ProcessInstanceServiceImpl implements ProcessInstanceService {
     }
 
     @Override
+    @Transactional
     public void signalProcessInstance(String processInstanceId, String signalName) {
-//        final String finalSignalName = (signalName == null || signalName.isBlank()) ? "default" : signalName;
-//        var executions = runtimeService.createExecutionQuery().processInstanceId(processInstanceId).active().list();
-//        executions.stream().forEach(ex -> runtimeService.signalEventReceived(finalSignalName, ex.getId()));
-        runtimeService.signalEventReceived(signalName, processInstanceId);
+        var execution = runtimeService.createExecutionQuery()
+                .processInstanceId(processInstanceId)
+                .signalEventSubscriptionName(signalName)
+                .singleResult();
+        if (execution == null)
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No s'ha trobat cap execució subscrita al signal " + signalName);
+        runtimeService.signalEventReceived(signalName, execution.getId());
     }
 
     @Override
+    public void messageProcessInstance(String processInstanceId, String messageName) {
+        var execution = runtimeService.createExecutionQuery()
+                .processInstanceId(processInstanceId)
+                .messageEventSubscriptionName(messageName)
+                .singleResult();
+        if (execution == null)
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No s'ha trobat cap execució subscrita al missatge " + messageName);
+        runtimeService.messageEventReceived(messageName, execution.getId());
+    }
+
+    @Override
+    @Transactional
     public void deleteProcessInstance(String processInstanceId) {
         runtimeService.deleteProcessInstance(processInstanceId, "Motiu no definit");
         historyService.deleteHistoricProcessInstance(processInstanceId);
     }
 
     @Override
+    @Transactional
     public void suspendProcessInstances(String[] processInstanceIds) {
         if (processInstanceIds != null) {
             Arrays.stream(processInstanceIds).forEach(pi -> runtimeService.suspendProcessInstanceById(pi));
@@ -201,6 +244,7 @@ public class ProcessInstanceServiceImpl implements ProcessInstanceService {
     }
 
     @Override
+    @Transactional
     public void resumeProcessInstances(String[] processInstanceIds) {
         if (processInstanceIds != null) {
             Arrays.stream(processInstanceIds).forEach(pi -> runtimeService.activateProcessInstanceById(pi));
@@ -208,31 +252,44 @@ public class ProcessInstanceServiceImpl implements ProcessInstanceService {
     }
 
     @Override
+    @Transactional
     public void changeProcessInstanceVersion(String processInstanceId, int newVersion) {
 
-        HistoricProcessInstance historicProcessInstance = historyService
+        ProcessDefinition oldProcessDefinition = null;
+        ProcessDefinition newProcessDefinition = null;
+
+        var historicProcessInstance = historyService
                 .createHistoricProcessInstanceQuery()
                 .processInstanceId(processInstanceId)
                 .singleResult();
-        ProcessDefinition processDefinition = cacheHelper.getDefinicioProces(historicProcessInstance.getProcessDefinitionId());
+        oldProcessDefinition = cacheHelper.getDefinicioProces(historicProcessInstance.getProcessDefinitionId());
 
-        String processDefinitionId = processDefinition.getId();
-        int processDefinitionVersion = processDefinition.getVersion();
+        String processDefinitionId = oldProcessDefinition.getId();
+        int processDefinitionVersion = oldProcessDefinition.getVersion();
+
+        if (processDefinitionVersion != newVersion) {
+            newProcessDefinition = repositoryService.createProcessDefinitionQuery()
+                    .processDefinitionKey(oldProcessDefinition.getKey())
+                    .processDefinitionVersion(newVersion)
+                    .singleResult();
+            if (newProcessDefinition == null)
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No s'ha trobat la definició de procés amb versió " + newVersion);
 
 //        BpmnModelInstance modelInstance = repositoryService.getBpmnModelInstance(processDefinitionId);
 //        Collection<Activity> processDefinitionActivities = modelInstance.getModelElementsByType(Activity.class);
 
-        MigrationPlan migrationPlan = runtimeService
-                .createMigrationPlan(processDefinitionId + ":" + processDefinitionVersion, processDefinitionId + ":" + newVersion)
-                .mapEqualActivities()
-                // TODO: permetre passar un mapa per a mapejar activitats que han canviat de nom
+            MigrationPlan migrationPlan = runtimeService
+//                .createMigrationPlan(processDefinitionId + ":" + processDefinitionVersion, processDefinitionId + ":" + newVersion)
+                    .createMigrationPlan(oldProcessDefinition.getId(), newProcessDefinition.getId())
+                    .mapEqualActivities()
+                    // TODO: permetre passar un mapa per a mapejar activitats que han canviat de nom
 //                .mapActivities("assessCreditWorthiness", "assessCreditWorthiness")
 //                .mapActivities("validateAddress", "validatePostalAddress")
 //                .mapActivities("archiveApplication", "archiveApplication")
-                .build();
-
-        runtimeService.newMigration(migrationPlan)
-                .processInstanceIds(processInstanceId)
-                .execute();
+                    .build();
+            runtimeService.newMigration(migrationPlan)
+                    .processInstanceIds(processInstanceId)
+                    .execute();
+        }
     }
 }

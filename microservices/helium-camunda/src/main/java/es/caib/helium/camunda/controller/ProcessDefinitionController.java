@@ -26,10 +26,17 @@ public class ProcessDefinitionController {
 
     private final ProcessDefinitionService processDefinitionService;
 
+    @GetMapping
+    public ResponseEntity<List<? extends WProcessDefinition>> getProcessDefinitions(
+            @RequestParam("deploymentId") String deploymentId) {
+        return new ResponseEntity<>(
+                processDefinitionService.getProcessDefinitions(deploymentId),
+                HttpStatus.OK);
+    }
 
     @GetMapping(value="/{processDefinitionId}")
     public ResponseEntity<WProcessDefinition> getProcessDefinition(
-            @RequestParam("deploymentId") String deploymentId,
+            @RequestParam(value = "deploymentId", required = false) String deploymentId,
             @PathVariable("processDefinitionId") String processDefinitionId) {
         return new ResponseEntity<>(
                 processDefinitionService.getProcessDefinition(deploymentId, processDefinitionId),
@@ -38,7 +45,7 @@ public class ProcessDefinitionController {
 
     @GetMapping(value="/{processDefinitionId}/subProcessDefinition")
     public ResponseEntity<List<WProcessDefinition>> getSubProcessDefinitions(
-            @RequestParam("deploymentId") String deploymentId,
+            @RequestParam(value = "deploymentId", required = false) String deploymentId,
             @PathVariable("processDefinitionId") String processDefinitionId) {
 
         List<WProcessDefinition> processDefinitions = processDefinitionService.getSubProcessDefinitions(deploymentId, processDefinitionId);
@@ -60,6 +67,7 @@ public class ProcessDefinitionController {
         return new ResponseEntity<>(taskNames, HttpStatus.OK);
     }
 
+    // TODO: No feta. Ho configuram a Helium, o definim un formulari a l'start task? --> Decidir!!
     @GetMapping(value="/{processDefinitionId}/startTaskName")
     public ResponseEntity<String> getStartTaskName(
             @PathVariable("processDefinitionId") String processDefinitionId) {
@@ -76,17 +84,17 @@ public class ProcessDefinitionController {
                 HttpStatus.OK);
     }
 
+    // TODO: Mirar si podem modificar la versio a utilitzar (a BBDD?)
+    //       Camunda utilitza sempre la última versió, a no ser que es defineixi al diagrama:
+    //       <callActivity id="callSubProcess" calledElement="checkCreditProcess"
+    //              camunda:calledElementBinding="latest|deployment|version"
+    //              camunda:calledElementVersion="17">
+    //       </callActivity>
     @PutMapping
     public ResponseEntity<Void> updateSubprocessDefinition(
             @RequestParam("processDefinitionId1") String processDefinitionId1,
             @RequestParam("processDefinitionId2") String processDefinitionId2) {
 
-        // TODO: Mirar si podem modificar a la BBDD la versio a utilitzar
-        //       Camunda utilitza sempre la última versió, a no ser que es defineixi al diagrama:
-        //       <callActivity id="callSubProcess" calledElement="checkCreditProcess"
-        //              camunda:calledElementBinding="latest|deployment|version"
-        //              camunda:calledElementVersion="17">
-        //       </callActivity>
 //        WProcessDefinition pd1 = processDefinitionService.getProcessDefinition(null, processDefinitionId1);
 //        WProcessDefinition pd2 = processDefinitionService.getProcessDefinition(null, processDefinitionId2);
 //        processDefinitionService.updateSubprocessDefinition(pd1, pd2);

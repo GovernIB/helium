@@ -10,8 +10,8 @@ import org.camunda.bpm.extension.reactor.spring.listener.ReactorTaskListener;
 import org.springframework.stereotype.Component;
 
 @Slf4j
-@Component
-@CamundaSelector(type = ActivityTypes.TASK_USER_TASK, event = TaskListener.EVENTNAME_TIMEOUT)
+//@Component
+//@CamundaSelector(type = ActivityTypes.TASK_USER_TASK, event = TaskListener.EVENTNAME_TIMEOUT)
 public class TaskTimeoutListener extends ReactorTaskListener {
 
     public TaskTimeoutListener() {
