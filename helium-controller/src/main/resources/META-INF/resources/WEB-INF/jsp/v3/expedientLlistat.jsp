@@ -369,7 +369,7 @@ function refrescaEstatSegonPla() {
 </script>
 </head>
 <body>
-	<form:form action="" method="post" cssClass="well" commandName="expedientConsultaCommand">
+	<form:form action="" method="post" cssClass="well" modelAttribute="expedientConsultaCommand">
 		<div class="row">
 			<div class="col-md-2">
 				<hel:inputText name="numero" textKey="expedient.llistat.filtre.camp.numero" placeholderKey="expedient.llistat.filtre.camp.numero" inline="true"/>

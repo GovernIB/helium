@@ -29,7 +29,7 @@
 	</style>
 </head>
 <body>		
-	<form:form cssClass="form-horizontal form-tasca" action="retrocedir" method="post" commandName="tokenExpedientCommand">
+	<form:form cssClass="form-horizontal form-tasca" action="retrocedir" method="post" modelAttribute="tokenExpedientCommand">
 		<div class="inlineLabels">
 <%-- 			<input type="hidden" id="processInstanceId" name="processInstanceId" value="${processInstanceId}"/> --%>
 			<hel:inputSelect required="true" name="nodeRetrocedir" optionItems="${arrivingNodeNames}" emptyOption="true" emptyOptionTextKey="expedient.token.node.buit" textKey="expedient.token.node.retrocedir" placeholderKey="expedient.token.node.retrocedir"/>

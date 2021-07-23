@@ -3,16 +3,10 @@
  */
 package es.caib.helium.back.config;
 
-import com.opensymphony.sitemesh.webapp.SiteMeshFilter;
-import es.caib.helium.back.interceptor.AjaxInterceptor;
-import es.caib.helium.back.interceptor.EntornInterceptor;
-import es.caib.helium.back.interceptor.GlobalPropertiesInterceptor;
-import es.caib.helium.back.interceptor.IdiomaInterceptor;
-import es.caib.helium.back.interceptor.ModalInterceptor;
-import es.caib.helium.back.interceptor.NodecoInterceptor;
-import es.caib.helium.back.interceptor.PersonaInterceptor;
-import es.caib.helium.back.interceptor.VersioInterceptor;
-import lombok.RequiredArgsConstructor;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -31,12 +25,21 @@ import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
 import org.springframework.web.servlet.LocaleResolver;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-import org.springframework.web.servlet.i18n.LocaleChangeInterceptor;
 import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 
-import java.util.List;
-import java.util.Locale;
+import com.opensymphony.sitemesh.webapp.SiteMeshFilter;
+
+import es.caib.helium.back.interceptor.AjaxInterceptor;
+import es.caib.helium.back.interceptor.EntornInterceptor;
+import es.caib.helium.back.interceptor.GlobalPropertiesInterceptor;
+import es.caib.helium.back.interceptor.IdiomaInterceptor;
+import es.caib.helium.back.interceptor.ModalInterceptor;
+import es.caib.helium.back.interceptor.NodecoInterceptor;
+import es.caib.helium.back.interceptor.PersonaInterceptor;
+import es.caib.helium.back.interceptor.VersioInterceptor;
+import lombok.RequiredArgsConstructor;
 
 /**
  * Configuració de Spring web MVC.
@@ -45,15 +48,8 @@ import java.util.Locale;
  */
 @RequiredArgsConstructor
 @Configuration
-//@EnableWebMvc
-//@ComponentScan
 public class WebMvcConfig implements WebMvcConfigurer {
 	
-//	@Override 
-//	public void configureViewResolvers(ViewResolverRegistry registry) {
-//        registry.jsp("/WEB-INF/jsp/", ".jsp");
-//	}
-
 	private static final Locale DEFAULT_LOCALE = Locale.forLanguageTag("ca");
 
 	private final AjaxInterceptor ajaxInterceptor;
@@ -70,13 +66,6 @@ public class WebMvcConfig implements WebMvcConfigurer {
 		var slr = new SessionLocaleResolver();
 		slr.setDefaultLocale(DEFAULT_LOCALE);
 		return slr;
-	}
-
-	@Bean
-	public LocaleChangeInterceptor localeChangeInterceptor() {
-		var lci = new LocaleChangeInterceptor();
-		lci.setParamName("lang");
-		return lci;
 	}
 
 	/*@Bean
@@ -96,15 +85,31 @@ public class WebMvcConfig implements WebMvcConfigurer {
 		return registrationBean;
 	}
 
-//	@Override
-//	public void addInterceptors(InterceptorRegistry registry) {
-//		registry.addInterceptor(localeChangeInterceptor());
-//		registry.addInterceptor(aplicacioInterceptor);
-//		registry.addInterceptor(canviRolInterceptor);
-//		registry.addInterceptor(modalInterceptor);
-//		registry.addInterceptor(nodecoInterceptor);
-//		registry.addInterceptor(ajaxInterceptor);
-//	}
+	@Override
+	public void addInterceptors(InterceptorRegistry registry) {
+		
+		List<String> excludePatterns = new ArrayList<String>();
+		excludePatterns.add("/js/**");
+		excludePatterns.add("/css/**");
+		excludePatterns.add("/fonts/**");
+		excludePatterns.add("/img/**");
+		excludePatterns.add("/extensions/**");
+		excludePatterns.add("/webjars/**");
+		excludePatterns.add("/**/datatable/**");
+		excludePatterns.add("/**/selection/**");
+		
+		registry.addInterceptor(personaInterceptor).excludePathPatterns(excludePatterns);
+		registry.addInterceptor(entornInterceptor).excludePathPatterns(excludePatterns);
+		registry.addInterceptor(globalPropertiesInterceptor).excludePathPatterns(excludePatterns);
+		registry.addInterceptor(versioInterceptor).excludePathPatterns(excludePatterns);
+		registry.addInterceptor(nodecoInterceptor).excludePathPatterns(excludePatterns);
+		registry.addInterceptor(modalInterceptor).excludePathPatterns(excludePatterns);
+		registry.addInterceptor(ajaxInterceptor).excludePathPatterns(excludePatterns);
+		registry.addInterceptor(idiomaInterceptor).excludePathPatterns(excludePatterns);
+		registry.addInterceptor(entornInterceptor).excludePathPatterns(excludePatterns);
+		registry.addInterceptor(entornInterceptor).excludePathPatterns(excludePatterns);
+		registry.addInterceptor(entornInterceptor).excludePathPatterns(excludePatterns);
+	}
 
 	@Override
 	public void addCorsMappings(CorsRegistry registry) {

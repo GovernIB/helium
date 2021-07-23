@@ -306,7 +306,7 @@
 </style>
 </head>
 <body>
-	<form:form action="" method="post" cssClass="well formbox" commandName="tascaConsultaCommand">
+	<form:form action="" method="post" cssClass="well formbox" modelAttribute="tascaConsultaCommand">
 		<form:hidden path="filtreDesplegat"/>
 		<c:choose>
 			<c:when test="${tascaConsultaCommand.consultaTramitacioMassivaTascaId != null}">

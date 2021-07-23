@@ -88,7 +88,7 @@
 		</script>
 	</head>
 	<body>		
-		<form:form id="reassignacioTasques" name="reassignacioTasques" action="" method="post" commandName="reassignacioTasquesCommand" onsubmit="return confirmarReassignar(event)">
+		<form:form id="reassignacioTasques" name="reassignacioTasques" action="" method="post" modelAttribute="reassignacioTasquesCommand" onsubmit="return confirmarReassignar(event)">
 			 <input type="hidden" id="massiva" name="massiva" value="${massiva}">
 			<div class="control-group <c:if test='${massiva}'>hide</c:if>">
 				<div class="label-titol">

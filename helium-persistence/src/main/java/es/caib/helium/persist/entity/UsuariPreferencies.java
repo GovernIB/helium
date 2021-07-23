@@ -31,12 +31,9 @@ public class UsuariPreferencies implements Serializable, GenericEntity<String> {
 	private String idioma;
 	private Boolean cabeceraReducida;
 	private Integer listado;
-	@Size(max = 255)
 	private Long consultaId;
-	@Size(max = 255)
 	private Long expedientTipusDefecteId;	
 	private Boolean filtroTareasActivas;
-	@Size(max = 255)
 	private Long numElementosPagina;
 
 	public UsuariPreferencies() {}

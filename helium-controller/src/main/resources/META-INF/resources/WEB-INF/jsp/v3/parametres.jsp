@@ -19,7 +19,7 @@
 	<script src="<c:url value="/js/helium.modal.js"/>"></script>
 </head>
 <body>		
-	<form:form cssClass="form-horizontal" enctype="multipart/form-data" method="post" commandName="parametresCommand">
+	<form:form cssClass="form-horizontal" enctype="multipart/form-data" method="post" modelAttribute="parametresCommand">
 		<div class="inlineLabels">
         
 			<script type="text/javascript">

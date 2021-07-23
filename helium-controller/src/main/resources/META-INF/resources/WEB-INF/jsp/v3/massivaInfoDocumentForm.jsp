@@ -101,7 +101,7 @@ $(document).ready( function() {
 </script>
 </head>
 <body>
-	<form:form cssClass="form-horizontal form-tasca" action="documentMasForm" enctype="multipart/form-data" method="post" commandName="documentExpedientCommand">
+	<form:form cssClass="form-horizontal form-tasca" action="documentMasForm" enctype="multipart/form-data" method="post" modelAttribute="documentExpedientCommand">
 
 		<input id="inici" name="inici" value="${inici}" type="hidden"/>
 		<input id="correu" name="correu" value="${correu}" type="hidden"/>

@@ -19,7 +19,7 @@
 	<script src="<c:url value="/js/helium.modal.js"/>"></script>
 </head>
 <body>		
-	<form:form cssClass="form-horizontal" action="importar" enctype="multipart/form-data" method="post" commandName="importarDadesCommand" >
+	<form:form cssClass="form-horizontal" action="importar" enctype="multipart/form-data" method="post" modelAttribute="importarDadesCommand" >
 				
 		<div class="form-group">
 			<label class="control-label col-xs-4 obligatori" for="multipartFile"><spring:message code="expedient.tipus.enumeracio.valors.importar.arxiu"/></label>

@@ -87,7 +87,7 @@
 		</script>
 </head>
 <body>
-	<form:form action="reassignar" method="post" commandName="expedientTascaReassignarCommand" onsubmit="return confirmarReassignar(event)">
+	<form:form action="reassignar" method="post" modelAttribute="expedientTascaReassignarCommand" onsubmit="return confirmarReassignar(event)">
 		
 		<div class="ctrlHolder">
 			<label for="tipusExpressio"><spring:message code='expedient.eines.reassignar.tipus'/></label>

@@ -22,7 +22,7 @@
 </script>
 </head>
 <body>		
-	<form:form action="anular" method="post" commandName="expedientEinesCancelCommand" onsubmit="return confirmar(event)">
+	<form:form action="anular" method="post" modelAttribute="expedientEinesCancelCommand" onsubmit="return confirmar(event)">
 		<hel:inputTextarea required="true" name="motiu" textKey="expedient.accio.anular.camp.motiu" placeholderKey="expedient.accio.anular.camp.motiu"/>
 		<div id="modal-botons" class="well">
 			<button type="button" class="btn btn-default modal-tancar" name="submit" value="cancel"><spring:message code="comu.boto.cancelar"/></button>

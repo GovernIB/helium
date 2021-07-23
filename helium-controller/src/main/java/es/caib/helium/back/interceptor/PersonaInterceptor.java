@@ -3,15 +3,16 @@
  */
 package es.caib.helium.back.interceptor;
 
-import es.caib.helium.logic.intf.dto.PersonaDto;
-import es.caib.helium.logic.intf.service.AplicacioService;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
-import org.springframework.web.servlet.AsyncHandlerInterceptor;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+
+import org.springframework.stereotype.Component;
+import org.springframework.web.servlet.AsyncHandlerInterceptor;
+
+import es.caib.helium.logic.intf.dto.PersonaDto;
+import es.caib.helium.logic.intf.service.AplicacioService;
+import lombok.RequiredArgsConstructor;
 
 /**
  * Interceptor per guardar a la sessió les dades de la persona

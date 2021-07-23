@@ -20,7 +20,7 @@
 </script>
 </head>
 <body>
-	<form:form id="scriptCommand" name="scriptCommand" action="scriptCommand" method="post" commandName="expedientEinesScriptCommand" onsubmit="return confirmar(event)">
+	<form:form id="scriptCommand" name="scriptCommand" action="scriptCommand" method="post" modelAttribute="expedientEinesScriptCommand" onsubmit="return confirmar(event)">
 		<input type="hidden" name="id" value="${param.id}"/>
 		
 		<div class="form-group">

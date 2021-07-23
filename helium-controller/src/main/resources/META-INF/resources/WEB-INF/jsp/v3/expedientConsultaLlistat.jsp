@@ -190,7 +190,7 @@ $(document).ready(function() {
 	<!-- Alertes per expedients pendents de reindexació asíncrona o per error de reindexació -->
 	<div id="contingut-alertes-reindexacio"></div>
 	
-	<form:form method="post" action="" cssClass="well form-horizontal form-tasca" commandName="expedientConsultaCommand">
+	<form:form method="post" action="" cssClass="well form-horizontal form-tasca" modelAttribute="expedientConsultaCommand">
 		<form:hidden path="consultaId"/>
 		<div class="control-group fila_reducida">
 		

@@ -48,7 +48,7 @@ tr.clicable {
 </head>
 <body>
 
-	<form:form cssClass="form-horizontal" enctype="multipart/form-data" method="post" commandName="anotacioAcceptarCommand" style="min-height: 500px;">
+	<form:form cssClass="form-horizontal" enctype="multipart/form-data" method="post" modelAttribute="anotacioAcceptarCommand" style="min-height: 500px;">
 
 		<script type="text/javascript">
 

@@ -30,7 +30,7 @@ public interface EntornRepository extends JpaRepository<Entorn, Long> {
 	@Query(	"from Entorn e " +
 			"where " +
 			"    (:esNullFiltre = true or lower(e.nom) like lower('%'||:filtre||'%') or lower(e.codi) like lower('%'||:filtre||'%')) ")
-	Page<ExpedientTipus> findByFiltrePaginat(
+	Page<Entorn> findByFiltrePaginat(
 			@Param("esNullFiltre") boolean esNullFiltre,
 			@Param("filtre") String filtre,		
 			Pageable pageable);
