@@ -36,7 +36,7 @@ public interface ExpedientService {
 
 	Dada getDadaByCodi(Long expedientId, String codi) throws DadaException;
 
-	List<Dada> getDadesByProces(Long expedientId, String procesId) throws DadaException;
+	List<Dada> getDadesByExpedientIdAndProcesId(Long expedientId, String procesId) throws DadaException;
 
 	Dada getDadaByExpedientIdProcesAndCodi(Long expedientId, String procesId, String codi) throws DadaException;
 
@@ -58,9 +58,11 @@ public interface ExpedientService {
 
 	List<Dada> getDadesByProcesId(String procesId) throws DadaException;
 
-	boolean deleteDadaByProcesIdAndCodi(String procesId, String codi) throws DadaException;
-
 	List<Expedient> findRootProcessInstance(List<String> procesIds) throws DadaException;
 
-	Expedient findRootProcessInstance(String procesIds) throws DadaException;
+	Expedient findRootProcessInstance(String procesId) throws DadaException;
+
+	boolean createDades(String procesId, List<Dada> dada) throws DadaException;
+
+	boolean deleteDadaByProcesIdAndCodi(String procesId, String codi) throws DadaException;
 }

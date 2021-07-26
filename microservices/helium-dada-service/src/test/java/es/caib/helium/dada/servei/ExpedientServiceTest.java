@@ -420,8 +420,8 @@ public class ExpedientServiceTest {
 	@DisplayName("test_getDadesByProces")
 	public void test_getDadesByProces() throws Exception {
 
-		given(expedientService.getDadesByProces(anyLong(), any(String.class))).willReturn(dades);
-		var dadesTrobades = expedientService.getDadesByProces(unLong, unLong + "");
+		given(expedientService.getDadesByExpedientIdAndProcesId(anyLong(), any(String.class))).willReturn(dades);
+		var dadesTrobades = expedientService.getDadesByExpedientIdAndProcesId(unLong, unLong + "");
 		assertThat(dadesTrobades).isNotNull().isNotEmpty();
 		assertArrayEquals(dades.toArray(), dadesTrobades.toArray());
 	}
@@ -430,8 +430,8 @@ public class ExpedientServiceTest {
 	@DisplayName("test_getDadesByProces - Not found")
 	public void test_getDadesByProces_notFound() throws Exception {
 		
-		given(expedientService.getDadesByProces(anyLong(), any(String.class))).willReturn(new ArrayList<Dada>());
-		var dadesTrobades = expedientService.getDadesByProces(unLong, unLong + "");
+		given(expedientService.getDadesByExpedientIdAndProcesId(anyLong(), any(String.class))).willReturn(new ArrayList<Dada>());
+		var dadesTrobades = expedientService.getDadesByExpedientIdAndProcesId(unLong, unLong + "");
 		assertThat(dadesTrobades).isNotNull().isEmpty();
 	}
 

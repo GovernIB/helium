@@ -212,7 +212,7 @@ public class ExpedientController {
 			@PathVariable("expedientId") Long expedientId,
 			@PathVariable("procesId") String procesId) throws Exception {
 
-		var dades = expedientService.getDadesByProces(expedientId, procesId);
+		var dades = expedientService.getDadesByExpedientIdAndProcesId(expedientId, procesId);
 		if (!dades.isEmpty()) {
 			return new ResponseEntity<List<Dada>>(dades, HttpStatus.OK);
 		}
@@ -355,18 +355,20 @@ public class ExpedientController {
 		return new ResponseEntity<>(dades, HttpStatus.OK);
 	}
 
-//	@PostMapping(value = "/proces/{procesId}/dades", consumes = "application/json")
-//	public ResponseEntity<Void> postDadaByProcesId(
-//			@PathVariable("expedientId") Long expedientId,
-//			@PathVariable("procesId") String procesId,
-//			@Valid @RequestBody Dada dades) throws Exception {
-//
-//		if (dades.isEmpty()) {
-//			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-//		}
-//		expedientService.postDadesByExpedientIdProcesId(expedientId, procesId, dades);
-//		return new ResponseEntity<>(HttpStatus.CREATED);
-//	}
+	@PostMapping(value = "proces/{procesId}/dades", consumes = "application/json")
+	public ResponseEntity<Boolean> postDadaByProcesId(
+			@PathVariable("procesId") String procesId,
+			@Valid @RequestBody List<Dada> dades) throws Exception {
+
+		if (dades.isEmpty()) {
+			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+		}
+		var created = expedientService.createDades(procesId, dades);
+		if (created) {
+			return new ResponseEntity<Boolean>(created, HttpStatus.CREATED);
+		}
+		return new ResponseEntity<Boolean>(created, HttpStatus.CONFLICT);
+	}
 
 	@DeleteMapping(value = "proces/{procesId}/dades/{codi}", produces = "application/json")
 	public ResponseEntity<Void> deleteDadaByProcessInstanceIdAndCodi(
